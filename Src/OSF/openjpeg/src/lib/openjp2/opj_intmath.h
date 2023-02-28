@@ -40,36 +40,22 @@
    Get the minimum of two integers
    @return Returns a if a < b else b
  */
-static INLINE int32_t opj_int_min(int32_t a, int32_t b)
-{
-	return a < b ? a : b;
-}
+static INLINE int32_t opj_int_min(int32_t a, int32_t b) { return a < b ? a : b; }
 /**
    Get the minimum of two integers
    @return Returns a if a < b else b
  */
-static INLINE uint32_t opj_uint_min(uint32_t a, uint32_t b)
-{
-	return a < b ? a : b;
-}
+static INLINE uint32_t opj_uint_min(uint32_t a, uint32_t b) { return a < b ? a : b; }
 /**
    Get the maximum of two integers
    @return Returns a if a > b else b
  */
-static INLINE int32_t opj_int_max(int32_t a, int32_t b)
-{
-	return (a > b) ? a : b;
-}
-
+static INLINE int32_t opj_int_max(int32_t a, int32_t b) { return (a > b) ? a : b; }
 /**
    Get the maximum of two integers
    @return Returns a if a > b else b
  */
-static INLINE uint32_t opj_uint_max(uint32_t a, uint32_t b)
-{
-	return (a > b) ? a : b;
-}
-
+static INLINE uint32_t opj_uint_max(uint32_t a, uint32_t b) { return (a > b) ? a : b; }
 /**
    Get the saturated sum of two unsigned integers
    @return Returns saturated sum of a+b
@@ -79,15 +65,11 @@ static INLINE uint32_t opj_uint_adds(uint32_t a, uint32_t b)
 	uint64 sum = (uint64)a + (uint64)b;
 	return (uint32_t)(-(int32_t)(sum >> 32)) | (uint32_t)sum;
 }
-
 /**
    Get the saturated difference of two unsigned integers
    @return Returns saturated sum of a-b
  */
-static INLINE uint32_t opj_uint_subs(uint32_t a, uint32_t b)
-{
-	return (a >= b) ? a - b : 0;
-}
+static INLINE uint32_t opj_uint_subs(uint32_t a, uint32_t b) { return (a >= b) ? a - b : 0; }
 /**
    Clamp an integer inside an interval
    @return
@@ -116,8 +98,7 @@ static INLINE int32_t opj_int_clamp(int32_t a, int32_t min, int32_t max)
    <li>Returns min if (a < min)
    </ul>
  */
-static INLINE int64 opj_int64_clamp(int64 a, int64 min,
-    int64 max)
+static INLINE int64 opj_int64_clamp(int64 a, int64 min, int64 max)
 {
 	if(a < min) {
 		return min;
@@ -127,7 +108,6 @@ static INLINE int64 opj_int64_clamp(int64 a, int64 min,
 	}
 	return a;
 }
-
 /**
    @return Get absolute value of integer
  */
@@ -135,7 +115,6 @@ static INLINE int32_t opj_int_abs(int32_t a)
 {
 	return a < 0 ? -a : a;
 }
-
 /**
    Divide an integer and round upwards
    @return Returns a divided by b
@@ -145,7 +124,6 @@ static INLINE int32_t opj_int_ceildiv(int32_t a, int32_t b)
 	assert(b);
 	return (int32_t)(((int64)a + b - 1) / b);
 }
-
 /**
    Divide an integer and round upwards
    @return Returns a divided by b
@@ -155,7 +133,6 @@ static INLINE uint32_t  opj_uint_ceildiv(uint32_t a, uint32_t b)
 	assert(b);
 	return (uint32_t)(((uint64)a + b - 1) / b);
 }
-
 /**
    Divide an integer by a power of 2 and round upwards
    @return Returns a divided by 2^b
@@ -164,7 +141,6 @@ static INLINE int32_t opj_int_ceildivpow2(int32_t a, int32_t b)
 {
 	return (int32_t)((a + ((int64)1 << b) - 1) >> b);
 }
-
 /**
    Divide a 64bits integer by a power of 2 and round upwards
    @return Returns a divided by 2^b
@@ -173,7 +149,6 @@ static INLINE int32_t opj_int64_ceildivpow2(int64 a, int32_t b)
 {
 	return (int32_t)((a + ((int64)1 << b) - 1) >> b);
 }
-
 /**
    Divide an integer by a power of 2 and round upwards
    @return Returns a divided by 2^b
@@ -182,7 +157,6 @@ static INLINE uint32_t opj_uint_ceildivpow2(uint32_t a, uint32_t b)
 {
 	return (uint32_t)((a + ((uint64)1U << b) - 1U) >> b);
 }
-
 /**
    Divide an integer by a power of 2 and round downwards
    @return Returns a divided by 2^b
@@ -191,7 +165,6 @@ static INLINE int32_t opj_int_floordivpow2(int32_t a, int32_t b)
 {
 	return a >> b;
 }
-
 /**
    Divide an integer by a power of 2 and round downwards
    @return Returns a divided by 2^b
@@ -200,7 +173,6 @@ static INLINE uint32_t opj_uint_floordivpow2(uint32_t a, uint32_t b)
 {
 	return a >> b;
 }
-
 /**
    Get logarithm of an integer and round downwards
    @return Returns log2(a)
@@ -213,7 +185,6 @@ static INLINE int32_t opj_int_floorlog2(int32_t a)
 	}
 	return l;
 }
-
 /**
    Get logarithm of an integer and round downwards
    @return Returns log2(a)

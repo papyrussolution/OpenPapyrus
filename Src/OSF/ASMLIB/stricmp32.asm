@@ -18,7 +18,7 @@
 ; Copyright (c) 2008-2011 GNU General Public License www.gnu.org/licenses/gpl.html
 ;******************************************************************************
 
-global _A_stricmp: function                     ; Function _A_stricmp
+global _A_stricmp                     ; Function _A_stricmp
 
 SECTION .text  align=16
 

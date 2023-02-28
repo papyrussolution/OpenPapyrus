@@ -57,14 +57,15 @@ using namespace Scintilla;
 
 static bool FASTCALL endOfLine(Accessor & styler, Sci_PositionU i) { return (styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n')); }
 static bool FASTCALL isTeXzero(int ch) { return (ch == '%'); }
-static bool FASTCALL isTeXone(int ch) { return (ch == '[') || (ch == ']') || (ch == '=') || (ch == '#') || (ch == '(') || (ch == ')') || (ch == '<') || (ch == '>') || (ch == '"'); }
-static bool FASTCALL isTeXtwo(int ch) { return (ch == '{') || (ch == '}') || (ch == '$'); }
-static bool FASTCALL isTeXthree(int ch) { return (ch == '~') || (ch == '^') || (ch == '_') || (ch == '&') || (ch == '-') || (ch == '+') || (ch == '\"') || (ch == '`') || (ch == '/') || (ch == '|') || (ch == '%'); }
+static bool FASTCALL isTeXone(int ch) { return oneof9(ch, '[', ']', '=', '#', '(', ')', '<', '>', '"'); }
+static bool FASTCALL isTeXtwo(int ch) { return oneof3(ch, '{', '}', '$'); }
+static bool FASTCALL isTeXthree(int ch) { return oneof11(ch, '~', '^', '_', '&', '-', '+', '\"', '`', '/', '|', '%'); }
 static bool FASTCALL isTeXfour(int ch) { return (ch == '\\'); }
 static bool FASTCALL isTeXfive(int ch) { return ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z')) || (ch == '@') || (ch == '!') || (ch == '?'); }
 static bool FASTCALL isTeXsix(int ch) { return (ch == ' '); }
 static bool FASTCALL isTeXseven(int ch) { return (ch == '^'); }
-static bool FASTCALL isWordChar(int ch) { return ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z')); }
+//static bool FASTCALL isWordChar(int ch) { return ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z')); }
+static bool FASTCALL isWordChar(int ch) { return isasciialpha(ch); }
 // static bool FASTCALL isNumber(int ch) { return (ch == '0') || (ch == '1') || (ch == '2') || (ch == '3') || (ch == '4') || (ch == '5') || (ch == '6') || (ch == '7') || (ch == '8') || (ch == '9'); }
 
 // Interface determination

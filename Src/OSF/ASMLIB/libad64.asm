@@ -3,7 +3,7 @@
 
 default rel
 
-global DllEntry: function
+global DllEntry
 
 SECTION .text  align=16
 

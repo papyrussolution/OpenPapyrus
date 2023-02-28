@@ -394,5 +394,3 @@ U_NAMESPACE_END
 
 #endif // !UCONFIG_NO_FORMATTING
 #endif // OLSONTZ_H
-
-//eof

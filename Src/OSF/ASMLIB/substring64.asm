@@ -19,7 +19,7 @@
 ; Copyright (c) 2011 GNU General Public License www.gnu.org/licenses/gpl.html
 ;******************************************************************************
 
-global A_substring: function                      ; Function _A_substring
+global A_substring                      ; Function _A_substring
 
 extern A_strlen
 extern A_memcpy

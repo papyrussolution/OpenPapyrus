@@ -1,16 +1,10 @@
+// collationdatawriter.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2013-2015, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * collationdatawriter.cpp
- *
- * created on: 2013aug06
- * created by: Markus W. Scherer
- */
-
+// Copyright (C) 2013-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// created on: 2013aug06
+// created by: Markus W. Scherer
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -293,10 +287,8 @@ int32_t CollationDataWriter::write(bool isBase, const UVersionInfo dataVersion,
 		}
 		totalSize += length * 2;
 	}
-
 	indexes[CollationDataReader::IX_FAST_LATIN_TABLE_OFFSET] = totalSize;
 	totalSize += fastLatinTableLength * 2;
-
 	UnicodeString scripts;
 	indexes[CollationDataReader::IX_SCRIPTS_OFFSET] = totalSize;
 	if(isBase) {
@@ -305,15 +297,12 @@ int32_t CollationDataWriter::write(bool isBase, const UVersionInfo dataVersion,
 		scripts.append(reinterpret_cast<const UChar *>(data.scriptStarts), data.scriptStartsLength);
 		totalSize += scripts.length() * 2;
 	}
-
 	indexes[CollationDataReader::IX_COMPRESSIBLE_BYTES_OFFSET] = totalSize;
 	if(isBase) {
 		totalSize += 256;
 	}
-
 	indexes[CollationDataReader::IX_RESERVED18_OFFSET] = totalSize;
 	indexes[CollationDataReader::IX_TOTAL_SIZE] = totalSize;
-
 	if(totalSize > capacity) {
 		errorCode = U_BUFFER_OVERFLOW_ERROR;
 		return headerSize + totalSize;

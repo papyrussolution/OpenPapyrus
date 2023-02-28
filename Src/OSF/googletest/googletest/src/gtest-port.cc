@@ -1,5 +1,4 @@
-// Copyright 2008, Google Inc.
-// All rights reserved.
+// Copyright 2008, Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -1219,27 +1218,30 @@ std::string ReadEntireFile(FILE* file) {
 }
 
 #if GTEST_HAS_DEATH_TEST
-static const std::vector<std::string>* g_injected_test_argvs =
-    nullptr;  // Owned.
+static const std::vector<std::string>* g_injected_test_argvs = nullptr;  // Owned.
 
-std::vector<std::string> GetInjectableArgvs() {
+std::vector<std::string> GetInjectableArgvs() 
+{
 	if(g_injected_test_argvs != nullptr) {
 		return *g_injected_test_argvs;
 	}
 	return GetArgvs();
 }
 
-void SetInjectableArgvs(const std::vector<std::string>* new_argvs) {
-	if(g_injected_test_argvs != new_argvs) delete g_injected_test_argvs;
+void SetInjectableArgvs(const std::vector<std::string>* new_argvs) 
+{
+	if(g_injected_test_argvs != new_argvs) 
+		delete g_injected_test_argvs;
 	g_injected_test_argvs = new_argvs;
 }
 
-void SetInjectableArgvs(const std::vector<std::string>& new_argvs) {
-	SetInjectableArgvs(
-		new std::vector<std::string>(new_argvs.begin(), new_argvs.end()));
+void SetInjectableArgvs(const std::vector<std::string>& new_argvs) 
+{
+	SetInjectableArgvs(new std::vector<std::string>(new_argvs.begin(), new_argvs.end()));
 }
 
-void ClearInjectableArgvs() {
+void ClearInjectableArgvs() 
+{
 	delete g_injected_test_argvs;
 	g_injected_test_argvs = nullptr;
 }

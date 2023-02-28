@@ -1,0 +1,408 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\uncrustify\src\align.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_add.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_asm_colon.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_assign.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_braced_init_list.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_eigen_comma_init.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_func_params.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_func_proto.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_init_brace.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_left_shift.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_log_al.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_nl_cont.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_oc_decl_colon.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_oc_msg_colons.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_oc_msg_spec.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_preprocessor.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_same_func_call_params.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_stack.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_struct_initializers.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_tab_column.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_tools.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_trailing_comments.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_typedefs.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_var_def_brace.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\args.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\backup.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\brace_cleanup.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\braces.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\calculate_closing_brace_position.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\change_int_types.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\check_template.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\chunk.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\ChunkStack.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\combine.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\combine_fix_mark.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\combine_labels.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\combine_skip.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\combine_tools.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\compat_posix.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\compat_win32.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\cs_top_is_question.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\detect.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\enum_cleanup.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\EnumStructUnionParser.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\flag_braced_init_list.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\flag_decltype.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\flag_parens.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\indent.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\keywords.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\lang_pawn.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\language_tools.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\log_rules.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\logger.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\logmask.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\mark_question_colon.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\newlines.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\option.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\options_for_QT.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\output.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\parameter_pack_cleanup.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\parens.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\parent_for_pp.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\parsing_frame.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\parsing_frame_stack.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\pcf_flags.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\pragma_cleanup.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\punctuators.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\quick_align_again.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\remove_duplicate_include.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\remove_extra_returns.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\rewrite_infinite_loops.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\semicolons.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\sorting.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\space.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\tokenize.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\tokenize_cleanup.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\unc_ctype.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\unc_text.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\unc_tools.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\uncrustify.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\uncrustify_emscripten.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\uncrustify_types.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\unicode.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\universalindentgui.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\width.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\GENERATED\option_enum.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\GENERATED\options.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\uncrustify-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\uncrustify\src\GENERATED\option_enum.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\GENERATED\punctuator_table.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\GENERATED\token_names.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\GENERATED\uncrustify_version.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\add_space_table.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_add.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_asm_colon.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_assign.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_braced_init_list.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_eigen_comma_init.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_func_params.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_func_proto.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_init_brace.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_left_shift.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_log_al.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_nl_cont.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_oc_decl_colon.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_oc_msg_colons.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_oc_msg_spec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_preprocessor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_same_func_call_params.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_stack.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_struct_initializers.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_tab_column.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_tools.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_trailing_comments.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_typedefs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\align_var_def_brace.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\args.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\backup.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\base_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\brace_cleanup.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\braces.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\calculate_closing_brace_position.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\change_int_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\char_table.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\check_template.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\chunk.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\ChunkStack.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\combine.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\combine_fix_mark.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\combine_labels.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\combine_skip.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\combine_tools.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\compat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\cs_top_is_question.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\detect.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\enum_cleanup.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\enum_flags.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\EnumStructUnionParser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\error_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\flag_braced_init_list.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\flag_decltype.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\flag_parens.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\indent.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\keywords.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\lang_pawn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\language_tools.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\ListManager.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\log_levels.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\log_rules.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\logger.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\logmask.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\mark_question_colon.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\newlines.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\option.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\options.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\options_for_QT.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\output.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\parameter_pack_cleanup.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\parens.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\parent_for_pp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\parsing_frame.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\parsing_frame_stack.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\pcf_flags.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\pragma_cleanup.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\prototypes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\punctuators.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\quick_align_again.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\remove_duplicate_include.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\remove_extra_returns.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\rewrite_infinite_loops.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\semicolons.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\sorting.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\space.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\symbols_table.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\token_enum.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\tokenize.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\tokenize_cleanup.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\unc_ctype.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\unc_text.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\unc_tools.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\uncrustify.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\uncrustify_limits.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\uncrustify_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\unicode.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\universalindentgui.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\width.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\windows_compat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\uncrustify\src\uncrustify-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

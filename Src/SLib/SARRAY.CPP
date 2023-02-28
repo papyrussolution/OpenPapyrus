@@ -361,11 +361,11 @@ int SVectorBase::moveItem(uint pos, int dir, uint * pNewPos)
 	int    ok = 0;
 	uint   p2 = UINT_MAX;
 	if(dir == 0) {
-		if(checkirange(pos, 0, getCount()-2))
+		if(checkirange(pos, 0U, getCount()-2))
 			p2 = pos + 1;
 	}
 	else {
-		if(checkirange(pos, 1, getCount()-1))
+		if(checkirange(pos, 1U, getCount()-1))
 			p2 = pos - 1;
 	}
 	if(p2 != UINT_MAX) {

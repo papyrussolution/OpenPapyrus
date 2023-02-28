@@ -34,9 +34,7 @@ namespace absl {
 	ABSL_NAMESPACE_END
 }  // namespace absl
 
-ABSL_FLAG(std::vector <std::string>, flagfile, {},
-    "comma-separated list of files to load flags from")
-.OnUpdate([]() {
+ABSL_FLAG(std::vector <std::string>, flagfile, {}, "comma-separated list of files to load flags from").OnUpdate([]() {
 	if(absl::GetFlag(FLAGS_flagfile).empty()) return;
 
 	absl::MutexLock l(&absl::flags_internal::processing_checks_guard);
@@ -49,12 +47,9 @@ ABSL_FLAG(std::vector <std::string>, flagfile, {},
 
 	absl::flags_internal::flagfile_needs_processing = true;
 });
-ABSL_FLAG(std::vector <std::string>, fromenv, {},
-    "comma-separated list of flags to set from the environment"
-    " [use 'export FLAGS_flag1=value']")
-.OnUpdate([]() {
-	if(absl::GetFlag(FLAGS_fromenv).empty()) return;
-
+ABSL_FLAG(std::vector <std::string>, fromenv, {}, "comma-separated list of flags to set from the environment [use 'export FLAGS_flag1=value']").OnUpdate([]() {
+	if(absl::GetFlag(FLAGS_fromenv).empty()) 
+		return;
 	absl::MutexLock l(&absl::flags_internal::processing_checks_guard);
 
 	// Setting this flag twice before it is handled most likely an internal
@@ -65,21 +60,15 @@ ABSL_FLAG(std::vector <std::string>, fromenv, {},
 
 	absl::flags_internal::fromenv_needs_processing = true;
 });
-ABSL_FLAG(std::vector <std::string>, tryfromenv, {},
-    "comma-separated list of flags to try to set from the environment if "
-    "present")
-.OnUpdate([]() {
-	if(absl::GetFlag(FLAGS_tryfromenv).empty()) return;
-
+ABSL_FLAG(std::vector <std::string>, tryfromenv, {}, "comma-separated list of flags to try to set from the environment if present").OnUpdate([]() {
+	if(absl::GetFlag(FLAGS_tryfromenv).empty()) 
+		return;
 	absl::MutexLock l(&absl::flags_internal::processing_checks_guard);
-
 	// Setting this flag twice before it is handled most likely an internal
 	// error and should be reviewed by developers.
 	if(absl::flags_internal::tryfromenv_needs_processing) {
-		ABSL_INTERNAL_LOG(WARNING,
-		"tryfromenv set twice before it is handled.");
+		ABSL_INTERNAL_LOG(WARNING, "tryfromenv set twice before it is handled.");
 	}
-
 	absl::flags_internal::tryfromenv_needs_processing = true;
 });
 

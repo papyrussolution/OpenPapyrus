@@ -1,6 +1,6 @@
 // © 2018 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-
+//
 #include "unicode/utypes.h"
 
 #if !UCONFIG_NO_FORMATTING
@@ -13,27 +13,26 @@
 U_NAMESPACE_BEGIN namespace numparse {
 namespace impl {
 namespace utils {
-
-
-inline static void putLeadCodePoints(const UnicodeSet* input, UnicodeSet* output) {
-    for (int32_t i = 0; i < input->getRangeCount(); i++) {
-        output->add(input->getRangeStart(i), input->getRangeEnd(i));
-    }
-    // TODO: ANDY: How to iterate over the strings in ICU4C UnicodeSet?
+inline static void putLeadCodePoints(const UnicodeSet* input, UnicodeSet* output) 
+{
+	for(int32_t i = 0; i < input->getRangeCount(); i++) {
+		output->add(input->getRangeStart(i), input->getRangeEnd(i));
+	}
+	// TODO: ANDY: How to iterate over the strings in ICU4C UnicodeSet?
 }
 
-inline static void putLeadCodePoint(const UnicodeString & input, UnicodeSet* output) {
-    if(!input.isEmpty()) {
-        output->add(input.char32At(0));
-    }
+inline static void putLeadCodePoint(const UnicodeString & input, UnicodeSet* output) 
+{
+	if(!input.isEmpty()) {
+		output->add(input.char32At(0));
+	}
 }
 
-inline static void copyCurrencyCode(UChar * dest, const UChar * src) {
-    uprv_memcpy(dest, src, sizeof(UChar) * 3);
-    dest[3] = 0;
+inline static void copyCurrencyCode(UChar * dest, const UChar * src) 
+{
+	uprv_memcpy(dest, src, sizeof(UChar) * 3);
+	dest[3] = 0;
 }
-
-
 } // namespace utils
 } // namespace impl
 } // namespace numparse

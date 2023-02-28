@@ -1,33 +1,22 @@
+// collationsettings.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2013-2015, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * collationsettings.cpp
- *
- * created on: 2013feb07
- * created by: Markus W. Scherer
- */
+// Copyright (C) 2013-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// created on: 2013feb07
+// created by: Markus W. Scherer
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
 #if !UCONFIG_NO_COLLATION
-
 #include "collationsettings.h"
 #include "sharedobject.h"
-
 U_NAMESPACE_BEGIN
 
-CollationSettings::CollationSettings(const CollationSettings &other)
-	: SharedObject(other),
-	options(other.options), variableTop(other.variableTop),
-	reorderTable(NULL),
-	minHighNoReorder(other.minHighNoReorder),
-	reorderRanges(NULL), reorderRangesLength(0),
-	reorderCodes(NULL), reorderCodesLength(0), reorderCodesCapacity(0),
-	fastLatinOptions(other.fastLatinOptions) {
+CollationSettings::CollationSettings(const CollationSettings &other) : SharedObject(other), options(other.options), variableTop(other.variableTop),
+	reorderTable(NULL), minHighNoReorder(other.minHighNoReorder), reorderRanges(NULL), reorderRangesLength(0), reorderCodes(NULL), reorderCodesLength(0), reorderCodesCapacity(0),
+	fastLatinOptions(other.fastLatinOptions) 
+{
 	UErrorCode errorCode = U_ZERO_ERROR;
 	copyReorderingFrom(other, errorCode);
 	if(fastLatinOptions >= 0) {
@@ -35,13 +24,15 @@ CollationSettings::CollationSettings(const CollationSettings &other)
 	}
 }
 
-CollationSettings::~CollationSettings() {
+CollationSettings::~CollationSettings() 
+{
 	if(reorderCodesCapacity != 0) {
 		uprv_free(const_cast<int32_t *>(reorderCodes));
 	}
 }
 
-bool CollationSettings::operator == (const CollationSettings &other) const {
+bool CollationSettings::operator == (const CollationSettings &other) const 
+{
 	if(options != other.options) {
 		return false;
 	}
@@ -390,5 +381,4 @@ void CollationSettings::setMaxVariable(int32_t value, int32_t defaultOptions, UE
 }
 
 U_NAMESPACE_END
-
 #endif  // !UCONFIG_NO_COLLATION

@@ -1,7 +1,7 @@
 ;*************************  memset64.asm  *************************************
 ; Author:           Agner Fog
 ; Date created:     2008-07-19
-; Last modified:    2013-08-04
+; Last modified:    2016-11-12
 ; Description:
 ; Faster version of the standard memset function:
 ; void * A_memset(void * dest, int c, size_t count);
@@ -15,21 +15,26 @@
 ; extern "C" void   SetMemsetCacheLimit(); // Change limit in GetMemsetCacheLimit
 ;
 ; Optimization:
-; Uses XMM registers to set 16 bytes at a time, aligned.
+; Uses vector registers to set many bytes at a time, aligned.
 ;
 ; The latest version of this file is available at:
 ; www.agner.org/optimize/asmexamples.zip
-; Copyright (c) 2008-2013 GNU General Public License www.gnu.org/licenses
+; Copyright (c) 2008-2016 GNU General Public License www.gnu.org/licenses
 ;******************************************************************************
 
 default rel
 
-global A_memset: function              ; Function memset
-global ?OVR_memset: function           ; ?OVR removed if standard function memset overridden
-global memsetSSE2: function            ; SSE2 version
-global memsetAVX: function             ; version for CPUs with fast 256-bit store
-global GetMemsetCacheLimit: function   ; Data blocks bigger than this will be stored uncached by memset
-global SetMemsetCacheLimit: function   ; Change limit in GetMemsetCacheLimit
+global A_memset              ; Function memset
+global ?OVR_memset           ; ?OVR removed if standard function memset overridden
+global memsetSSE2            ; SSE2 version
+global memsetAVX             ; version for CPUs with fast 256-bit store
+global memsetAVX512BW        ; version for CPUs with fast 512-bit store
+global memsetAVX512F         ; version for CPUs with fast 512-bit store
+global GetMemsetCacheLimit   ; Data blocks bigger than this will be stored uncached by memset
+global SetMemsetCacheLimit   ; Change limit in GetMemsetCacheLimit
+
+; Imported from instrset64.asm
+extern InstructionSet                  ; Instruction set for CPU dispatcher
 
 ; Imported from cachesize64.asm:
 extern DataCacheSize                   ; Get size of data cache
@@ -65,13 +70,132 @@ SECTION .text  align=16
 A_memset:
 ?OVR_memset:
         jmp     [memsetDispatch]       ; CPU dispatch table
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; AVX512BW Version for processors with fast 512 bits write
+; Requires AVX512BW, BMI2
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+%IFDEF  WINDOWS
+align 8
+times 2 nop                            ; align L100
+%ELSE   ; Unix
+align 8
+times 1 nop                            ; align L100
+%ENDIF
+
+memsetAVX512BW:                        ; AVX512BW version. Use zmm register
+memsetAVX512BW@:                       ; local label
+        PROLOGM
+        imul    eax, 01010101H         ; Broadcast c into all bytes of eax
+        mov     Rdest2, Rdest          ; save dest
+        vpbroadcastd zmm16, eax        ; Broadcast further into 64 bytes
+
+        cmp     Rcount, 40H
+        jbe     L520
+        cmp     Rcount, 80H
+        jbe     L500                   ; Use simpler code if count <= 128
+
+L050:   ; Common code for memsetAVX512BW and memsetAVX512F:
+
+        ; count > 80H
+        ; store first 40H bytes
+        vmovdqu64 [Rdest], zmm16
+
+        ; find first 40H boundary
+        add     Rdest, 40H
+        and     Rdest, -40H
+
+        ; find last 40H boundary
+        lea     rax, [Rdest2 + Rcount]
+        and     rax, -40H
+        sub     Rdest, rax             ; Rdest = negative count from last 40H boundary
+        ; Check if count very big
+        cmp     Rcount, [MemsetCacheLimit]        
+        ja      L200                   ; Use non-temporal store if count > MemsetCacheLimit
+
+L100:   ; main loop, aligned
+        vmovdqa64 [rax+Rdest], zmm16
+        add     Rdest, 40H
+        jnz     L100
+
+L110:  ; remaining 0 - 3FH bytes ; @sobolev L110-->L110:
+%if 0
+        ; use masked write, only for AVX512BW       
+        lea     Rcount, [Rdest2 + Rcount2]
+        sub     Rcount, rax            ; number of remaining bytes
+        or      Rdest, -1
+        bzhi    Rdest, Rdest, Rcount
+        kmovq   k1, Rdest
+        vmovdqu8 [rax]{k1}, zmm16
+%else
+        ; overlap previous write
+        vmovdqu64 [Rdest2 + Rcount2 - 40H], zmm16
+%endif
+
+        mov     rax, Rdest2            ; return dest
+        ; vzeroupper not needed when using zmm16-31
+        ret
+
+align 16
+L200:   ; loop with non-temporal stores
+        vmovntdq [rax+Rdest], zmm16
+        add     Rdest, 40H
+        jnz     L200
+        sfence
+        jmp     L110
+
+align 16 ; short versions, memsetAVX512BW only:
+
+L500:   ; count = 41H - 80H
+        vmovdqu64 [Rdest], zmm16
+        add     Rdest, 40H
+        sub     Rcount, 40H
+
+L520:   ; count = 00H - 40H
+        or      rax, -1                ; generate masks
+        bzhi    rax, rax, Rcount
+        kmovq   k1, rax
+        vmovdqu8 [Rdest]{k1}, zmm16
+        mov     rax, Rdest2            ; return dest
+        ; vzeroupper not needed when using zmm16-31
+        ret
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; AVX512F Version for processors with fast 512 bits write
+; Requires AVX512F
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+align 16
+
+memsetAVX512F:                        ; AVX512BW version. Use zmm register
+memsetAVX512F@:                       ; local label
+        PROLOGM
+        imul    eax, 01010101H         ; Broadcast c into all bytes of eax
+        mov     Rdest2, Rdest          ; save dest
+        cmp     Rcount, 80H
+        jbe     B010                   ; Use memsetAVX code if count <= 128
+        vpbroadcastd zmm16, eax        ; Broadcast further into 64 bytes
+        jmp     L050                   ; Use preceding code
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; AVX Version for processors with fast 256 bits write
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         
 memsetAVX:  ; AVX version. Use ymm register
 memsetAVX@: ; local label
         PROLOGM
         imul    eax, 01010101H         ; Broadcast c into all bytes of eax
         mov     Rdest2, Rdest          ; save dest
-        cmp     Rcount, 16
+B010:   cmp     Rcount, 16
         ja      B100
 B050:   lea     r10, [MemsetJTab]      ; SSE2 version comes in here
         jmp     qword [r10+Rcount*8]   ; jump table for small counts
@@ -180,6 +304,7 @@ K400:   ; Loop through 32-bytes blocks. Register use is swapped
         vmovntps [Rcount+Rdest], ymm0
         add     Rdest, 20H
         jnz     K400
+        sfence
         vzeroupper
         
 K500:   ; the last part from Rcount to rax is < 32 bytes. write last 32 bytes with overlap
@@ -194,6 +319,11 @@ K600:   ; 16 < count <= 32
         mov     rax, Rdest2            ; return dest
         ret
         
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+;   SSE2 Version
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 memsetSSE2:  ; count > 16. Use SSE2 instruction set
 memsetSSE2@: ; local label
@@ -274,6 +404,7 @@ M600:   ; Loop through regular part
         movntdq [Rcount+Rdest], xmm0
         add     Rdest, 10H
         jnz     M600
+        sfence
         
 M700:   ; Do the last irregular part
         ; The size of this part is 1 - 16 bytes.
@@ -285,6 +416,11 @@ M700:   ; Do the last irregular part
         movq    qword [rax+Rcount2-8], xmm0
         ret
         
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; CPU dispatching for memset. This is executed only once
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         
 memsetCPUDispatch:    ; CPU dispatcher, check for instruction sets and which method is fastest        
         ; This part is executed only once
@@ -301,8 +437,15 @@ memsetCPUDispatch:    ; CPU dispatcher, check for instruction sets and which met
         test    eax, eax
         jz      Q100
         lea     rbx, [memsetAVX@]
-Q100:
-        ; Insert appropriate pointer
+        call    InstructionSet
+        cmp     eax, 15
+        jb      Q100
+        lea     rbx, [memsetAVX512F@]
+        cmp     eax, 16
+        jb      Q100
+        lea     rbx, [memsetAVX512BW@]
+
+Q100:   ; Insert appropriate pointer
         mov     [memsetDispatch], rbx
         mov     rax, rbx
         pop     r8

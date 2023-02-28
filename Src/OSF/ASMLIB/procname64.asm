@@ -14,7 +14,7 @@
 
 default rel
 
-global  ProcessorName: function
+global  ProcessorName
 
 SECTION .data
 align 16

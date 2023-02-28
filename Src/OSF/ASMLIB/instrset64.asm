@@ -1,7 +1,7 @@
 ;*************************  instrset64.asm  **********************************
 ; Author:           Agner Fog
 ; Date created:     2003-12-12
-; Last modified:    2014-07-30
+; Last modified:    2018-04-24
 ; Source URL:       www.agner.org/optimize
 ; Project:          asmlib.zip
 ; Language:         assembly, NASM/YASM syntax, 64 bit
@@ -22,7 +22,7 @@
 ; further discussion of this method, see my manual "Optimizing subroutines
 ; in assembly language" (www.agner.org/optimize/).
 ; 
-; Copyright (c) 2003-2014 GNU General Public License www.gnu.org/licenses
+; Copyright (c) 2003-2018 GNU General Public License www.gnu.org/licenses
 ;******************************************************************************
 ;
 ; ********** InstructionSet function **********
@@ -44,13 +44,14 @@
 ; 12 or above = PCLMUL and AES supported
 ; 13 or above = AVX2 supported
 ; 14 or above = FMA3, F16C, BMI1, BMI2, LZCNT
-; 15 or above = AVX512f supported
+; 15 or above = AVX512F supported
+; 16 or above = AVX512BW, AVX512DQ, AVX512VL supported
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 default rel
 
-global InstructionSet: function
+global InstructionSet
 global IInstrSet
 
 
@@ -110,7 +111,7 @@ FirstTime:
         push    rcx
         push    rdx
         xor     ecx, ecx
-        db      0FH, 01H, 0D0H         ; XGETBV
+        xgetbv                         ; db 0FH, 01H, 0D0H         ; XGETBV
         and     eax, 6
         cmp     eax, 6                 ; AVX support by OS
         pop     rdx
@@ -163,7 +164,26 @@ FirstTime:
 
         bt      ebx, 16                ; AVX512f
         jnc     ISEND
+        push    rax
+        push    rcx
+        push    rdx
+        xor     ecx, ecx
+        xgetbv  
+        and     al, 0xE0
+        cmp     al, 0xE0               ; AVX512 support by OS
+        pop     rdx
+        pop     rcx
+        pop     rax
+        jne     ISEND
         inc     eax                    ; 15
+
+        bt      ebx, 17                ; AVX512DQ
+        jnc     ISEND
+        bt      ebx, 30                ; AVX512BW
+        jnc     ISEND
+        bt      ebx, 31                ; AVX512VL
+        jnc     ISEND
+        inc     eax                    ; 16
        
 ISEND:  mov     [IInstrSet@], eax      ; save value in global variable
 

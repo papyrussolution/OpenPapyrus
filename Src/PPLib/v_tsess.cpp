@@ -8,16 +8,27 @@
 //
 // @ModuleDef(PPViewTSession)
 //
-IMPLEMENT_PPFILT_FACTORY(TSession); TSessionFilt::TSessionFilt() : PPBaseFilt(PPFILT_TSESSION, 0, 0)
+void TSessionFilt::Helper_Init()
 {
 	SetFlatChunk(offsetof(TSessionFilt, ReserveStart),
 		offsetof(TSessionFilt, Reserve)-offsetof(TSessionFilt, ReserveStart)+sizeof(Reserve));
 	Init(1, 0);
 }
 
-TSessionFilt & FASTCALL TSessionFilt::operator = (const TSessionFilt & s)
+IMPLEMENT_PPFILT_FACTORY(TSession); TSessionFilt::TSessionFilt() : PPBaseFilt(PPFILT_TSESSION, 0, 0)
 {
-	Copy(&s, 1);
+	Helper_Init();
+}
+
+TSessionFilt::TSessionFilt(const TSessionFilt & rS) : PPBaseFilt(PPFILT_TSESSION, 0, 0)
+{
+	Helper_Init();
+	Copy(&rS, 1);
+}
+
+TSessionFilt & FASTCALL TSessionFilt::operator = (const TSessionFilt & rS)
+{
+	Copy(&rS, 1);
 	return *this;
 }
 

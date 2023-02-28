@@ -2515,7 +2515,7 @@ int FileFormatRegBase::IdentifyBuffer(const void * pBuf, size_t bufLen, int * pF
 								SETMAX(total_len, local_len);
 							}
 						}
-						if(checkirange(total_len, 1, 512)) {
+						if(checkirange(total_len, static_cast<size_t>(1), static_cast<size_t>(512))) {
 							const size_t len = total_len;
 							const size_t actual_size = MIN(bufLen, len);
 							//THROW(sign_buf.Alloc(len));
@@ -2685,7 +2685,7 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 									SETMAX(total_len, local_len);
 								}
 							}
-							if(checkirange(total_len, 1, 512)) {
+							if(checkirange(total_len, static_cast<size_t>(1), static_cast<size_t>(512))) {
 								const size_t len = total_len;
 								size_t actual_size = 0;
 								THROW(sign_buf.Alloc(len));

@@ -478,8 +478,7 @@ public:
 	 * Note: In this case, "vernal" refers to the northern hemisphere's seasons.
 	 * @internal
 	 */
-//  static double VERNAL_EQUINOX();
-
+	//static double VERNAL_EQUINOX();
 	/**
 	 * Constant representing the summer solstice.
 	 * For use with {@link #getSunTime getSunTime}.
@@ -487,15 +486,13 @@ public:
 	 * @internal
 	 */
 	static double SUMMER_SOLSTICE();
-
 	/**
 	 * Constant representing the autumnal equinox.
 	 * For use with {@link #getSunTime getSunTime}.
 	 * Note: In this case, "autumn" refers to the northern hemisphere's seasons.
 	 * @internal
 	 */
-//  static double AUTUMN_EQUINOX();
-
+	//static double AUTUMN_EQUINOX();
 	/**
 	 * Constant representing the winter solstice.
 	 * For use with {@link #getSunTime getSunTime}.
@@ -503,14 +500,12 @@ public:
 	 * @internal
 	 */
 	static double WINTER_SOLSTICE();
-
 	/**
 	 * Find the next time at which the sun's ecliptic longitude will have
 	 * the desired value.
 	 * @internal
 	 */
 	UDate getSunTime(double desired, bool next);
-
 	/**
 	 * Returns the time (GMT) of sunrise or sunset on the local date to which
 	 * this calendar is currently set.
@@ -575,35 +570,30 @@ public:
 
 		double value;
 	};
-
 	/**
 	 * Constant representing a new moon.
 	 * For use with {@link #getMoonTime getMoonTime}
 	 * @internal
 	 */
 	static const MoonAge NEW_MOON();
-
 	/**
 	 * Constant representing the moon's first quarter.
 	 * For use with {@link #getMoonTime getMoonTime}
 	 * @internal
 	 */
-//  static const MoonAge FIRST_QUARTER();
-
+	//static const MoonAge FIRST_QUARTER();
 	/**
 	 * Constant representing a full moon.
 	 * For use with {@link #getMoonTime getMoonTime}
 	 * @internal
 	 */
 	static const MoonAge FULL_MOON();
-
 	/**
 	 * Constant representing the moon's last quarter.
 	 * For use with {@link #getMoonTime getMoonTime}
 	 * @internal
 	 */
-//  static const MoonAge LAST_QUARTER();
-
+	//static const MoonAge LAST_QUARTER();
 	/**
 	 * Find the next or previous time at which the Moon's ecliptic
 	 * longitude will have the desired value.

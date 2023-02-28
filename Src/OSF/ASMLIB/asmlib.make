@@ -1,30 +1,35 @@
-#                       ASMLIB.MAKE                        2013-09-11 Agner Fog
+#                       ASMLIB.MAKE                        2016-11-09 Agner Fog
 
-# Makefile for ASMLIB function library, YASM version 
+# Makefile for ASMLIB function library, NASM version 
 # See asmlib-instructions.doc for a description
 
 # The following tools are required for building this library package:
 # Microsoft nmake or other make utility
 # Microsoft link
-# YASM assembler yasm.exe
-# (Works with NASM assembler as well, except for position-independent versions)
+# NASM assembler nasm.exe
 # Object file converter objconv.exe (www.agner.org/optimize)
 # Winzip command line version (www.winzip.com) or other zip utility
 
+# Note: position-independent versions removed because they only work with the YASM
+# assembler which unfortunately is no longer maintained
+
+# modify as necessary:
 libpath64="C:\Program Files\Microsoft Visual Studio 9.0\VC\lib\amd64"
 
 # Main target is zip file
 # Using wzzip, which is the command line version of Winzip (www.winzip.com)
 asmlib.zip: lib/libacof32.lib lib/libacof32o.lib lib/libacof64.lib lib/libacof64o.lib \
 lib/libaomf32.lib lib/libaomf32o.lib \
-lib/libaelf32.a lib/libaelf32o.a lib/libaelf32p.a lib/libaelf32op.a \
+lib/libaelf32.a lib/libaelf32o.a \
 lib/libaelf64.a lib/libaelf64o.a \
-lib/libamac32.a lib/libamac32o.a lib/libamac32p.a lib/libamac32op.a \
+lib/libamac32.a lib/libamac32o.a \
 lib/libamac64.a lib/libamac64o.a \
 lib/libad32.dll lib/libad32.lib lib/libad64.dll lib/libad64.lib \
 asmlib.h asmlibran.h asmlib-instructions.pdf license.txt \
-asmlibSrc.zip inteldispatchpatch.zip
+asmlibSrc.zip inteldispatchpatch.zip 
   wzzip $@ $?
+  
+# Remvoved: lib/libaelf32p.a lib/libaelf32op.a lib/libamac32p.a lib/libamac32op.a   
   
 # Make zip archive of source code  
 asmlibSrc.zip: makeasmlib.bat asmlib.make \
@@ -55,9 +60,10 @@ testalib.cpp testrandom.cpp testmem.cpp
   wzzip $@ $?
   
 # Make zip archive of inteldispatchpatch
-inteldispatchpatch.zip: dispatchpatch.txt \
-obj2/dispatchpatch32.obj obj2/dispatchpatch32.o obj2/dispatchpatch32.mac.o \
-obj2/dispatchpatch64.obj obj2/dispatchpatch64.o obj2/dispatchpatch64.mac.o
+inteldispatchpatch.zip: patch/dispatchpatch.txt \
+patch/dispatchpatch32.obj patch/dispatchpatch32.o patch/dispatchpatch32.mac.o \
+patch/dispatchpatch64.obj patch/dispatchpatch64.o patch/dispatchpatch64.mac.o \
+patch/intel_cpu_feature_patch.c patch/intel_mkl_feature_patch.c
   wzzip $@ $?
 
 
@@ -93,7 +99,7 @@ obj/cputype32.o32 obj/debugbreak32.o32 obj/unalignedisfaster32.o32 \
 obj/cachesize32.o32
   objconv -felf32 -nu -wex -lib $@ $?
 
-# 32 bit ELF library, position independent
+# 32 bit ELF library, position independent (not included)
 lib/libaelf32p.a: obj/instrset32.o32pic obj/procname32.o32pic \
 obj/cpuid32.o32pic obj/rdtsc32.o32pic obj/round32.o32pic \
 obj/memcpy32.o32pic obj/memmove32.o32pic obj/memset32.o32pic obj/memcmp32.o32pic \
@@ -205,23 +211,23 @@ lib/libad64.dll: lib/libacof64.lib obj/libad64.obj64 asm/libad64.def
   
 # Object files for inteldispatchpatch.zip:
 
-obj2/dispatchpatch32.obj: obj/dispatchpatch32.obj32
-  copy obj\dispatchpatch32.obj32 obj2\dispatchpatch32.obj
+patch/dispatchpatch32.obj: obj/dispatchpatch32.obj32
+  copy obj\dispatchpatch32.obj32 patch\dispatchpatch32.obj
 # Note: copy must have '\', not '/'
   
-obj2/dispatchpatch32.o: obj/dispatchpatch32.o32pic
-  copy obj\dispatchpatch32.o32pic obj2\dispatchpatch32.o
+patch/dispatchpatch32.o: obj/dispatchpatch32.o32pic
+  copy obj\dispatchpatch32.o32pic patch\dispatchpatch32.o
   
-obj2/dispatchpatch32.mac.o: obj/dispatchpatch32.o32pic  
+patch/dispatchpatch32.mac.o: obj/dispatchpatch32.o32pic  
   objconv -fmac32 -nu -wex -wd1050 $** $@  
 
-obj2/dispatchpatch64.obj: obj/dispatchpatch64.obj64
-  copy obj\dispatchpatch64.obj64 obj2\dispatchpatch64.obj
+patch/dispatchpatch64.obj: obj/dispatchpatch64.obj64
+  copy obj\dispatchpatch64.obj64 patch\dispatchpatch64.obj
   
-obj2/dispatchpatch64.o: obj/dispatchpatch64.o64
-  copy obj\dispatchpatch64.o64 obj2\dispatchpatch64.o
+patch/dispatchpatch64.o: obj/dispatchpatch64.o64
+  copy obj\dispatchpatch64.o64 patch\dispatchpatch64.o
   
-obj2/dispatchpatch64.mac.o: obj/dispatchpatch64.o64
+patch/dispatchpatch64.mac.o: obj/dispatchpatch64.o64
   objconv -fmac64 -nu -wex $** $@  
 
 
@@ -229,12 +235,12 @@ obj2/dispatchpatch64.mac.o: obj/dispatchpatch64.o64
 
 # Generic rule for assembling 32-bit code for Windows (position dependent)
 {asm\}.asm{obj\}.obj32:
-  yasm -fwin32 -DWINDOWS -Worphan-labels -Werror -o $*.obj32 $<
+  nasm -fwin32 -DWINDOWS -Worphan-labels -Werror -o $*.obj32 $<
 # ML /c /Cx /W3 /coff /Fl /Fo$*.obj32
 
 # Generic rule for assembling 32-bit for Unix, position-dependent
 {asm\}.asm{obj\}.o32:
-  yasm -felf32 -DUNIX -Worphan-labels -Werror -o $*.o32 $<
+  nasm -felf32 -DUNIX -Worphan-labels -Werror -o $*.o32 $<
   objconv -felf32 -nu- -wd2005 $*.o32 $*.o32
   
 # Generic rule for assembling 32-bit for Unix, position-independent
@@ -242,10 +248,13 @@ obj2/dispatchpatch64.mac.o: obj/dispatchpatch64.o64
   yasm -felf32 -DUNIX -DPOSITIONINDEPENDENT -Worphan-labels -Werror -o $*.o32pic $<
   objconv -felf32 -nu- -wd2005 $*.o32pic $*.o32pic
   
+# Note: re-insert -Werror when nasm bug fixed
+# nasm -fwin64 -DWINDOWS -Worphan-labels -Werror -o $*.obj64 $<
+
 # Generic rule for assembling 64-bit code for Windows
 {asm\}.asm{obj\}.obj64:
-  yasm -fwin64 -DWINDOWS -Worphan-labels -Werror -o $*.obj64 $<
+  nasm -fwin64 -DWINDOWS -Worphan-labels -o $*.obj64 $<
 
 # Generic rule for assembling 64-bit code for Linux, BSD, Mac
 {asm\}.asm{obj\}.o64:
-  yasm -felf64 -DUNIX -Worphan-labels -Werror -o $*.o64 $<
+  nasm -felf64 -DUNIX -Worphan-labels -o $*.o64 $<

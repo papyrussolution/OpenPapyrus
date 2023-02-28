@@ -93,6 +93,11 @@
 #ifndef ABSL_CONTAINER_INTERNAL_RAW_HASH_SET_H_
 #define ABSL_CONTAINER_INTERNAL_RAW_HASH_SET_H_
 
+#include "absl/container/internal/common.h" // @sobolev
+#include "absl/container/internal/hashtable_debug_hooks.h" // @sobolev
+#include "absl/container/internal/hash_policy_traits.h" // @sobolev
+#include "absl/container/internal/hashtablez_sampler.h" // @sobolev
+
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace container_internal {
@@ -2007,11 +2012,11 @@ private:
 #endif  // __GNUC__
 	}
 
-	HashtablezInfoHandle& infoz() {
+	HashtablezInfoHandle & infoz() {
 		return settings_.template get<1>();
 	}
 
-	hasher& hash_ref() {
+	hasher & hash_ref() {
 		return settings_.template get<2>();
 	}
 

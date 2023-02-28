@@ -884,14 +884,11 @@ void GenerateMessageToPool(const std::string& name_prefix,
 		"class_name", class_name);
 
 	Indent(printer);
-
 	for(int i = 0; i < message->field_count(); i++) {
 		const FieldDescriptor* field = message->field(i);
 		if(field->is_map()) {
-			const FieldDescriptor* key =
-			    field->message_type()->FindFieldByName("key");
-			const FieldDescriptor* val =
-			    field->message_type()->FindFieldByName("value");
+			const FieldDescriptor* key = field->message_type()->FindFieldByName("key");
+			const FieldDescriptor* val = field->message_type()->FindFieldByName("value");
 			printer->Print(
 				"->map('^field^', \\Google\\Protobuf\\Internal\\GPBType::^key^, "
 				"\\Google\\Protobuf\\Internal\\GPBType::^value^, ^number^^other^)\n",

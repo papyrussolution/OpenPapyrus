@@ -1,27 +1,16 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-******************************************************************************
-*
-*   Copyright (C) 1999-2011, International Business Machines
-*   Corporation and others.  All Rights Reserved.
-*
-******************************************************************************/
-
-/*----------------------------------------------------------------------------------
- *
- *       Memory mapped file wrappers for use by the ICU Data Implementation
- *
- *           Porting note:  The implementation of these functions is very platform specific.
- *             Not all platforms can do real memory mapping.  Those that can't
- *             still must implement these functions, getting the data into memory using
- *             whatever means are available.
- *
- *            These functions are part of the ICU internal implementation, and
- *            are not intended to be used directly by applications.
- *
- *----------------------------------------------------------------------------------*/
-
+// Copyright (C) 1999-2011, International Business Machines Corporation and others.  All Rights Reserved.
+// 
+// Memory mapped file wrappers for use by the ICU Data Implementation
+// Porting note:  The implementation of these functions is very platform specific.
+//   Not all platforms can do real memory mapping.  Those that can't
+//   still must implement these functions, getting the data into memory using
+//   whatever means are available.
+// 
+// These functions are part of the ICU internal implementation, and
+// are not intended to be used directly by applications.
+// 
 #ifndef __UMAPFILE_H__
 #define __UMAPFILE_H__
 

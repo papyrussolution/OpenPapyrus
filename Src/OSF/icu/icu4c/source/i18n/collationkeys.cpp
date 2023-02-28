@@ -1,23 +1,21 @@
 // collationkeys.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (C) 2012-2015, International Business Machines Corporation and others.  All Rights Reserved.
- * created on: 2012sep02
- * created by: Markus W. Scherer
- */
+// Copyright (C) 2012-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// created on: 2012sep02
+// created by: Markus W. Scherer
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
 #if !UCONFIG_NO_COLLATION
-
 #include "collationiterator.h"
 #include "collationkeys.h"
 #include "collationsettings.h"
-
 U_NAMESPACE_BEGIN
 
-SortKeyByteSink::~SortKeyByteSink() {
+SortKeyByteSink::~SortKeyByteSink() 
+{
 }
 
 void SortKeyByteSink::Append(const char * bytes, int32_t n) {
@@ -85,60 +83,41 @@ namespace {
  */
 class SortKeyLevel : public UMemory {
 public:
-	SortKeyLevel() : len(0), ok(TRUE) {
+	SortKeyLevel() : len(0), ok(TRUE) 
+	{
 	}
-
-	~SortKeyLevel() {
+	~SortKeyLevel() 
+	{
 	}
-
 	/** @return FALSE if memory allocation failed */
-	bool isOk() const {
-		return ok;
-	}
-
-	bool isEmpty() const {
-		return len == 0;
-	}
-
-	int32_t length() const {
-		return len;
-	}
-
-	const uint8 * data() const {
-		return buffer.getAlias();
-	}
-
-	uint8 operator[](int32_t index) const {
-		return buffer[index];
-	}
-
-	uint8 * data() {
-		return buffer.getAlias();
-	}
-
+	bool isOk() const { return ok; }
+	bool isEmpty() const { return len == 0; }
+	int32_t length() const { return len; }
+	const uint8 * data() const { return buffer.getAlias(); }
+	uint8 operator[](int32_t index) const { return buffer[index]; }
+	uint8 * data() { return buffer.getAlias(); }
 	void appendByte(uint32_t b);
 	void appendWeight16(uint32_t w);
 	void appendWeight32(uint32_t w);
 	void appendReverseWeight16(uint32_t w);
-
 	/** Appends all but the last byte to the sink. The last byte should be the 01 terminator. */
-	void appendTo(ByteSink &sink) const {
+	void appendTo(ByteSink &sink) const 
+	{
 		U_ASSERT(len > 0 && buffer[len - 1] == 1);
 		sink.Append(reinterpret_cast<const char *>(buffer.getAlias()), len - 1);
 	}
-
 private:
 	MaybeStackArray<uint8, 40> buffer;
 	int32_t len;
 	bool ok;
 
 	bool ensureCapacity(int32_t appendCapacity);
-
 	SortKeyLevel(const SortKeyLevel &other); // forbid copying of this class
 	SortKeyLevel & operator = (const SortKeyLevel &other); // forbid copying of this class
 };
 
-void SortKeyLevel::appendByte(uint32_t b) {
+void SortKeyLevel::appendByte(uint32_t b) 
+{
 	if(len < buffer.getCapacity() || ensureCapacity(1)) {
 		buffer[len++] = (uint8)b;
 	}

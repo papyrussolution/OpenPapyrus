@@ -1,25 +1,18 @@
+// collationfastlatinbuilder.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2013-2015, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * collationfastlatinbuilder.cpp
- *
- * created on: 2013aug09
- * created by: Markus W. Scherer
- */
+// Copyright (C) 2013-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// created on: 2013aug09
+// created by: Markus W. Scherer
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
 #define DEBUG_COLLATION_FAST_LATIN_BUILDER 0  // 0 or 1 or 2
 
 #if !UCONFIG_NO_COLLATION
-
 #include "collationfastlatin.h"
 #include "collationfastlatinbuilder.h"
-
 U_NAMESPACE_BEGIN
 
 struct CollationData;
@@ -28,7 +21,8 @@ namespace {
 /**
  * Compare two signed int64_t values as if they were unsigned.
  */
-int32_t compareInt64AsUnsigned(int64_t a, int64_t b) {
+int32_t compareInt64AsUnsigned(int64_t a, int64_t b) 
+{
 	if((uint64_t)a < (uint64_t)b) {
 		return -1;
 	}
@@ -47,7 +41,8 @@ int32_t compareInt64AsUnsigned(int64_t a, int64_t b) {
  * @return the index>=0 where the item was found,
  *         or the index<0 for inserting the string at ~index in sorted order
  */
-int32_t binarySearch(const int64_t list[], int32_t limit, int64_t ce) {
+int32_t binarySearch(const int64_t list[], int32_t limit, int64_t ce) 
+{
 	if(limit == 0) {
 		return ~0;
 	}
@@ -74,20 +69,19 @@ int32_t binarySearch(const int64_t list[], int32_t limit, int64_t ce) {
 }
 }  // namespace
 
-CollationFastLatinBuilder::CollationFastLatinBuilder(UErrorCode & errorCode)
-	: ce0(0), ce1(0),
-	contractionCEs(errorCode), uniqueCEs(errorCode),
-	miniCEs(NULL),
-	firstDigitPrimary(0), firstLatinPrimary(0), lastLatinPrimary(0),
-	firstShortPrimary(0), shortPrimaryOverflow(FALSE),
-	headerLength(0) {
+CollationFastLatinBuilder::CollationFastLatinBuilder(UErrorCode & errorCode) : ce0(0), ce1(0), contractionCEs(errorCode), uniqueCEs(errorCode),
+	miniCEs(NULL), firstDigitPrimary(0), firstLatinPrimary(0), lastLatinPrimary(0), firstShortPrimary(0), shortPrimaryOverflow(FALSE),
+	headerLength(0) 
+{
 }
 
-CollationFastLatinBuilder::~CollationFastLatinBuilder() {
+CollationFastLatinBuilder::~CollationFastLatinBuilder() 
+{
 	uprv_free(miniCEs);
 }
 
-bool CollationFastLatinBuilder::forData(const CollationData & data, UErrorCode & errorCode) {
+bool CollationFastLatinBuilder::forData(const CollationData & data, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return FALSE;
 	}
@@ -98,7 +92,6 @@ bool CollationFastLatinBuilder::forData(const CollationData & data, UErrorCode &
 	if(!loadGroups(data, errorCode)) {
 		return FALSE;
 	}
-
 	// Fast handling of digits.
 	firstShortPrimary = firstDigitPrimary;
 	getCEs(data, errorCode);

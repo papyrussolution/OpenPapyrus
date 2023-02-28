@@ -31,14 +31,14 @@ default rel
 
 %define ALLOW_OVERRIDE 0               ; Set to one if override of standard function desired
 
-global A_strspn: function
-global A_strcspn: function
+global A_strspn
+global A_strcspn
 
 ; Direct entries to CPU-specific versions
-global strspnGeneric: function
-global strcspnGeneric: function
-global strspnSSE42: function
-global strcspnSSE42: function
+global strspnGeneric
+global strcspnGeneric
+global strspnSSE42
+global strcspnSSE42
 
 ; Imported from instrset64.asm:
 extern InstructionSet                 ; Instruction set for CPU dispatcher
@@ -50,7 +50,7 @@ section .text
 ;******************************************************************************
 
 %if ALLOW_OVERRIDE
-global ?OVR_strspn: function
+global ?OVR_strspn
 ?OVR_strspn:
 %endif
 
@@ -69,7 +69,7 @@ strspnSSE42: ; SSE4.2 version
         xor     ecx, ecx               ; span counter
 str_next:
         movdqu  xmm2, [rdi]            ; str
-        movdqu  xmm1, [rsi]            ; set
+        movdqu  xmm1, [rsi]            ; set (the memory read port is likely to be vacant early, so no need to put this read outside the loop)
         pcmpistrm xmm1, xmm2, 00000000b; find in set, return bit mask in xmm0
         movd    eax, xmm0
         jns     set_extends
@@ -109,7 +109,7 @@ set_extends: ; the set is more than 16 bytes
 ;******************************************************************************
 
 %if ALLOW_OVERRIDE
-global ?OVR_strcspn: function
+global ?OVR_strcspn
 ?OVR_strcspn:
 %endif
 

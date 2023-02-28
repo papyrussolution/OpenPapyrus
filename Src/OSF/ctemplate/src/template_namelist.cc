@@ -1,5 +1,4 @@
-// Copyright (c) 2006, Google Inc.
-// All rights reserved.
+// Copyright (c) 2006, Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -129,9 +128,9 @@ const TemplateNamelist::SyntaxListType& TemplateNamelist::GetBadSyntaxList(bool 
 }
 
 // Look at all the existing template files, and get their lastmod time via stat()
-time_t TemplateNamelist::GetLastmodTime() {
+time_t TemplateNamelist::GetLastmodTime() 
+{
 	time_t retval = -1;
-
 	const NameListType& the_list = TemplateNamelist::GetList();
 	for(NameListType::const_iterator iter = the_list.begin();
 	    iter != the_list.end();
@@ -147,17 +146,18 @@ time_t TemplateNamelist::GetLastmodTime() {
 }
 
 // AllDoExist
-bool TemplateNamelist::AllDoExist() {
+bool TemplateNamelist::AllDoExist() 
+{
 	// AllDoExist always refreshes the list, hence the "true"
 	const MissingListType& missing_list = TemplateNamelist::GetMissingList(true);
 	return missing_list.empty();
 }
 
 // IsAllSyntaxOkay
-bool TemplateNamelist::IsAllSyntaxOkay(Strip strip) {
+bool TemplateNamelist::IsAllSyntaxOkay(Strip strip) 
+{
 	// IsAllSyntaxOkay always refreshes the list, hence the "true"
-	const SyntaxListType& bad_syntax_list =
-	    TemplateNamelist::GetBadSyntaxList(true, strip);
+	const SyntaxListType& bad_syntax_list = TemplateNamelist::GetBadSyntaxList(true, strip);
 	return bad_syntax_list.empty();
 }
 }

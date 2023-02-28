@@ -59,14 +59,14 @@ namespace numeric_internal {
 template <class T> ABSL_MUST_USE_RESULT ABSL_ATTRIBUTE_ALWAYS_INLINE constexpr T RotateRight(T x, int s) noexcept 
 {
 	static_assert(std::is_unsigned<T>::value, "T must be unsigned");
-	static_assert(IsPowerOf2(std::numeric_limits<T>::digits), "T must have a power-of-2 size");
+	static_assert(IsPowerOfTwo(std::numeric_limits<T>::digits), "T must have a power-of-2 size");
 	return static_cast<T>(x >> (s & (std::numeric_limits<T>::digits - 1))) | static_cast<T>(x << ((-s) & (std::numeric_limits<T>::digits - 1)));
 }
 
 template <class T> ABSL_MUST_USE_RESULT ABSL_ATTRIBUTE_ALWAYS_INLINE constexpr T RotateLeft(T x, int s) noexcept 
 {
 	static_assert(std::is_unsigned<T>::value, "T must be unsigned");
-	static_assert(IsPowerOf2(std::numeric_limits<T>::digits), "T must have a power-of-2 size");
+	static_assert(IsPowerOfTwo(std::numeric_limits<T>::digits), "T must have a power-of-2 size");
 	return static_cast<T>(x << (s & (std::numeric_limits<T>::digits - 1))) | static_cast<T>(x >> ((-s) & (std::numeric_limits<T>::digits - 1)));
 }
 
@@ -92,10 +92,10 @@ ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_POPCOUNT inline int Popcoun
 #endif
 }
 
-template <class T>
-ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_POPCOUNT inline int Popcount(T x) noexcept {
+template <class T> ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_POPCOUNT inline int Popcount(T x) noexcept 
+{
 	static_assert(std::is_unsigned<T>::value, "T must be unsigned");
-	static_assert(IsPowerOf2(std::numeric_limits<T>::digits), "T must have a power-of-2 size");
+	static_assert(IsPowerOfTwo(std::numeric_limits<T>::digits), "T must have a power-of-2 size");
 	static_assert(sizeof(x) <= sizeof(uint64_t), "T is too large");
 	return sizeof(x) <= sizeof(uint32_t) ? Popcount32(x) : Popcount64(x);
 }

@@ -39,7 +39,8 @@
 ; Copyright (c) 2008-2013 GNU General Public License www.gnu.org/licenses
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-global _MotBRandom, _MotRandom, _MotIRandom, _MotRandomInit, 
+; @sobolev global _MotBRandom, _MotRandom, _MotIRandom, _MotRandomInit, 
+global _MotBRandom, _MotRandom, _MotIRandom, _MotRandomInit ; @sobolev
 global _MotherRandomInit, _MotherRandom, _MotherIRandom, _MotherBRandom
 %IFDEF WINDOWS
 global _MotherRandomInitD@4, _MotherRandomD@0, _MotherIRandomD@8, _MotherBRandomD@0
@@ -48,7 +49,8 @@ global _MotherRandomInitD@4, _MotherRandomD@0, _MotherIRandomD@8, _MotherBRandom
 extern _InstructionSet
 
 ; structure definition and constants:
-%INCLUDE "randomah.asi"
+; @sobolev %INCLUDE "asm/randomah.asi"
+%include "../osf/asmlib/randomah.asi" ; @sobolev
 
 ; dummy offset operator
 %define offset

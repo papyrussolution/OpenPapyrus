@@ -18,7 +18,7 @@
 
 default rel
 
-global DataCacheSize: function
+global DataCacheSize
 
 ; Imported from cputype64.asm
 extern CpuType                         ; near. Determine CPU vendor

@@ -38,17 +38,13 @@ class FILERawSink {
 public:
 	explicit FILERawSink(std::FILE* output) : output_(output) {
 	}
-
 	void Write(string_view v);
-
 	size_t count() const {
 		return count_;
 	}
-
 	int error() const {
 		return error_;
 	}
-
 private:
 	std::FILE* output_;
 	int error_ = 0;

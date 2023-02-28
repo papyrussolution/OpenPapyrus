@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2007-2013, International Business Machines Corporation and    *
- * others. All Rights Reserved.                                                *
- *******************************************************************************
- */
+// Copyright (C) 2007-2013, International Business Machines Corporation and others. All Rights Reserved.
+//
 #ifndef RBTZ_H
 #define RBTZ_H
 
@@ -27,7 +23,6 @@ U_NAMESPACE_BEGIN
 // forward declaration
 class UVector;
 struct Transition;
-
 /**
  * a BasicTimeZone subclass implemented in terms of InitialTimeZoneRule and TimeZoneRule instances
  * @see BasicTimeZone
@@ -297,39 +292,30 @@ public:
 	 */
 	virtual void getTimeZoneRules(const InitialTimeZoneRule*& initial,
 	    const TimeZoneRule* trsrules[], int32_t& trscount, UErrorCode & status) const override;
-
 #ifndef U_FORCE_HIDE_DRAFT_API
 	/**
 	 * Get time zone offsets from local wall time.
 	 * @draft ICU 69
 	 */
 	virtual void getOffsetFromLocal(UDate date, UTimeZoneLocalOption nonExistingTimeOpt,
-	    UTimeZoneLocalOption duplicatedTimeOpt,
-	    int32_t& rawOffset, int32_t& dstOffset, UErrorCode & status) const override;
+	    UTimeZoneLocalOption duplicatedTimeOpt, int32_t& rawOffset, int32_t& dstOffset, UErrorCode & status) const override;
 #endif /* U_FORCE_HIDE_DRAFT_API */
-
 private:
 	void deleteRules(void);
 	void deleteTransitions(void);
 	UVector* copyRules(UVector* source);
-	TimeZoneRule* findRuleInFinal(UDate date, bool local,
-	    int32_t NonExistingTimeOpt, int32_t DuplicatedTimeOpt) const;
+	TimeZoneRule* findRuleInFinal(UDate date, bool local, int32_t NonExistingTimeOpt, int32_t DuplicatedTimeOpt) const;
 	bool findNext(UDate base, bool inclusive, UDate& time, TimeZoneRule*& from, TimeZoneRule*& to) const;
 	bool findPrev(UDate base, bool inclusive, UDate& time, TimeZoneRule*& from, TimeZoneRule*& to) const;
-	int32_t getLocalDelta(int32_t rawBefore, int32_t dstBefore, int32_t rawAfter, int32_t dstAfter,
-	    int32_t NonExistingTimeOpt, int32_t DuplicatedTimeOpt) const;
-	UDate getTransitionTime(Transition* transition, bool local,
-	    int32_t NonExistingTimeOpt, int32_t DuplicatedTimeOpt) const;
-	void getOffsetInternal(UDate date, bool local, int32_t NonExistingTimeOpt, int32_t DuplicatedTimeOpt,
-	    int32_t& rawOffset, int32_t& dstOffset, UErrorCode& ec) const;
+	int32_t getLocalDelta(int32_t rawBefore, int32_t dstBefore, int32_t rawAfter, int32_t dstAfter, int32_t NonExistingTimeOpt, int32_t DuplicatedTimeOpt) const;
+	UDate getTransitionTime(Transition* transition, bool local, int32_t NonExistingTimeOpt, int32_t DuplicatedTimeOpt) const;
+	void getOffsetInternal(UDate date, bool local, int32_t NonExistingTimeOpt, int32_t DuplicatedTimeOpt, int32_t& rawOffset, int32_t& dstOffset, UErrorCode& ec) const;
 	void completeConst(UErrorCode & status) const;
-
 	InitialTimeZoneRule * fInitialRule;
 	UVector             * fHistoricRules;
 	UVector             * fFinalRules;
 	UVector             * fHistoricTransitions;
 	bool fUpToDate;
-
 public:
 	/**
 	 * Return the class ID for this class. This is useful only for comparing to
@@ -343,7 +329,6 @@ public:
 	 * @stable ICU 3.8
 	 */
 	static UClassID U_EXPORT2 getStaticClassID(void);
-
 	/**
 	 * Returns a unique class ID POLYMORPHICALLY. Pure virtual override. This
 	 * method is to implement a simple version of RTTI, since not all C++
@@ -361,9 +346,5 @@ public:
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
 #endif /* U_SHOW_CPLUSPLUS_API */
-
 #endif // RBTZ_H
-
-//eof

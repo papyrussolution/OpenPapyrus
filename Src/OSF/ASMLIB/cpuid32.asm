@@ -10,7 +10,7 @@
 ; Copyright (c) 2011 GNU General Public License www.gnu.org/licenses
 ;******************************************************************************
 
-global _cpuid_ex: function
+global _cpuid_ex
 
 SECTION .text  align=16
 

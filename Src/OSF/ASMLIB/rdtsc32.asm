@@ -8,7 +8,7 @@
 ; Copyright (c) 2009 GNU General Public License www.gnu.org/licenses
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-global _ReadTSC: function
+global _ReadTSC
 
 SECTION .text  align=16
 

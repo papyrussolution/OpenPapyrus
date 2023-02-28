@@ -26,11 +26,11 @@
 ;******************************************************************************
 %define ALLOW_OVERRIDE 0               ; Set to one if override of standard function desired
 
-global _A_strcmp: function             ; Function A_strcmp
+global _A_strcmp             ; Function A_strcmp
 
 ; Direct entries to CPU-specific versions
-global _strcmpGeneric: function            ; Generic version for processors without SSE4.2
-global _strcmpSSE42: function          ; Version for processors with SSE4.2
+global _strcmpGeneric            ; Generic version for processors without SSE4.2
+global _strcmpSSE42          ; Version for processors with SSE4.2
 
 ; Imported from instrset32.asm:
 extern _InstructionSet                 ; Instruction set for CPU dispatcher
@@ -40,7 +40,7 @@ section .text
 ; strcmp function
 
 %if ALLOW_OVERRIDE
-global ?OVR_strcmp: function
+global ?OVR_strcmp
 ?OVR_strcmp:
 %endif
 
@@ -174,4 +174,5 @@ strcmpDispatch DD strcmpCPUDispatch
 ; Here, we are just relying on library data being placed after main data.
 ; This can be verified by making a link map file)
 SECTION .bss
-        dq      0, 0
+;        dq      0, 0
+        resq  4

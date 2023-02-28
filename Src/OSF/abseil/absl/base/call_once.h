@@ -10,6 +10,10 @@
 #ifndef ABSL_BASE_CALL_ONCE_H_
 #define ABSL_BASE_CALL_ONCE_H_
 
+#include <absl/base/internal/scheduling_mode.h>
+#include <absl/base/internal/low_level_scheduling.h>
+#include <absl/base/internal/spinlock_wait.h>
+
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 
@@ -54,22 +58,19 @@ void call_once(absl::once_flag& flag, Callable&& fn, Args&& ... args);
 // constructor, and is safe to use as a namespace-scoped global variable.
 class once_flag {
 public:
-	constexpr once_flag() : control_(0) {
+	constexpr once_flag() : control_(0) 
+	{
 	}
-
 	once_flag(const once_flag&) = delete;
 	once_flag& operator = (const once_flag&) = delete;
-
 private:
 	friend std ::atomic<uint32_t>* base_internal::ControlWord(once_flag* flag);
 	std::atomic<uint32_t> control_;
 };
-
-//------------------------------------------------------------------------------
+//
 // End of public interfaces.
 // Implementation details follow.
-//------------------------------------------------------------------------------
-
+//
 namespace base_internal {
 // Like call_once, but uses KERNEL_ONLY scheduling. Intended to be used to
 // initialize entities used by the scheduler implementation.
@@ -80,13 +81,14 @@ void LowLevelCallOnce(absl::once_flag* flag, Callable&& fn, Args&& ... args);
 // No effect for cooperative scheduling modes.
 class SchedulingHelper {
 public:
-	explicit SchedulingHelper(base_internal::SchedulingMode mode) : mode_(mode) {
+	explicit SchedulingHelper(base_internal::SchedulingMode mode) : mode_(mode) 
+	{
 		if(mode_ == base_internal::SCHEDULE_KERNEL_ONLY) {
 			guard_result_ = base_internal::SchedulingGuard::DisableRescheduling();
 		}
 	}
-
-	~SchedulingHelper() {
+	~SchedulingHelper() 
+	{
 		if(mode_ == base_internal::SCHEDULE_KERNEL_ONLY) {
 			base_internal::SchedulingGuard::EnableRescheduling(guard_result_);
 		}

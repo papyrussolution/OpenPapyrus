@@ -40,6 +40,7 @@ IMPL_CMPFUNC(_2int64, i1, i2)
 //
 // Check Range
 //
+#if 0 // @v11.6.5 (replaced with templated func) {
 bool STDCALL checkirange(int nmb, int low, int upp)
 {
 	if(nmb >= low && nmb <= upp)
@@ -63,6 +64,7 @@ bool STDCALL checkirange(int64 nmb, int64 low, int64 upp)
 	else
 		return SLS.SetError(SLERR_BOUNDS, SLS.AcquireRvlStr().CatChar('[').Cat(low).CatCharN('.', 2).Cat(upp).CatChar(']'));
 }
+#endif // } 0 @v11.6.5 (replaced with templated func)
 
 int    FASTCALL inrangeordefault(int val, int low, int upp, int def) { return (val >= low && val <= upp) ? val : def; }
 long   FASTCALL inrangeordefault(long val, long low, long upp, long def) { return (val >= low && val <= upp) ? val : def; }

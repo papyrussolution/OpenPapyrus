@@ -4,6 +4,13 @@
 #ifndef ABSL_STRINGS_INTERNAL_STR_FORMAT_ARG_H_
 #define ABSL_STRINGS_INTERNAL_STR_FORMAT_ARG_H_
 
+#include <absl/base/port.h>
+#include <absl/meta/type_traits.h>
+#include <absl/numeric/int128.h>
+//#include <absl/strings/internal/has_absl_stringify.h>
+#include <absl/strings/internal/str_format/extension.h>
+#include <absl/strings/string_view.h>
+
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 
@@ -11,8 +18,7 @@ class Cord;
 class FormatCountCapture;
 class FormatSink;
 
-template <absl::FormatConversionCharSet C>
-struct FormatConvertResult;
+template <absl::FormatConversionCharSet C> struct FormatConvertResult;
 
 class FormatConversionSpec;
 
@@ -20,12 +26,8 @@ namespace str_format_internal {
 template <typename T, typename = void>
 struct HasUserDefinedConvert : std::false_type {};
 
-template <typename T>
-struct HasUserDefinedConvert<T, void_t<decltype(AbslFormatConvert(
-	    std::declval<const T&>(),
-	    std::declval<const FormatConversionSpec&>(),
-	    std::declval<FormatSink*>()))> >
-	: std::true_type {};
+template <typename T> struct HasUserDefinedConvert<T, void_t<decltype(AbslFormatConvert(std::declval<const T&>(), 
+	std::declval<const FormatConversionSpec&>(), std::declval<FormatSink*>()))> > : std::true_type {};
 
 void AbslFormatConvert();  // Stops the lexical name lookup
 template <typename T> auto FormatConvertImpl(const T& v, FormatConversionSpecImpl conv, FormatSinkImpl* sink)->decltype(AbslFormatConvert(v,

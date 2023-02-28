@@ -4,7 +4,7 @@
 
 SECTION .text  align=16
 
-GLOBAL _DllEntry@12: function
+GLOBAL _DllEntry@12
 
 _DllEntry@12:       ; proc hInstance:DWORD, reason:DWORD, reserved1:DWORD
         mov     eax, 1

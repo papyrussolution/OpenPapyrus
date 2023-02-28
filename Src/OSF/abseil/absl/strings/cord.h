@@ -674,13 +674,11 @@ private:
 	//
 	// This call has no effect if this cord is empty.
 	void SetExpectedChecksum(uint32_t crc);
-
 	// Returns this cord's expected checksum, if it has one.  Otherwise, returns
 	// nullopt.
 	absl::optional<uint32_t> ExpectedChecksum() const;
-
-	template <typename H>
-	friend H AbslHashValue(H hash_state, const absl::Cord& c) {
+	template <typename H> friend H AbslHashValue(H hash_state, const absl::Cord& c) 
+	{
 		absl::optional<absl::string_view> maybe_flat = c.TryFlat();
 		if(maybe_flat.has_value()) {
 			return H::combine(std::move(hash_state), *maybe_flat);
@@ -693,8 +691,7 @@ private:
 	// This is an INTERNAL API and subject to change or removal. This API can only
 	// be used by spelling absl::strings_internal::MakeStringConstant, which is
 	// also an internal API.
-	template <typename T>
-	explicit constexpr Cord(strings_internal::StringConstant<T>);
+	template <typename T> explicit constexpr Cord(strings_internal::StringConstant<T>);
 
 private:
 	using CordRep = absl::cord_internal::CordRep;
@@ -938,12 +935,11 @@ private:
 	Cord& AssignLargeString(std::string && src);
 
 	// Helper for AbslHashValue().
-	template <typename H>
-	H HashFragmented(H hash_state) const {
+	template <typename H> H HashFragmented(H hash_state) const 
+	{
 		typename H::AbslInternalPiecewiseCombiner combiner;
 		ForEachChunk([&combiner, &hash_state](absl::string_view chunk) {
-				hash_state = combiner.add_buffer(std::move(hash_state), chunk.data(),
-				chunk.size());
+				hash_state = combiner.add_buffer(std::move(hash_state), chunk.data(), chunk.size());
 			});
 		return H::combine(combiner.finalize(std::move(hash_state)), size());
 	}
@@ -1474,7 +1470,8 @@ inline Cord::CharIterator Cord::CharRange::begin() const { return cord_->char_be
 inline Cord::CharIterator Cord::CharRange::end() const { return cord_->char_end(); }
 inline Cord::CharRange Cord::Chars() const { return CharRange(this); }
 
-inline void Cord::ForEachChunk(absl::FunctionRef<void(absl::string_view)> callback) const {
+inline void Cord::ForEachChunk(absl::FunctionRef<void(absl::string_view)> callback) const 
+{
 	absl::cord_internal::CordRep* rep = contents_.tree();
 	if(rep == nullptr) {
 		callback(absl::string_view(contents_.data(), contents_.size()));

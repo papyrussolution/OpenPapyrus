@@ -42,7 +42,7 @@
 ; sh1 = L-1
 ; q = x + (m*x >> n)              [high part of signed multiplication]
 ; q = (q >> sh1) - (x<0 ? -1 : 0)
-; if(divisor < 0) q = -q         [negative divisor not supported in present implementation]
+; if (divisor < 0) q = -q         [negative divisor not supported in present implementation]
 ; x/d = q
 ;
 ; Copyright (c) 2011 GNU General Public License www.gnu.org/licenses
@@ -53,7 +53,7 @@ section .text
 ; extern "C" void setdivisori32(int buffer[2], int d);
 ; 32 bit signed 
 
-global _setdivisori32: function
+global _setdivisori32
 _setdivisori32:
         push    ebx
         mov     ebx, [esp+12]          ; d
@@ -85,7 +85,7 @@ H120:   ; d <= 0 not supported. Generate error
 
         
 ; extern "C" int dividefixedi32(int buffer[2], int x);
-global _dividefixedi32: function
+global _dividefixedi32
 _dividefixedi32:
         push    ebx
         mov     eax, [esp+12]          ; x
@@ -104,7 +104,7 @@ _dividefixedi32:
 ;extern "C" void setdivisoru32(int buffer[2], int d);
 ; 32 bit unsigned 
 
-global _setdivisoru32: function
+global _setdivisoru32
 _setdivisoru32:
         push    ebx
         mov     ebx, [esp+12]          ; d
@@ -137,7 +137,7 @@ _setdivisoru32:
         ret
         
 ;extern "C" int dividefixedu32(int buffer[2], int x);
-global _dividefixedu32: function       ; unsigned
+global _dividefixedu32       ; unsigned
 _dividefixedu32:
         mov     eax, [esp+8]           ; x
         mov     ecx, [esp+4]           ; buffer

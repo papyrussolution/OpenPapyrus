@@ -13,21 +13,21 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace cord_internal {
-
-// Returns the *approximate* number of bytes held in full or in part by this
-// Cord (which may not remain the same between invocations). Cords that share
-// memory could each be "charged" independently for the same shared memory.
-size_t GetEstimatedMemoryUsage(const CordRep* rep);
-
-// Returns the *approximate* number of bytes held in full or in part by this
-// CordRep weighted by the sharing ratio of that data. For example, if some data
-// edge is shared by 4 different Cords, then each cord is attribute 1/4th of
-// the total memory usage as a 'fair share' of the total memory usage.
-size_t GetEstimatedFairShareMemoryUsage(const CordRep* rep);
-
+	//
+	// Returns the *approximate* number of bytes held in full or in part by this
+	// Cord (which may not remain the same between invocations). Cords that share
+	// memory could each be "charged" independently for the same shared memory.
+	//
+	size_t GetEstimatedMemoryUsage(const CordRep* rep);
+	//
+	// Returns the *approximate* number of bytes held in full or in part by this
+	// CordRep weighted by the sharing ratio of that data. For example, if some data
+	// edge is shared by 4 different Cords, then each cord is attribute 1/4th of
+	// the total memory usage as a 'fair share' of the total memory usage.
+	//
+	size_t GetEstimatedFairShareMemoryUsage(const CordRep* rep);
 }  // namespace cord_internal
 ABSL_NAMESPACE_END
 }  // namespace absl
-
 
 #endif  // ABSL_STRINGS_CORD_ANALYSIS_H_

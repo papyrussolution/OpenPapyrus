@@ -1,19 +1,16 @@
 // collationtailoring.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (C) 2013-2015, International Business Machines Corporation and others.  All Rights Reserved.
- * created on: 2013mar12
- * created by: Markus W. Scherer
- */
+// Copyright (C) 2013-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// created on: 2013mar12
+// created by: Markus W. Scherer
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
 #if !UCONFIG_NO_COLLATION
-
 #include "collationsettings.h"
 #include "collationtailoring.h"
-
 U_NAMESPACE_BEGIN
 
 CollationTailoring::CollationTailoring(const CollationSettings * baseSettings) : data(NULL), settings(baseSettings), actualLocale(""),
@@ -91,5 +88,4 @@ CollationCacheEntry::~CollationCacheEntry()
 }
 
 U_NAMESPACE_END
-
 #endif  // !UCONFIG_NO_COLLATION

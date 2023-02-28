@@ -1,5 +1,5 @@
 // CALENDAR.CPP
-// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1959,7 +1959,7 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 		}
 		static SUiLayout * MakeMonthLayoutEntry(SCalendarPicker * pMaster, SUiLayout * pLoParent, uint mon)
 		{
-			assert(checkirange(mon, 1, 12));
+			assert(checkirange(mon, 1U, 12U));
 			SUiLayoutParam alb;
 			alb.GrowFactor = 1.0f;
 			alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
@@ -1968,7 +1968,7 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 		}
 		static SUiLayout * MakeDayLayoutEntry(SCalendarPicker * pMaster, SUiLayout * pLoParent, uint day)
 		{
-			assert(checkirange(day, 0, 31)); // нулевое значение используется для ячеек, с которыми не сопоставлен календарный день данного месяца
+			assert(checkirange(day, 0U, 31U)); // нулевое значение используется для ячеек, с которыми не сопоставлен календарный день данного месяца
 			SUiLayoutParam alb;
 			alb.GrowFactor = 1.0f;
 			alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
@@ -2460,7 +2460,7 @@ void SCalendarPicker::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
 					case loiMonth:
 						//brush_ident = TProgram::tbiIconRegColor;
 						pen_ident = TProgram::tbiIconRegColor;
-						if(checkirange(p_lo_extra->Value, 1, 12)) {
+						if(checkirange(p_lo_extra->Value, 1U, 12U)) {
 							const LDATE _isd = ISD();
 							if(Kind == kPeriod && !Data.Period.IsZero()) {
 								int y = _isd.year();
@@ -2487,7 +2487,7 @@ void SCalendarPicker::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
 					case loiWeekday:
 						//brush_ident = TProgram::tbiIconRegColor;
 						pen_ident = TProgram::tbiIconRegColor;
-						if(checkirange(p_lo_extra->Value, 1, 7)) {
+						if(checkirange(p_lo_extra->Value, 1U, 7U)) {
 							const LDATE _isd = ISD();
 							if(p_lo_extra->Value == dayofweek(&_isd, 1)) {
 								pen_ident = TProgram::tbiIconAlertColor;
@@ -2504,7 +2504,7 @@ void SCalendarPicker::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
 					case loiDay:
 						//brush_ident = TProgram::tbiIconRegColor;
 						pen_ident = TProgram::tbiIconRegColor;
-						if(checkirange(p_lo_extra->Value, 1, 31)) {
+						if(checkirange(p_lo_extra->Value, 1U, 31U)) {
 							LDATE _d;
 							const LDATE _isd = ISD();
 							_d.encode(p_lo_extra->Value, _isd.month(), _isd.year());
@@ -2524,18 +2524,18 @@ void SCalendarPicker::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
 					case loiFrame_Days: pen_ident = TProgram::tbiIconRegColor; break;
 					case loiFrame_Hours:
 						pen_ident = TProgram::tbiIconRegColor; 
-						if(checkirange(p_lo_extra->Value, 1, 24) && Data.Dtm.t.hour() == (p_lo_extra->Value-1)) {
+						if(checkirange(p_lo_extra->Value, 1U, 24U) && Data.Dtm.t.hour() == (p_lo_extra->Value-1)) {
 							pen_ident = TProgram::tbiIconAlertColor;
 							brush_ident = TProgram::tbiListFocBrush;								
 						}
-						if(checkirange(p_lo_extra->Value, 1, 24)) {
+						if(checkirange(p_lo_extra->Value, 1U, 24U)) {
 							text_utf8.Cat(p_lo_extra->Value-1);
 						}
 						break;
 					case loiFrame_Minuts: 
 						if(p_lo_extra->Value != 60) {
 							pen_ident = TProgram::tbiIconRegColor; 
-							if(checkirange(p_lo_extra->Value, 1, 59) && Data.Dtm.t.minut() == p_lo_extra->Value) {
+							if(checkirange(p_lo_extra->Value, 1U, 59U) && Data.Dtm.t.minut() == p_lo_extra->Value) {
 								pen_ident = TProgram::tbiIconAlertColor;
 								brush_ident = TProgram::tbiListFocBrush;								
 							}

@@ -40,12 +40,12 @@ casebit: times 16 db 20h               ; bit to change when changing case
 
 section .text
 
-global A_strtolower: function
-global A_strtoupper: function
-global strtolowerGeneric: function
-global strtoupperGeneric: function
-global strtolowerSSE42: function
-global strtoupperSSE42: function
+global A_strtolower
+global A_strtoupper
+global strtolowerGeneric
+global strtoupperGeneric
+global strtolowerSSE42
+global strtoupperSSE42
 
 ; Imported from instrset64.asm:
 extern InstructionSet                 ; Instruction set for CPU dispatcher

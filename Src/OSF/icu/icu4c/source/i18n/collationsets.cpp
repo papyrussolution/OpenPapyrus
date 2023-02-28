@@ -1,19 +1,16 @@
 // collationsets.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (C) 2013-2014, International Business Machines Corporation and others.  All Rights Reserved.
- * created on: 2013feb09
- * created by: Markus W. Scherer
- */
+// Copyright (C) 2013-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// created on: 2013feb09
+// created by: Markus W. Scherer
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
 #if !UCONFIG_NO_COLLATION
-
 #include "collationsets.h"
 #include "utf16collationiterator.h"
-
 U_NAMESPACE_BEGIN
 
 U_CDECL_BEGIN

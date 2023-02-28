@@ -1,5 +1,5 @@
 // PPTVUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 //
 #include <pp.h>
 #pragma hdrstop
@@ -8270,7 +8270,7 @@ int BigTextDialog(uint maxLen, const char * pTitle, SString & rText)
 		int   setMaxLen(size_t maxLen)
 		{
 			int    ok = 1;
-			if(checkirange(maxLen, 1, 4000))
+			if(checkirange(maxLen, static_cast<size_t>(1), static_cast<size_t>(4000)))
 				SetupInputLine(CTL_BIGTXTEDIT_TEXT, MKSTYPE(S_ZSTRING, maxLen), MKSFMT(maxLen, 0));
 			else
 				ok = PPSetErrorSLib();

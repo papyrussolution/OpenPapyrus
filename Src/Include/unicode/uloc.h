@@ -161,11 +161,7 @@
  *       const char * uloc_getAvailable(int32_t index);
  *       int32_t uloc_countAvailable();
  *       int32_t
- *       uloc_getDisplayName(const char * localeID,
- *                 const char * inLocaleID,
- *                 UChar * result,
- *                 int32_t maxResultSize,
- *                  UErrorCode * err);
+ *       uloc_getDisplayName(const char * localeID, const char * inLocaleID, UChar * result, int32_t maxResultSize, UErrorCode * err);
  *
  * \endcode
  * </pre>
@@ -189,57 +185,33 @@
  * @see UResourceBundle
  */
 
-/** Useful constant for this language. @stable ICU 2.0 */
-#define ULOC_CHINESE            "zh"
-/** Useful constant for this language. @stable ICU 2.0 */
-#define ULOC_ENGLISH            "en"
-/** Useful constant for this language. @stable ICU 2.0 */
-#define ULOC_FRENCH             "fr"
-/** Useful constant for this language. @stable ICU 2.0 */
-#define ULOC_GERMAN             "de"
-/** Useful constant for this language. @stable ICU 2.0 */
-#define ULOC_ITALIAN            "it"
-/** Useful constant for this language. @stable ICU 2.0 */
-#define ULOC_JAPANESE           "ja"
-/** Useful constant for this language. @stable ICU 2.0 */
-#define ULOC_KOREAN             "ko"
-/** Useful constant for this language. @stable ICU 2.0 */
-#define ULOC_SIMPLIFIED_CHINESE "zh_CN"
-/** Useful constant for this language. @stable ICU 2.0 */
-#define ULOC_TRADITIONAL_CHINESE "zh_TW"
-
-/** Useful constant for this country/region. @stable ICU 2.0 */
-#define ULOC_CANADA         "en_CA"
-/** Useful constant for this country/region. @stable ICU 2.0 */
-#define ULOC_CANADA_FRENCH  "fr_CA"
-/** Useful constant for this country/region. @stable ICU 2.0 */
-#define ULOC_CHINA          "zh_CN"
-/** Useful constant for this country/region. @stable ICU 2.0 */
-#define ULOC_PRC            "zh_CN"
-/** Useful constant for this country/region. @stable ICU 2.0 */
-#define ULOC_FRANCE         "fr_FR"
-/** Useful constant for this country/region. @stable ICU 2.0 */
-#define ULOC_GERMANY        "de_DE"
-/** Useful constant for this country/region. @stable ICU 2.0 */
-#define ULOC_ITALY          "it_IT"
-/** Useful constant for this country/region. @stable ICU 2.0 */
-#define ULOC_JAPAN          "ja_JP"
-/** Useful constant for this country/region. @stable ICU 2.0 */
-#define ULOC_KOREA          "ko_KR"
-/** Useful constant for this country/region. @stable ICU 2.0 */
-#define ULOC_TAIWAN         "zh_TW"
-/** Useful constant for this country/region. @stable ICU 2.0 */
-#define ULOC_UK             "en_GB"
-/** Useful constant for this country/region. @stable ICU 2.0 */
-#define ULOC_US             "en_US"
-
+#define ULOC_CHINESE            "zh" /** Useful constant for this language. @stable ICU 2.0 */
+#define ULOC_ENGLISH            "en" /** Useful constant for this language. @stable ICU 2.0 */
+#define ULOC_FRENCH             "fr" /** Useful constant for this language. @stable ICU 2.0 */
+#define ULOC_GERMAN             "de" /** Useful constant for this language. @stable ICU 2.0 */
+#define ULOC_ITALIAN            "it" /** Useful constant for this language. @stable ICU 2.0 */
+#define ULOC_JAPANESE           "ja" /** Useful constant for this language. @stable ICU 2.0 */
+#define ULOC_KOREAN             "ko" /** Useful constant for this language. @stable ICU 2.0 */
+#define ULOC_SIMPLIFIED_CHINESE "zh_CN" /** Useful constant for this language. @stable ICU 2.0 */
+#define ULOC_TRADITIONAL_CHINESE "zh_TW" /** Useful constant for this language. @stable ICU 2.0 */
+#define ULOC_CANADA         "en_CA" /** Useful constant for this country/region. @stable ICU 2.0 */
+#define ULOC_CANADA_FRENCH  "fr_CA" /** Useful constant for this country/region. @stable ICU 2.0 */
+#define ULOC_CHINA          "zh_CN" /** Useful constant for this country/region. @stable ICU 2.0 */
+#define ULOC_PRC            "zh_CN" /** Useful constant for this country/region. @stable ICU 2.0 */
+#define ULOC_FRANCE         "fr_FR" /** Useful constant for this country/region. @stable ICU 2.0 */
+#define ULOC_GERMANY        "de_DE" /** Useful constant for this country/region. @stable ICU 2.0 */
+#define ULOC_ITALY          "it_IT" /** Useful constant for this country/region. @stable ICU 2.0 */
+#define ULOC_JAPAN          "ja_JP" /** Useful constant for this country/region. @stable ICU 2.0 */
+#define ULOC_KOREA          "ko_KR" /** Useful constant for this country/region. @stable ICU 2.0 */
+#define ULOC_TAIWAN         "zh_TW" /** Useful constant for this country/region. @stable ICU 2.0 */
+#define ULOC_UK             "en_GB" /** Useful constant for this country/region. @stable ICU 2.0 */
+#define ULOC_US             "en_US" /** Useful constant for this country/region. @stable ICU 2.0 */
 /**
  * Useful constant for the maximum size of the language part of a locale ID.
  * (including the terminating NULL).
  * @stable ICU 2.0
  */
 #define ULOC_LANG_CAPACITY 12
-
 /**
  * Useful constant for the maximum size of the country part of a locale ID
  * (including the terminating NULL).
@@ -252,58 +224,49 @@
  * @stable ICU 2.0
  */
 #define ULOC_FULLNAME_CAPACITY 157
-
 /**
  * Useful constant for the maximum size of the script part of a locale ID
  * (including the terminating NULL).
  * @stable ICU 2.8
  */
 #define ULOC_SCRIPT_CAPACITY 6
-
 /**
  * Useful constant for the maximum size of keywords in a locale
  * @stable ICU 2.8
  */
 #define ULOC_KEYWORDS_CAPACITY 96
-
 /**
  * Useful constant for the maximum total size of keywords and their values in a locale
  * @stable ICU 2.8
  */
 #define ULOC_KEYWORD_AND_VALUES_CAPACITY 100
-
 /**
  * Invariant character separating keywords from the locale string
  * @stable ICU 2.8
  */
 #define ULOC_KEYWORD_SEPARATOR '@'
-
 /**
  * Unicode code point for '@' separating keywords from the locale string.
  * @see ULOC_KEYWORD_SEPARATOR
  * @stable ICU 4.6
  */
 #define ULOC_KEYWORD_SEPARATOR_UNICODE 0x40
-
 /**
  * Invariant character for assigning value to a keyword
  * @stable ICU 2.8
  */
 #define ULOC_KEYWORD_ASSIGN '='
-
 /**
  * Unicode code point for '=' for assigning value to a keyword.
  * @see ULOC_KEYWORD_ASSIGN
  * @stable ICU 4.6
  */
 #define ULOC_KEYWORD_ASSIGN_UNICODE 0x3D
-
 /**
  * Invariant character separating keywords
  * @stable ICU 2.8
  */
 #define ULOC_KEYWORD_ITEM_SEPARATOR ';'
-
 /**
  * Unicode code point for ';' separating keywords
  * @see ULOC_KEYWORD_ITEM_SEPARATOR
@@ -340,7 +303,6 @@ typedef enum {
 	 *  @deprecated ICU 2.8
 	 */
 	ULOC_REQUESTED_LOCALE = 2,
-
 	/**
 	 * One more than the highest normal ULocDataLocaleType value.
 	 * @deprecated ICU 58 The numeric value may change over time, see ICU ticket #12420.
@@ -362,7 +324,6 @@ typedef enum {
  * @stable ICU 2.0
  */
 U_CAPI const char * U_EXPORT2 uloc_getDefault();
-
 /**
  * Sets ICU's default locale.
  *    By default (without calling this function), ICU's default locale will be based
@@ -380,8 +341,7 @@ U_CAPI const char * U_EXPORT2 uloc_getDefault();
  * @system
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 uloc_setDefault(const char * localeID,
-    UErrorCode * status);
+U_CAPI void U_EXPORT2 uloc_setDefault(const char * localeID, UErrorCode * status);
 #endif  /* U_HIDE_SYSTEM_API */
 
 /**
@@ -396,11 +356,7 @@ U_CAPI void U_EXPORT2 uloc_setDefault(const char * localeID,
  * than languageCapacity, the returned language code will be truncated.
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 uloc_getLanguage(const char * localeID,
-    char * language,
-    int32_t languageCapacity,
-    UErrorCode * err);
-
+U_CAPI int32_t U_EXPORT2 uloc_getLanguage(const char * localeID, char * language, int32_t languageCapacity, UErrorCode * err);
 /**
  * Gets the script code for the specified locale.
  *
@@ -413,11 +369,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getLanguage(const char * localeID,
  * than scriptCapacity, the returned language code will be truncated.
  * @stable ICU 2.8
  */
-U_CAPI int32_t U_EXPORT2 uloc_getScript(const char * localeID,
-    char * script,
-    int32_t scriptCapacity,
-    UErrorCode * err);
-
+U_CAPI int32_t U_EXPORT2 uloc_getScript(const char * localeID, char * script, int32_t scriptCapacity, UErrorCode * err);
 /**
  * Gets the  country code for the specified locale.
  *
@@ -430,11 +382,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getScript(const char * localeID,
  * than countryCapacity, the returned country code will be truncated.
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 uloc_getCountry(const char * localeID,
-    char * country,
-    int32_t countryCapacity,
-    UErrorCode * err);
-
+U_CAPI int32_t U_EXPORT2 uloc_getCountry(const char * localeID, char * country, int32_t countryCapacity, UErrorCode * err);
 /**
  * Gets the variant code for the specified locale.
  *
@@ -447,11 +395,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getCountry(const char * localeID,
  * than variantCapacity, the returned variant code will be truncated.
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 uloc_getVariant(const char * localeID,
-    char * variant,
-    int32_t variantCapacity,
-    UErrorCode * err);
-
+U_CAPI int32_t U_EXPORT2 uloc_getVariant(const char * localeID, char * variant, int32_t variantCapacity, UErrorCode * err);
 /**
  * Gets the full name for the specified locale.
  * Note: This has the effect of 'canonicalizing' the ICU locale ID to
@@ -468,11 +412,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getVariant(const char * localeID,
  * than nameCapacity, the returned full name will be truncated.
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 uloc_getName(const char * localeID,
-    char * name,
-    int32_t nameCapacity,
-    UErrorCode * err);
-
+U_CAPI int32_t U_EXPORT2 uloc_getName(const char * localeID, char * name, int32_t nameCapacity, UErrorCode * err);
 /**
  * Gets the full name for the specified locale.
  * Note: This has the effect of 'canonicalizing' the string to
@@ -490,11 +430,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getName(const char * localeID,
  * than nameCapacity, the returned full name will be truncated.
  * @stable ICU 2.8
  */
-U_CAPI int32_t U_EXPORT2 uloc_canonicalize(const char * localeID,
-    char * name,
-    int32_t nameCapacity,
-    UErrorCode * err);
-
+U_CAPI int32_t U_EXPORT2 uloc_canonicalize(const char * localeID, char * name, int32_t nameCapacity, UErrorCode * err);
 /**
  * Gets the ISO language code for the specified locale.
  *
@@ -503,7 +439,6 @@ U_CAPI int32_t U_EXPORT2 uloc_canonicalize(const char * localeID,
  * @stable ICU 2.0
  */
 U_CAPI const char * U_EXPORT2 uloc_getISO3Language(const char * localeID);
-
 /**
  * Gets the ISO country code for the specified locale.
  *
@@ -512,7 +447,6 @@ U_CAPI const char * U_EXPORT2 uloc_getISO3Language(const char * localeID);
  * @stable ICU 2.0
  */
 U_CAPI const char * U_EXPORT2 uloc_getISO3Country(const char * localeID);
-
 /**
  * Gets the Win32 LCID value for the specified locale.
  * If the ICU locale is not recognized by Windows, 0 will be returned.
@@ -525,7 +459,6 @@ U_CAPI const char * U_EXPORT2 uloc_getISO3Country(const char * localeID);
  * @stable ICU 2.0
  */
 U_CAPI uint32_t U_EXPORT2 uloc_getLCID(const char * localeID);
-
 /**
  * Gets the language name suitable for display for the specified locale.
  *
@@ -547,12 +480,7 @@ U_CAPI uint32_t U_EXPORT2 uloc_getLCID(const char * localeID);
  *                 code will be truncated.
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 uloc_getDisplayLanguage(const char * locale,
-    const char * displayLocale,
-    UChar * language,
-    int32_t languageCapacity,
-    UErrorCode * status);
-
+U_CAPI int32_t U_EXPORT2 uloc_getDisplayLanguage(const char * locale, const char * displayLocale, UChar * language, int32_t languageCapacity, UErrorCode * status);
 /**
  * Gets the script name suitable for display for the specified locale.
  *
@@ -575,12 +503,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayLanguage(const char * locale,
  *                 script code will be truncated.
  * @stable ICU 2.8
  */
-U_CAPI int32_t U_EXPORT2 uloc_getDisplayScript(const char * locale,
-    const char * displayLocale,
-    UChar * script,
-    int32_t scriptCapacity,
-    UErrorCode * status);
-
+U_CAPI int32_t U_EXPORT2 uloc_getDisplayScript(const char * locale, const char * displayLocale, UChar * script, int32_t scriptCapacity, UErrorCode * status);
 /**
  * Gets the country name suitable for display for the specified locale.
  * Warning: this is for the region part of a valid locale ID; it cannot just be
@@ -606,12 +529,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayScript(const char * locale,
  *                 country code will be truncated.
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 uloc_getDisplayCountry(const char * locale,
-    const char * displayLocale,
-    UChar * country,
-    int32_t countryCapacity,
-    UErrorCode * status);
-
+U_CAPI int32_t U_EXPORT2 uloc_getDisplayCountry(const char * locale, const char * displayLocale, UChar * country, int32_t countryCapacity, UErrorCode * status);
 /**
  * Gets the variant name suitable for display for the specified locale.
  *
@@ -634,12 +552,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayCountry(const char * locale,
  *                 variant code will be truncated.
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 uloc_getDisplayVariant(const char * locale,
-    const char * displayLocale,
-    UChar * variant,
-    int32_t variantCapacity,
-    UErrorCode * status);
-
+U_CAPI int32_t U_EXPORT2 uloc_getDisplayVariant(const char * locale, const char * displayLocale, UChar * variant, int32_t variantCapacity, UErrorCode * status);
 /**
  * Gets the keyword name suitable for display for the specified locale. E.g:
  * for the locale string de_DE\@collation=PHONEBOOK, this API gets the display
@@ -895,9 +808,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getBaseName(const char * localeID, char * name, in
  * @return enumeration of keywords or NULL if there are no keywords.
  * @stable ICU 2.8
  */
-U_CAPI UEnumeration* U_EXPORT2 uloc_openKeywords(const char * localeID,
-    UErrorCode * status);
-
+U_CAPI UEnumeration* U_EXPORT2 uloc_openKeywords(const char * localeID, UErrorCode * status);
 /**
  * Get the value for a keyword. Locale name does not need to be normalized.
  *
@@ -1239,7 +1150,6 @@ U_CAPI const char * U_EXPORT2 uloc_toUnicodeLocaleKey(const char * keyword);
  * @stable ICU 54
  */
 U_CAPI const char * U_EXPORT2 uloc_toUnicodeLocaleType(const char * keyword, const char * value);
-
 /**
  * Converts the specified keyword (BCP 47 Unicode locale extension key, or
  * legacy key) to the legacy key. For example, legacy key "collation" is
@@ -1253,7 +1163,6 @@ U_CAPI const char * U_EXPORT2 uloc_toUnicodeLocaleType(const char * keyword, con
  * @stable ICU 54
  */
 U_CAPI const char * U_EXPORT2 uloc_toLegacyKey(const char * keyword);
-
 /**
  * Converts the specified keyword value (BCP 47 Unicode locale extension type,
  * or legacy type or type alias) to the canonical legacy type. For example,

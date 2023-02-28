@@ -29,14 +29,14 @@
 ;******************************************************************************
 %define ALLOW_OVERRIDE 0               ; Set to one if override of standard function desired
 
-global _A_strspn: function
-global _A_strcspn: function
+global _A_strspn
+global _A_strcspn
 
 ; Direct entries to CPU-specific versions
-global _strspnGeneric: function
-global _strcspnGeneric: function
-global _strspnSSE42: function
-global _strcspnSSE42: function
+global _strspnGeneric
+global _strcspnGeneric
+global _strspnSSE42
+global _strcspnSSE42
 
 ; Imported from instrset32.asm:
 extern _InstructionSet                 ; Instruction set for CPU dispatcher
@@ -48,7 +48,7 @@ section .text
 ;******************************************************************************
 
 %if ALLOW_OVERRIDE
-global ?OVR_strspn: function
+global ?OVR_strspn
 ?OVR_strspn:
 %endif
 
@@ -114,7 +114,7 @@ set_extends: ; the set is more than 16 bytes
 ;******************************************************************************
 
 %if ALLOW_OVERRIDE
-global ?OVR_strcspn: function
+global ?OVR_strcspn
 ?OVR_strcspn:
 %endif
 
@@ -335,4 +335,4 @@ SECTION .bss
 ; last, but the assembler gives sections with unknown names wrong attributes.
 ; Here, we are just relying on library data being placed after main data.
 ; This can be verified by making a link map file)
-        dq      0, 0
+        resq  4

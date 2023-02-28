@@ -1,0 +1,10 @@
+prefix=C:/Program Files (x86)/sentencepiece
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}
+
+Name: sentencepiece
+Description: Unsupervised text tokenizer and detokenizer for Neural Network-based text generation.
+Version: 0.1.97
+Libs: -L${libdir} -lsentencepiece -lsentencepiece_train  
+Cflags: -I${includedir} 

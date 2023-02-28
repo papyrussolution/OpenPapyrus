@@ -1,3 +1,4 @@
+// algorithm.h
 // Copyright 2017 The Abseil Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,20 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// -----------------------------------------------------------------------------
-// File: algorithm.h
-// -----------------------------------------------------------------------------
+// This header file contains Google extensions to the standard <algorithm> C++ header.
 //
-// This header file contains Google extensions to the standard <algorithm> C++
-// header.
-
 #ifndef ABSL_ALGORITHM_ALGORITHM_H_
 #define ABSL_ALGORITHM_ALGORITHM_H_
 
 //#include <algorithm>
 //#include <iterator>
 //#include <type_traits>
-//#include "absl/base/config.h"
+#include "absl/base/config.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
@@ -37,10 +33,8 @@ struct EqualTo {
 	bool operator()(const T& a, const U& b) const { return a == b; }
 };
 
-template <typename InputIter1, typename InputIter2, typename Pred>
-bool EqualImpl(InputIter1 first1, InputIter1 last1, InputIter2 first2,
-    InputIter2 last2, Pred pred, std::input_iterator_tag,
-    std::input_iterator_tag) {
+template <typename InputIter1, typename InputIter2, typename Pred> bool EqualImpl(InputIter1 first1, InputIter1 last1, InputIter2 first2, InputIter2 last2, Pred pred, std::input_iterator_tag, std::input_iterator_tag) 
+{
 	while(true) {
 		if(first1 == last1) return first2 == last2;
 		if(first2 == last2) return false;
@@ -54,8 +48,7 @@ template <typename InputIter1, typename InputIter2, typename Pred>
 bool EqualImpl(InputIter1 first1, InputIter1 last1, InputIter2 first2,
     InputIter2 last2, Pred&& pred, std::random_access_iterator_tag,
     std::random_access_iterator_tag) {
-	return (last1 - first1 == last2 - first2) &&
-	       std::equal(first1, last1, first2, std::forward<Pred>(pred));
+	return (last1 - first1 == last2 - first2) && std::equal(first1, last1, first2, std::forward<Pred>(pred));
 }
 
 // When we are using our own internal predicate that just applies operator==, we

@@ -16,7 +16,7 @@
 * In Linux: use static linking (*.a) or dynamic linking (*.so).
 *
 * Include this code in your C or C++ program and call intel_cpu_patch();
-* before any call to the MKL functions.
+* before any call to the library functions.
 *
 * See the manual in asmlib.zip for details.
 * Copyright (c) 2014 GNU LGPL License v. 3.0 www.gnu.org/licenses/lgpl.html

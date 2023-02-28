@@ -1,23 +1,20 @@
 // collationroot.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (C) 2012-2014, International Business Machines Corporation and others.  All Rights Reserved.
- * created on: 2012dec17
- * created by: Markus W. Scherer
- */
+// Copyright (C) 2012-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// created on: 2012dec17
+// created by: Markus W. Scherer
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
 #if !UCONFIG_NO_COLLATION
-
 #include "collationdatareader.h"
 #include "collationroot.h"
 #include "collationsettings.h"
 #include "collationtailoring.h"
 #include "ucln_in.h"
 #include "udatamem.h"
-
 U_NAMESPACE_BEGIN
 
 namespace {
@@ -97,5 +94,4 @@ const CollationSettings * CollationRoot::getSettings(UErrorCode & errorCode) {
 }
 
 U_NAMESPACE_END
-
 #endif  // !UCONFIG_NO_COLLATION

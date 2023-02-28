@@ -38,8 +38,8 @@
 ; C++ prototype:
 ; extern "C" int UnalignedIsFaster(void);
 
-global UnalignedIsFaster: function
-global Store256BitIsFaster: function
+global UnalignedIsFaster
+global Store256BitIsFaster
 extern CpuType
 extern InstructionSet
 
@@ -81,6 +81,7 @@ UnalignedIsFaster:
 Intel:  ; Unaligned read is faster on Intel Nehalem and later, but not Atom
         ; Nehalem  = family 6, model 1AH
         ; Atom     = family 6, model 1CH
+		; Silvermont = family 6, model 37H (palignr may be slightly faster than unaligned read in some cases. no big difference)
         ; Netburst = family 0FH
         ; Future models are likely to be family 6, mayby > 6, model > 1C
         cmp     ecx, 6

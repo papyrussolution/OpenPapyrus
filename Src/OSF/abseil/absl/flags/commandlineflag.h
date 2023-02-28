@@ -14,6 +14,9 @@
 #ifndef ABSL_FLAGS_COMMANDLINEFLAG_H_
 #define ABSL_FLAGS_COMMANDLINEFLAG_H_
 
+#include <absl/types/optional.h>
+#include <absl/flags/internal/commandlineflag.h>
+
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace flags_internal {

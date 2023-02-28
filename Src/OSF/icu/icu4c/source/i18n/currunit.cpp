@@ -1,11 +1,10 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (c) 2004-2014, International Business Machines Corporation and others.  All Rights Reserved.
- * Author: Alan Liu
- * Created: April 26, 2004
- * Since: ICU 3.0
- */
+// Copyright (c) 2004-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// Author: Alan Liu
+// Created: April 26, 2004
+// Since: ICU 3.0
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -16,7 +15,8 @@
 
 U_NAMESPACE_BEGIN
 
-CurrencyUnit::CurrencyUnit(ConstChar16Ptr _isoCode, UErrorCode & ec) {
+CurrencyUnit::CurrencyUnit(ConstChar16Ptr _isoCode, UErrorCode & ec) 
+{
 	// The constructor always leaves the CurrencyUnit in a valid state (with a 3-character currency code).
 	// Note: in ICU4J Currency.getInstance(), we check string length for 3, but in ICU4C we allow a
 	// non-NUL-terminated string to be passed as an argument, so it is not possible to check length.

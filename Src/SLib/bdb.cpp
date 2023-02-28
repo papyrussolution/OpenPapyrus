@@ -1,5 +1,5 @@
 // BDB.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -11,8 +11,7 @@ BDbDatabase::Txn::Txn() : TblList(/*16,*/aryPtrContainer /* not aryEachItem */),
 {
 }
 
-// static
-SString & BDbDatabase::MakeFileName(const char * pFile, const char * pTblName, SString & rFileName)
+/*static*/SString & BDbDatabase::MakeFileName(const char * pFile, const char * pTblName, SString & rFileName)
 {
 	rFileName.Z();
 	if(!isempty(pFile)) {
@@ -23,8 +22,7 @@ SString & BDbDatabase::MakeFileName(const char * pFile, const char * pTblName, S
 	return rFileName;
 }
 
-// static
-int BDbDatabase::SplitFileName(const char * pFileName, SString & rFile, SString & rTbl)
+/*static*/int BDbDatabase::SplitFileName(const char * pFileName, SString & rFile, SString & rTbl)
 {
 	int    ok = 0;
 	rFile.Z();

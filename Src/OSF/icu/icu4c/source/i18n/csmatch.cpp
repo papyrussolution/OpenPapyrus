@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2005-2012, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- */
+// Copyright (C) 2005-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -16,14 +12,12 @@
 
 U_NAMESPACE_BEGIN
 
-CharsetMatch::CharsetMatch()
-	: textIn(NULL), confidence(0), fCharsetName(NULL), fLang(NULL)
+CharsetMatch::CharsetMatch() : textIn(NULL), confidence(0), fCharsetName(NULL), fLang(NULL)
 {
 	// nothing else to do.
 }
 
-void CharsetMatch::set(InputText * input, const CharsetRecognizer * cr, int32_t conf,
-    const char * csName, const char * lang)
+void CharsetMatch::set(InputText * input, const CharsetRecognizer * cr, int32_t conf, const char * csName, const char * lang)
 {
 	textIn = input;
 	confidence = conf;

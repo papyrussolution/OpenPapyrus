@@ -1,19 +1,11 @@
+// umsg_imp.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-**********************************************************************
-*   Copyright (C) 2001, International Business Machines
-*   Corporation and others.  All Rights Reserved.
-**********************************************************************
-*   file name:  umsg_imp.h
-*   encoding:   UTF-8
-*   tab size:   8 (not used)
-*   indentation:4
-*
-*   created on: 2001jun22
-*   created by: George Rhoten
-*/
-
+// Copyright (C) 2001, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2001jun22
+// created by: George Rhoten
+// 
 #ifndef UMISC_H
 #define UMISC_H
 
@@ -22,7 +14,6 @@
 #if !UCONFIG_NO_FORMATTING
 
 /* global variables used by the C and C++ message formatting API. */
-
 extern const UChar *g_umsgTypeList[];
 extern const UChar *g_umsgModifierList[];
 extern const UChar *g_umsgDateModifierList[];
@@ -43,5 +34,4 @@ extern const UChar g_umsg_long[];
 extern const UChar g_umsg_full[];
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
 #endif

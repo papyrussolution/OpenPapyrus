@@ -14,11 +14,11 @@
 ; Copyright (c) 2011 GNU General Public License www.gnu.org/licenses
 ;******************************************************************************
 
-global _A_popcount: function
+global _A_popcount
 
 ; Direct entries to CPU-specific versions
-global _popcountGeneric: function
-global _popcountSSE42: function
+global _popcountGeneric
+global _popcountSSE42
 
 ; Imported from instrset32.asm:
 extern _InstructionSet                 ; Instruction set for CPU dispatcher

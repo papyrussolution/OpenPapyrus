@@ -3609,10 +3609,40 @@ void UhttGoodsProcessor::ProcessDupCodeList(const LongArray & rDupCodeIdxList)
 				}
 			}
 			if(process_flags != entry.ProcessFlags) {
-				L.UpdateProcessFlags(idx, process_flags);
+				IntermediateImportedGoodsCollection::Entry result_entry;
+				result_entry.Ident = entry.Ident;
+				result_entry.Code = entry.Code;
+				result_entry.ProcessFlags = process_flags;
+				if(upd_grp_name.NotEmpty())
+					result_entry.GrpName = upd_grp_name;
+				else
+					result_entry.GrpName = entry.GrpName;
+				if(upd_brand_name.NotEmpty())
+					result_entry.BrandName = upd_brand_name;
+				else
+					result_entry.BrandName = entry.BrandName;
+				result_entry.Name = entry.Name;
+				Result.Add(result_entry);
+				//L.UpdateProcessFlags(idx, process_flags);
 			}
 		}
 	}
+}
+
+uint UhttGoodsProcessor::GetResultCount() const
+{
+	return Result.GetCount();
+}
+
+int UhttGoodsProcessor::GetResult(uint idx, IntermediateImportedGoodsCollection::Entry & rEntry)
+{
+	int    ok = 1;
+	if(idx < Result.GetCount()) {
+		Result.Get(idx, rEntry);
+	}
+	else
+		ok = 0;
+	return ok;
 }
 	
 int UhttGoodsProcessor::Run()

@@ -703,7 +703,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 	const  uint col_count = rS.BL.getCount();
 	MYSQL_STMT * h_stmt = StmtHandle(rS);
 	TSVector <MYSQL_BIND> bind_list;
-	assert(checkirange(row_count, 1, 1024));
+	assert(checkirange(row_count, 1U, 1024U));
 	THROW(rS.SetupBindingSubstBuffer(dir, row_count));
 	if(dir == -1) { // Входящие для SQL-запроса параметры (например для INSERT)
 		for(uint i = 0; i < col_count; i++) {

@@ -31,7 +31,7 @@
 ; C++ prototype:
 ; extern "C" void CpuType(int * vendor, int * family, int * model);
 
-global CpuType: function
+global CpuType
 
 
 SECTION .text

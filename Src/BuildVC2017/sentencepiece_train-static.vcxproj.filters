@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\OSF\sentencepiece\src\bpe_model_trainer.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\builder.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\char_model_trainer.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\pretokenizer_for_training.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\sentencepiece_trainer.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\trainer_factory.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\trainer_interface.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\unicode_script.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\unigram_model_trainer.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\word_model_trainer.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\sentencepiece-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\sentencepiece\src\builtin_pb\sentencepiece.pb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\builtin_pb\sentencepiece_model.pb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\builder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\normalization_rule.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\unicode_script.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\unicode_script_map.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\trainer_factory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\trainer_interface.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\unigram_model_trainer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\word_model_trainer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\char_model_trainer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\bpe_model_trainer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\sentencepiece_trainer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\pretokenizer_for_training.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\sentencepiece-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{C2B7B476-25EE-370E-A0EA-179D1C0AF01C}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

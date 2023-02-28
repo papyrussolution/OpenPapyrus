@@ -7,6 +7,8 @@
 #ifndef ABSL_STRINGS_INTERNAL_CORD_REP_BTREE_READER_H_
 #define ABSL_STRINGS_INTERNAL_CORD_REP_BTREE_READER_H_
 
+#include "absl/strings/internal/cord_rep_btree_navigator.h"
+
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace cord_internal {

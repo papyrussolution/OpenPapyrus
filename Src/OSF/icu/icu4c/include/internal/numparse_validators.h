@@ -12,81 +12,59 @@
 
 U_NAMESPACE_BEGIN namespace numparse {
 namespace impl {
-
-
 class ValidationMatcher : public NumberParseMatcher {
-  public:
-    bool match(StringSegment&, ParsedNumber&, UErrorCode&) const U_OVERRIDE {
-        // No-op
-        return false;
-    }
-
-    bool smokeTest(const StringSegment&) const U_OVERRIDE {
-        // No-op
-        return false;
-    }
-
-    void postProcess(ParsedNumber& result) const U_OVERRIDE = 0;
+public:
+	bool match(StringSegment&, ParsedNumber&, UErrorCode&) const U_OVERRIDE {
+		// No-op
+		return false;
+	}
+	bool smokeTest(const StringSegment&) const U_OVERRIDE {
+		// No-op
+		return false;
+	}
+	void postProcess(ParsedNumber& result) const U_OVERRIDE = 0;
 };
-
 
 class RequireAffixValidator : public ValidationMatcher, public UMemory {
-  public:
-    void postProcess(ParsedNumber& result) const U_OVERRIDE;
-
-    UnicodeString toString() const U_OVERRIDE;
+public:
+	void postProcess(ParsedNumber& result) const U_OVERRIDE;
+	UnicodeString toString() const U_OVERRIDE;
 };
-
 
 class RequireCurrencyValidator : public ValidationMatcher, public UMemory {
-  public:
-    void postProcess(ParsedNumber& result) const U_OVERRIDE;
-
-    UnicodeString toString() const U_OVERRIDE;
+public:
+	void postProcess(ParsedNumber& result) const U_OVERRIDE;
+	UnicodeString toString() const U_OVERRIDE;
 };
-
 
 class RequireDecimalSeparatorValidator : public ValidationMatcher, public UMemory {
-  public:
-    RequireDecimalSeparatorValidator() = default;  // leaves instance in valid but undefined state
-
-    RequireDecimalSeparatorValidator(bool patternHasDecimalSeparator);
-
-    void postProcess(ParsedNumber& result) const U_OVERRIDE;
-
-    UnicodeString toString() const U_OVERRIDE;
-
-  private:
-    bool fPatternHasDecimalSeparator;
+public:
+	RequireDecimalSeparatorValidator() = default; // leaves instance in valid but undefined state
+	RequireDecimalSeparatorValidator(bool patternHasDecimalSeparator);
+	void postProcess(ParsedNumber& result) const U_OVERRIDE;
+	UnicodeString toString() const U_OVERRIDE;
+private:
+	bool fPatternHasDecimalSeparator;
 };
-
 
 class RequireNumberValidator : public ValidationMatcher, public UMemory {
-  public:
-    void postProcess(ParsedNumber& result) const U_OVERRIDE;
-
-    UnicodeString toString() const U_OVERRIDE;
+public:
+	void postProcess(ParsedNumber& result) const U_OVERRIDE;
+	UnicodeString toString() const U_OVERRIDE;
 };
-
 
 /**
  * Wraps a {@link Multiplier} for use in the number parsing pipeline.
  */
 class MultiplierParseHandler : public ValidationMatcher, public UMemory {
-  public:
-    MultiplierParseHandler() = default;  // leaves instance in valid but undefined state
-
-    MultiplierParseHandler(::icu::number::Scale multiplier);
-
-    void postProcess(ParsedNumber& result) const U_OVERRIDE;
-
-    UnicodeString toString() const U_OVERRIDE;
-
-  private:
-    ::icu::number::Scale fMultiplier;
+public:
+	MultiplierParseHandler() = default; // leaves instance in valid but undefined state
+	MultiplierParseHandler(::icu::number::Scale multiplier);
+	void postProcess(ParsedNumber& result) const U_OVERRIDE;
+	UnicodeString toString() const U_OVERRIDE;
+private:
+	::icu::number::Scale fMultiplier;
 };
-
-
 } // namespace impl
 } // namespace numparse
 U_NAMESPACE_END

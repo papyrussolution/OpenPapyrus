@@ -273,22 +273,15 @@ l_ok pixSetMasked(PIX * pixd,
  *          in pixd.  It's somewhat baroque, but I found it amusing.
  * </pre>
  */
-l_ok pixSetMaskedGeneral(PIX * pixd,
-    PIX * pixm,
-    uint32 val,
-    int32 x,
-    int32 y)
+l_ok pixSetMaskedGeneral(PIX * pixd, PIX * pixm, uint32 val, int32 x, int32 y)
 {
 	int32 wm, hm, d;
 	PIX * pixmu, * pixc;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixd)
 		return ERROR_INT("pixd not defined", procName, 1);
 	if(!pixm) /* nothing to do */
 		return 0;
-
 	d = pixGetDepth(pixd);
 	if(d != 8 && d != 16 && d != 32)
 		return ERROR_INT("pixd not 8, 16 or 32 bpp", procName, 1);
@@ -351,17 +344,13 @@ l_ok pixSetMaskedGeneral(PIX * pixd,
  *          is actually faster!
  * </pre>
  */
-l_ok pixCombineMasked(PIX * pixd,
-    PIX * pixs,
-    PIX  * pixm)
+l_ok pixCombineMasked(PIX * pixd, PIX * pixs, PIX  * pixm)
 {
 	int32 w, h, d, ws, hs, ds, wm, hm, dm, wmin, hmin;
 	int32 wpl, wpls, wplm, i, j, val;
 	uint32  * data, * datas, * datam, * line, * lines, * linem;
 	PIX * pixt;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixm) /* nothing to do */
 		return 0;
 	if(!pixd)
@@ -469,19 +458,13 @@ l_ok pixCombineMasked(PIX * pixd,
  *             pixDestroy(&pixm8);
  * </pre>
  */
-l_ok pixCombineMaskedGeneral(PIX * pixd,
-    PIX * pixs,
-    PIX * pixm,
-    int32 x,
-    int32 y)
+l_ok pixCombineMaskedGeneral(PIX * pixd, PIX * pixs, PIX * pixm, int32 x, int32 y)
 {
 	int32 d, w, h, ws, hs, ds, wm, hm, dm, wmin, hmin;
 	int32 wpl, wpls, wplm, i, j, val;
 	uint32  * data, * datas, * datam, * line, * lines, * linem;
 	PIX * pixt;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixm) /* nothing to do */
 		return 0;
 	if(!pixd)
@@ -592,17 +575,11 @@ l_ok pixCombineMaskedGeneral(PIX * pixd,
  *          same and the compiler can correctly predict the jump.
  * </pre>
  */
-l_ok pixPaintThroughMask(PIX * pixd,
-    PIX * pixm,
-    int32 x,
-    int32 y,
-    uint32 val)
+l_ok pixPaintThroughMask(PIX * pixd, PIX * pixm, int32 x, int32 y, uint32 val)
 {
 	int32 d, w, h, wm, hm, wpl, wplm, i, j, rval, gval, bval;
 	uint32  * data, * datam, * line, * linem;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixm) /* nothing to do */
 		return 0;
 	if(!pixd)

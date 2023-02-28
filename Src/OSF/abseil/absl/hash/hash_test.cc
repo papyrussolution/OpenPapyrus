@@ -772,23 +772,16 @@ TEST(IsHashableTest, PoisonHash) {
 // These types exist simply to exercise various AbslHashValue behaviors, so
 // they are named by what their AbslHashValue overload does.
 struct NoOp {
-	template <typename HashCode>
-	friend HashCode AbslHashValue(HashCode h, NoOp n) {
-		return h;
-	}
+	template <typename HashCode> friend HashCode AbslHashValue(HashCode h, NoOp n) { return h; }
 };
 
 struct EmptyCombine {
-	template <typename HashCode>
-	friend HashCode AbslHashValue(HashCode h, EmptyCombine e) {
-		return HashCode::combine(std::move(h));
-	}
+	template <typename HashCode> friend HashCode AbslHashValue(HashCode h, EmptyCombine e) { return HashCode::combine(std::move(h)); }
 };
 
-template <typename Int>
-struct CombineIterative {
-	template <typename HashCode>
-	friend HashCode AbslHashValue(HashCode h, CombineIterative c) {
+template <typename Int> struct CombineIterative {
+	template <typename HashCode> friend HashCode AbslHashValue(HashCode h, CombineIterative c) 
+	{
 		for(int i = 0; i < 5; ++i) {
 			h = HashCode::combine(std::move(h), Int(i));
 		}
@@ -796,12 +789,10 @@ struct CombineIterative {
 	}
 };
 
-template <typename Int>
-struct CombineVariadic {
-	template <typename HashCode>
-	friend HashCode AbslHashValue(HashCode h, CombineVariadic c) {
-		return HashCode::combine(std::move(h), Int(0), Int(1), Int(2), Int(3),
-			   Int(4));
+template <typename Int> struct CombineVariadic {
+	template <typename HashCode> friend HashCode AbslHashValue(HashCode h, CombineVariadic c) 
+	{
+		return HashCode::combine(std::move(h), Int(0), Int(1), Int(2), Int(3), Int(4));
 	}
 };
 

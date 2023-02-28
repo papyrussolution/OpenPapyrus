@@ -1,5 +1,4 @@
-// Copyright (c) 2000, Google Inc.
-// All rights reserved.
+// Copyright (c) 2000, Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -28,7 +27,8 @@ using std::min;
 using std::vector;
 
 // TODO(csilvers): add in a portable implementation of aligned_malloc
-static void * aligned_malloc(size_t size, size_t alignment) {
+static void * aligned_malloc(size_t size, size_t alignment) 
+{
 	LOG(FATAL) << "page_aligned_ not currently supported\n";
 }
 

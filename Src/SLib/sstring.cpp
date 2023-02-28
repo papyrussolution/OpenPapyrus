@@ -2745,7 +2745,7 @@ char * STDCALL longfmtz(long val, int numDigits, char * pBuf, size_t bufLen)
 
 SString & STDCALL SString::CatLongZ(long val, uint numDigits)
 {
-	if(checkirange(numDigits, 1, 512)) {
+	if(checkirange(numDigits, 1U, 512U)) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
 		const size_t _slen = r_temp_buf.Cat(val).Len();
 		if(_slen < numDigits)
@@ -2759,7 +2759,7 @@ SString & STDCALL SString::CatLongZ(long val, uint numDigits)
 
 SString & STDCALL SString::CatLongZ(int64 val, uint numDigits)
 {
-	if(checkirange(numDigits, 1, 512)) {
+	if(checkirange(numDigits, 1U, 512U)) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
 		const size_t _slen = r_temp_buf.Cat(val).Len();
 		if(_slen < numDigits)
@@ -7642,7 +7642,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						int   is_ru_kpp = 1;
 						for(i = 0; is_ru_kpp && i < toklen; i++) {
 							if(!isdec(pToken[i])) {
-								if(!(oneof2(i, 4, 5) && checkirange(pToken[i], 'A', 'Z'))) // 5, 6 знаки в КПП могут быть прописной латинской буквой
+								if(!(oneof2(i, 4, 5) && checkirange(pToken[i], static_cast<uchar>('A'), static_cast<uchar>('Z')))) // 5, 6 знаки в КПП могут быть прописной латинской буквой
 									is_ru_kpp = 0;
 							}
 						}
@@ -7769,9 +7769,9 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 								raw_code[raw_code_len++] = pToken[i];
 						}
 						assert(raw_code_len == (isdec(control) ? (rIb.DecCount-1) : rIb.DecCount));
-						uint ri = raw_code_len;
-						uint idx = 0;
-						uint sum = 0;
+						size_t ri = raw_code_len;
+						uint   idx = 0;
+						uint   sum = 0;
 						if(ri) do {
 							const uint d = raw_code[--ri]-'0';
 							assert(idx < SIZEOFARRAY(cl_rut_w));

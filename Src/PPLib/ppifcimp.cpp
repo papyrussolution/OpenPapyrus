@@ -387,13 +387,23 @@ int32 DL6ICLS_UhttGoodsProcessor::Run()
 
 int32 DL6ICLS_UhttGoodsProcessor::GetResultCount()
 {
-	// Your code here...
-	return 0;
+	return ExtraPtr ? static_cast<UhttGoodsProcessor *>(ExtraPtr)->GetResultCount() : 0;
 }
 
 int32 DL6ICLS_UhttGoodsProcessor::GetResult(int32 idx, UhttGoodsProcessorEntry* pEntry)
 {
 	// Your code here...
+	int32 ok = 0;
+	if(ExtraPtr) {
+		IntermediateImportedGoodsCollection::Entry inner_entry;
+		if(static_cast<UhttGoodsProcessor *>(ExtraPtr)->GetResult(idx, inner_entry) > 0) {
+			if(pEntry) {
+				pEntry->Ident = inner_entry.Ident;
+				pEntry->ResultFlags = inner_entry.ProcessFlags;
+				//pEntry->
+			}
+		}
+	}
 	return 0;
 }
 //

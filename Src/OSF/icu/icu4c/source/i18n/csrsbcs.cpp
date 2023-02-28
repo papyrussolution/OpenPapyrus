@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2005-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- */
+// Copyright (C) 2005-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -17,12 +13,10 @@
 
 U_NAMESPACE_BEGIN
 
-NGramParser::NGramParser(const int32_t * theNgramList, const uint8 * theCharMap)
-	: ngram(0), byteIndex(0)
+NGramParser::NGramParser(const int32_t * theNgramList, const uint8 * theCharMap) : ngram(0), byteIndex(0)
 {
 	ngramList = theNgramList;
 	charMap   = theCharMap;
-
 	ngramCount = hitCount = 0;
 }
 
@@ -224,18 +218,13 @@ CharsetRecog_sbcs::CharsetRecog_sbcs()
 	// nothing else to do
 }
 
-CharsetRecog_sbcs::~CharsetRecog_sbcs()
-{
-	// nothing to do
-}
+CharsetRecog_sbcs::~CharsetRecog_sbcs() {} // nothing to do
 
 int32_t CharsetRecog_sbcs::match_sbcs(InputText * det, const int32_t ngrams[],  const uint8 byteMap[]) const
 {
 	NGramParser parser(ngrams, byteMap);
 	int32_t result;
-
 	result = parser.parse(det);
-
 	return result;
 }
 
@@ -969,12 +958,10 @@ static const int32_t ngrams_8859_9_tr[] = {
 	0xFD6E64, 0xFD6EFD, 0xFDF0FD,
 };
 
-CharsetRecog_8859_1::~CharsetRecog_8859_1()
-{
-	// nothing to do
-}
+CharsetRecog_8859_1::~CharsetRecog_8859_1() {} // nothing to do
 
-bool CharsetRecog_8859_1::match(InputText * textIn, CharsetMatch * results) const {
+bool CharsetRecog_8859_1::match(InputText * textIn, CharsetMatch * results) const 
+{
 	const char * name = textIn->fC1Bytes ? "windows-1252" : "ISO-8859-1";
 	uint32_t i;
 	int32_t bestConfidenceSoFar = -1;
@@ -990,17 +977,11 @@ bool CharsetRecog_8859_1::match(InputText * textIn, CharsetMatch * results) cons
 	return (bestConfidenceSoFar > 0);
 }
 
-const char * CharsetRecog_8859_1::getName() const
-{
-	return "ISO-8859-1";
-}
+const char * CharsetRecog_8859_1::getName() const { return "ISO-8859-1"; }
+CharsetRecog_8859_2::~CharsetRecog_8859_2() {} // nothing to do
 
-CharsetRecog_8859_2::~CharsetRecog_8859_2()
+bool CharsetRecog_8859_2::match(InputText * textIn, CharsetMatch * results) const 
 {
-	// nothing to do
-}
-
-bool CharsetRecog_8859_2::match(InputText * textIn, CharsetMatch * results) const {
 	const char * name = textIn->fC1Bytes ? "windows-1250" : "ISO-8859-2";
 	uint32_t i;
 	int32_t bestConfidenceSoFar = -1;
@@ -1016,30 +997,12 @@ bool CharsetRecog_8859_2::match(InputText * textIn, CharsetMatch * results) cons
 	return (bestConfidenceSoFar > 0);
 }
 
-const char * CharsetRecog_8859_2::getName() const
-{
-	return "ISO-8859-2";
-}
+const char * CharsetRecog_8859_2::getName() const { return "ISO-8859-2"; }
 
-CharsetRecog_8859_5::~CharsetRecog_8859_5()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_8859_5::getName() const
-{
-	return "ISO-8859-5";
-}
-
-CharsetRecog_8859_5_ru::~CharsetRecog_8859_5_ru()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_8859_5_ru::getLanguage() const
-{
-	return "ru";
-}
+CharsetRecog_8859_5::~CharsetRecog_8859_5() {} // nothing to do
+const char * CharsetRecog_8859_5::getName() const { return "ISO-8859-5"; }
+CharsetRecog_8859_5_ru::~CharsetRecog_8859_5_ru() {} // nothing to do
+const char * CharsetRecog_8859_5_ru::getLanguage() const { return "ru"; }
 
 bool CharsetRecog_8859_5_ru::match(InputText * textIn, CharsetMatch * results) const
 {
@@ -1048,25 +1011,10 @@ bool CharsetRecog_8859_5_ru::match(InputText * textIn, CharsetMatch * results) c
 	return (confidence > 0);
 }
 
-CharsetRecog_8859_6::~CharsetRecog_8859_6()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_8859_6::getName() const
-{
-	return "ISO-8859-6";
-}
-
-CharsetRecog_8859_6_ar::~CharsetRecog_8859_6_ar()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_8859_6_ar::getLanguage() const
-{
-	return "ar";
-}
+CharsetRecog_8859_6::~CharsetRecog_8859_6() {} // nothing to do
+const char * CharsetRecog_8859_6::getName() const { return "ISO-8859-6"; }
+CharsetRecog_8859_6_ar::~CharsetRecog_8859_6_ar() {} // nothing to do
+const char * CharsetRecog_8859_6_ar::getLanguage() const { return "ar"; }
 
 bool CharsetRecog_8859_6_ar::match(InputText * textIn, CharsetMatch * results) const
 {
@@ -1075,25 +1023,10 @@ bool CharsetRecog_8859_6_ar::match(InputText * textIn, CharsetMatch * results) c
 	return (confidence > 0);
 }
 
-CharsetRecog_8859_7::~CharsetRecog_8859_7()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_8859_7::getName() const
-{
-	return "ISO-8859-7";
-}
-
-CharsetRecog_8859_7_el::~CharsetRecog_8859_7_el()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_8859_7_el::getLanguage() const
-{
-	return "el";
-}
+CharsetRecog_8859_7::~CharsetRecog_8859_7() {} // nothing to do
+const char * CharsetRecog_8859_7::getName() const { return "ISO-8859-7"; }
+CharsetRecog_8859_7_el::~CharsetRecog_8859_7_el() {} // nothing to do
+const char * CharsetRecog_8859_7_el::getLanguage() const { return "el"; }
 
 bool CharsetRecog_8859_7_el::match(InputText * textIn, CharsetMatch * results) const
 {
@@ -1103,30 +1036,11 @@ bool CharsetRecog_8859_7_el::match(InputText * textIn, CharsetMatch * results) c
 	return (confidence > 0);
 }
 
-CharsetRecog_8859_8::~CharsetRecog_8859_8()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_8859_8::getName() const
-{
-	return "ISO-8859-8";
-}
-
-CharsetRecog_8859_8_I_he::~CharsetRecog_8859_8_I_he ()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_8859_8_I_he::getName() const
-{
-	return "ISO-8859-8-I";
-}
-
-const char * CharsetRecog_8859_8_I_he::getLanguage() const
-{
-	return "he";
-}
+CharsetRecog_8859_8::~CharsetRecog_8859_8() {} // nothing to do
+const char * CharsetRecog_8859_8::getName() const { return "ISO-8859-8"; }
+CharsetRecog_8859_8_I_he::~CharsetRecog_8859_8_I_he () {} // nothing to do
+const char * CharsetRecog_8859_8_I_he::getName() const { return "ISO-8859-8-I"; }
+const char * CharsetRecog_8859_8_I_he::getLanguage() const { return "he"; }
 
 bool CharsetRecog_8859_8_I_he::match(InputText * textIn, CharsetMatch * results) const
 {
@@ -1136,15 +1050,8 @@ bool CharsetRecog_8859_8_I_he::match(InputText * textIn, CharsetMatch * results)
 	return (confidence > 0);
 }
 
-CharsetRecog_8859_8_he::~CharsetRecog_8859_8_he()
-{
-	// od ot gnihton
-}
-
-const char * CharsetRecog_8859_8_he::getLanguage() const
-{
-	return "he";
-}
+CharsetRecog_8859_8_he::~CharsetRecog_8859_8_he() {} // nothing to do
+const char * CharsetRecog_8859_8_he::getLanguage() const { return "he"; }
 
 bool CharsetRecog_8859_8_he::match(InputText * textIn, CharsetMatch * results) const
 {
@@ -1154,25 +1061,10 @@ bool CharsetRecog_8859_8_he::match(InputText * textIn, CharsetMatch * results) c
 	return (confidence > 0);
 }
 
-CharsetRecog_8859_9::~CharsetRecog_8859_9()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_8859_9::getName() const
-{
-	return "ISO-8859-9";
-}
-
-CharsetRecog_8859_9_tr::~CharsetRecog_8859_9_tr ()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_8859_9_tr::getLanguage() const
-{
-	return "tr";
-}
+CharsetRecog_8859_9::~CharsetRecog_8859_9() {} // nothing to do
+const char * CharsetRecog_8859_9::getName() const { return "ISO-8859-9"; }
+CharsetRecog_8859_9_tr::~CharsetRecog_8859_9_tr () {} // nothing to do
+const char * CharsetRecog_8859_9_tr::getLanguage() const { return "tr"; }
 
 bool CharsetRecog_8859_9_tr::match(InputText * textIn, CharsetMatch * results) const
 {
@@ -1182,20 +1074,9 @@ bool CharsetRecog_8859_9_tr::match(InputText * textIn, CharsetMatch * results) c
 	return (confidence > 0);
 }
 
-CharsetRecog_windows_1256::~CharsetRecog_windows_1256()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_windows_1256::getName() const
-{
-	return "windows-1256";
-}
-
-const char * CharsetRecog_windows_1256::getLanguage() const
-{
-	return "ar";
-}
+CharsetRecog_windows_1256::~CharsetRecog_windows_1256() {} // nothing to do
+const char * CharsetRecog_windows_1256::getName() const { return "windows-1256"; }
+const char * CharsetRecog_windows_1256::getLanguage() const { return "ar"; }
 
 bool CharsetRecog_windows_1256::match(InputText * textIn, CharsetMatch * results) const
 {
@@ -1204,20 +1085,9 @@ bool CharsetRecog_windows_1256::match(InputText * textIn, CharsetMatch * results
 	return (confidence > 0);
 }
 
-CharsetRecog_windows_1251::~CharsetRecog_windows_1251()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_windows_1251::getName() const
-{
-	return "windows-1251";
-}
-
-const char * CharsetRecog_windows_1251::getLanguage() const
-{
-	return "ru";
-}
+CharsetRecog_windows_1251::~CharsetRecog_windows_1251() {} // nothing to do
+const char * CharsetRecog_windows_1251::getName() const { return "windows-1251"; }
+const char * CharsetRecog_windows_1251::getLanguage() const { return "ru"; }
 
 bool CharsetRecog_windows_1251::match(InputText * textIn, CharsetMatch * results) const
 {
@@ -1226,20 +1096,9 @@ bool CharsetRecog_windows_1251::match(InputText * textIn, CharsetMatch * results
 	return (confidence > 0);
 }
 
-CharsetRecog_KOI8_R::~CharsetRecog_KOI8_R()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_KOI8_R::getName() const
-{
-	return "KOI8-R";
-}
-
-const char * CharsetRecog_KOI8_R::getLanguage() const
-{
-	return "ru";
-}
+CharsetRecog_KOI8_R::~CharsetRecog_KOI8_R() {} // nothing to do
+const char * CharsetRecog_KOI8_R::getName() const { return "KOI8-R"; }
+const char * CharsetRecog_KOI8_R::getLanguage() const { return "ru"; }
 
 bool CharsetRecog_KOI8_R::match(InputText * textIn, CharsetMatch * results) const
 {
@@ -1249,25 +1108,10 @@ bool CharsetRecog_KOI8_R::match(InputText * textIn, CharsetMatch * results) cons
 }
 
 #if !UCONFIG_ONLY_HTML_CONVERSION
-CharsetRecog_IBM424_he::~CharsetRecog_IBM424_he()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_IBM424_he::getLanguage() const
-{
-	return "he";
-}
-
-CharsetRecog_IBM424_he_rtl::~CharsetRecog_IBM424_he_rtl()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_IBM424_he_rtl::getName() const
-{
-	return "IBM424_rtl";
-}
+CharsetRecog_IBM424_he::~CharsetRecog_IBM424_he() {} // nothing to do
+const char * CharsetRecog_IBM424_he::getLanguage() const { return "he"; }
+CharsetRecog_IBM424_he_rtl::~CharsetRecog_IBM424_he_rtl() {} // nothing to do
+const char * CharsetRecog_IBM424_he_rtl::getName() const { return "IBM424_rtl"; }
 
 bool CharsetRecog_IBM424_he_rtl::match(InputText * textIn, CharsetMatch * results) const
 {
@@ -1276,15 +1120,8 @@ bool CharsetRecog_IBM424_he_rtl::match(InputText * textIn, CharsetMatch * result
 	return (confidence > 0);
 }
 
-CharsetRecog_IBM424_he_ltr::~CharsetRecog_IBM424_he_ltr()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_IBM424_he_ltr::getName() const
-{
-	return "IBM424_ltr";
-}
+CharsetRecog_IBM424_he_ltr::~CharsetRecog_IBM424_he_ltr() {} // nothing to do
+const char * CharsetRecog_IBM424_he_ltr::getName() const { return "IBM424_ltr"; }
 
 bool CharsetRecog_IBM424_he_ltr::match(InputText * textIn, CharsetMatch * results) const
 {
@@ -1293,15 +1130,8 @@ bool CharsetRecog_IBM424_he_ltr::match(InputText * textIn, CharsetMatch * result
 	return (confidence > 0);
 }
 
-CharsetRecog_IBM420_ar::~CharsetRecog_IBM420_ar()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_IBM420_ar::getLanguage() const
-{
-	return "ar";
-}
+CharsetRecog_IBM420_ar::~CharsetRecog_IBM420_ar() {} // nothing to do
+const char * CharsetRecog_IBM420_ar::getLanguage() const { return "ar"; }
 
 int32_t CharsetRecog_IBM420_ar::match_sbcs(InputText * det, const int32_t ngrams[],  const uint8 byteMap[]) const
 {
@@ -1310,15 +1140,8 @@ int32_t CharsetRecog_IBM420_ar::match_sbcs(InputText * det, const int32_t ngrams
 	return result;
 }
 
-CharsetRecog_IBM420_ar_rtl::~CharsetRecog_IBM420_ar_rtl()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_IBM420_ar_rtl::getName() const
-{
-	return "IBM420_rtl";
-}
+CharsetRecog_IBM420_ar_rtl::~CharsetRecog_IBM420_ar_rtl() {} // nothing to do
+const char * CharsetRecog_IBM420_ar_rtl::getName() const { return "IBM420_rtl"; }
 
 bool CharsetRecog_IBM420_ar_rtl::match(InputText * textIn, CharsetMatch * results) const
 {
@@ -1327,15 +1150,8 @@ bool CharsetRecog_IBM420_ar_rtl::match(InputText * textIn, CharsetMatch * result
 	return (confidence > 0);
 }
 
-CharsetRecog_IBM420_ar_ltr::~CharsetRecog_IBM420_ar_ltr()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_IBM420_ar_ltr::getName() const
-{
-	return "IBM420_ltr";
-}
+CharsetRecog_IBM420_ar_ltr::~CharsetRecog_IBM420_ar_ltr() {} // nothing to do
+const char * CharsetRecog_IBM420_ar_ltr::getName() const { return "IBM420_ltr"; }
 
 bool CharsetRecog_IBM420_ar_ltr::match(InputText * textIn, CharsetMatch * results) const
 {

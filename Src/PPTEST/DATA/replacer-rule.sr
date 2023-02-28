@@ -2673,6 +2673,7 @@ bosch sps%z%(%d%)%>bosch sps-%1
 bosch spv%z%(%d%)%>bosch spv-%1
 bosch tda%z%(%d%)%>bosch tda-%1
 bosch tds%z%(%d%)%>bosch tds-%1
+bosch twk%z%(%d%)%>bosch twk-%1
 bosch mfw%z%(%d%)%>bosch mfw-%1
 bosch mfq%z%(%d%)%>bosch mfq-%1
 bosch mcm%z%(%d%)%>bosch mcm-%1
@@ -2694,6 +2695,7 @@ tefal tw%z%(%d%)%>tefal tw-%1
 braun hd%z%(%d%)%>braun hd-%1
 braun ts%z%(%d%)%>braun ts-%1
 braun si%z%(%d%)%>braun si-%1
+braun wk%z%(%d%)%>braun wk-%1
 galaxy gl%z%(%d%)%>galaxy gl-%1
 rowenta cv%z%(%d%)%>rowenta cv-%1
 rowenta cf%z%(%d%)%>rowenta cf-%1
@@ -2706,8 +2708,15 @@ sencor shb%z%(%d%)%>sencor shb-%1
 sencor ssi%z%(%d%)%>sencor ssi-%1
 sencor svc%z%(%d%)%>sencor svc-%1
 samsung sc%z%(%d%)%>samsung sc-%1
+siemens bf%z%(%d%)%>siemens bf-%1
+siemens eh%z%(%d%)%>siemens eh-%1
+siemens et%z%(%d%)%>siemens et-%1
+siemens hb%z%(%d%)%>siemens hb-%1
 siemens sn%z%(%d%)%>siemens sn-%1
 siemens sr%z%(%d%)%>siemens sr-%1
+siemens wm%z%(%d%)%>siemens wm-%1
+siemens ws%z%(%d%)%>siemens ws-%1
+gorenje k%z%(%d%)%>gorenje k-%1
 gorenje gv%z%(%d%)%>gorenje gv-%1
 gorenje vc%z%(%d%)%>gorenje vc-%1
 gorenje rk%z%(%d%)%>gorenje rk-%1
@@ -2722,6 +2731,7 @@ neff t%z%(%d%)%>neff t-%1
 neff z%z%(%d%)%>neff z-%1
 electrolux en%z%(%d%)%>electrolux en-%1
 electrolux enn%z%(%d%)%>electrolux enn-%1
+esperanza ekk%z%(%d%)%>esperanza ekk-%1
 
 opi nail polish%<opi n/plsh%|opi n/p
 livingston cellars%<livingston cell%|%^liv cellars

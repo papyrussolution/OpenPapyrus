@@ -22,10 +22,10 @@
 //#include <tuple>
 //#include <type_traits>
 //#include <utility>
-//#include "absl/base/config.h"
-//#include "absl/memory/memory.h"
-//#include "absl/meta/type_traits.h"
-//#include "absl/utility/utility.h"
+#include "absl/base/config.h"
+#include "absl/memory/memory.h"
+#include "absl/meta/type_traits.h"
+#include "absl/utility/utility.h"
 
 #ifdef ABSL_HAVE_ADDRESS_SANITIZER
 #include <sanitizer/asan_interface.h>
@@ -191,27 +191,22 @@ std::pair<std::tuple<F&&>, std::tuple<S&&> > PairArgs(std::pair<F, S>&& p) {
 	return PairArgs(std::forward<F>(p.first), std::forward<S>(p.second));
 }
 
-template <class F, class S>
-auto PairArgs(std::piecewise_construct_t, F&& f, S&& s)
-->decltype(std::make_pair(memory_internal::TupleRef(std::forward<F>(f)),
-memory_internal::TupleRef(std::forward<S>(s)))) {
-	return std::make_pair(memory_internal::TupleRef(std::forward<F>(f)),
-		   memory_internal::TupleRef(std::forward<S>(s)));
-}
+template <class F, class S> auto PairArgs(std::piecewise_construct_t, F&& f, S&& s) -> 
+	decltype(std::make_pair(memory_internal::TupleRef(std::forward<F>(f)), memory_internal::TupleRef(std::forward<S>(s)))) 
+	{
+		return std::make_pair(memory_internal::TupleRef(std::forward<F>(f)), memory_internal::TupleRef(std::forward<S>(s)));
+	}
 
 // A helper function for implementing apply() in map policies.
-template <class F, class ... Args>
-auto DecomposePair(F&& f, Args&& ... args)
-->decltype(memory_internal::DecomposePairImpl(
-	std::forward<F>(f), PairArgs(std::forward<Args>(args) ...))) {
-	return memory_internal::DecomposePairImpl(
-		std::forward<F>(f), PairArgs(std::forward<Args>(args) ...));
-}
+template <class F, class ... Args> auto DecomposePair(F&& f, Args&& ... args) -> 
+	decltype(memory_internal::DecomposePairImpl(std::forward<F>(f), PairArgs(std::forward<Args>(args) ...))) 
+	{
+		return memory_internal::DecomposePairImpl(std::forward<F>(f), PairArgs(std::forward<Args>(args) ...));
+	}
 
 // A helper function for implementing apply() in set policies.
-template <class F, class Arg>
-decltype(std::declval<F>()(std::declval<const Arg&>(), std::declval<Arg>()))
-DecomposeValue(F&& f, Arg&& arg) {
+template <class F, class Arg> decltype(std::declval<F>()(std::declval<const Arg&>(), std::declval<Arg>())) DecomposeValue(F&& f, Arg&& arg) 
+{
 	const auto& key = arg;
 	return std::forward<F>(f)(key, std::forward<Arg>(arg));
 }
@@ -228,7 +223,8 @@ inline void SanitizerPoisonMemoryRegion(const void* m, size_t s) {
 	(void)s;
 }
 
-inline void SanitizerUnpoisonMemoryRegion(const void* m, size_t s) {
+inline void SanitizerUnpoisonMemoryRegion(const void* m, size_t s) 
+{
 #ifdef ABSL_HAVE_ADDRESS_SANITIZER
 	ASAN_UNPOISON_MEMORY_REGION(m, s);
 #endif
@@ -239,15 +235,8 @@ inline void SanitizerUnpoisonMemoryRegion(const void* m, size_t s) {
 	(void)s;
 }
 
-template <typename T>
-inline void SanitizerPoisonObject(const T* object) {
-	SanitizerPoisonMemoryRegion(object, sizeof(T));
-}
-
-template <typename T>
-inline void SanitizerUnpoisonObject(const T* object) {
-	SanitizerUnpoisonMemoryRegion(object, sizeof(T));
-}
+template <typename T> inline void SanitizerPoisonObject(const T* object) { SanitizerPoisonMemoryRegion(object, sizeof(T)); }
+template <typename T> inline void SanitizerUnpoisonObject(const T* object) { SanitizerUnpoisonMemoryRegion(object, sizeof(T)); }
 
 namespace memory_internal {
 // If Pair is a standard-layout type, OffsetOf<Pair>::kFirst and

@@ -20,8 +20,13 @@
 ; Copyright (c) 2007-2014 GNU LGPL License v. 3.0 www.gnu.org/licenses/lgpl.html
 ;******************************************************************************
 
-; extern _InstructionSet: function
-%include "instrset32.asm"              ; include code for _InstructionSet function
+; extern _InstructionSet
+%ifdef __YASM_VER__
+  %include "instrset32.asm"              ; include code for _InstructionSet function
+%else
+  ; @sobolev %include "asm/instrset32.asm"          ; nasm looks in current path, not the path of the file
+  %include "../osf/asmlib/instrset32.asm"          ; nasm looks in current path, not the path of the file // @sobolev
+%endif
 
 ; InstructionSet function return value:
 ;  0 =  80386 instruction set only

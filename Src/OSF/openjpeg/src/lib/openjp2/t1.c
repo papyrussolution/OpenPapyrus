@@ -582,52 +582,17 @@ static void opj_t1_enc_refpass(opj_t1_t * t1, int32_t bpno, int32_t * nmsedec, u
 				/* none significant */
 				continue;
 			}
-			if((flags & (T1_PI_0 | T1_PI_1 | T1_PI_2 | T1_PI_3)) ==
-			    (T1_PI_0 | T1_PI_1 | T1_PI_2 | T1_PI_3)) {
+			if((flags & (T1_PI_0 | T1_PI_1 | T1_PI_2 | T1_PI_3)) == (T1_PI_0 | T1_PI_1 | T1_PI_2 | T1_PI_3)) {
 				/* all processed by sigpass */
 				continue;
 			}
-
-			opj_t1_enc_refpass_step_macro(
-				mqc, curctx, a, c, ct,
-				flags, flagsUpdated,
-				&datap[0],
-				bpno,
-				one,
-				nmsedec,
-				type,
-				0);
-			opj_t1_enc_refpass_step_macro(
-				mqc, curctx, a, c, ct,
-				flags, flagsUpdated,
-				&datap[1],
-				bpno,
-				one,
-				nmsedec,
-				type,
-				1);
-			opj_t1_enc_refpass_step_macro(
-				mqc, curctx, a, c, ct,
-				flags, flagsUpdated,
-				&datap[2],
-				bpno,
-				one,
-				nmsedec,
-				type,
-				2);
-			opj_t1_enc_refpass_step_macro(
-				mqc, curctx, a, c, ct,
-				flags, flagsUpdated,
-				&datap[3],
-				bpno,
-				one,
-				nmsedec,
-				type,
-				3);
+			opj_t1_enc_refpass_step_macro(mqc, curctx, a, c, ct, flags, flagsUpdated, &datap[0], bpno, one, nmsedec, type, 0);
+			opj_t1_enc_refpass_step_macro(mqc, curctx, a, c, ct, flags, flagsUpdated, &datap[1], bpno, one, nmsedec, type, 1);
+			opj_t1_enc_refpass_step_macro(mqc, curctx, a, c, ct, flags, flagsUpdated, &datap[2], bpno, one, nmsedec, type, 2);
+			opj_t1_enc_refpass_step_macro(mqc, curctx, a, c, ct, flags, flagsUpdated, &datap[3], bpno, one, nmsedec, type, 3);
 			*f = flagsUpdated;
 		}
 	}
-
 	if(k < t1->h) {
 		uint32_t j;
 		const uint32_t remaining_lines = t1->h - k;
@@ -644,15 +609,7 @@ static void opj_t1_enc_refpass(opj_t1_t * t1, int32_t bpno, int32_t * nmsedec, u
 				continue;
 			}
 			for(j = 0; j < remaining_lines; ++j, datap++) {
-				opj_t1_enc_refpass_step_macro(
-					mqc, curctx, a, c, ct,
-					*f, *f,
-					&datap[0],
-					bpno,
-					one,
-					nmsedec,
-					type,
-					j);
+				opj_t1_enc_refpass_step_macro(mqc, curctx, a, c, ct, *f, *f, &datap[0], bpno, one, nmsedec, type, j);
 			}
 		}
 	}
@@ -2097,12 +2054,9 @@ static double opj_t1_encode_cblk(opj_t1_t * t1,
 	opj_mqc_setstate(mqc, T1_CTXNO_AGG, 0, 3);
 	opj_mqc_setstate(mqc, T1_CTXNO_ZC, 0, 4);
 	opj_mqc_init_enc(mqc, cblk->data);
-
 	for(passno = 0; bpno >= 0; ++passno) {
 		opj_tcd_pass_t * pass = &cblk->passes[passno];
-		type = ((bpno < ((int32_t)(cblk->numbps) - 4)) && (passtype < 2) &&
-		    (cblksty & J2K_CCP_CBLKSTY_LAZY)) ? T1_TYPE_RAW : T1_TYPE_MQ;
-
+		type = ((bpno < ((int32_t)(cblk->numbps) - 4)) && (passtype < 2) && (cblksty & J2K_CCP_CBLKSTY_LAZY)) ? T1_TYPE_RAW : T1_TYPE_MQ;
 		/* If the previous pass was terminating, we need to reset the encoder */
 		if(passno > 0 && cblk->passes[passno - 1].term) {
 			if(type == T1_TYPE_RAW) {
@@ -2112,7 +2066,6 @@ static double opj_t1_encode_cblk(opj_t1_t * t1,
 				opj_mqc_restart_init_enc(mqc);
 			}
 		}
-
 		switch(passtype) {
 			case 0:
 			    opj_t1_enc_sigpass(t1, bpno, &nmsedec, type, cblksty);
@@ -2164,20 +2117,16 @@ static double opj_t1_encode_cblk(opj_t1_t * t1,
 			pass->term = 0;
 			pass->rate = opj_mqc_numbytes(mqc) + rate_extra_bytes;
 		}
-
 		if(++passtype == 3) {
 			passtype = 0;
 			bpno--;
 		}
-
 		/* Code-switch "RESET" */
 		if(cblksty & J2K_CCP_CBLKSTY_RESET) {
 			opj_mqc_reset_enc(mqc);
 		}
 	}
-
 	cblk->totalpasses = passno;
-
 	if(cblk->totalpasses) {
 		/* Make sure that pass rates are increasing */
 		uint32_t last_pass_rate = opj_mqc_numbytes(mqc);

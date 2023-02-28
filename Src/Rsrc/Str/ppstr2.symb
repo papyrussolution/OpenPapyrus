@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494671
+LastSignatureCode=2147494674
 LastAutoCodeList=1,12182;102,10177;103,10072;110,10000;111,12070;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10144;120,10005;1001,10000;121,10000;122,10000;123,10313;124,10242;125,10047
 
 [SignatureList]
@@ -2729,6 +2729,8 @@ filter_styloqincominglistparam_actiongoodsitemcorrection=2147494584
 filter_styloqincominglistparam_actionccheckcreat=2147494611
 filter_styloqincominglistparam_actionccheckmod=2147494612
 filter_styloqincominglistparam_actionccheckregprint=2147494613
+filter_styloqincominglistparam_actiontsesscreat=2147494673
+filter_styloqincominglistparam_actiontsesstmset=2147494674
 filter_styloqincominglistparam_fbillwithmarksonly=2147494586
 filter_styloqincominglistparam_fbillwithmarkedgoodsonly=2147494587
 filter_styloqpersoneventparam=2147494660
@@ -9349,6 +9351,7 @@ impexpparambillh_objsrchcode=2147492180
 impexpparambillh_obj1srchcode=2147492181
 impexpparambillh_obj2srchcode=2147492182
 impexpparambillh_regtag=2147494620
+impexpparambillh_outerformatver=2147494672
 impexpparamgoods=2147492183
 impexpparamgoods_flags=2147492184
 impexpparamgoods_fskipzeroqtty=2147492185

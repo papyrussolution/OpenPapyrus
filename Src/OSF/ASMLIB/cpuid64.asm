@@ -12,7 +12,7 @@
 
 default rel
 
-global cpuid_ex: function
+global cpuid_ex
 
 SECTION .text  align=16
 

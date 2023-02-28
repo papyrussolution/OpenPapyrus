@@ -39,8 +39,8 @@ int main () {
     uint32_t a, b, c;
     const int numseeds = 5;
     int seeds[numseeds] = {1,2,3,4,5};
-    PhysicalSeed(seeds, 1);
-    printf("\nSeed: %08X\n", seeds[0]);
+    i = PhysicalSeed(seeds, 1);
+    printf("\nSeed: %08X, physical seed source: %i\n", seeds[0], i);
 
     CRandomMersenneA mersa(0);
     CRandomMersenne  mersc(0);

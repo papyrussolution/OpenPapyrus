@@ -9,8 +9,8 @@
 ; Copyright (c) 2009 GNU General Public License www.gnu.org/licenses
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-global _RoundD: function
-global _RoundF: function
+global _RoundD
+global _RoundF
 
 SECTION .text  align=16
 

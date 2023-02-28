@@ -35,15 +35,11 @@
 // Open Source License
 //
 // Copyright (c) 2009-2016 by the contributors listed in CREDITS.TXT
-//
 // All rights reserved.
 //
 // Developed by:
-//
 //     LLVM Team
-//
 //     University of Illinois at Urbana-Champaign
-//
 //     http://llvm.org
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of

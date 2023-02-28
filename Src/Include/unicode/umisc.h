@@ -1,17 +1,15 @@
 // umisc.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 1999-2006, International Business Machines Corporation and others.  All Rights Reserved.
- *   encoding:   UTF-8
- *   created on: 1999oct15
- *   created by: Markus W. Scherer
- */
+// Copyright (C) 1999-2006, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 1999oct15
+// created by: Markus W. Scherer
+// 
 #ifndef UMISC_H
 #define UMISC_H
 
 #include "unicode/utypes.h"
-
 /**
  * \file
  * \brief  C API:misc definitions
@@ -51,5 +49,4 @@ typedef const void * URegistryKey;
 #endif
 
 U_CDECL_END
-
 #endif

@@ -22,6 +22,9 @@
 #ifndef ABSL_STRINGS_STR_SPLIT_H_
 #define ABSL_STRINGS_STR_SPLIT_H_
 
+#include <absl/strings/ascii.h>
+#include <absl/strings/internal/str_split_internal.h>
+
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 //
@@ -199,33 +202,27 @@ namespace strings_internal {
 // This allows functions like absl::StrSplit() and absl::MaxSplits() to accept
 // string-like objects (e.g., ',') as delimiter arguments but they will be
 // treated as if a ByString delimiter was given.
-template <typename Delimiter>
-struct SelectDelimiter {
+template <typename Delimiter> struct SelectDelimiter {
 	using type = Delimiter;
 };
 
-template <>
-struct SelectDelimiter<char> {
+template <> struct SelectDelimiter<char> {
 	using type = ByChar;
 };
 
-template <>
-struct SelectDelimiter<char*> {
+template <> struct SelectDelimiter<char*> {
 	using type = ByString;
 };
 
-template <>
-struct SelectDelimiter<const char*> {
+template <> struct SelectDelimiter<const char*> {
 	using type = ByString;
 };
 
-template <>
-struct SelectDelimiter<absl::string_view> {
+template <> struct SelectDelimiter<absl::string_view> {
 	using type = ByString;
 };
 
-template <>
-struct SelectDelimiter<std::string> {
+template <> struct SelectDelimiter<std::string> {
 	using type = ByString;
 };
 
@@ -463,26 +460,18 @@ template <typename T> using EnableSplitIfString = typename std::enable_if<std::i
 //   absl::StrSplit(absl::string_view(), '-');    // {}, but should be {""}
 //
 // Try not to depend on this distinction because the bug may one day be fixed.
-template <typename Delimiter>
-strings_internal::Splitter<
-	typename strings_internal::SelectDelimiter<Delimiter>::type, AllowEmpty,
-	absl::string_view>StrSplit(strings_internal::ConvertibleToStringView text, Delimiter d) {
-	using DelimiterType =
-	    typename strings_internal::SelectDelimiter<Delimiter>::type;
-	return strings_internal::Splitter<DelimiterType, AllowEmpty,
-		   absl::string_view>(
-		text.value(), DelimiterType(d), AllowEmpty());
+template <typename Delimiter> strings_internal::Splitter<typename strings_internal::SelectDelimiter<Delimiter>::type, AllowEmpty, 
+	absl::string_view>StrSplit(strings_internal::ConvertibleToStringView text, Delimiter d) 
+{
+	using DelimiterType = typename strings_internal::SelectDelimiter<Delimiter>::type;
+	return strings_internal::Splitter<DelimiterType, AllowEmpty, absl::string_view>(text.value(), DelimiterType(d), AllowEmpty());
 }
 
-template <typename Delimiter, typename StringType,
-    EnableSplitIfString<StringType> = 0>
-strings_internal::Splitter<
-	typename strings_internal::SelectDelimiter<Delimiter>::type, AllowEmpty,
-	std::string>StrSplit(StringType&& text, Delimiter d) {
-	using DelimiterType =
-	    typename strings_internal::SelectDelimiter<Delimiter>::type;
-	return strings_internal::Splitter<DelimiterType, AllowEmpty, std::string>(
-		std::move(text), DelimiterType(d), AllowEmpty());
+template <typename Delimiter, typename StringType, EnableSplitIfString<StringType> = 0>
+strings_internal::Splitter<typename strings_internal::SelectDelimiter<Delimiter>::type, AllowEmpty, std::string>StrSplit(StringType&& text, Delimiter d) 
+{
+	using DelimiterType = typename strings_internal::SelectDelimiter<Delimiter>::type;
+	return strings_internal::Splitter<DelimiterType, AllowEmpty, std::string>(std::move(text), DelimiterType(d), AllowEmpty());
 }
 
 template <typename Delimiter, typename Predicate>

@@ -1,0 +1,21 @@
+{
+  "name": "uncrustify",
+  "version": "0.76.0",
+  "description": "A highly configurable, easily modifiable source code beautifier for C, C++, C#, ObjectiveC, D, Java, Pawn and VALA",
+  "main": "uncrustify",
+  "scripts": {
+    "preinstall": "mkdir -p build && cd build && cmake .. && make"
+  },
+  "bin": "src/uncrustify",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uncrustify/uncrustify"
+  },
+  "keywords": [
+    "uncrustify",
+    "source code beautifier"
+  ],
+  "author": "Ben Gardner",
+  "author": "Guy Maurel",
+  "license": "GPL-2.0-or-later"
+}

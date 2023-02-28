@@ -7,6 +7,12 @@
 #ifndef ABSL_FLAGS_INTERNAL_FLAG_H_
 #define ABSL_FLAGS_INTERNAL_FLAG_H_
 
+#include <absl/flags/config.h>
+#include <absl/base/call_once.h>
+#include <absl/flags/internal/sequence_lock.h>
+#include <absl/flags/marshalling.h>
+#include <absl/flags/internal/registry.h>
+
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 
@@ -638,32 +644,20 @@ private:
 	FlagImpl impl_;
 	FlagValue<T> value_;
 };
-
 //
 // Trampoline for friend access
-
+//
 class FlagImplPeer {
 public:
-	template <typename T, typename FlagType>
-	static T InvokeGet(const FlagType& flag) {
-		return flag.Get();
-	}
-
-	template <typename FlagType, typename T>
-	static void InvokeSet(FlagType& flag, const T& v) {
-		flag.Set(v);
-	}
-
-	template <typename FlagType>
-	static const CommandLineFlag& InvokeReflect(const FlagType& f) {
-		return f.Reflect();
-	}
+	template <typename T, typename FlagType> static T InvokeGet(const FlagType& flag) { return flag.Get(); }
+	template <typename FlagType, typename T> static void InvokeSet(FlagType& flag, const T& v) { flag.Set(v); }
+	template <typename FlagType> static const CommandLineFlag& InvokeReflect(const FlagType& f) { return f.Reflect(); }
 };
-
 //
 // Implementation of Flag value specific operations routine.
-template <typename T>
-void* FlagOps(FlagOp op, const void* v1, void* v2, void* v3) {
+//
+template <typename T> void * FlagOps(FlagOp op, const void* v1, void* v2, void* v3) 
+{
 	switch(op) {
 		case FlagOp::kAlloc: {
 		    std::allocator<T> alloc;
@@ -707,8 +701,7 @@ void* FlagOps(FlagOp op, const void* v1, void* v2, void* v3) {
 		    // Round sizeof(FlagImp) to a multiple of alignof(FlagValue<T>) to get the
 		    // offset of the data.
 		    size_t round_to = alignof(FlagValue<T>);
-		    size_t offset =
-			(sizeof(FlagImpl) + round_to - 1) / round_to * round_to;
+		    size_t offset = (sizeof(FlagImpl) + round_to - 1) / round_to * round_to;
 		    return reinterpret_cast<void*>(offset);
 	    }
 	}
@@ -721,14 +714,13 @@ void* FlagOps(FlagOp op, const void* v1, void* v2, void* v3) {
 // ABSL_FLAG(int, foo, 42, "Foo help").OnUpdate(NotifyFooWatcher);
 struct FlagRegistrarEmpty {};
 
-template <typename T, bool do_register>
-class FlagRegistrar {
+template <typename T, bool do_register> class FlagRegistrar {
 public:
-	explicit FlagRegistrar(Flag<T>& flag, const char* filename) : flag_(flag) {
+	explicit FlagRegistrar(Flag<T>& flag, const char* filename) : flag_(flag) 
+	{
 		if(do_register)
 			flags_internal::RegisterCommandLineFlag(flag_.impl_, filename);
 	}
-
 	FlagRegistrar OnUpdate(FlagCallbackFunc cb) && {
 		flag_.impl_.SetCallback(cb);
 		return *this;

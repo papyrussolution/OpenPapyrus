@@ -931,7 +931,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 													if(ev_subj.IsFolder) {
 														imgv.setVisibility(View.VISIBLE);
 														if(ev_subj.IsCollapsedFolder)
-															imgv.setImageResource(R.drawable.ic_triangleleft03);
+															imgv.setImageResource(R.drawable.ic_triangleright03);
 														else
 															imgv.setImageResource(R.drawable.ic_triangledown03);
 													}

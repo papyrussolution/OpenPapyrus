@@ -34,11 +34,9 @@ static INLINE void * opj_aligned_alloc_n(size_t alignment, size_t size)
 	assert((alignment != 0U) && ((alignment & (alignment - 1U)) == 0U));
 	/* alignment shall be at least sizeof(void *) */
 	assert(alignment >= sizeof(void *));
-
 	if(size == 0U) { /* prevent implementation defined behavior of realloc */
 		return NULL;
 	}
-
 #if defined(OPJ_HAVE_POSIX_MEMALIGN)
 	/* aligned_alloc requires c11, restrict to posix_memalign for now. Quote:
 	 * This function was introduced in POSIX 1003.1d. Although this function is
@@ -161,35 +159,12 @@ static INLINE void * opj_aligned_realloc_n(void * ptr, size_t alignment, size_t 
 	return r_ptr;
 }
 
-void * opj_malloc(size_t size)
-{
-	return size ? SAlloc::M(size) : NULL/* prevent implementation defined behavior of realloc */;
-}
-
-void * opj_calloc(size_t num, size_t size)
-{
-	return (num && size) ? SAlloc::C(num, size) : NULL/* prevent implementation defined behavior of realloc */;
-}
-
-void * opj_aligned_malloc(size_t size)
-{
-	return opj_aligned_alloc_n(16U, size);
-}
-
-void * opj_aligned_realloc(void * ptr, size_t size)
-{
-	return opj_aligned_realloc_n(ptr, 16U, size);
-}
-
-void * opj_aligned_32_malloc(size_t size)
-{
-	return opj_aligned_alloc_n(32U, size);
-}
-
-void * opj_aligned_32_realloc(void * ptr, size_t size)
-{
-	return opj_aligned_realloc_n(ptr, 32U, size);
-}
+void * opj_malloc(size_t size) { return size ? SAlloc::M(size) : NULL/* prevent implementation defined behavior of realloc */; }
+void * opj_calloc(size_t num, size_t size) { return (num && size) ? SAlloc::C(num, size) : NULL/* prevent implementation defined behavior of realloc */; }
+void * opj_aligned_malloc(size_t size) { return opj_aligned_alloc_n(16U, size); }
+void * opj_aligned_realloc(void * ptr, size_t size) { return opj_aligned_realloc_n(ptr, 16U, size); }
+void * opj_aligned_32_malloc(size_t size) { return opj_aligned_alloc_n(32U, size); }
+void * opj_aligned_32_realloc(void * ptr, size_t size) { return opj_aligned_realloc_n(ptr, 32U, size); }
 
 void opj_aligned_free(void* ptr)
 {

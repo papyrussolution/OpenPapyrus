@@ -20,11 +20,11 @@
 ;******************************************************************************
 default rel
 
-global strcount_UTF8: function
+global strcount_UTF8
 
 ; Direct entries to CPU-specific versions
-global strcount_UTF8Generic: function
-global strcount_UTF8SSE42: function
+global strcount_UTF8Generic
+global strcount_UTF8SSE42
 
 ; Imported from instrset64.asm:
 extern InstructionSet                 ; Instruction set for CPU dispatcher

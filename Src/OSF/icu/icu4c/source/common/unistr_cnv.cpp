@@ -182,24 +182,19 @@ int32_t UnicodeString::extract(int32_t start, int32_t length, char * target, uin
 	return length;
 }
 
-int32_t UnicodeString::extract(char * dest, int32_t destCapacity,
-    UConverter * cnv,
-    UErrorCode & errorCode) const
+int32_t UnicodeString::extract(char * dest, int32_t destCapacity, UConverter * cnv, UErrorCode & errorCode) const
 {
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
-
 	if(isBogus() || destCapacity<0 || (destCapacity>0 && dest==0)) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	// nothing to do?
 	if(isEmpty()) {
 		return u_terminateChars(dest, destCapacity, 0, &errorCode);
 	}
-
 	// get the converter
 	bool isDefaultConverter;
 	if(cnv==0) {

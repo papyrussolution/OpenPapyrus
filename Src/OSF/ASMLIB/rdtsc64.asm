@@ -10,7 +10,7 @@
 
 default rel
 
-global  ReadTSC: function
+global  ReadTSC
 
 SECTION .text  align=16
 

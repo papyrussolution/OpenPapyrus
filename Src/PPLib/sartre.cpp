@@ -1225,7 +1225,7 @@ int SrCPropList::SetData(uint pos, const void * pData, size_t dataLen)
 	{
 		Item & r_item = L.at(pos);
 		if(pData && dataLen) {
-			uint32 offs = D.GetWrOffs();
+			uint32 offs = static_cast<uint32>(D.GetWrOffs());
 			THROW(D.Write(pData, dataLen));
 			r_item.P = offs;
 			r_item.S = dataLen;
@@ -1525,7 +1525,7 @@ int SrUedContainer::ReadSource(const char * pFileName)
 			; // empty line
 		}
 		else {
-			uint comment_pos = 0;
+			size_t comment_pos = 0;
 			if(line_buf.Search("//", 0, 0, &comment_pos)) {
 				line_buf.Trim(comment_pos).Strip();
 			}

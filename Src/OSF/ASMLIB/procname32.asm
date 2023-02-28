@@ -9,10 +9,10 @@
 ; This function produces a zero-terminated ASCII string containing a name
 ; for the microprocessor in human-readable format.
 ; 
-; Copyright (c) 2007-2013 GNU General Public License www.gnu.org/licenses
+; Copyright (c) 2007-2016 GNU General Public License www.gnu.org/licenses
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-global _ProcessorName: function
+global _ProcessorName               
 
 
 SECTION .data

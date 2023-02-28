@@ -1,0 +1,22 @@
+#
+# Test cases specifically for the Vala language.
+#
+# Range: 70000 - 79999
+# test.name  config.file  input.file
+
+70000  vala/ben_100.cfg                     vala/list.vala
+70001  vala/ben_101.cfg                     vala/advanced.vala
+70010  vala/ben_102.cfg                     vala/verbatim_str.vala
+70011  vala/ben_103.cfg                     vala/verbatim_str2.vala
+70012  common/ben2.cfg                      vala/verbatim_str2.vala
+70020  vala/ben_104.cfg                     vala/preproc.vala
+70287  vala/ben_105.cfg                     vala/gh287.vala
+70300  vala/Issue_2090.cfg                  vala/Issue_2090.vala
+70301  vala/Issue_2270.cfg                  vala/Issue_2270.vala
+70302  common/sp_after_cast.cfg             vala/cast.vala
+70303  vala/nullable.cfg                    vala/nullable.vala
+70304  common/empty.cfg                     vala/identifier.vala
+
+70310  vala/mda_space_a.cfg                 vala/mdarray_space.vala
+70311  vala/sp_after_comma-a.cfg            vala/mdarray_space.vala
+70312  vala/mda_space_c.cfg                 vala/mdarray_space.vala

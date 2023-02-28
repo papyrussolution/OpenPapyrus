@@ -3,9 +3,7 @@
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,8 +19,7 @@
 //
 // Example:
 //
-//   std::string s = absl::StrFormat(
-//                      "%s %s You have $%d!", "Hello", name, dollars);
+//   std::string s = absl::StrFormat("%s %s You have $%d!", "Hello", name, dollars);
 //
 // The library consists of the following basic utilities:
 //
@@ -66,13 +63,13 @@
 #ifndef ABSL_STRINGS_STR_FORMAT_H_
 #define ABSL_STRINGS_STR_FORMAT_H_
 
-//#include <cstdio>
-//#include <string>
-//#include "absl/strings/internal/str_format/arg.h"  // IWYU pragma: export
-//#include "absl/strings/internal/str_format/bind.h"  // IWYU pragma: export
-//#include "absl/strings/internal/str_format/checker.h"  // IWYU pragma: export
-//#include "absl/strings/internal/str_format/extension.h"  // IWYU pragma: export
-//#include "absl/strings/internal/str_format/parser.h"  // IWYU pragma: export
+#include <absl/strings/internal/str_format/arg.h>  // IWYU pragma: export
+#include <absl/strings/internal/str_format/bind.h>  // IWYU pragma: export
+#include <absl/strings/internal/str_format/checker.h>  // IWYU pragma: export
+#include <absl/strings/internal/str_format/extension.h>  // IWYU pragma: export
+#include <absl/strings/internal/str_format/parser.h>  // IWYU pragma: export
+//#include <absl/strings/internal/str_format/parser.h>
+//#include <absl/strings/internal/str_format/bind.h>
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
@@ -116,8 +113,8 @@ private:
 // Example:
 //
 //   absl::StrFormat("%s", absl::FormatStreamed(obj));
-template <typename T>
-str_format_internal::StreamedWrapper<T> FormatStreamed(const T& v) {
+template <typename T> str_format_internal::StreamedWrapper<T> FormatStreamed(const T& v) 
+{
 	return str_format_internal::StreamedWrapper<T>(v);
 }
 
@@ -139,9 +136,9 @@ str_format_internal::StreamedWrapper<T> FormatStreamed(const T& v) {
 //   EXPECT_EQ(8, n);
 class FormatCountCapture {
 public:
-	explicit FormatCountCapture(int* p) : p_(p) {
+	explicit FormatCountCapture(int* p) : p_(p) 
+	{
 	}
-
 private:
 	// FormatCountCaptureHelper is used to define FormatConvertImpl() for this
 	// class.
@@ -149,9 +146,7 @@ private:
 	// Unused() is here because of the false positive from -Wunused-private-field
 	// p_ is used in the templated function of the friend FormatCountCaptureHelper
 	// class.
-	int* Unused() {
-		return p_;
-	}
+	int* Unused() { return p_; }
 
 	int* p_;
 };
@@ -253,9 +248,7 @@ private:
 // `const char*` are all accepted. Likewise, `%d` accepts any integer-like
 // argument, etc.
 
-template <typename ... Args>
-using FormatSpec = str_format_internal::FormatSpecTemplate<
-	str_format_internal::ArgumentToConv<Args>() ...>;
+template <typename ... Args> using FormatSpec = str_format_internal::FormatSpecTemplate<str_format_internal::ArgumentToConv<Args>() ...>;
 
 // ParsedFormat
 //
@@ -284,33 +277,29 @@ using FormatSpec = str_format_internal::FormatSpecTemplate<
 //   }
 
 #if defined(__cpp_nontype_template_parameter_auto)
-// If C++17 is available, an 'extended' format is also allowed that can specify
-// multiple conversion characters per format argument, using a combination of
-// `absl::FormatConversionCharSet` enum values (logically a set union)
-//  via the `|` operator. (Single character-based arguments are still accepted,
-// but cannot be combined). Some common conversions also have predefined enum
-// values, such as `absl::FormatConversionCharSet::kIntegral`.
-//
-// Example:
-//   // Extended format supports multiple conversion characters per argument,
-//   // specified via a combination of `FormatConversionCharSet` enums.
-//   using MyFormat = absl::ParsedFormat<absl::FormatConversionCharSet::d |
-//                                       absl::FormatConversionCharSet::x>;
-//   MyFormat GetFormat(bool use_hex) {
-//     if (use_hex) return MyFormat("foo %x bar");
-//     return MyFormat("foo %d bar");
-//   }
-//   // `format` can be used with any value that supports 'd' and 'x',
-//   // like `int`.
-//   auto format = GetFormat(use_hex);
-//   value = StringF(format, i);
-template <auto ... Conv>
-using ParsedFormat = absl::str_format_internal::ExtendedParsedFormat<
-	absl::str_format_internal::ToFormatConversionCharSet(Conv) ...>;
+	// If C++17 is available, an 'extended' format is also allowed that can specify
+	// multiple conversion characters per format argument, using a combination of
+	// `absl::FormatConversionCharSet` enum values (logically a set union)
+	//  via the `|` operator. (Single character-based arguments are still accepted,
+	// but cannot be combined). Some common conversions also have predefined enum
+	// values, such as `absl::FormatConversionCharSet::kIntegral`.
+	//
+	// Example:
+	//   // Extended format supports multiple conversion characters per argument,
+	//   // specified via a combination of `FormatConversionCharSet` enums.
+	//   using MyFormat = absl::ParsedFormat<absl::FormatConversionCharSet::d |
+	//                                       absl::FormatConversionCharSet::x>;
+	//   MyFormat GetFormat(bool use_hex) {
+	//     if (use_hex) return MyFormat("foo %x bar");
+	//     return MyFormat("foo %d bar");
+	//   }
+	//   // `format` can be used with any value that supports 'd' and 'x',
+	//   // like `int`.
+	//   auto format = GetFormat(use_hex);
+	//   value = StringF(format, i);
+	template <auto ... Conv> using ParsedFormat = absl::str_format_internal::ExtendedParsedFormat<absl::str_format_internal::ToFormatConversionCharSet(Conv) ...>;
 #else
-template <char ... Conv>
-using ParsedFormat = str_format_internal::ExtendedParsedFormat<
-	absl::str_format_internal::ToFormatConversionCharSet(Conv) ...>;
+	template <char ... Conv> using ParsedFormat = str_format_internal::ExtendedParsedFormat<absl::str_format_internal::ToFormatConversionCharSet(Conv) ...>;
 #endif  // defined(__cpp_nontype_template_parameter_auto)
 
 // StrFormat()
@@ -335,12 +324,9 @@ using ParsedFormat = str_format_internal::ExtendedParsedFormat<
 //   EXPECT_EQ("Welcome to The Village, Number 6!", s);
 //
 // Returns an empty string in case of error.
-template <typename ... Args>
-ABSL_MUST_USE_RESULT std::string StrFormat(const FormatSpec<Args ...>& format,
-    const Args& ... args) {
-	return str_format_internal::FormatPack(
-		str_format_internal::UntypedFormatSpecImpl::Extract(format),
-		{str_format_internal::FormatArgImpl(args) ...});
+template <typename ... Args> ABSL_MUST_USE_RESULT std::string StrFormat(const FormatSpec<Args ...>& format, const Args& ... args) 
+{
+	return str_format_internal::FormatPack(str_format_internal::UntypedFormatSpecImpl::Extract(format), {str_format_internal::FormatArgImpl(args) ...});
 }
 
 // StrAppendFormat()
@@ -353,13 +339,9 @@ ABSL_MUST_USE_RESULT std::string StrFormat(const FormatSpec<Args ...>& format,
 //
 //   std::string orig("For example PI is approximately ");
 //   std::cout << StrAppendFormat(&orig, "%12.6f", 3.14);
-template <typename ... Args>
-std::string& StrAppendFormat(std::string* dst,
-    const FormatSpec<Args ...>& format,
-    const Args& ... args) {
-	return str_format_internal::AppendPack(
-		dst, str_format_internal::UntypedFormatSpecImpl::Extract(format),
-		{str_format_internal::FormatArgImpl(args) ...});
+template <typename ... Args> std::string& StrAppendFormat(std::string* dst, const FormatSpec<Args ...>& format, const Args& ... args) 
+{
+	return str_format_internal::AppendPack(dst, str_format_internal::UntypedFormatSpecImpl::Extract(format), {str_format_internal::FormatArgImpl(args) ...});
 }
 
 // StreamFormat()
@@ -729,12 +711,10 @@ public:
 	}
 
 private:
-	explicit FormatConversionSpec(str_format_internal::FormatConversionSpecImpl impl)
-		: impl_(impl) {
+	explicit FormatConversionSpec(str_format_internal::FormatConversionSpecImpl impl) : impl_(impl) 
+	{
 	}
-
 	friend str_format_internal ::FormatConversionSpecImpl;
-
 	absl::str_format_internal::FormatConversionSpecImpl impl_;
 };
 
@@ -786,6 +766,12 @@ enum class FormatConversionCharSet : uint64_t {
 	kPointer = p,
 };
 
+#include "absl/strings/internal/str_format/arg.h"  // IWYU pragma: export
+#include "absl/strings/internal/str_format/bind.h"  // IWYU pragma: export
+#include "absl/strings/internal/str_format/checker.h"  // IWYU pragma: export
+#include "absl/strings/internal/str_format/extension.h"  // IWYU pragma: export
+#include "absl/strings/internal/str_format/parser.h"  // IWYU pragma: export
+
 // FormatSink
 //
 // An abstraction to which conversions write their string data.
@@ -793,14 +779,8 @@ enum class FormatConversionCharSet : uint64_t {
 class FormatSink {
 public:
 	// Appends `count` copies of `ch`.
-	void Append(size_t count, char ch) {
-		sink_->Append(count, ch);
-	}
-
-	void Append(string_view v) {
-		sink_->Append(v);
-	}
-
+	void Append(size_t count, char ch) { sink_->Append(count, ch); }
+	void Append(string_view v) { sink_->Append(v); }
 	// Appends the first `precision` bytes of `v`. If this is less than
 	// `width`, spaces will be appended first (if `left` is false), or
 	// after (if `left` is true) to ensure the total amount appended is
@@ -824,8 +804,7 @@ private:
 // ADL but using the return type) of what conversion characters are supported.
 // It is strongly discouraged to return {false}, as this will result in an
 // empty string in StrFormat.
-template <FormatConversionCharSet C>
-struct FormatConvertResult {
+template <FormatConversionCharSet C> struct FormatConvertResult {
 	bool value;
 };
 

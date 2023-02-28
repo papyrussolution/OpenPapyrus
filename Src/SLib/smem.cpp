@@ -1,10 +1,9 @@
 // SMEM.CPP
-// Copyright (c) Sobolev A. 1993-2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019, 2020, 2021, 2022
+// Copyright (c) Sobolev A. 1993-2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
-
 //
 // @v11.2.3 Поступила информация, что JobServer в последних резах "падает". Отключаем для сервера mimalloc и проверям.
 // @v11.2.4 Похоже, возникают спонтанные аварии и на клиентских сессиях
@@ -24,68 +23,6 @@
 
 //#define ALIGNSIZE(s,bits)     ((((s) + ((1 << (bits))-1)) >> (bits)) << (bits))
 #define ALIGNDOWN(s,bits)     (((s) >> (bits)) << (bits))
-
-void FASTCALL memmovo(void * pDest, const void * pSrc, size_t sz)
-{
-#define INCPTR32(p) (p) = (PTR32(p)+1)
-#define INCPTR8(p)  (p) = (PTR8(p)+1)
-#define DECPTR32(p) (p) = (PTR32(p)-1)
-#define DECPTR8(p)  (p) = (PTR8(p)-1)
-#define INCPTR32C(p) (p) = (PTR32C(p)+1)
-#define INCPTR8C(p)  (p) = (PTR8C(p)+1)
-#define DECPTR32C(p) (p) = (PTR32C(p)-1)
-#define DECPTR8C(p)  (p) = (PTR8C(p)-1)
-	// Алгоритм заточен на выравнивание адреса источника по границе 32 байт (2^5)
-	if(pDest != pSrc) {
-		switch(sz) {
-			case 1: *PTR8(pDest)  = *PTR8C(pSrc);  return;
-			case 2: *PTR16(pDest) = *PTR16C(pSrc); return;
-			case 4: *PTR32(pDest) = *PTR32C(pSrc); return;
-			case 8:
-				{
-					uint32 t1 = PTR32C(pSrc)[0];
-					uint32 t2 = PTR32C(pSrc)[1];
-					PTR32(pDest)[0] = t1;
-					PTR32(pDest)[1] = t2;
-				}
-				return;
-		}
-		if(pDest < pSrc || (PTR8C(pDest) - PTR8C(pSrc)) >= (int)sz) {
-			size_t delta = MIN(PTR8C(ALIGNSIZE((ulong)pSrc, 5)) - PTR8C(pSrc), (int)sz);
-			if(delta) {
-				switch(delta / 4) { REP_CASE7(*PTR32(pDest) = *PTR32C(pSrc); INCPTR32(pDest); INCPTR32C(pSrc); ) }
-				switch(delta % 4) { REP_CASE3(*PTR8(pDest)  = *PTR8C(pSrc);  INCPTR8(pDest);  INCPTR8C(pSrc);)  }
-				sz -= delta;
-			}
-			if(sz) {
-				while(sz / 32) {
-					REP8(*PTR32(pDest) = *PTR32C(pSrc); INCPTR32(pDest); INCPTR32C(pSrc));
-					sz -= 32;
-				}
-				switch(sz / 4) { REP_CASE7(*PTR32(pDest) = *PTR32C(pSrc); INCPTR32(pDest); INCPTR32C(pSrc)) }
-				switch(sz % 4) { REP_CASE3(*PTR8(pDest)  = *PTR8C(pSrc);  INCPTR8(pDest);  INCPTR8C(pSrc))  }
-			}
-		}
-		else { // (pDest - pSrc) < sz
-			pDest = PTR8(pDest) + sz;
-			pSrc  = PTR8C(pSrc)  + sz;
-			size_t delta = MIN(((ulong)pSrc) - ALIGNDOWN((ulong)pSrc, 5), sz);
-			if(delta) {
-				switch(delta % 4) { REP_CASE3(DECPTR8(pDest); DECPTR8C(pSrc); *PTR8(pDest) = *PTR8C(pSrc))  }
-				switch(delta / 4) { REP_CASE7(DECPTR32(pDest); DECPTR32C(pSrc); *PTR32(pDest) = *PTR32C(pSrc)) }
-				sz -= delta;
-			}
-			if(sz) {
-				while(sz / 32) {
-					REP8(DECPTR32(pDest); DECPTR32C(pSrc); *PTR32(pDest) = *PTR32C(pSrc));
-					sz -= 32;
-				}
-				switch(sz % 4) { REP_CASE3(DECPTR8(pDest);  DECPTR8C(pSrc); *PTR8(pDest)  = *PTR8C(pSrc)) }
-				switch(sz / 4) { REP_CASE7(DECPTR32(pDest); DECPTR32C(pSrc); *PTR32(pDest) = *PTR32C(pSrc)) }
-			}
-		}
-	}
-}
 
 bool FASTCALL ismemzero(const void * p, size_t s)
 {
@@ -680,11 +617,12 @@ SLTEST_FIXTURE(MEMMOVO, SlTestFixtureMEMMOVO)
 						// В случае бенчмарка этот вызов "разбавляет" кэш за счет обращения к отличному от F.P_Bytes
 						// блоку памяти.
 						//
+#undef memmove
 						memmove(F.P_Pattern+dest, F.P_Pattern+src, s);
 					}
 					else if(bm == 1) {
-						memmovo(F.P_Bytes+dest, F.P_Bytes+src, s);
-						memmovo(F.P_Pattern+dest, F.P_Pattern+src, s);
+						// @v11.6.5 memmovo(F.P_Bytes+dest, F.P_Bytes+src, s);
+						// @v11.6.5 memmovo(F.P_Pattern+dest, F.P_Pattern+src, s);
 					}
 					else if(bm == 2) {
 						memmove(F.P_Bytes+dest, F.P_Bytes+src, s);

@@ -1355,6 +1355,116 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 	return p_js_reply;
 }
 
+PPStyloQInterchange::MakePrcJsListParam::MakePrcJsListParam(const SBinaryChunk & rBcOwnIdent) : R_BcOwnIdent(rBcOwnIdent), QuotKindID(0), LocID(0), MaxScheduleDays(0)
+{
+}
+
+PPStyloQInterchange::MakePrcJsListParam::MakePrcJsListParam(const SBinaryChunk & rBcOwnIdent, const StyloQAttendancePrereqParam & rOuterParam) : 
+	R_BcOwnIdent(rBcOwnIdent), QuotKindID(rOuterParam.QuotKindID), LocID(rOuterParam.LocID), MaxScheduleDays(inrangeordefault(rOuterParam.MaxScheduleDays, 1L, 365L, 7L))
+{
+}
+
+PPStyloQInterchange::MakePrcJsListParam::MakePrcJsListParam(const SBinaryChunk & rBcOwnIdent, const StyloQIncomingListParam & rOuterParam) :
+	R_BcOwnIdent(rBcOwnIdent), QuotKindID(0), LocID(0), MaxScheduleDays(0)
+{
+	if(rOuterParam.P_TsF) {
+		QuotKindID = rOuterParam.P_TsF->QuotKindID;
+		if(rOuterParam.P_TsF->PrcID) {
+			PPObjProcessor prc_obj;
+			ProcessorTbl::Rec prc_rec;
+			if(prc_obj.Fetch(rOuterParam.P_TsF->PrcID, &prc_rec) > 0) {
+				LocID = prc_rec.LocID;
+			}
+		}
+	}
+	MaxScheduleDays = 7L; // @default @todo
+}
+
+int PPStyloQInterchange::MakePrcJsList(const MakePrcJsListParam & rParam, SJson * pJsObj, const PPIDArray & rPrcList, PPObjTSession & rTSesObj, Stq_CmdStat_MakeRsrv_Response * pStat)
+{
+	int    ok = 1;
+	assert(pJsObj != 0);
+	THROW(pJsObj);
+	if(rPrcList.getCount()) {
+		//prc_id_list.sortAndUndup();
+		LAssocArray goods_to_prc_list;
+		PPObjStaffCal scal_obj;
+		PrcBusyArray busy_list;
+		SJson * p_js_prc_list = SJson::CreateArr();
+		for(uint prcidx = 0; prcidx < rPrcList.getCount(); prcidx++) {
+			const PPID prc_id = rPrcList.get(prcidx);
+			SJson * p_js_prc = MakeRsrvAttendancePrereqResponse_Prc(rParam.R_BcOwnIdent, prc_id, rParam.QuotKindID, rTSesObj, rParam.MaxScheduleDays, &goods_to_prc_list, pStat);
+			if(p_js_prc)
+				p_js_prc_list->InsertChild(p_js_prc);
+		}
+		pJsObj->Insert("processor_list", p_js_prc_list);
+		{
+			PPIDArray goods_id_list;
+			PPIDArray goodsgrp_id_list;
+			PPIDArray uom_id_list;
+			Goods2Tbl::Rec goodsgroup_rec;
+			PPObjUnit unit_obj;
+			PPUnit u_rec;
+			goods_to_prc_list.SortByKeyVal();
+			goods_to_prc_list.GetKeyList(goods_id_list);
+			{
+				Goods2Tbl::Rec goods_rec;
+				for(uint gidx = 0; gidx < goods_id_list.getCount(); gidx++) {
+					const PPID goods_id = goods_id_list.get(gidx);
+					if(rTSesObj.GObj.Search(goods_id, &goods_rec) > 0) {
+						if(goods_rec.ParentID > 0 && rTSesObj.GObj.Fetch(goods_rec.ParentID, &goodsgroup_rec) > 0 && goodsgroup_rec.Kind == PPGDSK_GROUP) {
+							goodsgrp_id_list.add(goods_rec.ParentID);
+						}
+						if(goods_rec.UnitID > 0 && unit_obj.Fetch(goods_rec.UnitID, &u_rec) > 0) {
+							uom_id_list.add(goods_rec.UnitID);
+						}
+					}
+				}
+				// (done by MakeObjArrayJson_GoodsGroup) goodsgrp_id_list.sortAndUndup();
+				// (done by MakeObjArrayJson_Uom) uom_id_list.sortAndUndup();
+			}
+			pJsObj->InsertNz("goodsgroup_list", MakeObjArrayJson_GoodsGroup(rParam.R_BcOwnIdent, goodsgrp_id_list, false, pStat));
+			pJsObj->InsertNz("uom_list", MakeObjArrayJson_Uom(rParam.R_BcOwnIdent, uom_id_list, pStat));
+			{
+				SJson * p_js_goodslist = SJson::CreateArr();
+				PPGoodsPacket goods_pack;
+				PPIDArray qk_list;
+				qk_list.addnz(rParam.QuotKindID);
+				qk_list.add(PPQUOTK_BASE);
+				for(uint gidx = 0; gidx < goods_id_list.getCount(); gidx++) {
+					const PPID goods_id = goods_id_list.get(gidx);
+					if(rTSesObj.GObj.GetPacket(goods_id, &goods_pack, 0) > 0) {
+						SJson * p_js_ware = MakeObjJson_Goods(rParam.R_BcOwnIdent, goods_pack, 0, 0, 0, pStat);
+						THROW(p_js_ware);
+						{
+							// "price"
+							double price = 0.0;
+							for(uint qkidx = 0; price == 0.0 && qkidx < qk_list.getCount(); qkidx++) {
+								const PPID qk_id = qk_list.get(qkidx);
+								assert(qk_id != 0);
+								const PPID ar_id = 0L;
+								const QuotIdent qi(rParam.LocID, qk_id, 0/*curID*/, ar_id);
+								double result = 0.0;
+								if(rTSesObj.GObj.GetQuotExt(goods_id, qi, 0.0, 0.0, &result, 1) > 0) {
+									if(result > 0.0)
+										price = result;
+								}
+							}
+							if(price > 0.0) {
+								p_js_ware->InsertDouble("price", price, MKSFMTD(0, 2, 0));
+							}
+						}
+						p_js_goodslist->InsertChild(p_js_ware);
+					}
+				}
+				pJsObj->Insert("goods_list", p_js_goodslist);
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos,
 	SString & rResult, SString & rDocDeclaration, uint prccmdFlags)
 {
@@ -1377,7 +1487,6 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 	StyloQAttendancePrereqParam param;
 	Stq_CmdStat_MakeRsrv_Response stat; // @v11.3.8
 	StyloQBlobInfo blob_info; // @v11.3.8
-	SBinaryChunk bc_own_ident;
 	SJson js(SJson::tOBJECT);
 	PPIDArray goods_id_list; // @reusable
 	PPIDArray prc_id_list;
@@ -1385,7 +1494,6 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 	long   max_schedule_days = 7;
 	long   time_sheet_discreteness = 15;
 	PPUserFuncProfiler ufp(PPUPRF_STYLOQ_CMD_ATTENDANCEPREREQ);
-	THROW(GetOwnIdent(bc_own_ident, 0));
 	// @v11.6.2 {
 	if(!!rCmdItem.Uuid)
 		js.InsertString("orgcmduuid", temp_buf.Z().Cat(rCmdItem.Uuid, S_GUID::fmtIDL).Escape());
@@ -1417,77 +1525,11 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 		}
 	}
 	if(prc_id_list.getCount()) {
+		SBinaryChunk bc_own_ident;
+		THROW(GetOwnIdent(bc_own_ident, 0));
+		MakePrcJsListParam mpjsl_param(bc_own_ident, param);
 		prc_id_list.sortAndUndup();
-		PPObjStaffCal scal_obj;
-		PrcBusyArray busy_list;
-		SJson * p_js_prc_list = SJson::CreateArr();
-		for(uint prcidx = 0; prcidx < prc_id_list.getCount(); prcidx++) {
-			const PPID prc_id = prc_id_list.get(prcidx);
-			SJson * p_js_prc = MakeRsrvAttendancePrereqResponse_Prc(bc_own_ident, prc_id, param.QuotKindID, tses_obj, max_schedule_days, &goods_to_prc_list, &stat);
-			if(p_js_prc)
-				p_js_prc_list->InsertChild(p_js_prc);
-		}
-		js.Insert("processor_list", p_js_prc_list);
-		{
-			PPIDArray goodsgrp_id_list;
-			PPIDArray uom_id_list;
-			Goods2Tbl::Rec goodsgroup_rec;
-			PPUnit u_rec;
-			goods_to_prc_list.SortByKeyVal();
-			goods_to_prc_list.GetKeyList(goods_id_list);
-			{
-				Goods2Tbl::Rec goods_rec;
-				for(uint gidx = 0; gidx < goods_id_list.getCount(); gidx++) {
-					const PPID goods_id = goods_id_list.get(gidx);
-					if(tses_obj.GObj.Search(goods_id, &goods_rec) > 0) {
-						if(goods_rec.ParentID > 0 && tses_obj.GObj.Fetch(goods_rec.ParentID, &goodsgroup_rec) > 0 && goodsgroup_rec.Kind == PPGDSK_GROUP) {
-							goodsgrp_id_list.add(goods_rec.ParentID);
-						}
-						if(goods_rec.UnitID > 0 && unit_obj.Fetch(goods_rec.UnitID, &u_rec) > 0) {
-							uom_id_list.add(goods_rec.UnitID);
-						}
-					}
-				}
-				// (done by MakeObjArrayJson_GoodsGroup) goodsgrp_id_list.sortAndUndup();
-				// (done by MakeObjArrayJson_Uom) uom_id_list.sortAndUndup();
-			}
-			js.InsertNz("goodsgroup_list", MakeObjArrayJson_GoodsGroup(bc_own_ident, goodsgrp_id_list, false, &stat));
-			js.InsertNz("uom_list", MakeObjArrayJson_Uom(bc_own_ident, uom_id_list, &stat));
-			{
-				SJson * p_js_goodslist = SJson::CreateArr();
-				PPGoodsPacket goods_pack;
-				PPIDArray qk_list;
-				qk_list.addnz(param.QuotKindID);
-				qk_list.add(PPQUOTK_BASE);
-				for(uint gidx = 0; gidx < goods_id_list.getCount(); gidx++) {
-					const PPID goods_id = goods_id_list.get(gidx);
-					if(tses_obj.GObj.GetPacket(goods_id, &goods_pack, 0) > 0) {
-						SJson * p_js_ware = MakeObjJson_Goods(bc_own_ident, goods_pack, 0, 0, 0, &stat);
-						THROW(p_js_ware);
-						{
-							// "price"
-							double price = 0.0;
-							for(uint qkidx = 0; price == 0.0 && qkidx < qk_list.getCount(); qkidx++) {
-								const PPID qk_id = qk_list.get(qkidx);
-								assert(qk_id != 0);
-								const PPID ar_id = 0L;
-								const QuotIdent qi(param.LocID, qk_id, 0/*curID*/, ar_id);
-								double result = 0.0;
-								if(tses_obj.GObj.GetQuotExt(goods_id, qi, 0.0, 0.0, &result, 1) > 0) {
-									if(result > 0.0)
-										price = result;
-								}
-							}
-							if(price > 0.0) {
-								p_js_ware->InsertDouble("price", price, MKSFMTD(0, 2, 0));
-							}
-						}
-						p_js_goodslist->InsertChild(p_js_ware);
-					}
-				}
-				js.Insert("goods_list", p_js_goodslist);
-			}
-		}
+		THROW(MakePrcJsList(mpjsl_param, &js, prc_id_list, tses_obj, &stat));
 	}
 	THROW(js.ToStr(rResult));
 	// @debug {
@@ -2098,6 +2140,81 @@ int PPStyloQInterchange::ProcessCommand_Report(const StyloQCommandList::Item & r
 	delete p_rtm;
 	delete p_filt;
 	delete p_view;
+	return ok;
+}
+
+int PPStyloQInterchange::ProcessCommand_IncomingListTSess(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const LDATETIME * pIfChangedSince, SString & rResult, SString & rDocDeclaration, uint prccmdFlags)
+{
+	int    ok = 1;
+	const  LDATETIME dtm_now = getcurdatetime_();
+	LDATETIME _ifchangedsince = ZERODATETIME;
+	SJson * p_js_doc_list = 0;
+	SString temp_buf;
+	PPIDArray goods_id_list;
+	SBinaryChunk bc_own_ident;
+	StyloQIncomingListParam param;
+	Stq_CmdStat_MakeRsrv_Response stat;
+	if(pIfChangedSince && checkdate(pIfChangedSince->d))
+		_ifchangedsince = *pIfChangedSince;
+	THROW(GetOwnIdent(bc_own_ident, 0));
+	THROW(rCmdItem.GetSpecialParam<StyloQIncomingListParam>(param));
+	SETIFZQ(param.P_TsF, new TSessionFilt);
+	{
+		PPIDArray prc_id_list;
+		PPID   prc_id = param.P_TsF ? param.P_TsF->PrcID : 0;
+		PPID   local_prc_id = 0;
+		PPObjTSession tses_obj;
+		if(FetchProcessorFromClientPacket(rCliPack, &local_prc_id, true/*logResult*/) > 0) {
+			;
+		}
+		if(prc_id == ROBJID_CONTEXT) {
+			param.P_TsF->PrcID = local_prc_id;
+			prc_id = local_prc_id;
+		}
+		if(prc_id)
+			prc_id_list.add(prc_id);
+		else {
+			ProcessorTbl::Rec prc_rec;
+			for(SEnum en = tses_obj.PrcObj.P_Tbl->Enum(PPPRCK_PROCESSOR, 0); en.Next(&prc_rec) > 0;) {
+				prc_id_list.add(prc_rec.ID);
+			}
+		}
+		{
+			SJson js(SJson::tOBJECT);
+			PPIDArray goods_id_list;
+			if(prc_id_list.getCount()) {
+				SBinaryChunk bc_own_ident;
+				THROW(GetOwnIdent(bc_own_ident, 0));
+				MakePrcJsListParam mpjsl_param(bc_own_ident, param);
+				prc_id_list.sortAndUndup();
+				THROW(MakePrcJsList(mpjsl_param, &js, prc_id_list, tses_obj, &stat));
+			}
+			//
+			{
+				TSessionFilt _filt(*param.P_TsF);
+				PPViewTSession _view;
+				TSessionViewItem _item;
+				_filt.PrcID = prc_id_list.getSingle();
+				if(CConfig.Flags & CCFLG_DEBUG && !param.Period.IsZero())
+					_filt.StPeriod = param.Period;
+				else if(param.LookbackDays > 0)
+					_filt.StPeriod.Set(plusdate(dtm_now.d, -param.LookbackDays), ZERODATE);
+				else
+					_filt.StPeriod.Set(dtm_now.d, ZERODATE);
+				THROW(_view.Init_(&_filt));
+				for(_view.InitIteration(0); _view.NextIteration(&_item) > 0;) {
+					TSessionPacket tses_pack;
+					if(tses_obj.GetPacket(_item.ID, &tses_pack, 0) > 0) {
+						Document new_doc;
+						new_doc.FromTSessionPacket(tses_pack, &goods_id_list);
+					}
+				}
+			}
+			//
+			THROW(js.ToStr(rResult));
+		}
+	}
+	CATCHZOK
 	return ok;
 }
 

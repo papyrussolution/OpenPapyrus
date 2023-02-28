@@ -169,25 +169,10 @@ static size_t HUF_compressWeights(void * dst, size_t dstSize, const void * weigh
 	return (size_t)(op-ostart);
 }
 
-static size_t HUF_getNbBits(HUF_CElt elt)
-{
-	return elt & 0xFF;
-}
-
-static size_t HUF_getNbBitsFast(HUF_CElt elt)
-{
-	return elt;
-}
-
-static size_t HUF_getValue(HUF_CElt elt)
-{
-	return elt & ~(size_t)0xFF;
-}
-
-static size_t HUF_getValueFast(HUF_CElt elt)
-{
-	return elt;
-}
+static size_t HUF_getNbBits(HUF_CElt elt) { return elt & 0xFF; }
+static size_t HUF_getNbBitsFast(HUF_CElt elt) { return elt; }
+static size_t HUF_getValue(HUF_CElt elt) { return elt & ~(size_t)0xFF; }
+static size_t HUF_getValueFast(HUF_CElt elt) { return elt; }
 
 static void HUF_setNbBits(HUF_CElt* elt, size_t nbBits)
 {
@@ -235,12 +220,9 @@ size_t HUF_writeCTable_wksp(void * dst, size_t maxDstSize, const HUF_CElt* CTabl
 		    return hSize+1;
 	    }
 	}
-
 	/* write raw values as 4-bits (max : 15) */
-	if(maxSymbolValue > (256-128)) return ERROR(GENERIC); /* should not happen : likely means source cannot be
-	                                                         compressed */
-	if(((maxSymbolValue+1)/2) + 1 > maxDstSize) return ERROR(dstSize_tooSmall); /* not enough space within dst
-	                                                                               buffer */
+	if(maxSymbolValue > (256-128)) return ERROR(GENERIC); /* should not happen : likely means source cannot be compressed */
+	if(((maxSymbolValue+1)/2) + 1 > maxDstSize) return ERROR(dstSize_tooSmall); /* not enough space within dst buffer */
 	op[0] = (BYTE)(128 /*special case*/ + (maxSymbolValue-1));
 	wksp->huffWeight[maxSymbolValue] = 0; /* to be sure it doesn't cause msan issue in final combination */
 	for(n = 0; n<maxSymbolValue; n += 2)
@@ -495,31 +477,28 @@ typedef struct {
  */
 #define RANK_POSITION_MAX_COUNT_LOG 32
 #define RANK_POSITION_LOG_BUCKETS_BEGIN (RANK_POSITION_TABLE_SIZE - 1) - RANK_POSITION_MAX_COUNT_LOG - 1 /* == 158 */
-#define RANK_POSITION_DISTINCT_COUNT_CUTOFF RANK_POSITION_LOG_BUCKETS_BEGIN + ZSTD_highbit32(RANK_POSITION_LOG_BUCKETS_BEGIN) /*
-	                                                                                                                         ==
-	                                                                                                                         166
-	                                                                                                                         */
+#define RANK_POSITION_DISTINCT_COUNT_CUTOFF RANK_POSITION_LOG_BUCKETS_BEGIN + ZSTD_highbit32(RANK_POSITION_LOG_BUCKETS_BEGIN) /* == 166 */
 
 /* Return the appropriate bucket index for a given count. See definition of
  * RANK_POSITION_DISTINCT_COUNT_CUTOFF for explanation of bucketing strategy.
  */
-static uint32 HUF_getIndex(const uint32 count) {
-	return (count < RANK_POSITION_DISTINCT_COUNT_CUTOFF)
-	       ? count
-	       : ZSTD_highbit32(count) + RANK_POSITION_LOG_BUCKETS_BEGIN;
+static uint32 HUF_getIndex(const uint32 count) 
+{
+	return (count < RANK_POSITION_DISTINCT_COUNT_CUTOFF) ? count : ZSTD_highbit32(count) + RANK_POSITION_LOG_BUCKETS_BEGIN;
 }
 
 /* Helper swap function for HUF_quickSortPartition() */
-static void HUF_swapNodes(nodeElt* a, nodeElt* b) {
+static void HUF_swapNodes(nodeElt* a, nodeElt* b) 
+{
 	nodeElt tmp = *a;
 	*a = *b;
 	*b = tmp;
 }
 
 /* Returns 0 if the huffNode array is not sorted by descending count */
-MEM_STATIC int HUF_isSorted(nodeElt huffNode[], const uint32 maxSymbolValue1) {
-	uint32 i;
-	for(i = 1; i < maxSymbolValue1; ++i) {
+MEM_STATIC int HUF_isSorted(nodeElt huffNode[], const uint32 maxSymbolValue1) 
+{
+	for(uint32 i = 1; i < maxSymbolValue1; ++i) {
 		if(huffNode[i].count > huffNode[i-1].count) {
 			return 0;
 		}
@@ -528,7 +507,8 @@ MEM_STATIC int HUF_isSorted(nodeElt huffNode[], const uint32 maxSymbolValue1) {
 }
 
 /* Insertion sort by descending order */
-HINT_INLINE void HUF_insertionSort(nodeElt huffNode[], int const low, int const high) {
+HINT_INLINE void HUF_insertionSort(nodeElt huffNode[], int const low, int const high) 
+{
 	int i;
 	int const size = high-low+1;
 	huffNode += low;
@@ -1234,11 +1214,8 @@ static size_t HUF_compress_internal(void * dst, size_t dstSize, const void * src
 
 	/* Heuristic : If old table is valid, use it for small inputs */
 	if(preferRepeat && repeat && *repeat == HUF_repeat_valid) {
-		return HUF_compressCTable_internal(ostart, op, oend,
-			   src, srcSize,
-			   nbStreams, oldHufTable, bmi2);
+		return HUF_compressCTable_internal(ostart, op, oend, src, srcSize, nbStreams, oldHufTable, bmi2);
 	}
-
 	/* If uncompressible data is suspected, do a smaller sampling first */
 	DEBUG_STATIC_ASSERT(SUSPECT_INCOMPRESSIBLE_SAMPLE_RATIO >= 2);
 	if(suspectUncompressible && srcSize >= (SUSPECT_INCOMPRESSIBLE_SAMPLE_SIZE * SUSPECT_INCOMPRESSIBLE_SAMPLE_RATIO)) {

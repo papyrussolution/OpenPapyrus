@@ -890,7 +890,11 @@ int PPSupplExchange_Baltika::ExportRest()
 	SString file_name;
 	SString temp_buf;
 	SString client_code;
-	PPID   weakalc_locid = 0, weakalc_ggrpid = 0, wotarebeer_locid = 0, wotarebeer_ggrpid = 0, tare_ggrpid = 0;
+	PPID   weakalc_locid = 0;
+	PPID   weakalc_ggrpid = 0;
+	PPID   wotarebeer_locid = 0;
+	PPID   wotarebeer_ggrpid = 0;
+	PPID   tare_ggrpid = 0;
 	PPIDArray   loc_list, spoilage_loc_list;
 	RAssocArray weakalcrest_list, wotarebeerrest_list;
 	GoodsRestFilt filt;
@@ -8343,55 +8347,56 @@ int GazpromNeft::SendSellin()
 				SJson js_result(SJson::tOBJECT);
 
 				THROW(Helper_MakeBillList(Ep.RcptOp, 1, loc_id, list));
-				temp_buf.Z().Cat(dtm_now.d, DATF_ISO8601CENT)/*.CatChar('Z')*/;
+				//temp_buf.Z().Cat(dtm_now.d, DATF_ISO8601CENT)/*.CatChar('Z')*/;
+				//temp_buf.Z().Cat(dtm_now, DATF_ISO8601CENT, 0).Cat(".145Z");
+				temp_buf.Z().Cat(dtm_now.d, DATF_ISO8601CENT);
+				js_result.InsertString("uploadDate", temp_buf);
+				js_result.InsertString("warehouseId", temp_buf.Z().Cat(loc_uuid, S_GUID::fmtIDL|S_GUID::fmtLower));
 				{
 					p_js_doc_list = new SJson(SJson::tARRAY);
 					for(uint idx = 0; idx < list.getCount(); idx++) {
 						const GazpromNeftBillPacket * p_item = list.at(idx);
 						if(p_item) {
 							SJson * p_js_doc = new SJson(SJson::tOBJECT);
-							p_js_doc->InsertString("InvoiceId", temp_buf.Z().Cat(p_item->Uuid, S_GUID::fmtIDL|S_GUID::fmtLower));
+							p_js_doc->InsertString("invoiceId", temp_buf.Z().Cat(p_item->Uuid, S_GUID::fmtIDL|S_GUID::fmtLower));
 							SJson * p_js_item_list = new SJson(SJson::tARRAY);
 							for(uint itemidx = 0; itemidx < p_item->ItemList.getCount(); itemidx++) {
 								const GazpromNeftBillPacket::Position & r_item = p_item->ItemList.at(itemidx);
 								SJson * p_js_item = new SJson(SJson::tOBJECT);
-								p_js_item->InsertNull("Unit");
+								// p_js_item->InsertNull("unit");
 								//p_js_item->InsertString("Unit", /*r_item.UnitName*/"TNE");
-								p_js_item->InsertNull("Volume");
+								// p_js_item->InsertNull("volume");
 								//if(r_item.Volume > 0.0)
 									//p_js_item->InsertString("Volume", temp_buf.Z().Cat(r_item.Volume, MKSFMTD(0, 3, NMBF_NOTRAILZ)));
 								if(r_item.Weight > 0.0) {
 									// Масса должна быть в тоннах
-									p_js_item->InsertString("Weight", temp_buf.Z().Cat(r_item.Weight/1000.0, MKSFMTD(0, 3, NMBF_NOTRAILZ))); 
+									p_js_item->InsertString("weight", temp_buf.Z().Cat(r_item.Weight/1000.0, MKSFMTD(0, 3, NMBF_NOTRAILZ))); 
 									//p_js_item->InsertDouble("weight", r_item.Weight/1000.0, MKSFMTD(0, 3, NMBF_NOTRAILZ)); 
 								}
-								p_js_item->InsertInt("Quantity", R0i(r_item.Qtty));
-								p_js_item->InsertInt64("ProductId", r_item.ProductId);
+								p_js_item->InsertInt("quantity", R0i(r_item.Qtty));
+								p_js_item->InsertInt64("productId", r_item.ProductId);
 								p_js_item_list->InsertChild(p_js_item);
 								p_js_item = 0;
 							}
-							p_js_doc->Insert("Positions", p_js_item_list);
+							p_js_doc->Insert("positions", p_js_item_list);
 							p_js_item_list = 0;
-							temp_buf.Z().Cat(/*p_item->Dtm*/dtm_now, DATF_ISO8601CENT, 0).Cat("+03:00"); // Это что-то парадоксальное! Газпромнефть требует чтоб дата документа совпадала с датой выгрузки.
-							p_js_doc->InsertString("InvoiceDate", temp_buf);
-							p_js_doc->InsertString("InvoiceNumber", (temp_buf = p_item->Code).Escape());
-							temp_buf.Z().Cat(p_item->Dtm, DATF_ISO8601CENT, 0).Cat("+03:00");
-							p_js_doc->InsertString("GpnInvoiceDate", temp_buf);
-							p_js_doc->InsertString("GpnInvoiceNumber", (temp_buf = p_item->Code).Escape());
+							temp_buf.Z().Cat(/*p_item->Dtm*/dtm_now, DATF_ISO8601CENT, 0).Cat(".145Z"); // Это что-то парадоксальное! Газпромнефть требует чтоб дата документа совпадала с датой выгрузки.
+							p_js_doc->InsertString("invoiceDate", temp_buf);
+							p_js_doc->InsertString("invoiceNumber", (temp_buf = p_item->Code).Escape());
+							temp_buf.Z().Cat(p_item->Dtm, DATF_ISO8601CENT, 0).Cat(".145Z");
+							p_js_doc->InsertString("gpnInvoiceDate", temp_buf);
+							p_js_doc->InsertString("gpnInvoiceNumber", (temp_buf = p_item->Code).Escape());
 							//
 							p_js_doc_list->InsertChild(p_js_doc);
 							p_js_doc = 0;
 						}
 					}
-					js_result.Insert("Documents", p_js_doc_list);
+					js_result.Insert(/*"documents"*/"arrivals", p_js_doc_list);
 					p_js_doc_list = 0;
-					temp_buf.Z().Cat(dtm_now, DATF_ISO8601CENT, 0).Cat("+03:00");
-					js_result.InsertString("UploadDate", temp_buf);
-					js_result.InsertString("WarehouseId", temp_buf.Z().Cat(loc_uuid, S_GUID::fmtIDL|S_GUID::fmtLower));
 				}
 				js_result.ToStr(req_buf);
 				// @debug {
-				/*if(false) {
+				if(false) {
 					//"D:\Papyrus\Src\VBA\0-GasPromNeft-Rud\sellin-sample.json"
 					SFile f_in("/Papyrus/Src/VBA/0-GasPromNeft-Rud/sellin-sample.json", SFile::mRead);
 					if(f_in.IsValid()) {
@@ -8406,7 +8411,7 @@ int GazpromNeft::SendSellin()
 							}
 						}
 					}
-				}*/
+				}
 				// } @debug 
 				{
 					SString url_buf;
@@ -8642,6 +8647,415 @@ const GazpromNeftGoodsPacket * GazpromNeft::SearchGoodsEntry(int64 ident) const
 	}
 	return p_result;
 }
+//
+//
+//
+class AgentPlus : public PrcssrSupplInterchange::ExecuteBlock { // @v11.6.5 @construction
+public:
+	/*
+		Наименование пакета	Каталог FTP	Название файла
+		----------------------------------------------
+		Контрагенты               customers      Customers_20190910120358.xml
+			code          Строка Да  Код клиента -однозначный идентификатор контрагента, уникален;
+			name          Строка Да  Наименование юр лица, сокращенное для отражения на планшете
+			fullname      Строка Нет Полное наименование контрагента
+			inn           Строка Да  Инн юридического лица
+			kpp           Строка Нет КПП юридического лица
+			address       Строка Нет Юридический адрес юридического лица
+		Торговые точки            trade_points   Trade_points_20190910120358.xml
+			code          Строка Да  Код торговой точки – уникальный идентификатор, позволяющий однозначно идентифицировать ТТ;
+			customercode  Строка Да  Идентификатор контрагента, должен обязательно присутствовать в пакете Контрагенты;
+			address       Строка Да  Адрес торговой точки
+			price         Строка Да  Код прайс листа, для торговой точки; Должен быть в файле Prices;
+		Товары                    products       Products_20190910120358.xml
+			code          Строка Да  Код номенклатуры, в учетной системе дистрибьютера, позволяющий однозначно определить товар;
+			name          Строка Да  Наименование товара
+			suppliercode  Строка Нет Код производителя
+			vat           Число  Да  Ставка НДС 
+			price_group   Строка Нет Код ценовой группы, к которой принадлежит товар, должен быть в файле price_groups;
+		Ценовые группы            price_groups   price_groups_20190910120358.xml
+			code          Строка Да  Код ценовой группы;
+			name          Строка Да  Название ценовой группы
+		Склады                    warehouses     warehouses_20190910120358.xml
+			code          Строка Да  Код склада, уникален, позволяет однозначное идентифицировать склад;
+			name          Строка Да  Наименование склада
+			discount      Число  Нет Скидки, распространяемая на склад, все остальные скидки при установке данной скидки – не учитываются;
+		Торговые представители    salesreps      Salesreps_20190910120358.xml
+			code          Строка Да  Код торгового представителя
+			name          Строка Да  ФИО торгового представителя
+		Остатки товаров           stocks         stocks_20190910120358.xml
+			date          Дата   Да  Дата остатков
+			warehousecode Строка Да  Код склада
+			productcode   Строка Да  Код продукта
+			quantity      Число  Да  Количество товара
+		Цены номенклатуры         prices         prices_20190910120358.xml
+			code          Строка Да  Уникальный код прайс листа
+			name          Строка Да  Наименование прайс листа
+			isactive      Булево Да  Признак активности
+			vatIn         Булево Да  Признак, Тип цен включает НДС;
+			products      Элемент_XML Да Список цен, по номенклатуре;
+				productcode Строка Да   Код номенклатуры;
+				price       Число  Да   Стоимость позиции, в данном виде цен;
+		Скидки номенклатуры       discounts      discounts_20190910120358.xml
+			customertype  Число  Да  Содержит описание назначения, на кого распространяется скидка
+				Возможные значения:
+				"1,000" – Скидка распространяется на контрагента;
+				"2,000" – скидка распространяется на торговую точку
+			customercode  Строка Да  Код назначения торговой скидки, на кого она распространяется; Код контрагента или торговой точки;
+			producttype   Число  Да  Содержит описание назначения, на что распространяется скидка
+				Возможные значения:
+				"1,000" – Скидка распространяется на товар;
+				"2,000" – скидка распространяется на ценовую группу;
+			productcode   Число  Да  Код назначения, на что распространяется, скидка; Код номенклатуры, или ценовой группы;
+			discount      Число  Да  Процент скидки, если число указано в отрицательном формате, это означает что это наценка;
+		Дебиторская задолженность debts          debts_20190910120358.xml
+			customercode   Строка Да  Код контрагента
+			tradepointcode Строка Да  Код торговой точки
+			documentnumber Строка Да  Номер документа, для идентификации клиентом;
+			documentdate   Дата   Да  Дата документа дебиторской задолженности;
+			paymentdate    Дата   Да  Дата оплаты;
+			debtsum        Число  Да  Сумма задолженности
+		Продажи                   salesrefunds   salesrefunds_20190910120358.xml
+
+			tradepointcode Строка   Да Код торговой точки
+			customercode   Строка   Да Код контрагента
+			number         Строка   Да Номер документа продажи/возврата
+			date           Дата     Да Дата документа продажи/возврата
+			employeecode   Строка   Да Код торгового представителя
+			warehousecode  Строка   Да Код склада
+			type           Строка   Да Операция Продажа/возврат
+
+			Items:
+				productcode Строка Да Код товара
+				counts      Число  Да Количество
+				summ        Число  Да Сумма без НДС
+				vatsumm     Число  Да Сумма НДС
+
+		Движения товаров          movements      movements_20190910120358.xml
+			date            Дата   Да  Дата операции движения
+			warehousecode   Строка Да  склада
+			transaction     Строка Да  Вид движения
+			productcode     Строка Да  Код товара
+			quantity        Число  Да  Количество
+		Заказ покупателя          orders         Order_UD00000737_20190910120358.xml
+			number          Строка Да  Номер заказа в учетной системе производителя
+			date            Дата   Да  Дата создания заказа
+			customercode    Строка Да  Код контрагента
+			tradepointcode  Строка Да  Код торговой точки
+			deliverydate    Дата   Да  Дата
+			warehousecode   Строка Да  Код склада
+			comment         Строка Нет Комментарий к заказу;
+
+			Items:
+				productcode Строка Да  Код товара
+				counts      Число  Да  Количество в заказе;
+				price       Число  Да  Цена клиента без НДС
+				vat         Число  Да  Ставка НДС
+				summ        Число  Да  Сумма по строке, с НДС 
+	*/
+	struct WhEntry { // @flat
+		WhEntry() : ID(0)
+		{
+		}
+		PPID   ID;
+	};
+	struct GoodsEntry { // @flat
+		GoodsEntry() : ID(0), VatRate(0.0)
+		{
+			SupplCode[0] = 0;
+			PriceGroupCode[0] = 0;
+		}
+		PPID   ID;
+		char   SupplCode[24]; // Код производителя //
+		double VatRate;
+		char   PriceGroupCode[24];
+	};
+	struct StockEntry {
+		StockEntry()
+		{
+			THISZERO();
+		}
+		PPID   LocID;
+		LDATE  Dt;
+		PPID   GoodsID;
+		double InRest;
+		double Mov_Tk01; // 1 - Поступления
+		double Mov_Tk02; // 2 - Списание-расход - брак, прочие списания
+		double Mov_Tk03; // 3 - Возвраты поставщику
+		double Mov_Tk04; // 4 - Перемещение
+		double Mov_Tk05; // 5 - Оприходование - прочие поступления
+		double OutRest;
+	};
+	static IMPL_CMPFUNC(StockEntry, i1, i2)
+	{
+		const StockEntry * p1 = static_cast<const StockEntry *>(i1);
+		const StockEntry * p2 = static_cast<const StockEntry *>(i2);
+		RET_CMPCASCADE3(p1, p2, Dt, LocID, GoodsID);
+	}
+	AgentPlus(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger), TsHt(4096)
+	{
+	}
+	~AgentPlus()
+	{
+	}
+	int    Init()
+	{
+		int    ok = 1;
+		WhList.clear();
+		GoodsList.clear();
+		MakeLocList(WhList);
+		MakeGoodsList(GoodsList);
+		return ok;
+	}
+	int      PrepareMovementData(TSVector <StockEntry> & rList)
+	{
+		int    ok = 1;
+		const PPID suppl_acs_id = GetSupplAccSheet();
+		const PPID sell_acs_id = GetSellAccSheet();
+		GoodsGrpngArray gga;
+		GCTFilt ggf;
+		AdjGdsGrpng agg;
+		Goods2Tbl::Rec goods_rec;
+		PPUnit unit_rec;
+		//TSVector <StockEntry> stock_list;
+		TSVector <LDATE> date_list;
+		{
+			for(LDATE iter_dt = P.ExpPeriod.low; iter_dt <= P.ExpPeriod.upp; iter_dt = plusdate(iter_dt, 1)) {
+				date_list.insert(&iter_dt);
+			}
+		}
+		for(uint i = 0; i < WhList.getCount(); i++) {
+			const WhEntry & r_loc_entry = WhList.at(i);
+			PPLocationPacket loc_pack;
+			for(uint date_idx = 0; date_idx < date_list.getCount(); date_idx++) {
+				const LDATE iter_dt = date_list.at(date_idx);
+				for(uint goodsidx = 0; goodsidx < GoodsList.getCount(); goodsidx++) {
+					const GoodsEntry & r_goods_entry = GoodsList.at(goodsidx);
+					StockEntry new_entry;
+					uint   goods_idx = 0;
+					new_entry.GoodsID = r_goods_entry.ID;
+					GoodsGrpngEntry input;
+					GoodsGrpngEntry output;
+					gga.Reset();
+					ggf.Period.SetDate(iter_dt);
+					ggf.GoodsID = new_entry.GoodsID;
+					ggf.Flags |= (OPG_CALCINREST|OPG_CALCOUTREST);
+					THROW(agg.BeginGoodsGroupingProcess(ggf));
+					THROW(gga.ProcessGoodsGrouping(ggf, &agg));
+					agg.EndGoodsGroupingProcess();
+
+					const GoodsGrpngEntry * p_in_rest = gga.GetInRest();
+					const GoodsGrpngEntry * p_out_rest = gga.GetOutRest();
+					gga.GetInput(input);
+					gga.GetOutput(output);
+
+					new_entry.LocID = r_loc_entry.ID;
+					new_entry.Dt = iter_dt;
+					new_entry.InRest = p_in_rest ? p_in_rest->Quantity : 0.0;
+					new_entry.OutRest = p_out_rest ? p_out_rest->Quantity : 0.0;
+					// 
+					// double Mov_Tk01; // 1 - Поступления
+					// double Mov_Tk02; // 2 - Списание-расход - брак, прочие списания
+					// double Mov_Tk03; // 3 - Возвраты поставщику
+					// double Mov_Tk04; // 4 - Перемещение
+					// double Mov_Tk05; // 5 - Оприходование - прочие поступления
+					//
+					for(uint ggaidx = 0; ggaidx < gga.getCount(); ggaidx++) {
+						auto & r_entry = gga.at(ggaidx);
+						PPOprKind op_rec;
+						if(IsIntrExpndOp(r_entry.OpID)) {
+							new_entry.Mov_Tk04 += fabs(r_entry.Quantity);
+						}
+						else if(GetOpData(r_entry.OpID, &op_rec) > 0) {
+							if(r_entry.OpTypeID == PPOPT_GOODSRECEIPT) {
+								if(op_rec.AccSheetID && op_rec.AccSheetID == suppl_acs_id) {
+									new_entry.Mov_Tk01 += fabs(r_entry.Quantity);
+								}
+								else {
+									new_entry.Mov_Tk05 += fabs(r_entry.Quantity);
+								}
+							}
+							else if(r_entry.OpTypeID == PPOPT_GOODSEXPEND) {
+								if(op_rec.AccSheetID && op_rec.AccSheetID == sell_acs_id) {
+									new_entry.Mov_Tk02 += fabs(r_entry.Quantity);
+								}
+								else if(op_rec.AccSheetID && op_rec.AccSheetID == suppl_acs_id) {
+									new_entry.Mov_Tk03 += fabs(r_entry.Quantity); // Возвраты поставщику
+								}
+							}
+						}
+					}
+					//new_entry.Input = input.Quantity;
+					//new_entry.Output = output.Quantity;
+					rList.insert(&new_entry);
+				}
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+	int   ExportGoods(const TSVector <GoodsEntry> & rList)
+	{
+		int    ok = 1;
+		SString out_file_name;
+		PPGetFilePath(PPPATH_OUT, "agentplus-goods.xml", out_file_name);
+	    xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
+	    THROW(p_x);
+		{
+			SXml::WDoc _doc(p_x, cpUTF8);
+			{
+				SXml::WNode n_h(p_x, "products");
+				for(uint i = 0; i < rList.getCount(); i++) {
+					const auto & r_item = rList.at(i);
+					SXml::WNode n_i(p_x, "product");
+					n_i.PutAttrib("code", "");
+					n_i.PutAttrib("name", "");
+					n_i.PutAttrib("suppliercode", "");
+					n_i.PutAttrib("vat", "");
+					n_i.PutAttrib("price_group", "");
+				}
+			}
+		}
+		CATCHZOK
+		xmlFreeTextWriter(p_x);
+		return ok;
+	}
+	int   ExportWarehouses(const TSVector <WhEntry> & rList)
+	{
+		int    ok = 1;
+		SString out_file_name;
+		PPGetFilePath(PPPATH_OUT, "agentplus-warehouse.xml", out_file_name);
+	    xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
+	    THROW(p_x);
+		{
+			SXml::WDoc _doc(p_x, cpUTF8);
+			{
+				SXml::WNode n_h(p_x, "warehouses");
+				for(uint i = 0; i < rList.getCount(); i++) {
+					const auto & r_item = rList.at(i);
+					SXml::WNode n_i(p_x, "warehouse");
+					n_i.PutAttrib("code", "");
+					n_i.PutAttrib("name", "");
+					n_i.PutAttrib("discount", "");
+				}
+			}
+		}
+		CATCHZOK
+		xmlFreeTextWriter(p_x);
+		return ok;
+	}
+	int   ExportRest(const TSVector <StockEntry> & rList)
+	{
+		int    ok = 1;
+		SString out_file_name;
+		PPGetFilePath(PPPATH_OUT, "agentplus-rest.xml", out_file_name);
+	    xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
+	    THROW(p_x);
+		{
+			SXml::WDoc _doc(p_x, cpUTF8);
+			{
+				SXml::WNode n_h(p_x, "stocks");
+				for(uint i = 0; i < rList.getCount(); i++) {
+					const auto & r_item = rList.at(i);
+					SXml::WNode n_i(p_x, "stock");
+					n_i.PutAttrib("date", "");
+					n_i.PutAttrib("warehousecode", "");
+					n_i.PutAttrib("productcode", "");
+					n_i.PutAttrib("quantity", "");
+				}
+			}
+		}
+		CATCHZOK
+		xmlFreeTextWriter(p_x);
+		return ok;
+	}
+	int   ExportMovement(const TSVector <StockEntry> & rList)
+	{
+		int    ok = 1;
+		SString out_file_name;
+		PPGetFilePath(PPPATH_OUT, "agentplus-movm.xml", out_file_name);
+	    xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
+	    THROW(p_x);
+		{
+			SXml::WDoc _doc(p_x, cpUTF8);
+			{
+				SXml::WNode n_h(p_x, "movements");
+				for(uint i = 0; i < rList.getCount(); i++) {
+					const auto & r_item = rList.at(i);
+					SXml::WNode n_i(p_x, "movement");
+					n_i.PutAttrib("date", "");
+					n_i.PutAttrib("warehousecode", "");
+					n_i.PutAttrib("transaction", "");
+					n_i.PutAttrib("productcode", "");
+					n_i.PutAttrib("quantity", "");
+				}
+			}
+		}
+		CATCHZOK
+		xmlFreeTextWriter(p_x);
+		return ok;
+	}
+private:
+	const GoodsEntry * SearchGoodsEntry(const TSVector <GoodsEntry> & rGoodsList, PPID goodsID) const
+	{
+		uint   goods_idx = 0;
+		return rGoodsList.lsearch(&goodsID, &goods_idx, CMPF_LONG) ? &rGoodsList.at(goods_idx) : 0;
+	}
+	int    MakeGoodsList(TSVector <GoodsEntry> & rGoodsList)
+	{
+		//GoodsList.Z();
+		rGoodsList.clear();
+		int    ok = -1;
+		GoodsFilt filt;
+		//filt.Flags |= GoodsFilt::fShowArCode;
+		//filt.CodeArID = P.SupplID;
+		if(Ep.GoodsGrpID)
+			filt.GrpIDList.Add(Ep.GoodsGrpID);
+		else
+			filt.SupplID = P.SupplID;
+		Goods2Tbl::Rec goods_rec;
+		for(GoodsIterator iter(&filt, 0); iter.Next(&goods_rec) > 0;) {
+			//GoodsList.add(goods_rec.ID);
+			GoodsEntry new_entry;
+			uint   goods_idx = 0;
+			new_entry.ID = goods_rec.ID;
+			const  GoodsEntry * p_goods_entry = 0;
+			if(new_entry.ID && !SearchGoodsEntry(rGoodsList, new_entry.ID)) {
+				if(GObj.Search(new_entry.ID, &goods_rec) > 0) {
+					rGoodsList.insert(&new_entry);
+				}
+			}
+		}
+		return ok;
+	}
+	int    MakeLocList(TSVector <WhEntry> & rLocList)
+	{
+		int    ok = 1;
+		rLocList.clear();
+		for(uint i = 0; i < P.LocList.GetCount(); i++) {
+			const PPID loc_id = P.LocList.Get(i);
+			PPLocationPacket loc_pack;
+			if(loc_id && LocObj.GetPacket(loc_id, &loc_pack) > 0) {
+				uint   loc_idx = 0;
+				const  WhEntry * p_loc_entry = 0;
+				if(rLocList.lsearch(&loc_id, &loc_idx, CMPF_LONG)) {
+					;//p_loc_entry = &rLocList.at(loc_id);
+				}
+				else {
+					WhEntry oe;
+					oe.ID = loc_id;
+					rLocList.insert(&oe);
+				}
+			}
+		}
+		return ok;
+	}
+	PPLogger & R_Logger;
+	SString TokBuf;
+	TokenSymbHashTable TsHt;
+	TSVector <WhEntry> WhList;
+	TSVector <GoodsEntry> GoodsList;
+};
 //
 //
 //
@@ -9703,7 +10117,10 @@ int PrcssrSupplInterchange::Run()
 	{
 		ExecuteBlock & r_eb = *P_Eb;
 		r_eb.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, temp_buf);
-		if(temp_buf.IsEqiAscii("VLADIMIRSKIY_STANDARD")) { // @v11.5.10
+		if(temp_buf.IsEqiAscii("AGENT_PLUS")) { // @v11.6.5
+			
+		}
+		else if(temp_buf.IsEqiAscii("VLADIMIRSKIY_STANDARD")) { // @v11.5.10
 			VladimirskiyStandard cli(r_eb, logger);
 			const long actions = r_eb.P.Actions;
 			PPWaitStart(); // @v11.6.4

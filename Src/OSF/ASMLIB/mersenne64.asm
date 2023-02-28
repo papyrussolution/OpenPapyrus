@@ -59,7 +59,8 @@
 default rel
 
 ; structure definition and constants:
-%INCLUDE "randomah.asi"
+; @sobolev %INCLUDE "asm/randomah.asi"
+%include "../osf/asmlib/randomah.asi" ; @sobolev
 
 global MersenneRandomInit, MersenneRandomInitD, MersRandomInit
 global MersenneRandomInitByArray, MersenneRandomInitByArrayD, MersRandomInitByArray
@@ -67,7 +68,6 @@ global MersenneBRandom, MersenneBRandomD, MersBRandom
 global MersenneRandom, MersenneRandomD, MersRandom
 global MersenneIRandom, MersenneIRandomD, MersIRandom
 global MersenneIRandomX, MersenneIRandomXD, MersIRandomX
-
 
 section .data
 align 16
@@ -77,7 +77,6 @@ MersenneInstance: ISTRUC CRandomMersenneA
 IEND
 ; Size of structure
 MersenneSize equ $ - MersenneInstance
-
 
 SECTION .CODE  ALIGN=16
 
@@ -261,13 +260,13 @@ M320:   mov     eax, [rcx+rsi*4-4+CRandomMersenneA.MT]     ; mt[i-1]
         inc     esi                                        ; i++
         inc     edi                                        ; j++
         cmp     esi, MERS_N
-        jb      M330                                       ; if(i>=MERS_N)
+        jb      M330                                       ; if (i>=MERS_N)
         mov     eax, [rcx+(MERS_N-1)*4+CRandomMersenneA.MT]; mt[0] = mt[MERS_N-1];
         mov     [rcx+CRandomMersenneA.MT], eax
         mov     esi, 1                                     ; i=1;
 M330:
         cmp     edi, r8d                                   ; length
-        jb      M340                                       ; if(j>=length)
+        jb      M340                                       ; if (j>=length)
         xor     edi, edi                                   ; j = 0;
 M340:
         dec     ebp                                        ; k--
@@ -284,7 +283,7 @@ M360:   mov     eax, [rcx+rsi*4-4+CRandomMersenneA.MT]     ; mt[i-1]
         mov     [rcx+rsi*4+CRandomMersenneA.MT], eax       ; save in mt[i]
         inc     esi                                        ; i++
         cmp     esi, MERS_N
-        jb      M370                                       ; if(i>=MERS_N)
+        jb      M370                                       ; if (i>=MERS_N)
         mov     eax, [rcx+(MERS_N-1)*4+CRandomMersenneA.MT]; mt[0] = mt[MERS_N-1];
         mov     [rcx+CRandomMersenneA.MT], eax
         mov     esi, 1                                     ; i=1;
@@ -575,7 +574,7 @@ MersIRandomX: ; PROC
         inc     edi                                        ; interval = max - min + 1
         push    rdx                                        ; save min
         
-        ; if(interval != LastInterval) {
+        ; if (interval != LastInterval) {
         cmp     edi, [rcx+CRandomMersenneA.LastInterval]
         je      M810
         ; RLimit = uint32(((uint64)1 << 32) / interval) * interval - 1;}
@@ -591,7 +590,7 @@ M820:   ; do { // Rejection loop
         call    ?Windows_MersBRandom                       ; random bits (rcx is preserved)
         ; longran  = (uint64)BRandom() * interval;
         mul     edi
-        ; } while(remainder > RLimit);
+        ; } while (remainder > RLimit);
         cmp     eax, [rcx+CRandomMersenneA.RLimit]
         ja      M820
         

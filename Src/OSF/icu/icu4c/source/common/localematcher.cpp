@@ -1,9 +1,8 @@
+// localematcher.cpp
 // © 2019 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-
-// localematcher.cpp
 // created: 2019may08 Markus W. Scherer
-
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "localeprioritylist.h"
@@ -13,7 +12,6 @@
 #include "ustr_imp.h"
 
 #define UND_LSR LSR("und", "", "", LSR::EXPLICIT_LSR)
-
 /**
  * Indicator for the lifetime of desired-locale objects passed into the LocaleMatcher.
  *
@@ -901,6 +899,5 @@ U_CAPI int32_t U_EXPORT2 uloc_acceptLanguageFromHTTP(char * result, int32_t resu
 	}
 	LocalePriorityList list(httpAcceptLanguage, *status);
 	LocalePriorityList::Iterator desiredLocales = list.iterator();
-	return acceptLanguage(*availableLocales, desiredLocales,
-		   result, resultAvailable, outResult, *status);
+	return acceptLanguage(*availableLocales, desiredLocales, result, resultAvailable, outResult, *status);
 }

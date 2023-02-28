@@ -59,7 +59,7 @@
 ; sh1 = L-1
 ; q = x + (m*x >> n)              [high part of signed multiplication]
 ; q = (q >> sh1) - (x<0 ? -1 : 0)
-; if(divisor < 0) q = -q         [negative divisor not supported in present implementation]
+; if (divisor < 0) q = -q         [negative divisor not supported in present implementation]
 ; x/d = q
 ;
 ; Copyright (c) 2011 - 2012 GNU General Public License www.gnu.org/licenses
@@ -98,7 +98,7 @@ section .text  align = 16
 ; extern "C" __m128i setdivisor8s(int16_t d);
 ; vector of 8 x 16 bit signed integers
 
-global setdivisor8s: function
+global setdivisor8s
 setdivisor8s:
         push    rbx
         movsx   ebx, par1w             ; d
@@ -133,7 +133,7 @@ H120:   ; d < 0 not supported. Generate error
 ; extern "C" void setdivisorV8i16(__m128i buf[2], int16_t d);
 ; vector of 8 x 16 bit signed integers
 
-global setdivisorV8i16: function
+global setdivisorV8i16
 setdivisorV8i16:
         push    par1                   ; buf
         mov     par1d, par2d           ; d
@@ -147,7 +147,7 @@ setdivisorV8i16:
 
 
 ; extern "C" int dividefixedV8i16(const __m128i buf[2], __m128i x);
-global dividefixedV8i16: function
+global dividefixedV8i16
 
 dividefixedV8i16:
 ; buf = par1
@@ -175,7 +175,7 @@ dividefixedV8i16:
 ; vector of 8 x 16 bit unsigned integers
 
 align 16
-global setdivisor8us: function
+global setdivisor8us
 setdivisor8us:
         push    rbx
         movzx   ebx, par1w             ; d
@@ -211,7 +211,7 @@ setdivisor8us:
 ;extern "C" void setdivisorV8u16(__m128i buf[2], uint16_t d);
 ; 8 x 16 bit unsigned 
 
-global setdivisorV8u16: function
+global setdivisorV8u16
 setdivisorV8u16:
         push    par1                   ; buf
         mov     par1d, par2d           ; d
@@ -225,7 +225,7 @@ setdivisorV8u16:
 
         
 ;extern "C" __m128i dividefixedV8u16(const __m128i buf[2], __m128i x);
-global dividefixedV8u16: function
+global dividefixedV8u16
 
 align 16
 dividefixedV8u16:
@@ -255,7 +255,7 @@ dividefixedV8u16:
 ; vector of 4 x 32 bit signed integers
 
 align 16
-global setdivisor4i: function
+global setdivisor4i
 setdivisor4i:
         push    rbx
         mov     ebx, par1d             ; d
@@ -291,7 +291,7 @@ K120:   ; d < 0 not supported. Generate error
 ; extern "C" void setdivisorV4i32(__m128i buf[2], int32_t d);
 ; vector of 4 x 32 bit signed integers
 
-global setdivisorV4i32: function
+global setdivisorV4i32
 setdivisorV4i32:
         push    par1                   ; buf
         mov     par1d, par2d           ; d
@@ -305,11 +305,11 @@ setdivisorV4i32:
 
         
 ; extern "C" int dividefixedV4i32(const __m128i buf[2], __m128i x);
-global dividefixedV4i32: function
+global dividefixedV4i32
 
 ; Direct entries to CPU-specific versions
-global dividefixedV4i32SSE2:  function
-global dividefixedV4i32SSE41: function
+global dividefixedV4i32SSE2              
+global dividefixedV4i32SSE41
 
 align 8
 dividefixedV4i32: ; function dispatching
@@ -418,7 +418,7 @@ section .text
 ; vector of 4 x 32 bit unsigned integers
 
 align 16
-global setdivisor4ui: function
+global setdivisor4ui
 setdivisor4ui:
         push    rbx
         mov     ebx, par1d             ; d
@@ -453,7 +453,7 @@ setdivisor4ui:
 ;extern "C" void setdivisorV4u32(__m128i buf[2], uint32_t d);
 ; 4 x 32 bit unsigned 
 
-global setdivisorV4u32: function
+global setdivisorV4u32
 setdivisorV4u32:
         push    par1                   ; buf
         mov     par1d, par2d           ; d
@@ -466,7 +466,7 @@ setdivisorV4u32:
 ; setdivisorV4u32 end
         
 ;extern "C" __m128i dividefixedV4u32(const __m128i buf[2], __m128i x);
-global dividefixedV4u32: function
+global dividefixedV4u32
 
 align 16
 dividefixedV4u32:

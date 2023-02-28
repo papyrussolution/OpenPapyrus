@@ -33,11 +33,11 @@ default rel
 
 %define ALLOW_OVERRIDE 0               ; Set to one if override of standard function desired
 
-global A_strstr: function             ; Function A_strstr
+global A_strstr             ; Function A_strstr
 
 ; Direct entries to CPU-specific versions
-global strstrGeneric: function            ; Generic version for processors without SSE4.2
-global strstrSSE42: function          ; Version for processors with SSE4.2
+global strstrGeneric            ; Generic version for processors without SSE4.2
+global strstrSSE42          ; Version for processors with SSE4.2
 
 ; Imported from instrset64.asm:
 extern InstructionSet                 ; Instruction set for CPU dispatcher
@@ -47,7 +47,7 @@ section .text
 ; strstr function
 
 %if ALLOW_OVERRIDE
-global ?OVR_strstr: function
+global ?OVR_strstr
 ?OVR_strstr:
 %endif
 

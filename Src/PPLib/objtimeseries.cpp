@@ -3242,7 +3242,7 @@ PPObjTimeSeries::StrategyResultEntry::StrategyResultEntry(const PPObjTimeSeries:
 
 PPObjTimeSeries::TrendEntry::TrendEntry(uint stride, uint nominalCount) : Stride(stride), NominalCount(nominalCount), SpikeQuant_r(0.0), ErrAvg(0.0), ErrLimitByPel(0.0)
 {
-	assert(checkirange(stride, 1, 100000));
+	assert(checkirange(stride, 1U, 100000U));
 	//assert(NominalCount > 0 && NominalCount <= 100);
 }
 

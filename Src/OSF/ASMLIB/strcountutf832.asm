@@ -21,11 +21,11 @@
 ; Copyright (c) 2011 GNU General Public License www.gnu.org/licenses
 ;******************************************************************************
 
-global _strcount_UTF8: function
+global _strcount_UTF8
 
 ; Direct entries to CPU-specific versions
-global _strcount_UTF8Generic: function
-global _strcount_UTF8SSE42: function
+global _strcount_UTF8Generic
+global _strcount_UTF8SSE42
 
 ; Imported from instrset32.asm:
 extern _InstructionSet                 ; Instruction set for CPU dispatcher
@@ -159,4 +159,4 @@ strcount_UTF8Dispatch  DD strcount_UTF8CPUDispatch
 %ENDIF
 
 SECTION .bss
-dq 0, 0
+resq 4

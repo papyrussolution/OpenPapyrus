@@ -1,5 +1,5 @@
 // SCSPCTRT.CPP
-// Copyright (c) A.Sobolev 2018, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2018, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Реализация специальных интерпретаций поведения персональных карт
 //
@@ -13,6 +13,13 @@ SCardSpecialTreatment::CardBlock::CardBlock() : SpecialTreatment(0), PosNodeID(0
 SCardSpecialTreatment::DiscountBlock::DiscountBlock() : RowN(0), GoodsID(0), Flags(0), Qtty(0.0), InPrice(0.0), ResultPrice(0.0)
 {
 	PTR32(TaIdent)[0] = 0;
+}
+
+SCardSpecialTreatment::TransactionResult::TransactionResult() : Status(stUndef), ResultFlags(0)
+{
+	PTR32(TaIdent)[0] = 0;
+	PTR32(CustomerIdent)[0] = 0;
+	PTR32(ErrMessage)[0] = 0;
 }
 
 SCardSpecialTreatment::IdentifyReplyBlock::IdentifyReplyBlock() : SpecialTreatment(0), Flags(0), ScID(0), InCodeType(0), Discount(0.0), Rest(0.0)

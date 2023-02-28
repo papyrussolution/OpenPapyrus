@@ -9,9 +9,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Core interfaces and definitions used by by low-level interfaces such as
-// SpinLock.
-
+// Core interfaces and definitions used by by low-level interfaces such as SpinLock.
+//
 #ifndef ABSL_BASE_INTERNAL_SCHEDULING_MODE_H_
 #define ABSL_BASE_INTERNAL_SCHEDULING_MODE_H_
 
@@ -20,7 +19,6 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace base_internal {
-
 // Used to describe how a thread may be scheduled.  Typically associated with
 // the declaration of a resource supporting synchronized access.
 //
@@ -44,10 +42,9 @@ namespace base_internal {
 // This means that it is invalid to to acquire a SCHEDULE_COOPERATIVE_AND_KERNEL
 // resource if a SCHEDULE_KERNEL_ONLY resource is already held.
 enum SchedulingMode {
-  SCHEDULE_KERNEL_ONLY = 0,         // Allow scheduling only the host OS.
-  SCHEDULE_COOPERATIVE_AND_KERNEL,  // Also allow cooperative scheduling.
+	SCHEDULE_KERNEL_ONLY = 0,   // Allow scheduling only the host OS.
+	SCHEDULE_COOPERATIVE_AND_KERNEL, // Also allow cooperative scheduling.
 };
-
 }  // namespace base_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

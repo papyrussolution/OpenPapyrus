@@ -763,98 +763,60 @@ typedef struct opj_tccp_info {
 	uint32_t prcw[OPJ_J2K_MAXRLVLS];
 	/** precinct height */
 	uint32_t prch[OPJ_J2K_MAXRLVLS];
-}
-
-opj_tccp_info_t;
-
+} opj_tccp_info_t;
 /**
  * Tile coding parameters information
  */
 typedef struct opj_tile_v2_info {
-	/** number (index) of tile */
-	int tileno;
-	/** coding style */
-	uint32_t csty;
-	/** progression order */
-	OPJ_PROG_ORDER prg;
-	/** number of layers */
-	uint32_t numlayers;
-	/** multi-component transform identifier */
-	uint32_t mct;
-
-	/** information concerning tile component parameters*/
-	opj_tccp_info_t * tccp_info;
+	int tileno; /** number (index) of tile */
+	uint32_t csty; /** coding style */
+	OPJ_PROG_ORDER prg; /** progression order */
+	uint32_t numlayers; /** number of layers */
+	uint32_t mct; /** multi-component transform identifier */
+	opj_tccp_info_t * tccp_info; /** information concerning tile component parameters*/
 } opj_tile_info_v2_t;
-
 /**
  * Information structure about the codestream (FIXME should be expand and enhance)
  */
 typedef struct opj_codestream_info_v2 {
 	/* Tile info */
-	/** tile origin in x = XTOsiz */
-	uint32_t tx0;
-	/** tile origin in y = YTOsiz */
-	uint32_t ty0;
-	/** tile size in x = XTsiz */
-	uint32_t tdx;
-	/** tile size in y = YTsiz */
-	uint32_t tdy;
-	/** number of tiles in X */
-	uint32_t tw;
-	/** number of tiles in Y */
-	uint32_t th;
-
-	/** number of components*/
-	uint32_t nbcomps;
-
+	uint32_t tx0; /** tile origin in x = XTOsiz */
+	uint32_t ty0; /** tile origin in y = YTOsiz */
+	uint32_t tdx; /** tile size in x = XTsiz */
+	uint32_t tdy; /** tile size in y = YTsiz */
+	uint32_t tw; /** number of tiles in X */
+	uint32_t th; /** number of tiles in Y */
+	uint32_t nbcomps; /** number of components*/
 	/** Default information regarding tiles inside image */
 	opj_tile_info_v2_t m_default_tile_info;
-
 	/** information regarding tiles inside image */
 	opj_tile_info_v2_t * tile_info; /* FIXME not used for the moment */
 } opj_codestream_info_v2_t;
-
 /**
  * Index structure about a tile part
  */
 typedef struct opj_tp_index {
-	/** start position */
-	OPJ_OFF_T start_pos;
-	/** end position of the header */
-	OPJ_OFF_T end_header;
-	/** end position */
-	OPJ_OFF_T end_pos;
+	OPJ_OFF_T start_pos; /** start position */
+	OPJ_OFF_T end_header; /** end position of the header */
+	OPJ_OFF_T end_pos; /** end position */
 } opj_tp_index_t;
 
 /**
  * Index structure about a tile
  */
 typedef struct opj_tile_index {
-	/** tile index */
-	uint32_t tileno;
-
-	/** number of tile parts */
-	uint32_t nb_tps;
-	/** current nb of tile part (allocated)*/
-	uint32_t current_nb_tps;
-	/** current tile-part index */
-	uint32_t current_tpsno;
-	/** information concerning tile parts */
-	opj_tp_index_t * tp_index;
-
+	uint32_t tileno; /** tile index */
+	uint32_t nb_tps; /** number of tile parts */
+	uint32_t current_nb_tps; /** current nb of tile part (allocated)*/
+	uint32_t current_tpsno; /** current tile-part index */
+	opj_tp_index_t * tp_index; /** information concerning tile parts */
 	/* UniPG>> */ /* NOT USED FOR THE MOMENT IN THE V2 VERSION */
-	/** number of markers */
-	uint32_t marknum;
-	/** list of markers */
-	opj_marker_info_t * marker;
-	/** actual size of markers array */
-	uint32_t maxmarknum;
+	uint32_t marknum; /** number of markers */
+	opj_marker_info_t * marker; /** list of markers */
+	uint32_t maxmarknum; /** actual size of markers array */
 	/* <<UniPG */
-
-	/** packet number */
-	uint32_t nb_packet;
-	/** information concerning packets inside tile */
-	opj_packet_info_t * packet_index;
+	uint32_t nb_packet; /** packet number */
+	opj_packet_info_t * packet_index; /** information concerning packets inside tile */
 } opj_tile_index_t;
 
 /**
@@ -865,27 +827,19 @@ typedef struct opj_codestream_index {
 	OPJ_OFF_T main_head_end; /** main header end position (first SOT position) */
 	uint64 codestream_size; /** codestream's size */
 	/* UniPG>> */ /* NOT USED FOR THE MOMENT IN THE V2 VERSION */
-	/** number of markers */
-	uint32_t marknum;
-	/** list of markers */
-	opj_marker_info_t * marker;
-	/** actual size of markers array */
-	uint32_t maxmarknum;
+	uint32_t marknum; /** number of markers */
+	opj_marker_info_t * marker; /** list of markers */
+	uint32_t maxmarknum; /** actual size of markers array */
 	/* <<UniPG */
-
 	/** */
 	uint32_t nb_of_tiles;
 	/** */
 	opj_tile_index_t * tile_index; /* FIXME not used for the moment */
 } opj_codestream_index_t;
 /* -----------------------------------------------------------> */
-
-/*
-   ==========================================================
-   Metadata from the JP2file
-   ==========================================================
- */
-
+// 
+// Metadata from the JP2file
+// 
 /**
  * Info structure of the JP2 file
  * EXPERIMENTAL FOR THE MOMENT
@@ -907,22 +861,14 @@ typedef struct opj_jp2_index {
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/*
-   ==========================================================
-   openjpeg version
-   ==========================================================
- */
-
+// 
+// openjpeg version
+// 
 /* Get the version of the openjpeg library*/
 OPJ_API const char * OPJ_CALLCONV opj_version(void);
-
-/*
-   ==========================================================
-   image functions definitions
-   ==========================================================
- */
-
+// 
+// image functions definitions
+// 
 /**
  * Create an image
  *
@@ -931,60 +877,41 @@ OPJ_API const char * OPJ_CALLCONV opj_version(void);
  * @param clrspc        image color space
  * @return returns      a new image structure if successful, returns NULL otherwise
  * */
-OPJ_API opj_image_t* OPJ_CALLCONV opj_image_create(uint32_t numcmpts,
-    opj_image_cmptparm_t * cmptparms, OPJ_COLOR_SPACE clrspc);
-
+OPJ_API opj_image_t* OPJ_CALLCONV opj_image_create(uint32_t numcmpts, opj_image_cmptparm_t * cmptparms, OPJ_COLOR_SPACE clrspc);
 /**
  * Deallocate any resources associated with an image
- *
  * @param image         image to be destroyed
  */
 OPJ_API void OPJ_CALLCONV opj_image_destroy(opj_image_t * image);
-
 /**
  * Creates an image without allocating memory for the image (used in the new version of the library).
- *
  * @param   numcmpts    the number of components
  * @param   cmptparms   the components parameters
  * @param   clrspc      the image color space
- *
  * @return  a new image structure if successful, NULL otherwise.
  */
-OPJ_API opj_image_t* OPJ_CALLCONV opj_image_tile_create(uint32_t numcmpts,
-    opj_image_cmptparm_t * cmptparms, OPJ_COLOR_SPACE clrspc);
-
+OPJ_API opj_image_t* OPJ_CALLCONV opj_image_tile_create(uint32_t numcmpts, opj_image_cmptparm_t * cmptparms, OPJ_COLOR_SPACE clrspc);
 /**
  * Allocator for opj_image_t->comps[].data
  * To be paired with opj_image_data_free.
- *
  * @param   size    number of bytes to allocate
- *
  * @return  a new pointer if successful, NULL otherwise.
  * @since 2.2.0
  */
 OPJ_API void* OPJ_CALLCONV opj_image_data_alloc(size_t size);
-
 /**
  * Destructor for opj_image_t->comps[].data
  * To be paired with opj_image_data_alloc.
- *
  * @param   ptr    Pointer to free
- *
  * @since 2.2.0
  */
 OPJ_API void OPJ_CALLCONV opj_image_data_free(void* ptr);
-
-/*
-   ==========================================================
-   stream functions definitions
-   ==========================================================
- */
-
+// 
+// stream functions definitions
+// 
 /**
  * Creates an abstract stream. This function does nothing except allocating memory and initializing the abstract stream.
- *
  * @param   p_is_input      if set to true then the stream will be an input stream, an output stream else.
- *
  * @return  a stream object.
  */
 OPJ_API opj_stream_t* OPJ_CALLCONV opj_stream_default_create(boolint p_is_input);
@@ -1188,9 +1115,7 @@ OPJ_API boolint OPJ_CALLCONV opj_read_header(opj_stream_t * p_stream, opj_codec_
  *
  * @param   p_codec         the jpeg2000 codec to read.
  * @param   numcomps        Size of the comps_indices array.
- * @param   comps_indices   Array of numcomps values representing the indices
- *                          of the components to decode (relative to the
- *                          codestream, starting at 0)
+ * @param   comps_indices   Array of numcomps values representing the indices of the components to decode (relative to the codestream, starting at 0)
  * @param   apply_color_transforms Whether multi-component transform at codestream level
  *                                 or JP2 channel transformations should be applied.
  *                                 Currently this parameter should be set to FALSE.

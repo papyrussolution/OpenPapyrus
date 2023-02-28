@@ -1,0 +1,69 @@
+<html>
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+   <title>Uncrustify: where do the New Lines options work</title>
+</head>
+<body lang="en-US">
+<h1><a href="https://github.com/uncrustify/uncrustify">Uncrustify</a>:
+Where do the options work?</h1>
+<h2>Spaces and New lines for Namespace</h2>
+<p>
+</p>
+<hr><a name="nl_namespace_brace"></a>
+<pre>
+namespace fooA {
+<a title="nl_namespace_brace"><strong><font color="red">              █</font></strong></a>
+  // use here nl_namespace_brace=false
+     ...
+<a name="sp_word_brace_ns"></a>
+namespace fooB {<a name="nl_after_brace_open"></a>
+<a title="sp_word_brace_ns"><strong><font color="red">              █</font></strong></a>
+// sp_word_brace_ns=true
+<a title="indent_namespace"><strong><font color="red">          █</font></strong></a><a title="indent_namespace_level"><strong><font color="red">     █</font></strong></a>void a();
+// indent_namespace=true"
+// indent_namespace_level=5"
+     ...
+
+namespace foo1 {<a title="indent_namespace_single_indent"><strong><font color="red">     █</font></strong></a>
+  // indent_namespace_single_indent=true
+namespace foo2 {
+<a title="indent_namespace"><strong><font color="red">    █</font></strong></a>void a();
+  // indent_namespace=true
+     ...
+
+namespace fooC {
+<a title="indent_namespace"><strong><font color="red">     █</font></strong></a>
+  // indent_namespace=true
+<a title="indent_namespace_limit"><strong><font color="red">  █</font></strong></a>
+  // indent_namespace_limit=3
+void a();
+void b();
+void c();
+}
+
+namespace dudeNamespace
+<a title="nl_namespace_two_to_one_liner"><strong><font color="red">█</font></strong></a>
+{ class ForwardFooClass; }
+
+
+namespace fooD {
+<a title="nl_inside_namespace"><strong><font color="red">  █</font></strong></a>
+  // nl_inside_namespace=2
+	void a();
+	void b();
+	void c();
+<a title="nl_inside_namespace"><strong><font color="red">  █</font></strong></a>
+  // nl_inside_namespace=2
+}
+
+namespace fooD {
+	void a();
+	void b();
+	void c();
+}<a title="mod_add_long_namespace_closebrace_comment"><strong><font color="red">  █</font></strong></a>// namespace fooD
+  // mod_add_long_namespace_closebrace_comment=2
+
+
+</pre>
+</body>
+</html>

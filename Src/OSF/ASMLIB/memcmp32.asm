@@ -1,7 +1,7 @@
 ;*************************  memcmp32.asm  *************************************
 ; Author:           Agner Fog
 ; Date created:     2013-10-03
-; Last modified:    2013-10-03
+; Last modified:    2016-11-08
 ; Description:
 ; Faster version of the standard memcmp function:
 ;
@@ -19,19 +19,22 @@
 ; it is desired to override the standard library function memcmp.
 ;
 ; Optimization:
-; Uses XMM registers if SSE2 is available, uses YMM registers if AVX2.
+; Uses the largest vector registers available
 ;
 ; The latest version of this file is available at:
 ; www.agner.org/optimize/asmexamples.zip
-; Copyright (c) 2013 GNU General Public License www.gnu.org/licenses
+; Copyright (c) 2013-2016 GNU General Public License www.gnu.org/licenses
 ;******************************************************************************
 
-global _A_memcmp: function             ; Function memcmp
-global ?OVR_memcmp: function           ; ?OVR removed if standard function memcmp overridden
+global _A_memcmp                       ; Function memcmp
+global ?OVR_memcmp                     ; ?OVR removed if standard function memcmp overridden
 ; Direct entries to CPU-specific versions
-global _memcmp386:  function           ; version for old CPUs without SSE
-global _memcmpSSE2: function           ; SSE2 version
-global _memcmpAVX2: function           ; AVX2 version
+global _memcmp386                      ; version for old CPUs without SSE
+global _memcmpSSE2                     ; SSE2 version
+global _memcmpAVX2                     ; AVX2 version
+global _memcmpAVX512F                  ; AVX512F version
+global _memcmpAVX512BW                 ; AVX512BW version
+
 
 ; Imported from instrset32.asm
 extern _InstructionSet                 ; Instruction set for CPU dispatcher
@@ -52,8 +55,140 @@ RP:                                    ; reference point edx = offset RP
 ; Make the following instruction with address relative to RP:
         jmp     dword [edx+memcmpDispatch-RP]
 %ENDIF
+;
+; AVX512BW Version. Use zmm register
+;
+align 16
+_memcmpAVX512BW:
+memcmpAVX512BW@:                       ; internal reference
+        push    esi
+        push    edi
+        mov     esi, [esp+12]          ; ptr1
+        mov     edi, [esp+16]          ; ptr2
+        mov     ecx, [esp+20]          ; size
+        cmp     ecx, 40H
+        jbe     L820
+        cmp     ecx, 80H
+        jbe     L800
 
+        ; count >= 80H
+L010:   ; entry from memcmpAVX512F
+        vmovdqu64 zmm0, [esi]
+        vmovdqu64 zmm1, [edi]
+        vpcmpd  k1, zmm0, zmm1, 4      ; compare first 40H bytes for dwords not equal
+        kortestw k1, k1
+        jnz     L500                   ; difference found
 
+        ; find 40H boundaries
+        lea     edx, [esi + ecx]       ; end of string 1
+        mov     eax, esi
+        add     esi, 40H
+        and     esi, -40H              ; first aligned boundary for esi
+        sub     eax, esi               ; -offset
+        sub     edi, eax               ; same offset to edi
+        mov     eax, edx
+        and     edx, -40H              ; last aligned boundary for esi
+        sub     esi, edx               ; esi = -size of aligned blocks
+        sub     edi, esi
+
+L100:   ; main loop
+        vmovdqa64 zmm0, [edx + esi]
+        vmovdqu64 zmm1, [edi + esi]
+        vpcmpd  k1, zmm0, zmm1, 4      ; compare first 40H bytes for not equal
+        kortestw k1, k1
+        jnz     L500                   ; difference found
+        add     esi, 40H
+        jnz     L100
+
+        ; remaining 0-3FH bytes. Overlap with previous block
+        add     edi, eax
+        sub     edi, edx
+        vmovdqu64 zmm0, [eax-40H]
+        vmovdqu64 zmm1, [edi-40H]
+        vpcmpd  k1, zmm0, zmm1, 4      ; compare first 40H bytes for not equal
+        kortestw k1, k1
+        jnz     L500                   ; difference found
+
+        ; finished. no difference found
+        xor     eax, eax
+        vzeroupper
+        pop     edi
+        pop     esi
+        ret
+        ret
+
+L500:   ; the two strings are different
+        vpcompressd zmm0{k1}{z},zmm0   ; get first differing dword to position 0
+        vpcompressd zmm1{k1}{z},zmm1   ; get first differing dword to position 0
+        vmovd   eax, xmm0
+        vmovd   edx, xmm1
+        mov     ecx, eax
+        xor     ecx, edx               ; difference
+        bsf     ecx, ecx               ; position of lowest differing bit
+        and     ecx, -8                ; round down to byte boundary
+        shr     eax, cl                ; first differing byte in al
+        shr     edx, cl                ; first differing byte in dl
+        movzx   eax, al                ; zero-extend bytes
+        movzx   edx, dl
+        sub     eax, edx               ; signed difference between unsigned bytes
+        vzeroupper
+        pop     edi
+        pop     esi
+        ret
+        ret
+
+align   16
+L800:   ; size = 41H - 80H
+        vmovdqu64 zmm0, [esi]
+        vmovdqu64 zmm1, [edi]
+        vpcmpd  k1, zmm0, zmm1, 4      ; compare first 40H bytes for not equal
+        kortestw k1, k1
+        jnz     L500                   ; difference found
+        add     esi, 40H
+        add     edi, 40H
+        sub     ecx, 40H
+
+L820:   ; size = 00H - 40H
+        ; (this is the only part that requires AVX512BW)
+        or      eax, -1                ; if count = 1-31: |  if count = 32-63:
+        bzhi    eax, eax, ecx          ; -----------------|--------------------
+        kmovd   k1, eax                ;       count 1's  |  all 1's
+        xor     eax, eax               ;                  |
+        sub     ecx, 32                ;                  |
+        cmovb   ecx, eax               ;               0  |  count-32
+        dec     eax                    ;                  |
+        bzhi    eax, eax, ecx          ;                  |
+        kmovd   k2, eax                ;               0  |  count-32 1's
+        kunpckdq k3, k2, k1            ; low 32 bits from k1, high 32 bits from k2. total = count 1's
+
+        vmovdqu8 zmm0{k3}{z}, [esi]
+        vmovdqu8 zmm1{k3}{z}, [edi]
+        vpcmpd  k1, zmm0, zmm1, 4      ; compare
+        kortestw k1, k1
+        jnz     L500                   ; difference found
+        xor     eax, eax               ; no difference found
+        vzeroupper
+        pop     edi
+        pop     esi
+        ret
+        ret
+;
+;   AVX512F Version. Use zmm register
+;
+align 16
+_memcmpAVX512F:
+memcmpAVX512F@:                        ; internal reference
+        push    esi
+        push    edi
+        mov     esi, [esp+12]          ; ptr1
+        mov     edi, [esp+16]          ; ptr2
+        mov     ecx, [esp+20]          ; size
+        cmp     ecx, 80H               ; size
+        jae     L010                   ; continue in memcmpAVX512BW
+        jmp     A001                   ; continue in memcmpAVX2 if less than 80H bytes
+;
+;   AVX2 Version. Use ymm register
+;
 align 16
 _memcmpAVX2:   ; AVX2 version. Use ymm register
 memcmpAVX2@:   ; internal reference
@@ -62,6 +197,7 @@ memcmpAVX2@:   ; internal reference
         mov     esi, [esp+12]                    ; ptr1
         mov     edi, [esp+16]                    ; ptr2
         mov     ecx, [esp+20]                    ; size
+A001:   ; entry from above
         add     esi, ecx                         ; use negative index from end of memory block
         add     edi, ecx
         neg     ecx
@@ -170,8 +306,9 @@ A901:   xor     eax, eax
         pop     edi
         pop     esi
         ret
-        
-
+;
+;   SSE2 version. Use xmm register
+;
 _memcmpSSE2:   ; SSE2 version. Use xmm register
 memcmpSSE2@:   ; internal reference
 
@@ -273,8 +410,9 @@ S900:   ; equal
         pop     edi
         pop     esi
         ret
-
-
+;
+;   Generic version version. Use 32 bit registers
+;
 _memcmp386:    ; 80386 version
 memcmp386@:    ; internal reference
         ; This is not perfectly optimized because it is unlikely to ever be used
@@ -309,8 +447,9 @@ M800:   ; equal. return zero
         pop     edi
         pop     esi
         ret
-        
-        
+;
+; CPU dispatching for memcmp. This is executed only once
+;
 ; CPU dispatching for memcmp. This is executed only once
 memcmpCPUDispatch:
 
@@ -326,6 +465,15 @@ memcmpCPUDispatch:
         jb      Q100
         ; AVX2 supported
         mov     dword [memcmpDispatch],  memcmpAVX2@
+        cmp     eax, 15                ; check AVX512F
+        jb      Q100
+        ; AVX512F supported
+        mov     dword [memcmpDispatch],  memcmpAVX512F@
+        cmp     eax, 16                ; check AVX512BW
+        jb      Q100
+        ; AVX512BW supported
+        mov     dword [memcmpDispatch],  memcmpAVX512BW@
+
 Q100:   ; Continue in appropriate version of memcmp
         jmp     dword [memcmpDispatch]
 
@@ -353,8 +501,10 @@ get_thunk_edx: ; load caller address into edx for position-independent code
         ret        
 %ENDIF
 
+
 SECTION .data
 align 16
+
 
 ; Pointer to appropriate version.
 ; This initially points to memcmpCPUDispatch. memcmpCPUDispatch will
@@ -362,4 +512,3 @@ align 16
 ; memcmpCPUDispatch is only executed once:
 memcmpDispatch DD memcmpCPUDispatch
 
- 

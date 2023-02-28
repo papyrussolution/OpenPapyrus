@@ -32,12 +32,12 @@ casebit: times 16 db 20h               ; bit to change when changing case
 
 section .text
 
-global _A_strtolower: function
-global _A_strtoupper: function
-global _strtolowerGeneric: function
-global _strtoupperGeneric: function
-global _strtolowerSSE42: function
-global _strtoupperSSE42: function
+global _A_strtolower
+global _A_strtoupper
+global _strtolowerGeneric
+global _strtoupperGeneric
+global _strtolowerSSE42
+global _strtoupperSSE42
 
 ; Imported from instrset32.asm:
 extern _InstructionSet                 ; Instruction set for CPU dispatcher
@@ -282,4 +282,4 @@ SECTION .bss
 ; last, but the assembler gives sections with unknown names wrong attributes.
 ; Here, we are just relying on library data being placed after main data.
 ; This can be verified by making a link map file)
-        dq      0, 0
+        resq 4

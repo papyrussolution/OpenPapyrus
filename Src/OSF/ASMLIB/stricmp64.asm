@@ -20,7 +20,7 @@
 
 default rel
 
-global A_stricmp: function                     ; Function A_stricmp
+global A_stricmp                     ; Function A_stricmp
 
 ; ***************************************************************************
 ; Define registers used for function parameters, used in 64-bit mode only

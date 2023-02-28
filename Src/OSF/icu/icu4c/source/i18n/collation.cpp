@@ -1,15 +1,10 @@
+// collation.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2010-2014, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * collation.cpp
- *
- * created on: 2010oct27
- * created by: Markus W. Scherer
- */
+// Copyright (C) 2010-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// created on: 2010oct27
+// created by: Markus W. Scherer
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -20,10 +15,10 @@ U_NAMESPACE_BEGIN
 // Some compilers don't care if constants are defined in the .cpp file.
 // MS Visual C++ does not like it, but gcc requires it. clang does not care.
 #ifndef _MSC_VER
-const uint8 Collation::LEVEL_SEPARATOR_BYTE;
-const uint8 Collation::MERGE_SEPARATOR_BYTE;
-const uint32_t Collation::ONLY_TERTIARY_MASK;
-const uint32_t Collation::CASE_AND_TERTIARY_MASK;
+	const uint8 Collation::LEVEL_SEPARATOR_BYTE;
+	const uint8 Collation::MERGE_SEPARATOR_BYTE;
+	const uint32_t Collation::ONLY_TERTIARY_MASK;
+	const uint32_t Collation::CASE_AND_TERTIARY_MASK;
 #endif
 
 uint32_t Collation::incTwoBytePrimaryByOffset(uint32_t basePrimary, bool isCompressible, int32_t offset) 
@@ -118,7 +113,8 @@ uint32_t Collation::decThreeBytePrimaryByOneStep(uint32_t basePrimary, bool isCo
 	return (basePrimary & 0xff000000) | ((uint32_t)byte2 << 16) | ((uint32_t)byte3 << 8);
 }
 
-uint32_t Collation::getThreeBytePrimaryForOffsetData(UChar32 c, int64_t dataCE) {
+uint32_t Collation::getThreeBytePrimaryForOffsetData(UChar32 c, int64_t dataCE) 
+{
 	uint32_t p = (uint32_t)(dataCE >> 32); // three-byte primary pppppp00
 	int32_t lower32 = (int32_t)dataCE; // base code point b & step s: bbbbbbss (bit 7: isCompressible)
 	int32_t offset = (c - (lower32 >> 8)) * (lower32 & 0x7f); // delta * increment
@@ -126,7 +122,8 @@ uint32_t Collation::getThreeBytePrimaryForOffsetData(UChar32 c, int64_t dataCE) 
 	return Collation::incThreeBytePrimaryByOffset(p, isCompressible, offset);
 }
 
-uint32_t Collation::unassignedPrimaryFromCodePoint(UChar32 c) {
+uint32_t Collation::unassignedPrimaryFromCodePoint(UChar32 c) 
+{
 	// Create a gap before U+0000. Use c=-1 for [first unassigned].
 	++c;
 	// Fourth byte: 18 values, every 14th byte value (gap of 13).
@@ -142,5 +139,4 @@ uint32_t Collation::unassignedPrimaryFromCodePoint(UChar32 c) {
 }
 
 U_NAMESPACE_END
-
 #endif  // !UCONFIG_NO_COLLATION

@@ -1756,7 +1756,6 @@
     <ClInclude Include="..\OSF\icu\icu4c\include\unicode\numberformatter.h" />
     <ClInclude Include="..\OSF\icu\icu4c\include\unicode\numberrangeformatter.h" />
     <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ucnvsel.h" />
-    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\umachine.h" />
     <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\ParagraphLayout.h" />
     <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\playout.h" />
     <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\plruns.h" />

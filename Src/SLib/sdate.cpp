@@ -1417,7 +1417,7 @@ int LDATE::weekno() const
 
 int FASTCALL LDATE::setday(uint d)
 {
-	if(checkirange(d, 1, 31) || d == ANY_DAYITEM_VALUE) {
+	if(checkirange(d, 1U, 31U) || d == ANY_DAYITEM_VALUE) {
 		(v &= ~0xff) |= d;
 		return 1;
 	}
@@ -1427,7 +1427,7 @@ int FASTCALL LDATE::setday(uint d)
 
 int FASTCALL LDATE::setmonth(uint m)
 {
-	if(checkirange(m, 1, 12) || m == ANY_MONITEM_VALUE) {
+	if(checkirange(m, 1U, 12U) || m == ANY_MONITEM_VALUE) {
 		(v &= ~0x0000ff00) |= (m << 8);
 		return 1;
 	}
@@ -1437,7 +1437,7 @@ int FASTCALL LDATE::setmonth(uint m)
 
 int FASTCALL LDATE::setyear(uint y)
 {
-	if(checkirange(y, 1, 6000) || y == ANY_YEARITEM_VALUE) {
+	if(checkirange(y, 1U, 6000U) || y == ANY_YEARITEM_VALUE) {
 		(v &= ~0xffff0000) |= (y << 16);
 		return 1;
 	}

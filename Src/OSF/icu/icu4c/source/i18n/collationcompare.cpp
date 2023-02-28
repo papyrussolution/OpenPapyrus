@@ -1,33 +1,25 @@
+// collationcompare.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 1996-2015, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * collationcompare.cpp
- *
- * created on: 2012feb14 with new and old collation code
- * created by: Markus W. Scherer
- */
+// Copyright (C) 1996-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// created on: 2012feb14 with new and old collation code
+// created by: Markus W. Scherer
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
 #if !UCONFIG_NO_COLLATION
-
 #include "collationcompare.h"
 #include "collationiterator.h"
 #include "collationsettings.h"
 
 U_NAMESPACE_BEGIN
 
-UCollationResult CollationCompare::compareUpToQuaternary(CollationIterator &left, CollationIterator &right,
-    const CollationSettings &settings,
-    UErrorCode & errorCode) {
+UCollationResult CollationCompare::compareUpToQuaternary(CollationIterator &left, CollationIterator &right, const CollationSettings &settings, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return UCOL_EQUAL;
 	}
-
 	int32_t options = settings.options;
 	uint32_t variableTop;
 	if((options & CollationSettings::ALTERNATE_MASK) == 0) {
@@ -362,7 +354,6 @@ UCollationResult CollationCompare::compareUpToQuaternary(CollationIterator &left
 				rightQuaternary |= 0xffffff3f;
 			}
 		} while(rightQuaternary == 0);
-
 		if(leftQuaternary != rightQuaternary) {
 			// Return the difference, with script reordering.
 			if(settings.hasReordering()) {

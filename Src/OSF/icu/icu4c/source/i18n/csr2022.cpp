@@ -1,15 +1,12 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-	Copyright (C) 2005-2016, International Business Machines Corporation and others.  All Rights Reserved.
-*/
+// Copyright (C) 2005-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
 #if !UCONFIG_NO_CONVERSION
-
 #include "csr2022.h"
-
 U_NAMESPACE_BEGIN
 
 /**

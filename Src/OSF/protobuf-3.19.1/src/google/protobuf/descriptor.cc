@@ -279,7 +279,6 @@ const char* const FieldDescriptor::kTypeToName[MAX_TYPE + 1] = {
 
 const char* const FieldDescriptor::kCppTypeToName[MAX_CPPTYPE + 1] = {
 	"ERROR", // 0 is reserved for errors
-
 	"int32", // CPPTYPE_INT32
 	"int64", // CPPTYPE_INT64
 	"uint32", // CPPTYPE_UINT32
@@ -300,14 +299,12 @@ const char* const FieldDescriptor::kLabelToName[MAX_LABEL + 1] = {
 	"repeated", // LABEL_REPEATED
 };
 
-const char* FileDescriptor::SyntaxName(FileDescriptor::Syntax syntax) {
+const char* FileDescriptor::SyntaxName(FileDescriptor::Syntax syntax) 
+{
 	switch(syntax) {
-		case SYNTAX_PROTO2:
-		    return "proto2";
-		case SYNTAX_PROTO3:
-		    return "proto3";
-		case SYNTAX_UNKNOWN:
-		    return "unknown";
+		case SYNTAX_PROTO2: return "proto2";
+		case SYNTAX_PROTO3: return "proto3";
+		case SYNTAX_UNKNOWN: return "unknown";
 	}
 	GOOGLE_LOG(FATAL) << "can't reach here.";
 	return nullptr;
@@ -323,19 +320,14 @@ const int FieldDescriptor::kLastReservedNumber;
 
 namespace {
 // Note:  I distrust ctype.h due to locales.
-char ToUpper(char ch) {
-	return (ch >= 'a' && ch <= 'z') ? (ch - 'a' + 'A') : ch;
-}
+char ToUpper(char ch) { return (ch >= 'a' && ch <= 'z') ? (ch - 'a' + 'A') : ch; }
+char ToLower(char ch) { return (ch >= 'A' && ch <= 'Z') ? (ch - 'A' + 'a') : ch; }
 
-char ToLower(char ch) {
-	return (ch >= 'A' && ch <= 'Z') ? (ch - 'A' + 'a') : ch;
-}
-
-std::string ToCamelCase(const std::string & input, bool lower_first) {
+std::string ToCamelCase(const std::string & input, bool lower_first) 
+{
 	bool capitalize_next = !lower_first;
 	std::string result;
 	result.reserve(input.size());
-
 	for(char character : input) {
 		if(character == '_') {
 			capitalize_next = true;
@@ -348,20 +340,18 @@ std::string ToCamelCase(const std::string & input, bool lower_first) {
 			result.push_back(character);
 		}
 	}
-
 	// Lower-case the first letter.
 	if(lower_first && !result.empty()) {
 		result[0] = ToLower(result[0]);
 	}
-
 	return result;
 }
 
-std::string ToJsonName(const std::string & input) {
+std::string ToJsonName(const std::string & input) 
+{
 	bool capitalize_next = false;
 	std::string result;
 	result.reserve(input.size());
-
 	for(char character : input) {
 		if(character == '_') {
 			capitalize_next = true;
@@ -374,15 +364,14 @@ std::string ToJsonName(const std::string & input) {
 			result.push_back(character);
 		}
 	}
-
 	return result;
 }
 
-std::string EnumValueToPascalCase(const std::string & input) {
+std::string EnumValueToPascalCase(const std::string & input) 
+{
 	bool next_upper = true;
 	std::string result;
 	result.reserve(input.size());
-
 	for(char character : input) {
 		if(character == '_') {
 			next_upper = true;
@@ -397,7 +386,6 @@ std::string EnumValueToPascalCase(const std::string & input) {
 			next_upper = false;
 		}
 	}
-
 	return result;
 }
 
@@ -427,39 +415,32 @@ public:
 		// This is acceptable (though perhaps not advisable) because even when
 		// we PascalCase, these two will still be distinct (BarBaz vs. Barbaz).
 		size_t i, j;
-
 		// Skip past prefix_ in str if we can.
 		for(i = 0, j = 0; i < str.size() && j < prefix_.size(); i++) {
 			if(str[i] == '_') {
 				continue;
 			}
-
 			if(ascii_tolower(str[i]) != prefix_[j++]) {
 				return std::string(str);
 			}
 		}
-
 		// If we didn't make it through the prefix, we've failed to strip the
 		// prefix.
 		if(j < prefix_.size()) {
 			return std::string(str);
 		}
-
 		// Skip underscores between prefix and further characters.
 		while(i < str.size() && str[i] == '_') {
 			i++;
 		}
-
 		// Enum label can't be the empty string.
 		if(i == str.size()) {
 			return std::string(str);
 		}
-
 		// We successfully stripped the prefix.
 		str.remove_prefix(i);
 		return std::string(str);
 	}
-
 private:
 	std::string prefix_;
 };
@@ -473,38 +454,33 @@ private:
 // The keys to these hash-maps are (parent, name) or (parent, number) pairs.
 
 typedef std::pair<const void*, StringPiece> PointerStringPair;
-
 typedef std::pair<const Descriptor*, int> DescriptorIntPair;
 
 #define HASH_MAP std::unordered_map
 #define HASH_SET std::unordered_set
 #define HASH_FXN hash
 
-template <typename PairType>
-struct PointerIntegerPairHash {
-	size_t operator()(const PairType& p) const {
+template <typename PairType> struct PointerIntegerPairHash {
+	size_t operator()(const PairType& p) const 
+	{
 		static const size_t prime1 = 16777499;
 		static const size_t prime2 = 16777619;
-		return reinterpret_cast<size_t>(p.first) * prime1 ^
-		       static_cast<size_t>(p.second) * prime2;
+		return reinterpret_cast<size_t>(p.first) * prime1 ^ static_cast<size_t>(p.second) * prime2;
 	}
-
 #ifdef _MSC_VER
 	// Used only by MSVC and platforms where hash_map is not available.
 	static const size_t bucket_size = 4;
 	static const size_t min_buckets = 8;
 #endif
-	inline bool operator()(const PairType& a, const PairType& b) const {
-		return a < b;
-	}
+	inline bool operator()(const PairType& a, const PairType& b) const { return a < b; }
 };
 
 struct PointerStringPairHash {
-	size_t operator()(const PointerStringPair& p) const {
+	size_t operator()(const PointerStringPair& p) const 
+	{
 		static const size_t prime = 16777619;
 		hash<StringPiece> string_hash;
-		return reinterpret_cast<size_t>(p.first) * prime ^
-		       static_cast<size_t>(string_hash(p.second));
+		return reinterpret_cast<size_t>(p.first) * prime ^ static_cast<size_t>(string_hash(p.second));
 	}
 
 #ifdef _MSC_VER
@@ -512,79 +488,53 @@ struct PointerStringPairHash {
 	static const size_t bucket_size = 4;
 	static const size_t min_buckets = 8;
 #endif
-	inline bool operator()(const PointerStringPair& a,
-	    const PointerStringPair& b) const {
-		return a < b;
-	}
+	inline bool operator()(const PointerStringPair& a, const PointerStringPair& b) const { return a < b; }
 };
 
 const Symbol kNullSymbol;
 
 struct SymbolByFullNameHash {
-	size_t operator()(Symbol s) const {
-		return HASH_FXN<StringPiece>{} (s.full_name());
-	}
+	size_t operator()(Symbol s) const { return HASH_FXN<StringPiece>{} (s.full_name()); }
 };
 
 struct SymbolByFullNameEq {
-	bool operator()(Symbol a, Symbol b) const {
-		return a.full_name() == b.full_name();
-	}
+	bool operator()(Symbol a, Symbol b) const { return a.full_name() == b.full_name(); }
 };
 
-using SymbolsByNameSet =
-    HASH_SET<Symbol, SymbolByFullNameHash, SymbolByFullNameEq>;
+using SymbolsByNameSet = HASH_SET<Symbol, SymbolByFullNameHash, SymbolByFullNameEq>;
 
 struct SymbolByParentHash {
-	size_t operator()(Symbol s) const {
-		return PointerStringPairHash{} (s.parent_name_key());
-	}
+	size_t operator()(Symbol s) const { return PointerStringPairHash{} (s.parent_name_key()); }
 };
 
 struct SymbolByParentEq {
-	bool operator()(Symbol a, Symbol b) const {
-		return a.parent_name_key() == b.parent_name_key();
-	}
+	bool operator()(Symbol a, Symbol b) const { return a.parent_name_key() == b.parent_name_key(); }
 };
 
-using SymbolsByParentSet =
-    HASH_SET<Symbol, SymbolByParentHash, SymbolByParentEq>;
-
-typedef HASH_MAP<StringPiece, const FileDescriptor*,
-	HASH_FXN<StringPiece> >
-    FilesByNameMap;
-
-typedef HASH_MAP<PointerStringPair, const FieldDescriptor*,
-	PointerStringPairHash>
-    FieldsByNameMap;
+using SymbolsByParentSet = HASH_SET<Symbol, SymbolByParentHash, SymbolByParentEq>;
+typedef HASH_MAP<StringPiece, const FileDescriptor*, HASH_FXN<StringPiece> > FilesByNameMap;
+typedef HASH_MAP<PointerStringPair, const FieldDescriptor*, PointerStringPairHash> FieldsByNameMap;
 
 struct FieldsByNumberHash {
-	size_t operator()(Symbol s) const {
-		return PointerIntegerPairHash<std::pair<const void*, int> >{} (
-			s.parent_number_key());
-	}
+	size_t operator()(Symbol s) const { return PointerIntegerPairHash<std::pair<const void*, int> >{} (s.parent_number_key()); }
 };
 
 struct FieldsByNumberEq {
-	bool operator()(Symbol a, Symbol b) const {
-		return a.parent_number_key() == b.parent_number_key();
-	}
+	bool operator()(Symbol a, Symbol b) const { return a.parent_number_key() == b.parent_number_key(); }
 };
 
-using FieldsByNumberSet =
-    HASH_SET<Symbol, FieldsByNumberHash, FieldsByNumberEq>;
+using FieldsByNumberSet = HASH_SET<Symbol, FieldsByNumberHash, FieldsByNumberEq>;
 using EnumValuesByNumberSet = FieldsByNumberSet;
 
 // This is a map rather than a hash-map, since we use it to iterate
 // through all the extensions that extend a given Descriptor, and an
 // ordered data structure that implements lower_bound is convenient
 // for that.
-typedef std::map<DescriptorIntPair, const FieldDescriptor*>
-    ExtensionsGroupedByDescriptorMap;
-typedef HASH_MAP<std::string, const SourceCodeInfo_Location*>
-    LocationsByPathMap;
+typedef std::map<DescriptorIntPair, const FieldDescriptor*> ExtensionsGroupedByDescriptorMap;
+typedef HASH_MAP<std::string, const SourceCodeInfo_Location*> LocationsByPathMap;
 
-std::set<std::string>* NewAllowedProto3Extendee() {
+std::set<std::string>* NewAllowedProto3Extendee() 
+{
 	auto allowed_proto3_extendees = new std::set<std::string>;
 	const char* kOptionNames[] = {
 		"FileOptions",      "MessageOptions", "FieldOptions",  "EnumOptions",
@@ -607,11 +557,10 @@ std::set<std::string>* NewAllowedProto3Extendee() {
 // Only extensions to descriptor options are allowed. We use name comparison
 // instead of comparing the descriptor directly because the extensions may be
 // defined in a different pool.
-bool AllowedExtendeeInProto3(const std::string & name) {
-	static auto allowed_proto3_extendees =
-	    internal::OnShutdownDelete(NewAllowedProto3Extendee());
-	return allowed_proto3_extendees->find(name) !=
-	       allowed_proto3_extendees->end();
+bool AllowedExtendeeInProto3(const std::string & name) 
+{
+	static auto allowed_proto3_extendees = internal::OnShutdownDelete(NewAllowedProto3Extendee());
+	return allowed_proto3_extendees->find(name) != allowed_proto3_extendees->end();
 }
 
 // This bump allocator arena is optimized for the use case of this file. It is

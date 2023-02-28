@@ -31,11 +31,11 @@
 ;******************************************************************************
 %define ALLOW_OVERRIDE 0               ; Set to one if override of standard function desired
 
-global _A_strstr: function             ; Function A_strstr
+global _A_strstr             ; Function A_strstr
 
 ; Direct entries to CPU-specific versions
-global _strstrGeneric: function        ; Generic version for processors without SSE4.2
-global _strstrSSE42: function          ; Version for processors with SSE4.2
+global _strstrGeneric        ; Generic version for processors without SSE4.2
+global _strstrSSE42          ; Version for processors with SSE4.2
 
 ; Imported from instrset32.asm:
 extern _InstructionSet                 ; Instruction set for CPU dispatcher
@@ -45,7 +45,7 @@ section .text
 ; strstr function
 
 %if ALLOW_OVERRIDE
-global ?OVR_strstr: function
+global ?OVR_strstr
 ?OVR_strstr:
 %endif
 
@@ -248,4 +248,5 @@ SECTION .bss
 ; last, but the assembler gives sections with unknown names wrong attributes.
 ; Here, we are just relying on library data being placed after main data.
 ; This can be verified by making a link map file)
-        dq      0, 0
+;        dq      0, 0
+        resq 4

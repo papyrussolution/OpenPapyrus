@@ -1,18 +1,12 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2005-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- */
+// Copyright (C) 2005-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
 #if !UCONFIG_NO_CONVERSION
-
 #include "csrmbcs.h"
-
 U_NAMESPACE_BEGIN
 
 #define min(x, y) (((x)<(y)) ? (x) : (y))
@@ -130,17 +124,12 @@ int32_t IteratedChar::nextByte(InputText * det)
 {
 	if(nextIndex >= det->fRawLength) {
 		done = TRUE;
-
 		return -1;
 	}
-
 	return det->fRawInput[nextIndex++];
 }
 
-CharsetRecog_mbcs::~CharsetRecog_mbcs()
-{
-	// nothing to do.
-}
+CharsetRecog_mbcs::~CharsetRecog_mbcs() {} // nothing to do
 
 int32_t CharsetRecog_mbcs::match_mbcs(InputText * det, const uint16 commonChars[], int32_t commonCharsLen) const {
 	int32_t singleByteCharCount = 0;
@@ -227,33 +216,25 @@ int32_t CharsetRecog_mbcs::match_mbcs(InputText * det, const uint16 commonChars[
 
 		confidence = min(confidence, 100);
 	}
-
 	if(confidence < 0) {
 		confidence = 0;
 	}
-
 	return confidence;
 }
 
-CharsetRecog_sjis::~CharsetRecog_sjis()
-{
-	// nothing to do
-}
+CharsetRecog_sjis::~CharsetRecog_sjis() {} // nothing to do
 
-bool CharsetRecog_sjis::nextChar(IteratedChar* it, InputText* det) const {
+bool CharsetRecog_sjis::nextChar(IteratedChar* it, InputText* det) const 
+{
 	it->index = it->nextIndex;
 	it->error = FALSE;
-
 	int32_t firstByte = it->charValue = it->nextByte(det);
-
 	if(firstByte < 0) {
 		return FALSE;
 	}
-
 	if(firstByte <= 0x7F || (firstByte > 0xA0 && firstByte <= 0xDF)) {
 		return TRUE;
 	}
-
 	int32_t secondByte = it->nextByte(det);
 	if(secondByte >= 0) {
 		it->charValue = (firstByte << 8) | secondByte;
@@ -274,30 +255,19 @@ bool CharsetRecog_sjis::match(InputText* det, CharsetMatch * results) const {
 	return (confidence > 0);
 }
 
-const char * CharsetRecog_sjis::getName() const
-{
-	return "Shift_JIS";
-}
+const char * CharsetRecog_sjis::getName() const { return "Shift_JIS"; }
+const char * CharsetRecog_sjis::getLanguage() const { return "ja"; }
 
-const char * CharsetRecog_sjis::getLanguage() const
-{
-	return "ja";
-}
+CharsetRecog_euc::~CharsetRecog_euc() {} // nothing to do
 
-CharsetRecog_euc::~CharsetRecog_euc()
+bool CharsetRecog_euc::nextChar(IteratedChar* it, InputText* det) const 
 {
-	// nothing to do
-}
-
-bool CharsetRecog_euc::nextChar(IteratedChar* it, InputText* det) const {
 	int32_t firstByte  = 0;
 	int32_t secondByte = 0;
 	int32_t thirdByte  = 0;
-
 	it->index = it->nextIndex;
 	it->error = FALSE;
 	firstByte = it->charValue = it->nextByte(det);
-
 	if(firstByte < 0) {
 		// Ran off the end of the input data
 		return FALSE;
@@ -352,20 +322,9 @@ bool CharsetRecog_euc::nextChar(IteratedChar* it, InputText* det) const {
 	return TRUE;
 }
 
-CharsetRecog_euc_jp::~CharsetRecog_euc_jp()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_euc_jp::getName() const
-{
-	return "EUC-JP";
-}
-
-const char * CharsetRecog_euc_jp::getLanguage() const
-{
-	return "ja";
-}
+CharsetRecog_euc_jp::~CharsetRecog_euc_jp() {} // nothing to do
+const char * CharsetRecog_euc_jp::getName() const { return "EUC-JP"; }
+const char * CharsetRecog_euc_jp::getLanguage() const { return "ja"; }
 
 bool CharsetRecog_euc_jp::match(InputText * det, CharsetMatch * results) const
 {
@@ -374,20 +333,9 @@ bool CharsetRecog_euc_jp::match(InputText * det, CharsetMatch * results) const
 	return (confidence > 0);
 }
 
-CharsetRecog_euc_kr::~CharsetRecog_euc_kr()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_euc_kr::getName() const
-{
-	return "EUC-KR";
-}
-
-const char * CharsetRecog_euc_kr::getLanguage() const
-{
-	return "ko";
-}
+CharsetRecog_euc_kr::~CharsetRecog_euc_kr() {} // nothing to do
+const char * CharsetRecog_euc_kr::getName() const { return "EUC-KR"; }
+const char * CharsetRecog_euc_kr::getLanguage() const { return "ko"; }
 
 bool CharsetRecog_euc_kr::match(InputText * det, CharsetMatch * results) const
 {
@@ -396,23 +344,17 @@ bool CharsetRecog_euc_kr::match(InputText * det, CharsetMatch * results) const
 	return (confidence > 0);
 }
 
-CharsetRecog_big5::~CharsetRecog_big5()
-{
-	// nothing to do
-}
+CharsetRecog_big5::~CharsetRecog_big5() {} // nothing to do
 
 bool CharsetRecog_big5::nextChar(IteratedChar* it, InputText* det) const
 {
 	int32_t firstByte;
-
 	it->index = it->nextIndex;
 	it->error = FALSE;
 	firstByte = it->charValue = it->nextByte(det);
-
 	if(firstByte < 0) {
 		return FALSE;
 	}
-
 	if(firstByte <= 0x7F || firstByte == 0xFF) {
 		// single byte character.
 		return TRUE;
@@ -431,15 +373,8 @@ bool CharsetRecog_big5::nextChar(IteratedChar* it, InputText* det) const
 	return TRUE;
 }
 
-const char * CharsetRecog_big5::getName() const
-{
-	return "Big5";
-}
-
-const char * CharsetRecog_big5::getLanguage() const
-{
-	return "zh";
-}
+const char * CharsetRecog_big5::getName() const { return "Big5"; }
+const char * CharsetRecog_big5::getLanguage() const { return "zh"; }
 
 bool CharsetRecog_big5::match(InputText * det, CharsetMatch * results) const
 {
@@ -448,10 +383,7 @@ bool CharsetRecog_big5::match(InputText * det, CharsetMatch * results) const
 	return (confidence > 0);
 }
 
-CharsetRecog_gb_18030::~CharsetRecog_gb_18030()
-{
-	// nothing to do
-}
+CharsetRecog_gb_18030::~CharsetRecog_gb_18030() {} // nothing to do
 
 bool CharsetRecog_gb_18030::nextChar(IteratedChar* it, InputText* det) const {
 	int32_t firstByte  = 0;
@@ -499,23 +431,14 @@ bool CharsetRecog_gb_18030::nextChar(IteratedChar* it, InputText* det) const {
 				}
 			}
 		}
-
 		// Something wasn't valid, or we ran out of data (-1).
 		it->error = TRUE;
 	}
-
 	return TRUE;
 }
 
-const char * CharsetRecog_gb_18030::getName() const
-{
-	return "GB18030";
-}
-
-const char * CharsetRecog_gb_18030::getLanguage() const
-{
-	return "zh";
-}
+const char * CharsetRecog_gb_18030::getName() const { return "GB18030"; }
+const char * CharsetRecog_gb_18030::getLanguage() const { return "zh"; }
 
 bool CharsetRecog_gb_18030::match(InputText * det, CharsetMatch * results) const
 {

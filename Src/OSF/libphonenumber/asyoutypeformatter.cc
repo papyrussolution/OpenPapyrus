@@ -728,8 +728,7 @@ void AsYouTypeFormatter::InputDigitHelper(char next_char, string* number) {
 
 // Returns the number of bytes contained in the given UnicodeString up to the
 // specified position.
-// static
-int AsYouTypeFormatter::ConvertUnicodeStringPosition(const UnicodeString& s, int pos) 
+/*static*/int AsYouTypeFormatter::ConvertUnicodeStringPosition(const UnicodeString& s, int pos) 
 {
 	if(pos > s.length()) {
 		return -1;

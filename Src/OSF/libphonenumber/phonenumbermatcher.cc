@@ -362,11 +362,11 @@ PhoneNumberMatcher::PhoneNumberMatcher(const string & text, const string & regio
 {
 }
 
-PhoneNumberMatcher::~PhoneNumberMatcher() {
+PhoneNumberMatcher::~PhoneNumberMatcher() 
+{
 }
 
-// static
-bool PhoneNumberMatcher::IsLatinLetter(char32 letter) 
+/*static*/bool PhoneNumberMatcher::IsLatinLetter(char32 letter) 
 {
 	// Combining marks are a subset of non-spacing-mark.
 	if(!u_isalpha(letter) && (u_charType(letter) != U_NON_SPACING_MARK)) {
@@ -728,13 +728,10 @@ bool PhoneNumberMatcher::AllNumberGroupsAreExactlyPresent(const PhoneNumberUtil&
 	// Now check the first group. There may be a national prefix at the start, so
 	// we only check that the candidate group ends with the formatted number
 	// group.
-	return (candidate_number_group_index >= 0 &&
-	       HasSuffixString(candidate_groups.at(candidate_number_group_index),
-	       formatted_number_groups.at(0)));
+	return (candidate_number_group_index >= 0 && HasSuffixString(candidate_groups.at(candidate_number_group_index), formatted_number_groups.at(0)));
 }
 
-// static
-bool PhoneNumberMatcher::ContainsMoreThanOneSlashInNationalNumber(const PhoneNumber& number, const string & candidate, const PhoneNumberUtil& util) 
+/*static*/bool PhoneNumberMatcher::ContainsMoreThanOneSlashInNationalNumber(const PhoneNumber& number, const string & candidate, const PhoneNumberUtil& util) 
 {
 	size_t first_slash_in_body = candidate.find('/');
 	if(first_slash_in_body == string::npos) {

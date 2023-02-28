@@ -3625,9 +3625,9 @@ struct TimeRange { // @persistent
 // Descr: Проверяет число nmb на принадлежность диапазону [low, upp].
 //   Принадлежность включительная (т.е. если число равно одной из границ, то условие выполняется).
 //
-bool   STDCALL checkirange(int nmb, int low, int upp);
-bool   STDCALL checkirange(long nmb, long low, long upp);
-bool   STDCALL checkirange(int64 nmb, int64 low, int64 upp);
+// @v11.6.5 (replaced with templated func) bool   STDCALL checkirange(int nmb, int low, int upp);
+// @v11.6.5 (replaced with templated func) bool   STDCALL checkirange(long nmb, long low, long upp);
+// @v11.6.5 (replaced with templated func) bool   STDCALL checkirange(int64 nmb, int64 low, int64 upp);
 //
 // Descr: То же, что и checkirange но не инициирует ошибку SLIB (для тех случаев, когда производительность важна)
 //
@@ -5912,13 +5912,6 @@ public:
 //
 // Memory manipulation functions
 //
-//
-// Descr: Оптимизированная функция копирования памяти. По спецификации эквивалентна memmove,
-//   но быстрее на 20..30%.
-//   Единственное существенное отличие от спецификации memmove - memmovo не возвращает ничего.
-//   Это сделано ради оптимизации.
-//
-void  FASTCALL memmovo(void * pDest, const void * pSrc, size_t size);
 void * catmem(void * pDest, size_t destSz, const void * pSrc, size_t srcSz);
 //
 // Descr: Быстро меняет содержимое по указателям p1 и p2 размером size.
@@ -17137,6 +17130,16 @@ private:
 	TSCollection <UsbBasicDescrSt> Children;
 	SBuffer ExtBuffer;
 };
+//
+//
+//
+template <class T> bool checkirange(T n, T low, T upp)
+{
+	if(n >= low && n <= upp)
+		return true;
+	else
+		return SLS.SetError(SLERR_BOUNDS, SLS.AcquireRvlStr().CatChar('[').Cat(low).CatCharN('.', 2).Cat(upp).CatChar(']'));
+}
 //
 // Debug
 //

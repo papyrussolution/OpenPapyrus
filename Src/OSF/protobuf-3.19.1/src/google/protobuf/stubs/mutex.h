@@ -1,5 +1,4 @@
-// Copyright (c) 2006, Google Inc.
-// All rights reserved.
+// Copyright (c) 2006, Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -36,19 +35,16 @@
 // Define thread-safety annotations for use below, if we are building with
 // Clang.
 #if defined(__clang__) && !defined(SWIG)
-#define GOOGLE_PROTOBUF_ACQUIRE(...) \
-  __attribute__((acquire_capability(__VA_ARGS__)))
-#define GOOGLE_PROTOBUF_RELEASE(...) \
-  __attribute__((release_capability(__VA_ARGS__)))
-#define GOOGLE_PROTOBUF_SCOPED_CAPABILITY __attribute__((scoped_lockable))
-#define GOOGLE_PROTOBUF_CAPABILITY(x) __attribute__((capability(x)))
+	#define GOOGLE_PROTOBUF_ACQUIRE(...) __attribute__((acquire_capability(__VA_ARGS__)))
+	#define GOOGLE_PROTOBUF_RELEASE(...) __attribute__((release_capability(__VA_ARGS__)))
+	#define GOOGLE_PROTOBUF_SCOPED_CAPABILITY __attribute__((scoped_lockable))
+	#define GOOGLE_PROTOBUF_CAPABILITY(x) __attribute__((capability(x)))
 #else
-#define GOOGLE_PROTOBUF_ACQUIRE(...)
-#define GOOGLE_PROTOBUF_RELEASE(...)
-#define GOOGLE_PROTOBUF_SCOPED_CAPABILITY
-#define GOOGLE_PROTOBUF_CAPABILITY(x)
+	#define GOOGLE_PROTOBUF_ACQUIRE(...)
+	#define GOOGLE_PROTOBUF_RELEASE(...)
+	#define GOOGLE_PROTOBUF_SCOPED_CAPABILITY
+	#define GOOGLE_PROTOBUF_CAPABILITY(x)
 #endif
-
 #include <google/protobuf/port_def.inc>
 
 // ===================================================================

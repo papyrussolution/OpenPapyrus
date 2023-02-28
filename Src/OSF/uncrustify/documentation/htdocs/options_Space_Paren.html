@@ -1,0 +1,53 @@
+<html>
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+   <title>Uncrustify: where do the Spaces options work</title>
+</head>
+<body lang="en-US">
+<h1><a href="https://github.com/uncrustify/uncrustify">Uncrustify</a>:
+Where do the options work?</h1>
+<h2>Spaces for Parenthesis</h2>
+<p> 
+</p>
+<table border="1", width="100%">
+<tr>
+<td>
+<pre>
+
+{
+    auto a =
+    [=] (<a title="sp_inside_fparen"><font color="red">█</font></a>int *a, Something b<a title="sp_inside_fparen"><font color="red">█</font></a>)<a title="sp_cpp_lambda_paren_brace"><font color="red">█</font></a>{
+        // ...
+    };
+}
+void foo(<a title="sp_inside_fparen"><font color="red">█</font></a>int key, int value<a title="sp_inside_fparen"><font color="red">█</font></a>)
+{
+    a = (<a title="sp_inside_paren"><font color="red">█</font></a>b + c<a title="sp_inside_paren"><font color="red">█</font></a>);
+    a = B(<a title="sp_balance_nested_parens"><font color="red">█</font></a>(c) + (d)<a title="sp_balance_nested_parens"><font color="red">█</font></a>);
+    return A(<a title="sp_inside_fparen"><font color="red">█</font></a>key, value<a title="sp_inside_fparen"><font color="red">█</font></a>) + B(<a title="sp_inside_fparens"><font color="red">█</font></a>);
+}
+}
+class STDMETHOD
+{
+   STDMETHOD(GetValues)<a title="sp_cparen_oparen"><font color="red">█</font></a>(BSTR bsName, REFDATA** pData);
+};
+void (__attribute__(<a title="sp_paren_paren"><font color="red">█</font></a>(noreturn)<a title="sp_paren_paren"><font color="red">█</font></a>) ****f) (void);
+
+char *__attribute__(<a title="sp_paren_paren"><font color="red">█</font></a>(aligned(8)<a title="sp_paren_paren"><font color="red">█</font></a>)<a title="sp_paren_paren"><font color="red">█</font></a>) *f;
+
+(struct foo)<a title="sp_paren_brace"><font color="red">█</font></a>{...}
+
+typedef const char *<a title="sp_ptr_star_paren"><font color="red">█</font></a>(*somefunc_t)(void *barstool);
+
+
+
+
+
+if<a title="sp_before_sparen"><font color="red">█</font></a>(<a title="sp_inside_sparen, sp_inside_sparen_open"><font color="red">█</font></a>a<a title="sp_inside_sparen, sp_inside_sparen_close"><font color="red">█</font></a>)<a title="sp_after_sparen"><font color="red">█</font></a>{ b = 13; }
+
+</pre>
+</td>
+</tr>
+</table>
+</body>
+</html>

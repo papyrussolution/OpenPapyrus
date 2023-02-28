@@ -4,6 +4,13 @@
 #ifndef ABSL_STRINGS_INTERNAL_STR_FORMAT_BIND_H_
 #define ABSL_STRINGS_INTERNAL_STR_FORMAT_BIND_H_
 
+#include <absl/base/port.h>
+#include <absl/strings/internal/str_format/arg.h>
+#include <absl/strings/internal/str_format/checker.h>
+#include <absl/strings/internal/str_format/parser.h>
+#include <absl/types/span.h>
+#include <absl/utility/utility.h>
+
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 
@@ -23,32 +30,22 @@ class UntypedFormatSpecImpl {
 public:
 	UntypedFormatSpecImpl() = delete;
 
-	explicit UntypedFormatSpecImpl(string_view s)
-		: data_(s.data()), size_(s.size()) {
+	explicit UntypedFormatSpecImpl(string_view s) : data_(s.data()), size_(s.size()) 
+	{
 	}
-
-	explicit UntypedFormatSpecImpl(const str_format_internal::ParsedFormatBase* pc)
-		: data_(pc), size_(~size_t {
-			}) {}
-
-	bool has_parsed_conversion() const {
-		return size_ == ~size_t{};
-	}
-
-	string_view str() const {
+	explicit UntypedFormatSpecImpl(const str_format_internal::ParsedFormatBase* pc) : data_(pc), size_(~size_t {}) {}
+	bool has_parsed_conversion() const { return size_ == ~size_t{}; }
+	string_view str() const 
+	{
 		assert(!has_parsed_conversion());
 		return string_view(static_cast<const char*>(data_), size_);
 	}
-
-	const str_format_internal::ParsedFormatBase* parsed_conversion() const {
+	const str_format_internal::ParsedFormatBase* parsed_conversion() const 
+	{
 		assert(has_parsed_conversion());
 		return static_cast<const str_format_internal::ParsedFormatBase*>(data_);
 	}
-
-	template <typename T>
-	static const UntypedFormatSpecImpl& Extract(const T& s) {
-		return s.spec_;
-	}
+	template <typename T> static const UntypedFormatSpecImpl& Extract(const T& s) { return s.spec_; }
 
 private:
 	const void* data_;

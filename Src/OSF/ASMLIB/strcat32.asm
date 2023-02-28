@@ -17,8 +17,8 @@
 ; Copyright (c) 2009 GNU General Public License www.gnu.org/licenses
 ;******************************************************************************
 
-global _A_strcat: function                  ; Function _A_strcat
-global ?OVR_strcat: function                ; ?OVR removed if standard function strcat overridden
+global _A_strcat                  ; Function _A_strcat
+global ?OVR_strcat                ; ?OVR removed if standard function strcat overridden
 
 ; Imported from strlen32.asm
 extern _A_strlen

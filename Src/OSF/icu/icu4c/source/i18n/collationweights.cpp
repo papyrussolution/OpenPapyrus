@@ -1,31 +1,20 @@
+// collationweights.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 1999-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  collationweights.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2001mar08 as ucol_wgt.cpp
- *   created by: Markus W. Scherer
- *
- *   This file contains code for allocating n collation element weights
- *   between two exclusive limits.
- *   It is used only internally by the collation tailoring builder.
- */
+// Copyright (C) 1999-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2001mar08 as ucol_wgt.cpp
+// created by: Markus W. Scherer
+// 
+// This file contains code for allocating n collation element weights
+// between two exclusive limits.
+// It is used only internally by the collation tailoring builder.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
 #if !UCONFIG_NO_COLLATION
-
 #include "collationweights.h"
-
 U_NAMESPACE_BEGIN
 
 /* collation element weight allocation -------------------------------------- */

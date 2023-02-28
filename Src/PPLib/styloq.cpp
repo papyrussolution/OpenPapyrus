@@ -2467,7 +2467,7 @@ PPObjStyloQBindery::~PPObjStyloQBindery()
 
 /*static*/PPIDArray & StyloQCore::MakeLinkObjTypeList(bool addUnaddignedObj, PPIDArray & rList)
 {
-	rList.Z().addzlist(PPOBJ_USR, PPOBJ_PERSON, PPOBJ_DBDIV, PPOBJ_CASHNODE, 0L);
+	rList.Z().addzlist(PPOBJ_USR, PPOBJ_PERSON, PPOBJ_DBDIV, PPOBJ_CASHNODE, PPOBJ_PROCESSOR, 0L); // @v11.6.5 PPOBJ_PROCESSOR
 	// @v11.4.5 {
 	if(addUnaddignedObj)
 		rList.add(PPOBJ_UNASSIGNED);
@@ -3570,6 +3570,12 @@ PPStyloQInterchange::Document::BookingItem::BookingItem() : RowIdx(0), PrcID(0),
 	if(actionFlags & StyloQIncomingListParam::actionCCheckRegPrint)
 		rBuf.CatDivIfNotEmpty(',', 0).Cat("CCheckRegPrint");
 	// } @v11.5.2 
+	// @v11.6.5 {
+	if(actionFlags & StyloQIncomingListParam::actionTSessCreat)
+		rBuf.CatDivIfNotEmpty(',', 0).Cat("TSessCreat");
+	if(actionFlags & StyloQIncomingListParam::actionTSessTmSet)
+		rBuf.CatDivIfNotEmpty(',', 0).Cat("TSessTmSet");
+	// } @v11.6.5 
 	return rBuf;
 }
 
@@ -8809,7 +8815,38 @@ public:
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
+};
 
+class IncomingListParam_TSess_Dialog : public IncomingListParam_Base_Dialog {
+public:
+	IncomingListParam_TSess_Dialog() : IncomingListParam_Base_Dialog(DLG_STQINLSPARAM)
+	{
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		IncomingListParam_Base_Dialog::setDTS(pData);
+		if(!Data.P_TsF)
+			Data.P_TsF = new TSessionFilt;
+		//
+		SetupPPObjCombo(this, CTLSEL_STQINLPARAM_PRC, PPOBJ_PROCESSOR, Data.P_TsF->PrcID, OLW_CANSELUPLEVEL|OLW_INSCONTEXTEDITEMS);
+		AddClusterAssoc(CTL_STQINLPARAM_ACTIONS, 0, StyloQIncomingListParam::actionTSessCreat);
+		AddClusterAssoc(CTL_STQINLPARAM_ACTIONS, 1, StyloQIncomingListParam::actionTSessTmSet);
+		AddClusterAssoc(CTL_STQINLPARAM_ACTIONS, 2, StyloQIncomingListParam::actionDocStatus);
+		SetClusterData(CTL_STQINLPARAM_ACTIONS, Data.ActionFlags);
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		if(!Data.P_TsF)
+			Data.P_TsF = new TSessionFilt;
+		IncomingListParam_Base_Dialog::getDTS(pData);
+		getCtrlData(CTLSEL_STQINLPARAM_PRC, &Data.P_TsF->PrcID);
+		Data.ActionFlags = GetClusterData(CTL_STQINLPARAM_ACTIONS);
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
 };
 
 class IncomingListParam_Doc_Dialog : public IncomingListParam_Base_Dialog {
@@ -8928,6 +8965,9 @@ private:
 	else if(rParam.StQBaseCmdId == StyloQCommandList::sqbcIncomingListCCheck) { // @v11.5.2
 		ok = PPDialogProcBody <IncomingListParam_CCheck_Dialog, StyloQIncomingListParam> (&rParam);
 	}
+	else if(rParam.StQBaseCmdId == StyloQCommandList::sqbcIncomingListTSess) { // @v11.6.5
+		ok = PPDialogProcBody <IncomingListParam_TSess_Dialog, StyloQIncomingListParam> (&rParam);
+	}
 	return ok;
 }
 //
@@ -8936,6 +8976,49 @@ private:
 int PPStyloQInterchange::MakeDocDeclareJs(const StyloQCommandList::Item & rCmdItem, const char * pDl600Symb, SString & rDocDeclaration)
 {
 	return DocumentDeclaration(&rCmdItem, pDl600Symb).ToJson(rDocDeclaration);  // @v11.4.9
+}
+
+int PPStyloQInterchange::Document::FromTSessionPacket(const TSessionPacket & rS, PPIDArray * pGoodsIdList) // @v11.6.5
+{
+	Z();
+	int     ok = 1;
+	SString memo_buf;
+	ID = rS.Rec.ID;
+	Code.Cat(rS.Rec.Num);
+	rS.GetGuid(Uuid);
+	rS.Ext.GetExtStrData(PRCEXSTR_MEMO, memo_buf);
+	memo_buf.Transf(CTRANSF_INNER_TO_UTF8);
+	{
+		PPObjTSession tses_obj;
+		Document::BookingItem * p_bi = BkList.CreateNewItem();
+		p_bi->RowIdx = 1;
+		p_bi->PrcID = rS.Rec.PrcID;
+		if(checkdate(rS.Rec.StDt) && checktime(rS.Rec.StTm)) {
+			long duration = 0;
+			LDATETIME st_dtm;
+			st_dtm.Set(rS.Rec.StDt, rS.Rec.StTm);
+			p_bi->ReqTime = st_dtm;
+			if(checkdate(rS.Rec.FinDt) && checktime(rS.Rec.FinTm)) {
+				LDATETIME fin_dtm;
+				fin_dtm.Set(rS.Rec.FinDt, rS.Rec.FinTm);
+				duration = diffdatetimesec(fin_dtm, st_dtm);
+			}
+			else if(rS.Rec.PlannedTiming > 0) 
+				duration = rS.Rec.PlannedTiming;
+			p_bi->EstimatedDurationSec = duration;
+		}
+		if(rS.Rec.TechID) {
+			TechTbl::Rec tec_rec;
+			if(tses_obj.GetTech(rS.Rec.TechID, &tec_rec) > 0) {
+				if(tec_rec.GoodsID > 0) {
+					p_bi->GoodsID = tec_rec.GoodsID;
+					CALLPTRMEMB(pGoodsIdList, add(tec_rec.GoodsID));
+				}
+			}
+		}
+		p_bi->Memo = memo_buf;
+	}
+	return ok;
 }
 
 int PPStyloQInterchange::Document::FromCCheckPacket(const CCheckPacket & rS, PPID posNodeID, PPIDArray * pGoodsIdList)
@@ -9141,7 +9224,7 @@ int PPStyloQInterchange::Debug_Command(const StyloQCommandList::Item * pCmd) // 
 				THROW(ProcessCommand_IncomingListCCheck(*pCmd, fake_cli_pack, 0, result, decl, prccmdfDebugOutput));
 				break;
 			case StyloQCommandList::sqbcIncomingListTSess: // @v11.4.7
-				// @todo
+				THROW(ProcessCommand_IncomingListTSess(*pCmd, fake_cli_pack, 0, result, decl, prccmdfDebugOutput)); // @v11.6.5
 				break;
 			case StyloQCommandList::sqbcIncomingListTodo: // @v11.4.7
 				// @todo
@@ -9153,6 +9236,42 @@ int PPStyloQInterchange::Debug_Command(const StyloQCommandList::Item * pCmd) // 
 	}
 	CATCHZOKPPERR
 	PPWait(0);
+	return ok;
+}
+
+int PPStyloQInterchange::FetchProcessorFromClientPacket(const StyloQCore::StoragePacket & rCliPack, PPID * pPrcID, bool logResult)
+{
+	int    ok = -1;
+	PPID   prc_id = 0;
+	PPObjProcessor prc_obj;
+	ProcessorTbl::Rec prc_rec;
+	if(rCliPack.Rec.LinkObjType == PPOBJ_PERSON) {
+		if(rCliPack.Rec.LinkObjID) {
+			if(prc_obj.SearchByLinkObj(PPOBJ_PERSON, rCliPack.Rec.LinkObjID, 0, &prc_rec) > 0) {
+				prc_id = prc_rec.ID;
+				ok = 1;
+			}
+		}
+	}
+	else if(rCliPack.Rec.LinkObjType == PPOBJ_USR) {
+		PPSecur sec_rec;
+		PPObjSecur sec_obj(PPOBJ_USR, 0);
+		if(sec_obj.Search(rCliPack.Rec.LinkObjID, &sec_rec) > 0) {
+			if(sec_rec.PersonID) {
+				if(prc_obj.SearchByLinkObj(PPOBJ_PERSON, rCliPack.Rec.LinkObjID, 0, &prc_rec) > 0) {
+					prc_id = prc_rec.ID;
+					ok = 1;
+				}
+			}
+		}
+	}
+	else if(rCliPack.Rec.LinkObjType == PPOBJ_PROCESSOR) {
+		prc_id = rCliPack.Rec.LinkObjID;
+		if(prc_obj.Fetch(prc_id, &prc_rec) > 0) {
+			ok = 1;
+		}
+	}
+	ASSIGN_PTR(pPrcID, prc_id);
 	return ok;
 }
 
@@ -9202,6 +9321,20 @@ int PPStyloQInterchange::FetchPersonFromClientPacket(const StyloQCore::StoragePa
 				}
 			}
 		}
+	}
+	else if(rCliPack.Rec.LinkObjType == PPOBJ_PROCESSOR) { // @v11.6.5
+		PPObjProcessor prc_obj;
+		ProcessorTbl::Rec prc_rec;
+		if(prc_obj.Fetch(rCliPack.Rec.LinkObjID, &prc_rec) > 0) {
+			if(prc_rec.LinkObjType == PPOBJ_PERSON) {
+				person_id = prc_rec.LinkObjID;
+				if(logResult) {
+				}
+			}
+			else {
+				; // @todo @logmsg
+			}
+		}		
 	}
 	else {
 		//PPERR_STQ_MAPCLI2PSN_FAIL_UNMATCHED  "Не удалось идентифицировать персоналию, ассоциированную с клиентом Stylo-Q, поскольку он не сопоставлен с объектами, допускающими такую идентификацию: %s"
@@ -10702,9 +10835,19 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 								}
 							}
 							break;
-						case StyloQCommandList::sqbcIncomingListTSess: // @v11.4.7
+						case StyloQCommandList::sqbcIncomingListTSess: // @v11.6.5
 							{
-								// @todo
+								IntermediateReply(3*60*1000, 1000, pSessSecret, intermediateReplyProc, pIntermediateReplyExtra);
+								if(ProcessCommand_IncomingListTSess(StyloQCommandList::Item(*p_targeted_item), cli_pack, &_ifchangedsince, reply_text_buf, temp_buf.Z(), 0)) {
+									reply_doc.Put(reply_text_buf, reply_text_buf.Len());
+									if(temp_buf.Len())
+										reply_doc_declaration.Put(temp_buf, temp_buf.Len());
+									cmd_reply_ok = true;									
+								}
+								else {
+									PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO);
+									PPSetError(PPERR_SQ_CMDFAULT_INCOMINGLIST);
+								}
 							}
 							break;
 						case StyloQCommandList::sqbcIncomingListTodo: // @v11.4.7

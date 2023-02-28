@@ -31,8 +31,8 @@
 ; Copyright (c) 2009 GNU General Public License www.gnu.org/licenses
 ;******************************************************************************
 
-global _A_strlen: function             ; Function _A_strlen
-global ?OVR_strlen: function           ; ?OVR removed if standard function strlen overridden
+global _A_strlen             ; Function _A_strlen
+global ?OVR_strlen           ; ?OVR removed if standard function strlen overridden
 
 ; Imported from instrset32.asm
 extern _InstructionSet                 ; Instruction set for CPU dispatcher

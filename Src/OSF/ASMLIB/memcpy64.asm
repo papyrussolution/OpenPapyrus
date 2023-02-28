@@ -1,7 +1,7 @@
 ;*************************  memcpy64.asm  ************************************
 ; Author:           Agner Fog
 ; Date created:     2008-07-19
-; Last modified:    2013-09-11
+; Last modified:    2016-11-12
 ;
 ; Description:
 ; Faster version of the standard memcpy function:
@@ -22,22 +22,26 @@
 ;
 ; Position-independent code is generated if POSITIONINDEPENDENT is defined.
 ;
-; CPU dispatching included SSE2, Suppl-SSE3 and AVX instruction sets.
+; CPU dispatching included for the following instruction sets:
+; SSE2, Suppl-SSE3, AVX, AVX512F, AVX512BW.
 ;
-; Copyright (c) 2008-2013 GNU General Public License www.gnu.org/licenses
+; Copyright (c) 2008-2016 GNU General Public License www.gnu.org/licenses
 ;******************************************************************************
 
 default rel
 
-global A_memcpy: function              ; Function A_memcpy
-global ?OVR_memcpy: function           ; ?OVR removed if standard function memcpy overridden
-global memcpySSE2: function            ; Version for processors with only SSE2
-global memcpySSSE3: function           ; Version for processors with SSSE3
-global memcpyU: function               ; Version for processors with fast unaligned read
-global memcpyU256: function            ; Version for processors with fast 256-bit read/write
+global A_memcpy                        ; Function A_memcpy
+global ?OVR_memcpy                     ; ?OVR removed if standard function memcpy overridden
+global memcpySSE2                      ; Version for processors with only SSE2
+global memcpySSSE3                     ; Version for processors with SSSE3
+global memcpyU                         ; Version for processors with fast unaligned read
+global memcpyU256                      ; Version for processors with fast 256-bit read/write
+global memcpyAVX512F                   ; Version for processors with fast 512-bit read/write
+global memcpyAVX512BW                  ; Version for processors with fast 512-bit read/write
 
-global GetMemcpyCacheLimit: function   ; Get the size limit for bypassing cache when copying with memcpy and memmove
-global SetMemcpyCacheLimit1: function  ; Set the size limit for bypassing cache when copying with memcpy
+global GetMemcpyCacheLimit             ; Get the size limit for bypassing cache when copying with memcpy and memmove
+global SetMemcpyCacheLimit1            ; Set the size limit for bypassing cache when copying with memcpy
+global getDispatch
 
 
 ; Imported from instrset64.asm
@@ -67,7 +71,7 @@ extern DataCacheSize                   ; Gets size of data cache
 %ENDM
 
 ; Define return from this function
-%MACRO  RETURNM  0
+%MACRO  EPILOGM  0
 %IFDEF  WINDOWS
         pop     rdi
         pop     rsi
@@ -92,9 +96,123 @@ A_memcpy:
         jmp     qword [memcpyDispatch] ; Go to appropriate version, depending on instruction set
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; AVX512BW Version for processors with fast unaligned read and fast 512 bits write
+; Requires AVX512BW, BMI2
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+; memcpyAVX512BW:
+align 8
+; Version for size <= 40H. Requires AVX512BW and BMI2
+L000:   mov     rax, -1
+        bzhi    rax, rax, rcx                    ; set mask k1 to move rcx bytes, at most 40H
+        kmovq   k1, rax
+        vmovdqu8 zmm16{k1}{z}, [rsi]
+        vmovdqu8 [rdi]{k1}, zmm16
+        ; vzeroupper not needed if we use zmm16?
+        EPILOGM
+
+align 8
+; Version for size = 40H - 80H
+L010:   ; make two partially overlapping blocks
+        vmovdqu64 zmm16, [rsi]
+        vmovdqu64 zmm17, [rsi+rcx-40H]
+        vmovdqu64 [rdi], zmm16
+        vmovdqu64 [rdi+rcx-40H], zmm17
+        ; vzeroupper not needed if we use zmm16?
+        EPILOGM
+        
+; Function entry
+; rdi = dest
+; rsi = src
+; rcx = count
+; r9  = dest
+
+align 16
+
+%IFDEF  WINDOWS
+times 5 nop                            ; align L200
+%ELSE   ; Unix
+times 13 nop                           ; align L200
+%ENDIF
+
+memcpyAVX512BW:                        ; global label
+memcpyAVX512BW@:                       ; local label
+        PROLOGM
+        cmp     rcx, 040H
+        jbe     L000
+        cmp     rcx, 080H
+        jbe     L010
+
+L100:   ; count > 80H                  ; Entry from memcpyAVX512F
+        vmovdqu64 zmm17, [rsi]         ; save first possibly unaligned block to after main loop
+        vmovdqu64 zmm18, [rsi+rcx-40H] ; save last  possibly unaligned block to after main loop
+
+        add    rdi, rcx                ; end of destination
+        and    rdi, -40H               ; round down to align by 40H
+        mov    rdx, rdi
+        sub    rdx, r9
+        add    rsi, rdx                ; end of main blocks of source
+        and    rdx, -40H               ; size of aligned blocks to copy
+
+        ; Check if count very big
+        cmp     rdx, [CacheBypassLimit]
+        ja      L500                             ; Use non-temporal store if count > CacheBypassLimit
+
+        neg    rdx                     ; negative index from end of aligned blocks        
+; align ?
+L200:   ; main loop. Move 40H bytes at a time
+        vmovdqu64 zmm16, [rsi+rdx]
+        vmovdqa64 [rdi+rdx], zmm16
+        add     rdx, 40H
+        jnz     L200
+
+L210:   ; insert remaining bytes at beginning and end, possibly overlapping main blocks
+        vmovdqu64 [r9], zmm17
+        vmovdqu64 [r9+rcx-40H], zmm18
+        ;vzeroupper not needed if we use zmm16-18
+        EPILOGM
+
+align   16
+L500:   ; Move 40H bytes at a time, non-temporal
+        neg     rdx
+L510:   vmovdqu64 zmm16, [rsi+rdx]
+        vmovntdq [rdi+rdx], zmm16
+        add     rdx, 40H
+        jnz     L510
+        sfence
+        jmp     L210
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; AVX512F Version for processors with fast unaligned read and fast 64 bytes write
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Function entry
+align 16
+memcpyAVX512F:   ; global label
+memcpyAVX512F@:  ; local label
+        PROLOGM
+
+; rdi = dest
+; rsi = src
+; rcx = count
+        cmp     rcx, 080H
+        ja      L100
+        cmp     rcx, 040H
+        jae     L010
+        ; count < 40H
+        jmp     A1000
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-; AVX Version for processors with fast unaligned read and fast 32 bytes write
+; AVX Version for processors with fast unaligned read and fast 256 bits write
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         
@@ -225,7 +343,7 @@ H3230:  cmp     edx, -1
         movzx   eax, byte [rsi+rdx]
         mov     [rdi+rdx], al
 H3500:  ; finished     
-        RETURNM
+        EPILOGM
         
 I3100:   ; non-temporal move
         neg     rcx                    ; Negative index from the end      
@@ -237,7 +355,8 @@ I3110:  ; main copy loop, 32 bytes at a time
         vmovntps [rdi+rcx], ymm0
         add     rcx, 20H
         jnz     I3110
-        vzeroupper                      ; end of AVX mode
+        sfence
+        vzeroupper                     ; end of AVX mode
         jmp     H3120                  ; Move the remaining edx bytes (0 - 31)
                 
 
@@ -335,7 +454,7 @@ A1500:  cmp     ecx, -1
         movzx   eax, byte [rsi+rcx]
         mov     [rdi+rcx], al
 A1900:  ; finished
-        RETURNM        
+        EPILOGM        
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -464,7 +583,7 @@ H230:   cmp     edx, -1
         movzx   eax, byte [rsi+rdx]
         mov     [rdi+rdx], al
 H500:   ; finished     
-        RETURNM
+        EPILOGM
         
 I100:   ; non-temporal move
         neg     rcx                    ; Negative index from the end      
@@ -478,6 +597,7 @@ I110:   ; main copy loop, 32 bytes at a time
         movntps [rdi+rcx+10H], xmm1
         add     rcx, 20H
         jnz     I110
+        sfence
         jmp     H120                  ; Move the remaining edx bytes (0 - 31):
         
 
@@ -660,7 +780,7 @@ C230:   cmp     edx, -1
         movzx   eax, byte [rsi+rdx]
         mov     [rdi+rdx], al
 C500:   ; finished     
-        RETURNM
+        EPILOGM
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -726,7 +846,7 @@ A500:   cmp     ecx, -1
         movzx   eax, byte [rsi+rcx]
         mov     [rdi+rcx], al
 A900:   ; finished
-        RETURNM        
+        EPILOGM        
         
 B0100:  ; count >= 64
         ; Calculate size of first block up to first regular boundary of dest
@@ -897,6 +1017,9 @@ B400:   neg     rcx
         add     rdx, 10H        
 %%L2:   ; Get src pointer back to misaligned state
         add     rsi, rax
+        %IF %2 == 1
+        sfence
+        %ENDIF
         ; Move remaining 0 - 15 bytes, unaligned
         jmp     C200
 %ENDMACRO
@@ -943,6 +1066,9 @@ B400:   neg     rcx
         add     rdx, 10H        
 %%L2:   ; Get src pointer back to misaligned state
         add     rsi, rax
+        %IF %1 == 1
+        sfence
+        %ENDIF
         ; Move remaining 0 - 15 bytes, unaligned
         jmp     C200
 %ENDMACRO
@@ -989,6 +1115,9 @@ B400:   neg     rcx
         add     rdx, 10H        
 %%L2:   ; Get src pointer back to misaligned state
         add     rsi, rax
+        %IF %1 == 1
+        sfence
+        %ENDIF
         ; Move remaining 0 - 15 bytes, unaligned
         jmp     C200
 %ENDMACRO
@@ -1035,6 +1164,9 @@ B400:   neg     rcx
         add     rdx, 10H        
 %%L2:   ; Get src pointer back to misaligned state
         add     rsi, rax
+        %IF %1 == 1
+        sfence
+        %ENDIF
         ; Move remaining 0 - 15 bytes, unaligned
         jmp     C200
 %ENDMACRO
@@ -1091,11 +1223,11 @@ B400:   neg     rcx
 
 align 16
 D104:   MOVE_UNALIGNED_SSE2_4    0
-times 4 nop
+;times 4 nop
 D108:   MOVE_UNALIGNED_SSE2_8    0
-times 4 nop
+;times 4 nop
 D10C:   MOVE_UNALIGNED_SSE2_12   0
-times 1 nop
+;times 1 nop
 D101:   MOVE_UNALIGNED_SSE2 1,   0
 D102:   MOVE_UNALIGNED_SSE2 2,   0
 D103:   MOVE_UNALIGNED_SSE2 3,   0
@@ -1103,7 +1235,7 @@ D105:   MOVE_UNALIGNED_SSE2 5,   0
 D106:   MOVE_UNALIGNED_SSE2 6,   0
 D107:   MOVE_UNALIGNED_SSE2 7,   0
 D109:   MOVE_UNALIGNED_SSE2 9,   0
-times 1 nop
+;times 1 nop
 D10A:   MOVE_UNALIGNED_SSE2 0AH, 0
 D10B:   MOVE_UNALIGNED_SSE2 0BH, 0
 D10D:   MOVE_UNALIGNED_SSE2 0DH, 0
@@ -1155,6 +1287,7 @@ F100:   ; Non-temporal move, src and dest have same alignment.
         movaps  xmm0, [rsi+rdx]
         movntps [rdi+rdx], xmm0
         add     rdx, 10H
+        sfence
         ; move the remaining 0 - 15 bytes
         jmp     C200
 
@@ -1210,8 +1343,15 @@ memcpyCPUDispatch:   ; CPU dispatcher, check for instruction sets and which meth
         test    eax, eax
         jz      Q100
         lea     rbx, [memcpyU256@]
-Q100:   
-        ; Insert appropriate pointer
+        call    InstructionSet
+        cmp     eax, 15
+        jb      Q100
+        lea     rbx, [memcpyAVX512F@]
+        cmp     eax, 16
+        jb      Q100
+        lea     rbx, [memcpyAVX512BW@]
+
+Q100:   ; Insert appropriate pointer
         mov     [memcpyDispatch], rbx
         mov     rax, rbx
         pop     r8
@@ -1263,11 +1403,10 @@ U400:   mov     [CacheBypassLimit], rax
 ;                   getDispatch, for testing only
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 getDispatch:
 mov rax,[memcpyDispatch]
 ret
-
-global getDispatch
 
 
 
@@ -1308,6 +1447,6 @@ DQ F108, F109, F10A, F10B, F10C, F10D, F10E, F10F
 memcpyDispatch DQ memcpyCPUDispatch
 
 ; Bypass cache by using non-temporal moves if count > CacheBypassLimit
-; The optimal value of _CacheBypassLimit is difficult to estimate, but
+; The optimal value of CacheBypassLimit is difficult to estimate, but
 ; a reasonable value is half the size of the largest cache:
 CacheBypassLimit: DQ 0

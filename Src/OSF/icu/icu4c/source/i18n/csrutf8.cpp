@@ -11,15 +11,8 @@
 
 U_NAMESPACE_BEGIN
 
-CharsetRecog_UTF8::~CharsetRecog_UTF8()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_UTF8::getName() const
-{
-	return "UTF-8";
-}
+CharsetRecog_UTF8::~CharsetRecog_UTF8() {} // nothing to do
+const char * CharsetRecog_UTF8::getName() const { return "UTF-8"; }
 
 bool CharsetRecog_UTF8::match(InputText* input, CharsetMatch * results) const 
 {

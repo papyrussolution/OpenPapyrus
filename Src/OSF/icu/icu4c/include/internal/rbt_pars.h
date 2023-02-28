@@ -1,14 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- * Copyright (C) 1999-2011, International Business Machines Corporation
- * and others. All Rights Reserved.
- **********************************************************************
- *   Date        Name        Description
- *   11/17/99    aliu        Creation.
- **********************************************************************
- */
+// Copyright (C) 1999-2011, International Business Machines Corporation and others. All Rights Reserved.
+// Date        Name        Description
+// 11/17/99    aliu        Creation.
+// 
 #ifndef RBT_PARS_H
 #define RBT_PARS_H
 
@@ -35,33 +30,26 @@ class StringMatcher;
 
 class TransliteratorParser : public UMemory {
 public:
-
 	/**
 	 * A Vector of TransliterationRuleData objects, one for each discrete group
 	 * of rules in the rule set
 	 */
 	UVector dataVector;
-
 	/**
 	 * PUBLIC data member.
 	 * A Vector of UnicodeStrings containing all of the ID blocks in the rule set
 	 */
 	UVector idBlockVector;
-
 	/**
 	 * PUBLIC data member containing the parsed compound filter, if any.
 	 */
 	UnicodeSet* compoundFilter;
-
 private:
-
 	/**
 	 * The current data object for which we are parsing rules
 	 */
 	TransliterationRuleData* curData;
-
 	UTransDirection direction;
-
 	/**
 	 * Parse error information.
 	 */
@@ -256,9 +244,7 @@ private:
 	 * @param start position of first character of current rule.
 	 * @return start position of first character of current rule.
 	 */
-	int32_t syntaxError(UErrorCode parseErrorCode, const UnicodeString &, int32_t start,
-	    UErrorCode & status);
-
+	int32_t syntaxError(UErrorCode parseErrorCode, const UnicodeString &, int32_t start, UErrorCode & status);
 	/**
 	 * Parse a UnicodeSet out, store it, and return the stand-in character
 	 * used to represent it.
@@ -267,10 +253,7 @@ private:
 	 * @param pos     the position in pattern at which to start parsing.
 	 * @return        the stand-in character used to represent it.
 	 */
-	UChar parseSet(const UnicodeString & rule,
-	    ParsePosition& pos,
-	    UErrorCode & status);
-
+	UChar parseSet(const UnicodeString & rule, ParsePosition& pos, UErrorCode & status);
 	/**
 	 * Generate and return a stand-in for a new UnicodeFunctor.  Store
 	 * the matcher (adopt it).
@@ -278,52 +261,41 @@ private:
 	 * @return        a stand-in for a new UnicodeFunctor.
 	 */
 	UChar generateStandInFor(UnicodeFunctor* adopted, UErrorCode & status);
-
 	/**
 	 * Return the standin for segment seg (1-based).
 	 * @param seg    the given segment.
 	 * @return       the standIn character for the given segment.
 	 */
 	UChar getSegmentStandin(int32_t seg, UErrorCode & status);
-
 	/**
 	 * Set the object for segment seg (1-based).
 	 * @param seg      the given segment.
 	 * @param adopted  the StringMatcher to be adopted.
 	 */
 	void setSegmentObject(int32_t seg, StringMatcher* adopted, UErrorCode & status);
-
 	/**
 	 * Return the stand-in for the dot set.  It is allocated the first
 	 * time and reused thereafter.
 	 * @return    the stand-in for the dot set.
 	 */
 	UChar getDotStandIn(UErrorCode & status);
-
 	/**
 	 * Append the value of the given variable name to the given
 	 * UnicodeString.
 	 * @param name    the variable name to be appended.
 	 * @param buf     the given UnicodeString to append to.
 	 */
-	void appendVariableDef(const UnicodeString & name,
-	    UnicodeString & buf,
-	    UErrorCode & status);
-
+	void appendVariableDef(const UnicodeString & name, UnicodeString & buf, UErrorCode & status);
 	/**
 	 * Glue method to get around access restrictions in C++.
 	 */
-	/*static Transliterator* createBasicInstance(const UnicodeString & id,
-	                                           const UnicodeString * canonID);*/
-
+	/*static Transliterator* createBasicInstance(const UnicodeString & id, const UnicodeString * canonID);*/
 	friend class RuleHalf;
-
 	// Disallowed methods; no impl.
 	/**
 	 * Copy constructor
 	 */
 	TransliteratorParser(const TransliteratorParser&);
-
 	/**
 	 * Assignment operator
 	 */
@@ -333,7 +305,6 @@ private:
 U_NAMESPACE_END
 
 #endif /* #ifdef __cplusplus */
-
 /**
  * Strip/convert the following from the transliterator rules:
  * comments
@@ -347,5 +318,4 @@ U_NAMESPACE_END
 U_CAPI int32_t utrans_stripRules(const UChar * source, int32_t sourceLen, UChar * target, UErrorCode * status);
 
 #endif /* #if !UCONFIG_NO_TRANSLITERATION */
-
 #endif

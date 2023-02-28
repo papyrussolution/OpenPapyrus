@@ -1,5 +1,4 @@
-// Copyright (c) 2008, Google Inc.
-// All rights reserved.
+// Copyright (c) 2008, Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -163,17 +162,17 @@ void TemplateString::AddToGlobalIdToNameMap() LOCKS_EXCLUDED(mutex) {
 	}
 }
 
-TemplateId TemplateString::GetGlobalId() const {
+TemplateId TemplateString::GetGlobalId() const 
+{
 	if(IsTemplateIdInitialized(id_)) {
 		return id_;
 	}
 	// Initialize the id and sets the "initialized" flag.
-	return static_cast<TemplateId>(MurmurHash64(ptr_, length_) |
-	       kTemplateStringInitializedFlag);
+	return static_cast<TemplateId>(MurmurHash64(ptr_, length_) | kTemplateStringInitializedFlag);
 }
 
-// static
-TemplateString TemplateString::IdToString(TemplateId id) LOCKS_EXCLUDED(mutex) {
+/*static*/TemplateString TemplateString::IdToString(TemplateId id) LOCKS_EXCLUDED(mutex) 
+{
 	ReaderMutexLock reader_lock(&mutex);
 	if(!template_string_set)
 		return TemplateString(kStsEmpty);

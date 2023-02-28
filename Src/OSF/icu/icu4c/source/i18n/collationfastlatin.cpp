@@ -1,15 +1,10 @@
+// collationfastlatin.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2013-2015, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * collationfastlatin.cpp
- *
- * created on: 2013aug18
- * created by: Markus W. Scherer
- */
+// Copyright (C) 2013-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// created on: 2013aug18
+// created by: Markus W. Scherer
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -20,8 +15,8 @@
 
 U_NAMESPACE_BEGIN
 
-int32_t CollationFastLatin::getOptions(const CollationData * data, const CollationSettings &settings,
-    uint16 * primaries, int32_t capacity) {
+int32_t CollationFastLatin::getOptions(const CollationData * data, const CollationSettings &settings, uint16 * primaries, int32_t capacity) 
+{
 	const uint16 * table = data->fastLatinTable;
 	if(table == NULL) {
 		return -1;
@@ -30,7 +25,6 @@ int32_t CollationFastLatin::getOptions(const CollationData * data, const Collati
 	if(capacity != LATIN_LIMIT) {
 		return -1;
 	}
-
 	uint32_t miniVarTop;
 	if((settings.options & CollationSettings::ALTERNATE_MASK) == 0) {
 		// No mini primaries are variable, set a variableTop just below the
@@ -45,7 +39,6 @@ int32_t CollationFastLatin::getOptions(const CollationData * data, const Collati
 		}
 		miniVarTop = table[i];
 	}
-
 	bool digitsAreReordered = FALSE;
 	if(settings.hasReordering()) {
 		uint32_t prevStart = 0;
@@ -106,14 +99,12 @@ int32_t CollationFastLatin::getOptions(const CollationData * data, const Collati
 			primaries[c] = 0;
 		}
 	}
-
 	// Shift the miniVarTop above other options.
 	return ((int32_t)miniVarTop << 16) | settings.options;
 }
 
-int32_t CollationFastLatin::compareUTF16(const uint16 * table, const uint16 * primaries, int32_t options,
-    const UChar * left, int32_t leftLength,
-    const UChar * right, int32_t rightLength) {
+int32_t CollationFastLatin::compareUTF16(const uint16 * table, const uint16 * primaries, int32_t options, const UChar * left, int32_t leftLength, const UChar * right, int32_t rightLength) 
+{
 	// This is a modified copy of CollationCompare::compareUpToQuaternary(),
 	// optimized for common Latin text.
 	// Keep them in sync!

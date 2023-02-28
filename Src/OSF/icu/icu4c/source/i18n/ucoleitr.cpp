@@ -1,29 +1,18 @@
+// ucoleitr.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *   Copyright (C) 2001-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- ******************************************************************************
- *
- * File ucoleitr.cpp
- *
- * Modification History:
- *
- * Date        Name        Description
- * 02/15/2001  synwee      Modified all methods to process its own function
- *      instead of calling the equivalent c++ api (coleitr.h)
- * 2012-2014   markus      Rewritten in C++ again.
- ******************************************************************************/
-
+// Copyright (C) 2001-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 02/15/2001  synwee      Modified all methods to process its own function instead of calling the equivalent c++ api (coleitr.h)
+// 2012-2014   markus      Rewritten in C++ again.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
 #if !UCONFIG_NO_COLLATION
-
 #include "unicode/ucoleitr.h"
 #include "usrchimp.h"
-
 U_NAMESPACE_USE
 
 #define BUFFER_LENGTH             100
@@ -182,10 +171,7 @@ void UCollationPCE::init(const Collator &coll)
 	variableTop = coll.getVariableTop(status);
 }
 
-UCollationPCE::~UCollationPCE()
-{
-	// nothing to do
-}
+UCollationPCE::~UCollationPCE() {} // nothing to do
 
 uint64_t UCollationPCE::processCE(uint32_t ce)
 {

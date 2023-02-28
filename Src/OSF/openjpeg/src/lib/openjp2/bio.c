@@ -14,8 +14,7 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -59,13 +58,9 @@ static boolint opj_bio_bytein(opj_bio_t * bio);
 /*@}*/
 
 /*@}*/
-
-/*
-   ==========================================================
-   local functions
-   ==========================================================
- */
-
+// 
+// local functions
+// 
 static boolint opj_bio_byteout(opj_bio_t * bio)
 {
 	bio->buf = (bio->buf << 8) & 0xffff;
@@ -91,8 +86,7 @@ static boolint opj_bio_bytein(opj_bio_t * bio)
 static void opj_bio_putbit(opj_bio_t * bio, uint32_t b)
 {
 	if(bio->ct == 0) {
-		opj_bio_byteout(
-			bio); /* MSD: why not check the return value of this function ? */
+		opj_bio_byteout(bio); /* MSD: why not check the return value of this function ? */
 	}
 	bio->ct--;
 	bio->buf |= b << bio->ct;
@@ -101,36 +95,17 @@ static void opj_bio_putbit(opj_bio_t * bio, uint32_t b)
 static uint32_t opj_bio_getbit(opj_bio_t * bio)
 {
 	if(bio->ct == 0) {
-		opj_bio_bytein(
-			bio); /* MSD: why not check the return value of this function ? */
+		opj_bio_bytein(bio); /* MSD: why not check the return value of this function ? */
 	}
 	bio->ct--;
 	return (bio->buf >> bio->ct) & 1;
 }
-
-/*
-   ==========================================================
-   Bit Input/Output interface
-   ==========================================================
- */
-
-opj_bio_t* opj_bio_create(void)
-{
-	opj_bio_t * bio = (opj_bio_t*)opj_malloc(sizeof(opj_bio_t));
-	return bio;
-}
-
-void opj_bio_destroy(opj_bio_t * bio)
-{
-	if(bio) {
-		SAlloc::F(bio);
-	}
-}
-
-ptrdiff_t opj_bio_numbytes(opj_bio_t * bio)
-{
-	return (bio->bp - bio->start);
-}
+// 
+// Bit Input/Output interface
+// 
+opj_bio_t* opj_bio_create(void) { return (opj_bio_t *)opj_malloc(sizeof(opj_bio_t)); }
+void opj_bio_destroy(opj_bio_t * bio) { SAlloc::F(bio); }
+ptrdiff_t opj_bio_numbytes(opj_bio_t * bio) { return (bio->bp - bio->start); }
 
 void opj_bio_init_enc(opj_bio_t * bio, uint8 * bp, uint32_t len)
 {
@@ -152,10 +127,8 @@ void opj_bio_init_dec(opj_bio_t * bio, uint8 * bp, uint32_t len)
 
 void opj_bio_write(opj_bio_t * bio, uint32_t v, uint32_t n)
 {
-	int32_t i;
-
 	assert((n > 0U) && (n <= 32U));
-	for(i = (int32_t)n - 1; i >= 0; i--) {
+	for(int32_t i = (int32_t)n - 1; i >= 0; i--) {
 		opj_bio_putbit(bio, (v >> i) & 1);
 	}
 }
@@ -164,7 +137,6 @@ uint32_t opj_bio_read(opj_bio_t * bio, uint32_t n)
 {
 	int32_t i;
 	uint32_t v;
-
 	assert((n > 0U) /* && (n <= 32U)*/);
 #ifdef OPJ_UBSAN_BUILD
 	/* This assert fails for some corrupted images which are gracefully rejected */
@@ -174,8 +146,7 @@ uint32_t opj_bio_read(opj_bio_t * bio, uint32_t n)
 #endif
 	v = 0U;
 	for(i = (int32_t)n - 1; i >= 0; i--) {
-		v |= opj_bio_getbit(bio) <<
-			i; /* can't overflow, opj_bio_getbit returns 0 or 1 */
+		v |= opj_bio_getbit(bio) << i; /* can't overflow, opj_bio_getbit returns 0 or 1 */
 	}
 	return v;
 }

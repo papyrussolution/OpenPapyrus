@@ -16,6 +16,9 @@
 #ifndef ABSL_FLAGS_FLAG_H_
 #define ABSL_FLAGS_FLAG_H_
 
+#include <absl/flags/commandlineflag.h>
+#include <absl/flags/internal/flag.h>
+
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 
@@ -213,8 +216,7 @@ ABSL_NAMESPACE_END
 	};                                                                         \
 	constexpr auto FLAGS_help_storage_ ## name ABSL_INTERNAL_UNIQUE_SMALL_NAME() \
 	ABSL_ATTRIBUTE_SECTION_VARIABLE(flags_help_cold) =                     \
-	    absl::flags_internal::HelpStringAsArray<AbslFlagHelpGenFor ## name>( \
-		0);
+	    absl::flags_internal::HelpStringAsArray<AbslFlagHelpGenFor ## name>(0);
 
 #define ABSL_FLAG_IMPL_DECLARE_DEF_VAL_WRAPPER(name, Type, default_value)     \
 	struct AbslFlagDefaultGenFor ## name {                                        \

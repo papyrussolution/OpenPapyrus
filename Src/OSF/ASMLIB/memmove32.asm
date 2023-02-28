@@ -1,7 +1,7 @@
 ;*************************  memmove32.asm  ***********************************
 ; Author:           Agner Fog
 ; Date created:     2008-07-18
-; Last modified:    2013-09-11
+; Last modified:    2016-11-11
 ; Description:
 ; Faster version of the standard memmove function:
 ; void * A_memmove(void *dest, const void *src, size_t count);
@@ -15,18 +15,20 @@
 ;
 ; CPU dispatching included for different CPUs
 ;
-; Copyright (c) 2008-2013 GNU General Public License www.gnu.org/licenses
+; Copyright (c) 2008-2016 GNU General Public License www.gnu.org/licenses
 ;******************************************************************************
 
-global _A_memmove: function            ; Function A_memmove
-global ?OVR_memmove: function          ; ?OVR removed if standard function memmove overridden
+global _A_memmove                      ; Function A_memmove
+global ?OVR_memmove                    ; ?OVR removed if standard function memmove overridden
 
 ; Direct entries to CPU-specific versions
-global _memmove386: function           ; Version for processors without SSE2
-global _memmoveSSE2: function          ; Version for processors with SSE2
-global _memmoveSSSE3: function         ; Version for processors with SSSE3
-global _memmoveU: function             ; Version for processors with fast unaligned read
-global _memmoveU256: function          ; Version for processors with fast 256-bit read/write
+global _memmove386                     ; Version for processors without SSE2
+global _memmoveSSE2                    ; Version for processors with SSE2
+global _memmoveSSSE3                   ; Version for processors with SSSE3
+global _memmoveU                       ; Version for processors with fast unaligned read
+global _memmoveU256                    ; Version for processors with fast 256-bit read/write
+global _memmoveAVX512F                 ; Version for processors with fast 512-bit read/write
+global _memmoveAVX512BW                ; Version for processors with fast 512-bit read/write
 global _SetMemcpyCacheLimit            ; Change limit for bypassing cache
 
 ; Imported from memcpy32.asm:
@@ -36,6 +38,8 @@ extern _memcpySSE2                     ; CPU specific function entry
 extern _memcpySSSE3                    ; CPU specific function entry
 extern _memcpyU                        ; CPU specific function entry
 extern _memcpyU256                     ; CPU specific function entry
+extern _memcpyAVX512F                  ; CPU specific function entry
+extern _memcpyAVX512BW                 ; CPU specific function entry
 
 ; Imported from instrset32.asm
 extern _InstructionSet                 ; Instruction set for CPU dispatcher
@@ -81,7 +85,7 @@ extern _SetMemcpyCacheLimit1           ; Set the size limit for bypassing cache 
 
 
 ; Define return from this function
-%MACRO  RETURNM 0
+%MACRO  EPILOGM 0
 %IFDEF  POSITIONINDEPENDENT
         pop     ebx
 %ENDIF
@@ -119,12 +123,123 @@ RP:                                    ; reference point edx = offset RP
 
 %ENDIF
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; AVX512BW Version for processors with fast unaligned read and fast 512 bit write
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; edi = destination
+; esi = source
+; ecx = length
+
+align 16 ; short versions
+L000:   ; 41H - 80H bytes
+        vmovdqu64 zmm0, [esi+ecx-40H]
+        vmovdqu64 [edi+ecx-40H], zmm0
+        sub     ecx, 40H
+
+L010:   ; 0 - 40H bytes
+        mov     eax, -1                ; if count = 1-31: |  if count = 32-63:
+        bzhi    eax, eax, ecx          ; -----------------|--------------------
+        kmovd   k1, eax                ;       count 1's  |  all 1's
+        xor     eax, eax               ;                  |
+        sub     ecx, 32                ;                  |
+        cmovb   ecx, eax               ;               0  |  count-32
+        dec     eax                    ;                  |
+        bzhi    eax, eax, ecx          ;                  |
+        kmovd   k2, eax                ;               0  |  count-32 1's
+        kunpckdq k3, k2, k1            ; low 32 bits from k1, high 32 bits from k2. total = count 1's
+        vmovdqu8 zmm0{k3}{z}, [esi]
+        vmovdqu8 [edi]{k3}, zmm0
+        vzeroupper
+        EPILOGM
+
+align 8
+_memmoveAVX512BW:                      ; Version for processors with fast 512-bit read/write
+memmoveAVX512BW@:                      ; local label
+        PROLOGM _memcpyAVX512BW        ; jump to memcpyAVX512BW if copying forwards
+        cmp     ecx, 40H
+        jbe     L010                   ; Use simpler code if count <= 64
+        cmp     ecx, 80H
+        jbe     L000                   ; Use simpler code if count <= 128
+        
+L100:   ; count >= 80H                 ; Entry from memmoveAVX512F
+        vmovdqu64 zmm1, [esi]         ; save first possibly unaligned block to after main loop
+        vmovdqu64 zmm2, [esi+ecx-40H] ; save last  possibly unaligned block to after main loop
+
+        ; Align destination by 40H
+        mov     edx, edi               ; destination
+        add     edi, 40H
+        and     edi, -40H              ; first 40H boundary of destination
+        lea     eax, [edx+ecx]         ; end of destination
+        sub     edx, edi               ; -offset
+        sub     esi, edx               ; add same offset to source
+        add     ecx, edx               ; size minus first unaligned part
+        and     ecx, -40H              ; round down size to multiple of 40H
+        add     edx, edi               ; restore destination
+        
+        ; Check if count very big
+        cmp     ecx, [_CacheBypassLimit]
+        ja      L800                   ; Use non-temporal store if count > CacheBypassLimit
+
+%define nop7  db 0FH, 1FH, 80H, 00H, 00H, 00H, 00H
+        nop7
+
+;align   16 
+L200:   ; Main move loop
+        sub      ecx, 40H
+        vmovdqu64 zmm0, [esi+ecx]
+        vmovdqa64 [edi+ecx], zmm0
+        jnz      L200
+        
+L300:   ; insert remaining parts in beginning and end, possibly overwriting what has already been stored
+        vmovdqu64 [eax-40H], zmm2
+        vmovdqu64 [edx], zmm1
+        vzeroupper
+        EPILOGM
+
+align 16
+L800:  ; move loop, bypass cache
+        sub      ecx, 40H
+        vmovdqu64 zmm0, [esi+ecx]
+        vmovntdq [edi+ecx], zmm0
+        jnz      L800
+        sfence
+        jmp      L300
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-; AVX Version for processors with fast unaligned read and fast 32 bytes write
+; AVX512F Version for processors with fast unaligned read and fast 512 bit write
 ;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; edi = destination
+; esi = source
+; ecx = length
+
+align 16
+_memmoveAVX512F:                       ; Version for processors with fast 512-bit read/write
+memmoveAVX512F@:                       ; local label
+        PROLOGM _memcpyAVX512F         ; jump to memcpyAVX512F if copying forwards
+        cmp     ecx, 80H
+        jnb     L100                   ; use same code as memmoveAVX512BW if count >= 80H
+        cmp     ecx, 40H
+        jb      A1000                  ; use code below if count < 40H
+        ; count = 40H - 80H. Make two partially overlapping 40H blocks
+        vmovdqu64 zmm0, [esi]
+        vmovdqu64 zmm1, [esi+ecx-40H]
+        vmovdqu64 [edi], zmm0
+        vmovdqu64 [edi+ecx-40H], zmm1
+        vzeroupper
+        EPILOGM
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; AVX Version for processors with fast unaligned read and fast 256 bits write
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 align 16
 _memmoveU256:  ; Version for processors with fast 256-bit read/write
@@ -241,7 +356,7 @@ H4500:  test    cl, 1
         movzx   eax, byte [esi]   ; ecx-1 = 0
         mov     [edi], al
 H4600:  ; finished
-        RETURNM
+        EPILOGM
 
 align 16
 H4800:  ; 32 bytes move loop, bypass cache
@@ -250,6 +365,7 @@ H4800:  ; 32 bytes move loop, bypass cache
         sub      edx, 20H
         jnz      H4800
         vzeroupper
+        sfence
         jmp      H4090
         
         
@@ -295,7 +411,7 @@ A1500:  test    cl, 1
         movzx   eax, byte [esi]    ; ecx-1 = 0
         mov     [edi], al
 A1900:  ; finished
-        RETURNM
+        EPILOGM
         
         
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -414,7 +530,7 @@ H1500:  test    cl, 1
         movzx   eax, byte [esi]   ; ecx-1 = 0
         mov     [edi], al
 H1600:  ; finished
-        RETURNM
+        EPILOGM
 
 align 16
 H1800:  ; 32 bytes move loop, bypass cache
@@ -424,6 +540,7 @@ H1800:  ; 32 bytes move loop, bypass cache
         movntps  [edi+edx-10H], xmm0
         sub      edx, 20H
         jnz      H1800        
+        sfence
         jmp      H1090
         
         
@@ -577,7 +694,7 @@ C230:   test    dl, 1
         movzx   eax, byte [esi+ecx-1]    ; ecx-1 not always 0
         mov     [edi+ecx-1], al
 C500:   ; finished     
-        RETURNM
+        EPILOGM
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -646,7 +763,7 @@ A500:   test    cl, 1
         movzx   eax, byte [esi]    ; ecx-1 = 0
         mov     [edi], al
 A900:   ; finished
-        RETURNM
+        EPILOGM
         
 B0100:  ; count >= 64
         ; This part will not always work if count < 64
@@ -789,6 +906,9 @@ B0400:   ; Same with MAlignmentDispatchNT:
         %ENDIF        
 %%L2:   ; Get src pointer back to misaligned state
         add     esi, eax
+        %IF %2 == 1
+        sfence
+        %ENDIF        
         ; Move remaining 0 - 15 bytes, unaligned
         jmp     C200
 %ENDMACRO
@@ -830,6 +950,9 @@ B0400:   ; Same with MAlignmentDispatchNT:
         %ENDIF        
 %%L2:   ; Get src pointer back to misaligned state
         add     esi, eax
+        %IF %1 == 1
+        sfence
+        %ENDIF        
         ; Move remaining 0 - 15 bytes, unaligned
         jmp     C200
 %ENDMACRO
@@ -873,6 +996,9 @@ B0400:   ; Same with MAlignmentDispatchNT:
         %ENDIF        
 %%L2:   ; Get src pointer back to misaligned state
         add     esi, eax
+        %IF %1 == 1
+        sfence
+        %ENDIF        
         ; Move remaining 0 - 15 bytes, unaligned
         jmp     C200
 %ENDMACRO
@@ -916,6 +1042,9 @@ B0400:   ; Same with MAlignmentDispatchNT:
         %ENDIF        
 %%L2:   ; Get src pointer back to misaligned state
         add     esi, eax
+        %IF %1 == 1
+        sfence
+        %ENDIF        
         ; Move remaining 0 - 15 bytes, unaligned
         jmp     C200
 %ENDMACRO
@@ -1020,6 +1149,7 @@ F100:   ; Non-temporal move, src and dest have same alignment.
         sub     ecx, 10H
         movaps  xmm0, [esi+ecx]
         movntps  [edi+ecx], xmm0
+        sfence
         ; move the remaining 0 - 15 bytes
         jmp     C200
 
@@ -1088,12 +1218,12 @@ G200:   ; edi is aligned now. Move 4 bytes at a time
         add     esi, 3                 ; Point to last byte of src        
         rep     movsb                  ; move remaining 0-3 bytes
         cld
-        RETURNM
+        EPILOGM
         
 G500:   ; count < 8. Move one byte at a time
         rep     movsb                  ; move count bytes
         cld
-        RETURNM
+        EPILOGM
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1111,28 +1241,30 @@ memmoveCPUDispatch:
         call    SetMemcpyCacheLimit@
         pop     ecx
         call    _InstructionSet
-        ; Point to generic version of memmove
-        mov     esi, memmove386@
+        mov     ebx, eax
+        mov     esi, memmove386@       ; Point to generic version of memmove
         cmp     eax, 4                 ; check SSE2
         jb      Q100
         ; SSE2 supported
-        ; Point to SSE2 version of memmove
-        mov     esi, memmoveSSE2@
+        mov     esi, memmoveSSE2@      ; Point to SSE2 version of memmove
         cmp     eax, 6                 ; check Suppl-SSE3
         jb      Q100
         ; Suppl-SSE3 supported
-        ; Point to SSSE3 version of memmove
-        mov     esi, memmoveSSSE3@
+        mov     esi, memmoveSSSE3@     ; Point to SSSE3 version of memmove
         call    _UnalignedIsFaster
         test    eax, eax
         jz      Q100
-        ; Point to unaligned version of memmove
-        mov     esi, memmoveU@
+        mov     esi, memmoveU@         ; Point to unaligned version of memmove
         call    _Store256BitIsFaster
         test    eax, eax
         jz      Q100        
-        ; Point to 256 bit move version of memmove
-        mov     esi, memmoveU256@       
+        mov     esi, memmoveU256@      ; Point to 256 bit move version of memmove
+        cmp     ebx, 15
+        jb      Q100
+        mov     esi, memmoveAVX512F@
+        cmp     ebx, 16
+        jb      Q100
+        mov     esi, memmoveAVX512BW@
         
 Q100:   mov     [memmoveDispatch], esi
         popad
@@ -1169,6 +1301,8 @@ Q100:   mov     [memmoveDispatch], esi
         jz      Q100
         ; Point to 256 bit move version of memmove
         lea     esi, [ebx+memmoveU256@-RP]        
+
+        ; No position-independent versions of memcpyAVX512F, memcpyAVX512BW
         
 Q100:   ; insert appropriate pointer
         mov     dword [ebx+memmoveDispatch-RP], esi

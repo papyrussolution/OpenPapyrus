@@ -1,7 +1,7 @@
 ;*************************  strcountinset64.asm  *********************************
 ; Author:           Agner Fog
 ; Date created:     2011-07-20
-; Last modified:    2011-07-20
+; Last modified:    2016-11-08
 
 ; Description:
 ; size_t strCountInSet(const char * str, const char * set);
@@ -17,15 +17,15 @@
 ;
 ; CPU dispatching included for 386 and SSE4.2 instruction sets.
 ;
-; Copyright (c) 2011 GNU General Public License www.gnu.org/licenses
+; Copyright (c) 2011-2016 GNU General Public License www.gnu.org/licenses
 ;******************************************************************************
 default rel
 
-global strCountInSet: function
+global strCountInSet
 
 ; Direct entries to CPU-specific versions
-global strCountInSetGeneric: function
-global strCountInSetSSE42: function
+global strCountInSetGeneric
+global strCountInSetSSE42
 
 ; Imported from instrset64.asm:
 extern InstructionSet                 ; Instruction set for CPU dispatcher
@@ -125,8 +125,6 @@ set_next10:
         jne     set_next10
         ; character match found, goto next character
         inc     rax                    ; count match
-        inc     rdi
-        jmp     str_next10
 
 set_finished10: ; end of set, no match found
         mov     rsi, r8                ; restore set pointer

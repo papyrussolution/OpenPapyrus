@@ -38,8 +38,8 @@
 ; C++ prototype:
 ; extern "C" int UnalignedIsFaster(void);
 
-global _UnalignedIsFaster: function
-global _Store256BitIsFaster: function
+global _UnalignedIsFaster
+global _Store256BitIsFaster
 extern _CpuType
 extern _InstructionSet
 

@@ -484,9 +484,6 @@
     <ClInclude Include="..\OSF\icu\icu4c\include\unicode\ucnvsel.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\icu\icu4c\include\unicode\umachine.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\icu\icu4c\include\internal\anytrans.h">
       <Filter>Header</Filter>
     </ClInclude>

@@ -1,7 +1,7 @@
 ;*************************  memcpy32.asm  ************************************
 ; Author:           Agner Fog
 ; Date created:     2008-07-18
-; Last modified:    2013-09-11
+; Last modified:    2016-11-12
 
 ; Description:
 ; Faster version of the standard memcpy function:
@@ -22,23 +22,28 @@
 ;
 ; Position-independent code is generated if POSITIONINDEPENDENT is defined.
 ;
-; CPU dispatching included for 386, SSE2, Suppl-SSE3 and AVX instruction sets.
+; CPU dispatching included for the following instruction sets:
+; 386, SSE2, Suppl-SSE3, AVX, AVX512F, AVX512BW.
 ;
-; Copyright (c) 2008-2013 GNU General Public License www.gnu.org/licenses
+; Copyright (c) 2008-2016 GNU General Public License www.gnu.org/licenses
 ;******************************************************************************
 
-global _A_memcpy: function             ; Function A_memcpy
-global ?OVR_memcpy: function           ; ?OVR removed if standard function memcpy overridden
+global _A_memcpy                       ; Function A_memcpy
+global ?OVR_memcpy                     ; ?OVR removed if standard function memcpy overridden
 
 ; Direct entries to CPU-specific versions
-global _memcpy386: function            ; Generic version for processors without SSE2
-global _memcpySSE2: function           ; Version for processors with SSE2
-global _memcpySSSE3: function          ; Version for processors with SSSE3
-global _memcpyU: function              ; Alternative version for processors with fast unaligned read
-global _memcpyU256: function            ; Version for processors with fast 256-bit read/write
+global _memcpy386                      ; Generic version for processors without SSE2
+global _memcpySSE2                     ; Version for processors with SSE2
+global _memcpySSSE3                    ; Version for processors with SSSE3
+global _memcpyU                        ; Alternative version for processors with fast unaligned read
+global _memcpyU256                     ; Version for processors with fast 256-bit read/write
+global _memcpyAVX512F                  ; Version for processors with fast 512-bit read/write
+global _memcpyAVX512BW                 ; Version for processors with fast 512-bit read/write
 
-global _GetMemcpyCacheLimit: function  ; Get the size limit for bypassing cache when copying with memcpy and memmove
-global _SetMemcpyCacheLimit1: function ; Set the size limit for bypassing cache when copying with memcpy
+global _GetMemcpyCacheLimit            ; Get the size limit for bypassing cache when copying with memcpy and memmove
+global _SetMemcpyCacheLimit1           ; Set the size limit for bypassing cache when copying with memcpy
+global getDispatch
+
 
 ; Imported from instrset32.asm:
 extern _InstructionSet                 ; Instruction set for CPU dispatcher
@@ -46,7 +51,6 @@ extern _InstructionSet                 ; Instruction set for CPU dispatcher
 ; Imported from unalignedisfaster32.asm:
 extern _UnalignedIsFaster              ; Tells if unaligned read is faster than PALIGNR
 extern _Store256BitIsFaster            ; Tells if a 256 bit store is faster than two 128 bit stores
-
 
 ; Imported from cachesize32.asm:
 extern _DataCacheSize                  ; Gets size of data cache
@@ -67,7 +71,7 @@ extern _DataCacheSize                  ; Gets size of data cache
 
 
 ; Define return from this function
-%MACRO  RETURNM 0
+%MACRO  EPILOGM 0
 %IFDEF  POSITIONINDEPENDENT
         pop     ebx
 %ENDIF
@@ -79,14 +83,9 @@ extern _DataCacheSize                  ; Gets size of data cache
 
 
 SECTION .text  align=16
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;                          Common entry for dispatch
 ;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ; extern "C" void * A_memcpy(void * dest, const void * src, size_t count);
 ; Function entry:
 _A_memcpy:
@@ -105,14 +104,113 @@ RP:                                    ; reference point edx = offset RP
         jmp     dword [edx+memcpyDispatch-RP]
 
 %ENDIF
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-; AVX Version for processors with fast unaligned read and fast 32 bytes write
+; AVX512BW Version for processors with fast unaligned read and fast 512 bits write
+; No position-independent version
+; Requires AVX512BW, BMI2
 ;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; memcpyAVX512BW:
+align 16
+; Version for size <= 40H. Requires AVX512BW and BMI2
+L000:   mov     eax, -1                ; if count = 1-31: |  if count = 32-63:
+        bzhi    eax, eax, ecx          ; -----------------|-------------------
+        kmovd   k1, eax                ;       count 1's  |  all 1's
+        xor     eax, eax               ;                  |
+        sub     ecx, 32                ;                  |
+        cmovb   ecx, eax               ;               0  |  count-32
+        dec     eax                    ;                  |
+        bzhi    eax, eax, ecx          ;                  |
+        kmovd   k2, eax                ;               0  |  count-32 1's
+        kunpckdq k3, k2, k1            ; low 32 bits from k1, high 32 bits from k2. total = count 1's
+        vmovdqu8 zmm0{k3}{z}, [esi]    ; move count bytes
+        vmovdqu8 [edi]{k3}, zmm0
+        vzeroupper
+        EPILOGM
 
+align 8
+; Version for size = 40H - 80H
+L010:   ; make two partially overlapping blocks
+        vmovdqu64 zmm0, [esi]
+        vmovdqu64 zmm1, [esi+ecx-40H]
+        vmovdqu64 [edi], zmm0
+        vmovdqu64 [edi+ecx-40H], zmm1
+        vzeroupper
+        EPILOGM
+        
+; Function entry
+; edi = dest
+; esi = src
+; ecx = count
+
+align 16
+times 9 nop                            ; align L200
+_memcpyAVX512BW:                       ; global label
+memcpyAVX512BW@:                       ; local label
+        PROLOGM
+        cmp     ecx, 040H
+        jbe     L000
+        cmp     ecx, 080H
+        jbe     L010
+
+L100:   ; count > 80H                  ; Entry from memcpyAVX512F
+        vmovdqu64 zmm1, [esi]          ; save first possibly unaligned block to after main loop
+        vmovdqu64 zmm2, [esi+ecx-40H]  ; save last  possibly unaligned block to after main loop
+
+        mov    eax, edi                ; save destination
+        add    edi, ecx                ; end of destination
+        and    edi, -40H               ; round down to align by 40H
+        mov    edx, edi
+        sub    edx, eax
+        add    esi, edx                ; end of main blocks of source
+        and    edx, -40H               ; size of aligned blocks to copy
+
+        ; Check if count very big
+        cmp     edx, [_CacheBypassLimit]
+        ja      L500                             ; Use non-temporal store if count > CacheBypassLimit
+
+        neg    edx                     ; negative index from end of aligned blocks        
+L200:   ; main loop. Move 40H bytes at a time
+        vmovdqu64 zmm0, [esi+edx]
+        vmovdqa64 [edi+edx], zmm0
+        add     edx, 40H
+        jnz     L200
+
+L210:   ; insert remaining bytes at beginning and end, possibly overlapping main blocks
+        vmovdqu64 [eax], zmm1
+        vmovdqu64 [eax+ecx-40H], zmm2
+        vzeroupper
+        EPILOGM
+
+align 16
+L500:   ; Move 40H bytes at a time, non-temporal
+        neg     edx
+L510:   vmovdqu64 zmm0, [esi+edx]
+        vmovntdq [edi+edx], zmm0
+        add     edx, 40H
+        jnz     L510
+        sfence
+        jmp     L210
+;
+; AVX512F Version for processors with fast unaligned read and fast 512 bits write
+;
+; Function entry
+align 16
+_memcpyAVX512F:   ; global label
+memcpyAVX512F@:   ; local label
+        PROLOGM
+
+; rdi = dest
+; rsi = src
+; rcx = count
+        cmp     ecx, 080H
+        ja      L100
+        cmp     ecx, 040H
+        jae     L010
+        ; count < 40H
+        jmp     A1000
+;
+; AVX Version for processors with fast unaligned read and fast 256 bits write
+;
 align 16
 _memcpyU256:   ; global label
 %IFDEF POSITIONINDEPENDENT
@@ -249,7 +347,7 @@ H3230:  cmp     edx, -1
         movzx   eax, byte [esi+edx]
         mov     [edi+edx], al
 H3500:  ; finished     
-        RETURNM
+        EPILOGM
         
 I3100:  ; non-temporal move
         neg     ecx                    ; Negative index from the end
@@ -260,6 +358,7 @@ I3110:  ; main copy loop, 32 bytes at a time
         vmovntps [edi+ecx], ymm0
         add     ecx, 20H
         jnz     I3110
+        sfence
         vzeroupper                     ; end of AVX mode
         jmp     H3120                  ; Move the remaining edx bytes (0 - 31):
 
@@ -278,10 +377,10 @@ J3100:  ; There is a false memory dependence.
         xor     eax, edx
         sub     eax, edx   ; abs(src-dest)
         neg     ecx        ; size
-        pop     edx        ; restore rdx
+        pop     edx        ; restore edx
         cmp     eax, ecx
         jnb     J3110
-        neg     ecx        ; restore rcx
+        neg     ecx        ; restore ecx
         jmp     H3110       ; overlap between src and dest. Can't copy backwards
 %else
         ; save time by not checking the case that is undefined anyway         
@@ -355,7 +454,7 @@ A1500:  cmp     ecx, -1
         movzx   eax, byte [esi+ecx]
         mov     [edi+ecx], al
 A1900:  ; finished
-        RETURNM
+        EPILOGM
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -493,7 +592,7 @@ H230:   cmp     edx, -1
         movzx   eax, byte [esi+edx]
         mov     [edi+edx], al
 H500:   ; finished     
-        RETURNM
+        EPILOGM
         
 I100:   ; non-temporal move
         neg     ecx                    ; Negative index from the end
@@ -506,6 +605,7 @@ I110:   ; main copy loop, 32 bytes at a time
         movntps [edi+ecx+10H], xmm1
         add     ecx, 20H
         jnz     I110
+        sfence
         jmp     H120                  ; Move the remaining edx bytes (0 - 31):
 
 align 16
@@ -714,7 +814,7 @@ C230:   cmp     edx, -1
         movzx   eax, byte [esi+edx]
         mov     [edi+edx], al
 C500:   ; finished     
-        RETURNM
+        EPILOGM
         
         
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -785,7 +885,7 @@ A500:   cmp     ecx, -1
         movzx   eax, byte [esi+ecx]
         mov     [edi+ecx], al
 A900:   ; finished
-        RETURNM        
+        EPILOGM        
         
 B100:   ; count >= 64
         ; This part will not always work if count < 64
@@ -942,6 +1042,9 @@ B400:   neg     ecx
         add     edx, 10H        
 %%L2:   ; Get src pointer back to misaligned state
         add     esi, eax
+        %IF %2 == 1
+        sfence
+        %ENDIF
         ; Move remaining 0 - 15 bytes, unaligned
         jmp     C200
 %ENDMACRO
@@ -988,6 +1091,9 @@ B400:   neg     ecx
         add     edx, 10H        
 %%L2:   ; Get src pointer back to misaligned state
         add     esi, eax
+        %IF %1 == 1
+        sfence
+        %ENDIF
         ; Move remaining 0 - 15 bytes, unaligned
         jmp     C200
 %ENDMACRO
@@ -1033,6 +1139,9 @@ B400:   neg     ecx
         add     edx, 10H        
 %%L2:   ; Get src pointer back to misaligned state
         add     esi, eax
+        %IF %1 == 1
+        sfence
+        %ENDIF
         ; Move remaining 0 - 15 bytes, unaligned
         jmp     C200
 %ENDMACRO
@@ -1078,6 +1187,9 @@ B400:   neg     ecx
         add     edx, 10H        
 %%L2:   ; Get src pointer back to misaligned state
         add     esi, eax
+        %IF %1 == 1
+        sfence
+        %ENDIF
         ; Move remaining 0 - 15 bytes, unaligned
         jmp     C200
 %ENDMACRO
@@ -1134,7 +1246,7 @@ B400:   neg     ecx
 align   16
 D104:   MOVE_UNALIGNED_SSE2_4    0
 D108:   MOVE_UNALIGNED_SSE2_8    0
-align 8
+;align 8
 D10C:   MOVE_UNALIGNED_SSE2_12   0
 D101:   MOVE_UNALIGNED_SSE2 1,   0
 D102:   MOVE_UNALIGNED_SSE2 2,   0
@@ -1153,35 +1265,35 @@ D10F:   MOVE_UNALIGNED_SSE2 0FH, 0
 ; These are pointed to by the jump table AlignmentDispatchSupSSE3 below
 
 align   16
-times 11 nop
+;times 11 nop
 E104:   MOVE_UNALIGNED_SSSE3 4
-times 5 nop
+;times 5 nop
 E108:   MOVE_UNALIGNED_SSSE3 8
-times 5 nop
+;times 5 nop
 E10C:   MOVE_UNALIGNED_SSSE3 0CH
-times 5 nop
+;times 5 nop
 E101:   MOVE_UNALIGNED_SSSE3 1
-times 5 nop
+;times 5 nop
 E102:   MOVE_UNALIGNED_SSSE3 2
-times 5 nop
+;times 5 nop
 E103:   MOVE_UNALIGNED_SSSE3 3
-times 5 nop
+;times 5 nop
 E105:   MOVE_UNALIGNED_SSSE3 5
-times 5 nop
+;times 5 nop
 E106:   MOVE_UNALIGNED_SSSE3 6
-times 5 nop
+;times 5 nop
 E107:   MOVE_UNALIGNED_SSSE3 7
-times 5 nop
+;times 5 nop
 E109:   MOVE_UNALIGNED_SSSE3 9
-times 5 nop
+;times 5 nop
 E10A:   MOVE_UNALIGNED_SSSE3 0AH
-times 5 nop
+;times 5 nop
 E10B:   MOVE_UNALIGNED_SSSE3 0BH
-times 5 nop
+;times 5 nop
 E10D:   MOVE_UNALIGNED_SSSE3 0DH
-times 5 nop
+;times 5 nop
 E10E:   MOVE_UNALIGNED_SSSE3 0EH
-times 5 nop
+;times 5 nop
 E10F:   MOVE_UNALIGNED_SSSE3 0FH
 
 ; Codes for non-temporal move. Aligned case first
@@ -1208,6 +1320,7 @@ F100:   ; Non-temporal move, src and dest have same alignment.
         movaps  xmm0, [esi+edx]
         movntps [edi+edx], xmm0
         add     edx, 10H
+        sfence
         ; move the remaining 0 - 15 bytes
         jmp     C200
 
@@ -1271,11 +1384,11 @@ G300:   ; edi is aligned now
         mov     ecx, edx
         and     ecx, 3
         rep     movsb                  ; move remaining 0-3 bytes
-        RETURNM
+        EPILOGM
         
 G500:   ; count < 8. Move one byte at a time
         rep     movsb                  ; move count bytes
-        RETURNM
+        EPILOGM
         
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1313,6 +1426,14 @@ memcpyCPUDispatch:
         test    eax, eax
         jz      Q100
         mov     esi, memcpyU256@
+        call    _InstructionSet
+        cmp     eax, 15
+        jb      Q100
+        mov     esi, memcpyAVX512F@
+        cmp     eax, 16
+        jb      Q100
+        mov     esi, memcpyAVX512BW@
+
 Q100:   
         mov     [memcpyDispatch], esi
         popad
@@ -1347,6 +1468,16 @@ Q100:
         test    eax, eax
         jz      Q100
         lea     esi, [ebx+memcpyU256@-RP]
+
+; memcpyAVX512F and memcpyAVX512BW are not available in position-independent versions
+;       call    _InstructionSet
+;       cmp     eax, 15
+;       jb      Q100
+;       lea     esi, [ebx+memcpyAVX512F@-RP]
+;       cmp     eax, 16
+;       jb      Q100
+;       lea     esi, [ebx+memcpyAVX512BW@-RP]
+
 Q100:   ; insert appropriate pointer
         mov     dword [ebx+memcpyDispatch-RP], esi
         popad
@@ -1409,8 +1540,6 @@ getDispatch:
 mov eax,[memcpyDispatch]
 ret
 
-global getDispatch
-                
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;

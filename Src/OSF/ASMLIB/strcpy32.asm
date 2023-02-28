@@ -17,8 +17,8 @@
 ; Copyright (c) 2011 GNU General Public License www.gnu.org/licenses
 ;******************************************************************************
 
-global _A_strcpy: function                 ; Function _A_strcpy
-global ?OVR_strcpy: function               ; ?OVR removed if standard function memcpy overridden
+global _A_strcpy                 ; Function _A_strcpy
+global ?OVR_strcpy               ; ?OVR removed if standard function memcpy overridden
 
 ; Imported from strlen32.asm
 extern _A_strlen

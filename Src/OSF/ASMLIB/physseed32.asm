@@ -1,7 +1,7 @@
 ;*************************  physseed32.asm  **********************************
 ; Author:           Agner Fog
 ; Date created:     2010-08-03
-; Last modified:    2013-09-13
+; Last modified:    2016-11-03
 ; Source URL:       www.agner.org/optimize
 ; Project:          asmlib.zip
 ; C++ prototype:
@@ -35,11 +35,11 @@
 global _PhysicalSeed
 
 ; Direct entries to CPU-specific versions
-global _PhysicalSeedNone: function
-global _PhysicalSeedRDTSC: function
-global _PhysicalSeedVIA: function
-global _PhysicalSeedRDRand: function
-global _PhysicalSeedRDSeed function
+global _PhysicalSeedNone
+global _PhysicalSeedRDTSC
+global _PhysicalSeedVIA
+global _PhysicalSeedRDRand
+global _PhysicalSeedRDSeed
 
 
 SECTION .text  align=16
@@ -65,13 +65,8 @@ _PhysicalSeedRDSeed:
         jecxz   S300
         ; do 32 bits at a time
 S100:   mov     ebx, NUM_TRIES
-S110:   ; rdseed eax
-%if     TESTING
-        mov     eax, ecx
-        stc
-%ELSE
-        db 0Fh, 0C7h, 0F8h             ; rdseed rax
-%ENDIF        
+S110:   rdseed  eax
+        ;db 0Fh, 0C7h, 0F8h             ; rdseed eax
         jc      S120
         ; failed. try again
         dec     ebx
@@ -96,13 +91,8 @@ _PhysicalSeedRDRand:
         jecxz   R300
         ; do 32 bits at a time
 R100:   mov     ebx, NUM_TRIES
-R110:   ; rdrand eax
-%if     TESTING
-        mov     eax, ecx
-        stc
-%ELSE
-        db 0Fh, 0C7h, 0F0h             ; rdrand eax
-%ENDIF
+R110:   rdrand  eax
+        ;db 0Fh, 0C7h, 0F0h             ; rdrand eax
         jc      R120
         ; failed. try again
         dec     ebx
@@ -241,7 +231,7 @@ PhysicalSeedDispatcher:
         xor     ecx, ecx
         cpuid
         bt      ebx, 18
-       ; jc      USE_RDSEED             ; not tested yet!!
+        jc      USE_RDSEED 
 
 P200:   ; test if RDRAND supported
         mov     eax, 1
@@ -304,8 +294,8 @@ get_thunk_edx: ; load caller address into edx for position-independent code
 ; -----------------------------------------------------------------
 %IFDEF WINDOWS
 
-_PhysicalSeedD@8:
 global _PhysicalSeedD@8
+_PhysicalSeedD@8:
         ; translate __cdecl to __stdcall calling
         mov     eax, [esp+4]
         mov     edx, [esp+8]

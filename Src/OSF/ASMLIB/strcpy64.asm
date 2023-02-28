@@ -20,8 +20,8 @@
 
 default rel
 
-global A_strcpy: function                 ; Function A_strcpy
-global ?OVR_strcpy: function              ; ?OVR removed if standard function memcpy overridden
+global A_strcpy                 ; Function A_strcpy
+global ?OVR_strcpy              ; ?OVR removed if standard function memcpy overridden
 
 ; Imported from strlen64.asm
 extern A_strlen

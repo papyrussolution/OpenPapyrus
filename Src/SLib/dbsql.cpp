@@ -1,5 +1,5 @@
 // DBSQL.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -346,7 +346,7 @@ int SSqlStmt::BindItem(int pos, uint count, TYPEID typ, void * pDataBuf)
 {
 	int    ok = 1;
 	BL.Dim = count;
-	assert(checkirange(count, 1, 1024));
+	assert(checkirange(count, 1U, 1024U));
 	Bind b;
 	b.Pos = pos;
 	b.Typ = typ;
@@ -369,7 +369,7 @@ int SSqlStmt::BindData(int dir, uint count, const BNFieldList & rFldList, const 
 	const  uint fld_count = rFldList.getCount();
 	BL.Dim = count;
 	BL.P_Lob = pLob;
-	assert(checkirange(count, 1, 1024));
+	assert(checkirange(count, 1U, 1024U));
 	for(uint i = 0; i < fld_count; i++) {
 		const BNField & r_fld = rFldList.getField(i);
 		BindItem((dir < 0) ? -(int16)(i+1) : +(int16)(i+1), count, r_fld.T, const_cast<uint8 *>(PTR8C(pDataBuf) + r_fld.Offs)); // @badcast
@@ -390,7 +390,7 @@ int SSqlStmt::BindData(int dir, uint count, const DBFieldList & rFldList, const 
 	size_t offs = 0;
 	BL.Dim = count;
 	BL.P_Lob = pLob;
-	assert(checkirange(count, 1, 1024));
+	assert(checkirange(count, 1U, 1024U));
 	for(uint i = 0; i < fld_count; i++) {
 		const BNField & r_fld = rFldList.GetField(i);
 		const int16 bpos = static_cast<int16>(i+1);
@@ -807,7 +807,7 @@ int SOraDbProvider::Binding(SSqlStmt & rS, int dir)
 	const  uint row_count = rS.BL.Dim;
 	const  uint col_count = rS.BL.getCount();
 	OH     h_stmt = StmtHandle(rS);
-	assert(checkirange(row_count, 1, 1024));
+	assert(checkirange(row_count, 1U, 1024U));
 	THROW(rS.SetupBindingSubstBuffer(dir, row_count));
 	if(dir == -1) {
 		for(uint i = 0; i < col_count; i++) {

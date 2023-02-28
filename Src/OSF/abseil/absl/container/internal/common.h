@@ -2,9 +2,7 @@
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      https://www.apache.org/licenses/LICENSE-2.0
+// You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,15 +28,13 @@ template <class T>
 struct IsTransparent<T, absl::void_t<typename T::is_transparent> >
 	: std::true_type {};
 
-template <bool is_transparent>
-struct KeyArg {
+template <bool is_transparent> struct KeyArg {
 	// Transparent. Forward `K`.
 	template <typename K, typename key_type>
 	using type = K;
 };
 
-template <>
-struct KeyArg<false> {
+template <> struct KeyArg<false> {
 	// Not transparent. Always use `key_type`.
 	template <typename K, typename key_type>
 	using type = key_type;
@@ -47,24 +43,23 @@ struct KeyArg<false> {
 // The node_handle concept from C++17.
 // We specialize node_handle for sets and maps. node_handle_base holds the
 // common API of both.
-template <typename PolicyTraits, typename Alloc>
-class node_handle_base {
+template <typename PolicyTraits, typename Alloc> class node_handle_base {
 protected:
 	using slot_type = typename PolicyTraits::slot_type;
-
 public:
 	using allocator_type = Alloc;
 
 	constexpr node_handle_base() = default;
-	node_handle_base(node_handle_base&& other) noexcept {
+	node_handle_base(node_handle_base&& other) noexcept 
+	{
 		*this = std::move(other);
 	}
-
-	~node_handle_base() {
+	~node_handle_base() 
+	{
 		destroy();
 	}
-
-	node_handle_base& operator=(node_handle_base&& other) noexcept {
+	node_handle_base& operator=(node_handle_base&& other) noexcept 
+	{
 		destroy();
 		if(!other.empty()) {
 			alloc_ = other.alloc_;
@@ -73,33 +68,23 @@ public:
 		}
 		return *this;
 	}
-
-	bool empty() const noexcept {
-		return !alloc_;
-	}
-
-	explicit operator bool() const noexcept {
-		return !empty();
-	}
-
-	allocator_type get_allocator() const {
-		return *alloc_;
-	}
-
+	bool empty() const noexcept { return !alloc_; }
+	explicit operator bool() const noexcept { return !empty(); }
+	allocator_type get_allocator() const { return *alloc_; }
 protected:
 	friend struct CommonAccess;
 
 	struct transfer_tag_t {};
 
-	node_handle_base(transfer_tag_t, const allocator_type& a, slot_type* s)
-		: alloc_(a) {
+	node_handle_base(transfer_tag_t, const allocator_type& a, slot_type* s) : alloc_(a) 
+	{
 		PolicyTraits::transfer(alloc(), slot(), s);
 	}
 
 	struct move_tag_t {};
 
-	node_handle_base(move_tag_t, const allocator_type& a, slot_type* s)
-		: alloc_(a) {
+	node_handle_base(move_tag_t, const allocator_type& a, slot_type* s) : alloc_(a) 
+	{
 		PolicyTraits::construct(alloc(), slot(), s);
 	}
 
@@ -110,44 +95,33 @@ protected:
 		}
 	}
 
-	void reset() {
+	void reset() 
+	{
 		assert(alloc_.has_value());
 		alloc_ = absl::nullopt;
 	}
-
-	slot_type* slot() const {
+	slot_type* slot() const 
+	{
 		assert(!empty());
 		return reinterpret_cast<slot_type*>(std::addressof(slot_space_));
 	}
-
-	allocator_type* alloc() {
-		return std::addressof(*alloc_);
-	}
-
+	allocator_type* alloc() { return std::addressof(*alloc_); }
 private:
 	absl::optional<allocator_type> alloc_ = {};
 	alignas(slot_type) mutable unsigned char slot_space_[sizeof(slot_type)] = {};
 };
 
 // For sets.
-template <typename Policy, typename PolicyTraits, typename Alloc,
-    typename = void>
-class node_handle : public node_handle_base<PolicyTraits, Alloc> {
+template <typename Policy, typename PolicyTraits, typename Alloc, typename = void> class node_handle : public node_handle_base<PolicyTraits, Alloc> {
 	using Base = node_handle_base<PolicyTraits, Alloc>;
-
 public:
 	using value_type = typename PolicyTraits::value_type;
-
-	constexpr node_handle() {
+	constexpr node_handle() 
+	{
 	}
-
-	value_type& value() const {
-		return PolicyTraits::element(this->slot());
-	}
-
+	value_type& value() const { return PolicyTraits::element(this->slot()); }
 private:
 	friend struct CommonAccess;
-
 	using Base::Base;
 };
 

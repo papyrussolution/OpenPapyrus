@@ -19,7 +19,8 @@
 ; C++ prototype:
 ; extern "C" void A_DebugBreak(void);
 
-global _A_DebugBreak: function
+global _A_DebugBreak
+
 
 SECTION .text
 

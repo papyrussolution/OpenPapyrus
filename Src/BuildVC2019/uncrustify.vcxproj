@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{57781065-0394-4DE2-880E-52FAD4CBC714}</ProjectGuid>
+    <RootNamespace>uncrustify</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\OSF\uncrustify\src;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <StringPooling>true</StringPooling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_NONSTDC_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <OutputFile>..\..\tools\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>..\..\tools\$(TargetName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\OSF\uncrustify\src;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <StringPooling>true</StringPooling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_NONSTDC_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <OutputFile>..\..\tools\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>..\..\tools\$(TargetName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\OSF\uncrustify\src;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_NONSTDC_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <OutputFile>..\..\tools\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>..\..\tools\$(TargetName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\OSF\uncrustify\src;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_NONSTDC_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <OutputFile>..\..\tools\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>..\..\tools\$(TargetName).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\uncrustify\src\align.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_add.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_asm_colon.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_assign.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_braced_init_list.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_eigen_comma_init.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_func_params.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_func_proto.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_init_brace.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_left_shift.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_log_al.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_nl_cont.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_oc_decl_colon.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_oc_msg_colons.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_oc_msg_spec.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_preprocessor.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_same_func_call_params.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_stack.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_struct_initializers.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_tab_column.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_tools.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_trailing_comments.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_typedefs.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_var_def_brace.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\args.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\backup.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\braces.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\brace_cleanup.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\calculate_closing_brace_position.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\change_int_types.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\check_template.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\chunk.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\ChunkStack.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\combine.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\combine_fix_mark.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\combine_labels.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\combine_skip.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\combine_tools.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\compat_posix.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\compat_win32.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\cs_top_is_question.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\detect.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\EnumStructUnionParser.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\enum_cleanup.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\flag_braced_init_list.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\flag_decltype.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\flag_parens.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\GENERATED\options.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\GENERATED\option_enum.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\indent.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\keywords.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\language_tools.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\lang_pawn.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\logger.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\logmask.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\log_rules.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\mark_question_colon.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\newlines.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\option.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\options_for_QT.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\output.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\parameter_pack_cleanup.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\parens.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\parent_for_pp.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\parsing_frame.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\parsing_frame_stack.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\pcf_flags.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\pragma_cleanup.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\punctuators.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\quick_align_again.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\remove_duplicate_include.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\remove_extra_returns.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\rewrite_infinite_loops.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\semicolons.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\sorting.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\space.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\tokenize.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\tokenize_cleanup.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\uncrustify-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\OSF\uncrustify\src\uncrustify.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\uncrustify_emscripten.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\uncrustify_types.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\unc_ctype.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\unc_text.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\unc_tools.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\unicode.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\universalindentgui.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\width.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\uncrustify\src\add_space_table.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_add.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_asm_colon.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_assign.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_braced_init_list.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_eigen_comma_init.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_func_params.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_func_proto.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_init_brace.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_left_shift.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_log_al.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_nl_cont.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_oc_decl_colon.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_oc_msg_colons.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_oc_msg_spec.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_preprocessor.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_same_func_call_params.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_stack.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_struct_initializers.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_tab_column.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_tools.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_trailing_comments.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_typedefs.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\align_var_def_brace.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\args.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\backup.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\base_types.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\braces.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\brace_cleanup.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\calculate_closing_brace_position.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\change_int_types.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\char_table.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\check_template.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\chunk.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\ChunkStack.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\combine.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\combine_fix_mark.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\combine_labels.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\combine_skip.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\combine_tools.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\compat.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\cs_top_is_question.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\detect.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\EnumStructUnionParser.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\enum_cleanup.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\enum_flags.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\error_types.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\flag_braced_init_list.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\flag_decltype.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\flag_parens.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\GENERATED\option_enum.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\GENERATED\punctuator_table.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\GENERATED\token_names.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\GENERATED\uncrustify_version.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\indent.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\keywords.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\language_tools.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\lang_pawn.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\ListManager.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\logger.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\logmask.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\log_levels.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\log_rules.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\mark_question_colon.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\newlines.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\option.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\options.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\options_for_QT.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\output.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\parameter_pack_cleanup.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\parens.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\parent_for_pp.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\parsing_frame.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\parsing_frame_stack.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\pcf_flags.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\pragma_cleanup.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\prototypes.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\punctuators.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\quick_align_again.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\remove_duplicate_include.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\remove_extra_returns.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\rewrite_infinite_loops.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\semicolons.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\sorting.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\space.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\symbols_table.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\tokenize.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\tokenize_cleanup.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\token_enum.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\uncrustify-internal.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\uncrustify.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\uncrustify_limits.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\uncrustify_types.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\unc_ctype.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\unc_text.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\unc_tools.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\unicode.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\universalindentgui.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\width.h" />
+    <ClInclude Include="..\OSF\uncrustify\src\windows_compat.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="slib.vcxproj">
+      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

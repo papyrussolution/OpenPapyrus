@@ -16,29 +16,20 @@ using icu::number::impl::Grouper;
 
 U_NAMESPACE_BEGIN namespace numparse {
 namespace impl {
-
-
 class ScientificMatcher : public NumberParseMatcher, public UMemory {
-  public:
-    ScientificMatcher() = default;  // WARNING: Leaves the object in an unusable state
-
-    ScientificMatcher(const DecimalFormatSymbols& dfs, const Grouper& grouper);
-
-    bool match(StringSegment& segment, ParsedNumber& result, UErrorCode & status) const override;
-
-    bool smokeTest(const StringSegment& segment) const override;
-
-    UnicodeString toString() const override;
-
-  private:
-    UnicodeString fExponentSeparatorString;
-    DecimalMatcher fExponentMatcher;
-    IgnorablesMatcher fIgnorablesMatcher;
-    UnicodeString fCustomMinusSign;
-    UnicodeString fCustomPlusSign;
+public:
+	ScientificMatcher() = default; // WARNING: Leaves the object in an unusable state
+	ScientificMatcher(const DecimalFormatSymbols& dfs, const Grouper& grouper);
+	bool match(StringSegment& segment, ParsedNumber& result, UErrorCode & status) const override;
+	bool smokeTest(const StringSegment& segment) const override;
+	UnicodeString toString() const override;
+private:
+	UnicodeString fExponentSeparatorString;
+	DecimalMatcher fExponentMatcher;
+	IgnorablesMatcher fIgnorablesMatcher;
+	UnicodeString fCustomMinusSign;
+	UnicodeString fCustomPlusSign;
 };
-
-
 } // namespace impl
 } // namespace numparse
 U_NAMESPACE_END

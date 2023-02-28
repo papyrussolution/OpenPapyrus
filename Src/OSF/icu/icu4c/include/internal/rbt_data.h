@@ -1,14 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- * Copyright (C) 1999-2007, International Business Machines Corporation
- * and others. All Rights Reserved.
- **********************************************************************
- *   Date        Name        Description
- *   11/17/99    aliu        Creation.
- **********************************************************************
- */
+// Copyright (C) 1999-2007, International Business Machines Corporation and others. All Rights Reserved.
+// Date        Name        Description
+// 11/17/99    aliu        Creation.
+// 
 #ifndef RBT_DATA_H
 #define RBT_DATA_H
 

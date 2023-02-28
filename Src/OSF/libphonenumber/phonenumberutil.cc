@@ -22,8 +22,7 @@ const size_t PhoneNumberUtil::kMaxLengthForNsn;
 const size_t PhoneNumberUtil::kMaxLengthCountryCode;
 const int PhoneNumberUtil::kNanpaCountryCode;
 
-// static
-const char PhoneNumberUtil::kPlusChars[] = "+\xEF\xBC\x8B";  /* "+＋" */
+/*static*/const char PhoneNumberUtil::kPlusChars[] = "+\xEF\xBC\x8B";  /* "+＋" */
 // Regular expression of acceptable punctuation found in phone numbers, used to
 // find numbers in text and to decide what is a viable phone number. This
 // excludes diallable characters.
@@ -36,8 +35,7 @@ const char PhoneNumberUtil::kPlusChars[] = "+\xEF\xBC\x8B";  /* "+＋" */
 // full-width punctuation below, as well as being present in the expression
 // itself. In emacs, you can use M-x unicode-what to query information about the
 // unicode character.
-// static
-const char PhoneNumberUtil::kValidPunctuation[] =
+/*static*/const char PhoneNumberUtil::kValidPunctuation[] =
     /* "-x‐-―−ー－-／  ­<U+200B><U+2060>　()（）［］.\\[\\]/~⁓∼" */
     "-x\xE2\x80\x90-\xE2\x80\x95\xE2\x88\x92\xE3\x83\xBC\xEF\xBC\x8D-\xEF\xBC"
     "\x8F \xC2\xA0\xC2\xAD\xE2\x80\x8B\xE2\x81\xA0\xE3\x80\x80()\xEF\xBC\x88"
@@ -823,8 +821,7 @@ void PhoneNumberUtil::GetSupportedTypesForNonGeoEntity(int country_calling_code,
 
 // Public wrapper function to get a PhoneNumberUtil instance with the default
 // metadata file.
-// static
-PhoneNumberUtil* PhoneNumberUtil::GetInstance() { return Singleton<PhoneNumberUtil>::GetInstance(); }
+/*static*/PhoneNumberUtil* PhoneNumberUtil::GetInstance() { return Singleton<PhoneNumberUtil>::GetInstance(); }
 const string & PhoneNumberUtil::GetExtnPatternsForMatching() const { return reg_exps_->extn_patterns_for_matching_; }
 
 bool PhoneNumberUtil::StartsWithPlusCharsPattern(const string & number) const 

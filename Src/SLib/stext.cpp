@@ -3109,7 +3109,7 @@ int STextEncodingStat::Add(const void * pData, size_t size)
 		for(size_t i = 0; i < size; i++) {
 			const uint8 c = p[i];
 			ChrFreq[c]++;
-			if(checkirange(c, 1, 127)) {
+			if(checkirange(c, static_cast<uint8>(1), static_cast<uint8>(127))) {
 				if(c == '\x0D') {
 					skip_eolf_pos = i+1;
 					if((i+1) < size && p[i+1] == '\x0A') {

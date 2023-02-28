@@ -28,11 +28,11 @@ default rel
 
 %define ALLOW_OVERRIDE 0               ; Set to one if override of standard function desired
 
-global A_strcmp: function             ; Function A_strcmp
+global A_strcmp             ; Function A_strcmp
 
 ; Direct entries to CPU-specific versions
-global strcmpGeneric: function            ; Generic version for processors without SSE4.2
-global strcmpSSE42: function          ; Version for processors with SSE4.2
+global strcmpGeneric            ; Generic version for processors without SSE4.2
+global strcmpSSE42          ; Version for processors with SSE4.2
 
 ; Imported from instrset32.asm:
 extern InstructionSet                 ; Instruction set for CPU dispatcher
@@ -42,7 +42,7 @@ section .text
 ; strcmp function
 
 %if ALLOW_OVERRIDE
-global ?OVR_strcmp: function
+global ?OVR_strcmp
 ?OVR_strcmp:
 %endif
 

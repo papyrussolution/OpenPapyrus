@@ -1,18 +1,15 @@
 // collationrootelements.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (C) 2013-2014, International Business Machines Corporation and others.  All Rights Reserved.
- * created on: 2013mar05
- * created by: Markus W. Scherer
- */
+// Copyright (C) 2013-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// created on: 2013mar05
+// created by: Markus W. Scherer
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
 #if !UCONFIG_NO_COLLATION
-
 #include "collationrootelements.h"
-
 U_NAMESPACE_BEGIN
 
 int64_t CollationRootElements::lastCEWithPrimaryBefore(uint32_t p) const 
@@ -350,5 +347,4 @@ int32_t CollationRootElements::findP(uint32_t p) const {
 }
 
 U_NAMESPACE_END
-
 #endif  // !UCONFIG_NO_COLLATION

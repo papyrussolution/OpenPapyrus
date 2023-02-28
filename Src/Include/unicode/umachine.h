@@ -452,5 +452,4 @@ typedef int32_t UChar32;
 #define U_SENTINEL (-1)
 
 #include "unicode/urename.h"
-
 #endif

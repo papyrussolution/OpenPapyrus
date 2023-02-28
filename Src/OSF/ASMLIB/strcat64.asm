@@ -19,8 +19,8 @@
 
 default rel
 
-global A_strcat: function                  ; Function A_strcat
-global ?OVR_strcat: function               ; ?OVR removed if standard function strcat overridden
+global A_strcat                  ; Function A_strcat
+global ?OVR_strcat               ; ?OVR removed if standard function strcat overridden
 
 ; Imported from strlen64.asm
 extern A_strlen

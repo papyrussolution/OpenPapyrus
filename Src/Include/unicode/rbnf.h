@@ -847,12 +847,7 @@ public:
 	 * @return A textual representation of the number.
 	 * @stable ICU 2.0
 	 */
-	virtual UnicodeString & format(double number,
-	    const UnicodeString & ruleSetName,
-	    UnicodeString & toAppendTo,
-	    FieldPosition& pos,
-	    UErrorCode & status) const;
-
+	virtual UnicodeString & format(double number, const UnicodeString & ruleSetName, UnicodeString & toAppendTo, FieldPosition& pos, UErrorCode & status) const;
 protected:
 	/**
 	 * Format a decimal number.
@@ -871,14 +866,9 @@ protected:
 	 * @return          Reference to 'appendTo' parameter.
 	 * @internal
 	 */
-	virtual UnicodeString & format(const number::impl::DecimalQuantity &number,
-	    UnicodeString & appendTo,
-	    FieldPosition& pos,
-	    UErrorCode & status) const override;
+	virtual UnicodeString & format(const number::impl::DecimalQuantity &number, UnicodeString & appendTo, FieldPosition& pos, UErrorCode & status) const override;
 public:
-
 	using NumberFormat::parse;
-
 	/**
 	 * Parses the specified string, beginning at the specified position, according
 	 * to this formatter's rules.  This will match the string against all of the
@@ -988,7 +978,6 @@ public:
 	 * @stable ICU 60
 	 */
 	virtual void setRoundingMode(ERoundingMode roundingMode) override;
-
 public:
 	/**
 	 * ICU "poor man's RTTI", returns a UClassID for this class.
@@ -996,14 +985,12 @@ public:
 	 * @stable ICU 2.8
 	 */
 	static UClassID U_EXPORT2 getStaticClassID(void);
-
 	/**
 	 * ICU "poor man's RTTI", returns a UClassID for the actual class.
 	 *
 	 * @stable ICU 2.8
 	 */
 	virtual UClassID getDynamicClassID(void) const override;
-
 	/**
 	 * Sets the decimal format symbols, which is generally not changed
 	 * by the programmer or user. The formatter takes ownership of
@@ -1013,7 +1000,6 @@ public:
 	 * @stable ICU 49
 	 */
 	virtual void adoptDecimalFormatSymbols(DecimalFormatSymbols* symbolsToAdopt);
-
 	/**
 	 * Sets the decimal format symbols, which is generally not changed
 	 * by the programmer or user. A clone of the symbols is created and
@@ -1030,22 +1016,18 @@ private:
 
 	// this will ref the localizations if they are not NULL
 	// caller must deref to get adoption
-	RuleBasedNumberFormat(const UnicodeString & description, LocalizationInfo* localizations,
-	    const Locale& locale, UParseError& perror, UErrorCode & status);
-
+	RuleBasedNumberFormat(const UnicodeString & description, LocalizationInfo* localizations, const Locale& locale, UParseError& perror, UErrorCode & status);
 	void init(const UnicodeString & rules, LocalizationInfo* localizations, UParseError& perror, UErrorCode & status);
 	void initCapitalizationContextInfo(const Locale& thelocale);
 	void dispose();
 	void stripWhitespace(UnicodeString & src);
 	void initDefaultRuleSet();
 	NFRuleSet* findRuleSet(const UnicodeString & name, UErrorCode & status) const;
-
 	/* friend access */
 	friend class NFSubstitution;
 	friend class NFRule;
 	friend class NFRuleSet;
 	friend class FractionalPartSubstitution;
-
 	inline NFRuleSet * getDefaultRuleSet() const;
 	const RuleBasedCollator * getCollator() const;
 	DecimalFormatSymbols * initializeDecimalFormatSymbols(UErrorCode & status);
@@ -1083,15 +1065,11 @@ private:
 #if !UCONFIG_NO_COLLATION
 	inline bool RuleBasedNumberFormat::isLenient(void) const { return lenient; }
 #endif
-
 inline NFRuleSet* RuleBasedNumberFormat::getDefaultRuleSet() const { return defaultRuleSet; }
 
 U_NAMESPACE_END
-
 /* U_HAVE_RBNF */
 #endif
-
 #endif /* U_SHOW_CPLUSPLUS_API */
-
 /* RBNF_H */
 #endif

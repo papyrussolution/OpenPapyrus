@@ -1,7 +1,7 @@
 ;*************************  physseed64.asm  **********************************
 ; Author:           Agner Fog
 ; Date created:     2010-08-03
-; Last modified:    2013-09-13
+; Last modified:    2016-11-03
 ; Source URL:       www.agner.org/optimize
 ; Project:          asmlib.zip
 ; C++ prototype:
@@ -26,27 +26,23 @@
 ; 
 ; The return value will indicate the availability of a physical random number generator
 ; even if NumSeeds = 0.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;
 default rel
 
 %define NUM_TRIES   20                 ; max number of tries for rdseed and rdrand instructions
-
 %define TESTING     0                  ; 1 for test only
 
 global PhysicalSeed
 
 ; Direct entries to CPU-specific versions
-global PhysicalSeedNone: function
-global PhysicalSeedRDTSC: function
-global PhysicalSeedVIA: function
-global PhysicalSeedRDRand: function
-global PhysicalSeedRDSeed function
-
-; ***************************************************************************
+global PhysicalSeedNone
+global PhysicalSeedRDTSC
+global PhysicalSeedVIA
+global PhysicalSeedRDRand
+global PhysicalSeedRDSeed
+;
 ; Define registers used for function parameters, used in 64-bit mode only
-; ***************************************************************************
- 
+;
 %IFDEF WINDOWS
   %define par1     rcx
   %define par2     rdx
@@ -87,13 +83,8 @@ PhysicalSeedRDSeed:
         jz      S150
         ; do 64 bits at a time
 S100:   mov     ebx, NUM_TRIES
-S110:   ; rdseed rax
-%if     TESTING
-        mov     eax, par3d
-        stc
-%ELSE
-        db 48h, 0Fh, 0C7h, 0F8h        ; rdseed rax
-%ENDIF
+S110:   rdseed  rax
+        ;db 48h, 0Fh, 0C7h, 0F8h        ; rdseed rax
         jc      S120
         ; failed. try again
         dec     ebx
@@ -108,13 +99,8 @@ S150:
         jz      S300
         ; an odd 32 bit remains
 S200:   mov     ebx, NUM_TRIES
-S210:   ; rdseed rax
-%if     TESTING
-        mov     eax, par3d
-        stc
-%ELSE
-        db 0Fh, 0C7h, 0F8h             ; rdseed eax
-%ENDIF
+S210:   rdseed rax
+        ;db 0Fh, 0C7h, 0F8h             ; rdseed eax
         jc      S220
         ; failed. try again
         dec     ebx
@@ -140,13 +126,8 @@ PhysicalSeedRDRand:
         jz      R150
         ; do 64 bits at a time
 R100:   mov     ebx, NUM_TRIES
-R110:   ; rdrand rax
-%if     TESTING
-        mov     eax, par3d
-        stc
-%ELSE
-        db 48h, 0Fh, 0C7h, 0F0h        ; rdrand rax
-%ENDIF
+R110:   rdrand  rax
+        ;db 48h, 0Fh, 0C7h, 0F0h        ; rdrand rax
         jc      R120
         ; failed. try again
         dec     ebx
@@ -161,13 +142,8 @@ R150:
         jz      R300
         ; an odd 32 bit remains
 R200:   mov     ebx, NUM_TRIES
-R210:   ; rdrand eax
-%if     TESTING
-        mov     eax, par3d
-        stc
-%ELSE
-        db 0Fh, 0C7h, 0F0h             ; rdrand eax
-%ENDIF
+R210:   rdrand  eax
+        ;db 0Fh, 0C7h, 0F0h             ; rdrand eax
         jc      R220
         ; failed. try again
         dec     ebx
@@ -324,7 +300,7 @@ PhysicalSeedDispatcher:
         xor     ecx, ecx
         cpuid
         bt      ebx, 18
-       ; jc      USE_RDSEED             ; not tested yet!!
+        jc      USE_RDSEED
 
 P200:   ; test if RDRAND supported
         mov     eax, 1
@@ -377,12 +353,9 @@ P800:   mov     [PhysicalSeedDispatch], rax
 %ENDIF
         pop     rbx
         jmp     rax                    ; continue in dispatched version
-        
-
-; -----------------------------------------------------------------
+;
 ;  Data section for dispatcher
-; -----------------------------------------------------------------
-
+;
 SECTION .data
 
 ; Pointer to appropriate versions. Initially point to dispatcher

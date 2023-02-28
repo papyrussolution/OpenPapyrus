@@ -20,8 +20,13 @@
 ; Copyright (c) 2007-2014 GNU LGPL License v. 3.0 www.gnu.org/licenses/lgpl.html
 ;******************************************************************************
 
-; extern InstructionSet: function
-%include "instrset64.asm"              ; include code for InstructionSet function
+; extern InstructionSet
+%ifdef __YASM_VER__
+  %include "instrset64.asm"              ; include code for _InstructionSet function
+%else
+  ; @sobolev %include "asm/instrset64.asm"          ; nasm looks in current path, not the path of the file
+  %include "../osf/asmlib/instrset64.asm"          ; nasm looks in current path, not the path of the file ; @sobolev
+%endif
 
 ; InstructionSet function return value:
 ;  4 or above = SSE2 supported

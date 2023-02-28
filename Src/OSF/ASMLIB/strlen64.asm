@@ -31,8 +31,8 @@
 
 default rel
 
-global A_strlen: function              ; Function A_strlen
-global ?OVR_strlen: function           ; ?OVR removed if standard function strlen overridden
+global A_strlen              ; Function A_strlen
+global ?OVR_strlen           ; ?OVR removed if standard function strlen overridden
 
 
 SECTION .text  align=16

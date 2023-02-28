@@ -1,0 +1,33 @@
+<html>
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+   <title>Uncrustify: where do the Spaces options work</title>
+</head>
+<body lang="en-US">
+<h1><a href="https://github.com/uncrustify/uncrustify">Uncrustify</a>:
+Where do the options work?</h1>
+<h2>Spaces for assign</h2>
+<p> 
+</p>
+<table border="1", width="100%">
+<tr>
+<td>
+<pre>
+int a = 5;
+<a title="sp_assign"><strong><font color="red">     █ █</font></strong></a>
+<a title="sp_before_assign"><strong><font color="red">     █ </a><a title="sp_after_assign">█</font></strong></a>
+int decimal<a title="sp_assign"><font color="red">█</font></a>=<a title="sp_assign"><font color="red">█</font></a>1;
+normal<a title="sp_assign"><font color="red">█</font></a>+=<a title="sp_assign"><font color="red">█</font></a>2;
+
+int find(size_t idx<a title="sp_assign_default"><font color="red">█</font></a>=<a title="sp_assign_default"><font color="red">█</font></a>0);
+
+enum FLAGS {
+    FLAGS_decimal<a title="sp_enum_assign, sp_enum_before_assign"><font color="red">█</font></a>=<a title="sp_enum_assign, sp_enum_after_assign"><font color="red">█</font></a>1,
+
+return [<a title="sp_cpp_lambda_assign"><font color="red">█</font></a>=<a title="sp_cpp_lambda_assign"><font color="red">█</font></a>](T* t) {  };
+</pre>
+</td>
+</tr>
+</table>
+</body>
+</html>

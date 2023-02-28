@@ -760,6 +760,10 @@ int PPBillImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 			param_val.Z();
 		pFile->AppendParam(pSect, fld_name, param_val, 1);
 		// } @v11.5.6 
+		// @v11.6.5 {
+		PPGetSubStr(params, IMPEXPPARAM_BILH_OUTERFORMATVER, fld_name);
+		pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(OuterFormatVer), 1);
+		// } @v11.6.5 
 	}
 	PPGetSubStr(params, IMPEXPPARAM_BILH_FLAGS, fld_name);
 	pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(Flags), 1);
@@ -775,7 +779,9 @@ int PPBillImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const Stri
 	Flags = 0;
 	PredefFormat = piefUndef;
 	int    ok = 1;
-	SString params, fld_name, param_val;
+	SString params;
+	SString fld_name;
+	SString param_val;
 	StringSet excl;
 	RVALUEPTR(excl, pExclParamList);
 	THROW(PPLoadText(PPTXT_IMPEXPPARAM_BILH, params));
@@ -820,6 +826,13 @@ int PPBillImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const Stri
 		if(pFile->GetParam(pSect, fld_name, param_val) > 0)
 			Object2SrchCode = param_val;
 	}
+	// @v11.6.5 {
+	if(PPGetSubStr(params, IMPEXPPARAM_BILH_OUTERFORMATVER, fld_name)) {
+		excl.add(fld_name);
+		if(pFile->GetParam(pSect, fld_name, param_val) > 0)
+			OuterFormatVer = param_val;
+	}
+	// } @v11.6.5 
 	if(PPGetSubStr(params, IMPEXPPARAM_BILH_PREDEFFMT, fld_name)) {
 		excl.add(fld_name);
 		if(pFile->GetParam(pSect, fld_name, param_val) > 0)
@@ -850,11 +863,13 @@ IMPL_HANDLE_EVENT(BillHdrImpExpDialog)
 	clearEvent(event);
 }
 
-void BillHdrImpExpDialog::SetupCtrls(long direction)
+void BillHdrImpExpDialog::SetupCtrls(long direction /* 0 - import, 1 - export */)
 {
 	// @v10.7.11 disableCtrls(direction == 0, CTL_IMPEXPBILH_FLAGS, CTLSEL_IMPEXPBILH_IMPOP, 0);
 	// @v10.7.11 disableCtrl(CTL_IMPEXPBILH_FLAGS, direction == 0);
 	disableCtrl(CTLSEL_IMPEXPBILH_IMPOP, direction == 0);
+	disableCtrl(CTL_IMPEXPBILH_OUTRFMTV, direction == 1); // @v11.6.5
+	showCtrl(CTL_IMPEXPBILH_OUTRFMTV, direction == 0); // @v11.6.5
 	DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 0, direction == 0);
 	// @v10.7.11 DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 1, direction == 0 && !(Data.Flags & PPBillImpExpParam::fImpRowsFromSameFile));
 	DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 3, direction);
@@ -892,6 +907,8 @@ int BillHdrImpExpDialog::setDTS(const PPBillImpExpParam * pData)
 	SetupOprKindCombo(this, CTLSEL_IMPEXPBILH_IMPOP, Data.ImpOpID, 0, &op_types, 0);
 	setCtrlString(CTL_IMPEXPBILH_SRCHCODE1, Data.Object1SrchCode);
 	setCtrlString(CTL_IMPEXPBILH_SRCHCODE2, Data.Object2SrchCode);
+	setCtrlString(CTL_IMPEXPBILH_OUTRFMTV, Data.OuterFormatVer); // @v11.6.5
+	//setCtrlString(CTL_IMPEX, Data.Object2SrchCode);
 	// @v11.5.6 {
 	{
 		ObjTagFilt ot_filt;
@@ -913,6 +930,7 @@ int BillHdrImpExpDialog::getDTS(PPBillImpExpParam * pData)
 	getCtrlData(CTLSEL_IMPEXPBILH_IMPOP, &Data.ImpOpID);
 	getCtrlString(CTL_IMPEXPBILH_SRCHCODE1, Data.Object1SrchCode);
 	getCtrlString(CTL_IMPEXPBILH_SRCHCODE2, Data.Object2SrchCode);
+	getCtrlString(CTL_IMPEXPBILH_OUTRFMTV, Data.OuterFormatVer); // @v11.6.5
 	getCtrlData(CTLSEL_IMPEXPBILH_REGTAG, &Data.FixTagID); // @v11.5.6
 	ASSIGN_PTR(pData, Data);
 	CATCH
@@ -5939,7 +5957,13 @@ DocNalogRu_Generator::File::File(DocNalogRu_Generator & rG, const FileInfo & rHi
 		ver_buf.Space().Cat(ver.ToStr(temp_buf));
 		N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_VERPROG)/*"ВерсПрог"*/, ver_buf);
 	}
-	N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_VERFORM)/*"ВерсФорм"*/, "5.02"); // @v11.6.5 "5.01"-->"5.02"
+	{
+		if(rHi.FileFormatVer.NotEmpty())
+			temp_buf = rHi.FileFormatVer;
+		else
+			temp_buf = "5.01";
+		N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_VERFORM)/*"ВерсФорм"*/, temp_buf);
+	}
 	{
 		SXml::WNode n_(rG.P_X, rG.GetToken_Ansi(PPHSC_RU_EDISIDESINFO)); // Сведения об участниках электронного документооборота
 		if(rHi.ProviderPersonID) {
@@ -6709,8 +6733,11 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillImpExpParam & rParam, const PPBil
 		PPID   main_org_id = GetMainOrgID(); // PPOBJ_PERSON
 		PPID   contragent_id = ObjectToPerson(rBp.Rec.Object, 0); // PPOBJ_PERSON
 		DocNalogRu_Generator::FileInfo _hi;
+		// @v11.6.5 {
+		if(rParam.OuterFormatVer.NotEmpty())
+			_hi.FileFormatVer = rParam.OuterFormatVer;
+		// } @v11.6.5 
 		THROW(g.CreateHeaderInfo("DP_REZRUISP", main_org_id, contragent_id, dto_id, rFileName, _hi));
-
 		THROW(GetOpData(rBp.Rec.OpID, &op_rec) > 0);
 		if(op_rec.LinkOpID) {
 			THROW(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0);
@@ -6914,6 +6941,10 @@ int WriteBill_NalogRu2_Invoice2(const PPBillImpExpParam & rParam, const PPBillPa
 		LDATE  agt_date;
 		LDATE  agt_expiry;
 		g.GetAgreementParams(rBp/*.Rec.Object*/, agt_code, agt_date, agt_expiry);
+		// @v11.6.5 {
+		if(rParam.OuterFormatVer.NotEmpty())
+			_hi.FileFormatVer = rParam.OuterFormatVer;
+		// } @v11.6.5 
 		THROW(g.CreateHeaderInfo(pHeaderSymb/*"ON_NSCHFDOPPRMARK"*/, main_org_id, contragent_id, dto_id, rFileName, _hi));
 		THROW(GetOpData(rBp.Rec.OpID, &op_rec) > 0);
 		if(op_rec.LinkOpID) {
@@ -7099,6 +7130,10 @@ int WriteBill_NalogRu2_Invoice(const PPBillImpExpParam & rParam, const PPBillPac
 		rBp.GetMainOrgID_(&main_org_id);
 		PPID   contragent_id = ObjectToPerson(rBp.Rec.Object, 0); // PPOBJ_PERSON
 		DocNalogRu_Generator::FileInfo _hi;
+		// @v11.6.5 {
+		if(rParam.OuterFormatVer.NotEmpty())
+			_hi.FileFormatVer = rParam.OuterFormatVer;
+		// } @v11.6.5 
 		THROW(g.CreateHeaderInfo("ON_SFAKT", main_org_id, contragent_id, dto_id, rFileName, _hi));
 		THROW(GetOpData(rBp.Rec.OpID, &op_rec) > 0);
 		if(op_rec.LinkOpID) {
@@ -7228,6 +7263,10 @@ int WriteBill_NalogRu2_UPD(const PPBillImpExpParam & rParam, const PPBillPacket 
 		LDATE  agt_date = ZERODATE;
 		LDATE  agt_expiry = ZERODATE;
 		g.GetAgreementParams(rBp/*.Rec.Object*/, agt_code, agt_date, agt_expiry);
+		// @v11.6.5 {
+		if(rParam.OuterFormatVer.NotEmpty())
+			_hi.FileFormatVer = rParam.OuterFormatVer;
+		// } @v11.6.5 
 		THROW(g.CreateHeaderInfo("ON_NSCHFDOPPR", main_org_id, contragent_id, dto_id, rFileName, _hi)); // @v10.6.10 ON_SCHFDOPPR-->ON_NSCHFDOPR // @v11.5.11 ON_NSCHFDOPR-->ON_NSCHFDOPPR
 		THROW(GetOpData(rBp.Rec.OpID, &op_rec) > 0);
 		if(op_rec.LinkOpID) {

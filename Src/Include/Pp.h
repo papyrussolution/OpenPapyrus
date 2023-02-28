@@ -33546,6 +33546,7 @@ public:
 	PPID   FixTagID;          // @v11.5.6 @persistent Тег, фиксирующий факт экспорта документа. Если в документе такой тег установлен, то документ снова не экспортируется.
 	SString Object1SrchCode;  // @persistent
 	SString Object2SrchCode;  // @persistent
+	SString OuterFormatVer;   // @v11.6.5 @persistent Номер формата внешних данных. Если пусто, то применяется программно предопределенное значение.
 };
 //
 // Экспорт/импорт инвентаризации
@@ -36191,12 +36192,7 @@ public:
 		char   TaIdent[64];
 	};
 	struct TransactionResult { // @flat
-		TransactionResult() : Status(stUndef), ResultFlags(0)
-		{
-			PTR32(TaIdent)[0] = 0;
-			PTR32(CustomerIdent)[0] = 0;
-			PTR32(ErrMessage)[0] = 0;
-		}
+		TransactionResult();
 		enum {
 			stRejected = -1,
 			stUndef    = 0,
@@ -37956,6 +37952,7 @@ struct TSessionFilt : public PPBaseFilt {
 	};
 
 	TSessionFilt();
+	TSessionFilt(const TSessionFilt & rS);
 	TSessionFilt & FASTCALL operator = (const TSessionFilt & s);
 	bool   FASTCALL CheckIdle(long flags) const;
 	bool   FASTCALL CheckWrOff(long flags) const;
@@ -37988,6 +37985,8 @@ struct TSessionFilt : public PPBaseFilt {
 	long   Flags;        // Флаги (TSessionFilt::fXXX)
 	int16  Ft_Idle;      // (0) ignored, (<0) не показывать простои, (>0) показывать простои
 	uint16 Reserve;      // @alignment
+private:
+	void   Helper_Init();
 };
 
 struct TSessionTotal {
@@ -47468,6 +47467,7 @@ public:
 		Document & Z();
 		int    FromBillPacket(const PPBillPacket & rS, const TSVector <CliStatus> * pCliStatusList, PPIDArray * pGoodsIdList);
 		int    FromCCheckPacket(const CCheckPacket & rS, PPID posNodeID, PPIDArray * pGoodsIdList);
+		int    FromTSessionPacket(const TSessionPacket & rS, PPIDArray * pGoodsIdList); // @v11.6.5
 		int    FromJsonObject(const SJson * pJsObj);
 		int    FromJson(const char * pJson);
 		SJson * ToJsonObject() const;
@@ -47854,6 +47854,20 @@ private:
 	int    MakeInnerGoodsList(const PPIDArray & rGoodsIdList);
 	int    MakeDocDeclareJs(const StyloQCommandList::Item & rCmdItem, const char * pDl600Symb, SString & rDocDeclaration);
 	//
+	// Descr: Блок параметров функции MakePrcJsList()
+	//
+	struct MakePrcJsListParam {
+		MakePrcJsListParam(const SBinaryChunk & rBcOwnIdent);
+		MakePrcJsListParam(const SBinaryChunk & rBcOwnIdent, const StyloQAttendancePrereqParam & rOuterParam);
+		MakePrcJsListParam(const SBinaryChunk & rBcOwnIdent, const StyloQIncomingListParam & rOuterParam);
+		const  SBinaryChunk & R_BcOwnIdent;
+		PPID   QuotKindID;
+		PPID   LocID;
+		int    MaxScheduleDays;
+	};
+
+	int    MakePrcJsList(const MakePrcJsListParam & rParam, SJson * pJsObj, const PPIDArray & rPrcList, PPObjTSession & rTSesObj, Stq_CmdStat_MakeRsrv_Response * pStat);
+	//
 	// Descr: Флаги функций ProcessCommand_XXX
 	//
 	enum {
@@ -47868,6 +47882,7 @@ private:
 	int    ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
 	int    ProcessCommand_IncomingListOrder(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const LDATETIME * pIfChangedSince, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
 	int    ProcessCommand_IncomingListCCheck(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const LDATETIME * pIfChangedSince, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
+	int    ProcessCommand_IncomingListTSess(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const LDATETIME * pIfChangedSince, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
 	int    ProcessCommand_RequestNotificationList(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SJson * pJsArray);
 	//
 	// Descr: Обрабатывает команду создания документа по инициативе клиента.
@@ -47910,6 +47925,7 @@ private:
 	};
 
 	int    FetchPersonFromClientPacket(const StyloQCore::StoragePacket & rCliPack, PPID * pPersonID, bool logResult);
+	int    FetchProcessorFromClientPacket(const StyloQCore::StoragePacket & rCliPack, PPID * pPrcID, bool logResult);
 	int    AcceptStyloQClientAsPerson(const StyloQCore::StoragePacket & rCliPack, PPID personKind, PPID * pPersonID, int use_ta);
 	int    QueryConfigIfNeeded(RoundTripBlock & rB);
 	int    QuerySvcConfig(const SBinaryChunk & rSvcIdent, StyloQConfig &);
@@ -48062,7 +48078,9 @@ public:
 		actionGoodsItemCorrection = 0x0020, // Корректировка позиций (количество, цена, удаление позиции, замена товара)
 		actionCCheckCreat         = 0x0040, // @v11.5.2 Создание чека
 		actionCCheckMod           = 0x0080, // @v11.5.2 Модификация чека
-		actionCCheckRegPrint      = 0x0100  // @v11.5.2 Печать чека на регистраторе
+		actionCCheckRegPrint      = 0x0100, // @v11.5.2 Печать чека на регистраторе
+		actionTSessCreat          = 0x0200, // @v11.6.5
+		actionTSessTmSet          = 0x0400, // @v11.6.5
 	};
 	enum {
 		fBillWithMarksOnly        = 0x0001, // Только документы, в которых есть марки честный знак или егаис
@@ -52482,9 +52500,12 @@ public:
 	int    Init();
 	int    AddEntry(const char * pCode, const char * pName, const char * pCategory, const char * pBrand);
 	int    Run();
+	uint   GetResultCount() const;
+	int    GetResult(uint idx, IntermediateImportedGoodsCollection::Entry & rEntry);
 private:
 	void   ProcessDupCodeList(const LongArray & rDupCodeIdxList);
 	IntermediateImportedGoodsCollection L;
+	IntermediateImportedGoodsCollection Result;
 };
 //
 //

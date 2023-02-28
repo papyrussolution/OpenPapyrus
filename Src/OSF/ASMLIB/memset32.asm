@@ -1,7 +1,7 @@
 ;*************************  memset32.asm  *************************************
 ; Author:           Agner Fog
 ; Date created:     2008-07-19
-; Last modified:    2013-09-11
+; Last modified:    2016-11-06
 ; Description:
 ; Faster version of the standard memset function:
 ; void * A_memset(void * dest, int c, size_t count);
@@ -17,21 +17,23 @@
 ; Position-independent code is generated if POSITIONINDEPENDENT is defined.
 ;
 ; Optimization:
-; Uses XMM registers to set 16 bytes at a time, aligned.
+; Uses vector registers to set many bytes at a time, aligned.
 ;
 ; The latest version of this file is available at:
 ; www.agner.org/optimize/asmexamples.zip
-; Copyright (c) 2008-2013 GNU General Public License www.gnu.org/licenses
+; Copyright (c) 2008-2016 GNU General Public License www.gnu.org/licenses
 ;******************************************************************************
 
-global _A_memset: function             ; Function memset
-global ?OVR_memset: function           ; ?OVR removed if standard function memset overridden
-global _GetMemsetCacheLimit: function  ; Data blocks bigger than this will be stored uncached by memset
-global _SetMemsetCacheLimit: function  ; Change limit in GetMemsetCacheLimit
+global _A_memset             ; Function memset
+global ?OVR_memset           ; ?OVR removed if standard function memset overridden
+global _GetMemsetCacheLimit  ; Data blocks bigger than this will be stored uncached by memset
+global _SetMemsetCacheLimit  ; Change limit in GetMemsetCacheLimit
 ; Direct entries to CPU-specific versions
-global _memset386:  function           ; version for old CPUs without SSE
-global _memsetSSE2: function           ; SSE2 version
-global _memsetAVX:  function           ; version for CPUs with fast 256-bit store
+global _memset386            ; version for old CPUs without SSE
+global _memsetSSE2           ; SSE2 version
+global _memsetAVX            ; version for CPUs with fast 256-bit store
+global _memsetAVX512F        ; version for CPUs with fast 512-bit store
+global _memsetAVX512BW       ; version for CPUs with fast 512-bit store
 
 
 ; Imported from cachesize32.asm:
@@ -73,6 +75,126 @@ RP:                                    ; reference point ebx = offset RP
 
 %ENDIF
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; AVX512BW Version for processors with fast 512 bits write
+; Requires AVX512BW, BMI2
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+align 16
+
+_memsetAVX512BW:                       ; AVX512BW version. Use zmm register
+memsetAVX512BW@:                       ; local label
+        mov     edx, [esp+4]           ; dest
+        movzx   eax, byte [esp+8]      ; c
+        imul    eax, 01010101H         ; Broadcast c into all bytes of eax
+        mov     ecx, [esp+12]          ; count
+        push    edi
+
+        mov     edi, edx               ; save dest
+        vpbroadcastd zmm0, eax         ; Broadcast further into 64 bytes
+
+        cmp     ecx, 40H
+        jbe     L520
+        cmp     ecx, 80H
+        jbe     L500                   ; Use simpler code if count <= 128
+
+L050:   ; Common code for memsetAVX512BW and memsetAVX512F:
+
+        ; count > 80H
+        ; store first 40H bytes
+        vmovdqu64 [edx], zmm0
+
+        ; find first 40H boundary
+        add     edx, 40H
+        and     edx, -40H
+
+        ; find last 40H boundary
+        lea     eax, [edi + ecx]
+        and     eax, -40H
+        sub     edx, eax               ; negative count from last 40H boundary
+        ; Check if count very big
+        cmp     ecx, [_MemsetCacheLimit]        
+        ja      L200                   ; Use non-temporal store if count > MemsetCacheLimit
+
+L100:   ; main loop, aligned
+        vmovdqa64 [eax+edx], zmm0
+        add     edx, 40H
+        jnz     L100
+
+L110:   ; remaining 0 - 3FH bytes
+        ; overlap previous write
+        vmovdqu64 [edi + ecx - 40H], zmm0
+
+        vzeroupper                     ; is this needed?
+        mov     eax, edi               ; return dest
+        pop     edi
+        ret
+
+align 16
+L200:   ; loop with non-temporal stores
+        vmovntdq [eax+edx], zmm0
+        add     edx, 40H
+        jnz     L200
+        sfence
+        jmp     L110
+
+align 16 ; short versions, memsetAVX512BW only:
+
+L500:   ; count = 41H - 80H
+        vmovdqu64 [edx], zmm0
+        add     edx, 40H
+        sub     ecx, 40H
+
+L520:   ; count = 00H - 40H
+        or      eax, -1                ; if count = 1-31: |  if count = 32-63:
+        bzhi    eax, eax, ecx          ; -----------------|--------------------
+        kmovd   k1, eax                ;       count 1's  |  all 1's
+        xor     eax, eax               ;                  |
+        sub     ecx, 32                ;                  |
+        cmovb   ecx, eax               ;               0  |  count-32
+        dec     eax                    ;                  |
+        bzhi    eax, eax, ecx          ;                  |
+        kmovd   k2, eax                ;               0  |  count-32 1's
+        kunpckdq k3, k2, k1            ; low 32 bits from k1, high 32 bits from k2. total = count 1's
+        vmovdqu8 [edx]{k3}, zmm0
+        vzeroupper
+        mov     eax, edi               ; return dest
+        pop     edi
+        ret
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; AVX512F Version for processors with fast 512 bits write
+; Requires AVX512F
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+align 16
+
+_memsetAVX512F:                        ; AVX512BW version. Use zmm register
+memsetAVX512F@:                        ; local label
+        mov     edx, [esp+4]           ; dest
+        movzx   eax, byte [esp+8]      ; c
+        mov     ecx, [esp+12]          ; count
+        imul    eax, 01010101H         ; Broadcast c into all bytes of eax
+        cmp     ecx, 80H
+        jbe     B010                   ; Use memsetAVX code if count <= 128
+        push    edi
+        mov     edi, edx               ; save dest
+        vpbroadcastd zmm0, eax         ; Broadcast further into 64 bytes
+        jmp     L050                   ; Use preceding code
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; AVX Version for processors with fast 256 bits write
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 _memsetAVX:  ; AVX version. Use ymm register
 %IFDEF POSITIONINDEPENDENT
         push    ebx
@@ -89,6 +211,8 @@ memsetAVX@: ; local label
         mov     ecx, [esp+12]          ; count
 %ENDIF        
         imul    eax, 01010101H         ; Broadcast c into all bytes of eax
+
+B010:   ; entry from AVX512F version
         cmp     ecx, 16
         ja      B100
         
@@ -201,6 +325,7 @@ K400:   ; Loop through 32-bytes blocks
         vmovntps [ecx+edx], ymm0
         add     edx, 20H
         jnz     K400
+        sfence
         vzeroupper
         
 K500:   ; the last part from ecx to eax is < 32 bytes. write last 32 bytes with overlap
@@ -213,6 +338,11 @@ K600:   ; 16 < count <= 32
         movups  [eax-10H], xmm0
         RETURNM        
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+;   SSE2 Version
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 align 16
 _memsetSSE2:  ; SSE2 version. Use xmm register
@@ -312,6 +442,7 @@ M600:   ; Loop through regular part
         movntdq [ecx+edx], xmm0
         add     edx, 10H
         jnz     M600
+        sfence
         
 M700:   ; Do the last irregular part (same as M300)
 %IFDEF  POSITIONINDEPENDENT            ; (ebx is pushed)
@@ -326,6 +457,11 @@ M700:   ; Do the last irregular part (same as M300)
         RETURNM
      
         
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+;   80386 Version
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 _memset386:  ; 80386 version
 %IFDEF POSITIONINDEPENDENT
@@ -368,13 +504,18 @@ N400:   rep     stosb                  ; store any remaining bytes
         pop     edi
         RETURNM
         
-        
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
 ; CPU dispatching for memset. This is executed only once
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        
 memsetCPUDispatch:
 %IFNDEF POSITIONINDEPENDENT
         pushad
         call    GetMemsetCacheLimit@                    ; calculate cache limit
         call    _InstructionSet                         ; get supported instruction set
+        mov     ebx, eax
         ; Point to generic version of memset
         mov     dword [memsetDispatch],  memset386@
         cmp     eax, 4                 ; check SSE2
@@ -386,6 +527,12 @@ memsetCPUDispatch:
         test    eax, eax
         jz      Q100
         mov     dword [memsetDispatch],  memsetAVX@
+        cmp     ebx, 15
+        jb      Q100
+        mov     dword [memsetDispatch],  memsetAVX512F@
+        cmp     ebx, 16
+        jb      Q100
+        mov     dword [memsetDispatch],  memsetAVX512BW@
         
 Q100:   popad
         ; Continue in appropriate version of memset
@@ -407,6 +554,8 @@ Q100:   popad
         test    eax, eax
         jz      Q100
         lea     esi, [ebx+memsetAVX@-RP]
+        ; memsetAVX512F and memsetAVX512BW have no position-independent version
+
 Q100:   mov     [ebx+memsetDispatch-RP], esi
         popad
         ; Continue in appropriate version of memset
@@ -461,6 +610,7 @@ U400:
         mov     [ebx], eax
         pop     ebx
         ret
+
 
 SECTION .data
 align 16

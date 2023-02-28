@@ -15,11 +15,11 @@
 ;******************************************************************************
 default rel
 
-global A_popcount: function
+global A_popcount
 
 ; Direct entries to CPU-specific versions
-global popcountGeneric: function
-global popcountSSE42: function
+global popcountGeneric
+global popcountSSE42
 
 ; Imported from instrset32.asm:
 extern InstructionSet                 ; Instruction set for CPU dispatcher

@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2005-2013, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- */
+// Copyright (C) 2005-2013, International Business Machines Corporation and others.  All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -15,20 +11,9 @@
 
 U_NAMESPACE_BEGIN
 
-CharsetRecog_Unicode::~CharsetRecog_Unicode()
-{
-	// nothing to do
-}
-
-CharsetRecog_UTF_16_BE::~CharsetRecog_UTF_16_BE()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_UTF_16_BE::getName() const
-{
-	return "UTF-16BE";
-}
+CharsetRecog_Unicode::~CharsetRecog_Unicode() {} // nothing to do
+CharsetRecog_UTF_16_BE::~CharsetRecog_UTF_16_BE() {} // nothing to do
+const char * CharsetRecog_UTF_16_BE::getName() const { return "UTF-16BE"; }
 
 // UTF-16 confidence calculation. Very simple minded, but better than nothing.
 //   Any 8 bit non-control characters bump the confidence up. These have a zero high byte,
@@ -36,7 +21,8 @@ const char * CharsetRecog_UTF_16_BE::getName() const
 //   NULs are a contra-indication, they will appear commonly if the actual encoding is UTF-32.
 //   NULs should be rare in actual text.
 
-static int32_t adjustConfidence(UChar codeUnit, int32_t confidence) {
+static int32_t adjustConfidence(UChar codeUnit, int32_t confidence) 
+{
 	if(codeUnit == 0) {
 		confidence -= 10;
 	}
@@ -77,15 +63,8 @@ bool CharsetRecog_UTF_16_BE::match(InputText* textIn, CharsetMatch * results) co
 	return (confidence > 0);
 }
 
-CharsetRecog_UTF_16_LE::~CharsetRecog_UTF_16_LE()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_UTF_16_LE::getName() const
-{
-	return "UTF-16LE";
-}
+CharsetRecog_UTF_16_LE::~CharsetRecog_UTF_16_LE() {} // nothing to do
+const char * CharsetRecog_UTF_16_LE::getName() const { return "UTF-16LE"; }
 
 bool CharsetRecog_UTF_16_LE::match(InputText* textIn, CharsetMatch * results) const
 {
@@ -115,10 +94,7 @@ bool CharsetRecog_UTF_16_LE::match(InputText* textIn, CharsetMatch * results) co
 	return (confidence > 0);
 }
 
-CharsetRecog_UTF_32::~CharsetRecog_UTF_32()
-{
-	// nothing to do
-}
+CharsetRecog_UTF_32::~CharsetRecog_UTF_32() {} // nothing to do
 
 bool CharsetRecog_UTF_32::match(InputText* textIn, CharsetMatch * results) const
 {
@@ -167,15 +143,8 @@ bool CharsetRecog_UTF_32::match(InputText* textIn, CharsetMatch * results) const
 	return (confidence > 0);
 }
 
-CharsetRecog_UTF_32_BE::~CharsetRecog_UTF_32_BE()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_UTF_32_BE::getName() const
-{
-	return "UTF-32BE";
-}
+CharsetRecog_UTF_32_BE::~CharsetRecog_UTF_32_BE() {} // nothing to do
+const char * CharsetRecog_UTF_32_BE::getName() const { return "UTF-32BE"; }
 
 int32_t CharsetRecog_UTF_32_BE::getChar(const uint8 * input, int32_t index) const
 {
@@ -183,15 +152,8 @@ int32_t CharsetRecog_UTF_32_BE::getChar(const uint8 * input, int32_t index) cons
 		input[index + 2] <<  8 | input[index + 3];
 }
 
-CharsetRecog_UTF_32_LE::~CharsetRecog_UTF_32_LE()
-{
-	// nothing to do
-}
-
-const char * CharsetRecog_UTF_32_LE::getName() const
-{
-	return "UTF-32LE";
-}
+CharsetRecog_UTF_32_LE::~CharsetRecog_UTF_32_LE() {} // nothing to do
+const char * CharsetRecog_UTF_32_LE::getName() const { return "UTF-32LE"; }
 
 int32_t CharsetRecog_UTF_32_LE::getChar(const uint8 * input, int32_t index) const
 {

@@ -7,6 +7,8 @@
 #ifndef ABSL_STRINGS_INTERNAL_STR_FORMAT_EXTENSION_H_
 #define ABSL_STRINGS_INTERNAL_STR_FORMAT_EXTENSION_H_
 
+#include <absl/strings/internal/str_format/output.h>
+
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 

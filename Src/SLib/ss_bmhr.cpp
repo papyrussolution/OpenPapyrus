@@ -1,5 +1,5 @@
 // SS_BMHR.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2010, 2014, 2016, 2018, 2020
+// Copyright (c) A.Sobolev 2006, 2007, 2010, 2014, 2016, 2018, 2020, 2023
 // @codepage UTF-8
 // Реализация алгоритма Boyer-Moore-Horspool-Raita
 // для поиска подстроки в строке
@@ -230,10 +230,10 @@ int SSrchPattern::Preprocess()
 	memzero(P_PreprocBuf, PreprocSize);
 	size_t len = Len;
 	if(len > 0) {
-		size_t i;
+		uint i;
 		if(Flags & fNoCase) {
 			if(Alg == algBmGoodSfx)
-				i = (256 + Len * 3) * sizeof(uint16);
+				i = static_cast<uint>((256 + Len * 3) * sizeof(uint16));
 			else if(Alg == algBmBadChr)
 				i = 256 * sizeof(uint16);
 			else
@@ -442,7 +442,7 @@ int SSrchPattern::Search_BC(const char * pText, size_t start, size_t end, size_t
 		for(size_t i = le + start; i < end;) {
 			const uint8 cur = p_coll[p_text[i]];
 			if(cur == last) {
-				int    k = i - 1;
+				int    k = static_cast<int>(i - 1);
 				int    j = minus_one;
 				while(k > -1 && j > -1 && p_coll[p_text[k]] == P_Pat[j]) {
 					--k;

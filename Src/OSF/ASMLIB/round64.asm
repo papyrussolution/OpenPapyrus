@@ -11,8 +11,8 @@
 
 default rel
 
-global RoundD: function
-global RoundF: function
+global RoundD
+global RoundF
 
 
 SECTION .text  align=16

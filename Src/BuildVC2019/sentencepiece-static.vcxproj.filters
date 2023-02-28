@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\OSF\sentencepiece\src\bpe_model.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\char_model.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\error.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\filesystem.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\model_factory.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\model_interface.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\normalizer.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\sentencepiece_processor.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\unigram_model.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\util.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\word_model.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\sentencepiece-pch.cpp" />
+    <ClCompile Include="..\OSF\sentencepiece\src\builtin_pb\pbwrp-sentencepiece_model.cpp" />
+    <ClCompile Include="..\OSF\sentencepiece\src\builtin_pb\pbwrp-sentencepiece.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\sentencepiece\src\builtin_pb\sentencepiece.pb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\builtin_pb\sentencepiece_model.pb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\bpe_model.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\common.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\normalizer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\freelist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\filesystem.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\init.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\sentencepiece_processor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\word_model.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\model_factory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\char_model.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\model_interface.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\testharness.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\src\unigram_model.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Proto">
+      <UniqueIdentifier>{6f0bbf63-26cb-4251-bce0-08c4c4c8c6ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{C2B7B476-25EE-370E-A0EA-179D1C0AF01C}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\sentencepiece\src\sentencepiece.proto">
+      <Filter>Proto</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\sentencepiece\src\sentencepiece_model.proto">
+      <Filter>Proto</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

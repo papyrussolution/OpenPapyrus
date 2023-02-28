@@ -27,7 +27,8 @@
 default rel
 
 ; structure definition and constants:
-%INCLUDE "randomah.asi"
+; @sobolev %INCLUDE "asm/randomah.asi"
+%include "../osf/asmlib/randomah.asi" ; @sobolev
 
 ; publics:
 global MotherBRandom, MotBRandom, ?Windows_MotBRandom
@@ -37,7 +38,6 @@ global MotherRandomInit, MotRandomInit
 global MotherRandomInitD, MotherRandomD, MotherIRandomD, MotherBRandomD
 %ENDIF
 
-
 section .data
 align 16
 
@@ -46,7 +46,6 @@ MotherInstance: ISTRUC CRandomMotherA
 IEND
 ; Size of structure
 MotherSize equ $-MotherInstance
-
 
 SECTION .CODE ALIGN=16   ; code segment
 
@@ -91,9 +90,8 @@ MotBRandom: ; PROC
         por     xmm1, oword [rcx+CRandomMotherA.one] ; Add exponent bits to get number in interval [1,2)
         movq    [rcx+CRandomMotherA.RanP1], xmm1           ; Store floating point number
         ret
-        
+       
 ;MotBRandom ENDP
-
         
 ; Single threaded version:
 ; extern "C" unsigned int MotherRandom();  // Get floating point random number
@@ -122,7 +120,6 @@ MotRandom:
         call    ?Windows_MotBRandom
         ret
 ;MotherRandom ENDP
-
 
 ; Single threaded version:
 ; extern "C" unsigned int MotherIRandom(int min, int max); // Get integer random number in desired interval
