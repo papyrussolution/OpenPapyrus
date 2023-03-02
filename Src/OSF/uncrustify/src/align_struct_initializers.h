@@ -9,7 +9,7 @@
 #ifndef ALIGN_STRUCT_INITIALIZERS_H_INCLUDED
 #define ALIGN_STRUCT_INITIALIZERS_H_INCLUDED
 
-#include "uncrustify_types.h"
+//#include "uncrustify_types.h"
 
 //! Aligns stuff inside a multi-line "= { ... }" sequence.
 void align_struct_initializers();

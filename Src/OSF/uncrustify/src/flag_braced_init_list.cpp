@@ -6,8 +6,8 @@
 #include <uncrustify-internal.h>
 #pragma hdrstop
 //#include "chunk.h"
-#include "flag_braced_init_list.h"
-#include "uncrustify.h"
+//#include "flag_braced_init_list.h"
+//#include "uncrustify.h"
 
 bool detect_cpp_braced_init_list(Chunk * pc, Chunk * next)
 {

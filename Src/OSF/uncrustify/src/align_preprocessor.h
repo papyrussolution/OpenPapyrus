@@ -9,7 +9,7 @@
 #ifndef ALIGN_PREPROCESSOR_H_INCLUDED
 #define ALIGN_PREPROCESSOR_H_INCLUDED
 
-#include "uncrustify_types.h"
+//#include "uncrustify_types.h"
 
 //! Scans the whole file for #defines. Aligns all within X lines of each other
 void align_preprocessor();

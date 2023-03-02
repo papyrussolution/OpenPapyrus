@@ -8,20 +8,6 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "combine.h"
-#include "combine_fix_mark.h"
-#include "combine_skip.h"
-#include "combine_tools.h"
-#include "EnumStructUnionParser.h"
-#include "flag_braced_init_list.h"
-#include "flag_parens.h"
-#include "lang_pawn.h"
-#include "mark_question_colon.h"
-#include "newlines.h"
-#include "prototypes.h"
-#include "tokenize_cleanup.h"
-#include "unc_tools.h"
-#include <limits>
 
 constexpr static auto LCURRENT = LCOMBINE;
 using namespace std;

@@ -7,9 +7,9 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "combine_tools.h"
-#include "unc_ctype.h"
-#include "uncrustify.h"
+//#include "combine_tools.h"
+//#include "unc_ctype.h"
+//#include "uncrustify.h"
 
 bool can_be_full_param(Chunk * start, Chunk * end)
 {

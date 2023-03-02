@@ -7,8 +7,8 @@
 #include <uncrustify-internal.h>
 #pragma hdrstop
 //#include "unc_text.h"
-#include "unc_ctype.h"
-#include "unicode.h" // encode_utf8()
+//#include "unc_ctype.h"
+//#include "unicode.h" // encode_utf8()
 
 using namespace std;
 

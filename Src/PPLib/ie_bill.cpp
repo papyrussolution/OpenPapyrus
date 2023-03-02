@@ -869,7 +869,9 @@ void BillHdrImpExpDialog::SetupCtrls(long direction /* 0 - import, 1 - export */
 	// @v10.7.11 disableCtrl(CTL_IMPEXPBILH_FLAGS, direction == 0);
 	disableCtrl(CTLSEL_IMPEXPBILH_IMPOP, direction == 0);
 	disableCtrl(CTL_IMPEXPBILH_OUTRFMTV, direction == 1); // @v11.6.5
+	disableCtrl(CTLSEL_IMPEXPBILH_REGTAG, direction == 1); // @v11.6.5
 	showCtrl(CTL_IMPEXPBILH_OUTRFMTV, direction == 0); // @v11.6.5
+	showCtrl(CTLSEL_IMPEXPBILH_REGTAG, direction == 0); // @v11.6.5
 	DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 0, direction == 0);
 	// @v10.7.11 DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 1, direction == 0 && !(Data.Flags & PPBillImpExpParam::fImpRowsFromSameFile));
 	DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 3, direction);

@@ -18,14 +18,14 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "newlines.h"
-#include "align_stack.h"
-#include "combine_skip.h"
-#include "flag_parens.h"
-#include "indent.h"
-#include "keywords.h"
-#include "prototypes.h"
-#include "space.h"
+//#include "newlines.h"
+//#include "align_stack.h"
+//#include "combine_skip.h"
+//#include "flag_parens.h"
+//#include "indent.h"
+//#include "keywords.h"
+//#include "prototypes.h"
+//#include "space.h"
 
 constexpr static auto LCURRENT = LNEWLINE;
 

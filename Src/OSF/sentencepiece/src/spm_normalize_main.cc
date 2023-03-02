@@ -53,9 +53,7 @@ int main(int argc, char * argv[])
 	else {
 		rest_args.push_back(absl::GetFlag(FLAGS_input));
 	}
-
 	NormalizerSpec spec;
-
 	if(!absl::GetFlag(FLAGS_model).empty()) {
 		ModelProto model_proto;
 		SentencePieceProcessor sp;
@@ -86,20 +84,16 @@ int main(int argc, char * argv[])
 
 	if(absl::GetFlag(FLAGS_decompile)) {
 		Builder::CharsMap chars_map;
-		CHECK_OK(
-			Builder::DecompileCharsMap(spec.precompiled_charsmap(), &chars_map));
+		CHECK_OK(Builder::DecompileCharsMap(spec.precompiled_charsmap(), &chars_map));
 		CHECK_OK(Builder::SaveCharsMap(absl::GetFlag(FLAGS_output), chars_map));
 	}
 	else {
 		const Normalizer normalizer(spec);
-		auto output =
-		    sentencepiece::filesystem::NewWritableFile(absl::GetFlag(FLAGS_output));
+		auto output = sentencepiece::filesystem::NewWritableFile(absl::GetFlag(FLAGS_output));
 		CHECK_OK(output->status());
-
 		if(rest_args.empty()) {
 			rest_args.push_back(""); // empty means that read from stdin.
 		}
-
 		std::string line;
 		for(const auto &filename : rest_args) {
 			auto input = sentencepiece::filesystem::NewReadableFile(filename);

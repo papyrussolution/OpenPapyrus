@@ -8,9 +8,9 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "unc_tools.h"
-#include "args.h"
-#include "output.h"
+//#include "unc_tools.h"
+//#include "args.h"
+//#include "output.h"
 /*
  * the test suite Coveralls: https://coveralls.io
  * will complains because these functions are only

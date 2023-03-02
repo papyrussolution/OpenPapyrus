@@ -7,8 +7,8 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "semicolons.h"
-#include "prototypes.h"
+//#include "semicolons.h"
+//#include "prototypes.h"
 
 static void remove_semicolon(Chunk * pc);
 

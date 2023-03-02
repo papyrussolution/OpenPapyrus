@@ -18,11 +18,11 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "space.h"
-#include "add_space_table.h"
+//#include "space.h"
+//#include "add_space_table.h"
 //#include "log_rules.h"
-#include "options_for_QT.h"
-#include "punctuators.h"
+//#include "options_for_QT.h"
+//#include "punctuators.h"
 
 using namespace std;
 using namespace uncrustify;

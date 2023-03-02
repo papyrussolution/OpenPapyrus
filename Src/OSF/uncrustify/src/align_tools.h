@@ -8,8 +8,8 @@
 #ifndef ALIGN_TOOLS_H_INCLUDED
 #define ALIGN_TOOLS_H_INCLUDED
 
-#include "chunk.h"
-#include "uncrustify_types.h"
+//#include "chunk.h"
+//#include "uncrustify_types.h"
 /**
  * @brief return the chunk the follows after a C array
  *

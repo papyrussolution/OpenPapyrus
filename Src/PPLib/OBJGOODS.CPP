@@ -4346,7 +4346,7 @@ int PPObjGoods::GetAltGenGoodsList(PPID goodsID, int kind, RAssocArray * pList)
 	return ok;
 }
 
-int PPObjGoods::GetStrucSubstList(PPID goodsID, RAssocArray * pList)
+int PPObjGoods::GetStrucSubstList(PPID goodsID, const TSVector <SaSubstItem> * pOuterSubstList, RAssocArray * pList)
 {
 	int    ok = -1;
 	PPGoodsStruc gs;
@@ -4363,13 +4363,13 @@ int PPObjGoods::GetStrucSubstList(PPID goodsID, RAssocArray * pList)
 	return ok;
 }
 
-int PPObjGoods::GetSubstList(PPID goodsID, int substStrucOnly, RAssocArray & rList)
+int PPObjGoods::GetSubstList(PPID goodsID, int substStrucOnly, const TSVector <SaSubstItem> * pOuterSubstList, RAssocArray & rList)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
 	rList.clear();
 	if(substStrucOnly || p_bobj->GetConfig().GoodsSubstMethod == PPBillConfig::gsmSubstStruc) {
-		ok = GetStrucSubstList(goodsID, &rList);
+		ok = GetStrucSubstList(goodsID, pOuterSubstList, &rList);
 	}
 	else if(p_bobj->GetConfig().GoodsSubstMethod == PPBillConfig::gsmGeneric) {
 		ok = GetAltGenGoodsList(goodsID, 0, &rList);

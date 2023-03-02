@@ -7,7 +7,7 @@
 #include <uncrustify-internal.h>
 #pragma hdrstop
 //#include "log_rules.h"
-#include "unc_tools.h"
+//#include "unc_tools.h"
 
 void log_rule2(const char * func, size_t line, const char * rule, Chunk * first, Chunk * second)
 {

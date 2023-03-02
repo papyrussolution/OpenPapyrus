@@ -79,8 +79,7 @@ static const int kFastDtoaMaximalSingleLength = 9;
 bool FastDtoa(double d, FastDtoaMode mode, int requested_digits, Vector<char> buffer, int* length, int* decimal_point);
 }  // namespace double_conversion
 
-// ICU PATCH: Close ICU namespace
-U_NAMESPACE_END
+U_NAMESPACE_END // ICU PATCH: Close ICU namespace
 
 #endif  // DOUBLE_CONVERSION_FAST_DTOA_H_
 #endif // ICU PATCH: close #if !UCONFIG_NO_FORMATTING

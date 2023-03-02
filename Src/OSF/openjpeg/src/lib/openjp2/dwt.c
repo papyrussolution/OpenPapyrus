@@ -439,25 +439,25 @@ static void opj_idwt53_h(const opj_dwt_t * dwt, int32_t* tiledp)
 
 /* Conveniency macros to improve the readability of the formulas */
 #if __AVX2__
-#define VREG        __m256i
-#define LOAD_CST(x) _mm256_set1_epi32(x)
-#define LOAD(x)     _mm256_load_si256((const VREG*)(x))
-#define LOADU(x)    _mm256_loadu_si256((const VREG*)(x))
-#define STORE(x, y)  _mm256_store_si256((VREG*)(x), (y))
-#define STOREU(x, y) _mm256_storeu_si256((VREG*)(x), (y))
-#define ADD(x, y)    _mm256_add_epi32((x), (y))
-#define SUB(x, y)    _mm256_sub_epi32((x), (y))
-#define SAR(x, y)    _mm256_srai_epi32((x), (y))
+	#define VREG        __m256i
+	#define LOAD_CST(x) _mm256_set1_epi32(x)
+	#define LOAD(x)     _mm256_load_si256((const VREG*)(x))
+	#define LOADU(x)    _mm256_loadu_si256((const VREG*)(x))
+	#define STORE(x, y)  _mm256_store_si256((VREG*)(x), (y))
+	#define STOREU(x, y) _mm256_storeu_si256((VREG*)(x), (y))
+	#define ADD(x, y)    _mm256_add_epi32((x), (y))
+	#define SUB(x, y)    _mm256_sub_epi32((x), (y))
+	#define SAR(x, y)    _mm256_srai_epi32((x), (y))
 #else
-#define VREG        __m128i
-#define LOAD_CST(x) _mm_set1_epi32(x)
-#define LOAD(x)     _mm_load_si128((const VREG*)(x))
-#define LOADU(x)    _mm_loadu_si128((const VREG*)(x))
-#define STORE(x, y)  _mm_store_si128((VREG*)(x), (y))
-#define STOREU(x, y) _mm_storeu_si128((VREG*)(x), (y))
-#define ADD(x, y)    _mm_add_epi32((x), (y))
-#define SUB(x, y)    _mm_sub_epi32((x), (y))
-#define SAR(x, y)    _mm_srai_epi32((x), (y))
+	#define VREG        __m128i
+	#define LOAD_CST(x) _mm_set1_epi32(x)
+	#define LOAD(x)     _mm_load_si128((const VREG*)(x))
+	#define LOADU(x)    _mm_loadu_si128((const VREG*)(x))
+	#define STORE(x, y)  _mm_store_si128((VREG*)(x), (y))
+	#define STOREU(x, y) _mm_storeu_si128((VREG*)(x), (y))
+	#define ADD(x, y)    _mm_add_epi32((x), (y))
+	#define SUB(x, y)    _mm_sub_epi32((x), (y))
+	#define SAR(x, y)    _mm_srai_epi32((x), (y))
 #endif
 #define ADD3(x, y, z) ADD(ADD(x, y), z)
 
@@ -529,15 +529,11 @@ static void opj_idwt53_v_cas0_mcols_SSE2_OR_AVX2(int32_t* tmp, const int32_t sn,
 		STORE(tmp + PARALLEL_COLS_53 * (i + 0) + VREG_INT_COUNT, s0c_1);
 
 		/* d1c + ((s0c + s0n) >> 1) */
-		STORE(tmp + PARALLEL_COLS_53 * (i + 1) + 0,
-		    ADD(d1c_0, SAR(ADD(s0c_0, s0n_0), 1)));
-		STORE(tmp + PARALLEL_COLS_53 * (i + 1) + VREG_INT_COUNT,
-		    ADD(d1c_1, SAR(ADD(s0c_1, s0n_1), 1)));
+		STORE(tmp + PARALLEL_COLS_53 * (i + 1) + 0, ADD(d1c_0, SAR(ADD(s0c_0, s0n_0), 1)));
+		STORE(tmp + PARALLEL_COLS_53 * (i + 1) + VREG_INT_COUNT, ADD(d1c_1, SAR(ADD(s0c_1, s0n_1), 1)));
 	}
-
 	STORE(tmp + PARALLEL_COLS_53 * (i + 0) + 0, s0n_0);
 	STORE(tmp + PARALLEL_COLS_53 * (i + 0) + VREG_INT_COUNT, s0n_1);
-
 	if(len & 1) {
 		VREG tmp_len_minus_1;
 		s1n_0 = LOADU(in_even + (size_t)((len - 1) / 2) * stride);

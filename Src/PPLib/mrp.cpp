@@ -1,5 +1,5 @@
 // MRP.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -357,7 +357,7 @@ int MrpTabCore::Helper_GetDeficit(const MrpLineTbl::Rec & rRec, int terminal, in
 			PPObjGoods goods_obj;
 			if(goods_obj.Fetch(goods_id, &goods_rec) > 0 && (goods_rec.Flags & (GF_PASSIV|GF_GENERIC))) {
 				RAssocArray alt_goods_list;
-				THROW(goods_obj.GetSubstList(goods_id, 0, alt_goods_list));
+				THROW(goods_obj.GetSubstList(goods_id, 0, 0/*pOuterSubstList*/, alt_goods_list));
 				for(uint i = 0; i < alt_goods_list.getCount(); i++) {
 					const PPID alt_goods_id = alt_goods_list.at(i).Key;
 					if(goods_obj.Fetch(alt_goods_id, &goods_rec) > 0 && !(goods_rec.Flags & (GF_PASSIV|GF_GENERIC))) {
@@ -743,7 +743,7 @@ int CMrpTab::Aggregate(PPID destTabID)
 //
 //
 //
-MrpTabPacket::MrpTabPacket() : TSVector <MrpTabLeaf>() // @v9.8.4 SArray-->SVector
+MrpTabPacket::MrpTabPacket() : TSVector <MrpTabLeaf>()
 {
 	ObjType  = 0;
 	ObjID    = 0;
@@ -778,15 +778,15 @@ void MrpTabPacket::Destroy()
 	Cache.freeAll();
 }
 
-bool MrpTabPacket::IsTree() const
-{
-	return LOGIC(BaseID);
-}
+IMPL_CMPFUNC(MrpTabLeaf, i1, i2) { RET_CMPCASCADE3(static_cast<const MrpTabLeaf *>(i1), static_cast<const MrpTabLeaf *>(i2), Dt, LocID, TabID); }
 
-const char * MrpTabPacket::GetName() const
-{
-	return Name;
-}
+bool MrpTabPacket::IsTree() const { return LOGIC(BaseID); }
+const char * MrpTabPacket::GetName() const { return Name; }
+PPID MrpTabPacket::GetBaseID() const { return (getCount() == 1 && !BaseID) ? at(0).TabID : BaseID; }
+void FASTCALL MrpTabPacket::SetBaseID(PPID id) { BaseID = id; }
+void MrpTabPacket::Sort() { sort(PTR_CMPFUNC(MrpTabLeaf)); }
+void MrpTabPacket::SortCache() { Cache.Sort(); }
+int  MrpTabPacket::Flash(MrpTabCore * pTbl, int use_ta) { return pTbl->AddCTab(&Cache, use_ta); }
 
 void MrpTabPacket::GetCommonParam(PPIDArray * pLocList, DateRange * pPeriod) const
 {
@@ -803,16 +803,6 @@ void MrpTabPacket::GetCommonParam(PPIDArray * pLocList, DateRange * pPeriod) con
 				pLocList->addUnique(p_item->LocID);
 		CALLPTRMEMB(pPeriod, AdjustToDate(p_item->Dt));
 	}
-}
-
-PPID MrpTabPacket::GetBaseID() const
-{
-	return (getCount() == 1 && !BaseID) ? at(0).TabID : BaseID;
-}
-
-void FASTCALL MrpTabPacket::SetBaseID(PPID id)
-{
-	BaseID = id;
 }
 
 int MrpTabPacket::GetTabID(PPID locID, LDATE dt, PPID * pTabID) const
@@ -868,18 +858,6 @@ int MrpTabPacket::GetList(PPIDArray * pList) const
 	return pList->getCount() ? 1 : -1;
 }
 
-IMPL_CMPFUNC(MrpTabLeaf, i1, i2) { RET_CMPCASCADE3(static_cast<const MrpTabLeaf *>(i1), static_cast<const MrpTabLeaf *>(i2), Dt, LocID, TabID); }
-
-void MrpTabPacket::Sort()
-{
-	sort(PTR_CMPFUNC(MrpTabLeaf));
-}
-
-void MrpTabPacket::SortCache()
-{
-	Cache.Sort();
-}
-
 int MrpTabPacket::AddLine__(PPID tabID, PPID destID, PPID srcID, double destReq, double srcReq, double price, /*int term*/long flags)
 {
 	return Cache.Add__(tabID, destID, srcID, destReq, srcReq, price, /*term ? MRPLF_TERMINAL : 0*/flags);
@@ -923,11 +901,6 @@ int MrpTabPacket::Aggregate()
 	else
 		ok = -1;
 	return ok;
-}
-
-int MrpTabPacket::Flash(MrpTabCore * pTbl, int use_ta)
-{
-	return pTbl->AddCTab(&Cache, use_ta);
 }
 //
 //
@@ -1190,7 +1163,8 @@ int PPObjMrpTab::SetupRest(const MrpTabPacket * pPack, const MrpTabLeaf * pLeaf,
 		for(i = 0; i < dest_list.getCount(); i++) {
 			const MrpReqItem & r_dest_item = dest_list.at(i);
 			const  PPID goods_id = r_dest_item.GoodsID;
-			double rest = 0.0, dfct = 0.0;
+			double rest = 0.0;
+			double dfct = 0.0;
 			if(goods_obj.CheckFlag(goods_id, GF_UNLIM)) {
 				THROW(r = P_Tbl->SetRest(pLeaf->TabID, goods_id, 0, &dfct, 0));
 			}
@@ -1211,7 +1185,7 @@ int PPObjMrpTab::SetupRest(const MrpTabPacket * pPack, const MrpTabLeaf * pLeaf,
 				// Если обнаружился дефицит и позиция goods_id является терминальной
 				//
 				RAssocArray alt_goods_list;
-				THROW(goods_obj.GetSubstList(goods_id, 0, alt_goods_list));
+				THROW(goods_obj.GetSubstList(goods_id, 0, 0/*pOuterSubstList*/, alt_goods_list));
 				for(uint j = 0; dfct > 0.0 && j < alt_goods_list.getCount(); j++) {
 					PPID   alt_goods_id = alt_goods_list.at(j).Key;
 					double ratio = alt_goods_list.at(j).Val;
@@ -1452,10 +1426,8 @@ int PPObjMrpTab::FinishPacket(MrpTabPacket * pTree, long cflags, int use_ta)
 				//
 				// Инициализируем остатки по каждому складу в порядке увеличения даты
 				//
-				// @v8.4.8 {
 				PPLoadText(PPTXT_MRPTABRESTINIT, msg_buf);
 				pTree->SortCache();
-				// } @v8.4.8
 				const uint lc_ = loc_list.getCount();
 				for(j = 0; j < loc_list.getCount(); j++) {
 					const uint tc_ = pTree->getCount();

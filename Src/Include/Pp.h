@@ -24440,10 +24440,16 @@ public:
 // Descr: Элемент матрицы подстановки товара по подстановочным товарным структурам (GSF_SUBST)
 //   Матрица содержит прямые и инвертированные пары.
 //
-class SaSubstItem { // @flat @v11.6.4
+struct SaSubstItem { // @flat @v11.6.4
+	SaSubstItem() : GoodsID(0), SubstID(0), Qtty(0.0)
+	{
+	}
+	SaSubstItem(PPID goodsID, PPID substID, double qtty) : GoodsID(goodsID), SubstID(substID), Qtty(qtty)
+	{
+	}
 	PPID  GoodsID;
 	PPID  SubstID;
-	double Qtty;
+	double Qtty;   // 
 };
 //
 // Descr: Элемент списка продаж, используемый для подбора подарка на основе подарочных структур (GSF_PRESENT)
@@ -29977,7 +29983,7 @@ public:
 	//
 	int    GetGenericList(PPID genID, PPIDArray * pList);
 	int    GetAltGenGoodsList(PPID goodsID, int kind, RAssocArray * pList);
-	int    GetStrucSubstList(PPID goodsID, RAssocArray * pList);
+	int    GetStrucSubstList(PPID goodsID, const TSVector <SaSubstItem> * pOuterSubstList, RAssocArray * pList);
 	//
 	// Descr: Возвращает список допустимой подстановки вместо товара goodsID.
 	//   В зависимости от параметра substStrucOnly и конфигурации документов (PPBillConfig::GoodsSubstMethod)
@@ -29992,7 +29998,7 @@ public:
 	//   <0 - не найдено ни одного варианта подстановки
 	//   0  - ошибка
 	//
-	int    GetSubstList(PPID goodsID, int substStrucOnly, RAssocArray & rList);
+	int    GetSubstList(PPID goodsID, int substStrucOnly, const TSVector <SaSubstItem> * pOuterSubstList, RAssocArray & rList);
 		// @>>PPObjGoods::GetAltGenGoodsList
 		// @>>PPObjGoods::GetStrucSubstList
 	int    BelongToGen(PPID goodsID, PPID * pGenID, ObjAssocTbl::Rec * = 0);

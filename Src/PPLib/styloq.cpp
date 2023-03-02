@@ -3782,6 +3782,7 @@ SJson * PPStyloQInterchange::Document::ToJsonObject() const
 				}
 				p_js_item->InsertStringNe("memo", (temp_buf = p_bi->Memo).Strip().Escape());
 				p_js_list->InsertChild(p_js_item);
+				is_list_empty = false;
 			}
 		}
 		if(is_list_empty) {

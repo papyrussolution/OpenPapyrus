@@ -9,7 +9,7 @@
 #ifndef ALIGN_TYPEDEFS_H_INCLUDED
 #define ALIGN_TYPEDEFS_H_INCLUDED
 
-#include "uncrustify_types.h"
+//#include "uncrustify_types.h"
 /**
  * Aligns simple typedefs that are contained on a single line each.
  * This should be called after the typedef target is marked as a type.

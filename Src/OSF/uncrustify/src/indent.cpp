@@ -8,14 +8,14 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "indent.h"
-#include "align.h"
-#include "options.h"
-#include "options_for_QT.h"
-#include "parsing_frame_stack.h"
-#include "prototypes.h"
-#include "quick_align_again.h"
-#include "space.h"
+//#include "indent.h"
+//#include "align.h"
+//#include "options.h"
+//#include "options_for_QT.h"
+//#include "parsing_frame_stack.h"
+//#include "prototypes.h"
+//#include "quick_align_again.h"
+//#include "space.h"
 #ifdef IGNORE // WinBase.h
 	#undef IGNORE
 #endif

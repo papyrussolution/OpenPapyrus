@@ -8807,6 +8807,19 @@ public:
 		MakeGoodsList(GoodsList);
 		return ok;
 	}
+	int      ExportAll()
+	{
+		int    ok = 1;
+		ExportGoods(GoodsList);
+		ExportWarehouses(WhList);
+		{
+			TSVector <StockEntry> slist;
+			PrepareMovementData(slist);
+			ExportRest(slist);
+			ExportMovement(slist);
+		}
+		return ok;
+	}
 	int      PrepareMovementData(TSVector <StockEntry> & rList)
 	{
 		int    ok = 1;
@@ -8897,7 +8910,9 @@ public:
 	int   ExportGoods(const TSVector <GoodsEntry> & rList)
 	{
 		int    ok = 1;
+		SString temp_buf;
 		SString out_file_name;
+		Goods2Tbl::Rec goods_rec;
 		PPGetFilePath(PPPATH_OUT, "agentplus-goods.xml", out_file_name);
 	    xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
 	    THROW(p_x);
@@ -8907,12 +8922,18 @@ public:
 				SXml::WNode n_h(p_x, "products");
 				for(uint i = 0; i < rList.getCount(); i++) {
 					const auto & r_item = rList.at(i);
-					SXml::WNode n_i(p_x, "product");
-					n_i.PutAttrib("code", "");
-					n_i.PutAttrib("name", "");
-					n_i.PutAttrib("suppliercode", "");
-					n_i.PutAttrib("vat", "");
-					n_i.PutAttrib("price_group", "");
+					if(r_item.ID && GObj.Search(r_item.ID, &goods_rec) > 0) {
+						PPGoodsTaxEntry gte;
+						double vat_rate = 0.0;
+						if(GObj.FetchTax(goods_rec.ID, ZERODATE, 0, &gte) > 0)
+							vat_rate = gte.GetVatRate();
+						SXml::WNode n_i(p_x, "product");
+						n_i.PutAttrib("code", temp_buf.Z().Cat(goods_rec.ID));
+						n_i.PutAttrib("name", temp_buf.Z().Cat(goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+						n_i.PutAttrib("suppliercode", "");
+						n_i.PutAttrib("vat", temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 3, 0)));
+						n_i.PutAttrib("price_group", "");
+					}
 				}
 			}
 		}
@@ -8923,7 +8944,9 @@ public:
 	int   ExportWarehouses(const TSVector <WhEntry> & rList)
 	{
 		int    ok = 1;
+		SString temp_buf;
 		SString out_file_name;
+		LocationTbl::Rec loc_rec;
 		PPGetFilePath(PPPATH_OUT, "agentplus-warehouse.xml", out_file_name);
 	    xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
 	    THROW(p_x);
@@ -8933,10 +8956,12 @@ public:
 				SXml::WNode n_h(p_x, "warehouses");
 				for(uint i = 0; i < rList.getCount(); i++) {
 					const auto & r_item = rList.at(i);
-					SXml::WNode n_i(p_x, "warehouse");
-					n_i.PutAttrib("code", "");
-					n_i.PutAttrib("name", "");
-					n_i.PutAttrib("discount", "");
+					if(r_item.ID && LocObj.Search(r_item.ID, &loc_rec) > 0) {
+						SXml::WNode n_i(p_x, "warehouse");
+						n_i.PutAttrib("code", temp_buf.Z().Cat(loc_rec.ID));
+						n_i.PutAttrib("name", temp_buf.Z().Cat(loc_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+						n_i.PutAttrib("discount", temp_buf.Z().Cat(0.0, MKSFMTD(0, 3, 0)));
+					}
 				}
 			}
 		}
@@ -8947,6 +8972,7 @@ public:
 	int   ExportRest(const TSVector <StockEntry> & rList)
 	{
 		int    ok = 1;
+		SString temp_buf;
 		SString out_file_name;
 		PPGetFilePath(PPPATH_OUT, "agentplus-rest.xml", out_file_name);
 	    xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
@@ -8958,10 +8984,10 @@ public:
 				for(uint i = 0; i < rList.getCount(); i++) {
 					const auto & r_item = rList.at(i);
 					SXml::WNode n_i(p_x, "stock");
-					n_i.PutAttrib("date", "");
-					n_i.PutAttrib("warehousecode", "");
-					n_i.PutAttrib("productcode", "");
-					n_i.PutAttrib("quantity", "");
+					n_i.PutAttrib("date", temp_buf.Z().Cat(r_item.Dt, DATF_YMD|DATF_NODIV).Cat("000000"));
+					n_i.PutAttrib("warehousecode", temp_buf.Z().Cat(r_item.LocID));
+					n_i.PutAttrib("productcode", temp_buf.Z().Cat(r_item.GoodsID));
+					n_i.PutAttrib("quantity", temp_buf.Z().Cat(r_item.OutRest, MKSFMTD(0, 3, NMBF_DECCOMMA)));
 				}
 			}
 		}
@@ -8972,6 +8998,7 @@ public:
 	int   ExportMovement(const TSVector <StockEntry> & rList)
 	{
 		int    ok = 1;
+		SString temp_buf;
 		SString out_file_name;
 		PPGetFilePath(PPPATH_OUT, "agentplus-movm.xml", out_file_name);
 	    xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
@@ -8982,12 +9009,42 @@ public:
 				SXml::WNode n_h(p_x, "movements");
 				for(uint i = 0; i < rList.getCount(); i++) {
 					const auto & r_item = rList.at(i);
-					SXml::WNode n_i(p_x, "movement");
-					n_i.PutAttrib("date", "");
-					n_i.PutAttrib("warehousecode", "");
-					n_i.PutAttrib("transaction", "");
-					n_i.PutAttrib("productcode", "");
-					n_i.PutAttrib("quantity", "");
+					int   ta_id_list[8];
+					double ta_val_list[8];
+					uint  ta_count = 0;
+					if(r_item.Mov_Tk01 != 0.0) {
+						ta_id_list[ta_count] = 1;
+						ta_val_list[ta_count] = r_item.Mov_Tk01;
+						ta_count++;
+					}
+					if(r_item.Mov_Tk02 != 0.0) {
+						ta_id_list[ta_count] = 2;
+						ta_val_list[ta_count] = r_item.Mov_Tk02;
+						ta_count++;
+					}
+					if(r_item.Mov_Tk03 != 0.0) {
+						ta_id_list[ta_count] = 3;
+						ta_val_list[ta_count] = r_item.Mov_Tk03;
+						ta_count++;
+					}
+					if(r_item.Mov_Tk04 != 0.0) {
+						ta_id_list[ta_count] = 4;
+						ta_val_list[ta_count] = r_item.Mov_Tk04;
+						ta_count++;
+					}
+					if(r_item.Mov_Tk05 != 0.0) {
+						ta_id_list[ta_count] = 5;
+						ta_val_list[ta_count] = r_item.Mov_Tk05;
+						ta_count++;
+					}
+					for(uint taidx = 0; taidx < ta_count; taidx++) {
+						SXml::WNode n_i(p_x, "movement");
+						n_i.PutAttrib("date", temp_buf.Z().Cat(r_item.Dt, DATF_YMD|DATF_NODIV).Cat("000000"));
+						n_i.PutAttrib("warehousecode", temp_buf.Z().Cat(r_item.LocID));
+						n_i.PutAttrib("transaction", temp_buf.Z().Cat(ta_id_list[taidx]));
+						n_i.PutAttrib("productcode", temp_buf.Z().Cat(r_item.GoodsID));
+						n_i.PutAttrib("quantity", temp_buf.Z().Cat(ta_val_list[taidx], MKSFMTD(0, 3, NMBF_DECCOMMA)));
+					}
 				}
 			}
 		}
@@ -10118,7 +10175,13 @@ int PrcssrSupplInterchange::Run()
 		ExecuteBlock & r_eb = *P_Eb;
 		r_eb.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, temp_buf);
 		if(temp_buf.IsEqiAscii("AGENT_PLUS")) { // @v11.6.5
-			
+			AgentPlus cli(r_eb, logger);
+			const long actions = r_eb.P.Actions;
+			PPWaitStart();
+			THROW(cli.Init());
+			if(actions & SupplInterchangeFilt::opExportBills) {
+				cli.ExportAll();
+			}
 		}
 		else if(temp_buf.IsEqiAscii("VLADIMIRSKIY_STANDARD")) { // @v11.5.10
 			VladimirskiyStandard cli(r_eb, logger);

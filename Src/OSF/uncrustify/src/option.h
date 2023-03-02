@@ -16,10 +16,10 @@
  * The '// <PREFIX>' comment after an 'enum class' tells the script to generate aliases for the enum values using the
  *prefix that is given in the '<>'s. Don't remove or alter these.
  */
-#include "enum_flags.h"
-#include <string>
-#include <vector>
-#include <cassert>
+//#include "enum_flags.h"
+//#include <string>
+//#include <vector>
+//#include <cassert>
 
 #ifdef IGNORE // WinBase.h
 #undef IGNORE
@@ -31,8 +31,7 @@ template <typename T> class Option;
 
 //-----------------------------------------------------------------------------
 // Option types
-enum class option_type_e // <OT>
-{
+enum class option_type_e { // <OT>
 	// UNC_CONVERT_INTERNAL
 	BOOL,
 	IARF,
@@ -146,48 +145,28 @@ public:
 
 //-----------------------------------------------------------------------------
 // Concrete (strongly typed) interface for options
-template <typename T>
-class Option : public GenericOption
-{
+template <typename T> class Option : public GenericOption {
 public:
-	Option(const char * opt_name, const char * opt_desc, T opt_val = T{})
-		: GenericOption{opt_name, opt_desc}
-		, m_val{opt_val}
-		, m_default{opt_val}
+	Option(const char * opt_name, const char * opt_desc, T opt_val = T{}) : GenericOption{opt_name, opt_desc}, m_val{opt_val}, m_default{opt_val}
 	{
 	}
-
 	option_type_e type() const override;
 	const char *const *possibleValues() const override;
 
 	std::string defaultStr() const override;
 
-	bool isDefault() const override {
-		return (m_val == m_default);
-	}
-
+	bool isDefault() const override { return (m_val == m_default); }
 	//! resets option to its default value
 	//- currently only used by the emscripten interface
 	virtual void reset() override;
-
 	bool read(const char * s) override;
 	std::string str() const override;
-
-	T operator()() const {
-		return (m_val);
-	}
-
-	Option &operator=(T val) {
-		m_val = val; return *this;
-	}
-
+	T operator()() const { return (m_val); }
+	Option &operator=(T val) { m_val = val; return *this; }
 protected:
 	template <typename V> friend bool read_enum(const char * s, Option<V> &o);
 	template <typename V> friend bool read_number(const char * s, Option<V> &o);
-
-	virtual bool validate(long) {
-		return true;
-	}
+	virtual bool validate(long) { return true; }
 
 	T m_val     = T{};
 	T m_default = T{};

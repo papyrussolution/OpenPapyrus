@@ -6,7 +6,7 @@
 #ifndef SPACE_H_INCLUDED
 #define SPACE_H_INCLUDED
 
-#include "uncrustify_types.h"
+//#include "uncrustify_types.h"
 /**
  * Marches through the whole file and checks to see how many spaces should be between two chunks
  */

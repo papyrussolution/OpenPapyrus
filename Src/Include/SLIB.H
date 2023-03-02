@@ -7443,7 +7443,6 @@ public:
 	// Descr: Утилитная функция для замещения популярной конструкции (pV ? pV->getCount() : 0)
 	//
 	static uint FASTCALL GetCount(const SVectorBase * pB);
-
 	int    operator ! () const { return (count == 0); }
 	uint   getCount() const { return count; }
 	int    getCountI() const { return static_cast<int>(count); }

@@ -1055,40 +1055,32 @@ protected:
 	size_t m_columnIndent;              //! if 1st chunk on a line, set to the 'indent' column, which may
 	//! be less than the real column used to indent with tabs
 	size_t m_nlCount;                   //! number of newlines in CT_NEWLINE
-	size_t m_nlColumn;                  //! column of the subsequent newline entries(all of them should have the
-	                                    // same column)
+	size_t m_nlColumn;                  //! column of the subsequent newline entries(all of them should have the same column)
 	size_t m_level;                     //! nest level in {, (, or [. Only to help vim command }
 	size_t m_braceLevel;                //! nest level in braces only
 	size_t m_ppLevel;                   //! nest level in preprocessor
 	bool m_afterTab;                    //! whether this token was after a tab
-
 	PcfFlags m_flags;                   //! see PCF_xxx
 	AlignmentData m_alignmentData;      //! alignment data of the chunk
 	IndentationData m_indentationData;  //! indentation data of the chunk
-
 	Chunk           * m_next;           //! pointer to next chunk in list
 	Chunk           * m_prev;           //! pointer to previous chunk in list
 	Chunk           * m_parent;         //! pointer to parent chunk (not always set)
-
 	UncText m_str;                      //! the token text
 	TrackList       * m_trackingList;   //! for debugging purpose only
-
 private:
 	const bool m_nullChunk;               //! true for null chunks
-
 public:
 	static Chunk NullChunk;               //! Null Chunk
 	static Chunk * const NullChunkPtr;    //! Pointer to the Null Chunk
 };
 
-inline Chunk::Chunk(bool null_c)
-	: m_nullChunk(null_c)
+inline Chunk::Chunk(bool null_c) : m_nullChunk(null_c)
 {
 	Reset();
 }
 
-inline Chunk::Chunk(const Chunk &o)
-	: m_nullChunk(o.m_nullChunk)
+inline Chunk::Chunk(const Chunk &o) : m_nullChunk(o.m_nullChunk)
 {
 	CopyFrom(o);
 }

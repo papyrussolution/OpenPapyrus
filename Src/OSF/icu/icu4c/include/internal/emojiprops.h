@@ -86,5 +86,4 @@ private:
 };
 
 U_NAMESPACE_END
-
 #endif  // __EMOJIPROPS_H__

@@ -7,7 +7,7 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "parens.h"
+//#include "parens.h"
 //#include "log_rules.h"
 
 using namespace uncrustify;

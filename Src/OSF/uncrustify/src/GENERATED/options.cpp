@@ -6,7 +6,7 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "uncrustify_types.h"
+//#include "uncrustify_types.h"
 
 namespace uncrustify {
 //BEGIN declarations of option object instances

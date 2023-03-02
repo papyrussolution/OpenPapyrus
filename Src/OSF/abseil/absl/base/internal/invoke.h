@@ -122,13 +122,10 @@ struct DataMemAndRef : StrippedAccept<DataMemAndRef> {
 // (*t1).*f when N == 1 and f is a pointer to member data of a class T and t1
 // is not one of the types described in the previous item.
 struct DataMemAndPtr : StrippedAccept<DataMemAndPtr> {
-	template <typename ... Args>
-	struct AcceptImpl : std::false_type {};
+	template <typename ... Args> struct AcceptImpl : std::false_type {};
 
 	template <typename R, typename C, typename Ptr>
-	struct AcceptImpl<R C::*, Ptr>
-		: std::integral_constant<bool, !std::is_base_of<C, Ptr>::value &&
-		    !absl::is_function<R>::value> {};
+	struct AcceptImpl<R C::*, Ptr> : std::integral_constant<bool, !std::is_base_of<C, Ptr>::value && !absl::is_function<R>::value> {};
 
 	template <typename DataMem, typename Ptr>
 	static decltype((*std::declval<Ptr>()).*std::declval<DataMem>())Invoke(
@@ -150,27 +147,19 @@ struct Callable {
 
 // Resolves to the first matching clause.
 template <typename ... Args> struct Invoker {
-	typedef typename std::conditional<
-		    MemFunAndRef::Accept<Args ...>::value, MemFunAndRef,
-		    typename std::conditional<
-			    MemFunAndPtr::Accept<Args ...>::value, MemFunAndPtr,
-			    typename std::conditional<
-				    DataMemAndRef::Accept<Args ...>::value, DataMemAndRef,
-				    typename std::conditional<DataMemAndPtr::Accept<Args ...>::value,
-				    DataMemAndPtr, Callable>::type>::type>::
-		    type>::type type;
+	typedef typename std::conditional<MemFunAndRef::Accept<Args ...>::value, MemFunAndRef, typename std::conditional<MemFunAndPtr::Accept<Args ...>::value, MemFunAndPtr, 
+		typename std::conditional<DataMemAndRef::Accept<Args ...>::value, DataMemAndRef, typename std::conditional<DataMemAndPtr::Accept<Args ...>::value,
+		DataMemAndPtr, Callable>::type>::type>::type>::type type;
 };
 
 // The result type of Invoke<F, Args...>.
-template <typename F, typename ... Args>
-using invoke_result_t = decltype(Invoker<F, Args ...>::type::Invoke(std::declval<F>(), std::declval<Args>() ...));
+template <typename F, typename ... Args> using invoke_result_t = decltype(Invoker<F, Args ...>::type::Invoke(std::declval<F>(), std::declval<Args>() ...));
 
 // Invoke(f, args...) is an implementation of INVOKE(f, args...) from section
 // [func.require] of the C++ standard.
-template <typename F, typename ... Args>
-invoke_result_t<F, Args ...> invoke(F&& f, Args&& ... args) {
-	return Invoker<F, Args ...>::type::Invoke(std::forward<F>(f),
-		   std::forward<Args>(args) ...);
+template <typename F, typename ... Args> invoke_result_t<F, Args ...> invoke(F&& f, Args&& ... args) 
+{
+	return Invoker<F, Args ...>::type::Invoke(std::forward<F>(f), std::forward<Args>(args) ...);
 }
 }  // namespace base_internal
 ABSL_NAMESPACE_END

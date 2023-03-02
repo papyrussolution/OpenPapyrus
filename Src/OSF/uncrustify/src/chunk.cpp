@@ -8,9 +8,9 @@
 #include <uncrustify-internal.h>
 #pragma hdrstop
 //#include "chunk.h"
-#include "ListManager.h"
-#include "prototypes.h"
-#include "space.h"
+//#include "ListManager.h"
+//#include "prototypes.h"
+//#include "space.h"
 
 static ChunkListManager gChunkList;  // global chunk list
 /*
@@ -152,32 +152,22 @@ Chunk * Chunk::GetPrev(const E_Scope scope) const
 
 static void chunk_log(Chunk * pc, const char * text);
 
-Chunk * Chunk::GetHead()
-{
-	return (gChunkList.GetHead());
-}
-
-Chunk * Chunk::GetTail()
-{
-	return (gChunkList.GetTail());
-}
+Chunk * Chunk::GetHead() { return (gChunkList.GetHead()); }
+Chunk * Chunk::GetTail() { return (gChunkList.GetTail()); }
 
 Chunk::T_SearchFnPtr Chunk::GetSearchFn(const E_Direction dir)
 {
 	return ((dir == E_Direction::FORWARD) ? &Chunk::GetNext : &Chunk::GetPrev);
 }
 
-Chunk * Chunk::Search(const T_CheckFnPtr checkFn, const E_Scope scope,
-    const E_Direction dir, const bool cond) const
+Chunk * Chunk::Search(const T_CheckFnPtr checkFn, const E_Scope scope, const E_Direction dir, const bool cond) const
 {
 	T_SearchFnPtr searchFnPtr = GetSearchFn(dir);
 	Chunk         * pc         = const_cast<Chunk *>(this);
-
 	do {                               // loop over the chunk list
 		pc = (pc->*searchFnPtr)(scope); // in either direction while
 	} while(pc->IsNotNullChunk()       // the end of the list was not reached yet
 	    && ((pc->*checkFn)() != cond)); // and the demanded chunk was not found either
-
 	return pc;                        // the latest chunk is the searched one
 }
 
@@ -187,9 +177,7 @@ bool Chunk::IsOnSameLine(const Chunk * end) const
 		return false;
 	}
 	Chunk * tmp = GetNext();
-
-	while(tmp->IsNotNullChunk()
-	    && tmp != end) {
+	while(tmp->IsNotNullChunk() && tmp != end) {
 		if(tmp->Is(CT_NEWLINE)) {
 			return false;
 		}
@@ -198,12 +186,10 @@ bool Chunk::IsOnSameLine(const Chunk * end) const
 	return true;
 }
 
-Chunk * Chunk::SearchTypeLevel(const E_Token type, const E_Scope scope,
-    const E_Direction dir, const int level) const
+Chunk * Chunk::SearchTypeLevel(const E_Token type, const E_Scope scope, const E_Direction dir, const int level) const
 {
 	T_SearchFnPtr searchFnPtr = GetSearchFn(dir);
 	Chunk         * pc         = const_cast<Chunk *>(this);
-
 	do {                                       // loop over the chunk list
 		pc = (pc->*searchFnPtr)(scope);    // in either direction while
 	} while(pc->IsNotNullChunk()               // the end of the list was not reached yet
@@ -575,9 +561,7 @@ Chunk * Chunk::GetNextNbsb() const
 Chunk * Chunk::GetPrevNbsb() const
 {
 	Chunk * pc = const_cast<Chunk *>(this);
-
-	while(pc->Is(CT_TSQUARE)
-	    || pc->Is(CT_SQUARE_CLOSE)) {
+	while(pc->Is(CT_TSQUARE) || pc->Is(CT_SQUARE_CLOSE)) {
 		if(pc->Is(CT_SQUARE_CLOSE)) {
 			pc = pc->GetOpeningParen();
 		}
@@ -592,7 +576,6 @@ Chunk * Chunk::GetPpStart() const
 		return Chunk::NullChunkPtr;
 	}
 	Chunk * pc = const_cast<Chunk *>(this);
-
 	while(pc->IsNot(CT_PREPROC)) {
 		pc = pc->GetPrev(E_Scope::PREPROC);
 	}
@@ -602,13 +585,10 @@ Chunk * Chunk::GetPpStart() const
 Chunk * Chunk::SkipDcMember() const
 {
 	LOG_FUNC_ENTRY();
-
 	Chunk * pc  = const_cast<Chunk *>(this);
 	Chunk * nxt = pc->Is(CT_DC_MEMBER) ? pc : pc->GetNextNcNnl(E_Scope::ALL);
-
 	while(nxt->Is(CT_DC_MEMBER)) {
 		pc = nxt->GetNextNcNnl(E_Scope::ALL);
-
 		if(pc->IsNullChunk()) {
 			return Chunk::NullChunkPtr;
 		}
@@ -635,17 +615,11 @@ int Chunk::ComparePosition(const Chunk * other) const
 
 bool Chunk::IsOCForinOpenParen() const
 {
-	if(language_is_set(LANG_OC)
-	    && Is(CT_SPAREN_OPEN)
-	    && GetPrevNcNnl()->Is(CT_FOR)) {
+	if(language_is_set(LANG_OC) && Is(CT_SPAREN_OPEN) && GetPrevNcNnl()->Is(CT_FOR)) {
 		Chunk * nxt = const_cast<Chunk *>(this);
-
-		while(nxt->IsNotNullChunk()
-		    && nxt->IsNot(CT_SPAREN_CLOSE)
-		    && nxt->IsNot(CT_IN)) {
+		while(nxt->IsNotNullChunk() && nxt->IsNot(CT_SPAREN_CLOSE) && nxt->IsNot(CT_IN)) {
 			nxt = nxt->GetNextNcNnl();
 		}
-
 		if(nxt->Is(CT_IN)) {
 			return true;
 		}
@@ -682,14 +656,8 @@ Chunk * Chunk::GetClosingParen(E_Scope scope) const
 
 Chunk * Chunk::GetOpeningParen(E_Scope scope) const
 {
-	if(Is(CT_PAREN_CLOSE)
-	    || Is(CT_SPAREN_CLOSE)
-	    || Is(CT_FPAREN_CLOSE)
-	    || Is(CT_TPAREN_CLOSE)
-	    || Is(CT_BRACE_CLOSE)
-	    || Is(CT_VBRACE_CLOSE)
-	    || Is(CT_ANGLE_CLOSE)
-	    || Is(CT_SQUARE_CLOSE)) {
+	if(Is(CT_PAREN_CLOSE) || Is(CT_SPAREN_CLOSE) || Is(CT_FPAREN_CLOSE) || Is(CT_TPAREN_CLOSE) || Is(CT_BRACE_CLOSE) || 
+		Is(CT_VBRACE_CLOSE) || Is(CT_ANGLE_CLOSE) || Is(CT_SQUARE_CLOSE)) {
 		return (GetPrevType((E_Token)(m_type - 1), m_level, scope));
 	}
 	return (const_cast<Chunk *>(this));
@@ -697,32 +665,14 @@ Chunk * Chunk::GetOpeningParen(E_Scope scope) const
 
 bool Chunk::IsCppInheritanceAccessSpecifier() const
 {
-	return (language_is_set(LANG_CPP)
-	       && (  Is(CT_ACCESS)
-	       || Is(CT_QUALIFIER))
-	       && (  IsString("private")
-	       || IsString("protected")
-	       || IsString("public")));
+	return (language_is_set(LANG_CPP) && (  Is(CT_ACCESS) || Is(CT_QUALIFIER)) && (  IsString("private") || IsString("protected") || IsString("public")));
 }
 
 bool Chunk::IsColon() const
 {
-	return (Is(CT_ACCESS_COLON)
-	       || Is(CT_ASM_COLON)
-	       || Is(CT_BIT_COLON)
-	       || Is(CT_CASE_COLON)
-	       || Is(CT_CLASS_COLON)
-	       || Is(CT_COLON)
-	       || Is(CT_COND_COLON)
-	       || Is(CT_CONSTR_COLON)
-	       || Is(CT_CS_SQ_COLON)
-	       || Is(CT_D_ARRAY_COLON)
-	       || Is(CT_FOR_COLON)
-	       || Is(CT_LABEL_COLON)
-	       || Is(CT_OC_COLON)
-	       || Is(CT_OC_DICT_COLON)
-	       || Is(CT_TAG_COLON)
-	       || Is(CT_WHERE_COLON));
+	return (Is(CT_ACCESS_COLON) || Is(CT_ASM_COLON) || Is(CT_BIT_COLON) || Is(CT_CASE_COLON) || Is(CT_CLASS_COLON) || Is(CT_COLON) || Is(CT_COND_COLON) || 
+		Is(CT_CONSTR_COLON) || Is(CT_CS_SQ_COLON) || Is(CT_D_ARRAY_COLON) || Is(CT_FOR_COLON) || Is(CT_LABEL_COLON) || Is(CT_OC_COLON) || Is(CT_OC_DICT_COLON) || 
+		Is(CT_TAG_COLON) || Is(CT_WHERE_COLON));
 }
 
 bool Chunk::IsDoxygenComment() const

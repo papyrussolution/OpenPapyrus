@@ -7,8 +7,8 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "combine_skip.h"
-#include "combine_tools.h"
+//#include "combine_skip.h"
+//#include "combine_tools.h"
 
 Chunk * skip_align(Chunk * start)
 {

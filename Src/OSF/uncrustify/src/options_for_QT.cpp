@@ -10,7 +10,7 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "options_for_QT.h"
+//#include "options_for_QT.h"
 //#include "log_rules.h"
 
 constexpr static auto LCURRENT = LQT;

@@ -4,7 +4,7 @@
 #ifndef PUNCTUATORS_H_INCLUDED
 #define PUNCTUATORS_H_INCLUDED
 
-#include "uncrustify_types.h"
+//#include "uncrustify_types.h"
 
 struct lookup_entry_t {
 	char ch;

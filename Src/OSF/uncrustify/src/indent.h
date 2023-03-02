@@ -7,7 +7,7 @@
 #ifndef INDENT_H_INCLUDED
 #define INDENT_H_INCLUDED
 
-#include "uncrustify_types.h"
+//#include "uncrustify_types.h"
 /**
  * Change the top-level indentation only by changing the column member in the chunk structures. The level indicator must
  *already be set.

@@ -15,7 +15,7 @@
 #ifndef BACKUP_H_INCLUDED
 #define BACKUP_H_INCLUDED
 
-#include "base_types.h"
+//#include "base_types.h"
 //#include <vector>
 
 #define UNC_BACKUP_SUFFIX        ".unc-backup~"

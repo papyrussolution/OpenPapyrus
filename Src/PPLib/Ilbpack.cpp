@@ -228,7 +228,7 @@ int PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack, LongA
 		}
 		else {
 			RAssocArray goods_list;
-			GObj.GetSubstList(dest_goods_id, BIN(flags & CILTIF_USESUBST_STRUCONLY), goods_list);
+			GObj.GetSubstList(dest_goods_id, BIN(flags & CILTIF_USESUBST_STRUCONLY), 0/*pOuterSubstList*/, goods_list);
 			for(i = 0; i < goods_list.getCount(); i++) {
 				goods_id = goods_list.at(i).Key;
 				r = 0;

@@ -6,9 +6,9 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "pragma_cleanup.h"
+//#include "pragma_cleanup.h"
 //#include "chunk.h"
-#include "unc_tools.h"
+//#include "unc_tools.h"
 
 void pragma_cleanup()
 {

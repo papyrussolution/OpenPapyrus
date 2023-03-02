@@ -7,9 +7,9 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "punctuators.h"
+//#include "punctuators.h"
 //#include "log_rules.h"
-#include "prototypes.h"
+//#include "prototypes.h"
 
 constexpr static auto LCURRENT = LOTHER;
 

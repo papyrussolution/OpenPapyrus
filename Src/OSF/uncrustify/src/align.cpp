@@ -1,34 +1,12 @@
 /**
  * @file align.cpp
  * Does all the aligning stuff.
- *
  * @author  Ben Gardner
- * @author  Guy Maurel since version 0.62 for uncrustify4Qt
- *          October 2015, 2016
+ * @author  Guy Maurel since version 0.62 for uncrustify4Qt October 2015, 2016
  * @license GPL v2+
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-//#include "align.h"
-//#include "align_asm_colon.h"
-//#include "align_assign.h"
-//#include "align_braced_init_list.h"
-//#include "align_eigen_comma_init.h"
-//#include "align_func_params.h"
-//#include "align_func_proto.h"
-//#include "align_init_brace.h"
-//#include "align_left_shift.h"
-//#include "align_oc_decl_colon.h"
-//#include "align_oc_msg_colons.h"
-//#include "align_oc_msg_spec.h"
-//#include "align_preprocessor.h"
-//#include "align_same_func_call_params.h"
-//#include "align_stack.h"
-//#include "align_struct_initializers.h"
-//#include "align_trailing_comments.h"
-//#include "align_typedefs.h"
-//#include "align_var_def_brace.h"
-//#include "quick_align_again.h"
 
 constexpr static auto LCURRENT = LALIGN;
 
@@ -114,24 +92,19 @@ using namespace uncrustify;
 void align_all()
 {
 	LOG_FUNC_ENTRY();
-
 	log_rule_B("align_typedef_span");
-
 	if(options::align_typedef_span() > 0) {
 		align_typedefs(options::align_typedef_span());
 	}
 	log_rule_B("align_left_shift");
-
 	if(options::align_left_shift()) {
 		align_left_shift();
 	}
 	log_rule_B("align_eigen_comma_init");
-
 	if(options::align_eigen_comma_init()) {
 		align_eigen_comma_init();
 	}
 	log_rule_B("align_oc_msg_colon_span");
-
 	if(options::align_oc_msg_colon_span() > 0) {
 		align_oc_msg_colons();
 	}
@@ -139,60 +112,41 @@ void align_all()
 	log_rule_B("align_var_def_span");
 	log_rule_B("align_var_struct_span");
 	log_rule_B("align_var_class_span");
-
-	if((options::align_var_def_span() > 0)
-	    || (options::align_var_struct_span() > 0)
-	    || (options::align_var_class_span() > 0)) {
+	if((options::align_var_def_span() > 0) || (options::align_var_struct_span() > 0) || (options::align_var_class_span() > 0)) {
 		align_var_def_brace(Chunk::GetHead(), options::align_var_def_span(), nullptr);
 	}
 	// Align assignments
 	log_rule_B("align_enum_equ_span");
 	log_rule_B("align_assign_span");
 	log_rule_B("align_assign_thresh");
-
-	if((options::align_enum_equ_span() > 0)
-	    || (options::align_assign_span() > 0)) {
-		align_assign(Chunk::GetHead(),
-		    options::align_assign_span(),
-		    options::align_assign_thresh(),
-		    nullptr);
+	if((options::align_enum_equ_span() > 0) || (options::align_assign_span() > 0)) {
+		align_assign(Chunk::GetHead(), options::align_assign_span(), options::align_assign_thresh(), nullptr);
 	}
-
-	if((options::align_braced_init_list_span() > 0)               // Issue #750
-	    || (options::align_braced_init_list_thresh() > 0)) {
-		align_braced_init_list(Chunk::GetHead(),
-		    options::align_braced_init_list_span(),
-		    options::align_braced_init_list_thresh(),
-		    nullptr);
+	if((options::align_braced_init_list_span() > 0) /*Issue #750*/ || (options::align_braced_init_list_thresh() > 0)) {
+		align_braced_init_list(Chunk::GetHead(), options::align_braced_init_list_span(), options::align_braced_init_list_thresh(), nullptr);
 	}
 	// Align structure initializers
 	log_rule_B("align_struct_init_span");
-
 	if(options::align_struct_init_span() > 0) {
 		align_struct_initializers();
 	}
 	// Align function prototypes
 	log_rule_B("align_func_proto_span");
 	log_rule_B("align_mix_var_proto");
-
-	if((options::align_func_proto_span() > 0)
-	    && !options::align_mix_var_proto()) {
+	if((options::align_func_proto_span() > 0) && !options::align_mix_var_proto()) {
 		align_func_proto(options::align_func_proto_span());
 	}
 	// Align function prototypes
 	log_rule_B("align_oc_msg_spec_span");
-
 	if(options::align_oc_msg_spec_span() > 0) {
 		align_oc_msg_spec(options::align_oc_msg_spec_span());
 	}
 	// Align OC colons
 	log_rule_B("align_oc_decl_colon");
-
 	if(options::align_oc_decl_colon()) {
 		align_oc_decl_colon();
 	}
 	log_rule_B("align_asm_colon");
-
 	if(options::align_asm_colon()) {
 		align_asm_colon();
 	}

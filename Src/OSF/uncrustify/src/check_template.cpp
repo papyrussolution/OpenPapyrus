@@ -8,13 +8,13 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "tokenize_cleanup.h"
-#include "check_template.h"
+//#include "tokenize_cleanup.h"
+//#include "check_template.h"
 //#include "chunk.h"
-#include "combine.h"
-#include "flag_braced_init_list.h"
-#include "flag_decltype.h"
-#include "prototypes.h"
+//#include "combine.h"
+//#include "flag_braced_init_list.h"
+//#include "flag_decltype.h"
+//#include "prototypes.h"
 
 using namespace uncrustify;
 

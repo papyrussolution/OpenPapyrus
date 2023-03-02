@@ -6,10 +6,10 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "options.h"
-#include "base_types.h"
-#include "logger.h"
-#include <cstdlib>
+//#include "options.h"
+//#include "base_types.h"
+//#include "logger.h"
+//#include <cstdlib>
 #ifdef HAVE_STRINGS_H
 	#include <strings.h>  // strcasecmp()
 #endif

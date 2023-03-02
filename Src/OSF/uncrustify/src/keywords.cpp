@@ -9,11 +9,11 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "keywords.h"
-#include "args.h"
-#include "prototypes.h"
-#include "uncrustify.h"
-#include "uncrustify_limits.h"
+//#include "keywords.h"
+//#include "args.h"
+//#include "prototypes.h"
+//#include "uncrustify.h"
+//#include "uncrustify_limits.h"
 
 using namespace std;
 

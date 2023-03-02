@@ -7,7 +7,7 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "ChunkStack.h"
+//#include "ChunkStack.h"
 
 void ChunkStack::Set(const ChunkStack &cs)
 {

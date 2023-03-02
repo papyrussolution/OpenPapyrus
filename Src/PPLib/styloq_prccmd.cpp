@@ -2202,16 +2202,36 @@ int PPStyloQInterchange::ProcessCommand_IncomingListTSess(const StyloQCommandLis
 				else
 					_filt.StPeriod.Set(dtm_now.d, ZERODATE);
 				THROW(_view.Init_(&_filt));
-				for(_view.InitIteration(0); _view.NextIteration(&_item) > 0;) {
-					TSessionPacket tses_pack;
-					if(tses_obj.GetPacket(_item.ID, &tses_pack, 0) > 0) {
-						Document new_doc;
-						new_doc.FromTSessionPacket(tses_pack, &goods_id_list);
+				{
+					THROW_SL(p_js_doc_list = SJson::CreateArr());
+					for(_view.InitIteration(0); _view.NextIteration(&_item) > 0;) {
+						TSessionPacket tses_pack;
+						if(tses_obj.GetPacket(_item.ID, &tses_pack, 0) > 0) {
+							Document doc;
+							doc.FromTSessionPacket(tses_pack, &goods_id_list);
+							{
+								SJson * p_js_doc = doc.ToJsonObject();
+								THROW(p_js_doc);
+								p_js_doc_list->InsertChild(p_js_doc);
+								p_js_doc = 0;
+							}
+						}
 					}
+					assert(p_js_doc_list);
+					js.Insert("doc_list", p_js_doc_list);
 				}
 			}
 			//
 			THROW(js.ToStr(rResult));
+			// @debug {
+			if(prccmdFlags & prccmdfDebugOutput) {
+				SString out_file_name;
+				PPGetFilePath(PPPATH_OUT, "stq-incominglisttsess.json", out_file_name);
+				SFile f_out(out_file_name, SFile::mWrite);
+				f_out.WriteLine(rResult);
+			}
+			// } @debug
+			THROW(MakeDocDeclareJs(rCmdItem, 0, rDocDeclaration));
 		}
 	}
 	CATCHZOK

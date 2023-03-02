@@ -631,7 +631,6 @@ found:                  return __os_strdup(env, tdir, &dbenv->db_tmp_dir);
 		}
 	}
 #endif
-
 	/*
 	 * Step through the static list looking for a possibility.
 	 *

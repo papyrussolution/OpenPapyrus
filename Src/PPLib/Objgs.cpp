@@ -318,7 +318,8 @@ int PPGoodsStruc::RecalcQttyByMainItemPh(double * pQtty) const
 int PPGoodsStruc::GetEstimationPrice(uint itemIdx, double * pPrice, double * pTotalPrice, ReceiptTbl::Rec * pRec) const
 {
 	int    ok = -1;
-	double p = 0.0, t = 0.0;
+	double p = 0.0;
+	double t = 0.0;
 	ReceiptTbl::Rec rec;
 	// @v10.7.5 @ctr MEMSZERO(rec);
 	if(itemIdx < Items.getCount()) {
@@ -343,7 +344,7 @@ int PPGoodsStruc::GetEstimationPrice(uint itemIdx, double * pPrice, double * pTo
 			}
 			else {
 				RAssocArray subst_list;
-				if(goods_obj.GetSubstList(r_item.GoodsID, 0, subst_list) > 0) {
+				if(goods_obj.GetSubstList(r_item.GoodsID, 0, 0/*pOuterSubstList*/, subst_list) > 0) {
 					for(uint i = 0; !r && i < subst_list.getCount(); i++) {
 						const PPID alt_goods_id = subst_list.at(i).Key;
 						if(::GetCurGoodsPrice(alt_goods_id, loc_id, GPRET_MOSTRECENT, &p, &rec) > 0) {
@@ -3185,10 +3186,10 @@ int PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 	return ok;
 }
 
-int PPObjGoodsStruc::LoadSubstList(TSVector <SaSubstItem> & rList) // @construction
+int PPObjGoodsStruc::LoadSubstList(TSVector <SaSubstItem> & rList) // @v11.6.5
 {
 	rList.clear();
-	int    ok = -1;
+	int    ok = 1;
 	PPGoodsStrucHeader2 rec;
 	PPIDArray struc_id_list;
 	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
@@ -3206,7 +3207,25 @@ int PPObjGoodsStruc::LoadSubstList(TSVector <SaSubstItem> & rList) // @construct
 			const PPID struc_id = struc_id_list.get(i);
 			if(Get(struc_id, &gs) > 0) {
 				goods_obj.SearchGListByStruc(struc_id, true/*expandGenerics*/, owner_list);
-
+				for(uint owneridx = 0; owneridx < owner_list.getCount(); owneridx++) {
+					const PPID owner_id = owner_list.get(owneridx);
+					for(uint itemidx = 0; itemidx < gs.Items.getCount(); itemidx++) {
+						PPGoodsStrucItem gsi;
+						double item_qtty = 0.0;
+						if(gs.GetItemExt(itemidx, &gsi, owner_id, 1.0, &item_qtty) > 0) {
+							if(item_qtty > 0.0) {
+								{
+									SaSubstItem entry(owner_id, gsi.GoodsID, item_qtty);
+									rList.insert(&entry);
+								}
+								{
+									SaSubstItem entry(gsi.GoodsID, owner_id, 1.0/item_qtty);
+									rList.insert(&entry);
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	}

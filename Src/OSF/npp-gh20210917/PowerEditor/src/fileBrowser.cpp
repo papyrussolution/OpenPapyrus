@@ -639,11 +639,11 @@ void FileBrowser::popupMenuCmd(int cmdID)
 		//
 		case IDM_FILEBROWSER_REMOVEROOTFOLDER:
 			{
-				if(!selectedNode) return;
+				if(!selectedNode) 
+					return;
 				generic_string * rootPath = (generic_string*)_treeView.getItemParam(selectedNode);
 				if(_treeView.getParent(selectedNode) != nullptr || rootPath == nullptr)
 					return;
-
 				size_t nbFolderUpdaters = _folderUpdaters.size();
 				for(size_t i = 0; i < nbFolderUpdaters; ++i) {
 					if(_folderUpdaters[i]->_rootFolder._rootPath == *rootPath) {

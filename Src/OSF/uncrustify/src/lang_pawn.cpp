@@ -7,8 +7,8 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "lang_pawn.h"
-#include "prototypes.h"
+//#include "lang_pawn.h"
+//#include "prototypes.h"
 
 using namespace uncrustify;
 /**

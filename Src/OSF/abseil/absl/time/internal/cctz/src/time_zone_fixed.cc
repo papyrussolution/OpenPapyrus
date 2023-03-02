@@ -40,66 +40,72 @@ bool FixedOffsetFromName(const std::string & name, seconds* offset)
 		*offset = seconds::zero();
 		return true;
 	}
-	const std::size_t prefix_len = sizeof(kFixedZonePrefix) - 1;
-	const char* const ep = kFixedZonePrefix + prefix_len;
-	if(name.size() != prefix_len + 9) // <prefix>+99:99:99
-		return false;
-	if(!std::equal(kFixedZonePrefix, ep, name.begin())) return false;
-	const char* np = name.data() + prefix_len;
-	if(np[0] != '+' && np[0] != '-') return false;
-	if(np[3] != ':' || np[6] != ':') // see note below about large offsets
-		return false;
-	int hours = Parse02d(np + 1);
-	if(hours == -1) return false;
-	int mins = Parse02d(np + 4);
-	if(mins == -1) return false;
-	int secs = Parse02d(np + 7);
-	if(secs == -1) return false;
-	secs += ((hours * 60) + mins) * 60;
-	if(secs > SSECSPERDAY) 
-		return false; // outside supported offset range
-	*offset = seconds(secs * (np[0] == '-' ? -1 : 1)); // "-" means west
-	return true;
+	else {
+		const std::size_t prefix_len = sizeof(kFixedZonePrefix) - 1;
+		const char* const ep = kFixedZonePrefix + prefix_len;
+		if(name.size() != prefix_len + 9) // <prefix>+99:99:99
+			return false;
+		if(!std::equal(kFixedZonePrefix, ep, name.begin())) return false;
+		const char* np = name.data() + prefix_len;
+		if(np[0] != '+' && np[0] != '-') return false;
+		if(np[3] != ':' || np[6] != ':') // see note below about large offsets
+			return false;
+		int hours = Parse02d(np + 1);
+		if(hours == -1) return false;
+		int mins = Parse02d(np + 4);
+		if(mins == -1) return false;
+		int secs = Parse02d(np + 7);
+		if(secs == -1) return false;
+		secs += ((hours * 60) + mins) * 60;
+		if(secs > SSECSPERDAY) 
+			return false; // outside supported offset range
+		*offset = seconds(secs * (np[0] == '-' ? -1 : 1)); // "-" means west
+		return true;
+	}
 }
 
 std::string FixedOffsetToName(const seconds& offset) 
 {
-	if(offset == seconds::zero()) return "UTC";
-	if(offset < std::chrono::hours(-24) || offset > std::chrono::hours(24)) {
+	if(offset == seconds::zero()) 
+		return "UTC";
+	else if(offset < std::chrono::hours(-24) || offset > std::chrono::hours(24)) {
 		// We don't support fixed-offset zones more than 24 hours
 		// away from UTC to avoid complications in rendering such
 		// offsets and to (somewhat) limit the total number of zones.
 		return "UTC";
 	}
-	int offset_seconds = static_cast<int>(offset.count());
-	const char sign = (offset_seconds < 0 ? '-' : '+');
-	int offset_minutes = offset_seconds / 60;
-	offset_seconds %= 60;
-	if(sign == '-') {
-		if(offset_seconds > 0) {
-			offset_seconds -= 60;
-			offset_minutes += 1;
+	else {
+		int offset_seconds = static_cast<int>(offset.count());
+		const char sign = (offset_seconds < 0 ? '-' : '+');
+		int offset_minutes = offset_seconds / 60;
+		offset_seconds %= 60;
+		if(sign == '-') {
+			if(offset_seconds > 0) {
+				offset_seconds -= 60;
+				offset_minutes += 1;
+			}
+			offset_seconds = -offset_seconds;
+			offset_minutes = -offset_minutes;
 		}
-		offset_seconds = -offset_seconds;
-		offset_minutes = -offset_minutes;
+		int offset_hours = offset_minutes / 60;
+		offset_minutes %= 60;
+		const std::size_t prefix_len = sizeof(kFixedZonePrefix) - 1;
+		char buf[prefix_len + sizeof("-24:00:00")];
+		char* ep = std::copy(kFixedZonePrefix, kFixedZonePrefix + prefix_len, buf);
+		*ep++ = sign;
+		ep = Format02d(ep, offset_hours);
+		*ep++ = ':';
+		ep = Format02d(ep, offset_minutes);
+		*ep++ = ':';
+		ep = Format02d(ep, offset_seconds);
+		*ep++ = '\0';
+		assert(ep == buf + sizeof(buf));
+		return buf;
 	}
-	int offset_hours = offset_minutes / 60;
-	offset_minutes %= 60;
-	const std::size_t prefix_len = sizeof(kFixedZonePrefix) - 1;
-	char buf[prefix_len + sizeof("-24:00:00")];
-	char* ep = std::copy(kFixedZonePrefix, kFixedZonePrefix + prefix_len, buf);
-	*ep++ = sign;
-	ep = Format02d(ep, offset_hours);
-	*ep++ = ':';
-	ep = Format02d(ep, offset_minutes);
-	*ep++ = ':';
-	ep = Format02d(ep, offset_seconds);
-	*ep++ = '\0';
-	assert(ep == buf + sizeof(buf));
-	return buf;
 }
 
-std::string FixedOffsetToAbbr(const seconds& offset) {
+std::string FixedOffsetToAbbr(const seconds& offset) 
+{
 	std::string abbr = FixedOffsetToName(offset);
 	const std::size_t prefix_len = sizeof(kFixedZonePrefix) - 1;
 	if(abbr.size() == prefix_len + 9) {    // <prefix>+99:99:99

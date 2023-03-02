@@ -7,8 +7,8 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "parsing_frame_stack.h"
-#include "prototypes.h"
+//#include "parsing_frame_stack.h"
+//#include "prototypes.h"
 
 namespace {
 typedef std::vector<ParsingFrame> ParsingFrameOrigStack;

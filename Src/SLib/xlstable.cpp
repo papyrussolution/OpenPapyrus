@@ -1,5 +1,5 @@
 // XLSTABLE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -75,6 +75,11 @@ int ExcelDbFile::Open(const char * pFileName, const Param * pParam, int readOnly
 	int    ok = 1;
 	Close();
 	FileName = pFileName;
+	// @v11.6.5 {
+	if(FileName.IsLegalUtf8()) {
+		FileName.Transf(CTRANSF_UTF8_TO_OUTER);
+	}
+	// } @v11.6.5 
 	RVALUEPTR(P, pParam);
 	P.SheetNum = MAX(P.SheetNum, 1);
 	THROW(P_App = new ComExcelApp);

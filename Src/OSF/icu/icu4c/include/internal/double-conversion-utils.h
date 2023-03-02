@@ -360,8 +360,7 @@ template <class Dest, class Source> Dest BitCast(Source* source)
 }
 }  // namespace double_conversion
 
-// ICU PATCH: Close ICU namespace
-U_NAMESPACE_END
+U_NAMESPACE_END // ICU PATCH: Close ICU namespace
 
 #endif  // DOUBLE_CONVERSION_UTILS_H_
 #endif // ICU PATCH: close #if !UCONFIG_NO_FORMATTING

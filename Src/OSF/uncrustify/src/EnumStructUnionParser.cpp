@@ -1,17 +1,10 @@
 /**
  * @file EnumStructUnionParser.cpp
- *
  * @author
  * @license GPL v2+
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "EnumStructUnionParser.h"
-#include "combine_fix_mark.h"
-#include "combine_skip.h"
-#include "combine_tools.h"
-#include "flag_parens.h"
-#include "lang_pawn.h"
 /**
  * Extern declarations
  */

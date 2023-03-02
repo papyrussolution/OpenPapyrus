@@ -7,9 +7,9 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "remove_duplicate_include.h"
+//#include "remove_duplicate_include.h"
 //#include "chunk.h"
-#include "uncrustify.h"
+//#include "uncrustify.h"
 
 using std::vector;
 

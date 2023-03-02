@@ -401,7 +401,8 @@ int is_lowercase(const char * s)
 	return TRUE;
 }
 
-int is_directory(const char * path, const struct dirent * d) {
+int is_directory(const char * path, const struct dirent * d) 
+{
 #ifdef HAVE_DIRENT_DTYPE
 	/* Some filesystems, e.g. ReiserFS, always return a type DT_UNKNOWN from readdir or scandir. */
 	/* Call stat if we don't find DT_DIR to get the information we need. */

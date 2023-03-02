@@ -6,8 +6,8 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "flag_parens.h"
-#include "uncrustify.h"
+//#include "flag_parens.h"
+//#include "uncrustify.h"
 
 Chunk * flag_parens(Chunk * po, PcfFlags flags, E_Token opentype, E_Token parent_type, bool parent_all)
 {

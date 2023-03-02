@@ -6,7 +6,7 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "pcf_flags.h"
+//#include "pcf_flags.h"
 
 static const char * pcf_names[] = {
 	"IN_PREPROC",   // 0

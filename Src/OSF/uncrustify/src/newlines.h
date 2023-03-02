@@ -7,7 +7,7 @@
 #ifndef NEWLINES_H_INCLUDED
 #define NEWLINES_H_INCLUDED
 
-#include "chunk.h"
+//#include "chunk.h"
 /**
  * Double the newline, if allowed.
  */

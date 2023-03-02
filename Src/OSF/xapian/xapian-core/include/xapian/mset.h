@@ -165,20 +165,17 @@ public:
 	 *  second.
 	 */
 	double get_termweight(const std::string & term) const;
-
 	/** Rank of first item in this MSet.
 	 *
 	 *  This is the parameter `first` passed to Xapian::Enquire::get_mset().
 	 */
 	Xapian::doccount get_firstitem() const;
-
 	/** Lower bound on the total number of matching documents. */
 	Xapian::doccount get_matches_lower_bound() const;
 	/** Estimate of the total number of matching documents. */
 	Xapian::doccount get_matches_estimated() const;
 	/** Upper bound on the total number of matching documents. */
 	Xapian::doccount get_matches_upper_bound() const;
-
 	/** Lower bound on the total number of matching documents before collapsing.
 	 *
 	 *  Conceptually the same as get_matches_lower_bound() for the same query
@@ -197,7 +194,6 @@ public:
 	 *  without any collapse part (though the actual value may differ).
 	 */
 	Xapian::doccount get_uncollapsed_matches_upper_bound() const;
-
 	/** The maximum weight attained by any document. */
 	double get_max_attained() const;
 	/** The maximum possible weight any document could achieve. */
@@ -287,14 +283,9 @@ public:
 	 *
 	 *  @since Added in 1.3.5.
 	 */
-	std::string snippet(const std::string & text,
-	    size_t length = 500,
-	    const Xapian::Stem & stemmer = Xapian::Stem(),
-	    uint   flags = SNIPPET_BACKGROUND_MODEL|SNIPPET_EXHAUSTIVE,
-	    const std::string & hi_start = "<b>",
-	    const std::string & hi_end = "</b>",
-	    const std::string & omit = "...") const;
-
+	std::string snippet(const std::string & text, size_t length = 500, const Xapian::Stem & stemmer = Xapian::Stem(),
+	    uint   flags = SNIPPET_BACKGROUND_MODEL|SNIPPET_EXHAUSTIVE, const std::string & hi_start = "<b>",
+	    const std::string & hi_end = "</b>", const std::string & omit = "...") const;
 	/** Prefetch hint a range of items.
 	 *
 	 *  For a remote database, this may start a pipelined fetch of the
@@ -306,7 +297,6 @@ public:
 	 *  actually read them.
 	 */
 	void fetch(const MSetIterator &begin, const MSetIterator &end) const;
-
 	/** Prefetch hint a single MSet item.
 	 *
 	 *  For a remote database, this may start a pipelined fetch of the
@@ -329,38 +319,23 @@ public:
 	 *  are stored in are more likely to be in the cache when we come to
 	 *  actually read them.
 	 */
-	void fetch() const {
-		fetch_(0, Xapian::doccount(-1));
-	}
-
+	void fetch() const { fetch_(0, Xapian::doccount(-1)); }
 	/** Return number of items in this MSet object. */
 	Xapian::doccount size() const;
-
 	/** Return true if this MSet object is empty. */
-	bool empty() const {
-		return size() == 0;
-	}
-
+	bool empty() const { return size() == 0; }
 	/** Efficiently swap this MSet object with another. */
-	void swap(MSet & o) {
-		internal.swap(o.internal);
-	}
-
+	void swap(MSet & o) { internal.swap(o.internal); }
 	/** Return iterator pointing to the first item in this MSet. */
 	MSetIterator begin() const;
-
 	/** Return iterator pointing to just after the last item in this MSet. */
 	MSetIterator end() const;
-
 	/** Return iterator pointing to the i-th object in this MSet. */
 	MSetIterator operator[](Xapian::doccount i) const;
-
 	/** Return iterator pointing to the last object in this MSet. */
 	MSetIterator back() const;
-
 	/// Return a string describing this object.
 	std::string get_description() const;
-
 	/** @private @internal MSet is what the C++ STL calls a container.
 	 *
 	 *  The following typedefs allow the class to be used in templates in the

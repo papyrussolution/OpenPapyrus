@@ -8,8 +8,7 @@
 #ifndef TOKENIZE_H_INCLUDED
 #define TOKENIZE_H_INCLUDED
 
-#include "uncrustify_types.h"
-
+//#include "uncrustify_types.h"
 /**
  * Test the input string to see if it satisfies the criteria
  * specified by the disable_processing_cmt option

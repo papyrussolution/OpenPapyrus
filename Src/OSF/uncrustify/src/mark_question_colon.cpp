@@ -6,10 +6,10 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "mark_question_colon.h"
+//#include "mark_question_colon.h"
 //#include "chunk.h"
-#include "combine_tools.h"
-#include "log_levels.h"
+//#include "combine_tools.h"
+//#include "log_levels.h"
 /*
  * Issue #3558
  * will be called if a ? (CT_QUESTION) chunk is encountered

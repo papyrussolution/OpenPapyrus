@@ -11,8 +11,8 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "logger.h"
-#include "compat.h"
+//#include "logger.h"
+//#include "compat.h"
 
 struct log_fcn_info {
 	log_fcn_info(const char * name_, int line_) : name(name_), line(line_)

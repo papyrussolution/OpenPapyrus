@@ -7,11 +7,11 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "sorting.h"
-#include "newlines.h"
-#include "prototypes.h"
-#include <regex>
-#include <unordered_map>
+//#include "sorting.h"
+//#include "newlines.h"
+//#include "prototypes.h"
+//#include <regex>
+//#include <unordered_map>
 
 constexpr static auto LCURRENT = LSORT;
 

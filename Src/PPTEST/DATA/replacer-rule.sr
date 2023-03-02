@@ -2690,8 +2690,11 @@ philips hu%z%(%d%)%>philips hu-%1
 polaris pir%z%(%d%)%>polaris pir-%1
 polaris phs%z%(%d%)%>polaris phs-%1
 tefal fv%z%(%d%)%>tefal fv-%1
+tefal gv%z%(%d%)%>tefal gv-%1
 tefal rk%z%(%d%)%>tefal rk-%1
 tefal tw%z%(%d%)%>tefal tw-%1
+tefal ko%z%(%d%)%>tefal ko-%1
+tefal ki%z%(%d%)%>tefal ki-%1
 braun hd%z%(%d%)%>braun hd-%1
 braun ts%z%(%d%)%>braun ts-%1
 braun si%z%(%d%)%>braun si-%1
@@ -2717,11 +2720,14 @@ siemens sr%z%(%d%)%>siemens sr-%1
 siemens wm%z%(%d%)%>siemens wm-%1
 siemens ws%z%(%d%)%>siemens ws-%1
 gorenje k%z%(%d%)%>gorenje k-%1
+gorenje gbf%z%(%d%)%>gorenje gbf-%1
+gorenje gbk%z%(%d%)%>gorenje gbk-%1
 gorenje gv%z%(%d%)%>gorenje gv-%1
 gorenje vc%z%(%d%)%>gorenje vc-%1
 gorenje rk%z%(%d%)%>gorenje rk-%1
 gorenje nrk%z%(%d%)%>gorenje nrk-%1
 gorenje r%z%(%d%)%>gorenje r-%1
+gorenje tgr%z%(%d%)%>gorenje tgr-%1
 neff b%z%(%d%)%>neff b-%1
 neff c%z%(%d%)%>neff c-%1
 neff d%z%(%d%)%>neff d-%1

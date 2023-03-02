@@ -1,6 +1,6 @@
 // add_space_table.h
 //
-#include "token_enum.h"
+//#include "token_enum.h"
 
 //! type that stores two chunks between those no space shall occur
 struct no_space_table_t {

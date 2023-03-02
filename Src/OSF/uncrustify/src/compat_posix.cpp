@@ -10,7 +10,7 @@
 
 #ifndef WIN32
 
-#include "uncrustify_types.h"
+//#include "uncrustify_types.h"
 
 bool unc_getenv(const char * name, std::string &str)
 {

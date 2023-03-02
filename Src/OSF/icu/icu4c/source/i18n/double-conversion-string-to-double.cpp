@@ -521,33 +521,18 @@ double StringToDoubleConverter::StringToIeee(Iterator input,
 			*processed_characters_count = static_cast<int>(current - input);
 			return SignedZero(sign);
 		}
-
 		leading_zero = true;
-
 		// It could be hexadecimal value.
-		if(((flags_ & ALLOW_HEX) || (flags_ & ALLOW_HEX_FLOATS)) &&
-		    (*current == 'x' || *current == 'X')) {
+		if(((flags_ & ALLOW_HEX) || (flags_ & ALLOW_HEX_FLOATS)) && (*current == 'x' || *current == 'X')) {
 			++current;
-
 			if(current == end) return junk_string_value_; // "0x"
-
-			bool parse_as_hex_float = (flags_ & ALLOW_HEX_FLOATS) &&
-			    IsHexFloatString(current, end, separator_, allow_trailing_junk);
-
+			bool parse_as_hex_float = (flags_ & ALLOW_HEX_FLOATS) && IsHexFloatString(current, end, separator_, allow_trailing_junk);
 			if(!parse_as_hex_float && !isDigit(*current, 16)) {
 				return junk_string_value_;
 			}
-
 			bool result_is_junk;
-			double result = RadixStringToIeee<4>(&current,
-				end,
-				sign,
-				separator_,
-				parse_as_hex_float,
-				allow_trailing_junk,
-				junk_string_value_,
-				read_as_double,
-				&result_is_junk);
+			double result = RadixStringToIeee<4>(&current, end, sign, separator_, parse_as_hex_float, allow_trailing_junk, junk_string_value_,
+				read_as_double, &result_is_junk);
 			if(!result_is_junk) {
 				if(allow_trailing_spaces) AdvanceToNonspace(&current, end);
 				*processed_characters_count = static_cast<int>(current - input);
@@ -746,7 +731,6 @@ parsing_done:
 	Vector<const char> chars(buffer, buffer_pos);
 	chars = TrimTrailingZeros(chars);
 	exponent += buffer_pos - chars.length();
-
 	double converted;
 	if(read_as_double) {
 		converted = StrtodTrimmed(chars, exponent);
@@ -758,61 +742,46 @@ parsing_done:
 	return sign ? -converted : converted;
 }
 
-double StringToDoubleConverter::StringToDouble(const char * buffer,
-    int length,
-    int* processed_characters_count) const {
+double StringToDoubleConverter::StringToDouble(const char * buffer, int length, int* processed_characters_count) const 
+{
 	return StringToIeee(buffer, length, true, processed_characters_count);
 }
 
-double StringToDoubleConverter::StringToDouble(const uc16* buffer,
-    int length,
-    int* processed_characters_count) const {
+double StringToDoubleConverter::StringToDouble(const uc16* buffer, int length, int* processed_characters_count) const 
+{
 	return StringToIeee(buffer, length, true, processed_characters_count);
 }
 
-float StringToDoubleConverter::StringToFloat(const char * buffer,
-    int length,
-    int* processed_characters_count) const {
-	return static_cast<float>(StringToIeee(buffer, length, false,
-	       processed_characters_count));
+float StringToDoubleConverter::StringToFloat(const char * buffer, int length, int* processed_characters_count) const 
+{
+	return static_cast<float>(StringToIeee(buffer, length, false, processed_characters_count));
 }
 
-float StringToDoubleConverter::StringToFloat(const uc16* buffer,
-    int length,
-    int* processed_characters_count) const {
-	return static_cast<float>(StringToIeee(buffer, length, false,
-	       processed_characters_count));
+float StringToDoubleConverter::StringToFloat(const uc16* buffer, int length, int* processed_characters_count) const 
+{
+	return static_cast<float>(StringToIeee(buffer, length, false, processed_characters_count));
 }
 
-template <>
-double StringToDoubleConverter::StringTo<double>(const char * buffer,
-    int length,
-    int* processed_characters_count) const {
+template <> double StringToDoubleConverter::StringTo<double>(const char * buffer, int length, int* processed_characters_count) const 
+{
 	return StringToDouble(buffer, length, processed_characters_count);
 }
 
-template <>
-float StringToDoubleConverter::StringTo<float>(const char * buffer,
-    int length,
-    int* processed_characters_count) const {
+template <> float StringToDoubleConverter::StringTo<float>(const char * buffer, int length, int* processed_characters_count) const 
+{
 	return StringToFloat(buffer, length, processed_characters_count);
 }
 
-template <>
-double StringToDoubleConverter::StringTo<double>(const uc16* buffer,
-    int length,
-    int* processed_characters_count) const {
+template <> double StringToDoubleConverter::StringTo<double>(const uc16* buffer, int length, int* processed_characters_count) const 
+{
 	return StringToDouble(buffer, length, processed_characters_count);
 }
 
-template <>
-float StringToDoubleConverter::StringTo<float>(const uc16* buffer,
-    int length,
-    int* processed_characters_count) const {
+template <> float StringToDoubleConverter::StringTo<float>(const uc16* buffer, int length, int* processed_characters_count) const 
+{
 	return StringToFloat(buffer, length, processed_characters_count);
 }
 }  // namespace double_conversion
 
-// ICU PATCH: Close ICU namespace
-U_NAMESPACE_END
+U_NAMESPACE_END // ICU PATCH: Close ICU namespace
 #endif // ICU PATCH: close #if !UCONFIG_NO_FORMATTING

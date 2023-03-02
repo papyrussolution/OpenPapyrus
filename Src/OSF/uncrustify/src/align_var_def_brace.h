@@ -8,8 +8,7 @@
  */
 #ifndef ALIGN_VAR_DEF_BRACE_H_INCLUDED
 #define ALIGN_VAR_DEF_BRACE_H_INCLUDED
-
-#include "chunk.h"
+//#include "chunk.h"
 /**
  * Scan everything at the current level until the close brace and find the
  * variable def align column.  Also aligns bit-colons, but that assumes that

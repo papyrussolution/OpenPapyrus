@@ -2353,6 +2353,9 @@ public class StyloQInterchange {
 										case StyloQCommand.sqbcIncomingListCCheck: // @v11.5.6
 											new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypIncomingList, 0, doc_ident, svc_id, rpool);
 											break;
+										case StyloQCommand.sqbcIncomingListTSess: // @v11.6.5
+											new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypIncomingList, 0, doc_ident, svc_id, rpool);
+											break;
 										default:
 											SLib.LOG_d("Helper_DoInterchange2: unprocessed branch (param.OriginalCmdItem.BaseCmdId)");
 											break;

@@ -6,7 +6,7 @@
 #ifndef UNC_TOOLS_H_INCLUDED
 #define UNC_TOOLS_H_INCLUDED
 
-#include "prototypes.h"
+//#include "prototypes.h"
 
 #if defined DEBUG
 	#define PROT_THE_LINE    prot_the_line(__func__, __LINE__, 0, 0);

@@ -623,6 +623,5 @@ static void FixupMultiply10(int estimated_power, bool is_even, int* decimal_poin
 }
 }  // namespace double_conversion
 
-// ICU PATCH: Close ICU namespace
-U_NAMESPACE_END
+U_NAMESPACE_END // ICU PATCH: Close ICU namespace
 #endif // ICU PATCH: close #if !UCONFIG_NO_FORMATTING

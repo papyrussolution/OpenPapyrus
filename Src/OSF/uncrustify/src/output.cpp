@@ -8,18 +8,18 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "output.h"
-#include "align_tab_column.h"
-#include "braces.h"
-#include "indent.h"
-#include "prototypes.h"
-#include "tokenize.h"
-#include "unc_ctype.h"
-#include "unicode.h"
-#include <ctime>
-#include <map>
-#include <regex>
-#include <set>
+//#include "output.h"
+//#include "align_tab_column.h"
+//#include "braces.h"
+//#include "indent.h"
+//#include "prototypes.h"
+//#include "tokenize.h"
+//#include "unc_ctype.h"
+//#include "unicode.h"
+//#include <ctime>
+//#include <map>
+//#include <regex>
+//#include <set>
 
 // if you need more logs, commented out the next define line
 #define EXTRA_LOG

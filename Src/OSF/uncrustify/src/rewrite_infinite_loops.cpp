@@ -6,10 +6,10 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "rewrite_infinite_loops.h"
+//#include "rewrite_infinite_loops.h"
 //#include "chunk.h"
-#include "newlines.h"
-#include "uncrustify.h"
+//#include "newlines.h"
+//#include "uncrustify.h"
 
 using namespace uncrustify;
 

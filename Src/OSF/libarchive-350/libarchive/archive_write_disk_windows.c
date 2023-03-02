@@ -560,9 +560,7 @@ static int la_CreateSymbolicLinkW(const wchar_t * linkname, const wchar_t * targ
 	ttarget = static_cast<wchar_t *>(SAlloc::M((len + 1) * sizeof(wchar_t)));
 	if(ttarget == NULL)
 		return 0;
-
 	p = ttarget;
-
 	while(*target != L'\0') {
 		if(*target == L'/')
 			*p = L'\\';
@@ -572,15 +570,13 @@ static int la_CreateSymbolicLinkW(const wchar_t * linkname, const wchar_t * targ
 		p++;
 	}
 	*p = L'\0';
-
 	/*
 	 * In case of undefined symlink type we guess it from the target.
 	 * If the target equals ".", "..", ends with a backslash or a
 	 * backslash followed by "." or ".." we assume it is a directory
 	 * symlink. In all other cases we assume a file symlink.
 	 */
-	if(linktype != AE_SYMLINK_TYPE_FILE && (
-		    linktype == AE_SYMLINK_TYPE_DIRECTORY ||
+	if(linktype != AE_SYMLINK_TYPE_FILE && (linktype == AE_SYMLINK_TYPE_DIRECTORY ||
 		    *(p - 1) == L'\\' || (*(p - 1) == L'.' && (len == 1 || *(p - 2) == L'\\' || ( *(p - 2) == L'.' && (len == 2 || *(p - 3) == L'\\')))))) {
 #if defined(SYMBOLIC_LINK_FLAG_DIRECTORY)
 		flags |= SYMBOLIC_LINK_FLAG_DIRECTORY;
@@ -588,13 +584,11 @@ static int la_CreateSymbolicLinkW(const wchar_t * linkname, const wchar_t * targ
 		flags |= 0x1;
 #endif
 	}
-
 #if defined(SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE)
 	newflags = flags | SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;
 #else
 	newflags = flags | 0x2;
 #endif
-
 	/*
 	 * Windows won't overwrite existing links
 	 */
@@ -1481,20 +1475,16 @@ static int restore_entry(struct archive_write_disk * a)
 static int create_filesystem_object(struct archive_write_disk * a)
 {
 	/* Create the entry. */
-	const wchar_t * linkname;
 	wchar_t * fullname;
 	mode_t final_mode, mode;
 	int r;
 	DWORD attrs = 0;
-
 	/* We identify hard/symlinks according to the link names. */
 	/* Since link(2) and symlink(2) don't handle modes, we're done here. */
-	linkname = archive_entry_hardlink_w(a->entry);
+	const wchar_t * linkname = archive_entry_hardlink_w(a->entry);
 	if(linkname) {
-		wchar_t * linkfull, * namefull;
-
-		linkfull = __la_win_permissive_name_w(linkname);
-		namefull = __la_win_permissive_name_w(a->name);
+		wchar_t * linkfull = __la_win_permissive_name_w(linkname);
+		wchar_t * namefull = __la_win_permissive_name_w(a->name);
 		if(linkfull == NULL || namefull == NULL) {
 			errno = EINVAL;
 			r = -1;
@@ -1539,8 +1529,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 			a->deferred = 0;
 		}
 		else if(r == 0 && a->filesize > 0) {
-			a->fh = CreateFileW(namefull, GENERIC_WRITE, 0, NULL,
-				TRUNCATE_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+			a->fh = CreateFileW(namefull, GENERIC_WRITE, 0, NULL, TRUNCATE_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 			if(a->fh == INVALID_HANDLE_VALUE) {
 				la_dosmaperr(GetLastError());
 				r = errno;
@@ -1568,8 +1557,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		return symlink(linkname, a->name) ? errno : 0;
 #else
 		errno = 0;
-		r = la_CreateSymbolicLinkW((const wchar_t *)a->name, linkname,
-			archive_entry_symlink_type(a->entry));
+		r = la_CreateSymbolicLinkW((const wchar_t *)a->name, linkname, archive_entry_symlink_type(a->entry));
 		if(!r) {
 			if(errno == 0)
 				la_dosmaperr(GetLastError());
@@ -1580,13 +1568,11 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		return r;
 #endif
 	}
-
 	/*
 	 * The remaining system calls all set permissions, so let's
 	 * try to take advantage of that to avoid an extra chmod()
 	 * call.  (Recall that umask is set to zero right now!)
 	 */
-
 	/* Mode we want for the final restored object (w/o file type bits). */
 	final_mode = a->mode & 07777;
 	/*
@@ -1595,7 +1581,6 @@ static int create_filesystem_object(struct archive_write_disk * a)
 	 * security, so we never restore them at this point.
 	 */
 	mode = final_mode & 0777 & ~a->user_umask;
-
 	switch(a->mode & AE_IFMT) {
 		default:
 		/* POSIX requires that we fall through here. */
@@ -1604,8 +1589,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		    a->tmpname = NULL;
 		    fullname = a->name;
 		    /* O_WRONLY | O_CREAT | O_EXCL */
-		    a->fh = CreateFileW(fullname, GENERIC_WRITE, 0, NULL,
-			    CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+		    a->fh = CreateFileW(fullname, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
 		    if(a->fh == INVALID_HANDLE_VALUE &&
 			GetLastError() == ERROR_INVALID_NAME &&
 			fullname == a->name) {
@@ -1643,8 +1627,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		    mode = (mode | MINIMUM_DIR_MODE) & MAXIMUM_DIR_MODE;
 		    fullname = a->name;
 		    r = CreateDirectoryW(fullname, NULL);
-		    if(r == 0 && GetLastError() == ERROR_INVALID_NAME &&
-			fullname == a->name) {
+		    if(r == 0 && GetLastError() == ERROR_INVALID_NAME && fullname == a->name) {
 			    fullname = __la_win_permissive_name_w(a->name);
 			    r = CreateDirectoryW(fullname, NULL);
 		    }
@@ -1656,8 +1639,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 			    /* Never use an immediate chmod(). */
 			    /* We can't avoid the chmod() entirely if EXTRACT_PERM
 			     * because of SysV SGID inheritance. */
-			    if((mode != final_mode)
-				|| (a->flags & ARCHIVE_EXTRACT_PERM))
+			    if((mode != final_mode) || (a->flags & ARCHIVE_EXTRACT_PERM))
 				    a->deferred |= (a->todo & TODO_MODE);
 			    a->todo &= ~TODO_MODE;
 		    }
@@ -1673,17 +1655,14 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		     * to restore a fifo. */
 		    return (EINVAL);
 	}
-
 	/* All the system calls above set errno on failure. */
 	if(r)
 		return (errno);
-
 	/* If we managed to set the final mode, we've avoided a chmod(). */
 	if(mode == final_mode)
 		a->todo &= ~TODO_MODE;
 	return 0;
 }
-
 /*
  * Cleanup function for archive_extract.  Mostly, this involves processing
  * the fixup list, which is used to address a number of problems:

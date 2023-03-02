@@ -1079,6 +1079,8 @@ public class StyloQApp extends SLib.App {
 											intent_cls = CmdRIncomingListBillActivity.class;
 										else if(doc_decl.DisplayMethod.equalsIgnoreCase("incominglistccheck")) // @v11.5.3
 											intent_cls = CmdRIncomingListBillActivity.class; // ???
+										else if(doc_decl.DisplayMethod.equalsIgnoreCase("incominglisttsess")) // @v11.6.5
+											intent_cls = CmdRIncomingListBillActivity.class; // ???
 										if(doc_decl.Format.equalsIgnoreCase("json"))
 											svc_doc_json = new String(stp_reply.Get(SecretTagPool.tagRawData));
 									}
@@ -1101,6 +1103,8 @@ public class StyloQApp extends SLib.App {
 							else if(doc_decl.DisplayMethod.equalsIgnoreCase("incominglistorder")) // @v11.4.8
 								intent_cls = CmdRIncomingListBillActivity.class;
 							else if(doc_decl.DisplayMethod.equalsIgnoreCase("incominglistccheck")) // @v11.5.6
+								intent_cls = CmdRIncomingListBillActivity.class; // ???
+							else if(doc_decl.DisplayMethod.equalsIgnoreCase("incominglisttsess")) // @v11.6.5
 								intent_cls = CmdRIncomingListBillActivity.class; // ???
 							if(intent_cls == null)
 								intent_cls = CmdRSimpleActivity.class;

@@ -1904,7 +1904,6 @@ int __os_exists(ENV * env, const char * path, int * isdirp)
 	FREE_STRING(env, tpath);
 	return ret;
 }
-
 /*
  * __os_ioinfo --
  *	Return file size and I/O size; abstracted to make it easier

@@ -26,10 +26,8 @@ void align_typedefs(size_t span)
 	as.m_star_style = static_cast<AlignStack::StarStyle>(options::align_typedef_star_style());
 	log_rule_B("align_typedef_amp_style");
 	as.m_amp_style = static_cast<AlignStack::StarStyle>(options::align_typedef_amp_style());
-
 	Chunk * c_typedef = Chunk::NullChunkPtr;
 	Chunk * pc        = Chunk::GetHead();
-
 	while(pc->IsNotNullChunk()) {
 		if(pc->IsNewline()) {
 			as.NewLines(pc->GetNlCount());
@@ -38,8 +36,7 @@ void align_typedefs(size_t span)
 		else if(c_typedef->IsNotNullChunk()) {
 			if(pc->TestFlags(PCF_ANCHOR)) {
 				as.Add(pc);
-				LOG_FMT(LALTD, "%s(%d): typedef @ %zu:%zu, tag '%s' @ %zu:%zu\n",
-				    __func__, __LINE__, c_typedef->GetOrigLine(), c_typedef->GetOrigCol(),
+				LOG_FMT(LALTD, "%s(%d): typedef @ %zu:%zu, tag '%s' @ %zu:%zu\n", __func__, __LINE__, c_typedef->GetOrigLine(), c_typedef->GetOrigCol(),
 				    pc->Text(), pc->GetOrigLine(), pc->GetOrigCol());
 				c_typedef = Chunk::NullChunkPtr;
 			}

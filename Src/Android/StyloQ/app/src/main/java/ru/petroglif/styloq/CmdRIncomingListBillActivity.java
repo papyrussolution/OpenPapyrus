@@ -552,6 +552,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					CPM.MakeGoodsListFromCommonJson(jsSvcReplyDoc);
 					CPM.MakeBrandListFromCommonJson(jsSvcReplyDoc);
 					CPM.MakeClientListFromCommonJson(jsSvcReplyDoc);
+					CPM.MakeProcessorListFromCommonJson(jsSvcReplyDoc); // @v11.6.5
 					CPM.MakeIncomingDocFromCommonJson(jsSvcReplyDoc);
 					if(CPM.IncomingDocListData != null) {
 						for(int i = 0; i < CPM.IncomingDocListData.size(); i++) {

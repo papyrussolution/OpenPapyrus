@@ -1,8 +1,8 @@
-//
+// unc_ctype.cpp
 //
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "options.h"
+//#include "options.h"
 
 int unc_fix_ctype(int ch)
 {

@@ -1,9 +1,13 @@
 // FUTIL.CPP
 // Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <shlobj.h> // SHGetFolderPath and constants
+#ifdef WIN32
+	#include <shlobj.h> // SHGetFolderPath and constants
+	#include <Shlwapi.h> // @v11.6.5
+#endif
 
 SDataMoveProgressInfo::SDataMoveProgressInfo()
 {
@@ -12,21 +16,50 @@ SDataMoveProgressInfo::SDataMoveProgressInfo()
 
 bool FASTCALL fileExists(const char * pFileName)
 {
-/* @snippet ������ ����������� ������������� ����� ����������� WINAPI (Shlwapi.h)
+///* @snippet Пример определения существования файла посредством WINAPI (Shlwapi.h)
+	bool result = false;
+	if(!isempty(pFileName)) {
 #ifdef WIN32
-	const DWORD attributes = GetFileAttributesA(path);
-	// special directory case to drive the network path check
-	const BOOL is_directory = (attributes == INVALID_FILE_ATTRIBUTES) ? (GetLastError() == ERROR_BAD_NETPATH) : (FILE_ATTRIBUTE_DIRECTORY & attributes);
-	if(is_directory) {
-		if(PathIsNetworkPathA(path)) 
-			return true;
-		else if(PathIsUNCA(path)) 
-			return true;
+		SString _file_name(pFileName);
+		if(_file_name.IsAscii()) {
+			const DWORD attributes = GetFileAttributesA(_file_name);
+			// special directory case to drive the network path check
+			const BOOL is_directory = (attributes == INVALID_FILE_ATTRIBUTES) ? (GetLastError() == ERROR_BAD_NETPATH) : BIN(attributes & FILE_ATTRIBUTE_DIRECTORY);
+			if(is_directory) {
+				result = (PathIsNetworkPathA(_file_name) || PathIsUNCA(_file_name));
+			}
+			if(!result && PathFileExistsA(_file_name)) 
+				result = true;
+		}
+		else if(_file_name.IsLegalUtf8()) {
+			SStringU _file_name_u;
+			_file_name_u.CopyFromUtf8R(_file_name, 0);
+			const DWORD attributes = GetFileAttributesW(_file_name_u);
+			// special directory case to drive the network path check
+			const BOOL is_directory = (attributes == INVALID_FILE_ATTRIBUTES) ? (GetLastError() == ERROR_BAD_NETPATH) : BIN(attributes & FILE_ATTRIBUTE_DIRECTORY);
+			if(is_directory) {
+				result = (PathIsNetworkPathW(_file_name_u) || PathIsUNCW(_file_name_u));
+			}
+			if(!result && PathFileExistsW(_file_name_u)) 
+				result = true;
+		}
+		else {
+			const DWORD attributes = GetFileAttributesA(pFileName);
+			// special directory case to drive the network path check
+			const BOOL is_directory = (attributes == INVALID_FILE_ATTRIBUTES) ? (GetLastError() == ERROR_BAD_NETPATH) : BIN(attributes & FILE_ATTRIBUTE_DIRECTORY);
+			if(is_directory) {
+				result = (PathIsNetworkPathA(pFileName) || PathIsUNCA(pFileName));
+			}
+			if(!result && PathFileExistsA(pFileName)) 
+				result = true;
+		}
+#else
+		result = (::access(pFileName, 0) == 0);
+#endif
 	}
-	if(PathFileExistsA(path) == 1) 
-		return true;
-#endif*/
-	return (!isempty(pFileName) && ::access(pFileName, 0) == 0) ? true : SLS.SetError(SLERR_FILENOTFOUND, pFileName);
+	if(!result)
+		SLS.SetError(SLERR_FILENOTFOUND, pFileName);
+	return result;
 }
 
 #ifdef __WIN32__
@@ -655,19 +688,33 @@ int RemoveDir(const char * pDir)
 	EXCEPTVAR(SLibError);
 	int    ok = 1; // @v11.2.0 @fix (-1)-->(1)
 	Stat   stat;
+	SString _file_name(pFileName);
 	MEMSZERO(stat);
 #ifdef __WIN32__
-	LARGE_INTEGER size;
-	HANDLE srchdl = ::CreateFile(SUcSwitch(pFileName), FILE_READ_ATTRIBUTES|FILE_READ_EA|STANDARD_RIGHTS_READ, 
-		FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0); 
-	SLS.SetAddedMsgString(pFileName);
-	THROW_V(srchdl != INVALID_HANDLE_VALUE, SLERR_OPENFAULT);
-	SFile::GetTime((int)srchdl, &stat.CrtTime, &stat.AccsTime, &stat.ModTime);
-	GetFileSizeEx(srchdl, &size);
-	stat.Size = size.QuadPart;
+	HANDLE srchdl = INVALID_HANDLE_VALUE;
+	THROW_V(_file_name.NotEmpty(), SLERR_OPENFAULT);
+	{
+		SStringU _file_name_u;
+		LARGE_INTEGER size = {0, 0};
+		if(_file_name.IsAscii()) {
+			_file_name_u.CopyFromMb_OUTER(_file_name, _file_name.Len());
+		}
+		else if(_file_name.IsLegalUtf8()) {
+			_file_name_u.CopyFromUtf8R(_file_name, 0);
+		}
+		else {
+			_file_name_u.CopyFromMb_OUTER(_file_name, _file_name.Len());
+		}
+		srchdl = ::CreateFileW(_file_name_u, FILE_READ_ATTRIBUTES|FILE_READ_EA|STANDARD_RIGHTS_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0); 
+		SLS.SetAddedMsgString(pFileName);
+		THROW_V(srchdl != INVALID_HANDLE_VALUE, SLERR_OPENFAULT);
+		SFile::GetTime((int)srchdl, &stat.CrtTime, &stat.AccsTime, &stat.ModTime);
+		GetFileSizeEx(srchdl, &size);
+		stat.Size = size.QuadPart;
+	}
+	CATCHZOK
 	if(srchdl != INVALID_HANDLE_VALUE)
 		CloseHandle(srchdl);
-	CATCHZOK
 #endif
 	ASSIGN_PTR(pStat, stat);
 	return ok;
@@ -733,11 +780,11 @@ int RemoveDir(const char * pDir)
 #if SLTEST_RUNNING // {
 /*
 ;
-; ���������:
-; 0 - �������� ���������� �������� IN
-; 1 - ���������� ��������� ��������, � ������� ��������� ������� ���������� ������
-; 2 - ���������� ������, ����������� � ��������, ��������� ���������� 1
-; 3 - ��������� ������ ������, ����������� � ��������, ��������� ���������� 1
+; Аргументы:
+; 0 - тестовый подкаталог каталога IN
+; 1 - подкаталог тестового каталого, в котором находится большое количество файлов
+; 2 - количество файлов, находящихся в каталоге, описанном параметром 1
+; 3 - суммарный размер файлов, находящихся в каталоге, описанном параметром 1
 ;
 arglist=Test Directory;Test Directory Level 2\Directory With Many Files;1858;470075
 benchmark=access;winfileexists
@@ -797,6 +844,26 @@ SLTEST_R(Directory)
 		}
 		THROW(SLTEST_CHECK_EQ(file_list.getCount(), files_count));
 		THROW(SLTEST_CHECK_EQ((long)sz, (long)files_size));
+		// @v11.6.5 {
+		{
+			// "D:\Papyrus\Src\PPTEST\DATA\Test Directory\TDR\Тестовый каталог в кодировке cp1251\"
+			// Проверяем наличие каталога с именем русскими буквами (он есть). Проверка и в кодировках utf8 и 1251 (ANSI)
+			(path = GetSuiteEntry()->InPath).SetLastSlash().Cat(test_dir).SetLastSlash().Cat("TDR\\Тестовый каталог в кодировке cp1251");
+			SLTEST_CHECK_NZ(fileExists(path));
+			path.Transf(CTRANSF_UTF8_TO_OUTER);
+			SLTEST_CHECK_NZ(fileExists(path));
+			// Проверяем наличие файла с именем русскими буквами (он есть). Проверка и в кодировках utf8 и 1251 (ANSI)
+			(path = GetSuiteEntry()->InPath).SetLastSlash().Cat(test_dir).SetLastSlash().Cat("TDR\\Тестовый каталог в кодировке cp1251\\тестовый файл в кодировке 1251.txt");
+			SLTEST_CHECK_NZ(fileExists(path));
+			path.Transf(CTRANSF_UTF8_TO_OUTER);
+			SLTEST_CHECK_NZ(fileExists(path));
+			// Вставляем дефисы вместо пробелов - такого файла нет!
+			(path = GetSuiteEntry()->InPath).SetLastSlash().Cat(test_dir).SetLastSlash().Cat("TDR\\Тестовый каталог в кодировке cp1251\\тестовый-файл-в-кодировке-1251.txt");
+			SLTEST_CHECK_Z(fileExists(path));
+			path.Transf(CTRANSF_UTF8_TO_OUTER);
+			SLTEST_CHECK_Z(fileExists(path));
+		}
+		// } @v11.6.5
 		//
 		if(pBenchmark) {
 			if(sstreqi_ascii(pBenchmark, "access")) {
@@ -813,7 +880,7 @@ SLTEST_R(Directory)
 	}
 	{
 		const int64 test_file_size = 1024 * 1024;
-		(temp_buf = out_path).SetLastSlash().Cat("�������� ���� � �� ansi-���������.txt");
+		(temp_buf = out_path).SetLastSlash().Cat("тестовый файл с не ansi-символами.txt"); // source-file in utf-8!
 		{
 			SFile f_out(temp_buf, SFile::mWrite|SFile::mBinary);
 			THROW(SLTEST_CHECK_NZ(f_out.IsValid()));

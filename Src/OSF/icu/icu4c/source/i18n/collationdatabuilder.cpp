@@ -98,24 +98,17 @@ U_CDECL_END
 class DataBuilderCollationIterator : public CollationIterator {
 public:
 	DataBuilderCollationIterator(CollationDataBuilder &b);
-
 	virtual ~DataBuilderCollationIterator();
-
 	int32_t fetchCEs(const UnicodeString & str, int32_t start, int64_t ces[], int32_t cesLength);
-
 	virtual void resetToOffset(int32_t newOffset) override;
 	virtual int32_t getOffset() const override;
-
 	virtual UChar32 nextCodePoint(UErrorCode & errorCode) override;
 	virtual UChar32 previousCodePoint(UErrorCode & errorCode) override;
-
 protected:
 	virtual void forwardNumCodePoints(int32_t num, UErrorCode & errorCode) override;
 	virtual void backwardNumCodePoints(int32_t num, UErrorCode & errorCode) override;
-
 	virtual uint32_t getDataCE32(UChar32 c) const override;
 	virtual uint32_t getCE32FromBuilderData(uint32_t ce32, UErrorCode & errorCode) override;
-
 	CollationDataBuilder &builder;
 	CollationData builderData;
 	uint32_t jamoCE32s[CollationData::JAMO_CE32S_LENGTH];
@@ -123,10 +116,9 @@ protected:
 	int32_t pos;
 };
 
-DataBuilderCollationIterator::DataBuilderCollationIterator(CollationDataBuilder &b)
-	: CollationIterator(&builderData, /*numeric=*/ FALSE),
-	builder(b), builderData(b.nfcImpl),
-	s(NULL), pos(0) {
+DataBuilderCollationIterator::DataBuilderCollationIterator(CollationDataBuilder &b) : CollationIterator(&builderData, /*numeric=*/ FALSE),
+	builder(b), builderData(b.nfcImpl), s(NULL), pos(0) 
+{
 	builderData.base = builder.base;
 	// Set all of the jamoCE32s[] to indirection CE32s.
 	for(int32_t j = 0; j < CollationData::JAMO_CE32S_LENGTH; ++j) { // Count across Jamo types.
@@ -137,7 +129,8 @@ DataBuilderCollationIterator::DataBuilderCollationIterator(CollationDataBuilder 
 	builderData.jamoCE32s = jamoCE32s;
 }
 
-DataBuilderCollationIterator::~DataBuilderCollationIterator() {
+DataBuilderCollationIterator::~DataBuilderCollationIterator() 
+{
 }
 
 int32_t DataBuilderCollationIterator::fetchCEs(const UnicodeString & str, int32_t start,
@@ -180,16 +173,16 @@ int32_t DataBuilderCollationIterator::fetchCEs(const UnicodeString & str, int32_
 	return cesLength;
 }
 
-void DataBuilderCollationIterator::resetToOffset(int32_t newOffset) {
+void DataBuilderCollationIterator::resetToOffset(int32_t newOffset) 
+{
 	reset();
 	pos = newOffset;
 }
 
-int32_t DataBuilderCollationIterator::getOffset() const {
-	return pos;
-}
+int32_t DataBuilderCollationIterator::getOffset() const { return pos; }
 
-UChar32 DataBuilderCollationIterator::nextCodePoint(UErrorCode & /*errorCode*/) {
+UChar32 DataBuilderCollationIterator::nextCodePoint(UErrorCode & /*errorCode*/) 
+{
 	if(pos == s->length()) {
 		return U_SENTINEL;
 	}
@@ -198,7 +191,8 @@ UChar32 DataBuilderCollationIterator::nextCodePoint(UErrorCode & /*errorCode*/) 
 	return c;
 }
 
-UChar32 DataBuilderCollationIterator::previousCodePoint(UErrorCode & /*errorCode*/) {
+UChar32 DataBuilderCollationIterator::previousCodePoint(UErrorCode & /*errorCode*/) 
+{
 	if(pos == 0) {
 		return U_SENTINEL;
 	}
@@ -207,19 +201,12 @@ UChar32 DataBuilderCollationIterator::previousCodePoint(UErrorCode & /*errorCode
 	return c;
 }
 
-void DataBuilderCollationIterator::forwardNumCodePoints(int32_t num, UErrorCode & /*errorCode*/) {
-	pos = s->moveIndex32(pos, num);
-}
+void DataBuilderCollationIterator::forwardNumCodePoints(int32_t num, UErrorCode & /*errorCode*/) { pos = s->moveIndex32(pos, num); }
+void DataBuilderCollationIterator::backwardNumCodePoints(int32_t num, UErrorCode & /*errorCode*/) { pos = s->moveIndex32(pos, -num); }
+uint32_t DataBuilderCollationIterator::getDataCE32(UChar32 c) const { return utrie2_get32(builder.trie, c); }
 
-void DataBuilderCollationIterator::backwardNumCodePoints(int32_t num, UErrorCode & /*errorCode*/) {
-	pos = s->moveIndex32(pos, -num);
-}
-
-uint32_t DataBuilderCollationIterator::getDataCE32(UChar32 c) const {
-	return utrie2_get32(builder.trie, c);
-}
-
-uint32_t DataBuilderCollationIterator::getCE32FromBuilderData(uint32_t ce32, UErrorCode & errorCode) {
+uint32_t DataBuilderCollationIterator::getCE32FromBuilderData(uint32_t ce32, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
@@ -248,9 +235,9 @@ uint32_t DataBuilderCollationIterator::getCE32FromBuilderData(uint32_t ce32, UEr
 		return cond->builtCE32;
 	}
 }
-
-// ------------------------------------------------------------------------- ***
-
+//
+//
+//
 CollationDataBuilder::CollationDataBuilder(UErrorCode & errorCode) : nfcImpl(*Normalizer2Factory::getNFCImpl(errorCode)),
 	base(NULL), baseSettings(NULL), trie(NULL), ce32s(errorCode), ce64s(errorCode), conditionalCE32s(errorCode),
 	modified(FALSE), fastLatinEnabled(FALSE), fastLatinBuilder(NULL), collIter(NULL) 
@@ -346,9 +333,8 @@ bool CollationDataBuilder::maybeSetPrimaryRange(UChar32 start, UChar32 end, uint
 	}
 }
 
-uint32_t CollationDataBuilder::setPrimaryRangeAndReturnNext(UChar32 start, UChar32 end,
-    uint32_t primary, int32_t step,
-    UErrorCode & errorCode) {
+uint32_t CollationDataBuilder::setPrimaryRangeAndReturnNext(UChar32 start, UChar32 end, uint32_t primary, int32_t step, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}

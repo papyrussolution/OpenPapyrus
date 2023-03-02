@@ -7,11 +7,6 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "combine_labels.h"
-//#include "chunk.h"
-#include "cs_top_is_question.h"
-#include "unc_tools.h"
-#include "uncrustify.h"
 
 Chunk * chunk_get_next_local(Chunk * pc, E_Scope scope = E_Scope::ALL)
 {

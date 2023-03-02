@@ -8,9 +8,9 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "remove_extra_returns.h"
+//#include "remove_extra_returns.h"
 //#include "chunk.h"
-#include "uncrustify.h"
+//#include "uncrustify.h"
 
 void remove_extra_returns()
 {

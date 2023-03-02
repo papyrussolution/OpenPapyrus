@@ -8,10 +8,10 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "logmask.h"
-#include "unc_ctype.h"
-#include <cstdio>      // snprintf()
-#include <cstdlib>     // strtoul()
+//#include "logmask.h"
+//#include "unc_ctype.h"
+//#include <cstdio>      // snprintf()
+//#include <cstdlib>     // strtoul()
 
 #ifdef DEVELOP_ONLY
 /*

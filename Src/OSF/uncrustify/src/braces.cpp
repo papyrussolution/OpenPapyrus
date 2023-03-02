@@ -125,30 +125,25 @@ void do_braces()
 	// Mark one-liners
 	// Issue #2232 put this at the beginning
 	Chunk * pc = Chunk::GetHead()->GetNextNcNnl();
-
 	while(pc->IsNotNullChunk()) {
-		if(pc->IsNot(CT_BRACE_OPEN)
-		    && pc->IsNot(CT_VBRACE_OPEN)) {
+		if(pc->IsNot(CT_BRACE_OPEN) && pc->IsNot(CT_VBRACE_OPEN)) {
 			pc = pc->GetNextNcNnl();
 			continue;
 		}
-		Chunk         * br_open = pc;
+		Chunk * br_open = pc;
 		const E_Token brc_type = E_Token(pc->GetType() + 1); // corresponds to closing type
 		// Detect empty bodies
-		Chunk         * tmp = pc->GetNextNcNnl();
-
+		Chunk * tmp = pc->GetNextNcNnl();
 		if(tmp->Is(brc_type)) {
 			br_open->SetFlagBits(PCF_EMPTY_BODY);
 			tmp->SetFlagBits(PCF_EMPTY_BODY);
 		}
 		// Scan for the brace close or a newline
 		tmp = br_open->GetNextNc();
-
 		while(tmp->IsNotNullChunk()) {
 			if(tmp->IsNewline()) {
 				break;
 			}
-
 			if(tmp->Is(brc_type)
 			    && br_open->GetLevel() == tmp->GetLevel()) {
 				flag_series(br_open, tmp, PCF_ONE_LINER);
@@ -160,9 +155,7 @@ void do_braces()
 	}
 	log_rule_B("mod_full_brace_if_chain");
 	log_rule_B("mod_full_brace_if_chain_only");
-
-	if(options::mod_full_brace_if_chain()
-	    || options::mod_full_brace_if_chain_only()) {
+	if(options::mod_full_brace_if_chain() || options::mod_full_brace_if_chain_only()) {
 		mod_full_brace_if_chain();
 	}
 	log_rule_B("mod_full_brace_if");
@@ -170,12 +163,7 @@ void do_braces()
 	log_rule_B("mod_full_brace_for");
 	log_rule_B("mod_full_brace_using");
 	log_rule_B("mod_full_brace_while");
-
-	if((options::mod_full_brace_if() |
-	    options::mod_full_brace_do() |
-	    options::mod_full_brace_for() |
-	    options::mod_full_brace_using() |
-	    options::mod_full_brace_while()) & IARF_REMOVE) {
+	if((options::mod_full_brace_if() | options::mod_full_brace_do() | options::mod_full_brace_for() | options::mod_full_brace_using() | options::mod_full_brace_while()) & IARF_REMOVE) {
 		examine_braces();
 	}
 	// convert vbraces if needed
@@ -1308,117 +1296,82 @@ static void mod_case_brace()
 static void process_if_chain(Chunk * br_start)
 {
 	LOG_FUNC_ENTRY();
-	LOG_FMT(LBRCH, "%s(%d): if starts on line %zu, orig col is %zu.\n",
-	    __func__, __LINE__, br_start->GetOrigLine(), br_start->GetOrigCol());
-
+	LOG_FMT(LBRCH, "%s(%d): if starts on line %zu, orig col is %zu.\n", __func__, __LINE__, br_start->GetOrigLine(), br_start->GetOrigCol());
 	vector<Chunk *> braces;
-
 	braces.reserve(16);
-
 	bool must_have_braces   = false;
 	bool has_unbraced_block = false;
-
 	Chunk * pc = br_start;
-
 	while(pc->IsNotNullChunk()) {
 		LOG_CHUNK(LTOK, pc);
-
 		if(pc->Is(CT_BRACE_OPEN)) {
 			const bool tmp = can_remove_braces(pc);
 			LOG_FMT(LBRCH, "%s(%d): braces.size() is %zu, line is %zu, - can%s remove %s\n",
 			    __func__, __LINE__, braces.size(), pc->GetOrigLine(), tmp ? "" : "not",
 			    get_token_name(pc->GetType()));
-
-			if(!tmp
-			    || options::mod_full_brace_if_chain() == 2) {
+			if(!tmp || options::mod_full_brace_if_chain() == 2) {
 				must_have_braces = true;
 			}
 		}
 		else {
 			const bool tmp = should_add_braces(pc);
-
 			if(tmp) {
 				must_have_braces = true;
 			}
-			LOG_FMT(LBRCH, "%s(%d): braces.size() is %zu, line is %zu, - %s %s\n",
-			    __func__, __LINE__, braces.size(), pc->GetOrigLine(), tmp ? "should add" : "ignore",
+			LOG_FMT(LBRCH, "%s(%d): braces.size() is %zu, line is %zu, - %s %s\n", __func__, __LINE__, braces.size(), pc->GetOrigLine(), tmp ? "should add" : "ignore",
 			    get_token_name(pc->GetType()));
-
 			has_unbraced_block = true;
 		}
-
-		if(options::mod_full_brace_if_chain() == 3
-		    && !has_unbraced_block) {
+		if(options::mod_full_brace_if_chain() == 3 && !has_unbraced_block) {
 			must_have_braces = true;
 		}
 		braces.push_back(pc);
 		Chunk * br_close = pc->GetClosingParen(E_Scope::PREPROC);
-
 		if(br_close->IsNullChunk()) {
 			break;
 		}
 		braces.push_back(br_close);
-
 		pc = br_close->GetNextNcNnl(E_Scope::PREPROC);
-
-		if(pc->IsNullChunk()
-		    || pc->IsNot(CT_ELSE)) {
+		if(pc->IsNullChunk() || pc->IsNot(CT_ELSE)) {
 			break;
 		}
 		log_rule_B("mod_full_brace_if_chain_only");
-
 		if(options::mod_full_brace_if_chain_only()) {
 			// There is an 'else' - we want full braces.
 			must_have_braces = true;
 		}
 		pc = pc->GetNextNcNnl(E_Scope::PREPROC);
-
 		if(pc->Is(CT_ELSEIF)) {
-			while(pc->IsNot(CT_VBRACE_OPEN)
-			    && pc->IsNot(CT_BRACE_OPEN)) {
+			while(pc->IsNot(CT_VBRACE_OPEN) && pc->IsNot(CT_BRACE_OPEN)) {
 				pc = pc->GetNextNcNnl(E_Scope::PREPROC);
 			}
 		}
-
 		if(pc->IsNullChunk()) {
 			break;
 		}
-
-		if(pc->IsNot(CT_BRACE_OPEN)
-		    && pc->IsNot(CT_VBRACE_OPEN)) {
+		if(pc->IsNot(CT_BRACE_OPEN) && pc->IsNot(CT_VBRACE_OPEN)) {
 			break;
 		}
 	}
-
 	if(must_have_braces) {
-		LOG_FMT(LBRCH, "%s(%d): add braces on lines[%zu]:",
-		    __func__, __LINE__, braces.size());
-
+		LOG_FMT(LBRCH, "%s(%d): add braces on lines[%zu]:", __func__, __LINE__, braces.size());
 		const auto ite = braces.rend();
-
 		for(auto itc = braces.rbegin(); itc != ite; ++itc) {
 			const auto brace = *itc;
-
 			brace->SetFlagBits(PCF_KEEP_BRACE);
-
 			if(brace->IsVBrace()) {
-				LOG_FMT(LBRCH, "%s(%d):  %zu",
-				    __func__, __LINE__, brace->GetOrigLine());
+				LOG_FMT(LBRCH, "%s(%d):  %zu", __func__, __LINE__, brace->GetOrigLine());
 				convert_vbrace(brace);
 			}
 			else {
-				LOG_FMT(LBRCH, "%s(%d):  {%zu}",
-				    __func__, __LINE__, brace->GetOrigLine());
+				LOG_FMT(LBRCH, "%s(%d):  {%zu}", __func__, __LINE__, brace->GetOrigLine());
 			}
 		}
-
 		LOG_FMT(LBRCH, "\n");
 	}
 	else if(options::mod_full_brace_if_chain()) {
 		log_rule_B("mod_full_brace_if_chain");
-		LOG_FMT(LBRCH, "%s(%d): remove braces on lines[%zu]:\n",
-		    __func__, __LINE__, braces.size());
-
+		LOG_FMT(LBRCH, "%s(%d): remove braces on lines[%zu]:\n", __func__, __LINE__, braces.size());
 		/*
 		 * This might run because either
 		 * mod_full_brace_if_chain or mod_full_brace_if_chain_only
@@ -1445,8 +1398,7 @@ static void process_if_chain(Chunk * br_start)
 				convert_brace(brace);
 			}
 			else {
-				LOG_FMT(LBRCH, "%s(%d): brace orig line is %zu, orig col is %zu\n",
-				    __func__, __LINE__, brace->GetOrigLine(), brace->GetOrigCol());
+				LOG_FMT(LBRCH, "%s(%d): brace orig line is %zu, orig col is %zu\n", __func__, __LINE__, brace->GetOrigLine(), brace->GetOrigCol());
 			}
 		}
 	}
@@ -1455,7 +1407,6 @@ static void process_if_chain(Chunk * br_start)
 static void mod_full_brace_if_chain()
 {
 	LOG_FUNC_ENTRY();
-
 	for(Chunk * pc = Chunk::GetHead(); pc->IsNotNullChunk(); pc = pc->GetNext()) {
 		if(pc->IsBraceOpen()
 		    && pc->GetParentType() == CT_IF) {

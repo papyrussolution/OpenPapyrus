@@ -9,14 +9,14 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "option.h"
-#include "keywords.h"
-#include "uncrustify.h"
-#include "generated/uncrustify_version.h"
-#include <fstream>
-#include <unordered_map>
-#include <cctype>                    // to get std::tolower
-#include <cstdarg>                   // to get va_start, va_end
+//#include "option.h"
+//#include "keywords.h"
+//#include "uncrustify.h"
+//#include "generated/uncrustify_version.h"
+//#include <fstream>
+//#include <unordered_map>
+//#include <cctype>  // to get std::tolower
+//#include <cstdarg> // to get va_start, va_end
 
 namespace uncrustify {
 namespace {

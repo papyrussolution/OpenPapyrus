@@ -1,19 +1,11 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-******************************************************************************
-*
-*   Copyright (C) 2012,2014 International Business Machines
-*   Corporation and others.  All Rights Reserved.
-*
-******************************************************************************
-*/
-
+// Copyright (C) 2012,2014 International Business Machines Corporation and others.  All Rights Reserved.
+//
 /**
  * \file
  * \brief C++: internal template EnumSet<>
  */
-
 #ifndef ENUMSET_H
 #define ENUMSET_H
 
@@ -30,8 +22,7 @@ U_NAMESPACE_BEGIN
  * @internal
  * \cond
  */
-template<typename T, uint32_t minValue, uint32_t limitValue>
-class EnumSet {
+template<typename T, uint32_t minValue, uint32_t limitValue> class EnumSet {
 public:
     inline EnumSet() : fBools(0) {}
     inline EnumSet(const EnumSet<T,minValue,limitValue>& other) : fBools(other.fBools) {}
@@ -45,16 +36,13 @@ public:
     inline int32_t get(T toCheck) const { return (fBools & flag(toCheck))?1:0; }
     inline bool isValidEnum(T toCheck) const {  return (toCheck>=minValue&&toCheck<limitValue); }
     inline bool isValidValue(int32_t v) const { return (v==0||v==1); }
-    inline const EnumSet<T,minValue,limitValue>& operator = (const EnumSet<T,minValue,limitValue>& other) {
+    inline const EnumSet<T,minValue,limitValue>& operator = (const EnumSet<T,minValue,limitValue>& other) 
+	{
         fBools = other.fBools;
         return *this;
     }
-  
-    inline uint32_t getAll() const {
-        return fBools; 
-    }
+    inline uint32_t getAll() const { return fBools; }
 #endif /* U_HIDE_INTERNAL_API */
-
 private:
     inline uint32_t flag(T toCheck) const { return (1<<(toCheck-minValue)); }
 private:
@@ -64,6 +52,5 @@ private:
 /** \endcond */
 
 U_NAMESPACE_END
-
 #endif /* U_SHOW_CPLUSPLUS_API */
 #endif /* ENUMSET_H */

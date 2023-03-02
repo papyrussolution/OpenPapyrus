@@ -7,10 +7,10 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "combine_fix_mark.h"
-#include "combine_skip.h"
-#include "combine_tools.h"
-#include "flag_parens.h"
+//#include "combine_fix_mark.h"
+//#include "combine_skip.h"
+//#include "combine_tools.h"
+//#include "flag_parens.h"
 //#include "log_rules.h"
 
 constexpr static auto LCURRENT = LCOMBINE;

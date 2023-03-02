@@ -9,11 +9,11 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-#include "tokenize.h"
-#include "keywords.h"
-#include "prototypes.h"
-#include "punctuators.h"
-#include "unc_ctype.h"
+//#include "tokenize.h"
+//#include "keywords.h"
+//#include "prototypes.h"
+//#include "punctuators.h"
+//#include "unc_ctype.h"
 
 #define LE_COUNT(x)    cpd.le_counts[static_cast<size_t>(LE_ ## x)]
 

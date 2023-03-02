@@ -80,11 +80,9 @@ void align_func_proto(size_t span)
 			}
 		}
 
-		if(pc->IsNewline()
-		    && !pc->TestFlags(PCF_IN_FCN_CALL)) {    // Issue #2831
+		if(pc->IsNewline() && !pc->TestFlags(PCF_IN_FCN_CALL)) {    // Issue #2831
 			look_bro = false;
 			AlignStack * stack_at_l_bl = many_as.at(pc->GetLevel()).at(pc->GetBraceLevel());
-
 			if(stack_at_l_bl == nullptr) {
 				// get a Stack
 				stack_at_l_bl = new AlignStack();
@@ -97,19 +95,15 @@ void align_func_proto(size_t span)
 				many_as.at(pc->GetLevel()).at(pc->GetBraceLevel()) = stack_at_l_bl;
 			}
 			stack_at_l_bl->Debug();
-
 			for(size_t idx = 0; idx < num_of_column; idx++) {
 				for(size_t idx_brace = 0; idx_brace < num_of_row; idx_brace++) {
 					stack_at_l_bl = many_as.at(idx).at(idx_brace);
-
 					if(stack_at_l_bl != nullptr) {
 						stack_at_l_bl->NewLines(pc->GetNlCount());
 					}
 				}
 			}
-
 			AlignStack * stack_at_l_bl_brace = many_as_brace.at(pc->GetLevel()).at(pc->GetBraceLevel());
-
 			if(stack_at_l_bl_brace == nullptr) {
 				// get a Stack
 				stack_at_l_bl_brace = new AlignStack();
@@ -122,14 +116,10 @@ void align_func_proto(size_t span)
 			stack_at_l_bl_brace->Debug();
 			stack_at_l_bl_brace->NewLines(pc->GetNlCount());
 		}
-		else if(pc->Is(CT_FUNC_PROTO)
-		    || (pc->Is(CT_FUNC_DEF)
-		    && options::align_single_line_func())) {
+		else if(pc->Is(CT_FUNC_PROTO) || (pc->Is(CT_FUNC_DEF) && options::align_single_line_func())) {
 			log_rule_B("align_single_line_func");
 			log_rule_B("align_on_operator");
-
-			if(pc->GetParentType() == CT_OPERATOR
-			    && options::align_on_operator()) {
+			if(pc->GetParentType() == CT_OPERATOR && options::align_on_operator()) {
 				toadd = pc->GetPrevNcNnl();
 			}
 			else {
@@ -158,15 +148,12 @@ void align_func_proto(size_t span)
 			look_bro = (pc->Is(CT_FUNC_DEF))
 			    && options::align_single_line_brace();
 		}
-		else if(look_bro
-		    && pc->Is(CT_BRACE_OPEN)
-		    && pc->TestFlags(PCF_ONE_LINER)) {
+		else if(look_bro && pc->Is(CT_BRACE_OPEN) && pc->TestFlags(PCF_ONE_LINER)) {
 			AlignStack * stack_at_l_bl_brace = many_as_brace.at(pc->GetLevel()).at(pc->GetBraceLevel());
-
 			if(stack_at_l_bl_brace == nullptr) {
 				stack_at_l_bl_brace = new AlignStack();
 				stack_at_l_bl_brace->Start(myspan, mythresh);
-				stack_at_l_bl_brace->m_gap                               = mybr_gap;
+				stack_at_l_bl_brace->m_gap = mybr_gap;
 				many_as_brace.at(pc->GetLevel()).at(pc->GetBraceLevel()) = stack_at_l_bl_brace;
 			}
 			stack_at_l_bl_brace->Debug();

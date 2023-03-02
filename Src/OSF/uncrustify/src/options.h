@@ -28,7 +28,7 @@
  * instantiation. Note also that the line break, as shown, is required.
  */
 
-#include "generated/option_enum.h"
+//#include "generated/option_enum.h"
 
 namespace uncrustify {
 namespace options {

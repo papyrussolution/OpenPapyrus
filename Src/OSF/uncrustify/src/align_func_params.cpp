@@ -111,16 +111,14 @@ Chunk * align_func_param(Chunk * start)
 		}
 		else if(pc->Is(CT_COMMA)) {
 			if(pc->TestFlags(PCF_IN_TEMPLATE)) { // Issue #2757
-				LOG_FMT(LFLPAREN, "%s(%d): comma is in template\n",
-				    __func__, __LINE__);
+				LOG_FMT(LFLPAREN, "%s(%d): comma is in template\n", __func__, __LINE__);
 			}
 			else {
 				Chunk * tmp_prev = pc->GetPrevNc();
 
 				if(!tmp_prev->IsNewline()) { // don't count leading commas
 					comma_count++;
-					LOG_FMT(LFLPAREN, "%s(%d): comma_count is %zu\n",
-					    __func__, __LINE__, comma_count);
+					LOG_FMT(LFLPAREN, "%s(%d): comma_count is %zu\n", __func__, __LINE__, comma_count);
 				}
 			}
 		}
@@ -138,18 +136,12 @@ void align_func_params()
 {
 	LOG_FUNC_ENTRY();
 	Chunk * pc = Chunk::GetHead();
-
 	while((pc = pc->GetNext())->IsNotNullChunk()) {
 		LOG_FMT(LFLPAREN, "%s(%d): orig line is %zu, orig col is %zu, Text() is '%s', type is %s, parent type is %s\n",
 		    __func__, __LINE__, pc->GetOrigLine(), pc->GetOrigCol(), pc->Text(),
 		    get_token_name(pc->GetType()), get_token_name(pc->GetParentType()));
-
-		if(pc->IsNot(CT_FPAREN_OPEN)
-		    || (pc->GetParentType() != CT_FUNC_PROTO
-		    && pc->GetParentType() != CT_FUNC_DEF
-		    && pc->GetParentType() != CT_FUNC_CLASS_PROTO
-		    && pc->GetParentType() != CT_FUNC_CLASS_DEF
-		    && pc->GetParentType() != CT_TYPEDEF)) {
+		if(pc->IsNot(CT_FPAREN_OPEN) || (pc->GetParentType() != CT_FUNC_PROTO && pc->GetParentType() != CT_FUNC_DEF && 
+			pc->GetParentType() != CT_FUNC_CLASS_PROTO && pc->GetParentType() != CT_FUNC_CLASS_DEF && pc->GetParentType() != CT_TYPEDEF)) {
 			continue;
 		}
 		// We are on a open parenthesis of a prototype

@@ -24,18 +24,13 @@ void align_stack(ChunkStack &cs, size_t col, bool align_single, log_sev_t sev)
 	if(options::align_on_tabstop()) {
 		col = align_tab_column(col);
 	}
-	if((cs.Len() > 1)
-	    || (  align_single
-	    && (cs.Len() == 1))) {
+	if((cs.Len() > 1) || (  align_single && (cs.Len() == 1))) {
 		LOG_FMT(sev, "%s(%d): max_col=%zu\n", __func__, __LINE__, col);
 		Chunk * pc;
-
 		while((pc = cs.Pop_Back())->IsNotNullChunk()) {
 			align_to_column(pc, col);
 			pc->SetFlagBits(PCF_WAS_ALIGNED);
-
-			LOG_FMT(sev, "%s(%d): indented [%s] on line %zu to %zu\n",
-			    __func__, __LINE__, pc->Text(), pc->GetOrigLine(), pc->GetColumn());
+			LOG_FMT(sev, "%s(%d): indented [%s] on line %zu to %zu\n", __func__, __LINE__, pc->Text(), pc->GetOrigLine(), pc->GetColumn());
 		}
 	}
 	cs.Reset();
@@ -51,10 +46,8 @@ Chunk * align_trailing_comments(Chunk * start)
 	size_t nl_count = 0;
 	ChunkStack cs;
 	size_t col;
-
 	log_rule_B("align_right_cmt_at_col");
 	size_t intended_col = options::align_right_cmt_at_col();
-
 	log_rule_B("align_right_cmt_same_level");
 	const bool same_level = options::align_right_cmt_same_level();
 	comment_align_e cmt_type_cur;
@@ -65,18 +58,13 @@ Chunk * align_trailing_comments(Chunk * start)
 
 	// Find the max column
 	log_rule_B("align_right_cmt_span");
-
-	while(pc->IsNotNullChunk()
-	    && (nl_count < options::align_right_cmt_span())) {
-		if(pc->TestFlags(PCF_RIGHT_COMMENT)
-		    && pc->GetColumn() > 1) {
-			if(same_level
-			    && pc->GetBraceLevel() != lvl) {
+	while(pc->IsNotNullChunk() && (nl_count < options::align_right_cmt_span())) {
+		if(pc->TestFlags(PCF_RIGHT_COMMENT) && pc->GetColumn() > 1) {
+			if(same_level && pc->GetBraceLevel() != lvl) {
 				pc = pc->GetPrev();
 				break;
 			}
 			cmt_type_cur = get_comment_align_type(pc);
-
 			if(cmt_type_cur == cmt_type_start) {
 				LOG_FMT(LALADD, "%s(%d): line=%zu min_col=%zu pc->col=%zu pc->len=%zu %s\n",
 				    __func__, __LINE__, pc->GetOrigLine(), min_col, pc->GetColumn(), pc->Len(),
@@ -152,7 +140,6 @@ comment_align_e get_comment_align_type(Chunk * cmt)
 void align_right_comments()
 {
 	LOG_FUNC_ENTRY();
-
 	for(Chunk * pc = Chunk::GetHead(); pc->IsNotNullChunk(); pc = pc->GetNext()) {
 		if(pc->Is(CT_COMMENT)
 		    || pc->Is(CT_COMMENT_CPP)
@@ -191,9 +178,7 @@ void align_right_comments()
 			}
 		}
 	}
-
 	Chunk * pc = Chunk::GetHead();
-
 	while(pc->IsNotNullChunk()) {
 		if(pc->TestFlags(PCF_RIGHT_COMMENT)) {
 			pc = align_trailing_comments(pc);

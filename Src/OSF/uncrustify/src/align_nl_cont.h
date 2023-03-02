@@ -9,8 +9,8 @@
 #ifndef ALIGN_NL_COUNT_H_INCLUDED
 #define ALIGN_NL_COUNT_H_INCLUDED
 
-#include "uncrustify_types.h"
-#include "chunk.h"
+//#include "uncrustify_types.h"
+//#include "chunk.h"
 /**
  * For a series of lines ending in backslash-newline, align them.
  * The series ends when a newline or multi-line C comment is encountered.

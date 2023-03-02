@@ -46,55 +46,28 @@
  */
 
 /* Base class for all iterators. */
-template <typename iter_t, typename Item = typename iter_t::__item_t__>
-    struct hb_iter_t {
+template <typename iter_t, typename Item = typename iter_t::__item_t__> struct hb_iter_t {
 	typedef Item item_t;
-	constexpr unsigned get_item_size() const {
-		return hb_static_size(Item);
-	}
-
+	constexpr unsigned get_item_size() const { return hb_static_size(Item); }
 	static constexpr bool is_iterator = true;
 	static constexpr bool is_random_access_iterator = false;
 	static constexpr bool is_sorted_iterator = false;
-
 private:
 	/* https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern */
-	const iter_t* thiz() const {
-		return static_cast<const iter_t *> (this);
-	}
-
-	iter_t* thiz() {
-		return static_cast<      iter_t *> (this);
-	}
-
+	const iter_t* thiz() const { return static_cast<const iter_t *> (this); }
+	iter_t* thiz() { return static_cast<iter_t *> (this); }
 public:
-
 	/* TODO:
 	 * Port operators below to use hb_enable_if to sniff which method implements
 	 * an operator and use it, and remove hb_iter_fallback_mixin_t completely. */
 
 	/* Operators. */
-	iter_t iter() const {
-		return *thiz();
-	}
-
+	iter_t iter() const { return *thiz(); }
 	iter_t operator + () const { return *thiz(); }
-	iter_t begin() const {
-		return *thiz();
-	}
-
-	iter_t end() const {
-		return thiz()->__end__();
-	}
-
-	explicit operator bool() const {
-		return thiz()->__more__();
-	}
-
-	unsigned len() const {
-		return thiz()->__len__();
-	}
-
+	iter_t begin() const { return *thiz(); }
+	iter_t end() const { return thiz()->__end__(); }
+	explicit operator bool() const { return thiz()->__more__(); }
+	unsigned len() const { return thiz()->__len__(); }
 	/* The following can only be enabled if item_t is reference type.  Otherwise
 	 * it will be returning pointer to temporary rvalue.
 	 * TODO Use a wrapper return type to fix for non-reference type. */
@@ -118,17 +91,12 @@ public:
 	iter_t operator++ (int) {iter_t c(* thiz()); ++*thiz(); return c; }
 	iter_t operator - (uint count)const { auto c = thiz()->iter(); c -= count; return c; }
 	iter_t operator-- (int) {iter_t c(* thiz()); --*thiz(); return c; }
-	template <typename T>
-	iter_t& operator >> (T &v) &  { v = **thiz(); ++*thiz(); return *thiz(); }
-	template <typename T>
-	iter_t operator >> (T &v) && { v = **thiz(); ++*thiz(); return *thiz(); }
-	template <typename T>
-	iter_t& operator << (const T v)&{ ** thiz() = v; ++*thiz(); return *thiz(); }
-		template <typename T>
-		iter_t operator << (const T v) && { ** thiz() = v; ++*thiz(); return *thiz(); }
-
-		protected:
-		hb_iter_t() = default;
+	template <typename T> iter_t& operator >> (T &v) &  { v = **thiz(); ++*thiz(); return *thiz(); }
+	template <typename T> iter_t operator >> (T &v) && { v = **thiz(); ++*thiz(); return *thiz(); }
+	template <typename T> iter_t& operator << (const T v)&{ ** thiz() = v; ++*thiz(); return *thiz(); }
+	template <typename T> iter_t operator << (const T v) && { ** thiz() = v; ++*thiz(); return *thiz(); }
+protected:
+	hb_iter_t() = default;
 	hb_iter_t(const hb_iter_t &o CXX_UNUSED_PARAM) = default;
 	hb_iter_t(hb_iter_t &&o CXX_UNUSED_PARAM) = default;
 	hb_iter_t& operator = (const hb_iter_t &o CXX_UNUSED_PARAM) = default;
@@ -158,29 +126,17 @@ public:
 	static_assert(true, "")
 
 /* Returns iterator / item type of a type. */
-template <typename Iterable>
-using hb_iter_type = decltype(hb_deref(hb_declval(Iterable)).iter());
-template <typename Iterable>
-using hb_item_type = decltype(*hb_deref(hb_declval(Iterable)).iter());
-
+template <typename Iterable> using hb_iter_type = decltype(hb_deref(hb_declval(Iterable)).iter());
+template <typename Iterable> using hb_item_type = decltype(*hb_deref(hb_declval(Iterable)).iter());
 template <typename> struct hb_array_t;
-
 template <typename> struct hb_sorted_array_t;
 
 struct {
 	template <typename T> hb_iter_type<T>
-	operator() (T&& c) const
-	{ return hb_deref(hb_forward<T> (c)).iter(); }
-
+	operator() (T&& c) const { return hb_deref(hb_forward<T> (c)).iter(); }
 	/* Specialization for C arrays. */
-
-	template <typename Type> inline hb_array_t<Type>
-	operator() (Type *array, uint length) const
-	{ return hb_array_t<Type> (array, length); }
-
-	template <typename Type, uint length> hb_array_t<Type>
-	operator() (Type(&array)[length]) const
-	{ return hb_array_t<Type> (array, length); }
+	template <typename Type> inline hb_array_t<Type> operator() (Type *array, uint length) const { return hb_array_t<Type> (array, length); }
+	template <typename Type, uint length> hb_array_t<Type> operator() (Type(&array)[length]) const { return hb_array_t<Type> (array, length); }
 }
 
 HB_FUNCOBJ(hb_iter);
@@ -195,34 +151,17 @@ struct {
 HB_FUNCOBJ(hb_len);
 
 /* Mixin to fill in what the subclass doesn't provide. */
-template <typename iter_t, typename item_t = typename iter_t::__item_t__>
-    struct hb_iter_fallback_mixin_t {
+template <typename iter_t, typename item_t = typename iter_t::__item_t__> struct hb_iter_fallback_mixin_t {
 private:
 	/* https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern */
-	const iter_t* thiz() const {
-		return static_cast<const iter_t *> (this);
-	}
-
-	iter_t* thiz() {
-		return static_cast<      iter_t *> (this);
-	}
-
+	const iter_t* thiz() const { return static_cast<const iter_t *> (this); }
+	iter_t* thiz() { return static_cast<iter_t *> (this); }
 public:
-
 	/* Access: Implement __item__(), or __item_at__() if random-access. */
-	item_t __item__() const {
-		return (*thiz())[0];
-	}
-
-	item_t __item_at__(uint i) const {
-		return *(*thiz() + i);
-	}
-
+	item_t __item__() const { return (*thiz())[0]; }
+	item_t __item_at__(uint i) const { return *(*thiz() + i); }
 	/* Termination: Implement __more__(), or __len__() if random-access. */
-	bool __more__() const {
-		return bool (thiz()->len());
-	}
-
+	bool __more__() const { return bool (thiz()->len()); }
 	unsigned __len__() const
 	{
 		iter_t c(* thiz()); unsigned l = 0; while(c) {
@@ -230,25 +169,20 @@ public:
 		}
 		return l;
 	}
-
 	/* Advancing: Implement __next__(), or __forward__() if random-access. */
-	void __next__() {
-		* thiz() += 1;
+	void __next__() { *thiz() += 1; }
+	void __forward__(uint n) 
+	{ 
+		while(*thiz() && n--) 
+			++*thiz();
 	}
-
-	void __forward__(uint n) {
-		while(*thiz() && n--) ++*thiz();
-	}
-
 	/* Rewinding: Implement __prev__() or __rewind__() if bidirectional. */
-	void __prev__() {
-		* thiz() -= 1;
+	void __prev__() { *thiz() -= 1; }
+	void __rewind__(uint n) 
+	{
+		while(*thiz() && n--) 
+			--*thiz();
 	}
-
-	void __rewind__(uint n) {
-		while(*thiz() && n--) --*thiz();
-	}
-
 	/* Range-based for: Implement __end__() if can be done faster,
 	 * and operator!=. */
 	iter_t __end__() const
@@ -269,10 +203,7 @@ protected:
 	hb_iter_fallback_mixin_t& operator = (hb_iter_fallback_mixin_t &&o CXX_UNUSED_PARAM) = default;
 };
 
-template <typename iter_t, typename item_t = typename iter_t::__item_t__>
-    struct hb_iter_with_fallback_t :
-    hb_iter_t<iter_t, item_t>,
-    hb_iter_fallback_mixin_t<iter_t, item_t> {
+template <typename iter_t, typename item_t = typename iter_t::__item_t__> struct hb_iter_with_fallback_t : hb_iter_t<iter_t, item_t>, hb_iter_fallback_mixin_t<iter_t, item_t> {
 protected:
 	hb_iter_with_fallback_t() = default;
 	hb_iter_with_fallback_t(const hb_iter_with_fallback_t &o CXX_UNUSED_PARAM) = default;

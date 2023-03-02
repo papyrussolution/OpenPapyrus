@@ -38,8 +38,7 @@ ABSL_NAMESPACE_BEGIN
 //
 // http://eeyore.wu-wien.ac.at/papers/96-04-04.wh-der.ps.gz
 //
-template <typename IntType = int>
-class zipf_distribution {
+template <typename IntType = int> class zipf_distribution {
 public:
 	using result_type = IntType;
 
@@ -52,29 +51,12 @@ public:
 		// a pair of assert() directives.
 		// If NDEBUG is defined and either or both of these parameters take invalid
 		// values, the behavior of the class is undefined.
-		explicit param_type(result_type k = (std::numeric_limits<IntType>::max)(),
-		    double q = 2.0, double v = 1.0);
-
-		result_type k() const {
-			return k_;
-		}
-
-		double q() const {
-			return q_;
-		}
-
-		double v() const {
-			return v_;
-		}
-
-		friend bool operator ==(const param_type& a, const param_type& b) {
-			return a.k_ == b.k_ && a.q_ == b.q_ && a.v_ == b.v_;
-		}
-
-		friend bool operator != (const param_type& a, const param_type& b) {
-			return !(a == b);
-		}
-
+		explicit param_type(result_type k = (std::numeric_limits<IntType>::max)(), double q = 2.0, double v = 1.0);
+		result_type k() const { return k_; }
+		double q() const { return q_; }
+		double v() const { return v_; }
+		friend bool operator ==(const param_type& a, const param_type& b) { return a.k_ == b.k_ && a.q_ == b.q_ && a.v_ == b.v_; }
+		friend bool operator != (const param_type& a, const param_type& b) { return !(a == b); }
 private:
 		friend class zipf_distribution;
 		inline double h(double x) const;
@@ -106,18 +88,10 @@ private:
 	void reset() 
 	{
 	}
-	template <typename URBG> result_type operator()(URBG& g) { // NOLINT(runtime/references)
-		return (*this)(g, param_);
-	}
-	template <typename URBG> result_type operator()(URBG& g, // NOLINT(runtime/references)
-	    const param_type& p);
-	result_type k() const {
-		return param_.k();
-	}
-
-	double q() const {
-		return param_.q();
-	}
+	template <typename URBG> result_type operator()(URBG& g) { return (*this)(g, param_); } // NOLINT(runtime/references)
+	template <typename URBG> result_type operator()(URBG& g, const param_type& p); // NOLINT(runtime/references)
+	result_type k() const { return param_.k(); }
+	double q() const { return param_.q(); }
 	double v() const { return param_.v(); }
 	param_type param() const { return param_; }
 	void param(const param_type& p) { param_ = p; }
@@ -134,11 +108,9 @@ private:
 private:
 	param_type param_;
 };
-
-// --------------------------------------------------------------------------
+//
 // Implementation details follow
-// --------------------------------------------------------------------------
-
+//
 template <typename IntType> zipf_distribution<IntType>::param_type::param_type(typename zipf_distribution<IntType>::result_type k, double q, double v)
 	: k_(k), q_(q), v_(v), one_minus_q_(1 - q) {
 	assert(q > 1);

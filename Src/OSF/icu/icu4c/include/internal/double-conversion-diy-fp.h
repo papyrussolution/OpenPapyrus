@@ -25,7 +25,6 @@
 #define DOUBLE_CONVERSION_DIY_FP_H_
 
 // ICU PATCH: Customize header file paths for ICU.
-
 #include "double-conversion-utils.h"
 
 // ICU PATCH: Wrap in ICU namespace
@@ -41,34 +40,34 @@ namespace double_conversion {
 class DiyFp {
 public:
 	static const int kSignificandSize = 64;
-
-	DiyFp() : f_(0), e_(0) {
+	DiyFp() : f_(0), e_(0) 
+	{
 	}
-
-	DiyFp(const uint64_t significand, const int32_t exponent) : f_(significand), e_(exponent) {
+	DiyFp(const uint64_t significand, const int32_t exponent) : f_(significand), e_(exponent) 
+	{
 	}
-
 	// this -= other.
 	// The exponents of both numbers must be the same and the significand of this
 	// must be greater or equal than the significand of other.
 	// The result will not be normalized.
-	void Subtract(const DiyFp& other) {
+	void Subtract(const DiyFp& other) 
+	{
 		DOUBLE_CONVERSION_ASSERT(e_ == other.e_);
 		DOUBLE_CONVERSION_ASSERT(f_ >= other.f_);
 		f_ -= other.f_;
 	}
-
 	// Returns a - b.
 	// The exponents of both numbers must be the same and a must be greater
 	// or equal than b. The result will not be normalized.
-	static DiyFp Minus(const DiyFp& a, const DiyFp& b) {
+	static DiyFp Minus(const DiyFp& a, const DiyFp& b) 
+	{
 		DiyFp result = a;
 		result.Subtract(b);
 		return result;
 	}
-
 	// this *= other.
-	void Multiply(const DiyFp& other) {
+	void Multiply(const DiyFp& other) 
+	{
 		// Simply "emulates" a 128 bit multiplication.
 		// However: the resulting number only contains 64 bits. The least
 		// significant 64 bits are only used for rounding the most significant 64
@@ -88,15 +87,15 @@ public:
 		e_ += other.e_ + 64;
 		f_ = ac + (ad >> 32) + (bc >> 32) + (tmp >> 32);
 	}
-
 	// returns a * b;
-	static DiyFp Times(const DiyFp& a, const DiyFp& b) {
+	static DiyFp Times(const DiyFp& a, const DiyFp& b) 
+	{
 		DiyFp result = a;
 		result.Multiply(b);
 		return result;
 	}
-
-	void Normalize() {
+	void Normalize() 
+	{
 		DOUBLE_CONVERSION_ASSERT(f_ != 0);
 		uint64_t significand = f_;
 		int32_t exponent = e_;
@@ -115,39 +114,24 @@ public:
 		f_ = significand;
 		e_ = exponent;
 	}
-
-	static DiyFp Normalize(const DiyFp& a) {
+	static DiyFp Normalize(const DiyFp& a) 
+	{
 		DiyFp result = a;
 		result.Normalize();
 		return result;
 	}
-
-	uint64_t f() const {
-		return f_;
-	}
-
-	int32_t e() const {
-		return e_;
-	}
-
-	void set_f(uint64_t new_value) {
-		f_ = new_value;
-	}
-
-	void set_e(int32_t new_value) {
-		e_ = new_value;
-	}
-
+	uint64_t f() const { return f_; }
+	int32_t e() const { return e_; }
+	void set_f(uint64_t new_value) { f_ = new_value; }
+	void set_e(int32_t new_value) { e_ = new_value; }
 private:
 	static const uint64_t kUint64MSB = DOUBLE_CONVERSION_UINT64_2PART_C(0x80000000, 00000000);
-
 	uint64_t f_;
 	int32_t e_;
 };
 }  // namespace double_conversion
 
-// ICU PATCH: Close ICU namespace
-U_NAMESPACE_END
+U_NAMESPACE_END // ICU PATCH: Close ICU namespace
 
 #endif  // DOUBLE_CONVERSION_DIY_FP_H_
 #endif // ICU PATCH: close #if !UCONFIG_NO_FORMATTING

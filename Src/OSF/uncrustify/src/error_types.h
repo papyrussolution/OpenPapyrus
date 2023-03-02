@@ -9,7 +9,7 @@
 #define ERROR_TYPES_H_INCLUDED
 
 #if 1
-#include <stdlib.h>      // provides EXIT_SUCCESS and EXIT FAILURE
+//#include <stdlib.h>      // provides EXIT_SUCCESS and EXIT FAILURE
 
 // TODO: if we decided to only use EX_OK and EX_xxx we can avoid including stdlib.h here
 
