@@ -1,8 +1,6 @@
 /*
  * connect.c - handles connections to ssh servers
- *
  * This file is part of the SSH Library
- *
  * Copyright (c) 2003-2013 by Aris Adamantiadis
  *
  * The SSH Library is free software; you can redistribute it and/or modify

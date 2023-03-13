@@ -1,5 +1,5 @@
 // PAYMENT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -785,7 +785,7 @@ PPID FASTCALL ReckonOpArList::GetPaymOpIDByBillID(PPID billID) const
 	return 0;
 }
 
-int ReckonOpArList::IsBillListSortingNeeded() const
+bool ReckonOpArList::IsBillListSortingNeeded() const
 {
 	int    c = 0;
 	for(uint i = 0; i < getCount(); i++) {
@@ -793,7 +793,7 @@ int ReckonOpArList::IsBillListSortingNeeded() const
 		if(r_item.P_BillIDList && r_item.P_BillIDList->getCount())
 			c++;
 	}
-	return (c > 1) ? 1 : 0;
+	return (c > 1);
 }
 
 int PPObjBill::Reckon(PPID paymBillID, PPID debtBillID, PPID reckonOpID, PPID * pReckonBillID, 
@@ -1285,7 +1285,7 @@ int PPObjBill::Helper_Reckon(PPID billID, const ReckonOpArList & rOpList, CfmRec
 	PPID   rckn_id = 0;
 	PPID   debt_id = 0;
 	PPID   paym_id = 0;
-	if(rOpList.IsBillListSortingNeeded() > 0)
+	if(rOpList.IsBillListSortingNeeded())
 		if(!SortBillListByDate(rParam.P_BillList, this))
 			ok = 0;
 	if(ok) {

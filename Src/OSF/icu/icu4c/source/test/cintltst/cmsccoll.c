@@ -1949,9 +1949,9 @@ static void TestSurrogates() {
 }
 
 /* This is a test for prefix implementation, used by JIS X 4061 collation rules */
-static void TestPrefix() {
+static void TestPrefix() 
+{
 	uint32_t i;
-
 	static const struct {
 		const char * rules;
 		const char * data[50];
@@ -2145,7 +2145,8 @@ static void TestStrCollIdenticalPrefix() {
 
 /* Contractions should have all their canonically equivalent */
 /* strings included */
-static void TestContractionClosure() {
+static void TestContractionClosure() 
+{
 	static const struct {
 		const char * rules;
 		const char * data[10];
@@ -2156,9 +2157,7 @@ static void TestContractionClosure() {
 		{   "&b=\\u00C5",
 		    { "b", "\\u00C5", "A\\u030A", "\\u212B" }, 4},
 	};
-	uint32_t i;
-
-	for(i = 0; i<SIZEOFARRAYi(tests); i++) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(tests); i++) {
 		genericRulesStarterWithResult(tests[i].rules, tests[i].data, tests[i].len, UCOL_EQUAL);
 	}
 }
@@ -2182,12 +2181,9 @@ static void TestBeforePrefixFailure() {
 		    "&\\u30A8=\\u30A8=\\u3048=\\uff74",
 		    {"\\u30a9", "\\u30a7"}, 2 },
 	};
-	uint32_t i;
-
-	for(i = 0; i<SIZEOFARRAYi(tests); i++) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(tests); i++) {
 		genericRulesStarter(tests[i].rules, tests[i].data, tests[i].len);
 	}
-
 #if 0
 	const char * rule1 =
 	    "&\\u30A7=\\u30A7=\\u3047=\\uff6a"
@@ -2379,9 +2375,7 @@ static void TestRuleOptions() {
 		  "&[top]<u",
 		  {"\\ufffb",  "w", "y", "\\u20e3", "x", LAST_VARIABLE_CHAR_STRING, "z", "u"}, 7}
 	};
-	uint32_t i;
-
-	for(i = 0; i<SIZEOFARRAYi(tests); i++) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(tests); i++) {
 		genericRulesStarter(tests[i].rules, tests[i].data, tests[i].len);
 	}
 }
@@ -2401,13 +2395,10 @@ static void TestOptimize() {
 		{ "[optimize [\\uAC00-\\uD7FF]]",
 		  { "a", "b"}, 2}
 	};
-	uint32_t i;
-
-	for(i = 0; i<SIZEOFARRAYi(tests); i++) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(tests); i++) {
 		genericRulesStarter(tests[i].rules, tests[i].data, tests[i].len);
 	}
 }
-
 /*
    cycheng@ca.ibm.c... we got inconsistent results when using the UTF-16BE iterator and the UTF-8 iterator.
    weiv    ucol_strcollIter?
@@ -4580,18 +4571,13 @@ static void TestNonLeadBytesDuringCollationReordering(void)
 	UErrorCode status = U_ZERO_ERROR;
 	UCollator * myCollation;
 	int32_t reorderCodes[1] = {USCRIPT_GREEK};
-
 	uint8_t baseKey[256];
 	uint32_t baseKeyLength;
 	uint8_t reorderKey[256];
 	uint32_t reorderKeyLength;
-
 	UChar testString[] = { 0x03b1, 0x03b2, 0x03b3 };
-
 	uint32_t i;
-
 	log_verbose("Testing non-lead bytes in a sort key with and without reordering\n");
-
 	/* build collator tertiary */
 	myCollation = ucol_open("", &status);
 	ucol_setStrength(myCollation, UCOL_TERTIARY);
@@ -4600,14 +4586,12 @@ static void TestNonLeadBytesDuringCollationReordering(void)
 		return;
 	}
 	baseKeyLength = ucol_getSortKey(myCollation, testString, SIZEOFARRAYi(testString), baseKey, 256);
-
 	ucol_setReorderCodes(myCollation, reorderCodes, SIZEOFARRAYi(reorderCodes), &status);
 	if(U_FAILURE(status)) {
 		log_err_status(status, "ERROR: setting reorder codes: %s\n", myErrorName(status));
 		return;
 	}
 	reorderKeyLength = ucol_getSortKey(myCollation, testString, SIZEOFARRAYi(testString), reorderKey, 256);
-
 	if(baseKeyLength != reorderKeyLength) {
 		log_err("Key lengths not the same during reordering.\n");
 		return;

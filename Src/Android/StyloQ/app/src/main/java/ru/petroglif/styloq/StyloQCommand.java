@@ -328,6 +328,21 @@ public class StyloQCommand {
 			ResultExpiryTimeSec = 0;
 			return this;
 		}
+		boolean FromJsonObj(final JSONObject jsObj)
+		{
+			boolean ok = false;
+			Z();
+			if(jsObj != null) {
+				Type = jsObj.optString("type", null);
+				Format = jsObj.optString("format", null);
+				DisplayMethod = jsObj.optString("displaymethod", null);
+				Time = jsObj.optLong("time", 0);
+				ResultExpiryTimeSec = jsObj.optInt("resultexpirytimesec", 0);
+				if(SLib.GetLen(Type) > 0 || SLib.GetLen(Format) > 0 || SLib.GetLen(DisplayMethod) > 0)
+					ok = true;
+			}
+			return ok;
+		}
 		boolean FromJson(String jsonText)
 		{
 			boolean ok = true;
@@ -335,12 +350,7 @@ public class StyloQCommand {
 			if(SLib.GetLen(jsonText) > 0) {
 				try {
 					if(SLib.GetLen(jsonText) > 0) {
-						JSONObject jsobj = new JSONObject(jsonText);
-						Type = jsobj.optString("type", null);
-						Format = jsobj.optString("format", null);
-						DisplayMethod = jsobj.optString("displaymethod", null);
-						Time = jsobj.optLong("time", 0);
-						ResultExpiryTimeSec = jsobj.optInt("resultexpirytimesec", 0);
+						ok = FromJsonObj(new JSONObject(jsonText));
 					}
 				} catch(JSONException exn) {
 					ok = false;

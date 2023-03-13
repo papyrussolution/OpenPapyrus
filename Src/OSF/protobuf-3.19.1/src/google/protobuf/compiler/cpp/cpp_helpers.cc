@@ -1289,8 +1289,7 @@ static bool HasBootstrapProblem(const FileDescriptor* file,
 	// to parse the serialized descriptor describing all the messages defined in
 	// this file. Obviously this presents a bootstrap problem for descriptor
 	// messages.
-	if(file->name() == "net/proto2/proto/descriptor.proto" ||
-	    file->name() == "google/protobuf/descriptor.proto") {
+	if(file->name() == "net/proto2/proto/descriptor.proto" || file->name() == "google/protobuf/descriptor.proto") {
 		return true;
 	}
 	// Unfortunately we're not done yet. The descriptor option messages allow

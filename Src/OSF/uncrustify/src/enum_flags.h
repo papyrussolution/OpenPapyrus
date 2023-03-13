@@ -5,7 +5,6 @@
  * @author  Matthew Woehlke (but mostly "borrowed" from Qt)
  * @license GPL v2+
  */
-
 #ifndef ENUM_FLAGS_H_INCLUDED
 #define ENUM_FLAGS_H_INCLUDED
 

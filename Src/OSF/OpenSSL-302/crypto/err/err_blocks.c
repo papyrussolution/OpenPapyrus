@@ -68,12 +68,12 @@ void ERR_vset_error(int lib, int reason, const char * fmt, va_list args)
 			buf = rbuf;
 			buf_size = ERR_MAX_DATA_SIZE;
 		}
-		if(buf != NULL) {
+		if(buf) {
 			printed_len = BIO_vsnprintf(buf, buf_size, fmt, args);
 		}
 		if(printed_len < 0)
 			printed_len = 0;
-		if(buf != NULL)
+		if(buf)
 			buf[printed_len] = '\0';
 		/*
 		 * Try to reduce the size, but only if we maximized above.  If that
@@ -86,7 +86,7 @@ void ERR_vset_error(int lib, int reason, const char * fmt, va_list args)
 			buf_size = printed_len + 1;
 			buf[printed_len] = '\0';
 		}
-		if(buf != NULL)
+		if(buf)
 			flags = ERR_TXT_MALLOCED | ERR_TXT_STRING;
 	}
 	err_clear_data(es, es->top, 0);

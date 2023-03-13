@@ -17,8 +17,7 @@ int crypto_scalarmult_base(uchar * q, const uchar * n)
 static void add(uint out[32], const uint a[32], const uint b[32])
 {
 	uint j;
-	uint u;
-	u = 0;
+	uint u = 0;
 	for(j = 0; j < 31; ++j) {
 		u += a[j] + b[j]; out[j] = u & 255; u >>= 8;
 	}
@@ -28,8 +27,7 @@ static void add(uint out[32], const uint a[32], const uint b[32])
 static void sub(uint out[32], const uint a[32], const uint b[32])
 {
 	uint j;
-	uint u;
-	u = 218;
+	uint u = 218;
 	for(j = 0; j < 31; ++j) {
 		u += a[j] + 65280 - b[j];
 		out[j] = u & 255;
@@ -42,8 +40,7 @@ static void sub(uint out[32], const uint a[32], const uint b[32])
 static void squeeze(uint a[32])
 {
 	uint j;
-	uint u;
-	u = 0;
+	uint u = 0;
 	for(j = 0; j < 31; ++j) {
 		u += a[j]; a[j] = u & 255; u >>= 8;
 	}
@@ -55,17 +52,15 @@ static void squeeze(uint a[32])
 	u += a[31]; a[31] = u;
 }
 
-static const uint minusp[32] = {
-	19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128
-};
+static const uint minusp[32] = { 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128 };
 
 static void freeze(uint a[32])
 {
 	uint aorig[32];
 	uint j;
 	uint negative;
-
-	for(j = 0; j < 32; ++j) aorig[j] = a[j];
+	for(j = 0; j < 32; ++j) 
+		aorig[j] = a[j];
 	add(a, a, minusp);
 	negative = -((a[31] >> 7) & 1);
 	for(j = 0; j < 32; ++j) a[j] ^= negative & (aorig[j] ^ a[j]);
@@ -76,7 +71,6 @@ static void mult(uint out[32], const uint a[32], const uint b[32])
 	uint i;
 	uint j;
 	uint u;
-
 	for(i = 0; i < 32; ++i) {
 		u = 0;
 		for(j = 0; j <= i; ++j) u += a[j] * b[i - j];
@@ -89,9 +83,7 @@ static void mult(uint out[32], const uint a[32], const uint b[32])
 static void mult121665(uint out[32], const uint a[32])
 {
 	uint j;
-	uint u;
-
-	u = 0;
+	uint u = 0;
 	for(j = 0; j < 31; ++j) {
 		u += 121665 * a[j]; out[j] = u & 255; u >>= 8;
 	}
@@ -126,8 +118,7 @@ static void c_select(uint p[64], uint q[64], const uint r[64], const uint s[64],
 {
 	uint j;
 	uint t;
-	uint bminus1;
-	bminus1 = b - 1;
+	uint bminus1 = b - 1;
 	for(j = 0; j < 64; ++j) {
 		t = bminus1 & (r[j] ^ s[j]);
 		p[j] = s[j] ^ t;
@@ -155,14 +146,14 @@ static void mainloop(uint work[64], const uchar e[32])
 	uint j;
 	uint b;
 	int pos;
-
-	for(j = 0; j < 32; ++j) xzm1[j] = work[j];
+	for(j = 0; j < 32; ++j) 
+		xzm1[j] = work[j];
 	xzm1[32] = 1;
-	for(j = 33; j < 64; ++j) xzm1[j] = 0;
-
+	for(j = 33; j < 64; ++j) 
+		xzm1[j] = 0;
 	xzm[0] = 1;
-	for(j = 1; j < 64; ++j) xzm[j] = 0;
-
+	for(j = 1; j < 64; ++j) 
+		xzm[j] = 0;
 	for(pos = 254; pos >= 0; --pos) {
 		b = e[pos / 8] >> (pos & 7);
 		b &= 1;
@@ -187,8 +178,8 @@ static void mainloop(uint work[64], const uchar e[32])
 		mult(xzn1b + 32, r, work);
 		c_select(xzm, xzm1, xznb, xzn1b, b);
 	}
-
-	for(j = 0; j < 64; ++j) work[j] = xzm[j];
+	for(j = 0; j < 64; ++j) 
+		work[j] = xzm[j];
 }
 
 static void recip(uint out[32], const uint z[32])

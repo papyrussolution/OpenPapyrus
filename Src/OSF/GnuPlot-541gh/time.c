@@ -18,19 +18,20 @@ static char * read_int(char * s, int nr, int * d)
 	return (s);
 }
 
-static int mndday[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+//static int mndday[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 //static size_t xstrftime(char * buf, int bsz, const char * fmt, struct tm * tm, double usec, double fulltime);
 //
 // days in year 
 //
 static int gdysize(int yr)
 {
-	if(!(yr % 4)) {
+	return IsLeapYear_Gregorian(yr) ? 366 : 365;
+	/*if(!(yr % 4)) {
 		if((!(yr % 100)) && yr % 400)
 			return (365);
 		return (366);
 	}
-	return (365);
+	return (365);*/
 }
 
 /* gstrptime() interprets a time_spec format string
@@ -324,7 +325,7 @@ found_full_mon:
 			}
 			{
 				int days_in_month;
-				while(tm->tm_mday > (days_in_month = (mndday[tm->tm_mon] + (tm->tm_mon == 1 && (gdysize(tm->tm_year) > 365))))) {
+				while(tm->tm_mday > (days_in_month = (/*mndday*/daysPerMonth[tm->tm_mon] + (tm->tm_mon == 1 && (gdysize(tm->tm_year) > 365))))) {
 					if(++tm->tm_mon == 12) {
 						++tm->tm_year;
 						tm->tm_mon = 0;
@@ -641,7 +642,7 @@ double gtimegm(struct tm * tm)
 	}
 	if(tm->tm_mday > 0) {
 		for(i = 0; i < tm->tm_mon; i++) {
-			dsec += (double)mndday[i] + (i == 1 && (gdysize(tm->tm_year) > 365));
+			dsec += (double)/*mndday*/daysPerMonth[i] + (i == 1 && (gdysize(tm->tm_year) > 365));
 		}
 		dsec += (double)tm->tm_mday - 1;
 	}
@@ -708,7 +709,7 @@ int GnuPlot::GGmTime(struct tm * pTm, double l_clock)
 		pTm->tm_sec = (int)l_clock;
 		days = pTm->tm_yday;
 		pTm->tm_wday = (wday + days) % 7; /* wday%7 should be day of week of first day of year */
-		while(days >= (i = mndday[pTm->tm_mon] + (pTm->tm_mon == 1 && (gdysize(pTm->tm_year) > 365)))) {
+		while(days >= (i = /*mndday*/daysPerMonth[pTm->tm_mon] + (pTm->tm_mon == 1 && (gdysize(pTm->tm_year) > 365)))) {
 			days -= i;
 			pTm->tm_mon++;
 			// This catches round-off error that initially assigned a date to year N-1 

@@ -13,23 +13,17 @@ static bool IsZero(void * arg) {
 	return 0 == *reinterpret_cast<int *>(arg);
 }
 
-bool Barrier::Block() {
+bool Barrier::Block() 
+{
 	MutexLock l(&this->lock_);
-
 	this->num_to_block_--;
 	if(this->num_to_block_ < 0) {
-		ABSL_RAW_LOG(
-			FATAL,
-			"Block() called too many times.  num_to_block_=%d out of total=%d",
-			this->num_to_block_, this->num_to_exit_);
+		ABSL_RAW_LOG(FATAL, "Block() called too many times.  num_to_block_=%d out of total=%d", this->num_to_block_, this->num_to_exit_);
 	}
-
 	this->lock_.Await(Condition(IsZero, &this->num_to_block_));
-
 	// Determine which thread can safely delete this Barrier object
 	this->num_to_exit_--;
 	ABSL_RAW_CHECK(this->num_to_exit_ >= 0, "barrier underflow");
-
 	// If num_to_exit_ == 0 then all other threads in the barrier have
 	// exited the Wait() and have released the Mutex so this thread is
 	// free to delete the barrier.

@@ -32,6 +32,7 @@ int PPValidateXml();
 int OpenPhonePane();
 int UniFindObj();
 int TSessionMaintenance(); // @v11.0.4
+int ProcessUed(); // @v11.6.6
 //int ImportSartre();
 // } @prototype
 //
@@ -566,6 +567,7 @@ int PPApp::processCommand(uint cmd)
 		case cmAlcoDeclRu:           PPView::Execute(PPVIEW_ALCODECLRU,      0, PPView::exefModeless, 0); break; // @v11.0.5
 		case cmStyloQBindery:        PPView::Execute(PPVIEW_STYLOQBINDERY,   0, PPView::exefModeless, 0); break; // @v11.1.7
 		case cmStyloQCommands:       PPView::Execute(PPVIEW_STYLOQCOMMAND,   0, PPView::exefModeless, 0); break; // @v11.1.9
+		case cmProcessUED:           ProcessUed(); break; // @v11.6.6
 		case cmEventsForCurrentUser:
 			{
 				EventFilt ev_filt;

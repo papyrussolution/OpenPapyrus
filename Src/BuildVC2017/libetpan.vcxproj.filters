@@ -239,9 +239,6 @@
     <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\generic_cache_types.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\getopt.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\hmac-md5.h">
       <Filter>Header</Filter>
     </ClInclude>

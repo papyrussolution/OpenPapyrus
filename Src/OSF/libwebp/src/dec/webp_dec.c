@@ -642,7 +642,7 @@ uint8* WebPDecodeYUV(const uint8* data, size_t data_size, int* width, int* heigh
 {
 	WebPDecBuffer output; // only to preserve the side-infos
 	uint8* const out = Decode(MODE_YUV, data, data_size, width, height, &output);
-	if(out != NULL) {
+	if(out) {
 		const WebPYUVABuffer* const buf = &output.u.YUVA;
 		*u = buf->u;
 		*v = buf->v;

@@ -276,33 +276,24 @@ static EVP_PKEY * try_key_value_legacy(struct extracted_param_data_st * data,
 	const uchar * der = (const unsigned char*)data->octet_data;
 	const uchar * derp;
 	long der_len = (long)data->octet_data_size;
-
 	/* Try PUBKEY first, that's a real easy target */
-	if(ctx->expected_type == 0
-	    || ctx->expected_type == OSSL_STORE_INFO_PUBKEY) {
+	if(ctx->expected_type == 0 || ctx->expected_type == OSSL_STORE_INFO_PUBKEY) {
 		derp = der;
 		pk = d2i_PUBKEY_ex(NULL, &derp, der_len, libctx, propq);
-
-		if(pk != NULL)
+		if(pk)
 			*store_info_new = OSSL_STORE_INFO_new_PUBKEY;
 	}
-
 	/* Try private keys next */
-	if(pk == NULL
-	    && (ctx->expected_type == 0
-	    || ctx->expected_type == OSSL_STORE_INFO_PKEY)) {
+	if(pk == NULL && (ctx->expected_type == 0 || ctx->expected_type == OSSL_STORE_INFO_PKEY)) {
 		uchar * new_der = NULL;
 		X509_SIG * p8 = NULL;
 		PKCS8_PRIV_KEY_INFO * p8info = NULL;
-
 		/* See if it's an encrypted PKCS#8 and decrypt it. */
 		derp = der;
 		p8 = d2i_X509_SIG(NULL, &derp, der_len);
-
-		if(p8 != NULL) {
+		if(p8) {
 			char pbuf[PEM_BUFSIZE];
 			size_t plen = 0;
-
 			if(!cb(pbuf, sizeof(pbuf), &plen, NULL, cbarg)) {
 				ERR_raise(ERR_LIB_OSSL_STORE, OSSL_STORE_R_BAD_PASSWORD_READ);
 			}
@@ -310,60 +301,46 @@ static EVP_PKEY * try_key_value_legacy(struct extracted_param_data_st * data,
 				const X509_ALGOR * alg = NULL;
 				const ASN1_OCTET_STRING * oct = NULL;
 				int len = 0;
-
 				X509_SIG_get0(p8, &alg, &oct);
-
 				/*
 				 * No need to check the returned value, |new_der|
 				 * will be NULL on error anyway.
 				 */
-				PKCS12_pbe_crypt(alg, pbuf, plen,
-				    oct->data, oct->length,
-				    &new_der, &len, 0);
+				PKCS12_pbe_crypt(alg, pbuf, plen, oct->data, oct->length, &new_der, &len, 0);
 				der_len = len;
 				der = new_der;
 			}
 			X509_SIG_free(p8);
 		}
-
 		/*
 		 * If the encrypted PKCS#8 couldn't be decrypted,
 		 * |der| is NULL
 		 */
-		if(der != NULL) {
+		if(der) {
 			/* Try to unpack an unencrypted PKCS#8, that's easy */
 			derp = der;
 			p8info = d2i_PKCS8_PRIV_KEY_INFO(NULL, &derp, der_len);
-
-			if(p8info != NULL) {
+			if(p8info) {
 				pk = EVP_PKCS82PKEY_ex(p8info, libctx, propq);
 				PKCS8_PRIV_KEY_INFO_free(p8info);
 			}
 		}
-
-		if(pk != NULL)
+		if(pk)
 			*store_info_new = OSSL_STORE_INFO_new_PKEY;
-
 		OPENSSL_free(new_der);
 	}
-
 	return pk;
 }
 
 static int try_key(struct extracted_param_data_st * data, OSSL_STORE_INFO ** v,
-    OSSL_STORE_CTX * ctx, const OSSL_PROVIDER * provider,
-    OSSL_LIB_CTX * libctx, const char * propq)
+    OSSL_STORE_CTX * ctx, const OSSL_PROVIDER * provider, OSSL_LIB_CTX * libctx, const char * propq)
 {
 	store_info_new_fn * store_info_new = NULL;
-
-	if(data->object_type == OSSL_OBJECT_UNKNOWN
-	    || data->object_type == OSSL_OBJECT_PKEY) {
+	if(data->object_type == OSSL_OBJECT_UNKNOWN || data->object_type == OSSL_OBJECT_PKEY) {
 		EVP_PKEY * pk = NULL;
-
 		/* Prefer key by reference than key by value */
 		if(data->object_type == OSSL_OBJECT_PKEY && data->ref != NULL) {
 			pk = try_key_ref(data, ctx, provider, libctx, propq);
-
 			/*
 			 * If for some reason we couldn't get a key, it's an error.
 			 * It indicates that while decoders could make a key reference,
@@ -376,9 +353,7 @@ static int try_key(struct extracted_param_data_st * data, OSSL_STORE_INFO ** v,
 		else if(data->octet_data != NULL) {
 			OSSL_PASSPHRASE_CALLBACK * cb = ossl_pw_passphrase_callback_dec;
 			void * cbarg = &ctx->pwdata;
-
 			pk = try_key_value(data, ctx, cb, cbarg, libctx, propq);
-
 			/*
 			 * Desperate last maneuver, in case the decoders don't support
 			 * the data we have, then we try on our own to at least get an
@@ -387,13 +362,10 @@ static int try_key(struct extracted_param_data_st * data, OSSL_STORE_INFO ** v,
 			 * way and within the walls of libcrypto.
 			 */
 			if(pk == NULL)
-				pk = try_key_value_legacy(data, &store_info_new, ctx,
-					cb, cbarg, libctx, propq);
+				pk = try_key_value_legacy(data, &store_info_new, ctx, cb, cbarg, libctx, propq);
 		}
-
-		if(pk != NULL) {
+		if(pk) {
 			data->object_type = OSSL_OBJECT_PKEY;
-
 			if(store_info_new == NULL) {
 				/*
 				 * We determined the object type for OSSL_STORE_INFO, which
@@ -405,27 +377,22 @@ static int try_key(struct extracted_param_data_st * data, OSSL_STORE_INFO ** v,
 				 */
 				if(evp_keymgmt_util_has(pk, OSSL_KEYMGMT_SELECT_PRIVATE_KEY))
 					store_info_new = OSSL_STORE_INFO_new_PKEY;
-				else if(evp_keymgmt_util_has(pk,
-				    OSSL_KEYMGMT_SELECT_PUBLIC_KEY))
+				else if(evp_keymgmt_util_has(pk, OSSL_KEYMGMT_SELECT_PUBLIC_KEY))
 					store_info_new = OSSL_STORE_INFO_new_PUBKEY;
 				else
 					store_info_new = OSSL_STORE_INFO_new_PARAMS;
 			}
 			*v = store_info_new(pk);
 		}
-
 		if(*v == NULL)
 			EVP_PKEY_free(pk);
 	}
-
 	return 1;
 }
 
-static int try_cert(struct extracted_param_data_st * data, OSSL_STORE_INFO ** v,
-    OSSL_LIB_CTX * libctx, const char * propq)
+static int try_cert(struct extracted_param_data_st * data, OSSL_STORE_INFO ** v, OSSL_LIB_CTX * libctx, const char * propq)
 {
-	if(data->object_type == OSSL_OBJECT_UNKNOWN
-	    || data->object_type == OSSL_OBJECT_CERT) {
+	if(data->object_type == OSSL_OBJECT_UNKNOWN || data->object_type == OSSL_OBJECT_CERT) {
 		/*
 		 * In most cases, we can try to interpret the serialized
 		 * data as a trusted cert (X509 + X509_AUX) and fall back
@@ -485,7 +452,7 @@ static int try_pkcs12(struct extracted_param_data_st * data, OSSL_STORE_INFO ** 
 	if(data->object_type == OSSL_OBJECT_UNKNOWN) {
 		/* Initial parsing */
 		PKCS12 * p12 = d2i_PKCS12(NULL, (const unsigned char**)&data->octet_data, data->octet_data_size);
-		if(p12 != NULL) {
+		if(p12) {
 			char * pass = NULL;
 			char tpass[PEM_BUFSIZE + 1];
 			size_t tpass_len;

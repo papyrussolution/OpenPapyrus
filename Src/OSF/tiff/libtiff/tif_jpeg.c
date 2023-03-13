@@ -39,9 +39,8 @@ int TIFFJPEGIsFullStripRequired_12(TIFF * tif);
 
 // We undefine FAR to avoid conflict with JPEG definition 
 #ifdef FAR
-#undef FAR
+	#undef FAR
 #endif
-
 /*
    Libjpeg's jmorecfg.h defines INT16 and INT32, but only if XMD_H is
    not defined.  Unfortunately, the MinGW and Borland compilers include
@@ -178,8 +177,7 @@ static int DecodeRowError(TIFF * tif, uint8 * buf, tmsize_t cc, uint16 s);
 #define FIELD_JPEGTABLES        (FIELD_CODEC+0)
 
 static const TIFFField jpegFields[] = {
-	{ TIFFTAG_JPEGTABLES, -3, -3, TIFF_UNDEFINED, 0, TIFF_SETGET_C32_UINT8, TIFF_SETGET_C32_UINT8, FIELD_JPEGTABLES, FALSE, TRUE,
-	  "JPEGTables", NULL },
+	{ TIFFTAG_JPEGTABLES, -3, -3, TIFF_UNDEFINED, 0, TIFF_SETGET_C32_UINT8, TIFF_SETGET_C32_UINT8, FIELD_JPEGTABLES, FALSE, TRUE, "JPEGTables", NULL },
 	{ TIFFTAG_JPEGQUALITY, 0, 0, TIFF_ANY, 0, TIFF_SETGET_INT, TIFF_SETGET_UNDEFINED, FIELD_PSEUDO, TRUE, FALSE, "", NULL },
 	{ TIFFTAG_JPEGCOLORMODE, 0, 0, TIFF_ANY, 0, TIFF_SETGET_INT, TIFF_SETGET_UNDEFINED, FIELD_PSEUDO, FALSE, FALSE, "", NULL },
 	{ TIFFTAG_JPEGTABLESMODE, 0, 0, TIFF_ANY, 0, TIFF_SETGET_INT, TIFF_SETGET_UNDEFINED, FIELD_PSEUDO, FALSE, FALSE, "", NULL }

@@ -445,7 +445,7 @@ static int dh_pkey_export_to(const EVP_PKEY * from, void * to_keydata,
 	if(!OSSL_PARAM_BLD_push_BN(tmpl, OSSL_PKEY_PARAM_FFC_P, p)
 	    || !OSSL_PARAM_BLD_push_BN(tmpl, OSSL_PKEY_PARAM_FFC_G, g))
 		goto err;
-	if(q != NULL) {
+	if(q) {
 		if(!OSSL_PARAM_BLD_push_BN(tmpl, OSSL_PKEY_PARAM_FFC_Q, q))
 			goto err;
 	}
@@ -455,12 +455,12 @@ static int dh_pkey_export_to(const EVP_PKEY * from, void * to_keydata,
 			goto err;
 		selection |= OSSL_KEYMGMT_SELECT_OTHER_PARAMETERS;
 	}
-	if(pub_key != NULL) {
+	if(pub_key) {
 		if(!OSSL_PARAM_BLD_push_BN(tmpl, OSSL_PKEY_PARAM_PUB_KEY, pub_key))
 			goto err;
 		selection |= OSSL_KEYMGMT_SELECT_PUBLIC_KEY;
 	}
-	if(priv_key != NULL) {
+	if(priv_key) {
 		if(!OSSL_PARAM_BLD_push_BN(tmpl, OSSL_PKEY_PARAM_PRIV_KEY,
 		    priv_key))
 			goto err;

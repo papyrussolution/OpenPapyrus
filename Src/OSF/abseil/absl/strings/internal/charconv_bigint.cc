@@ -272,10 +272,9 @@ int BigUnsigned<max_words>::ReadDigits(const char* begin, const char* end,
 	return exponent_adjust;
 }
 
-template <int max_words>
-/* static */ BigUnsigned<max_words> BigUnsigned<max_words>::FiveToTheNth(int n) {
+template <int max_words> /*static*/BigUnsigned<max_words> BigUnsigned<max_words>::FiveToTheNth(int n) 
+{
 	BigUnsigned answer(1u);
-
 	// Seed from the table of large powers, if possible.
 	bool first_pass = true;
 	while(n >= kLargePowerOfFiveStep) {

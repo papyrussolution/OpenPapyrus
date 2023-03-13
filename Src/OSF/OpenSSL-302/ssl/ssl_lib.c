@@ -2556,7 +2556,7 @@ int ssl_cipher_ptr_id_cmp(const SSL_CIPHER * const * ap,
  * preference */
 STACK_OF(SSL_CIPHER) *SSL_get_ciphers(const SSL *s)
 {
-	if(s != NULL) {
+	if(s) {
 		if(s->cipher_list != NULL) {
 			return s->cipher_list;
 		}
@@ -2604,7 +2604,7 @@ STACK_OF(SSL_CIPHER) *SSL_get1_supported_ciphers(SSL *s)
  * algorithm id */
 STACK_OF(SSL_CIPHER) *ssl_get_ciphers_by_id(SSL *s)
 {
-	if(s != NULL) {
+	if(s) {
 		if(s->cipher_list_by_id != NULL) {
 			return s->cipher_list_by_id;
 		}
@@ -3140,7 +3140,7 @@ SSL_CTX * SSL_CTX_new_ex(OSSL_LIB_CTX * libctx, const char * propq, const SSL_ME
 	}
 #endif
 	ret->libctx = libctx;
-	if(propq != NULL) {
+	if(propq) {
 		ret->propq = OPENSSL_strdup(propq);
 		if(ret->propq == NULL)
 			goto err;
@@ -5134,8 +5134,7 @@ const CTLOG_STORE * SSL_CTX_get0_ctlog_store(const SSL_CTX * ctx)
 
 #endif  /* OPENSSL_NO_CT */
 
-void SSL_CTX_set_client_hello_cb(SSL_CTX * c, SSL_client_hello_cb_fn cb,
-    void * arg)
+void SSL_CTX_set_client_hello_cb(SSL_CTX * c, SSL_client_hello_cb_fn cb, void * arg)
 {
 	c->client_hello_cb = cb;
 	c->client_hello_cb_arg = arg;
@@ -5143,23 +5142,19 @@ void SSL_CTX_set_client_hello_cb(SSL_CTX * c, SSL_client_hello_cb_fn cb,
 
 int SSL_client_hello_isv2(SSL * s)
 {
-	if(s->clienthello == NULL)
-		return 0;
-	return s->clienthello->isv2;
+	return s->clienthello ? s->clienthello->isv2 : 0;
 }
 
 unsigned int SSL_client_hello_get0_legacy_version(SSL * s)
 {
-	if(s->clienthello == NULL)
-		return 0;
-	return s->clienthello->legacy_version;
+	return s->clienthello ? s->clienthello->legacy_version : 0;
 }
 
 size_t SSL_client_hello_get0_random(SSL * s, const uchar ** out)
 {
 	if(s->clienthello == NULL)
 		return 0;
-	if(out != NULL)
+	if(out)
 		*out = s->clienthello->random;
 	return SSL3_RANDOM_SIZE;
 }
@@ -5168,7 +5163,7 @@ size_t SSL_client_hello_get0_session_id(SSL * s, const uchar ** out)
 {
 	if(s->clienthello == NULL)
 		return 0;
-	if(out != NULL)
+	if(out)
 		*out = s->clienthello->session_id;
 	return s->clienthello->session_id_len;
 }
@@ -5177,7 +5172,7 @@ size_t SSL_client_hello_get0_ciphers(SSL * s, const uchar ** out)
 {
 	if(s->clienthello == NULL)
 		return 0;
-	if(out != NULL)
+	if(out)
 		*out = PACKET_data(&s->clienthello->ciphersuites);
 	return PACKET_remaining(&s->clienthello->ciphersuites);
 }
@@ -5186,7 +5181,7 @@ size_t SSL_client_hello_get0_compression_methods(SSL * s, const uchar ** out)
 {
 	if(s->clienthello == NULL)
 		return 0;
-	if(out != NULL)
+	if(out)
 		*out = s->clienthello->compressions;
 	return s->clienthello->compressions_len;
 }
@@ -5196,7 +5191,6 @@ int SSL_client_hello_get1_extensions_present(SSL * s, int ** out, size_t * outle
 	RAW_EXTENSION * ext;
 	int * present;
 	size_t num = 0, i;
-
 	if(s->clienthello == NULL || out == NULL || outlen == NULL)
 		return 0;
 	for(i = 0; i < s->clienthello->pre_proc_exts_len; i++) {
@@ -5238,7 +5232,7 @@ int SSL_client_hello_get0_ext(SSL * s, unsigned int type, const uchar ** out, si
 	for(i = 0; i < s->clienthello->pre_proc_exts_len; ++i) {
 		r = s->clienthello->pre_proc_exts + i;
 		if(r->present && r->type == type) {
-			if(out != NULL)
+			if(out)
 				*out = PACKET_data(&r->data);
 			if(outlen != NULL)
 				*outlen = PACKET_remaining(&r->data);
@@ -5251,10 +5245,8 @@ int SSL_client_hello_get0_ext(SSL * s, unsigned int type, const uchar ** out, si
 int SSL_free_buffers(SSL * ssl)
 {
 	RECORD_LAYER * rl = &ssl->rlayer;
-
 	if(RECORD_LAYER_read_pending(rl) || RECORD_LAYER_write_pending(rl))
 		return 0;
-
 	RECORD_LAYER_release(rl);
 	return 1;
 }
@@ -5274,22 +5266,15 @@ SSL_CTX_keylog_cb_func SSL_CTX_get_keylog_callback(const SSL_CTX * ctx)
 	return ctx->keylog_callback;
 }
 
-static int nss_keylog_int(const char * prefix,
-    SSL * ssl,
-    const uint8_t * parameter_1,
-    size_t parameter_1_len,
-    const uint8_t * parameter_2,
-    size_t parameter_2_len)
+static int nss_keylog_int(const char * prefix, SSL * ssl, const uint8_t * parameter_1, size_t parameter_1_len, const uint8_t * parameter_2, size_t parameter_2_len)
 {
 	char * out = NULL;
 	char * cursor = NULL;
 	size_t out_len = 0;
 	size_t i;
 	size_t prefix_len;
-
 	if(ssl->ctx->keylog_callback == NULL)
 		return 1;
-
 	/*
 	 * Our output buffer will contain the following strings, rendered with
 	 * space characters in between, terminated by a NULL character: first the
@@ -5324,57 +5309,34 @@ static int nss_keylog_int(const char * prefix,
 	return 1;
 }
 
-int ssl_log_rsa_client_key_exchange(SSL * ssl,
-    const uint8_t * encrypted_premaster,
-    size_t encrypted_premaster_len,
-    const uint8_t * premaster,
-    size_t premaster_len)
+int ssl_log_rsa_client_key_exchange(SSL * ssl, const uint8_t * encrypted_premaster, size_t encrypted_premaster_len, const uint8_t * premaster, size_t premaster_len)
 {
 	if(encrypted_premaster_len < 8) {
 		SSLfatal(ssl, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
 		return 0;
 	}
-
 	/* We only want the first 8 bytes of the encrypted premaster as a tag. */
-	return nss_keylog_int("RSA",
-		   ssl,
-		   encrypted_premaster,
-		   8,
-		   premaster,
-		   premaster_len);
+	return nss_keylog_int("RSA", ssl, encrypted_premaster, 8, premaster, premaster_len);
 }
 
-int ssl_log_secret(SSL * ssl,
-    const char * label,
-    const uint8_t * secret,
-    size_t secret_len)
+int ssl_log_secret(SSL * ssl, const char * label, const uint8_t * secret, size_t secret_len)
 {
-	return nss_keylog_int(label,
-		   ssl,
-		   ssl->s3.client_random,
-		   SSL3_RANDOM_SIZE,
-		   secret,
-		   secret_len);
+	return nss_keylog_int(label, ssl, ssl->s3.client_random, SSL3_RANDOM_SIZE, secret, secret_len);
 }
 
 #define SSLV2_CIPHER_LEN    3
 
 int ssl_cache_cipherlist(SSL * s, PACKET * cipher_suites, int sslv2format)
 {
-	int n;
-
-	n = sslv2format ? SSLV2_CIPHER_LEN : TLS_CIPHER_LEN;
-
+	int n = sslv2format ? SSLV2_CIPHER_LEN : TLS_CIPHER_LEN;
 	if(PACKET_remaining(cipher_suites) == 0) {
 		SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_R_NO_CIPHERS_SPECIFIED);
 		return 0;
 	}
-
 	if(PACKET_remaining(cipher_suites) % n != 0) {
 		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_R_ERROR_IN_RECEIVED_CIPHER_LIST);
 		return 0;
 	}
-
 	OPENSSL_free(s->s3.tmp.ciphers_raw);
 	s->s3.tmp.ciphers_raw = NULL;
 	s->s3.tmp.ciphers_rawlen = 0;
@@ -5430,7 +5392,6 @@ int SSL_bytes_to_cipher_list(SSL * s, const uchar * bytes, size_t len,
     STACK_OF(SSL_CIPHER) ** scsvs)
 {
 	PACKET pkt;
-
 	if(!PACKET_buf_init(&pkt, bytes, len))
 		return 0;
 	return bytes_to_cipher_list(s, &pkt, sk, scsvs, isv2format, 0);
@@ -5444,12 +5405,9 @@ int bytes_to_cipher_list(SSL * s, PACKET * cipher_suites,
 	const SSL_CIPHER * c;
 	STACK_OF(SSL_CIPHER) *sk = NULL;
 	STACK_OF(SSL_CIPHER) *scsvs = NULL;
-	int n;
 	/* 3 = SSLV2_CIPHER_LEN > TLS_CIPHER_LEN = 2. */
 	unsigned char cipher[SSLV2_CIPHER_LEN];
-
-	n = sslv2format ? SSLV2_CIPHER_LEN : TLS_CIPHER_LEN;
-
+	int n = sslv2format ? SSLV2_CIPHER_LEN : TLS_CIPHER_LEN;
 	if(PACKET_remaining(cipher_suites) == 0) {
 		if(fatal)
 			SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_R_NO_CIPHERS_SPECIFIED);
@@ -5457,16 +5415,13 @@ int bytes_to_cipher_list(SSL * s, PACKET * cipher_suites,
 			ERR_raise(ERR_LIB_SSL, SSL_R_NO_CIPHERS_SPECIFIED);
 		return 0;
 	}
-
 	if(PACKET_remaining(cipher_suites) % n != 0) {
 		if(fatal)
-			SSLfatal(s, SSL_AD_DECODE_ERROR,
-			    SSL_R_ERROR_IN_RECEIVED_CIPHER_LIST);
+			SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_R_ERROR_IN_RECEIVED_CIPHER_LIST);
 		else
 			ERR_raise(ERR_LIB_SSL, SSL_R_ERROR_IN_RECEIVED_CIPHER_LIST);
 		return 0;
 	}
-
 	sk = sk_SSL_CIPHER_new_null();
 	scsvs = sk_SSL_CIPHER_new_null();
 	if(sk == NULL || scsvs == NULL) {
@@ -5506,7 +5461,6 @@ int bytes_to_cipher_list(SSL * s, PACKET * cipher_suites,
 			ERR_raise(ERR_LIB_SSL, SSL_R_BAD_LENGTH);
 		goto err;
 	}
-
 	if(skp != NULL)
 		*skp = sk;
 	else
@@ -5525,7 +5479,6 @@ err:
 int SSL_CTX_set_max_early_data(SSL_CTX * ctx, uint32_t max_early_data)
 {
 	ctx->max_early_data = max_early_data;
-
 	return 1;
 }
 
@@ -5537,7 +5490,6 @@ uint32_t SSL_CTX_get_max_early_data(const SSL_CTX * ctx)
 int SSL_set_max_early_data(SSL * s, uint32_t max_early_data)
 {
 	s->max_early_data = max_early_data;
-
 	return 1;
 }
 
@@ -5549,7 +5501,6 @@ uint32_t SSL_get_max_early_data(const SSL * s)
 int SSL_CTX_set_recv_max_early_data(SSL_CTX * ctx, uint32_t recv_max_early_data)
 {
 	ctx->recv_max_early_data = recv_max_early_data;
-
 	return 1;
 }
 
@@ -5680,36 +5631,24 @@ int SSL_CTX_set_session_ticket_cb(SSL_CTX * ctx,
 	return 1;
 }
 
-void SSL_CTX_set_allow_early_data_cb(SSL_CTX * ctx,
-    SSL_allow_early_data_cb_fn cb,
-    void * arg)
+void SSL_CTX_set_allow_early_data_cb(SSL_CTX * ctx, SSL_allow_early_data_cb_fn cb, void * arg)
 {
 	ctx->allow_early_data_cb = cb;
 	ctx->allow_early_data_cb_data = arg;
 }
 
-void SSL_set_allow_early_data_cb(SSL * s,
-    SSL_allow_early_data_cb_fn cb,
-    void * arg)
+void SSL_set_allow_early_data_cb(SSL * s, SSL_allow_early_data_cb_fn cb, void * arg)
 {
 	s->allow_early_data_cb = cb;
 	s->allow_early_data_cb_data = arg;
 }
 
-const EVP_CIPHER * ssl_evp_cipher_fetch(OSSL_LIB_CTX * libctx,
-    int nid,
-    const char * properties)
+const EVP_CIPHER * ssl_evp_cipher_fetch(OSSL_LIB_CTX * libctx, int nid, const char * properties)
 {
-	const EVP_CIPHER * ciph;
-
-	ciph = tls_get_cipher_from_engine(nid);
+	const EVP_CIPHER * ciph = tls_get_cipher_from_engine(nid);
 	if(ciph != NULL)
 		return ciph;
-
-	/*
-	 * If there is no engine cipher then we do an explicit fetch. This may fail
-	 * and that could be ok
-	 */
+	// If there is no engine cipher then we do an explicit fetch. This may fail and that could be ok
 	ERR_set_mark();
 	ciph = EVP_CIPHER_fetch(libctx, OBJ_nid2sn(nid), properties);
 	ERR_pop_to_mark();
@@ -5721,38 +5660,25 @@ int ssl_evp_cipher_up_ref(const EVP_CIPHER * cipher)
 	/* Don't up-ref an implicit EVP_CIPHER */
 	if(EVP_CIPHER_get0_provider(cipher) == NULL)
 		return 1;
-
-	/*
-	 * The cipher was explicitly fetched and therefore it is safe to cast
-	 * away the const
-	 */
+	// The cipher was explicitly fetched and therefore it is safe to cast away the const
 	return EVP_CIPHER_up_ref((EVP_CIPHER*)cipher);
 }
 
 void ssl_evp_cipher_free(const EVP_CIPHER * cipher)
 {
-	if(cipher == NULL)
-		return;
-
-	if(EVP_CIPHER_get0_provider(cipher) != NULL) {
-		/*
-		 * The cipher was explicitly fetched and therefore it is safe to cast
-		 * away the const
-		 */
-		EVP_CIPHER_free((EVP_CIPHER*)cipher);
+	if(cipher) {
+		if(EVP_CIPHER_get0_provider(cipher) != NULL) {
+			// The cipher was explicitly fetched and therefore it is safe to cast away the const
+			EVP_CIPHER_free((EVP_CIPHER*)cipher);
+		}
 	}
 }
 
-const EVP_MD * ssl_evp_md_fetch(OSSL_LIB_CTX * libctx,
-    int nid,
-    const char * properties)
+const EVP_MD * ssl_evp_md_fetch(OSSL_LIB_CTX * libctx, int nid, const char * properties)
 {
-	const EVP_MD * md;
-
-	md = tls_get_digest_from_engine(nid);
+	const EVP_MD * md = tls_get_digest_from_engine(nid);
 	if(md)
 		return md;
-
 	/* Otherwise we do an explicit fetch */
 	ERR_set_mark();
 	md = EVP_MD_fetch(libctx, OBJ_nid2sn(nid), properties);
@@ -5765,25 +5691,17 @@ int ssl_evp_md_up_ref(const EVP_MD * md)
 	/* Don't up-ref an implicit EVP_MD */
 	if(EVP_MD_get0_provider(md) == NULL)
 		return 1;
-
-	/*
-	 * The digest was explicitly fetched and therefore it is safe to cast
-	 * away the const
-	 */
+	// The digest was explicitly fetched and therefore it is safe to cast away the const
 	return EVP_MD_up_ref((EVP_MD*)md);
 }
 
 void ssl_evp_md_free(const EVP_MD * md)
 {
-	if(!md)
-		return;
-
-	if(EVP_MD_get0_provider(md) != NULL) {
-		/*
-		 * The digest was explicitly fetched and therefore it is safe to cast
-		 * away the const
-		 */
-		EVP_MD_free((EVP_MD*)md);
+	if(md) {
+		if(EVP_MD_get0_provider(md) != NULL) {
+			// The digest was explicitly fetched and therefore it is safe to cast away the const
+			EVP_MD_free((EVP_MD*)md);
+		}
 	}
 }
 

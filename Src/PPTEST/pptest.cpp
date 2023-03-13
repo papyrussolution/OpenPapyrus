@@ -1409,7 +1409,7 @@ int  Test_StyloQInvitation();
 // @construction finished int  Test_Launch_SCalendarPicker();
 int  Test_StrAssocTree();
 int  Test_Fts();
-int  Test_ReadUed(const char * pFileName);
+//int  Test_ReadUed(const char * pFileName);
 int  Test_ListSelectionDialog();
 int  ImportYYE(const char * pSrcPath);
 int  ImportSpecial(const char * pPath);
@@ -1506,8 +1506,8 @@ int DoConstructionTest()
 	//Test_Fts();
 #endif
 	//ImportSpecial("D:\\DEV\\RESOURCE\\DATA\\ETC");
-	SDecimalFraction::Test();
 	//Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
+	SDecimalFraction::Test();
 	//ReformatRazoomnick("D:/Papyrus/Universe-HTT/DATA/Razoomnick-barcodes.csv");	
 	//TestGtinStruc();
 	//PPStyloQInterchange::PrepareAhed(true);

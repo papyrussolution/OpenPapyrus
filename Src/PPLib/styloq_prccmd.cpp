@@ -774,6 +774,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 	DbProvider * p_dict = CurDict;
 	THROW_PP(p_dict && p_dict->GetDbSymb(db_symb), PPERR_SESSNAUTH);
 	{
+		PPObjTag tag_obj;
 		PPObjGoods gobj;
 		Goods2Tbl::Rec goods_rec;
 		THROW(rCliPack.Pool.Get(SSecretTagPool::tagClientIdent, &cli_ident)); // @todo @err
@@ -932,7 +933,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 					}
 				}
 				if(is_ex_tsess) {
-					THROW(tses_obj.GetPacket(ex_rec.ID, &tses_pack, 0) > 0);
+					THROW(tses_obj.GetPacket(ex_rec.ID, &tses_pack, PPObjTSession::gpoLoadLines) > 0); // @v11.6.6 PPObjTSession::gpoLoadLines
 					result_obj_id = ex_rec.ID;
 				}
 				else {
@@ -962,6 +963,12 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 					(temp_buf = doc.Memo).Strip().Transf(CTRANSF_UTF8_TO_INNER);
 					tses_pack.Ext.PutExtStrData(PRCEXSTR_MEMO, temp_buf);
 					// } @v11.3.12
+					// @v11.6.6 {
+					if(doc.Code.NotEmpty()) {
+						(temp_buf = doc.Code).Transf(CTRANSF_UTF8_TO_INNER);
+						tses_pack.TagL.PutItemStrNE(PPTAG_TSESS_OUTERCODE, temp_buf);
+					}
+					// } @v11.6.6
 					tses_pack.SetGuid(doc.Uuid);
 					{
 						PPTransaction tra(1);
@@ -980,6 +987,23 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 							}
 						}
 						THROW(tses_obj.PutPacket(&result_obj_id, &tses_pack, 0));
+						// @v11.6.6 {
+						if(p_item->Set.Price > 0.0) {
+							uint ex_line_count = 0;
+							{
+								TSessLineTbl::Rec ex_line_rec;
+								long hdl_ln_enum = 0;
+								for(tses_obj.P_Tbl->InitLineEnum(tses_pack.Rec.ID, &hdl_ln_enum); tses_obj.P_Tbl->NextLineEnum(hdl_ln_enum, &ex_line_rec) > 0;) {
+									ex_line_count++;
+									if(ex_line_rec.Flags & TSESLF_AUTOMAIN) {
+										ex_line_rec.Price = p_item->Set.Price;
+										ex_line_rec.Discount = p_item->Set.Discount;
+										THROW(tses_obj.PutLine(tses_pack.Rec.ID, &ex_line_rec.OprNo, &ex_line_rec, 0));
+									}
+								}
+							}
+						}
+						// } @v11.6.6 
 						THROW(tra.Commit());
 						result_obj_type = PPOBJ_TSESSION;
 						{
@@ -2143,6 +2167,31 @@ int PPStyloQInterchange::ProcessCommand_Report(const StyloQCommandList::Item & r
 	return ok;
 }
 
+int PPStyloQInterchange::GetPrcList(const StyloQCore::StoragePacket & rCliPack, const StyloQIncomingListParam & rParam, PPObjTSession & rTSesObj, PPIDArray & rList)
+{
+	rList.Z();
+	int    ok = 1;
+	PPID   prc_id = rParam.P_TsF ? rParam.P_TsF->PrcID : 0;
+	PPID   local_prc_id = 0;
+	PPObjTSession tses_obj;
+	if(FetchProcessorFromClientPacket(rCliPack, &local_prc_id, true/*logResult*/) > 0) {
+		;
+	}
+	if(prc_id == ROBJID_CONTEXT) {
+		rParam.P_TsF->PrcID = local_prc_id;
+		prc_id = local_prc_id;
+	}
+	if(prc_id)
+		rList.add(prc_id);
+	else {
+		ProcessorTbl::Rec prc_rec;
+		for(SEnum en = tses_obj.PrcObj.P_Tbl->Enum(PPPRCK_PROCESSOR, 0); en.Next(&prc_rec) > 0;) {
+			rList.add(prc_rec.ID);
+		}
+	}
+	return ok;
+}
+
 int PPStyloQInterchange::ProcessCommand_IncomingListTSess(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const LDATETIME * pIfChangedSince, SString & rResult, SString & rDocDeclaration, uint prccmdFlags)
 {
 	int    ok = 1;
@@ -2161,64 +2210,86 @@ int PPStyloQInterchange::ProcessCommand_IncomingListTSess(const StyloQCommandLis
 	SETIFZQ(param.P_TsF, new TSessionFilt);
 	{
 		PPIDArray prc_id_list;
-		PPID   prc_id = param.P_TsF ? param.P_TsF->PrcID : 0;
-		PPID   local_prc_id = 0;
 		PPObjTSession tses_obj;
-		if(FetchProcessorFromClientPacket(rCliPack, &local_prc_id, true/*logResult*/) > 0) {
-			;
-		}
-		if(prc_id == ROBJID_CONTEXT) {
-			param.P_TsF->PrcID = local_prc_id;
-			prc_id = local_prc_id;
-		}
-		if(prc_id)
-			prc_id_list.add(prc_id);
-		else {
-			ProcessorTbl::Rec prc_rec;
-			for(SEnum en = tses_obj.PrcObj.P_Tbl->Enum(PPPRCK_PROCESSOR, 0); en.Next(&prc_rec) > 0;) {
-				prc_id_list.add(prc_rec.ID);
-			}
-		}
+		GetPrcList(rCliPack, param, tses_obj, prc_id_list);
 		{
 			SJson js(SJson::tOBJECT);
 			PPIDArray goods_id_list;
-			if(prc_id_list.getCount()) {
-				SBinaryChunk bc_own_ident;
-				THROW(GetOwnIdent(bc_own_ident, 0));
-				MakePrcJsListParam mpjsl_param(bc_own_ident, param);
-				prc_id_list.sortAndUndup();
-				THROW(MakePrcJsList(mpjsl_param, &js, prc_id_list, tses_obj, &stat));
-			}
+			bool nothing_to_do = false;
 			//
-			{
-				TSessionFilt _filt(*param.P_TsF);
-				PPViewTSession _view;
-				TSessionViewItem _item;
-				_filt.PrcID = prc_id_list.getSingle();
-				if(CConfig.Flags & CCFLG_DEBUG && !param.Period.IsZero())
-					_filt.StPeriod = param.Period;
-				else if(param.LookbackDays > 0)
-					_filt.StPeriod.Set(plusdate(dtm_now.d, -param.LookbackDays), ZERODATE);
-				else
-					_filt.StPeriod.Set(dtm_now.d, ZERODATE);
-				THROW(_view.Init_(&_filt));
-				{
-					THROW_SL(p_js_doc_list = SJson::CreateArr());
-					for(_view.InitIteration(0); _view.NextIteration(&_item) > 0;) {
-						TSessionPacket tses_pack;
-						if(tses_obj.GetPacket(_item.ID, &tses_pack, 0) > 0) {
-							Document doc;
-							doc.FromTSessionPacket(tses_pack, &goods_id_list);
-							{
-								SJson * p_js_doc = doc.ToJsonObject();
-								THROW(p_js_doc);
-								p_js_doc_list->InsertChild(p_js_doc);
-								p_js_doc = 0;
-							}
+			TSessionFilt _filt(*param.P_TsF);
+			_filt.PrcID = prc_id_list.getSingle();
+			if(CConfig.Flags & CCFLG_DEBUG && !param.Period.IsZero())
+				_filt.StPeriod = param.Period;
+			else if(param.LookbackDays > 0)
+				_filt.StPeriod.Set(plusdate(dtm_now.d, -param.LookbackDays), ZERODATE);
+			else
+				_filt.StPeriod.Set(dtm_now.d, ZERODATE);
+			//
+			if(!!_ifchangedsince) {
+				// @todo «десь надо вы€снить помен€лось что-нибудь или нет
+				SysJournal * p_sj = DS.GetTLA().P_SysJ;
+				if(p_sj) {
+					PPIDArray tses_id_list;
+					TSVector <SysJournalTbl::Rec> sj_rec_list;
+					PPIDArray acn_list;
+					acn_list.addzlist(PPACN_OBJADD, PPACN_OBJUPD, 0L);
+					p_sj->GetObjListByEventSince(PPOBJ_TSESSION, &acn_list, _ifchangedsince, tses_id_list, &sj_rec_list);
+					//
+					nothing_to_do = true;
+					for(uint objidx = 0; nothing_to_do && objidx < tses_id_list.getCount(); objidx++) {
+						if(tses_obj.CheckForFilt(&_filt, tses_id_list.get(objidx), 0)) {
+							nothing_to_do = false;
 						}
 					}
-					assert(p_js_doc_list);
-					js.Insert("doc_list", p_js_doc_list);
+				}
+			}
+			{
+				if(!!rCmdItem.Uuid)
+					js.InsertString("orgcmduuid", temp_buf.Z().Cat(rCmdItem.Uuid, S_GUID::fmtIDL).Escape());
+				js.InsertString("time", temp_buf.Z().Cat(dtm_now, DATF_ISO8601CENT, 0));
+				StqInsertIntoJs_BaseCurrency(&js); // @v11.5.8
+				//js.InsertInt("posnodeid", posnode_id); // @v11.5.8
+				if(param.ActionFlags) {
+					Document::IncomingListActionsToString(param.ActionFlags, temp_buf);
+					if(temp_buf.NotEmptyS())
+						js.InsertString("actions", temp_buf);
+				}
+			}
+			if(nothing_to_do) {
+				js.InsertBool("nochanges", true);
+			}
+			else {
+				if(prc_id_list.getCount()) {
+					SBinaryChunk bc_own_ident;
+					THROW(GetOwnIdent(bc_own_ident, 0));
+					MakePrcJsListParam mpjsl_param(bc_own_ident, param);
+					prc_id_list.sortAndUndup();
+					THROW(MakePrcJsList(mpjsl_param, &js, prc_id_list, tses_obj, &stat));
+				}
+				//
+				{
+					PPViewTSession _view;
+					TSessionViewItem _item;
+					THROW(_view.Init_(&_filt));
+					{
+						THROW_SL(p_js_doc_list = SJson::CreateArr());
+						for(_view.InitIteration(0); _view.NextIteration(&_item) > 0;) {
+							TSessionPacket tses_pack;
+							if(tses_obj.GetPacket(_item.ID, &tses_pack, 0) > 0) {
+								Document doc;
+								doc.FromTSessionPacket(tses_pack, &goods_id_list);
+								{
+									SJson * p_js_doc = doc.ToJsonObject();
+									THROW(p_js_doc);
+									p_js_doc_list->InsertChild(p_js_doc);
+									p_js_doc = 0;
+								}
+							}
+						}
+						assert(p_js_doc_list);
+						js.Insert("doc_list", p_js_doc_list);
+					}
 				}
 			}
 			//
@@ -2306,12 +2377,10 @@ int PPStyloQInterchange::ProcessCommand_IncomingListCCheck(const StyloQCommandLi
 				// } @v11.6.2 
 				StqInsertIntoJs_BaseCurrency(&js); // @v11.5.8
 				js.InsertInt("posnodeid", posnode_id); // @v11.5.8
-				{
-					if(param.ActionFlags) {
-						Document::IncomingListActionsToString(param.ActionFlags, temp_buf);
-						if(temp_buf.NotEmptyS())
-							js.InsertString("actions", temp_buf);
-					}
+				if(param.ActionFlags) {
+					Document::IncomingListActionsToString(param.ActionFlags, temp_buf);
+					if(temp_buf.NotEmptyS())
+						js.InsertString("actions", temp_buf);
 				}
 			}
 			if(nothing_to_do) {
@@ -2435,7 +2504,6 @@ int PPStyloQInterchange::ProcessCommand_RequestNotificationList(const StyloQComm
 						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO);
 						PPSetError(PPERR_SQ_CMDFAULT_INCOMINGLIST);
 					}*/
-
 					PPIDArray obj_id_list;
 					SysJournal * p_sj = DS.GetTLA().P_SysJ;
 					if(p_sj) {
@@ -2507,7 +2575,104 @@ int PPStyloQInterchange::ProcessCommand_RequestNotificationList(const StyloQComm
 								}
 							}
 						}
-						//js.Insert("evnt_list", p_js_list);
+					}
+				}
+				break;
+			case StyloQCommandList::sqbcIncomingListTSess: // @v11.6.6
+				{
+					PPIDArray obj_id_list;
+					SysJournal * p_sj = DS.GetTLA().P_SysJ;
+					if(p_sj) {
+						LDATETIME since;
+						StyloQIncomingListParam param;
+						THROW(rCmdItem.GetSpecialParam<StyloQIncomingListParam>(param));
+						if(param.LookbackDays > 0) {
+							since.Set(plusdate(getcurdate_(), -param.LookbackDays), ZEROTIME);
+						}
+						else {
+							since.Set(getcurdate_(), ZEROTIME);
+						}
+						PPIDArray act_list;
+						TSVector <SysJournalTbl::Rec> rec_list;
+						act_list.addzlist(PPACN_OBJADD, 0L); // @?
+						p_sj->GetObjListByEventSince(PPOBJ_TSESSION, &act_list, since, obj_id_list, &rec_list);
+						//
+						const LDATETIME dtm_now = getcurdatetime_();
+						TSCollection <SvcNotification> nlist;
+						if(rec_list.getCount()) {
+							PPObjTSession tses_obj;
+							SString obj_text;
+							SString tses_code;
+							TSessionTbl::Rec tses_rec;
+							ProcessorTbl::Rec prc_rec;
+							TechTbl::Rec tec_rec;
+							Goods2Tbl::Rec goods_rec;
+							PPIDArray prc_id_list;
+							GetPrcList(rCliPack, param, tses_obj, prc_id_list);
+							SETIFZQ(param.P_TsF, new TSessionFilt);
+							TSessionFilt _filt(*param.P_TsF);
+							_filt.PrcID = prc_id_list.getSingle();
+							if(CConfig.Flags & CCFLG_DEBUG && !param.Period.IsZero())
+								_filt.StPeriod = param.Period;
+							else if(param.LookbackDays > 0)
+								_filt.StPeriod.Set(plusdate(dtm_now.d, -param.LookbackDays), ZERODATE);
+							else
+								_filt.StPeriod.Set(dtm_now.d, ZERODATE);
+							for(uint i = 0; i < rec_list.getCount(); i++) {
+								const SysJournalTbl::Rec & r_rec = rec_list.at(i);
+								if(r_rec.ObjType && r_rec.ObjID && tses_obj.Search(r_rec.ObjID, &tses_rec) > 0 && tses_obj.CheckForFilt(&_filt, tses_rec.ID, &tses_rec)) {
+									SvcNotification * p_item = nlist.CreateNewItem();
+									p_item->CmdUuid = rCmdItem.Uuid; // @v11.5.11
+									p_item->EventOrgTime.Set(r_rec.Dt, r_rec.Tm);
+									p_item->EventIssueTime = dtm_now;
+									p_item->ObjNominalTime.Set(tses_rec.StDt, ZEROTIME);
+									p_item->Oid.Set(r_rec.ObjType, r_rec.ObjID);
+									if(r_rec.Action == PPACN_OBJADD) {
+										p_item->EventId = PPEVENTTYPE_TSESSCREATED;
+										PPLoadString("eventtype_tsesscreated", temp_buf);
+										obj_text.Z();
+										if(PPRef->Ot.GetTagStr(PPOBJ_TSESSION, tses_rec.ID, PPTAG_TSESS_OUTERCODE, tses_code) > 0) {
+											obj_text.Cat(tses_code).Space().CatParStr(tses_rec.Num);
+										}
+										else
+											obj_text.Cat(tses_rec.Num);
+										obj_text.Space().Cat(tses_rec.StDt, DATF_DMY).Space().Cat(tses_rec.StTm, TIMF_HM);
+										if(tses_rec.FinDt == tses_rec.StDt)
+											obj_text.Dot().Dot().Cat(tses_rec.FinTm, TIMF_HM);
+										else
+											obj_text.Dot().Dot().Cat(tses_rec.FinDt, DATF_DMY).Space().Cat(tses_rec.FinTm, TIMF_HM);
+										if(tses_rec.PrcID && tses_obj.GetPrc(tses_rec.PrcID, &prc_rec, 0, 1) > 0) {
+											obj_text.CatDiv('-', 1).Cat(prc_rec.Name);
+										}
+										if(tses_rec.TechID && tses_obj.GetTech(tses_rec.TechID, &tec_rec, 1) > 0) {
+											if(tec_rec.GoodsID && tses_obj.GObj.Fetch(tec_rec.GoodsID, &goods_rec) > 0) {
+												obj_text.CatDiv('-', 1).Cat(goods_rec.Name);
+											}
+										}
+										temp_buf.CatDiv(':', 2).Cat(obj_text);
+										temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+										p_item->Message = temp_buf;
+									}
+									else {
+										p_item->EventId = r_rec.Action; // @?
+									}
+									p_item->GenerateIdent();
+								}
+							}
+							{
+								nlist.sort(PTR_CMPFUNC(SvcNotification_ObjNominalTime));
+								for(uint i = 0; i < nlist.getCount(); i++) {
+									const SvcNotification * p_item = nlist.at(i);
+									if(p_item) {
+										SJson * p_js_item = p_item->ToJson();
+										if(p_js_item) {
+											pJsArray->InsertChild(p_js_item);
+											ok = 1;
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 				break;

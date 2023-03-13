@@ -3969,10 +3969,7 @@ void Tokenizer::setVarIdPass1()
 				}
 			}
 		}
-
-		if(!scopeStack.top().isStructInit &&
-		    (tok == list.front() ||
-		    Token::Match(tok, "[;{}]") ||
+		if(!scopeStack.top().isStructInit && (tok == list.front() || Token::Match(tok, "[;{}]") ||
 		    (tok->str() == "(" && isFunctionHead(tok, "{")) ||
 		    (tok->str() == "(" && !scopeStack.top().isExecutable && isFunctionHead(tok, ";:")) ||
 		    (tok->str() == "," && (!scopeStack.top().isExecutable || inlineFunction)) ||
@@ -4041,10 +4038,8 @@ void Tokenizer::setVarIdPass1()
 					;
 				else if(Token::Match(prev2, "%type% ( !!)") && Token::simpleMatch(tok2->link(), ") ;")) {
 					// In C++ , a variable can't be called operator+ or something like that.
-					if(isCPP() &&
-					    prev2->isOperatorKeyword())
+					if(isCPP() && prev2->isOperatorKeyword())
 						continue;
-
 					const Token * tok3 = tok2->next();
 					if(!tok3->isStandardType() && tok3->str() != "void" &&
 					    !Token::Match(tok3,

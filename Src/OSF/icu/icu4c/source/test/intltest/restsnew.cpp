@@ -333,25 +333,21 @@ void NewResourceBundleTest::TestIteration()
 	};
 
 	Locale       * locale = new Locale("te_IN");
-
 	testdatapath = loadTestData(err);
 	if(U_FAILURE(err)) {
 		dataerrln("Could not load testdata.dat %s " + UnicodeString(u_errorName(err)));
 		return;
 	}
-
 	ResourceBundle test1(testdatapath, *locale, err);
 	if(U_FAILURE(err)) {
 		errln("Construction failed");
 	}
-	uint32_t i;
 	int32_t count, row = 0, col = 0;
 	char buf[5];
 	UnicodeString expected;
 	UnicodeString element("TE_IN");
 	UnicodeString action;
-
-	for(i = 0; i<SIZEOFARRAYi(data); i = i+2) {
+	for(uint32_t i = 0; i<SIZEOFARRAYi(data); i = i+2) {
 		action = "te_IN";
 		action += ".get(";
 		action += data[i];
@@ -543,21 +539,16 @@ void NewResourceBundleTest::TestOtherAPI() {
 		"array_in_Root_te_te_IN",    "5",
 		"array_2d_in_Root_te_te_IN", "4",
 	};
-
 	testCAPI = ures_open(testdatapath, "te_IN", &err);
-
 	if(U_SUCCESS(err)) {
 		// Do the testing
 		// first iteration
-
-		uint32_t i;
 		int32_t count, row = 0, col = 0;
 		char buf[5];
 		UnicodeString expected;
 		UnicodeString element("TE_IN");
 		UnicodeString action;
-
-		for(i = 0; i<SIZEOFARRAYi(data); i = i+2) {
+		for(uint32_t i = 0; i<SIZEOFARRAYi(data); i = i+2) {
 			action = "te_IN";
 			action += ".get(";
 			action += data[i];
@@ -615,20 +606,14 @@ void NewResourceBundleTest::TestOtherAPI() {
 				}
 			}
 		}
-
 		// Check that ures_getUnicodeString() & variants return a bogus string if failure.
 		// Same relevant code path whether the failure code is passed in
 		// or comes from a lookup error.
 		UErrorCode failure = U_INTERNAL_PROGRAM_ERROR;
-		assertTrue("ures_getUnicodeString(failure).isBogus()",
-		    ures_getUnicodeString(testCAPI, &failure).isBogus());
-		assertTrue("ures_getNextUnicodeString(failure).isBogus()",
-		    ures_getNextUnicodeString(testCAPI, NULL, &failure).isBogus());
-		assertTrue("ures_getUnicodeStringByIndex(failure).isBogus()",
-		    ures_getUnicodeStringByIndex(testCAPI, 999, &failure).isBogus());
-		assertTrue("ures_getUnicodeStringByKey(failure).isBogus()",
-		    ures_getUnicodeStringByKey(testCAPI, "bogus key", &failure).isBogus());
-
+		assertTrue("ures_getUnicodeString(failure).isBogus()", ures_getUnicodeString(testCAPI, &failure).isBogus());
+		assertTrue("ures_getNextUnicodeString(failure).isBogus()", ures_getNextUnicodeString(testCAPI, NULL, &failure).isBogus());
+		assertTrue("ures_getUnicodeStringByIndex(failure).isBogus()", ures_getUnicodeStringByIndex(testCAPI, 999, &failure).isBogus());
+		assertTrue("ures_getUnicodeStringByKey(failure).isBogus()", ures_getUnicodeStringByKey(testCAPI, "bogus key", &failure).isBogus());
 		ures_close(temp);
 		ures_close(rowbundle);
 		ures_close(bundle);
@@ -637,7 +622,6 @@ void NewResourceBundleTest::TestOtherAPI() {
 	else {
 		errln("failed to open a resource bundle\n");
 	}
-
 	/* Restore the default locale for the other tests. */
 	Locale::setDefault(originalDefault, err);
 }

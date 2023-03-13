@@ -602,21 +602,17 @@ Xapian::MSet Matcher::get_mset(Xapian::doccount first,
 	if(!locals.empty()) {
 		if(!local_mset.empty())
 			msets.push_back({local_mset, 0});
-		merged_mset.internal->merge_stats(local_mset.internal.get(),
-		    collapse_max != 0);
+		merged_mset.internal->merge_stats(local_mset.internal.get(), collapse_max != 0);
 		merged_mset.internal->stats->merge(stats);
 	}
 
 	if(merged_mset.internal->max_possible == 0.0) {
 		// All the weights are zero.
 		if(sort_by == REL) {
-			// We're only sorting by DOCID.
-			sort_by = DOCID;
+			sort_by = DOCID; // We're only sorting by DOCID.
 		}
 		else if(sort_by == REL_VAL || sort_by == VAL_REL) {
-			// Normalise REL_VAL and VAL_REL to VAL, to avoid needlessly
-			// fetching and comparing weights.
-			sort_by = VAL;
+			sort_by = VAL; // Normalise REL_VAL and VAL_REL to VAL, to avoid needlessly fetching and comparing weights.
 		}
 		// All percentages will be 100% so turn off any percentage cut-off.
 		percent_threshold = 0;
@@ -625,21 +621,16 @@ Xapian::MSet Matcher::get_mset(Xapian::doccount first,
 
 	bool sort_forward = (order != Xapian::Enquire::DESCENDING);
 	auto mcmp = get_msetcmp_function(sort_by, sort_forward, sort_val_reverse);
-	auto heap_cmp =
-	    [&](const pair<Xapian::MSet, Xapian::doccount>& a,
-		const pair<Xapian::MSet, Xapian::doccount>& b) {
-		    return mcmp(b.first.internal->items[b.second],
-			       a.first.internal->items[a.second]);
+	auto heap_cmp = [&](const pair<Xapian::MSet, Xapian::doccount>& a, const pair<Xapian::MSet, Xapian::doccount>& b) 
+		{
+		    return mcmp(b.first.internal->items[b.second], a.first.internal->items[a.second]);
 	    };
 
 	Heap::make(msets.begin(), msets.end(), heap_cmp);
-
 	double min_weight = 0.0;
 	if(percent_threshold) {
-		min_weight = percent_threshold_factor * 100.0 /
-		    merged_mset.internal->percent_scale_factor;
+		min_weight = percent_threshold_factor * 100.0 / merged_mset.internal->percent_scale_factor;
 	}
-
 	CollapserLite collapser(collapse_max);
 	merged_mset.internal->first = first;
 	while(!msets.empty() && merged_mset.size() != maxitems) {
@@ -674,7 +665,6 @@ Xapian::MSet Matcher::get_mset(Xapian::doccount first,
 			Heap::replace(msets.begin(), msets.end(), heap_cmp);
 		}
 	}
-
 	if(collapser) {
 		auto todo = check_at_least - maxitems;
 		if(merged_mset.size() != maxitems) {
@@ -701,10 +691,8 @@ Xapian::MSet Matcher::get_mset(Xapian::doccount first,
 				Heap::replace(msets.begin(), msets.end(), heap_cmp);
 			}
 		}
-
 		auto mseti = merged_mset.internal;
 		collapser.finalise(mseti->items, percent_threshold);
-
 		if(check_at_least > 0) {
 			// Each input MSet object to the merge has already been collapsed
 			// and merge_stats() above will have set mset->matches_lower_bound
@@ -719,13 +707,9 @@ Xapian::MSet Matcher::get_mset(Xapian::doccount first,
 				mseti->matches_upper_bound = collapser_lb;
 				return merged_mset;
 			}
-
-			mseti->matches_lower_bound = max(mseti->matches_lower_bound,
-				collapser_lb);
+			mseti->matches_lower_bound = max(mseti->matches_lower_bound, collapser_lb);
 		}
-
 		double unique_rate = 1.0;
-
 		Xapian::doccount docs_considered = collapser.get_docs_considered();
 		Xapian::doccount dups_ignored = collapser.get_dups_ignored();
 		if(docs_considered > 0) {

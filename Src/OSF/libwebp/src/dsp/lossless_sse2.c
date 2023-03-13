@@ -604,8 +604,8 @@ static void ConvertBGRAToRGBA4444_SSE2(const uint32_t* src, int num_pixels, uint
 	}
 }
 
-static void ConvertBGRAToRGB565_SSE2(const uint32_t* src,
-    int num_pixels, uint8* dst) {
+static void ConvertBGRAToRGB565_SSE2(const uint32_t* src, int num_pixels, uint8* dst) 
+{
 	const __m128i mask_0xe0 = _mm_set1_epi8(0xe0);
 	const __m128i mask_0xf8 = _mm_set1_epi8(0xf8);
 	const __m128i mask_0x07 = _mm_set1_epi8(0x07);

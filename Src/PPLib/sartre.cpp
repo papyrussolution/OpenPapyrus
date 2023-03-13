@@ -1485,15 +1485,16 @@ int SrUedContainer::ReplaceSurrogateLocaleIds(const SymbHashTable & rT)
 {
 	int    ok = 1;
 	SString temp_buf;
+	SString locale_buf;
 	THROW(LinguaLocusMeta);
 	for(uint i = 0; i < TL.getCount(); i++) {
 		TextEntry & r_e = TL.at(i);
 		if(r_e.Locale) {
-			THROW(rT.GetByAssoc(r_e.Locale, temp_buf));
+			THROW(rT.GetByAssoc(r_e.Locale, locale_buf));
 			{
-				uint64 locale_id = SearchBaseSymb(temp_buf, LinguaLocusMeta);
-				THROW(locale_id);
-				THROW(UED::BelongToMeta(locale_id, LinguaLocusMeta));
+				uint64 locale_id = SearchBaseSymb(locale_buf, LinguaLocusMeta);
+				THROW_PP_S(locale_id, PPERR_UED_SYMBFORMETANOTFOUND, temp_buf.Z().Cat(locale_buf).Space().Cat("->").Space().CatHex(LinguaLocusMeta));
+				THROW_PP_S(UED::BelongToMeta(locale_id, LinguaLocusMeta), PPERR_UED_VALUENOTBELONGTOMETA, temp_buf.Z().CatHex(locale_id).Space().Cat("->").Space().CatHex(LinguaLocusMeta));
 				r_e.Locale = UED::MakeShort(locale_id, LinguaLocusMeta);
 				assert(r_e.Locale);
 			}
@@ -1910,6 +1911,37 @@ bool SrUedContainer::GenerateSourceDecl_Java(const char * pFileName)
 	//gen.Wr_EndIf(h_sentinel_def);
 	return ok;
 }
+
+int SrUedContainer::VerifyByPreviousVersion(const SrUedContainer * pPrevC)
+{
+	int    ok = -1;
+	SString this_symb;
+	SString prev_symb;
+	//
+	// Здесь мы должны проверить следующие факты:
+	// 1. Ни одна концепция из предыдущего релиза не должна поменять символа или значения
+	// 2. Ни одна концепция из предыдущего релиза не должна исчезнуть
+	// 3. Не должно быть дублирующихся значений
+	// 4. Не должно быть дублирующихся символов в рамках одной концепции
+	// 5. Наименования на натуральных языках могут меняться, но желательно проверить чтобы наименования 
+	//   принадлежали соответствующему натуральному язык (планируем использовать icu).
+	if(pPrevC) { // 1, 2
+		ok = 1;
+		for(uint i = 0; i < pPrevC->BL.getCount(); i++) {
+			const BaseEntry & r_be = pPrevC->BL.at(i);
+			pPrevC->Ht.GetByAssoc(r_be.SymbHashId, prev_symb);
+			if(SearchBaseId(r_be.Id, this_symb)) {
+				if(prev_symb != this_symb) {
+					ok = 0; // @error previous symbol is modified in the new release
+				}
+			}
+			else if(prev_symb.NotEmpty()) {
+				ok = 0; // @error previous symbol isn't found in the new release
+			}
+		}
+	}
+	return ok;
+}
 	
 int SrUedContainer::Verify(const char * pPath, long ver)
 {
@@ -1946,7 +1978,7 @@ int SrUedContainer::Verify(const char * pPath, long ver)
 	using namespace U_ICU_NAMESPACE;
 #endif
 
-int Test_ReadUed(const char * pFileName)
+static int Test_Ued_Ops()
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2007,15 +2039,33 @@ int Test_ReadUed(const char * pFileName)
 		}
 	}
 #endif
+	return ok;
+}
+
+int ProcessUed()
+{
+	int    ok = 1;
+	const char * p_file_name = "\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt";
+	SString temp_buf;
+	SStringU temp_buf_u;
+	//
+	Test_Ued_Ops();
+	//
 	SrUedContainer uedc;
+	SrUedContainer uedc_prev;
 	SString last_file_name;
 	long   new_version = 0;
-	SPathStruc ps(pFileName);
+	SPathStruc ps(p_file_name);
 	ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
-	long   prev_version = SrUedContainer::SearchLastCanonicalFile(temp_buf.RmvLastSlash(), last_file_name);
-	if(prev_version > 0)
+	const long prev_version = SrUedContainer::SearchLastCanonicalFile(temp_buf.RmvLastSlash(), last_file_name);
+	if(prev_version > 0) {
+		THROW(uedc_prev.ReadSource(last_file_name));
 		new_version = prev_version+1;
-	THROW(uedc.ReadSource(pFileName));
+	}
+	THROW(uedc.ReadSource(p_file_name));
+	if(prev_version > 0) {
+		THROW(uedc.VerifyByPreviousVersion(&uedc_prev));
+	}
 	{
 		SETIFZQ(new_version, 1);
 		SrUedContainer::MakeUedCanonicalName(ps.Nam, new_version);

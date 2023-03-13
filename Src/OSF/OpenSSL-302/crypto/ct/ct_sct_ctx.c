@@ -22,7 +22,7 @@ SCT_CTX * SCT_CTX_new(OSSL_LIB_CTX * libctx, const char * propq)
 		return NULL;
 	}
 	sctx->libctx = libctx;
-	if(propq != NULL) {
+	if(propq) {
 		sctx->propq = OPENSSL_strdup(propq);
 		if(sctx->propq == NULL) {
 			ERR_raise(ERR_LIB_CT, ERR_R_MALLOC_FAILURE);

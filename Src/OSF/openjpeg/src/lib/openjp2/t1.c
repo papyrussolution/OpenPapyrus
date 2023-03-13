@@ -2020,7 +2020,6 @@ static double opj_t1_encode_cblk(opj_t1_t * t1,
 #endif
 
 	mqc->lut_ctxno_zc_orient = lut_ctxno_zc + (orient << 9);
-
 	max = 0;
 	datap = t1->data;
 	for(j = 0; j < t1->h; ++j) {
@@ -2038,17 +2037,13 @@ static double opj_t1_encode_cblk(opj_t1_t * t1,
 			}
 		}
 	}
-
-	cblk->numbps = max ? (uint32_t)((opj_int_floorlog2(max) + 1) -
-	    T1_NMSEDEC_FRACBITS) : 0;
+	cblk->numbps = max ? (uint32_t)((opj_int_floorlog2(max) + 1) - T1_NMSEDEC_FRACBITS) : 0;
 	if(cblk->numbps == 0) {
 		cblk->totalpasses = 0;
 		return cumwmsedec;
 	}
-
 	bpno = (int32_t)(cblk->numbps - 1);
 	passtype = 2;
-
 	opj_mqc_resetstates(mqc);
 	opj_mqc_setstate(mqc, T1_CTXNO_UNI, 0, 46);
 	opj_mqc_setstate(mqc, T1_CTXNO_AGG, 0, 3);

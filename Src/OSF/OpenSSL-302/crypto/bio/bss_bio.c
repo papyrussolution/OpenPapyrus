@@ -354,7 +354,7 @@ static ossl_ssize_t bio_nwrite0(BIO * bio, char ** buf)
 		 */
 		num = b->size - write_offset;
 
-	if(buf != NULL)
+	if(buf)
 		*buf = b->buf + write_offset;
 	assert(write_offset + num <= b->size);
 

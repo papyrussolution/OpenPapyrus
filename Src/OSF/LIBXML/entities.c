@@ -1,10 +1,7 @@
-/*
- * entities.c : implementation for the XML entities handling
- *
- * See Copyright for the status of this software.
- *
- * daniel@veillard.com
- */
+// entities.c
+// implementation for the XML entities handling
+// See Copyright for the status of this software.
+// daniel@veillard.com
 // 
 #define IN_LIBXML
 #include "libxml.h"

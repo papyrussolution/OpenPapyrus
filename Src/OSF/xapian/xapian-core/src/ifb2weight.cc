@@ -32,11 +32,7 @@ namespace Xapian {
 		need_stat(WQF);
 		need_stat(TERMFREQ);
 	}
-
-	IfB2Weight * IfB2Weight::clone() const
-	{
-		return new IfB2Weight(param_c);
-	}
+	IfB2Weight * IfB2Weight::clone() const { return new IfB2Weight(param_c); }
 	void IfB2Weight::init(double factor)
 	{
 		if(factor == 0.0) {
@@ -79,7 +75,6 @@ namespace Xapian {
 			throw Xapian::SerialisationError("Extra data in IfB2Weight::unserialise()");
 		return new IfB2Weight(c);
 	}
-
 	double IfB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len, Xapian::termcount, Xapian::termcount) const
 	{
 		if(wdf == 0) return 0.0;
@@ -88,16 +83,10 @@ namespace Xapian {
 		double wdfn_product_B = wdfn * B_constant / (wdfn + 1.0);
 		return (wqf_product_idf * wdfn_product_B);
 	}
-
 	double IfB2Weight::get_maxpart() const { return upper_bound; }
 	double IfB2Weight::get_sumextra(Xapian::termcount, Xapian::termcount, Xapian::termcount) const { return 0; }
 	double IfB2Weight::get_maxextra() const { return 0; }
-
-	static inline void parameter_error(const char * message)
-	{
-		Xapian::Weight::Internal::parameter_error(message, "ifb2");
-	}
-
+	static inline void parameter_error(const char * message) { Xapian::Weight::Internal::parameter_error(message, "ifb2"); }
 	IfB2Weight * IfB2Weight::create_from_parameters(const char * p) const
 	{
 		if(*p == '\0')

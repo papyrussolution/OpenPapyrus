@@ -145,8 +145,7 @@ int OSSL_CMP_SRV_CTX_set_grant_implicit_confirm(OSSL_CMP_SRV_CTX * srv_ctx,
  * Only handles the first certification request contained in req
  * returns an ip/cp/kup on success and NULL on error
  */
-static OSSL_CMP_MSG * process_cert_request(OSSL_CMP_SRV_CTX * srv_ctx,
-    const OSSL_CMP_MSG * req)
+static OSSL_CMP_MSG * process_cert_request(OSSL_CMP_SRV_CTX * srv_ctx, const OSSL_CMP_MSG * req)
 {
 	OSSL_CMP_MSG * msg = NULL;
 	OSSL_CMP_PKISI * si = NULL;
@@ -156,10 +155,8 @@ static OSSL_CMP_MSG * process_cert_request(OSSL_CMP_SRV_CTX * srv_ctx,
 	const X509_REQ * p10cr = NULL;
 	int bodytype;
 	int certReqId;
-
 	if(!ossl_assert(srv_ctx != NULL && srv_ctx->ctx != NULL && req != NULL))
 		return NULL;
-
 	switch(OSSL_CMP_MSG_get_bodytype(req)) {
 		case OSSL_CMP_PKIBODY_P10CR:
 		case OSSL_CMP_PKIBODY_CR:
@@ -182,50 +179,34 @@ static OSSL_CMP_MSG * process_cert_request(OSSL_CMP_SRV_CTX * srv_ctx,
 	}
 	else {
 		OSSL_CRMF_MSGS * reqs = req->body->value.ir; /* same for cr and kur */
-
 		if(sk_OSSL_CRMF_MSG_num(reqs) != 1) {
 			ERR_raise(ERR_LIB_CMP, CMP_R_MULTIPLE_REQUESTS_NOT_SUPPORTED);
 			return NULL;
 		}
-
 		if((crm = sk_OSSL_CRMF_MSG_value(reqs, OSSL_CMP_CERTREQID)) == NULL) {
 			ERR_raise(ERR_LIB_CMP, CMP_R_CERTREQMSG_NOT_FOUND);
 			return NULL;
 		}
 		certReqId = OSSL_CRMF_MSG_get_certReqId(crm);
 	}
-
 	if(!ossl_cmp_verify_popo(srv_ctx->ctx, req, srv_ctx->acceptRAVerified)) {
 		/* Proof of possession could not be verified */
-		si = OSSL_CMP_STATUSINFO_new(OSSL_CMP_PKISTATUS_rejection,
-			1 << OSSL_CMP_PKIFAILUREINFO_badPOP,
-			ERR_reason_error_string(ERR_peek_error()));
+		si = OSSL_CMP_STATUSINFO_new(OSSL_CMP_PKISTATUS_rejection, 1 << OSSL_CMP_PKIFAILUREINFO_badPOP, ERR_reason_error_string(ERR_peek_error()));
 		if(si == NULL)
 			return NULL;
 	}
 	else {
 		OSSL_CMP_PKIHEADER * hdr = OSSL_CMP_MSG_get0_header(req);
-
-		si = srv_ctx->process_cert_request(srv_ctx, req, certReqId, crm, p10cr,
-			&certOut, &chainOut, &caPubs);
+		si = srv_ctx->process_cert_request(srv_ctx, req, certReqId, crm, p10cr, &certOut, &chainOut, &caPubs);
 		if(si == NULL)
 			goto err;
 		/* set OSSL_CMP_OPT_IMPLICIT_CONFIRM if and only if transaction ends */
-		if(!OSSL_CMP_CTX_set_option(srv_ctx->ctx,
-		    OSSL_CMP_OPT_IMPLICIT_CONFIRM,
-		    ossl_cmp_hdr_has_implicitConfirm(hdr)
-		    && srv_ctx->grantImplicitConfirm
-		    /* do not set if polling starts: */
-		    && certOut != NULL))
+		if(!OSSL_CMP_CTX_set_option(srv_ctx->ctx, OSSL_CMP_OPT_IMPLICIT_CONFIRM, ossl_cmp_hdr_has_implicitConfirm(hdr) && srv_ctx->grantImplicitConfirm/* do not set if polling starts: */&& certOut))
 			goto err;
 	}
-
-	msg = ossl_cmp_certrep_new(srv_ctx->ctx, bodytype, certReqId, si,
-		certOut, NULL /* enc */, chainOut, caPubs,
-		srv_ctx->sendUnprotectedErrors);
+	msg = ossl_cmp_certrep_new(srv_ctx->ctx, bodytype, certReqId, si, certOut, NULL /* enc */, chainOut, caPubs, srv_ctx->sendUnprotectedErrors);
 	if(msg == NULL)
 		ERR_raise(ERR_LIB_CMP, CMP_R_ERROR_CREATING_CERTREP);
-
 err:
 	OSSL_CMP_PKISI_free(si);
 	X509_free(certOut);
@@ -234,8 +215,7 @@ err:
 	return msg;
 }
 
-static OSSL_CMP_MSG * process_rr(OSSL_CMP_SRV_CTX * srv_ctx,
-    const OSSL_CMP_MSG * req)
+static OSSL_CMP_MSG * process_rr(OSSL_CMP_SRV_CTX * srv_ctx, const OSSL_CMP_MSG * req)
 {
 	OSSL_CMP_MSG * msg = NULL;
 	OSSL_CMP_REVDETAILS * details;
@@ -244,34 +224,25 @@ static OSSL_CMP_MSG * process_rr(OSSL_CMP_SRV_CTX * srv_ctx,
 	const X509_NAME * issuer;
 	const ASN1_INTEGER * serial;
 	OSSL_CMP_PKISI * si;
-
 	if(!ossl_assert(srv_ctx != NULL && srv_ctx->ctx != NULL && req != NULL))
 		return NULL;
-
 	if(sk_OSSL_CMP_REVDETAILS_num(req->body->value.rr) != 1) {
 		ERR_raise(ERR_LIB_CMP, CMP_R_MULTIPLE_REQUESTS_NOT_SUPPORTED);
 		return NULL;
 	}
-
-	if((details = sk_OSSL_CMP_REVDETAILS_value(req->body->value.rr,
-	    OSSL_CMP_REVREQSID)) == NULL) {
+	if((details = sk_OSSL_CMP_REVDETAILS_value(req->body->value.rr, OSSL_CMP_REVREQSID)) == NULL) {
 		ERR_raise(ERR_LIB_CMP, CMP_R_ERROR_PROCESSING_MESSAGE);
 		return NULL;
 	}
-
 	tmpl = details->certDetails;
 	issuer = OSSL_CRMF_CERTTEMPLATE_get0_issuer(tmpl);
 	serial = OSSL_CRMF_CERTTEMPLATE_get0_serialNumber(tmpl);
-	if(issuer != NULL && serial != NULL
-	    && (certId = OSSL_CRMF_CERTID_gen(issuer, serial)) == NULL)
+	if(issuer && serial && (certId = OSSL_CRMF_CERTID_gen(issuer, serial)) == NULL)
 		return NULL;
 	if((si = srv_ctx->process_rr(srv_ctx, req, issuer, serial)) == NULL)
 		goto err;
-
-	if((msg = ossl_cmp_rp_new(srv_ctx->ctx, si, certId,
-	    srv_ctx->sendUnprotectedErrors)) == NULL)
+	if((msg = ossl_cmp_rp_new(srv_ctx->ctx, si, certId, srv_ctx->sendUnprotectedErrors)) == NULL)
 		ERR_raise(ERR_LIB_CMP, CMP_R_ERROR_CREATING_RR);
-
 err:
 	OSSL_CRMF_CERTID_free(certId);
 	OSSL_CMP_PKISI_free(si);

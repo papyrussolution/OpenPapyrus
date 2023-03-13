@@ -698,7 +698,6 @@ Chunk * newline_add_between(Chunk * start, Chunk * end)
 void newline_del_between(Chunk * start, Chunk * end)
 {
 	LOG_FUNC_ENTRY();
-
 	LOG_FMT(LNEWLINE, "%s(%d): start->Text() is '%s', orig line is %zu, orig col is %zu\n",
 	    __func__, __LINE__, start->Text(), start->GetOrigLine(), start->GetOrigCol());
 	LOG_FMT(LNEWLINE, "%s(%d): and end->Text() is '%s', orig line is %zu, orig col is %zu: preproc=%c/%c\n",
@@ -706,31 +705,23 @@ void newline_del_between(Chunk * start, Chunk * end)
 	    start->TestFlags(PCF_IN_PREPROC) ? 'y' : 'n',
 	    end->TestFlags(PCF_IN_PREPROC) ? 'y' : 'n');
 	log_func_stack_inline(LNEWLINE);
-
 	// Can't remove anything if the preproc status differs
 	if(!start->IsSamePreproc(end)) {
 		return;
 	}
-	Chunk * pc           = start;
+	Chunk * pc = start;
 	bool start_removed = false;
-
 	do {
 		Chunk * next = pc->GetNext();
-
 		if(pc->IsNewline()) {
 			Chunk * prev = pc->GetPrev();
-
-			if((  !prev->IsComment()
-			    && !next->IsComment())
-			    || prev->IsNewline()
-			    || next->IsNewline()) {
+			if((!prev->IsComment() && !next->IsComment()) || prev->IsNewline() || next->IsNewline()) {
 				if(pc->SafeToDeleteNl()) {
 					if(pc == start) {
 						start_removed = true;
 					}
 					Chunk::Delete(pc);
 					MARK_CHANGE();
-
 					if(prev->IsNotNullChunk()) {
 						align_to_column(next, prev->GetColumn() + space_col_align(prev, next));
 					}
@@ -745,12 +736,7 @@ void newline_del_between(Chunk * start, Chunk * end)
 		}
 		pc = next;
 	} while(pc != end);
-
-	if(!start_removed
-	    && end->IsString("{")
-	    && (  start->IsString(")")
-	    || start->Is(CT_DO)
-	    || start->Is(CT_ELSE))) {
+	if(!start_removed && end->IsString("{") && (start->IsString(")") || start->Is(CT_DO) || start->Is(CT_ELSE))) {
 		end->MoveAfter(start);
 	}
 } // newline_del_between
@@ -2519,18 +2505,12 @@ static void newline_after_return(Chunk * start)
 static void newline_iarf_pair(Chunk * before, Chunk * after, iarf_e av, bool check_nl_assign_leave_one_liners)
 {
 	LOG_FUNC_ENTRY();
-
 	LOG_FMT(LNEWLINE, "%s(%d): ", __func__, __LINE__);
 	log_func_stack(LNEWLINE, "CallStack:");
-
-	if(before == nullptr
-	    || before == Chunk::NullChunkPtr
-	    || after == nullptr
-	    || after == Chunk::NullChunkPtr
-	    || after->Is(CT_IGNORED)) {
+	if(before == nullptr || before == Chunk::NullChunkPtr || after == nullptr || 
+      after == Chunk::NullChunkPtr || after->Is(CT_IGNORED)) {
 		return;
 	}
-
 	if(av & IARF_ADD) {
 		if(check_nl_assign_leave_one_liners
 		    && options::nl_assign_leave_one_liners()
@@ -2541,10 +2521,7 @@ static void newline_iarf_pair(Chunk * before, Chunk * after, iarf_e av, bool che
 		Chunk * nl = newline_add_between(before, after);
 		LOG_FMT(LNEWLINE, "%s(%d): newline_add_between '%s' and '%s'\n",
 		    __func__, __LINE__, before->Text(), after->Text());
-
-		if(nl != nullptr
-		    && av == IARF_FORCE
-		    && nl->GetNlCount() > 1) {
+		if(nl && av == IARF_FORCE && nl->GetNlCount() > 1) {
 			nl->SetNlCount(1);
 		}
 	}
@@ -2558,19 +2535,14 @@ static void newline_iarf_pair(Chunk * before, Chunk * after, iarf_e av, bool che
 void newline_iarf(Chunk * pc, iarf_e av)
 {
 	LOG_FUNC_ENTRY();
-
 	LOG_FMT(LNFD, "%s(%d): ", __func__, __LINE__);
 	log_func_stack(LNFD, "CallStack:");
 	Chunk * after = Chunk::NullChunkPtr;
-
-	if(pc != nullptr) {
+	if(pc) {
 		after = pc->GetNextNnl();
 	}
-
-	if((pc != nullptr && pc->Is(CT_FPAREN_OPEN))                     // Issue #2914
-	    && pc->GetParentType() == CT_FUNC_CALL
-	    && after->Is(CT_COMMENT_CPP)
-	    && options::donot_add_nl_before_cpp_comment()) {
+	if((pc && pc->Is(CT_FPAREN_OPEN)) // Issue #2914
+	    && pc->GetParentType() == CT_FUNC_CALL && after->Is(CT_COMMENT_CPP) && options::donot_add_nl_before_cpp_comment()) {
 		return;
 	}
 	newline_iarf_pair(pc, after, av);
@@ -3358,29 +3330,24 @@ static void nl_create_list_liner(Chunk * brace_open)
 void newlines_remove_newlines()
 {
 	LOG_FUNC_ENTRY();
-
 	LOG_FMT(LBLANK, "%s(%d):\n", __func__, __LINE__);
 	Chunk * pc = Chunk::GetHead();
-
 	if(!pc->IsNewline()) {
 		pc = pc->GetNextNl();
 	}
 	Chunk * next;
 	Chunk * prev;
-
 	while(pc->IsNotNullChunk()) {
 		// Remove all newlines not in preproc
 		if(!pc->TestFlags(PCF_IN_PREPROC)) {
 			next = pc->GetNext();
 			prev = pc->GetPrev();
 			newline_iarf(pc, IARF_REMOVE);
-
 			if(next == Chunk::GetHead()) {
 				pc = next;
 				continue;
 			}
-			else if(prev->IsNotNullChunk()
-			    && !prev->GetNext()->IsNewline()) {
+			else if(prev->IsNotNullChunk() && !prev->GetNext()->IsNewline()) {
 				pc = prev;
 			}
 		}

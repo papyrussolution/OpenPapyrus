@@ -75,30 +75,20 @@ template <typename in_utf_t, typename out_utf_t> static inline uint hb_ot_name_c
 	return dst_len;
 }
 
-template <typename utf_t>
-static inline uint hb_ot_name_get_utf(hb_face_t * face,
-    hb_ot_name_id_t name_id,
-    hb_language_t language,
-    uint * text_size /* IN/OUT */,
-    typename utf_t::codepoint_t * text /*OUT*/)
+template <typename utf_t> static inline uint hb_ot_name_get_utf(hb_face_t * face,
+    hb_ot_name_id_t name_id, hb_language_t language, uint * text_size /* IN/OUT */, typename utf_t::codepoint_t * text /*OUT*/)
 {
 	const OT::name_accelerator_t &name = *face->table.name;
-
-	if(!language)
-		language = hb_language_from_string("en", 2);
-
+	SETIFZQ(language, hb_language_from_string("en", 2));
 	uint width;
 	int idx = name.get_index(name_id, language, &width);
 	if(idx != -1) {
 		hb_bytes_t bytes = name.get_name(idx);
-
 		if(width == 2) /* UTF16-BE */
 			return hb_ot_name_convert_utf<hb_utf16_be_t, utf_t> (bytes, text_size, text);
-
 		if(width == 1) /* ASCII */
 			return hb_ot_name_convert_utf<hb_ascii_t, utf_t> (bytes, text_size, text);
 	}
-
 	if(text_size) {
 		if(*text_size)
 			*text = 0;
@@ -123,16 +113,10 @@ static inline uint hb_ot_name_get_utf(hb_face_t * face,
  * Returns: full length of the requested string, or 0 if not found.
  * Since: 2.1.0
  **/
-uint hb_ot_name_get_utf8(hb_face_t * face,
-    hb_ot_name_id_t name_id,
-    hb_language_t language,
-    uint * text_size /* IN/OUT */,
-    char  * text /*OUT*/)
+uint hb_ot_name_get_utf8(hb_face_t * face, hb_ot_name_id_t name_id, hb_language_t language, uint * text_size /* IN/OUT */, char  * text /*OUT*/)
 {
-	return hb_ot_name_get_utf<hb_utf8_t> (face, name_id, language, text_size,
-		   (hb_utf8_t::codepoint_t*)text);
+	return hb_ot_name_get_utf<hb_utf8_t> (face, name_id, language, text_size, (hb_utf8_t::codepoint_t*)text);
 }
-
 /**
  * hb_ot_name_get_utf16:
  * @face: font face.
@@ -149,15 +133,10 @@ uint hb_ot_name_get_utf8(hb_face_t * face,
  * Returns: full length of the requested string, or 0 if not found.
  * Since: 2.1.0
  **/
-uint hb_ot_name_get_utf16(hb_face_t * face,
-    hb_ot_name_id_t name_id,
-    hb_language_t language,
-    uint * text_size /* IN/OUT */,
-    uint16_t * text /*OUT*/)
+uint hb_ot_name_get_utf16(hb_face_t * face, hb_ot_name_id_t name_id, hb_language_t language, uint * text_size /* IN/OUT */, uint16_t * text /*OUT*/)
 {
 	return hb_ot_name_get_utf<hb_utf16_t> (face, name_id, language, text_size, text);
 }
-
 /**
  * hb_ot_name_get_utf32:
  * @face: font face.
@@ -174,13 +153,8 @@ uint hb_ot_name_get_utf16(hb_face_t * face,
  * Returns: full length of the requested string, or 0 if not found.
  * Since: 2.1.0
  **/
-uint hb_ot_name_get_utf32(hb_face_t * face,
-    hb_ot_name_id_t name_id,
-    hb_language_t language,
-    uint * text_size /* IN/OUT */,
-    uint32_t * text /*OUT*/)
+uint hb_ot_name_get_utf32(hb_face_t * face, hb_ot_name_id_t name_id, hb_language_t language, uint * text_size /* IN/OUT */, uint32_t * text /*OUT*/)
 {
 	return hb_ot_name_get_utf<hb_utf32_t> (face, name_id, language, text_size, text);
 }
-
 #endif

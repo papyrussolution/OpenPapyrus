@@ -212,53 +212,40 @@ int BIO_get_accept_socket(char * host, int bind_mode)
 	int s = INVALID_SOCKET;
 	char * h = NULL, * p = NULL;
 	BIO_ADDRINFO * res = NULL;
-
 	if(!BIO_parse_hostserv(host, &h, &p, BIO_PARSE_PRIO_SERV))
 		return INVALID_SOCKET;
-
 	if(BIO_sock_init() != 1)
 		return INVALID_SOCKET;
-
 	if(BIO_lookup(h, p, BIO_LOOKUP_SERVER, AF_UNSPEC, SOCK_STREAM, &res) != 0)
 		goto err;
-
-	if((s = BIO_socket(BIO_ADDRINFO_family(res), BIO_ADDRINFO_socktype(res),
-	    BIO_ADDRINFO_protocol(res), 0)) == INVALID_SOCKET) {
+	if((s = BIO_socket(BIO_ADDRINFO_family(res), BIO_ADDRINFO_socktype(res), BIO_ADDRINFO_protocol(res), 0)) == INVALID_SOCKET) {
 		s = INVALID_SOCKET;
 		goto err;
 	}
-
-	if(!BIO_listen(s, BIO_ADDRINFO_address(res),
-	    bind_mode ? BIO_SOCK_REUSEADDR : 0)) {
+	if(!BIO_listen(s, BIO_ADDRINFO_address(res), bind_mode ? BIO_SOCK_REUSEADDR : 0)) {
 		BIO_closesocket(s);
 		s = INVALID_SOCKET;
 	}
-
 err:
 	BIO_ADDRINFO_free(res);
 	OPENSSL_free(h);
 	OPENSSL_free(p);
-
 	return s;
 }
 
 int BIO_accept(int sock, char ** ip_port)
 {
 	BIO_ADDR res;
-	int ret = -1;
-
-	ret = BIO_accept_ex(sock, &res, 0);
+	int ret = BIO_accept_ex(sock, &res, 0);
 	if(ret == (int)INVALID_SOCKET) {
 		if(BIO_sock_should_retry(ret)) {
 			ret = -2;
 			goto end;
 		}
-		ERR_raise_data(ERR_LIB_SYS, get_last_socket_error(),
-		    "calling accept()");
+		ERR_raise_data(ERR_LIB_SYS, get_last_socket_error(), "calling accept()");
 		ERR_raise(ERR_LIB_BIO, BIO_R_ACCEPT_ERROR);
 		goto end;
 	}
-
 	if(ip_port != NULL) {
 		char * host = BIO_ADDR_hostname_string(&res, 1);
 		char * port = BIO_ADDR_service_string(&res, 1);
@@ -266,7 +253,6 @@ int BIO_accept(int sock, char ** ip_port)
 			*ip_port = (char*)OPENSSL_zalloc(strlen(host) + strlen(port) + 2);
 		else
 			*ip_port = NULL;
-
 		if(*ip_port == NULL) {
 			ERR_raise(ERR_LIB_BIO, ERR_R_MALLOC_FAILURE);
 			BIO_closesocket(ret);
@@ -280,7 +266,6 @@ int BIO_accept(int sock, char ** ip_port)
 		OPENSSL_free(host);
 		OPENSSL_free(port);
 	}
-
 end:
 	return ret;
 }
@@ -292,7 +277,6 @@ int BIO_set_tcp_ndelay(int s, int on)
 	int ret = 0;
 #if defined(TCP_NODELAY) && (defined(IPPROTO_TCP) || defined(SOL_TCP))
 	int opt;
-
 #ifdef SOL_TCP
 	opt = SOL_TCP;
 #else
@@ -300,7 +284,6 @@ int BIO_set_tcp_ndelay(int s, int on)
 	opt = IPPROTO_TCP;
 #endif
 #endif
-
 	ret = setsockopt(s, opt, TCP_NODELAY, (char*)&on, sizeof(on));
 #endif
 	return (ret == 0);
@@ -309,20 +292,15 @@ int BIO_set_tcp_ndelay(int s, int on)
 int BIO_socket_nbio(int s, int mode)
 {
 	int ret = -1;
-	int l;
-
-	l = mode;
+	int l = mode;
 #ifdef FIONBIO
 	l = mode;
-
 	ret = BIO_socket_ioctl(s, FIONBIO, &l);
 #elif defined(F_GETFL) && defined(F_SETFL) && (defined(O_NONBLOCK) || defined(FNDELAY))
 	/* make sure this call always pushes an error level; BIO_socket_ioctl() does so, so we do too. */
-
 	l = fcntl(s, F_GETFL, 0);
 	if(l == -1) {
-		ERR_raise_data(ERR_LIB_SYS, get_last_sys_error(),
-		    "calling fcntl()");
+		ERR_raise_data(ERR_LIB_SYS, get_last_sys_error(), "calling fcntl()");
 		ret = -1;
 	}
 	else {
@@ -339,22 +317,18 @@ int BIO_socket_nbio(int s, int mode)
 #endif
 		}
 		ret = fcntl(s, F_SETFL, l);
-
 		if(ret < 0) {
-			ERR_raise_data(ERR_LIB_SYS, get_last_sys_error(),
-			    "calling fcntl()");
+			ERR_raise_data(ERR_LIB_SYS, get_last_sys_error(), "calling fcntl()");
 		}
 	}
 #else
 	/* make sure this call always pushes an error level; BIO_socket_ioctl() does so, so we do too. */
 	ERR_raise(ERR_LIB_BIO, ERR_R_PASSED_INVALID_ARGUMENT);
 #endif
-
 	return (ret == 0);
 }
 
-int BIO_sock_info(int sock,
-    enum BIO_sock_info_type type, union BIO_sock_info_u * info)
+int BIO_sock_info(int sock, enum BIO_sock_info_type type, union BIO_sock_info_u * info)
 {
 	switch(type) {
 		case BIO_SOCK_INFO_ADDRESS:
@@ -362,11 +336,9 @@ int BIO_sock_info(int sock,
 		    socklen_t addr_len;
 		    int ret = 0;
 		    addr_len = sizeof(*info->addr);
-		    ret = getsockname(sock, BIO_ADDR_sockaddr_noconst(info->addr),
-			    &addr_len);
+		    ret = getsockname(sock, BIO_ADDR_sockaddr_noconst(info->addr), &addr_len);
 		    if(ret == -1) {
-			    ERR_raise_data(ERR_LIB_SYS, get_last_socket_error(),
-				"calling getsockname()");
+			    ERR_raise_data(ERR_LIB_SYS, get_last_socket_error(), "calling getsockname()");
 			    ERR_raise(ERR_LIB_BIO, BIO_R_GETSOCKNAME_ERROR);
 			    return 0;
 		    }

@@ -998,7 +998,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 									// } @v11.4.3
 								}
 							}
-							CPM.GetCommonJsonFactors(js_head);
+							CPM.GetCommonJsonFactors(js_head, null);
 							CPM.MakeGoodsGroupListFromCommonJson(js_head);
 							CPM.MakeProcessorListFromCommonJson(js_head);
 							CPM.MakeGoodsListFromCommonJson(js_head);

@@ -1306,8 +1306,8 @@ PPERR_WORKBOOKHASNTCONTENT         "Запись рабочей книги '%s' 
 PPERR_BILLSTCHECKFLD_AGENT         "@{billstatusfieldreq} '@{agent}'"  // Статус документа требует заполнения поля
 PPERR_BILLSTCHECKFLD_PAYER         "@{billstatusfieldreq} '@{payer}'"
 PPERR_BILLSTCHECKFLD_DLVRADDR      "@{billstatusfieldreq} '@{daddress}'"
-PPERR_BILLSTCHECKFLD_PORTOFLD      "@{billstatusfieldreq} 'Порт отгрузки'"
-PPERR_BILLSTCHECKFLD_PORTOFDCHG    "@{billstatusfieldreq} 'Порт разгрузки'"
+PPERR_BILLSTCHECKFLD_PORTOFLD      "@{billstatusfieldreq} 'Пункт отгрузки'"
+PPERR_BILLSTCHECKFLD_PORTOFDCHG    "@{billstatusfieldreq} 'Пункт разгрузки'"
 PPERR_BILLSTCHECKFLD_ISSUEDATE     "@{billstatusfieldreq} '@{bill_issuedate}'"
 PPERR_BILLSTCHECKFLD_ARRIVALDATE   "@{billstatusfieldreq} '@{arrivaldate}'"
 PPERR_BILLSTCHECKFLD_SHIP          "@{billstatusfieldreq} 'Транспорт'"
@@ -2276,6 +2276,8 @@ PPERR_STQ_UNDEFOPFORINCOMINGLIST    "Не определен вид операц
 PPERR_STQ_UNDEFWHFORORDERPREREQ     "Не удалось идентифицировать склад для команды '%s'"
 PPERR_STQ_EXCECMD_GEOLOCDISABLED    "Для выполнения команды необходимо разрешение на получение гео-координат на вашем устройстве"
 PPERR_STQ_PSNEV_MAXDISTRESTRICTION  "Вы находитесь слишком далеко от места регистрации события"
+PPERR_UED_VALUENOTBELONGTOMETA      "UED-значение не принадлежит целевой мета-категории (%s)"
+PPERR_UED_SYMBFORMETANOTFOUND       "Не найден символ, соответствующий мета-категории (%s)"
 // LastError
 
 [102] // confirmation
@@ -8410,6 +8412,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_posnode_ofdver                      "Версия ОФД на кассовом регистраторе"
 @rtag_loc_trunkpoint                      "Магистральная точка локации"
 @rtag_bill_initgeoloc                     "Геолокация в момент создания документа"
+@rtag_tsess_outercode                     "Внешний код технологической сессии" // @v11.6.6
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -9101,6 +9104,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_processobjtext                       "Обработка текстовых объектов"
 @cmd_scardpane                            "Информация о персональной карте"
 @cmd_underconstruction                    "В разработке"
+@cmd_processued                           "Процессинг UED (internal)"
 
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"
@@ -12140,6 +12144,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @oprkind_opkfx_ignoreclistop              "Игнорировать признак STOP у контрагента"
 @oprkind_opkfx_autogenuuid                "Автоматически генерировать UUID документа"
 @oprkind_opkfx_wrofftodraftord            "Списание только в драфт-документ"
+@oprkind_opkfx_accautovat                 "Автоматически рассчитывать суммы налогов"
 
 @oprkind_prnorder                         "Сортировка товарных строк"
 @oprkind_prnorder_default                 "@{bydefault}"
@@ -16982,6 +16987,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @eventtype_sysjournal                         "Событие системного журнала"            // 4
 @eventtype_lotexpiration                      "Истечение срока годности лота"         // 5
 @eventtype_ordercreated                       "Создан новый документ заказа"          // 6 @v11.5.10
+@eventtype_tsesscreated                       "Создана новая технологическая сессия"  // 7 @v11.6.6
 
 @eventstatus_actual                           "Актуальное"
 @eventstatus_viewed                           "Просмотрено"
@@ -17488,9 +17494,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @styloqprivconfig_preflang                    "Предпочтительный язык"
 @styloqprivconfig_defface                     "Лик для представления по умолчанию"
 
-@styloqconfig_cliffaceselfmodifying           "Модификация собственного лика клиентом"
+//@styloqconfig_cliffaceselfmodifying           "Модификация собственного лика клиентом"
 @styloqconfig_clifsvcgps                      "Разрешено установить GPS-координаты сервиса"
 @styloqconfig_clifpsnadrgps                   "Разрешено устанавливать GPS-координаты контактов"
+@styloqconfig_clifdisablefaceselfmodifying    "Не модифицировать связанный объект со стороны клиента"
 
 @styloqface                                   "Лик Stylo-Q"
 @styloqface_lang                              "Язык"

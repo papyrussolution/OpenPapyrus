@@ -35,9 +35,7 @@ Xapian::docid BoolOrPostList::get_docid() const
 	return did;
 }
 
-double BoolOrPostList::get_weight(Xapian::termcount,
-    Xapian::termcount,
-    Xapian::termcount) const
+double BoolOrPostList::get_weight(Xapian::termcount, Xapian::termcount, Xapian::termcount) const
 {
 	return 0;
 }

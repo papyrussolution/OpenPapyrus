@@ -215,4 +215,4 @@ strstrDispatch DQ strstrCPUDispatch
 ; Here, we are just relying on library data being placed after main data.
 ; This can be verified by making a link map file)
 SECTION .bss
-        dq      0, 0
+        align   16,dq      0, 0 ; @sobolev (align   16,)

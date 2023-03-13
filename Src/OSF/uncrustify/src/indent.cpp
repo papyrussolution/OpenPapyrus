@@ -210,42 +210,31 @@ enum class indent_mode_e : int {
 void align_to_column(Chunk * pc, size_t column)
 {
 	LOG_FUNC_ENTRY();
-
-	if(pc->IsNullChunk()
-	    || column == pc->GetColumn()) {
+	if(pc->IsNullChunk() || column == pc->GetColumn()) {
 		return;
 	}
 	LOG_FMT(LINDLINE, "%s(%d): orig line is %zu, orig col is %zu, Text() '%s', type is %s => column is %zu\n",
 	    __func__, __LINE__, pc->GetOrigLine(), pc->GetColumn(), pc->Text(),
 	    get_token_name(pc->GetType()), column);
-
 	const int col_delta = column - pc->GetColumn();
 	size_t min_col   = column;
-
 	pc->SetColumn(column);
-
 	do {
 		auto * next = pc->GetNext();
-
 		if(next->IsNullChunk()) {
 			break;
 		}
 		const size_t min_delta = space_col_align(pc, next);
 		min_col += min_delta;
-
 		const auto * prev = pc;
 		pc = next;
-
 		auto almod = align_mode_e::SHIFT;
-
-		if(pc->IsComment()
-		    && pc->GetParentType() != CT_COMMENT_EMBED) {
+		if(pc->IsComment() && pc->GetParentType() != CT_COMMENT_EMBED) {
 			log_rule_B("indent_relative_single_line_comments");
 			almod = (pc->IsSingleLineComment()
 			    && options::indent_relative_single_line_comments())
 			    ? align_mode_e::KEEP_REL : align_mode_e::KEEP_ABS;
 		}
-
 		if(almod == align_mode_e::KEEP_ABS) {
 			// Keep same absolute column
 			pc->SetColumn(max(pc->GetOrigCol(), min_col));
@@ -254,7 +243,6 @@ void align_to_column(Chunk * pc, size_t column)
 			// Keep same relative column
 			size_t orig_delta = pc->GetOrigPrevSp() + prev->Len();
 			orig_delta = max<size_t>(orig_delta, min_delta); // keeps orig_delta positive
-
 			pc->SetColumn(prev->GetColumn() + orig_delta);
 		}
 		else { // SHIFT
@@ -269,8 +257,7 @@ void align_to_column(Chunk * pc, size_t column)
 		    (almod == align_mode_e::KEEP_ABS) ? "abs" :
 		    (almod == align_mode_e::KEEP_REL) ? "rel" : "sft",
 		    pc->Text(), get_token_name(pc->GetType()), pc->GetOrigLine(), pc->GetColumn(), pc->GetOrigCol());
-	} while(pc->IsNotNullChunk()
-	    && pc->GetNlCount() == 0);
+	} while(pc->IsNotNullChunk() && pc->GetNlCount() == 0);
 } // align_to_column
 
 void reindent_line(Chunk * pc, size_t column)

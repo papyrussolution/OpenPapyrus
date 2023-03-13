@@ -126,18 +126,13 @@ void DocumentPeeker::saveCurrentSnapshot(ScintillaEditView & editView)
 	if(_pPeekerView) {
 		Buffer * buffer = editView.getCurrentBuffer();
 		MapPosition mapPos = buffer->getMapPosition();
-
 		// First visible document line for scrolling to this line
 		mapPos._firstVisibleDisplayLine = static_cast<int32_t>(editView.execute(SCI_GETFIRSTVISIBLELINE));
-		mapPos._firstVisibleDocLine =
-		    static_cast<int32_t>(editView.execute(SCI_DOCLINEFROMVISIBLE, mapPos._firstVisibleDisplayLine));
+		mapPos._firstVisibleDocLine = static_cast<int32_t>(editView.execute(SCI_DOCLINEFROMVISIBLE, mapPos._firstVisibleDisplayLine));
 		mapPos._nbLine = static_cast<int32_t>(editView.execute(SCI_LINESONSCREEN, mapPos._firstVisibleDisplayLine));
-		mapPos._lastVisibleDocLine =
-		    static_cast<int32_t>(editView.execute(SCI_DOCLINEFROMVISIBLE, mapPos._firstVisibleDisplayLine + mapPos._nbLine));
-
+		mapPos._lastVisibleDocLine = static_cast<int32_t>(editView.execute(SCI_DOCLINEFROMVISIBLE, mapPos._firstVisibleDisplayLine + mapPos._nbLine));
 		auto lineHeight = _pPeekerView->execute(SCI_TEXTHEIGHT, mapPos._firstVisibleDocLine);
 		mapPos._height = static_cast<int32_t>(mapPos._nbLine * lineHeight);
-
 		// Width
 		RECT editorRect;
 		editView.getClientRect(editorRect);
@@ -148,16 +143,13 @@ void DocumentPeeker::saveCurrentSnapshot(ScintillaEditView & editView)
 		double editViewWidth = editorRect.right - editorRect.left - marginWidths;
 		double editViewHeight = editorRect.bottom - editorRect.top;
 		mapPos._width = static_cast<int32_t>((editViewWidth / editViewHeight) * static_cast<double>(mapPos._height));
-
 		mapPos._wrapIndentMode = static_cast<int32_t>(editView.execute(SCI_GETWRAPINDENTMODE));
 		mapPos._isWrap = static_cast<int32_t>(editView.isWrap());
 		if(editView.isWrap()) {
 			mapPos._higherPos = static_cast<int32_t>(editView.execute(SCI_POSITIONFROMPOINT, 0, 0));
 		}
-
 		// Length of document
 		mapPos._KByteInDoc = editView.getCurrentDocLen() / 1024;
-
 		// set current map position in buffer
 		buffer->setMapPosition(mapPos);
 	}

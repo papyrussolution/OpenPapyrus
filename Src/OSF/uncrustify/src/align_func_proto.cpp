@@ -8,10 +8,6 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-//#include "align_func_proto.h"
-//#include "align_stack.h"
-//#include "align_tools.h"
-//#include "log_rules.h"
 
 constexpr static auto LCURRENT = LALPROTO;
 using namespace uncrustify;

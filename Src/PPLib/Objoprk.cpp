@@ -2016,7 +2016,7 @@ void OprKindDialog::moreDialog()
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_AUTOWL, OPKF_EXTACCTURN,
 					OPKF_RENT, OPKF_BANKING, OPKF_CURTRANSIT,
 					OPKF_PROFITABLE, OPKF_OUTBALACCTURN, OPKF_ADVACC, OPKF_ATTACHFILES, OPKF_FREIGHT, 0L);
-				ext_options_list.addzlist(OPKFX_CANBEDECLINED, OPKFX_AUTOGENUUID, 0L); // @v10.1.12
+				ext_options_list.addzlist(OPKFX_CANBEDECLINED, OPKFX_AUTOGENUUID, OPKFX_ACCAUTOVAT, 0L); // @v10.1.12 // @v11.6.6 OPKFX_ACCAUTOVAT
 				editOptions2(DLG_OPKMORE_AT, 2, &subtypelist, &options_list, &ext_options_list);
 				break;
 			case PPOPT_GOODSEXPEND:

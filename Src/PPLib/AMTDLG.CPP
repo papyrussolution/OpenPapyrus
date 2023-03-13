@@ -467,7 +467,8 @@ void BillTaxesDialog::calcTax(int taxN)
 {
 	uint   ctl_id = 0;
 	double bill_amt = getCtrlReal(CTL_BILLTAX_BILLAMT);
-	double amt = 0.0, rate = 0.0;
+	double amt = 0.0;
+	double rate = 0.0;
 	if(taxN == 0) { // Налог с продаж
 		amt = bill_amt * SalesTaxMult(fdiv100i(Tais.STaxRate));
 		ctl_id = CTL_BILLTAX_STAX;

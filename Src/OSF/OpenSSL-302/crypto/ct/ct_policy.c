@@ -30,7 +30,7 @@ CT_POLICY_EVAL_CTX * CT_POLICY_EVAL_CTX_new_ex(OSSL_LIB_CTX * libctx, const char
 	}
 
 	ctx->libctx = libctx;
-	if(propq != NULL) {
+	if(propq) {
 		ctx->propq = OPENSSL_strdup(propq);
 		if(ctx->propq == NULL) {
 			ERR_raise(ERR_LIB_CT, ERR_R_MALLOC_FAILURE);

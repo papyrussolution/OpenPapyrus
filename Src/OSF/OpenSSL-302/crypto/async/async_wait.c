@@ -22,7 +22,7 @@ void ASYNC_WAIT_CTX_free(ASYNC_WAIT_CTX * ctx)
 	if(!ctx)
 		return;
 	curr = ctx->fds;
-	while(curr != NULL) {
+	while(curr) {
 		if(!curr->del) {
 			/* Only try and cleanup if it hasn't been marked deleted */
 			if(curr->cleanup != NULL)
@@ -56,13 +56,10 @@ int ASYNC_WAIT_CTX_set_wait_fd(ASYNC_WAIT_CTX * ctx, const void * key, OSSL_ASYN
 	return 1;
 }
 
-int ASYNC_WAIT_CTX_get_fd(ASYNC_WAIT_CTX * ctx, const void * key,
-    OSSL_ASYNC_FD * fd, void ** custom_data)
+int ASYNC_WAIT_CTX_get_fd(ASYNC_WAIT_CTX * ctx, const void * key, OSSL_ASYNC_FD * fd, void ** custom_data)
 {
-	struct fd_lookup_st * curr;
-
-	curr = ctx->fds;
-	while(curr != NULL) {
+	struct fd_lookup_st * curr = ctx->fds;
+	while(curr) {
 		if(curr->del) {
 			/* This one has been marked deleted so do nothing */
 			curr = curr->next;
@@ -78,14 +75,11 @@ int ASYNC_WAIT_CTX_get_fd(ASYNC_WAIT_CTX * ctx, const void * key,
 	return 0;
 }
 
-int ASYNC_WAIT_CTX_get_all_fds(ASYNC_WAIT_CTX * ctx, OSSL_ASYNC_FD * fd,
-    size_t * numfds)
+int ASYNC_WAIT_CTX_get_all_fds(ASYNC_WAIT_CTX * ctx, OSSL_ASYNC_FD * fd, size_t * numfds)
 {
-	struct fd_lookup_st * curr;
-
-	curr = ctx->fds;
+	struct fd_lookup_st * curr = ctx->fds;
 	*numfds = 0;
-	while(curr != NULL) {
+	while(curr) {
 		if(curr->del) {
 			/* This one has been marked deleted so do nothing */
 			curr = curr->next;
@@ -101,20 +95,15 @@ int ASYNC_WAIT_CTX_get_all_fds(ASYNC_WAIT_CTX * ctx, OSSL_ASYNC_FD * fd,
 	return 1;
 }
 
-int ASYNC_WAIT_CTX_get_changed_fds(ASYNC_WAIT_CTX * ctx, OSSL_ASYNC_FD * addfd,
-    size_t * numaddfds, OSSL_ASYNC_FD * delfd,
-    size_t * numdelfds)
+int ASYNC_WAIT_CTX_get_changed_fds(ASYNC_WAIT_CTX * ctx, OSSL_ASYNC_FD * addfd, size_t * numaddfds, OSSL_ASYNC_FD * delfd, size_t * numdelfds)
 {
 	struct fd_lookup_st * curr;
-
 	*numaddfds = ctx->numadd;
 	*numdelfds = ctx->numdel;
 	if(addfd == NULL && delfd == NULL)
 		return 1;
-
 	curr = ctx->fds;
-
-	while(curr != NULL) {
+	while(curr) {
 		/* We ignore fds that have been marked as both added and deleted */
 		if(curr->del && !curr->add && (delfd != NULL)) {
 			*delfd = curr->fd;
@@ -126,17 +115,14 @@ int ASYNC_WAIT_CTX_get_changed_fds(ASYNC_WAIT_CTX * ctx, OSSL_ASYNC_FD * addfd,
 		}
 		curr = curr->next;
 	}
-
 	return 1;
 }
 
 int ASYNC_WAIT_CTX_clear_fd(ASYNC_WAIT_CTX * ctx, const void * key)
 {
-	struct fd_lookup_st * curr, * prev;
-
-	curr = ctx->fds;
-	prev = NULL;
-	while(curr != NULL) {
+	struct fd_lookup_st * curr = ctx->fds;
+	struct fd_lookup_st * prev = NULL;
+	while(curr) {
 		if(curr->del == 1) {
 			/* This one has been marked deleted already so do nothing */
 			prev = curr;
@@ -152,7 +138,6 @@ int ASYNC_WAIT_CTX_clear_fd(ASYNC_WAIT_CTX * ctx, const void * key)
 				else {
 					prev->next = curr->next;
 				}
-
 				/* It is responsibility of the caller to cleanup before calling
 				 * ASYNC_WAIT_CTX_clear_fd
 				 */
@@ -160,7 +145,6 @@ int ASYNC_WAIT_CTX_clear_fd(ASYNC_WAIT_CTX * ctx, const void * key)
 				ctx->numadd--;
 				return 1;
 			}
-
 			/*
 			 * Mark it as deleted. We don't call cleanup if explicitly asked
 			 * to clear an fd. We assume the caller is going to do that (if
@@ -214,13 +198,10 @@ int ASYNC_WAIT_CTX_get_status(ASYNC_WAIT_CTX * ctx)
 void async_wait_ctx_reset_counts(ASYNC_WAIT_CTX * ctx)
 {
 	struct fd_lookup_st * curr, * prev = NULL;
-
 	ctx->numadd = 0;
 	ctx->numdel = 0;
-
 	curr = ctx->fds;
-
-	while(curr != NULL) {
+	while(curr) {
 		if(curr->del) {
 			if(prev == NULL)
 				ctx->fds = curr->next;

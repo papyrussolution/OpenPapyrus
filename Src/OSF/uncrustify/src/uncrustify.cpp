@@ -1455,7 +1455,6 @@ void uncrustify_file(const file_mem &fm, FILE * pfout, const char * parsed_file,
 		    av = IARF_IGNORE;
 		    break;
 	}
-
 	if(av == IARF_REMOVE) {
 		cpd.bom = false;
 	}
@@ -1507,16 +1506,13 @@ void uncrustify_file(const file_mem &fm, FILE * pfout, const char * parsed_file,
 			rewrite_infinite_loops();
 		}
 		do_braces(); // Change virtual braces into real braces...
-
 		// Scrub extra semicolons
 		log_rule_B("mod_remove_extra_semicolon");
-
 		if(options::mod_remove_extra_semicolon()) {
 			remove_extra_semicolons();
 		}
 		// Remove unnecessary returns
 		log_rule_B("mod_remove_empty_return");
-
 		if(options::mod_remove_empty_return()) {
 			remove_extra_returns();
 		}

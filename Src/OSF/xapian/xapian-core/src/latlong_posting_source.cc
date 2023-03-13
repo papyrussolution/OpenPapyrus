@@ -21,18 +21,12 @@
 using namespace Xapian;
 using namespace std;
 
-static double weight_from_distance(double dist, double k1, double k2)
-{
-	return k1 * pow(dist + k1, -k2);
-}
-
-void LatLongDistancePostingSource::calc_distance()
-{
-	dist = (*metric)(centre, get_value());
-}
+static double weight_from_distance(double dist, double k1, double k2) { return k1 * pow(dist + k1, -k2); }
+void LatLongDistancePostingSource::calc_distance() { dist = (*metric)(centre, get_value()); }
 
 /// Validate the parameters supplied to LatLongDistancePostingSource.
-static void validate_postingsource_params(double k1, double k2) {
+static void validate_postingsource_params(double k1, double k2) 
+{
 	if(k1 <= 0) {
 		string msg("k1 parameter to LatLongDistancePostingSource must be greater than 0; was ");
 		msg += str(k1);
@@ -45,51 +39,25 @@ static void validate_postingsource_params(double k1, double k2) {
 	}
 }
 
-LatLongDistancePostingSource::LatLongDistancePostingSource(valueno slot_,
-    const LatLongCoords & centre_,
-    const LatLongMetric * metric_,
-    double max_range_,
-    double k1_,
-    double k2_)
-	: ValuePostingSource(slot_),
-	centre(centre_),
-	metric(metric_),
-	max_range(max_range_),
-	k1(k1_),
-	k2(k2_)
+LatLongDistancePostingSource::LatLongDistancePostingSource(valueno slot_, const LatLongCoords & centre_, const LatLongMetric * metric_,
+    double max_range_, double k1_, double k2_) : ValuePostingSource(slot_), centre(centre_), metric(metric_), max_range(max_range_),
+	k1(k1_), k2(k2_)
 {
 	validate_postingsource_params(k1, k2);
 	set_maxweight(weight_from_distance(0, k1, k2));
 }
 
-LatLongDistancePostingSource::LatLongDistancePostingSource(valueno slot_,
-    const LatLongCoords & centre_,
-    const LatLongMetric & metric_,
-    double max_range_,
-    double k1_,
-    double k2_)
-	: ValuePostingSource(slot_),
-	centre(centre_),
-	metric(metric_.clone()),
-	max_range(max_range_),
-	k1(k1_),
-	k2(k2_)
+LatLongDistancePostingSource::LatLongDistancePostingSource(valueno slot_, const LatLongCoords & centre_, const LatLongMetric & metric_,
+    double max_range_, double k1_, double k2_) : ValuePostingSource(slot_), centre(centre_), metric(metric_.clone()), max_range(max_range_),
+	k1(k1_), k2(k2_)
 {
 	validate_postingsource_params(k1, k2);
 	set_maxweight(weight_from_distance(0, k1, k2));
 }
 
-LatLongDistancePostingSource::LatLongDistancePostingSource(valueno slot_,
-    const LatLongCoords & centre_,
-    double max_range_,
-    double k1_,
-    double k2_)
-	: ValuePostingSource(slot_),
-	centre(centre_),
-	metric(new Xapian::GreatCircleMetric()),
-	max_range(max_range_),
-	k1(k1_),
-	k2(k2_)
+LatLongDistancePostingSource::LatLongDistancePostingSource(valueno slot_, const LatLongCoords & centre_, double max_range_,
+    double k1_, double k2_) : ValuePostingSource(slot_), centre(centre_), metric(new Xapian::GreatCircleMetric()), max_range(max_range_),
+	k1(k1_), k2(k2_)
 {
 	validate_postingsource_params(k1, k2);
 	set_maxweight(weight_from_distance(0, k1, k2));
@@ -103,7 +71,6 @@ LatLongDistancePostingSource::~LatLongDistancePostingSource()
 void LatLongDistancePostingSource::next(double min_wt)
 {
 	ValuePostingSource::next(min_wt);
-
 	while(!ValuePostingSource::at_end()) {
 		calc_distance();
 		if(max_range == 0 || dist <= max_range)
@@ -112,11 +79,9 @@ void LatLongDistancePostingSource::next(double min_wt)
 	}
 }
 
-void LatLongDistancePostingSource::skip_to(docid min_docid,
-    double min_wt)
+void LatLongDistancePostingSource::skip_to(docid min_docid, double min_wt)
 {
 	ValuePostingSource::skip_to(min_docid, min_wt);
-
 	while(!ValuePostingSource::at_end()) {
 		calc_distance();
 		if(max_range == 0 || dist <= max_range)
@@ -125,8 +90,7 @@ void LatLongDistancePostingSource::skip_to(docid min_docid,
 	}
 }
 
-bool LatLongDistancePostingSource::check(docid min_docid,
-    double min_wt)
+bool LatLongDistancePostingSource::check(docid min_docid, double min_wt)
 {
 	if(!ValuePostingSource::check(min_docid, min_wt)) {
 		// check returned false, so we know the document is not in the source.
@@ -136,7 +100,6 @@ bool LatLongDistancePostingSource::check(docid min_docid,
 		// return true, since we're definitely at the end of the list.
 		return true;
 	}
-
 	calc_distance();
 	if(max_range > 0 && dist > max_range) {
 		return false;
@@ -201,12 +164,8 @@ LatLongDistancePostingSource * LatLongDistancePostingSource::unserialise_with_re
 		msg += " not registered";
 		throw InvalidArgumentError(msg);
 	}
-	LatLongMetric * new_metric =
-	    metric_type->unserialise(new_serialised_metric);
-
-	return new LatLongDistancePostingSource(new_slot, new_centre,
-		   new_metric,
-		   new_max_range, new_k1, new_k2);
+	LatLongMetric * new_metric = metric_type->unserialise(new_serialised_metric);
+	return new LatLongDistancePostingSource(new_slot, new_centre, new_metric, new_max_range, new_k1, new_k2);
 }
 
 void LatLongDistancePostingSource::init(const Database & db_)

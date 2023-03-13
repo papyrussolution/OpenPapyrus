@@ -825,7 +825,7 @@ const WebPDecBuffer* WebPIDecodedArea(const WebPIDecoder* idec, int* left, int* 
 	const WebPDecBuffer* const src = GetOutputBuffer(idec);
 	if(left != NULL) *left = 0;
 	if(top != NULL) *top = 0;
-	if(src != NULL) {
+	if(src) {
 		if(width) *width = src->width;
 		if(height) *height = idec->params_.last_y;
 	}

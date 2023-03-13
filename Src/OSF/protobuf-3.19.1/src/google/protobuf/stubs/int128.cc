@@ -72,8 +72,8 @@ void uint128::DivModImpl(uint128 dividend, uint128 divisor, uint128* quotient_re
 		return;
 	}
 	else {
-		int dividend_bit_length = Fls128(dividend);
-		int divisor_bit_length = Fls128(divisor);
+		const int dividend_bit_length = Fls128(dividend);
+		const int divisor_bit_length = Fls128(divisor);
 		int difference = dividend_bit_length - divisor_bit_length;
 		uint128 quotient = 0;
 		while(difference >= 0) {

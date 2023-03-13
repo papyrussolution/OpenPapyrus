@@ -604,6 +604,7 @@
       <Filter>fitz</Filter>
     </ClCompile>
     <ClCompile Include="..\OSF\mupdf\source\mupdf-pch.cpp" />
+    <ClCompile Include="..\OSF\mupdf\source\helpers\pkcs7\pkcs7-openssl.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\mupdf\include\mupdf\fitz.h">
@@ -845,6 +846,9 @@
     </ClInclude>
     <ClInclude Include="..\OSF\mupdf\source\fitz\z-imp.h">
       <Filter>fitz\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\include\mupdf\helpers\pkcs7-openssl.h">
+      <Filter>!include</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

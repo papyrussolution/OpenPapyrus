@@ -46,15 +46,16 @@ static const OSSL_ITEM format_nameid_map[] = {
 
 int ossl_ec_encoding_name2id(const char * name)
 {
-	size_t i, sz;
-	/* Return the default value if there is no name */
-	if(!name)
+	if(!name) // Return the default value if there is no name
 		return OPENSSL_EC_NAMED_CURVE;
-	for(i = 0, sz = SIZEOFARRAY(encoding_nameid_map); i < sz; i++) {
-		if(strcasecmp(name, (const char *)encoding_nameid_map[i].ptr) == 0)
-			return encoding_nameid_map[i].id;
+	else {
+		size_t i, sz;
+		for(i = 0, sz = SIZEOFARRAY(encoding_nameid_map); i < sz; i++) {
+			if(strcasecmp(name, (const char *)encoding_nameid_map[i].ptr) == 0)
+				return encoding_nameid_map[i].id;
+		}
+		return -1;
 	}
-	return -1;
 }
 
 static char * ec_param_encoding_id2name(int id)
@@ -79,15 +80,17 @@ char * ossl_ec_check_group_type_id2name(int id)
 
 static int ec_check_group_type_name2id(const char * name)
 {
-	size_t i, sz;
 	/* Return the default value if there is no name */
 	if(!name)
 		return 0;
-	for(i = 0, sz = SIZEOFARRAY(check_group_type_nameid_map); i < sz; i++) {
-		if(strcasecmp(name, (const char *)check_group_type_nameid_map[i].ptr) == 0)
-			return check_group_type_nameid_map[i].id;
+	else {
+		size_t i, sz;
+		for(i = 0, sz = SIZEOFARRAY(check_group_type_nameid_map); i < sz; i++) {
+			if(strcasecmp(name, (const char *)check_group_type_nameid_map[i].ptr) == 0)
+				return check_group_type_nameid_map[i].id;
+		}
+		return -1;
 	}
-	return -1;
 }
 
 int ossl_ec_set_check_group_type_from_name(EC_KEY * ec, const char * name)
@@ -241,23 +244,17 @@ static int ec_group_explicit_todata(const EC_GROUP * group, OSSL_PARAM_BLD * tmp
 	param = OSSL_PARAM_locate_const(params, OSSL_PKEY_PARAM_EC_COFACTOR);
 	if(tmpl != NULL || param != NULL) {
 		const BIGNUM * cofactor = EC_GROUP_get0_cofactor(group);
-
-		if(cofactor != NULL
-		    && !ossl_param_build_set_bn(tmpl, params,
+		if(cofactor && !ossl_param_build_set_bn(tmpl, params,
 		    OSSL_PKEY_PARAM_EC_COFACTOR, cofactor)) {
 			ERR_raise(ERR_LIB_EC, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
 	}
-
 	param = OSSL_PARAM_locate_const(params, OSSL_PKEY_PARAM_EC_SEED);
-	if(tmpl != NULL || param != NULL) {
+	if(tmpl || param) {
 		uchar * seed = EC_GROUP_get0_seed(group);
 		size_t seed_len = EC_GROUP_get_seed_len(group);
-
-		if(seed != NULL
-		    && seed_len > 0
-		    && !ossl_param_build_set_octet_string(tmpl, params,
+		if(seed && seed_len > 0 && !ossl_param_build_set_octet_string(tmpl, params,
 		    OSSL_PKEY_PARAM_EC_SEED,
 		    seed, seed_len)) {
 			ERR_raise(ERR_LIB_EC, ERR_R_MALLOC_FAILURE);
@@ -269,41 +266,31 @@ err:
 	return ret;
 }
 
-int ossl_ec_group_todata(const EC_GROUP * group, OSSL_PARAM_BLD * tmpl,
-    OSSL_PARAM params[], OSSL_LIB_CTX * libctx,
-    const char * propq,
-    BN_CTX * bnctx, uchar ** genbuf)
+int ossl_ec_group_todata(const EC_GROUP * group, OSSL_PARAM_BLD * tmpl, OSSL_PARAM params[], OSSL_LIB_CTX * libctx, const char * propq, BN_CTX * bnctx, uchar ** genbuf)
 {
-	int ret = 0, curve_nid, encoding_flag;
-	const char * encoding_name, * pt_form_name;
+	int ret = 0;
+	int curve_nid;
+	int encoding_flag;
+	const char * encoding_name;
+	const char * pt_form_name;
 	point_conversion_form_t genform;
-
 	if(group == NULL) {
 		ERR_raise(ERR_LIB_EC, EC_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
-
 	genform = EC_GROUP_get_point_conversion_form(group);
 	pt_form_name = ossl_ec_pt_format_id2name(genform);
-	if(pt_form_name == NULL
-	    || !ossl_param_build_set_utf8_string(
-		    tmpl, params,
-		    OSSL_PKEY_PARAM_EC_POINT_CONVERSION_FORMAT, pt_form_name)) {
+	if(pt_form_name == NULL || !ossl_param_build_set_utf8_string(tmpl, params, OSSL_PKEY_PARAM_EC_POINT_CONVERSION_FORMAT, pt_form_name)) {
 		ERR_raise(ERR_LIB_EC, EC_R_INVALID_FORM);
 		return 0;
 	}
 	encoding_flag = EC_GROUP_get_asn1_flag(group) & OPENSSL_EC_NAMED_CURVE;
 	encoding_name = ec_param_encoding_id2name(encoding_flag);
-	if(encoding_name == NULL
-	    || !ossl_param_build_set_utf8_string(tmpl, params,
-	    OSSL_PKEY_PARAM_EC_ENCODING,
-	    encoding_name)) {
+	if(encoding_name == NULL || !ossl_param_build_set_utf8_string(tmpl, params, OSSL_PKEY_PARAM_EC_ENCODING, encoding_name)) {
 		ERR_raise(ERR_LIB_EC, EC_R_INVALID_ENCODING);
 		return 0;
 	}
-
 	curve_nid = EC_GROUP_get_curve_name(group);
-
 	/*
 	 * Get the explicit parameters in these two cases:
 	 * - We do not have a template, i.e. specific parameters are requested
@@ -312,15 +299,10 @@ int ossl_ec_group_todata(const EC_GROUP * group, OSSL_PARAM_BLD * tmpl,
 	if(tmpl == NULL || curve_nid == NID_undef)
 		if(!ec_group_explicit_todata(group, tmpl, params, bnctx, genbuf))
 			goto err;
-
 	if(curve_nid != NID_undef) {
 		/* Named curve */
 		const char * curve_name = OSSL_EC_curve_nid2name(curve_nid);
-
-		if(curve_name == NULL
-		    || !ossl_param_build_set_utf8_string(tmpl, params,
-		    OSSL_PKEY_PARAM_GROUP_NAME,
-		    curve_name)) {
+		if(curve_name == NULL || !ossl_param_build_set_utf8_string(tmpl, params, OSSL_PKEY_PARAM_GROUP_NAME, curve_name)) {
 			ERR_raise(ERR_LIB_EC, EC_R_INVALID_CURVE);
 			goto err;
 		}
@@ -348,19 +330,15 @@ int ossl_ec_set_ecdh_cofactor_mode(EC_KEY * ec, int mode)
 	 */
 	if(mode < 0 || mode > 1)
 		return 0;
-
 	if((cofactor = EC_GROUP_get0_cofactor(ecg)) == NULL)
 		return 0;
-
 	/* ECDH cofactor mode has no effect if cofactor is 1 */
 	if(BN_is_one(cofactor))
 		return 1;
-
 	if(mode == 1)
 		EC_KEY_set_flags(ec, EC_FLAG_COFACTOR_ECDH);
 	else if(mode == 0)
 		EC_KEY_clear_flags(ec, EC_FLAG_COFACTOR_ECDH);
-
 	return 1;
 }
 
@@ -379,35 +357,23 @@ int ossl_ec_key_fromdata(EC_KEY * ec, const OSSL_PARAM params[], int include_pri
 	BIGNUM * priv_key = NULL;
 	uchar * pub_key = NULL;
 	size_t pub_key_len;
-	const EC_GROUP * ecg = NULL;
 	EC_POINT * pub_point = NULL;
 	int ok = 0;
-
-	ecg = EC_KEY_get0_group(ec);
+	const EC_GROUP * ecg = EC_KEY_get0_group(ec);
 	if(ecg == NULL)
 		return 0;
-
-	param_pub_key =
-	    OSSL_PARAM_locate_const(params, OSSL_PKEY_PARAM_PUB_KEY);
+	param_pub_key = OSSL_PARAM_locate_const(params, OSSL_PKEY_PARAM_PUB_KEY);
 	if(include_private)
-		param_priv_key =
-		    OSSL_PARAM_locate_const(params, OSSL_PKEY_PARAM_PRIV_KEY);
-
+		param_priv_key = OSSL_PARAM_locate_const(params, OSSL_PKEY_PARAM_PRIV_KEY);
 	ctx = BN_CTX_new_ex(ossl_ec_key_get_libctx(ec));
 	if(!ctx)
 		goto err;
-
 	if(param_pub_key != NULL)
-		if(!OSSL_PARAM_get_octet_string(param_pub_key,
-		    (void**)&pub_key, 0, &pub_key_len)
-		    || (pub_point = EC_POINT_new(ecg)) == NULL
-		    || !EC_POINT_oct2point(ecg, pub_point, pub_key, pub_key_len, ctx))
+		if(!OSSL_PARAM_get_octet_string(param_pub_key, (void**)&pub_key, 0, &pub_key_len) || (pub_point = EC_POINT_new(ecg)) == NULL || !EC_POINT_oct2point(ecg, pub_point, pub_key, pub_key_len, ctx))
 			goto err;
-
 	if(param_priv_key != NULL && include_private) {
 		int fixed_words;
 		const BIGNUM * order;
-
 		/*
 		 * Key import/export should never leak the bit length of the secret
 		 * scalar in the key.
@@ -444,21 +410,16 @@ int ossl_ec_key_fromdata(EC_KEY * ec, const OSSL_PARAM params[], int include_pri
 		order = EC_GROUP_get0_order(ecg);
 		if(order == NULL || BN_is_zero(order))
 			goto err;
-
 		fixed_words = bn_get_top(order) + 2;
-
 		if((priv_key = BN_secure_new()) == NULL)
 			goto err;
 		if(bn_wexpand(priv_key, fixed_words) == NULL)
 			goto err;
 		BN_set_flags(priv_key, BN_FLG_CONSTTIME);
-
 		if(!OSSL_PARAM_get_BN(param_priv_key, &priv_key))
 			goto err;
 	}
-
-	if(priv_key != NULL
-	    && !EC_KEY_set_private_key(ec, priv_key))
+	if(priv_key != NULL && !EC_KEY_set_private_key(ec, priv_key))
 		goto err;
 	if(pub_point != NULL && !EC_KEY_set_public_key(ec, pub_point))
 		goto err;
@@ -503,9 +464,7 @@ static int ec_key_point_format_fromdata(EC_KEY * ec, const OSSL_PARAM params[])
 static int ec_key_group_check_fromdata(EC_KEY * ec, const OSSL_PARAM params[])
 {
 	const OSSL_PARAM * p = OSSL_PARAM_locate_const(params, OSSL_PKEY_PARAM_EC_GROUP_CHECK_TYPE);
-	if(p)
-		return ec_set_check_group_type_from_param(ec, p);
-	return 1;
+	return p ? ec_set_check_group_type_from_param(ec, p) : 1;
 }
 
 static int ec_set_include_public(EC_KEY * ec, int include)
@@ -555,84 +514,61 @@ int ossl_ec_key_is_foreign(const EC_KEY * ec)
 EC_KEY * ossl_ec_key_dup(const EC_KEY * src, int selection)
 {
 	EC_KEY * ret;
-
 	if(src == NULL) {
 		ERR_raise(ERR_LIB_EC, ERR_R_PASSED_NULL_PARAMETER);
 		return NULL;
 	}
-
-	if((ret = ossl_ec_key_new_method_int(src->libctx, src->propq,
-	    src->engine)) == NULL)
+	if((ret = ossl_ec_key_new_method_int(src->libctx, src->propq, src->engine)) == NULL)
 		return NULL;
-
 	/* copy the parameters */
-	if(src->group != NULL
-	    && (selection & OSSL_KEYMGMT_SELECT_DOMAIN_PARAMETERS) != 0) {
-		ret->group = ossl_ec_group_new_ex(src->libctx, src->propq,
-			src->group->meth);
-		if(ret->group == NULL
-		    || !EC_GROUP_copy(ret->group, src->group))
+	if(src->group && (selection & OSSL_KEYMGMT_SELECT_DOMAIN_PARAMETERS) != 0) {
+		ret->group = ossl_ec_group_new_ex(src->libctx, src->propq, src->group->meth);
+		if(ret->group == NULL || !EC_GROUP_copy(ret->group, src->group))
 			goto err;
-
-		if(src->meth != NULL) {
+		if(src->meth) {
 #if !defined(OPENSSL_NO_ENGINE) && !defined(FIPS_MODULE)
-			if(src->engine != NULL && ENGINE_init(src->engine) == 0)
+			if(src->engine && ENGINE_init(src->engine) == 0)
 				goto err;
 			ret->engine = src->engine;
 #endif
 			ret->meth = src->meth;
 		}
 	}
-
 	/*  copy the public key */
-	if(src->pub_key != NULL
-	    && (selection & OSSL_KEYMGMT_SELECT_PUBLIC_KEY) != 0) {
+	if(src->pub_key && (selection & OSSL_KEYMGMT_SELECT_PUBLIC_KEY) != 0) {
 		if(ret->group == NULL)
-			/* no parameter-less keys allowed */
-			goto err;
+			goto err; /* no parameter-less keys allowed */
 		ret->pub_key = EC_POINT_new(ret->group);
-		if(ret->pub_key == NULL
-		    || !EC_POINT_copy(ret->pub_key, src->pub_key))
+		if(ret->pub_key == NULL || !EC_POINT_copy(ret->pub_key, src->pub_key))
 			goto err;
 	}
-
 	/* copy the private key */
-	if(src->priv_key != NULL
-	    && (selection & OSSL_KEYMGMT_SELECT_PRIVATE_KEY) != 0) {
+	if(src->priv_key != NULL && (selection & OSSL_KEYMGMT_SELECT_PRIVATE_KEY) != 0) {
 		if(ret->group == NULL)
-			/* no parameter-less keys allowed */
-			goto err;
+			goto err; /* no parameter-less keys allowed */
 		ret->priv_key = BN_new();
 		if(ret->priv_key == NULL || !BN_copy(ret->priv_key, src->priv_key))
 			goto err;
-		if(ret->group->meth->keycopy
-		    && ret->group->meth->keycopy(ret, src) == 0)
+		if(ret->group->meth->keycopy && ret->group->meth->keycopy(ret, src) == 0)
 			goto err;
 	}
-
 	/* copy the rest */
 	if((selection & OSSL_KEYMGMT_SELECT_OTHER_PARAMETERS) != 0) {
 		ret->enc_flag = src->enc_flag;
 		ret->conv_form = src->conv_form;
 	}
-
 	ret->version = src->version;
 	ret->flags = src->flags;
-
 #ifndef FIPS_MODULE
-	if(!CRYPTO_dup_ex_data(CRYPTO_EX_INDEX_EC_KEY,
-	    &ret->ex_data, &src->ex_data))
+	if(!CRYPTO_dup_ex_data(CRYPTO_EX_INDEX_EC_KEY, &ret->ex_data, &src->ex_data))
 		goto err;
 #endif
-
-	if(ret->meth != NULL && ret->meth->copy != NULL) {
-		if((selection
-		    & OSSL_KEYMGMT_SELECT_KEYPAIR) != OSSL_KEYMGMT_SELECT_KEYPAIR)
+	if(ret->meth && ret->meth->copy) {
+		if((selection & OSSL_KEYMGMT_SELECT_KEYPAIR) != OSSL_KEYMGMT_SELECT_KEYPAIR)
 			goto err;
 		if(ret->meth->copy(ret, src) == 0)
 			goto err;
 	}
-
 	return ret;
 err:
 	EC_KEY_free(ret);

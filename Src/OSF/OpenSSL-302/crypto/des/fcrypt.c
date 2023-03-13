@@ -56,23 +56,19 @@ static const unsigned char cov_2char[64] = {
 char * DES_crypt(const char * buf, const char * salt)
 {
 	static char buff[14];
-
 #ifndef CHARSET_EBCDIC
 	return DES_fcrypt(buf, salt, buff);
 #else
 	char e_salt[2 + 1];
 	char e_buf[32 + 1];     /* replace 32 by 8 ? */
 	char * ret;
-
 	if(salt[0] == '\0' || salt[1] == '\0')
 		return NULL;
-
 	/* Copy salt, convert to ASCII. */
 	e_salt[0] = salt[0];
 	e_salt[1] = salt[1];
 	e_salt[2] = '\0';
 	ebcdic2ascii(e_salt, e_salt, sizeof(e_salt));
-
 	/* Convert password to ASCII. */
 	OPENSSL_strlcpy(e_buf, buf, sizeof(e_buf));
 	ebcdic2ascii(e_buf, e_buf, sizeof(e_buf));

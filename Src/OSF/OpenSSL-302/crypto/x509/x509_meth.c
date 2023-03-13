@@ -13,7 +13,7 @@
 X509_LOOKUP_METHOD * X509_LOOKUP_meth_new(const char * name)
 {
 	X509_LOOKUP_METHOD * method = (X509_LOOKUP_METHOD*)OPENSSL_zalloc(sizeof(X509_LOOKUP_METHOD));
-	if(method != NULL) {
+	if(method) {
 		method->name = OPENSSL_strdup(name);
 		if(method->name == NULL) {
 			ERR_raise(ERR_LIB_X509, ERR_R_MALLOC_FAILURE);
@@ -28,7 +28,7 @@ err:
 
 void X509_LOOKUP_meth_free(X509_LOOKUP_METHOD * method)
 {
-	if(method != NULL)
+	if(method)
 		OPENSSL_free(method->name);
 	OPENSSL_free(method);
 }

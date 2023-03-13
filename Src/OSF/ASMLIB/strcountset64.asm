@@ -170,4 +170,4 @@ SECTION .data
 strCountInSetDispatch  DQ strCountInSetCPUDispatch
 
 SECTION .bss
-dq 0, 0
+    align   16,dq 0, 0 ; @sobolev (align   16,)

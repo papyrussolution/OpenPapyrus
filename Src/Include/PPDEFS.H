@@ -1207,6 +1207,7 @@
 	#define PPEVENTTYPE_SYSJOURNAL        4L // Событие в системном журнале по фильтру
 	#define PPEVENTTYPE_LOTEXPIRATION     5L // Истечение срока годности лота
 	#define PPEVENTTYPE_ORDERCREATED      6L // @v11.5.10 Stylo-Q Создан новый документ заказа
+	#define PPEVENTTYPE_TSESSCREATED      7L // @v11.6.6  Stylo-Q Создана новая технологическая сессия (@todo придется поработать над текстовой трактовкой этого события - нормальные люди не поймут) // 
 #define PPOBJ_STYLOQBINDERY 1077L  // @v11.1.7 Подшивка объектов Stylo-Q
 #define PPOBJ_VETISIC       1078L  // @v11.3.2 !PPObject Используется для блокировки функций обмена с сервисами ВЕТИС
 	#define PPVETISICFUNC_SETUPOUTGOINGENTRIES 1
@@ -1387,6 +1388,7 @@
 #define PPTAG_BILL_LONGCODE        100L // @v11.0.12 (надеюсь, временный тег) Если номер документа, поступившего из-вне длиннее sizeof(Bill:Code)-1 то полный номер сохраняется в этом теге
 #define PPTAG_POSNODE_OFDVER       101L // @v11.1.9  Версия ОФД на аппарате (аппаратах), с которой работает кассовый узел
 #define PPTAG_LOC_TRUNKPOINT       102L // @v11.2.9  Магистральная точка, ближайшая к адресу. Используется в логистике для планирования маршрутов.
+#define PPTAG_TSESS_OUTERCODE      103L // @v11.6.6  Внешний код технологической сессии
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //

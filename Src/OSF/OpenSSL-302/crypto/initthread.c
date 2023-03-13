@@ -314,13 +314,11 @@ static void init_thread_stop(void * arg, THREAD_EVENT_HANDLER ** hands)
 	gtr = get_global_tevent_register();
 	if(gtr == NULL)
 		return;
-
 	if(!CRYPTO_THREAD_write_lock(gtr->lock))
 		return;
 #endif
-
 	curr = *hands;
-	while(curr != NULL) {
+	while(curr) {
 		if(arg != NULL && curr->arg != arg) {
 			prev = curr;
 			curr = curr->next;
@@ -408,17 +406,15 @@ static int init_thread_deregister(void * index, int all)
 		glob_tevent_reg = NULL;
 	}
 	for(i = 0; i < sk_THREAD_EVENT_HANDLER_PTR_num(gtr->skhands); i++) {
-		THREAD_EVENT_HANDLER ** hands
-			= sk_THREAD_EVENT_HANDLER_PTR_value(gtr->skhands, i);
+		THREAD_EVENT_HANDLER ** hands = sk_THREAD_EVENT_HANDLER_PTR_value(gtr->skhands, i);
 		THREAD_EVENT_HANDLER * curr = NULL, * prev = NULL, * tmp;
-
 		if(hands == NULL) {
 			if(!all)
 				CRYPTO_THREAD_unlock(gtr->lock);
 			return 0;
 		}
 		curr = *hands;
-		while(curr != NULL) {
+		while(curr) {
 			if(all || curr->index == index) {
 				if(prev != NULL)
 					prev->next = curr->next;

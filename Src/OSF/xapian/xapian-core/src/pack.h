@@ -77,7 +77,6 @@ template <class U> inline void pack_uint_last(std::string & s, U value)
 		value >>= 8;
 	}
 }
-
 /** Decode an unsigned integer as the last item in a string.
  *
  *  @param p	    Pointer to pointer to the current position in the string.
@@ -88,21 +87,17 @@ template <class U> inline bool unpack_uint_last(const char ** p, const char * en
 {
 	static_assert(std::is_unsigned<U>::value, "Unsigned type required");
 	Assert(result);
-
 	const char * ptr = *p;
 	Assert(ptr);
 	*p = end;
-
 	// Check for overflow.
 	if(UNLIKELY(end - ptr > int(sizeof(U)))) {
 		return false;
 	}
-
 	*result = 0;
 	while(end != ptr) {
 		*result = (*result << 8) | U(static_cast<uchar>(*--end));
 	}
-
 	return true;
 }
 
@@ -209,18 +204,16 @@ template <class U> inline bool unpack_uint_preserving_sort(const char ** p, cons
 	if(UNLIKELY(len > int(sizeof(U)))) return false;
 	if(sizeof(U) != 8) {
 		// Need to check the top byte too.
-		if(UNLIKELY(len == int(sizeof(U)) && len_byte != 0)) return false;
+		if(UNLIKELY(len == int(sizeof(U)) && len_byte != 0)) 
+			return false;
 	}
-
 	end = ptr + len;
 	*p = end;
-
 	U r = len_byte;
 	while(ptr != end) {
 		r = (r << 8) | U(static_cast<uchar>(*ptr++));
 	}
 	*result = r;
-
 	return true;
 }
 /** Append an encoded unsigned integer to a string.

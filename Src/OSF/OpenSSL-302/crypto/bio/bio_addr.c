@@ -775,21 +775,17 @@ retry:
 				 */
 #if defined(OPENSSL_SYS_VXWORKS)
 				/* h_errno doesn't exist on VxWorks */
-				ERR_raise_data(ERR_LIB_SYS, 1000,
-				    "calling gethostbyname()");
+				ERR_raise_data(ERR_LIB_SYS, 1000, "calling gethostbyname()");
 #else
-				ERR_raise_data(ERR_LIB_SYS, 1000 + h_errno,
-				    "calling gethostbyname()");
+				ERR_raise_data(ERR_LIB_SYS, 1000 + h_errno, "calling gethostbyname()");
 #endif
 #else
-				ERR_raise_data(ERR_LIB_SYS, get_last_socket_error(),
-				    "calling gethostbyname()");
+				ERR_raise_data(ERR_LIB_SYS, get_last_socket_error(), "calling gethostbyname()");
 #endif
 				ret = 0;
 				goto err;
 			}
 		}
-
 		if(service == NULL) {
 			se_fallback.s_port = 0;
 			se_fallback.s_proto = NULL;
@@ -820,19 +816,15 @@ retry:
 				    proto = "udp";
 				    break;
 			}
-
-			if(endp != service && *endp == '\0'
-			    && portnum > 0 && portnum < 65536) {
+			if(endp != service && *endp == '\0' && portnum > 0 && portnum < 65536) {
 				se_fallback.s_port = htons((unsigned short)portnum);
 				se_fallback.s_proto = proto;
 				se = &se_fallback;
 			}
 			else if(endp == service) {
 				se = getservbyname(service, proto);
-
 				if(se == NULL) {
-					ERR_raise_data(ERR_LIB_SYS, get_last_socket_error(),
-					    "calling getservbyname()");
+					ERR_raise_data(ERR_LIB_SYS, get_last_socket_error(), "calling getservbyname()");
 					goto err;
 				}
 			}
@@ -841,9 +833,7 @@ retry:
 				goto err;
 			}
 		}
-
 		*res = NULL;
-
 		{
 /*
  * Because hostent::h_addr_list is an array of 32-bit pointers with VMS C,

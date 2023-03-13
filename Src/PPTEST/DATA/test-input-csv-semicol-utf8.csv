@@ -1,0 +1,5 @@
+field01;поле02;field03;поле 04
+;текст;3.1415926;
+"строка с кавычками"" еще что-то";;7000;false
+1;female;"string with ;";true
+some text ;male;"string with ""quotes"" and semicolon;";last field

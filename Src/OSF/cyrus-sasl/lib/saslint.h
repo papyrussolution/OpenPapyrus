@@ -33,16 +33,7 @@
  *    acknowledgment:
  *    "This product includes software developed by Computing Services
  *     at Carnegie Mellon University (http://www.cmu.edu/computing/)."
- *
- * CARNEGIE MELLON UNIVERSITY DISCLAIMS ALL WARRANTIES WITH REGARD TO
- * THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
- * AND FITNESS, IN NO EVENT SHALL CARNEGIE MELLON UNIVERSITY BE LIABLE
- * FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
- * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
- * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-
 #ifndef SASLINT_H
 #define SASLINT_H
 
@@ -95,9 +86,9 @@
 
 /* : Define directory delimiter in SASL_PATH/SASL_CONF_PATH variables */
 #ifdef WIN32
-#define PATHS_DELIMITER ';'
+	#define PATHS_DELIMITER ';'
 #else
-#define PATHS_DELIMITER ':'
+	#define PATHS_DELIMITER ':'
 #endif
 
 /* A FQDN max len is 255 per RFC 1035,
@@ -133,54 +124,41 @@ typedef struct add_plugin_list {
 	add_plugin_t * add_plugin;
 } add_plugin_list_t;
 
-enum Sasl_conn_type { SASL_CONN_UNKNOWN = 0,
-		      SASL_CONN_SERVER = 1,
-		      SASL_CONN_CLIENT = 2 };
+enum Sasl_conn_type { 
+	SASL_CONN_UNKNOWN = 0,
+	SASL_CONN_SERVER = 1,
+	SASL_CONN_CLIENT = 2 
+};
 
 struct sasl_conn {
 	enum Sasl_conn_type type;
-
 	void (* destroy_conn)(sasl_conn_t *); /* destroy function */
-
 	char * service;
-
 	unsigned int flags; /* flags passed to sasl_*_new */
-
 	/* IP information.  A buffer of size 52 is adequate for this in its
 	   longest format (see sasl.h) */
 	int got_ip_local, got_ip_remote;
 	char iplocalport[NI_MAXHOST + NI_MAXSERV];
 	char ipremoteport[NI_MAXHOST + NI_MAXSERV];
-
 	void * context;
 	sasl_out_params_t oparams;
-
 	sasl_security_properties_t props;
 	_sasl_external_properties_t external;
-
 	sasl_secret_t * secret;
-
 	int (* idle_hook)(sasl_conn_t * conn);
 	const sasl_callback_t * callbacks;
-	const sasl_global_callbacks_t * global_callbacks; /* global callbacks
-	                                                   * connection */
+	const sasl_global_callbacks_t * global_callbacks; /* global callbacks connection */
 	char * serverFQDN;
-
 	/* Pointers to memory that we are responsible for */
 	buffer_info_t * encode_buf;
-
 	int error_code;
 	char * error_buf, * errdetail_buf;
 	size_t error_buf_len, errdetail_buf_len;
 	char * mechlist_buf;
 	size_t mechlist_buf_len;
-
 	char * decode_buf;
-
 	char user_buf[CANON_BUF_SIZE+1], authid_buf[CANON_BUF_SIZE+1];
-
-	/* Allocated by sasl_encodev if the output contains multiple SASL packet. */
-	buffer_info_t multipacket_encoded_data;
+	buffer_info_t multipacket_encoded_data; /* Allocated by sasl_encodev if the output contains multiple SASL packet. */
 };
 
 /* Server Conn Type Information */

@@ -75,7 +75,7 @@ EC_KEY * ossl_ec_key_new_method_int(OSSL_LIB_CTX * libctx, const char * propq, E
 		return NULL;
 	}
 	ret->libctx = libctx;
-	if(propq != NULL) {
+	if(propq) {
 		ret->propq = OPENSSL_strdup(propq);
 		if(ret->propq == NULL) {
 			ERR_raise(ERR_LIB_EC, ERR_R_MALLOC_FAILURE);

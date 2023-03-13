@@ -742,7 +742,7 @@ int SSL_CTX_add_session(SSL_CTX * ctx, SSL_SESSION * c)
 	}
 	SSL_SESSION_list_add(ctx, c);
 
-	if(s != NULL) {
+	if(s) {
 		/*
 		 * existing cache entry -- decrement previously incremented reference
 		 * count because it already takes into account the cache

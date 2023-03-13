@@ -144,7 +144,7 @@ size_t ossl_ec_GF2m_simple_point2oct(const EC_GROUP * group,
 
 	if(EC_POINT_is_at_infinity(group, point)) {
 		/* encodes to a single 0 octet */
-		if(buf != NULL) {
+		if(buf) {
 			if(len < 1) {
 				ERR_raise(ERR_LIB_EC, EC_R_BUFFER_TOO_SMALL);
 				return 0;
@@ -161,7 +161,7 @@ size_t ossl_ec_GF2m_simple_point2oct(const EC_GROUP * group,
 	    POINT_CONVERSION_COMPRESSED) ? 1 + field_len : 1 + 2 * field_len;
 
 	/* if 'buf' is NULL, just return required length */
-	if(buf != NULL) {
+	if(buf) {
 		if(len < ret) {
 			ERR_raise(ERR_LIB_EC, EC_R_BUFFER_TOO_SMALL);
 			goto err;

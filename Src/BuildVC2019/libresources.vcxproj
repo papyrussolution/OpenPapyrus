@@ -22,6 +22,7 @@
     <ProjectGuid>{52DCAB29-C8EE-4422-954C-29AFA6B33E22}</ProjectGuid>
     <RootNamespace>libresources</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>libmupdfresources</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">

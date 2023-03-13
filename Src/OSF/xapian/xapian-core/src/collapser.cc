@@ -9,15 +9,11 @@
 
 using namespace std;
 
-collapse_result CollapseData::check_item(const vector <Result>& results,
-    const Result& result,
-    Xapian::doccount collapse_max, MSetCmp mcmp,
-    Xapian::doccount& old_item)
+collapse_result CollapseData::check_item(const vector <Result>& results, const Result& result, Xapian::doccount collapse_max, MSetCmp mcmp, Xapian::doccount& old_item)
 {
 	if(items.size() < collapse_max) {
 		return ADD;
 	}
-
 	// We already have collapse_max items better than result so we need to
 	// eliminate the lowest ranked.
 	if(collapse_count == 0 && collapse_max != 1) {

@@ -87,7 +87,7 @@ int SSL_set_tlsext_use_srtp(SSL * s, const char * profiles)
 
 STACK_OF(SRTP_PROTECTION_PROFILE) *SSL_get_srtp_profiles(SSL *s)
 {
-	if(s != NULL) {
+	if(s) {
 		if(s->srtp_profiles != NULL) {
 			return s->srtp_profiles;
 		}

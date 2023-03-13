@@ -6150,7 +6150,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 													n_prp.PutInner(_xmlnst_bs_guid(), temp_buf);
 												}
 												n_vc.PutInner(_xmlnst_vd("cargoInspected"), "true");
-												n_vc.PutInner(_xmlnst_vd("cargoExpertized"), /*"false"*/"VSEFULL");
+												n_vc.PutInner(_xmlnst_vd("cargoExpertized"), /*"false"*/"VSERAW"); // @v11.6.6 VSEFULL-->VSERAW
 												PPLoadText(PPTXT_VETISLOCATIONPROSPERITYISOK, temp_buf);
 												temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 												n_vc.PutInner(_xmlnst_vd("locationProsperity"), temp_buf);

@@ -1,5 +1,5 @@
 // BILLDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -199,8 +199,15 @@ IMPL_HANDLE_EVENT(AccTurnDialog)
 	if(event.isCmd(cmPPAccSelected))
 		setupCurrencyCombo();
 	else if(event.isCmd(cmBillTaxes)) {
-		if(P_Pack)
+		if(P_Pack) {
+			// @v11.6.6 {
+			double nominal_amount = 0.0;
+			getDTS(0);
+			P_Pack->InitAmounts(0);
+			P_Pack->SumAmounts(0, 0);
+			// } @v11.6.6 
 			EditBillTaxes(&P_Pack->Amounts, getCtrlReal(CTL_ATURN_AMOUNT));
+		}
 	}
 	else if(event.isClusterClk(CTL_ATURN_OP)) {
 		const ushort v = getCtrlUInt16(CTL_ATURN_OP);
@@ -1920,7 +1927,15 @@ IMPL_HANDLE_EVENT(BillDialog)
 				if((id = P_Pack->PaymBillID) != 0)
 					P_BObj->Edit(&id, 0);
 				break;
-			case cmBillTaxes:       EditBillTaxes(&P_Pack->Amounts, getCtrlReal(CTL_BILL_AMOUNT)); break;
+			case cmBillTaxes:       
+				{
+					// @v11.6.6 {
+					double nominal_amount = 0.0;
+					calcAmounts(&nominal_amount);
+					// } @v11.6.6 
+					EditBillTaxes(&P_Pack->Amounts, /*getCtrlReal(CTL_BILL_AMOUNT)*/nominal_amount); 
+				}
+				break;
 			case cmDetail:          editItems(); break;
 			case cmAdvItems:        editItems(); break;
 			// @v6.2.4 (Функция печати из документа блокирована из-за возможности распечатать непроведенный док) case cmPrint: PrintGoodsBill(P_Pack, 0, 0/*printingNoAsk*/); break;

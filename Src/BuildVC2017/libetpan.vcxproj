@@ -432,7 +432,6 @@
     <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\feeddriver_message.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\feedstorage.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\generic_cache_types.h" />
-    <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\getopt.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\hmac-md5.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\hotmailstorage.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\libetpan\include\idle.h" />

@@ -1084,40 +1084,33 @@ char* FastInt64ToBufferLeft(int64 i, char* buffer) {
 	}
 	return FastUInt64ToBufferLeft(u, buffer);
 }
-
-// ----------------------------------------------------------------------
+//
 // SimpleItoa()
 //    Description: converts an integer to a string.
-//
 //    Return value: string
-// ----------------------------------------------------------------------
-
-std::string SimpleItoa(int i) {
+//
+std::string SimpleItoa(int i) 
+{
 	char buffer[kFastToBufferSize];
-	return (sizeof(i) == 4) ?
-	       FastInt32ToBuffer(i, buffer) :
-	       FastInt64ToBuffer(i, buffer);
+	return (sizeof(i) == 4) ? FastInt32ToBuffer(i, buffer) : FastInt64ToBuffer(i, buffer);
 }
 
-std::string SimpleItoa(unsigned int i) {
+std::string SimpleItoa(unsigned int i) 
+{
 	char buffer[kFastToBufferSize];
-	return std::string(buffer, (sizeof(i) == 4)
-		   ? FastUInt32ToBufferLeft(i, buffer)
-		   : FastUInt64ToBufferLeft(i, buffer));
+	return std::string(buffer, (sizeof(i) == 4) ? FastUInt32ToBufferLeft(i, buffer) : FastUInt64ToBufferLeft(i, buffer));
 }
 
-std::string SimpleItoa(long i) {
+std::string SimpleItoa(long i) 
+{
 	char buffer[kFastToBufferSize];
-	return (sizeof(i) == 4) ?
-	       FastInt32ToBuffer(i, buffer) :
-	       FastInt64ToBuffer(i, buffer);
+	return (sizeof(i) == 4) ? FastInt32ToBuffer(i, buffer) : FastInt64ToBuffer(i, buffer);
 }
 
-std::string SimpleItoa(unsigned long i) {
+std::string SimpleItoa(unsigned long i) 
+{
 	char buffer[kFastToBufferSize];
-	return std::string(buffer, (sizeof(i) == 4)
-		   ? FastUInt32ToBufferLeft(i, buffer)
-		   : FastUInt64ToBufferLeft(i, buffer));
+	return std::string(buffer, (sizeof(i) == 4) ? FastUInt32ToBufferLeft(i, buffer) : FastUInt64ToBufferLeft(i, buffer));
 }
 
 std::string SimpleItoa(long long i) 
@@ -1233,14 +1226,10 @@ char* DoubleToBuffer(double value, char* buffer)
 		strcpy(buffer, "nan");
 		return buffer;
 	}
-
-	int snprintf_result =
-	    snprintf(buffer, kDoubleToBufferSize, "%.*g", DBL_DIG, value);
-
+	int snprintf_result = snprintf(buffer, kDoubleToBufferSize, "%.*g", DBL_DIG, value);
 	// The snprintf should never overflow because the buffer is significantly
 	// larger than the precision we asked for.
 	GOOGLE_DCHECK(snprintf_result > 0 && snprintf_result < kDoubleToBufferSize);
-
 	// We need to make parsed_value volatile in order to force the compiler to
 	// write it out to the stack.  Otherwise, it may keep the value in a
 	// register, and if it does that, it may keep it as a long double instead
@@ -1249,31 +1238,28 @@ char* DoubleToBuffer(double value, char* buffer)
 	// truncated to a double.
 	volatile double parsed_value = internal::NoLocaleStrtod(buffer, nullptr);
 	if(parsed_value != value) {
-		snprintf_result =
-		    snprintf(buffer, kDoubleToBufferSize, "%.*g", DBL_DIG + 2, value);
-
+		snprintf_result = snprintf(buffer, kDoubleToBufferSize, "%.*g", DBL_DIG + 2, value);
 		// Should never overflow; see above.
 		GOOGLE_DCHECK(snprintf_result > 0 && snprintf_result < kDoubleToBufferSize);
 	}
-
 	DelocalizeRadix(buffer);
 	return buffer;
 }
 
-static int memcasecmp(const char * s1, const char * s2, size_t len) {
+static int memcasecmp(const char * s1, const char * s2, size_t len) 
+{
 	const unsigned char * us1 = reinterpret_cast<const unsigned char *>(s1);
 	const unsigned char * us2 = reinterpret_cast<const unsigned char *>(s2);
-
 	for(size_t i = 0; i < len; i++) {
-		const int diff =
-		    static_cast<int>(static_cast<unsigned char>(ascii_tolower(us1[i]))) -
-		    static_cast<int>(static_cast<unsigned char>(ascii_tolower(us2[i])));
-		if(diff != 0) return diff;
+		const int diff = static_cast<int>(static_cast<unsigned char>(ascii_tolower(us1[i]))) - static_cast<int>(static_cast<unsigned char>(ascii_tolower(us2[i])));
+		if(diff != 0) 
+			return diff;
 	}
 	return 0;
 }
 
-inline bool CaseEqual(StringPiece s1, StringPiece s2) {
+inline bool CaseEqual(StringPiece s1, StringPiece s2) 
+{
 	if(s1.size() != s2.size()) return false;
 	return memcasecmp(s1.data(), s2.data(), s1.size()) == 0;
 }

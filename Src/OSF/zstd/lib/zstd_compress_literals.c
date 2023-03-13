@@ -27,10 +27,9 @@ static size_t showHexa(const void * src, size_t srcSize)
 }
 
 #endif
-
-/* **************************************************************
-*  Literals compression - special cases
-****************************************************************/
+// 
+// Literals compression - special cases
+// 
 size_t ZSTD_noCompressLiterals(void * dst, size_t dstCapacity, const void * src, size_t srcSize)
 {
 	BYTE * const ostart = (BYTE *)dst;
@@ -73,20 +72,14 @@ size_t ZSTD_compressRleLiteralsBlock(void * dst, size_t dstCapacity, const void 
 		default: /* not necessary : flSize is {1,2,3} */
 		    assert(0);
 	}
-
 	ostart[flSize] = *(const BYTE *)src;
 	DEBUGLOG(5, "RLE literals: %u -> %u", (uint32)srcSize, (uint32)flSize + 1);
 	return flSize+1;
 }
 
-size_t ZSTD_compressLiterals(ZSTD_hufCTables_t const* prevHuf,
-    ZSTD_hufCTables_t* nextHuf,
-    ZSTD_strategy strategy, int disableLiteralCompression,
-    void * dst, size_t dstCapacity,
-    const void * src, size_t srcSize,
-    void * entropyWorkspace, size_t entropyWorkspaceSize,
-    const int bmi2,
-    uint suspectUncompressible)
+size_t ZSTD_compressLiterals(ZSTD_hufCTables_t const* prevHuf, ZSTD_hufCTables_t* nextHuf, ZSTD_strategy strategy, int disableLiteralCompression,
+    void * dst, size_t dstCapacity, const void * src, size_t srcSize, void * entropyWorkspace, size_t entropyWorkspaceSize,
+    const int bmi2, uint suspectUncompressible)
 {
 	const size_t minGain = ZSTD_minGain(srcSize, strategy);
 	const size_t lhSize = 3 + (srcSize >= SKILOBYTE(1)) + (srcSize >= SKILOBYTE(16));
@@ -94,18 +87,12 @@ size_t ZSTD_compressLiterals(ZSTD_hufCTables_t const* prevHuf,
 	uint32 singleStream = srcSize < 256;
 	symbolEncodingType_e hType = set_compressed;
 	size_t cLitSize;
-
-	DEBUGLOG(5, "ZSTD_compressLiterals (disableLiteralCompression=%i, srcSize=%u, dstCapacity=%zu)",
-	    disableLiteralCompression, (uint32)srcSize, dstCapacity);
-
+	DEBUGLOG(5, "ZSTD_compressLiterals (disableLiteralCompression=%i, srcSize=%u, dstCapacity=%zu)", disableLiteralCompression, (uint32)srcSize, dstCapacity);
 	DEBUGLOG(6, "Completed literals listing (%zu bytes)", showHexa(src, srcSize));
-
 	/* Prepare nextEntropy assuming reusing the existing table */
 	memcpy(nextHuf, prevHuf, sizeof(*prevHuf));
-
 	if(disableLiteralCompression)
 		return ZSTD_noCompressLiterals(dst, dstCapacity, src, srcSize);
-
 	/* small ? don't even attempt compression (speed opt) */
 #define COMPRESS_LITERALS_SIZE_MIN 63
 	{   

@@ -32,10 +32,11 @@ static FORCEINLINE uint8 clip_8b(int v) { return (!(v & ~0xff)) ? v : (v < 0) ? 
 #define MUL2(a) (((a) * 35468) >> 16)
 
 #if !WEBP_NEON_OMIT_C_CODE
-static void TransformOne_C(const int16_t* in, uint8* dst) {
-	int C[4 * 4], * tmp;
+static void TransformOne_C(const int16_t* in, uint8* dst) 
+{
+	int C[4 * 4];
 	int i;
-	tmp = C;
+	int * tmp = C;
 	for(i = 0; i < 4; ++i) { // vertical pass
 		const int a = in[0] + in[8]; // [-4096, 4094]
 		const int b = in[0] - in[8]; // [-4095, 4095]
@@ -72,7 +73,8 @@ static void TransformOne_C(const int16_t* in, uint8* dst) {
 }
 
 // Simplified transform when only in[0], in[1] and in[4] are non-zero
-static void TransformAC3_C(const int16_t* in, uint8* dst) {
+static void TransformAC3_C(const int16_t* in, uint8* dst) 
+{
 	const int a = in[0] + 4;
 	const int c4 = MUL2(in[4]);
 	const int d4 = MUL1(in[4]);
@@ -88,7 +90,8 @@ static void TransformAC3_C(const int16_t* in, uint8* dst) {
 #undef MUL2
 #undef STORE2
 
-static void TransformTwo_C(const int16_t* in, uint8* dst, int do_two) {
+static void TransformTwo_C(const int16_t* in, uint8* dst, int do_two) 
+{
 	TransformOne_C(in, dst);
 	if(do_two) {
 		TransformOne_C(in + 16, dst + 4);

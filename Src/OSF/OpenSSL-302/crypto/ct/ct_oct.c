@@ -161,7 +161,7 @@ int i2o_SCT_signature(const SCT * sct, uchar ** out)
 	 */
 	len = 4 + sct->sig_len;
 
-	if(out != NULL) {
+	if(out) {
 		if(*out != NULL) {
 			p = *out;
 			*out += len;

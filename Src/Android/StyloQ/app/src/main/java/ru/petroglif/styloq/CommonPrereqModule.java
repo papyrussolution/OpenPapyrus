@@ -241,6 +241,7 @@ public class CommonPrereqModule {
 			BarcodeCountPrefix = null;
 			SvcDtm = null;
 			AheadExpiryDays = 0;
+			DocDecl = null; // @v11.6.6
 		}
 		void FromJson(JSONObject jsHead)
 		{
@@ -288,6 +289,7 @@ public class CommonPrereqModule {
 		public SLib.LDATETIME SvcDtm; // @v11.6.2 Метка времени формирования данных сервисом. Attention: это время в интерпретации сервиса
 			// и оно может расходится со временем клиента.
 		public int AheadExpiryDays;   // @v11.6.2 Количество дней до истечения срока годности, когда этот срок становится критичным.
+		StyloQCommand.DocDeclaration DocDecl; // @v11.6.6
 	}
 	//
 	// Descr: Фильтр списка документов, отображаемых на вкладке Tab.tabRegistry
@@ -1326,6 +1328,7 @@ public class CommonPrereqModule {
 	boolean GetOption_UseCliDebt() { return CSVCP.UseCliDebt; }
 	boolean GetOption_DueDateAsNominal() { return CSVCP.DueDateAsNominal; } // @v11.6.4
 	boolean GetOption_HideStock() { return CSVCP.HideStock; } // @v11.6.4
+	final StyloQCommand.DocDeclaration GetDocDeclaration() { return CSVCP.DocDecl; } // @v11.6.6
 	public void GetAttributesFromIntent(Intent intent)
 	{
 		if(intent != null) {
@@ -2057,7 +2060,16 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
-	public void GetCommonJsonFactors(JSONObject jsHead) { CSVCP.FromJson(jsHead); }
+	public void GetCommonJsonFactors(JSONObject jsHead, final JSONObject jsDocDecl)
+	{
+		CSVCP.FromJson(jsHead);
+		if(jsDocDecl != null) {
+			CSVCP.DocDecl = new StyloQCommand.DocDeclaration();
+			if(!CSVCP.DocDecl.FromJsonObj(jsDocDecl)) {
+				CSVCP.DocDecl = null;
+			}
+		}
+	}
 	public void MakeGoodsListFromCommonJson(JSONObject jsHead) throws JSONException
 	{
 		JSONArray temp_array = jsHead.optJSONArray("goods_list");

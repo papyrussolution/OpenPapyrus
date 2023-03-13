@@ -400,36 +400,28 @@ int ssl3_digest_cached_records(SSL * s, int keep)
 		BIO_free(s->s3.handshake_buffer);
 		s->s3.handshake_buffer = NULL;
 	}
-
 	return 1;
 }
 
-void ssl3_digest_master_key_set_params(const SSL_SESSION * session,
-    OSSL_PARAM params[])
+void ssl3_digest_master_key_set_params(const SSL_SESSION * session, OSSL_PARAM params[])
 {
 	int n = 0;
-	params[n++] = OSSL_PARAM_construct_octet_string(OSSL_DIGEST_PARAM_SSL3_MS,
-		(void*)session->master_key,
-		session->master_key_length);
+	params[n++] = OSSL_PARAM_construct_octet_string(OSSL_DIGEST_PARAM_SSL3_MS, (void*)session->master_key, session->master_key_length);
 	params[n++] = OSSL_PARAM_construct_end();
 }
 
-size_t ssl3_final_finish_mac(SSL * s, const char * sender, size_t len,
-    uchar * p)
+size_t ssl3_final_finish_mac(SSL * s, const char * sender, size_t len, uchar * p)
 {
 	int ret;
 	EVP_MD_CTX * ctx = NULL;
-
 	if(!ssl3_digest_cached_records(s, 0)) {
 		/* SSLfatal() already called */
 		return 0;
 	}
-
 	if(EVP_MD_CTX_get_type(s->s3.handshake_dgst) != NID_md5_sha1) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_R_NO_REQUIRED_DIGEST);
 		return 0;
 	}
-
 	ctx = EVP_MD_CTX_new();
 	if(!ctx) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_MALLOC_FAILURE);
@@ -440,35 +432,26 @@ size_t ssl3_final_finish_mac(SSL * s, const char * sender, size_t len,
 		ret = 0;
 		goto err;
 	}
-
 	ret = EVP_MD_CTX_get_size(ctx);
 	if(ret < 0) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
 		ret = 0;
 		goto err;
 	}
-
 	if(sender != NULL) {
 		OSSL_PARAM digest_cmd_params[3];
-
 		ssl3_digest_master_key_set_params(s->session, digest_cmd_params);
-
-		if(EVP_DigestUpdate(ctx, sender, len) <= 0
-		    || EVP_MD_CTX_set_params(ctx, digest_cmd_params) <= 0
-		    || EVP_DigestFinal_ex(ctx, p, NULL) <= 0) {
+		if(EVP_DigestUpdate(ctx, sender, len) <= 0 || EVP_MD_CTX_set_params(ctx, digest_cmd_params) <= 0 || EVP_DigestFinal_ex(ctx, p, NULL) <= 0) {
 			SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
 			ret = 0;
 		}
 	}
-
 err:
 	EVP_MD_CTX_free(ctx);
-
 	return ret;
 }
 
-int ssl3_generate_master_secret(SSL * s, uchar * out, uchar * p,
-    size_t len, size_t * secret_size)
+int ssl3_generate_master_secret(SSL * s, uchar * out, uchar * p, size_t len, size_t * secret_size)
 {
 	static const uchar * salt[3] = {
 #ifndef CHARSET_EBCDIC

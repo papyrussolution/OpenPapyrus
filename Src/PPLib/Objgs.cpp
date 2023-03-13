@@ -344,7 +344,7 @@ int PPGoodsStruc::GetEstimationPrice(uint itemIdx, double * pPrice, double * pTo
 			}
 			else {
 				RAssocArray subst_list;
-				if(goods_obj.GetSubstList(r_item.GoodsID, 0, 0/*pOuterSubstList*/, subst_list) > 0) {
+				if(goods_obj.GetSubstList(r_item.GoodsID, 0, subst_list) > 0) {
 					for(uint i = 0; !r && i < subst_list.getCount(); i++) {
 						const PPID alt_goods_id = subst_list.at(i).Key;
 						if(::GetCurGoodsPrice(alt_goods_id, loc_id, GPRET_MOSTRECENT, &p, &rec) > 0) {
@@ -3186,9 +3186,98 @@ int PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 	return ok;
 }
 
-int PPObjGoodsStruc::LoadSubstList(TSVector <SaSubstItem> & rList) // @v11.6.5
+SaSubstBlock::Item::Item(PPID goodsID, double rate) : GoodsID(goodsID), Rate(rate)
 {
-	rList.clear();
+	assert(GoodsID > 0);
+	assert(Rate > 0.0);
+}
+
+SaSubstBlock::Entry::Entry() : GsID(0)
+{
+}
+
+SaSubstBlock::SaSubstBlock()
+{
+}
+	
+SaSubstBlock & SaSubstBlock::Z()
+{
+	L.freeAll();
+	Index.clear();
+	return *this;
+}
+
+int SaSubstBlock::Get(PPID goodsID, RAssocArray & rSubstList) const
+{
+	rSubstList.clear();
+	int    ok = -1;
+	for(uint i = 0; i < L.getCount(); i++) {
+		const Entry * p_entry = L.at(i);
+		if(p_entry) {
+			uint   idx = 0;
+			if(p_entry->V.lsearch(&goodsID, &idx, CMPF_LONG)) {
+				const Item & r_item = p_entry->V.at(idx);
+				assert(r_item.Rate > 0.0); // Не должно такого быть, что в список попало инвалидное количество!
+				if(r_item.Rate > 0.0) {
+					for(uint j = 0; j < p_entry->V.getCount(); j++) {
+						if(j != idx) {
+							const Item & r_subst_item = p_entry->V.at(j);
+							assert(r_subst_item.Rate > 0.0); // Не должно такого быть, что в список попало инвалидное количество!
+							if(r_subst_item.GoodsID != goodsID && r_subst_item.Rate > 0.0) { // @paranoic (if j != idx above)
+								rSubstList.Add(r_subst_item.GoodsID, r_subst_item.Rate / r_item.Rate);
+								ok = 1;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+SaSubstBlock::Entry * SaSubstBlock::GetEntry(PPID gsID)
+{
+	Entry * p_result = 0;
+	if(gsID > 0) {
+		for(uint i = 0; !p_result && i < L.getCount(); i++) {
+			Entry * p_iter = L.at(i);
+			if(p_iter && p_iter->GsID == gsID) {
+				p_result = p_iter;
+			}
+		}
+		if(!p_result) {
+			p_result = L.CreateNewItem();
+			p_result->GsID = gsID;
+		}
+	}
+	return p_result;
+}
+	
+int  SaSubstBlock::AddItem(SaSubstBlock::Entry * pEntry, PPID goodsID, double rate)
+{
+	assert(pEntry);
+	assert(goodsID > 0);
+	assert(rate > 0.0);
+	int    ok = 1;
+	uint   idx = 0;
+	THROW(pEntry); // @todo @err
+	if(pEntry->V.lsearch(&goodsID, &idx, CMPF_LONG)) {
+		assert(pEntry->V.at(idx).GoodsID == goodsID);
+		THROW(pEntry->V.at(idx).GoodsID == goodsID && pEntry->V.at(idx).Rate == rate); // @todo @err Попытка повторно вставить тот же товар.
+		ok = -1;
+	}
+	else {
+		Item new_item(goodsID, rate);
+		THROW_SL(pEntry->V.insert(&new_item));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPObjGoodsStruc::LoadSubstBlock(SaSubstBlock & rBlk) // @v11.6.6
+{
+	rBlk.Z();
 	int    ok = 1;
 	PPGoodsStrucHeader2 rec;
 	PPIDArray struc_id_list;
@@ -3207,20 +3296,25 @@ int PPObjGoodsStruc::LoadSubstList(TSVector <SaSubstItem> & rList) // @v11.6.5
 			const PPID struc_id = struc_id_list.get(i);
 			if(Get(struc_id, &gs) > 0) {
 				goods_obj.SearchGListByStruc(struc_id, true/*expandGenerics*/, owner_list);
-				for(uint owneridx = 0; owneridx < owner_list.getCount(); owneridx++) {
-					const PPID owner_id = owner_list.get(owneridx);
-					for(uint itemidx = 0; itemidx < gs.Items.getCount(); itemidx++) {
-						PPGoodsStrucItem gsi;
-						double item_qtty = 0.0;
-						if(gs.GetItemExt(itemidx, &gsi, owner_id, 1.0, &item_qtty) > 0) {
-							if(item_qtty > 0.0) {
-								{
-									SaSubstItem entry(owner_id, gsi.GoodsID, item_qtty);
-									rList.insert(&entry);
-								}
-								{
-									SaSubstItem entry(gsi.GoodsID, owner_id, 1.0/item_qtty);
-									rList.insert(&entry);
+				if(owner_list.getCount()) {
+					SaSubstBlock::Entry * p_subst_entry = rBlk.GetEntry(struc_id);
+					PPID   single_owner_id = 0;
+					{
+						for(uint owneridx = 0; owneridx < owner_list.getCount(); owneridx++) {
+							const PPID owner_id = owner_list.get(owneridx);
+							rBlk.AddItem(p_subst_entry, owner_id, 1.0);
+							if(!single_owner_id)
+								single_owner_id = owner_id;
+						}
+					}
+					assert(single_owner_id); // Мы выше проверили, что списко владельцев не пустой. Значит как минимум один владелец структуры должен быть!
+					if(single_owner_id) {
+						for(uint itemidx = 0; itemidx < gs.Items.getCount(); itemidx++) {
+							PPGoodsStrucItem gsi;
+							double item_qtty = 0.0;
+							if(gs.GetItemExt(itemidx, &gsi, single_owner_id, 1.0, &item_qtty) > 0) {
+								if(item_qtty > 0.0) {
+									rBlk.AddItem(p_subst_entry, gsi.GoodsID, item_qtty);
 								}
 							}
 						}
@@ -3284,14 +3378,16 @@ int PPObjGoodsStruc::LoadAutoDecomplList(TSVector <SaAutoDecomplItem> & rList) /
 //
 class GoodsStrucCache : public ObjCache {
 public:
-	GoodsStrucCache() : ObjCache(PPOBJ_GOODSSTRUC, sizeof(D)), P_GiftList(0)
+	GoodsStrucCache() : ObjCache(PPOBJ_GOODSSTRUC, sizeof(D)), P_GiftList(0), P_SubstBlock(0)
 	{
 	}
 	~GoodsStrucCache()
 	{
 		delete P_GiftList;
+		delete P_SubstBlock; // @v11.6.6
 	}
 	int    GetSaGiftList(SaGiftArray * pList, int clear);
+	int    GetSaSubst(PPID goodsID, RAssocArray & rList);
 private:
 	virtual int  FASTCALL Dirty(PPID id);
 	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
@@ -3306,7 +3402,26 @@ public:
 		PPID   ParentID;
 	};
 	SaGiftArray * P_GiftList;
+	SaSubstBlock * P_SubstBlock; // @v11.6.6
 };
+
+int GoodsStrucCache::GetSaSubst(PPID goodsID, RAssocArray & rList)
+{
+	int    ok = 1;
+	ENTER_CRITICAL_SECTION
+	if(!P_SubstBlock) {
+		PPObjGoodsStruc gs_obj;
+		P_SubstBlock = new SaSubstBlock;
+		gs_obj.LoadSubstBlock(*P_SubstBlock);
+	}
+	{
+		assert(P_SubstBlock);
+		if(P_SubstBlock)
+			ok = P_SubstBlock->Get(goodsID, rList);
+	}
+	LEAVE_CRITICAL_SECTION
+	return ok;
+}
 
 int GoodsStrucCache::GetSaGiftList(SaGiftArray * pList, int clear)
 {
@@ -3405,4 +3520,10 @@ int PPObjGoodsStruc::FetchGiftList(SaGiftArray * pList)
 {
 	GoodsStrucCache * p_cache = GetDbLocalCachePtr <GoodsStrucCache> (Obj);
 	return p_cache ? p_cache->GetSaGiftList(pList, 0) : LoadGiftList(pList);
+}
+
+int PPObjGoodsStruc::FetchSubstList(PPID goodsID, RAssocArray & rSubstList)
+{
+	GoodsStrucCache * p_cache = GetDbLocalCachePtr <GoodsStrucCache> (Obj);
+	return p_cache ? p_cache->GetSaSubst(goodsID, rSubstList) : (rSubstList.clear(), -1);
 }

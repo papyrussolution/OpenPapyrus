@@ -472,17 +472,12 @@ private:
 
 			for(int i = 0; i < sh_num;) {
 				const ssize_t num_bytes_left = (sh_num - i) * sizeof(buf[0]);
-				const ssize_t num_bytes_to_read =
-				    (buf_bytes > num_bytes_left) ? num_bytes_left : buf_bytes;
+				const ssize_t num_bytes_to_read = (buf_bytes > num_bytes_left) ? num_bytes_left : buf_bytes;
 				const off_t offset = sh_offset + i * sizeof(buf[0]);
 				const ssize_t len = ReadFromOffset(fd, buf, num_bytes_to_read, offset);
 				if(len % sizeof(buf[0]) != 0) {
-					ABSL_RAW_LOG(
-						WARNING,
-						"Reading %zd bytes from offset %ju returned %zd which is not a "
-						"multiple of %zu.",
-						num_bytes_to_read, static_cast<uintmax_t>(offset), len,
-						sizeof(buf[0]));
+					ABSL_RAW_LOG(WARNING, "Reading %zd bytes from offset %ju returned %zd which is not a multiple of %zu.", 
+						num_bytes_to_read, static_cast<uintmax_t>(offset), len, sizeof(buf[0]));
 					return false;
 				}
 				const ssize_t num_headers_in_buf = len / sizeof(buf[0]);
@@ -502,21 +497,17 @@ private:
 // but there has (as yet) been no need for anything longer either.
 		const int kMaxSectionNameLen = 64;
 
-		bool ForEachSection(int fd,
-		    const std::function<bool(absl::string_view name,
-		    const ElfW(Shdr) &)> &callback) {
+		bool ForEachSection(int fd, const std::function<bool(absl::string_view name, const ElfW(Shdr) &)> &callback) 
+		{
 			ElfW(Ehdr) elf_header;
 			if(!ReadFromOffsetExact(fd, &elf_header, sizeof(elf_header), 0)) {
 				return false;
 			}
-
 			ElfW(Shdr) shstrtab;
-			off_t shstrtab_offset =
-			    (elf_header.e_shoff + elf_header.e_shentsize * elf_header.e_shstrndx);
+			off_t shstrtab_offset = (elf_header.e_shoff + elf_header.e_shentsize * elf_header.e_shstrndx);
 			if(!ReadFromOffsetExact(fd, &shstrtab, sizeof(shstrtab), shstrtab_offset)) {
 				return false;
 			}
-
 			for(int i = 0; i < elf_header.e_shnum; ++i) {
 				ElfW(Shdr) out;
 				off_t section_header_offset =
@@ -549,29 +540,21 @@ private:
 		    ElfW(Shdr) * out) {
 			char header_name[kMaxSectionNameLen];
 			if(sizeof(header_name) < name_len) {
-				ABSL_RAW_LOG(WARNING,
-				    "Section name '%s' is too long (%zu); "
-				    "section will not be found (even if present).",
-				    name, name_len);
+				ABSL_RAW_LOG(WARNING, "Section name '%s' is too long (%zu); section will not be found (even if present).", name, name_len);
 				// No point in even trying.
 				return false;
 			}
-
 			ElfW(Ehdr) elf_header;
 			if(!ReadFromOffsetExact(fd, &elf_header, sizeof(elf_header), 0)) {
 				return false;
 			}
-
 			ElfW(Shdr) shstrtab;
-			off_t shstrtab_offset =
-			    (elf_header.e_shoff + elf_header.e_shentsize * elf_header.e_shstrndx);
+			off_t shstrtab_offset = (elf_header.e_shoff + elf_header.e_shentsize * elf_header.e_shstrndx);
 			if(!ReadFromOffsetExact(fd, &shstrtab, sizeof(shstrtab), shstrtab_offset)) {
 				return false;
 			}
-
 			for(int i = 0; i < elf_header.e_shnum; ++i) {
-				off_t section_header_offset =
-				    (elf_header.e_shoff + elf_header.e_shentsize * i);
+				off_t section_header_offset = (elf_header.e_shoff + elf_header.e_shentsize * i);
 				if(!ReadFromOffsetExact(fd, out, sizeof(*out), section_header_offset)) {
 					return false;
 				}
@@ -736,9 +719,7 @@ private:
 				const ssize_t n_read = ReadFromOffset(fd, out, out_size, off);
 				if(n_read <= 0) {
 					// This should never happen.
-					ABSL_RAW_LOG(WARNING,
-					    "Unable to read from fd %d at offset %zu: n_read = %zd", fd,
-					    off, n_read);
+					ABSL_RAW_LOG(WARNING, "Unable to read from fd %d at offset %zu: n_read = %zd", fd, off, n_read);
 					return SYMBOL_NOT_FOUND;
 				}
 				ABSL_RAW_CHECK(n_read <= out_size, "ReadFromOffset read too much data.");
@@ -1127,21 +1108,16 @@ private:
 			if(addr_map_size != 0) {
 				ObjFile * old = impl->addr_map_.At(addr_map_size - 1);
 				if(old->end_addr > end_addr) {
-					ABSL_RAW_LOG(ERROR,
-					    "Unsorted addr map entry: 0x%" PRIxPTR ": %s <-> 0x%" PRIxPTR
-					    ": %s",
-					    reinterpret_cast<uintptr_t>(end_addr), filename,
-					    reinterpret_cast<uintptr_t>(old->end_addr), old->filename);
+					ABSL_RAW_LOG(ERROR, "Unsorted addr map entry: 0x%" PRIxPTR ": %s <-> 0x%" PRIxPTR ": %s",
+					    reinterpret_cast<uintptr_t>(end_addr), filename, reinterpret_cast<uintptr_t>(old->end_addr), old->filename);
 					return true;
 				}
 				else if(old->end_addr == end_addr) {
 					// The same entry appears twice. This sometimes happens for [vdso].
 					if(old->start_addr != start_addr ||
 					    strcmp(old->filename, filename) != 0) {
-						ABSL_RAW_LOG(ERROR,
-						    "Duplicate addr 0x%" PRIxPTR ": %s <-> 0x%" PRIxPTR ": %s",
-						    reinterpret_cast<uintptr_t>(end_addr), filename,
-						    reinterpret_cast<uintptr_t>(old->end_addr), old->filename);
+						ABSL_RAW_LOG(ERROR, "Duplicate addr 0x%" PRIxPTR ": %s <-> 0x%" PRIxPTR ": %s",
+						    reinterpret_cast<uintptr_t>(end_addr), filename, reinterpret_cast<uintptr_t>(old->end_addr), old->filename);
 					}
 					return true;
 				}
@@ -1282,13 +1258,10 @@ private:
 				}
 				obj->elf_type = FileGetElfType(obj->fd);
 				if(obj->elf_type < 0) {
-					ABSL_RAW_LOG(WARNING, "%s: wrong elf type: %d", obj->filename,
-					    obj->elf_type);
+					ABSL_RAW_LOG(WARNING, "%s: wrong elf type: %d", obj->filename, obj->elf_type);
 					return false;
 				}
-
-				if(!ReadFromOffsetExact(obj->fd, &obj->elf_header, sizeof(obj->elf_header),
-				    0)) {
+				if(!ReadFromOffsetExact(obj->fd, &obj->elf_header, sizeof(obj->elf_header), 0)) {
 					ABSL_RAW_LOG(WARNING, "%s: failed to read elf header", obj->filename);
 					return false;
 				}
@@ -1299,8 +1272,7 @@ private:
 				for(int j = 0; j < phnum; j++) {
 					ElfW(Phdr) phdr;
 					if(!ReadFromOffsetExact(obj->fd, &phdr, sizeof(phdr), phoff)) {
-						ABSL_RAW_LOG(WARNING, "%s: failed to read program header %d",
-						    obj->filename, j);
+						ABSL_RAW_LOG(WARNING, "%s: failed to read program header %d", obj->filename, j);
 						return false;
 					}
 					phoff += phentsize;

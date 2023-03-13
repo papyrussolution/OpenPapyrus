@@ -34,7 +34,7 @@ static int loader_set_params(OSSL_STORE_LOADER * loader, OSSL_STORE_LOADER_CTX *
 		if(!loader->p_set_ctx_params(loader_ctx, params))
 			return 0;
 	}
-	if(propq != NULL) {
+	if(propq) {
 		OSSL_PARAM propp[2];
 		if(OSSL_PARAM_locate_const(params,
 		    OSSL_STORE_PARAM_PROPERTIES) != NULL)

@@ -1643,23 +1643,23 @@ bool TextFormat::Parser::ParseFieldValueFromString(const std::string & input,
 	return parser.ParseField(field, output);
 }
 
-/* static */ bool TextFormat::Parse(io::ZeroCopyInputStream* input,
-    Message* output) {
+/*static*/bool TextFormat::Parse(io::ZeroCopyInputStream* input, Message* output) 
+{
 	return Parser().Parse(input, output);
 }
 
-/* static */ bool TextFormat::Merge(io::ZeroCopyInputStream* input,
-    Message* output) {
+/*static*/bool TextFormat::Merge(io::ZeroCopyInputStream* input, Message* output) 
+{
 	return Parser().Merge(input, output);
 }
 
-/* static */ bool TextFormat::ParseFromString(ConstStringParam input,
-    Message* output) {
+/*static*/bool TextFormat::ParseFromString(ConstStringParam input, Message* output) 
+{
 	return Parser().ParseFromString(input, output);
 }
 
-/* static */ bool TextFormat::MergeFromString(ConstStringParam input,
-    Message* output) {
+/*static*/bool TextFormat::MergeFromString(ConstStringParam input, Message* output) 
+{
 	return Parser().MergeFromString(input, output);
 }
 
@@ -1667,7 +1667,8 @@ bool TextFormat::Parser::ParseFieldValueFromString(const std::string & input,
 
 // ===========================================================================
 
-TextFormat::BaseTextGenerator::~BaseTextGenerator() {
+TextFormat::BaseTextGenerator::~BaseTextGenerator() 
+{
 }
 
 namespace {
@@ -2561,35 +2562,38 @@ void TextFormat::Printer::PrintFieldValue(const Message& message,
 	}
 }
 
-/* static */ bool TextFormat::Print(const Message& message,
-    io::ZeroCopyOutputStream* output) {
+/*static*/bool TextFormat::Print(const Message& message, io::ZeroCopyOutputStream* output) 
+{
 	return Printer().Print(message, output);
 }
 
-/* static */ bool TextFormat::PrintUnknownFields(const UnknownFieldSet& unknown_fields, io::ZeroCopyOutputStream* output) {
+/*static*/bool TextFormat::PrintUnknownFields(const UnknownFieldSet& unknown_fields, io::ZeroCopyOutputStream* output) 
+{
 	return Printer().PrintUnknownFields(unknown_fields, output);
 }
 
-/* static */ bool TextFormat::PrintToString(const Message& message,
-    std::string* output) {
+/*static*/bool TextFormat::PrintToString(const Message& message, std::string* output) 
+{
 	return Printer().PrintToString(message, output);
 }
 
-/* static */ bool TextFormat::PrintUnknownFieldsToString(const UnknownFieldSet& unknown_fields, std::string* output) {
+/*static*/bool TextFormat::PrintUnknownFieldsToString(const UnknownFieldSet& unknown_fields, std::string* output) 
+{
 	return Printer().PrintUnknownFieldsToString(unknown_fields, output);
 }
 
-/* static */ void TextFormat::PrintFieldValueToString(const Message& message, const FieldDescriptor* field, int index,
-    std::string* output) {
+/*static*/void TextFormat::PrintFieldValueToString(const Message& message, const FieldDescriptor* field, int index, std::string* output) 
+{
 	return Printer().PrintFieldValueToString(message, field, index, output);
 }
 
-/* static */ bool TextFormat::ParseFieldValueFromString(const std::string & input, const FieldDescriptor* field, Message* message) {
+/*static*/bool TextFormat::ParseFieldValueFromString(const std::string & input, const FieldDescriptor* field, Message* message) 
+{
 	return Parser().ParseFieldValueFromString(input, field, message);
 }
 
-void TextFormat::Printer::PrintUnknownFields(const UnknownFieldSet& unknown_fields, TextGenerator* generator,
-    int recursion_budget) const {
+void TextFormat::Printer::PrintUnknownFields(const UnknownFieldSet& unknown_fields, TextGenerator* generator, int recursion_budget) const 
+{
 	for(int i = 0; i < unknown_fields.field_count(); i++) {
 		const UnknownField& field = unknown_fields.field(i);
 		std::string field_number = StrCat(field.number());

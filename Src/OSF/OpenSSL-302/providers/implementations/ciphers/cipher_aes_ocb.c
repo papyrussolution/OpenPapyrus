@@ -182,7 +182,7 @@ static int aes_ocb_block_update_internal(PROV_AES_OCB_CTX * ctx,
 		}
 		*bufsz = 0;
 		outlint = AES_BLOCK_SIZE;
-		if(out != NULL)
+		if(out)
 			out += AES_BLOCK_SIZE;
 	}
 	if(nextblocks > 0) {

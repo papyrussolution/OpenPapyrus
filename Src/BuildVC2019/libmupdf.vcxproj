@@ -1664,6 +1664,7 @@
     <ClCompile Include="..\OSF\mupdf\source\fitz\writer.c" />
     <ClCompile Include="..\OSF\mupdf\source\fitz\xml.c" />
     <ClCompile Include="..\OSF\mupdf\source\fitz\zip.c" />
+    <ClCompile Include="..\OSF\mupdf\source\helpers\pkcs7\pkcs7-openssl.c" />
     <ClCompile Include="..\OSF\mupdf\source\html\css-apply.c" />
     <ClCompile Include="..\OSF\mupdf\source\html\css-parse.c" />
     <ClCompile Include="..\OSF\mupdf\source\html\epub-doc.c" />
@@ -1818,6 +1819,7 @@
     <ClInclude Include="..\OSF\mupdf\include\mupdf\fitz\write-pixmap.h" />
     <ClInclude Include="..\OSF\mupdf\include\mupdf\fitz\writer.h" />
     <ClInclude Include="..\OSF\mupdf\include\mupdf\fitz\xml.h" />
+    <ClInclude Include="..\OSF\mupdf\include\mupdf\helpers\pkcs7-openssl.h" />
     <ClInclude Include="..\OSF\mupdf\include\mupdf\memento.h" />
     <ClInclude Include="..\OSF\mupdf\include\mupdf\pdf.h" />
     <ClInclude Include="..\OSF\mupdf\include\mupdf\pdf\annot.h" />
@@ -1851,6 +1853,11 @@
     <ClInclude Include="..\OSF\mupdf\source\fitz\pixmap-imp.h" />
     <ClInclude Include="..\OSF\mupdf\source\fitz\unicodedata_db.h" />
     <ClInclude Include="..\OSF\mupdf\source\fitz\z-imp.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="libresources.vcxproj">
+      <Project>{52dcab29-c8ee-4422-954c-29afa6b33e22}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

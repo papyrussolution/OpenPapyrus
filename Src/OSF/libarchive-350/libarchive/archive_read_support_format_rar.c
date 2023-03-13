@@ -468,40 +468,13 @@ static inline int rar_fls(uint word)
 }
 
 /* LZSS functions */
-static inline int64 lzss_position(struct lzss * lzss)
-{
-	return lzss->position;
-}
-
-static inline int lzss_mask(struct lzss * lzss)
-{
-	return lzss->mask;
-}
-
-static inline int lzss_size(struct lzss * lzss)
-{
-	return lzss->mask + 1;
-}
-
-static inline int lzss_offset_for_position(struct lzss * lzss, int64 pos)
-{
-	return (int)(pos & lzss->mask);
-}
-
-static inline uchar * lzss_pointer_for_position(struct lzss * lzss, int64 pos)
-{
-	return &lzss->window[lzss_offset_for_position(lzss, pos)];
-}
-
-static inline int lzss_current_offset(struct lzss * lzss)
-{
-	return lzss_offset_for_position(lzss, lzss->position);
-}
-
-static inline uint8 * lzss_current_pointer(struct lzss * lzss)
-{
-	return lzss_pointer_for_position(lzss, lzss->position);
-}
+static inline int64 lzss_position(struct lzss * lzss) { return lzss->position; }
+static inline int lzss_mask(struct lzss * lzss) { return lzss->mask; }
+static inline int lzss_size(struct lzss * lzss) { return lzss->mask + 1; }
+static inline int lzss_offset_for_position(struct lzss * lzss, int64 pos) { return (int)(pos & lzss->mask); }
+static inline uchar * lzss_pointer_for_position(struct lzss * lzss, int64 pos) { return &lzss->window[lzss_offset_for_position(lzss, pos)]; }
+static inline int lzss_current_offset(struct lzss * lzss) { return lzss_offset_for_position(lzss, lzss->position); }
+static inline uint8 * lzss_current_pointer(struct lzss * lzss) { return lzss_pointer_for_position(lzss, lzss->position); }
 
 static inline void lzss_emit_literal(struct rar * rar, uint8 literal)
 {
@@ -513,10 +486,9 @@ static inline void lzss_emit_match(struct rar * rar, int offset, int length)
 {
 	int dstoffs = lzss_current_offset(&rar->lzss);
 	int srcoffs = (dstoffs - offset) & lzss_mask(&rar->lzss);
-	int l, li, remaining;
+	int l, li;
 	uchar * d, * s;
-
-	remaining = length;
+	int remaining = length;
 	while(remaining > 0) {
 		l = remaining;
 		if(dstoffs > srcoffs) {
@@ -574,17 +546,10 @@ int archive_read_support_format_rar(Archive * _a)
 	 * any encrypted entries yet.
 	 */
 	rar->has_encrypted_entries = ARCHIVE_READ_FORMAT_ENCRYPTION_DONT_KNOW;
-	r = __archive_read_register_format(a, rar, "rar",
-		archive_read_format_rar_bid,
-		archive_read_format_rar_options,
-		archive_read_format_rar_read_header,
-		archive_read_format_rar_read_data,
-		archive_read_format_rar_read_data_skip,
-		archive_read_format_rar_seek_data,
-		archive_read_format_rar_cleanup,
-		archive_read_support_format_rar_capabilities,
+	r = __archive_read_register_format(a, rar, "rar", archive_read_format_rar_bid, archive_read_format_rar_options,
+		archive_read_format_rar_read_header, archive_read_format_rar_read_data, archive_read_format_rar_read_data_skip,
+		archive_read_format_rar_seek_data, archive_read_format_rar_cleanup, archive_read_support_format_rar_capabilities,
 		archive_read_format_rar_has_encrypted_entries);
-
 	if(r != ARCHIVE_OK)
 		SAlloc::F(rar);
 	return r;
@@ -593,8 +558,7 @@ int archive_read_support_format_rar(Archive * _a)
 static int archive_read_support_format_rar_capabilities(ArchiveRead * a)
 {
 	CXX_UNUSED(a);
-	return (ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_DATA
-	       | ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_METADATA);
+	return (ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_DATA|ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_METADATA);
 }
 
 static int archive_read_format_rar_has_encrypted_entries(ArchiveRead * _a)

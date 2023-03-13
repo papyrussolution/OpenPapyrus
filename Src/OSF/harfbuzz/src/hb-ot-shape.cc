@@ -39,25 +39,17 @@ static inline bool _hb_apply_morx(hb_face_t * face, const hb_segment_properties_
  * Support functions for OpenType shaping related queries.
  **/
 
-static void hb_ot_shape_collect_features(hb_ot_shape_planner_t * planner,
-    const hb_feature_t   * user_features,
-    uint num_user_features);
+static void hb_ot_shape_collect_features(hb_ot_shape_planner_t * planner, const hb_feature_t   * user_features, uint num_user_features);
 
-hb_ot_shape_planner_t::hb_ot_shape_planner_t (hb_face_t * face,
-    const hb_segment_properties_t * props) :
-	face(face),
-	props(*props),
-	map(face, props),
-	aat_map(face, props)
+hb_ot_shape_planner_t::hb_ot_shape_planner_t (hb_face_t * face, const hb_segment_properties_t * props) :
+	face(face), props(*props), map(face, props), aat_map(face, props)
 #ifndef HB_NO_AAT_SHAPE
 	, apply_morx(_hb_apply_morx(face, props))
 #endif
 {
 	shaper = hb_ot_shape_complex_categorize(this);
-
 	script_zero_marks = shaper->zero_width_marks != HB_OT_SHAPE_ZERO_WIDTH_MARKS_NONE;
 	script_fallback_mark_positioning = shaper->fallback_position;
-
 	/* https://github.com/harfbuzz/harfbuzz/issues/1528 */
 	if(apply_morx && shaper != &_hb_ot_complex_shaper_default)
 		shaper = &_hb_ot_complex_shaper_dumber;

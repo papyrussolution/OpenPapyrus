@@ -8,9 +8,6 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-//#include "align_assign.h"
-//#include "align_stack.h"
-//#include "log_rules.h"
 
 constexpr static auto LCURRENT = LALASS;
 using namespace uncrustify;
@@ -27,10 +24,8 @@ Chunk * align_assign(Chunk * first, size_t span, size_t thresh, size_t * p_nl_co
 	char copy[1000];
 	LOG_FMT(LALASS, "%s(%d): [my_level is %zu]: start checking with '%s', on orig line %zu, span is %zu, thresh is %zu\n",
 	    __func__, __LINE__, my_level, first->ElidedText(copy), first->GetOrigLine(), span, thresh);
-
 	// If we are aligning on a tabstop, we shouldn't right-align
 	AlignStack as; // regular assigns
-
 	as.Start(span, thresh);
 	log_rule_B("align_on_tabstop");
 	as.m_right_align = !options::align_on_tabstop();
@@ -89,28 +84,19 @@ Chunk * align_assign(Chunk * first, size_t span, size_t thresh, size_t * p_nl_co
 		}
 
 		// Don't check inside SPAREN, PAREN or SQUARE groups
-		if(pc->Is(CT_SPAREN_OPEN)
-		    // || pc->Is(CT_FPAREN_OPEN) Issue #1340
-		    || pc->Is(CT_SQUARE_OPEN)
-		    || pc->Is(CT_PAREN_OPEN)) {
-			LOG_FMT(LALASS, "%s(%d): Don't check inside SPAREN, PAREN or SQUARE groups, type is %s\n",
-			    __func__, __LINE__, get_token_name(pc->GetType()));
+		if(pc->Is(CT_SPAREN_OPEN) /*|| pc->Is(CT_FPAREN_OPEN) Issue #1340*/ || pc->Is(CT_SQUARE_OPEN) || pc->Is(CT_PAREN_OPEN)) {
+			LOG_FMT(LALASS, "%s(%d): Don't check inside SPAREN, PAREN or SQUARE groups, type is %s\n", __func__, __LINE__, get_token_name(pc->GetType()));
 			tmp = pc->GetOrigLine();
 			pc  = pc->GetClosingParen();
-
 			if(pc->IsNotNullChunk()) {
 				nl_count = pc->GetOrigLine() - tmp;
 			}
 			continue;
 		}
-
 		// Recurse if a brace set is found
-		if((pc->Is(CT_BRACE_OPEN)
-		    || pc->Is(CT_VBRACE_OPEN))
-		    && !(pc->GetParentType() == CT_BRACED_INIT_LIST)) {
+		if((pc->Is(CT_BRACE_OPEN) || pc->Is(CT_VBRACE_OPEN)) && !(pc->GetParentType() == CT_BRACED_INIT_LIST)) {
 			size_t myspan;
 			size_t mythresh;
-
 			if(pc->GetParentType() == CT_ENUM) {
 				log_rule_B("align_enum_equ_span");
 				myspan = options::align_enum_equ_span();
@@ -126,39 +112,29 @@ Chunk * align_assign(Chunk * first, size_t span, size_t thresh, size_t * p_nl_co
 			pc = align_assign(pc->GetNext(), myspan, mythresh, &nl_count);
 			continue;
 		}
-
 		// Done with this brace set?
-		if((pc->Is(CT_BRACE_CLOSE)
-		    || pc->Is(CT_VBRACE_CLOSE))
-		    && !(pc->GetParentType() == CT_BRACED_INIT_LIST)) {
+		if((pc->Is(CT_BRACE_CLOSE) || pc->Is(CT_VBRACE_CLOSE)) && !(pc->GetParentType() == CT_BRACED_INIT_LIST)) {
 			pc = pc->GetNext();
 			break;
 		}
-
 		if(pc->IsNewline()) {
 			nl_count = pc->GetNlCount();
 		}
-		else if(pc->TestFlags(PCF_VAR_DEF)
-		    && !pc->TestFlags(PCF_IN_CONST_ARGS) // Issue #1717
-		    && !pc->TestFlags(PCF_IN_FCN_DEF) // Issue #1717
-		    && !pc->TestFlags(PCF_IN_FCN_CALL)) { // Issue #1717
+		else if(pc->TestFlags(PCF_VAR_DEF) && !pc->TestFlags(PCF_IN_CONST_ARGS) /*Issue #1717*/ && !pc->TestFlags(PCF_IN_FCN_DEF) /*Issue #1717*/ && 
+			!pc->TestFlags(PCF_IN_FCN_CALL)/*Issue #1717*/) {
 			// produces much more log output. Use it only debugging purpose
 			//LOG_FMT(LALASS, "%s(%d): log_pcf_flags pc->GetFlags():\n   ", __func__, __LINE__);
 			//log_pcf_flags(LALASS, pc->GetFlags());
 			var_def_cnt++;
 		}
-		else if(var_def_cnt > 1
-		    && !options::align_assign_on_multi_var_defs()) {
+		else if(var_def_cnt > 1 && !options::align_assign_on_multi_var_defs()) {
 			// we hit the second variable def and align was not requested - don't look for assigns, don't
 			// align
 			LOG_FMT(LALASS, "%s(%d): multiple var defs found and alignment was not requested\n", __func__, __LINE__);
 			vdas_pc = Chunk::NullChunkPtr;
 		}
-		else if(equ_count == 0           // indent only if first '=' in line
-		    && !pc->TestFlags(PCF_IN_TEMPLATE) // and it is not inside a template #999
-		    && (pc->Is(CT_ASSIGN)
-		    || pc->Is(CT_ASSIGN_DEFAULT_ARG)
-		    || pc->Is(CT_ASSIGN_FUNC_PROTO))) {
+		else if(equ_count == 0/*indent only if first '=' in line*/ && !pc->TestFlags(PCF_IN_TEMPLATE)/*and it is not inside a template #999*/ && 
+			(pc->Is(CT_ASSIGN) || pc->Is(CT_ASSIGN_DEFAULT_ARG) || pc->Is(CT_ASSIGN_FUNC_PROTO))) {
 			if(pc->Is(CT_ASSIGN)) { // Issue #2236
 				equ_count++;
 			}

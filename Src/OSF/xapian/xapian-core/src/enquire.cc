@@ -39,25 +39,10 @@ void Enquire::set_query(const Query& query, termcount query_length)
 	internal->query_length = query_length;
 }
 
-const Query&Enquire::get_query() const
-{
-	return internal->query;
-}
-
-void Enquire::set_weighting_scheme(const Weight& weight)
-{
-	internal->weight.reset(weight.clone());
-}
-
-void Enquire::set_docid_order(docid_order order)
-{
-	internal->order = order;
-}
-
-void Enquire::set_sort_by_relevance()
-{
-	internal->sort_by = Internal::REL;
-}
+const Query&Enquire::get_query() const { return internal->query; }
+void Enquire::set_weighting_scheme(const Weight& weight) { internal->weight.reset(weight.clone()); }
+void Enquire::set_docid_order(docid_order order) { internal->order = order; }
+void Enquire::set_sort_by_relevance() { internal->sort_by = Internal::REL; }
 
 void Enquire::set_sort_by_value(valueno sort_key, bool reverse)
 {
@@ -88,8 +73,7 @@ void Enquire::set_sort_by_value_then_relevance(valueno sort_key, bool reverse)
 void Enquire::set_sort_by_key_then_relevance(KeyMaker* sorter, bool reverse)
 {
 	if(sorter == NULL) {
-		throw_invalid_arg("Enquire::set_sort_by_key_then_relevance(): "
-		    "sorter cannot be NULL");
+		throw_invalid_arg("Enquire::set_sort_by_key_then_relevance(): sorter cannot be NULL");
 	}
 	internal->sort_by = Internal::VAL_REL;
 	internal->sort_functor = sorter;
@@ -107,8 +91,7 @@ void Enquire::set_sort_by_relevance_then_value(valueno sort_key, bool reverse)
 void Enquire::set_sort_by_relevance_then_key(KeyMaker* sorter, bool reverse)
 {
 	if(sorter == NULL) {
-		throw_invalid_arg("Enquire::set_sort_by_relevance_then_key(): "
-		    "sorter cannot be NULL");
+		throw_invalid_arg("Enquire::set_sort_by_relevance_then_key(): sorter cannot be NULL");
 	}
 	internal->sort_by = Internal::REL_VAL;
 	internal->sort_functor = sorter;
@@ -135,15 +118,8 @@ void Enquire::add_matchspy(MatchSpy* spy)
 	internal->matchspies.push_back(opt_intrusive_ptr<MatchSpy>(spy));
 }
 
-void Enquire::clear_matchspies()
-{
-	internal->matchspies.clear();
-}
-
-void Enquire::set_time_limit(double time_limit)
-{
-	internal->time_limit = time_limit;
-}
+void Enquire::clear_matchspies() { internal->matchspies.clear(); }
+void Enquire::set_time_limit(double time_limit) { internal->time_limit = time_limit; }
 
 MSet Enquire::get_mset(doccount first, doccount maxitems, doccount checkatleast, const RSet* rset, const MatchDecider* mdecider) const
 {
@@ -164,17 +140,12 @@ void Enquire::set_expansion_scheme(const std::string &eweightname, double expand
 		internal->eweight = Enquire::Internal::EXPAND_TRAD;
 	}
 	else {
-		throw_invalid_arg("Enquire::set_expansion_scheme(): eweightname must "
-		    "be 'bo1' or 'trad'");
+		throw_invalid_arg("Enquire::set_expansion_scheme(): eweightname must be 'bo1' or 'trad'");
 	}
 	internal->expand_k = expand_k;
 }
 
-ESet Enquire::get_eset(termcount maxitems,
-    const RSet& rset,
-    int flags,
-    const ExpandDecider* edecider,
-    double min_weight) const
+ESet Enquire::get_eset(termcount maxitems, const RSet& rset, int flags, const ExpandDecider* edecider, double min_weight) const
 {
 	return internal->get_eset(maxitems, rset, flags, edecider, min_weight);
 }
@@ -191,8 +162,8 @@ std::string Enquire::get_description() const
 	return desc;
 }
 
-Enquire::Internal::Internal(const Database& db_)
-	: db(db_) {
+Enquire::Internal::Internal(const Database& db_) : db(db_) 
+{
 }
 
 MSet Enquire::Internal::get_mset(doccount first, doccount maxitems, doccount checkatleast, const RSet* rset, const MatchDecider* mdecider) const

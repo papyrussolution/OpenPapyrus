@@ -42,7 +42,7 @@ EC_GROUP * ossl_ec_group_new_ex(OSSL_LIB_CTX * libctx, const char * propq, const
 	}
 
 	ret->libctx = libctx;
-	if(propq != NULL) {
+	if(propq) {
 		ret->propq = OPENSSL_strdup(propq);
 		if(ret->propq == NULL) {
 			ERR_raise(ERR_LIB_EC, ERR_R_MALLOC_FAILURE);

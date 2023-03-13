@@ -179,11 +179,11 @@ static INLINE uint32_t opj_uint_floordivpow2(uint32_t a, uint32_t b)
  */
 static INLINE int32_t opj_int_floorlog2(int32_t a)
 {
-	int32_t l;
-	for(l = 0; a > 1; l++) {
+	int32_t l_;
+	for(l_ = 0; a > 1; l_++) {
 		a >>= 1;
 	}
-	return l;
+	return l_;
 }
 /**
    Get logarithm of an integer and round downwards
@@ -191,11 +191,11 @@ static INLINE int32_t opj_int_floorlog2(int32_t a)
  */
 static INLINE uint32_t  opj_uint_floorlog2(uint32_t a)
 {
-	uint32_t l;
-	for(l = 0; a > 1; ++l) {
+	uint32_t l_;
+	for(l_ = 0; a > 1; ++l_) {
 		a >>= 1;
 	}
-	return l;
+	return l_;
 }
 
 /**

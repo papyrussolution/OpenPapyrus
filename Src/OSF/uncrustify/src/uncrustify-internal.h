@@ -65,32 +65,374 @@
 #include "chunk.h"
 #include "uncrustify.h"
 #include "log_rules.h"
-#include "align.h"
-#include "align_asm_colon.h"
-#include "align_assign.h"
-#include "align_braced_init_list.h"
-#include "align_eigen_comma_init.h"
-#include "align_func_params.h"
-#include "align_func_proto.h"
-#include "align_init_brace.h"
-#include "align_left_shift.h"
-#include "align_oc_decl_colon.h"
-#include "align_oc_msg_colons.h"
-#include "align_oc_msg_spec.h"
-#include "align_preprocessor.h"
-#include "ChunkStack.h"
-#include "align_same_func_call_params.h"
-#include "align_stack.h"
-#include "align_struct_initializers.h"
-#include "align_trailing_comments.h"
-#include "align_typedefs.h"
-#include "align_var_def_brace.h"
-#include "align_add.h"
+//#include "align.h"
+void align_all();
+//
+//#include "align_asm_colon.h"
+// 
+// Aligns asm declarations on the colon asm volatile (
+//    "xxx"
+//    : "x"(h),
+//      "y"(l),
+//    : "z"(h)
+//    );
+// 
+void align_asm_colon();
+//
+//#include "align_assign.h"
+// 
+// Aligns all assignment operators on the same level as first, starting with first.
+// For variable definitions, only consider the '=' for the first variable.
+// Otherwise, only look at the first '=' on the line.
+// @param first  chunk pointing to the first assignment
+// 
+Chunk * align_assign(Chunk *first, size_t span, size_t thresh, size_t *p_nl_count);
+//
+//#include "align_braced_init_list.h"
+// 
+// Aligns all braced init list operators on the same level as first, starting with first.
+// @param first  chunk pointing to the first braced init list
+//
+Chunk * align_braced_init_list(Chunk *first, size_t span, size_t thresh, size_t *p_nl_count);
+//
+//#include "align_eigen_comma_init.h"
+//
+// Descr: Align comma-separated expressions following left shift operator '<<'
+//
+void align_eigen_comma_init();
+//
+//#include "align_func_params.h"
+void   align_func_params();
+Chunk * align_func_param(Chunk *start);
+//
+//#include "align_func_proto.h"
+//
+// Descr: Aligns all function prototypes in the file.
+//
+void align_func_proto(size_t span);
+//
+//#include "align_init_brace.h"
+// 
+// Generically aligns on '=', '{', '(' and item after ','
+// It scans the first line and picks up the location of those tags.
+// It then scans subsequent lines and adjusts the column.
+// Finally it does a second pass to align everything.
+// 
+// Aligns all the '=' signs in structure assignments.
+// a = {
+//    .a    = 1;
+//    .type = fast;
+// };
+// 
+// And aligns on '{', numbers, strings, words.
+// colors[] = {
+//    {"red",   {255, 0,   0}}, {"blue",   {  0, 255, 0}},
+//    {"green", {  0, 0, 255}}, {"purple", {255, 255, 0}},
+// };
+// 
+// For the C99 indexed array assignment, the leading []= is skipped (no aligning)
+// struct foo_t bars[] =
+// {
+//    [0] = { .name = "bar",
+//            .age  = 21 },
+//    [1] = { .name = "barley",
+//            .age  = 55 },
+// };
+// 
+// NOTE: this assumes that spacing is at the minimum correct spacing (ie force)
+//       if it isn't, some extra spaces will be inserted.
+// 
+// @param start   Points to the open brace chunk
+// 
+void align_init_brace(Chunk *start);
+//
+//#include "align_left_shift.h"
+//
+// Descr: Align left shift operators '<<' (CT_SHIFT)
+//
+void align_left_shift();
+//
+//#include "align_oc_decl_colon.h"
+// 
+// Descr: Aligns OC declarations on the colon
+//   -(void) doSomething: (NSString*) param1 with: (NSString*) param2
+// 
+void align_oc_decl_colon();
+//
+//#include "align_oc_msg_colons.h"
+//
+// Descr: Aligns OC messages
+//
+void align_oc_msg_colons();
+//
+//#include "align_oc_msg_spec.h"
+//
+// Descr: Aligns all function prototypes in the file.
+//
+void align_oc_msg_spec(size_t span);
+//
+//#include "align_preprocessor.h"
+//
+// Descr: Scans the whole file for #defines. Aligns all within X lines of each other
+//
+void align_preprocessor();
+//
+//#include "ChunkStack.h"
+class ChunkStack {
+public:
+	struct Entry {
+		Entry() : m_seqnum(0), m_pc(Chunk::NullChunkPtr)
+		{
+		}
+		Entry(const Entry &ref) : m_seqnum(ref.m_seqnum), m_pc(ref.m_pc)
+		{
+		}
+		Entry(size_t sn, Chunk *pc) : m_seqnum(sn), m_pc(pc)
+		{
+		}
+		size_t m_seqnum;
+		Chunk  * m_pc;
+	};
+protected:
+	std::deque<Entry> m_cse;
+	size_t m_seqnum;       //! current sequence number
+public:
+	ChunkStack() : m_seqnum(0)
+	{
+	}
+	ChunkStack(const ChunkStack &cs)
+	{
+		Set(cs);
+	}
+	virtual ~ChunkStack()
+	{
+	}
+	void Set(const ChunkStack &cs);
+	void Push_Back(Chunk * pc)
+	{
+		Push_Back(pc, ++m_seqnum);
+	}
+	bool Empty() const { return (m_cse.empty()); }
+	size_t Len() const { return (m_cse.size()); }
+	const Entry *Top() const;
+	const Entry *Get(size_t idx) const;
+	Chunk *GetChunk(size_t idx) const;
+	Chunk *Pop_Back();
+	void Push_Back(Chunk * pc, size_t seqnum);
+	Chunk *Pop_Front();
+	void Reset()
+	{
+		m_cse.clear();
+	}
+	/**
+	 * Mark an entry to be removed by Collapse()
+	 * @param idx  The item to remove
+	 */
+	void Zap(size_t idx);
+	//! Compresses down the stack by removing dead entries
+	void Collapse();
+};
+//
+//#include "align_same_func_call_params.h"
+void align_params(Chunk * start, std::deque<Chunk *> &chunks);
+void align_same_func_call_params();
+//
+//#include "align_stack.h"
+class AlignStack {
+public:
+	enum StarStyle {
+		SS_IGNORE, //! don't look for prev stars
+		SS_INCLUDE, //! include prev * before add
+		SS_DANGLE //! include prev * after add
+	};
+
+	ChunkStack m_aligned; //! contains the tokens that are aligned
+	ChunkStack m_skipped; //! contains the tokens sent to Add()
+	size_t m_max_col;
+	size_t m_min_col;
+	size_t m_span;
+	size_t m_thresh;
+	size_t m_seqnum;
+	size_t m_nl_seqnum;
+	size_t m_gap;
+	bool m_right_align;
+	bool m_absolute_thresh;
+	StarStyle m_star_style;
+	StarStyle m_amp_style;
+	bool m_skip_first;  //! do not include the first item if it causes it to be indented
+	size_t stackID;     //! for debugging purposes only
+
+	AlignStack() : m_max_col(0), m_min_col(0), m_span(0), m_thresh(0), m_seqnum(0), m_nl_seqnum(0), m_gap(0), m_right_align(false), m_absolute_thresh(false), 
+		m_star_style(SS_IGNORE), m_amp_style(SS_IGNORE), m_skip_first(false), stackID(std::numeric_limits<std::size_t>::max()) // under linux 64 bits: 18446744073709551615
+		, m_last_added(0)
+	{
+	}
+	AlignStack(const AlignStack &ref) : m_aligned(ref.m_aligned), m_skipped(ref.m_skipped), m_max_col(ref.m_max_col), m_min_col(ref.m_min_col), m_span(ref.m_span), 
+		m_thresh(ref.m_thresh), m_seqnum(ref.m_seqnum), m_nl_seqnum(ref.m_nl_seqnum), m_gap(ref.m_gap), m_right_align(ref.m_right_align), m_absolute_thresh(ref.m_absolute_thresh), 
+		m_star_style(ref.m_star_style), m_amp_style(ref.m_amp_style), m_skip_first(ref.m_skip_first), m_last_added(ref.m_last_added)
+	{
+	}
+	~AlignStack()
+	{
+	}
+	/**
+	 * Resets the two ChunkLists and zeroes local vars.
+	 *
+	 * @param span       The row span limit
+	 * @param threshold  The column threshold
+	 */
+	void Start(size_t span, int threshold = 0);
+	/**
+	 * Adds an entry to the appropriate stack.
+	 *
+	 * @param pc      the chunk
+	 * @param seqnum  optional sequence number (0=assign one)
+	 */
+	void Add(Chunk * pc, size_t seqnum = 0);
+	//! Adds some newline and calls Flush() if needed
+	void NewLines(size_t cnt);
+	/**
+	 * Aligns all the stuff in m_aligned.
+	 * Re-adds 'newer' items in m_skipped.
+	 */
+	void Flush();
+	//! Resets the stack, discarding anything that was previously added
+	void Reset();
+	//! Aligns everything else and resets the lists.
+	void End();
+	//! the size of the lists.
+	size_t Len();
+	//! for debugging purpose only
+	void Debug();
+	const char * get_StarStyle_name(StarStyle star_style);
+protected:
+	size_t m_last_added; //! 0=none, 1=aligned, 2=skipped
+	ChunkStack m_scratch; //! used in ReAddSkipped()
+	//! Calls Add on all the skipped items
+	void ReAddSkipped();
+};
+
+#define WITH_STACKID_DEBUG                                                                                  \
+	if(stackID == std::numeric_limits<std::size_t>::max()) {                                                \
+		fprintf(stderr, "AlignStack::%s(%d): the stack is not ready, Start is missed\n", __func__, __LINE__); \
+		log_flush(true);                                                                                      \
+		exit(EX_SOFTWARE);                                                                                    \
+	}                                                                                                        \
+	else {                                                                                                   \
+		LOG_FMT(LAS, "AlignStack::%s(%d): stackID is %zu\n", __func__, __LINE__, stackID);                    \
+	}
+//
+//#include "align_struct_initializers.h"
+//
+// Descr: Aligns stuff inside a multi-line "= { ... }" sequence.
+//
+void align_struct_initializers();
+//
+//#include "align_trailing_comments.h"
+enum class comment_align_e : unsigned int {
+	REGULAR,
+	BRACE,
+	ENDIF,
+};
+// 
+// For a series of lines ending in a comment, align them. The series ends when more than align_right_cmt_span newlines are found.
+// 
+// Interesting info:
+//  - least physically allowed column
+//  - intended column
+//  - least original cmt column
+// 
+// min_col is the minimum allowed column (based on prev token col/size) cmt_col less than
+// @param start   Start point
+// @return        pointer the last item looked at
+// 
+Chunk *align_trailing_comments(Chunk * start);
+comment_align_e get_comment_align_type(Chunk * cmt);
+void align_stack(ChunkStack &cs, size_t col, bool align_single, log_sev_t sev);
+void align_right_comments();
+//
+//#include "align_typedefs.h"
+// 
+// Aligns simple typedefs that are contained on a single line each.
+// This should be called after the typedef target is marked as a type.
+// 
+// typedef int        foo_t;
+// typedef char       bar_t;
+// typedef const char cc_t;
+// 
+void align_typedefs(size_t span);
+//
+//#include "align_var_def_brace.h"
+// 
+// Descr: Scan everything at the current level until the close brace and find the
+//   variable def align column.  Also aligns bit-colons, but that assumes that
+//   bit-types are the same! But that should always be the case...
+// 
+Chunk *align_var_def_brace(Chunk *pc, size_t span, size_t *nl_count);
+//
+//#include "align_add.h"
+void align_add(ChunkStack &cs, Chunk *pc, size_t &max_col);
+//
 //#include "quick_align_again.h"
 void quick_align_again();
 //
-#include "indent.h"
-#include "align_tools.h"
+//#include "indent.h"
+// 
+// Change the top-level indentation only by changing the column member in the chunk structures. The level indicator must
+// already be set.
+// 
+void indent_text();
+// 
+// Indent the preprocessor stuff from column 1. FIXME: This is broken if there is a comment or escaped newline between
+// '#' and 'define'.
+// 
+void indent_preproc();
+// 
+// @param pc      chunk at the start of the line
+// @param column  desired column
+// 
+void indent_to_column(Chunk * pc, size_t column);
+// 
+// Same as indent_to_column, except we can move both ways
+// @param pc      chunk at the start of the line
+// @param column  desired column
+// 
+void align_to_column(Chunk * pc, size_t column);
+// Scan to see if the whole file is covered by one #ifdef
+bool ifdef_over_whole_file();
+// 
+// Changes the initial indent for a line to the given column
+// @param pc      The chunk at the start of the line
+// @param column  The desired column
+// 
+void reindent_line(Chunk * pc, size_t column);
+//
+//#include "align_tools.h"
+// 
+// @brief return the chunk the follows after a C array
+// 
+// The provided chunk is considered an array if it is an opening square (CT_SQUARE_OPEN) and the matching close is followed by an equal sign '='
+// 
+// Example:                  array[25] = 12;
+//                               /|\     /|\
+//                                |       |
+// provided chunk has to point to [       |
+// returned chunk points to              12
+// 
+// @param chunk  chunk to operate on
+// @return the chunk after the '=' if the check succeeds
+// @return Chunk::NullChunkPtr in all other cases
+// 
+Chunk * skip_c99_array(Chunk * sq_open);
+// 
+// Scans a line for stuff to align on.
+// 
+// We trigger on BRACE_OPEN, FPAREN_OPEN, ASSIGN, and COMMA. We want to align the NEXT item.
+// 
+Chunk * scan_ib_line(Chunk * start);
+void   ib_shift_out(size_t idx, size_t num);
+Chunk * step_back_over_member(Chunk * pc);
+//
 //#include "align_log_al.h"
 void align_log_al(log_sev_t sev, size_t line);
 //
@@ -102,7 +444,20 @@ void align_log_al(log_sev_t sev, size_t line);
 // 
 size_t align_tab_column(size_t col);
 //
-#include "align_nl_cont.h"
+//#include "align_nl_cont.h"
+// 
+// For a series of lines ending in backslash-newline, align them.
+// The series ends when a newline or multi-line C comment is encountered.
+// @param start   Start point
+// @return pointer the last item looked at (null chunk/newline/comment)
+// 
+Chunk *align_nl_cont(Chunk *start);
+// 
+// Aligns all backslash-newline combos in the file.
+// This should be done LAST.
+// 
+void align_backslash_newline();
+//
 #include "space.h"
 #include "prototypes.h"
 #include "unc_tools.h" // to get stackID and get_A_Number()

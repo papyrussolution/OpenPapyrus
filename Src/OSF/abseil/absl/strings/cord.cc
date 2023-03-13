@@ -1738,7 +1738,8 @@ absl::string_view Cord::FlattenSlowPath() {
 	return absl::string_view(new_buffer, total_size);
 }
 
-/* static */ bool Cord::GetFlatAux(CordRep* rep, absl::string_view* fragment) {
+/*static*/bool Cord::GetFlatAux(CordRep* rep, absl::string_view* fragment) 
+{
 	assert(rep != nullptr);
 	rep = cord_internal::SkipCrcNode(rep);
 	if(rep->IsFlat()) {
@@ -1772,11 +1773,10 @@ absl::string_view Cord::FlattenSlowPath() {
 	return false;
 }
 
-/* static */ void Cord::ForEachChunkAux(absl::cord_internal::CordRep* rep,
-    absl::FunctionRef<void(absl::string_view)> callback) {
+/*static*/void Cord::ForEachChunkAux(absl::cord_internal::CordRep* rep, absl::FunctionRef<void(absl::string_view)> callback) 
+{
 	assert(rep != nullptr);
 	rep = cord_internal::SkipCrcNode(rep);
-
 	if(rep->IsBtree()) {
 		ChunkIterator it(rep), end;
 		while(it != end) {

@@ -33,7 +33,7 @@ int __db_compare_both(DB * db, const DBT * akey, const DBT * adata, const DBT * 
         do {                                                                    \
 		tmp = (a)[0]; (a)[0] = (b)[0]; (b)[0] = tmp;                    \
 		tmp = (a)[-1]; (a)[-1] = (b)[-1]; (b)[-1] = tmp;                \
-		if(data != NULL) {                                             \
+		if(data) {                                             \
 			tmp = (ad)[0]; (ad)[0] = (bd)[0]; (bd)[0] = tmp;        \
 			tmp = (ad)[-1]; (ad)[-1] = (bd)[-1]; (bd)[-1] = tmp;    \
 		}                                                               \
@@ -43,7 +43,7 @@ int __db_compare_both(DB * db, const DBT * akey, const DBT * adata, const DBT * 
         do {                                                                    \
 		(a).data = (uint8 *)key->data+(aptr)[0];                    \
 		(a).size = (aptr)[-1];                                          \
-		if(data != NULL) {                                             \
+		if(data) {                                             \
 			(ad).data = (uint8 *)data->data+(adptr)[0];         \
 			(ad).size = (adptr)[-1];                                \
 		}                                                               \

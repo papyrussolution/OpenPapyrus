@@ -1,11 +1,8 @@
-/*
- * debugXML.c : This is a set of routines used for debugging the tree
- *   produced by the XML parser.
- *
- * See Copyright for the status of this software.
- *
- * Daniel Veillard <daniel@veillard.com>
- */
+// debugXML.c 
+// This is a set of routines used for debugging the tree produced by the XML parser.
+// See Copyright for the status of this software.
+// Daniel Veillard <daniel@veillard.com>
+// 
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
@@ -1310,14 +1307,8 @@ void FASTCALL xmlLsOneNode(FILE * output, xmlNode * pNode)
 			default: fprintf(output, "?");
 		}
 		if(pNode->type != XML_NAMESPACE_DECL) {
-			if(pNode->properties)
-				fprintf(output, "a");
-			else
-				fprintf(output, "-");
-			if(pNode->nsDef)
-				fprintf(output, "n");
-			else
-				fprintf(output, "-");
+			fprintf(output, pNode->properties ? "a" : "-");
+			fprintf(output, pNode->nsDef ? "n" : "-");
 		}
 		fprintf(output, " %8d ", xmlLsCountNode(pNode));
 		switch(pNode->type) {

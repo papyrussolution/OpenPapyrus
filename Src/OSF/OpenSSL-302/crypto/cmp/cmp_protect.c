@@ -133,28 +133,21 @@ int ossl_cmp_msg_add_extraCerts(OSSL_CMP_CTX * ctx, OSSL_CMP_MSG * msg)
 {
 	if(!ossl_assert(ctx != NULL && msg != NULL))
 		return 0;
-
 	/* Add first ctx->cert and its chain if using signature-based protection */
-	if(!ctx->unprotectedSend && ctx->secretValue == NULL
-	    && ctx->cert != NULL && ctx->pkey != NULL) {
-		int prepend = X509_ADD_FLAG_UP_REF | X509_ADD_FLAG_NO_DUP
-		    | X509_ADD_FLAG_PREPEND | X509_ADD_FLAG_NO_SS;
-
+	if(!ctx->unprotectedSend && ctx->secretValue == NULL && ctx->cert != NULL && ctx->pkey != NULL) {
+		int prepend = X509_ADD_FLAG_UP_REF | X509_ADD_FLAG_NO_DUP | X509_ADD_FLAG_PREPEND | X509_ADD_FLAG_NO_SS;
 		/* if not yet done try to build chain using available untrusted certs */
 		if(ctx->chain == NULL) {
-			ossl_cmp_debug(ctx,
-			    "trying to build chain for own CMP signer cert");
+			ossl_cmp_debug(ctx, "trying to build chain for own CMP signer cert");
 			ctx->chain = X509_build_chain(ctx->cert, ctx->untrusted, NULL, 0,
 				ctx->libctx, ctx->propq);
 			if(ctx->chain != NULL) {
-				ossl_cmp_debug(ctx,
-				    "success building chain for own CMP signer cert");
+				ossl_cmp_debug(ctx, "success building chain for own CMP signer cert");
 			}
 			else {
 				/* dump errors to avoid confusion when printing further ones */
 				OSSL_CMP_CTX_print_errors(ctx);
-				ossl_cmp_warn(ctx,
-				    "could not build chain for own CMP signer cert");
+				ossl_cmp_warn(ctx, "could not build chain for own CMP signer cert");
 			}
 		}
 		if(ctx->chain != NULL) {

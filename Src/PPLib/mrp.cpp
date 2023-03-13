@@ -357,7 +357,7 @@ int MrpTabCore::Helper_GetDeficit(const MrpLineTbl::Rec & rRec, int terminal, in
 			PPObjGoods goods_obj;
 			if(goods_obj.Fetch(goods_id, &goods_rec) > 0 && (goods_rec.Flags & (GF_PASSIV|GF_GENERIC))) {
 				RAssocArray alt_goods_list;
-				THROW(goods_obj.GetSubstList(goods_id, 0, 0/*pOuterSubstList*/, alt_goods_list));
+				THROW(goods_obj.GetSubstList(goods_id, 0, alt_goods_list));
 				for(uint i = 0; i < alt_goods_list.getCount(); i++) {
 					const PPID alt_goods_id = alt_goods_list.at(i).Key;
 					if(goods_obj.Fetch(alt_goods_id, &goods_rec) > 0 && !(goods_rec.Flags & (GF_PASSIV|GF_GENERIC))) {
@@ -1185,7 +1185,7 @@ int PPObjMrpTab::SetupRest(const MrpTabPacket * pPack, const MrpTabLeaf * pLeaf,
 				// Если обнаружился дефицит и позиция goods_id является терминальной
 				//
 				RAssocArray alt_goods_list;
-				THROW(goods_obj.GetSubstList(goods_id, 0, 0/*pOuterSubstList*/, alt_goods_list));
+				THROW(goods_obj.GetSubstList(goods_id, 0, alt_goods_list));
 				for(uint j = 0; dfct > 0.0 && j < alt_goods_list.getCount(); j++) {
 					PPID   alt_goods_id = alt_goods_list.at(j).Key;
 					double ratio = alt_goods_list.at(j).Val;

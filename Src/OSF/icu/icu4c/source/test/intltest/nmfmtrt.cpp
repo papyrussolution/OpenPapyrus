@@ -51,14 +51,12 @@ uint32_t NumberFormatRoundTripTest::randLong()
 	// Assume 8-bit (or larger) rand values.  Also assume
 	// that the system rand() function is very poor, which it always is.
 	uint32_t d;
-	uint32_t i;
 	char * poke = (char *)&d;
-	for(i = 0; i < sizeof(uint32_t); ++i) {
+	for(uint32_t i = 0; i < sizeof(uint32_t); ++i) {
 		poke[i] = (char)(rand() & 0xFF);
 	}
 	return d;
 }
-
 /**
  * Return a random value from -range..+range.
  */
@@ -73,29 +71,23 @@ void NumberFormatRoundTripTest::start()
 // test(NumberFormat.getInstance(new Locale("sr", "", "")));
 
 	UErrorCode status = U_ZERO_ERROR;
-
 	NumberFormat * fmt = NULL;
-
 	logln("Default Locale");
-
 	fmt = NumberFormat::createInstance(status);
 	if(!failure(status, "NumberFormat::createInstance", TRUE)) {
 		test(fmt);
 	}
 	delete fmt;
-
 	fmt = NumberFormat::createCurrencyInstance(status);
 	if(!failure(status, "NumberFormat::createCurrencyInstance", TRUE)) {
 		test(fmt);
 	}
 	delete fmt;
-
 	fmt = NumberFormat::createPercentInstance(status);
 	if(!failure(status, "NumberFormat::createPercentInstance", TRUE)) {
 		test(fmt);
 	}
 	delete fmt;
-
 	int32_t locCount = 0;
 	const Locale * loc = NumberFormat::getAvailableLocales(locCount);
 	if(quick) {
@@ -106,23 +98,19 @@ void NumberFormatRoundTripTest::start()
 	for(int i = 0; i < locCount; ++i) {
 		UnicodeString name;
 		logln(loc[i].getDisplayName(name));
-
 		fmt = NumberFormat::createInstance(loc[i], status);
 		failure(status, "NumberFormat::createInstance");
 		test(fmt);
 		delete fmt;
-
 		fmt = NumberFormat::createCurrencyInstance(loc[i], status);
 		failure(status, "NumberFormat::createCurrencyInstance");
 		test(fmt);
 		delete fmt;
-
 		fmt = NumberFormat::createPercentInstance(loc[i], status);
 		failure(status, "NumberFormat::createPercentInstance");
 		test(fmt);
 		delete fmt;
 	}
-
 	logln(UnicodeString("Numeric error ") + min_numeric_error + " to " + max_numeric_error);
 }
 

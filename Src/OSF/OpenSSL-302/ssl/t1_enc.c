@@ -54,25 +54,17 @@ static int tls1_PRF(SSL * s,
 	mdname = EVP_MD_get0_name(md);
 	*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_DIGEST,
 		(char*)mdname, 0);
-	*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SECRET,
-		(uchar *)sec,
-		(size_t)slen);
-	*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SEED,
-		(void*)seed1, (size_t)seed1_len);
-	*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SEED,
-		(void*)seed2, (size_t)seed2_len);
-	*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SEED,
-		(void*)seed3, (size_t)seed3_len);
-	*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SEED,
-		(void*)seed4, (size_t)seed4_len);
-	*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SEED,
-		(void*)seed5, (size_t)seed5_len);
+	*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SECRET, (uchar *)sec, (size_t)slen);
+	*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SEED, (void*)seed1, (size_t)seed1_len);
+	*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SEED, (void*)seed2, (size_t)seed2_len);
+	*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SEED, (void*)seed3, (size_t)seed3_len);
+	*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SEED, (void*)seed4, (size_t)seed4_len);
+	*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SEED, (void*)seed5, (size_t)seed5_len);
 	*p = OSSL_PARAM_construct_end();
 	if(EVP_KDF_derive(kctx, out, olen, params)) {
 		EVP_KDF_CTX_free(kctx);
 		return 1;
 	}
-
 err:
 	if(fatal)
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);

@@ -27,20 +27,9 @@ class LazyWeight : public Xapian::Weight {
 	LazyWeight * clone() const;
 	void init(double factor_);
 public:
-	LazyWeight(LeafPostList * pl_,
-	    Xapian::Weight * real_wt_,
-	    Xapian::Weight::Internal * stats_,
-	    Xapian::termcount qlen_,
-	    Xapian::termcount wqf__,
-	    double factor_,
-	    const Xapian::Database::Internal* shard_)
-		: pl(pl_),
-		real_wt(real_wt_),
-		stats(stats_),
-		qlen(qlen_),
-		wqf(wqf__),
-		factor(factor_),
-		shard(shard_)
+	LazyWeight(LeafPostList * pl_, Xapian::Weight * real_wt_, Xapian::Weight::Internal * stats_, Xapian::termcount qlen_,
+	    Xapian::termcount wqf__, double factor_, const Xapian::Database::Internal* shard_) : pl(pl_), real_wt(real_wt_), stats(stats_),
+		qlen(qlen_), wqf(wqf__), factor(factor_), shard(shard_)
 	{
 	}
 	std::string name() const;

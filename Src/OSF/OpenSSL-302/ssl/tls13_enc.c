@@ -85,7 +85,7 @@ int tls13_hkdf_expand(SSL * s, const EVP_MD * md, const uchar * secret,
 		sizeof(label_prefix) - 1);
 	*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_LABEL,
 		(uchar *)label, labellen);
-	if(data != NULL)
+	if(data)
 		*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_DATA,
 			(uchar *)data,
 			datalen);
@@ -108,48 +108,38 @@ int tls13_hkdf_expand(SSL * s, const EVP_MD * md, const uchar * secret,
  * Given a |secret| generate a |key| of length |keylen| bytes. Returns 1 on
  * success  0 on failure.
  */
-int tls13_derive_key(SSL * s, const EVP_MD * md, const uchar * secret,
-    uchar * key, size_t keylen)
+int tls13_derive_key(SSL * s, const EVP_MD * md, const uchar * secret, uchar * key, size_t keylen)
 {
 #ifdef CHARSET_EBCDIC
 	static const unsigned char keylabel[] = { 0x6B, 0x65, 0x79, 0x00 };
 #else
 	static const unsigned char keylabel[] = "key";
 #endif
-
-	return tls13_hkdf_expand(s, md, secret, keylabel, sizeof(keylabel) - 1,
-		   NULL, 0, key, keylen, 1);
+	return tls13_hkdf_expand(s, md, secret, keylabel, sizeof(keylabel) - 1, NULL, 0, key, keylen, 1);
 }
 
 /*
  * Given a |secret| generate an |iv| of length |ivlen| bytes. Returns 1 on
  * success  0 on failure.
  */
-int tls13_derive_iv(SSL * s, const EVP_MD * md, const uchar * secret,
-    uchar * iv, size_t ivlen)
+int tls13_derive_iv(SSL * s, const EVP_MD * md, const uchar * secret, uchar * iv, size_t ivlen)
 {
 #ifdef CHARSET_EBCDIC
 	static const unsigned char ivlabel[] = { 0x69, 0x76, 0x00 };
 #else
 	static const unsigned char ivlabel[] = "iv";
 #endif
-
-	return tls13_hkdf_expand(s, md, secret, ivlabel, sizeof(ivlabel) - 1,
-		   NULL, 0, iv, ivlen, 1);
+	return tls13_hkdf_expand(s, md, secret, ivlabel, sizeof(ivlabel) - 1, NULL, 0, iv, ivlen, 1);
 }
 
-int tls13_derive_finishedkey(SSL * s, const EVP_MD * md,
-    const uchar * secret,
-    uchar * fin, size_t finlen)
+int tls13_derive_finishedkey(SSL * s, const EVP_MD * md, const uchar * secret, uchar * fin, size_t finlen)
 {
 #ifdef CHARSET_EBCDIC
 	static const unsigned char finishedlabel[] = { 0x66, 0x69, 0x6E, 0x69, 0x73, 0x68, 0x65, 0x64, 0x00 };
 #else
 	static const unsigned char finishedlabel[] = "finished";
 #endif
-
-	return tls13_hkdf_expand(s, md, secret, finishedlabel,
-		   sizeof(finishedlabel) - 1, NULL, 0, fin, finlen, 1);
+	return tls13_hkdf_expand(s, md, secret, finishedlabel, sizeof(finishedlabel) - 1, NULL, 0, fin, finlen, 1);
 }
 
 /*
@@ -157,11 +147,7 @@ int tls13_derive_finishedkey(SSL * s, const EVP_MD * md,
  * length |insecretlen|, generate a new secret and store it in the location
  * pointed to by |outsecret|. Returns 1 on success  0 on failure.
  */
-int tls13_generate_secret(SSL * s, const EVP_MD * md,
-    const uchar * prevsecret,
-    const uchar * insecret,
-    size_t insecretlen,
-    uchar * outsecret)
+int tls13_generate_secret(SSL * s, const EVP_MD * md, const uchar * prevsecret, const uchar * insecret, size_t insecretlen, uchar * outsecret)
 {
 	size_t mdlen;
 	int mdleni;
@@ -193,30 +179,18 @@ int tls13_generate_secret(SSL * s, const EVP_MD * md,
 		return 0;
 	}
 	mdlen = (size_t)mdleni;
-
 	*p++ = OSSL_PARAM_construct_int(OSSL_KDF_PARAM_MODE, &mode);
-	*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_DIGEST,
-		(char*)mdname, 0);
+	*p++ = OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_DIGEST, (char*)mdname, 0);
 	if(insecret != NULL)
-		*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY,
-			(uchar *)insecret,
-			insecretlen);
+		*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_KEY, (uchar *)insecret, insecretlen);
 	if(prevsecret != NULL)
-		*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SALT,
-			(uchar *)prevsecret, mdlen);
-	*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_PREFIX,
-		(uchar *)label_prefix,
-		sizeof(label_prefix) - 1);
-	*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_LABEL,
-		(uchar *)derived_secret_label,
-		sizeof(derived_secret_label) - 1);
+		*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SALT, (uchar *)prevsecret, mdlen);
+	*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_PREFIX, (uchar *)label_prefix, sizeof(label_prefix) - 1);
+	*p++ = OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_LABEL, (uchar *)derived_secret_label, sizeof(derived_secret_label) - 1);
 	*p++ = OSSL_PARAM_construct_end();
-
 	ret = EVP_KDF_derive(kctx, outsecret, mdlen, params) <= 0;
-
 	if(ret != 0)
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
-
 	EVP_KDF_CTX_free(kctx);
 	return ret == 0;
 }

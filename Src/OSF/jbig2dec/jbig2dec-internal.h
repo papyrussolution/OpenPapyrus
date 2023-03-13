@@ -4,6 +4,7 @@
 #ifdef HAVE_CONFIG_H
 	#include "config.h"
 #endif
+#define HAVE_LIBPNG // @v11.6.6
 #include "os_types.h"
 #include "jbig2.h"
 #include "jbig2_priv.h"

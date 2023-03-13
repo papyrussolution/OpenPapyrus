@@ -4423,7 +4423,7 @@ public:
 	operator DB_TXN * ();
 	int    SetupErrLog(const char * pFileName);
 	int    GetCurrentConfig(Config & rCfg);
-	int    IsFileExists(const char * pFileName);
+	bool   IsFileExists(const char * pFileName);
 	int    CreateDataFile(const char * pFileName, int createMode, const BDbTable::Config * pCfg);
 	int    Implement_Open(BDbTable * pTbl, const char * pFileName, int openMode, char * pPassword);
 	int    Implement_Close(BDbTable * pTbl);

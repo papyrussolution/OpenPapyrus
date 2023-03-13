@@ -1,6 +1,5 @@
 /*
  * Copyright © 2019  Ebrahim Byagowi
- *
  *  This is part of HarfBuzz, a text shaping library.
  *
  * Permission is hereby granted, without written agreement and without
@@ -15,7 +14,6 @@
 #ifndef HB_NO_META
 
 #include "hb-ot-meta-table.hh"
-
 /**
  * SECTION:hb-ot-meta
  * @title: hb-ot-meta
@@ -24,7 +22,6 @@
  *
  * Functions for fetching metadata from fonts.
  **/
-
 /**
  * hb_ot_meta_get_entry_tags:
  * @face: a face object
@@ -36,14 +33,10 @@
  *
  * Since: 2.6.0
  **/
-uint hb_ot_meta_get_entry_tags(hb_face_t * face,
-    uint start_offset,
-    uint * entries_count,                       /*IN/OUT May be NULL*/
-    hb_ot_meta_tag_t * entries /*OUT May be NULL*/)
+uint hb_ot_meta_get_entry_tags(hb_face_t * face, uint start_offset, uint * entries_count/*IN/OUT May be NULL*/, hb_ot_meta_tag_t * entries /*OUT May be NULL*/)
 {
 	return face->table.meta->get_entries(start_offset, entries_count, entries);
 }
-
 /**
  * hb_ot_meta_reference_entry:
  * @face: a #hb_face_t object.
@@ -59,5 +52,4 @@ hb_blob_t * hb_ot_meta_reference_entry(hb_face_t * face, hb_ot_meta_tag_t meta_t
 {
 	return face->table.meta->reference_entry(meta_tag);
 }
-
 #endif

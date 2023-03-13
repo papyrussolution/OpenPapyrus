@@ -150,7 +150,6 @@ float hb_ot_metrics_get_variation(hb_font_t * font, hb_ot_metrics_tag_t metrics_
 {
 	return font->face->table.MVAR->get_var(metrics_tag, font->coords, font->num_coords);
 }
-
 /**
  * hb_ot_metrics_get_x_variation:
  * @font:
@@ -164,7 +163,6 @@ hb_position_t hb_ot_metrics_get_x_variation(hb_font_t * font, hb_ot_metrics_tag_
 {
 	return font->em_scalef_x(hb_ot_metrics_get_variation(font, metrics_tag));
 }
-
 /**
  * hb_ot_metrics_get_y_variation:
  * @font:

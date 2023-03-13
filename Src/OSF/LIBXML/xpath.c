@@ -1238,8 +1238,7 @@ void xmlXPathDebugDumpObject(FILE * output, xmlXPathObject * cur, int depth)
 				case XPATH_LOCATIONSET:
 		#if defined(LIBXML_XPTR_ENABLED)
 					fprintf(output, "Object is a Location Set:\n");
-					xmlXPathDebugDumpLocationSet(output,
-					(xmlLocationSet *)cur->user, depth);
+					xmlXPathDebugDumpLocationSet(output, (xmlLocationSet *)cur->user, depth);
 		#endif
 					break;
 				case XPATH_USERS:
@@ -1257,7 +1256,6 @@ static void xmlXPathDebugDumpStepOp(FILE * output, xmlXPathCompExprPtr comp, xml
 	for(i = 0; ((i < depth) && (i < 25)); i++)
 		shift[2 * i] = shift[2 * i + 1] = ' ';
 	shift[2 * i] = shift[2 * i + 1] = 0;
-
 	fprintf(output, "%s", shift);
 	if(!op) {
 		fprintf(output, "Step is NULL\n");
@@ -1268,16 +1266,10 @@ static void xmlXPathDebugDumpStepOp(FILE * output, xmlXPathCompExprPtr comp, xml
 		case XPATH_OP_AND: fprintf(output, "AND"); break;
 		case XPATH_OP_OR: fprintf(output, "OR"); break;
 		case XPATH_OP_EQUAL:
-		    if(op->value)
-			    fprintf(output, "EQUAL =");
-		    else
-			    fprintf(output, "EQUAL !=");
+		    fprintf(output, op->value ? "EQUAL =" : "EQUAL !=");
 		    break;
 		case XPATH_OP_CMP:
-		    if(op->value)
-			    fprintf(output, "CMP <");
-		    else
-			    fprintf(output, "CMP >");
+		    fprintf(output, op->value ? "CMP <" : "CMP >");
 		    if(!op->value2)
 			    fprintf(output, "=");
 		    break;
@@ -1399,17 +1391,17 @@ finish:
  */
 void xmlXPathDebugDumpCompExpr(FILE * output, xmlXPathCompExprPtr comp, int depth) 
 {
-	int i;
-	char shift[100];
-	if((output == NULL) || (comp == NULL)) 
-		return;
-	for(i = 0; ((i < depth) && (i < 25)); i++)
-		shift[2 * i] = shift[2 * i + 1] = ' ';
-	shift[2 * i] = shift[2 * i + 1] = 0;
-	fprintf(output, "%s", shift);
-	fprintf(output, "Compiled Expression : %d elements\n", comp->nbStep);
-	i = comp->last;
-	xmlXPathDebugDumpStepOp(output, comp, &comp->steps[i], depth + 1);
+	if(output && comp) {
+		int i;
+		char shift[100];
+		for(i = 0; ((i < depth) && (i < 25)); i++)
+			shift[2 * i] = shift[2 * i + 1] = ' ';
+		shift[2 * i] = shift[2 * i + 1] = 0;
+		fprintf(output, "%s", shift);
+		fprintf(output, "Compiled Expression : %d elements\n", comp->nbStep);
+		i = comp->last;
+		xmlXPathDebugDumpStepOp(output, comp, &comp->steps[i], depth + 1);
+	}
 }
 
 #ifdef XP_DEBUG_OBJ_USAGE
@@ -1458,9 +1450,7 @@ static void xmlXPathDebugObjUsageReset(xmlXPathContext * ctxt)
 {
 	if(ctxt) {
 		if(ctxt->cache) {
-			xmlXPathContextCachePtr cache =
-			    (xmlXPathContextCachePtr)ctxt->cache;
-
+			xmlXPathContextCachePtr cache = (xmlXPathContextCachePtr)ctxt->cache;
 			cache->dbgCachedAll = 0;
 			cache->dbgCachedNodeset = 0;
 			cache->dbgCachedString = 0;

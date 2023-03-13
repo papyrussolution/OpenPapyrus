@@ -301,4 +301,4 @@ strspnDispatch  DQ strspnCPUDispatch
 strcspnDispatch DQ strcspnCPUDispatch
 
 SECTION .bss
-dq 0, 0
+    align   16,dq 0, 0 ; @sobolev (align   16,)

@@ -37,7 +37,6 @@ template <typename T> static inline int highest_order_bit(T mask)
 		8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
 		8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8
 	};
-
 	int result = 0;
 	if(sizeof(T) > 4) {
 		if(mask >= 0x100000000ul) {

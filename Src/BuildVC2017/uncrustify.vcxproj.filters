@@ -16,7 +16,6 @@
     <ClCompile Include="..\OSF\uncrustify\src\align_asm_colon.cpp" />
     <ClCompile Include="..\OSF\uncrustify\src\align_assign.cpp" />
     <ClCompile Include="..\OSF\uncrustify\src\align_braced_init_list.cpp" />
-    <ClCompile Include="..\OSF\uncrustify\src\align_eigen_comma_init.cpp" />
     <ClCompile Include="..\OSF\uncrustify\src\align_func_params.cpp" />
     <ClCompile Include="..\OSF\uncrustify\src\align_func_proto.cpp" />
     <ClCompile Include="..\OSF\uncrustify\src\align_init_brace.cpp" />
@@ -99,6 +98,7 @@
     <ClCompile Include="..\OSF\uncrustify\src\GENERATED\option_enum.cpp" />
     <ClCompile Include="..\OSF\uncrustify\src\GENERATED\options.cpp" />
     <ClCompile Include="..\OSF\uncrustify\src\uncrustify-pch.cpp" />
+    <ClCompile Include="..\OSF\uncrustify\src\align_eigen_comma_init.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\uncrustify\src\GENERATED\option_enum.h">
@@ -114,72 +114,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\uncrustify\src\add_space_table.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_add.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_asm_colon.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_assign.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_braced_init_list.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_eigen_comma_init.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_func_params.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_func_proto.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_init_brace.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_left_shift.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_nl_cont.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_oc_decl_colon.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_oc_msg_colons.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_oc_msg_spec.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_preprocessor.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_same_func_call_params.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_stack.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_struct_initializers.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_tools.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_trailing_comments.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_typedefs.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\align_var_def_brace.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\uncrustify\src\args.h">
@@ -203,9 +137,6 @@
     <ClInclude Include="..\OSF\uncrustify\src\chunk.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\ChunkStack.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\uncrustify\src\combine.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -222,9 +153,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\uncrustify\src\error_types.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\uncrustify\src\indent.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\uncrustify\src\keywords.h">

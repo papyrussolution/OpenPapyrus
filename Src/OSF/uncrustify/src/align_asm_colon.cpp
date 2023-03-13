@@ -7,9 +7,6 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-//#include "align_asm_colon.h"
-//#include "align_stack.h"
-//#include "chunk.h"
 
 void align_asm_colon()
 {

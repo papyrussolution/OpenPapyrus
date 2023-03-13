@@ -957,9 +957,7 @@ static CURLcode readwrite_upload(struct Curl_easy * data,
 				   protocol agnostic. */
 				size_t fillcount;
 				struct HTTP * http = (struct HTTP *)k->protop;
-
-				if((k->exp100 == EXP100_SENDING_REQUEST) &&
-				    (http->sending == HTTP::HTTPSEND_BODY)) {
+				if((k->exp100 == EXP100_SENDING_REQUEST) && (http->sending == HTTP::HTTPSEND_BODY)) {
 					/* If this call is to send body data, we must take some action:
 					   We have sent off the full HTTP 1.1 request, and we shall now
 					   go into the Expect: 100 state and await such a header */
@@ -971,7 +969,6 @@ static CURLcode readwrite_upload(struct Curl_easy * data,
 					Curl_expire(data, data->set.expect_100_timeout, EXPIRE_100_TIMEOUT);
 					break;
 				}
-
 				if(conn->handler->protocol&(PROTO_FAMILY_HTTP|CURLPROTO_RTSP)) {
 					if(http->sending == HTTP::HTTPSEND_REQUEST)
 						/* We're sending the HTTP request headers, not the data.
@@ -980,20 +977,15 @@ static CURLcode readwrite_upload(struct Curl_easy * data,
 					else
 						sending_http_headers = FALSE;
 				}
-
-				result = Curl_fillreadbuffer(conn, data->set.upload_buffer_size,
-					&fillcount);
+				result = Curl_fillreadbuffer(conn, data->set.upload_buffer_size, &fillcount);
 				if(result)
 					return result;
-
 				nread = fillcount;
 			}
 			else
 				nread = 0; /* we're done uploading/reading */
-
 			if(!nread && (k->keepon & KEEP_SEND_PAUSE)) {
-				/* this is a paused transfer */
-				break;
+				break; /* this is a paused transfer */
 			}
 			if(nread <= 0) {
 				result = Curl_done_sending(conn, k);
@@ -1001,10 +993,8 @@ static CURLcode readwrite_upload(struct Curl_easy * data,
 					return result;
 				break;
 			}
-
 			/* store number of bytes available for upload */
 			k->upload_present = nread;
-
 			/* convert LF to CRLF if so asked */
 			if((!sending_http_headers) && (
 #ifdef CURL_DO_LINEEND_CONV
@@ -1017,11 +1007,9 @@ static CURLcode readwrite_upload(struct Curl_easy * data,
 					data->state.scratch = (char *)SAlloc::M(2 * data->set.upload_buffer_size);
 					if(!data->state.scratch) {
 						failf(data, "Failed to alloc scratch buffer!");
-
 						return CURLE_OUT_OF_MEMORY;
 					}
 				}
-
 				/*
 				 * ASCII/EBCDIC Note: This is presumably a text (not binary)
 				 * transfer so the data should already be in ASCII.
@@ -1042,17 +1030,10 @@ static CURLcode readwrite_upload(struct Curl_easy * data,
 					else
 						data->state.scratch[si] = k->upload_fromhere[i];
 				}
-
 				if(si != nread) {
-					/* only perform the special operation if we really did replace
-					   anything */
-					nread = si;
-
-					/* upload from the new (replaced) buffer instead */
-					k->upload_fromhere = data->state.scratch;
-
-					/* set the new amount too */
-					k->upload_present = nread;
+					nread = si; /* only perform the special operation if we really did replace anything */
+					k->upload_fromhere = data->state.scratch; /* upload from the new (replaced) buffer instead */
+					k->upload_present = nread; /* set the new amount too */
 				}
 			}
 
@@ -1065,10 +1046,8 @@ static CURLcode readwrite_upload(struct Curl_easy * data,
 #endif /* CURL_DISABLE_SMTP */
 		} /* if 0 == k->upload_present */
 		else {
-			/* We have a partial buffer left from a previous "round". Use
-			   that instead of reading more data */
+			/* We have a partial buffer left from a previous "round". Use that instead of reading more data */
 		}
-
 		/* write to socket (send away data) */
 		result = Curl_write(conn,
 			conn->writesockfd,  /* socket to send to */

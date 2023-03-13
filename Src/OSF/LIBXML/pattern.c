@@ -1,28 +1,20 @@
-/*
- * pattern.c: Implemetation of selectors for nodes
- *
- * Reference:
- * http://www.w3.org/TR/2001/REC-xmlschema-1-20010502/
- * to some extent
- * http://www.w3.org/TR/1999/REC-xml-19991116
- *
- * See Copyright for the status of this software.
- *
- * daniel@veillard.com
- */
-
-/*
- * @todo 
- * - compilation flags to check for specific syntaxes
- * using flags of xmlPatterncompile()
- * - making clear how pattern starting with / or . need to be handled,
- * currently push(NULL, NULL) means a reset of the streaming context
- * and indicating we are on / (the document node), probably need
- * something similar for .
- * - get rid of the "compile" starting with lowercase
- * - DONE (2006-05-16): get rid of the Strdup/Strndup in case of dictionary
- */
-
+// pattern.c
+// Implemetation of selectors for nodes
+// Reference: http://www.w3.org/TR/2001/REC-xmlschema-1-20010502/
+// to some extent http://www.w3.org/TR/1999/REC-xml-19991116
+// See Copyright for the status of this software.
+// daniel@veillard.com
+// 
+// @todo 
+//   - compilation flags to check for specific syntaxes
+//     using flags of xmlPatterncompile()
+//   - making clear how pattern starting with / or . need to be handled,
+//     currently push(NULL, NULL) means a reset of the streaming context
+//     and indicating we are on / (the document node), probably need
+//     something similar for .
+//   - get rid of the "compile" starting with lowercase
+//   - DONE (2006-05-16): get rid of the Strdup/Strndup in case of dictionary
+// 
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop

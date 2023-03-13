@@ -173,7 +173,7 @@ static int __log_archive(ENV * env, char *** listp, uint32 flags)
 			if((ret = __os_realloc(env, sizeof(char *)*array_size, &array)) != 0)
 				goto err;
 		}
-		if(pref != NULL) {
+		if(pref) {
 			if((ret = __absname(env, pref, name, &array[n])) != 0)
 				goto err;
 			__os_free(env, name);
@@ -409,7 +409,7 @@ free_continue:
 		/* Rework the name as requested by the user. */
 		__os_free(env, array[last]);
 		array[last] = NULL;
-		if(pref != NULL) {
+		if(pref) {
 			ret = __absname(env, pref, real_name, &array[last]);
 			__os_free(env, real_name);
 			if(ret)

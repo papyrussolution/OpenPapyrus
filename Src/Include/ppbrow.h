@@ -1503,6 +1503,7 @@
 #define PPCMD_ALCODECLRU                            1347
 #define PPCMD_STYLOQBINDERY                         1348
 #define PPCMD_STYLOQCOMMANDS                        1349
+#define PPCMD_PROCESSUED                            1350
 //
 // PPJOB definitions
 //

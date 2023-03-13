@@ -72,8 +72,7 @@ void opj_write_double_BE(uint8 * p_buffer, double p_value)
 void opj_write_double_LE(uint8 * p_buffer, double p_value)
 {
 	const uint8 * l_data_ptr = ((const uint8*)&p_value) + sizeof(double) - 1;
-	uint32_t i;
-	for(i = 0; i < sizeof(double); ++i) {
+	for(uint32_t i = 0; i < sizeof(double); ++i) {
 		*(p_buffer++) = *(l_data_ptr--);
 	}
 }
@@ -87,8 +86,7 @@ void opj_read_double_BE(const uint8 * p_buffer, double * p_value)
 void opj_read_double_LE(const uint8 * p_buffer, double * p_value)
 {
 	uint8 * l_data_ptr = ((uint8*)p_value) + sizeof(double) - 1;
-	uint32_t i;
-	for(i = 0; i < sizeof(double); ++i) {
+	for(uint32_t i = 0; i < sizeof(double); ++i) {
 		*(l_data_ptr--) = *(p_buffer++);
 	}
 }
@@ -102,8 +100,7 @@ void opj_write_float_BE(uint8 * p_buffer, float p_value)
 void opj_write_float_LE(uint8 * p_buffer, float p_value)
 {
 	const uint8 * l_data_ptr = ((const uint8*)&p_value) + sizeof(float) - 1;
-	uint32_t i;
-	for(i = 0; i < sizeof(float); ++i) {
+	for(uint32_t i = 0; i < sizeof(float); ++i) {
 		*(p_buffer++) = *(l_data_ptr--);
 	}
 }

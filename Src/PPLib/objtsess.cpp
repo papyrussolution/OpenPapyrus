@@ -2986,7 +2986,9 @@ int PPObjTSession::SetupLineGoods(TSessLineTbl::Rec * pRec, PPID goodsID, const 
 
 int PPObjTSession::EditLine(PPID tsesID, long * pOprNo, PPID goodsID, const char * pSerial, double initQtty)
 {
-	int    ok = -1, valid_data = 0, r = -1;
+	int    ok = -1;
+	int    valid_data = 0;
+	int    r = -1;
 	SString loc_serial;
 	TSessionTbl::Rec tses_rec;
 	TSessLineTbl::Rec line_rec;

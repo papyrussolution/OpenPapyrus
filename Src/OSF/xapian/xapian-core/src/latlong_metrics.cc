@@ -114,11 +114,9 @@ LatLongMetric * GreatCircleMetric::unserialise(const string & s) const
 {
 	const char * p = s.data();
 	const char * end = p + s.size();
-
 	double new_radius = unserialise_double(&p, end);
 	if(p != end) {
 		throw Xapian::NetworkError("Bad serialised GreatCircleMetric - junk at end");
 	}
-
 	return new GreatCircleMetric(new_radius);
 }

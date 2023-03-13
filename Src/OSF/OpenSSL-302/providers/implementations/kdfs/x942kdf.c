@@ -97,16 +97,13 @@ end:
 	return ret;
 }
 
-static int DER_w_keyinfo(WPACKET * pkt,
-    const unsigned char * der_oid, size_t der_oidlen,
-    unsigned char ** pcounter)
+static int DER_w_keyinfo(WPACKET * pkt, const unsigned char * der_oid, size_t der_oidlen, unsigned char ** pcounter)
 {
 	return ossl_DER_w_begin_sequence(pkt, -1)
 	       /* Store the initial value of 1 into the counter */
 	       && ossl_DER_w_octet_string_uint32(pkt, -1, 1)
 	       /* Remember where we stored the counter in the buffer */
-	       && (pcounter == NULL
-	       || (*pcounter = WPACKET_get_curr(pkt)) != NULL)
+	       && (pcounter == NULL || (*pcounter = WPACKET_get_curr(pkt)) != NULL)
 	       && ossl_DER_w_precompiled(pkt, -1, der_oid, der_oidlen)
 	       && ossl_DER_w_end_sequence(pkt, -1);
 }

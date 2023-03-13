@@ -9,10 +9,6 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-//#include "align_eigen_comma_init.h"
-//#include "align_stack.h"
-//#include "indent.h"
-//#include "log_rules.h"
 
 constexpr static auto LCURRENT = LALIGN;
 
@@ -80,9 +76,7 @@ void align_eigen_comma_init()
 		}
 		else if(!as.m_aligned.Empty()) {
 			Chunk * prev = pc->GetPrev();
-
-			if(prev->IsNewline()
-			    && pc->GetPrevNcNnl()->Is(CT_COMMA)) {
+			if(prev->IsNewline() && pc->GetPrevNcNnl()->Is(CT_COMMA)) {
 				log_rule_B("align_eigen_comma_init");
 				as.Add(pc);
 			}

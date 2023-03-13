@@ -2,12 +2,10 @@
 // GNUPLOT - canvas.trm 
 /*
  * This file is included by ../term.c.
- *
  * This terminal driver supports: W3C HTML <canvas> tag
  *
  * AUTHOR
- *   Bruce Lueckenhoff, Aug 2008
- *   Bruce_Lueckenhoff@yahoo.com
+ *   Bruce Lueckenhoff, Aug 2008, Bruce_Lueckenhoff@yahoo.com
  *
  * Additions
  *   Ethan A Merritt, Jan 2009
@@ -41,7 +39,6 @@
  *	lines and points (added to core code in version 4.6)
  *
  * send your comments or suggestions to (gnuplot-info@lists.sourceforge.net).
- *
  */
 #include <gnuplot.h>
 #pragma hdrstop
@@ -1207,14 +1204,13 @@ static int canvas_strwidth(char * s)
 TERM_PUBLIC void ENHCANVAS_FLUSH(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
-	double save_fontsize;
 	if(ENHCANVAS_opened_string) {
 		ENHCANVAS_opened_string = FALSE;
 		*p_gp->Enht.P_CurText = '\0';
-		save_fontsize = canvas_font_size;
+		const double save_fontsize = canvas_font_size;
+		const double w = canvas_strwidth(p_gp->Enht.Text) * CANVAS_OVERSAMPLE * ENHCANVAS_fontsize/25.0;
 		int x = canvas_x;
 		int y = canvas_y;
-		double w = canvas_strwidth(p_gp->Enht.Text) * CANVAS_OVERSAMPLE * ENHCANVAS_fontsize/25.0;
 		canvas_font_size = ENHCANVAS_fontsize;
 		x += sin((double)canvas_text_angle * SMathConst::PiDiv180) * ENHCANVAS_base;
 		y += cos((double)canvas_text_angle * SMathConst::PiDiv180) * ENHCANVAS_base;
@@ -1235,56 +1231,57 @@ TERM_PUBLIC void ENHCANVAS_FLUSH(GpTermEntry_Static * pThis)
 TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
-	char * original_string = (char *)str;
-	// Save starting font properties 
-	double fontsize = canvas_font_size;
-	const char * fontname = "";
-	if(isempty(str))
-		return;
-	if(p_gp->Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
-		CANVAS_put_text(pThis, x, y, str);
-		return;
-	}
-	// ctx.fillText uses fillStyle rather than strokeStyle 
-	if(strcmp(canvas_state.previous_fill, canvas_state.color)) {
-		fprintf(GPT.P_GpOutFile, "ctx.fillStyle = \"%s\";\n", canvas_state.color);
-		strcpy(canvas_state.previous_fill, canvas_state.color);
-	}
-	CANVAS_move(pThis, x, y);
-	// Set up global variables needed by enhanced_recursion() 
-	p_gp->Enht.FontScale = 1.0;
-	strncpy(p_gp->Enht.EscapeFormat, "%c", sizeof(p_gp->Enht.EscapeFormat));
-	ENHCANVAS_opened_string = FALSE;
-	ENHCANVAS_fontsize = canvas_font_size;
-	if(sstreq(canvas_justify, "Right") || sstreq(canvas_justify, "Center"))
-		ENHCANVAS_sizeonly = TRUE;
-	while(*(str = enhanced_recursion(GPT.P_Term, (char *)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
-		(pThis->enhanced_flush)(pThis);
-		p_gp->EnhErrCheck(str);
-		if(!*++str)
-			break; /* end of string */
-	}
-	// We can do text justification by running the entire top level string 
-	// through 2 times, with the ENHgd_sizeonly flag set the first time.   
-	// After seeing where the final position is, we then offset the start  
-	// point accordingly and run it again without the flag set.            
-	if(sstreq(canvas_justify, "Right") || sstreq(canvas_justify, "Center")) {
-		const char * justification = canvas_justify;
-		int x_offset = canvas_x - x;
-		int y_offset = (canvas_text_angle == 0) ? 0 : canvas_y - y;
-		canvas_justify = "";
-		ENHCANVAS_sizeonly = FALSE;
-		if(sstreq(justification, "Right")) {
-			ENHCANVAS_put_text(pThis, x - x_offset, y - y_offset, original_string);
+	if(!isempty(str)) {
+		const char * original_string = str;
+		// Save starting font properties 
+		const double fontsize = canvas_font_size;
+		const char * fontname = "";
+		if(p_gp->Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
+			CANVAS_put_text(pThis, x, y, str);
 		}
-		else if(sstreq(justification, "Center")) {
-			ENHCANVAS_put_text(pThis, x - x_offset/2, y - y_offset/2, original_string);
+		else {
+			// ctx.fillText uses fillStyle rather than strokeStyle 
+			if(strcmp(canvas_state.previous_fill, canvas_state.color)) {
+				fprintf(GPT.P_GpOutFile, "ctx.fillStyle = \"%s\";\n", canvas_state.color);
+				strcpy(canvas_state.previous_fill, canvas_state.color);
+			}
+			CANVAS_move(pThis, x, y);
+			// Set up global variables needed by enhanced_recursion() 
+			p_gp->Enht.FontScale = 1.0;
+			strncpy(p_gp->Enht.EscapeFormat, "%c", sizeof(p_gp->Enht.EscapeFormat));
+			ENHCANVAS_opened_string = FALSE;
+			ENHCANVAS_fontsize = canvas_font_size;
+			if(sstreq(canvas_justify, "Right") || sstreq(canvas_justify, "Center"))
+				ENHCANVAS_sizeonly = TRUE;
+			while(*(str = enhanced_recursion(GPT.P_Term, (char *)str, TRUE, fontname, fontsize, 0.0, TRUE, TRUE, 0))) {
+				(pThis->enhanced_flush)(pThis);
+				p_gp->EnhErrCheck(str);
+				if(!*++str)
+					break; /* end of string */
+			}
+			// We can do text justification by running the entire top level string 
+			// through 2 times, with the ENHgd_sizeonly flag set the first time.   
+			// After seeing where the final position is, we then offset the start  
+			// point accordingly and run it again without the flag set.            
+			if(sstreq(canvas_justify, "Right") || sstreq(canvas_justify, "Center")) {
+				const char * justification = canvas_justify;
+				int x_offset = canvas_x - x;
+				int y_offset = (canvas_text_angle == 0) ? 0 : canvas_y - y;
+				canvas_justify = "";
+				ENHCANVAS_sizeonly = FALSE;
+				if(sstreq(justification, "Right")) {
+					ENHCANVAS_put_text(pThis, x - x_offset, y - y_offset, original_string);
+				}
+				else if(sstreq(justification, "Center")) {
+					ENHCANVAS_put_text(pThis, x - x_offset/2, y - y_offset/2, original_string);
+				}
+				canvas_justify = justification;
+			}
+			// Make sure we leave with the same font properties as on entry 
+			canvas_font_size = fontsize;
+			ENHCANVAS_base = 0;
 		}
-		canvas_justify = justification;
 	}
-	// Make sure we leave with the same font properties as on entry 
-	canvas_font_size = fontsize;
-	ENHCANVAS_base = 0;
 }
 
 #ifdef WRITE_PNG_IMAGE

@@ -23,24 +23,18 @@ void DPHWeight::init(double factor)
 		// always zero for this scheme.
 		return;
 	}
-
 	double F = get_collection_freq();
 	double wdf_lower = 1.0;
 	double wdf_upper = get_wdf_upper_bound();
-
 	double len_upper = get_doclength_upper_bound();
-
 	if(wdf_upper == 0) {
 		upper_bound = 0.0;
 		return;
 	}
-
 	double min_wdf_to_len = wdf_lower / len_upper;
-
 	/* Calculate constant value to be used in get_sumpart(). */
 	log_constant = get_total_length() / F;
 	wqf_product_factor = get_wqf() * factor;
-
 	// Calculate the upper bound on the weight.
 
 	/* Calculations to decide the values to be used for calculating upper bound. */
@@ -76,11 +70,11 @@ void DPHWeight::init(double factor)
 	else if(wdf_root < wdf_lower) {
 		wdf_root = wdf_lower;
 	}
-
 	double max_wdf_product_normalization = wdf_root / (wdf_root + 1) * pow((1 - wdf_root / len_upper), 2.0);
 	double max_weight = max_wdf_product_normalization * (log2(log_constant) + (0.5 * log2(SMathConst::Pi2 * max_product)));
 	upper_bound = wqf_product_factor * max_weight;
-	if(UNLIKELY(upper_bound < 0.0)) upper_bound = 0.0;
+	if(UNLIKELY(upper_bound < 0.0)) 
+		upper_bound = 0.0;
 }
 
 string DPHWeight::name() const { return "Xapian::DPHWeight"; }
@@ -105,20 +99,9 @@ double DPHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 	return wqf_product_factor * wt;
 }
 
-double DPHWeight::get_maxpart() const
-{
-	return upper_bound;
-}
-
-double DPHWeight::get_sumextra(Xapian::termcount, Xapian::termcount, Xapian::termcount) const
-{
-	return 0;
-}
-
-double DPHWeight::get_maxextra() const
-{
-	return 0;
-}
+double DPHWeight::get_maxpart() const { return upper_bound; }
+double DPHWeight::get_sumextra(Xapian::termcount, Xapian::termcount, Xapian::termcount) const { return 0; }
+double DPHWeight::get_maxextra() const { return 0; }
 
 DPHWeight * DPHWeight::create_from_parameters(const char * p) const
 {

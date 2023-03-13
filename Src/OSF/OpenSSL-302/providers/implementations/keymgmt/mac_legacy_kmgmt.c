@@ -151,19 +151,14 @@ static int mac_match(const void * keydata1, const void * keydata2, int selection
 	if(!ossl_prov_is_running())
 		return 0;
 	if((selection & OSSL_KEYMGMT_SELECT_PRIVATE_KEY) != 0) {
-		if((key1->priv_key == NULL && key2->priv_key != NULL)
-		    || (key1->priv_key != NULL && key2->priv_key == NULL)
-		    || key1->priv_key_len != key2->priv_key_len
-		    || (key1->cipher.cipher == NULL && key2->cipher.cipher != NULL)
+		if((key1->priv_key == NULL && key2->priv_key != NULL) || (key1->priv_key != NULL && key2->priv_key == NULL)
+		    || key1->priv_key_len != key2->priv_key_len || (key1->cipher.cipher == NULL && key2->cipher.cipher != NULL)
 		    || (key1->cipher.cipher != NULL && key2->cipher.cipher == NULL))
 			ok = 0;
 		else
-			ok = ok && (key1->priv_key == NULL /* implies key2->privkey == NULL */
-			    || CRYPTO_memcmp(key1->priv_key, key2->priv_key,
-			    key1->priv_key_len) == 0);
+			ok = ok && (key1->priv_key == NULL /* implies key2->privkey == NULL */ || CRYPTO_memcmp(key1->priv_key, key2->priv_key, key1->priv_key_len) == 0);
 		if(key1->cipher.cipher != NULL)
-			ok = ok && EVP_CIPHER_is_a(key1->cipher.cipher,
-				EVP_CIPHER_get0_name(key2->cipher.cipher));
+			ok = ok && EVP_CIPHER_is_a(key1->cipher.cipher, EVP_CIPHER_get0_name(key2->cipher.cipher));
 	}
 	return ok;
 }

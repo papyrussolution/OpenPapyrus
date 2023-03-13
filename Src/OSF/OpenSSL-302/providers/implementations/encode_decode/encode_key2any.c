@@ -150,7 +150,7 @@ static int key_to_epki_der_priv_bio(BIO * out, const void * key, int key_nid, os
 	if(p2s != NULL && !p2s(key, key_nid, ctx->save_parameters, &str, &strtype))
 		return 0;
 	p8 = key_to_encp8(key, key_nid, str, strtype, k2d, ctx);
-	if(p8 != NULL)
+	if(p8)
 		ret = i2d_PKCS8_bio(out, p8);
 	X509_SIG_free(p8);
 	return ret;
@@ -167,7 +167,7 @@ static int key_to_epki_pem_priv_bio(BIO * out, const void * key, int key_nid, os
 	if(p2s != NULL && !p2s(key, key_nid, ctx->save_parameters, &str, &strtype))
 		return 0;
 	p8 = key_to_encp8(key, key_nid, str, strtype, k2d, ctx);
-	if(p8 != NULL)
+	if(p8)
 		ret = PEM_write_bio_PKCS8(out, p8);
 	X509_SIG_free(p8);
 	return ret;
@@ -184,7 +184,7 @@ static int key_to_pki_der_priv_bio(BIO * out, const void * key, int key_nid, oss
 	if(p2s != NULL && !p2s(key, key_nid, ctx->save_parameters, &str, &strtype))
 		return 0;
 	p8info = key_to_p8info(key, key_nid, str, strtype, k2d);
-	if(p8info != NULL)
+	if(p8info)
 		ret = i2d_PKCS8_PRIV_KEY_INFO_bio(out, p8info);
 	else
 		free_asn1_data(strtype, str);
@@ -203,7 +203,7 @@ static int key_to_pki_pem_priv_bio(BIO * out, const void * key, int key_nid, oss
 	if(p2s != NULL && !p2s(key, key_nid, ctx->save_parameters, &str, &strtype))
 		return 0;
 	p8info = key_to_p8info(key, key_nid, str, strtype, k2d);
-	if(p8info != NULL)
+	if(p8info)
 		ret = PEM_write_bio_PKCS8_PRIV_KEY_INFO(out, p8info);
 	else
 		free_asn1_data(strtype, str);

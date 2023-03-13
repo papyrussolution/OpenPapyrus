@@ -8,9 +8,6 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-//#include "align_func_params.h"
-//#include "align_stack.h"
-//#include "log_rules.h"
 
 constexpr static auto LCURRENT = LALIGN;
 using namespace uncrustify;
@@ -25,10 +22,8 @@ Chunk * align_func_param(Chunk * start)
 	size_t myspan   = 2;
 	size_t mythresh = 0;
 	size_t mygap    = 0;
-
 	// Override, if the align_func_params_span > 0
 	log_rule_B("align_func_params_span");
-
 	if(options::align_func_params_span() > 0) {
 		myspan = options::align_func_params_span();
 		log_rule_B("align_func_params_thresh");
@@ -36,36 +31,28 @@ Chunk * align_func_param(Chunk * start)
 		log_rule_B("align_func_params_gap");
 		mygap = options::align_func_params_gap();
 	}
-	const size_t HOW_MANY_AS = 16;                    // Issue #2921
+	const size_t HOW_MANY_AS = 16; // Issue #2921
 	AlignStack many_as[HOW_MANY_AS + 1];
-
 	size_t max_level_is = 0;
-
 	log_rule_B("align_var_def_star_style");
 	log_rule_B("align_var_def_amp_style");
-
 	for(size_t idx = 0; idx <= HOW_MANY_AS; idx++) {
 		many_as[idx].Start(myspan, mythresh);
 		many_as[idx].m_gap        = mygap;
 		many_as[idx].m_star_style = static_cast<AlignStack::StarStyle>(options::align_var_def_star_style());
 		many_as[idx].m_amp_style  = static_cast<AlignStack::StarStyle>(options::align_var_def_amp_style());
 	}
-
 	size_t comma_count = 0;
 	size_t chunk_count = 0;
-	Chunk  * pc         = start;
-
+	Chunk  * pc = start;
 	while((pc = pc->GetNext())->IsNotNullChunk()) {
 		chunk_count++;
 		LOG_CHUNK(LTOK, pc);
-
 		if(pc->Is(CT_FUNC_VAR)) {         // Issue #2278
 			// look after 'protect parenthesis'
 			Chunk * after = pc->GetNextNc();
-
 			if(after->Is(CT_PAREN_CLOSE)) {
 				Chunk * before = after->GetPrevType(CT_PAREN_OPEN, after->GetLevel());
-
 				if(before->IsNotNullChunk()) {
 					// these are 'protect parenthesis'
 					// change the types and the level
@@ -73,14 +60,12 @@ Chunk * align_func_param(Chunk * start)
 					after->SetType(CT_PPAREN_CLOSE);
 					pc->SetLevel(before->GetLevel());
 					Chunk * tmp = pc->GetPrevNc();
-
 					if(tmp->Is(CT_PTR_TYPE)) {
 						tmp->SetLevel(before->GetLevel());
 					}
 				}
 			}
 		}
-
 		if(pc->IsNewline()) {
 			comma_count = 0;
 			chunk_count = 0;
@@ -92,10 +77,8 @@ Chunk * align_func_param(Chunk * start)
 		else if(pc->TestFlags(PCF_VAR_DEF)) {
 			if(chunk_count > 1) {
 				if(pc->GetLevel() > HOW_MANY_AS) {
-					fprintf(stderr, "%s(%d): Not enough memory for Stack\n",
-					    __func__, __LINE__);
-					fprintf(stderr, "%s(%d): the current maximum is %zu\n",
-					    __func__, __LINE__, HOW_MANY_AS);
+					fprintf(stderr, "%s(%d): Not enough memory for Stack\n", __func__, __LINE__);
+					fprintf(stderr, "%s(%d): the current maximum is %zu\n", __func__, __LINE__, HOW_MANY_AS);
 					log_flush(true);
 					exit(EX_SOFTWARE);
 				}
@@ -115,7 +98,6 @@ Chunk * align_func_param(Chunk * start)
 			}
 			else {
 				Chunk * tmp_prev = pc->GetPrevNc();
-
 				if(!tmp_prev->IsNewline()) { // don't count leading commas
 					comma_count++;
 					LOG_FMT(LFLPAREN, "%s(%d): comma_count is %zu\n", __func__, __LINE__, comma_count);
@@ -123,7 +105,6 @@ Chunk * align_func_param(Chunk * start)
 			}
 		}
 	}
-
 	if(comma_count <= 1) {
 		for(size_t idx = 1; idx <= max_level_is; idx++) {
 			many_as[idx].End();

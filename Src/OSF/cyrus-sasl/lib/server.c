@@ -33,23 +33,14 @@
  *    acknowledgment:
  *    "This product includes software developed by Computing Services
  *     at Carnegie Mellon University (http://www.cmu.edu/computing/)."
- *
- * CARNEGIE MELLON UNIVERSITY DISCLAIMS ALL WARRANTIES WITH REGARD TO
- * THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
- * AND FITNESS, IN NO EVENT SHALL CARNEGIE MELLON UNIVERSITY BE LIABLE
- * FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
- * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
- * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-
 /* local functions/structs don't start with sasl
  */
 #include <sasl-internal.h>
 #pragma hdrstop
 #ifndef macintosh
-#include <sys/types.h>
-#include <sys/stat.h>
+	#include <sys/types.h>
+	#include <sys/stat.h>
 #endif
 #include <fcntl.h>
 #include "saslplug.h"
@@ -72,10 +63,8 @@
 
 /* if we've initialized the server sucessfully */
 static int _sasl_server_active = 0;
-
 /* For access by other modules */
 int _is_sasl_server_active() { return _sasl_server_active; }
-
 static int _sasl_checkpass(sasl_conn_t * conn, const char * user, unsigned userlen, const char * pass, unsigned passlen);
 
 static mech_list_t * mechlist = NULL; /* global var which holds the list */
@@ -102,14 +91,7 @@ static sasl_global_callbacks_t global_callbacks;
  *  SASL_BADPARAM  -- password too long
  *  SASL_OK        -- successful
  */
-
-int sasl_setpass(sasl_conn_t * conn,
-    const char * user,
-    const char * pass,
-    unsigned passlen,
-    const char * oldpass,
-    unsigned oldpasslen,
-    unsigned flags)
+int sasl_setpass(sasl_conn_t * conn, const char * user, const char * pass, unsigned passlen, const char * oldpass, unsigned oldpasslen, unsigned flags)
 {
 	int result = SASL_OK, tmpresult;
 	sasl_server_conn_t * s_conn = (sasl_server_conn_t*)conn;
@@ -122,28 +104,18 @@ int sasl_setpass(sasl_conn_t * conn,
 	mechanism_t * sm;
 	server_sasl_mechanism_t * m;
 	char * current_mech;
-
 	if(!_sasl_server_active || !mechlist) return SASL_NOTINIT;
-
 	/* check params */
 	if(!conn) return SASL_BADPARAM;
 	if(conn->type != SASL_CONN_SERVER) PARAMERROR(conn);
-
-	if((!(flags & SASL_SET_DISABLE) && passlen == 0)
-	    || ((flags & SASL_SET_CREATE) && (flags & SASL_SET_DISABLE)))
+	if((!(flags & SASL_SET_DISABLE) && passlen == 0) || ((flags & SASL_SET_CREATE) && (flags & SASL_SET_DISABLE)))
 		PARAMERROR(conn);
-
 	/* Check that we have an active SASL mechanism */
-	if(sasl_getprop(conn,
-	    SASL_MECHNAME,
-	    (const void **)&current_mech) != SASL_OK) {
+	if(sasl_getprop(conn, SASL_MECHNAME, (const void **)&current_mech) != SASL_OK) {
 		current_mech = NULL;
 	}
-
-	if((flags & SASL_SET_CURMECH_ONLY) &&
-	    (current_mech == NULL)) {
-		sasl_seterror(conn, SASL_NOLOG,
-		    "No current SASL mechanism available");
+	if((flags & SASL_SET_CURMECH_ONLY) && (current_mech == NULL)) {
+		sasl_seterror(conn, SASL_NOLOG, "No current SASL mechanism available");
 		RETURN(conn, SASL_BADPARAM);
 	}
 
@@ -1285,28 +1257,21 @@ static int mech_permitted(sasl_conn_t * conn,
 	/* Check Features */
 	if(plug->features & SASL_FEAT_GETSECRET) {
 		/* We no longer support sasl_server_{get,put}secret */
-		sasl_seterror(conn, 0,
-		    "mech %s requires unprovided secret facility",
-		    plug->mech_name);
+		sasl_seterror(conn, 0, "mech %s requires unprovided secret facility", plug->mech_name);
 		return SASL_NOMECH;
 	}
-
 	return SASL_OK;
 }
-
 /*
  * make the authorization
  *
  */
-
 static int do_authorization(sasl_server_conn_t * s_conn)
 {
 	int ret;
 	sasl_authorize_t * authproc;
 	void * auth_context;
-
 	/* now let's see if authname is allowed to proxy for username! */
-
 	/* check the proxy callback */
 	if(_sasl_getcallback(&s_conn->base, SASL_CB_PROXY_POLICY,
 	    (sasl_callback_ft*)&authproc, &auth_context) != SASL_OK) {
@@ -1957,11 +1922,9 @@ int sasl_user_exists(sasl_conn_t * conn,
 	    == SASL_OK) {
 		getopt(context, NULL, "pwcheck_method", &mlist, NULL);
 	}
-
-	if(!mlist) mlist = DEFAULT_CHECKPASS_MECH;
-
+	if(!mlist) 
+		mlist = DEFAULT_CHECKPASS_MECH;
 	result = SASL_NOMECH;
-
 	mech = mlist;
 	while(*mech && result != SASL_OK) {
 		for(v = _sasl_verify_password; v->name; v++) {
@@ -2101,13 +2064,9 @@ int sasl_checkapop(sasl_conn_t * conn,
 }
 
 /* It would be nice if we can show other information like Author, Company, Year, plugin version */
-static void _sasl_print_mechanism(server_sasl_mechanism_t * m,
-    sasl_info_callback_stage_t stage,
-    void * rock __attribute__((unused))
-    )
+static void _sasl_print_mechanism(server_sasl_mechanism_t * m, sasl_info_callback_stage_t stage, void * rock __attribute__((unused)))
 {
 	char delimiter;
-
 	if(stage == SASL_INFO_LIST_START) {
 		printf("List of server plugins follows\n");
 		return;
@@ -2118,18 +2077,10 @@ static void _sasl_print_mechanism(server_sasl_mechanism_t * m,
 	/* Process the mechanism */
 	printf("Plugin \"%s\" ", m->plugname);
 	switch(m->condition) {
-		case SASL_OK:
-		    printf("[loaded]");
-		    break;
-		case SASL_CONTINUE:
-		    printf("[delayed]");
-		    break;
-		case SASL_NOUSER:
-		    printf("[no users]");
-		    break;
-		default:
-		    printf("[unknown]");
-		    break;
+		case SASL_OK: printf("[loaded]"); break;
+		case SASL_CONTINUE: printf("[delayed]"); break;
+		case SASL_NOUSER: printf("[no users]"); break;
+		default: printf("[unknown]"); break;
 	}
 	printf(", \tAPI version: %d\n", m->version);
 	if(m->plug) {
@@ -2197,47 +2148,37 @@ static void _sasl_print_mechanism(server_sasl_mechanism_t * m,
 			printf("%cNEED_SERVER_FQDN", delimiter);
 			delimiter = '|';
 		}
-
 		/* Is this one used? */
 		if(m->plug->features & SASL_FEAT_SERVICE) {
 			printf("%cSERVICE", delimiter);
 			delimiter = '|';
 		}
-
 		if(m->plug->features & SASL_FEAT_GETSECRET) {
 			printf("%cNEED_GETSECRET", delimiter);
 			delimiter = '|';
 		}
-
 		if(m->plug->features & SASL_FEAT_GSS_FRAMING) {
 			printf("%cGSS_FRAMING", delimiter);
 			delimiter = '|';
 		}
-
 		if(m->plug->features & SASL_FEAT_CHANNEL_BINDING) {
 			printf("%cCHANNEL_BINDING", delimiter);
 			delimiter = '|';
 		}
-
 		if(m->plug->features & SASL_FEAT_SUPPORTS_HTTP) {
 			printf("%cSUPPORTS_HTTP", delimiter);
 			delimiter = '|';
 		}
 	}
-
 	if(m->f) {
 		printf("\n\twill be loaded from \"%s\"", m->f);
 	}
-
 	printf("\n");
 }
 
 /* Dump information about available server plugins (separate functions should be
    used for canon and auxprop plugins */
-int sasl_server_plugin_info(const char * c_mech_list,              /* space separated mechanism list or NULL for ALL */
-    sasl_server_info_callback_t * info_cb,
-    void * info_cb_rock
-    )
+int sasl_server_plugin_info(const char * c_mech_list/* space separated mechanism list or NULL for ALL */, sasl_server_info_callback_t * info_cb, void * info_cb_rock)
 {
 	mechanism_t * m;
 	server_sasl_mechanism_t plug_data;

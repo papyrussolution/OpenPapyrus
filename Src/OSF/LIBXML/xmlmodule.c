@@ -53,19 +53,21 @@ static void xmlModuleErrMemory(xmlModule * module, const char * extra)
 xmlModule * xmlModuleOpen(const char * name, int options ATTRIBUTE_UNUSED)
 {
 	xmlModule * module = (xmlModule *)SAlloc::M(sizeof(xmlModule));
-	if(module == NULL) {
+	if(!module) {
 		xmlModuleErrMemory(NULL, "creating module");
-		return 0;
 	}
-	memzero(module, sizeof(xmlModule));
-	module->handle = xmlModulePlatformOpen(name);
-	if(module->handle == NULL) {
-		SAlloc::F(module);
-		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_OPEN, XML_ERR_FATAL, NULL, 0, 0, name, NULL, 0, 0, "failed to open %s\n", name);
-		return 0;
+	else {
+		memzero(module, sizeof(xmlModule));
+		module->handle = xmlModulePlatformOpen(name);
+		if(!module->handle) {
+			ZFREE(module);
+			__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_OPEN, XML_ERR_FATAL, NULL, 0, 0, name, NULL, 0, 0, "failed to open %s\n", name);
+		}
+		else {
+			module->name = sstrdup((const xmlChar *)name);
+		}
 	}
-	module->name = sstrdup((const xmlChar *)name);
-	return (module);
+	return module;
 }
 /**
  * xmlModuleSymbol:
@@ -84,14 +86,13 @@ xmlModule * xmlModuleOpen(const char * name, int options ATTRIBUTE_UNUSED)
 int xmlModuleSymbol(xmlModule * module, const char * name, void ** symbol)
 {
 	int rc = -1;
-	if((NULL == module) || (symbol == NULL) || !name) {
+	if(!module || !symbol || !name) {
 		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_OPEN, XML_ERR_FATAL, NULL, 0, 0, NULL, NULL, 0, 0, "null parameter\n");
-		return rc;
 	}
-	rc = xmlModulePlatformSymbol(module->handle, name, symbol);
-	if(rc == -1) {
-		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_OPEN, XML_ERR_FATAL, NULL, 0, 0, name, NULL, 0, 0, "failed to find symbol: %s\n", NZOR(name, "NULL"));
-		return rc;
+	else {
+		rc = xmlModulePlatformSymbol(module->handle, name, symbol);
+		if(rc == -1)
+			__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_OPEN, XML_ERR_FATAL, NULL, 0, 0, name, NULL, 0, 0, "failed to find symbol: %s\n", NZOR(name, "NULL"));
 	}
 	return rc;
 }
@@ -137,9 +138,11 @@ int xmlModuleFree(xmlModule * module)
 		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_CLOSE, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "null module pointer\n");
 		return -1;
 	}
-	SAlloc::F(module->name);
-	SAlloc::F(module);
-	return 0;
+	else {
+		SAlloc::F(module->name);
+		SAlloc::F(module);
+		return 0;
+	}
 }
 
 #if defined(HAVE_DLOPEN) && !defined(_WIN32)
@@ -195,27 +198,17 @@ static int xmlModulePlatformSymbol(void * handle, const char * name, void ** sym
  * returns a handle on success, and zero on error.
  */
 
-static void * xmlModulePlatformOpen(const char * name)
-{
-	return shl_load(name, BIND_IMMEDIATE, 0L);
-}
-
+static void * xmlModulePlatformOpen(const char * name) { return shl_load(name, BIND_IMMEDIATE, 0L); }
 /*
  * xmlModulePlatformClose:
  * returns 0 on success, and non-zero on error.
  */
-
-static int xmlModulePlatformClose(void * handle)
-{
-	return shl_unload(handle);
-}
-
+static int xmlModulePlatformClose(void * handle) { return shl_unload(handle); }
 /*
  * xmlModulePlatformSymbol:
  * http://docs.hp.com/en/B2355-90683/shl_load.3X.html
  * returns 0 on success and the loaded symbol in result, and -1 on error.
  */
-
 static int xmlModulePlatformSymbol(void * handle, const char * name, void ** symbol)
 {
 	int rc;
@@ -234,10 +227,7 @@ static int xmlModulePlatformSymbol(void * handle, const char * name, void ** sym
  * xmlModulePlatformOpen:
  * returns a handle on success, and zero on error.
  */
-static void * xmlModulePlatformOpen(const char * name)
-{
-	return LoadLibraryA(name);
-}
+static void * xmlModulePlatformOpen(const char * name) { return LoadLibraryA(name); }
 /*
  * xmlModulePlatformClose:
  * returns 0 on success, and non-zero on error.
@@ -252,7 +242,6 @@ static int xmlModulePlatformClose(void * handle)
  * http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dllproc/base/getprocaddress.asp
  * returns 0 on success and the loaded symbol in result, and -1 on error.
  */
-
 static int xmlModulePlatformSymbol(void * handle, const char * name, void ** symbol)
 {
 #ifdef _WIN32_WCE
@@ -290,12 +279,8 @@ static void * xmlModulePlatformOpen(const char * name)
 static int xmlModulePlatformClose(void * handle)
 {
 	status_t rc = unload_add_on((image_id)handle);
-	if(rc == B_OK)
-		return 0;
-	else
-		return -1;
+	return (rc == B_OK) ? 0 : -1;
 }
-
 /*
  * xmlModulePlatformSymbol:
  * beos api info: http://www.beunited.org/bebook/The%20Kernel%20Kit/Images.html
@@ -325,10 +310,7 @@ static void * xmlModulePlatformOpen(const char * name)
 	char errbuf[256];
 	void * handle;
 	int rc = DosLoadModule(errbuf, sizeof(errbuf) - 1, name, &handle);
-	if(rc)
-		return 0;
-	else
-		return (handle);
+	return rc ? 0 : handle;
 }
 /*
  * xmlModulePlatformClose:

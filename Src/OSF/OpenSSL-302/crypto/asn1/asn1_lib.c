@@ -314,7 +314,7 @@ int ASN1_STRING_set(ASN1_STRING * str, const void * _data, int len_in)
 		}
 	}
 	str->length = len;
-	if(data != NULL) {
+	if(data) {
 		memcpy(str->data, data, len);
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
 		/* Set the unused byte to something non NUL and printable. */

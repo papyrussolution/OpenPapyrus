@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout style="@style/ListItemRegular" xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/CTL_INCOMINGLIST_TSESS_LISTITEM"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView style="@style/FormText"
+            android:id="@+id/CTL_DOCUMENT_DATE"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textColor="@color/TextPrimary"
+            />
+        <TextView style="@style/FormText"
+            android:id="@+id/CTL_DOCUMENT_CODE"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textColor="@color/TextPrimary"
+            />
+        <TextView style="@style/FormText"
+            android:id="@+id/CTL_DOCUMENT_AMOUNT"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textColor="@color/TextPrimary"
+            android:textAlignment="textEnd"
+            />
+    </LinearLayout>
+    <TextView style="@style/FormText"
+        android:id="@+id/CTL_DOCUMENT_PRC"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:textColor="@color/TextPrimary"
+        />
+    <TextView style="@style/FormText"
+        android:id="@+id/CTL_DOCUMENT_CLI"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:textColor="@color/TextPrimary"
+        />
+    <TextView style="@style/FormText"
+        android:id="@+id/CTL_DOCUMENT_TIMECHUNK"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:textColor="@color/TextPrimary"
+        />
+    <TextView style="@style/FormText"
+        android:id="@+id/CTL_DOCUMENT_MEMO"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:textColor="@color/TextPrimary"
+        />
+</LinearLayout>

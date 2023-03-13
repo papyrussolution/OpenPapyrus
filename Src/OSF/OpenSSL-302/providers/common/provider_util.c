@@ -240,38 +240,28 @@ int ossl_prov_set_macctx(EVP_MAC_CTX * macctx,
 			}
 		}
 		if(engine == NULL) {
-			if((p = OSSL_PARAM_locate_const(params, OSSL_ALG_PARAM_ENGINE))
-			    != NULL) {
+			if((p = OSSL_PARAM_locate_const(params, OSSL_ALG_PARAM_ENGINE)) != NULL) {
 				if(p->data_type != OSSL_PARAM_UTF8_STRING)
 					return 0;
 				engine = (const char *)p->data;
 			}
 		}
 	}
-
 	if(mdname != NULL)
-		*mp++ = OSSL_PARAM_construct_utf8_string(OSSL_MAC_PARAM_DIGEST,
-			(char*)mdname, 0);
+		*mp++ = OSSL_PARAM_construct_utf8_string(OSSL_MAC_PARAM_DIGEST, (char*)mdname, 0);
 	if(ciphername != NULL)
-		*mp++ = OSSL_PARAM_construct_utf8_string(OSSL_MAC_PARAM_CIPHER,
-			(char*)ciphername, 0);
+		*mp++ = OSSL_PARAM_construct_utf8_string(OSSL_MAC_PARAM_CIPHER, (char*)ciphername, 0);
 	if(properties != NULL)
-		*mp++ = OSSL_PARAM_construct_utf8_string(OSSL_MAC_PARAM_PROPERTIES,
-			(char*)properties, 0);
+		*mp++ = OSSL_PARAM_construct_utf8_string(OSSL_MAC_PARAM_PROPERTIES, (char*)properties, 0);
 
 #if !defined(OPENSSL_NO_ENGINE) && !defined(FIPS_MODULE)
 	if(engine)
-		*mp++ = OSSL_PARAM_construct_utf8_string(OSSL_ALG_PARAM_ENGINE,
-			(char*)engine, 0);
+		*mp++ = OSSL_PARAM_construct_utf8_string(OSSL_ALG_PARAM_ENGINE, (char*)engine, 0);
 #endif
-
 	if(key)
-		*mp++ = OSSL_PARAM_construct_octet_string(OSSL_MAC_PARAM_KEY,
-			(unsigned char *)key,
+		*mp++ = OSSL_PARAM_construct_octet_string(OSSL_MAC_PARAM_KEY, (unsigned char *)key,
 			keylen);
-
 	*mp = OSSL_PARAM_construct_end();
-
 	return EVP_MAC_CTX_set_params(macctx, mac_params);
 }
 

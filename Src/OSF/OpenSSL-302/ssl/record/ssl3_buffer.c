@@ -13,7 +13,7 @@
 
 void SSL3_BUFFER_set_data(SSL3_BUFFER * b, const uchar * d, size_t n)
 {
-	if(d != NULL)
+	if(d)
 		memcpy(b->buf, d, n);
 	b->left = n;
 	b->offset = 0;

@@ -283,19 +283,19 @@ static bool _mi_heap_init()
 }
 
 // Free the thread local default heap (called from `mi_thread_done`)
-static bool _mi_heap_done(mi_heap_t* heap) {
-	if(!mi_heap_is_initialized(heap)) return true;
-
+static bool _mi_heap_done(mi_heap_t* heap) 
+{
+	if(!mi_heap_is_initialized(heap)) 
+		return true;
 	// reset default heap
 	_mi_heap_set_default_direct(_mi_is_main_thread() ? &_mi_heap_main : (mi_heap_t*)&_mi_heap_empty);
-
 	// switch to backing heap
 	heap = heap->tld->heap_backing;
-	if(!mi_heap_is_initialized(heap)) return false;
-
+	if(!mi_heap_is_initialized(heap)) 
+		return false;
 	// delete all non-backing heaps in this thread
 	mi_heap_t* curr = heap->tld->heaps;
-	while(curr != NULL) {
+	while(curr) {
 		mi_heap_t* next = curr->next; // save `next` as `curr` will be freed
 		if(curr != heap) {
 			mi_assert_internal(!mi_heap_is_backing(curr));
@@ -363,18 +363,21 @@ WINBASEAPI BOOL WINAPI FlsSetValue(_In_ DWORD dwFlsIndex, _In_opt_ PVOID lpFlsDa
 WINBASEAPI BOOL WINAPI FlsFree(_In_ DWORD dwFlsIndex);
   #endif
 static DWORD mi_fls_key = (DWORD)(-1);
-static void NTAPI mi_fls_done(PVOID value) {
-	if(value!=NULL) _mi_thread_done((mi_heap_t*)value);
+static void NTAPI mi_fls_done(PVOID value) 
+{
+	if(value) 
+		_mi_thread_done((mi_heap_t*)value);
 }
 
 #elif defined(MI_USE_PTHREADS)
 // use pthread local storage keys to detect thread ending
 // (and used with MI_TLS_PTHREADS for the default heap)
 pthread_key_t _mi_heap_default_key = (pthread_key_t)(-1);
-static void mi_pthread_done(void* value) {
-	if(value!=NULL) _mi_thread_done((mi_heap_t*)value);
+static void mi_pthread_done(void* value) 
+{
+	if(value) 
+		_mi_thread_done((mi_heap_t*)value);
 }
-
 #elif defined(__wasi__)
 // no pthreads in the WebAssembly Standard Interface
 #else

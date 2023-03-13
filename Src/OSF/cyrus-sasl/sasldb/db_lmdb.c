@@ -32,14 +32,6 @@
  *    acknowledgment:
  *    "This product includes software developed by Computing Services
  *     at Carnegie Mellon University (http://www.cmu.edu/computing/)."
- *
- * CARNEGIE MELLON UNIVERSITY DISCLAIMS ALL WARRANTIES WITH REGARD TO
- * THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
- * AND FITNESS, IN NO EVENT SHALL CARNEGIE MELLON UNIVERSITY BE LIABLE
- * FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
- * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
- * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 #include <sasl-internal.h>
 #pragma hdrstop
@@ -140,14 +132,11 @@ static int do_open(const sasl_utils_t * utils, sasl_conn_t * conn, int rdwr, MDB
 			return SASL_FAIL;
 		}
 	}
-
 	if(!db_env)
 		db_env = env;
 	*mtxn = txn;
-
 	return SASL_OK;
 }
-
 /*
  * Close the environment
  */
@@ -360,32 +349,25 @@ sasldb_handle _sasldb_getkeyhandle(const sasl_utils_t * utils,
 	int ret;
 	MDB_txn * txn;
 	MDB_cursor * mc;
-
-	if(!utils || !conn) return NULL;
-
+	if(!utils || !conn) 
+		return NULL;
 	if(!db_ok) {
 		utils->seterror(conn, 0, "Database not OK in _sasldb_getkeyhandle");
 		return NULL;
 	}
-
 	ret = do_open(utils, conn, 0, &txn);
-
 	if(ret != SASL_OK) {
 		return NULL;
 	}
-
 	ret = mdb_cursor_open(txn, db_dbi, &mc);
 	if(ret) {
 		utils->seterror(conn, 0, "cursor_open failed in _sasldb_gekeythandle");
 		return NULL;
 	}
-
 	return (sasldb_handle)mc;
 }
 
-int _sasldb_getnextkey(const sasl_utils_t * utils __attribute__((unused)),
-    sasldb_handle handle, char * out,
-    const size_t max_out, size_t * out_len)
+int _sasldb_getnextkey(const sasl_utils_t * utils __attribute__((unused)), sasldb_handle handle, char * out, const size_t max_out, size_t * out_len)
 {
 	int result;
 	MDB_cursor * mc = (MDB_cursor*)handle;
@@ -409,7 +391,8 @@ int _sasldb_getnextkey(const sasl_utils_t * utils __attribute__((unused)),
 int _sasldb_releasekeyhandle(const sasl_utils_t * utils, sasldb_handle handle)
 {
 	MDB_cursor * mc = (MDB_cursor*)handle;
-	if(!utils || !handle) return SASL_BADPARAM;
+	if(!utils || !handle) 
+		return SASL_BADPARAM;
 	mdb_cursor_close(mc);
 	return SASL_OK;
 }

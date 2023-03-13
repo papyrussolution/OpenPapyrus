@@ -500,12 +500,10 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl, int fla
 		r = p_db->open(p_db, T.T, (r2 > 0) ? file_name.cptr() : 0, (r2 == 2) ? tbl_name.cptr() : 0, DB_UNKNOWN, opf, 0 /*mode*/);
 	}
 	THROW(ProcessError(r, p_db, pFileName));
-	// @v9.7.11 {
 	if(pTbl) {
 		SETFLAG(pTbl->State, BDbTable::stExclusive, (flags & BDbTable::ofExclusive));
 		SETFLAG(pTbl->State, BDbTable::stReadOnly, (flags & BDbTable::ofReadOnly));
 	}
-	// } @v9.7.11
 	CATCH
 		if(r) {
 			p_db->close(p_db, 0);
@@ -515,13 +513,13 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl, int fla
 	return p_db;
 }
 
-int BDbDatabase::IsFileExists(const char * pFileName)
+bool BDbDatabase::IsFileExists(const char * pFileName)
 {
-	int    yes = 0;
+	bool   yes = false;
 	DB * p_db = static_cast<DB *>(Helper_Open(pFileName, 0, BDbTable::ofReadOnly)); // @v9.7.11 BDbTable::ofReadOnly
 	if(p_db) {
 		Helper_Close(p_db);
-		yes = 1;
+		yes = true;
 	}
 	return yes;
 }

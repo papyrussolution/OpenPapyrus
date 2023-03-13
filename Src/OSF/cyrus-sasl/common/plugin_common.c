@@ -32,14 +32,6 @@
  *    acknowledgment:
  *    "This product includes software developed by Computing Services
  *     at Carnegie Mellon University (http://www.cmu.edu/computing/)."
- *
- * CARNEGIE MELLON UNIVERSITY DISCLAIMS ALL WARRANTIES WITH REGARD TO
- * THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
- * AND FITNESS, IN NO EVENT SHALL CARNEGIE MELLON UNIVERSITY BE LIABLE
- * FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
- * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
- * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 #include <sasl-internal.h>
 #pragma hdrstop
@@ -81,7 +73,6 @@ static void sockaddr_unmapped(
 	struct sockaddr_in * sin4;
 	uint32_t addr;
 	int port;
-
 	if(sa->sa_family != AF_INET6)
 		return;
 	sin6 = (struct sockaddr_in6 *)sa;
@@ -178,7 +169,13 @@ int _plug_iovec_to_buf(const sasl_utils_t * utils, const struct iovec * vec, uns
 	out->curlen = 0;
 	for(i = 0; i<numiov; i++)
 		out->curlen += vec[i].iov_len;
-	ret = _plug_buf_alloc(utils, &out->data, &out->reallen, out->curlen);
+	{
+		// @sobolev Конфликт между 32- и 64-битными версиями компиляции uint/size_t
+		// Прямая передача указателя &out->reallen заменена на посредника actual_len
+		uint   actual_len = static_cast<uint>(out->reallen);
+		ret = _plug_buf_alloc(utils, &out->data, &actual_len, out->curlen);
+		out->reallen = actual_len;
+	}
 	if(ret != SASL_OK) {
 		SASL_UTILS_MEMERROR(utils);
 		return SASL_NOMEM;
@@ -196,7 +193,8 @@ int _plug_iovec_to_buf(const sasl_utils_t * utils, const struct iovec * vec, uns
 int _plug_buf_alloc(const sasl_utils_t * utils, char ** rwbuf, unsigned * curlen, unsigned newlen)
 {
 	if(!utils || !rwbuf || !curlen) {
-		if(utils) SASL_UTILS_PARAMERROR(utils);
+		if(utils) 
+			SASL_UTILS_PARAMERROR(utils);
 		return SASL_BADPARAM;
 	}
 	if(!(*rwbuf)) {

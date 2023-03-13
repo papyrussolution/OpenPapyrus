@@ -341,7 +341,7 @@ ASN1_GENERALIZEDTIME * ASN1_TIME_to_generalizedtime(const ASN1_TIME * t, ASN1_GE
 	struct tm tm;
 	if(!ASN1_TIME_to_tm(t, &tm))
 		return NULL;
-	if(out != NULL)
+	if(out)
 		ret = *out;
 	ret = ossl_asn1_time_from_tm(ret, &tm, V_ASN1_GENERALIZEDTIME);
 	if(out != NULL && ret != NULL)

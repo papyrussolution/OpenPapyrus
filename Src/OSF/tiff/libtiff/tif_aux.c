@@ -11,13 +11,6 @@
  * Sam Leffler and Silicon Graphics may not be used in any advertising or
  * publicity relating to the software without the specific, prior written
  * permission of Sam Leffler and Silicon Graphics.
- *
- * IN NO EVENT SHALL SAM LEFFLER OR SILICON GRAPHICS BE LIABLE FOR
- * ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
- * OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
- * WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF
- * LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
- * OF THIS SOFTWARE.
  */
 /*
  * TIFF Library.
@@ -81,8 +74,8 @@ static int TIFFDefaultTransferFunction(TIFFDirectory* td)
 		return 0;
 	tf[0][0] = 0;
 	for(i = 1; i < n; i++) {
-		double t = (double)i/((double)n-1.);
-		tf[0][i] = (uint16)floor(65535.*pow(t, 2.2) + .5);
+		double t = (double)i/((double)n-1.0);
+		tf[0][i] = (uint16)floor(65535.0*pow(t, 2.2) + 0.5);
 	}
 	if(td->td_samplesperpixel - td->td_extrasamples > 1) {
 		tf[1] = static_cast<uint16 *>(SAlloc::M(nbytes));

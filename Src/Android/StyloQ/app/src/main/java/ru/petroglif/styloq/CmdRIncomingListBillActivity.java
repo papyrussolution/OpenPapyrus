@@ -41,7 +41,18 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 		Setting,
 		Search
 	}
+	//
+	// Descr: Возможные типы входящих списков
+	//
+	enum ListDataType {
+		Undef,  // Не определен (не должно такого быть иначе как до окончания инициализации)
+		Bill,   // Документы
+		CCheck, // Кассовые чеки
+		TSess,  // Технологические сессии
+		ToDo    // Задачи
+	}
 	private ScanType ScanSource;
+	private ListDataType ListType; // @v11.6.6
 	private Timer RefreshSvcDataPollTmr; // @v11.6.2
 	private long  LastRefreshTime; // @v11.6.4
 	private static final int RefreshSvcDataPollPeriodMs = 1 * 60 * 1000; // @v11.6.2
@@ -119,6 +130,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 		DocEditActionList = null;
 		DocStatusList = null;
 		ScanSource = ScanType.Undef;
+		ListType = ListDataType.Undef; // @v11.6.6
 		RefreshSvcDataPollTmr = null; // @v11.6.2
 		LastRefreshTime = 0; // @v11.6.4
 	}
@@ -536,7 +548,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 			NotifyCurrentDocumentChanged();
 		return result;
 	}
-	private int ProcessSvcData(final JSONObject jsSvcReplyDoc)
+	private int ProcessSvcData(final JSONObject jsSvcReplyDoc, final JSONObject jsDocDecl)
 	{
 		int result = 0;
 		if(jsSvcReplyDoc != null) {
@@ -545,7 +557,8 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 				if(nothing_to_do)
 					result = -1;
 				else {
-					CPM.GetCommonJsonFactors(jsSvcReplyDoc);
+					ListType = ListDataType.Undef;
+					CPM.GetCommonJsonFactors(jsSvcReplyDoc, jsDocDecl);
 					DocStatusList = BusinessEntity.CliDocStatus.FromJson(jsSvcReplyDoc.optJSONArray("status_list"));
 					CPM.MakeUomListFromCommonJson(jsSvcReplyDoc);
 					CPM.MakeGoodsGroupListFromCommonJson(jsSvcReplyDoc);
@@ -555,6 +568,19 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					CPM.MakeProcessorListFromCommonJson(jsSvcReplyDoc); // @v11.6.5
 					CPM.MakeIncomingDocFromCommonJson(jsSvcReplyDoc);
 					if(CPM.IncomingDocListData != null) {
+						StyloQCommand.DocDeclaration doc_decl = CPM.GetDocDeclaration();
+						if(doc_decl != null && SLib.GetLen(doc_decl.DisplayMethod) > 0) {
+							if(doc_decl.DisplayMethod.equalsIgnoreCase("incominglistorder"))
+								ListType = ListDataType.Bill;
+							else if(doc_decl.DisplayMethod.equalsIgnoreCase("incominglistccheck"))
+								ListType = ListDataType.CCheck;
+							else if(doc_decl.DisplayMethod.equalsIgnoreCase("incominglisttsess"))
+								ListType = ListDataType.TSess;
+							else if(doc_decl.DisplayMethod.equalsIgnoreCase("incominglisttodo"))
+								ListType = ListDataType.ToDo;
+							else
+								ListType = ListDataType.Undef;
+						}
 						for(int i = 0; i < CPM.IncomingDocListData.size(); i++) {
 							Document doc_entry = CPM.IncomingDocListData.get(i);
 							if(doc_entry != null)
@@ -569,12 +595,12 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 		}
 		return result;
 	}
-	private int ProcessSvcData(final String svcReplyDocJson)
+	private int ProcessSvcData(final String svcReplyDocJson, final JSONObject jsDocDecl)
 	{
 		int result = 0;
 		if(SLib.GetLen(svcReplyDocJson) > 0) {
 			try {
-				result = ProcessSvcData(new JSONObject(svcReplyDocJson));
+				result = ProcessSvcData(new JSONObject(svcReplyDocJson), jsDocDecl);
 			} catch(JSONException exn) {
 				result = 0;
 			}
@@ -642,6 +668,8 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					try {
 						CPM.GetAttributesFromIntent(intent);
 						long doc_id = intent.getLongExtra("SvcReplyDocID", 0);
+						//StyloQCommand.DocDeclaration doc_decl = null; // @v11.6.6
+						JSONObject js_doc_decl = null; // @v11.6.6
 						String svc_reply_doc_json = null;
 						StyloQApp app_ctx = GetAppCtx();
 						if(app_ctx != null) {
@@ -653,11 +681,12 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 									byte[] raw_doc = doc_packet.Pool.Get(SecretTagPool.tagRawData);
 									if(SLib.GetLen(raw_doc) > 0)
 										svc_reply_doc_json = new String(raw_doc);
+									js_doc_decl = doc_packet.Pool.GetJsonObject(SecretTagPool.tagDocDeclaration); // @v11.6.6
 								}
 							}
 							else
 								svc_reply_doc_json = intent.getStringExtra("SvcReplyDocJson");
-							if(ProcessSvcData(svc_reply_doc_json) > 0) {
+							if(ProcessSvcData(svc_reply_doc_json, js_doc_decl) > 0) {
 								if(CPM.IncomingDocListData != null) {
 									if(possible_doc_uuid_list == null)
 										possible_doc_uuid_list = new ArrayList<UUID>();
@@ -952,69 +981,91 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 											View iv = ev_subj.RvHolder.itemView;
 											Document cur_entry = (Document) CPM.IncomingDocListData.get(ev_subj.ItemIdx);
 											if(app_ctx != null && cur_entry.H != null) {
-												if(SLib.GetLen(cur_entry.H.Code) > 0)
-													SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_CODE, cur_entry.H.Code);
-												SLib.LDATE d = cur_entry.GetNominalDate();
-												if(d != null)
-													SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_DATE, d.Format(SLib.DATF_ISO8601 | SLib.DATF_CENTURY));
-												SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_AMOUNT, CPM.FormatCurrency(cur_entry.H.Amount));
-												JSONObject cli_entry = (cur_entry.H.ClientID > 0) ? CPM.FindClientEntry(cur_entry.H.ClientID) : null;
-												if(cli_entry != null) {
-													String nm = cli_entry.optString("nm", null);
-													SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_CLI, View.VISIBLE);
-													SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_CLI, nm);
-												}
-												else
-													SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_CLI, View.GONE);
-												if(cur_entry.H.AgentID > 0) {
-													SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_AGENT, View.VISIBLE);
-												}
-												else
-													SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_AGENT, View.VISIBLE);
-												if(SLib.GetLen(cur_entry.H.Memo) > 0) {
-													SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_MEMO, View.VISIBLE);
-													SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_MEMO, cur_entry.H.Memo);
-												}
-												else
-													SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_MEMO, View.GONE);
 												{
-													ImageView ctl = (ImageView) iv.findViewById(R.id.CTL_DOCUMENT_EXPANDSTATUS);
-													if(ctl != null) {
-														ListView detail_lv = (ListView) iv.findViewById(R.id.CTL_DOCUMENT_DETAILLIST);
-														if(detail_lv != null) {
-															if(cur_entry.TiList != null) {
-																ctl.setVisibility(View.VISIBLE);
-																if(cur_entry.DetailExpandStatus_Ti == 0 || detail_lv == null) {
-																	ctl.setVisibility(View.GONE);
-																	SLib.SetCtrlVisibility(detail_lv, View.GONE);
-																}
-																else if(cur_entry.DetailExpandStatus_Ti == 1) {
+													if(SLib.GetLen(cur_entry.H.Code) > 0)
+														SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_CODE, cur_entry.H.Code);
+													SLib.LDATE d = cur_entry.GetNominalDate();
+													if(d != null)
+														SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_DATE, d.Format(SLib.DATF_ISO8601 | SLib.DATF_CENTURY));
+													SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_AMOUNT, CPM.FormatCurrency(cur_entry.H.Amount));
+													JSONObject cli_entry = (cur_entry.H.ClientID > 0) ? CPM.FindClientEntry(cur_entry.H.ClientID) : null;
+													if(cli_entry != null) {
+														String nm = cli_entry.optString("nm", null);
+														SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_CLI, View.VISIBLE);
+														SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_CLI, nm);
+													}
+													else
+														SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_CLI, View.GONE);
+													if(SLib.GetLen(cur_entry.H.Memo) > 0) {
+														SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_MEMO, View.VISIBLE);
+														SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_MEMO, cur_entry.H.Memo);
+													}
+													else
+														SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_MEMO, View.GONE);
+												}
+												if(ListType == ListDataType.TSess) {
+													if(cur_entry.BkList != null && cur_entry.BkList.size() > 0) {
+														Document.BookingItem bk_item = cur_entry.BkList.get(0);
+														String prc_name = null;
+														String timechunk_text = null;
+														if(bk_item != null) {
+															if(bk_item.PrcID > 0) {
+																CommonPrereqModule.ProcessorEntry prc_entry = CPM.FindProcessorItemByID(bk_item.PrcID);
+																if(prc_entry != null)
+																	prc_name = prc_entry.JsItem.optString("nm", "");
+																SLib.STimeChunk tc = bk_item.GetEsimatedTimeChunk();
+																if(tc != null)
+																	timechunk_text = tc.Format(SLib.DATF_DMY, SLib.TIMF_HM);
+															}
+														}
+														SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_PRC, prc_name);
+														SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TIMECHUNK, timechunk_text);
+													}
+												}
+												else {
+													if(cur_entry.H.AgentID > 0)
+														SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_AGENT, View.VISIBLE);
+													else
+														SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_AGENT, View.VISIBLE);
+													{
+														ImageView ctl = (ImageView) iv.findViewById(R.id.CTL_DOCUMENT_EXPANDSTATUS);
+														if(ctl != null) {
+															ListView detail_lv = (ListView) iv.findViewById(R.id.CTL_DOCUMENT_DETAILLIST);
+															if(detail_lv != null) {
+																if(cur_entry.TiList != null) {
 																	ctl.setVisibility(View.VISIBLE);
-																	ctl.setImageResource(R.drawable.ic_triangleleft03);
-																	SLib.SetCtrlVisibility(detail_lv, View.GONE);
-																}
-																else if(cur_entry.DetailExpandStatus_Ti == 2) {
-																	ctl.setVisibility(View.VISIBLE);
-																	ctl.setImageResource(R.drawable.ic_triangledown03);
-																	if(detail_lv != null) {
-																		SLib.SetCtrlVisibility(detail_lv, View.VISIBLE);
-																		DetailTiListAdapter adapter = new DetailTiListAdapter(iv.getContext(), R.layout.li_transferitem_generic, cur_entry);
-																		detail_lv.setAdapter(adapter);
-																		{
-																			int total_items_height = SLib.CalcListViewHeight(detail_lv);
-																			if(total_items_height > 0) {
-																				ViewGroup.LayoutParams params = detail_lv.getLayoutParams();
-																				params.height = total_items_height;
-																				detail_lv.setLayoutParams(params);
-																				detail_lv.requestLayout();
+																	if(cur_entry.DetailExpandStatus_Ti == 0 || detail_lv == null) {
+																		ctl.setVisibility(View.GONE);
+																		SLib.SetCtrlVisibility(detail_lv, View.GONE);
+																	}
+																	else if(cur_entry.DetailExpandStatus_Ti == 1) {
+																		ctl.setVisibility(View.VISIBLE);
+																		ctl.setImageResource(R.drawable.ic_triangleleft03);
+																		SLib.SetCtrlVisibility(detail_lv, View.GONE);
+																	}
+																	else if(cur_entry.DetailExpandStatus_Ti == 2) {
+																		ctl.setVisibility(View.VISIBLE);
+																		ctl.setImageResource(R.drawable.ic_triangledown03);
+																		if(detail_lv != null) {
+																			SLib.SetCtrlVisibility(detail_lv, View.VISIBLE);
+																			DetailTiListAdapter adapter = new DetailTiListAdapter(iv.getContext(), R.layout.li_transferitem_generic, cur_entry);
+																			detail_lv.setAdapter(adapter);
+																			{
+																				int total_items_height = SLib.CalcListViewHeight(detail_lv);
+																				if(total_items_height > 0) {
+																					ViewGroup.LayoutParams params = detail_lv.getLayoutParams();
+																					params.height = total_items_height;
+																					detail_lv.setLayoutParams(params);
+																					detail_lv.requestLayout();
+																				}
 																			}
+																			adapter.setNotifyOnChange(true);
 																		}
-																		adapter.setNotifyOnChange(true);
 																	}
 																}
-															}
-															else {
-																ctl.setVisibility(View.GONE);
+																else {
+																	ctl.setVisibility(View.GONE);
+																}
 															}
 														}
 													}
@@ -1243,7 +1294,10 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 									lv = fv.findViewById(R.id.CTL_INCOMINGLIST_BILL_LIST);
 									if(lv != null) {
 										((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-										SetupRecyclerListView(fv, R.id.CTL_INCOMINGLIST_BILL_LIST, R.layout.li_incominglist_bill_main);
+										if(ListType == ListDataType.TSess)
+											SetupRecyclerListView(fv, R.id.CTL_INCOMINGLIST_BILL_LIST, R.layout.li_incominglist_tsess_main);
+										else
+											SetupRecyclerListView(fv, R.id.CTL_INCOMINGLIST_BILL_LIST, R.layout.li_incominglist_bill_main);
 									}
 									else {
 										lv = fv.findViewById(R.id.CTL_DOCUMENT_TILIST);
@@ -1610,6 +1664,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							String svc_reply_doc_json = null;
 							if(ir.InfoReply instanceof StyloQCommand.DocReference) {
 								long doc_id = ((StyloQCommand.DocReference)ir.InfoReply).ID;
+								JSONObject js_doc_decl = null;
 								try {
 									StyloQDatabase db = app_ctx.GetDB();
 									ArrayList<UUID> possible_doc_uuid_list = null;
@@ -1617,11 +1672,13 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 										StyloQDatabase.SecStoragePacket doc_packet = db.GetPeerEntry(doc_id);
 										if(doc_packet != null) {
 											byte[] raw_doc = doc_packet.Pool.Get(SecretTagPool.tagRawData);
-											if(SLib.GetLen(raw_doc) > 0)
+											if(SLib.GetLen(raw_doc) > 0) {
 												svc_reply_doc_json = new String(raw_doc);
+												js_doc_decl = doc_packet.Pool.GetJsonObject(SecretTagPool.tagDocDeclaration); // @v11.6.6
+											}
 										}
 									}
-									if(ProcessSvcData(svc_reply_doc_json) > 0) {
+									if(ProcessSvcData(svc_reply_doc_json, js_doc_decl) > 0) {
 										SetupTabVisibility(true);
 										SetupCurrentDocument(false, true);
 										LastRefreshTime = System.currentTimeMillis(); // @v11.6.4
@@ -1633,7 +1690,8 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							else if(ir.InfoReply instanceof SecretTagPool) {
 								JSONObject js_reply = ((SecretTagPool)ir.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
 								if(js_reply != null) {
-									if(ProcessSvcData(js_reply) > 0) {
+									JSONObject js_doc_decl = ((SecretTagPool)ir.InfoReply).GetJsonObject(SecretTagPool.tagDocDeclaration); // @v11.6.6
+									if(ProcessSvcData(js_reply, js_doc_decl) > 0) {
 										SetupTabVisibility(true);
 										SetupCurrentDocument(false, true);
 										LastRefreshTime = System.currentTimeMillis(); // @v11.6.4

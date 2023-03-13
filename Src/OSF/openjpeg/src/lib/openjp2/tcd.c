@@ -361,7 +361,7 @@ void opj_tcd_makelayer_fixed(opj_tcd_t * tcd, uint32_t layno, uint32_t final)
 						}
 						else {
 							layer->len = cblk->passes[n - 1].rate - cblk->passes[cblk->numpassesinlayers -
-							    1].rate;
+								1].rate;
 							layer->data = cblk->data + cblk->passes[cblk->numpassesinlayers - 1].rate;
 						}
 
@@ -432,16 +432,13 @@ boolint opj_tcd_rateallocate(opj_tcd_t * tcd,
 								dr = (int32_t)(pass->rate - cblk->passes[passno - 1].rate);
 								dd = pass->distortiondec - cblk->passes[passno - 1].distortiondec;
 							}
-
 							if(dr == 0) {
 								continue;
 							}
-
 							rdslope = dd / dr;
 							if(rdslope < min) {
 								min = rdslope;
 							}
-
 							if(rdslope > max) {
 								max = rdslope;
 							}
@@ -454,7 +451,6 @@ boolint opj_tcd_rateallocate(opj_tcd_t * tcd,
 				} /* precno */
 			} /* bandno */
 		} /* resno */
-
 		maxSE += (((double)(1 << tcd->image->comps[compno].prec) - 1.0)
 		    * ((double)(1 << tcd->image->comps[compno].prec) - 1.0))
 		    * ((double)(tilec->numpix));
@@ -764,7 +760,7 @@ static INLINE boolint opj_tcd_init_tile(opj_tcd_t * p_tcd, uint32_t p_tile_no, b
 			size_t h = (size_t)(l_tilec->y1 - l_tilec->y0);
 
 			/* issue 733, l_data_size == 0U, probably something wrong should be checked before getting here
-			   */
+			 */
 			if(h > 0 && w > SIZE_MAX / h) {
 				opj_event_msg(manager, EVT_ERROR, "Size of tile data exceeds system limits\n");
 				return FALSE;
@@ -1070,7 +1066,8 @@ static INLINE boolint opj_tcd_init_tile(opj_tcd_t * p_tcd, uint32_t p_tile_no, b
 						/*fprintf(stderr, "\t\t\t\tReallocate cblks of a precinct
 						   (opj_tcd_cblk_dec_t): from %d to
 						   %d\n",l_current_precinct->block_size, l_nb_code_blocks_size);     */
-						memzero(((uint8*)l_current_precinct->cblks.blocks) + l_current_precinct->block_size, l_nb_code_blocks_size - l_current_precinct->block_size);
+						memzero(((uint8*)l_current_precinct->cblks.blocks) + l_current_precinct->block_size,
+						    l_nb_code_blocks_size - l_current_precinct->block_size);
 						l_current_precinct->block_size = l_nb_code_blocks_size;
 					}
 					if(!l_current_precinct->incltree) {
@@ -1213,6 +1210,7 @@ void opj_tcd_reinit_segment(opj_tcd_seg_t* seg)
 {
 	memzero(seg, sizeof(opj_tcd_seg_t));
 }
+
 /**
  * Allocates memory for a decoding code block.
  */
@@ -1317,7 +1315,7 @@ boolint opj_tcd_encode_tile(opj_tcd_t * p_tcd, uint32_t p_tile_no, uint8 * p_des
 				p_cstr_info->tile[p_tile_no].pdx[i] = (int)l_tccp->prcw[i];
 				p_cstr_info->tile[p_tile_no].pdy[i] = (int)l_tccp->prch[i];
 			}
-			p_cstr_info->tile[p_tile_no].packet = (opj_packet_info_t*)opj_calloc((size_t)p_cstr_info->numcomps * 
+			p_cstr_info->tile[p_tile_no].packet = (opj_packet_info_t*)opj_calloc((size_t)p_cstr_info->numcomps *
 				(size_t)p_cstr_info->numlayers * l_num_packs, sizeof(opj_packet_info_t));
 			if(!p_cstr_info->tile[p_tile_no].packet) {
 				/* FIXME event manager error callback */

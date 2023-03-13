@@ -60,7 +60,7 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_
 	int ret;
 	mbedtls_md_init(&ctx);
 	info = mbedtls_md_info_from_type(MBEDTLS_MD_SHA1);
-	if(info == NULL) {
+	if(!info) {
 		mbedtls_md_free(&ctx);
 		return -1;
 	}

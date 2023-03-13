@@ -113,7 +113,7 @@ TS_RESP_CTX * TS_RESP_CTX_new_ex(OSSL_LIB_CTX * libctx, const char * propq)
 		ERR_raise(ERR_LIB_TS, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-	if(propq != NULL) {
+	if(propq) {
 		ctx->propq = OPENSSL_strdup(propq);
 		if(ctx->propq == NULL) {
 			OPENSSL_free(ctx);

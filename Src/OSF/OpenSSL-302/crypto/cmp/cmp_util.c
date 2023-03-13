@@ -242,7 +242,7 @@ int ossl_cmp_asn1_octet_string_set1(ASN1_OCTET_STRING ** tgt, const ASN1_OCTET_S
 	}
 	if(*tgt == src) /* self-assignment */
 		return 1;
-	if(src != NULL) {
+	if(src) {
 		if((p_new = ASN1_OCTET_STRING_dup(src)) == NULL)
 			return 0;
 	}
@@ -261,7 +261,7 @@ int ossl_cmp_asn1_octet_string_set1_bytes(ASN1_OCTET_STRING ** tgt, const uchar 
 		ERR_raise(ERR_LIB_CMP, CMP_R_NULL_ARGUMENT);
 		return 0;
 	}
-	if(bytes != NULL) {
+	if(bytes) {
 		if((p_new = ASN1_OCTET_STRING_new()) == NULL || !(ASN1_OCTET_STRING_set(p_new, bytes, len))) {
 			ASN1_OCTET_STRING_free(p_new);
 			return 0;

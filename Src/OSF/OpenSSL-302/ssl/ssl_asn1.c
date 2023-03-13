@@ -96,7 +96,7 @@ static void ssl_session_oinit(ASN1_OCTET_STRING ** dest, ASN1_OCTET_STRING * os,
 static void ssl_session_sinit(ASN1_OCTET_STRING ** dest, ASN1_OCTET_STRING * os,
     const char * data)
 {
-	if(data != NULL)
+	if(data)
 		ssl_session_oinit(dest, os, (const unsigned char*)data, strlen(data));
 	else
 		*dest = NULL;

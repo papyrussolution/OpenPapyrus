@@ -36,7 +36,7 @@ int archive_read_support_format_raw(Archive * _a)
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	info = (struct raw_info *)SAlloc::C(1, sizeof(*info));
-	if(info == NULL) {
+	if(!info) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate raw_info data");
 		return ARCHIVE_FATAL;
 	}

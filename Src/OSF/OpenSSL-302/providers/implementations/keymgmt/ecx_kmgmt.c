@@ -368,7 +368,7 @@ static int set_property_query(ECX_KEY * ecxkey, const char * propq)
 {
 	OPENSSL_free(ecxkey->propq);
 	ecxkey->propq = NULL;
-	if(propq != NULL) {
+	if(propq) {
 		ecxkey->propq = OPENSSL_strdup(propq);
 		if(ecxkey->propq == NULL) {
 			ERR_raise(ERR_LIB_PROV, ERR_R_MALLOC_FAILURE);

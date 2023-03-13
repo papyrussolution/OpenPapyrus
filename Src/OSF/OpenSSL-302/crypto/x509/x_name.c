@@ -205,7 +205,7 @@ static int x509_name_ex_i2d(const ASN1_VALUE ** val, uchar ** out,
 			return -1;
 	}
 	ret = a->bytes->length;
-	if(out != NULL) {
+	if(out) {
 		memcpy(*out, a->bytes->data, ret);
 		*out += ret;
 	}

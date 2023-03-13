@@ -8,8 +8,6 @@
  */
 #include <uncrustify-internal.h>
 #pragma hdrstop
-//#include "align_add.h"
-//#include "uncrustify.h"
 
 void align_add(ChunkStack &cs, Chunk * pc, size_t &max_col)
 {
@@ -25,12 +23,7 @@ void align_add(ChunkStack &cs, Chunk * pc, size_t &max_col)
 		    __func__, __LINE__, pc->GetOrigLine(), pc->GetColumn(), max_col, min_col);
 	}
 	else {
-		if(prev->Is(CT_COMMENT_MULTI)) {
-			min_col = prev->GetOrigColEnd() + 1;
-		}
-		else {
-			min_col = prev->GetColumn() + prev->Len() + 1;
-		}
+		min_col = prev->Is(CT_COMMENT_MULTI) ? (prev->GetOrigColEnd() + 1) : (prev->GetColumn() + prev->Len() + 1);
 		LOG_FMT(LALADD, "%s(%d): pc orig line=%zu, pc->col=%zu max_col=%zu min_col=%zu multi:%s prev->col=%zu prev->Len()=%zu %s\n",
 		    __func__, __LINE__, pc->GetOrigLine(), pc->GetColumn(), max_col, min_col, (prev->Is(CT_COMMENT_MULTI)) ? "Y" : "N",
 		    (prev->Is(CT_COMMENT_MULTI)) ? prev->GetOrigColEnd() : (UINT32)prev->GetColumn(), prev->Len(),
@@ -41,7 +34,6 @@ void align_add(ChunkStack &cs, Chunk * pc, size_t &max_col)
 		max_col = 0;
 	}
 	cs.Push_Back(pc);
-	if(min_col > max_col) {
-		max_col = min_col;
-	}
+	SETMAX(max_col, min_col); // @sobolev 
+	// @sobolev if(min_col > max_col) { max_col = min_col; }
 } // align_add

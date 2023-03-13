@@ -1,9 +1,7 @@
 /*
  * curve25519.c - Curve25519 ECDH functions for key exchange
  * curve25519-sha256@libssh.org and curve25519-sha256
- *
  * This file is part of the SSH Library
- *
  * Copyright (c) 2013      by Aris Adamantiadis <aris@badcode.be>
  *
  * The SSH Library is free software; you can redistribute it and/or modify

@@ -924,13 +924,11 @@ static void ssl_cipher_apply_rule(uint32_t cipher_id, uint32_t alg_mkey,
 	OSSL_TRACE_END(TLS_CIPHER);
 }
 
-static int ssl_cipher_strength_sort(CIPHER_ORDER ** head_p,
-    CIPHER_ORDER ** tail_p)
+static int ssl_cipher_strength_sort(CIPHER_ORDER ** head_p, CIPHER_ORDER ** tail_p)
 {
 	int32_t max_strength_bits;
 	int i, * number_uses;
 	CIPHER_ORDER * curr;
-
 	/*
 	 * This routine sorts the ciphers with descending strength. The sorting
 	 * must keep the pre-sorted sequence, so we apply the normal sorting
@@ -938,7 +936,7 @@ static int ssl_cipher_strength_sort(CIPHER_ORDER ** head_p,
 	 */
 	max_strength_bits = 0;
 	curr = *head_p;
-	while(curr != NULL) {
+	while(curr) {
 		if(curr->active && (curr->cipher->strength_bits > max_strength_bits))
 			max_strength_bits = curr->cipher->strength_bits;
 		curr = curr->next;
@@ -952,7 +950,7 @@ static int ssl_cipher_strength_sort(CIPHER_ORDER ** head_p,
 	 * Now find the strength_bits values actually used
 	 */
 	curr = *head_p;
-	while(curr != NULL) {
+	while(curr) {
 		if(curr->active)
 			number_uses[curr->cipher->strength_bits]++;
 		curr = curr->next;
@@ -1006,32 +1004,25 @@ static int ssl_cipher_process_rulestr(const char * rule_str, CIPHER_ORDER ** hea
 			l++;
 			continue;
 		}
-
 		alg_mkey = 0;
 		alg_auth = 0;
 		alg_enc = 0;
 		alg_mac = 0;
 		min_tls = 0;
 		algo_strength = 0;
-
 		for(;;) {
 			ch = *l;
 			buf = l;
 			buflen = 0;
 #ifndef CHARSET_EBCDIC
-			while(((ch >= 'A') && (ch <= 'Z')) ||
-			    ((ch >= '0') && (ch <= '9')) ||
-			    ((ch >= 'a') && (ch <= 'z')) ||
-			    (ch == '-') || (ch == '.') || (ch == '='))
+			while(((ch >= 'A') && (ch <= 'Z')) || ((ch >= '0') && (ch <= '9')) || ((ch >= 'a') && (ch <= 'z')) || (ch == '-') || (ch == '.') || (ch == '='))
 #else
-			while(isalnum((unsigned char)ch) || (ch == '-') || (ch == '.')
-			    || (ch == '='))
+			while(isalnum((unsigned char)ch) || (ch == '-') || (ch == '.') || (ch == '='))
 #endif
 			{
 				ch = *(++l);
 				buflen++;
 			}
-
 			if(buflen == 0) {
 				/*
 				 * We hit something we cannot deal with,
@@ -1048,7 +1039,6 @@ static int ssl_cipher_process_rulestr(const char * rule_str, CIPHER_ORDER ** hea
 				found = 0; /* unused -- avoid compiler warning */
 				break; /* special treatment */
 			}
-
 			/* check for multi-part specification */
 			if(ch == '+') {
 				multi = 1;
@@ -1057,7 +1047,6 @@ static int ssl_cipher_process_rulestr(const char * rule_str, CIPHER_ORDER ** hea
 			else {
 				multi = 0;
 			}
-
 			/*
 			 * Now search for the cipher alias in the ca_list. Be careful
 			 * with the strncmp, because the "buflen" limitation

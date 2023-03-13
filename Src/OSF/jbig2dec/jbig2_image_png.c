@@ -12,7 +12,6 @@
    Artifex Software, Inc.,  1305 Grant Avenue - Suite 200, Novato,
    CA 94945, U.S.A., +1(415)492-9861, for further information.
  */
-
 /*
     jbig2dec
  */
@@ -71,7 +70,7 @@ int jbig2_image_write_png(Jbig2Image * image, FILE * out)
 		return 2;
 	}
 	info = png_create_info_struct(png);
-	if(info == NULL) {
+	if(!info) {
 		slfprintf_stderr("unable to create png info structure\n");
 		png_destroy_write_struct(&png, (png_infopp)NULL);
 		return 3;
@@ -89,15 +88,7 @@ int jbig2_image_write_png(Jbig2Image * image, FILE * out)
 	/* png_init_io(png, out); */
 	png_set_write_fn(png, (void *)out, jbig2_png_write_data, jbig2_png_flush);
 	/* now we fill out the info structure with our format data */
-	png_set_IHDR(png,
-	    info,
-	    image->width,
-	    image->height,
-	    1,
-	    PNG_COLOR_TYPE_GRAY,
-	    PNG_INTERLACE_NONE,
-	    PNG_COMPRESSION_TYPE_DEFAULT,
-	    PNG_FILTER_TYPE_DEFAULT);
+	png_set_IHDR(png, info, image->width, image->height, 1, PNG_COLOR_TYPE_GRAY, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 	png_write_info(png, info);
 	/* png natively treats 0 as black. This will convert for us */
 	png_set_invert_mono(png);

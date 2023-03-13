@@ -50,7 +50,7 @@ static int ssl_do_config(SSL * s, SSL_CTX * ctx, const char * name, int system)
 	flags = SSL_CONF_FLAG_FILE;
 	if(!system)
 		flags |= SSL_CONF_FLAG_CERTIFICATE | SSL_CONF_FLAG_REQUIRE_PRIVATE;
-	if(s != NULL) {
+	if(s) {
 		meth = s->method;
 		SSL_CONF_CTX_set_ssl(cctx, s);
 		libctx = s->ctx->libctx;

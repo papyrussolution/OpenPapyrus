@@ -41,7 +41,7 @@ int ossl_cmp_msg_set0_libctx(OSSL_CMP_MSG * msg, OSSL_LIB_CTX * libctx, const ch
 		msg->libctx = libctx;
 		OPENSSL_free(msg->propq);
 		msg->propq = NULL;
-		if(propq != NULL) {
+		if(propq) {
 			msg->propq = OPENSSL_strdup(propq);
 			if(msg->propq == NULL)
 				return 0;
@@ -503,34 +503,20 @@ OSSL_CMP_MSG * ossl_cmp_rr_new(OSSL_CMP_CTX * ctx)
 	OSSL_CMP_MSG * msg = NULL;
 	OSSL_CMP_REVDETAILS * rd;
 	int ret;
-
-	if(!ossl_assert(ctx != NULL && (ctx->oldCert != NULL
-	    || ctx->p10CSR != NULL)))
+	if(!ossl_assert(ctx != NULL && (ctx->oldCert != NULL || ctx->p10CSR != NULL)))
 		return NULL;
-
 	if((rd = OSSL_CMP_REVDETAILS_new()) == NULL)
 		goto err;
-
 	/* Fill the template from the contents of the certificate to be revoked */
-	ret = ctx->oldCert != NULL
-	    ? OSSL_CRMF_CERTTEMPLATE_fill(rd->certDetails,
-		NULL /* pubkey would be redundant */,
-		NULL /* subject would be redundant */,
-		X509_get_issuer_name(ctx->oldCert),
-		X509_get0_serialNumber(ctx->oldCert))
-	    : OSSL_CRMF_CERTTEMPLATE_fill(rd->certDetails,
-		X509_REQ_get0_pubkey(ctx->p10CSR),
-		X509_REQ_get_subject_name(ctx->p10CSR),
-		NULL, NULL);
+	ret = ctx->oldCert != NULL ? OSSL_CRMF_CERTTEMPLATE_fill(rd->certDetails, NULL /* pubkey would be redundant */,
+		NULL /* subject would be redundant */, X509_get_issuer_name(ctx->oldCert), X509_get0_serialNumber(ctx->oldCert)) : 
+		OSSL_CRMF_CERTTEMPLATE_fill(rd->certDetails, X509_REQ_get0_pubkey(ctx->p10CSR), X509_REQ_get_subject_name(ctx->p10CSR), NULL, NULL);
 	if(!ret)
 		goto err;
-
 	/* revocation reason code is optional */
-	if(ctx->revocationReason != CRL_REASON_NONE
-	    && !add_crl_reason_extension(&rd->crlEntryDetails,
+	if(ctx->revocationReason != CRL_REASON_NONE && !add_crl_reason_extension(&rd->crlEntryDetails,
 	    ctx->revocationReason))
 		goto err;
-
 	if((msg = ossl_cmp_msg_create(ctx, OSSL_CMP_PKIBODY_RR)) == NULL)
 		goto err;
 
@@ -1001,17 +987,13 @@ OSSL_CMP_CERTRESPONSE * ossl_cmp_certrepmessage_get0_certresponse(const OSSL_CMP
  * In case of indirect POPO uses the libctx and propq from ctx and private key.
  * Returns a pointer to a copy of the found certificate, or NULL if not found.
  */
-X509 * ossl_cmp_certresponse_get1_cert(const OSSL_CMP_CERTRESPONSE * crep,
-    const OSSL_CMP_CTX * ctx, EVP_PKEY * pkey)
+X509 * ossl_cmp_certresponse_get1_cert(const OSSL_CMP_CERTRESPONSE * crep, const OSSL_CMP_CTX * ctx, EVP_PKEY * pkey)
 {
 	OSSL_CMP_CERTORENCCERT * coec;
 	X509 * crt = NULL;
-
 	if(!ossl_assert(crep != NULL && ctx != NULL))
 		return NULL;
-
-	if(crep->certifiedKeyPair
-	    && (coec = crep->certifiedKeyPair->certOrEncCert) != NULL) {
+	if(crep->certifiedKeyPair && (coec = crep->certifiedKeyPair->certOrEncCert) != NULL) {
 		switch(coec->type) {
 			case OSSL_CMP_CERTORENCCERT_CERTIFICATE:
 			    crt = X509_dup(coec->value.certificate);
@@ -1022,10 +1004,7 @@ X509 * ossl_cmp_certresponse_get1_cert(const OSSL_CMP_CERTRESPONSE * crep,
 				    ERR_raise(ERR_LIB_CMP, CMP_R_MISSING_PRIVATE_KEY);
 				    return NULL;
 			    }
-			    crt =
-				OSSL_CRMF_ENCRYPTEDVALUE_get1_encCert(coec->value.encryptedCert,
-				    ctx->libctx, ctx->propq,
-				    pkey);
+			    crt = OSSL_CRMF_ENCRYPTEDVALUE_get1_encCert(coec->value.encryptedCert, ctx->libctx, ctx->propq, pkey);
 			    break;
 			default:
 			    ERR_raise(ERR_LIB_CMP, CMP_R_UNKNOWN_CERT_TYPE);
@@ -1075,12 +1054,10 @@ int OSSL_CMP_MSG_write(const char * file, const OSSL_CMP_MSG * msg)
 {
 	BIO * bio;
 	int res;
-
 	if(file == NULL || msg == NULL) {
 		ERR_raise(ERR_LIB_CMP, CMP_R_NULL_ARGUMENT);
 		return -1;
 	}
-
 	bio = BIO_new_file(file, "wb");
 	if(!bio)
 		return -2;
@@ -1089,26 +1066,20 @@ int OSSL_CMP_MSG_write(const char * file, const OSSL_CMP_MSG * msg)
 	return res;
 }
 
-OSSL_CMP_MSG * d2i_OSSL_CMP_MSG(OSSL_CMP_MSG ** msg, const uchar ** in,
-    long len)
+OSSL_CMP_MSG * d2i_OSSL_CMP_MSG(OSSL_CMP_MSG ** msg, const uchar ** in, long len)
 {
 	OSSL_LIB_CTX * libctx = NULL;
 	const char * propq = NULL;
-
 	if(msg != NULL && *msg != NULL) {
 		libctx  = (*msg)->libctx;
 		propq = (*msg)->propq;
 	}
-
-	return (OSSL_CMP_MSG*)ASN1_item_d2i_ex((ASN1_VALUE**)msg, in, len,
-		   ASN1_ITEM_rptr(OSSL_CMP_MSG),
-		   libctx, propq);
+	return (OSSL_CMP_MSG*)ASN1_item_d2i_ex((ASN1_VALUE**)msg, in, len, ASN1_ITEM_rptr(OSSL_CMP_MSG), libctx, propq);
 }
 
 int i2d_OSSL_CMP_MSG(const OSSL_CMP_MSG * msg, uchar ** out)
 {
-	return ASN1_item_i2d((const ASN1_VALUE*)msg, out,
-		   ASN1_ITEM_rptr(OSSL_CMP_MSG));
+	return ASN1_item_i2d((const ASN1_VALUE*)msg, out, ASN1_ITEM_rptr(OSSL_CMP_MSG));
 }
 
 OSSL_CMP_MSG * d2i_OSSL_CMP_MSG_bio(BIO * bio, OSSL_CMP_MSG ** msg)

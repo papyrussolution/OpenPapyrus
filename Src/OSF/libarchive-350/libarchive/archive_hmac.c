@@ -126,7 +126,7 @@ static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8 * key, size
 	int ret;
 	mbedtls_md_init(ctx);
 	info = mbedtls_md_info_from_type(MBEDTLS_MD_SHA1);
-	if(info == NULL) {
+	if(!info) {
 		mbedtls_md_free(ctx);
 		return -1;
 	}

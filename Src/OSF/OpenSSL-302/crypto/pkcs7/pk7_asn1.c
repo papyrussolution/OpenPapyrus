@@ -94,7 +94,7 @@ PKCS7 * PKCS7_new_ex(OSSL_LIB_CTX * libctx, const char * propq)
 	if(pkcs7 != NULL) {
 		pkcs7->ctx.libctx = libctx;
 		pkcs7->ctx.propq = NULL;
-		if(propq != NULL) {
+		if(propq) {
 			pkcs7->ctx.propq = OPENSSL_strdup(propq);
 			if(pkcs7->ctx.propq == NULL) {
 				PKCS7_free(pkcs7);

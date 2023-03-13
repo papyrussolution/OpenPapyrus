@@ -1627,6 +1627,7 @@
     <ClCompile Include="..\OSF\mupdf\source\fitz\writer.c" />
     <ClCompile Include="..\OSF\mupdf\source\fitz\xml.c" />
     <ClCompile Include="..\OSF\mupdf\source\fitz\zip.c" />
+    <ClCompile Include="..\OSF\mupdf\source\helpers\pkcs7\pkcs7-openssl.c" />
     <ClCompile Include="..\OSF\mupdf\source\html\css-apply.c" />
     <ClCompile Include="..\OSF\mupdf\source\html\css-parse.c" />
     <ClCompile Include="..\OSF\mupdf\source\html\epub-doc.c" />
@@ -1781,6 +1782,7 @@
     <ClInclude Include="..\OSF\mupdf\include\mupdf\fitz\write-pixmap.h" />
     <ClInclude Include="..\OSF\mupdf\include\mupdf\fitz\writer.h" />
     <ClInclude Include="..\OSF\mupdf\include\mupdf\fitz\xml.h" />
+    <ClInclude Include="..\OSF\mupdf\include\mupdf\helpers\pkcs7-openssl.h" />
     <ClInclude Include="..\OSF\mupdf\include\mupdf\memento.h" />
     <ClInclude Include="..\OSF\mupdf\include\mupdf\pdf.h" />
     <ClInclude Include="..\OSF\mupdf\include\mupdf\pdf\annot.h" />
@@ -1825,19 +1827,14 @@
     <ProjectReference Include="libpng.vcxproj">
       <Project>{04aa636d-9d3e-4e79-9c2e-b8d0470719da}</Project>
     </ProjectReference>
+    <ProjectReference Include="libresources.vcxproj">
+      <Project>{52dcab29-c8ee-4422-954c-29afa6b33e22}</Project>
+    </ProjectReference>
     <ProjectReference Include="openjp2.vcxproj">
       <Project>{c756e07c-5895-39df-8310-7126f3c6fd84}</Project>
     </ProjectReference>
     <ProjectReference Include="libluratech.vcxproj">
       <Project>{b0091365-c9ba-4f40-ae2b-ef93702871b2}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="libpkcs7.vcxproj">
-      <Project>{22462382-b30d-42a5-bf07-ee1a35e25d21}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="libresources.vcxproj">
-      <Project>{52dcab29-c8ee-4422-954c-29afa6b33e22}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="libextract.vcxproj">

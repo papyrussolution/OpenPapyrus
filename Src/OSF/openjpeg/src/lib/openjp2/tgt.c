@@ -110,8 +110,7 @@ opj_tgt_tree_t * opj_tgt_create(uint32_t numleafsh, uint32_t numleafsv, opj_even
  * @param       p_num_leafs_v           the height of the array of leafs of the tree
  * @return      a new tag-tree if successful, NULL otherwise
  */
-opj_tgt_tree_t * opj_tgt_init(opj_tgt_tree_t * p_tree, uint32_t p_num_leafs_h,
-    uint32_t p_num_leafs_v, opj_event_mgr_t * p_manager)
+opj_tgt_tree_t * opj_tgt_init(opj_tgt_tree_t * p_tree, uint32_t p_num_leafs_h, uint32_t p_num_leafs_v, opj_event_mgr_t * p_manager)
 {
 	int32_t l_nplh[32];
 	int32_t l_nplv[32];
@@ -123,16 +122,12 @@ opj_tgt_tree_t * opj_tgt_init(opj_tgt_tree_t * p_tree, uint32_t p_num_leafs_h,
 	uint32_t l_num_levels;
 	uint32_t n;
 	uint32_t l_node_size;
-
 	if(!p_tree) {
 		return 0;
 	}
-
-	if((p_tree->numleafsh != p_num_leafs_h) ||
-	    (p_tree->numleafsv != p_num_leafs_v)) {
+	if((p_tree->numleafsh != p_num_leafs_h) || (p_tree->numleafsv != p_num_leafs_v)) {
 		p_tree->numleafsh = p_num_leafs_h;
 		p_tree->numleafsv = p_num_leafs_v;
-
 		l_num_levels = 0;
 		l_nplh[0] = (int32_t)p_num_leafs_h;
 		l_nplv[0] = (int32_t)p_num_leafs_v;
@@ -144,7 +139,6 @@ opj_tgt_tree_t * opj_tgt_init(opj_tgt_tree_t * p_tree, uint32_t p_num_leafs_h,
 			p_tree->numnodes += n;
 			++l_num_levels;
 		} while(n > 1);
-
 		/* ADD */
 		if(p_tree->numnodes == 0) {
 			opj_tgt_destroy(p_tree);
@@ -165,7 +159,6 @@ opj_tgt_tree_t * opj_tgt_init(opj_tgt_tree_t * p_tree, uint32_t p_num_leafs_h,
 		l_node = p_tree->nodes;
 		l_parent_node = &p_tree->nodes[p_tree->numleafsh * p_tree->numleafsv];
 		l_parent_node0 = l_parent_node;
-
 		for(i = 0; i < l_num_levels - 1; ++i) {
 			for(j = 0; j < l_nplv[i]; ++j) {
 				k = l_nplh[i];
@@ -190,7 +183,6 @@ opj_tgt_tree_t * opj_tgt_init(opj_tgt_tree_t * p_tree, uint32_t p_num_leafs_h,
 		l_node->parent = 0;
 	}
 	opj_tgt_reset(p_tree);
-
 	return p_tree;
 }
 
@@ -207,10 +199,9 @@ void opj_tgt_destroy(opj_tgt_tree_t * p_tree)
 
 void opj_tgt_reset(opj_tgt_tree_t * p_tree)
 {
-	uint32_t i;
 	if(p_tree) {
 		opj_tgt_node_t * l_current_node = p_tree->nodes;
-		for(i = 0; i < p_tree->numnodes; ++i) {
+		for(uint32_t i = 0; i < p_tree->numnodes; ++i) {
 			l_current_node->value = 999;
 			l_current_node->low = 0;
 			l_current_node->known = 0;

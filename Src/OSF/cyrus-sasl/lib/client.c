@@ -33,14 +33,6 @@
  *    acknowledgment:
  *    "This product includes software developed by Computing Services
  *     at Carnegie Mellon University (http://www.cmu.edu/computing/)."
- *
- * CARNEGIE MELLON UNIVERSITY DISCLAIMS ALL WARRANTIES WITH REGARD TO
- * THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
- * AND FITNESS, IN NO EVENT SHALL CARNEGIE MELLON UNIVERSITY BE LIABLE
- * FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
- * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
- * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 #include <sasl-internal.h>
 #pragma hdrstop
@@ -816,42 +808,24 @@ done:
  *  SASL_BADPROT   -- server protocol incorrect/cancelled
  *  SASL_BADSERV   -- server failed mutual auth
  */
-
-int sasl_client_step(sasl_conn_t * conn,
-    const char * serverin,
-    unsigned serverinlen,
-    sasl_interact_t ** prompt_need,
-    const char ** clientout,
-    unsigned * clientoutlen)
+int sasl_client_step(sasl_conn_t * conn, const char * serverin, unsigned serverinlen, sasl_interact_t ** prompt_need, const char ** clientout, unsigned * clientoutlen)
 {
 	sasl_client_conn_t * c_conn = (sasl_client_conn_t*)conn;
 	int result;
-
 	if(_sasl_client_active == 0) return SASL_NOTINIT;
 	if(!conn) return SASL_BADPARAM;
-
 	/* check parameters */
 	if((serverin==NULL) && (serverinlen>0))
 		PARAMERROR(conn);
-
 	/* Don't do another step if the plugin told us that we're done */
 	if(conn->oparams.doneflag) {
 		_sasl_log(conn, SASL_LOG_ERR, "attempting client step after doneflag");
 		return SASL_FAIL;
 	}
-
-	if(clientout) *clientout = NULL;
-	if(clientoutlen) *clientoutlen = 0;
-
+	ASSIGN_PTR(clientout, NULL);
+	ASSIGN_PTR(clientoutlen, 0);
 	/* do a step */
-	result = c_conn->mech->m.plug->mech_step(conn->context,
-		c_conn->cparams,
-		serverin,
-		serverinlen,
-		prompt_need,
-		clientout, clientoutlen,
-		&conn->oparams);
-
+	result = c_conn->mech->m.plug->mech_step(conn->context, c_conn->cparams, serverin, serverinlen, prompt_need, clientout, clientoutlen, &conn->oparams);
 	if(result == SASL_OK) {
 		/* So we're done on this end, but if both
 		 * 1. the mech does server-send-last
@@ -861,14 +835,11 @@ int sasl_client_step(sasl_conn_t * conn,
 			*clientout = "";
 			*clientoutlen = 0;
 		}
-
 		if(!conn->oparams.maxoutbuf) {
 			conn->oparams.maxoutbuf = conn->props.maxbufsize;
 		}
-
 		if(conn->oparams.user == NULL || conn->oparams.authid == NULL) {
-			sasl_seterror(conn, 0,
-			    "mech did not call canon_user for both authzid and authid");
+			sasl_seterror(conn, 0, "mech did not call canon_user for both authzid and authid");
 			result = SASL_BADPROT;
 		}
 	}
@@ -884,22 +855,12 @@ static unsigned mech_names_len(cmechanism_t * mech_list)
 {
 	cmechanism_t * listptr;
 	unsigned result = 0;
-
-	for(listptr = mech_list;
-	    listptr;
-	    listptr = listptr->next)
+	for(listptr = mech_list; listptr; listptr = listptr->next)
 		result += (unsigned)strlen(listptr->m.plug->mech_name);
-
 	return result;
 }
 
-int _sasl_client_listmech(sasl_conn_t * conn,
-    const char * prefix,
-    const char * sep,
-    const char * suffix,
-    const char ** result,
-    unsigned * plen,
-    int * pcount)
+int _sasl_client_listmech(sasl_conn_t * conn, const char * prefix, const char * sep, const char * suffix, const char ** result, unsigned * plen, int * pcount)
 {
 	sasl_client_conn_t * c_conn = (sasl_client_conn_t*)conn;
 	cmechanism_t * m = NULL;

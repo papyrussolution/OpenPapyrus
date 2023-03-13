@@ -74,52 +74,41 @@ void ESet::Internal::expand(Xapian::termcount max_esize, const Xapian::Database 
 			LOGLINE(EXPAND, "Replacing the root of the termlist tree");
 			tree.reset(new_root);
 		}
-
-		if(tree->at_end()) break;
-
+		if(tree->at_end()) 
+			break;
 		string term = tree->get_termname();
-
 		// If there's an ExpandDecider, see if it accepts the term.
-		if(edecider && !(*edecider)(term)) continue;
-
+		if(edecider && !(*edecider)(term)) 
+			continue;
 		++ebound;
-
 		/* Set up the ExpandWeight by clearing the existing statistics and
 		   collecting statistics for the new term. */
 		eweight.collect_stats(tree.get(), term);
-
 		double wt = eweight.get_weight();
-
 		// If the weights are equal, we prefer the lexically smaller term and
 		// since we process terms in ascending order we use "<=" not "<" here.
-		if(wt <= min_wt) continue;
-
+		if(wt <= min_wt) 
+			continue;
 		if(items.size() < max_esize) {
 			items.emplace_back(wt, term);
 			continue;
 		}
-
-		// We have the desired number of items, so it's one-in one-out from
-		// now on.
+		// We have the desired number of items, so it's one-in one-out from now on.
 		Assert(items.size() == max_esize);
 		if(UNLIKELY(!is_heap)) {
-			Heap::make(items.begin(), items.end(),
-			    std::less<Xapian::Internal::ExpandTerm>());
+			Heap::make(items.begin(), items.end(), std::less<Xapian::Internal::ExpandTerm>());
 			min_wt = items.front().wt;
 			is_heap = true;
-			if(wt <= min_wt) continue;
+			if(wt <= min_wt) 
+				continue;
 		}
-
 		items.front() = Xapian::Internal::ExpandTerm(wt, term);
-		Heap::replace(items.begin(), items.end(),
-		    std::less<Xapian::Internal::ExpandTerm>());
+		Heap::replace(items.begin(), items.end(), std::less<Xapian::Internal::ExpandTerm>());
 		min_wt = items.front().wt;
 	}
-
 	// Now sort the contents of the new ESet.
 	if(is_heap) {
-		Heap::sort(items.begin(), items.end(),
-		    std::less<Xapian::Internal::ExpandTerm>());
+		Heap::sort(items.begin(), items.end(), std::less<Xapian::Internal::ExpandTerm>());
 	}
 	else {
 		sort(items.begin(), items.end());
@@ -130,7 +119,6 @@ string ESet::Internal::get_description() const
 {
 	string desc("ESet::Internal(ebound=");
 	desc += str(ebound);
-
 	vector <Xapian::Internal::ExpandTerm>::const_iterator i;
 	for(i = items.begin(); i != items.end(); ++i) {
 		desc += ", ";
@@ -153,15 +141,8 @@ ESet::~ESet()
 {
 }
 
-Xapian::doccount ESet::size() const
-{
-	return internal->items.size();
-}
-
-Xapian::termcount ESet::get_ebound() const
-{
-	return internal->ebound;
-}
+Xapian::doccount ESet::size() const { return internal->items.size(); }
+Xapian::termcount ESet::get_ebound() const { return internal->ebound; }
 
 std::string ESet::get_description() const
 {

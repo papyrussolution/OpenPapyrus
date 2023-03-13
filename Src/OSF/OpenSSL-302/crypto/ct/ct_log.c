@@ -94,7 +94,7 @@ CTLOG_STORE * CTLOG_STORE_new_ex(OSSL_LIB_CTX * libctx, const char * propq)
 		return NULL;
 	}
 	ret->libctx = libctx;
-	if(propq != NULL) {
+	if(propq) {
 		ret->propq = OPENSSL_strdup(propq);
 		if(ret->propq == NULL) {
 			ERR_raise(ERR_LIB_CT, ERR_R_MALLOC_FAILURE);
@@ -244,7 +244,7 @@ CTLOG * CTLOG_new_ex(EVP_PKEY * public_key, const char * name, OSSL_LIB_CTX * li
 		return NULL;
 	}
 	ret->libctx = libctx;
-	if(propq != NULL) {
+	if(propq) {
 		ret->name = OPENSSL_strdup(propq);
 		if(ret->propq == NULL) {
 			ERR_raise(ERR_LIB_CT, ERR_R_MALLOC_FAILURE);

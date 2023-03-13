@@ -44,11 +44,7 @@ uint32_t lzma_crc32(const uint8_t *buf, size_t size, uint32_t crc)
 			// At least with some compilers, it is critical for
 			// performance, that the crc variable is XORed
 			// between the two table-lookup pairs.
-			crc = lzma_crc32_table[3][CRC_A(tmp)]
-			    ^ lzma_crc32_table[2][CRC_B(tmp)]
-			    ^ crc
-			    ^ lzma_crc32_table[1][CRC_C(tmp)]
-			    ^ lzma_crc32_table[0][CRC_D(tmp)];
+			crc = lzma_crc32_table[3][CRC_A(tmp)] ^ lzma_crc32_table[2][CRC_B(tmp)] ^ crc ^ lzma_crc32_table[1][CRC_C(tmp)] ^ lzma_crc32_table[0][CRC_D(tmp)];
 		}
 	}
 	while(size-- != 0)

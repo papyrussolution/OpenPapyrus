@@ -667,7 +667,7 @@ void CMSEXPORT cmsDictFree(cmsHANDLE hDict)
 	assert(dict != NULL);
 	// Walk the list freeing all nodes
 	entry = dict->head;
-	while(entry != NULL) {
+	while(entry) {
 		cmsMLUfree(entry->DisplayName);
 		cmsMLUfree(entry->DisplayValue);
 		_cmsFree(dict->ContextID, entry->Name);
@@ -694,7 +694,8 @@ boolint CMSEXPORT cmsDictAddEntry(cmsHANDLE hDict, const wchar_t * Name, const w
 	assert(dict != NULL);
 	assert(Name != NULL);
 	entry = (cmsDICTentry*)_cmsMallocZero(dict->ContextID, sizeof(cmsDICTentry));
-	if(!entry) return FALSE;
+	if(!entry) 
+		return FALSE;
 	entry->DisplayName  = cmsMLUdup(DisplayName);
 	entry->DisplayValue = cmsMLUdup(DisplayValue);
 	entry->Name = DupWcs(dict->ContextID, Name);
@@ -716,7 +717,7 @@ cmsHANDLE CMSEXPORT cmsDictDup(cmsHANDLE hDict)
 		return NULL;
 	// Walk the list freeing all nodes
 	entry = old_dict->head;
-	while(entry != NULL) {
+	while(entry) {
 		if(!cmsDictAddEntry(hNew, entry->Name, entry->Value, entry->DisplayName, entry->DisplayValue)) {
 			cmsDictFree(hNew);
 			return NULL;

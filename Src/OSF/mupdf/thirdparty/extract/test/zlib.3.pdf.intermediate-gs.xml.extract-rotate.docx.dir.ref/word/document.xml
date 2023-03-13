@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex" xmlns:cx1="http://schemas.microsoft.com/office/drawing/2015/9/8/chartex" xmlns:cx2="http://schemas.microsoft.com/office/drawing/2015/10/21/chartex" xmlns:cx3="http://schemas.microsoft.com/office/drawing/2016/5/9/chartex" xmlns:cx4="http://schemas.microsoft.com/office/drawing/2016/5/10/chartex" xmlns:cx5="http://schemas.microsoft.com/office/drawing/2016/5/11/chartex" xmlns:cx6="http://schemas.microsoft.com/office/drawing/2016/5/12/chartex" xmlns:cx7="http://schemas.microsoft.com/office/drawing/2016/5/13/chartex" xmlns:cx8="http://schemas.microsoft.com/office/drawing/2016/5/14/chartex" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:aink="http://schemas.microsoft.com/office/drawing/2016/ink" xmlns:am3d="http://schemas.microsoft.com/office/drawing/2017/model3d" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:w16cex="http://schemas.microsoft.com/office/word/2018/wordml/cex" xmlns:w16cid="http://schemas.microsoft.com/office/word/2016/wordml/cid" xmlns:w16="http://schemas.microsoft.com/office/word/2018/wordml" xmlns:w16se="http://schemas.microsoft.com/office/word/2015/wordml/symex" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 w15 w16se w16cid w16 w16cex wp14"><w:body>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">ZLIB(3) ZLIB(3)</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Bold" w:hAnsi="Helvetica-Bold"/><w:b/><w:sz w:val="21.900000"/><w:szCs w:val="16.425000"/></w:rPr><w:t xml:space="preserve">NAME </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">zlib &#x2212; compression/decompression library</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Bold" w:hAnsi="Helvetica-Bold"/><w:b/><w:sz w:val="21.900000"/><w:szCs w:val="16.425000"/></w:rPr><w:t xml:space="preserve">SYNOPSIS </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">[see </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">zlib.h </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">for full description]</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Bold" w:hAnsi="Helvetica-Bold"/><w:b/><w:sz w:val="21.900000"/><w:szCs w:val="16.425000"/></w:rPr><w:t xml:space="preserve">DESCRIPTION </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">The </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">zlib </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">library is a general purpose data compression library. The code is thread safe, assuming that the standard library functions used are thread safe, such as memory allocation routines. It provides in-memory compression and decompression functions, including integrity checks of the uncompressed data. This version of the library supports only one compression method (deflation) but other algorithms may be added later with the same stream interface.</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">Compression can be done in a single step if the buffers are large enough or can be done by repeated calls of the compression function. In the latter case, the application must provide more input and/or consume the output (providing more output space) before each call.</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">The library also supports reading and writing files in </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">gzip</w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">(1) (.gz) format with an interface similar to that of stdio.</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">The library does not install any signal handler. The decoder checks the consistency of the compressed data, so the library should never crash even in the case of corrupted input.</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">All functions of the compression library are documented in the file </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">zlib.h</w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">. The distribution source includes examples of use of the library in the files </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">test/example.c </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">and </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">test/minigzip.c, </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">as well as other examples in the </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">examples/ </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">directory.</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">Changes to this version are documented in the file </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">ChangeLog </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">that accompanies the source.</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">zlib </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">is built in to many languages and operating systems, including but not limited to Java, Python, .NET, PHP, Perl, Ruby, Swift, and Go.</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">An experimental package to read and write files in the .zip format, written on top of </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">zlib </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">by Gilles Vollant (info@winimage.com), is available at:</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">http://www.winimage.com/zLibDll/minizip.html and also in the </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">contrib/minizip </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">directory of the main </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">zlib </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">source distribution.</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Bold" w:hAnsi="Helvetica-Bold"/><w:b/><w:sz w:val="21.900000"/><w:szCs w:val="16.425000"/></w:rPr><w:t xml:space="preserve">SEE ALSO </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">The </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">zlib </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">web site can be found at:</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">http://zlib.net/</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">The data format used by the </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">zlib </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">library is described by RFC (Request for Comments) 1950 to 1952 in the files:</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">http://tools.ietf.org/html/rfc1950 (for the zlib header and trailer format) http://tools.ietf.org/html/rfc1951 (for the deflate compressed data format) http://tools.ietf.org/html/rfc1952 (for the gzip header and trailer format)</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">Mark Nelson wrote an article about </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">zlib </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">for the Jan. 1997 issue of Dr. Dobb&#x2019;s Journal; a copy of the article is available at:</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">http://marknelson.us/1997/01/01/zlib-engine/</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Bold" w:hAnsi="Helvetica-Bold"/><w:b/><w:sz w:val="21.900000"/><w:szCs w:val="16.425000"/></w:rPr><w:t xml:space="preserve">REPORTING PROBLEMS </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">Before reporting a problem, please check the </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">zlib </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">web site to verify that you have the latest version of </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">zlib</w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">; otherwise, obtain the latest version and see if the problem still exists. Please read the </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">zlib </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">FAQ at:</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">http://zlib.net/zlib_faq.html</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">before asking for help. Send questions and/or comments to zlib@gzip.org, or (for the Windows DLL version) to Gilles Vollant (info@winimage.com).</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">15 Jan 2017 1</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">ZLIB(3) ZLIB(3)</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Bold" w:hAnsi="Helvetica-Bold"/><w:b/><w:sz w:val="21.900000"/><w:szCs w:val="16.425000"/></w:rPr><w:t xml:space="preserve">AUTHORS AND LICENSE </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">Version 1.2.11</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">Copyright (C) 1995-2017 Jean-loup Gailly and Mark Adler</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">This software is provided &#x2019;as-is&#x2019;, without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">3. This notice may not be removed or altered from any source distribution.</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">Jean-loup Gailly Mark Adler jloup@gzip.org madler@alumni.caltech.edu</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">The deflate format used by </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">zlib </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">was defined by Phil Katz. The deflate and </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">zlib </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">specifications were written by L. Peter Deutsch. Thanks to all the people who reported problems and suggested various improvements in </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica-Oblique" w:hAnsi="Helvetica-Oblique"/><w:i/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">zlib</w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">; who are too numerous to cite here.</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">UNIX manual page by R. P. C. Rodgers, U.S. National Library of Medicine (rodgers@nlm.nih.gov).</w:t></w:r>
+</w:p>
+
+<w:p>
+<w:r><w:rPr><w:rFonts w:ascii="Helvetica" w:hAnsi="Helvetica"/><w:sz w:val="20.000000"/><w:szCs w:val="15.000000"/></w:rPr><w:t xml:space="preserve">15 Jan 2017 2</w:t></w:r>
+</w:p></w:body></w:document>

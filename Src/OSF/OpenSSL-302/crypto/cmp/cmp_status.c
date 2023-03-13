@@ -263,7 +263,7 @@ OSSL_CMP_PKISI * OSSL_CMP_STATUSINFO_new(int status, int fail_info,
 	if(!ASN1_INTEGER_set(si->status, status))
 		goto err;
 
-	if(text != NULL) {
+	if(text) {
 		if((utf8_text = ASN1_UTF8STRING_new()) == NULL
 		    || !ASN1_STRING_set(utf8_text, text, -1))
 			goto err;

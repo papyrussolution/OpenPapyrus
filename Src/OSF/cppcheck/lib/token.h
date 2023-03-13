@@ -165,52 +165,38 @@ public:
 
 	explicit Token(TokensFrontBack * tokensFrontBack = nullptr);
 	~Token();
-
 	ConstTokenRange until(const Token * t) const;
-
-	template <typename T>
-	void str(T&& s) {
+	template <typename T> void str(T&& s) 
+	{
 		mStr = s;
 		mImpl->mVarId = 0;
-
 		update_property_info();
 	}
-
 	/**
 	 * Concatenate two (quoted) strings. Automatically cuts of the last/first character.
 	 * Example: "hello ""world" -> "hello world". Used by the token simplifier.
 	 */
 	void concatStr(std::string const& b);
-
-	const std::string &str() const {
-		return mStr;
-	}
-
+	const std::string &str() const { return mStr; }
 	/**
 	 * Unlink and delete the next 'count' tokens.
 	 */
 	void deleteNext(nonneg int count = 1);
-
 	/**
 	 * Unlink and delete the previous 'count' tokens.
 	 */
 	void deletePrevious(nonneg int count = 1);
-
 	/**
 	 * Swap the contents of this token with the next token.
 	 */
 	void swapWithNext();
-
 	/**
 	 * @return token in given index, related to this token.
 	 * For example index 1 would return next token, and 2
 	 * would return next from that one.
 	 */
 	const Token * tokAt(int index) const;
-	Token * tokAt(int index) {
-		return const_cast<Token *>(const_cast<const Token *>(this)->tokAt(index));
-	}
-
+	Token * tokAt(int index) { return const_cast<Token *>(const_cast<const Token *>(this)->tokAt(index)); }
 	/**
 	 * @return the link to the token in given index, related to this token.
 	 * For example index 1 would return the link to next token.
@@ -293,7 +279,6 @@ public:
 	 *         false if given token does not match with given pattern
 	 */
 	static bool Match(const Token * tok, const char pattern[], nonneg int varid = 0);
-
 	/**
 	 * @return length of C-string.
 	 *
@@ -302,7 +287,6 @@ public:
 	 * @param tok token with C-string
 	 **/
 	static nonneg int getStrLength(const Token * tok);
-
 	/**
 	 * @return array length of C-string.
 	 *
@@ -311,7 +295,6 @@ public:
 	 * @param tok token with C-string
 	 **/
 	static nonneg int getStrArraySize(const Token * tok);
-
 	/**
 	 * @return sizeof of C-string.
 	 *
@@ -321,31 +304,22 @@ public:
 	 * @param settings Settings
 	 **/
 	static nonneg int getStrSize(const Token * tok, const Settings * const settings);
-
-	const ValueType * valueType() const {
-		return mImpl->mValueType;
-	}
-
+	const ValueType * valueType() const { return mImpl->mValueType; }
 	void setValueType(ValueType * vt);
-
-	const ValueType * argumentType() const {
+	const ValueType * argumentType() const 
+	{
 		const Token * top = this;
 		while(top && !Token::Match(top->astParent(), ",|("))
 			top = top->astParent();
 		return top ? top->mImpl->mValueType : nullptr;
 	}
-
 	Token::Type tokType() const { return mTokType; }
 	void tokType(Token::Type t) 
 	{
 		mTokType = t;
-		const bool memoizedIsName = (mTokType == eName || mTokType == eType || mTokType == eVariable ||
-		    mTokType == eFunction || mTokType == eKeyword || mTokType == eBoolean ||
-		    mTokType == eEnumerator);                  // TODO: "true"/"false" aren't really a name...
+		const bool memoizedIsName = oneof7(mTokType, eName, eType, eVariable, eFunction, eKeyword, eBoolean, eEnumerator); // TODO: "true"/"false" aren't really a name...
 		setFlag(fIsName, memoizedIsName);
-
-		const bool memoizedIsLiteral = (mTokType == eNumber || mTokType == eString || mTokType == eChar ||
-		    mTokType == eBoolean || mTokType == eLiteral || mTokType == eEnumerator);
+		const bool memoizedIsLiteral = oneof6(mTokType, eNumber, eString, eChar, eBoolean, eLiteral, eEnumerator);
 		setFlag(fIsLiteral, memoizedIsLiteral);
 	}
 	bool isKeyword() const { return mTokType == eKeyword; }
@@ -786,10 +760,7 @@ public:
 	/**
 	 * @return a pointer to the type associated with this token.
 	 */
-	const ::Type * type() const {
-		return mTokType == eType ? mImpl->mType : nullptr;
-	}
-
+	const ::Type * type() const { return mTokType == eType ? mImpl->mType : nullptr; }
 	static const ::Type* typeOf(const Token* tok, const Token**typeTok = nullptr);
 	static std::pair<const Token*, const Token*> typeDecl(const Token * tok);
 	static std::string typeStr(const Token* tok);
@@ -830,13 +801,9 @@ public:
 	static void move(Token * srcStart, Token * srcEnd, Token * newLocation);
 
 	/** Get progressValue (0 - 100) */
-	nonneg int progressValue() const {
-		return mImpl->mProgressValue;
-	}
-
+	nonneg int progressValue() const { return mImpl->mProgressValue; }
 	/** Calculate progress values for all tokens */
 	static void assignProgressValues(Token * tok);
-
 	/**
 	 * @return the first token of the next argument. Does only work on argument
 	 * lists. Requires that Tokenizer::createLinks2() has been called before.

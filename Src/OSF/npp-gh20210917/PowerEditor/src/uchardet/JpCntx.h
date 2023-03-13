@@ -48,23 +48,19 @@
 //hiragana frequency category table
 extern const PRUint8 jp2CharContext[83][83];
 
-class JapaneseContextAnalysis
-{
+class JapaneseContextAnalysis {
 public:
-	JapaneseContextAnalysis() {
+	JapaneseContextAnalysis() 
+	{
 		Reset(PR_FALSE);
 	}
-
 	void HandleData(const char * aBuf, PRUint32 aLen);
-
 	void HandleOneChar(const char * aStr, PRUint32 aCharLen)
 	{
 		PRInt32 order;
-
 		//if we received enough data, stop here
 		if(mTotalRel > MAX_REL_THRESHOLD) mDone = PR_TRUE;
 		if(mDone) return;
-
 		//Only 2-bytes characters are of our interest
 		order = (aCharLen == 2) ? GetOrder(aStr) : -1;
 		if(order != -1 && mLastCharOrder != -1) {
@@ -77,35 +73,22 @@ public:
 
 	float GetConfidence(void);
 	void      Reset(PRBool aIsPreferredLanguage);
-	void      SetOpion(){
+	void      SetOpion()
+	{
 	}
-
-	PRBool GotEnoughData() {
-		return mTotalRel > ENOUGH_REL_THRESHOLD;
-	}
-
+	PRBool GotEnoughData() { return mTotalRel > ENOUGH_REL_THRESHOLD; }
 protected:
 	virtual PRInt32 GetOrder(const char * str, PRUint32 * charLen) = 0;
 	virtual PRInt32 GetOrder(const char * str) = 0;
-
-	//category counters, each integer counts sequences in its category
-	PRUint32 mRelSample[NUM_OF_CATEGORY];
-
-	//total sequence received
-	PRUint32 mTotalRel;
-
-	//Number of sequences needed to trigger detection
-	PRUint32 mDataThreshold;
-
-	//The order of previous char
-	PRInt32 mLastCharOrder;
-
+	
+	PRUint32 mRelSample[NUM_OF_CATEGORY]; //category counters, each integer counts sequences in its category
+	PRUint32 mTotalRel; //total sequence received
+	PRUint32 mDataThreshold; //Number of sequences needed to trigger detection
+	PRInt32 mLastCharOrder; //The order of previous char
 	//if last byte in current buffer is not the last byte of a character, we
 	//need to know how many byte to skip in next buffer.
 	PRUint32 mNeedToSkipCharNum;
-
-	//If this flag is set to PR_TRUE, detection is done and conclusion has been made
-	PRBool mDone;
+	PRBool mDone; //If this flag is set to PR_TRUE, detection is done and conclusion has been made
 };
 
 class SJISContextAnalysis : public JapaneseContextAnalysis
@@ -113,20 +96,16 @@ class SJISContextAnalysis : public JapaneseContextAnalysis
 	//SJISContextAnalysis() {};
 protected:
 	PRInt32 GetOrder(const char * str, PRUint32 * charLen);
-
 	PRInt32 GetOrder(const char * str)
 	{
 		//We only interested in Hiragana, so first byte is '\202'
-		if(*str == '\202' &&
-		    (uchar)*(str+1) >= (uchar)0x9f &&
-		    (uchar)*(str+1) <= (uchar)0xf1)
+		if(*str == '\202' && (uchar)*(str+1) >= (uchar)0x9f && (uchar)*(str+1) <= (uchar)0xf1)
 			return (uchar)*(str+1) - (uchar)0x9f;
 		return -1;
 	}
 };
 
-class EUCJPContextAnalysis : public JapaneseContextAnalysis
-{
+class EUCJPContextAnalysis : public JapaneseContextAnalysis {
 protected:
 	PRInt32 GetOrder(const char * str, PRUint32 * charLen);
 	PRInt32 GetOrder(const char * str)

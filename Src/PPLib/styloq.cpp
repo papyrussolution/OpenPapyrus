@@ -1538,6 +1538,9 @@ bool StyloQCommandList::Item::CanApplyNotifyFlag(long f) const
 	else if(BaseCmdId == StyloQCommandList::sqbcIncomingListCCheck) {
 		result = oneof3(f, fNotify_ObjNew, fNotify_ObjUpd, fNotify_ObjStatus);
 	}
+	else if(BaseCmdId == StyloQCommandList::sqbcIncomingListTSess) { // @v11.6.6
+		result = oneof3(f, fNotify_ObjNew, fNotify_ObjUpd, fNotify_ObjStatus);
+	}
 	return result;
 }
 
@@ -2699,6 +2702,7 @@ public:
 		// @v11.6.0 {
 		AddClusterAssoc(CTL_STQCLIMATCH_CFLAGS, 0, StyloQConfig::clifSvcGPS);
 		AddClusterAssoc(CTL_STQCLIMATCH_CFLAGS, 1, StyloQConfig::clifPsnAdrGPS);
+		AddClusterAssoc(CTL_STQCLIMATCH_CFLAGS, 2, StyloQConfig::clifDisableFaceSelfModifying); // @v11.6.6
 		SetClusterData(CTL_STQCLIMATCH_CFLAGS, Data.CliFlags);
 		// } @v11.6.0 
 		// @v11.5.10 {
@@ -8985,7 +8989,11 @@ int PPStyloQInterchange::Document::FromTSessionPacket(const TSessionPacket & rS,
 	int     ok = 1;
 	SString memo_buf;
 	ID = rS.Rec.ID;
-	Code.Cat(rS.Rec.Num);
+	if(rS.TagL.GetItemStr(PPTAG_TSESS_OUTERCODE, Code) > 0) {
+		Code.Transf(CTRANSF_INNER_TO_UTF8);
+	}
+	else
+		Code.Cat(rS.Rec.Num);
 	rS.GetGuid(Uuid);
 	rS.Ext.GetExtStrData(PRCEXSTR_MEMO, memo_buf);
 	memo_buf.Transf(CTRANSF_INNER_TO_UTF8);
@@ -9356,14 +9364,29 @@ int PPStyloQInterchange::FetchPersonFromClientPacket(const StyloQCore::StoragePa
 int PPStyloQInterchange::AcceptStyloQClientAsPerson(const StyloQCore::StoragePacket & rCliPack, PPID personKindID, PPID * pPersonID, int use_ta)
 {
 	int    ok = -1;
+	SString temp_buf;
 	PPID   person_id = 0;
 	if(personKindID) {
 		PPObjPerson psn_obj;
 		PPPersonPacket psn_pack;
 		bool is_person_associated_with_cli = false;
+		bool can_modify_psn_pack = true;
 		if(FetchPersonFromClientPacket(rCliPack, &person_id, true/*logResult*/) > 0) {
 			if(psn_obj.GetPacket(person_id, &psn_pack, 0) > 0) {
 				is_person_associated_with_cli = true;
+				// @v11.6.6 {
+				{
+					SBinaryChunk bch_cli_cfg;
+					if(rCliPack.Pool.Get(SSecretTagPool::tagPrivateConfig, &bch_cli_cfg)) {
+						StyloQConfig cli_cfg_pack;
+						if(cli_cfg_pack.FromJson(bch_cli_cfg.ToRawStr(temp_buf)) && cli_cfg_pack.Get(StyloQConfig::tagCliFlags, temp_buf)) {
+							long cli_match_flags = temp_buf.ToLong();
+							if(cli_match_flags & StyloQConfig::clifDisableFaceSelfModifying)
+								can_modify_psn_pack = false;	
+						}
+					}
+				}
+				// } @v11.6.6 
 				/*if(psn_obj.P_Tbl->IsBelongToKind(person_id, personKindID) > 0) {
 					ok = 1;
 				}
@@ -9377,7 +9400,6 @@ int PPStyloQInterchange::AcceptStyloQClientAsPerson(const StyloQCore::StoragePac
 		}
 		{
 			bool face_is_valid = false;
-			SString temp_buf;
 			StyloQFace cli_face;
 			SBinaryChunk face_bytes;
 			if(rCliPack.Pool.Get(SSecretTagPool::tagFace, &face_bytes)) {
@@ -9392,19 +9414,22 @@ int PPStyloQInterchange::AcceptStyloQClientAsPerson(const StyloQCore::StoragePac
 					STokenRecognizer tr;
 					SNaturalTokenArray nta;
 					SString nbuf; // Буфер нормализованного значения //
-					if(cli_face.Get(StyloQFace::tagCommonName, 0/*lang*/, temp_buf)) {
-						STRNSCPY(psn_pack.Rec.Name, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-					}
-					else {
-						SString compound_name;
-						if(cli_face.Get(StyloQFace::tagSurName, 0/*lang*/, temp_buf))
-							compound_name.CatDivIfNotEmpty(' ', 0).Cat(temp_buf);
-						if(cli_face.Get(StyloQFace::tagName, 0/*lang*/, temp_buf))
-							compound_name.CatDivIfNotEmpty(' ', 0).Cat(temp_buf);
-						if(cli_face.Get(StyloQFace::tagPatronymic, 0/*lang*/, temp_buf))
-							compound_name.CatDivIfNotEmpty(' ', 0).Cat(temp_buf);
-						if(compound_name.NotEmptyS())
-							STRNSCPY(psn_pack.Rec.Name, compound_name.Transf(CTRANSF_UTF8_TO_INNER));
+					if(can_modify_psn_pack) { // @v11.6.6
+						if(cli_face.Get(StyloQFace::tagCommonName, 0/*lang*/, temp_buf)) {
+							if(can_modify_psn_pack)
+								STRNSCPY(psn_pack.Rec.Name, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+						}
+						else {
+							SString compound_name;
+							if(cli_face.Get(StyloQFace::tagSurName, 0/*lang*/, temp_buf))
+								compound_name.CatDivIfNotEmpty(' ', 0).Cat(temp_buf);
+							if(cli_face.Get(StyloQFace::tagName, 0/*lang*/, temp_buf))
+								compound_name.CatDivIfNotEmpty(' ', 0).Cat(temp_buf);
+							if(cli_face.Get(StyloQFace::tagPatronymic, 0/*lang*/, temp_buf))
+								compound_name.CatDivIfNotEmpty(' ', 0).Cat(temp_buf);
+							if(compound_name.NotEmptyS())
+								STRNSCPY(psn_pack.Rec.Name, compound_name.Transf(CTRANSF_UTF8_TO_INNER));
+						}
 					}
 					if(cli_face.Get(StyloQFace::tagPhone, 0/*lang*/, temp_buf)) {
 						tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta, 0);
@@ -9490,6 +9515,9 @@ int PPStyloQInterchange::AcceptStyloQClientAsPerson(const StyloQCore::StoragePac
 						if(temp_id) {
 							StyloQCore::StoragePacket cli_pack_to_update;
 							THROW(P_T->GetPeerEntry(rCliPack.Rec.ID, &cli_pack_to_update) > 0);
+							if(!is_new) {
+								//clifDisableFaceSelfModifying
+							}
 							THROW(psn_obj.PutPacket(&person_id, &psn_pack, 0));
 							if(!is_person_associated_with_cli) {
 								if(rCliPack.Rec.LinkObjType == 0 && rCliPack.Rec.LinkObjID == 0) {

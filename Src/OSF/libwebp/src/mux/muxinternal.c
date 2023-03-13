@@ -118,7 +118,7 @@ WebPMuxError ChunkAssignData(WebPChunk* chunk, const WebPData* const data, int c
 		copy_data = 1;
 	}
 	ChunkRelease(chunk);
-	if(data != NULL) {
+	if(data) {
 		if(copy_data) { // Copy data.
 			if(!WebPDataCopy(data, &chunk->data_)) return WEBP_MUX_MEMORY_ERROR;
 			chunk->owner_ = 1; // Chunk is owner of data.

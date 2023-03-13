@@ -31,9 +31,7 @@ void BM25PlusWeight::init(double factor)
 			termweight *= (param_k3 + 1) * wqf_double / (param_k3 + wqf_double);
 		}
 	}
-
 	LOGVALUE(WTCALC, termweight);
-
 	if(param_k2 == 0 && (param_b == 0 || param_k1 == 0)) {
 		// If k2 is 0, and either param_b or param_k1 is 0 then the document
 		// length doesn't affect the weight.
@@ -43,9 +41,9 @@ void BM25PlusWeight::init(double factor)
 		len_factor = get_average_length();
 		// len_factor can be zero if all documents are empty (or the database
 		// is empty!)
-		if(len_factor != 0) len_factor = 1 / len_factor;
+		if(len_factor != 0) 
+			len_factor = 1 / len_factor;
 	}
-
 	LOGVALUE(WTCALC, len_factor);
 }
 

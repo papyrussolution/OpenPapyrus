@@ -179,8 +179,7 @@ static wchar_t * FASTCALL __xmlIOWin32UTF8ToWChar(const char * u8String)
 			wString = static_cast<wchar_t *>(SAlloc::M(wLen * sizeof(wchar_t)));
 			if(wString) {
 				if(MultiByteToWideChar(CP_UTF8, 0, u8String, -1, wString, wLen) == 0) {
-					SAlloc::F(wString);
-					wString = NULL;
+					ZFREE(wString);
 				}
 			}
 		}

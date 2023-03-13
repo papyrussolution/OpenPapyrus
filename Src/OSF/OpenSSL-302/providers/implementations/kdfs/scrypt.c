@@ -133,7 +133,7 @@ static int set_property_query(KDF_SCRYPT * ctx, const char * propq)
 {
 	OPENSSL_free(ctx->propq);
 	ctx->propq = NULL;
-	if(propq != NULL) {
+	if(propq) {
 		ctx->propq = OPENSSL_strdup(propq);
 		if(ctx->propq == NULL) {
 			ERR_raise(ERR_LIB_PROV, ERR_R_MALLOC_FAILURE);

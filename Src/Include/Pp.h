@@ -19358,6 +19358,7 @@ public:
 #define OPKFX_WROFFTODRAFTORD  0x00002000L // @v10.0.2 Специализированная операция заказа, списываемая в драфт-документ
 #define OPKFX_PAYMENT_CASH     0x00004000L // @v10.5.9 @erik Наличный расчет по операции
 #define OPKFX_PAYMENT_NONCASH  0x00008000L // @v10.5.9 @erik Безналичный расчет по операции
+#define OPKFX_ACCAUTOVAT       0x00010000L // @v11.6.6 Для бухгалтерских документов автоматически расчитывать суммы налогов 
 
 #define OPKF_PRT_INCINVC       0x00000001L // Входящая счет-фактура на предоплату
 #define OPKF_PRT_NEGINVC       0x00000002L // Счет-фактура с отрицательными суммами
@@ -24440,7 +24441,7 @@ public:
 // Descr: Элемент матрицы подстановки товара по подстановочным товарным структурам (GSF_SUBST)
 //   Матрица содержит прямые и инвертированные пары.
 //
-struct SaSubstItem { // @flat @v11.6.4
+/*struct SaSubstItem { // @flat @v11.6.4
 	SaSubstItem() : GoodsID(0), SubstID(0), Qtty(0.0)
 	{
 	}
@@ -24450,6 +24451,35 @@ struct SaSubstItem { // @flat @v11.6.4
 	PPID  GoodsID;
 	PPID  SubstID;
 	double Qtty;   // 
+};*/
+
+class SaSubstBlock { // @v11.6.6
+	friend class PPObjGoodsStruc;
+public:
+	SaSubstBlock();
+	SaSubstBlock & Z();
+	int    Get(PPID goodsID, RAssocArray & rSubstList) const;
+private:
+	struct Item {
+		Item(PPID goodsID, double rate);
+		PPID   GoodsID;
+		double Rate;
+	};
+	struct Entry {
+		Entry();
+		PPID   GsID;
+		TSVector <Item> V;
+	};
+	struct IndexEntry {
+		PPID   GoodsID;
+		uint   P;
+	};
+
+	Entry * GetEntry(PPID gsID);
+	int    AddItem(Entry * pEntry, PPID goodsID, double rate);
+
+	TSCollection <Entry> L;
+	TSVector <IndexEntry> Index;
 };
 //
 // Descr: Элемент списка продаж, используемый для подбора подарка на основе подарочных структур (GSF_PRESENT)
@@ -24561,9 +24591,10 @@ public:
 	int    Print(PPGoodsStruc *);
 	int    CheckStruc(PPID strucID, PPLogger *);
 	int    LoadAutoDecomplList(TSVector <SaAutoDecomplItem> & rList);
-	int    LoadSubstList(TSVector <SaSubstItem> & rList);
+	int    LoadSubstBlock(SaSubstBlock & rBlk); // @v11.6.6
 	int    LoadGiftList(SaGiftArray * pList);
 	int    FetchGiftList(SaGiftArray * pList);
+	int    FetchSubstList(PPID goodsID, RAssocArray & rSubstList);
 	int    SelectorDialog(const TSCollection <PPGoodsStruc> & rList, uint * pSelectionPos);
 	int    SelectorDialog(PPID * pNamedGsID);
 	int    CheckStructs();
@@ -29983,7 +30014,7 @@ public:
 	//
 	int    GetGenericList(PPID genID, PPIDArray * pList);
 	int    GetAltGenGoodsList(PPID goodsID, int kind, RAssocArray * pList);
-	int    GetStrucSubstList(PPID goodsID, const TSVector <SaSubstItem> * pOuterSubstList, RAssocArray * pList);
+	int    GetStrucSubstList(PPID goodsID, RAssocArray & rList);
 	//
 	// Descr: Возвращает список допустимой подстановки вместо товара goodsID.
 	//   В зависимости от параметра substStrucOnly и конфигурации документов (PPBillConfig::GoodsSubstMethod)
@@ -29998,7 +30029,7 @@ public:
 	//   <0 - не найдено ни одного варианта подстановки
 	//   0  - ошибка
 	//
-	int    GetSubstList(PPID goodsID, int substStrucOnly, const TSVector <SaSubstItem> * pOuterSubstList, RAssocArray & rList);
+	int    GetSubstList(PPID goodsID, int substStrucOnly, RAssocArray & rList);
 		// @>>PPObjGoods::GetAltGenGoodsList
 		// @>>PPObjGoods::GetStrucSubstList
 	int    BelongToGen(PPID goodsID, PPID * pGenID, ObjAssocTbl::Rec * = 0);
@@ -32989,7 +33020,7 @@ public:
 	~ReckonOpArList();
 	void   Destroy();
 	PPID   FASTCALL GetPaymOpIDByBillID(PPID billID) const;
-	int    IsBillListSortingNeeded() const;
+	bool   IsBillListSortingNeeded() const;
 };
 
 struct CfmReckoningParam {
@@ -46772,7 +46803,7 @@ public:
 	// Descr: Флаги для тега tagCliFlags
 	//
 	enum { // @persistent
-		clifFaceSelfModifying = 0x0001, // Явное разрешение на автоматическое изменение лика клиентом. Это флаг избыточен, так как
+		clifDisableFaceSelfModifying = 0x0001, // Явное разрешение на автоматическое изменение лика клиентом. Это флаг избыточен, так как
 			// вопрос изменения лика клиента решается автоматически на остновании признака StyloQCore::styloqfAutoObjMatching. 
 			// Но в том, случае, если сервис "хочет" явно разрешить клиенту обновлять свой лик, то может установить этот флаг.
 		clifSvcGPS            = 0x0002, // Клиенту разрешается установить GPS-координаты сервиса
@@ -47880,7 +47911,7 @@ private:
 		prccmdfDebugOutput     = 0x0001, // Команда выполняется в отладочном режиме для тестирования вывода
 		prccmdfReqNotification = 0x0002  // Запрос извещений, связанных с командой
 	};
-
+	int    GetPrcList(const StyloQCore::StoragePacket & rCliPack, const StyloQIncomingListParam & rParam, PPObjTSession & rTSesObj, PPIDArray & rList);
 	int    ProcessCommand_PersonEvent(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SJson * pJsCmd, const SGeoPosLL & rGeoPos);
 	int    ProcessCommand_Report(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);
 	int    ProcessCommand_RsrvOrderPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, SString & rResult, SString & rDocDeclaration, uint prccmdFlags);

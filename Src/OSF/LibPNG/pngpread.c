@@ -1,4 +1,3 @@
-
 /* pngpread.c - read a png file in push mode
  *
  * Last changed in libpng 1.6.23 [June 9, 2016]
@@ -10,7 +9,6 @@
  * For conditions of distribution and use, see the disclaimer
  * and license in png.h
  */
-
 #include "pngpriv.h"
 #pragma hdrstop
 

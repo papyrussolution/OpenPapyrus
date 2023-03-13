@@ -32,34 +32,21 @@
  *    acknowledgment:
  *    "This product includes software developed by Computing Services
  *     at Carnegie Mellon University (http://www.cmu.edu/computing/)."
- *
- * CARNEGIE MELLON UNIVERSITY DISCLAIMS ALL WARRANTIES WITH REGARD TO
- * THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
- * AND FITNESS, IN NO EVENT SHALL CARNEGIE MELLON UNIVERSITY BE LIABLE
- * FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
- * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
- * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 #include <sasl-internal.h>
 #pragma hdrstop
 
 struct proppool {
 	struct proppool * next;
-
 	size_t size; /* Size of Block */
-	size_t unused; /* Space unused in this pool between end
-	                   * of char ** area and beginning of char * area */
-
+	size_t unused; /* Space unused in this pool between end of char ** area and beginning of char * area */
 	char data[1]; /* Variable Sized */
 };
 
 struct propctx {
 	struct propval * values;
 	struct propval * prev_val; /* Previous value used by set/setvalues */
-
 	unsigned used_values, allocated_values;
-
 	char * data_end; /* Bottom of string area in current pool */
 	char ** list_end; /* Top of list area in current pool */
 

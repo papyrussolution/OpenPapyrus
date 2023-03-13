@@ -300,28 +300,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\uncrustify\src\add_space_table.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_add.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_asm_colon.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_assign.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_braced_init_list.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_eigen_comma_init.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_func_params.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_func_proto.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_init_brace.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_left_shift.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_nl_cont.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_oc_decl_colon.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_oc_msg_colons.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_oc_msg_spec.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_preprocessor.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_same_func_call_params.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_stack.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_struct_initializers.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_tools.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_trailing_comments.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_typedefs.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\align_var_def_brace.h" />
     <ClInclude Include="..\OSF\uncrustify\src\args.h" />
     <ClInclude Include="..\OSF\uncrustify\src\backup.h" />
     <ClInclude Include="..\OSF\uncrustify\src\base_types.h" />
@@ -329,7 +307,6 @@
     <ClInclude Include="..\OSF\uncrustify\src\char_table.h" />
     <ClInclude Include="..\OSF\uncrustify\src\check_template.h" />
     <ClInclude Include="..\OSF\uncrustify\src\chunk.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\ChunkStack.h" />
     <ClInclude Include="..\OSF\uncrustify\src\combine.h" />
     <ClInclude Include="..\OSF\uncrustify\src\combine_fix_mark.h" />
     <ClInclude Include="..\OSF\uncrustify\src\combine_skip.h" />
@@ -340,7 +317,6 @@
     <ClInclude Include="..\OSF\uncrustify\src\GENERATED\punctuator_table.h" />
     <ClInclude Include="..\OSF\uncrustify\src\GENERATED\token_names.h" />
     <ClInclude Include="..\OSF\uncrustify\src\GENERATED\uncrustify_version.h" />
-    <ClInclude Include="..\OSF\uncrustify\src\indent.h" />
     <ClInclude Include="..\OSF\uncrustify\src\keywords.h" />
     <ClInclude Include="..\OSF\uncrustify\src\language_tools.h" />
     <ClInclude Include="..\OSF\uncrustify\src\lang_pawn.h" />

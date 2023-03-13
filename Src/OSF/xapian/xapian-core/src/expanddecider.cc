@@ -14,26 +14,24 @@
 using namespace std;
 
 namespace Xapian {
-ExpandDecider::~ExpandDecider() {
-}
-
-bool ExpandDeciderAnd::operator()(const string &term) const
-{
-	return (*first)(term) && (*second)(term);
-}
-
-bool ExpandDeciderFilterTerms::operator()(const string &term) const
-{
-	/* Some older compilers (such as Sun's CC) return an iterator from find()
-	 * and a const_iterator from end() in this situation, and then can't
-	 * compare the two!  We workaround this problem by explicitly assigning the
-	 * result of find() to a const_iterator. */
-	set<string>::const_iterator i = rejects.find(term);
-	return i == rejects.end();
-}
-
-bool ExpandDeciderFilterPrefix::operator()(const string &term) const
-{
-	return startswith(term, prefix);
-}
+	ExpandDecider::~ExpandDecider() 
+	{
+	}
+	bool ExpandDeciderAnd::operator()(const string &term) const
+	{
+		return (*first)(term) && (*second)(term);
+	}
+	bool ExpandDeciderFilterTerms::operator()(const string &term) const
+	{
+		/* Some older compilers (such as Sun's CC) return an iterator from find()
+		 * and a const_iterator from end() in this situation, and then can't
+		 * compare the two!  We workaround this problem by explicitly assigning the
+		 * result of find() to a const_iterator. */
+		set<string>::const_iterator i = rejects.find(term);
+		return i == rejects.end();
+	}
+	bool ExpandDeciderFilterPrefix::operator()(const string &term) const
+	{
+		return startswith(term, prefix);
+	}
 }

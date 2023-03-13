@@ -5880,13 +5880,21 @@ int PPBillPacket::SumAmounts(AmtList * pList, int fromDB)
 	uint   i;
 	long   btb_flags = 0;
 	BillTotalData total_data;
-	if(CheckOpFlags(Rec.OpID, OPKF_CALCSTAXES))
-		btb_flags |= BTC_CALCSALESTAXES;
+	// @v11.6.6 {
+	PPOprKind opk;
+	if(Rec.OpID && GetOpData(Rec.OpID, &opk)) {
+		if(opk.Flags & OPKF_CALCSTAXES)
+			btb_flags |= BTC_CALCSALESTAXES;
+	}
+	// } @v11.6.6 
+	/* @v11.6.6 if(CheckOpFlags(Rec.OpID, OPKF_CALCSTAXES))
+		btb_flags |= BTC_CALCSALESTAXES;*/
 	{
 		BillTotalBlock btb(&total_data, Rec.OpID, 0, 0, btb_flags);
-		if(GetOpType(Rec.OpID) == PPOPT_ACCTURN)
+		if(GetOpType(Rec.OpID) == PPOPT_ACCTURN) {
 			for(i = 0; i < AdvList.GetCount(); i++)
 				btb.Add(&AdvList.Get(i));
+		}
 		if(fromDB) {
 			PPTransferItem ti;
 			int    r, r_by_bill = 0;
@@ -5908,10 +5916,39 @@ int PPBillPacket::SumAmounts(AmtList * pList, int fromDB)
 		if(btb_flags & BTC_CALCSALESTAXES) {
 			if(total_data.CVAT != 0.0 && OpTypeID == PPOPT_GOODSRECEIPT && Rec.Object)
 				if(IsSupplVATFree(Rec.Object) > 0 || PPObjLocation::CheckWarehouseFlags(Rec.LocID, LOCF_VATFREE)) {
-					total_data.CVAT = 0;
+					total_data.CVAT = 0.0;
 					pList->Put(PPAMT_CVAT, 0L/*@curID*/, 0, 1, 1);
 				}
 		}
+		// @v11.6.6 {
+		if(opk.OpTypeID == PPOPT_ACCTURN && opk.ExtFlags & OPKFX_ACCAUTOVAT) {
+			const double nominal_amount = pList->Get(PPAMT_MAIN, 0L/*@curID*/);
+			if(nominal_amount != 0.0) {
+				PPID  virtual_goods_id = CConfig.PrepayInvoiceGoodsID;
+				if(virtual_goods_id) {
+					PPObjGoods gobj;
+					PPGoodsTaxEntry te;
+					if(gobj.FetchTax(virtual_goods_id, Rec.Dt, Rec.OpID, &te) > 0) {
+						const double def_vat_rate = te.GetVatRate();
+						PPObjAmountType amtt_obj;
+						TaxAmountIDs tais;
+						amtt_obj.GetTaxAmountIDs(&tais, 0);
+						uint   vat_rate_idx = 0;
+						for(uint i = 0; !vat_rate_idx && i < SIZEOFARRAY(tais.VatRate); i++) {
+							if(feqeps(def_vat_rate, fdiv100i(tais.VatRate[i]), 1E-6))
+								vat_rate_idx = i+1;
+						}
+						if(vat_rate_idx > 0) {
+							if(def_vat_rate > 0.0 && def_vat_rate <= 40.0) {
+								double vat_amount = nominal_amount * SalesTaxMult(def_vat_rate);
+								pList->Put(tais.VatAmtID[vat_rate_idx-1], 0L/*@curID*/, vat_amount, 1, 1);
+							}
+						}
+					}
+				}
+			}
+		}
+		// } @v11.6.6 
 	}
 	if(P_Freight)
 		pList->Add(PPAMT_FREIGHT, 0, P_Freight->Cost);

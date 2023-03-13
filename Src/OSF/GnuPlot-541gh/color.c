@@ -114,7 +114,8 @@ const char * GnuPlot::AnsiColorString(const t_colorspec * pColor, const t_colors
 			    sprintf(colorstring, "\033[0;39m"); /* normal foreground color */
 		    }
 		    else {
-			    if(n > 15) n = ((n - 1) % 15) + 1;
+			    if(n > 15) 
+					n = ((n - 1) % 15) + 1;
 			    sprintf(colorstring, "\033[%i;%im", n > 8 ? 22 : 1, 30 + (n % 8));
 		    }
 		    break;
@@ -142,11 +143,9 @@ const char * GnuPlot::AnsiColorString(const t_colorspec * pColor, const t_colors
 	}
 	return colorstring;
 }
-
-/* *******************************************************************
-   ROUTINES
- */
-
+// 
+// ROUTINES
+// 
 //void init_color()
 void GnuPlot::InitColor()
 {

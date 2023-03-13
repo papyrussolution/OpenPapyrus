@@ -1,5 +1,5 @@
 // SHTRIHFR.CPP
-// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Интерфейс (синхронный) с ККМ Штрих-ФР
 //
@@ -220,6 +220,7 @@ public:
 	virtual int OpenBox();
 	virtual int CheckForSessionOver();
 	virtual int PrintBnkTermReport(const char * pZCheck);
+	virtual int PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult); // @v11.6.6
 private:
 	// @v10.3.9 virtual int InitChannel();
 	FR_INTRF  * InitDriver();
@@ -232,14 +233,14 @@ private:
 	int	 PrintDiscountInfo(const CCheckPacket * pPack, uint flags);
 	int  GetCheckInfo(const PPBillPacket * pPack, BillTaxArray * pAry, long * pFlags, SString &rName);
 	int  InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry, int * pPrintTaxAction);
-	int  SetFR(PPID id, int    iVal);
-	int  SetFR(PPID id, long   lVal);
-	int  SetFR(PPID id, double dVal);
-	int  SetFR(PPID id, const char * pStrVal);
-	int  GetFR(PPID id, int    * pBuf);
-	int  GetFR(PPID id, long   * pBuf);
-	int  GetFR(PPID id, double * pBuf);
-	int  GetFR(PPID id, char   * pBuf, size_t bufLen);
+	bool SetFR(PPID id, int    iVal);
+	bool SetFR(PPID id, long   lVal);
+	bool SetFR(PPID id, double dVal);
+	bool SetFR(PPID id, const char * pStrVal);
+	bool GetFR(PPID id, int    * pBuf);
+	bool GetFR(PPID id, long   * pBuf);
+	bool GetFR(PPID id, double * pBuf);
+	bool GetFR(PPID id, char   * pBuf, size_t bufLen);
 	int  ExecFR(PPID id);
 	int  ExecFRPrintOper(PPID id);
 	int  AllowPrintOper(PPID id);
@@ -385,7 +386,21 @@ private:
 		// 0     0     1     0     0     0     Единый налог на вмененный доход
 		// 0     1     0     0     0     0     Единый сельскохозяйственный налог
 		// 1     0     0     0     0     0     Патентная система налогообложения
-		TaxType                                 // @v11.2.11
+		TaxType,                          // @v11.2.11
+		FNCheckItemBarcode,               // @v11.6.6
+		FNCheckItemBarcode2,              // @v11.6.6
+		BarcodeHex,                       // @v11.6.6
+		ItemStatus,                       // @v11.6.6
+		CheckItemMode,                    // @v11.6.6
+		TLVDataHex,                       // @v11.6.6
+		CheckItemLocalResult,             // @v11.6.6
+		CheckItemLocalError,              // @v11.6.6 
+		MarkingType2,                     // @v11.6.6
+		KMServerErrorCode,                // @v11.6.6
+		KMServerCheckingStatus,           // @v11.6.6 
+		DivisionalQuantity,               // @v11.6.6
+		Numerator,                        // @v11.6.6 
+		Denominator,                      // @v11.6.6
 	};
 	//
 	// Descr: Методы вывода штрихкодов
@@ -1366,112 +1381,6 @@ int SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry, int 
 	return ok;
 }
 
-#if 0 // @v10.0.0 {
-int SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN) // @removed
-{
-	int     ok = 1, print_tax = 0;
-	uint    pos;
-	long    flags = 0;
-	double  price, sum = 0.0;
-	SString prn_str, name;
-	SString temp_buf;
-	BillTaxArray  bt_ary;
-	PPIDArray     vat_ary;
-	ResCode = RESCODE_NO_ERROR;
-	ErrCode = SYNCPRN_ERROR;
-	THROW_INVARG(pPack);
-	THROW(GetCheckInfo(pPack, &bt_ary, &flags, name));
-	if(bt_ary.getCount() == 0)
-		return -1;
-	THROW(ConnectFR());
-	THROW(AnnulateCheck());
-	// @v5.6.0 THROW(CheckForEKLZOrFMOverflow());
-	if(multiplier < 0)
-		flags |= PRNCHK_RETURN;
-	if(flags & PRNCHK_RETURN) {
-		int    is_cash;
-		THROW(is_cash = CheckForCash(fabs(BR2(pPack->Rec.Amount) * multiplier)));
-		THROW_PP(is_cash > 0, PPERR_SYNCCASH_NO_CASH);
-	}
-	THROW(InitTaxTbl(&bt_ary, &vat_ary, &print_tax));
-	for(pos = 0; pos < bt_ary.getCount(); pos++) {
-		int  tax_no = Tax1;
-		uint vat_pos;
-		BillTaxEntry & bte = bt_ary.at(pos);
-		// Цена
-		price = R2(fabs(bte.Amount * multiplier));
-		sum += price;
-		THROW(SetFR(Price, price));
-		// Количество
-		THROW(SetFR(Quantity, 1L));
-		// @v9.5.7 {
-		if(departN > 0 && departN <= 16) {
-			THROW(SetFR(Department, departN));
-		}
-		// } @v9.5.7
-		// Налоги
-		if(print_tax) {
-			if(bte.SalesTax) {
-				THROW(SetFR(tax_no++, 1L));
-			}
-			if(bte.VAT && vat_ary.bsearch(bte.VAT, &vat_pos)) {
-				THROW(SetFR(tax_no++, (long)(vat_pos + 2)));
-			}
-		}
-		THROW(SetFR(tax_no, 0L));
-		// @v9.7.1 prn_str = "СУММА ПО СТАВКЕ НДС"; // @cstr #6
-		PPLoadText(PPTXT_CCFMT_AMTBYVATRATE, prn_str); // @v9.7.1
-		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
-		prn_str.Space().Cat(fdiv100i(bte.VAT), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%');
-		if(bte.SalesTax) {
-			// @v9.7.1 temp_buf = "НСП"; // @cstr #7
-			PPLoadText(PPTXT_CCFMT_STAX_S, temp_buf); // @v9.7.1
-			temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
-			prn_str.Space().Cat(temp_buf).Space().Cat(fdiv100i(bte.SalesTax), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%');
-		}
-		THROW(SetFR(StringForPrinting, prn_str));
-		THROW(ExecFRPrintOper((flags & PRNCHK_RETURN) ? ReturnSale : Sale));
-		Flags |= sfOpenCheck;
-	}
-	if(name.NotEmptyS()) {
-		// @v9.7.1 prn_str = "ПОЛУЧАТЕЛЬ"; // @cstr #8
-		PPLoadText(PPTXT_CCFMT_RECEIVER, prn_str); // @v9.7.1
-		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
-		prn_str.Space().Cat(name.Transf(CTRANSF_INNER_TO_OUTER));
-		CutLongTail(prn_str);
-		THROW(SetFR(StringForPrinting, prn_str));
-		THROW(ExecFRPrintOper(PrintString));
-	}
-	THROW(SetFR(Summ1, sum));
-	THROW(SetFR(Summ2, 0L));
-	THROW(SetFR(Summ3, 0L));
-	THROW(SetFR(Tax1,  0L));
-	THROW(SetFR(StringForPrinting, prn_str.Z().CatCharN('=', CheckStrLen)));
-	THROW(ExecFRPrintOper(CloseCheck));
-	Flags &= ~sfOpenCheck;
-	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
-	THROW(Cut(1));
-	ErrCode = SYNCPRN_NO_ERROR;
-	CATCH
-		if(Flags & sfCancelled) {
-			Flags &= ~sfCancelled;
-			if(ErrCode != SYNCPRN_ERROR_AFTER_PRINT) {
-				ErrCode = (Flags & sfOpenCheck) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
-				ok = 0;
-			}
-		}
-		else {
-			SetErrorMessage();
-			ExecFR(Beep);
-			if(Flags & sfOpenCheck)
-				ErrCode = SYNCPRN_ERROR_WHILE_PRINT;
-			ok = 0;
-		}
-	ENDCATCH
-	return ok;
-}
-#endif // } 0 @v10.0.0
-
 int SCS_SHTRIHFRF::PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
 	int    ok = -1;
@@ -1941,6 +1850,20 @@ FR_INTRF * SCS_SHTRIHFRF::InitDriver()
 	THROW(ASSIGN_ID_BY_NAME(p_drv, TagValueStr) > 0);    // @v10.9.0
 	THROW(ASSIGN_ID_BY_NAME(p_drv, FNAddTag) > 0);       // @v10.9.0
 	THROW(ASSIGN_ID_BY_NAME(p_drv, FNSendSTLVTag) > 0);  // @v10.9.0
+	THROW(ASSIGN_ID_BY_NAME(p_drv, FNCheckItemBarcode) > 0);     // @v11.6.6
+	THROW(ASSIGN_ID_BY_NAME(p_drv, FNCheckItemBarcode2) > 0);    // @v11.6.6
+	THROW(ASSIGN_ID_BY_NAME(p_drv, BarcodeHex) > 0);             // @v11.6.6
+	THROW(ASSIGN_ID_BY_NAME(p_drv, ItemStatus) > 0);             // @v11.6.6
+	THROW(ASSIGN_ID_BY_NAME(p_drv, CheckItemMode) > 0);          // @v11.6.6
+	THROW(ASSIGN_ID_BY_NAME(p_drv, TLVDataHex) > 0);             // @v11.6.6
+	THROW(ASSIGN_ID_BY_NAME(p_drv, CheckItemLocalResult) > 0);   // @v11.6.6
+	THROW(ASSIGN_ID_BY_NAME(p_drv, CheckItemLocalError) > 0);    // @v11.6.6 
+	THROW(ASSIGN_ID_BY_NAME(p_drv, MarkingType2) > 0);           // @v11.6.6
+	THROW(ASSIGN_ID_BY_NAME(p_drv, KMServerErrorCode) > 0);      // @v11.6.6
+	THROW(ASSIGN_ID_BY_NAME(p_drv, KMServerCheckingStatus) > 0); // @v11.6.6 
+	THROW(ASSIGN_ID_BY_NAME(p_drv, DivisionalQuantity) > 0);     // @v11.6.6
+	THROW(ASSIGN_ID_BY_NAME(p_drv, Numerator) > 0);              // @v11.6.6 
+	THROW(ASSIGN_ID_BY_NAME(p_drv, Denominator) > 0);            // @v11.6.6
 	CATCH
 		ZDELETE(p_drv);
 	ENDCATCH
@@ -2258,14 +2181,14 @@ int SCS_SHTRIHFRF::ConnectFR()
 	return ok;
 }
 
-int SCS_SHTRIHFRF::SetFR(PPID id, int iVal) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, iVal) > 0); }
-int SCS_SHTRIHFRF::SetFR(PPID id, long lVal) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, lVal) > 0); }
-int SCS_SHTRIHFRF::SetFR(PPID id, double dVal) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, dVal) > 0); }
-int SCS_SHTRIHFRF::SetFR(PPID id, const char * pStrVal) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, pStrVal) > 0); }
-int SCS_SHTRIHFRF::GetFR(PPID id, int * pBuf) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
-int SCS_SHTRIHFRF::GetFR(PPID id, long * pBuf) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
-int SCS_SHTRIHFRF::GetFR(PPID id, double * pBuf) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
-int SCS_SHTRIHFRF::GetFR(PPID id, char * pBuf, size_t bufLen) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf, bufLen) > 0); }
+bool SCS_SHTRIHFRF::SetFR(PPID id, int iVal) { return (P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, iVal) > 0); }
+bool SCS_SHTRIHFRF::SetFR(PPID id, long lVal) { return (P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, lVal) > 0); }
+bool SCS_SHTRIHFRF::SetFR(PPID id, double dVal) { return (P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, dVal) > 0); }
+bool SCS_SHTRIHFRF::SetFR(PPID id, const char * pStrVal) { return (P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, pStrVal) > 0); }
+bool SCS_SHTRIHFRF::GetFR(PPID id, int * pBuf) { return (P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
+bool SCS_SHTRIHFRF::GetFR(PPID id, long * pBuf) { return (P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
+bool SCS_SHTRIHFRF::GetFR(PPID id, double * pBuf) { return (P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
+bool SCS_SHTRIHFRF::GetFR(PPID id, char * pBuf, size_t bufLen) { return (P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf, bufLen) > 0); }
 
 int SCS_SHTRIHFRF::ExecFR(PPID id)
 {
@@ -2386,8 +2309,7 @@ int SCS_SHTRIHFRF::AllowPrintOper(PPID id)
 			ExecFR(Beep);
 			wait_prn_err = 1;
 			r = PPError();
-			if((!send_msg && r != cmOK) || (send_msg && ExecFR(Beep) &&
-				PPMessage(mfConf|mfYesNo, PPCFM_SETPAPERTOPRINT) != cmYes)) {
+			if((!send_msg && r != cmOK) || (send_msg && ExecFR(Beep) && PPMessage(mfConf|mfYesNo, PPCFM_SETPAPERTOPRINT) != cmYes)) {
 				Flags |= sfCancelled;
 				ok = 0;
 			}
@@ -2438,13 +2360,12 @@ void SCS_SHTRIHFRF::SetErrorMessage()
 {
 	char   err_buf[MAXPATH];
 	memzero(err_buf, sizeof(err_buf));
-	if((Flags & sfConnected) && ResCode != RESCODE_NO_ERROR && GetFR(ResultCodeDescription, err_buf, sizeof(err_buf)-1) > 0) {
-		SString err_msg;
-		err_msg.Cat(err_buf);
+	if((Flags & sfConnected) && ResCode != RESCODE_NO_ERROR && GetFR(ResultCodeDescription, err_buf, sizeof(err_buf)-1)) {
+		SString err_msg(err_buf);
 		if(ResCode == RESCODE_MODE_OFF && ExecFR(GetECRStatus) > 0) {
 			char mode_descr[MAXPATH];
 			memzero(mode_descr, sizeof(mode_descr));
-			if(GetFR(ECRModeDescription, mode_descr, sizeof(mode_descr) - 1) > 0) {
+			if(GetFR(ECRModeDescription, mode_descr, sizeof(mode_descr) - 1)) {
 				SString temp_buf;
 				PPLoadText(PPTXT_CCFMT_MODE, temp_buf);
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
@@ -2454,6 +2375,13 @@ void SCS_SHTRIHFRF::SetErrorMessage()
 		err_msg.Transf(CTRANSF_OUTER_TO_INNER);
 		PPSetError(PPERR_SYNCCASH, err_msg);
 	}
+}
+
+/*virtual*/int SCS_SHTRIHFRF::PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult) // @v11.6.6
+{
+	int    ok = -1;
+
+	return ok;
 }
 
 // @vmiller

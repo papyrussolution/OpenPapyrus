@@ -57,22 +57,10 @@ void removedir(const string &dirname)
 
 #ifdef __WIN32__
 /// Return true iff a path starts with a drive letter.
-static bool has_drive(const string &path)
-{
-	return (path.size() >= 2 && path[1] == ':');
-}
-
+static bool has_drive(const string &path) { return (path.size() >= 2 && path[1] == ':'); }
 /// Return true iff path is a UNCW path.
-static bool uncw_path(const string & path)
-{
-	return (path.size() >= 4 && memcmp(path.data(), "\\\\?\\", 4) == 0);
-}
-
-static inline bool slash(char ch)
-{
-	return ch == '/' || ch == '\\';
-}
-
+static bool uncw_path(const string & path) { return (path.size() >= 4 && memcmp(path.data(), "\\\\?\\", 4) == 0); }
+static inline bool slash(char ch) { return ch == '/' || ch == '\\'; }
 #endif
 
 void resolve_relative_path(string & path, const string & base)

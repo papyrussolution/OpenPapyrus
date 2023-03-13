@@ -641,7 +641,7 @@ void CMS_SignerInfo_get0_algs(CMS_SignerInfo * si, EVP_PKEY ** pk,
     X509 ** signer, X509_ALGOR ** pdig,
     X509_ALGOR ** psig)
 {
-	if(pk != NULL)
+	if(pk)
 		*pk = si->pkey;
 	if(signer != NULL)
 		*signer = si->signer;

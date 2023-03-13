@@ -377,8 +377,7 @@ static OSSL_DECODER * inner_ossl_decoder_fetch(struct decoder_data_st * methdata
 			if(id == 0 && name != NULL)
 				id = ossl_namemap_name2num(namemap, name);
 			if(id != 0)
-				ossl_method_store_cache_set(store, prov, id, propq, method,
-				    up_ref_decoder, free_decoder);
+				ossl_method_store_cache_set(store, prov, id, propq, method, up_ref_decoder, free_decoder);
 		}
 
 		/*
@@ -387,15 +386,11 @@ static OSSL_DECODER * inner_ossl_decoder_fetch(struct decoder_data_st * methdata
 		 */
 		unsupported = !methdata->flag_construct_error_occurred;
 	}
-	if((id != 0 || name != NULL) && method == NULL) {
+	if((id != 0 || name) && method == NULL) {
 		int code = unsupported ? ERR_R_UNSUPPORTED : ERR_R_FETCH_FAILED;
-		if(!name)
-			name = ossl_namemap_num2name(namemap, id, 0);
-		ERR_raise_data(ERR_LIB_OSSL_DECODER, code,
-		    "%s, Name (%s : %d), Properties (%s)",
-		    ossl_lib_ctx_get_descriptor(methdata->libctx),
-		    name = NULL ? "<null>" : name, id,
-		    properties == NULL ? "<null>" : properties);
+		SETIFZQ(name, ossl_namemap_num2name(namemap, id, 0));
+		ERR_raise_data(ERR_LIB_OSSL_DECODER, code, "%s, Name (%s : %d), Properties (%s)", 
+			ossl_lib_ctx_get_descriptor(methdata->libctx), name = NULL ? "<null>" : name, id, properties == NULL ? "<null>" : properties);
 	}
 	return (OSSL_DECODER *)method;
 }

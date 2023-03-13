@@ -25,36 +25,12 @@ MatchSpy::~MatchSpy()
 {
 }
 
-MatchSpy * MatchSpy::clone() const 
-{
-	throw UnimplementedError("MatchSpy not suitable for use with remote searches - clone() method unimplemented");
-}
-
-string MatchSpy::name() const 
-{
-	throw UnimplementedError("MatchSpy not suitable for use with remote searches - name() method unimplemented");
-}
-
-string MatchSpy::serialise() const 
-{
-	throw UnimplementedError("MatchSpy not suitable for use with remote searches - serialise() method unimplemented");
-}
-
-MatchSpy * MatchSpy::unserialise(const string &, const Registry &) const 
-{
-	throw UnimplementedError("MatchSpy not suitable for use with remote searches - unserialise() method unimplemented");
-}
-
-string MatchSpy::serialise_results() const 
-{
-	throw UnimplementedError("MatchSpy not suitable for use with remote searches - serialise_results() method unimplemented");
-}
-
-void MatchSpy::merge_results(const string &) 
-{
-	throw UnimplementedError("MatchSpy not suitable for use with remote searches - merge_results() method unimplemented");
-}
-
+MatchSpy * MatchSpy::clone() const { throw UnimplementedError("MatchSpy not suitable for use with remote searches - clone() method unimplemented"); }
+string MatchSpy::name() const { throw UnimplementedError("MatchSpy not suitable for use with remote searches - name() method unimplemented"); }
+string MatchSpy::serialise() const { throw UnimplementedError("MatchSpy not suitable for use with remote searches - serialise() method unimplemented"); }
+MatchSpy * MatchSpy::unserialise(const string &, const Registry &) const { throw UnimplementedError("MatchSpy not suitable for use with remote searches - unserialise() method unimplemented"); }
+string MatchSpy::serialise_results() const { throw UnimplementedError("MatchSpy not suitable for use with remote searches - serialise_results() method unimplemented"); }
+void MatchSpy::merge_results(const string &) { throw UnimplementedError("MatchSpy not suitable for use with remote searches - merge_results() method unimplemented"); }
 string MatchSpy::get_description() const { return "Xapian::MatchSpy()"; }
 
 [[noreturn]] static void unsupported_method() 
@@ -69,27 +45,25 @@ private:
 	bool started;
 	intrusive_ptr<Xapian::ValueCountMatchSpy::Internal> spy;
 public:
-
-	explicit ValueCountTermList(ValueCountMatchSpy::Internal * spy_)
-		: spy(spy_)
+	explicit ValueCountTermList(ValueCountMatchSpy::Internal * spy_) : spy(spy_)
 	{
 		it = spy->values.begin();
 		started = false;
 	}
-
-	string get_termname() const {
+	string get_termname() const 
+	{
 		Assert(started);
 		Assert(!at_end());
 		return it->first;
 	}
-
-	Xapian::doccount get_termfreq() const {
+	Xapian::doccount get_termfreq() const 
+	{
 		Assert(started);
 		Assert(!at_end());
 		return it->second;
 	}
-
-	TermList * next() {
+	TermList * next() 
+	{
 		if(!started) {
 			started = true;
 		}
@@ -99,35 +73,37 @@ public:
 		}
 		return NULL;
 	}
-
-	TermList * skip_to(const string & term) {
+	TermList * skip_to(const string & term) 
+	{
 		while(it != spy->values.end() && it->first < term) {
 			++it;
 		}
 		started = true;
 		return NULL;
 	}
-
-	bool at_end() const {
+	bool at_end() const 
+	{
 		Assert(started);
 		return it == spy->values.end();
 	}
-
-	Xapian::termcount get_approx_size() const {
-		unsupported_method(); return 0;
+	Xapian::termcount get_approx_size() const 
+	{ 
+		unsupported_method(); 
+		return 0; 
 	}
-
-	Xapian::termcount get_wdf() const {
-		unsupported_method(); return 0;
+	Xapian::termcount get_wdf() const 
+	{
+		unsupported_method(); 
+		return 0;
 	}
-
 	PositionList* positionlist_begin() const {
 		unsupported_method();
 		return NULL;
 	}
-
-	Xapian::termcount positionlist_count() const {
-		unsupported_method(); return 0;
+	Xapian::termcount positionlist_count() const 
+	{
+		unsupported_method(); 
+		return 0;
 	}
 };
 
@@ -138,19 +114,13 @@ class StringAndFrequency {
 	Xapian::doccount frequency;
 public:
 	/// Construct a StringAndFrequency object.
-	StringAndFrequency(const std::string & str_, Xapian::doccount frequency_)
-		: str(str_), frequency(frequency_) {
+	StringAndFrequency(const std::string & str_, Xapian::doccount frequency_) : str(str_), frequency(frequency_) 
+	{
 	}
-
 	/// Return the string.
-	std::string get_string() const {
-		return str;
-	}
-
+	std::string get_string() const { return str; }
 	/// Return the frequency.
-	Xapian::doccount get_frequency() const {
-		return frequency;
-	}
+	Xapian::doccount get_frequency() const { return frequency; }
 };
 
 /** Compare two StringAndFrequency objects.
@@ -161,13 +131,13 @@ public:
 class StringAndFreqCmpByFreq {
 public:
 	/// Default constructor
-	StringAndFreqCmpByFreq() {
+	StringAndFreqCmpByFreq() 
+	{
 	}
-
 	/// Return true if a has a higher frequency than b.
 	/// If equal, compare by the str, to provide a stable sort order.
-	bool operator()(const StringAndFrequency &a,
-	    const StringAndFrequency &b) const {
+	bool operator()(const StringAndFrequency &a, const StringAndFrequency &b) const 
+	{
 		if(a.get_frequency() > b.get_frequency()) return true;
 		if(a.get_frequency() < b.get_frequency()) return false;
 		return a.get_string() < b.get_string();

@@ -98,7 +98,7 @@ static int sock_free(BIO * a)
 static int sock_read(BIO * b, char * out, int outl)
 {
 	int ret = 0;
-	if(out != NULL) {
+	if(out) {
 		clear_socket_error();
 #ifndef OPENSSL_NO_KTLS
 		if(BIO_get_ktls_recv(b))

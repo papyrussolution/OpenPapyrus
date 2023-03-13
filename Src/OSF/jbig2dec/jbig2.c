@@ -129,31 +129,16 @@ Jbig2Ctx * jbig2_ctx_new_imp(Jbig2Allocator * allocator, Jbig2Options options,
 
 /* coverity[ -tainted_data_return ] */
 /* coverity[ -tainted_data_argument : arg-0 ] */
-int16_t FASTCALL jbig2_get_int16(const byte * bptr)
-{
-	return get_int16(bptr);
-}
-
+int16_t FASTCALL jbig2_get_int16(const byte * bptr) { return get_int16(bptr); }
 /* coverity[ -tainted_data_return ] */
 /* coverity[ -tainted_data_argument : arg-0 ] */
-uint16_t FASTCALL jbig2_get_uint16(const byte * bptr)
-{
-	return get_uint16(bptr);
-}
-
+uint16_t FASTCALL jbig2_get_uint16(const byte * bptr) { return get_uint16(bptr); }
 /* coverity[ -tainted_data_return ] */
 /* coverity[ -tainted_data_argument : arg-0 ] */
-int32_t FASTCALL jbig2_get_int32(const byte * bptr)
-{
-	return ((int32_t)get_int16(bptr) << 16) | get_uint16(bptr + 2);
-}
-
+int32_t FASTCALL jbig2_get_int32(const byte * bptr) { return ((int32_t)get_int16(bptr) << 16) | get_uint16(bptr + 2); }
 /* coverity[ -tainted_data_return ] */
 /* coverity[ -tainted_data_argument : arg-0 ] */
-uint32_t FASTCALL jbig2_get_uint32(const byte * bptr)
-{
-	return ((uint32_t)get_uint16(bptr) << 16) | get_uint16(bptr + 2);
-}
+uint32_t FASTCALL jbig2_get_uint32(const byte * bptr) { return ((uint32_t)get_uint16(bptr) << 16) | get_uint16(bptr + 2); }
 
 static size_t FASTCALL jbig2_find_buffer_size(size_t desired)
 {
@@ -361,12 +346,12 @@ Jbig2Allocator * jbig2_ctx_free(Jbig2Ctx * ctx)
 		uint32_t i;
 		ca = ctx->allocator;
 		jbig2_free(ca, ctx->buf);
-		if(ctx->segments != NULL) {
+		if(ctx->segments) {
 			for(i = 0; i < ctx->n_segments; i++)
 				jbig2_free_segment(ctx, ctx->segments[i]);
 			jbig2_free(ca, ctx->segments);
 		}
-		if(ctx->pages != NULL) {
+		if(ctx->pages) {
 			for(i = 0; i <= ctx->current_page; i++)
 				if(ctx->pages[i].image != NULL)
 					jbig2_image_release(ctx, ctx->pages[i].image);
@@ -377,15 +362,8 @@ Jbig2Allocator * jbig2_ctx_free(Jbig2Ctx * ctx)
 	return ca;
 }
 
-Jbig2GlobalCtx * jbig2_make_global_ctx(Jbig2Ctx * ctx)
-{
-	return (Jbig2GlobalCtx*)ctx;
-}
-
-Jbig2Allocator * jbig2_global_ctx_free(Jbig2GlobalCtx * global_ctx)
-{
-	return jbig2_ctx_free((Jbig2Ctx*)global_ctx);
-}
+Jbig2GlobalCtx * jbig2_make_global_ctx(Jbig2Ctx * ctx) { return (Jbig2GlobalCtx*)ctx; }
+Jbig2Allocator * jbig2_global_ctx_free(Jbig2GlobalCtx * global_ctx) { return jbig2_ctx_free((Jbig2Ctx*)global_ctx); }
 
 /* I'm not committed to keeping the word stream interface. It's handy
    when you think you may be streaming your input, but if you're not
@@ -467,7 +445,5 @@ void FASTCALL jbig2_free(Jbig2Allocator * allocator, void * p)
 void * jbig2_realloc(Jbig2Allocator * allocator, void * p, size_t size, size_t num)
 {
 	/* check for integer multiplication overflow */
-	if(num > 0 && size >= SIZE_MAX / num)
-		return NULL;
-	return allocator->realloc(allocator, p, size * num);
+	return (num > 0 && size >= SIZE_MAX / num) ? NULL : allocator->realloc(allocator, p, size * num);
 }

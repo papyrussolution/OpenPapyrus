@@ -140,7 +140,7 @@ int ossl_x509_set0_libctx(X509 * x, OSSL_LIB_CTX * libctx, const char * propq)
 		x->libctx = libctx;
 		OPENSSL_free(x->propq);
 		x->propq = NULL;
-		if(propq != NULL) {
+		if(propq) {
 			x->propq = OPENSSL_strdup(propq);
 			if(x->propq == NULL)
 				return 0;

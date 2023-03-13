@@ -25,8 +25,7 @@ Xapian::Error::Error(const std::string &msg_, const std::string &context_, const
 		error_string.assign(error_string_);
 }
 
-const char *
-Xapian::Error::get_error_string() const
+const char * Xapian::Error::get_error_string() const
 {
 	if(error_string.empty()) {
 		if(my_errno == 0) return NULL;

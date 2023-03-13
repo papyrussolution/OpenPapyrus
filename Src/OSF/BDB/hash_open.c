@@ -153,7 +153,7 @@ int __ham_metachk(DB * dbp, const char * name, HMETA * hashm)
 			dbp->dup_compare = __bam_defcmp;
 	}
 	else
-	if(dbp->dup_compare != NULL) {
+	if(dbp->dup_compare) {
 		__db_errx(env, DB_STR_A("1129", "%s: duplicate sort function specified but not set in database", "%s"), name);
 		return EINVAL;
 	}
@@ -217,7 +217,7 @@ static db_pgno_t __ham_init_meta(DB * dbp, HMETA * meta, db_pgno_t pgno, DB_LSN 
 		F_SET(&meta->dbmeta, DB_HASH_DUP);
 	if(F_ISSET(dbp, DB_AM_SUBDB))
 		F_SET(&meta->dbmeta, DB_HASH_SUBDB);
-	if(dbp->dup_compare != NULL)
+	if(dbp->dup_compare)
 		F_SET(&meta->dbmeta, DB_HASH_DUPSORT);
 #ifdef HAVE_PARTITION
 	if((part = (DB_PARTITION *)dbp->p_internal) != NULL) {

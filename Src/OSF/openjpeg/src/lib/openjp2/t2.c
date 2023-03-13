@@ -831,51 +831,39 @@ static boolint opj_t2_encode_packet(uint32_t tileno,
 				cblk->numlenbits = 3;
 				opj_tgt_encode(bio, prc->imsbtree, cblkno, 999);
 			}
-
 			/* number of coding passes included */
 			opj_t2_putnumpasses(bio, layer->numpasses);
 			l_nb_passes = cblk->numpasses + layer->numpasses;
 			pass = cblk->passes +  cblk->numpasses;
-
 			/* computation of the increase of the length indicator and insertion in the header     */
 			for(passno = cblk->numpasses; passno < l_nb_passes; ++passno) {
 				++nump;
 				len += pass->len;
-
 				if(pass->term || passno == (cblk->numpasses + layer->numpasses) - 1) {
-					increment = (uint32_t)opj_int_max((int32_t)increment,
-						opj_int_floorlog2((int32_t)len) + 1
-						- ((int32_t)cblk->numlenbits + opj_int_floorlog2((int32_t)nump)));
+					increment = (uint32_t)opj_int_max((int32_t)increment, opj_int_floorlog2((int32_t)len) + 1 - ((int32_t)cblk->numlenbits + opj_int_floorlog2((int32_t)nump)));
 					len = 0;
 					nump = 0;
 				}
-
 				++pass;
 			}
 			opj_t2_putcommacode(bio, (int32_t)increment);
-
 			/* computation of the new Length indicator */
 			cblk->numlenbits += increment;
-
 			pass = cblk->passes +  cblk->numpasses;
 			/* insertion of the codeword segment length */
 			for(passno = cblk->numpasses; passno < l_nb_passes; ++passno) {
 				nump++;
 				len += pass->len;
-
 				if(pass->term || passno == (cblk->numpasses + layer->numpasses) - 1) {
-					opj_bio_write(bio, (uint32_t)len,
-					    cblk->numlenbits + (uint32_t)opj_int_floorlog2((int32_t)nump));
+					opj_bio_write(bio, (uint32_t)len, cblk->numlenbits + (uint32_t)opj_int_floorlog2((int32_t)nump));
 					len = 0;
 					nump = 0;
 				}
 				++pass;
 			}
-
 			++cblk;
 		}
 	}
-
 	if(!opj_bio_flush(bio)) {
 		opj_bio_destroy(bio);
 		return FALSE;       /* modified to eliminate longjmp !! */
@@ -1248,11 +1236,9 @@ static boolint opj_t2_read_packet_header(opj_t2_t* p_t2,
 					JAS_FPRINTF(stderr, "included=%d numnewpasses=%d increment=%d len=%d \n",
 					    l_included, l_cblk->segs[l_segno].numnewpasses, l_increment,
 					    l_cblk->segs[l_segno].newlen);
-
 					n -= (int32_t)l_cblk->segs[l_segno].numnewpasses;
 					if(n > 0) {
 						++l_segno;
-
 						if(!opj_t2_init_seg(l_cblk, l_segno, p_tcp->tccps[p_pi->compno].cblksty, 0)) {
 							opj_bio_destroy(l_bio);
 							return FALSE;
@@ -1262,26 +1248,19 @@ static boolint opj_t2_read_packet_header(opj_t2_t* p_t2,
 			else
 				do {
 					uint32_t bit_number;
-					l_cblk->segs[l_segno].numnewpasses = (uint32_t)opj_int_min((int32_t)(
-							l_cblk->segs[l_segno].maxpasses - l_cblk->segs[l_segno].numpasses), n);
-					bit_number = l_cblk->numlenbits + opj_uint_floorlog2(
-						l_cblk->segs[l_segno].numnewpasses);
+					l_cblk->segs[l_segno].numnewpasses = (uint32_t)opj_int_min((int32_t)(l_cblk->segs[l_segno].maxpasses - l_cblk->segs[l_segno].numpasses), n);
+					bit_number = l_cblk->numlenbits + opj_uint_floorlog2(l_cblk->segs[l_segno].numnewpasses);
 					if(bit_number > 32) {
-						opj_event_msg(p_manager, EVT_ERROR,
-						    "Invalid bit number %d in opj_t2_read_packet_header()\n",
-						    bit_number);
+						opj_event_msg(p_manager, EVT_ERROR, "Invalid bit number %d in opj_t2_read_packet_header()\n", bit_number);
 						opj_bio_destroy(l_bio);
 						return FALSE;
 					}
 					l_cblk->segs[l_segno].newlen = opj_bio_read(l_bio, bit_number);
 					JAS_FPRINTF(stderr, "included=%d numnewpasses=%d increment=%d len=%d \n",
-					    l_included, l_cblk->segs[l_segno].numnewpasses, l_increment,
-					    l_cblk->segs[l_segno].newlen);
-
+					    l_included, l_cblk->segs[l_segno].numnewpasses, l_increment, l_cblk->segs[l_segno].newlen);
 					n -= (int32_t)l_cblk->segs[l_segno].numnewpasses;
 					if(n > 0) {
 						++l_segno;
-
 						if(!opj_t2_init_seg(l_cblk, l_segno, p_tcp->tccps[p_pi->compno].cblksty, 0)) {
 							opj_bio_destroy(l_bio);
 							return FALSE;
@@ -1292,21 +1271,16 @@ static boolint opj_t2_read_packet_header(opj_t2_t* p_t2,
 			++l_cblk;
 		}
 	}
-
 	if(!opj_bio_inalign(l_bio)) {
 		opj_bio_destroy(l_bio);
 		return FALSE;
 	}
-
 	l_header_data += opj_bio_numbytes(l_bio);
 	opj_bio_destroy(l_bio);
-
 	/* EPH markers */
 	if(p_tcp->csty & J2K_CP_CSTY_EPH) {
-		if((*l_modified_length_ptr - (uint32_t)(l_header_data -
-		    *l_header_data_start)) < 2U) {
-			opj_event_msg(p_manager, EVT_WARNING,
-			    "Not enough space for expected EPH marker\n");
+		if((*l_modified_length_ptr - (uint32_t)(l_header_data - *l_header_data_start)) < 2U) {
+			opj_event_msg(p_manager, EVT_WARNING, "Not enough space for expected EPH marker\n");
 		}
 		else if((*l_header_data) != 0xff || (*(l_header_data + 1) != 0x92)) {
 			opj_event_msg(p_manager, EVT_WARNING, "Expected EPH marker\n");
@@ -1315,7 +1289,6 @@ static boolint opj_t2_read_packet_header(opj_t2_t* p_t2,
 			l_header_data += 2;
 		}
 	}
-
 	l_header_length = (uint32_t)(l_header_data - *l_header_data_start);
 	JAS_FPRINTF(stderr, "hdrlen=%d \n", l_header_length);
 	JAS_FPRINTF(stderr, "packet body\n");

@@ -477,7 +477,7 @@ int ossl_pkcs7_set1_propq(PKCS7 * p7, const char * propq)
 		OPENSSL_free(p7->ctx.propq);
 		p7->ctx.propq = NULL;
 	}
-	if(propq != NULL) {
+	if(propq) {
 		p7->ctx.propq = OPENSSL_strdup(propq);
 		if(p7->ctx.propq == NULL) {
 			ERR_raise(ERR_LIB_PROV, ERR_R_MALLOC_FAILURE);

@@ -68,7 +68,7 @@ static int asn1_type_get_int_oct(ASN1_OCTET_STRING * oct, int32_t anum,
 	else
 		n = max_len;
 
-	if(data != NULL)
+	if(data)
 		memcpy(data, ASN1_STRING_get0_data(oct), n);
 
 	return ret;

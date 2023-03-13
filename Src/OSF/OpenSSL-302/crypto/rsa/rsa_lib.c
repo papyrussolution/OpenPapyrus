@@ -396,7 +396,7 @@ int RSA_set0_key(RSA * r, BIGNUM * n, BIGNUM * e, BIGNUM * d)
 		BN_free(r->e);
 		r->e = e;
 	}
-	if(d != NULL) {
+	if(d) {
 		BN_clear_free(r->d);
 		r->d = d;
 		BN_set_flags(r->d, BN_FLG_CONSTTIME);
@@ -420,7 +420,7 @@ int RSA_set0_factors(RSA * r, BIGNUM * p, BIGNUM * q)
 		r->p = p;
 		BN_set_flags(r->p, BN_FLG_CONSTTIME);
 	}
-	if(q != NULL) {
+	if(q) {
 		BN_clear_free(r->q);
 		r->q = q;
 		BN_set_flags(r->q, BN_FLG_CONSTTIME);
@@ -540,7 +540,7 @@ void RSA_get0_key(const RSA * r,
 		*n = r->n;
 	if(e != NULL)
 		*e = r->e;
-	if(d != NULL)
+	if(d)
 		*d = r->d;
 }
 
@@ -548,7 +548,7 @@ void RSA_get0_factors(const RSA * r, const BIGNUM ** p, const BIGNUM ** q)
 {
 	if(p)
 		*p = r->p;
-	if(q != NULL)
+	if(q)
 		*q = r->q;
 }
 

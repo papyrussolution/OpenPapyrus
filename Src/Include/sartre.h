@@ -1,5 +1,5 @@
 // SARTRE.H
-// Copyright (c) A.Sobolev 2011, 2012, 2016, 2017, 2018, 2020, 2022
+// Copyright (c) A.Sobolev 2011, 2012, 2016, 2017, 2018, 2020, 2022, 2023
 // @codepage UTF-8
 //
 /*
@@ -1158,6 +1158,21 @@ public:
 	{
 		return (IsMetaId(meta) && ((ued >> 32) & 0x00000000ffffffffULL) == (meta & 0x00000000ffffffffULL));
 	}
+	static uint64 GetMeta(uint64 ued)
+	{
+		const uint32 dw_hi = static_cast<uint32>(ued >> 32);
+		const uint8  b_hi = static_cast<uint8>(dw_hi >> 24);
+		if(dw_hi == 1)
+			return  0x0000000100000001ULL; // meta
+		else if(b_hi & 0x80) {
+			return (0x0000000100000000ULL & static_cast<uint64>(dw_hi & 0xff000000U));
+		}
+		else if(b_hi & 0x40) {
+			return (0x0000000100000000ULL & static_cast<uint64>(dw_hi & 0xffff0000U));
+		}
+		else
+			return 0ULL;
+	}
 	static uint32 MakeShort(uint64 ued, uint64 meta)
 	{
 		uint32 result = 0;
@@ -1191,7 +1206,16 @@ public:
 	~SrUedContainer();
 	int    ReadSource(const char * pFileName);
 	int    WriteSource(const char * pFileName);
+	//
+	// Descr: Верифицирует UED-файл версии ver и находящийся в каталоге pPath 
+	//   на предмет наличия и соответствия хэша, хранящегося в отдельном файле в том же каталоге.
+	//
 	int    Verify(const char * pPath, long ver);
+	//
+	// Descr: Верифицирует this-контейнер на непротиворечивость и, если указан контейнер
+	//   предыдущей версии (pPrevC != 0), то проверяет инварианты.
+	//
+	int    VerifyByPreviousVersion(const SrUedContainer * pPrevC);
 	uint64 SearchBaseSymb(const char * pSymb, uint64 meta) const;
 	bool   SearchBaseId(uint64 id, SString & rSymb) const;
 	bool   GenerateSourceDecl_C(const char * pFileName);

@@ -212,7 +212,7 @@ static void op_cache_free(OP_CACHE_ELEM * e)
 
 int evp_keymgmt_util_clear_operation_cache(EVP_PKEY * pk, int locking)
 {
-	if(pk != NULL) {
+	if(pk) {
 		if(locking && pk->lock != NULL && !CRYPTO_THREAD_write_lock(pk->lock))
 			return 0;
 		sk_OP_CACHE_ELEM_pop_free(pk->operation_cache, op_cache_free);

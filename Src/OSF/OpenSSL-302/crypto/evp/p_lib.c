@@ -376,18 +376,12 @@ static EVP_PKEY * new_raw_key_int(OSSL_LIB_CTX * libctx, const char * strtype, c
 		ERR_set_mark();
 		if(EVP_PKEY_fromdata_init(ctx) == 1) {
 			OSSL_PARAM params[] = { OSSL_PARAM_END, OSSL_PARAM_END };
-
 			ERR_clear_last_mark();
-			params[0] = OSSL_PARAM_construct_octet_string(
-				key_is_priv ? OSSL_PKEY_PARAM_PRIV_KEY
-				: OSSL_PKEY_PARAM_PUB_KEY,
-				(void*)key, len);
-
+			params[0] = OSSL_PARAM_construct_octet_string(key_is_priv ? OSSL_PKEY_PARAM_PRIV_KEY : OSSL_PKEY_PARAM_PUB_KEY, (void*)key, len);
 			if(EVP_PKEY_fromdata(ctx, &pkey, EVP_PKEY_KEYPAIR, params) != 1) {
 				ERR_raise(ERR_LIB_EVP, EVP_R_KEY_SETUP_FAILED);
 				goto err;
 			}
-
 			EVP_PKEY_CTX_free(ctx);
 
 			return pkey;
@@ -595,7 +589,7 @@ static EVP_PKEY * new_cmac_key_int(const uchar * priv, size_t len,
 		(void*)priv, len);
 	*p++ = OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_CIPHER,
 		(char*)cipher_name, 0);
-	if(propq != NULL)
+	if(propq)
 		*p++ = OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_PROPERTIES,
 			(char*)propq, 0);
 #ifndef OPENSSL_NO_ENGINE
@@ -1935,16 +1929,12 @@ int evp_pkey_copy_downgraded(EVP_PKEY ** dest, const EVP_PKEY * src)
 		 * The check is kept as a safety measure.
 		 */
 		if(!ossl_assert(type != EVP_PKEY_NONE)) {
-			ERR_raise_data(ERR_LIB_EVP, ERR_R_INTERNAL_ERROR,
-			    "keymgmt key type = %s but legacy type = EVP_PKEY_NONE",
-			    keytype);
+			ERR_raise_data(ERR_LIB_EVP, ERR_R_INTERNAL_ERROR, "keymgmt key type = %s but legacy type = EVP_PKEY_NONE", keytype);
 			return 0;
 		}
-
 		/* Prefer the legacy key type name for error reporting */
 		if(type != EVP_PKEY_KEYMGMT)
 			keytype = OBJ_nid2sn(type);
-
 		/* Make sure we have a clean slate to copy into */
 		if(*dest == NULL) {
 			*dest = EVP_PKEY_new();
@@ -1956,45 +1946,31 @@ int evp_pkey_copy_downgraded(EVP_PKEY ** dest, const EVP_PKEY * src)
 		else {
 			evp_pkey_free_it(*dest);
 		}
-
 		if(EVP_PKEY_set_type(*dest, type)) {
 			/* If the key is typed but empty, we're done */
 			if(keydata == NULL)
 				return 1;
-
 			if((*dest)->ameth->import_from == NULL) {
-				ERR_raise_data(ERR_LIB_EVP, EVP_R_NO_IMPORT_FUNCTION,
-				    "key type = %s", keytype);
+				ERR_raise_data(ERR_LIB_EVP, EVP_R_NO_IMPORT_FUNCTION, "key type = %s", keytype);
 			}
 			else {
 				/*
 				 * We perform the export in the same libctx as the keymgmt
 				 * that we are using.
 				 */
-				OSSL_LIB_CTX * libctx =
-				    ossl_provider_libctx(keymgmt->prov);
-				EVP_PKEY_CTX * pctx =
-				    EVP_PKEY_CTX_new_from_pkey(libctx, *dest, NULL);
-
+				OSSL_LIB_CTX * libctx = ossl_provider_libctx(keymgmt->prov);
+				EVP_PKEY_CTX * pctx = EVP_PKEY_CTX_new_from_pkey(libctx, *dest, NULL);
 				if(pctx == NULL)
 					ERR_raise(ERR_LIB_EVP, ERR_R_MALLOC_FAILURE);
-
-				if(pctx != NULL
-				    && evp_keymgmt_export(keymgmt, keydata,
-				    OSSL_KEYMGMT_SELECT_ALL,
-				    (*dest)->ameth->import_from,
-				    pctx)) {
+				if(pctx != NULL && evp_keymgmt_export(keymgmt, keydata, OSSL_KEYMGMT_SELECT_ALL, (*dest)->ameth->import_from, pctx)) {
 					/* Synchronize the dirty count */
 					(*dest)->dirty_cnt_copy = (*dest)->ameth->dirty_cnt(*dest);
-
 					EVP_PKEY_CTX_free(pctx);
 					return 1;
 				}
 				EVP_PKEY_CTX_free(pctx);
 			}
-
-			ERR_raise_data(ERR_LIB_EVP, EVP_R_KEYMGMT_EXPORT_FAILURE,
-			    "key type = %s", keytype);
+			ERR_raise_data(ERR_LIB_EVP, EVP_R_KEYMGMT_EXPORT_FAILURE, "key type = %s", keytype);
 		}
 	}
 
@@ -2005,10 +1981,8 @@ void * evp_pkey_get_legacy(EVP_PKEY * pk)
 {
 	EVP_PKEY * tmp_copy = NULL;
 	void * ret = NULL;
-
 	if(!ossl_assert(pk != NULL))
 		return NULL;
-
 	/*
 	 * If this isn't an assigned provider side key, we just use any existing
 	 * origin legacy key.
@@ -2017,24 +1991,17 @@ void * evp_pkey_get_legacy(EVP_PKEY * pk)
 		return NULL;
 	if(!evp_pkey_is_provided(pk))
 		return pk->pkey.ptr;
-
 	if(!CRYPTO_THREAD_read_lock(pk->lock))
 		return NULL;
-
 	ret = pk->legacy_cache_pkey.ptr;
-
 	if(!CRYPTO_THREAD_unlock(pk->lock))
 		return NULL;
-
 	if(ret)
 		return ret;
-
 	if(!evp_pkey_copy_downgraded(&tmp_copy, pk))
 		return NULL;
-
 	if(!CRYPTO_THREAD_write_lock(pk->lock))
 		goto err;
-
 	/* Check again in case some other thread has updated it in the meantime */
 	ret = pk->legacy_cache_pkey.ptr;
 	if(!ret) {
@@ -2042,15 +2009,12 @@ void * evp_pkey_get_legacy(EVP_PKEY * pk)
 		ret = pk->legacy_cache_pkey.ptr = tmp_copy->pkey.ptr;
 		tmp_copy->pkey.ptr = NULL;
 	}
-
 	if(!CRYPTO_THREAD_unlock(pk->lock)) {
 		ret = NULL;
 		goto err;
 	}
-
 err:
 	EVP_PKEY_free(tmp_copy);
-
 	return ret;
 }
 
@@ -2108,68 +2072,52 @@ int EVP_PKEY_get_octet_string_param(const EVP_PKEY * pkey, const char * key_name
 	return ret1 && ret2;
 }
 
-int EVP_PKEY_get_utf8_string_param(const EVP_PKEY * pkey, const char * key_name,
-    char * str, size_t max_buf_sz,
-    size_t * out_len)
+int EVP_PKEY_get_utf8_string_param(const EVP_PKEY * pkey, const char * key_name, char * str, size_t max_buf_sz, size_t * out_len)
 {
 	OSSL_PARAM params[2];
 	int ret1 = 0, ret2 = 0;
-
 	if(key_name == NULL)
 		return 0;
-
 	params[0] = OSSL_PARAM_construct_utf8_string(key_name, str, max_buf_sz);
 	params[1] = OSSL_PARAM_construct_end();
 	if((ret1 = EVP_PKEY_get_params(pkey, params)))
 		ret2 = OSSL_PARAM_modified(params);
 	if(ret2 && out_len != NULL)
 		*out_len = params[0].return_size;
-
 	if(ret2 && params[0].return_size == max_buf_sz)
 		/* There was no space for a NUL byte */
 		return 0;
 	/* Add a terminating NUL byte for good measure */
 	if(ret2 && str != NULL)
 		str[params[0].return_size] = '\0';
-
 	return ret1 && ret2;
 }
 
-int EVP_PKEY_get_int_param(const EVP_PKEY * pkey, const char * key_name,
-    int * out)
+int EVP_PKEY_get_int_param(const EVP_PKEY * pkey, const char * key_name, int * out)
 {
 	OSSL_PARAM params[2];
-
 	if(key_name == NULL)
 		return 0;
-
 	params[0] = OSSL_PARAM_construct_int(key_name, out);
 	params[1] = OSSL_PARAM_construct_end();
-	return EVP_PKEY_get_params(pkey, params)
-	       && OSSL_PARAM_modified(params);
+	return EVP_PKEY_get_params(pkey, params) && OSSL_PARAM_modified(params);
 }
 
-int EVP_PKEY_get_size_t_param(const EVP_PKEY * pkey, const char * key_name,
-    size_t * out)
+int EVP_PKEY_get_size_t_param(const EVP_PKEY * pkey, const char * key_name, size_t * out)
 {
 	OSSL_PARAM params[2];
-
 	if(key_name == NULL)
 		return 0;
-
 	params[0] = OSSL_PARAM_construct_size_t(key_name, out);
 	params[1] = OSSL_PARAM_construct_end();
-	return EVP_PKEY_get_params(pkey, params)
-	       && OSSL_PARAM_modified(params);
+	return EVP_PKEY_get_params(pkey, params) && OSSL_PARAM_modified(params);
 }
 
 int EVP_PKEY_set_int_param(EVP_PKEY * pkey, const char * key_name, int in)
 {
 	OSSL_PARAM params[2];
-
 	if(key_name == NULL)
 		return 0;
-
 	params[0] = OSSL_PARAM_construct_int(key_name, &in);
 	params[1] = OSSL_PARAM_construct_end();
 	return EVP_PKEY_set_params(pkey, params);
@@ -2178,32 +2126,23 @@ int EVP_PKEY_set_int_param(EVP_PKEY * pkey, const char * key_name, int in)
 int EVP_PKEY_set_size_t_param(EVP_PKEY * pkey, const char * key_name, size_t in)
 {
 	OSSL_PARAM params[2];
-
 	if(key_name == NULL)
 		return 0;
-
 	params[0] = OSSL_PARAM_construct_size_t(key_name, &in);
 	params[1] = OSSL_PARAM_construct_end();
 	return EVP_PKEY_set_params(pkey, params);
 }
 
-int EVP_PKEY_set_bn_param(EVP_PKEY * pkey, const char * key_name,
-    const BIGNUM * bn)
+int EVP_PKEY_set_bn_param(EVP_PKEY * pkey, const char * key_name, const BIGNUM * bn)
 {
 	OSSL_PARAM params[2];
 	unsigned char buffer[2048];
 	int bsize = 0;
-
-	if(key_name == NULL
-	    || bn == NULL
-	    || pkey == NULL
-	    || !evp_pkey_is_assigned(pkey))
+	if(key_name == NULL || bn == NULL || pkey == NULL || !evp_pkey_is_assigned(pkey))
 		return 0;
-
 	bsize = BN_num_bytes(bn);
 	if(!ossl_assert(bsize <= (int)sizeof(buffer)))
 		return 0;
-
 	if(BN_bn2nativepad(bn, buffer, bsize) < 0)
 		return 0;
 	params[0] = OSSL_PARAM_construct_BN(key_name, buffer, bsize);
@@ -2211,38 +2150,29 @@ int EVP_PKEY_set_bn_param(EVP_PKEY * pkey, const char * key_name,
 	return EVP_PKEY_set_params(pkey, params);
 }
 
-int EVP_PKEY_set_utf8_string_param(EVP_PKEY * pkey, const char * key_name,
-    const char * str)
+int EVP_PKEY_set_utf8_string_param(EVP_PKEY * pkey, const char * key_name, const char * str)
 {
 	OSSL_PARAM params[2];
-
 	if(key_name == NULL)
 		return 0;
-
 	params[0] = OSSL_PARAM_construct_utf8_string(key_name, (char*)str, 0);
 	params[1] = OSSL_PARAM_construct_end();
 	return EVP_PKEY_set_params(pkey, params);
 }
 
-int EVP_PKEY_set_octet_string_param(EVP_PKEY * pkey, const char * key_name,
-    const uchar * buf, size_t bsize)
+int EVP_PKEY_set_octet_string_param(EVP_PKEY * pkey, const char * key_name, const uchar * buf, size_t bsize)
 {
 	OSSL_PARAM params[2];
-
 	if(key_name == NULL)
 		return 0;
-
-	params[0] = OSSL_PARAM_construct_octet_string(key_name,
-		(uchar *)buf, bsize);
+	params[0] = OSSL_PARAM_construct_octet_string(key_name, (uchar *)buf, bsize);
 	params[1] = OSSL_PARAM_construct_end();
 	return EVP_PKEY_set_params(pkey, params);
 }
 
 const OSSL_PARAM * EVP_PKEY_settable_params(const EVP_PKEY * pkey)
 {
-	return (pkey != NULL && evp_pkey_is_provided(pkey))
-	       ? EVP_KEYMGMT_settable_params(pkey->keymgmt)
-	       : NULL;
+	return (pkey != NULL && evp_pkey_is_provided(pkey)) ? EVP_KEYMGMT_settable_params(pkey->keymgmt) : NULL;
 }
 
 int EVP_PKEY_set_params(EVP_PKEY * pkey, OSSL_PARAM params[])
@@ -2272,9 +2202,7 @@ int EVP_PKEY_set_params(EVP_PKEY * pkey, OSSL_PARAM params[])
 
 const OSSL_PARAM * EVP_PKEY_gettable_params(const EVP_PKEY * pkey)
 {
-	return (pkey != NULL && evp_pkey_is_provided(pkey))
-	       ? EVP_KEYMGMT_gettable_params(pkey->keymgmt)
-	       : NULL;
+	return (pkey && evp_pkey_is_provided(pkey)) ? EVP_KEYMGMT_gettable_params(pkey->keymgmt) : NULL;
 }
 
 int EVP_PKEY_get_params(const EVP_PKEY * pkey, OSSL_PARAM params[])

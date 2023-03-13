@@ -819,31 +819,23 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 	struct sctp_event_subscribe event;
 #endif
 #endif
-
 	bio = BIO_new(BIO_s_datagram_sctp());
 	if(!bio)
 		return NULL;
 	BIO_set_fd(bio, fd, close_flag);
-
 	/* Activate SCTP-AUTH for DATA and FORWARD-TSN chunks */
 	auth.sauth_chunk = OPENSSL_SCTP_DATA_CHUNK_TYPE;
-	ret =
-	    setsockopt(fd, IPPROTO_SCTP, SCTP_AUTH_CHUNK, &auth,
-		sizeof(struct sctp_authchunk));
+	ret = setsockopt(fd, IPPROTO_SCTP, SCTP_AUTH_CHUNK, &auth, sizeof(struct sctp_authchunk));
 	if(ret < 0) {
 		BIO_vfree(bio);
-		ERR_raise_data(ERR_LIB_BIO, ERR_R_SYS_LIB,
-		    "Ensure SCTP AUTH chunks are enabled in kernel");
+		ERR_raise_data(ERR_LIB_BIO, ERR_R_SYS_LIB, "Ensure SCTP AUTH chunks are enabled in kernel");
 		return NULL;
 	}
 	auth.sauth_chunk = OPENSSL_SCTP_FORWARD_CUM_TSN_CHUNK_TYPE;
-	ret =
-	    setsockopt(fd, IPPROTO_SCTP, SCTP_AUTH_CHUNK, &auth,
-		sizeof(struct sctp_authchunk));
+	ret = setsockopt(fd, IPPROTO_SCTP, SCTP_AUTH_CHUNK, &auth, sizeof(struct sctp_authchunk));
 	if(ret < 0) {
 		BIO_vfree(bio);
-		ERR_raise_data(ERR_LIB_BIO, ERR_R_SYS_LIB,
-		    "Ensure SCTP AUTH chunks are enabled in kernel");
+		ERR_raise_data(ERR_LIB_BIO, ERR_R_SYS_LIB, "Ensure SCTP AUTH chunks are enabled in kernel");
 		return NULL;
 	}
 
@@ -875,26 +867,19 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 		if(*p == OPENSSL_SCTP_FORWARD_CUM_TSN_CHUNK_TYPE)
 			auth_forward = 1;
 	}
-
 	OPENSSL_free(authchunks);
-
 	if(!auth_data || !auth_forward) {
 		BIO_vfree(bio);
-		ERR_raise_data(ERR_LIB_BIO, ERR_R_SYS_LIB,
-		    "Ensure SCTP AUTH chunks are enabled on the "
-		    "underlying socket");
+		ERR_raise_data(ERR_LIB_BIO, ERR_R_SYS_LIB, "Ensure SCTP AUTH chunks are enabled on the underlying socket");
 		return NULL;
 	}
-
 #ifdef SCTP_AUTHENTICATION_EVENT
 #ifdef SCTP_EVENT
 	memzero(&event, sizeof(event));
 	event.se_assoc_id = 0;
 	event.se_type = SCTP_AUTHENTICATION_EVENT;
 	event.se_on = 1;
-	ret =
-	    setsockopt(fd, IPPROTO_SCTP, SCTP_EVENT, &event,
-		sizeof(struct sctp_event));
+	ret = setsockopt(fd, IPPROTO_SCTP, SCTP_EVENT, &event, sizeof(struct sctp_event));
 	if(ret < 0) {
 		BIO_vfree(bio);
 		return NULL;

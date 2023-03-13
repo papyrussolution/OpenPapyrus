@@ -530,7 +530,7 @@ static cairo_xlib_shm_info_t * _cairo_xlib_shm_info_create(cairo_xlib_display_t 
 	assert(mem != NULL);
 
 	info = _cairo_malloc(sizeof(*info));
-	if(info == NULL) {
+	if(!info) {
 		_cairo_mempool_free(&pool->mem, mem);
 		return NULL;
 	}

@@ -265,7 +265,7 @@ static int ossl_encoder_ctx_setup_for_pkey(OSSL_ENCODER_CTX * ctx, const EVP_PKE
 
 	ok = 1;
 err:
-	if(data != NULL) {
+	if(data) {
 		OSSL_ENCODER_CTX_set_construct_data(ctx, NULL);
 		OPENSSL_free(data);
 	}

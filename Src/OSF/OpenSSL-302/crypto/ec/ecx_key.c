@@ -33,7 +33,7 @@ ECX_KEY * ossl_ecx_key_new(OSSL_LIB_CTX * libctx, ECX_KEY_TYPE type, int haspubk
 	}
 	ret->type = type;
 	ret->references = 1;
-	if(propq != NULL) {
+	if(propq) {
 		ret->propq = OPENSSL_strdup(propq);
 		if(ret->propq == NULL)
 			goto err;

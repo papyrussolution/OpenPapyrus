@@ -610,7 +610,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								svc_reply_doc_json = intent.getStringExtra("SvcReplyDocJson");
 							if(SLib.GetLen(svc_reply_doc_json) > 0) {
 								JSONObject js_head = new JSONObject(svc_reply_doc_json);
-								CPM.GetCommonJsonFactors(js_head);
+								CPM.GetCommonJsonFactors(js_head, null);
 								CPM.MakeUomListFromCommonJson(js_head);
 								CPM.MakeGoodsGroupListFromCommonJson(js_head);
 								CPM.MakeGoodsListFromCommonJson(js_head);

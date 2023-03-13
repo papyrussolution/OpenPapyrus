@@ -34,7 +34,7 @@ CMS_ContentInfo * d2i_CMS_bio(BIO * bp, CMS_ContentInfo ** cms)
 	const CMS_CTX * ctx = ossl_cms_get0_cmsctx(cms == NULL ? NULL : *cms);
 	CMS_ContentInfo * ci = (CMS_ContentInfo*)ASN1_item_d2i_bio_ex(ASN1_ITEM_rptr(CMS_ContentInfo), bp, cms,
 		ossl_cms_ctx_get0_libctx(ctx), ossl_cms_ctx_get0_propq(ctx));
-	if(ci != NULL)
+	if(ci)
 		ossl_cms_resolve_libctx(ci);
 	return ci;
 }
@@ -97,7 +97,7 @@ CMS_ContentInfo * SMIME_read_CMS_ex(BIO * bio, int flags, BIO ** bcont,
 		(ASN1_VALUE**)cms,
 		ossl_cms_ctx_get0_libctx(ctx),
 		ossl_cms_ctx_get0_propq(ctx));
-	if(ci != NULL)
+	if(ci)
 		ossl_cms_resolve_libctx(ci);
 	return ci;
 }

@@ -3673,7 +3673,7 @@ void htmlParseElement(htmlParserCtxt * ctxt)
 	 * Lookup the info for that element.
 	 */
 	info = htmlTagLookup(name);
-	if(info == NULL) {
+	if(!info) {
 		htmlParseErr(ctxt, XML_HTML_UNKNOWN_TAG, "Tag %s invalid\n", name, 0);
 	}
 	/*
@@ -3800,7 +3800,7 @@ static void htmlParseElementInternal(htmlParserCtxt * ctxt)
 	 * Lookup the info for that element.
 	 */
 	info = htmlTagLookup(name);
-	if(info == NULL) {
+	if(!info) {
 		htmlParseErr(ctxt, XML_HTML_UNKNOWN_TAG, "Tag %s invalid\n", name, 0);
 	}
 	/*

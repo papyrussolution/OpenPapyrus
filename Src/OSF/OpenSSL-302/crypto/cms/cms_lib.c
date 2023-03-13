@@ -21,7 +21,7 @@ CMS_ContentInfo *d2i_CMS_ContentInfo(CMS_ContentInfo **a, const uchar ** in, lon
 {
 	const CMS_CTX * ctx = ossl_cms_get0_cmsctx(a == NULL ? NULL : *a);
 	CMS_ContentInfo * ci = (CMS_ContentInfo*)ASN1_item_d2i_ex((ASN1_VALUE**)a, in, len, (CMS_ContentInfo_it()), ossl_cms_ctx_get0_libctx(ctx), ossl_cms_ctx_get0_propq(ctx));
-	if(ci != NULL)
+	if(ci)
 		ossl_cms_resolve_libctx(ci);
 	return ci;
 }
@@ -34,10 +34,10 @@ int i2d_CMS_ContentInfo(const CMS_ContentInfo * a, uchar ** out)
 CMS_ContentInfo * CMS_ContentInfo_new_ex(OSSL_LIB_CTX * libctx, const char * propq)
 {
 	CMS_ContentInfo * ci = (CMS_ContentInfo*)ASN1_item_new_ex(ASN1_ITEM_rptr(CMS_ContentInfo), libctx, propq);
-	if(ci != NULL) {
+	if(ci) {
 		ci->ctx.libctx = libctx;
 		ci->ctx.propq = NULL;
-		if(propq != NULL) {
+		if(propq) {
 			ci->ctx.propq = OPENSSL_strdup(propq);
 			if(ci->ctx.propq == NULL) {
 				CMS_ContentInfo_free(ci);
@@ -56,26 +56,15 @@ CMS_ContentInfo * CMS_ContentInfo_new(void)
 
 void CMS_ContentInfo_free(CMS_ContentInfo * cms)
 {
-	if(cms != NULL) {
+	if(cms) {
 		OPENSSL_free(cms->ctx.propq);
 		ASN1_item_free((ASN1_VALUE*)cms, ASN1_ITEM_rptr(CMS_ContentInfo));
 	}
 }
 
-const CMS_CTX * ossl_cms_get0_cmsctx(const CMS_ContentInfo * cms)
-{
-	return cms != NULL ? &cms->ctx : NULL;
-}
-
-OSSL_LIB_CTX * ossl_cms_ctx_get0_libctx(const CMS_CTX * ctx)
-{
-	return ctx != NULL ? ctx->libctx : NULL;
-}
-
-const char * ossl_cms_ctx_get0_propq(const CMS_CTX * ctx)
-{
-	return ctx != NULL ? ctx->propq : NULL;
-}
+const CMS_CTX * ossl_cms_get0_cmsctx(const CMS_ContentInfo * cms) { return cms != NULL ? &cms->ctx : NULL; }
+OSSL_LIB_CTX * ossl_cms_ctx_get0_libctx(const CMS_CTX * ctx) { return ctx != NULL ? ctx->libctx : NULL; }
+const char * ossl_cms_ctx_get0_propq(const CMS_CTX * ctx) { return ctx != NULL ? ctx->propq : NULL; }
 
 void ossl_cms_resolve_libctx(CMS_ContentInfo * ci)
 {
@@ -105,7 +94,7 @@ const ASN1_OBJECT * CMS_get0_type(const CMS_ContentInfo * cms)
 CMS_ContentInfo * ossl_cms_Data_create(OSSL_LIB_CTX * libctx, const char * propq)
 {
 	CMS_ContentInfo * cms = CMS_ContentInfo_new_ex(libctx, propq);
-	if(cms != NULL) {
+	if(cms) {
 		cms->contentType = OBJ_nid2obj(NID_pkcs7_data);
 		/* Never detached */
 		CMS_set_detached(cms, 0);
@@ -185,7 +174,6 @@ err:
 int CMS_dataFinal(CMS_ContentInfo * cms, BIO * cmsbio)
 {
 	ASN1_OCTET_STRING ** pos = CMS_get0_content(cms);
-
 	if(pos == NULL)
 		return 0;
 	/* If embedded content find memory BIO and set content */
@@ -205,20 +193,16 @@ int CMS_dataFinal(CMS_ContentInfo * cms, BIO * cmsbio)
 		ASN1_STRING_set0(*pos, cont, contlen);
 		(*pos)->flags &= ~ASN1_STRING_FLAG_CONT;
 	}
-
 	switch(OBJ_obj2nid(cms->contentType)) {
 		case NID_pkcs7_data:
 		case NID_pkcs7_encrypted:
 		case NID_id_smime_ct_compressedData:
 		    /* Nothing to do */
 		    return 1;
-
 		case NID_pkcs7_enveloped:
 		    return ossl_cms_EnvelopedData_final(cms, cmsbio);
-
 		case NID_id_smime_ct_authEnvelopedData:
 		    return ossl_cms_AuthEnvelopedData_final(cms, cmsbio);
-
 		case NID_pkcs7_signed:
 		    return ossl_cms_SignedData_final(cms, cmsbio);
 

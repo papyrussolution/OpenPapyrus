@@ -495,7 +495,7 @@ static int ec_pkey_export_to(const EVP_PKEY * from, void * to_keydata, OSSL_FUNC
 		selection |= OSSL_KEYMGMT_SELECT_PUBLIC_KEY;
 	}
 
-	if(priv_key != NULL) {
+	if(priv_key) {
 		size_t sz;
 		int ecbits;
 		int ecdh_cofactor_mode;

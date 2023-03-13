@@ -7011,6 +7011,7 @@ cmd EventSubscription     { "@{cmd_eventsubscription}"                     none 
 cmd AlcoDeclRu            { "@{cmd_alcodeclru}"                            PPDV_ALCODECL          none cmAlcoDeclRu view=AlcoDeclRu } // @v11.0.5
 cmd StyloQBindery         { "@{cmd_styloqbindery}"                         none                   none cmStyloQBindery  view=StyloQBindery } // @v11.1.7
 cmd StyloQCommands        { "@{cmd_styloqcommands}"                        none                   none cmStyloQCommands view=StyloQCommand } // @v11.1.9
+cmd ProcessUED            { "@{cmd_processued}"                            none                   none cmProcessUED } // @v11.6.6
 //
 // -------------- Описания серверных задач
 //

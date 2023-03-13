@@ -5093,7 +5093,7 @@ int CSessGrouping::TurnAccBill(PPID sessID, PPID locID, int use_ta) // @v11.0.4
 		TaxAmountIDs tais;
 		BVATAccmArray bva_list;
 		amt_obj.GetTaxAmountIDs(&tais, 1);
-		const int do_calc_vat = BIN(r_eq_cfg.WrOffAccOpID && (tais.VatAmtID[0] || tais.VatAmtID[1] || tais.VatAmtID[2]));
+		const bool do_calc_vat = (r_eq_cfg.WrOffAccOpID && (tais.VatAmtID[0] || tais.VatAmtID[1] || tais.VatAmtID[2]));
 		THROW(GetSess(sessID, &sess_rec) > 0);
 		if(sess_rec.Incomplete == CSESSINCMPL_COMPLETE) {
 			PPObjBill * p_bobj = BillObj;

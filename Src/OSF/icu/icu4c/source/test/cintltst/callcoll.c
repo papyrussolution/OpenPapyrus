@@ -646,17 +646,13 @@ void genericRulesStarterWithOptionsAndResult(const char * rules,
 	UChar rlz[RULE_BUFFER_LEN] = { 0 };
 	uint32_t rlen = u_unescape(rules, rlz, RULE_BUFFER_LEN);
 	uint32_t i;
-
 	UCollator * coll = ucol_openRules(rlz, rlen, UCOL_DEFAULT, UCOL_DEFAULT, NULL, &status);
-
 	log_verbose("Rules starter for %s\n", rules);
-
 	if(U_SUCCESS(status)) {
 		log_verbose("Setting attributes\n");
 		for(i = 0; i < attsize; i++) {
 			ucol_setAttribute(coll, attrs[i], values[i], &status);
 		}
-
 		genericOrderingTestWithResult(coll, s, size, result);
 	}
 	else {
@@ -674,17 +670,13 @@ void genericLocaleStarterWithOptionsAndResult(const char * locale,
     UCollationResult result) {
 	UErrorCode status = U_ZERO_ERROR;
 	uint32_t i;
-
 	UCollator * coll = ucol_open(locale, &status);
-
 	log_verbose("Locale starter for %s\n", locale);
-
 	if(U_SUCCESS(status)) {
 		log_verbose("Setting attributes\n");
 		for(i = 0; i < attsize; i++) {
 			ucol_setAttribute(coll, attrs[i], values[i], &status);
 		}
-
 		genericOrderingTestWithResult(coll, s, size, result);
 	}
 	else {
@@ -706,7 +698,6 @@ void genericRulesStarterWithResult(const char * rules, const char * const s[], u
 	UErrorCode status = U_ZERO_ERROR;
 	UChar rlz[RULE_BUFFER_LEN] = { 0 };
 	uint32_t rlen = u_unescape(rules, rlz, RULE_BUFFER_LEN);
-
 	UCollator * coll = NULL;
 	coll = ucol_openRules(rlz, rlen, UCOL_DEFAULT, UCOL_DEFAULT, NULL, &status);
 	log_verbose("Rules starter for %s\n", rules);
@@ -951,22 +942,18 @@ static void TestJB1401(void)
 		/* Run collation element iterators over the three strings.  Results should be same for each.
 		 */
 		{
-			UCollationElements * ceiX, * ceiY, * ceiZ;
-			int32_t ceX,   ceY,   ceZ;
 			int j;
-
-			ceiX = ucol_openElements(myCollator, X, -1, &status);
-			ceiY = ucol_openElements(myCollator, Y, -1, &status);
-			ceiZ = ucol_openElements(myCollator, Z, -1, &status);
+			UCollationElements * ceiX = ucol_openElements(myCollator, X, -1, &status);
+			UCollationElements * ceiY = ucol_openElements(myCollator, Y, -1, &status);
+			UCollationElements * ceiZ = ucol_openElements(myCollator, Z, -1, &status);
 			if(U_FAILURE(status)) {
 				log_err("ERROR: uucol_openElements failed.\n");
 				return;
 			}
-
 			for(j = 0;; j++) {
-				ceX = ucol_next(ceiX, &status);
-				ceY = ucol_next(ceiY, &status);
-				ceZ = ucol_next(ceiZ, &status);
+				const int32_t ceX = ucol_next(ceiX, &status);
+				const int32_t ceY = ucol_next(ceiY, &status);
+				const int32_t ceZ = ucol_next(ceiZ, &status);
 				if(U_FAILURE(status)) {
 					log_err("ERROR: ucol_next failed for iteration #%d.\n", j);
 					break;

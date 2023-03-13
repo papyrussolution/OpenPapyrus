@@ -311,7 +311,7 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 			/* Testing for MeasurementSystem is done in VerifyTranslation */
 		}
 		else {
-			log_err("Type %d for key \"%s\" in \"%s\" is unknown for locale \"%s\"\n", ures_getType(subBundle), subBundleKey, ures_getKey(currentBundle), );
+			log_err("Type %d for key \"%s\" in \"%s\" is unknown for locale \"%s\"\n", ures_getType(subBundle), subBundleKey, ures_getKey(currentBundle), locale);
 		}
 		ures_close(subRootBundle);
 		ures_close(subBundle);

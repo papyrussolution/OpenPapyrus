@@ -127,7 +127,7 @@ static size_t test_rng_nonce(void * vtest, unsigned char * out,
 	if(t->nonce == NULL || strength > t->strength)
 		return 0;
 
-	if(out != NULL)
+	if(out)
 		memcpy(out, t->nonce, t->nonce_len);
 	return t->nonce_len;
 }

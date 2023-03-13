@@ -1410,7 +1410,7 @@ int __ham_overwrite(DBC*dbc, DBT * nval, uint32 flags)
 			 * Make sure that the caller isn't corrupting
 			 * the sort order.
 			 */
-			if(dbp->dup_compare != NULL) {
+			if(dbp->dup_compare) {
 				tmp_val2.data = (uint8 *)newrec+sizeof(db_indx_t);
 				tmp_val2.size = newsize;
 				if(dbp->dup_compare(dbp, &tmp_val, &tmp_val2) != 0) {
@@ -1449,7 +1449,7 @@ int __ham_overwrite(DBC*dbc, DBT * nval, uint32 flags)
 				return hcp->opd->am_put(hcp->opd, NULL, nval, flags, 0);
 			}
 			/* Make sure we maintain sort order. */
-			if(dbp->dup_compare != NULL) {
+			if(dbp->dup_compare) {
 				tmp_val2.data = HKEYDATA_DATA(H_PAIRDATA(dbp, hcp->page, hcp->indx))+hcp->dup_off+sizeof(db_indx_t);
 				tmp_val2.size = hcp->dup_len;
 				if(dbp->dup_compare(dbp, nval, &tmp_val2) != 0) {
