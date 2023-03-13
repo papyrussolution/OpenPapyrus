@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Condition="'$(Platform)'=='Win32'" Label="UserMacros">
+    <OPENSSL_WIN_BUILD_PF_DIR>C:\Program Files (x86)\</OPENSSL_WIN_BUILD_PF_DIR>
+    <OPENSSL_WIN_BUILD_PF_DIR_CSTR>C:\\Program Files (x86)\\</OPENSSL_WIN_BUILD_PF_DIR_CSTR>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)'=='x64'" Label="UserMacros">
+    <OPENSSL_WIN_BUILD_PF_DIR>C:\Program Files\</OPENSSL_WIN_BUILD_PF_DIR>
+    <OPENSSL_WIN_BUILD_PF_DIR_CSTR>C:\\Program Files\\</OPENSSL_WIN_BUILD_PF_DIR_CSTR>
+  </PropertyGroup>
+  <PropertyGroup Label="UserMacros">
+    <OPENSSL_WIN_BUILD_VERSION_MAJOR>3</OPENSSL_WIN_BUILD_VERSION_MAJOR>
+    <OPENSSL_WIN_BUILD_VERSION_MINOR>0</OPENSSL_WIN_BUILD_VERSION_MINOR>
+    <OPENSSL_WIN_BUILD_VERSION_PATCH>0</OPENSSL_WIN_BUILD_VERSION_PATCH>
+    <OPENSSL_WIN_BUILD_VERSION_PRE_RELEASE>-dev</OPENSSL_WIN_BUILD_VERSION_PRE_RELEASE>
+    <OPENSSL_WIN_BUILD_VERSION>$(OPENSSL_WIN_BUILD_VERSION_MAJOR).$(OPENSSL_WIN_BUILD_VERSION_MINOR).$(OPENSSL_WIN_BUILD_VERSION_PATCH)$(OPENSSL_WIN_BUILD_VERSION_PRE_RELEASE)</OPENSSL_WIN_BUILD_VERSION>
+    <OPENSSL_WIN_BUILD_DIR_SUFFIX>$(OPENSSL_WIN_BUILD_VERSION_MAJOR)</OPENSSL_WIN_BUILD_DIR_SUFFIX>
+    <OPENSSLDIR>$(OPENSSL_WIN_BUILD_PF_DIR)Common Files\SSL\</OPENSSLDIR>
+    <OPENSSLDIR_CSTR>$(OPENSSL_WIN_BUILD_PF_DIR_CSTR)Common Files\\SSL</OPENSSLDIR_CSTR>
+    <ENGINESDIR>$(OPENSSL_WIN_BUILD_PF_DIR)OpenSSL-$(OPENSSL_WIN_BUILD_DIR_SUFFIX)\lib\engines-$(OPENSSL_WIN_BUILD_DIR_SUFFIX)\</ENGINESDIR>
+    <ENGINESDIR_CSTR>$(OPENSSL_WIN_BUILD_PF_DIR_CSTR)OpenSSL-$(OPENSSL_WIN_BUILD_DIR_SUFFIX)\\lib\\engines-$(OPENSSL_WIN_BUILD_DIR_SUFFIX)</ENGINESDIR_CSTR>
+    <MODULESDIR>$(OPENSSL_WIN_BUILD_PF_DIR)OpenSSL-$(OPENSSL_WIN_BUILD_DIR_SUFFIX)\lib\ossl-modules\</MODULESDIR>
+    <MODULESDIR_CSTR>$(OPENSSL_WIN_BUILD_PF_DIR_CSTR)OpenSSL-$(OPENSSL_WIN_BUILD_DIR_SUFFIX)\\lib\\ossl-modules</MODULESDIR_CSTR>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+    </ClCompile>
+    <ClCompile>
+      <PreprocessorDefinitions>OPENSSLDIR="$(OPENSSLDIR_CSTR)";ENGINESDIR="$(ENGINESDIR_CSTR)";MODULESDIR="$(MODULESDIR_CSTR)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="OPENSSL_WIN_BUILD_PF_DIR">
+      <Value>$(OPENSSL_WIN_BUILD_PF_DIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="OPENSSL_WIN_BUILD_PF_DIR_CSTR">
+      <Value>$(OPENSSL_WIN_BUILD_PF_DIR_CSTR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="OPENSSL_WIN_BUILD_VERSION_MAJOR">
+      <Value>$(OPENSSL_WIN_BUILD_VERSION_MAJOR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="OPENSSL_WIN_BUILD_VERSION_MINOR">
+      <Value>$(OPENSSL_WIN_BUILD_VERSION_MINOR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="OPENSSL_WIN_BUILD_VERSION_PATCH">
+      <Value>$(OPENSSL_WIN_BUILD_VERSION_PATCH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="OPENSSL_WIN_BUILD_VERSION_PRE_RELEASE">
+      <Value>$(OPENSSL_WIN_BUILD_VERSION_PRE_RELEASE)</Value>
+    </BuildMacro>
+    <BuildMacro Include="OPENSSL_WIN_BUILD_VERSION">
+      <Value>$(OPENSSL_WIN_BUILD_VERSION)</Value>
+    </BuildMacro>
+    <BuildMacro Include="OPENSSL_WIN_BUILD_DIR_SUFFIX">
+      <Value>$(OPENSSL_WIN_BUILD_DIR_SUFFIX)</Value>
+    </BuildMacro>
+    <BuildMacro Include="OPENSSLDIR">
+      <Value>$(OPENSSLDIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="OPENSSLDIR_CSTR">
+      <Value>$(OPENSSLDIR_CSTR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ENGINESDIR">
+      <Value>$(ENGINESDIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ENGINESDIR_CSTR">
+      <Value>$(ENGINESDIR_CSTR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="MODULESDIR">
+      <Value>$(MODULESDIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="MODULESDIR_CSTR">
+      <Value>$(MODULESDIR_CSTR)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

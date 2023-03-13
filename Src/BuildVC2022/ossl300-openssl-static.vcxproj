@@ -1,0 +1,327 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{8F9B94C0-2A1C-4295-A6CD-A90750976913}</ProjectGuid>
+    <RootNamespace>openssl-static</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="_props\openssl-static.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="_props\openssl-static.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="_props\openssl-static.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="_props\openssl-static.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <SDLCheck />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
+    </ClCompile>
+    <Link />
+    <ResourceCompile>
+      <PreprocessorDefinitions>OPENSSL</PreprocessorDefinitions>
+    </ResourceCompile>
+    <PostBuildEvent>
+      <Command>mkdir $(OutDir)static 2&gt;nul
+del /F /Q $(OutDir)static\openssl.exe 2&gt;nul
+copy $(TargetPath) $(OutDir)static\openssl.exe 2&gt;nul</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <SDLCheck />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
+    </ClCompile>
+    <Link />
+    <ResourceCompile>
+      <PreprocessorDefinitions>OPENSSL</PreprocessorDefinitions>
+    </ResourceCompile>
+    <PostBuildEvent>
+      <Command>mkdir $(OutDir)static 2&gt;nul
+del /F /Q $(OutDir)static\openssl.exe 2&gt;nul
+copy $(TargetPath) $(OutDir)static\openssl.exe 2&gt;nul</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <SDLCheck />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
+    </ClCompile>
+    <Link />
+    <ResourceCompile>
+      <PreprocessorDefinitions>OPENSSL</PreprocessorDefinitions>
+    </ResourceCompile>
+    <PostBuildEvent>
+      <Command>mkdir $(OutDir)static 2&gt;nul
+del /F /Q $(OutDir)static\openssl.exe 2&gt;nul
+copy $(TargetPath) $(OutDir)static\openssl.exe 2&gt;nul</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <SDLCheck />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
+    </ClCompile>
+    <Link />
+    <ResourceCompile>
+      <PreprocessorDefinitions>OPENSSL</PreprocessorDefinitions>
+    </ResourceCompile>
+    <PostBuildEvent>
+      <Command>mkdir $(OutDir)static 2&gt;nul
+del /F /Q $(OutDir)static\openssl.exe 2&gt;nul
+copy $(TargetPath) $(OutDir)static\openssl.exe 2&gt;nul</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\OpenSSL-302\apps\asn1parse.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\ca.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\ciphers.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\cmp.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\cmp_mock_srv.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\cms.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\crl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\crl2pkcs7.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\dgst.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\dhparam.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\dsa.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\dsaparam.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\ec.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\ecparam.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\enc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\engine.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\errstr.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\fipsinstall.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\gendsa.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\genpkey.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\genrsa.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\info.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\kdf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\list.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\mac.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\nseq.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\ocsp.c" />
+    <ClCompile Include="..\OSF\OpenSSL-302\apps\openssl-app-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\apps\openssl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\passwd.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\pkcs12.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\pkcs7.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\pkcs8.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\pkey.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\pkeyparam.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\pkeyutl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\prime.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\progs.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\rand.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\rehash.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\req.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\rsa.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\rsautl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\sess_id.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\smime.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\speed.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\spkac.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\srp.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\storeutl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\s_client.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\s_server.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\s_time.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\ts.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\verify.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\version.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\x509.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\osf\OpenSSL-302\ms\openssl3.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="bzip2.vcxproj">
+      <Project>{bd776450-1675-4703-bfd3-2517b5a45da8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libzip.vcxproj">
+      <Project>{1ee9ab8f-f42f-481e-963f-5854bfdb8ec1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="lz4.vcxproj">
+      <Project>{6b7325a2-a019-4fc4-9585-1dba4cadefeb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="onig.vcxproj">
+      <Project>{d115c575-b8ee-3bd7-8046-688a4d145686}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ossl300-legacy-static.vcxproj">
+      <Project>{044042fc-53a9-4b9f-ac59-20fc09223695}</Project>
+    </ProjectReference>
+    <ProjectReference Include="slib-ossl302.vcxproj">
+      <Project>{eace3436-83ef-42ee-a927-fef18343dcf4}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ossl300-libapps-static.vcxproj">
+      <Project>{6b53b941-33a6-469d-883b-3d533ea2f64c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ossl300-libcommon-static.vcxproj">
+      <Project>{faa6635c-9dec-4a36-8e2f-70bb38318f00}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ossl300-libcrypto-3-static.vcxproj">
+      <Project>{09f451a2-da76-4340-b4cf-39982fa65c01}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ossl300-libdefault-static.vcxproj">
+      <Project>{9d0e9e97-378d-4d23-b5c7-0d77cd55ef23}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ossl300-liblegacy-static.vcxproj">
+      <Project>{b2c7aff3-40ef-4023-9581-49a9981c0484}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ossl300-libssl-3-static.vcxproj">
+      <Project>{6c2bc411-3453-4e33-8245-ed2a51a140bb}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <Target Name="AfterClean">
+    <Exec Command="if exist $(OutDir)static\openssl.exe del $(OutDir)static\openssl.exe /F /Q 2&gt;nul" />
+    <Exec Command="if exist $(OutDir)static\ rmdir $(OutDir)static 2&gt;nul" />
+  </Target>
+</Project>

@@ -230,7 +230,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-111\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-302\include</AdditionalIncludeDirectories>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -257,7 +257,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-111\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-302\include</AdditionalIncludeDirectories>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -285,7 +285,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-111\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-302\include</AdditionalIncludeDirectories>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -313,7 +313,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-111\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-302\include</AdditionalIncludeDirectories>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -339,7 +339,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-111\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-302\include</AdditionalIncludeDirectories>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -365,7 +365,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-111\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-302\include</AdditionalIncludeDirectories>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -393,7 +393,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-111\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-302\include</AdditionalIncludeDirectories>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -422,7 +422,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-111\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-302\include</AdditionalIncludeDirectories>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -452,7 +452,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-111\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-302\include</AdditionalIncludeDirectories>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -482,7 +482,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-111\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-302\include</AdditionalIncludeDirectories>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -510,7 +510,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-111\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-302\include</AdditionalIncludeDirectories>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -538,7 +538,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-111\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\libssh-095\include;..\osf\OpenSSL-302\include</AdditionalIncludeDirectories>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>

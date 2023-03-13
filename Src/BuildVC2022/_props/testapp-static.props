@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\apps\include;$(OutDir)..\_work;$(ZLIB_INC_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;OPENSSL_BUILDING_OPENSSL;OPENSSL_SYS_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\apps\include;$(OutDir)..\_work;$(ZLIB_INC_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;OPENSSL_BUILDING_OPENSSL;OPENSSL_SYS_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\apps\include;$(OutDir)..\_work;$(ZLIB_INC_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;OPENSSL_BUILDING_OPENSSL;OPENSSL_SYS_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\apps\include;$(OutDir)..\_work;$(ZLIB_INC_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;OPENSSL_BUILDING_OPENSSL;OPENSSL_SYS_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

@@ -2251,10 +2251,14 @@ void SCS_SHTRIHFRF::WriteLogFile(PPID id)
 //
 int SCS_SHTRIHFRF::AllowPrintOper(PPID id)
 {
-	int    ok = 1, mode = 0, adv_mode = PRNMODE_NO_PRINT, slip_mode_status = SLIPMODE_BEFORE_PRINT, last_res_code = ResCode;
-	int    is_chk_rbn = 1, is_jrn_rbn = 1;
+	int    ok = 1;
+	int    mode = 0;
+	int    adv_mode = PRNMODE_NO_PRINT;
+	int    slip_mode_status = SLIPMODE_BEFORE_PRINT;
+	int    last_res_code = ResCode;
+	int    is_chk_rbn = 1;
+	int    is_jrn_rbn = 1;
 	int    wait_prn_err = 0;
-
 	SetErrorMessage();
 	// Ожидание окончания операции печати
 	do {
@@ -2363,9 +2367,9 @@ void SCS_SHTRIHFRF::SetErrorMessage()
 	if((Flags & sfConnected) && ResCode != RESCODE_NO_ERROR && GetFR(ResultCodeDescription, err_buf, sizeof(err_buf)-1)) {
 		SString err_msg(err_buf);
 		if(ResCode == RESCODE_MODE_OFF && ExecFR(GetECRStatus) > 0) {
-			char mode_descr[MAXPATH];
+			char    mode_descr[MAXPATH];
 			memzero(mode_descr, sizeof(mode_descr));
-			if(GetFR(ECRModeDescription, mode_descr, sizeof(mode_descr) - 1)) {
+			if(GetFR(ECRModeDescription, mode_descr, sizeof(mode_descr)-1)) {
 				SString temp_buf;
 				PPLoadText(PPTXT_CCFMT_MODE, temp_buf);
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
@@ -2380,7 +2384,84 @@ void SCS_SHTRIHFRF::SetErrorMessage()
 /*virtual*/int SCS_SHTRIHFRF::PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult) // @v11.6.6
 {
 	int    ok = -1;
-
+	SString temp_buf;
+	SString msg_buf;
+	ResCode = RESCODE_NO_ERROR;
+	if(op == 100) { // 100 - предварителные операции перед проверкой марок по чеку. Может быть актуально для некоторых типов регистраторов.
+		;
+	}
+	else if(op == 0) {
+		rResult.CheckResult = 0;
+		rResult.Reason = 0;
+		rResult.ProcessingResult = 0;
+		rResult.ProcessingCode = 0;
+		rResult.Status = 0;
+		if(!isempty(pCode)) {
+			GtinStruc gts;
+			if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(pCode, gts, 0)) == PPChZnPrcssr::chznciReal) {
+				if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+					SString serial;
+					SString partn;
+					SString result_chzn_code;
+					SString left, right;
+					SString gtin(temp_buf);
+					char  tlv_data_hex[512];
+					result_chzn_code.Cat(temp_buf);
+					if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+						result_chzn_code.Cat(temp_buf);
+						serial = temp_buf;
+					}
+					if(gts.GetToken(GtinStruc::fldPart, &temp_buf)) {
+						if(serial.IsEmpty())
+							result_chzn_code.Cat(temp_buf);
+						partn = temp_buf;
+					}
+					//
+					THROW(SetFR(BarCode, pCode));
+					THROW(SetFR(ItemStatus, 1L));
+					THROW(SetFR(CheckItemMode, 0L));
+					THROW(SetFR(TLVDataHex, ""));
+					tlv_data_hex[0] = 0;
+					THROW(ExecFR(FNCheckItemBarcode));
+					{
+						msg_buf.Z().Cat("FNCheckItemBarcode req").CatDiv(':', 2).CatEq("BarCode", pCode).CatDiv(',', 2).
+							CatEq("ItemStatus", 1).CatDiv(',', 2).CatEq("CheckItemMode", 0).CatDiv(',', 2).
+							CatEq("TLVDataHex", tlv_data_hex);
+						PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+					}
+					//
+					{
+						int   item_local_result = 0;
+						int   item_local_error = 0;
+						int   marking_type = 0; // tag 2100
+						int   svr_err_code = 0;
+						int   svr_checking_status = 0; // tag 2106
+						tlv_data_hex[0] = 0;
+						THROW(GetFR(CheckItemLocalResult, &item_local_result));
+						THROW(GetFR(CheckItemLocalError, &item_local_error));
+						THROW(GetFR(MarkingType2, &marking_type));
+						THROW(GetFR(KMServerErrorCode, &svr_err_code));
+						THROW(GetFR(TLVDataHex, tlv_data_hex, sizeof(tlv_data_hex)-1));
+						rResult.CheckResult = svr_checking_status;
+						rResult.Reason = item_local_error;
+						rResult.ProcessingResult = item_local_result; // @?
+						rResult.ProcessingCode = 0; // @?
+						rResult.Status = 0; // @?
+						{
+							msg_buf.Z().Cat("FNCheckItemBarcode rep").CatDiv(':', 2).CatEq("CheckItemLocalResult", item_local_result).CatDiv(',', 2).
+								CatEq("CheckItemLocalError", item_local_error).CatDiv(',', 2).CatEq("MarkingType2", marking_type).CatDiv(',', 2).
+								CatEq("KMServerErrorCode", svr_err_code).CatDiv(',', 2).CatEq("TLVDataHex", tlv_data_hex);
+							PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+						}
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	CATCH
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 

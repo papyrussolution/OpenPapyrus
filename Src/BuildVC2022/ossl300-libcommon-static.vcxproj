@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{FAA6635C-9DEC-4A36-8E2F-70BB38318F00}</ProjectGuid>
+    <RootNamespace>libcommon-static</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="_props\providers-static.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="_props\providers-static.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="_props\providers-static.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="_props\providers-static.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\providers\implementations\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <SDLCheck />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
+    </ClCompile>
+    <Link />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\providers\implementations\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <SDLCheck />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+    <Link />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\providers\implementations\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <SDLCheck />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
+    </ClCompile>
+    <Link />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\providers\implementations\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <SDLCheck />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+    <Link />
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\OpenSSL-302\crypto\openssl-crypto-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_digests_gen.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_dsa_gen.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_dsa_key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_dsa_sig.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_ecx_gen.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_ecx_key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_ec_gen.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_ec_key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_ec_sig.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_rsa_gen.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_rsa_key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_wrap_gen.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\provider_ctx.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\provider_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\ciphercommon.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\ciphercommon_block.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\ciphercommon_ccm.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\ciphercommon_ccm_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\ciphercommon_gcm.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\ciphercommon_gcm_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\ciphercommon_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\digests\digestcommon.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\ssl\record\tls_pad.c" />
+  </ItemGroup>
+</Project>

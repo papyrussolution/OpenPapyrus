@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\provider_ctx.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\provider_err.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\ssl\record\tls_pad.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\digests\digestcommon.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\ciphercommon.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\ciphercommon_block.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\ciphercommon_ccm.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\ciphercommon_ccm_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\ciphercommon_gcm.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\ciphercommon_gcm_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\ciphercommon_hw.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_digests_gen.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_dsa_gen.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_dsa_key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_dsa_sig.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_ec_gen.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_ec_key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_ec_sig.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_ecx_gen.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_ecx_key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_rsa_gen.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_rsa_key.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\providers\common\der\der_wrap_gen.c" />
+    <ClCompile Include="..\OSF\OpenSSL-302\crypto\openssl-crypto-pch.cpp" />
+  </ItemGroup>
+</Project>

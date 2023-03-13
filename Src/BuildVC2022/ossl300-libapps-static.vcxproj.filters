@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\app_libctx.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\app_params.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\app_provider.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\app_rand.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\app_x509.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\apps.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\apps_ui.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\columns.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\engine.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\engine_loader.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\fmt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\http_server.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\names.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\opt.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\s_cb.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\s_socket.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\tlssrp_depr.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\win32_init.c" />
+    <ClCompile Include="..\OSF\OpenSSL-302\apps\openssl-app-pch.cpp" />
+  </ItemGroup>
+</Project>

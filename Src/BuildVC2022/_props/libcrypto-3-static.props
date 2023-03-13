@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets">
+    <Import Project="vs_common.props" />
+    <Import Project="tools.props" />
+    <Import Project="win-build.props" />
+    <Import Project="zlib.props" />
+    <Import Project="openssl_config.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros">
+    <PERLASM_FLAGS_X86>-DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM</PERLASM_FLAGS_X86>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\crypto;..\osf\OpenSSL-302\crypto\include;..\osf\OpenSSL-302\crypto\modes;..\osf\OpenSSL-302\crypto\ec\curve448;..\osf\OpenSSL-302\crypto\ec\curve448\arch_32;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\providers\implementations\include;$(ZLIB_INC_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ZLIB;L_ENDIAN;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;OPENSSL_BUILDING_OPENSSL;OPENSSL_SYS_WIN32;OPENSSL_PIC;OPENSSL_CPUID_OBJ;OPENSSL_BN_ASM_PART_WORDS;OPENSSL_IA32_SSE2;OPENSSL_BN_ASM_MONT;OPENSSL_BN_ASM_GF2m;RC4_ASM;SHA1_ASM;SHA256_ASM;SHA512_ASM;MD5_ASM;RMD160_ASM;AES_ASM;VPAES_ASM;WHIRLPOOL_ASM;CMLL_ASM;DES_ASM;GHASH_ASM;ECP_NISTZ256_ASM;POLY1305_ASM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <OmitDefaultLibName>true</OmitDefaultLibName>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\crypto;..\osf\OpenSSL-302\crypto\include;..\osf\OpenSSL-302\crypto\modes;..\osf\OpenSSL-302\crypto\ec\curve448;..\osf\OpenSSL-302\crypto\ec\curve448\arch_32;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\providers\implementations\include;$(ZLIB_INC_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ZLIB;L_ENDIAN;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;OPENSSL_BUILDING_OPENSSL;OPENSSL_SYS_WIN32;OPENSSL_PIC;OPENSSL_CPUID_OBJ;OPENSSL_BN_ASM_PART_WORDS;OPENSSL_IA32_SSE2;OPENSSL_BN_ASM_MONT;OPENSSL_BN_ASM_GF2m;RC4_ASM;SHA1_ASM;SHA256_ASM;SHA512_ASM;MD5_ASM;RMD160_ASM;AES_ASM;VPAES_ASM;WHIRLPOOL_ASM;CMLL_ASM;DES_ASM;GHASH_ASM;ECP_NISTZ256_ASM;POLY1305_ASM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <OmitDefaultLibName>true</OmitDefaultLibName>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\crypto;..\osf\OpenSSL-302\crypto\include;..\osf\OpenSSL-302\crypto\modes;..\osf\OpenSSL-302\crypto\ec\curve448;..\osf\OpenSSL-302\crypto\ec\curve448\arch_32;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\providers\implementations\include;$(ZLIB_INC_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ZLIB;L_ENDIAN;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;OPENSSL_BUILDING_OPENSSL;OPENSSL_SYS_WIN32;OPENSSL_PIC;OPENSSL_CPUID_OBJ;OPENSSL_IA32_SSE2;OPENSSL_BN_ASM_MONT;OPENSSL_BN_ASM_MONT5;OPENSSL_BN_ASM_GF2m;RC4_ASM;SHA1_ASM;SHA256_ASM;SHA512_ASM;MD5_ASM;AES_ASM;BSAES_ASM;VPAES_ASM;WHIRLPOOL_ASM;CMLL_ASM;GHASH_ASM;ECP_NISTZ256_ASM;POLY1305_ASM;KECCAK1600_ASM;X25519_ASM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <OmitDefaultLibName>true</OmitDefaultLibName>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\crypto;..\osf\OpenSSL-302\crypto\include;..\osf\OpenSSL-302\crypto\modes;..\osf\OpenSSL-302\crypto\ec\curve448;..\osf\OpenSSL-302\crypto\ec\curve448\arch_32;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\providers\implementations\include;$(ZLIB_INC_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ZLIB;L_ENDIAN;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;OPENSSL_BUILDING_OPENSSL;OPENSSL_SYS_WIN32;OPENSSL_PIC;OPENSSL_CPUID_OBJ;OPENSSL_IA32_SSE2;OPENSSL_BN_ASM_MONT;OPENSSL_BN_ASM_MONT5;OPENSSL_BN_ASM_GF2m;RC4_ASM;SHA1_ASM;SHA256_ASM;SHA512_ASM;MD5_ASM;AES_ASM;BSAES_ASM;VPAES_ASM;WHIRLPOOL_ASM;CMLL_ASM;GHASH_ASM;ECP_NISTZ256_ASM;POLY1305_ASM;KECCAK1600_ASM;X25519_ASM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <OmitDefaultLibName>true</OmitDefaultLibName>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="PERLASM_FLAGS_X86">
+      <Value>$(PERLASM_FLAGS_X86)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

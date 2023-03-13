@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\OpenSSL-302\apps\asn1parse.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\ca.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\ciphers.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\cmp.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\cms.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\crl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\crl2pkcs7.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\dgst.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\dhparam.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\dsa.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\dsaparam.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\ec.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\ecparam.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\enc.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\engine.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\errstr.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\fipsinstall.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\gendsa.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\genpkey.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\genrsa.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\info.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\kdf.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\list.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\mac.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\nseq.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\ocsp.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\openssl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\passwd.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\pkcs7.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\pkcs8.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\pkcs12.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\pkey.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\pkeyparam.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\pkeyutl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\prime.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\progs.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\rand.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\rehash.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\req.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\rsa.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\rsautl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\s_client.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\s_server.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\s_time.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\sess_id.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\smime.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\speed.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\spkac.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\srp.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\storeutl.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\ts.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\verify.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\version.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\x509.c" />
+    <ClCompile Include="..\osf\OpenSSL-302\apps\lib\cmp_mock_srv.c" />
+    <ClCompile Include="..\OSF\OpenSSL-302\apps\openssl-app-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\osf\OpenSSL-302\ms\openssl3.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

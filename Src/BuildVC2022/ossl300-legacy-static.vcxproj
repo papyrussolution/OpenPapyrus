@@ -1,0 +1,248 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{044042FC-53A9-4B9F-AC59-20FC09223695}</ProjectGuid>
+    <RootNamespace>legacy-static</RootNamespace>
+    <ProjectName>legacy</ProjectName>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="_props\legacy-static.props" />
+    <Import Project="_props\tools.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="_props\legacy-static.props" />
+    <Import Project="_props\tools.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="_props\legacy-static.props" />
+    <Import Project="_props\tools.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="_props\legacy-static.props" />
+    <Import Project="_props\tools.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <SDLCheck />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\providers\implementations\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <ModuleDefinitionFile>$(OutDir)..\_work\static\legacy.def</ModuleDefinitionFile>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <SDLCheck />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\providers\implementations\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <ModuleDefinitionFile>$(OutDir)..\_work\static\legacy.def</ModuleDefinitionFile>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <SDLCheck />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\providers\implementations\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <ModuleDefinitionFile>$(OutDir)..\_work\static\legacy.def</ModuleDefinitionFile>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <SDLCheck />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\providers\implementations\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <ModuleDefinitionFile>$(OutDir)..\_work\static\legacy.def</ModuleDefinitionFile>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\OpenSSL-302\providers\legacyprov.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\osf\OpenSSL-302\util\mkdef.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir $(OutDir)..\_work 2&gt;nul
+mkdir $(OutDir)..\_work\static 2&gt;nul
+pushd ..\osf\OpenSSL-302
+..\..\tools\perl\perl -Ims\x86\static %(FullPath) --ordinals util\providers.num --name legacy --libname legacy --OS windows &gt; $(OutDir)..\_work\static\legacy.def
+popd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mkdir $(OutDir)..\_work 2&gt;nul
+mkdir $(OutDir)..\_work\static 2&gt;nul
+pushd ..\osf\OpenSSL-302
+$(PERL) -Ims\x64\static %(FullPath) --ordinals util\providers.num --name legacy --libname legacy --OS windows &gt; $(OutDir)..\_work\static\legacy.def
+popd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir $(OutDir)..\_work 2&gt;nul
+mkdir $(OutDir)..\_work\static 2&gt;nul
+pushd ..\osf\OpenSSL-302
+..\..\tools\perl\perl -Ims\x86\static %(FullPath) --ordinals util\providers.num --name legacy --libname legacy --OS windows &gt; $(OutDir)..\_work\static\legacy.def
+popd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">mkdir $(OutDir)..\_work 2&gt;nul
+mkdir $(OutDir)..\_work\static 2&gt;nul
+pushd ..\osf\OpenSSL-302
+$(PERL) -Ims\x64\static %(FullPath) --ordinals util\providers.num --name legacy --libname legacy --OS windows &gt; $(OutDir)..\_work\static\legacy.def
+popd</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)..\_work\static\legacy.def</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)..\_work\static\legacy.def</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)..\_work\static\legacy.def</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)..\_work\static\legacy.def</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\util\providers.num</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\util\providers.num</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\util\providers.num</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\util\providers.num</AdditionalInputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="bzip2.vcxproj">
+      <Project>{bd776450-1675-4703-bfd3-2517b5a45da8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libzip.vcxproj">
+      <Project>{1ee9ab8f-f42f-481e-963f-5854bfdb8ec1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="lz4.vcxproj">
+      <Project>{6b7325a2-a019-4fc4-9585-1dba4cadefeb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="onig.vcxproj">
+      <Project>{d115c575-b8ee-3bd7-8046-688a4d145686}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ossl300-libcommon-static.vcxproj">
+      <Project>{faa6635c-9dec-4a36-8e2f-70bb38318f00}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ossl300-libcrypto-3-static.vcxproj">
+      <Project>{09f451a2-da76-4340-b4cf-39982fa65c01}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ossl300-libdefault-static.vcxproj">
+      <Project>{9d0e9e97-378d-4d23-b5c7-0d77cd55ef23}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ossl300-liblegacy-static.vcxproj">
+      <Project>{b2c7aff3-40ef-4023-9581-49a9981c0484}</Project>
+    </ProjectReference>
+  </ItemGroup>
+</Project>
