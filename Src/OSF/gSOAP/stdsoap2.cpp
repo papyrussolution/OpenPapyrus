@@ -8441,7 +8441,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_array_begin_out(struct soap * soap, const char * 
 			return soap->error;
 	}
  #ifndef WITH_LEAN
-	if((soap->mode&SOAP_XML_CANONICAL))
+	if(soap->mode&SOAP_XML_CANONICAL)
 		soap_utilize_ns(soap, type);
  #endif
 	return soap_element_start_end_out(soap, 0);
@@ -8449,15 +8449,14 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_array_begin_out(struct soap * soap, const char * 
 
 SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_element_start_end_out(struct soap * soap, const char * tag)
 {
-	struct soap_attribute * tp;
+	struct soap_attribute * tp = 0;
  #ifndef WITH_LEAN
 	if(soap->mode&SOAP_XML_CANONICAL) {
-		struct soap_nlist * np;
 		for(tp = soap->attributes; tp; tp = tp->next) {
 			if(tp->visible && tp->name)
 				soap_utilize_ns(soap, tp->name);
 		}
-		for(np = soap->nlist; np; np = np->next) {
+		for(struct soap_nlist * np = soap->nlist; np; np = np->next) {
 			if(np->index == 1 && np->ns) {
 				sprintf(soap->tmpbuf, *(np->id) ? "xmlns:%s" : "xmlns", np->id);
 				DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Enabling utilized binding (level=%u) %s='%s'\n", np->level, soap->tmpbuf, np->ns));
@@ -10810,11 +10809,8 @@ SOAP_FMAC1 unsigned int * SOAP_FMAC2 soap_inunsignedInt(struct soap * soap, cons
 	if(soap_element_begin_in(soap, tag, 0, NULL))
 		return NULL;
  #ifndef WITH_LEAN
-	if(*soap->type &&
-		    soap_match_tag(soap, soap->type, type) &&
-		    soap_match_tag(soap, soap->type, ":unsignedInt") &&
-		    soap_match_tag(soap, soap->type, ":unsignedShort") &&
-		    soap_match_tag(soap, soap->type, ":unsignedByte")) {
+	if(*soap->type && soap_match_tag(soap, soap->type, type) && soap_match_tag(soap, soap->type, ":unsignedInt") &&
+		soap_match_tag(soap, soap->type, ":unsignedShort") && soap_match_tag(soap, soap->type, ":unsignedByte")) {
 		soap->error = SOAP_TYPE;
 		soap_revert(soap);
 		return NULL;
@@ -10836,8 +10832,7 @@ SOAP_FMAC1 const char * SOAP_FMAC2 soap_unsignedLong2s(struct soap * soap, ulong
 	return soap->tmpbuf;
 }
 
-SOAP_FMAC1 int SOAP_FMAC2 soap_outunsignedLong(struct soap * soap, const char * tag, int id, const ulong * p,
-	const char * type, int n)
+SOAP_FMAC1 int SOAP_FMAC2 soap_outunsignedLong(struct soap * soap, const char * tag, int id, const ulong * p, const char * type, int n)
 {
 	if(soap_element_begin_out(soap, tag, soap_embedded_id(soap, id, p, n), type) || soap_string_out(soap, soap_unsignedLong2s(soap, *p), 0))
 		return soap->error;
@@ -10871,10 +10866,8 @@ SOAP_FMAC1 ulong * SOAP_FMAC2 soap_inunsignedLong(struct soap * soap, const char
 	if(soap_element_begin_in(soap, tag, 0, NULL))
 		return NULL;
  #ifndef WITH_LEAN
-	if(*soap->type && soap_match_tag(soap, soap->type, type) &&
-		    soap_match_tag(soap, soap->type, ":unsignedInt") &&
-		    soap_match_tag(soap, soap->type, ":unsignedShort") &&
-		    soap_match_tag(soap, soap->type, ":unsignedByte")) {
+	if(*soap->type && soap_match_tag(soap, soap->type, type) && soap_match_tag(soap, soap->type, ":unsignedInt") &&
+		soap_match_tag(soap, soap->type, ":unsignedShort") && soap_match_tag(soap, soap->type, ":unsignedByte")) {
 		soap->error = SOAP_TYPE;
 		soap_revert(soap);
 		return NULL;

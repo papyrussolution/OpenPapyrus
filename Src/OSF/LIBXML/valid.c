@@ -5205,10 +5205,10 @@ child_ok:
 			 * have the right value since this is not done as an
 			 * attribute checking
 			 */
-			if((attr->prefix == NULL) && (sstreq(attr->name, "xmlns"))) {
-				xmlNs * ns = elem->nsDef;
+			if(!attr->prefix && sstreq(attr->name, "xmlns")) {
+				const xmlNs * ns = elem->nsDef;
 				while(ns) {
-					if(ns->prefix == NULL) {
+					if(!ns->prefix) {
 						if(!sstreq(attr->defaultValue, ns->href)) {
 							xmlErrValidNode(ctxt, elem, XML_DTD_ELEM_DEFAULT_NAMESPACE, "Element %s namespace name for default namespace does not match the DTD\n", elem->name, 0, 0);
 							ret = 0;
@@ -5219,7 +5219,7 @@ child_ok:
 				}
 			}
 			else if(sstreq(attr->prefix, "xmlns")) {
-				xmlNs * ns = elem->nsDef;
+				const xmlNs * ns = elem->nsDef;
 				while(ns) {
 					if(sstreq(attr->name, ns->prefix)) {
 						if(!sstreq(attr->defaultValue, ns->href)) {
@@ -5237,7 +5237,6 @@ found:
 	}
 	return ret;
 }
-
 /**
  * xmlValidateRoot:
  * @ctxt:  the validation context
@@ -5251,7 +5250,6 @@ found:
  *
  * returns 1 if valid or 0 otherwise
  */
-
 int xmlValidateRoot(xmlValidCtxtPtr ctxt, xmlDoc * doc) 
 {
 	xmlNode * root;
@@ -5422,7 +5420,6 @@ static void xmlValidateRef(const xmlRef * ref, xmlValidCtxtPtr ctxt, const xmlCh
 		}
 	}
 }
-
 /**
  * xmlWalkValidateList:
  * @data:  Contents of current link

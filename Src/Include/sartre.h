@@ -1204,7 +1204,7 @@ class SrUedContainer : public SStrGroup {
 public:
 	SrUedContainer();
 	~SrUedContainer();
-	int    ReadSource(const char * pFileName);
+	int    ReadSource(const char * pFileName, PPLogger * pLogger);
 	int    WriteSource(const char * pFileName);
 	//
 	// Descr: Верифицирует UED-файл версии ver и находящийся в каталоге pPath 
@@ -1237,7 +1237,7 @@ public:
 	static long SearchLastCanonicalFile(const char * pPath, SString & rFileName);
 private:
 	uint64 SearchBaseIdBySymbId(uint symbId, uint64 meta) const;
-	int    ReplaceSurrogateLocaleIds(const SymbHashTable & rT);
+	int    ReplaceSurrogateLocaleIds(const SymbHashTable & rT, PPLogger * pLogger);
 	uint64 LinguaLocusMeta;
 	SymbHashTable Ht; // Хэш-таблица символов из списка BL
 	uint   LastSymbHashId;

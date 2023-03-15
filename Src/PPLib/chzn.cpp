@@ -1184,7 +1184,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 		SXml::WNode wdocs(rX, "documents");
 		wdocs.PutAttrib("session_ui", rIb.Token);
 		wdocs.PutAttrib("version", "1.35"); // @v10.9.9 "1.34"-->"1.35"
-		wdocs.PutAttrib(SXml::nst("xmlns", "xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
+		wdocs.PutAttrib(SXml::nst_xmlns("xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
 		{
 			SIntToSymbTab_GetSymb(CzDocType_SymbTab, SIZEOFARRAY(CzDocType_SymbTab), pPack->DocType, temp_buf);
 			SXml::WNode wd(rX, temp_buf);

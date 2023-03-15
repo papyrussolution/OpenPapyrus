@@ -684,11 +684,11 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 				_dtm = getcurdatetime_();
 			if(Cfg.E.Flags & Config::fEgaisVer4Fmt) {
 				SXml::WNode n_docs(_doc, SXml::nst("ns", "Documents"));
-					n_docs.PutAttrib(SXml::nst("xmlns", "xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
-					n_docs.PutAttrib(SXml::nst("xmlns", "ns"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/WB_DOC_SINGLE_01"));
-					n_docs.PutAttrib(SXml::nst("xmlns", "ck"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ChequeV3"));
-					n_docs.PutAttrib(SXml::nst("xmlns", "oref"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ClientRef_v2"));
-					n_docs.PutAttrib(SXml::nst("xmlns", "pref"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ProductRef_v2"));
+					n_docs.PutAttrib(SXml::nst_xmlns("xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
+					n_docs.PutAttrib(SXml::nst_xmlns("ns"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/WB_DOC_SINGLE_01"));
+					n_docs.PutAttrib(SXml::nst_xmlns("ck"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ChequeV3"));
+					n_docs.PutAttrib(SXml::nst_xmlns("oref"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ClientRef_v2"));
+					n_docs.PutAttrib(SXml::nst_xmlns("pref"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ProductRef_v2"));
 				{
 					{
 						SXml::WNode n_ow(_doc, SXml::nst("ns", "Owner"));
@@ -2175,7 +2175,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 					{ 35, "wb",   "TTNSingle_v4"         }, // ambiguity // @v11.0.12
 				};
 				const SString fsrar_url_prefix = InetUrl::MkHttp("fsrar.ru", "WEGAIS/"); // "http://fsrar.ru/WEGAIS/"
-				n_docs.PutAttrib(SXml::nst("xmlns", "xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance")/*"http://www.w3.org/2001/XMLSchema-instance"*/);
+				n_docs.PutAttrib(SXml::nst_xmlns("xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance")/*"http://www.w3.org/2001/XMLSchema-instance"*/);
 				for(uint eidx = 0; eidx < SIZEOFARRAY(ns_entries); eidx++) {
 					const EgaisNsEntry & r_entry = ns_entries[eidx];
 					int    skip = 0;

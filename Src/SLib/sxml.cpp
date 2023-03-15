@@ -1,5 +1,5 @@
 // SXML.CPP
-// Copyright (c) A.Sobolev, 2002, 2007, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev, 2002, 2007, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // ¬спомогательные механизмы дл€ работы с XML
 //
 #include <slib-internal.h>
@@ -112,6 +112,13 @@ int XMLWriteSpecSymbEntities(void * pWriter)
 	assert(/*!isempty(pNs) &&*/ !isempty(pT));
 	SString & r_buf = SLS.AcquireRvlStr();
 	return isempty(pNs) ? r_buf.Cat(pT) : r_buf.Cat(pNs).Colon().Cat(pT);
+}
+
+/*static*/const SString & FASTCALL SXml::nst_xmlns(const char * pT) // SXml::nst("xmlns", pT)
+{
+	assert(/*!isempty(pNs) &&*/ !isempty(pT));
+	SString & r_buf = SLS.AcquireRvlStr();
+	return r_buf.Cat("xmlns").Colon().Cat(pT);
 }
 
 SXml::WDoc::WDoc(xmlTextWriter * pWriter, SCodepage cp) : State(0), Lx(pWriter)

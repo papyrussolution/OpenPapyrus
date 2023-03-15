@@ -14775,6 +14775,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @supplixfilt_fdeleterecentbills           "Удалить документы за день"
 @supplixfilt_frepeatprocessing            "Повторный процессинг обработанных данных"
 @supplixfilt_ftestmode                    "@{testmode}"
+@supplixfilt_fexporttimeasnominal         "Номинальная временная метка документов - текущее время"
 @supplixfilt_param                        "@{addendumparameter}"
 
 @debttrovrfilt                            "Долговая ведомость"

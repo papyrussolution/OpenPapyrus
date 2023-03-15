@@ -2342,25 +2342,24 @@ public:
 		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  3, SupplInterchangeFilt::opExportGoodsDebts);
 		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  4, SupplInterchangeFilt::opExportClients);
 		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  5, SupplInterchangeFilt::opExportPrices);
-		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  6, SupplInterchangeFilt::opExportSales); // @v9.5.3
+		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  6, SupplInterchangeFilt::opExportSales);
 		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  7, SupplInterchangeFilt::opImportGoods);
 		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  8, SupplInterchangeFilt::opImportRouts);
 		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  9, SupplInterchangeFilt::opImportOrders);
 		AddClusterAssoc(CTL_SUPPLIX_ACTIONS, 10, SupplInterchangeFilt::opImportDesadv);
 		SetClusterData(CTL_SUPPLIX_ACTIONS, Data.Actions);
-
-		AddClusterAssoc(CTL_SUPPLIX_FLAGS, 0, SupplInterchangeFilt::fDeleteRecentBills); // @v9.2.5
-		AddClusterAssoc(CTL_SUPPLIX_FLAGS, 1, SupplInterchangeFilt::fRepeatProcessing); // @v9.5.7
-		AddClusterAssoc(CTL_SUPPLIX_FLAGS, 2, SupplInterchangeFilt::fTestMode); // @v9.6.0
-		SetClusterData(CTL_SUPPLIX_FLAGS, Data.Flags); // @v9.2.5
-
+		AddClusterAssoc(CTL_SUPPLIX_FLAGS, 0, SupplInterchangeFilt::fDeleteRecentBills);
+		AddClusterAssoc(CTL_SUPPLIX_FLAGS, 1, SupplInterchangeFilt::fRepeatProcessing);
+		AddClusterAssoc(CTL_SUPPLIX_FLAGS, 2, SupplInterchangeFilt::fTestMode);
+		AddClusterAssoc(CTL_SUPPLIX_FLAGS, 3, SupplInterchangeFilt::fExportTimeAsNominal); // @v11.6.7
+		SetClusterData(CTL_SUPPLIX_FLAGS, Data.Flags);
 		SetPeriodInput(this, CTL_SUPPLIX_EXPPRD, &Data.ExpPeriod);
 		{
 			LocationCtrlGroup::Rec loc_rec(&Data.LocList);
 			setGroupData(ctlgroupLoc, &loc_rec);
 		}
-		Data.GetExtStrData(Data.extssParam, temp_buf); // @v9.5.0
-		setCtrlString(CTL_SUPPLIX_ADDPARAM, temp_buf); // @v9.5.0
+		Data.GetExtStrData(Data.extssParam, temp_buf);
+		setCtrlString(CTL_SUPPLIX_ADDPARAM, temp_buf);
 		//CATCHZOK
 		return ok;
 	}
@@ -7507,25 +7506,19 @@ int GazpromNeft::Auth()
 					if(p_js_reply) {
 						if(p_js_reply->IsObject()) {
 							for(const SJson * p_itm = p_js_reply->P_Child; p_itm; p_itm = p_itm->P_Next) {
-								if(p_itm->Text.IsEqiAscii("accessToken")) {
-									if(p_itm->P_Child) {
+								if(p_itm->P_Child) {
+									if(p_itm->Text.IsEqiAscii("accessToken")) {
 										(access_token2 = p_itm->P_Child->Text).Unescape();
 									}
-								}
-								else if(p_itm->Text.IsEqiAscii("tokenType")) {
-									if(p_itm->P_Child) {
+									else if(p_itm->Text.IsEqiAscii("tokenType")) {
 										//(temp_buf = p_itm->P_Child->Text).Unescape();
 										//opaque_data = temp_buf;
 										//ib_.Tokenize(pTa, temp_buf, ss);
 									}
-								}
-								else if(p_itm->Text.IsEqiAscii("expiresIn")) {
-									if(p_itm->P_Child) {
+									else if(p_itm->Text.IsEqiAscii("expiresIn")) {
 										AcsTokExpirySec = p_itm->P_Child->Text.ToLong();
 									}
-								}
-								else if(p_itm->Text.IsEqiAscii("refeshToken")) {
-									if(p_itm->P_Child) {
+									else if(p_itm->Text.IsEqiAscii("refeshToken")) {
 										(refresh_token = p_itm->P_Child->Text).Unescape();
 									}
 								}
@@ -8243,9 +8236,12 @@ int GazpromNeft::SendSellout()
 								SJson * p_js_doc = new SJson(SJson::tOBJECT);
 								p_js_doc->InsertString("externalId", temp_buf.Z().Cat(p_item->Uuid, S_GUID::fmtIDL));
 								p_js_doc->InsertString("number", (temp_buf = p_item->Code).Escape());
-								// @v11.6.2 temp_buf.Z().Cat(/*p_item->Dtm*/dtm_now, DATF_ISO8601CENT, 0).CatChar('Z'); // Это что-то парадоксальное! Газпромнефть требует чтоб дата документа совпадала с датой выгрузки.
-								temp_buf.Z().Cat(p_item->Dtm, DATF_ISO8601CENT, 0).CatChar('Z'); // @v11.6.2 Они снова передумали! Теперь здесь будет дата документа.
-								p_js_doc->InsertString("dateTime", temp_buf);
+								{
+									// Это что-то парадоксальное! Газпромнефть требует чтоб дата документа совпадала с датой выгрузки.
+									// Но... они иногда передумывают, из-за этого - специальная "галка" (SupplInterchangeFilt::fExportTimeAsNominal).
+									temp_buf.Z().Cat((P.Flags & SupplInterchangeFilt::fExportTimeAsNominal) ? dtm_now : p_item->Dtm, DATF_ISO8601CENT, 0).CatChar('Z'); 
+									p_js_doc->InsertString("dateTime", temp_buf);
+								}
 								//p_js_doc->InsertString("requestNumber", "");
 								p_js_doc->InsertBool("isMainDocument", true);
 								SJson * p_js_item_list = new SJson(SJson::tARRAY);
@@ -8379,8 +8375,12 @@ int GazpromNeft::SendSellin()
 							}
 							p_js_doc->Insert("positions", p_js_item_list);
 							p_js_item_list = 0;
-							temp_buf.Z().Cat(/*p_item->Dtm*/dtm_now, DATF_ISO8601CENT, 0).Cat(".145Z"); // Это что-то парадоксальное! Газпромнефть требует чтоб дата документа совпадала с датой выгрузки.
-							p_js_doc->InsertString("invoiceDate", temp_buf);
+							{
+								// Это что-то парадоксальное! Газпромнефть требует чтоб дата документа совпадала с датой выгрузки.
+								// Но... они иногда передумывают, из-за этого - специальная "галка" (SupplInterchangeFilt::fExportTimeAsNominal).
+								temp_buf.Z().Cat((P.Flags & SupplInterchangeFilt::fExportTimeAsNominal) ? dtm_now : p_item->Dtm, DATF_ISO8601CENT, 0).Cat(".145Z"); 
+								p_js_doc->InsertString("invoiceDate", temp_buf);
+							}
 							p_js_doc->InsertString("invoiceNumber", (temp_buf = p_item->Code).Escape());
 							temp_buf.Z().Cat(p_item->Dtm, DATF_ISO8601CENT, 0).Cat(".145Z");
 							p_js_doc->InsertString("gpnInvoiceDate", temp_buf);
@@ -8850,6 +8850,7 @@ public:
 			{
 				PrepareSalesData(sales_list);
 				ExportSales(sales_list);
+				ExportDebts();
 				{
 					PPIDArray customer_list;
 					LAssocArray dlvr_loc_list;
@@ -8955,6 +8956,23 @@ public:
 		rAgentList.sortAndUndup();
 		return ok;
 	}
+	PPID     GetDlvrLocID(const PPBillPacket & rBPack, const PersonTbl::Rec & rPsnRec)
+	{
+		PPID dlvr_loc_id = rBPack.GetDlvrAddrID();
+		PPLocationPacket loc_pack;
+		if(dlvr_loc_id && LocObj.GetPacket(dlvr_loc_id, &loc_pack) > 0 && loc_pack.Type == LOCTYP_ADDRESS) {
+			;
+		}
+		else {
+			if(rPsnRec.RLoc && LocObj.GetPacket(rPsnRec.RLoc, &loc_pack) > 0 && loc_pack.Type == LOCTYP_ADDRESS) {
+				dlvr_loc_id = rPsnRec.RLoc;
+			}
+			else if(rPsnRec.MainLoc && LocObj.GetPacket(rPsnRec.MainLoc, &loc_pack) > 0 && loc_pack.Type == LOCTYP_ADDRESS) {
+				dlvr_loc_id = rPsnRec.MainLoc;
+			}
+		}
+		return dlvr_loc_id;
+	}
 	int      PrepareSalesData(TSCollection <SalesEntry> & rList)
 	{
 		int    ok = 1;
@@ -9004,24 +9022,7 @@ public:
 									p_new_entry->DocDate = bpack.Rec.Dt;
 									p_new_entry->AgentID = ObjectToPerson(bpack.Ext.AgentID, &agent_acs_id);
 									p_new_entry->CliID = psn_pack.Rec.ID;
-									{
-										PPID dlvr_loc_id = bpack.GetDlvrAddrID();
-										PPLocationPacket loc_pack;
-										if(dlvr_loc_id && LocObj.GetPacket(dlvr_loc_id, &loc_pack) > 0 && loc_pack.Type == LOCTYP_ADDRESS) {
-											p_new_entry->DlvrLocID = dlvr_loc_id;
-											//LocationCore::GetAddress(loc_pack, 0, p_new_entry->DlvrAddrText);
-										}
-										else {
-											if(psn_pack.Rec.RLoc && LocObj.GetPacket(psn_pack.Rec.RLoc, &loc_pack) > 0 && loc_pack.Type == LOCTYP_ADDRESS) {
-												p_new_entry->DlvrLocID = psn_pack.Rec.RLoc;
-												//LocationCore::GetAddress(loc_pack, 0, p_new_entry->DlvrAddrText);
-											}
-											else if(psn_pack.Rec.MainLoc && LocObj.GetPacket(psn_pack.Rec.MainLoc, &loc_pack) > 0 && loc_pack.Type == LOCTYP_ADDRESS) {
-												p_new_entry->DlvrLocID = psn_pack.Rec.MainLoc;
-												//LocationCore::GetAddress(loc_pack, 0, p_new_entry->DlvrAddrText);
-											}
-										}
-									}
+									p_new_entry->DlvrLocID = GetDlvrLocID(bpack, psn_pack.Rec);
 									tiiterpos = 0;
 									for(TiIter tiiter(&bpack, ETIEF_UNITEBYGOODS, 0); bpack.EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
 										tiiterpos++;
@@ -9061,6 +9062,81 @@ public:
 			}
 		}
 		CATCHZOK
+		return ok;
+	}
+	int      ExportDebts()
+	{
+		int    ok = 1;
+		SString temp_buf;
+		SString out_file_name;
+		PPGetFilePath(PPPATH_OUT, MakeFileName("debts", temp_buf), out_file_name);
+	    xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
+	    THROW(p_x);
+		{
+			SXml::WNode n_h(p_x, "debts");
+			if(Ep.ExpendOp) {
+				PPViewBill _view;
+				BillFilt _filt;
+				BillViewItem view_item;
+				_filt.OpID = Ep.ExpendOp;
+				_filt.Flags |= (BillFilt::fDebtOnly|BillFilt::fPaymNeeded);
+				//b_filt.LocList = P.LocList;
+				for(uint locidx = 0; locidx < WhList.getCount(); locidx++) {
+					_filt.LocList.Add(WhList.at(locidx).ID);
+				}
+				_filt.Period = P.ExpPeriod;
+				if(!_filt.Period.low)
+					_filt.Period.low = encodedate(1, 1, 2022);
+				else
+					_filt.Period.low = plusdate(_filt.Period.low, -60);
+				THROW(_view.Init_(&_filt));
+				for(_view.InitIteration(PPViewBill::OrdByDefault); _view.NextIteration(&view_item) > 0;) {
+					const PPID bill_id = view_item.ID;
+					if(view_item.Object && !(view_item.Flags & BILLF_PAYOUT)) {
+						PPID   buyer_acs_id = 0;
+						const  PPID   psn_id = ObjectToPerson(view_item.Object, &buyer_acs_id);
+						PersonTbl::Rec psn_rec;
+						if(psn_id && PsnObj.Search(psn_id, &psn_rec) > 0) {
+							PPBillPacket bpack;
+							if(P_BObj->ExtractPacket(bill_id, &bpack) > 0) {
+								long   tiiterpos = 0;
+								StrAssocArray ti_pos_list;
+								PPTransferItem ti;
+								PPBillPacket::TiItemExt tiext;
+								for(TiIter tiiter(&bpack, ETIEF_UNITEBYGOODS, 0); bpack.EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
+									tiiterpos++;
+									if(GoodsList.lsearch(&ti.GoodsID, 0, CMPF_LONG)) {
+										temp_buf.Z().Cat(ti.GoodsID);
+										ti_pos_list.Add(tiiterpos, temp_buf, 0);
+									}
+								}
+								if(ti_pos_list.getCount()) {
+									const double nominal_amount = bpack.Rec.Amount;
+									double payment = 0.0;
+									P_BObj->P_Tbl->CalcPayment(bpack.Rec.ID, 1, 0, 0, &payment);
+									if(payment < nominal_amount) {
+										PPID dlvr_loc_id = GetDlvrLocID(bpack, psn_rec);
+										LDATE last_paym_date = ZERODATE;
+										P_BObj->P_Tbl->GetLastPayDate(bpack.Rec.ID, &last_paym_date);
+										if(!checkdate(last_paym_date))
+											last_paym_date = bpack.Rec.Dt;
+										SXml::WNode n_i(p_x, "debt");
+										n_i.PutAttrib("customercode", temp_buf.Z().Cat(psn_rec.ID));
+										n_i.PutAttrib("tradepointcode", temp_buf.Z().Cat(dlvr_loc_id));
+										n_i.PutAttrib("documentnumber", temp_buf.Z().Cat(bpack.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+										n_i.PutAttrib("documentdate", temp_buf.Z().Cat(bpack.Rec.Dt, DATF_YMD|DATF_CENTURY|DATF_NODIV).Cat("000000"));
+										n_i.PutAttrib("paymentdate", temp_buf.Z().Cat(last_paym_date, DATF_YMD|DATF_CENTURY|DATF_NODIV).Cat("000000"));
+										n_i.PutAttrib("debtsum", temp_buf.Z().Cat(nominal_amount-payment, MKSFMTD(0, 3, 0)));
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		CATCHZOK
+		xmlFreeTextWriter(p_x);
 		return ok;
 	}
 	int      ExportSales(const TSCollection <SalesEntry> & rList)

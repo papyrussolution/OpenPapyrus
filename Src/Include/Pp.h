@@ -40885,10 +40885,11 @@ public:
 		opExportSales      = 0x0400      // EXPSALES
 	};
 	enum {
-		fDeleteRecentBills = 0x0001,     // BALTIKA only
-		fFlatStruc = 0x0002,     //
-		fRepeatProcessing  = 0x0004,     // Флаг повторного процессинга уже обработанных данных (применение зависит от операции и провайдера)
-		fTestMode  = 0x0008      // Тестовый режим
+		fDeleteRecentBills   = 0x0001,     // BALTIKA only
+		fFlatStruc           = 0x0002,     //
+		fRepeatProcessing    = 0x0004,     // Флаг повторного процессинга уже обработанных данных (применение зависит от операции и провайдера)
+		fTestMode            = 0x0008,     // Тестовый режим
+		fExportTimeAsNominal = 0x0010      // @v11.6.7 В качаестве номинальной временной метки документов передавать время отправки (специально для GazpromNeft)
 	};
     uint8  ReserveStart[24]; // @anchor
     float  SpcDisPct1; // Специальная скидка 1, %

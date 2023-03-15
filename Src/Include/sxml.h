@@ -39,6 +39,7 @@ public:
 	//   Ссылка на результирующий буфер, полученный из локального к потоку револьверного хранилища.
 	//
 	static const SString & FASTCALL nst(const char * pNs, const char * pT);
+	static const SString & FASTCALL nst_xmlns(const char * pT); // SXml::nst("xmlns", pT)
 
 	class WDoc {
 	public:

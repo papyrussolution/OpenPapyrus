@@ -2386,7 +2386,6 @@ void SCS_SHTRIHFRF::SetErrorMessage()
 	int    ok = -1;
 	SString temp_buf;
 	SString msg_buf;
-	ResCode = RESCODE_NO_ERROR;
 	if(op == 100) { // 100 - предварителные операции перед проверкой марок по чеку. Может быть актуально для некоторых типов регистраторов.
 		;
 	}
@@ -2416,6 +2415,9 @@ void SCS_SHTRIHFRF::SetErrorMessage()
 							result_chzn_code.Cat(temp_buf);
 						partn = temp_buf;
 					}
+					//
+					ResCode = RESCODE_NO_ERROR;
+					THROW(ConnectFR());
 					//
 					THROW(SetFR(BarCode, pCode));
 					THROW(SetFR(ItemStatus, 1L));

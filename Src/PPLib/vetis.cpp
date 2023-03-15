@@ -5233,7 +5233,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 		VetisSubmitRequestBlock srb;
 		if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signCheckShipmentRegionalization) { // @v11.0.0
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
 			n_env.PutAttrib_Ns("dt",     P_ApiVtrf, "schema/cdm/dictionary/v2");
 			n_env.PutAttrib_Ns("bs",     P_ApiVtrf, "schema/cdm/base");
 			n_env.PutAttrib_Ns("merc",   P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2");
@@ -5325,7 +5325,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 		}
 		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signModifyEnterprise) {
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
 			n_env.PutAttrib_Ns("dt",     P_ApiVtrf, "schema/cdm/dictionary/v2");
 			n_env.PutAttrib_Ns("bs",     P_ApiVtrf, "schema/cdm/base");
 			n_env.PutAttrib_Ns("merc",   P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2");
@@ -5428,7 +5428,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 		}
 		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signModifyActivityLocations) {
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
 			n_env.PutAttrib_Ns("bs", P_ApiVtrf, "schema/cdm/base");
 			n_env.PutAttrib_Ns("merc", P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2");
 			n_env.PutAttrib_Ns("apldef", P_ApiVtrf, "schema/cdm/application/ws-definitions");
@@ -5558,9 +5558,9 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 		}
 		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signWithdrawVetDocument) {
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "xs"),      InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
-			n_env.PutAttrib(SXml::nst("xmlns", "xsi"),     InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("xs"),      InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
+			n_env.PutAttrib(SXml::nst_xmlns("xsi"),     InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -5583,11 +5583,11 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 							const VetisBatch & r_bat = r_doc.CertifiedConsignment.Batch;
 							SXml::WNode n_req(srb, "withdrawVetDocumentRequest");
 							n_req.PutAttrib("xmlns",  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/applications"));
-							n_req.PutAttrib(SXml::nst("xmlns", "bs"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+							n_req.PutAttrib(SXml::nst_xmlns("bs"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
 							n_req.PutInner("localTransactionId", temp_buf.Z().Cat(rAppBlk.LocalTransactionId));
 							{
 								SXml::WNode n_n2(srb, "initiator");
-								n_n2.PutAttrib(SXml::nst("xmlns", "d7p1"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/common"));
+								n_n2.PutAttrib(SXml::nst_xmlns("d7p1"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/common"));
 								n_n2.PutInner(SXml::nst("d7p1", "login"), rAppBlk.User);
 							}
 							n_req.PutInner("vetDocumentId", VGuidToStr(r_doc.Uuid, temp_buf));
@@ -5601,13 +5601,13 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 		}
 		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signRegisterProduction) { // @v10.6.10
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "apl"),    InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
-			n_env.PutAttrib(SXml::nst("xmlns", "apldef"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
-			n_env.PutAttrib(SXml::nst("xmlns", "bs"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "dt"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "merc"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "vd"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("apl"),    InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
+			n_env.PutAttrib(SXml::nst_xmlns("apldef"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
+			n_env.PutAttrib(SXml::nst_xmlns("bs"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+			n_env.PutAttrib(SXml::nst_xmlns("dt"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("merc"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("vd"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -5721,20 +5721,20 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 		}
 		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signResolveDiscrepancy) {
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "apl"),    InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
-			n_env.PutAttrib(SXml::nst("xmlns", "apldef"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
-			n_env.PutAttrib(SXml::nst("xmlns", "bs"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "dt"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "merc"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "vd"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("apl"),    InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
+			n_env.PutAttrib(SXml::nst_xmlns("apldef"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
+			n_env.PutAttrib(SXml::nst_xmlns("bs"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+			n_env.PutAttrib(SXml::nst_xmlns("dt"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("merc"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("vd"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
 				{
 					SXml::WNode n_f(srb, SXml::nst("apldef", "submitApplicationRequest"));
-					n_f.PutAttrib(SXml::nst("xmlns", "xs"),      InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
-					n_f.PutAttrib(SXml::nst("xmlns", "xsi"),     InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
+					n_f.PutAttrib(SXml::nst_xmlns("xs"),      InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
+					n_f.PutAttrib(SXml::nst_xmlns("xsi"),     InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
 					P.GetExtStrData(extssApiKey, temp_buf);
 					n_f.PutInner(SXml::nst("apldef", "apiKey"), temp_buf);
 					{
@@ -5987,13 +5987,13 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 		}
 		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signProcessOutgoingConsignment) {
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "dt"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "bs"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "merc"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "apldef"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
-			n_env.PutAttrib(SXml::nst("xmlns", "apl"),    InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
-			n_env.PutAttrib(SXml::nst("xmlns", "vd"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("dt"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("bs"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+			n_env.PutAttrib(SXml::nst_xmlns("merc"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("apldef"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
+			n_env.PutAttrib(SXml::nst_xmlns("apl"),    InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
+			n_env.PutAttrib(SXml::nst_xmlns("vd"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -6205,15 +6205,15 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signGetVetDocumentList) {
 			assert(rAppBlk.VetisSvcVer == 2);
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "xs"),      InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
-			n_env.PutAttrib(SXml::nst("xmlns", "xsi"),     InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
-			n_env.PutAttrib(SXml::nst("xmlns", "dt"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "bs"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "merc"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "apldef"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
-			n_env.PutAttrib(SXml::nst("xmlns", "apl"),    InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
-			n_env.PutAttrib(SXml::nst("xmlns", "vd"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("xs"),      InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
+			n_env.PutAttrib(SXml::nst_xmlns("xsi"),     InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
+			n_env.PutAttrib(SXml::nst_xmlns("dt"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("bs"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+			n_env.PutAttrib(SXml::nst_xmlns("merc"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("apldef"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
+			n_env.PutAttrib(SXml::nst_xmlns("apl"),    InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
+			n_env.PutAttrib(SXml::nst_xmlns("vd"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -6251,15 +6251,15 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 		}
 		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signProcessIncomingConsignment) {
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "xs"),      InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
-			n_env.PutAttrib(SXml::nst("xmlns", "xsi"),     InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
-			n_env.PutAttrib(SXml::nst("xmlns", "dt"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "bs"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "merc"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "apldef"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
-			n_env.PutAttrib(SXml::nst("xmlns", "apl"),    InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
-			n_env.PutAttrib(SXml::nst("xmlns", "vd"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("xs"),      InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
+			n_env.PutAttrib(SXml::nst_xmlns("xsi"),     InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
+			n_env.PutAttrib(SXml::nst_xmlns("dt"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("bs"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+			n_env.PutAttrib(SXml::nst_xmlns("merc"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("apldef"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
+			n_env.PutAttrib(SXml::nst_xmlns("apl"),    InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
+			n_env.PutAttrib(SXml::nst_xmlns("vd"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -6597,15 +6597,15 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signGetVetDocumentChangesList) {
 			assert(rAppBlk.VetisSvcVer == 2);
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "xs"),      InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
-			n_env.PutAttrib(SXml::nst("xmlns", "xsi"),     InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
-			n_env.PutAttrib(SXml::nst("xmlns", "dt"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "bs"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "merc"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "apldef"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
-			n_env.PutAttrib(SXml::nst("xmlns", "apl"),    InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
-			n_env.PutAttrib(SXml::nst("xmlns", "vd"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("xs"),      InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
+			n_env.PutAttrib(SXml::nst_xmlns("xsi"),     InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
+			n_env.PutAttrib(SXml::nst_xmlns("dt"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("bs"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+			n_env.PutAttrib(SXml::nst_xmlns("merc"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("apldef"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
+			n_env.PutAttrib(SXml::nst_xmlns("apl"),    InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
+			n_env.PutAttrib(SXml::nst_xmlns("vd"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -6643,11 +6643,11 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 		}
 		else {
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ws"),      InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
-			n_env.PutAttrib(SXml::nst("xmlns", "app"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
-			n_env.PutAttrib(SXml::nst("xmlns", "v2"),      InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "v21"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("ws"),      InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
+			n_env.PutAttrib(SXml::nst_xmlns("app"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
+			n_env.PutAttrib(SXml::nst_xmlns("v2"),      InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("v21"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -6667,20 +6667,20 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 								{
 									const VetisGetStockEntryByUUIDRequest * p_req = static_cast<const VetisGetStockEntryByUUIDRequest *>(rAppBlk.P_AppParam);
 									SXml::WNode n_req(srb, "getStockEntryByUuidRequest");
-									n_req.PutAttrib(SXml::nst("xmlns", "sch"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
+									n_req.PutAttrib(SXml::nst_xmlns("sch"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
 									if(rAppBlk.VetisSvcVer == 2)
-										n_req.PutAttrib(SXml::nst("xmlns", "vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
+										n_req.PutAttrib(SXml::nst_xmlns("vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
 									else
-										n_req.PutAttrib(SXml::nst("xmlns", "vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document"));
-									n_req.PutAttrib(SXml::nst("xmlns", "sh"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/shipment"));
-									n_req.PutAttrib(SXml::nst("xmlns", "ws"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
-									n_req.PutAttrib(SXml::nst("xmlns", "app"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
-									n_req.PutAttrib(SXml::nst("xmlns", "co"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/common"));
-									n_req.PutAttrib(SXml::nst("xmlns", "ent"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/cerberus/enterprise"));
-									n_req.PutAttrib(SXml::nst("xmlns", "pr"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/production"));
-									n_req.PutAttrib(SXml::nst("xmlns", "ik"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/ikar"));
-									n_req.PutAttrib(SXml::nst("xmlns", "bs"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-									n_req.PutAttrib(SXml::nst("xmlns", "dt"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+										n_req.PutAttrib(SXml::nst_xmlns("vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document"));
+									n_req.PutAttrib(SXml::nst_xmlns("sh"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/shipment"));
+									n_req.PutAttrib(SXml::nst_xmlns("ws"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
+									n_req.PutAttrib(SXml::nst_xmlns("app"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
+									n_req.PutAttrib(SXml::nst_xmlns("co"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/common"));
+									n_req.PutAttrib(SXml::nst_xmlns("ent"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/cerberus/enterprise"));
+									n_req.PutAttrib(SXml::nst_xmlns("pr"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/production"));
+									n_req.PutAttrib(SXml::nst_xmlns("ik"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/ikar"));
+									n_req.PutAttrib(SXml::nst_xmlns("bs"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+									n_req.PutAttrib(SXml::nst_xmlns("dt"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
 									if(rAppBlk.VetisSvcVer == 2)
 										n_req.PutAttrib("xmlns", InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
 									else
@@ -6733,21 +6733,21 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 									*/
 									const VetisGetVetDocumentByUuidRequest * p_req = static_cast<const VetisGetVetDocumentByUuidRequest *>(rAppBlk.P_AppParam);
 									SXml::WNode n_req(srb, "getVetDocumentByUuidRequest");
-									n_req.PutAttrib(SXml::nst("xmlns", "sch"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
+									n_req.PutAttrib(SXml::nst_xmlns("sch"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
 									if(rAppBlk.VetisSvcVer == 2) {
-										n_req.PutAttrib(SXml::nst("xmlns", "vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
-										n_req.PutAttrib(SXml::nst("xmlns", "dt"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+										n_req.PutAttrib(SXml::nst_xmlns("vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
+										n_req.PutAttrib(SXml::nst_xmlns("dt"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
 									}
 									else
-										n_req.PutAttrib(SXml::nst("xmlns", "vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document"));
-									n_req.PutAttrib(SXml::nst("xmlns", "sh"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/shipment"));
-									n_req.PutAttrib(SXml::nst("xmlns", "ws"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
-									n_req.PutAttrib(SXml::nst("xmlns", "app"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
-									n_req.PutAttrib(SXml::nst("xmlns", "co"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/common"));
-									n_req.PutAttrib(SXml::nst("xmlns", "ent"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/cerberus/enterprise"));
-									n_req.PutAttrib(SXml::nst("xmlns", "pr"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/production"));
-									n_req.PutAttrib(SXml::nst("xmlns", "ik"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/ikar"));
-									n_req.PutAttrib(SXml::nst("xmlns", "bs"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+										n_req.PutAttrib(SXml::nst_xmlns("vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document"));
+									n_req.PutAttrib(SXml::nst_xmlns("sh"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/shipment"));
+									n_req.PutAttrib(SXml::nst_xmlns("ws"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
+									n_req.PutAttrib(SXml::nst_xmlns("app"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
+									n_req.PutAttrib(SXml::nst_xmlns("co"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/common"));
+									n_req.PutAttrib(SXml::nst_xmlns("ent"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/cerberus/enterprise"));
+									n_req.PutAttrib(SXml::nst_xmlns("pr"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/production"));
+									n_req.PutAttrib(SXml::nst_xmlns("ik"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/ikar"));
+									n_req.PutAttrib(SXml::nst_xmlns("bs"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
 									if(rAppBlk.VetisSvcVer == 2) // @v10.5.4
 										n_req.PutAttrib("xmlns", InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
 									else
@@ -6767,20 +6767,20 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 								{
 									const VetisGetStockEntryListRequest * p_req = static_cast<const VetisGetStockEntryListRequest *>(rAppBlk.P_AppParam);
 									SXml::WNode n_req(srb, "getStockEntryListRequest");
-									n_req.PutAttrib(SXml::nst("xmlns", "sch"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
+									n_req.PutAttrib(SXml::nst_xmlns("sch"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
 									if(rAppBlk.VetisSvcVer == 2)
-										n_req.PutAttrib(SXml::nst("xmlns", "vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
+										n_req.PutAttrib(SXml::nst_xmlns("vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
 									else
-										n_req.PutAttrib(SXml::nst("xmlns", "vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document"));
-									n_req.PutAttrib(SXml::nst("xmlns", "sh"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/shipment"));
-									n_req.PutAttrib(SXml::nst("xmlns", "ws"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
-									n_req.PutAttrib(SXml::nst("xmlns", "app"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
-									n_req.PutAttrib(SXml::nst("xmlns", "co"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/common"));
-									n_req.PutAttrib(SXml::nst("xmlns", "ent"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/cerberus/enterprise"));
-									n_req.PutAttrib(SXml::nst("xmlns", "pr"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/production"));
-									n_req.PutAttrib(SXml::nst("xmlns", "ik"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/ikar"));
-									n_req.PutAttrib(SXml::nst("xmlns", "bs"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-									n_req.PutAttrib(SXml::nst("xmlns", "dt"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+										n_req.PutAttrib(SXml::nst_xmlns("vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document"));
+									n_req.PutAttrib(SXml::nst_xmlns("sh"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/shipment"));
+									n_req.PutAttrib(SXml::nst_xmlns("ws"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
+									n_req.PutAttrib(SXml::nst_xmlns("app"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
+									n_req.PutAttrib(SXml::nst_xmlns("co"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/common"));
+									n_req.PutAttrib(SXml::nst_xmlns("ent"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/cerberus/enterprise"));
+									n_req.PutAttrib(SXml::nst_xmlns("pr"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/production"));
+									n_req.PutAttrib(SXml::nst_xmlns("ik"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/ikar"));
+									n_req.PutAttrib(SXml::nst_xmlns("bs"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+									n_req.PutAttrib(SXml::nst_xmlns("dt"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
 									if(rAppBlk.VetisSvcVer == 2)
 										n_req.PutAttrib("xmlns", InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
 									else
@@ -6798,20 +6798,20 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 								{
 									const VetisGetStockEntryChangesListRequest * p_req = static_cast<const VetisGetStockEntryChangesListRequest *>(rAppBlk.P_AppParam);
 									SXml::WNode n_req(srb, "getStockEntryChangesListRequest");
-									n_req.PutAttrib(SXml::nst("xmlns", "sch"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
+									n_req.PutAttrib(SXml::nst_xmlns("sch"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
 									if(rAppBlk.VetisSvcVer == 2)
-										n_req.PutAttrib(SXml::nst("xmlns", "vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
+										n_req.PutAttrib(SXml::nst_xmlns("vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
 									else
-										n_req.PutAttrib(SXml::nst("xmlns", "vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document"));
-									n_req.PutAttrib(SXml::nst("xmlns", "sh"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/shipment"));
-									n_req.PutAttrib(SXml::nst("xmlns", "ws"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
-									n_req.PutAttrib(SXml::nst("xmlns", "app"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
-									n_req.PutAttrib(SXml::nst("xmlns", "co"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/common"));
-									n_req.PutAttrib(SXml::nst("xmlns", "ent"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/cerberus/enterprise"));
-									n_req.PutAttrib(SXml::nst("xmlns", "pr"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/production"));
-									n_req.PutAttrib(SXml::nst("xmlns", "ik"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/ikar"));
-									n_req.PutAttrib(SXml::nst("xmlns", "bs"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-									n_req.PutAttrib(SXml::nst("xmlns", "dt"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+										n_req.PutAttrib(SXml::nst_xmlns("vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document"));
+									n_req.PutAttrib(SXml::nst_xmlns("sh"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/shipment"));
+									n_req.PutAttrib(SXml::nst_xmlns("ws"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
+									n_req.PutAttrib(SXml::nst_xmlns("app"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
+									n_req.PutAttrib(SXml::nst_xmlns("co"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/common"));
+									n_req.PutAttrib(SXml::nst_xmlns("ent"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/cerberus/enterprise"));
+									n_req.PutAttrib(SXml::nst_xmlns("pr"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/production"));
+									n_req.PutAttrib(SXml::nst_xmlns("ik"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/ikar"));
+									n_req.PutAttrib(SXml::nst_xmlns("bs"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+									n_req.PutAttrib(SXml::nst_xmlns("dt"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
 									if(rAppBlk.VetisSvcVer == 2)
 										n_req.PutAttrib("xmlns", InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
 									else
@@ -6940,8 +6940,8 @@ int PPVetisInterface::ReceiveResult(const S_GUID & rAppId, OutcomingEntry * pOcE
 		VetisSubmitRequestBlock srb;
 		{
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ws"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("ws"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -7023,9 +7023,9 @@ int PPVetisInterface::GetEntityQuery2(int queryType, const char * pQueryParam, V
 			{
 
 				SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-				n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-				n_env.PutAttrib(SXml::nst("xmlns", "ws"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
-				n_env.PutAttrib(SXml::nst("xmlns", "bs"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+				n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+				n_env.PutAttrib(SXml::nst_xmlns("ws"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
+				n_env.PutAttrib(SXml::nst_xmlns("bs"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
 				if(iblk.Svc == svcProduct) {
 					p_url = InetUrl::MkHttps(p_domain, "platform/services/2.0/ProductService");
 					p_arg_ns = "ws";
@@ -7145,10 +7145,10 @@ int PPVetisInterface::GetUnitList(uint offs, uint count, VetisApplicationBlock &
 		VetisSubmitRequestBlock srb;
 		{
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "v2"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "v21"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("v2"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+			n_env.PutAttrib(SXml::nst_xmlns("v21"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -7179,10 +7179,10 @@ int PPVetisInterface::GetCountryList(VetisApplicationBlock & rReply)
 		VetisSubmitRequestBlock srb;
 		{
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ws"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ikar"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("ws"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+			n_env.PutAttrib(SXml::nst_xmlns("ikar"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -7214,10 +7214,10 @@ int PPVetisInterface::GetRegionList(S_GUID & rCountryGuid, VetisApplicationBlock
 		VetisSubmitRequestBlock srb;
 		{
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ws"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ikar"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("ws"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+			n_env.PutAttrib(SXml::nst_xmlns("ikar"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -7251,10 +7251,10 @@ int PPVetisInterface::GetLocalityList(S_GUID & rRegionGuid, VetisApplicationBloc
 		VetisSubmitRequestBlock srb;
 		{
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ws"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ikar"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("ws"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+			n_env.PutAttrib(SXml::nst_xmlns("ikar"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -7287,10 +7287,10 @@ int PPVetisInterface::GetPurposeList(uint offs, uint count, VetisApplicationBloc
 		VetisSubmitRequestBlock srb;
 		{
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "v2"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "v21"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("v2"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+			n_env.PutAttrib(SXml::nst_xmlns("v21"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -7320,10 +7320,10 @@ int PPVetisInterface::GetProductChangesList(uint offs, uint count, LDATE since, 
 		VetisSubmitRequestBlock srb;
 		{
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "v2"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "v21"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("v2"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+			n_env.PutAttrib(SXml::nst_xmlns("v21"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -7379,10 +7379,10 @@ int PPVetisInterface::GetSubProductChangesList(uint offs, uint count, LDATE sinc
 			</soapenv:Envelope>
 			*/
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "v2"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "v21"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("v2"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+			n_env.PutAttrib(SXml::nst_xmlns("v21"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -7419,10 +7419,10 @@ int PPVetisInterface::GetProductItemList(uint offs, uint count, VetisApplication
 		VetisSubmitRequestBlock srb;
 		{
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "v2"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "v21"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("v2"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+			n_env.PutAttrib(SXml::nst_xmlns("v21"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -7472,10 +7472,10 @@ int PPVetisInterface::GetRussianEnterpriseList(uint offs, uint count, VetisAppli
 		VetisSubmitRequestBlock srb;
 		{
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ws"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "dt"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("ws"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+			n_env.PutAttrib(SXml::nst_xmlns("dt"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -7506,11 +7506,11 @@ int PPVetisInterface::GetBusinessEntityList(uint offs, uint count, VetisApplicat
 		VetisSubmitRequestBlock srb;
 		{
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
-			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ws"), "http://api.vetrf.ru/schema/cdm/cerberus/business-entity/ws-definitions");
-			n_env.PutAttrib(SXml::nst("xmlns", "base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ent"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/cerberus/enterprise"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ikar"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/ikar"));
+			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
+			n_env.PutAttrib(SXml::nst_xmlns("ws"), "http://api.vetrf.ru/schema/cdm/cerberus/business-entity/ws-definitions");
+			n_env.PutAttrib(SXml::nst_xmlns("base"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
+			n_env.PutAttrib(SXml::nst_xmlns("ent"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/cerberus/enterprise"));
+			n_env.PutAttrib(SXml::nst_xmlns("ikar"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/ikar"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));

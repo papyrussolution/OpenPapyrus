@@ -1481,7 +1481,7 @@ bool   SrUedContainer::SearchBaseId(uint64 id, SString & rSymb) const
 	return ok;
 }
 
-int SrUedContainer::ReplaceSurrogateLocaleIds(const SymbHashTable & rT)
+int SrUedContainer::ReplaceSurrogateLocaleIds(const SymbHashTable & rT, PPLogger * pLogger)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1493,10 +1493,25 @@ int SrUedContainer::ReplaceSurrogateLocaleIds(const SymbHashTable & rT)
 			THROW(rT.GetByAssoc(r_e.Locale, locale_buf));
 			{
 				uint64 locale_id = SearchBaseSymb(locale_buf, LinguaLocusMeta);
-				THROW_PP_S(locale_id, PPERR_UED_SYMBFORMETANOTFOUND, temp_buf.Z().Cat(locale_buf).Space().Cat("->").Space().CatHex(LinguaLocusMeta));
-				THROW_PP_S(UED::BelongToMeta(locale_id, LinguaLocusMeta), PPERR_UED_VALUENOTBELONGTOMETA, temp_buf.Z().CatHex(locale_id).Space().Cat("->").Space().CatHex(LinguaLocusMeta));
-				r_e.Locale = UED::MakeShort(locale_id, LinguaLocusMeta);
-				assert(r_e.Locale);
+				if(!locale_id) {
+					ok = PPSetError(PPERR_UED_SYMBFORMETANOTFOUND, temp_buf.Z().Cat(locale_buf).Space().Cat("->").Space().CatHex(LinguaLocusMeta));
+					if(pLogger)
+						pLogger->LogLastError();
+					else
+						CALLEXCEPT();
+				}
+				else {
+					const bool btm_result = UED::BelongToMeta(locale_id, LinguaLocusMeta);
+					if(!btm_result) {
+						ok = PPSetError(PPERR_UED_VALUENOTBELONGTOMETA, temp_buf.Z().CatHex(locale_id).Space().Cat("->").Space().CatHex(LinguaLocusMeta));
+						if(pLogger)
+							pLogger->LogLastError();
+						else
+							CALLEXCEPT();
+					}
+					r_e.Locale = UED::MakeShort(locale_id, LinguaLocusMeta);
+					assert(r_e.Locale);
+				}
 			}
 		}
 	}
@@ -1504,7 +1519,7 @@ int SrUedContainer::ReplaceSurrogateLocaleIds(const SymbHashTable & rT)
 	return ok;
 }
 	
-int SrUedContainer::ReadSource(const char * pFileName)
+int SrUedContainer::ReadSource(const char * pFileName, PPLogger * pLogger)
 {
 	int    ok = 1;
 	SString line_buf;
@@ -1633,7 +1648,7 @@ int SrUedContainer::ReadSource(const char * pFileName)
 	}
 	Ht.BuildAssoc();
 	THROW_SL(temporary_linglocus_tab.BuildAssoc());
-	THROW(ReplaceSurrogateLocaleIds(temporary_linglocus_tab));
+	THROW(ReplaceSurrogateLocaleIds(temporary_linglocus_tab, pLogger));
 	CATCHZOK
 	return ok;
 }
@@ -2048,6 +2063,7 @@ int ProcessUed()
 	const char * p_file_name = "\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt";
 	SString temp_buf;
 	SStringU temp_buf_u;
+	PPLogger logger;
 	//
 	Test_Ued_Ops();
 	//
@@ -2059,10 +2075,10 @@ int ProcessUed()
 	ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
 	const long prev_version = SrUedContainer::SearchLastCanonicalFile(temp_buf.RmvLastSlash(), last_file_name);
 	if(prev_version > 0) {
-		THROW(uedc_prev.ReadSource(last_file_name));
+		THROW(uedc_prev.ReadSource(last_file_name, &logger));
 		new_version = prev_version+1;
 	}
-	THROW(uedc.ReadSource(p_file_name));
+	THROW(uedc.ReadSource(p_file_name, &logger));
 	if(prev_version > 0) {
 		THROW(uedc.VerifyByPreviousVersion(&uedc_prev));
 	}
