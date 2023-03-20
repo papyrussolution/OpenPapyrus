@@ -64,7 +64,7 @@ int PPHandlePrintError(int)
 //
 // PPApp
 //
-PPApp::PPApp(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle) : TProgram(hInst, pAppSymb, pAppTitle), LocalState(0)
+PPApp::PPApp(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle, uint ctrflags) : TProgram(hInst, pAppSymb, pAppTitle, ctrflags), LocalState(0)
 {
 	SPrinter::HandlePrintError = PPHandlePrintError;
 	STextBrowser::RegWindowClass(hInst);
@@ -1876,6 +1876,11 @@ void PPApp::login(int processCmdLine)
 		}
 		*/
 	}
+	/* WinMain делает эту работу
+	if(PPSession::GetStartUpOption(PPSession::cmdlWsControl, arg_buf)) { // @v11.6.7
+		// — этим флагом интерактивна€ (и неинтерактивна€ тоже) часть системы значительно мен€ет свою работу!
+		DS.SetExtFlag(ECF_WSCONTROL, 1);
+	}*/
 	if(processCmdLine && no_login) {
 		DS.SetMenu(MENU_NOLOGIN);
 		if(!InitMenuBar()) {

@@ -2557,7 +2557,7 @@ public class CommonPrereqModule {
 										spbldr.append(ss);
 									}
 									if(fp_end < (text_len - 1)) {
-										SpannableString ss = new SpannableString(se.DisplayText.substring(fp_end, text_len - 1));
+										SpannableString ss = new SpannableString(se.DisplayText.substring(fp_end, text_len/*- 1*/));
 										ss.setSpan(new BackgroundColorSpan(color_reg), 0, ss.length(), 0);
 										spbldr.append(ss);
 									}
@@ -2802,38 +2802,38 @@ public class CommonPrereqModule {
 					requestWindowFeature(Window.FEATURE_NO_TITLE);
 					setContentView(R.layout.dialog_ordrti);
 					SetDTS(Data);
-				{
-					EditText vqty = SLib.FindEditTextById(this, R.id.CTL_ORDRTI_QTTY);
-					if(vqty != null && vqty instanceof TextInputEditText) {
-						((TextInputEditText)vqty).addTextChangedListener(new TextWatcher() {
-							public void afterTextChanged(Editable s)
-							{
-							}
-							public void beforeTextChanged(CharSequence s, int start, int count, int after)
-							{
-							}
-							public void onTextChanged(CharSequence s, int start, int before, int count)
-							{
-								String text = s.toString();
-								if(CPM != null && Data != null && SLib.GetLen(text) > 0) {
-									Document.TransferItem _data = (Document.TransferItem)Data;
-									double qtty = Double.parseDouble(text);
-									if(qtty < 0.0)
-										qtty = 0.0;
-									if(_data.Set == null)
-										_data.Set = new Document.ValuSet();
-									_data.Set.Qtty = qtty;
-									View vamt = findViewById(R.id.CTL_ORDRTI_AMOUNT);
-									if(vamt != null && vamt instanceof TextView) {
-										String amt_text = CPM.FormatCurrency(_data.Set.Qtty * _data.Set.Price);
-										((TextView)vamt).setText(amt_text);
+					{
+						EditText vqty = SLib.FindEditTextById(this, R.id.CTL_ORDRTI_QTTY);
+						if(vqty != null && vqty instanceof TextInputEditText) {
+							((TextInputEditText)vqty).addTextChangedListener(new TextWatcher() {
+								public void afterTextChanged(Editable s)
+								{
+								}
+								public void beforeTextChanged(CharSequence s, int start, int count, int after)
+								{
+								}
+								public void onTextChanged(CharSequence s, int start, int before, int count)
+								{
+									String text = s.toString();
+									if(CPM != null && Data != null && SLib.GetLen(text) > 0) {
+										Document.TransferItem _data = (Document.TransferItem)Data;
+										double qtty = Double.parseDouble(text);
+										if(qtty < 0.0)
+											qtty = 0.0;
+										if(_data.Set == null)
+											_data.Set = new Document.ValuSet();
+										_data.Set.Qtty = qtty;
+										View vamt = findViewById(R.id.CTL_ORDRTI_AMOUNT);
+										if(vamt != null && vamt instanceof TextView) {
+											String amt_text = CPM.FormatCurrency(_data.Set.Qtty * _data.Set.Price);
+											((TextView)vamt).setText(amt_text);
+										}
 									}
 								}
-							}
-						});
+							});
+						}
 					}
-				}
-				break;
+					break;
 				case SLib.EV_COMMAND:
 					if(srcObj != null && srcObj instanceof View) {
 						final int view_id = ((View)srcObj).getId();
@@ -2904,6 +2904,9 @@ public class CommonPrereqModule {
 					double _upp = 0.0; // Емкость упаковки
 					double _mult = 0.0; // Кратность количества в заказе
 					double _min = 0.0;	// Минимальный заказ
+					SLib.LDATE  _expiry_date = null;
+					boolean hide_stock = true;
+					double _stock = 0.0;
 					String text = "";
 					String blob_signature = null;
 					int    uom_id = 0;
@@ -2917,7 +2920,26 @@ public class CommonPrereqModule {
 							_upp = goods_item.Item.UnitPerPack;
 							_mult = goods_item.Item.OrdQtyMult;
 							_min = goods_item.Item.OrdMinQty;
+							//
+							hide_stock = (CPM.GetOption_HideStock() || goods_item.Item.HideStock);
+							_stock = goods_item.Item.Stock;
+							_expiry_date = goods_item.Expiry;
 						}
+					}
+					if(hide_stock) {
+						SLib.SetCtrlVisibility(this, R.id.CTLGRP_ORDRTI_STOCK, View.GONE);
+					}
+					else {
+						SLib.SetCtrlVisibility(this, R.id.CTLGRP_ORDRTI_STOCK, View.VISIBLE);
+						SLib.SetCtrlString(this, R.id.CTL_ORDRTI_STOCK, SLib.formatdouble(_stock, 0));
+					}
+					if(!SLib.CheckDate(_expiry_date)) {
+						SLib.SetCtrlVisibility(this, R.id.CTLGRP_ORDRTI_EXPIRY, View.GONE);
+					}
+					else {
+						SLib.SetCtrlVisibility(this, R.id.CTLGRP_ORDRTI_EXPIRY, View.VISIBLE);
+						String expiry_text = _expiry_date.Format(SLib.DATF_ISO8601|SLib.DATF_CENTURY);
+						SLib.SetCtrlString(this, R.id.CTL_ORDRTI_EXPIRY, expiry_text);
 					}
 					if(_upp > 0.0) {
 						String upp_text = app_ctx.GetString("unitperpack_ss") + " " + SLib.formatdouble(_upp, 0);

@@ -281,10 +281,23 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 			::SystemParametersInfo(SPI_SETFONTSMOOTHINGCONTRAST, 0, (PVOID)1600, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
 			// } @v10.9.9
 			DS.SetMenu(MENU_DEFAULT);
-			PPApp app(hInst, SLS.GetAppName(), SLS.GetAppName());
-			app.run();
-			DS.Unregister();
-			SLS.Stop();
+			{
+				uint   app_ctrflags = 0;
+				// @v11.6.7 {
+				{
+					SString arg_buf;
+					if(PPSession::GetStartUpOption(PPSession::cmdlWsControl, arg_buf)) { 
+						// С этим флагом интерактивная (и неинтерактивная тоже) часть системы значительно меняет свою работу!
+						DS.SetExtFlag(ECF_WSCONTROL, 1);
+						app_ctrflags |= TProgram::ctrfBorderless;
+					}
+				}
+				// } @v11.6.7 
+				PPApp app(hInst, SLS.GetAppName(), SLS.GetAppName(), app_ctrflags);
+				app.run();
+				DS.Unregister();
+				SLS.Stop();
+			}
 		}
 		else
 			ret = -1;

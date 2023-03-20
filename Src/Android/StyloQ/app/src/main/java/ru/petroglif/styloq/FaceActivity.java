@@ -180,7 +180,9 @@ public class FaceActivity extends SLib.SlActivity {
 					int item_idx = (Integer)subj;
 					if(SLib.IsInRange(item_idx, TabList)) {
 						TabEntry cur_entry = (TabEntry)TabList.get(item_idx);
-						result = cur_entry.TabView;
+						if(cur_entry != null) {
+							result = cur_entry.TabView;
+						}
 					}
 				}
 				break;
@@ -268,6 +270,9 @@ public class FaceActivity extends SLib.SlActivity {
 							SLib.SetCtrlString(vg, R.id.CTL_STQFACE_SURNAME, Data.Get(StyloQFace.tagSurName, CurrentLangId));
 							SLib.SetCtrlString(vg, R.id.CTL_STQFACE_PHONE, Data.Get(StyloQFace.tagPhone, 0));
 							// @todo DayOfBirth
+
+							SLib.SetupInputNaturalTokenValidation(vg, R.id.CTL_STQFACE_PHONE, STokenRecognizer.SNTOK_PHONE);
+							SLib.SetupInputNaturalTokenValidation(vg, R.id.CTL_STQFACE_DOB, STokenRecognizer.SNTOK_DATE);
 						}
 					}
 					else if(vg_id == R.id.LAYOUT_STQFACE_ADDRESS) {

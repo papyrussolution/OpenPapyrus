@@ -231,7 +231,7 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 				RECT   ctl_rect;
 				RECT   img_rect;
 				RECT   parent_rect;
-				long   style = TView::GetWindowStyle(h_ctl);
+				long   style = TView::SGetWindowStyle(h_ctl);
 				::GetWindowRect(h_ctl, &ctl_rect);
 				if(h_img)
 					::GetWindowRect(h_img, &img_rect);
@@ -259,7 +259,7 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 		if(!(Flags & SMessageWindow::fOpaque))
 			SetWindowTransparent(HWnd, 75);
 		if(Flags & SMessageWindow::fChildWindow) {
-			long   win_flags = TView::GetWindowStyle(HWnd);
+			long   win_flags = TView::SGetWindowStyle(HWnd);
 			win_flags &= ~WS_POPUP;
 			win_flags |= WS_CHILD;
 			::SetWindowLong(HWnd, GWL_STYLE, win_flags);

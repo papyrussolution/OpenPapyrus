@@ -1,5 +1,5 @@
 // PPWTM.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
 //
 #include <pp.h>
 #pragma hdrstop
@@ -3446,7 +3446,7 @@ int TWhatmanBrowser::WMHCreate()
 			}
 			return 0;
 		case WM_SETFOCUS:
-			if(!(TView::GetWindowStyle(hWnd) & WS_CAPTION)) {
+			if(!(TView::SGetWindowStyle(hWnd) & WS_CAPTION)) {
 				SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
 				APPL->NotifyFrame(0);
 			}
@@ -3459,7 +3459,7 @@ int TWhatmanBrowser::WMHCreate()
 			}
 			break;
 		case WM_KILLFOCUS:
-			if(!(TView::GetWindowStyle(hWnd) & WS_CAPTION))
+			if(!(TView::SGetWindowStyle(hWnd) & WS_CAPTION))
 				APPL->NotifyFrame(0);
 			p_view = static_cast<TWhatmanBrowser *>(TView::GetWindowUserData(hWnd));
 			if(p_view) {

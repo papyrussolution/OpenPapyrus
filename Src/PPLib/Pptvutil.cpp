@@ -3565,8 +3565,10 @@ int EmbedDialog::Embed(TDialog * pDlg)
 /*virtual*/void EmbedDialog::setChildPos(uint neighbourCtl)
 {
 	if(P_ChildDlg && P_ChildDlg->H()) {
-		RECT   child_rect, ctl_rect, dlg_rect;
-		long   parent_style = TView::GetWindowStyle(H());
+		RECT   child_rect;
+		RECT   ctl_rect;
+		RECT   dlg_rect;
+		const  long   parent_style = TView::SGetWindowStyle(H());
 		GetWindowRect(GetDlgItem(H(), neighbourCtl), &ctl_rect);
 		GetWindowRect(H(), &dlg_rect);
 		child_rect.left   = ctl_rect.right - dlg_rect.left - GetSystemMetrics(SM_CXEDGE);

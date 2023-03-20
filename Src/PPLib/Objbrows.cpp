@@ -317,10 +317,10 @@ PPListDialog::PPListDialog(uint rezID, uint aCtlList, long flags) : TDialog(rezI
 		long   fl = 0;
 		if(flags & fMultiselect) {
 			HWND   hw = P_Box->getHandle();
-			fl = TView::GetWindowStyle(hw);
+			fl = TView::SGetWindowStyle(hw);
 			fl |= LBS_EXTENDEDSEL;
 			TView::SetWindowProp(hw, GWL_STYLE, fl);
-			fl = TView::GetWindowStyle(hw); // @debug
+			fl = TView::SGetWindowStyle(hw); // @debug
 		}
 		// } @v11.4.3 
 		*/

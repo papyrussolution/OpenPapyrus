@@ -76,6 +76,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:drawableRight="@drawable/ic_phone02"
                 android:hint="@{phone}" />
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
@@ -88,6 +89,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:drawableRight="@drawable/ic_dob01"
                 android:hint="@{dateofbirth}" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>

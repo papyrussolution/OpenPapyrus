@@ -1,5 +1,5 @@
 // TRFRIDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -354,7 +354,7 @@ int EditTransferItem(PPBillPacket & rPack, int itemNo, TIDlgInitData * pInitData
 		// Устанавливаем текущим управляющим первый элемент, который не заблокирован и имеет статус остановки по TAB (WS_TABSTOP)
 		//
 		for(TView * p_cur = dlg->P_Current; p_cur;) {
-			const long wnd_style = TView::GetWindowStyle(p_cur->getHandle());
+			const long wnd_style = TView::SGetWindowStyle(p_cur->getHandle());
 			if(wnd_style & WS_TABSTOP && !(wnd_style & WS_DISABLED))
 				p_cur = 0;
 			else {

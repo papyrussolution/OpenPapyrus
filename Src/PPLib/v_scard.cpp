@@ -1,5 +1,5 @@
 // V_SCARD.CPP
-// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2906,6 +2906,7 @@ int PPViewSCardOp::Recover()
 	MEMSZERO(k0);
 	PPWaitStart();
 	if(t.search(0, &k0, spFirst)) do {
+		// @todo 20230317 Скорректировать знак суммы в соответствии с чеком (иногда проскакивают такие проблемы)
 		if(t.data.LinkObjType == PPOBJ_CCHECK) {
 			PPID   sc_id = t.data.SCardID;
 			PPID   cc_id = t.data.LinkObjID;

@@ -2006,8 +2006,8 @@ public:
 	static long SetWindowProp(HWND hWnd, int propIndex, long value);
 	static void * FASTCALL GetWindowProp(HWND hWnd, int propIndex);
 	static void * FASTCALL GetWindowUserData(HWND hWnd);
-	static long FASTCALL GetWindowStyle(HWND hWnd);
-	static long FASTCALL GetWindowExStyle(HWND hWnd);
+	static long FASTCALL SGetWindowStyle(HWND hWnd);
+	static long FASTCALL SGetWindowExStyle(HWND hWnd);
 	static int  FASTCALL SGetWindowClassName(HWND hWnd, SString & rBuf);
 	static int  FASTCALL SGetWindowText(HWND hWnd, SString & rBuf);
 	static int  FASTCALL SSetWindowText(HWND hWnd, const char * pText);
@@ -2130,7 +2130,7 @@ protected:
 	public:
 		explicit EvBarrier(TView * pV);
 		~EvBarrier();
-		int    operator !() const;
+		bool   operator !() const;
 	private:
 		int    Busy;
 		TView * P_V;
@@ -4667,8 +4667,15 @@ public:
 	// Descr: Флаги состояний State
 	//
 	enum {
-		stUiToolBoxInited = 0x0001, // Экземпляр UiToolBox был инициализирован вызовом InitUiToolBox
-		stUiSettingInited = 0x0002  // @v11.2.6 Экземпляр UICfg был извлечен из реестра вызовом UICfg.Restore()
+		stUiToolBoxInited       = 0x0001, // Экземпляр UiToolBox был инициализирован вызовом InitUiToolBox
+		stUiSettingInited       = 0x0002, // @v11.2.6 Экземпляр UICfg был извлечен из реестра вызовом UICfg.Restore()
+		stWinCompositionEnabled = 0x0004  // @v11.6.7 Результат вызова DwmIsCompositionEnabled положительный
+	};
+	//
+	// Descr: Флаги конструктора TProgram::TProgram
+	//
+	enum {
+		ctrfBorderless = 0x0001 // @v11.6.7 Главное окно - borderless
 	};
 	//
 	// @todo Заменить все вызовы TProgram::GetInst на SLS.GetHInst
@@ -4679,7 +4686,7 @@ public:
 	static void DrawTransparentBitmap(HDC hdc, HBITMAP hBitmap, const RECT & rDestRect, long xOffs,
 		long yOffs, COLORREF cTransparentColor, COLORREF newBkgndColor, long fmt, POINT * pBmpSize);
 
-	TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle);
+	TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle, uint ctrflags);
 	virtual ~TProgram();
 	DECL_HANDLE_EVENT;
 	virtual void run();
@@ -4834,6 +4841,8 @@ private:
 	int    DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi);
 	int    DrawInputLine3(HWND hwnd, DRAWITEMSTRUCT * pDi);
 	int    GetDialogTextLayout(const SString & rText, int fontId, int penId, STextLayout & rTlo, int adj);
+	void   HandleWindowCompositionChanged(); // @v11.6.7
+	void   HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wparam, LPARAM lparam); // @v11.6.7
 
 	long   State;
 	WNDPROC PrevCloseWndProc;

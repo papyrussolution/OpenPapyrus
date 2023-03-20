@@ -5682,6 +5682,8 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 #define ECF_OPENSOURCE             0x00800000L // Система собрана в opensource-варианте
 #define ECF_PAPERLESSCHEQUE        0x01000000L // @v11.3.7 Разрешение на использование функционала безбумажных чеков. С моей точки зрения
 	// флаг неправильный. Сделан для того, чтоб собрать оплату с клиентов за эту функцию. Скорее всего в течении нескольких месяцев будет упразднен.
+#define ECF_WSCONTROL              0x02000000L // @v11.6.7 @contruction Сеанс работает в режиме управления рабочей сессией Windows.
+	// Состояние значительно модифицирует парадигму работы: сеанс дает управляемый доступ к функциям Windows.
 //
 //
 //
@@ -7576,7 +7578,8 @@ public:
 		cmdlConvertCipher, // CONVERTCIPHER
 		cmdlPpIniSubst,     // PPINISUBST
 		cmdlUhttGoodsToGitHubExport, // UHTTGOODSTOGITHUBEXPORT
-		cmdlUiLang          // @v10.4.4 UILANG
+		cmdlUiLang,         // @v10.4.4 UILANG
+		cmdlWsControl       // @v11.6.7 WSCONTROL @construction Управление рабочим сеансом Windows
 	};
 	struct LoggerIntermediateBlock {
 		explicit LoggerIntermediateBlock(const PPSession & rS);
@@ -53205,7 +53208,7 @@ template <class C> C * FASTCALL GetDbLocalCachePtr(PPID objType, int doCreate = 
 //
 class PPApp : public TProgram {
 public:
-	PPApp(HINSTANCE hInst, const char * pAppSymb, const char * pAppName);
+	PPApp(HINSTANCE hInst, const char * pAppSymb, const char * pAppName, uint ctrflags);
 	void   login(int processCmdLine /*= 1*/);
 	int    processCommand(uint);
 	//

@@ -559,7 +559,6 @@ void ComDispInterface::SetErrCode()
 	//PPSetError(PPERR_COMINTERFACE, err_msg.ToOem());
 	//PPSetError(PPERR_DISPIFCCLI, err_msg);
 	SLS.SetError(SLERR_DISPIFCCLI, err_msg);
-
 }
 //
 // Excel disp interface

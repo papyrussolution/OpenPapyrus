@@ -1215,7 +1215,7 @@ public:
 	// Descr: Верифицирует this-контейнер на непротиворечивость и, если указан контейнер
 	//   предыдущей версии (pPrevC != 0), то проверяет инварианты.
 	//
-	int    VerifyByPreviousVersion(const SrUedContainer * pPrevC);
+	int    VerifyByPreviousVersion(const SrUedContainer * pPrevC, PPLogger * pLogger);
 	uint64 SearchBaseSymb(const char * pSymb, uint64 meta) const;
 	bool   SearchBaseId(uint64 id, SString & rSymb) const;
 	bool   GenerateSourceDecl_C(const char * pFileName);

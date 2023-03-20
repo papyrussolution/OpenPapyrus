@@ -58,7 +58,7 @@ BOOL CALLBACK MessageBoxDialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 							HWND   w_ctl = GetDlgItem(hwndDlg, id);
 							if(SLS.LoadString_(button_list[i].P_Symb, title_buf) > 0) {
 								TView::SSetWindowText(w_ctl, title_buf.Transf(CTRANSF_INNER_TO_OUTER));
-								long   wl = TView::GetWindowStyle(w_ctl);
+								long   wl = TView::SGetWindowStyle(w_ctl);
 								TView::SetWindowProp(w_ctl, GWL_STYLE, wl|WS_VISIBLE);
 							}
 						}

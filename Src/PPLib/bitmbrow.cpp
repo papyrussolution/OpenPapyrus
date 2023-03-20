@@ -3140,12 +3140,10 @@ public:
 	ValidateLotXCodeListDialog(PPBillPacket * pPack) : LotXCodeListDialog_Base(DLG_LOTXCCKLIST, CTL_LOTXCCKLIST_LIST, pPack, -1, fOmitSearchByFirstChar|fOwnerDraw),
 		FontId(0), CStyleId(0), ViewFlags(0)
 	{
-		// @v10.8.1 {
 		{
-			long   exstyle = TView::GetWindowExStyle(H());
+			const long exstyle = TView::SGetWindowExStyle(H());
 			TView::SetWindowProp(H(), GWL_EXSTYLE, (exstyle | WS_EX_COMPOSITED));
 		}
-		// } @v10.8.1 
 		AddClusterAssoc(CTL_LOTXCCKLIST_FLAGS, 0, vfShowUncheckedItems);
 		SetClusterData(CTL_LOTXCCKLIST_FLAGS, 0);
 	}

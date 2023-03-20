@@ -31,4 +31,7 @@
     <color name="ItemMatched">#f7ede2</color>
     <color name="ItemUnmatched">#f28482</color>
     <color name="ItemAbsent">#f5cac3</color>
+    <color name="InputValueValid">#00ffff</color>
+    <color name="InputValueInvalid">#ff7f50</color>
+    <color name="InputValueEmpty">@color/White</color>
 </resources>

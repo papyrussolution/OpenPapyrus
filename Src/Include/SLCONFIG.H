@@ -69,7 +69,7 @@
 		#endif
 	#endif
 	#ifndef NTDDI_VERSION
-		#define NTDDI_VERSION NTDDI_WIN7
+		#define NTDDI_VERSION NTDDI_WIN8 // @v11.6.7 NTDDI_WIN7-->NTDDI_WIN8
 	#endif
 	#define _CRT_SECURE_NO_WARNINGS
 	// @v10.9.10 {

@@ -6,6 +6,11 @@
 #include <slib-internal.h>
 #pragma hdrstop
 #include <ppdefs.h>
+//#include <windowsx.h> // @v11.6.7
+#include <shellapi.h> // @v11.6.7
+#include <uxtheme.h> // @v11.6.7
+#include <dwmapi.h> // @v11.6.7
+#include <versionhelpers.h> // @v11.6.7
 //
 #define CLOSEBTN_BITMAPID  132 // defined in ppdefs.h as IDB_CLOSE
 #define MENUTREE_LIST     1014
@@ -378,7 +383,7 @@ int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
 						}
 					}
 				}
-				UpdateWindow(H_MainWnd);
+				::UpdateWindow(H_MainWnd);
 			}
 		}
 	}
@@ -559,7 +564,7 @@ void TProgram::SizeMainWnd(HWND hw)
 		GetTreeRect(_rc);
 		_rc.right -= _rc.left;
 		if(hw != h_tree) {
-			//const long tree_wnd_style = TView::GetWindowStyle(h_tree);
+			//const long tree_wnd_style = TView::SGetWindowStyle(h_tree);
 			int  tw_top = rc_client.top;
 			int  tw_bottom = rc_client.bottom;
 			/* @v11.3.8 {
@@ -803,11 +808,152 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 		return TRUE;
 }
 
+void TProgram::HandleWindowCompositionChanged()
+{
+	BOOL enabled = FALSE;
+	DwmIsCompositionEnabled(&enabled);
+	SETFLAG(State, stWinCompositionEnabled, enabled);
+	//data->composition_enabled = enabled;
+	if(enabled) {
+		// The window needs a frame to show a shadow, so give it the smallest amount of frame possible 
+		MARGINS m = { 0, 0, 1, 0 };
+		DwmExtendFrameIntoClientArea(H_MainWnd, &m);
+		DWORD dwm_attr = DWMNCRP_ENABLED;
+		DwmSetWindowAttribute(H_MainWnd, DWMWA_NCRENDERING_POLICY, &dwm_attr, sizeof(dwm_attr));
+	}
+	//update_region(data);
+}
+
+static bool has_autohide_appbar(UINT edge, RECT mon)
+{
+	APPBARDATA abd;
+	MEMSZERO(abd);
+	abd.cbSize = sizeof(abd);
+	if(IsWindows8Point1OrGreater()) {
+		abd.uEdge = edge;
+		abd.rc = mon;
+		return SHAppBarMessage(ABM_GETAUTOHIDEBAREX, &abd);
+	}
+	else {
+		// Before Windows 8.1, it was not possible to specify a monitor when
+		// checking for hidden appbars, so check only on the primary monitor 
+		if(mon.left != 0 || mon.top != 0)
+			return false;
+		else {
+			abd.uEdge = edge;
+			return SHAppBarMessage(ABM_GETAUTOHIDEBAR, &abd);
+		}
+	}
+}
+
+void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LPARAM lParam)
+{
+	union {
+		LPARAM lparam;
+		RECT * rect;
+	} params;// = { .lparam = lparam };
+	params.lparam = lParam;
+	// DefWindowProc must be called in both the maximized and non-maximized cases, otherwise tile/cascade windows won't work 
+	RECT nonclient = *params.rect;
+	DefWindowProcW(H_MainWnd, WM_NCCALCSIZE, wParam, params.lparam);
+	RECT client = *params.rect;
+	if( IsZoomed(H_MainWnd)) {
+		WINDOWINFO wi;
+		wi.cbSize = sizeof(wi);
+		GetWindowInfo(H_MainWnd, &wi);
+		// Maximized windows always have a non-client border that hangs over
+		// the edge of the screen, so the size proposed by WM_NCCALCSIZE is
+		// fine. Just adjust the top border to remove the window title. 
+		*params.rect = {client.left, (LONG)(nonclient.top + wi.cyWindowBorders), client.right, client.bottom};
+		/*
+		*params.rect = (RECT) {
+			.left = client.left,
+			.top = nonclient.top + wi.cyWindowBorders,
+			.right = client.right,
+			.bottom = client.bottom,
+		};
+		*/
+		HMONITOR mon = MonitorFromWindow(H_MainWnd, MONITOR_DEFAULTTOPRIMARY);
+		MONITORINFO mi;// = { .cbSize = sizeof mi };
+		mi.cbSize = sizeof(mi);
+		GetMonitorInfoW(mon, &mi);
+		// If the client rectangle is the same as the monitor's rectangle,
+		// the shell assumes that the window has gone fullscreen, so it removes
+		// the topmost attribute from any auto-hide appbars, making them
+		// inaccessible. To avoid this, reduce the size of the client area by
+		// one pixel on a certain edge. The edge is chosen based on which side
+		// of the monitor is likely to contain an auto-hide appbar, so the
+		// missing client area is covered by it. 
+		if(EqualRect(params.rect, &mi.rcMonitor)) {
+			if(has_autohide_appbar(ABE_BOTTOM, mi.rcMonitor))
+				params.rect->bottom--;
+			else if(has_autohide_appbar(ABE_LEFT, mi.rcMonitor))
+				params.rect->left++;
+			else if(has_autohide_appbar(ABE_TOP, mi.rcMonitor))
+				params.rect->top++;
+			else if(has_autohide_appbar(ABE_RIGHT, mi.rcMonitor))
+				params.rect->right--;
+		}
+	}
+	else {
+		// For the non-maximized case, set the output RECT to what it was
+		// before WM_NCCALCSIZE modified it. This will make the client size the
+		// same as the non-client size.
+		*params.rect = nonclient;
+	}
+}
+
 /*static*/LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	LRESULT result = 0; // @v11.6.7
 	TProgram * p_pgm = 0;
 	switch(message) {
+		case WM_NCCREATE: // @v11.6.7
+			{
+				void * p_ex_obj = TView::GetWindowProp(hWnd, GWLP_USERDATA); // @debug
+				assert(p_ex_obj == 0); // @debug
+				LPCREATESTRUCT p_create_data = reinterpret_cast<LPCREATESTRUCT>(lParam);
+				p_pgm = static_cast<TProgram *>(p_create_data->lpCreateParams);
+				TView::SetWindowProp(hWnd, GWLP_USERDATA, p_pgm);
+			}
+			//result = TRUE;
+			result = DefWindowProcW(hWnd, message, wParam, lParam);
+			break;
 		case WM_CREATE:
+			{
+				p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
+				if(!p_pgm) {
+					LPCREATESTRUCT p_create_data = reinterpret_cast<LPCREATESTRUCT>(lParam);
+					p_pgm = static_cast<TProgram *>(p_create_data->lpCreateParams);
+					TView::SetWindowProp(hWnd, GWLP_USERDATA, p_pgm);
+				}
+				p_pgm->H_TopOfStack = hWnd;
+				p_pgm->H_MainWnd = hWnd;
+				BrowserWindow::RegWindowClass(TProgram::GetInst());
+				STimeChunkBrowser::RegWindowClass(TProgram::GetInst());
+				SetTimer(hWnd, 1, 500, 0);
+				p_pgm->H_FrameWnd = APPL->CreateDlg(4101, hWnd, FrameWndProc, 0);
+				p_pgm->P_TreeWnd = new TreeWindow(hWnd);
+				{
+					if(p_pgm->UICfg.Flags & UserInterfaceSettings::fShowShortcuts) {
+						p_pgm->H_ShortcutsWnd = APPL->CreateDlg(DLG_SHORTCUTS, hWnd, ShortcutsWndProc, 0);
+						if(p_pgm->H_ShortcutsWnd) {
+							HWND hwnd_tt = ::CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP|TTS_BALLOON,
+								CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, hWnd, NULL, TProgram::GetInst(), 0);
+							::SetWindowPos(hwnd_tt, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+							TabCtrl_SetToolTips(GetDlgItem(p_pgm->H_ShortcutsWnd, CTL_SHORTCUTS_ITEMS), hwnd_tt);
+						}
+					}
+				}
+				p_pgm->H_CloseWnd = CreateWindowEx(0, _T("BUTTON"), _T("X"),
+					WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS, 2, 2, 12, 12, p_pgm->GetFrameWindow(), 0, TProgram::GetInst(), 0);
+				p_pgm->SetWindowViewByKind(p_pgm->H_ShortcutsWnd, TProgram::wndtypNone);
+				p_pgm->SetWindowViewByKind(p_pgm->H_CloseWnd, TProgram::wndtypNone);
+				p_pgm->PrevCloseWndProc = static_cast<WNDPROC>(TView::SetWindowProp(p_pgm->H_CloseWnd, GWLP_WNDPROC, CloseWndProc));
+				TView::SetWindowProp(p_pgm->H_CloseWnd, GWLP_USERDATA, p_pgm);
+				p_pgm->P_Toolbar = new TToolbar(hWnd, 0);
+			}
+			/* @v11.6.7
 			{
 				LPCREATESTRUCT p_create_data = reinterpret_cast<LPCREATESTRUCT>(lParam);
 				p_pgm = static_cast<TProgram *>(p_create_data->lpCreateParams);
@@ -840,12 +986,33 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 				TView::SetWindowProp(p_pgm->H_CloseWnd, GWLP_USERDATA, p_pgm);
 				p_pgm->P_Toolbar = new TToolbar(hWnd, 0);
 			}
- 			return 0;
+			*/
+ 			result = 0;
+			break;
+		case WM_NCACTIVATE: // @v11.6.7
+		    // DefWindowProc won't repaint the window border if lParam (normally a
+		    // HRGN) is -1. This is recommended in: https://blogs.msdn.microsoft.com/wpfsdk/2008/09/08/custom-window-chrome-in-wpf/ */
+			p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
+			result = DefWindowProcW(hWnd, message, wParam, (p_pgm && p_pgm->IsInState(sfBorderless)) ? -1 : lParam);
+			break;
+		case WM_NCCALCSIZE: // @v11.6.7
+			p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
+			if(p_pgm && p_pgm->IsInState(sfBorderless))
+				p_pgm->HandleWindowNcCalcSize(wParam, lParam);
+			else
+				result = DefWindowProcW(hWnd, message, wParam, lParam);
+			break;
+		case WM_DWMCOMPOSITIONCHANGED: // @v11.6.7
+			p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
+			if(p_pgm)
+				p_pgm->HandleWindowCompositionChanged();
+			result = 0;
+			break;
 		case WM_ERASEBKGND:
 			{
 				long brw_exists = 0;
 				EnumChildWindows(APPL->H_FrameWnd,	IsBrowsersExists, reinterpret_cast<LPARAM>(&brw_exists));
-				return brw_exists ? 1 : DefWindowProc(hWnd, message, wParam, lParam);
+				result = brw_exists ? 1 : DefWindowProc(hWnd, message, wParam, lParam);
 			}
 			break;
 		case WM_USER:
@@ -917,8 +1084,8 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 					GetMenuItemInfo(hmW, wParam, FALSE, &mii);
 					if(LOWORD(mii.wID) == LOWORD(mii.dwItemData)) {
 						HWND   hwnd = reinterpret_cast<const TWindow *>(mii.dwItemData)->H();
-						SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE|SWP_NOMOVE);
-						SetFocus(hwnd);
+						::SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE|SWP_NOMOVE);
+						::SetFocus(hwnd);
 						break;
 					}
 				}
@@ -939,7 +1106,7 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 				if(p_di) {
 					p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
 					if(p_pgm->DrawControl(p_di->hwndItem, message, wParam, lParam) > 0)
-						return TRUE;
+						result = TRUE;
 				}
 			}
 			break;
@@ -1012,7 +1179,8 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 			if(p_pgm->H_FrameWnd)
 				PostMessage(p_pgm->H_FrameWnd, WM_MOVE, 0, 0);
 			EnumWindows(SendMainWndSizeMessage, reinterpret_cast<LPARAM>(hWnd));
-			return DefWindowProc(hWnd, message, wParam, lParam);
+			result = DefWindowProc(hWnd, message, wParam, lParam);
+			break;
 		//case WM_INPUTLANGCHANGE: {} break; // @v6.4.4 AHTOXA
 		case WM_SYSCOMMAND:
 			if(wParam == SC_CLOSE) {
@@ -1020,9 +1188,10 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 				break;
 			}
 		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
+			result = DefWindowProc(hWnd, message, wParam, lParam);
+			break;
 	}
-	return 0;
+	return result;
 }
 
 void TProgram::NotifyFrame(int post)
@@ -1044,7 +1213,7 @@ void TProgram::idle()
 
 // Public variables
 
-TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle) : TGroup(TRect()),
+TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle, uint ctrflags) : TGroup(TRect()),
 	State(0), H_MainWnd(0), H_FrameWnd(0), H_CloseWnd(0), H_LogWnd(0), H_Desktop(0), H_ShortcutsWnd(0),
 	H_TopOfStack(0), H_Accel(0), P_Stw(0), P_DeskTop(0), P_TopView(0), P_Toolbar(0), P_TreeWnd(0), AppSymbol(pAppSymb)
 {
@@ -1052,14 +1221,24 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 	UICfg.Restore();
 	(AppTitle = pAppTitle).SetIfEmpty(AppSymbol);
 	Sf = (sfVisible | sfSelected | sfFocused | sfModal);
+	// @v11.6.7 {
+	if(ctrflags & ctrfBorderless)
+		setState(sfBorderless, true);
+	// } @v11.6.7 
 	ViewOptions = 0;
 	P_DeskTop = new TGroup(TRect());
 	application = this;
-	H_Icon = LoadIcon(hInstance, MAKEINTRESOURCE(ICON_MAIN_P2));
+	H_Icon = ::LoadIconW(hInstance, MAKEINTRESOURCEW(ICON_MAIN_P2));
+	//
+	SStringU app_symbol;
+	SStringU app_title;
+	app_symbol.CopyFromMb_INNER(AppSymbol, AppSymbol.Len());
+	app_title.CopyFromMb_INNER(AppTitle, AppTitle.Len());
+	//
 	{
-		WNDCLASSEX wc;
+		WNDCLASSEXW wc;
 		INITWINAPISTRUCT(wc);
-		wc.lpszClassName = SUcSwitch(AppSymbol);
+		wc.lpszClassName = app_symbol;
 		wc.hInstance     = hInstance;
 		wc.lpfnWndProc   = static_cast<WNDPROC>(MainWndProc);
 		wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -1071,13 +1250,19 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 		}
 		wc.cbClsExtra    = sizeof(long);
 		wc.cbWndExtra    = sizeof(long);
-		::RegisterClassEx(&wc);
+		::RegisterClassExW(&wc);
 	}
+	bool is_main_window_layerd = true; // @v11.6.7
 	// @v11.2.4 WS_EX_COMPOSITED
-	HWND   hWnd = ::CreateWindowEx(/*WS_EX_COMPOSITED*/0, SUcSwitch(AppSymbol), SUcSwitch(AppTitle),
-		WS_OVERLAPPEDWINDOW|WS_EX_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, this);
-	ShowWindow(hWnd, SW_SHOWMAXIMIZED/*SW_SHOWDEFAULT*/);
-	UpdateWindow(hWnd);
+	DWORD  ex_window_style = /*WS_EX_COMPOSITED*/WS_EX_APPWINDOW/*0*/;
+	if(is_main_window_layerd)
+		ex_window_style |= WS_EX_LAYERED;
+	HWND   h_wnd = ::CreateWindowExW(ex_window_style, app_symbol, app_title,
+		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, this);
+	if(is_main_window_layerd)
+		::SetLayeredWindowAttributes(h_wnd, RGB(255, 0, 255), 0, LWA_COLORKEY);
+	::ShowWindow(h_wnd, SW_SHOWMAXIMIZED/*SW_SHOWDEFAULT*/);
+	::UpdateWindow(h_wnd);
 }
 
 TProgram::~TProgram()
@@ -1179,8 +1364,8 @@ BOOL CALLBACK EnumCtrls(HWND hWnd, LPARAM lParam)
 	Entry * p_e = reinterpret_cast<Entry *>(lParam);
 	if(p_e && p_e->FirstChild != hWnd) {
 		TCHAR  cls_name[64];
-		long   style    = TView::GetWindowStyle(hWnd);
-		long   ex_style = TView::GetWindowExStyle(hWnd);
+		long   style    = TView::SGetWindowStyle(hWnd);
+		long   ex_style = TView::SGetWindowExStyle(hWnd);
 		memzero(cls_name, sizeof(cls_name));
 		RealGetWindowClass(hWnd, cls_name, SIZEOFARRAY(cls_name));
 		if(p_e->ViewKind == UserInterfaceSettings::wndVKFlat) {
@@ -1256,8 +1441,8 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 		e.CaptionHeight = GetSystemMetrics(SM_CYCAPTION);
 		e.Parent = hWnd;
 		if(UICfg.WindowViewStyle == UserInterfaceSettings::wndVKFlat) {
-			long ex_style = TView::GetWindowExStyle(hWnd) | WS_EX_STATICEDGE;
-			long style = TView::GetWindowStyle(hWnd);
+			long ex_style = TView::SGetWindowExStyle(hWnd) | WS_EX_STATICEDGE;
+			long style = TView::SGetWindowStyle(hWnd);
 			if(oneof2(wndType, TProgram::wndtypDialog, TProgram::wndtypListDialog)) {
 				style &= ~(WS_CAPTION|DS_MODALFRAME|WS_SYSMENU);
 				style |= WS_BORDER;
@@ -1287,7 +1472,7 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 							title_rect.left, title_rect.top, title_rect.right, title_rect.bottom, hWnd, 0, TProgram::hInstance, 0);
 						font_face = "MS Sans Serif";
 						TView::setFont(title_hwnd, font_face, 24);
-						TView::SetWindowProp(title_hwnd, GWL_STYLE, TView::GetWindowStyle(title_hwnd) & ~WS_TABSTOP);
+						TView::SetWindowProp(title_hwnd, GWL_STYLE, TView::SGetWindowStyle(title_hwnd) & ~WS_TABSTOP);
 						TView::SetWindowProp(title_hwnd, GWL_ID, SPEC_TITLEWND_ID);
 						TView::SetWindowProp(title_hwnd, GWLP_USERDATA, TView::SetWindowProp(title_hwnd, GWLP_WNDPROC, SpecTitleWndProc));
 						ShowWindow(title_hwnd, SW_SHOWNORMAL);
@@ -1304,7 +1489,7 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 							HBITMAP h_bm = APPL->FetchBitmap(CLOSEBTN_BITMAPID);
 							::SendMessageW(btn_hwnd, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_bm));
 						}
-						TView::SetWindowProp(btn_hwnd, GWL_STYLE, TView::GetWindowStyle(btn_hwnd) & ~WS_TABSTOP);
+						TView::SetWindowProp(btn_hwnd, GWL_STYLE, TView::SGetWindowStyle(btn_hwnd) & ~WS_TABSTOP);
 						TView::SetWindowProp(btn_hwnd, GWL_ID, SPEC_TITLEWND_ID + 1);
 						ShowWindow(btn_hwnd, SW_SHOWNORMAL);
 						MoveWindow(p_btn->getHandle(), r.right - r.left - 30, -e.CaptionHeight, 16, 16, 1);
@@ -1512,7 +1697,7 @@ int DrawCluster(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	int    focused = BIN(p_di->itemAction == ODA_FOCUS || (p_di->itemState & ODS_FOCUS));
 	int    selected = BIN(p_di->itemState & ODS_SELECTED && p_di->itemAction == ODA_SELECT);
 	int    disabled = BIN(p_di->itemState & ODS_DISABLED);
-	long   style = TView::GetWindowStyle(p_di->hwndItem);
+	long   style = TView::SGetWindowStyle(p_di->hwndItem);
 	long   text_out_fmt = DT_SINGLELINE|DT_VCENTER|DT_EXTERNALLEADING|DT_LEFT;
 	RECT   out_r = p_di->rcItem, elem_r = p_di->rcItem;
 	COLORREF brush_color = RGB(0xDD, 0xDD, 0xF1);
@@ -1595,10 +1780,10 @@ int DrawButton(HWND hwnd, DRAWITEMSTRUCT * pDi)
 {
 	int    ok = -1;
 	int    draw_bitmap = 0;
-	const int  focused  = BIN(pDi->itemAction == ODA_FOCUS || (pDi->itemState & ODS_FOCUS));
-	const int  selected = BIN(pDi->itemState & ODS_SELECTED && pDi->itemAction == ODA_SELECT);
-	const int  disabled = BIN(pDi->itemState & ODS_DISABLED);
-	const long style = TView::GetWindowStyle(pDi->hwndItem);
+	const bool focused  = (pDi->itemAction == ODA_FOCUS || (pDi->itemState & ODS_FOCUS));
+	const bool selected = (pDi->itemState & ODS_SELECTED && pDi->itemAction == ODA_SELECT);
+	const bool disabled = LOGIC(pDi->itemState & ODS_DISABLED);
+	const long style = TView::SGetWindowStyle(pDi->hwndItem);
 	long   text_out_fmt = /*DT_SINGLELINE|*/DT_VCENTER|DT_EXTERNALLEADING|DT_END_ELLIPSIS;
 	RECT   out_r = pDi->rcItem;
 	RECT   elem_r = pDi->rcItem;
@@ -1733,7 +1918,7 @@ int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		item_state = tbisSelect;
 	else if(pDi->itemAction == ODA_FOCUS || (pDi->itemState & ODS_FOCUS))
 		item_state = tbisFocus;
-	const long style = TView::GetWindowStyle(pDi->hwndItem);
+	const long style = TView::SGetWindowStyle(pDi->hwndItem);
 	long   text_out_fmt = /*DT_SINGLELINE|*/DT_VCENTER|DT_EXTERNALLEADING|DT_END_ELLIPSIS;
 	const  TRect rect_elem = pDi->rcItem;
 	RECT   out_r = pDi->rcItem;
@@ -1897,7 +2082,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	/* if(pDi->itemState & ODS_HOTLIGHT) {
 		item_state = tbisHover;
 	} */
-	const long style = TView::GetWindowStyle(pDi->hwndItem);
+	const long style = TView::SGetWindowStyle(pDi->hwndItem);
 	long   text_out_fmt = /*DT_SINGLELINE|*/DT_VCENTER|DT_EXTERNALLEADING|DT_END_ELLIPSIS;
 	const  TRect rect_elem_i = pDi->rcItem;
 	const  FRect rect_elem = pDi->rcItem;
@@ -2258,7 +2443,7 @@ int TProgram::DrawInputLine3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		item_state = tbisSelect;
 	else if(pDi->itemAction == ODA_FOCUS || (pDi->itemState & ODS_FOCUS))
 		item_state = tbisFocus;
-	const  long style = TView::GetWindowStyle(pDi->hwndItem);
+	const  long style = TView::SGetWindowStyle(pDi->hwndItem);
 	const  TRect rect_elem_i = pDi->rcItem;
 	const  FRect rect_elem = pDi->rcItem;
 	{

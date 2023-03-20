@@ -382,25 +382,26 @@
 //
 //  TView State masks
 //
-#define sfVisible         0x00000001
-#define sfActive          0x00000010
-#define sfSelected        0x00000020
-#define sfFocused         0x00000040
-#define sfDisabled        0x00000100
-#define sfModal           0x00000200
-#define sfReadOnly        0x00001000 // Work for TInputLine only
-#define sfCmdSetChanged   0x00002000 //
-#define sfMsgToParent     0x00004000 // Если установлен, то Win-сообщение отправляется хозяину, иначе - в handleWindowsMessage
-#define sfEventBarrier    0x00008000 // Объект TView находится в состянии блокировки функции handleEvent.
+#define sfVisible             0x00000001
+#define sfActive              0x00000010
+#define sfSelected            0x00000020
+#define sfFocused             0x00000040
+#define sfDisabled            0x00000100
+#define sfModal               0x00000200
+#define sfReadOnly            0x00001000 // Work for TInputLine only
+#define sfCmdSetChanged       0x00002000 //
+#define sfMsgToParent         0x00004000 // Если установлен, то Win-сообщение отправляется хозяину, иначе - в handleWindowsMessage
+#define sfEventBarrier        0x00008000 // Объект TView находится в состянии блокировки функции handleEvent.
 	// Такая блокировка необходима для исключения реентера handleEvent в пределах одного 'кземпляра объекта.
-#define sfOnDestroy       0x00010000 // Объект находится в состоянии разрушения. Флаг устанавливается оконной процедурой
+#define sfOnDestroy           0x00010000 // Объект находится в состоянии разрушения. Флаг устанавливается оконной процедурой
 	// при обработке сообщения WM_DESTROY и необходим для предотвращения зацикливания при попытке оконной процедуры разрушить
 	// объект TView чтобы деструктор TView не пытался в свою очередь разрушить окно.
-#define sfCloseMe         0x00020000 // @v10.0.02 Специальный флаг, устанавливаемый экземпляром окна, чтобы управляющий
+#define sfCloseMe             0x00020000 // @v10.0.02 Специальный флаг, устанавливаемый экземпляром окна, чтобы управляющий
 	// модуль уничтожил это окно (сообщением cmClose) как только увидит этот флаг и посчитает это удобным.
 	// Резон: иногда, если окно пытается послать себе такое сообщение, оно разрушается в не правильный момент, вызывае исключение.
 #define sfOnParentDestruction 0x00040000 // @v11.0.0 Объект уничтожается своим родителем (в цикле TGroup)
 	// Это состояние позволяет избежать действий, связанных с обработкой ссылок на родительский объект
+#define sfBorderless          0x00080000 // @v11.6.7 @construction примененяется к окнам: окно без служебной области (бордюра).
 //
 // TView Option masks
 //

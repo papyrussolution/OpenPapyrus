@@ -1,5 +1,5 @@
 // TCANVAS.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -16,7 +16,7 @@ typedef BOOL (STDAPICALLTYPE * ProcDllSetLayeredWindowAttributes)(HWND hwnd, COL
 int SetWindowTransparent(HWND hWnd, int transparent /*0..100*/)
 {
 	int    ok = 0;
-	long   exstyle = TView::GetWindowExStyle(hWnd);
+	const  long  exstyle = TView::SGetWindowExStyle(hWnd);
 	SDynLibrary lib("user32.dll");
 	ProcDllSetLayeredWindowAttributes proc = reinterpret_cast<ProcDllSetLayeredWindowAttributes>(lib.GetProcAddr("SetLayeredWindowAttributes"));
 	if(proc) {

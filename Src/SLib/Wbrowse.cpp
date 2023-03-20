@@ -2682,7 +2682,7 @@ HWND GetNextBrowser(HWND hw)
 			TView::messageBroadcast(p_view, cmMouseHover, &tp);
 			break;
 		case WM_SETFOCUS:
-			if(!(TView::GetWindowStyle(hWnd) & WS_CAPTION)) {
+			if(!(TView::SGetWindowStyle(hWnd) & WS_CAPTION)) {
 				SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 				APPL->NotifyFrame(0);
 			}
@@ -2693,7 +2693,7 @@ HWND GetNextBrowser(HWND hw)
 			}
 			break;
 		case WM_KILLFOCUS:
-			if(!(TView::GetWindowStyle(hWnd) & WS_CAPTION))
+			if(!(TView::SGetWindowStyle(hWnd) & WS_CAPTION))
 				APPL->NotifyFrame(0);
 			if(p_view) {
 				TView::messageBroadcast(p_view, cmReleasedFocus);

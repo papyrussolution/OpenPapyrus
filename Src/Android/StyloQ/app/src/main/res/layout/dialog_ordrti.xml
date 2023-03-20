@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="200dp"
         />
-    <TextView
+    <TextView style="@style/FormText"
         android:id="@+id/CTL_ORDRTI_GOODSNAME"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
@@ -29,14 +29,14 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-            <TextView
+            <TextView style="@style/FormText"
                 android:id="@+id/CTLLBL_ORDRTI_PRICE"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:layout_marginRight="16dp"
                 android:text="@{price}"
                 />
-            <TextView
+            <TextView style="@style/FormText"
                 android:id="@+id/CTL_ORDRTI_PRICE"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
@@ -55,7 +55,7 @@
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp"
                 android:gravity="center_vertical">
-                <TextView
+                <TextView style="@style/FormText"
                     android:id="@+id/CTL_ORDRTI_PACK"
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
@@ -63,7 +63,7 @@
                     android:textSize="10sp"
                     android:gravity="center_vertical"
                     />
-                <TextView
+                <TextView style="@style/FormText"
                     android:id="@+id/CTL_ORDRTI_MINORMULT"
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
@@ -110,18 +110,69 @@
         android:paddingTop="16dp"
         android:gravity="right">
         <View style="@style/FakeView"/>
-        <TextView
+        <TextView style="@style/FormText"
             android:id="@+id/CTLLBL_ORDRTI_AMOUNT"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_marginRight="16dp"
             android:text="@{amount}"
             />
-        <TextView
+        <TextView style="@style/FormText"
             android:id="@+id/CTL_ORDRTI_AMOUNT"
             android:layout_height="wrap_content"
             android:layout_width="0dp"
             android:layout_weight="1"
+            android:textColor="@color/TextPrimary"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="right">
+        <LinearLayout android:id="@+id/CTLGRP_ORDRTI_STOCK"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView style="@style/FormText" android:id="@+id/CTLLBL_ORDRTI_STOCK"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_marginRight="16dp"
+                android:text="@{rest}"
+                />
+            <TextView style="@style/FormText" android:id="@+id/CTL_ORDRTI_STOCK"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:textColor="@color/TextPrimary"
+                />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/CTLGRP_ORDRTI_EXPIRY"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView style="@style/FormText" android:id="@+id/CTLLBL_ORDRTI_EXPIRY"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_marginRight="16dp"
+                android:text="@{expirationdate}"
+                />
+            <TextView style="@style/FormText" android:id="@+id/CTL_ORDRTI_EXPIRY"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:textColor="@color/TextPrimary"
+                />
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="right">
+        <TextView style="@style/FormText" android:id="@+id/CTL_ORDRTI_INFO"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
             android:textColor="@color/TextPrimary"
             />
     </LinearLayout>

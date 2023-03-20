@@ -205,7 +205,7 @@ int TButton::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			EnableWindow(h_wnd, !IsInState(sfDisabled));
 			TView::SetWindowProp(h_wnd, GWLP_USERDATA, this);
 			PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(h_wnd, GWLP_WNDPROC, ButtonDialogProc));
-			if(BmpID > 0 && TView::GetWindowStyle(h_wnd) & BS_BITMAP) {
+			if(BmpID > 0 && TView::SGetWindowStyle(h_wnd) & BS_BITMAP) {
 				LoadBitmap_(BmpID);
 				::SendDlgItemMessage(Parent, Id, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(HBmp));
 			}
@@ -372,8 +372,8 @@ void TInputLine::InputStat::CheckIn()
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 			{
-				const long _style = TView::GetWindowStyle(hWnd);
-				const int _ml = BIN(_style & ES_MULTILINE);
+				const long _style = TView::SGetWindowStyle(hWnd);
+				const bool _ml = LOGIC(_style & ES_MULTILINE);
 				const int _k = wParam;
 				// @v10.7.7 {
 				if(_k == VK_DOWN) {
@@ -553,7 +553,7 @@ void TInputLine::Setup(void * pThisHandle, void * pParentHandle)
 	//HWND h_wnd = getHandle();
 	TView::SetWindowProp(hw_this, GWLP_USERDATA, this);
 	PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(hw_this, GWLP_WNDPROC, TInputLine::DlgProc));
-	if(TView::GetWindowStyle(hw_this) & ES_READONLY)
+	if(TView::SGetWindowStyle(hw_this) & ES_READONLY)
 		Sf |= sfReadOnly;
 }
 
@@ -570,7 +570,7 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				HWND h_wnd = getHandle();
 				TView::SetWindowProp(h_wnd, GWLP_USERDATA, this);
 				PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(h_wnd, GWLP_WNDPROC, TInputLine::DlgProc));
-				if(TView::GetWindowStyle(h_wnd) & ES_READONLY)
+				if(TView::SGetWindowStyle(h_wnd) & ES_READONLY)
 					Sf |= sfReadOnly;
 				*/
 				Setup(getHandle(), Parent); // @v11.2.3
@@ -1493,7 +1493,7 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					HBITMAP h_bm = APPL->FetchSystemBitmap(OBM_COMBO);
 					::SendMessageW(hcb, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_bm));
 				}
-				SetWindowLong(hcb, GWL_STYLE, TView::GetWindowStyle(hcb) & ~WS_TABSTOP);
+				SetWindowLong(hcb, GWL_STYLE, TView::SGetWindowStyle(hcb) & ~WS_TABSTOP);
 				if(P_ILink) {
 					RECT r, cr;
 					if(::GetWindowRect(P_ILink->getHandle(), &r)) {

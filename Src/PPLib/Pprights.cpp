@@ -1288,11 +1288,10 @@ void FastEditRightsDlg::disableChild(int disable)
 {
 	SString msg_buf;
 	if(P_ChildDlg) {
-		LONG   style = TView::GetWindowStyle(P_ChildDlg->H());
+		LONG   style = TView::SGetWindowStyle(P_ChildDlg->H());
 		if(disable) {
 			style |= WS_DISABLED;
-			// @v10.0.0 PPGetWord(PPWORD_VIEWONLY, 0, msg_buf);
-			PPLoadString("viewonly", msg_buf); // @v10.0.0
+			PPLoadString("viewonly", msg_buf);
 		}
 		else
 			style &= ~WS_DISABLED;

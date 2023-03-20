@@ -239,7 +239,7 @@ TView::EvBarrier::~EvBarrier()
 		P_V->EventBarrier(1);
 }
 
-int TView::EvBarrier::operator !() const
+bool TView::EvBarrier::operator !() const
 {
 	return (Busy != 0);
 }
@@ -301,8 +301,8 @@ void TView::Draw_()
 /*static*/long TView::SetWindowProp(HWND hWnd, int propIndex, long value) { return ::SetWindowLongPtr(hWnd, propIndex, value); }
 /*static*/void * FASTCALL TView::GetWindowProp(HWND hWnd, int propIndex) { return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, propIndex)); }
 /*static*/void * FASTCALL TView::GetWindowUserData(HWND hWnd) { return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, GWLP_USERDATA)); }
-/*static*/long FASTCALL TView::GetWindowStyle(HWND hWnd) { return ::GetWindowLong(hWnd, GWL_STYLE); }
-/*static*/long FASTCALL TView::GetWindowExStyle(HWND hWnd) { return ::GetWindowLong(hWnd, GWL_EXSTYLE); }
+/*static*/long FASTCALL TView::SGetWindowStyle(HWND hWnd) { return ::GetWindowLong(hWnd, GWL_STYLE); }
+/*static*/long FASTCALL TView::SGetWindowExStyle(HWND hWnd) { return ::GetWindowLong(hWnd, GWL_EXSTYLE); }
 //
 //
 //

@@ -1927,11 +1927,9 @@ bool SrUedContainer::GenerateSourceDecl_Java(const char * pFileName)
 	return ok;
 }
 
-int SrUedContainer::VerifyByPreviousVersion(const SrUedContainer * pPrevC)
+int SrUedContainer::VerifyByPreviousVersion(const SrUedContainer * pPrevC, PPLogger * pLogger)
 {
 	int    ok = -1;
-	SString this_symb;
-	SString prev_symb;
 	//
 	// Здесь мы должны проверить следующие факты:
 	// 1. Ни одна концепция из предыдущего релиза не должна поменять символа или значения
@@ -1942,16 +1940,25 @@ int SrUedContainer::VerifyByPreviousVersion(const SrUedContainer * pPrevC)
 	//   принадлежали соответствующему натуральному язык (планируем использовать icu).
 	if(pPrevC) { // 1, 2
 		ok = 1;
+		SString temp_buf;
+		SString this_symb;
+		SString prev_symb;
 		for(uint i = 0; i < pPrevC->BL.getCount(); i++) {
 			const BaseEntry & r_be = pPrevC->BL.at(i);
 			pPrevC->Ht.GetByAssoc(r_be.SymbHashId, prev_symb);
 			if(SearchBaseId(r_be.Id, this_symb)) {
 				if(prev_symb != this_symb) {
-					ok = 0; // @error previous symbol is modified in the new release
+					temp_buf.Z().Cat(prev_symb).Cat("-->").Cat(this_symb);
+					ok = PPSetError(PPERR_UED_PREVVERV_PREVSYMBMODIFIED, temp_buf);
+					if(pLogger)
+						pLogger->LogLastError();
 				}
 			}
 			else if(prev_symb.NotEmpty()) {
-				ok = 0; // @error previous symbol isn't found in the new release
+				//PPERR_UED_PREVVERV_SYMBREMOVED      "Символ, существовавший в предудущей версии, удален в новой версии (%s)"
+				ok = PPSetError(PPERR_UED_PREVVERV_SYMBREMOVED, prev_symb);
+				if(pLogger)
+					pLogger->LogLastError();
 			}
 		}
 	}
@@ -2080,7 +2087,7 @@ int ProcessUed()
 	}
 	THROW(uedc.ReadSource(p_file_name, &logger));
 	if(prev_version > 0) {
-		THROW(uedc.VerifyByPreviousVersion(&uedc_prev));
+		THROW(uedc.VerifyByPreviousVersion(&uedc_prev, &logger));
 	}
 	{
 		SETIFZQ(new_version, 1);

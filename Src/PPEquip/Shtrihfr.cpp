@@ -1706,10 +1706,203 @@ int SCS_SHTRIHFRF::GetSummator(double * val)
 
 FR_INTRF * SCS_SHTRIHFRF::InitDriver()
 {
-	FR_INTRF * p_drv = 0;
+	struct IfcEntry {
+		const char * P_Symb;
+		long   Id;
+		uint * P_SuccState;
+		uint   SuccStateMask;
+	};
+	#define IFC_ENTRY_SS(symb, fail_state, fail_state_mask) { #symb, symb, &fail_state, fail_state_mask }
+	#define IFC_ENTRY(symb) { #symb, symb, 0, 0 }
+	IfcEntry ifc_list[] = {
+		IFC_ENTRY(ResultCode),
+		IFC_ENTRY(ResultCodeDescription),
+		IFC_ENTRY(Password),
+		IFC_ENTRY(Beep),
+		IFC_ENTRY(ComNumber),
+		IFC_ENTRY(BaudRate),
+		IFC_ENTRY(Timeout),
+		IFC_ENTRY(GetExchangeParam),
+		IFC_ENTRY(SetExchangeParam),
+		IFC_ENTRY(Connect),
+		IFC_ENTRY(Disconnect),
+		IFC_ENTRY(Quantity),
+		IFC_ENTRY(Price),
+		IFC_ENTRY_SS(Summ1, PayTypeRegFlags, (1U <<  1)),
+		IFC_ENTRY_SS(Summ2, PayTypeRegFlags, (1U <<  2)),
+		IFC_ENTRY_SS(Summ3, PayTypeRegFlags, (1U <<  3)),
+		IFC_ENTRY_SS(Summ4, PayTypeRegFlags, (1U <<  4)), // @v10.6.1
+		IFC_ENTRY_SS(Summ5, PayTypeRegFlags, (1U <<  5)), // @v10.6.1
+		IFC_ENTRY_SS(Summ6, PayTypeRegFlags, (1U <<  6)), // @v10.6.1
+		IFC_ENTRY_SS(Summ7, PayTypeRegFlags, (1U <<  7)), // @v10.6.1
+		IFC_ENTRY_SS(Summ8, PayTypeRegFlags, (1U <<  8)), // @v10.6.1
+		IFC_ENTRY_SS(Summ9, PayTypeRegFlags, (1U <<  9)), // @v10.6.1
+		IFC_ENTRY_SS(Summ10, PayTypeRegFlags, (1U << 10)), // @v10.6.1
+		IFC_ENTRY_SS(Summ11, PayTypeRegFlags, (1U << 11)), // @v10.6.1
+		IFC_ENTRY_SS(Summ12, PayTypeRegFlags, (1U << 12)), // @v10.6.1
+		IFC_ENTRY_SS(Summ13, PayTypeRegFlags, (1U << 13)), // @v10.6.1
+		IFC_ENTRY_SS(Summ14, PayTypeRegFlags, (1U << 14)), // @v10.6.1
+		IFC_ENTRY_SS(Summ15, PayTypeRegFlags, (1U << 15)), // @v10.6.1
+		IFC_ENTRY_SS(Summ16, PayTypeRegFlags, (1U << 16)), // @v10.6.1
+		IFC_ENTRY_SS(CloseCheckEx, ExtMethodsFlags, extmethfCloseCheckEx), // @v10.6.3
+		// @v11.2.11 {
+		//if(ExtMethodsFlags & extmethfCloseCheckEx)
+		IFC_ENTRY(TaxType), // must be after CloseCheckEx
+		// } @v11.2.11
+		IFC_ENTRY(Tax1),
+		IFC_ENTRY(Tax2),
+		IFC_ENTRY(Tax3),
+		IFC_ENTRY(Tax4),
+		IFC_ENTRY(StringForPrinting),
+		IFC_ENTRY(UseReceiptRibbon),
+		IFC_ENTRY(UseJournalRibbon),
+		IFC_ENTRY(PrintString),
+		IFC_ENTRY(PrintWideString),
+		IFC_ENTRY(StringQuantity),
+		IFC_ENTRY(FeedDocument),
+		IFC_ENTRY(DocumentName),
+		IFC_ENTRY(DocumentNumber),
+		IFC_ENTRY(PrintDocumentTitle),
+		IFC_ENTRY(CheckType),
+		IFC_ENTRY(OpenCheck),
+		IFC_ENTRY(Sale),
+		IFC_ENTRY(ReturnSale),
+		IFC_ENTRY(CloseCheck),
+		IFC_ENTRY(CutCheck),
+		IFC_ENTRY(DrawerNumber),
+		IFC_ENTRY(OpenDrawer),
+		IFC_ENTRY(TableNumber),
+		IFC_ENTRY(RowNumber),
+		IFC_ENTRY(FieldNumber),
+		IFC_ENTRY(GetFieldStruct),
+		IFC_ENTRY(ReadTable),
+		IFC_ENTRY(WriteTable),
+		IFC_ENTRY(ValueOfFieldInteger),
+		IFC_ENTRY(ValueOfFieldString),
+		IFC_ENTRY(RegisterNumber),
+		IFC_ENTRY(GetOperationReg),
+		IFC_ENTRY(ContentsOfOperationRegister),
+		IFC_ENTRY(GetCashReg),
+		IFC_ENTRY(ContentsOfCashRegister),
+		IFC_ENTRY(GetECRStatus),
+		IFC_ENTRY(ECRMode),
+		IFC_ENTRY(ECRModeDescription),
+		IFC_ENTRY(ECRAdvancedMode),
+		IFC_ENTRY(ReceiptRibbonOpticalSensor),
+		IFC_ENTRY(JournalRibbonOpticalSensor),
+		IFC_ENTRY(ContinuePrint),
+		IFC_ENTRY(CancelCheck),
+		IFC_ENTRY(PrintReportWithCleaning),
+		IFC_ENTRY(PrintReportWithoutCleaning),
+		IFC_ENTRY(UModel),
+		IFC_ENTRY(UMajorProtocolVersion),
+		IFC_ENTRY(UMinorProtocolVersion),
+		IFC_ENTRY(GetDeviceMetrics),
+		IFC_ENTRY(CashIncome),
+		IFC_ENTRY(CashOutcome),
+		IFC_ENTRY(ClearSlipDocumentBuffer),
+		IFC_ENTRY(FillSlipDocumentWithUnfiscalInfo),
+		IFC_ENTRY(StringNumber),
+		IFC_ENTRY(PrintSlipDocument),
+		IFC_ENTRY(IsClearUnfiscalInfo),
+		IFC_ENTRY(InfoType),
+		IFC_ENTRY(EKLZIsPresent),
+		IFC_ENTRY(IsEKLZOverflow),
+		IFC_ENTRY(FMOverflow),
+		IFC_ENTRY(FreeRecordInFM),
+		IFC_ENTRY(IsFM24HoursOver),
+		IFC_ENTRY(IsDrawerOpen),
+		IFC_ENTRY(Department),
+		IFC_ENTRY(ECRModeStatus),
+		IFC_ENTRY(JournalRibbonIsPresent),
+		IFC_ENTRY(ReceiptRibbonIsPresent),
+		IFC_ENTRY(OutputReceipt),
+		IFC_ENTRY(ReceiptOutputType),
+		// @v9.1.7 IFC_ENTRY(PrintBarCode), // @v9.1.4
+		// @v9.1.7 IFC_ENTRY(Print2DBarcode), // @v9.1.4
+		IFC_ENTRY(PrintBarcodeGraph), // @v9.1.4
+		// @v9.1.7 IFC_ENTRY(PrintBarcodeUsingPrinter), // @v9.1.4
+		// @v9.1.7 IFC_ENTRY(PrintBarcodeLine), // @v9.1.4
+		IFC_ENTRY(BarcodeType), // @v9.1.4
+		IFC_ENTRY(BarCode), // @v9.1.4
+		// @v9.1.7 IFC_ENTRY(BarcodeDataLength), // @v9.1.4
+		// @v9.1.7 IFC_ENTRY(BarWidth), // @v9.1.4
+		// @v9.1.7 IFC_ENTRY(BarcodeStartBlockNumber),
+		// @v9.1.7 IFC_ENTRY(BarcodeParameter1),
+		// @v9.1.7 IFC_ENTRY(BarcodeParameter2),
+		// @v9.1.7 IFC_ENTRY(BarcodeParameter3),
+		// @v9.1.7 IFC_ENTRY(BarcodeParameter4),
+		// @v9.1.7 IFC_ENTRY(BarcodeParameter5),
+		// @v9.1.7 IFC_ENTRY(BarcodeAlignment),
+		IFC_ENTRY(FirstLineNumber),
+		IFC_ENTRY(LineNumber),
+		IFC_ENTRY(FNOperation),        // @v10.7.2
+		IFC_ENTRY(PaymentTypeSign),    // @v10.7.2 Признак способа расчета
+		IFC_ENTRY(PaymentItemSign),    // @v10.7.2 Признак предмета расчета 
+		IFC_ENTRY(FNSendItemCodeData), // @v10.7.2
+		IFC_ENTRY(MarkingType),        // @v10.7.2
+		IFC_ENTRY(GTIN),               // @v10.7.2
+		IFC_ENTRY(SerialNumber),       // @v10.7.2
+		IFC_ENTRY(FNBeginSTLVTag), // @v10.9.0
+		IFC_ENTRY(TagID),          // @v10.9.0
+		IFC_ENTRY(TagNumber),      // @v10.9.0
+		IFC_ENTRY(TagType),        // @v10.9.0
+		IFC_ENTRY(TagValueStr),    // @v10.9.0
+		IFC_ENTRY(FNAddTag),       // @v10.9.0
+		IFC_ENTRY(FNSendSTLVTag),  // @v10.9.0
+		IFC_ENTRY(FNCheckItemBarcode),     // @v11.6.6
+		IFC_ENTRY(FNCheckItemBarcode2),    // @v11.6.6
+		IFC_ENTRY(BarcodeHex),             // @v11.6.6
+		IFC_ENTRY(ItemStatus),             // @v11.6.6
+		IFC_ENTRY(CheckItemMode),          // @v11.6.6
+		IFC_ENTRY(TLVDataHex),             // @v11.6.6
+		IFC_ENTRY(CheckItemLocalResult),   // @v11.6.6
+		IFC_ENTRY(CheckItemLocalError),    // @v11.6.6 
+		IFC_ENTRY(MarkingType2),           // @v11.6.6
+		IFC_ENTRY(KMServerErrorCode),      // @v11.6.6
+		IFC_ENTRY(KMServerCheckingStatus), // @v11.6.6 
+		IFC_ENTRY(DivisionalQuantity),     // @v11.6.6
+		IFC_ENTRY(Numerator),              // @v11.6.6 
+		IFC_ENTRY(Denominator),            // @v11.6.6
+	};
+	#undef IFC_ENTRY
+	int    ok = 1;
+	SString fmt_buf;
+	SString msg_buf;
+	SString temp_buf;
 	SCS_SHTRIHFRF::PayTypeRegFlags = 0;
-	THROW_MEM(p_drv = new ComDispInterface);
-	THROW(p_drv->Init("AddIn.DrvFR"));
+	FR_INTRF * p_drv = new ComDispInterface;
+	THROW_MEM(p_drv);
+	THROW_SL(p_drv->Init("AddIn.DrvFR"));
+	for(uint i = 0; i < SIZEOFARRAY(ifc_list); i++) {
+		const auto & r_entry = ifc_list[i];
+		assert(!isempty(r_entry.P_Symb));
+		assert(r_entry.Id >= 0);
+		if(r_entry.Id != TaxType || ExtMethodsFlags & extmethfCloseCheckEx) {
+			int r = p_drv->AssignIDByName(r_entry.P_Symb, r_entry.Id);
+			if(r > 0) {
+				if(r_entry.P_SuccState && r_entry.SuccStateMask)
+					*r_entry.P_SuccState |= r_entry.SuccStateMask;
+			}
+			else {
+				PPLoadText(PPTXT_LOG_SHTRIH_INITIFCMETHFAULT, fmt_buf);
+				msg_buf.Printf(fmt_buf, r_entry.P_Symb);
+				PPGetLastErrorMessage(1, temp_buf);
+				if(temp_buf.NotEmpty())
+					msg_buf.CatDiv(':', 2).Cat(temp_buf);
+				//PPTXT_LOG_SHTRIH_INITIFCMETHFAULT         "Ошибка инициализации COM-метода или свойства '%s'"         "Ошибка инициализации COM-метода или свойства '%s'"
+				PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+				if(!r_entry.P_SuccState && !r_entry.SuccStateMask)
+					ok = 0;
+			}
+		}
+	}
+	CATCHZOK
+	if(!ok) {
+		PPLogMessage(PPFILNAM_SHTRIH_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+		ZDELETE(p_drv);
+	}
+#if 0 // @v11.6.7 {
 	THROW(ASSIGN_ID_BY_NAME(p_drv, ResultCode) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, ResultCodeDescription) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, Password) > 0);
@@ -1867,6 +2060,7 @@ FR_INTRF * SCS_SHTRIHFRF::InitDriver()
 	CATCH
 		ZDELETE(p_drv);
 	ENDCATCH
+#endif // } 0 @v11.6.7
 	return p_drv;
 }
 

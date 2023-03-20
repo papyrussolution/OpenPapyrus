@@ -15,6 +15,8 @@ import android.content.pm.PackageManager;
 import android.database.DataSetObserver;
 import android.location.Location;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,6 +54,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.jetbrains.annotations.NotNull;
@@ -5415,6 +5418,47 @@ public class SLib {
 	{
 		if(view != null)
 			view.setVisibility(visiMode);
+	}
+	public static void SetupInputNaturalTokenValidation(ViewGroup viewGroup, int ctrlId, int ntok)
+	{
+		if(viewGroup != null && ctrlId != 0 && ntok > 0) {
+			EditText vinp = SLib.FindEditTextById(viewGroup, ctrlId);
+			if(vinp != null && vinp instanceof TextInputEditText) {
+				((TextInputEditText)vinp).addTextChangedListener(new TextWatcher() {
+					private STokenRecognizer Tr;
+					Context Ctx = vinp.getContext();
+					public void afterTextChanged(Editable s)
+					{
+					}
+					public void beforeTextChanged(CharSequence s, int start, int count, int after)
+					{
+					}
+					public void onTextChanged(CharSequence s, int start, int before, int count)
+					{
+						if(Ctx != null) {
+							int state = -1; // -1 - empty, 1 - ok, 0 - not a token
+							String text = s.toString();
+							if(SLib.GetLen(text) > 0) {
+								if(Tr == null)
+									Tr = new STokenRecognizer();
+								STokenRecognizer.TokenArray ta = Tr.Run(text);
+								state = (ta != null && ta.Has(ntok) > 0.0f) ? 1 : 0;
+							}
+							int color_id = 0;
+							if(state > 0)
+								color_id = R.color.InputValueValid;
+							else if(state == 0)
+								color_id = R.color.InputValueInvalid;
+							else
+								color_id = R.color.InputValueEmpty;
+							int color = Ctx.getResources().getColor(color_id, Ctx.getTheme());
+							vinp.setBackgroundColor(color);
+							//vinp.setBackground();
+						}
+					}
+				});
+			}
+		}
 	}
 	public static boolean SetCtrlString(Object viewContainer, int ctlId, String text)
 	{

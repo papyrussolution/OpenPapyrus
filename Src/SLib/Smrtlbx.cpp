@@ -336,7 +336,7 @@ uint SmartListBox::GetSelectionList(LongArray * pList)
 			if(hw) {
 				long   cur_id__ = 0;
 				const  int gcir = getCurID(&cur_id__);
-				const long s = GetWindowStyle(hw);
+				const long s = TView::SGetWindowStyle(hw);
 				if(s & LBS_EXTENDEDSEL) {
 					LRESULT c = ::SendMessageW(hw, LB_GETSELCOUNT, 0, 0);
 					if(c > 0) {
@@ -459,7 +459,7 @@ void SmartListBox::CreateScrollBar(int create)
 	HWND h_wnd = GetDlgItem(Parent, MAKE_BUTTON_ID(Id, 1));
 	::DestroyWindow(h_wnd);
 	if(create) {
-		int    tabbed = TView::GetWindowStyle(Parent) & WS_CHILD;
+		int    tabbed = TView::SGetWindowStyle(Parent) & WS_CHILD;
 		const  HWND h_lb = getHandle();
 		RECT   rc_list;
 		::GetWindowRect(h_lb, &rc_list);
@@ -498,7 +498,7 @@ void SmartListBox::onInitDialog(int useScrollBar)
 	DLGPROC dlg_proc = 0;
 	// @v11.2.4 {
 	if(Parent) {
-		long   exstyle = TView::GetWindowExStyle(Parent);
+		long   exstyle = TView::SGetWindowExStyle(Parent);
 		if(exstyle & WS_EX_COMPOSITED)
 			TView::SetWindowProp(Parent, GWL_EXSTYLE, (exstyle & ~WS_EX_COMPOSITED));
 	}
@@ -512,7 +512,7 @@ void SmartListBox::onInitDialog(int useScrollBar)
 		RECT   rc_list;
 		RECT   rc_parent;
 		//const bool is_multi_col = LOGIC(Columns.getCount());
-		const bool is_tabbed = LOGIC(TView::GetWindowStyle(Parent) & WS_CHILD);
+		const bool is_tabbed = LOGIC(TView::SGetWindowStyle(Parent) & WS_CHILD);
 		::GetClientRect(Parent, &rc_cli_parent);
 		if(!IsMultiColumn() && !GetDlgItem(Parent, MAKE_BUTTON_ID(Id, 1))) {
 			::GetWindowRect(Parent, &rc_parent);

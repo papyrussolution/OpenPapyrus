@@ -8856,6 +8856,7 @@ public:
 					LAssocArray dlvr_loc_list;
 					PPIDArray agent_list;
 					SString out_file_name;
+					SString addr_buf;
 					PPPersonPacket psn_pack;
 					PersonTbl::Rec psn_rec;
 					LocationTbl::Rec loc_rec;
@@ -8875,9 +8876,18 @@ public:
 										n_i.PutAttrib("code", temp_buf.Z().Cat(psn_pack.Rec.ID));
 										n_i.PutAttrib("name", temp_buf.Z().Cat(psn_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
 										n_i.PutAttrib("fullname", temp_buf.Z().Cat(psn_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
-										n_i.PutAttrib("inn", "");
-										n_i.PutAttrib("kpp", "");
-										n_i.PutAttrib("address", "");
+										psn_pack.GetRegNumber(PPREGT_TPID, temp_buf);
+										n_i.PutAttrib("inn", temp_buf);
+										psn_pack.GetRegNumber(PPREGT_KPP, temp_buf);
+										n_i.PutAttrib("kpp", temp_buf);
+										{
+											addr_buf.Z();
+											if(psn_pack.Rec.RLoc)
+												LocObj.GetAddress(psn_pack.Rec.RLoc, 0, addr_buf);
+											if(addr_buf.IsEmpty() && psn_pack.Rec.MainLoc)
+												LocObj.GetAddress(psn_pack.Rec.MainLoc, 0, addr_buf);
+											n_i.PutAttrib("address", temp_buf.Z().Cat(addr_buf).Transf(CTRANSF_INNER_TO_UTF8));
+										}
 									}
 								}
 							}
@@ -8899,7 +8909,9 @@ public:
 										SXml::WNode n_i(p_x, "trade_point");
 										n_i.PutAttrib("code", temp_buf.Z().Cat(loc_rec.ID));
 										n_i.PutAttrib("customercode", temp_buf.Z().Cat(dlvr_loc_item.Val));
-										n_i.PutAttrib("address", "");
+									
+										LocationCore::GetAddress(loc_rec, 0, addr_buf);
+										n_i.PutAttrib("address", temp_buf.Z().Cat(addr_buf).Transf(CTRANSF_INNER_TO_UTF8));
 										n_i.PutAttrib("price", "");
 									}
 								}
@@ -9340,6 +9352,14 @@ public:
 		int    ok = 1;
 		SString temp_buf;
 		SString out_file_name;
+		LDATE  last_date = ZERODATE; 
+		{
+			// Остатки надо выгружать только на последнюю дату периода. Находим максимальную дату в списке:
+			for(uint i = 0; i < rList.getCount(); i++) {
+				const auto & r_item = rList.at(i);
+				SETMAX(last_date, r_item.Dt);
+			}
+		}
 		PPGetFilePath(PPPATH_OUT, MakeFileName("stocks", temp_buf), out_file_name);
 	    xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
 	    THROW(p_x);
@@ -9349,11 +9369,13 @@ public:
 				SXml::WNode n_h(p_x, "stocks");
 				for(uint i = 0; i < rList.getCount(); i++) {
 					const auto & r_item = rList.at(i);
-					SXml::WNode n_i(p_x, "stock");
-					n_i.PutAttrib("date", temp_buf.Z().Cat(r_item.Dt, DATF_YMD|DATF_CENTURY|DATF_NODIV).Cat("000000"));
-					n_i.PutAttrib("warehousecode", temp_buf.Z().Cat(r_item.LocID));
-					n_i.PutAttrib("productcode", temp_buf.Z().Cat(r_item.GoodsID));
-					n_i.PutAttrib("quantity", temp_buf.Z().Cat(r_item.OutRest, MKSFMTD(0, 3, NMBF_DECCOMMA)));
+					if(r_item.Dt == last_date) {
+						SXml::WNode n_i(p_x, "stock");
+						n_i.PutAttrib("date", temp_buf.Z().Cat(r_item.Dt, DATF_YMD|DATF_CENTURY|DATF_NODIV).Cat("000000"));
+						n_i.PutAttrib("warehousecode", temp_buf.Z().Cat(r_item.LocID));
+						n_i.PutAttrib("productcode", temp_buf.Z().Cat(r_item.GoodsID));
+						n_i.PutAttrib("quantity", temp_buf.Z().Cat(r_item.OutRest, MKSFMTD(0, 3, NMBF_DECCOMMA)));
+					}
 				}
 			}
 		}
@@ -9405,7 +9427,7 @@ public:
 					}
 					for(uint taidx = 0; taidx < ta_count; taidx++) {
 						SXml::WNode n_i(p_x, "movement");
-						n_i.PutAttrib("date", temp_buf.Z().Cat(r_item.Dt, DATF_YMD|DATF_NODIV).Cat("000000"));
+						n_i.PutAttrib("date", temp_buf.Z().Cat(r_item.Dt, DATF_YMD|DATF_CENTURY|DATF_NODIV).Cat("000000"));
 						n_i.PutAttrib("warehousecode", temp_buf.Z().Cat(r_item.LocID));
 						n_i.PutAttrib("transaction", temp_buf.Z().Cat(ta_id_list[taidx]));
 						n_i.PutAttrib("productcode", temp_buf.Z().Cat(r_item.GoodsID));
