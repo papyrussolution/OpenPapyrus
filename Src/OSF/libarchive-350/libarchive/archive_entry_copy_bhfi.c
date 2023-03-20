@@ -26,8 +26,8 @@ __inline static void fileTimeToUtc(const FILETIME * filetime, time_t * t, long *
 	utc.LowPart  = filetime->dwLowDateTime;
 	if(utc.QuadPart >= EPOC_TIME) {
 		utc.QuadPart -= EPOC_TIME;
-		*t = (time_t)(utc.QuadPart / 10000000); /* milli seconds base */
-		*ns = (long)(utc.QuadPart % 10000000) * 100; /* nano seconds base */
+		*t = (time_t)(utc.QuadPart / 10000000); // milli seconds base
+		*ns = (long)(utc.QuadPart % 10000000) * 100; // nano seconds base
 	}
 	else {
 		*t = 0;
