@@ -51,22 +51,18 @@ public:
 			const feature_info_t * a = (const feature_info_t*)pa;
 			const feature_info_t * b = (const feature_info_t*)pb;
 			if(a->type != b->type) return (a->type < b->type ? -1 : 1);
-			if(!a->is_exclusive &&
-			    (a->setting & ~1) != (b->setting & ~1)) return (a->setting < b->setting ? -1 : 1);
+			if(!a->is_exclusive && (a->setting & ~1) != (b->setting & ~1)) 
+				return (a->setting < b->setting ? -1 : 1);
 			return (a->seq < b->seq ? -1 : a->seq > b->seq ? 1 : 0);
 		}
-
 		/* compares type & setting only, not is_exclusive flag or seq number */
 		int cmp(const feature_info_t& f) const
 		{
-			return (f.type != type) ? (f.type < type ? -1 : 1) :
-			       (f.setting != setting) ? (f.setting < setting ? -1 : 1) : 0;
+			return (f.type != type) ? (f.type < type ? -1 : 1) : (f.setting != setting) ? (f.setting < setting ? -1 : 1) : 0;
 		}
 	};
-
 public:
 	hb_face_t * face;
-
 public:
 	hb_sorted_vector_t<feature_info_t> features;
 };

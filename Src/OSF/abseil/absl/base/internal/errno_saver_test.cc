@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "absl/absl-internal.h"
+#pragma hdrstop
 #include "absl/base/internal/errno_saver.h"
-
-#include <cerrno>
-
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "absl/base/internal/strerror.h"

@@ -208,9 +208,8 @@ void * hb_face_get_user_data(const hb_face_t * face, hb_user_data_key_t * key)
  **/
 void hb_face_make_immutable(hb_face_t * face)
 {
-	if(hb_object_is_immutable(face))
-		return;
-	hb_object_make_immutable(face);
+	if(!hb_object_is_immutable(face))
+		hb_object_make_immutable(face);
 }
 /**
  * hb_face_is_immutable:
@@ -253,9 +252,8 @@ hb_blob_t * hb_face_reference_blob(hb_face_t * face)
  **/
 void hb_face_set_index(hb_face_t * face, uint index)
 {
-	if(hb_object_is_immutable(face))
-		return;
-	face->index = index;
+	if(!hb_object_is_immutable(face))
+		face->index = index;
 }
 /**
  * hb_face_get_index:
@@ -275,9 +273,8 @@ uint hb_face_get_index(const hb_face_t * face)
  **/
 void hb_face_set_upem(hb_face_t * face, uint upem)
 {
-	if(hb_object_is_immutable(face))
-		return;
-	face->upem.set_relaxed(upem);
+	if(!hb_object_is_immutable(face))
+		face->upem.set_relaxed(upem);
 }
 /**
  * hb_face_get_upem:
@@ -297,9 +294,8 @@ uint hb_face_get_upem(const hb_face_t * face)
  **/
 void hb_face_set_glyph_count(hb_face_t * face, uint glyph_count)
 {
-	if(hb_object_is_immutable(face))
-		return;
-	face->num_glyphs.set_relaxed(glyph_count);
+	if(!hb_object_is_immutable(face))
+		face->num_glyphs.set_relaxed(glyph_count);
 }
 /**
  * hb_face_get_glyph_count:
@@ -374,11 +370,9 @@ void hb_face_collect_variation_unicodes(hb_face_t * face, hb_codepoint_t variati
 }
 
 #endif
-
 /*
  * face-builder: A face that has add_table().
  */
-
 struct hb_face_builder_data_t {
 	struct table_entry_t {
 		int cmp(hb_tag_t t) const

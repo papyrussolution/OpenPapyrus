@@ -416,9 +416,8 @@ void * hb_font_funcs_get_user_data(hb_font_funcs_t * ffuncs, hb_user_data_key_t 
  **/
 void hb_font_funcs_make_immutable(hb_font_funcs_t * ffuncs)
 {
-	if(hb_object_is_immutable(ffuncs))
-		return;
-	hb_object_make_immutable(ffuncs);
+	if(!hb_object_is_immutable(ffuncs))
+		hb_object_make_immutable(ffuncs);
 }
 /**
  * hb_font_funcs_is_immutable:
@@ -1035,11 +1034,11 @@ void * hb_font_get_user_data(hb_font_t * font, hb_user_data_key_t * key)
  **/
 void hb_font_make_immutable(hb_font_t * font)
 {
-	if(hb_object_is_immutable(font))
-		return;
-	if(font->parent)
-		hb_font_make_immutable(font->parent);
-	hb_object_make_immutable(font);
+	if(!hb_object_is_immutable(font)) {
+		if (font->parent)
+			hb_font_make_immutable(font->parent);
+		hb_object_make_immutable(font);
+	}
 }
 /**
  * hb_font_is_immutable:
@@ -1047,10 +1046,7 @@ void hb_font_make_immutable(hb_font_t * font)
  * Return value:
  * Since: 0.9.2
  **/
-hb_bool_t hb_font_is_immutable(hb_font_t * font)
-{
-	return hb_object_is_immutable(font);
-}
+hb_bool_t hb_font_is_immutable(hb_font_t * font) { return hb_object_is_immutable(font); }
 /**
  * hb_font_set_parent:
  * @font: a font.
@@ -1062,13 +1058,13 @@ hb_bool_t hb_font_is_immutable(hb_font_t * font)
  **/
 void hb_font_set_parent(hb_font_t * font, hb_font_t * parent)
 {
-	if(hb_object_is_immutable(font))
-		return;
-	if(!parent)
-		parent = hb_font_get_empty();
-	hb_font_t * old = font->parent;
-	font->parent = hb_font_reference(parent);
-	hb_font_destroy(old);
+	if(!hb_object_is_immutable(font)) {
+		if(!parent)
+			parent = hb_font_get_empty();
+		hb_font_t* old = font->parent;
+		font->parent = hb_font_reference(parent);
+		hb_font_destroy(old);
+	}
 }
 /**
  * hb_font_get_parent:
@@ -1076,10 +1072,7 @@ void hb_font_set_parent(hb_font_t * font, hb_font_t * parent)
  * Return value: (transfer none):
  * Since: 0.9.2
  **/
-hb_font_t * hb_font_get_parent(hb_font_t * font)
-{
-	return font->parent;
-}
+hb_font_t * hb_font_get_parent(hb_font_t * font) { return font->parent; }
 /**
  * hb_font_set_face:
  * @font: a font.
@@ -1091,15 +1084,15 @@ hb_font_t * hb_font_get_parent(hb_font_t * font)
  **/
 void hb_font_set_face(hb_font_t * font, hb_face_t * face)
 {
-	if(hb_object_is_immutable(font))
-		return;
-	if(UNLIKELY(!face))
-		face = hb_face_get_empty();
-	hb_face_t * old = font->face;
-	hb_face_make_immutable(face);
-	font->face = hb_face_reference(face);
-	font->mults_changed();
-	hb_face_destroy(old);
+	if(!hb_object_is_immutable(font)) {
+		if(UNLIKELY(!face))
+			face = hb_face_get_empty();
+		hb_face_t* old = font->face;
+		hb_face_make_immutable(face);
+		font->face = hb_face_reference(face);
+		font->mults_changed();
+		hb_face_destroy(old);
+	}
 }
 /**
  * hb_font_get_face:
@@ -1108,10 +1101,7 @@ void hb_font_set_face(hb_font_t * font, hb_face_t * face)
  *
  * Since: 0.9.2
  **/
-hb_face_t * hb_font_get_face(hb_font_t * font)
-{
-	return font->face;
-}
+hb_face_t * hb_font_get_face(hb_font_t * font) { return font->face; }
 /**
  * hb_font_set_funcs:
  * @font: a font.
@@ -1167,11 +1157,11 @@ void hb_font_set_funcs_data(hb_font_t * font, void * font_data, hb_destroy_func_
  **/
 void hb_font_set_scale(hb_font_t * font, int x_scale, int y_scale)
 {
-	if(hb_object_is_immutable(font))
-		return;
-	font->x_scale = x_scale;
-	font->y_scale = y_scale;
-	font->mults_changed();
+	if(!hb_object_is_immutable(font)) {
+		font->x_scale = x_scale;
+		font->y_scale = y_scale;
+		font->mults_changed();
+	}
 }
 /**
  * hb_font_get_scale:
@@ -1194,10 +1184,10 @@ void hb_font_get_scale(hb_font_t * font, int * x_scale, int * y_scale)
  **/
 void hb_font_set_ppem(hb_font_t * font, uint x_ppem, uint y_ppem)
 {
-	if(hb_object_is_immutable(font))
-		return;
-	font->x_ppem = x_ppem;
-	font->y_ppem = y_ppem;
+	if(!hb_object_is_immutable(font)) {
+		font->x_ppem = x_ppem;
+		font->y_ppem = y_ppem;
+	}
 }
 /**
  * hb_font_get_ppem:
@@ -1224,9 +1214,8 @@ void hb_font_get_ppem(hb_font_t * font, uint * x_ppem, uint * y_ppem)
  **/
 void hb_font_set_ptem(hb_font_t * font, float ptem)
 {
-	if(hb_object_is_immutable(font))
-		return;
-	font->ptem = ptem;
+	if(!hb_object_is_immutable(font))
+		font->ptem = ptem;
 }
 /**
  * hb_font_get_ptem:
@@ -1238,10 +1227,7 @@ void hb_font_set_ptem(hb_font_t * font, float ptem)
  *
  * Since: 0.9.2
  **/
-float hb_font_get_ptem(hb_font_t * font)
-{
-	return font->ptem;
-}
+float hb_font_get_ptem(hb_font_t * font) { return font->ptem; }
 
 #ifndef HB_NO_VAR
 /*
@@ -1313,15 +1299,15 @@ void hb_font_set_var_coords_design(hb_font_t * font, const float * coords, uint 
  */
 void hb_font_set_var_named_instance(hb_font_t * font, unsigned instance_index)
 {
-	if(hb_object_is_immutable(font))
-		return;
-	uint coords_length = hb_ot_var_named_instance_get_design_coords(font->face, instance_index, nullptr, nullptr);
-	float * coords = coords_length ? (float *)SAlloc::C(coords_length, sizeof(float)) : nullptr;
-	if(UNLIKELY(coords_length && !coords))
-		return;
-	hb_ot_var_named_instance_get_design_coords(font->face, instance_index, &coords_length, coords);
-	hb_font_set_var_coords_design(font, coords, coords_length);
-	SAlloc::F(coords);
+	if(!hb_object_is_immutable(font)) {
+		uint coords_length = hb_ot_var_named_instance_get_design_coords(font->face, instance_index, nullptr, nullptr);
+		float * coords = coords_length ? (float *)SAlloc::C(coords_length, sizeof(float)) : nullptr;
+		if(UNLIKELY(coords_length && !coords))
+			return;
+		hb_ot_var_named_instance_get_design_coords(font->face, instance_index, &coords_length, coords);
+		hb_font_set_var_coords_design(font, coords, coords_length);
+		SAlloc::F(coords);
+	}
 }
 /**
  * hb_font_set_var_coords_normalized:
@@ -1330,27 +1316,27 @@ void hb_font_set_var_named_instance(hb_font_t * font, unsigned instance_index)
  */
 void hb_font_set_var_coords_normalized(hb_font_t * font, const int * coords/* 2.14 normalized */, uint coords_length)
 {
-	if(hb_object_is_immutable(font))
-		return;
-	int * copy = coords_length ? (int*)SAlloc::C(coords_length, sizeof(coords[0])) : nullptr;
-	int * unmapped = coords_length ? (int*)SAlloc::C(coords_length, sizeof(coords[0])) : nullptr;
-	float * design_coords = coords_length ? (float *)SAlloc::C(coords_length, sizeof(design_coords[0])) : nullptr;
-	if(UNLIKELY(coords_length && !(copy && unmapped && design_coords))) {
-		SAlloc::F(copy);
+	if(!hb_object_is_immutable(font)) {
+		int * copy = coords_length ? (int*)SAlloc::C(coords_length, sizeof(coords[0])) : nullptr;
+		int * unmapped = coords_length ? (int*)SAlloc::C(coords_length, sizeof(coords[0])) : nullptr;
+		float * design_coords = coords_length ? (float *)SAlloc::C(coords_length, sizeof(design_coords[0])) : nullptr;
+		if(UNLIKELY(coords_length && !(copy && unmapped && design_coords))) {
+			SAlloc::F(copy);
+			SAlloc::F(unmapped);
+			SAlloc::F(design_coords);
+			return;
+		}
+		if(coords_length) {
+			memcpy(copy, coords, coords_length * sizeof(coords[0]));
+			memcpy(unmapped, coords, coords_length * sizeof(coords[0]));
+		}
+		/* Best effort design coords simulation */
+		font->face->table.avar->unmap_coords(unmapped, coords_length);
+		for(uint i = 0; i < coords_length; ++i)
+			design_coords[i] = font->face->table.fvar->unnormalize_axis_value(i, unmapped[i]);
 		SAlloc::F(unmapped);
-		SAlloc::F(design_coords);
-		return;
+		_hb_font_adopt_var_coords(font, copy, design_coords, coords_length);
 	}
-	if(coords_length) {
-		memcpy(copy, coords, coords_length * sizeof(coords[0]));
-		memcpy(unmapped, coords, coords_length * sizeof(coords[0]));
-	}
-	/* Best effort design coords simulation */
-	font->face->table.avar->unmap_coords(unmapped, coords_length);
-	for(uint i = 0; i < coords_length; ++i)
-		design_coords[i] = font->face->table.fvar->unnormalize_axis_value(i, unmapped[i]);
-	SAlloc::F(unmapped);
-	_hb_font_adopt_var_coords(font, copy, design_coords, coords_length);
 }
 /**
  * hb_font_get_var_coords_normalized:

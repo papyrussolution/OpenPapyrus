@@ -12,14 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "absl/absl-internal.h"
+#pragma hdrstop
 #include "absl/container/internal/container_memory.h"
-
-#include <cstdint>
-#include <tuple>
 #include <typeindex>
 #include <typeinfo>
-#include <utility>
-
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "absl/container/internal/test_instance_tracker.h"

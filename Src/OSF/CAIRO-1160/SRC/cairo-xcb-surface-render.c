@@ -4197,30 +4197,22 @@ static cairo_status_t _cairo_xcb_surface_add_glyph(cairo_xcb_connection_t * conn
 			    n = new;
 			    d = (uint32 *)data;
 			    do {
-				    *n++ = bswap_32(*d);
+				    *n++ = sbswap32(*d);
 				    d++;
 			    } while(--c);
 			    data = (uint8 *)new;
 		    }
 		    break;
-
 		default:
 		    ASSERT_NOT_REACHED;
 		    break;
 	}
 	/* XXX assume X server wants pixman padding. Xft assumes this as well */
-
-	_cairo_xcb_connection_render_add_glyphs(connection,
-	    info->glyphset,
-	    1, &glyph_index, &glyph_info,
-	    glyph_surface->stride * glyph_surface->height,
-	    data);
-
+	_cairo_xcb_connection_render_add_glyphs(connection, info->glyphset, 1, &glyph_index, &glyph_info,
+	    glyph_surface->stride * glyph_surface->height, data);
 	if(data != glyph_surface->data)
 		SAlloc::F(data);
-
 	status = _cairo_xcb_glyph_attach(connection, scaled_glyph, info);
-
 BAIL:
 	if(glyph_surface != scaled_glyph->surface)
 		cairo_surface_destroy(&glyph_surface->base);

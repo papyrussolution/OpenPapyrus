@@ -14,7 +14,7 @@
  */
 #include "harfbuzz-internal.h"
 #pragma hdrstop
-#include "hb-blob.hh"
+//#include "hb-blob.hh"
 #ifdef HAVE_SYS_MMAN_H
 	#ifdef HAVE_UNISTD_H
 		#include <unistd.h>
@@ -206,9 +206,8 @@ void * hb_blob_get_user_data(hb_blob_t * blob, hb_user_data_key_t * key)
  **/
 void hb_blob_make_immutable(hb_blob_t * blob)
 {
-	if(hb_object_is_immutable(blob))
-		return;
-	hb_object_make_immutable(blob);
+	if(!hb_object_is_immutable(blob))
+		hb_object_make_immutable(blob);
 }
 /**
  * hb_blob_is_immutable:

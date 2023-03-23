@@ -23,8 +23,8 @@
 
 void hb_aat_map_builder_t::add_feature(hb_tag_t tag, unsigned value)
 {
-	if(!face->table.feat->has_data()) return;
-
+	if(!face->table.feat->has_data()) 
+		return;
 	if(tag == HB_TAG('a', 'a', 'l', 't')) {
 		if(!face->table.feat->exposes_feature(HB_AAT_LAYOUT_FEATURE_TYPE_CHARACTER_ALTERNATIVES))
 			return;
@@ -35,10 +35,9 @@ void hb_aat_map_builder_t::add_feature(hb_tag_t tag, unsigned value)
 		info->is_exclusive = true;
 		return;
 	}
-
 	const hb_aat_feature_mapping_t * mapping = hb_aat_layout_find_feature_mapping(tag);
-	if(!mapping) return;
-
+	if(!mapping) 
+		return;
 	const AAT::FeatureName* feature = &face->table.feat->get_feature(mapping->aatFeatureType);
 	if(!feature->has_data()) {
 		/* Special case: Chain::compile_flags will fall back to the deprecated version of
@@ -49,9 +48,9 @@ void hb_aat_map_builder_t::add_feature(hb_tag_t tag, unsigned value)
 			feature = &face->table.feat->get_feature(HB_AAT_LAYOUT_FEATURE_TYPE_LETTER_CASE);
 			if(!feature->has_data()) return;
 		}
-		else return;
+		else 
+			return;
 	}
-
 	feature_info_t * info = features.push();
 	info->type = mapping->aatFeatureType;
 	info->setting = value ? mapping->selectorToEnable : mapping->selectorToDisable;
@@ -74,7 +73,6 @@ void hb_aat_map_builder_t::compile(hb_aat_map_t  &m)
 				features[++j] = features[i];
 		features.shrink(j + 1);
 	}
-
 	hb_aat_layout_compile_map(this, &m);
 }
 

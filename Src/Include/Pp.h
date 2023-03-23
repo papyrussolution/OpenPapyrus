@@ -24441,21 +24441,8 @@ public:
 	double Qtty;    // Количество, которое может быть получено при разбиении одной единицы титульного товара структуры 
 };
 //
-// Descr: Элемент матрицы подстановки товара по подстановочным товарным структурам (GSF_SUBST)
-//   Матрица содержит прямые и инвертированные пары.
+// Descr: Блок данных для подбора аналогичных товаров по подстановочным структурам
 //
-/*struct SaSubstItem { // @flat @v11.6.4
-	SaSubstItem() : GoodsID(0), SubstID(0), Qtty(0.0)
-	{
-	}
-	SaSubstItem(PPID goodsID, PPID substID, double qtty) : GoodsID(goodsID), SubstID(substID), Qtty(qtty)
-	{
-	}
-	PPID  GoodsID;
-	PPID  SubstID;
-	double Qtty;   // 
-};*/
-
 class SaSubstBlock { // @v11.6.6
 	friend class PPObjGoodsStruc;
 public:
@@ -24464,8 +24451,9 @@ public:
 	int    Get(PPID goodsID, RAssocArray & rSubstList) const;
 private:
 	struct Item {
-		Item(PPID goodsID, double rate);
+		Item(PPID goodsID, uint rank, double rate);
 		PPID   GoodsID;
+		uint   Rank; // @v11.6.7 Ранг подстановки. Чем меньше значение, тем выше приоритет использования //
 		double Rate;
 	};
 	struct Entry {
@@ -24479,7 +24467,7 @@ private:
 	};
 
 	Entry * GetEntry(PPID gsID);
-	int    AddItem(Entry * pEntry, PPID goodsID, double rate);
+	int    AddItem(Entry * pEntry, PPID goodsID, uint rank, double rate);
 
 	TSCollection <Entry> L;
 	TSVector <IndexEntry> Index;

@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "absl/absl-internal.h"
+#pragma hdrstop
 #include "absl/container/internal/node_slot_policy.h"
-
-#include <memory>
-
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "absl/container/internal/hash_policy_traits.h"
@@ -24,45 +23,43 @@ namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace container_internal {
 namespace {
-
 using ::testing::Pointee;
 
 struct Policy : node_slot_policy<int&, Policy> {
-  using key_type = int;
-  using init_type = int;
+	using key_type = int;
+	using init_type = int;
 
-  template <class Alloc>
-  static int* new_element(Alloc* alloc, int value) {
-    return new int(value);
-  }
+	template <class Alloc>
+	static int* new_element(Alloc* alloc, int value) {
+		return new int(value);
+	}
 
-  template <class Alloc>
-  static void delete_element(Alloc* alloc, int* elem) {
-    delete elem;
-  }
+	template <class Alloc>
+	static void delete_element(Alloc* alloc, int* elem) {
+		delete elem;
+	}
 };
 
 using NodePolicy = hash_policy_traits<Policy>;
 
 struct NodeTest : ::testing::Test {
-  std::allocator<int> alloc;
-  int n = 53;
-  int* a = &n;
+	std::allocator<int> alloc;
+	int n = 53;
+	int* a = &n;
 };
 
 TEST_F(NodeTest, ConstructDestroy) {
-  NodePolicy::construct(&alloc, &a, 42);
-  EXPECT_THAT(a, Pointee(42));
-  NodePolicy::destroy(&alloc, &a);
+	NodePolicy::construct(&alloc, &a, 42);
+	EXPECT_THAT(a, Pointee(42));
+	NodePolicy::destroy(&alloc, &a);
 }
 
 TEST_F(NodeTest, transfer) {
-  int s = 42;
-  int* b = &s;
-  NodePolicy::transfer(&alloc, &a, &b);
-  EXPECT_EQ(&s, a);
+	int s = 42;
+	int* b = &s;
+	NodePolicy::transfer(&alloc, &a, &b);
+	EXPECT_EQ(&s, a);
 }
-
 }  // namespace
 }  // namespace container_internal
 ABSL_NAMESPACE_END

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <unordered_set>
-
+#include "absl/absl-internal.h"
+#pragma hdrstop
 #include "absl/container/internal/unordered_set_constructor_test.h"
 #include "absl/container/internal/unordered_set_lookup_test.h"
 #include "absl/container/internal/unordered_set_members_test.h"
@@ -23,18 +23,16 @@ namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace container_internal {
 namespace {
-
 using SetTypes = ::testing::Types<
-    std::unordered_set<int, StatefulTestingHash, StatefulTestingEqual,
-                       Alloc<int>>,
-    std::unordered_set<std::string, StatefulTestingHash, StatefulTestingEqual,
-                       Alloc<std::string>>>;
+	std::unordered_set<int, StatefulTestingHash, StatefulTestingEqual,
+	Alloc<int> >,
+	std::unordered_set<std::string, StatefulTestingHash, StatefulTestingEqual,
+	Alloc<std::string> > >;
 
 INSTANTIATE_TYPED_TEST_SUITE_P(UnorderedSet, ConstructorTest, SetTypes);
 INSTANTIATE_TYPED_TEST_SUITE_P(UnorderedSet, LookupTest, SetTypes);
 INSTANTIATE_TYPED_TEST_SUITE_P(UnorderedSet, MembersTest, SetTypes);
 INSTANTIATE_TYPED_TEST_SUITE_P(UnorderedSet, ModifiersTest, SetTypes);
-
 }  // namespace
 }  // namespace container_internal
 ABSL_NAMESPACE_END

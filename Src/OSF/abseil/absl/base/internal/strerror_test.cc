@@ -12,16 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "absl/absl-internal.h"
+#pragma hdrstop
 #include "absl/base/internal/strerror.h"
-
-#include <atomic>
-#include <cerrno>
-#include <cstdio>
-#include <cstring>
-#include <string>
-#include <thread>  // NOLINT(build/c++11)
-#include <vector>
-
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "absl/strings/match.h"

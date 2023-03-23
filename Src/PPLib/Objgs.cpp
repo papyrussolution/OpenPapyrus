@@ -3186,7 +3186,7 @@ int PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 	return ok;
 }
 
-SaSubstBlock::Item::Item(PPID goodsID, double rate) : GoodsID(goodsID), Rate(rate)
+SaSubstBlock::Item::Item(PPID goodsID, uint rank, double rate) : GoodsID(goodsID), Rank(rank), Rate(rate)
 {
 	assert(GoodsID > 0);
 	assert(Rate > 0.0);
@@ -3211,6 +3211,7 @@ int SaSubstBlock::Get(PPID goodsID, RAssocArray & rSubstList) const
 {
 	rSubstList.clear();
 	int    ok = -1;
+	TSVector <Item> temp_list;
 	for(uint i = 0; i < L.getCount(); i++) {
 		const Entry * p_entry = L.at(i);
 		if(p_entry) {
@@ -3224,8 +3225,9 @@ int SaSubstBlock::Get(PPID goodsID, RAssocArray & rSubstList) const
 							const Item & r_subst_item = p_entry->V.at(j);
 							assert(r_subst_item.Rate > 0.0); // Не должно такого быть, что в список попало инвалидное количество!
 							if(r_subst_item.GoodsID != goodsID && r_subst_item.Rate > 0.0) { // @paranoic (if j != idx above)
-								rSubstList.Add(r_subst_item.GoodsID, r_subst_item.Rate / r_item.Rate);
-								ok = 1;
+								//rSubstList.Add(r_subst_item.GoodsID, r_subst_item.Rate / r_item.Rate);
+								Item new_item(r_subst_item.GoodsID, r_subst_item.Rank, r_subst_item.Rate / r_item.Rate);
+								THROW_SL(temp_list.insert(&new_item));
 							}
 						}
 					}
@@ -3233,6 +3235,16 @@ int SaSubstBlock::Get(PPID goodsID, RAssocArray & rSubstList) const
 			}
 		}
 	}
+	if(temp_list.getCount()) {
+		temp_list.sort(PTR_CMPFUNC(_2long));
+		for(uint i = 0; i < temp_list.getCount(); i++) {
+			const Item & r_item = temp_list.at(i);
+			// Элементы результирующего списка расставлены в порядке, соответствующем рангу. Таким образом,
+			// порядок применения подставновочных компонентов - управляемый.
+			rSubstList.Add(r_item.GoodsID, r_item.Rate); // Rate мы уже (надеюсь) правильно посчитали выше.
+		}
+	}
+	CATCHZOK
 	return ok;
 }
 
@@ -3254,7 +3266,7 @@ SaSubstBlock::Entry * SaSubstBlock::GetEntry(PPID gsID)
 	return p_result;
 }
 	
-int  SaSubstBlock::AddItem(SaSubstBlock::Entry * pEntry, PPID goodsID, double rate)
+int  SaSubstBlock::AddItem(SaSubstBlock::Entry * pEntry, PPID goodsID, uint rank, double rate)
 {
 	assert(pEntry);
 	assert(goodsID > 0);
@@ -3268,7 +3280,7 @@ int  SaSubstBlock::AddItem(SaSubstBlock::Entry * pEntry, PPID goodsID, double ra
 		ok = -1;
 	}
 	else {
-		Item new_item(goodsID, rate);
+		Item new_item(goodsID, rank, rate);
 		THROW_SL(pEntry->V.insert(&new_item));
 	}
 	CATCHZOK
@@ -3302,7 +3314,9 @@ int PPObjGoodsStruc::LoadSubstBlock(SaSubstBlock & rBlk) // @v11.6.6
 					{
 						for(uint owneridx = 0; owneridx < owner_list.getCount(); owneridx++) {
 							const PPID owner_id = owner_list.get(owneridx);
-							rBlk.AddItem(p_subst_entry, owner_id, 1.0);
+							// @attention Следующий вызов устанавливает ранг позиции в 0. То есть,
+							// компоненты обобщения будут иметь больший приоритет использования нежели любой из элементов структуры!
+							rBlk.AddItem(p_subst_entry, owner_id, 0, 1.0); 
 							if(!single_owner_id)
 								single_owner_id = owner_id;
 						}
@@ -3314,7 +3328,7 @@ int PPObjGoodsStruc::LoadSubstBlock(SaSubstBlock & rBlk) // @v11.6.6
 							double item_qtty = 0.0;
 							if(gs.GetItemExt(itemidx, &gsi, single_owner_id, 1.0, &item_qtty) > 0) {
 								if(item_qtty > 0.0) {
-									rBlk.AddItem(p_subst_entry, gsi.GoodsID, item_qtty);
+									rBlk.AddItem(p_subst_entry, gsi.GoodsID, itemidx+1, item_qtty);
 								}
 							}
 						}

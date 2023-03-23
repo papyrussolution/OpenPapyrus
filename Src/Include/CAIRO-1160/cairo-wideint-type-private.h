@@ -71,12 +71,12 @@ typedef unsigned __int64 uint64;
 #if HAVE_BYTESWAP_H
 	#include <byteswap.h>
 #endif
-#ifndef bswap_16
-	#define bswap_16(p) (((((uint16)(p)) & 0x00ff) << 8) | (((uint16)(p)) >> 8));
-#endif
-#ifndef bswap_32
-	#define bswap_32(p) (((((uint32)(p)) & 0x000000ff) << 24) | ((((uint32)(p)) & 0x0000ff00) << 8) | ((((uint32)(p)) & 0x00ff0000) >> 8) | ((((uint32)(p))) >> 24));
-#endif
+//#ifndef bswap_16 // @sobolev (replaced with sbswap16)
+	//#define bswap_16(p) (((((uint16)(p)) & 0x00ff) << 8) | (((uint16)(p)) >> 8)); 
+//#endif
+//#ifndef bswap_32 // @sobolev (replaced with sbswap32)
+	//#define bswap_32(p) (((((uint32)(p)) & 0x000000ff) << 24) | ((((uint32)(p)) & 0x0000ff00) << 8) | ((((uint32)(p)) & 0x00ff0000) >> 8) | ((((uint32)(p))) >> 24));
+//#endif
 #if !HAVE_UINT64_T
 	typedef struct _cairo_uint64 {
 		uint32 lo, hi;

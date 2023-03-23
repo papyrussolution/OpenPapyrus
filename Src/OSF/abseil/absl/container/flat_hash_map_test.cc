@@ -11,6 +11,7 @@
 //
 #include "absl/absl-internal.h"
 #pragma hdrstop
+#include <random>
 #include "absl/container/flat_hash_map.h"
 #include "absl/base/internal/raw_logging.h"
 #include "absl/container/internal/hash_generator_testing.h"

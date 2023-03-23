@@ -2111,6 +2111,9 @@ int ProcessUed()
 		ps.Merge(temp_buf);
 		THROW(uedc.GenerateSourceDecl_Java(temp_buf));
 	}
-	CATCHZOK
+	CATCH
+		logger.LogLastError();
+		ok = 0;
+	ENDCATCH
 	return ok;
 }

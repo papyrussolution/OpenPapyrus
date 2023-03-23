@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "absl/absl-internal.h"
+#pragma hdrstop
 #include "absl/base/internal/thread_identity.h"
-
-#include <thread>  // NOLINT(build/c++11)
-#include <vector>
-
 #include "gtest/gtest.h"
 #include "absl/base/attributes.h"
 #include "absl/base/internal/spinlock.h"

@@ -27,20 +27,17 @@
 
 /* StructAtOffset<T>(P,Ofs) returns the struct T& that is placed at memory
  * location pointed to by P plus Ofs bytes. */
-template<typename Type>
-static inline const Type& StructAtOffset(const void * P, uint offset)
+template<typename Type> static inline const Type& StructAtOffset(const void * P, uint offset)
 {
 	return *reinterpret_cast<const Type*> ((const char *)P + offset);
 }
 
-template<typename Type>
-static inline Type& StructAtOffset(void * P, uint offset)
+template<typename Type> static inline Type& StructAtOffset(void * P, uint offset)
 {
 	return *reinterpret_cast<Type*> ((char *)P + offset);
 }
 
-template<typename Type>
-static inline const Type& StructAtOffsetUnaligned(const void * P, uint offset)
+template<typename Type> static inline const Type& StructAtOffsetUnaligned(const void * P, uint offset)
 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
@@ -48,8 +45,7 @@ static inline const Type& StructAtOffsetUnaligned(const void * P, uint offset)
 #pragma GCC diagnostic pop
 }
 
-template<typename Type>
-static inline Type& StructAtOffsetUnaligned(void * P, uint offset)
+template<typename Type> static inline Type& StructAtOffsetUnaligned(void * P, uint offset)
 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
@@ -59,33 +55,26 @@ static inline Type& StructAtOffsetUnaligned(void * P, uint offset)
 
 /* StructAfter<T>(X) returns the struct T& that is placed after X.
  * Works with X of variable size also.  X must implement get_size() */
-template<typename Type, typename TObject>
-static inline const Type& StructAfter(const TObject &X)
+template<typename Type, typename TObject> static inline const Type& StructAfter(const TObject &X)
 {
 	return StructAtOffset<Type>(&X, X.get_size());
 }
 
-template<typename Type, typename TObject>
-static inline Type& StructAfter(TObject &X)
+template<typename Type, typename TObject> static inline Type& StructAfter(TObject &X)
 {
 	return StructAtOffset<Type>(&X, X.get_size());
 }
-
 /*
  * Size checking
  */
 
 /* Check _assertion in a method environment */
-#define _DEFINE_INSTANCE_ASSERTION1(_line, _assertion) \
-	void _instance_assertion_on_line_ ## _line() const \
-	{ static_assert((_assertion), ""); }
+#define _DEFINE_INSTANCE_ASSERTION1(_line, _assertion) void _instance_assertion_on_line_ ## _line() const { static_assert((_assertion), ""); }
 #define _DEFINE_INSTANCE_ASSERTION0(_line, _assertion) _DEFINE_INSTANCE_ASSERTION1(_line, _assertion)
 #define DEFINE_INSTANCE_ASSERTION(_assertion) _DEFINE_INSTANCE_ASSERTION0(__LINE__, _assertion)
 
 /* Check that _code compiles in a method environment */
-#define _DEFINE_COMPILES_ASSERTION1(_line, _code) \
-	void _compiles_assertion_on_line_ ## _line() const \
-	{ _code; }
+#define _DEFINE_COMPILES_ASSERTION1(_line, _code) void _compiles_assertion_on_line_ ## _line() const { _code; }
 #define _DEFINE_COMPILES_ASSERTION0(_line, _code) _DEFINE_COMPILES_ASSERTION1(_line, _code)
 #define DEFINE_COMPILES_ASSERTION(_code) _DEFINE_COMPILES_ASSERTION0(__LINE__, _code)
 
@@ -125,39 +114,19 @@ static inline Type& StructAfter(TObject &X)
  * Lazy loaders.
  */
 
-template <typename Data, uint WheresData>
-struct hb_data_wrapper_t {
+template <typename Data, uint WheresData> struct hb_data_wrapper_t {
 	static_assert(WheresData > 0, "");
-
-	Data * get_data() const
-	{
-		return *(((Data**)(void *)this) - WheresData);
-	}
-
-	bool is_inert() const {
-		return !get_data();
-	}
-
-	template <typename Stored, typename Subclass>
-	Stored * call_create() const {
-		return Subclass::create(get_data());
-	}
+	Data * get_data() const { return *(((Data**)(void *)this) - WheresData); }
+	bool is_inert() const { return !get_data(); }
+	template <typename Stored, typename Subclass> Stored * call_create() const { return Subclass::create(get_data()); }
 };
 
-template <>
-struct hb_data_wrapper_t<void, 0> {
-	bool is_inert() const {
-		return false;
-	}
-
-	template <typename Stored, typename Funcs>
-	Stored * call_create() const {
-		return Funcs::create();
-	}
+template <> struct hb_data_wrapper_t<void, 0> {
+	bool is_inert() const { return false; }
+	template <typename Stored, typename Funcs> Stored * call_create() const { return Funcs::create(); }
 };
 
 template <typename T1, typename T2> struct hb_non_void_t { typedef T1 value; };
-
 template <typename T2> struct hb_non_void_t<void, T2> { typedef T2 value; };
 
 template <typename Returned,
@@ -170,17 +139,9 @@ typename Stored = Returned>
 	    hb_lazy_loader_t<Returned, Subclass, Data, WheresData, Stored>
 	    >::value Funcs;
 
-	void init0() {
-	}          /* Init, when memory is already set to 0. No-op for us. */
-
-	void init() {
-		instance.set_relaxed(nullptr);
-	}
-
-	void fini() {
-		do_destroy(instance.get());
-	}
-
+	void init0() {} /* Init, when memory is already set to 0. No-op for us. */
+	void init() { instance.set_relaxed(nullptr); }
+	void fini() { do_destroy(instance.get()); }
 	void free_instance()
 	{
 retry:
@@ -189,22 +150,15 @@ retry:
 			goto retry;
 		do_destroy(p);
 	}
-
 	static void do_destroy(Stored * p)
 	{
 		if(p && p != const_cast<Stored *> (Funcs::get_null()))
 			Funcs::destroy(p);
 	}
-
 	const Returned * operator->() const { return get(); }
 	const Returned & operator * () const { return *get(); }
-	explicit operator bool() const
-	{
-		return get_stored() != Funcs::get_null();
-	}
-
+	explicit operator bool() const { return get_stored() != Funcs::get_null(); }
 	template <typename C> operator const C * () const { return get(); }
-
 	Stored * get_stored() const
 	{
 retry:
@@ -222,25 +176,14 @@ retry:
 		}
 		return p;
 	}
-
-	Stored * get_stored_relaxed() const
-	{
-		return this->instance.get_relaxed();
-	}
-
+	Stored * get_stored_relaxed() const { return this->instance.get_relaxed(); }
 	bool cmpexch(Stored * current, Stored * value) const
 	{
 		/* This *must* be called when there are no other threads accessing. */
 		return this->instance.cmpexch(current, value);
 	}
-
-	const Returned * get() const {
-		return Funcs::convert(get_stored());
-	}
-
-	const Returned * get_relaxed() const {
-		return Funcs::convert(get_stored_relaxed());
-	}
+	const Returned * get() const { return Funcs::convert(get_stored()); }
+	const Returned * get_relaxed() const { return Funcs::convert(get_stored_relaxed()); }
 	Returned * get_unconst() const { return const_cast<Returned *> (Funcs::convert(get_stored())); }
 	/* To be possibly overloaded by subclasses. */
 	static Returned* convert(Stored * p) { return p; }
@@ -271,64 +214,25 @@ retry:
 };
 
 /* Specializations. */
+template <typename T, uint WheresFace> struct hb_face_lazy_loader_t : hb_lazy_loader_t<T, hb_face_lazy_loader_t<T, WheresFace>, hb_face_t, WheresFace> {};
 
-template <typename T, uint WheresFace>
-struct hb_face_lazy_loader_t : hb_lazy_loader_t<T,
-    hb_face_lazy_loader_t<T, WheresFace>,
-    hb_face_t, WheresFace> {};
-
-template <typename T, uint WheresFace>
-struct hb_table_lazy_loader_t : hb_lazy_loader_t<T,
-    hb_table_lazy_loader_t<T, WheresFace>,
-    hb_face_t, WheresFace,
-    hb_blob_t> {
-	static hb_blob_t * create(hb_face_t * face)
-	{
-		return hb_sanitize_context_t().reference_table<T> (face);
-	}
-
-	static void destroy(hb_blob_t * p) {
-		hb_blob_destroy(p);
-	}
-
-	static const hb_blob_t * get_null()
-	{
-		return hb_blob_get_empty();
-	}
-
-	static const T* convert(const hb_blob_t * blob)
-	{
-		return blob->as<T> ();
-	}
-
-	hb_blob_t* get_blob() const {
-		return this->get_stored();
-	}
+template <typename T, uint WheresFace> struct hb_table_lazy_loader_t : hb_lazy_loader_t<T, hb_table_lazy_loader_t<T, WheresFace>, hb_face_t, WheresFace, hb_blob_t> 
+{
+	static hb_blob_t * create(hb_face_t * face) { return hb_sanitize_context_t().reference_table<T> (face); }
+	static void destroy(hb_blob_t * p) { hb_blob_destroy(p); }
+	static const hb_blob_t * get_null() { return hb_blob_get_empty(); }
+	static const T* convert(const hb_blob_t * blob) { return blob->as<T> (); }
+	hb_blob_t* get_blob() const { return this->get_stored(); }
 };
 
-template <typename Subclass>
-struct hb_font_funcs_lazy_loader_t : hb_lazy_loader_t<hb_font_funcs_t, Subclass> {
-	static void destroy(hb_font_funcs_t * p)
-	{
-		hb_font_funcs_destroy(p);
-	}
-
-	static const hb_font_funcs_t * get_null()
-	{
-		return hb_font_funcs_get_empty();
-	}
+template <typename Subclass> struct hb_font_funcs_lazy_loader_t : hb_lazy_loader_t<hb_font_funcs_t, Subclass> {
+	static void destroy(hb_font_funcs_t * p) { hb_font_funcs_destroy(p); }
+	static const hb_font_funcs_t * get_null() { return hb_font_funcs_get_empty(); }
 };
-template <typename Subclass>
-struct hb_unicode_funcs_lazy_loader_t : hb_lazy_loader_t<hb_unicode_funcs_t, Subclass> {
-	static void destroy(hb_unicode_funcs_t * p)
-	{
-		hb_unicode_funcs_destroy(p);
-	}
 
-	static const hb_unicode_funcs_t * get_null()
-	{
-		return hb_unicode_funcs_get_empty();
-	}
+template <typename Subclass> struct hb_unicode_funcs_lazy_loader_t : hb_lazy_loader_t<hb_unicode_funcs_t, Subclass> {
+	static void destroy(hb_unicode_funcs_t * p) { hb_unicode_funcs_destroy(p); }
+	static const hb_unicode_funcs_t * get_null() { return hb_unicode_funcs_get_empty(); }
 };
 
 #endif /* HB_MACHINERY_HH */

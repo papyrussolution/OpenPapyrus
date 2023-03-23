@@ -46,10 +46,7 @@ hb_map_t * hb_map_create()
  *
  * Since: 1.7.7
  **/
-hb_map_t * hb_map_get_empty()
-{
-	return const_cast<hb_map_t *> (&Null(hb_map_t));
-}
+hb_map_t * hb_map_get_empty() { return const_cast<hb_map_t *> (&Null(hb_map_t)); }
 /**
  * hb_map_reference: (skip)
  * @map: a map.
@@ -58,10 +55,7 @@ hb_map_t * hb_map_get_empty()
  *
  * Since: 1.7.7
  **/
-hb_map_t * hb_map_reference(hb_map_t * map)
-{
-	return hb_object_reference(map);
-}
+hb_map_t * hb_map_reference(hb_map_t * map) { return hb_object_reference(map); }
 /**
  * hb_map_destroy: (skip)
  * @map: a map.
@@ -70,7 +64,8 @@ hb_map_t * hb_map_reference(hb_map_t * map)
  **/
 void hb_map_destroy(hb_map_t * map)
 {
-	if(!hb_object_destroy(map)) return;
+	if(!hb_object_destroy(map)) 
+		return;
 	map->fini_shallow();
 	SAlloc::F(map);
 }
@@ -105,10 +100,7 @@ void * hb_map_get_user_data(hb_map_t * map, hb_user_data_key_t * key)
  * Return value:
  * Since: 1.7.7
  **/
-hb_bool_t hb_map_allocation_successful(const hb_map_t * map)
-{
-	return map->successful;
-}
+hb_bool_t hb_map_allocation_successful(const hb_map_t * map) { return map->successful; }
 /**
  * hb_map_set:
  * @map: a map.
@@ -116,64 +108,43 @@ hb_bool_t hb_map_allocation_successful(const hb_map_t * map)
  * @value:
  * Since: 1.7.7
  **/
-void hb_map_set(hb_map_t * map, hb_codepoint_t key, hb_codepoint_t value)
-{
-	map->set(key, value);
-}
+void hb_map_set(hb_map_t * map, hb_codepoint_t key, hb_codepoint_t value) { map->set(key, value); }
 /**
  * hb_map_get:
  * @map: a map.
  * @key:
  * Since: 1.7.7
  **/
-hb_codepoint_t hb_map_get(const hb_map_t * map, hb_codepoint_t key)
-{
-	return map->get(key);
-}
+hb_codepoint_t hb_map_get(const hb_map_t * map, hb_codepoint_t key) { return map->get(key); }
 /**
  * hb_map_del:
  * @map: a map.
  * @key:
  * Since: 1.7.7
  **/
-void hb_map_del(hb_map_t * map, hb_codepoint_t key)
-{
-	map->del(key);
-}
+void hb_map_del(hb_map_t * map, hb_codepoint_t key) { map->del(key); }
 /**
  * hb_map_has:
  * @map: a map.
  * @key:
  * Since: 1.7.7
  **/
-hb_bool_t hb_map_has(const hb_map_t * map, hb_codepoint_t key)
-{
-	return map->has(key);
-}
+hb_bool_t hb_map_has(const hb_map_t * map, hb_codepoint_t key) { return map->has(key); }
 /**
  * hb_map_clear:
  * @map: a map.
  * Since: 1.7.7
  **/
-void hb_map_clear(hb_map_t * map)
-{
-	return map->clear();
-}
+void hb_map_clear(hb_map_t * map) { return map->clear(); }
 /**
  * hb_map_is_empty:
  * @map: a map.
  * Since: 1.7.7
  **/
-hb_bool_t hb_map_is_empty(const hb_map_t * map)
-{
-	return map->is_empty();
-}
+hb_bool_t hb_map_is_empty(const hb_map_t * map) { return map->is_empty(); }
 /**
  * hb_map_get_population:
  * @map: a map.
  * Since: 1.7.7
  **/
-uint hb_map_get_population(const hb_map_t * map)
-{
-	return map->get_population();
-}
+uint hb_map_get_population(const hb_map_t * map) { return map->get_population(); }

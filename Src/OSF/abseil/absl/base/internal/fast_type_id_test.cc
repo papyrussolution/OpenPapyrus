@@ -12,12 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "absl/absl-internal.h"
+#pragma hdrstop
 #include "absl/base/internal/fast_type_id.h"
-
-#include <cstdint>
-#include <map>
-#include <vector>
-
 #include "gtest/gtest.h"
 
 namespace {
@@ -104,17 +101,12 @@ TEST(FastTypeIdTest, AliasTypes) {
 }
 
 TEST(FastTypeIdTest, TemplateSpecializations) {
-	EXPECT_NE(bi::FastTypeId<std::vector<int> >(),
-	    bi::FastTypeId<std::vector<long> >());
-
-	EXPECT_NE((bi::FastTypeId<std::map<int, float> >()),
-	    (bi::FastTypeId<std::map<int, double> >()));
+	EXPECT_NE(bi::FastTypeId<std::vector<int> >(), bi::FastTypeId<std::vector<long> >());
+	EXPECT_NE((bi::FastTypeId<std::map<int, float> >()), (bi::FastTypeId<std::map<int, double> >()));
 }
 
 struct Base {};
-
 struct Derived : Base {};
-
 struct PDerived : private Base {};
 
 TEST(FastTypeIdTest, Inheritance) {

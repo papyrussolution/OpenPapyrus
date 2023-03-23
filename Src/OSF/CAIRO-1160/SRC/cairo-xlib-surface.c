@@ -392,8 +392,7 @@ cairo_status_t _cairo_xlib_surface_get_gc(cairo_xlib_display_t * display,
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static int _noop_error_handler(Display * display,
-    XErrorEvent * event)
+static int _noop_error_handler(Display * display, XErrorEvent * event)
 {
 	return False; /* return value is ignored */
 }
@@ -402,14 +401,12 @@ static void _swap_ximage_2bytes(XImage * ximage)
 {
 	int i, j;
 	char * line = ximage->data;
-
 	for(j = ximage->height; j; j--) {
 		uint16 * p = (uint16 *)line;
 		for(i = ximage->width; i; i--) {
-			*p = bswap_16(*p);
+			*p = sbswap16(*p);
 			p++;
 		}
-
 		line += ximage->bytes_per_line;
 	}
 }
@@ -418,7 +415,6 @@ static void _swap_ximage_3bytes(XImage * ximage)
 {
 	int i, j;
 	char * line = ximage->data;
-
 	for(j = ximage->height; j; j--) {
 		uint8 * p = (uint8 *)line;
 		for(i = ximage->width; i; i--) {
@@ -437,14 +433,12 @@ static void _swap_ximage_4bytes(XImage * ximage)
 {
 	int i, j;
 	char * line = ximage->data;
-
 	for(j = ximage->height; j; j--) {
 		uint32 * p = (uint32 *)line;
 		for(i = ximage->width; i; i--) {
-			*p = bswap_32(*p);
+			*p = sbswap32(*p);
 			p++;
 		}
-
 		line += ximage->bytes_per_line;
 	}
 }
@@ -453,7 +447,6 @@ static void _swap_ximage_nibbles(XImage * ximage)
 {
 	int i, j;
 	char * line = ximage->data;
-
 	for(j = ximage->height; j; j--) {
 		uint8 * p = (uint8 *)line;
 		for(i = (ximage->width + 1) / 2; i; i--) {

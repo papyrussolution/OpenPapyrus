@@ -12,19 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "absl/absl-internal.h"
+#pragma hdrstop
 #include "absl/base/internal/low_level_alloc.h"
-
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <thread>  // NOLINT(build/c++11)
-#include <unordered_map>
-#include <utility>
-
 #ifdef __EMSCRIPTEN__
-#include <emscripten.h>
+	#include <emscripten.h>
 #endif
-
 #include "absl/container/node_hash_map.h"
 
 namespace absl {
@@ -158,7 +151,8 @@ static struct BeforeMain {
 ABSL_NAMESPACE_END
 }  // namespace absl
 
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[]) 
+{
 	// The actual test runs in the global constructor of `before_main`.
 	printf("PASS\n");
 #ifdef __EMSCRIPTEN__

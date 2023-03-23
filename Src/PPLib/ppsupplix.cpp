@@ -8832,25 +8832,78 @@ public:
 		MakeGoodsList(GoodsList);
 		return ok;
 	}
-	int      ExportAll()
+	int      TransmitFiles(const StringSet & rFileNameSet)
+	{
+		const char * pp_pfx_list[] = { "customers", "debts", "movements", "products", "salesrefunds", "salesreps", "stocks", "warehouses", "trade_points" };
+		int    ok = -1;
+		SString temp_buf;
+		SString msg_buf;
+		SString file_name;
+		SString remote_addr;
+		SString accs_name;
+		SString accs_passw;
+		SString dest_root;
+		SUniformFileTransmParam uftp;
+		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssRemoteAddr, remote_addr);
+		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsName, accs_name);
+		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsPassw, accs_passw);
+		if(remote_addr.NotEmptyS()) {
+			(dest_root = remote_addr).SetLastDSlash();
+			for(uint ssp = 0; rFileNameSet.get(&ssp, file_name);) {
+				if(fileExists(file_name)) {
+					SPathStruc ps(file_name);
+					uftp.SrcPath = file_name;
+					const char * p_pfx = 0;
+					for(uint pidx = 0; !p_pfx && pidx < SIZEOFARRAY(pp_pfx_list); pidx++) {
+						if(ps.Nam.HasPrefix(pp_pfx_list[pidx])) {
+							p_pfx = pp_pfx_list[pidx];
+						}
+					}
+					if(p_pfx) {
+						(uftp.DestPath = dest_root).Cat(p_pfx);
+						uftp.AccsName = accs_name;
+						uftp.AccsPassword = accs_passw;
+						PPLoadTextS(PPTXT_SENDSUPPLIXDATA, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat(uftp.DestPath);
+						if(uftp.Run(0, 0)) {
+							PPLoadTextS(PPTXT_SUPPLIXDATASENT, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat(uftp.DestPath);
+							ok = 1;
+						}
+						else {
+							ok = PPSetError(PPERR_SLIB);
+							PPGetLastErrorMessage(1, temp_buf);
+							PPLoadTextS(PPTXT_SENDSUPPLIXDATAFAULT, msg_buf).CatDiv(':', 2).Cat(temp_buf);
+						}
+					}
+				}
+			}
+		}
+		return ok;
+	}
+	int      ExportAll(StringSet & rFileNameSet)
 	{
 		int    ok = 1;
+		SString fmt_buf;
+		SString msg_buf;
 		xmlTextWriter * p_x = 0;
 		SString temp_buf;
-		ExportGoods(GoodsList);
-		ExportWarehouses(WhList);
+		ExportGoods(GoodsList, rFileNameSet);
+		ExportWarehouses(WhList, rFileNameSet);
 		{
 			TSVector <StockEntry> stock_list;
 			TSCollection <SalesEntry> sales_list;
+			PPIDArray sales_op_list;
+			PrepareSalesData(sales_list, sales_op_list);
 			{
-				PrepareMovementData(stock_list);
-				ExportRest(stock_list);
-				ExportMovement(stock_list);
+				R_Logger.Log(PPLoadTextS(PPTXT_PREPARESUPPLIXDATA, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat("movement & stock"));
+				PrepareMovementData(sales_op_list, stock_list);
+				ExportRest(stock_list, rFileNameSet);
+				ExportMovement(stock_list, rFileNameSet);
 			}
 			{
-				PrepareSalesData(sales_list);
-				ExportSales(sales_list);
-				ExportDebts();
+				R_Logger.Log(PPLoadTextS(PPTXT_PREPARESUPPLIXDATA, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat("sales"));
+				ExportSales(sales_list, rFileNameSet);
+				R_Logger.Log(PPLoadTextS(PPTXT_PREPARESUPPLIXDATA, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat("debts"));
+				ExportDebts(rFileNameSet);
 				{
 					PPIDArray customer_list;
 					LAssocArray dlvr_loc_list;
@@ -8862,6 +8915,7 @@ public:
 					LocationTbl::Rec loc_rec;
 					PrepareRefsBySalesList(sales_list, customer_list, dlvr_loc_list, agent_list);
 					{
+						R_Logger.Log(PPLoadTextS(PPTXT_PREPARESUPPLIXDATA, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat("customers"));
 						PPGetFilePath(PPPATH_OUT, MakeFileName("customers", temp_buf), out_file_name);
 						p_x = xmlNewTextWriterFilename(out_file_name, 0);
 						THROW(p_x);
@@ -8892,10 +8946,12 @@ public:
 								}
 							}
 						}
+						rFileNameSet.add(out_file_name);
 						xmlFreeTextWriter(p_x);
 						p_x = 0; // @mandatory!
 					}
 					{
+						R_Logger.Log(PPLoadTextS(PPTXT_PREPARESUPPLIXDATA, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat("trade_points"));
 						PPGetFilePath(PPPATH_OUT, MakeFileName("trade_points", temp_buf), out_file_name);
 						p_x = xmlNewTextWriterFilename(out_file_name, 0);
 						THROW(p_x);
@@ -8917,10 +8973,12 @@ public:
 								}
 							}
 						}
+						rFileNameSet.add(out_file_name);
 						xmlFreeTextWriter(p_x);
 						p_x = 0; // @mandatory!
 					}
 					{
+						R_Logger.Log(PPLoadTextS(PPTXT_PREPARESUPPLIXDATA, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat("salesreps"));
 						PPGetFilePath(PPPATH_OUT, MakeFileName("salesreps", temp_buf), out_file_name);
 						p_x = xmlNewTextWriterFilename(out_file_name, 0);
 						THROW(p_x);
@@ -8938,6 +8996,7 @@ public:
 								}
 							}
 						}
+						rFileNameSet.add(out_file_name);
 						xmlFreeTextWriter(p_x);
 						p_x = 0; // @mandatory!
 					}
@@ -8985,9 +9044,10 @@ public:
 		}
 		return dlvr_loc_id;
 	}
-	int      PrepareSalesData(TSCollection <SalesEntry> & rList)
+	int      PrepareSalesData(TSCollection <SalesEntry> & rList, PPIDArray & rSalesOpList)
 	{
 		int    ok = 1;
+		rSalesOpList.Z();
 		if(Ep.ExpendOp) {
 			SString temp_buf;
 			PPViewBill _view;
@@ -9025,6 +9085,7 @@ public:
 								}
 							}
 							if(ti_pos_list.getCount()) {
+								rSalesOpList.add(bpack.Rec.OpID);
 								SalesEntry * p_new_entry = rList.CreateNewItem(&new_pack_idx);
 								THROW_SL(p_new_entry);
 								{
@@ -9070,13 +9131,13 @@ public:
 						}
 					}
 				}
-
 			}
 		}
 		CATCHZOK
+		rSalesOpList.sortAndUndup();
 		return ok;
 	}
-	int      ExportDebts()
+	int      ExportDebts(StringSet & rFileNameSet)
 	{
 		int    ok = 1;
 		SString temp_buf;
@@ -9147,11 +9208,12 @@ public:
 				}
 			}
 		}
+		rFileNameSet.add(out_file_name);
 		CATCHZOK
 		xmlFreeTextWriter(p_x);
 		return ok;
 	}
-	int      ExportSales(const TSCollection <SalesEntry> & rList)
+	int      ExportSales(const TSCollection <SalesEntry> & rList, StringSet & rFileNameSet)
 	{
 		int    ok = 1;
 		SString temp_buf;
@@ -9194,11 +9256,16 @@ public:
 				}
 			}
 		}
+		rFileNameSet.add(out_file_name);
 		CATCHZOK
 		xmlFreeTextWriter(p_x);
 		return ok;
 	}
-	int      PrepareMovementData(TSVector <StockEntry> & rList)
+	//
+	// ARG(rExclOpList IN): Используется для исключения операций, попавших в продажи, из списка прочих документов.
+	// ARG(rList OUT): Результирующий список.
+	//
+	int      PrepareMovementData(const PPIDArray & rExclList, TSVector <StockEntry> & rList)
 	{
 		int    ok = 1;
 		const PPID suppl_acs_id = GetSupplAccSheet();
@@ -9253,25 +9320,27 @@ public:
 					//
 					for(uint ggaidx = 0; ggaidx < gga.getCount(); ggaidx++) {
 						auto & r_entry = gga.at(ggaidx);
-						PPOprKind op_rec;
-						if(IsIntrExpndOp(r_entry.OpID)) {
-							new_entry.Mov_Tk04 += fabs(r_entry.Quantity);
-						}
-						else if(GetOpData(r_entry.OpID, &op_rec) > 0) {
-							if(r_entry.OpTypeID == PPOPT_GOODSRECEIPT) {
-								if(op_rec.AccSheetID && op_rec.AccSheetID == suppl_acs_id) {
-									new_entry.Mov_Tk01 += fabs(r_entry.Quantity);
-								}
-								else {
-									new_entry.Mov_Tk05 += fabs(r_entry.Quantity);
-								}
+						if(!rExclList.lsearch(r_entry.OpID)) {
+							PPOprKind op_rec;
+							if(IsIntrExpndOp(r_entry.OpID)) {
+								new_entry.Mov_Tk04 += fabs(r_entry.Quantity);
 							}
-							else if(r_entry.OpTypeID == PPOPT_GOODSEXPEND) {
-								if(op_rec.AccSheetID && op_rec.AccSheetID == sell_acs_id) {
-									new_entry.Mov_Tk02 += fabs(r_entry.Quantity);
+							else if(GetOpData(r_entry.OpID, &op_rec) > 0) {
+								if(r_entry.OpTypeID == PPOPT_GOODSRECEIPT) {
+									if(op_rec.AccSheetID && op_rec.AccSheetID == suppl_acs_id) {
+										new_entry.Mov_Tk01 += fabs(r_entry.Quantity);
+									}
+									else {
+										new_entry.Mov_Tk05 += fabs(r_entry.Quantity);
+									}
 								}
-								else if(op_rec.AccSheetID && op_rec.AccSheetID == suppl_acs_id) {
-									new_entry.Mov_Tk03 += fabs(r_entry.Quantity); // Возвраты поставщику
+								else if(r_entry.OpTypeID == PPOPT_GOODSEXPEND) {
+									if(op_rec.AccSheetID && op_rec.AccSheetID == sell_acs_id) {
+										new_entry.Mov_Tk02 += fabs(r_entry.Quantity);
+									}
+									else if(op_rec.AccSheetID && op_rec.AccSheetID == suppl_acs_id) {
+										new_entry.Mov_Tk03 += fabs(r_entry.Quantity); // Возвраты поставщику
+									}
 								}
 							}
 						}
@@ -9285,7 +9354,7 @@ public:
 		CATCHZOK
 		return ok;
 	}
-	int   ExportGoods(const TSVector <GoodsEntry> & rList)
+	int   ExportGoods(const TSVector <GoodsEntry> & rList, StringSet & rFileNameSet)
 	{
 		int    ok = 1;
 		SString temp_buf;
@@ -9315,11 +9384,12 @@ public:
 				}
 			}
 		}
+		rFileNameSet.add(out_file_name);
 		CATCHZOK
 		xmlFreeTextWriter(p_x);
 		return ok;
 	}
-	int   ExportWarehouses(const TSVector <WhEntry> & rList)
+	int   ExportWarehouses(const TSVector <WhEntry> & rList, StringSet & rFileNameSet)
 	{
 		int    ok = 1;
 		SString temp_buf;
@@ -9343,11 +9413,12 @@ public:
 				}
 			}
 		}
+		rFileNameSet.add(out_file_name);
 		CATCHZOK
 		xmlFreeTextWriter(p_x);
 		return ok;
 	}
-	int   ExportRest(const TSVector <StockEntry> & rList)
+	int   ExportRest(const TSVector <StockEntry> & rList, StringSet & rFileNameSet)
 	{
 		int    ok = 1;
 		SString temp_buf;
@@ -9379,11 +9450,12 @@ public:
 				}
 			}
 		}
+		rFileNameSet.add(out_file_name);
 		CATCHZOK
 		xmlFreeTextWriter(p_x);
 		return ok;
 	}
-	int   ExportMovement(const TSVector <StockEntry> & rList)
+	int   ExportMovement(const TSVector <StockEntry> & rList, StringSet & rFileNameSet)
 	{
 		int    ok = 1;
 		SString temp_buf;
@@ -9436,6 +9508,7 @@ public:
 				}
 			}
 		}
+		rFileNameSet.add(out_file_name);
 		CATCHZOK
 		xmlFreeTextWriter(p_x);
 		return ok;
@@ -10571,9 +10644,11 @@ int PrcssrSupplInterchange::Run()
 			AgentPlus cli(r_eb, logger);
 			const long actions = r_eb.P.Actions;
 			PPWaitStart();
+			StringSet ss_file_name;
 			THROW(cli.Init());
 			if(actions & SupplInterchangeFilt::opExportBills) {
-				cli.ExportAll();
+				cli.ExportAll(ss_file_name);
+				cli.TransmitFiles(ss_file_name);
 			}
 		}
 		else if(temp_buf.IsEqiAscii("VLADIMIRSKIY_STANDARD")) { // @v11.5.10

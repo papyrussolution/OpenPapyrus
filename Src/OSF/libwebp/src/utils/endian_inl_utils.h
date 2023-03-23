@@ -19,20 +19,20 @@
 	#define HToLE32(x) (x)
 	#define HToLE16(x) (x)
 #endif
-
 #if !defined(HAVE_CONFIG_H)
-#if LOCAL_GCC_PREREQ(4, 8) || __has_builtin(__builtin_bswap16)
-#define HAVE_BUILTIN_BSWAP16
-#endif
-#if LOCAL_GCC_PREREQ(4, 3) || __has_builtin(__builtin_bswap32)
-#define HAVE_BUILTIN_BSWAP32
-#endif
-#if LOCAL_GCC_PREREQ(4, 3) || __has_builtin(__builtin_bswap64)
-#define HAVE_BUILTIN_BSWAP64
-#endif
+	#if LOCAL_GCC_PREREQ(4, 8) || __has_builtin(__builtin_bswap16)
+		#define HAVE_BUILTIN_BSWAP16
+	#endif
+	#if LOCAL_GCC_PREREQ(4, 3) || __has_builtin(__builtin_bswap32)
+		#define HAVE_BUILTIN_BSWAP32
+	#endif
+	#if LOCAL_GCC_PREREQ(4, 3) || __has_builtin(__builtin_bswap64)
+		#define HAVE_BUILTIN_BSWAP64
+	#endif
 #endif  // !HAVE_CONFIG_H
 
-static FORCEINLINE uint16_t BSwap16(uint16_t x) {
+static FORCEINLINE uint16_t BSwap16(uint16_t x) 
+{
 #if defined(HAVE_BUILTIN_BSWAP16)
 	return __builtin_bswap16(x);
 #elif defined(_MSC_VER)
@@ -43,7 +43,8 @@ static FORCEINLINE uint16_t BSwap16(uint16_t x) {
 #endif  // HAVE_BUILTIN_BSWAP16
 }
 
-static FORCEINLINE uint32_t BSwap32(uint32_t x) {
+static FORCEINLINE uint32_t BSwap32(uint32_t x) 
+{
 #if defined(WEBP_USE_MIPS32_R2)
 	uint32_t ret;
 	__asm__ volatile (
@@ -66,7 +67,8 @@ static FORCEINLINE uint32_t BSwap32(uint32_t x) {
 #endif  // HAVE_BUILTIN_BSWAP32
 }
 
-static FORCEINLINE uint64_t BSwap64(uint64_t x) {
+static FORCEINLINE uint64_t BSwap64(uint64_t x) 
+{
 #if defined(HAVE_BUILTIN_BSWAP64)
 	return __builtin_bswap64(x);
 #elif defined(__x86_64__)

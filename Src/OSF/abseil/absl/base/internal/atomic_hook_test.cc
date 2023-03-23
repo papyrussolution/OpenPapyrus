@@ -24,7 +24,9 @@ namespace {
 using ::testing::Eq;
 
 int value = 0;
-void TestHook(int x) {
+
+void TestHook(int x) 
+{
 	value = x;
 }
 

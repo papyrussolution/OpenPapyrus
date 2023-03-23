@@ -48,10 +48,7 @@ TEST(InlineVariableTest, InitializedIdentityInequality) {
 }
 
 TEST(InlineVariableTest, FunPtrType) {
-	static_assert(
-		std::is_same<void (*)(),
-		std::decay<decltype(inline_variable_fun_ptr)>::type>::value,
-		"");
+	static_assert(std::is_same<void (*)(), std::decay<decltype(inline_variable_fun_ptr)>::type>::value, "");
 }
 }  // namespace
 }  // namespace inline_variable_testing_internal

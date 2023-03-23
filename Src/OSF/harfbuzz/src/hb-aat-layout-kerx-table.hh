@@ -46,23 +46,18 @@ namespace AAT {
 	};
 
 	struct KernPair {
-		int get_kerning() const {
-			return value;
-		}
-
+		int get_kerning() const { return value; }
 		int cmp(const hb_glyph_pair_t &o) const
 		{
 			int ret = left.cmp(o.left);
 			if(ret) return ret;
 			return right.cmp(o.right);
 		}
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
 			return_trace(c->check_struct(this));
 		}
-
 protected:
 		HBGlyphID left;
 		HBGlyphID right;

@@ -34,4 +34,5 @@
     <color name="InputValueValid">#00ffff</color>
     <color name="InputValueInvalid">#ff7f50</color>
     <color name="InputValueEmpty">@color/White</color>
+    <color name="ButtonBkgDisabled">#E4DCCF</color>
 </resources>

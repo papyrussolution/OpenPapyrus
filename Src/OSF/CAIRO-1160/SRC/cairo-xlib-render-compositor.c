@@ -1247,7 +1247,7 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 			    n = new;
 			    d = (uint32 *)data;
 			    do {
-				    *n++ = bswap_32(*d);
+				    *n++ = sbswap32(*d);
 				    d++;
 			    } while(--c);
 			    data = (uint8 *)new;

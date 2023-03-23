@@ -23,10 +23,7 @@
 namespace AAT {
 	struct SettingName {
 		friend struct FeatureName;
-		int cmp(hb_aat_layout_feature_selector_t key) const
-		{
-			return (int)key - (int)setting;
-		}
+		int cmp(hb_aat_layout_feature_selector_t key) const { return (int)key - (int)setting; }
 		hb_aat_layout_feature_selector_t get_selector() const
 		{
 			return (hb_aat_layout_feature_selector_t)(uint)setting;

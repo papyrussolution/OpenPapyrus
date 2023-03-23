@@ -6441,7 +6441,16 @@ int DocNalogRu_Generator::Underwriter(PPID psnID)
 				is_free = 1;
 		}
 		if(!psnID) {
-			psnID = is_free ? main_org_id : CConfig.MainOrgDirector_;
+			// @v11.6.7 Принята во внимание фиксированная должность персоналии
+			PPObjStaffList stlobj;
+			PersonPostTbl::Rec post_rec;
+			stlobj.GetFixedPostOnDate(main_org_id, PPFIXSTF_DIRECTOR, ZERODATE, &post_rec);
+			if(post_rec.PersonID) {
+				psnID = post_rec.PersonID;
+			}
+			else {
+				psnID = is_free ? main_org_id : CConfig.MainOrgDirector_;
+			}
 		}
 		if(psnID && PsnObj.Search(psnID, &psn_rec) > 0) {
 			SXml::WNode n_uw(P_X, GetToken_Ansi(PPHSC_RU_SIGNER));

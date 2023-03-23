@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
+#include "absl/absl-internal.h"
+#pragma hdrstop
+//#ifdef _WIN32
+//#include <windows.h>
+//#endif
 #include "gtest/gtest.h"
 #include "absl/base/internal/scoped_set_env.h"
 

@@ -71,7 +71,7 @@
 #ifdef WORDS_BIGENDIAN
 	#define to_be32(x) x
 #else
-	#define to_be32(x) bswap_32(x)
+	#define to_be32(x) sbswap32(x)
 #endif
 #define _cairo_output_stream_puts(S, STR) _cairo_output_stream_write((S), (STR), strlen(STR))
 #define static cairo_warn static
@@ -917,7 +917,7 @@ static cairo_status_t _write_image_surface(cairo_output_stream_t * output, const
 			    const uint16 * src = (const uint16 *)data;
 			    uint16 * dst = (uint16 *)rowdata;
 			    for(int col = 0; col < width; col++)
-				    dst[col] = bswap_16(src[col]);
+				    dst[col] = sbswap16(src[col]);
 			    _cairo_output_stream_write(output, rowdata, 2*width);
 			    data += stride;
 		    }
@@ -941,7 +941,7 @@ static cairo_status_t _write_image_surface(cairo_output_stream_t * output, const
 			    const uint32 * src = (const uint32 *)data;
 			    uint32 * dst = (uint32 *)rowdata;
 			    for(int col = 0; col < width; col++)
-				    dst[col] = bswap_32(src[col]);
+				    dst[col] = sbswap32(src[col]);
 			    _cairo_output_stream_write(output, rowdata, 4*width);
 			    data += stride;
 		    }
@@ -2080,30 +2080,20 @@ static cairo_status_t _emit_type42_font(cairo_script_surface_t * surface, cairo_
 	    "/type 42 "
 	    "/index 0 "
 	    "/flags %d "
-	    "/source <|",
-	    load_flags);
-
+	    "/source <|", load_flags);
 	base85_stream = _cairo_base85_stream_create(ctx->stream);
 	len = to_be32(size);
 	_cairo_output_stream_write(base85_stream, &len, sizeof(len));
-
 	zlib_stream = _cairo_deflate_stream_create(base85_stream);
-
 	_cairo_output_stream_write(zlib_stream, buf, size);
 	SAlloc::F(buf);
-
 	status2 = _cairo_output_stream_destroy(zlib_stream);
 	if(status == CAIRO_STATUS_SUCCESS)
 		status = status2;
-
 	status2 = _cairo_output_stream_destroy(base85_stream);
 	if(status == CAIRO_STATUS_SUCCESS)
 		status = status2;
-
-	_cairo_output_stream_printf(ctx->stream,
-	    "~> >> font dup /f%lu exch def set-font-face",
-	    _cairo_script_font_id(ctx, scaled_font));
-
+	_cairo_output_stream_printf(ctx->stream, "~> >> font dup /f%lu exch def set-font-face", _cairo_script_font_id(ctx, scaled_font));
 	return status;
 }
 

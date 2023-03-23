@@ -1316,8 +1316,8 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 //
 // @v11.2.0 { // @v11.4.0 (some modifications)
 #if !defined(RC_INVOKED) && !defined(NO_CLANG_BUILTIN) && __has_builtin(__builtin_rotateleft32) && __has_builtin(__builtin_rotateleft64)
-	uint32 FORCEINLINE slrotl32(uint32 x, uint n) { return __builtin_rotateleft32(x, n); }
-	uint64 FORCEINLINE slrotl64(uint64 x, uint n) { return __builtin_rotateleft64(x, n); }
+	FORCEINLINE uint32 slrotl32(uint32 x, uint n) { return __builtin_rotateleft32(x, n); }
+	FORCEINLINE uint64 slrotl64(uint64 x, uint n) { return __builtin_rotateleft64(x, n); }
 #elif defined(_MSC_VER)
 	// don't use _rotl with MINGW. It can insert slow call to function.
 	// #if(_MSC_VER >= 1200)
@@ -1326,16 +1326,16 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 	#pragma intrinsic(_rotl64)
 	#pragma intrinsic(_rotr64)
 	// #endif
-	uint32 FORCEINLINE slrotl32(uint32 x, uint n) { return _rotl(x, n); }
-	uint32 FORCEINLINE slrotr32(uint32 x, uint n) { return _rotr((x), (n)); }
-	uint64 FORCEINLINE slrotl64(uint64 x, uint n) { return _rotl64((x), (n)); }
-	uint64 FORCEINLINE slrotr64(uint64 x, uint n) { return _rotr64((x), (n)); }
+	FORCEINLINE uint32 slrotl32(uint32 x, uint n) { return _rotl(x, n); }
+	FORCEINLINE uint32 slrotr32(uint32 x, uint n) { return _rotr((x), (n)); }
+	FORCEINLINE uint64 slrotl64(uint64 x, uint n) { return _rotl64((x), (n)); }
+	FORCEINLINE uint64 slrotr64(uint64 x, uint n) { return _rotr64((x), (n)); }
 #else
 	// new compilers can translate these macros to fast commands
-	uint32 FORCEINLINE slrotl32(uint32 x, uint n) { return (((x) << (n)) | ((x) >> (32 - (n)))); }
-	uint32 FORCEINLINE slrotr32(uint32 x, uint n) { return (((x) >> (n)) | ((x) << (32 - (n)))); }
-	uint64 FORCEINLINE slrotl64(uint64 x, uint n) { return (((x) << (n)) | ((x) >> (64 - (n)))); }
-	uint64 FORCEINLINE slrotr64(uint64 x, uint n) { return (((x) >> (n)) | ((x) << (64 - (n)))); }
+	FORCEINLINE uint32 slrotl32(uint32 x, uint n) { return (((x) << (n)) | ((x) >> (32 - (n)))); }
+	FORCEINLINE uint32 slrotr32(uint32 x, uint n) { return (((x) >> (n)) | ((x) << (32 - (n)))); }
+	FORCEINLINE uint64 slrotl64(uint64 x, uint n) { return (((x) << (n)) | ((x) >> (64 - (n)))); }
+	FORCEINLINE uint64 slrotr64(uint64 x, uint n) { return (((x) >> (n)) | ((x) << (64 - (n)))); }
 #endif
 // } @v11.2.0
 //
@@ -5964,11 +5964,35 @@ uint32 FASTCALL swapdw(uint32 dw);
 //
 //
 //
-inline uint16 FASTCALL sbswap16(uint16 n) { return static_cast<uint16>(((n & 0x00FFU) << 8) | ((n & 0xFF00U) >> 8)); }
-inline uint32 FASTCALL sbswap32(uint32 n) { return static_cast<uint32>(((n & 0x000000FFU) << 24) | ((n & 0x0000FF00U) << 8) | ((n & 0x00FF0000U) >> 8) | ((n & 0xFF000000U) >> 24)); }
-inline uint64 FASTCALL sbswap64(uint64 n) { return static_cast<uint64>(((n & 0x00000000000000FFULL) << 56) | ((n & 0x000000000000FF00ULL) << 40) |
-	((n & 0x0000000000FF0000ULL) << 24) | ((n & 0x00000000FF000000ULL) << 8)  | ((n & 0x000000FF00000000ULL) >> 8) |
-	((n & 0x0000FF0000000000ULL) >> 24) | ((n & 0x00FF000000000000ULL) >> 40) | ((n & 0xFF00000000000000ULL) >> 56)); }
+FORCEINLINE uint16 sbswap16_fallback(uint16 n) { return static_cast<uint16>(((n & 0x00FFU) << 8) | ((n & 0xFF00U) >> 8)); }
+FORCEINLINE uint32 sbswap32_fallback(uint32 n) { return static_cast<uint32>(((n & 0x000000FFU) << 24) | ((n & 0x0000FF00U) << 8) | ((n & 0x00FF0000U) >> 8) | ((n & 0xFF000000U) >> 24)); }
+FORCEINLINE uint64 sbswap64_fallback(uint64 n)
+{
+	return static_cast<uint64>(((n & 0x00000000000000FFULL) << 56) | ((n & 0x000000000000FF00ULL) << 40) |
+		((n & 0x0000000000FF0000ULL) << 24) | ((n & 0x00000000FF000000ULL) << 8) | ((n & 0x000000FF00000000ULL) >> 8) |
+		((n & 0x0000FF0000000000ULL) >> 24) | ((n & 0x00FF000000000000ULL) >> 40) | ((n & 0xFF00000000000000ULL) >> 56));
+}
+
+#if defined(_MSC_VER) && _MSC_VER >= 1400  // Visual Studio 
+	#pragma intrinsic(_byteswap_ushort)
+	#pragma intrinsic(_byteswap_ulong)
+	#pragma intrinsic(_byteswap_uint64)
+	FORCEINLINE uint16 sbswap16(uint16 n) { return _byteswap_ushort(n); }
+	FORCEINLINE uint32 sbswap32(uint32 n) { return _byteswap_ulong(n); }
+	FORCEINLINE uint64 sbswap64(uint64 n) { return _byteswap_uint64(n); }
+#elif defined(__GNUC__) && ((__GNUC__ == 4 && __GNUC_MINOR__ >= 8) || __GNUC__ > 4) // GCC 4.8 and later has __builtin_bswapXX() 
+	FORCEINLINE uint16 sbswap16(uint16 n) { return __builtin_bswap16(n); }
+	FORCEINLINE uint32 sbswap32(uint32 n) { return __builtin_bswap32(n); }
+	FORCEINLINE uint64 sbswap64(uint64 n) { return __builtin_bswap64(n); }
+#elif defined(__clang__) // All clang versions have __builtin_bswapXX()
+	FORCEINLINE uint16 sbswap16(uint16 n) { return __builtin_bswap16(n); }
+	FORCEINLINE uint32 sbswap32(uint32 n) { return __builtin_bswap32(n); }
+	FORCEINLINE uint64 sbswap64(uint64 n) { return __builtin_bswap64(n); }
+#else
+	FORCEINLINE uint16 sbswap16(uint16 n) { return sbswap16_fallback(n); }
+	FORCEINLINE uint32 sbswap32(uint32 n) { return sbswap32_fallback(n); }
+	FORCEINLINE uint64 sbswap64(uint64 n) { return sbswap64_fallback(n); }
+#endif
 //
 // Descr: Находит самый старший установленный бит (MSB) в x.
 // Returns:

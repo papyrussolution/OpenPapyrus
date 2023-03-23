@@ -21,11 +21,7 @@ using namespace CFF;
 struct sid_to_gid_t {
 	uint16_t sid;
 	uint8_t gid;
-	int cmp(uint16_t a) const
-	{
-		if(a == sid) return 0;
-		return (a < sid) ? -1 : 1;
-	}
+	int cmp(uint16_t a) const { return (a == sid) ? 0 : ((a < sid) ? -1 : 1); }
 };
 
 /* SID to code */

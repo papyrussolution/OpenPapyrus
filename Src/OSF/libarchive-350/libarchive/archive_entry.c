@@ -897,14 +897,14 @@ void archive_entry_set_rdevminor(ArchiveEntry * entry, dev_t m)
 	entry->ae_stat.aest_rdevminor = m;
 }
 
-void archive_entry_set_size(ArchiveEntry * entry, la_int64_t s)
+void STDCALL archive_entry_set_size(ArchiveEntry * entry, la_int64_t s)
 {
 	entry->stat_valid = 0;
 	entry->ae_stat.aest_size = s;
 	entry->ae_set |= AE_SET_SIZE;
 }
 
-void archive_entry_unset_size(ArchiveEntry * entry)
+void FASTCALL archive_entry_unset_size(ArchiveEntry * entry)
 {
 	archive_entry_set_size(entry, 0);
 	entry->ae_set &= ~AE_SET_SIZE;

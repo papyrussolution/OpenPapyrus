@@ -99,8 +99,7 @@ typedef ssize_t la_ssize_t;
 #  endif
 #endif
 #else
-/* Static libraries on all platforms and shared libraries on non-Windows. */
-#define __LA_DECL
+#define __LA_DECL // Static libraries on all platforms and shared libraries on non-Windows
 #endif
 
 #if defined(__GNUC__) && __GNUC__ >= 3 && __GNUC_MINOR__ >= 1
@@ -319,8 +318,8 @@ __LA_DECL void	archive_entry_set_perm(ArchiveEntry *, __LA_MODE_T);
 __LA_DECL void	archive_entry_set_rdev(ArchiveEntry *, dev_t);
 __LA_DECL void	archive_entry_set_rdevmajor(ArchiveEntry *, dev_t);
 __LA_DECL void	archive_entry_set_rdevminor(ArchiveEntry *, dev_t);
-__LA_DECL void	archive_entry_set_size(ArchiveEntry *, la_int64_t);
-__LA_DECL void	archive_entry_unset_size(ArchiveEntry *);
+__LA_DECL void	STDCALL archive_entry_set_size(ArchiveEntry *, la_int64_t);
+__LA_DECL void	FASTCALL archive_entry_unset_size(ArchiveEntry *);
 __LA_DECL void	archive_entry_copy_sourcepath(ArchiveEntry *, const char *);
 __LA_DECL void	archive_entry_copy_sourcepath_w(ArchiveEntry *, const wchar_t *);
 __LA_DECL void	archive_entry_set_symlink(ArchiveEntry *, const char *);

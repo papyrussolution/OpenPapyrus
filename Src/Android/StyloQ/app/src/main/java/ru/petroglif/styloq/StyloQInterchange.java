@@ -880,16 +880,18 @@ public class StyloQInterchange {
 					rtb.InnerSvcID = svc_pack.Rec.ID;
 					if(svc_pack.Rec.CorrespondID > 0) { // Для этого сервиса есть сохраненная сессия
 						StyloQDatabase.SecStoragePacket corr_pack = db.GetPeerEntry(svc_pack.Rec.CorrespondID);
-						THROW(corr_pack.Rec.Kind == StyloQDatabase.SecStoragePacket.kSession, ppstr2.PPERR_SQ_WRONGDBITEMKIND);
-						//byte [] sess_secret = rtb.Sess.Get(SecretTagPool.tagSecret);
-						if(!StyloQInterchange.IsExpired(corr_pack.Rec.Expiration)) {
-							byte[] temp_bch = svc_pack.Pool.Get(SecretTagPool.tagClientIdent);
-							rtb.Sess.Put(SecretTagPool.tagClientIdent, temp_bch);
-							int cid_list[] = {SecretTagPool.tagSessionPrivateKey, SecretTagPool.tagSessionPublicKey,
-									SecretTagPool.tagSessionSecret, SecretTagPool.tagSvcIdent, SecretTagPool.tagSessionPublicKeyOther};
-							rtb.Sess.CopyFrom(corr_pack.Pool, cid_list, true);
-							rtb.InnerSessID = corr_pack.Rec.ID;
-							do_generate_public_ident = false;
+						if(corr_pack != null) { // @v11.6.7
+							THROW(corr_pack.Rec.Kind == StyloQDatabase.SecStoragePacket.kSession, ppstr2.PPERR_SQ_WRONGDBITEMKIND);
+							//byte [] sess_secret = rtb.Sess.Get(SecretTagPool.tagSecret);
+							if(!StyloQInterchange.IsExpired(corr_pack.Rec.Expiration)) {
+								byte[] temp_bch = svc_pack.Pool.Get(SecretTagPool.tagClientIdent);
+								rtb.Sess.Put(SecretTagPool.tagClientIdent, temp_bch);
+								int cid_list[] = {SecretTagPool.tagSessionPrivateKey, SecretTagPool.tagSessionPublicKey,
+										SecretTagPool.tagSessionSecret, SecretTagPool.tagSvcIdent, SecretTagPool.tagSessionPublicKeyOther};
+								rtb.Sess.CopyFrom(corr_pack.Pool, cid_list, true);
+								rtb.InnerSessID = corr_pack.Rec.ID;
+								do_generate_public_ident = false;
+							}
 						}
 					}
 				}

@@ -80,19 +80,17 @@ static hb_bool_t hb_unicode_decompose_nil(hb_unicode_funcs_t * ufuncs CXX_UNUSED
 }
 
 #ifndef HB_DISABLE_DEPRECATED
-static uint hb_unicode_decompose_compatibility_nil(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM, hb_codepoint_t u CXX_UNUSED_PARAM,
-    hb_codepoint_t * decomposed CXX_UNUSED_PARAM, void * user_data CXX_UNUSED_PARAM)
-{
-	return 0;
-}
-
+	static uint hb_unicode_decompose_compatibility_nil(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM, hb_codepoint_t u CXX_UNUSED_PARAM,
+		hb_codepoint_t * decomposed CXX_UNUSED_PARAM, void * user_data CXX_UNUSED_PARAM)
+	{
+		return 0;
+	}
 #endif
-
 #if !defined(HB_NO_UNICODE_FUNCS) && defined(HAVE_GLIB)
-#include "hb-glib.h"
+	#include "hb-glib.h"
 #endif
 #if !defined(HB_NO_UNICODE_FUNCS) && defined(HAVE_ICU) && defined(HAVE_ICU_BUILTIN)
-#include "hb-icu.h"
+	#include "hb-icu.h"
 #endif
 
 hb_unicode_funcs_t * hb_unicode_funcs_get_default()
@@ -128,19 +126,15 @@ hb_unicode_funcs_t * hb_unicode_funcs_create(hb_unicode_funcs_t * parent)
 		parent = hb_unicode_funcs_get_empty();
 	hb_unicode_funcs_make_immutable(parent);
 	ufuncs->parent = hb_unicode_funcs_reference(parent);
-
 	ufuncs->func = parent->func;
-
 	/* We can safely copy user_data from parent since we hold a reference
 	 * onto it and it's immutable.  We should not copy the destroy notifiers
 	 * though. */
 	ufuncs->user_data = parent->user_data;
-
 	return ufuncs;
 }
 
-DEFINE_NULL_INSTANCE(hb_unicode_funcs_t) =
-{
+DEFINE_NULL_INSTANCE(hb_unicode_funcs_t) = {
 	HB_OBJECT_HEADER_STATIC,
 	nullptr, /* parent */
 	{

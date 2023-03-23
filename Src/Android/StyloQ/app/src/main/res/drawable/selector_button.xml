@@ -3,5 +3,6 @@
     <item android:state_pressed="true" android:drawable="@drawable/shape_button_accented"/>
     <item android:state_focused="true" android:drawable="@drawable/shape_button_accented"/>
     <item android:state_hovered="true" android:drawable="@drawable/shape_button_accented"/>
+    <item android:state_enabled="false" android:drawable="@drawable/shape_button_disabled"/>
     <item android:drawable="@drawable/shape_button"/>
 </selector>

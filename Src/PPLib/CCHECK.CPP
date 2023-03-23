@@ -2586,8 +2586,10 @@ int CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, double
 						scop_rec.UserID  = pPack->Rec.UserID;
 						// @v11.5.11 scop_rec.Amount  = -r_entry.Amount;
 						// @v11.5.11 {
-						if(scst == scstCredit)
-							scop_rec.Amount  = r_entry.Amount;
+						if(scst == scstCredit) {
+							// @v11.6.7 scop_rec.Amount  = r_entry.Amount;
+							scop_rec.Amount  = -r_entry.Amount; // @v11.6.7
+						}
 						else {
 							assert(scst == scstBonus);
 							scop_rec.Amount  = -r_entry.Amount;

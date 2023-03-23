@@ -345,15 +345,11 @@ hb_font_t * hb_coretext_font_create(CTFontRef ct_font)
 	CFRelease(cg_font);
 	hb_font_t * font = hb_font_create(face);
 	hb_face_destroy(face);
-
 	if(UNLIKELY(hb_object_is_immutable(font)))
 		return font;
-
 	hb_font_set_ptem(font, CTFontGetSize(ct_font));
-
 	/* Let there be dragons here... */
 	font->data.coretext.cmpexch(nullptr, (hb_coretext_font_data_t*)CFRetain(ct_font));
-
 	return font;
 }
 
@@ -373,11 +369,9 @@ CTFontRef hb_coretext_font_get_ct_font(hb_font_t * font)
 	const hb_coretext_font_data_t * data = hb_coretext_font_data_sync(font);
 	return data ? (CTFontRef)data : nullptr;
 }
-
 /*
  * shaper
  */
-
 struct feature_record_t {
 	uint feature;
 	uint setting;
@@ -386,7 +380,6 @@ struct feature_record_t {
 struct active_feature_t {
 	feature_record_t rec;
 	uint order;
-
 	HB_INTERNAL static int cmp(const void * pa, const void * pb) {
 		const active_feature_t * a = (const active_feature_t*)pa;
 		const active_feature_t * b = (const active_feature_t*)pb;

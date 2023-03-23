@@ -1763,7 +1763,6 @@ class ppstr2 {
 	public static final int PPERR_EGAIS_QUERYFORMREGIDEMPTY = 11739;
 	public static final int PPERR_ALCRCFG_INVEXPNDOP = 11740;
 	public static final int PPERR_EGAIS_PERSONFSRARIDUNDEF = 11741;
-	public static final int PPERR_EGAIS_PERSONINNUNDEF = 11742;
 	public static final int PPERR_EGAIS_PERSONKPPUNDEF = 11743;
 	public static final int PPERR_TSESSCIPOP_TSESSAMB = 11744;
 	public static final int PPERR_TSESSCIPOP_NOCRIT = 11745;
@@ -2196,6 +2195,12 @@ class ppstr2 {
 	public static final int PPERR_STQ_UNDEFWHFORORDERPREREQ = 12177;
 	public static final int PPERR_STQ_EXCECMD_GEOLOCDISABLED = 12178;
 	public static final int PPERR_STQ_PSNEV_MAXDISTRESTRICTION = 12179;
+	public static final int PPERR_PERSONINNUNDEF = 12180;
+	public static final int PPERR_PERSONINNINVALID = 12182;
+	public static final int PPERR_UED_VALUENOTBELONGTOMETA = 12183;
+	public static final int PPERR_UED_SYMBFORMETANOTFOUND = 12184;
+	public static final int PPERR_UED_PREVVERV_SYMBREMOVED = 12185;
+	public static final int PPERR_UED_PREVVERV_PREVSYMBMODIFIED = 12186;
 	//
 	// .N.
 	//
@@ -4519,6 +4524,9 @@ class ppstr2 {
 	public static final int PPINIPARAM_ATOLDRIVER_JSON = 12068;
 	public static final int PPTXT_STQ_AUTOMATCHED = 12069;
 	public static final int PPINIPARAM_EXPNALOGRUPLAINADDR = 12070;
+	public static final int PPTXT_LOG_SHTRIH_INITIFCMETHFAULT = 12071;
+	public static final int PPTXT_STQ_ZEROSTOCKNOTIFICATION = 12072;
+	public static final int PPTXT_STQ_ORDQTYGTSTOCK = 12073;
 	//
 	// .N.
 	//

@@ -130,29 +130,14 @@ const struct Curl_handler Curl_handler_smbs = {
 	p += strlen(str) + 1;
 
 /* SMB is mostly little endian */
-#if(defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__) || \
-	defined(__OS400__)
-static ushort smb_swap16(ushort x)
-{
-	return (ushort)((x << 8) | ((x >> 8) & 0xff));
-}
-
-static unsigned int smb_swap32(unsigned int x)
-{
-	return (x << 24) | ((x << 8) & 0xff0000) | ((x >> 8) & 0xff00) |
-	       ((x >> 24) & 0xff);
-}
-
-static curl_off_t smb_swap64(curl_off_t x)
-{
-	return ((curl_off_t)smb_swap32((uint)x) << 32) |
-	       smb_swap32((uint)(x >> 32));
-}
-
+#if(defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__) || defined(__OS400__)
+	static ushort smb_swap16(ushort x) { return (ushort)((x << 8) | ((x >> 8) & 0xff)); }
+	static unsigned int smb_swap32(unsigned int x) { return (x << 24) | ((x << 8) & 0xff0000) | ((x >> 8) & 0xff00) | ((x >> 24) & 0xff); }
+	static curl_off_t smb_swap64(curl_off_t x) { return ((curl_off_t)smb_swap32((uint)x) << 32) | smb_swap32((uint)(x >> 32)); }
 #else
-#define smb_swap16(x) (x)
-#define smb_swap32(x) (x)
-#define smb_swap64(x) (x)
+	#define smb_swap16(x) (x)
+	#define smb_swap32(x) (x)
+	#define smb_swap64(x) (x)
 #endif
 
 /* SMB request state */

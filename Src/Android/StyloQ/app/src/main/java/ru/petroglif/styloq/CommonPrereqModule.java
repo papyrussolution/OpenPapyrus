@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -2736,10 +2737,14 @@ public class CommonPrereqModule {
 	public static class TransferItemDialog extends SLib.SlDialog {
 		SLib.SlActivity ActivityCtx;
 		CommonPrereqModule CPM;
+		boolean HideStock;
+		CommonPrereqModule.WareEntry GoodsItem;
 		public TransferItemDialog(Context ctx, CommonPrereqModule cpm, Object data)
 		{
 			super(ctx, R.id.DLG_ORDRTI, data);
 			CPM = cpm;
+			HideStock = true;
+			GoodsItem = null;
 			if(ctx instanceof /*CmdROrderPrereqActivity*/SLib.SlActivity)
 				ActivityCtx = (/*CmdROrderPrereqActivity*/SLib.SlActivity)ctx;
 			if(data instanceof Document.TransferItem)
@@ -2815,9 +2820,9 @@ public class CommonPrereqModule {
 								public void onTextChanged(CharSequence s, int start, int before, int count)
 								{
 									String text = s.toString();
-									if(CPM != null && Data != null && SLib.GetLen(text) > 0) {
+									if(CPM != null && Data != null) {
 										Document.TransferItem _data = (Document.TransferItem)Data;
-										double qtty = Double.parseDouble(text);
+										double qtty = (SLib.GetLen(text) > 0) ? Double.parseDouble(text) : 0.0;
 										if(qtty < 0.0)
 											qtty = 0.0;
 										if(_data.Set == null)
@@ -2827,6 +2832,43 @@ public class CommonPrereqModule {
 										if(vamt != null && vamt instanceof TextView) {
 											String amt_text = CPM.FormatCurrency(_data.Set.Qtty * _data.Set.Price);
 											((TextView)vamt).setText(amt_text);
+										}
+										if(qtty == 0.0) {
+											//
+										}
+										{
+											View info_text_v = findViewById(R.id.CTL_ORDRTI_INFO);
+											if(info_text_v != null && info_text_v instanceof TextView) {
+												String info_text = null;
+												if(ActivityCtx != null) {
+													StyloQApp app_ctx = ActivityCtx.GetAppCtx();
+													if(app_ctx != null) {
+														if(GoodsItem != null && GoodsItem.Item != null && !HideStock) {
+															double _stock = GoodsItem.Item.Stock;
+															if(_stock <= 0.0) {
+																if(qtty > 0.0)
+																	info_text = app_ctx.GetString(ppstr2.PPSTR_TEXT, ppstr2.PPTXT_STQ_ZEROSTOCKNOTIFICATION);
+															}
+															else if(qtty > _stock) {
+																info_text = app_ctx.GetString(ppstr2.PPSTR_TEXT, ppstr2.PPTXT_STQ_ORDQTYGTSTOCK);
+															}
+														}
+													}
+												}
+												if(SLib.GetLen(info_text) > 0) {
+													info_text_v.setVisibility(View.VISIBLE);
+													((TextView)info_text_v).setText(info_text);
+												}
+												else {
+													info_text_v.setVisibility(View.GONE);
+													((TextView)info_text_v).setText("");
+												}
+											}
+										}
+										{
+											View bv = findViewById(R.id.STDCTL_OKBUTTON);
+											if(bv != null && bv instanceof Button)
+												((Button)bv).setEnabled((_data.RowIdx > 0 || qtty > 0.0));
 										}
 									}
 								}
@@ -2889,12 +2931,15 @@ public class CommonPrereqModule {
 		boolean SetDTS(Object objData)
 		{
 			boolean ok = true;
+			GoodsItem = null;
+			View info_text_v = findViewById(R.id.CTL_ORDRTI_INFO);
+			if(info_text_v != null && info_text_v instanceof TextView)
+				info_text_v.setVisibility(View.GONE);
 			if(CPM != null && objData != null && objData.getClass() == Data.getClass()) {
 				Context ctx = getContext();
 				StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
 				if(app_ctx != null) {
 					Document.TransferItem _data = null;
-					CommonPrereqModule.WareEntry goods_item = null;
 					if(Data != null && Data instanceof Document.TransferItem)
 						_data = (Document.TransferItem)Data;
 					else {
@@ -2904,29 +2949,36 @@ public class CommonPrereqModule {
 					double _upp = 0.0; // Емкость упаковки
 					double _mult = 0.0; // Кратность количества в заказе
 					double _min = 0.0;	// Минимальный заказ
+					double _price = 0.0;
+					double _qtty = 0.0;
 					SLib.LDATE  _expiry_date = null;
-					boolean hide_stock = true;
 					double _stock = 0.0;
 					String text = "";
 					String blob_signature = null;
 					int    uom_id = 0;
-					if(_data != null && _data.GoodsID > 0 && ActivityCtx != null) {
-						goods_item = CPM.FindGoodsItemByGoodsID(_data.GoodsID);
-						if(goods_item != null && goods_item.Item != null) {
-							uom_id = goods_item.Item.UomID;
-							text = goods_item.Item.Name;
-							blob_signature =  goods_item.Item.ImgBlob;
-							//
-							_upp = goods_item.Item.UnitPerPack;
-							_mult = goods_item.Item.OrdQtyMult;
-							_min = goods_item.Item.OrdMinQty;
-							//
-							hide_stock = (CPM.GetOption_HideStock() || goods_item.Item.HideStock);
-							_stock = goods_item.Item.Stock;
-							_expiry_date = goods_item.Expiry;
+					if(_data != null) {
+						if(_data.GoodsID > 0 && ActivityCtx != null) {
+							GoodsItem = CPM.FindGoodsItemByGoodsID(_data.GoodsID);
+							if(GoodsItem != null && GoodsItem.Item != null) {
+								uom_id = GoodsItem.Item.UomID;
+								text = GoodsItem.Item.Name;
+								blob_signature = GoodsItem.Item.ImgBlob;
+								//
+								_upp = GoodsItem.Item.UnitPerPack;
+								_mult = GoodsItem.Item.OrdQtyMult;
+								_min = GoodsItem.Item.OrdMinQty;
+								//
+								HideStock = (CPM.GetOption_HideStock() || GoodsItem.Item.HideStock);
+								_stock = GoodsItem.Item.Stock;
+								_expiry_date = GoodsItem.Expiry;
+							}
+						}
+						if(_data.Set != null) {
+							_price = _data.Set.Price;
+							_qtty = _data.Set.Qtty;
 						}
 					}
-					if(hide_stock) {
+					if(HideStock) {
 						SLib.SetCtrlVisibility(this, R.id.CTLGRP_ORDRTI_STOCK, View.GONE);
 					}
 					else {
@@ -2960,10 +3012,14 @@ public class CommonPrereqModule {
 						SLib.SetCtrlVisibility(this, R.id.CTL_ORDRTI_MINORMULT, View.GONE);
 					}
 					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_GOODSNAME, text);
-					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_PRICE, CPM.FormatCurrency(_data.Set.Price));
-					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_QTTY, CPM.FormatQtty(_data.Set.Qtty,  uom_id, true));
-					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_AMOUNT, CPM.FormatCurrency(_data.Set.Qtty * _data.Set.Price));
-					//
+					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_PRICE, CPM.FormatCurrency(_price));
+					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_QTTY, CPM.FormatQtty(_qtty,  uom_id, true));
+					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_AMOUNT, CPM.FormatCurrency(_qtty * _price));
+					{
+						View bv = findViewById(R.id.STDCTL_OKBUTTON);
+						if(bv != null && bv instanceof Button)
+							((Button)bv).setEnabled((_data.RowIdx > 0 || _qtty > 0.0));
+					}
 					SLib.SetupImage(ActivityCtx, this.findViewById(R.id.CTL_ORDRTI_IMG), blob_signature, false);
 				}
 			}

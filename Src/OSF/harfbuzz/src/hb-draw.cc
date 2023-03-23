@@ -159,11 +159,9 @@ hb_draw_funcs_t * hb_draw_funcs_reference(hb_draw_funcs_t * funcs)
  **/
 void hb_draw_funcs_destroy(hb_draw_funcs_t * funcs)
 {
-	if(!hb_object_destroy(funcs)) return;
-
-	SAlloc::F(funcs);
+	if(hb_object_destroy(funcs))
+		SAlloc::F(funcs);
 }
-
 /**
  * hb_draw_funcs_make_immutable:
  * @funcs: draw functions
@@ -174,11 +172,9 @@ void hb_draw_funcs_destroy(hb_draw_funcs_t * funcs)
  **/
 void hb_draw_funcs_make_immutable(hb_draw_funcs_t * funcs)
 {
-	if(hb_object_is_immutable(funcs))
-		return;
-	hb_object_make_immutable(funcs);
+	if(!hb_object_is_immutable(funcs))
+		hb_object_make_immutable(funcs);
 }
-
 /**
  * hb_draw_funcs_is_immutable:
  * @funcs: draw functions

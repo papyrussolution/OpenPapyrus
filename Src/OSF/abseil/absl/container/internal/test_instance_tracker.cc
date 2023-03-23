@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "absl/absl-internal.h"
+#pragma hdrstop
 #include "absl/container/internal/test_instance_tracker.h"
 
 namespace absl {
@@ -23,7 +25,6 @@ int BaseCountedInstance::num_moves_ = 0;
 int BaseCountedInstance::num_copies_ = 0;
 int BaseCountedInstance::num_swaps_ = 0;
 int BaseCountedInstance::num_comparisons_ = 0;
-
 }  // namespace test_internal
 ABSL_NAMESPACE_END
 }  // namespace absl
