@@ -1064,6 +1064,8 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		// Descr: Возвращает список складов, ассоциированных с конфигурацией обмена данными поставщика
 		//
 		ILongList * GetSupplInterchangeLocList(in long supplID); // @v9.9.5
+		int    IsIntrOp(in long opID); // @v11.6.8
+		int    IsExpendOp(in long opID); // @v11.6.8
 	}
 	//
 	// Descr: Зарезервированные теги объектов
@@ -1828,10 +1830,18 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		ppoptCharge       = 10, // Начисление
 		ppoptGeneric      = 11, // Обобщение (коллекция операций)
 		ppoptGoodsAck     = 12, // Acknowledge receipt of goods
-		ppoptPool = 13, // Пул документов
+		ppoptPool         = 13, // Пул документов
 		ppoptCashSess     = 14, // Кассовая сессия //
 		ppoptDraftReceipt = 15, // Draft goods receiption bill
-		ppoptDraftExpend  = 16  // Draft goods expend bill
+		ppoptDraftExpend  = 16, // Draft goods expend bill
+		ppoptWarehouse    = 17, // @v11.6.8 Документы складских операций. Строки этиъ документов выполняют товарные транзакции над ячейками склада.
+		ppoptExternal     = 18, // @v11.6.8 Специализированный тип операции, определяющий документ, содержащий внешний документ (обычно, файл).
+		ppoptAgreement    = 19, // @v11.6.8 Соглашение (договор) с покупателем или поставщиком
+		ppoptCorrection   = 20, // @v11.6.8 Корректирующий документ
+		ppoptDraftTransit = 21, // @v11.6.8 Специальная категория драфт-документов, которые
+			// отражают транзакции и отчеты сторонних контрагентов, для обмена друг с другом посредством системы, но
+			// без посредничества главной организации.
+		ppoptDraftQuotReq = 22  // @v11.6.8 Запрос котировок (запрос на возможность, сроки и стоимость поставки товаров)
 	}
 
 	struct SPpyO_OprKind {

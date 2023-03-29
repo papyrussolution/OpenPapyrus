@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\abseil\absl\base\internal\endian_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\internal\atomic_hook_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\internal\errno_saver_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\internal\exception_safety_testing.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\internal\fast_type_id_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\internal\atomic_hook_test_helper.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\internal\low_level_alloc_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\internal\prefetch_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\internal\scoped_set_env_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\internal\strerror_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\internal\sysinfo_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\internal\thread_identity_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\internal\unique_small_name_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\bit_cast_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\call_once_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\config_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\exception_safety_testing_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\inline_variable_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\inline_variable_test_a.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\inline_variable_test_b.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\invoke_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\log_severity_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\base\optimization_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\algorithm\algorithm_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\algorithm\container_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\absl-pch.cpp" />
+    <ClCompile Include="..\OSF\abseil\absl\cleanup\cleanup_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\btree_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\fixed_array_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\flat_hash_map_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\flat_hash_set_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\inlined_vector_exception_safety_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\inlined_vector_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\node_hash_map_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\node_hash_set_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\sample_element_size_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\internal\compressed_tuple_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\internal\container_memory_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\internal\hash_function_defaults_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\internal\hash_policy_testing_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\internal\hash_policy_traits_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\internal\hashtablez_sampler_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\internal\layout_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\internal\node_slot_policy_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\internal\raw_hash_set_allocator_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\internal\test_instance_tracker_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\internal\unordered_map_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\internal\unordered_set_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\internal\test_instance_tracker.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\container\internal\hash_generator_testing.cc" />
+  </ItemGroup>
+</Project>

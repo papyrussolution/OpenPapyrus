@@ -3,8 +3,8 @@
 // 
 // Decimal Number arithmetic module
 // 
-/* Copyright (c) IBM Corporation, 2000-2014.  All rights reserved.    */
-/* */
+// Copyright (c) IBM Corporation, 2000-2014.  All rights reserved.
+//
 /* This software is made available under the terms of the    */
 /* ICU License -- ICU 1.8.1 and later.     */
 /* */
@@ -663,7 +663,7 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromString(decNumber * dn, const char
       #endif
 		} /* at least one leading 0  */
 		/* Handle decimal point...  */
-		if(dotchar!=NULL && dotchar<last) /* non-trailing '.' found?  */
+		if(dotchar && dotchar<last) /* non-trailing '.' found?  */
 			exponent -= static_cast<int32_t>(last-dotchar); /* adjust exponent  */
 		/* [we can now ignore the .]  */
 
@@ -8138,7 +8138,8 @@ static Flag decCheckNumber(const decNumber * dn)
 /* [this check is not made for DECSUBSET compilation or when */
 /* subnormal is not set] */
 /* ------------------------------------------------------------------ */
-static void decCheckInexact(const decNumber * dn, decContext * set) {
+static void decCheckInexact(const decNumber * dn, decContext * set) 
+{
   #if !DECSUBSET && DECEXTFLAG
 	if((set->status & (DEC_Inexact|DEC_Subnormal))==DEC_Inexact
 	 && (set->digits!=dn->digits) && !(dn->bits & DECSPECIAL)) {
@@ -8151,7 +8152,8 @@ static void decCheckInexact(const decNumber * dn, decContext * set) {
 	}
   #else
 	/* next is a noop for quiet compiler  */
-	if(dn!=NULL && dn->digits==0) set->status |= DEC_Invalid_operation;
+	if(dn && dn->digits==0) 
+		set->status |= DEC_Invalid_operation;
   #endif
 	return;
 }   /* decCheckInexact  */

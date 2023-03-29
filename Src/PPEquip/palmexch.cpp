@@ -1117,7 +1117,7 @@ int PalmTcpExchange::TblDelRec(SpiiDbHandler h, SpiiTblRecParams * pParams)
 	return SpiiCmd(P_So, &in_buf, &params, &out_buf, 0, "TblDelRec");
 }
 
-int PalmTcpExchange::TblGetRec(SpiiDbHandler h, SpiiTblRecParams * pParams, void * pRec, ulong * pBufSize)
+int PalmTcpExchange::TblGetRec(SpiiDbHandler h, SpiiTblRecParams * pParams, void * pRec, uint32 * pBufSize)
 {
 	int    ok = 1;
 	size_t params_size = sizeof(SpiiTblRecParams);
@@ -1142,8 +1142,8 @@ int PalmTcpExchange::TblGetRec(SpiiDbHandler h, SpiiTblRecParams * pParams, void
 	return ok;
 }
 
-int PalmTcpExchange::TblGetTbl(SpiiDbHandler h, void *, ulong * pBufSize) { return -1; }
-int PalmTcpExchange::TblSetTbl(SpiiDbHandler h, const void *, ulong bufSize) { return -1; }
+int PalmTcpExchange::TblGetTbl(SpiiDbHandler h, void *, uint32 * pBufSize) { return -1; }
+int PalmTcpExchange::TblSetTbl(SpiiDbHandler h, const void *, uint32 bufSize) { return -1; }
 int PalmTcpExchange::TblPurgeAllRecs(SpiiDbHandler h) { return -1; }
 
 int PalmTcpExchange::TblDelete(const char * pTblName)

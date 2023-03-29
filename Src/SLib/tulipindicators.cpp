@@ -1,4 +1,5 @@
 // tulipindicators.c
+// @codepage UTF-8
 // 
 // Tulip Indicators https://tulipindicators.org/
 // Copyright (c) 2010-2016 Tulip Charts LLC
@@ -3330,12 +3331,12 @@ SLTEST_R(TulipIndicators)
 			rDataSet.freeAll();
 			int    ok = -1;
 			int    rlr = 0;
-			uint   _line_count = 0; // Êîëè÷åñòâî ñ÷èòàííûõ ñòðîê áåç ó÷åòà êîììåíòàðèåâ è ïóñòûõ ñòðîê
-			uint   _real_line_count = 0; // Ôèçè÷åñêîå êîëè÷åñòâî ñ÷èòàííûõ ñòðîê (õîòü êîììåíòàðèé, õîòü ÷òî)
+			uint   _line_count = 0; // ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ ÑÑ‡Ð¸Ñ‚Ð°Ð½Ð½Ñ‹Ñ… ÑÑ‚Ñ€Ð¾Ðº Ð±ÐµÐ· ÑƒÑ‡ÐµÑ‚Ð° ÐºÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð°Ñ€Ð¸ÐµÐ² Ð¸ Ð¿ÑƒÑÑ‚Ñ‹Ñ… ÑÑ‚Ñ€Ð¾Ðº
+			uint   _real_line_count = 0; // Ð¤Ð¸Ð·Ð¸Ñ‡ÐµÑÐºÐ¾Ðµ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ ÑÑ‡Ð¸Ñ‚Ð°Ð½Ð½Ñ‹Ñ… ÑÑ‚Ñ€Ð¾Ðº (Ñ…Ð¾Ñ‚ÑŒ ÐºÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð°Ñ€Ð¸Ð¹, Ñ…Ð¾Ñ‚ÑŒ Ñ‡Ñ‚Ð¾)
 			SString line_buf;
 			bool   prev_blanc = true;
 			for(; (rlr = rF.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) != 0; _real_line_count++) {
-				if(!line_buf.HasPrefix("#")) { // Êîììåíòàðèè ïðîñòî èãíîðèðóþòñÿ (îíè íå çíà÷èìû êàê ïóñòûå ñòðîêè, êîòîðûå âûñòóïàþò â ðîëè ðàçäåëèòåëåé)
+				if(!line_buf.HasPrefix("#")) { // ÐšÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð°Ñ€Ð¸Ð¸ Ð¿Ñ€Ð¾ÑÑ‚Ð¾ Ð¸Ð³Ð½Ð¾Ñ€Ð¸Ñ€ÑƒÑŽÑ‚ÑÑ (Ð¾Ð½Ð¸ Ð½Ðµ Ð·Ð½Ð°Ñ‡Ð¸Ð¼Ñ‹ ÐºÐ°Ðº Ð¿ÑƒÑÑ‚Ñ‹Ðµ ÑÑ‚Ñ€Ð¾ÐºÐ¸, ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ðµ Ð²Ñ‹ÑÑ‚ÑƒÐ¿Ð°ÑŽÑ‚ Ð² Ñ€Ð¾Ð»Ð¸ Ñ€Ð°Ð·Ð´ÐµÐ»Ð¸Ñ‚ÐµÐ»ÐµÐ¹)
 					if(line_buf.NotEmpty()) {
 						_line_count++;
 						if(_line_count == 1) {
@@ -3413,7 +3414,7 @@ SLTEST_R(TulipIndicators)
 										}
 										if(SLTEST_CHECK_Z(not_eq_vec_sizes)) {
 											const int sr = p_ii->start(static_cast<const double *>(arg_list.dataPtr()));
-											// sr - ðàçíèöà ìåæäó äëèíîé âõîäÿùåãî è èñõîäÿùåãî âåêòîðîâ.
+											// sr - Ñ€Ð°Ð·Ð½Ð¸Ñ†Ð° Ð¼ÐµÐ¶Ð´Ñƒ Ð´Ð»Ð¸Ð½Ð¾Ð¹ Ð²Ñ…Ð¾Ð´ÑÑ‰ÐµÐ³Ð¾ Ð¸ Ð¸ÑÑ…Ð¾Ð´ÑÑ‰ÐµÐ³Ð¾ Ð²ÐµÐºÑ‚Ð¾Ñ€Ð¾Ð².
 											// typedef int (*ti_indicator_function)(int size, double const * const * inputs, double const * options, double * const * outputs);
 											//RealArray * p_real_outputs = (p_ii->outputs > 0) ? new RealArray[p_ii->outputs] : 0;
 											if(sr < 0 || sr >= vec_size) {

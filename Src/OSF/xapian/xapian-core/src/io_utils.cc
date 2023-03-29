@@ -233,7 +233,7 @@ bool io_readahead_block(int fd, size_t n, off_t b, off_t o)
 
 void io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
 {
-	o += b * n;
+	o += (b * n);
 	// Prefer pread if available since it's typically implemented as a
 	// separate syscall, and that eliminates the overhead of an extra syscall
 	// per block read.
@@ -249,7 +249,8 @@ void io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
 				throw_block_error("EOF reading block ", b);
 			// We get EINTR if the syscall was interrupted by a signal.
 			// In this case we should retry the read.
-			if(errno == EINTR) continue;
+			if(errno == EINTR) 
+				continue;
 			throw_block_error("Error reading block ", b, errno);
 		}
 		p += c;
@@ -269,7 +270,8 @@ void io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
 				throw_block_error("EOF reading block ", b);
 			// We get EINTR if the syscall was interrupted by a signal.
 			// In this case we should retry the read.
-			if(errno == EINTR) continue;
+			if(errno == EINTR) 
+				continue;
 			throw_block_error("Error reading block ", b, errno);
 		}
 		p += c;
@@ -280,7 +282,7 @@ void io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
 
 void io_write_block(int fd, const char * p, size_t n, off_t b, off_t o)
 {
-	o += b * n;
+	o += (b * n);
 	// Prefer pwrite if available since it's typically implemented as a
 	// separate syscall, and that eliminates the overhead of an extra syscall
 	// per block write.
@@ -293,7 +295,8 @@ void io_write_block(int fd, const char * p, size_t n, off_t b, off_t o)
 		if(c < 0) {
 			// We get EINTR if the syscall was interrupted by a signal.
 			// In this case we should retry the write.
-			if(errno == EINTR) continue;
+			if(errno == EINTR) 
+				continue;
 			throw_block_error("Error writing block ", b, errno);
 		}
 		p += c;
@@ -311,7 +314,8 @@ void io_write_block(int fd, const char * p, size_t n, off_t b, off_t o)
 		if(c < 0) {
 			// We get EINTR if the syscall was interrupted by a signal.
 			// In this case we should retry the write.
-			if(errno == EINTR) continue;
+			if(errno == EINTR) 
+				continue;
 			throw_block_error("Error writing block ", b, errno);
 		}
 		p += c;

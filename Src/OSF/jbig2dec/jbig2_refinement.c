@@ -19,8 +19,7 @@
 #define pixel_outside_field(x, y) ((y) < -128 || (y) > 0 || (x) < -128 || ((y) < 0 && (x) > 127) || ((y) == 0 && (x) >= 0))
 #define refpixel_outside_field(x, y) ((y) < -128 || (y) > 127 || (x) < -128 || (x) > 127)
 
-static int jbig2_decode_refinement_template0_unopt(Jbig2Ctx * ctx,
-    Jbig2Segment * segment,
+static int jbig2_decode_refinement_template0_unopt(Jbig2Ctx * ctx, Jbig2Segment * segment,
     const Jbig2RefinementRegionParams * params, Jbig2ArithState * as, Jbig2Image * image, Jbig2ArithCx * GR_stats)
 {
 	const int GRW = image->width;

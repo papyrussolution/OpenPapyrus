@@ -763,6 +763,8 @@ library PapyrusInterfaceLib {
 		HRESULT __stdcall SearchObjectsByTagStr([in] PpyObjectIdent objType, [in] long tagID, [in] BSTR pattern, [out,retval] ILongList ** pRet);
 		HRESULT __stdcall SearchObjectsByTagStrExactly([in] PpyObjectIdent objType, [in] long tagID, [in] BSTR pattern, [out,retval] ILongList ** pRet);
 		HRESULT __stdcall GetSupplInterchangeLocList([in] long supplID, [out,retval] ILongList ** pRet);
+		HRESULT __stdcall IsIntrOp([in] long opID, [out,retval] long * pRet);
+		HRESULT __stdcall IsExpendOp([in] long opID, [out,retval] long * pRet);
 	};
 
 	typedef [v1_enum] enum _PpyTagReserved {
@@ -1174,7 +1176,13 @@ library PapyrusInterfaceLib {
 		ppoptPool = 13,
 		ppoptCashSess = 14,
 		ppoptDraftReceipt = 15,
-		ppoptDraftExpend = 16
+		ppoptDraftExpend = 16,
+		ppoptWarehouse = 17,
+		ppoptExternal = 18,
+		ppoptAgreement = 19,
+		ppoptCorrection = 20,
+		ppoptDraftTransit = 21,
+		ppoptDraftQuotReq = 22
 	} PpyOOprKindType;
 
 	typedef struct SPpyO_OprKind {

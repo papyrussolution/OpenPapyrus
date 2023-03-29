@@ -1,6 +1,9 @@
 // SLIB.H
 // Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
+// 
+// @todo unify strtoul
+// @todo unify strtoull
 //
 #ifndef __SLIB_H
 #define __SLIB_H
@@ -1105,9 +1108,11 @@
 typedef signed char    int8;
 typedef signed short   int16;
 typedef signed long    int32;
+// @todo typedef signed int     int32; // @v11.6.8
 typedef unsigned char  uint8;
 typedef unsigned short uint16;
-typedef unsigned long  uint32;
+// @v11.6.8 typedef unsigned long  uint32;
+typedef unsigned int  uint32; // @v11.6.8
 typedef __int64        int64;
 typedef unsigned __int64 uint64;
 typedef long double         LDBL;
@@ -4359,10 +4364,12 @@ public:
 	SString & STDCALL  CatLongZ(long val, uint numDigits);
 	SString & STDCALL  CatLongZ(int val, uint numDigits);
 	SString & STDCALL  CatLongZ(uint val, uint numDigits);
-	SString & STDCALL  CatLongZ(uint32 val, uint numDigits);
+	SString & STDCALL  CatLongZ(ulong val, uint numDigits);
 	SString & STDCALL  CatLongZ(int64 val, uint numDigits);
 	SString & FASTCALL CatHex(long val);
+	SString & FASTCALL CatHex(int val) { return CatHex(static_cast<long>(val)); }
 	SString & FASTCALL CatHex(ulong val);
+	SString & FASTCALL CatHex(uint val) { return CatHex(static_cast<ulong>(val)); }
 	SString & FASTCALL CatHex(int64 val);
 	SString & FASTCALL CatHex(uint64 val);
 	SString & FASTCALL CatHex(uint8 val);
@@ -4661,7 +4668,7 @@ public:
 	bool   isZeroDelim() const;
 	uint   getCount() const;
 	int    add(const char * pStr, uint * pPos);
-	int    add(const char * pStr, uint32 * pPos) { return add(pStr, reinterpret_cast<uint *>(pPos)); }
+	int    add(const char * pStr, ulong * pPos) { return add(pStr, reinterpret_cast<uint *>(pPos)); }
 	//
 	// Descr: Функция добавляет в конец набора новую строку pStr.
 	//   Единственное отличие от add(const char *, uint *) только в отсутствии последнего параметра.
@@ -4983,6 +4990,12 @@ bool   STDCALL  sstrneq(const uchar * pS1, const uchar * pS2, uint len);
 //
 bool   FASTCALL sstreq(const uchar * pS1, const char * pS2);
 bool   FASTCALL sstreq(const wchar_t * pS1, const wchar_t * pS2);
+//
+// Descr: Утилитная функция уточняющая int-значение, передаваемое функциям классификации символов.
+//   Заимствована из uncrustify (unc_fix_ctype)
+// @v11.6.7
+//
+inline int  sfixctype(int ch) { return (ch >= -1 && ch <= 255) ? ch : 0; /*uncrustify Issue #3025*/}
 
 inline bool chreqi_ascii(int c1, int c2)
 {
@@ -5475,7 +5488,8 @@ int    STDCALL  strtorrng(const char * pBuf, double * pLow, double * pUpp);
 int    FASTCALL strtorrng(const char * pBuf, RealRange & rRng);
 int    FASTCALL strtodoub(const char * pBuf, double *);
 int    FASTCALL strtolong(const char * pBuf, long *);
-int    FASTCALL strtoulong(const char * pBuf, ulong *);
+int    FASTCALL strtouint(const char * pBuf, uint *);
+int    FASTCALL strtouint(const char * pBuf, ulong *);
 //
 enum {
 	strtodatefZero     = 0x0001, // Пустая дата
@@ -6378,6 +6392,10 @@ public:
 	int    FASTCALL Read(uint8 & v);
 	int    FASTCALL Write(const SString &);
 	int    FASTCALL Read(SString &);
+	int    FASTCALL Write(const int & v);
+	int    FASTCALL Read(int & v);
+	int    FASTCALL Write(const uint & v);
+	int    FASTCALL Read(uint & v);
 	int    FASTCALL Write(const long & v);
 	int    FASTCALL Read(long & v);
 	int    FASTCALL Write(const ulong & v);
@@ -7208,8 +7226,10 @@ uint32 getbits(const void * pBuf, size_t len, size_t pos, size_t count);
 int    STDCALL findbit(const void * pBuf, size_t count, int val, size_t * pPos);
 void   insbit(void * pBuf, size_t len, size_t);
 void   delbit(void * pBuf, size_t len, size_t);
-uint8  FASTCALL bitscanforward(uint32 * pIdx, uint32 mask);
-uint8  FASTCALL bitscanreverse(uint32 * pIdx, uint32 mask);
+uint8  FASTCALL bitscanforward(uint * pIdx, uint32 mask);
+uint8  FASTCALL bitscanforward(ulong * pIdx, uint32 mask);
+uint8  FASTCALL bitscanreverse(uint * pIdx, uint32 mask);
+uint8  FASTCALL bitscanreverse(ulong * pIdx, uint32 mask);
 //
 // Encrypt / Decrypt functions
 //
@@ -8520,7 +8540,7 @@ public:
 	void   DestroyS();
 	SStrGroup & FASTCALL CopyS(const SStrGroup & rS);
 	int    AddS(const char * pStr, uint * pPos);
-	int    AddS(const char * pStr, uint32 * pPos);
+	int    AddS(const char * pStr, ulong * pPos);
 	bool   GetS(uint pos, SString & rStr) const;
 	int    SerializeS(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    FASTCALL WriteS(SBuffer & rBuf) const;
@@ -9527,6 +9547,7 @@ public:
 	//
 	uint   GetCount() const;
 	int    FASTCALL Enum(ulong * pID) const;
+	int    FASTCALL Enum(uint * pID) const { return Enum(reinterpret_cast<ulong *>(pID)); }
 	void   Clear();
 	void   Destroy();
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
@@ -12076,6 +12097,7 @@ struct SJson {
 	bool   IsTrue() const { return (Type == SJson::tTRUE); }
 	bool   IsFalse() const { return (Type == SJson::tFALSE); }
 	const SJson * FASTCALL FindChildByKey(const char * pKey) const;
+	uint   GetArrayCount() const;
 	int    FASTCALL ToStr(SString & rBuf) const;
 	int    FASTCALL ToStr(SStringU & rBuf) const;
 	void   FASTCALL AssignText(const SString & rT);
@@ -14026,14 +14048,14 @@ public:
 	int    Serialize(int dir, SString & rStr, SBuffer & rBuf);
 	int    Serialize(int dir, SStringU & rStr, SBuffer & rBuf);
 	int    Serialize(int dir, int64 & rV, SBuffer & rBuf);
-	int    Serialize(int dir, int32 & rV, SBuffer & rBuf);
 	int    Serialize(int dir, int16 & rV, SBuffer & rBuf);
 	int    Serialize(int dir, int8 & rV, SBuffer & rBuf);
 	int    Serialize(int dir, int & rV, SBuffer & rBuf);
+	int    Serialize(int dir, long & rV, SBuffer & rBuf);
 	int    Serialize(int dir, bool & rV, SBuffer & rBuf);
 	int    Serialize(int dir, uint & rV, SBuffer & rBuf);
+	int    Serialize(int dir, ulong & rV, SBuffer & rBuf);
 	int    Serialize(int dir, uint64 & rV, SBuffer & rBuf);
-	int    Serialize(int dir, uint32 & rV, SBuffer & rBuf);
 	int    Serialize(int dir, uint16 & rV, SBuffer & rBuf);
 	int    Serialize(int dir, uint8 & rV, SBuffer & rBuf);
 	int    Serialize(int dir, LDATE & rV, SBuffer & rBuf);
@@ -14150,10 +14172,10 @@ public:
 	int    FASTCALL Serialize(SString & rStr);
 	int    FASTCALL Serialize(SStringU & rStr);
 	int    FASTCALL Serialize(int64 & rV);
-	int    FASTCALL Serialize(int32 & rV);
 	int    FASTCALL Serialize(int16 & rV);
 	int    FASTCALL Serialize(int8 & rV);
 	int    FASTCALL Serialize(int & rV);
+	int    FASTCALL Serialize(long & rV);
 	int    FASTCALL Serialize(uint64 & rV);
 	int    FASTCALL Serialize(uint32 & rV);
 	int    FASTCALL Serialize(uint16 & rV);

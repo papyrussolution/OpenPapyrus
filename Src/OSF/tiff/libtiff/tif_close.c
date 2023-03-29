@@ -16,11 +16,9 @@
  */
 #include "tiffiop.h"
 #pragma hdrstop
-
-/************************************************************************/
-/*            TIFFCleanup()                             */
-/************************************************************************/
-
+// 
+// TIFFCleanup()
+// 
 /**
  * Auxiliary function to free the TIFF structure. Given structure will be
  * completely freed, so you should save opened file handle and pointer

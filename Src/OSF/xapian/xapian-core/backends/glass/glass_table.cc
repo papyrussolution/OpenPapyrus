@@ -102,7 +102,6 @@ static inline uint8 * zeroed_new(size_t size)
 /** Flip to sequential addition block-splitting after this number of observed
  *  sequential additions (in negated form). */
 #define SEQ_START_POINT (-10)
-
 /* Note use of the limits.h values:
    UCHAR_MAX = 255, an unsigned with all bits set, and
    CHAR_BIT = 8, the number of bits per byte
@@ -110,7 +109,6 @@ static inline uint8 * zeroed_new(size_t size)
    BYTE_PAIR_RANGE below is the smallest +ve number that can't be held in two
    bytes -- 64K effectively.
  */
-
 #define BYTE_PAIR_RANGE (1 << 2 * CHAR_BIT)
 
 /// read_block(n, p) reads block n of the DB file to address p.
@@ -121,15 +119,15 @@ void GlassTable::read_block(uint4 n, uint8 * p) const
 	if(UNLIKELY(handle == -2))
 		GlassTable::throw_database_closed();
 	AssertRel(n, <, free_list.get_first_unused_block());
-
 	io_read_block(handle, reinterpret_cast<char *>(p), block_size, n, offset);
-
 	if(GET_LEVEL(p) != LEVEL_FREELIST) {
 		int dir_end = DIR_END(p);
 		if(UNLIKELY(dir_end < DIR_START || uint(dir_end) > block_size)) {
-			string msg("dir_end invalid in block ");
-			msg += str(n);
-			throw Xapian::DatabaseCorruptError(msg);
+			//string msg("dir_end invalid in block ");
+			//msg += str(n);
+			SString msg_buf;
+			(msg_buf = "dir_end invalid in block").Space().Cat(n);
+			throw Xapian::DatabaseCorruptError(/*msg*/std::string(msg_buf.cptr()));
 		}
 	}
 }
@@ -277,14 +275,13 @@ void GlassTable::set_overwritten() const
 void GlassTable::block_to_cursor(Glass::Cursor * C_, int j, uint4 n) const
 {
 	LOGCALL_VOID(DB, "GlassTable::block_to_cursor", (void*)C_ | j | n);
-	if(n == C_[j].get_n()) return;
-
+	if(n == C_[j].get_n()) 
+		return;
 	if(writable && C_[j].rewrite) {
 		Assert(C == C_);
 		write_block(C_[j].get_n(), C_[j].get_p());
 		C_[j].rewrite = false;
 	}
-
 	// Check if the block is in the built-in cursor (potentially in
 	// modified form).
 	const uint8 * p;
@@ -297,15 +294,13 @@ void GlassTable::block_to_cursor(Glass::Cursor * C_, int j, uint4 n) const
 		p = q;
 		C_[j].set_n(n);
 	}
-
 	if(j < level) {
-		/* unsigned comparison */
+		// unsigned comparison 
 		if(UNLIKELY(REVISION(p) > REVISION(C_[j + 1].get_p()))) {
 			set_overwritten();
 			return;
 		}
 	}
-
 	if(UNLIKELY(j != GET_LEVEL(p))) {
 		string msg = "Expected block ";
 		msg += str(n);
@@ -350,7 +345,6 @@ void GlassTable::alter()
 	while(true) {
 		if(C[j].rewrite) return; /* all new, so return */
 		C[j].rewrite = true;
-
 		glass_revision_number_t rev = REVISION(C[j].get_p());
 		if(rev == revision_number + 1) {
 			return;
@@ -361,8 +355,8 @@ void GlassTable::alter()
 		SET_REVISION(C[j].get_modifiable_p(block_size), revision_number + 1);
 		n = free_list.get_block(this, block_size);
 		C[j].set_n(n);
-
-		if(j == level) return;
+		if(j == level) 
+			return;
 		j++;
 		BItem_wr(C[j].get_modifiable_p(block_size), C[j].c).set_block_given_by(n);
 	}
@@ -1990,7 +1984,8 @@ bool GlassTable::prev_for_sequential(Glass::Cursor * C_, int /*dummy*/) const
 		uint4 n = C_[0].get_n();
 		const uint8 * p;
 		while(true) {
-			if(n == 0) RETURN(false);
+			if(n == 0) 
+				RETURN(false);
 			n--;
 			if(n == C[0].get_n()) {
 				// Block is a leaf block in the built-in cursor (potentially in
@@ -2006,9 +2001,11 @@ bool GlassTable::prev_for_sequential(Glass::Cursor * C_, int /*dummy*/) const
 					// probably return 0).
 					int j;
 					for(j = 1; j <= level; ++j) {
-						if(n == C[j].get_n()) break;
+						if(n == C[j].get_n()) 
+							break;
 					}
-					if(j <= level) continue;
+					if(j <= level) 
+						continue;
 				}
 
 				// Block isn't in the built-in cursor, so the form on disk

@@ -1,5 +1,5 @@
 // DBQ.CPP
-// Copyright (c) Sobolev A. 1996-2001, 2002, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2018, 2019, 2020, 2022
+// Copyright (c) Sobolev A. 1996-2001, 2002, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2018, 2019, 2020, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -82,6 +82,13 @@ int DBItem::baseType() const
 //
 // DBConst
 //
+DBConst FASTCALL dbconst(int v)
+{
+	DBConst c;
+	c.init(v);
+	return c;
+}
+
 DBConst FASTCALL dbconst(long v)
 {
 	DBConst c;
@@ -143,6 +150,12 @@ void DBConst::Helper_Init(int _id, int _flags, int _tag)
 	Id = _id;
 	Flags = _flags;
 	Tag = _tag;
+}
+
+void FASTCALL DBConst::init(int l)
+{
+	Helper_Init(DBConst_ID, 0, lv);
+	lval = l;
 }
 
 void FASTCALL DBConst::init(long l)

@@ -60,14 +60,14 @@ Jbig2HuffmanState *jbig2_huffman_new(Jbig2Ctx *ctx, Jbig2WordStream *ws);
 void jbig2_huffman_free(Jbig2Ctx *ctx, Jbig2HuffmanState *hs);
 int jbig2_huffman_skip(Jbig2HuffmanState *hs);
 int jbig2_huffman_advance(Jbig2HuffmanState *hs, size_t advance);
-uint32_t jbig2_huffman_offset(Jbig2HuffmanState *hs);
-int32_t jbig2_huffman_get(Jbig2HuffmanState *hs, const Jbig2HuffmanTable *table, boolint *oob);
-int32_t jbig2_huffman_get_bits(Jbig2HuffmanState *hs, const int bits, int *err);
+uint32_t FASTCALL jbig2_huffman_offset(Jbig2HuffmanState *hs);
+int32_t  STDCALL jbig2_huffman_get(Jbig2HuffmanState *hs, const Jbig2HuffmanTable *table, boolint *oob);
+int32_t  jbig2_huffman_get_bits(Jbig2HuffmanState *hs, const int bits, int *err);
 #ifdef JBIG2_DEBUG
 	void jbig2_dump_huffman_state(Jbig2HuffmanState *hs);
 	void jbig2_dump_huffman_binary(Jbig2HuffmanState *hs);
 #endif
-Jbig2HuffmanTable *jbig2_build_huffman_table(Jbig2Ctx *ctx, const Jbig2HuffmanParams *params);
+Jbig2HuffmanTable * FASTCALL jbig2_build_huffman_table(Jbig2Ctx *ctx, const Jbig2HuffmanParams *params);
 void FASTCALL jbig2_release_huffman_table(Jbig2Ctx *ctx, Jbig2HuffmanTable *table);
 
 /* standard Huffman templates defined by the specification */

@@ -1353,7 +1353,7 @@ int GoodsCore::ReplaceExtObjRefs(PPID clsID, int gcProp, const LAssocArray * pSu
 		MEMSZERO(k1);
 		k1.GoodsClsID = clsID;
 		if(GeT.search(1, &k1, spGt) && GeT.data.GoodsClsID == clsID) do {
-			PPID * p_prop_id = 0;
+			int32 * p_prop_id = 0;
 			if(gcProp == PPGdsCls::eKind)
 				p_prop_id = &GeT.data.KindID;
 			else if(gcProp == PPGdsCls::eGrade)

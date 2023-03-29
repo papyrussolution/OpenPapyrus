@@ -1,5 +1,5 @@
 // DBEOP.CPP
-// Copyright (c) Sobolev A. 1995-2001, 2005, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) Sobolev A. 1995-2001, 2005, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -231,10 +231,7 @@ DBE & __stdcall millisecond(DBItem & i) { assert(i.baseType() == BTS_TIME); retu
 //
 //
 //
-static DBQ & FASTCALL _newdbq(DBItem & i1, int op, DBItem & i2)
-{
-	return *new DBQ(i1, op, i2);
-}
+static DBQ & FASTCALL _newdbq(DBItem & i1, int op, DBItem & i2) { return *new DBQ(i1, op, i2); }
 
 static DBQ & FASTCALL _newdbq(DBItem & i, int op, double d)
 {
@@ -299,6 +296,11 @@ DBQ & __stdcall operator <  (DBItem & i, long v)   { return _newdbq(i, _LT_, v);
 DBQ & __stdcall operator >  (DBItem & i, long v)   { return _newdbq(i, _GT_, v); }
 DBQ & __stdcall operator <= (DBItem & i, long v)   { return _newdbq(i, _LE_, v); }
 DBQ & __stdcall operator >= (DBItem & i, long v)   { return _newdbq(i, _GE_, v); }
+DBQ & __stdcall operator == (DBItem & i, int v)   { return _newdbq(i, _EQ_, static_cast<long>(v)); }
+DBQ & __stdcall operator <  (DBItem & i, int v)   { return _newdbq(i, _LT_, static_cast<long>(v)); }
+DBQ & __stdcall operator >  (DBItem & i, int v)   { return _newdbq(i, _GT_, static_cast<long>(v)); }
+DBQ & __stdcall operator <= (DBItem & i, int v)   { return _newdbq(i, _LE_, static_cast<long>(v)); }
+DBQ & __stdcall operator >= (DBItem & i, int v)   { return _newdbq(i, _GE_, static_cast<long>(v)); }
 DBQ & __stdcall operator == (DBItem & i, LDATE d) { return _newdbq(i, _EQ_, d); }
 DBQ & __stdcall operator != (DBItem & i, LDATE d) { return _newdbq(i, _NE_, d); }
 DBQ & __stdcall operator  < (DBItem & i, LDATE d) { return _newdbq(i, _LT_, d); }

@@ -353,7 +353,7 @@ Jbig2Allocator * jbig2_ctx_free(Jbig2Ctx * ctx)
 		}
 		if(ctx->pages) {
 			for(i = 0; i <= ctx->current_page; i++)
-				if(ctx->pages[i].image != NULL)
+				if(ctx->pages[i].image)
 					jbig2_image_release(ctx, ctx->pages[i].image);
 			jbig2_free(ca, ctx->pages);
 		}
@@ -378,33 +378,35 @@ typedef struct {
 
 static int jbig2_word_stream_buf_get_next_word(Jbig2Ctx * ctx, Jbig2WordStream * self, size_t offset, uint32_t * word)
 {
-	Jbig2WordStreamBuf * z = (Jbig2WordStreamBuf*)self;
-	uint32_t val = 0;
+	const Jbig2WordStreamBuf * z = (const Jbig2WordStreamBuf *)self;
 	int ret = 0;
-	if(self == NULL || word == NULL) {
-		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to read next word of stream because stream or output missing");
+	if(!self || !word) {
+		ret = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to read next word of stream because stream or output missing");
 	}
-	if(offset >= z->size) {
+	else if(offset >= z->size) {
 		*word = 0;
-		return 0;
+		ret = 0;
 	}
-	if(offset < z->size) {
-		val = (uint32_t)z->data[offset] << 24;
-		ret++;
+	else {
+		uint32_t val = 0;
+		if(offset < z->size) {
+			val = (uint32_t)z->data[offset] << 24;
+			ret++;
+		}
+		if(offset + 1 < z->size) {
+			val |= (uint32_t)z->data[offset + 1] << 16;
+			ret++;
+		}
+		if(offset + 2 < z->size) {
+			val |= (uint32_t)z->data[offset + 2] << 8;
+			ret++;
+		}
+		if(offset + 3 < z->size) {
+			val |= z->data[offset + 3];
+			ret++;
+		}
+		*word = val;
 	}
-	if(offset + 1 < z->size) {
-		val |= (uint32_t)z->data[offset + 1] << 16;
-		ret++;
-	}
-	if(offset + 2 < z->size) {
-		val |= (uint32_t)z->data[offset + 2] << 8;
-		ret++;
-	}
-	if(offset + 3 < z->size) {
-		val |= z->data[offset + 3];
-		ret++;
-	}
-	*word = val;
 	return ret;
 }
 

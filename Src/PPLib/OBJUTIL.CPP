@@ -1099,7 +1099,7 @@ int PPObject::RemoveSync(PPID id)
 
 IMPL_CMPFUNC(PPObjID, i1, i2) { return memcmp(i1, i2, sizeof(PPObjID)); }
 
-/*static*/int STDCALL PPObject::ProcessObjRefInArray(PPID objTypeID, PPID * pObjID, PPObjIDArray * pArray, int replace)
+/*static*/int STDCALL PPObject::ProcessObjRefInArray(PPID objTypeID, long * pObjID, PPObjIDArray * pArray, int replace)
 {
 	int    ok = -1;
 	if(objTypeID) {

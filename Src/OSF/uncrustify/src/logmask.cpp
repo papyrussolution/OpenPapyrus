@@ -85,24 +85,19 @@ void logmask_from_string(const char * str, log_mask_t &mask)
 	char * ptmp;
 	bool was_dash   = false;
 	int last_level = -1;
-
 	while(*str != 0) {   // check string until termination character
 		if(unc_isspace(*str)) { // ignore spaces and go on with next character
 			str++;
 			continue;
 		}
-
-		if(unc_isdigit(*str)) {
+		if(isdec(*str)) {
 			int level = strtoul(str, &ptmp, 10);
 			str = ptmp;
-
 			logmask_set_sev(mask, static_cast<log_sev_t>(level), true);
-
 			if(was_dash) {
 				for(int idx = last_level + 1; idx < level; idx++) {
 					logmask_set_sev(mask, static_cast<log_sev_t>(idx), true);
 				}
-
 				was_dash = false;
 			}
 			last_level = level;

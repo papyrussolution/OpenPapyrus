@@ -87,6 +87,7 @@ public class BusinessEntity {
 		{
 			ID = 0;
 			Name = null;
+			Rank = 0;
 		}
 		public boolean FromJsonObj(JSONObject jsObj)
 		{
@@ -95,6 +96,7 @@ public class BusinessEntity {
 				ID = jsObj.optInt("id", 0);
 				if(ID > 0) {
 					Name = jsObj.optString("nm", null);
+					Rank = jsObj.optInt("rank", 0); // @v11.6.8
 					result = true;
 				}
 			}
@@ -102,6 +104,7 @@ public class BusinessEntity {
 		}
 		int    ID;
 		String Name;
+		int    Rank; // @v11.6.8
 	}
 	public static class GoodsCode {
 		GoodsCode()
@@ -279,6 +282,25 @@ public class BusinessEntity {
 		boolean UseHierarchy;
 		public ArrayList <GoodsGroup> L;
 	}
+	public static class SelectedPrice {
+		SelectedPrice()
+		{
+			Nominal = 0.0;
+			Quot = 0.0;
+			IsDisabled = false;
+		}
+		double GetValue()
+		{
+			// @construction (тут надо поработать тщательнее)
+			if(Quot > 0.0)
+				return Quot;
+			else
+				return Nominal;
+		}
+		double Nominal;
+		double Quot;
+		boolean IsDisabled;
+	}
 	public static class Goods {
 		public static class ExtText {
 			ExtText()
@@ -413,6 +435,28 @@ public class BusinessEntity {
 					if(item != null && SLib.GetLen(item.Code) > 0) {
 						if(SLib.AreStringsEqual(item.Code, code))
 							result = item;
+					}
+				}
+			}
+			return result;
+		}
+		public SelectedPrice QueryPrice(ArrayList <QuotKind> qkList, int cliID)
+		{
+			SelectedPrice result = new SelectedPrice();
+			result.Nominal = Price;
+			if(SLib.GetCount(qkList) > 0 && SLib.GetCount(QuotList) > 0) {
+				// Предполагаем, что qkList отсортирован по рангу (QuotKind.Rank): бошьший ранг идет раньше меньшего!
+				boolean done = false;
+				for(int qkidx = 0; !done && qkidx < qkList.size(); qkidx++) {
+					final QuotKind qk = qkList.get(qkidx);
+					if(qk != null) {
+						for(int qidx = 0; !done && qidx < QuotList.size(); qidx++) {
+							final Quot q = QuotList.get(qidx);
+							if(q != null && q.ID == qk.ID) {
+								result.Quot = q.Val;
+								done = true;
+							}
+						}
 					}
 				}
 			}

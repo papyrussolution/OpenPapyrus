@@ -201,11 +201,9 @@ void TIFFUnRegisterCODEC(TIFFCodec* c)
 		}
 	TIFFErrorExt(0, "TIFFUnRegisterCODEC", "Cannot remove compression scheme %s; not registered", c->name);
 }
-
-/************************************************************************/
-/*       TIFFGetConfisuredCODECs()                      */
-/************************************************************************/
-
+// 
+// TIFFGetConfisuredCODECs()
+// 
 /**
  * Get list of configured codecs, both built-in and registered by user.
  * Caller is responsible to free this structure.

@@ -1461,7 +1461,7 @@ static void _canonicalize(const char * localeID, ByteSink& sink, uint32_t option
 
 	if(OPTION_SET(options, _ULOC_CANONICALIZE)) {
 		/* Handle @FOO variant if @ is present and not followed by = */
-		if(tmpLocaleID!=NULL && keywordAssign==NULL) {
+		if(tmpLocaleID && keywordAssign==NULL) {
 			/* Add missing '_' if needed */
 			if(fieldCount < 2 || (fieldCount < 3 && scriptSize > 0)) {
 				do {
@@ -1495,7 +1495,7 @@ static void _canonicalize(const char * localeID, ByteSink& sink, uint32_t option
 	}
 	sink.Append(tag.data(), tag.length());
 	if(!OPTION_SET(options, _ULOC_STRIP_KEYWORDS)) {
-		if(tmpLocaleID!=NULL && keywordAssign!=NULL && (!separatorIndicator || separatorIndicator > keywordAssign)) {
+		if(tmpLocaleID && keywordAssign && (!separatorIndicator || separatorIndicator > keywordAssign)) {
 			sink.Append("@", 1);
 			++fieldCount;
 			ulocimp_getKeywords(tmpLocaleID+1, '@', sink, TRUE, err);

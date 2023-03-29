@@ -480,11 +480,11 @@ static void make_crc_table()
 		// and then the byte reversal of those as well as the first table 
 		for(n = 0; n < 256; n++) {
 			c = crc_table[0][n];
-			crc_table[4][n] = ZSWAP32(c);
+			crc_table[4][n] = sbswap32(c);
 			for(k = 1; k < 4; k++) {
 				c = crc_table[0][c & 0xff] ^ (c >> 8);
 				crc_table[k][n] = c;
-				crc_table[k + 4][n] = ZSWAP32(c);
+				crc_table[k + 4][n] = sbswap32(c);
 			}
 		}
 #endif /* BYFOUR */
@@ -1070,7 +1070,7 @@ static ulong crc32_little(ulong crc, const uchar * buf, size_t len)
 static ulong crc32_big(ulong crc, const uchar * buf, size_t len)
 {
 	const z_crc_t * buf4;
-	z_crc_t c = ZSWAP32((z_crc_t)crc);
+	z_crc_t c = sbswap32((z_crc_t)crc);
 	c = ~c;
 	while(len && ((ptrdiff_t)buf & 3)) {
 		c = crc_table[4][(c >> 24) ^ *buf++] ^ (c << 8);
@@ -1090,7 +1090,7 @@ static ulong crc32_big(ulong crc, const uchar * buf, size_t len)
 		c = crc_table[4][(c >> 24) ^ *buf++] ^ (c << 8);
 	} while(--len);
 	c = ~c;
-	return (ulong)(ZSWAP32(c));
+	return (ulong)(sbswap32(c));
 }
 
 #endif /* BYFOUR */
@@ -7916,7 +7916,7 @@ int ZEXPORT inflate(z_streamp strm, int flush)
 #endif
 			case DICTID:
 			    NEEDBITS_INFL(32);
-			    strm->adler = state->check = ZSWAP32(hold);
+			    strm->adler = state->check = sbswap32(hold);
 			    INITBITS();
 			    state->mode = DICT;
 			case DICT:
@@ -8282,7 +8282,7 @@ int ZEXPORT inflate(z_streamp strm, int flush)
 #ifdef GUNZIP
 					    state->flags ? hold :
 #endif
-					    ZSWAP32(hold)) != state->check) {
+					    sbswap32(hold)) != state->check) {
 					    strm->msg = "incorrect data check"; 
 						state->mode = BAD;
 					    break;

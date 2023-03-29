@@ -1851,73 +1851,48 @@ static bool parse_next(TokenContext &ctx, Chunk &pc, const Chunk * prev_pc)
 	 * possible combinations and optional R delimiters: R"delim(x)delim"
 	 */
 	auto ch = ctx.peek();
-
-	if(language_is_set(LANG_C | LANG_CPP)
-	    && (  ch == 'u'
-	    || ch == 'U'
-	    || ch == 'R'
-	    || ch == 'L')) {
+	if(language_is_set(LANG_C | LANG_CPP) && oneof4(ch, 'u', 'U', 'R', 'L')) {
 		auto idx     = size_t{};
 		auto is_real = false;
-
-		if(ch == 'u'
-		    && ctx.peek(1) == '8') {
+		if(ch == 'u' && ctx.peek(1) == '8') {
 			idx = 2;
 		}
-		else if(unc_tolower(ch) == 'u'
-		    || ch == 'L') {
+		else if(unc_tolower(ch) == 'u' || ch == 'L') {
 			idx++;
 		}
-
-		if(language_is_set(LANG_C | LANG_CPP)
-		    && ctx.peek(idx) == 'R') {
+		if(language_is_set(LANG_C | LANG_CPP) && ctx.peek(idx) == 'R') {
 			idx++;
 			is_real = true;
 		}
 		const auto quote = ctx.peek(idx);
-
 		if(is_real) {
-			if(quote == '"'
-			    && parse_cr_string(ctx, pc, idx)) {
+			if(quote == '"' && parse_cr_string(ctx, pc, idx)) {
 				return true;
 			}
 		}
-		else if((  quote == '"'
-		    || quote == '\'')
-		    && parse_string(ctx, pc, idx, true)) {
+		else if((  quote == '"' || quote == '\'') && parse_string(ctx, pc, idx, true)) {
 			return true;
 		}
 	}
-
 	// PAWN specific stuff
 	if(language_is_set(LANG_PAWN)) {
-		if(cpd.preproc_ncnl_count == 1
-		    && (  cpd.in_preproc == CT_PP_DEFINE
-		    || cpd.in_preproc == CT_PP_EMIT)) {
+		if(cpd.preproc_ncnl_count == 1 && (  cpd.in_preproc == CT_PP_DEFINE || cpd.in_preproc == CT_PP_EMIT)) {
 			parse_pawn_pattern(ctx, pc, CT_MACRO);
 			return true;
 		}
-
 		// Check for PAWN strings: \"hi" or !"hi" or !\"hi" or \!"hi"
-		if((ctx.peek() == '\\')
-		    || (ctx.peek() == '!')) {
+		if((ctx.peek() == '\\') || (ctx.peek() == '!')) {
 			if(ctx.peek(1) == '"') {
 				parse_string(ctx, pc, 1, (ctx.peek() == '!'));
 				return true;
 			}
-
-			if(((ctx.peek(1) == '\\')
-			    || (ctx.peek(1) == '!'))
-			    && (ctx.peek(2) == '"')) {
+			if(((ctx.peek(1) == '\\') || (ctx.peek(1) == '!')) && (ctx.peek(2) == '"')) {
 				parse_string(ctx, pc, 2, false);
 				return true;
 			}
 		}
-
 		// handle PAWN preprocessor args %0 .. %9
-		if(cpd.in_preproc == CT_PP_DEFINE
-		    && (ctx.peek() == '%')
-		    && unc_isdigit(ctx.peek(1))) {
+		if(cpd.in_preproc == CT_PP_DEFINE && (ctx.peek() == '%') && isdec(static_cast<char>(ctx.peek(1)))) {
 			pc.Str().clear();
 			pc.Str().append(ctx.get());
 			pc.Str().append(ctx.get());
@@ -1926,13 +1901,11 @@ static bool parse_next(TokenContext &ctx, Chunk &pc, const Chunk * prev_pc)
 		}
 	}
 	// Parse strings and character constants
-
 //parse_word(ctx, pc_temp, true);
 //ctx.restore(ctx.c);
 	if(parse_number(ctx, pc)) {
 		return true;
 	}
-
 	if(language_is_set(LANG_D)) {
 		// D specific stuff
 		if(d_parse_string(ctx, pc)) {

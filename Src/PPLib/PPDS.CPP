@@ -1,5 +1,5 @@
 // PPDS.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2009, 2010, 2015, 2016, 2017, 2018, 2021
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2009, 2010, 2015, 2016, 2017, 2018, 2021, 2023
 //
 #pragma hdrstop
 #ifdef PPDSC
@@ -43,7 +43,7 @@ int PPDeclStruc::InitData(Ido op, void * extraPtr, long)
 	return ok;
 }
 
-int PPDeclStruc::TransferData(int32 * pData, Tfd dir, SString & rBuf, int skipZero)
+int PPDeclStruc::TransferData(int * pData, Tfd dir, SString & rBuf, int skipZero)
 {
 	int    ok = 1;
 	if(dir == tfdDataToBuf) {
@@ -62,7 +62,7 @@ int PPDeclStruc::TransferDataFlag(int32 * pData, long flag, Tfd dir, SString & r
 {
 	int32  val = 0;
 	if(dir == tfdDataToBuf)
-		val = (*pData & flag) ? 1 : 0;
+		val = BIN(*pData & flag);
 	int    ok = TransferData(&val, dir, rBuf, skipZero);
 	if(dir == tfdBufToData)
 		SETFLAG(*pData, flag, val);
@@ -73,7 +73,7 @@ int PPDeclStruc::TransferDataFlag(int16 * pData, long flag, Tfd dir, SString & r
 {
 	int32 val = 0;
 	if(dir == tfdDataToBuf)
-		val = (*pData & flag) ? 1 : 0;
+		val = BIN(*pData & flag);
 	int    ok = TransferData(&val, dir, rBuf, skipZero);
 	if(dir == tfdBufToData)
 		SETFLAG(*pData, flag, val);

@@ -137,6 +137,7 @@ public class NotificationActivity extends SLib.SlActivity {
 											}
 										}
 										SLib.SetCtrlString(iv, R.id.CTL_NOTIFICATION_SVC, /*"some service"*/svc_name); // @todo service name
+										SLib.SetCtrlString(iv, R.id.CTL_NOTIFICATION_TIME, SLib.datetimefmt(cur_entry.EventOrgTime, SLib.DATF_DMY, SLib.TIMF_HM));
 										SLib.SetCtrlString(iv, R.id.CTL_NOTIFICATION_TEXT, cur_entry.Message);
 										if(AppCtx != null && !cur_entry.Processed) {
 											AppCtx.RegisterSeenNotification(cur_entry.InternalID);

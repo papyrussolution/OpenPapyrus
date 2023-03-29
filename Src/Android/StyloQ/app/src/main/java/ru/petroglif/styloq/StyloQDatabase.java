@@ -98,6 +98,7 @@ public class StyloQDatabase extends Database {
 		public static final int styloqdocstCANCELLEDDRAFT = 17; // @v11.4.1 Драфт отмененый эмитентом. Переход в это состояние возможен только после styloqdocstDRAFT || styloqdocstUNDEF.
 		public static final int styloqdocstINCOMINGMOD = 18; // @v11.4.9 Входящий (по отношению к клиенту) документ, над которым осуществлена частичная модификация
 		public static final int styloqdocstINCOMINGMODACCEPTED = 19; // @v11.4.9 Входящий (по отношению к клиенту) документ, над которым осуществлена частичная модификация, которая, в свою очередь, акцептирована сервисом.
+		public static final int styloqdocstPARTIALLYEXECUTED   = 20; // @v11.6.8 частично исполнен акцептором
 		//
 		public static final int doctypUndef = 0;
 		public static final int doctypCommandList = 1;

@@ -615,6 +615,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								CPM.MakeGoodsGroupListFromCommonJson(js_head);
 								CPM.MakeGoodsListFromCommonJson(js_head);
 								CPM.MakeBrandListFromCommonJson(js_head);
+								CPM.MakeQuotKindListFromCommonJson(js_head); // @v11.6.8
 								WharehouseListData = js_head.optJSONArray("warehouse_list");
 								QuotKindListData = js_head.optJSONArray("quotkind_list");
 								CPM.MakeClientListFromCommonJson(js_head);
@@ -1080,9 +1081,9 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 												}
 												else
 													SLib.SetCtrlVisibility(iv, R.id.CTLGRP_GOODS_EXPIRY, View.GONE);
-												double val = 0.0;
-												val = cur_entry.Item.Price;
-												SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_PRICE, (val > 0.0) ? CPM.FormatCurrency(val) : "");
+												BusinessEntity.SelectedPrice sp = cur_entry.Item.QueryPrice(CPM.QkListData, 0/*cliID*/);
+												double _price = sp.GetValue();
+												SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_PRICE, (_price > 0.0) ? CPM.FormatCurrency(_price) : "");
 												{
 													final double stock = cur_entry.Item.Stock;
 													View stock_icon_view = iv.findViewById(R.id.CTL_GOODS_STOCKIMAGE);
@@ -1101,10 +1102,10 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 														}
 													}
 												}
-												val = CPM.GetGoodsQttyInCurrentDocument(cur_id);
-												if(val > 0.0) {
+												double _qtty = CPM.GetGoodsQttyInCurrentDocument(cur_id);
+												if(_qtty > 0.0) {
 													SLib.SetCtrlVisibility(iv, R.id.ORDERPREREQ_GOODS_ORDEREDQTY, View.VISIBLE);
-													SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_ORDEREDQTY, String.format("%.0f", val));
+													SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_ORDEREDQTY, String.format("%.0f", _qtty));
 												}
 												else {
 													SLib.SetCtrlVisibility(iv, R.id.ORDERPREREQ_GOODS_ORDEREDQTY, View.GONE);

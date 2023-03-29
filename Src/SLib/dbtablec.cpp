@@ -88,7 +88,7 @@ int FASTCALL DBRowId::FromStr(const char * pStr)
 			//
 			// В строке все символы цифровые (см. выше): трактуем ИД как беззнаковое целое
 			//
-			strtoulong(pStr, &B);
+			strtouint(pStr, &B);
 			PTR32(S)[1] = 0;
 			ok = 1;
 		}

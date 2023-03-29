@@ -233,19 +233,19 @@ private:
 	int	 PrintDiscountInfo(const CCheckPacket * pPack, uint flags);
 	int  GetCheckInfo(const PPBillPacket * pPack, BillTaxArray * pAry, long * pFlags, SString &rName);
 	int  InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry, int * pPrintTaxAction);
-	bool SetFR(PPID id, int    iVal);
-	bool SetFR(PPID id, long   lVal);
-	bool SetFR(PPID id, double dVal);
-	bool SetFR(PPID id, const char * pStrVal);
-	bool GetFR(PPID id, int    * pBuf);
-	bool GetFR(PPID id, long   * pBuf);
-	bool GetFR(PPID id, double * pBuf);
-	bool GetFR(PPID id, char   * pBuf, size_t bufLen);
-	int  ExecFR(PPID id);
-	int  ExecFRPrintOper(PPID id);
-	int  AllowPrintOper(PPID id);
+	bool SetFR(int id, int    iVal);
+	bool SetFR(int id, long   lVal);
+	bool SetFR(int id, double dVal);
+	bool SetFR(int id, const char * pStrVal);
+	bool GetFR(int id, int    * pBuf);
+	bool GetFR(int id, long   * pBuf);
+	bool GetFR(int id, double * pBuf);
+	bool GetFR(int id, char   * pBuf, size_t bufLen);
+	int  ExecFR(int id);
+	int  ExecFRPrintOper(int id);
+	int  AllowPrintOper(int id);
 	void SetErrorMessage();
-	void WriteLogFile(PPID id);
+	void WriteLogFile(int id);
 	void CutLongTail(char * pBuf);
 	void CutLongTail(SString & rBuf);
 	void SetCheckLine(char pattern, char * pBuf);
@@ -535,11 +535,11 @@ int  SCS_SHTRIHFRF::CheckForRibbonUsing(uint ribbonParam)
 	int    ok = 1;
 	if(ribbonParam) {
 		if((RibbonParam & SlipLineParam::fRegRegular) != (ribbonParam & SlipLineParam::fRegRegular)) {
-			THROW(SetFR(UseReceiptRibbon, (ribbonParam & SlipLineParam::fRegRegular) ? TRUE : FALSE));
+			THROW(SetFR(UseReceiptRibbon, BIN(ribbonParam & SlipLineParam::fRegRegular)));
 			SETFLAG(RibbonParam, SlipLineParam::fRegRegular, ribbonParam & SlipLineParam::fRegRegular);
 		}
 		if(DeviceType == devtypeShtrih && (RibbonParam & SlipLineParam::fRegJournal) != (ribbonParam & SlipLineParam::fRegJournal)) {
-			THROW(SetFR(UseJournalRibbon, (ribbonParam & SlipLineParam::fRegJournal) ? TRUE : FALSE));
+			THROW(SetFR(UseJournalRibbon, BIN(ribbonParam & SlipLineParam::fRegJournal)));
 			SETFLAG(RibbonParam, SlipLineParam::fRegJournal, ribbonParam & SlipLineParam::fRegJournal);
 		}
 	}
@@ -814,7 +814,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 							int   stlv_tag_id = 0;
 							THROW(SetFR(TagNumber, 1084));
 							THROW(ExecFRPrintOper(FNBeginSTLVTag));
-							THROW(P_DrvFRIntrf->GetProperty(TagID, &stlv_tag_id) > 0);
+							THROW_PP_S(P_DrvFRIntrf->GetProperty(TagID, &stlv_tag_id) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(TagID, SLS.AcquireRvlStr()));
 							//
 							THROW(SetFR(TagID, stlv_tag_id));
 							THROW(SetFR(TagNumber, 1085));
@@ -1708,7 +1708,7 @@ FR_INTRF * SCS_SHTRIHFRF::InitDriver()
 {
 	struct IfcEntry {
 		const char * P_Symb;
-		long   Id;
+		int    Id;
 		uint * P_SuccState;
 		uint   SuccStateMask;
 	};
@@ -2375,34 +2375,98 @@ int SCS_SHTRIHFRF::ConnectFR()
 	return ok;
 }
 
-bool SCS_SHTRIHFRF::SetFR(PPID id, int iVal) { return (P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, iVal) > 0); }
-bool SCS_SHTRIHFRF::SetFR(PPID id, long lVal) { return (P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, lVal) > 0); }
-bool SCS_SHTRIHFRF::SetFR(PPID id, double dVal) { return (P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, dVal) > 0); }
-bool SCS_SHTRIHFRF::SetFR(PPID id, const char * pStrVal) { return (P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, pStrVal) > 0); }
-bool SCS_SHTRIHFRF::GetFR(PPID id, int * pBuf) { return (P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
-bool SCS_SHTRIHFRF::GetFR(PPID id, long * pBuf) { return (P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
-bool SCS_SHTRIHFRF::GetFR(PPID id, double * pBuf) { return (P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
-bool SCS_SHTRIHFRF::GetFR(PPID id, char * pBuf, size_t bufLen) { return (P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf, bufLen) > 0); }
-
-int SCS_SHTRIHFRF::ExecFR(PPID id)
-{
-	int    ok = 1;
-	THROW(P_DrvFRIntrf);
-	THROW(P_DrvFRIntrf->SetProperty(Password, CashierPassword) > 0);
-	THROW(P_DrvFRIntrf->CallMethod(id) > 0);
-	THROW(P_DrvFRIntrf->GetProperty(ResultCode, &ResCode) > 0);
-	THROW(ResCode == RESCODE_NO_ERROR);
+bool SCS_SHTRIHFRF::SetFR(int id, int iVal) 
+{ 
+	bool   ok = 1;
+	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	THROW_PP_S(P_DrvFRIntrf->SetProperty(id, iVal) > 0, PPERR_SHTRIHFRSETPROPFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr()));
 	CATCHZOK
 	return ok;
 }
 
-int SCS_SHTRIHFRF::ExecFRPrintOper(PPID id)
+bool SCS_SHTRIHFRF::SetFR(int id, long lVal) 
+{ 
+	bool   ok = 1;
+	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	THROW_PP_S(P_DrvFRIntrf->SetProperty(id, lVal) > 0, PPERR_SHTRIHFRSETPROPFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr()));
+	CATCHZOK
+	return ok;
+}
+
+bool SCS_SHTRIHFRF::SetFR(int id, double dVal) 
+{ 
+	bool   ok = 1;
+	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	THROW_PP_S(P_DrvFRIntrf->SetProperty(id, dVal) > 0, PPERR_SHTRIHFRSETPROPFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr()));
+	CATCHZOK
+	return ok;
+}
+
+bool SCS_SHTRIHFRF::SetFR(int id, const char * pStrVal) 
+{ 
+	bool   ok = 1;
+	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	THROW_PP_S(P_DrvFRIntrf->SetProperty(id, pStrVal) > 0, PPERR_SHTRIHFRSETPROPFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr()));
+	CATCHZOK
+	return ok;
+}
+
+bool SCS_SHTRIHFRF::GetFR(int id, int * pBuf) 
+{ 
+	bool   ok = 1;
+	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	THROW_PP_S(P_DrvFRIntrf->GetProperty(id, pBuf) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr())); 
+	CATCHZOK
+	return ok;
+}
+
+bool SCS_SHTRIHFRF::GetFR(int id, long * pBuf) 
+{ 
+	bool   ok = 1;
+	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	THROW_PP_S(P_DrvFRIntrf->GetProperty(id, pBuf) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr())); 
+	CATCHZOK
+	return ok;
+}
+
+bool SCS_SHTRIHFRF::GetFR(int id, double * pBuf) 
+{ 
+	bool   ok = 1;
+	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	THROW_PP_S(P_DrvFRIntrf->GetProperty(id, pBuf) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr())); 
+	CATCHZOK
+	return ok;
+}
+
+bool SCS_SHTRIHFRF::GetFR(int id, char * pBuf, size_t bufLen) 
+{ 
+	bool   ok = 1;
+	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	THROW_PP_S(P_DrvFRIntrf->GetProperty(id, pBuf, bufLen) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr())); 
+	CATCHZOK
+	return ok;
+}
+
+int SCS_SHTRIHFRF::ExecFR(int id)
 {
 	int    ok = 1;
-	THROW(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(Password, CashierPassword) > 0);
+	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	THROW_PP_S(P_DrvFRIntrf->SetProperty(Password, CashierPassword) > 0, PPERR_SHTRIHFRSETPROPFAULT, P_DrvFRIntrf->GetNameByID(Password, SLS.AcquireRvlStr()));
+	THROW_PP_S(P_DrvFRIntrf->CallMethod(id) > 0, PPERR_SHTRIHFRCALLMETHFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr()));
+	THROW_PP_S(P_DrvFRIntrf->GetProperty(ResultCode, &ResCode) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(ResultCode, SLS.AcquireRvlStr())); 
+	THROW_PP_S(ResCode == RESCODE_NO_ERROR, PPERR_SHTRIHFRINVRESULTCODE, ResCode);
+	CATCHZOK
+	return ok;
+}
+
+int SCS_SHTRIHFRF::ExecFRPrintOper(int id)
+{
+	int    ok = 1;
+	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	THROW_PP_S(P_DrvFRIntrf->SetProperty(Password, CashierPassword) > 0, PPERR_SHTRIHFRSETPROPFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr()));
 	do {
-		THROW(P_DrvFRIntrf->CallMethod(id) > 0);
-		THROW(P_DrvFRIntrf->GetProperty(ResultCode, &ResCode) > 0);
+		THROW_PP_S(P_DrvFRIntrf->CallMethod(id) > 0, PPERR_SHTRIHFRCALLMETHFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr()));
+		THROW_PP_S(P_DrvFRIntrf->GetProperty(ResultCode, &ResCode) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(ResultCode, SLS.AcquireRvlStr()));
 		if(ResCode == RESCODE_DVCCMDUNSUPP || (Flags & sfPrintSlip && ResCode == RESCODE_SLIP_IS_EMPTY)) {
 			ok = -1;
 			break;
@@ -2417,7 +2481,7 @@ static int IsModeOffPrint(int mode)
 	return oneof5(mode, FRMODE_OPEN_SESS, FRMODE_CLOSE_SESS, FRMODE_OPEN_CHECK, FRMODE_FULL_REPORT, FRMODE_LONG_EKLZ_REPORT) ? 0 : 1;
 }
 
-void SCS_SHTRIHFRF::WriteLogFile(PPID id)
+void SCS_SHTRIHFRF::WriteLogFile(int id)
 {
 	if(CConfig.Flags & CCFLG_DEBUG) {
 		int     adv_mode = 0;
@@ -2443,7 +2507,7 @@ void SCS_SHTRIHFRF::WriteLogFile(PPID id)
 //  которые могут возникнуть при печати чека.
 // Код возврата: 1 - операция печати разрешена, 0 - запрещена.
 //
-int SCS_SHTRIHFRF::AllowPrintOper(PPID id)
+int SCS_SHTRIHFRF::AllowPrintOper(int id)
 {
 	int    ok = 1;
 	int    mode = 0;

@@ -1,5 +1,5 @@
 // COMDISP.H
-// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2013, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2013, 2017, 2018, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 //
 #ifndef __COMDISP_H // {
@@ -10,7 +10,7 @@
 //   Интерфейс IDispatch для работы с COM-приложениями (режим InProcServer, LocalServer) (only WIN32)
 //
 struct DispIDEntry { // @flat
-	long   ID;
+	int    ID; // @v11.6.8 long-->int
 	DISPID DispID;
 	char   Name[64];
 };
@@ -21,31 +21,35 @@ public:
 	~ComDispInterface();
 	int  Init(const char * pProgID, int inProcServer = 1);
 	int  Init(const wchar_t * pProgID, int inProcServer = 1);
+	//
+	// Descr: Виртуальная функция инициализации интерфейса.
+	//   Порожденные классы реализуют в нем инициализацию конкретных методов и свойств.
+	//
 	virtual int Init(IDispatch * pIDisp);
 	int  AssignIDByName(const char * pName, long id);
-	int  GetNameByID(long id, SString & rName) const;
-	int  GetProperty(long propertyID, int    * pBuf);
-	int  GetProperty(long propertyID, long   * pBuf);
-	int  GetProperty(long propertyID, double * pBuf);
-	int  GetProperty(long propertyID, bool   * pBuf);
+	SString & GetNameByID(int id, SString & rName) const;
+	int  GetProperty(int propertyID, int    * pBuf);
+	int  GetProperty(int propertyID, long   * pBuf);
+	int  GetProperty(int propertyID, double * pBuf);
+	int  GetProperty(int propertyID, bool   * pBuf);
 	//
 	// Память под класс pIDisp выделяется внутри функции
 	//
-	int  GetProperty(long propertyID, ComDispInterface * pDisp);
+	int  GetProperty(int propertyID, ComDispInterface * pDisp);
 	//
 	//   Возвращаемая строка - codepage windows-1251
 	//
-	int  GetProperty(long propertyID, char   * pBuf, size_t bufLen);
-	int  SetProperty(long propertyID, int      iVal, int writeOnly = 0);
-	int  SetProperty(long propertyID, long     lVal, int writeOnly = 0);
-	int  SetProperty(long propertyID, double   dVal, int writeOnly = 0);
-	int  SetProperty(long propertyID, bool     bVal, int writeOnly = 0);
-	int  SetProperty(long propertyID, LDATE    dtVal, int writeOnly = 0);
-	int  SetPropertyByParams(long propertyID);
+	int  GetProperty(int propertyID, char   * pBuf, size_t bufLen);
+	int  SetProperty(int propertyID, int      iVal, int writeOnly = 0);
+	int  SetProperty(int propertyID, long     lVal, int writeOnly = 0);
+	int  SetProperty(int propertyID, double   dVal, int writeOnly = 0);
+	int  SetProperty(int propertyID, bool     bVal, int writeOnly = 0);
+	int  SetProperty(int propertyID, LDATE    dtVal, int writeOnly = 0);
+	int  SetPropertyByParams(int propertyID);
 	//
-	// Передаваемая строка - codepage windows-1251
+	// ARG(pStrVal IN) Передаваемая строка - codepage windows-1251
 	//
-	int  SetProperty(long propertyID, const char * pStrVal, int writeOnly = 0);
+	int  SetProperty(int propertyID, const char * pStrVal, int writeOnly = 0);
 	int  SetParam(int    iVal);
 	int  SetParam(long   lVal);
 	int  SetParam(double dVal);
@@ -54,19 +58,19 @@ public:
 	//
 	int  SetParam(const char * pStrVal, int codepage = 1251);
 	int  SetParam(ComDispInterface * pParam);
-	int  CallMethod(long methodID, VARIANTARG * pVarArg = NULL);
-	int  CallMethod(long methodID, ComDispInterface * pDisp);
+	int  CallMethod(int methodID, VARIANTARG * pVarArg = NULL);
+	int  CallMethod(int methodID, ComDispInterface * pDisp);
 	IDispatch * GetDisp() { return P_Disp; }
 private:
-	const DispIDEntry * FASTCALL GetDispIDEntry(long entryId) const;
-	void ClearParams();
-	int  _SetParam(VARIANTARG * pVarArg);
-	int  _SetProperty(long propertyID, VARIANTARG * pVarArg);
-	int  _SetPropertyW(long propertyID, VARIANTARG * pVarArg);
-	int  _GetProperty(long propertyID, VARIANTARG * pVarArg, int sendParams = 0);
-	void SetErrCode();
+	const  DispIDEntry * FASTCALL GetDispIDEntry(long entryId) const;
+	void   ClearParams();
+	int    _SetParam(VARIANTARG * pVarArg);
+	int    _SetProperty(int propertyID, VARIANTARG * pVarArg);
+	int    _SetPropertyW(int propertyID, VARIANTARG * pVarArg);
+	int    _GetProperty(int propertyID, VARIANTARG * pVarArg, int sendParams = 0);
+	void   SetErrCode();
 	SString ProgIdent; // Для сообщений об ошибках
-	IDispatch   * P_Disp;
+	IDispatch * P_Disp;
 	TSVector <DispIDEntry> DispIDAry; // @v10.1.3 TSArray-->TSVector
 	SArray * P_ParamsAry;
 	HRESULT HRes;

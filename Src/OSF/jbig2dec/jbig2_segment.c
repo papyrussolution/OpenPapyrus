@@ -45,10 +45,8 @@ Jbig2Segment * jbig2_parse_segment_header(Jbig2Ctx * ctx, uint8_t * buf, size_t 
 		jbig2_free(ctx->allocator, result);
 		return NULL;
 	}
-
 	/* 7.2.3 */
 	result->flags = buf[4];
-
 	/* 7.2.4 referred-to segments */
 	rtscarf = buf[5];
 	if((rtscarf & 0xe0) == 0xe0) {
@@ -61,7 +59,6 @@ Jbig2Segment * jbig2_parse_segment_header(Jbig2Ctx * ctx, uint8_t * buf, size_t 
 		offset = 5 + 1;
 	}
 	result->referred_to_segment_count = referred_to_segment_count;
-
 	/* we now have enough information to compute the full header length */
 	referred_to_segment_size = result->number <= 256 ? 1 : result->number <= 65536 ? 2 : 4; /* 7.2.5 */
 	pa_size = result->flags & 0x40 ? 4 : 1; /* 7.2.6 */
@@ -175,10 +172,8 @@ static int jbig2_parse_extension_segment(Jbig2Ctx * ctx, Jbig2Segment * segment,
 	uint32_t type;
 	boolint reserved;
 	boolint necessary;
-
 	if(segment->data_length < 4)
 		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "segment too short");
-
 	type = jbig2_get_uint32(segment_data);
 	reserved = type & 0x20000000;
 	/* Not implemented since this bit

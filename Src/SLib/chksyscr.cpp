@@ -1,5 +1,5 @@
 // CHKSYSCR.CPP
-// 2005, 2007, 2008, 2009, 2010, 2016, 2018, 2020
+// 2005, 2007, 2008, 2009, 2010, 2016, 2018, 2020, 2023
 // Слегка видоизмененный метод проверки имени пользователя и пароля в Windows
 //
 //  SSPI Authentication Sample
@@ -374,7 +374,7 @@ int SGetComputerName(SString & rName)
 	rName = 0;
 #ifdef UNICODE
 	wchar_t buf[MAX_COMPUTERNAME_LENGTH + 1];
-	uint32 sz = SIZEOFARRAY(buf);
+	DWORD   sz = SIZEOFARRAY(buf);
 	if(::GetComputerName(buf, &sz)) {
 		rName.CopyUtf8FromUnicode(buf, sz, 0);
 		rName.Transf(CTRANSF_UTF8_TO_OUTER);
@@ -384,7 +384,7 @@ int SGetComputerName(SString & rName)
 	}
 #else
 	char   buf[MAX_COMPUTERNAME_LENGTH + 1];
-	uint32 sz = SIZEOFARRAY(buf);
+	DWORD  sz = SIZEOFARRAY(buf);
 	if(::GetComputerName(buf, &sz)) {
 		rName = buf;
 	}

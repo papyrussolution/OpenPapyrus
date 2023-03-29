@@ -3332,6 +3332,7 @@ private:
 
 class DBConst : public DBItem {
 public:
+	void   FASTCALL init(int l);
 	void   FASTCALL init(long l);
 	void   FASTCALL init(size_t l);
 	void   FASTCALL init(double d);
@@ -3376,6 +3377,7 @@ private:
 	void   Helper_Init(int _id, int _flags, int _tag);
 };
 
+DBConst FASTCALL dbconst(int);
 DBConst FASTCALL dbconst(long);
 DBConst FASTCALL dbconst(int16);
 DBConst FASTCALL dbconst(uint16);
@@ -3822,11 +3824,16 @@ DBQ & __stdcall operator <  (DBItem &, double);
 DBQ & __stdcall operator >  (DBItem &, double);
 DBQ & __stdcall operator <= (DBItem &, double);
 DBQ & __stdcall operator >= (DBItem &, double);
-DBQ & __stdcall operator == (DBItem &, long);
-DBQ & __stdcall operator <  (DBItem &, long);
-DBQ & __stdcall operator >  (DBItem &, long);
-DBQ & __stdcall operator <= (DBItem &, long);
-DBQ & __stdcall operator >= (DBItem &, long);
+DBQ & __stdcall operator == (DBItem &, long v);
+DBQ & __stdcall operator <  (DBItem &, long v);
+DBQ & __stdcall operator >  (DBItem &, long v);
+DBQ & __stdcall operator <= (DBItem &, long v);
+DBQ & __stdcall operator >= (DBItem &, long v);
+DBQ & __stdcall operator == (DBItem &, int v);
+DBQ & __stdcall operator <  (DBItem &, int v);
+DBQ & __stdcall operator >  (DBItem &, int v);
+DBQ & __stdcall operator <= (DBItem &, int v);
+DBQ & __stdcall operator >= (DBItem &, int v);
 DBQ & __stdcall operator == (DBItem &, const char *);
 DBQ & __stdcall operator != (DBItem &, const char *);
 DBQ & __stdcall operator <  (DBItem &, const char *);

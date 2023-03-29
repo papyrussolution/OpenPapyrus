@@ -195,6 +195,17 @@ SJson::~SJson()
 
 bool SJson::IsValid() const { return !(State & 0x0001); }
 
+uint SJson::GetArrayCount() const
+{
+	uint   result = 0;
+	if(IsArray()) {
+		for(const SJson * p_inr = P_Child; p_inr; p_inr = p_inr->P_Next) {
+			result++;
+		}
+	}
+	return result;
+}
+
 int FASTCALL SJson::ToStr(SStringU & rBuf) const
 {
 	rBuf.Z();

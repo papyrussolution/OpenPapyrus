@@ -715,13 +715,13 @@ long TDialog::getVirtButtonID(uint ctlID)
 	return v ? reinterpret_cast<long>(TView::messageBroadcast(this, cmSearchVirtButton, v)) : 0;
 }
 
-int FASTCALL TDialog::AddClusterAssoc(uint ctlID, long pos, long val)
+int STDCALL TDialog::AddClusterAssoc(uint ctlID, long pos, long val)
 {
 	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
 	return p_clu ? p_clu->addAssoc(pos, val) : 0;
 }
 
-int FASTCALL TDialog::AddClusterAssocDef(uint ctlID, long pos, long val)
+int STDCALL TDialog::AddClusterAssocDef(uint ctlID, long pos, long val)
 {
 	int    ok = 1;
 	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
@@ -741,25 +741,32 @@ int TDialog::GetClusterItemByAssoc(uint ctlID, long val, int * pPos)
 	return p_clu ? p_clu->getItemByAssoc(val, pPos) : 0;
 }
 
-int FASTCALL TDialog::SetClusterData(uint ctlID, long val)
+int STDCALL TDialog::SetClusterData(uint ctlID, long val)
 {
 	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
 	return p_clu ? p_clu->setDataAssoc(val) : 0;
 }
 
-int FASTCALL TDialog::GetClusterData(uint ctlID, long * pVal)
+int STDCALL TDialog::GetClusterData(uint ctlID, long * pVal)
 {
 	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
 	return p_clu ? p_clu->getDataAssoc(pVal) : 0;
 }
 
-long FASTCALL TDialog::GetClusterData(uint ctlID)
+int STDCALL TDialog::GetClusterData(uint ctlID, int * pVal)
+{
+	static_assert(sizeof(int) == sizeof(long));
+	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
+	return p_clu ? p_clu->getDataAssoc(reinterpret_cast<long *>(pVal)) : 0;
+}
+
+long STDCALL TDialog::GetClusterData(uint ctlID)
 {
 	long   temp_long = 0;
 	return GetClusterData(ctlID, &temp_long) ? temp_long : 0;
 }
 
-int FASTCALL TDialog::GetClusterData(uint ctlID, int16 * pVal)
+int STDCALL TDialog::GetClusterData(uint ctlID, int16 * pVal)
 {
 	long   temp_long = *pVal;
 	int    r = GetClusterData(ctlID, &temp_long);

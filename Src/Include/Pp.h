@@ -434,7 +434,7 @@ class StyloQDocumentPrereqParam;
 class StyloQPersonEventParam;
 
 typedef struct bignum_st BIGNUM; // OpenSSL
-typedef long PPID;
+typedef int32 PPID; // @v11.6.8 long-->int32
 typedef LongArray PPIDArray;
 //
 // Descr: Блок константных параметров, которые инициализируются единожды при запуске процесса,
@@ -8156,7 +8156,8 @@ int    STDCALL  RemoveByID(DBTable *, PPID objID, int use_ta);
 //   в таблице pTbl. Используется функция DBTable::searchKey, поэтому на установку
 //   позиции и заполнение буфера данных расчитывать нельзя.
 //
-int    STDCALL  IncDateKey(DBTable * pTbl, int idx, LDATE, long * pOprno);
+int    STDCALL  IncDateKey(DBTable * pTbl, int idx, LDATE dt, long * pOprno);
+inline int IncDateKey(DBTable * pTbl, int idx, LDATE dt, int * pOprno) { return IncDateKey(pTbl, idx, dt, reinterpret_cast<long *>(pOprno)); }
 int    FASTCALL CheckTblPtr(const DBTable *);
 int    FASTCALL CheckQueryPtr(const DBQuery *);
 TempOrderTbl * CreateTempOrderFile();
@@ -8928,7 +8929,9 @@ public:
 	//   -2 - Caller must skip receiving object
 	//
 	virtual int    ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
-	static  int    STDCALL ProcessObjRefInArray(PPID, PPID *, PPObjIDArray *, int replace);
+	static  int    STDCALL ProcessObjRefInArray(PPID, long *, PPObjIDArray *, int replace);
+	static  int    STDCALL ProcessObjRefInArray(PPID objTypeID, int * pObjID, PPObjIDArray * pArray, int replace)
+		{ return ProcessObjRefInArray(objTypeID, reinterpret_cast<long *>(pObjID), pArray, replace); }
 	static  int    STDCALL ProcessObjRefInArray_NoPreprocess(PPID objTypeID, PPID * pObjID, PPObjIDArray * pArray, int replace);
 	static  int    ProcessObjListRefInArray(PPID, PPIDArray &, PPObjIDArray * pArray, int replace);
 	// Возвращает PPObjListWindow
@@ -25668,6 +25671,8 @@ private:
 	int    SaxParseFile(xmlSAXHandler * sax, const char * pFileName);
 	void   SaxStop();
 	int    ProcessString(const char * pRawText, long * pRefId, SString & rTempBuf, SStringU & rTempBufU);
+	int    ProcessString(const char * pRawText, int * pRefId, SString & rTempBuf, SStringU & rTempBufU)
+		{ return ProcessString(pRawText, reinterpret_cast<long *>(pRefId), rTempBuf, rTempBufU); }
 	int    CollectUuid(const S_GUID & rUuid);
 	int    FlashUuidChunk(uint maxCount, int use_ta);
 	int    FlashAddrChunk(uint maxCount, int use_ta);
@@ -39233,6 +39238,7 @@ enum BrowseBillsType {
 //
 // Descr: Фильтр выборки документов.
 // @todo Заменить OpID на OpList дабы можно было отбирать документы по списку видов операций.
+// @todo Фильтрация по тексту в примечании
 //
 class BillFilt : public PPBaseFilt {
 public:
@@ -39882,6 +39888,7 @@ private:
 };
 //
 // @ModuleDecl(PPViewAccturn)
+// @todo Фильтрация по тексту в примечании
 //
 struct AccturnFilt : public PPBaseFilt {
 	enum {
@@ -47091,6 +47098,7 @@ public:
 		styloqdocstCANCELLEDDRAFT        = 17, // @v11.4.1 Драфт отмененый эмитентом. Переход в это состояние возможен только после styloqdocstDRAFT || styloqdocstUNDEF.
 		styloqdocstINCOMINGMOD           = 18, // @v11.4.9 Входящий (по отношению к клиенту) документ, над которым осуществлена частичная модификация
 		styloqdocstINCOMINGMODACCEPTED   = 19, // @v11.4.9 Входящий (по отношению к клиенту) документ, над которым осуществлена частичная модификация, которая, в свою очередь, акцептирована сервисом.
+		styloqdocstPARTIALLYEXECUTED     = 20, // @v11.6.8 частично исполнен акцептором
 	};
 	//
 	// Descr: Типы документов, хранящихся в реестре Stylo-Q
@@ -55681,6 +55689,7 @@ protected:
 	double CalcCreditCharge(const CCheckPacket * pPack, const CCheckPacket * pExtPack, const CCheckItem * pCurItem, double * pNonCrdAmt, double * pBonusChargeAmt);
 	int    CalcRestByCrdCard_(int checkCurItem);
 	int    GetNewCheckCode(PPID cashNodeID, long * pCode);
+	int    GetNewCheckCode(PPID cashNodeID, int * pCode) { return GetNewCheckCode(cashNodeID, reinterpret_cast<long *>(pCode)); }
 	enum {
 		iccpSetCurTime    = 0x0001,
 		iccpDontFillLines = 0x0002,

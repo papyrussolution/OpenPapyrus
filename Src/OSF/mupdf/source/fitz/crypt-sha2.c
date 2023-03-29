@@ -19,10 +19,7 @@ static inline int isbigendian(void)
 
 static inline uint bswap32(uint num)
 {
-	return  ( (((num) << 24))
-	       | (((num) << 8) & 0x00FF0000)
-	       | (((num) >> 8) & 0x0000FF00)
-	       | (((num) >> 24)) );
+	return  ( (((num) << 24)) | (((num) << 8) & 0x00FF0000) | (((num) >> 8) & 0x0000FF00) | (((num) >> 24)) );
 }
 
 static inline uint64_t bswap64(uint64_t num)
@@ -41,9 +38,7 @@ static inline uint64_t bswap64(uint64_t num)
 #define rotr(num, amount) ((num) >> (amount) | (num) << (8 * sizeof(num) - (amount)))
 
 #define blk0(i) (W[i] = data[i])
-#define blk2(i) (W[i & 15] += s1(W[(i - 2) & 15]) + W[(i - 7) & 15] \
-	+ s0(W[(i - 15) & 15]))
-
+#define blk2(i) (W[i & 15] += s1(W[(i - 2) & 15]) + W[(i - 7) & 15] + s0(W[(i - 15) & 15]))
 #define Ch(x, y, z) (z ^ (x & (y ^ z)))
 #define Maj(x, y, z) ((x & y) | (z & (x | y)))
 
@@ -152,16 +147,13 @@ void fz_sha256_update(fz_sha256 * context, const uchar * input, size_t inlen)
 		uint copy_size = 64 - copy_start;
 		if(copy_size > inlen)
 			copy_size = (uint)inlen;
-
 		memcpy(context->buffer.u8 + copy_start, input, copy_size);
-
 		input += copy_size;
 		inlen -= copy_size;
 		context->count[0] += copy_size;
 		/* carry overflow from low to high */
 		if(context->count[0] < copy_size)
 			context->count[1]++;
-
 		if((context->count[0] & 0x3F) == 0)
 			transform256(context->state, context->buffer.u32);
 	}
@@ -169,11 +161,10 @@ void fz_sha256_update(fz_sha256 * context, const uchar * input, size_t inlen)
 
 void fz_sha256_final(fz_sha256 * context, uchar digest[32])
 {
-	/* Add padding as described in RFC 3174 (it describes SHA-1 but
-	 * the same padding style is used for SHA-256 too). */
+	// Add padding as described in RFC 3174 (it describes SHA-1 but
+	// the same padding style is used for SHA-256 too).
 	uint j = context->count[0] & 0x3F;
 	context->buffer.u8[j++] = 0x80;
-
 	while(j != 56) {
 		if(j == 64) {
 			transform256(context->state, context->buffer.u32);
@@ -181,11 +172,9 @@ void fz_sha256_final(fz_sha256 * context, uchar digest[32])
 		}
 		context->buffer.u8[j++] = 0x00;
 	}
-
-	/* Convert the message size from bytes to bits. */
+	// Convert the message size from bytes to bits.
 	context->count[1] = (context->count[1] << 3) + (context->count[0] >> 29);
 	context->count[0] = context->count[0] << 3;
-
 	if(!isbigendian()) {
 		context->buffer.u32[14] = bswap32(context->count[1]);
 		context->buffer.u32[15] = bswap32(context->count[0]);
@@ -315,16 +304,13 @@ void fz_sha512_update(fz_sha512 * context, const uchar * input, size_t inlen)
 		uint copy_size = 128 - copy_start;
 		if(copy_size > inlen)
 			copy_size = (uint)inlen;
-
 		memcpy(context->buffer.u8 + copy_start, input, copy_size);
-
 		input += copy_size;
 		inlen -= copy_size;
 		context->count[0] += copy_size;
 		/* carry overflow from low to high */
 		if(context->count[0] < copy_size)
 			context->count[1]++;
-
 		if((context->count[0] & 0x7F) == 0)
 			transform512(context->state, context->buffer.u64);
 	}

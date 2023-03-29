@@ -48,7 +48,8 @@ const uint32_t k32ValueBE{0x67452301};
 const uint16_t k16ValueBE{0x2301};
 #endif
 
-std::vector<uint16_t> GenerateAllUint16Values() {
+std::vector<uint16_t> GenerateAllUint16Values() 
+{
 	std::vector<uint16_t> result;
 	result.reserve(size_t{1} << (sizeof(uint16_t) * 8));
 	for(uint32_t i = std::numeric_limits<uint16_t>::min();
@@ -58,8 +59,8 @@ std::vector<uint16_t> GenerateAllUint16Values() {
 	return result;
 }
 
-template <typename T>
-std::vector<T> GenerateRandomIntegers(size_t num_values_to_test) {
+template <typename T> std::vector<T> GenerateRandomIntegers(size_t num_values_to_test) 
+{
 	std::vector<T> result;
 	result.reserve(num_values_to_test);
 	std::mt19937_64 rng(kRandomSeed);
@@ -69,35 +70,27 @@ std::vector<T> GenerateRandomIntegers(size_t num_values_to_test) {
 	return result;
 }
 
-void ManualByteSwap(char* bytes, int length) {
-	if(length == 1)
-		return;
-
-	EXPECT_EQ(0, length % 2);
-	for(int i = 0; i < length / 2; ++i) {
-		int j = (length - 1) - i;
-		using std::swap;
-		swap(bytes[i], bytes[j]);
+void ManualByteSwap(char* bytes, int length) 
+{
+	if(length != 1) {
+		EXPECT_EQ(0, length % 2);
+		for(int i = 0; i < length / 2; ++i) {
+			int j = (length - 1) - i;
+			using std::swap;
+			swap(bytes[i], bytes[j]);
+		}
 	}
 }
 
-template <typename T>
-inline T UnalignedLoad(const char* p) {
-	static_assert(
-		sizeof(T) == 1 || sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8,
-		"Unexpected type size");
-
+template <typename T> inline T UnalignedLoad(const char* p) 
+{
+	static_assert(sizeof(T) == 1 || sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8, "Unexpected type size");
 	switch(sizeof(T)) {
 		case 1: return *reinterpret_cast<const T*>(p);
-		case 2:
-		    return ABSL_INTERNAL_UNALIGNED_LOAD16(p);
-		case 4:
-		    return ABSL_INTERNAL_UNALIGNED_LOAD32(p);
-		case 8:
-		    return ABSL_INTERNAL_UNALIGNED_LOAD64(p);
-		default:
-		    // Suppresses invalid "not all control paths return a value" on MSVC
-		    return {};
+		case 2: return ABSL_INTERNAL_UNALIGNED_LOAD16(p);
+		case 4: return ABSL_INTERNAL_UNALIGNED_LOAD32(p);
+		case 8: return ABSL_INTERNAL_UNALIGNED_LOAD64(p);
+		default: return {}; // Suppresses invalid "not all control paths return a value" on MSVC
 	}
 }
 
@@ -124,34 +117,16 @@ static void GBSwapHelper(const std::vector<T>& host_values_to_test,
 	}
 }
 
-void Swap16(char* bytes) {
-	ABSL_INTERNAL_UNALIGNED_STORE16(
-		bytes, gbswap_16(ABSL_INTERNAL_UNALIGNED_LOAD16(bytes)));
-}
+void Swap16(char* bytes) { ABSL_INTERNAL_UNALIGNED_STORE16(bytes, gbswap_16(ABSL_INTERNAL_UNALIGNED_LOAD16(bytes))); }
+void Swap32(char* bytes) { ABSL_INTERNAL_UNALIGNED_STORE32(bytes, gbswap_32(ABSL_INTERNAL_UNALIGNED_LOAD32(bytes))); }
+void Swap64(char* bytes) { ABSL_INTERNAL_UNALIGNED_STORE64(bytes, gbswap_64(ABSL_INTERNAL_UNALIGNED_LOAD64(bytes))); }
 
-void Swap32(char* bytes) {
-	ABSL_INTERNAL_UNALIGNED_STORE32(
-		bytes, gbswap_32(ABSL_INTERNAL_UNALIGNED_LOAD32(bytes)));
-}
+TEST(EndianessTest, Uint16) { GBSwapHelper(GenerateAllUint16Values(), &Swap16); }
+TEST(EndianessTest, Uint32) { GBSwapHelper(GenerateRandomIntegers<uint32_t>(kNumValuesToTest), &Swap32); }
+TEST(EndianessTest, Uint64) { GBSwapHelper(GenerateRandomIntegers<uint64_t>(kNumValuesToTest), &Swap64); }
 
-void Swap64(char* bytes) {
-	ABSL_INTERNAL_UNALIGNED_STORE64(
-		bytes, gbswap_64(ABSL_INTERNAL_UNALIGNED_LOAD64(bytes)));
-}
-
-TEST(EndianessTest, Uint16) {
-	GBSwapHelper(GenerateAllUint16Values(), &Swap16);
-}
-
-TEST(EndianessTest, Uint32) {
-	GBSwapHelper(GenerateRandomIntegers<uint32_t>(kNumValuesToTest), &Swap32);
-}
-
-TEST(EndianessTest, Uint64) {
-	GBSwapHelper(GenerateRandomIntegers<uint64_t>(kNumValuesToTest), &Swap64);
-}
-
-TEST(EndianessTest, ghtonll_gntohll) {
+TEST(EndianessTest, ghtonll_gntohll) 
+{
 	// Test that absl::ghtonl compiles correctly
 	uint32_t test = 0x01234567;
 	EXPECT_EQ(absl::gntohl(absl::ghtonl(test)), test);
@@ -174,7 +149,8 @@ TEST(EndianessTest, ghtonll_gntohll) {
 	}
 }
 
-TEST(EndianessTest, little_endian) {
+TEST(EndianessTest, little_endian) 
+{
 	// Check little_endian uint16_t.
 	uint64_t comp = little_endian::FromHost16(k16Value);
 	EXPECT_EQ(comp, k16ValueLE);

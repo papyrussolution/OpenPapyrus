@@ -506,6 +506,45 @@ void FASTCALL SObfuscateBuffer(void * pBuf, size_t bufSize)
 
 #include <asmlib.h> // @v7.0.12
 
+SLTEST_R(Endian)
+{
+	int    ok = 1;
+	const uint64 k_initial_number{0x0123456789abcdef};
+	const uint64 k64value{k_initial_number};
+	const uint   k32value_u{0x01234567U};
+	const ulong  k32value_l{0x01234567UL};
+	const uint16 k16value{0x0123};
+#if defined(SL_BIGENDIAN)
+	const uint64_t k_initial_in_network_order{k_initial_number};
+	const uint64_t k64value_le{0xefcdab8967452301};
+	const uint32_t k32value_le{0x67452301};
+	const uint16_t k16value_le{0x2301};
+
+	const uint64_t k64value_be{kInitialNumber};
+	const uint32_t k32value_be{k32value_u};
+	const uint16_t k16value_be{k16value};
+#elif defined(SL_LITTLEENDIAN)
+	const uint64_t k_initial_in_network_order{0xefcdab8967452301};
+	const uint64_t k64value_le{k_initial_number};
+	const uint32_t k32value_le{k32value_u};
+	const uint16_t k16value_le{k16value};
+
+	const uint64_t k64value_be{0xefcdab8967452301};
+	const uint32_t k32value_be{0x67452301};
+	const uint16_t k16value_be{0x2301};
+
+	assert(k64value_be == sbswap64(k64value));
+	assert(k32value_be == sbswap32(k32value_u));
+	assert(k32value_be == sbswap32(k32value_l));
+	assert(k16value_be == sbswap16(k16value));
+	assert(k64value_be == sbswap64_fallback(k64value));
+	assert(k32value_be == sbswap32_fallback(k32value_u));
+	assert(k32value_be == sbswap32_fallback(k32value_l));
+	assert(k16value_be == sbswap16_fallback(k16value));
+#endif
+	return ok;
+}
+
 struct SlTestFixtureMEMMOVO {
 public:
 	SlTestFixtureMEMMOVO()

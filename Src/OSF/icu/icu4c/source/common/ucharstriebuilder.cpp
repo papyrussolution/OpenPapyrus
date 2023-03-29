@@ -1,18 +1,11 @@
+// ucharstriebuilder.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *   Copyright (C) 2010-2012, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *******************************************************************************
- *   file name:  ucharstriebuilder.h
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2010nov14
- *   created by: Markus W. Scherer
- */
+// Copyright (C) 2010-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2010nov14
+// created by: Markus W. Scherer
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "ustr_imp.h"
@@ -28,28 +21,16 @@ U_NAMESPACE_BEGIN
 class UCharsTrieElement : public UMemory {
 public:
 	// Use compiler's default constructor, initializes nothing.
-
 	void setTo(const UnicodeString & s, int32_t val, UnicodeString & strings, UErrorCode & errorCode);
-
-	UnicodeString getString(const UnicodeString & strings) const {
+	UnicodeString getString(const UnicodeString & strings) const 
+	{
 		int32_t length = strings[stringOffset];
 		return strings.tempSubString(stringOffset+1, length);
 	}
-
-	int32_t getStringLength(const UnicodeString & strings) const {
-		return strings[stringOffset];
-	}
-
-	UChar charAt(int32_t index, const UnicodeString & strings) const {
-		return strings[stringOffset+1+index];
-	}
-
-	int32_t getValue() const {
-		return value;
-	}
-
+	int32_t getStringLength(const UnicodeString & strings) const { return strings[stringOffset]; }
+	UChar charAt(int32_t index, const UnicodeString & strings) const { return strings[stringOffset+1+index]; }
+	int32_t getValue() const { return value; }
 	int32_t compareStringTo(const UCharsTrieElement &o, const UnicodeString & strings) const;
-
 private:
 	// The first strings unit contains the string length.
 	// (Compared with a stringLength field here, this saves 2 bytes per string.)
@@ -57,33 +38,32 @@ private:
 	int32_t value;
 };
 
-void UCharsTrieElement::setTo(const UnicodeString & s, int32_t val,
-    UnicodeString & strings, UErrorCode & errorCode) {
-	if(U_FAILURE(errorCode)) {
-		return;
+void UCharsTrieElement::setTo(const UnicodeString & s, int32_t val, UnicodeString & strings, UErrorCode & errorCode) 
+{
+	if(U_SUCCESS(errorCode)) {
+		int32_t length = s.length();
+		if(length>0xffff) {
+			// Too long: We store the length in 1 unit.
+			errorCode = U_INDEX_OUTOFBOUNDS_ERROR;
+			return;
+		}
+		stringOffset = strings.length();
+		strings.append((UChar)length);
+		value = val;
+		strings.append(s);
 	}
-	int32_t length = s.length();
-	if(length>0xffff) {
-		// Too long: We store the length in 1 unit.
-		errorCode = U_INDEX_OUTOFBOUNDS_ERROR;
-		return;
-	}
-	stringOffset = strings.length();
-	strings.append((UChar)length);
-	value = val;
-	strings.append(s);
 }
 
 int32_t UCharsTrieElement::compareStringTo(const UCharsTrieElement &other, const UnicodeString & strings) const {
 	return getString(strings).compare(other.getString(strings));
 }
 
-UCharsTrieBuilder::UCharsTrieBuilder(UErrorCode & /*errorCode*/)
-	: elements(NULL), elementsCapacity(0), elementsLength(0),
-	uchars(NULL), ucharsCapacity(0), ucharsLength(0) {
+UCharsTrieBuilder::UCharsTrieBuilder(UErrorCode & /*errorCode*/) : elements(NULL), elementsCapacity(0), elementsLength(0), uchars(NULL), ucharsCapacity(0), ucharsLength(0) 
+{
 }
 
-UCharsTrieBuilder::~UCharsTrieBuilder() {
+UCharsTrieBuilder::~UCharsTrieBuilder() 
+{
 	delete[] elements;
 	uprv_free(uchars);
 }
@@ -151,8 +131,8 @@ UCharsTrie * UCharsTrieBuilder::build(UStringTrieBuildOption buildOption, UError
 	return newTrie;
 }
 
-UnicodeString & UCharsTrieBuilder::buildUnicodeString(UStringTrieBuildOption buildOption, UnicodeString & result,
-    UErrorCode & errorCode) {
+UnicodeString & UCharsTrieBuilder::buildUnicodeString(UStringTrieBuildOption buildOption, UnicodeString & result, UErrorCode & errorCode) 
+{
 	buildUChars(buildOption, errorCode);
 	if(U_SUCCESS(errorCode)) {
 		result.setTo(FALSE, uchars+(ucharsCapacity-ucharsLength), ucharsLength);
@@ -160,11 +140,12 @@ UnicodeString & UCharsTrieBuilder::buildUnicodeString(UStringTrieBuildOption bui
 	return result;
 }
 
-void UCharsTrieBuilder::buildUChars(UStringTrieBuildOption buildOption, UErrorCode & errorCode) {
+void UCharsTrieBuilder::buildUChars(UStringTrieBuildOption buildOption, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-	if(uchars!=NULL && ucharsLength>0) {
+	if(uchars && ucharsLength>0) {
 		// Already built.
 		return;
 	}

@@ -651,7 +651,8 @@ void* mi_heap_realloc(mi_heap_t* heap, void* p, size_t newsize) mi_attr_noexcept
 void* mi_heap_reallocn(mi_heap_t* heap, void* p, size_t count, size_t size) mi_attr_noexcept 
 {
 	size_t total;
-	if(mi_count_size_overflow(count, size, &total)) return NULL;
+	if(mi_count_size_overflow(count, size, &total)) 
+		return NULL;
 	return mi_heap_realloc(heap, p, total);
 }
 
@@ -659,7 +660,8 @@ void* mi_heap_reallocn(mi_heap_t* heap, void* p, size_t count, size_t size) mi_a
 void* mi_heap_reallocf(mi_heap_t* heap, void* p, size_t newsize) mi_attr_noexcept 
 {
 	void* newp = mi_heap_realloc(heap, p, newsize);
-	if(newp==NULL && p!=NULL) mi_free(p);
+	if(!newp && p) 
+		mi_free(p);
 	return newp;
 }
 
@@ -668,7 +670,8 @@ void* mi_heap_rezalloc(mi_heap_t* heap, void* p, size_t newsize) mi_attr_noexcep
 void* mi_heap_recalloc(mi_heap_t* heap, void* p, size_t count, size_t size) mi_attr_noexcept 
 {
 	size_t total;
-	if(mi_count_size_overflow(count, size, &total)) return NULL;
+	if(mi_count_size_overflow(count, size, &total)) 
+		return NULL;
 	return mi_heap_rezalloc(heap, p, total);
 }
 

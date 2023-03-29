@@ -18,13 +18,11 @@
  */
 #include "tiff.h"
 #include "tiffvers.h"
-
 /*
  * TIFF is defined as an incomplete type to hide the
  * library's internal data structures from clients.
  */
 typedef struct tiff TIFF;
-
 /*
  * The following typedefs define the intrinsic size of
  * data types used in the *exported* interfaces.  These

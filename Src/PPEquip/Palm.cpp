@@ -418,7 +418,7 @@ int PPObjStyloPalm::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 		dlg->getCtrlData(CTL_SPIICFG_SELLTERM, &cfg.SellAnlzTerm);
 		dlg->getCtrlData(CTLSEL_SPIICFG_CLIINVOP, &cfg.CliInvOpID);
 		dlg->GetClusterData(CTL_SPIICFG_ORDCFMTTYP, &cfg.OrderCodeFormatType);
-		dlg->getCtrlData(CTLSEL_SPIICFG_INHBTAG, &cfg.InhBillTagID); // @v9.2.11
+		dlg->getCtrlData(CTLSEL_SPIICFG_INHBTAG, &cfg.InhBillTagID);
 		{
 			PPTransaction tra(1);
 			THROW(tra);
@@ -858,7 +858,7 @@ int PPObjStyloPalm::Helper_GetPacket(PPID id, PPStyloPalmPacket * pPack, PPIDArr
 				SETIFZ(pPack->Rec.FTPAcctID, group_pack.Rec.FTPAcctID);
 				SETIFZ(pPack->Rec.GoodsGrpID, group_pack.Rec.GoodsGrpID);
 				SETIFZ(pPack->Rec.MaxUnsentOrders, group_pack.Rec.MaxUnsentOrders);
-				SETIFZ(pPack->Rec.TransfDaysAgo,   group_pack.Rec.TransfDaysAgo); // @v9.2.2
+				SETIFZ(pPack->Rec.TransfDaysAgo,   group_pack.Rec.TransfDaysAgo);
 			}
 			else {
 				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
@@ -1575,12 +1575,12 @@ int PPObjStyloPalm::ReadInput(PPID id, PalmInputParam * pParam, long flags, PPLo
 		PPStyloPalmPacket palm_pack;
 		THROW(GetPacket(id, &palm_pack) > 0);
 		if(palm_pack.MakeInputPath(path) && fileExists(path) && CheckSignalForInput(path)) {
-			if(pParam->P_ToDoQueue && !(palm_pack.Rec.Flags & PLMF_BLOCKED)) { // @v9.4.7 !(palm_pack.Rec.Flags & PLMF_BLOCKED)
+			if(pParam->P_ToDoQueue && !(palm_pack.Rec.Flags & PLMF_BLOCKED)) {
 				THROW(ReadInputToDo(&palm_pack.Rec, path, pParam, flags, pLogger));
 			}
 			if(pParam->P_BillQueue) {
 				THROW(ReadInputBill(&palm_pack.Rec, path, pParam, flags, pLogger, pOrdCount));
-				if(!(palm_pack.Rec.Flags & PLMF_BLOCKED)) { // @v9.4.7
+				if(!(palm_pack.Rec.Flags & PLMF_BLOCKED)) {
 					THROW(ReadInputInv(&palm_pack.Rec, path, pParam, flags, pLogger));
 				}
 			}
@@ -2357,7 +2357,7 @@ int PPObjStyloPalm::ImportData(PPID id, PPID opID, PPID locID, PPLogger * pLogge
 	PalmBillQueue bill_queue;
 	SQueue todo_queue(sizeof(PalmToDoItem), 1024);
 	SQueue bill_debt_memo_queue(sizeof(PalmDebtMemoItem), 1024);
-	TSVector <PPGeoTrackItem> gt_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <PPGeoTrackItem> gt_list;
 	PalmInputParam input_param;
 	input_param.P_BillQueue = &bill_queue;
 	input_param.P_ToDoQueue = &todo_queue;
@@ -2426,7 +2426,7 @@ public:
 		int32 AgentId;
 		LDATETIME CreateDtm;
 		int32 MaxNotSentOrd;
-		int32 TransfDaysAgo;   // @v9.2.2
+		int32 TransfDaysAgo;
 		PPGeoTrackingMode Gtm;
 		int32 StyloFlags;
 	};
@@ -2437,11 +2437,13 @@ public:
 	int    EndElement();
 	int    PutElement(const char * pName, const char * pValue);
 	int    PutElement(const char * pName, long v);
+	int    PutElement(const char * pName, int v) { return PutElement(pName, static_cast<long>(v)); }
 	int    PutElement(const char * pName, double v);
 	int    PutElement(const char * pName, LDATE v);
 	int    AddAttrib(const char * pName, const char * pAttribValue);
 	int    AddAttrib(const char * pName, bool attribValue);
 	int    AddAttrib(const char * pName, long attribValue);
+	int    AddAttrib(const char * pName, int attribValue) { return AddAttrib(pName, static_cast<long>(attribValue)); }
 	int    AddAttrib(const char * pName, double attribValue);
 	int    AddAttrib(const char * pName, LDATETIME val);
 	int    AddAttrib(const char * pName, LTIME val);
@@ -2546,7 +2548,7 @@ int AndroidXmlWriter::GetBuffer(SBuffer & rBuf)
 int AndroidXmlWriter::PutTableInfo(const char * pName, int32 recsCount, LDATETIME crtDtm)
 {
 	int    ok = -1;
-	if(P_Writer && sstrlen(pName) /* @v9.4.7 && recsCount > 0*/) {
+	if(P_Writer && sstrlen(pName)) {
 		SString temp_buf;
 		temp_buf.Cat(recsCount);
 		StartElement(pName, "RecsCount", temp_buf);
@@ -2942,7 +2944,7 @@ public:
 			*/
 			h.AgentId = pPack->Rec.AgentID;
 			h.MaxNotSentOrd = pPack->Rec.MaxUnsentOrders;
-			h.TransfDaysAgo = pPack->Rec.TransfDaysAgo; // @v9.2.2
+			h.TransfDaysAgo = pPack->Rec.TransfDaysAgo;
 			h.FormatVersion  = 1;
 			STRNSCPY(h.ProductName, "StyloAndroid");
 			h.ProductVersion = 1;
@@ -3189,7 +3191,7 @@ int PPObjStyloPalm::CreateBrandList(ExportBlock & rBlk)
 {
 	int    ok = -1;
     if(!rBlk.P_BrandList) {
-    	THROW_MEM(rBlk.P_BrandList = new TSVector <ExportBlock::BrandEntry>); // @v9.8.7 TSArray-->TSVector
+    	THROW_MEM(rBlk.P_BrandList = new TSVector <ExportBlock::BrandEntry>);
 		{
 			SString temp_buf;
 			Goods2Tbl::Key2 k2;
@@ -3225,7 +3227,7 @@ int PPObjStyloPalm::CreateGoodsGrpList(ExportBlock & rBlk)
 		SString temp_buf;
 		PPID   id = 0;
 		Goods2Tbl::Rec goods_rec;
-    	THROW_MEM(rBlk.P_GgList = new TSVector <ExportBlock::GoodsGrpEntry>); // @v9.8.7 TSArray-->TSVector
+    	THROW_MEM(rBlk.P_GgList = new TSVector <ExportBlock::GoodsGrpEntry>);
 		for(GoodsGroupIterator ggiter(0); ggiter.Next(&id, temp_buf) > 0;) {
 			if(rBlk.P_GObj->Fetch(id, &goods_rec) > 0) {
 				ExportBlock::GoodsGrpEntry entry;
@@ -4131,8 +4133,8 @@ public:
 		AddClusterAssoc(CTL_PALMPANE_FLAGS, 1, PalmPaneData::fExportFTP);
 		AddClusterAssoc(CTL_PALMPANE_FLAGS, 2, PalmPaneData::fImportFTP);
 		AddClusterAssoc(CTL_PALMPANE_FLAGS, 3, PalmPaneData::fDelImpData);
-		AddClusterAssoc(CTL_PALMPANE_FLAGS, 4, PalmPaneData::fExclExpDebts); // @v9.0.0
-		AddClusterAssoc(CTL_PALMPANE_FLAGS, 5, PalmPaneData::fIgnoreMutex); // @v9.8.4
+		AddClusterAssoc(CTL_PALMPANE_FLAGS, 4, PalmPaneData::fExclExpDebts);
+		AddClusterAssoc(CTL_PALMPANE_FLAGS, 5, PalmPaneData::fIgnoreMutex);
 		SetClusterData(CTL_PALMPANE_FLAGS, Data.Flags);
 		SetupPPObjCombo(this, CTLSEL_PALMPANE_PALM, PPOBJ_STYLOPALM, Data.PalmID, OLW_CANSELUPLEVEL, 0);
 		PPIDArray op_type_list;

@@ -4337,83 +4337,75 @@ FAST_NEAREST_MAINLOOP_COMMON(sse2_8888_n_8888_none_OVER, scaled_nearest_scanline
 FAST_NEAREST_MAINLOOP_COMMON(sse2_8888_n_8888_normal_OVER, scaled_nearest_scanline_sse2_8888_n_8888_OVER, uint32, uint32, uint32, NORMAL, TRUE, TRUE)
 
 #if PSHUFD_IS_FAST
+	#define BILINEAR_DECLARE_VARIABLES                                             \
+		const __m128i xmm_wt = _mm_set_epi16(wt, wt, wt, wt, wt, wt, wt, wt);      \
+		const __m128i xmm_wb = _mm_set_epi16(wb, wb, wb, wb, wb, wb, wb, wb);      \
+		const __m128i xmm_addc = _mm_set_epi16(0, 1, 0, 1, 0, 1, 0, 1);            \
+		const __m128i xmm_ux1 = _mm_set_epi16(unit_x, -unit_x, unit_x, -unit_x, unit_x, -unit_x, unit_x, -unit_x); \
+		const __m128i xmm_ux4 = _mm_set_epi16(unit_x * 4, -unit_x * 4, unit_x * 4, -unit_x * 4, unit_x * 4, -unit_x * 4, unit_x * 4, -unit_x * 4); \
+		const __m128i xmm_zero = _mm_setzero_si128();                              \
+		__m128i xmm_x = _mm_set_epi16(vx + unit_x * 3, -(vx + 1) - unit_x * 3, vx + unit_x * 2, -(vx + 1) - unit_x * 2, vx + unit_x * 1, -(vx + 1) - unit_x * 1, \
+			vx + unit_x * 0, -(vx + 1) - unit_x * 0);    \
+		__m128i xmm_wh_state;
 
-/***********************************************************************************/
+	#define BILINEAR_INTERPOLATE_ONE_PIXEL_HELPER(pix, phase_)                      \
+		do {                                                                            \
+			int phase = phase_;                                                         \
+			__m128i xmm_wh, xmm_a, xmm_b;                                               \
+			/* fetch 2x2 pixel block into sse2 registers */                             \
+			__m128i tltr = _mm_loadl_epi64((__m128i*)&src_top[vx >> 16]);             \
+			__m128i blbr = _mm_loadl_epi64((__m128i*)&src_bottom[vx >> 16]);          \
+			vx += unit_x;                                                               \
+			/* vertical interpolation */                                                \
+			xmm_a = _mm_mullo_epi16(_mm_unpacklo_epi8(tltr, xmm_zero), xmm_wt);       \
+			xmm_b = _mm_mullo_epi16(_mm_unpacklo_epi8(blbr, xmm_zero), xmm_wb);       \
+			xmm_a = _mm_add_epi16(xmm_a, xmm_b);                                               \
+			/* calculate horizontal weights */                                          \
+			if(phase <= 0) {                                                          \
+				xmm_wh_state = _mm_add_epi16(xmm_addc, _mm_srli_epi16(xmm_x, 16 - BILINEAR_INTERPOLATION_BITS)); \
+				xmm_x = _mm_add_epi16(xmm_x, (phase < 0) ? xmm_ux1 : xmm_ux4);         \
+				phase = 0;                                                              \
+			}                                                                           \
+			xmm_wh = _mm_shuffle_epi32(xmm_wh_state, _MM_SHUFFLE(phase, phase, phase, phase)); \
+			/* horizontal interpolation */                                              \
+			xmm_a = _mm_madd_epi16(_mm_unpackhi_epi16(_mm_shuffle_epi32(xmm_a, _MM_SHUFFLE(1, 0, 3, 2)), xmm_a), xmm_wh); \
+			/* shift the result */                                                      \
+			pix = _mm_srli_epi32(xmm_a, BILINEAR_INTERPOLATION_BITS * 2);              \
+		} while(0)
+#else
+	#define BILINEAR_DECLARE_VARIABLES                                             \
+		const __m128i xmm_wt = _mm_set_epi16(wt, wt, wt, wt, wt, wt, wt, wt);      \
+		const __m128i xmm_wb = _mm_set_epi16(wb, wb, wb, wb, wb, wb, wb, wb);      \
+		const __m128i xmm_addc = _mm_set_epi16(0, 1, 0, 1, 0, 1, 0, 1);            \
+		const __m128i xmm_ux1 = _mm_set_epi16(unit_x, -unit_x, unit_x, -unit_x, unit_x, -unit_x, unit_x, -unit_x); \
+		const __m128i xmm_ux4 = _mm_set_epi16(unit_x * 4, -unit_x * 4,             \
+			unit_x * 4, -unit_x * 4,             \
+			unit_x * 4, -unit_x * 4,             \
+			unit_x * 4, -unit_x * 4);            \
+		const __m128i xmm_zero = _mm_setzero_si128();                              \
+		__m128i xmm_x = _mm_set_epi16(vx, -(vx + 1), vx, -(vx + 1), vx, -(vx + 1), vx, -(vx + 1))
 
-#define BILINEAR_DECLARE_VARIABLES                                             \
-	const __m128i xmm_wt = _mm_set_epi16(wt, wt, wt, wt, wt, wt, wt, wt);      \
-	const __m128i xmm_wb = _mm_set_epi16(wb, wb, wb, wb, wb, wb, wb, wb);      \
-	const __m128i xmm_addc = _mm_set_epi16(0, 1, 0, 1, 0, 1, 0, 1);            \
-	const __m128i xmm_ux1 = _mm_set_epi16(unit_x, -unit_x, unit_x, -unit_x, unit_x, -unit_x, unit_x, -unit_x); \
-	const __m128i xmm_ux4 = _mm_set_epi16(unit_x * 4, -unit_x * 4, unit_x * 4, -unit_x * 4, unit_x * 4, -unit_x * 4, unit_x * 4, -unit_x * 4); \
-	const __m128i xmm_zero = _mm_setzero_si128();                              \
-	__m128i xmm_x = _mm_set_epi16(vx + unit_x * 3, -(vx + 1) - unit_x * 3, vx + unit_x * 2, -(vx + 1) - unit_x * 2, vx + unit_x * 1, -(vx + 1) - unit_x * 1, \
-		vx + unit_x * 0, -(vx + 1) - unit_x * 0);    \
-	__m128i xmm_wh_state;
-
-#define BILINEAR_INTERPOLATE_ONE_PIXEL_HELPER(pix, phase_)                      \
-	do {                                                                            \
-		int phase = phase_;                                                         \
-		__m128i xmm_wh, xmm_a, xmm_b;                                               \
-		/* fetch 2x2 pixel block into sse2 registers */                             \
-		__m128i tltr = _mm_loadl_epi64((__m128i*)&src_top[vx >> 16]);             \
-		__m128i blbr = _mm_loadl_epi64((__m128i*)&src_bottom[vx >> 16]);          \
-		vx += unit_x;                                                               \
-		/* vertical interpolation */                                                \
-		xmm_a = _mm_mullo_epi16(_mm_unpacklo_epi8(tltr, xmm_zero), xmm_wt);       \
-		xmm_b = _mm_mullo_epi16(_mm_unpacklo_epi8(blbr, xmm_zero), xmm_wb);       \
-		xmm_a = _mm_add_epi16(xmm_a, xmm_b);                                               \
-		/* calculate horizontal weights */                                          \
-		if(phase <= 0) {                                                          \
-			xmm_wh_state = _mm_add_epi16(xmm_addc, _mm_srli_epi16(xmm_x, 16 - BILINEAR_INTERPOLATION_BITS)); \
-			xmm_x = _mm_add_epi16(xmm_x, (phase < 0) ? xmm_ux1 : xmm_ux4);         \
-			phase = 0;                                                              \
-		}                                                                           \
-		xmm_wh = _mm_shuffle_epi32(xmm_wh_state, _MM_SHUFFLE(phase, phase, phase, phase)); \
-		/* horizontal interpolation */                                              \
-		xmm_a = _mm_madd_epi16(_mm_unpackhi_epi16(_mm_shuffle_epi32(xmm_a, _MM_SHUFFLE(1, 0, 3, 2)), xmm_a), xmm_wh); \
-		/* shift the result */                                                      \
-		pix = _mm_srli_epi32(xmm_a, BILINEAR_INTERPOLATION_BITS * 2);              \
-	} while(0)
-
-#else /************************************************************************/
-
-#define BILINEAR_DECLARE_VARIABLES                                             \
-	const __m128i xmm_wt = _mm_set_epi16(wt, wt, wt, wt, wt, wt, wt, wt);      \
-	const __m128i xmm_wb = _mm_set_epi16(wb, wb, wb, wb, wb, wb, wb, wb);      \
-	const __m128i xmm_addc = _mm_set_epi16(0, 1, 0, 1, 0, 1, 0, 1);            \
-	const __m128i xmm_ux1 = _mm_set_epi16(unit_x, -unit_x, unit_x, -unit_x, unit_x, -unit_x, unit_x, -unit_x); \
-	const __m128i xmm_ux4 = _mm_set_epi16(unit_x * 4, -unit_x * 4,             \
-		unit_x * 4, -unit_x * 4,             \
-		unit_x * 4, -unit_x * 4,             \
-		unit_x * 4, -unit_x * 4);            \
-	const __m128i xmm_zero = _mm_setzero_si128();                              \
-	__m128i xmm_x = _mm_set_epi16(vx, -(vx + 1), vx, -(vx + 1), vx, -(vx + 1), vx, -(vx + 1))
-
-#define BILINEAR_INTERPOLATE_ONE_PIXEL_HELPER(pix, phase)                       \
-	do {                                                                            \
-		__m128i xmm_wh, xmm_a, xmm_b;                                               \
-		/* fetch 2x2 pixel block into sse2 registers */                             \
-		__m128i tltr = _mm_loadl_epi64((__m128i*)&src_top[vx >> 16]);             \
-		__m128i blbr = _mm_loadl_epi64((__m128i*)&src_bottom[vx >> 16]);          \
-		(void)xmm_ux4; /* suppress warning: unused variable 'xmm_ux4' */            \
-		vx += unit_x;                                                               \
-		/* vertical interpolation */                                                \
-		xmm_a = _mm_mullo_epi16(_mm_unpacklo_epi8(tltr, xmm_zero), xmm_wt);       \
-		xmm_b = _mm_mullo_epi16(_mm_unpacklo_epi8(blbr, xmm_zero), xmm_wb);       \
-		xmm_a = _mm_add_epi16(xmm_a, xmm_b);                                       \
-		/* calculate horizontal weights */                                          \
-		xmm_wh = _mm_add_epi16(xmm_addc, _mm_srli_epi16(xmm_x, 16 - BILINEAR_INTERPOLATION_BITS)); \
-		xmm_x = _mm_add_epi16(xmm_x, xmm_ux1);                                     \
-		/* horizontal interpolation */                                              \
-		xmm_b = _mm_unpacklo_epi64(/* any value is fine here */ xmm_b, xmm_a);     \
-		xmm_a = _mm_madd_epi16(_mm_unpackhi_epi16(xmm_b, xmm_a), xmm_wh);         \
-		/* shift the result */                                                      \
-		pix = _mm_srli_epi32(xmm_a, BILINEAR_INTERPOLATION_BITS * 2);              \
-	} while(0)
-
-/***********************************************************************************/
-
+	#define BILINEAR_INTERPOLATE_ONE_PIXEL_HELPER(pix, phase)                       \
+		do {                                                                            \
+			__m128i xmm_wh, xmm_a, xmm_b;                                               \
+			/* fetch 2x2 pixel block into sse2 registers */                             \
+			__m128i tltr = _mm_loadl_epi64((__m128i*)&src_top[vx >> 16]);             \
+			__m128i blbr = _mm_loadl_epi64((__m128i*)&src_bottom[vx >> 16]);          \
+			(void)xmm_ux4; /* suppress warning: unused variable 'xmm_ux4' */            \
+			vx += unit_x;                                                               \
+			/* vertical interpolation */                                                \
+			xmm_a = _mm_mullo_epi16(_mm_unpacklo_epi8(tltr, xmm_zero), xmm_wt);       \
+			xmm_b = _mm_mullo_epi16(_mm_unpacklo_epi8(blbr, xmm_zero), xmm_wb);       \
+			xmm_a = _mm_add_epi16(xmm_a, xmm_b);                                       \
+			/* calculate horizontal weights */                                          \
+			xmm_wh = _mm_add_epi16(xmm_addc, _mm_srli_epi16(xmm_x, 16 - BILINEAR_INTERPOLATION_BITS)); \
+			xmm_x = _mm_add_epi16(xmm_x, xmm_ux1);                                     \
+			/* horizontal interpolation */                                              \
+			xmm_b = _mm_unpacklo_epi64(/* any value is fine here */ xmm_b, xmm_a);     \
+			xmm_a = _mm_madd_epi16(_mm_unpackhi_epi16(xmm_b, xmm_a), xmm_wh);         \
+			/* shift the result */                                                      \
+			pix = _mm_srli_epi32(xmm_a, BILINEAR_INTERPOLATION_BITS * 2);              \
+		} while(0)
 #endif
 
 #define BILINEAR_INTERPOLATE_ONE_PIXEL(pix);                                    \

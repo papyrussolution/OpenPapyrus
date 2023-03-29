@@ -18,7 +18,6 @@
  *  abbreviations used:
  * - unc_text - uncrustify text
  */
-
 class UncText {
 public:
 	typedef std::deque<int>      value_type;// double encoded list of int values

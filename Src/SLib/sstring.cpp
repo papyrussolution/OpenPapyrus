@@ -956,7 +956,7 @@ SString & FASTCALL SString::CatParStr(long val) { return CatChar('(').Cat(val).C
 SString & FASTCALL SString::CatBrackStr(const char * pStr) { return CatChar('[').Cat(pStr).CatChar(']'); }
 SString & STDCALL  SString::CatLongZ(int    val, uint numDigits) { return CatLongZ(static_cast<long>(val), numDigits); }
 SString & STDCALL  SString::CatLongZ(uint   val, uint numDigits) { return CatLongZ(static_cast<long>(val), numDigits); }
-SString & STDCALL  SString::CatLongZ(uint32 val, uint numDigits) { return CatLongZ(static_cast<long>(val), numDigits); }
+SString & STDCALL  SString::CatLongZ(ulong  val, uint numDigits) { return CatLongZ(static_cast<long>(val), numDigits); }
 SString & FASTCALL SString::SetInt(int val) { return Z().Cat(val); }
 SString & SString::ToUtf8() { return Helper_MbToMb(CP_ACP, CP_UTF8); }
 SString & SString::Utf8ToChar() { return Helper_MbToMb(CP_UTF8, CP_ACP); }

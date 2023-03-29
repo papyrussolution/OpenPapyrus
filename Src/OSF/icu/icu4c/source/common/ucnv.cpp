@@ -1854,7 +1854,7 @@ U_CAPI void U_EXPORT2 ucnv_convertEx(UConverter * targetCnv, UConverter * source
 	 * conversion, with function call overhead outweighing the benefits
 	 * of direct conversion.
 	 */
-	if(convert!=NULL && (pivotLimit-pivotStart)>32) {
+	if(convert && (pivotLimit-pivotStart)>32) {
 		pivotLimit = pivotStart+32;
 	}
 	/* prepare the converter arguments */
@@ -1951,7 +1951,7 @@ U_CAPI void U_EXPORT2 ucnv_convertEx(UConverter * targetCnv, UConverter * source
 		 * but not if continuing a partial match
 		 * or flushing the toUnicode replay buffer
 		 */
-		if(convert!=NULL && targetCnv->preFromUFirstCP<0 && sourceCnv->preToULength==0) {
+		if(convert && targetCnv->preFromUFirstCP<0 && sourceCnv->preToULength==0) {
 			if(*pErrorCode==U_USING_DEFAULT_WARNING) {
 				/* remove a warning that may be set by this function */
 				*pErrorCode = U_ZERO_ERROR;

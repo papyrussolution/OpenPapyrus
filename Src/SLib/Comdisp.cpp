@@ -1,5 +1,5 @@
 // COMDISP.CPP
-// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Интерфейс IDispatch для работы с COM-приложениями (режим InProcServer) (only WIN32)
 //
@@ -99,20 +99,17 @@ const DispIDEntry * FASTCALL ComDispInterface::GetDispIDEntry(long entryId) cons
 	return DispIDAry.lsearch(&id, &pos, CMPF_LONG) ? &DispIDAry.at(pos) : 0;
 }
 
-int ComDispInterface::GetNameByID(long id, SString & rName) const
+SString & ComDispInterface::GetNameByID(int id, SString & rName) const
 {
-	int    ok = 1;
 	const  DispIDEntry * p_die = GetDispIDEntry(id);
 	if(p_die)
 		rName = p_die->Name;
-	else {
+	else
 		rName.Z();
-		ok = 0;
-	}
-	return ok;
+	return rName;
 }
 
-int ComDispInterface::_GetProperty(long propertyID, VARIANTARG * pVarArg, int sendParams)
+int ComDispInterface::_GetProperty(int propertyID, VARIANTARG * pVarArg, int sendParams)
 {
 	int    ok = 1;
 	const  DispIDEntry * p_die = 0;
@@ -145,7 +142,7 @@ int ComDispInterface::_GetProperty(long propertyID, VARIANTARG * pVarArg, int se
 	return ok;
 }
 
-int ComDispInterface::GetProperty(long propertyID, bool * pBuf)
+int ComDispInterface::GetProperty(int propertyID, bool * pBuf)
 {
 	int   ok = 1;
 	VARIANTARG var_arg;
@@ -160,52 +157,40 @@ int ComDispInterface::GetProperty(long propertyID, bool * pBuf)
 	return ok;
 }
 
-int ComDispInterface::GetProperty(long propertyID, int * pBuf)
+int ComDispInterface::GetProperty(int propertyID, int * pBuf)
 {
-	int   ok = 1;
 	VARIANTARG   var_arg;
 	VariantInit(&var_arg);
 	var_arg.vt = VT_INT;
-	if((ok = _GetProperty(propertyID, &var_arg)) > 0) {
-		ASSIGN_PTR(pBuf, var_arg.intVal);
-	}
-	else
-		ASSIGN_PTR(pBuf, 0);
+	int    ok = _GetProperty(propertyID, &var_arg);
+	ASSIGN_PTR(pBuf, (ok > 0) ? var_arg.intVal : 0);
 	VariantClear(&var_arg);
 	return ok;
 }
 
-int ComDispInterface::GetProperty(long propertyID, long * pBuf)
+int ComDispInterface::GetProperty(int propertyID, long * pBuf)
 {
-	int   ok = 1;
 	VARIANTARG   var_arg;
 	VariantInit(&var_arg);
 	var_arg.vt = VT_I4;
-	if((ok = _GetProperty(propertyID, &var_arg)) > 0) {
-		ASSIGN_PTR(pBuf, var_arg.lVal);
-	}
-	else
-		ASSIGN_PTR(pBuf, 0);
+	int    ok = _GetProperty(propertyID, &var_arg);
+	ASSIGN_PTR(pBuf, (ok > 0) ? var_arg.lVal : 0);
 	VariantClear(&var_arg);
 	return ok;
 }
 
-int ComDispInterface::GetProperty(long propertyID, double * pBuf)
+int ComDispInterface::GetProperty(int propertyID, double * pBuf)
 {
-	int   ok = 1;
 	VARIANTARG   var_arg;
 	VariantInit(&var_arg);
 	var_arg.vt = VT_R8;
-	if((ok = _GetProperty(propertyID, &var_arg)) > 0) {
-		ASSIGN_PTR(pBuf, var_arg.dblVal);
-	}
-	else
-		ASSIGN_PTR(pBuf, 0);
+	int    ok = _GetProperty(propertyID, &var_arg);
+	ASSIGN_PTR(pBuf, (ok > 0) ? var_arg.dblVal : 0);
 	VariantClear(&var_arg);
 	return ok;
 }
 
-int ComDispInterface::GetProperty(long propertyID, char * pBuf, size_t bufLen)
+int ComDispInterface::GetProperty(int propertyID, char * pBuf, size_t bufLen)
 {
 	int    ok = 1;
 	OLECHAR    wstr[MAXPATH];
@@ -213,7 +198,7 @@ int ComDispInterface::GetProperty(long propertyID, char * pBuf, size_t bufLen)
 	VariantInit(&var_arg);
 	if(pBuf && bufLen > 0) {
 		var_arg.vt = VT_BSTR;
-		PTR32(wstr)[0] = 0; // @v10.3.0 @fix
+		wstr[0] = 0; // @v10.3.0 @fix
 		THROW_S(var_arg.bstrVal = SysAllocString(wstr), SLERR_NOMEM);
 		if((ok = _GetProperty(propertyID, &var_arg)) > 0) {
 			WideCharToMultiByte(1251, 0, var_arg.bstrVal, -1, pBuf, static_cast<int>(bufLen), NULL, NULL);
@@ -226,21 +211,21 @@ int ComDispInterface::GetProperty(long propertyID, char * pBuf, size_t bufLen)
 	return ok;
 }
 
-int ComDispInterface::GetProperty(long propertyID, ComDispInterface * pDisp)
+int ComDispInterface::GetProperty(int propertyID, ComDispInterface * pDisp)
 {
-	int    ok = 1;
 	VARIANTARG var_arg;
 	THROW_S(pDisp, SLERR_INVPARAM);
 	VariantInit(&var_arg);
 	var_arg.vt = VT_DISPATCH;
-	if((ok = _GetProperty(propertyID, &var_arg, 1)) > 0) {
+	int    ok = _GetProperty(propertyID, &var_arg, 1);
+	if(ok > 0) {
 		THROW(pDisp->Init(var_arg.pdispVal));
 	}
 	CATCHZOK
 	return ok;
 }
 
-int ComDispInterface::SetPropertyByParams(long propertyID)
+int ComDispInterface::SetPropertyByParams(int propertyID)
 {
 	int    ok = 1;
 	const  DispIDEntry * p_die = 0;
@@ -258,7 +243,7 @@ int ComDispInterface::SetPropertyByParams(long propertyID)
 	return ok;
 }
 
-int ComDispInterface::_SetProperty(long propertyID, VARIANTARG * pVarArg)
+int ComDispInterface::_SetProperty(int propertyID, VARIANTARG * pVarArg)
 {
 	int    ok = 1;
 	const  DispIDEntry * p_die = 0;
@@ -285,7 +270,7 @@ int ComDispInterface::_SetProperty(long propertyID, VARIANTARG * pVarArg)
 	return ok;
 }
 
-int ComDispInterface::_SetPropertyW(long propertyID, VARIANTARG * pVarArg)
+int ComDispInterface::_SetPropertyW(int propertyID, VARIANTARG * pVarArg)
 {
 	int    ok = 1;
 	const  DispIDEntry * p_die = 0;
@@ -311,7 +296,7 @@ int ComDispInterface::_SetPropertyW(long propertyID, VARIANTARG * pVarArg)
 	return ok;
 }
 
-int ComDispInterface::SetProperty(long propertyID, int iVal, int writeOnly /*=0*/)
+int ComDispInterface::SetProperty(int propertyID, int iVal, int writeOnly /*=0*/)
 {
 	int   ok = 1;
 	VARIANTARG var_arg;
@@ -323,7 +308,7 @@ int ComDispInterface::SetProperty(long propertyID, int iVal, int writeOnly /*=0*
 	return ok;
 }
 
-int ComDispInterface::SetProperty(long propertyID, long lVal, int writeOnly /*=0*/)
+int ComDispInterface::SetProperty(int propertyID, long lVal, int writeOnly /*=0*/)
 {
 	int   ok = 1;
 	VARIANTARG   var_arg;
@@ -335,7 +320,7 @@ int ComDispInterface::SetProperty(long propertyID, long lVal, int writeOnly /*=0
 	return ok;
 }
 
-int ComDispInterface::SetProperty(long propertyID, double dVal, int writeOnly /*=0*/)
+int ComDispInterface::SetProperty(int propertyID, double dVal, int writeOnly /*=0*/)
 {
 	int   ok = 1;
 	VARIANTARG   var_arg;
@@ -347,7 +332,7 @@ int ComDispInterface::SetProperty(long propertyID, double dVal, int writeOnly /*
 	return ok;
 }
 
-int ComDispInterface::SetProperty(long propertyID, LDATE dtVal, int writeOnly /*=0*/)
+int ComDispInterface::SetProperty(int propertyID, LDATE dtVal, int writeOnly /*=0*/)
 {
 	int   ok = 1;
 	VARIANTARG   var_arg;
@@ -359,7 +344,7 @@ int ComDispInterface::SetProperty(long propertyID, LDATE dtVal, int writeOnly /*
 	return ok;
 }
 
-int ComDispInterface::SetProperty(long propertyID, bool bVal, int writeOnly /*=0*/)
+int ComDispInterface::SetProperty(int propertyID, bool bVal, int writeOnly /*=0*/)
 {
 	VARIANTARG   var_arg;
 	VariantInit(&var_arg);
@@ -370,7 +355,7 @@ int ComDispInterface::SetProperty(long propertyID, bool bVal, int writeOnly /*=0
 	return ok;
 }
 
-int ComDispInterface::SetProperty(long propertyID, const char * pStrVal, int writeOnly /*=0*/)
+int ComDispInterface::SetProperty(int propertyID, const char * pStrVal, int writeOnly /*=0*/)
 {
 	int   ok = 1;
 	VARIANTARG var_arg;
@@ -479,7 +464,7 @@ int ComDispInterface::SetParam(ComDispInterface * pParam)
 	return ok;
 }
 
-int ComDispInterface::CallMethod(long methodID, VARIANTARG * pVarArg)
+int ComDispInterface::CallMethod(int methodID, VARIANTARG * pVarArg)
 {
 	int    ok = 1;
 	const  int rcv_res = BIN(pVarArg);
@@ -523,14 +508,15 @@ int ComDispInterface::CallMethod(long methodID, VARIANTARG * pVarArg)
 	return ok;
 }
 
-int  ComDispInterface::CallMethod(long methodID, ComDispInterface * pDisp)
+int  ComDispInterface::CallMethod(int methodID, ComDispInterface * pDisp)
 {
 	int    ok = 1;
 	VARIANTARG var_arg;
 	THROW_S(pDisp, SLERR_INVPARAM);
 	VariantInit(&var_arg);
 	var_arg.vt = VT_DISPATCH;
-	if((ok = CallMethod(methodID, &var_arg)) > 0) {
+	ok = CallMethod(methodID, &var_arg);
+	if(ok > 0) {
 		THROW(pDisp->Init(var_arg.pdispVal));
 	}
 	CATCHZOK
@@ -539,7 +525,8 @@ int  ComDispInterface::CallMethod(long methodID, ComDispInterface * pDisp)
 
 void ComDispInterface::SetErrCode()
 {
-	SString  err_msg, sys_err_buf, temp_buf;
+	SString err_msg;
+	SString sys_err_buf;
 	{
 		HRESULT hr = HRes;
     	if(HRESULT_FACILITY(hr) == FACILITY_WINDOWS)

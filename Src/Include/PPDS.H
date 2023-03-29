@@ -1,5 +1,5 @@
 // PPDS.H
-// Copyright (c) A.Sobolev 2001-2002, 2007, 2009, 2011, 2015, 2016, 2020
+// Copyright (c) A.Sobolev 2001-2002, 2007, 2009, 2011, 2015, 2016, 2020, 2023
 // @codepage windows-1251
 //
 #define FIRST_DECLSTRUC_ID 1001L
@@ -58,7 +58,9 @@ public:
 	int    UpdateProtocol;
 	LongArray AcceptedFields;
 protected:
-	int    TransferData(int32 *,  Tfd, SString & rBuf, int skipZero = 0);
+	int    TransferData(int *,    Tfd, SString & rBuf, int skipZero = 0);
+	int    TransferData(long * pData, Tfd dir, SString & rBuf, int skipZero = 0)
+		{ return TransferData(reinterpret_cast<int *>(pData), dir, rBuf, skipZero); }
 	int    TransferData(int16 *,  Tfd, SString & rBuf, int skipZero = 0);
 	int    TransferData(uint16 *, Tfd, SString & rBuf, int skipZero = 0);
 	int    TransferData(uint8  *, Tfd, SString & rBuf, int skipZero = 0);
@@ -69,6 +71,8 @@ protected:
 	int    TransferData(LDATE *, Tfd, SString & rBuf, int skipZero = 0);
 	int    TransferData(LTIME *, Tfd dir, SString & rBuf, int skipZero = 0);
 	int    TransferData(long *, long fl, Tfd, SString & rBuf, int skipZero = 0);
+	int    TransferData(int * pData, long fl, Tfd dir, SString & rBuf, int skipZero = 0)
+		{ return TransferData(reinterpret_cast<long *>(pData), fl, dir, rBuf, skipZero); }
 	int    TransferData(PPIDArray *, Tfd, uint, SString & rBuf);
 	int    TransferDataFlag(int16 *, long flag, Tfd, SString & rBuf, int skipZero = 0);
 	int    TransferDataFlag(int32 *, long flag, Tfd, SString & rBuf, int skipZero = 0);

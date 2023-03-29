@@ -116,19 +116,18 @@
 // 
 // Basic Types
 // 
-#ifndef MEM_MODULE
-	#if !defined (__VMS) && (defined (__cplusplus) || (defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99 */) )
+//#ifndef MEM_MODULE
+	//#if !defined (__VMS) && (defined (__cplusplus) || (defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99 */) )
 		//#include <stdint.h>
 		//typedef uint8_t BYTE;
 		//typedef uint16_t U16_Removed;
 		//typedef uint32_t U32_Removed;
-	#else
+	//#else
 		//typedef uchar BYTE;
 		//typedef unsigned short U16_Removed;
 		//typedef unsigned int U32_Removed;
-	#endif
-#endif
-
+	//#endif
+//#endif
 /* ===   Memory access   === */
 
 #if(defined(XXH_FORCE_MEMORY_ACCESS) && (XXH_FORCE_MEMORY_ACCESS==2))
@@ -185,13 +184,14 @@ typedef enum {
 	#define XXH_rotl32(x, r) (((x) << (r)) | ((x) >> (32 - (r))))
 	#define XXH_rotl64(x, r) (((x) << (r)) | ((x) >> (64 - (r))))
 #endif*/
-#if defined(_MSC_VER) // Visual Studio 
-	#define XXH_swap32 _byteswap_ulong
-#elif XXH_GCC_VERSION >= 403
-	#define XXH_swap32 __builtin_bswap32
-#else
-	static uint32 XXH_swap32(uint32 x) { return ((x << 24) & 0xff000000) | ((x <<  8) & 0x00ff0000) | ((x >> 8) & 0x0000ff00) | ((x >> 24) & 0x000000ff); }
-#endif
+// @sobolev (XXH_swap32 replaced with sbswap32)
+//#if defined(_MSC_VER) // Visual Studio 
+	//#define XXH_swap32 _byteswap_ulong
+//#elif XXH_GCC_VERSION >= 403
+	//#define XXH_swap32 __builtin_bswap32
+//#else
+	//static uint32 XXH_swap32(uint32 x) { return ((x << 24) & 0xff000000) | ((x <<  8) & 0x00ff0000) | ((x >> 8) & 0x0000ff00) | ((x >> 24) & 0x000000ff); }
+//#endif
 //
 // Memory reads
 //
@@ -200,15 +200,15 @@ typedef enum {
 	XXH_unaligned 
 } XXH_alignment;
 
-XXH_FORCE_INLINE uint32 XXH_readLE32(const void * ptr) { return XXH_CPU_LITTLE_ENDIAN ? XXH_read32(ptr) : XXH_swap32(XXH_read32(ptr)); }
-static uint32 XXH_readBE32(const void * ptr) { return XXH_CPU_LITTLE_ENDIAN ? XXH_swap32(XXH_read32(ptr)) : XXH_read32(ptr); }
+XXH_FORCE_INLINE uint32 XXH_readLE32(const void * ptr) { return XXH_CPU_LITTLE_ENDIAN ? XXH_read32(ptr) : sbswap32(XXH_read32(ptr)); }
+static uint32 XXH_readBE32(const void * ptr) { return XXH_CPU_LITTLE_ENDIAN ? sbswap32(XXH_read32(ptr)) : XXH_read32(ptr); }
 
 XXH_FORCE_INLINE uint32 XXH_readLE32_align(const void * ptr, XXH_alignment align)
 {
 	if(align==XXH_unaligned)
 		return XXH_readLE32(ptr);
 	else
-		return XXH_CPU_LITTLE_ENDIAN ? *(const uint32 *)ptr : XXH_swap32(*(const uint32 *)ptr);
+		return XXH_CPU_LITTLE_ENDIAN ? *(const uint32 *)ptr : sbswap32(*(const uint32 *)ptr);
 }
 // 
 // Misc
@@ -500,7 +500,7 @@ XXH_PUBLIC_API void XXH32_canonicalFromHash(XXH32_canonical_t* dst, XXH32_hash_t
 {
 	STATIC_ASSERT(sizeof(XXH32_canonical_t) == sizeof(XXH32_hash_t));
 	if(XXH_CPU_LITTLE_ENDIAN) 
-		hash = XXH_swap32(hash);
+		hash = sbswap32(hash);
 	memcpy(dst, &hash, sizeof(*dst));
 }
 

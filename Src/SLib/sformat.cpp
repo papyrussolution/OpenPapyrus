@@ -796,7 +796,14 @@ int FASTCALL strtolong(const char * pBuf, long * pVal)
 	return 1;
 }
 
-int FASTCALL strtoulong(const char * pBuf, ulong * pVal)
+int FASTCALL strtouint(const char * pBuf, uint * pVal)
+{
+	char   temp[64];
+	ASSIGN_PTR(pVal, strtoul(clearDelimiters(STRNSCPY(temp, pBuf)), 0, 10));
+	return 1;
+}
+
+int FASTCALL strtouint(const char * pBuf, ulong * pVal)
 {
 	char   temp[64];
 	ASSIGN_PTR(pVal, strtoul(clearDelimiters(STRNSCPY(temp, pBuf)), 0, 10));

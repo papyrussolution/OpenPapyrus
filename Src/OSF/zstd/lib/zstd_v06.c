@@ -134,17 +134,23 @@ MEM_STATIC void MEM_write16(void* memPtr, uint16 value) { ((unalign*)memPtr)->u1
 
 MEM_STATIC uint16 MEM_read16(const void* memPtr)
 {
-	uint16 val; memcpy(&val, memPtr, sizeof(val)); return val;
+	uint16 val; 
+	memcpy(&val, memPtr, sizeof(val)); 
+	return val;
 }
 
 MEM_STATIC uint32 MEM_read32(const void* memPtr)
 {
-	uint32 val; memcpy(&val, memPtr, sizeof(val)); return val;
+	uint32 val; 
+	memcpy(&val, memPtr, sizeof(val)); 
+	return val;
 }
 
 MEM_STATIC uint64 MEM_read64(const void* memPtr)
 {
-	uint64 val; memcpy(&val, memPtr, sizeof(val)); return val;
+	uint64 val; 
+	memcpy(&val, memPtr, sizeof(val)); 
+	return val;
 }
 
 MEM_STATIC void MEM_write16(void* memPtr, uint16 value)
@@ -161,10 +167,7 @@ MEM_STATIC uint32 MEM_swap32(uint32 in)
 #elif defined (__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 403)
 	return __builtin_bswap32(in);
 #else
-	return ((in << 24) & 0xff000000 ) |
-	       ((in <<  8) & 0x00ff0000 ) |
-	       ((in >>  8) & 0x0000ff00 ) |
-	       ((in >> 24) & 0x000000ff );
+	return ((in << 24) & 0xff000000 ) | ((in <<  8) & 0x00ff0000 ) | ((in >>  8) & 0x0000ff00 ) | ((in >> 24) & 0x000000ff );
 #endif
 }
 

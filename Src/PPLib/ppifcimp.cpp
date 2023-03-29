@@ -380,15 +380,8 @@ int32 DL6ICLS_UhttGoodsProcessor::Put(UhttGoodsProcessorEntry* pEntry)
 	return ok;
 }
 
-int32 DL6ICLS_UhttGoodsProcessor::Run()
-{
-	return ExtraPtr ? static_cast<UhttGoodsProcessor *>(ExtraPtr)->Run() : 0;
-}
-
-int32 DL6ICLS_UhttGoodsProcessor::GetResultCount()
-{
-	return ExtraPtr ? static_cast<UhttGoodsProcessor *>(ExtraPtr)->GetResultCount() : 0;
-}
+int32 DL6ICLS_UhttGoodsProcessor::Run() { return ExtraPtr ? static_cast<UhttGoodsProcessor *>(ExtraPtr)->Run() : 0; }
+int32 DL6ICLS_UhttGoodsProcessor::GetResultCount() { return ExtraPtr ? static_cast<UhttGoodsProcessor *>(ExtraPtr)->GetResultCount() : 0; }
 
 int32 DL6ICLS_UhttGoodsProcessor::GetResult(int32 idx, UhttGoodsProcessorEntry* pEntry)
 {
@@ -845,10 +838,7 @@ int InnerExtraDbfCreateFlds::NextIteration(SDbfCreateFld * pFld)
 	return ok;
 }
 
-int32 InnerExtraDbfCreateFlds::GetCount() const
-{
-	return Flds_.getCount();
-}
+int32 InnerExtraDbfCreateFlds::GetCount() const { return Flds_.getCount(); }
 
 DL6_IC_CONSTRUCTOR(PPDbfCreateFlds, DL6ICLS_PPDbfCreateFlds_VTab)
 {
@@ -1094,15 +1084,8 @@ int32 DL6ICLS_PPDbfTable::Close()
 	return (p_tbl) ? p_tbl->close() : -1;
 }
 
-int32 DL6ICLS_PPDbfTable::Create(ISDbfCreateFlds * pFldsDescr)
-{
-	return Create3(pFldsDescr, icpOEM, -1);
-}
-
-int32 DL6ICLS_PPDbfTable::Create2(ISDbfCreateFlds * pFldsDescr, ISCodepage cp)
-{
-	return Create3(pFldsDescr, cp, -1);
-}
+int32 DL6ICLS_PPDbfTable::Create(ISDbfCreateFlds * pFldsDescr) { return Create3(pFldsDescr, icpOEM, -1); }
+int32 DL6ICLS_PPDbfTable::Create2(ISDbfCreateFlds * pFldsDescr, ISCodepage cp) { return Create3(pFldsDescr, cp, -1); }
 
 int32 DL6ICLS_PPDbfTable::Create3(ISDbfCreateFlds * pFldsDescr, ISCodepage cp, long infoByte)
 {
@@ -1526,10 +1509,7 @@ int32 DL6ICLS_PPUtil::RemoveFile(SString & rFileName)
 	return 1;
 }
 
-int32 DL6ICLS_PPUtil::IsFileExists(SString & rFileName)
-{
-	return ::fileExists(rFileName);
-}
+int32 DL6ICLS_PPUtil::IsFileExists(SString & rFileName) { return ::fileExists(rFileName); }
 
 SString & DL6ICLS_PPUtil::ReadPPIniParamS(PpyIniSection section, SString & rParam)
 {
@@ -1811,6 +1791,9 @@ ILongList * DL6ICLS_PPUtil::GetSupplInterchangeLocList(int32 supplID)
 	ENDCATCH
 	return reinterpret_cast<ILongList *>(p);
 }
+
+int32 DL6ICLS_PPUtil::IsIntrOp(int32 opID) { return ::IsIntrOp(opID); } // @v11.6.8
+int32 DL6ICLS_PPUtil::IsExpendOp(int32 opID) { return ::IsExpendOp(opID); } // @v11.6.8
 
 int32 DL6ICLS_PPUtil::UniformFileTransm(SString & srcUrl, SString & destUrl, int32 flags, IFileFormat iff, SString & accsName, SString & accsPassw)
 {

@@ -22,26 +22,24 @@
 #include <sys/types.h>
 
 #ifdef UINT64_MAX
-/* Given an unsigned 64-bit argument X, return the value corresponding
-   to rotating the bits N steps to the left.  N must be between 1 and
-   63 inclusive. */
-static uint64_t rotl64(uint64_t x, int n) { return ((x << n) | (x >> (64 - n))) & UINT64_MAX; }
-
-/* Given an unsigned 64-bit argument X, return the value corresponding
-   to rotating the bits N steps to the right.  N must be between 1 to
-   63 inclusive.*/
-static uint64_t rotr64(uint64_t x, int n) { return ((x >> n) | (x << (64 - n))) & UINT64_MAX; }
+	// Given an unsigned 64-bit argument X, return the value corresponding
+	// to rotating the bits N steps to the left.  N must be between 1 and 63 inclusive.
+	// @v11.6.7 (replaced with slrotl64) static uint64_t rotl64(uint64_t x, int n) { return ((x << n) | (x >> (64 - n))) & UINT64_MAX; }
+	//
+	// Given an unsigned 64-bit argument X, return the value corresponding
+	// to rotating the bits N steps to the right.  N must be between 1 to 63 inclusive.
+	// @v11.6.7 (replaced with slrotr64) static uint64_t rotr64(uint64_t x, int n) { return ((x >> n) | (x << (64 - n))) & UINT64_MAX; }
 #endif
 
 /* Given an unsigned 32-bit argument X, return the value corresponding
    to rotating the bits N steps to the left.  N must be between 1 and
    31 inclusive. */
-static uint32_t rotl32(uint32_t x, int n) { return ((x << n) | (x >> (32 - n))) & UINT32_MAX; }
+// @v11.6.7 (replaced with slrotl32) static uint32_t rotl32(uint32_t x, int n) { return ((x << n) | (x >> (32 - n))) & UINT32_MAX; }
 
 /* Given an unsigned 32-bit argument X, return the value corresponding
    to rotating the bits N steps to the right.  N must be between 1 to
    31 inclusive.*/
-static uint32_t rotr32(uint32_t x, int n) { return ((x >> n) | (x << (32 - n))) & UINT32_MAX; }
+// @v11.6.7 (replaced with slrotr32) static uint32_t rotr32(uint32_t x, int n) { return ((x >> n) | (x << (32 - n))) & UINT32_MAX; }
 
 /* Given a size_t argument X, return the value corresponding
    to rotating the bits N steps to the left.  N must be between 1 and

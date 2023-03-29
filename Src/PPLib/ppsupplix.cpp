@@ -8172,6 +8172,7 @@ int GazpromNeft::SendSellout()
 	int    ok = -1;
 	const  LDATETIME dtm_now = getcurdatetime_();
 	SString temp_buf;
+	SString msg_buf;
 	SString req_buf;
 	SJson * p_js_list = 0;
 	// POST /sales-api/api/v2/Sales/sellout
@@ -8201,6 +8202,12 @@ int GazpromNeft::SendSellout()
 					for(uint idx = 0; idx < list.getCount(); idx++) {
 						const GazpromNeftBillPacket * p_item = list.at(idx);
 						if(p_item) {
+							{
+								PPLoadText(PPTXT_SENDDOCTOSUPPLIXSVC, msg_buf);
+								temp_buf.Z().Cat("sellout").Space().Cat(p_item->Dtm.d, DATF_DMY).Space().Cat(p_item->Code).CatDiv('-', 1).Cat(p_item->Client.Name);
+								msg_buf.CatDiv(':', 2).Cat(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // Функция Helper_MakeBillList сформировала текстовые строки списка данных в формате utf-8
+								R_Logger.Log(msg_buf);
+							}
 							if(prev_cli_uuid != p_item->Client.Uuid || prev_cli_dlvrloc_id != p_item->Client.DlvrLocID || prev_cli_psn_id != p_item->Client.PersonID) {
 								if(p_js_clilist) {
 									assert(p_js_doc_list != 0);
@@ -8303,10 +8310,18 @@ int GazpromNeft::SendSellout()
 								Lth.Log("rep", 0, temp_buf);
 								SJson * p_js_reply = SJson::Parse(temp_buf);
 								if(p_js_reply) {
+									if(p_js_reply->IsArray() && p_js_reply->GetArrayCount() == 0) {
+										PPLoadText(PPTXT_SUPPLIXSVCACCEPTSDOCS, msg_buf);
+										R_Logger.Log(msg_buf);
+										ok = 1;
+									}
 									//
 									// ...
 									//
 									ZDELETE(p_js_reply);
+								}
+								else {
+									ok = PPSetErrorSLib();
 								}
 							}
 						}
@@ -8326,6 +8341,7 @@ int GazpromNeft::SendSellin()
 	// POST /sales-api/api/v2/Sales/sellin
 	const  LDATETIME dtm_now = getcurdatetime_();
 	SString temp_buf;
+	SString msg_buf;
 	SString req_buf;
 	SJson * p_js_doc_list = 0;
 	// POST /sales-api/api/v2/Sales/sellout
@@ -8352,6 +8368,12 @@ int GazpromNeft::SendSellin()
 					for(uint idx = 0; idx < list.getCount(); idx++) {
 						const GazpromNeftBillPacket * p_item = list.at(idx);
 						if(p_item) {
+							{
+								PPLoadText(PPTXT_SENDDOCTOSUPPLIXSVC, msg_buf);
+								temp_buf.Z().Cat("sellin").Space().Cat(p_item->Dtm.d, DATF_DMY).Space().Cat(p_item->Code).CatDiv('-', 1).Cat(p_item->Client.Name);
+								msg_buf.CatDiv(':', 2).Cat(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // Функция Helper_MakeBillList сформировала текстовые строки списка данных в формате utf-8
+								R_Logger.Log(msg_buf);
+							}
 							SJson * p_js_doc = new SJson(SJson::tOBJECT);
 							p_js_doc->InsertString("invoiceId", temp_buf.Z().Cat(p_item->Uuid, S_GUID::fmtIDL|S_GUID::fmtLower));
 							SJson * p_js_item_list = new SJson(SJson::tARRAY);
@@ -8396,26 +8418,6 @@ int GazpromNeft::SendSellin()
 				js_result.InsertChild(p_js_single_array_item);
 				p_js_single_array_item = 0;
 				js_result.ToStr(req_buf);
-				// @debug {
-#if 0 // {
-				if(false) {
-					//"D:\Papyrus\Src\VBA\0-GasPromNeft-Rud\sellin-sample.json"
-					SFile f_in("/Papyrus/Src/VBA/0-GasPromNeft-Rud/sellin-sample.json", SFile::mRead);
-					if(f_in.IsValid()) {
-						STempBuffer sample_buf(4096);
-						size_t actual_size = 0;
-						if(f_in.ReadAll(sample_buf, 0, &actual_size) > 0) {
-							temp_buf.Z().CatN(sample_buf, actual_size);
-							SJson * p_js_sample = SJson::Parse(temp_buf);
-							if(p_js_sample) {
-								p_js_sample->ToStr(req_buf);
-								ZDELETE(p_js_sample);
-							}
-						}
-					}
-				}
-				// } @debug 
-#endif // } 0
 				{
 					SString url_buf;
 					SString hdr_buf;
@@ -8436,11 +8438,18 @@ int GazpromNeft::SendSellin()
 								Lth.Log("rep", 0, temp_buf);
 								SJson * p_js_reply = SJson::Parse(temp_buf);
 								if(p_js_reply) {
+									if(p_js_reply->IsArray() && p_js_reply->GetArrayCount() == 0) {
+										PPLoadText(PPTXT_SUPPLIXSVCACCEPTSDOCS, msg_buf);
+										R_Logger.Log(msg_buf);
+										ok = 1;
+									}
 									//
 									// ...
 									//
 									ZDELETE(p_js_reply);
 								}
+								else
+									ok = PPSetErrorSLib();
 							}
 						}
 					}
@@ -10634,6 +10643,7 @@ int PrcssrSupplInterchange::Run()
 {
 	int    ok = -1;
 	SString temp_buf;
+	SString msg_buf;
 	SString log_file_name;
 	PPLogger logger;
 	THROW_PP(State & stInited && P_Eb, PPERR_SUPPLIXNOTINITED);
@@ -10684,6 +10694,15 @@ int PrcssrSupplInterchange::Run()
 				if(actions & SupplInterchangeFilt::opExportBills) {
 					cli.SendSellin();
 				}
+			}
+			else {
+				//PPTXT_SUPPLIXAUTHFAULT
+				PPLoadText(PPTXT_SUPPLIXAUTHFAULT, msg_buf);
+				msg_buf.CatDiv(':', 2).Cat("MERCAPP");
+				PPGetLastErrorMessage(1, temp_buf);
+				if(temp_buf.NotEmptyS())
+					msg_buf.CatDiv('-', 1).Cat(temp_buf);
+				logger.Log(msg_buf);
 			}
 		}
 		else if(temp_buf.IsEqiAscii("MONOLIT-BALTIKA")) {

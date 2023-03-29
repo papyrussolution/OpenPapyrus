@@ -59,13 +59,13 @@ void FASTCALL TIFFSwabLong8(uint64* lp)
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfShort)
 void FASTCALL TIFFSwabArrayOfShort(uint16* wp, tmsize_t n)
 {
-	uchar * cp;
-	uchar t;
 	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint16)==2);
 	/* XXX unroll loop some */
 	while(n-- > 0) {
-		cp = (uchar *)wp;
-		t = cp[1]; cp[1] = cp[0]; cp[0] = t;
+		uchar * cp = (uchar *)wp;
+		const uchar t = cp[1]; 
+		cp[1] = cp[0]; 
+		cp[0] = t;
 		wp++;
 	}
 }

@@ -1,5 +1,5 @@
 // SBUFFER.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -336,8 +336,12 @@ int FASTCALL SBuffer::Write(const int64 & v)     { return Write(&v, sizeof(v)); 
 int FASTCALL SBuffer::Read(int64 & v) { return ReadV(&v, sizeof(v)); }
 int FASTCALL SBuffer::Write(const uint64 & v)    { return Write(&v, sizeof(v)); }
 int FASTCALL SBuffer::Read(uint64 & v) { return ReadV(&v, sizeof(v)); }
+int FASTCALL SBuffer::Write(const int & v)      { return Write(&v, sizeof(v)); }
+int FASTCALL SBuffer::Read(int & v) { return ReadV(&v, sizeof(v)); }
 int FASTCALL SBuffer::Write(const long & v)      { return Write(&v, sizeof(v)); }
 int FASTCALL SBuffer::Read(long & v) { return ReadV(&v, sizeof(v)); }
+int FASTCALL SBuffer::Write(const uint & v)     { return Write(&v, sizeof(v)); }
+int FASTCALL SBuffer::Read(uint & v) { return ReadV(&v, sizeof(v)); }
 int FASTCALL SBuffer::Write(const ulong & v)     { return Write(&v, sizeof(v)); }
 int FASTCALL SBuffer::Read(ulong & v) { return ReadV(&v, sizeof(v)); }
 int FASTCALL SBuffer::WriteFloat(float v) { return Write(&v, sizeof(v)); }
@@ -1594,14 +1598,14 @@ int SSerializeContext::Serialize(int dir, bool & rV, SBuffer & rBuf)
 	return ok;
 }
 
-int SSerializeContext::Serialize(int dir, int64  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
-int SSerializeContext::Serialize(int dir, int32  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
-int SSerializeContext::Serialize(int dir, int16  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, int8   & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, int16  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, int    & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, long   & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, int64  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, uint   & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UINT, sizeof(rV)), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, ulong  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UINT, sizeof(rV)), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, uint64 & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UINT, sizeof(rV)), &rV, 0, rBuf); }
-int SSerializeContext::Serialize(int dir, uint32 & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UINT, sizeof(rV)), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, uint16 & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UINT, sizeof(rV)), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, uint8  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UINT, sizeof(rV)), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, LDATE  & rV, SBuffer & rBuf) { return Serialize(dir, T_DATE, &rV, 0, rBuf); }
@@ -1952,10 +1956,10 @@ int STDCALL  SSerializer::Serialize(TYPEID typ, void * pData, uint8 * pInd) { re
 int FASTCALL SSerializer::Serialize(SString & rStr) { return P_SCtx->Serialize(Dir, rStr, R_Buf); }
 int FASTCALL SSerializer::Serialize(SStringU & rStr) { return P_SCtx->Serialize(Dir, rStr, R_Buf); }
 int FASTCALL SSerializer::Serialize(int64 & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
-int FASTCALL SSerializer::Serialize(int32 & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int FASTCALL SSerializer::Serialize(int16 & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int FASTCALL SSerializer::Serialize(int8 & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int FASTCALL SSerializer::Serialize(int & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
+int FASTCALL SSerializer::Serialize(long & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int FASTCALL SSerializer::Serialize(uint64 & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int FASTCALL SSerializer::Serialize(uint32 & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int FASTCALL SSerializer::Serialize(uint16 & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }

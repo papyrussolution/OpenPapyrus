@@ -1,27 +1,17 @@
+// ustring.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 1998-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *
- * File ustring.h
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   12/07/98    bertrand    Creation.
- ******************************************************************************
- */
-
+// Copyright (C) 1998-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 12/07/98    bertrand    Creation.
+// 
 #ifndef USTRING_H
 #define USTRING_H
 
 #include "unicode/utypes.h"
 #include "unicode/putil.h"
 #include "unicode/uiter.h"
-
 /**
  * \def UBRK_TYPEDEF_UBREAK_ITERATOR
  * @internal
@@ -137,9 +127,7 @@ U_CAPI bool U_EXPORT2 u_strHasMoreChar32Than(const UChar * s, int32_t length, in
  * @return A pointer to <code>dst</code>.
  * @stable ICU 2.0
  */
-U_CAPI UChar * U_EXPORT2 u_strcat(UChar * dst,
-    const UChar * src);
-
+U_CAPI UChar * U_EXPORT2 u_strcat(UChar * dst, const UChar * src);
 /**
  * Concatenate two ustrings.
  * Appends at most <code>n</code> characters from <code>src</code> to <code>dst</code>.
@@ -154,10 +142,7 @@ U_CAPI UChar * U_EXPORT2 u_strcat(UChar * dst,
  * @return A pointer to <code>dst</code>.
  * @stable ICU 2.0
  */
-U_CAPI UChar * U_EXPORT2 u_strncat(UChar * dst,
-    const UChar * src,
-    int32_t n);
-
+U_CAPI UChar * U_EXPORT2 u_strncat(UChar * dst, const UChar * src, int32_t n);
 /**
  * Find the first occurrence of a substring in a string.
  * The substring is found at code point boundaries.
@@ -179,7 +164,6 @@ U_CAPI UChar * U_EXPORT2 u_strncat(UChar * dst,
  * @see u_strFindLast
  */
 U_CAPI UChar * U_EXPORT2 u_strstr(const UChar * s, const UChar * substring);
-
 /**
  * Find the first occurrence of a substring in a string.
  * The substring is found at code point boundaries.
@@ -202,7 +186,6 @@ U_CAPI UChar * U_EXPORT2 u_strstr(const UChar * s, const UChar * substring);
  * @see u_strFindLast
  */
 U_CAPI UChar * U_EXPORT2 u_strFindFirst(const UChar * s, int32_t length, const UChar * substring, int32_t subLength);
-
 /**
  * Find the first occurrence of a BMP code point in a string.
  * A surrogate code point is found only if its match in the text is not
@@ -221,7 +204,6 @@ U_CAPI UChar * U_EXPORT2 u_strFindFirst(const UChar * s, int32_t length, const U
  * @see u_strFindFirst
  */
 U_CAPI UChar * U_EXPORT2 u_strchr(const UChar * s, UChar c);
-
 /**
  * Find the first occurrence of a code point in a string.
  * A surrogate code point is found only if its match in the text is not
@@ -262,7 +244,6 @@ U_CAPI UChar * U_EXPORT2 u_strchr32(const UChar * s, UChar32 c);
  * @see u_strFindLast
  */
 U_CAPI UChar * U_EXPORT2 u_strrstr(const UChar * s, const UChar * substring);
-
 /**
  * Find the last occurrence of a substring in a string.
  * The substring is found at code point boundaries.
@@ -996,11 +977,7 @@ U_CDECL_END
  * @see UnicodeString#unescapeAt()
  * @stable ICU 2.0
  */
-U_CAPI UChar32 U_EXPORT2 u_unescapeAt(UNESCAPE_CHAR_AT charAt,
-    int32_t * offset,
-    int32_t length,
-    void * context);
-
+U_CAPI UChar32 U_EXPORT2 u_unescapeAt(UNESCAPE_CHAR_AT charAt, int32_t * offset, int32_t length, void * context);
 /**
  * Uppercase the characters in a string.
  * Casing is locale-dependent and context-sensitive.
@@ -1021,11 +998,7 @@ U_CAPI UChar32 U_EXPORT2 u_unescapeAt(UNESCAPE_CHAR_AT charAt,
  *         only some of the result was written to the destination buffer.
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 u_strToUpper(UChar * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
-    const char * locale,
-    UErrorCode * pErrorCode);
-
+U_CAPI int32_t U_EXPORT2 u_strToUpper(UChar * dest, int32_t destCapacity, const UChar * src, int32_t srcLength, const char * locale, UErrorCode * pErrorCode);
 /**
  * Lowercase the characters in a string.
  * Casing is locale-dependent and context-sensitive.
@@ -1046,10 +1019,7 @@ U_CAPI int32_t U_EXPORT2 u_strToUpper(UChar * dest, int32_t destCapacity,
  *         only some of the result was written to the destination buffer.
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 u_strToLower(UChar * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
-    const char * locale,
-    UErrorCode * pErrorCode);
+U_CAPI int32_t U_EXPORT2 u_strToLower(UChar * dest, int32_t destCapacity, const UChar * src, int32_t srcLength, const char * locale, UErrorCode * pErrorCode);
 
 #if !UCONFIG_NO_BREAK_ITERATION
 
@@ -1091,12 +1061,7 @@ U_CAPI int32_t U_EXPORT2 u_strToLower(UChar * dest, int32_t destCapacity,
  *         only some of the result was written to the destination buffer.
  * @stable ICU 2.1
  */
-U_CAPI int32_t U_EXPORT2 u_strToTitle(UChar * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
-    UBreakIterator * titleIter,
-    const char * locale,
-    UErrorCode * pErrorCode);
-
+U_CAPI int32_t U_EXPORT2 u_strToTitle(UChar * dest, int32_t destCapacity, const UChar * src, int32_t srcLength, UBreakIterator * titleIter, const char * locale, UErrorCode * pErrorCode);
 #endif
 
 /**
@@ -1123,10 +1088,7 @@ U_CAPI int32_t U_EXPORT2 u_strToTitle(UChar * dest, int32_t destCapacity,
  *         only some of the result was written to the destination buffer.
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 u_strFoldCase(UChar * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
-    uint32_t options,
-    UErrorCode * pErrorCode);
+U_CAPI int32_t U_EXPORT2 u_strFoldCase(UChar * dest, int32_t destCapacity, const UChar * src, int32_t srcLength, uint32_t options, UErrorCode * pErrorCode);
 
 #if defined(U_WCHAR_IS_UTF16) || defined(U_WCHAR_IS_UTF32) || !UCONFIG_NO_CONVERSION
 /**
@@ -1151,12 +1113,7 @@ U_CAPI int32_t U_EXPORT2 u_strFoldCase(UChar * dest, int32_t destCapacity,
  * @return The pointer to destination buffer.
  * @stable ICU 2.0
  */
-U_CAPI wchar_t* U_EXPORT2 u_strToWCS(wchar_t * dest,
-    int32_t destCapacity,
-    int32_t * pDestLength,
-    const UChar * src,
-    int32_t srcLength,
-    UErrorCode * pErrorCode);
+U_CAPI wchar_t* U_EXPORT2 u_strToWCS(wchar_t * dest, int32_t destCapacity, int32_t * pDestLength, const UChar * src, int32_t srcLength, UErrorCode * pErrorCode);
 /**
  * Convert a wchar_t string to UTF-16.
  * If it is known at compile time that wchar_t strings are in UTF-16 or UTF-32, then
@@ -1179,12 +1136,7 @@ U_CAPI wchar_t* U_EXPORT2 u_strToWCS(wchar_t * dest,
  * @return The pointer to destination buffer.
  * @stable ICU 2.0
  */
-U_CAPI UChar * U_EXPORT2 u_strFromWCS(UChar * dest,
-    int32_t destCapacity,
-    int32_t * pDestLength,
-    const wchar_t * src,
-    int32_t srcLength,
-    UErrorCode * pErrorCode);
+U_CAPI UChar * U_EXPORT2 u_strFromWCS(UChar * dest, int32_t destCapacity, int32_t * pDestLength, const wchar_t * src, int32_t srcLength, UErrorCode * pErrorCode);
 #endif /* defined(U_WCHAR_IS_UTF16) || defined(U_WCHAR_IS_UTF32) || !UCONFIG_NO_CONVERSION */
 
 /**
@@ -1209,13 +1161,8 @@ U_CAPI UChar * U_EXPORT2 u_strFromWCS(UChar * dest,
  * @see u_strToUTF8WithSub
  * @see u_strFromUTF8
  */
-U_CAPI char * U_EXPORT2 u_strToUTF8(char * dest,
-    int32_t destCapacity,
-    int32_t * pDestLength,
-    const UChar * src,
-    int32_t srcLength,
-    UErrorCode * pErrorCode);
-
+U_CAPI char * U_EXPORT2 u_strToUTF8(char * dest, int32_t destCapacity, int32_t * pDestLength, const UChar * src,
+    int32_t srcLength, UErrorCode * pErrorCode);
 /**
  * Convert a UTF-8 string to UTF-16.
  * If the input string is not well-formed, then the U_INVALID_CHAR_FOUND error code is set.
@@ -1238,13 +1185,8 @@ U_CAPI char * U_EXPORT2 u_strToUTF8(char * dest,
  * @see u_strFromUTF8WithSub
  * @see u_strFromUTF8Lenient
  */
-U_CAPI UChar * U_EXPORT2 u_strFromUTF8(UChar * dest,
-    int32_t destCapacity,
-    int32_t * pDestLength,
-    const char * src,
-    int32_t srcLength,
-    UErrorCode * pErrorCode);
-
+U_CAPI UChar * U_EXPORT2 u_strFromUTF8(UChar * dest, int32_t destCapacity, int32_t * pDestLength, const char * src,
+    int32_t srcLength, UErrorCode * pErrorCode);
 /**
  * Convert a UTF-16 string to UTF-8.
  *
@@ -1280,14 +1222,8 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8(UChar * dest,
  * @see u_strFromUTF8WithSub
  * @stable ICU 3.6
  */
-U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
-    int32_t destCapacity,
-    int32_t * pDestLength,
-    const UChar * src,
-    int32_t srcLength,
-    UChar32 subchar, int32_t * pNumSubstitutions,
-    UErrorCode * pErrorCode);
-
+U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest, int32_t destCapacity, int32_t * pDestLength, const UChar * src,
+    int32_t srcLength, UChar32 subchar, int32_t * pNumSubstitutions, UErrorCode * pErrorCode);
 /**
  * Convert a UTF-8 string to UTF-16.
  *
@@ -1324,14 +1260,8 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
  * @see u_strToUTF8WithSub
  * @stable ICU 3.6
  */
-U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest,
-    int32_t destCapacity,
-    int32_t * pDestLength,
-    const char * src,
-    int32_t srcLength,
-    UChar32 subchar, int32_t * pNumSubstitutions,
-    UErrorCode * pErrorCode);
-
+U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest, int32_t destCapacity, int32_t * pDestLength, const char * src,
+    int32_t srcLength, UChar32 subchar, int32_t * pNumSubstitutions, UErrorCode * pErrorCode);
 /**
  * Convert a UTF-8 string to UTF-16.
  *
@@ -1383,13 +1313,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest,
  * @see u_strToUTF8WithSub
  * @stable ICU 3.6
  */
-U_CAPI UChar * U_EXPORT2 u_strFromUTF8Lenient(UChar * dest,
-    int32_t destCapacity,
-    int32_t * pDestLength,
-    const char * src,
-    int32_t srcLength,
-    UErrorCode * pErrorCode);
-
+U_CAPI UChar * U_EXPORT2 u_strFromUTF8Lenient(UChar * dest, int32_t destCapacity, int32_t * pDestLength, const char * src, int32_t srcLength, UErrorCode * pErrorCode);
 /**
  * Convert a UTF-16 string to UTF-32.
  * If the input string is not well-formed, then the U_INVALID_CHAR_FOUND error code is set.
@@ -1412,13 +1336,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8Lenient(UChar * dest,
  * @see u_strFromUTF32
  * @stable ICU 2.0
  */
-U_CAPI UChar32* U_EXPORT2 u_strToUTF32(UChar32 * dest,
-    int32_t destCapacity,
-    int32_t * pDestLength,
-    const UChar * src,
-    int32_t srcLength,
-    UErrorCode * pErrorCode);
-
+U_CAPI UChar32* U_EXPORT2 u_strToUTF32(UChar32 * dest, int32_t destCapacity, int32_t * pDestLength, const UChar * src, int32_t srcLength, UErrorCode * pErrorCode);
 /**
  * Convert a UTF-32 string to UTF-16.
  * If the input string is not well-formed, then the U_INVALID_CHAR_FOUND error code is set.
@@ -1441,13 +1359,7 @@ U_CAPI UChar32* U_EXPORT2 u_strToUTF32(UChar32 * dest,
  * @see u_strToUTF32
  * @stable ICU 2.0
  */
-U_CAPI UChar * U_EXPORT2 u_strFromUTF32(UChar * dest,
-    int32_t destCapacity,
-    int32_t * pDestLength,
-    const UChar32 * src,
-    int32_t srcLength,
-    UErrorCode * pErrorCode);
-
+U_CAPI UChar * U_EXPORT2 u_strFromUTF32(UChar * dest, int32_t destCapacity, int32_t * pDestLength, const UChar32 * src, int32_t srcLength, UErrorCode * pErrorCode);
 /**
  * Convert a UTF-16 string to UTF-32.
  *
@@ -1483,14 +1395,8 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF32(UChar * dest,
  * @see u_strFromUTF32WithSub
  * @stable ICU 4.2
  */
-U_CAPI UChar32* U_EXPORT2 u_strToUTF32WithSub(UChar32 * dest,
-    int32_t destCapacity,
-    int32_t * pDestLength,
-    const UChar * src,
-    int32_t srcLength,
-    UChar32 subchar, int32_t * pNumSubstitutions,
-    UErrorCode * pErrorCode);
-
+U_CAPI UChar32* U_EXPORT2 u_strToUTF32WithSub(UChar32 * dest, int32_t destCapacity, int32_t * pDestLength, const UChar * src,
+    int32_t srcLength, UChar32 subchar, int32_t * pNumSubstitutions, UErrorCode * pErrorCode);
 /**
  * Convert a UTF-32 string to UTF-16.
  *
@@ -1526,14 +1432,8 @@ U_CAPI UChar32* U_EXPORT2 u_strToUTF32WithSub(UChar32 * dest,
  * @see u_strToUTF32WithSub
  * @stable ICU 4.2
  */
-U_CAPI UChar * U_EXPORT2 u_strFromUTF32WithSub(UChar * dest,
-    int32_t destCapacity,
-    int32_t * pDestLength,
-    const UChar32 * src,
-    int32_t srcLength,
-    UChar32 subchar, int32_t * pNumSubstitutions,
-    UErrorCode * pErrorCode);
-
+U_CAPI UChar * U_EXPORT2 u_strFromUTF32WithSub(UChar * dest, int32_t destCapacity, int32_t * pDestLength, const UChar32 * src, int32_t srcLength, 
+	UChar32 subchar, int32_t * pNumSubstitutions, UErrorCode * pErrorCode);
 /**
  * Convert a 16-bit Unicode string to Java Modified UTF-8.
  * See http://java.sun.com/javase/6/docs/api/java/io/DataInput.html#modified-utf-8
@@ -1566,13 +1466,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF32WithSub(UChar * dest,
  * @see u_strToUTF8WithSub
  * @see u_strFromJavaModifiedUTF8WithSub
  */
-U_CAPI char * U_EXPORT2 u_strToJavaModifiedUTF8(char * dest,
-    int32_t destCapacity,
-    int32_t * pDestLength,
-    const UChar * src,
-    int32_t srcLength,
-    UErrorCode * pErrorCode);
-
+U_CAPI char * U_EXPORT2 u_strToJavaModifiedUTF8(char * dest, int32_t destCapacity, int32_t * pDestLength, const UChar * src, int32_t srcLength, UErrorCode * pErrorCode);
 /**
  * Convert a Java Modified UTF-8 string to a 16-bit Unicode string.
  * If the input string is not well-formed and no substitution char is specified,
@@ -1614,12 +1508,7 @@ U_CAPI char * U_EXPORT2 u_strToJavaModifiedUTF8(char * dest,
  * @see u_strToJavaModifiedUTF8
  * @stable ICU 4.4
  */
-U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest,
-    int32_t destCapacity,
-    int32_t * pDestLength,
-    const char * src,
-    int32_t srcLength,
-    UChar32 subchar, int32_t * pNumSubstitutions,
-    UErrorCode * pErrorCode);
+U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest, int32_t destCapacity, int32_t * pDestLength, const char * src,
+    int32_t srcLength, UChar32 subchar, int32_t * pNumSubstitutions, UErrorCode * pErrorCode);
 
 #endif

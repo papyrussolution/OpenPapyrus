@@ -104,23 +104,20 @@ Jbig2Image * jbig2_image_resize(Jbig2Ctx * ctx, Jbig2Image * image, uint32_t wid
 		image->height = height;
 	}
 	else {
-		Jbig2Image * newimage;
 		int code;
 		/* Unoptimized implementation, but it works. */
-		newimage = jbig2_image_new(ctx, width, height);
+		Jbig2Image * newimage = jbig2_image_new(ctx, width, height);
 		if(newimage == NULL) {
 			jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to allocate resized image");
 			return NULL;
 		}
 		jbig2_image_clear(ctx, newimage, value);
-
 		code = jbig2_image_compose(ctx, newimage, image, 0, 0, JBIG2_COMPOSE_REPLACE);
 		if(code < 0) {
 			jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to compose image buffers when resizing");
 			jbig2_image_release(ctx, newimage);
 			return NULL;
 		}
-
 		/* if refcount > 1 the original image, its pointer must
 		   be kept, so simply replaces its innards, and throw away
 		   the empty new image shell. */
@@ -131,22 +128,11 @@ Jbig2Image * jbig2_image_resize(Jbig2Ctx * ctx, Jbig2Image * image, uint32_t wid
 		image->data = newimage->data;
 		jbig2_free(ctx->allocator, newimage);
 	}
-
 	return image;
 }
 
-static inline void template_image_compose_opt(const uint8_t * JBIG2_RESTRICT ss,
-    uint8_t * JBIG2_RESTRICT dd,
-    int early,
-    int late,
-    uint8_t leftmask,
-    uint8_t rightmask,
-    uint32_t bytewidth_,
-    uint32_t h,
-    uint32_t shift,
-    uint32_t dstride,
-    uint32_t sstride,
-    Jbig2ComposeOp op)
+static inline void template_image_compose_opt(const uint8_t * JBIG2_RESTRICT ss, uint8_t * JBIG2_RESTRICT dd, int early, int late,
+    uint8_t leftmask, uint8_t rightmask, uint32_t bytewidth_, uint32_t h, uint32_t shift, uint32_t dstride, uint32_t sstride, Jbig2ComposeOp op)
 {
 	int i;
 	uint32_t j;
@@ -270,17 +256,8 @@ static inline void template_image_compose_opt(const uint8_t * JBIG2_RESTRICT ss,
 	}
 }
 
-static void jbig2_image_compose_opt_OR(const uint8_t * s,
-    uint8_t * d,
-    int early,
-    int late,
-    uint8_t mask,
-    uint8_t rightmask,
-    uint32_t bytewidth,
-    uint32_t h,
-    uint32_t shift,
-    uint32_t dstride,
-    uint32_t sstride)
+static void jbig2_image_compose_opt_OR(const uint8_t * s, uint8_t * d, int early, int late, uint8_t mask, uint8_t rightmask, uint32_t bytewidth,
+    uint32_t h, uint32_t shift, uint32_t dstride, uint32_t sstride)
 {
 	if(early || late)
 		template_image_compose_opt(s, d, early, late, mask, rightmask, bytewidth, h, shift, dstride, sstride, JBIG2_COMPOSE_OR);
@@ -288,17 +265,8 @@ static void jbig2_image_compose_opt_OR(const uint8_t * s,
 		template_image_compose_opt(s, d, 0, 0, mask, rightmask, bytewidth, h, shift, dstride, sstride, JBIG2_COMPOSE_OR);
 }
 
-static void jbig2_image_compose_opt_AND(const uint8_t * s,
-    uint8_t * d,
-    int early,
-    int late,
-    uint8_t mask,
-    uint8_t rightmask,
-    uint32_t bytewidth,
-    uint32_t h,
-    uint32_t shift,
-    uint32_t dstride,
-    uint32_t sstride)
+static void jbig2_image_compose_opt_AND(const uint8_t * s, uint8_t * d, int early, int late, uint8_t mask, uint8_t rightmask, uint32_t bytewidth,
+    uint32_t h, uint32_t shift, uint32_t dstride, uint32_t sstride)
 {
 	if(early || late)
 		template_image_compose_opt(s, d, early, late, mask, rightmask, bytewidth, h, shift, dstride, sstride, JBIG2_COMPOSE_AND);
@@ -306,17 +274,8 @@ static void jbig2_image_compose_opt_AND(const uint8_t * s,
 		template_image_compose_opt(s, d, 0, 0, mask, rightmask, bytewidth, h, shift, dstride, sstride, JBIG2_COMPOSE_AND);
 }
 
-static void jbig2_image_compose_opt_XOR(const uint8_t * s,
-    uint8_t * d,
-    int early,
-    int late,
-    uint8_t mask,
-    uint8_t rightmask,
-    uint32_t bytewidth,
-    uint32_t h,
-    uint32_t shift,
-    uint32_t dstride,
-    uint32_t sstride)
+static void jbig2_image_compose_opt_XOR(const uint8_t * s, uint8_t * d, int early, int late, uint8_t mask, uint8_t rightmask, uint32_t bytewidth,
+    uint32_t h, uint32_t shift, uint32_t dstride, uint32_t sstride)
 {
 	if(early || late)
 		template_image_compose_opt(s, d, early, late, mask, rightmask, bytewidth, h, shift, dstride, sstride, JBIG2_COMPOSE_XOR);
@@ -324,17 +283,8 @@ static void jbig2_image_compose_opt_XOR(const uint8_t * s,
 		template_image_compose_opt(s, d, 0, 0, mask, rightmask, bytewidth, h, shift, dstride, sstride, JBIG2_COMPOSE_XOR);
 }
 
-static void jbig2_image_compose_opt_XNOR(const uint8_t * s,
-    uint8_t * d,
-    int early,
-    int late,
-    uint8_t mask,
-    uint8_t rightmask,
-    uint32_t bytewidth,
-    uint32_t h,
-    uint32_t shift,
-    uint32_t dstride,
-    uint32_t sstride)
+static void jbig2_image_compose_opt_XNOR(const uint8_t * s, uint8_t * d, int early, int late, uint8_t mask, uint8_t rightmask, uint32_t bytewidth,
+    uint32_t h, uint32_t shift, uint32_t dstride, uint32_t sstride)
 {
 	if(early || late)
 		template_image_compose_opt(s, d, early, late, mask, rightmask, bytewidth, h, shift, dstride, sstride, JBIG2_COMPOSE_XNOR);
@@ -342,21 +292,11 @@ static void jbig2_image_compose_opt_XNOR(const uint8_t * s,
 		template_image_compose_opt(s, d, 0, 0, mask, rightmask, bytewidth, h, shift, dstride, sstride, JBIG2_COMPOSE_XNOR);
 }
 
-static void jbig2_image_compose_opt_REPLACE(const uint8_t * s,
-    uint8_t * d,
-    int early,
-    int late,
-    uint8_t mask,
-    uint8_t rightmask,
-    uint32_t bytewidth,
-    uint32_t h,
-    uint32_t shift,
-    uint32_t dstride,
-    uint32_t sstride)
+static void jbig2_image_compose_opt_REPLACE(const uint8_t * s, uint8_t * d, int early, int late, uint8_t mask, uint8_t rightmask, uint32_t bytewidth,
+    uint32_t h, uint32_t shift, uint32_t dstride, uint32_t sstride)
 {
 	if(early || late)
-		template_image_compose_opt(s, d, early, late, mask, rightmask, bytewidth, h, shift, dstride, sstride,
-		    JBIG2_COMPOSE_REPLACE);
+		template_image_compose_opt(s, d, early, late, mask, rightmask, bytewidth, h, shift, dstride, sstride, JBIG2_COMPOSE_REPLACE);
 	else
 		template_image_compose_opt(s, d, 0, 0, mask, rightmask, bytewidth, h, shift, dstride, sstride, JBIG2_COMPOSE_REPLACE);
 }
@@ -438,7 +378,6 @@ int jbig2_image_compose(Jbig2Ctx * ctx, Jbig2Image * dst, Jbig2Image * src, int 
 #ifdef JBIG2_DEBUG
 	jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, JBIG2_UNKNOWN_SEGMENT_NUMBER, "compositing %dx%d at (%d, %d) after clipping", w, h, x, y);
 #endif
-
 	/* check for zero clipping region */
 	if((w <= 0) || (h <= 0)) {
 #ifdef JBIG2_DEBUG
@@ -446,7 +385,6 @@ int jbig2_image_compose(Jbig2Ctx * ctx, Jbig2Image * dst, Jbig2Image * src, int 
 #endif
 		return 0;
 	}
-
 	leftbyte = (uint32_t)x >> 3;
 	dd = dst->data + y * dst->stride + leftbyte;
 	bytewidth = (((uint32_t)x + w - 1) >> 3) - leftbyte + 1;
@@ -456,9 +394,7 @@ int jbig2_image_compose(Jbig2Ctx * ctx, Jbig2Image * dst, Jbig2Image * src, int 
 		leftmask &= rightmask;
 	late = (ss + bytewidth >= src->data + ((src->width+7)>>3));
 	ss += syoffset;
-
-	switch(op)
-	{
+	switch(op) {
 		case JBIG2_COMPOSE_OR:
 		    jbig2_image_compose_opt_OR(ss, dd, early, late, leftmask, rightmask, bytewidth, h, shift, dst->stride, src->stride);
 		    break;
@@ -486,23 +422,20 @@ void jbig2_image_clear(Jbig2Ctx * ctx, Jbig2Image * image, int value)
 	const uint8_t fill = value ? 0xFF : 0x00;
 	memset(image->data, fill, image->stride * image->height);
 }
-
-/* look up a pixel value in an image.
-   returns 0 outside the image frame for the convenience of
-   the template code
- */
-int jbig2_image_get_pixel(Jbig2Image * image, int x, int y)
+// 
+// look up a pixel value in an image.
+// returns 0 outside the image frame for the convenience of the template code
+// 
+int STDCALL jbig2_image_get_pixel(Jbig2Image * image, int x, int y)
 {
 	const int w = image->width;
 	const int h = image->height;
 	const int byte = (x >> 3) + y * image->stride;
 	const int bit = 7 - (x & 7);
-
 	if((x < 0) || (x >= w))
 		return 0;
 	if((y < 0) || (y >= h))
 		return 0;
-
 	return ((image->data[byte] >> bit) & 1);
 }
 
@@ -513,16 +446,13 @@ void jbig2_image_set_pixel(Jbig2Image * image, int x, int y, boolint value)
 	const int h = image->height;
 	int scratch, mask;
 	int bit, byte;
-
 	if((x < 0) || (x >= w))
 		return;
 	if((y < 0) || (y >= h))
 		return;
-
 	byte = (x >> 3) + y * image->stride;
 	bit = 7 - (x & 7);
 	mask = (1 << bit) ^ 0xff;
-
 	scratch = image->data[byte] & mask;
 	image->data[byte] = scratch | (value << bit);
 }

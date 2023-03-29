@@ -4,13 +4,13 @@
 #pragma hdrstop
 //#include "options.h"
 
-int unc_fix_ctype(int ch)
+/* @sobolev (replaced with sfixctype) int unc_fix_ctype(int ch)
 {
 	if(ch >= -1 && ch <= 255) {
 		return (ch);
 	}
 	return 0; // Issue #3025
-}
+}*/
 
 int unc_isspace(int ch)
 {
@@ -18,15 +18,15 @@ int unc_isspace(int ch)
 		return 0;
 	}
 	else {
-		return (isspace(unc_fix_ctype(ch)));
+		return (isspace(sfixctype(ch)));
 	}
 }
 
-int unc_isprint(int ch) { return (isprint(unc_fix_ctype(ch))); }
-int unc_isalpha(int ch) { return (isalpha(unc_fix_ctype(ch))); }
-int unc_isalnum(int ch) { return (isalnum(unc_fix_ctype(ch))); }
-int unc_toupper(int ch) { return (toupper(unc_fix_ctype(ch))); }
-int unc_tolower(int ch) { return (tolower(unc_fix_ctype(ch))); }
-int unc_isxdigit(int ch) { return (isxdigit(unc_fix_ctype(ch))); }
-int unc_isdigit(int ch) { return (isdigit(unc_fix_ctype(ch))); }
-int unc_isupper(int ch) { return (isalpha(unc_fix_ctype(ch)) && (unc_toupper(unc_fix_ctype(ch)) == ch)); }
+int unc_isprint(int ch) { return (isprint(sfixctype(ch))); }
+int unc_isalpha(int ch) { return (isalpha(sfixctype(ch))); }
+int unc_isalnum(int ch) { return (isalnum(sfixctype(ch))); }
+int unc_toupper(int ch) { return (toupper(sfixctype(ch))); }
+int unc_tolower(int ch) { return (tolower(sfixctype(ch))); }
+// @sobolev (replaced with ishex) int unc_isxdigit(int ch) { return (isxdigit(sfixctype(ch))); }
+// @sobolev (replaced with isdec) int unc_isdigit(int ch) { return (isdigit(sfixctype(ch))); }
+int unc_isupper(int ch) { return (isalpha(sfixctype(ch)) && (unc_toupper(sfixctype(ch)) == ch)); }

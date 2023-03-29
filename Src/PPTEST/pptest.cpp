@@ -1455,6 +1455,10 @@ static void Test_LibPhoneNumber()
 int DoConstructionTest()
 {
 	int    ok = -1;
+	{
+		uint abc = 0x01020304U;
+		//uint abc_s = sbswap32()
+	}
 #ifndef NDEBUG
 //#if 1
 	/*{
@@ -1645,4 +1649,3 @@ int DoConstructionTest()
 }
 
 #endif // } 0 @construction
-

@@ -405,6 +405,9 @@ public class Document {
 			case StyloQDatabase.SecStoragePacket.styloqdocstEXECUTED:
 				result.add(new EditAction(editactionClose));
 				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstPARTIALLYEXECUTED: // @v11.6.8 частично исполнен акцептором
+				result.add(new EditAction(editactionClose));
+				break;
 			case StyloQDatabase.SecStoragePacket.styloqdocstEXECUTIONACCEPTED:
 				result.add(new EditAction(editactionClose));
 				break;
@@ -448,7 +451,8 @@ public class Document {
 				break;
 			case StyloQDatabase.SecStoragePacket.styloqdocstAPPROVED:
 				ok = (newStatus == StyloQDatabase.SecStoragePacket.styloqdocstCANCELLED ||
-						newStatus == StyloQDatabase.SecStoragePacket.styloqdocstEXECUTED);
+						newStatus == StyloQDatabase.SecStoragePacket.styloqdocstEXECUTED ||
+						newStatus == StyloQDatabase.SecStoragePacket.styloqdocstPARTIALLYEXECUTED);
 				break;
 			case StyloQDatabase.SecStoragePacket.styloqdocstCORRECTED:
 				break;
@@ -461,6 +465,9 @@ public class Document {
 			case StyloQDatabase.SecStoragePacket.styloqdocstMODIFIED:
 				break;
 			case StyloQDatabase.SecStoragePacket.styloqdocstCANCELLED:
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstPARTIALLYEXECUTED: // @v11.6.8
+				ok = (newStatus == StyloQDatabase.SecStoragePacket.styloqdocstEXECUTED);
 				break;
 			case StyloQDatabase.SecStoragePacket.styloqdocstEXECUTED:
 				ok = (newStatus == StyloQDatabase.SecStoragePacket.styloqdocstEXECUTIONACCEPTED ||
@@ -488,6 +495,7 @@ public class Document {
 	{
 		switch(status) {
 			case StyloQDatabase.SecStoragePacket.styloqdocstFINISHED_SUCC: return R.drawable.ic_styloq_document_finished;
+			case StyloQDatabase.SecStoragePacket.styloqdocstEXECUTED: return R.drawable.ic_styloq_document_finished; // @v11.6.8
 			case StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC: return R.drawable.ic_styloq_document_itrm;
 			case StyloQDatabase.SecStoragePacket.styloqdocstDRAFT: return R.drawable.ic_styloq_document_draft;
 			case StyloQDatabase.SecStoragePacket.styloqdocstAPPROVED: return R.drawable.ic_styloqdocstatus_approved;

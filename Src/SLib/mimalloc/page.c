@@ -238,26 +238,30 @@ void _mi_page_reclaim(mi_heap_t* heap, mi_page_t* page) {
 }
 
 // allocate a fresh page from a segment
-static mi_page_t* mi_page_fresh_alloc(mi_heap_t* heap, mi_page_queue_t* pq, size_t block_size) {
+static mi_page_t* mi_page_fresh_alloc(mi_heap_t* heap, mi_page_queue_t* pq, size_t block_size) 
+{
 	mi_assert_internal(pq==NULL||mi_heap_contains_queue(heap, pq));
 	mi_page_t* page = _mi_segment_page_alloc(heap, block_size, &heap->tld->segments, &heap->tld->os);
-	if(page == NULL) {
+	if(!page) {
 		// this may be out-of-memory, or an abandoned page was reclaimed (and in our queue)
 		return NULL;
 	}
 	mi_assert_internal(pq==NULL || _mi_page_segment(page)->kind != MI_SEGMENT_HUGE);
 	mi_page_init(heap, page, block_size, heap->tld);
 	mi_heap_stat_increase(heap, pages, 1);
-	if(pq!=NULL) mi_page_queue_push(heap, pq, page); // huge pages use pq==NULL
+	if(pq) 
+		mi_page_queue_push(heap, pq, page); // huge pages use pq==NULL
 	mi_assert_expensive(_mi_page_is_valid(page));
 	return page;
 }
 
 // Get a fresh page to use
-static mi_page_t* mi_page_fresh(mi_heap_t* heap, mi_page_queue_t* pq) {
+static mi_page_t* mi_page_fresh(mi_heap_t* heap, mi_page_queue_t* pq) 
+{
 	mi_assert_internal(mi_heap_contains_queue(heap, pq));
 	mi_page_t* page = mi_page_fresh_alloc(heap, pq, pq->block_size);
-	if(page==NULL) return NULL;
+	if(!page) 
+		return NULL;
 	mi_assert_internal(pq->block_size==mi_page_block_size(page));
 	mi_assert_internal(pq==mi_page_queue(heap, mi_page_block_size(page)));
 	return page;
@@ -269,7 +273,7 @@ void _mi_heap_delayed_free(mi_heap_t* heap)
 {
 	// take over the list (note: no atomic exchange since it is often NULL)
 	mi_block_t* block = mi_atomic_load_ptr_relaxed(mi_block_t, &heap->thread_delayed_free);
-	while(block != NULL && !mi_atomic_cas_ptr_weak_acq_rel(mi_block_t, &heap->thread_delayed_free, &block, NULL)) { /* nothing */
+	while(block && !mi_atomic_cas_ptr_weak_acq_rel(mi_block_t, &heap->thread_delayed_free, &block, NULL)) { /* nothing */
 	};
 	// and free them all
 	while(block) {

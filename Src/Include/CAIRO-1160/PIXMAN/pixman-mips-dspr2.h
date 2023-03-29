@@ -142,9 +142,7 @@ void pixman_fill_buff32_mips(void * dst, uint32 n_bytes, uint32 value);
 			pixman_composite_ ## name ## _asm_mips(dst, src, mask, width); \
 		}                                                               \
 	}
-
-/************************************************************************/
-
+// 
 #define PIXMAN_MIPS_BIND_FAST_PATH_SRC_MASK_DST(name, src_type, src_cnt, mask_type, mask_cnt, dst_type, dst_cnt)       \
 	void pixman_composite_ ## name ## _asm_mips(dst_type  *dst, src_type  *src, mask_type *mask, int32 w);                        \
                                                                          \

@@ -59,7 +59,9 @@ template <typename UINT> inline UINT do_aligned_read(const uchar * ptr)
 {
 	UINT value = *alignment_cast<const UINT*>(ptr);
 #ifndef WORDS_BIGENDIAN
+	//const uint v2 = sbswap32(value);
 	value = do_bswap(value);
+	//assert(v2 == value);
 #endif
 	return value;
 }
@@ -74,7 +76,9 @@ template <typename T, typename UINT> inline void do_aligned_write(uchar * ptr, T
 	}
 	UINT v = UINT(value);
 #ifndef WORDS_BIGENDIAN
+	//const uint v2 = sbswap32(v);
 	v = do_bswap(v);
+	//assert(v2 == v);
 #endif
 	*alignment_cast<UINT*>(ptr) = v;
 }
@@ -84,7 +88,9 @@ template <typename UINT> inline UINT do_unaligned_read(const uchar * ptr)
 	UINT value;
 	memcpy(&value, ptr, sizeof(UINT));
 #ifndef WORDS_BIGENDIAN
+	//const uint v2 = sbswap32(value);
 	value = do_bswap(value);
+	//assert(v2 == value);
 #endif
 	return value;
 }
@@ -99,7 +105,9 @@ template <typename T, typename UINT> inline void do_unaligned_write(uchar * ptr,
 	}
 	UINT v = UINT(value);
 #ifndef WORDS_BIGENDIAN
+	//const uint v2 = sbswap32(v);
 	v = do_bswap(v);
+	//assert(v2 == v);
 #endif
 	memcpy(ptr, &v, sizeof(UINT));
 }
@@ -108,24 +116,9 @@ inline uint32_t aligned_read4(const uchar * ptr) { return do_aligned_read<uint32
 inline uint32_t unaligned_read4(const uchar * ptr) { return do_unaligned_read<uint32_t>(ptr); }
 inline uint16_t aligned_read2(const uchar * ptr) { return do_aligned_read<uint16_t>(ptr); }
 inline uint16_t unaligned_read2(const uchar * ptr) { return do_unaligned_read<uint16_t>(ptr); }
-template <typename T> inline void aligned_write4(uchar * ptr, T value)
-{
-	do_aligned_write<T, uint32_t>(ptr, value);
-}
-
-template <typename T> inline void unaligned_write4(uchar * ptr, T value)
-{
-	do_unaligned_write<T, uint32_t>(ptr, value);
-}
-
-template <typename T> inline void aligned_write2(uchar * ptr, T value)
-{
-	do_aligned_write<T, uint16_t>(ptr, value);
-}
-
-template <typename T> inline void unaligned_write2(uchar * ptr, T value)
-{
-	do_unaligned_write<T, uint16_t>(ptr, value);
-}
+template <typename T> inline void aligned_write4(uchar * ptr, T value) { do_aligned_write<T, uint32_t>(ptr, value); }
+template <typename T> inline void unaligned_write4(uchar * ptr, T value) { do_unaligned_write<T, uint32_t>(ptr, value); }
+template <typename T> inline void aligned_write2(uchar * ptr, T value) { do_aligned_write<T, uint16_t>(ptr, value); }
+template <typename T> inline void unaligned_write2(uchar * ptr, T value) { do_unaligned_write<T, uint16_t>(ptr, value); }
 
 #endif // XAPIAN_INCLUDED_WORDACCESS_H

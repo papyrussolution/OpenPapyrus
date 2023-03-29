@@ -488,10 +488,8 @@
 	#define PPOPT_CASHSESS      14L // Кассовая сессия //
 	#define PPOPT_DRAFTRECEIPT  15L // Draft goods receiption bill
 	#define PPOPT_DRAFTEXPEND   16L // Draft goods expend bill
-	#define PPOPT_WAREHOUSE     17L // Документы складских операций
-		// Строки этиъ документов выполняют товарные транзакции над ячейками склада.
-	#define PPOPT_EXTERNAL      18L // Специализированный тип операции, определяющий
-		// документ, содержащий внешний документ (обычно, файл).
+	#define PPOPT_WAREHOUSE     17L // Документы складских операций. Строки этиъ документов выполняют товарные транзакции над ячейками склада.
+	#define PPOPT_EXTERNAL      18L // Специализированный тип операции, определяющий документ, содержащий внешний документ (обычно, файл).
 	#define PPOPT_AGREEMENT     19L // @v7.0.0 @construction Соглашение (договор) с покупателем или поставщиком
 	#define PPOPT_CORRECTION    20L // Корректирующий документ
 	#define PPOPT_DRAFTTRANSIT  21L // Специальная категория драфт-документов, которые

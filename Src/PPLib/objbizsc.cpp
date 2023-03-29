@@ -1157,7 +1157,8 @@ int GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket *
 					entry.GetNameA(bizsc_path, path);
 					if(file.Open(path, SFile::mRead) && file.IsValid()) {
 						uint i = 0;
-						ulong crc = 0, check_crc = 0;
+						uint32 crc = 0;
+						uint32 check_crc = 0;
 						PPID local_user_id = 0;
 						StringSet ss("\n");
 						SString user_info, user_name, pwd;

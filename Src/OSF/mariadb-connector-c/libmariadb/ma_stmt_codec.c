@@ -81,8 +81,7 @@ void ma_bmove_upp(char * dst, const char * src, size_t len)
 }
 
 /* {{{ ps_fetch_from_1_to_8_bytes */
-void ps_fetch_from_1_to_8_bytes(MYSQL_BIND * r_param, const MYSQL_FIELD * const field,
-    uchar ** row, uint byte_count)
+void ps_fetch_from_1_to_8_bytes(MYSQL_BIND * r_param, const MYSQL_FIELD * const field, uchar ** row, uint byte_count)
 {
 	bool is_unsigned = test(field->flags & UNSIGNED_FLAG);
 	r_param->buffer_length = byte_count;
@@ -122,22 +121,17 @@ static uint64 my_strtoull(const char * str, size_t len, const char ** end, int *
 	uint64 val = 0;
 	const char * p = str;
 	const char * end_str = p + len;
-
 	for(; p < end_str; p++) {
 		if(*p < '0' || *p > '9')
 			break;
-
 		if(val > ULONGLONG_MAX /10 || val*10 > ULONGLONG_MAX - (*p - '0')) {
 			*err = ERANGE;
 			break;
 		}
 		val = val * 10 + *p -'0';
 	}
-
 	if(p == str)
-		/* Did not parse anything.*/
-		*err = ERANGE;
-
+		*err = ERANGE; /* Did not parse anything.*/
 	*end = p;
 	return val;
 }

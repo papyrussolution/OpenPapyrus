@@ -478,7 +478,8 @@ int SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMovePr
 	void * p_buf  = 0;
 	uint32 flen;
 	uint32 buflen = SMEGABYTE(4);
-	uint32 len, bytes_read_write;
+	uint32 len;
+	DWORD  bytes_read_write;
 	SDataMoveProgressInfo scfd;
 	SString added_msg;
 	SString sys_err_buf; // @v10.3.11

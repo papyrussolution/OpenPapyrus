@@ -2433,7 +2433,7 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 	//
 	// Reverse the bytes in a 32-bit value 
 	//
-	#define ZSWAP32(q) ((((q) >> 24) & 0xff) + (((q) >> 8) & 0xff00) + (((q) & 0xff00) << 8) + (((q) & 0xff) << 24))
+	// @sobolev (replaced with sbswap32) #define ZSWAP32(q) ((((q) >> 24) & 0xff) + (((q) >> 8) & 0xff00) + (((q) & 0xff00) << 8) + (((q) & 0xff) << 24))
 #endif
 
 #ifdef __cplusplus

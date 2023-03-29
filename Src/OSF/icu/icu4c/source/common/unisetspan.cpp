@@ -1,20 +1,11 @@
+// unisetspan.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *
- *   Copyright (C) 2007-2012, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *   file name:  unisetspan.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2007mar01
- *   created by: Markus W. Scherer
- */
+// Copyright (C) 2007-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2007mar01
+// created by: Markus W. Scherer
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unisetspan.h"
@@ -50,23 +41,24 @@ U_NAMESPACE_BEGIN
  */
 class OffsetList {  // Only ever stack-allocated, does not need to inherit UMemory.
 public:
-	OffsetList() : list(staticList), capacity(0), length(0), start(0) {
+	OffsetList() : list(staticList), capacity(0), length(0), start(0) 
+	{
 	}
-
-	~OffsetList() {
+	~OffsetList() 
+	{
 		if(list!=staticList) {
 			uprv_free(list);
 		}
 	}
-
 	// Call exactly once if the list is to be used.
-	void setMaxLength(int32_t maxLength) {
+	void setMaxLength(int32_t maxLength) 
+	{
 		if(maxLength<=(int32_t)sizeof(staticList)) {
 			capacity = (int32_t)sizeof(staticList);
 		}
 		else {
 			bool * l = (bool*)uprv_malloc(maxLength);
-			if(l != NULL) {
+			if(l) {
 				list = l;
 				capacity = maxLength;
 			}
@@ -78,17 +70,14 @@ public:
 		memzero(list, capacity);
 		start = length = 0;
 	}
-
-	bool isEmpty() const {
-		return (bool)(length==0);
-	}
-
+	bool isEmpty() const { return (bool)(length==0); }
 	// Reduce all stored offsets by delta, used when the current position
 	// moves by delta.
 	// There must not be any offsets lower than delta.
 	// If there is an offset equal to delta, it is removed.
 	// delta=[1..maxLength]
-	void shift(int32_t delta) {
+	void shift(int32_t delta) 
+	{
 		int32_t i = start+delta;
 		if(i>=capacity) {
 			i -= capacity;
@@ -102,7 +91,8 @@ public:
 
 	// Add an offset. The list must not contain it yet.
 	// offset=[1..maxLength]
-	void addOffset(int32_t offset) {
+	void addOffset(int32_t offset) 
+	{
 		int32_t i = start+offset;
 		if(i>=capacity) {
 			i -= capacity;
@@ -110,9 +100,9 @@ public:
 		list[i] = TRUE;
 		++length;
 	}
-
 	// offset=[1..maxLength]
-	bool containsOffset(int32_t offset) const {
+	bool containsOffset(int32_t offset) const 
+	{
 		int32_t i = start+offset;
 		if(i>=capacity) {
 			i -= capacity;
@@ -432,22 +422,23 @@ UnicodeSetStringSpan::UnicodeSetStringSpan(const UnicodeSetStringSpan &otherStri
 			return; // Out of memory.
 		}
 	}
-
 	spanLengths = (uint8 *)(utf8Lengths+stringsLength);
 	utf8 = spanLengths+stringsLength*4;
 	uprv_memcpy(utf8Lengths, otherStringSpan.utf8Lengths, allocSize);
 }
 
-UnicodeSetStringSpan::~UnicodeSetStringSpan() {
-	if(pSpanNotSet!=NULL && pSpanNotSet!=&spanSet) {
+UnicodeSetStringSpan::~UnicodeSetStringSpan() 
+{
+	if(pSpanNotSet && pSpanNotSet!=&spanSet) {
 		delete pSpanNotSet;
 	}
-	if(utf8Lengths!=NULL && utf8Lengths!=staticLengths) {
+	if(utf8Lengths && utf8Lengths!=staticLengths) {
 		uprv_free(utf8Lengths);
 	}
 }
 
-void UnicodeSetStringSpan::addToSpanNotSet(UChar32 c) {
+void UnicodeSetStringSpan::addToSpanNotSet(UChar32 c) 
+{
 	if(pSpanNotSet==NULL || pSpanNotSet==&spanSet) {
 		if(spanSet.contains(c)) {
 			return; // Nothing to do.

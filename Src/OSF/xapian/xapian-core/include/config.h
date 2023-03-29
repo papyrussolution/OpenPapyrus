@@ -124,15 +124,14 @@
 /* #undef WINVER */ /* Version of Windows to assume (0x600 => Vista). */
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most significant byte first (like Motorola and SPARC, unlike Intel). */
 #if defined AC_APPLE_UNIVERSAL_BUILD
-# if defined __BIG_ENDIAN__
-#  define WORDS_BIGENDIAN 1
-# endif
+	#if defined __BIG_ENDIAN__
+		#define WORDS_BIGENDIAN 1
+	#endif
 #else
-# ifndef WORDS_BIGENDIAN
-#  undef WORDS_BIGENDIAN
-# endif
+	#ifndef WORDS_BIGENDIAN
+		#undef WORDS_BIGENDIAN
+	#endif
 #endif
-
 #define XAPIAN_ASSERTIONS /* Define if you want assertions (causes some slow-down) */
 #define XAPIAN_ASSERTIONS_PARANOID /* Define if you want paranoid assertions (causes significant slow-down) */
 /* #undef XAPIAN_DEBUG_LOG */ /* Define if you want a log of methods called and other debug messages */

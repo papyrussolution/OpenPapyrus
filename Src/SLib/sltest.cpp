@@ -1,5 +1,5 @@
 // SLTEST.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Test Suits
 //
@@ -95,6 +95,8 @@ int STestDataArray::ReadBotanTestSequence(int formatVer, const char * pFileName,
 //
 static SString & FASTCALL catval(long v, const char * pV, SString & rBuf)
 	{ return rBuf.CatChar('(').CatEq(pV, v).CatChar(')'); }
+static SString & FASTCALL catval(uint v, const char * pV, SString & rBuf)
+	{ return rBuf.CatChar('(').Cat(pV).Eq().Cat(v).CatChar(')'); }
 static SString & FASTCALL catval(ulong v, const char * pV, SString & rBuf)
 	{ return rBuf.CatChar('(').Cat(pV).Eq().Cat(v).CatChar(')'); }
 static SString & FASTCALL catval(int64 v, const char * pV, SString & rBuf)

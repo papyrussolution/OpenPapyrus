@@ -47,7 +47,7 @@ RBBISetBuilder::~RBBISetBuilder()
 {
 	RangeDescriptor   * nextRangeDesc;
 	// Walk through & delete the linked list of RangeDescriptors
-	for(nextRangeDesc = fRangeList; nextRangeDesc!=NULL;) {
+	for(nextRangeDesc = fRangeList; nextRangeDesc;) {
 		RangeDescriptor * r = nextRangeDesc;
 		nextRangeDesc      = r->fNext;
 		delete r;

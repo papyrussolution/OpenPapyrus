@@ -278,13 +278,12 @@ static const TIFFFieldArray * _GetExifFieldArray() { return &exifFieldArray; }
  *  We have our own local lfind() equivalent to avoid subtle differences
  *  in types passed to lfind() on different systems.
  */
-
 static void * td_lfind(const void * key, const void * base, size_t * nmemb, size_t size, int (* compar)(const void *, const void *))
 {
 	char * element;
 	char * end = (char *)base + *nmemb * size;
 	for(element = (char *)base; element < end; element += size)
-		if(!compar(key, element))       /* key found */
+		if(!compar(key, element)) // key found
 			return element;
 	return NULL;
 }

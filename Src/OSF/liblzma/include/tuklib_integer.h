@@ -52,6 +52,7 @@
 //
 // Byte swapping //
 //
+/* @sobolev @v11.6.7 (replaced with sbswapXX)
 #if defined(HAVE___BUILTIN_BSWAPXX)
 // GCC >= 4.8 and Clang
 	#define bswap16(n) __builtin_bswap16(n)
@@ -121,7 +122,7 @@
 		| (((n) & 0xFF00000000000000ULL) >> 56) \
 		)
 #endif
-
+*/
 // Define conversion macros using the basic byte swapping macros.
 #ifdef WORDS_BIGENDIAN
 	#ifndef conv16be
@@ -144,13 +145,13 @@
 	#endif
 #else
 	#ifndef conv16be
-		#define conv16be(num) bswap16(num)
+		#define conv16be(num) sbswap16(num)
 	#endif
 	#ifndef conv32be
-		#define conv32be(num) bswap32(num)
+		#define conv32be(num) sbswap32(num)
 	#endif
 	#ifndef conv64be
-		#define conv64be(num) bswap64(num)
+		#define conv64be(num) sbswap64(num)
 	#endif
 	#ifndef conv16le
 		#define conv16le(num) ((uint16_t)(num))

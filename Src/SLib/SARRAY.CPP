@@ -3191,7 +3191,7 @@ bool StrAssocTree::HasChildren(long id) const
 	
 bool StrAssocTree::Search(long id, long * pParentId, SString * pBuf) const
 {
-	ENTRY * p_entry = L.Implement_Search(id, 0, pParentId);
+	ENTRY * p_entry = L.Implement_Search(id, 0, reinterpret_cast<int32 *>(pParentId));
 	if(p_entry) {
 		if(pBuf)
 			GetS(p_entry->StrP, *pBuf);
@@ -3507,8 +3507,8 @@ int Test_StrAssocTree()
 			SString sat_buf;
 			LongArray sa_id_list;
 			LongArray st_id_list;
-			int32   saa_parent_id = 0;
-			int32   sat_parent_id = 0;
+			long    saa_parent_id = 0;
+			long    sat_parent_id = 0;
 			assert(blk.Saa.getCount() == blk.Sat.GetCount());
 			for(long i = 1; i < blk.LastId; i++) {
 				uint   saa_pos;

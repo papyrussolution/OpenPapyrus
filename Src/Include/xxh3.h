@@ -1139,7 +1139,7 @@ XXH_FORCE_INLINE XXH128_hash_t XXH3_len_1to3_128b(const void * data, size_t len,
 	    BYTE const c2 = ((const BYTE *)data)[len >> 1];
 	    BYTE const c3 = ((const BYTE *)data)[len - 1];
 	    const uint32 combinedl = ((uint32)c1) + (((uint32)c2) << 8) + (((uint32)c3) << 16) + (((uint32)len) << 24);
-	    const uint32 combinedh = XXH_swap32(combinedl);
+	    const uint32 combinedh = sbswap32(combinedl);
 	    uint64 const keyedl = (uint64)combinedl ^ (XXH_readLE32(key32)   + seed);
 	    uint64 const keyedh = (uint64)combinedh ^ (XXH_readLE32(key32+1) - seed);
 	    uint64 const mixedl = keyedl * PRIME64_1;

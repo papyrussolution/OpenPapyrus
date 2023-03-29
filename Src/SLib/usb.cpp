@@ -259,7 +259,7 @@ int FASTCALL SUsbDvcIfcData::Get(void * pHandle, SP_DEVICE_INTERFACE_DATA * pDvc
 	int    ok = 1;
 	TCHAR  __buffer[256];
 	size_t allocated_size = 0;
-	uint32 ret_size = 0;
+	DWORD  ret_size = 0;
 	SP_DEVICE_INTERFACE_DETAIL_DATA * p_dev_ifc_detail = reinterpret_cast<SP_DEVICE_INTERFACE_DETAIL_DATA *>(__buffer);
 	SP_DEVINFO_DATA devinfo_data;
 	ret_size = sizeof(__buffer);
@@ -300,9 +300,9 @@ int SUsbDvcIfcData::GetPropString(void * pHandle, int prop, SString & rBuf)
 	int    ok = 1;
 	uint8  __buffer[512];
 	uint8 * p_data = __buffer;
-	size_t  allocated_size = 0;
-	uint32  size = sizeof(__buffer);
-	uint32  prop_type = 0;
+	size_t allocated_size = 0;
+	DWORD  size = sizeof(__buffer);
+	DWORD  prop_type = 0;
 	//SP_DEVINFO_DATA dev_info;
 
 	//MEMSZERO(dev_info);

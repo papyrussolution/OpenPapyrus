@@ -909,6 +909,11 @@ PPERR_ARCODENFOUND                 "Статья по коду '%s' не най�
 PPERR_CDY_PORTNINITED              "@{customerdisplay}: порт не инициализирован"
 PPERR_FILETYPENOTSEL               "Не выбран тип создаваемого файла"
 PPERR_SHTRIHFRADMPASSW             "В pp.ini не описан пароль администратора\n(секция [system], ShtrihFRPassword)"
+PPERR_SHTRIHFRIFCNOTINITED         "@{err_internal}: не инициализирован интерфейс драйвера Штрих-ФР"
+PPERR_SHTRIHFRSETPROPFAULT         "Штрих-ФР: ошибка вызова SetProperty(%s)"
+PPERR_SHTRIHFRGETPROPFAULT         "Штрих-ФР: ошибка вызова GetProperty(%s)"
+PPERR_SHTRIHFRCALLMETHFAULT        "Штрих-ФР: ошибка вызова CallMethod(%s)"
+PPERR_SHTRIHFRINVRESULTCODE        "Штрих-ФР: resultcode сообщает об ошибке (%s)"
 PPERR_REGIONORCNTRYINV             "Не выбрана страна или регион"
 PPERR_CITYREGIONINV                "Выбранный регион не принадлежит выбранной стране"
 PPERR_UNKNOWNGOODSINFONAME         "Неизвестное имя информационного киоска"
@@ -5001,6 +5006,9 @@ PPTXT_PREPARESUPPLIXDATA             "Подготовка данных для �
 PPTXT_SENDSUPPLIXDATA                "Отправка данных поставщику"
 PPTXT_SUPPLIXDATASENT                "Данные успешно отправлены поставщику"
 PPTXT_SENDSUPPLIXDATAFAULT           "Ошибка отправки данных поставщику"
+PPTXT_SUPPLIXAUTHFAULT               "Ошибка авторизации на сервисе поставщика"
+PPTXT_SENDDOCTOSUPPLIXSVC            "Передача документа сервису поставщика"
+PPTXT_SUPPLIXSVCACCEPTSDOCS          "Сервис поставщика принял переданные документы"
 //
 // LastText
 

@@ -401,6 +401,7 @@ public:
 	int AddAttrib(const char * pAttribName, const char * pAttribValue);
 	int AddAttrib(const char * pAttribName, bool attribValue);
 	int AddAttrib(const char * pAttribName, long attribValue);
+	int AddAttrib(const char * pAttribName, int attribValue) { return AddAttrib(pAttribName, static_cast<long>(attribValue)); }
 	int AddAttrib(const char * pAttribName, double attribValue);
 	int AddAttrib(const char * pAttribName, LDATETIME);
 	int AddAttrib(const char * pAttribName, LDATE);

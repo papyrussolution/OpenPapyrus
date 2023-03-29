@@ -308,18 +308,13 @@ const Normalizer2 * Normalizer2::getInstance(const char * packageName,
 			}
 		}
 	}
-	if(allModes!=NULL && U_SUCCESS(errorCode)) {
+	if(allModes && U_SUCCESS(errorCode)) {
 		switch(mode) {
-			case UNORM2_COMPOSE:
-			    return &allModes->comp;
-			case UNORM2_DECOMPOSE:
-			    return &allModes->decomp;
-			case UNORM2_FCD:
-			    return &allModes->fcd;
-			case UNORM2_COMPOSE_CONTIGUOUS:
-			    return &allModes->fcc;
-			default:
-			    break; // do nothing
+			case UNORM2_COMPOSE: return &allModes->comp;
+			case UNORM2_DECOMPOSE: return &allModes->decomp;
+			case UNORM2_FCD: return &allModes->fcd;
+			case UNORM2_COMPOSE_CONTIGUOUS: return &allModes->fcc;
+			default: break; // do nothing
 		}
 	}
 	return NULL;

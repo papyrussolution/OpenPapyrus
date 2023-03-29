@@ -3370,16 +3370,17 @@ public:
 	//int    GetRealRangeInput(uint ctlID, RealRange *);
 	//int    SetPeriodInput(uint ctlID, const DateRange *);
 	//int    GetPeriodInput(uint ctlID, DateRange *);
-	int    FASTCALL AddClusterAssoc(uint ctlID, long pos, long val);
+	int    STDCALL AddClusterAssoc(uint ctlID, long pos, long val);
 	//
 	// Descr: То же, что и AddClusterAssoc, но, кроме того, для radio-buttons
 	//   устанавливает это же значение val как значение по умолчанию (pos = -1)
 	//
-	int    FASTCALL AddClusterAssocDef(uint ctlID, long pos, long val);
-	int    FASTCALL SetClusterData(uint ctlID, long);
-	int    FASTCALL GetClusterData(uint ctlID, long *);
-	int    FASTCALL GetClusterData(uint ctlID, int16 *);
-	long   FASTCALL GetClusterData(uint ctlID);
+	int    STDCALL AddClusterAssocDef(uint ctlID, long pos, long val);
+	int    STDCALL SetClusterData(uint ctlID, long);
+	int    STDCALL GetClusterData(uint ctlID, int *);
+	int    STDCALL GetClusterData(uint ctlID, long *);
+	int    STDCALL GetClusterData(uint ctlID, int16 *);
+	long   STDCALL GetClusterData(uint ctlID);
 	void   DisableClusterItem(uint ctlID, int itemNo /* 0.. */, bool toDisable = true);
 	void   DisableClusterItems(uint ctlID, const LongArray & rItemIdxList /* 0.. */, bool toDisable = true);
 	int    SetClusterItemText(uint ctlID, int itemNo /* 0.. */, const char * pText);

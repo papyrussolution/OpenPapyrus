@@ -219,6 +219,7 @@ public class CommonPrereqModule {
 	// @v11.6.4 public ArrayList<JSONObject> GoodsGroupListData;
 	public BusinessEntity.GoodsGroupList GoodsGroupListData;
 	public ArrayList<BusinessEntity.Brand> BrandListData;
+	public ArrayList<BusinessEntity.QuotKind> QkListData; // @v11.6.8
 	public ArrayList<Document> IncomingDocListData;
 	public GoodsFilt Gf;
 	public RegistryFilt Rf; // @v11.5.3
@@ -733,7 +734,9 @@ public class CommonPrereqModule {
 			if(item != null && item.GoodsID > 0 && item.Set != null && item.Set.Qtty > 0.0) {
 				WareEntry goods_item = FindGoodsItemByGoodsID(item.GoodsID);
 				//double price = goods_item.JsItem.optDouble("price", 0.0);
-				double price = goods_item.Item.Price;
+				//double price = goods_item.Item.Price;
+				BusinessEntity.SelectedPrice sp = goods_item.Item.QueryPrice(QkListData, 0/*cliID*/);
+				assert(sp != null);
 				int    interchange_op_id = 0;
 				int    posnode_id = GetPosNodeID();
 				if(posnode_id > 0)
@@ -742,7 +745,7 @@ public class CommonPrereqModule {
 					interchange_op_id = SLib.PPEDIOP_ORDER;
 				InitCurrenDocument(interchange_op_id);
 				Document.TransferItem ti = item;
-				ti.Set.Price = price;
+				ti.Set.Price = sp.GetValue();
 				int max_row_idx = 0;
 				boolean merged = false;
 				if(CurrentOrder.TiList != null) {
@@ -1302,6 +1305,7 @@ public class CommonPrereqModule {
 		CmdUuid = null;
 		GoodsGroupListData = null;
 		BrandListData = null;
+		QkListData = null; // @v11.6.8
 		GoodsListData = null;
 		IncomingDocListData = null;
 		CSVCP = new CommonSvcParam();
@@ -2190,6 +2194,33 @@ public class CommonPrereqModule {
 			});
 		}
 	}
+	public void MakeQuotKindListFromCommonJson(JSONObject jsHead) throws JSONException
+	{
+		JSONArray temp_array = (jsHead != null) ? jsHead.optJSONArray("quotkind_list") : null;
+		if(QkListData != null)
+			QkListData.clear();
+		if(temp_array != null) {
+			if(QkListData == null)
+				QkListData = new ArrayList<BusinessEntity.QuotKind>();
+			for(int i = 0; i < temp_array.length(); i++) {
+				Object temp_obj = temp_array.get(i);
+				if(temp_obj != null && temp_obj instanceof JSONObject) {
+					BusinessEntity.QuotKind new_entry = new BusinessEntity.QuotKind();
+					if(new_entry.FromJsonObj((JSONObject)temp_obj))
+						QkListData.add(new_entry);
+				}
+			}
+			Collections.sort(QkListData, new Comparator<BusinessEntity.QuotKind>() {
+				@Override public int compare(BusinessEntity.QuotKind lh, BusinessEntity.QuotKind rh)
+				{
+					String ls = lh.Name;
+					String rs = rh.Name;
+					int si = (lh.Rank > rh.Rank) ? +1 : ((lh.Rank < rh.Rank) ? -1 : 0);
+					return (si == 0) ? ls.toLowerCase().compareTo(rs.toLowerCase()) : si;
+				}
+			});
+		}
+	}
 	public void MakeClientListFromCommonJson(JSONObject jsHead) throws JSONException
 	{
 		JSONArray temp_array = jsHead.optJSONArray("client_list");
@@ -3057,8 +3088,9 @@ public class CommonPrereqModule {
 			else {
 				Document.TransferItem ti = new Document.TransferItem();
 				if(ti != null) {
+					BusinessEntity.SelectedPrice sp = item.Item.QueryPrice(QkListData, 0/*cliID*/);
 					ti.GoodsID = goods_id;
-					ti.Set.Price = item.Item.Price;
+					ti.Set.Price = sp.GetValue();
 					ti.Set.Qtty = (qtty > 0.0) ? qtty : 0.0;
 					TransferItemDialog dialog = new TransferItemDialog(ActivityInstance, this, ti);
 					dialog.show();

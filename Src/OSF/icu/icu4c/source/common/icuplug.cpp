@@ -382,19 +382,20 @@ static void uplug_deallocatePlug(UPlugData * plug, UErrorCode * status) {
 	}
 }
 
-static void uplug_doUnloadPlug(UPlugData * plugToRemove, UErrorCode * status) {
+static void uplug_doUnloadPlug(UPlugData * plugToRemove, UErrorCode * status) 
+{
 	if(plugToRemove != NULL) {
 		uplug_unloadPlug(plugToRemove, status);
 		uplug_deallocatePlug(plugToRemove, status);
 	}
 }
 
-U_CAPI void U_EXPORT2 uplug_removePlug(UPlugData * plug, UErrorCode * status) {
+U_CAPI void U_EXPORT2 uplug_removePlug(UPlugData * plug, UErrorCode * status) 
+{
 	UPlugData * cursor = NULL;
 	UPlugData * plugToRemove = NULL;
 	if(U_FAILURE(*status)) return;
-
-	for(cursor = pluginList; cursor!=NULL;) {
+	for(cursor = pluginList; cursor;) {
 		if(cursor==plug) {
 			plugToRemove = plug;
 			cursor = NULL;
@@ -403,7 +404,6 @@ U_CAPI void U_EXPORT2 uplug_removePlug(UPlugData * plug, UErrorCode * status) {
 			cursor = uplug_nextPlug(cursor);
 		}
 	}
-
 	uplug_doUnloadPlug(plugToRemove, status);
 }
 
@@ -538,13 +538,12 @@ static UPlugData* uplug_initPlugFromLibrary(const char * libName, const char * s
 		return NULL;
 	}
 	lib = uplug_openLibrary(libName, status);
-	if(lib!=NULL && U_SUCCESS(*status)) {
+	if(lib && U_SUCCESS(*status)) {
 		UPlugEntrypoint * entrypoint = NULL;
 		entrypoint = (UPlugEntrypoint*)uprv_dlsym_func(lib, sym, status);
-
-		if(entrypoint!=NULL&&U_SUCCESS(*status)) {
+		if(entrypoint && U_SUCCESS(*status)) {
 			plug = uplug_initPlugFromEntrypointAndLibrary(entrypoint, config, lib, sym, status);
-			if(plug!=NULL&&U_SUCCESS(*status)) {
+			if(plug && U_SUCCESS(*status)) {
 				plug->lib = lib; /* plug takes ownership of library */
 				lib = NULL; /* library is now owned by plugin. */
 			}
@@ -789,9 +788,8 @@ U_CAPI void U_EXPORT2 uplug_init(UErrorCode * status) {
 							config = p;
 						}
 					}
-
 					/* chop whitespace at the end of the config */
-					if(config!=NULL&&*config!=0) {
+					if(config && *config!=0) {
 						p = config+strlen(config);
 						while(p>config&&isspace((int)*(--p))) {
 							*p = 0;

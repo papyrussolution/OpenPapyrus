@@ -1,5 +1,5 @@
 // STRSET.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -694,7 +694,7 @@ int SStrGroup::AddS(const char * pStr, uint * pPos)
 	return ok;
 }
 
-int SStrGroup::AddS(const char * pStr, uint32 * pPos)
+int SStrGroup::AddS(const char * pStr, ulong * pPos)
 {
 	uint   pos = 0;
 	int    ok = isempty(pStr) ? 1 : Pool.add(pStr, &pos);

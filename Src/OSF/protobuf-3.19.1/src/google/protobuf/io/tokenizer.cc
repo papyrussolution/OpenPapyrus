@@ -887,13 +887,12 @@ bool Tokenizer::NextWithComments(std::string* prev_trailing_comments,
 // are given is text that the tokenizer actually parsed as a token
 // of the given type.
 
-bool Tokenizer::ParseInteger(const std::string & text, uint64_t max_value,
-    uint64_t* output) {
+bool Tokenizer::ParseInteger(const std::string & text, uint64_t max_value, uint64_t* output) 
+{
 	// Sadly, we can't just use strtoul() since it is only 32-bit and strtoull()
 	// is non-standard.  I hate the C standard library.  :(
 
 	//  return strtoull(text.c_str(), NULL, 0);
-
 	const char* ptr = text.c_str();
 	int base = 10;
 	if(ptr[0] == '0') {
@@ -907,7 +906,6 @@ bool Tokenizer::ParseInteger(const std::string & text, uint64_t max_value,
 			base = 8;
 		}
 	}
-
 	uint64_t result = 0;
 	for(; *ptr != '\0'; ptr++) {
 		int digit = DigitValue(*ptr);
@@ -916,23 +914,21 @@ bool Tokenizer::ParseInteger(const std::string & text, uint64_t max_value,
 			// token, but Tokenizer still think it's integer.
 			return false;
 		}
-		if(static_cast<uint64_t>(digit) > max_value ||
-		    result > (max_value - digit) / base) {
+		if(static_cast<uint64_t>(digit) > max_value || result > (max_value - digit) / base) {
 			// Overflow.
 			return false;
 		}
 		result = result * base + digit;
 	}
-
 	*output = result;
 	return true;
 }
 
-double Tokenizer::ParseFloat(const std::string & text) {
+double Tokenizer::ParseFloat(const std::string & text) 
+{
 	const char* start = text.c_str();
 	char* end;
 	double result = NoLocaleStrtod(start, &end);
-
 	// "1e" is not a valid float, but if the tokenizer reads it, it will
 	// report an error but still return it as a valid token.  We need to
 	// accept anything the tokenizer could possibly return, error or not.

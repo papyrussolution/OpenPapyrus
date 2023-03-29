@@ -918,7 +918,6 @@ U_CAPI int32_t U_EXPORT2 ubidi_getVisualIndex(UBiDi * pBiDi, int32_t logicalInde
 			    }
 		    }
 	}
-
 	if(pBiDi->insertPoints.size>0) {
 		/* add the number of added marks until the calculated visual index */
 		Run * runs = pBiDi->runs;
@@ -1216,7 +1215,8 @@ U_CAPI void U_EXPORT2 ubidi_getLogicalMap(UBiDi * pBiDi, int32_t * indexMap, UEr
 	}
 }
 
-U_CAPI void U_EXPORT2 ubidi_getVisualMap(UBiDi * pBiDi, int32_t * indexMap, UErrorCode * pErrorCode) {
+U_CAPI void U_EXPORT2 ubidi_getVisualMap(UBiDi * pBiDi, int32_t * indexMap, UErrorCode * pErrorCode) 
+{
 	RETURN_VOID_IF_NULL_OR_FAILING_ERRCODE(pErrorCode);
 	if(indexMap==NULL) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
@@ -1324,12 +1324,13 @@ U_CAPI void U_EXPORT2 ubidi_getVisualMap(UBiDi * pBiDi, int32_t * indexMap, UErr
 	}
 }
 
-U_CAPI void U_EXPORT2 ubidi_invertMap(const int32_t * srcMap, int32_t * destMap, int32_t length) {
-	if(srcMap!=NULL && destMap!=NULL && length>0) {
-		const int32_t * pi;
-		int32_t destLength = -1, count = 0;
+U_CAPI void U_EXPORT2 ubidi_invertMap(const int32_t * srcMap, int32_t * destMap, int32_t length) 
+{
+	if(srcMap && destMap && length>0) {
+		int32_t destLength = -1;
+		int32_t count = 0;
 		/* find highest value and count positive indexes in srcMap */
-		pi = srcMap+length;
+		const int32_t * pi = srcMap+length;
 		while(pi>srcMap) {
 			if(*--pi>destLength) {
 				destLength = *pi;

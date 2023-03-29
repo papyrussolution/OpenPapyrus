@@ -615,6 +615,8 @@ SJson * PPStyloQInterchange::ProcessCommand_RequestDocumentStatusList(const SBin
 			Reference * p_ref = PPRef;
 			PPObjBill * p_bobj = BillObj;
 			PPObjTSession tses_obj;
+			PPIDArray shipments; // Документы отгрузки по заказу
+			BillTbl::Rec shipm_bill_rec;
 			StyloQCommandList full_cmd_list;
 			StyloQCommandList::GetFullList(db_symb, full_cmd_list);
 			for(const SJson * p_js_item = p_js_list->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
@@ -639,7 +641,7 @@ SJson * PPStyloQInterchange::ProcessCommand_RequestDocumentStatusList(const SBin
 						PPIDArray result_obj_id_list;
 						const StyloQCommandList::Item * p_cmd_item = !org_cmd_uuid ? 0 : full_cmd_list.GetByUuid(org_cmd_uuid);
 						if(p_cmd_item && p_cmd_item->BaseCmdId == StyloQCommandList::sqbcRsrvAttendancePrereq) {
-							obj_type = PPOBJ_TSESSION; // Искать надо среди тех сессий
+							obj_type = PPOBJ_TSESSION; // Искать надо среди технологических сессий
 							obj_tag_id = PPTAG_TSESS_UUID;
 						}
 						assert(oneof2(obj_type, PPOBJ_BILL, PPOBJ_TSESSION)); // В дальнейшем могут быть добавлены другие типы объектов!
@@ -654,10 +656,40 @@ SJson * PPStyloQInterchange::ProcessCommand_RequestDocumentStatusList(const SBin
 									int new_status = 0;
 									if(bill_rec.EdiOp == PPEDIOP_ORDER) {
 										if(cst == StyloQCore::styloqdocstWAITFORAPPROREXEC) {
-											if(bill_rec.Flags2 & BILLF2_DECLINED)
-												new_status = StyloQCore::styloqdocstREJECTED;
-											else if(p_bobj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK))
-												new_status = StyloQCore::styloqdocstAPPROVED;
+											// @v11.6.8 {
+											{
+												DateRange shipm_period;
+												shipm_period.Z();
+												if(p_bobj->GetShipmByOrder(my_id, &shipm_period, &shipments) > 0) {
+													if(shipments.getCount()) {
+														new_status = StyloQCore::styloqdocstEXECUTED;
+													}
+													// Вообще-то надо дифференцировать полное исполнение и частичное, но пока сделаем по-проще:
+													// если есть хоть один документ отгрузки - считаем, что заказ исполнен.
+													/*
+													for(uint j = 0; j < shipments.getCount(); j++) {
+														if(p_bobj->Search(shipments.at(j), &shipm_bill_rec) > 0) {
+															for(int r_by_bill = 0; p_bobj->trfr->EnumItems(shipm_bill_rec.ID, &r_by_bill, &shipm_ti) > 0;) {
+																;
+															}
+															if(GetOpType(shipm_bill_rec.OpID) != PPOPT_GOODSACK) {
+																for(DateIter di; p_bobj->P_Tbl->EnumLinks(shipm_bill_rec.ID, &di, BLNK_ACK, &ack_bill_rec) > 0;) {
+																	for(int r_by_bill = 0; p_bobj->trfr->EnumItems(ack_bill_rec.ID, &r_by_bill, &ack_ti) > 0;) {
+																		;
+																	}
+																}
+															}
+														}
+													}*/
+												}
+											}
+											// } @v11.6.8 
+											if(!new_status) { // @v11.6.8 
+												if(bill_rec.Flags2 & BILLF2_DECLINED)
+													new_status = StyloQCore::styloqdocstREJECTED;
+												else if(p_bobj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK))
+													new_status = StyloQCore::styloqdocstAPPROVED;
+											}
 										}
 									}
 									if(new_status) {
@@ -1702,7 +1734,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 			SJson * p_js_list = 0;
 			for(uint i = 0; i < qk_list.getCount(); i++) {
 				const PPID qk_id = qk_list.get(i);
-				PPQuotKind qk_rec;
+				PPQuotKind2 qk_rec;
 				if(qk_obj.Fetch(qk_id, &qk_rec) > 0) {
 					if(export_zstock) {
 						mige_blk.GObj.P_Tbl->GetListByQuotKind(qk_id, single_loc_id, temp_list);
@@ -1716,6 +1748,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 					SJson * p_jsobj = SJson::CreateObj();
 					p_jsobj->InsertInt("id", qk_rec.ID);
 					p_jsobj->InsertString("nm", (temp_buf = qk_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+					p_jsobj->InsertInt("rank", qk_rec.Rank); // @v11.6.8
 					p_js_list->InsertChild(p_jsobj);
 				}
 			}

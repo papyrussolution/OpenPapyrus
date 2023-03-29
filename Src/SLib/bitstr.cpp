@@ -1,5 +1,5 @@
 // BITSTR.CPP
-// Copyright (c) Sobolev A. 1995-2001, 2004, 2005, 2006, 2008, 2010, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) Sobolev A. 1995-2001, 2004, 2005, 2006, 2008, 2010, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -253,7 +253,9 @@ void delbit(void * pBuf, size_t len, size_t pos)
 //
 //
 //
-uint8 FASTCALL bitscanforward(uint32 * pIdx, uint32 mask)
+uint8 FASTCALL bitscanforward(uint * pIdx, uint32 mask) { return bitscanforward(reinterpret_cast<ulong *>(pIdx), mask); }
+
+uint8 FASTCALL bitscanforward(ulong * pIdx, uint32 mask)
 {
 #if _MSC_VER >= 1600
 	if(mask)
@@ -283,7 +285,9 @@ lab_done:
 #endif
 }
 
-uint8 FASTCALL bitscanreverse(uint32 * pIdx, uint32 mask)
+uint8 FASTCALL bitscanreverse(uint * pIdx, uint32 mask) { return bitscanreverse(reinterpret_cast<ulong *>(pIdx), mask); }
+
+uint8 FASTCALL bitscanreverse(ulong * pIdx, uint32 mask)
 {
 #if _MSC_VER >= 1600
 	if(mask)

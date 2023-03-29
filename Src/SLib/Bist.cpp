@@ -1,5 +1,5 @@
 // BIST.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // @threadsafe
 // Реализация стандартных типов данных семейства SType
@@ -999,7 +999,7 @@ char * SUInt::tostr(const void * d, long fmt, char * buf) const
 int SUInt::fromstr(void * d, long, const char * buf) const
 {
 	ulong  lv;
-	int    r = strtoulong(buf, &lv);
+	int    r = strtouint(buf, &lv);
 	_ulongto(lv, d, S);
 	return r;
 }

@@ -1,5 +1,5 @@
 // HASHFUNC.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2016, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2012, 2013, 2016, 2019, 2020, 2021, 2022, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -5558,7 +5558,7 @@ SLTEST_R(HashFunction)
 					THROW(bin_buf.Alloc(NZOR(val_buf.Len(), 1) * 2));
 					THROW(val_buf.DecodeHex(1, bin_buf, bin_buf.GetSize(), &real_bin_size));
 					THROW(SLTEST_CHECK_EQ(real_bin_size, 4));
-					SLTEST_CHECK_EQ(*(const uint32 *)(const char *)bin_buf, val);
+					SLTEST_CHECK_EQ(*reinterpret_cast<const ulong *>(bin_buf.cptr()), val);
 				}
 			}
 		}
@@ -5567,27 +5567,27 @@ SLTEST_R(HashFunction)
 	const size_t key_size = sstrlen(p_key);
 	uint32 h;
 	//SString msg;
-	SLTEST_CHECK_EQ(h = SlHash::RS(p_key, key_size), 4097835502);
+	SLTEST_CHECK_EQ(h = SlHash::RS(p_key, key_size), 4097835502U);
 	//SetInfo(msg.Z().CatEq("RSHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::JS(p_key, key_size), 1651003062);
+	SLTEST_CHECK_EQ(h = SlHash::JS(p_key, key_size), 1651003062U);
 	//SetInfo(msg.Z().CatEq("JSHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::PJW(p_key, key_size), 126631744);
+	SLTEST_CHECK_EQ(h = SlHash::PJW(p_key, key_size), 126631744U);
 	//SetInfo(msg.Z().CatEq("PJWHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::ELF(p_key, key_size), 126631744);
+	SLTEST_CHECK_EQ(h = SlHash::ELF(p_key, key_size), 126631744U);
 	//SetInfo(msg.Z().CatEq("ELFHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::BKDR(p_key, key_size), 3153586616);
+	SLTEST_CHECK_EQ(h = SlHash::BKDR(p_key, key_size), 3153586616U);
 	//SetInfo(msg.Z().CatEq("BKDRHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::SDBM(p_key, key_size), 3449571336);
+	SLTEST_CHECK_EQ(h = SlHash::SDBM(p_key, key_size), 3449571336U);
 	//SetInfo(msg.Z().CatEq("SDBMHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::DJB(p_key, key_size), 729241521);
+	SLTEST_CHECK_EQ(h = SlHash::DJB(p_key, key_size), 729241521U);
 	//SetInfo(msg.Z().CatEq("DJBHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::DEK(p_key, key_size), 2923964919);
+	SLTEST_CHECK_EQ(h = SlHash::DEK(p_key, key_size), 2923964919U);
 	//SetInfo(msg.Z().CatEq("DEKHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::BP(p_key, key_size), 1726880944);
+	SLTEST_CHECK_EQ(h = SlHash::BP(p_key, key_size), 1726880944U);
 	//SetInfo(msg.Z().CatEq("BPHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::FNV(p_key, key_size), 3243095106);
+	SLTEST_CHECK_EQ(h = SlHash::FNV(p_key, key_size), 3243095106U);
 	//SetInfo(msg.Z().CatEq("FNVHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::AP(p_key, key_size), 882643939);
+	SLTEST_CHECK_EQ(h = SlHash::AP(p_key, key_size), 882643939U);
 	//SetInfo(msg.Z().CatEq("APHash", h), -1);
 	{
 		XXHashTest xxhash_test(*this);
@@ -5706,35 +5706,35 @@ SLTEST_R(HashFunction)
 			uint32 b = 0;
 			uint32 c = 0;
 			BobJencHash_Little2("", 0, &c, &b);
-			SLTEST_CHECK_EQ(c, 0xdeadbeefUL);
-			SLTEST_CHECK_EQ(b, 0xdeadbeefUL);
+			SLTEST_CHECK_EQ(c, 0xdeadbeefU);
+			SLTEST_CHECK_EQ(b, 0xdeadbeefU);
 			b = 0xdeadbeef;
 			c = 0;
 			BobJencHash_Little2("", 0, &c, &b);
-			SLTEST_CHECK_EQ(c, 0xbd5b7ddeUL);
-			SLTEST_CHECK_EQ(b, 0xdeadbeefUL);
+			SLTEST_CHECK_EQ(c, 0xbd5b7ddeU);
+			SLTEST_CHECK_EQ(b, 0xdeadbeefU);
 			b = 0xdeadbeef;
 			c = 0xdeadbeef;
 			BobJencHash_Little2("", 0, &c, &b);
-			SLTEST_CHECK_EQ(c, 0x9c093ccdUL);
-			SLTEST_CHECK_EQ(b, 0xbd5b7ddeUL);
+			SLTEST_CHECK_EQ(c, 0x9c093ccdU);
+			SLTEST_CHECK_EQ(b, 0xbd5b7ddeU);
 			b = 0;
 			c = 0;
 			BobJencHash_Little2("Four score and seven years ago", 30, &c, &b);
-			SLTEST_CHECK_EQ(c, 0x17770551UL);
-			SLTEST_CHECK_EQ(b, 0xce7226e6UL);
+			SLTEST_CHECK_EQ(c, 0x17770551U);
+			SLTEST_CHECK_EQ(b, 0xce7226e6U);
 			b = 1;
 			c = 0;
 			BobJencHash_Little2("Four score and seven years ago", 30, &c, &b);
-			SLTEST_CHECK_EQ(c, 0xe3607caeUL);
-			SLTEST_CHECK_EQ(b, 0xbd371de4UL);
+			SLTEST_CHECK_EQ(c, 0xe3607caeU);
+			SLTEST_CHECK_EQ(b, 0xbd371de4U);
 			b = 0;
 			c = 1;
 			BobJencHash_Little2("Four score and seven years ago", 30, &c, &b);
-			SLTEST_CHECK_EQ(c, 0xcd628161UL);
-			SLTEST_CHECK_EQ(b, 0x6cbea4b3UL);
-			SLTEST_CHECK_EQ(BobJencHash_Little("Four score and seven years ago", 30, 0), 0x17770551UL);
-			SLTEST_CHECK_EQ(BobJencHash_Little("Four score and seven years ago", 30, 1), 0xcd628161UL);
+			SLTEST_CHECK_EQ(c, 0xcd628161U);
+			SLTEST_CHECK_EQ(b, 0x6cbea4b3U);
+			SLTEST_CHECK_EQ(BobJencHash_Little("Four score and seven years ago", 30, 0), 0x17770551U);
+			SLTEST_CHECK_EQ(BobJencHash_Little("Four score and seven years ago", 30, 1), 0xcd628161U);
 		}
 	}
 	{
@@ -5751,67 +5751,67 @@ SLTEST_R(HashFunction)
 		//
 		const char * p_data = "Hello, world!";
 		uint32 rh;
-		SLTEST_CHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 1234)), 0xfaf6cdb3UL);
+		SLTEST_CHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 1234U)), 0xfaf6cdb3U);
 		SLTEST_CHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 1234), rh);
 
-		SLTEST_CHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 4321)), 0xbf505788UL);
+		SLTEST_CHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 4321U)), 0xbf505788U);
 		SLTEST_CHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 4321), rh);
 		p_data = "xxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-		SLTEST_CHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 1234)), 0x8905ac28UL);
+		SLTEST_CHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 1234U)), 0x8905ac28U);
 		SLTEST_CHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 1234), rh);
 		p_data = "";
-		SLTEST_CHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 1234)), 0x0f2cc00bUL);
+		SLTEST_CHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 1234U)), 0x0f2cc00bU);
 		SLTEST_CHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 1234), rh);
 		//
 		//uint32 h128[4];
 		binary128 _h128;
 		p_data = "Hello, world!";
 		_h128 = SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 123);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0x61c9129eUL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x5a1aacd7UL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0xa4162162UL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x9e37c886UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0x61c9129eU);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x5a1aacd7U);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0xa4162162U);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x9e37c886U);
 		_h128 = SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 321);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0xd5fbdcb3UL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0xc26c4193UL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0x045880c5UL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0xa7170f0fUL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0xd5fbdcb3U);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0xc26c4193U);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0x045880c5U);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0xa7170f0fU);
 		p_data = "xxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 		_h128 = SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 123);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0x5e40bab2UL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x78825a16UL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0x4cf929d3UL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x1fec6047UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0x5e40bab2U);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x78825a16U);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0x4cf929d3U);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x1fec6047U);
 		p_data = "";
 		_h128 = SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 123);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0xfedc5245UL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x26f3e799UL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0x26f3e799UL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x26f3e799UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0xfedc5245U);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x26f3e799U);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0x26f3e799U);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x26f3e799U);
 
 		p_data = "Hello, world!";
 		_h128 = SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 123);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0x8743acadUL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x421c8c73UL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0xd373c3f5UL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0xf19732fdUL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0x8743acadU);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x421c8c73U);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0xd373c3f5U);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0xf19732fdU);
 		_h128 = SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 321);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0xf86d4004UL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0xca47f42bUL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0xb9546c79UL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x79200aeeUL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0xf86d4004U);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0xca47f42bU);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0xb9546c79U);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x79200aeeU);
 		p_data = "xxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 		_h128 = SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 123);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0xbecf7e04UL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0xdbcf7463UL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0x7751664eUL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0xf66e73e0UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0xbecf7e04U);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0xdbcf7463U);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0x7751664eU);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0xf66e73e0U);
 		p_data = "";
 		_h128 = SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 123);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0x4cd95970UL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x81679d1aUL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0xbd92f878UL);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x4bace33dUL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0x4cd95970U);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x81679d1aU);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0xbd92f878U);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x4bace33dU);
 	}
 	CATCH
 		CurrentStatus = 0;
