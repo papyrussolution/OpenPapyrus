@@ -1744,7 +1744,7 @@ out_of_range:
 				// next must be '=' 
 				if(c != '=') {
 					tmp = strchr(s, '=');
-					if(tmp == NULL)
+					if(!tmp)
 						Eex("syntax error in parameter file");
 					s = tmp + 1;
 				}

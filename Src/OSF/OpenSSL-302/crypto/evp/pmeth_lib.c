@@ -446,7 +446,7 @@ EVP_PKEY_CTX * EVP_PKEY_CTX_dup(const EVP_PKEY_CTX * pctx)
 	}
 #endif
 	rctx = (EVP_PKEY_CTX *)OPENSSL_zalloc(sizeof(*rctx));
-	if(rctx == NULL) {
+	if(!rctx) {
 		ERR_raise(ERR_LIB_EVP, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
@@ -819,7 +819,7 @@ int EVP_PKEY_CTX_get_signature_md(EVP_PKEY_CTX * ctx, const EVP_MD ** md)
 		return 0;
 
 	tmp = evp_get_digestbyname_ex(ctx->libctx, name);
-	if(tmp == NULL)
+	if(!tmp)
 		return 0;
 
 	*md = tmp;

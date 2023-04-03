@@ -78,11 +78,9 @@ X509_ALGOR * PKCS5_pbe2_set_scrypt(const EVP_CIPHER * cipher,
 		else if(RAND_bytes(iv, EVP_CIPHER_get_iv_length(cipher)) <= 0)
 			goto err;
 	}
-
 	ctx = EVP_CIPHER_CTX_new();
 	if(!ctx)
 		goto merr;
-
 	/* Dummy cipherinit to just setup the IV */
 	if(EVP_CipherInit_ex(ctx, cipher, NULL, NULL, iv, 0) == 0)
 		goto err;
@@ -92,82 +90,53 @@ X509_ALGOR * PKCS5_pbe2_set_scrypt(const EVP_CIPHER * cipher,
 	}
 	EVP_CIPHER_CTX_free(ctx);
 	ctx = NULL;
-
 	/* If its RC2 then we'd better setup the key length */
-
 	if(alg_nid == NID_rc2_cbc)
 		keylen = EVP_CIPHER_get_key_length(cipher);
-
 	/* Setup keyfunc */
-
 	X509_ALGOR_free(pbe2->keyfunc);
-
 	pbe2->keyfunc = pkcs5_scrypt_set(salt, saltlen, keylen, N, r, p);
-
 	if(pbe2->keyfunc == NULL)
 		goto merr;
-
 	/* Now set up top level AlgorithmIdentifier */
-
 	ret = X509_ALGOR_new();
 	if(!ret)
 		goto merr;
-
 	ret->algorithm = OBJ_nid2obj(NID_pbes2);
-
 	/* Encode PBE2PARAM into parameter */
-
-	if(ASN1_TYPE_pack_sequence(ASN1_ITEM_rptr(PBE2PARAM), pbe2,
-	    &ret->parameter) == NULL)
+	if(ASN1_TYPE_pack_sequence(ASN1_ITEM_rptr(PBE2PARAM), pbe2, &ret->parameter) == NULL)
 		goto merr;
-
 	PBE2PARAM_free(pbe2);
 	pbe2 = NULL;
-
 	return ret;
-
 merr:
 	ERR_raise(ERR_LIB_ASN1, ERR_R_MALLOC_FAILURE);
-
 err:
 	PBE2PARAM_free(pbe2);
 	X509_ALGOR_free(ret);
 	EVP_CIPHER_CTX_free(ctx);
-
 	return NULL;
 }
 
-static X509_ALGOR * pkcs5_scrypt_set(const uchar * salt, size_t saltlen,
-    size_t keylen, uint64_t N, uint64_t r,
-    uint64_t p)
+static X509_ALGOR * pkcs5_scrypt_set(const uchar * salt, size_t saltlen, size_t keylen, uint64_t N, uint64_t r, uint64_t p)
 {
 	X509_ALGOR * keyfunc = NULL;
 	SCRYPT_PARAMS * sparam = SCRYPT_PARAMS_new();
-
 	if(sparam == NULL)
 		goto merr;
-
-	if(!saltlen)
-		saltlen = PKCS5_SALT_LEN;
-
+	SETIFZQ(saltlen, PKCS5_SALT_LEN);
 	/* This will either copy salt or grow the buffer */
 	if(ASN1_STRING_set(sparam->salt, salt, saltlen) == 0)
 		goto merr;
-
 	if(salt == NULL && RAND_bytes(sparam->salt->data, saltlen) <= 0)
 		goto err;
-
 	if(ASN1_INTEGER_set_uint64(sparam->costParameter, N) == 0)
 		goto merr;
-
 	if(ASN1_INTEGER_set_uint64(sparam->blockSize, r) == 0)
 		goto merr;
-
 	if(ASN1_INTEGER_set_uint64(sparam->parallelizationParameter, p) == 0)
 		goto merr;
-
 	/* If have a key len set it up */
-
 	if(keylen > 0) {
 		sparam->keyLength = ASN1_INTEGER_new();
 		if(sparam->keyLength == NULL)
@@ -175,24 +144,16 @@ static X509_ALGOR * pkcs5_scrypt_set(const uchar * salt, size_t saltlen,
 		if(ASN1_INTEGER_set_int64(sparam->keyLength, keylen) == 0)
 			goto merr;
 	}
-
 	/* Finally setup the keyfunc structure */
-
 	keyfunc = X509_ALGOR_new();
 	if(keyfunc == NULL)
 		goto merr;
-
 	keyfunc->algorithm = OBJ_nid2obj(NID_id_scrypt);
-
 	/* Encode SCRYPT_PARAMS into parameter of pbe2 */
-
-	if(ASN1_TYPE_pack_sequence(ASN1_ITEM_rptr(SCRYPT_PARAMS), sparam,
-	    &keyfunc->parameter) == NULL)
+	if(ASN1_TYPE_pack_sequence(ASN1_ITEM_rptr(SCRYPT_PARAMS), sparam, &keyfunc->parameter) == NULL)
 		goto merr;
-
 	SCRYPT_PARAMS_free(sparam);
 	return keyfunc;
-
 merr:
 	ERR_raise(ERR_LIB_ASN1, ERR_R_MALLOC_FAILURE);
 err:

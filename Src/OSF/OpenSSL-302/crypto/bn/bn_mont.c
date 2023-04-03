@@ -55,7 +55,7 @@ int bn_mul_mont_fixed_top(BIGNUM * r, const BIGNUM * a, const BIGNUM * b, BN_MON
 
 	BN_CTX_start(ctx);
 	tmp = BN_CTX_get(ctx);
-	if(tmp == NULL)
+	if(!tmp)
 		goto err;
 
 	bn_check_top(tmp);

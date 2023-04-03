@@ -267,7 +267,7 @@ int ssh_dh_keypair_gen_keys(struct dh_ctx * dh_ctx, int peer)
 		goto error;
 	}
 	tmp = bignum_new();
-	if(tmp == NULL) {
+	if(!tmp) {
 		goto error;
 	}
 	p_bits = bignum_num_bits(dh_ctx->modulus);

@@ -32,7 +32,7 @@ static int archive_read_format_raw_read_header(ArchiveRead *, ArchiveEntry *);
 int archive_read_support_format_raw(Archive * _a)
 {
 	struct raw_info * info;
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	info = (struct raw_info *)SAlloc::C(1, sizeof(*info));

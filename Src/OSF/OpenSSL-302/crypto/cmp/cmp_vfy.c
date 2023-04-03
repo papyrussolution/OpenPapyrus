@@ -213,7 +213,7 @@ static int cert_acceptable(const OSSL_CMP_CTX * ctx, const char * desc1, const c
 	X509_STORE * ts = ctx->trusted;
 	int self_issued = X509_check_issued(cert, cert) == X509_V_OK;
 	char * str;
-	X509_VERIFY_PARAM * vpm = ts != NULL ? X509_STORE_get0_param(ts) : NULL;
+	X509_VERIFY_PARAM * vpm = ts ? X509_STORE_get0_param(ts) : NULL;
 	int time_cmp;
 	ossl_cmp_log3(INFO, ctx, " considering %s%s %s with..", self_issued ? "self-issued " : "", desc1, desc2);
 	if((str = X509_NAME_oneline(X509_get_subject_name(cert), NULL, 0)) != NULL)

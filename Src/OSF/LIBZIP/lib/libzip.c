@@ -775,7 +775,7 @@ ZIP_EXTERN int zip_source_stat(zip_source_t * src, zip_stat_t * st)
 	if(src->source_closed) {
 		return -1;
 	}
-	if(st == NULL) {
+	if(!st) {
 		return zip_error_set(&src->error, SLERR_ZIP_INVAL, 0);
 	}
 	zip_stat_init(st);

@@ -1511,7 +1511,8 @@ int DoConstructionTest()
 #endif
 	//ImportSpecial("D:\\DEV\\RESOURCE\\DATA\\ETC");
 	//Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
-	SDecimalFraction::Test();
+	TestSArchive();
+	//SDecimalFraction::Test();
 	//ReformatRazoomnick("D:/Papyrus/Universe-HTT/DATA/Razoomnick-barcodes.csv");	
 	//TestGtinStruc();
 	//PPStyloQInterchange::PrepareAhed(true);
@@ -1590,7 +1591,6 @@ int DoConstructionTest()
 	//GumboTest();
 	//TestTsDensityMap();
 	//TestAddressRecognition();
-	//TestSArchive();
 	//TestGravity();
 	//TestConfigDatabase_StringHistory();
 	//TestConfigDatabase_StringHistory_Interactive();

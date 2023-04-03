@@ -1431,6 +1431,29 @@ static void FASTCALL SetGsChr(SString & rS, char c)
 static int FASTCALL SetGoodsStrucSymb(PPGoodsStrucHeader & rGsRec, SString & rBuf)
 {
 	int    r = -1;
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	r_temp_buf.CatChar('E');
+	if(rGsRec.Flags & GSF_COMPL)
+		r_temp_buf.CatChar('C');
+	if(rGsRec.Flags & GSF_DECOMPL)
+		r_temp_buf.CatChar('D');
+	if(rGsRec.Flags & GSF_PARTITIAL)
+		r_temp_buf.CatChar('P');
+	if(rGsRec.Flags & GSF_SUBST)
+		r_temp_buf.CatChar('S');
+	if(rGsRec.Flags & GSF_PRESENT)
+		r_temp_buf.CatChar('G');
+	//if(gs_rec.ParentID)
+		//r_temp_buf.CatChar('F');
+	if(rGsRec.Flags & GSF_FOLDER)
+		r_temp_buf.CatChar('F');
+	if(r_temp_buf.NotEmpty()) {
+		for(uint i = 0; i < r_temp_buf.Len(); i++) {
+			SetGsChr(rBuf, r_temp_buf.C(i));
+		}
+		r = 1;
+	}
+	/*
 	SetGsChr(rBuf, 'E');
 	if(rGsRec.Flags & GSF_COMPL)
 		SetGsChr(rBuf, 'C');
@@ -1442,14 +1465,15 @@ static int FASTCALL SetGoodsStrucSymb(PPGoodsStrucHeader & rGsRec, SString & rBu
 		SetGsChr(rBuf, 'S');
 	if(rGsRec.Flags & GSF_PRESENT)
 		SetGsChr(rBuf, 'G');
-	/*
-	if(gs_rec.ParentID)
-		rBuf.CatChar('F');
 	*/
+	//if(gs_rec.ParentID)
+		//rBuf.CatChar('F');
+	/*
 	if(rGsRec.Flags & GSF_FOLDER) {
 		SetGsChr(rBuf, 'F');
 		r = 1;
 	}
+	*/
 	return r;
 }
 
@@ -1606,7 +1630,7 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	}
 	// } @v11.5.8 
 	if(Filt.Flags & GoodsFilt::fShowStrucType)
-		brw_id = BROWSER_GOODSWITHSTRUC;
+		brw_id = BROWSER_GOODSWITHSTRUC; // @todo Убрать отдельную таблицу и доп поле вставить на общий основаниях в PPViewGoods::PreprocessBrowser
 	else
 		brw_id = BROWSER_GOODS;
 	//if(Filt.Flags & GoodsFilt::fShowCargo)

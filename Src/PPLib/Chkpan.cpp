@@ -8754,7 +8754,8 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 						if(!is_mark_processed) {
 							if(gt_rec.Flags & GTF_GMARKED || (rBlk.Flags & PgsBlock::fMarkedBarcode)) {
 								const int disable_chzn_mark_backtest = 1; // @v10.8.1 Проблемы с сигаретами - слишком много продаж и идентификация дубликатов занимает много времени
-								rBlk.Qtty = 1.0; // Маркированная продукциия - строго по одной штуке на строку чека
+								if(!(CnSpeciality == PPCashNode::spApteka && (rBlk.Qtty > 0.0 && rBlk.Qtty < 1.0))) // @v11.6.9
+									rBlk.Qtty = 1.0; // Маркированная продукциия - строго по одной штуке на строку чека (исключение: аптека и остаток менее 1)
 								SString chzn_mark = rBlk.ChZnMark;
 								int imr = -1000; // Result of the function PPChZnPrcssr::InputMark() (-1000 - wasn't called)
 								if(chzn_mark.NotEmpty() || (imr = PPChZnPrcssr::InputMark(chzn_mark, 0, 0)) > 0) {
@@ -12106,6 +12107,9 @@ int CheckPaneDialog::PrintCashReports()
 					break;
 				case cmSCSPrintCheckCopy: // @v10.9.6
 					PrintCheckCopy();
+					break;
+				case cmSCSDrawerOpen: // @v11.6.9
+					P_CM->SyncOpenBox();
 					break;
 			}
 			if(r == 0 || r_ext == 0)

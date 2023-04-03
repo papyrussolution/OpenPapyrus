@@ -1,16 +1,9 @@
-/*-
- * Copyright (c) 2003-2007 Tim Kientzle
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- */
+// Copyright (c) 2003-2007 Tim Kientzle All rights reserved.
+// Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+//   documentation and/or other materials provided with the distribution.
+// 
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_xattr.c 201096 2009-12-28 02:41:27Z kientzle $");
@@ -29,11 +22,9 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_xattr.c 201096 2009-12-28 
 #include <ext2fs/ext2_fs.h>     /* for Linux file flags */
 #endif
 #include "archive_entry_private.h"
-
 /*
  * extended attribute handling
  */
-
 void archive_entry_xattr_clear(ArchiveEntry * entry)
 {
 	while(entry->xattr_head) {

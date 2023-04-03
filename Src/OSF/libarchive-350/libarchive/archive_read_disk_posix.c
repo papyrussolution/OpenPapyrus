@@ -2341,7 +2341,7 @@ static int tree_current_is_dir(struct tree * t)
 	if(t->flags & hasLstat) {
 		/* If lstat() says it's a dir, it must be a dir. */
 		st = tree_current_lstat(t);
-		if(st == NULL)
+		if(!st)
 			return 0;
 		if(S_ISDIR(st->st_mode))
 			return 1;
@@ -2357,7 +2357,7 @@ static int tree_current_is_dir(struct tree * t)
 
 	st = tree_current_stat(t);
 	/* If we can't stat it, it's not a dir. */
-	if(st == NULL)
+	if(!st)
 		return 0;
 	/* Use the definitive test.  Hopefully this is cached. */
 	return (S_ISDIR(st->st_mode));
@@ -2378,7 +2378,7 @@ static int tree_current_is_physical_dir(struct tree * t)
 	 */
 	if(t->flags & hasStat) {
 		st = tree_current_stat(t);
-		if(st == NULL)
+		if(!st)
 			return 0;
 		if(!S_ISDIR(st->st_mode))
 			return 0;
@@ -2393,7 +2393,7 @@ static int tree_current_is_physical_dir(struct tree * t)
 
 	st = tree_current_lstat(t);
 	/* If we can't stat it, it's not a dir. */
-	if(st == NULL)
+	if(!st)
 		return 0;
 	/* Use the definitive test.  Hopefully this is cached. */
 	return (S_ISDIR(st->st_mode));

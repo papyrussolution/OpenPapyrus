@@ -49,9 +49,7 @@ int __db_compare_both(DB * db, const DBT * akey, const DBT * adata, const DBT * 
 		}                                                               \
 	} while(0)
 
-#define DB_SORT_COMPARE(a, ad, b, bd) (data != NULL ?                   \
-                                       __db_compare_both(db, &(a), &(ad), &(b), &(bd)) :               \
-                                       __db_compare_both(db, &(a), 0, &(b), 0))
+#define DB_SORT_COMPARE(a, ad, b, bd) (data ? __db_compare_both(db, &(a), &(ad), &(b), &(bd)) : __db_compare_both(db, &(a), 0, &(b), 0))
 
 #define DB_SORT_STACKSIZE 32
 

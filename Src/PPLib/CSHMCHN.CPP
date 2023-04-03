@@ -1436,9 +1436,9 @@ IMPL_HANDLE_EVENT(CSPanel)
 	TDialog::handleEvent(event);
 	if(TVCOMMAND) {
 		ushort c = TVCMD;
-		if(oneof12(c, cmCSOpen, cmCSClose, cmACSUpdate, cmCSViewCheckList, cmACSViewExcess, cmACSGetChecks,
-			cmSCSLock, cmSCSUnlock, cmSCSXReport, cmSCSIncasso, cmSCSZReportCopy, cmPosNodeQuery) ||
-			c == cmSCSPrintCheckCopy) { // @v10.9.6 cmSCSPrintCheckCopy
+		if(oneof14(c, cmCSOpen, cmCSClose, cmACSUpdate, cmCSViewCheckList, cmACSViewExcess, cmACSGetChecks,
+			cmSCSLock, cmSCSUnlock, cmSCSXReport, cmSCSIncasso, cmSCSZReportCopy, cmPosNodeQuery, cmSCSPrintCheckCopy,
+			cmSCSDrawerOpen)) { // @v10.9.6 cmSCSPrintCheckCopy @v11.6.9 cmSCSDrawerOpen
 			if(IsInState(sfModal)) {
 				endModal(c);
 				return; // После endModal не следует обращаться к this

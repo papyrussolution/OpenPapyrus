@@ -44,6 +44,8 @@ import java.util.List;
 import java.util.Stack;
 import java.util.UUID;
 
+//import androidx.fragment.app.FragmentManager;
+
 public class CommonPrereqModule {
 	private static class SimpleSearchBlock {
 		public static class IndexEntry {
@@ -3102,9 +3104,12 @@ public class CommonPrereqModule {
 	//
 	//
 	static class RegistryFiltDialog extends SLib.SlDialog {
+		private SLib.SlActivity ActivityCtx;
 		RegistryFiltDialog(Context ctx, Object data)
 		{
 			super(ctx, R.id.DLG_REGISTRYFILT, data);
+			if(ctx != null && ctx instanceof SLib.SlActivity)
+				ActivityCtx = (SLib.SlActivity)ctx;
 			if(data instanceof RegistryFilt)
 				Data = data;
 		}
@@ -3148,10 +3153,18 @@ public class CommonPrereqModule {
 						this.dismiss(); // Close Dialog
 					}
 					else if(view_id == R.id.tbButtonPeriod) {
-						if(Data != null && Data instanceof StyloQDatabase.SecStoragePacket) {
+						if(Data != null && Data instanceof RegistryFilt) {
 							Context ctx = getContext();
 							StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
-							if(app_ctx != null) {
+							if(app_ctx != null && ActivityCtx != null) {
+								/* @construction
+								Calendar now = Calendar.getInstance();
+								DateTimePicker.DatePickerDialog dpd = DateTimePicker.DatePickerDialog.newInstance(
+										this, now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
+								dpd.setAutoHighlight(true); // ?
+								FragmentManager fmgr = ActivityCtx.getFragmentManager();
+								dpd.show(fmgr, "Datepickerdialog");
+								*/
 								/*
 								try {
 									StyloQDatabase db = app_ctx.GetDB();

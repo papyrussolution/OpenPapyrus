@@ -24,10 +24,9 @@ static OSSL_FUNC_provider_get_params_fn legacy_get_params;
 static OSSL_FUNC_provider_query_operation_fn legacy_query;
 
 #define ALG(NAMES, FUNC) { NAMES, "provider=legacy", FUNC }
-
 #ifdef STATIC_LEGACY
-OSSL_provider_init_fn ossl_legacy_provider_init;
-#define OSSL_provider_init ossl_legacy_provider_init
+	OSSL_provider_init_fn ossl_legacy_provider_init;
+	#define OSSL_provider_init ossl_legacy_provider_init
 #endif
 
 /* Parameters we provide to the core */
@@ -138,10 +137,7 @@ static const OSSL_ALGORITHM legacy_ciphers[] = {
 	{ NULL, NULL, NULL }
 };
 
-static const OSSL_ALGORITHM legacy_kdfs[] = {
-	ALG(PROV_NAMES_PBKDF1, ossl_kdf_pbkdf1_functions),
-	{ NULL, NULL, NULL }
-};
+static const OSSL_ALGORITHM legacy_kdfs[] = { ALG(PROV_NAMES_PBKDF1, ossl_kdf_pbkdf1_functions), { NULL, NULL, NULL } };
 
 static const OSSL_ALGORITHM * legacy_query(void * provctx, int operation_id, int * no_cache)
 {
@@ -171,15 +167,21 @@ static const OSSL_DISPATCH legacy_dispatch_table[] = {
 
 int OSSL_provider_init(const OSSL_CORE_HANDLE * handle, const OSSL_DISPATCH * in, const OSSL_DISPATCH ** out, void ** provctx)
 {
-	OSSL_LIB_CTX * libctx = NULL;
-	if((*provctx = ossl_prov_ctx_new()) == NULL || (libctx = OSSL_LIB_CTX_new_child(handle, in)) == NULL) {
-		OSSL_LIB_CTX_free(libctx);
-		legacy_teardown(*provctx);
-		*provctx = NULL;
-		return 0;
+	int    ok = 0;
+	*provctx = ossl_prov_ctx_new();
+	if(*provctx) {
+		OSSL_LIB_CTX * libctx = OSSL_LIB_CTX_new_child(handle, in);
+		if(!libctx) {
+			OSSL_LIB_CTX_free(libctx);
+			legacy_teardown(*provctx);
+			*provctx = NULL;
+		}
+		else {
+			ossl_prov_ctx_set0_libctx((PROV_CTX *)*provctx, libctx);
+			ossl_prov_ctx_set0_handle((PROV_CTX *)*provctx, handle);
+			*out = legacy_dispatch_table;
+			ok = 1;
+		}
 	}
-	ossl_prov_ctx_set0_libctx((PROV_CTX *)*provctx, libctx);
-	ossl_prov_ctx_set0_handle((PROV_CTX *)*provctx, handle);
-	*out = legacy_dispatch_table;
-	return 1;
+	return ok;
 }

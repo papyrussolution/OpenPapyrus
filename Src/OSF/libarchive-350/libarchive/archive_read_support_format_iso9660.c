@@ -392,7 +392,7 @@ static struct file_info * heap_get_entry(struct heap_queue * heap);
 
 int archive_read_support_format_iso9660(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	struct iso9660 * iso9660;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);

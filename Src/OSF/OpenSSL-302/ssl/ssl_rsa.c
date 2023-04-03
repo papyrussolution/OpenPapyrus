@@ -756,7 +756,7 @@ int SSL_CTX_use_serverinfo_file(SSL_CTX * ctx, const char * file)
 		}
 		/* Append the decoded extension to the serverinfo buffer */
 		tmp = (uchar *)OPENSSL_realloc(serverinfo, serverinfo_length + extension_length + contextoff);
-		if(tmp == NULL) {
+		if(!tmp) {
 			ERR_raise(ERR_LIB_SSL, ERR_R_MALLOC_FAILURE);
 			goto end;
 		}

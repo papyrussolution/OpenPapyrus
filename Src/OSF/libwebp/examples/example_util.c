@@ -69,8 +69,9 @@ static void ResetCommandLineArguments(int argc, const char* argv[], CommandLineA
 	WebPDataInit(&args->argv_data_);
 }
 
-void ExUtilDeleteCommandLineArguments(CommandLineArguments* const args) {
-	if(args != NULL) {
+void ExUtilDeleteCommandLineArguments(CommandLineArguments* const args) 
+{
+	if(args) {
 		if(args->own_argv_) {
 			WebPFree((void*)args->argv_);
 			WebPDataClear(&args->argv_data_);

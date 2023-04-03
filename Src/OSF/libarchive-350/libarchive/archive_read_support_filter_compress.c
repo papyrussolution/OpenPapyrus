@@ -110,7 +110,7 @@ int archive_read_support_compression_compress(Archive * a)
 
 int archive_read_support_filter_compress(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	ArchiveReadFilterBidder * bidder;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)

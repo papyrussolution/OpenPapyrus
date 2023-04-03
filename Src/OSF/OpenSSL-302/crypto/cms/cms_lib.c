@@ -62,9 +62,9 @@ void CMS_ContentInfo_free(CMS_ContentInfo * cms)
 	}
 }
 
-const CMS_CTX * ossl_cms_get0_cmsctx(const CMS_ContentInfo * cms) { return cms != NULL ? &cms->ctx : NULL; }
-OSSL_LIB_CTX * ossl_cms_ctx_get0_libctx(const CMS_CTX * ctx) { return ctx != NULL ? ctx->libctx : NULL; }
-const char * ossl_cms_ctx_get0_propq(const CMS_CTX * ctx) { return ctx != NULL ? ctx->propq : NULL; }
+const CMS_CTX * ossl_cms_get0_cmsctx(const CMS_ContentInfo * cms) { return cms ? &cms->ctx : NULL; }
+OSSL_LIB_CTX * ossl_cms_ctx_get0_libctx(const CMS_CTX * ctx) { return ctx ? ctx->libctx : NULL; }
+const char * ossl_cms_ctx_get0_propq(const CMS_CTX * ctx) { return ctx ? ctx->propq : NULL; }
 
 void ossl_cms_resolve_libctx(CMS_ContentInfo * ci)
 {

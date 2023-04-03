@@ -237,7 +237,7 @@ static int add_provider_groups(const OSSL_PARAM params[], void * data)
 			tmp = (TLS_GROUP_INFO *)OPENSSL_malloc(sizeof(TLS_GROUP_INFO) * TLS_GROUP_LIST_MALLOC_BLOCK_SIZE);
 		else
 			tmp = (TLS_GROUP_INFO *)OPENSSL_realloc(ctx->group_list, (ctx->group_list_max_len + TLS_GROUP_LIST_MALLOC_BLOCK_SIZE) * sizeof(TLS_GROUP_INFO));
-		if(tmp == NULL) {
+		if(!tmp) {
 			ERR_raise(ERR_LIB_SSL, ERR_R_MALLOC_FAILURE);
 			return 0;
 		}
@@ -673,7 +673,7 @@ static int gid_cb(const char * elem, int len, void * arg)
 		return 0;
 	if(garg->gidcnt == garg->gidmax) {
 		uint16_t * tmp = (uint16_t *)OPENSSL_realloc(garg->gid_arr, garg->gidmax + GROUPLIST_INCREMENT);
-		if(tmp == NULL)
+		if(!tmp)
 			return 0;
 		garg->gidmax += GROUPLIST_INCREMENT;
 		garg->gid_arr = tmp;

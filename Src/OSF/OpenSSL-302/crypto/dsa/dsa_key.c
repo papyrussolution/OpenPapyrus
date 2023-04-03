@@ -38,7 +38,7 @@ int ossl_dsa_generate_public_key(BN_CTX * ctx, const DSA * dsa, const BIGNUM * p
 {
 	int ret = 0;
 	BIGNUM * prk = BN_new();
-	if(prk == NULL)
+	if(!prk)
 		return 0;
 	BN_with_flags(prk, priv_key, BN_FLG_CONSTTIME);
 	/* pub_key = g ^ priv_key mod p */
@@ -64,22 +64,16 @@ static int dsa_keygen(DSA * dsa, int pairwise_test)
 	else {
 		priv_key = dsa->priv_key;
 	}
-
 	/* Do a partial check for invalid p, q, g */
-	if(!ossl_ffc_params_simple_validate(dsa->libctx, &dsa->params,
-	    FFC_PARAM_TYPE_DSA, NULL))
+	if(!ossl_ffc_params_simple_validate(dsa->libctx, &dsa->params, FFC_PARAM_TYPE_DSA, NULL))
 		goto err;
-
 	/*
 	 * For FFC FIPS 186-4 keygen
 	 * security strength s = 112,
 	 * Max Private key size N = len(q)
 	 */
-	if(!ossl_ffc_generate_private_key(ctx, &dsa->params,
-	    BN_num_bits(dsa->params.q),
-	    MIN_STRENGTH, priv_key))
+	if(!ossl_ffc_generate_private_key(ctx, &dsa->params, BN_num_bits(dsa->params.q), MIN_STRENGTH, priv_key))
 		goto err;
-
 	if(dsa->pub_key == NULL) {
 		if((pub_key = BN_new()) == NULL)
 			goto err;
@@ -87,22 +81,17 @@ static int dsa_keygen(DSA * dsa, int pairwise_test)
 	else {
 		pub_key = dsa->pub_key;
 	}
-
 	if(!ossl_dsa_generate_public_key(ctx, dsa, priv_key, pub_key))
 		goto err;
-
 	dsa->priv_key = priv_key;
 	dsa->pub_key = pub_key;
-
 #ifdef FIPS_MODULE
 	pairwise_test = 1;
 #endif /* FIPS_MODULE */
-
 	ok = 1;
 	if(pairwise_test) {
 		OSSL_CALLBACK * cb = NULL;
 		void * cbarg = NULL;
-
 		OSSL_SELF_TEST_get_callback(dsa->libctx, &cb, &cbarg);
 		ok = dsa_keygen_pairwise_test(dsa, cb, cbarg);
 		if(!ok) {
@@ -116,17 +105,14 @@ static int dsa_keygen(DSA * dsa, int pairwise_test)
 		}
 	}
 	dsa->dirty_cnt++;
-
 err:
 	if(pub_key != dsa->pub_key)
 		BN_free(pub_key);
 	if(priv_key != dsa->priv_key)
 		BN_free(priv_key);
 	BN_CTX_free(ctx);
-
 	return ok;
 }
-
 /*
  * FIPS 140-2 IG 9.9 AS09.33
  * Perform a sign/verify operation.
@@ -137,24 +123,16 @@ static int dsa_keygen_pairwise_test(DSA * dsa, OSSL_CALLBACK * cb, void * cbarg)
 	unsigned char dgst[16] = {0};
 	unsigned int dgst_len = (unsigned int)sizeof(dgst);
 	DSA_SIG * sig = NULL;
-	OSSL_SELF_TEST * st = NULL;
-
-	st = OSSL_SELF_TEST_new(cb, cbarg);
-	if(st == NULL)
+	OSSL_SELF_TEST * st = OSSL_SELF_TEST_new(cb, cbarg);
+	if(!st)
 		goto err;
-
-	OSSL_SELF_TEST_onbegin(st, OSSL_SELF_TEST_TYPE_PCT,
-	    OSSL_SELF_TEST_DESC_PCT_DSA);
-
+	OSSL_SELF_TEST_onbegin(st, OSSL_SELF_TEST_TYPE_PCT, OSSL_SELF_TEST_DESC_PCT_DSA);
 	sig = DSA_do_sign(dgst, (int)dgst_len, dsa);
 	if(!sig)
 		goto err;
-
 	OSSL_SELF_TEST_oncorrupt_byte(st, dgst);
-
 	if(DSA_do_verify(dgst, dgst_len, sig, dsa) != 1)
 		goto err;
-
 	ret = 1;
 err:
 	OSSL_SELF_TEST_onend(st, ret);

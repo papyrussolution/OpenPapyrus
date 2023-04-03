@@ -136,8 +136,8 @@ struct ArchiveRead {
 	int    bypass_filter_bidding; /* Whether to bypass filter bidding process */
 	int64  header_position; /* File offset of beginning of most recently-read header. */
 	// Nodes and offsets of compressed data block 
-	uint data_start_node;
-	uint data_end_node;
+	uint   data_start_node;
+	uint   data_end_node;
 	/*
 	 * Format detection is mostly the same as compression
 	 * detection, with one significant difference: The bidders

@@ -7176,37 +7176,39 @@ BEGIN
     EDITTEXT        CTL_CASHN_ID,290,15,45,13,ES_AUTOHSCROLL | ES_READONLY,WS_EX_RIGHT
 END
 
-DLG_CASHREPORTS DIALOGEX 140, 8, 121, 202
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+DLG_CASHREPORTS DIALOGEX 140, 8, 155, 217
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@posnodecmd"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
-    PUSHBUTTON      "@posnodecmd_sync_xreport",CTL_CSPANEL_XREP,20,20,85,13
-    PUSHBUTTON      "@posnodecmd_sync_closesess",CTL_CSPANEL_CSESSCLOSE,20,40,85,13
+    PUSHBUTTON      "@posnodecmd_sync_xreport",CTL_CSPANEL_XREP,20,20,115,13
+    PUSHBUTTON      "@posnodecmd_sync_closesess",CTL_CSPANEL_CSESSCLOSE,20,40,115,13
     PUSHBUTTON      "@posnodecmd_sync_opensess",CTL_CSPANEL_CSESSOPEN,20,40,85,13
-    PUSHBUTTON      "@posnodecmd_sync_zreportcopy",4001,20,60,85,13
-    PUSHBUTTON      "@posnodecmd_sync_encashment",4002,20,80,85,13
-    PUSHBUTTON      "@posnodecmd_sync_lock",4003,20,100,85,13
-    PUSHBUTTON      "@posnodecmd_sync_unlock",4004,20,120,85,13
-    PUSHBUTTON      "@posnodecmd_sync_printcheckcopy",4005,20,150,85,13
-    PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,20,180,85,13
-    EDITTEXT        CTL_CSPANEL_INPUT,20,0,85,13,ES_AUTOHSCROLL
+    PUSHBUTTON      "@posnodecmd_sync_zreportcopy",4001,20,60,115,13
+    PUSHBUTTON      "@posnodecmd_sync_encashment",4002,20,80,115,13
+    PUSHBUTTON      "@posnodecmd_sync_lock",4003,20,100,115,13
+    PUSHBUTTON      "@posnodecmd_sync_unlock",4004,20,120,115,13
+    PUSHBUTTON      "@posnodecmd_sync_printcheckcopy",4005,20,145,115,13
+    PUSHBUTTON      "@posnodecmd_sync_opendrawer",4006,20,170,115,13
+    PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,20,200,115,13
+    EDITTEXT        CTL_CSPANEL_INPUT,20,0,115,13,ES_AUTOHSCROLL
 END
 
-DLG_CASHREPORTS_L DIALOGEX 140, 8, 193, 171
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+DLG_CASHREPORTS_L DIALOGEX 140, 8, 193, 146
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@posnodecmd"
 FONT 16, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
     PUSHBUTTON      "@posnodecmd_sync_xreport",CTL_CSPANEL_XREP,20,20,75,16
     PUSHBUTTON      "@posnodecmd_sync_closesess",CTL_CSPANEL_CSESSCLOSE,20,40,75,16
     PUSHBUTTON      "@posnodecmd_sync_opensess",CTL_CSPANEL_CSESSOPEN,20,40,75,16
-    PUSHBUTTON      "@posnodecmd_sync_zreportcopy",4001,20,60,75,16
-    PUSHBUTTON      "@posnodecmd_sync_encashment",4002,20,80,75,16
-    PUSHBUTTON      "@posnodecmd_sync_lock",4003,20,100,75,16
-    PUSHBUTTON      "@posnodecmd_sync_unlock",4004,20,120,75,16
+    PUSHBUTTON      "@posnodecmd_sync_zreportcopy",4001,105,40,75,16
+    PUSHBUTTON      "@posnodecmd_sync_encashment",4002,20,60,75,16
+    PUSHBUTTON      "@posnodecmd_sync_lock",4003,20,80,75,16
+    PUSHBUTTON      "@posnodecmd_sync_unlock",4004,105,80,75,16
     PUSHBUTTON      "@posnodecmd_sync_printcheckcopy",4005,105,20,75,16
-    PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,20,150,75,16
+    PUSHBUTTON      "@posnodecmd_sync_opendrawer",4006,20,100,160,16
+    PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,20,125,75,16
     EDITTEXT        CTL_CSPANEL_INPUT,20,0,75,13,ES_AUTOHSCROLL
 END
 
@@ -31872,8 +31874,8 @@ BEGIN
 
     DLG_CASHREPORTS, DIALOG
     BEGIN
-        RIGHTMARGIN, 115
-        BOTTOMMARGIN, 180
+        RIGHTMARGIN, 149
+        BOTTOMMARGIN, 195
     END
 
     DLG_CASHREPORTS_L, DIALOG

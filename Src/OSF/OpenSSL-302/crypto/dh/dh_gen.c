@@ -141,23 +141,19 @@ int DH_generate_parameters_ex(DH * ret, int prime_len, int generator,
  * for 3, p mod 12 == 11
  * for 5, p mod 60 == 59
  */
-static int dh_builtin_genparams(DH * ret, int prime_len, int generator,
-    BN_GENCB * cb)
+static int dh_builtin_genparams(DH * ret, int prime_len, int generator, BN_GENCB * cb)
 {
 	BIGNUM * t1, * t2;
 	int g, ok = -1;
 	BN_CTX * ctx = NULL;
-
 	if(prime_len > OPENSSL_DH_MAX_MODULUS_BITS) {
 		ERR_raise(ERR_LIB_DH, DH_R_MODULUS_TOO_LARGE);
 		return 0;
 	}
-
 	if(prime_len < DH_MIN_MODULUS_BITS) {
 		ERR_raise(ERR_LIB_DH, DH_R_MODULUS_TOO_SMALL);
 		return 0;
 	}
-
 	ctx = BN_CTX_new();
 	if(!ctx)
 		goto err;
@@ -166,7 +162,6 @@ static int dh_builtin_genparams(DH * ret, int prime_len, int generator,
 	t2 = BN_CTX_get(ctx);
 	if(t2 == NULL)
 		goto err;
-
 	/* Make sure 'ret' has the necessary elements */
 	if(ret->params.p == NULL && ((ret->params.p = BN_new()) == NULL))
 		goto err;

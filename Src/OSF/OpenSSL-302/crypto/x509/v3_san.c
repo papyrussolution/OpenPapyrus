@@ -283,7 +283,7 @@ int GENERAL_NAME_print(BIO * out, GENERAL_NAME * gen)
 
 		case GEN_IPADD:
 		    tmp = ossl_ipaddr_to_asc(gen->d.ip->data, gen->d.ip->length);
-		    if(tmp == NULL)
+		    if(!tmp)
 			    return 0;
 		    BIO_printf(out, "IP Address:%s", tmp);
 		    OPENSSL_free(tmp);

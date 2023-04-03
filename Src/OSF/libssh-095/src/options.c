@@ -1248,7 +1248,7 @@ int ssh_options_getopt(ssh_session session, int * argcptr, char ** argv)
 			    char optv[3] = "- ";
 			    optv[1] = optopt;
 			    tmp = SAlloc::R(save, (current + 1) * sizeof(char *));
-			    if(tmp == NULL) {
+			    if(!tmp) {
 				    ZFREE(save);
 				    ssh_set_error_oom(session);
 				    return -1;
@@ -1269,7 +1269,7 @@ int ssh_options_getopt(ssh_session session, int * argcptr, char ** argv)
 	} /* while */
 	opterr = saveopterr;
 	tmp = SAlloc::R(save, (current + (argc - optind)) * sizeof(char *));
-	if(tmp == NULL) {
+	if(!tmp) {
 		ZFREE(save);
 		ssh_set_error_oom(session);
 		return -1;
@@ -1277,7 +1277,7 @@ int ssh_options_getopt(ssh_session session, int * argcptr, char ** argv)
 	save = tmp;
 	while(optind < argc) {
 		tmp = SAlloc::R(save, (current + 1) * sizeof(char *));
-		if(tmp == NULL) {
+		if(!tmp) {
 			ZFREE(save);
 			ssh_set_error_oom(session);
 			return -1;
@@ -1424,21 +1424,19 @@ int ssh_options_apply(ssh_session session) {
 			return -1;
 		}
 	}
-
 	if(session->opts.username == NULL) {
 		rc = ssh_options_set(session, SSH_OPTIONS_USER, NULL);
 		if(rc < 0) {
 			return -1;
 		}
 	}
-
 	if(session->opts.knownhosts == NULL) {
 		tmp = ssh_path_expand_escape(session, "%d/known_hosts");
 	}
 	else {
 		tmp = ssh_path_expand_escape(session, session->opts.knownhosts);
 	}
-	if(tmp == NULL) {
+	if(!tmp) {
 		return -1;
 	}
 	SAlloc::F(session->opts.knownhosts);
@@ -1449,14 +1447,14 @@ int ssh_options_apply(ssh_session session) {
 	else {
 		tmp = ssh_path_expand_escape(session, session->opts.global_knownhosts);
 	}
-	if(tmp == NULL) {
+	if(!tmp) {
 		return -1;
 	}
 	SAlloc::F(session->opts.global_knownhosts);
 	session->opts.global_knownhosts = tmp;
 	if(session->opts.ProxyCommand) {
 		tmp = ssh_path_expand_escape(session, session->opts.ProxyCommand);
-		if(tmp == NULL) {
+		if(!tmp) {
 			return -1;
 		}
 		SAlloc::F(session->opts.ProxyCommand);
@@ -1472,7 +1470,7 @@ int ssh_options_apply(ssh_session session) {
 			continue;
 		}
 		tmp = ssh_path_expand_escape(session, id);
-		if(tmp == NULL) {
+		if(!tmp) {
 			return -1;
 		}
 		SAlloc::F(id);

@@ -374,12 +374,10 @@ ssh_key ssh_agent_get_next_ident(struct ssh_session_struct * session,
 	if(blob == NULL) {
 		return NULL;
 	}
-
 	/* get the comment */
 	tmp = ssh_buffer_get_ssh_string(session->agent->ident);
-	if(tmp == NULL) {
+	if(!tmp) {
 		SSH_STRING_FREE(blob);
-
 		return NULL;
 	}
 

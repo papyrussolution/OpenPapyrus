@@ -48,9 +48,6 @@
     <ClCompile Include="..\OSF\tiff\libtiff\tiff-pch.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\OSF\tiff\port\libport.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\tiff\libtiff\tiff.h">
       <Filter>Header Files</Filter>
     </ClInclude>

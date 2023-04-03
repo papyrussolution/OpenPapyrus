@@ -66,7 +66,7 @@ ASN1_ITEM_TEMPLATE(AUTHORITY_INFO_ACCESS) =
 
 		desc = sk_ACCESS_DESCRIPTION_value(ainfo, i);
 		tmp = i2v_GENERAL_NAME(method, desc->location, tret);
-		if(tmp == NULL)
+		if(!tmp)
 			goto err;
 		tret = tmp;
 		vtmp = sk_CONF_VALUE_value(tret, i);

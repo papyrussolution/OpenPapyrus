@@ -1252,13 +1252,12 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 		wc.cbWndExtra    = sizeof(long);
 		::RegisterClassExW(&wc);
 	}
-	bool is_main_window_layerd = true; // @v11.6.7
+	bool is_main_window_layerd = false; // @v11.6.7 // @v11.6.9 true-->false
 	// @v11.2.4 WS_EX_COMPOSITED
 	DWORD  ex_window_style = /*WS_EX_COMPOSITED*/WS_EX_APPWINDOW/*0*/;
 	if(is_main_window_layerd)
 		ex_window_style |= WS_EX_LAYERED;
-	HWND   h_wnd = ::CreateWindowExW(ex_window_style, app_symbol, app_title,
-		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, this);
+	HWND   h_wnd = ::CreateWindowExW(ex_window_style, app_symbol, app_title, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, this);
 	if(is_main_window_layerd)
 		::SetLayeredWindowAttributes(h_wnd, RGB(255, 0, 255), 0, LWA_COLORKEY);
 	::ShowWindow(h_wnd, SW_SHOWMAXIMIZED/*SW_SHOWDEFAULT*/);

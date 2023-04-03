@@ -463,7 +463,7 @@ static void print_notice(BIO * out, USERNOTICE * notice, int indent)
 				BIO_puts(out, "(null)");
 			else {
 				tmp = i2s_ASN1_INTEGER(NULL, num);
-				if(tmp == NULL)
+				if(!tmp)
 					return;
 				BIO_puts(out, tmp);
 				OPENSSL_free(tmp);

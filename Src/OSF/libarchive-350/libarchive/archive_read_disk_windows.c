@@ -464,23 +464,23 @@ Archive * archive_read_disk_new(void)
 static int _archive_read_free(Archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-	int r;
-	if(_a == NULL)
-		return ARCHIVE_OK;
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, __FUNCTION__);
-	if(a->archive.state != ARCHIVE_STATE_CLOSED)
-		r = _archive_read_close(&a->archive);
-	else
-		r = ARCHIVE_OK;
-	tree_free(a->tree);
-	if(a->cleanup_gname && a->lookup_gname_data)
-		(a->cleanup_gname)(a->lookup_gname_data);
-	if(a->cleanup_uname && a->lookup_uname_data)
-		(a->cleanup_uname)(a->lookup_uname_data);
-	archive_string_free(&a->archive.error_string);
-	archive_entry_free(a->entry);
-	a->archive.magic = 0;
-	SAlloc::F(a);
+	int r = ARCHIVE_OK;
+	if(_a) {
+		archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, __FUNCTION__);
+		if(a->archive.state != ARCHIVE_STATE_CLOSED)
+			r = _archive_read_close(&a->archive);
+		else
+			r = ARCHIVE_OK;
+		tree_free(a->tree);
+		if(a->cleanup_gname && a->lookup_gname_data)
+			(a->cleanup_gname)(a->lookup_gname_data);
+		if(a->cleanup_uname && a->lookup_uname_data)
+			(a->cleanup_uname)(a->lookup_uname_data);
+		archive_string_free(&a->archive.error_string);
+		archive_entry_free(a->entry);
+		a->archive.magic = 0;
+		SAlloc::F(a);
+	}
 	return r;
 }
 
@@ -1874,7 +1874,7 @@ int archive_read_disk_entry_from_file(Archive * _a, ArchiveEntry * entry, int fd
 		return ARCHIVE_FAILED;
 	}
 	path = __la_win_permissive_name_w(wname);
-	if(st == NULL) {
+	if(!st) {
 		/*
 		 * Get metadata through GetFileInformationByHandle().
 		 */

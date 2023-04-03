@@ -25,18 +25,16 @@ void fz_new_document_handler_context(fz_context * ctx)
 
 fz_document_handler_context * fz_keep_document_handler_context(fz_context * ctx)
 {
-	if(!ctx || !ctx->handler)
-		return NULL;
-	return (fz_document_handler_context *)fz_keep_imp(ctx, ctx->handler, &ctx->handler->refs);
+	return (ctx && ctx->handler) ? (fz_document_handler_context *)fz_keep_imp(ctx, ctx->handler, &ctx->handler->refs) : NULL;
 }
 
 void fz_drop_document_handler_context(fz_context * ctx)
 {
-	if(!ctx)
-		return;
-	if(fz_drop_imp(ctx, ctx->handler, &ctx->handler->refs)) {
-		fz_free(ctx, ctx->handler);
-		ctx->handler = NULL;
+	if(ctx) {
+		if(fz_drop_imp(ctx, ctx->handler, &ctx->handler->refs)) {
+			fz_free(ctx, ctx->handler);
+			ctx->handler = NULL;
+		}
 	}
 }
 

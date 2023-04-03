@@ -2201,6 +2201,11 @@ class ppstr2 {
 	public static final int PPERR_UED_SYMBFORMETANOTFOUND = 12184;
 	public static final int PPERR_UED_PREVVERV_SYMBREMOVED = 12185;
 	public static final int PPERR_UED_PREVVERV_PREVSYMBMODIFIED = 12186;
+	public static final int PPERR_SHTRIHFRIFCNOTINITED = 12187;
+	public static final int PPERR_SHTRIHFRSETPROPFAULT = 12188;
+	public static final int PPERR_SHTRIHFRGETPROPFAULT = 12189;
+	public static final int PPERR_SHTRIHFRCALLMETHFAULT = 12190;
+	public static final int PPERR_SHTRIHFRINVRESULTCODE = 12191;
 	//
 	// .N.
 	//
@@ -4527,6 +4532,16 @@ class ppstr2 {
 	public static final int PPTXT_LOG_SHTRIH_INITIFCMETHFAULT = 12071;
 	public static final int PPTXT_STQ_ZEROSTOCKNOTIFICATION = 12072;
 	public static final int PPTXT_STQ_ORDQTYGTSTOCK = 12073;
+	public static final int PPTXT_PREPARESUPPLIXDATA = 12074;
+	public static final int PPTXT_SENDSUPPLIXDATA = 12075;
+	public static final int PPTXT_SUPPLIXDATASENT = 12076;
+	public static final int PPTXT_SENDSUPPLIXDATAFAULT = 12077;
+	public static final int PPTXT_SUPPLIXAUTHFAULT = 12078;
+	public static final int PPTXT_SENDDOCTOSUPPLIXSVC = 12079;
+	public static final int PPTXT_SUPPLIXSVCACCEPTSDOCS = 12080;
+	public static final int PPINIPARAM_DISABLESTQQRLOGIN = 12081;
+	public static final int PPTXT_ROUNDHOURPICKER = 12082;
+	public static final int PPTXT_ROUNDMINUTEPICKER = 12083;
 	//
 	// .N.
 	//

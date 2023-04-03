@@ -207,7 +207,7 @@ static ECDSA_SIG * sm2_sig_gen(const EC_KEY * key, const BIGNUM * e)
 	rk = BN_CTX_get(ctx);
 	x1 = BN_CTX_get(ctx);
 	tmp = BN_CTX_get(ctx);
-	if(tmp == NULL) {
+	if(!tmp) {
 		ERR_raise(ERR_LIB_SM2, ERR_R_MALLOC_FAILURE);
 		goto done;
 	}

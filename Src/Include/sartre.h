@@ -1205,7 +1205,7 @@ public:
 	SrUedContainer();
 	~SrUedContainer();
 	int    ReadSource(const char * pFileName, PPLogger * pLogger);
-	int    WriteSource(const char * pFileName);
+	int    WriteSource(const char * pFileName, SBinaryChunk * pHash);
 	//
 	// Descr: Верифицирует UED-файл версии ver и находящийся в каталоге pPath 
 	//   на предмет наличия и соответствия хэша, хранящегося в отдельном файле в том же каталоге.
@@ -1218,8 +1218,8 @@ public:
 	int    VerifyByPreviousVersion(const SrUedContainer * pPrevC, PPLogger * pLogger);
 	uint64 SearchBaseSymb(const char * pSymb, uint64 meta) const;
 	bool   SearchBaseId(uint64 id, SString & rSymb) const;
-	bool   GenerateSourceDecl_C(const char * pFileName);
-	bool   GenerateSourceDecl_Java(const char * pFileName);
+	bool   GenerateSourceDecl_C(const char * pFileName, uint versionN, const SBinaryChunk & rHash);
+	bool   GenerateSourceDecl_Java(const char * pFileName, uint versionN, const SBinaryChunk & rHash);
 
 	struct BaseEntry {
 		uint64 Id;

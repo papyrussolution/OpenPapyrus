@@ -484,13 +484,10 @@ __LA_DECL int archive_read_next_header(Archive *, ArchiveEntry **);
 
 /* Parses and returns next entry header using the archive_entry passed in */
 __LA_DECL int archive_read_next_header2(Archive *, ArchiveEntry *);
-
 /*
- * Retrieve the byte offset in UNCOMPRESSED data where last-read
- * header started.
+ * Retrieve the byte offset in UNCOMPRESSED data where last-read header started.
  */
-__LA_DECL la_int64_t             archive_read_header_position(Archive *);
-
+__LA_DECL la_int64_t archive_read_header_position(Archive *);
 /*
  * Returns 1 if the archive contains at least one encrypted entry.
  * If the archive format not support encryption at all
@@ -510,7 +507,6 @@ __LA_DECL la_int64_t             archive_read_header_position(Archive *);
  * just shows that there are some.
  */
 __LA_DECL int   archive_read_has_encrypted_entries(Archive *);
-
 /*
  * Returns a bitmask of capabilities that are supported by the archive format reader.
  * If the reader has no special capabilities, ARCHIVE_READ_FORMAT_CAPS_NONE is returned.

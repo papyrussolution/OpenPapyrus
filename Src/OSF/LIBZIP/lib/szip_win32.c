@@ -404,29 +404,29 @@ static int64 _win32_read_file(void * state, void * data, uint64 len, zip_source_
 		    need_seek = ctx->closep;
 		    switch(args->whence) {
 			    case SEEK_SET:
-				new_current = args->offset;
-				break;
+					new_current = args->offset;
+					break;
 			    case SEEK_END:
-				if(ctx->end == 0) {
-					LARGE_INTEGER zero;
-					LARGE_INTEGER new_offset;
-					if(_zip_seek_win32(ctx->h, args->offset, SEEK_END, &ctx->error) < 0) {
-						return -1;
-					}
-					else {
-						zero.QuadPart = 0;
-						if(!SetFilePointerEx(ctx->h, zero, &new_offset, FILE_CURRENT))
-							return zip_error_set(&ctx->error, SLERR_ZIP_SEEK, _zip_win32_error_to_errno(GetLastError()));
+					if(ctx->end == 0) {
+						LARGE_INTEGER zero;
+						LARGE_INTEGER new_offset;
+						if(_zip_seek_win32(ctx->h, args->offset, SEEK_END, &ctx->error) < 0) {
+							return -1;
+						}
 						else {
-							new_current = new_offset.QuadPart;
-							need_seek = 0;
+							zero.QuadPart = 0;
+							if(!SetFilePointerEx(ctx->h, zero, &new_offset, FILE_CURRENT))
+								return zip_error_set(&ctx->error, SLERR_ZIP_SEEK, _zip_win32_error_to_errno(GetLastError()));
+							else {
+								new_current = new_offset.QuadPart;
+								need_seek = 0;
+							}
 						}
 					}
-				}
-				else {
-					new_current = (int64)ctx->end + args->offset;
-				}
-				break;
+					else {
+						new_current = (int64)ctx->end + args->offset;
+					}
+					break;
 			    case SEEK_CUR:
 					new_current = (int64)ctx->current + args->offset;
 					break;

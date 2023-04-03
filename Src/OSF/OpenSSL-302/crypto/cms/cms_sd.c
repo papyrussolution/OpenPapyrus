@@ -898,10 +898,8 @@ err:
 BIO * ossl_cms_SignedData_init_bio(CMS_ContentInfo * cms)
 {
 	int i;
-	CMS_SignedData * sd;
 	BIO * chain = NULL;
-
-	sd = cms_get0_signed(cms);
+	CMS_SignedData * sd = cms_get0_signed(cms);
 	if(sd == NULL)
 		return NULL;
 	if(cms->d.signedData->encapContentInfo->partial)
@@ -909,13 +907,11 @@ BIO * ossl_cms_SignedData_init_bio(CMS_ContentInfo * cms)
 	for(i = 0; i < sk_X509_ALGOR_num(sd->digestAlgorithms); i++) {
 		X509_ALGOR * digestAlgorithm;
 		BIO * mdbio;
-
 		digestAlgorithm = sk_X509_ALGOR_value(sd->digestAlgorithms, i);
-		mdbio = ossl_cms_DigestAlgorithm_init_bio(digestAlgorithm,
-			ossl_cms_get0_cmsctx(cms));
+		mdbio = ossl_cms_DigestAlgorithm_init_bio(digestAlgorithm, ossl_cms_get0_cmsctx(cms));
 		if(mdbio == NULL)
 			goto err;
-		if(chain != NULL)
+		if(chain)
 			BIO_push(chain, mdbio);
 		else
 			chain = mdbio;

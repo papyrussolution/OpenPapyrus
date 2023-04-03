@@ -1713,7 +1713,7 @@ int SrUedContainer::ReadSource(const char * pFileName, PPLogger * pLogger)
 	return result;
 }
 	
-int SrUedContainer::WriteSource(const char * pFileName)
+int SrUedContainer::WriteSource(const char * pFileName, SBinaryChunk * pHash)
 {
 	int    ok = 1;
 	SString line_buf;
@@ -1762,6 +1762,7 @@ int SrUedContainer::WriteSource(const char * pFileName)
 		THROW_SL(f_in.IsValid());
 		THROW_SL(f_hash.IsValid());
 		THROW_SL(f_in.CalcHash(0, SHASHF_SHA256, bc_hash));
+		ASSIGN_PTR(pHash, bc_hash);
 		bc_hash.Hex(temp_buf);
 		f_hash.WriteLine(temp_buf);
 	}
@@ -1769,7 +1770,7 @@ int SrUedContainer::WriteSource(const char * pFileName)
 	return ok;
 }
 
-bool SrUedContainer::GenerateSourceDecl_C(const char * pFileName)
+bool SrUedContainer::GenerateSourceDecl_C(const char * pFileName, uint versionN, const SBinaryChunk & rHash)
 {
 	bool   ok = true;
 	SString temp_buf;
@@ -1780,6 +1781,15 @@ bool SrUedContainer::GenerateSourceDecl_C(const char * pFileName)
 	Generator_CPP gen(pFileName);
 	const  SPathStruc ps(pFileName);
 	uint   max_symb_len = 0;
+	{
+		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+		gen.Wr_Comment(temp_buf.ToUpper());
+		temp_buf.Z().Cat("version").CatDiv(':', 2).Cat(versionN);
+		gen.Wr_Comment(temp_buf);
+		temp_buf.Z().Cat("sha256").CatDiv(':', 2).CatHex(rHash.PtrC(), rHash.Len());
+		gen.Wr_Comment(temp_buf);
+		gen.Wr_Comment(temp_buf.Z());
+	}
 	{
 		for(uint i = 0; i < BL.getCount(); i++) {
 			const BaseEntry & r_be = BL.at(i);
@@ -1848,7 +1858,7 @@ bool SrUedContainer::GenerateSourceDecl_C(const char * pFileName)
 	return ok;
 }
 
-bool SrUedContainer::GenerateSourceDecl_Java(const char * pFileName)
+bool SrUedContainer::GenerateSourceDecl_Java(const char * pFileName, uint versionN, const SBinaryChunk & rHash)
 {
 	bool   ok = true;
 	SString temp_buf;
@@ -1859,6 +1869,15 @@ bool SrUedContainer::GenerateSourceDecl_Java(const char * pFileName)
 	SFile  genf(pFileName, SFile::mWrite);
 	const  SPathStruc ps(pFileName);
 	uint   max_symb_len = 0;
+	{
+		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+		genf.WriteLine(meta_symb.Z().Cat("//").Space().Cat(temp_buf.ToUpper()).CR());
+		temp_buf.Z().Cat("version").CatDiv(':', 2).Cat(versionN);
+		genf.WriteLine(meta_symb.Z().Cat("//").Space().Cat(temp_buf).CR());
+		temp_buf.Z().Cat("sha256").CatDiv(':', 2).CatHex(rHash.PtrC(), rHash.Len());
+		genf.WriteLine(meta_symb.Z().Cat("//").Space().Cat(temp_buf).CR());
+		genf.WriteLine(meta_symb.Z().Cat("//").CR());
+	}
 	{
 		for(uint i = 0; i < BL.getCount(); i++) {
 			const BaseEntry & r_be = BL.at(i);
@@ -2074,6 +2093,7 @@ int ProcessUed()
 	//
 	Test_Ued_Ops();
 	//
+	SBinaryChunk new_hash;
 	SrUedContainer uedc;
 	SrUedContainer uedc_prev;
 	SString last_file_name;
@@ -2094,7 +2114,7 @@ int ProcessUed()
 		SrUedContainer::MakeUedCanonicalName(ps.Nam, new_version);
 		ps.Ext = "dat";
 		ps.Merge(temp_buf);
-		THROW(uedc.WriteSource(temp_buf));
+		THROW(uedc.WriteSource(temp_buf, &new_hash));
 		//
 		ps.Merge(SPathStruc::fDir|SPathStruc::fDrv, temp_buf);
 		THROW(uedc.Verify(temp_buf, new_version));
@@ -2103,13 +2123,13 @@ int ProcessUed()
 		SrUedContainer::MakeUedCanonicalName(ps.Nam, -1);
 		ps.Ext = "h";
 		ps.Merge(temp_buf);
-		THROW(uedc.GenerateSourceDecl_C(temp_buf));
+		THROW(uedc.GenerateSourceDecl_C(temp_buf, new_version, new_hash));
 	}
 	{
 		SrUedContainer::MakeUedCanonicalName(ps.Nam, -1);
 		ps.Ext = "java";
 		ps.Merge(temp_buf);
-		THROW(uedc.GenerateSourceDecl_Java(temp_buf));
+		THROW(uedc.GenerateSourceDecl_Java(temp_buf, new_version, new_hash));
 	}
 	CATCH
 		logger.LogLastError();

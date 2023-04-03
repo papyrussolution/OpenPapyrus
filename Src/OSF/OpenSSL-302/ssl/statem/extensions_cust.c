@@ -376,7 +376,7 @@ static int add_custom_ext_intern(SSL_CTX * ctx, ENDPOINT role,
 	if(custom_ext_find(exts, role, ext_type, NULL))
 		return 0;
 	tmp = (custom_ext_method *)OPENSSL_realloc(exts->meths, (exts->meths_count + 1) * sizeof(custom_ext_method));
-	if(tmp == NULL)
+	if(!tmp)
 		return 0;
 	exts->meths = tmp;
 	meth = exts->meths + exts->meths_count;

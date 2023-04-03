@@ -30,15 +30,13 @@ int i2d_ASN1_OBJECT(const ASN1_OBJECT * a, uchar ** pp)
 	else {
 		p = *pp;
 	}
-
 	ASN1_put_object(&p, 0, a->length, V_ASN1_OBJECT, V_ASN1_UNIVERSAL);
 	memcpy(p, a->data, a->length);
-
 	/*
 	 * If a new buffer was allocated, just return it back.
 	 * If not, return the incremented buffer pointer.
 	 */
-	*pp = allocated != NULL ? allocated : p + a->length;
+	*pp = allocated ? allocated : p + a->length;
 	return objsize;
 }
 
@@ -50,12 +48,10 @@ int a2d_ASN1_OBJECT(uchar * out, int olen, const char * buf, int num)
 	const char * p;
 	unsigned long l;
 	BIGNUM * bl = NULL;
-
 	if(num == 0)
 		return 0;
 	else if(num == -1)
 		num = strlen(buf);
-
 	p = buf;
 	c = *(p++);
 	num--;
@@ -66,7 +62,6 @@ int a2d_ASN1_OBJECT(uchar * out, int olen, const char * buf, int num)
 		ERR_raise(ERR_LIB_ASN1, ASN1_R_FIRST_NUM_TOO_LARGE);
 		goto err;
 	}
-
 	if(num <= 0) {
 		ERR_raise(ERR_LIB_ASN1, ASN1_R_MISSING_SECOND_NUMBER);
 		goto err;
@@ -130,7 +125,7 @@ int a2d_ASN1_OBJECT(uchar * out, int olen, const char * buf, int num)
 					OPENSSL_free(tmp);
 				tmpsize = blsize + 32;
 				tmp = (char*)OPENSSL_malloc(tmpsize);
-				if(tmp == NULL) {
+				if(!tmp) {
 					ERR_raise(ERR_LIB_ASN1, ERR_R_MALLOC_FAILURE);
 					goto err;
 				}

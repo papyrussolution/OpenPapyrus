@@ -228,7 +228,7 @@ static int ec_generate_key(EC_KEY * eckey, int pairwise_test)
 	 * stated in the security policy.
 	 */
 	tmp = EC_GROUP_get0_order(group);
-	if(tmp == NULL)
+	if(!tmp)
 		goto err;
 	/*
 	 * Steps (3-7): priv_key = DRBG_RAND(order_n_bits) (range [1, n-1]).
@@ -857,7 +857,7 @@ static int ecdsa_keygen_pairwise_test(EC_KEY * eckey, OSSL_CALLBACK * cb, void *
 	int dgst_len = (int)sizeof(dgst);
 	ECDSA_SIG * sig = NULL;
 	OSSL_SELF_TEST * st = OSSL_SELF_TEST_new(cb, cbarg);
-	if(st == NULL)
+	if(!st)
 		return 0;
 	OSSL_SELF_TEST_onbegin(st, OSSL_SELF_TEST_TYPE_PCT, OSSL_SELF_TEST_DESC_PCT_ECDSA);
 	sig = ECDSA_do_sign(dgst, dgst_len, eckey);

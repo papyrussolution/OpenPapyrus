@@ -62,9 +62,9 @@ void OSSL_SELF_TEST_get_callback(OSSL_LIB_CTX * libctx, OSSL_CALLBACK ** cb, voi
 {
 	SELF_TEST_CB * stcb = get_self_test_callback(libctx);
 	if(cb)
-		*cb = (stcb != NULL ? stcb->cb : NULL);
+		*cb = (stcb ? stcb->cb : NULL);
 	if(cbarg != NULL)
-		*cbarg = (stcb != NULL ? stcb->cbarg : NULL);
+		*cbarg = (stcb ? stcb->cbarg : NULL);
 }
 
 #endif /* FIPS_MODULE */
@@ -100,10 +100,9 @@ void OSSL_SELF_TEST_free(OSSL_SELF_TEST * st)
 }
 
 /* Can be used during application testing to log that a test has started. */
-void OSSL_SELF_TEST_onbegin(OSSL_SELF_TEST * st, const char * type,
-    const char * desc)
+void OSSL_SELF_TEST_onbegin(OSSL_SELF_TEST * st, const char * type, const char * desc)
 {
-	if(st != NULL && st->cb != NULL) {
+	if(st && st->cb != NULL) {
 		st->phase = OSSL_SELF_TEST_PHASE_START;
 		st->type = type;
 		st->desc = desc;
@@ -111,14 +110,13 @@ void OSSL_SELF_TEST_onbegin(OSSL_SELF_TEST * st, const char * type,
 		(void)st->cb(st->params, st->cb_arg);
 	}
 }
-
 /*
  * Can be used during application testing to log that a test has either
  * passed or failed.
  */
 void OSSL_SELF_TEST_onend(OSSL_SELF_TEST * st, int ret)
 {
-	if(st != NULL && st->cb != NULL) {
+	if(st && st->cb != NULL) {
 		st->phase =
 		    (ret == 1 ? OSSL_SELF_TEST_PHASE_PASS : OSSL_SELF_TEST_PHASE_FAIL);
 		self_test_setparams(st);
@@ -140,7 +138,7 @@ void OSSL_SELF_TEST_onend(OSSL_SELF_TEST * st, int ret)
  */
 int OSSL_SELF_TEST_oncorrupt_byte(OSSL_SELF_TEST * st, uchar * bytes)
 {
-	if(st != NULL && st->cb != NULL) {
+	if(st && st->cb != NULL) {
 		st->phase = OSSL_SELF_TEST_PHASE_CORRUPT;
 		self_test_setparams(st);
 		if(!st->cb(st->params, st->cb_arg)) {

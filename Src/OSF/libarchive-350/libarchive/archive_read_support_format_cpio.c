@@ -183,7 +183,7 @@ static int record_hardlink(ArchiveRead * a, struct cpio * cpio, ArchiveEntry * e
 
 int archive_read_support_format_cpio(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	struct cpio * cpio;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);

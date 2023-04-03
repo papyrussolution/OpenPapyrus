@@ -96,7 +96,7 @@ DSA_SIG * ossl_dsa_do_sign_int(const uchar * dgst, int dlen, DSA * dsa)
 	blind = BN_CTX_get(ctx);
 	blindm = BN_CTX_get(ctx);
 	tmp = BN_CTX_get(ctx);
-	if(tmp == NULL)
+	if(!tmp)
 		goto err;
 
 redo:

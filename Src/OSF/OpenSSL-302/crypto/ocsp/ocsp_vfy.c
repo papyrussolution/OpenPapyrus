@@ -11,28 +11,20 @@
 #include "internal/sizes.h"
 #include "ocsp_local.h"
 
-static int ocsp_find_signer(X509 ** psigner, OCSP_BASICRESP * bs,
-    STACK_OF(X509) * certs, unsigned long flags);
+static int ocsp_find_signer(X509 ** psigner, OCSP_BASICRESP * bs, STACK_OF(X509) * certs, unsigned long flags);
 static X509 * ocsp_find_signer_sk(STACK_OF(X509) * certs, OCSP_RESPID * id);
 static int ocsp_check_issuer(OCSP_BASICRESP * bs, STACK_OF(X509) * chain);
-static int ocsp_check_ids(STACK_OF(OCSP_SINGLERESP) * sresp,
-    OCSP_CERTID ** ret);
-static int ocsp_match_issuerid(X509 * cert, OCSP_CERTID * cid,
-    STACK_OF(OCSP_SINGLERESP) * sresp);
+static int ocsp_check_ids(STACK_OF(OCSP_SINGLERESP) * sresp, OCSP_CERTID ** ret);
+static int ocsp_match_issuerid(X509 * cert, OCSP_CERTID * cid, STACK_OF(OCSP_SINGLERESP) * sresp);
 static int ocsp_check_delegated(X509 * x);
-static int ocsp_req_find_signer(X509 ** psigner, OCSP_REQUEST * req,
-    const X509_NAME * nm, STACK_OF(X509) * certs,
-    unsigned long flags);
+static int ocsp_req_find_signer(X509 ** psigner, OCSP_REQUEST * req, const X509_NAME * nm, STACK_OF(X509) * certs, unsigned long flags);
 
 /* Returns 1 on success, 0 on failure, or -1 on fatal error */
-static int ocsp_verify_signer(X509 * signer, int response,
-    X509_STORE * st, unsigned long flags,
-    STACK_OF(X509) * untrusted, STACK_OF(X509) ** chain)
+static int ocsp_verify_signer(X509 * signer, int response, X509_STORE * st, unsigned long flags, STACK_OF(X509) * untrusted, STACK_OF(X509) ** chain)
 {
 	X509_STORE_CTX * ctx = X509_STORE_CTX_new();
 	X509_VERIFY_PARAM * vp;
 	int ret = -1;
-
 	if(!ctx) {
 		ERR_raise(ERR_LIB_OCSP, ERR_R_MALLOC_FAILURE);
 		goto end;
@@ -45,8 +37,7 @@ static int ocsp_verify_signer(X509 * signer, int response,
 		goto end;
 	if((flags & OCSP_PARTIAL_CHAIN) != 0)
 		X509_VERIFY_PARAM_set_flags(vp, X509_V_FLAG_PARTIAL_CHAIN);
-	if(response
-	    && X509_get_ext_by_NID(signer, NID_id_pkix_OCSP_noCheck, -1) >= 0)
+	if(response && X509_get_ext_by_NID(signer, NID_id_pkix_OCSP_noCheck, -1) >= 0)
 		/*
 		 * Locally disable revocation status checking for OCSP responder cert.
 		 * Done here for CRLs; should be done also for OCSP-based checks.
@@ -54,34 +45,29 @@ static int ocsp_verify_signer(X509 * signer, int response,
 		X509_VERIFY_PARAM_clear_flags(vp, X509_V_FLAG_CRL_CHECK);
 	X509_STORE_CTX_set_purpose(ctx, X509_PURPOSE_OCSP_HELPER);
 	X509_STORE_CTX_set_trust(ctx, X509_TRUST_OCSP_REQUEST);
-
 	ret = X509_verify_cert(ctx);
 	if(ret <= 0) {
 		ret = X509_STORE_CTX_get_error(ctx);
-		ERR_raise_data(ERR_LIB_OCSP, OCSP_R_CERTIFICATE_VERIFY_ERROR,
-		    "Verify error: %s", X509_verify_cert_error_string(ret));
+		ERR_raise_data(ERR_LIB_OCSP, OCSP_R_CERTIFICATE_VERIFY_ERROR, "Verify error: %s", X509_verify_cert_error_string(ret));
 		goto end;
 	}
-	if(chain != NULL)
+	if(chain)
 		*chain = X509_STORE_CTX_get1_chain(ctx);
-
 end:
 	X509_STORE_CTX_free(ctx);
 	return ret;
 }
 
-static int ocsp_verify(OCSP_REQUEST * req, OCSP_BASICRESP * bs,
-    X509 * signer, unsigned long flags)
+static int ocsp_verify(OCSP_REQUEST * req, OCSP_BASICRESP * bs, X509 * signer, unsigned long flags)
 {
 	EVP_PKEY * skey;
 	int ret = 1;
-
 	if((flags & OCSP_NOSIGS) == 0) {
 		if((skey = X509_get0_pubkey(signer)) == NULL) {
 			ERR_raise(ERR_LIB_OCSP, OCSP_R_NO_SIGNER_KEY);
 			return -1;
 		}
-		if(req != NULL)
+		if(req)
 			ret = OCSP_REQUEST_verify(req, skey, signer->libctx, signer->propq);
 		else
 			ret = OCSP_BASICRESP_verify(bs, skey, signer->libctx, signer->propq);
@@ -288,45 +274,36 @@ static int ocsp_check_ids(STACK_OF(OCSP_SINGLERESP) * sresp, OCSP_CERTID ** ret)
 	*ret = cid;
 	return 1;
 }
-
 /*
  * Match the certificate issuer ID.
  * Returns -1 on fatal error, 0 if there is no match and 1 if there is a match.
  */
-static int ocsp_match_issuerid(X509 * cert, OCSP_CERTID * cid,
-    STACK_OF(OCSP_SINGLERESP) * sresp)
+static int ocsp_match_issuerid(X509 * cert, OCSP_CERTID * cid, STACK_OF(OCSP_SINGLERESP) * sresp)
 {
 	int ret = -1;
 	EVP_MD * dgst = NULL;
-
 	/* If only one ID to match then do it */
-	if(cid != NULL) {
+	if(cid) {
 		char name[OSSL_MAX_NAME_SIZE];
 		const X509_NAME * iname;
 		int mdlen;
 		unsigned char md[EVP_MAX_MD_SIZE];
-
 		OBJ_obj2txt(name, sizeof(name), cid->hashAlgorithm.algorithm, 0);
-
 		(void)ERR_set_mark();
 		dgst = EVP_MD_fetch(NULL, name, NULL);
-		if(dgst == NULL)
-			dgst = (EVP_MD*)EVP_get_digestbyname(name);
-
-		if(dgst == NULL) {
+		SETIFZQ(dgst, (EVP_MD*)EVP_get_digestbyname(name));
+		if(!dgst) {
 			(void)ERR_clear_last_mark();
 			ERR_raise(ERR_LIB_OCSP, OCSP_R_UNKNOWN_MESSAGE_DIGEST);
 			goto end;
 		}
 		(void)ERR_pop_to_mark();
-
 		mdlen = EVP_MD_get_size(dgst);
 		if(mdlen < 0) {
 			ERR_raise(ERR_LIB_OCSP, OCSP_R_DIGEST_SIZE_ERR);
 			goto end;
 		}
-		if(cid->issuerNameHash.length != mdlen ||
-		    cid->issuerKeyHash.length != mdlen) {
+		if(cid->issuerNameHash.length != mdlen || cid->issuerKeyHash.length != mdlen) {
 			ret = 0;
 			goto end;
 		}
@@ -346,11 +323,8 @@ static int ocsp_match_issuerid(X509 * cert, OCSP_CERTID * cid,
 	}
 	else {
 		/* We have to match the whole lot */
-		int i;
-		OCSP_CERTID * tmpid;
-
-		for(i = 0; i < sk_OCSP_SINGLERESP_num(sresp); i++) {
-			tmpid = sk_OCSP_SINGLERESP_value(sresp, i)->certId;
+		for(int i = 0; i < sk_OCSP_SINGLERESP_num(sresp); i++) {
+			OCSP_CERTID * tmpid = sk_OCSP_SINGLERESP_value(sresp, i)->certId;
 			ret = ocsp_match_issuerid(cert, tmpid, NULL);
 			if(ret <= 0)
 				return ret;
@@ -364,8 +338,7 @@ end:
 
 static int ocsp_check_delegated(X509 * x)
 {
-	if((X509_get_extension_flags(x) & EXFLAG_XKUSAGE)
-	    && (X509_get_extended_key_usage(x) & XKU_OCSP_SIGN))
+	if((X509_get_extension_flags(x) & EXFLAG_XKUSAGE) && (X509_get_extended_key_usage(x) & XKU_OCSP_SIGN))
 		return 1;
 	ERR_raise(ERR_LIB_OCSP, OCSP_R_MISSING_OCSPSIGNING_USAGE);
 	return 0;

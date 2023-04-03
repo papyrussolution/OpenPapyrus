@@ -282,36 +282,22 @@ static void * construct_encoder(const OSSL_ALGORITHM * algodef,
 }
 
 /* Intermediary function to avoid ugly casts, used below */
-static void destruct_encoder(void * method, void * data)
-{
-	OSSL_ENCODER_free((OSSL_ENCODER *)method);
-}
-
-static int up_ref_encoder(void * method)
-{
-	return OSSL_ENCODER_up_ref((OSSL_ENCODER *)method);
-}
-
-static void free_encoder(void * method)
-{
-	OSSL_ENCODER_free((OSSL_ENCODER *)method);
-}
+static void destruct_encoder(void * method, void * data) { OSSL_ENCODER_free((OSSL_ENCODER *)method); }
+static int up_ref_encoder(void * method) { return OSSL_ENCODER_up_ref((OSSL_ENCODER *)method); }
+static void free_encoder(void * method) { OSSL_ENCODER_free((OSSL_ENCODER *)method); }
 
 /* Fetching support.  Can fetch by numeric identity or by name */
-static OSSL_ENCODER * inner_ossl_encoder_fetch(struct encoder_data_st * methdata, int id,
-    const char * name, const char * properties)
+static OSSL_ENCODER * inner_ossl_encoder_fetch(struct encoder_data_st * methdata, int id, const char * name, const char * properties)
 {
 	OSSL_METHOD_STORE * store = get_encoder_store(methdata->libctx);
 	OSSL_NAMEMAP * namemap = ossl_namemap_stored(methdata->libctx);
-	const char * const propq = properties != NULL ? properties : "";
+	const char * const propq = properties ? properties : "";
 	void * method = NULL;
 	int unsupported = 0;
-
 	if(store == NULL || namemap == NULL) {
 		ERR_raise(ERR_LIB_OSSL_ENCODER, ERR_R_PASSED_INVALID_ARGUMENT);
 		return NULL;
 	}
-
 	/*
 	 * If we have been passed both an id and a name, we have an
 	 * internal programming error.
@@ -320,19 +306,12 @@ static OSSL_ENCODER * inner_ossl_encoder_fetch(struct encoder_data_st * methdata
 		ERR_raise(ERR_LIB_OSSL_ENCODER, ERR_R_INTERNAL_ERROR);
 		return NULL;
 	}
-
 	if(id == 0)
 		id = ossl_namemap_name2num(namemap, name);
-
-	/*
-	 * If we haven't found the name yet, chances are that the algorithm to
-	 * be fetched is unsupported.
-	 */
+	// If we haven't found the name yet, chances are that the algorithm to be fetched is unsupported.
 	if(id == 0)
 		unsupported = 1;
-
-	if(id == 0
-	    || !ossl_method_store_cache_get(store, NULL, id, propq, &method)) {
+	if(id == 0 || !ossl_method_store_cache_get(store, NULL, id, propq, &method)) {
 		OSSL_METHOD_CONSTRUCT_METHOD mcm = {
 			get_tmp_encoder_store,
 			get_encoder_from_store,

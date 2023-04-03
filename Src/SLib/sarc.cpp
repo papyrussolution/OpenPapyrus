@@ -9,6 +9,7 @@
 #include <zlib.h>
 #include <..\osf\bzip2\bzlib.h>
 #include <..\osf\libarchive-350\libarchive\archive.h> // @v10.4.4
+#include <..\osf\libarchive-350\libarchive\archive_entry.h> // @v11.6.9
 //
 //
 //
@@ -174,7 +175,7 @@ struct SArc_Bz2_Block {
 	SString FileName;
 };
 
-SArchive::SArchive(int type) : Type(type), H(0), P_Cb_Blk(0)
+SArchive::SArchive(int type) : Type(type), H(0), P_Cb_Blk(0), OpenMode(0)
 {
 	assert(oneof3(Type, tLA, tZip, tBz2));
 }
@@ -202,9 +203,15 @@ int SArchive::Close()
 	}
 	else if(Type == tLA) {
 		if(H) {
-			
+			if(OpenMode == SFile::mRead) {
+				Archive * p_larc = static_cast<struct Archive *>(H);
+				archive_read_finish(p_larc);
+			}
+			else { // @todo
+			}
 		}	
 	}
+	Fep.Z(); // @v11.6.9
 	CATCHZOK
 	H = 0;
 	ZDELETE(P_Cb_Blk);
@@ -266,6 +273,19 @@ SArchive::LaCbBlock::LaCbBlock(SArchive * pMaster, size_t bufSize) : P_Master(pM
 	}
 	return result;
 }
+
+/*static*/int64 cdecl SArchive::LaCbSeek(Archive * pA, void * pClientData, int64 offset, int whence)
+{
+	int64  result = 0;
+	LaCbBlock * p_blk = static_cast<LaCbBlock *>(pClientData);
+	if(p_blk && p_blk->F.IsValid()) {
+		const int64 preserve_offs = p_blk->F.Tell64();
+		p_blk->F.Seek64(offset, whence);
+		const int64 new_offs = p_blk->F.Tell64();
+		result = new_offs;
+	}
+	return result;
+}
 #endif // } 0 @construction
 // } @v10.4.4
 
@@ -274,6 +294,7 @@ int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Forma
 	int    ok = 1;
 	Close();
 	const   int mm = (mode & 0xff);
+	OpenMode = mm;
 	if(Type == tZip) {
 		//Type = type;
 		int    flags = 0;
@@ -318,18 +339,35 @@ int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Forma
 			p_larc = archive_read_new();
 			H = p_larc;
 			THROW(P_Cb_Blk = new LaCbBlock(this, SKILOBYTE(512)));
-			THROW(P_Cb_Blk->F.Open(pName, mm & (SFile::mBinary|SFile::mNoStd)));
+			THROW(P_Cb_Blk->F.Open(pName, mm | (SFile::mBinary|SFile::mNoStd))); // @v11.6.8 @fix &-->|
 			//archive_read_support_compression_all(p_larc);
 			archive_read_support_filter_all(p_larc);
 			archive_read_support_format_all(p_larc);
+			archive_read_set_seek_callback(p_larc, LaCbSeek);
 			const int r = archive_read_open2(p_larc, P_Cb_Blk, LaCbOpen, LaCbRead, LaCbSkip, LaCbClose);
 			THROW(r == 0);
+			{
+				ArchiveEntry * p_entry = 0;
+				const wchar_t * p_entry_name = 0;
+				SFileEntryPool::Entry fep_entry;
+				while(archive_read_next_header(p_larc, &p_entry) == ARCHIVE_OK) {
+					p_entry_name = archive_entry_pathname_w(p_entry);
+					fep_entry.Size = archive_entry_size(p_entry);
+					fep_entry.Path.CopyUtf8FromUnicode(p_entry_name, sstrlen(p_entry_name), 1);
+					if(archive_entry_mtime_is_set(p_entry)) {
+						time_t mtm = archive_entry_mtime(p_entry);
+						//long   mtmnsec = archive_entry_mtime_nsec(p_entry);
+						fep_entry.WriteTime.SetTimeT(mtm);
+					}
+					Fep.Add(fep_entry);
+				}				
+			}
 		}
 		else if(mm == SFile::mWrite) {
 			p_larc = archive_write_new();
 			H = p_larc;
 			THROW(P_Cb_Blk = new LaCbBlock(this, SKILOBYTE(512)));
-			THROW(P_Cb_Blk->F.Open(pName, mm & (SFile::mBinary|SFile::mNoStd)));
+			THROW(P_Cb_Blk->F.Open(pName, mm | (SFile::mBinary|SFile::mNoStd))); // @v11.6.8 @fix &-->|
 		}
 		else {
 			// @error invalic open mode
@@ -370,15 +408,18 @@ int64 SArchive::GetEntriesCount() const
 				c = 1;
 		}
 	// @v10.4.4 {
-#if 0 // @construction {
+//#if 0 // @construction {
 		else if(Type == tLA) {
-			struct archive_entry * p_entry;
-			while(archive_read_next_header(static_cast<struct archive *>(H), &p_entry) == ARCHIVE_OK) {
-				c++;
+			if(P_Cb_Blk) {
+				Archive * p_larc = static_cast<struct Archive *>(H);
+				ArchiveEntry * p_entry = 0;
+				while(archive_read_next_header(p_larc, &p_entry) == ARCHIVE_OK) {
+					c++;
+				}
+				//archive_read_finish(p_larc);
 			}
-			archive_read_finish(static_cast<struct archive *>(H));
 		}
-#endif // } @construction 
+//#endif // } @construction 
 	// } @v10.4.4 
 	}
 	return c;
@@ -656,6 +697,12 @@ void TestSArchive()
 {
 	int    ok = 1;
 	SString temp_buf;
+	{
+		SArchive arc(SArchive::tLA);
+		SLS.QueryPath("testroot", temp_buf);
+		temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("Test_Directory.7z");
+		THROW(arc.Open(temp_buf, SFile::mRead, 0));
+	}
 	/*{
 		SCompressor c(SCompressor::tZLib);
 		TestCompressor(c);

@@ -51,7 +51,6 @@ template <class T> static inline string tostring(T value)
 		val /= 10;
 		*(--p) = ch + '0';
 	} while(val);
-
 	if(negative) {
 		AssertRel(p, >, buf);
 		*--p = '-';
@@ -84,7 +83,6 @@ namespace Xapian {
 		#endif
 			return string(buf, size);
 		}
-
 		string str(double value) { return format("%.20g", value); }
 		string str(const void * value) { return format("%p", value); }
 	}

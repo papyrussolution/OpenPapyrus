@@ -33,10 +33,7 @@ static int i2d_provided(const EVP_PKEY * a, int selection, const struct type_and
 		 */
 		size_t len = INT_MAX;
 		int pp_was_NULL = (pp == NULL || *pp == NULL);
-		ctx = OSSL_ENCODER_CTX_new_for_pkey(a, selection,
-			output_info->output_type,
-			output_info->output_structure,
-			NULL);
+		ctx = OSSL_ENCODER_CTX_new_for_pkey(a, selection, output_info->output_type, output_info->output_structure, NULL);
 		if(!ctx)
 			return -1;
 		if(OSSL_ENCODER_to_data(ctx, pp, &len)) {
@@ -48,7 +45,6 @@ static int i2d_provided(const EVP_PKEY * a, int selection, const struct type_and
 		OSSL_ENCODER_CTX_free(ctx);
 		ctx = NULL;
 	}
-
 	if(ret == -1)
 		ERR_raise(ERR_LIB_ASN1, ASN1_R_UNSUPPORTED_TYPE);
 	return ret;

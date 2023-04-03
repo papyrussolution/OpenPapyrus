@@ -104,7 +104,7 @@ OSSL_HTTP_REQ_CTX * OSSL_HTTP_REQ_CTX_new(BIO * wbio, BIO * rbio, int buf_size)
 
 void OSSL_HTTP_REQ_CTX_free(OSSL_HTTP_REQ_CTX * rctx)
 {
-	if(rctx == NULL)
+	if(!rctx)
 		return;
 	/*
 	 * Use BIO_free_all() because bio_update_fn may prepend or append to cbio.
@@ -126,7 +126,7 @@ void OSSL_HTTP_REQ_CTX_free(OSSL_HTTP_REQ_CTX * rctx)
 
 BIO * OSSL_HTTP_REQ_CTX_get0_mem_bio(const OSSL_HTTP_REQ_CTX * rctx)
 {
-	if(rctx == NULL) {
+	if(!rctx) {
 		ERR_raise(ERR_LIB_HTTP, ERR_R_PASSED_NULL_PARAMETER);
 		return NULL;
 	}
@@ -135,7 +135,7 @@ BIO * OSSL_HTTP_REQ_CTX_get0_mem_bio(const OSSL_HTTP_REQ_CTX * rctx)
 
 size_t OSSL_HTTP_REQ_CTX_get_resp_len(const OSSL_HTTP_REQ_CTX * rctx)
 {
-	if(rctx == NULL) {
+	if(!rctx) {
 		ERR_raise(ERR_LIB_HTTP, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -145,7 +145,7 @@ size_t OSSL_HTTP_REQ_CTX_get_resp_len(const OSSL_HTTP_REQ_CTX * rctx)
 void OSSL_HTTP_REQ_CTX_set_max_response_length(OSSL_HTTP_REQ_CTX * rctx,
     unsigned long len)
 {
-	if(rctx == NULL) {
+	if(!rctx) {
 		ERR_raise(ERR_LIB_HTTP, ERR_R_PASSED_NULL_PARAMETER);
 		return;
 	}
@@ -160,7 +160,7 @@ int OSSL_HTTP_REQ_CTX_set_request_line(OSSL_HTTP_REQ_CTX * rctx, int method_POST
     const char * server, const char * port,
     const char * path)
 {
-	if(rctx == NULL) {
+	if(!rctx) {
 		ERR_raise(ERR_LIB_HTTP, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -209,10 +209,9 @@ int OSSL_HTTP_REQ_CTX_add1_header(OSSL_HTTP_REQ_CTX * rctx, const char * name, c
 		ERR_raise(ERR_LIB_HTTP, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		return 0;
 	}
-
 	if(BIO_puts(rctx->mem, name) <= 0)
 		return 0;
-	if(value != NULL) {
+	if(value) {
 		if(BIO_write(rctx->mem, ": ", 2) != 2)
 			return 0;
 		if(BIO_puts(rctx->mem, value) <= 0)
@@ -223,12 +222,11 @@ int OSSL_HTTP_REQ_CTX_add1_header(OSSL_HTTP_REQ_CTX * rctx, const char * name, c
 
 int OSSL_HTTP_REQ_CTX_set_expected(OSSL_HTTP_REQ_CTX * rctx, const char * content_type, int asn1, int timeout, int keep_alive)
 {
-	if(rctx == NULL) {
+	if(!rctx) {
 		ERR_raise(ERR_LIB_HTTP, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
-	if(keep_alive != 0
-	    && rctx->state != OHS_ERROR && rctx->state != OHS_ADD_HEADERS) {
+	if(keep_alive != 0 && rctx->state != OHS_ERROR && rctx->state != OHS_ADD_HEADERS) {
 		/* Cannot anymore set keep-alive in request header */
 		ERR_raise(ERR_LIB_HTTP, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		return 0;
@@ -277,7 +275,7 @@ int OSSL_HTTP_REQ_CTX_set1_req(OSSL_HTTP_REQ_CTX * rctx, const char * content_ty
 {
 	BIO * mem = NULL;
 	int res = 1;
-	if(req != NULL)
+	if(req)
 		res = (mem = ASN1_item_i2d_mem_bio(it, req)) != NULL;
 	res = res && set1_content(rctx, content_type, mem);
 	BIO_free(mem);
@@ -306,7 +304,7 @@ static OSSL_HTTP_REQ_CTX * http_req_ctx_new(int free_wbio, BIO * wbio, BIO * rbi
     void * arg, int use_ssl, const char * proxy, const char * server, const char * port, int buf_size, int overall_timeout)
 {
 	OSSL_HTTP_REQ_CTX * rctx = OSSL_HTTP_REQ_CTX_new(wbio, rbio, buf_size);
-	if(rctx == NULL)
+	if(!rctx)
 		return NULL;
 	rctx->free_wbio = free_wbio;
 	rctx->upd_fn = bio_update_fn;
@@ -324,13 +322,11 @@ err:
 	OSSL_HTTP_REQ_CTX_free(rctx);
 	return NULL;
 }
-
 /*
  * Parse first HTTP response line. This should be like this: "HTTP/1.0 200 OK".
  * We need to obtain the status code and (optional) informational message.
  * Return any received HTTP response status code, or 0 on fatal error.
  */
-
 static int parse_http_line1(char * line, int * found_keep_alive)
 {
 	int i, retcode, err;
@@ -443,8 +439,7 @@ int OSSL_HTTP_REQ_CTX_nbio(OSSL_HTTP_REQ_CTX * rctx)
 	size_t resp_len;
 	const uchar * p;
 	char * buf, * key, * value, * line_end = NULL;
-
-	if(rctx == NULL) {
+	if(!rctx) {
 		ERR_raise(ERR_LIB_HTTP, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -452,7 +447,6 @@ int OSSL_HTTP_REQ_CTX_nbio(OSSL_HTTP_REQ_CTX * rctx)
 		ERR_raise(ERR_LIB_HTTP, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		return 0;
 	}
-
 	rctx->redirection_url = NULL;
 next_io:
 	buf = (char*)rctx->buf;
@@ -477,12 +471,10 @@ next_io:
 			ERR_raise(ERR_LIB_HTTP, HTTP_R_FAILED_READING_DATA);
 			return 0;
 		}
-
 		/* Write data to memory BIO */
 		if(BIO_write(rctx->mem, rctx->buf, n) != n)
 			return 0;
 	}
-
 	switch(rctx->state) {
 		case OHS_ADD_HEADERS:
 		    /* Last operation was adding headers: need a final \r\n */
@@ -534,27 +526,20 @@ next_io:
 
 		/* fall thru */
 		case OHS_FLUSH:
-
 		    i = BIO_flush(rctx->wbio);
-
 		    if(i > 0) {
 			    rctx->state = OHS_FIRSTLINE;
 			    goto next_io;
 		    }
-
 		    if(BIO_should_retry(rctx->wbio))
 			    return -1;
-
 		    rctx->state = OHS_ERROR;
 		    return 0;
-
 		case OHS_ERROR:
 		    return 0;
-
 		case OHS_FIRSTLINE:
 		case OHS_HEADERS:
 		case OHS_REDIRECT:
-
 		    /* Attempt to read a line in */
 next_line:
 		    /*
@@ -608,7 +593,7 @@ next_line:
 		    }
 		    key = buf;
 		    value = strchr(key, ':');
-		    if(value != NULL) {
+		    if(value) {
 			    *(value++) = '\0';
 			    while(ossl_isspace(*value))
 				    value++;
@@ -802,12 +787,10 @@ end:
 BIO * OSSL_HTTP_REQ_CTX_exchange(OSSL_HTTP_REQ_CTX * rctx)
 {
 	int rv;
-
-	if(rctx == NULL) {
+	if(!rctx) {
 		ERR_raise(ERR_LIB_HTTP, ERR_R_PASSED_NULL_PARAMETER);
 		return NULL;
 	}
-
 	for(;;) {
 		rv = OSSL_HTTP_REQ_CTX_nbio(rctx);
 		if(rv != -1)
@@ -914,12 +897,10 @@ OSSL_HTTP_REQ_CTX * OSSL_HTTP_open(const char * server, const char * port,
 		buf_size, overall_timeout);
 
 end:
-	if(rctx != NULL)
-		/* remove any spurious error queue entries by ssl_add_cert_chain() */
-		(void)ERR_pop_to_mark();
+	if(rctx)
+		(void)ERR_pop_to_mark(); // remove any spurious error queue entries by ssl_add_cert_chain()
 	else
 		(void)ERR_clear_last_mark();
-
 	return rctx;
 }
 
@@ -930,8 +911,7 @@ int OSSL_HTTP_set1_request(OSSL_HTTP_REQ_CTX * rctx, const char * path,
     size_t max_resp_len, int timeout, int keep_alive)
 {
 	int use_http_proxy;
-
-	if(rctx == NULL) {
+	if(!rctx) {
 		ERR_raise(ERR_LIB_HTTP, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -941,7 +921,6 @@ int OSSL_HTTP_set1_request(OSSL_HTTP_REQ_CTX * rctx, const char * path,
 		return 0;
 	}
 	rctx->max_resp_len = max_resp_len; /* allows for 0: indefinite */
-
 	return OSSL_HTTP_REQ_CTX_set_request_line(rctx, req != NULL,
 		   use_http_proxy ? rctx->server
 		   : NULL, rctx->port, path)
@@ -959,17 +938,14 @@ int OSSL_HTTP_set1_request(OSSL_HTTP_REQ_CTX * rctx, const char * path,
 BIO * OSSL_HTTP_exchange(OSSL_HTTP_REQ_CTX * rctx, char ** redirection_url)
 {
 	BIO * resp;
-
-	if(rctx == NULL) {
+	if(!rctx) {
 		ERR_raise(ERR_LIB_HTTP, ERR_R_PASSED_NULL_PARAMETER);
 		return NULL;
 	}
-
-	if(redirection_url != NULL)
+	if(redirection_url)
 		*redirection_url = NULL; /* do this beforehand to prevent dbl free */
-
 	resp = OSSL_HTTP_REQ_CTX_exchange(rctx);
-	if(resp == NULL) {
+	if(!resp) {
 		if(rctx->redirection_url != NULL) {
 			if(redirection_url == NULL)
 				ERR_raise(ERR_LIB_HTTP, HTTP_R_REDIRECTION_NOT_ENABLED);
@@ -982,10 +958,7 @@ BIO * OSSL_HTTP_exchange(OSSL_HTTP_REQ_CTX * rctx, char ** redirection_url)
 			unsigned long err = ERR_peek_error();
 			int lib = ERR_GET_LIB(err);
 			int reason = ERR_GET_REASON(err);
-
-			if(lib == ERR_LIB_SSL || lib == ERR_LIB_HTTP
-			    || (lib == ERR_LIB_BIO && reason == BIO_R_CONNECT_TIMEOUT)
-			    || (lib == ERR_LIB_BIO && reason == BIO_R_CONNECT_ERROR)
+			if(lib == ERR_LIB_SSL || lib == ERR_LIB_HTTP || (lib == ERR_LIB_BIO && reason == BIO_R_CONNECT_TIMEOUT) || (lib == ERR_LIB_BIO && reason == BIO_R_CONNECT_ERROR)
 #ifndef OPENSSL_NO_CMP
 			    || (lib == ERR_LIB_CMP
 			    && reason == CMP_R_POTENTIALLY_INVALID_CERTIFICATE)
@@ -1001,15 +974,12 @@ BIO * OSSL_HTTP_exchange(OSSL_HTTP_REQ_CTX * rctx, char ** redirection_url)
 				if(rctx->proxy != NULL)
 					ERR_add_error_data(2, " proxy=", rctx->proxy);
 				if(err == 0) {
-					BIO_snprintf(buf, sizeof(buf), " peer has disconnected%s",
-					    rctx->use_ssl ? " violating the protocol" :
-					    ", likely because it requires the use of TLS");
+					BIO_snprintf(buf, sizeof(buf), " peer has disconnected%s", rctx->use_ssl ? " violating the protocol" : ", likely because it requires the use of TLS");
 					ERR_add_error_data(1, buf);
 				}
 			}
 		}
 	}
-
 	if(resp != NULL && !BIO_up_ref(resp))
 		resp = NULL;
 	return resp;
@@ -1121,7 +1091,7 @@ BIO * OSSL_HTTP_transfer(OSSL_HTTP_REQ_CTX ** prctx,
 {
 	OSSL_HTTP_REQ_CTX * rctx = prctx == NULL ? NULL : *prctx;
 	BIO * resp = NULL;
-	if(rctx == NULL) {
+	if(!rctx) {
 		rctx = OSSL_HTTP_open(server, port, proxy, no_proxy, use_ssl, bio, rbio, bio_update_fn, arg, buf_size, timeout);
 		timeout = -1; /* Already set during opening the connection */
 	}
@@ -1212,19 +1182,16 @@ int OSSL_HTTP_proxy_connect(BIO * bio, const char * server, const char * port, c
 	 * the connection when entering tunnel mode (e.g., Squid 2.6)
 	 */
 	BIO_printf(fbio, "Proxy-Connection: Keep-Alive\r\n");
-
 	/* Support for basic (base64) proxy authentication */
 	if(proxyuser != NULL) {
 		size_t len = strlen(proxyuser) + 1;
 		char * proxyauth, * proxyauthenc = NULL;
-
-		if(proxypass != NULL)
+		if(proxypass)
 			len += strlen(proxypass);
 		proxyauth = (char *)OPENSSL_malloc(len + 1);
 		if(proxyauth == NULL)
 			goto end;
-		if(BIO_snprintf(proxyauth, len + 1, "%s:%s", proxyuser,
-		    proxypass != NULL ? proxypass : "") != (int)len)
+		if(BIO_snprintf(proxyauth, len + 1, "%s:%s", proxyuser, proxypass != NULL ? proxypass : "") != (int)len)
 			goto proxy_end;
 		proxyauthenc = base64encode(proxyauth, len);
 		if(proxyauthenc != NULL) {
@@ -1236,10 +1203,8 @@ proxy_end:
 		if(proxyauthenc == NULL)
 			goto end;
 	}
-
 	/* Terminate the HTTP CONNECT request */
 	BIO_printf(fbio, "\r\n");
-
 	for(;;) {
 		if(BIO_flush(fbio) != 0)
 			break;
@@ -1247,16 +1212,13 @@ proxy_end:
 		if(!BIO_should_retry(fbio))
 			break;
 	}
-
 	for(;;) {
 		/* will not actually wait if timeout == 0 */
 		rv = BIO_wait(fbio, max_time, 100 /* milliseconds */);
 		if(rv <= 0) {
-			BIO_printf(bio_err, "%s: HTTP CONNECT %s\n", prog,
-			    rv == 0 ? "timed out" : "failed waiting for data");
+			BIO_printf(bio_err, "%s: HTTP CONNECT %s\n", prog, rv == 0 ? "timed out" : "failed waiting for data");
 			goto end;
 		}
-
 		/*-
 		 * The first line is the HTTP response.
 		 * According to RFC 7230, it is formatted exactly like this:
@@ -1266,21 +1228,17 @@ proxy_end:
 		/* the BIO may not block, so we must wait for the 1st line to come in */
 		if(read_len < (int)HTTP_LINE1_MINLEN)
 			continue;
-
 		/* Check for HTTP/1.x */
 		if(!HAS_PREFIX(mbuf, HTTP_PREFIX) != 0) {
 			ERR_raise(ERR_LIB_HTTP, HTTP_R_HEADER_PARSE_ERROR);
-			BIO_printf(bio_err, "%s: HTTP CONNECT failed, non-HTTP response\n",
-			    prog);
+			BIO_printf(bio_err, "%s: HTTP CONNECT failed, non-HTTP response\n", prog);
 			/* Wrong protocol, not even HTTP, so stop reading headers */
 			goto end;
 		}
 		mbufp = mbuf + strlen(HTTP_PREFIX);
 		if(!HAS_PREFIX(mbufp, HTTP_VERSION_PATT) != 0) {
 			ERR_raise(ERR_LIB_HTTP, HTTP_R_RECEIVED_WRONG_HTTP_VERSION);
-			BIO_printf(bio_err,
-			    "%s: HTTP CONNECT failed, bad HTTP version %.*s\n",
-			    prog, (int)HTTP_VERSION_STR_LEN, mbufp);
+			BIO_printf(bio_err, "%s: HTTP CONNECT failed, bad HTTP version %.*s\n", prog, (int)HTTP_VERSION_STR_LEN, mbufp);
 			goto end;
 		}
 		mbufp += HTTP_VERSION_STR_LEN;
@@ -1291,16 +1249,13 @@ proxy_end:
 			while(read_len > 0 && ossl_isspace(mbuf[read_len - 1]))
 				read_len--;
 			mbuf[read_len] = '\0';
-			ERR_raise_data(ERR_LIB_HTTP, HTTP_R_CONNECT_FAILURE,
-			    "reason=%s", mbufp);
-			BIO_printf(bio_err, "%s: HTTP CONNECT failed, reason=%s\n",
-			    prog, mbufp);
+			ERR_raise_data(ERR_LIB_HTTP, HTTP_R_CONNECT_FAILURE, "reason=%s", mbufp);
+			BIO_printf(bio_err, "%s: HTTP CONNECT failed, reason=%s\n", prog, mbufp);
 			goto end;
 		}
 		ret = 1;
 		break;
 	}
-
 	/* Read past all following headers */
 	do {
 		/*
@@ -1309,7 +1264,6 @@ proxy_end:
 		 */
 		read_len = BIO_gets(fbio, mbuf, BUF_SIZE);
 	} while(read_len > 2);
-
 end:
 	if(fbio != NULL) {
 		(void)BIO_flush(fbio);

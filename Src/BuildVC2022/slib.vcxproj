@@ -6075,6 +6075,9 @@
     <ProjectReference Include="onig.vcxproj">
       <Project>{d115c575-b8ee-3bd7-8046-688a4d145686}</Project>
     </ProjectReference>
+    <ProjectReference Include="ossl300-legacy-static.vcxproj">
+      <Project>{044042fc-53a9-4b9f-ac59-20fc09223695}</Project>
+    </ProjectReference>
     <ProjectReference Include="ossl300-libcommon-static.vcxproj">
       <Project>{faa6635c-9dec-4a36-8e2f-70bb38318f00}</Project>
     </ProjectReference>

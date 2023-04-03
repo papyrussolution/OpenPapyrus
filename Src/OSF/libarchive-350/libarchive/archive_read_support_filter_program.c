@@ -110,7 +110,7 @@ static int set_bidder_signature(ArchiveReadFilterBidder * bidder, struct program
 
 int archive_read_support_filter_program_signature(Archive * _a, const char * cmd, const void * signature, size_t signature_len)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	ArchiveReadFilterBidder * bidder;
 	struct program_bidder * state;
 	/*

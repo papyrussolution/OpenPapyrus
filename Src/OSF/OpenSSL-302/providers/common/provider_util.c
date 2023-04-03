@@ -114,7 +114,7 @@ int ossl_prov_cipher_load_from_params(PROV_CIPHER * pc,
 		const EVP_CIPHER * cipher;
 		cipher = EVP_get_cipherbyname((const char *)p->data);
 		/* Do not use global EVP_CIPHERs */
-		if(cipher != NULL && cipher->origin != EVP_ORIG_GLOBAL)
+		if(cipher && cipher->origin != EVP_ORIG_GLOBAL)
 			pc->cipher = cipher;
 	}
 #endif

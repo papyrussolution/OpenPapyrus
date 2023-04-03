@@ -949,12 +949,6 @@
     <ClCompile Include="..\OSF\tiff\libtiff\tif_warning.c" />
     <ClCompile Include="..\OSF\tiff\libtiff\tif_write.c" />
     <ClCompile Include="..\OSF\tiff\libtiff\tif_zip.c" />
-    <ClCompile Include="..\OSF\tiff\port\dummy.c" />
-    <ClCompile Include="..\OSF\tiff\port\snprintf.c" />
-    <ClCompile Include="..\OSF\tiff\port\strtoull.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\OSF\tiff\libtiff\libtiff.def" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\tiff\libtiff\tiff.h" />

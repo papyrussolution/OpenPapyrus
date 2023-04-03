@@ -209,7 +209,7 @@ static int generate_p(BN_CTX * ctx, const EVP_MD * evpmd, int max_counter, int n
 	c = BN_CTX_get(ctx);
 	test = BN_CTX_get(ctx);
 	tmp = BN_CTX_get(ctx);
-	if(tmp == NULL)
+	if(!tmp)
 		goto err;
 
 	if(!BN_lshift(test, BN_value_one(), L - 1))
@@ -583,7 +583,7 @@ int ossl_ffc_params_FIPS186_4_gen_verify(OSSL_LIB_CTX * libctx,
 	e = BN_CTX_get(ctx);
 	test = BN_CTX_get(ctx);
 	tmp = BN_CTX_get(ctx);
-	if(tmp == NULL)
+	if(!tmp)
 		goto err;
 
 	seedlen = params->seedlen;

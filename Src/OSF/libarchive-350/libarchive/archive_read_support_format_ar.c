@@ -63,7 +63,7 @@ static int ar_parse_common_header(struct ar * ar, ArchiveEntry *, const char * h
 
 int archive_read_support_format_ar(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	struct ar * ar;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
@@ -213,7 +213,7 @@ static int _ar_read_header(ArchiveRead * a, ArchiveEntry * entry,
 		}
 		/* Read the filename table into memory. */
 		st = (char *)SAlloc::M(entry_size);
-		if(st == NULL) {
+		if(!st) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate filename table buffer");
 			return ARCHIVE_FATAL;
 		}

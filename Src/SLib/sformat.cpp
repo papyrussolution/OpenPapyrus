@@ -867,7 +867,7 @@ static char * FASTCALL format_decimal32(uint32 value, char * pBuf, size_t bufSiz
 
 static char * FASTCALL format_signed64(int64 value, char * pBuf, size_t bufSize) 
 {
-	const int is_negative = value < 0;
+	const bool is_negative = value < 0;
 	char * p_result = format_decimal64(is_negative ? (0ULL - static_cast<uint64>(value)) : static_cast<uint64>(value), pBuf, bufSize);
 	if(is_negative) 
 		*--p_result = '-';
@@ -876,7 +876,7 @@ static char * FASTCALL format_signed64(int64 value, char * pBuf, size_t bufSize)
 
 static char * FASTCALL format_signed32(int32 value, char * pBuf, size_t bufSize) 
 {
-	const int is_negative = value < 0;
+	const bool is_negative = value < 0;
 	char * p_result = format_decimal32(is_negative ? (0U - static_cast<uint32>(value)) : static_cast<uint32>(value), pBuf, bufSize);
 	if(is_negative) 
 		*--p_result = '-';

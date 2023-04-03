@@ -1011,7 +1011,7 @@ int BN_GF2m_mod_solve_quad_arr(BIGNUM * r, const BIGNUM * a_, const int p[], BN_
 		rho = BN_CTX_get(ctx);
 		w2 = BN_CTX_get(ctx);
 		tmp = BN_CTX_get(ctx);
-		if(tmp == NULL)
+		if(!tmp)
 			goto err;
 		do {
 			if(!BN_priv_rand_ex(rho, p[0], BN_RAND_TOP_ONE, BN_RAND_BOTTOM_ANY,

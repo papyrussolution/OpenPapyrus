@@ -323,43 +323,32 @@ static const char * tftp_option_get(const char * buf, size_t len,
 	return &buf[loc];
 }
 
-static CURLcode tftp_parse_option_ack(struct tftp_state_data * state,
-    const char * ptr, int len)
+static CURLcode tftp_parse_option_ack(struct tftp_state_data * state, const char * ptr, int len)
 {
 	const char * tmp = ptr;
 	struct Curl_easy * data = state->conn->data;
-
 	/* if OACK doesn't contain blksize option, the default (512) must be used */
 	state->blksize = TFTP_BLKSIZE_DEFAULT;
-
 	while(tmp < ptr + len) {
 		const char * option, * value;
-
 		tmp = tftp_option_get(tmp, ptr + len - tmp, &option, &value);
-		if(tmp == NULL) {
+		if(!tmp) {
 			failf(data, "Malformed ACK packet, rejecting");
 			return CURLE_TFTP_ILLEGAL;
 		}
-
 		infof(data, "got option=(%s) value=(%s)\n", option, value);
-
 		if(checkprefix(option, TFTP_OPTION_BLKSIZE)) {
-			long blksize;
-
-			blksize = strtol(value, NULL, 10);
-
+			long blksize = strtol(value, NULL, 10);
 			if(!blksize) {
 				failf(data, "invalid blocksize value in OACK packet");
 				return CURLE_TFTP_ILLEGAL;
 			}
 			if(blksize > TFTP_BLKSIZE_MAX) {
-				failf(data, "%s (%d)", "blksize is larger than max supported",
-				    TFTP_BLKSIZE_MAX);
+				failf(data, "%s (%d)", "blksize is larger than max supported", TFTP_BLKSIZE_MAX);
 				return CURLE_TFTP_ILLEGAL;
 			}
 			else if(blksize < TFTP_BLKSIZE_MIN) {
-				failf(data, "%s (%d)", "blksize is smaller than min supported",
-				    TFTP_BLKSIZE_MIN);
+				failf(data, "%s (%d)", "blksize is smaller than min supported", TFTP_BLKSIZE_MIN);
 				return CURLE_TFTP_ILLEGAL;
 			}
 			else if(blksize > state->requested_blksize) {

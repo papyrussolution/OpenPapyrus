@@ -629,17 +629,13 @@ cmsContext CMSEXPORT cmsCreateContext(void * Plugin, void * UserData)
 #endif
 #endif
 #endif
-
 	_cmsInstallAllocFunctions(_cmsFindMemoryPlugin(Plugin), &fakeContext.DefaultMemoryManager);
-
 	fakeContext.chunks[UserPtr]     = UserData;
 	fakeContext.chunks[MemPlugin]   = &fakeContext.DefaultMemoryManager;
-
 	// Create the context structure.
 	ctx = (struct _cmsContext_struct*)_cmsMalloc(&fakeContext, sizeof(struct _cmsContext_struct));
 	if(!ctx)
 		return NULL; // Something very wrong happened!
-
 	// Init the structure and the memory manager
 	memzero(ctx, sizeof(struct _cmsContext_struct));
 	// Keep memory manager
@@ -649,17 +645,14 @@ cmsContext CMSEXPORT cmsCreateContext(void * Plugin, void * UserData)
 	ctx->Next = _cmsContextPoolHead;
 	_cmsContextPoolHead = ctx;
 	_cmsLeaveCriticalSectionPrimitive(&_cmsContextPoolHeadMutex);
-
 	ctx->chunks[UserPtr]     = UserData;
 	ctx->chunks[MemPlugin]   = &ctx->DefaultMemoryManager;
-
 	// Now we can allocate the pool by using default memory manager
 	ctx->MemPool = _cmsCreateSubAlloc(ctx, 22 * sizeof(void *)); // default size about 22 pointers
 	if(ctx->MemPool == NULL) {
 		cmsDeleteContext(ctx);
 		return NULL;
 	}
-
 	_cmsAllocLogErrorChunk(ctx, NULL);
 	_cmsAllocAlarmCodesChunk(ctx, NULL);
 	_cmsAllocAdaptationStateChunk(ctx, NULL);

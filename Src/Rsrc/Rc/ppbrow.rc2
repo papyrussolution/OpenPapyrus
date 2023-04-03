@@ -1420,7 +1420,7 @@ browser GOODS north(100), 3, 0, "@{view_goods} {%s}", OWNER|GRID, 0
 browser GOODSWITHSTRUC north(100), 3, 1, "@{view_goodswithstruc} {%s}", OWNER|GRID, 0
 {
 	"@appellation",  2, notype, 0, 30
-	"@structure",   15, notype, 0, 10
+	"@structure",   14, notype, 0, 10 // @v11.6.9 @fix 15-->14
 	toolbar GOODS
 }
 

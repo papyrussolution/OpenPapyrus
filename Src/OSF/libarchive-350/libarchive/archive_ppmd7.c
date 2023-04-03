@@ -1,6 +1,7 @@
-/* Ppmd7.c -- PPMdH codec
-   2010-03-12 : Igor Pavlov : Public domain
-   This code is based on PPMd var.H (2001): Dmitry Shkarin : Public domain */
+// Ppmd7.c -- PPMdH codec
+// 2010-03-12 : Igor Pavlov : Public domain
+// This code is based on PPMd var.H (2001): Dmitry Shkarin : Public domain
+//
 #include "archive_platform.h"
 #pragma hdrstop
 #include "archive_ppmd7_private.h"
@@ -83,9 +84,7 @@ static CPpmd_See * Ppmd7_MakeEscFreq(CPpmd7 * p, unsigned numMasked,
 static void Ppmd7_Construct(CPpmd7 * p)
 {
 	unsigned i, k, m;
-
 	p->Base = 0;
-
 	for(i = 0, k = 0; i < PPMD_NUM_INDEXES; i++) {
 		unsigned step = (i >= 12 ? 4 : (i >> 2) + 1);
 		do {
@@ -93,12 +92,10 @@ static void Ppmd7_Construct(CPpmd7 * p)
 		} while(--step);
 		p->Indx2Units[i] = (Byte)k;
 	}
-
 	p->NS2BSIndx[0] = (0 << 1);
 	p->NS2BSIndx[1] = (1 << 1);
 	memset(p->NS2BSIndx + 2, (2 << 1), 9);
 	memset(p->NS2BSIndx + 11, (3 << 1), 256 - 11);
-
 	for(i = 0; i < 3; i++)
 		p->NS2Indx[i] = (Byte)i;
 	for(m = i, k = 1; i < 256; i++) {
@@ -112,9 +109,11 @@ static void Ppmd7_Construct(CPpmd7 * p)
 
 static void Ppmd7_Free(CPpmd7 * p)
 {
-	SAlloc::F(p->Base);
-	p->Size = 0;
-	p->Base = 0;
+	if(p) {
+		SAlloc::F(p->Base);
+		p->Size = 0;
+		p->Base = 0;
+	}
 }
 
 static boolint Ppmd7_Alloc(CPpmd7 * p, UInt32 size)

@@ -22,7 +22,7 @@ int archive_read_append_filter(Archive * _a, int code)
 	char str[20];
 	ArchiveReadFilterBidder * bidder;
 	ArchiveReadFilter * filter;
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	r2 = (ARCHIVE_OK);
 	switch(code) {
 		case ARCHIVE_FILTER_NONE:
@@ -123,7 +123,7 @@ int archive_read_append_filter_program_signature(Archive * _a, const char * cmd,
 	int r, number_bidders, i;
 	ArchiveReadFilterBidder * bidder;
 	ArchiveReadFilter * filter;
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	if(archive_read_support_filter_program_signature(_a, cmd, signature, signature_len) != (ARCHIVE_OK))
 		return ARCHIVE_FATAL;
 	number_bidders = sizeof(a->bidders) / sizeof(a->bidders[0]);

@@ -957,7 +957,6 @@
     <ClInclude Include="..\OSF\tiff\libtiff\tiffconf.h" />
     <ClInclude Include="..\OSF\tiff\libtiff\tiffio.h" />
     <ClInclude Include="..\OSF\tiff\libtiff\tiffvers.h" />
-    <ClInclude Include="..\OSF\tiff\port\libport.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

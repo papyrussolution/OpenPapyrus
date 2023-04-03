@@ -371,26 +371,21 @@ void ossl_method_store_do_all(OSSL_METHOD_STORE * store, void (*fn)(int id, void
 		ossl_sa_ALGORITHM_doall_arg(store->algs, alg_do_each, &data);
 }
 
-int ossl_method_store_fetch(OSSL_METHOD_STORE * store,
-    int nid, const char * prop_query,
-    const OSSL_PROVIDER ** prov_rw, void ** method)
+int ossl_method_store_fetch(OSSL_METHOD_STORE * store, int nid, const char * prop_query, const OSSL_PROVIDER ** prov_rw, void ** method)
 {
 	OSSL_PROPERTY_LIST ** plp;
 	ALGORITHM * alg;
 	IMPLEMENTATION * impl, * best_impl = NULL;
 	OSSL_PROPERTY_LIST * pq = NULL, * p2 = NULL;
-	const OSSL_PROVIDER * prov = prov_rw != NULL ? *prov_rw : NULL;
+	const OSSL_PROVIDER * prov = prov_rw ? *prov_rw : NULL;
 	int ret = 0;
 	int j, best = -1, score, optional;
-
 #ifndef FIPS_MODULE
 	if(!OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CONFIG, NULL))
 		return 0;
 #endif
-
 	if(nid <= 0 || method == NULL || store == NULL)
 		return 0;
-
 	/* This only needs to be a read lock, because the query won't create anything */
 	if(!ossl_property_read_lock(store))
 		return 0;
@@ -399,7 +394,6 @@ int ossl_method_store_fetch(OSSL_METHOD_STORE * store,
 		ossl_property_unlock(store);
 		return 0;
 	}
-
 	if(prop_query != NULL)
 		p2 = pq = ossl_parse_query(store->ctx, prop_query, 0);
 	plp = ossl_ctx_global_properties(store->ctx, 0);

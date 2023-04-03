@@ -487,7 +487,7 @@ static int rsa_keygen_pairwise_test(RSA * rsa, OSSL_CALLBACK * cb, void * cbarg)
 	OSSL_SELF_TEST * st = NULL;
 
 	st = OSSL_SELF_TEST_new(cb, cbarg);
-	if(st == NULL)
+	if(!st)
 		goto err;
 	OSSL_SELF_TEST_onbegin(st, OSSL_SELF_TEST_TYPE_PCT,
 	    OSSL_SELF_TEST_DESC_PCT_RSA_PKCS1);

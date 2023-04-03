@@ -228,13 +228,11 @@ void ssl_cert_free(CERT * c)
 int ssl_cert_set0_chain(SSL * s, SSL_CTX * ctx, STACK_OF(X509) * chain)
 {
 	int i, r;
-	CERT_PKEY * cpk = s != NULL ? s->cert->key : ctx->cert->key;
-
+	CERT_PKEY * cpk = s ? s->cert->key : ctx->cert->key;
 	if(!cpk)
 		return 0;
 	for(i = 0; i < sk_X509_num(chain); i++) {
 		X509 * x = sk_X509_value(chain, i);
-
 		r = ssl_security_cert(s, ctx, x, 0, 0);
 		if(r != 1) {
 			ERR_raise(ERR_LIB_SSL, r);

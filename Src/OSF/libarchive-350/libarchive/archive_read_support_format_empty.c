@@ -22,7 +22,7 @@ static int archive_read_format_empty_read_header(ArchiveRead *, ArchiveEntry *);
 
 int archive_read_support_format_empty(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	r = __archive_read_register_format(a, NULL, "empty", archive_read_format_empty_bid,

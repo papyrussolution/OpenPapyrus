@@ -162,24 +162,18 @@ void async_start_func(void)
 	}
 }
 
-int ASYNC_start_job(ASYNC_JOB ** job, ASYNC_WAIT_CTX * wctx, int * ret,
-    int (*func)(void *), void * args, size_t size)
+int ASYNC_start_job(ASYNC_JOB ** job, ASYNC_WAIT_CTX * wctx, int * ret, int (*func)(void *), void * args, size_t size)
 {
 	async_ctx * ctx;
 	OSSL_LIB_CTX * libctx;
-
 	if(!OPENSSL_init_crypto(OPENSSL_INIT_ASYNC, NULL))
 		return ASYNC_ERR;
-
 	ctx = async_get_ctx();
-	if(!ctx)
-		ctx = async_ctx_new();
+	SETIFZQ(ctx, async_ctx_new());
 	if(!ctx)
 		return ASYNC_ERR;
-
 	if(*job != NULL)
 		ctx->currjob = *job;
-
 	for(;;) {
 		if(ctx->currjob != NULL) {
 			if(ctx->currjob->status == ASYNC_JOB_STOPPING) {
@@ -190,22 +184,18 @@ int ASYNC_start_job(ASYNC_JOB ** job, ASYNC_WAIT_CTX * wctx, int * ret,
 				*job = NULL;
 				return ASYNC_FINISH;
 			}
-
 			if(ctx->currjob->status == ASYNC_JOB_PAUSING) {
 				*job = ctx->currjob;
 				ctx->currjob->status = ASYNC_JOB_PAUSED;
 				ctx->currjob = NULL;
 				return ASYNC_PAUSE;
 			}
-
 			if(ctx->currjob->status == ASYNC_JOB_PAUSED) {
 				if(*job == NULL)
 					return ASYNC_ERR;
 				ctx->currjob = *job;
-
 				/*
-				 * Restore the default libctx to what it was the last time the
-				 * fibre ran
+				 * Restore the default libctx to what it was the last time the fibre ran
 				 */
 				libctx = OSSL_LIB_CTX_set0_default(ctx->currjob->libctx);
 				if(libctx == NULL) {
@@ -236,12 +226,10 @@ int ASYNC_start_job(ASYNC_JOB ** job, ASYNC_WAIT_CTX * wctx, int * ret,
 			*job = NULL;
 			return ASYNC_ERR;
 		}
-
 		/* Start a new job */
 		if((ctx->currjob = async_get_pool_job()) == NULL)
 			return ASYNC_NO_JOBS;
-
-		if(args != NULL) {
+		if(args) {
 			ctx->currjob->funcargs = OPENSSL_malloc(size);
 			if(ctx->currjob->funcargs == NULL) {
 				ERR_raise(ERR_LIB_ASYNC, ERR_R_MALLOC_FAILURE);
@@ -254,7 +242,6 @@ int ASYNC_start_job(ASYNC_JOB ** job, ASYNC_WAIT_CTX * wctx, int * ret,
 		else {
 			ctx->currjob->funcargs = NULL;
 		}
-
 		ctx->currjob->func = func;
 		ctx->currjob->waitctx = wctx;
 		libctx = ossl_lib_ctx_get_concrete(NULL);
@@ -411,23 +398,18 @@ static void async_delete_thread_state(void * arg)
 
 void ASYNC_cleanup_thread(void)
 {
-	if(!OPENSSL_init_crypto(OPENSSL_INIT_ASYNC, NULL))
-		return;
-
-	async_delete_thread_state(NULL);
+	if(OPENSSL_init_crypto(OPENSSL_INIT_ASYNC, NULL))
+		async_delete_thread_state(NULL);
 }
 
 ASYNC_JOB * ASYNC_get_current_job(void)
 {
 	async_ctx * ctx;
-
 	if(!OPENSSL_init_crypto(OPENSSL_INIT_ASYNC, NULL))
 		return NULL;
-
 	ctx = async_get_ctx();
 	if(!ctx)
 		return NULL;
-
 	return ctx->currjob;
 }
 
@@ -438,33 +420,23 @@ ASYNC_WAIT_CTX * ASYNC_get_wait_ctx(ASYNC_JOB * job)
 
 void ASYNC_block_pause(void)
 {
-	async_ctx * ctx;
-
-	if(!OPENSSL_init_crypto(OPENSSL_INIT_ASYNC, NULL))
-		return;
-
-	ctx = async_get_ctx();
-	if(!ctx || ctx->currjob == NULL) {
-		/*
-		 * We're not in a job anyway so ignore this
-		 */
-		return;
+	if(OPENSSL_init_crypto(OPENSSL_INIT_ASYNC, NULL)) {
+		async_ctx * ctx = async_get_ctx();
+		if(!ctx || !ctx->currjob) {
+			return; // We're not in a job anyway so ignore this
+		}
+		ctx->blocked++;
 	}
-	ctx->blocked++;
 }
 
 void ASYNC_unblock_pause(void)
 {
-	async_ctx * ctx;
-	if(!OPENSSL_init_crypto(OPENSSL_INIT_ASYNC, NULL))
-		return;
-	ctx = async_get_ctx();
-	if(!ctx || ctx->currjob == NULL) {
-		/*
-		 * We're not in a job anyway so ignore this
-		 */
-		return;
+	if(OPENSSL_init_crypto(OPENSSL_INIT_ASYNC, NULL)) {
+		async_ctx * ctx = async_get_ctx();
+		if(!ctx || !ctx->currjob) {
+			return; // We're not in a job anyway so ignore this
+		}
+		if(ctx->blocked > 0)
+			ctx->blocked--;
 	}
-	if(ctx->blocked > 0)
-		ctx->blocked--;
 }

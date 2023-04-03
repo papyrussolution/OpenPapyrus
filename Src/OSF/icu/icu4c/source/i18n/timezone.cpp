@@ -87,11 +87,8 @@ static char gStrBuf[256];
 // Static data and constants
 
 static const UChar WORLD[] = {0x30, 0x30, 0x31, 0x00}; /* "001" */
-
 static const UChar GMT_ID[] = {0x47, 0x4D, 0x54, 0x00}; /* "GMT" */
-static const UChar UNKNOWN_ZONE_ID[] = {0x45, 0x74, 0x63, 0x2F, 0x55, 0x6E, 0x6B, 0x6E, 0x6F, 0x77, 0x6E, 0x00}; /*
-                                                                                                                            "Etc/Unknown"
-       */
+static const UChar UNKNOWN_ZONE_ID[] = {0x45, 0x74, 0x63, 0x2F, 0x55, 0x6E, 0x6B, 0x6E, 0x6F, 0x77, 0x6E, 0x00}; /* "Etc/Unknown" */
 static const int32_t GMT_ID_LENGTH = 3;
 static const int32_t UNKNOWN_ZONE_ID_LENGTH = 11;
 
@@ -684,7 +681,6 @@ void TimeZone::getOffset(UDate date, bool local, int32_t& rawOffset,
 
 class TZEnumeration : public StringEnumeration {
 private:
-
 	// Map into to zones.  Our results are zone[map[i]] for
 	// i=0..len-1, where zone[i] is the i-th Olson zone.  If map==NULL
 	// then our results are zone[i] for i=0..len-1.  Len will be zero
@@ -694,13 +690,14 @@ private:
 	int32_t len;
 	int32_t pos;
 
-	TZEnumeration(int32_t* mapData, int32_t mapLen, bool adoptMapData) : pos(0) {
+	TZEnumeration(int32_t* mapData, int32_t mapLen, bool adoptMapData) : pos(0) 
+	{
 		map = mapData;
 		localMap = adoptMapData ? mapData : NULL;
 		len = mapLen;
 	}
-
-	bool getID(int32_t i, UErrorCode & ec) {
+	bool getID(int32_t i, UErrorCode & ec) 
+	{
 		int32_t idLen = 0;
 		const UChar * id = NULL;
 		UResourceBundle * top = ures_openDirect(0, kZONEINFO, &ec);
@@ -715,8 +712,8 @@ private:
 		ures_close(top);
 		return U_SUCCESS(ec);
 	}
-
-	static int32_t* getMap(USystemTimeZoneType type, int32_t& len, UErrorCode & ec) {
+	static int32_t* getMap(USystemTimeZoneType type, int32_t& len, UErrorCode & ec) 
+	{
 		len = 0;
 		if(U_FAILURE(ec)) {
 			return NULL;
@@ -746,13 +743,13 @@ private:
 		}
 		return m;
 	}
-
 public:
 
 #define DEFAULT_FILTERED_MAP_SIZE 8
 #define MAP_INCREMENT_SIZE 8
 
-	static TZEnumeration* create(USystemTimeZoneType type, const char * region, const int32_t* rawOffset, UErrorCode & ec) {
+	static TZEnumeration* create(USystemTimeZoneType type, const char * region, const int32_t* rawOffset, UErrorCode & ec) 
+	{
 		if(U_FAILURE(ec)) {
 			return NULL;
 		}
@@ -803,16 +800,14 @@ public:
 					}
 					int32_t tzoffset = z->getRawOffset();
 					delete z;
-
 					if(tzoffset != *rawOffset) {
 						continue;
 					}
 				}
-
 				if(filteredMapSize <= numEntries) {
 					filteredMapSize += MAP_INCREMENT_SIZE;
 					int32_t * tmp = (int32_t*)uprv_realloc(filteredMap, filteredMapSize * sizeof(int32_t));
-					if(tmp == NULL) {
+					if(!tmp) {
 						ec = U_MEMORY_ALLOCATION_ERROR;
 						break;
 					}
@@ -874,12 +869,8 @@ public:
 		}
 	}
 	virtual ~TZEnumeration();
-	virtual StringEnumeration * clone() const override {
-		return new TZEnumeration(*this);
-	}
-	virtual int32_t count(UErrorCode & status) const override {
-		return U_FAILURE(status) ? 0 : len;
-	}
+	virtual StringEnumeration * clone() const override { return new TZEnumeration(*this); }
+	virtual int32_t count(UErrorCode & status) const override { return U_FAILURE(status) ? 0 : len; }
 	virtual const UnicodeString * snext(UErrorCode & status) override 
 	{
 		if(U_SUCCESS(status) && map && pos < len) {
@@ -889,11 +880,7 @@ public:
 		}
 		return 0;
 	}
-
-	virtual void reset(UErrorCode & /*status*/) override {
-		pos = 0;
-	}
-
+	virtual void reset(UErrorCode & /*status*/) override { pos = 0; }
 public:
 	static UClassID U_EXPORT2 getStaticClassID();
 	virtual UClassID getDynamicClassID() const override;
@@ -931,22 +918,26 @@ StringEnumeration * U_EXPORT2 TimeZone::createEnumerationForRegion(const char * 
 // Next 3 methods are equivalent to above, but ignores UErrorCode.
 // These methods were deprecated in ICU 70.
 
-StringEnumeration * U_EXPORT2 TimeZone::createEnumeration() {
+StringEnumeration * U_EXPORT2 TimeZone::createEnumeration() 
+{
 	UErrorCode ec = U_ZERO_ERROR;
 	return createEnumeration(ec);
 }
 
-StringEnumeration * U_EXPORT2 TimeZone::createEnumeration(int32_t rawOffset) {
+StringEnumeration * U_EXPORT2 TimeZone::createEnumeration(int32_t rawOffset) 
+{
 	UErrorCode ec = U_ZERO_ERROR;
 	return createEnumerationForRawOffset(rawOffset, ec);
 }
 
-StringEnumeration * U_EXPORT2 TimeZone::createEnumeration(const char * region) {
+StringEnumeration * U_EXPORT2 TimeZone::createEnumeration(const char * region) 
+{
 	UErrorCode ec = U_ZERO_ERROR;
 	return createEnumerationForRegion(region, ec);
 }
 
-int32_t U_EXPORT2 TimeZone::countEquivalentIDs(const UnicodeString & id) {
+int32_t U_EXPORT2 TimeZone::countEquivalentIDs(const UnicodeString & id) 
+{
 	int32_t result = 0;
 	UErrorCode ec = U_ZERO_ERROR;
 	StackUResourceBundle res;
@@ -961,7 +952,8 @@ int32_t U_EXPORT2 TimeZone::countEquivalentIDs(const UnicodeString & id) {
 	return result;
 }
 
-const UnicodeString U_EXPORT2 TimeZone::getEquivalentID(const UnicodeString & id, int32_t index) {
+const UnicodeString U_EXPORT2 TimeZone::getEquivalentID(const UnicodeString & id, int32_t index) 
+{
 	U_DEBUG_TZ_MSG(("gEI(%d)\n", index));
 	UnicodeString result;
 	UErrorCode ec = U_ZERO_ERROR;
@@ -1000,7 +992,8 @@ const UnicodeString U_EXPORT2 TimeZone::getEquivalentID(const UnicodeString & id
 
 // These methods are used by ZoneMeta class only.
 
-const UChar * TimeZone::findID(const UnicodeString & id) {
+const UChar * TimeZone::findID(const UnicodeString & id) 
+{
 	const UChar * result = NULL;
 	UErrorCode ec = U_ZERO_ERROR;
 	UResourceBundle * rb = ures_openDirect(NULL, kZONEINFO, &ec);
@@ -1427,17 +1420,16 @@ UnicodeString &TimeZone::formatCustomID(int32_t hour, int32_t min, int32_t sec,
 
 bool TimeZone::hasSameRules(const TimeZone& other) const
 {
-	return (getRawOffset() == other.getRawOffset() &&
-	       useDaylightTime() == other.useDaylightTime());
+	return (getRawOffset() == other.getRawOffset() && useDaylightTime() == other.useDaylightTime());
 }
 
-static void U_CALLCONV initTZDataVersion(UErrorCode & status) {
+static void U_CALLCONV initTZDataVersion(UErrorCode & status) 
+{
 	ucln_i18n_registerCleanup(UCLN_I18N_TIMEZONE, timeZone_cleanup);
 	int32_t len = 0;
 	StackUResourceBundle bundle;
 	ures_openDirectFillIn(bundle.getAlias(), NULL, kZONEINFO, &status);
 	const UChar * tzver = ures_getStringByKey(bundle.getAlias(), kTZVERSION, &len, &status);
-
 	if(U_SUCCESS(status)) {
 		if(len >= (int32_t)sizeof(TZDATA_VERSION)) {
 			// Ensure that there is always space for a trailing nul in TZDATA_VERSION
@@ -1621,7 +1613,6 @@ UnicodeString &TimeZone::getIDForWindowsID(const UnicodeString & winid, const ch
 			id.setTo(tzid, len);
 		}
 	}
-
 	ures_close(zones);
 	return id;
 }
@@ -1629,5 +1620,3 @@ UnicodeString &TimeZone::getIDForWindowsID(const UnicodeString & winid, const ch
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
-//eof

@@ -101,7 +101,7 @@ EVP_PKEY * ossl_d2i_PrivateKey_legacy(int keytype, EVP_PKEY ** a, const uchar **
 			}
 			tmp = evp_pkcs82pkey_legacy(p8, libctx, propq);
 			PKCS8_PRIV_KEY_INFO_free(p8);
-			if(tmp == NULL) {
+			if(!tmp) {
 				ERR_clear_last_mark();
 				goto err;
 			}

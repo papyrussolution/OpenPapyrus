@@ -21,12 +21,9 @@
 
 static char * strip_spaces(char * name);
 static int sk_strcmp(const char * const * a, const char * const * b);
-static STACK_OF(OPENSSL_STRING) *get_email(const X509_NAME *name,
-    GENERAL_NAMES *gens);
+static STACK_OF(OPENSSL_STRING) *get_email(const X509_NAME *name, GENERAL_NAMES *gens);
 static void str_free(OPENSSL_STRING str);
-static int append_ia5(STACK_OF(OPENSSL_STRING) ** sk,
-    const ASN1_IA5STRING * email);
-
+static int append_ia5(STACK_OF(OPENSSL_STRING) ** sk, const ASN1_IA5STRING * email);
 static int ipv4_from_asc(uchar * v4, const char * in);
 static int ipv6_from_asc(uchar * v6, const char * in);
 static int ipv6_cb(const char * elem, int len, void * usr);
@@ -34,15 +31,14 @@ static int ipv6_hex(uchar * out, const char * in, int inlen);
 
 /* Add a CONF_VALUE name value pair to stack */
 
-static int x509v3_add_len_value(const char * name, const char * value,
-    size_t vallen, STACK_OF(CONF_VALUE) ** extlist)
+static int x509v3_add_len_value(const char * name, const char * value, size_t vallen, STACK_OF(CONF_VALUE) ** extlist)
 {
 	CONF_VALUE * vtmp = NULL;
 	char * tname = NULL, * tvalue = NULL;
 	int sk_allocated = (*extlist == NULL);
 	if(name != NULL && (tname = OPENSSL_strdup(name)) == NULL)
 		goto err;
-	if(value != NULL) {
+	if(value) {
 		/* We don't allow embeded NUL characters */
 		if(memchr(value, 0, vallen) != NULL)
 			goto err;
@@ -72,24 +68,17 @@ err:
 	return 0;
 }
 
-int X509V3_add_value(const char * name, const char * value,
-    STACK_OF(CONF_VALUE) ** extlist)
+int X509V3_add_value(const char * name, const char * value, STACK_OF(CONF_VALUE) ** extlist)
 {
-	return x509v3_add_len_value(name, value,
-		   value != NULL ? strlen((const char *)value) : 0,
-		   extlist);
+	return x509v3_add_len_value(name, value, sstrlen((const char *)value), extlist);
 }
 
-int X509V3_add_value_uchar(const char * name, const uchar * value,
-    STACK_OF(CONF_VALUE) ** extlist)
+int X509V3_add_value_uchar(const char * name, const uchar * value, STACK_OF(CONF_VALUE) ** extlist)
 {
-	return x509v3_add_len_value(name, (const char *)value,
-		   value != NULL ? strlen((const char *)value) : 0,
-		   extlist);
+	return x509v3_add_len_value(name, (const char *)value, sstrlen((const char *)value), extlist);
 }
 
-int x509v3_add_len_value_uchar(const char * name, const uchar * value,
-    size_t vallen, STACK_OF(CONF_VALUE) ** extlist)
+int x509v3_add_len_value_uchar(const char * name, const uchar * value, size_t vallen, STACK_OF(CONF_VALUE) ** extlist)
 {
 	return x509v3_add_len_value(name, (const char *)value, vallen, extlist);
 }
@@ -98,35 +87,28 @@ int x509v3_add_len_value_uchar(const char * name, const uchar * value,
 
 void X509V3_conf_free(CONF_VALUE * conf)
 {
-	if(!conf)
-		return;
-	OPENSSL_free(conf->name);
-	OPENSSL_free(conf->value);
-	OPENSSL_free(conf->section);
-	OPENSSL_free(conf);
+	if(conf) {
+		OPENSSL_free(conf->name);
+		OPENSSL_free(conf->value);
+		OPENSSL_free(conf->section);
+		OPENSSL_free(conf);
+	}
 }
 
-int X509V3_add_value_bool(const char * name, int asn1_bool,
-    STACK_OF(CONF_VALUE) ** extlist)
+int X509V3_add_value_bool(const char * name, int asn1_bool, STACK_OF(CONF_VALUE) ** extlist)
 {
-	if(asn1_bool)
-		return X509V3_add_value(name, "TRUE", extlist);
-	return X509V3_add_value(name, "FALSE", extlist);
+	return asn1_bool ? X509V3_add_value(name, "TRUE", extlist) : X509V3_add_value(name, "FALSE", extlist);
 }
 
-int X509V3_add_value_bool_nf(const char * name, int asn1_bool,
-    STACK_OF(CONF_VALUE) ** extlist)
+int X509V3_add_value_bool_nf(const char * name, int asn1_bool, STACK_OF(CONF_VALUE) ** extlist)
 {
-	if(asn1_bool)
-		return X509V3_add_value(name, "TRUE", extlist);
-	return 1;
+	return asn1_bool ? X509V3_add_value(name, "TRUE", extlist) : 1;
 }
 
 static char * bignum_to_string(const BIGNUM * bn)
 {
 	char * tmp, * ret;
 	size_t len;
-
 	/*
 	 * Display large numbers in hex and small numbers in decimal. Converting to
 	 * decimal takes quadratic time and is no more useful than hex for large
@@ -134,11 +116,9 @@ static char * bignum_to_string(const BIGNUM * bn)
 	 */
 	if(BN_num_bits(bn) < 128)
 		return BN_bn2dec(bn);
-
 	tmp = BN_bn2hex(bn);
-	if(tmp == NULL)
+	if(!tmp)
 		return NULL;
-
 	len = strlen(tmp) + 3;
 	ret = (char *)OPENSSL_malloc(len);
 	if(!ret) {

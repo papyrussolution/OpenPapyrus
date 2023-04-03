@@ -1,7 +1,7 @@
-/* Ppmd8.c -- PPMdI codec
-   2016-05-21 : Igor Pavlov : Public domain
-   This code is based on PPMd var.I (2002): Dmitry Shkarin : Public domain */
-
+// Ppmd8.c -- PPMdI codec
+// 2016-05-21 : Igor Pavlov : Public domain
+// This code is based on PPMd var.I (2002): Dmitry Shkarin : Public domain 
+//
 #include "archive_platform.h"
 #pragma hdrstop
 #include "archive_ppmd8_private.h"

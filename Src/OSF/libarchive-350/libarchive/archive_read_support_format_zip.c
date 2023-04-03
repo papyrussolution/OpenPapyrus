@@ -2832,7 +2832,7 @@ static int archive_read_format_zip_read_data_skip_streamable(ArchiveRead * a)
 
 int archive_read_support_format_zip_streamable(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	struct zip * zip;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
@@ -3519,7 +3519,7 @@ static int archive_read_format_zip_read_data_skip_seekable(ArchiveRead * a)
 
 int archive_read_support_format_zip_seekable(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	struct zip * zip;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);

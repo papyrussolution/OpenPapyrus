@@ -21,7 +21,7 @@ int archive_read_set_format(Archive * _a, int code)
 	int r1, r2, i;
 	//char str[10];
 	const char * p_str = 0;
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	if((r1 = archive_read_support_format_by_code(_a, code)) < (ARCHIVE_OK))
 		return r1;
 	r1 = r2 = (ARCHIVE_OK);

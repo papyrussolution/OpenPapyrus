@@ -1629,6 +1629,8 @@ public class SLib {
 		// Интерфейс возвращает в ответ либо какой-то объект (инициатор должен знать что это за объект), либо null.
 		// Варианты строки запроса:
 		// "GetSvcDataTime" - запрос на метку времени данных, полученных от сервиса и с которыми работает объект.
+	public static final int EV_DATETIMEPICKERREPLY  = 25; // @v11.6.9 Посылается диалогом семейства DateTimePicker в ответ на выбор
+		// пользователем даты/времени/периода. srcObj: экземпляр класса, создавший сообщение, subj: SLib.LDATE || SLib.LTIME || SLib.DateRange || SLib.STimeChunk
 	//
 	public static final int cmOK                    = 10; // Значение эквивалентно тому же в tvdefs.h
 	public static final int cmCancel                = 11; // Значение эквивалентно тому же в tvdefs.h
@@ -2829,6 +2831,14 @@ public class SLib {
 		{
 			v = (s != null) ? s.v : 0;
 		}
+		LDATE(final Calendar cal)
+		{
+			if(cal != null) {
+				SetYear(cal.get(Calendar.YEAR));
+				SetMonth(cal.get(Calendar.MONTH));
+				SetDay(cal.get(Calendar.DAY_OF_MONTH));
+			}
+		}
 		public static int Difference(LDATE d1, LDATE d2)
 		{
 			int nd1 = DateToDaysSinceChristmas(d1.year(), d1.month(), d1.day());
@@ -3288,15 +3298,26 @@ public class SLib {
 	public static String datetimefmt(LDATETIME dtm, int dtfmt, int tmfmt)
 	{
 		String result = null;
-		int df = SFMTFLAG(dtfmt);
-		int tf = SFMTFLAG(tmfmt);
-		int df2 = (df & ~(DATF_CENTURY|DATF_NOZERO|DATF_NODIV));
-		if(df2 == DATF_SQL || tf == TIMF_SQL) {
-			final String format = "%02d:%02d:%04d %02d:%02d:%02d.%02d";
-			result = String.format(format, dtm.d.month(), dtm.d.day(), dtm.d.year(), dtm.t.hour(), dtm.t.minut(), dtm.t.sec(), dtm.t.hs());
-		}
-		else {
-			result = datefmt(dtm.d.day(), dtm.d.month(), dtm.d.year(), dtfmt) + ((df2 == DATF_ISO8601) ? "T" : " ") + timefmt(dtm.t, tmfmt);
+		if(dtm != null && dtm.d != null) {
+			int df = SFMTFLAG(dtfmt);
+			int tf = SFMTFLAG(tmfmt);
+			int df2 = (df & ~(DATF_CENTURY | DATF_NOZERO | DATF_NODIV));
+			if(df2 == DATF_SQL || tf == TIMF_SQL) {
+				if(dtm.t != null) {
+					final String format = "%02d:%02d:%04d %02d:%02d:%02d.%02d";
+					result = String.format(format, dtm.d.month(), dtm.d.day(), dtm.d.year(), dtm.t.hour(), dtm.t.minut(), dtm.t.sec(), dtm.t.hs());
+				}
+				else {
+					final String format = "%02d:%02d:%04d";
+					result = String.format(format, dtm.d.month(), dtm.d.day(), dtm.d.year());
+				}
+			}
+			else {
+				if(dtm.t != null)
+					result = datefmt(dtm.d.day(), dtm.d.month(), dtm.d.year(), dtfmt) + ((df2 == DATF_ISO8601) ? "T" : " ") + timefmt(dtm.t, tmfmt);
+				else
+					result = datefmt(dtm.d.day(), dtm.d.month(), dtm.d.year(), dtfmt);
+			}
 		}
 		return result;
 	}

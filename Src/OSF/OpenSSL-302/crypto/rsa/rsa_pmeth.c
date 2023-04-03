@@ -49,7 +49,7 @@ static int pkey_rsa_init(EVP_PKEY_CTX * ctx)
 {
 	RSA_PKEY_CTX * rctx = (RSA_PKEY_CTX *)OPENSSL_zalloc(sizeof(*rctx));
 
-	if(rctx == NULL)
+	if(!rctx)
 		return 0;
 	rctx->nbits = 2048;
 	rctx->primes = RSA_DEFAULT_PRIME_NUM;

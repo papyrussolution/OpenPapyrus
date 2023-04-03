@@ -2269,39 +2269,29 @@ static CURLcode pkp_pin_peer_pubkey(struct Curl_easy * data,
 	uchar * pubkey = NULL, * realpubkey = NULL;
 	const uchar * spkiHeader = NULL;
 	CFDataRef publicKeyBits = NULL;
-
 	/* Result is returned to caller */
 	CURLcode result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
-
 	/* if a path wasn't specified, don't pin */
 	if(!pinnedpubkey)
 		return CURLE_OK;
-
 	if(!ctx)
 		return result;
-
 	do {
 		SecTrustRef trust;
 		OSStatus ret = SSLCopyPeerTrust(ctx, &trust);
 		if(ret != noErr || trust == NULL)
 			break;
-
 		SecKeyRef keyRef = SecTrustCopyPublicKey(trust);
 		CFRelease(trust);
 		if(keyRef == NULL)
 			break;
-
 #ifdef SECTRANSP_PINNEDPUBKEY_V1
-
 		publicKeyBits = SecKeyCopyExternalRepresentation(keyRef, NULL);
 		CFRelease(keyRef);
 		if(publicKeyBits == NULL)
 			break;
-
 #elif SECTRANSP_PINNEDPUBKEY_V2
-
-		OSStatus success = SecItemExport(keyRef, kSecFormatOpenSSL, 0, NULL,
-			&publicKeyBits);
+		OSStatus success = SecItemExport(keyRef, kSecFormatOpenSSL, 0, NULL, &publicKeyBits);
 		CFRelease(keyRef);
 		if(success != errSecSuccess || publicKeyBits == NULL)
 			break;

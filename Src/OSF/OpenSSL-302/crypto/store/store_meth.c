@@ -240,31 +240,24 @@ static void * construct_loader(const OSSL_ALGORITHM * algodef, OSSL_PROVIDER * p
 	 */
 	if(!method)
 		methdata->flag_construct_error_occurred = 1;
-
 	return method;
 }
 
 /* Intermediary function to avoid ugly casts, used below */
-static void destruct_loader(void * method, void * data)
-{
-	OSSL_STORE_LOADER_free((OSSL_STORE_LOADER *)method);
-}
+static void destruct_loader(void * method, void * data) { OSSL_STORE_LOADER_free((OSSL_STORE_LOADER *)method); }
 
 /* Fetching support.  Can fetch by numeric identity or by scheme */
-static OSSL_STORE_LOADER * inner_loader_fetch(struct loader_data_st * methdata, int id,
-    const char * scheme, const char * properties)
+static OSSL_STORE_LOADER * inner_loader_fetch(struct loader_data_st * methdata, int id, const char * scheme, const char * properties)
 {
 	OSSL_METHOD_STORE * store = get_loader_store(methdata->libctx);
 	OSSL_NAMEMAP * namemap = ossl_namemap_stored(methdata->libctx);
-	const char * const propq = properties != NULL ? properties : "";
+	const char * const propq = properties ? properties : "";
 	void * method = NULL;
 	int unsupported = 0;
-
 	if(store == NULL || namemap == NULL) {
 		ERR_raise(ERR_LIB_OSSL_STORE, ERR_R_PASSED_INVALID_ARGUMENT);
 		return NULL;
 	}
-
 	/*
 	 * If we have been passed both an id and a scheme, we have an
 	 * internal programming error.
@@ -273,20 +266,16 @@ static OSSL_STORE_LOADER * inner_loader_fetch(struct loader_data_st * methdata, 
 		ERR_raise(ERR_LIB_OSSL_STORE, ERR_R_INTERNAL_ERROR);
 		return NULL;
 	}
-
 	/* If we haven't received a name id yet, try to get one for the name */
 	if(id == 0 && scheme != NULL)
 		id = ossl_namemap_name2num(namemap, scheme);
-
 	/*
 	 * If we haven't found the name yet, chances are that the algorithm to
 	 * be fetched is unsupported.
 	 */
 	if(id == 0)
 		unsupported = 1;
-
-	if(id == 0
-	    || !ossl_method_store_cache_get(store, NULL, id, propq, &method)) {
+	if(id == 0 || !ossl_method_store_cache_get(store, NULL, id, propq, &method)) {
 		OSSL_METHOD_CONSTRUCT_METHOD mcm = {
 			get_tmp_loader_store,
 			get_loader_from_store,

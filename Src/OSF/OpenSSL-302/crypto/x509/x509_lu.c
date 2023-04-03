@@ -330,7 +330,7 @@ int X509_STORE_CTX_get_by_subject(const X509_STORE_CTX * vs,
 				break;
 			}
 		}
-		if(tmp == NULL)
+		if(!tmp)
 			return 0;
 	}
 

@@ -1,16 +1,9 @@
-/*-
- * Copyright (c) 2014 Michihiro NAKAJIMA
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- */
+// Copyright (c) 2014 Michihiro NAKAJIMA All rights reserved.
+// Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+//   documentation and/or other materials provided with the distribution.
+// 
 #include "archive_platform.h"
 #pragma hdrstop
 #include "archive_hmac_private.h"
@@ -143,8 +136,7 @@ static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8 * key, size
 	return 0;
 }
 
-static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data,
-    size_t data_len)
+static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data, size_t data_len)
 {
 	mbedtls_md_hmac_update(ctx, data, data_len);
 }
@@ -152,7 +144,6 @@ static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data,
 static void __hmac_sha1_final(archive_hmac_sha1_ctx * ctx, uint8 * out, size_t * out_len)
 {
 	CXX_UNUSED(out_len);
-
 	mbedtls_md_hmac_finish(ctx, out);
 }
 
@@ -196,8 +187,7 @@ static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8 * key, size
 	return 0;
 }
 
-static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data,
-    size_t data_len)
+static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data, size_t data_len)
 {
 	HMAC_Update(*ctx, data, data_len);
 }
@@ -205,7 +195,6 @@ static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data,
 static void __hmac_sha1_final(archive_hmac_sha1_ctx * ctx, uint8 * out, size_t * out_len)
 {
 	uint len = (uint)*out_len;
-
 	HMAC_Final(*ctx, out, &len);
 	*out_len = len;
 }

@@ -554,32 +554,25 @@ int EVP_PKEY_get_raw_public_key(const EVP_PKEY * pkey, uchar * pub,
 	return 1;
 }
 
-static EVP_PKEY * new_cmac_key_int(const uchar * priv, size_t len,
-    const char * cipher_name,
-    const EVP_CIPHER * cipher,
-    OSSL_LIB_CTX * libctx,
-    const char * propq, ENGINE * e)
+static EVP_PKEY * new_cmac_key_int(const uchar * priv, size_t len, const char * cipher_name,
+    const EVP_CIPHER * cipher, OSSL_LIB_CTX * libctx, const char * propq, ENGINE * e)
 {
 #ifndef OPENSSL_NO_CMAC
 #ifndef OPENSSL_NO_ENGINE
-	const char * engine_id = e != NULL ? ENGINE_get_id(e) : NULL;
+	const char * engine_id = e ? ENGINE_get_id(e) : NULL;
 #endif
 	OSSL_PARAM params[5], * p = params;
 	EVP_PKEY * pkey = NULL;
 	EVP_PKEY_CTX * ctx;
-
 	if(cipher != NULL)
 		cipher_name = EVP_CIPHER_get0_name(cipher);
-
 	if(cipher_name == NULL) {
 		ERR_raise(ERR_LIB_EVP, EVP_R_KEY_SETUP_FAILED);
 		return NULL;
 	}
-
 	ctx = EVP_PKEY_CTX_new_from_name(libctx, "CMAC", propq);
 	if(!ctx)
 		goto err;
-
 	if(EVP_PKEY_fromdata_init(ctx) <= 0) {
 		ERR_raise(ERR_LIB_EVP, EVP_R_KEY_SETUP_FAILED);
 		goto err;
@@ -1080,12 +1073,9 @@ static int print_set_indent(BIO ** out, int * pop_f_prefix, long * saved_indent,
 	return 1;
 }
 
-static int unsup_alg(BIO * out, const EVP_PKEY * pkey, int indent,
-    const char * kstr)
+static int unsup_alg(BIO * out, const EVP_PKEY * pkey, int indent, const char * kstr)
 {
-	return BIO_indent(out, indent, 128)
-	       && BIO_printf(out, "%s algorithm \"%s\" unsupported\n",
-		   kstr, OBJ_nid2ln(pkey->type)) > 0;
+	return BIO_indent(out, indent, 128) && BIO_printf(out, "%s algorithm \"%s\" unsupported\n", kstr, OBJ_nid2ln(pkey->type)) > 0;
 }
 
 static int print_pkey(const EVP_PKEY * pkey, BIO * out, int indent,
@@ -1099,61 +1089,44 @@ static int print_pkey(const EVP_PKEY * pkey, BIO * out, int indent,
 	long saved_indent;
 	OSSL_ENCODER_CTX * ctx = NULL;
 	int ret = -2;            /* default to unsupported */
-
 	if(!print_set_indent(&out, &pop_f_prefix, &saved_indent, indent))
 		return 0;
-
-	ctx = OSSL_ENCODER_CTX_new_for_pkey(pkey, selection, "TEXT", NULL,
-		propquery);
+	ctx = OSSL_ENCODER_CTX_new_for_pkey(pkey, selection, "TEXT", NULL, propquery);
 	if(OSSL_ENCODER_CTX_get_num_encoders(ctx) != 0)
 		ret = OSSL_ENCODER_to_bio(ctx, out);
 	OSSL_ENCODER_CTX_free(ctx);
-
 	if(ret != -2)
 		goto end;
-
 	/* legacy fallback */
-	if(legacy_print != NULL)
+	if(legacy_print)
 		ret = legacy_print(out, pkey, 0, legacy_pctx);
 	else
 		ret = unsup_alg(out, pkey, 0, "Public Key");
-
 end:
 	print_reset_indent(&out, pop_f_prefix, saved_indent);
 	return ret;
 }
 
-int EVP_PKEY_print_public(BIO * out, const EVP_PKEY * pkey,
-    int indent, ASN1_PCTX * pctx)
+int EVP_PKEY_print_public(BIO * out, const EVP_PKEY * pkey, int indent, ASN1_PCTX * pctx)
 {
-	return print_pkey(pkey, out, indent, EVP_PKEY_PUBLIC_KEY, NULL,
-		   (pkey->ameth != NULL ? pkey->ameth->pub_print : NULL),
-		   pctx);
+	return print_pkey(pkey, out, indent, EVP_PKEY_PUBLIC_KEY, NULL, (pkey->ameth ? pkey->ameth->pub_print : NULL), pctx);
 }
 
-int EVP_PKEY_print_private(BIO * out, const EVP_PKEY * pkey,
-    int indent, ASN1_PCTX * pctx)
+int EVP_PKEY_print_private(BIO * out, const EVP_PKEY * pkey, int indent, ASN1_PCTX * pctx)
 {
-	return print_pkey(pkey, out, indent, EVP_PKEY_KEYPAIR, NULL,
-		   (pkey->ameth != NULL ? pkey->ameth->priv_print : NULL),
-		   pctx);
+	return print_pkey(pkey, out, indent, EVP_PKEY_KEYPAIR, NULL, (pkey->ameth ? pkey->ameth->priv_print : NULL), pctx);
 }
 
-int EVP_PKEY_print_params(BIO * out, const EVP_PKEY * pkey,
-    int indent, ASN1_PCTX * pctx)
+int EVP_PKEY_print_params(BIO * out, const EVP_PKEY * pkey, int indent, ASN1_PCTX * pctx)
 {
-	return print_pkey(pkey, out, indent, EVP_PKEY_KEY_PARAMETERS, NULL,
-		   (pkey->ameth != NULL ? pkey->ameth->param_print : NULL),
-		   pctx);
+	return print_pkey(pkey, out, indent, EVP_PKEY_KEY_PARAMETERS, NULL, (pkey->ameth ? pkey->ameth->param_print : NULL), pctx);
 }
 
 #ifndef OPENSSL_NO_STDIO
-int EVP_PKEY_print_public_fp(FILE * fp, const EVP_PKEY * pkey,
-    int indent, ASN1_PCTX * pctx)
+int EVP_PKEY_print_public_fp(FILE * fp, const EVP_PKEY * pkey, int indent, ASN1_PCTX * pctx)
 {
 	int ret;
 	BIO * b = BIO_new_fp(fp, BIO_NOCLOSE);
-
 	if(!b)
 		return 0;
 	ret = EVP_PKEY_print_public(b, pkey, indent, pctx);
@@ -1161,12 +1134,10 @@ int EVP_PKEY_print_public_fp(FILE * fp, const EVP_PKEY * pkey,
 	return ret;
 }
 
-int EVP_PKEY_print_private_fp(FILE * fp, const EVP_PKEY * pkey,
-    int indent, ASN1_PCTX * pctx)
+int EVP_PKEY_print_private_fp(FILE * fp, const EVP_PKEY * pkey, int indent, ASN1_PCTX * pctx)
 {
 	int ret;
 	BIO * b = BIO_new_fp(fp, BIO_NOCLOSE);
-
 	if(!b)
 		return 0;
 	ret = EVP_PKEY_print_private(b, pkey, indent, pctx);
@@ -1174,12 +1145,10 @@ int EVP_PKEY_print_private_fp(FILE * fp, const EVP_PKEY * pkey,
 	return ret;
 }
 
-int EVP_PKEY_print_params_fp(FILE * fp, const EVP_PKEY * pkey,
-    int indent, ASN1_PCTX * pctx)
+int EVP_PKEY_print_params_fp(FILE * fp, const EVP_PKEY * pkey, int indent, ASN1_PCTX * pctx)
 {
 	int ret;
 	BIO * b = BIO_new_fp(fp, BIO_NOCLOSE);
-
 	if(!b)
 		return 0;
 	ret = EVP_PKEY_print_params(b, pkey, indent, pctx);
@@ -1192,17 +1161,14 @@ int EVP_PKEY_print_params_fp(FILE * fp, const EVP_PKEY * pkey,
 static void mdname2nid(const char * mdname, void * data)
 {
 	int * nid = (int*)data;
-
 	if(*nid != NID_undef)
 		return;
-
 	*nid = OBJ_sn2nid(mdname);
 	if(*nid == NID_undef)
 		*nid = OBJ_ln2nid(mdname);
 }
 
-static int legacy_asn1_ctrl_to_param(EVP_PKEY * pkey, int op,
-    int arg1, void * arg2)
+static int legacy_asn1_ctrl_to_param(EVP_PKEY * pkey, int op, int arg1, void * arg2)
 {
 	if(pkey->keymgmt == NULL)
 		return 0;
@@ -1210,9 +1176,7 @@ static int legacy_asn1_ctrl_to_param(EVP_PKEY * pkey, int op,
 		case ASN1_PKEY_CTRL_DEFAULT_MD_NID:
 	    {
 		    char mdname[80] = "";
-		    int rv = EVP_PKEY_get_default_digest_name(pkey, mdname,
-			    sizeof(mdname));
-
+		    int rv = EVP_PKEY_get_default_digest_name(pkey, mdname, sizeof(mdname));
 		    if(rv > 0) {
 			    int mdnum;
 			    OSSL_LIB_CTX * libctx = ossl_provider_libctx(pkey->keymgmt->prov);
@@ -1225,7 +1189,6 @@ static int legacy_asn1_ctrl_to_param(EVP_PKEY * pkey, int op,
 			    md = EVP_MD_fetch(libctx, mdname, NULL);
 			    (void)ERR_pop_to_mark();
 			    namemap = ossl_namemap_stored(libctx);
-
 			    /*
 			     * The only reason to fetch the MD was to make sure it is in the
 			     * namemap. We can immediately free it.

@@ -36,7 +36,7 @@ static int grzip_reader_free(ArchiveReadFilterBidder * self)
 
 int archive_read_support_filter_grzip(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	ArchiveReadFilterBidder * reader;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(__archive_read_get_bidder(a, &reader) != ARCHIVE_OK)

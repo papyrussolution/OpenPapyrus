@@ -9,7 +9,7 @@
 #include <internal/openssl-crypto-internal.h>
 #pragma hdrstop
 #ifdef OPENSSL_NO_CT
-#error "CT is disabled"
+	#error "CT is disabled"
 #endif
 #include <time.h>
 #include "ct_local.h"
@@ -28,7 +28,6 @@ CT_POLICY_EVAL_CTX * CT_POLICY_EVAL_CTX_new_ex(OSSL_LIB_CTX * libctx, const char
 		ERR_raise(ERR_LIB_CT, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-
 	ctx->libctx = libctx;
 	if(propq) {
 		ctx->propq = OPENSSL_strdup(propq);
@@ -38,11 +37,8 @@ CT_POLICY_EVAL_CTX * CT_POLICY_EVAL_CTX_new_ex(OSSL_LIB_CTX * libctx, const char
 			return NULL;
 		}
 	}
-
 	/* time(NULL) shouldn't ever fail, so don't bother checking for -1. */
-	ctx->epoch_time_in_ms = (uint64_t)(time(NULL) + SCT_CLOCK_DRIFT_TOLERANCE) *
-	    1000;
-
+	ctx->epoch_time_in_ms = (uint64_t)(time(NULL) + SCT_CLOCK_DRIFT_TOLERANCE) * 1000;
 	return ctx;
 }
 
@@ -53,12 +49,12 @@ CT_POLICY_EVAL_CTX * CT_POLICY_EVAL_CTX_new(void)
 
 void CT_POLICY_EVAL_CTX_free(CT_POLICY_EVAL_CTX * ctx)
 {
-	if(!ctx)
-		return;
-	X509_free(ctx->cert);
-	X509_free(ctx->issuer);
-	OPENSSL_free(ctx->propq);
-	OPENSSL_free(ctx);
+	if(ctx) {
+		X509_free(ctx->cert);
+		X509_free(ctx->issuer);
+		OPENSSL_free(ctx->propq);
+		OPENSSL_free(ctx);
+	}
 }
 
 int CT_POLICY_EVAL_CTX_set1_cert(CT_POLICY_EVAL_CTX * ctx, X509 * cert)
@@ -77,8 +73,7 @@ int CT_POLICY_EVAL_CTX_set1_issuer(CT_POLICY_EVAL_CTX * ctx, X509 * issuer)
 	return 1;
 }
 
-void CT_POLICY_EVAL_CTX_set_shared_CTLOG_STORE(CT_POLICY_EVAL_CTX * ctx,
-    CTLOG_STORE * log_store)
+void CT_POLICY_EVAL_CTX_set_shared_CTLOG_STORE(CT_POLICY_EVAL_CTX * ctx, CTLOG_STORE * log_store)
 {
 	ctx->log_store = log_store;
 }

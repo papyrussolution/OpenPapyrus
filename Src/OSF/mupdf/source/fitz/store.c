@@ -613,33 +613,29 @@ void fz_remove_item(fz_context * ctx, fz_store_drop_fn * drop, void * key, const
 void fz_empty_store(fz_context * ctx)
 {
 	fz_store * store = ctx->store;
-
-	if(store == NULL)
-		return;
-
-	fz_lock(ctx, FZ_LOCK_ALLOC);
-	/* Run through all the items in the store */
-	while(store->head)
-		evict(ctx, store->head); /* Drops then retakes lock */
-	fz_unlock(ctx, FZ_LOCK_ALLOC);
+	if(store) {
+		fz_lock(ctx, FZ_LOCK_ALLOC);
+		// Run through all the items in the store 
+		while(store->head)
+			evict(ctx, store->head); /* Drops then retakes lock */
+		fz_unlock(ctx, FZ_LOCK_ALLOC);
+	}
 }
 
 fz_store * fz_keep_store_context(fz_context * ctx)
 {
-	if(!ctx || ctx->store == NULL)
-		return NULL;
-	return (fz_store *)fz_keep_imp(ctx, ctx->store, &ctx->store->refs);
+	return (ctx && ctx->store) ? (fz_store *)fz_keep_imp(ctx, ctx->store, &ctx->store->refs) : NULL;
 }
 
 void fz_drop_store_context(fz_context * ctx)
 {
-	if(!ctx)
-		return;
-	if(fz_drop_imp(ctx, ctx->store, &ctx->store->refs)) {
-		fz_empty_store(ctx);
-		fz_drop_hash_table(ctx, ctx->store->hash);
-		fz_free(ctx, ctx->store);
-		ctx->store = NULL;
+	if(ctx) {
+		if(fz_drop_imp(ctx, ctx->store, &ctx->store->refs)) {
+			fz_empty_store(ctx);
+			fz_drop_hash_table(ctx, ctx->store->hash);
+			fz_free(ctx, ctx->store);
+			ctx->store = NULL;
+		}
 	}
 }
 

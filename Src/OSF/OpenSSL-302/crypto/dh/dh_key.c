@@ -41,12 +41,10 @@ int ossl_dh_compute_key(uchar * key, const BIGNUM * pub_key, DH * dh)
 		ERR_raise(ERR_LIB_DH, DH_R_MODULUS_TOO_LARGE);
 		goto err;
 	}
-
 	if(BN_num_bits(dh->params.p) < DH_MIN_MODULUS_BITS) {
 		ERR_raise(ERR_LIB_DH, DH_R_MODULUS_TOO_SMALL);
 		return 0;
 	}
-
 	ctx = BN_CTX_new_ex(dh->libctx);
 	if(!ctx)
 		goto err;
@@ -55,36 +53,26 @@ int ossl_dh_compute_key(uchar * key, const BIGNUM * pub_key, DH * dh)
 	z = BN_CTX_get(ctx);
 	if(z == NULL)
 		goto err;
-
 	if(dh->priv_key == NULL) {
 		ERR_raise(ERR_LIB_DH, DH_R_NO_PRIVATE_VALUE);
 		goto err;
 	}
-
 	if(dh->flags & DH_FLAG_CACHE_MONT_P) {
-		mont = BN_MONT_CTX_set_locked(&dh->method_mont_p,
-			dh->lock, dh->params.p, ctx);
+		mont = BN_MONT_CTX_set_locked(&dh->method_mont_p, dh->lock, dh->params.p, ctx);
 		BN_set_flags(dh->priv_key, BN_FLG_CONSTTIME);
 		if(!mont)
 			goto err;
 	}
-
 	/* (Step 1) Z = pub_key^priv_key mod p */
-	if(!dh->meth->bn_mod_exp(dh, z, pub_key, dh->priv_key, dh->params.p, ctx,
-	    mont)) {
+	if(!dh->meth->bn_mod_exp(dh, z, pub_key, dh->priv_key, dh->params.p, ctx, mont)) {
 		ERR_raise(ERR_LIB_DH, ERR_R_BN_LIB);
 		goto err;
 	}
-
 	/* (Step 2) Error if z <= 1 or z = p - 1 */
-	if(BN_copy(pminus1, dh->params.p) == NULL
-	    || !BN_sub_word(pminus1, 1)
-	    || BN_cmp(z, BN_value_one()) <= 0
-	    || BN_cmp(z, pminus1) == 0) {
+	if(BN_copy(pminus1, dh->params.p) == NULL || !BN_sub_word(pminus1, 1) || BN_cmp(z, BN_value_one()) <= 0 || BN_cmp(z, pminus1) == 0) {
 		ERR_raise(ERR_LIB_DH, DH_R_INVALID_SECRET);
 		goto err;
 	}
-
 	/* return the padded key, i.e. same number of bytes as the modulus */
 	ret = BN_bn2binpad(z, key, BN_num_bytes(dh->params.p));
 err:
@@ -102,7 +90,6 @@ int DH_compute_key(uchar * key, const BIGNUM * pub_key, DH * dh)
 {
 	int ret = 0, i;
 	volatile size_t npad = 0, mask = 1;
-
 	/* compute the key; ret is constant unless compute_key is external */
 #ifdef FIPS_MODULE
 	ret = ossl_dh_compute_key(key, pub_key, dh);
@@ -169,9 +156,7 @@ const DH_METHOD * DH_get_default_method(void)
 	return default_DH_method;
 }
 
-static int dh_bn_mod_exp(const DH * dh, BIGNUM * r,
-    const BIGNUM * a, const BIGNUM * p,
-    const BIGNUM * m, BN_CTX * ctx, BN_MONT_CTX * m_ctx)
+static int dh_bn_mod_exp(const DH * dh, BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGNUM * m, BN_CTX * ctx, BN_MONT_CTX * m_ctx)
 {
 	return BN_mod_exp_mont(r, a, p, m, ctx, m_ctx);
 }
@@ -191,11 +176,7 @@ static int dh_finish(DH * dh)
 }
 
 #ifndef FIPS_MODULE
-void DH_set_default_method(const DH_METHOD * meth)
-{
-	default_DH_method = meth;
-}
-
+	void DH_set_default_method(const DH_METHOD * meth) { default_DH_method = meth; }
 #endif /* FIPS_MODULE */
 
 int DH_generate_key(DH * dh)
@@ -207,16 +188,13 @@ int DH_generate_key(DH * dh)
 #endif
 }
 
-int ossl_dh_generate_public_key(BN_CTX * ctx, const DH * dh,
-    const BIGNUM * priv_key, BIGNUM * pub_key)
+int ossl_dh_generate_public_key(BN_CTX * ctx, const DH * dh, const BIGNUM * priv_key, BIGNUM * pub_key)
 {
 	int ret = 0;
 	BIGNUM * prk = BN_new();
 	BN_MONT_CTX * mont = NULL;
-
-	if(prk == NULL)
+	if(!prk)
 		return 0;
-
 	if(dh->flags & DH_FLAG_CACHE_MONT_P) {
 		/*
 		 * We take the input DH as const, but we lie, because in some cases we

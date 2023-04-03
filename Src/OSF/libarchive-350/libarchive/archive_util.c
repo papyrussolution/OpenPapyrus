@@ -140,7 +140,7 @@ static int __archive_mktempx(const char * tmpdir, wchar_t * pTemplate)
 				goto exit_tmpfile;
 			}
 			tmp = (wchar_t *)SAlloc::M(l*sizeof(wchar_t));
-			if(tmp == NULL) {
+			if(!tmp) {
 				errno = ENOMEM;
 				goto exit_tmpfile;
 			}
@@ -256,7 +256,7 @@ int __archive_mkstemp(wchar_t * pTemplate) { return __archive_mktempx(NULL, pTem
 static int get_tempdir(archive_string * temppath)
 {
 	const char * tmp = getenv("TMPDIR");
-	if(tmp == NULL)
+	if(!tmp)
 #ifdef _PATH_TMP
 		tmp = _PATH_TMP;
 #else

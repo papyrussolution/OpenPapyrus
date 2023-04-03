@@ -740,11 +740,7 @@ static const OSSL_PARAM ec_known_gettable_params[] = {
 	OSSL_PARAM_END
 };
 
-static
-const OSSL_PARAM * ec_gettable_params(void * provctx)
-{
-	return ec_known_gettable_params;
-}
+static const OSSL_PARAM * ec_gettable_params(void * provctx) { return ec_known_gettable_params; }
 
 static const OSSL_PARAM ec_known_settable_params[] = {
 	OSSL_PARAM_int(OSSL_PKEY_PARAM_USE_COFACTOR_ECDH, NULL),
@@ -757,10 +753,7 @@ static const OSSL_PARAM ec_known_settable_params[] = {
 	OSSL_PARAM_END
 };
 
-static const OSSL_PARAM * ec_settable_params(void * provctx)
-{
-	return ec_known_settable_params;
-}
+static const OSSL_PARAM * ec_settable_params(void * provctx) { return ec_known_settable_params; }
 
 static int ec_set_params(void * key, const OSSL_PARAM params[])
 {

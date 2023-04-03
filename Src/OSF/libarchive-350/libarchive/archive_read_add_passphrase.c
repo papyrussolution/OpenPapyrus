@@ -60,7 +60,7 @@ static struct archive_read_passphrase * new_read_passphrase(ArchiveRead * a, con
 
 int archive_read_add_passphrase(Archive * _a, const char * passphrase)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	struct archive_read_passphrase * p;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(isempty(passphrase)) {
@@ -76,7 +76,7 @@ int archive_read_add_passphrase(Archive * _a, const char * passphrase)
 
 int archive_read_set_passphrase_callback(Archive * _a, void * client_data, archive_passphrase_callback * cb)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a->passphrases.callback = cb;
 	a->passphrases.client_data = client_data;

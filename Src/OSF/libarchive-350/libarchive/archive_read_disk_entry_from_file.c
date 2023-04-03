@@ -139,7 +139,7 @@ int archive_read_disk_entry_from_file(Archive * _a, ArchiveEntry * entry, int fd
 	if(!path)
 		path = archive_entry_pathname(entry);
 	if(a->tree == NULL) {
-		if(st == NULL) {
+		if(!st) {
 #if HAVE_FSTAT
 			if(fd >= 0) {
 				if(fstat(fd, &s) != 0) {

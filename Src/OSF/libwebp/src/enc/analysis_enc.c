@@ -32,7 +32,7 @@ static void SmoothSegmentMap(VP8Encoder* const enc)
 	const int majority_cnt_3_x_3_grid = 5;
 	uint8* const tmp = (uint8*)WebPSafeMalloc(w * h, sizeof(*tmp));
 	assert((uint64_t)(w * h) == (uint64_t)w * h); // no overflow, as per spec
-	if(tmp == NULL) 
+	if(!tmp) 
 		return;
 	for(y = 1; y < h - 1; ++y) {
 		for(x = 1; x < w - 1; ++x) {

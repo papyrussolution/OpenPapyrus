@@ -87,7 +87,7 @@ static int readbuffer_resize(BIO_F_BUFFER_CTX * ctx, int sz)
 	/* Resize if the buffer is not big enough */
 	if(sz > ctx->ibuf_size) {
 		tmp = (char*)OPENSSL_realloc(ctx->ibuf, sz);
-		if(tmp == NULL)
+		if(!tmp)
 			return 0;
 		ctx->ibuf = tmp;
 		ctx->ibuf_size = sz;

@@ -1463,7 +1463,7 @@ int ossl_provider_set_operation_bit(OSSL_PROVIDER * provider, size_t bitnum)
 		return 0;
 	if(provider->operation_bits_sz <= byte) {
 		uchar * tmp = (uchar *)OPENSSL_realloc(provider->operation_bits, byte + 1);
-		if(tmp == NULL) {
+		if(!tmp) {
 			CRYPTO_THREAD_unlock(provider->opbits_lock);
 			ERR_raise(ERR_LIB_CRYPTO, ERR_R_MALLOC_FAILURE);
 			return 0;

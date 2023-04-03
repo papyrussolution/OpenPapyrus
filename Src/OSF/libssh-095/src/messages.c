@@ -959,7 +959,7 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_info_response)
 	}
 	for(i = 0; i < nanswers; i++) {
 		tmp = ssh_buffer_get_ssh_string(packet);
-		if(tmp == NULL) {
+		if(!tmp) {
 			ssh_set_error(session, SSH_FATAL, "Short INFO_RESPONSE packet");
 			session->kbdint->nanswers = i;
 			ssh_kbdint_free(session->kbdint);

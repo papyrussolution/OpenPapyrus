@@ -54,8 +54,7 @@ int DH_check_params(const DH * dh, int * ret)
 	 * (2b) FFC domain params conform to FIPS-186-4 explicit domain param
 	 * validity tests.
 	 */
-	return ossl_ffc_params_FIPS186_4_validate(dh->libctx, &dh->params,
-		   FFC_PARAM_TYPE_DH, ret, NULL);
+	return ossl_ffc_params_FIPS186_4_validate(dh->libctx, &dh->params, FFC_PARAM_TYPE_DH, ret, NULL);
 }
 
 #else
@@ -64,21 +63,17 @@ int DH_check_params(const DH * dh, int * ret)
 	int ok = 0;
 	BIGNUM * tmp = NULL;
 	BN_CTX * ctx = NULL;
-
 	*ret = 0;
 	ctx = BN_CTX_new();
 	if(!ctx)
 		goto err;
 	BN_CTX_start(ctx);
 	tmp = BN_CTX_get(ctx);
-	if(tmp == NULL)
+	if(!tmp)
 		goto err;
-
 	if(!BN_is_odd(dh->params.p))
 		*ret |= DH_CHECK_P_NOT_PRIME;
-	if(BN_is_negative(dh->params.g)
-	    || BN_is_zero(dh->params.g)
-	    || BN_is_one(dh->params.g))
+	if(BN_is_negative(dh->params.g) || BN_is_zero(dh->params.g) || BN_is_one(dh->params.g))
 		*ret |= DH_NOT_SUITABLE_GENERATOR;
 	if(BN_copy(tmp, dh->params.p) == NULL || !BN_sub_word(tmp, 1))
 		goto err;
@@ -88,7 +83,6 @@ int DH_check_params(const DH * dh, int * ret)
 		*ret |= DH_MODULUS_TOO_SMALL;
 	if(BN_num_bits(dh->params.p) > OPENSSL_DH_MAX_MODULUS_BITS)
 		*ret |= DH_MODULUS_TOO_LARGE;
-
 	ok = 1;
 err:
 	BN_CTX_end(ctx);
@@ -105,10 +99,8 @@ err:
 int DH_check_ex(const DH * dh)
 {
 	int errflags = 0;
-
 	if(!DH_check(dh, &errflags))
 		return 0;
-
 	if((errflags & DH_NOT_SUITABLE_GENERATOR) != 0)
 		ERR_raise(ERR_LIB_DH, DH_R_NOT_SUITABLE_GENERATOR);
 	if((errflags & DH_CHECK_Q_NOT_PRIME) != 0)
@@ -127,7 +119,6 @@ int DH_check_ex(const DH * dh)
 		ERR_raise(ERR_LIB_DH, DH_R_MODULUS_TOO_SMALL);
 	if((errflags & DH_MODULUS_TOO_LARGE) != 0)
 		ERR_raise(ERR_LIB_DH, DH_R_MODULUS_TOO_LARGE);
-
 	return errflags == 0;
 }
 
@@ -141,14 +132,11 @@ int DH_check(const DH * dh, int * ret)
 	BN_CTX * ctx = NULL;
 	BIGNUM * t1 = NULL, * t2 = NULL;
 	int nid = DH_get_nid((DH*)dh);
-
 	*ret = 0;
 	if(nid != NID_undef)
 		return 1;
-
 	if(!DH_check_params(dh, ret))
 		return 0;
-
 	ctx = BN_CTX_new();
 	if(!ctx)
 		goto err;
@@ -157,7 +145,6 @@ int DH_check(const DH * dh, int * ret)
 	t2 = BN_CTX_get(ctx);
 	if(t2 == NULL)
 		goto err;
-
 	if(dh->params.q != NULL) {
 		if(BN_cmp(dh->params.g, BN_value_one()) <= 0)
 			*ret |= DH_NOT_SUITABLE_GENERATOR;
@@ -280,20 +267,14 @@ int ossl_dh_check_pairwise(const DH * dh)
 	int ret = 0;
 	BN_CTX * ctx = NULL;
 	BIGNUM * pub_key = NULL;
-
-	if(dh->params.p == NULL
-	    || dh->params.g == NULL
-	    || dh->priv_key == NULL
-	    || dh->pub_key == NULL)
+	if(dh->params.p == NULL || dh->params.g == NULL || dh->priv_key == NULL || dh->pub_key == NULL)
 		return 0;
-
 	ctx = BN_CTX_new_ex(dh->libctx);
 	if(!ctx)
 		goto err;
 	pub_key = BN_new();
 	if(pub_key == NULL)
 		goto err;
-
 	/* recalculate the public key = (g ^ priv) mod p */
 	if(!ossl_dh_generate_public_key(ctx, dh, dh->priv_key, pub_key))
 		goto err;

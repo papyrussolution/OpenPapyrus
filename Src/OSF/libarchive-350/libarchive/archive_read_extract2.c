@@ -52,7 +52,7 @@ static int archive_read_extract_cleanup(ArchiveRead * a)
 
 int archive_read_extract2(Archive * _a, ArchiveEntry * entry, Archive * ad)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	int r, r2;
 	/* Set up for this particular entry. */
 	if(a->skip_file_set)
@@ -80,7 +80,7 @@ int archive_read_extract2(Archive * _a, ArchiveEntry * entry, Archive * ad)
 
 void archive_read_extract_set_progress_callback(Archive * _a, void (*progress_func)(void *), void * user_data)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	struct archive_read_extract * extract = __archive_read_get_extract(a);
 	if(extract) {
 		extract->extract_progress = progress_func;

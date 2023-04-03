@@ -1021,7 +1021,7 @@ int SSL_CONF_CTX_set1_prefix(SSL_CONF_CTX * cctx, const char * pre)
 	char * tmp = NULL;
 	if(pre) {
 		tmp = OPENSSL_strdup(pre);
-		if(tmp == NULL)
+		if(!tmp)
 			return 0;
 	}
 	OPENSSL_free(cctx->prefix);

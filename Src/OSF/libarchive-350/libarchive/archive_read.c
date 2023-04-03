@@ -81,7 +81,7 @@ Archive * archive_read_new(void)
  */
 void archive_read_extract_set_skip_file(Archive * _a, la_int64_t d, la_int64_t i)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	if(__archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__) != ARCHIVE_OK)
 		return;
 	a->skip_file_set = 1;
@@ -145,7 +145,7 @@ static int64 client_skip_proxy(ArchiveReadFilter * self, int64 request)
 			request -= get;
 		}
 	}
-	else if(self->archive->client.seeker && request > 64 * 1024) {
+	else if(self->archive->client.seeker && request > (64 * 1024)) {
 		/* If the client provided a seeker but not a skipper,
 		 * we can use the seeker to skip forward.
 		 *
@@ -182,29 +182,26 @@ static int64 client_seek_proxy(ArchiveReadFilter * self, int64 offset, int whenc
 
 static int client_close_proxy(ArchiveReadFilter * self)
 {
-	int r = ARCHIVE_OK, r2;
-	uint i;
-	if(self->archive->client.closer == NULL)
-		return r;
-	for(i = 0; i < self->archive->client.nodes; i++) {
-		r2 = (self->archive->client.closer)((Archive *)self->archive, self->archive->client.dataset[i].data);
-		if(r > r2)
-			r = r2;
+	int r = ARCHIVE_OK;
+	if(self->archive->client.closer) {
+		for(uint i = 0; i < self->archive->client.nodes; i++) {
+			int r2 = (self->archive->client.closer)((Archive *)self->archive, self->archive->client.dataset[i].data);
+			if(r > r2)
+				r = r2;
+		}
 	}
 	return r;
 }
 
 static int client_open_proxy(ArchiveReadFilter * self)
 {
-	int r = ARCHIVE_OK;
-	if(self->archive->client.opener)
-		r = (self->archive->client.opener)((Archive *)self->archive, self->data);
-	return r;
+	return self->archive->client.opener ? (self->archive->client.opener)((Archive *)self->archive, self->data) : ARCHIVE_OK;
 }
 
 static int client_switch_proxy(ArchiveReadFilter * self, uint iindex)
 {
-	int r1 = ARCHIVE_OK, r2 = ARCHIVE_OK;
+	int r1 = ARCHIVE_OK;
+	int r2 = ARCHIVE_OK;
 	void * data2 = NULL;
 	/* Don't do anything if already in the specified data node */
 	if(self->archive->client.cursor == iindex)
@@ -228,7 +225,7 @@ static int client_switch_proxy(ArchiveReadFilter * self, uint iindex)
 
 int archive_read_set_open_callback(Archive * _a, archive_open_callback * client_opener)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a->client.opener = client_opener;
 	return ARCHIVE_OK;
@@ -236,7 +233,7 @@ int archive_read_set_open_callback(Archive * _a, archive_open_callback * client_
 
 int archive_read_set_read_callback(Archive * _a, archive_read_callback * client_reader)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a->client.reader = client_reader;
 	return ARCHIVE_OK;
@@ -244,7 +241,7 @@ int archive_read_set_read_callback(Archive * _a, archive_read_callback * client_
 
 int archive_read_set_skip_callback(Archive * _a, archive_skip_callback * client_skipper)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a->client.skipper = client_skipper;
 	return ARCHIVE_OK;
@@ -252,7 +249,7 @@ int archive_read_set_skip_callback(Archive * _a, archive_skip_callback * client_
 
 int archive_read_set_seek_callback(Archive * _a, archive_seek_callback * client_seeker)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a->client.seeker = client_seeker;
 	return ARCHIVE_OK;
@@ -260,7 +257,7 @@ int archive_read_set_seek_callback(Archive * _a, archive_seek_callback * client_
 
 int archive_read_set_close_callback(Archive * _a, archive_close_callback * client_closer)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a->client.closer = client_closer;
 	return ARCHIVE_OK;
@@ -268,7 +265,7 @@ int archive_read_set_close_callback(Archive * _a, archive_close_callback * clien
 
 int archive_read_set_switch_callback(Archive * _a, archive_switch_callback * client_switcher)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a->client.switcher = client_switcher;
 	return ARCHIVE_OK;
@@ -281,7 +278,7 @@ int archive_read_set_callback_data(Archive * _a, void * client_data)
 
 int archive_read_set_callback_data2(Archive * _a, void * client_data, uint iindex)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(a->client.nodes == 0) {
 		a->client.dataset = (struct archive_read_data_node *)SAlloc::C(1, sizeof(*a->client.dataset));
@@ -303,7 +300,7 @@ int archive_read_set_callback_data2(Archive * _a, void * client_data, uint iinde
 
 int archive_read_add_callback_data(Archive * _a, void * client_data, uint iindex)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	void * p;
 	uint i;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
@@ -330,7 +327,7 @@ int archive_read_add_callback_data(Archive * _a, void * client_data, uint iindex
 
 int archive_read_append_callback_data(Archive * _a, void * client_data)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	return archive_read_add_callback_data(_a, client_data, a->client.nodes);
 }
 
@@ -341,7 +338,7 @@ int archive_read_prepend_callback_data(Archive * _a, void * client_data)
 
 int archive_read_open1(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	ArchiveReadFilter * filter;
 	ArchiveReadFilter * tmp;
 	int slot;
@@ -479,7 +476,7 @@ int __archive_read_header(ArchiveRead * a, ArchiveEntry * entry)
  */
 static int _archive_read_next_header2(Archive * _a, ArchiveEntry * entry)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	int r1 = ARCHIVE_OK, r2;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, __FUNCTION__);
 	archive_entry_clear(entry);
@@ -531,10 +528,9 @@ static int _archive_read_next_header2(Archive * _a, ArchiveEntry * entry)
 
 static int _archive_read_next_header(Archive * _a, ArchiveEntry ** entryp)
 {
-	int ret;
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	*entryp = NULL;
-	ret = _archive_read_next_header2(_a, a->entry);
+	int ret = _archive_read_next_header2(_a, a->entry);
 	*entryp = a->entry;
 	return ret;
 }
@@ -588,7 +584,7 @@ static int choose_format(ArchiveRead * a)
  */
 la_int64_t archive_read_header_position(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
 	return (a->header_position);
 }
@@ -612,7 +608,7 @@ la_int64_t archive_read_header_position(Archive * _a)
  */
 int archive_read_has_encrypted_entries(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	int format_supports_encryption = archive_read_format_capabilities(_a) & (ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_DATA | ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_METADATA);
 	if(!_a || !format_supports_encryption) {
 		/* Format in general doesn't support encryption */
@@ -631,7 +627,7 @@ int archive_read_has_encrypted_entries(Archive * _a)
  */
 int archive_read_format_capabilities(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	if(a && a->format && a->format->format_capabilties) {
 		return (a->format->format_capabilties)(a);
 	}
@@ -733,7 +729,7 @@ void __archive_reset_read_data(Archive * a)
  */
 int archive_read_data_skip(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	int r;
 	const void * buff;
 	size_t size;
@@ -753,7 +749,7 @@ int archive_read_data_skip(Archive * _a)
 
 la_int64_t archive_seek_data(Archive * _a, int64 offset, int whence)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA, __FUNCTION__);
 	if(a->format->seek_data == NULL) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Internal error: No format_seek_data_block function registered");
@@ -771,7 +767,7 @@ la_int64_t archive_seek_data(Archive * _a, int64 offset, int whence)
  */
 static int _archive_read_data_block(Archive * _a, const void ** buff, size_t * size, int64 * offset)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA, __FUNCTION__);
 	if(a->format->read_data == NULL) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Internal error: No format->read_data function registered");
@@ -814,7 +810,7 @@ void __archive_read_free_filters(ArchiveRead * a)
  */
 static int _archive_filter_count(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	ArchiveReadFilter * p = a->filter;
 	int count = 0;
 	while(p) {
@@ -828,7 +824,7 @@ static int _archive_filter_count(Archive * _a)
  */
 static int _archive_read_close(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	int r = ARCHIVE_OK, r1 = ARCHIVE_OK;
 	archive_check_magic(&a->archive, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, __FUNCTION__);
 	if(a->archive.state == ARCHIVE_STATE_CLOSED)
@@ -847,7 +843,7 @@ static int _archive_read_close(Archive * _a)
  */
 static int _archive_read_free(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	struct archive_read_passphrase * p;
 	int i, n;
 	int slots;
@@ -898,7 +894,7 @@ static int _archive_read_free(Archive * _a)
 
 static ArchiveReadFilter * get_filter(Archive * _a, int n)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	ArchiveReadFilter * f = a->filter;
 	// We use n == -1 for 'the last filter', which is always the client proxy
 	if(n == -1 && f) {

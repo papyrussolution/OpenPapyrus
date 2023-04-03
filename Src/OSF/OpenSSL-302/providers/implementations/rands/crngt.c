@@ -140,7 +140,7 @@ size_t ossl_crngt_get_entropy(PROV_DRBG * drbg, unsigned char ** pout, int entro
 	OSSL_SELF_TEST_get_callback(libctx, &stcb, &stcbarg);
 	if(stcb != NULL) {
 		st = OSSL_SELF_TEST_new(stcb, stcbarg);
-		if(st == NULL)
+		if(!st)
 			goto err;
 		OSSL_SELF_TEST_onbegin(st, OSSL_SELF_TEST_TYPE_CRNG,
 		    OSSL_SELF_TEST_DESC_RNG);

@@ -36,7 +36,7 @@ static int ssh_gets(const char * prompt, char * buf, size_t len, int verify)
 	char * ptr = NULL;
 	int ok = 0;
 	char * tmp = (char *)SAlloc::C(1, len);
-	if(tmp == NULL) {
+	if(!tmp) {
 		return 0;
 	}
 	/* read the password */

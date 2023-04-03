@@ -204,24 +204,22 @@ static int sk_reserve(OPENSSL_STACK * st, int n, int exact)
 OPENSSL_STACK * OPENSSL_sk_new_reserve(OPENSSL_sk_compfunc c, int n)
 {
 	OPENSSL_STACK * st = (OPENSSL_STACK *)OPENSSL_zalloc(sizeof(OPENSSL_STACK));
-	if(st == NULL)
-		return NULL;
-	st->comp = c;
-	if(n <= 0)
-		return st;
-	if(!sk_reserve(st, n, 1)) {
-		OPENSSL_sk_free(st);
-		return NULL;
+	if(st) {
+		st->comp = c;
+		if(n <= 0)
+			return st;
+		if(!sk_reserve(st, n, 1)) {
+			OPENSSL_sk_free(st);
+			return NULL;
+		}
 	}
-
 	return st;
 }
 
 int OPENSSL_sk_reserve(OPENSSL_STACK * st, int n)
 {
-	if(st == NULL)
+	if(!st)
 		return 0;
-
 	if(n < 0)
 		return 1;
 	return sk_reserve(st, n, 1);
@@ -229,18 +227,15 @@ int OPENSSL_sk_reserve(OPENSSL_STACK * st, int n)
 
 int OPENSSL_sk_insert(OPENSSL_STACK * st, const void * data, int loc)
 {
-	if(st == NULL || st->num == max_nodes)
+	if(!st || st->num == max_nodes)
 		return 0;
-
 	if(!sk_reserve(st, 1, 0))
 		return 0;
-
 	if((loc >= st->num) || (loc < 0)) {
 		st->data[st->num] = data;
 	}
 	else {
-		memmove(&st->data[loc + 1], &st->data[loc],
-		    sizeof(st->data[0]) * (st->num - loc));
+		memmove(&st->data[loc + 1], &st->data[loc], sizeof(st->data[0]) * (st->num - loc));
 		st->data[loc] = data;
 	}
 	st->num++;
@@ -251,20 +246,15 @@ int OPENSSL_sk_insert(OPENSSL_STACK * st, const void * data, int loc)
 static ossl_inline void * internal_delete(OPENSSL_STACK * st, int loc)
 {
 	const void * ret = st->data[loc];
-
 	if(loc != st->num - 1)
-		memmove(&st->data[loc], &st->data[loc + 1],
-		    sizeof(st->data[0]) * (st->num - loc - 1));
+		memmove(&st->data[loc], &st->data[loc + 1], sizeof(st->data[0]) * (st->num - loc - 1));
 	st->num--;
-
 	return (void*)ret;
 }
 
 void * OPENSSL_sk_delete_ptr(OPENSSL_STACK * st, const void * p)
 {
-	int i;
-
-	for(i = 0; i < st->num; i++)
+	for(int i = 0; i < st->num; i++)
 		if(st->data[i] == p)
 			return internal_delete(st, i);
 	return NULL;
@@ -272,21 +262,15 @@ void * OPENSSL_sk_delete_ptr(OPENSSL_STACK * st, const void * p)
 
 void * OPENSSL_sk_delete(OPENSSL_STACK * st, int loc)
 {
-	if(st == NULL || loc < 0 || loc >= st->num)
-		return NULL;
-
-	return internal_delete(st, loc);
+	return (!st || loc < 0 || loc >= st->num) ? NULL : internal_delete(st, loc);
 }
 
-static int internal_find(OPENSSL_STACK * st, const void * data,
-    int ret_val_options, int * pnum)
+static int internal_find(OPENSSL_STACK * st, const void * data, int ret_val_options, int * pnum)
 {
 	const void * r;
 	int i;
-
-	if(st == NULL || st->num == 0)
+	if(!st || st->num == 0)
 		return -1;
-
 	if(st->comp == NULL) {
 		for(i = 0; i < st->num; i++)
 			if(st->data[i] == data) {
@@ -298,7 +282,6 @@ static int internal_find(OPENSSL_STACK * st, const void * data,
 			*pnum = 0;
 		return -1;
 	}
-
 	if(!st->sorted) {
 		if(st->num > 1)
 			qsort(st->data, st->num, sizeof(void *), st->comp);
@@ -308,14 +291,11 @@ static int internal_find(OPENSSL_STACK * st, const void * data,
 		return -1;
 	if(pnum != NULL)
 		ret_val_options |= OSSL_BSEARCH_FIRST_VALUE_ON_MATCH;
-	r = ossl_bsearch(&data, st->data, st->num, sizeof(void *), st->comp,
-		ret_val_options);
-
+	r = ossl_bsearch(&data, st->data, st->num, sizeof(void *), st->comp, ret_val_options);
 	if(pnum != NULL) {
 		*pnum = 0;
 		if(r) {
 			const void ** p = (const void**)r;
-
 			while(p < st->data + st->num) {
 				if(st->comp(&data, p) != 0)
 					break;
@@ -324,7 +304,6 @@ static int internal_find(OPENSSL_STACK * st, const void * data,
 			}
 		}
 	}
-
 	return r == NULL ? -1 : (int)((const void**)r - st->data);
 }
 
@@ -345,9 +324,7 @@ int OPENSSL_sk_find_all(OPENSSL_STACK * st, const void * data, int * pnum)
 
 int OPENSSL_sk_push(OPENSSL_STACK * st, const void * data)
 {
-	if(st == NULL)
-		return -1;
-	return OPENSSL_sk_insert(st, data, st->num);
+	return st ? OPENSSL_sk_insert(st, data, st->num) : -1;
 }
 
 int OPENSSL_sk_unshift(OPENSSL_STACK * st, const void * data)
@@ -357,43 +334,38 @@ int OPENSSL_sk_unshift(OPENSSL_STACK * st, const void * data)
 
 void * OPENSSL_sk_shift(OPENSSL_STACK * st)
 {
-	if(st == NULL || st->num == 0)
-		return NULL;
-	return internal_delete(st, 0);
+	return (!st || st->num == 0) ? NULL : internal_delete(st, 0);
 }
 
 void * OPENSSL_sk_pop(OPENSSL_STACK * st)
 {
-	if(st == NULL || st->num == 0)
-		return NULL;
-	return internal_delete(st, st->num - 1);
+	return (!st || st->num == 0) ? NULL : internal_delete(st, st->num - 1);
 }
 
 void OPENSSL_sk_zero(OPENSSL_STACK * st)
 {
-	if(st == NULL || st->num == 0)
-		return;
-	memzero(st->data, sizeof(*st->data) * st->num);
-	st->num = 0;
+	if(st && st->num != 0) {
+		memzero(st->data, sizeof(*st->data) * st->num);
+		st->num = 0;
+	}
 }
 
 void OPENSSL_sk_pop_free(OPENSSL_STACK * st, OPENSSL_sk_freefunc func)
 {
-	int i;
-	if(st == NULL)
-		return;
-	for(i = 0; i < st->num; i++)
-		if(st->data[i] != NULL)
-			func((char*)st->data[i]);
-	OPENSSL_sk_free(st);
+	if(st) {
+		for(int i = 0; i < st->num; i++)
+			if(st->data[i] != NULL)
+				func((char*)st->data[i]);
+		OPENSSL_sk_free(st);
+	}
 }
 
 void OPENSSL_sk_free(OPENSSL_STACK * st)
 {
-	if(st == NULL)
-		return;
-	OPENSSL_free(st->data);
-	OPENSSL_free(st);
+	if(st) {
+		OPENSSL_free(st->data);
+		OPENSSL_free(st);
+	}
 }
 
 int OPENSSL_sk_num(const OPENSSL_STACK * st)
@@ -403,14 +375,12 @@ int OPENSSL_sk_num(const OPENSSL_STACK * st)
 
 void * OPENSSL_sk_value(const OPENSSL_STACK * st, int i)
 {
-	if(st == NULL || i < 0 || i >= st->num)
-		return NULL;
-	return (void*)st->data[i];
+	return (!st || i < 0 || i >= st->num) ? NULL : (void*)st->data[i];
 }
 
 void * OPENSSL_sk_set(OPENSSL_STACK * st, int i, const void * data)
 {
-	if(st == NULL || i < 0 || i >= st->num)
+	if(!st || i < 0 || i >= st->num)
 		return NULL;
 	st->data[i] = data;
 	st->sorted = 0;
@@ -419,7 +389,7 @@ void * OPENSSL_sk_set(OPENSSL_STACK * st, int i, const void * data)
 
 void OPENSSL_sk_sort(OPENSSL_STACK * st)
 {
-	if(st != NULL && !st->sorted && st->comp != NULL) {
+	if(st && !st->sorted && st->comp != NULL) {
 		if(st->num > 1)
 			qsort(st->data, st->num, sizeof(void *), st->comp);
 		st->sorted = 1; /* empty or single-element stack is considered sorted */

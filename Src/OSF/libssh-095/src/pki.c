@@ -885,7 +885,7 @@ ssh_public_key ssh_pki_convert_key_to_publickey(const ssh_key key)
 		return NULL;
 	}
 	tmp = ssh_key_dup(key);
-	if(tmp == NULL) {
+	if(!tmp) {
 		return NULL;
 	}
 	pub = (ssh_public_key)SAlloc::M(sizeof(struct ssh_public_key_struct));

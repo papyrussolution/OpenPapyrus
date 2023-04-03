@@ -36,7 +36,7 @@ __FBSDID("$FreeBSD$");
  */
 int archive_read_support_format_xar(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Xar not supported on this platform");
 	return ARCHIVE_WARN;
@@ -392,7 +392,7 @@ static int expat_read_toc(ArchiveRead *);
 int archive_read_support_format_xar(Archive * _a)
 {
 	struct xar * xar;
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	xar = (struct xar *)SAlloc::C(1, sizeof(*xar));

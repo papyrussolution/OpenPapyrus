@@ -326,41 +326,35 @@ void fz_new_font_context(fz_context * ctx)
 
 fz_font_context * fz_keep_font_context(fz_context * ctx)
 {
-	if(!ctx)
-		return NULL;
-	return (fz_font_context *)fz_keep_imp(ctx, ctx->font, &ctx->font->ctx_refs);
+	return ctx ? (fz_font_context *)fz_keep_imp(ctx, ctx->font, &ctx->font->ctx_refs) : NULL;
 }
 
 void fz_drop_font_context(fz_context * ctx)
 {
-	if(!ctx)
-		return;
-
-	if(fz_drop_imp(ctx, ctx->font, &ctx->font->ctx_refs)) {
-		int i;
-
-		for(i = 0; i < (int)nelem(ctx->font->base14); ++i)
-			fz_drop_font(ctx, ctx->font->base14[i]);
-		for(i = 0; i < (int)nelem(ctx->font->cjk); ++i)
-			fz_drop_font(ctx, ctx->font->cjk[i]);
-		for(i = 0; i < (int)nelem(ctx->font->fallback); ++i) {
-			fz_drop_font(ctx, ctx->font->fallback[i].serif);
-			fz_drop_font(ctx, ctx->font->fallback[i].sans);
+	if(ctx) {
+		if(fz_drop_imp(ctx, ctx->font, &ctx->font->ctx_refs)) {
+			int i;
+			for(i = 0; i < (int)nelem(ctx->font->base14); ++i)
+				fz_drop_font(ctx, ctx->font->base14[i]);
+			for(i = 0; i < (int)nelem(ctx->font->cjk); ++i)
+				fz_drop_font(ctx, ctx->font->cjk[i]);
+			for(i = 0; i < (int)nelem(ctx->font->fallback); ++i) {
+				fz_drop_font(ctx, ctx->font->fallback[i].serif);
+				fz_drop_font(ctx, ctx->font->fallback[i].sans);
+			}
+			fz_drop_font(ctx, ctx->font->symbol1);
+			fz_drop_font(ctx, ctx->font->symbol2);
+			fz_drop_font(ctx, ctx->font->math);
+			fz_drop_font(ctx, ctx->font->music);
+			fz_drop_font(ctx, ctx->font->emoji);
+			fz_free(ctx, ctx->font);
+			ctx->font = NULL;
 		}
-		fz_drop_font(ctx, ctx->font->symbol1);
-		fz_drop_font(ctx, ctx->font->symbol2);
-		fz_drop_font(ctx, ctx->font->math);
-		fz_drop_font(ctx, ctx->font->music);
-		fz_drop_font(ctx, ctx->font->emoji);
-		fz_free(ctx, ctx->font);
-		ctx->font = NULL;
 	}
 }
 
-void fz_install_load_system_font_funcs(fz_context * ctx,
-    fz_load_system_font_fn * f,
-    fz_load_system_cjk_font_fn * f_cjk,
-    fz_load_system_fallback_font_fn * f_back)
+void fz_install_load_system_font_funcs(fz_context * ctx, fz_load_system_font_fn * f,
+    fz_load_system_cjk_font_fn * f_cjk, fz_load_system_fallback_font_fn * f_back)
 {
 	ctx->font->load_font = f;
 	ctx->font->load_cjk_font = f_cjk;

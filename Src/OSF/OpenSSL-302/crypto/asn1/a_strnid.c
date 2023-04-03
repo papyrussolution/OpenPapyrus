@@ -183,7 +183,7 @@ int ASN1_STRING_TABLE_add(int nid,
 	ASN1_STRING_TABLE * tmp;
 
 	tmp = stable_get(nid);
-	if(tmp == NULL) {
+	if(!tmp) {
 		ERR_raise(ERR_LIB_ASN1, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
@@ -203,7 +203,7 @@ void ASN1_STRING_TABLE_cleanup(void)
 	STACK_OF(ASN1_STRING_TABLE) *tmp;
 
 	tmp = stable;
-	if(tmp == NULL)
+	if(!tmp)
 		return;
 	stable = NULL;
 	sk_ASN1_STRING_TABLE_pop_free(tmp, st_free);

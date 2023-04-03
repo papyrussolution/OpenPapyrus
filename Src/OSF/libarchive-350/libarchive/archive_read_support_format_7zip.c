@@ -339,7 +339,7 @@ static ssize_t          Bcj2_Decode(struct _7zip *, uint8 *, size_t);
 
 int archive_read_support_format_7zip(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	struct _7zip * zip;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
@@ -2573,7 +2573,6 @@ static int slurp_central_directory(ArchiveRead * a, struct _7zip * zip, struct _
 		     * in order to parse the header correctly.
 		     */
 		    r = decode_encoded_header_info(a, &(zip->si));
-
 		    /* Check the EncodedHeader CRC.*/
 		    if(r == 0 && zip->header_crc32 != next_header_crc) {
 			    archive_set_error(&a->archive, -1, "Damaged 7-Zip archive");
@@ -2588,8 +2587,7 @@ static int slurp_central_directory(ArchiveRead * a, struct _7zip * zip, struct _
 				    read_consume(a);
 			    r = setup_decode_folder(a, zip->si.ci.folders, 1);
 			    if(!r) {
-				    zip->header_bytes_remaining =
-					zip->folder_outbytes_remaining;
+				    zip->header_bytes_remaining = zip->folder_outbytes_remaining;
 				    r = seek_pack(a);
 			    }
 		    }
@@ -2614,7 +2612,6 @@ static int slurp_central_directory(ArchiveRead * a, struct _7zip * zip, struct _
 				    archive_set_error(&a->archive, -1, "Damaged 7-Zip archive");
 			    return ARCHIVE_FATAL;
 		    }
-
 		    /*
 		     *  Must be kEnd.
 		     */
@@ -2622,7 +2619,6 @@ static int slurp_central_directory(ArchiveRead * a, struct _7zip * zip, struct _
 			    archive_set_error(&a->archive, -1, "Malformed 7-Zip archive");
 			    return ARCHIVE_FATAL;
 		    }
-
 		    /* Check the Header CRC.*/
 		    if(check_header_crc && zip->header_crc32 != next_header_crc) {
 			    archive_set_error(&a->archive, -1, "Malformed 7-Zip archive");
@@ -2633,7 +2629,6 @@ static int slurp_central_directory(ArchiveRead * a, struct _7zip * zip, struct _
 		    archive_set_error(&a->archive, -1, "Unexpected Property ID = %X", p[0]);
 		    return ARCHIVE_FATAL;
 	}
-
 	/* Clean up variables be used for decoding the archive header */
 	zip->pack_stream_remaining = 0;
 	zip->pack_stream_index = 0;
@@ -2641,7 +2636,6 @@ static int slurp_central_directory(ArchiveRead * a, struct _7zip * zip, struct _
 	zip->uncompressed_buffer_bytes_remaining = 0;
 	zip->pack_stream_bytes_unconsumed = 0;
 	zip->header_is_being_read = 0;
-
 	return ARCHIVE_OK;
 }
 
@@ -2651,7 +2645,6 @@ static ssize_t get_uncompressed_data(ArchiveRead * a, const void ** buff, size_t
 	ssize_t bytes_avail;
 	if(zip->codec == _7Z_COPY && zip->codec2 == (ulong)-1) {
 		/* Copy mode. */
-
 		*buff = __archive_read_ahead(a, minimum, &bytes_avail);
 		if(bytes_avail <= 0) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated 7-Zip file data");
@@ -2659,11 +2652,9 @@ static ssize_t get_uncompressed_data(ArchiveRead * a, const void ** buff, size_t
 		}
 		if((size_t)bytes_avail >
 		    zip->uncompressed_buffer_bytes_remaining)
-			bytes_avail = (ssize_t)
-			    zip->uncompressed_buffer_bytes_remaining;
+			bytes_avail = (ssize_t)zip->uncompressed_buffer_bytes_remaining;
 		if((size_t)bytes_avail > size)
 			bytes_avail = (ssize_t)size;
-
 		zip->pack_stream_bytes_unconsumed = bytes_avail;
 	}
 	else if(zip->uncompressed_buffer_pointer == NULL) {
@@ -2683,8 +2674,7 @@ static ssize_t get_uncompressed_data(ArchiveRead * a, const void ** buff, size_t
 				return ARCHIVE_FATAL;
 		}
 		if(size > zip->uncompressed_buffer_bytes_remaining)
-			bytes_avail = (ssize_t)
-			    zip->uncompressed_buffer_bytes_remaining;
+			bytes_avail = (ssize_t)zip->uncompressed_buffer_bytes_remaining;
 		else
 			bytes_avail = (ssize_t)size;
 		*buff = zip->uncompressed_buffer_pointer;
@@ -2699,7 +2689,6 @@ static ssize_t extract_pack_stream(ArchiveRead * a, size_t minimum)
 	struct _7zip * zip = (struct _7zip *)a->format->data;
 	ssize_t bytes_avail;
 	int r;
-
 	if(zip->codec == _7Z_COPY && zip->codec2 == (ulong)-1) {
 		if(minimum == 0)
 			minimum = 1;
@@ -2716,7 +2705,6 @@ static ssize_t extract_pack_stream(ArchiveRead * a, size_t minimum)
 		zip->uncompressed_buffer_bytes_remaining = bytes_avail;
 		return ARCHIVE_OK;
 	}
-
 	/* If the buffer hasn't been allocated, allocate it now. */
 	if(zip->uncompressed_buffer == NULL) {
 		zip->uncompressed_buffer_size = UBUFF_SIZE;
@@ -2744,13 +2732,11 @@ static ssize_t extract_pack_stream(ArchiveRead * a, size_t minimum)
 			used = 0;
 		if(zip->uncompressed_buffer_size < minimum) {
 			/*
-			 * Expand the uncompressed buffer up to
-			 * the minimum size.
+			 * Expand the uncompressed buffer up to the minimum size.
 			 */
-			void * p;
 			size_t new_size = minimum + 1023;
 			new_size &= ~0x3ff;
-			p = SAlloc::R(zip->uncompressed_buffer, new_size);
+			void * p = SAlloc::R(zip->uncompressed_buffer, new_size);
 			if(!p) {
 				archive_set_error(&a->archive, ENOMEM, "No memory for 7-Zip decompression");
 				return ARCHIVE_FATAL;
@@ -2762,9 +2748,7 @@ static ssize_t extract_pack_stream(ArchiveRead * a, size_t minimum)
 		 * Move unconsumed bytes to the head.
 		 */
 		if(used) {
-			memmove(zip->uncompressed_buffer,
-			    zip->uncompressed_buffer + used,
-			    zip->uncompressed_buffer_bytes_remaining);
+			memmove(zip->uncompressed_buffer, zip->uncompressed_buffer + used, zip->uncompressed_buffer_bytes_remaining);
 		}
 	}
 	else
@@ -2793,17 +2777,11 @@ static ssize_t extract_pack_stream(ArchiveRead * a, size_t minimum)
 		if(bytes_in > zip->pack_stream_inbytes_remaining)
 			bytes_in = (size_t)zip->pack_stream_inbytes_remaining;
 		/* Drive decompression. */
-		r = decompress(a, zip, buff_out, &bytes_out,
-			buff_in, &bytes_in);
+		r = decompress(a, zip, buff_out, &bytes_out, buff_in, &bytes_in);
 		switch(r) {
-			case ARCHIVE_OK:
-			    end_of_data = 0;
-			    break;
-			case ARCHIVE_EOF:
-			    end_of_data = 1;
-			    break;
-			default:
-			    return ARCHIVE_FATAL;
+			case ARCHIVE_OK: end_of_data = 0; break;
+			case ARCHIVE_EOF: end_of_data = 1; break;
+			default: return ARCHIVE_FATAL;
 		}
 		zip->pack_stream_inbytes_remaining -= bytes_in;
 		if(bytes_out > zip->folder_outbytes_remaining)
@@ -2811,19 +2789,14 @@ static ssize_t extract_pack_stream(ArchiveRead * a, size_t minimum)
 		zip->folder_outbytes_remaining -= bytes_out;
 		zip->uncompressed_buffer_bytes_remaining += bytes_out;
 		zip->pack_stream_bytes_unconsumed = bytes_in;
-
 		/*
 		 * Continue decompression until uncompressed_buffer is full.
 		 */
-		if(zip->uncompressed_buffer_bytes_remaining ==
-		    zip->uncompressed_buffer_size)
+		if(zip->uncompressed_buffer_bytes_remaining == zip->uncompressed_buffer_size)
 			break;
-		if(zip->codec2 == _7Z_X86 && zip->odd_bcj_size &&
-		    zip->uncompressed_buffer_bytes_remaining + 5 >
-		    zip->uncompressed_buffer_size)
+		if(zip->codec2 == _7Z_X86 && zip->odd_bcj_size && zip->uncompressed_buffer_bytes_remaining + 5 > zip->uncompressed_buffer_size)
 			break;
-		if(zip->pack_stream_inbytes_remaining == 0 &&
-		    zip->folder_outbytes_remaining == 0)
+		if(zip->pack_stream_inbytes_remaining == 0 && zip->folder_outbytes_remaining == 0)
 			break;
 		if(end_of_data || (bytes_in == 0 && bytes_out == 0)) {
 			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Damaged 7-Zip archive");
@@ -2850,8 +2823,7 @@ static int seek_pack(ArchiveRead * a)
 	zip->pack_stream_inbytes_remaining = zip->si.pi.sizes[zip->pack_stream_index];
 	pack_offset = zip->si.pi.positions[zip->pack_stream_index];
 	if(zip->stream_offset != pack_offset) {
-		if(0 > __archive_read_seek(a, pack_offset + zip->seek_base,
-		    SEEK_SET))
+		if(0 > __archive_read_seek(a, pack_offset + zip->seek_base, SEEK_SET))
 			return ARCHIVE_FATAL;
 		zip->stream_offset = pack_offset;
 	}

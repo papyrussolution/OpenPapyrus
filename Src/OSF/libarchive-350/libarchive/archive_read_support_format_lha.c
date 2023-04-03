@@ -195,7 +195,7 @@ static int lzh_decode_huffman_tree(struct lzh_dec::huffman *, unsigned, int);
 
 int archive_read_support_format_lha(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	struct lha * lha;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);

@@ -1329,7 +1329,6 @@ static unsigned get_current_codepage(void)
 		return (GetACP());
 	return (cp);
 }
-
 /*
  * Translation table between Locale Name and ACP/OEMCP.
  */
@@ -1388,15 +1387,13 @@ static struct {
 static unsigned get_current_oemcp(void)
 {
 	int i;
-	char * locale, * p;
+	char * p;
 	size_t len;
-
-	locale = setlocale(LC_CTYPE, NULL);
+	char * locale = setlocale(LC_CTYPE, NULL);
 	if(locale == NULL)
 		return (GetOEMCP());
 	if(locale[0] == 'C' && locale[1] == '\0')
 		return (CP_C_LOCALE);
-
 	p = strrchr(locale, '.');
 	if(!p)
 		return (GetOEMCP());

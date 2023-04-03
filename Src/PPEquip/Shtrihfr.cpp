@@ -245,6 +245,11 @@ private:
 	int  ExecFRPrintOper(int id);
 	int  AllowPrintOper(int id);
 	void SetErrorMessage();
+	//
+	// Returns:
+	//   0 only. In order to initialize return code
+	//
+	int  LogLastError(); 
 	void WriteLogFile(int id);
 	void CutLongTail(char * pBuf);
 	void CutLongTail(SString & rBuf);
@@ -433,7 +438,21 @@ private:
 	static int  RefToIntrf;
 	static uint PayTypeRegFlags;   // @v10.6.1 Флаги успешности получения интерфейсов для Summ1..Summ16
 	enum {
-		extmethfCloseCheckEx = 0x0001
+		extmethfCloseCheckEx           = 0x00000001,
+		extmethfFNCheckItemBarcode     = 0x00000002,
+		extmethfFNCheckItemBarcode2    = 0x00000004,
+		extmethfBarcodeHex             = 0x00000008,
+		extmethfItemStatus             = 0x00000010, 
+		extmethfCheckItemMode          = 0x00000020,
+		extmethfTLVDataHex             = 0x00000040,
+		extmethfCheckItemLocalResult   = 0x00000080,
+		extmethfCheckItemLocalError    = 0x00000100,
+		extmethfMarkingType2           = 0x00000200,
+		extmethfKMServerErrorCode      = 0x00000400,
+		extmethfKMServerCheckingStatus = 0x00000800,
+		extmethfDivisionalQuantity     = 0x00001000,
+		extmethfNumerator              = 0x00002000,
+		extmethfDenominator            = 0x00004000, 
 	};
 	static uint ExtMethodsFlags;   // @v10.6.3 Флаги успешности получения расширенных методов драйвера
 	long   CashierPassword;    // Пароль кассира
@@ -485,8 +504,10 @@ SCS_SHTRIHFRF::SCS_SHTRIHFRF(PPID n, char * name, char * port) : PPSyncCashSessi
 
 SCS_SHTRIHFRF::~SCS_SHTRIHFRF()
 {
-	if(Flags & sfConnected)
-		ExecFR(Disconnect);
+	if(Flags & sfConnected) {
+		if(!ExecFR(Disconnect))
+			LogLastError();
+	}
 	if(--RefToIntrf == 0)
 		ZDELETE(P_DrvFRIntrf);
 }
@@ -494,9 +515,7 @@ SCS_SHTRIHFRF::~SCS_SHTRIHFRF()
 int SCS_SHTRIHFRF::CheckForCash(double sum)
 {
 	double cash_sum = 0.0;
-	if(GetSummator(&cash_sum))
-		return (cash_sum < sum) ? -1 : 1;
-	return 0;
+	return GetSummator(&cash_sum) ? ((cash_sum < sum) ? -1 : 1) : 0;
 }
 
 int SCS_SHTRIHFRF::CheckForEKLZOrFMOverflow()
@@ -513,7 +532,9 @@ int SCS_SHTRIHFRF::CheckForEKLZOrFMOverflow()
 	THROW(GetFR(FMOverflow, &is_fm_overflow));
 	THROW(GetFR(FreeRecordInFM, &free_rec_in_fm));
 	THROW_PP(!is_eklz_overflow && !is_fm_overflow && free_rec_in_fm > 2, PPERR_SYNCCASH_OVERFLOW);
-	CATCHZOK
+	CATCH
+		ok = LogLastError();
+	ENDCATCH
 	return ok;
 }
 
@@ -526,7 +547,9 @@ int SCS_SHTRIHFRF::CheckForSessionOver()
 	THROW(GetFR(IsFM24HoursOver, &is_24_hours_over));
 	if(is_24_hours_over)
 		ok = 1;
-	CATCHZOK
+	CATCH
+		ok = LogLastError();
+	ENDCATCH
 	return ok;
 }
 
@@ -1183,6 +1206,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 		ErrCode = SYNCPRN_NO_ERROR;
 	}
 	CATCH
+		LogLastError(); // @v11.6.9
 		if(Flags & sfCancelled) {
 			Flags &= ~sfCancelled;
 			if(ErrCode != SYNCPRN_ERROR_AFTER_PRINT) {
@@ -1218,6 +1242,7 @@ int SCS_SHTRIHFRF::OpenBox()
 		ok = 1;
 	}
 	CATCH
+		LogLastError(); // @v11.6.9
 		if(Flags & sfCancelled) {
 			Flags &= ~sfCancelled;
 			if(ErrCode != SYNCPRN_ERROR_AFTER_PRINT) {
@@ -1375,7 +1400,9 @@ int SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry, int 
 			THROW(ExecFR(WriteTable));
 		}
 	}
-	CATCHZOK
+	CATCH
+		ok = LogLastError(); // @v11.6.9
+	ENDCATCH
 	CashierPassword = cshr_pssw;
 	ASSIGN_PTR(pPrintTaxAction, print_tax_action);
 	return ok;
@@ -1450,6 +1477,7 @@ int SCS_SHTRIHFRF::PrintSlipDoc(const CCheckPacket * pPack, const char * pFormat
 	}
 	ErrCode = SYNCPRN_NO_ERROR;
 	CATCH
+		ok = LogLastError(); // @v11.6.9
 		if(Flags & sfCancelled) {
 			Flags &= ~sfCancelled;
 			ok = -1;
@@ -1543,6 +1571,7 @@ int SCS_SHTRIHFRF::PrintCheckCopy(const CCheckPacket * pPack, const char * pForm
 	THROW(Cut(1));
 	ErrCode = SYNCPRN_NO_ERROR;
 	CATCH
+		ok = LogLastError(); // @v11.6.9
 		if(Flags & sfCancelled) {
 			Flags &= ~sfCancelled;
 			ok = -1;
@@ -1557,7 +1586,8 @@ int SCS_SHTRIHFRF::PrintCheckCopy(const CCheckPacket * pPack, const char * pForm
 
 int SCS_SHTRIHFRF::PrintReport(int withCleaning)
 {
-	int    ok = 1, mode = 0;
+	int    ok = 1;
+	int    mode = 0;
 	long   cshr_pssw = 0;
 	ResCode = RESCODE_NO_ERROR;
 	THROW(ConnectFR());
@@ -1577,6 +1607,7 @@ int SCS_SHTRIHFRF::PrintReport(int withCleaning)
 	}
 	THROW(Cut(withCleaning));
 	CATCH
+		ok = LogLastError(); // @v11.6.9
 		if(Flags & sfCancelled) {
 			Flags &= ~sfCancelled;
 			ok = -1;
@@ -1593,15 +1624,8 @@ int SCS_SHTRIHFRF::PrintReport(int withCleaning)
 	return ok;
 }
 
-int SCS_SHTRIHFRF::CloseSession(PPID sessID)
-{
-	return PrintReport(1);
-}
-
-int SCS_SHTRIHFRF::PrintXReport(const CSessInfo *)
-{
-	return PrintReport(0);
-}
+int SCS_SHTRIHFRF::CloseSession(PPID sessID) { return PrintReport(1); }
+int SCS_SHTRIHFRF::PrintXReport(const CSessInfo *) { return PrintReport(0); }
 
 int SCS_SHTRIHFRF::PrintZReportCopy(const CSessInfo * pInfo)
 {
@@ -1636,6 +1660,7 @@ int SCS_SHTRIHFRF::PrintZReportCopy(const CSessInfo * pInfo)
 	}
 	ErrCode = SYNCPRN_NO_ERROR;
 	CATCH
+		ok = LogLastError(); // @v11.6.9
 		if(Flags & sfCancelled) {
 			Flags &= ~sfCancelled;
 			ok = -1;
@@ -1668,6 +1693,7 @@ int SCS_SHTRIHFRF::PrintIncasso(double sum, int isIncome)
 	}
 	THROW(Cut(1));
 	CATCH
+		ok = LogLastError(); // @v11.6.9
 		if(Flags & sfCancelled) {
 			Flags &= ~sfCancelled;
 			ok = -1;
@@ -1696,7 +1722,8 @@ int SCS_SHTRIHFRF::GetSummator(double * val)
 	THROW(ExecFR(GetCashReg));
 	THROW(GetFR(ContentsOfCashRegister, &cash_amt));
 	CATCH
-		ok = (SetErrorMessage(), 0);
+		ok = LogLastError(); // @v11.6.9
+		SetErrorMessage();
 	ENDCATCH
 	ASSIGN_PTR(val, cash_amt);
 	return ok;
@@ -1850,21 +1877,28 @@ FR_INTRF * SCS_SHTRIHFRF::InitDriver()
 		IFC_ENTRY(TagValueStr),    // @v10.9.0
 		IFC_ENTRY(FNAddTag),       // @v10.9.0
 		IFC_ENTRY(FNSendSTLVTag),  // @v10.9.0
-		IFC_ENTRY(FNCheckItemBarcode),     // @v11.6.6
-		IFC_ENTRY(FNCheckItemBarcode2),    // @v11.6.6
-		IFC_ENTRY(BarcodeHex),             // @v11.6.6
-		IFC_ENTRY(ItemStatus),             // @v11.6.6
-		IFC_ENTRY(CheckItemMode),          // @v11.6.6
-		IFC_ENTRY(TLVDataHex),             // @v11.6.6
-		IFC_ENTRY(CheckItemLocalResult),   // @v11.6.6
-		IFC_ENTRY(CheckItemLocalError),    // @v11.6.6 
-		IFC_ENTRY(MarkingType2),           // @v11.6.6
-		IFC_ENTRY(KMServerErrorCode),      // @v11.6.6
-		IFC_ENTRY(KMServerCheckingStatus), // @v11.6.6 
-		IFC_ENTRY(DivisionalQuantity),     // @v11.6.6
-		IFC_ENTRY(Numerator),              // @v11.6.6 
-		IFC_ENTRY(Denominator),            // @v11.6.6
+		IFC_ENTRY_SS(FNCheckItemBarcode,     ExtMethodsFlags, extmethfFNCheckItemBarcode),     // @v11.6.6 / !
+		IFC_ENTRY_SS(FNCheckItemBarcode2,    ExtMethodsFlags, extmethfFNCheckItemBarcode2),    // @v11.6.6 / !
+		IFC_ENTRY_SS(BarcodeHex,             ExtMethodsFlags, extmethfBarcodeHex),             // @v11.6.6
+		IFC_ENTRY_SS(ItemStatus,             ExtMethodsFlags, extmethfItemStatus),             // @v11.6.6
+		IFC_ENTRY_SS(CheckItemMode,          ExtMethodsFlags, extmethfCheckItemMode),          // @v11.6.6
+		IFC_ENTRY_SS(TLVDataHex,             ExtMethodsFlags, extmethfTLVDataHex),             // @v11.6.6
+		IFC_ENTRY_SS(CheckItemLocalResult,   ExtMethodsFlags, extmethfCheckItemLocalResult),   // @v11.6.6
+		IFC_ENTRY_SS(CheckItemLocalError,    ExtMethodsFlags, extmethfCheckItemLocalError),    // @v11.6.6 
+		IFC_ENTRY_SS(MarkingType2,           ExtMethodsFlags, extmethfMarkingType2),           // @v11.6.6 / !
+		IFC_ENTRY_SS(KMServerErrorCode,      ExtMethodsFlags, extmethfKMServerErrorCode),      // @v11.6.6
+		IFC_ENTRY_SS(KMServerCheckingStatus, ExtMethodsFlags, extmethfKMServerCheckingStatus), // @v11.6.6 
+		IFC_ENTRY_SS(DivisionalQuantity,     ExtMethodsFlags, extmethfDivisionalQuantity),     // @v11.6.6 / !
+		IFC_ENTRY_SS(Numerator,              ExtMethodsFlags, extmethfNumerator),              // @v11.6.6 / !
+		IFC_ENTRY_SS(Denominator,            ExtMethodsFlags, extmethfDenominator),            // @v11.6.6 / !
 	};
+
+//31/03/23 10:42:38	master	Ошибка инициализации COM-метода или свойства 'FNCheckItemBarcode2': Не определен домен данных в конфигурации глобального обмена
+//31/03/23 10:42:38	master	Ошибка инициализации COM-метода или свойства 'MarkingType2': Не определен домен данных в конфигурации глобального обмена
+//31/03/23 10:42:38	master	Ошибка инициализации COM-метода или свойства 'DivisionalQuantity': Не определен домен данных в конфигурации глобального обмена
+//31/03/23 10:42:38	master	Ошибка инициализации COM-метода или свойства 'Numerator': Не определен домен данных в конфигурации глобального обмена
+//31/03/23 10:42:38	master	Ошибка инициализации COM-метода или свойства 'Denominator': Не определен домен данных в конфигурации глобального обмена
+
 	#undef IFC_ENTRY
 	int    ok = 1;
 	SString fmt_buf;
@@ -2100,7 +2134,9 @@ int SCS_SHTRIHFRF::AnnulateCheck()
 	}
 	if(cut && oneof3(DeviceType, devtypeShtrih, devtypeCombo, devtypeMini) && !(Flags & sfDontUseCutter))
 		THROW(ExecFRPrintOper(CutCheck));
-	CATCHZOK
+	CATCH
+		ok = LogLastError(); // @v11.6.9
+	ENDCATCH
 	return ok;
 }
 
@@ -2361,6 +2397,7 @@ int SCS_SHTRIHFRF::ConnectFR()
 		THROW(SetupTables());
 	}
 	CATCH
+		ok = LogLastError(); // @v11.6.9
 		if(Flags & sfConnected) {
 			SetErrorMessage();
 			ExecFR(Disconnect);
@@ -2370,7 +2407,6 @@ int SCS_SHTRIHFRF::ConnectFR()
 			SetErrorMessage();
 		}
 		Flags &= ~sfConnected;
-		ok = 0;
 	ENDCATCH
 	return ok;
 }
@@ -2479,6 +2515,14 @@ int SCS_SHTRIHFRF::ExecFRPrintOper(int id)
 static int IsModeOffPrint(int mode)
 {
 	return oneof5(mode, FRMODE_OPEN_SESS, FRMODE_CLOSE_SESS, FRMODE_OPEN_CHECK, FRMODE_FULL_REPORT, FRMODE_LONG_EKLZ_REPORT) ? 0 : 1;
+}
+
+int  SCS_SHTRIHFRF::LogLastError()
+{
+	SString & r_msg_buf = SLS.AcquireRvlStr();
+	PPGetLastErrorMessage(1, r_msg_buf);
+	PPLogMessage(PPFILNAM_SHTRIH_LOG, r_msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+	return 0;
 }
 
 void SCS_SHTRIHFRF::WriteLogFile(int id)
@@ -2614,7 +2658,9 @@ int SCS_SHTRIHFRF::AllowPrintOper(int id)
 		Flags |= sfCancelled;
 		ok = 0;
 	}
-	CATCHZOK
+	CATCH
+		ok = LogLastError(); // @v11.6.9
+	ENDCATCH
 	return ok;
 }
 
@@ -2675,52 +2721,54 @@ void SCS_SHTRIHFRF::SetErrorMessage()
 					}
 					//
 					ResCode = RESCODE_NO_ERROR;
-					THROW(ConnectFR());
-					//
-					THROW(SetFR(BarCode, pCode));
-					THROW(SetFR(ItemStatus, 1L));
-					THROW(SetFR(CheckItemMode, 0L));
-					THROW(SetFR(TLVDataHex, ""));
-					tlv_data_hex[0] = 0;
-					THROW(ExecFR(FNCheckItemBarcode));
-					{
-						msg_buf.Z().Cat("FNCheckItemBarcode req").CatDiv(':', 2).CatEq("BarCode", pCode).CatDiv(',', 2).
-							CatEq("ItemStatus", 1).CatDiv(',', 2).CatEq("CheckItemMode", 0).CatDiv(',', 2).
-							CatEq("TLVDataHex", tlv_data_hex);
-						PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
-					}
-					//
-					{
-						int   item_local_result = 0;
-						int   item_local_error = 0;
-						int   marking_type = 0; // tag 2100
-						int   svr_err_code = 0;
-						int   svr_checking_status = 0; // tag 2106
+					if(ExtMethodsFlags & extmethfFNCheckItemBarcode) {
+						THROW(ConnectFR());
+						//
+						THROW(SetFR(BarCode, pCode));
+						THROW(SetFR(ItemStatus, 1L));
+						THROW(SetFR(CheckItemMode, 0L));
+						THROW(SetFR(TLVDataHex, ""));
 						tlv_data_hex[0] = 0;
-						THROW(GetFR(CheckItemLocalResult, &item_local_result));
-						THROW(GetFR(CheckItemLocalError, &item_local_error));
-						THROW(GetFR(MarkingType2, &marking_type));
-						THROW(GetFR(KMServerErrorCode, &svr_err_code));
-						THROW(GetFR(TLVDataHex, tlv_data_hex, sizeof(tlv_data_hex)-1));
-						rResult.CheckResult = svr_checking_status;
-						rResult.Reason = item_local_error;
-						rResult.ProcessingResult = item_local_result; // @?
-						rResult.ProcessingCode = 0; // @?
-						rResult.Status = 0; // @?
+						THROW(ExecFR(FNCheckItemBarcode));
 						{
-							msg_buf.Z().Cat("FNCheckItemBarcode rep").CatDiv(':', 2).CatEq("CheckItemLocalResult", item_local_result).CatDiv(',', 2).
-								CatEq("CheckItemLocalError", item_local_error).CatDiv(',', 2).CatEq("MarkingType2", marking_type).CatDiv(',', 2).
-								CatEq("KMServerErrorCode", svr_err_code).CatDiv(',', 2).CatEq("TLVDataHex", tlv_data_hex);
+							msg_buf.Z().Cat("FNCheckItemBarcode req").CatDiv(':', 2).CatEq("BarCode", pCode).CatDiv(',', 2).
+								CatEq("ItemStatus", 1).CatDiv(',', 2).CatEq("CheckItemMode", 0).CatDiv(',', 2).
+								CatEq("TLVDataHex", tlv_data_hex);
 							PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 						}
-						ok = 1;
+						//
+						{
+							int   item_local_result = 0;
+							int   item_local_error = 0;
+							int   marking_type = 0; // tag 2100
+							int   svr_err_code = 0;
+							int   svr_checking_status = 0; // tag 2106
+							tlv_data_hex[0] = 0;
+							THROW(GetFR(CheckItemLocalResult, &item_local_result));
+							THROW(GetFR(CheckItemLocalError, &item_local_error));
+							THROW(GetFR(MarkingType2, &marking_type));
+							THROW(GetFR(KMServerErrorCode, &svr_err_code));
+							THROW(GetFR(TLVDataHex, tlv_data_hex, sizeof(tlv_data_hex)-1));
+							rResult.CheckResult = svr_checking_status;
+							rResult.Reason = item_local_error;
+							rResult.ProcessingResult = item_local_result; // @?
+							rResult.ProcessingCode = 0; // @?
+							rResult.Status = 0; // @?
+							{
+								msg_buf.Z().Cat("FNCheckItemBarcode rep").CatDiv(':', 2).CatEq("CheckItemLocalResult", item_local_result).CatDiv(',', 2).
+									CatEq("CheckItemLocalError", item_local_error).CatDiv(',', 2).CatEq("MarkingType2", marking_type).CatDiv(',', 2).
+									CatEq("KMServerErrorCode", svr_err_code).CatDiv(',', 2).CatEq("TLVDataHex", tlv_data_hex);
+								PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+							}
+							ok = 1;
+						}
 					}
 				}
 			}
 		}
 	}
 	CATCH
-		ok = 0;
+		ok = LogLastError(); // @v11.6.9
 	ENDCATCH
 	return ok;
 }

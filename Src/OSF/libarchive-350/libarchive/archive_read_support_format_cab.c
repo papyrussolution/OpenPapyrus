@@ -368,7 +368,7 @@ static inline int lzx_decode_huffman(const struct lzx_dec::huffman * hf, uint rb
 
 int archive_read_support_format_cab(Archive * _a)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	struct cab * cab;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);

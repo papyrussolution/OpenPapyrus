@@ -570,7 +570,7 @@ int sftp_init(sftp_session sftp)
 		SSH_LOG(SSH_LOG_PROTOCOL, "SFTP server extension: %s, version: %s", ext_name, ext_data);
 		count++;
 		tmp = (char **)SAlloc::R(sftp->ext->name, count * sizeof(char *));
-		if(tmp == NULL) {
+		if(!tmp) {
 			ssh_set_error_oom(sftp->session);
 			ZFREE(ext_name);
 			ZFREE(ext_data);
@@ -580,7 +580,7 @@ int sftp_init(sftp_session sftp)
 		tmp[count - 1] = ext_name;
 		sftp->ext->name = tmp;
 		tmp = (char **)SAlloc::R(sftp->ext->data, count * sizeof(char *));
-		if(tmp == NULL) {
+		if(!tmp) {
 			ssh_set_error_oom(sftp->session);
 			ZFREE(ext_name);
 			ZFREE(ext_data);

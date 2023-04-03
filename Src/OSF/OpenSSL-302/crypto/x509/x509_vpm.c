@@ -233,7 +233,7 @@ static int int_x509_param_set1(char ** pdest, size_t * pdestlen,
 			srclen = strlen(src);
 
 		tmp = (char*)OPENSSL_malloc(srclen + 1);
-		if(tmp == NULL)
+		if(!tmp)
 			return 0;
 		memcpy(tmp, src, srclen);
 		tmp[srclen] = '\0'; /* enforce NUL termination */

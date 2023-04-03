@@ -301,36 +301,22 @@ static void * construct_decoder(const OSSL_ALGORITHM * algodef, OSSL_PROVIDER * 
 }
 
 /* Intermediary function to avoid ugly casts, used below */
-static void destruct_decoder(void * method, void * data)
-{
-	OSSL_DECODER_free((OSSL_DECODER *)method);
-}
-
-static int up_ref_decoder(void * method)
-{
-	return OSSL_DECODER_up_ref((OSSL_DECODER *)method);
-}
-
-static void free_decoder(void * method)
-{
-	OSSL_DECODER_free((OSSL_DECODER *)method);
-}
+static void destruct_decoder(void * method, void * data) { OSSL_DECODER_free((OSSL_DECODER *)method); }
+static int up_ref_decoder(void * method) { return OSSL_DECODER_up_ref((OSSL_DECODER *)method); }
+static void free_decoder(void * method) { OSSL_DECODER_free((OSSL_DECODER *)method); }
 
 /* Fetching support.  Can fetch by numeric identity or by name */
-static OSSL_DECODER * inner_ossl_decoder_fetch(struct decoder_data_st * methdata, int id,
-    const char * name, const char * properties)
+static OSSL_DECODER * inner_ossl_decoder_fetch(struct decoder_data_st * methdata, int id, const char * name, const char * properties)
 {
 	OSSL_METHOD_STORE * store = get_decoder_store(methdata->libctx);
 	OSSL_NAMEMAP * namemap = ossl_namemap_stored(methdata->libctx);
-	const char * const propq = properties != NULL ? properties : "";
+	const char * const propq = properties ? properties : "";
 	void * method = NULL;
 	int unsupported = 0;
-
 	if(store == NULL || namemap == NULL) {
 		ERR_raise(ERR_LIB_OSSL_DECODER, ERR_R_PASSED_INVALID_ARGUMENT);
 		return NULL;
 	}
-
 	/*
 	 * If we have been passed both an id and a name, we have an
 	 * internal programming error.
@@ -339,19 +325,15 @@ static OSSL_DECODER * inner_ossl_decoder_fetch(struct decoder_data_st * methdata
 		ERR_raise(ERR_LIB_OSSL_DECODER, ERR_R_INTERNAL_ERROR);
 		return NULL;
 	}
-
 	if(id == 0 && name != NULL)
 		id = ossl_namemap_name2num(namemap, name);
-
 	/*
 	 * If we haven't found the name yet, chances are that the algorithm to
 	 * be fetched is unsupported.
 	 */
 	if(id == 0)
 		unsupported = 1;
-
-	if(id == 0
-	    || !ossl_method_store_cache_get(store, NULL, id, propq, &method)) {
+	if(id == 0 || !ossl_method_store_cache_get(store, NULL, id, propq, &method)) {
 		OSSL_METHOD_CONSTRUCT_METHOD mcm = {
 			get_tmp_decoder_store,
 			get_decoder_from_store,

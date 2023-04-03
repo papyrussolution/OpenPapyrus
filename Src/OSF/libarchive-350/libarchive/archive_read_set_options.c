@@ -43,7 +43,7 @@ int archive_read_set_options(Archive * a, const char * options)
 
 static int archive_set_format_option(Archive * _a, const char * m, const char * o, const char * v)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	size_t i;
 	int r, rv = ARCHIVE_WARN, matched_modules = 0;
 	for(i = 0; i < SIZEOFARRAY(a->formats); i++) {
@@ -73,7 +73,7 @@ static int archive_set_format_option(Archive * _a, const char * m, const char * 
 
 static int archive_set_filter_option(Archive * _a, const char * m, const char * o, const char * v)
 {
-	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	ArchiveReadFilter * filter;
 	ArchiveReadFilterBidder * bidder;
 	int r, rv = ARCHIVE_WARN, matched_modules = 0;

@@ -983,7 +983,7 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 	 */
 	l = ll = archive_strlen(&(file->basename));
 	tmp = static_cast<uchar *>(SAlloc::M(l));
-	if(tmp == NULL) {
+	if(!tmp) {
 		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}

@@ -997,11 +997,12 @@ struct PPLoginDialogParam {
 	{
 	}
 	enum {
-		fForcePrompt = 0x0001,
-		fSysAccLogin = 0x0002,
-		fRetryLogin  = 0x0004,
-		fProtect     = 0x0008,
-		fBlindMode   = 0x0010  // @v11.3.12
+		fForcePrompt       = 0x0001,
+		fSysAccLogin       = 0x0002,
+		fRetryLogin        = 0x0004,
+		fProtect           = 0x0008,
+		fBlindMode         = 0x0010, // @v11.3.12
+		fDisableStqQrLogin = 0x0020  // @v11.6.9 проекция параметра PPINIPARAM_DISABLESTQQRLOGIN
 	};
 	long   Flags;             // IN  
 	PPID   OnetimePassResult; // OUT
@@ -1140,7 +1141,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 				else {
 					// @v11.1.8 @experimental {
 					//if(SsStyloQDbSymb.getCount()) {
-					if(StqSvcDbMap.getCount()) {
+					if(!(R_P.Flags & PPLoginDialogParam::fDisableStqQrLogin) && StqSvcDbMap.getCount()) { // @v11.6.9 (!(R_P.Flags & PPLoginDialogParam::fDisableStqQrLogin) &&)
 						TImageView * p_iv = static_cast<TImageView *>(getCtrlView(CTL_LOGIN_QR));
 						if(p_iv && p_iv->IsSubSign(TV_SUBSIGN_IMAGEVIEW)) {
 							SString inv_text;
@@ -2013,6 +2014,8 @@ void PPApp::login(int processCmdLine)
 				SETFLAG(login_param.Flags, login_param.fSysAccLogin, iv > 0); //sys_acc_login
 				ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_BLINDLOGINMODE, &(iv = 0)); // @v11.3.12
 				SETFLAG(login_param.Flags, login_param.fBlindMode, iv > 0); // @v11.3.12
+				ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DISABLESTQQRLOGIN, &(iv = 0)); // @v11.6.9
+				SETFLAG(login_param.Flags, login_param.fDisableStqQrLogin, iv > 0); // @v11.6.9
 			}
 			//
 			// Если определен сервер синхронизации времени, то пытаемся установить

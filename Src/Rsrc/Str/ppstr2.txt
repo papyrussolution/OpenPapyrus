@@ -3050,6 +3050,7 @@ PPINIPARAM_PAPERLESSCHEQUE               "paperlesscheque" // @v11.3.7 [config] 
 PPINIPARAM_PAPERLESSCHEQUE_FAKEEADDR     "paperlesscheque_fakeeaddr" // @v11.3.7 [config] Фейковый электронный адрес для отправки безбумажного чека.
 PPINIPARAM_BLINDLOGINMODE                "blindloginmode" // @v11.3.12 [config] "слепой" режим авторизации: пользователь не видит список баз данных. после ввода имени и пароля
 	// система самостоятельно находит базу или базы данных, для которых это имя подходит и, если есть более одной базы - дает возможность выбрать.
+PPINIPARAM_DISABLESTQQRLOGIN             "disablestqqrlogin" // @v11.6.9 [config] Запрет авторизации по QR-коду через Stylo-Q
 // @v9.4.12 @obsolete PPINIPARAM_SERVER_AT                   "at"
 // @v9.4.12 @obsolete PPINIPARAM_SERVER_AT2                  "at2"
 // @v9.4.12 @obsolete PPINIPARAM_SERVER_AT3                  "at3"
@@ -5009,6 +5010,8 @@ PPTXT_SENDSUPPLIXDATAFAULT           "Ошибка отправки данных
 PPTXT_SUPPLIXAUTHFAULT               "Ошибка авторизации на сервисе поставщика"
 PPTXT_SENDDOCTOSUPPLIXSVC            "Передача документа сервису поставщика"
 PPTXT_SUPPLIXSVCACCEPTSDOCS          "Сервис поставщика принял переданные документы"
+PPTXT_ROUNDHOURPICKER                "Круговой слайдер для выбора времени"
+PPTXT_ROUNDMINUTEPICKER              "Круговой слайдер для выбора минут"
 //
 // LastText
 
@@ -5949,6 +5952,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 
 @papyrusversion                      "Версия Papyrus"
 
+@from                                "От"
+@to                                  "До"
 @etc_neut                            "Другое"
 @element                             "Элемент"
 @element_pl                          "Элементы"
@@ -8431,6 +8436,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_loc_trunkpoint                      "Магистральная точка локации"
 @rtag_bill_initgeoloc                     "Геолокация в момент создания документа"
 @rtag_tsess_outercode                     "Внешний код технологической сессии" // @v11.6.6
+@rtag_person_transportto                  "Транспорт для доставки клиенту по умолчанию" // @v11.6.9
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -11871,6 +11877,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @selecttransporttype                      "Выберите вид транспорта"
 @selectcodepage                           "Выберите кодировку"
 @selectperson                             "Выберите персоналию"
+@selectyear                               "Выберите год" // @v11.6.9
+@selectmonthandday                        "Выберите месяц и день" // @v11.6.9
+@selecthour                               "Выберите час" // @v11.6.9
+@selectminut                              "Выберите минуту" // @v11.6.9
 
 @location_city                            "@{city}"
 @location_code                            "@{code}"

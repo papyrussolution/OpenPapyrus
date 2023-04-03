@@ -1923,7 +1923,7 @@ static int test_get_word2(Jbig2Ctx * ctx, Jbig2WordStream * self, size_t offset,
 	test_stream_t * st = (test_stream_t*)self;
 	uint32_t val = 0;
 	int ret = 0;
-	if(st == NULL || st->h == NULL || word == NULL)
+	if(!st || st->h == NULL || word == NULL)
 		return -1;
 	if(offset >= st->h->input_len)
 		return 0;

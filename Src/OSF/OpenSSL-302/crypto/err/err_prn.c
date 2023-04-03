@@ -116,7 +116,7 @@ void ERR_add_error_txt(const char * separator, const char * txt)
 			/* split error msg at curr since error data would get too long */
 			if(curr != txt) {
 				tmp = OPENSSL_strndup(txt, curr - txt);
-				if(tmp == NULL)
+				if(!tmp)
 					return;
 				ERR_add_error_data(2, separator, tmp);
 				OPENSSL_free(tmp);
@@ -127,7 +127,7 @@ void ERR_add_error_txt(const char * separator, const char * txt)
 		else {
 			if(trailing_separator) {
 				tmp = OPENSSL_strndup(txt, next - strlen(separator) - txt);
-				if(tmp == NULL)
+				if(!tmp)
 					return;
 				/* output txt without the trailing separator */
 				ERR_add_error_data(2, leading_separator, tmp);

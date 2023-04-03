@@ -12015,15 +12015,19 @@ private:
 	};
 	static SSIZE_T cdecl LaCbRead(Archive * pA, void * pClientData, const void ** ppBuf);
 	static int64   cdecl LaCbSkip(Archive * pA, void * pClientData, int64 request);
+	static int64   cdecl LaCbSeek(Archive * pA, void * pClientData, int64 offset, int whence);
 	static int     cdecl LaCbOpen(Archive * pA, void * pClientData);
 	static int     cdecl LaCbClose(Archive * pA, void * pClientData);
+	//archive_seek_callback
 #endif // } 0 @construction
 	// } @v10.4.4
 	int    Helper_AddEntries(const SString & rRoot, const SString & rSub, const SString & rMask, int flags);
 
 	const  int Type;
+	int    OpenMode;
 	void * H;
 	LaCbBlock * P_Cb_Blk; // @v10.4.4
+	SFileEntryPool Fep;   // @v11.6.9 Пул информации о файлах, находящихся в архиве
 };
 //
 // JSON (Rui Maciel rui.maciel@gmail.com)
