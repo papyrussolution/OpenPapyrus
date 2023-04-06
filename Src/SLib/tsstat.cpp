@@ -1,5 +1,5 @@
 // TSSTAT.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2010, 2013, 2016, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2010, 2013, 2016, 2018, 2019, 2020, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -2039,7 +2039,7 @@ SLTEST_R(STimeSeries)
 					THROW(SLTEST_CHECK_NZ(f_out.WriteLine(line_buf)));
 				}
 				f_out.Close();
-				SLTEST_CHECK_LT(0L, SFile::Compare(src_file_name, test_file_name, 0));
+				SLTEST_CHECK_LT(0, SFile::Compare(src_file_name, test_file_name, 0));
 			}
 		}
 	}

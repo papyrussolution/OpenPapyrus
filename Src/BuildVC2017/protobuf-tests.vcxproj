@@ -87,7 +87,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\googletest\googlemock;..\osf\googletest\googletest;..\osf\googletest\googletest\include;..\osf\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -140,7 +140,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\googletest\googlemock;..\osf\googletest\googletest;..\osf\googletest\googletest\include;..\osf\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -194,7 +194,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\googletest\googlemock;..\osf\googletest\googletest;..\osf\googletest\googletest\include;..\osf\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <DisableSpecificWarnings>4018;4065;4146;4244;4251;4267;4305;4307;4309;4334;4355;4506;4800;4996</DisableSpecificWarnings>
@@ -247,7 +247,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\googletest\googlemock;..\osf\googletest\googletest;..\osf\googletest\googletest\include;..\osf\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <DisableSpecificWarnings>4018;4065;4146;4244;4251;4267;4305;4307;4309;4334;4355;4506;4800;4996</DisableSpecificWarnings>

@@ -806,19 +806,21 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 	DbProvider * p_dict = CurDict;
 	THROW_PP(p_dict && p_dict->GetDbSymb(db_symb), PPERR_SESSNAUTH);
 	{
+		SString doc_text;
 		PPObjTag tag_obj;
 		PPObjGoods gobj;
 		Goods2Tbl::Rec goods_rec;
 		THROW(rCliPack.Pool.Get(SSecretTagPool::tagClientIdent, &cli_ident)); // @todo @err
 		THROW(doc.FromJsonObject(pDocument));
-		THROW(doc.Uuid); // @err
+		doc.MakeCodeString(doc_text);
+		THROW_PP_S(doc.Uuid, PPERR_SQ_INDOCHASNTUUID, doc_text);
 		if(doc.InterchangeOpID == 0) {
-			THROW(doc.SvcOpID > 0 && GetOpData(doc.SvcOpID, 0) > 0);
+			THROW_PP_S(doc.SvcOpID > 0 && GetOpData(doc.SvcOpID, 0) > 0, PPERR_SQ_INDOCINVOP, doc_text);
 		}
 		else {
-			THROW(oneof3(doc.InterchangeOpID, PPEDIOP_ORDER, StyloQCommandList::sqbdtSvcReq, StyloQCommandList::sqbdtCCheck));
+			THROW_PP_S(oneof3(doc.InterchangeOpID, PPEDIOP_ORDER, StyloQCommandList::sqbdtSvcReq, StyloQCommandList::sqbdtCCheck), PPERR_SQ_INDOCINVIXOP, doc_text);
 		}
-		THROW(checkdate(doc.CreationTime.d) || checkdate(doc.Time.d));
+		THROW_PP_S(checkdate(doc.CreationTime.d) || checkdate(doc.Time.d), PPERR_SQ_INDOCINVTIME, doc_text);
 		if(pDeclaration) {
 			ddecl.FromJsonObject(pDeclaration);
 		}
@@ -827,8 +829,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 			StyloQCommandList * p_target_cmd_list = 0;
 			if(StyloQCommandList::GetFullList(db_symb, full_cmd_list)) {
 				const StyloQCommandList::Item * p_cmd = full_cmd_list.GetByUuid(doc.OrgCmdUuid);
-				if(p_cmd)
-					org_cmd_item = *p_cmd;
+				RVALUEPTR(org_cmd_item, p_cmd);
 			}
 		}
 		// @v11.6.4 {
@@ -850,14 +851,16 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 					pos_node_id = temp_pos_node_id;
 			}
 			if(pos_node_id) {
-				THROW(doc.TiList.getCount()); // @todo @err
+				THROW_PP_S(doc.TiList.getCount(), PPERR_SQ_INDOCNOTIITEMS, doc_text);
 				{
 					{
 						for(uint i = 0; i < doc.TiList.getCount(); i++) {
 							const Document::__TransferItem * p_item = doc.TiList.at(i);
-							THROW(p_item);
-							THROW(gobj.Search(p_item->GoodsID, &goods_rec) > 0);
-							THROW(p_item->Set.Qtty > 0.0);
+							THROW_PP_S(p_item, PPERR_SQ_INDOCINVTITEM, (temp_buf = doc_text).Space().CatChar('[').CatEq("ln", i+1).CatChar(']'));
+							THROW_PP_S(gobj.Search(p_item->GoodsID, &goods_rec) > 0, PPERR_SQ_INDOCGOODSNFOUND, (temp_buf = doc_text).Space().
+								CatChar('[').CatEq("ln", i+1).Space().CatEq("GoodsID", p_item->GoodsID).CatChar(']'));
+							THROW_PP_S(p_item->Set.Qtty > 0.0, PPERR_SQ_INDOCINVQTTY, (temp_buf = doc_text).Space().
+								CatChar('[').CatEq("ln", i+1).Space().CatEq("Qtty", p_item->Set.Qtty, MKSFMTD(0, 3, 0)));
 						}
 					}
 					{
@@ -1085,7 +1088,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 			}
 			else {
 				PPIDArray loc_list;
-				THROW(doc.InterchangeOpID == PPEDIOP_ORDER); // @todo @err
+				THROW_PP_S(doc.InterchangeOpID == PPEDIOP_ORDER, PPERR_SQ_INDOCINVIXOP, doc_text);
 				if(p_cmd_doc_filt) { // @v11.5.0
 					GetContextualOpAndLocForOrder(*p_cmd_doc_filt, &_op_id, &loc_list); // @v11.4.9
 					loc_id = loc_list.getSingle(); // @v11.4.9
@@ -1094,15 +1097,16 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 			const LDATE due_date = checkdate(doc.DueTime.d) ? doc.DueTime.d : ZERODATE;
 			const LDATE nominal_doc_date = (p_cmd_doc_filt && p_cmd_doc_filt->Flags & StyloQDocumentPrereqParam::fDlvrDateAsNominal && checkdate(due_date)) ? due_date : 
 				(checkdate(doc.Time.d) ? doc.Time.d : (checkdate(doc.CreationTime.d) ? doc.CreationTime.d : getcurdate_()));
-			THROW(GetOpData(_op_id, &op_rec) > 0);
+			THROW_PP_S(GetOpData(_op_id, &op_rec) > 0, PPERR_SQ_INDOCINVOP, doc_text);
 			temp_buf.Z().Cat(doc.Code).CatDiv('-', 1).Cat(nominal_doc_date, DATF_DMY);
 			THROW_PP_S(doc.TiList.getCount(), PPERR_INCOMINGBILLHASNTTI, temp_buf);
 			{
 				{
 					for(uint i = 0; i < doc.TiList.getCount(); i++) {
 						const Document::__TransferItem * p_item = doc.TiList.at(i);
-						THROW(p_item);
-						THROW(gobj.Search(p_item->GoodsID, &goods_rec) > 0);
+						THROW_PP_S(p_item, PPERR_SQ_INDOCINVTITEM, (temp_buf = doc_text).Space().CatChar('[').CatEq("ln", i+1).CatChar(']'));
+						THROW_PP_S(gobj.Search(p_item->GoodsID, &goods_rec) > 0, PPERR_SQ_INDOCGOODSNFOUND, (temp_buf = doc_text).Space().
+							CatChar('[').CatEq("ln", i+1).Space().CatEq("GoodsID", p_item->GoodsID).CatChar(']'));
 						if(p_item->Set.Qtty < 0.0) {
 							// ≈сли клиент передал нам отрицательное количество, то мы должны убедитьс€ что это допустимо.
 							// ѕредполагаетс€, что клиент при этом знает вид операции (svc_op_id) который будет использован
@@ -1110,10 +1114,12 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 							// “ака€ ситуаци€ может возникнуть если клиент отправил запрос на изменение документа, которых 
 							// до этого сервис переслал клиенту, либо при создании документа клиентом, но в рамках спецификации,
 							// определенной сервисом.
-							THROW(PPTransferItem::GetSign(svc_op_id, 0) < 0); // @todo @ett
+							THROW_PP_S(PPTransferItem::GetSign(svc_op_id, 0) < 0, PPERR_SQ_INDOCINVQTTY, (temp_buf = doc_text).Space().
+								CatChar('[').CatEq("ln", i+1).Space().CatEq("Qtty", p_item->Set.Qtty, MKSFMTD(0, 3, 0)));
 						}
 						else {
-							THROW(p_item->Set.Qtty > 0.0); // @todo @err
+							THROW_PP_S(p_item->Set.Qtty > 0.0, PPERR_SQ_INDOCINVQTTY, (temp_buf = doc_text).Space().
+								CatChar('[').CatEq("ln", i+1).Space().CatEq("Qtty", p_item->Set.Qtty, MKSFMTD(0, 3, 0)));
 						}
 					}
 				}
@@ -1161,7 +1167,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 						}
 						else {
 							_op_id = p_bpack->Rec.OpID;
-							THROW(!svc_op_id || _op_id == svc_op_id); // @todo @err
+							THROW_PP_S(!svc_op_id || _op_id == svc_op_id, PPERR_SQ_INDOCINVOP, doc_text);
 							THROW(GetOpData(_op_id, &op_rec) > 0);
 						}
 						assert(op_rec.ID > 0);
@@ -1200,11 +1206,13 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 							}
 							if(is_new_pack || !ddecl.ActionFlags) {
 								if(doc.ClientID) {
-									THROW(ar_obj.Search(doc.ClientID, &ar_rec) > 0); // @err
-									THROW(ar_rec.AccSheetID == op_rec.AccSheetID); // @err
+									THROW_PP_S(ar_obj.Search(doc.ClientID, &ar_rec) > 0, PPERR_SQ_INDOCINVCLI, (temp_buf = doc_text).Space().
+										CatChar('[').CatEq("ClientID", doc.ClientID).CatChar(']'));
+									THROW_PP_S(ar_rec.AccSheetID == op_rec.AccSheetID, PPERR_SQ_INDOCINVCLIACS, (temp_buf = doc_text).Space().
+										CatChar('[').CatEq("ClientID", doc.ClientID).Space().CatEq("AcsID", ar_rec.AccSheetID).CatChar(']'));
 									p_bpack->Rec.Object = ar_rec.ID;
 									if(doc.DlvrLocID) {
-										PPID cli_psn_id = ObjectToPerson(ar_rec.ID, 0);
+										const PPID cli_psn_id = ObjectToPerson(ar_rec.ID, 0);
 										if(cli_psn_id) {
 											PPIDArray dlvr_loc_list;
 											psn_obj.GetDlvrLocList(cli_psn_id, &dlvr_loc_list);
@@ -1215,7 +1223,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 								}
 								else if(op_rec.AccSheetID && acs_obj.Fetch(op_rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
 									if(AcceptStyloQClientAsPerson(rCliPack, acs_rec.ObjGroup, &person_id, 0) > 0) {
-										PPID ar_id = 0;
+										PPID   ar_id = 0;
 										if(ar_obj.P_Tbl->PersonToArticle(person_id, acs_rec.ID, &ar_id) > 0)
 											p_bpack->Rec.Object = ar_id;
 									}
@@ -1256,8 +1264,9 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 							for(uint i = 0; i < doc.TiList.getCount(); i++) {
 								const Document::__TransferItem * p_item = doc.TiList.at(i);
 								uint   ex_row_pos = 0;
-								THROW(p_item);
-								THROW(gobj.Search(p_item->GoodsID, &goods_rec) > 0);
+								THROW_PP_S(p_item, PPERR_SQ_INDOCINVTITEM, (temp_buf = doc_text).Space().CatChar('[').CatEq("ln", i+1).CatChar(']'));
+								THROW_PP_S(gobj.Search(p_item->GoodsID, &goods_rec) > 0, PPERR_SQ_INDOCGOODSNFOUND, (temp_buf = doc_text).Space().
+									CatChar('[').CatEq("ln", i+1).Space().CatEq("GoodsID", p_item->GoodsID).CatChar(']'));
 								// ¬ыше мы уже проверили количество THROW(p_item->Set.Qtty > 0.0);
 								if(p_item->RowIdx > 0 && p_bpack->SearchTI(p_item->RowIdx, &ex_row_pos)) {
 									PPTransferItem & r_ti = p_bpack->TI(ex_row_pos);

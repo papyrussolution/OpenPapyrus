@@ -3402,11 +3402,11 @@ SLTEST_R(TulipIndicators)
 							if(SLTEST_CHECK_NZ(p_ii)) {
 								assert(p_ii->inputs <= SIZEOFARRAY(pp_inputs));
 								assert(p_ii->outputs <= SIZEOFARRAY(pp_outputs));
-								if(SLTEST_CHECK_EQ((p_ii->inputs + p_ii->outputs), data_vec_list.getCount())) {
-									if(SLTEST_CHECK_EQ(p_ii->options, arg_list.getCount())) {
+								if(SLTEST_CHECK_EQ((p_ii->inputs + p_ii->outputs), data_vec_list.getCountI())) {
+									if(SLTEST_CHECK_EQ(p_ii->options, arg_list.getCountI())) {
 										uint  vec_size = 0;
 										bool  not_eq_vec_sizes = false;
-										for(uint i = 0; !not_eq_vec_sizes && i < /*data_vec_list.getCount()*/p_ii->inputs; i++) {
+										for(int i = 0; !not_eq_vec_sizes && i < /*data_vec_list.getCount()*/p_ii->inputs; i++) {
 											if(i == 0)
 												vec_size = data_vec_list.at(i)->getCount();
 											else if(vec_size != data_vec_list.at(i)->getCount())

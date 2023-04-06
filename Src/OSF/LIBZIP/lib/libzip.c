@@ -629,11 +629,10 @@ void _zip_entry_init(zip_entry_t * e)
 //
 ZIP_EXTERN int64 zip_get_num_entries(const zip_t * za, zip_flags_t flags)
 {
-	uint64 n;
 	if(za == NULL)
 		return -1;
 	if(flags & ZIP_FL_UNCHANGED) {
-		n = za->nentry;
+		uint64 n = za->nentry;
 		while(n > 0 && za->entry[n-1].orig == NULL)
 			--n;
 		return (int64)n;

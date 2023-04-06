@@ -10066,7 +10066,7 @@ SLTEST_R(PPBillGuid)
 	if(EnumArg(&argp, temp_buf)) {
 		op_symb = temp_buf;
 	}
-	THROW(SLTEST_CHECK_LT(0L, GetOpBySymb(op_symb, &op_rec)));
+	THROW(SLTEST_CHECK_LT(0, GetOpBySymb(op_symb, &op_rec)));
 	{
 		const uint   max_count = 50;
 		PPTransaction tra(1);
@@ -10085,7 +10085,7 @@ SLTEST_R(PPBillGuid)
 		for(uint i = 0; i < g_list.getCount(); i++) {
 			const BillGuidAssocItem & r_item = g_list.at(i);
 			S_GUID uuid;
-			SLTEST_CHECK_LT(0L, (r = BillObj->GetGuid(r_item.BillID, &uuid)));
+			SLTEST_CHECK_LT(0, (r = BillObj->GetGuid(r_item.BillID, &uuid)));
 			if(r > 0) {
 				SLTEST_CHECK_NZ(uuid == r_item.Uuid);
 			}

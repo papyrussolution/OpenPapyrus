@@ -1,5 +1,5 @@
 // REFERENC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // @Kernel
 //
@@ -936,37 +936,60 @@ int Reference::LoadSecur(PPID obj, PPID id, PPSecurPacket * pPack)
 
 int Reference::EditSecur(PPID obj, PPID id, PPSecurPacket * pPack, int isNew, int use_ta)
 {
+	assert(pPack != 0);
 	int   ok = 1;
-	const int is_user = (obj == PPOBJ_USR);
+	const bool is_user = (obj == PPOBJ_USR);
 	{
-		PPTransaction tra(use_ta);
-		THROW(tra);
-		if(is_user) {
-			if(isNew)
-				pPack->Secur.PwUpdate = getcurdate_();
-			else {
-				THROW_DB(GetItem(obj, id) > 0);
-				if(memcmp(pPack->Secur.Password, reinterpret_cast<PPSecur *>(&data)->Password, sizeof(pPack->Secur.Password)))
+		// @v11.6.10 {
+		bool   nothing_to_do = false;
+		PPSecurPacket org_pack;
+		if(!isNew) {
+			THROW(LoadSecur(obj, id, &org_pack) > 0);
+			if(org_pack.IsEq(*pPack))
+				nothing_to_do = true;
+		}
+		if(nothing_to_do) {
+			ok = -1;
+		}
+		else {
+		// } @v11.6.10 
+			PPTransaction tra(use_ta);
+			THROW(tra);
+			if(is_user) {
+				if(isNew)
 					pPack->Secur.PwUpdate = getcurdate_();
+				else {
+					THROW_DB(GetItem(obj, id) > 0);
+					if(memcmp(pPack->Secur.Password, reinterpret_cast<PPSecur *>(&data)->Password, sizeof(pPack->Secur.Password)))
+						pPack->Secur.PwUpdate = getcurdate_();
+				}
 			}
+			THROW(Reference::VerifySecur(&pPack->Secur, 1));
+			if(isNew) {
+				THROW(AddItem(obj, &id, &pPack->Secur, 0));
+			}
+			else {
+				THROW(UpdateItem(obj, id, &pPack->Secur, 0/*logAction*/, 0));
+			}
+			THROW(pPack->Paths.Put(obj, id));
+			if(is_user && pPack->Secur.Flags & USRF_INHCFG) {
+				THROW(RemoveProperty(obj, id, PPPRP_CFG, 0));
+			}
+			else {
+				THROW(SetConfig(obj, id, PPPRP_CFG, &pPack->Config, sizeof(pPack->Config)));
+			}
+			if(is_user && pPack->Secur.Flags & USRF_INHRIGHTS) {
+				THROW(pPack->Rights.Remove(obj, id));
+			}
+			else {
+				THROW(pPack->Rights.Put(obj, id));
+			}
+			if(!isNew) {
+				DS.LogAction(PPACN_OBJUPD, obj, id, 0, 0);
+			}
+			THROW(tra.Commit());
+			SETIFZ(pPack->Secur.ID, id);
 		}
-		THROW(Reference::VerifySecur(&pPack->Secur, 1));
-		THROW(isNew ? AddItem(obj, &id, &pPack->Secur, 0) : UpdateItem(obj, id, &pPack->Secur, 1, 0));
-		THROW(pPack->Paths.Put(obj, id));
-		if(is_user && pPack->Secur.Flags & USRF_INHCFG) {
-			THROW(RemoveProperty(obj, id, PPPRP_CFG, 0));
-		}
-		else {
-			THROW(SetConfig(obj, id, PPPRP_CFG, &pPack->Config, sizeof(pPack->Config)));
-		}
-		if(is_user && pPack->Secur.Flags & USRF_INHRIGHTS) {
-			THROW(pPack->Rights.Remove(obj, id));
-		}
-		else {
-			THROW(pPack->Rights.Put(obj, id));
-		}
-		THROW(tra.Commit());
-		SETIFZ(pPack->Secur.ID, id); // @v9.8.4
 	}
 	CATCHZOK
 	return ok;
@@ -1009,6 +1032,36 @@ int Reference::RemoveSecur(PPID obj, PPID id, int use_ta)
 // Права доступа
 //
 struct _PPRights {         // @persistent @store(PropertyTbl)
+	bool   FASTCALL IsEq(const _PPRights & rS) const
+	{
+		#define CMP_FLD(f) if((f) != (rS.f)) return false		
+		CMP_FLD(SecurObj);
+		CMP_FLD(SecurID);
+		CMP_FLD(RightsID);
+		CMP_FLD(WeekDays);
+		CMP_FLD(TimeBeg);
+		CMP_FLD(TimeEnd);
+		CMP_FLD(PwMinLen);
+		CMP_FLD(PwPeriod);
+		CMP_FLD(CFlags);
+		CMP_FLD(RBillPeriod);
+		CMP_FLD(AccessLevel);
+		CMP_FLD(WBillPeriod);
+		CMP_FLD(RtDesktop);
+		CMP_FLD(OnlyGoodsGrpID);
+		CMP_FLD(Flags);
+		CMP_FLD(OprFlags);
+		CMP_FLD(ORTailSize);
+		#undef CMP_FLD
+		const _PPRights * p_s = this;
+		for(uint s = 0; s < ORTailSize;) {
+			const ObjRights * p_so = reinterpret_cast<const ObjRights *>(PTR8C(p_s + 1) + s);
+			for(uint s2 = 0; s2 < rS.ORTailSize;) {
+				const ObjRights * p_so2 = reinterpret_cast<const ObjRights *>(PTR8C(&rS + 1) + s);
+			}
+		}
+		return true;
+	}
 	PPID   SecurObj;       //
 	PPID   SecurID;        //
 	PPID   RightsID;       // Const = (PPPRP_BIAS + 0)
@@ -1041,9 +1094,32 @@ PPRights::PPRights() : P_Rt(0), P_OpList(0), P_LocList(0), P_CfgList(0), P_AccLi
 {
 }
 
+PPRights::PPRights(const PPRights & rS) : P_Rt(0), P_OpList(0), P_LocList(0), P_CfgList(0), P_AccList(0), P_PosList(0), P_QkList(0)
+{
+	Copy(rS);
+}
+
 PPRights::~PPRights()
 {
-	Empty();
+	Z();
+}
+
+bool FASTCALL PPRights::IsEq(const PPRights & rS) const
+{
+	const ObjRestrictArray * const pp_my_listlist[] = { P_OpList, P_LocList, P_CfgList, P_AccList, P_PosList, P_QkList };
+	const ObjRestrictArray * const pp_other_listlist[] = { rS.P_OpList, rS.P_LocList, rS.P_CfgList, rS.P_AccList, rS.P_PosList, rS.P_QkList };
+	assert(SIZEOFARRAY(pp_my_listlist) == SIZEOFARRAY(pp_other_listlist));
+	bool eq = true;
+	for(uint i = 0; !eq && i < SIZEOFARRAY(pp_my_listlist); i++) {
+		if((!pp_my_listlist[i] && !pp_other_listlist[i]) || (pp_my_listlist[i] && pp_other_listlist && pp_my_listlist[i]->IsEq(*pp_other_listlist[i]))) {
+			;
+		}
+		else
+			eq = false;
+	}
+	if(eq) {
+	}
+	return eq;
 }
 
 int PPRights::SerializeArrayPtr(int dir, ObjRestrictArray ** ppA, SBuffer & rBuf, SSerializeContext * pSCtx)
@@ -1097,7 +1173,7 @@ size_t PPRights::Size() const { return P_Rt ? (sizeof(_PPRights) + P_Rt->ORTailS
 bool   PPRights::IsEmpty() const { return (P_Rt == 0); }
 int    PPRights::IsInherited() const { return BIN(P_Rt && P_Rt->OprFlags & PPORF_INHERITED); }
 
-void PPRights::Empty()
+PPRights & PPRights::Z()
 {
 	ZFREE(P_Rt);
 	ZDELETE(P_OpList);
@@ -1106,6 +1182,7 @@ void PPRights::Empty()
 	ZDELETE(P_AccList);
 	ZDELETE(P_PosList);
 	ZDELETE(P_QkList);
+	return *this;
 }
 
 int PPRights::Merge(const PPRights & rS, long flags)
@@ -1175,17 +1252,23 @@ static int FASTCALL AssignObjRestrictArray(ObjRestrictArray ** ppDest, const Obj
 	return ok;
 }
 
-PPRights & FASTCALL PPRights::operator = (const PPRights & src)
+int FASTCALL PPRights::Copy(const PPRights & rS)
 {
-	Resize(src.Size());
+	Resize(rS.Size());
 	if(P_Rt)
-		memmove(P_Rt, src.P_Rt, src.Size());
-	AssignObjRestrictArray(&P_OpList, src.P_OpList);
-	AssignObjRestrictArray(&P_LocList, src.P_LocList);
-	AssignObjRestrictArray(&P_CfgList, src.P_CfgList);
-	AssignObjRestrictArray(&P_AccList, src.P_AccList);
-	AssignObjRestrictArray(&P_PosList, src.P_PosList);
-	AssignObjRestrictArray(&P_QkList, src.P_QkList);
+		memmove(P_Rt, rS.P_Rt, rS.Size());
+	AssignObjRestrictArray(&P_OpList, rS.P_OpList);
+	AssignObjRestrictArray(&P_LocList, rS.P_LocList);
+	AssignObjRestrictArray(&P_CfgList, rS.P_CfgList);
+	AssignObjRestrictArray(&P_AccList, rS.P_AccList);
+	AssignObjRestrictArray(&P_PosList, rS.P_PosList);
+	AssignObjRestrictArray(&P_QkList, rS.P_QkList);
+	return 1;
+}
+
+PPRights & FASTCALL PPRights::operator = (const PPRights & rS)
+{
+	Copy(rS);
 	return *this;
 }
 
@@ -1901,9 +1984,25 @@ PPSecur2::PPSecur2()
 	THISZERO();
 }
 
+bool FASTCALL PPSecur2::IsEq(const PPSecur2 & rS) const
+{
+	// @note Crc не сравнивается, ибо служебное поле.
+	return (Tag == rS.Tag && ID == rS.ID && ExpiryDate == rS.ExpiryDate && UerID == rS.UerID && UerFlags == rS.UerFlags && PwUpdate == rS.PwUpdate &&
+		Flags == rS.Flags && ParentID == rS.ParentID && PersonID == rS.PersonID && sstreq(Name, rS.Name) && sstreq(Symb, rS.Symb) && sstreq(Password, rS.Password));
+}
+
 PPSecurPacket::PPSecurPacket()
 {
 	// @v10.9.3 @ctr MEMSZERO(Secur);
+}
+
+PPSecurPacket::PPSecurPacket(const PPSecurPacket & rS) : Secur(rS.Secur), Config(rS.Config), Paths(rS.Paths), Rights(rS.Rights), PrivateDesktopUUID(rS.PrivateDesktopUUID)
+{
+}
+
+bool FASTCALL PPSecurPacket::IsEq(const PPSecurPacket & rS) const
+{
+	return (Secur.IsEq(rS.Secur) && Config.IsEq(rS.Config) && Paths.IsEq(rS.Paths) && Rights.IsEq(rS.Rights) && PrivateDesktopUUID == rS.PrivateDesktopUUID);
 }
 
 PPSecurPacket & FASTCALL PPSecurPacket::operator = (const PPSecurPacket & rS)

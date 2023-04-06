@@ -729,7 +729,7 @@ SLTEST_R(LMDB)
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %p %.*s, data: %p %.*s\n", key.mv_data,  (int)key.mv_size,  (char *)key.mv_data, data.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ((long)rc, MDB_NOTFOUND));
+		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		j = 0;
@@ -759,7 +759,7 @@ SLTEST_R(LMDB)
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ((long)rc, MDB_NOTFOUND));
+		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
 		printf("Cursor last\n");
 		THROW(SLTEST_CHECK_Z(mdb_cursor_get(cursor, &key, &data, MDB_LAST)));
 		printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
@@ -767,7 +767,7 @@ SLTEST_R(LMDB)
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_PREV)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ((long)rc, MDB_NOTFOUND));
+		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
 		printf("Cursor last/prev\n");
 		THROW(SLTEST_CHECK_Z(mdb_cursor_get(cursor, &key, &data, MDB_LAST)));
 		printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
@@ -857,7 +857,7 @@ SLTEST_R(LMDB)
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %p %.*s, data: %p %.*s\n", key.mv_data,  (int)key.mv_size,  (char *)key.mv_data, data.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ((long)rc, MDB_NOTFOUND));
+		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		j = 0;
@@ -887,12 +887,12 @@ SLTEST_R(LMDB)
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ((long)rc, MDB_NOTFOUND));
+		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
 		printf("Cursor prev\n");
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_PREV)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ((long)rc, MDB_NOTFOUND));
+		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		mdb_dbi_close(env, dbi);
@@ -942,7 +942,7 @@ SLTEST_R(LMDB)
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %p %.*s, data: %p %.*s\n", key.mv_data,  (int)key.mv_size,  (char *)key.mv_data, data.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ((long)rc, MDB_NOTFOUND));
+		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		j = 0;
@@ -976,12 +976,12 @@ SLTEST_R(LMDB)
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ((long)rc, MDB_NOTFOUND));
+		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
 		printf("Cursor prev\n");
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_PREV)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ((long)rc, MDB_NOTFOUND));
+		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		mdb_dbi_close(env, dbi);
@@ -1036,7 +1036,7 @@ SLTEST_R(LMDB)
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %p %.*s, data: %p %.*s\n", key.mv_data,  (int)key.mv_size,  (char *)key.mv_data, data.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ((long)rc, MDB_NOTFOUND));
+		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		/* test all 3 branches of split code:
@@ -1078,7 +1078,7 @@ SLTEST_R(LMDB)
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT_MULTIPLE)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ((long)rc, MDB_NOTFOUND));
+		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		j = 0;
@@ -1111,12 +1111,12 @@ SLTEST_R(LMDB)
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ((long)rc, MDB_NOTFOUND));
+		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
 		printf("Cursor prev\n");
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_PREV)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ((long)rc, MDB_NOTFOUND));
+		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		mdb_dbi_close(env, dbi);
@@ -1170,7 +1170,7 @@ SLTEST_R(LMDB)
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %p %.*s, data: %p %.*s\n", key.mv_data,  (int)key.mv_size,  (char *)key.mv_data, data.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ((long)rc, MDB_NOTFOUND));
+		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		j = 0;
@@ -1204,12 +1204,12 @@ SLTEST_R(LMDB)
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ((long)rc, MDB_NOTFOUND));
+		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
 		printf("Cursor prev\n");
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_PREV)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ((long)rc, MDB_NOTFOUND));
+		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		mdb_dbi_close(env, dbi);
@@ -1284,7 +1284,7 @@ SLTEST_R(LMDB)
 		do {
 			printf("key: %p %s, data: %p %.*s\n", key.mv_data,  mdb_dkey(&key, dkbuf), data.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		} while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0);
-		THROW(SLTEST_CHECK_EQ((long)rc, MDB_NOTFOUND));
+		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_commit(txn);
 		#if 0

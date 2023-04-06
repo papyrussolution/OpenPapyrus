@@ -6093,7 +6093,7 @@ SLTEST_R(ObjTypeSymb)
 			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
 			SLTEST_CHECK_EQ(r_entry.Id, MakeLong(obj_type, ext_param));
 			if(r_entry.HsId != PPHS_STYLODEVICE) { // Дублированный (запасной) символ
-				SLTEST_CHECK_LT(0L, DS.GetObjectTypeSymb(r_entry.Id, symb));
+				SLTEST_CHECK_LT(0, DS.GetObjectTypeSymb(r_entry.Id, symb));
 				SLTEST_CHECK_NZ(sstreqi_ascii(symb, temp_buf));
 			}
 		}
@@ -6102,7 +6102,7 @@ SLTEST_R(ObjTypeSymb)
 			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
 			SLTEST_CHECK_EQ(r_entry.Id, MakeLong(obj_type, ext_param));
 			if(r_entry.HsId != PPHS_STYLODEVICE) { // Дублированный (запасной) символ
-				SLTEST_CHECK_LT(0L, DS.GetObjectTypeSymb(r_entry.Id, symb));
+				SLTEST_CHECK_LT(0, DS.GetObjectTypeSymb(r_entry.Id, symb));
 				SLTEST_CHECK_NZ(sstreqi_ascii(symb, temp_buf));
 			}
 		}
@@ -6112,22 +6112,18 @@ SLTEST_R(ObjTypeSymb)
 		obj_type = 0;
 		{
 			temp_buf = "CANTRY";
-
 			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
 			SLTEST_CHECK_EQ(0L, MakeLong(obj_type, ext_param));
-
 			symb = "abracadabra";
-			SLTEST_CHECK_EQ(0L, DS.GetObjectTypeSymb(31139, symb));
+			SLTEST_CHECK_EQ(0, DS.GetObjectTypeSymb(31139, symb));
 			SLTEST_CHECK_NZ(symb.IsEmpty());
 		}
 		{
 			temp_buf = "id";
-
 			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
 			SLTEST_CHECK_EQ(0L, MakeLong(obj_type, ext_param));
-
 			symb = "abracadabra";
-			SLTEST_CHECK_EQ(0L, DS.GetObjectTypeSymb(31139, symb));
+			SLTEST_CHECK_EQ(0, DS.GetObjectTypeSymb(31139, symb));
 			SLTEST_CHECK_NZ(symb.IsEmpty());
 		}
 	}

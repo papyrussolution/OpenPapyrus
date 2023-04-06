@@ -1,0 +1,1 @@
+{"type":"https://tools.ietf.org/html/rfc7231#section-6.5.1","title":"One or more validation errors occurred.","status":400,"traceId":"|3199c4a9-4d7e4ba8ba390f5a.","errors":{"$":["The JSON value could not be converted to GPNSM.Sales.Application.Features.Sellin.Upload.UploadSellinCommand. Path: $ | LineNumber: 0 | BytePositionInLine: 1."]}}

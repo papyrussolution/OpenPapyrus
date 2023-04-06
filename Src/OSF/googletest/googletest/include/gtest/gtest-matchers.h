@@ -95,9 +95,9 @@ inline MatchResultListener::~MatchResultListener()
 // matcher.
 class GTEST_API_ MatcherDescriberInterface {
 public:
-	virtual ~MatcherDescriberInterface() {
+	virtual ~MatcherDescriberInterface() 
+	{
 	}
-
 	// Describes this matcher to an ostream.  The function should print
 	// a verb phrase that describes the property a value matching this
 	// matcher should have.  The subject of the verb phrase is the value
@@ -111,7 +111,8 @@ public:
 	// You are not required to override this when implementing
 	// MatcherInterface, but it is highly advised so that your matcher
 	// can produce good error messages.
-	virtual void DescribeNegationTo(::std::ostream* os) const {
+	virtual void DescribeNegationTo(::std::ostream* os) const 
+	{
 		*os << "not (";
 		DescribeTo(os);
 		*os << ")";
@@ -288,30 +289,26 @@ public:
 		if(vtable_ == nullptr) return nullptr;
 		return vtable_->get_describer(*this);
 	}
-
 protected:
-	MatcherBase() : vtable_(nullptr), buffer_() {
+	MatcherBase() : vtable_(nullptr), buffer_() 
+	{
 	}
-
 	// Constructs a matcher from its implementation.
-	template <typename U>
-	explicit MatcherBase(const MatcherInterface<U>* impl)
-		: vtable_(nullptr), buffer_() {
+	template <typename U> explicit MatcherBase(const MatcherInterface<U>* impl) : vtable_(nullptr), buffer_() 
+	{
 		Init(impl);
 	}
-
-	template <typename M, typename = typename std::remove_reference<
-		    M>::type::is_gtest_matcher>
-	MatcherBase(M&& m) : vtable_(nullptr), buffer_() { // NOLINT
+	template <typename M, typename = typename std::remove_reference<M>::type::is_gtest_matcher> MatcherBase(M&& m) : vtable_(nullptr), buffer_() // NOLINT
+	{
 		Init(std::forward<M>(m));
 	}
-
-	MatcherBase(const MatcherBase& other)
-		: vtable_(other.vtable_), buffer_(other.buffer_) {
-		if(IsShared()) buffer_.shared->Ref();
+	MatcherBase(const MatcherBase& other) : vtable_(other.vtable_), buffer_(other.buffer_) 
+	{
+		if(IsShared()) 
+			buffer_.shared->Ref();
 	}
-
-	MatcherBase& operator=(const MatcherBase& other) {
+	MatcherBase& operator=(const MatcherBase& other) 
+	{
 		if(this == &other) return *this;
 		Destroy();
 		vtable_ = other.vtable_;
@@ -482,7 +479,6 @@ public:
 	// Allows the user to write str instead of Eq(str) sometimes, where
 	// str is a std::string object.
 	Matcher(const std::string& s); // NOLINT
-
 	// Allows the user to write "foo" instead of Eq("foo") sometimes.
 	Matcher(const char* s); // NOLINT
 };

@@ -3,8 +3,7 @@
 // https://developers.google.com/protocol-buffers/
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -43,11 +42,11 @@ namespace protobuf {
 #endif
 
 #ifdef _WIN32
-using google::protobuf::io::win32::access;
-using google::protobuf::io::win32::chdir;
-using google::protobuf::io::win32::fopen;
-using google::protobuf::io::win32::mkdir;
-using google::protobuf::io::win32::stat;
+	using google::protobuf::io::win32::access;
+	using google::protobuf::io::win32::chdir;
+	using google::protobuf::io::win32::fopen;
+	using google::protobuf::io::win32::mkdir;
+	using google::protobuf::io::win32::stat;
 #endif
 
 bool File::Exists(const std::string& name) 
@@ -65,9 +64,9 @@ bool File::ReadFileToString(const std::string& name, std::string* output, bool t
 		if(n <= 0) break;
 		output->append(buffer, n);
 	}
-
 	int error = ferror(file);
-	if(fclose(file) != 0) return false;
+	if(fclose(file) != 0) 
+		return false;
 	return error == 0;
 }
 
@@ -87,26 +86,22 @@ bool File::WriteStringToFile(const std::string& contents, const std::string& nam
 		fclose(file);
 		return false;
 	}
-
 	if(fclose(file) != 0) {
 		return false;
 	}
 	return true;
 }
 
-void File::WriteStringToFileOrDie(const std::string& contents,
-    const std::string& name) {
+void File::WriteStringToFileOrDie(const std::string& contents, const std::string& name) 
+{
 	FILE* file = fopen(name.c_str(), "wb");
-	GOOGLE_CHECK(file != NULL)
-		<< "fopen(" << name << ", \"wb\"): " << strerror(errno);
-	GOOGLE_CHECK_EQ(fwrite(contents.data(), 1, contents.size(), file),
-	    contents.size())
-		<< "fwrite(" << name << "): " << strerror(errno);
-	GOOGLE_CHECK(fclose(file) == 0)
-		<< "fclose(" << name << "): " << strerror(errno);
+	GOOGLE_CHECK(file != NULL) << "fopen(" << name << ", \"wb\"): " << strerror(errno);
+	GOOGLE_CHECK_EQ(fwrite(contents.data(), 1, contents.size(), file), contents.size()) << "fwrite(" << name << "): " << strerror(errno);
+	GOOGLE_CHECK(fclose(file) == 0) << "fclose(" << name << "): " << strerror(errno);
 }
 
-bool File::CreateDir(const std::string& name, int mode) {
+bool File::CreateDir(const std::string& name, int mode) 
+{
 	if(!name.empty()) {
 		GOOGLE_CHECK_OK(name[name.size() - 1] != '.');
 	}
@@ -124,15 +119,13 @@ bool File::RecursivelyCreateDir(const std::string& path, int mode) {
 		// No parent given.
 		return false;
 	}
-
-	return RecursivelyCreateDir(path.substr(0, slashpos), mode) &&
-	       CreateDir(path, mode);
+	return RecursivelyCreateDir(path.substr(0, slashpos), mode) && CreateDir(path, mode);
 }
 
-void File::DeleteRecursively(const std::string& name, void* dummy1,
-    void* dummy2) {
-	if(name.empty()) return;
-
+void File::DeleteRecursively(const std::string& name, void* dummy1, void* dummy2) 
+{
+	if(name.empty()) 
+		return;
 	// We don't care too much about error checking here since this is only used
 	// in tests to delete temporary directories that are under /tmp anyway.
 
@@ -191,8 +184,6 @@ void File::DeleteRecursively(const std::string& name, void* dummy1,
 #endif
 }
 
-bool File::ChangeWorkingDirectory(const std::string& new_working_directory) {
-	return chdir(new_working_directory.c_str()) == 0;
-}
+bool File::ChangeWorkingDirectory(const std::string& new_working_directory) { return chdir(new_working_directory.c_str()) == 0; }
 }  // namespace protobuf
 }  // namespace google

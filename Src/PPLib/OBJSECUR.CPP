@@ -1,5 +1,5 @@
 // OBJSECUR.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2005, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2005, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -10,6 +10,39 @@
 PPConfig::PPConfig()
 {
 	THISZERO();
+}
+
+bool FASTCALL PPConfig::IsEq(const PPConfig & rS) const
+{
+#define CMP_FLD(f) if((f) != (rS.f)) return false
+	CMP_FLD(Tag);
+	CMP_FLD(ObjID);
+	CMP_FLD(PropID);
+	CMP_FLD(DefBillCashID);
+	CMP_FLD(InitDate);
+	CMP_FLD(OperDate);
+	CMP_FLD(AccessLevel);
+	CMP_FLD(BaseCurID);
+	CMP_FLD(RealizeOrder);
+	CMP_FLD(Menu);
+	CMP_FLD(UserID);
+	CMP_FLD(LocAccSheetID);
+	CMP_FLD(Location);
+	CMP_FLD(Flags);
+	CMP_FLD(State);
+	CMP_FLD(BillAccess);
+	CMP_FLD(Cash);
+	CMP_FLD(RoundPrec);
+	CMP_FLD(MainOrg);
+	CMP_FLD(SessionID);
+	CMP_FLD(DBDiv);
+	CMP_FLD(BaseRateTypeID);
+	CMP_FLD(DesktopID_Obsolete);
+	CMP_FLD(MenuID_Obsolete);
+	CMP_FLD(DesktopUuid_);
+	CMP_FLD(MenuUuid);
+#undef CMP_FLD
+	return true;
 }
 
 int PPConfig::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)

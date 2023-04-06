@@ -683,7 +683,7 @@ SLTEST_R(FileSort)
             uint   test_count = 0;
             while(f_result.ReadLine(line_buf, SFile::rlfChomp)) {
 				const long value = line_buf.ToLong();
-				THROW(SLTEST_CHECK_LT(static_cast<long>(test_count), test_list.getCountI()));
+				THROW(SLTEST_CHECK_LT(test_count, test_list.getCount()));
 				THROW(SLTEST_CHECK_EQ(value, test_list.get(test_count)));
 				test_count++;
             }

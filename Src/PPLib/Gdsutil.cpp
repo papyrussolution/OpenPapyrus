@@ -3467,11 +3467,11 @@ SLTEST_R(BarcodeOutputAndRecognition)
 					(bip.OutputFileName = GetSuiteEntry()->OutPath).SetLastSlash().Cat(code_buf).DotCat("png");
 					if(SLTEST_CHECK_NZ(PPBarcode::CreateImage(bip))) {
 						TSCollection <PPBarcode::Entry> bc_list;
-						if(SLTEST_CHECK_LT(0L, PPBarcode::RecognizeImage(bip.OutputFileName, bc_list))) {
-							SLTEST_CHECK_EQ(bc_list.getCount(), 1);
+						if(SLTEST_CHECK_LT(0, PPBarcode::RecognizeImage(bip.OutputFileName, bc_list))) {
+							SLTEST_CHECK_EQ(bc_list.getCount(), 1U);
 							if(bc_list.getCount() > 0) {
 								const PPBarcode::Entry * p_entry = bc_list.at(0);
-								SLTEST_CHECK_EQ((long)p_entry->BcStd, (long)bip.Std);
+								SLTEST_CHECK_EQ(p_entry->BcStd, bip.Std);
 								SLTEST_CHECK_EQ(p_entry->Code, code_buf);
 							}
 						}
@@ -3485,11 +3485,11 @@ SLTEST_R(BarcodeOutputAndRecognition)
 					(bip.OutputFileName = GetSuiteEntry()->OutPath).SetLastSlash().Cat(code_buf).DotCat("svg");
 					if(SLTEST_CHECK_NZ(PPBarcode::CreateImage(bip))) {
 						TSCollection <PPBarcode::Entry> bc_list;
-						if(SLTEST_CHECK_LT(0L, PPBarcode::RecognizeImage(bip.OutputFileName, bc_list))) {
-							SLTEST_CHECK_EQ(bc_list.getCount(), 1);
+						if(SLTEST_CHECK_LT(0, PPBarcode::RecognizeImage(bip.OutputFileName, bc_list))) {
+							SLTEST_CHECK_EQ(bc_list.getCount(), 1U);
 							if(bc_list.getCount() > 0) {
 								const PPBarcode::Entry * p_entry = bc_list.at(0);
-								SLTEST_CHECK_EQ((long)p_entry->BcStd, (long)bip.Std);
+								SLTEST_CHECK_EQ(p_entry->BcStd, bip.Std);
 								SLTEST_CHECK_EQ(p_entry->Code, code_buf);
 							}
 						}

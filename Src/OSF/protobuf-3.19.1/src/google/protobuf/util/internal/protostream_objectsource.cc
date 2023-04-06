@@ -3,8 +3,7 @@
 // https://developers.google.com/protocol-buffers/
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -48,10 +47,10 @@ const google::protobuf::EnumValue* FindEnumValueByNumber(const google::protobuf:
 // Utility function to format nanos.
 const std::string FormatNanos(uint32_t nanos, bool with_trailing_zeros);
 
-util::StatusOr<std::string> MapKeyDefaultValueAsString(const google::protobuf::Field& field) {
+util::StatusOr<std::string> MapKeyDefaultValueAsString(const google::protobuf::Field& field) 
+{
 	switch(field.kind()) {
-		case google::protobuf::Field::TYPE_BOOL:
-		    return std::string("false");
+		case google::protobuf::Field::TYPE_BOOL: return std::string("false");
 		case google::protobuf::Field::TYPE_INT32:
 		case google::protobuf::Field::TYPE_INT64:
 		case google::protobuf::Field::TYPE_UINT32:
@@ -61,12 +60,9 @@ util::StatusOr<std::string> MapKeyDefaultValueAsString(const google::protobuf::F
 		case google::protobuf::Field::TYPE_SFIXED32:
 		case google::protobuf::Field::TYPE_SFIXED64:
 		case google::protobuf::Field::TYPE_FIXED32:
-		case google::protobuf::Field::TYPE_FIXED64:
-		    return std::string("0");
-		case google::protobuf::Field::TYPE_STRING:
-		    return std::string();
-		default:
-		    return util::InternalError("Invalid map key type.");
+		case google::protobuf::Field::TYPE_FIXED64: return std::string("0");
+		case google::protobuf::Field::TYPE_STRING: return std::string();
+		default: return util::InternalError("Invalid map key type.");
 	}
 }
 }  // namespace
@@ -95,18 +91,20 @@ ProtoStreamObjectSource::ProtoStreamObjectSource(io::CodedInputStream* stream, c
 	GOOGLE_LOG_IF(DFATAL, stream == nullptr) << "Input stream is nullptr.";
 }
 
-ProtoStreamObjectSource::~ProtoStreamObjectSource() {
+ProtoStreamObjectSource::~ProtoStreamObjectSource() 
+{
 	if(own_typeinfo_) {
 		delete typeinfo_;
 	}
 }
 
-util::Status ProtoStreamObjectSource::NamedWriteTo(StringPiece name,
-    ObjectWriter* ow) const {
+util::Status ProtoStreamObjectSource::NamedWriteTo(StringPiece name, ObjectWriter* ow) const 
+{
 	return WriteMessage(type_, name, 0, true, ow);
 }
 
-const google::protobuf::Field* ProtoStreamObjectSource::FindAndVerifyField(const google::protobuf::Type& type, uint32_t tag) const {
+const google::protobuf::Field* ProtoStreamObjectSource::FindAndVerifyField(const google::protobuf::Type& type, uint32_t tag) const 
+{
 	// Lookup the new field in the type by tag number.
 	const google::protobuf::Field* field = FindFieldByNumber(type, tag >> 3);
 	// Verify if the field corresponds to the wire type in tag.
@@ -610,44 +608,30 @@ std::unordered_map<std::string, ProtoStreamObjectSource::TypeRenderer>*
 ProtoStreamObjectSource::renderers_ = nullptr;
 PROTOBUF_NAMESPACE_ID::internal::once_flag source_renderers_init_;
 
-void ProtoStreamObjectSource::InitRendererMap() {
-	renderers_ = new std::unordered_map<std::string,
-		ProtoStreamObjectSource::TypeRenderer>();
-	(*renderers_)["google.protobuf.Timestamp"] =
-	    &ProtoStreamObjectSource::RenderTimestamp;
-	(*renderers_)["google.protobuf.Duration"] =
-	    &ProtoStreamObjectSource::RenderDuration;
-	(*renderers_)["google.protobuf.DoubleValue"] =
-	    &ProtoStreamObjectSource::RenderDouble;
-	(*renderers_)["google.protobuf.FloatValue"] =
-	    &ProtoStreamObjectSource::RenderFloat;
-	(*renderers_)["google.protobuf.Int64Value"] =
-	    &ProtoStreamObjectSource::RenderInt64;
-	(*renderers_)["google.protobuf.UInt64Value"] =
-	    &ProtoStreamObjectSource::RenderUInt64;
-	(*renderers_)["google.protobuf.Int32Value"] =
-	    &ProtoStreamObjectSource::RenderInt32;
-	(*renderers_)["google.protobuf.UInt32Value"] =
-	    &ProtoStreamObjectSource::RenderUInt32;
-	(*renderers_)["google.protobuf.BoolValue"] =
-	    &ProtoStreamObjectSource::RenderBool;
-	(*renderers_)["google.protobuf.StringValue"] =
-	    &ProtoStreamObjectSource::RenderString;
-	(*renderers_)["google.protobuf.BytesValue"] =
-	    &ProtoStreamObjectSource::RenderBytes;
+void ProtoStreamObjectSource::InitRendererMap() 
+{
+	renderers_ = new std::unordered_map<std::string, ProtoStreamObjectSource::TypeRenderer>();
+	(*renderers_)["google.protobuf.Timestamp"] = &ProtoStreamObjectSource::RenderTimestamp;
+	(*renderers_)["google.protobuf.Duration"] = &ProtoStreamObjectSource::RenderDuration;
+	(*renderers_)["google.protobuf.DoubleValue"] = &ProtoStreamObjectSource::RenderDouble;
+	(*renderers_)["google.protobuf.FloatValue"] = &ProtoStreamObjectSource::RenderFloat;
+	(*renderers_)["google.protobuf.Int64Value"] = &ProtoStreamObjectSource::RenderInt64;
+	(*renderers_)["google.protobuf.UInt64Value"] = &ProtoStreamObjectSource::RenderUInt64;
+	(*renderers_)["google.protobuf.Int32Value"] = &ProtoStreamObjectSource::RenderInt32;
+	(*renderers_)["google.protobuf.UInt32Value"] = &ProtoStreamObjectSource::RenderUInt32;
+	(*renderers_)["google.protobuf.BoolValue"] = &ProtoStreamObjectSource::RenderBool;
+	(*renderers_)["google.protobuf.StringValue"] = &ProtoStreamObjectSource::RenderString;
+	(*renderers_)["google.protobuf.BytesValue"] = &ProtoStreamObjectSource::RenderBytes;
 	(*renderers_)["google.protobuf.Any"] = &ProtoStreamObjectSource::RenderAny;
-	(*renderers_)["google.protobuf.Struct"] =
-	    &ProtoStreamObjectSource::RenderStruct;
-	(*renderers_)["google.protobuf.Value"] =
-	    &ProtoStreamObjectSource::RenderStructValue;
-	(*renderers_)["google.protobuf.ListValue"] =
-	    &ProtoStreamObjectSource::RenderStructListValue;
-	(*renderers_)["google.protobuf.FieldMask"] =
-	    &ProtoStreamObjectSource::RenderFieldMask;
+	(*renderers_)["google.protobuf.Struct"] = &ProtoStreamObjectSource::RenderStruct;
+	(*renderers_)["google.protobuf.Value"] = &ProtoStreamObjectSource::RenderStructValue;
+	(*renderers_)["google.protobuf.ListValue"] = &ProtoStreamObjectSource::RenderStructListValue;
+	(*renderers_)["google.protobuf.FieldMask"] = &ProtoStreamObjectSource::RenderFieldMask;
 	::google::protobuf::internal::OnShutdown(&DeleteRendererMap);
 }
 
-void ProtoStreamObjectSource::DeleteRendererMap() {
+void ProtoStreamObjectSource::DeleteRendererMap() 
+{
 	delete ProtoStreamObjectSource::renderers_;
 	renderers_ = nullptr;
 }
@@ -830,7 +814,8 @@ util::Status ProtoStreamObjectSource::RenderNonMessageField(const google::protob
 }
 
 // TODO(skarvaje): Fix this to avoid code duplication.
-const std::string ProtoStreamObjectSource::ReadFieldValueAsString(const google::protobuf::Field& field) const {
+const std::string ProtoStreamObjectSource::ReadFieldValueAsString(const google::protobuf::Field& field) const 
+{
 	std::string result;
 	switch(field.kind()) {
 		case google::protobuf::Field::TYPE_BOOL: {

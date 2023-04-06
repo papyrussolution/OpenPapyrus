@@ -8153,23 +8153,23 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			text_u.CopyFromUtf8(p_text, sstrlen(p_text));
 			uint pos;
 			SLTEST_CHECK_NZ(text_u.Search(L"ABC", 0, &pos));
-			SLTEST_CHECK_EQ(pos, 0);
+			SLTEST_CHECK_EQ(pos, 0U);
 			SLTEST_CHECK_Z(text_u.Search(L"ABC", 10, &pos));
 			p_temp_text = "АБРИК";
 			temp_buf_u.CopyFromUtf8(p_temp_text, sstrlen(p_temp_text));
 			SLTEST_CHECK_NZ(text_u.Search(temp_buf_u, 0, &pos));
-			SLTEST_CHECK_EQ(pos, 63);
+			SLTEST_CHECK_EQ(pos, 63U);
 			SLTEST_CHECK_NZ(text_u.Search(temp_buf_u, 20, &pos));
-			SLTEST_CHECK_EQ(pos, 63);
+			SLTEST_CHECK_EQ(pos, 63U);
 			temp_buf_u.CopyFromUtf8(p_text, sstrlen(p_text));
 			SLTEST_CHECK_NZ(text_u.Search(temp_buf_u, 0, &pos));
-			SLTEST_CHECK_EQ(pos, 0);
+			SLTEST_CHECK_EQ(pos, 0U);
 			p_temp_text = "городовой";
 			temp_buf_u.CopyFromUtf8(p_temp_text, sstrlen(p_temp_text));
 			SLTEST_CHECK_NZ(text_u.Search(temp_buf_u, 0, &pos));
-			SLTEST_CHECK_EQ(pos, 71);
+			SLTEST_CHECK_EQ(pos, 71U);
 			SLTEST_CHECK_NZ(text_u.Search(temp_buf_u, 71, &pos));
-			SLTEST_CHECK_EQ(pos, 71);
+			SLTEST_CHECK_EQ(pos, 71U);
 			SLTEST_CHECK_Z(text_u.Search(temp_buf_u, 1000, &pos));
 			p_temp_text = "гороДовой";
 			temp_buf_u.CopyFromUtf8(p_temp_text, sstrlen(p_temp_text));
@@ -8266,7 +8266,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					THROW(SLTEST_CHECK_NZ(outf.Write(temp_buf.P_Buf, actual_size)));
 				}
 			}
-			SLTEST_CHECK_LT(0L, SFile::Compare(org_bin_file_name, test_bin_file_name, 0));
+			SLTEST_CHECK_LT(0, SFile::Compare(org_bin_file_name, test_bin_file_name, 0));
 			//
 			// Тестирование функций конвертации между различными кодировкам
 			// Файл rustext.txt должен быть размером более 2048 байт и содержать русский
@@ -8425,15 +8425,15 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				}
 			}
 			{
-				SLTEST_CHECK_EQ((str = "0").ToLong(), 0);
-				SLTEST_CHECK_EQ((str = "abc").ToLong(), 0);
-				SLTEST_CHECK_EQ((str = "\t+100 ").ToLong(), 100);
-				SLTEST_CHECK_EQ((str = " -197 ").ToLong(), -197);
-				SLTEST_CHECK_EQ((str = "0xbeefZ").ToLong(), 0xbeef);
-				SLTEST_CHECK_EQ((str = " -0x2BcD7a92 ").ToLong(), -0x2BCD7A92);
-				SLTEST_CHECK_EQ((str = " - 17 ").ToLong(), 0); // Между знаком - и числом не должно быть пробелов
-				SLTEST_CHECK_EQ((str = "0").ToInt64(), 0);
-				SLTEST_CHECK_EQ((str = "abc").ToInt64(), 0);
+				SLTEST_CHECK_EQ((str = "0").ToLong(), 0L);
+				SLTEST_CHECK_EQ((str = "abc").ToLong(), 0L);
+				SLTEST_CHECK_EQ((str = "\t+100 ").ToLong(), 100L);
+				SLTEST_CHECK_EQ((str = " -197 ").ToLong(), -197L);
+				SLTEST_CHECK_EQ((str = "0xbeefZ").ToLong(), 0xbeefL);
+				SLTEST_CHECK_EQ((str = " -0x2BcD7a92 ").ToLong(), -0x2BCD7A92L);
+				SLTEST_CHECK_EQ((str = " - 17 ").ToLong(), 0L); // Между знаком - и числом не должно быть пробелов
+				SLTEST_CHECK_EQ((str = "0").ToInt64(), 0LL);
+				SLTEST_CHECK_EQ((str = "abc").ToInt64(), 0LL);
 				SLTEST_CHECK_EQ((str = "\t 0x1ABCDEF234567890").ToInt64(), 0x1ABCDEF234567890LL);
 				SLTEST_CHECK_EQ((str = "\t\t123000012878963").ToInt64(), 123000012878963LL);
 				SLTEST_CHECK_EQ((str = "-123000012878963").ToInt64(), -123000012878963LL);
@@ -8554,38 +8554,38 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				{
 					r = (str = "12..987").ToIntRange(ir, SString::torfDoubleDot);
 					SLTEST_CHECK_NZ(r);
-					SLTEST_CHECK_EQ(r, (long)str.Len());
-					SLTEST_CHECK_EQ(ir.low, 12);
-					SLTEST_CHECK_EQ(ir.upp, 987);
+					SLTEST_CHECK_EQ(r, (int)str.Len());
+					SLTEST_CHECK_EQ(ir.low, (int32)12);
+					SLTEST_CHECK_EQ(ir.upp, (int32)987);
 				}
 				{
 					// Здесь .. не будет распознано как разделитель границ (SString::torfHyphen)
 					r = (str = "12..987").ToIntRange(ir, SString::torfHyphen);
 					SLTEST_CHECK_NZ(r);
-					SLTEST_CHECK_EQ(r, 2L);
-					SLTEST_CHECK_EQ(ir.low, 12);
-					SLTEST_CHECK_EQ(ir.upp, 12);
+					SLTEST_CHECK_EQ(r, 2);
+					SLTEST_CHECK_EQ(ir.low, (int32)12);
+					SLTEST_CHECK_EQ(ir.upp, (int32)12);
 				}
 				{
 					r = (str = " -12 : 987q").ToIntRange(ir, SString::torfAny);
 					SLTEST_CHECK_NZ(r);
-					SLTEST_CHECK_EQ(r, (long)(str.Len()-1));
-					SLTEST_CHECK_EQ(ir.low, -12);
-					SLTEST_CHECK_EQ(ir.upp, 987);
+					SLTEST_CHECK_EQ(r, (int)(str.Len()-1));
+					SLTEST_CHECK_EQ(ir.low, (int32)-12);
+					SLTEST_CHECK_EQ(ir.upp, (int32)987);
 				}
 				{
 					r = (str = " -12,,-987 z").ToIntRange(ir, SString::torfAny);
 					SLTEST_CHECK_NZ(r);
-					SLTEST_CHECK_EQ(r, (long)(str.Len()-2));
-					SLTEST_CHECK_EQ(ir.low, -12);
-					SLTEST_CHECK_EQ(ir.upp, -987);
+					SLTEST_CHECK_EQ(r, (int)(str.Len()-2));
+					SLTEST_CHECK_EQ(ir.low, (int32)-12);
+					SLTEST_CHECK_EQ(ir.upp, (int32)-987);
 				}
 				{
 					r = (str = " -12000 --987 z").ToIntRange(ir, SString::torfAny);
 					SLTEST_CHECK_NZ((long)r);
-					SLTEST_CHECK_EQ(r, (long)(str.Len()-2));
-					SLTEST_CHECK_EQ(ir.low, -12000);
-					SLTEST_CHECK_EQ(ir.upp, -987);
+					SLTEST_CHECK_EQ(r, (int)(str.Len()-2));
+					SLTEST_CHECK_EQ(ir.low, (int32)-12000);
+					SLTEST_CHECK_EQ(ir.upp, (int32)-987);
 				}
 				{
 					SLTEST_CHECK_Z((str = " &12").ToIntRange(ir, SString::torfAny));
@@ -8593,16 +8593,16 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				{
 					r = (str = " +19 ").ToIntRange(ir, SString::torfAny);
 					SLTEST_CHECK_NZ(r);
-					SLTEST_CHECK_EQ(r, (long)(str.Len()-1));
-					SLTEST_CHECK_EQ(ir.low, 19);
-					SLTEST_CHECK_EQ(ir.upp, 19);
+					SLTEST_CHECK_EQ(r, (int)(str.Len()-1));
+					SLTEST_CHECK_EQ(ir.low, (int32)19);
+					SLTEST_CHECK_EQ(ir.upp, (int32)19);
 				}
 				{
 					r = (str = " -1234567890 ").ToIntRange(ir, SString::torfAny);
 					SLTEST_CHECK_NZ(r);
-					SLTEST_CHECK_EQ(r, (long)(str.Len()-1));
-					SLTEST_CHECK_EQ(ir.low, -1234567890);
-					SLTEST_CHECK_EQ(ir.upp, -1234567890);
+					SLTEST_CHECK_EQ(r, (int)(str.Len()-1));
+					SLTEST_CHECK_EQ(ir.low, (int32)-1234567890);
+					SLTEST_CHECK_EQ(ir.upp, (int32)-1234567890);
 				}
 			}
 		}

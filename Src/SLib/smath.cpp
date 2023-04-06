@@ -1842,8 +1842,8 @@ int SDecimalFraction::Div(const SDecimalFraction & rA, const SDecimalFraction & 
 			//
 			ulong last_tabbed_prime = FirstPrimeNumbers[SIZEOFARRAY(FirstPrimeNumbers)-1];
 			for(ulong i = 0; i < last_tabbed_prime; i++) {
-				const long isp = Helper_IsPrime(i, 1);
-				long is_tabbed_prime = 0;
+				const int isp = Helper_IsPrime(i, 1);
+				int is_tabbed_prime = 0;
 				if(i && i < SIZEOFARRAY(FirstPrimeNumbers)) {
 					SLTEST_CHECK_LT((long)FirstPrimeNumbers[i-1], (long)FirstPrimeNumbers[i]);
 				}

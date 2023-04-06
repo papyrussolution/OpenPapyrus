@@ -921,7 +921,7 @@ void S_MD5::Transform(uint32 buf[4], uint32 in_data[16])
 			if(num_of_col == 2) {
 				THROW(SLTEST_CHECK_NZ(row_obj.Get(0, in_buf)));
 				THROW(SLTEST_CHECK_NZ(row_obj.Get(1, out_buf)));
-				THROW(SLTEST_CHECK_EQ(out_buf.Len() % 2, 0));
+				THROW(SLTEST_CHECK_EQ(out_buf.Len() % 2, 0U));
 				for(j = 0; j < (int)(out_buf.Len()/2); j++) {
 					if(j < (int)output.GetSize()) {
 						output[j] = hextobyte(((const char *)out_buf)+j*2);
@@ -931,7 +931,7 @@ void S_MD5::Transform(uint32 buf[4], uint32 in_data[16])
 					}
 				}
 				output[j] = 0;
-				THROW(SLTEST_CHECK_EQ(in_buf.Len() % 2, 0));
+				THROW(SLTEST_CHECK_EQ(in_buf.Len() % 2, 0U));
 				for(j = 0; j < (int)(in_buf.Len()/2); j++) {
 					if(j < (int)input.GetSize()) {
 						input[j] = hextobyte(((const char *)in_buf)+j*2);

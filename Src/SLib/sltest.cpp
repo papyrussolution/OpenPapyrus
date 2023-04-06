@@ -93,6 +93,8 @@ int STestDataArray::ReadBotanTestSequence(int formatVer, const char * pFileName,
 //
 //
 //
+static SString & FASTCALL catval(int v, const char * pV, SString & rBuf)
+	{ return rBuf.CatChar('(').CatEq(pV, v).CatChar(')'); }
 static SString & FASTCALL catval(long v, const char * pV, SString & rBuf)
 	{ return rBuf.CatChar('(').CatEq(pV, v).CatChar(')'); }
 static SString & FASTCALL catval(uint v, const char * pV, SString & rBuf)
@@ -227,54 +229,18 @@ int STestCase::_check_eq(const void * a, const void * b, size_t sz, const char *
 		return 1;
 }
 
-int STestCase::_check_eq(const void * a, const void * b, const char * pA, const char * pB)
-{
-#ifdef _WIN64
-	return Implement_check_eq((uint64)a, (uint64)b, pA, pB);
-#else
-	return Implement_check_eq((uint32)a, (uint32)b, pA, pB);
-#endif
-}
-
-int STestCase::_check_eq(uint8 a, uint8 b, const char * pA, const char * pB)
-{
-	return Implement_check_eq((ulong)a, (ulong)b, pA, pB);
-}
-
-int STestCase::_check_eq(uint a, uint b, const char * pA, const char * pB)
-{
-	return Implement_check_eq((ulong)a, (ulong)b, pA, pB);
-}
-
-int STestCase::_check_eq(long a, long b, const char * pA, const char * pB)
-{
-	return Implement_check_eq(a, b, pA, pB);
-}
-
-int STestCase::_check_eq(ulong a, ulong b, const char * pA, const char * pB)
-{
-	return Implement_check_eq(a, b, pA, pB);
-}
-
-int STestCase::_check_eq(int64 a, int64 b, const char * pA, const char * pB)
-{
-	return Implement_check_eq(a, b, pA, pB);
-}
-
-int STestCase::_check_eq(uint64 a, uint64 b, const char * pA, const char * pB)
-{
-	return Implement_check_eq(a, b, pA, pB);
-}
-
-int STestCase::_check_eq(double a, double b, const char * pA, const char * pB)
-{
-	return Implement_check_eq(a, b, pA, pB);
-}
-
-int STestCase::_check_eq(float a, float b, const char * pA, const char * pB)
-{
-	return Implement_check_eq(a, b, pA, pB);
-}
+int STestCase::_check_eq(const void * a, const void * b, const char * pA, const char * pB) { return Implement_check_eq(reinterpret_cast<ULONG_PTR>(a), reinterpret_cast<ULONG_PTR>(b), pA, pB); }
+int STestCase::_check_eq(uint8 a, uint8 b, const char * pA, const char * pB) { return Implement_check_eq((ulong)a, (ulong)b, pA, pB); }
+int STestCase::_check_eq(uint a, uint b, const char * pA, const char * pB) { return Implement_check_eq((ulong)a, (ulong)b, pA, pB); }
+int STestCase::_check_eq(int a, int b, const char * pA, const char * pB) { return Implement_check_eq(a, b, pA, pB); }
+int STestCase::_check_eq(long a, long b, const char * pA, const char * pB) { return Implement_check_eq(a, b, pA, pB); }
+int STestCase::_check_eq(ulong a, ulong b, const char * pA, const char * pB) { return Implement_check_eq(a, b, pA, pB); }
+int STestCase::_check_eq(int64 a, int64 b, const char * pA, const char * pB) { return Implement_check_eq(a, b, pA, pB); }
+int STestCase::_check_eq(uint64 a, uint64 b, const char * pA, const char * pB) { return Implement_check_eq(a, b, pA, pB); }
+int STestCase::_check_eq(double a, double b, const char * pA, const char * pB) { return Implement_check_eq(a, b, pA, pB); }
+int STestCase::_check_eq(float a, float b, const char * pA, const char * pB) { return Implement_check_eq(a, b, pA, pB); }
+int STestCase::_check_eq(LDATE a, LDATE b, const char * pA, const char * pB) { return Implement_check_eq(a, b, pA, pB); }
+int STestCase::_check_eq(const SString & rVA, const SString & rVB, const char * pA, const char * pB) { return Implement_check_eq(rVA, rVB, pA, pB); }
 
 int STestCase::_check_eq_tolerance(double a, double b, double tol, const char * pA, const char * pB)
 {
@@ -298,34 +264,6 @@ int STestCase::_check_eq_tolerance(float a, float b, float tol, const char * pA,
 		return 1;
 }
 
-int STestCase::_check_eq(LDATE a, LDATE b, const char * pA, const char * pB)
-{
-	return Implement_check_eq(a, b, pA, pB);
-	/*
-	if(a != b) {
-		SString buf;
-		SetInfo(catval(b, pB, catval(a, pA, buf).Cat("!=")), 0);
-		return 0;
-	}
-	else
-		return 1;
-	*/
-}
-
-int STestCase::_check_eq(const SString & rVA, const SString & rVB, const char * pA, const char * pB)
-{
-	return Implement_check_eq(rVA, rVB, pA, pB);
-	/*
-	if(rVA != rVB) {
-		SString buf;
-		SetInfo(catval(rVB, pB, catval(rVA, pA, buf).Cat("!=")), 0);
-		return 0;
-	}
-	else
-		return 1;
-	*/
-}
-
 int STestCase::_check_eq(const SString & rVA, const char * pVB, const char * pA, const char * pB)
 {
 	if(rVA != pVB) {
@@ -337,7 +275,29 @@ int STestCase::_check_eq(const SString & rVA, const char * pVB, const char * pA,
 		return 1;
 }
 
+int STestCase::_check_le(int a, int b, const char * pA, const char * pB)
+{
+	if(a > b) {
+		SString buf;
+		SetInfo(catval(b, pB, catval(a, pA, buf).Cat(">")), 0);
+		return 0;
+	}
+	else
+		return 1;
+}
+
 int STestCase::_check_le(long a, long b, const char * pA, const char * pB)
+{
+	if(a > b) {
+		SString buf;
+		SetInfo(catval(b, pB, catval(a, pA, buf).Cat(">")), 0);
+		return 0;
+	}
+	else
+		return 1;
+}
+
+int STestCase::_check_le(uint a, uint b, const char * pA, const char * pB)
 {
 	if(a > b) {
 		SString buf;
@@ -370,7 +330,29 @@ int STestCase::_check_le(double a, double b, const char * pA, const char * pB)
 		return 1;
 }
 
+int STestCase::_check_lt(int a, int b, const char * pA, const char * pB)
+{
+	if(a >= b) {
+		SString buf;
+		SetInfo(catval(b, pB, catval(a, pA, buf).Cat(">=")), 0);
+		return 0;
+	}
+	else
+		return 1;
+}
+
 int STestCase::_check_lt(long a, long b, const char * pA, const char * pB)
+{
+	if(a >= b) {
+		SString buf;
+		SetInfo(catval(b, pB, catval(a, pA, buf).Cat(">=")), 0);
+		return 0;
+	}
+	else
+		return 1;
+}
+
+int STestCase::_check_lt(uint a, uint b, const char * pA, const char * pB)
 {
 	if(a >= b) {
 		SString buf;
@@ -484,16 +466,8 @@ const STestSuite::Entry * STestCase::GetSuiteEntry() const { return P_Suite->Get
 const char * STestCase::GetTestName() const { return P_Suite->GetCurEntry()->TestName; }
 const char * STestCase::GetInputPath() const { return P_Suite->GetCurEntry()->InPath; }
 const char * STestCase::GetOutputPath() const { return P_Suite->GetCurEntry()->OutPath; }
-
-const char * STestCase::MakeInputFilePath(const char * pFileName)
-{
-	return (TempBuf = P_Suite->GetCurEntry()->InPath).SetLastSlash().Cat(pFileName);
-}
-
-const char * STestCase::MakeOutputFilePath(const char * pFileName)
-{
-	return (TempBuf = P_Suite->GetCurEntry()->OutPath).SetLastSlash().Cat(pFileName);
-}
+const char * STestCase::MakeInputFilePath(const char * pFileName) { return (TempBuf = P_Suite->GetCurEntry()->InPath).SetLastSlash().Cat(pFileName); }
+const char * STestCase::MakeOutputFilePath(const char * pFileName) { return (TempBuf = P_Suite->GetCurEntry()->OutPath).SetLastSlash().Cat(pFileName); }
 
 int STestCase::Run(const char *)
 {

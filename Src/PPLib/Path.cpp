@@ -1,5 +1,5 @@
 // PATH.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // @Kernel
 //
@@ -42,9 +42,9 @@ PathItem::PathItem(PPID pathID, short flags, const char * str) : ID(pathID), Fla
 		Size = sizeof(PathItem);
 }
 
-void * PathItem::operator new(size_t sz, const char * str)
+void * PathItem::operator new(size_t sz, const char * pStr)
 {
-	const size_t len = (str && str[0]) ? (sstrlen(str) + 1) : 0;
+	const size_t len = isempty(pStr) ? 0 : (sstrlen(pStr) + 1);
 	return ::new char[sz + len];
 }
 
@@ -65,6 +65,13 @@ PPPaths::PPPaths() : P(0)
 {
 }
 
+PPPaths::PPPaths(const PPPaths & rS)
+{
+	Resize(rS.Size());
+	if(P)
+		memmove(P, rS.P, rS.Size());
+}
+
 PPPaths::~PPPaths()
 {
 	ZFREE(P);
@@ -81,11 +88,64 @@ bool PPPaths::IsEmpty() const
 	return (P == 0);
 }
 
-PPPaths & FASTCALL PPPaths::operator = (const PPPaths & src)
+bool FASTCALL PPPaths::IsEq(const PPPaths & rS) const
 {
-	Resize(src.Size());
+	bool   eq = true;
+	if(P) {
+		if(rS.P) {
+			SString temp_buf1;
+			SString temp_buf2;
+			{
+				for(uint s = 0; eq && s < P->TailSize;) {
+					const PathItem * p = reinterpret_cast<const PathItem *>(PTR8(P + 1) + s);
+					bool found = false;
+					for(uint s2 = 0; !found && s2 < rS.P->TailSize;) {
+						const PathItem * p2 = reinterpret_cast<const PathItem *>(PTR8(rS.P + 1) + s2);
+						if(p2->ID == p->ID) {
+							found = true;
+							SPathStruc::NormalizePath(p->Path(), SPathStruc::npfCompensateDotDot|SPathStruc::npfOEM, temp_buf1);
+							SPathStruc::NormalizePath(p2->Path(), SPathStruc::npfCompensateDotDot|SPathStruc::npfOEM, temp_buf2);
+							if(temp_buf1 != temp_buf2)
+								eq = false;
+						}
+						s2 += p2->Size; // shifting of iterator
+					}
+					s += p->Size; // shifting of iterator
+					if(!found)
+						eq = false;
+				}
+			}
+			if(eq) {
+				// В предыдущем цикле мы не проверяли существование идентификаторов в rS, которых нет в this
+				// здесь исправим это упущение.
+				for(uint s2 = 0; eq && s2 < rS.P->TailSize;) {
+					const PathItem * p2 = reinterpret_cast<const PathItem *>(PTR8(rS.P + 1) + s2);
+					bool found = false;
+					for(uint s = 0; s < P->TailSize;) {
+						const PathItem * p = reinterpret_cast<const PathItem *>(PTR8(P + 1) + s);
+						if(p2->ID == p->ID)
+							found = true;
+						s += p->Size; // shifting of iterator
+					}
+					s2 += p2->Size; // shifting of iterator
+					if(!found)
+						eq = false;
+				}
+			}
+		}
+		else
+			eq = false;
+	}
+	else
+		eq = !rS.P;
+	return eq;
+}
+
+PPPaths & FASTCALL PPPaths::operator = (const PPPaths & rS)
+{
+	Resize(rS.Size());
 	if(P)
-		memmove(P, src.P, src.Size());
+		memmove(P, rS.P, rS.Size());
 	return *this;
 }
 
@@ -134,68 +194,67 @@ int PPPaths::GetPath(PPID pathID, short * pFlags, SString & rBuf) const
 int PPPaths::SetPath(PPID pathID, const char * pBuf, short flags, int replace)
 {
 	int    ok = 1;
-	uint8 * cp = 0;
-	size_t hs = sizeof(PathData);
-	size_t ts = 0;
-	size_t s  = 0;
-	int    found = 0;
 	PathItem * pi = 0;
 	THROW(P || Resize(sizeof(PathData)));
-	cp = PTR8(P + 1);
-	hs = sizeof(PathData);
-	ts = (size_t)P->TailSize;
-	THROW(pi = new(pBuf) PathItem(pathID, flags, pBuf));
-	while(s < ts && !found) {
-		PathItem * p = reinterpret_cast<PathItem *>(cp + s);
-		const size_t os = p->Size;
-		if(p->ID == 0 || os == 0) {
-			//
-			// Такая ситуация встречаться не должна, но на всякий случай обработать ее стоит.
-			// В этом случае будем считать, что достигли конца структуры и не нашли заданный путь.
-			//
-			P->TailSize = s;
-			ts = (size_t)P->TailSize;
-			break;
-		}
-		else if(p->ID == pathID) {
-			if(isempty(pBuf)) {
+	{
+		uint8 * cp = PTR8(P + 1);
+		size_t hs = sizeof(PathData);
+		size_t ts = (size_t)P->TailSize;
+		size_t s  = 0;
+		bool   found = false;
+		THROW(pi = new(pBuf) PathItem(pathID, flags, pBuf));
+		while(s < ts && !found) {
+			PathItem * p = reinterpret_cast<PathItem *>(cp + s);
+			const size_t os = p->Size;
+			if(p->ID == 0 || os == 0) {
 				//
-				// Remove item and resize buffer
+				// Такая ситуация встречаться не должна, но на всякий случай обработать ее стоит.
+				// В этом случае будем считать, что достигли конца структуры и не нашли заданный путь.
 				//
-				memmove(cp + s, cp + s + os, ts - s - os);
-				THROW(Resize(hs + ts - os));
+				P->TailSize = s;
+				ts = (size_t)P->TailSize;
+				break;
 			}
-			else if(replace) {
-				if(pi->Size == os)
+			else if(p->ID == pathID) {
+				if(isempty(pBuf)) {
 					//
-					// Simply copy new data
+					// Remove item and resize buffer
 					//
-					memmove(p, pi, pi->Size);
-				else {
-					//
-					// Resize buffer and copy new data
-					//
-					if(pi->Size > os) {
-						THROW(Resize(hs + ts + pi->Size - os));
-						cp = PTR8(P + 1);
-					}
-					memmove(cp + s + pi->Size, cp + s + os, ts - s - os);
-					memmove(cp + s, pi, pi->Size);
-					if(pi->Size < os) {
-						THROW(Resize(hs + ts + pi->Size - os));
-						cp = PTR8(P + 1);
+					memmove(cp + s, cp + s + os, ts - s - os);
+					THROW(Resize(hs + ts - os));
+				}
+				else if(replace) {
+					if(pi->Size == os)
+						//
+						// Simply copy new data
+						//
+						memmove(p, pi, pi->Size);
+					else {
+						//
+						// Resize buffer and copy new data
+						//
+						if(pi->Size > os) {
+							THROW(Resize(hs + ts + pi->Size - os));
+							cp = PTR8(P + 1);
+						}
+						memmove(cp + s + pi->Size, cp + s + os, ts - s - os);
+						memmove(cp + s, pi, pi->Size);
+						if(pi->Size < os) {
+							THROW(Resize(hs + ts + pi->Size - os));
+							cp = PTR8(P + 1);
+						}
 					}
 				}
+				found = true;
 			}
-			found = 1;
+			else
+				s += os;
 		}
-		else
-			s += os;
-	}
-	if(!found && pBuf && pBuf[0]) {
-		THROW(Resize(hs + ts + pi->Size));
-		cp = PTR8(P + 1);
-		memmove(cp + s, pi, pi->Size);
+		if(!found && !isempty(pBuf)) {
+			THROW(Resize(hs + ts + pi->Size));
+			cp = PTR8(P + 1);
+			memmove(cp + s, pi, pi->Size);
+		}
 	}
 	CATCHZOK
 	PathItem::operator delete(pi, 0);

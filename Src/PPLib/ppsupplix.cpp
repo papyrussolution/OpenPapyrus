@@ -7238,6 +7238,19 @@ public:
 	int    SendSellout();
 	int    SendSellin();
 	int    SendRest();
+
+	struct ReplyBlock {
+		ReplyBlock() : Result(0), Status(0)
+		{
+		}
+		int    Result; // 1 - ok, 0 - error
+		int    Status; // В случае ошибки mercapp возвращает значение статуса
+		StringSet SsErrMsg; // Список сообщений об ошибке
+	};
+	//
+	// @note: В общем, функция должна быть private, но чтоб написать ее нужен тест. Потому и public
+	//
+	static int ParseReply(const SString & rReplyText, ReplyBlock & rBlk);
 private:
 	enum {
 		qUndef = 0,
@@ -7328,47 +7341,40 @@ int GazpromNeft::Test()
 
 SString & GazpromNeft::MakeTargetUrl_(int query, int * pReq/*SHttpProtocol::reqXXX*/, SString & rResult) const
 {
-	(rResult = "https").Cat("://").Cat("gateways").DotCat("suds").DotCat("gazpromneft-sm").DotCat("ru");
-	int    req = SHttpProtocol::reqUnkn;
-	const char * p_path = 0;
+	//https://gateways.mercapp.gazpromneft-sm.ru
+	//(rResult = "https").Cat("://").Cat("gateways").DotCat("suds").DotCat("gazpromneft-sm").DotCat("ru");
+	//(rResult = "https").Cat("://").Cat("gateways").DotCat("mercapp").DotCat("gazpromneft-sm").DotCat("ru");
+	if(SvcUrl.NotEmpty())
+		(rResult = SvcUrl).RmvLastSlash();
+	else
+		(rResult = "https").Cat("://").Cat("gateways").DotCat("mercapp").DotCat("gazpromneft-sm").DotCat("ru");
+	struct Entry {
+		Entry() : Req(SHttpProtocol::reqUnkn), P_Path(0)
+		{
+		}
+		void   Set(int req, const char * pPath)
+		{
+			Req = req;
+			P_Path = pPath;
+		}
+		int    Req;
+		const  char * P_Path;
+	};
+	Entry entry;
 	switch(query) {
-		case qAuthLogin: 
-			req = SHttpProtocol::reqPost;
-			p_path = "login-api/api/v1/Auth/login";
-			break;
-		case qAuthExtTok: 
-			req = SHttpProtocol::reqPost;
-			p_path = "login-api/api/v1/Auth/extended-token";
-			break;
-		case qGetWarehouses: 
-			req = SHttpProtocol::reqGet;
-			p_path = "distribution-api/api/v1/Distributions/warehouses"; 
-			break;
-		case qGetProducts: 
-			req = SHttpProtocol::reqGet;
-			p_path = "product-api/api/v1/Products/integration";
-			break;
-		case qGetClients: 
-			req = SHttpProtocol::reqPost;
-			p_path = "client-api/api/v1/Clients/GetFilteredList";
-			break;
-		case qSendSellout:
-			req = SHttpProtocol::reqPost;
-			p_path = "sales-api/api/v2/Sales/sellout";
-			break;
-		case qSendSellin:
-			req = SHttpProtocol::reqPost;
-			p_path = "sales-api/api/v2/Sales/sellin";
-			break;
-		case qSendRest:
-			req = SHttpProtocol::reqPost;
-			p_path = "sales-api/api/v1/Sales/warehousebalances";
-			break;
+		case qAuthLogin: entry.Set(SHttpProtocol::reqPost, "login-api/api/v1/Auth/login"); break;
+		case qAuthExtTok: entry.Set(SHttpProtocol::reqPost, "login-api/api/v1/Auth/extended-token"); break;
+		case qGetWarehouses: entry.Set(SHttpProtocol::reqGet, "distribution-api/api/v1/Distributions/warehouses"); break;
+		case qGetProducts: entry.Set(SHttpProtocol::reqGet, "product-api/api/v1/Products/integration"); break;
+		case qGetClients: entry.Set(SHttpProtocol::reqPost, "client-api/api/v1/Clients/GetFilteredList"); break;
+		case qSendSellout: entry.Set(SHttpProtocol::reqPost, "sales-api/api/v2/Sales/sellout"); break;
+		case qSendSellin: entry.Set(SHttpProtocol::reqPost, "sales-api/api/v2/Sales/sellin"); break;
+		case qSendRest: entry.Set(SHttpProtocol::reqPost, "sales-api/api/v1/Sales/warehousebalances"); break;
 	}
-	if(!isempty(p_path)) {
-		rResult.SetLastDSlash().Cat(p_path);
+	if(!isempty(entry.P_Path)) {
+		rResult.SetLastDSlash().Cat(entry.P_Path);
 	}
-	ASSIGN_PTR(pReq, req);
+	ASSIGN_PTR(pReq, entry.Req);
 	return rResult;
 }
 
@@ -7437,29 +7443,24 @@ int GazpromNeft::Auth()
 					if(p_js_reply) {
 						if(p_js_reply->IsObject()) {
 							for(const SJson * p_itm = p_js_reply->P_Child; p_itm; p_itm = p_itm->P_Next) {
-								if(p_itm->Text.IsEqiAscii("accessToken")) {
-									if(p_itm->P_Child) {
+								if(p_itm->P_Child) {
+									if(p_itm->Text.IsEqiAscii("accessToken")) {
 										(AccessToken = p_itm->P_Child->Text).Unescape();
 									}
-								}
-								else if(p_itm->Text.IsEqiAscii("tokenType")) {
-									if(p_itm->P_Child) {
+									else if(p_itm->Text.IsEqiAscii("tokenType")) {
 										(token_type = p_itm->P_Child->Text).Unescape();
 									}
-								}
-								else if(p_itm->Text.IsEqiAscii("expiresIn")) {
-									if(p_itm->P_Child) {
+									else if(p_itm->Text.IsEqiAscii("expiresIn")) {
 										AcsTokExpirySec = p_itm->P_Child->Text.ToLong();
 									}
-								}
-								else if(p_itm->Text.IsEqiAscii("refeshToken")) {
-									// ???
+									else if(p_itm->Text.IsEqiAscii("refeshToken")) {
+										// ???
+									}
 								}
 							}							
 						}
 						ZDELETE(p_js_reply);
 					}
-						
 					//Lth.Log("rep", 0, temp_buf);
 					//if(ReadJsonReplyForSingleItem(temp_buf, "token", rIb.Token) > 0)
 						//ok = 1;
@@ -7537,7 +7538,10 @@ int GazpromNeft::Auth()
 			}
 		}
 	}
-	CATCHZOK
+	CATCH
+		R_Logger.LogLastError();
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 
@@ -7626,7 +7630,10 @@ int GazpromNeft::GetWarehouses()
 			}
 		}
 	}
-	CATCHZOK
+	CATCH
+		R_Logger.LogLastError();
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 
@@ -7830,7 +7837,10 @@ int GazpromNeft::GetProducts(bool useStorage)
 			StoreGoods(GoodsList);
 		}
 	}
-	CATCHZOK
+	CATCH
+		R_Logger.LogLastError();
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 
@@ -7987,7 +7997,10 @@ int GazpromNeft::GetClients()
 		} while(more);
 	}
 	ok = 1;
-	CATCHZOK
+	CATCH
+		R_Logger.LogLastError();
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 
@@ -8167,6 +8180,66 @@ static IMPL_CMPFUNC(GazpromNeftBillPacket_ByClientUuid, i1, i2)
 	return result;
 }
 
+int GazpromNeft::ParseReply(const SString & rReplyText, ReplyBlock & rBlk)
+{
+	int    result = 0;
+	SString temp_buf;
+	SJson * p_js_reply = SJson::Parse(rReplyText);
+	if(p_js_reply) {
+		if(p_js_reply->IsArray() && p_js_reply->GetArrayCount() == 0) {
+			//PPLoadText(PPTXT_SUPPLIXSVCACCEPTSDOCS, msg_buf);
+			//R_Logger.Log(msg_buf);
+			rBlk.Result = 1;
+			rBlk.Status = 0;
+			rBlk.SsErrMsg.Z();
+			result = 1;
+		}
+		else {
+			// sample of error reply
+			// {
+			//  "type":"https://tools.ietf.org/html/rfc7231#section-6.5.1",
+			//  "title":"One or more validation errors occurred.",
+			//  "status":400,
+			//  "traceId":"|31a56548-4d7e4ba8ba390f5a.",
+			//  "errors": {
+			//        "$": [
+			//            "The JSON value could not be converted to GPNSM.Sales.Application.Features.Sellin.Upload.UploadSellinCommand. Path: $ | LineNumber: 0 | BytePositionInLine: 1."
+			//             ]
+			//            }
+			//  }
+			if(p_js_reply->IsObject()) {
+				for(const SJson * p_itm = p_js_reply->P_Child; p_itm; p_itm = p_itm->P_Next) {
+					if(p_itm->Text.IsEqiAscii("type")) {
+					}
+					else if(p_itm->Text.IsEqiAscii("title")) {
+					}
+					else if(p_itm->Text.IsEqiAscii("status")) {
+						rBlk.Status = p_itm->P_Child ? p_itm->P_Child->Text.ToLong() : 0;
+					}
+					else if(p_itm->Text.IsEqiAscii("traceId")) {
+					}
+					else if(p_itm->Text.IsEqiAscii("errors")) {
+						result = -1;
+						if(p_itm->P_Child && p_itm->P_Child->IsObject()) {
+							for(const SJson * p_js_err_obj = p_itm->P_Child->P_Child; p_js_err_obj; p_js_err_obj = p_js_err_obj->P_Next) {
+								if(p_js_err_obj->Text.IsEqiAscii("$") && p_js_err_obj->P_Child && p_js_err_obj->P_Child->IsArray()) {
+									for(const SJson * p_ei = p_js_err_obj->P_Child->P_Child; p_ei; p_ei = p_ei->P_Next) {
+										rBlk.SsErrMsg.add(p_ei->Text);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		ZDELETE(p_js_reply);
+	}
+	else
+		result = PPSetErrorSLib();
+	return result;
+}
+
 int GazpromNeft::SendSellout()
 {
 	int    ok = -1;
@@ -8308,21 +8381,24 @@ int GazpromNeft::SendSellout()
 							if(p_ack_buf) {
 								temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 								Lth.Log("rep", 0, temp_buf);
-								SJson * p_js_reply = SJson::Parse(temp_buf);
-								if(p_js_reply) {
-									if(p_js_reply->IsArray() && p_js_reply->GetArrayCount() == 0) {
-										PPLoadText(PPTXT_SUPPLIXSVCACCEPTSDOCS, msg_buf);
-										R_Logger.Log(msg_buf);
-										ok = 1;
+								ReplyBlock rb;
+								int prr = ParseReply(temp_buf, rb);
+								if(prr > 0) {
+									PPLoadText(PPTXT_SUPPLIXSVCACCEPTSDOCS, msg_buf);
+									R_Logger.Log(msg_buf);
+								}
+								else if(prr < 0) {
+									//PPTXT_SUPPLIXSVCACCEPTSDOCSFAULT     "Ошибка передачи документов сервису поставщика"
+									PPLoadText(PPTXT_SUPPLIXSVCACCEPTSDOCSFAULT, msg_buf);
+									if(rb.SsErrMsg.getCount()) {
+										uint ssp = 0;
+										rb.SsErrMsg.get(&ssp, temp_buf);
+										msg_buf.CatDiv(':', 2).Cat(temp_buf);
 									}
-									//
-									// ...
-									//
-									ZDELETE(p_js_reply);
+									R_Logger.Log(msg_buf);
 								}
-								else {
-									ok = PPSetErrorSLib();
-								}
+								else
+									R_Logger.LogLastError();
 							}
 						}
 					}
@@ -8330,7 +8406,10 @@ int GazpromNeft::SendSellout()
 			}
 		}
 	}
-	CATCHZOK
+	CATCH
+		R_Logger.LogLastError();
+		ok = 0;
+	ENDCATCH
 	delete p_js_list;
 	return ok;
 }
@@ -8436,20 +8515,24 @@ int GazpromNeft::SendSellin()
 							if(p_ack_buf) {
 								temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 								Lth.Log("rep", 0, temp_buf);
-								SJson * p_js_reply = SJson::Parse(temp_buf);
-								if(p_js_reply) {
-									if(p_js_reply->IsArray() && p_js_reply->GetArrayCount() == 0) {
-										PPLoadText(PPTXT_SUPPLIXSVCACCEPTSDOCS, msg_buf);
-										R_Logger.Log(msg_buf);
-										ok = 1;
+								ReplyBlock rb;
+								int prr = ParseReply(temp_buf, rb);
+								if(prr > 0) {
+									PPLoadText(PPTXT_SUPPLIXSVCACCEPTSDOCS, msg_buf);
+									R_Logger.Log(msg_buf);
+								}
+								else if(prr < 0) {
+									//PPTXT_SUPPLIXSVCACCEPTSDOCSFAULT     "Ошибка передачи документов сервису поставщика"
+									PPLoadText(PPTXT_SUPPLIXSVCACCEPTSDOCSFAULT, msg_buf);
+									if(rb.SsErrMsg.getCount()) {
+										uint ssp = 0;
+										rb.SsErrMsg.get(&ssp, temp_buf);
+										msg_buf.CatDiv(':', 2).Cat(temp_buf);
 									}
-									//
-									// ...
-									//
-									ZDELETE(p_js_reply);
+									R_Logger.Log(msg_buf);
 								}
 								else
-									ok = PPSetErrorSLib();
+									R_Logger.LogLastError();
 							}
 						}
 					}
@@ -8457,7 +8540,10 @@ int GazpromNeft::SendSellin()
 			}
 		}
 	}
-	CATCHZOK
+	CATCH
+		R_Logger.LogLastError();
+		ok = 0;
+	ENDCATCH
 	delete p_js_doc_list;
 	return ok;
 }
@@ -9816,6 +9902,10 @@ public:
 					if(temp_buf.NotEmpty()) {
 						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_CODE), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 					}
+					else {
+						temp_buf.Z().Cat("id").CatChar('-').Cat(goods_rec.ID);
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_CODE), temp_buf);
+					}
 				}
 				(temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
 				n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_NAME), temp_buf);
@@ -9907,8 +9997,29 @@ public:
 	    THROW(p_x);
 		{
 			SXml::WDoc _doc(p_x, cpUTF8);
+			//<Exchange.Data 
+			//  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+			//  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+			//  Date="2020-07-20T19:04:33" 
+			//  DistributorCode="54644" 
+			//  FileContents="Sales" 
+			//  xmlns="http://www.agentplus.ru/UD/FromDistributors">
+
+			//<Exchange.Data 
+			//   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+			//   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+			//   Date="2020-07-20T19:04:33" 
+			//   DistributorCode="54644" 
+			//   FileContents="Goods" 
+			//   xmlns="http://www.agentplus.ru/UD/FromDistributors">
 			{
 				SXml::WNode n_h(p_x, "Exchange.Data");
+				n_h.PutAttrib("xmlns:xs", "http://www.w3.org/2001/XMLSchema");
+				n_h.PutAttrib("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+				n_h.PutAttrib("Date", temp_buf.Z().Cat(now_dtm, DATF_ISO8601CENT, 0));
+				n_h.PutAttrib("DistributorCode", cli_code);
+				n_h.PutAttrib("FileContents", "Goods");
+				n_h.PutAttrib("xmlns", "http://www.agentplus.ru/UD/FromDistributors");
 				WriteWarehouses(p_x, loc_list);
 				WriteGoods(p_x, goods_list);
 				{
@@ -9987,6 +10098,12 @@ public:
 			SXml::WDoc _doc(p_x, cpUTF8);
 			{
 				SXml::WNode n_h(p_x, "Exchange.Data");
+				n_h.PutAttrib("xmlns:xs", "http://www.w3.org/2001/XMLSchema");
+				n_h.PutAttrib("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+				n_h.PutAttrib("Date", temp_buf.Z().Cat(now_dtm, DATF_ISO8601CENT, 0));
+				n_h.PutAttrib("DistributorCode", cli_code);
+				n_h.PutAttrib("FileContents", "Sales");
+				n_h.PutAttrib("xmlns", "http://www.agentplus.ru/UD/FromDistributors");
 				{
 					SString addr_buf;
 					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_DLVRLOC_PL));
@@ -10922,3 +11039,44 @@ int PrcssrSupplInterchange::Run()
 		logger.Save(log_file_name, LOGMSGF_DIRECTOUTP|LOGMSGF_TIME|LOGMSGF_USER);
 	return ok;
 }
+
+#if SLTEST_RUNNING // {
+
+SLTEST_R(Mercapp)
+{
+	int    ok = 1;
+	STempBuffer in_buf(SKILOBYTE(4));
+	SString temp_buf;
+	size_t actual_size = 0;
+	int    r = 0;
+	{
+		SString in_file_name(MakeInputFilePath("etc/mercapp-salein-ok.json"));
+		SFile f_in(in_file_name, SFile::mRead);
+		THROW(f_in.ReadAll(in_buf, 0, &actual_size));
+		if(actual_size > 0) {
+			GazpromNeft::ReplyBlock rb;
+			temp_buf.Z().CatN(in_buf.cptr(), actual_size);
+			r = GazpromNeft::ParseReply(temp_buf, rb);
+			SLTEST_CHECK_EQ(r, 1);
+			SLTEST_CHECK_EQ(0, rb.Status);
+			SLTEST_CHECK_EQ(rb.SsErrMsg.getCount(), 0U);
+		}
+	}
+	{
+		SString in_file_name(MakeInputFilePath("etc/mercapp-salein-error.json"));
+		SFile f_in(in_file_name, SFile::mRead);
+		THROW(f_in.ReadAll(in_buf, 0, &actual_size));
+		if(actual_size > 0) {
+			GazpromNeft::ReplyBlock rb;
+			temp_buf.Z().CatN(in_buf.cptr(), actual_size);
+			r = GazpromNeft::ParseReply(temp_buf, rb);
+			SLTEST_CHECK_EQ(r, -1);
+			SLTEST_CHECK_LT(0, rb.Status);
+			SLTEST_CHECK_EQ(rb.SsErrMsg.getCount(), 1U);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+#endif // } SLTEST_RUNNING

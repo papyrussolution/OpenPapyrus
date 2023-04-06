@@ -5038,14 +5038,14 @@ SLTEST_R(CalcCheckDigit)
 			right.Strip();
 			if(left.IsEqiAscii("upc") || left.IsEqiAscii("ean")) {
 				SLTEST_CHECK_NZ(isdec(SCalcCheckDigit(SCHKDIGALG_BARCODE, right, right.Len()-1)));
-				SLTEST_CHECK_EQ(SCalcCheckDigit(SCHKDIGALG_BARCODE|SCHKDIGALG_TEST, right, right.Len()), 1L);
+				SLTEST_CHECK_EQ(SCalcCheckDigit(SCHKDIGALG_BARCODE|SCHKDIGALG_TEST, right, right.Len()), 1);
 			}
 			else if(left.IsEqiAscii("inn")) {
-				SLTEST_CHECK_EQ(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, right, right.Len()), 1L);
+				SLTEST_CHECK_EQ(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, right, right.Len()), 1);
 			}
 			else if(left.IsEqiAscii("luhn")) {
 				SLTEST_CHECK_NZ(isdec(SCalcCheckDigit(SCHKDIGALG_LUHN, right, right.Len()-1)));
-				SLTEST_CHECK_EQ(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, right, right.Len()), 1L);
+				SLTEST_CHECK_EQ(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, right, right.Len()), 1);
 			}
 		}
 	}
@@ -5557,7 +5557,7 @@ SLTEST_R(HashFunction)
 					}
 					THROW(bin_buf.Alloc(NZOR(val_buf.Len(), 1) * 2));
 					THROW(val_buf.DecodeHex(1, bin_buf, bin_buf.GetSize(), &real_bin_size));
-					THROW(SLTEST_CHECK_EQ(real_bin_size, 4));
+					THROW(SLTEST_CHECK_EQ(real_bin_size, 4U));
 					SLTEST_CHECK_EQ(*reinterpret_cast<const ulong *>(bin_buf.cptr()), val);
 				}
 			}

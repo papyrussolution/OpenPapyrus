@@ -2486,11 +2486,17 @@ bool SCS_SHTRIHFRF::GetFR(int id, char * pBuf, size_t bufLen)
 int SCS_SHTRIHFRF::ExecFR(int id)
 {
 	int    ok = 1;
+	SString method;
+	P_DrvFRIntrf->GetNameByID(id, method);
 	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
 	THROW_PP_S(P_DrvFRIntrf->SetProperty(Password, CashierPassword) > 0, PPERR_SHTRIHFRSETPROPFAULT, P_DrvFRIntrf->GetNameByID(Password, SLS.AcquireRvlStr()));
-	THROW_PP_S(P_DrvFRIntrf->CallMethod(id) > 0, PPERR_SHTRIHFRCALLMETHFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr()));
+	THROW_PP_S(P_DrvFRIntrf->CallMethod(id) > 0, PPERR_SHTRIHFRCALLMETHFAULT, method);
 	THROW_PP_S(P_DrvFRIntrf->GetProperty(ResultCode, &ResCode) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(ResultCode, SLS.AcquireRvlStr())); 
-	THROW_PP_S(ResCode == RESCODE_NO_ERROR, PPERR_SHTRIHFRINVRESULTCODE, ResCode);
+	if(ResCode != RESCODE_NO_ERROR) {
+		SString addendum_msg_buf;
+		addendum_msg_buf.Cat(method).Space().CatEq("ResCode", ResCode);
+		THROW_PP_S(ResCode == RESCODE_NO_ERROR, PPERR_SHTRIHFRINVRESULTCODE, addendum_msg_buf);
+	}
 	CATCHZOK
 	return ok;
 }

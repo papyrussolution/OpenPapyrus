@@ -17378,6 +17378,7 @@ public:
 	int    _check_eq(const void * a, const void * b, size_t sz, const char * pA, const char * pB);
 	int    _check_eq(uint8 a, uint8 b, const char * pA, const char * pB);
 	int    _check_eq(uint a, uint b, const char * pA, const char * pB);
+	int    _check_eq(int a, int b, const char * pA, const char * pB);
 	int    _check_eq(long a, long b, const char * pA, const char * pB);
 	int    _check_eq(ulong a, ulong b, const char * pA, const char * pB);
 	int    _check_eq(int64 a, int64 b, const char * pA, const char * pB);
@@ -17389,10 +17390,14 @@ public:
 	int    _check_eq(LDATE a, LDATE b, const char * pA, const char * pB);
 	int    _check_eq(const SString & rVA, const SString & rVB, const char * pA, const char * pB);
 	int    _check_eq(const SString & rVA, const char * pVB, const char * pA, const char * pB);
+	int    _check_le(int a, int b, const char * pA, const char * pB);
 	int    _check_le(long a, long b, const char * pA, const char * pB);
+	int    _check_le(uint a, uint b, const char * pA, const char * pB);
 	int    _check_le(ulong a, ulong b, const char * pA, const char * pB);
 	int    _check_le(double a, double b, const char * pA, const char * pB);
+	int    _check_lt(int a, int b, const char * pA, const char * pB);
 	int    _check_lt(long a, long b, const char * pA, const char * pB);
+	int    _check_lt(uint a, uint b, const char * pA, const char * pB);
 	int    _check_lt(ulong a, ulong b, const char * pA, const char * pB);
 	int    _check_lt(double a, double b, const char * pA, const char * pB);
 	int    _check_lt(float a, float b, const char * pA, const char * pB);

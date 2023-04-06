@@ -3712,7 +3712,7 @@ SLTEST_R(LDATE)
 			// /*719527*/719162 days were between March 1, 1 BC and March 1, 1970,
 			int dc1 = DateToDaysSinceChristmas(1, 3, 1);
 			int dc2 = DateToDaysSinceChristmas(1970, 3, 1);
-			SLTEST_CHECK_EQ((long)(dc2-dc1), /*719527*/719162);
+			SLTEST_CHECK_EQ((dc2-dc1), /*719527*/719162);
 			DaysSinceChristmasToDate(dc1, &y2, &m2, &d2);
 			SLTEST_CHECK_EQ((long)y2, (long)1);
 			SLTEST_CHECK_EQ((long)m2, (long)3);
@@ -3725,7 +3725,7 @@ SLTEST_R(LDATE)
 		{
 			int dc1 = DateToDaysSinceChristmas(1996, 12, 31);
 			int dc2 = DateToDaysSinceChristmas(1997, 1, 1);
-			SLTEST_CHECK_EQ((long)(dc2-dc1), 1);
+			SLTEST_CHECK_EQ((dc2-dc1), 1);
 			DaysSinceChristmasToDate(dc1, &y2, &m2, &d2);
 			SLTEST_CHECK_EQ((long)y2, (long)1996);
 			SLTEST_CHECK_EQ((long)m2, (long)12);
@@ -3784,19 +3784,19 @@ SLTEST_R(LDATE)
 		}
 	}
 	{
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 1), 0);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 2), 0);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 3), 0);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 4), 0);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 1), 0L);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 2), 0L);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 3), 0L);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 4), 0L);
 
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 10, 17), encodetime(10, 1, 10, 17), 1), 2);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 7, 10, 17), encodetime(12, 1, 10, 17), 2), 6);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 21, 17), encodetime(12, 1, 10, 17), 3), 11);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 10, 27), encodetime(12, 1, 10, 17), 4), 100);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 10, 17), encodetime(12, 1, 10, 27), 4), -100);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 10, 27), 4), 1000);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 10, 27), encodetime(12, 1, 11, 27), 4), -1000);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 2, 11,  7), encodetime(12, 1, 10, 17), 4), 60900);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 10, 17), encodetime(10, 1, 10, 17), 1), 2L);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 7, 10, 17), encodetime(12, 1, 10, 17), 2), 6L);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 21, 17), encodetime(12, 1, 10, 17), 3), 11L);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 10, 27), encodetime(12, 1, 10, 17), 4), 100L);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 10, 17), encodetime(12, 1, 10, 27), 4), -100L);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 10, 27), 4), 1000L);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 10, 27), encodetime(12, 1, 11, 27), 4), -1000L);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 2, 11,  7), encodetime(12, 1, 10, 17), 4), 60900L);
 	}
 	return CurrentStatus;
 }

@@ -1,5 +1,5 @@
 // PPRIGHTS.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Права доступа
 //
@@ -8,6 +8,18 @@
 
 ObjRights::ObjRights(PPID objType) : ObjType(objType), Size(sizeof(ObjRights)), Flags(PPRights::GetDefaultFlags()), OprFlags(PPRights::GetDefaultOprFlags())
 {
+}
+
+bool FASTCALL ObjRights::IsEq(const ObjRights & rS) const
+{
+	if(ObjType == rS.ObjType && Flags == rS.Flags && OprFlags == rS.OprFlags && Size == rS.Size) {
+		if(Size > sizeof(*this))
+			return (memcmp((this+1), ((&rS)+1), Size-sizeof(*this)) == 0);
+		else
+			return true;
+	}
+	else
+		return false;
 }
 
 /*static*/ObjRights * ObjRights::Create(PPID objType, size_t totalSize)

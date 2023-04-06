@@ -83,21 +83,15 @@ public:
 	// Overloads for string-y things
 	//
 	// Explicitly overload `const char*` so the compiler doesn't cast to `bool`.
-	Arg(const char* value) // NOLINT(runtime/explicit)
-		: piece_(absl::NullSafeStringView(value)) {
+	Arg(const char* value) : piece_(absl::NullSafeStringView(value)) // NOLINT(runtime/explicit)
+	{
 	}
-
-	template <typename Allocator>
-	Arg( // NOLINT
-		const std::basic_string<char, std::char_traits<char>, Allocator>&
-		value) noexcept
-		: piece_(value) {
+	template <typename Allocator> Arg(const std::basic_string<char, std::char_traits<char>, Allocator>& value) noexcept : piece_(value) // NOLINT
+	{
 	}
-
-	Arg(absl::string_view value) // NOLINT(runtime/explicit)
-		: piece_(value) {
+	Arg(absl::string_view value) : piece_(value) // NOLINT(runtime/explicit)
+	{
 	}
-
 	// Overloads for primitives
 	//
 	// No overloads are available for signed and unsigned char because if people
@@ -105,78 +99,52 @@ public:
 	// probably using them as 8-bit integers and would probably prefer an integer
 	// representation. However, we can't really know, so we make the caller decide
 	// what to do.
-	Arg(char value) // NOLINT(runtime/explicit)
-		: piece_(scratch_, 1) {
+	Arg(char value) : piece_(scratch_, 1) // NOLINT(runtime/explicit)
+	{
 		scratch_[0] = value;
 	}
-
-	Arg(short value) // NOLINT(*)
-		: piece_(scratch_,
-		    numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) {
+	Arg(short value) : piece_(scratch_, numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) // NOLINT(*)
+	{
 	}
-
-	Arg(unsigned short value) // NOLINT(*)
-		: piece_(scratch_,
-		    numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) {
+	Arg(unsigned short value) : piece_(scratch_, numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) // NOLINT(*)
+	{
 	}
-
-	Arg(int value) // NOLINT(runtime/explicit)
-		: piece_(scratch_,
-		    numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) {
+	Arg(int value) : piece_(scratch_, numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) // NOLINT(runtime/explicit)
+	{
 	}
-
-	Arg(unsigned int value) // NOLINT(runtime/explicit)
-		: piece_(scratch_,
-		    numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) {
+	Arg(unsigned int value) : piece_(scratch_, numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) // NOLINT(runtime/explicit)
+	{
 	}
-
-	Arg(long value) // NOLINT(*)
-		: piece_(scratch_,
-		    numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) {
+	Arg(long value) : piece_(scratch_, numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) // NOLINT(*)
+	{
 	}
-
-	Arg(unsigned long value) // NOLINT(*)
-		: piece_(scratch_,
-		    numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) {
+	Arg(unsigned long value) : piece_(scratch_, numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) // NOLINT(*)
+	{
 	}
-
-	Arg(long long value) // NOLINT(*)
-		: piece_(scratch_,
-		    numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) {
+	Arg(long long value) : piece_(scratch_, numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) // NOLINT(*)
+	{
 	}
-
-	Arg(unsigned long long value) // NOLINT(*)
-		: piece_(scratch_,
-		    numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) {
+	Arg(unsigned long long value) : piece_(scratch_, numbers_internal::FastIntToBuffer(value, scratch_) - scratch_) // NOLINT(*)
+	{
 	}
-
-	Arg(float value) // NOLINT(runtime/explicit)
-		: piece_(scratch_, numbers_internal::SixDigitsToBuffer(value, scratch_)) {
+	Arg(float value) : piece_(scratch_, numbers_internal::SixDigitsToBuffer(value, scratch_)) // NOLINT(runtime/explicit)
+	{
 	}
-
-	Arg(double value) // NOLINT(runtime/explicit)
-		: piece_(scratch_, numbers_internal::SixDigitsToBuffer(value, scratch_)) {
+	Arg(double value) : piece_(scratch_, numbers_internal::SixDigitsToBuffer(value, scratch_)) // NOLINT(runtime/explicit)
+	{
 	}
-
-	Arg(bool value) // NOLINT(runtime/explicit)
-		: piece_(value ? "true" : "false") {
+	Arg(bool value) : piece_(value ? "true" : "false") // NOLINT(runtime/explicit)
+	{
 	}
-
 	Arg(Hex hex); // NOLINT(runtime/explicit)
 	Arg(Dec dec); // NOLINT(runtime/explicit)
-
 	// vector <bool>::reference and const_reference require special help to convert
 	// to `Arg` because it requires two user defined conversions.
-	template <typename T,
-	    absl::enable_if_t<
-		    std::is_class<T>::value &&
-		    (std::is_same<T, std::vector <bool>::reference>::value ||
-		    std::is_same<T, std::vector <bool>::const_reference>::value)>* =
-	    nullptr>
-	Arg(T value) // NOLINT(google-explicit-constructor)
-		: Arg(static_cast<bool>(value)) {
+	template <typename T, absl::enable_if_t<std::is_class<T>::value && (std::is_same<T, std::vector <bool>::reference>::value || 
+		std::is_same<T, std::vector <bool>::const_reference>::value)>* = nullptr>
+	Arg(T value) : Arg(static_cast<bool>(value)) // NOLINT(google-explicit-constructor)
+	{
 	}
-
 	// `void*` values, with the exception of `char*`, are printed as
 	// "0x<hex value>". However, in the case of `nullptr`, "NULL" is printed.
 	Arg(const void* value); // NOLINT(runtime/explicit)

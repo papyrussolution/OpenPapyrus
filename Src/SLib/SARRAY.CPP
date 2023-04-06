@@ -5062,7 +5062,7 @@ SLTEST_FIXTURE(SArray, TestFixtureSArray)
 				if(*(long *)p_list->at(i) > *(long *)p_list->at(i+1))
 					sorted = 0;
 			}
-			SLTEST_CHECK_EQ(sorted, 0L);
+			SLTEST_CHECK_EQ(sorted, 0);
 		}
 		//
 		// Теперь сортируем список p_list методом sort2 и тестируем правильность сортировки
@@ -5188,7 +5188,7 @@ SLTEST_FIXTURE(SVector, TestFixtureSArray)
 				if(*(long *)p_list->at(i) > *(long *)p_list->at(i+1))
 					sorted = 0;
 			}
-			SLTEST_CHECK_EQ(sorted, 0L);
+			SLTEST_CHECK_EQ(sorted, 0);
 		}
 		//
 		// Теперь сортируем список p_list методом sort2 и тестируем правильность сортировки

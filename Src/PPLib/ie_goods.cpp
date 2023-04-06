@@ -676,6 +676,7 @@ int GoodsImpExpDialog::setDTS(const PPGoodsImpExpParam * pData)
 		AddClusterAssoc(CTL_IMPEXPGOODS_FLAGS, 5, PPGoodsImpExpParam::fForceSnglBarcode);
 		AddClusterAssoc(CTL_IMPEXPGOODS_FLAGS, 6, PPGoodsImpExpParam::fImportImages);
 		AddClusterAssoc(CTL_IMPEXPGOODS_FLAGS, 7, PPGoodsImpExpParam::fForceUpdateManuf);
+		AddClusterAssoc(CTL_IMPEXPGOODS_FLAGS, 8, PPGoodsImpExpParam::fForceUpdateBrand); // @v11.6.10
 		SetClusterData(CTL_IMPEXPGOODS_FLAGS, Data.Flags);
 		setCtrlLong(CTL_IMPEXPGOODS_MXACT, Data.MatrixAction);
 		SetupCtrls(Data.Direction);
@@ -2695,6 +2696,19 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 									do_update = 1;
 								if(AssignFlags(sdr_rec, &pack) > 0) // @v10.3.4
 									do_update = 1;
+								// @v11.6.10 {
+								{
+									temp_buf2 = sdr_rec.Brand;
+									if(temp_buf2.NotEmptyS()) {
+										const PPID org_brand_id = pack.Rec.BrandID;
+										if(!pack.Rec.BrandID || Param.Flags & PPGoodsImpExpParam::fForceUpdateBrand) {
+											THROW(BrObj.AddSimple(&pack.Rec.BrandID, temp_buf2, 0, 0));
+											if(pack.Rec.BrandID != org_brand_id)
+												do_update = 1;
+										}
+									}
+								}
+								// } @v11.6.10 
 								{
 									const PPID org_manuf_id = pack.Rec.ManufID;
 									if(!pack.Rec.ManufID || Param.Flags & PPGoodsImpExpParam::fForceUpdateManuf) {

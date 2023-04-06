@@ -2077,7 +2077,7 @@ SLTEST_R(SBuffer)
 					sbuf.ReadTermStr(p_term, temp_buf);
 					SLTEST_CHECK_EQ(sbuf.GetRdOffs(), sstrlen(p_terminated_string)+sstrlen(p_term));
 					SLTEST_CHECK_EQ(sbuf.GetAvailableSize(), sstrlen(p_terminated_string_part2));
-					SLTEST_CHECK_EQ(sbuf.GetAvailableSize(), sbuf.GetAvailableSizeI());
+					SLTEST_CHECK_EQ(sbuf.GetAvailableSize(), sbuf.GetAvailableSize());
 					SLTEST_CHECK_Z(temp_buf.CmpSuffix(p_term, 0));
 					temp_buf.Trim(temp_buf.Len()-strlen(p_term));
 					SLTEST_CHECK_EQ(temp_buf, p_terminated_string);
@@ -2217,7 +2217,7 @@ SLTEST_R(SBuffer)
 			p_thr_rdr->Start();
 			objs_to_wait[objs_to_wait_count++] = *p_thr_rdr;
 			WaitForMultipleObjects(objs_to_wait_count, objs_to_wait, TRUE, INFINITE);
-			SLTEST_CHECK_LT(0L, SFile::Compare(in_file_name, out_file_name, 0));
+			SLTEST_CHECK_LT(0, SFile::Compare(in_file_name, out_file_name, 0));
 			pipe.Reset();
 		}
 	}

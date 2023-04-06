@@ -2198,7 +2198,7 @@ SLTEST_R(SGeo)
 					case 10: rec.S12 = temp_buf.ToReal(); break;
 				}
             }
-			SLTEST_CHECK_EQ(fld_count, 10);
+			SLTEST_CHECK_EQ(fld_count, 10U);
             if(fld_count == 10) {
 				{
 					GeodTestRecord test_rec;

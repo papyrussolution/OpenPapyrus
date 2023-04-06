@@ -2085,6 +2085,7 @@ public:
 	ObjRestrictArray();
 	ObjRestrictArray(const ObjRestrictArray &);
 	ObjRestrictArray & FASTCALL operator = (const ObjRestrictArray &);
+	bool   FASTCALL IsEq(const ObjRestrictArray & rS) const { return SVector::IsEq(rS); /* Items are @flat so we can use it here */ }
 
 	enum {
 		moEmptyListIsFull = 0x0001 // Пустой список дает все доступные права
@@ -2131,6 +2132,7 @@ public:
 	static ObjRights * Create(PPID objType, size_t totalSize);
 	static void FASTCALL Destroy(ObjRights * pObj);
 	explicit ObjRights(PPID objType = 0);
+	bool   FASTCALL IsEq(const ObjRights & rS) const;
 
 	PPID   ObjType;
 	uint16 Size;
@@ -2192,11 +2194,14 @@ public:
 	static long   GetDefaultOprFlags();
 
 	PPRights();
+	PPRights(const PPRights & rS);
 	~PPRights();
-	PPRights & FASTCALL operator = (const PPRights &);
+	int    FASTCALL Copy(const PPRights & rS);
+	PPRights & FASTCALL operator = (const PPRights & rS);
+	bool   FASTCALL IsEq(const PPRights & rS) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	size_t Size() const;
-	void   Empty();
+	PPRights & Z();
 	bool   IsEmpty() const;
 	int    IsInherited() const;
 	int    Merge(const PPRights & rS, long flags);
@@ -3195,6 +3200,7 @@ extern "C" typedef PPBaseFilt * (*FN_PPFILT_FACTORY)();
 
 struct PPConfig {          // @persistent @store(PropertyTbl) size=92
 	PPConfig();
+	bool   FASTCALL IsEq(const PPConfig & rS) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 	long   Tag;            //  4  0 || PPOBJ_CONFIG || PPOBJ_USRGRP || PPOBJ_USR
@@ -3247,9 +3253,11 @@ struct PPConfigPrivate {   // @persistent @store(PropertyTbl)
 class PPPaths {
 public:
 	PPPaths();
+	PPPaths(const PPPaths & rS);
 	~PPPaths();
-	PPPaths & FASTCALL operator = (const PPPaths &);
+	PPPaths & FASTCALL operator = (const PPPaths & rS);
 	PPPaths & Z();
+	bool   FASTCALL IsEq(const PPPaths & rS) const;
 	bool   IsEmpty() const;
 	int    Get(PPID securType, PPID securID);
 	int    Put(PPID securType, PPID securID);
@@ -3990,6 +3998,7 @@ typedef int (* ObjFilterProc)(void *, void * extraPtr);
 
 struct PPSecur2 {          // @persistent @store(Reference2Tbl+)
 	PPSecur2();
+	bool   FASTCALL IsEq(const PPSecur2 & rS) const;
 	long   Tag;            // Const={PPOBJ_USR | PPOBJ_USRGRP}
 	long   ID;             // @id
 	char   Name[48];       // @name @!refname
@@ -4008,7 +4017,9 @@ struct PPSecur2 {          // @persistent @store(Reference2Tbl+)
 
 struct PPSecurPacket {
 	PPSecurPacket();
-	PPSecurPacket & FASTCALL operator = (const PPSecurPacket &);
+	PPSecurPacket(const PPSecurPacket & rS);
+	bool   FASTCALL IsEq(const PPSecurPacket & rS) const;
+	PPSecurPacket & FASTCALL operator = (const PPSecurPacket & rS);
 	PPSecur  Secur;
 	PPConfig Config;
 	PPPaths  Paths;
@@ -31874,7 +31885,8 @@ public:
 		fUHTT     = 0x0010,
 		fForceSnglBarcode = 0x0020,
 		fImportImages     = 0x0040,
-		fForceUpdateManuf = 0x0080
+		fForceUpdateManuf = 0x0080,
+		fForceUpdateBrand = 0x0100  // @v11.6.10
 	};
 	PPGoodsImpExpParam(uint recId = 0, long flags = 0);
 	void   Clear();
@@ -47509,6 +47521,7 @@ public:
 		int    FromJson(const char * pJson);
 		SJson * ToJsonObject() const;
 		int    ToJson(SString & rResult) const;
+		SString & MakeCodeString(SString & rBuf) const;
 		static uint  IncomingListActionsFromString(const char * pStr);
 		static SString & IncomingListActionsToString(uint actionFlags, SString & rBuf);
 		struct LotExtCode {

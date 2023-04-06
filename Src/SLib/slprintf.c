@@ -15,7 +15,7 @@
 // embedded systems with a very limited resources. These routines are thread safe and reentrant!
 // Use this instead of the bloated standard/newlib printf cause these use malloc for printf (and may not be thread safe).
 // ---------------------------------
-// Adopted to slib by A.Sobolev 2020..2022
+// Adopted to slib by A.Sobolev 2020..2022, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -600,13 +600,13 @@ SLTEST_R(slprintf)
 			SLTEST_CHECK_EQ(sbuf, "zero ptr string=\"\"");
 		}
 		{ // TEST_CASE("printf", "[]" )
-			SLTEST_CHECK_EQ(slprintf(sbuf.Z(), "% d", 4232), 5L);
+			SLTEST_CHECK_EQ(slprintf(sbuf.Z(), "% d", 4232), 5);
 			SLTEST_CHECK_EQ(sbuf.Len(), 5U);
-			SLTEST_CHECK_EQ(sbuf.cptr()[5], 0L);
+			SLTEST_CHECK_EQ(sbuf.cptr()[5], 0);
 			SLTEST_CHECK_EQ(sbuf, " 4232");
 		}
 		{ // TEST_CASE("fctprintf", "[]" )
-			SLTEST_CHECK_EQ(slprintf(sbuf.Z(), "This is a test of %X", 0x12EFU), 22L);
+			SLTEST_CHECK_EQ(slprintf(sbuf.Z(), "This is a test of %X", 0x12EFU), 22);
 			SLTEST_CHECK_EQ(sbuf.Len(), 22U);
 			SLTEST_CHECK_EQ(sbuf, "This is a test of 12EF");
 		}

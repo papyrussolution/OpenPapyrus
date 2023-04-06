@@ -1,5 +1,5 @@
 // BITARRAY.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2004, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2000, 2001, 2004, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -264,7 +264,7 @@ SLTEST_R(BitArray)
 	THROW(SLTEST_CHECK_EQ(total, pattern.getCount()));
 	THROW(SLTEST_CHECK_EQ(total, count_set + count_reset));
 	for(i = 0; i < total; i++) {
-		THROW(SLTEST_CHECK_EQ(list[i], pattern.get(i)));
+		THROW(SLTEST_CHECK_EQ(list[i], (int)pattern.get(i)));
 	}
 	THROW(SLTEST_CHECK_EQ(count_set,   list.getCountVal(1)));
 	THROW(SLTEST_CHECK_EQ(count_reset, list.getCountVal(0)));
@@ -290,7 +290,7 @@ SLTEST_R(BitArray)
 	THROW(SLTEST_CHECK_EQ(total, pattern.getCount()));
 	THROW(SLTEST_CHECK_EQ(total, count_set + count_reset));
 	for(i = 0; i < total; i++) {
-		THROW(SLTEST_CHECK_EQ(list[i], pattern.get(i)));
+		THROW(SLTEST_CHECK_EQ(list[i], (int)pattern.get(i)));
 	}
 	THROW(SLTEST_CHECK_EQ(count_set,   list.getCountVal(1)));
 	THROW(SLTEST_CHECK_EQ(count_reset, list.getCountVal(0)));
@@ -300,7 +300,7 @@ SLTEST_R(BitArray)
 	for(i = 0; i < total; i++) {
 		uint   pos = p_rng->Get() % list.getCount();
 		int    s = list.get(pos);
-		THROW(SLTEST_CHECK_EQ(s, pattern.get(pos)));
+		THROW(SLTEST_CHECK_EQ(s, (int)pattern.get(pos)));
 		THROW(SLTEST_CHECK_NZ(list.atFree(pos)));
 		THROW(SLTEST_CHECK_NZ(pattern.atFree(pos)));
 		if(s) {
@@ -315,7 +315,7 @@ SLTEST_R(BitArray)
 	THROW(SLTEST_CHECK_EQ(total, pattern.getCount()));
 	THROW(SLTEST_CHECK_EQ(total, count_set + count_reset));
 	for(i = 0; i < total; i++) {
-		THROW(SLTEST_CHECK_EQ(list[i], pattern.get(i)));
+		THROW(SLTEST_CHECK_EQ(list[i], (int)pattern.get(i)));
 	}
 	THROW(SLTEST_CHECK_EQ(count_set,   list.getCountVal(1)));
 	THROW(SLTEST_CHECK_EQ(count_reset, list.getCountVal(0)));
@@ -346,7 +346,7 @@ SLTEST_R(BitArray)
 	THROW(SLTEST_CHECK_EQ(total, pattern.getCount()));
 	THROW(SLTEST_CHECK_EQ(total, count_set + count_reset));
 	for(i = 0; i < total; i++) {
-		THROW(SLTEST_CHECK_EQ(list[i], pattern.get(i)));
+		THROW(SLTEST_CHECK_EQ(list[i], (int)pattern.get(i)));
 	}
 	THROW(SLTEST_CHECK_EQ(count_set,   list.getCountVal(1)));
 	THROW(SLTEST_CHECK_EQ(count_reset, list.getCountVal(0)));
@@ -356,22 +356,22 @@ SLTEST_R(BitArray)
 	{
 		uint32 idx;
 		SLTEST_CHECK_Z(bitscanforward(&idx, 0));
-		SLTEST_CHECK_EQ(idx, 0);
+		SLTEST_CHECK_EQ(idx, 0U);
 		SLTEST_CHECK_NZ(bitscanforward(&idx, 0x01));
-		SLTEST_CHECK_EQ(idx, 0);
+		SLTEST_CHECK_EQ(idx, 0U);
 		SLTEST_CHECK_NZ(bitscanforward(&idx, 0x10));
-		SLTEST_CHECK_EQ(idx, 4);
+		SLTEST_CHECK_EQ(idx, 4U);
 		SLTEST_CHECK_NZ(bitscanforward(&idx, 0x80000800));
-		SLTEST_CHECK_EQ(idx, 11);
+		SLTEST_CHECK_EQ(idx, 11U);
 
 		SLTEST_CHECK_Z(bitscanreverse(&idx, 0));
-		SLTEST_CHECK_EQ(idx, 0);
+		SLTEST_CHECK_EQ(idx, 0U);
 		SLTEST_CHECK_NZ(bitscanreverse(&idx, 0x01));
-		SLTEST_CHECK_EQ(idx, 0);
+		SLTEST_CHECK_EQ(idx, 0U);
 		SLTEST_CHECK_NZ(bitscanreverse(&idx, 0x10));
-		SLTEST_CHECK_EQ(idx, 4);
+		SLTEST_CHECK_EQ(idx, 4U);
 		SLTEST_CHECK_NZ(bitscanreverse(&idx, 0x80000800));
-		SLTEST_CHECK_EQ(idx, 31);
+		SLTEST_CHECK_EQ(idx, 31U);
 	}
 	CATCHZOK
 	delete p_rng;

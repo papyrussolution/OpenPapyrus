@@ -3539,7 +3539,7 @@ SLTEST_R(SFile)
 			while(f_in.ReadLineCsv(ctx, ss)) {
 				line_count++;
 				field_count = ss.getCount();
-				SLTEST_CHECK_EQ(field_count, 4);
+				SLTEST_CHECK_EQ(field_count, 4U);
 			}
 			SLTEST_CHECK_EQ(line_count, original_line_collection.getCount());
 		}
@@ -3561,11 +3561,11 @@ SLTEST_R(SFile)
 	SLTEST_CHECK_NZ(file.Close());
 	//
 	{
-		SLTEST_CHECK_LT(SFile::WaitForWriteSharingRelease(file_name, 10000), 0L);
+		SLTEST_CHECK_LT(SFile::WaitForWriteSharingRelease(file_name, 10000), 0);
 		THROW(SLTEST_CHECK_NZ(file.Open(file_name, SFile::mWrite)));
 		SLTEST_CHECK_Z(SFile::WaitForWriteSharingRelease(file_name, 1000));
 		SLTEST_CHECK_NZ(file.Close());
-		SLTEST_CHECK_LT(SFile::WaitForWriteSharingRelease(file_name, 1000), 0L);
+		SLTEST_CHECK_LT(SFile::WaitForWriteSharingRelease(file_name, 1000), 0);
 		//
 		// @todo Не проверенным остался случай реального ожидания закрытия файла
 		// поскольку для этого надо создавать отдельный асинхронный поток.

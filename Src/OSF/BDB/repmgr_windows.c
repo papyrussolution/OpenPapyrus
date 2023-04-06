@@ -108,12 +108,11 @@ int __repmgr_set_nonblock_conn(REPMGR_CONNECTION*conn)
  */
 int __repmgr_wake_waiters(ENV*env, waiter_t * w)
 {
-	COND_WAITER * slot;
 	int    ret = 0;
 	DB_REP * db_rep = env->rep_handle;
 	COND_WAITERS_TABLE * waiters = *w;
 	for(int i = 0; i < waiters->next_avail; i++) {
-		slot = &waiters->array[i];
+		COND_WAITER * slot = &waiters->array[i];
 		if(!WAITER_SLOT_IN_USE(slot))
 			continue;
 		if((*slot->pred)(env, slot->ctx) || db_rep->finished)
@@ -268,8 +267,8 @@ int __repmgr_await_drain(ENV*env, REPMGR_CONNECTION * conn, db_timeout_t timeout
  */
 int __repmgr_alloc_cond(cond_var_t * c)
 {
-	HANDLE event;
-	if((event = CreateEvent(NULL, TRUE, FALSE, NULL)) == NULL)
+	HANDLE event = CreateEvent(NULL, TRUE, FALSE, NULL);
+	if(event == NULL)
 		return GetLastError();
 	*c = event;
 	return 0;
@@ -307,10 +306,7 @@ int __repmgr_init(ENV * env)
 		__db_err(env, ret, DB_STR("3589", "unable to initialize Windows networking"));
 		return ret;
 	}
-	if((db_rep->signaler = CreateEvent(NULL,  /* security attr */
-		    FALSE, /* (not) of the manual reset variety  */
-		    FALSE,      /* (not) initially signaled */
-		    NULL)) == NULL)     /* name */
+	if((db_rep->signaler = CreateEvent(NULL/* security attr */, FALSE/* (not) of the manual reset variety*/, FALSE/* (not) initially signaled */, NULL/*name*/)) == NULL)
 		goto geterr;
 	if((db_rep->msg_avail = CreateEvent(NULL, TRUE, FALSE, NULL)) == NULL)
 		goto geterr;
@@ -324,13 +320,13 @@ int __repmgr_init(ENV * env)
 geterr:
 	ret = GetLastError();
 err:
-	if(db_rep->gmdb_idle != NULL)
+	if(db_rep->gmdb_idle)
 		CloseHandle(db_rep->gmdb_idle);
-	if(db_rep->check_election != NULL)
+	if(db_rep->check_election)
 		CloseHandle(db_rep->check_election);
-	if(db_rep->msg_avail != NULL)
+	if(db_rep->msg_avail)
 		CloseHandle(db_rep->msg_avail);
-	if(db_rep->signaler != NULL)
+	if(db_rep->signaler)
 		CloseHandle(db_rep->signaler);
 	db_rep->msg_avail = db_rep->check_election = db_rep->gmdb_idle = db_rep->signaler = NULL;
 	WSACleanup();
@@ -346,8 +342,7 @@ int __repmgr_deinit(ENV*env)
 	ret = 0;
 	if(WSACleanup() == SOCKET_ERROR)
 		ret = WSAGetLastError();
-	if((t_ret = __repmgr_destroy_waiters(env, &db_rep->ack_waiters))
-	   != 0 && ret == 0)
+	if((t_ret = __repmgr_destroy_waiters(env, &db_rep->ack_waiters)) != 0 && ret == 0)
 		ret = t_ret;
 	if(!CloseHandle(db_rep->gmdb_idle) && ret == 0)
 		ret = GetLastError();
@@ -357,11 +352,7 @@ int __repmgr_deinit(ENV*env)
 		ret = GetLastError();
 	if(!CloseHandle(db_rep->signaler) && ret == 0)
 		ret = GetLastError();
-	db_rep->msg_avail =
-	        db_rep->check_election =
-	                db_rep->gmdb_idle =
-	                        db_rep->signaler = NULL;
-
+	db_rep->msg_avail = db_rep->check_election = db_rep->gmdb_idle = db_rep->signaler = NULL;
 	return ret;
 }
 
@@ -387,10 +378,9 @@ int __repmgr_init_waiters(ENV * env, waiter_t * waiters)
 
 int __repmgr_destroy_waiters(ENV * env, waiter_t * waitersp)
 {
-	int i;
 	waiter_t waiters = *waitersp;
 	int ret = 0;
-	for(i = 0; i < waiters->next_avail; i++) {
+	for(int i = 0; i < waiters->next_avail; i++) {
 		if(!CloseHandle(waiters->array[i].event) && ret == 0)
 			ret = GetLastError();
 	}
@@ -420,11 +410,9 @@ int __repmgr_signal(cond_var_t*v)
 
 int __repmgr_wake_msngers(ENV*env, uint n)
 {
-	DB_REP * db_rep;
-	uint i;
-	db_rep = env->rep_handle;
+	DB_REP * db_rep = env->rep_handle;
 	/* Ask all threads beyond index 'n' to shut down. */
-	for(i = n; i< db_rep->nthreads; i++)
+	for(uint i = n; i < db_rep->nthreads; i++)
 		if(!SetEvent(db_rep->messengers[i]->quit_event))
 			return GetLastError();
 	return 0;
@@ -498,16 +486,13 @@ int __repmgr_select_loop(ENV*env)
 			    prepare_io, &io_info, TRUE)) != 0)
 			goto unlock;
 		if(__repmgr_compute_timeout(env, &timeout))
-			select_timeout =
-			        (DWORD)(timeout.tv_sec*MS_PER_SEC+
-			                timeout.tv_nsec/NS_PER_MS);
+			select_timeout = (DWORD)(timeout.tv_sec*MS_PER_SEC+timeout.tv_nsec/NS_PER_MS);
 		else {
 			/* No time-based events to wake us up. */
 			select_timeout = WSA_INFINITE;
 		}
 		UNLOCK_MUTEX(db_rep->mutex);
-		ret = WSAWaitForMultipleEvents(
-			io_info.nevents, events, FALSE, select_timeout, FALSE);
+		ret = WSAWaitForMultipleEvents(io_info.nevents, events, FALSE, select_timeout, FALSE);
 		if(db_rep->finished) {
 			ret = 0;
 			goto out;
@@ -518,31 +503,23 @@ int __repmgr_select_loop(ENV*env)
 		 * Note that `ret' remains set as the return code from
 		 * WSAWaitForMultipleEvents, above.
 		 */
-		if(ret >= WSA_WAIT_EVENT_0 &&
-		   ret < WSA_WAIT_EVENT_0+io_info.nevents) {
+		if(ret >= WSA_WAIT_EVENT_0 && ret < WSA_WAIT_EVENT_0+io_info.nevents) {
 			if((i = ret-WSA_WAIT_EVENT_0) == SIGNALER_INDEX) {
 				/* Another thread woke us. */
 			}
-			else if(!IS_SUBORDINATE(db_rep) &&
-			        i == LISTENER_INDEX) {
-				if((ret = WSAEnumNetworkEvents(
-					    db_rep->listen_fd, listen_event,
-					    &net_events)) == SOCKET_ERROR) {
+			else if(!IS_SUBORDINATE(db_rep) && i == LISTENER_INDEX) {
+				if((ret = WSAEnumNetworkEvents(db_rep->listen_fd, listen_event, &net_events)) == SOCKET_ERROR) {
 					ret = net_errno;
 					goto unlock;
 				}
-				DB_ASSERT(env,
-					net_events.lNetworkEvents&FD_ACCEPT);
-				if((ret = net_events.iErrorCode[FD_ACCEPT_BIT])
-				   != 0)
+				DB_ASSERT(env, net_events.lNetworkEvents&FD_ACCEPT);
+				if((ret = net_events.iErrorCode[FD_ACCEPT_BIT]) != 0)
 					goto unlock;
 				if((ret = __repmgr_accept(env)) != 0)
 					goto unlock;
 			}
 			else {
-				if(connections[i]->state != CONN_DEFUNCT &&
-				   (ret = handle_completion(env,
-					    connections[i])) != 0)
+				if(connections[i]->state != CONN_DEFUNCT && (ret = handle_completion(env, connections[i])) != 0)
 					goto unlock;
 			}
 		}

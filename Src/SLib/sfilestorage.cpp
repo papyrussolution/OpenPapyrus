@@ -1,5 +1,5 @@
 // SFILESTORAGE.CPP
-// Copyright (c) A.Sobolev 2022
+// Copyright (c) A.Sobolev 2022, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -465,14 +465,14 @@ SLTEST_R(SFileStorage)
 			_name.Z().Cat(uuid, S_GUID::fmtLower);
 			srg.Set(seed);
 			const bool is_big_file = ((seed & 0x0007) == 0);
-			const ulong file_size = srg.GetUniformInt(is_big_file ? rng_big_max : rng_max);
+			const size_t file_size = srg.GetUniformInt(is_big_file ? rng_big_max : rng_max);
 			//
 			int64 fsize = 0;
 			hr = fs.GetFile(_name, &fsize);
 			THROW(SLTEST_CHECK_NZ(hr));
 			THROW(SLTEST_CHECK_EQ(fsize, static_cast<int64>(file_size)));
 			if(is_big_file) {
-				ulong  read_size = 0;
+				size_t read_size = 0;
 				uint   vidx = 0;
 				uint   iter_no = 0;
 				while(read_size < file_size) {
@@ -502,9 +502,9 @@ SLTEST_R(SFileStorage)
 			}
 			else {
 				size_t actual_size = 0;
-				ulong  read_size = 0;
+				size_t read_size = 0;
 				THROW(SLTEST_CHECK_NZ(fs.Read(hr, buff, buff.GetSize(), &actual_size)));
-				THROW(SLTEST_CHECK_EQ(static_cast<ulong>(actual_size), file_size));
+				THROW(SLTEST_CHECK_EQ(actual_size, file_size));
 				for(uint vidx = 0; vidx < actual_size / sizeof(ulong); vidx++) {
 					const ulong value = srg.GetUniformInt(rng_gen_max);
 					THROW(SLTEST_CHECK_EQ(*reinterpret_cast<const ulong *>(buff+read_size), value));

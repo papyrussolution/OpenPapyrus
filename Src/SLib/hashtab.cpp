@@ -1,5 +1,5 @@
 // HASHTAB.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -1470,7 +1470,7 @@ SLTEST_R(HASHTAB)
 			}
 			{
 				for(long key = 1; key < ptr_collection.getCountI(); key++) {
-					SLTEST_CHECK_EQ(tsht.Put(key, ptr_collection.at(key-1)), 1L);
+					SLTEST_CHECK_EQ(tsht.Put(key, ptr_collection.at(key-1)), 1);
 				}
 			}
 			{

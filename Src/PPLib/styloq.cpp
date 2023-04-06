@@ -4027,6 +4027,17 @@ int PPStyloQInterchange::Document::FromJson(const char * pJson)
 	return ok;
 }
 
+SString & PPStyloQInterchange::Document::MakeCodeString(SString & rBuf) const
+{
+	rBuf.Z();
+	rBuf.Cat(Code);
+	if(checkdate(Time.d))
+		rBuf.CatDiv('-', 1).Cat(Time.d, DATF_DMY);
+	else if(checkdate(CreationTime.d))
+		rBuf.CatDiv('-', 1).Cat(CreationTime.d, DATF_DMY);
+	return rBuf;
+}
+
 int PPStyloQInterchange::Document::ToJson(SString & rResult) const
 {
 	int    ok = 1;

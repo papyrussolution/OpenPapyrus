@@ -1756,7 +1756,7 @@ SLTEST_R(BerkeleyDB)
 							line_buf.Divide(';', en_buf, ru_buf);
 							key_buf = en_buf;
 							THROW(SLTEST_CHECK_Z(tbl.Search(key_buf, val_buf)));
-							THROW(SLTEST_CHECK_EQ(BtrError, (long)BE_KEYNFOUND));
+							THROW(SLTEST_CHECK_EQ(BtrError, BE_KEYNFOUND));
 						}
 					}
 				}
@@ -1790,7 +1790,7 @@ SLTEST_R(BerkeleyDB)
 						line_buf.Divide(';', en_buf, ru_buf);
 						key_buf = en_buf;
 						THROW(SLTEST_CHECK_Z(tbl.Search(key_buf, val_buf)));
-						THROW(SLTEST_CHECK_EQ(BtrError, (long)BE_KEYNFOUND));
+						THROW(SLTEST_CHECK_EQ(BtrError, BE_KEYNFOUND));
 					}
 				}
 				{

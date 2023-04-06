@@ -604,61 +604,61 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 				// Check each file 
 				if(sstreq(ent->d_name, ".")) { // Directory itself
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(ent->d_type, (long)DT_DIR);
+					rCase.SLTEST_CHECK_EQ(ent->d_type, DT_DIR);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(ent->d_namlen, 1);
+					rCase.SLTEST_CHECK_EQ(ent->d_namlen, 1U);
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(ent), 1);
+					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(ent), 1U);
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(1L, _D_ALLOC_NAMLEN(ent));
+					rCase.SLTEST_CHECK_LT(1, _D_ALLOC_NAMLEN(ent));
 	#endif
 					found += 1;
 				}
 				else if(sstreq(ent->d_name, "..")) { // Parent directory
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(ent->d_type, (long)DT_DIR);
+					rCase.SLTEST_CHECK_EQ(ent->d_type, DT_DIR);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(ent->d_namlen, 2);
+					rCase.SLTEST_CHECK_EQ(ent->d_namlen, 2U);
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(ent), 2);
+					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(ent), 2U);
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(2L, _D_ALLOC_NAMLEN(ent));
+					rCase.SLTEST_CHECK_LT(2, _D_ALLOC_NAMLEN(ent));
 	#endif
 					found += 2;
 				}
 				else if(sstreq(ent->d_name, "file")) { // Regular file 
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(ent->d_type, (long)DT_REG);
+					rCase.SLTEST_CHECK_EQ(ent->d_type, DT_REG);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(ent->d_namlen, 4);
+					rCase.SLTEST_CHECK_EQ(ent->d_namlen, 4U);
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(ent), 4);
+					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(ent), 4U);
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(4L, _D_ALLOC_NAMLEN(ent));
+					rCase.SLTEST_CHECK_LT(4, _D_ALLOC_NAMLEN(ent));
 	#endif
 					found += 4;
 				}
 				else if(sstreq(ent->d_name, "dir")) { // Just a directory
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(ent->d_type, (long)DT_DIR);
+					rCase.SLTEST_CHECK_EQ(ent->d_type, DT_DIR);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(ent->d_namlen, 3);
+					rCase.SLTEST_CHECK_EQ(ent->d_namlen, 3U);
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(ent), 3);
+					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(ent), 3U);
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(3L, _D_ALLOC_NAMLEN(ent));
+					rCase.SLTEST_CHECK_LT(3, _D_ALLOC_NAMLEN(ent));
 	#endif
 					found += 8;
 				}
@@ -667,7 +667,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 					abort();
 				}
 			}
-			rCase.SLTEST_CHECK_EQ(found, 0xfL); // Make sure that all files were found
+			rCase.SLTEST_CHECK_EQ(found, 0xf); // Make sure that all files were found
 			closedir(dir);
 		}
 	}
@@ -675,19 +675,19 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 	{
 		DIR * dir = opendir((dir_buf = pBaseDir).SetLastDSlash().Cat("invalid")); /* Open directory */
 		rCase.SLTEST_CHECK_Z(dir);
-		rCase.SLTEST_CHECK_EQ(errno, (long)ENOENT);
+		rCase.SLTEST_CHECK_EQ(errno, ENOENT);
 	}
 	/* Function opendir() fails if pathname is really a file */
 	{
 		DIR * dir = opendir((dir_buf = pBaseDir).SetLastDSlash().Cat("1/file")); /* Open directory */
 		rCase.SLTEST_CHECK_Z(dir);
-		rCase.SLTEST_CHECK_EQ(errno, (long)ENOTDIR);
+		rCase.SLTEST_CHECK_EQ(errno, ENOTDIR);
 	}
 	/* Function opendir() fails if pathname is a zero-length string */
 	{
 		DIR * dir = opendir(""); /* Open directory */
 		rCase.SLTEST_CHECK_Z(dir);
-		rCase.SLTEST_CHECK_EQ(errno, (long)ENOENT);
+		rCase.SLTEST_CHECK_EQ(errno, ENOENT);
 	}
 	/* Rewind of directory stream */
 	{
@@ -715,7 +715,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 				rCase.SetInfo(temp_buf, 0);
 			}
 		}
-		rCase.SLTEST_CHECK_EQ(found, (long)0xf); // Make sure that all files were found
+		rCase.SLTEST_CHECK_EQ(found, 0xf); // Make sure that all files were found
 		rewinddir(dir); // Rewind stream and read entries again 
 		found = 0;
 		/* Read entries */
@@ -738,7 +738,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 				rCase.SetInfo(temp_buf, 0);
 			}
 		}
-		rCase.SLTEST_CHECK_EQ(found, (long)0xf); // Make sure that all files were found
+		rCase.SLTEST_CHECK_EQ(found, 0xf); // Make sure that all files were found
 		closedir(dir);
 	}
 	/* Rewind with intervening change of working directory */
@@ -768,7 +768,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 				rCase.SetInfo(temp_buf, 0);
 			}
 		}
-		rCase.SLTEST_CHECK_EQ(found, 0xfL); // Make sure that all files were found
+		rCase.SLTEST_CHECK_EQ(found, 0xf); // Make sure that all files were found
 		/* Change working directory */
 		errorcode = chdir((dir_buf = pBaseDir).RmvLastSlash());
 		rCase.SLTEST_CHECK_Z(errorcode);
@@ -794,7 +794,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 				rCase.SetInfo(temp_buf, 0);
 			}
 		}
-		rCase.SLTEST_CHECK_EQ(found, 0xfL); // Make sure that all files were found
+		rCase.SLTEST_CHECK_EQ(found, 0xf); // Make sure that all files were found
 		/* Restore working directory */
 		errorcode = chdir("..");
 		rCase.SLTEST_CHECK_Z(errorcode);
@@ -822,32 +822,32 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 				else if(sstreqi_ascii(ent->d_name, "file.txt")) {
 					/* Regular 8+3 filename */
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(ent->d_type, (long)DT_REG);
+					rCase.SLTEST_CHECK_EQ(ent->d_type, DT_REG);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(ent->d_namlen, 8);
+					rCase.SLTEST_CHECK_EQ(ent->d_namlen, 8U);
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(ent), 8);
+					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(ent), 8U);
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(8L, _D_ALLOC_NAMLEN(ent));
+					rCase.SLTEST_CHECK_LT(8, _D_ALLOC_NAMLEN(ent));
 	#endif
 					found += 4;
 				}
 				else if(sstreqi_ascii(ent->d_name, "Testfile-1.2.3.dat")) {
 					/* Long file name with multiple dots */
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(ent->d_type, (long)DT_REG);
+					rCase.SLTEST_CHECK_EQ(ent->d_type, DT_REG);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(ent->d_namlen, 18);
+					rCase.SLTEST_CHECK_EQ(ent->d_namlen, 18U);
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(ent), 18);
+					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(ent), 18U);
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(18L, _D_ALLOC_NAMLEN(ent));
+					rCase.SLTEST_CHECK_LT(18, _D_ALLOC_NAMLEN(ent));
 	#endif
 					found += 8;
 				}
@@ -856,7 +856,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 					rCase.SetInfo(temp_buf, 0);
 				}
 			}
-			rCase.SLTEST_CHECK_EQ(found, 0xfL); // Make sure that all files were found
+			rCase.SLTEST_CHECK_EQ(found, 0xf); // Make sure that all files were found
 			closedir(dir);
 		}
 	}
@@ -876,71 +876,71 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 			/* Read entries to table */
 			while(readdir_r(dir, &ent[n], &entry) == /*OK*/ 0 && entry != 0) {
 				n++;
-				rCase.SLTEST_CHECK_LE(n, 4L);
+				rCase.SLTEST_CHECK_LE(n, 4U);
 			}
 			/* Make sure that we got all the files from directory */
-			rCase.SLTEST_CHECK_EQ(n, 4);
+			rCase.SLTEST_CHECK_EQ(n, 4U);
 			/* Check entries in memory */
 			for(i = 0; i < 4; i++) {
 				entry = &ent[i];
 				/* Check each file */
 				if(sstreq(entry->d_name, ".")) { // Directory itself
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(entry->d_type, (long)DT_DIR);
+					rCase.SLTEST_CHECK_EQ(entry->d_type, DT_DIR);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 1);
+					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 1U);
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 1);
+					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 1U);
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(1L, _D_ALLOC_NAMLEN(entry));
+					rCase.SLTEST_CHECK_LT(1, _D_ALLOC_NAMLEN(entry));
 	#endif
 					found += 1;
 				}
 				else if(sstreq(entry->d_name, "..")) { // Parent directory
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(entry->d_type, (long)DT_DIR);
+					rCase.SLTEST_CHECK_EQ(entry->d_type, DT_DIR);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 2);
+					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 2U);
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 2);
+					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 2U);
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(2L, _D_ALLOC_NAMLEN(entry));
+					rCase.SLTEST_CHECK_LT(2, _D_ALLOC_NAMLEN(entry));
 	#endif
 					found += 2;
 				}
 				else if(sstreq(entry->d_name, "file")) { /* Regular file */
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(entry->d_type, (long)DT_REG);
+					rCase.SLTEST_CHECK_EQ(entry->d_type, DT_REG);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 4);
+					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 4U);
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 4);
+					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 4U);
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(4L, _D_ALLOC_NAMLEN(entry));
+					rCase.SLTEST_CHECK_LT(4, _D_ALLOC_NAMLEN(entry));
 	#endif
 					found += 4;
 				}
 				else if(sstreq(entry->d_name, "dir")) { /* Just a directory */
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(entry->d_type, (long)DT_DIR);
+					rCase.SLTEST_CHECK_EQ(entry->d_type, DT_DIR);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 3);
+					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 3U);
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 3);
+					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 3U);
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(3L, _D_ALLOC_NAMLEN(entry));
+					rCase.SLTEST_CHECK_LT(3, _D_ALLOC_NAMLEN(entry));
 	#endif
 					found += 8;
 				}
@@ -949,7 +949,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 					rCase.SetInfo(temp_buf, 0);
 				}
 			}
-			rCase.SLTEST_CHECK_EQ(found, 0xfL); // Make sure that all files were found
+			rCase.SLTEST_CHECK_EQ(found, 0xf); // Make sure that all files were found
 			closedir(dir);
 		}
 	}
@@ -973,70 +973,70 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 			// Read entries to table 
 			while(_wreaddir_r(dir, &ent[n], &entry) == /*OK*/ 0 && entry != 0) {
 				n++;
-				rCase.SLTEST_CHECK_LE(n, 4L);
+				rCase.SLTEST_CHECK_LE(n, 4U);
 			}
-			rCase.SLTEST_CHECK_EQ(n, 4); // Make sure that we got all the files from directory 
+			rCase.SLTEST_CHECK_EQ(n, 4U); // Make sure that we got all the files from directory 
 			// Check entries in memory 
 			for(i = 0; i < 4; i++) {
 				entry = &ent[i];
 				// Check each file 
 				if(wcscmp(entry->d_name, L".") == 0) { // Directory itself
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(entry->d_type, (long)DT_DIR);
+					rCase.SLTEST_CHECK_EQ(entry->d_type, DT_DIR);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 1);
+					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 1U);
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 1);
+					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 1U);
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(1L, _D_ALLOC_NAMLEN(entry));
+					rCase.SLTEST_CHECK_LT(1, _D_ALLOC_NAMLEN(entry));
 	#endif
 					found += 1;
 				}
 				else if(wcscmp(entry->d_name, L"..") == 0) { // Parent directory
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(entry->d_type, (long)DT_DIR);
+					rCase.SLTEST_CHECK_EQ(entry->d_type, DT_DIR);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 2);
+					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 2U);
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 2);
+					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 2U);
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(2L, _D_ALLOC_NAMLEN(entry));
+					rCase.SLTEST_CHECK_LT(2, _D_ALLOC_NAMLEN(entry));
 	#endif
 					found += 2;
 				}
 				else if(wcscmp(entry->d_name, L"file") == 0) { /* Regular file */
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(entry->d_type, (long)DT_REG);
+					rCase.SLTEST_CHECK_EQ(entry->d_type, DT_REG);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 4);
+					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 4U);
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 4);
+					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 4U);
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(4L, _D_ALLOC_NAMLEN(entry));
+					rCase.SLTEST_CHECK_LT(4, _D_ALLOC_NAMLEN(entry));
 	#endif
 					found += 4;
 				}
 				else if(wcscmp(entry->d_name, L"dir") == 0) { // Just a directory 
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(entry->d_type, (long)DT_DIR);
+					rCase.SLTEST_CHECK_EQ(entry->d_type, DT_DIR);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 3);
+					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 3U);
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 3);
+					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 3U);
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(3L, _D_ALLOC_NAMLEN(entry));
+					rCase.SLTEST_CHECK_LT(3, _D_ALLOC_NAMLEN(entry));
 	#endif
 					found += 8;
 				}
@@ -1045,7 +1045,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 					rCase.SetInfo(temp_buf, 0);
 				}
 			}
-			rCase.SLTEST_CHECK_EQ(found, 0xfL); // Make sure that all files were found
+			rCase.SLTEST_CHECK_EQ(found, 0xf); // Make sure that all files were found
 			_wclosedir(dir);
 		}
 	}
@@ -1070,7 +1070,7 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 	{
 		(dir_buf = pBaseDir).SetLastDSlash().Cat("3");
 		n = scandir(dir_buf, &files, only_readme, alphasort); /* Read directory entries */
-		rCase.SLTEST_CHECK_EQ(n, 1L);
+		rCase.SLTEST_CHECK_EQ(n, 1);
 		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[0]->d_name, "README.txt")); // Make sure that the filter works
 		// Release file names 
 		for(i = 0; i < n; i++) {
@@ -1083,7 +1083,7 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 		/* Read directory entries in alphabetic order */
 		(dir_buf = pBaseDir).SetLastDSlash().Cat("3");
 		n = scandir(dir_buf, &files, NULL, alphasort);
-		rCase.SLTEST_CHECK_EQ(n, 13L);
+		rCase.SLTEST_CHECK_EQ(n, 13);
 		// Make sure that we got all the names in the proper order 
 		rCase.SLTEST_CHECK_NZ(sstreq(files[0]->d_name, "."));
 		rCase.SLTEST_CHECK_NZ(sstreq(files[1]->d_name, ".."));
@@ -1108,7 +1108,7 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 	{
 		(dir_buf = pBaseDir).SetLastDSlash().Cat("3");
 		n = scandir(dir_buf, &files, no_directories, reverse_alpha); /* Read directory entries in alphabetic order */
-		rCase.SLTEST_CHECK_EQ(n, 11L);
+		rCase.SLTEST_CHECK_EQ(n, 11);
 		// Make sure that we got file names in the reverse order
 		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[0]->d_name, "zebra.dat"));
 		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[1]->d_name, "sane-1.2.4.dat"));
@@ -1132,25 +1132,25 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 		files = NULL;
 		(dir_buf = pBaseDir).SetLastDSlash().Cat("invalid");
 		n = scandir(dir_buf, &files, NULL, alphasort);
-		rCase.SLTEST_CHECK_EQ(n, -1L);
+		rCase.SLTEST_CHECK_EQ(n, -1);
 		rCase.SLTEST_CHECK_Z(files);
-		rCase.SLTEST_CHECK_EQ(errno, (long)ENOENT);
+		rCase.SLTEST_CHECK_EQ(errno, ENOENT);
 	}
-	/* Trying to open file as a directory produces ENOTDIR error */
+	// Trying to open file as a directory produces ENOTDIR error 
 	{
 		files = NULL;
 		(dir_buf = pBaseDir).SetLastDSlash().Cat("3/666.dat");
 		n = scandir(dir_buf, &files, NULL, alphasort);
-		rCase.SLTEST_CHECK_EQ(n, -1L);
+		rCase.SLTEST_CHECK_EQ(n, -1);
 		rCase.SLTEST_CHECK_Z(files);
-		rCase.SLTEST_CHECK_EQ(errno, (long)ENOTDIR);
+		rCase.SLTEST_CHECK_EQ(errno, ENOTDIR);
 	}
 	/* Sort files using versionsort() */
 	{
 		files = NULL;
 		(dir_buf = pBaseDir).SetLastDSlash().Cat("3");
 		n = scandir(dir_buf, &files, no_directories, versionsort);
-		rCase.SLTEST_CHECK_EQ(n, 11L);
+		rCase.SLTEST_CHECK_EQ(n, 11);
 		/*
 		 * Make sure that we got all the file names in the proper order:
 		 * 1.2.4 < 1.2.30 < 1.12.0
@@ -1180,7 +1180,7 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 		/* Copy name of temporary directory to variable dirname */
 #ifdef WIN32
 		i = GetTempPathA(PATH_MAX, dirname);
-		rCase.SLTEST_CHECK_LT(0L, i);
+		rCase.SLTEST_CHECK_LT(0, i);
 #else
 		strcpy(dirname, "/tmp/");
 		i = strlen(dirname);
@@ -1189,11 +1189,11 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 		for(int j = 0; j < 10; j++) {
 			char c = "abcdefghijklmnopqrstuvwxyz"[rand() % 26]; /* Generate random character */
 			// Append character to dirname 
-			rCase.SLTEST_CHECK_LT(i, (long)PATH_MAX);
+			rCase.SLTEST_CHECK_LT(i, PATH_MAX);
 			dirname[i++] = c;
 		}
 		/* Terminate directory name */
-		rCase.SLTEST_CHECK_LT(i, (long)PATH_MAX);
+		rCase.SLTEST_CHECK_LT(i, PATH_MAX);
 		dirname[i] = '\0';
 		/* Create directory */
 #ifdef WIN32
@@ -1204,7 +1204,7 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 		rCase.SLTEST_CHECK_Z(ok); /*success*/
 #endif
 		/* Create one thousand files */
-		rCase.SLTEST_CHECK_LT((i + 5), (long)PATH_MAX);
+		rCase.SLTEST_CHECK_LT((i + 5), PATH_MAX);
 		for(int j = 0; j < 1000; j++) {
 			FILE * fp;
 			/* Construct file name */
@@ -1222,11 +1222,11 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 		dirname[i] = '\0'; /* Cut out the file name part */
 		/* Scan directory */
 		n = scandir(dirname, &files, no_directories, alphasort);
-		rCase.SLTEST_CHECK_EQ(n, 1000L);
-		/* Make sure that all 1000 files are read back */
+		rCase.SLTEST_CHECK_EQ(n, 1000);
+		// Make sure that all 1000 files are read back 
 		for(int j = 0; j < n; j++) {
 			char match[100];
-			/* Construct file name */
+			// Construct file name 
 			match[0] = 'z';
 			match[1] = '0' + ((j / 100) % 10);
 			match[2] = '0' + ((j / 10) % 10);

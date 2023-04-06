@@ -2199,8 +2199,7 @@ TERM_PUBLIC void ENHPS_OPEN(GpTermEntry_Static * pThis, const char * fontname, d
 			fontname = p_gp->TPsB.EnhFont;
 		else
 			PS_RememberFont(pThis, fontname);
-		snprintf(ENHps_opensequence, safelen, "[(%s) %.1f %.1f %s %s %d ", fontname, fontsize, base, widthflag ? "true" : "false",
-		    show_this ? "true" : "false", overprint);
+		snprintf(ENHps_opensequence, safelen, "[(%s) %.1f %.1f %s %s %d ", fontname, fontsize, base, widthflag ? "true" : "false", show_this ? "true" : "false", overprint);
 		fprintf(GPT.P_GpPsFile, "%s(", ENHps_opensequence);
 		ENHps_opened_string = TRUE;
 	}
