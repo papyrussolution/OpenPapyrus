@@ -85,7 +85,8 @@
                 <TextView
                     android:id="@+id/ORDERPREREQ_GOODS_PRICE"
                     android:layout_height="wrap_content"
-                    android:layout_width="128dp"
+                    android:layout_width="wrap_content"
+                    android:minWidth="64dp"
                     android:layout_marginRight="8dp"
                     android:textAlignment="viewEnd"
                     android:textSize="13sp"

@@ -849,7 +849,12 @@ public class CommonPrereqModule {
 											@Override public void OnResult(SLib.ConfirmationResult r)
 											{
 												if(r == SLib.ConfirmationResult.YES) {
-													SetClientToCurrentDocument(interchangeOpID, cliID, dlvrLocID, true);
+													if(SetClientToCurrentDocument(interchangeOpID, cliID, dlvrLocID, true)) {
+														// @v11.6.11 {
+														if(ActivityInstance != null && ActivityInstance instanceof CmdROrderPrereqActivity)
+															((CmdROrderPrereqActivity)ActivityInstance).GotoTab(CommonPrereqModule.Tab.tabCurrentDocument, R.id.orderPrereqOrdrListView, -1, -1);
+														// } @v11.6.11
+													}
 												}
 											}
 										}

@@ -8227,7 +8227,15 @@ public:
 //
 //
 //
-typedef TSVector <S_GUID> UuidArray;
+//typedef TSVector <S_GUID> UuidArray;
+class UuidArray : public TSVector <S_GUID> {
+public:
+	UuidArray();
+	const  S_GUID & FASTCALL get(uint i) const;
+	int    FASTCALL add(const S_GUID & rItem);
+	void   sort();
+	void   sortAndUndup();
+};
 //
 //
 //

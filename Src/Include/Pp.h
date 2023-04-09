@@ -2005,6 +2005,7 @@ private:
 #define LOGMSGF_DIRECTOUTP  0x0100L // Сообщение выводится без посредничества специального потока, управляющего выводом в журналы
 #define LOGMSGF_NODUPFORJOB 0x0200L // Сообщение не следует дублировать в спец журнале для рассылки результатов выполнения задач
 #define LOGMSGF_SLSSESSGUID 0x0400L // Выводить GUID сессии
+#define LOGMSGF_UTF8        0x0800L // @v11.6.11 Текст в файле журнала сохранять в кодировке utf-8
 
 int STDCALL PPLogMessage(const char * pFileName, const char * pStr, long options);
 int STDCALL PPLogMessage(uint fileNameId, const char * pMsg, long options);

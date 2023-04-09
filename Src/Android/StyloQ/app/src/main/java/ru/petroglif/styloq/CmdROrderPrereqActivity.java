@@ -243,7 +243,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	{
 		return CPM.SearchTabEntry(R.id.VIEWPAGER_ORDERPREREQ, tab);
 	}
-	private void GotoTab(CommonPrereqModule.Tab tab, @IdRes int recyclerViewToUpdate, int goToIndex, int nestedIndex)
+	//
+	// Descr: Активирует вкладку с идентификатором tab
+	// Note: Класс CommonPrepreqModule нуждается в доступе к этому методу, потому он - public
+	//
+	public void GotoTab(CommonPrereqModule.Tab tab, @IdRes int recyclerViewToUpdate, int goToIndex, int nestedIndex)
 	{
 		CPM.Implement_GotoTab(tab, R.id.VIEWPAGER_ORDERPREREQ, recyclerViewToUpdate, goToIndex, nestedIndex, -1);
 	}

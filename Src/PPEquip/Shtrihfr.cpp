@@ -2485,13 +2485,23 @@ bool SCS_SHTRIHFRF::GetFR(int id, char * pBuf, size_t bufLen)
 
 int SCS_SHTRIHFRF::ExecFR(int id)
 {
+	const  int func_without_retcode_checking[] = { GetECRStatus, Beep };
 	int    ok = 1;
 	SString method;
 	P_DrvFRIntrf->GetNameByID(id, method);
 	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
 	THROW_PP_S(P_DrvFRIntrf->SetProperty(Password, CashierPassword) > 0, PPERR_SHTRIHFRSETPROPFAULT, P_DrvFRIntrf->GetNameByID(Password, SLS.AcquireRvlStr()));
 	THROW_PP_S(P_DrvFRIntrf->CallMethod(id) > 0, PPERR_SHTRIHFRCALLMETHFAULT, method);
-	THROW_PP_S(P_DrvFRIntrf->GetProperty(ResultCode, &ResCode) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(ResultCode, SLS.AcquireRvlStr())); 
+	{
+		bool do_check_result_code = true;
+		for(uint i = 0; do_check_result_code && i < SIZEOFARRAY(func_without_retcode_checking); i++) {
+			if(id == func_without_retcode_checking[i])
+				do_check_result_code = false;
+		}
+		THROW_PP_S(P_DrvFRIntrf->GetProperty(ResultCode, &ResCode) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(ResultCode, SLS.AcquireRvlStr())); 
+		if(!do_check_result_code && ResCode == -1)
+			ResCode = RESCODE_NO_ERROR;
+	}
 	if(ResCode != RESCODE_NO_ERROR) {
 		SString addendum_msg_buf;
 		addendum_msg_buf.Cat(method).Space().CatEq("ResCode", ResCode);

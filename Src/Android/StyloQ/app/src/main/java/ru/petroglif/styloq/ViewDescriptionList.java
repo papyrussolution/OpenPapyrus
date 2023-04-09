@@ -260,7 +260,11 @@ public class ViewDescriptionList {
 			}
 			else if(tv != null) {
 				if(level == 1) {
-					tv.setText(di.Title);
+					// @v11.6.11 Добавлена обработка специального префикса ']'
+					String title_text = di.Title;
+					if(SLib.GetLen(title_text) > 1 && title_text.charAt(0) == ']')
+						title_text = title_text.substring(1);
+					tv.setText(title_text);
 				}
 				else if(level == 2) {
 					if(di.TotalFunc > 0)
@@ -470,6 +474,20 @@ public class ViewDescriptionList {
 	{
 		boolean ok = true;
 		if(dpb != null && dpb.ColumnDescription != null) {
+			// @v11.6.11 {
+			// Обрабатываем специальный префикс заголовка ']' означающий, что текст заголовка следует
+			// учитывать при вычислении общей ширины колонки
+			if(SLib.GetLen(dpb.ColumnDescription.Title) > 1 && dpb.ColumnDescription.Title.charAt(0) == ']') {
+				String title_text = dpb.ColumnDescription.Title.substring(1);
+				float tw = dpb.Tp.measureText(title_text);
+				if(tw > 0.0) {
+					dpb.NzTextCount++;
+					dpb.TextLenSum += tw;
+					if(dpb.TextLenMax < tw)
+						dpb.TextLenMax = tw;
+				}
+			}
+			// } @v11.6.11
 			if(dpb.ColumnDescription.TotalFunc > 0) {
 				String total_text = null;
 				boolean is_total_real = false;

@@ -1065,6 +1065,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 			}
 		}
 		else { // —обственно, документы
+			// CALLEXCEPT_PP(PPERR_DEBUG); // @debug
 			const PPID  svc_op_id = doc.SvcOpID;
 			PPID   _op_id = 0; // ‘инальный вид операции создаваемого или модифицируемого документа 
 			PPID   loc_id = 0;
@@ -1414,6 +1415,12 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 		result_obj_type = 0;
 		result_obj_id = 0;
 		ZDELETE(p_js_reply);
+		// @v11.6.11 ¬ случае ошибки сохраним оригинальный json-документ дл€ того, чтобы можно было разобратьс€ пост-фактум с проблемой
+		if(pDocument) {
+			pDocument->ToStr(temp_buf);
+			PPLogMessage(PPFILNAM_STYLOQSVC_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_UTF8);
+			PPLogMessage(PPFILNAM_STYLOQSVC_LOG, temp_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_UTF8);
+		}
 	ENDCATCH
 	delete p_cmd_doc_filt;
 	ASSIGN_PTR(pResultID, result_obj_id);

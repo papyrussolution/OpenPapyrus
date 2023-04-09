@@ -1348,7 +1348,7 @@ PPLogMsgSession::PPLogMsgSession(PPLogMsgQueue * pQueue) : PPThread(PPThread::kL
 			timeout--;
 		} while(!f && timeout);
 		if(f) {
-			rLb.TempBuf.Z().Cat(rMsgItem.Prefix).Cat(rMsgItem.Text).CR().Transf(CTRANSF_INNER_TO_OUTER);
+			rLb.TempBuf.Z().Cat(rMsgItem.Prefix).Cat(rMsgItem.Text).CR().Transf((rMsgItem.Options & LOGMSGF_UTF8) ? CTRANSF_INNER_TO_UTF8 : CTRANSF_INNER_TO_OUTER);
 			fputs(rLb.TempBuf, f);
 			SFile::ZClose(&f);
 			if(rMsgItem.DupFileName.NotEmpty()) {

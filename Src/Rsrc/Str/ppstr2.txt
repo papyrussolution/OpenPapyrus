@@ -2295,6 +2295,7 @@ PPERR_UED_VALUENOTBELONGTOMETA      "UED-значение не принадле�
 PPERR_UED_SYMBFORMETANOTFOUND       "Не найден символ, соответствующий мета-категории (%s)"
 PPERR_UED_PREVVERV_SYMBREMOVED      "Символ, существовавший в предудыщей версии, удален в новой версии (%s)"
 PPERR_UED_PREVVERV_PREVSYMBMODIFIED "Символ, существовавший в предудыщей версии, изменен в новой версии (%s)"
+PPERR_DEBUG                         "@{err_internal}: отладочная ошибка."
 // LastError
 
 [102] // confirmation
@@ -3304,6 +3305,7 @@ PPFILNAM_UDSTALK_LOG           "uds-talk.log" // @v10.8.11
 PPFILNAM_MERCAPP_LOG           "mercapp.log" // @v11.5.2
 PPFILNAM_NOIMAGE               "nophoto.png" // @v10.9.4
 PPFILNAM_VKTALK_LOG            "vk-talk.log" // @v10.9.6
+PPFILNAM_STYLOQSVC_LOG         "styloqsvc.log" // @v11.6.11
 
 #!} // dont_translate
 
@@ -5021,6 +5023,8 @@ PPTXT_SUPPLIXAUTHFAULT               "Ошибка авторизации на �
 PPTXT_SENDDOCTOSUPPLIXSVC            "Передача документа сервису поставщика"
 PPTXT_SUPPLIXSVCACCEPTSDOCS          "Сервис поставщика принял переданные документы"
 PPTXT_SUPPLIXSVCACCEPTSDOCSFAULT     "Ошибка передачи документов сервису поставщика"
+PPTXT_SUPPLIXTESTMODE_DOCSENDING     "Отправка документа"
+PPTXT_SUPPLIXTESTMODE_NOSENDING      "Тестовый режим: отправка не осуществляется"
 PPTXT_ROUNDHOURPICKER                "Круговой слайдер для выбора времени"
 PPTXT_ROUNDMINUTEPICKER              "Круговой слайдер для выбора минут"
 //

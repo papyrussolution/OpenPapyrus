@@ -4107,6 +4107,33 @@ bool FASTCALL FloatArray::IsEq(const FloatArray * pS) const
 }
 //
 //
+UuidArray::UuidArray() : TSVector <S_GUID>()
+{
+}
+
+const S_GUID & FASTCALL UuidArray::get(uint i) const { return at(i); }
+	
+int  FASTCALL UuidArray::add(const S_GUID & rItem) { return insert(&rItem); }
+
+void UuidArray::sort() { SVector::sort(PTR_CMPFUNC(S_GUID)); }
+	
+void UuidArray::sortAndUndup()
+{
+	uint   c = getCount();
+	if(c > 1) {
+		SVector::sort(PTR_CMPFUNC(S_GUID));
+		assert(c == getCount()); // @paranoic
+		S_GUID prev = get(--c); // @! this is a copy - not a reference 
+		do {
+			const S_GUID t = get(--c); // @! this is a copy - not a reference 
+			if(t == prev)
+				atFree(c+1);
+			prev = t;
+		} while(c);
+	}
+}
+//
+//
 //
 DateTimeArray::DateTimeArray() : TSVector <LDATETIME>()
 {
