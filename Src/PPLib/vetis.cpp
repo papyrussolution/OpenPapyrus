@@ -3558,6 +3558,7 @@ private:
 
 	long   State;
 	PPID   DlvrLocToTranspTagID; // @v10.8.12 Тег сопоставляющий адрес транспортному стредству
+	PPID   PersonToTranspTagID; // @v11.6.12 Тег сопоставляющий контрагента транспортному стредству
 	SString LogFileName;
 	SString LastMsg;
 	Param   P;
@@ -3663,7 +3664,7 @@ int PPVetisInterface::LogMessage(const char * pPrefix, const SString & rMsg)
 	return ok;
 }
 
-PPVetisInterface::PPVetisInterface(PPLogger * pLogger) : State(0), LastLocalTransactionId(0), P_Logger(pLogger), P(0, 0, 0), DlvrLocToTranspTagID(0)
+PPVetisInterface::PPVetisInterface(PPLogger * pLogger) : State(0), LastLocalTransactionId(0), P_Logger(pLogger), P(0, 0, 0), DlvrLocToTranspTagID(0), PersonToTranspTagID(0)
 {
 	PPGetFilePath(PPPATH_LOG, "vetis.log", LogFileName);
 }
@@ -3676,18 +3677,26 @@ int PPVetisInterface::Init(const Param & rP)
 {
 	int    ok = 1;
 	P = rP;
+	PPObjTag tag_obj;
+	PPObjectTag tag_rec;
 	// @v10.8.12 {
 	DlvrLocToTranspTagID = 0;
 	{
-		PPObjTag tag_obj;
-		PPObjectTag tag_rec;
 		for(SEnum en = tag_obj.Enum(0); !DlvrLocToTranspTagID && en.Next(&tag_rec) > 0;) {
-			if(tag_rec.ObjTypeID == PPOBJ_LOCATION && tag_rec.TagDataType == OTTYP_OBJLINK && tag_rec.TagEnumID == PPOBJ_TRANSPORT) {
+			if(tag_rec.ObjTypeID == PPOBJ_LOCATION && tag_rec.TagDataType == OTTYP_OBJLINK && tag_rec.TagEnumID == PPOBJ_TRANSPORT)
 				DlvrLocToTranspTagID = tag_rec.ID;
-			}
 		}
 	}
 	// } @v10.8.12
+	// @v11.6.12 {
+	PersonToTranspTagID = 0;
+	{
+		for(SEnum en = tag_obj.Enum(0); !PersonToTranspTagID && en.Next(&tag_rec) > 0;) {
+			if(tag_rec.ObjTypeID == PPOBJ_PERSON && tag_rec.TagDataType == OTTYP_OBJLINK && tag_rec.TagEnumID == PPOBJ_TRANSPORT)
+				PersonToTranspTagID = tag_rec.ID;
+		}
+	}
+	// } @v11.6.12
 	State |= stInited;
 	return ok;
 }
@@ -8433,6 +8442,13 @@ int PPVetisInterface::PrepareOutgoingTransportData(PPID billID, VetisPrepareOutg
 		dlvr_loc_id = freight.DlvrAddrID;
 		transport_id = freight.ShipID;
 	}
+	// @v11.6.12 {
+	if(!transport_id && dlvr_loc_id && DlvrLocToTranspTagID) {
+		ObjTagItem tag_item;
+		if(p_ref->Ot.GetTag(PPOBJ_LOCATION, dlvr_loc_id, DlvrLocToTranspTagID, &tag_item) > 0)
+			transport_id = tag_item.Val.IntVal;
+	}
+	// } @v11.6.12 
 	// @v10.8.12 {
 	if(!transport_id && dlvr_loc_id && DlvrLocToTranspTagID) {
 		ObjTagItem tag_item;
