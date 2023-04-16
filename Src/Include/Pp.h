@@ -1497,6 +1497,8 @@ public:
 	static int IdObjMemoPerson;     // @v11.1.12 (fldPersonID)
 	static int IdObjMemoPersonEvent; // @v11.1.12 (fldPersonEventID)
 	static int IdTechCapacity;      // @v11.3.10 (fldPrcID, fldCapacity)
+	static int IdTSessBillLinkTo;   // @v11.6.12 (fldBillID)
+	static int IdTSessBillLinkTo_Text; // @v11.6.12 (fldBillID)
 
 	static int Register();
 	static void STDCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
@@ -39337,7 +39339,8 @@ public:
 		dliDueDate,                   // Дата исполнения документа
 		dliAgentName,                 // Наименование агента по документу
 		dliAlcoLic,                   // Регистр алкогольной лицензии, ассоциированный (прямо или косвенно) с документом
-		dliDlvrAddr                   // Адрес доставки
+		dliDlvrAddr,                  // Адрес доставки
+		dliTSessLinkTo                // @v11.6.12 Тех сессия, к которой привязан документ
 	};
 	char   ReserveStart[24]; // @anchor @v11.0.11 [32]-->[28] // @v11.1.9 [28]-->[24]
 	PPID   CliPsnCategoryID; // @v11.1.9 Категория персоналии, соответствующей контрагенту документа

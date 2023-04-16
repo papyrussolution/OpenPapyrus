@@ -1305,6 +1305,32 @@ public class Document {
 									else
 										js_item.put("set", js_ti_set);
 								}
+								// @v11.6.12 {
+								if(ti.SetAccepted != null) {
+									JSONObject js_ti_set = new JSONObject();
+									boolean is_empty = true;
+									if(ti.SetAccepted.Qtty != 0.0) {
+										js_ti_set.put("qtty", ti.SetAccepted.Qtty);
+										is_empty = false;
+									}
+									if(ti.SetAccepted.Cost != 0.0) {
+										js_ti_set.put("cost", ti.SetAccepted.Cost);
+										is_empty = false;
+									}
+									if(ti.SetAccepted.Price != 0.0) {
+										js_ti_set.put("price", ti.SetAccepted.Price);
+										is_empty = false;
+									}
+									if(ti.SetAccepted.Discount != 0.0) {
+										js_ti_set.put("discount", ti.SetAccepted.Discount);
+										is_empty = false;
+									}
+									if(is_empty)
+										js_ti_set = null;
+									else
+										js_item.put("setaccepted", js_ti_set);
+								}
+								// } @v11.6.12
 								// @v11.4.8 {
 								if(ti.XcL != null && ti.XcL.size() > 0) {
 									JSONArray js_xcl = null;
@@ -1455,14 +1481,28 @@ public class Document {
 							ti.GoodsID = js_item.optInt("goodsid", 0);
 							ti.UnitID = js_item.optInt("unitid", 0);
 							ti.Flags = js_item.optInt("flags", 0);
-							JSONObject js_set = js_item.optJSONObject("set");
-							if(js_set != null) {
-								ti.Set = new ValuSet();
-								ti.Set.Qtty = js_set.optDouble("qtty", 0.0);
-								ti.Set.Cost = js_set.optDouble("cost", 0.0);
-								ti.Set.Price = js_set.optDouble("price", 0.0);
-								ti.Set.Discount = js_set.optDouble("discount", 0.0);
+							{
+								JSONObject js_set = js_item.optJSONObject("set");
+								if(js_set != null) {
+									ti.Set = new ValuSet();
+									ti.Set.Qtty = js_set.optDouble("qtty", 0.0);
+									ti.Set.Cost = js_set.optDouble("cost", 0.0);
+									ti.Set.Price = js_set.optDouble("price", 0.0);
+									ti.Set.Discount = js_set.optDouble("discount", 0.0);
+								}
 							}
+							// @v11.6.12 {
+							{
+								JSONObject js_set = js_item.optJSONObject("setaccepted");
+								if(js_set != null) {
+									ti.SetAccepted = new ValuSet();
+									ti.SetAccepted.Qtty = js_set.optDouble("qtty", 0.0);
+									ti.SetAccepted.Cost = js_set.optDouble("cost", 0.0);
+									ti.SetAccepted.Price = js_set.optDouble("price", 0.0);
+									ti.SetAccepted.Discount = js_set.optDouble("discount", 0.0);
+								}
+							}
+							// } @v11.6.12
 							// @v11.4.8 {
 							{
 								JSONArray js_xcl = js_item.optJSONArray("xcl");

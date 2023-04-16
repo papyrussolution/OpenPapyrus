@@ -487,7 +487,7 @@ size_t fz_bidi_resolve_explicit(fz_bidi_level level, fz_bidi_chartype dir, fz_bi
 				    if(nLastValid < n_nest) {
 					    n_nest--;
 				    }
-				    else{
+				    else {
 					    cch = ich; // break the loop, but complete body
 				    }
 			    }
@@ -721,7 +721,7 @@ void fz_bidi_resolve_weak(fz_context * ctx, fz_bidi_level baselevel, fz_bidi_cha
 				pcls[ich] = embedding_direction(newlevel);
 				level = plevel[ich+1];
 			}
-			else{
+			else {
 				// don't interrupt runs
 				if(cch_run) {
 					cch_run++;

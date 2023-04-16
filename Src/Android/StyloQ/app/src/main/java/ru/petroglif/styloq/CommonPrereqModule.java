@@ -325,6 +325,8 @@ public class CommonPrereqModule {
 	private SLib.SlActivity ActivityInstance;
 	private int ViewPagerResourceId;
 	private int TabLayoutResourceId;
+	private STokenRecognizer Tr; // @v11.6.12
+
 	protected boolean CurrentDocument_RemoteOp_Start()
 	{
 		boolean result = false;
@@ -720,6 +722,23 @@ public class CommonPrereqModule {
 						CurrentOrder.TiList.get(i).Set.Qtty = srcData.Set.Qtty;
 					else
 						CurrentOrder.TiList.remove(i);
+					result = true;
+					break;
+				}
+			}
+			if(result)
+				OnCurrentDocumentModification();
+		}
+		return result;
+	}
+	protected boolean UpdateTransferItemAcceptanceInCurrentDocument(final Document.TransferItem srcData)
+	{
+		boolean result = false;
+		if(srcData != null && srcData.Set != null && GetCurrentDocumentTransferListCount() > 0) {
+			for(int i = 0; !result && i < GetCurrentDocumentTransferListCount(); i++) {
+				Document.TransferItem ti = CurrentOrder.TiList.get(i);
+				if(ti.RowIdx == srcData.RowIdx) {
+					ti.SetAccepted = Document.ValuSet.Copy(srcData.SetAccepted);
 					result = true;
 					break;
 				}
@@ -1329,7 +1348,9 @@ public class CommonPrereqModule {
 		SsB = new SimpleSearchBlock();
 		TabNavStack = new Stack<Tab>();
 		Callback_BackButton = null;
+		Tr = new STokenRecognizer(); // @v11.6.12
 	}
+	public STokenRecognizer.TokenArray RecognizeToken(String text) { return Tr.Run(text); }
 	String GetBaseCurrencySymb() { return CSVCP.BaseCurrencySymb; }
 	SLib.LDATETIME GetSvcDataDtm() { return CSVCP.SvcDtm; }
 	int   GetAheadExpiryDays() { return CSVCP.AheadExpiryDays; } // @v11.6.2
@@ -2312,9 +2333,9 @@ public class CommonPrereqModule {
 		ArrayList <WareEntry> result = null;
 		if(SLib.GetLen(code) > 0) {
 			if(GoodsListData != null && GoodsListData.size() > 0) {
-				STokenRecognizer tr = new STokenRecognizer();
 				int tokn = 0;
-				STokenRecognizer.TokenArray nta = tr.Run(code);
+				assert(Tr != null); // @v11.6.12
+				STokenRecognizer.TokenArray nta = Tr.Run(code);
 				String preprocessed_code = null;
 				if(nta.Has(STokenRecognizer.SNTOK_EAN13) > 0.0f || nta.Has(STokenRecognizer.SNTOK_EAN8) > 0.0f ||
 						nta.Has(STokenRecognizer.SNTOK_UPCA) > 0.0f || nta.Has(STokenRecognizer.SNTOK_UPCE) > 0.0f) {
@@ -2777,16 +2798,18 @@ public class CommonPrereqModule {
 		CommonPrereqModule CPM;
 		boolean HideStock;
 		CommonPrereqModule.WareEntry GoodsItem;
+		private STokenRecognizer Tr;
 		public TransferItemDialog(Context ctx, CommonPrereqModule cpm, Object data)
 		{
 			super(ctx, R.id.DLG_ORDRTI, data);
 			CPM = cpm;
 			HideStock = true;
 			GoodsItem = null;
+			Tr = new STokenRecognizer();
 			if(ctx instanceof /*CmdROrderPrereqActivity*/SLib.SlActivity)
 				ActivityCtx = (/*CmdROrderPrereqActivity*/SLib.SlActivity)ctx;
 			if(data instanceof Document.TransferItem)
-				Data = data;
+				Data = Document.TransferItem.Copy((Document.TransferItem)data); // @v11.6.12 Copy instead reference
 		}
 		private void StepQuantity(int direction) // direction < 0 - decrement; > 0 - increment
 		{
@@ -2857,10 +2880,15 @@ public class CommonPrereqModule {
 								}
 								public void onTextChanged(CharSequence s, int start, int before, int count)
 								{
-									String text = s.toString();
+									String qtty_text = s.toString();
 									if(CPM != null && Data != null) {
 										Document.TransferItem _data = (Document.TransferItem)Data;
-										double qtty = (SLib.GetLen(text) > 0) ? Double.parseDouble(text) : 0.0;
+										double qtty = 0.0;
+										if(SLib.GetLen(qtty_text) > 0) {
+											STokenRecognizer.TokenArray nta = Tr.Run(qtty_text);
+											if(nta.Has(STokenRecognizer.SNTOK_NUMERIC_DOT) > 0.0f || nta.Has(STokenRecognizer.SNTOKSEQ_NUMERIC) > 0.0f)
+												qtty = Double.parseDouble(qtty_text);
+										}
 										if(qtty < 0.0)
 											qtty = 0.0;
 										if(_data.Set == null)
@@ -3076,8 +3104,15 @@ public class CommonPrereqModule {
 					Data = _data;
 				}
 				String qtty_text = SLib.GetCtrlString(this, R.id.CTL_ORDRTI_QTTY);
-				if(SLib.GetLen(qtty_text) > 0)
-					_data.Set.Qtty = Double.parseDouble(qtty_text);
+				if(SLib.GetLen(qtty_text) > 0) {
+					STokenRecognizer.TokenArray nta = Tr.Run(qtty_text);
+					if(nta.Has(STokenRecognizer.SNTOK_NUMERIC_DOT) > 0.0f || nta.Has(STokenRecognizer.SNTOKSEQ_NUMERIC) > 0.0f)
+						_data.Set.Qtty = Double.parseDouble(qtty_text);
+					else
+						_data.Set.Qtty = 0.0;
+				}
+				else
+					_data.Set.Qtty = 0.0;
 				result = Data;
 			}
 			return result;

@@ -1,5 +1,5 @@
 // SECURDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 // Диалоги редактирования пользователей, групп, прав доступа.
 //
@@ -35,7 +35,7 @@ class SecurDialog : public TDialog {
 public:
 	SecurDialog(int dlgID, PPID objType, PPID objID) : TDialog(dlgID), ObjType(objType), ObjID(objID)
 	{
-		PTR32(Password)[0] = 0; // @v10.3.0
+		Password[0] = 0;
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -143,7 +143,7 @@ private:
 void SecurDialog::getPassword()
 {
 	PPAccessRestriction accsr;
-	size_t minlen = Data.Rights.IsEmpty() ? ObjRts.GetAccessRestriction(accsr).PwMinLen : Data.Rights.GetAccessRestriction(accsr).PwMinLen;
+	const size_t minlen = Data.Rights.IsEmpty() ? ObjRts.GetAccessRestriction(accsr).PwMinLen : Data.Rights.GetAccessRestriction(accsr).PwMinLen;
 	PasswordDialog(0, Password, sizeof(Password), minlen);
 }
 
@@ -678,8 +678,7 @@ int ActiveUserListDlg::GetDtm(PPID userID, PPID sessID, LDATETIME * pLoginDtm, S
 		{
 			int    h = 0, m = 0, s = 0;
 			SString buf;
-			// @v9.8.12 PPGetWord(PPWORD_DAYS, 0, buf);
-			PPLoadString("days", buf); // @v9.8.12
+			PPLoadString("days", buf);
 			h = sec / 3600;
 			sec %= 3600;
 			m = sec / 60;

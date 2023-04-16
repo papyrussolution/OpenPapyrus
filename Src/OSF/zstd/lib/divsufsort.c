@@ -1678,7 +1678,7 @@ static int sort_typeBstar(const uchar * T, int * SA, int * bucket_A, int * bucke
 				}
 			}
 		}
-		else{
+		else {
 			buf = SA + m, bufsize = n - (2 * m);
 			for(c0 = ALPHABET_SIZE - 2, j = m; 0 < j; --c0) {
 				for(c1 = ALPHABET_SIZE - 1; c0 < c1; j = i, --c1) {

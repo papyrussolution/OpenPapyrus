@@ -352,6 +352,8 @@ void BillFiltDialog::viewOptions()
 			flags |= 0x0010;
 		if(Data.Dl.GetItemByDataId(BillFilt::dliDlvrAddr, 0))
 			flags |= 0x0020;
+		if(Data.Dl.GetItemByDataId(BillFilt::dliTSessLinkTo, 0)) // @v11.6.12
+			flags |= 0x0040;
 		const long preserve_flags = flags;
 		dlg->AddClusterAssoc(CTL_BILLFLTVOPT_FLAGS, 0, 0x01);
 		dlg->AddClusterAssoc(CTL_BILLFLTVOPT_FLAGS, 1, 0x02);
@@ -359,6 +361,7 @@ void BillFiltDialog::viewOptions()
 		dlg->AddClusterAssoc(CTL_BILLFLTVOPT_FLAGS, 3, 0x08);
 		dlg->AddClusterAssoc(CTL_BILLFLTVOPT_FLAGS, 4, 0x10);
 		dlg->AddClusterAssoc(CTL_BILLFLTVOPT_FLAGS, 5, 0x20);
+		dlg->AddClusterAssoc(CTL_BILLFLTVOPT_FLAGS, 6, 0x40); // @v11.6.12
 		dlg->SetClusterData(CTL_BILLFLTVOPT_FLAGS, flags);
 		{
 			PrcssrAlcReport::Config arp_cfg;
@@ -392,6 +395,12 @@ void BillFiltDialog::viewOptions()
 					Data.Dl.SetItem(BillFilt::dliDlvrAddr, 0, 0);
 				else
 					Data.Dl.RemoveItem(BillFilt::dliDlvrAddr);
+				// @v11.6.12 {
+				if(flags & 0x0040)
+					Data.Dl.SetItem(BillFilt::dliTSessLinkTo, 0, 0);
+				else
+					Data.Dl.RemoveItem(BillFilt::dliTSessLinkTo);
+				// } @v11.6.12 
 			}
 		}
 	}
@@ -2342,6 +2351,10 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 						pBrw->InsColumn(next_pos++, "@daddress", 16, 0, 0, 0);
 					if(Filt.Dl.GetItemByDataId(BillFilt::dliAlcoLic, 0) && P_Arp) // #15
 						pBrw->InsColumn(next_pos++, "@alcolic", 15, 0, 0, 0);
+					// @v11.6.12 {
+					if(Filt.Dl.GetItemByDataId(BillFilt::dliTSessLinkTo, 0)) // #18
+						pBrw->InsColumn(next_pos++, "@billfilt_dlitsesslinkto", 18, 0, 0, 0);
+					// } @v11.6.12 
 				}
 			}
 		}
@@ -2418,6 +2431,7 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE    dbe_dlvraddr;
 	DBE    dbe_strgloc;
 	DBE    dbe_bill_memo; // @v11.1.12
+	DBE    dbe_tsess_linkto; // @v11.6.12
 	uint   brw_id = 0;
 	int    pool_op = 0;
 	int    tbl_count = 0;
@@ -2569,6 +2583,18 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					dbe_strgloc.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
 				q->addField(dbe_strgloc); // #17
 			}
+			// @v11.6.12 {
+			{ // @construction
+				dbe_tsess_linkto.init();
+				if(Filt.Dl.GetItemByDataId(BillFilt::dliTSessLinkTo, 0)) {
+					dbe_tsess_linkto.push(bll->ID);
+					dbe_tsess_linkto.push(static_cast<DBFunc>(PPDbqFuncPool::IdTSessBillLinkTo_Text));
+				}
+				else
+					dbe_tsess_linkto.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
+				q->addField(dbe_tsess_linkto); // #18
+			}
+			// } @v11.6.12
 			tbl_l[tbl_count++] = t_amt;
 			q->from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], tbl_l[6], tbl_l[7], 0L);
 			//
@@ -3953,8 +3979,9 @@ int PPViewBill::AddBillToPool()
 			clearEvent(event);
 		}
 	};
-	int    ok = 1, r;
-	const PPConfig & r_cfg = LConfig;
+	int    ok = 1;
+	int    r;
+	const  PPConfig & r_cfg = LConfig;
 	int    count = 0;
 	PPID   loc_id = LocList_.getSingle();
 	SETIFZ(loc_id, r_cfg.Location);
@@ -6205,8 +6232,7 @@ int STDCALL ViewGoodsBills(BillFilt * pFilt, int asModeless)
 int STDCALL ViewBillsByPool(PPID poolType, PPID poolOwnerID)
 {
 	int    ok = -1;
-	int    pool_bytype = BIN(poolOwnerID && oneof5(poolType, PPASS_OPBILLPOOL, PPASS_TODOBILLPOOL,
-		PPASS_PRJBILLPOOL, PPASS_PRJPHASEBILLPOOL, PPASS_TSESSBILLPOOL));
+	const  bool pool_bytype = (poolOwnerID && oneof5(poolType, PPASS_OPBILLPOOL, PPASS_TODOBILLPOOL, PPASS_PRJBILLPOOL, PPASS_PRJPHASEBILLPOOL, PPASS_TSESSBILLPOOL));
 	PPBaseFilt * p_flt = 0;
 	PPView * p_v = 0;
 	if(poolType && poolOwnerID) {

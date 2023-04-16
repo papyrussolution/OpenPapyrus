@@ -770,6 +770,7 @@ public:
 	static void * GetParentsManagedPtr(SUiLayout * pItem);
 
 	SUiLayout();
+	SUiLayout(const SUiLayoutParam & rP);
 	~SUiLayout();
 	bool   IsConsistent() const;
 	//
@@ -810,6 +811,25 @@ public:
 	void   DeleteAllItems();
 	int    GetOrder() const;
 	void   SetOrder(int o);
+	int    GetID() const;
+	//
+	// Descr: Прямым образом устанавливает идентификатор элемента.
+	//   Функция проверяет передаваемое значение на предмет того, чтобы оно было больше нуля.
+	// Note: Функция не проверяет уникальность идентификатора, потому клиент класса обязан 
+	//   сам побеспокоиться об уникальности устанавливаемого значения.
+	// 
+	// Returns:
+	//   >0 - Установленное значение идентификатора
+	//    0 - Ошибка
+	//
+	int    SetID(int id);
+	//
+	// Descr: Если идентификатора элемента (ID) нулевой, то инициализирует его так, чтобы он был уникальным
+	//   в области определения контейнера верхнего уровня.
+	//   Если идентфикатор уже не нулевой, то просто возвращает его значение.
+	//
+	int    SetupUniqueID();
+	const  SUiLayout * FindByID(int id) const;
 	//
 	// Descr: Вычисляет полную ширину элемента без рассмотрения его внутренних компонентов.
 	//   Полная ширина включает собственно ширину, а так же левые и правые поля и набивки
@@ -971,6 +991,11 @@ private:
 	void   Commit_() const;
 	int    SetupResultScroller(SScroller::SetupBlock * pSb) const; // Result is mutable
 	bool   LayoutAlign(/*flex_align*/int align, float flexDim, uint childrenCount, float * pPos, float * pSpacing, bool stretchAllowed) const;
+	//
+	// Descr: Проходит по всех дочерним элементам и находит максимальное значение идентификатора.
+	//   Функция нужна для автоматического присвоения уникального идентификатора одному из элементов (see func SetupUniqueID)
+	//
+	int    GetMaxComponentID() const;
 
 	enum {
 		setupfChildrenOnly = 0x0001 // Вызывать callback-функцию CbSetup только для дочерних элементов, но не для самого себя //
@@ -996,6 +1021,7 @@ private:
 	uint   State;
 	uint16 CplxComponentId;
 	uint16 Reserve;
+	int    ID; // @v11.6.12 Идентификатор экземпляра. Определяется создающим клиентом класса.
 	const  SUiLayout * P_Link; // @transient При сложных схемах построения формируются искусственные лейауты, получающие
 		// в этом поле ссылку на порождающий реальный элемент. 
 	TSCollection <SUiLayout> * P_Children;

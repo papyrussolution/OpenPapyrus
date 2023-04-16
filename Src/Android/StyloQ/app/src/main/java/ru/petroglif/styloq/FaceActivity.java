@@ -146,7 +146,7 @@ public class FaceActivity extends SLib.SlActivity {
 						{
 							View vg = findViewById(R.id.LAYOUT_ACTIVITYROOT);
 							if(vg != null && vg instanceof ViewGroup)
-								SLib.SubstituteStringSignatures(app_ctx, (ViewGroup) vg);
+								SLib.SubstituteStringSignatures(app_ctx, (ViewGroup)vg);
 						}
 						if(Data.ID == 0 || (EditFlags & StyloQFace.editfDisableDeletion) != 0)
 							SLib.SetCtrlVisibility(this, R.id.STDCTL_DELETEBUTTON, View.GONE);

@@ -3226,7 +3226,122 @@ SCodepageIdent STextEncodingStat::GetAutodetectedCp() const
 //
 //
 //
-
+//
+// Finds the first occurrence of the sub-string needle in the string haystack.
+// Returns NULL if needle was not found.
+//
+const char * byteshift_strstr(const char * pHayStack, const char * pNeedle)
+{
+	if(!*pNeedle) // Empty needle.
+		return pHayStack;
+	const char needle_first  = *pNeedle;
+	// Runs strchr() on the first section of the haystack as it has a lower
+	// algorithmic complexity for discarding the first non-matching characters.
+	pHayStack = strchr(pHayStack, needle_first);
+	if(!pHayStack) // First character of needle is not in the haystack.
+		return NULL;
+	// First characters of haystack and needle are the same now. Both are
+	// guaranteed to be at least one character long.
+	// Now computes the sum of the first needle_len characters of haystack
+	// minus the sum of characters values of needle.
+	const uchar * i_haystack = (const uchar *)pHayStack + 1;
+	const uchar * i_needle   = (const uchar *)pNeedle + 1;
+	bool identical = true;
+	while(*i_haystack && *i_needle) {
+		identical &= *i_haystack++ == *i_needle++;
+	}
+	// i_haystack now references the (needle_len + 1)-th character.
+	if(*i_needle) // haystack is smaller than needle.
+		return NULL;
+	else if(identical)
+		return pHayStack;
+	size_t needle_len = i_needle - (const uchar *)pNeedle;
+	// Note: needle_len > 1, because we checked that it isn't zero, and if it
+	//       is 1 then identical must be true because the first strchr() ensured
+	//       that the first characters are identical
+	const char * sub_start = pHayStack;
+	size_t compare_len;
+	ulong last_needle_chars;
+	ulong last_haystack_chars;
+	ulong mask;
+	size_t needle_cmp_len = (needle_len < sizeof(long)) ? needle_len : sizeof(long);
+#ifdef SL_BIGENDIAN
+	last_needle_chars = MAKE_ULONG_BIGENDIAN(*((ulong *)(i_needle - needle_cmp_len))) >> (8 * (LONG_INT_N_BYTES - needle_cmp_len));
+	last_haystack_chars = MAKE_ULONG_BIGENDIAN(*((ulong *)(i_haystack - needle_cmp_len))) >> (8 * (LONG_INT_N_BYTES - needle_cmp_len));
+#else
+	const uchar * needle_cmp_end = i_needle;
+	i_needle -= needle_cmp_len;
+	i_haystack -= needle_cmp_len;
+	last_needle_chars = 0;
+	last_haystack_chars = 0;
+	while(i_needle != needle_cmp_end) {
+		last_needle_chars <<= 8;
+		last_needle_chars ^= *i_needle++;
+		last_haystack_chars <<= 8;
+		last_haystack_chars ^= *i_haystack++;
+	}
+#endif
+	// At this point:
+	// * needle is at least two characters long
+	// * haystack is at least needle_len characters long (also at least two)
+	// * the first characters of needle and haystack are identical
+	if(needle_len > (sizeof(long) + 1)) {
+		// we will call memcmp() only once we know that the LONG_INT_N_BYTES
+		// last chars are equal, so it will be enough to compare all but the
+		// last LONG_INT_N_BYTES characters 
+		compare_len = needle_len - sizeof(long);
+		// iterate through the remainder of haystack while checking for identity
+		// of the last LONG_INT_N_BYTES, and checking the rest with memcmp()
+		while(*i_haystack) {
+			last_haystack_chars <<= 8;
+			last_haystack_chars ^= *i_haystack++;
+			sub_start++;
+			if(last_haystack_chars == last_needle_chars && memcmp(sub_start, pNeedle, compare_len) == 0) {
+				return sub_start;
+			}
+		}
+	}
+	else if(needle_len == (sizeof(long) + 1)) {
+		// iterate through the remainder of haystack while checking for identity
+		// of the last LONG_INT_N_BYTES as well as the single additional
+		// character, which is the first one 
+		while(*i_haystack) {
+			last_haystack_chars <<= 8;
+			last_haystack_chars ^= *i_haystack++;
+			sub_start++;
+			if(last_haystack_chars == last_needle_chars && *sub_start == needle_first) {
+				return sub_start;
+			}
+		}
+	}
+	else if(needle_len == sizeof(long)) {
+		// iterate through the remainder of haystack while checking for identity
+		// of the last LONG_INT_N_BYTES characters, which should exactly match
+		// the entire needle
+		while(*i_haystack) {
+			last_haystack_chars <<= 8;
+			last_haystack_chars ^= *i_haystack++;
+			if(last_haystack_chars == last_needle_chars) {
+				return reinterpret_cast<const char *>(i_haystack - needle_len);
+			}
+		}
+	}
+	else { /* needle_len < LONG_INT_N_BYTES */
+		mask = ((1UL) << (needle_len * 8)) - 1;
+		last_needle_chars &= mask;
+		// iterate through the remainder of haystack, updating the sums' difference
+		// and checking for identity whenever the difference is zero */
+		while(*i_haystack) {
+			last_haystack_chars <<= 8;
+			last_haystack_chars ^= *i_haystack++;
+			last_haystack_chars &= mask;
+			if(last_haystack_chars == last_needle_chars) {
+				return reinterpret_cast<const char *>(i_haystack - needle_len);
+			}
+		}
+	}
+	return NULL;
+}
 //
 //
 //
@@ -3270,10 +3385,89 @@ int main(int argc, char **argv )
 }
 #endif // } 0
 
+static int Test_memchr(char * (*func)(const char * pHeystack, char needle, size_t len)) // @construction
+{
+	int    ok = 1;
+	LongArray target_pos_list;
+	LongArray pos_list;
+	LongArray len_list;
+	SString heystack;
+	const char needle_char = 'A';
+	{
+		for(uint i = 0; i < heystack.Len(); i++) {
+			pos_list.add((long)i);
+			len_list.add((long)(i+1));
+			if(heystack.C(i) == needle_char) {
+				target_pos_list.add((long)i);
+			}
+		}
+		target_pos_list.sort();
+	}
+	{
+		const char * p_heystack = heystack.cptr();
+		len_list.shuffle();
+		pos_list.shuffle();
+		for(uint lidx = 0; lidx < len_list.getCount(); lidx++) {
+			const size_t len = (size_t)len_list.get(lidx);
+			for(uint pidx = 0; pidx < pos_list.getCount(); pidx++) {
+				const uint pos = (size_t)pos_list.get(pidx);
+				if((pos+len) <= heystack.Len()) {
+					const char * p_target = func(p_heystack, needle_char, len);
+					if(p_target) {
+					}
+					else {
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
 //
 //
 //
 #if SLTEST_RUNNING // {
+
+static int Test_strstr(const char * pHeyStack, const char * pNeedle, const size_t * pPosList, uint posListCount, const char * (* funcStrStr)(const char *, const char *))
+{
+	int    ok = 1;
+	if(funcStrStr) {
+		size_t result_pos_list[128];
+		uint result_count = 0;
+		const char * p = pHeyStack;
+		do {
+			p = funcStrStr(p, pNeedle);
+			if(p) {
+				result_pos_list[result_count++] = p-pHeyStack;
+				p++;
+			}
+		} while(p);
+		if(result_count != posListCount)
+			ok = 0;
+		else {
+			for(uint i = 0; ok && i < result_count; i++) {
+				if(result_pos_list[i] != pPosList[i])
+					ok = 0;
+			}
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+SLTEST_R(strstr)
+{
+	const char * p_heystack = "abcDEFabcababc";
+	const char * p_needle = "abc";
+	const size_t pos_list[] = {0, 6, 11};
+	SLTEST_CHECK_NZ(Test_strstr(p_heystack, p_needle, pos_list, SIZEOFARRAY(pos_list), strstr));
+	SLTEST_CHECK_NZ(Test_strstr(p_heystack, p_needle, pos_list, SIZEOFARRAY(pos_list), byteshift_strstr));
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
+	return CurrentStatus;	
+}
 
 static int Make_STextEncodingStat_FilePool(const SString & rPath, SFileEntryPool & rFep)
 {

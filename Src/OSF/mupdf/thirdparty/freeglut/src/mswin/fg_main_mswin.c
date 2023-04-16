@@ -424,12 +424,12 @@ static struct WM_MESSAGE_MAP allMessages[] =
 };
 #undef DEFINE_MESSAGE
 
-char* WMMsg2Str(DWORD dwMessage)
+const char* WMMsg2Str(DWORD dwMessage)
 {
 	struct WM_MESSAGE_MAP* pMapMsg = allMessages;
 	for(/*null*/; pMapMsg->lpszMsg != NULL; pMapMsg++) {
 		if(pMapMsg->nMsg == dwMessage) {
-			return (char *)pMapMsg->lpszMsg;
+			return (const char *)pMapMsg->lpszMsg;
 		}
 	}
 	return "";

@@ -21,9 +21,7 @@ int svg_is_alpha(int c)
 
 int svg_is_digit(int c)
 {
-	return (c >= '0' && c <= '9') ||
-	       (c == 'e') || (c == 'E') ||
-	       (c == '+') || (c == '-') || (c == '.');
+	return (c >= '0' && c <= '9') || (c == 'e') || (c == 'E') || (c == '+') || (c == '-') || (c == '.');
 }
 
 const char * svg_lex_number(float * fp, const char * ss)

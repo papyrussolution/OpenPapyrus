@@ -454,18 +454,13 @@ static char * win32_merger(DSO * dso, const char * filespec1,
 static char * win32_name_converter(DSO * dso, const char * filename)
 {
 	char * translated;
-	int len, transform;
-
-	len = strlen(filename);
-	transform = ((strstr(filename, "/") == NULL) &&
-	    (strstr(filename, "\\") == NULL) &&
-	    (strstr(filename, ":") == NULL));
+	int transform;
+	int len = strlen(filename);
+	transform = ((strstr(filename, "/") == NULL) && (strstr(filename, "\\") == NULL) && (strstr(filename, ":") == NULL));
 	if(transform)
-		/* We will convert this to "%s.dll" */
-		translated = (char*)OPENSSL_malloc(len + 5);
+		translated = (char*)OPENSSL_malloc(len + 5); // We will convert this to "%s.dll"
 	else
-		/* We will simply duplicate filename */
-		translated = (char*)OPENSSL_malloc(len + 1);
+		translated = (char*)OPENSSL_malloc(len + 1); // We will simply duplicate filename
 	if(translated == NULL) {
 		ERR_raise(ERR_LIB_DSO, DSO_R_NAME_TRANSLATION_FAILED);
 		return NULL;
@@ -490,12 +485,12 @@ static const char * openssl_strnchr(const char * string, int c, size_t len)
 
 #include <tlhelp32.h>
 #ifdef _WIN32_WCE
-#define DLLNAME "TOOLHELP.DLL"
+	#define DLLNAME "TOOLHELP.DLL"
 #else
-#ifdef MODULEENTRY32
-#   undef MODULEENTRY32         /* unmask the ASCII version! */
-#endif
-#define DLLNAME "KERNEL32.DLL"
+	#ifdef MODULEENTRY32
+		#undef MODULEENTRY32         /* unmask the ASCII version! */
+	#endif
+	#define DLLNAME "KERNEL32.DLL"
 #endif
 
 typedef HANDLE (WINAPI *CREATETOOLHELP32SNAPSHOT)(DWORD, DWORD);
@@ -510,7 +505,6 @@ static int win32_pathbyaddr(void * addr, char * path, int sz)
 	CREATETOOLHELP32SNAPSHOT create_snap;
 	CLOSETOOLHELP32SNAPSHOT close_snap;
 	MODULE32 module_first, module_next;
-
 	if(addr == NULL) {
 		union {
 			int (* f) (void *, char *, int);
@@ -520,15 +514,12 @@ static int win32_pathbyaddr(void * addr, char * path, int sz)
 		};
 		addr = t.p;
 	}
-
 	dll = LoadLibrary(TEXT(DLLNAME));
 	if(dll == NULL) {
 		ERR_raise(ERR_LIB_DSO, DSO_R_UNSUPPORTED);
 		return -1;
 	}
-
-	create_snap = (CREATETOOLHELP32SNAPSHOT)
-	    GetProcAddress(dll, "CreateToolhelp32Snapshot");
+	create_snap = (CREATETOOLHELP32SNAPSHOT)GetProcAddress(dll, "CreateToolhelp32Snapshot");
 	if(create_snap == NULL) {
 		FreeLibrary(dll);
 		ERR_raise(ERR_LIB_DSO, DSO_R_UNSUPPORTED);
@@ -536,14 +527,12 @@ static int win32_pathbyaddr(void * addr, char * path, int sz)
 	}
 	/* We take the rest for granted... */
 #ifdef _WIN32_WCE
-	close_snap = (CLOSETOOLHELP32SNAPSHOT)
-	    GetProcAddress(dll, "CloseToolhelp32Snapshot");
+	close_snap = (CLOSETOOLHELP32SNAPSHOT)GetProcAddress(dll, "CloseToolhelp32Snapshot");
 #else
 	close_snap = (CLOSETOOLHELP32SNAPSHOT)CloseHandle;
 #endif
 	module_first = (MODULE32)GetProcAddress(dll, "Module32First");
 	module_next = (MODULE32)GetProcAddress(dll, "Module32Next");
-
 	/*
 	 * Take a snapshot of current process which includes
 	 * list of all involved modules.
@@ -554,20 +543,16 @@ static int win32_pathbyaddr(void * addr, char * path, int sz)
 		ERR_raise(ERR_LIB_DSO, DSO_R_UNSUPPORTED);
 		return -1;
 	}
-
 	me32.dwSize = sizeof(me32);
-
 	if(!(*module_first)(hModuleSnap, &me32)) {
 		(*close_snap)(hModuleSnap);
 		FreeLibrary(dll);
 		ERR_raise(ERR_LIB_DSO, DSO_R_FAILURE);
 		return -1;
 	}
-
 	/* Enumerate the modules to find one which includes me. */
 	do {
-		if((size_t)addr >= (size_t)me32.modBaseAddr &&
-		    (size_t)addr < (size_t)(me32.modBaseAddr + me32.modBaseSize)) {
+		if((size_t)addr >= (size_t)me32.modBaseAddr && (size_t)addr < (size_t)(me32.modBaseAddr + me32.modBaseSize)) {
 			(*close_snap)(hModuleSnap);
 			FreeLibrary(dll);
 #ifdef _WIN32_WCE

@@ -238,7 +238,7 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length,
 								goto end;
 						}
 					}
-					else{
+					else {
 						/* print the normal dump */
 						if(!nl) {
 							if(BIO_write(bp, "\n", 1) <= 0)

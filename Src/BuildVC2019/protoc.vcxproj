@@ -124,8 +124,9 @@
       <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>../osf/protobuf-3.19.1/__build__/Debug/protoc.lib</ImportLibrary>
-      <ProgramDataBaseFile>../osf/protobuf-3.19.1/__build__/Debug/protoc.pdb</ProgramDataBaseFile>
+      <ImportLibrary>
+      </ImportLibrary>
+      <ProgramDataBaseFile>$(OutDir)$(TargetName).pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
       <OutputFile>..\..\TOOLS\$(TargetName)$(TargetExt)</OutputFile>
     </Link>
@@ -172,8 +173,9 @@
       <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>../osf/protobuf-3.19.1/__build__/Debug/protoc.lib</ImportLibrary>
-      <ProgramDataBaseFile>../osf/protobuf-3.19.1/__build__/Debug/protoc.pdb</ProgramDataBaseFile>
+      <ImportLibrary>
+      </ImportLibrary>
+      <ProgramDataBaseFile>$(OutDir)$(TargetName).pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
       <OutputFile>..\..\TOOLS\$(TargetName)$(TargetExt)</OutputFile>
     </Link>
@@ -220,8 +222,9 @@
       <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>../osf/protobuf-3.19.1/__build__/Release/protoc.lib</ImportLibrary>
-      <ProgramDataBaseFile>../osf/protobuf-3.19.1/__build__/Release/protoc.pdb</ProgramDataBaseFile>
+      <ImportLibrary>
+      </ImportLibrary>
+      <ProgramDataBaseFile>$(OutDir)$(TargetName).pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
       <OutputFile>..\..\TOOLS\$(TargetName)$(TargetExt)</OutputFile>
     </Link>
@@ -268,8 +271,9 @@
       <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>../osf/protobuf-3.19.1/__build__/Release/protoc.lib</ImportLibrary>
-      <ProgramDataBaseFile>../osf/protobuf-3.19.1/__build__/Release/protoc.pdb</ProgramDataBaseFile>
+      <ImportLibrary>
+      </ImportLibrary>
+      <ProgramDataBaseFile>$(OutDir)$(TargetName).pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
       <OutputFile>..\..\TOOLS\$(TargetName)$(TargetExt)</OutputFile>
     </Link>

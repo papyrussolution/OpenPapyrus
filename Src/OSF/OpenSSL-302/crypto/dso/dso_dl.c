@@ -180,7 +180,7 @@ static char * dl_merger(DSO * dso, const char * filespec1, const char * filespec
 			return NULL;
 		}
 	}
-	else{
+	else {
 		/*
 		 * This part isn't as trivial as it looks.  It assumes that the
 		 * second file specification really is a directory, and makes no

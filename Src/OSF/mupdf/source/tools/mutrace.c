@@ -81,7 +81,7 @@ int mutrace_main(int argc, const char * argv[])
 {
 	fz_context * ctx;
 	fz_document * doc = NULL;
-	char * password = "";
+	const char * password = "";
 	int i, c, count;
 	while((c = fz_getopt(argc, (char * const *)argv, "p:W:H:S:U:Xd")) != -1) {
 		switch(c) {

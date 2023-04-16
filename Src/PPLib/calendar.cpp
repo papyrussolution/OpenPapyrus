@@ -2097,11 +2097,7 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 		}
 	};
 	SetupStartLoYear();
-	SUiLayout * p_lo_result = new SUiLayout();
-	{
-		SUiLayoutParam alb(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-		p_lo_result->SetLayoutBlock(alb);
-	}
+	SUiLayout * p_lo_result = new SUiLayout(SUiLayoutParam(DIREC_VERT, 0, SUiLayoutParam::alignStretch));
 	if(Kind == kDate) {
 		InnerBlock::MakeYearsLayout(this, p_lo_result); // Года. Располагаются в 1 строку со служебными элементами по краям (стрелки для скроллинга)
 		InnerBlock::MakeMonthesLayout(this, p_lo_result); // Месяцы. Располагаются в 2 строки по 6 ячеек

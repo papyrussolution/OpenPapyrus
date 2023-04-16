@@ -3704,6 +3704,33 @@ SJson * PPStyloQInterchange::Document::ToJsonObject() const
 						else
 							p_js_item->Insert("set", p_js_ti_set);
 					}
+					// @v11.6.12 {
+					{
+						SJson * p_js_ti_set = SJson::CreateObj();
+						bool is_empty = true;
+						if(p_ti->SetAccepted.Qtty != 0.0) {
+							p_js_ti_set->InsertDouble("qtty", p_ti->SetAccepted.Qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+							is_empty = false;
+						}
+						if(p_ti->SetAccepted.Cost != 0.0) {
+							p_js_ti_set->InsertDouble("cost", p_ti->SetAccepted.Cost, MKSFMTD(0, 2, 0));
+							is_empty = false;
+						}
+						if(p_ti->SetAccepted.Price != 0.0) {
+							p_js_ti_set->InsertDouble("price", p_ti->SetAccepted.Price, MKSFMTD(0, 2, 0));
+							is_empty = false;
+						}
+						if(p_ti->SetAccepted.Discount != 0.0) {
+							p_js_ti_set->InsertDouble("discount", p_ti->SetAccepted.Discount, MKSFMTD(0, 5, NMBF_NOTRAILZ));
+							is_empty = false;
+						}
+						if(is_empty) {
+							ZDELETE(p_js_ti_set);
+						}
+						else
+							p_js_item->Insert("setaccepted", p_js_ti_set);
+					}
+					// } @v11.6.12 
 					if(p_ti->XcL.getCount()) {
 						SJson * p_js_xcl = 0;
 						for(uint xci = 0; xci < p_ti->XcL.getCount(); xci++) {
@@ -3890,18 +3917,28 @@ int PPStyloQInterchange::Document::FromJsonObject(const SJson * pJsObj)
 								else if(p_ti_cur->Text.IsEqiAscii("set")) {
 									if(SJson::IsObject(p_ti_cur->P_Child)) {
 										for(const SJson * p_set_cur = p_ti_cur->P_Child->P_Child; p_set_cur; p_set_cur = p_set_cur->P_Next) {
-											if(p_set_cur->Text.IsEqiAscii("qtty") || p_set_cur->Text.IsEqiAscii("qty")) {
+											if(p_set_cur->Text.IsEqiAscii("qtty") || p_set_cur->Text.IsEqiAscii("qty"))
 												p_new_item->Set.Qtty = p_set_cur->P_Child->Text.ToReal();
-											}
-											else if(p_set_cur->Text.IsEqiAscii("cost")) {
+											else if(p_set_cur->Text.IsEqiAscii("cost"))
 												p_new_item->Set.Cost = p_set_cur->P_Child->Text.ToReal();
-											}
-											else if(p_set_cur->Text.IsEqiAscii("price")) {
+											else if(p_set_cur->Text.IsEqiAscii("price"))
 												p_new_item->Set.Price = p_set_cur->P_Child->Text.ToReal();
-											}
-											else if(p_set_cur->Text.IsEqiAscii("discount")) {
+											else if(p_set_cur->Text.IsEqiAscii("discount"))
 												p_new_item->Set.Discount = p_set_cur->P_Child->Text.ToReal();
-											}
+										}
+									}
+								}
+								else if(p_ti_cur->Text.IsEqiAscii("setaccepted")) {
+									if(SJson::IsObject(p_ti_cur->P_Child)) {
+										for(const SJson * p_set_cur = p_ti_cur->P_Child->P_Child; p_set_cur; p_set_cur = p_set_cur->P_Next) {
+											if(p_set_cur->Text.IsEqiAscii("qtty") || p_set_cur->Text.IsEqiAscii("qty"))
+												p_new_item->SetAccepted.Qtty = p_set_cur->P_Child->Text.ToReal();
+											else if(p_set_cur->Text.IsEqiAscii("cost"))
+												p_new_item->SetAccepted.Cost = p_set_cur->P_Child->Text.ToReal();
+											else if(p_set_cur->Text.IsEqiAscii("price"))
+												p_new_item->SetAccepted.Price = p_set_cur->P_Child->Text.ToReal();
+											else if(p_set_cur->Text.IsEqiAscii("discount"))
+												p_new_item->SetAccepted.Discount = p_set_cur->P_Child->Text.ToReal();
 										}
 									}
 								}

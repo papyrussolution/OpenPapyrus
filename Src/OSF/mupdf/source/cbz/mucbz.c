@@ -67,7 +67,7 @@ static inline int cbz_strnatcmp(const char * a, const char * b)
 			while(cbz_isdigit(*b))
 				y = y * 10 + *b++ - '0';
 		}
-		else{
+		else {
 			x = cbz_toupper(*a++);
 			y = cbz_toupper(*b++);
 		}

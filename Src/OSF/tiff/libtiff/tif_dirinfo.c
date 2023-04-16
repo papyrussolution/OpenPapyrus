@@ -274,15 +274,14 @@ static const TIFFFieldArray exifFieldArray = { tfiatExif, 0, SIZEOFARRAY(exifFie
 
 static const TIFFFieldArray * _GetTiffFieldArray() { return &tiffFieldArray; }
 static const TIFFFieldArray * _GetExifFieldArray() { return &exifFieldArray; }
-/*
- *  We have our own local lfind() equivalent to avoid subtle differences
- *  in types passed to lfind() on different systems.
- */
-static void * td_lfind(const void * key, const void * base, size_t * nmemb, size_t size, int (* compar)(const void *, const void *))
+//
+// We have our own local lfind() equivalent to avoid subtle differences
+// in types passed to lfind() on different systems.
+//
+static const void * td_lfind(const void * key, const void * base, size_t * nmemb, size_t size, int (* compar)(const void *, const void *))
 {
-	char * element;
-	char * end = (char *)base + *nmemb * size;
-	for(element = (char *)base; element < end; element += size)
+	const char * end = (const char *)base + *nmemb * size;
+	for(const char * element = (const char *)base; element < end; element += size)
 		if(!compar(key, element)) // key found
 			return element;
 	return NULL;
@@ -413,25 +412,20 @@ int _TIFFDataSize(TIFFDataType type)
 		case TIFF_BYTE:
 		case TIFF_SBYTE:
 		case TIFF_ASCII:
-		case TIFF_UNDEFINED:
-		    return 1;
+		case TIFF_UNDEFINED: return 1;
 		case TIFF_SHORT:
-		case TIFF_SSHORT:
-		    return 2;
+		case TIFF_SSHORT: return 2;
 		case TIFF_LONG:
 		case TIFF_SLONG:
 		case TIFF_FLOAT:
 		case TIFF_IFD:
 		case TIFF_RATIONAL:
-		case TIFF_SRATIONAL:
-		    return 4;
+		case TIFF_SRATIONAL: return 4;
 		case TIFF_DOUBLE:
 		case TIFF_LONG8:
 		case TIFF_SLONG8:
-		case TIFF_IFD8:
-		    return 8;
-		default:
-		    return 0;
+		case TIFF_IFD8: return 8;
+		default: return 0;
 	}
 }
 

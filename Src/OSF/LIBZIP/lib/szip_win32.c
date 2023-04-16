@@ -362,15 +362,12 @@ static int64 _win32_read_file(void * state, void * data, uint64 len, zip_source_
 		case ZIP_SOURCE_READ:
 		    if(ctx->end > 0) {
 			    n = ctx->end - ctx->current;
-			    if(n > len) {
-				    n = len;
-			    }
+				SETMIN(n, len);
 		    }
 		    else {
 			    n = len;
 		    }
-		    if(n > SIZE_MAX)
-			    n = SIZE_MAX;
+			SETMIN(n, SIZE_MAX);
 		    if(!ctx->closep) {
 			    if(_zip_seek_win32_u(ctx->h, ctx->current, SEEK_SET, &ctx->error) < 0) {
 				    return -1;

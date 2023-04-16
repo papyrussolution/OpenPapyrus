@@ -797,7 +797,6 @@ static void svg_parse_viewport(fz_context * ctx, svg_document * doc, fz_xml * no
 {
 	char * w_att = fz_xml_att(node, "width");
 	char * h_att = fz_xml_att(node, "height");
-
 	if(w_att)
 		state->viewport_w = svg_parse_length(w_att, state->viewbox_w, state->fontsize);
 	if(h_att)

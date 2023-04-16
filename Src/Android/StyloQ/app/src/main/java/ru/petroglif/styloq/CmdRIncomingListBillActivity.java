@@ -371,6 +371,103 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 			return convertView; // Return the completed view to render on screen
 		}
 	}
+	//
+	// Descr: Диалог акцепта строки документа
+	//
+	static class AcceptTiDialog extends SLib.SlDialog { // @v11.6.12
+		Document.TransferItem Data;
+		CommonPrereqModule CPM;
+		CmdRIncomingListBillActivity ActivityParent;
+		public AcceptTiDialog(Context ctx, CommonPrereqModule cpm, Document.TransferItem data)
+		{
+			super(ctx, R.id.DLG_TIACCEPT, data);
+			CPM = cpm;
+			if(ctx != null && ctx instanceof CmdRIncomingListBillActivity)
+				ActivityParent = (CmdRIncomingListBillActivity)ctx;
+			if(data instanceof Document.TransferItem)
+				Data = Document.TransferItem.Copy((Document.TransferItem)data); // Copy!
+		}
+		@Override public Object HandleEvent(int ev, Object srcObj, Object subj)
+		{
+			Object result = null;
+			StyloQApp app_ctx = (ActivityParent != null) ? ActivityParent.GetAppCtx() : null;
+			switch(ev) {
+				case SLib.EV_CREATE:
+					requestWindowFeature(Window.FEATURE_NO_TITLE);
+					setContentView(R.layout.dialog_ti_accept);
+					SetDTS(Data);
+					break;
+				case SLib.EV_COMMAND:
+					int view_id = View.class.isInstance(srcObj) ? ((View)srcObj).getId() : 0;
+					if(view_id == R.id.STDCTL_OKBUTTON) {
+						Object data = GetDTS();
+						if(data != null) {
+							if(app_ctx != null)
+								app_ctx.HandleEvent(SLib.EV_IADATAEDITCOMMIT, this, data);
+						}
+						this.dismiss(); // Close Dialog
+					}
+					else if(view_id == R.id.STDCTL_CANCELBUTTON) {
+						this.dismiss();
+					}
+					break;
+			}
+			return result;
+		}
+		boolean SetDTS(Object objData)
+		{
+			boolean ok = true;
+			StyloQApp app_ctx = (ActivityParent != null) ? ActivityParent.GetAppCtx() : null;
+			if(app_ctx != null) {
+				//Context ctx = getContext();
+				Document.TransferItem _data = (Data != null && Data instanceof Document.TransferItem) ? (Document.TransferItem)Data : null;
+				//String hint_text = app_ctx.GetString(ppstr2.PPSTR_TEXT, ppstr2.PPTXT_SELECTTIROWFORMARKSUBST);
+				//SLib.SetCtrlString(this, R.id.CTL_SUBSTTIFORUNASSIGNEDMARK_HINT, hint_text);
+				if(_data != null) {
+					if(_data.Set != null) {
+						SLib.SetCtrlString(this, R.id.CTL_TI_COST, CPM.FormatCurrency(_data.Set.Cost));
+						SLib.SetCtrlString(this, R.id.CTL_TI_PRICE, CPM.FormatCurrency(_data.Set.Price));
+						SLib.SetCtrlString(this, R.id.CTL_TI_QTTY, SLib.formatdouble(_data.Set.Qtty, 3));
+					}
+					else {
+
+					}
+					if(_data.SetAccepted == null)
+						_data.SetAccepted = new Document.ValuSet();
+					SLib.SetCtrlString(this, R.id.CTL_TI_ACCEPTED_QTTY, SLib.formatdouble(_data.SetAccepted.Qtty, 3));
+				}
+			}
+			return ok;
+		}
+		Object GetDTS()
+		{
+			Document.TransferItem _data = (Data != null && Data instanceof Document.TransferItem) ? (Document.TransferItem)Data : null;
+			if(_data != null) {
+				String qtty_text = SLib.GetCtrlString(this, R.id.CTL_TI_ACCEPTED_QTTY);
+				double accepted_qtty = 0.0;
+				if(SLib.GetLen(qtty_text) > 0) {
+					STokenRecognizer.TokenArray nta = CPM.RecognizeToken(qtty_text);
+					if(nta.Has(STokenRecognizer.SNTOK_NUMERIC_DOT) > 0.0f || nta.Has(STokenRecognizer.SNTOKSEQ_NUMERIC) > 0.0f)
+						accepted_qtty = Double.parseDouble(qtty_text);
+				}
+				if(accepted_qtty > 0.0) {
+					if(_data.SetAccepted == null)
+						_data.SetAccepted = new Document.ValuSet();
+					_data.SetAccepted.Qtty = accepted_qtty;
+				}
+				else if(_data.SetAccepted != null) {
+					_data.SetAccepted.Qtty = accepted_qtty;
+				}
+				if(_data.SetAccepted != null && _data.Set != null) {
+					if(_data.SetAccepted.Cost <= 0.0)
+						_data.SetAccepted.Cost = _data.Set.Cost;
+					if(_data.SetAccepted.Price <= 0.0)
+						_data.SetAccepted.Price = _data.Set.Price;
+				}
+			}
+			return Data;
+		}
+	}
 	static class SubstTiForUnassignedMarkDialog extends SLib.SlDialog {
 		CmdRIncomingListBillActivity ActivityParent;
 		public static class DataBlock {
@@ -820,17 +917,32 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 									case R.id.CTL_DOCUMENT_TILIST:
 										final int cc = CPM.GetCurrentDocumentTransferListCount();
 										if(ev_subj.ItemIdx < cc) {
+											StyloQApp app_ctx = GetAppCtx();
 											View iv = ev_subj.RvHolder.itemView;
-											final Document _doc = CPM.GetCurrentDocument();
-											final Document.TransferItem ti = _doc.TiList.get(ev_subj.ItemIdx);
-											if(ti != null) {
-												CommonPrereqModule.WareEntry goods_item = CPM.FindGoodsItemByGoodsID(ti.GoodsID);
-												int uom_id = (goods_item != null && goods_item.Item != null) ? goods_item.Item.UomID : 0;
-												SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_GOODSNAME, (goods_item != null) ? goods_item.Item.Name : "");
-												SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_PRICE, (ti.Set != null) ? CPM.FormatCurrency(ti.Set.Price) : "");
-												SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_QTTY, (ti.Set != null) ? CPM.FormatQtty(ti.Set.Qtty, uom_id, false) : "");
-												double item_amont = (ti.Set != null) ? (ti.Set.Qtty * ti.Set.Price) : 0.0;
-												SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_AMOUNT, " = " + CPM.FormatCurrency(item_amont));
+											if(iv != null) {
+												if(app_ctx != null && iv instanceof ViewGroup)
+													SLib.SubstituteStringSignatures(app_ctx, (ViewGroup)iv);
+												final Document _doc = CPM.GetCurrentDocument();
+												final Document.TransferItem ti = _doc.TiList.get(ev_subj.ItemIdx);
+												if(ti != null) {
+													CommonPrereqModule.WareEntry goods_item = CPM.FindGoodsItemByGoodsID(ti.GoodsID);
+													int uom_id = (goods_item != null && goods_item.Item != null) ? goods_item.Item.UomID : 0;
+													SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_GOODSNAME, (goods_item != null) ? goods_item.Item.Name : "");
+													SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_PRICE, (ti.Set != null) ? CPM.FormatCurrency(ti.Set.Price) : "");
+													SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_QTTY, (ti.Set != null) ? CPM.FormatQtty(ti.Set.Qtty, uom_id, false) : "");
+													double item_amont = (ti.Set != null) ? (ti.Set.Qtty * ti.Set.Price) : 0.0;
+													SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_AMOUNT, " = " + CPM.FormatCurrency(item_amont));
+													if(ti.SetAccepted != null) {
+														SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_ACCPTED_PRICE, CPM.FormatCurrency(ti.SetAccepted.Price));
+														SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_ACCPTED_QTTY, CPM.FormatQtty(ti.SetAccepted.Qtty, uom_id, false));
+														item_amont = (ti.Set != null) ? (ti.SetAccepted.Qtty * ti.SetAccepted.Price) : 0.0;
+														SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_ACCPTED_AMOUNT, " = " + CPM.FormatCurrency(item_amont));
+														SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_TI_ACCEPTED_TEXT, View.VISIBLE);
+													}
+													else {
+														SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_TI_ACCEPTED_TEXT, View.GONE);
+													}
+												}
 											}
 										}
 										break;
@@ -1362,15 +1474,27 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							boolean do_update_goods_list_and_toggle_to_it = false;
 							final int rc_id = a.GetListRcId();
 							if(app_ctx != null && ev_subj.ItemIdx >= 0) {
+								final int actf = CPM.GetActionFlags();
 								switch(rc_id) {
 									case R.id.CTL_DOCUMENT_TILIST:
-										if((CPM.GetActionFlags() & (Document.actionCCheckMod|Document.actionCCheckCreat)) != 0) {
+										if((actf & (Document.actionCCheckMod|Document.actionCCheckCreat)) != 0) {
 											final int cc = CPM.GetCurrentDocumentTransferListCount();
 											if(ev_subj.ItemIdx < cc) {
 												final Document _doc = CPM.GetCurrentDocument();
 												final Document.TransferItem ti = _doc.TiList.get(ev_subj.ItemIdx);
 												if(ti != null) {
 													CommonPrereqModule.TransferItemDialog dialog = new CommonPrereqModule.TransferItemDialog(this, CPM, ti);
+													dialog.show();
+												}
+											}
+										}
+										else if((actf & Document.actionDocAcceptance) != 0) { // @v11.6.12
+											final int cc = CPM.GetCurrentDocumentTransferListCount();
+											if(ev_subj.ItemIdx < cc) {
+												final Document _doc = CPM.GetCurrentDocument();
+												final Document.TransferItem ti = _doc.TiList.get(ev_subj.ItemIdx);
+												if(ti != null) {
+													AcceptTiDialog dialog = new AcceptTiDialog(this, CPM, ti);
 													dialog.show();
 												}
 											}
@@ -1596,7 +1720,22 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 				break;
 			case SLib.EV_IADATAEDITCOMMIT:
 				if(srcObj != null) {
-					if(srcObj instanceof CommonPrereqModule.TransferItemDialog) {
+					if(srcObj instanceof AcceptTiDialog) {
+						if(subj != null && subj instanceof Document.TransferItem) {
+							Document.TransferItem _data = (Document.TransferItem)subj;
+							boolean do_notify_goods_list = false;
+							if(_data.RowIdx == 0) {
+								// no way
+							}
+							else {
+								if(CPM.UpdateTransferItemAcceptanceInCurrentDocument(_data)) {
+									NotifyCurrentDocumentChanged();
+									do_notify_goods_list = true;
+								}
+							}
+						}
+					}
+					else if(srcObj instanceof CommonPrereqModule.TransferItemDialog) {
 						if(subj != null && subj instanceof Document.TransferItem) {
 							Document.TransferItem _data = (Document.TransferItem)subj;
 							boolean do_notify_goods_list = false;

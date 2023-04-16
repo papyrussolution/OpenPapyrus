@@ -204,9 +204,28 @@ typedef ComDispInterface  FR_INTRF;
 //
 //
 class SCS_SHTRIHFRF : public PPSyncCashSession {
+	const  bool IsDebugMode;
+	uint8  Reserve[3]; // @alignment
 public:
-	SCS_SHTRIHFRF(PPID n, char * name, char * port);
-	~SCS_SHTRIHFRF();
+	SCS_SHTRIHFRF(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port),
+		CashierPassword(0), AdmPassword(0), ResCode(RESCODE_NO_ERROR), ErrCode(SYNCPRN_NO_ERROR),
+		DeviceType(devtypeUndef), CheckStrLen(DEF_STRLEN), Flags(0), RibbonParam(0), SCardPaymEntryN(0),
+		IsDebugMode(LOGIC(CConfig.Flags & CCFLG_DEBUG))
+	{
+		if(SCn.Flags & CASHF_NOTUSECHECKCUTTER)
+			Flags |= sfDontUseCutter;
+		RefToIntrf++;
+		SETIFZ(P_DrvFRIntrf, InitDriver());
+	}
+	~SCS_SHTRIHFRF()
+	{
+		if(Flags & sfConnected) {
+			if(!ExecFR(Disconnect))
+				LogLastError();
+		}
+		if(--RefToIntrf == 0)
+			ZDELETE(P_DrvFRIntrf);
+	}
 	virtual int PrintCheck(CCheckPacket * pPack, uint flags);
 	// @v10.0.0 virtual int PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
@@ -245,6 +264,33 @@ private:
 	int  ExecFRPrintOper(int id);
 	int  AllowPrintOper(int id);
 	void SetErrorMessage();
+	void WriteLogFileToWriteTblErr(int tblNum, int rowNum, int fldNum, const char * pValue)
+	{
+		if(IsDebugMode) {
+			SString msg_fmt, msg, value;
+			(value = pValue).Transf(CTRANSF_OUTER_TO_INNER);
+			msg.Printf(PPLoadTextS(PPTXT_LOG_SHTRIH_WRITETBLERR, msg_fmt), tblNum, rowNum, fldNum, value.cptr());
+			PPLogMessage(PPFILNAM_SHTRIH_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);
+		}
+	}
+	void LogDebug(const char * pFunc, int ifcId, const char * pArg)
+	{
+		if(IsDebugMode) {
+			SString temp_buf;
+			SString msg_buf;
+			if(!isempty(pFunc))
+				msg_buf.Cat(pFunc);
+			if(ifcId >= 0 && P_DrvFRIntrf) {
+				P_DrvFRIntrf->GetNameByID(ifcId, temp_buf);
+				msg_buf.CatDivConditionally(',', 2, msg_buf.NotEmpty()).Cat(temp_buf);
+			}
+			if(!isempty(pArg)) {
+				msg_buf.CatDivConditionally(',', 2, msg_buf.NotEmpty()).Cat(pArg);
+			}
+			if(msg_buf.NotEmpty())
+				PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+		}
+	}
 	//
 	// Returns:
 	//   0 only. In order to initialize return code
@@ -262,6 +308,7 @@ private:
 	int  CheckForRibbonUsing(uint ribbonParam); // ribbonParam == SlipLineParam::RegTo
 	int  Cut(int withCleaning);
 	int  GetBarcodePrintMethodAndStd(int innerBarcodeStd, int * pOemMethod, int * pOemStd);
+	int  GetResultCode(int methID);
 
 	enum {
 		ResultCode,                       // #00
@@ -491,26 +538,6 @@ PPSyncCashSession * CM_SHTRIHFRF::SyncInterface()
 }
 
 REGISTER_CMT(SHTRIHFRF, true, false);
-
-SCS_SHTRIHFRF::SCS_SHTRIHFRF(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port),
-	CashierPassword(0), AdmPassword(0), ResCode(RESCODE_NO_ERROR), ErrCode(SYNCPRN_NO_ERROR),
-	DeviceType(devtypeUndef), CheckStrLen(DEF_STRLEN), Flags(0), RibbonParam(0), SCardPaymEntryN(0)
-{
-	if(SCn.Flags & CASHF_NOTUSECHECKCUTTER)
-		Flags |= sfDontUseCutter;
-	RefToIntrf++;
-	SETIFZ(P_DrvFRIntrf, InitDriver());
-}
-
-SCS_SHTRIHFRF::~SCS_SHTRIHFRF()
-{
-	if(Flags & sfConnected) {
-		if(!ExecFR(Disconnect))
-			LogLastError();
-	}
-	if(--RefToIntrf == 0)
-		ZDELETE(P_DrvFRIntrf);
-}
 
 int SCS_SHTRIHFRF::CheckForCash(double sum)
 {
@@ -837,6 +864,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 							int   stlv_tag_id = 0;
 							THROW(SetFR(TagNumber, 1084));
 							THROW(ExecFRPrintOper(FNBeginSTLVTag));
+							LogDebug("GetProperty", TagID, 0); // @v11.6.12
 							THROW_PP_S(P_DrvFRIntrf->GetProperty(TagID, &stlv_tag_id) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(TagID, SLS.AcquireRvlStr()));
 							//
 							THROW(SetFR(TagID, stlv_tag_id));
@@ -1411,15 +1439,13 @@ int SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry, int 
 int SCS_SHTRIHFRF::PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
 	int    ok = -1;
-	const  bool is_cfg_debug = LOGIC(CConfig.Flags & CCFLG_DEBUG);
 	SString  temp_buf;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
 	THROW_INVARG(pPack);
 	THROW(ConnectFR());
-	if(is_cfg_debug) {
-		(temp_buf = "SCS_SHTRIHFRF::PrintSlipDoc entry").CatDiv(':', 2).CatEq("DeviceType", devtypeCombo).
-			CatDiv(';', 2).CatEq("SlipFormat", pFormatName);
+	if(IsDebugMode) {
+		(temp_buf = "SCS_SHTRIHFRF::PrintSlipDoc entry").CatDiv(':', 2).CatEq("DeviceType", devtypeCombo).CatDiv(';', 2).CatEq("SlipFormat", pFormatName);
 		PPLogMessage(PPFILNAM_SHTRIH_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
 	}
 	if(DeviceType == devtypeCombo && P_SlipFmt) {
@@ -1469,11 +1495,9 @@ int SCS_SHTRIHFRF::PrintSlipDoc(const CCheckPacket * pPack, const char * pFormat
 			ok = 1;
 		}
 	}
-	else {
-		if(is_cfg_debug) {
-			(temp_buf = "SCS_SHTRIHFRF::PrintSlipDoc printing skiped");
-			PPLogMessage(PPFILNAM_SHTRIH_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
-		}
+	else if(IsDebugMode) {
+		(temp_buf = "SCS_SHTRIHFRF::PrintSlipDoc printing skiped");
+		PPLogMessage(PPFILNAM_SHTRIH_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
 	}
 	ErrCode = SYNCPRN_NO_ERROR;
 	CATCH
@@ -2173,16 +2197,6 @@ int SCS_SHTRIHFRF::ReadValueFromTbl(int tblNum, int rowNum, int fldNum, long * p
 	return ok;
 }
 
-static void WriteLogFileToWriteTblErr(int tblNum, int rowNum, int fldNum, const char * pValue)
-{
-	if(CConfig.Flags & CCFLG_DEBUG) {
-		SString msg_fmt, msg, value;
-		(value = pValue).Transf(CTRANSF_OUTER_TO_INNER);
-		msg.Printf(PPLoadTextS(PPTXT_LOG_SHTRIH_WRITETBLERR, msg_fmt), tblNum, rowNum, fldNum, value.cptr());
-		PPLogMessage(PPFILNAM_SHTRIH_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);
-	}
-}
-
 int SCS_SHTRIHFRF::WriteStringToTbl(int tblNum, int rowNum, int fldNum, const char * pStr)
 {
 	int   ok = 1;
@@ -2231,7 +2245,7 @@ int SCS_SHTRIHFRF::SetupTables()
 	// Записываем в таблицы настройки (только под паролем администратора)
 	CashierPassword = AdmPassword;
 	// Имя кассира
-	THROW(WriteStringToTbl(FRCASHIER_TBL, FRCASHIER_ROW, FRCASHIER_FIELD_NAME, cshr_str));
+	// @v11.6.12 (@development) THROW(WriteStringToTbl(FRCASHIER_TBL, FRCASHIER_ROW, FRCASHIER_FIELD_NAME, cshr_str));
 	// Имя администратора
 	THROW(WriteStringToTbl(FRCASHIER_TBL, FRCASHIER_ADMINROW, FRCASHIER_FIELD_NAME, AdmName.NotEmpty() ? AdmName : cshr_str));
 	// Настройки режима работы кассы
@@ -2340,6 +2354,13 @@ int SCS_SHTRIHFRF::ConnectFR()
 		buf.Divide(',', buf1, AdmName);
 		CashierPassword = AdmPassword = buf1.ToLong();
 		AdmName.Strip().Transf(CTRANSF_INNER_TO_OUTER);
+		/*
+			Тайм-аут приема байта. Тайм-аут приема байта нелинейный. Диапазон допустимых значений
+			[0…255] распадается на три диапазона:
+			-- в диапазоне [0…150] каждая единица соответствует 1 мс, т.е. данным диапазоном задаются значения тайм-аута от 0 до 150 мс;
+			-- в диапазоне [151…249] каждая единица соответствует 150 мс, т.е. данным диапазоном задаются значения тайм-аута от 300 мс до 15 сек;
+			-- в диапазоне [250…255] каждая единица соответствует 15 сек, т.е. данным диапазоном задаются значения тайм-аута от 30 сек до 105 сек.
+		*/
 		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRCONNECTPARAM, buf) > 0) {
 			SString  buf2;
 			if(buf.Divide(',', buf1, buf2) > 0)
@@ -2350,8 +2371,9 @@ int SCS_SHTRIHFRF::ConnectFR()
 		}
 		THROW_PP(PortType == COM_PORT, PPERR_SYNCCASH_INVPORT);
 		THROW(SetFR(ComNumber, Handle));
-		if(def_timeout >= 0 && def_timeout < MAX_TIMEOUT)
-			THROW(SetFR(Timeout, def_timeout));
+		if(def_timeout >= 0 && def_timeout < MAX_TIMEOUT) {
+			// @v11.6.12 (@development) THROW(SetFR(Timeout, def_timeout));
+		}
 		THROW((ok = ExecFR(Connect)) > 0 || ResCode == RESCODE_NO_CONNECTION);
 		for(baud_rate = 0; !ok && baud_rate <= __max_baud_rate; baud_rate++) {
 			THROW(SetFR(BaudRate, baud_rate));
@@ -2415,6 +2437,7 @@ bool SCS_SHTRIHFRF::SetFR(int id, int iVal)
 { 
 	bool   ok = 1;
 	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	LogDebug("SetProperty", id, 0); // @v11.6.12
 	THROW_PP_S(P_DrvFRIntrf->SetProperty(id, iVal) > 0, PPERR_SHTRIHFRSETPROPFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr()));
 	CATCHZOK
 	return ok;
@@ -2424,6 +2447,7 @@ bool SCS_SHTRIHFRF::SetFR(int id, long lVal)
 { 
 	bool   ok = 1;
 	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	LogDebug("SetProperty", id, 0); // @v11.6.12
 	THROW_PP_S(P_DrvFRIntrf->SetProperty(id, lVal) > 0, PPERR_SHTRIHFRSETPROPFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr()));
 	CATCHZOK
 	return ok;
@@ -2433,6 +2457,7 @@ bool SCS_SHTRIHFRF::SetFR(int id, double dVal)
 { 
 	bool   ok = 1;
 	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	LogDebug("SetProperty", id, 0); // @v11.6.12
 	THROW_PP_S(P_DrvFRIntrf->SetProperty(id, dVal) > 0, PPERR_SHTRIHFRSETPROPFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr()));
 	CATCHZOK
 	return ok;
@@ -2442,6 +2467,7 @@ bool SCS_SHTRIHFRF::SetFR(int id, const char * pStrVal)
 { 
 	bool   ok = 1;
 	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	LogDebug("SetProperty", id, 0); // @v11.6.12
 	THROW_PP_S(P_DrvFRIntrf->SetProperty(id, pStrVal) > 0, PPERR_SHTRIHFRSETPROPFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr()));
 	CATCHZOK
 	return ok;
@@ -2451,7 +2477,19 @@ bool SCS_SHTRIHFRF::GetFR(int id, int * pBuf)
 { 
 	bool   ok = 1;
 	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	LogDebug("GetProperty", id, 0); // @v11.6.12
 	THROW_PP_S(P_DrvFRIntrf->GetProperty(id, pBuf) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr())); 
+	// @v11.6.12 {
+	if(IsDebugMode && pBuf) {
+		SString temp_buf;
+		if(id == ECRMode) {
+			LogDebug("GetProperty(ECRMode) result", -1, temp_buf.Z().Cat(*pBuf)); 
+		}
+		else if(id == ECRAdvancedMode) {
+			LogDebug("GetProperty(ECRAdvancedMode) result", -1, temp_buf.Z().Cat(*pBuf)); 
+		}
+	}
+	// } @v11.6.12 
 	CATCHZOK
 	return ok;
 }
@@ -2460,6 +2498,7 @@ bool SCS_SHTRIHFRF::GetFR(int id, long * pBuf)
 { 
 	bool   ok = 1;
 	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	LogDebug("GetProperty", id, 0); // @v11.6.12
 	THROW_PP_S(P_DrvFRIntrf->GetProperty(id, pBuf) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr())); 
 	CATCHZOK
 	return ok;
@@ -2469,6 +2508,7 @@ bool SCS_SHTRIHFRF::GetFR(int id, double * pBuf)
 { 
 	bool   ok = 1;
 	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	LogDebug("GetProperty", id, 0); // @v11.6.12
 	THROW_PP_S(P_DrvFRIntrf->GetProperty(id, pBuf) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr())); 
 	CATCHZOK
 	return ok;
@@ -2478,35 +2518,49 @@ bool SCS_SHTRIHFRF::GetFR(int id, char * pBuf, size_t bufLen)
 { 
 	bool   ok = 1;
 	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	LogDebug("GetProperty", id, 0); // @v11.6.12
 	THROW_PP_S(P_DrvFRIntrf->GetProperty(id, pBuf, bufLen) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr())); 
+	CATCHZOK
+	return ok;
+}
+
+int SCS_SHTRIHFRF::GetResultCode(int methID)
+{
+	const  int func_without_retcode_checking[] = { GetECRStatus, Beep, Connect, OpenCheck, FNOperation, CloseCheckEx, CloseCheck };
+	int    ok = 1;
+	{
+		bool do_check_result_code = true;
+		for(uint i = 0; do_check_result_code && i < SIZEOFARRAY(func_without_retcode_checking); i++) {
+			if(methID == func_without_retcode_checking[i])
+				do_check_result_code = false;
+		}
+		if(do_check_result_code) {
+			LogDebug("GetProperty", ResultCode, 0); // @v11.6.12
+			THROW_PP_S(P_DrvFRIntrf->GetProperty(ResultCode, &ResCode) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(ResultCode, SLS.AcquireRvlStr())); 
+		}
+		else
+			ResCode = RESCODE_NO_ERROR;
+	}
+	if(ResCode != RESCODE_NO_ERROR) {
+		SString addendum_msg_buf;
+		addendum_msg_buf.Cat(P_DrvFRIntrf->GetNameByID(methID, SLS.AcquireRvlStr())).Space().CatEq("ResCode", ResCode);
+		THROW_PP_S(ResCode == RESCODE_NO_ERROR, PPERR_SHTRIHFRINVRESULTCODE, addendum_msg_buf);
+	}
 	CATCHZOK
 	return ok;
 }
 
 int SCS_SHTRIHFRF::ExecFR(int id)
 {
-	const  int func_without_retcode_checking[] = { GetECRStatus, Beep };
 	int    ok = 1;
 	SString method;
 	P_DrvFRIntrf->GetNameByID(id, method);
 	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	LogDebug("SetProperty", Password, 0); // @v11.6.12
 	THROW_PP_S(P_DrvFRIntrf->SetProperty(Password, CashierPassword) > 0, PPERR_SHTRIHFRSETPROPFAULT, P_DrvFRIntrf->GetNameByID(Password, SLS.AcquireRvlStr()));
+	LogDebug("CallMethod", id, 0); // @v11.6.12
 	THROW_PP_S(P_DrvFRIntrf->CallMethod(id) > 0, PPERR_SHTRIHFRCALLMETHFAULT, method);
-	{
-		bool do_check_result_code = true;
-		for(uint i = 0; do_check_result_code && i < SIZEOFARRAY(func_without_retcode_checking); i++) {
-			if(id == func_without_retcode_checking[i])
-				do_check_result_code = false;
-		}
-		THROW_PP_S(P_DrvFRIntrf->GetProperty(ResultCode, &ResCode) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(ResultCode, SLS.AcquireRvlStr())); 
-		if(!do_check_result_code && ResCode == -1)
-			ResCode = RESCODE_NO_ERROR;
-	}
-	if(ResCode != RESCODE_NO_ERROR) {
-		SString addendum_msg_buf;
-		addendum_msg_buf.Cat(method).Space().CatEq("ResCode", ResCode);
-		THROW_PP_S(ResCode == RESCODE_NO_ERROR, PPERR_SHTRIHFRINVRESULTCODE, addendum_msg_buf);
-	}
+	THROW(GetResultCode(id));
 	CATCHZOK
 	return ok;
 }
@@ -2515,23 +2569,31 @@ int SCS_SHTRIHFRF::ExecFRPrintOper(int id)
 {
 	int    ok = 1;
 	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	LogDebug("SetProperty", Password, 0); // @v11.6.12
 	THROW_PP_S(P_DrvFRIntrf->SetProperty(Password, CashierPassword) > 0, PPERR_SHTRIHFRSETPROPFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr()));
+	// @v11.6.12 {
+	LogDebug("CallMethod", id, 0); // @v11.6.12
+	THROW_PP_S(P_DrvFRIntrf->CallMethod(id) > 0, PPERR_SHTRIHFRCALLMETHFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr()));
+	THROW(GetResultCode(id)); // @v11.6.12
+	// } @v11.6.12 
+	/* @v11.6.12
 	do {
+		LogDebug("CallMethod", id, 0); // @v11.6.12
 		THROW_PP_S(P_DrvFRIntrf->CallMethod(id) > 0, PPERR_SHTRIHFRCALLMETHFAULT, P_DrvFRIntrf->GetNameByID(id, SLS.AcquireRvlStr()));
+		//THROW(GetResultCode(id)); // @v11.6.12
+		LogDebug("GetProperty", ResultCode, 0); // @v11.6.12
 		THROW_PP_S(P_DrvFRIntrf->GetProperty(ResultCode, &ResCode) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(ResultCode, SLS.AcquireRvlStr()));
 		if(ResCode == RESCODE_DVCCMDUNSUPP || (Flags & sfPrintSlip && ResCode == RESCODE_SLIP_IS_EMPTY)) {
 			ok = -1;
 			break;
 		}
 	} while(ResCode != RESCODE_NO_ERROR && (ok = AllowPrintOper(id)) > 0);
+	*/
 	CATCHZOK
 	return ok;
 }
 
-static int IsModeOffPrint(int mode)
-{
-	return oneof5(mode, FRMODE_OPEN_SESS, FRMODE_CLOSE_SESS, FRMODE_OPEN_CHECK, FRMODE_FULL_REPORT, FRMODE_LONG_EKLZ_REPORT) ? 0 : 1;
-}
+static bool IsModeOffPrint(int mode) { return oneof5(mode, FRMODE_OPEN_SESS, FRMODE_CLOSE_SESS, FRMODE_OPEN_CHECK, FRMODE_FULL_REPORT, FRMODE_LONG_EKLZ_REPORT) ? false : true; }
 
 int  SCS_SHTRIHFRF::LogLastError()
 {
@@ -2543,7 +2605,7 @@ int  SCS_SHTRIHFRF::LogLastError()
 
 void SCS_SHTRIHFRF::WriteLogFile(int id)
 {
-	if(CConfig.Flags & CCFLG_DEBUG) {
+	if(IsDebugMode) {
 		int     adv_mode = 0;
 		size_t  pos = 0;
 		char    mode_descr[MAXPATH];
@@ -2577,6 +2639,7 @@ int SCS_SHTRIHFRF::AllowPrintOper(int id)
 	int    is_chk_rbn = 1;
 	int    is_jrn_rbn = 1;
 	int    wait_prn_err = 0;
+	SString temp_buf;
 	SetErrorMessage();
 	// Ожидание окончания операции печати
 	do {
@@ -2598,7 +2661,13 @@ int SCS_SHTRIHFRF::AllowPrintOper(int id)
 		}
 		if((!(Flags & sfPrintSlip) && adv_mode == PRNMODE_NO_PRINT) || oneof2(adv_mode, PRNMODE_PRINT, PRNMODE_PRINT_LONG_REPORT))
 			wait_prn_err = 1;
-	} while(oneof2(adv_mode, PRNMODE_PRINT, PRNMODE_PRINT_LONG_REPORT) || (slip_mode_status != SLIPMODE_BEFORE_PRINT && slip_mode_status != SLIPMODE_AFTER_PRINT));
+		// @v11.6.12 {
+		if(IsDebugMode) {
+			temp_buf.Z().CatEq("adv_mode", adv_mode).CatDiv(',', 2).CatEq("slip_mode_status", slip_mode_status);
+			LogDebug("loop AllowPrintOper", -1, temp_buf); 
+		}
+		// } @v11.6.12 
+	} while(oneof2(adv_mode, PRNMODE_PRINT, PRNMODE_PRINT_LONG_REPORT) || !oneof2(slip_mode_status, SLIPMODE_BEFORE_PRINT, SLIPMODE_AFTER_PRINT));
 	if(Flags & sfPrintSlip) {
 		if(oneof2(slip_mode_status, SLIPMODE_BEFORE_PRINT, SLIPMODE_AFTER_PRINT)) {
 			ExecFR(Beep);
@@ -2610,13 +2679,11 @@ int SCS_SHTRIHFRF::AllowPrintOper(int id)
 		}
 	}
 	else {
-		// На всякий случай помечаем, что чек открыт
-		// (иначе при сбое операции открытия чека неизвестно: чек уже открыт или нет)
+		// На всякий случай помечаем, что чек открыт (иначе при сбое операции открытия чека неизвестно: чек уже открыт или нет)
 		if(mode == FRMODE_OPEN_CHECK)
 			Flags |= sfOpenCheck;
 		// Ожидание заправки чековой ленты или выхода из режима, когда нельзя печатать чек
-		while(ok && (oneof2(adv_mode, PRNMODE_NO_PRINT_NO_PAPER, PRNMODE_PRINT_NO_PAPER) ||
-			(last_res_code == RESCODE_MODE_OFF && IsModeOffPrint(mode)))) {
+		while(ok && (oneof2(adv_mode, PRNMODE_NO_PRINT_NO_PAPER, PRNMODE_PRINT_NO_PAPER) || (last_res_code == RESCODE_MODE_OFF && IsModeOffPrint(mode)))) {
 			int  send_msg = 0, r;
 			if(!is_chk_rbn) {
 				PPSetError(PPERR_SYNCCASH_NO_CHK_RBN);

@@ -434,7 +434,7 @@ static inline uint fz_read_bits(fz_context * ctx, fz_stream * stm, int n)
 		stm->avail -= n;
 		x = (stm->bits >> stm->avail) & ((1 << n) - 1);
 	}
-	else{
+	else {
 		x = stm->bits & ((1 << stm->avail) - 1);
 		n -= stm->avail;
 		stm->avail = 0;
@@ -474,7 +474,7 @@ static inline uint fz_read_rbits(fz_context * ctx, fz_stream * stm, int n)
 		stm->avail -= n;
 		stm->bits = stm->bits >> n;
 	}
-	else{
+	else {
 		uint used = 0;
 
 		x = stm->bits & ((1 << stm->avail) - 1);

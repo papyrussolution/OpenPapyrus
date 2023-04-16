@@ -95,29 +95,23 @@ static int RecogniseErrorListLine(const char * lineBuffer, Sci_PositionU lengthL
 		// <message> at <file> line <line>
 		return SCE_ERR_PERL;
 	}
-	else if((memcmp(lineBuffer, "   at ", 6) == 0) &&
-	    strstr(lineBuffer, ":line ")) {
+	else if((memcmp(lineBuffer, "   at ", 6) == 0) && strstr(lineBuffer, ":line ")) {
 		// A .NET traceback
 		return SCE_ERR_NET;
 	}
-	else if(strstart(lineBuffer, "Line ") &&
-	    strstr(lineBuffer, ", file ")) {
+	else if(strstart(lineBuffer, "Line ") && strstr(lineBuffer, ", file ")) {
 		// Essential Lahey Fortran error message
 		return SCE_ERR_ELF;
 	}
-	else if(strstart(lineBuffer, "line ") &&
-	    strstr(lineBuffer, " column ")) {
+	else if(strstart(lineBuffer, "line ") && strstr(lineBuffer, " column ")) {
 		// HTML tidy style: line 42 column 1
 		return SCE_ERR_TIDY;
 	}
-	else if(strstart(lineBuffer, "\tat ") &&
-	    strstr(lineBuffer, "(") &&
-	    strstr(lineBuffer, ".java:")) {
+	else if(strstart(lineBuffer, "\tat ") && strstr(lineBuffer, "(") && strstr(lineBuffer, ".java:")) {
 		// Java stack back trace
 		return SCE_ERR_JAVA_STACK;
 	}
-	else if(strstart(lineBuffer, "In file included from ") ||
-	    strstart(lineBuffer, "                 from ")) {
+	else if(strstart(lineBuffer, "In file included from ") || strstart(lineBuffer, "                 from ")) {
 		// GCC showing include path to following error
 		return SCE_ERR_GCC_INCLUDED_FROM;
 	}

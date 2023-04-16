@@ -77,7 +77,7 @@ enum { CS_INVALID, CS_UNSET, CS_MONO, CS_GRAY, CS_GRAY_ALPHA, CS_RGB, CS_RGB_ALP
 enum { SPOTS_NONE, SPOTS_OVERPRINT_SIM, SPOTS_FULL };
 
 typedef struct {
-	char * suffix;
+	const char * suffix;
 	int format;
 	int spots;
 } suffix_t;
@@ -127,7 +127,7 @@ static const suffix_t suffix_table[] =
 };
 
 typedef struct {
-	char * name;
+	const char * name;
 	int colorspace;
 } cs_name_t;
 
@@ -272,7 +272,7 @@ typedef struct worker_t {
 #endif
 } worker_t;
 
-static char * output = NULL;
+static const char * output = NULL;
 static fz_output * out = NULL;
 static int output_pagenum = 0;
 static int output_file_per_page = 0;
@@ -470,7 +470,7 @@ static int gettime(void)
 	return (now.tv_sec - first.tv_sec) * 1000 + (now.tv_usec - first.tv_usec) / 1000;
 }
 
-static int has_percent_d(char * s)
+static int has_percent_d(const char * s)
 {
 	/* find '%[0-9]*d' */
 	while(*s) {
@@ -1640,7 +1640,7 @@ static void apply_layer_config(fz_context * ctx, fz_document * doc, const char *
 static int convert_to_accel_path(fz_context * ctx, char outname[], char * absname, size_t len)
 {
 	char * s;
-	char * tmpdir = getenv("TEMP");
+	const char * tmpdir = getenv("TEMP");
 	SETIFZ(tmpdir, getenv("TMP"));
 	SETIFZ(tmpdir, "/var/tmp");
 	if(!fz_is_directory(ctx, tmpdir))
@@ -1686,7 +1686,7 @@ int main(int argc, char ** argv)
 int mudraw_main(int argc, const char * argv[])
 #endif
 {
-	char * password = "";
+	const char * password = "";
 	fz_document * doc = NULL;
 	int c;
 	fz_context * ctx;

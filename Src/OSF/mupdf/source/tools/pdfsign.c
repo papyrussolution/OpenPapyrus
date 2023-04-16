@@ -6,9 +6,9 @@
 #include "mupdf/helpers/pkcs7-openssl.h"
 
 static const char * infile = NULL;
-static char * outfile = NULL;
+static const char * outfile = NULL;
 static char * certificatefile = NULL;
-static char * certificatepassword = "";
+static const char * certificatepassword = "";
 static int verify = 0;
 static int clear = 0;
 static int sign = 0;
@@ -210,7 +210,7 @@ int pdfsign_main(int argc, const char * argv[])
 {
 	fz_context * ctx;
 	pdf_document * doc;
-	char * password = "";
+	const char * password = "";
 	int c;
 	pdf_page * page = NULL;
 	while((c = fz_getopt(argc, (char * const *)argv, "co:p:s:vP:")) != -1) {

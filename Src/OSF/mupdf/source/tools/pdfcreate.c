@@ -192,8 +192,8 @@ static void create_page(const char * input)
 int pdfcreate_main(int argc, const char * argv[])
 {
 	pdf_write_options opts = pdf_default_write_options;
-	char * output = "out.pdf";
-	char * flags = "compress";
+	const char * output = "out.pdf";
+	const char * flags = "compress";
 	int i, c;
 	while((c = fz_getopt(argc, (char * const *)argv, "o:O:")) != -1) {
 		switch(c) {

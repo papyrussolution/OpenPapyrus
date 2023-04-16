@@ -1054,13 +1054,43 @@ struct _PPRights {         // @persistent @store(PropertyTbl)
 		CMP_FLD(ORTailSize);
 		#undef CMP_FLD
 		const _PPRights * p_s = this;
-		for(uint s = 0; s < ORTailSize;) {
-			const ObjRights * p_so = reinterpret_cast<const ObjRights *>(PTR8C(p_s + 1) + s);
-			for(uint s2 = 0; s2 < rS.ORTailSize;) {
-				const ObjRights * p_so2 = reinterpret_cast<const ObjRights *>(PTR8C(&rS + 1) + s);
+		bool   is_eq = true;
+		{
+			for(uint s = 0; is_eq && s < ORTailSize;) {
+				const ObjRights * p_so = reinterpret_cast<const ObjRights *>(PTR8C(p_s + 1) + s);
+				bool found = false;
+				for(uint s2 = 0; !found && is_eq && s2 < rS.ORTailSize;) {
+					const ObjRights * p_so2 = reinterpret_cast<const ObjRights *>(PTR8C(&rS + 1) + s2);
+					if(p_so2->ObjType == p_so->ObjType) {
+						found = true;
+						if(!p_so2->IsEq(*p_so))
+							is_eq = false;
+					}
+					s2 += p_so2->Size;
+				}
+				if(!found)
+					is_eq = false;
+				s += p_so->Size;
 			}
 		}
-		return true;
+		if(is_eq) {
+			for(uint s2 = 0; is_eq && s2 < rS.ORTailSize;) {
+				const ObjRights * p_so2 = reinterpret_cast<const ObjRights *>(PTR8C(&rS + 1) + s2);
+				bool found = false;
+				for(uint s = 0; !found && s < ORTailSize;) {
+					const ObjRights * p_so = reinterpret_cast<const ObjRights *>(PTR8C(&p_s + 1) + s);
+					if(p_so2->ObjType == p_so->ObjType) {
+						found = true;
+						// На равенство элементы проверялись выше
+					}
+					s += p_so->Size;
+				}
+				if(!found)
+					is_eq = false;
+				s2 += p_so2->Size;
+			}
+		}
+		return is_eq;
 	}
 	PPID   SecurObj;       //
 	PPID   SecurID;        //
@@ -1118,6 +1148,15 @@ bool FASTCALL PPRights::IsEq(const PPRights & rS) const
 			eq = false;
 	}
 	if(eq) {
+		if(P_Rt) {
+			if(rS.P_Rt) {
+				eq = P_Rt->IsEq(*rS.P_Rt);
+			}
+			else
+				eq = false;
+		}
+		else if(rS.P_Rt)
+			eq = false;
 	}
 	return eq;
 }

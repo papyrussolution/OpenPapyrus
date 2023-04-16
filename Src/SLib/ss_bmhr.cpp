@@ -344,7 +344,6 @@ int SSrchPattern::Search(const char * pText, size_t start, size_t end, size_t * 
 					if(r8-- == 0) goto __fail; if(*p == pat0 || *p == U) goto __succ;
 __fail:
 					p = 0;
-
 				}
 				else
 					p = PTR8C(memchr(p_text, pat0, text_len));

@@ -8251,6 +8251,16 @@ int GazpromNeft::ParseReply(const SString & rReplyText, ReplyBlock & rBlk)
 							}
 						}
 					}
+					else if(p_itm->Text.IsEqiAscii("innerException")) {
+						result = -1;
+						if(p_itm->P_Child && p_itm->P_Child->IsObject()) {
+							for(const SJson * p_js_err_obj = p_itm->P_Child->P_Child; p_js_err_obj; p_js_err_obj = p_js_err_obj->P_Next) {
+								if(p_js_err_obj->Text.IsEqiAscii("message")) {
+									rBlk.SsErrMsg.add((temp_buf = p_js_err_obj->P_Child->Text).Transf(CTRANSF_UTF8_TO_INNER));
+								}
+							}
+						}
+					}
 				}
 			}
 		}

@@ -1022,10 +1022,9 @@ void _zip_deregister_source(zip_t * za, zip_source_t * src)
 
 int _zip_register_source(zip_t * za, zip_source_t * src)
 {
-	zip_source_t ** open_source;
 	if(za->nopen_source+1 >= za->nopen_source_alloc) {
 		uint n = za->nopen_source_alloc + 10;
-		open_source = static_cast<zip_source_t **>(SAlloc::R(za->open_source, n*sizeof(zip_source_t *)));
+		zip_source_t ** open_source = static_cast<zip_source_t **>(SAlloc::R(za->open_source, n*sizeof(zip_source_t *)));
 		if(!open_source)
 			return zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 		za->nopen_source_alloc = n;

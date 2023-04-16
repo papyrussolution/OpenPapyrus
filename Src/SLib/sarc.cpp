@@ -307,6 +307,9 @@ int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Forma
 		int    zip_err = 0;
 		H = zip_open(pName, flags, &zip_err);
 		THROW(H);
+		{
+			//zip_stat_index(zip_t * za, uint64 index, zip_flags_t flags, zip_stat_t * st)
+		}
 	}
 	else if(Type == tBz2) {
 		//Type = type;

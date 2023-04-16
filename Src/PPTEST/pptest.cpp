@@ -1511,10 +1511,10 @@ int DoConstructionTest()
 #endif
 	//ImportSpecial("D:\\DEV\\RESOURCE\\DATA\\ETC");
 	//Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
-	TestSArchive();
+	//TestSArchive();
 	//SDecimalFraction::Test();
 	//ReformatRazoomnick("D:/Papyrus/Universe-HTT/DATA/Razoomnick-barcodes.csv");	
-	//TestGtinStruc();
+	TestGtinStruc();
 	//PPStyloQInterchange::PrepareAhed(true);
 	//TestCRC();
 	//PPStyloQInterchange::ExecuteIndexingRequest(true/*useCurrentSession*/);

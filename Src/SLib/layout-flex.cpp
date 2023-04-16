@@ -1,5 +1,6 @@
 // LAYOUT-FLEX.CPP
-// Copyright (c) A.Sobolev 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2020, 2021, 2022, 2023
+// @codepage UTF-8
 //
 // The code of Microsoft Flex is partialy used (https://github.com/xamarin/flex.git)
 // Copyright (c) Microsoft Corporation. All rights reserved.
@@ -115,8 +116,8 @@ int SUiLayoutParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx
 	int    ok = 1;
 	//const  uint32 valid_signature = 0x15DE0522U;
 	const  uint32 valid_version = 0U;
-	uint32 signature = SUiLayoutParam::GetSerializeSignature(); // Сигнатура для сериализации
-	uint32 version = 0;   // Версия сериализации
+	uint32 signature = SUiLayoutParam::GetSerializeSignature(); // РЎРёРіРЅР°С‚СѓСЂР° РґР»СЏ СЃРµСЂРёР°Р»РёР·Р°С†РёРё
+	uint32 version = 0;   // Р’РµСЂСЃРёСЏ СЃРµСЂРёР°Р»РёР·Р°С†РёРё
 	THROW(pSCtx->Serialize(dir, signature, rBuf));
 	if(dir < 0) {
 		THROW(signature == SUiLayoutParam::GetSerializeSignature());
@@ -245,14 +246,14 @@ float SUiLayoutParam::CalcEffectiveSizeX(float containerSize) const
 		result = Size.x;
 	}
 	else if(GetSizeByContainerX(containerSize, &result)) {
-		; // @todo Тут, вероятно, надо поля и отступы учесть
+		; // @todo РўСѓС‚, РІРµСЂРѕСЏС‚РЅРѕ, РЅР°РґРѕ РїРѕР»СЏ Рё РѕС‚СЃС‚СѓРїС‹ СѓС‡РµСЃС‚СЊ
 	}
 	else if(SzX == SUiLayoutParam::szByContent) {
 		result = 0.0f; // @todo
 	}
 	else {
 		//
-		// @todo Если установлен AspectRatio, то следует учесть вариант рассчитанного перед вызовом этой функции кросс-размера
+		// @todo Р•СЃР»Рё СѓСЃС‚Р°РЅРѕРІР»РµРЅ AspectRatio, С‚Рѕ СЃР»РµРґСѓРµС‚ СѓС‡РµСЃС‚СЊ РІР°СЂРёР°РЅС‚ СЂР°СЃСЃС‡РёС‚Р°РЅРЅРѕРіРѕ РїРµСЂРµРґ РІС‹Р·РѕРІРѕРј СЌС‚РѕР№ С„СѓРЅРєС†РёРё РєСЂРѕСЃСЃ-СЂР°Р·РјРµСЂР°
 		//
 		if(SzY == SUiLayoutParam::szFixed && AspectRatio > 0.0f) {
 			result = Size.y / AspectRatio;
@@ -271,14 +272,14 @@ float SUiLayoutParam::CalcEffectiveSizeY(float containerSize) const
 		result = Size.y;
 	}
 	else if(GetSizeByContainerY(containerSize, &result)) {
-		; // @todo Тут, вероятно, надо поля и отступы учесть
+		; // @todo РўСѓС‚, РІРµСЂРѕСЏС‚РЅРѕ, РЅР°РґРѕ РїРѕР»СЏ Рё РѕС‚СЃС‚СѓРїС‹ СѓС‡РµСЃС‚СЊ
 	}
 	else if(SzY == SUiLayoutParam::szByContent) {
 		result = 0.0f; // @todo 
 	}
 	else {
 		//
-		// @todo Если установлен AspectRatio, то следует учесть вариант рассчитанного перед вызовом этой функции кросс-размера
+		// @todo Р•СЃР»Рё СѓСЃС‚Р°РЅРѕРІР»РµРЅ AspectRatio, С‚Рѕ СЃР»РµРґСѓРµС‚ СѓС‡РµСЃС‚СЊ РІР°СЂРёР°РЅС‚ СЂР°СЃСЃС‡РёС‚Р°РЅРЅРѕРіРѕ РїРµСЂРµРґ РІС‹Р·РѕРІРѕРј СЌС‚РѕР№ С„СѓРЅРєС†РёРё РєСЂРѕСЃСЃ-СЂР°Р·РјРµСЂР°
 		//
 		if(SzX == SUiLayoutParam::szFixed && AspectRatio > 0.0f) {
 			result = Size.x * AspectRatio;
@@ -574,18 +575,18 @@ int SUiLayoutParam::SizeFromString(const char * pBuf)
 	return ok;
 }
 //
-// Descr: Определяет являются ли координаты по оси X фиксированными.
+// Descr: РћРїСЂРµРґРµР»СЏРµС‚ СЏРІР»СЏСЋС‚СЃСЏ Р»Рё РєРѕРѕСЂРґРёРЅР°С‚С‹ РїРѕ РѕСЃРё X С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹РјРё.
 //
 bool SUiLayoutParam::IsNominalFullDefinedX() const { return ((Flags & (fNominalDefL|fNominalDefR)) == (fNominalDefL|fNominalDefR)); }
 //
-// Descr: Определяет являются ли координаты по оси Y фиксированными.
+// Descr: РћРїСЂРµРґРµР»СЏРµС‚ СЏРІР»СЏСЋС‚СЃСЏ Р»Рё РєРѕРѕСЂРґРёРЅР°С‚С‹ РїРѕ РѕСЃРё Y С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹РјРё.
 //
 bool SUiLayoutParam::IsNominalFullDefinedY() const { return ((Flags & (fNominalDefT|fNominalDefB)) == (fNominalDefT|fNominalDefB)); }
 //
-// Descr: Вспомогательная функция, возвращающая кросс-направление относительно заданного
-//   направления direction.
-//   Если direction == DIREC_HORZ, то возвращает DIREC_VERT; если direction == DIREC_VERT, то возвращает DIREC_HORZ.
-//   Если !oneof2(direction, DIREC_HORZ, DIREC_VERT) то возвращает DIREC_UNKN.
+// Descr: Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅР°СЏ С„СѓРЅРєС†РёСЏ, РІРѕР·РІСЂР°С‰Р°СЋС‰Р°СЏ РєСЂРѕСЃСЃ-РЅР°РїСЂР°РІР»РµРЅРёРµ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ Р·Р°РґР°РЅРЅРѕРіРѕ
+//   РЅР°РїСЂР°РІР»РµРЅРёСЏ direction.
+//   Р•СЃР»Рё direction == DIREC_HORZ, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµС‚ DIREC_VERT; РµСЃР»Рё direction == DIREC_VERT, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµС‚ DIREC_HORZ.
+//   Р•СЃР»Рё !oneof2(direction, DIREC_HORZ, DIREC_VERT) С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµС‚ DIREC_UNKN.
 //
 /*static*/int SUiLayoutParam::GetCrossDirection(int direction)
 {
@@ -593,7 +594,7 @@ bool SUiLayoutParam::IsNominalFullDefinedY() const { return ((Flags & (fNominalD
 	return (direction == DIREC_HORZ) ? DIREC_VERT : ((direction == DIREC_VERT) ? DIREC_HORZ : DIREC_UNKN);
 }
 //
-// Descr: Определяет является ли позиция элемента абсолютной вдоль направления direction.
+// Descr: РћРїСЂРµРґРµР»СЏРµС‚ СЏРІР»СЏРµС‚СЃСЏ Р»Рё РїРѕР·РёС†РёСЏ СЌР»РµРјРµРЅС‚Р° Р°Р±СЃРѕР»СЋС‚РЅРѕР№ РІРґРѕР»СЊ РЅР°РїСЂР°РІР»РµРЅРёСЏ direction.
 // ARG(direction IN): DIREC_HORZ || DIREC_VERT
 //
 bool SUiLayoutParam::IsPositionAbsolute(int direction) const
@@ -602,10 +603,10 @@ bool SUiLayoutParam::IsPositionAbsolute(int direction) const
 	return (direction == DIREC_HORZ) ? IsPositionAbsoluteX() : IsPositionAbsoluteY();
 }
 //
-// Descr: Определяет является ли позиция элемента по оси Y абсолютной.
-//   Понятие "абсолютная позиция по оси" подразумевает, что либо заданы фиксированные 
-//   начальная и конечная координаты по оси, либо размер элемента по оси фиксирован (Sz(X|Y)==szFixed) и фиксирована
-//   хотя бы одна из координат по оси.
+// Descr: РћРїСЂРµРґРµР»СЏРµС‚ СЏРІР»СЏРµС‚СЃСЏ Р»Рё РїРѕР·РёС†РёСЏ СЌР»РµРјРµРЅС‚Р° РїРѕ РѕСЃРё Y Р°Р±СЃРѕР»СЋС‚РЅРѕР№.
+//   РџРѕРЅСЏС‚РёРµ "Р°Р±СЃРѕР»СЋС‚РЅР°СЏ РїРѕР·РёС†РёСЏ РїРѕ РѕСЃРё" РїРѕРґСЂР°Р·СѓРјРµРІР°РµС‚, С‡С‚Рѕ Р»РёР±Рѕ Р·Р°РґР°РЅС‹ С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹Рµ 
+//   РЅР°С‡Р°Р»СЊРЅР°СЏ Рё РєРѕРЅРµС‡РЅР°СЏ РєРѕРѕСЂРґРёРЅР°С‚С‹ РїРѕ РѕСЃРё, Р»РёР±Рѕ СЂР°Р·РјРµСЂ СЌР»РµРјРµРЅС‚Р° РїРѕ РѕСЃРё С„РёРєСЃРёСЂРѕРІР°РЅ (Sz(X|Y)==szFixed) Рё С„РёРєСЃРёСЂРѕРІР°РЅР°
+//   С…РѕС‚СЏ Р±С‹ РѕРґРЅР° РёР· РєРѕРѕСЂРґРёРЅР°С‚ РїРѕ РѕСЃРё.
 //
 bool SUiLayoutParam::IsPositionAbsoluteX() const
 {
@@ -659,10 +660,10 @@ float SUiLayoutParam::GetAbsoluteSizeY() const
 	return result;
 }
 //
-// Descr: Определяет является ли позиция элемента по оси Y абсолютной.
-//   Понятие "абсолютная позиция по оси" подразумевает, что либо заданы фиксированные 
-//   начальная и конечная координаты по оси, либо размер элемента по оси фиксирован (Sz(X|Y)==szFixed) и фиксирована
-//   хотя бы одна из координат по оси.
+// Descr: РћРїСЂРµРґРµР»СЏРµС‚ СЏРІР»СЏРµС‚СЃСЏ Р»Рё РїРѕР·РёС†РёСЏ СЌР»РµРјРµРЅС‚Р° РїРѕ РѕСЃРё Y Р°Р±СЃРѕР»СЋС‚РЅРѕР№.
+//   РџРѕРЅСЏС‚РёРµ "Р°Р±СЃРѕР»СЋС‚РЅР°СЏ РїРѕР·РёС†РёСЏ РїРѕ РѕСЃРё" РїРѕРґСЂР°Р·СѓРјРµРІР°РµС‚, С‡С‚Рѕ Р»РёР±Рѕ Р·Р°РґР°РЅС‹ С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹Рµ 
+//   РЅР°С‡Р°Р»СЊРЅР°СЏ Рё РєРѕРЅРµС‡РЅР°СЏ РєРѕРѕСЂРґРёРЅР°С‚С‹ РїРѕ РѕСЃРё, Р»РёР±Рѕ СЂР°Р·РјРµСЂ СЌР»РµРјРµРЅС‚Р° РїРѕ РѕСЃРё С„РёРєСЃРёСЂРѕРІР°РЅ (Sz(X|Y)==szFixed) Рё С„РёРєСЃРёСЂРѕРІР°РЅР°
+//   С…РѕС‚СЏ Р±С‹ РѕРґРЅР° РёР· РєРѕРѕСЂРґРёРЅР°С‚ РїРѕ РѕСЃРё.
 //
 bool SUiLayoutParam::IsPositionAbsoluteY() const
 {
@@ -756,8 +757,14 @@ SUiLayout::Result & SUiLayout::Result::CopyWithOffset(const SUiLayout::Result & 
 }
 
 SUiLayout::SUiLayout() : Signature(_SlConst.SUiLayoutSignature), P_Parent(0), P_Link(0), managed_ptr(0), 
-	CbSelfSizing(0), CbSetup(0), State(0), ALB(), P_HgL(0), P_Children(0)
+	CbSelfSizing(0), CbSetup(0), State(0), ALB(), P_HgL(0), P_Children(0), ID(0)
 {
+}
+
+SUiLayout::SUiLayout(const SUiLayoutParam & rP) : Signature(_SlConst.SUiLayoutSignature), P_Parent(0), P_Link(0), managed_ptr(0), 
+	CbSelfSizing(0), CbSetup(0), State(0), ALB(), P_HgL(0), P_Children(0), ID(0)
+{
+	SetLayoutBlock(rP);
 }
 
 SUiLayout::~SUiLayout()
@@ -771,6 +778,70 @@ SUiLayout::~SUiLayout()
 }
 
 bool SUiLayout::IsConsistent() const { return (this != 0 && Signature == _SlConst.SUiLayoutSignature); }
+
+int SUiLayout::GetID() const { return ID; }
+
+int SUiLayout::SetID(int id)
+{
+	if(id > 0) {
+		ID = id;
+		return ID;
+	}
+	else
+		return 0;
+}
+//
+// Descr: Р•СЃР»Рё РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЌР»РµРјРµРЅС‚Р° (ID) РЅСѓР»РµРІРѕР№, С‚Рѕ РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РµРіРѕ С‚Р°Рє, С‡С‚РѕР±С‹ РѕРЅ Р±С‹Р» СѓРЅРёРєР°Р»СЊРЅС‹Рј
+//   РІ РѕР±Р»Р°СЃС‚Рё РѕРїСЂРµРґРµР»РµРЅРёСЏ РєРѕРЅС‚РµР№РЅРµСЂР° РІРµСЂС…РЅРµРіРѕ СѓСЂРѕРІРЅСЏ.
+//   Р•СЃР»Рё РёРґРµРЅС‚С„РёРєР°С‚РѕСЂ СѓР¶Рµ РЅРµ РЅСѓР»РµРІРѕР№, С‚Рѕ РїСЂРѕСЃС‚Рѕ РІРѕР·РІСЂР°С‰Р°РµС‚ РµРіРѕ Р·РЅР°С‡РµРЅРёРµ.
+//
+int SUiLayout::SetupUniqueID()
+{
+	if(ID == 0) {
+		SUiLayout * p_root = GetRoot();
+		if(p_root) {
+			const int max_id = p_root->GetMaxComponentID();
+			ID = (max_id > 0) ? (max_id + 1) : 1;
+		}
+		else
+			ID = 1;
+	}
+	return ID;
+}
+
+int SUiLayout::GetMaxComponentID() const
+{
+	int    result = GetID();
+	const uint _cc = GetChildrenCount();
+	for(uint i = 0; i < _cc; i++) {
+		const SUiLayout * p_child = GetChildC(i);
+		if(p_child) {
+			const int ci = p_child->GetMaxComponentID(); // @recursion
+			SETMAX(result, ci);
+		}
+	}
+	return result;
+}
+
+const SUiLayout * SUiLayout::FindByID(int id) const
+{
+	const SUiLayout * p_result = 0;
+	if(id > 0) {
+		if(ID == id)
+			p_result = this;
+		else {
+			const uint _cc = GetChildrenCount();
+			if(_cc) {
+				for(uint i = 0; !p_result && i < _cc; i++) {
+					const SUiLayout * p_child = GetChildC(i);
+					if(p_child)
+						p_result = p_child->FindByID(id);
+				}
+			}
+		}
+	}
+	return p_result;
+}
 
 /*static*/void * SUiLayout::GetManagedPtr(SUiLayout * pItem)
 {
@@ -1049,7 +1120,7 @@ int SUiLayout::FatherKillMe()
 				ok = 1;
 			}
 		}
-		assert(ok); // Если !ok то значит this имеет родителя, который о this ничего не знает.
+		assert(ok); // Р•СЃР»Рё !ok С‚Рѕ Р·РЅР°С‡РёС‚ this РёРјРµРµС‚ СЂРѕРґРёС‚РµР»СЏ, РєРѕС‚РѕСЂС‹Р№ Рѕ this РЅРёС‡РµРіРѕ РЅРµ Р·РЅР°РµС‚.
 	}
 	return ok;
 }
@@ -1099,14 +1170,14 @@ void SUiLayout::SetOrder(int o)
 	UpdateShouldOrderChildren();
 }
 //
-// Descr: Вычисляет полную ширину элемента без рассмотрения его внутренних компонентов.
-//   Полная ширина включает собственно ширину, а так же левые и правые поля и набивки
+// Descr: Р’С‹С‡РёСЃР»СЏРµС‚ РїРѕР»РЅСѓСЋ С€РёСЂРёРЅСѓ СЌР»РµРјРµРЅС‚Р° Р±РµР· СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЏ РµРіРѕ РІРЅСѓС‚СЂРµРЅРЅРёС… РєРѕРјРїРѕРЅРµРЅС‚РѕРІ.
+//   РџРѕР»РЅР°СЏ С€РёСЂРёРЅР° РІРєР»СЋС‡Р°РµС‚ СЃРѕР±СЃС‚РІРµРЅРЅРѕ С€РёСЂРёРЅСѓ, Р° С‚Р°Рє Р¶Рµ Р»РµРІС‹Рµ Рё РїСЂР°РІС‹Рµ РїРѕР»СЏ Рё РЅР°Р±РёРІРєРё
 //   (margin_left, margin_right, padding_left, padding_right).
 // Returns:
-//   !0 - номинальная ширина элемента представлена валидным числом (!fisnan(width)). 
-//      В этом случае по адресу pS присваивается полная ширина элемента.
-//    0 - номинальная ширина элемента представлена инвалидным значением (fisnan(width)).
-//      В этом случае по адресу pS ничего не присваивается и значение по указателю остается неизменным.
+//   !0 - РЅРѕРјРёРЅР°Р»СЊРЅР°СЏ С€РёСЂРёРЅР° СЌР»РµРјРµРЅС‚Р° РїСЂРµРґСЃС‚Р°РІР»РµРЅР° РІР°Р»РёРґРЅС‹Рј С‡РёСЃР»РѕРј (!fisnan(width)). 
+//      Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РїРѕ Р°РґСЂРµСЃСѓ pS РїСЂРёСЃРІР°РёРІР°РµС‚СЃСЏ РїРѕР»РЅР°СЏ С€РёСЂРёРЅР° СЌР»РµРјРµРЅС‚Р°.
+//    0 - РЅРѕРјРёРЅР°Р»СЊРЅР°СЏ С€РёСЂРёРЅР° СЌР»РµРјРµРЅС‚Р° РїСЂРµРґСЃС‚Р°РІР»РµРЅР° РёРЅРІР°Р»РёРґРЅС‹Рј Р·РЅР°С‡РµРЅРёРµРј (fisnan(width)).
+//      Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РїРѕ Р°РґСЂРµСЃСѓ pS РЅРёС‡РµРіРѕ РЅРµ РїСЂРёСЃРІР°РёРІР°РµС‚СЃСЏ Рё Р·РЅР°С‡РµРЅРёРµ РїРѕ СѓРєР°Р·Р°С‚РµР»СЋ РѕСЃС‚Р°РµС‚СЃСЏ РЅРµРёР·РјРµРЅРЅС‹Рј.
 //
 int SUiLayout::GetFullWidth(float * pS) const
 {
@@ -1126,14 +1197,14 @@ int SUiLayout::GetFullWidth(float * pS) const
 	return ok;
 }
 //
-// Descr: Вычисляет полную высоту элемента без рассмотрения его внутренних компонентов.
-//   Полная высота включает собственно ширину, а так же верхние и нижние поля и набивки
+// Descr: Р’С‹С‡РёСЃР»СЏРµС‚ РїРѕР»РЅСѓСЋ РІС‹СЃРѕС‚Сѓ СЌР»РµРјРµРЅС‚Р° Р±РµР· СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЏ РµРіРѕ РІРЅСѓС‚СЂРµРЅРЅРёС… РєРѕРјРїРѕРЅРµРЅС‚РѕРІ.
+//   РџРѕР»РЅР°СЏ РІС‹СЃРѕС‚Р° РІРєР»СЋС‡Р°РµС‚ СЃРѕР±СЃС‚РІРµРЅРЅРѕ С€РёСЂРёРЅСѓ, Р° С‚Р°Рє Р¶Рµ РІРµСЂС…РЅРёРµ Рё РЅРёР¶РЅРёРµ РїРѕР»СЏ Рё РЅР°Р±РёРІРєРё
 //   (margin_top, margin_bottom, padding_top, padding_bottom).
 // Returns:
-//   !0 - номинальная высота элемента представлена валидным числом (!fisnan(height)). 
-//      В этом случае по адресу pS присваивается полная высота элемента.
-//    0 - номинальная высота элемента представлена инвалидным значением (fisnan(height)).
-//      В этом случае по адресу pS ничего не присваивается и значение по указателю остается неизменным.
+//   !0 - РЅРѕРјРёРЅР°Р»СЊРЅР°СЏ РІС‹СЃРѕС‚Р° СЌР»РµРјРµРЅС‚Р° РїСЂРµРґСЃС‚Р°РІР»РµРЅР° РІР°Р»РёРґРЅС‹Рј С‡РёСЃР»РѕРј (!fisnan(height)). 
+//      Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РїРѕ Р°РґСЂРµСЃСѓ pS РїСЂРёСЃРІР°РёРІР°РµС‚СЃСЏ РїРѕР»РЅР°СЏ РІС‹СЃРѕС‚Р° СЌР»РµРјРµРЅС‚Р°.
+//    0 - РЅРѕРјРёРЅР°Р»СЊРЅР°СЏ РІС‹СЃРѕС‚Р° СЌР»РµРјРµРЅС‚Р° РїСЂРµРґСЃС‚Р°РІР»РµРЅР° РёРЅРІР°Р»РёРґРЅС‹Рј Р·РЅР°С‡РµРЅРёРµРј (fisnan(height)).
+//      Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РїРѕ Р°РґСЂРµСЃСѓ pS РЅРёС‡РµРіРѕ РЅРµ РїСЂРёСЃРІР°РёРІР°РµС‚СЃСЏ Рё Р·РЅР°С‡РµРЅРёРµ РїРѕ СѓРєР°Р·Р°С‚РµР»СЋ РѕСЃС‚Р°РµС‚СЃСЏ РЅРµРёР·РјРµРЅРЅС‹Рј.
 //
 int SUiLayout::GetFullHeight(float * pS) const
 {
@@ -1153,7 +1224,7 @@ int SUiLayout::GetFullHeight(float * pS) const
 	return ok;
 }
 //
-// Descr: Возвращает финальный расчетный прямоугольник элемента.
+// Descr: Р’РѕР·РІСЂР°С‰Р°РµС‚ С„РёРЅР°Р»СЊРЅС‹Р№ СЂР°СЃС‡РµС‚РЅС‹Р№ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє СЌР»РµРјРµРЅС‚Р°.
 //
 FRect SUiLayout::GetFrame() const
 {
@@ -1242,7 +1313,7 @@ SUiLayout * FASTCALL SUiLayout::FindComplexComponentId(uint id)
 	return p_result;
 }
 //
-// Descr: Возвращает корневой элемент дерева, компонентом которого является this.
+// Descr: Р’РѕР·РІСЂР°С‰Р°РµС‚ РєРѕСЂРЅРµРІРѕР№ СЌР»РµРјРµРЅС‚ РґРµСЂРµРІР°, РєРѕРјРїРѕРЅРµРЅС‚РѕРј РєРѕС‚РѕСЂРѕРіРѕ СЏРІР»СЏРµС‚СЃСЏ this.
 //
 SUiLayout * SUiLayout::GetRoot()
 {
@@ -1552,7 +1623,7 @@ public:
 			// - if the root's align_content property isn't set to FLEX_ALIGN_START
 			// - or if any child item doesn't have a cross-axis size set
 	};
-	// Поле Flags по идее должно быть const, но флаг fNeedLines может быть установлен позже. Потому, увы, non-const
+	// РџРѕР»Рµ Flags РїРѕ РёРґРµРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ const, РЅРѕ С„Р»Р°Рі fNeedLines РјРѕР¶РµС‚ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ РїРѕР·Р¶Рµ. РџРѕС‚РѕРјСѓ, СѓРІС‹, non-const
 	/*const*/uint   Flags;
 	uint   FramePos1i; // main axis position
 	uint   FramePos2i; // cross axis position
@@ -1768,7 +1839,7 @@ void SUiLayout::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint chil
 							//assert(false && "incorrect align_self");
 							{
 								const float mar_a = CHILD_MARGIN_XY_(p_layout, r_child, a);
-								align_pos += mar_a; // По умолчанию пусть будет SUiLayoutParam::alignStart
+								align_pos += mar_a; // РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РїСѓСЃС‚СЊ Р±СѓРґРµС‚ SUiLayoutParam::alignStart
 							}
 							break;
 					}
@@ -1947,7 +2018,7 @@ void SUiLayout::DoLayout(const Param & rP) const
 				//pr.LineCount = layout_s.Lines.getCount();
 				float curr_page_running = 0.0f;
 				float page_size = layout_s.AlignDim; // ?
-				assert(layout_s.Flags & LayoutFlexProcessor::fNeedLines); // layout_s.Lines.getCount() > 0 может быть только при условии layout_s.need_lines
+				assert(layout_s.Flags & LayoutFlexProcessor::fNeedLines); // layout_s.Lines.getCount() > 0 РјРѕР¶РµС‚ Р±С‹С‚СЊ С‚РѕР»СЊРєРѕ РїСЂРё СѓСЃР»РѕРІРёРё layout_s.need_lines
 				float pos = 0.0f;
 				float spacing = 0.0f;
 				const float flex_dim = layout_s.AlignDim - layout_s.Lines.GetTotalSize();
@@ -2316,25 +2387,25 @@ void SUiLayout::DoFloatLayout(const Param & rP)
 	const uint _cc = GetChildrenCount();
 	if(_cc) {
 		//
-		// Разбиваем всю область на 9 виртуальных зон (углы, стороны, центр)
+		// Р Р°Р·Р±РёРІР°РµРј РІСЃСЋ РѕР±Р»Р°СЃС‚СЊ РЅР° 9 РІРёСЂС‚СѓР°Р»СЊРЅС‹С… Р·РѕРЅ (СѓРіР»С‹, СЃС‚РѕСЂРѕРЅС‹, С†РµРЅС‚СЂ)
 		//
 		FRect area_rect[9];
-		int   bypass_direction[9]; // Последовательность обхода зон для заполнения // 
+		int   bypass_direction[9]; // РџРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ РѕР±С…РѕРґР° Р·РѕРЅ РґР»СЏ Р·Р°РїРѕР»РЅРµРЅРёСЏ // 
 		assert(SIZEOFARRAY(area_rect) == SIZEOFARRAY(bypass_direction));
 		{
-			// Все виртуальные зоны инициализируем величиной полной области.
+			// Р’СЃРµ РІРёСЂС‚СѓР°Р»СЊРЅС‹Рµ Р·РѕРЅС‹ РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РІРµР»РёС‡РёРЅРѕР№ РїРѕР»РЅРѕР№ РѕР±Р»Р°СЃС‚Рё.
 			for(uint i = 0; i < SIZEOFARRAY(area_rect); i++) {
 				area_rect[i].a.SetZero();
 				area_rect[i].b.Set(rP.ForceWidth, rP.ForceHeight);
 			}
 		}
 		{
-			// Порядок обхода инициализируем неопределенными значениями
+			// РџРѕСЂСЏРґРѕРє РѕР±С…РѕРґР° РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РЅРµРѕРїСЂРµРґРµР»РµРЅРЅС‹РјРё Р·РЅР°С‡РµРЅРёСЏРјРё
 			for(uint i = 0; i < SIZEOFARRAY(bypass_direction); i++)
 				bypass_direction[i] = -1;
 		}
 		{
-			LAssocArray item_map; // Карта распределения элементов по областям {itemIdx; area}
+			LAssocArray item_map; // РљР°СЂС‚Р° СЂР°СЃРїСЂРµРґРµР»РµРЅРёСЏ СЌР»РµРјРµРЅС‚РѕРІ РїРѕ РѕР±Р»Р°СЃС‚СЏРј {itemIdx; area}
 			LayoutFlexProcessor layout_s(this, rP);
 			{
 				for(uint cidx = 0; cidx < _cc; cidx++) {
@@ -2348,18 +2419,18 @@ void SUiLayout::DoFloatLayout(const Param & rP)
 			}
 			{
 				//
-				// Сортируем массив так, чтобы элементы, относящиеся к одной области, держались вместе
-				// при этом соблюдая порядок следования элементов (приоритет размещения важен)
-				// @todo На самом деле, нужен дополнительный критерий сортировки: по порядку в котором области встречаются в оригинальном списке,
-				// но на этапе разработки оставим упрощенную схему.
+				// РЎРѕСЂС‚РёСЂСѓРµРј РјР°СЃСЃРёРІ С‚Р°Рє, С‡С‚РѕР±С‹ СЌР»РµРјРµРЅС‚С‹, РѕС‚РЅРѕСЃСЏС‰РёРµСЃСЏ Рє РѕРґРЅРѕР№ РѕР±Р»Р°СЃС‚Рё, РґРµСЂР¶Р°Р»РёСЃСЊ РІРјРµСЃС‚Рµ
+				// РїСЂРё СЌС‚РѕРј СЃРѕР±Р»СЋРґР°СЏ РїРѕСЂСЏРґРѕРє СЃР»РµРґРѕРІР°РЅРёСЏ СЌР»РµРјРµРЅС‚РѕРІ (РїСЂРёРѕСЂРёС‚РµС‚ СЂР°Р·РјРµС‰РµРЅРёСЏ РІР°Р¶РµРЅ)
+				// @todo РќР° СЃР°РјРѕРј РґРµР»Рµ, РЅСѓР¶РµРЅ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ РєСЂРёС‚РµСЂРёР№ СЃРѕСЂС‚РёСЂРѕРІРєРё: РїРѕ РїРѕСЂСЏРґРєСѓ РІ РєРѕС‚РѕСЂРѕРј РѕР±Р»Р°СЃС‚Рё РІСЃС‚СЂРµС‡Р°СЋС‚СЃСЏ РІ РѕСЂРёРіРёРЅР°Р»СЊРЅРѕРј СЃРїРёСЃРєРµ,
+				// РЅРѕ РЅР° СЌС‚Р°РїРµ СЂР°Р·СЂР°Р±РѕС‚РєРё РѕСЃС‚Р°РІРёРј СѓРїСЂРѕС‰РµРЅРЅСѓСЋ СЃС…РµРјСѓ.
 				//
 				item_map.SortByValKey();
 			}
 			{
 				int    prev_area = -1;
 				SUiLayout * p_current_layout = 0;
-				LongArray actual_area_list; // Список идентификаторов областей, которые подлежат рассмотрению
-				LongArray seen_area_list; // Список уже обработанных идентификаторов областей
+				LongArray actual_area_list; // РЎРїРёСЃРѕРє РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ РѕР±Р»Р°СЃС‚РµР№, РєРѕС‚РѕСЂС‹Рµ РїРѕРґР»РµР¶Р°С‚ СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ
+				LongArray seen_area_list; // РЎРїРёСЃРѕРє СѓР¶Рµ РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹С… РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ РѕР±Р»Р°СЃС‚РµР№
 				item_map.GetValList(actual_area_list);
 				for(uint midx = 0; midx < item_map.getCount(); midx++) {
 					const LAssoc & r_ai = item_map.at(midx);
@@ -2375,8 +2446,8 @@ void SUiLayout::DoFloatLayout(const Param & rP)
 							local_eval_param.Flags = rP.Flags;
 							p_current_layout->Evaluate(&local_eval_param);
 							{
-								// Вычисляем полный прямоугольник занятый областью prev_area и
-								// корректируем остальные области в соответствии с этим.
+								// Р’С‹С‡РёСЃР»СЏРµРј РїРѕР»РЅС‹Р№ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє Р·Р°РЅСЏС‚С‹Р№ РѕР±Р»Р°СЃС‚СЊСЋ prev_area Рё
+								// РєРѕСЂСЂРµРєС‚РёСЂСѓРµРј РѕСЃС‚Р°Р»СЊРЅС‹Рµ РѕР±Р»Р°СЃС‚Рё РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРё СЃ СЌС‚РёРј.
 								FRect cf;
 								if(p_current_layout->GetInnerCombinedFrame(&cf) > 0) {
 									cf.Move__(area_rect[prev_area].a.x, area_rect[prev_area].a.y);
@@ -2408,8 +2479,8 @@ void SUiLayout::DoFloatLayout(const Param & rP)
 								}
 								int    ContainerDirec;
 								uint32 ContainerFlags;
-								uint16 JustifyContent; // SUiLayoutParam::alignXXX Выравнивание внутренних элементов вдоль основной оси
-								uint16 AlignContent;   // SUiLayoutParam::alignXXX Выравнивание внутренних элементов по кросс-оси
+								uint16 JustifyContent; // SUiLayoutParam::alignXXX Р’С‹СЂР°РІРЅРёРІР°РЅРёРµ РІРЅСѓС‚СЂРµРЅРЅРёС… СЌР»РµРјРµРЅС‚РѕРІ РІРґРѕР»СЊ РѕСЃРЅРѕРІРЅРѕР№ РѕСЃРё
+								uint16 AlignContent;   // SUiLayoutParam::alignXXX Р’С‹СЂР°РІРЅРёРІР°РЅРёРµ РІРЅСѓС‚СЂРµРЅРЅРёС… СЌР»РµРјРµРЅС‚РѕРІ РїРѕ РєСЂРѕСЃСЃ-РѕСЃРё
 							};
 							LocalLayoutEntry lle;
 							switch(area) {

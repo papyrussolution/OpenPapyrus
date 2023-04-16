@@ -1,5 +1,5 @@
 // OBJTSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -478,23 +478,6 @@ void TSessionPacket::destroy()
 	return ok;
 }
 
-/*static*/int FASTCALL PPObjTSession::ValidateStatus(int status)
-{
-	return BIN(oneof5(status, TSESST_PLANNED, TSESST_PENDING, TSESST_INPROCESS, TSESST_CLOSED, TSESST_CANCELED));
-}
-
-/* @v11.4.0 struct TSessStatusSymb {
-	const char * P_Symb;
-	int8   Status;
-};
-
-static TSessStatusSymb TSessStatusSymbList[] = {
-	{ "planned",  TSESST_PLANNED },
-	{ "pending",  TSESST_PENDING },
-	{ "runned",   TSESST_INPROCESS },
-	{ "closed",   TSESST_CLOSED },
-	{ "canceled", TSESST_CANCELED }
-};*/
 // @v11.4.0 {
 static SIntToSymbTabEntry TSessStatusSymbList[] = {
 	{ TSESST_PLANNED, "planned" },
@@ -505,35 +488,9 @@ static SIntToSymbTabEntry TSessStatusSymbList[] = {
 };
 // } @v11.4.0
 
-/*static*/int FASTCALL PPObjTSession::ResolveStatusSymbol(const char * pSymbol)
-{
-	return SIntToSymbTab_GetId(TSessStatusSymbList, SIZEOFARRAY(TSessStatusSymbList), pSymbol); // @v11.4.0
-	/* @v11.4.0 int    status = 0;
-	SString temp_buf(pSymbol);
-	if(temp_buf.NotEmptyS()) {
-		temp_buf.ToLower();
-		for(uint i = 0; !status && i < SIZEOFARRAY(TSessStatusSymbList); i++) {
-			if(temp_buf == TSessStatusSymbList[i].P_Symb)
-				status = TSessStatusSymbList[i].Status;
-		}
-	}
-	return status;*/
-}
-
-/*static*/int  FASTCALL PPObjTSession::GetStatusSymbol(int status, SString & rBuf)
-{
-	return SIntToSymbTab_GetSymb(TSessStatusSymbList, SIZEOFARRAY(TSessStatusSymbList), status, rBuf); // @v11.4.0
-	/* @v11.4.0
-	rBuf.Z();
-	int    ok = 0;
-	for(uint i = 0; !ok && i < SIZEOFARRAY(TSessStatusSymbList); i++) {
-		if(TSessStatusSymbList[i].Status == status) {
-			rBuf = TSessStatusSymbList[i].P_Symb;
-			ok = 1;
-		}
-	}
-	return ok;*/
-}
+/*static*/int FASTCALL PPObjTSession::ResolveStatusSymbol(const char * pSymbol) { return SIntToSymbTab_GetId(TSessStatusSymbList, SIZEOFARRAY(TSessStatusSymbList), pSymbol); }
+/*static*/int FASTCALL PPObjTSession::GetStatusSymbol(int status, SString & rBuf) { return SIntToSymbTab_GetSymb(TSessStatusSymbList, SIZEOFARRAY(TSessStatusSymbList), status, rBuf); }
+/*static*/int FASTCALL PPObjTSession::ValidateStatus(int status) { return BIN(oneof5(status, TSESST_PLANNED, TSESST_PENDING, TSESST_INPROCESS, TSESST_CLOSED, TSESST_CANCELED)); }
 
 /*static*/int FASTCALL PPObjTSession::GetSessionKind(const TSessionTbl::Rec & rRec, int superSessAsSimple)
 {
@@ -3647,8 +3604,7 @@ int PPObjTSession::WriteOff(const PPIDArray * pSessList, PUGL * pDfctList, int u
 			}
 		}
 		if(sess_list.getCount()) {
-			PPLoadText(PPTXT_TSESSWRITINGOFF, msg_buf);
-			PPWaitMsg(msg_buf);
+			PPWaitMsg(PPLoadTextS(PPTXT_TSESSWRITINGOFF, msg_buf));
 			logger.Log(msg_buf.CatDiv(':', 2).Cat(MakeListName(&sess_list, ses_list_buf)));
 		}
 		GetWrOffOrder(&woo);

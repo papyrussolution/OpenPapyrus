@@ -99,11 +99,49 @@ static IMPL_DBE_PROC(dbqf_unxtext_iii)
 	}
 }
 
+static IMPL_DBE_PROC(dbqf_tsessbilllinkto_i) // @v11.6.12
+{
+	//PPASS_TSESSBILLPOOL PPASS_TSDBILLPOOL 
+	//IsMemberOfPool(PPID billID, PPID poolType, PPID * pPullOwnerID);
+	PPID   result_id = 0;
+	const PPID bill_id  = params[0].lval;
+	if(bill_id) {
+		PPID   pool_owner_id = 0;
+		if(BillObj->P_Tbl->IsMemberOfPool(bill_id, PPASS_TSESSBILLPOOL, &pool_owner_id) > 0) {
+			result_id = pool_owner_id;
+		}
+	}
+	result->init(result_id);
+}
+
+static IMPL_DBE_PROC(dbqf_tsessbilllinkto_text_i) // @v11.6.12
+{
+	char   text_buf[128];
+	if(!DbeInitSize(option, result, sizeof(text_buf))) {
+		text_buf[0] = 0;
+		const PPID bill_id  = params[0].lval;
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		if(bill_id) {
+			PPID   pool_owner_id = 0;
+			if(BillObj->P_Tbl->IsMemberOfPool(bill_id, PPASS_TSESSBILLPOOL, &pool_owner_id) > 0) {
+				if(pool_owner_id > 0) {
+					PPObjTSession tses_obj;
+					TSessionTbl::Rec tses_rec;
+					if(tses_obj.Search(pool_owner_id, &tses_rec) > 0)
+						tses_obj.MakeName(&tses_rec, r_temp_buf);
+				}
+			}
+		}
+		STRNSCPY(text_buf, r_temp_buf);
+		result->init(text_buf);
+	}
+}
+
 static IMPL_DBE_PROC(dbqf_techcapacity_ir) // @v11.3.10
 {
 	char   text_buf[128];
 	if(!DbeInitSize(option, result, sizeof(text_buf))) {
-		PTR32(text_buf)[0] = 0;
+		text_buf[0] = 0;
 		PPID   prc_id  = params[0].lval;
 		double capacity = params[1].rval;
         SString & r_temp_buf = SLS.AcquireRvlStr();
@@ -1348,6 +1386,8 @@ int PPDbqFuncPool::IdArIsCatPerson       = 0; // @v11.1.9 (fldArticle, personCat
 int PPDbqFuncPool::IdObjMemoPerson       = 0; // @v11.1.12 (fldPersonID)
 int PPDbqFuncPool::IdObjMemoPersonEvent  = 0; // @v11.1.12 (fldPersonEventID)
 int PPDbqFuncPool::IdTechCapacity        = 0; // @v11.3.10 (fldPrcID, fldCapacity)
+int PPDbqFuncPool::IdTSessBillLinkTo     = 0; // @v11.6.12
+int PPDbqFuncPool::IdTSessBillLinkTo_Text = 0; // @v11.6.12
 
 static IMPL_DBE_PROC(dbqf_goodsstockdim_i)
 {
@@ -1642,7 +1682,10 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	THROW(DbqFuncTab::RegisterDyn(&IdUnxText,             BTS_STRING, dbqf_unxtext_iii,            3, BTS_INT, BTS_INT, BTS_INT)); // @v10.7.2
 	THROW(DbqFuncTab::RegisterDyn(&IdIsTxtUuidEq,         BTS_INT,    dbqf_istxtuuideq_ss,         2, BTS_STRING, BTS_STRING)); // @v10.9.10
 	THROW(DbqFuncTab::RegisterDyn(&IdArIsCatPerson,       BTS_INT,    dbqf_ariscatperson_ii,       2, BTS_INT, BTS_INT)); // @v11.1.9
-	THROW(DbqFuncTab::RegisterDyn(&IdTechCapacity,        BTS_STRING, dbqf_techcapacity_ir,        2, BTS_INT, BTS_REAL)); // @v11.3.10
+	THROW(DbqFuncTab::RegisterDyn(&IdTechCapacity,         BTS_STRING, dbqf_techcapacity_ir,        2, BTS_INT, BTS_REAL)); // @v11.3.10
+	THROW(DbqFuncTab::RegisterDyn(&IdTSessBillLinkTo,      BTS_INT,    dbqf_tsessbilllinkto_i,      1, BTS_INT)); // @v11.6.12
+	THROW(DbqFuncTab::RegisterDyn(&IdTSessBillLinkTo_Text, BTS_STRING, dbqf_tsessbilllinkto_text_i, 1, BTS_INT)); // @v11.6.12
+	
 	CATCHZOK
 	return ok;
 }

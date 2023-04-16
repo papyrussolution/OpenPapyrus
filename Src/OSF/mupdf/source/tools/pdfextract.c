@@ -132,7 +132,7 @@ static void savefont(pdf_obj * dict)
 	fz_buffer * buf;
 	pdf_obj * stream = NULL;
 	pdf_obj * obj;
-	char * ext = "";
+	const char * ext = "";
 	fz_output * out;
 	size_t len;
 	unsigned char * data;
@@ -142,21 +142,17 @@ static void savefont(pdf_obj * dict)
 		stream = obj;
 		ext = "pfa";
 	}
-
 	obj = pdf_dict_get(ctx, dict, PDF_NAME(FontFile2));
 	if(obj) {
 		stream = obj;
 		ext = "ttf";
 	}
-
 	obj = pdf_dict_get(ctx, dict, PDF_NAME(FontFile3));
 	if(obj) {
 		stream = obj;
-
 		obj = pdf_dict_get(ctx, obj, PDF_NAME(Subtype));
 		if(obj && !pdf_is_name(ctx, obj))
 			fz_throw(ctx, FZ_ERROR_GENERIC, "invalid font descriptor subtype");
-
 		if(pdf_name_eq(ctx, obj, PDF_NAME(Type1C)))
 			ext = "cff";
 		else if(pdf_name_eq(ctx, obj, PDF_NAME(CIDFontType0C)))
@@ -221,7 +217,7 @@ static void extractobject(int num)
 int pdfextract_main(int argc, const char * argv[])
 {
 	const char * infile = 0;
-	char * password = "";
+	const char * password = "";
 	int c, o;
 	while((c = fz_getopt(argc, (char * const *)argv, "p:rN")) != -1) {
 		switch(c) {
