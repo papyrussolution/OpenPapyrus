@@ -199,7 +199,7 @@ public:
 				{
 					const SUiLayout * p_lo = Lo01.FindByID(loidCtl01);
 					if(p_lo) {
-						FRect r = p_lo->GetFrame();
+						FRect r = p_lo->GetFrameAdjustedToParent();
 						SPoint2F s = r.GetSize();
 						ImVec2 lu(r.a.x, r.a.y);
 						ImVec2 sz(s.x, s.y);
@@ -213,7 +213,7 @@ public:
 				{
 					const SUiLayout * p_lo = Lo01.FindByID(loidCtl02);
 					if(p_lo) {
-						FRect r = p_lo->GetFrame();
+						FRect r = p_lo->GetFrameAdjustedToParent();
 						SPoint2F s = r.GetSize();
 						ImVec2 lu(r.a.x, r.a.y);
 						ImVec2 sz(s.x, s.y);
@@ -227,7 +227,7 @@ public:
 				{
 					const SUiLayout * p_lo = Lo01.FindByID(loidAdv01);
 					if(p_lo) {
-						FRect r = p_lo->GetFrame();
+						FRect r = p_lo->GetFrameAdjustedToParent();
 						SPoint2F s = r.GetSize();
 						ImVec2 lu(r.a.x, r.a.y);
 						ImVec2 sz(s.x, s.y);
@@ -241,7 +241,7 @@ public:
 				{
 					const SUiLayout * p_lo = Lo01.FindByID(loidAdv02);
 					if(p_lo) {
-						FRect r = p_lo->GetFrame();
+						FRect r = p_lo->GetFrameAdjustedToParent();
 						SPoint2F s = r.GetSize();
 						ImVec2 lu(r.a.x, r.a.y);
 						ImVec2 sz(s.x, s.y);
@@ -255,7 +255,7 @@ public:
 				{
 					const SUiLayout * p_lo = Lo01.FindByID(loidAdv03);
 					if(p_lo) {
-						FRect r = p_lo->GetFrame();
+						FRect r = p_lo->GetFrameAdjustedToParent();
 						SPoint2F s = r.GetSize();
 						ImVec2 lu(r.a.x, r.a.y);
 						ImVec2 sz(s.x, s.y);
