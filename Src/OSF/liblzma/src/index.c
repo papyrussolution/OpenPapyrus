@@ -1031,7 +1031,7 @@ static lzma_ret hash_append(lzma_index_hash_info * info, lzma_vli unpadded_size,
 	info->index_list_size += lzma_vli_size(unpadded_size) + lzma_vli_size(uncompressed_size);
 	++info->count;
 	const lzma_vli sizes[2] = { unpadded_size, uncompressed_size };
-	lzma_check_update(&info->check, LZMA_CHECK_BEST, (const uint8_t*)(sizes), sizeof(sizes));
+	lzma_check_update(&info->check, LZMA_CHECK_BEST, (const uint8*)(sizes), sizeof(sizes));
 	return LZMA_OK;
 }
 
@@ -1050,7 +1050,7 @@ lzma_ret lzma_index_hash_append(lzma_index_hash *index_hash, lzma_vli unpadded_s
 	return LZMA_OK;
 }
 
-lzma_ret lzma_index_hash_decode(lzma_index_hash *index_hash, const uint8_t *in, size_t *in_pos, size_t in_size)
+lzma_ret lzma_index_hash_decode(lzma_index_hash *index_hash, const uint8 *in, size_t *in_pos, size_t in_size)
 {
 	// Catch zero input buffer here, because in contrast to Index encoder
 	// and decoder functions, applications call this function directly
@@ -1167,10 +1167,10 @@ out:
 //
 static lzma_ret index_encode(void * coder_ptr,
     const lzma_allocator * allocator lzma_attribute((__unused__)),
-    const uint8_t * in lzma_attribute((__unused__)),
+    const uint8 * in lzma_attribute((__unused__)),
     size_t * in_pos lzma_attribute((__unused__)),
     size_t in_size lzma_attribute((__unused__)),
-    uint8_t * out, size_t * out_pos,
+    uint8 * out, size_t * out_pos,
     size_t out_size,
     lzma_action action lzma_attribute((__unused__)))
 {
@@ -1300,7 +1300,7 @@ lzma_ret lzma_index_encoder(lzma_stream *strm, const lzma_index *i)
 	return LZMA_OK;
 }
 
-lzma_ret lzma_index_buffer_encode(const lzma_index *i, uint8_t *out, size_t *out_pos, size_t out_size)
+lzma_ret lzma_index_buffer_encode(const lzma_index *i, uint8 *out, size_t *out_pos, size_t out_size)
 {
 	// Validate the arguments.
 	if(!i || !out || !out_pos || *out_pos > out_size)
@@ -1332,8 +1332,8 @@ lzma_ret lzma_index_buffer_encode(const lzma_index *i, uint8_t *out, size_t *out
 //
 // index_decoder
 //
-static lzma_ret index_decode(void * coder_ptr, const lzma_allocator * allocator, const uint8_t * in, size_t * in_pos,
-    size_t in_size, uint8_t * out lzma_attribute((__unused__)),
+static lzma_ret index_decode(void * coder_ptr, const lzma_allocator * allocator, const uint8 * in, size_t * in_pos,
+    size_t in_size, uint8 * out lzma_attribute((__unused__)),
     size_t * out_pos lzma_attribute((__unused__)), size_t out_size lzma_attribute((__unused__)),
     lzma_action action lzma_attribute((__unused__)))
 {
@@ -1510,7 +1510,7 @@ lzma_ret lzma_index_decoder(lzma_stream *strm, lzma_index **i, uint64_t memlimit
 	return LZMA_OK;
 }
 
-lzma_ret lzma_index_buffer_decode(lzma_index **i, uint64_t *memlimit, const lzma_allocator *allocator, const uint8_t *in, size_t *in_pos, size_t in_size)
+lzma_ret lzma_index_buffer_decode(lzma_index **i, uint64_t *memlimit, const lzma_allocator *allocator, const uint8 *in, size_t *in_pos, size_t in_size)
 {
 	// Sanity checks
 	if(!i || !memlimit || !in || !in_pos || *in_pos > in_size)

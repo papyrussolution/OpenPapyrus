@@ -1041,6 +1041,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\OSF\AVX-Memmove\memset.c" />
     <ClCompile Include="..\SLib\bdb.cpp" />
     <ClCompile Include="..\SLib\Bextins.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
@@ -1487,6 +1488,7 @@
     </ClCompile>
     <ClCompile Include="..\SLib\mimalloc\segment-cache.c" />
     <ClCompile Include="..\SLib\sdrecord.cpp" />
+    <ClCompile Include="..\SLib\smemchr.cpp" />
     <ClCompile Include="..\SLib\soapdbt.cpp" />
     <ClCompile Include="..\SLib\txttable.cpp" />
     <ClCompile Include="..\SLib\xlstable.cpp" />
@@ -5895,6 +5897,12 @@
     </ProjectReference>
     <ProjectReference Include="libicu.vcxproj">
       <Project>{6d226127-c063-4702-b4b9-118233d7354c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libjpeg.vcxproj">
+      <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libpng.vcxproj">
+      <Project>{04aa636d-9d3e-4e79-9c2e-b8d0470719da}</Project>
     </ProjectReference>
     <ProjectReference Include="libxml.vcxproj">
       <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>

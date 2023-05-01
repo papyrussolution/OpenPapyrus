@@ -25,7 +25,8 @@ U_NAMESPACE_BEGIN
 
 static UInitOnce gICUInitOnce = U_INITONCE_INITIALIZER;
 
-static bool U_CALLCONV uinit_cleanup() {
+static bool U_CALLCONV uinit_cleanup() 
+{
 	gICUInitOnce.reset();
 	return TRUE;
 }

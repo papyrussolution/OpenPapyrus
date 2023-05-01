@@ -26,7 +26,7 @@ struct worker_thread_s {
 	/// Input buffer of coder->block_size bytes. The main thread will
 	/// put new input into this and update in_size accordingly. Once
 	/// no more input is coming, state will be set to THR_FINISH.
-	uint8_t * in;
+	uint8 * in;
 	size_t in_size; /// Amount of data available in the input buffer. This is modified only by the main thread.
 	/// Output buffer for this thread. This is set by the main
 	/// thread every time a new Block is started with this thread
@@ -61,7 +61,7 @@ struct lzma_stream_coder_s {
 	lzma_index * index; /// Index to hold sizes of the Blocks
 	lzma_next_coder index_encoder; /// Index encoder
 	lzma_stream_flags stream_flags; /// Stream Flags for encoding the Stream Header and Stream Footer.
-	uint8_t header[LZMA_STREAM_HEADER_SIZE]; /// Buffer to hold Stream Header and Stream Footer.
+	uint8 header[LZMA_STREAM_HEADER_SIZE]; /// Buffer to hold Stream Header and Stream Footer.
 	size_t header_pos; /// Read position in header[]
 	lzma_outq outq; /// Output buffer queue for compressed data
 	uint32_t timeout; /// Maximum wait time if cannot use all the input and cannot fill the output buffer. This is in milliseconds.
@@ -356,7 +356,7 @@ static void threads_end(lzma_stream_coder * coder, const lzma_allocator * alloca
 static lzma_ret initialize_new_thread(lzma_stream_coder * coder, const lzma_allocator * allocator)
 {
 	worker_thread * thr = &coder->threads[coder->threads_initialized];
-	thr->in = (uint8_t *)(lzma_alloc(coder->block_size, allocator));
+	thr->in = (uint8 *)(lzma_alloc(coder->block_size, allocator));
 	if(thr->in == NULL)
 		return LZMA_MEM_ERROR;
 	if(mythread_mutex_init(&thr->mutex))
@@ -426,7 +426,7 @@ static lzma_ret get_thread(lzma_stream_coder * coder, const lzma_allocator * all
 }
 
 static lzma_ret stream_encode_in(lzma_stream_coder * coder, const lzma_allocator * allocator,
-    const uint8_t * in, size_t * in_pos,
+    const uint8 * in, size_t * in_pos,
     size_t in_size, lzma_action action)
 {
 	while(*in_pos < in_size || (coder->thr != NULL && action != LZMA_RUN)) {
@@ -536,8 +536,8 @@ static bool wait_for_work(lzma_stream_coder * coder, mythread_condtime * wait_ab
 }
 
 static lzma_ret stream_encode_mt(void * coder_ptr, const lzma_allocator * allocator,
-    const uint8_t * in, size_t * in_pos,
-    size_t in_size, uint8_t * out,
+    const uint8 * in, size_t * in_pos,
+    size_t in_size, uint8 * out,
     size_t * out_pos, size_t out_size, lzma_action action)
 {
 	lzma_stream_coder * coder = (lzma_stream_coder *)coder_ptr;

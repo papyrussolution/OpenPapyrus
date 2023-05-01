@@ -12,7 +12,7 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 
-enum class FormatConversionChar : uint8_t;
+enum class FormatConversionChar : uint8;
 enum class FormatConversionCharSet : uint64_t;
 
 namespace str_format_internal {
@@ -113,7 +113,7 @@ private:
 	char buf_[1024];
 };
 
-enum class Flags : uint8_t {
+enum class Flags : uint8 {
 	kBasic = 0,
 	kLeft = 1 << 0,
 	kShowPos = 1 << 1,
@@ -126,12 +126,12 @@ enum class Flags : uint8_t {
 };
 
 constexpr Flags operator|(Flags a, Flags b) {
-	return static_cast<Flags>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+	return static_cast<Flags>(static_cast<uint8>(a) | static_cast<uint8>(b));
 }
 
 constexpr bool FlagsContains(Flags haystack, Flags needle) {
-	return (static_cast<uint8_t>(haystack) & static_cast<uint8_t>(needle)) ==
-	       static_cast<uint8_t>(needle);
+	return (static_cast<uint8>(haystack) & static_cast<uint8>(needle)) ==
+	       static_cast<uint8>(needle);
 }
 
 std::string FlagsToString(Flags v);
@@ -169,7 +169,7 @@ struct FormatConversionCharInternal {
 
 private:
 	// clang-format off
-	enum class Enum : uint8_t {
+	enum class Enum : uint8 {
 		c, s,        // text
 		d, i, o, u, x, X, // int
 		f, F, e, E, g, G, a, A, // float
@@ -357,7 +357,7 @@ constexpr FormatConversionCharSet FormatConversionCharSetUnion(FormatConversionC
 }
 
 constexpr uint64_t FormatConversionCharToConvInt(FormatConversionChar c) {
-	return uint64_t{1} << (1 + static_cast<uint8_t>(c));
+	return uint64_t{1} << (1 + static_cast<uint8>(c));
 }
 
 constexpr uint64_t FormatConversionCharToConvInt(char conv) 

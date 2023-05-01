@@ -8,7 +8,7 @@
 #pragma hdrstop
 #include "simple_private.h"
 
-static size_t arm_code(void * simple lzma_attribute((__unused__)), uint32_t now_pos, bool is_encoder, uint8_t * buffer, size_t size)
+static size_t arm_code(void * simple lzma_attribute((__unused__)), uint32_t now_pos, bool is_encoder, uint8 * buffer, size_t size)
 {
 	size_t i;
 	for(i = 0; i + 4 <= size; i += 4) {

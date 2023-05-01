@@ -79,7 +79,7 @@ public:
 		DEFINE_SIZE_STATIC(Size);
 	};
 
-	typedef IntType<uint8_t,  1> HBUINT8; /* 8-bit unsigned integer. */
+	typedef IntType<uint8,  1> HBUINT8; /* 8-bit unsigned integer. */
 	typedef IntType<int8_t,   1> HBINT8; /* 8-bit signed integer. */
 	typedef IntType<uint16_t, 2> HBUINT16; /* 16-bit unsigned integer. */
 	typedef IntType<int16_t,  2> HBINT16; /* 16-bit signed integer. */

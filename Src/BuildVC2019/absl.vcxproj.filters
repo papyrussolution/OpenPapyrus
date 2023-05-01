@@ -601,6 +601,7 @@
     <ClCompile Include="..\osf\abseil\absl\flags\internal\usage-internal.cc" />
     <ClCompile Include="..\osf\abseil\absl\strings\internal\escaping-internal.cc" />
     <ClCompile Include="..\OSF\abseil\absl\absl-pch.cpp" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\internal\pow10_helper.cc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\osf\abseil\absl\flags\internal\flag_msvc.inc">

@@ -108,7 +108,7 @@ struct hb_buffer_t {
 	/* Internal debugging. */
 	/* The bits here reflect current allocations of the bytes in glyph_info_t's var1 and var2. */
 #ifndef HB_NDEBUG
-	uint8_t allocated_var_bits;
+	uint8 allocated_var_bits;
 #endif
 	/* Methods */
 	bool in_error() const { return !successful; }

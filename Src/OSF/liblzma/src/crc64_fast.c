@@ -21,7 +21,7 @@
 #endif
 
 // See the comments in crc32_fast.c. They aren't duplicated here.
-uint64_t lzma_crc64(const uint8_t *buf, size_t size, uint64_t crc)
+uint64_t lzma_crc64(const uint8 *buf, size_t size, uint64_t crc)
 {
 	crc = ~crc;
 #ifdef WORDS_BIGENDIAN
@@ -32,7 +32,7 @@ uint64_t lzma_crc64(const uint8_t *buf, size_t size, uint64_t crc)
 			crc = lzma_crc64_table[0][*buf++ ^ A1(crc)] ^ CRC_S8(crc);
 			--size;
 		}
-		const uint8_t * const limit = buf + (size & ~(size_t)(3));
+		const uint8 * const limit = buf + (size & ~(size_t)(3));
 		size &= (size_t)(3);
 		while(buf < limit) {
 #ifdef WORDS_BIGENDIAN

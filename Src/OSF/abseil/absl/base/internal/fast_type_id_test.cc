@@ -51,10 +51,9 @@ TEST(FastTypeIdTest, PrimitiveTypes) {
 #undef A
 	};
 	size_t total_type_ids = sizeof(type_ids) / sizeof(bi::FastTypeIdType);
-
-	for(int i = 0; i < total_type_ids; ++i) {
+	for(size_t i = 0; i < total_type_ids; ++i) {
 		EXPECT_EQ(type_ids[i], type_ids[i]);
-		for(int j = 0; j < i; ++j) {
+		for(size_t j = 0; j < i; ++j) {
 			EXPECT_NE(type_ids[i], type_ids[j]);
 		}
 	}
@@ -86,10 +85,9 @@ TEST(FastTypeIdTest, FixedWidthTypes) {
 #undef A
 	};
 	size_t total_type_ids = sizeof(type_ids) / sizeof(bi::FastTypeIdType);
-
-	for(int i = 0; i < total_type_ids; ++i) {
+	for(size_t i = 0; i < total_type_ids; ++i) {
 		EXPECT_EQ(type_ids[i], type_ids[i]);
-		for(int j = 0; j < i; ++j) {
+		for(size_t j = 0; j < i; ++j) {
 			EXPECT_NE(type_ids[i], type_ids[j]);
 		}
 	}

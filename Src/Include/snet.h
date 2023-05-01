@@ -1,19 +1,19 @@
 // SNET.H
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #ifndef __SNET_H
 #define __SNET_H
 
 #include <slib.h>
-#ifdef _WIN32_WINNT
-	#undef _WIN32_WINNT
-#endif
+//#ifdef _WIN32_WINNT
+	//#undef _WIN32_WINNT
+//#endif
 // @v10.9.9 #include <ws2tcpip.h>
 //
 //
 //
-struct MACAddr { // size=6
+struct MACAddr { // @size=6
 	void   Init();
 	bool   IsEmpty() const;
 	SString & FASTCALL ToStr(SString & rBuf) const;

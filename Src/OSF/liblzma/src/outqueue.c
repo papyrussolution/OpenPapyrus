@@ -49,7 +49,7 @@ extern lzma_ret lzma_outq_init(lzma_outq * outq, const lzma_allocator * allocato
 			return LZMA_MEM_ERROR;
 #endif
 		outq->bufs = (lzma_outbuf *)lzma_alloc(bufs_count * sizeof(lzma_outbuf), allocator);
-		outq->bufs_mem = (uint8_t *)lzma_alloc((size_t)(bufs_alloc_size), allocator);
+		outq->bufs_mem = (uint8 *)lzma_alloc((size_t)(bufs_alloc_size), allocator);
 		if(!outq->bufs || !outq->bufs_mem) {
 			lzma_outq_end(outq, allocator);
 			return LZMA_MEM_ERROR;
@@ -97,7 +97,7 @@ extern bool lzma_outq_is_readable(const lzma_outq * outq)
 	return outq->bufs[i].finished;
 }
 
-extern lzma_ret lzma_outq_read(lzma_outq * outq, uint8_t * out, size_t * out_pos, size_t out_size, lzma_vli * unpadded_size, lzma_vli * uncompressed_size)
+extern lzma_ret lzma_outq_read(lzma_outq * outq, uint8 * out, size_t * out_pos, size_t out_size, lzma_vli * unpadded_size, lzma_vli * uncompressed_size)
 {
 	// There must be at least one buffer from which to read.
 	if(outq->bufs_used == 0)

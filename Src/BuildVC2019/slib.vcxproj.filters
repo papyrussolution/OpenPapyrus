@@ -244,6 +244,8 @@
     <ClCompile Include="..\SLib\mimalloc\segment-cache.c">
       <Filter>MiMalloc</Filter>
     </ClCompile>
+    <ClCompile Include="..\SLib\smemchr.cpp" />
+    <ClCompile Include="..\OSF\AVX-Memmove\memset.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">

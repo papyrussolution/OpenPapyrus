@@ -1,8 +1,5 @@
-/* Copyright (C) 2001-2020 Artifex Software, Inc.
-   All Rights Reserved.
-
-   This software is provided AS-IS with no warranty, either express or
-   implied.
+/* Copyright (C) 2001-2020 Artifex Software, Inc. All Rights Reserved.
+   This software is provided AS-IS with no warranty, either express or implied.
 
    This software is distributed under license and may not be copied,
    modified or distributed except as expressly authorized under the terms
@@ -52,10 +49,10 @@ typedef struct _Jbig2GlobalCtx Jbig2GlobalCtx;
  */
 typedef struct _Jbig2Image Jbig2Image;
 struct _Jbig2Image {
-	uint32_t width;
-	uint32_t height;
-	uint32_t stride;
-	uint8_t * data;
+	uint32 width;
+	uint32 height;
+	uint32 stride;
+	uint8 * data;
 	int refcount;
 };
 
@@ -65,7 +62,7 @@ struct _Jbig2Image {
 
 /* error callback */
 #define JBIG2_UNKNOWN_SEGMENT_NUMBER ~0U
-typedef void (* Jbig2ErrorCallback)(void * data, const char * msg, Jbig2Severity severity, uint32_t seg_idx);
+typedef void (* Jbig2ErrorCallback)(void * data, const char * msg, Jbig2Severity severity, uint32 seg_idx);
 
 /* memory allocation is likewise done via a set of callbacks so that
    clients can better control memory usage. If a NULL is passed for

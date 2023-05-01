@@ -17,7 +17,7 @@
 // If you make any changes, do some benchmarking! Seemingly unrelated
 // changes can very easily ruin the performance (and very probably is
 // very compiler dependent).
-uint32_t lzma_crc32(const uint8_t *buf, size_t size, uint32_t crc)
+uint32_t lzma_crc32(const uint8 *buf, size_t size, uint32_t crc)
 {
 	crc = ~crc;
 #ifdef WORDS_BIGENDIAN
@@ -31,7 +31,7 @@ uint32_t lzma_crc32(const uint8_t *buf, size_t size, uint32_t crc)
 			--size;
 		}
 		// Calculate the position where to stop.
-		const uint8_t * const limit = buf + (size & ~(size_t)(7));
+		const uint8 * const limit = buf + (size & ~(size_t)(7));
 		// Calculate how many bytes must be calculated separately before returning the result.
 		size &= (size_t)(7);
 		// Calculate the CRC32 using the slice-by-eight algorithm.

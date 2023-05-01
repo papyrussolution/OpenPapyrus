@@ -1,8 +1,5 @@
-/* Copyright (C) 2001-2020 Artifex Software, Inc.
-   All Rights Reserved.
-
-   This software is provided AS-IS with no warranty, either express or
-   implied.
+/* Copyright (C) 2001-2020 Artifex Software, Inc. All Rights Reserved.
+   This software is provided AS-IS with no warranty, either express or implied.
 
    This software is distributed under license and may not be copied,
    modified or distributed except as expressly authorized under the terms
@@ -12,13 +9,11 @@
    Artifex Software, Inc.,  1305 Grant Avenue - Suite 200, Novato,
    CA 94945, U.S.A., +1(415)492-9861, for further information.
  */
-
 /*
     jbig2dec
  */
 #ifndef _JBIG2_GENERIC_H
 #define _JBIG2_GENERIC_H
-
 /**
  * Headers for Generic and Generic Refinement region handling
  **/
@@ -40,6 +35,6 @@ int jbig2_generic_stats_size(Jbig2Ctx * ctx, int _template);
 int jbig2_decode_generic_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const Jbig2GenericRegionParams * params, Jbig2ArithState * as,
     Jbig2Image * image, Jbig2ArithCx * GB_stats);
 /* 7.4 */
-int jbig2_immediate_generic_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8_t * segment_data);
+int jbig2_immediate_generic_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8 * segment_data);
 
 #endif /* _JBIG2_GENERIC_H */

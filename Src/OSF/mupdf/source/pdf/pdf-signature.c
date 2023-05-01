@@ -187,13 +187,10 @@ void pdf_sign_signature(fz_context * ctx, pdf_widget * widget, pdf_pkcs7_signer 
 	pdf_pkcs7_designated_name * dn = NULL;
 	fz_buffer * fzbuf = NULL;
 	pdf_document * doc = widget->page->doc;
-
 	if(pdf_widget_is_readonly(ctx, widget))
 		fz_throw(ctx, FZ_ERROR_GENERIC, "Signature is read only, it cannot be signed.");
-
 	fz_var(dn);
 	fz_var(fzbuf);
-
 	fz_try(ctx)
 	{
 		const char * dn_str;
@@ -210,18 +207,14 @@ void pdf_sign_signature(fz_context * ctx, pdf_widget * widget, pdf_pkcs7_signer 
 		pdf_obj * form;
 		int sf;
 #ifdef CLUSTER
-		memset(&now, 0, sizeof(now));
-		memset(tm, 0, sizeof(*tm));
+		memzero(&now, sizeof(now));
+		memzero(tm, sizeof(*tm));
 #endif
-
 		pdf_dirty_annot(ctx, widget);
-
 		/* Ensure that all fields that will be locked by this signature
 		 * are marked as ReadOnly. */
 		enact_sig_locking(ctx, doc, wobj);
-
 		rect = pdf_dict_get_rect(ctx, wobj, PDF_NAME(Rect));
-
 		/* Create an appearance stream only if the signature is intended to be visible */
 		if(!fz_is_empty_rect(rect)) {
 			dn = signer->get_signing_name(ctx, signer);

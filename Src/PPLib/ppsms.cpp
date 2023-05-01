@@ -1,5 +1,5 @@
 // PPSMS.CPP
-// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 //
 #include <slib.h>
 #include <pp.h>
@@ -592,10 +592,11 @@ void SendSmsDialog::CalcText()
 	PPSendSmsParam send_sms;
 	SString src_msg, dest_msg, prsn_id_str;
 	SString text;
-	long   msg_len = 0, sms_count = 0;
+	long   msg_len = 0;
+	long   sms_count = 0;
 	getCtrlString(CTL_SENDSMS_TEXT, text);
 	text.Strip();
-	msg_len = text.Len();
+	msg_len = static_cast<long>(text.Len());
 	sms_count = GetSmsCount(text);
 	setCtrlLong(CTL_SENDSMS_SYMBCOUNT, msg_len);
 	setCtrlLong(CTL_SENDSMS_SMSCOUNT,  sms_count);

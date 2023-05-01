@@ -1072,7 +1072,10 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 			PPID   stylopalm_id = 0;
 			PPOprKind op_rec;
 			StyloQIncomingListParam incl_param;
-			const TSVector <PPStyloQInterchange::Document::CliStatus> * p_cli_status_list = 0;
+			bool   inl_param_inited = false;
+			bool   is_there_accept_rows = false; // Если стреди строк входящего документа встречаются строки с подтверждениями, то true
+			int    acceptance = 0; // Метод проведения акцепта входящего документа (mirror of StyloQIncomingListParam::Acceptance)
+			const  TSVector <PPStyloQInterchange::Document::CliStatus> * p_cli_status_list = 0;
 			if(org_cmd_item.BaseCmdId == StyloQCommandList::sqbcRsrvOrderPrereq) {
 				SBuffer param_buf(org_cmd_item.Param);
 				p_cmd_doc_filt = StyloQDocumentPrereqParam::Read(param_buf);
@@ -1081,7 +1084,9 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 			}
 			else if(org_cmd_item.BaseCmdId == StyloQCommandList::sqbcIncomingListOrder) {
 				if(org_cmd_item.GetSpecialParam<StyloQIncomingListParam>(incl_param)) {
+					inl_param_inited = true;
 					p_cli_status_list = &incl_param.StatusList;
+					acceptance = incl_param.Acceptance;
 				}
 			}
 			if(svc_op_id) {
@@ -1108,6 +1113,10 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 						THROW_PP_S(p_item, PPERR_SQ_INDOCINVTITEM, (temp_buf = doc_text).Space().CatChar('[').CatEq("ln", i+1).CatChar(']'));
 						THROW_PP_S(gobj.Search(p_item->GoodsID, &goods_rec) > 0, PPERR_SQ_INDOCGOODSNFOUND, (temp_buf = doc_text).Space().
 							CatChar('[').CatEq("ln", i+1).Space().CatEq("GoodsID", p_item->GoodsID).CatChar(']'));
+						// @v11.7.0 {
+						if(!is_there_accept_rows && p_item->Flags & Document::__TransferItem::fHasAcceptance)
+							is_there_accept_rows = true;
+						// } @v11.7.0 
 						if(p_item->Set.Qtty < 0.0) {
 							// Если клиент передал нам отрицательное количество, то мы должны убедиться что это допустимо.
 							// Предполагается, что клиент при этом знает вид операции (svc_op_id) который будет использован
@@ -1133,6 +1142,8 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 					PPBillPacket * p_bpack = 0; // Указатель на пакет, который буде сохраняться в БД (&bpack || &ex_bpack)
 					PPObjAccSheet acs_obj;
 					PPAccSheet acs_rec;
+					ObjTagItem tag_item;
+					ObjTagList tag_list;
 					BillTbl::Rec ex_bill_rec;
 					bool   is_new_pack = true;
 					THROW(p_bobj);
@@ -1233,7 +1244,57 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 						}
 						// @v11.4.8 {
 						if(!is_new_pack) {
-							if(!ddecl.ActionFlags) {
+							// @v11.7.0 {
+							if(acceptance == StyloQIncomingListParam::acceptanceLinkDraft) {
+								; // @todo
+							}
+							if(ddecl.ActionFlags & StyloQIncomingListParam::actionDocAcceptance) {
+								if(is_there_accept_rows) {
+									for(uint tiidx = 0; tiidx < p_bpack->GetTCount(); tiidx++) {
+										const PPTransferItem & r_ti = p_bpack->ConstTI(tiidx);
+										const Document::__TransferItem * p_found_outer_item = 0;
+										for(uint i = 0; !p_found_outer_item && i < doc.TiList.getCount(); i++) {
+											const Document::__TransferItem * p_item = doc.TiList.at(i);
+											if(p_item->RowIdx > 0 && r_ti.RByBill == p_item->RowIdx)
+												p_found_outer_item = p_item;
+										}
+										if(p_found_outer_item) {
+											switch(acceptance) {
+												case StyloQIncomingListParam::acceptanceNone:         // 0 // Ничего не делать
+													break;
+												case StyloQIncomingListParam::acceptanceTags:         // 1 // Расставить теги по строкам
+													{
+														PPObjectTag tag_rec;
+														if(tag_obj.Fetch(PPTAG_LOT_ACCEPTANCE, &tag_rec) > 0) {
+															if(p_found_outer_item->Flags & Document::__TransferItem::fHasAcceptance) {
+																PPTransferItem::Acceptance a;
+																a.Qtty = p_found_outer_item->SetAccepted.Qtty;
+																a.Cost = p_found_outer_item->SetAccepted.Cost;
+																a.Price = p_found_outer_item->SetAccepted.Price;
+																if(rCliPack.Rec.ID)
+																	a.SrcOid.Set(PPOBJ_STYLOQBINDERY, rCliPack.Rec.ID);
+																ObjTagList * p_ti_tag_list = p_bpack->LTagL.Get(tiidx);
+																if(!RVALUEPTR(tag_list, p_ti_tag_list))
+																	tag_list.Destroy();
+																if(a.ToStr(temp_buf)) {
+																	tag_item.SetStr(PPTAG_LOT_ACCEPTANCE, temp_buf);
+																	tag_list.PutItem(PPTAG_LOT_ACCEPTANCE, &tag_item);
+																	p_bpack->LTagL.Set(tiidx, &tag_list);
+																}
+															}
+														}
+													}
+													break;
+												case StyloQIncomingListParam::acceptanceModifyOrgDoc: // 2 // Изменить оригинальный документ
+													break;
+												case StyloQIncomingListParam::acceptanceLinkDraft:    // 3 // Привязать к оригинальному документу драфт с информацией о приемке
+													break;
+											}
+										}
+									}
+								}
+							} 
+							else /* } @v11.7.0 */ if(!ddecl.ActionFlags) {
 								LongArray ti_idx_list_to_remove;
 								for(uint j = 0; j < p_bpack->GetTCount(); j++) {
 									const PPTransferItem & r_ti = p_bpack->ConstTI(j);

@@ -1,5 +1,5 @@
 // SDEBUG.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2016, 2017, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2016, 2017, 2020, 2021, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -48,15 +48,14 @@ int MemHeapTracer::CalcStat(Stat * pStat)
 			pStat->UnusedBlockCount++;
 			pStat->UnusedSize += blk._size;
 		}
-	return (r == _HEAPBADPTR || r == _HEAPBADBEGIN || r == _HEAPBADNODE) ? 0 : 1;
+	return oneof3(r, _HEAPBADPTR, _HEAPBADBEGIN, _HEAPBADNODE) ? 0 : 1;
 }
 //
 //
 //
 void FASTCALL TraceFunc(const char * pFuncName, const char * pAddedMsg)
 {
-	SString text;
-	text = pFuncName;
+	SString text(pFuncName);
 	if(pAddedMsg)
 		text.CatDiv(':', 1).Cat(pAddedMsg);
 	SLS.LogMessage(0, text, 0);

@@ -7,7 +7,7 @@
 #include <ppbrow.h>
 #include <sxml.h>
 #include <snet.h>
-#include <wininet.h>
+// @v11.7.0 #include <wininet.h>
 
 #define EXPORT	extern "C" __declspec (dllexport)
 #define THROWERR(expr,val) { if(!(expr)){ SetError(val, ""); goto __scatch; } }

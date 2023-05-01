@@ -1,8 +1,5 @@
-/* Copyright (C) 2001-2020 Artifex Software, Inc.
-   All Rights Reserved.
-
-   This software is provided AS-IS with no warranty, either express or
-   implied.
+/* Copyright (C) 2001-2020 Artifex Software, Inc. All Rights Reserved.
+   This software is provided AS-IS with no warranty, either express or implied.
 
    This software is distributed under license and may not be copied,
    modified or distributed except as expressly authorized under the terms
@@ -24,11 +21,11 @@
 static Jbig2PatternDict * jbig2_hd_new(Jbig2Ctx * ctx, const Jbig2PatternDictParams * params, Jbig2Image * image)
 {
 	Jbig2PatternDict * p_new;
-	const uint32_t N = params->GRAYMAX + 1;
-	const uint32_t HPW = params->HDPW;
-	const uint32_t HPH = params->HDPH;
+	const uint32 N = params->GRAYMAX + 1;
+	const uint32 HPW = params->HDPW;
+	const uint32 HPH = params->HDPH;
 	int code;
-	uint32_t i, j;
+	uint32 i, j;
 	if(N == 0) {
 		// We've wrapped. 
 		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "params->GRAYMAX out of range");
@@ -223,12 +220,12 @@ int jbig2_pattern_dictionary(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte 
  *    0 on failure
  **/
 static uint16_t ** jbig2_decode_gray_scale_image(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * data, const size_t size,
-    boolint GSMMR, uint32_t GSW, uint32_t GSH,
-    uint32_t GSBPP, boolint GSUSESKIP, Jbig2Image * GSKIP, int GSTEMPLATE, Jbig2ArithCx * GB_stats)
+    boolint GSMMR, uint32 GSW, uint32 GSH,
+    uint32 GSBPP, boolint GSUSESKIP, Jbig2Image * GSKIP, int GSTEMPLATE, Jbig2ArithCx * GB_stats)
 {
 	uint16_t ** GSVALS = NULL;
 	size_t consumed_bytes = 0;
-	uint32_t i, j, stride, x, y;
+	uint32 i, j, stride, x, y;
 	int code;
 	Jbig2Image ** GSPLANES;
 	Jbig2GenericRegionParams rparams;
@@ -404,12 +401,12 @@ static Jbig2PatternDict * jbig2_decode_ht_region_get_hpats(Jbig2Ctx * ctx, Jbig2
 static int jbig2_decode_halftone_region(Jbig2Ctx * ctx, Jbig2Segment * segment,
     Jbig2HalftoneRegionParams * params, const byte * data, const size_t size, Jbig2Image * image, Jbig2ArithCx * GB_stats)
 {
-	uint32_t HBPP;
-	uint32_t HNUMPATS;
+	uint32 HBPP;
+	uint32 HNUMPATS;
 	uint16_t ** GI = NULL;
 	Jbig2Image * HSKIP = NULL;
-	uint32_t i;
-	uint32_t mg, ng;
+	uint32 i;
+	uint32 mg, ng;
 	uint16_t gray_val;
 	int code = 0;
 	/* We need the patterns used in this region, get them from the referred pattern dictionary */

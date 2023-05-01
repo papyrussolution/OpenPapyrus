@@ -218,17 +218,13 @@ static int fz_reset_edgebuffer(fz_context * ctx, fz_rasterizer * r)
 	fz_edgebuffer * eb = (fz_edgebuffer*)r;
 	int height = eb->super.clip.y1 - eb->super.clip.y0 + 1;
 	int n;
-
 	eb->sorted = 0;
-
 	if(eb->index_cap < height) {
 		eb->index = fz_realloc_array(ctx, eb->index, height, int);
 		eb->index_cap = height;
 	}
-	memset(eb->index, 0, sizeof(int) * height);
-
+	memzero(eb->index, sizeof(int) * height);
 	n = 1;
-
 	if(eb->app) {
 		n = 2;
 		eb->cursor[0].saved = 0;
@@ -1441,7 +1437,7 @@ static void fz_convert_edgebuffer(fz_context * ctx,
 	int i, n, a, pl, pr;
 	int * table = eb->table;
 	int * index = eb->index;
-	uint8_t * out;
+	uint8 * out;
 	fz_solid_color_painter_t * fn;
 
 	fn = fz_get_solid_color_painter(pix->n, color, pix->alpha, eop);
@@ -1597,7 +1593,7 @@ static void fz_convert_edgebuffer_app(fz_context * ctx,
 	int i, n, a, pl, pr;
 	int * table = eb->table;
 	int * index = eb->index;
-	uint8_t * out;
+	uint8 * out;
 	fz_solid_color_painter_t * fn;
 
 	fn = fz_get_solid_color_painter(pix->n, color, pix->alpha, eop);

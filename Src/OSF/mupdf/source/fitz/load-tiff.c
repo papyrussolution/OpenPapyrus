@@ -907,12 +907,10 @@ static void tiff_scale_lab_samples(fz_context * ctx, uchar * buf, int bps, int n
 static void tiff_read_header(fz_context * ctx, struct tiff * tiff, const uchar * buf, size_t len)
 {
 	unsigned version;
-
-	memset(tiff, 0, sizeof(struct tiff));
+	memzero(tiff, sizeof(struct tiff));
 	tiff->bp = buf;
 	tiff->rp = buf;
 	tiff->ep = buf + len;
-
 	/* tag defaults, where applicable */
 	tiff->bitspersample = 1;
 	tiff->compression = 1;

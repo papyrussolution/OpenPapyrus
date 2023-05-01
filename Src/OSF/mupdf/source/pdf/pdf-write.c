@@ -177,7 +177,7 @@ static void page_objects_list_ensure(fz_context * ctx, page_objects_list ** pol,
 	if(newcap <= oldcap)
 		return;
 	*pol = (page_objects_list *)fz_realloc(ctx, *pol, sizeof(page_objects_list) + (newcap-1)*sizeof(page_objects *));
-	memset(&(*pol)->page[oldcap], 0, (newcap-oldcap)*sizeof(page_objects *));
+	memzero(&(*pol)->page[oldcap], (newcap-oldcap)*sizeof(page_objects *));
 	(*pol)->cap = newcap;
 }
 
@@ -1344,14 +1344,11 @@ static void linearize(fz_context * ctx, pdf_document * doc, pdf_write_state * op
 	 * required for each page, but this would require us to run the page
 	 * content streams. */
 	pdf_localise_page_resources(ctx, doc);
-
 	/* Walk the objects for each page, marking which ones are used, where */
-	memset(opts->use_list, 0, n * sizeof(int));
+	memzero(opts->use_list, n * sizeof(int));
 	mark_trailer(ctx, doc, opts, pdf_trailer(ctx, doc));
-
 	/* Add new objects required for linearization */
 	add_linearization_objs(ctx, doc, opts);
-
 #ifdef DEBUG_WRITING
 	slfprintf_stderr("Usage calculated:\n");
 	for(i = 0; i < pdf_xref_len(ctx, doc); i++) {
@@ -2771,17 +2768,14 @@ static void clean_content_streams(fz_context * ctx, pdf_document * doc, int sani
 {
 	int n = pdf_count_pages(ctx, doc);
 	int i;
-
 	pdf_filter_options filter;
-	memset(&filter, 0, sizeof filter);
+	memzero(&filter, sizeof filter);
 	filter.recurse = 1;
 	filter.sanitize = sanitize;
 	filter.ascii = ascii;
-
 	for(i = 0; i < n; i++) {
 		pdf_annot * annot;
 		pdf_page * page = pdf_load_page(ctx, doc, i);
-
 		fz_try(ctx)
 		{
 			pdf_filter_page_contents(ctx, doc, page, &filter);
@@ -2899,9 +2893,7 @@ const char * fz_pdf_write_options_usage =
 pdf_write_options * pdf_parse_write_options(fz_context * ctx, pdf_write_options * opts, const char * args)
 {
 	const char * val;
-
-	memset(opts, 0, sizeof *opts);
-
+	memzero(opts, sizeof *opts);
 	if(fz_has_option(ctx, args, "decompress", &val))
 		opts->do_decompress = fz_option_eq(val, "yes");
 	if(fz_has_option(ctx, args, "compress", &val))

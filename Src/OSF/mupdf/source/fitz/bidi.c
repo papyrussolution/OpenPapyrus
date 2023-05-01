@@ -130,7 +130,7 @@ static const char char_from_types[] =
  * therefore map between the two using this small table. It
  * also takes care of fudging LRI, RLI, FSI and PDI, that this
  * code does not currently support. */
-static const uint8_t ucdn_to_bidi[] =
+static const uint8 ucdn_to_bidi[] =
 {
 	BDI_L,          /* UCDN_BIDI_CLASS_L = 0 */
 	BDI_LRE,        /* UCDN_BIDI_CLASS_LRE = 1 */
@@ -440,20 +440,17 @@ static fz_bidi_level * create_levels(fz_context * ctx, const uint32_t * text, si
 #ifdef DEBUG_BIDI_VERBOSE
 		slfprintf_stderr("Levels: ");
 		{
-			size_t i;
-			for(i = 0; i < len; i++) {
+			for(size_t i = 0; i < len; i++) {
 				slfprintf_stderr("%d", levels[i]>9 ? 0 : levels[i]);
 			}
 			slfprintf_stderr("\n");
 		}
 #endif
 	}
-	fz_always(ctx)
-	{
+	fz_always(ctx) {
 		fz_free(ctx, types);
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_free(ctx, levels);
 		fz_rethrow(ctx);
 	}
@@ -486,9 +483,7 @@ void fz_bidi_fragment_text(fz_context * ctx,
 	 * for each character in text.
 	 */
 	assert(levels != NULL);
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		startOfFragment = 0;
 		for(i = 1; i < textlen; i++) {
 			if(levels[i] != levels[i-1]) {
@@ -496,28 +491,18 @@ void fz_bidi_fragment_text(fz_context * ctx,
 				 * Create a text object for it, then start
 				 * a new fragment.
 				 */
-				split_at_script(&text[startOfFragment],
-				    i - startOfFragment,
-				    levels[startOfFragment],
-				    arg,
-				    callback);
+				split_at_script(&text[startOfFragment], i - startOfFragment, levels[startOfFragment], arg, callback);
 				startOfFragment = i;
 			}
 		}
 		/* Now i == textlen. Deal with the final (or maybe only) fragment. */
 		/* otherwise create 1 fragment */
-		split_at_script(&text[startOfFragment],
-		    i - startOfFragment,
-		    levels[startOfFragment],
-		    arg,
-		    callback);
+		split_at_script(&text[startOfFragment], i - startOfFragment, levels[startOfFragment], arg, callback);
 	}
-	fz_always(ctx)
-	{
+	fz_always(ctx) {
 		fz_free(ctx, levels);
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_rethrow(ctx);
 	}
 }

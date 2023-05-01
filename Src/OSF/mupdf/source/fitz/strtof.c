@@ -148,7 +148,6 @@ static strtof_fp_t uint32_to_diy(uint32_t x)
 {
 	strtof_fp_t result = {x, 0};
 	unsigned shift = leading_zeros(x);
-
 	result.f <<= shift;
 	result.e -= shift;
 	return result;
@@ -405,7 +404,6 @@ float fz_strtof(const char * string, char ** tailptr)
 		else
 			N += exp;
 	}
-
 	SET_TAILPTR(tailptr, s);
 	return scale_integer_to_float(M, N, negative);
 }

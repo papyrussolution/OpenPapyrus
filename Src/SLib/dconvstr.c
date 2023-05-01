@@ -1425,7 +1425,7 @@ static const struct power_of_two powers_of_two_[] = {
 //   (u * v) -> w
 //   Element w[0] of two-element array w always holds 64 least significant bits of result, even on big endian machines.
 // 
-static inline void multiply_128(uint64 u, uint64 v, uint64 * w)
+static inline void multiply_128(uint64 u, uint64 v, uint64 * w) // @todo:unify
 {
 	// Make use of 64x64->128 unsigned multiplication instruction
 	// (if processor has this instruction and compiler allows for using it).
@@ -1457,7 +1457,7 @@ static inline void multiply_128(uint64 u, uint64 v, uint64 * w)
 // Descr: Count the number of leading zero bits in provided 64-bit unsigned integer
 //   Behavior of this function is undefined if a == 0.
 // 
-static inline uint count_leading_zeros(uint64 a)
+static inline uint count_leading_zeros(uint64 a) // @todo:unify
 {
 	// Make use of 64-bit leading zero count instruction
 	// (if processor has this instruction and compiler allows for using it).

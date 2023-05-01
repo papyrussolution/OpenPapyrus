@@ -286,8 +286,8 @@ struct fz_image
 {
 	fz_key_storable key_storable;
 	int w, h;
-	uint8_t n;
-	uint8_t bpc;
+	uint8 n;
+	uint8 bpc;
 	uint imagemask:1;
 	uint interpolate:1;
 	uint use_colorkey:1;

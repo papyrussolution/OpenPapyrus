@@ -30,7 +30,7 @@
 	#define _WIN32_WINNT 0x0601
 #endif
 #include "schannel_certs.h"
-#include <winhttp.h>
+// @sobolev @v11.7.0 #include <winhttp.h>
 #include "win32_errmsg.h"
 /*
    Return GetLastError(), or, if this unexpectedly gives success,

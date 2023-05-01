@@ -61,8 +61,8 @@ mask_t gf_isr(gf a, const gf x); /** a^2 x = 1, QNR, or 0 if x=0.  Return true i
 mask_t gf_eq(const gf x, const gf y);
 mask_t gf_lobit(const gf x);
 mask_t gf_hibit(const gf x);
-void gf_serialize(uint8_t * serial, const gf x, int with_highbit);
-mask_t gf_deserialize(gf x, const uint8_t serial[SER_BYTES], int with_hibit, uint8_t hi_nmask);
+void gf_serialize(uint8 * serial, const gf x, int with_highbit);
+mask_t gf_deserialize(gf x, const uint8 serial[SER_BYTES], int with_hibit, uint8 hi_nmask);
 
 #define LIMBPERM(i) (i)
 #if (ARCH_WORD_BITS == 32)

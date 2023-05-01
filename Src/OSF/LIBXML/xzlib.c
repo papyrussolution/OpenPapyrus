@@ -67,23 +67,23 @@ static void xz_error(xz_statep state, int err, const char * msg)
 	}
 	/* set error code, and if no message, then done */
 	state->err = err;
-	if(!msg)
-		return;
-	/* for an out of memory error, save as static string */
-	if(err == LZMA_MEM_ERROR) {
-		state->msg = (char *)msg;
-	}
-	else {
-		/* construct error message with path */
-		state->msg = static_cast<char *>(SAlloc::M(sstrlen(state->path) + sstrlen(msg) + 3));
-		if(state->msg == NULL) {
-			state->err = LZMA_MEM_ERROR;
-			state->msg = const_cast<char *>(SlTxtOutOfMem); // @badcast
+	if(msg) {
+		/* for an out of memory error, save as static string */
+		if(err == LZMA_MEM_ERROR) {
+			state->msg = (char *)msg;
 		}
 		else {
-			strcpy(state->msg, state->path);
-			strcat(state->msg, ": ");
-			strcat(state->msg, msg);
+			/* construct error message with path */
+			state->msg = static_cast<char *>(SAlloc::M(sstrlen(state->path) + sstrlen(msg) + 3));
+			if(state->msg == NULL) {
+				state->err = LZMA_MEM_ERROR;
+				state->msg = const_cast<char *>(SlTxtOutOfMem); // @badcast
+			}
+			else {
+				strcpy(state->msg, state->path);
+				strcat(state->msg, ": ");
+				strcat(state->msg, msg);
+			}
 		}
 	}
 }

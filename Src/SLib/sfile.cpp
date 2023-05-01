@@ -1386,9 +1386,9 @@ bool SFile::Seek(long offs, int origin)
 	if(T == tSBuffer) {
 		long o;
 		if(origin == SEEK_CUR)
-			o = P_Sb->GetRdOffs() + offs;
+			o = static_cast<long>(P_Sb->GetRdOffs() + offs);
 		else if(origin == SEEK_END)
-			o = P_Sb->GetWrOffs() + offs;
+			o = static_cast<long>(P_Sb->GetWrOffs() + offs);
 		else
 			o = offs;
 		if(checkirange(o, 0L, static_cast<long>(P_Sb->GetWrOffs()))) {
@@ -1797,23 +1797,25 @@ int SFile::ReadLine(SString & rBuf, uint flags)
 			}
 			else {
 				int64  last_pos = Tell64();
-				char * p = 0;
+				const char * p = 0;
 				THROW(LB.Alloc(1024+2));
 				size_t act_size = 0;
 				LB[LB.GetSize()-2] = 0;
 				while(Read(LB, LB.GetSize()-2, &act_size) && act_size) {
-					p = static_cast<char *>(memchr(LB.vptr(), '\n', act_size));
+					p = static_cast<const char *>(smemchr(LB.vptr(), '\n', act_size)); // @v11.7.0 memchr-->smemchr
 					if(p) {
-						p[1] = 0;
+						char * p_to_update = const_cast<char *>(p);
+						p_to_update[1] = 0;
 					}
 					else {
-						p = static_cast<char *>(memchr(LB.vptr(), 0x0D, act_size));
+						p = static_cast<const char *>(smemchr(LB.vptr(), 0x0D, act_size)); // @v11.7.0 memchr-->smemchr
 						// @v10.4.1 @fix 
 						if(p) {
-							if(p[1] == 0x0A)
-								p[2] = 0;
+							char * p_to_update = const_cast<char *>(p);
+							if(p_to_update[1] == 0x0A)
+								p_to_update[2] = 0;
 							else
-								p[1] = 0;
+								p_to_update[1] = 0;
 						}
 					}
 					if(p) {

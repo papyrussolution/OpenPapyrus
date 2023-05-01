@@ -18,7 +18,7 @@
 #include "hb-open-type.hh"
 
 struct hb_utf8_t {
-	typedef uint8_t codepoint_t;
+	typedef uint8 codepoint_t;
 
 	static const codepoint_t * next(const codepoint_t * text,
 	    const codepoint_t * end,
@@ -285,7 +285,7 @@ typedef hb_utf32_xe_t<uint32_t> hb_utf32_t;
 typedef hb_utf32_xe_t<uint32_t, false> hb_utf32_novalidate_t;
 
 struct hb_latin1_t {
-	typedef uint8_t codepoint_t;
+	typedef uint8 codepoint_t;
 
 	static const codepoint_t * next(const codepoint_t * text,
 	    const codepoint_t * end CXX_UNUSED_PARAM,
@@ -329,7 +329,7 @@ struct hb_latin1_t {
 };
 
 struct hb_ascii_t {
-	typedef uint8_t codepoint_t;
+	typedef uint8 codepoint_t;
 
 	static const codepoint_t * next(const codepoint_t * text,
 	    const codepoint_t * end CXX_UNUSED_PARAM,

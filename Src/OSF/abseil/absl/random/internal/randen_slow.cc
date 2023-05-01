@@ -233,46 +233,46 @@ inline ABSL_RANDOM_INTERNAL_ATTRIBUTE_ALWAYS_INLINE Vector128 AesRound(const Vec
 	Vector128 result;
 #ifdef SL_LITTLEENDIAN
 	result.s[0] = round_key.s[0] ^            //
-	    te0[uint8_t(state.s[0])] ^            //
-	    te1[uint8_t(state.s[1] >> 8)] ^       //
-	    te2[uint8_t(state.s[2] >> 16)] ^      //
-	    te3[uint8_t(state.s[3] >> 24)];
+	    te0[uint8(state.s[0])] ^            //
+	    te1[uint8(state.s[1] >> 8)] ^       //
+	    te2[uint8(state.s[2] >> 16)] ^      //
+	    te3[uint8(state.s[3] >> 24)];
 	result.s[1] = round_key.s[1] ^            //
-	    te0[uint8_t(state.s[1])] ^            //
-	    te1[uint8_t(state.s[2] >> 8)] ^       //
-	    te2[uint8_t(state.s[3] >> 16)] ^      //
-	    te3[uint8_t(state.s[0] >> 24)];
+	    te0[uint8(state.s[1])] ^            //
+	    te1[uint8(state.s[2] >> 8)] ^       //
+	    te2[uint8(state.s[3] >> 16)] ^      //
+	    te3[uint8(state.s[0] >> 24)];
 	result.s[2] = round_key.s[2] ^            //
-	    te0[uint8_t(state.s[2])] ^            //
-	    te1[uint8_t(state.s[3] >> 8)] ^       //
-	    te2[uint8_t(state.s[0] >> 16)] ^      //
-	    te3[uint8_t(state.s[1] >> 24)];
+	    te0[uint8(state.s[2])] ^            //
+	    te1[uint8(state.s[3] >> 8)] ^       //
+	    te2[uint8(state.s[0] >> 16)] ^      //
+	    te3[uint8(state.s[1] >> 24)];
 	result.s[3] = round_key.s[3] ^            //
-	    te0[uint8_t(state.s[3])] ^            //
-	    te1[uint8_t(state.s[0] >> 8)] ^       //
-	    te2[uint8_t(state.s[1] >> 16)] ^      //
-	    te3[uint8_t(state.s[2] >> 24)];
+	    te0[uint8(state.s[3])] ^            //
+	    te1[uint8(state.s[0] >> 8)] ^       //
+	    te2[uint8(state.s[1] >> 16)] ^      //
+	    te3[uint8(state.s[2] >> 24)];
 #else
 	result.s[0] = round_key.s[0] ^            //
-	    te0[uint8_t(state.s[0])] ^            //
-	    te1[uint8_t(state.s[3] >> 8)] ^       //
-	    te2[uint8_t(state.s[2] >> 16)] ^      //
-	    te3[uint8_t(state.s[1] >> 24)];
+	    te0[uint8(state.s[0])] ^            //
+	    te1[uint8(state.s[3] >> 8)] ^       //
+	    te2[uint8(state.s[2] >> 16)] ^      //
+	    te3[uint8(state.s[1] >> 24)];
 	result.s[1] = round_key.s[1] ^            //
-	    te0[uint8_t(state.s[1])] ^            //
-	    te1[uint8_t(state.s[0] >> 8)] ^       //
-	    te2[uint8_t(state.s[3] >> 16)] ^      //
-	    te3[uint8_t(state.s[2] >> 24)];
+	    te0[uint8(state.s[1])] ^            //
+	    te1[uint8(state.s[0] >> 8)] ^       //
+	    te2[uint8(state.s[3] >> 16)] ^      //
+	    te3[uint8(state.s[2] >> 24)];
 	result.s[2] = round_key.s[2] ^            //
-	    te0[uint8_t(state.s[2])] ^            //
-	    te1[uint8_t(state.s[1] >> 8)] ^       //
-	    te2[uint8_t(state.s[0] >> 16)] ^      //
-	    te3[uint8_t(state.s[3] >> 24)];
+	    te0[uint8(state.s[2])] ^            //
+	    te1[uint8(state.s[1] >> 8)] ^       //
+	    te2[uint8(state.s[0] >> 16)] ^      //
+	    te3[uint8(state.s[3] >> 24)];
 	result.s[3] = round_key.s[3] ^            //
-	    te0[uint8_t(state.s[3])] ^            //
-	    te1[uint8_t(state.s[2] >> 8)] ^       //
-	    te2[uint8_t(state.s[1] >> 16)] ^      //
-	    te3[uint8_t(state.s[0] >> 24)];
+	    te0[uint8(state.s[3])] ^            //
+	    te1[uint8(state.s[2] >> 8)] ^       //
+	    te2[uint8(state.s[1] >> 16)] ^      //
+	    te3[uint8(state.s[0] >> 24)];
 #endif
 	return result;
 }

@@ -95,16 +95,11 @@ static int int_ctrl_helper(ENGINE * e, int cmd, long i, void * p, void (*f)(void
 		case ENGINE_CTRL_GET_NEXT_CMD_TYPE:
 		    cdp++;
 		    return int_ctrl_cmd_is_null(cdp) ? 0 : cdp->cmd_num;
-		case ENGINE_CTRL_GET_NAME_LEN_FROM_CMD:
-		    return strlen(cdp->cmd_name);
-		case ENGINE_CTRL_GET_NAME_FROM_CMD:
-		    return strlen(strcpy(s, cdp->cmd_name));
-		case ENGINE_CTRL_GET_DESC_LEN_FROM_CMD:
-		    return strlen(cdp->cmd_desc == NULL ? int_no_description : cdp->cmd_desc);
-		case ENGINE_CTRL_GET_DESC_FROM_CMD:
-		    return strlen(strcpy(s, cdp->cmd_desc == NULL ? int_no_description : cdp->cmd_desc));
-		case ENGINE_CTRL_GET_CMD_FLAGS:
-		    return cdp->cmd_flags;
+		case ENGINE_CTRL_GET_NAME_LEN_FROM_CMD: return strlen(cdp->cmd_name);
+		case ENGINE_CTRL_GET_NAME_FROM_CMD: return strlen(strcpy(s, cdp->cmd_name));
+		case ENGINE_CTRL_GET_DESC_LEN_FROM_CMD: return strlen(cdp->cmd_desc == NULL ? int_no_description : cdp->cmd_desc);
+		case ENGINE_CTRL_GET_DESC_FROM_CMD: return strlen(strcpy(s, cdp->cmd_desc == NULL ? int_no_description : cdp->cmd_desc));
+		case ENGINE_CTRL_GET_CMD_FLAGS: return cdp->cmd_flags;
 	}
 	/* Shouldn't really be here ... */
 	ERR_raise(ERR_LIB_ENGINE, ENGINE_R_INTERNAL_LIST_ERROR);

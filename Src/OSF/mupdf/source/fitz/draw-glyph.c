@@ -217,14 +217,8 @@ static inline void move_to_front(fz_glyph_cache * cache, fz_glyph_cache_entry * 
 	entry->lru_prev = NULL;
 }
 
-fz_glyph * fz_render_glyph(fz_context * ctx,
-    fz_font * font,
-    int gid,
-    fz_matrix * ctm,
-    fz_colorspace * model,
-    const fz_irect * scissor,
-    int alpha,
-    int aa)
+fz_glyph * fz_render_glyph(fz_context * ctx, fz_font * font, int gid, fz_matrix * ctm,
+    fz_colorspace * model, const fz_irect * scissor, int alpha, int aa)
 {
 	fz_glyph_cache * cache;
 	fz_glyph_key key;
@@ -236,12 +230,10 @@ fz_glyph * fz_render_glyph(fz_context * ctx,
 	fz_glyph_cache_entry * entry;
 	unsigned hash;
 	int is_ft_font = !!fz_font_ft_face(ctx, font);
-
 	fz_var(locked);
 	fz_var(caching);
 	fz_var(val);
-
-	memset(&key, 0, sizeof key);
+	memzero(&key, sizeof key);
 	size = fz_subpixel_adjust(ctx, ctm, &subpix_ctm, &key.e, &key.f);
 	if(size <= MAX_GLYPH_SIZE) {
 		scissor = &fz_infinite_irect;

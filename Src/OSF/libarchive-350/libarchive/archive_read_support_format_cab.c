@@ -62,7 +62,6 @@ struct lzx_dec {
 		uchar odd;
 		char have_odd;
 	} br;
-
 	/*
 	 * Huffman coding.
 	 */
@@ -1241,25 +1240,20 @@ static const void * cab_read_ahead_cfdata(ArchiveRead * a, ssize_t * avail)
 		    return NULL;
 	}
 }
-
 /*
  * Read ahead CFDATA as uncompressed data.
  */
 static const void * cab_read_ahead_cfdata_none(ArchiveRead * a, ssize_t * avail)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
-	struct cfdata * cfdata;
-	const void * d;
-
-	cfdata = cab->entry_cfdata;
-
+	struct cfdata * cfdata = cab->entry_cfdata;
 	/*
 	 * Note: '1' here is a performance optimization.
 	 * Recall that the decompression layer returns a count of
 	 * available bytes; asking for more than that forces the
 	 * decompressor to combine reads by copying data.
 	 */
-	d = __archive_read_ahead(a, 1, avail);
+	const void * d = __archive_read_ahead(a, 1, avail);
 	if(*avail <= 0) {
 		*avail = truncated_error(a);
 		return NULL;
@@ -1271,7 +1265,6 @@ static const void * cab_read_ahead_cfdata_none(ArchiveRead * a, ssize_t * avail)
 	cfdata->sum_ptr = d;
 	return (d);
 }
-
 /*
  * Read ahead CFDATA as deflate data.
  */
@@ -1311,8 +1304,7 @@ static const void * cab_read_ahead_cfdata_deflate(ArchiveRead * a, ssize_t * ava
 		if(cab->stream_valid)
 			r = inflateReset(&cab->stream);
 		else
-			r = inflateInit2(&cab->stream,
-				-15 /* Don't check for zlib header */);
+			r = inflateInit2(&cab->stream, -15 /* Don't check for zlib header */);
 		if(r != Z_OK) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Can't initialize deflate decompression.");
 			*avail = ARCHIVE_FATAL;
@@ -1323,7 +1315,6 @@ static const void * cab_read_ahead_cfdata_deflate(ArchiveRead * a, ssize_t * ava
 		/* We've initialized decompression for this stream. */
 		cab->entry_cffolder->decompress_init = 1;
 	}
-
 	if(cfdata->compressed_bytes_remaining == cfdata->compressed_size)
 		mszip = 2;
 	else
@@ -1335,12 +1326,8 @@ static const void * cab_read_ahead_cfdata_deflate(ArchiveRead * a, ssize_t * ava
 	 */
 	while(!eod && cab->stream.total_out < cfdata->uncompressed_size) {
 		ssize_t bytes_avail;
-
-		cab->stream.next_out =
-		    cab->uncompressed_buffer + cab->stream.total_out;
-		cab->stream.avail_out =
-		    cfdata->uncompressed_size - cab->stream.total_out;
-
+		cab->stream.next_out = cab->uncompressed_buffer + cab->stream.total_out;
+		cab->stream.avail_out = cfdata->uncompressed_size - cab->stream.total_out;
 		d = __archive_read_ahead(a, 1, &bytes_avail);
 		if(bytes_avail <= 0) {
 			*avail = truncated_error(a);
@@ -1357,8 +1344,7 @@ static const void * cab_read_ahead_cfdata_deflate(ArchiveRead * a, ssize_t * ava
 		cab->stream.next_in = (Bytef*)(uintptr_t)d;
 		cab->stream.avail_in = (uInt)bytes_avail;
 		cab->stream.total_in = 0;
-
-		/* Cut out a tow-byte MSZIP signature(0x43, 0x4b). */
+		// Cut out a tow-byte MSZIP signature(0x43, 0x4b)
 		if(mszip > 0) {
 			if(bytes_avail <= 0)
 				goto nomszip;
@@ -1366,8 +1352,7 @@ static const void * cab_read_ahead_cfdata_deflate(ArchiveRead * a, ssize_t * ava
 				if(mszip == 2) {
 					if(cab->stream.next_in[0] != 0x43)
 						goto nomszip;
-					if(bytes_avail > 1 &&
-					    cab->stream.next_in[1] != 0x4b)
+					if(bytes_avail > 1 && cab->stream.next_in[1] != 0x4b)
 						goto nomszip;
 				}
 				else if(cab->stream.next_in[0] != 0x4b)
@@ -1392,7 +1377,6 @@ static const void * cab_read_ahead_cfdata_deflate(ArchiveRead * a, ssize_t * ava
 			cab->stream.total_in += mszip;
 			mszip = 0;
 		}
-
 		r = inflate(&cab->stream, 0);
 		switch(r) {
 			case Z_OK:
@@ -1487,34 +1471,28 @@ static const void * cab_read_ahead_cfdata_deflate(ArchiveRead * a, ssize_t * ava
 static const void * cab_read_ahead_cfdata_lzx(ArchiveRead * a, ssize_t * avail)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
-	struct cfdata * cfdata;
 	const void * d;
 	int r;
 	uint16 uavail;
-
-	cfdata = cab->entry_cfdata;
+	struct cfdata * cfdata = cab->entry_cfdata;
 	/* If the buffer hasn't been allocated, allocate it now. */
 	if(cab->uncompressed_buffer == NULL) {
 		cab->uncompressed_buffer_size = 0x8000;
-		cab->uncompressed_buffer
-			= (uchar *)SAlloc::M(cab->uncompressed_buffer_size);
+		cab->uncompressed_buffer = (uchar *)SAlloc::M(cab->uncompressed_buffer_size);
 		if(cab->uncompressed_buffer == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "No memory for CAB reader");
 			*avail = ARCHIVE_FATAL;
 			return NULL;
 		}
 	}
-
 	uavail = cfdata->uncompressed_avail;
 	if(uavail == cfdata->uncompressed_size) {
 		d = cab->uncompressed_buffer + cfdata->read_offset;
 		*avail = uavail - cfdata->read_offset;
 		return (d);
 	}
-
 	if(!cab->entry_cffolder->decompress_init) {
-		r = lzx_decode_init(&cab->xstrm,
-			cab->entry_cffolder->compdata);
+		r = lzx_decode_init(&cab->xstrm, cab->entry_cffolder->compdata);
 		if(r != ARCHIVE_OK) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Can't initialize LZX decompression.");
 			*avail = ARCHIVE_FATAL;
@@ -1542,8 +1520,7 @@ static const void * cab_read_ahead_cfdata_lzx(ArchiveRead * a, ssize_t * avail)
 		cab->xstrm.next_in = static_cast<const uchar *>(d);
 		cab->xstrm.avail_in = bytes_avail;
 		cab->xstrm.total_in = 0;
-		r = lzx_decode(&cab->xstrm,
-			cfdata->compressed_bytes_remaining == bytes_avail);
+		r = lzx_decode(&cab->xstrm, cfdata->compressed_bytes_remaining == bytes_avail);
 		switch(r) {
 			case ARCHIVE_OK:
 			case ARCHIVE_EOF:
@@ -1560,16 +1537,13 @@ static const void * cab_read_ahead_cfdata_lzx(ArchiveRead * a, ssize_t * avail)
 			return NULL;
 		}
 	}
-
 	uavail = (uint16)cab->xstrm.total_out;
 	/*
 	 * Make sure a read pointer advances to next CFDATA.
 	 */
 	if(cfdata->compressed_bytes_remaining > 0) {
 		ssize_t bytes_avail;
-
-		d = __archive_read_ahead(a, cfdata->compressed_bytes_remaining,
-			&bytes_avail);
+		d = __archive_read_ahead(a, cfdata->compressed_bytes_remaining, &bytes_avail);
 		if(bytes_avail <= 0) {
 			*avail = truncated_error(a);
 			return NULL;
@@ -1590,7 +1564,6 @@ static const void * cab_read_ahead_cfdata_lzx(ArchiveRead * a, ssize_t * avail)
 	cfdata->uncompressed_avail = uavail;
 	return (d);
 }
-
 /*
  * Consume CFDATA.
  * We always decompress CFDATA to consume CFDATA as much as we need
@@ -1604,9 +1577,9 @@ static int64 cab_consume_cfdata(ArchiveRead * a, int64 consumed_bytes)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
 	struct cfdata * cfdata;
-	int64 cbytes, rbytes;
+	int64 cbytes;
 	int err;
-	rbytes = cab_minimum_consume_cfdata(a, consumed_bytes);
+	int64 rbytes = cab_minimum_consume_cfdata(a, consumed_bytes);
 	if(rbytes < 0)
 		return ARCHIVE_FATAL;
 	cfdata = cab->entry_cfdata;
@@ -1679,7 +1652,6 @@ static int64 cab_consume_cfdata(ArchiveRead * a, int64 consumed_bytes)
 	}
 	return (consumed_bytes);
 }
-
 /*
  * Consume CFDATA as much as we have already gotten and
  * compute the sum of CFDATA.
@@ -1687,12 +1659,10 @@ static int64 cab_consume_cfdata(ArchiveRead * a, int64 consumed_bytes)
 static int64 cab_minimum_consume_cfdata(ArchiveRead * a, int64 consumed_bytes)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
-	struct cfdata * cfdata;
-	int64 cbytes, rbytes;
+	int64 cbytes;
 	int err;
-
-	cfdata = cab->entry_cfdata;
-	rbytes = consumed_bytes;
+	struct cfdata * cfdata = cab->entry_cfdata;
+	int64 rbytes = consumed_bytes;
 	if(cab->entry_cffolder->comptype == COMPTYPE_NONE) {
 		if(consumed_bytes < cfdata->unconsumed)
 			cbytes = consumed_bytes;
@@ -1869,13 +1839,9 @@ static time_t cab_dos_time(const uchar * p)
 	ts.tm_isdst = -1;
 	return (mktime(&ts));
 }
-
-/*****************************************************************
-*
-* LZX decompression code.
-*
-*****************************************************************/
-
+// 
+// LZX decompression code.
+// 
 /*
  * Initialize LZX decoder.
  *

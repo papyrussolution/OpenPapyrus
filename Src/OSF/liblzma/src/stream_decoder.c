@@ -42,7 +42,7 @@ struct lzma_stream_decoder_coder {
 	bool first_stream;
 	/// Write position in buffer[] and position in Stream Padding
 	size_t pos;
-	uint8_t buffer[LZMA_BLOCK_HEADER_SIZE_MAX]; /// Buffer to hold Stream Header, Block Header, and Stream Footer. Block Header has biggest maximum size.
+	uint8 buffer[LZMA_BLOCK_HEADER_SIZE_MAX]; /// Buffer to hold Stream Header, Block Header, and Stream Footer. Block Header has biggest maximum size.
 };
 
 static lzma_ret stream_decoder_reset(lzma_stream_decoder_coder * coder, const lzma_allocator * allocator)
@@ -60,8 +60,8 @@ static lzma_ret stream_decoder_reset(lzma_stream_decoder_coder * coder, const lz
 }
 
 static lzma_ret stream_decode(void * coder_ptr, const lzma_allocator * allocator,
-    const uint8_t * in, size_t * in_pos,
-    size_t in_size, uint8_t * out,
+    const uint8 * in, size_t * in_pos,
+    size_t in_size, uint8 * out,
     size_t * out_pos, size_t out_size, lzma_action action)
 {
 	lzma_stream_decoder_coder * coder = (lzma_stream_decoder_coder *)coder_ptr;

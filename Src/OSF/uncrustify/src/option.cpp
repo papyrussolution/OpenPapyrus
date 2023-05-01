@@ -162,35 +162,26 @@ std::vector<std::string> split_args(std::string in, const char * filename,
 		    && is_sep(in[n])) {
 			++n;
 		}
-
 		// Detect comments or trailing space
-		if(n >= k
-		    || in[n] == '#') {
+		if(n >= k || in[n] == '#') {
 			break;
 		}
-
 		// Detect and extract quoted string
-		if(const auto * quote = strchr("\'\"`", in[n])) {
+		if(const auto * quote = sstrchr("\'\"`", in[n])) {
 			const auto start = ++n;
-
 			for((void)n; in[n] != *quote; ++n) {
-				if(n < k
-				    && in[n] == '\\') {
+				if(n < k && in[n] == '\\') {
 					in.erase(n, 1);
 					--k;
 				}
-
 				if(n >= k) {
 					OptionWarning w{ filename };
 					w("found unterminated quoted-string");
 					return {};
 				}
 			}
-
 			out.push_back(in.substr(start, n - start));
-
-			if(++n < k
-			    && !is_sep(in[n])) {
+			if(++n < k && !is_sep(in[n])) {
 				OptionWarning w{ filename };
 				w("unexpected text following quoted-string");
 				return {};
@@ -478,35 +469,24 @@ bool read_enum(const char * in, Option<T> &out)
 	return false;
 }
 
-//-----------------------------------------------------------------------------
-template <typename T>
-bool read_number(const char * in, Option<T> &out)
+template <typename T> bool read_number(const char * in, Option<T> &out)
 {
 	assert(in);
-
 	char       * c;
 	const auto val = std::strtol(in, &c, 10);
-
-	if(*c == 0
-	    && out.validate(val)) {
+	if(*c == 0 && out.validate(val)) {
 		out.m_val = static_cast<T>(val);
 		return true;
 	}
 	bool invert = false;
-
-	if(strchr("-", in[0])) {
+	if(sstrchr("-", in[0])) {
 		invert = true;
 		++in;
 	}
-
 	if(const auto * const opt = find_option(in)) {
-		LOG_CONFIG("%s(%d): line_number is %d, option(%s) %s, ref(%s) %s\n",
-		    __func__, __LINE__, cpd.line_number,
-		    to_string(out.type()), out.name(),
-		    to_string(opt->type()), opt->name());
-
+		LOG_CONFIG("%s(%d): line_number is %d, option(%s) %s, ref(%s) %s\n", __func__, __LINE__, cpd.line_number,
+		    to_string(out.type()), out.name(), to_string(opt->type()), opt->name());
 		long tval;
-
 		if(opt->type() == OT_NUM) {
 			auto &sopt = *static_cast<const Option<signed> *>(opt);
 			tval = static_cast<long>(sopt());
@@ -575,30 +555,23 @@ option_type_e Option<bool>::type() const
 }
 
 //-----------------------------------------------------------------------------
-template <>
-const char * const * Option<bool>::possibleValues() const
+template <> const char * const * Option<bool>::possibleValues() const
 {
 	static char const * values[] = { "true", "false", nullptr };
-
 	return (values);
 }
 
-//-----------------------------------------------------------------------------
-template <>
-bool Option<bool>::read(const char * in)
+template <> bool Option<bool>::read(const char * in)
 {
 	assert(in);
-
 	if(convert_string(in, m_val)) {
 		return true;
 	}
 	bool invert = false;
-
-	if(strchr("~!-", in[0])) {
+	if(sstrchr("~!-", in[0])) {
 		invert = true;
 		++in;
 	}
-
 	if(const auto * const opt = find_option(in)) {
 		if(opt->type() != OT_BOOL) {
 			warnIncompatibleReference(opt);
@@ -611,211 +584,141 @@ bool Option<bool>::read(const char * in)
 	warnUnexpectedValue(in);
 	return false;
 }
-
-//END Option<bool>
-
-///////////////////////////////////////////////////////////////////////////////
-
-//BEGIN Option<iarf_e>
-
-//-----------------------------------------------------------------------------
-template <>
-option_type_e Option<iarf_e>::type() const
+// END Option<bool>
+//
+// BEGIN Option<iarf_e>
+template <> option_type_e Option<iarf_e>::type() const
 {
 	return (OT_IARF);
 }
 
-//-----------------------------------------------------------------------------
-template <>
-const char * const * Option<iarf_e>::possibleValues() const
+template <> const char * const * Option<iarf_e>::possibleValues() const
 {
 	return (iarf_values);
 }
 
-//-----------------------------------------------------------------------------
-template <>
-bool Option<iarf_e>::read(const char * in)
+template <> bool Option<iarf_e>::read(const char * in)
 {
 	return (read_enum(in, *this));
 }
-
 //END Option<iarf_e>
-
-///////////////////////////////////////////////////////////////////////////////
-
+//
 //BEGIN Option<line_end_e>
-
-//-----------------------------------------------------------------------------
-template <>
-option_type_e Option<line_end_e>::type() const
+template <> option_type_e Option<line_end_e>::type() const
 {
 	return (OT_LINEEND);
 }
 
-//-----------------------------------------------------------------------------
-template <>
-const char * const * Option<line_end_e>::possibleValues() const
+template <> const char * const * Option<line_end_e>::possibleValues() const
 {
 	return (line_end_values);
 }
 
-//-----------------------------------------------------------------------------
-template <>
-bool Option<line_end_e>::read(const char * in)
+template <> bool Option<line_end_e>::read(const char * in)
 {
 	return (read_enum(in, *this));
 }
-
 //END Option<line_end_e>
-
-///////////////////////////////////////////////////////////////////////////////
-
+//
 //BEGIN Option<token_pos_e>
-
-//-----------------------------------------------------------------------------
-template <>
-option_type_e Option<token_pos_e>::type() const
+template <> option_type_e Option<token_pos_e>::type() const
 {
 	return (OT_TOKENPOS);
 }
 
-//-----------------------------------------------------------------------------
-template <>
-const char * const * Option<token_pos_e>::possibleValues() const
+template <> const char * const * Option<token_pos_e>::possibleValues() const
 {
 	return (token_pos_values);
 }
 
-//-----------------------------------------------------------------------------
-template <>
-bool Option<token_pos_e>::read(const char * in)
+template <> bool Option<token_pos_e>::read(const char * in)
 {
 	return (read_enum(in, *this));
 }
-
 //END Option<token_pos_e>
-
-///////////////////////////////////////////////////////////////////////////////
-
+//
 //BEGIN Option<signed>
 
-//-----------------------------------------------------------------------------
-template <>
-option_type_e Option<signed>::type() const
+template <> option_type_e Option<signed>::type() const
 {
 	return (OT_NUM);
 }
 
-//-----------------------------------------------------------------------------
-template <>
-const char * const * Option<signed>::possibleValues() const
+template <> const char * const * Option<signed>::possibleValues() const
 {
 	static char const * values[] = { "number", nullptr };
 
 	return (values);
 }
 
-//-----------------------------------------------------------------------------
-template <>
-bool Option<signed>::read(const char * in)
+template <> bool Option<signed>::read(const char * in)
 {
 	return (read_number(in, *this));
 }
-
 //END Option<signed>
-
-///////////////////////////////////////////////////////////////////////////////
-
+//
 //BEGIN Option<unsigned>
 
-//-----------------------------------------------------------------------------
-template <>
-option_type_e Option<unsigned>::type() const
+template <> option_type_e Option<unsigned>::type() const
 {
 	return (OT_UNUM);
 }
 
-//-----------------------------------------------------------------------------
-template <>
-const char * const * Option<unsigned>::possibleValues() const
+template <> const char * const * Option<unsigned>::possibleValues() const
 {
 	static char const * values[] = { "unsigned number", nullptr };
-
 	return (values);
 }
 
-//-----------------------------------------------------------------------------
-template <>
-bool Option<unsigned>::read(const char * in)
+template <> bool Option<unsigned>::read(const char * in)
 {
 	return (read_number(in, *this));
 }
-
 //END Option<unsigned>
-
-///////////////////////////////////////////////////////////////////////////////
-
+//
 //BEGIN Option<string>
 
-//-----------------------------------------------------------------------------
-template <>
-option_type_e Option<std::string>::type() const
+template <> option_type_e Option<std::string>::type() const
 {
 	return (OT_STRING);
 }
 
-//-----------------------------------------------------------------------------
-template <>
-const char * const * Option<std::string>::possibleValues() const
+template <> const char * const * Option<std::string>::possibleValues() const
 {
 	static char const * values[] = { "string", nullptr };
-
 	return (values);
 }
 
-//-----------------------------------------------------------------------------
-template <>
-bool Option<std::string>::read(const char * in)
+template <> bool Option<std::string>::read(const char * in)
 {
 	m_val = in;
 	return true;
 }
-
 //END Option<string>
-
-///////////////////////////////////////////////////////////////////////////////
-
+//
 //BEGIN global functions for options
-
-//-----------------------------------------------------------------------------
 void begin_option_group(const char * description)
 {
 	auto g = OptionGroup{ description, {} };
-
 	option_groups.push_back(g);
 }
 
-//-----------------------------------------------------------------------------
 void register_option(GenericOption * option)
 {
 	assert(!option_groups.empty());
-
 	option_groups.back().options.push_back(option);
 	option_map.emplace(option->name(), option);
 }
 
-//-----------------------------------------------------------------------------
 uncrustify::GenericOption * find_option(const char * name)
 {
 	const auto iter = option_map.find(to_lower(name));
-
 	if(iter != option_map.end()) {
 		return (iter->second);
 	}
 	return nullptr;
 }
 
-//-----------------------------------------------------------------------------
 OptionGroup * get_option_group(size_t i)
 {
 	if(i >= option_groups.size()) {
@@ -824,15 +727,12 @@ OptionGroup * get_option_group(size_t i)
 	return (&option_groups[i]);
 }
 
-//-----------------------------------------------------------------------------
 size_t get_option_count()
 {
 	return (option_map.size());
 }
 
-//-----------------------------------------------------------------------------
-void process_option_line(const std::string &config_line, const char * filename,
-    int &compat_level)
+void process_option_line(const std::string &config_line, const char * filename, int &compat_level)
 {
 	// Split line into arguments, and punt if no arguments are present
 	auto args = split_args(config_line, filename, is_arg_sep);
@@ -1138,7 +1038,6 @@ void save_option_file(FILE * pfile, bool with_doc, bool minimal)
 			fputs(eol_marker, pfile);
 		}
 	}
-
 	if(with_doc) {
 		fprintf(pfile, "%s", DOC_TEXT_END);
 	}

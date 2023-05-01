@@ -2134,7 +2134,7 @@ void GifDrawBoxedText8x8(GifSavedImage * Image, const int x, const int y, const 
 	do {
 		int leadspace = 0;
 		if(cp[0] == '\t')
-			leadspace = (TextWidth - strlen(++cp)) / 2;
+			leadspace = (TextWidth - sstrleni(++cp)) / 2;
 		GifDrawText8x8(Image, x + border + (leadspace * GIF_FONT_WIDTH), y + border + (GIF_FONT_HEIGHT * i++), cp, fg);
 		cp = strtok(NULL, "\r\n");
 	} while(cp);

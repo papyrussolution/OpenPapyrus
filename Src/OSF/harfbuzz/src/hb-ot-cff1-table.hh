@@ -147,7 +147,7 @@ namespace CFF {
 			return_trace(true);
 		}
 		/* serialize a subset Encoding */
-		bool serialize(hb_serialize_context_t * c, uint8_t format, uint enc_count, const hb_vector_t<code_pair_t>& code_ranges, const hb_vector_t<code_pair_t>& supp_codes)
+		bool serialize(hb_serialize_context_t * c, uint8 format, uint enc_count, const hb_vector_t<code_pair_t>& code_ranges, const hb_vector_t<code_pair_t>& supp_codes)
 		{
 			TRACE_SERIALIZE(this);
 			Encoding * dest = c->extend_min(*this);
@@ -220,7 +220,7 @@ namespace CFF {
 				default: return 0;
 			}
 		}
-		uint8_t table_format() const { return format & 0x7F; }
+		uint8 table_format() const { return format & 0x7F; }
 		bool  has_supplement() const { return format & 0x80; }
 		void get_supplement_codes(hb_codepoint_t sid, hb_vector_t<hb_codepoint_t> &codes) const
 		{
@@ -404,7 +404,7 @@ public:
 			return_trace(true);
 		}
 		/* serialize a subset Charset */
-		bool serialize(hb_serialize_context_t * c, uint8_t format, uint num_glyphs, const hb_vector_t<code_pair_t>& sid_ranges)
+		bool serialize(hb_serialize_context_t * c, uint8 format, uint num_glyphs, const hb_vector_t<code_pair_t>& sid_ranges)
 		{
 			TRACE_SERIALIZE(this);
 			Charset * dest = c->extend_min(*this);

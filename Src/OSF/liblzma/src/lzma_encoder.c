@@ -30,7 +30,7 @@ static inline void literal_matched(lzma_range_encoder * rc, probability * subcod
 static inline void literal(lzma_lzma1_encoder * coder, lzma_mf * mf, uint32 position)
 {
 	// Locate the literal byte to be encoded and the subcoder.
-	const uint8_t cur_byte = mf->buffer[mf->read_pos - mf->read_ahead];
+	const uint8 cur_byte = mf->buffer[mf->read_pos - mf->read_ahead];
 	probability * subcoder = literal_subcoder(coder->literal, coder->literal_context_bits, coder->literal_pos_mask, position, mf->buffer[mf->read_pos - mf->read_ahead - 1]);
 	if(is_literal_state(coder->state)) {
 		// Previous LZMA-symbol was a literal. Encode a normal
@@ -41,7 +41,7 @@ static inline void literal(lzma_lzma1_encoder * coder, lzma_mf * mf, uint32 posi
 		// Previous LZMA-symbol was a match. Use the last byte of
 		// the match as a "match byte". That is, compare the bits
 		// of the current literal and the match byte.
-		const uint8_t match_byte = mf->buffer[mf->read_pos - coder->reps[0] - 1 - mf->read_ahead];
+		const uint8 match_byte = mf->buffer[mf->read_pos - coder->reps[0] - 1 - mf->read_ahead];
 		literal_matched(&coder->rc, subcoder, match_byte, cur_byte);
 	}
 	update_literal(coder->state);
@@ -305,7 +305,7 @@ extern lzma_ret lzma_lzma_encode(lzma_lzma1_encoder * coder, lzma_mf * mf, uint8
 	return LZMA_STREAM_END;
 }
 
-static lzma_ret lzma_encode(void * coder, lzma_mf * mf, uint8_t * out, size_t * out_pos, size_t out_size)
+static lzma_ret lzma_encode(void * coder, lzma_mf * mf, uint8 * out, size_t * out_pos, size_t out_size)
 {
 	// Plain LZMA has no support for sync-flushing.
 	if(UNLIKELY(mf->action == LZMA_SYNC_FLUSH))
@@ -478,7 +478,7 @@ extern uint64_t lzma_lzma_encoder_memusage(const void * options)
 	return (uint64_t)(sizeof(lzma_lzma1_encoder)) + lz_memusage;
 }
 
-extern bool lzma_lzma_lclppb_encode(const lzma_options_lzma * options, uint8_t * byte)
+extern bool lzma_lzma_lclppb_encode(const lzma_options_lzma * options, uint8 * byte)
 {
 	if(!is_lclppb_valid(options))
 		return true;
@@ -488,7 +488,7 @@ extern bool lzma_lzma_lclppb_encode(const lzma_options_lzma * options, uint8_t *
 }
 
 #ifdef HAVE_ENCODER_LZMA1
-	extern lzma_ret lzma_lzma_props_encode(const void * options, uint8_t * out)
+	extern lzma_ret lzma_lzma_props_encode(const void * options, uint8 * out)
 	{
 		const lzma_options_lzma * const opt = static_cast<const lzma_options_lzma * const>(options);
 		if(lzma_lzma_lclppb_encode(opt, out))

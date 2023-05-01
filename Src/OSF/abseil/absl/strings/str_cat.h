@@ -66,7 +66,7 @@ template <size_t max_size> struct AlphaNumBuffer {
 // `Dec` conversion and fill character to use. A `kZeroPad2` value, for example,
 // would produce hexadecimal strings such as "0a","0f" and a 'kSpacePad5' value
 // would produce hexadecimal strings such as "    a","    f".
-enum PadSpec : uint8_t {
+enum PadSpec : uint8 {
 	kNoPad = 1,
 	kZeroPad2,
 	kZeroPad3,
@@ -117,14 +117,14 @@ enum PadSpec : uint8_t {
 // within `AlphaNum` string conversions.
 struct Hex {
 	uint64_t value;
-	uint8_t width;
+	uint8 width;
 	char fill;
 
 	template <typename Int>
 	explicit Hex(Int v, PadSpec spec = absl::kNoPad,
 	    typename std::enable_if<sizeof(Int) == 1 &&
 	    !std::is_pointer<Int>::value>::type* = nullptr)
-		: Hex(spec, static_cast<uint8_t>(v)) {
+		: Hex(spec, static_cast<uint8>(v)) {
 	}
 
 	template <typename Int>
@@ -173,7 +173,7 @@ private:
 // integer conversion, so use it only if you need padding.
 struct Dec {
 	uint64_t value;
-	uint8_t width;
+	uint8 width;
 	char fill;
 	bool neg;
 

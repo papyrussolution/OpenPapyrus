@@ -156,8 +156,7 @@ static void fz_unlock_default(void * user, int lock)
 {
 }
 
-fz_locks_context fz_locks_default =
-{
+fz_locks_context fz_locks_default = {
 	NULL,
 	fz_lock_default,
 	fz_unlock_default

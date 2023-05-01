@@ -112,8 +112,8 @@ enum arabic_action_t {
 };
 
 static const struct arabic_state_table_entry {
-	uint8_t prev_action;
-	uint8_t curr_action;
+	uint8 prev_action;
+	uint8 curr_action;
 	uint16_t next_state;
 } arabic_state_table[][NUM_STATE_MACHINE_COLS] =
 {
@@ -380,7 +380,7 @@ static void apply_stch(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM, hb_buff
 		uint new_len = count + extra_glyphs_needed; // write head during CUT
 		uint j = new_len;
 		for(uint i = count; i; i--) {
-			if(!hb_in_range<uint8_t> (info[i - 1].arabic_shaping_action(), STCH_FIXED, STCH_REPEATING)) {
+			if(!hb_in_range<uint8> (info[i - 1].arabic_shaping_action(), STCH_FIXED, STCH_REPEATING)) {
 				if(step == CUT) {
 					--j;
 					info[j] = info[i - 1];
@@ -399,7 +399,7 @@ static void apply_stch(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM, hb_buff
 
 			uint end = i;
 			while(i &&
-			    hb_in_range<uint8_t> (info[i - 1].arabic_shaping_action(), STCH_FIXED, STCH_REPEATING)) {
+			    hb_in_range<uint8> (info[i - 1].arabic_shaping_action(), STCH_FIXED, STCH_REPEATING)) {
 				i--;
 				hb_position_t width = font->get_glyph_h_advance(info[i].codepoint);
 				if(info[i].arabic_shaping_action() == STCH_FIXED) {
@@ -414,7 +414,7 @@ static void apply_stch(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM, hb_buff
 			uint start = i;
 			uint context = i;
 			while(context &&
-			    !hb_in_range<uint8_t> (info[context - 1].arabic_shaping_action(), STCH_FIXED, STCH_REPEATING) &&
+			    !hb_in_range<uint8> (info[context - 1].arabic_shaping_action(), STCH_FIXED, STCH_REPEATING) &&
 			    (_hb_glyph_info_is_default_ignorable(&info[context - 1]) ||
 			    HB_ARABIC_GENERAL_CATEGORY_IS_WORD(_hb_glyph_info_get_general_category(&info[context - 1])))) {
 				context--;

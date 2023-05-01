@@ -17,7 +17,7 @@ struct lzma_alone_encoder_coder {
 		SEQ_CODE,
 	} sequence;
 	size_t header_pos;
-	uint8_t header[ALONE_HEADER_SIZE];
+	uint8 header[ALONE_HEADER_SIZE];
 };
 
 struct lzma_alone_decoder_coder {
@@ -41,8 +41,8 @@ struct lzma_alone_decoder_coder {
 	lzma_options_lzma options; /// Options decoded from the header needed to initialize the LZMA decoder
 };
 
-static lzma_ret alone_encode(void * coder_ptr, const lzma_allocator * allocator, const uint8_t * in, size_t * in_pos,
-    size_t in_size, uint8_t * out, size_t * out_pos, size_t out_size, lzma_action action)
+static lzma_ret alone_encode(void * coder_ptr, const lzma_allocator * allocator, const uint8 * in, size_t * in_pos,
+    size_t in_size, uint8 * out, size_t * out_pos, size_t out_size, lzma_action action)
 {
 	lzma_alone_encoder_coder * coder = (lzma_alone_encoder_coder *)coder_ptr;
 	while(*out_pos < out_size) {
@@ -131,8 +131,8 @@ lzma_ret lzma_alone_encoder(lzma_stream *strm, const lzma_options_lzma *options)
 //
 // alone-decoder
 //
-static lzma_ret alone_decode(void * coder_ptr, const lzma_allocator * allocator, const uint8_t * in, size_t * in_pos,
-    size_t in_size, uint8_t * out, size_t * out_pos, size_t out_size, lzma_action action)
+static lzma_ret alone_decode(void * coder_ptr, const lzma_allocator * allocator, const uint8 * in, size_t * in_pos,
+    size_t in_size, uint8 * out, size_t * out_pos, size_t out_size, lzma_action action)
 {
 	lzma_alone_decoder_coder * coder = (lzma_alone_decoder_coder *)coder_ptr;
 	while(*out_pos < out_size && (coder->sequence == lzma_alone_decoder_coder::SEQ_CODE || *in_pos < in_size))

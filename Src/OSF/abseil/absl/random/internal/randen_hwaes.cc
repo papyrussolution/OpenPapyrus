@@ -149,7 +149,7 @@ inline ABSL_TARGET_CRYPTO void SwapEndian(absl::uint128* state) {
 //
 // <arm_neon> defines the following
 //
-// typedef __attribute__((neon_vector_type(16))) uint8_t uint8x16_t;
+// typedef __attribute__((neon_vector_type(16))) uint8 uint8x16_t;
 // typedef __attribute__((neon_vector_type(16))) int8_t int8x16_t;
 // typedef __attribute__((neon_polyvector_type(16))) int8_t poly8x16_t;
 //
@@ -164,11 +164,11 @@ using Vector128 = uint8x16_t;
 
 namespace {
 inline ABSL_TARGET_CRYPTO Vector128 Vector128Load(const void* from) {
-	return vld1q_u8(reinterpret_cast<const uint8_t*>(from));
+	return vld1q_u8(reinterpret_cast<const uint8*>(from));
 }
 
 inline ABSL_TARGET_CRYPTO void Vector128Store(const Vector128& v, void* to) {
-	vst1q_u8(reinterpret_cast<uint8_t*>(to), v);
+	vst1q_u8(reinterpret_cast<uint8*>(to), v);
 }
 
 // One round of AES. "round_key" is a public constant for breaking the

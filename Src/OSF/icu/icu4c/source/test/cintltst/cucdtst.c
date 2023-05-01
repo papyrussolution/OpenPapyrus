@@ -1001,8 +1001,8 @@ static void U_CALLCONV unicodeDataLineFn(void * context,
 		*fields[5][1] = 0;
 		dt = UCHAR_INVALID_CODE;
 		if(*d=='<') {
-			end = (char *)strchr(++d, '>');
-			if(end!=NULL) {
+			end = (char *)sstrchr(++d, '>');
+			if(end) {
 				*end = 0;
 				dt = u_getPropertyValueEnum(UCHAR_DECOMPOSITION_TYPE, d);
 				d = u_skipWhitespace(end+1);

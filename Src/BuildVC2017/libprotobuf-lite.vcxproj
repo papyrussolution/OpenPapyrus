@@ -97,7 +97,7 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <PrecompiledHeaderFile />
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <StringPooling>true</StringPooling>
       <CompileAsManaged>false</CompileAsManaged>
@@ -140,7 +140,7 @@
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <StringPooling>true</StringPooling>
       <CompileAsManaged>false</CompileAsManaged>
@@ -182,7 +182,7 @@
       <DebugInformationFormat>
       </DebugInformationFormat>
       <PrecompiledHeaderFile />
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <StringPooling>true</StringPooling>
       <CompileAsManaged>false</CompileAsManaged>
@@ -225,7 +225,7 @@
       </DebugInformationFormat>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <StringPooling>true</StringPooling>
       <CompileAsManaged>false</CompileAsManaged>

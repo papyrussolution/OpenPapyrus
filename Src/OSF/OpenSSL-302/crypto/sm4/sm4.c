@@ -13,7 +13,7 @@
 #include <openssl/e_os2.h>
 #include "crypto/sm4.h"
 
-static const uint8_t SM4_S[256] = {
+static const uint8 SM4_S[256] = {
 	0xD6, 0x90, 0xE9, 0xFE, 0xCC, 0xE1, 0x3D, 0xB7, 0x16, 0xB6, 0x14, 0xC2,
 	0x28, 0xFB, 0x2C, 0x05, 0x2B, 0x67, 0x9A, 0x76, 0x2A, 0xBE, 0x04, 0xC3,
 	0xAA, 0x44, 0x13, 0x26, 0x49, 0x86, 0x06, 0x99, 0x9C, 0x42, 0x50, 0xF4,
@@ -87,12 +87,12 @@ static const uint32_t SM4_SBOX_T[256] = {
 	0x8BD45F5F, 0xE7C82F2F, 0xDD39E4E4, 0x68492121
 };
 
-static ossl_inline uint32_t rotl(uint32_t a, uint8_t n)
+static ossl_inline uint32_t rotl(uint32_t a, uint8 n)
 {
 	return (a << n) | (a >> (32 - n));
 }
 
-static ossl_inline uint32_t load_u32_be(const uint8_t * b, uint32_t n)
+static ossl_inline uint32_t load_u32_be(const uint8 * b, uint32_t n)
 {
 	return ((uint32_t)b[4 * n] << 24) |
 	       ((uint32_t)b[4 * n + 1] << 16) |
@@ -100,22 +100,22 @@ static ossl_inline uint32_t load_u32_be(const uint8_t * b, uint32_t n)
 	       ((uint32_t)b[4 * n + 3]);
 }
 
-static ossl_inline void store_u32_be(uint32_t v, uint8_t * b)
+static ossl_inline void store_u32_be(uint32_t v, uint8 * b)
 {
-	b[0] = (uint8_t)(v >> 24);
-	b[1] = (uint8_t)(v >> 16);
-	b[2] = (uint8_t)(v >> 8);
-	b[3] = (uint8_t)(v);
+	b[0] = (uint8)(v >> 24);
+	b[1] = (uint8)(v >> 16);
+	b[2] = (uint8)(v >> 8);
+	b[3] = (uint8)(v);
 }
 
 static ossl_inline uint32_t SM4_T_slow(uint32_t X)
 {
 	uint32_t t = 0;
 
-	t |= ((uint32_t)SM4_S[(uint8_t)(X >> 24)]) << 24;
-	t |= ((uint32_t)SM4_S[(uint8_t)(X >> 16)]) << 16;
-	t |= ((uint32_t)SM4_S[(uint8_t)(X >> 8)]) << 8;
-	t |= SM4_S[(uint8_t)X];
+	t |= ((uint32_t)SM4_S[(uint8)(X >> 24)]) << 24;
+	t |= ((uint32_t)SM4_S[(uint8)(X >> 16)]) << 16;
+	t |= ((uint32_t)SM4_S[(uint8)(X >> 8)]) << 8;
+	t |= SM4_S[(uint8)X];
 
 	/*
 	 * L linear transform
@@ -125,13 +125,13 @@ static ossl_inline uint32_t SM4_T_slow(uint32_t X)
 
 static ossl_inline uint32_t SM4_T(uint32_t X)
 {
-	return SM4_SBOX_T[(uint8_t)(X >> 24)] ^
-	       rotl(SM4_SBOX_T[(uint8_t)(X >> 16)], 24) ^
-	       rotl(SM4_SBOX_T[(uint8_t)(X >> 8)], 16) ^
-	       rotl(SM4_SBOX_T[(uint8_t)X], 8);
+	return SM4_SBOX_T[(uint8)(X >> 24)] ^
+	       rotl(SM4_SBOX_T[(uint8)(X >> 16)], 24) ^
+	       rotl(SM4_SBOX_T[(uint8)(X >> 8)], 16) ^
+	       rotl(SM4_SBOX_T[(uint8)X], 8);
 }
 
-int ossl_sm4_set_key(const uint8_t * key, SM4_KEY * ks)
+int ossl_sm4_set_key(const uint8 * key, SM4_KEY * ks)
 {
 	/*
 	 * Family Key
@@ -165,10 +165,10 @@ int ossl_sm4_set_key(const uint8_t * key, SM4_KEY * ks)
 		uint32_t X = K[(i + 1) % 4] ^ K[(i + 2) % 4] ^ K[(i + 3) % 4] ^ CK[i];
 		uint32_t t = 0;
 
-		t |= ((uint32_t)SM4_S[(uint8_t)(X >> 24)]) << 24;
-		t |= ((uint32_t)SM4_S[(uint8_t)(X >> 16)]) << 16;
-		t |= ((uint32_t)SM4_S[(uint8_t)(X >> 8)]) << 8;
-		t |= SM4_S[(uint8_t)X];
+		t |= ((uint32_t)SM4_S[(uint8)(X >> 24)]) << 24;
+		t |= ((uint32_t)SM4_S[(uint8)(X >> 16)]) << 16;
+		t |= ((uint32_t)SM4_S[(uint8)(X >> 8)]) << 8;
+		t |= SM4_S[(uint8)X];
 
 		t = t ^ rotl(t, 13) ^ rotl(t, 23);
 		K[i % 4] ^= t;
@@ -186,7 +186,7 @@ int ossl_sm4_set_key(const uint8_t * key, SM4_KEY * ks)
 		B3 ^= F(B0 ^ B1 ^ B2 ^ ks->rk[k3]); \
 	} while(0)
 
-void ossl_sm4_encrypt(const uint8_t * in, uint8_t * out, const SM4_KEY * ks)
+void ossl_sm4_encrypt(const uint8 * in, uint8 * out, const SM4_KEY * ks)
 {
 	uint32_t B0 = load_u32_be(in, 0);
 	uint32_t B1 = load_u32_be(in, 1);
@@ -212,7 +212,7 @@ void ossl_sm4_encrypt(const uint8_t * in, uint8_t * out, const SM4_KEY * ks)
 	store_u32_be(B0, out + 12);
 }
 
-void ossl_sm4_decrypt(const uint8_t * in, uint8_t * out, const SM4_KEY * ks)
+void ossl_sm4_decrypt(const uint8 * in, uint8 * out, const SM4_KEY * ks)
 {
 	uint32_t B0 = load_u32_be(in, 0);
 	uint32_t B1 = load_u32_be(in, 1);

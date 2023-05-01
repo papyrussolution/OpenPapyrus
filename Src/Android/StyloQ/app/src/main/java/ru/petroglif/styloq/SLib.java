@@ -1631,6 +1631,7 @@ public class SLib {
 		// "GetSvcDataTime" - запрос на метку времени данных, полученных от сервиса и с которыми работает объект.
 	public static final int EV_DATETIMEPICKERREPLY  = 25; // @v11.6.9 Посылается диалогом семейства DateTimePicker в ответ на выбор
 		// пользователем даты/времени/периода. srcObj: экземпляр класса, создавший сообщение, subj: SLib.LDATE || SLib.LTIME || SLib.DateRange || SLib.STimeChunk
+	public static final int EV_ACTIVITYSTOP         = 26; // @v11.7.0 Посылается в SlActivity функцией onStop
 	//
 	public static final int cmOK                    = 10; // Значение эквивалентно тому же в tvdefs.h
 	public static final int cmCancel                = 11; // Значение эквивалентно тому же в tvdefs.h
@@ -4177,6 +4178,8 @@ public class SLib {
 					Low = strtodate(txt, DATF_DMY);
 					Upp = Low;
 				}
+				if(Low != null || Upp != null)
+					ok = true;
 			}
 			return ok;
 		}
@@ -5595,6 +5598,11 @@ public class SLib {
 		{
 			super.onStart();
 			HandleEvent(EV_ACTIVITYSTART, this, null);
+		}
+		@Override public void onStop()
+		{
+			super.onStop();
+			HandleEvent(EV_ACTIVITYSTOP, this, null);
 		}
 		@Override public void onResume()
 		{

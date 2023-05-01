@@ -37,9 +37,9 @@
 #define FLAG_TRANSLIT           2 /* //TRANSLIT */
 #define FLAG_IGNORE             4 /* //IGNORE */
 
-typedef uchar uchar;
-typedef unsigned short ushort;
-typedef uint uint;
+//@sobolev typedef uchar uchar;
+//@sobolev typedef unsigned short ushort;
+//@sobolev typedef uint uint;
 
 typedef void * iconv_t;
 

@@ -23,7 +23,9 @@ Xapian::termcount OrPositionList::get_approx_size() const
 	// This is actually the upper bound, but generally there's only one term
 	// at each position, so it'll usually be correct too.
 	Xapian::termcount size = 0;
-	for(auto pl : pls) size += pl->get_approx_size();
+	for(auto pl : pls) {
+		size += pl->get_approx_size();
+	}
 	RETURN(size);
 }
 
@@ -102,7 +104,8 @@ bool OrPositionList::skip_to(Xapian::termpos termpos)
 		}
 		current_pos = min(current_pos, pos);
 		current[j] = pos;
-		if(i != j) pls[j] = pls[i];
+		if(i != j) 
+			pls[j] = pls[i];
 		++j;
 	}
 	pls.resize(j);

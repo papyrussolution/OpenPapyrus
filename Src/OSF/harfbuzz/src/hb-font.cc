@@ -853,7 +853,7 @@ void hb_font_glyph_to_string(hb_font_t * font, hb_codepoint_t glyph, char * s, u
 /**
  * hb_font_glyph_from_string:
  * @font: a font.
- * @s: (array length=len) (element-type uint8_t):
+ * @s: (array length=len) (element-type uint8):
  * @len:
  * @glyph: (out):
  * Return value:

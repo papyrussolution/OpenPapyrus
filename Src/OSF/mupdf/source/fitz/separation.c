@@ -15,7 +15,7 @@ struct fz_separations {
 	int controllable;
 	uint32_t state[(2*FZ_MAX_SEPARATIONS + 31) / 32];
 	fz_colorspace * cs[FZ_MAX_SEPARATIONS];
-	uint8_t cs_pos[FZ_MAX_SEPARATIONS];
+	uint8 cs_pos[FZ_MAX_SEPARATIONS];
 	uint32_t rgba[FZ_MAX_SEPARATIONS];
 	uint32_t cmyk[FZ_MAX_SEPARATIONS];
 	char * name[FZ_MAX_SEPARATIONS];

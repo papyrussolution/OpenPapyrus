@@ -1867,32 +1867,23 @@ static void pdf_run_Do_form(fz_context * ctx, pdf_processor * proc, const char *
 static void pdf_run_BMC(fz_context * ctx, pdf_processor * proc, const char * tag)
 {
 	pdf_run_processor * pr = (pdf_run_processor*)proc;
-
-	if(!tag)
-		tag = "Untitled";
-
+	SETIFZQ(tag, "Untitled");
 	fz_begin_layer(ctx, pr->dev, tag);
 }
 
 static void pdf_run_BDC(fz_context * ctx, pdf_processor * proc, const char * tag, pdf_obj * raw, pdf_obj * cooked)
 {
 	pdf_run_processor * pr = (pdf_run_processor*)proc;
-	const char * str;
-
-	if(!tag)
-		tag = "Untitled";
-
-	str = pdf_dict_get_text_string(ctx, cooked, PDF_NAME(Name));
+	SETIFZQ(tag, "Untitled");
+	const char * str = pdf_dict_get_text_string(ctx, cooked, PDF_NAME(Name));
 	if(strlen(str) == 0)
 		str = tag;
-
 	fz_begin_layer(ctx, pr->dev, str);
 }
 
 static void pdf_run_EMC(fz_context * ctx, pdf_processor * proc)
 {
 	pdf_run_processor * pr = (pdf_run_processor*)proc;
-
 	fz_end_layer(ctx, pr->dev);
 }
 
@@ -1927,10 +1918,8 @@ static void pdf_run_END(fz_context * ctx, pdf_processor * proc)
 static void pdf_close_run_processor(fz_context * ctx, pdf_processor * proc)
 {
 	pdf_run_processor * pr = (pdf_run_processor*)proc;
-
 	while(pr->gtop)
 		pdf_grestore(ctx, pr);
-
 	while(pr->gstate[0].clip_depth) {
 		fz_pop_clip(ctx, pr->dev);
 		pr->gstate[0].clip_depth--;
@@ -1940,17 +1929,13 @@ static void pdf_close_run_processor(fz_context * ctx, pdf_processor * proc)
 static void pdf_drop_run_processor(fz_context * ctx, pdf_processor * proc)
 {
 	pdf_run_processor * pr = (pdf_run_processor*)proc;
-
 	while(pr->gtop >= 0) {
 		pdf_drop_gstate(ctx, &pr->gstate[pr->gtop]);
 		pr->gtop--;
 	}
-
 	fz_drop_path(ctx, pr->path);
 	fz_drop_text(ctx, pr->tos.text);
-
 	fz_drop_default_colorspaces(ctx, pr->default_cs);
-
 	fz_free(ctx, pr->gstate);
 }
 
@@ -1969,13 +1954,8 @@ static void pdf_drop_run_processor(fz_context * ctx, pdf_processor * proc)
 
         gstate: The initial graphics state.
  */
-pdf_processor * pdf_new_run_processor(fz_context * ctx,
-    fz_device * dev,
-    fz_matrix ctm,
-    const char * usage,
-    pdf_gstate * gstate,
-    fz_default_colorspaces * default_cs,
-    fz_cookie * cookie)
+pdf_processor * pdf_new_run_processor(fz_context * ctx, fz_device * dev, fz_matrix ctm, const char * usage, pdf_gstate * gstate,
+    fz_default_colorspaces * default_cs, fz_cookie * cookie)
 {
 	pdf_run_processor * proc = (pdf_run_processor *)pdf_new_processor(ctx, sizeof *proc);
 	{

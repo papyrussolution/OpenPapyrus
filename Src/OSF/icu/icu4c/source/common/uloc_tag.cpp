@@ -362,9 +362,9 @@ static bool _isNumericString(const char * s, int32_t len) {
 	return TRUE;
 }
 
-static bool _isAlphaNumericString(const char * s, int32_t len) {
-	int32_t i;
-	for(i = 0; i < len; i++) {
+static bool _isAlphaNumericString(const char * s, int32_t len) 
+{
+	for(int32_t i = 0; i < len; i++) {
 		if(!ISALPHA(*(s + i)) && !ISNUMERIC(*(s + i))) {
 			return FALSE;
 		}
@@ -372,7 +372,8 @@ static bool _isAlphaNumericString(const char * s, int32_t len) {
 	return TRUE;
 }
 
-static bool _isAlphaNumericStringLimitedLength(const char * s, int32_t len, int32_t min, int32_t max) {
+static bool _isAlphaNumericStringLimitedLength(const char * s, int32_t len, int32_t min, int32_t max) 
+{
 	if(len < 0) {
 		len = (int32_t)strlen(s);
 	}
@@ -382,7 +383,8 @@ static bool _isAlphaNumericStringLimitedLength(const char * s, int32_t len, int3
 	return FALSE;
 }
 
-U_CFUNC bool ultag_isLanguageSubtag(const char * s, int32_t len) {
+U_CFUNC bool ultag_isLanguageSubtag(const char * s, int32_t len) 
+{
 	/*
 	 * unicode_language_subtag = alpha{2,3} | alpha{5,8};
 	 * NOTE: Per ICUTC 2019/01/23- accepting alpha 4

@@ -37,7 +37,7 @@ protected:
 	static result_type Generate();
 };
 
-extern template class RandenPool<uint8_t>;
+extern template class RandenPool<uint8>;
 extern template class RandenPool<uint16_t>;
 extern template class RandenPool<uint32_t>;
 extern template class RandenPool<uint64_t>;

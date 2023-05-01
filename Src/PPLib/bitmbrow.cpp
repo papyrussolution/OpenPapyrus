@@ -1921,7 +1921,7 @@ int BillItemBrowser::_moveItem2(int srcRowIdx)
 {
 	int    ok = 1;
 	// Признак корректировки расходного документа
-	const  int is_exp_correction = BIN(P_Pack->OpTypeID == PPOPT_CORRECTION && P_LinkPack->OpTypeID == PPOPT_GOODSEXPEND);
+	const  bool is_exp_correction = (P_Pack->OpTypeID == PPOPT_CORRECTION && P_LinkPack->OpTypeID == PPOPT_GOODSEXPEND);
 	uint   i = 0;
 	int    s = 0;
 	ReceiptTbl::Rec lot_rec;

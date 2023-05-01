@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\OSF\re2\re2\testing\backtrack.cc" />
+    <ClCompile Include="..\OSF\re2\re2\testing\dump.cc" />
+    <ClCompile Include="..\OSF\re2\re2\testing\exhaustive_tester.cc" />
+    <ClCompile Include="..\OSF\re2\re2\testing\null_walker.cc" />
+    <ClCompile Include="..\OSF\re2\util\pcre.cc" />
+    <ClCompile Include="..\OSF\re2\re2\testing\regexp_generator.cc" />
+    <ClCompile Include="..\OSF\re2\re2\testing\string_generator.cc" />
+    <ClCompile Include="..\OSF\re2\re2\testing\tester.cc" />
+  </ItemGroup>
+</Project>

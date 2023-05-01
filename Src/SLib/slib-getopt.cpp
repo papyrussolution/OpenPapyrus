@@ -432,7 +432,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 	// 
 	// This distinction seems to be the most useful approach.  
 	// 
-	if(longopts && (argv[d->optind][1] == '-' || (long_only && (argv[d->optind][2] || !strchr(optstring, argv[d->optind][1]))))) {
+	if(longopts && (argv[d->optind][1] == '-' || (long_only && (argv[d->optind][2] || !sstrchr(optstring, argv[d->optind][1]))))) {
 		char * nameend;
 		const struct option * p;
 		const struct option * pfound = NULL;
@@ -565,7 +565,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 		// Can't find it as a long option.  If this is not getopt_long_only,
 		// or the option starts with '--' or is not a valid short option, then it's an error.
 		// Otherwise interpret it as a short option. 
-		if(!long_only || argv[d->optind][1] == '-' || strchr(optstring, *d->__nextchar) == NULL) {
+		if(!long_only || argv[d->optind][1] == '-' || sstrchr(optstring, *d->__nextchar) == NULL) {
 			if(print_errors) {
 #if defined _LIBC && defined USE_IN_LIBIO
 				char * buf;
@@ -608,7 +608,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 	// Look at and handle the next short option-character
 	{
 		char c = *d->__nextchar++;
-		const char * temp = strchr(optstring, c);
+		const char * temp = sstrchr(optstring, c);
 		// Increment `optind' when we start to process its last character. 
 		if(*d->__nextchar == '\0')
 			++d->optind;

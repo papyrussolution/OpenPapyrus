@@ -14,7 +14,7 @@ struct lzma_range_decoder {
 };
 
 /// Reads the first five bytes to initialize the range decoder.
-static inline lzma_ret rc_read_init(lzma_range_decoder * rc, const uint8_t * in, size_t * in_pos, size_t in_size)
+static inline lzma_ret rc_read_init(lzma_range_decoder * rc, const uint8 * in, size_t * in_pos, size_t in_size)
 {
 	while(rc->init_bytes_left > 0) {
 		if(*in_pos == in_size)

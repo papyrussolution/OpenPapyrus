@@ -37,14 +37,14 @@
  *
  * Here's what types and macros are needed and from which headers:
  *  - stddef.h: size_t, NULL
- *  - stdint.h: uint8_t, uint32_t, uint64_t, UINT32_C(n), uint64_C(n),
+ *  - stdint.h: uint8, uint32_t, uint64_t, UINT32_C(n), uint64_C(n),
  *    UINT32_MAX, UINT64_MAX
  *
  * However, inttypes.h is a little more portable than stdint.h, although
  * inttypes.h declares some unneeded things compared to plain stdint.h.
  *
  * The hacks below aren't perfect, specifically they assume that inttypes.h
- * exists and that it typedefs at least uint8_t, uint32_t, and uint64_t,
+ * exists and that it typedefs at least uint8, uint32_t, and uint64_t,
  * and that, in case of incomplete inttypes.h, unsigned int is 32-bit.
  * If the application already takes care of setting up all the types and
  * macros properly (for example by using gnulib's stdint.h or inttypes.h),
@@ -84,7 +84,7 @@
 		 *     memory and expect the caller to free it using free().
 		 */
 		#if defined(_WIN32) && defined(_MSC_VER) && _MSC_VER < 1800
-			typedef unsigned __int8 uint8_t;
+			typedef unsigned __int8 uint8;
 			typedef unsigned __int32 uint32_t;
 			typedef unsigned __int64 uint64_t;
 		#else

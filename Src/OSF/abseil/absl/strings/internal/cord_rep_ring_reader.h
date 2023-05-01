@@ -21,59 +21,48 @@ namespace cord_internal {
 class CordRepRingReader {
 public:
 	// Returns true if this instance is not empty.
-	explicit operator bool() const {
-		return ring_ != nullptr;
-	}
-
+	explicit operator bool() const { return ring_ != nullptr; }
 	// Returns the ring buffer reference for this instance, or nullptr if empty.
-	CordRepRing* ring() const {
-		return ring_;
-	}
-
+	CordRepRing* ring() const { return ring_; }
 	// Returns the current node index inside the ring buffer for this instance.
 	// The returned value is undefined if this instance is empty.
-	CordRepRing::index_type index() const {
-		return index_;
-	}
-
+	CordRepRing::index_type index() const { return index_; }
 	// Returns the current node inside the ring buffer for this instance.
 	// The returned value is undefined if this instance is empty.
-	CordRep* node() const {
-		return ring_->entry_child(index_);
-	}
-
+	CordRep* node() const { return ring_->entry_child(index_); }
 	// Returns the length of the referenced ring buffer.
 	// Requires the current instance to be non empty.
-	size_t length() const {
+	size_t length() const 
+	{
 		assert(ring_);
 		return ring_->length;
 	}
-
 	// Returns the end offset of the last navigated-to chunk, which represents the
 	// total bytes 'consumed' relative to the start of the ring. The returned
 	// value is never zero. For example, initializing a reader with a ring buffer
 	// with a first chunk of 19 bytes will return consumed() = 19.
 	// Requires the current instance to be non empty.
-	size_t consumed() const {
+	size_t consumed() const 
+	{
 		assert(ring_);
 		return ring_->entry_end_offset(index_);
 	}
-
 	// Returns the number of bytes remaining beyond the last navigated-to chunk.
 	// Requires the current instance to be non empty.
-	size_t remaining() const {
+	size_t remaining() const 
+	{
 		assert(ring_);
 		return length() - consumed();
 	}
-
 	// Resets this instance to an empty value
-	void Reset() {
+	void Reset() 
+	{
 		ring_ = nullptr;
 	}
-
 	// Resets this instance to the start of `ring`. `ring` must not be null.
 	// Returns a reference into the first chunk of the provided ring.
-	absl::string_view Reset(CordRepRing* ring) {
+	absl::string_view Reset(CordRepRing* ring) 
+	{
 		assert(ring);
 		ring_ = ring;
 		index_ = ring_->head();
@@ -95,7 +84,8 @@ public:
 	// ring buffer containing 2 chunks of 10 and 20 bytes respectively will return
 	// a string view into the second chunk starting at offset 3 with a size of 17.
 	// Requires `offset` to be less than `length()`
-	absl::string_view Seek(size_t offset) {
+	absl::string_view Seek(size_t offset) 
+	{
 		assert(offset < length());
 		size_t current = ring_->entry_end_offset(index_);
 		CordRepRing::index_type hint = (offset >= current) ? index_ : ring_->head();
@@ -105,7 +95,6 @@ public:
 		data.remove_prefix(head.offset);
 		return data;
 	}
-
 private:
 	CordRepRing* ring_ = nullptr;
 	CordRepRing::index_type index_;

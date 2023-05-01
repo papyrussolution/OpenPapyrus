@@ -1276,7 +1276,7 @@ template <typename utf_t> static inline void hb_buffer_add_utf(hb_buffer_t * buf
 /**
  * hb_buffer_add_utf8:
  * @buffer: an #hb_buffer_t.
- * @text: (array length=text_length) (element-type uint8_t): an array of UTF-8
+ * @text: (array length=text_length) (element-type uint8): an array of UTF-8
  *  characters to append.
  * @text_length: the length of the @text, or -1 if it is %NULL terminated.
  * @item_offset: the offset of the first character to add to the @buffer.
@@ -1292,7 +1292,7 @@ template <typename utf_t> static inline void hb_buffer_add_utf(hb_buffer_t * buf
  **/
 void hb_buffer_add_utf8(hb_buffer_t * buffer, const char * text, int text_length, uint item_offset, int item_length)
 {
-	hb_buffer_add_utf<hb_utf8_t> (buffer, (const uint8_t*)text, text_length, item_offset, item_length);
+	hb_buffer_add_utf<hb_utf8_t> (buffer, (const uint8*)text, text_length, item_offset, item_length);
 }
 
 /**
@@ -1338,7 +1338,7 @@ void hb_buffer_add_utf32(hb_buffer_t * buffer, const uint32_t * text, int text_l
 /**
  * hb_buffer_add_latin1:
  * @buffer: an #hb_buffer_t.
- * @text: (array length=text_length) (element-type uint8_t): an array of UTF-8
+ * @text: (array length=text_length) (element-type uint8): an array of UTF-8
  *  characters to append.
  * @text_length: the length of the @text, or -1 if it is %NULL terminated.
  * @item_offset: the offset of the first character to add to the @buffer.
@@ -1352,7 +1352,7 @@ void hb_buffer_add_utf32(hb_buffer_t * buffer, const uint32_t * text, int text_l
  *
  * Since: 0.9.39
  **/
-void hb_buffer_add_latin1(hb_buffer_t * buffer, const uint8_t * text, int text_length, uint item_offset, int item_length)
+void hb_buffer_add_latin1(hb_buffer_t * buffer, const uint8 * text, int text_length, uint item_offset, int item_length)
 {
 	hb_buffer_add_utf<hb_latin1_t> (buffer, text, text_length, item_offset, item_length);
 }

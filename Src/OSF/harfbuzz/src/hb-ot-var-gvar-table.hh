@@ -34,7 +34,7 @@ namespace OT {
 			x += p.x; y += p.y;
 		}
 
-		uint8_t flag;
+		uint8 flag;
 		float x, y;
 		bool is_end_point;
 	};
@@ -283,7 +283,7 @@ public:
 			while(i < count) {
 				if(UNLIKELY(!bytes.check_range(p))) return false;
 				uint16_t j;
-				uint8_t control = *p++;
+				uint8 control = *p++;
 				uint16_t run_count = (control & POINT_RUN_COUNT_MASK) + 1;
 				if(control & POINTS_ARE_WORDS) {
 					for(j = 0; j < run_count && i < count; j++, i++) {
@@ -320,7 +320,7 @@ public:
 			uint count = deltas.length;
 			while(i < count) {
 				if(UNLIKELY(!bytes.check_range(p))) return false;
-				uint8_t control = *p++;
+				uint8 control = *p++;
 				uint run_count = (control & DELTA_RUN_COUNT_MASK) + 1;
 				uint j;
 				if(control & DELTAS_ARE_ZERO)

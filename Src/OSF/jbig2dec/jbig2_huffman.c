@@ -1,8 +1,5 @@
-/* Copyright (C) 2001-2020 Artifex Software, Inc.
-   All Rights Reserved.
-
-   This software is provided AS-IS with no warranty, either express or
-   implied.
+/* Copyright (C) 2001-2020 Artifex Software, Inc. All Rights Reserved.
+   This software is provided AS-IS with no warranty, either express or implied.
 
    This software is distributed under license and may not be copied,
    modified or distributed except as expressly authorized under the terms
@@ -12,11 +9,9 @@
    Artifex Software, Inc.,  1305 Grant Avenue - Suite 200, Novato,
    CA 94945, U.S.A., +1(415)492-9861, for further information.
  */
-
 /*
     jbig2dec
  */
-
 /* Huffman table decoding procedures
     -- See Annex B of the JBIG2 specification */
 #include "jbig2dec-internal.h"
@@ -30,11 +25,11 @@ struct _Jbig2HuffmanState {
 	/* The current bit offset is equal to (offset * 8) + offset_bits.
 	   The MSB of this_word is the current bit offset. The MSB of next_word
 	   is (offset + 4) * 8. */
-	uint32_t this_word;
-	uint32_t next_word;
-	uint32_t offset_bits;
-	uint32_t offset;
-	uint32_t offset_limit;
+	uint32 this_word;
+	uint32 next_word;
+	uint32 offset_bits;
+	uint32 offset;
+	uint32 offset_limit;
 	Jbig2WordStream * ws;
 	Jbig2Ctx * ctx;
 };
@@ -95,7 +90,7 @@ void jbig2_dump_huffman_state(Jbig2HuffmanState * hs)
 /** print the binary string we're reading from */
 void jbig2_dump_huffman_binary(Jbig2HuffmanState * hs)
 {
-	const uint32_t word = hs->this_word;
+	const uint32 word = hs->this_word;
 	int i;
 	slfprintf_stderr("huffman binary ");
 	for(i = 31; i >= 0; i--)
@@ -149,7 +144,7 @@ void jbig2_dump_huffman_table(const Jbig2HuffmanTable * table)
  */
 int jbig2_huffman_skip(Jbig2HuffmanState * hs)
 {
-	uint32_t bits = hs->offset_bits & 7;
+	uint32 bits = hs->offset_bits & 7;
 	int code;
 	if(bits) {
 		bits = 8 - bits;
@@ -197,7 +192,7 @@ int jbig2_huffman_advance(Jbig2HuffmanState * hs, size_t advance)
 //
 // return the offset of the huffman decode pointer (in bytes) from the beginning of the WordStream
 //
-uint32_t FASTCALL jbig2_huffman_offset(Jbig2HuffmanState * hs)
+uint32 FASTCALL jbig2_huffman_offset(Jbig2HuffmanState * hs)
 {
 	return hs->offset + (hs->offset_bits >> 3);
 }
@@ -206,7 +201,7 @@ uint32_t FASTCALL jbig2_huffman_offset(Jbig2HuffmanState * hs)
 // 
 int32_t jbig2_huffman_get_bits(Jbig2HuffmanState * hs, const int bits, int * err)
 {
-	uint32_t this_word = hs->this_word;
+	uint32 this_word = hs->this_word;
 	int32_t result;
 	int code;
 	if(hs->offset_limit && hs->offset >= hs->offset_limit) {
@@ -241,8 +236,8 @@ int32_t STDCALL jbig2_huffman_get(Jbig2HuffmanState * hs, const Jbig2HuffmanTabl
 	Jbig2HuffmanEntry * entry;
 	byte flags;
 	int offset_bits = hs->offset_bits;
-	uint32_t this_word = hs->this_word;
-	uint32_t next_word;
+	uint32 this_word = hs->this_word;
+	uint32 next_word;
 	int RANGELEN;
 	int32_t result;
 	if(hs->offset_limit && hs->offset >= hs->offset_limit) {
@@ -325,9 +320,9 @@ Jbig2HuffmanTable * FASTCALL jbig2_build_huffman_table(Jbig2Ctx * ctx, const Jbi
 	int LENMAX = -1;
 	const int lencountcount = 256;
 	const Jbig2HuffmanLine * lines = params->lines;
-	int n_lines = params->n_lines;
+	const int n_lines = params->n_lines;
 	int i, j;
-	uint32_t max_j;
+	uint32 max_j;
 	int log_table_size = 0;
 	Jbig2HuffmanTable * result;
 	Jbig2HuffmanEntry * entries;
@@ -343,7 +338,7 @@ Jbig2HuffmanTable * FASTCALL jbig2_build_huffman_table(Jbig2Ctx * ctx, const Jbi
 	memzero(LENCOUNT, sizeof(int) * lencountcount);
 	/* B.3, 1. */
 	for(i = 0; i < params->n_lines; i++) {
-		int PREFLEN = lines[i].PREFLEN;
+		const int PREFLEN = lines[i].PREFLEN;
 		int lts;
 		if(PREFLEN > LENMAX) {
 			for(j = LENMAX + 1; j < PREFLEN + 1; j++)
@@ -378,7 +373,7 @@ Jbig2HuffmanTable * FASTCALL jbig2_build_huffman_table(Jbig2Ctx * ctx, const Jbi
 	result->entries = entries;
 	LENCOUNT[0] = 0;
 	for(CURLEN = 1; CURLEN <= LENMAX; CURLEN++) {
-		int shift = log_table_size - CURLEN;
+		const int shift = log_table_size - CURLEN;
 		/* B.3 3.(a) */
 		firstcode = (firstcode + LENCOUNT[CURLEN - 1]) << 1;
 		CURCODE = firstcode;
@@ -387,9 +382,9 @@ Jbig2HuffmanTable * FASTCALL jbig2_build_huffman_table(Jbig2Ctx * ctx, const Jbi
 			int PREFLEN = lines[CURTEMP].PREFLEN;
 			if(PREFLEN == CURLEN) {
 				int RANGELEN = lines[CURTEMP].RANGELEN;
-				uint32_t start_j = CURCODE << shift;
-				uint32_t end_j = (CURCODE + 1) << shift;
-				uint32_t cur_j;
+				uint32 start_j = CURCODE << shift;
+				uint32 end_j = (CURCODE + 1) << shift;
+				uint32 cur_j;
 				byte eflags = 0;
 				if(end_j > max_j) {
 					jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, "ran off the end of the entries table! (%d >= %d)", end_j, max_j);
@@ -443,15 +438,15 @@ void FASTCALL jbig2_release_huffman_table(Jbig2Ctx * ctx, Jbig2HuffmanTable * ta
 /* Routines to handle "code table segment (53)" */
 
 /* return 'bitlen' bits from 'bitoffset' of 'data' */
-static uint32_t STDCALL jbig2_table_read_bits(const byte * data, size_t * bitoffset, const int bitlen)
+static uint32 STDCALL jbig2_table_read_bits(const byte * data, size_t * bitoffset, const int bitlen)
 {
-	uint32_t result = 0;
-	uint32_t byte_offset = *bitoffset / 8;
+	uint32 result = 0;
+	uint32 byte_offset = *bitoffset / 8;
 	const int endbit = (*bitoffset & 7) + bitlen;
 	const int n_proc_bytes = (endbit + 7) / 8;
 	const int rshift = n_proc_bytes * 8 - endbit;
 	for(int i = n_proc_bytes - 1; i >= 0; i--) {
-		uint32_t d = data[byte_offset++];
+		uint32 d = data[byte_offset++];
 		const int nshift = i * 8 - rshift;
 		if(nshift > 0)
 			d <<= nshift;
@@ -622,9 +617,9 @@ const Jbig2HuffmanParams * jbig2_find_table(Jbig2Ctx * ctx, Jbig2Segment * segme
 static const byte test_stream[] = { 0xe9, 0xcb, 0xf4, 0x00 };
 static const byte test_tabindex[] = { 4, 2, 2, 1 };
 
-static int test_get_word1(Jbig2Ctx * ctx, Jbig2WordStream * self, size_t offset, uint32_t * word)
+static int test_get_word1(Jbig2Ctx * ctx, Jbig2WordStream * self, size_t offset, uint32 * word)
 {
-	uint32_t val = 0;
+	uint32 val = 0;
 	int ret = 0;
 	if(self == NULL || word == NULL)
 		return -1;
@@ -1918,10 +1913,10 @@ typedef struct test_stream {
 	test_huffmancodes_t * h;
 } test_stream_t;
 
-static int test_get_word2(Jbig2Ctx * ctx, Jbig2WordStream * self, size_t offset, uint32_t * word)
+static int test_get_word2(Jbig2Ctx * ctx, Jbig2WordStream * self, size_t offset, uint32 * word)
 {
 	test_stream_t * st = (test_stream_t*)self;
-	uint32_t val = 0;
+	uint32 val = 0;
 	int ret = 0;
 	if(!st || st->h == NULL || word == NULL)
 		return -1;

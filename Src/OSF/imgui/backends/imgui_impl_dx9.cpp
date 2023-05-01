@@ -31,11 +31,11 @@
 //  2018-02-16: Misc: Obsoleted the io.RenderDrawListsFn callback and exposed ImGui_ImplDX9_RenderDrawData() in the .h file so you can call it yourself.
 //  2018-02-06: Misc: Removed call to ImGui::Shutdown() which is not available from 1.60 WIP, user needs to call CreateContext/DestroyContext themselves.
 
-#include "imgui.h"
+#include <imgui-slib-internal.h>
+#pragma hdrstop
+//#include "imgui.h"
 #include "imgui_impl_dx9.h"
-
-// DirectX
-#include <d3d9.h>
+#include <d3d9.h> // DirectX
 
 // DirectX data
 struct ImGui_ImplDX9_Data {
@@ -46,7 +46,12 @@ struct ImGui_ImplDX9_Data {
 	int VertexBufferSize;
 	int IndexBufferSize;
 
-	ImGui_ImplDX9_Data()        { memset((void*)this, 0, sizeof(*this)); VertexBufferSize = 5000; IndexBufferSize = 10000; }
+	ImGui_ImplDX9_Data()
+	{ 
+		THISZERO();
+		VertexBufferSize = 5000; 
+		IndexBufferSize = 10000; 
+	}
 };
 
 struct CUSTOMVERTEX {
@@ -58,9 +63,9 @@ struct CUSTOMVERTEX {
 #define D3DFVF_CUSTOMVERTEX (D3DFVF_XYZ|D3DFVF_DIFFUSE|D3DFVF_TEX1)
 
 #ifdef IMGUI_USE_BGRA_PACKED_COLOR
-#define IMGUI_COL_TO_DX9_ARGB(_COL)     (_COL)
+	#define IMGUI_COL_TO_DX9_ARGB(_COL)     (_COL)
 #else
-#define IMGUI_COL_TO_DX9_ARGB(_COL)     (((_COL) & 0xFF00FF00) | (((_COL) & 0xFF0000) >> 16) | (((_COL) & 0xFF) << 16))
+	#define IMGUI_COL_TO_DX9_ARGB(_COL)     (((_COL) & 0xFF00FF00) | (((_COL) & 0xFF0000) >> 16) | (((_COL) & 0xFF) << 16))
 #endif
 
 // Backend data stored in io.BackendRendererUserData to allow support for multiple Dear ImGui contexts
@@ -74,7 +79,6 @@ static ImGui_ImplDX9_Data* ImGui_ImplDX9_GetBackendData()
 static void ImGui_ImplDX9_SetupRenderState(ImDrawData* draw_data)
 {
 	ImGui_ImplDX9_Data* bd = ImGui_ImplDX9_GetBackendData();
-
 	// Setup viewport
 	D3DVIEWPORT9 vp;
 	vp.X = vp.Y = 0;
@@ -279,7 +283,7 @@ void ImGui_ImplDX9_RenderDrawData(ImDrawData* draw_data)
 bool ImGui_ImplDX9_Init(IDirect3DDevice9* device)
 {
 	ImGuiIO& io = ImGui::GetIO();
-	IM_ASSERT(io.BackendRendererUserData == nullptr && "Already initialized a renderer backend!");
+	assert(io.BackendRendererUserData == nullptr && "Already initialized a renderer backend!");
 
 	// Setup backend capabilities flags
 	ImGui_ImplDX9_Data* bd = IM_NEW(ImGui_ImplDX9_Data)();
@@ -296,7 +300,7 @@ bool ImGui_ImplDX9_Init(IDirect3DDevice9* device)
 void ImGui_ImplDX9_Shutdown()
 {
 	ImGui_ImplDX9_Data* bd = ImGui_ImplDX9_GetBackendData();
-	IM_ASSERT(bd != nullptr && "No renderer backend to shutdown, or already shutdown?");
+	assert(bd != nullptr && "No renderer backend to shutdown, or already shutdown?");
 	ImGuiIO& io = ImGui::GetIO();
 
 	ImGui_ImplDX9_InvalidateDeviceObjects();
@@ -313,7 +317,7 @@ static bool ImGui_ImplDX9_CreateFontsTexture()
 	// Build texture atlas
 	ImGuiIO& io = ImGui::GetIO();
 	ImGui_ImplDX9_Data* bd = ImGui_ImplDX9_GetBackendData();
-	unsigned char* pixels;
+	uchar* pixels;
 	int width, height, bytes_per_pixel;
 	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height, &bytes_per_pixel);
 
@@ -323,7 +327,7 @@ static bool ImGui_ImplDX9_CreateFontsTexture()
 		ImU32* dst_start = (ImU32*)ImGui::MemAlloc((size_t)width * height * bytes_per_pixel);
 		for(ImU32* src = (ImU32*)pixels, * dst = dst_start, * dst_end = dst_start + (size_t)width * height; dst < dst_end; src++, dst++)
 			*dst = IMGUI_COL_TO_DX9_ARGB(*src);
-		pixels = (unsigned char*)dst_start;
+		pixels = (uchar*)dst_start;
 	}
 #endif
 
@@ -335,17 +339,14 @@ static bool ImGui_ImplDX9_CreateFontsTexture()
 	if(bd->FontTexture->LockRect(0, &tex_locked_rect, nullptr, 0) != D3D_OK)
 		return false;
 	for(int y = 0; y < height; y++)
-		memcpy((unsigned char*)tex_locked_rect.pBits + (size_t)tex_locked_rect.Pitch * y, pixels + (size_t)width * bytes_per_pixel * y, (size_t)width * bytes_per_pixel);
+		memcpy((uchar*)tex_locked_rect.pBits + (size_t)tex_locked_rect.Pitch * y, pixels + (size_t)width * bytes_per_pixel * y, (size_t)width * bytes_per_pixel);
 	bd->FontTexture->UnlockRect(0);
-
 	// Store our identifier
 	io.Fonts->SetTexID((ImTextureID)bd->FontTexture);
-
 #ifndef IMGUI_USE_BGRA_PACKED_COLOR
 	if(io.Fonts->TexPixelsUseColors)
 		ImGui::MemFree(pixels);
 #endif
-
 	return true;
 }
 
@@ -365,10 +366,12 @@ void ImGui_ImplDX9_InvalidateDeviceObjects()
 	if(!bd || !bd->pd3dDevice)
 		return;
 	if(bd->pVB) {
-		bd->pVB->Release(); bd->pVB = nullptr;
+		bd->pVB->Release(); 
+		bd->pVB = nullptr;
 	}
 	if(bd->pIB) {
-		bd->pIB->Release(); bd->pIB = nullptr;
+		bd->pIB->Release(); 
+		bd->pIB = nullptr;
 	}
 	if(bd->FontTexture) {
 		bd->FontTexture->Release(); bd->FontTexture = nullptr; ImGui::GetIO().Fonts->SetTexID(0);
@@ -378,8 +381,7 @@ void ImGui_ImplDX9_InvalidateDeviceObjects()
 void ImGui_ImplDX9_NewFrame()
 {
 	ImGui_ImplDX9_Data* bd = ImGui_ImplDX9_GetBackendData();
-	IM_ASSERT(bd != nullptr && "Did you call ImGui_ImplDX9_Init()?");
-
+	assert(bd != nullptr && "Did you call ImGui_ImplDX9_Init()?");
 	if(!bd->FontTexture)
 		ImGui_ImplDX9_CreateDeviceObjects();
 }

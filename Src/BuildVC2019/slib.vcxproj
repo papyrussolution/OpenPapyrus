@@ -1008,6 +1008,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\OSF\AVX-Memmove\memset.c" />
     <ClCompile Include="..\SLib\bdb.cpp" />
     <ClCompile Include="..\SLib\Bextins.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
@@ -1455,6 +1456,7 @@
     <ClCompile Include="..\SLib\mimalloc\segment-cache.c" />
     <ClCompile Include="..\SLib\sdrecord.cpp" />
     <ClCompile Include="..\SLib\sfilestorage.cpp" />
+    <ClCompile Include="..\SLib\smemchr.cpp" />
     <ClCompile Include="..\SLib\soapdbt.cpp" />
     <ClCompile Include="..\SLib\txttable.cpp" />
     <ClCompile Include="..\SLib\xlstable.cpp" />

@@ -67,8 +67,7 @@ typedef struct {
 	Exceptions will only be thrown if the underlying callback
 	functions throw them.
 */
-void fz_walk_path(fz_context *ctx, const fz_path *path, const fz_path_walker *walker, void *arg);
-
+void STDCALL fz_walk_path(fz_context *ctx, const fz_path *path, const fz_path_walker *walker, void *arg);
 /**
 	Create a new (empty) path structure.
 */
@@ -80,8 +79,7 @@ fz_path * FASTCALL fz_new_path(fz_context *ctx);
 
 	Never throws exceptions.
 */
-fz_path *fz_keep_path(fz_context *ctx, const fz_path *path);
-
+fz_path * FASTCALL fz_keep_path(fz_context *ctx, const fz_path *path);
 /**
 	Decrement the reference count. When the reference count hits
 	zero, free the path.
@@ -92,8 +90,7 @@ fz_path *fz_keep_path(fz_context *ctx, const fz_path *path);
 
 	Never throws exceptions.
 */
-void fz_drop_path(fz_context *ctx, const fz_path *path);
-
+void FASTCALL fz_drop_path(fz_context *ctx, const fz_path *path);
 /**
 	Minimise the internal storage used by a path.
 
@@ -103,13 +100,11 @@ void fz_drop_path(fz_context *ctx, const fz_path *path);
 	been fully constructed, this call allows the
 	excess space to be trimmed.
 */
-void fz_trim_path(fz_context *ctx, fz_path *path);
-
+void FASTCALL fz_trim_path(fz_context *ctx, fz_path *path);
 /**
 	Return the number of bytes required to pack a path.
 */
-int fz_packed_path_size(const fz_path *path);
-
+int FASTCALL fz_packed_path_size(const fz_path *path);
 /**
 	Pack a path into the given block.
 	To minimise the size of paths, this function allows them to be
@@ -150,8 +145,7 @@ int fz_packed_path_size(const fz_path *path);
 	or 'flat' packed. Simply pack a path (if required), and then
 	forget about the details.
 */
-size_t fz_pack_path(fz_context *ctx, uint8_t *pack, size_t max, const fz_path *path);
-
+size_t STDCALL fz_pack_path(fz_context *ctx, uint8 *pack, size_t max, const fz_path *path);
 /**
 	Clone the data for a path.
 
@@ -164,7 +158,7 @@ size_t fz_pack_path(fz_context *ctx, uint8_t *pack, size_t max, const fz_path *p
 
 	Throws exceptions on failure to allocate.
 */
-fz_path *fz_clone_path(fz_context *ctx, fz_path *path);
+fz_path * fz_clone_path(fz_context *ctx, fz_path *path);
 /**
 	Return the current point that a path has
 	reached or (0,0) if empty.

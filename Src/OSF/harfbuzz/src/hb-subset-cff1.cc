@@ -659,12 +659,12 @@ struct cff_subset_plan {
 
 	bool gid_renum;
 	bool subset_encoding;
-	uint8_t subset_enc_format;
+	uint8 subset_enc_format;
 	uint subset_enc_num_codes;
 	range_list_t subset_enc_code_ranges;
 	hb_vector_t<code_pair_t>  subset_enc_supp_codes;
 
-	uint8_t subset_charset_format;
+	uint8 subset_charset_format;
 	range_list_t subset_charset_ranges;
 	bool subset_charset;
 

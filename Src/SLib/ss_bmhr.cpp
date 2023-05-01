@@ -346,7 +346,7 @@ __fail:
 					p = 0;
 				}
 				else
-					p = PTR8C(memchr(p_text, pat0, text_len));
+					p = PTR8C(smemchr(p_text, pat0, text_len)); // @v11.7.0 memchr-->smemchr
 				if(p) {
 __succ:
 					if(Len == 1) {

@@ -30,10 +30,10 @@
 #define ROTL(x, b) (uint64_t)(((x) << (b)) | ((x) >> (64 - (b))))
 
 #define U32TO8_LE(p, v)                                                        \
-	(p)[0] = (uint8_t)((v));                                                   \
-	(p)[1] = (uint8_t)((v) >> 8);                                              \
-	(p)[2] = (uint8_t)((v) >> 16);                                             \
-	(p)[3] = (uint8_t)((v) >> 24);
+	(p)[0] = (uint8)((v));                                                   \
+	(p)[1] = (uint8)((v) >> 8);                                              \
+	(p)[2] = (uint8)((v) >> 16);                                             \
+	(p)[3] = (uint8)((v) >> 24);
 
 #define U64TO8_LE(p, v)                                                        \
 	U32TO8_LE((p), (uint32_t)((v)));                                           \
@@ -137,7 +137,7 @@ int SipHash_Init(SIPHASH * ctx, const uchar * k, int crounds, int drounds)
 void SipHash_Update(SIPHASH * ctx, const uchar * in, size_t inlen)
 {
 	uint64_t m;
-	const uint8_t * end;
+	const uint8 * end;
 	int left;
 	unsigned int i;
 	uint64_t v0 = ctx->v0;

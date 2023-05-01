@@ -26,7 +26,7 @@ static const uint64_t blake2b_IV[8] =
 	0x1f83d9abfb41bd6bULL, 0x5be0cd19137e2179ULL
 };
 
-static const uint8_t blake2b_sigma[12][16] =
+static const uint8 blake2b_sigma[12][16] =
 {
 	{  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 },
 	{ 14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3 },
@@ -62,7 +62,7 @@ static ossl_inline void blake2b_init0(BLAKE2B_CTX * S)
 static void blake2b_init_param(BLAKE2B_CTX * S, const BLAKE2B_PARAM * P)
 {
 	size_t i;
-	const uint8_t * p = (const uint8_t*)(P);
+	const uint8 * p = (const uint8*)(P);
 
 	blake2b_init0(S);
 	S->outlen = P->digest_length;
@@ -92,23 +92,23 @@ void ossl_blake2b_param_init(BLAKE2B_PARAM * P)
 	memzero(P->personal, sizeof(P->personal));
 }
 
-void ossl_blake2b_param_set_digest_length(BLAKE2B_PARAM * P, uint8_t outlen)
+void ossl_blake2b_param_set_digest_length(BLAKE2B_PARAM * P, uint8 outlen)
 {
 	P->digest_length = outlen;
 }
 
-void ossl_blake2b_param_set_key_length(BLAKE2B_PARAM * P, uint8_t keylen)
+void ossl_blake2b_param_set_key_length(BLAKE2B_PARAM * P, uint8 keylen)
 {
 	P->key_length = keylen;
 }
 
-void ossl_blake2b_param_set_personal(BLAKE2B_PARAM * P, const uint8_t * personal, size_t len)
+void ossl_blake2b_param_set_personal(BLAKE2B_PARAM * P, const uint8 * personal, size_t len)
 {
 	memcpy(P->personal, personal, len);
 	memzero(P->personal + len, BLAKE2B_PERSONALBYTES - len);
 }
 
-void ossl_blake2b_param_set_salt(BLAKE2B_PARAM * P, const uint8_t * salt, size_t len)
+void ossl_blake2b_param_set_salt(BLAKE2B_PARAM * P, const uint8 * salt, size_t len)
 {
 	memcpy(P->salt, salt, len);
 	memzero(P->salt + len, BLAKE2B_SALTBYTES - len);
@@ -134,7 +134,7 @@ int ossl_blake2b_init_key(BLAKE2B_CTX * c, const BLAKE2B_PARAM * P,
 
 	/* Pad the key to form first data block */
 	{
-		uint8_t block[BLAKE2B_BLOCKBYTES] = {0};
+		uint8 block[BLAKE2B_BLOCKBYTES] = {0};
 
 		memcpy(block, key, P->key_length);
 		ossl_blake2b_update(c, block, BLAKE2B_BLOCKBYTES);
@@ -146,7 +146,7 @@ int ossl_blake2b_init_key(BLAKE2B_CTX * c, const BLAKE2B_PARAM * P,
 
 /* Permute the state while xoring in the block of data. */
 static void blake2b_compress(BLAKE2B_CTX * S,
-    const uint8_t * blocks,
+    const uint8 * blocks,
     size_t len)
 {
 	uint64_t m[16];
@@ -251,7 +251,7 @@ static void blake2b_compress(BLAKE2B_CTX * S,
 /* Absorb the input data into the hash state.  Always returns 1. */
 int ossl_blake2b_update(BLAKE2B_CTX * c, const void * data, size_t datalen)
 {
-	const uint8_t * in = (const uint8_t*)data;
+	const uint8 * in = (const uint8*)data;
 	size_t fill;
 	/*
 	 * Intuitively one would expect intermediate buffer, c->buf, to
@@ -298,8 +298,8 @@ int ossl_blake2b_update(BLAKE2B_CTX * c, const void * data, size_t datalen)
  */
 int ossl_blake2b_final(unsigned char * md, BLAKE2B_CTX * c)
 {
-	uint8_t outbuffer[BLAKE2B_OUTBYTES] = {0};
-	uint8_t * target = outbuffer;
+	uint8 outbuffer[BLAKE2B_OUTBYTES] = {0};
+	uint8 * target = outbuffer;
 	int iter = (c->outlen + 7) / 8;
 	int i;
 	/* Avoid writing to the temporary buffer if possible */

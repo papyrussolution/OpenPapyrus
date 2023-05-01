@@ -2598,9 +2598,9 @@ void Notepad_plus::command(int id)
 				    int strSize = strLen + 1;
 				    char * selectedStr = new char[strSize];
 				    _pEditView->execute(SCI_GETSELTEXT, 0, reinterpret_cast<LPARAM>(selectedStr));
-				    //uint8_t sha2hash[32];
-				    //calc_sha_256(sha2hash, reinterpret_cast<const uint8_t*>(selectedStr), strlen(selectedStr));
-					binary256 __h = SlHash::Sha256(0, reinterpret_cast<const uint8_t*>(selectedStr), strlen(selectedStr));
+				    //uint8 sha2hash[32];
+				    //calc_sha_256(sha2hash, reinterpret_cast<const uint8*>(selectedStr), strlen(selectedStr));
+					binary256 __h = SlHash::Sha256(0, reinterpret_cast<const uint8*>(selectedStr), strlen(selectedStr));
 				    wchar_t sha2hashStr[65] = { '\0' };
 				    for(size_t i = 0; i < sizeof(__h); i++)
 					    wsprintf(sha2hashStr + i * 2, TEXT("%02x"), /*sha2hash*/PTR8C(&__h)[i]);

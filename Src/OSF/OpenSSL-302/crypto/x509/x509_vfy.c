@@ -2372,7 +2372,7 @@ void X509_STORE_CTX_set0_dane(X509_STORE_CTX * ctx, SSL_DANE * dane)
 	ctx->dane = dane;
 }
 
-static uchar * dane_i2d(X509 * cert, uint8_t selector, unsigned int * i2dlen)
+static uchar * dane_i2d(X509 * cert, uint8 selector, unsigned int * i2dlen)
 {
 	uchar * buf = NULL;
 	int len;
@@ -2398,7 +2398,7 @@ static uchar * dane_i2d(X509 * cert, uint8_t selector, unsigned int * i2dlen)
 	return buf;
 }
 
-#define DANETLS_NONE 256 /* impossible uint8_t */
+#define DANETLS_NONE 256 /* impossible uint8 */
 
 /* Returns -1 on internal error */
 static int dane_match(X509_STORE_CTX * ctx, X509 * cert, int depth)

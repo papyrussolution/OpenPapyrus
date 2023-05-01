@@ -11,7 +11,7 @@
 #pragma hdrstop
 #include "cipher_chacha20.h"
 
-static int chacha20_initkey(PROV_CIPHER_CTX * bctx, const uint8_t * key, size_t keylen)
+static int chacha20_initkey(PROV_CIPHER_CTX * bctx, const uint8 * key, size_t keylen)
 {
 	PROV_CHACHA20_CTX * ctx = (PROV_CHACHA20_CTX*)bctx;
 	unsigned int i;

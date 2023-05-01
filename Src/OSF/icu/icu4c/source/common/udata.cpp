@@ -289,7 +289,6 @@ static UDataMemory * udata_cacheDataItem(const char * path, UDataMemory * item, 
 		return NULL;
 	}
 	UDatamemory_assign(newElement->item, item);
-
 	baseName = findBasename(path);
 	nameLen = (int32_t)strlen(baseName);
 	newElement->name = (char *)uprv_malloc(nameLen+1);
@@ -300,7 +299,6 @@ static UDataMemory * udata_cacheDataItem(const char * path, UDataMemory * item, 
 		return NULL;
 	}
 	strcpy(newElement->name, baseName);
-
 	/* Stick the new DataCacheElement into the hash table.
 	 */
 	umtx_lock(NULL);

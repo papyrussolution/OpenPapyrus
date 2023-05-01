@@ -130,29 +130,22 @@ int load_option_fileChar(char * configString)
 {
 	char * delimPos       = &configString[0];
 	char * subStringStart = &configString[0];
-
 	cpd.line_number = 0;
-
 	// TODO: handle compat_level
 	int compat_level = 0;
-
 	while(true) {
-		delimPos = strchr(delimPos, '\n');
-
+		delimPos = sstrchr(delimPos, '\n');
 		if(delimPos == nullptr) {
 			break;
 		}
 		// replaces \n with \0 -> string including multiple terminated substrings
 		*delimPos = '\0';
-
 		process_option_line(subStringStart, "", compat_level);
-
 		delimPos++;
 		subStringStart = delimPos;
 	}
 	//get last line, expectation: ends with \0
 	process_option_line(subStringStart, "", compat_level);
-
 	return (EXIT_SUCCESS);
 }
 

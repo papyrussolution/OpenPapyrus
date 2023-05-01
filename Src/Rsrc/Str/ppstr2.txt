@@ -4893,7 +4893,8 @@ PPTXT_PREDEFIMPEXPBILLFMT           "1,Nalog.ru @{invoice} (ON_SFAKT);\
 	5,Nalog.ru (только импорт);\
 	6,Nalog.ru R_ON_NSCHFDOPPRMARK (счет-фактура с марками);\
 	8,Nalog.ru R_ON_NSCHFDOPPR (счет-фактура);\
-	9,Coca-Cola ORDER (только импорт)"
+	9,Coca-Cola ORDER (только импорт);\
+	11,Nalog.ru ON_NKORSCHFDOPPR (корректировочный счет-фактура)"
 PPTXT_NALOGRU_WORKSWERETRANSFERED   "Результаты работ переданы (услуги оказаны)"
 PPTXT_NALOGRU_SHIPPINGBILL          "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)"
 PPTXT_NALOGRU_UPDOPCONTENT          "Товары переданы и услуги оказаны в полном объеме"
@@ -6003,10 +6004,12 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @accepted                            "Принят"
 @accepted_neut                       "Принято"
 @doaccept                            "Принять"
+@doaccept_fully                      "Полностью принять"
 @accepted_fully                      "Полностью принят"
 @accepted_partly                     "Частично принят"
 @rejected                            "Отклонен"
 @doreject                            "Отклонить"
+@doreject_fully                      "Полностью отклонить"
 @disaccord                           "Расхождение"
 @generalization                      "Обобщение"
 @keyword                             "Ключевое слово"
@@ -8406,7 +8409,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_edialcdesadvsent                    "EDI ALCODESADV SENT"
 @rtag_ediinvoicsent                       "EDI INVOIC SENT"
 @rtag_ediordrsprcv                        "EDI ORDRSP RCV"
-@rtag_dimentions                          "Размерности лота"
+@rtag_dimensions                          "Размерности лота" // @v11.7.0 @fix rtag_dimentions-->rtag_dimensions
 @rtag_edirejectackbill                    "EDI подтверждение отмены документа"
 @rtag_edichannel                          "EDI канал доставки документа"
 @rtag_edirepealack                        "EDI ответ на запрос об отмене документа"
@@ -8434,7 +8437,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_locvetisuser                        "@{brand_vetis} пользователь-инициатор (location)"
 @rtag_goodstranpvantype                   "@{brand_vetis} Тип транспортного фургона"
 @rtag_orglineident                        "Оригинальный идентификатор строки документа"
-@rtag_locfreightpackage                   "Транспортная упаковка"
+@rtag_lotfreightpackage                   "Транспортная упаковка"
 @rtag_goodsvetisguid                      "@{brand_vetis} GUID товара"
 @rtag_guaguid                             "GUID глобальной учетной записи"
 @rtag_guaaccesskey                        "Ключ доступа к глобальному сервису"
@@ -8454,6 +8457,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_bill_initgeoloc                     "Геолокация в момент создания документа"
 @rtag_tsess_outercode                     "Внешний код технологической сессии" // @v11.6.6
 @rtag_person_transportto                  "Транспорт для доставки клиенту по умолчанию" // @v11.6.9
+@rtag_lotacceptance                       "Результат приемки строки документа" // @v11.7.0
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -8690,6 +8694,11 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @filter_styloqincominglistparam_actionccheckregprint      "Печать чека на регистраторе"
 @filter_styloqincominglistparam_actiontsesscreat          "Создание технологической сессии"
 @filter_styloqincominglistparam_actiontsesstmset          "Изменение времени сессии"
+@filter_styloqincominglistparam_acceptance      "Метод проведения приемки товаров"
+@filter_styloqincominglistparam_acceptance_none           "Ничего не делать"
+@filter_styloqincominglistparam_acceptance_tags           "Расставить теги по строкам"
+@filter_styloqincominglistparam_acceptance_modifyorgdoc   "Модифицировать оригинальный документ"
+@filter_styloqincominglistparam_acceptance_linkdraft      "Привязать драфт-документ с результатами приемки"
 
 @filter_styloqincominglistparam_fbillwithmarksonly        "Только документы с маркировкой"
 @filter_styloqincominglistparam_fbillwithmarkedgoodsonly  "Только документы, содержащие товары, требующие маркировки"
@@ -17214,6 +17223,14 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @trfritem_freightpackage_type                 "@{obj_freightpackagetype}"
 @trfritem_freightpackage_qtty                 "@{qtty}"
 
+@trfritem_acceptance                          "Результаты приемки товара"
+@trfritem_acceptance_nqtty                    "Номинальное количество"
+@trfritem_acceptance_qtty                     "Принятое количество"
+@trfritem_acceptance_ncost                    "Номинальная цена поступления"
+@trfritem_acceptance_cost                     "Принятая цена поступления"
+@trfritem_acceptance_nprice                   "Номинальная цена реализации"
+@trfritem_acceptance_price                    "Принятая цена реализации"
+
 @egais_informareg                             "Параметры справки А на алкогольную продукцию"
 @egais_informareg_qtty                        "@{qtty}"
 @egais_informareg_manufdate                   "Дата розлива"
@@ -18161,9 +18178,13 @@ PPHSC_RU_EXECUTORINFODATE      "ДатаИнфИсп"
 PPHSC_RU_EXECUTORINFOTIME      "ВремИнфИсп"
 PPHSC_RU_NAMEECSUBJCOMP        "НаимЭконСубСост"
 PPHSC_RU_REASONECSUBJCOMP      "ОснДоверОргСост"
+PPHSC_RU_INVOICE_ABBR          "СчФ"      // @v11.7.0
 PPHSC_RU_INVOICEHEADER         "СвСчФакт"
+PPHSC_RU_CORRINVOICEHEADER     "СвКСчФ" // @v11.7.0
 PPHSC_RU_INVOICENUMBER         "НомерСчФ"
+PPHSC_RU_CORRINVOICENUMBER     "НомерКСчФ" // @v11.7.0
 PPHSC_RU_INVOICEDATE           "ДатаСчФ"
+PPHSC_RU_CORRINVOICEDATE       "ДатаКСчФ" // @v11.7.0
 PPHSC_RU_INVOICECORRECTION     "ИспрСчФ"
 PPHSC_RU_INVOICECORR_NOCODE    "ДефНомИспрСчФ"
 PPHSC_RU_INVOICECORR_NODATE    "ДефДатаИспрСчФ"
@@ -18171,14 +18192,19 @@ PPHSC_RU_WARETRANSFINFO        "СвПродПер"
 PPHSC_RU_WARETRANSFINFO2       "СвПер"
 PPHSC_RU_WARETRANSFDATE        "ДатаПер"
 PPHSC_RU_INVOICETAB            "ТаблСчФакт"
+PPHSC_RU_CORRINVOICETAB        "ТаблКСчФ" // @v11.7.0
 PPHSC_RU_CODEOKV               "КодОКВ"
 PPHSC_RU_WAREINFO              "СведТов"
 PPHSC_RU_WAREEXTRAINFO         "ДопСведТов"
 PPHSC_RU_LINENUMBER            "НомСтр"
 PPHSC_RU_WAREQTTY              "КолТов"
+PPHSC_RU_WAREQTTY_BEFORE       "КолТовДо"     // @v11.7.0
+PPHSC_RU_WAREQTTY_AFTER        "КолТовПосле"  // @v11.7.0
 PPHSC_RU_WARENAME              "НаимТов"
 PPHSC_RU_WARETYPE              "ПрТовРаб"
 PPHSC_RU_WAREOKEI              "ОКЕИ_Тов"
+PPHSC_RU_WAREOKEI_BEFORE       "ОКЕИ_ТовДо"    // @v11.7.0
+PPHSC_RU_WAREOKEI_AFTER        "ОКЕИ_ТовПосле" // @v11.7.0
 PPHSC_RU_WARECODE              "КодТов"
 PPHSC_RU_WAREARTICLE           "АртикулТов" // @v11.5.10
 PPHSC_RU_WAREIDENTBLOCK        "НомСредИдентТов"
@@ -18187,22 +18213,39 @@ PPHSC_RU_WAREIDENT_TPACKCODE   "ИдентТрансУпак" // @v11.5.1
 PPHSC_RU_WAREIDENT_KIZ         "КИЗ"
 PPHSC_RU_OKEI                  "ОКЕИ"
 PPHSC_RU_UNITNAME              "НаимЕдИзм"
+PPHSC_RU_UNITNAME_BEFORE       "НаимЕдИзмДо"    // @v11.7.0
+PPHSC_RU_UNITNAME_AFTER        "НаимЕдИзмПосле" // @v11.7.0
 PPHSC_RU_UNITNAME_HOUR         "Час"
 PPHSC_RU_TAXRATE               "НалСт"
+PPHSC_RU_TAXRATE_BEFORE        "НалСтДо"
+PPHSC_RU_TAXRATE_AFTER         "НалСтПосле"
 PPHSC_RU_PRICE                 "Цена"
 PPHSC_RU_WAREPRICE             "ЦенаТов"
+PPHSC_RU_WAREPRICE_BEFORE      "ЦенаТовДо"
+PPHSC_RU_WAREPRICE_AFTER       "ЦенаТовПосле"
 PPHSC_RU_QUANTITY              "Количество"
 PPHSC_RU_WAREAMTWOVAT          "СтТовБезНДС"
 PPHSC_RU_WAREAMT               "СтТовУчНал"
 PPHSC_RU_WAREAMTWOVATTOTAL     "СтТовБезНДСВсего"
 PPHSC_RU_WAREAMTTOTAL          "СтТовУчНалВсего"
+PPHSC_RU_WAREAMT_BEFORE        "СтоимДоИзм"    // @v11.7.0
+PPHSC_RU_WAREAMT_AFTER         "СтоимПослеИзм" // @v11.7.0
+PPHSC_RU_WAREAMT_INCR          "СтоимУвел"     // @v11.7.0
+PPHSC_RU_WAREAMT_DECR          "СтоимУм"       // @v11.7.0
 PPHSC_RU_EXCISE                "Акциз"
+PPHSC_RU_EXCISE_BEFORE         "АкцизДо"       // @v11.7.0
+PPHSC_RU_EXCISE_AFTER          "АкцизПосле"    // @v11.7.0
 PPHSC_RU_AMTVAT                "СумНДС"
 PPHSC_RU_AMTEXCISE             "СумАкциз"
 PPHSC_RU_NOEXCISE_TAG          "БезАкциз"
 PPHSC_RU_NOEXCISE_VAL          "без акциза"
 PPHSC_RU_AMTTAX                "СумНал"
 PPHSC_RU_AMTTAXTOTAL           "СумНалВсего"
+PPHSC_RU_AMTTAX_BEFORE         "СумНалДо"      // @v11.7.0
+PPHSC_RU_AMTTAX_AFTER          "СумНалПосле"   // @v11.7.0
+PPHSC_RU_AMTTAX_DIFF           "СумНалРазн"    // @v11.7.0
+PPHSC_RU_AMTTAX_INCR           "СумУвел"       // @v11.7.0
+PPHSC_RU_AMTTAX_DECR           "СумУм"         // @v11.7.0
 PPHSC_RU_NOVAT_TAG             "БезНДС"
 PPHSC_RU_NOVAT_VAL             "без НДС"
 PPHSC_RU_ADDRESS               "Адрес"

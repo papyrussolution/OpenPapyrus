@@ -7,7 +7,7 @@
 #include "common.h"
 #pragma hdrstop
 
-static bool stream_flags_decode(lzma_stream_flags * options, const uint8_t * in)
+static bool stream_flags_decode(lzma_stream_flags * options, const uint8 * in)
 {
 	// Reserved bits must be unset.
 	if(in[0] != 0x00 || (in[1] & 0xF0))
@@ -19,7 +19,7 @@ static bool stream_flags_decode(lzma_stream_flags * options, const uint8_t * in)
 	}
 }
 
-lzma_ret lzma_stream_header_decode(lzma_stream_flags *options, const uint8_t *in)
+lzma_ret lzma_stream_header_decode(lzma_stream_flags *options, const uint8 *in)
 {
 	// Magic
 	if(memcmp(in, lzma_header_magic, sizeof(lzma_header_magic)) != 0)
@@ -43,7 +43,7 @@ lzma_ret lzma_stream_header_decode(lzma_stream_flags *options, const uint8_t *in
 	return LZMA_OK;
 }
 
-lzma_ret lzma_stream_footer_decode(lzma_stream_flags *options, const uint8_t *in)
+lzma_ret lzma_stream_footer_decode(lzma_stream_flags *options, const uint8 *in)
 {
 	// Magic
 	if(memcmp(in + sizeof(uint32_t) * 2 + LZMA_STREAM_FLAGS_SIZE, lzma_footer_magic, sizeof(lzma_footer_magic)) != 0)

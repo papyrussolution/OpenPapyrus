@@ -69,11 +69,9 @@ static void fz_predict_tiff(fz_predict * state, uchar * out, uchar * in)
 				*out++ = left[k] = (*in++ + left[k]) & 0xFF;
 		return;
 	}
-
 	/* putcomponent assumes zeroed memory for bpc < 8 */
 	if(state->bpc < 8)
-		memset(out, 0, state->stride);
-
+		memzero(out, state->stride);
 	for(i = 0; i < state->columns; i++) {
 		for(k = 0; k < state->colors; k++) {
 			int a = getcomponent(in, i * state->colors + k, state->bpc);
@@ -197,7 +195,6 @@ static void close_predict(fz_context * ctx, void * state_)
 fz_stream * fz_open_predict(fz_context * ctx, fz_stream * chain, int predictor, int columns, int colors, int bpc)
 {
 	fz_predict * state;
-
 	if(predictor < 1)
 		predictor = 1;
 	if(columns < 1)
@@ -206,7 +203,6 @@ fz_stream * fz_open_predict(fz_context * ctx, fz_stream * chain, int predictor, 
 		colors = 1;
 	if(bpc < 1)
 		bpc = 8;
-
 	if(bpc != 1 && bpc != 2 && bpc != 4 && bpc != 8 && bpc != 16)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "invalid number of bits per component: %d", bpc);
 	if(colors > FZ_MAX_COLORS)
@@ -221,7 +217,6 @@ fz_stream * fz_open_predict(fz_context * ctx, fz_stream * chain, int predictor, 
 		fz_warn(ctx, "invalid predictor: %d", predictor);
 		predictor = 1;
 	}
-
 	state = fz_malloc_struct(ctx, fz_predict);
 	fz_try(ctx)
 	{
@@ -238,9 +233,7 @@ fz_stream * fz_open_predict(fz_context * ctx, fz_stream * chain, int predictor, 
 		state->ref = (uchar*)Memento_label(fz_malloc(ctx, state->stride), "predict_ref");
 		state->rp = state->out;
 		state->wp = state->out;
-
-		memset(state->ref, 0, state->stride);
-
+		memzero(state->ref, state->stride);
 		state->chain = fz_keep_stream(ctx, chain);
 	}
 	fz_catch(ctx)

@@ -5,7 +5,7 @@
 #include <slib-internal.h>
 #pragma hdrstop
 //
-// @v11.2.3 Поступила информация, что JobServer в последних резах "падает". Отключаем для сервера mimalloc и проверям.
+// @v11.2.3 Поступила информация, что JobServer в последних релизах "падает". Отключаем для сервера mimalloc и проверям.
 // @v11.2.4 Похоже, возникают спонтанные аварии и на клиентских сессиях
 //
 #if _MSC_VER >= 1900 /*&& !defined(NDEBUG)*/ && !defined(_PPSERVER)
@@ -705,7 +705,141 @@ SLTEST_FIXTURE(MEMMOVO, SlTestFixtureMEMMOVO)
 	CATCHZOK
 	return ok;
 }
+//
+//
+//
+void * AVX_memset(void * dest, int val, size_t numbytes);
 
+static bool Test_memset_fill_or_check(bool check, void * ptr, uint8 byte, size_t size, size_t leftSentinelSize, size_t rightSentinelSize, uint8 sentinelByte)
+{
+	size_t offs = 0;
+	bool   check_result = true;
+	assert(ptr != 0);
+	assert(size > 0);
+	assert(byte != sentinelByte);
+	assert(leftSentinelSize <= 16 && rightSentinelSize <= 16);
+	if(ptr && size && byte != sentinelByte) {
+		if(leftSentinelSize) {
+			if(check) {
+				for(size_t i = 0; i < leftSentinelSize; i++) {
+					if(PTR8(ptr)[i+offs] != sentinelByte)
+						check_result = false;
+					assert(check_result);
+				}
+			}
+			else {
+				for(size_t i = 0; i < leftSentinelSize; i++)
+					PTR8(ptr)[i+offs] = sentinelByte;
+			}
+			offs += leftSentinelSize;
+		}
+		if(check_result) {
+			for(size_t i = 0; i < size; i++) {
+				if(check) {
+					if(PTR8(ptr)[i+offs] != byte)
+						check_result = false;
+				}
+				else {
+					PTR8(ptr)[i+offs] = byte;
+				}
+			}
+			assert(check_result);
+			offs += size;
+			if(check_result && rightSentinelSize) {
+				if(check) {
+					for(size_t i = 0; i < rightSentinelSize; i++) {
+						if(PTR8(ptr)[i+offs] != sentinelByte)
+							check_result = false;
+						assert(check_result);
+					}
+				}
+				else {
+					for(size_t i = 0; i < rightSentinelSize; i++)
+						PTR8(ptr)[i+offs] = sentinelByte;
+				}
+				offs += rightSentinelSize;
+			}
+		}
+	}
+	else
+		check_result = false;
+	assert(offs == (leftSentinelSize+size+rightSentinelSize));
+	return check_result;
+}
+
+static bool Test_memset_helper(void * (*func)(void *, int, size_t), uint8 * pBuffer, size_t bufferSize)
+{
+	bool ok = true;
+	const uint8 sentinel_byte = 0x0B;
+	const uint8 pre_fill_byte = 0xff;
+	const uint8 memset_byte = 0x01;
+	const size_t left_sentinel_size = 5;
+	const size_t right_sentinel_size = 5;
+	assert(pre_fill_byte != memset_byte);
+	for(size_t offs = 0; offs <= 128 && (offs + left_sentinel_size + right_sentinel_size) < bufferSize; offs++) {
+		for(size_t test_size = 1; ((offs + left_sentinel_size + test_size + right_sentinel_size) <= bufferSize); test_size++) {
+			int r1 = Test_memset_fill_or_check(false, pBuffer+offs, pre_fill_byte, test_size, left_sentinel_size, right_sentinel_size, sentinel_byte);
+			assert(r1);
+			THROW(r1);
+			void * p_memset_result = func(pBuffer+offs+left_sentinel_size, memset_byte, test_size);
+			assert(p_memset_result == pBuffer+offs+left_sentinel_size);
+			THROW(p_memset_result == pBuffer+offs+left_sentinel_size);
+			int r2 = Test_memset_fill_or_check(true, pBuffer+offs, memset_byte, test_size, left_sentinel_size, right_sentinel_size, sentinel_byte);
+			assert(r2);
+			THROW(r2);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+static void Profile_memset_helper(void * (*func)(void *, int, size_t), uint8 * pBuffer, size_t bufferSize)
+{
+	const uint8 memset_byte = 0xff;
+	volatile void * p_memset_result = 0;
+	for(size_t offs = 0; offs <= 64 && offs < bufferSize; offs++) {
+		for(size_t test_size = 1; ((offs + test_size) <= bufferSize); test_size++) {
+			p_memset_result = func(pBuffer+offs, memset_byte, test_size);
+		}
+	}
+}
+
+#undef memset
+
+SLTEST_R(memset)
+{
+	//A_memset;AVR_memset;memset
+	int    bm = -1;
+	if(pBenchmark == 0) 
+		bm = 0;
+	else if(sstreqi_ascii(pBenchmark, "memset"))
+		bm = 1;
+	else if(sstreqi_ascii(pBenchmark, "A_memset"))
+		bm = 2;
+	else if(sstreqi_ascii(pBenchmark, "AVR_memset"))      
+		bm = 3;
+	if(bm == 0) {
+		const size_t buffer_size = SKILOBYTE(32);
+		STempBuffer buffer(buffer_size);
+		SLTEST_CHECK_NZ(Test_memset_helper(memset, static_cast<uint8 *>(buffer.vptr()), buffer_size));
+		SLTEST_CHECK_NZ(Test_memset_helper(A_memset, static_cast<uint8 *>(buffer.vptr()), buffer_size));
+		SLTEST_CHECK_NZ(Test_memset_helper(AVX_memset, static_cast<uint8 *>(buffer.vptr()), buffer_size));
+	}
+	else {
+		const size_t buffer_size = SKILOBYTE(64);
+		STempBuffer buffer(buffer_size);
+		if(bm == 1) {
+			Profile_memset_helper(memset, static_cast<uint8 *>(buffer.vptr()), buffer_size);
+		}
+		if(bm == 2) {
+			Profile_memset_helper(A_memset, static_cast<uint8 *>(buffer.vptr()), buffer_size);
+		}
+		if(bm == 3) {
+			Profile_memset_helper(AVX_memset, static_cast<uint8 *>(buffer.vptr()), buffer_size);
+		}
+	}
+	return CurrentStatus;
+}
 #endif // } SLTEST_RUNNING
 //
 // } @TEST

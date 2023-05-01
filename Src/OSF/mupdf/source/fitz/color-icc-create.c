@@ -206,15 +206,13 @@ static void setheader_common(fz_context * ctx, icHeader * header)
 	header->illuminant.Y = double2XYZtype(ctx, (float)1.0);
 	header->illuminant.Z = double2XYZtype(ctx, (float)0.8249);
 	header->creator = 0;
-	memset(header->reserved, 0, 44);
+	memzero(header->reserved, 44);
 }
 
 static void copy_tagtable(fz_context * ctx, fz_buffer * buf, fz_icc_tag * tag_list, int num_tags)
 {
-	int k;
-
 	fz_append_int32_be(ctx, buf, num_tags);
-	for(k = 0; k < num_tags; k++) {
+	for(int k = 0; k < num_tags; k++) {
 		fz_append_int32_be(ctx, buf, tag_list[k].sig);
 		fz_append_int32_be(ctx, buf, tag_list[k].offset);
 		fz_append_int32_be(ctx, buf, tag_list[k].size);
@@ -224,7 +222,6 @@ static void copy_tagtable(fz_context * ctx, fz_buffer * buf, fz_icc_tag * tag_li
 static void init_tag(fz_context * ctx, fz_icc_tag tag_list[], int * last_tag, icTagSignature tagsig, int datasize)
 {
 	int curr_tag = (*last_tag) + 1;
-
 	tag_list[curr_tag].offset = tag_list[curr_tag - 1].offset + tag_list[curr_tag - 1].size;
 	tag_list[curr_tag].sig = tagsig;
 	tag_list[curr_tag].byte_padding = get_padding(ICC_DATATYPE_SIZE + datasize);
@@ -236,11 +233,10 @@ static void matrixmult(fz_context * ctx, float leftmatrix[], int nlrow, int nlco
     float result[])
 {
 	float * curr_row;
-	int k, l, j, ncols, nrows;
+	int k, l, j;
 	float sum;
-
-	nrows = nlrow;
-	ncols = nrcol;
+	int nrows = nlrow;
+	int ncols = nrcol;
 	if(nlcol == nrrow) {
 		for(k = 0; k < nrows; k++) {
 			curr_row = &(leftmatrix[k*nlcol]);
@@ -260,7 +256,6 @@ static void apply_adaption(fz_context * ctx, float matrix[], float in[], float o
 	out[1] = matrix[3] * in[0] + matrix[4] * in[1] + matrix[5] * in[2];
 	out[2] = matrix[6] * in[0] + matrix[7] * in[1] + matrix[8] * in[2];
 }
-
 /*
         Compute the CAT02 transformation to get us from the Cal White point to the
         D50 white point
@@ -274,11 +269,9 @@ static void gsicc_create_compute_cam(fz_context * ctx, float white_src[], float 
 	float lms_wp_src[3], lms_wp_des[3];
 	int k;
 	float d50[3] = { D50_X, D50_Y, D50_Z };
-
 	matrixmult(ctx, cat02matrix, 3, 3, white_src, 3, 1, lms_wp_src);
 	matrixmult(ctx, cat02matrix, 3, 3, d50, 3, 1, lms_wp_des);
-	memset(&(vonkries_diag[0]), 0, sizeof(float) * 9);
-
+	memzero(&(vonkries_diag[0]), sizeof(float) * 9);
 	for(k = 0; k < 3; k++) {
 		if(lms_wp_src[k] > 0)
 			vonkries_diag[k * 3 + k] = lms_wp_des[k] / lms_wp_src[k];

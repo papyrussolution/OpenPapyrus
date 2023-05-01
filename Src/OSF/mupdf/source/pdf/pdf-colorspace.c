@@ -179,15 +179,13 @@ static fz_colorspace * load_indexed(fz_context * ctx, pdf_obj * array)
 		}
 		else if(pdf_is_indirect(ctx, lookupobj)) {
 			fz_stream * file = NULL;
-
 			fz_var(file);
-
 			fz_try(ctx)
 			{
 				file = pdf_open_stream(ctx, lookupobj);
 				i = fz_read(ctx, file, lookup, n);
 				if(i < n)
-					memset(lookup+i, 0, n-i);
+					memzero(lookup+i, n-i);
 			}
 			fz_always(ctx)
 			{

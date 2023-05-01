@@ -32,7 +32,7 @@ struct lzma_stream_encoder_coder {
 	size_t buffer_size; /// Total number of bytes in buffer[]
 	/// Buffer to hold Stream Header, Block Header, and Stream Footer.
 	/// Block Header has biggest maximum size.
-	uint8_t buffer[LZMA_BLOCK_HEADER_SIZE_MAX];
+	uint8 buffer[LZMA_BLOCK_HEADER_SIZE_MAX];
 };
 
 static lzma_ret block_encoder_init(lzma_stream_encoder_coder * coder, const lzma_allocator * allocator)
@@ -49,8 +49,8 @@ static lzma_ret block_encoder_init(lzma_stream_encoder_coder * coder, const lzma
 	return lzma_block_encoder_init(&coder->block_encoder, allocator, &coder->block_options);
 }
 
-static lzma_ret stream_encode(void * coder_ptr, const lzma_allocator * allocator, const uint8_t * in, size_t * in_pos, size_t in_size, 
-	uint8_t * out, size_t * out_pos, size_t out_size, lzma_action action)
+static lzma_ret stream_encode(void * coder_ptr, const lzma_allocator * allocator, const uint8 * in, size_t * in_pos, size_t in_size, 
+	uint8 * out, size_t * out_pos, size_t out_size, lzma_action action)
 {
 	lzma_stream_encoder_coder * coder = (lzma_stream_encoder_coder *)coder_ptr;
 	// Main loop

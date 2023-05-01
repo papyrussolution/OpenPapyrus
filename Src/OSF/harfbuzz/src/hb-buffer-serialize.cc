@@ -33,7 +33,7 @@ const char ** hb_buffer_serialize_list_formats()
 }
 /**
  * hb_buffer_serialize_format_from_string:
- * @str: (array length=len) (element-type uint8_t): a string to parse
+ * @str: (array length=len) (element-type uint8): a string to parse
  * @len: length of @str, or -1 if string is %NULL terminated
  *
  * Parses a string into an #hb_buffer_serialize_format_t. Does not check if
@@ -50,7 +50,6 @@ hb_buffer_serialize_format_t hb_buffer_serialize_format_from_string(const char *
 	/* Upper-case it. */
 	return (hb_buffer_serialize_format_t)(hb_tag_from_string(str, len) & ~0x20202020u);
 }
-
 /**
  * hb_buffer_serialize_format_to_string:
  * @format: an #hb_buffer_serialize_format_t to convert.
@@ -227,7 +226,7 @@ static uint _hb_buffer_serialize_glyphs_text(hb_buffer_t * buffer,
  * @buffer: an #hb_buffer_t buffer.
  * @start: the first item in @buffer to serialize.
  * @end: the last item in @buffer to serialize.
- * @buf: (out) (array length=buf_size) (element-type uint8_t): output string to
+ * @buf: (out) (array length=buf_size) (element-type uint8): output string to
  * write serialized buffer into.
  * @buf_size: the size of @buf.
  * @buf_consumed: (out) (allow-none): if not %NULL, will be set to the number of byes written into @buf.

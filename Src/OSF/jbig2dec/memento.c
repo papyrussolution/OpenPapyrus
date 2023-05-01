@@ -1938,22 +1938,16 @@ static void * do_malloc(size_t s, int eventType)
 {
 	Memento_BlkHeader * memblk;
 	size_t smem = MEMBLK_SIZE(s);
-
 	if(Memento_failThisEventLocked())
 		return NULL;
-
 	if(s == 0)
 		return NULL;
-
 	memento.numMallocs++;
-
 	if(memento.maxMemory != 0 && memento.alloc + s > memento.maxMemory)
 		return NULL;
-
 	memblk = MEMENTO_UNDERLYING_MALLOC(smem);
 	if(memblk == NULL)
 		return NULL;
-
 	memento.alloc      += s;
 	memento.totalAlloc += s;
 	if(memento.peakAlloc < memento.alloc)
@@ -1974,20 +1968,16 @@ static void * do_malloc(size_t s, int eventType)
 	Memento_storeDetails(memblk, Memento_EventType_malloc);
 #endif /* MEMENTO_DETAILS */
 	Memento_addBlockHead(&memento.used, memblk, 0);
-
 	if(memento.leaking > 0)
 		memblk->flags |= Memento_Flag_KnownLeak;
-
 	return MEMBLK_TOBLK(memblk);
 }
 
 void * Memento_malloc(size_t s)
 {
 	void * ret;
-
 	if(!memento.inited)
 		Memento_init();
-
 	MEMENTO_LOCK();
 	ret = do_malloc(s, Memento_EventType_malloc);
 	MEMENTO_UNLOCK();
@@ -2043,9 +2033,7 @@ int Memento_checkBytePointerOrNull(void * blk)
 	if(blk == NULL)
 		return 0;
 	Memento_checkPointerOrNull(blk);
-
 	i = *(uint *)blk;
-
 	if(i == MEMENTO_PREFILL_UBYTE)
 		slfprintf_stderr("Prefill value found - buffer underrun?\n");
 	else if(i == MEMENTO_POSTFILL_UBYTE)
@@ -2072,9 +2060,7 @@ int Memento_checkShortPointerOrNull(void * blk)
 	if(blk == NULL)
 		return 0;
 	Memento_checkPointerOrNull(blk);
-
 	i = *(unsigned short*)blk;
-
 	if(i == MEMENTO_PREFILL_USHORT)
 		slfprintf_stderr("Prefill value found - buffer underrun?\n");
 	else if(i == MEMENTO_POSTFILL_USHORT)
@@ -2101,9 +2087,7 @@ int Memento_checkIntPointerOrNull(void * blk)
 	if(blk == NULL)
 		return 0;
 	Memento_checkPointerOrNull(blk);
-
 	i = *(uint *)blk;
-
 	if(i == MEMENTO_PREFILL_UINT)
 		slfprintf_stderr("Prefill value found - buffer underrun?\n");
 	else if(i == MEMENTO_POSTFILL_UINT)
@@ -2170,12 +2154,9 @@ void * Memento_takeRef(void * blk)
 {
 	if(!memento.inited)
 		Memento_init();
-
 	if(Memento_event()) Memento_breakpoint();
-
 	if(!blk)
 		return NULL;
-
 	return do_takeRef(blk);
 }
 
@@ -2191,14 +2172,10 @@ void * Memento_dropByteRef(void * blk)
 {
 	if(!memento.inited)
 		Memento_init();
-
 	if(Memento_event()) Memento_breakpoint();
-
 	if(!blk)
 		return NULL;
-
 	Memento_checkBytePointerOrNull(blk);
-
 	return do_dropRef(blk);
 }
 
@@ -2206,14 +2183,10 @@ void * Memento_dropShortRef(void * blk)
 {
 	if(!memento.inited)
 		Memento_init();
-
 	if(Memento_event()) Memento_breakpoint();
-
 	if(!blk)
 		return NULL;
-
 	Memento_checkShortPointerOrNull(blk);
-
 	return do_dropRef(blk);
 }
 
@@ -2221,12 +2194,9 @@ void * Memento_dropIntRef(void * blk)
 {
 	if(!memento.inited)
 		Memento_init();
-
 	if(Memento_event()) Memento_breakpoint();
-
 	if(!blk)
 		return NULL;
-
 	Memento_checkIntPointerOrNull(blk);
 
 	return do_dropRef(blk);
@@ -2236,22 +2206,17 @@ void * Memento_dropRef(void * blk)
 {
 	if(!memento.inited)
 		Memento_init();
-
 	if(Memento_event()) Memento_breakpoint();
-
 	if(!blk)
 		return NULL;
-
 	return do_dropRef(blk);
 }
 
 void * Memento_adjustRef(void * blk, int adjust)
 {
 	if(Memento_event()) Memento_breakpoint();
-
 	if(blk == NULL)
 		return NULL;
-
 	while(adjust > 0) {
 		do_takeRef(blk);
 		adjust--;
@@ -2260,7 +2225,6 @@ void * Memento_adjustRef(void * blk, int adjust)
 		do_dropRef(blk);
 		adjust++;
 	}
-
 	return blk;
 }
 
@@ -2268,10 +2232,8 @@ void * Memento_reference(void * blk)
 {
 	if(!blk)
 		return NULL;
-
 	if(!memento.inited)
 		Memento_init();
-
 	MEMENTO_LOCK();
 	do_reference(safe_find_block(blk), Memento_EventType_reference);
 	MEMENTO_UNLOCK();
@@ -2367,9 +2329,7 @@ static int checkBlock(Memento_BlkHeader * memblk, const char * action)
 static void do_free(void * blk, int eventType)
 {
 	Memento_BlkHeader * memblk;
-
 	if(Memento_event()) Memento_breakpointLocked();
-
 	if(blk == NULL)
 		return;
 
@@ -2478,10 +2438,8 @@ static void * do_realloc(void * blk, size_t newsize, int type)
 void * Memento_realloc(void * blk, size_t newsize)
 {
 	void * ret;
-
 	if(!memento.inited)
 		Memento_init();
-
 	if(blk == NULL) {
 		MEMENTO_LOCK();
 		ret = do_malloc(newsize, Memento_EventType_realloc);
@@ -2494,7 +2452,6 @@ void * Memento_realloc(void * blk, size_t newsize)
 		MEMENTO_UNLOCK();
 		return NULL;
 	}
-
 	MEMENTO_LOCK();
 	ret = do_realloc(blk, newsize, Memento_EventType_realloc);
 	MEMENTO_UNLOCK();
@@ -2505,7 +2462,6 @@ int Memento_checkBlock(void * blk)
 {
 	Memento_BlkHeader * memblk;
 	int ret;
-
 	if(blk == NULL)
 		return 0;
 

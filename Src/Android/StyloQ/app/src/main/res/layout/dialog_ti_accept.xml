@@ -92,6 +92,15 @@
             android:orientation="horizontal"
             android:paddingTop="16dp"
             android:gravity="right">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <Button style="@style/PushButton" android:id="@+id/CTLBUT_DOACCEPT"
+                    android:text="@{doaccept_fully}" />
+                <Button style="@style/PushButton" android:id="@+id/CTLBUT_DOREJECT"
+                    android:text="@{doreject_fully}" />
+            </LinearLayout>
             <View style="@style/FakeView"/>
             <LinearLayout
                 android:layout_height="wrap_content"

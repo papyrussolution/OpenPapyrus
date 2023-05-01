@@ -1193,8 +1193,7 @@ fz_path * fz_outline_ft_glyph(fz_context * ctx, fz_font * font, int gid, fz_matr
 		FT_Outline_Translate(&face->glyph->outline, -strength * 0.5f * scale, -strength * 0.5f * scale);
 	}
 	cc.path = NULL;
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		cc.ctx = ctx;
 		cc.path = fz_new_path(ctx);
 		cc.trm = fz_concat(fz_scale(recip, recip), trm);
@@ -1202,12 +1201,10 @@ fz_path * fz_outline_ft_glyph(fz_context * ctx, fz_font * font, int gid, fz_matr
 		FT_Outline_Decompose(&face->glyph->outline, &outline_funcs, &cc);
 		fz_closepath(ctx, cc.path);
 	}
-	fz_always(ctx)
-	{
+	fz_always(ctx) {
 		fz_unlock(ctx, FZ_LOCK_FREETYPE);
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_warn(ctx, "freetype cannot decompose outline");
 		fz_drop_path(ctx, cc.path);
 		return NULL;
@@ -1362,33 +1359,27 @@ fz_pixmap * fz_render_t3_glyph_pixmap(fz_context * ctx, fz_font * font, int gid,
 	/* Glyphs must always have alpha */
 	glyph = fz_new_pixmap_with_bbox(ctx, model, bbox, NULL /* FIXME */, 1);
 	fz_var(dev);
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		fz_clear_pixmap(ctx, glyph);
 		dev = fz_new_draw_device_type3(ctx, fz_identity, glyph);
 		fz_run_t3_glyph(ctx, font, gid, trm, dev);
 		fz_close_device(ctx, dev);
 	}
-	fz_always(ctx)
-	{
+	fz_always(ctx) {
 		fz_drop_device(ctx, dev);
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_drop_pixmap(ctx, glyph);
 		fz_rethrow(ctx);
 	}
 	if(!model) {
-		fz_try(ctx)
-		{
+		fz_try(ctx) {
 			result = fz_alpha_from_gray(ctx, glyph);
 		}
-		fz_always(ctx)
-		{
+		fz_always(ctx) {
 			fz_drop_pixmap(ctx, glyph);
 		}
-		fz_catch(ctx)
-		{
+		fz_catch(ctx) {
 			fz_rethrow(ctx);
 		}
 	}

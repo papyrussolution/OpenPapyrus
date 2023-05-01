@@ -10450,7 +10450,7 @@ static int xmlParseCheckTransition(const xmlParserCtxt * ctxt, const char * chun
 			do_find_rangl = 1;
 		else if(ctxt->progressive == XML_PARSER_DTD || ctxt->instate == XML_PARSER_DTD)
 			do_find_rangl = 1;
-		return BIN(!do_find_rangl || memchr(chunk, '>', size));
+		return BIN(!do_find_rangl || smemchr(chunk, '>', size)); // @v11.7.0 memchr-->smemchr
 	}
 }
 /**

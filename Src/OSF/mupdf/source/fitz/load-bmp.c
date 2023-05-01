@@ -90,7 +90,7 @@ struct info {
 	uint32_t xres, yres;
 	uint32_t colors;
 	uint32_t rmask, gmask, bmask, amask;
-	uint8_t palette[256 * 3];
+	uint8 palette[256 * 3];
 	uint32_t colorspacetype;
 	uint32_t endpoints[3 * 3];
 	uint32_t gamma[3];

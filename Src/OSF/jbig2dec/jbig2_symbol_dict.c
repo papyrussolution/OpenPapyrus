@@ -27,10 +27,10 @@
 typedef struct {
 	boolint SDHUFF;
 	boolint SDREFAGG;
-	uint32_t SDNUMINSYMS;
+	uint32 SDNUMINSYMS;
 	Jbig2SymbolDict * SDINSYMS;
-	uint32_t SDNUMNEWSYMS;
-	uint32_t SDNUMEXSYMS;
+	uint32 SDNUMNEWSYMS;
+	uint32 SDNUMEXSYMS;
 	Jbig2HuffmanTable * SDHUFFDH;
 	Jbig2HuffmanTable * SDHUFFDW;
 	Jbig2HuffmanTable * SDHUFFBMSIZE;
@@ -47,7 +47,7 @@ typedef struct {
 void jbig2_dump_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment * segment)
 {
 	Jbig2SymbolDict * dict = (Jbig2SymbolDict*)segment->result;
-	uint32_t index;
+	uint32 index;
 	char filename[24];
 	int code;
 	if(dict == NULL)
@@ -69,7 +69,7 @@ void jbig2_dump_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment * segment)
 #endif /* DUMP_SYMDICT */
 
 /* return a new empty symbol dict */
-Jbig2SymbolDict * jbig2_sd_new(Jbig2Ctx * ctx, uint32_t n_symbols)
+Jbig2SymbolDict * jbig2_sd_new(Jbig2Ctx * ctx, uint32 n_symbols)
 {
 	Jbig2SymbolDict * new_dict = jbig2_new(ctx, Jbig2SymbolDict, 1);
 	if(new_dict != NULL) {
@@ -96,7 +96,7 @@ void jbig2_sd_release(Jbig2Ctx * ctx, Jbig2SymbolDict * dict)
 {
 	if(dict) {
 		if(dict->glyphs != NULL)
-			for(uint32_t i = 0; i < dict->n_symbols; i++)
+			for(uint32 i = 0; i < dict->n_symbols; i++)
 				jbig2_image_release(ctx, dict->glyphs[i]);
 		jbig2_free(ctx->allocator, dict->glyphs);
 		jbig2_free(ctx->allocator, dict);
@@ -110,9 +110,9 @@ Jbig2Image * jbig2_sd_glyph(Jbig2SymbolDict * dict, unsigned int id)
 }
 
 /* count the number of dictionary segments referred to by the given segment */
-uint32_t jbig2_sd_count_referred(Jbig2Ctx * ctx, Jbig2Segment * segment)
+uint32 jbig2_sd_count_referred(Jbig2Ctx * ctx, Jbig2Segment * segment)
 {
-	uint32_t n_dicts = 0;
+	uint32 n_dicts = 0;
 	for(int index = 0; index < segment->referred_to_segment_count; index++) {
 		const Jbig2Segment * rsegment = jbig2_find_segment(ctx, segment->referred_to_segments[index]);
 		if(rsegment && ((rsegment->flags & 63) == 0) && rsegment->result && (((Jbig2SymbolDict*)rsegment->result)->n_symbols > 0) && 
@@ -127,8 +127,8 @@ Jbig2SymbolDict ** jbig2_sd_list_referred(Jbig2Ctx * ctx, Jbig2Segment * segment
 {
 	int index;
 	Jbig2Segment * rsegment;
-	uint32_t n_dicts = jbig2_sd_count_referred(ctx, segment);
-	uint32_t dindex = 0;
+	uint32 n_dicts = jbig2_sd_count_referred(ctx, segment);
+	uint32 dindex = 0;
 	Jbig2SymbolDict ** dicts = jbig2_new(ctx, Jbig2SymbolDict *, n_dicts);
 	if(dicts == NULL) {
 		jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "failed to allocate referred list of symbol dictionaries");
@@ -153,12 +153,12 @@ Jbig2SymbolDict ** jbig2_sd_list_referred(Jbig2Ctx * ctx, Jbig2Segment * segment
 
 /* generate a new symbol dictionary by concatenating a list of
    existing dictionaries */
-Jbig2SymbolDict * jbig2_sd_cat(Jbig2Ctx * ctx, uint32_t n_dicts, Jbig2SymbolDict ** dicts)
+Jbig2SymbolDict * jbig2_sd_cat(Jbig2Ctx * ctx, uint32 n_dicts, Jbig2SymbolDict ** dicts)
 {
-	uint32_t i, j, k;
+	uint32 i, j, k;
 	Jbig2SymbolDict * new_dict = NULL;
 	/* count the imported symbols and allocate a new array */
-	uint32_t symbols = 0;
+	uint32 symbols = 0;
 	for(i = 0; i < n_dicts; i++)
 		symbols += dicts[i]->n_symbols;
 	/* fill a new array with new references to glyph pointers */
@@ -183,12 +183,12 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment *
 {
 	Jbig2SymbolDict * SDNEWSYMS = NULL;
 	Jbig2SymbolDict * SDEXSYMS = NULL;
-	uint32_t HCHEIGHT;
-	uint32_t NSYMSDECODED;
-	uint32_t SYMWIDTH, TOTWIDTH;
-	uint32_t HCFIRSTSYM;
-	uint32_t * SDNEWSYMWIDTHS = NULL;
-	uint8_t SBSYMCODELEN = 0;
+	uint32 HCHEIGHT;
+	uint32 NSYMSDECODED;
+	uint32 SYMWIDTH, TOTWIDTH;
+	uint32 HCFIRSTSYM;
+	uint32 * SDNEWSYMWIDTHS = NULL;
+	uint8 SBSYMCODELEN = 0;
 	Jbig2WordStream * ws = NULL;
 	Jbig2HuffmanState * hs = NULL;
 	Jbig2ArithState * as = NULL;
@@ -198,11 +198,11 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment *
 	Jbig2ArithIntCtx * IAAI = NULL;
 	int code = 0;
 	Jbig2SymbolDict ** refagg_dicts = NULL;
-	uint32_t i;
+	uint32 i;
 	Jbig2TextRegionParams tparams;
 	Jbig2Image * image = NULL;
 	Jbig2Image * glyph = NULL;
-	uint32_t emptyruns = 0;
+	uint32 emptyruns = 0;
 	memzero(&tparams, sizeof(tparams));
 	/* 6.5.5 (3) */
 	HCHEIGHT = 0;
@@ -233,7 +233,7 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment *
 		}
 		/* 6.5.5 (2) */
 		if(!params->SDREFAGG) {
-			SDNEWSYMWIDTHS = jbig2_new(ctx, uint32_t, params->SDNUMNEWSYMS);
+			SDNEWSYMWIDTHS = jbig2_new(ctx, uint32, params->SDNUMNEWSYMS);
 			if(SDNEWSYMWIDTHS == NULL) {
 				jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "failed to allocate symbol widths (%u)", params->SDNUMNEWSYMS);
 				goto cleanup;
@@ -368,11 +368,11 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment *
 				jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "no OOB signaling end of height class %d, continuing", HCHEIGHT);
 				break;
 			}
-			if(DW < 0 && SYMWIDTH < (uint32_t)-DW) {
+			if(DW < 0 && SYMWIDTH < (uint32)-DW) {
 				code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "DW value (%d) would make SYMWIDTH (%u) negative at symbol %u", DW, SYMWIDTH, NSYMSDECODED + 1);
 				goto cleanup;
 			}
-			if(DW > 0 && (uint32_t)DW > UINT32_MAX - SYMWIDTH) {
+			if(DW > 0 && (uint32)DW > UINT32_MAX - SYMWIDTH) {
 				code = jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "DW value (%d) would make SYMWIDTH (%u) too large at symbol %u", DW, SYMWIDTH, NSYMSDECODED + 1);
 				goto cleanup;
 			}
@@ -417,7 +417,7 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment *
 				}
 				else {
 					/* 6.5.8.2 refinement/aggregate symbol */
-					uint32_t REFAGGNINST;
+					uint32 REFAGGNINST;
 					if(params->SDHUFF) {
 						REFAGGNINST = jbig2_huffman_get(hs, params->SDHUFFAGGINST, &code);
 					}
@@ -458,10 +458,10 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment *
 						/* 6.5.8.2.2 */
 						/* boolint SBHUFF = params->SDHUFF; */
 						Jbig2RefinementRegionParams rparams;
-						uint32_t ID;
+						uint32 ID;
 						int32_t RDX, RDY;
 						int BMSIZE = 0;
-						uint32_t ninsyms = params->SDNUMINSYMS;
+						uint32 ninsyms = params->SDNUMINSYMS;
 						int code1 = 0;
 						int code2 = 0;
 						int code3 = 0;
@@ -606,7 +606,7 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment *
 		if(params->SDHUFF && !params->SDREFAGG) {
 			/* 6.5.9 */
 			size_t BMSIZE;
-			uint32_t j;
+			uint32 j;
 			int x;
 
 			BMSIZE = jbig2_huffman_get(hs, params->SDHUFFBMSIZE, &code);
@@ -743,12 +743,12 @@ static Jbig2SymbolDict * jbig2_decode_symbol_dict(Jbig2Ctx * ctx, Jbig2Segment *
 		goto cleanup;
 	}
 	else {
-		uint32_t i = 0;
-		uint32_t j = 0;
-		uint32_t k;
+		uint32 i = 0;
+		uint32 j = 0;
+		uint32 k;
 		int exflag = 0;
-		uint32_t limit = params->SDNUMINSYMS + params->SDNUMNEWSYMS;
-		uint32_t EXRUNLENGTH;
+		uint32 limit = params->SDNUMINSYMS + params->SDNUMNEWSYMS;
+		uint32 EXRUNLENGTH;
 
 		while(i < limit) {
 			if(params->SDHUFF)
@@ -876,8 +876,8 @@ int jbig2_symbol_dictionary(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte *
 {
 	Jbig2SymbolDictParams params;
 	uint16_t flags;
-	uint32_t sdat_bytes;
-	uint32_t offset;
+	uint32 sdat_bytes;
+	uint32 offset;
 	Jbig2ArithCx * GB_stats = NULL;
 	Jbig2ArithCx * GR_stats = NULL;
 	int table_index = 0;
@@ -1024,7 +1024,7 @@ int jbig2_symbol_dictionary(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte *
 	    "symbol dictionary, flags=%04x, %u exported syms, %u new syms", flags, params.SDNUMEXSYMS, params.SDNUMNEWSYMS);
 	/* 7.4.2.2 (2) */
 	{
-		uint32_t n_dicts = jbig2_sd_count_referred(ctx, segment);
+		uint32 n_dicts = jbig2_sd_count_referred(ctx, segment);
 		Jbig2SymbolDict ** dicts = NULL;
 		if(n_dicts > 0) {
 			dicts = jbig2_sd_list_referred(ctx, segment);

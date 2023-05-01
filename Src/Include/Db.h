@@ -37,8 +37,6 @@ typedef struct st_mysql_time MYSQL_TIME;
 #define THROW_D(expr,val)      {if(!(expr)){DBS.SetError(val);goto __scatch;}}
 #define THROW_D_S(expr,val,s) {if(!(expr)){DBS.SetError(val, s);goto __scatch;}}
 #define THROW_DS(expr) {if(!(expr)){DBS.SetError(BE_SLIB, 0);goto __scatch;}}
-
-#ifndef _WIN32_WCE // {
 //
 //
 //
@@ -4501,5 +4499,4 @@ private:
 	BDbDatabase * P_Db;
 };
 
-#endif // } _WIN32_WCE
 #endif /* __DB_H */

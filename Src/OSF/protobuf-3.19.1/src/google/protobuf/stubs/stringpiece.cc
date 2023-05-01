@@ -67,7 +67,8 @@ bool StringPiece::contains(StringPiece s) const {
 	return find(s, 0) != npos;
 }
 
-StringPiece::size_type StringPiece::find(StringPiece s, size_type pos) const {
+StringPiece::size_type StringPiece::find(StringPiece s, size_type pos) const 
+{
 	if(length_ <= 0 || pos > static_cast<size_type>(length_)) {
 		if(length_ == 0 && pos == 0 && s.length_ == 0) return 0;
 		return npos;
@@ -77,12 +78,12 @@ StringPiece::size_type StringPiece::find(StringPiece s, size_type pos) const {
 	return result == ptr_ + length_ ? npos : result - ptr_;
 }
 
-StringPiece::size_type StringPiece::find(char c, size_type pos) const {
+StringPiece::size_type StringPiece::find(char c, size_type pos) const 
+{
 	if(length_ <= 0 || pos >= static_cast<size_type>(length_)) {
 		return npos;
 	}
-	const char* result = static_cast<const char*>(
-		memchr(ptr_ + pos, c, length_ - pos));
+	const char* result = static_cast<const char*>(memchr(ptr_ + pos, c, length_ - pos));
 	return result != nullptr ? result - ptr_ : npos;
 }
 

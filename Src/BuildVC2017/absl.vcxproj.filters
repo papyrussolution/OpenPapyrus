@@ -787,6 +787,7 @@
     <ClCompile Include="..\OSF\abseil\absl\meta\type_traits_test.cc">
       <Filter>Test</Filter>
     </ClCompile>
+    <ClCompile Include="..\OSF\abseil\absl\strings\internal\pow10_helper.cc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\osf\abseil\absl\flags\internal\flag_msvc.inc">

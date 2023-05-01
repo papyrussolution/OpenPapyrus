@@ -388,7 +388,7 @@ template <> class hb_assert_constant_t<1> {};
 
 /* Lets assert int types.  Saves trouble down the road. */
 static_assert((sizeof(int8_t) == 1), "");
-static_assert((sizeof(uint8_t) == 1), "");
+static_assert((sizeof(uint8) == 1), "");
 static_assert((sizeof(int16_t) == 2), "");
 static_assert((sizeof(uint16_t) == 2), "");
 static_assert((sizeof(int32_t) == 4), "");
@@ -468,7 +468,7 @@ public:
 		return *this;
 	}
 	operator Type() const { return v; }
-private: uint8_t v;
+private: uint8 v;
 };
 template <typename Type> struct BEInt<Type, 2> {
 public:
@@ -492,7 +492,7 @@ public:
 		return (v[0] <<  8) + (v[1]);
 	}
 
-private: uint8_t v[2];
+private: uint8 v[2];
 };
 
 template <typename Type> struct BEInt<Type, 3> {
@@ -508,7 +508,7 @@ public:
 	{
 		return (v[0] << 16) + (v[1] <<  8) + (v[2]);
 	}
-private: uint8_t v[3];
+private: uint8 v[3];
 };
 
 template <typename Type> struct BEInt<Type, 4> {
@@ -526,7 +526,7 @@ public:
 		return (v[0] << 24) + (v[1] << 16) + (v[2] << 8) + (v[3]);
 	}
 private: 
-	uint8_t v[4];
+	uint8 v[4];
 };
 /*
  * For lack of a better place, put Zawgyi script hack here.

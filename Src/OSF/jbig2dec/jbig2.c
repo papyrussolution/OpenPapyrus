@@ -36,7 +36,7 @@ void * jbig2_alloc(Jbig2Allocator * allocator, size_t size, size_t num)
 
 /* jbig2_free and jbig2_realloc moved to the bottom of this file */
 
-static void jbig2_default_error(void * data, const char * msg, Jbig2Severity severity, uint32_t seg_idx)
+static void jbig2_default_error(void * data, const char * msg, Jbig2Severity severity, uint32 seg_idx)
 {
 	// report only fatal errors by default 
 	if(severity == JBIG2_SEVERITY_FATAL) {
@@ -48,7 +48,7 @@ static void jbig2_default_error(void * data, const char * msg, Jbig2Severity sev
 	}
 }
 
-int jbig2_error(Jbig2Ctx * ctx, Jbig2Severity severity, uint32_t segment_number, const char * fmt, ...)
+int jbig2_error(Jbig2Ctx * ctx, Jbig2Severity severity, uint32 segment_number, const char * fmt, ...)
 {
 	char buf[1024];
 	va_list ap;
@@ -107,7 +107,7 @@ Jbig2Ctx * jbig2_ctx_new_imp(Jbig2Allocator * allocator, Jbig2Options options,
 		return NULL;
 	}
 	{
-		for(uint32_t index = 0; index < result->max_page_index; index++) {
+		for(uint32 index = 0; index < result->max_page_index; index++) {
 			result->pages[index].state = JBIG2_PAGE_FREE;
 			result->pages[index].number = 0;
 			result->pages[index].width = 0;
@@ -138,7 +138,7 @@ uint16_t FASTCALL jbig2_get_uint16(const byte * bptr) { return get_uint16(bptr);
 int32_t FASTCALL jbig2_get_int32(const byte * bptr) { return ((int32_t)get_int16(bptr) << 16) | get_uint16(bptr + 2); }
 /* coverity[ -tainted_data_return ] */
 /* coverity[ -tainted_data_argument : arg-0 ] */
-uint32_t FASTCALL jbig2_get_uint32(const byte * bptr) { return ((uint32_t)get_uint16(bptr) << 16) | get_uint16(bptr + 2); }
+uint32 FASTCALL jbig2_get_uint32(const byte * bptr) { return ((uint32)get_uint16(bptr) << 16) | get_uint16(bptr + 2); }
 
 static size_t FASTCALL jbig2_find_buffer_size(size_t desired)
 {
@@ -343,7 +343,7 @@ Jbig2Allocator * jbig2_ctx_free(Jbig2Ctx * ctx)
 {
 	Jbig2Allocator * ca = 0;
 	if(ctx) {
-		uint32_t i;
+		uint32 i;
 		ca = ctx->allocator;
 		jbig2_free(ca, ctx->buf);
 		if(ctx->segments) {
@@ -376,7 +376,7 @@ typedef struct {
 	size_t size;
 } Jbig2WordStreamBuf;
 
-static int jbig2_word_stream_buf_get_next_word(Jbig2Ctx * ctx, Jbig2WordStream * self, size_t offset, uint32_t * word)
+static int jbig2_word_stream_buf_get_next_word(Jbig2Ctx * ctx, Jbig2WordStream * self, size_t offset, uint32 * word)
 {
 	const Jbig2WordStreamBuf * z = (const Jbig2WordStreamBuf *)self;
 	int ret = 0;
@@ -388,17 +388,17 @@ static int jbig2_word_stream_buf_get_next_word(Jbig2Ctx * ctx, Jbig2WordStream *
 		ret = 0;
 	}
 	else {
-		uint32_t val = 0;
+		uint32 val = 0;
 		if(offset < z->size) {
-			val = (uint32_t)z->data[offset] << 24;
+			val = (uint32)z->data[offset] << 24;
 			ret++;
 		}
 		if(offset + 1 < z->size) {
-			val |= (uint32_t)z->data[offset + 1] << 16;
+			val |= (uint32)z->data[offset + 1] << 16;
 			ret++;
 		}
 		if(offset + 2 < z->size) {
-			val |= (uint32_t)z->data[offset + 2] << 8;
+			val |= (uint32)z->data[offset + 2] << 8;
 			ret++;
 		}
 		if(offset + 3 < z->size) {

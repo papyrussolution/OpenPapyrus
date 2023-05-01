@@ -5,8 +5,8 @@
 
 #ifdef HAVE_LZMA_H
 	// http://tukaani.org/xz/xz-file-format.txt 
-	const uint8_t XZ_HEADER_MAGIC[6] = { 0xFD, '7', 'z', 'X', 'Z', 0x00 };
-	const uint8_t LZMA_HEADER_SOMETIMES[3] = { 0x5D, 0x00, 0x00 };
+	const uint8 XZ_HEADER_MAGIC[6] = { 0xFD, '7', 'z', 'X', 'Z', 0x00 };
+	const uint8 LZMA_HEADER_SOMETIMES[3] = { 0x5D, 0x00, 0x00 };
 #endif
 #ifdef HAVE_ZLIB_H
 #define ZLIB_CONST 1
@@ -115,7 +115,7 @@ static void * decompress_lzma(const void * buf, const int buf_len, const char * 
 	size_t result_size = 0;
 	size_t pagesize = 0;
 	stream.avail_in = buf_len;
-	stream.next_in = (const uint8_t *)buf;
+	stream.next_in = (const uint8 *)buf;
 	lzrt = lzma_auto_decoder(&stream, -1, 0);
 	if(lzrt != LZMA_OK) {
 		log_err("Unable to initialize lzma_auto_decoder: %d", lzrt);

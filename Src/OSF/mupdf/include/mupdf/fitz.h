@@ -1,6 +1,8 @@
 #ifndef MUDPF_FITZ_H
 #define MUDPF_FITZ_H
 
+#define SHARE_JPEG 1 // @sobolev @20230428 (предполагаю, что это решит проблему с авариями при работе с jpeg из других модулей)
+
 #include <slib.h>
 
 #ifdef __cplusplus

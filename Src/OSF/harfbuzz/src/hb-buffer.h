@@ -265,7 +265,7 @@ HB_EXTERN void hb_buffer_add(hb_buffer_t * buffer, hb_codepoint_t codepoint, uin
 HB_EXTERN void hb_buffer_add_utf8(hb_buffer_t * buffer, const char * text, int text_length, uint item_offset, int item_length);
 HB_EXTERN void hb_buffer_add_utf16(hb_buffer_t * buffer, const uint16_t * text, int text_length, uint item_offset, int item_length);
 HB_EXTERN void hb_buffer_add_utf32(hb_buffer_t * buffer, const uint32_t * text, int text_length, uint item_offset, int item_length);
-HB_EXTERN void hb_buffer_add_latin1(hb_buffer_t * buffer, const uint8_t * text, int text_length, uint item_offset, int item_length);
+HB_EXTERN void hb_buffer_add_latin1(hb_buffer_t * buffer, const uint8 * text, int text_length, uint item_offset, int item_length);
 HB_EXTERN void hb_buffer_add_codepoints(hb_buffer_t * buffer, const hb_codepoint_t * text, int text_length, uint item_offset, int item_length);
 HB_EXTERN void hb_buffer_append(hb_buffer_t * buffer, hb_buffer_t * source, uint start, uint end);
 HB_EXTERN hb_bool_t hb_buffer_set_length(hb_buffer_t * buffer, uint length);

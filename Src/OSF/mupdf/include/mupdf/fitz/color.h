@@ -36,10 +36,10 @@ enum
 
 typedef struct
 {
-	uint8_t ri;	/* rendering intent */
-	uint8_t bp;	/* black point compensation */
-	uint8_t op;	/* overprinting */
-	uint8_t opm;	/* overprint mode */
+	uint8 ri;	/* rendering intent */
+	uint8 bp;	/* black point compensation */
+	uint8 op;	/* overprinting */
+	uint8 opm;	/* overprint mode */
 }  fz_color_params;
 
 extern const fz_color_params fz_default_color_params;

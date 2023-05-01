@@ -420,7 +420,7 @@ private:
 		static void Init(MatcherBase& m, M* impl) { m.buffer_.shared = new Shared(std::unique_ptr<M>(impl)); }
 		static constexpr auto shared_destroy = &Shared::Destroy;
 	};
-	template <typename M> void Init(M&& m) 
+	template <typename M> void Init(M && m) 
 	{
 		using MM = typename std::decay<M>::type;
 		using Policy = ValuePolicy<MM>;

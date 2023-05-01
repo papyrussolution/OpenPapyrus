@@ -244,12 +244,12 @@ int StringSet::setBuf(const void * b, size_t len)
 			memcpy(P_Buf, b, len);
 			DataLen = len;
 			if(Delim[0]) {
-				const char * p = static_cast<const char *>(memchr(P_Buf, 0, len));
+				const char * p = static_cast<const char *>(smemchr(P_Buf, 0, len)); // @v11.7.0 memchr-->smemchr
 				if(p)
 					DataLen = p-P_Buf+1;
 			}
 			else {
-				for(const char * p = P_Buf; (p = static_cast<const char *>(memchr(p, 0, len))) != 0; p++)
+				for(const char * p = P_Buf; (p = static_cast<const char *>(smemchr(p, 0, len))) != 0; p++) // @v11.7.0 memchr-->smemchr
 					if(p[1] == 0) {
 						DataLen = p-P_Buf+2;
 						break;

@@ -285,14 +285,13 @@ DECLARE_COMPARISONS(long, long)
 DECLARE_COMPARISONS(unsigned long, ulong)
 DECLARE_COMPARISONS(double, double)
 DECLARE_COMPARISONS(time_t, time_t)
-
 /*
  * Because this comparison uses a printf format specifier that's not
  * universally known (yet), we provide an option to not have it declared.
  */
-# ifndef TESTUTIL_NO_size_t_COMPARISON
-DECLARE_COMPARISONS(size_t, size_t)
-# endif
+#ifndef TESTUTIL_NO_size_t_COMPARISON
+	DECLARE_COMPARISONS(size_t, size_t)
+#endif
 
 /*
  * Pointer comparisons against other pointers and null.

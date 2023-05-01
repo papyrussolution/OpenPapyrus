@@ -225,7 +225,7 @@ int SBuffer::Search(const char * pStr, size_t * pPos) const
 		const size_t tlen = sstrlen(pStr);
 		if(tlen == 1 || tlen == 0) {
 			const int pat = pStr ? pStr[0] : 0;
-			const  char * ptr = (const char *)memchr(Ptr(RdOffs), pat, avl_size); // @v9.4.1 @fix pStr[0]-->pat
+			const  char * ptr = static_cast<const char *>(smemchr(Ptr(RdOffs), pat, avl_size)); // @v9.4.1 @fix pStr[0]-->pat // @v11.7.0 memchr-->smemchr
 			if(ptr) {
 				ASSIGN_PTR(pPos, RdOffs + (ptr-(const char *)Ptr(RdOffs)));
 				ok = 1;

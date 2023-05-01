@@ -712,6 +712,15 @@ PPObjID & FASTCALL PPObjID::operator = (const PPObjID_Base & rS)
 	return *this;
 }
 
+int PPObjID::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) // @v11.7.0
+{
+	int    ok = 1;
+	THROW(pSCtx->Serialize(dir, Obj, rBuf));
+	THROW(pSCtx->Serialize(dir, Id, rBuf));
+	CATCHZOK
+	return ok;	
+}
+
 PPObjNamePEntry::PPObjNamePEntry(PPID objType, PPID objID) : PPObjID(objType, objID), NameP(0)
 {
 }

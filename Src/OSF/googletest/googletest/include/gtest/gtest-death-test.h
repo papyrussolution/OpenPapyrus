@@ -50,18 +50,15 @@
 GTEST_DECLARE_string_(death_test_style);
 
 namespace testing {
-
 #if GTEST_HAS_DEATH_TEST
 
 namespace internal {
-
 // Returns a Boolean value indicating whether the caller is currently
 // executing in the context of the death test child process.  Tools such as
 // Valgrind heap checkers may need this to modify their behavior in death
 // tests.  IMPORTANT: This is an internal utility.  Using it may break the
 // implementation of death tests.  User code MUST NOT use it.
 GTEST_API_ bool InDeathTestChild();
-
 }  // namespace internal
 
 // The following macros are useful for writing death tests.
@@ -171,49 +168,50 @@ GTEST_API_ bool InDeathTestChild();
 // integer exit status that satisfies `predicate`, and emitting error output
 // that matches `matcher`.
 #define ASSERT_EXIT(statement, predicate, matcher) \
-  GTEST_DEATH_TEST_(statement, predicate, matcher, GTEST_FATAL_FAILURE_)
+	GTEST_DEATH_TEST_(statement, predicate, matcher, GTEST_FATAL_FAILURE_)
 
 // Like `ASSERT_EXIT`, but continues on to successive tests in the
 // test suite, if any:
 #define EXPECT_EXIT(statement, predicate, matcher) \
-  GTEST_DEATH_TEST_(statement, predicate, matcher, GTEST_NONFATAL_FAILURE_)
+	GTEST_DEATH_TEST_(statement, predicate, matcher, GTEST_NONFATAL_FAILURE_)
 
 // Asserts that a given `statement` causes the program to exit, either by
 // explicitly exiting with a nonzero exit code or being killed by a
 // signal, and emitting error output that matches `matcher`.
 #define ASSERT_DEATH(statement, matcher) \
-  ASSERT_EXIT(statement, ::testing::internal::ExitedUnsuccessfully, matcher)
+	ASSERT_EXIT(statement, ::testing::internal::ExitedUnsuccessfully, matcher)
 
 // Like `ASSERT_DEATH`, but continues on to successive tests in the
 // test suite, if any:
 #define EXPECT_DEATH(statement, matcher) \
-  EXPECT_EXIT(statement, ::testing::internal::ExitedUnsuccessfully, matcher)
+	EXPECT_EXIT(statement, ::testing::internal::ExitedUnsuccessfully, matcher)
 
 // Two predicate classes that can be used in {ASSERT,EXPECT}_EXIT*:
 
 // Tests that an exit code describes a normal exit with a given exit code.
 class GTEST_API_ ExitedWithCode {
- public:
-  explicit ExitedWithCode(int exit_code);
-  ExitedWithCode(const ExitedWithCode&) = default;
-  void operator=(const ExitedWithCode& other) = delete;
-  bool operator()(int exit_status) const;
+public:
+	explicit ExitedWithCode(int exit_code);
+	ExitedWithCode(const ExitedWithCode&) = default;
+	void operator=(const ExitedWithCode& other) = delete;
+	bool operator()(int exit_status) const;
 
- private:
-  const int exit_code_;
+private:
+	const int exit_code_;
 };
 
 #if !GTEST_OS_WINDOWS && !GTEST_OS_FUCHSIA
 // Tests that an exit code describes an exit due to termination by a
 // given signal.
 class GTEST_API_ KilledBySignal {
- public:
-  explicit KilledBySignal(int signum);
-  bool operator()(int exit_status) const;
+public:
+	explicit KilledBySignal(int signum);
+	bool operator()(int exit_status) const;
 
- private:
-  const int signum_;
+private:
+	const int signum_;
 };
+
 #endif  // !GTEST_OS_WINDOWS
 
 // EXPECT_DEBUG_DEATH asserts that the given statements die in debug mode.
@@ -260,19 +258,11 @@ class GTEST_API_ KilledBySignal {
 // }, "death");
 //
 #ifdef NDEBUG
-
-#define EXPECT_DEBUG_DEATH(statement, regex) \
-  GTEST_EXECUTE_STATEMENT_(statement, regex)
-
-#define ASSERT_DEBUG_DEATH(statement, regex) \
-  GTEST_EXECUTE_STATEMENT_(statement, regex)
-
+	#define EXPECT_DEBUG_DEATH(statement, regex) GTEST_EXECUTE_STATEMENT_(statement, regex)
+	#define ASSERT_DEBUG_DEATH(statement, regex) GTEST_EXECUTE_STATEMENT_(statement, regex)
 #else
-
-#define EXPECT_DEBUG_DEATH(statement, regex) EXPECT_DEATH(statement, regex)
-
-#define ASSERT_DEBUG_DEATH(statement, regex) ASSERT_DEATH(statement, regex)
-
+	#define EXPECT_DEBUG_DEATH(statement, regex) EXPECT_DEATH(statement, regex)
+	#define ASSERT_DEBUG_DEATH(statement, regex) ASSERT_DEATH(statement, regex)
 #endif  // NDEBUG for EXPECT_DEBUG_DEATH
 #endif  // GTEST_HAS_DEATH_TEST
 
@@ -312,16 +302,16 @@ class GTEST_API_ KilledBySignal {
 //  the end allows the syntax of streaming additional messages into the
 //  macro, for compilational compatibility with EXPECT_DEATH/ASSERT_DEATH.
 #define GTEST_UNSUPPORTED_DEATH_TEST(statement, regex, terminator)             \
-  GTEST_AMBIGUOUS_ELSE_BLOCKER_                                                \
-  if (::testing::internal::AlwaysTrue()) {                                     \
-    GTEST_LOG_(WARNING) << "Death tests are not supported on this platform.\n" \
-                        << "Statement '" #statement "' cannot be verified.";   \
-  } else if (::testing::internal::AlwaysFalse()) {                             \
-    ::testing::internal::RE::PartialMatch(".*", (regex));                      \
-    GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_(statement);                 \
-    terminator;                                                                \
-  } else                                                                       \
-    ::testing::Message()
+	GTEST_AMBIGUOUS_ELSE_BLOCKER_                                                \
+	if(::testing::internal::AlwaysTrue()) {                                     \
+		GTEST_LOG_(WARNING) << "Death tests are not supported on this platform.\n" \
+				    << "Statement '" #statement "' cannot be verified.";   \
+	} else if(::testing::internal::AlwaysFalse()) {                             \
+		::testing::internal::RE::PartialMatch(".*", (regex));                      \
+		GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_(statement);                 \
+		terminator;                                                                \
+	} else                                                                       \
+	::testing::Message()
 
 // EXPECT_DEATH_IF_SUPPORTED(statement, regex) and
 // ASSERT_DEATH_IF_SUPPORTED(statement, regex) expand to real death tests if
@@ -330,16 +320,15 @@ class GTEST_API_ KilledBySignal {
 // assertions in one test.
 #if GTEST_HAS_DEATH_TEST
 #define EXPECT_DEATH_IF_SUPPORTED(statement, regex) \
-  EXPECT_DEATH(statement, regex)
+	EXPECT_DEATH(statement, regex)
 #define ASSERT_DEATH_IF_SUPPORTED(statement, regex) \
-  ASSERT_DEATH(statement, regex)
+	ASSERT_DEATH(statement, regex)
 #else
 #define EXPECT_DEATH_IF_SUPPORTED(statement, regex) \
-  GTEST_UNSUPPORTED_DEATH_TEST(statement, regex, )
+	GTEST_UNSUPPORTED_DEATH_TEST(statement, regex, )
 #define ASSERT_DEATH_IF_SUPPORTED(statement, regex) \
-  GTEST_UNSUPPORTED_DEATH_TEST(statement, regex, return)
+	GTEST_UNSUPPORTED_DEATH_TEST(statement, regex, return )
 #endif
-
 }  // namespace testing
 
 #endif  // GOOGLETEST_INCLUDE_GTEST_GTEST_DEATH_TEST_H_

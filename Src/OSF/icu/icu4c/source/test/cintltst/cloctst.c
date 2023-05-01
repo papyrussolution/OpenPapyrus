@@ -1335,14 +1335,11 @@ static void TestISOFunctions()
 		key = NULL;
 		test = *(str+count);
 		status = U_ZERO_ERROR;
-
 		do {
 			/* Skip over language tags. This API only returns language codes. */
 			skipped += (key != NULL);
 			ures_getNextString(subRes, NULL, &key, &status);
-		}
-		while(key != NULL && strchr(key, '_'));
-
+		} while(key != NULL && sstrchr(key, '_'));
 		if(!key)
 			break;
 		/* TODO: Consider removing sh, which is deprecated */

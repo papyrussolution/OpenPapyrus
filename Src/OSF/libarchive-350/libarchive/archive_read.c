@@ -477,14 +477,15 @@ int __archive_read_header(ArchiveRead * a, ArchiveEntry * entry)
 static int _archive_read_next_header2(Archive * _a, ArchiveEntry * entry)
 {
 	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
-	int r1 = ARCHIVE_OK, r2;
+	int r1 = ARCHIVE_OK;
+	int r2;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, __FUNCTION__);
 	archive_entry_clear(entry);
 	archive_clear_error(&a->archive);
-	/*
-	 * If client didn't consume entire data, skip any remainder
-	 * (This is especially important for GNU incremental directories.)
-	 */
+	//
+	// If client didn't consume entire data, skip any remainder
+	// (This is especially important for GNU incremental directories.)
+	//
 	if(a->archive.state == ARCHIVE_STATE_DATA) {
 		r1 = archive_read_data_skip(&a->archive);
 		if(r1 == ARCHIVE_EOF)
@@ -508,17 +509,10 @@ static int _archive_read_next_header2(Archive * _a, ArchiveEntry * entry)
 		    a->archive.state = ARCHIVE_STATE_EOF;
 		    --_a->file_count; /* Revert a file counter. */
 		    break;
-		case ARCHIVE_OK:
-		    a->archive.state = ARCHIVE_STATE_DATA;
-		    break;
-		case ARCHIVE_WARN:
-		    a->archive.state = ARCHIVE_STATE_DATA;
-		    break;
-		case ARCHIVE_RETRY:
-		    break;
-		case ARCHIVE_FATAL:
-		    a->archive.state = ARCHIVE_STATE_FATAL;
-		    break;
+		case ARCHIVE_OK: a->archive.state = ARCHIVE_STATE_DATA; break;
+		case ARCHIVE_WARN: a->archive.state = ARCHIVE_STATE_DATA; break;
+		case ARCHIVE_RETRY: break;
+		case ARCHIVE_FATAL: a->archive.state = ARCHIVE_STATE_FATAL; break;
 	}
 	__archive_reset_read_data(&a->archive);
 	a->data_start_node = a->client.cursor;

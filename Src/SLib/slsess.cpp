@@ -1,5 +1,5 @@
 // SLSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -11,6 +11,54 @@
 // } htmlhelp.h
 //
 const SlConstParam _SlConst;
+//
+//
+// 
+/* Эксперименты с выравниванием структур
+#pragma pack(show)
+
+#include <sl-packing-set08.h>
+#pragma pack(show)
+
+static void test_alignment() { struct A { byte X; uint32 Y; }; static_assert(sizeof(A) == 8); }
+
+#include <sl-packing-reset.h>
+#include <sl-packing-set01.h>
+#pragma pack(push, 16)
+#pragma pack(show)
+
+static void test_alignment2() { struct A { byte X; uint32 Y; }; static_assert(sizeof(A) == 8); }
+
+#pragma pack(pop)
+#pragma pack(push, 1)
+#pragma pack(show)
+
+static void test_alignment3() { struct A { byte X; uint32 Y; }; static_assert(sizeof(A) == 5); }
+
+#pragma pack(pop)
+#pragma pack(push)
+#pragma pack(show)
+
+static void test_alignment4() { struct A { byte X; uint32 Y; }; static_assert(sizeof(A) == 5); }
+
+#pragma pack(pop)
+#pragma pack(show)
+
+static void foo()
+{
+	#pragma pack(push, 8)
+	struct A {
+		byte X;
+		uint32 Y;
+	};
+	const size_t s8 = sizeof(A);
+	#pragma pack(pop)
+	#pragma pack(push, 1)
+	const size_t s8_2 = sizeof(A);
+	static_assert(s8 == s8_2);
+	#pragma pack(pop)
+}
+*/
 //
 //
 //
@@ -225,7 +273,7 @@ static void InitTest()
 		//
 		// Проверяем работоспособность *& для присваивания указателя по ссылке.
 		//
-		static struct LocalData {
+		struct LocalData {
 			LocalData(int a, double b) : A(a), B(b)
 			{
 			}
@@ -233,7 +281,7 @@ static void InitTest()
 			double B;
 		};
 
-		static class LocalBlock {
+		class LocalBlock {
 		public:
 			static void Func1(LocalData *& prData)
 			{

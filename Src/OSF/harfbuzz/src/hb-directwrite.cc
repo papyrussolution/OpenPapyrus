@@ -74,10 +74,10 @@ public:
 
 class DWriteFontFileStream : public IDWriteFontFileStream {
 private:
-	uint8_t * mData;
+	uint8 * mData;
 	uint32_t mSize;
 public:
-	DWriteFontFileStream (uint8_t * aData, uint32_t aSize)
+	DWriteFontFileStream (uint8 * aData, uint32_t aSize)
 	{
 		mData = aData;
 		mSize = aSize;
@@ -189,7 +189,7 @@ hb_directwrite_face_data_t * _hb_directwrite_shaper_face_data_create(hb_face_t *
 
 	hb_blob_t * blob = hb_face_reference_blob(face);
 	DWriteFontFileStream * fontFileStream;
-	fontFileStream = new DWriteFontFileStream((uint8_t*)hb_blob_get_data(blob, nullptr),
+	fontFileStream = new DWriteFontFileStream((uint8*)hb_blob_get_data(blob, nullptr),
 		hb_blob_get_length(blob));
 
 	DWriteFontFileLoader * fontFileLoader = new DWriteFontFileLoader(fontFileStream);
@@ -296,7 +296,7 @@ public:
 		uint32_t mGlyphCount; // number of glyphs associated with this run
 		// text
 		DWRITE_SCRIPT_ANALYSIS mScript;
-		uint8_t mBidiLevel;
+		uint8 mBidiLevel;
 		bool mIsSideways;
 
 		bool ContainsTextPosition(uint32_t aTextPosition) const
@@ -428,7 +428,7 @@ public:
 	}
 
 	IFACEMETHODIMP SetBidiLevel(uint32_t textPosition, uint32_t textLength,
-	    uint8_t explicitLevel, uint8_t resolvedLevel)
+	    uint8 explicitLevel, uint8 resolvedLevel)
 	{
 		return S_OK;
 	}

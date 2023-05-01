@@ -1095,7 +1095,7 @@ const int TAB_HIDE = 256;          //0001 0000 0000
 const int TAB_QUITONEMPTY = 512;   //0010 0000 0000
 const int TAB_ALTICONS = 1024;     //0100 0000 0000
 
-enum class EolType : std::uint8_t{
+enum class EolType : uint8 {
 	windows,
 	macos,
 	unix,
@@ -2347,7 +2347,7 @@ private:
 #include "Utf8_16.h"
 //
 //#include "sha-256.h"
-//void calc_sha_256(uint8_t hash[32], const void *input, size_t len);
+//void calc_sha_256(uint8 hash[32], const void *input, size_t len);
 //
 //#include "Buffer.h"
 typedef Buffer * BufferID;       //each buffer has unique ID by which it can be retrieved
@@ -3903,10 +3903,29 @@ private:
 
 const int HIEGHT_MINIMAL = 15;
 
-enum class Arrow { left, up, right, down };
-enum class WH { height, width };
-enum class ZONE_TYPE { bottomRight, topLeft };
-enum class SplitterMode : std::uint8_t{ DYNAMIC, LEFT_FIX, RIGHT_FIX };
+enum class Arrow { 
+	left, 
+	up, 
+	right, 
+	down 
+};
+
+enum class WH { 
+	height, 
+	width 
+};
+
+enum class ZONE_TYPE 
+{ 
+	bottomRight, 
+	topLeft 
+};
+
+enum class SplitterMode : uint8 { 
+	DYNAMIC, 
+	LEFT_FIX, 
+	RIGHT_FIX 
+};
 
 class Splitter : public Window {
 public:

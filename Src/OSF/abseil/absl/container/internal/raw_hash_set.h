@@ -247,7 +247,7 @@ private:
 	T mask_;
 };
 
-using h2_t = uint8_t;
+using h2_t = uint8;
 
 // The values here are selected for maximum performance. See the static asserts
 // below for details. We use an enum class so that when strict aliasing is
@@ -360,7 +360,7 @@ struct GroupSse2Impl {
 
 	// Returns a bitmask representing the positions of empty or deleted slots.
 	BitMask<uint32_t, kWidth> MatchEmptyOrDeleted() const {
-		auto special = _mm_set1_epi8(static_cast<uint8_t>(ctrl_t::kSentinel));
+		auto special = _mm_set1_epi8(static_cast<uint8>(ctrl_t::kSentinel));
 		return BitMask<uint32_t, kWidth>(
 			static_cast<uint32_t>(
 				_mm_movemask_epi8(_mm_cmpgt_epi8_fixed(special, ctrl))));
@@ -368,7 +368,7 @@ struct GroupSse2Impl {
 
 	// Returns the number of trailing empty or deleted elements in the group.
 	uint32_t CountLeadingEmptyOrDeleted() const {
-		auto special = _mm_set1_epi8(static_cast<uint8_t>(ctrl_t::kSentinel));
+		auto special = _mm_set1_epi8(static_cast<uint8>(ctrl_t::kSentinel));
 		return TrailingZeros(static_cast<uint32_t>(
 				   _mm_movemask_epi8(_mm_cmpgt_epi8_fixed(special, ctrl)) + 1));
 	}

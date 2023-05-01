@@ -532,19 +532,18 @@ static void addOfficialTaggedStandards(char * line, int32_t lineLen)
 	char * endTagExp;
 	char * tag;
 	static const char WHITESPACE[] = " \t";
-
 	if(tagCount > UCNV_NUM_RESERVED_TAGS) {
 		slfprintf_stderr("%s:%d: error: official tags already added\n", path, lineNum);
 		exit(U_BUFFER_OVERFLOW_ERROR);
 	}
-	tag = strchr(line, '{');
+	tag = sstrchr(line, '{');
 	if(tag == NULL) {
 		/* Why were we called? */
 		slfprintf_stderr("%s:%d: error: Missing start of tag group\n", path, lineNum);
 		exit(U_PARSE_ERROR);
 	}
 	tag++;
-	endTagExp = strchr(tag, '}');
+	endTagExp = sstrchr(tag, '}');
 	if(endTagExp == NULL) {
 		slfprintf_stderr("%s:%d: error: Missing end of tag group\n", path, lineNum);
 		exit(U_PARSE_ERROR);
@@ -620,14 +619,11 @@ static uint16_t addAlias(const char * alias, uint16_t standard, uint16_t convert
 	}
 	aliasList = &tags[standard].aliasList[converter];
 
-	if(strchr(alias, '}')) {
-		slfprintf_stderr("%s:%d: error: unmatched } found\n", path,
-		    lineNum);
+	if(sstrchr(alias, '}')) {
+		slfprintf_stderr("%s:%d: error: unmatched } found\n", path, lineNum);
 	}
-
 	if(aliasList->aliasCount + 1 >= MAX_TC_ALIAS_COUNT) {
-		slfprintf_stderr("%s:%d: error: too many aliases for alias %s and converter %s\n", path,
-		    lineNum, alias, GET_ALIAS_STR(converters[converter].converter));
+		slfprintf_stderr("%s:%d: error: too many aliases for alias %s and converter %s\n", path, lineNum, alias, GET_ALIAS_STR(converters[converter].converter));
 		exit(U_BUFFER_OVERFLOW_ERROR);
 	}
 

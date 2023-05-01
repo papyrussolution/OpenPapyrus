@@ -7,7 +7,7 @@
 #pragma hdrstop
 
 lzma_ret lzma_stream_buffer_decode(uint64_t *memlimit, uint32_t flags,
-    const lzma_allocator *allocator, const uint8_t *in, size_t *in_pos, size_t in_size, uint8_t *out, size_t *out_pos, size_t out_size)
+    const lzma_allocator *allocator, const uint8 *in, size_t *in_pos, size_t in_size, uint8 *out, size_t *out_pos, size_t out_size)
 {
 	// Sanity checks
 	if(in_pos == NULL || (in == NULL && *in_pos != in_size) || *in_pos > in_size || out_pos == NULL || (out == NULL && *out_pos != out_size) || *out_pos > out_size)

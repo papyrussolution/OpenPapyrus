@@ -29,10 +29,10 @@
 //  2018-02-06: Misc: Removed call to ImGui::Shutdown() which is not available from 1.60 WIP, user needs to call CreateContext/DestroyContext themselves.
 //  2016-05-07: DirectX10: Disabling depth-write.
 
-#include "imgui.h"
+#include <imgui-slib-internal.h>
+#pragma hdrstop
 #include "imgui_impl_dx10.h"
 // DirectX
-#include <stdio.h>
 #include <d3d10_1.h>
 #include <d3d10.h>
 #include <d3dcompiler.h>
@@ -58,7 +58,12 @@ struct ImGui_ImplDX10_Data {
 	int VertexBufferSize;
 	int IndexBufferSize;
 
-	ImGui_ImplDX10_Data()       { memset((void*)this, 0, sizeof(*this)); VertexBufferSize = 5000; IndexBufferSize = 10000; }
+	ImGui_ImplDX10_Data()       
+	{ 
+		THISZERO();
+		VertexBufferSize = 5000; 
+		IndexBufferSize = 10000; 
+	}
 };
 
 struct VERTEX_CONSTANT_BUFFER_DX10 {
@@ -76,10 +81,9 @@ static ImGui_ImplDX10_Data* ImGui_ImplDX10_GetBackendData()
 static void ImGui_ImplDX10_SetupRenderState(ImDrawData* draw_data, ID3D10Device* ctx)
 {
 	ImGui_ImplDX10_Data* bd = ImGui_ImplDX10_GetBackendData();
-
 	// Setup viewport
 	D3D10_VIEWPORT vp;
-	memset(&vp, 0, sizeof(D3D10_VIEWPORT));
+	memzero(&vp, sizeof(D3D10_VIEWPORT));
 	vp.Width = (UINT)draw_data->DisplaySize.x;
 	vp.Height = (UINT)draw_data->DisplaySize.y;
 	vp.MinDepth = 0.0f;
@@ -88,8 +92,8 @@ static void ImGui_ImplDX10_SetupRenderState(ImDrawData* draw_data, ID3D10Device*
 	ctx->RSSetViewports(1, &vp);
 
 	// Bind shader and vertex buffers
-	unsigned int stride = sizeof(ImDrawVert);
-	unsigned int offset = 0;
+	uint stride = sizeof(ImDrawVert);
+	uint offset = 0;
 	ctx->IASetInputLayout(bd->pInputLayout);
 	ctx->IASetVertexBuffers(0, 1, &bd->pVB, &stride, &offset);
 	ctx->IASetIndexBuffer(bd->pIB, sizeof(ImDrawIdx) == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0);
@@ -124,7 +128,7 @@ void ImGui_ImplDX10_RenderDrawData(ImDrawData* draw_data)
 		}
 		bd->VertexBufferSize = draw_data->TotalVtxCount + 5000;
 		D3D10_BUFFER_DESC desc;
-		memset(&desc, 0, sizeof(D3D10_BUFFER_DESC));
+		memzero(&desc, sizeof(D3D10_BUFFER_DESC));
 		desc.Usage = D3D10_USAGE_DYNAMIC;
 		desc.ByteWidth = bd->VertexBufferSize * sizeof(ImDrawVert);
 		desc.BindFlags = D3D10_BIND_VERTEX_BUFFER;
@@ -140,7 +144,7 @@ void ImGui_ImplDX10_RenderDrawData(ImDrawData* draw_data)
 		}
 		bd->IndexBufferSize = draw_data->TotalIdxCount + 10000;
 		D3D10_BUFFER_DESC desc;
-		memset(&desc, 0, sizeof(D3D10_BUFFER_DESC));
+		memzero(&desc, sizeof(D3D10_BUFFER_DESC));
 		desc.Usage = D3D10_USAGE_DYNAMIC;
 		desc.ByteWidth = bd->IndexBufferSize * sizeof(ImDrawIdx);
 		desc.BindFlags = D3D10_BIND_INDEX_BUFFER;
@@ -291,14 +295,13 @@ static void ImGui_ImplDX10_CreateFontsTexture()
 	// Build texture atlas
 	ImGui_ImplDX10_Data* bd = ImGui_ImplDX10_GetBackendData();
 	ImGuiIO& io = ImGui::GetIO();
-	unsigned char* pixels;
+	uchar* pixels;
 	int width, height;
 	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-
 	// Upload texture to graphics system
 	{
 		D3D10_TEXTURE2D_DESC desc;
-		ZeroMemory(&desc, sizeof(desc));
+		memzero(&desc, sizeof(desc));
 		desc.Width = width;
 		desc.Height = height;
 		desc.MipLevels = 1;
@@ -315,11 +318,11 @@ static void ImGui_ImplDX10_CreateFontsTexture()
 		subResource.SysMemPitch = desc.Width * 4;
 		subResource.SysMemSlicePitch = 0;
 		bd->pd3dDevice->CreateTexture2D(&desc, &subResource, &pTexture);
-		IM_ASSERT(pTexture != nullptr);
+		assert(pTexture != nullptr);
 
 		// Create texture view
 		D3D10_SHADER_RESOURCE_VIEW_DESC srv_desc;
-		ZeroMemory(&srv_desc, sizeof(srv_desc));
+		memzero(&srv_desc, sizeof(srv_desc));
 		srv_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		srv_desc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
 		srv_desc.Texture2D.MipLevels = desc.MipLevels;
@@ -335,7 +338,7 @@ static void ImGui_ImplDX10_CreateFontsTexture()
 	// (Bilinear sampling is required by default. Set 'io.Fonts->Flags |= ImFontAtlasFlags_NoBakedLines' or 'style.AntiAliasedLinesUseTex = false' to allow point/nearest sampling)
 	{
 		D3D10_SAMPLER_DESC desc;
-		ZeroMemory(&desc, sizeof(desc));
+		memzero(&desc, sizeof(desc));
 		desc.Filter = D3D10_FILTER_MIN_MAG_MIP_LINEAR;
 		desc.AddressU = D3D10_TEXTURE_ADDRESS_WRAP;
 		desc.AddressV = D3D10_TEXTURE_ADDRESS_WRAP;
@@ -456,7 +459,7 @@ bool    ImGui_ImplDX10_CreateDeviceObjects()
 	// Create the blending setup
 	{
 		D3D10_BLEND_DESC desc;
-		ZeroMemory(&desc, sizeof(desc));
+		memzero(&desc, sizeof(desc));
 		desc.AlphaToCoverageEnable = false;
 		desc.BlendEnable[0] = true;
 		desc.SrcBlend = D3D10_BLEND_SRC_ALPHA;
@@ -472,7 +475,7 @@ bool    ImGui_ImplDX10_CreateDeviceObjects()
 	// Create the rasterizer state
 	{
 		D3D10_RASTERIZER_DESC desc;
-		ZeroMemory(&desc, sizeof(desc));
+		memzero(&desc, sizeof(desc));
 		desc.FillMode = D3D10_FILL_SOLID;
 		desc.CullMode = D3D10_CULL_NONE;
 		desc.ScissorEnable = true;
@@ -483,7 +486,7 @@ bool    ImGui_ImplDX10_CreateDeviceObjects()
 	// Create depth-stencil State
 	{
 		D3D10_DEPTH_STENCIL_DESC desc;
-		ZeroMemory(&desc, sizeof(desc));
+		memzero(&desc, sizeof(desc));
 		desc.DepthEnable = false;
 		desc.DepthWriteMask = D3D10_DEPTH_WRITE_MASK_ALL;
 		desc.DepthFunc = D3D10_COMPARISON_ALWAYS;
@@ -543,7 +546,7 @@ void    ImGui_ImplDX10_InvalidateDeviceObjects()
 bool    ImGui_ImplDX10_Init(ID3D10Device* device)
 {
 	ImGuiIO& io = ImGui::GetIO();
-	IM_ASSERT(io.BackendRendererUserData == nullptr && "Already initialized a renderer backend!");
+	assert(io.BackendRendererUserData == nullptr && "Already initialized a renderer backend!");
 
 	// Setup backend capabilities flags
 	ImGui_ImplDX10_Data* bd = IM_NEW(ImGui_ImplDX10_Data)();
@@ -571,7 +574,7 @@ bool    ImGui_ImplDX10_Init(ID3D10Device* device)
 void ImGui_ImplDX10_Shutdown()
 {
 	ImGui_ImplDX10_Data* bd = ImGui_ImplDX10_GetBackendData();
-	IM_ASSERT(bd != nullptr && "No renderer backend to shutdown, or already shutdown?");
+	assert(bd != nullptr && "No renderer backend to shutdown, or already shutdown?");
 	ImGuiIO& io = ImGui::GetIO();
 
 	ImGui_ImplDX10_InvalidateDeviceObjects();
@@ -589,7 +592,7 @@ void ImGui_ImplDX10_Shutdown()
 void ImGui_ImplDX10_NewFrame()
 {
 	ImGui_ImplDX10_Data* bd = ImGui_ImplDX10_GetBackendData();
-	IM_ASSERT(bd != nullptr && "Did you call ImGui_ImplDX10_Init()?");
+	assert(bd != nullptr && "Did you call ImGui_ImplDX10_Init()?");
 
 	if(!bd->pFontSampler)
 		ImGui_ImplDX10_CreateDeviceObjects();

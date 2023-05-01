@@ -332,16 +332,14 @@ static void reorder_weights(fz_weights * weights, int j, int src_w)
 	int max = weights->max_len;
 	int tmp = idx+max;
 	int i, off;
-
 	/* Copy into the temporary area */
 	memcpy(&weights->index[tmp], &weights->index[idx], sizeof(int)*len);
-
 	/* Pad out if required */
 	assert(len <= max);
 	assert(min+len <= src_w);
 	off = 0;
 	if(len < max) {
-		memset(&weights->index[tmp+len], 0, sizeof(int)*(max-len));
+		memzero(&weights->index[tmp+len], sizeof(int)*(max-len));
 		len = max;
 		if(min + len > src_w) {
 			off = min + len - src_w;

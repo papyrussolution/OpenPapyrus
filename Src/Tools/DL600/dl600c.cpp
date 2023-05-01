@@ -1,20 +1,21 @@
 // DL600C.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2021, 2022, 2023
+// @codepage UTF-8
 // Compile-time DL600 modules
 //
 #include <pp.h>
 #include <dl600.h>
 #include "dl600c.tab.hpp"
 
-// Строка отладки для интерфейсов: ../rsrc/dl600/ppifc.dl6
-// Строка отладки для структуры БД: /dict:..\..\BASE\INIT_DL6 /oracle ..\rsrc\dl600\ppdbs.dl6
+// РЎС‚СЂРѕРєР° РѕС‚Р»Р°РґРєРё РґР»СЏ РёРЅС‚РµСЂС„РµР№СЃРѕРІ: ../rsrc/dl600/ppifc.dl6
+// РЎС‚СЂРѕРєР° РѕС‚Р»Р°РґРєРё РґР»СЏ СЃС‚СЂСѓРєС‚СѓСЂС‹ Р‘Р”: /dict:..\..\BASE\INIT_DL6 /oracle ..\rsrc\dl600\ppdbs.dl6
 //   /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle ..\rsrc\dl600\ppdbs.dl6
-// Строка отладки для экспортных структур: ..\rsrc\dl600\ppexp.dl6
-// Строка отладки для диалогов: ..\rsrc\dl600\ppdlg.dl6 /d
+// РЎС‚СЂРѕРєР° РѕС‚Р»Р°РґРєРё РґР»СЏ СЌРєСЃРїРѕСЂС‚РЅС‹С… СЃС‚СЂСѓРєС‚СѓСЂ: ..\rsrc\dl600\ppexp.dl6
+// РЎС‚СЂРѕРєР° РѕС‚Р»Р°РґРєРё РґР»СЏ РґРёР°Р»РѕРіРѕРІ: ..\rsrc\dl600\ppdlg.dl6 /d
 
 //
 //
-// На интерфейсы генерируется:
+// РќР° РёРЅС‚РµСЂС„РµР№СЃС‹ РіРµРЅРµСЂРёСЂСѓРµС‚СЃСЏ:
 // .h
 // .cpp
 // .idl
@@ -24,7 +25,7 @@ DlContext DCtx(1); // @global
 int DlContext::LastError; // @global
 SString DlContext::AddedMsgString; // @global
 //
-// Функция замещает общую PPSetError, определенную в PPLIB\PPMSG.CPP
+// Р¤СѓРЅРєС†РёСЏ Р·Р°РјРµС‰Р°РµС‚ РѕР±С‰СѓСЋ PPSetError, РѕРїСЂРµРґРµР»РµРЅРЅСѓСЋ РІ PPLIB\PPMSG.CPP
 //
 int FASTCALL PPSetError(int errCode)
 {
@@ -525,8 +526,8 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	SString figure_symb;
 	FRect  label_bbox;
 	double font_size = 0.0;
-	// Следующие флаги устанавливаются в переменной occurence_flags для индикации факта, что
-	// свойство уже присутствует в списке.
+	// РЎР»РµРґСѓСЋС‰РёРµ С„Р»Р°РіРё СѓСЃС‚Р°РЅР°РІР»РёРІР°СЋС‚СЃСЏ РІ РїРµСЂРµРјРµРЅРЅРѕР№ occurence_flags РґР»СЏ РёРЅРґРёРєР°С†РёРё С„Р°РєС‚Р°, С‡С‚Рѕ
+	// СЃРІРѕР№СЃС‚РІРѕ СѓР¶Рµ РїСЂРёСЃСѓС‚СЃС‚РІСѓРµС‚ РІ СЃРїРёСЃРєРµ.
 	enum {
 		occfNoWrap       = 0x0001,
 		occfBBox         = 0x0002,
@@ -1220,7 +1221,7 @@ uint DlContext::AddUiCluster(int kind, const CtmToken & rSymb, const CtmToken & 
 {
 	uint   fld_id = 0;
 	//
-	// Для элементов кластера создается специализированная область с именем 'DLG_SCOPE_NAME:CTRL_NAME'
+	// Р”Р»СЏ СЌР»РµРјРµРЅС‚РѕРІ РєР»Р°СЃС‚РµСЂР° СЃРѕР·РґР°РµС‚СЃСЏ СЃРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅР°СЏ РѕР±Р»Р°СЃС‚СЊ СЃ РёРјРµРЅРµРј 'DLG_SCOPE_NAME:CTRL_NAME'
 	//
 	SString scope_name;
 	DLSYMBID symb_id = 0;
@@ -1259,8 +1260,8 @@ int DlContext::AddUiClusterItem(const CtmToken & rText, const UiRelRect & rRect,
 	THROW(p_parent = p_cur_scope->GetOwner());
 	{
 		//
-		// Так как внутренняя область кластера имеет наименование вида 'DLG_SCOPE_NAME:CTRL_NAME',
-		// разбиваем это наименование по символу ':' дабы получить собственно имя кластера.
+		// РўР°Рє РєР°Рє РІРЅСѓС‚СЂРµРЅРЅСЏСЏ РѕР±Р»Р°СЃС‚СЊ РєР»Р°СЃС‚РµСЂР° РёРјРµРµС‚ РЅР°РёРјРµРЅРѕРІР°РЅРёРµ РІРёРґР° 'DLG_SCOPE_NAME:CTRL_NAME',
+		// СЂР°Р·Р±РёРІР°РµРј СЌС‚Рѕ РЅР°РёРјРµРЅРѕРІР°РЅРёРµ РїРѕ СЃРёРјРІРѕР»Сѓ ':' РґР°Р±С‹ РїРѕР»СѓС‡РёС‚СЊ СЃРѕР±СЃС‚РІРµРЅРЅРѕ РёРјСЏ РєР»Р°СЃС‚РµСЂР°.
 		//
 		SString cluster_fld_name;
 		int    r = p_cur_scope->Name.Divide(':', temp_buf, cluster_fld_name);
@@ -1376,7 +1377,7 @@ uint DlContext::AddUiButton(const CtmToken & rSymb, const CtmToken & rText, cons
 			THROW(AddConst(cmd_buf, &c));
 			THROW(p_scope->AddFldConst(fld_id, DlScope::cuifCtrlCmdSymb, c, 1));
 			{
-				DLSYMBID ss_id = 0; // Ид серии символов
+				DLSYMBID ss_id = 0; // РРґ СЃРµСЂРёРё СЃРёРјРІРѕР»РѕРІ
 				DLSYMBID cmd_id = 0;
 				int    ss_r = GetUiSymbSeries(cmd_buf, symb_ser, &ss_id);
 				THROW(ss_r);
@@ -1403,8 +1404,8 @@ uint DlContext::AddUiCtrl(int kind, const CtmToken & rSymb, const CtmToken & rTe
 	SString temp_buf, symb_ser, dlg_symb_ser;
 	TypeEntry te;
 	SdbField fld;
-	DLSYMBID ss_id = 0; // Ид серии символов
-	DLSYMBID dlg_ss_id = 0; // Ид серии символов
+	DLSYMBID ss_id = 0; // РРґ СЃРµСЂРёРё СЃРёРјРІРѕР»РѕРІ
+	DLSYMBID dlg_ss_id = 0; // РРґ СЃРµСЂРёРё СЃРёРјРІРѕР»РѕРІ
 	DlScope * p_scope = 0;
 	DlScope * p_dlg_scope = 0;
 	THROW(p_scope = GetCurScope());
@@ -1448,13 +1449,13 @@ uint DlContext::AddUiCtrl(int kind, const CtmToken & rSymb, const CtmToken & rTe
 	if(!UiSymbAssoc.SearchByVal(fld_id, 0, 0)) {
 		if(ss_r == 2) {
 			//
-			// Если серия символов не принадлежит диалогу, то и символ ассоциируем с этой серией.
+			// Р•СЃР»Рё СЃРµСЂРёСЏ СЃРёРјРІРѕР»РѕРІ РЅРµ РїСЂРёРЅР°РґР»РµР¶РёС‚ РґРёР°Р»РѕРіСѓ, С‚Рѕ Рё СЃРёРјРІРѕР» Р°СЃСЃРѕС†РёРёСЂСѓРµРј СЃ СЌС‚РѕР№ СЃРµСЂРёРµР№.
 			//
 			UiSymbAssoc.Add(ss_id, fld_id, 0);
 		}
 		else {
 			//
-			// В противном случае символ ассоциируем с диалоговой серией.
+			// Р’ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ СЃРёРјРІРѕР» Р°СЃСЃРѕС†РёРёСЂСѓРµРј СЃ РґРёР°Р»РѕРіРѕРІРѕР№ СЃРµСЂРёРµР№.
 			//
 			UiSymbAssoc.Add(dlg_ss_id, fld_id, 0);
 		}
@@ -1579,8 +1580,8 @@ int DlContext::Format_C_Type(DLSYMBID typeID, STypEx & rTyp, const char * pFldNa
 	if(typeID && flags & fctfResolveTypeID) {
 		THROW(SearchTypeID(typeID, 0, &te));
 		//
-		// Здесь нельзя применять присваивание из-за того, что тогда ссылка rTyp будет алиасом
-		// te, которую потом будем использовать как временную переменную
+		// Р—РґРµСЃСЊ РЅРµР»СЊР·СЏ РїСЂРёРјРµРЅСЏС‚СЊ РїСЂРёСЃРІР°РёРІР°РЅРёРµ РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ С‚РѕРіРґР° СЃСЃС‹Р»РєР° rTyp Р±СѓРґРµС‚ Р°Р»РёР°СЃРѕРј
+		// te, РєРѕС‚РѕСЂСѓСЋ РїРѕС‚РѕРј Р±СѓРґРµРј РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РєР°Рє РІСЂРµРјРµРЅРЅСѓСЋ РїРµСЂРµРјРµРЅРЅСѓСЋ
 		//
 		memcpy(&rTyp, &te.T, sizeof(STypEx));
 	}
@@ -1609,7 +1610,7 @@ int DlContext::Format_C_Type(DLSYMBID typeID, STypEx & rTyp, const char * pFldNa
 			type_buf = "SString";
 			if(!(flags & fctfInstance)) {
 				//
-				// Указатель на ссылку недопустим - будет просто указатель на SString
+				// РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃСЃС‹Р»РєСѓ РЅРµРґРѕРїСѓСЃС‚РёРј - Р±СѓРґРµС‚ РїСЂРѕСЃС‚Рѕ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° SString
 				//
 				if((rTyp.Flags & STypEx::fOf) || rTyp.Mod != STypEx::modPtr)
 					type_buf.Space().CatChar('&');
@@ -1785,7 +1786,7 @@ int DlContext::Write_DialogReverse()
 		ps.Nam.CatChar('-').Cat("reverse");
 		ps.Merge(out_file_name);
 	}
-	char   c_buf[1024]; // Буфер для извлечения констант
+	char   c_buf[1024]; // Р‘СѓС„РµСЂ РґР»СЏ РёР·РІР»РµС‡РµРЅРёСЏ РєРѕРЅСЃС‚Р°РЅС‚
 	SFile f_out(out_file_name, SFile::mWrite);
 	SString line_buf, temp_buf, text_buf, cmd_buf, type_buf;
 	LongArray scope_id_list;
@@ -1827,13 +1828,13 @@ int DlContext::Write_DialogReverse()
 				if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifCtrlRect), c_buf, sizeof(c_buf)))
 					rect = *reinterpret_cast<const UiRelRect *>(c_buf);
 				//
-				// Находим строку текста элемента
+				// РќР°С…РѕРґРёРј СЃС‚СЂРѕРєСѓ С‚РµРєСЃС‚Р° СЌР»РµРјРµРЅС‚Р°
 				//
 				text_buf.Z();
 				if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifCtrlText), c_buf, sizeof(c_buf)))
 					text_buf = c_buf;
 				//
-				// Формируем строку типа данных STypEx
+				// Р¤РѕСЂРјРёСЂСѓРµРј СЃС‚СЂРѕРєСѓ С‚РёРїР° РґР°РЅРЅС‹С… STypEx
 				//
 				type_buf.Z();
 				GetBinaryTypeString(ctrl.T.Typ, 1, type_buf, "", 0);
@@ -1958,7 +1959,7 @@ DLSYMBID DlContext::SetDeclTypeMod(DLSYMBID ofTyp, int mod /* STypEx::modXXX */,
 		t.Mod    = mod;
 		if(t.Mod == STypEx::modArray) {
 			//
-			// Проверка на то, чтобы не впихнули определение размерности [d.p] в середину массива {
+			// РџСЂРѕРІРµСЂРєР° РЅР° С‚Рѕ, С‡С‚РѕР±С‹ РЅРµ РІРїРёС…РЅСѓР»Рё РѕРїСЂРµРґРµР»РµРЅРёРµ СЂР°Р·РјРµСЂРЅРѕСЃС‚Рё [d.p] РІ СЃРµСЂРµРґРёРЅСѓ РјР°СЃСЃРёРІР° {
 			//
 			uint   _len = 0, _prec = 0;
 			int    is_dec_dim = GetDecimalDim(arrayDim, &_len, &_prec);
@@ -2184,8 +2185,8 @@ int DlContext::AddDeclaration(DLSYMBID typeId, const CtmDclr & rDclr, CtmExpr * 
 		c = rDclr.DimList.GetCount();
 		if(c == 0 && oneof2(te.T.Typ, S_DEC, S_MONEY)) {
 			//
-			// Если для типа decimal или money не указана размерность, то принимаем
-			// [8.2] (2 - по умолчанию)
+			// Р•СЃР»Рё РґР»СЏ С‚РёРїР° decimal РёР»Рё money РЅРµ СѓРєР°Р·Р°РЅР° СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ, С‚Рѕ РїСЂРёРЅРёРјР°РµРј
+			// [8.2] (2 - РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ)
 			//
 			THROW(full_type_id = SetDeclTypeMod(full_type_id, STypEx::modArray, 8));
 		}
@@ -2350,7 +2351,7 @@ int DlContext::ResolveDbFileDefinition(const CtmToken & rSymb, const char * pCon
 	uint32 val;
 	DlScope::Attr attr;
 	MEMSZERO(attr);
-	SString temp_buf(1); // (1) уверены, что (const char *)temp_buf != 0.
+	SString temp_buf(1); // (1) СѓРІРµСЂРµРЅС‹, С‡С‚Рѕ (const char *)temp_buf != 0.
 	DlScope * p_scope = GetScope(CurScopeID, DlScope::kDbTable);
 	THROW(p_scope);
 	if(rSymb.Code == 0) {
@@ -2372,7 +2373,7 @@ int DlContext::ResolveDbFileDefinition(const CtmToken & rSymb, const char * pCon
 		THROW(p_scope->AddConst(DlScope::cdbtPageSize, c, 1));
 		if(!ok)
 			Error(PPERR_DL6_INVDBFILEPAGE, temp_buf.Z().Cat(constInt), erfLog);
-		// @todo Надо еще проверить на максимальное количество сегментов
+		// @todo РќР°РґРѕ РµС‰Рµ РїСЂРѕРІРµСЂРёС‚СЊ РЅР° РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРµРіРјРµРЅС‚РѕРІ
 	}
 	else if(sstreqi_ascii(rSymb.U.S, "prealloc")) {
 		if(constInt < 0 || constInt > 65535) {
@@ -2521,13 +2522,13 @@ int DlContext::ProcessQuestArgList(const DlFunc & rFunc, CtmExpr * pExpr, const 
 	pExpr->SetType(res_typ);
 	{
 		//
-		// Преобразуем (если необходимо) тип первого аргумента.
+		// РџСЂРµРѕР±СЂР°Р·СѓРµРј (РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ) С‚РёРї РїРµСЂРІРѕРіРѕ Р°СЂРіСѓРјРµРЅС‚Р°.
 		//
 		LongArray temp_cvt_pos_list;
 		uint i = rCvtPosList.getCount();
 		do {
 			int pos = rCvtPosList.at(--i);
-			if(pos == 0) { // Только для первого аргумента
+			if(pos == 0) { // РўРѕР»СЊРєРѕ РґР»СЏ РїРµСЂРІРѕРіРѕ Р°СЂРіСѓРјРµРЅС‚Р°
 				temp_cvt_pos_list.insert(&pos);
 				THROW(AddCvtFuncToArgList(rFunc, pExpr, temp_cvt_pos_list));
 				i = 0; // exit
@@ -2605,7 +2606,7 @@ int DlContext::ResolveFunc(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr)
 			uint   pos = 0;
 			uint   prev_scope_kind = p_scope->GetKind();
 			DlFunc func;
-			int    ambig[3]; // Признаки неоднозначности разрешения функции
+			int    ambig[3]; // РџСЂРёР·РЅР°РєРё РЅРµРѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚Рё СЂР°Р·СЂРµС€РµРЅРёСЏ С„СѓРЅРєС†РёРё
 			int    s_[3];
 			memzero(ambig, sizeof(ambig));
 			s_[0] = s_[1] = s_[2] = -1;
@@ -2620,11 +2621,11 @@ int DlContext::ResolveFunc(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr)
 					for(j = 0; j < 3; j++)
 						if(s == (j+1)) {
 							//
-							// Так как неоднозначность может встретиться на менее
-							// предпочтительном уровне преобразования аргументов,
-							// сохраним информацию о неоднозначности для того, чтобы
-							// иметь возможность подобрать более предпочтительную
-							// однозначную функцию с точки зрения преобразования аргументов.
+							// РўР°Рє РєР°Рє РЅРµРѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚СЊ РјРѕР¶РµС‚ РІСЃС‚СЂРµС‚РёС‚СЊСЃСЏ РЅР° РјРµРЅРµРµ
+							// РїСЂРµРґРїРѕС‡С‚РёС‚РµР»СЊРЅРѕРј СѓСЂРѕРІРЅРµ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ Р°СЂРіСѓРјРµРЅС‚РѕРІ,
+							// СЃРѕС…СЂР°РЅРёРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РЅРµРѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚Рё РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹
+							// РёРјРµС‚СЊ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РїРѕРґРѕР±СЂР°С‚СЊ Р±РѕР»РµРµ РїСЂРµРґРїРѕС‡С‚РёС‚РµР»СЊРЅСѓСЋ
+							// РѕРґРЅРѕР·РЅР°С‡РЅСѓСЋ С„СѓРЅРєС†РёСЋ СЃ С‚РѕС‡РєРё Р·СЂРµРЅРёСЏ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ Р°СЂРіСѓРјРµРЅС‚РѕРІ.
 							//
 							if(s_[j] >= 0)
 								ambig[j] = 1;
@@ -2664,9 +2665,9 @@ int DlContext::ResolveFunc(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr)
 			else {
 				if(p_scope->GetKind() == DlScope::kExpData) {
 					//
-					// Обращение к функции может быть связано с заголовочной областью kExpData
-					// в то время как физически функция определена в одной из внутренних областей
-					// вида kExpDataHdr.
+					// РћР±СЂР°С‰РµРЅРёРµ Рє С„СѓРЅРєС†РёРё РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃРІСЏР·Р°РЅРѕ СЃ Р·Р°РіРѕР»РѕРІРѕС‡РЅРѕР№ РѕР±Р»Р°СЃС‚СЊСЋ kExpData
+					// РІ С‚Рѕ РІСЂРµРјСЏ РєР°Рє С„РёР·РёС‡РµСЃРєРё С„СѓРЅРєС†РёСЏ РѕРїСЂРµРґРµР»РµРЅР° РІ РѕРґРЅРѕР№ РёР· РІРЅСѓС‚СЂРµРЅРЅРёС… РѕР±Р»Р°СЃС‚РµР№
+					// РІРёРґР° kExpDataHdr.
 					//
 					uint   pos = 0;
 					DlScope * p_child = 0;
@@ -2994,10 +2995,10 @@ DLSYMBID DlContext::EnterScope(uint scopeKind, const char * pName, DLSYMBID scop
 DLSYMBID DlContext::EnterViewScope(const char * pSymb)
 {
 	const uint scope_kind = DlScope::kUiView;
-	// @fixme AddStructType(symb_id) в случае view не нужно (или нужно?)
+	// @fixme AddStructType(symb_id) РІ СЃР»СѓС‡Р°Рµ view РЅРµ РЅСѓР¶РЅРѕ (РёР»Рё РЅСѓР¶РЅРѕ?)
 	DLSYMBID id = 0;
 	DlScope * p_cur_scope = GetCurScope();
-	assert(p_cur_scope); // Не может такого быть, что нет текущей области: значит мы вызывали функцию откуда-то не от туда.
+	assert(p_cur_scope); // РќРµ РјРѕР¶РµС‚ С‚Р°РєРѕРіРѕ Р±С‹С‚СЊ, С‡С‚Рѕ РЅРµС‚ С‚РµРєСѓС‰РµР№ РѕР±Р»Р°СЃС‚Рё: Р·РЅР°С‡РёС‚ РјС‹ РІС‹Р·С‹РІР°Р»Рё С„СѓРЅРєС†РёСЋ РѕС‚РєСѓРґР°-С‚Рѕ РЅРµ РѕС‚ С‚СѓРґР°.
 	if(p_cur_scope) {
 		DLSYMBID symb_id = 0;
 		SString name_;
@@ -3006,7 +3007,7 @@ DLSYMBID DlContext::EnterViewScope(const char * pSymb)
 			uuid.Generate();
 			uuid.ToStr(S_GUID::fmtPlain, name_); // automatic generated ident
 			const int ssr = SearchSymb(name_, '^', &symb_id);
-			assert(!ssr); // Если ssr != то нам удалось найти дубликат GUID'а: можно ползти на кладбище - в этом чертовом мире делать больше нечего
+			assert(!ssr); // Р•СЃР»Рё ssr != С‚Рѕ РЅР°Рј СѓРґР°Р»РѕСЃСЊ РЅР°Р№С‚Рё РґСѓР±Р»РёРєР°С‚ GUID'Р°: РјРѕР¶РЅРѕ РїРѕР»Р·С‚Рё РЅР° РєР»Р°РґР±РёС‰Рµ - РІ СЌС‚РѕРј С‡РµСЂС‚РѕРІРѕРј РјРёСЂРµ РґРµР»Р°С‚СЊ Р±РѕР»СЊС€Рµ РЅРµС‡РµРіРѕ
 			if(!ssr) {
 				symb_id = CreateSymb(name_, '^', 0);
 				THROW(symb_id);
@@ -3027,8 +3028,8 @@ DLSYMBID DlContext::EnterViewScope(const char * pSymb)
 			}
 			if(p_top_view_scope) {
 				//
-				// Если родительская область вида DlScope::kUiView существует, то проверяем уникальность
-				// символа только внутри нее.
+				// Р•СЃР»Рё СЂРѕРґРёС‚РµР»СЊСЃРєР°СЏ РѕР±Р»Р°СЃС‚СЊ РІРёРґР° DlScope::kUiView СЃСѓС‰РµСЃС‚РІСѓРµС‚, С‚Рѕ РїСЂРѕРІРµСЂСЏРµРј СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚СЊ
+				// СЃРёРјРІРѕР»Р° С‚РѕР»СЊРєРѕ РІРЅСѓС‚СЂРё РЅРµРµ.
 				//
 				DLSYMBID local_par_id = 0;
 				if(!p_top_view_scope->SearchByName_Const(scope_kind, pSymb, &local_par_id)) {
@@ -3043,8 +3044,8 @@ DLSYMBID DlContext::EnterViewScope(const char * pSymb)
 			}
 			else {
 				//
-				// Если родительская область вида DlScope::kUiView не существует, значит мы создаем топовую
-				// область такого вида. Стало быть символ должет быть уникальным "насквозь".
+				// Р•СЃР»Рё СЂРѕРґРёС‚РµР»СЊСЃРєР°СЏ РѕР±Р»Р°СЃС‚СЊ РІРёРґР° DlScope::kUiView РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, Р·РЅР°С‡РёС‚ РјС‹ СЃРѕР·РґР°РµРј С‚РѕРїРѕРІСѓСЋ
+				// РѕР±Р»Р°СЃС‚СЊ С‚Р°РєРѕРіРѕ РІРёРґР°. РЎС‚Р°Р»Рѕ Р±С‹С‚СЊ СЃРёРјРІРѕР» РґРѕР»Р¶РµС‚ Р±С‹С‚СЊ СѓРЅРёРєР°Р»СЊРЅС‹Рј "РЅР°СЃРєРІРѕР·СЊ".
 				//
 				if(!SearchSymb(pSymb, '^', &symb_id)) {
 					symb_id = CreateSymb(pSymb, '^', 0);
@@ -3127,10 +3128,10 @@ int DlContext::Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format,
 	THROW(SearchTypeID(rFunc.TypID, 0, &ret_te));
 	rFunc.GetName(0, temp_buf);
 	/*
-		ffH_GravityIface,   // @v10.8.6 Прототип интерфейса Gravity в H-файле
-		ffH_GravityImp,     // @v10.8.6 Прототип реализации интерфейса Gravity в H-файле
-		ffCPP_GravityIface, // @v10.8.6 Реализация интефейса Gravity в CPP-файле
-		ffCPP_GravityImp,   // @v10.8.6 Реализация Gravity в CPP-файле
+		ffH_GravityIface,   // @v10.8.6 РџСЂРѕС‚РѕС‚РёРї РёРЅС‚РµСЂС„РµР№СЃР° Gravity РІ H-С„Р°Р№Р»Рµ
+		ffH_GravityImp,     // @v10.8.6 РџСЂРѕС‚РѕС‚РёРї СЂРµР°Р»РёР·Р°С†РёРё РёРЅС‚РµСЂС„РµР№СЃР° Gravity РІ H-С„Р°Р№Р»Рµ
+		ffCPP_GravityIface, // @v10.8.6 Р РµР°Р»РёР·Р°С†РёСЏ РёРЅС‚РµС„РµР№СЃР° Gravity РІ CPP-С„Р°Р№Р»Рµ
+		ffCPP_GravityImp,   // @v10.8.6 Р РµР°Р»РёР·Р°С†РёСЏ Gravity РІ CPP-С„Р°Р№Р»Рµ
 	*/
 	if(format == ffH_GravityIface) {
 		arg_buf.Z().Cat("_Callee_").Cat(temp_buf);
@@ -3491,15 +3492,18 @@ int DlContext::MakeDlRecName(const DlScope * pRec, int instanceName, SString & r
 
 int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, long cflags)
 {
-	int    ok = 1, r;
-	uint   i, j, k;
-	SString cls_name, inst_name, fld_buf, line_buf;
+	int    ok = 1;
+	int    r;
+	SString cls_name;
+	SString inst_name;
+	SString fld_buf;
+	SString line_buf;
 	SdbField fld;
 	DlFunc func;
 	DlScope * p_ds = 0;
-	for(i = 0; rScope.EnumChilds(&i, &p_ds);) {
+	for(uint scopeidx = 0; rScope.EnumChilds(&scopeidx, &p_ds);) {
 		if(p_ds->IsKind(DlScope::kTypedefPool)) {
-			for(j = 0; p_ds->EnumFields(&j, &fld);) {
+			for(uint fldidx = 0; p_ds->EnumFields(&fldidx, &fld);) {
 				gen.CatIndent(line_buf.Z());
 				Format_C_Type(0, fld.T, fld.Name, fctfIDL|fctfSourceOutput, fld_buf);
 				gen.WriteLine(line_buf.Cat("typedef").Space().Cat(fld_buf).CR());
@@ -3510,9 +3514,9 @@ int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, lon
 			MakeClassName(p_ds, clsnfCPP, cflags, cls_name);
 			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(push)").CR());
 			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(8)").CR());
-			gen.Wr_StartClassDecl(Generator_CPP::clsStruct, cls_name, 0, Generator_CPP::acsPublic);
+			gen.Wr_StartClassDecl(Generator_CPP::clsStruct, cls_name, 0, Generator_CPP::acsPublic, 0);
 			gen.IndentInc();
-			for(j = 0; p_ds->EnumFields(&j, &fld);) {
+			for(uint fldidx = 0; p_ds->EnumFields(&fldidx, &fld);) {
 				gen.CatIndent(line_buf.Z());
 				Format_C_Type(0, fld.T, fld.Name, fctfIDL|fctfSourceOutput, fld_buf);
 				gen.WriteLine(line_buf.Cat(fld_buf).CR());
@@ -3524,12 +3528,12 @@ int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, lon
 		}
 		else if(p_ds->IsKind(DlScope::kEnum)) {
 			MakeClassName(p_ds, clsnfCPP, cflags, cls_name);
-			gen.Wr_StartClassDecl(Generator_CPP::clsEnum, cls_name, 0);
+			gen.Wr_StartClassDecl(Generator_CPP::clsEnum, cls_name, 0, Generator_CPP::acsPublic, 0);
 			gen.IndentInc();
-			for(j = 0; p_ds->EnumFields(&j, &fld);) {
+			for(uint fldidx = 0; p_ds->EnumFields(&fldidx, &fld);) {
 				gen.CatIndent(line_buf.Z());
 				line_buf.Cat(fld.Name).CatDiv('=', 1).Cat(fld.EnumVal);
-				if(j < p_ds->GetCount())
+				if(fldidx < p_ds->GetCount())
 					line_buf.Comma();
 				gen.WriteLine(line_buf.CR());
 			}
@@ -3540,15 +3544,17 @@ int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, lon
 		else if(p_ds->IsKind(DlScope::kIClass)) {
 			DlScope::IfaceBase ifb;
 			const DlScope * p_ifs;
+			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(push)").CR()); // @v11.7.0
+			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(8)").CR()); // @v11.7.0
 			MakeClassName(p_ds, clsnfCPP, cflags, cls_name);
-			gen.Wr_StartClassDecl(Generator_CPP::clsClass, cls_name, "SCoClass");
+			gen.Wr_StartClassDecl(Generator_CPP::clsClass, cls_name, "SCoClass", Generator_CPP::acsPublic, 0);
 			gen.Wr_ClassAcsZone(Generator_CPP::acsPublic);
 			gen.IndentInc();
 			gen.CatIndent(line_buf.Z()).Cat("DL6_IC_CONSTRUCTION_DECL").CatParStr(p_ds->Name).Semicol().CR();
 			gen.WriteLine(line_buf);
-			for(j = 0; (r = EnumInterfacesByICls(p_ds, &j, &ifb, &p_ifs)) >= 0;)
+			for(uint ifcidx = 0; (r = EnumInterfacesByICls(p_ds, &ifcidx, &ifb, &p_ifs)) >= 0;)
 				if(r == 0) {
-					fld_buf.Printf("Error extracting interface %s::%u", cls_name.cptr(), j-1);
+					fld_buf.Printf("Error extracting interface %s::%u", cls_name.cptr(), ifcidx-1);
 					gen.WriteLine(fld_buf.CR());
 				}
 				else {
@@ -3561,7 +3567,7 @@ int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, lon
 					gen.Wr_Comment(0);
 					gen.Wr_Comment((fld_buf = "Interface").Space().Cat(p_ifs->Name));
 					gen.Wr_Comment(0);
-					for(k = 0; p_ifs->EnumFunctions(&k, &func) > 0;) {
+					for(uint funcidx = 0; p_ifs->EnumFunctions(&funcidx, &func) > 0;) {
 						func.Name.CatChar('_');
 						Write_Func(gen, func, ffH_Iface);
 					}
@@ -3574,12 +3580,13 @@ int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, lon
 					gen.Wr_Comment(0);
 					gen.Wr_Comment((fld_buf = "Interface").Space().Cat(p_ifs->Name).Space().Cat("implementation"));
 					gen.Wr_Comment(0);
-					for(k = 0; p_ifs->EnumFunctions(&k, &func) > 0;)
+					for(uint funcidx = 0; p_ifs->EnumFunctions(&funcidx, &func) > 0;)
 						Write_Func(gen, func, ffH_Imp);
 				}
 			//
 			gen.IndentDec();
 			gen.Wr_CloseBrace(1);
+			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(pop)").CR()); // @v11.7.0
 			gen.WriteBlancLine();
 		}
 		else if(p_ds->IsKind(DlScope::kExpData) && !p_ds->GetBase()) {
@@ -3589,12 +3596,14 @@ int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, lon
 			}
 			else {
 				DlScope * p_rec = 0;
-				gen.Wr_StartClassDecl(Generator_CPP::clsClass, cls_name, "DlRtm");
+				gen.WriteLine(fld_buf.Z().Cat("#pragma pack(push)").CR()); // @v11.7.0
+				gen.WriteLine(fld_buf.Z().Cat("#pragma pack(1)").CR()); // @v11.7.0
+				gen.Wr_StartClassDecl(Generator_CPP::clsClass, cls_name, "DlRtm", Generator_CPP::acsPublic, 0);
 				gen.Wr_ClassAcsZone(Generator_CPP::acsPublic);
 				gen.IndentInc();
 				const int is_iter = BIN(p_ds->GetFirstChildByKind(DlScope::kExpDataIter, 0));
 				int is_func_decl = 0;
-				for(j = 0; !is_func_decl && p_ds->EnumChilds(&j, &p_rec);)
+				for(uint fldidx = 0; !is_func_decl && p_ds->EnumChilds(&fldidx, &p_rec);)
 					if((p_rec->IsKind(DlScope::kExpDataHdr) || p_rec->IsKind(DlScope::kExpDataIter)) && p_rec->GetFuncCount())
 						is_func_decl = 1;
 				//
@@ -3620,8 +3629,7 @@ int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, lon
 					gen.Wr_EndDeclFunc(1, 1);
 
 					gen.Wr_StartDeclFunc(Generator_CPP::fkOrdinary, Generator_CPP::fmVirtual, "int", "NextIteration");
-					gen.Wr_VarDecl("long", 0, 0, 0); // @v9.6.8 ','-->0
-					// @v9.6.8 gen.Wr_VarDecl("long", "rsrv", "0", 0);
+					gen.Wr_VarDecl("long", 0, 0, 0);
 					gen.Wr_EndDeclFunc(1, 1);
 				}
 				if(p_ds->CheckDvFlag(DlScope::declfDestroy)) {
@@ -3636,7 +3644,7 @@ int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, lon
 				}
 				if(is_func_decl) {
 					// virtual int EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS);
-					gen.Wr_StartDeclFunc(Generator_CPP::fkOrdinary, Generator_CPP::fmVirtual, "void", "EvaluateFunc"); // @v9.8.6 "int"-->"void"
+					gen.Wr_StartDeclFunc(Generator_CPP::fkOrdinary, Generator_CPP::fmVirtual, "void", "EvaluateFunc");
 					gen.Wr_VarDecl("const DlFunc *", "pF", 0, ',');
 					gen.Wr_VarDecl("SV_Uint32 *",  "pApl", 0, ',');
 					gen.Wr_VarDecl("RtmStack &",  "rS", 0, 0);
@@ -3644,13 +3652,13 @@ int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, lon
 				}
 				gen.WriteBlancLine();
 				//
-				for(j = 0; p_ds->EnumChilds(&j, &p_rec);) {
+				for(uint strucidx = 0; p_ds->EnumChilds(&strucidx, &p_rec);) {
 					if(p_rec->IsKind(DlScope::kExpDataHdr) || p_rec->IsKind(DlScope::kExpDataIter)) {
 						MakeDlRecName(p_rec, 0, cls_name);
 						MakeDlRecName(p_rec, 1, inst_name);
-						gen.Wr_StartClassDecl(Generator_CPP::clsStruct, cls_name, 0);
+						gen.Wr_StartClassDecl(Generator_CPP::clsStruct, cls_name, 0, Generator_CPP::acsPublic, 0);
 						gen.IndentInc();
-						for(k = 0; p_rec->EnumFields(&k, &fld);)
+						for(uint fldidx = 0; p_rec->EnumFields(&fldidx, &fld);)
 							if(!(fld.T.Flags & STypEx::fFormula)) {
 								THROW(Format_C_Type(0, fld.T, fld.Name, fctfSourceOutput, fld_buf));
 								fld_buf.CR();
@@ -3663,31 +3671,34 @@ int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, lon
 				}
 				gen.IndentDec();
 				gen.Wr_CloseBrace(1);
+				gen.WriteLine(fld_buf.Z().Cat("#pragma pack(pop)").CR()); // @v11.7.0
 			}
 			gen.WriteBlancLine();
 		}
 		else if(p_ds->IsKind(DlScope::kDbTable)) {
 			MakeClassName(p_ds, clsnfCPP, cflags, cls_name);
-			gen.Wr_StartClassDecl(Generator_CPP::clsClass, cls_name, "DBTable");
+			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(push)").CR()); // @v11.7.0
+			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(1)").CR()); // @v11.7.0
+			gen.Wr_StartClassDecl(Generator_CPP::clsClass, cls_name, "DBTable", Generator_CPP::acsPublic, 0);
 			gen.Wr_ClassAcsZone(Generator_CPP::acsPublic);
 			gen.IndentInc();
 			//
-			// Конструктор
+			// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
 			//
 			gen.Wr_StartDeclFunc(Generator_CPP::fkConstr, 0, 0, cls_name);
 			gen.Wr_VarDecl("const char *", "pFileName", "0", 0);
 			gen.Wr_EndDeclFunc(1, 1);
 			gen.WriteBlancLine();
 			//
-			// Структура записи
+			// РЎС‚СЂСѓРєС‚СѓСЂР° Р·Р°РїРёСЃРё
 			//
-			gen.Wr_StartClassDecl(Generator_CPP::clsStruct, "Rec", 0);
+			gen.Wr_StartClassDecl(Generator_CPP::clsStruct, "Rec", 0, Generator_CPP::acsPublic, 0);
 			gen.IndentInc();
 			// @v10.6.4 {
 			gen.Wr_StartDeclFunc(Generator_CPP::fkConstr, 0, 0, "Rec");
 			gen.Wr_EndDeclFunc(1, 1);
 			// } @v10.6.4
-			for(k = 0; p_ds->EnumFields(&k, &fld);) {
+			for(uint fldidx = 0; p_ds->EnumFields(&fldidx, &fld);) {
 				THROW(Format_C_Type(0, fld.T, fld.Name, fctfSourceOutput, fld_buf));
 				if(fld.T.IsPure()) {
 					int _t = GETSTYPE(fld.T.Typ);
@@ -3713,35 +3724,39 @@ int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, lon
 			}
 			gen.IndentDec();
 			gen.Wr_CloseBrace(1, "data");
-			//
-			// Структуры индексов
-			//
-			DlScope * p_index = 0;
-			for(j = 0; p_ds->EnumChilds(&j, &p_index);) {
-				if(p_index->IsKind(DlScope::kDbIndex)) {
-					MakeClassName(p_index, clsnfCPP, cflags, cls_name);
-					gen.Wr_StartClassDecl(Generator_CPP::clsStruct, cls_name, 0);
-					gen.IndentInc();
-					for(k = 0; p_index->EnumFields(&k, &fld);) {
-						THROW(Format_C_Type(0, fld.T, fld.Name, fctfSourceOutput, fld_buf));
-						fld_buf.CR();
-						gen.Wr_Indent();
-						gen.WriteLine(fld_buf);
+			{
+				//
+				// РЎС‚СЂСѓРєС‚СѓСЂС‹ РёРЅРґРµРєСЃРѕРІ
+				//
+				DlScope * p_index = 0;
+				for(uint idxidx = 0; p_ds->EnumChilds(&idxidx, &p_index);) {
+					if(p_index->IsKind(DlScope::kDbIndex)) {
+						MakeClassName(p_index, clsnfCPP, cflags, cls_name);
+						gen.Wr_StartClassDecl(Generator_CPP::clsStruct, cls_name, 0, Generator_CPP::acsPublic, 0);
+						gen.IndentInc();
+						for(uint fldidx = 0; p_index->EnumFields(&fldidx, &fld);) {
+							THROW(Format_C_Type(0, fld.T, fld.Name, fctfSourceOutput, fld_buf));
+							fld_buf.CR();
+							gen.Wr_Indent();
+							gen.WriteLine(fld_buf);
+						}
+						gen.IndentDec();
+						gen.Wr_CloseBrace(1, 0);
 					}
-					gen.IndentDec();
-					gen.Wr_CloseBrace(1, 0);
 				}
 			}
-			//
-			// Дескрипторы полей
-			//
-			for(k = 0; p_ds->EnumFields(&k, &fld);) {
-				gen.Wr_Indent();
-				gen.WriteLine((fld_buf = "DBField").Space().Cat(fld.Name).Semicol().CR());
+			{
+				//
+				// Р”РµСЃРєСЂРёРїС‚РѕСЂС‹ РїРѕР»РµР№
+				//
+				for(uint fldidx = 0; p_ds->EnumFields(&fldidx, &fld);) {
+					gen.Wr_Indent();
+					gen.WriteLine((fld_buf = "DBField").Space().Cat(fld.Name).Semicol().CR());
+				}
 			}
-			//
 			gen.IndentDec();
 			gen.Wr_CloseBrace(1);
+			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(pop)").CR()); // @v11.7.0
 			gen.WriteBlancLine();
 		}
 		else {
@@ -3769,8 +3784,8 @@ int DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rC
 	DlFunc::Arg arg;
 	SString func_name, line_buf, temp_buf, arg_name;
 	//
-	// Преобазуем наименование функции к виду ClassName::FuncName_
-	// (предварительно сохраняем оригинальное наименование функции в save_func_name)
+	// РџСЂРµРѕР±Р°Р·СѓРµРј РЅР°РёРјРµРЅРѕРІР°РЅРёРµ С„СѓРЅРєС†РёРё Рє РІРёРґСѓ ClassName::FuncName_
+	// (РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ СЃРѕС…СЂР°РЅСЏРµРј РѕСЂРёРіРёРЅР°Р»СЊРЅРѕРµ РЅР°РёРјРµРЅРѕРІР°РЅРёРµ С„СѓРЅРєС†РёРё РІ save_func_name)
 	//
 	SString save_func_name = rFunc.Name;
 	SString mod_func_name;
@@ -3800,7 +3815,7 @@ int DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rC
 		gen.IndentInc();
 		gen.WriteLine(gen.CatIndent(line_buf = 0).Cat("IFACE_METHOD_PROLOG").CatParStr(rClsName).Semicol().CR());
 		//
-		// Конвертация (если необходимо) типов параметров
+		// РљРѕРЅРІРµСЂС‚Р°С†РёСЏ (РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ) С‚РёРїРѕРІ РїР°СЂР°РјРµС‚СЂРѕРІ
 		//
 		for(k = 0; k < arg_count; k++) {
 			rFunc.GetArgName(k, arg_name);
@@ -3863,12 +3878,12 @@ int DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rC
 		(rFunc.Name = 0).Cat("IMCI").CatParStr(mod_func_name); // ICMD(func)
 		Write_Func(gen, rFunc, ffCPP_CallImp, is_ret ? temp_buf.cptr() : 0);
 		//
-		// Конвертация (если необходимо) типов исходящих параметров
+		// РљРѕРЅРІРµСЂС‚Р°С†РёСЏ (РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ) С‚РёРїРѕРІ РёСЃС…РѕРґСЏС‰РёС… РїР°СЂР°РјРµС‚СЂРѕРІ
 		//
 		for(k = 0; k < arg_count; k++) {
 			THROW(rFunc.GetArg(k, &arg));
 			//
-			// Обратную конвертацию делаем только для OUT-аргументов
+			// РћР±СЂР°С‚РЅСѓСЋ РєРѕРЅРІРµСЂС‚Р°С†РёСЋ РґРµР»Р°РµРј С‚РѕР»СЊРєРѕ РґР»СЏ OUT-Р°СЂРіСѓРјРµРЅС‚РѕРІ
 			//
 			if(arg.Flags & DlFunc::fArgOut) {
 				rFunc.GetArgName(k, arg_name);
@@ -3909,7 +3924,7 @@ int DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rC
 			}
 		}
 		//
-		// Конвертация возвращаемого значения //
+		// РљРѕРЅРІРµСЂС‚Р°С†РёСЏ РІРѕР·РІСЂР°С‰Р°РµРјРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ //
 		//
 		if(is_ret) {
 			gen.CatIndent(line_buf.Z());
@@ -3987,7 +4002,7 @@ int DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & rScope,
 			DlScope::IfaceBase ifb;
 			const DlScope * p_ifs;
 			//
-			// Тест целостности списка интерфейсов
+			// РўРµСЃС‚ С†РµР»РѕСЃС‚РЅРѕСЃС‚Рё СЃРїРёСЃРєР° РёРЅС‚РµСЂС„РµР№СЃРѕРІ
 			//
 			for(j = 0; (r = EnumInterfacesByICls(p_ds, &j, &ifb, &p_ifs)) >= 0;) {
 				if(r == 0) {
@@ -4003,12 +4018,12 @@ int DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & rScope,
 			gen.Wr_IfDef(Make_USEIMPL_DefSymb(cls_name, fld_buf));
 			rSs.add(fld_buf);
 			//
-			// Таблица виртуальных функция класса (собственно, та таблица, которая будет возвращаться //
-			// клиенту при обращении к QueryInterface)
+			// РўР°Р±Р»РёС†Р° РІРёСЂС‚СѓР°Р»СЊРЅС‹С… С„СѓРЅРєС†РёСЏ РєР»Р°СЃСЃР° (СЃРѕР±СЃС‚РІРµРЅРЅРѕ, С‚Р° С‚Р°Р±Р»РёС†Р°, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ РІРѕР·РІСЂР°С‰Р°С‚СЊСЃСЏ //
+			// РєР»РёРµРЅС‚Сѓ РїСЂРё РѕР±СЂР°С‰РµРЅРёРё Рє QueryInterface)
 			//
 			// ...
 			(vtab_name = cls_name).CatChar('_').Cat("VTab");
-			gen.Wr_StartClassDecl(Generator_CPP::clsStruct, vtab_name, 0, 0);
+			gen.Wr_StartClassDecl(Generator_CPP::clsStruct, vtab_name, 0, Generator_CPP::acsPublic, 0);
 			gen.IndentInc();
 			gen.Wr_Define("MFP(f)", fld_buf.Printf("(__stdcall %s::*f)", cls_name.cptr()));
 			for(j = 0; EnumInterfacesByICls(p_ds, &j, &ifb, &p_ifs) > 0;) {
@@ -4080,7 +4095,7 @@ int DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & rScope,
 			gen.IndentDec();
 			gen.Wr_CloseBrace(1, 0);
 			//
-			// Оболочка реализации интерфейсов
+			// РћР±РѕР»РѕС‡РєР° СЂРµР°Р»РёР·Р°С†РёРё РёРЅС‚РµСЂС„РµР№СЃРѕРІ
 			//
 			for(j = 0; EnumInterfacesByICls(p_ds, &j, &ifb, &p_ifs) > 0;) {
 				gen.Wr_Comment(0);
@@ -4136,7 +4151,7 @@ int DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope, lon
 			DlScope::IfaceBase ifb;
 			const DlScope * p_ifs;
 			//
-			// Методы реализации интерфейсов
+			// РњРµС‚РѕРґС‹ СЂРµР°Р»РёР·Р°С†РёРё РёРЅС‚РµСЂС„РµР№СЃРѕРІ
 			//
 			/*
 				DL6_IC_CONSTRUCTOR(PpSession, DL6ICLS_PpSession_VTab)
@@ -4369,7 +4384,7 @@ int DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope, lon
 		}
 		else if(p_ds->IsKind(DlScope::kDbTable)) {
 			//
-			// Получаем самое первое поле для ссылки в конструкторе DBTable
+			// РџРѕР»СѓС‡Р°РµРј СЃР°РјРѕРµ РїРµСЂРІРѕРµ РїРѕР»Рµ РґР»СЏ СЃСЃС‹Р»РєРё РІ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂРµ DBTable
 			//
 			fld_buf.Z();
 			for(k = 0; p_ds->EnumFields(&k, &fld);) {
@@ -4377,7 +4392,7 @@ int DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope, lon
 				break;
 			}
 			//
-			// Вызов макроса DBTABLE_CONSTRUCTOR
+			// Р’С‹Р·РѕРІ РјР°РєСЂРѕСЃР° DBTABLE_CONSTRUCTOR
 			//
 			(func_name = "DBTABLE_CONSTRUCTOR").CatChar('(').Cat(p_ds->GetName()).
 				CatDiv(',', 2).Cat(fld_buf).CatChar(')').CR();
@@ -4751,7 +4766,7 @@ int DlContext::Compile(const char * pInFileName, const char * pDictPath, const c
 				gen.WriteBlancLine();
 			}
 			//
-			// Прототипы интерфейсов {
+			// РџСЂРѕС‚РѕС‚РёРїС‹ РёРЅС‚РµСЂС„РµР№СЃРѕРІ {
 			//
 			if(Sc.GetFirstChildByKind(DlScope::kInterface, 1) || Sc.GetFirstChildByKind(DlScope::kIClass, 1)) {
 				if(cflags & cfGravity) {
@@ -4842,7 +4857,7 @@ int DlContext::Compile(const char * pInFileName, const char * pDictPath, const c
 				SPathStruc ps;
 				ps.Split(InFileName);
 				//
-				// _auto cpp-файл пишем только в том случае, если есть хоть одно определение iclass
+				// _auto cpp-С„Р°Р№Р» РїРёС€РµРј С‚РѕР»СЊРєРѕ РІ С‚РѕРј СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РµСЃС‚СЊ С…РѕС‚СЊ РѕРґРЅРѕ РѕРїСЂРµРґРµР»РµРЅРёРµ iclass
 				//
 				scope_id_list.freeAll();
 				Sc.GetChildList(DlScope::kIClass, 1, &scope_id_list);
@@ -4886,7 +4901,7 @@ int DlContext::Compile(const char * pInFileName, const char * pDictPath, const c
 			gen.WriteLine(line_buf);
 			gen.WriteBlancLine();
 			//
-			// Прототипы интерфейсов {
+			// РџСЂРѕС‚РѕС‚РёРїС‹ РёРЅС‚РµСЂС„РµР№СЃРѕРІ {
 			//
 			scope_id_list.freeAll();
 			Sc.GetChildList(DlScope::kInterface, 1, &scope_id_list);
@@ -4928,7 +4943,7 @@ int DlContext::Compile(const char * pInFileName, const char * pDictPath, const c
 		else
 			Error(LastError, 0, 0);
 		//
-		// Создание словаря и файлов базы данных
+		// РЎРѕР·РґР°РЅРёРµ СЃР»РѕРІР°СЂСЏ Рё С„Р°Р№Р»РѕРІ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
 		//
 		if(!(cflags & cfBinOnly)) {
 			SqlServerType sqlst = sqlstNone;

@@ -129,17 +129,17 @@ import		#import{ws}+.*\n
 {str}			{ return install_str(); }
 {module}		{ 
 	char * t, buf[1024];
-	char * s = strchr(yytext, '"');
+	char * s = sstrchr(yytext, '"');
 	if(!s)
 		t = yytext+7;
 	else { 
 		strcpy(buf, s+1);
-		s = strchr(buf, '"');
+		s = sstrchr(buf, '"');
 		*s = '\0';
-		t = strchr(s+1, '"');
+		t = sstrchr(s+1, '"');
 		if(t) { 
 			t++;
-			s = strchr(t+1, '"');
+			s = sstrchr(t+1, '"');
 			if(s)
 				*s = '\0';
 		}
@@ -148,10 +148,10 @@ import		#import{ws}+.*\n
 }
 {import}		{ 
 	char   buf[1024];
-	char * s = strchr(yytext, '"');
+	char * s = sstrchr(yytext, '"');
 	if(s) { 
 		strcpy(buf, s+1);
-		s = strchr(buf, '"');
+		s = sstrchr(buf, '"');
 		*s = '\0';
 		import(buf);
 	}

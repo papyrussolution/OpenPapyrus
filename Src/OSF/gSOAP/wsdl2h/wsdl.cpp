@@ -30,7 +30,7 @@ int is_builtin_qname(const char * QName)
 	if(QName) {
 		if(*QName != '"')
 			return 1;  // if the QName does not start with a ", it must be in the nsmap
-		const char * s = strchr(QName + 1, '"');
+		const char * s = sstrchr(QName + 1, '"');
 		if(s) {
 			size_t n = s - QName - 1;
 			for(SetOfString::const_iterator i = exturis.begin(); i != exturis.end(); ++i)

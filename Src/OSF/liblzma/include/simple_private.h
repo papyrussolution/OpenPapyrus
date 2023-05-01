@@ -15,7 +15,7 @@ struct lzma_simple_coder {
 	/// is very small.
 	bool is_encoder;
 	/// Pointer to filter-specific function, which does the actual filtering.
-	size_t (* filter)(void * simple, uint32_t now_pos, bool is_encoder, uint8_t * buffer, size_t size);
+	size_t (* filter)(void * simple, uint32_t now_pos, bool is_encoder, uint8 * buffer, size_t size);
 	/// Pointer to filter-specific data, or NULL if filter doesn't need any extra data.
 	void * simple;
 	/// The lowest 32 bits of the current position in the data. Most
@@ -29,11 +29,11 @@ struct lzma_simple_coder {
 	size_t filtered;
 	/// Total number of bytes (both filtered and unfiltered) currently in the temporary buffer.
 	size_t size;
-	uint8_t buffer[]; /// Temporary buffer
+	uint8 buffer[]; /// Temporary buffer
 };
 
 extern lzma_ret lzma_simple_coder_init(lzma_next_coder * next, const lzma_allocator * allocator, const lzma_filter_info * filters,
-    size_t (* filter)(void * simple, uint32_t now_pos, bool is_encoder, uint8_t * buffer, size_t size), size_t simple_size,
+    size_t (* filter)(void * simple, uint32_t now_pos, bool is_encoder, uint8 * buffer, size_t size), size_t simple_size,
     size_t unfiltered_max, uint32_t alignment, bool is_encoder);
 
 #endif

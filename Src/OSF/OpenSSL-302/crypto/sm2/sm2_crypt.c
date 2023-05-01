@@ -103,7 +103,7 @@ int ossl_sm2_ciphertext_size(const EC_KEY * key, const EVP_MD * digest,
 	return 1;
 }
 
-int ossl_sm2_encrypt(const EC_KEY * key, const EVP_MD * digest, const uint8_t * msg, size_t msg_len, uint8_t * ciphertext_buf, size_t * ciphertext_len)
+int ossl_sm2_encrypt(const EC_KEY * key, const EVP_MD * digest, const uint8 * msg, size_t msg_len, uint8 * ciphertext_buf, size_t * ciphertext_len)
 {
 	int rc = 0, ciphertext_leni;
 	size_t i;
@@ -120,9 +120,9 @@ int ossl_sm2_encrypt(const EC_KEY * key, const EVP_MD * digest, const uint8_t * 
 	const EC_POINT * P = EC_KEY_get0_public_key(key);
 	EC_POINT * kG = NULL;
 	EC_POINT * kP = NULL;
-	uint8_t * msg_mask = NULL;
-	uint8_t * x2y2 = NULL;
-	uint8_t * C3 = NULL;
+	uint8 * msg_mask = NULL;
+	uint8 * x2y2 = NULL;
+	uint8 * C3 = NULL;
 	size_t field_size;
 	const int C3_size = EVP_MD_get_size(digest);
 	EVP_MD * fetched_digest = NULL;
@@ -158,8 +158,8 @@ int ossl_sm2_encrypt(const EC_KEY * key, const EVP_MD * digest, const uint8_t * 
 		ERR_raise(ERR_LIB_SM2, ERR_R_BN_LIB);
 		goto done;
 	}
-	x2y2 = (uint8_t*)OPENSSL_zalloc(2 * field_size);
-	C3 = (uint8_t*)OPENSSL_zalloc(C3_size);
+	x2y2 = (uint8*)OPENSSL_zalloc(2 * field_size);
+	C3 = (uint8*)OPENSSL_zalloc(C3_size);
 	if(x2y2 == NULL || C3 == NULL) {
 		ERR_raise(ERR_LIB_SM2, ERR_R_MALLOC_FAILURE);
 		goto done;
@@ -180,7 +180,7 @@ int ossl_sm2_encrypt(const EC_KEY * key, const EVP_MD * digest, const uint8_t * 
 		ERR_raise(ERR_LIB_SM2, ERR_R_INTERNAL_ERROR);
 		goto done;
 	}
-	msg_mask = (uint8_t*)OPENSSL_zalloc(msg_len);
+	msg_mask = (uint8*)OPENSSL_zalloc(msg_len);
 	if(msg_mask == NULL) {
 		ERR_raise(ERR_LIB_SM2, ERR_R_MALLOC_FAILURE);
 		goto done;
@@ -247,8 +247,8 @@ done:
 
 int ossl_sm2_decrypt(const EC_KEY * key,
     const EVP_MD * digest,
-    const uint8_t * ciphertext, size_t ciphertext_len,
-    uint8_t * ptext_buf, size_t * ptext_len)
+    const uint8 * ciphertext, size_t ciphertext_len,
+    uint8 * ptext_buf, size_t * ptext_len)
 {
 	int rc = 0;
 	int i;
@@ -258,13 +258,13 @@ int ossl_sm2_decrypt(const EC_KEY * key,
 	struct SM2_Ciphertext_st * sm2_ctext = NULL;
 	BIGNUM * x2 = NULL;
 	BIGNUM * y2 = NULL;
-	uint8_t * x2y2 = NULL;
-	uint8_t * computed_C3 = NULL;
+	uint8 * x2y2 = NULL;
+	uint8 * computed_C3 = NULL;
 	const size_t field_size = ec_field_size(group);
 	const int hash_size = EVP_MD_get_size(digest);
-	uint8_t * msg_mask = NULL;
-	const uint8_t * C2 = NULL;
-	const uint8_t * C3 = NULL;
+	uint8 * msg_mask = NULL;
+	const uint8 * C2 = NULL;
+	const uint8 * C3 = NULL;
 	int msg_len = 0;
 	EVP_MD_CTX * hash = NULL;
 	OSSL_LIB_CTX * libctx = ossl_ec_key_get_libctx(key);
@@ -300,9 +300,9 @@ int ossl_sm2_decrypt(const EC_KEY * key,
 		ERR_raise(ERR_LIB_SM2, ERR_R_BN_LIB);
 		goto done;
 	}
-	msg_mask = (uint8_t*)OPENSSL_zalloc(msg_len);
-	x2y2 = (uint8_t*)OPENSSL_zalloc(2 * field_size);
-	computed_C3 = (uint8_t*)OPENSSL_zalloc(hash_size);
+	msg_mask = (uint8*)OPENSSL_zalloc(msg_len);
+	x2y2 = (uint8*)OPENSSL_zalloc(2 * field_size);
+	computed_C3 = (uint8*)OPENSSL_zalloc(hash_size);
 
 	if(msg_mask == NULL || x2y2 == NULL || computed_C3 == NULL) {
 		ERR_raise(ERR_LIB_SM2, ERR_R_MALLOC_FAILURE);

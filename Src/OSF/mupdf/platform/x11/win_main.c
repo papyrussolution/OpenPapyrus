@@ -532,7 +532,7 @@ static void winopen()
 	HMENU menu;
 	RECT r;
 	ATOM a;
-	/* Create and register window frame class */
+	// Create and register window frame class 
 	memzero(&wc, sizeof(wc));
 	wc.style = 0;
 	wc.lpfnWndProc = frameproc;
@@ -547,7 +547,7 @@ static void winopen()
 	a = RegisterClassW(&wc);
 	if(!a)
 		pdfapp_error(&gapp, "cannot register frame window class");
-	/* Create and register window view class */
+	// Create and register window view class 
 	memzero(&wc, sizeof(wc));
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = viewproc;
@@ -562,22 +562,18 @@ static void winopen()
 	a = RegisterClassW(&wc);
 	if(!a)
 		pdfapp_error(&gapp, "cannot register view window class");
-
-	/* Get screen size */
+	// Get screen size 
 	SystemParametersInfo(SPI_GETWORKAREA, 0, &r, 0);
 	gapp.scrw = r.right - r.left;
 	gapp.scrh = r.bottom - r.top;
-
-	/* Create cursors */
+	// Create cursors
 	arrowcurs = LoadCursor(NULL, IDC_ARROW);
 	handcurs = LoadCursor(NULL, IDC_HAND);
 	waitcurs = LoadCursor(NULL, IDC_WAIT);
 	caretcurs = LoadCursor(NULL, IDC_IBEAM);
-
-	/* And a background color */
+	// And a background color 
 	bgbrush = CreateSolidBrush(RGB(0x70, 0x70, 0x70));
-
-	/* Init DIB info for buffer */
+	// Init DIB info for buffer 
 	dibinf = (BITMAPINFO *)SAlloc::M(sizeof(BITMAPINFO) + 12);
 	assert(dibinf);
 	dibinf->bmiHeader.biSize = sizeof(dibinf->bmiHeader);
@@ -589,7 +585,7 @@ static void winopen()
 	dibinf->bmiHeader.biClrUsed = 0;
 	dibinf->bmiHeader.biClrImportant = 0;
 	dibinf->bmiHeader.biClrUsed = 0;
-	/* Create window */
+	// Create window 
 	hwndframe = CreateWindowW(L"FrameWindow", NULL/*window caption*/, WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
 		CW_USEDEFAULT, CW_USEDEFAULT/*initial position*/, 300/*initial x size*/, 300/*initial y size*/, 0/*parent window handle*/, 0, 0, 0);
 	if(!hwndframe)
@@ -682,7 +678,7 @@ static void winblit()
 	int image_w = fz_pixmap_width(gapp.ctx, gapp.image);
 	int image_h = fz_pixmap_height(gapp.ctx, gapp.image);
 	int image_n = fz_pixmap_components(gapp.ctx, gapp.image);
-	unsigned char * samples = fz_pixmap_samples(gapp.ctx, gapp.image);
+	uchar * samples = fz_pixmap_samples(gapp.ctx, gapp.image);
 	int x0 = gapp.panx;
 	int y0 = gapp.pany;
 	int x1 = gapp.panx + image_w;
@@ -700,9 +696,9 @@ static void winblit()
 		dibinf->bmiHeader.biSizeImage = image_h * 4;
 		if(image_n == 2) {
 			size_t i = image_w * (size_t)image_h;
-			unsigned char * color = (unsigned char *)SAlloc::M(i*4);
-			unsigned char * s = samples;
-			unsigned char * d = color;
+			uchar * color = (uchar *)SAlloc::M(i*4);
+			uchar * s = samples;
+			uchar * d = color;
 			for(; i > 0; i--) {
 				d[2] = d[1] = d[0] = *s++;
 				d[3] = *s++;
@@ -724,16 +720,22 @@ static void winblit()
 		brush = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	else
 		brush = bgbrush;
-	/* Grey background */
-	r.top = 0; r.bottom = gapp.winh;
-	r.left = 0; r.right = x0;
+	// Grey background 
+	r.top = 0; 
+	r.bottom = gapp.winh;
+	r.left = 0; 
+	r.right = x0;
 	FillRect(hdc, &r, brush);
-	r.left = x1; r.right = gapp.winw;
+	r.left = x1; 
+	r.right = gapp.winw;
 	FillRect(hdc, &r, brush);
-	r.left = 0; r.right = gapp.winw;
-	r.top = 0; r.bottom = y0;
+	r.left = 0; 
+	r.right = gapp.winw;
+	r.top = 0; 
+	r.bottom = y0;
 	FillRect(hdc, &r, brush);
-	r.top = y1; r.bottom = gapp.winh;
+	r.top = y1; 
+	r.bottom = gapp.winh;
 	FillRect(hdc, &r, brush);
 	winblitsearch();
 }
@@ -921,10 +923,10 @@ static LRESULT CALLBACK viewproc(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 			    gapp.shrinkwrap = 0;
 		    pdfapp_onresize(&gapp, LOWORD(lParam), HIWORD(lParam));
 		    break;
-
-		/* Paint events are low priority and automagically catenated
-		 * so we don't need to do any fancy waiting to defer repainting.
-		 */
+		//
+		// Paint events are low priority and automagically catenated
+		// so we don't need to do any fancy waiting to defer repainting.
+		//
 		case WM_PAINT:
 	    {
 		    //puts("WM_PAINT");
@@ -938,9 +940,7 @@ static LRESULT CALLBACK viewproc(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 	    }
 		case WM_ERASEBKGND:
 		    return 1; // well, we don't need to erase to redraw cleanly
-
 		/* Mouse events */
-
 		case WM_LBUTTONDOWN:
 		    SetFocus(hwndview);
 		    oldx = x; oldy = y;

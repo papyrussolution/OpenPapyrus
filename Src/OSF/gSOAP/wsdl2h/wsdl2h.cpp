@@ -52,51 +52,43 @@
 static void init();
 static void options(int argc, char ** argv);
 
-int _flag = 0,
-    aflag = 0,
-    cflag = 0,
-    dflag = 0,
-    eflag = 0,
-    fflag = 0,
-    gflag = 0,
-    iflag = 0,
-    jflag = 0,
-    kflag = 0,
-    mflag = 0,
-    pflag = 0,
-    Pflag = 0,
-    sflag = 0,
-    uflag = 0,
-    vflag = 0,
-    wflag = 0,
-    Wflag = 0,
-    xflag = 0,
-    yflag = 0,
-    zflag = 0;
-
+int _flag = 0;
+int aflag = 0;
+int cflag = 0;
+int dflag = 0;
+int eflag = 0;
+int fflag = 0;
+int gflag = 0;
+int iflag = 0;
+int jflag = 0;
+int kflag = 0;
+int mflag = 0;
+int pflag = 0;
+int Pflag = 0;
+int sflag = 0;
+int uflag = 0;
+int vflag = 0;
+int wflag = 0;
+int Wflag = 0;
+int xflag = 0;
+int yflag = 0;
+int zflag = 0;
 int infiles = 0;
-char * infile[MAXINFILES],
-* outfile = NULL,
-* proxy_host = NULL,
-* proxy_userid = NULL,
-* proxy_passwd = NULL;
-extern const char
-* mapfile = WSDL_TYPEMAP_FILE,
-* import_path = WSDL2H_IMPORT_PATH,
-* cwd_path = NULL,
-* cppnamespace = NULL;
-
+char * infile[MAXINFILES];
+char * outfile = NULL;
+char * proxy_host = NULL;
+char * proxy_userid = NULL;
+char * proxy_passwd = NULL;
+extern const char * mapfile = WSDL_TYPEMAP_FILE;
+extern const char * import_path = WSDL2H_IMPORT_PATH;
+extern const char * cwd_path = NULL;
+extern const char * cppnamespace = NULL;
 int proxy_port = 8080;
-
 FILE * stream = stdout;
-
 SetOfString exturis;
-
 extern struct Namespace namespaces[];
-
 const char * service_prefix = NULL;
 const char * schema_prefix = "ns";
-
 const char elementformat[]             = "    %-35s  %-30s";
 const char pointerformat[]             = "    %-35s *%-30s";
 const char attributeformat[]           = "   @%-35s  %-30s";
@@ -310,14 +302,14 @@ static void options(int argc, char ** argv)
 					      char * s = static_cast<char *>(emalloc(strlen(proxy_host + 1)));
 					      strcpy(s, proxy_host);
 					      proxy_host = s;
-					      s = strchr(proxy_host, ':');
+					      s = sstrchr(proxy_host, ':');
 					      if(s) {
 						      *s = '\0';
 						      proxy_port = soap_strtol(s + 1, &s, 10);
 						      if(s && *s == ':') {
 							      *s = '\0';
 							      proxy_userid = s + 1;
-							      s = strchr(proxy_userid, ':');
+							      s = sstrchr(proxy_userid, ':');
 							      if(s && *s == ':') {
 								      *s = '\0';
 								      proxy_passwd = s + 1;

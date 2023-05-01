@@ -13,8 +13,8 @@
 
 /// Copied or encodes/decodes more data to out[].
 static lzma_ret copy_or_code(lzma_simple_coder * coder, const lzma_allocator * allocator,
-    const uint8_t * in, size_t * in_pos,
-    size_t in_size, uint8_t * out,
+    const uint8 * in, size_t * in_pos,
+    size_t in_size, uint8 * out,
     size_t * out_pos, size_t out_size, lzma_action action)
 {
 	assert(!coder->end_was_reached);
@@ -38,15 +38,15 @@ static lzma_ret copy_or_code(lzma_simple_coder * coder, const lzma_allocator * a
 	return LZMA_OK;
 }
 
-static size_t call_filter(lzma_simple_coder * coder, uint8_t * buffer, size_t size)
+static size_t call_filter(lzma_simple_coder * coder, uint8 * buffer, size_t size)
 {
 	const size_t filtered = coder->filter(coder->simple, coder->now_pos, coder->is_encoder, buffer, size);
 	coder->now_pos += filtered;
 	return filtered;
 }
 
-static lzma_ret simple_code(void * coder_ptr, const lzma_allocator * allocator, const uint8_t * in, size_t * in_pos,
-    size_t in_size, uint8_t * out, size_t * out_pos, size_t out_size, lzma_action action)
+static lzma_ret simple_code(void * coder_ptr, const lzma_allocator * allocator, const uint8 * in, size_t * in_pos,
+    size_t in_size, uint8 * out, size_t * out_pos, size_t out_size, lzma_action action)
 {
 	lzma_simple_coder * coder = (lzma_simple_coder *)coder_ptr;
 	// TODO: Add partial support for LZMA_SYNC_FLUSH. We can support it
@@ -170,7 +170,7 @@ static lzma_ret simple_coder_update(void * coder_ptr, const lzma_allocator * all
 }
 
 extern lzma_ret lzma_simple_coder_init(lzma_next_coder * next, const lzma_allocator * allocator, const lzma_filter_info * filters,
-    size_t (*filter)(void * simple, uint32_t now_pos, bool is_encoder, uint8_t * buffer, size_t size),
+    size_t (*filter)(void * simple, uint32_t now_pos, bool is_encoder, uint8 * buffer, size_t size),
     size_t simple_size, size_t unfiltered_max, uint32_t alignment, bool is_encoder)
 {
 	// Allocate memory for the lzma_simple_coder structure if needed.
@@ -240,7 +240,7 @@ extern lzma_ret lzma_simple_props_encode(const void * options, uint8 * out)
 //
 // simple_decoder
 //
-extern lzma_ret lzma_simple_props_decode(void ** options, const lzma_allocator * allocator, const uint8_t * props, size_t props_size)
+extern lzma_ret lzma_simple_props_decode(void ** options, const lzma_allocator * allocator, const uint8 * props, size_t props_size)
 {
 	if(props_size == 0)
 		return LZMA_OK;

@@ -232,10 +232,7 @@ static int add_lengths(int * out, int a, int b)
 int NAME_CONSTRAINTS_check(X509 * x, NAME_CONSTRAINTS * nc)
 {
 	int r, i, name_count, constraint_count;
-	X509_NAME * nm;
-
-	nm = X509_get_subject_name(x);
-
+	X509_NAME * nm = X509_get_subject_name(x);
 	/*
 	 * Guard against certificates with an excessive number of names or
 	 * constraints causing a computationally expensive name constraints check.
@@ -247,24 +244,17 @@ int NAME_CONSTRAINTS_check(X509 * x, NAME_CONSTRAINTS * nc)
 	    sk_GENERAL_SUBTREE_num(nc->excludedSubtrees))
 	    || (name_count > 0 && constraint_count > NAME_CHECK_MAX / name_count))
 		return X509_V_ERR_UNSPECIFIED;
-
 	if(X509_NAME_entry_count(nm) > 0) {
 		GENERAL_NAME gntmp;
 		gntmp.type = GEN_DIRNAME;
 		gntmp.d.directoryName = nm;
-
 		r = nc_match(&gntmp, nc);
-
 		if(r != X509_V_OK)
 			return r;
-
 		gntmp.type = GEN_EMAIL;
-
 		/* Process any email address attributes in subject name */
-
 		for(i = -1;;) {
 			const X509_NAME_ENTRY * ne;
-
 			i = X509_NAME_get_index_by_NID(nm, NID_pkcs9_emailAddress, i);
 			if(i == -1)
 				break;
@@ -272,21 +262,17 @@ int NAME_CONSTRAINTS_check(X509 * x, NAME_CONSTRAINTS * nc)
 			gntmp.d.rfc822Name = X509_NAME_ENTRY_get_data(ne);
 			if(gntmp.d.rfc822Name->type != V_ASN1_IA5STRING)
 				return X509_V_ERR_UNSUPPORTED_NAME_SYNTAX;
-
 			r = nc_match(&gntmp, nc);
-
 			if(r != X509_V_OK)
 				return r;
 		}
 	}
-
 	for(i = 0; i < sk_GENERAL_NAME_num(x->altname); i++) {
 		GENERAL_NAME * gen = sk_GENERAL_NAME_value(x->altname, i);
 		r = nc_match(gen, nc);
 		if(r != X509_V_OK)
 			return r;
 	}
-
 	return X509_V_OK;
 }
 
@@ -296,11 +282,9 @@ static int cn2dnsid(ASN1_STRING * cn, uchar ** dnsid, size_t * idlen)
 	uchar * utf8_value;
 	int i;
 	int isdnsname = 0;
-
 	/* Don't leave outputs uninitialized */
 	*dnsid = NULL;
 	*idlen = 0;
-
 	/*-
 	 * Per RFC 6125, DNS-IDs representing internationalized domain names appear
 	 * in certificates in A-label encoded form:
@@ -346,13 +330,8 @@ static int cn2dnsid(ASN1_STRING * cn, uchar ** dnsid, size_t * idlen)
 	 */
 	for(i = 0; i < utf8_length; ++i) {
 		unsigned char c = utf8_value[i];
-
-		if((c >= 'a' && c <= 'z')
-		    || (c >= 'A' && c <= 'Z')
-		    || (c >= '0' && c <= '9')
-		    || c == '_')
+		if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
 			continue;
-
 		/* Dot and hyphen cannot be first or last. */
 		if(i > 0 && i < utf8_length - 1) {
 			if(c == '-')
@@ -362,10 +341,7 @@ static int cn2dnsid(ASN1_STRING * cn, uchar ** dnsid, size_t * idlen)
 			 * another dot or a hyphen.  Otherwise, record that the name is
 			 * plausible, since it has two or more labels.
 			 */
-			if(c == '.'
-			    && utf8_value[i + 1] != '.'
-			    && utf8_value[i - 1] != '-'
-			    && utf8_value[i + 1] != '-') {
+			if(c == '.' && utf8_value[i + 1] != '.' && utf8_value[i - 1] != '-' && utf8_value[i + 1] != '-') {
 				isdnsname = 1;
 				continue;
 			}
@@ -373,7 +349,6 @@ static int cn2dnsid(ASN1_STRING * cn, uchar ** dnsid, size_t * idlen)
 		isdnsname = 0;
 		break;
 	}
-
 	if(isdnsname) {
 		*dnsid = utf8_value;
 		*idlen = (size_t)utf8_length;
@@ -382,7 +357,6 @@ static int cn2dnsid(ASN1_STRING * cn, uchar ** dnsid, size_t * idlen)
 	OPENSSL_free(utf8_value);
 	return X509_V_OK;
 }
-
 /*
  * Check CN against DNS-ID name constraints.
  */
@@ -392,32 +366,26 @@ int NAME_CONSTRAINTS_check_CN(X509 * x, NAME_CONSTRAINTS * nc)
 	const X509_NAME * nm = X509_get_subject_name(x);
 	ASN1_STRING stmp;
 	GENERAL_NAME gntmp;
-
 	stmp.flags = 0;
 	stmp.type = V_ASN1_IA5STRING;
 	gntmp.type = GEN_DNS;
 	gntmp.d.dNSName = &stmp;
-
 	/* Process any commonName attributes in subject name */
-
 	for(i = -1;;) {
 		X509_NAME_ENTRY * ne;
 		ASN1_STRING * cn;
 		uchar * idval;
 		size_t idlen;
-
 		i = X509_NAME_get_index_by_NID(nm, NID_commonName, i);
 		if(i == -1)
 			break;
 		ne = X509_NAME_get_entry(nm, i);
 		cn = X509_NAME_ENTRY_get_data(ne);
-
 		/* Only process attributes that look like host names */
 		if((r = cn2dnsid(cn, &idval, &idlen)) != X509_V_OK)
 			return r;
 		if(idlen == 0)
 			continue;
-
 		stmp.length = idlen;
 		stmp.data = idval;
 		r = nc_match(&gntmp, nc);

@@ -34,7 +34,7 @@ struct lzma_decoder_coder {
 	struct {
 		size_t pos;
 		size_t size;
-		uint8_t buffer[LZMA_BUFFER_SIZE];
+		uint8 buffer[LZMA_BUFFER_SIZE];
 	} temp;
 };
 //
@@ -74,7 +74,7 @@ static void move_window(lzma_mf * mf)
 ///
 /// This function must not be called once it has returned LZMA_STREAM_END.
 ///
-static lzma_ret fill_window(lzma_encoder_coder * coder, const lzma_allocator * allocator, const uint8_t * in, size_t * in_pos, size_t in_size, lzma_action action)
+static lzma_ret fill_window(lzma_encoder_coder * coder, const lzma_allocator * allocator, const uint8 * in, size_t * in_pos, size_t in_size, lzma_action action)
 {
 	assert(coder->mf.read_pos <= coder->mf.write_pos);
 	// Move the sliding window if needed.
@@ -132,8 +132,8 @@ static lzma_ret fill_window(lzma_encoder_coder * coder, const lzma_allocator * a
 	return ret;
 }
 
-static lzma_ret lz_encode(void * coder_ptr, const lzma_allocator * allocator, const uint8_t * in, size_t * in_pos,
-    size_t in_size, uint8_t * out, size_t * out_pos, size_t out_size, lzma_action action)
+static lzma_ret lz_encode(void * coder_ptr, const lzma_allocator * allocator, const uint8 * in, size_t * in_pos,
+    size_t in_size, uint8 * out, size_t * out_pos, size_t out_size, lzma_action action)
 {
 	lzma_encoder_coder * coder = (lzma_encoder_coder *)coder_ptr;
 	while(*out_pos < out_size && (*in_pos < in_size || action != LZMA_RUN)) {
@@ -310,7 +310,7 @@ static bool lz_encoder_init(lzma_mf * mf, const lzma_allocator * allocator, cons
 		// lzma_memcmplen() is used for the dictionary buffer
 		// so we need to allocate a few extra bytes to prevent
 		// it from reading past the end of the buffer.
-		mf->buffer = (uint8_t *)lzma_alloc(mf->size + LZMA_MEMCMPLEN_EXTRA, allocator);
+		mf->buffer = (uint8 *)lzma_alloc(mf->size + LZMA_MEMCMPLEN_EXTRA, allocator);
 		if(mf->buffer == NULL)
 			return true;
 		// Keep Valgrind happy with lzma_memcmplen() and initialize
@@ -528,10 +528,10 @@ extern uint32 lzma_mf_find(lzma_mf * mf, uint32 * count_ptr, lzma_match * matche
 				limit = mf->match_len_max;
 			// Pointer to the byte we just ran through
 			// the match finder.
-			const uint8_t * p1 = mf_ptr(mf) - 1;
+			const uint8 * p1 = mf_ptr(mf) - 1;
 			// Pointer to the beginning of the match. We need -1
 			// here because the match distances are zero based.
-			const uint8_t * p2 = p1 - matches[count - 1].dist - 1;
+			const uint8 * p2 = p1 - matches[count - 1].dist - 1;
 			len_best = lzma_memcmplen(p1, p2, len_best, limit);
 		}
 	}
@@ -679,7 +679,7 @@ static void move_pending(lzma_mf * mf)
 /// \param      cyclic_size
 /// \param      matches         Array to hold the matches.
 /// \param      len_best        The length of the longest match found so far.
-static lzma_match * hc_find_func(const uint32 len_limit, const uint32 pos, const uint8_t * const cur, uint32 cur_match,
+static lzma_match * hc_find_func(const uint32 len_limit, const uint32 pos, const uint8 * const cur, uint32 cur_match,
     uint32 depth, uint32 * const son, const uint32 cyclic_pos, const uint32 cyclic_size, lzma_match * matches, uint32 len_best)
 {
 	son[cyclic_pos] = cur_match;
@@ -687,7 +687,7 @@ static lzma_match * hc_find_func(const uint32 len_limit, const uint32 pos, const
 		const uint32 delta = pos - cur_match;
 		if(depth-- == 0 || delta >= cyclic_size)
 			return matches;
-		const uint8_t * const pb = cur - delta;
+		const uint8 * const pb = cur - delta;
 		cur_match = son[cyclic_pos - delta + (delta > cyclic_pos ? cyclic_size : 0)];
 		if(pb[len_best] == cur[len_best] && pb[0] == cur[0]) {
 			uint32 len = lzma_memcmplen(pb, cur, 1, len_limit);
@@ -814,7 +814,7 @@ extern void lzma_mf_hc4_skip(lzma_mf * mf, uint32 amount)
 // Binary Tree //
 //
 #if defined(HAVE_MF_BT2) || defined(HAVE_MF_BT3) || defined(HAVE_MF_BT4)
-static lzma_match * bt_find_func(const uint32 len_limit, const uint32 pos, const uint8_t * const cur,
+static lzma_match * bt_find_func(const uint32 len_limit, const uint32 pos, const uint8 * const cur,
     uint32 cur_match, uint32 depth, uint32 * const son, const uint32 cyclic_pos, const uint32 cyclic_size,
     lzma_match * matches, uint32 len_best)
 {
@@ -830,7 +830,7 @@ static lzma_match * bt_find_func(const uint32 len_limit, const uint32 pos, const
 			return matches;
 		}
 		uint32 * const pair = son + ((cyclic_pos - delta + (delta > cyclic_pos ? cyclic_size : 0)) << 1);
-		const uint8_t * const pb = cur - delta;
+		const uint8 * const pb = cur - delta;
 		uint32 len = MIN(len0, len1);
 		if(pb[len] == cur[len]) {
 			len = lzma_memcmplen(pb, cur, len + 1, len_limit);
@@ -878,7 +878,7 @@ static void bt_skip_func(const uint32 len_limit, const uint32 pos, const uint8 *
 			return;
 		}
 		uint32 * pair = son + ((cyclic_pos - delta + (delta > cyclic_pos ? cyclic_size : 0)) << 1);
-		const uint8_t * pb = cur - delta;
+		const uint8 * pb = cur - delta;
 		uint32 len = MIN(len0, len1);
 		if(pb[len] == cur[len]) {
 			len = lzma_memcmplen(pb, cur, len + 1, len_limit);
@@ -1033,8 +1033,8 @@ static void lz_decoder_reset(lzma_decoder_coder * coder)
 	coder->dict.need_reset = false;
 }
 
-static lzma_ret decode_buffer(lzma_decoder_coder * coder, const uint8_t * in, size_t * in_pos,
-    size_t in_size, uint8_t * out, size_t * out_pos, size_t out_size)
+static lzma_ret decode_buffer(lzma_decoder_coder * coder, const uint8 * in, size_t * in_pos,
+    size_t in_size, uint8 * out, size_t * out_pos, size_t out_size)
 {
 	while(true) {
 		// Wrap the dictionary if needed.
@@ -1084,8 +1084,8 @@ static lzma_ret decode_buffer(lzma_decoder_coder * coder, const uint8_t * in, si
 	}
 }
 
-static lzma_ret lz_decode(void * coder_ptr, const lzma_allocator * allocator, const uint8_t * in, size_t * in_pos,
-    size_t in_size, uint8_t * out, size_t * out_pos, size_t out_size, lzma_action action)
+static lzma_ret lz_decode(void * coder_ptr, const lzma_allocator * allocator, const uint8 * in, size_t * in_pos,
+    size_t in_size, uint8 * out, size_t * out_pos, size_t out_size, lzma_action action)
 {
 	lzma_decoder_coder * coder = (lzma_decoder_coder *)coder_ptr;
 	if(coder->next.code == NULL)
@@ -1176,7 +1176,7 @@ extern lzma_ret lzma_lz_decoder_init(lzma_next_coder * next, const lzma_allocato
 	// Allocate and initialize the dictionary.
 	if(coder->dict.size != lz_options.dict_size) {
 		lzma_free(coder->dict.buf, allocator);
-		coder->dict.buf = (uint8_t *)lzma_alloc(lz_options.dict_size, allocator);
+		coder->dict.buf = (uint8 *)lzma_alloc(lz_options.dict_size, allocator);
 		if(coder->dict.buf == NULL)
 			return LZMA_MEM_ERROR;
 		coder->dict.size = lz_options.dict_size;

@@ -417,7 +417,7 @@ int FASTCALL DBE::call(int option, DBConst * r)
 					if(option == CALC_SIZE) {
 						c.Flags = 0;
 						c.Tag  = DBConst::lv;
-						c.lval = sstrlen(t->sptr)+1;
+						c.lval = sstrleni(t->sptr)+1;
 					}
 					else {
 						c.Flags = 0;

@@ -15,7 +15,7 @@
 #pragma hdrstop
 #include "simple_private.h"
 
-static size_t sparc_code(void * simple lzma_attribute((__unused__)), uint32_t now_pos, bool is_encoder, uint8_t * buffer, size_t size)
+static size_t sparc_code(void * simple lzma_attribute((__unused__)), uint32_t now_pos, bool is_encoder, uint8 * buffer, size_t size)
 {
 	size_t i;
 	for(i = 0; i + 4 <= size; i += 4) {
@@ -29,10 +29,10 @@ static size_t sparc_code(void * simple lzma_attribute((__unused__)), uint32_t no
 				dest = src - (now_pos + (uint32_t)(i));
 			dest >>= 2;
 			dest = (((0 - ((dest >> 22) & 1)) << 22) & 0x3FFFFFFF) | (dest & 0x3FFFFF) | 0x40000000;
-			buffer[i + 0] = (uint8_t)(dest >> 24);
-			buffer[i+1] = (uint8_t)(dest >> 16);
-			buffer[i+2] = (uint8_t)(dest >> 8);
-			buffer[i + 3] = (uint8_t)(dest);
+			buffer[i + 0] = (uint8)(dest >> 24);
+			buffer[i+1] = (uint8)(dest >> 16);
+			buffer[i+2] = (uint8)(dest >> 8);
+			buffer[i + 3] = (uint8)(dest);
 		}
 	}
 	return i;

@@ -33,8 +33,8 @@ struct zfile {
 		lzma_stream lzma;
 	} stream;
 
-	uint8_t inbuf[32 * KB];
-	uint8_t outbuf[256 * KB];
+	uint8 inbuf[32 * KB];
+	uint8 outbuf[256 * KB];
 	bool eof;
 };
 

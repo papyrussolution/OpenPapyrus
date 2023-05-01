@@ -104,21 +104,16 @@ enum {
 #endif
 
 #ifdef FITZ_DEBUG_LOCKING
-
-void fz_assert_lock_held(fz_context * ctx, int lock);
-void fz_assert_lock_not_held(fz_context * ctx, int lock);
-void fz_lock_debug_lock(fz_context * ctx, int lock);
-void fz_lock_debug_unlock(fz_context * ctx, int lock);
-
+    void fz_assert_lock_held(fz_context * ctx, int lock);
+    void fz_assert_lock_not_held(fz_context * ctx, int lock);
+    void fz_lock_debug_lock(fz_context * ctx, int lock);
+    void fz_lock_debug_unlock(fz_context * ctx, int lock);
 #else
-
-#define fz_assert_lock_held(A, B) do { } while(0)
-#define fz_assert_lock_not_held(A, B) do { } while(0)
-#define fz_lock_debug_lock(A, B) do { } while(0)
-#define fz_lock_debug_unlock(A, B) do { } while(0)
-
+    #define fz_assert_lock_held(A, B) do { } while(0)
+    #define fz_assert_lock_not_held(A, B) do { } while(0)
+    #define fz_lock_debug_lock(A, B) do { } while(0)
+    #define fz_lock_debug_unlock(A, B) do { } while(0)
 #endif /* !FITZ_DEBUG_LOCKING */
-
 /**
         Specifies the maximum size in bytes of the resource store in
         fz_context. Given as argument to fz_new_context.
@@ -179,7 +174,6 @@ enum {
         May return NULL.
  */
 fz_context * fz_clone_context(fz_context * ctx);
-
 /**
         Free a context and its global state.
 
@@ -188,7 +182,6 @@ fz_context * fz_clone_context(fz_context * ctx);
         is passed in nothing will happen.
  */
 void fz_drop_context(fz_context * ctx);
-
 /**
         Set the user field in the context.
 
@@ -196,12 +189,10 @@ void fz_drop_context(fz_context * ctx);
         required by the user. It is copied on clones.
  */
 void fz_set_user_context(fz_context * ctx, void * user);
-
 /**
         Read the user field from the context.
  */
 void * fz_user_context(fz_context * ctx);
-
 /**
         FIXME: Better not to expose fz_default_error_callback, and
         fz_default_warning callback and to allow 'NULL' to be used
@@ -217,14 +208,12 @@ void * fz_user_context(fz_context * ctx);
         overridden.
  */
 void fz_default_error_callback(void * user, const char * message);
-
 /**
         The default warning callback. Declared publicly just so that
         the warning callback can be set back to this after it has been
         overridden.
  */
 void fz_default_warning_callback(void * user, const char * message);
-
 /**
         Set the error callback. This will be called as part of the
         exception handling.
@@ -232,7 +221,6 @@ void fz_default_warning_callback(void * user, const char * message);
         The callback must not throw exceptions!
  */
 void fz_set_error_callback(fz_context * ctx, void (* print)(void * user, const char * message), void * user);
-
 /**
         Set the warning callback. This will be called as part of the
         exception handling.
@@ -240,12 +228,10 @@ void fz_set_error_callback(fz_context * ctx, void (* print)(void * user, const c
         The callback must not throw exceptions!
  */
 void fz_set_warning_callback(fz_context * ctx, void (* print)(void * user, const char * message), void * user);
-
 /**
         In order to tune MuPDF's behaviour, certain functions can
         (optionally) be provided by callers.
  */
-
 /**
         Given the width and height of an image,
         the subsample factor, and the subarea of the image actually
@@ -264,7 +250,6 @@ void fz_set_warning_callback(fz_context * ctx, void (* print)(void * user, const
         required.
  */
 typedef void (fz_tune_image_decode_fn)(void * arg, int w, int h, int l2factor, fz_irect * subarea);
-
 /**
         Given the source width and height of
         image, together with the actual required width and height,
@@ -281,7 +266,6 @@ typedef void (fz_tune_image_decode_fn)(void * arg, int w, int h, int l2factor, f
         scaler. All other values reserved.
  */
 typedef int (fz_tune_image_scale_fn)(void * arg, int dst_w, int dst_h, int src_w, int src_h);
-
 /**
         Set the tuning function to use for
         image decode.
@@ -291,7 +275,6 @@ typedef int (fz_tune_image_scale_fn)(void * arg, int dst_w, int dst_h, int src_w
         arg: Opaque argument to be passed to tuning function.
  */
 void fz_tune_image_decode(fz_context * ctx, fz_tune_image_decode_fn * image_decode, void * arg);
-
 /**
         Set the tuning function to use for
         image scaling.
@@ -301,13 +284,11 @@ void fz_tune_image_decode(fz_context * ctx, fz_tune_image_decode_fn * image_deco
         arg: Opaque argument to be passed to tuning function.
  */
 void fz_tune_image_scale(fz_context * ctx, fz_tune_image_scale_fn * image_scale, void * arg);
-
 /**
         Get the number of bits of antialiasing we are
         using (for graphics). Between 0 and 8.
  */
 int fz_aa_level(fz_context * ctx);
-
 /**
         Set the number of bits of antialiasing we should
         use (for both text and graphics).
@@ -316,13 +297,11 @@ int fz_aa_level(fz_context * ctx);
         clamped to within the 0 to 8 range).
  */
 void fz_set_aa_level(fz_context * ctx, int bits);
-
 /**
         Get the number of bits of antialiasing we are
         using for text. Between 0 and 8.
  */
 int fz_text_aa_level(fz_context * ctx);
-
 /**
         Set the number of bits of antialiasing we
         should use for text.
@@ -484,7 +463,7 @@ char * fz_strdup(fz_context * ctx, const char * s);
 /**
         Fill block with len bytes of pseudo-randomness.
  */
-void fz_memrnd(fz_context * ctx, uint8_t * block, int len);
+void fz_memrnd(fz_context * ctx, uint8 * block, int len);
 
 /* Implementation details: subject to change. */
 
@@ -560,7 +539,6 @@ static inline void fz_lock(fz_context * ctx, int lock)
 	fz_lock_debug_lock(ctx, lock);
 	ctx->locks.lock(ctx->locks.user, lock);
 }
-
 /**
         Unlock one of the user supplied mutexes.
  */

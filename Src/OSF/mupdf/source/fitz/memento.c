@@ -1821,7 +1821,7 @@ static int Memento_add_squeezes(const char * text)
 static void Memento_init(void)
 {
 	char * env;
-	memset(&memento, 0, sizeof(memento));
+	memzero(&memento, sizeof(memento));
 	memento.inited    = 1;
 	memento.used.head = NULL;
 	memento.used.tail = NULL;
@@ -2418,9 +2418,7 @@ void * Memento_calloc(size_t n, size_t s)
 	MEMENTO_LOCK();
 	block = do_malloc(n*s, Memento_EventType_calloc);
 	MEMENTO_UNLOCK();
-	if(block)
-		memset(block, 0, n*s);
-
+	memzero(block, n*s);
 	return block;
 }
 
@@ -2710,8 +2708,7 @@ static int checkBlockUser(Memento_BlkHeader * memblk, const char * action)
 {
 #ifndef MEMENTO_LEAKONLY
 	BlkCheckData data;
-
-	memset(&data, 0, sizeof(data));
+	memzero(&data, sizeof(data));
 	Memento_appBlockUser(&memento.used, Memento_Internal_checkAllocedBlock,
 	    &data, memblk);
 	if(!data.found) {
@@ -2761,9 +2758,8 @@ static int checkBlock(Memento_BlkHeader * memblk, const char * action)
 	}
 
 #ifndef MEMENTO_LEAKONLY
-	memset(&data, 0, sizeof(data));
-	Memento_appBlock(&memento.used, Memento_Internal_checkAllocedBlock,
-	    &data, memblk);
+	memzero(&data, sizeof(data));
+	Memento_appBlock(&memento.used, Memento_Internal_checkAllocedBlock, &data, memblk);
 	if(!data.found) {
 		/* Failure! */
 		slfprintf_stderr("Attempt to %s block ", action);
@@ -3054,7 +3050,7 @@ static int Memento_checkAllMemoryLocked(void)
 {
 #ifndef MEMENTO_LEAKONLY
 	BlkCheckData data;
-	memset(&data, 0, sizeof(data));
+	memzero(&data, sizeof(data));
 	Memento_appBlocks(&memento.used, Memento_Internal_checkAllAlloced, &data);
 	Memento_appBlocks(&memento.free, Memento_Internal_checkAllFreed, &data);
 	return data.found;

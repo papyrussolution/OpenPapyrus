@@ -85,9 +85,9 @@ public:
 					return;
 				const postV2Tail &v2 = table->v2X;
 				glyphNameIndex = &v2.glyphNameIndex;
-				pool = &StructAfter<uint8_t> (v2.glyphNameIndex);
-				const uint8_t * end = (const uint8_t*)(const void*)table + table_length;
-				for(const uint8_t * data = pool; index_to_offset.length < 65535 && data < end && data + *data < end; data += 1 + *data)
+				pool = &StructAfter<uint8> (v2.glyphNameIndex);
+				const uint8 * end = (const uint8*)(const void*)table + table_length;
+				for(const uint8 * data = pool; index_to_offset.length < 65535 && data < end && data + *data < end; data += 1 + *data)
 					index_to_offset.push(data - pool);
 			}
 			void fini()
@@ -186,18 +186,17 @@ protected:
 					return hb_bytes_t();
 				uint offset = index_to_offset[index];
 
-				const uint8_t * data = pool + offset;
+				const uint8 * data = pool + offset;
 				uint name_length = *data;
 				data++;
 
 				return hb_bytes_t((const char *)data, name_length);
 			}
-
 private:
 			uint32_t version;
 			const ArrayOf<HBUINT16> * glyphNameIndex;
 			hb_vector_t<uint32_t> index_to_offset;
-			const uint8_t * pool;
+			const uint8 * pool;
 			hb_atomic_ptr_t<uint16_t *> gids_sorted_by_name;
 		};
 

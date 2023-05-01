@@ -30,26 +30,26 @@
 #define rotr32(v, r) (((uint32_t)(v) >> (r)) | ((uint32_t)(v) << (32 - r)))
 #define bswap32(v) (((v) << 24) ^ ((v) >> 24) ^ (((v) & 0x0000ff00) << 8) ^ (((v) & 0x00ff0000) >> 8))
 
-#define GET_U8_BE(X, Y) ((uint8_t)((X) >> ((3 - Y) * 8)))
+#define GET_U8_BE(X, Y) ((uint8)((X) >> ((3 - Y) * 8)))
 #define GET_U32_BE(X, Y) (                                  \
-		((uint32_t)((const uint8_t*)(X))[Y * 4    ] << 24) ^   \
-		((uint32_t)((const uint8_t*)(X))[Y * 4 + 1] << 16) ^   \
-		((uint32_t)((const uint8_t*)(X))[Y * 4 + 2] <<  8) ^   \
-		((uint32_t)((const uint8_t*)(X))[Y * 4 + 3]      )     )
+		((uint32_t)((const uint8*)(X))[Y * 4    ] << 24) ^   \
+		((uint32_t)((const uint8*)(X))[Y * 4 + 1] << 16) ^   \
+		((uint32_t)((const uint8*)(X))[Y * 4 + 2] <<  8) ^   \
+		((uint32_t)((const uint8*)(X))[Y * 4 + 3]      )     )
 
 #define PUT_U32_BE(DEST, IDX, VAL)                              \
 	do {                                                        \
-		((uint8_t*)(DEST))[IDX * 4    ] = GET_U8_BE(VAL, 0);   \
-		((uint8_t*)(DEST))[IDX * 4 + 1] = GET_U8_BE(VAL, 1);   \
-		((uint8_t*)(DEST))[IDX * 4 + 2] = GET_U8_BE(VAL, 2);   \
-		((uint8_t*)(DEST))[IDX * 4 + 3] = GET_U8_BE(VAL, 3);   \
+		((uint8*)(DEST))[IDX * 4    ] = GET_U8_BE(VAL, 0);   \
+		((uint8*)(DEST))[IDX * 4 + 1] = GET_U8_BE(VAL, 1);   \
+		((uint8*)(DEST))[IDX * 4 + 2] = GET_U8_BE(VAL, 2);   \
+		((uint8*)(DEST))[IDX * 4 + 3] = GET_U8_BE(VAL, 3);   \
 	} while(0)
 
 #define MAKE_U32(V0, V1, V2, V3) (      \
-		((uint32_t)((uint8_t)(V0)) << 24) | \
-		((uint32_t)((uint8_t)(V1)) << 16) | \
-		((uint32_t)((uint8_t)(V2)) <<  8) | \
-		((uint32_t)((uint8_t)(V3))      )   )
+		((uint32_t)((uint8)(V0)) << 24) | \
+		((uint32_t)((uint8)(V1)) << 16) | \
+		((uint32_t)((uint8)(V2)) <<  8) | \
+		((uint32_t)((uint8)(V3))      )   )
 
 /* End Macro*/
 
@@ -496,25 +496,25 @@ void ossl_aria_encrypt(const uchar * in, uchar * out, const ARIA_KEY * key)
 	}
 
 	reg0 = rk->u[0] ^ MAKE_U32(
-		(uint8_t)(X1[GET_U8_BE(reg0, 0)]     ),
-		(uint8_t)(X2[GET_U8_BE(reg0, 1)] >> 8),
-		(uint8_t)(S1[GET_U8_BE(reg0, 2)]     ),
-		(uint8_t)(S2[GET_U8_BE(reg0, 3)]     ));
+		(uint8)(X1[GET_U8_BE(reg0, 0)]     ),
+		(uint8)(X2[GET_U8_BE(reg0, 1)] >> 8),
+		(uint8)(S1[GET_U8_BE(reg0, 2)]     ),
+		(uint8)(S2[GET_U8_BE(reg0, 3)]     ));
 	reg1 = rk->u[1] ^ MAKE_U32(
-		(uint8_t)(X1[GET_U8_BE(reg1, 0)]     ),
-		(uint8_t)(X2[GET_U8_BE(reg1, 1)] >> 8),
-		(uint8_t)(S1[GET_U8_BE(reg1, 2)]     ),
-		(uint8_t)(S2[GET_U8_BE(reg1, 3)]     ));
+		(uint8)(X1[GET_U8_BE(reg1, 0)]     ),
+		(uint8)(X2[GET_U8_BE(reg1, 1)] >> 8),
+		(uint8)(S1[GET_U8_BE(reg1, 2)]     ),
+		(uint8)(S2[GET_U8_BE(reg1, 3)]     ));
 	reg2 = rk->u[2] ^ MAKE_U32(
-		(uint8_t)(X1[GET_U8_BE(reg2, 0)]     ),
-		(uint8_t)(X2[GET_U8_BE(reg2, 1)] >> 8),
-		(uint8_t)(S1[GET_U8_BE(reg2, 2)]     ),
-		(uint8_t)(S2[GET_U8_BE(reg2, 3)]     ));
+		(uint8)(X1[GET_U8_BE(reg2, 0)]     ),
+		(uint8)(X2[GET_U8_BE(reg2, 1)] >> 8),
+		(uint8)(S1[GET_U8_BE(reg2, 2)]     ),
+		(uint8)(S2[GET_U8_BE(reg2, 3)]     ));
 	reg3 = rk->u[3] ^ MAKE_U32(
-		(uint8_t)(X1[GET_U8_BE(reg3, 0)]     ),
-		(uint8_t)(X2[GET_U8_BE(reg3, 1)] >> 8),
-		(uint8_t)(S1[GET_U8_BE(reg3, 2)]     ),
-		(uint8_t)(S2[GET_U8_BE(reg3, 3)]     ));
+		(uint8)(X1[GET_U8_BE(reg3, 0)]     ),
+		(uint8)(X2[GET_U8_BE(reg3, 1)] >> 8),
+		(uint8)(S1[GET_U8_BE(reg3, 2)]     ),
+		(uint8)(S2[GET_U8_BE(reg3, 3)]     ));
 
 	PUT_U32_BE(out, 0, reg0);
 	PUT_U32_BE(out, 1, reg1);

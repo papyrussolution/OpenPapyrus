@@ -295,6 +295,7 @@ int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Forma
 	Close();
 	const   int mm = (mode & 0xff);
 	OpenMode = mm;
+	Fep.Z();
 	if(Type == tZip) {
 		//Type = type;
 		int    flags = 0;
@@ -308,7 +309,19 @@ int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Forma
 		H = zip_open(pName, flags, &zip_err);
 		THROW(H);
 		{
-			//zip_stat_index(zip_t * za, uint64 index, zip_flags_t flags, zip_stat_t * st)
+			int64 c = zip_get_num_entries(static_cast<const zip_t *>(H), 0 /*zip_flags_t*/);
+			if(c > 0) {
+				SFileEntryPool::Entry fep_entry;
+				for(uint64 i = 0; i < static_cast<uint64>(c); i++) {
+					zip_stat_t st;
+					if(zip_stat_index(static_cast<zip_t *>(H), i, ZIP_FL_UNCHANGED, &st) == 0) {
+						fep_entry.Size = st.size;
+						fep_entry.Path = st.name;
+						fep_entry.WriteTime.SetTimeT(st.mtime);
+						Fep.Add(fep_entry);
+					}
+				}
+			}
 		}
 	}
 	else if(Type == tBz2) {
@@ -346,6 +359,7 @@ int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Forma
 			//archive_read_support_compression_all(p_larc);
 			archive_read_support_filter_all(p_larc);
 			archive_read_support_format_all(p_larc);
+			archive_read_support_format_empty(p_larc); // @v11.7.0
 			archive_read_set_seek_callback(p_larc, LaCbSeek);
 			const int r = archive_read_open2(p_larc, P_Cb_Blk, LaCbOpen, LaCbRead, LaCbSkip, LaCbClose);
 			THROW(r == 0);
@@ -402,9 +416,10 @@ int64 SArchive::GetEntriesCount() const
 	int64 c = 0;
 	if(H) {
 		if(Type == tZip) {
-			c = zip_get_num_entries(static_cast<const zip_t *>(H), 0 /*zip_flags_t*/);
-			if(c < 0)
-				c = 0;
+			c = static_cast<int64>(Fep.GetCount());
+			//c = zip_get_num_entries(static_cast<const zip_t *>(H), 0 /*zip_flags_t*/);
+			//if(c < 0)
+				//c = 0;
 		}
 		else if(Type == tBz2) {
 			if(H)
@@ -414,11 +429,14 @@ int64 SArchive::GetEntriesCount() const
 //#if 0 // @construction {
 		else if(Type == tLA) {
 			if(P_Cb_Blk) {
+				c = static_cast<int64>(Fep.GetCount());
+				/*
 				Archive * p_larc = static_cast<struct Archive *>(H);
 				ArchiveEntry * p_entry = 0;
 				while(archive_read_next_header(p_larc, &p_entry) == ARCHIVE_OK) {
 					c++;
 				}
+				*/
 				//archive_read_finish(p_larc);
 			}
 		}
@@ -502,6 +520,11 @@ int SArchive::ExtractEntry(int64 idx, const char * pDestName)
 				actual_rd_size = BZ2_bzread(p_blk->Handle, buffer, buffer.GetSize());
 				THROW(actual_rd_size >= 0);
 			} while(actual_rd_size == buffer.GetSize());
+		}
+		else if(Type == tLA) { // @v11.7.0
+			if(P_Cb_Blk) {
+				
+			}
 		}
     }
     CATCHZOK
@@ -765,3 +788,24 @@ void TestSArchive()
 	}
 	CATCHZOK
 }
+
+#if SLTEST_RUNNING // {
+
+SLTEST_R(SArchive)
+{
+	SString temp_buf;
+	{
+		SArchive arc(SArchive::tLA);
+		SLS.QueryPath("testroot", temp_buf);
+		temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("Test_Directory.7z");
+		int r = arc.Open(temp_buf, SFile::mRead, 0);
+		THROW(SLTEST_CHECK_NZ(r));
+		SLTEST_CHECK_EQ(arc.GetEntriesCount(), 2263LL);
+	}
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
+	return CurrentStatus;
+}
+
+#endif // } SLTEST_RUNNING

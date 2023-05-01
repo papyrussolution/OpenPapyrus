@@ -201,26 +201,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\OSF\imgui\backends\imgui_impl_dx10.cpp" />
-    <ClCompile Include="..\OSF\imgui\backends\imgui_impl_dx11.cpp" />
-    <ClCompile Include="..\OSF\imgui\backends\imgui_impl_dx9.cpp" />
-    <ClCompile Include="..\OSF\imgui\backends\imgui_impl_win32.cpp" />
-    <ClCompile Include="..\OSF\imgui\imgui.cpp" />
-    <ClCompile Include="..\OSF\imgui\imgui_draw.cpp" />
-    <ClCompile Include="..\OSF\imgui\imgui_tables.cpp" />
-    <ClCompile Include="..\OSF\imgui\imgui_widgets.cpp" />
     <ClCompile Include="..\PPMain\wsctl-main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\OSF\imgui\backends\imgui_impl_dx10.h" />
-    <ClInclude Include="..\OSF\imgui\backends\imgui_impl_dx11.h" />
-    <ClInclude Include="..\OSF\imgui\backends\imgui_impl_dx9.h" />
-    <ClInclude Include="..\OSF\imgui\backends\imgui_impl_win32.h" />
-    <ClInclude Include="..\OSF\imgui\imconfig.h" />
-    <ClInclude Include="..\OSF\imgui\imgui.h" />
-    <ClInclude Include="..\OSF\imgui\imgui_internal.h" />
-  </ItemGroup>
-  <ItemGroup>
+    <ProjectReference Include="ImGui.vcxproj">
+      <Project>{2c51defb-2cc7-4f3b-aee7-f0943ccefa87}</Project>
+    </ProjectReference>
+    <ProjectReference Include="lcms2.vcxproj">
+      <Project>{71dede59-3f1e-486b-a899-4283000f76b5}</Project>
+    </ProjectReference>
     <ProjectReference Include="libjpeg.vcxproj">
       <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
     </ProjectReference>

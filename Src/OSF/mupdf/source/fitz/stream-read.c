@@ -159,23 +159,17 @@ fz_buffer * fz_read_file(fz_context * ctx, const char * filename)
 {
 	fz_stream * stm;
 	fz_buffer * buf = NULL;
-
 	fz_var(buf);
-
 	stm = fz_open_file(ctx, filename);
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		buf = fz_read_all(ctx, stm, 0);
 	}
-	fz_always(ctx)
-	{
+	fz_always(ctx) {
 		fz_drop_stream(ctx, stm);
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_rethrow(ctx);
 	}
-
 	return buf;
 }
 

@@ -27,7 +27,7 @@ static int jbig2_decode_refinement_template0_unopt(Jbig2Ctx * ctx, Jbig2Segment 
 	Jbig2Image * ref = params->GRREFERENCE;
 	const int dx = params->GRREFERENCEDX;
 	const int dy = params->GRREFERENCEDY;
-	uint32_t CONTEXT;
+	uint32 CONTEXT;
 	int x, y;
 	int bit;
 
@@ -86,7 +86,7 @@ static int jbig2_decode_refinement_template1_unopt(Jbig2Ctx * ctx,
 	Jbig2Image * ref = params->GRREFERENCE;
 	const int dx = params->GRREFERENCEDX;
 	const int dy = params->GRREFERENCEDY;
-	uint32_t CONTEXT;
+	uint32 CONTEXT;
 	int x, y;
 	int bit;
 	for(y = 0; y < GRH; y++) {
@@ -145,11 +145,11 @@ static int jbig2_decode_refinement_template1(Jbig2Ctx * ctx,
 
 	for(y = 0; y < GRH; y++) {
 		const int padded_width = (GRW + 7) & -8;
-		uint32_t CONTEXT;
-		uint32_t refline_m1; /* previous line of the reference bitmap */
-		uint32_t refline_0; /* current line of the reference bitmap */
-		uint32_t refline_1; /* next line of the reference bitmap */
-		uint32_t line_m1; /* previous line of the decoded bitmap */
+		uint32 CONTEXT;
+		uint32 refline_m1; /* previous line of the reference bitmap */
+		uint32 refline_0; /* current line of the reference bitmap */
+		uint32 refline_1; /* next line of the reference bitmap */
+		uint32 line_m1; /* previous line of the decoded bitmap */
 
 		line_m1 = (y >= 1) ? grreg_line[-stride] : 0;
 		refline_m1 = ((y - dy) >= 1) ? grref_line[(-1 - dy) * stride] << 2 : 0;
@@ -192,7 +192,7 @@ static int jbig2_decode_refinement_template1(Jbig2Ctx * ctx,
 
 #endif
 
-typedef uint32_t (* ContextBuilder)(const Jbig2RefinementRegionParams *, Jbig2Image *, int, int);
+typedef uint32 (* ContextBuilder)(const Jbig2RefinementRegionParams *, Jbig2Image *, int, int);
 
 static int implicit_value(const Jbig2RefinementRegionParams * params, Jbig2Image * image, int x, int y)
 {
@@ -212,12 +212,12 @@ static int implicit_value(const Jbig2RefinementRegionParams * params, Jbig2Image
 	       ) ? m : -1;
 }
 
-static uint32_t mkctx0(const Jbig2RefinementRegionParams * params, Jbig2Image * image, int x, int y)
+static uint32 mkctx0(const Jbig2RefinementRegionParams * params, Jbig2Image * image, int x, int y)
 {
 	Jbig2Image * ref = params->GRREFERENCE;
 	const int dx = params->GRREFERENCEDX;
 	const int dy = params->GRREFERENCEDY;
-	uint32_t CONTEXT;
+	uint32 CONTEXT;
 	CONTEXT = jbig2_image_get_pixel(image, x - 1, y + 0);
 	CONTEXT |= jbig2_image_get_pixel(image, x + 1, y - 1) << 1;
 	CONTEXT |= jbig2_image_get_pixel(image, x + 0, y - 1) << 2;
@@ -234,12 +234,12 @@ static uint32_t mkctx0(const Jbig2RefinementRegionParams * params, Jbig2Image * 
 	return CONTEXT;
 }
 
-static uint32_t mkctx1(const Jbig2RefinementRegionParams * params, Jbig2Image * image, int x, int y)
+static uint32 mkctx1(const Jbig2RefinementRegionParams * params, Jbig2Image * image, int x, int y)
 {
 	Jbig2Image * ref = params->GRREFERENCE;
 	const int dx = params->GRREFERENCEDX;
 	const int dy = params->GRREFERENCEDY;
-	uint32_t CONTEXT;
+	uint32 CONTEXT;
 	CONTEXT = jbig2_image_get_pixel(image, x - 1, y + 0);
 	CONTEXT |= jbig2_image_get_pixel(image, x + 1, y - 1) << 1;
 	CONTEXT |= jbig2_image_get_pixel(image, x + 0, y - 1) << 2;
@@ -259,7 +259,7 @@ static int jbig2_decode_refinement_TPGRON(Jbig2Ctx * ctx, const Jbig2RefinementR
 	const int GRW = image->width;
 	const int GRH = image->height;
 	int x, y, iv, LTP = 0;
-	uint32_t start_context = (params->GRTEMPLATE ? 0x40 : 0x100);
+	uint32 start_context = (params->GRTEMPLATE ? 0x40 : 0x100);
 	ContextBuilder mkctx = (params->GRTEMPLATE ? mkctx1 : mkctx0);
 	if(params->GRTEMPLATE == 0 && (pixel_outside_field(params->grat[0], params->grat[1]) || refpixel_outside_field(params->grat[2], params->grat[3])))
 		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, "adaptive template pixel is out of field");

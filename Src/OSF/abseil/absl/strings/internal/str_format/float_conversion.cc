@@ -648,11 +648,11 @@ void FormatF(Int mantissa, int exp, const FormatState &state) {
 // Grab the group of four bits (nibble) from `n`. E.g., nibble 1 corresponds to
 // bits 4-7.
 template <typename Int>
-uint8_t GetNibble(Int n, int nibble_index) {
+uint8 GetNibble(Int n, int nibble_index) {
 	constexpr Int mask_low_nibble = Int{0xf};
 	int shift = nibble_index * 4;
 	n &= mask_low_nibble << shift;
-	return static_cast<uint8_t>((n >> shift) & 0xf);
+	return static_cast<uint8>((n >> shift) & 0xf);
 }
 
 // Add one to the given nibble, applying carry to higher nibbles. Returns true
@@ -688,7 +688,7 @@ Int MaskUpToNibbleExclusive(int nibble_index) {
 }
 
 template <typename Int>
-Int MoveToNibble(uint8_t nibble, int nibble_index) {
+Int MoveToNibble(uint8 nibble, int nibble_index) {
 	return Int{nibble} << (4 * nibble_index);
 }
 
@@ -720,7 +720,7 @@ constexpr int HexFloatLeadingDigitSizeInBits() {
 // up if > 8 and rounds down if < 8.
 template <typename Int>
 bool HexFloatNeedsRoundUp(Int mantissa, int final_nibble_displayed,
-    uint8_t leading) {
+    uint8 leading) {
 	// If the last nibble (hex digit) to be displayed is the lowest on in the
 	// mantissa then that means that we don't have any further nibbles to inform
 	// rounding, so don't round.
@@ -737,7 +737,7 @@ bool HexFloatNeedsRoundUp(Int mantissa, int final_nibble_displayed,
 		return mantissa_up_to_rounding_nibble_inclusive > eight;
 	}
 	// Nibble in question == 8.
-	uint8_t round_if_odd = (final_nibble_displayed == kTotalNibbles)
+	uint8 round_if_odd = (final_nibble_displayed == kTotalNibbles)
 	    ? leading
 	    : GetNibble(mantissa, final_nibble_displayed);
 	return round_if_odd % 2 == 1;
@@ -764,7 +764,7 @@ struct HexFloatTypeParams {
 // whether a rounding happened.
 template <typename Int>
 void FormatARound(bool precision_specified, const FormatState &state,
-    uint8_t * leading, Int * mantissa, int * exp) {
+    uint8 * leading, Int * mantissa, int * exp) {
 	constexpr int kTotalNibbles = sizeof(Int) * 8 / 4;
 	// Index of the last nibble that we could display given precision.
 	int final_nibble_displayed =
@@ -790,7 +790,7 @@ void FormatARound(bool precision_specified, const FormatState &state,
 }
 
 template <typename Int>
-void FormatANormalize(const HexFloatTypeParams float_traits, uint8_t * leading,
+void FormatANormalize(const HexFloatTypeParams float_traits, uint8 * leading,
     Int * mantissa, int * exp) {
 	constexpr int kIntBits = sizeof(Int) * 8;
 	static const Int kHighIntBit = Int{1} << (kIntBits - 1);
@@ -809,7 +809,7 @@ void FormatANormalize(const HexFloatTypeParams float_traits, uint8_t * leading,
 	// Extract bits for leading digit then shift them away leaving the
 	// fractional part.
 	*leading =
-	    static_cast<uint8_t>(*mantissa >> (kIntBits - kLeadDigitBitsCount));
+	    static_cast<uint8>(*mantissa >> (kIntBits - kLeadDigitBitsCount));
 	*exp -= (*mantissa != 0) ? kLeadDigitBitsCount : *exp;
 	*mantissa <<= kLeadDigitBitsCount;
 }
@@ -827,7 +827,7 @@ void FormatA(const HexFloatTypeParams float_traits, Int mantissa, int exp,
 	exp += kIntBits; // make all digits fractional digits.
 	// This holds the (up to four) bits of leading digit, i.e., the '1' in the
 	// number 0x1.e6fp+2. It's always > 0 unless number is zero or denormal.
-	uint8_t leading = 0;
+	uint8 leading = 0;
 	FormatANormalize(float_traits, &leading, &mantissa, &exp);
 
 	// =============== Rounding ==================

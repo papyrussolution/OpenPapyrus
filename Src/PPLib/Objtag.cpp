@@ -2405,7 +2405,7 @@ static int EditPosRights(ObjTagItem * pItem)
 	return ok;
 }
 
-int FASTCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const PPIDArray * pAllowedTags)
+int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const PPIDArray * pAllowedTags)
 {
 	class TagValDialog : public TDialog {
 	public:
@@ -2535,7 +2535,7 @@ int FASTCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const 
 				PPError();
 		}
 	}
-	else if(oneof2(objType, 0, PPOBJ_LOT) && pItem->TagID == PPTAG_LOT_DIMENTIONS) {
+	else if(oneof2(objType, 0, PPOBJ_LOT) && pItem->TagID == PPTAG_LOT_DIMENSIONS) {
 		ok = ReceiptCore::LotDimensions::EditTag(0, pItem);
 	}
 	else if(oneof2(objType, 0, PPOBJ_LOT) && pItem->TagID == PPTAG_LOT_FREIGHTPACKAGE) { // @v10.4.1
@@ -2546,6 +2546,21 @@ int FASTCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const 
 			fp.FromStr(temp_buf);
 		if(PPTransferItem::FreightPackage::Edit(&fp) > 0) {
 			if(fp.ToStr(temp_buf)) {
+				pItem->SetStr(pItem->TagID, temp_buf);
+				ok = 1;
+			}
+			else
+				PPError();
+		}
+	}
+	else if(oneof2(objType, 0, PPOBJ_LOT) && pItem->TagID == PPTAG_LOT_ACCEPTANCE) { // @v11.7.0
+		PPTransferItem::Acceptance a;
+		SString temp_buf;
+		pItem->GetStr(temp_buf);
+		if(temp_buf.NotEmptyS())
+			a.FromStr(temp_buf);
+		if(PPTransferItem::Acceptance::Edit(0, &a) > 0) {
+			if(a.ToStr(temp_buf)) {
 				pItem->SetStr(pItem->TagID, temp_buf);
 				ok = 1;
 			}

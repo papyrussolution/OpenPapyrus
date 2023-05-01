@@ -742,7 +742,7 @@ void Definitions::compile(const wsdl__definitions& definitions)
 					s = types.tname(NULL, NULL, "xsd:string");
 					fprintf(stream, "\n/// Primitive built-in type \"%s\"\n", *i);
 					fprintf(stream, "typedef %s %s;\n", s, t);
-					types.deftname(TYPEDEF, NULL, strchr(s, '*') != NULL, NULL, NULL, *i);
+					types.deftname(TYPEDEF, NULL, sstrchr(s, '*') != NULL, NULL, NULL, *i);
 				}
 			}
 			else if(**i == '"')
@@ -847,7 +847,7 @@ void Definitions::compile(const wsdl__definitions& definitions)
 				fprintf(stream, "//  Imported attribute %s declared as %s\n", *k, t);
 			else
 				fprintf(stream, "//  xsd.h: should define attribute %s\n", t);
-			types.deftname(TYPEDEF, NULL, strchr(s, '*') != NULL, "_", NULL, *k);
+			types.deftname(TYPEDEF, NULL, sstrchr(s, '*') != NULL, "_", NULL, *k);
 		}
 	}
 	// produce types
@@ -1011,7 +1011,7 @@ void Definitions::compile(const wsdl__definitions& definitions)
 						if(gflag) {
 							const char * s = types.tname(NULL, (*schema)->targetNamespace, (*element).type);
 							const char * t = types.deftname(TYPEDEF, NULL, false, "_", (*schema)->targetNamespace, (*element).name);
-							if(strncmp(s, "char", 4) && strchr(s, '*')) { // don't want pointer typedef, unless char*
+							if(strncmp(s, "char", 4) && sstrchr(s, '*')) { // don't want pointer typedef, unless char*
 								size_t n = strlen(s);
 								char * r = (char *)SAlloc::M(n);
 								strncpy(r, s, n - 1);
@@ -1051,7 +1051,7 @@ void Definitions::compile(const wsdl__definitions& definitions)
 						if(gflag) {
 							const char * s = types.tname(NULL, (*schema)->targetNamespace, (*attribute).type);
 							const char * t = types.deftname(TYPEDEF, NULL, false, "_", (*schema)->targetNamespace, (*attribute).name);
-							if(strncmp(s, "char", 4) && strchr(s, '*')) { // don't want pointer typedef, unless char*
+							if(strncmp(s, "char", 4) && sstrchr(s, '*')) { // don't want pointer typedef, unless char*
 								size_t n = strlen(s);
 								char * r = (char *)SAlloc::M(n);
 								strncpy(r, s, n - 1);
@@ -1940,7 +1940,7 @@ void Message::generate(Types &types, const char * sep, bool anonymous, bool rema
 							fprintf(stream, "    /// MTOM attachment with content types %s\n", (*part).elementPtr()->xmime__expectedContentTypes);
 						if(response) {
 							const char * t = types.tname(prefix, typeURI, type);
-							bool flag = (strchr(t, '*') && strcmp(t, "char*") && strcmp(t, "char *"));
+							bool flag = (sstrchr(t, '*') && strcmp(t, "char*") && strcmp(t, "char *"));
 							fprintf(stream, anonymous ? anonformat : paraformat, t,
 							    flag ? " " : cflag ? "*" : "&", types.aname(NULL, nameURI, name), sep);
 							if(remark)
@@ -1963,7 +1963,7 @@ void Message::generate(Types &types, const char * sep, bool anonymous, bool rema
 				else if((*part).type) {
 					if(response) {
 						const char * t = types.tname(NULL, NULL, (*part).type);
-						bool flag = (strchr(t, '*') && strcmp(t, "char*") && strcmp(t, "char *"));
+						bool flag = (sstrchr(t, '*') && strcmp(t, "char*") && strcmp(t, "char *"));
 						fprintf(stream, anonymous ? anonformat : paraformat, t, flag ? " " : cflag ? "*" : "&",
 						    types.aname(NULL, NULL, (*part).name), sep);
 						if(remark)
@@ -2006,7 +2006,7 @@ static bool imported(const char * tag)
 static void comment(const char * start, const char * middle, const char * end, const char * text)
 {
 	if(text) {
-		if(strchr(text, '\r') || strchr(text, '\n'))
+		if(sstrchr(text, '\r') || sstrchr(text, '\n'))
 			fprintf(stream, "\n/** %s %s %s documentation:\n%s\n*/\n\n", start, middle, end, text);
 		else
 			fprintf(stream, "\n/// %s %s %s: %s\n", start, middle, end, text);

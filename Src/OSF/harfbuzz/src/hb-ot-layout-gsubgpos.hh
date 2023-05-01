@@ -372,7 +372,7 @@ private:
 			void set_ignore_zwj(bool ignore_zwj_) { ignore_zwj = ignore_zwj_; }
 			void set_lookup_props(uint lookup_props_) { lookup_props = lookup_props_; }
 			void set_mask(hb_mask_t mask_) { mask = mask_; }
-			void set_syllable(uint8_t syllable_) { syllable = syllable_; }
+			void set_syllable(uint8 syllable_) { syllable = syllable_; }
 			void set_match_func(match_func_t match_func_, const void * match_data_) { match_func = match_func_; match_data = match_data_; }
 			enum may_match_t {
 				MATCH_NO,
@@ -409,7 +409,7 @@ protected:
 			bool ignore_zwnj;
 			bool ignore_zwj;
 			hb_mask_t mask;
-			uint8_t syllable;
+			uint8 syllable;
 			match_func_t match_func;
 			const void * match_data;
 		};

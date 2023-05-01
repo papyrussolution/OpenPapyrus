@@ -90,24 +90,20 @@ static fz_page * img_load_page(fz_context * ctx, fz_document * doc_, int chapter
 		else {
 			image = fz_new_image_from_buffer(ctx, doc->buffer);
 		}
-
 		page = fz_new_derived_page(ctx, img_page);
 		page->super.bound_page = img_bound_page;
 		page->super.run_page_contents = img_run_page;
 		page->super.drop_page = img_drop_page;
 		page->image = fz_keep_image(ctx, image);
 	}
-	fz_always(ctx)
-	{
+	fz_always(ctx) {
 		fz_drop_image(ctx, image);
 		fz_drop_pixmap(ctx, pixmap);
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_free(ctx, page);
 		fz_rethrow(ctx);
 	}
-
 	return (fz_page*)page;
 }
 

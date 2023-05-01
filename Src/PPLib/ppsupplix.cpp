@@ -10609,13 +10609,16 @@ public:
 				{
 					(temp_buf = "List").Dot().Cat(Helper_GetToken(PPHSC_AGPLUS_MANAGER_PL));
 					SXml::WNode n_list(p_x, temp_buf);
+					PersonTbl::Rec psn_rec;
 					for(uint i = 0; i < bill_list.AgentList.getCount(); i++) {
 						const ObjEntry & r_psn_entry = bill_list.AgentList.at(i);
-						SXml::WNode n_o(p_x, "Object");
-						r_psn_entry.Uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
-						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_UID), temp_buf);
-						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_NAME), "");
-						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DELEMARK), "false");
+						if(PsnObj.Fetch(r_psn_entry.ID, &psn_rec) > 0) {
+							SXml::WNode n_o(p_x, "Object");
+							r_psn_entry.Uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_UID), temp_buf);
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_NAME), (temp_buf = psn_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DELEMARK), "false");
+						}
 					}
 				}
 				WriteWarehouses(p_x, loc_list);
@@ -10806,6 +10809,14 @@ private:
 								}
 							}
 						}
+						// @v11.7.0 {
+						if(pBp->Ext.AgentID) {
+							PPID agent_psn_id = ObjectToPerson(pBp->Ext.AgentID, 0);
+							PersonTbl::Rec agent_psn_rec;
+							if(agent_psn_id && PsnObj.Fetch(agent_psn_id, &agent_psn_rec) > 0)
+								p_new_pack->AgentID = agent_psn_id;
+						}
+						// } @v11.7.0 
 						/*{
 							PPLocationPacket loc_pack;
 							RegisterTbl::Rec reg_rec;

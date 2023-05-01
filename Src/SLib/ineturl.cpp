@@ -1,11 +1,11 @@
 // INETURL.CPP
-// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <uri.h>
-#include <snet.h>
+//#include <uri.h>
+//#include <snet.h>
 
 /*static*/ulong InetAddr::IPToULong(const char * pIP)
 {

@@ -1,5 +1,6 @@
 // WSCTL-MAIN.CPP
 // Copyright (c) A.Sobolev 2023
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -172,9 +173,16 @@ private:
 			}
 		}
 	}
+	static int CbInput(ImGuiInputTextCallbackData * pInputData)
+	{
+		return 0;
+	}
+	//
+	char   TestInput[128];
 public:
 	WsCtl_ImGuiSceneBlock() : ShowDemoWindow(false), ShowAnotherWindow(false), ClearColor(0.45f, 0.55f, 0.60f, 1.00f)
 	{
+		TestInput[0] = 0;
 		MakeLayout();
 	}
 	void BuildScene()
@@ -207,6 +215,9 @@ public:
 						ImGui::SetNextWindowSize(sz);
 						ImGui::Begin("CTL-01", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
 						ImGui::Text("CTL-01");
+
+						ImGui::InputText("Кое-что по-русски", TestInput, sizeof(TestInput), 0, CbInput, this);
+
 						ImGui::End();
 					}
 				}
@@ -378,12 +389,22 @@ int main(int, char**)
 		//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
 		//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
 		//ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
-		//IM_ASSERT(font != nullptr);
+		//assert(font != nullptr);
 		// Our state
 		//bool show_demo_window = false; // @sobolev true-->false
 		//bool show_another_window = false;
 		//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		WsCtl_ImGuiSceneBlock scene_blk;
+		{
+			static const ImWchar ranges[] = {
+				0x0020, 0x00FF, // Basic Latin + Latin Supplement
+				0x0400, 0x044F, // Cyrillic
+				0,
+			};
+			///Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf
+			//C:/Windows/Fonts/Tahoma.ttf
+			ImFont * p_font = io.Fonts->AddFontFromFileTTF("/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 14.0f, nullptr, ranges);
+		}
 		// Main loop
 		bool done = false;
 		do {

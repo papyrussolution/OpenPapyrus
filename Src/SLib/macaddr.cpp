@@ -1,11 +1,11 @@
 // MACADDR.CPP
-// Copyright (c) A.Sobolev 2005, 2008, 2010, 2011, 2014, 2016, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2005, 2008, 2010, 2011, 2014, 2016, 2019, 2020, 2022, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <snet.h>
-#include <iphlpapi.h>
-#include <Ws2tcpip.h>
+//#include <snet.h>
+//#include <iphlpapi.h>
+//#include <Ws2tcpip.h>
 
 // iphlpapi.dll
 

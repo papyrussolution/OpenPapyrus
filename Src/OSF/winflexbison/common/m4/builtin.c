@@ -1641,20 +1641,17 @@ static void m4_translit(struct obstack * obs, int argc, token_data ** argv)
 	char map[UCHAR_MAX + 1];
 	char found[UCHAR_MAX + 1];
 	uchar ch;
-
 	if(bad_argc(argv[0], argc, 3, 4) || !*data || !*from) {
 		/* builtin(`translit') is blank, but translit(`abc') is abc.  */
 		if(2 <= argc)
 			obstack_grow(obs, data, strlen(data));
 		return;
 	}
-
 	to = ARG(3);
-	if(strchr(to, '-') != NULL) {
+	if(sstrchr(to, '-')) {
 		to = expand_ranges(to, obs);
 		assert(to && *to);
 	}
-
 	/* If there are only one or two bytes to replace, it is faster to
 	   use memchr2.  Using expand_ranges does nothing unless there are
 	   at least three bytes.  */
@@ -1676,8 +1673,7 @@ static void m4_translit(struct obstack * obs, int argc, token_data ** argv)
 		obstack_grow(obs, data, len);
 		return;
 	}
-
-	if(strchr(from, '-') != NULL) {
+	if(sstrchr(from, '-')) {
 		from = expand_ranges(from, obs);
 		assert(from && *from);
 	}
@@ -1728,13 +1724,12 @@ static void m4_format(struct obstack * obs, int argc, token_data ** argv)
 
 static int substitute_warned = 0;
 
-static void substitute(struct obstack * obs, const char * victim, const char * repl,
-    struct re_registers * regs)
+static void substitute(struct obstack * obs, const char * victim, const char * repl, struct re_registers * regs)
 {
 	int ch;
 	__re_size_t ind;
 	while(1) {
-		const char * backslash = strchr(repl, '\\');
+		const char * backslash = sstrchr(repl, '\\');
 		if(!backslash) {
 			obstack_grow(obs, repl, strlen(repl));
 			return;
@@ -1959,7 +1954,7 @@ void expand_user_macro(struct obstack * obs, SymbolTableEntry * sym, int argc, t
 	const char * text = SYMBOL_TEXT(sym);
 	int i;
 	while(1) {
-		const char * dollar = strchr(text, '$');
+		const char * dollar = sstrchr(text, '$');
 		if(!dollar) {
 			obstack_grow(obs, text, strlen(text));
 			return;

@@ -236,7 +236,7 @@ void generate_alpha_skip(const char * find, size_t f_len, size_t skip_lookup[], 
 int is_prefix(const char * s, const size_t s_len, const size_t pos, const int case_sensitive);
 size_t suffix_len(const char * s, const size_t s_len, const size_t pos, const int case_sensitive);
 void generate_find_skip(const char * find, const size_t f_len, size_t ** skip_lookup, const int case_sensitive);
-void generate_hash(const char * find, const size_t f_len, uint8_t * H, const int case_sensitive);
+void generate_hash(const char * find, const size_t f_len, uint8 * H, const int case_sensitive);
 
 // max is already defined on spec-violating compilers such as MinGW 
 //size_t ag_max(size_t a, size_t b);
@@ -244,7 +244,7 @@ void generate_hash(const char * find, const size_t f_len, uint8_t * H, const int
 
 const char * boyer_moore_strnstr(const char * s, const char * find, const size_t s_len, const size_t f_len,
     const size_t alpha_skip_lookup[], const size_t * find_skip_lookup, const int case_insensitive);
-const char * hash_strnstr(const char * s, const char * find, const size_t s_len, const size_t f_len, uint8_t * h_table, const int case_sensitive);
+const char * hash_strnstr(const char * s, const char * find, const size_t s_len, const size_t f_len, uint8 * h_table, const int case_sensitive);
 size_t invert_matches(const char * buf, const size_t buf_len, match_t matches[], size_t matches_len);
 void realloc_matches(match_t ** matches, size_t * matches_size, size_t matches_len);
 void compile_study(pcre ** re, pcre_extra ** re_extra, char * q, const int pcre_opts, const int study_opts);
@@ -306,7 +306,7 @@ const char *normalize_path(const char *path);
 
 extern size_t alpha_skip_lookup[256];
 extern size_t * find_skip_lookup;
-extern uint8_t h_table[H_SIZE] /* @sobolev __attribute__((aligned(64)))*/;
+extern uint8 h_table[H_SIZE] /* @sobolev __attribute__((aligned(64)))*/;
 
 struct work_queue_t {
 	char * path;

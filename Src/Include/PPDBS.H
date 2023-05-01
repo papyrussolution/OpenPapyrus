@@ -7,6 +7,8 @@
 #include <db.h>
 #include <dl600.h>
 
+#pragma pack(push)
+#pragma pack(1)
 class Reference_Tbl : public DBTable {
 public:
 	Reference_Tbl(const char * pFileName = 0);
@@ -45,7 +47,10 @@ public:
 	DBField Val1;
 	DBField Val2;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class Reference2Tbl : public DBTable {
 public:
 	Reference2Tbl(const char * pFileName = 0);
@@ -84,7 +89,10 @@ public:
 	DBField Val1;
 	DBField Val2;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class PropertyTbl : public DBTable {
 public:
 	PropertyTbl(const char * pFileName = 0);
@@ -117,7 +125,10 @@ public:
 	DBField Val2;
 	DBField VT;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class UuidRefTbl : public DBTable {
 public:
 	UuidRefTbl(const char * pFileName = 0);
@@ -136,7 +147,10 @@ public:
 	DBField ID;
 	DBField UUID;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TextRefTbl : public DBTable {
 public:
 	TextRefTbl(const char * pFileName = 0);
@@ -168,7 +182,10 @@ public:
 	DBField Text;
 	DBField VT;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class UnxTextRefTbl : public DBTable {
 public:
 	UnxTextRefTbl(const char * pFileName = 0);
@@ -195,7 +212,10 @@ public:
 	DBField Size;
 	DBField VT;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class ObjLikenessTbl : public DBTable {
 public:
 	ObjLikenessTbl(const char * pFileName = 0);
@@ -226,7 +246,10 @@ public:
 	DBField ID2;
 	DBField Rate;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class ObjSyncTbl : public DBTable {
 public:
 	ObjSyncTbl(const char * pFileName = 0);
@@ -262,7 +285,10 @@ public:
 	DBField Dt;
 	DBField Tm;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class ObjSyncBuTbl : public DBTable {
 public:
 	ObjSyncBuTbl(const char * pFileName = 0);
@@ -294,7 +320,10 @@ public:
 	DBField SDt;
 	DBField Tm;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class ObjSyncQueueTbl : public DBTable {
 public:
 	ObjSyncQueueTbl(const char * pFileName = 0);
@@ -355,7 +384,10 @@ public:
 	DBField RedirID;
 	DBField ObjName;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class ObjAssocTbl : public DBTable {
 public:
 	ObjAssocTbl(const char * pFileName = 0);
@@ -394,7 +426,10 @@ public:
 	DBField InnerNum;
 	DBField Text;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class ObjTagTbl : public DBTable {
 public:
 	ObjTagTbl(const char * pFileName = 0);
@@ -435,7 +470,10 @@ public:
 	DBField RealVal;
 	DBField StrVal;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class CountryTbl : public DBTable {
 public:
 	CountryTbl(const char * pFileName = 0);
@@ -467,7 +505,10 @@ public:
 	DBField HasRegions;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class RegionTbl : public DBTable {
 public:
 	RegionTbl(const char * pFileName = 0);
@@ -501,7 +542,10 @@ public:
 	DBField Capital;
 	DBField Phone;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class CityTbl : public DBTable {
 public:
 	CityTbl(const char * pFileName = 0);
@@ -543,7 +587,10 @@ public:
 	DBField Status;
 	DBField Phone;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class EAddrTbl : public DBTable {
 public:
 	EAddrTbl(const char * pFileName = 0);
@@ -573,7 +620,10 @@ public:
 	DBField LinkObjID;
 	DBField Addr;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class WorldTbl : public DBTable {
 public:
 	WorldTbl(const char * pFileName = 0);
@@ -628,7 +678,10 @@ public:
 	DBField Code;
 	DBField ZIP;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempKLADRTbl : public DBTable {
 public:
 	TempKLADRTbl(const char * pFileName = 0);
@@ -659,7 +712,10 @@ public:
 	DBField Code;
 	DBField ZIP;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class FiasAddrObjTbl : public DBTable {
 public:
 	FiasAddrObjTbl(const char * pFileName = 0);
@@ -734,7 +790,10 @@ public:
 	DBField StartDt;
 	DBField EndDt;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class FiasHouseObjTbl : public DBTable {
 public:
 	FiasHouseObjTbl(const char * pFileName = 0);
@@ -798,7 +857,10 @@ public:
 	DBField StartDt;
 	DBField EndDt;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class GeoTrackTbl : public DBTable {
 public:
 	GeoTrackTbl(const char * pFileName = 0);
@@ -843,7 +905,10 @@ public:
 	DBField Altitude;
 	DBField Speed;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class PersonTbl : public DBTable {
 public:
 	PersonTbl(const char * pFileName = 0);
@@ -886,7 +951,10 @@ public:
 	DBField Division;
 	DBField Position;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class BankAccount_Pre9004Tbl : public DBTable {
 public:
 	BankAccount_Pre9004Tbl(const char * pFileName = 0);
@@ -921,7 +989,10 @@ public:
 	DBField CorrAcc;
 	DBField CorrArt;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class PersonKindTbl : public DBTable {
 public:
 	PersonKindTbl(const char * pFileName = 0);
@@ -945,7 +1016,10 @@ public:
 	DBField PersonID;
 	DBField Name;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class RegisterTbl : public DBTable {
 public:
 	RegisterTbl(const char * pFileName = 0);
@@ -1002,7 +1076,10 @@ public:
 	DBField Flags;
 	DBField ExtID;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class PersonEventTbl : public DBTable {
 public:
 	PersonEventTbl(const char * pFileName = 0);
@@ -1063,7 +1140,10 @@ public:
 	DBField PrmrSCardID;
 	DBField ScndSCardID;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class StaffList_Pre9003Tbl : public DBTable {
 public:
 	StaffList_Pre9003Tbl(const char * pFileName = 0);
@@ -1110,7 +1190,10 @@ public:
 	DBField ChargeGrpID;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class PersonPostTbl : public DBTable {
 public:
 	PersonPostTbl(const char * pFileName = 0);
@@ -1159,7 +1242,10 @@ public:
 	DBField PsnEventID;
 	DBField Reserve2;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class StaffCalendarTbl : public DBTable {
 public:
 	StaffCalendarTbl(const char * pFileName = 0);
@@ -1201,7 +1287,10 @@ public:
 	DBField TmStart;
 	DBField TmEnd;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempStaffCalTbl : public DBTable {
 public:
 	TempStaffCalTbl(const char * pFileName = 0);
@@ -1249,7 +1338,10 @@ public:
 	DBField DtText;
 	DBField Count;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class SalaryTbl : public DBTable {
 public:
 	SalaryTbl(const char * pFileName = 0);
@@ -1310,7 +1402,10 @@ public:
 	DBField ExtObjID;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempSalaryTbl : public DBTable {
 public:
 	TempSalaryTbl(const char * pFileName = 0);
@@ -1366,7 +1461,10 @@ public:
 	DBField DivID;
 	DBField Text;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class Goods2Tbl : public DBTable {
 public:
 	Goods2Tbl(const char * pFileName = 0);
@@ -1444,7 +1542,10 @@ public:
 	DBField VanType;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class HistGoodsTbl : public DBTable {
 public:
 	HistGoodsTbl(const char * pFileName = 0);
@@ -1470,7 +1571,10 @@ public:
 	DBField Sz;
 	DBField Data;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class BarcodeTbl : public DBTable {
 public:
 	BarcodeTbl(const char * pFileName = 0);
@@ -1493,7 +1597,10 @@ public:
 	DBField BarcodeType;
 	DBField Code;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class ArGoodsCodeTbl : public DBTable {
 public:
 	ArGoodsCodeTbl(const char * pFileName = 0);
@@ -1522,7 +1629,10 @@ public:
 	DBField Pack;
 	DBField Code;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class GoodsExtTbl : public DBTable {
 public:
 	GoodsExtTbl(const char * pFileName = 0);
@@ -1572,7 +1682,10 @@ public:
 	DBField Reserve;
 	DBField TaxFactor;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class PackageTbl : public DBTable {
 public:
 	PackageTbl(const char * pFileName = 0);
@@ -1612,7 +1725,10 @@ public:
 	DBField Flags;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class PackageLinkTbl : public DBTable {
 public:
 	PackageLinkTbl(const char * pFileName = 0);
@@ -1632,7 +1748,10 @@ public:
 	DBField PckgID;
 	DBField LotID;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class SpecSeriesTbl : public DBTable {
 public:
 	SpecSeriesTbl(const char * pFileName = 0);
@@ -1691,7 +1810,10 @@ public:
 	DBField LetterType;
 	DBField Flags;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class SpecSeries2Tbl : public DBTable {
 public:
 	SpecSeries2Tbl(const char * pFileName = 0);
@@ -1760,7 +1882,10 @@ public:
 	DBField Reserve;
 	DBField Tail;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class LocationTbl : public DBTable {
 public:
 	LocationTbl(const char * pFileName = 0);
@@ -1837,7 +1962,10 @@ public:
 	DBField Code;
 	DBField Tail;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class CurrencyRateTbl : public DBTable {
 public:
 	CurrencyRateTbl(const char * pFileName = 0);
@@ -1868,7 +1996,10 @@ public:
 	DBField RateTypeID;
 	DBField Rate;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class BillTbl : public DBTable {
 public:
 	BillTbl(const char * pFileName = 0);
@@ -1964,7 +2095,10 @@ public:
 	DBField AgtBillID;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class HistBillTbl : public DBTable {
 public:
 	HistBillTbl(const char * pFileName = 0);
@@ -2019,7 +2153,10 @@ public:
 	DBField AgentID;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class HistTrfrTbl : public DBTable {
 public:
 	HistTrfrTbl(const char * pFileName = 0);
@@ -2052,7 +2189,10 @@ public:
 	DBField Expiry;
 	DBField Flags;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class BillAmountTbl : public DBTable {
 public:
 	BillAmountTbl(const char * pFileName = 0);
@@ -2074,7 +2214,10 @@ public:
 	DBField CurID;
 	DBField Amount;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class PayPlanTbl : public DBTable {
 public:
 	PayPlanTbl(const char * pFileName = 0);
@@ -2095,7 +2238,10 @@ public:
 	DBField Amount;
 	DBField Interest;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class ReceiptTbl : public DBTable {
 public:
 	ReceiptTbl(const char * pFileName = 0);
@@ -2190,7 +2336,10 @@ public:
 	DBField InTaxGrpID;
 	DBField Flags;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class CurRestTbl : public DBTable {
 public:
 	CurRestTbl(const char * pFileName = 0);
@@ -2213,7 +2362,10 @@ public:
 	DBField GoodsID;
 	DBField Rest;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class LotCurRestTbl : public DBTable {
 public:
 	LotCurRestTbl(const char * pFileName = 0);
@@ -2236,7 +2388,10 @@ public:
 	DBField LotID;
 	DBField D;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class LotCurRest2Tbl : public DBTable {
 public:
 	LotCurRest2Tbl(const char * pFileName = 0);
@@ -2259,7 +2414,10 @@ public:
 	DBField LotID;
 	DBField D;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class LotExtCodeTbl : public DBTable {
 public:
 	LotExtCodeTbl(const char * pFileName = 0);
@@ -2297,7 +2455,10 @@ public:
 	DBField BoxNo;
 	DBField Code;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class EgaisProductTbl : public DBTable {
 public:
 	EgaisProductTbl(const char * pFileName = 0);
@@ -2330,7 +2491,10 @@ public:
 	DBField ActualDate;
 	DBField Flags;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class EgaisPersonTbl : public DBTable {
 public:
 	EgaisPersonTbl(const char * pFileName = 0);
@@ -2368,7 +2532,10 @@ public:
 	DBField Flags;
 	DBField ActualDate;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class EgaisRefATbl : public DBTable {
 public:
 	EgaisRefATbl(const char * pFileName = 0);
@@ -2420,7 +2587,10 @@ public:
 	DBField TTNDate;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class VetisEntityTbl : public DBTable {
 public:
 	VetisEntityTbl(const char * pFileName = 0);
@@ -2459,7 +2629,10 @@ public:
 	DBField NextGuidRef;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class VetisProductTbl : public DBTable {
 public:
 	VetisProductTbl(const char * pFileName = 0);
@@ -2503,7 +2676,10 @@ public:
 	DBField ArCode;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class VetisPersonTbl : public DBTable {
 public:
 	VetisPersonTbl(const char * pFileName = 0);
@@ -2539,7 +2715,10 @@ public:
 	DBField LinkDlvrLocID;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class VetisDocumentTbl : public DBTable {
 public:
 	VetisDocumentTbl(const char * pFileName = 0);
@@ -2665,7 +2844,10 @@ public:
 	DBField DepDocEntityID;
 	DBField Reserve2;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class InventoryTbl : public DBTable {
 public:
 	InventoryTbl(const char * pFileName = 0);
@@ -2720,7 +2902,10 @@ public:
 	DBField WrOffPrice;
 	DBField Serial;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempInventorySubstTbl : public DBTable {
 public:
 	TempInventorySubstTbl(const char * pFileName = 0);
@@ -2755,7 +2940,10 @@ public:
 	DBField DiffPctQtty;
 	DBField DiffPrice;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class QuotationTbl : public DBTable {
 public:
 	QuotationTbl(const char * pFileName = 0);
@@ -2805,7 +2993,10 @@ public:
 	DBField Quot;
 	DBField CurID;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class Quot2RelTbl : public DBTable {
 public:
 	Quot2RelTbl(const char * pFileName = 0);
@@ -2847,7 +3038,10 @@ public:
 	DBField PeriodIdx;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class Quotation2Tbl : public DBTable {
 public:
 	Quotation2Tbl(const char * pFileName = 0);
@@ -2904,7 +3098,10 @@ public:
 	DBField TaID;
 	DBField Quot;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class PriceListTbl : public DBTable {
 public:
 	PriceListTbl(const char * pFileName = 0);
@@ -2943,7 +3140,10 @@ public:
 	DBField Reserve;
 	DBField Memo;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class PriceLineTbl : public DBTable {
 public:
 	PriceLineTbl(const char * pFileName = 0);
@@ -3007,7 +3207,10 @@ public:
 	DBField Expiry;
 	DBField Memo;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TransferTbl : public DBTable {
 public:
 	TransferTbl(const char * pFileName = 0);
@@ -3075,7 +3278,10 @@ public:
 	DBField CurID;
 	DBField CurPrice;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class LocTransfTbl : public DBTable {
 public:
 	LocTransfTbl(const char * pFileName = 0);
@@ -3152,7 +3358,10 @@ public:
 	DBField Reserve1;
 	DBField Reserve2;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempLocTransfTbl : public DBTable {
 public:
 	TempLocTransfTbl(const char * pFileName = 0);
@@ -3208,7 +3417,10 @@ public:
 	DBField PalletCount;
 	DBField Reserve1;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class GoodsDebtTbl : public DBTable {
 public:
 	GoodsDebtTbl(const char * pFileName = 0);
@@ -3241,7 +3453,10 @@ public:
 	DBField SaldoQtty;
 	DBField SaldoAmount;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class CpTransfTbl : public DBTable {
 public:
 	CpTransfTbl(const char * pFileName = 0);
@@ -3296,7 +3511,10 @@ public:
 	DBField Flags;
 	DBField Tail;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class AdvBillItemTbl : public DBTable {
 public:
 	AdvBillItemTbl(const char * pFileName = 0);
@@ -3358,7 +3576,10 @@ public:
 	DBField Reserve;
 	DBField Memo;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class WorkbookTbl : public DBTable {
 public:
 	WorkbookTbl(const char * pFileName = 0);
@@ -3424,7 +3645,10 @@ public:
 	DBField Reserve;
 	DBField VT;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class ProjectTbl : public DBTable {
 public:
 	ProjectTbl(const char * pFileName = 0);
@@ -3483,7 +3707,10 @@ public:
 	DBField BillOpID;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class PrjTaskTbl : public DBTable {
 public:
 	PrjTaskTbl(const char * pFileName = 0);
@@ -3582,7 +3809,10 @@ public:
 	DBField BillArID;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class SCardTbl : public DBTable {
 public:
 	SCardTbl(const char * pFileName = 0);
@@ -3650,7 +3880,10 @@ public:
 	DBField FixedBonus;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempSCardTbl : public DBTable {
 public:
 	TempSCardTbl(const char * pFileName = 0);
@@ -3726,7 +3959,10 @@ public:
 	DBField ApartP;
 	DBField AddrAddendP;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class SCardOpTbl : public DBTable {
 public:
 	SCardOpTbl(const char * pFileName = 0);
@@ -3773,7 +4009,10 @@ public:
 	DBField FreezingEnd;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class CSessionTbl : public DBTable {
 public:
 	CSessionTbl(const char * pFileName = 0);
@@ -3843,7 +4082,10 @@ public:
 	DBField BnkAmount;
 	DBField CSCardAmount;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempCSessChecksTbl : public DBTable {
 public:
 	TempCSessChecksTbl(const char * pFileName = 0);
@@ -3916,7 +4158,10 @@ public:
 	DBField WORetBnkAmount;
 	DBField BnkDiscount;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class CCheckTbl : public DBTable {
 public:
 	CCheckTbl(const char * pFileName = 0);
@@ -3972,7 +4217,10 @@ public:
 	DBField Discount;
 	DBField SCardID;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class CCheckExtTbl : public DBTable {
 public:
 	CCheckExtTbl(const char * pFileName = 0);
@@ -4020,7 +4268,10 @@ public:
 	DBField CreationDtm;
 	DBField Memo;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class CCheckPaymTbl : public DBTable {
 public:
 	CCheckPaymTbl(const char * pFileName = 0);
@@ -4051,7 +4302,10 @@ public:
 	DBField CurID;
 	DBField CurAmount;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempCCheckQttyTbl : public DBTable {
 public:
 	TempCCheckQttyTbl(const char * pFileName = 0);
@@ -4119,7 +4373,10 @@ public:
 	DBField SkuCount;
 	DBField LinesCount;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempCCheckGrpTbl : public DBTable {
 public:
 	TempCCheckGrpTbl(const char * pFileName = 0);
@@ -4202,7 +4459,10 @@ public:
 	DBField PctPart;
 	DBField Qtty;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempCCheckGdsCorrTbl : public DBTable {
 public:
 	TempCCheckGdsCorrTbl(const char * pFileName = 0);
@@ -4248,7 +4508,10 @@ public:
 	DBField ChecksCount;
 	DBField ChecksCountPct;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempCCheckLineTbl : public DBTable {
 public:
 	TempCCheckLineTbl(const char * pFileName = 0);
@@ -4289,7 +4552,10 @@ public:
 	DBField ExtTextSize;
 	DBField VT;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class CCheckLineTbl : public DBTable {
 public:
 	CCheckLineTbl(const char * pFileName = 0);
@@ -4316,7 +4582,10 @@ public:
 	DBField Price;
 	DBField Dscnt;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class CCheckLineExtTbl : public DBTable {
 public:
 	CCheckLineExtTbl(const char * pFileName = 0);
@@ -4339,7 +4608,10 @@ public:
 	DBField Flags;
 	DBField Serial;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class CGoodsLineTbl : public DBTable {
 public:
 	CGoodsLineTbl(const char * pFileName = 0);
@@ -4377,7 +4649,10 @@ public:
 	DBField AltGoodsID;
 	DBField AltGoodsQtty;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class CCurPriceTbl : public DBTable {
 public:
 	CCurPriceTbl(const char * pFileName = 0);
@@ -4396,7 +4671,10 @@ public:
 	DBField GoodsID;
 	DBField Price;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class DvcLoadingStatTbl : public DBTable {
 public:
 	DvcLoadingStatTbl(const char * pFileName = 0);
@@ -4440,7 +4718,10 @@ public:
 	DBField Flags;
 	DBField SysData;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class DlsObjTbl : public DBTable {
 public:
 	DlsObjTbl(const char * pFileName = 0);
@@ -4469,7 +4750,10 @@ public:
 	DBField LVal;
 	DBField Val;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class QualityCertTbl : public DBTable {
 public:
 	QualityCertTbl(const char * pFileName = 0);
@@ -4527,7 +4811,10 @@ public:
 	DBField Reserve2;
 	DBField InnerCode;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class ArticleTbl : public DBTable {
 public:
 	ArticleTbl(const char * pFileName = 0);
@@ -4569,7 +4856,10 @@ public:
 	DBField Flags;
 	DBField Reserve2;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class Account_Pre9004Tbl : public DBTable {
 public:
 	Account_Pre9004Tbl(const char * pFileName = 0);
@@ -4624,7 +4914,10 @@ public:
 	DBField ParentID;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class AcctRelTbl : public DBTable {
 public:
 	AcctRelTbl(const char * pFileName = 0);
@@ -4679,7 +4972,10 @@ public:
 	DBField FRRL_Date;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class AccTurnTbl : public DBTable {
 public:
 	AccTurnTbl(const char * pFileName = 0);
@@ -4727,7 +5023,10 @@ public:
 	DBField Amount;
 	DBField Rest;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class BalanceTbl : public DBTable {
 public:
 	BalanceTbl(const char * pFileName = 0);
@@ -4752,7 +5051,10 @@ public:
 	DBField DbtRest;
 	DBField CrdRest;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class BudgetItemTbl : public DBTable {
 public:
 	BudgetItemTbl(const char * pFileName = 0);
@@ -4788,7 +5090,10 @@ public:
 	DBField Reserve;
 	DBField Memo;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class VATBookTbl : public DBTable {
 public:
 	VATBookTbl(const char * pFileName = 0);
@@ -4892,7 +5197,10 @@ public:
 	DBField TaxOpCode;
 	DBField Reserve2;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class MrpTabTbl : public DBTable {
 public:
 	MrpTabTbl(const char * pFileName = 0);
@@ -4940,7 +5248,10 @@ public:
 	DBField Flags;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class MrpLineTbl : public DBTable {
 public:
 	MrpLineTbl(const char * pFileName = 0);
@@ -4984,7 +5295,10 @@ public:
 	DBField Price;
 	DBField Flags;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class SysJournalTbl : public DBTable {
 public:
 	SysJournalTbl(const char * pFileName = 0);
@@ -5017,7 +5331,10 @@ public:
 	DBField ObjID;
 	DBField Extra;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class SjRsrvTbl : public DBTable {
 public:
 	SjRsrvTbl(const char * pFileName = 0);
@@ -5044,7 +5361,10 @@ public:
 	DBField ObjID;
 	DBField Extra;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class GtaJournalTbl : public DBTable {
 public:
 	GtaJournalTbl(const char * pFileName = 0);
@@ -5094,7 +5414,10 @@ public:
 	DBField Duration;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class ObjVerTbl : public DBTable {
 public:
 	ObjVerTbl(const char * pFileName = 0);
@@ -5125,7 +5448,10 @@ public:
 	DBField Size;
 	DBField Data;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class SysProfilerTbl : public DBTable {
 public:
 	SysProfilerTbl(const char * pFileName = 0);
@@ -5160,7 +5486,10 @@ public:
 	DBField Action;
 	DBField Status;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class Cr_PosLoadTbl : public DBTable {
 public:
 	Cr_PosLoadTbl(const char * pFileName = 0);
@@ -5271,7 +5600,10 @@ public:
 	DBField F_M_COD;
 	DBField F_S_COD;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class Cr_CredoPayTbl : public DBTable {
 public:
 	Cr_CredoPayTbl(const char * pFileName = 0);
@@ -5321,7 +5653,10 @@ public:
 	DBField DiscCliID;
 	DBField Rezerv;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class Cr_ZReportTbl : public DBTable {
 public:
 	Cr_ZReportTbl(const char * pFileName = 0);
@@ -5368,7 +5703,10 @@ public:
 	DBField CrReturn;
 	DBField CurMoney;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class Cr_SaleTbl : public DBTable {
 public:
 	Cr_SaleTbl(const char * pFileName = 0);
@@ -5483,7 +5821,10 @@ public:
 	DBField PriceNSP;
 	DBField NSmena;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class Cr_CashAuthTbl : public DBTable {
 public:
 	Cr_CashAuthTbl(const char * pFileName = 0);
@@ -5527,7 +5868,10 @@ public:
 	DBField Price;
 	DBField Summa;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class Cr_CashDCrdTbl : public DBTable {
 public:
 	Cr_CashDCrdTbl(const char * pFileName = 0);
@@ -5575,7 +5919,10 @@ public:
 	DBField DateSale;
 	DBField TimeSale;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class PredictSalesTbl : public DBTable {
 public:
 	PredictSalesTbl(const char * pFileName = 0);
@@ -5604,7 +5951,10 @@ public:
 	DBField Quantity;
 	DBField Amount;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class GoodsStatTbl : public DBTable {
 public:
 	GoodsStatTbl(const char * pFileName = 0);
@@ -5639,7 +5989,10 @@ public:
 	DBField Count;
 	DBField Reserve2;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class ProcessorTbl : public DBTable {
 public:
 	ProcessorTbl(const char * pFileName = 0);
@@ -5702,7 +6055,10 @@ public:
 	DBField CipMax;
 	DBField TcbQuant;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TechTbl : public DBTable {
 public:
 	TechTbl(const char * pFileName = 0);
@@ -5776,7 +6132,10 @@ public:
 	DBField CipMax;
 	DBField Reserve3;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TSessionTbl : public DBTable {
 public:
 	TSessionTbl(const char * pFileName = 0);
@@ -5879,7 +6238,10 @@ public:
 	DBField RepBaseID;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TSessLineTbl : public DBTable {
 public:
 	TSessLineTbl(const char * pFileName = 0);
@@ -5946,7 +6308,10 @@ public:
 	DBField LotDimZ;
 	DBField OrgQtty;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class BizScoreTbl : public DBTable {
 public:
 	BizScoreTbl(const char * pFileName = 0);
@@ -5998,7 +6363,10 @@ public:
 	DBField Reserve;
 	DBField Str;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class GlobalBizScoreTbl : public DBTable {
 public:
 	GlobalBizScoreTbl(const char * pFileName = 0);
@@ -6047,7 +6415,10 @@ public:
 	DBField ScoreDescr;
 	DBField Str;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class DebtStatTbl : public DBTable {
 public:
 	DebtStatTbl(const char * pFileName = 0);
@@ -6107,7 +6478,10 @@ public:
 	DBField RelArID;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class CheckOpJrnlTbl : public DBTable {
 public:
 	CheckOpJrnlTbl(const char * pFileName = 0);
@@ -6144,7 +6518,10 @@ public:
 	DBField AgentID;
 	DBField PosNodeID;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class UserFuncPrfSessTbl : public DBTable {
 public:
 	UserFuncPrfSessTbl(const char * pFileName = 0);
@@ -6195,7 +6572,10 @@ public:
 	DBField MachineName;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class UserFuncPrfTbl : public DBTable {
 public:
 	UserFuncPrfTbl(const char * pFileName = 0);
@@ -6253,7 +6633,10 @@ public:
 	DBField QuadClockSum;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class EventTbl : public DBTable {
 public:
 	EventTbl(const char * pFileName = 0);
@@ -6315,7 +6698,10 @@ public:
 	DBField Reserve;
 	DBField VT;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class StyloQSecTbl : public DBTable {
 public:
 	StyloQSecTbl(const char * pFileName = 0);
@@ -6367,7 +6753,10 @@ public:
 	DBField Reserve;
 	DBField VT;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class StyloQSettlementTbl : public DBTable {
 public:
 	StyloQSettlementTbl(const char * pFileName = 0);
@@ -6404,7 +6793,10 @@ public:
 	DBField Reserve;
 	DBField VT;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TsTaJournalTbl : public DBTable {
 public:
 	TsTaJournalTbl(const char * pFileName = 0);
@@ -6477,7 +6869,10 @@ public:
 	DBField PositionBy;
 	DBField VT;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempTSessRepTbl : public DBTable {
 public:
 	TempTSessRepTbl(const char * pFileName = 0);
@@ -6548,7 +6943,10 @@ public:
 	DBField InCompPart;
 	DBField OutCompPart;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempPrcBusyTbl : public DBTable {
 public:
 	TempPrcBusyTbl(const char * pFileName = 0);
@@ -6591,7 +6989,10 @@ public:
 	DBField TxtPeriod;
 	DBField TxtDuration;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempPredictSalesTbl : public DBTable {
 public:
 	TempPredictSalesTbl(const char * pFileName = 0);
@@ -6623,7 +7024,10 @@ public:
 	DBField AmtPctErr;
 	DBField Flags;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempGoodsStatTbl : public DBTable {
 public:
 	TempGoodsStatTbl(const char * pFileName = 0);
@@ -6672,7 +7076,10 @@ public:
 	DBField PriceAvg;
 	DBField MinStock;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempGoodsRestTbl : public DBTable {
 public:
 	TempGoodsRestTbl(const char * pFileName = 0);
@@ -6761,7 +7168,10 @@ public:
 	DBField LastSellDate;
 	DBField IsPredictTrust;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempCSessExcTbl : public DBTable {
 public:
 	TempCSessExcTbl(const char * pFileName = 0);
@@ -6816,7 +7226,10 @@ public:
 	DBField AltGoodsSum;
 	DBField AltDiff;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempDeficitTbl : public DBTable {
 public:
 	TempDeficitTbl(const char * pFileName = 0);
@@ -6857,7 +7270,10 @@ public:
 	DBField ReqSalesTax;
 	DBField Clb;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempShipmentAnlzTbl : public DBTable {
 public:
 	TempShipmentAnlzTbl(const char * pFileName = 0);
@@ -6901,7 +7317,10 @@ public:
 	DBField AckAmount;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempGoodsOprTbl : public DBTable {
 public:
 	TempGoodsOprTbl(const char * pFileName = 0);
@@ -6984,7 +7403,10 @@ public:
 	DBField RestPriceSum;
 	DBField Barcode;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempGoodsMovTbl : public DBTable {
 public:
 	TempGoodsMovTbl(const char * pFileName = 0);
@@ -7064,7 +7486,10 @@ public:
 	DBField OutRest_Cost;
 	DBField OutRest_Price;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempGoodsMov2Tbl : public DBTable {
 public:
 	TempGoodsMov2Tbl(const char * pFileName = 0);
@@ -7099,7 +7524,10 @@ public:
 	DBField Discount;
 	DBField Amount;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempGoodsBillCmpTbl : public DBTable {
 public:
 	TempGoodsBillCmpTbl(const char * pFileName = 0);
@@ -7142,7 +7570,10 @@ public:
 	DBField IsDiffQtty;
 	DBField IsDiffPrice;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempAccTrnovrTbl : public DBTable {
 public:
 	TempAccTrnovrTbl(const char * pFileName = 0);
@@ -7192,7 +7623,10 @@ public:
 	DBField GoodsRest;
 	DBField DispFlags;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempSellTrnovrTbl : public DBTable {
 public:
 	TempSellTrnovrTbl(const char * pFileName = 0);
@@ -7264,7 +7698,10 @@ public:
 	DBField NotStop;
 	DBField MaxDelay;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempTrfrGrpngTbl : public DBTable {
 public:
 	TempTrfrGrpngTbl(const char * pFileName = 0);
@@ -7333,7 +7770,10 @@ public:
 	DBField GoodsText;
 	DBField PersonText;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempTrfrAnlzTbl : public DBTable {
 public:
 	TempTrfrAnlzTbl(const char * pFileName = 0);
@@ -7405,7 +7845,10 @@ public:
 	DBField LinkPrice;
 	DBField ExtVal1;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempOpGrpngTbl : public DBTable {
 public:
 	TempOpGrpngTbl(const char * pFileName = 0);
@@ -7475,7 +7918,10 @@ public:
 	DBField ExciseSum;
 	DBField STaxSum;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempPersonTbl : public DBTable {
 public:
 	TempPersonTbl(const char * pFileName = 0);
@@ -7523,7 +7969,10 @@ public:
 	DBField RegExpiry;
 	DBField Flags;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempOrderTbl : public DBTable {
 public:
 	TempOrderTbl(const char * pFileName = 0);
@@ -7542,7 +7991,10 @@ public:
 	DBField ID;
 	DBField Name;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempDoubleIDTbl : public DBTable {
 public:
 	TempDoubleIDTbl(const char * pFileName = 0);
@@ -7568,7 +8020,10 @@ public:
 	DBField ScndID;
 	DBField Name;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempAssocTbl : public DBTable {
 public:
 	TempAssocTbl(const char * pFileName = 0);
@@ -7585,7 +8040,10 @@ public:
 	DBField PrmrID;
 	DBField ScndID;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempAccturnGrpngTbl : public DBTable {
 public:
 	TempAccturnGrpngTbl(const char * pFileName = 0);
@@ -7656,7 +8114,10 @@ public:
 	DBField CrdAccName;
 	DBField Reserve;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempAccAnlzTbl : public DBTable {
 public:
 	TempAccAnlzTbl(const char * pFileName = 0);
@@ -7704,7 +8165,10 @@ public:
 	DBField Rest;
 	DBField OrdData;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempBillTbl : public DBTable {
 public:
 	TempBillTbl(const char * pFileName = 0);
@@ -7750,7 +8214,10 @@ public:
 	DBField DueDate;
 	DBField LicRegID;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempFreightTbl : public DBTable {
 public:
 	TempFreightTbl(const char * pFileName = 0);
@@ -7818,7 +8285,10 @@ public:
 	DBField PortName;
 	DBField DlvrAddr;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempLotTbl : public DBTable {
 public:
 	TempLotTbl(const char * pFileName = 0);
@@ -7867,7 +8337,10 @@ public:
 	DBField Serial;
 	DBField BillStatus;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempGoodsTaxAnlzTbl : public DBTable {
 public:
 	TempGoodsTaxAnlzTbl(const char * pFileName = 0);
@@ -7941,7 +8414,10 @@ public:
 	DBField ExpQtty;
 	DBField Rest;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempPaymPlanTbl : public DBTable {
 public:
 	TempPaymPlanTbl(const char * pFileName = 0);
@@ -7977,7 +8453,10 @@ public:
 	DBField Paym;
 	DBField Debt;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempSyncCmpTbl : public DBTable {
 public:
 	TempSyncCmpTbl(const char * pFileName = 0);
@@ -8042,7 +8521,10 @@ public:
 	DBField DestModTm;
 	DBField CmpScore;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempAssetTbl : public DBTable {
 public:
 	TempAssetTbl(const char * pFileName = 0);
@@ -8099,7 +8581,10 @@ public:
 	DBField DiffCost;
 	DBField DiffDeprec;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempQuotSerialTbl : public DBTable {
 public:
 	TempQuotSerialTbl(const char * pFileName = 0);
@@ -8130,7 +8615,10 @@ public:
 	DBField Val;
 	DBField ValS;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempQuotTbl : public DBTable {
 public:
 	TempQuotTbl(const char * pFileName = 0);
@@ -8224,7 +8712,10 @@ public:
 	DBField QuotP31;
 	DBField QuotP32;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempGoodsCargoTbl : public DBTable {
 public:
 	TempGoodsCargoTbl(const char * pFileName = 0);
@@ -8252,7 +8743,10 @@ public:
 	DBField Package;
 	DBField StrucType;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempPrjTaskTbl : public DBTable {
 public:
 	TempPrjTaskTbl(const char * pFileName = 0);
@@ -8289,7 +8783,10 @@ public:
 	DBField TabParam;
 	DBField TaskCount;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempPriceAnlzTbl : public DBTable {
 public:
 	TempPriceAnlzTbl(const char * pFileName = 0);
@@ -8319,7 +8816,10 @@ public:
 	DBField Cost;
 	DBField CostDiff;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempPersonEventTbl : public DBTable {
 public:
 	TempPersonEventTbl(const char * pFileName = 0);
@@ -8351,7 +8851,10 @@ public:
 	DBField Count;
 	DBField AvgEvTime;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempPersonRelTbl : public DBTable {
 public:
 	TempPersonRelTbl(const char * pFileName = 0);
@@ -8378,7 +8881,10 @@ public:
 	DBField RelTypeID;
 	DBField RelName;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempArAgtTbl : public DBTable {
 public:
 	TempArAgtTbl(const char * pFileName = 0);
@@ -8450,7 +8956,10 @@ public:
 	DBField StopFlags;
 	DBField Msg;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempScaleTbl : public DBTable {
 public:
 	TempScaleTbl(const char * pFileName = 0);
@@ -8482,7 +8991,10 @@ public:
 	DBField LocID;
 	DBField AltGoodsGrp;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempLogFileMonTbl : public DBTable {
 public:
 	TempLogFileMonTbl(const char * pFileName = 0);
@@ -8513,7 +9025,10 @@ public:
 	DBField DbSymb;
 	DBField Text;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempCashNodeTbl : public DBTable {
 public:
 	TempCashNodeTbl(const char * pFileName = 0);
@@ -8552,7 +9067,10 @@ public:
 	DBField LocID;
 	DBField Flags;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempReportTbl : public DBTable {
 public:
 	TempReportTbl(const char * pFileName = 0);
@@ -8593,7 +9111,10 @@ public:
 	DBField Path;
 	DBField Format;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempPalmTbl : public DBTable {
 public:
 	TempPalmTbl(const char * pFileName = 0);
@@ -8634,7 +9155,10 @@ public:
 	DBField Path;
 	DBField FtpPath;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempLongOrderTbl : public DBTable {
 public:
 	TempLongOrderTbl(const char * pFileName = 0);
@@ -8650,7 +9174,10 @@ public:
 	DBField ID;
 	DBField Name;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempTransportTbl : public DBTable {
 public:
 	TempTransportTbl(const char * pFileName = 0);
@@ -8687,7 +9214,10 @@ public:
 	DBField TrailCode;
 	DBField ModelName;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempBudgetTbl : public DBTable {
 public:
 	TempBudgetTbl(const char * pFileName = 0);
@@ -8711,7 +9241,10 @@ public:
 	DBField LowDt;
 	DBField UppDt;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempBudgItemTbl : public DBTable {
 public:
 	TempBudgItemTbl(const char * pFileName = 0);
@@ -8751,7 +9284,10 @@ public:
 	DBField FactAmt;
 	DBField Memo;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempBizScTemplTbl : public DBTable {
 public:
 	TempBizScTemplTbl(const char * pFileName = 0);
@@ -8771,7 +9307,10 @@ public:
 	DBField Symb;
 	DBField Flags;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempCCheckTbl : public DBTable {
 public:
 	TempCCheckTbl(const char * pFileName = 0);
@@ -8833,7 +9372,10 @@ public:
 	DBField GiftCardID;
 	DBField TempReplaceID;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempSysJournalTbl : public DBTable {
 public:
 	TempSysJournalTbl(const char * pFileName = 0);
@@ -8867,7 +9409,10 @@ public:
 	DBField Count;
 	DBField AvgEvTime;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempGlobUserAccTbl : public DBTable {
 public:
 	TempGlobUserAccTbl(const char * pFileName = 0);
@@ -8889,7 +9434,10 @@ public:
 	DBField Guid;
 	DBField Flags;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempDBDivTbl : public DBTable {
 public:
 	TempDBDivTbl(const char * pFileName = 0);
@@ -8909,7 +9457,10 @@ public:
 	DBField Address;
 	DBField Flags;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TempUserProfileTbl : public DBTable {
 public:
 	TempUserProfileTbl(const char * pFileName = 0);
@@ -8987,7 +9538,10 @@ public:
 	DBField Factor8;
 	DBField FuncName;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TestRef01Tbl : public DBTable {
 public:
 	TestRef01Tbl(const char * pFileName = 0);
@@ -9046,7 +9600,10 @@ public:
 	DBField S48;
 	DBField S12;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TestRef02Tbl : public DBTable {
 public:
 	TestRef02Tbl(const char * pFileName = 0);
@@ -9107,7 +9664,10 @@ public:
 	DBField S12;
 	DBField N;
 };
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(1)
 class TestTa01Tbl : public DBTable {
 public:
 	TestTa01Tbl(const char * pFileName = 0);
@@ -9152,6 +9712,7 @@ public:
 	DBField GuidVal;
 	DBField S;
 };
+#pragma pack(pop)
 
 
 #endif // __PPDBS_H

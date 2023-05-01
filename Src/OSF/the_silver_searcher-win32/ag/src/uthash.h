@@ -54,7 +54,7 @@ modification, are permitted provided that the following conditions are met:
 #include <stdint.h>
 #else
 typedef unsigned int uint32_t;
-typedef uchar uint8_t;
+typedef uchar uint8;
 #endif
 #else
 #include <stdint.h>
@@ -104,7 +104,7 @@ typedef uchar uint8_t;
 #define HASH_BLOOM_MAKE(tbl)                                            \
     do {                                                                \
         (tbl)->bloom_nbits = HASH_BLOOM;                                \
-        (tbl)->bloom_bv = (uint8_t *)uthash_malloc(HASH_BLOOM_BYTELEN); \
+        (tbl)->bloom_bv = (uint8 *)uthash_malloc(HASH_BLOOM_BYTELEN); \
         if(!((tbl)->bloom_bv)) {                                       \
             uthash_fatal(SlTxtOutOfMem);                              \
         }                                                               \
@@ -461,7 +461,7 @@ typedef uchar uint8_t;
 #endif
 
 #if !defined(get16bits)
-#define get16bits(d) ((((uint32_t)(((const uint8_t *)(d))[1])) << 8) + (uint32_t)(((const uint8_t *)(d))[0]))
+#define get16bits(d) ((((uint32_t)(((const uint8 *)(d))[1])) << 8) + (uint32_t)(((const uint8 *)(d))[0]))
 #endif
 #define HASH_SFH(key, keylen, num_bkts, hashv, bkt)                       \
     do {                                                                  \
@@ -551,13 +551,13 @@ typedef uchar uint8_t;
 
 #define HASH_MUR(key, keylen, num_bkts, hashv, bkt)                                     \
     do {                                                                                \
-        const uint8_t *_mur_data = (const uint8_t *)(key);                              \
+        const uint8 *_mur_data = (const uint8 *)(key);                              \
         const int _mur_nblocks = (keylen) / 4;                                          \
         uint32_t _mur_h1 = 0xf88D5353;                                                  \
         const uint32_t _mur_c1 = _SlConst.MagicMurmurC1;                                \
         ρωςϋε uint32_t _mur_c2 = _SlConst.MagicMurmurC2;                                \
         uint32_t _mur_k1 = 0;                                                           \
-        const uint8_t *_mur_tail;                                                       \
+        const uint8 *_mur_tail;                                                       \
         const uint32_t *_mur_blocks = (const uint32_t *)(_mur_data + _mur_nblocks * 4); \
         int _mur_i;                                                                     \
         for (_mur_i = -_mur_nblocks; _mur_i; _mur_i++) {                                \
@@ -570,7 +570,7 @@ typedef uchar uint8_t;
             _mur_h1 = slrotl32(_mur_h1, 13);                                          \
             _mur_h1 = _mur_h1 * 5 + 0xe6546b64;                                         \
         }                                                                               \
-        _mur_tail = (const uint8_t *)(_mur_data + _mur_nblocks * 4);                    \
+        _mur_tail = (const uint8 *)(_mur_data + _mur_nblocks * 4);                    \
         _mur_k1 = 0;                                                                    \
         switch (keylen & 3) {                                                           \
             case 3:                                                                     \
@@ -908,7 +908,7 @@ typedef struct UT_hash_table {
     uint32_t signature; /* used only to find hash tables in external analysis */
 #ifdef HASH_BLOOM
     uint32_t bloom_sig; /* used only to test bloom exists in external analysis */
-    uint8_t *bloom_bv;
+    uint8 *bloom_bv;
     char bloom_nbits;
 #endif
 

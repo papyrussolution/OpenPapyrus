@@ -861,7 +861,7 @@ int ObjVersioningCore::Add(PPID * pID, PPObjID oid, SBuffer * pBuf, int use_ta)
 			rec.Ver = 1;
 	}
 	size_t data_len = pBuf ? pBuf->GetAvailableSize() : 0;
-	rec.Size = data_len;
+	rec.Size = static_cast<int32>(data_len);
 	copyBufFrom(&rec);
 	if(data_len) {
 		const void * p_data_buf = pBuf->GetBuf();

@@ -147,7 +147,7 @@ fz_context * fz_new_context_imp(const fz_alloc_context * alloc, const fz_locks_c
 		slfprintf_stderr("cannot create context (phase 1)\n");
 		return NULL;
 	}
-	memset(ctx, 0, sizeof *ctx);
+	memzero(ctx, sizeof *ctx);
 	ctx->user = NULL;
 	ctx->alloc = *alloc;
 	ctx->locks = *locks;

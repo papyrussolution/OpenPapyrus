@@ -1,10 +1,10 @@
 // SXMLAD.CPP
-// Copyright (c) A.Sobolev, 2019
+// Copyright (c) A.Sobolev, 2019, 2023
 // Вспомогательные механизмы для работы с XML (функции с дополнительными зависимостями)
 // 
 #include <slib-internal.h>
 #pragma hdrstop
-#include <snet.h>
+// @v11.7.0 #include <snet.h>
 #include <sxml.h>
 #include <libxml/xmlschemastypes.h>
 

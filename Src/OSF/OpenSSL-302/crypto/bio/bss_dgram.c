@@ -845,7 +845,7 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 	 * connected socket won't use it. Similarly with connect(): the socket
 	 * prior to connection must be activated for SCTP-AUTH
 	 */
-	sockopt_len = (socklen_t)(sizeof(sctp_assoc_t) + 256 * sizeof(uint8_t));
+	sockopt_len = (socklen_t)(sizeof(sctp_assoc_t) + 256 * sizeof(uint8));
 	authchunks = OPENSSL_zalloc(sockopt_len);
 	if(authchunks == NULL) {
 		BIO_vfree(bio);
@@ -861,7 +861,7 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 
 	for(p = (uchar *)authchunks->gauth_chunks;
 	    p < (uchar *)authchunks + sockopt_len;
-	    p += sizeof(uint8_t)) {
+	    p += sizeof(uint8)) {
 		if(*p == OPENSSL_SCTP_DATA_CHUNK_TYPE)
 			auth_data = 1;
 		if(*p == OPENSSL_SCTP_FORWARD_CUM_TSN_CHUNK_TYPE)
@@ -1152,7 +1152,7 @@ static int dgram_sctp_read(BIO * b, char * out, int outl)
 			struct sctp_authchunks * authchunks;
 
 			optlen =
-			    (socklen_t)(sizeof(sctp_assoc_t) + 256 * sizeof(uint8_t));
+			    (socklen_t)(sizeof(sctp_assoc_t) + 256 * sizeof(uint8));
 			authchunks = OPENSSL_malloc(optlen);
 			if(authchunks == NULL) {
 				ERR_raise(ERR_LIB_BIO, ERR_R_MALLOC_FAILURE);
@@ -1161,7 +1161,7 @@ static int dgram_sctp_read(BIO * b, char * out, int outl)
 			memzero(authchunks, optlen);
 			ii = getsockopt(b->num, IPPROTO_SCTP, SCTP_PEER_AUTH_CHUNKS, authchunks, &optlen);
 			if(ii >= 0)
-				for(p = (uchar *)authchunks->gauth_chunks; p < (uchar *)authchunks + optlen; p += sizeof(uint8_t)) {
+				for(p = (uchar *)authchunks->gauth_chunks; p < (uchar *)authchunks + optlen; p += sizeof(uint8)) {
 					if(*p == OPENSSL_SCTP_DATA_CHUNK_TYPE)
 						auth_data = 1;
 					if(*p == OPENSSL_SCTP_FORWARD_CUM_TSN_CHUNK_TYPE)
@@ -1364,7 +1364,7 @@ static long dgram_sctp_ctrl(BIO * b, int cmd, long num, void * ptr)
 			    break;
 
 		    /* Add new key */
-		    sockopt_len = sizeof(struct sctp_authkey) + 64 * sizeof(uint8_t);
+		    sockopt_len = sizeof(struct sctp_authkey) + 64 * sizeof(uint8);
 		    authkey = OPENSSL_malloc(sockopt_len);
 		    if(authkey == NULL) {
 			    ret = -1;
@@ -1379,7 +1379,7 @@ static long dgram_sctp_ctrl(BIO * b, int cmd, long num, void * ptr)
 		     */
 		    authkey->sca_keylength = 64;
 #endif
-		    memcpy(&authkey->sca_key[0], ptr, 64 * sizeof(uint8_t));
+		    memcpy(&authkey->sca_key[0], ptr, 64 * sizeof(uint8));
 
 		    ret =
 			setsockopt(b->num, IPPROTO_SCTP, SCTP_AUTH_KEY, authkey,

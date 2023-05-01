@@ -317,7 +317,7 @@ static void clear_cmyka_bitmap_ARM(uint32_t * samples, int c, int value)
 static void clear_cmyk_bitmap(uchar * samples, int w, int h, int spots, int stride, int value, int alpha)
 {
 	uint32_t * s = (uint32_t*)(void *)samples;
-	uint8_t * t;
+	uint8 * t;
 
 	if(w < 0 || h < 0)
 		return;
@@ -348,7 +348,7 @@ static void clear_cmyk_bitmap(uchar * samples, int w, int h, int spots, int stri
 #else
 			/* We can do it all fast (except for maybe a few stragglers) */
 			union {
-				uint8_t bytes[20];
+				uint8 bytes[20];
 				uint32_t words[5];
 			} d;
 
@@ -421,7 +421,7 @@ static void clear_cmyk_bitmap(uchar * samples, int w, int h, int spots, int stri
 			else {
 				/* We can do it all fast */
 				union {
-					uint8_t bytes[4];
+					uint8 bytes[4];
 					uint32_t word;
 				} d;
 
@@ -1303,10 +1303,9 @@ void fz_set_pixmap_resolution(fz_context * ctx, fz_pixmap * pix, int xres, int y
 	pix->xres = xres;
 	pix->yres = yres;
 }
-
-/*
-        Return the md5 digest for a pixmap
- */
+//
+// Return the md5 digest for a pixmap
+//
 void fz_md5_pixmap(fz_context * ctx, fz_pixmap * pix, uchar digest[16])
 {
 	fz_md5 md5;

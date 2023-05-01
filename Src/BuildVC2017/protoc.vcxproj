@@ -106,7 +106,7 @@
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ConformanceMode>false</ConformanceMode>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <StringPooling>true</StringPooling>
       <CompileAsManaged>false</CompileAsManaged>
@@ -159,7 +159,7 @@
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ConformanceMode>false</ConformanceMode>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <StringPooling>true</StringPooling>
       <CompileAsManaged>false</CompileAsManaged>
@@ -212,7 +212,7 @@
       </DebugInformationFormat>
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <StringPooling>true</StringPooling>
       <CompileAsManaged>false</CompileAsManaged>
@@ -265,7 +265,7 @@
       </DebugInformationFormat>
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <StringPooling>true</StringPooling>
       <CompileAsManaged>false</CompileAsManaged>

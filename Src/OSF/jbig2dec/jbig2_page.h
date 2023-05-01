@@ -35,19 +35,19 @@ typedef enum {
 
 struct _Jbig2Page {
     Jbig2PageState state;
-    uint32_t number;
-    uint32_t height, width; /* in pixels */
-    uint32_t x_resolution, y_resolution; /* in pixels per meter */
+    uint32 number;
+    uint32 height, width; /* in pixels */
+    uint32 x_resolution, y_resolution; /* in pixels per meter */
     uint16_t stripe_size;
     boolint striped;
-    uint32_t end_row;
-    uint8_t flags;
+    uint32 end_row;
+    uint8 flags;
     Jbig2Image *image;
 };
 
-int jbig2_page_info(Jbig2Ctx *ctx, Jbig2Segment *segment, const uint8_t *segment_data);
-int jbig2_end_of_stripe(Jbig2Ctx *ctx, Jbig2Segment *segment, const uint8_t *segment_data);
-int jbig2_end_of_page(Jbig2Ctx *ctx, Jbig2Segment *segment, const uint8_t *segment_data);
-int jbig2_page_add_result(Jbig2Ctx *ctx, Jbig2Page *page, Jbig2Image *src, uint32_t x, uint32_t y, Jbig2ComposeOp op);
+int jbig2_page_info(Jbig2Ctx *ctx, Jbig2Segment *segment, const uint8 *segment_data);
+int jbig2_end_of_stripe(Jbig2Ctx *ctx, Jbig2Segment *segment, const uint8 *segment_data);
+int jbig2_end_of_page(Jbig2Ctx *ctx, Jbig2Segment *segment, const uint8 *segment_data);
+int jbig2_page_add_result(Jbig2Ctx *ctx, Jbig2Page *page, Jbig2Image *src, uint32 x, uint32 y, Jbig2ComposeOp op);
 
 #endif /* _JBIG2_PAGE_H */

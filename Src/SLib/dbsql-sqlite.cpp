@@ -1,11 +1,11 @@
 // DBSQL-SQLITE.CPP
-// Copyright (c) A.Sobolev 2021, 2022
+// Copyright (c) A.Sobolev 2021, 2022, 2023
 // Модуль интерфейса с DBMS Sqlite3
 // @construction
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <snet.h>
+//#include <snet.h>
 #include <..\osf\SQLite\sqlite3.h>
 
 #ifndef NDEBUG

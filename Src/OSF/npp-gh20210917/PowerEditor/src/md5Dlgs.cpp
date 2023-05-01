@@ -430,9 +430,9 @@ INT_PTR CALLBACK HashFromFilesDlg::run_dlgProc(UINT message, WPARAM wParam, LPAR
 						}
 						else if(_ht == hashType::hash_sha256) {
 							std::string content = getFileContent(it.c_str());
-							//uint8_t sha2hash[32];
-							//calc_sha_256(sha2hash, reinterpret_cast<const uint8_t*>(content.c_str()), content.length());
-							binary256 __h = SlHash::Sha256(0, reinterpret_cast<const uint8_t*>(content.c_str()), content.length());
+							//uint8 sha2hash[32];
+							//calc_sha_256(sha2hash, reinterpret_cast<const uint8*>(content.c_str()), content.length());
+							binary256 __h = SlHash::Sha256(0, reinterpret_cast<const uint8*>(content.c_str()), content.length());
 							wchar_t sha2hashStr[65] = { '\0' };
 							for(size_t i = 0; i < sizeof(__h); i++)
 								wsprintf(sha2hashStr + i * 2, TEXT("%02x"), /*sha2hash*/PTR8C(&__h)[i]);
@@ -531,9 +531,9 @@ void HashFromTextDlg::generateHash()
 				::SetDlgItemTextA(_hSelf, IDC_HASH_RESULT_FOMTEXT_EDIT, /*md5Result*/__md5_buf.cptr());
 			}
 			else if(_ht == hash_sha256) {
-				//uint8_t sha2hash[32];
-				//calc_sha_256(sha2hash, reinterpret_cast<const uint8_t*>(newText), strlen(newText));
-				binary256 __h = SlHash::Sha256(0, reinterpret_cast<const uint8_t*>(newText), strlen(newText));
+				//uint8 sha2hash[32];
+				//calc_sha_256(sha2hash, reinterpret_cast<const uint8*>(newText), strlen(newText));
+				binary256 __h = SlHash::Sha256(0, reinterpret_cast<const uint8*>(newText), strlen(newText));
 				wchar_t sha2hashStr[65] = { '\0' };
 				for(size_t i = 0; i < sizeof(__h); i++)
 					wsprintf(sha2hashStr + i * 2, TEXT("%02x"), /*sha2hash*/PTR8C(&__h)[i]);
@@ -576,9 +576,9 @@ void HashFromTextDlg::generateHashPerLine()
 					result += __md5_buf.cptr();
 				}
 				else if(_ht == hash_sha256) {
-					//uint8_t sha2hash[32];
-					//calc_sha_256(sha2hash, reinterpret_cast<const uint8_t*>(newText), strlen(newText));
-					binary256 __h = SlHash::Sha256(0, reinterpret_cast<const uint8_t*>(newText), strlen(newText));
+					//uint8 sha2hash[32];
+					//calc_sha_256(sha2hash, reinterpret_cast<const uint8*>(newText), strlen(newText));
+					binary256 __h = SlHash::Sha256(0, reinterpret_cast<const uint8*>(newText), strlen(newText));
 					char sha2hashStr[65] = { '\0' };
 					for(size_t i = 0; i < sizeof(__h); i++)
 						sprintf(sha2hashStr + i * 2, "%02x", /*sha2hash*/PTR8C(&__h)[i]);

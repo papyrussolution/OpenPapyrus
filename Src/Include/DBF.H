@@ -1,5 +1,5 @@
 // DBF.H
-// Copyright (c) A.Sobolev 1993, 1997-2001, 2003, 2006, 2008, 2009, 2011, 2018, 2019, 2021, 2022
+// Copyright (c) A.Sobolev 1993, 1997-2001, 2003, 2006, 2008, 2009, 2011, 2018, 2019, 2021, 2022, 2023
 // @codepage UTF-8
 // Номера записей и полей идут от 1 и далее
 //
@@ -67,9 +67,7 @@ DBF Language Driver IDs
 // Дескриптор поля //
 //
 struct DBFF { // Size = 32
-#ifndef _WIN32_WCE // @v5.1.7 AHTOXA
 	int    GetSType(TYPEID * pTyp, long * pFmt) const;
-#endif
 	char   fname[11];    //  Имя поля //
 	uint8  ftype;        //  Тип поля (C,L,N,M,F,D)
 	uint16 offset;       //  Смещение поля относительно начала записи

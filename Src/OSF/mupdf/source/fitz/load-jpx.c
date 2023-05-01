@@ -121,16 +121,16 @@ void opj_free_Removed(void * ptr)
 
 static void * opj_aligned_malloc_n(size_t alignment, size_t size)
 {
-	uint8_t * ptr;
+	uint8 * ptr;
 	size_t off;
 	if(!size)
 		return NULL;
-	size += alignment + sizeof(uint8_t);
-	ptr = (uint8_t *)SAlloc::M(size);
+	size += alignment + sizeof(uint8);
+	ptr = (uint8 *)SAlloc::M(size);
 	if(!ptr)
 		return NULL;
 	off = alignment-(((int)(intptr_t)ptr) & (alignment - 1));
-	ptr[off-1] = (uint8_t)off;
+	ptr[off-1] = (uint8)off;
 	return ptr + off;
 }
 
@@ -139,8 +139,8 @@ static void * opj_aligned_malloc_n(size_t alignment, size_t size)
 
 /* @sobolev void opj_aligned_free(void* ptr_)
 {
-	uint8_t * ptr = (uint8_t*)ptr_;
-	uint8_t off;
+	uint8 * ptr = (uint8*)ptr_;
+	uint8 off;
 	if(!ptr)
 		return;
 	off = ptr[-1];

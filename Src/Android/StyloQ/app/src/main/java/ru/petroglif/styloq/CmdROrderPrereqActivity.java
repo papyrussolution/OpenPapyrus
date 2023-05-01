@@ -600,8 +600,9 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 						long doc_id = intent.getLongExtra("SvcReplyDocID", 0);
 						String svc_reply_doc_json = null;
 						StyloQApp app_ctx = GetAppCtx();
-						if(app_ctx != null) {
-							StyloQDatabase db = app_ctx.GetDB();
+						StyloQDatabase db = (app_ctx != null) ? app_ctx.GetDB() : null;
+						if(db != null) {
+							CPM.SetupCurrentState(db); // @v11.7.0
 							if(doc_id > 0) {
 								StyloQDatabase.SecStoragePacket doc_packet = db.GetPeerEntry(doc_id);
 								if(doc_packet != null) {
@@ -1642,9 +1643,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							break;
 						case R.id.tbButtonLocalTabConfig:
 							{
-								CommonPrereqModule.RegistryFiltDialog dialog = new CommonPrereqModule.RegistryFiltDialog(this, CPM.Rf);
-								dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-								dialog.show();
+								if(CPM.Cs != null) {
+									CommonPrereqModule.RegistryFiltDialog dialog = new CommonPrereqModule.RegistryFiltDialog(this, CPM.Cs.Rf);
+									dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+									dialog.show();
+								}
 							}
 							break;
 						case R.id.CTLBUT_SEARCHPANE_OPTIONS:
@@ -1812,18 +1815,21 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					}
 					else if(srcObj instanceof CommonPrereqModule.RegistryFiltDialog) {
 						if(subj != null && subj instanceof CommonPrereqModule.RegistryFilt) {
-							CPM.Rf = (CommonPrereqModule.RegistryFilt)subj;
-							CPM.MakeCurrentDocList();
-							CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabRegistry);
-							if(te != null && te.TabView != null) {
-								View fv = te.TabView.getView();
-								NotifyTabContentChanged(CommonPrereqModule.Tab.tabRegistry, R.id.orderPrereqRegistryListView);
-								if(VdlDocs.IsThereTotals()) {
-									LinearLayout bottom_layout = (LinearLayout)fv.findViewById(R.id.orderPrereqRegistryListBottom);
-									if(bottom_layout != null) {
-										PreprocessRegistryData();
-										ViewDescriptionList.SetupItemLayout(VdlDocs, this, bottom_layout, 2);
-										fv.refreshDrawableState();
+							if(CPM.Cs != null) {
+								CPM.Cs.Rf = (CommonPrereqModule.RegistryFilt)subj;
+								CPM.RegisterCurrentStateModification(null); // @v11.7.0
+								CPM.MakeCurrentDocList();
+								CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabRegistry);
+								if(te != null && te.TabView != null) {
+									View fv = te.TabView.getView();
+									NotifyTabContentChanged(CommonPrereqModule.Tab.tabRegistry, R.id.orderPrereqRegistryListView);
+									if(VdlDocs.IsThereTotals()) {
+										LinearLayout bottom_layout = (LinearLayout) fv.findViewById(R.id.orderPrereqRegistryListBottom);
+										if(bottom_layout != null) {
+											PreprocessRegistryData();
+											ViewDescriptionList.SetupItemLayout(VdlDocs, this, bottom_layout, 2);
+											fv.refreshDrawableState();
+										}
 									}
 								}
 							}

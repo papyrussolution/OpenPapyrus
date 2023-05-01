@@ -60,9 +60,9 @@ bool SecurityGard::checkSha256(const std::wstring& filePath, NppModule module2ch
 	        return true;
 	 */
 	std::string content = getFileContent(filePath.c_str());
-	//uint8_t sha2hash[32];
-	//calc_sha_256(sha2hash, reinterpret_cast<const uint8_t*>(content.c_str()), content.length());
-	binary256 __h = SlHash::Sha256(0, reinterpret_cast<const uint8_t*>(content.c_str()), content.length());
+	//uint8 sha2hash[32];
+	//calc_sha_256(sha2hash, reinterpret_cast<const uint8*>(content.c_str()), content.length());
+	binary256 __h = SlHash::Sha256(0, reinterpret_cast<const uint8*>(content.c_str()), content.length());
 	wchar_t sha2hashStr[65] = { '\0' };
 	for(size_t i = 0; i < 32; i++) {
 		wsprintf(sha2hashStr + i * 2, TEXT("%02x"), /*sha2hash[i]*/PTR8C(&__h)[i]);

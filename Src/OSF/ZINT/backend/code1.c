@@ -540,7 +540,6 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 				}
 			}
 		}
-
 		if(current_mode == C1_C40) {
 			/* Step C - C40 encodation */
 			int shift_set, value, done = 0, latch = 0;
@@ -602,7 +601,6 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 					shift_set = c40_shift[source[sp]];
 					value = c40_value[source[sp]];
 				}
-
 				if(gs1 && (source[sp] == '[')) {
 					shift_set = 2;
 					value = 27; /* FNC1 */
@@ -691,12 +689,10 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 					shift_set = text_shift[source[sp]];
 					value = text_value[source[sp]];
 				}
-
 				if(gs1 && (source[sp] == '[')) {
 					shift_set = 2;
 					value = 27; /* FNC1 */
 				}
-
 				if(shift_set != 0) {
 					text_buffer[text_p] = shift_set - 1;
 					text_p++;
@@ -709,7 +705,6 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 					tp++;
 					target[tp] = iv % 256;
 					tp++;
-
 					text_buffer[0] = text_buffer[3];
 					text_buffer[1] = text_buffer[4];
 					text_buffer[2] = text_buffer[5];
@@ -794,7 +789,6 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 					tp++;
 					target[tp] = iv % 256;
 					tp++;
-
 					edi_buffer[0] = edi_buffer[3];
 					edi_buffer[1] = edi_buffer[4];
 					edi_buffer[2] = edi_buffer[5];
@@ -827,14 +821,11 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 					decimal_count = 3;
 				}
 			}
-
 			if(decimal_count != 3) {
 				size_t bits_left_in_byte, target_count;
 				int sub_target;
 				/* Finish Decimal mode and go back to ASCII */
-
 				strcat(decimal_binary, "111111"); /* Unlatch */
-
 				target_count = 3;
 				if(strlen(decimal_binary) <= 16) {
 					target_count = 2;
@@ -906,16 +897,10 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 				/* There are three digits - convert the value to binary */
 				value = (100 * hex(source[sp])) + (10 * hex(source[sp + 1])) + hex(source[sp + 2]) + 1;
 				for(p = 0; p < 10; p++) {
-					if(value & (0x200 >> p)) {
-						strcat(decimal_binary, "1");
-					}
-					else {
-						strcat(decimal_binary, "0");
-					}
+					strcat(decimal_binary, (value & (0x200 >> p)) ? "1" : "0");
 				}
 				sp += 3;
 			}
-
 			if(strlen(decimal_binary) >= 24) {
 				int target1 = 0, target2 = 0, target3 = 0;
 				char temp_binary[40];
@@ -1020,7 +1005,6 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 		target[tp++] = 255;
 		/* Unlatch */
 	}
-
 	if(current_mode == C1_DECIMAL) {
 		size_t bits_left_in_byte, target_count;
 		int sub_target;
@@ -1109,8 +1093,7 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 	return tp;
 }
 
-static void FASTCALL block_copy(struct ZintSymbol * symbol, char grid[][120], int start_row, int start_col,
-    int height, int width, int row_offset, int col_offset)
+static void STDCALL block_copy(struct ZintSymbol * symbol, char grid[][120], int start_row, int start_col, int height, int width, int row_offset, int col_offset)
 {
 	for(int i = start_row; i < (start_row + height); i++) {
 		for(int j = start_col; j < (start_col + width); j++) {

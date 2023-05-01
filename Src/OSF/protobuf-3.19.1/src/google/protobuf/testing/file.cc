@@ -61,7 +61,8 @@ bool File::ReadFileToString(const std::string& name, std::string* output, bool t
 	if(!file) return false;
 	while(true) {
 		size_t n = fread(buffer, 1, sizeof(buffer), file);
-		if(n <= 0) break;
+		if(n <= 0) 
+			break;
 		output->append(buffer, n);
 	}
 	int error = ferror(file);
@@ -70,7 +71,8 @@ bool File::ReadFileToString(const std::string& name, std::string* output, bool t
 	return error == 0;
 }
 
-void File::ReadFileToStringOrDie(const std::string& name, std::string* output) {
+void File::ReadFileToStringOrDie(const std::string& name, std::string* output) 
+{
 	GOOGLE_CHECK(ReadFileToString(name, output)) << "Could not read: " << name;
 }
 
@@ -108,11 +110,12 @@ bool File::CreateDir(const std::string& name, int mode)
 	return mkdir(name.c_str(), mode) == 0;
 }
 
-bool File::RecursivelyCreateDir(const std::string& path, int mode) {
-	if(CreateDir(path, mode)) return true;
-
-	if(Exists(path)) return false;
-
+bool File::RecursivelyCreateDir(const std::string& path, int mode) 
+{
+	if(CreateDir(path, mode)) 
+		return true;
+	if(Exists(path)) 
+		return false;
 	// Try creating the parent.
 	std::string::size_type slashpos = path.find_last_of('/');
 	if(slashpos == std::string::npos) {
@@ -128,7 +131,6 @@ void File::DeleteRecursively(const std::string& name, void* dummy1, void* dummy2
 		return;
 	// We don't care too much about error checking here since this is only used
 	// in tests to delete temporary directories that are under /tmp anyway.
-
 #ifdef _MSC_VER
 	// This interface is so weird.
 	WIN32_FIND_DATAA find_data;
@@ -139,7 +141,6 @@ void File::DeleteRecursively(const std::string& name, void* dummy1, void* dummy2
 		RemoveDirectoryA(name.c_str());
 		return;
 	}
-
 	do {
 		std::string entry_name = find_data.cFileName;
 		if(entry_name != "." && entry_name != "..") {
@@ -154,14 +155,13 @@ void File::DeleteRecursively(const std::string& name, void* dummy1, void* dummy2
 		}
 	} while(FindNextFileA(find_handle, &find_data));
 	FindClose(find_handle);
-
 	RemoveDirectoryA(name.c_str());
 #else
 	// Use opendir()!  Yay!
 	// lstat = Don't follow symbolic links.
 	struct stat stats;
-	if(lstat(name.c_str(), &stats) != 0) return;
-
+	if(lstat(name.c_str(), &stats) != 0) 
+		return;
 	if(S_ISDIR(stats.st_mode)) {
 		DIR* dir = opendir(name.c_str());
 		if(dir != NULL) {

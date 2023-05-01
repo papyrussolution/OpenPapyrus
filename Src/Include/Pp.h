@@ -142,7 +142,7 @@
 #include <stylopalm.h>
 #include <stylobhtii.h>
 #include <ppedi.h>
-#include <wininet.h>
+// @v11.7.0 #include <wininet.h>
 #include <..\rsrc\str\ppstr2.h>
 #ifdef _MSC_VER
 	#pragma intrinsic (fabs)
@@ -635,17 +635,18 @@ protected:
 // Descr: Общие предопределенные форматы обмена данными (общее поле идентификации, используемое для импорта/экспорта)
 //
 enum PredefinedImpExpFormat { // @persistent
-	piefUndef                    = 0, //
-	piefNalogR_Invoice           = 1, // Счет-фактура в формате nalog.ru
-	piefNalogR_REZRUISP          = 2, // Специальный тип документа в формате nalog.ru
-	piefNalogR_SCHFDOPPR         = 3, // УПД ON_SCHFDOPPR_1_995_01_05_01_02.xsd
-	piefExport_Marks             = 4, // @v10.7.12 Внутренний простой текстовый формат экспорта марок
-	piefNalogR                   = 5, // @v10.8.0 import-only Файлы в формате nalog.ru
-	piefNalogR_ON_NSCHFDOPPRMARK = 6, // @v10.8.0 Счет-фактура с марками
-	piefICalendar                = 7, // @v11.0.1 iCalendar
-	piefNalogR_ON_NSCHFDOPPR     = 8, // @v11.2.1 Счет-фактура
-	piefCokeOrder                = 9, // @v11.3.8 xml-заказы кока-кола
+	piefUndef                    =  0, //
+	piefNalogR_Invoice           =  1, // Счет-фактура в формате nalog.ru
+	piefNalogR_REZRUISP          =  2, // Специальный тип документа в формате nalog.ru
+	piefNalogR_SCHFDOPPR         =  3, // УПД ON_SCHFDOPPR_1_995_01_05_01_02.xsd
+	piefExport_Marks             =  4, // @v10.7.12 Внутренний простой текстовый формат экспорта марок
+	piefNalogR                   =  5, // @v10.8.0 import-only Файлы в формате nalog.ru
+	piefNalogR_ON_NSCHFDOPPRMARK =  6, // @v10.8.0 Счет-фактура с марками
+	piefICalendar                =  7, // @v11.0.1 iCalendar
+	piefNalogR_ON_NSCHFDOPPR     =  8, // @v11.2.1 Счет-фактура
+	piefCokeOrder                =  9, // @v11.3.8 xml-заказы кока-кола
 	piefChicago                  = 10, // @v11.5.8 xml-заказы системы чикаго (системные технологии, калининград)
+	piefNalogR_ON_NKORSCHFDOPPR  = 11, // @v11.7.0 Корректировочная счет-фактура
 };
 //
 // Descr: Габаритные размеры (mm).
@@ -1714,7 +1715,7 @@ private:
 //
 // Descr: Заголовок файла блокировок
 //
-struct PPSyncHeader {      // @persistent @size=62 (+4 Lock Prefix Size)
+struct PPSyncHeader { // @persistent @size=62 (+4 Lock Prefix Size)
 	long   Magic;          // unique identifier
 	long   RecsCount;      // number of records
 	int16  Ver;            // Since v4.6.15 Ver=1
@@ -1727,7 +1728,7 @@ struct PPSyncHeader {      // @persistent @size=62 (+4 Lock Prefix Size)
 //
 // Descr: Запись файла блокировок
 //
-struct PPSyncItem {        // @persistent @size=66 (+4 Lock Prefix Size)
+struct PPSyncItem { // @persistent @size=66 (+4 Lock Prefix Size)
 	long   ID;             // record id
 	long   Type;           // record type (1-Semaphore, 2-Mutex, 3-DbLock, 0-Logout) PPSYNC_XXX
 	long   UserID;         // user unique identifier
@@ -2042,6 +2043,7 @@ public:
 	PPObjID(const PPObjID_Base & rS);
 	PPObjID(PPID objType, PPID objID);
 	PPObjID & FASTCALL operator = (const PPObjID_Base & rS);
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v11.7.0
 };
 //
 // Descr: Специализированная структура, используемая для индексации наименований
@@ -10354,6 +10356,8 @@ public:
 	//
 	// Descr: Транспортная упаковка товара.
 	//   Структура сжимается в строку и хранится в зарезервированном теге PPTAG_LOT_FREIGHTPACKAGE.
+	//   Семантически аналогична Acceptance
+	//   @todo Шаблонизировать методы ToStr и FromStr для совместного использования с Acceptance
 	//
 	struct FreightPackage {
 		static int Edit(PPTransferItem::FreightPackage * pData);
@@ -10365,6 +10369,26 @@ public:
 		uint32 Ver;
         PPID   FreightPackageTypeID; // Тип упаковки
         double Qtty;                 // Количество упаковок
+	};
+	//
+	// Descr: Параметры приемки строки входящего документа.
+	//   Структура сжимается в строку и хранится в зарезервированном теге PPTAG_LOT_ACCEPTANCE.
+	//   Семантически аналогична FreightPackage
+	//   @todo Шаблонизировать методы ToStr и FromStr для совместного использования с FreightPackage
+	//
+	struct Acceptance { // @v11.7.0
+		static int Edit(const PPTransferItem * pTi, PPTransferItem::Acceptance * pData);
+		Acceptance();
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+        int    ToStr(SString & rBuf);
+        int    FromStr(const SString & rBuf);
+
+		uint32 Ver;
+		uint32 Flags;
+		PPObjID SrcOid; // Источник формирования подтверждения (пользователь, сторонний агент etc)
+		double Qtty;
+		double Cost;
+		double Price;
 	};
 
 	PPTransferItem();
@@ -10851,7 +10875,7 @@ struct PPBankingOrder { // @persistent @store(PropertyTbl)
 	//   BnkQueueing == (1..10)
 	//   Amount > 0
 	//
-	struct TaxMarkers {    // @size=90
+	struct TaxMarkers { // @size=90
 		bool   IsEmpty() const;
 		char   TaxClass[12];  // Код бюджетной классификации налога (7 знаков)
 		char   OKATO[16];     // Код муниципального образования по ОКАТО (11 знаков)
@@ -13901,7 +13925,6 @@ public:
 	int    Remove_S(const ObjSyncIdent * pIdent, int use_ta);
 	int    Update(const ObjSyncIdent *, const ObjSyncTbl::Rec * pRec, int use_ta);
 	int    AddRawRecord(ObjSyncTbl::Rec * pRec, int use_ta);
-
 	int    TransmitObj(PPObjID obj, PPCommSyncID * pCommID, int use_ta);
 	int    SearchCommonObj(PPID, PPCommSyncID commID, PPID * pID, ObjSyncTbl::Rec * = 0);
 	int    AckObj(PPID objType, PPID foreinID, PPCommSyncID commID, PPID dbid, const LDATETIME * pDtm, int use_ta);
@@ -24755,7 +24778,13 @@ public:
 	static int Test(PPID gtaxID);
 	explicit GTaxVect(int roundPrec = 2);
 	void   Calc_(PPGoodsTaxEntry *, double amount, double qtty, long amtFlags, long excludeFlags = 0);
-	int    CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt /* TIAMT_XXX */, long exclFlags = 0L);
+	//
+	// ARG(correctionFlag IN): Флаг расчета сумм по строке корректирующего документа.
+	//  0 - как разница между новыми значениями и старыми
+	// -1 - по изначальным значениям (до корректировки)
+	//  1 - по финальным значениям (после корректировки)
+	//
+	int    CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt /* TIAMT_XXX */, long exclFlags = 0L, int correctionFlag = 0);
 	double FASTCALL GetValue(long flags /* mask GTAXVF_XXX */) const;
 	double GetTaxRate(long taxID /* GTAX_XXX */, int * pIsAbs) const;
 private:
@@ -33490,7 +33519,7 @@ public:
 	const  SString & FASTCALL GetToken_Ansi_Pe1(long n);
 protected:
 	SString & FASTCALL Helper_GetToken(long tokId);
-	SString TokBuf;
+	// @v11.7.0 (заменено на револьверную строку) SString TokBuf;
 	TokenSymbHashTable TsHt;
 };
 
@@ -33505,8 +33534,13 @@ public:
 		SXml::WNode N;
 	};
 	struct Invoice {
-		Invoice(DocNalogRu_Generator & rG, const PPBillPacket & rBp);
+		//
+		// ARG(correction IN): Если true, то формирование документа будет в варианте корректирующей счет-фактуры. 
+		//   В этой схеме отличаются некоторые теги.
+		//
+		Invoice(DocNalogRu_Generator & rG, const PPBillPacket & rBp, bool correction = false);
 		SXml::WNode N;
+		const bool IsCorrection;
 	};
 	DocNalogRu_Generator();
 	~DocNalogRu_Generator();
@@ -33515,7 +33549,11 @@ public:
 	int    MakeOutFileName(const char * pFileIdent, SString & rFileName);
 	int    StartDocument(const char * pFileName);
 	void   EndDocument();
-	int    WriteInvoiceItems(const PPBillImpExpParam & rParam, const FileInfo & rHi, const PPBillPacket & rBp);
+	//
+	// ARG(correction IN): Если true, то формирование строк документа будет в варианте корректирующей счет-фактуры. 
+	//   В этой схеме отличаются некоторые теги.
+	//
+	int    WriteInvoiceItems(const PPBillImpExpParam & rParam, const FileInfo & rHi, const PPBillPacket & rBp, bool correction = false);
 	int    WriteAddress(const PPLocationPacket & rP, int regionCode, int hdrTag /*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/);
 	// 
 	// Descr: Флаги функции WriteOrgInfo
@@ -38633,7 +38671,7 @@ public:
 		tmWriting,
 		tmReading
 	};
-	struct Header {        // @persistent(DBX) @size=128
+	struct Header { // @persistent(DBX) @size=128
 		Header();
 		int32  Magic;           // 0x534F5050L ("PPOS")
 		uint16 PacketType;      // Тип пакета (PPOT_XXX)
@@ -38657,7 +38695,7 @@ public:
 		uint8  Reserve2[32];    // @reserve
 	};
 
-	struct IndexItem {     // @persistent @size=48 (before v5.6.8 - 32)
+	struct IndexItem { // @persistent @size=48 (before v5.6.8 - 32)
 		int32  ObjType;
 		union {
 			int32  ObjID;       // Ид объекта в разделе-отправителе
@@ -46232,7 +46270,7 @@ private:
 #define PRJCFGF_INCOMPLETETASKREMIND 0x0004
 #define PRJCFGF_VALID                0x0008L  // @transient Запись инициализирована
 
-struct PPProjectConfig {   // @persistent @store(PropertyTbl) @size=90
+struct PPProjectConfig { // @persistent @store(PropertyTbl) @size=90
 	PPProjectConfig();
 	PPProjectConfig & Z();
 
@@ -47130,6 +47168,8 @@ public:
 		doctypIncomingList    = 7, // @v11.4.8 
 		doctypDebtList        = 8, // @v11.5.4 Реестр долговых документов по контрагентам. Специфичный документ: на клиентской стороне хранится единый реестр по всем
 			// контрагентам. При этом запрос сервису отправляется по одному контрагенту, а ответ (корректный) встраивается в общий реестр.
+		doctypCurrentState    = 9, // @v11.7.0 Внутренний документ, сохраняющий состояние и, возможно, какие-то конфигурационные параметры.
+			// Применим только для клиентской базы данных.
 	};
 	struct StoragePacket {
 		StoragePacket();
@@ -47556,7 +47596,11 @@ public:
 				fCcModifier      = 0x0002,
 				fCcPartOfComplex = 0x0004,
 				fCcQuotedByGift  = 0x0008,
-				fCcFixedPrice    = 0x0010
+				fCcFixedPrice    = 0x0010,
+				fHasAcceptance   = 0x0020, // @v11.7.0 Флаг нужен для правильной обработки
+					// документа на стороне сервиса: если установлен, то считается, что SetAccepted инициализирован
+					// даже если SetAccepted.Qtty == 0. На стороне клиента такой проблемы нет поскольку
+					// неинициализированный SetAccepted == null
 			};
 			__TransferItem();
 			int    RowIdx;  // [1..], 0 - undefined
@@ -48140,7 +48184,17 @@ public:
 		fBillWithMarksOnly        = 0x0001, // Только документы, в которых есть марки честный знак или егаис
 		fBillWithMarkedGoodsOnly  = 0x0002  // Только документы, содержащие товары, подлежащие маркировке
 	};
-	uint8  ReserveStart[48];
+	//
+	// Descr: Варианты проведения приемки входящих документов
+	//
+	enum {
+		acceptanceNone         = 0, // Ничего не делать
+		acceptanceTags         = 1, // Расставить теги по строкам
+		acceptanceModifyOrgDoc = 2, // Изменить оригинальный документ
+		acceptanceLinkDraft    = 3  // Привязать к оригинальному документу драфт с информацией о приемке (oprkind=PPOPK_EDI_RECADV)
+	};
+	uint8  ReserveStart[44];
+	int    Acceptance; // @v11.7.0 (acceptanceXXX) Способ обработки приемки документа
 	DateRange Period;  // Это - отладочный критерий. В реальности должен использоваться LookbackDays, но так как тестовые 
 		// базы данных не меняются, то LookbackDays при разработке использовать затруднительно.
 	uint32 Flags;
@@ -57535,7 +57589,7 @@ struct SelPersonIdent {
 };
 
 int    SelectPerson(SelPersonIdent *);
-int    FASTCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * item, const PPIDArray * pAllowedTags);
+int    STDCALL  EditObjTagItem(PPID objType, PPID objID, ObjTagItem * item, const PPIDArray * pAllowedTags);
 int    FASTCALL EditTagFilt(PPID objType, TagFilt *);
 int    SelectObjTag(PPID * pTagID, const PPIDArray * pAllowedTags, ObjTagFilt * pFilt);
 int    EditObjTagValList(ObjTagList * pTags, const PPIDArray * allowedTags);

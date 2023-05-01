@@ -4409,19 +4409,19 @@ static amqp_hostcheck_result amqp_hostmatch(const char * hostname, const char * 
 	const char * hostname_label_end;
 	int wildcard_enabled;
 	size_t prefixlen, suffixlen;
-	const char * pattern_wildcard = strchr(pattern, '*');
+	const char * pattern_wildcard = sstrchr(pattern, '*');
 	if(!pattern_wildcard) {
 		return amqp_raw_equal(pattern, hostname) ? AMQP_HCR_MATCH : AMQP_HCR_NO_MATCH;
 	}
 	// We require at least 2 dots in pattern to avoid too wide wildcard match. 
 	wildcard_enabled = 1;
-	pattern_label_end = strchr(pattern, '.');
-	if(!pattern_label_end || strchr(pattern_label_end + 1, '.') == NULL || pattern_wildcard > pattern_label_end || amqp_raw_nequal(pattern, "xn--", 4))
+	pattern_label_end = sstrchr(pattern, '.');
+	if(!pattern_label_end || sstrchr(pattern_label_end + 1, '.') == NULL || pattern_wildcard > pattern_label_end || amqp_raw_nequal(pattern, "xn--", 4))
 		wildcard_enabled = 0;
 	if(!wildcard_enabled) {
 		return amqp_raw_equal(pattern, hostname) ? AMQP_HCR_MATCH : AMQP_HCR_NO_MATCH;
 	}
-	hostname_label_end = strchr(hostname, '.');
+	hostname_label_end = sstrchr(hostname, '.');
 	if(!hostname_label_end || !amqp_raw_equal(pattern_label_end, hostname_label_end)) {
 		return AMQP_HCR_NO_MATCH;
 	}
@@ -5016,16 +5016,16 @@ int sasl_mechanism_in_list(amqp_bytes_t mechanisms, amqp_sasl_method_enum method
 	amqp_bytes_t supported_mechanism;
 	amqp_bytes_t mechanism = sasl_method_name(method);
 	assert(mechanisms.bytes);
-	uint8 * start = static_cast<uint8 *>(mechanisms.bytes);
-	uint8 * current = start;
-	uint8 * end = start + mechanisms.len;
+	const uint8 * start = static_cast<const uint8 *>(mechanisms.bytes);
+	const uint8 * current = start;
+	const uint8 * end = start + mechanisms.len;
 	for(; current != end; start = current + 1) {
 		// HACK: SASL states that we should be parsing this string as a UTF-8
 		// string, which we're plainly not doing here. At this point its not worth
 		// dragging an entire UTF-8 parser for this one case, and this should work most of the time 
-		current = static_cast<uint8 *>(memchr(start, ' ', end - start));
+		current = static_cast<const uint8 *>(memchr(start, ' ', end - start));
 		SETIFZ(current, end);
-		supported_mechanism.bytes = start;
+		supported_mechanism.bytes = const_cast<uint8 *>(start); // @badcast
 		supported_mechanism.len = current - start;
 		if(bytes_equal(mechanism, supported_mechanism))
 			return 1;

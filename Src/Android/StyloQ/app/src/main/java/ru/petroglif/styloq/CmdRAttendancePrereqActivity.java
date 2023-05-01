@@ -970,8 +970,9 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 					long doc_id = intent.getLongExtra("SvcReplyDocID", 0);
 					String svc_reply_doc_json = null;
 					StyloQApp app_ctx = GetAppCtx();
-					if(app_ctx != null) {
-						StyloQDatabase db = app_ctx.GetDB();
+					StyloQDatabase db = (app_ctx != null) ? app_ctx.GetDB() : null;
+					if(db != null) {
+						CPM.SetupCurrentState(db); // @v11.7.0
 						if(doc_id > 0) {
 							StyloQDatabase.SecStoragePacket doc_packet = db.GetPeerEntry(doc_id);
 							if(doc_packet != null) {

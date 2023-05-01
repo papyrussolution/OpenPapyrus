@@ -7,7 +7,7 @@
 // Descr: Output buffer for a single thread
 //
 struct lzma_outbuf {
-	uint8_t * buf; /// Pointer to the output buffer of lzma_outq.buf_size_max bytes
+	uint8 * buf; /// Pointer to the output buffer of lzma_outq.buf_size_max bytes
 	size_t size; /// Amount of data written to buf
 	/// Additional size information
 	lzma_vli unpadded_size;
@@ -21,7 +21,7 @@ struct lzma_outbuf {
 
 struct lzma_outq {
 	lzma_outbuf * bufs; /// Array of buffers that are used cyclically.
-	uint8_t * bufs_mem; /// Memory allocated for all the buffers
+	uint8 * bufs_mem; /// Memory allocated for all the buffers
 	size_t buf_size_max; /// Amount of buffer space available in each buffer
 	uint32_t bufs_allocated; /// Number of buffers allocated
 	uint32_t bufs_pos; /// Position in the bufs array. The next buffer to be taken into use is bufs[bufs_pos].
@@ -92,7 +92,7 @@ extern bool lzma_outq_is_readable(const lzma_outq * outq);
 /// \note       This reads lzma_outbuf.finished variables and thus call
 ///             to this function needs to be protected with a mutex.
 ///
-extern lzma_ret lzma_outq_read(lzma_outq * outq, uint8_t * out, size_t * out_pos,
+extern lzma_ret lzma_outq_read(lzma_outq * outq, uint8 * out, size_t * out_pos,
     size_t out_size, lzma_vli * unpadded_size, lzma_vli * uncompressed_size);
 /// \brief      Test if there is at least one buffer free
 ///

@@ -14,7 +14,7 @@
 #define RC_INFINITY_PRICE (UINT32_C(1) << 30)
 
 /// Lookup table for the inline functions defined in this file.
-extern const uint8_t lzma_rc_prices[RC_PRICE_TABLE_SIZE];
+extern const uint8 lzma_rc_prices[RC_PRICE_TABLE_SIZE];
 
 static inline uint32_t rc_bit_price(const probability prob, const uint32_t bit)
 	{ return lzma_rc_prices[(prob ^ ((UINT32_C(0) - bit) & (RC_BIT_MODEL_TOTAL - 1))) >> RC_MOVE_REDUCING_BITS]; }
@@ -63,7 +63,7 @@ struct lzma_range_encoder {
 	uint64_t low;
 	uint64_t cache_size;
 	uint32_t range;
-	uint8_t cache;
+	uint8 cache;
 	size_t count; /// Number of symbols in the tables
 	size_t pos; /// rc_encode()'s position in the tables
 	/// Symbols to encode
@@ -128,24 +128,24 @@ static inline void rc_flush(lzma_range_encoder * rc)
 		rc->symbols[rc->count++] = lzma_range_encoder::RC_FLUSH;
 }
 
-static inline bool rc_shift_low(lzma_range_encoder * rc, uint8_t * out, size_t * out_pos, size_t out_size)
+static inline bool rc_shift_low(lzma_range_encoder * rc, uint8 * out, size_t * out_pos, size_t out_size)
 {
 	if((uint32_t)(rc->low) < (uint32_t)(0xFF000000) || (uint32_t)(rc->low >> 32) != 0) {
 		do {
 			if(*out_pos == out_size)
 				return true;
-			out[*out_pos] = rc->cache + (uint8_t)(rc->low >> 32);
+			out[*out_pos] = rc->cache + (uint8)(rc->low >> 32);
 			++*out_pos;
 			rc->cache = 0xFF;
 		} while(--rc->cache_size != 0);
-		rc->cache = static_cast<uint8_t>((rc->low >> 24) & 0xFF);
+		rc->cache = static_cast<uint8>((rc->low >> 24) & 0xFF);
 	}
 	++rc->cache_size;
 	rc->low = (rc->low & 0x00FFFFFF) << RC_SHIFT_BITS;
 	return false;
 }
 
-static inline bool rc_encode(lzma_range_encoder * rc, uint8_t * out, size_t * out_pos, size_t out_size)
+static inline bool rc_encode(lzma_range_encoder * rc, uint8 * out, size_t * out_pos, size_t out_size)
 {
 	assert(rc->count <= RC_SYMBOLS_MAX);
 	while(rc->pos < rc->count) {

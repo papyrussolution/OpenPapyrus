@@ -19,8 +19,8 @@ struct lzma_auto_coder {
 };
 
 static lzma_ret auto_decode(void * coder_ptr, const lzma_allocator * allocator,
-    const uint8_t * in, size_t * in_pos,
-    size_t in_size, uint8_t * out,
+    const uint8 * in, size_t * in_pos,
+    size_t in_size, uint8 * out,
     size_t * out_pos, size_t out_size, lzma_action action)
 {
 	lzma_auto_coder * coder = (lzma_auto_coder *)coder_ptr;

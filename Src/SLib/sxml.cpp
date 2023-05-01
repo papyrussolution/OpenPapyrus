@@ -4,7 +4,7 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <snet.h>
+// @v11.7.0 #include <snet.h>
 #include <sxml.h>
 #include <libxml/xmlschemastypes.h>
 

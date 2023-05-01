@@ -32,7 +32,7 @@
 
 /* To prevent coverity being confused by sign extensions from shifts, we
  * have replaced "unsigned long" by "uint32_t". To match styles, we have
- * similarly replaced "uchar" by uint8_t. */
+ * similarly replaced "uchar" by uint8. */
 
 /*
  * 32-bit integer manipulation macros (little endian)
@@ -50,17 +50,17 @@
 #ifndef PUT_ULONG_LE
 #define PUT_ULONG_LE(n, b, i)                             \
 	{                                                       \
-		(b)[(i) ] = (uint8_t)( (n) );          \
-		(b)[(i) + 1] = (uint8_t)( (n) >> 8 );  \
-		(b)[(i) + 2] = (uint8_t)( (n) >> 16 ); \
-		(b)[(i) + 3] = (uint8_t)( (n) >> 24 ); \
+		(b)[(i) ] = (uint8)( (n) );          \
+		(b)[(i) + 1] = (uint8)( (n) >> 8 );  \
+		(b)[(i) + 2] = (uint8)( (n) >> 16 ); \
+		(b)[(i) + 3] = (uint8)( (n) >> 24 ); \
 	}
 #endif
 
 /*
  * Forward S-box & tables
  */
-static uint8_t FSb[256];
+static uint8 FSb[256];
 static uint32_t FT0[256];
 static uint32_t FT1[256];
 static uint32_t FT2[256];
@@ -69,7 +69,7 @@ static uint32_t FT3[256];
 /*
  * Reverse S-box & tables
  */
-static uint8_t RSb[256];
+static uint8 RSb[256];
 static uint32_t RT0[256];
 static uint32_t RT1[256];
 static uint32_t RT2[256];
@@ -127,8 +127,8 @@ static void aes_gen_tables(void)
 		x ^= y; y = ( (y << 1) | (y >> 7) ) & 0xFF;
 		x ^= y ^ 0x63;
 
-		FSb[i] = (uint8_t)x;
-		RSb[x] = (uint8_t)i;
+		FSb[i] = (uint8)x;
+		RSb[x] = (uint8)i;
 	}
 
 	/*
@@ -164,7 +164,7 @@ static void aes_gen_tables(void)
 /*
  * AES key schedule (encryption)
  */
-int fz_aes_setkey_enc(aes_context * ctx, const uint8_t * key, int keysize)
+int fz_aes_setkey_enc(aes_context * ctx, const uint8 * key, int keysize)
 {
 	int i;
 	uint32_t * RK;
@@ -255,7 +255,7 @@ int fz_aes_setkey_enc(aes_context * ctx, const uint8_t * key, int keysize)
 /*
  * AES key schedule (decryption)
  */
-int fz_aes_setkey_dec(aes_context * ctx, const uint8_t * key, int keysize)
+int fz_aes_setkey_dec(aes_context * ctx, const uint8 * key, int keysize)
 {
 	int i, j;
 	aes_context cty;
@@ -351,8 +351,8 @@ int fz_aes_setkey_dec(aes_context * ctx, const uint8_t * key, int keysize)
  */
 void fz_aes_crypt_ecb(aes_context * ctx,
     int mode,
-    const uint8_t input[16],
-    uint8_t output[16])
+    const uint8 input[16],
+    uint8 output[16])
 {
 	int i;
 	uint32_t * RK, X0, X1, X2, X3, Y0, Y1, Y2, Y3;
@@ -440,12 +440,12 @@ void fz_aes_crypt_ecb(aes_context * ctx,
 void fz_aes_crypt_cbc(aes_context * ctx,
     int mode,
     size_t length,
-    uint8_t iv[16],
-    const uint8_t * input,
-    uint8_t * output)
+    uint8 iv[16],
+    const uint8 * input,
+    uint8 * output)
 {
 	int i;
-	uint8_t temp[16];
+	uint8 temp[16];
 
 #if defined(XYSSL_PADLOCK_C) && defined(XYSSL_HAVE_X86)
 	if(padlock_supports(PADLOCK_ACE)) {
@@ -460,7 +460,7 @@ void fz_aes_crypt_cbc(aes_context * ctx,
 			fz_aes_crypt_ecb(ctx, mode, input, output);
 
 			for(i = 0; i < 16; i++)
-				output[i] = (uint8_t)( output[i] ^ iv[i] );
+				output[i] = (uint8)( output[i] ^ iv[i] );
 
 			memcpy(iv, temp, 16);
 
@@ -472,7 +472,7 @@ void fz_aes_crypt_cbc(aes_context * ctx,
 	else {
 		while(length > 0) {
 			for(i = 0; i < 16; i++)
-				output[i] = (uint8_t)( input[i] ^ iv[i] );
+				output[i] = (uint8)( input[i] ^ iv[i] );
 
 			fz_aes_crypt_ecb(ctx, mode, output, output);
 			memcpy(iv, output, 16);
@@ -492,9 +492,9 @@ void fz_aes_crypt_cfb(aes_context * ctx,
     int mode,
     int length,
     int * iv_off,
-    uint8_t iv[16],
-    const uint8_t * input,
-    uint8_t * output)
+    uint8 iv[16],
+    const uint8 * input,
+    uint8 * output)
 {
 	int c, n = *iv_off;
 
@@ -504,8 +504,8 @@ void fz_aes_crypt_cfb(aes_context * ctx,
 				fz_aes_crypt_ecb(ctx, FZ_AES_ENCRYPT, iv, iv);
 
 			c = *input++;
-			*output++ = (uint8_t)( c ^ iv[n] );
-			iv[n] = (uint8_t)c;
+			*output++ = (uint8)( c ^ iv[n] );
+			iv[n] = (uint8)c;
 
 			n = (n + 1) & 0x0F;
 		}
@@ -515,7 +515,7 @@ void fz_aes_crypt_cfb(aes_context * ctx,
 			if(!n)
 				fz_aes_crypt_ecb(ctx, FZ_AES_ENCRYPT, iv, iv);
 
-			iv[n] = *output++ = (uint8_t)( iv[n] ^ *input++ );
+			iv[n] = *output++ = (uint8)( iv[n] ^ *input++ );
 
 			n = (n + 1) & 0x0F;
 		}

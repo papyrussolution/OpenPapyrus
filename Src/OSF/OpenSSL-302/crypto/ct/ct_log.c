@@ -16,7 +16,7 @@ struct ctlog_st {
 	OSSL_LIB_CTX * libctx;
 	char * propq;
 	char * name;
-	uint8_t log_id[CT_V1_HASHLEN];
+	uint8 log_id[CT_V1_HASHLEN];
 	EVP_PKEY * public_key;
 };
 
@@ -288,7 +288,7 @@ const char * CTLOG_get0_name(const CTLOG * log)
 	return log->name;
 }
 
-void CTLOG_get0_log_id(const CTLOG * log, const uint8_t ** log_id,
+void CTLOG_get0_log_id(const CTLOG * log, const uint8 ** log_id,
     size_t * log_id_len)
 {
 	*log_id = log->log_id;
@@ -305,7 +305,7 @@ EVP_PKEY * CTLOG_get0_public_key(const CTLOG * log)
  * Returns NULL if no match found.
  */
 const CTLOG * CTLOG_STORE_get0_log_by_id(const CTLOG_STORE * store,
-    const uint8_t * log_id,
+    const uint8 * log_id,
     size_t log_id_len)
 {
 	int i;

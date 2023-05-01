@@ -64,17 +64,13 @@ int64_t pdf_to_date(fz_context * ctx, pdf_obj * time)
 	int tz_sign, tz_hour, tz_min, tz_adj;
 	struct tm tm;
 	time_t utc;
-
 	if(!s[0])
 		return -1;
-
-	memset(&tm, 0, sizeof tm);
+	memzero(&tm, sizeof tm);
 	tm.tm_mday = 1;
-
 	tz_sign = 1;
 	tz_hour = 0;
 	tz_min = 0;
-
 	if(s[0] == 'D' && s[1] == ':')
 		s += 2;
 

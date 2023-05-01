@@ -24,7 +24,7 @@ static void crc64_init(void)
 	}
 }
 
-uint64_t lzma_crc64(const uint8_t *buf, size_t size, uint64_t crc)
+uint64_t lzma_crc64(const uint8 *buf, size_t size, uint64_t crc)
 {
 	mythread_once(crc64_init);
 	crc = ~crc;

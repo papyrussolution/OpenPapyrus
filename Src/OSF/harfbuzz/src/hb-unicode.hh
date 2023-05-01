@@ -20,7 +20,7 @@
 
 #include "hb.hh"
 
-extern HB_INTERNAL const uint8_t _hb_modified_combining_class[256];
+extern HB_INTERNAL const uint8 _hb_modified_combining_class[256];
 
 /*
  * hb_unicode_funcs_t

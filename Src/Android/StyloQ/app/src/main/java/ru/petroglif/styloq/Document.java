@@ -628,6 +628,25 @@ public class Document {
 		{
 			return (s != null && Qtty == s.Qtty && Cost == s.Cost && Price == s.Price && Discount == s.Discount);
 		}
+		void Merge(final ValuSet s)
+		{
+			if(s != null) {
+				final double org_qtty = Qtty;
+				Qtty += s.Qtty;
+				if(Cost > 0) {
+					if(s.Cost > 0)
+						Cost = (Cost * Math.abs(org_qtty) + s.Cost * Math.abs(s.Qtty)) / Math.abs(Qtty);
+				}
+				else if(s.Cost > 0)
+					Cost = s.Cost;
+				if(Price > 0) {
+					if(s.Price > 0)
+						Price = (Price * Math.abs(org_qtty) + s.Price * Math.abs(s.Qtty)) / Math.abs(Qtty);
+				}
+				else if(s.Price > 0)
+					Price = s.Price;
+			}
+		}
 		public double GetAmount_Cost() { return (Qtty * Cost); }
 		public double GetAmount_Price() { return (Qtty * (Price-Discount)); }
 		public boolean IsEmpty() { return !(Qtty > 0.0 || Cost > 0.0 || Price > 0.0); }
@@ -649,22 +668,12 @@ public class Document {
 			boolean result = false;
 			if(CanMerge(testItem)) {
 				if(testItem.Set != null && testItem.Set.Qtty != 0) {
-					if(Set == null)
-						Set = new ValuSet();
-					double org_qtty = Set.Qtty;
-					Set.Qtty += testItem.Set.Qtty;
-					if(Set.Cost > 0) {
-						if(testItem.Set.Cost > 0)
-							Set.Cost = (Set.Cost * Math.abs(org_qtty) + testItem.Set.Cost * Math.abs(testItem.Set.Qtty)) / Math.abs(Set.Qtty);
-					}
-					else if(testItem.Set.Cost > 0)
-						Set.Cost = testItem.Set.Cost;
-					if(Set.Price > 0) {
-						if(testItem.Set.Price > 0)
-							Set.Price = (Set.Price * Math.abs(org_qtty) + testItem.Set.Price * Math.abs(testItem.Set.Qtty)) / Math.abs(Set.Qtty);
-					}
-					else if(testItem.Set.Price > 0)
-						Set.Price = testItem.Set.Price;
+					Set.Merge(testItem.Set);
+				}
+				if(testItem.SetAccepted != null) {
+					if(SetAccepted == null)
+						SetAccepted = new ValuSet();
+					SetAccepted.Merge(testItem.SetAccepted);
 				}
 				result = true;
 			}
@@ -747,11 +756,15 @@ public class Document {
 		public static int fCcPartOfComplex = 0x0004;
 		public static int fCcQuotedByGift  = 0x0008;
 		public static int fCcFixedPrice    = 0x0010;
+		public static int fHasAcceptance   = 0x0020; // @v11.7.0 Флаг нужен для правильной обработки
+			// документа на стороне сервиса: если установлен, то считается, что SetAccepted инициализирован
+			// даже если SetAccepted.Qtty == 0. На стороне клиента такой проблемы нет поскольку
+			// неинициализированный SetAccepted == null
 		// }
 		int    RowIdx;  // [1..]
 		int    GoodsID; // service-domain-id
 		int    UnitID;  // service-domain-id
-		int    Flags;
+		int    Flags;   //
 		int    CcQueue; // @v11.5.2 Проекция поля CCheckPacket::LineExt::Queue
 		String Serial; // @v11.5.2
 		ValuSet Set;
@@ -1274,87 +1287,89 @@ public class Document {
 					for(int i = 0; i < TiList.size(); i++) {
 						TransferItem ti = TiList.get(i);
 						if(ti != null) {
+							int flags_to_transmit = ti.Flags;
 							JSONObject js_item = new JSONObject();
 							js_item.put("rowidx", ti.RowIdx);
 							if(ti.GoodsID > 0) {
 								js_item.put("goodsid", ti.GoodsID);
 								if(ti.UnitID > 0)
 									js_item.put("unitid", ti.UnitID);
-								js_item.put("flags", ti.Flags);
-								if(ti.Set != null) {
-									JSONObject js_ti_set = new JSONObject();
-									boolean is_empty = true;
-									if(ti.Set.Qtty != 0.0) {
-										js_ti_set.put("qtty", ti.Set.Qtty);
-										is_empty = false;
-									}
-									if(ti.Set.Cost != 0.0) {
-										js_ti_set.put("cost", ti.Set.Cost);
-										is_empty = false;
-									}
-									if(ti.Set.Price != 0.0) {
-										js_ti_set.put("price", ti.Set.Price);
-										is_empty = false;
-									}
-									if(ti.Set.Discount != 0.0) {
-										js_ti_set.put("discount", ti.Set.Discount);
-										is_empty = false;
-									}
-									if(is_empty)
-										js_ti_set = null;
-									else
-										js_item.put("set", js_ti_set);
-								}
-								// @v11.6.12 {
-								if(ti.SetAccepted != null) {
-									JSONObject js_ti_set = new JSONObject();
-									boolean is_empty = true;
-									if(ti.SetAccepted.Qtty != 0.0) {
-										js_ti_set.put("qtty", ti.SetAccepted.Qtty);
-										is_empty = false;
-									}
-									if(ti.SetAccepted.Cost != 0.0) {
-										js_ti_set.put("cost", ti.SetAccepted.Cost);
-										is_empty = false;
-									}
-									if(ti.SetAccepted.Price != 0.0) {
-										js_ti_set.put("price", ti.SetAccepted.Price);
-										is_empty = false;
-									}
-									if(ti.SetAccepted.Discount != 0.0) {
-										js_ti_set.put("discount", ti.SetAccepted.Discount);
-										is_empty = false;
-									}
-									if(is_empty)
-										js_ti_set = null;
-									else
-										js_item.put("setaccepted", js_ti_set);
-								}
-								// } @v11.6.12
-								// @v11.4.8 {
-								if(ti.XcL != null && ti.XcL.size() > 0) {
-									JSONArray js_xcl = null;
-									for(int xci = 0; xci < ti.XcL.size(); xci++) {
-										JSONObject js_xce = new JSONObject();
-										LotExtCode xce = ti.XcL.get(xci);
-										if(xce != null && SLib.GetLen(xce.Code) > 0) {
-											js_xce.put("cod", xce.Code);
-											if(xce.BoxRefN > 0)
-												js_xce.put("boxrefn", xce.BoxRefN);
-											if(xce.Flags != 0)
-												js_xce.put("flags", xce.Flags);
-											if(js_xcl == null)
-												js_xcl = new JSONArray();
-											js_xcl.put(js_xce);
-										}
-									}
-									if(js_xcl != null)
-										js_item.put("xcl", js_xcl);
-								}
-								// } @v11.4.8
-								js_list.put(js_item);
-								is_list_empty = false;
 							}
+							if(ti.Set != null) {
+								JSONObject js_ti_set = new JSONObject();
+								boolean is_empty = true;
+								if(ti.Set.Qtty != 0.0) {
+									js_ti_set.put("qtty", ti.Set.Qtty);
+									is_empty = false;
+								}
+								if(ti.Set.Cost != 0.0) {
+									js_ti_set.put("cost", ti.Set.Cost);
+									is_empty = false;
+								}
+								if(ti.Set.Price != 0.0) {
+									js_ti_set.put("price", ti.Set.Price);
+									is_empty = false;
+								}
+								if(ti.Set.Discount != 0.0) {
+									js_ti_set.put("discount", ti.Set.Discount);
+									is_empty = false;
+								}
+								if(is_empty)
+									js_ti_set = null;
+								else
+									js_item.put("set", js_ti_set);
+							}
+							// @v11.6.12 {
+							if(ti.SetAccepted != null) {
+								JSONObject js_ti_set = new JSONObject();
+								boolean is_empty = true;
+								if(ti.SetAccepted.Qtty != 0.0) {
+									js_ti_set.put("qtty", ti.SetAccepted.Qtty);
+									is_empty = false;
+								}
+								if(ti.SetAccepted.Cost != 0.0) {
+									js_ti_set.put("cost", ti.SetAccepted.Cost);
+									is_empty = false;
+								}
+								if(ti.SetAccepted.Price != 0.0) {
+									js_ti_set.put("price", ti.SetAccepted.Price);
+									is_empty = false;
+								}
+								if(ti.SetAccepted.Discount != 0.0) {
+									js_ti_set.put("discount", ti.SetAccepted.Discount);
+									is_empty = false;
+								}
+								if(is_empty)
+									js_ti_set = null;
+								else
+									js_item.put("setaccepted", js_ti_set);
+								flags_to_transmit |= TransferItem.fHasAcceptance; // @v11.7.0
+							}
+							// } @v11.6.12
+							// @v11.4.8 {
+							if(ti.XcL != null && ti.XcL.size() > 0) {
+								JSONArray js_xcl = null;
+								for(int xci = 0; xci < ti.XcL.size(); xci++) {
+									JSONObject js_xce = new JSONObject();
+									LotExtCode xce = ti.XcL.get(xci);
+									if(xce != null && SLib.GetLen(xce.Code) > 0) {
+										js_xce.put("cod", xce.Code);
+										if(xce.BoxRefN > 0)
+											js_xce.put("boxrefn", xce.BoxRefN);
+										if(xce.Flags != 0)
+											js_xce.put("flags", xce.Flags);
+										if(js_xcl == null)
+											js_xcl = new JSONArray();
+										js_xcl.put(js_xce);
+									}
+								}
+								if(js_xcl != null)
+									js_item.put("xcl", js_xcl);
+							}
+							// } @v11.4.8
+							js_item.put("flags", flags_to_transmit); // must be last (previous code can modify flags_to_transmit)
+							js_list.put(js_item);
+							is_list_empty = false;
 						}
 					}
 					if(is_list_empty)

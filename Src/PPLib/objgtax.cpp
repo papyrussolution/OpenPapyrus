@@ -350,7 +350,7 @@ void GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, long am
 	}
 }
 
-int GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, long exclFlags)
+int GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, long exclFlags, int correctionFlag/*= 0*/)
 {
 	int    ok = 1;
 	const  PPCommConfig & r_ccfg = CConfig;
@@ -413,21 +413,35 @@ int GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, long excl
 		const double q_pre = fabs(rTi.QuotPrice);
 		qtty = fabs(rTi.Quantity_);
 		const double q_diff = (qtty - q_pre);
-		// @v10.9.11 {
-		if(tiamt == TIAMT_COST) {
-			const double pq = R2(rTi.Cost * (qtty - q_pre));
-			if(q_diff != 0.0)
-				qtty = q_diff;
-			amount = pq / qtty;
+		if(correctionFlag == 0) { // @v11.7.0
+			if(tiamt == TIAMT_COST) {
+				const double pq = R2(rTi.Cost * (qtty - q_pre));
+				if(q_diff != 0.0)
+					qtty = q_diff;
+				amount = pq / qtty;
+			}
+			else {
+				const double pq = R2(rTi.NetPrice() * qtty - rTi.RevalCost * q_pre);
+				if(q_diff != 0.0)
+					qtty = q_diff;
+				amount = pq / qtty;
+			}
 		}
-		else 
-		// } @v10.9.11
-		{
-			const double pq = R2(rTi.NetPrice() * qtty - rTi.RevalCost * q_pre);
-			if(q_diff != 0.0)
-				qtty = q_diff;
-			amount = pq / qtty;
+		// @v11.7.0 {
+		else if(correctionFlag < 0) {
+			qtty = q_pre;
+			if(tiamt == TIAMT_COST)
+				amount = R2(rTi.Cost);
+			else
+				amount = rTi.RevalCost;
 		}
+		else if(correctionFlag > 0) {
+			if(tiamt == TIAMT_COST)
+				amount = R2(rTi.Cost);
+			else
+				amount = rTi.NetPrice();
+		}
+		// } @v11.7.0 
 	}
 	else {
 		//
@@ -476,8 +490,9 @@ int GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, long excl
 	}
 	if(gtx.Flags & GTAXF_ABSEXCISE)
 		gobj.MultTaxFactor(rTi.GoodsID, &tax_qtty);
-	if(!(calcti_costwovat_byprice && cost_wo_vat))
+	if(!(calcti_costwovat_byprice && cost_wo_vat)) {
 		amount *= qtty;
+	}
 	Calc_(&gtx, amount, tax_qtty, amt_flags, exclFlags);
 	if(calcti_costwovat_byprice && cost_wo_vat) {
 		for(int i = 0; i < N; i++)

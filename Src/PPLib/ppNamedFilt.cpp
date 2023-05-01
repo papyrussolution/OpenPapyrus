@@ -1,5 +1,5 @@
 // PPNAMEDFILT.CPP
-// Copyright (c) P.Andrianov 2011, 2014, 2016, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) P.Andrianov 2011, 2014, 2016, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>

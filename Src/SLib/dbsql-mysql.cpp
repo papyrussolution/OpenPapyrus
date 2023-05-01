@@ -4,7 +4,7 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <snet.h>
+//#include <snet.h>
 
 #if 1 // @construction {
 

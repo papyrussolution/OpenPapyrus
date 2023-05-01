@@ -23,32 +23,32 @@
 /* segment header routines */
 
 struct _Jbig2Segment {
-	uint32_t number;
-	uint8_t flags;
-	uint32_t page_association;
+	uint32 number;
+	uint8 flags;
+	uint32 page_association;
 	size_t data_length;
 	int referred_to_segment_count;
-	uint32_t * referred_to_segments;
-	uint32_t rows;
+	uint32 * referred_to_segments;
+	uint32 rows;
 	void * result;
 };
 
-Jbig2Segment * jbig2_parse_segment_header(Jbig2Ctx * ctx, uint8_t * buf, size_t buf_size, size_t * p_header_size);
-int jbig2_parse_segment(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8_t * segment_data);
+Jbig2Segment * jbig2_parse_segment_header(Jbig2Ctx * ctx, uint8 * buf, size_t buf_size, size_t * p_header_size);
+int jbig2_parse_segment(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8 * segment_data);
 void jbig2_free_segment(Jbig2Ctx * ctx, Jbig2Segment * segment);
-Jbig2Segment * FASTCALL jbig2_find_segment(Jbig2Ctx * ctx, uint32_t number);
+Jbig2Segment * FASTCALL jbig2_find_segment(Jbig2Ctx * ctx, uint32 number);
 
 /* region segment info */
 
 typedef struct {
-	uint32_t width;
-	uint32_t height;
-	uint32_t x;
-	uint32_t y;
+	uint32 width;
+	uint32 height;
+	uint32 x;
+	uint32 y;
 	Jbig2ComposeOp op;
-	uint8_t flags;
+	uint8 flags;
 } Jbig2RegionSegmentInfo;
 
-void jbig2_get_region_segment_info(Jbig2RegionSegmentInfo * info, const uint8_t * segment_data);
+void jbig2_get_region_segment_info(Jbig2RegionSegmentInfo * info, const uint8 * segment_data);
 
 #endif /* _JBIG2_SEGMENT_H */

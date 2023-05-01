@@ -1,5 +1,5 @@
 // ATRNTMPL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Шаблон бухгалтерской проводки
 //
@@ -8,7 +8,7 @@
 
 PPAccTurn::PPAccTurn() : DbtSheet(0), CrdSheet(0), Date(ZERODATE), BillID(0), RByBill(0), Reserve(0), CurID(0), CRate(0.0), Amount(0.0), Opr(0), Flags(0)
 {
-	PTR32(BillCode)[0] = 0;
+	BillCode[0] = 0;
 }
 
 int FASTCALL PPAccTurn::IsEq(const PPAccTurn & rS) const

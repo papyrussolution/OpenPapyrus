@@ -6,8 +6,8 @@
 #include "common.h"
 #pragma hdrstop
 
-const uint8_t lzma_header_magic[6] = { 0xFD, 0x37, 0x7A, 0x58, 0x5A, 0x00 };
-const uint8_t lzma_footer_magic[2] = { 0x59, 0x5A };
+const uint8 lzma_header_magic[6] = { 0xFD, 0x37, 0x7A, 0x58, 0x5A, 0x00 };
+const uint8 lzma_footer_magic[2] = { 0x59, 0x5A };
 
 lzma_ret lzma_stream_flags_compare(const lzma_stream_flags *a, const lzma_stream_flags *b)
 {

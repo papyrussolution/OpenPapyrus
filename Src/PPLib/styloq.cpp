@@ -8945,6 +8945,13 @@ public:
 		AddClusterAssoc(CTL_STQINLPARAM_FLAGS, 1, StyloQIncomingListParam::fBillWithMarkedGoodsOnly);
 		SetClusterData(CTL_STQINLPARAM_FLAGS, Data.Flags);
 		// } @v11.4.8 
+		// @v11.7.0 {
+		AddClusterAssoc(CTL_STQINLPARAM_ACCEPT, 0, StyloQIncomingListParam::acceptanceNone);
+		AddClusterAssoc(CTL_STQINLPARAM_ACCEPT, 1, StyloQIncomingListParam::acceptanceTags);
+		AddClusterAssoc(CTL_STQINLPARAM_ACCEPT, 2, StyloQIncomingListParam::acceptanceModifyOrgDoc);
+		AddClusterAssoc(CTL_STQINLPARAM_ACCEPT, 3, StyloQIncomingListParam::acceptanceLinkDraft);
+		SetClusterData(CTL_STQINLPARAM_ACCEPT, Data.Acceptance);
+		// } @v11.7.0
 		SetupOp();
 		return ok;
 	}
@@ -8973,6 +8980,7 @@ public:
 		}
 		Data.ActionFlags = static_cast<uint32>(GetClusterData(CTL_STQINLPARAM_ACTIONS));
 		Data.Flags = static_cast<uint32>(GetClusterData(CTL_STQINLPARAM_FLAGS)); // @v11.4.8 
+		GetClusterData(CTL_STQINLPARAM_ACCEPT, &Data.Acceptance); // @v11.7.0
 		//
 		ASSIGN_PTR(pData, Data);
 		return ok;

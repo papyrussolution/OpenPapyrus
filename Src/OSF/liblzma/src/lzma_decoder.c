@@ -196,7 +196,7 @@ struct lzma_lzma1_decoder {
 	uint32 len;
 };
 
-static lzma_ret lzma_decode(void * coder_ptr, lzma_dict * dictptr, const uint8_t * in, size_t * in_pos, size_t in_size)
+static lzma_ret lzma_decode(void * coder_ptr, lzma_dict * dictptr, const uint8 * in, size_t * in_pos, size_t in_size)
 {
 	lzma_lzma1_decoder * coder = (lzma_lzma1_decoder *)coder_ptr;
 	//
@@ -756,7 +756,7 @@ extern lzma_ret lzma_lzma_decoder_init(lzma_next_coder * next, const lzma_alloca
 		   &lzma_decoder_init);
 }
 
-extern bool lzma_lzma_lclppb_decode(lzma_options_lzma * options, uint8_t byte)
+extern bool lzma_lzma_lclppb_decode(lzma_options_lzma * options, uint8 byte)
 {
 	if(byte > (4 * 5 + 4) * 9 + 8)
 		return true;
@@ -783,7 +783,7 @@ extern uint64_t lzma_lzma_decoder_memusage(const void * options)
 	return lzma_lzma_decoder_memusage_nocheck(options);
 }
 
-extern lzma_ret lzma_lzma_props_decode(void ** options, const lzma_allocator * allocator, const uint8_t * props, size_t props_size)
+extern lzma_ret lzma_lzma_props_decode(void ** options, const lzma_allocator * allocator, const uint8 * props, size_t props_size)
 {
 	if(props_size != 5)
 		return LZMA_OPTIONS_ERROR;

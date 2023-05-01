@@ -36,12 +36,12 @@
  **/
 int jbig2_decode_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment,
     const Jbig2TextRegionParams * params,
-    const Jbig2SymbolDict * const * dicts, const uint32_t n_dicts,
+    const Jbig2SymbolDict * const * dicts, const uint32 n_dicts,
     Jbig2Image * image, const byte * data, const size_t size, Jbig2ArithCx * GR_stats, Jbig2ArithState * as, Jbig2WordStream * ws)
 {
 	/* relevant bits of 6.4.4 */
-	uint32_t NINSTANCES;
-	uint32_t ID;
+	uint32 NINSTANCES;
+	uint32 ID;
 	int32_t STRIPT;
 	int32_t FIRSTS;
 	int32_t DT;
@@ -52,7 +52,7 @@ int jbig2_decode_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment,
 	int S, T;
 	int x, y;
 	boolint first_symbol;
-	uint32_t index, SBNUMSYMS;
+	uint32 index, SBNUMSYMS;
 	Jbig2Image * IB = NULL;
 	Jbig2Image * IBO = NULL;
 	Jbig2Image * refimage = NULL;
@@ -388,7 +388,7 @@ cleanup1:
 			}
 			else {
 				/* (3c.v) / 6.4.11 - look up the symbol bitmap IB */
-				uint32_t id = ID;
+				uint32 id = ID;
 
 				index = 0;
 				while(id >= dicts[index]->n_symbols)
@@ -663,19 +663,19 @@ cleanup2:
  **/
 int jbig2_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segment_data)
 {
-	uint32_t offset = 0;
+	uint32 offset = 0;
 	Jbig2RegionSegmentInfo region_info;
 	Jbig2TextRegionParams params;
 	Jbig2Image * image = NULL;
 	Jbig2SymbolDict ** dicts = NULL;
-	uint32_t n_dicts = 0;
+	uint32 n_dicts = 0;
 	uint16_t flags = 0;
 	uint16_t huffman_flags = 0;
 	Jbig2ArithCx * GR_stats = NULL;
 	int code = 0;
 	Jbig2WordStream * ws = NULL;
 	Jbig2ArithState * as = NULL;
-	uint32_t table_index = 0;
+	uint32 table_index = 0;
 	const Jbig2HuffmanParams * huffman_params = NULL;
 	/* zero params to ease cleanup later */
 	memzero(&params, sizeof(Jbig2TextRegionParams));
@@ -1000,7 +1000,7 @@ int jbig2_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segme
 			goto cleanup1;
 		}
 		else {
-			uint32_t index;
+			uint32 index;
 			if(dicts[0] == NULL) {
 				code = jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "unable to find first referenced symbol dictionary");
 				goto cleanup1;
@@ -1042,9 +1042,9 @@ int jbig2_text_region(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segme
 		goto cleanup3;
 	}
 	if(!params.SBHUFF) {
-		uint8_t SBSYMCODELEN;
-		uint32_t index;
-		uint32_t SBNUMSYMS = 0;
+		uint8 SBSYMCODELEN;
+		uint32 index;
+		uint32 SBNUMSYMS = 0;
 		for(index = 0; index < n_dicts; index++) {
 			SBNUMSYMS += dicts[index]->n_symbols;
 		}

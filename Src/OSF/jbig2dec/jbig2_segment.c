@@ -20,16 +20,16 @@
 //#include "jbig2_symbol_dict.h"
 //#include "jbig2_text.h"
 
-Jbig2Segment * jbig2_parse_segment_header(Jbig2Ctx * ctx, uint8_t * buf, size_t buf_size, size_t * p_header_size)
+Jbig2Segment * jbig2_parse_segment_header(Jbig2Ctx * ctx, uint8 * buf, size_t buf_size, size_t * p_header_size)
 {
 	Jbig2Segment * result;
-	uint8_t rtscarf;
-	uint32_t rtscarf_long;
-	uint32_t * referred_to_segments;
-	uint32_t referred_to_segment_count;
-	uint32_t referred_to_segment_size;
-	uint32_t pa_size;
-	uint32_t offset;
+	uint8 rtscarf;
+	uint32 rtscarf_long;
+	uint32 * referred_to_segments;
+	uint32 referred_to_segment_count;
+	uint32 referred_to_segment_size;
+	uint32 pa_size;
+	uint32 offset;
 	// minimum possible size of a jbig2 segment header 
 	if(buf_size < 11)
 		return NULL;
@@ -69,8 +69,8 @@ Jbig2Segment * jbig2_parse_segment_header(Jbig2Ctx * ctx, uint8_t * buf, size_t 
 	}
 	/* 7.2.5 */
 	if(referred_to_segment_count) {
-		uint32_t i;
-		referred_to_segments = jbig2_new(ctx, uint32_t, referred_to_segment_count * referred_to_segment_size);
+		uint32 i;
+		referred_to_segments = jbig2_new(ctx, uint32, referred_to_segment_count * referred_to_segment_size);
 		if(referred_to_segments == NULL) {
 			jbig2_error(ctx, JBIG2_SEVERITY_FATAL, result->number, "failed to allocate referred to segments");
 			jbig2_free(ctx->allocator, result);
@@ -138,7 +138,7 @@ void jbig2_free_segment(Jbig2Ctx * ctx, Jbig2Segment * segment)
 }
 
 /* find a segment by number */
-Jbig2Segment * FASTCALL jbig2_find_segment(Jbig2Ctx * ctx, uint32_t number)
+Jbig2Segment * FASTCALL jbig2_find_segment(Jbig2Ctx * ctx, uint32 number)
 {
 	int index, index_max = ctx->segment_index - 1;
 	const Jbig2Ctx * global_ctx = ctx->global_ctx;
@@ -155,7 +155,7 @@ Jbig2Segment * FASTCALL jbig2_find_segment(Jbig2Ctx * ctx, uint32_t number)
 }
 
 /* parse the generic portion of a region segment data header */
-void jbig2_get_region_segment_info(Jbig2RegionSegmentInfo * info, const uint8_t * segment_data)
+void jbig2_get_region_segment_info(Jbig2RegionSegmentInfo * info, const uint8 * segment_data)
 {
 	/* 7.4.1 */
 	info->width = jbig2_get_uint32(segment_data);
@@ -167,9 +167,9 @@ void jbig2_get_region_segment_info(Jbig2RegionSegmentInfo * info, const uint8_t 
 }
 
 /* dispatch code for extension segment parsing */
-static int jbig2_parse_extension_segment(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8_t * segment_data)
+static int jbig2_parse_extension_segment(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8 * segment_data)
 {
-	uint32_t type;
+	uint32 type;
 	boolint reserved;
 	boolint necessary;
 	if(segment->data_length < 4)
@@ -203,11 +203,11 @@ static int jbig2_parse_extension_segment(Jbig2Ctx * ctx, Jbig2Segment * segment,
 }
 
 /* dispatch code for profile segment parsing */
-static int jbig2_parse_profile_segment(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8_t * segment_data)
+static int jbig2_parse_profile_segment(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8 * segment_data)
 {
-	uint32_t profiles;
-	uint32_t i;
-	uint32_t profile;
+	uint32 profiles;
+	uint32 i;
+	uint32 profile;
 	int index;
 	const char * requirements;
 	const char * generic_region;
@@ -280,7 +280,7 @@ static int jbig2_parse_profile_segment(Jbig2Ctx * ctx, Jbig2Segment * segment, c
 }
 
 /* general segment parsing dispatch */
-int jbig2_parse_segment(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8_t * segment_data)
+int jbig2_parse_segment(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8 * segment_data)
 {
 	jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number, "segment %d, flags=%x, type=%d, data_length=%ld",
 	    segment->number, segment->flags, segment->flags & 63, (long)segment->data_length);

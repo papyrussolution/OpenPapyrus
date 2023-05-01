@@ -198,11 +198,11 @@ static inline uint32 helper1(lzma_lzma1_encoder * coder, lzma_mf * mf, uint32 * 
 		*len_res = 1;
 		return UINT32_MAX;
 	}
-	const uint8_t * const buf = mf_ptr(mf) - 1;
+	const uint8 * const buf = mf_ptr(mf) - 1;
 	uint32 rep_lens[REPS];
 	uint32 rep_max_index = 0;
 	for(uint32 i = 0; i < REPS; ++i) {
-		const uint8_t * const buf_back = buf - coder->reps[i] - 1;
+		const uint8 * const buf_back = buf - coder->reps[i] - 1;
 		if(not_equal_16(buf, buf_back)) {
 			rep_lens[i] = 0;
 			continue;
@@ -228,8 +228,8 @@ static inline uint32 helper1(lzma_lzma1_encoder * coder, lzma_mf * mf, uint32 * 
 		return UINT32_MAX;
 	}
 
-	const uint8_t current_byte = *buf;
-	const uint8_t match_byte = *(buf - coder->reps[0] - 1);
+	const uint8 current_byte = *buf;
+	const uint8 match_byte = *(buf - coder->reps[0] - 1);
 	if(len_main < 2 && current_byte != match_byte && rep_lens[rep_max_index] < 2) {
 		*back_res = UINT32_MAX;
 		*len_res = 1;
@@ -301,7 +301,7 @@ static inline uint32 helper1(lzma_lzma1_encoder * coder, lzma_mf * mf, uint32 * 
 	return len_end;
 }
 
-static inline uint32 helper2(lzma_lzma1_encoder * coder, uint32 * reps, const uint8_t * buf,
+static inline uint32 helper2(lzma_lzma1_encoder * coder, uint32 * reps, const uint8 * buf,
     uint32 len_end, uint32 position, const uint32 cur,
     const uint32 nice_len, const uint32 buf_avail_full)
 {

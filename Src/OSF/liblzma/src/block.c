@@ -140,7 +140,7 @@ lzma_ret lzma_block_header_size(lzma_block *block)
 	return LZMA_OK;
 }
 
-lzma_ret lzma_block_header_encode(const lzma_block *block, uint8_t *out)
+lzma_ret lzma_block_header_encode(const lzma_block *block, uint8 *out)
 {
 	// Validate everything but filters.
 	if(lzma_block_unpadded_size(block) == 0 || !lzma_vli_is_valid(block->uncompressed_size))
@@ -148,7 +148,7 @@ lzma_ret lzma_block_header_encode(const lzma_block *block, uint8_t *out)
 	// Indicate the size of the buffer _excluding_ the CRC32 field.
 	const size_t out_size = block->header_size - 4;
 	// Store the Block Header Size.
-	out[0] = (uint8_t)(out_size / 4);
+	out[0] = (uint8)(out_size / 4);
 	// We write Block Flags in pieces.
 	out[1] = 0x00;
 	size_t out_pos = 2;
@@ -194,7 +194,7 @@ static void free_properties(lzma_block * block, const lzma_allocator * allocator
 	}
 }
 
-lzma_ret lzma_block_header_decode(lzma_block *block, const lzma_allocator *allocator, const uint8_t *in)
+lzma_ret lzma_block_header_decode(lzma_block *block, const lzma_allocator *allocator, const uint8 *in)
 {
 	// NOTE: We consider the header to be corrupt not only when the
 	// CRC32 doesn't match, but also when variable-length integers
@@ -334,8 +334,8 @@ size_t lzma_block_buffer_bound(size_t uncompressed_size)
 	return static_cast<size_t>(ret);
 }
 
-static lzma_ret block_encode_uncompressed(lzma_block * block, const uint8_t * in, size_t in_size,
-    uint8_t * out, size_t * out_pos, size_t out_size)
+static lzma_ret block_encode_uncompressed(lzma_block * block, const uint8 * in, size_t in_size,
+    uint8 * out, size_t * out_pos, size_t out_size)
 {
 	// Use LZMA2 uncompressed chunks. We wouldn't need a dictionary at
 	// all, but LZMA2 always requires a dictionary, so use the minimum
@@ -372,7 +372,7 @@ static lzma_ret block_encode_uncompressed(lzma_block * block, const uint8_t * in
 	*out_pos += block->header_size;
 	// Encode the data using LZMA2 uncompressed chunks.
 	size_t in_pos = 0;
-	uint8_t control = 0x01; // Dictionary reset
+	uint8 control = 0x01; // Dictionary reset
 	while(in_pos < in_size) {
 		// Control byte: Indicate uncompressed chunk, of which
 		// the first resets the dictionary.
@@ -381,7 +381,7 @@ static lzma_ret block_encode_uncompressed(lzma_block * block, const uint8_t * in
 
 		// Size of the uncompressed chunk
 		const size_t copy_size = MIN(in_size - in_pos, LZMA2_CHUNK_MAX);
-		out[(*out_pos)++] = static_cast<uint8_t>((copy_size - 1) >> 8);
+		out[(*out_pos)++] = static_cast<uint8>((copy_size - 1) >> 8);
 		out[(*out_pos)++] = (copy_size - 1) & 0xFF;
 		// The actual data
 		assert(*out_pos + copy_size <= out_size);
@@ -395,7 +395,7 @@ static lzma_ret block_encode_uncompressed(lzma_block * block, const uint8_t * in
 	return LZMA_OK;
 }
 
-static lzma_ret block_encode_normal(lzma_block * block, const lzma_allocator * allocator, const uint8_t * in, size_t in_size, uint8_t * out, size_t * out_pos, size_t out_size)
+static lzma_ret block_encode_normal(lzma_block * block, const lzma_allocator * allocator, const uint8 * in, size_t in_size, uint8 * out, size_t * out_pos, size_t out_size)
 {
 	// Find out the size of the Block Header.
 	return_if_error(lzma_block_header_size(block));
@@ -505,12 +505,12 @@ static lzma_ret block_buffer_encode(lzma_block * block, const lzma_allocator * a
 	return LZMA_OK;
 }
 
-lzma_ret lzma_block_buffer_encode(lzma_block *block, const lzma_allocator *allocator, const uint8_t *in, size_t in_size, uint8_t *out, size_t *out_pos, size_t out_size)
+lzma_ret lzma_block_buffer_encode(lzma_block *block, const lzma_allocator *allocator, const uint8 *in, size_t in_size, uint8 *out, size_t *out_pos, size_t out_size)
 {
 	return block_buffer_encode(block, allocator, in, in_size, out, out_pos, out_size, true);
 }
 
-lzma_ret lzma_block_uncomp_encode(lzma_block *block, const uint8_t *in, size_t in_size, uint8_t *out, size_t *out_pos, size_t out_size)
+lzma_ret lzma_block_uncomp_encode(lzma_block *block, const uint8 *in, size_t in_size, uint8 *out, size_t *out_pos, size_t out_size)
 {
 	// It won't allocate any memory from heap so no need
 	// for lzma_allocator.
@@ -520,7 +520,7 @@ lzma_ret lzma_block_uncomp_encode(lzma_block *block, const uint8_t *in, size_t i
 // block_buffer_decoder
 //
 lzma_ret lzma_block_buffer_decode(lzma_block *block, const lzma_allocator *allocator,
-    const uint8 *in, size_t *in_pos, size_t in_size, uint8_t *out, size_t *out_pos, size_t out_size)
+    const uint8 *in, size_t *in_pos, size_t in_size, uint8 *out, size_t *out_pos, size_t out_size)
 {
 	if(in_pos == NULL || (in == NULL && *in_pos != in_size) || *in_pos > in_size || out_pos == NULL || (out == NULL && *out_pos != out_size) || *out_pos > out_size)
 		return LZMA_PROG_ERROR;

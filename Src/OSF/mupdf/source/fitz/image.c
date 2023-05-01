@@ -525,43 +525,30 @@ fz_pixmap * fz_decomp_image_from_stream(fz_context * ctx,
 		int alpha = (image->colorspace == NULL);
 		if(image->use_colorkey)
 			alpha = 1;
-
 		if(subarea)
 			read_stream = sstream = subarea_stream(ctx, stm, image, subarea, l2factor);
 		if(image->bpc != 8 || image->use_colorkey)
-			read_stream = unpstream = fz_unpack_stream(ctx,
-				    read_stream,
-				    image->bpc,
-				    w,
-				    h,
-				    image->n,
-				    indexed,
-				    image->use_colorkey,
-				    0);
+			read_stream = unpstream = fz_unpack_stream(ctx, read_stream, image->bpc,
+				    w, h, image->n, indexed, image->use_colorkey, 0);
 		if(l2extra && *l2extra && !indexed) {
 			read_stream = l2stream = subsample_stream(ctx, read_stream, w, h, image->n + image->use_colorkey, *l2extra);
 			w = (w + (1<<*l2extra) - 1)>>*l2extra;
 			h = (h + (1<<*l2extra) - 1)>>*l2extra;
 			*l2extra = 0;
 		}
-
 		tile = fz_new_pixmap(ctx, image->colorspace, w, h, NULL, alpha);
 		if(image->interpolate & FZ_PIXMAP_FLAG_INTERPOLATE)
 			tile->flags |= FZ_PIXMAP_FLAG_INTERPOLATE;
 		else
 			tile->flags &= ~FZ_PIXMAP_FLAG_INTERPOLATE;
-
 		samples = tile->samples;
 		stride = tile->stride;
-
 		len = fz_read(ctx, read_stream, samples, h * stride);
-
 		/* Pad truncated images */
 		if(len < stride * h) {
 			fz_warn(ctx, "padding truncated image");
-			memset(samples + len, 0, stride * h - len);
+			memzero(samples + len, stride * h - len);
 		}
-
 		/* Invert 1-bit image masks */
 		if(image->imagemask) {
 			/* 0=opaque and 1=transparent so we need to invert */

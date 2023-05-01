@@ -35,7 +35,7 @@
 
 /* library internals */
 
-typedef uint8_t byte;
+typedef uint8 byte;
 
 #define bool_Removed int // @sobolev bool-->bool_Removed
 
@@ -89,22 +89,22 @@ struct _Jbig2Ctx {
 
     Jbig2FileState state;
 
-    uint8_t file_header_flags;
-    uint32_t n_pages;
+    uint8 file_header_flags;
+    uint32 n_pages;
 
-    uint32_t n_segments_max;
+    uint32 n_segments_max;
     Jbig2Segment **segments;
-    uint32_t n_segments; /* index of last segment header parsed */
-    uint32_t segment_index; /* index of last segment body parsed */
+    uint32 n_segments; /* index of last segment header parsed */
+    uint32 segment_index; /* index of last segment body parsed */
 
     /* list of decoded pages, including the one in progress,
        currently stored as a contiguous, 0-indexed array. */
-    uint32_t current_page;
-    uint32_t max_page_index;
+    uint32 current_page;
+    uint32 max_page_index;
     Jbig2Page *pages;
 };
 
-uint32_t FASTCALL jbig2_get_uint32(const byte *bptr);
+uint32 FASTCALL jbig2_get_uint32(const byte *bptr);
 int32_t  FASTCALL jbig2_get_int32(const byte *buf);
 uint16_t FASTCALL jbig2_get_uint16(const byte *bptr);
 int16_t  FASTCALL jbig2_get_int16(const byte *buf);
@@ -116,7 +116,7 @@ void * jbig2_realloc(Jbig2Allocator *allocator, void *p, size_t size, size_t num
 #define jbig2_new(ctx, t, size) ((t *)jbig2_alloc(ctx->allocator, size, sizeof(t)))
 #define jbig2_renew(ctx, p, t, size) ((t *)jbig2_realloc(ctx->allocator, (p), size, sizeof(t)))
 
-int jbig2_error(Jbig2Ctx *ctx, Jbig2Severity severity, uint32_t seg_idx, const char *fmt, ...)
+int jbig2_error(Jbig2Ctx *ctx, Jbig2Severity severity, uint32 seg_idx, const char *fmt, ...)
 #ifdef __GNUC__
     __attribute__ ((format (__printf__, 4, 5)))
 #endif
@@ -130,7 +130,7 @@ int jbig2_error(Jbig2Ctx *ctx, Jbig2Severity severity, uint32_t seg_idx, const c
 typedef struct _Jbig2WordStream Jbig2WordStream;
 
 struct _Jbig2WordStream {
-    int (*get_next_word)(Jbig2Ctx *ctx, Jbig2WordStream *self, size_t offset, uint32_t *word);
+    int (*get_next_word)(Jbig2Ctx *ctx, Jbig2WordStream *self, size_t offset, uint32 *word);
 };
 
 Jbig2WordStream *jbig2_word_stream_buf_new(Jbig2Ctx *ctx, const byte *data, size_t size);

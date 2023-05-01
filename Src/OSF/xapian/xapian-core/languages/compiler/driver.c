@@ -636,7 +636,7 @@ extern int main(int argc, char * argv[])
 				gen_cpp.WriteBlancLine();
 			}
 			{
-				gen_cpp.Wr_StartClassDecl(Generator_CPP::clsEnum, "SnowballLang", 0, 0, 0);
+				gen_cpp.Wr_StartClassDecl(Generator_CPP::clsEnum, "SnowballLang", 0, Generator_CPP::acsPublic, 0);
 				gen_cpp.IndentInc();
 				gen_cpp.Wr_Indent();
 				//gen_cpp.WriteLine((temp_buf = "NONE").CatChar(',').CR());

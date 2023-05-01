@@ -4,7 +4,7 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <pp.h> // @test
+//#include <pp.h> // @test
 //
 // @example: SELECT employees_seq.nextval FROM DUAL;
 //
@@ -944,7 +944,7 @@ int SOraDbProvider::StartTransaction()
 		tx_id.FormatID = 7100;
 		ulong rid = SLS.GetTLA().Rg.Get();
 		ultoa(rid, temp_buf, 10);
-		tx_id.GtrIdLen = sstrlen(temp_buf);
+		tx_id.GtrIdLen = sstrleni(temp_buf);
 		long   i = 0;
 		while(i < tx_id.GtrIdLen)
 			tx_id.Data[i++] = temp_buf[i]-'0';

@@ -247,7 +247,8 @@ const UChar * UPerfTest::getBuffer(int32_t& len, UErrorCode & status) {
 	return buffer;
 }
 
-bool UPerfTest::run() {
+bool UPerfTest::run() 
+{
 	if(_remainingArgc==1) {
 		// Testing all methods
 		return runTest();
@@ -261,7 +262,7 @@ bool UPerfTest::run() {
 				//fprintf(stdout, "\n=== Handling test: %s: ===\n", name);
 				//fprintf(stdout, "\n%s:\n", name);
 			}
-			char * parameter = strchr(name, '@');
+			char * parameter = sstrchr(name, '@');
 			if(parameter) {
 				*parameter = 0;
 				parameter += 1;
@@ -277,12 +278,12 @@ bool UPerfTest::run() {
 	return res;
 }
 
-bool UPerfTest::runTest(char * name, char * par) {
+bool UPerfTest::runTest(char * name, char * par) 
+{
 	bool rval;
 	char * pos = NULL;
-
 	if(name)
-		pos = strchr(name, delim); // check if name contains path (by looking for '/')
+		pos = sstrchr(name, delim); // check if name contains path (by looking for '/')
 	if(pos) {
 		path = pos+1; // store subpath for calling subtest
 		*pos = 0; // split into two strings

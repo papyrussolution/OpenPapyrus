@@ -1,5 +1,5 @@
 // SBRODEF.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -394,7 +394,7 @@ static void FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen)
 			s = (bufLen-1);
 			pBuf[bufLen-1] = 0;
 		}
-		if(memchr(pBuf, '\n', s) || memchr(pBuf, '\r', s)) {
+		if(smemchr(pBuf, '\n', s) || smemchr(pBuf, '\r', s)) { // @v11.7.0 memchr-->smemchr
 			char   c;
 			for(size_t i = 0; (c = pBuf[i]) != 0; i++) {
 				if((c == '\r' && pBuf[i+1] == '\n') || (c == '\n' && pBuf[i+1] == '\r')) {

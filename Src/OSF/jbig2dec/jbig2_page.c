@@ -42,7 +42,7 @@ static void dump_page_info(Jbig2Ctx * ctx, Jbig2Segment * segment, Jbig2Page * p
  * Jbig2Page struct and ready it for subsequent rendered data,
  * including allocating an image buffer for the page (or the first stripe)
  **/
-int jbig2_page_info(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8_t * segment_data)
+int jbig2_page_info(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8 * segment_data)
 {
 	Jbig2Page * pages;
 	/* a new page info segment implies the previous page is finished */
@@ -142,10 +142,10 @@ int jbig2_page_info(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8_t * segm
 /**
  * jbig2_end_of_stripe: parse and implement an end of stripe segment
  **/
-int jbig2_end_of_stripe(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8_t * segment_data)
+int jbig2_end_of_stripe(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8 * segment_data)
 {
 	Jbig2Page * page = &ctx->pages[ctx->current_page];
-	uint32_t end_row;
+	uint32 end_row;
 	if(segment->data_length < 4)
 		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "segment too short");
 	end_row = jbig2_get_uint32(segment_data);
@@ -197,9 +197,9 @@ int jbig2_complete_page(Jbig2Ctx * ctx)
 /**
  * jbig2_end_of_page: parse and implement an end of page segment
  **/
-int jbig2_end_of_page(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8_t * segment_data)
+int jbig2_end_of_page(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8 * segment_data)
 {
-	uint32_t page_number = ctx->pages[ctx->current_page].number;
+	uint32 page_number = ctx->pages[ctx->current_page].number;
 	int code;
 	if(segment->page_association != page_number) {
 		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number,
@@ -222,7 +222,7 @@ int jbig2_end_of_page(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8_t * se
  * this is called to add the results of segment decode (when it
  * is an image) to a page image buffer
  **/
-int jbig2_page_add_result(Jbig2Ctx * ctx, Jbig2Page * page, Jbig2Image * image, uint32_t x, uint32_t y, Jbig2ComposeOp op)
+int jbig2_page_add_result(Jbig2Ctx * ctx, Jbig2Page * page, Jbig2Image * image, uint32 x, uint32 y, Jbig2ComposeOp op)
 {
 	int code;
 	if(x > INT32_MAX || y > INT32_MAX)
@@ -232,7 +232,7 @@ int jbig2_page_add_result(Jbig2Ctx * ctx, Jbig2Page * page, Jbig2Image * image, 
 		return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "page info possibly missing, no image defined");
 	/* grow the page to accommodate a new stripe if necessary */
 	if(page->striped && page->height == 0xFFFFFFFF) {
-		uint32_t new_height;
+		uint32 new_height;
 		if(y > UINT32_MAX - image->height)
 			return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, "adding image at coordinate would grow page out of bounds");
 		new_height = y + image->height;
@@ -267,10 +267,10 @@ int jbig2_page_add_result(Jbig2Ctx * ctx, Jbig2Page * page, Jbig2Image * image, 
 Jbig2Image * jbig2_page_out(Jbig2Ctx * ctx)
 {
 	/* search for a completed page */
-	for(uint32_t index = 0; index < ctx->max_page_index; index++) {
+	for(uint32 index = 0; index < ctx->max_page_index; index++) {
 		if(ctx->pages[index].state == JBIG2_PAGE_COMPLETE) {
 			Jbig2Image * img = ctx->pages[index].image;
-			uint32_t page_number = ctx->pages[index].number;
+			uint32 page_number = ctx->pages[index].number;
 			if(img == NULL) {
 				jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "page %d returned with no associated image", page_number);
 				continue;
@@ -290,7 +290,7 @@ void jbig2_release_page(Jbig2Ctx * ctx, Jbig2Image * image)
 {
 	if(image) {
 		/* find the matching page struct and mark it released */
-		for(uint32_t index = 0; index < ctx->max_page_index; index++) {
+		for(uint32 index = 0; index < ctx->max_page_index; index++) {
 			if(ctx->pages[index].image == image) {
 				jbig2_image_release(ctx, image);
 				ctx->pages[index].state = JBIG2_PAGE_RELEASED;

@@ -198,7 +198,7 @@ void ossl_curve448_point_double(curve448_point_t two_a, const curve448_point_t a
  * C448_FAILURE: The scalarmul didn't succeed, because the base point is in a
  * small subgroup.
  */
-__owur c448_error_t ossl_x448_int(uint8_t out[X448_PUBLIC_BYTES], const uint8_t base[X448_PUBLIC_BYTES], const uint8_t scalar[X448_PRIVATE_BYTES]);
+__owur c448_error_t ossl_x448_int(uint8 out[X448_PUBLIC_BYTES], const uint8 base[X448_PUBLIC_BYTES], const uint8 scalar[X448_PRIVATE_BYTES]);
 /*
  * Multiply a point by X448_ENCODE_RATIO, then encode it like RFC 7748.
  *
@@ -218,7 +218,7 @@ __owur c448_error_t ossl_x448_int(uint8_t out[X448_PUBLIC_BYTES], const uint8_t 
  * out (out): The scaled and encoded point.
  * p (in): The point to be scaled and encoded.
  */
-void ossl_curve448_point_mul_by_ratio_and_encode_like_x448(uint8_t out[X448_PUBLIC_BYTES], const curve448_point_t p);
+void ossl_curve448_point_mul_by_ratio_and_encode_like_x448(uint8 out[X448_PUBLIC_BYTES], const curve448_point_t p);
 /*
  * RFC 7748 Diffie-Hellman base point scalarmul.  This function uses a different
  * (non-Decaf) encoding.
@@ -226,7 +226,7 @@ void ossl_curve448_point_mul_by_ratio_and_encode_like_x448(uint8_t out[X448_PUBL
  * out (out): The scaled point base*scalar
  * scalar (in): The scalar to multiply by.
  */
-void ossl_x448_derive_public_key(uint8_t out[X448_PUBLIC_BYTES], const uint8_t scalar[X448_PRIVATE_BYTES]);
+void ossl_x448_derive_public_key(uint8 out[X448_PUBLIC_BYTES], const uint8 scalar[X448_PRIVATE_BYTES]);
 
 /*
  * Multiply a precomputed base point by a scalar: out = scalar*base.

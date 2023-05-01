@@ -398,26 +398,26 @@ private:
 
 	// Direct property access begin / end
 	void set_begin(size_t begin) {
-		storage[1] = static_cast<uint8_t>(begin);
+		storage[1] = static_cast<uint8>(begin);
 	}
 
 	void set_end(size_t end) {
-		storage[2] = static_cast<uint8_t>(end);
+		storage[2] = static_cast<uint8>(end);
 	}
 
 	// Decreases the value of `begin` by `n`, and returns the new value. Notice
 	// how this returns the new value unlike atomic::fetch_add which returns the
 	// old value. This is because this is used to prepend edges at 'begin - 1'.
 	size_t sub_fetch_begin(size_t n) {
-		storage[1] -= static_cast<uint8_t>(n);
+		storage[1] -= static_cast<uint8>(n);
 		return storage[1];
 	}
 
 	// Increases the value of `end` by `n`, and returns the previous value. This
 	// function is typically used to append edges at 'end'.
 	size_t fetch_add_end(size_t n) {
-		const uint8_t current = storage[2];
-		storage[2] = static_cast<uint8_t>(current + n);
+		const uint8 current = storage[2];
+		storage[2] = static_cast<uint8>(current + n);
 		return current;
 	}
 
@@ -617,9 +617,9 @@ inline const CordRepBtree* CordRep::btree() const {
 
 inline void CordRepBtree::InitInstance(int height, size_t begin, size_t end) {
 	tag = BTREE;
-	storage[0] = static_cast<uint8_t>(height);
-	storage[1] = static_cast<uint8_t>(begin);
-	storage[2] = static_cast<uint8_t>(end);
+	storage[0] = static_cast<uint8>(height);
+	storage[1] = static_cast<uint8>(begin);
+	storage[2] = static_cast<uint8>(end);
 }
 
 inline CordRep* CordRepBtree::Edge(size_t index) const {

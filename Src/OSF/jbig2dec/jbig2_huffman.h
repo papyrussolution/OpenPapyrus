@@ -1,8 +1,5 @@
-/* Copyright (C) 2001-2020 Artifex Software, Inc.
-   All Rights Reserved.
-
-   This software is provided AS-IS with no warranty, either express or
-   implied.
+/* Copyright (C) 2001-2020 Artifex Software, Inc. All Rights Reserved.
+   This software is provided AS-IS with no warranty, either express or implied.
 
    This software is distributed under license and may not be copied,
    modified or distributed except as expressly authorized under the terms
@@ -12,14 +9,11 @@
    Artifex Software, Inc.,  1305 Grant Avenue - Suite 200, Novato,
    CA 94945, U.S.A., +1(415)492-9861, for further information.
 */
-
 /*
     jbig2dec
 */
-
 #ifndef _JBIG2_HUFFMAN_H
 #define _JBIG2_HUFFMAN_H
-
 /* Huffman coder interface */
 
 typedef struct _Jbig2HuffmanEntry Jbig2HuffmanEntry;
@@ -60,7 +54,7 @@ Jbig2HuffmanState *jbig2_huffman_new(Jbig2Ctx *ctx, Jbig2WordStream *ws);
 void jbig2_huffman_free(Jbig2Ctx *ctx, Jbig2HuffmanState *hs);
 int jbig2_huffman_skip(Jbig2HuffmanState *hs);
 int jbig2_huffman_advance(Jbig2HuffmanState *hs, size_t advance);
-uint32_t FASTCALL jbig2_huffman_offset(Jbig2HuffmanState *hs);
+uint32 FASTCALL jbig2_huffman_offset(Jbig2HuffmanState *hs);
 int32_t  STDCALL jbig2_huffman_get(Jbig2HuffmanState *hs, const Jbig2HuffmanTable *table, boolint *oob);
 int32_t  jbig2_huffman_get_bits(Jbig2HuffmanState *hs, const int bits, int *err);
 #ifdef JBIG2_DEBUG

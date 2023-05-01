@@ -5016,10 +5016,13 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_GOODSSTOCK01                    32996
 #define PPDV_TECH                            32997
 #define PPDV_CREATEPERSON01                  32998
-#define PPDV_LOGOPAPYRUS                     32999
-#define PPDV_LOGOUDS                         33000
-#define PPDV_LOGOVK                          33001
-#define PPDV_LOGOVETIS                       33002
-#define PPDV_LOGOCHZN                        33003
-#define PPDV_LOGOGOOGLEMAPS01                33004
+#define PPDV_DOB01                           32999
+#define PPDV_ACCEPT01                        33000
+#define PPDV_REJECT01                        33001
+#define PPDV_LOGOPAPYRUS                     33002
+#define PPDV_LOGOUDS                         33003
+#define PPDV_LOGOVK                          33004
+#define PPDV_LOGOVETIS                       33005
+#define PPDV_LOGOCHZN                        33006
+#define PPDV_LOGOGOOGLEMAPS01                33007
 

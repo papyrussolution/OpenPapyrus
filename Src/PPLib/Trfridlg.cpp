@@ -943,14 +943,14 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 							if(InheritedLotTagList.GetCount())
 								tag_list.Merge(InheritedLotTagList, ObjTagList::mumAdd);
 							tag_list.ObjType = PPOBJ_LOT;
-							const ObjTagItem * p_dim_tagitem = tag_list.GetItem(PPTAG_LOT_DIMENTIONS);
+							const ObjTagItem * p_dim_tagitem = tag_list.GetItem(PPTAG_LOT_DIMENSIONS);
 							ObjTagItem dim_tagitem;
 							if(!RVALUEPTR(dim_tagitem, p_dim_tagitem)) {
-								if(!dim_tagitem.Init(PPTAG_LOT_DIMENTIONS))
+								if(!dim_tagitem.Init(PPTAG_LOT_DIMENSIONS))
 									skip = 1;
 							}
 							if(!skip && ReceiptCore::LotDimensions::EditTag(&gc_pack, &dim_tagitem) > 0) {
-								tag_list.PutItem(PPTAG_LOT_DIMENTIONS, &dim_tagitem);
+								tag_list.PutItem(PPTAG_LOT_DIMENSIONS, &dim_tagitem);
 								P_Pack->LTagL.Set(ItemNo, &tag_list);
 								if(gc_pack.LotDimQtty_Formula.NotEmpty()) {
 									SString temp_buf;
@@ -3377,7 +3377,7 @@ int SelectLot__(PPID locID, PPID goodsID, PPID excludeLotID, PPID * pLotID, Rece
 //
 //
 //
-int PPTransferItem::FreightPackage::Edit(PPTransferItem::FreightPackage * pData)
+/*static*/int PPTransferItem::FreightPackage::Edit(PPTransferItem::FreightPackage * pData)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_FPACKAGE);
@@ -3399,6 +3399,33 @@ int PPTransferItem::FreightPackage::Edit(PPTransferItem::FreightPackage * pData)
 					ok = 1;
 				}
 			}
+        }
+	}
+	delete dlg;
+	return ok;
+}
+
+/*static*/int PPTransferItem::Acceptance::Edit(const PPTransferItem * pTi, PPTransferItem::Acceptance * pData)
+{
+	int    ok = -1;
+	TDialog * dlg = new TDialog(DLG_TIACCEPTNC);
+	if(CheckDialogPtr(&dlg)) {
+		PPTransferItem::Acceptance data;
+		RVALUEPTR(data, pData);
+		if(pTi) {
+			dlg->setCtrlReal(CTL_TIACCEPTNC_QTTY, pTi->Qtty());
+			dlg->setCtrlReal(CTL_TIACCEPTNC_COST, pTi->Cost);
+			dlg->setCtrlReal(CTL_TIACCEPTNC_PRICE, pTi->NetPrice());
+		}
+		dlg->setCtrlReal(CTL_TIACCEPTNC_AQTTY, data.Qtty);
+		dlg->setCtrlReal(CTL_TIACCEPTNC_ACOST, data.Cost);
+		dlg->setCtrlReal(CTL_TIACCEPTNC_APRICE, data.Price);
+        while(ok < 0 && ExecView(dlg) == cmOK) {
+			data.Qtty = dlg->getCtrlReal(CTL_TIACCEPTNC_AQTTY);
+			data.Cost = dlg->getCtrlReal(CTL_TIACCEPTNC_ACOST);
+			data.Price = dlg->getCtrlReal(CTL_TIACCEPTNC_APRICE);
+			ASSIGN_PTR(pData, data);
+			ok = 1;
         }
 	}
 	delete dlg;

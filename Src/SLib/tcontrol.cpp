@@ -1208,7 +1208,7 @@ int TCluster::column(int item) const
 				width = 0;
 			}
 			if(i < static_cast<int>(Strings.getCount()))
-				l = sstrlen(Strings.at(i));
+				l = sstrleni(Strings.at(i));
 			if(l > width)
 				width = l;
 		}

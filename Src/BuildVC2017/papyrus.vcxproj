@@ -286,7 +286,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -364,7 +364,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -445,7 +445,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -523,7 +523,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -597,7 +597,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -670,7 +670,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -745,7 +745,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -818,7 +818,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -891,7 +891,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -964,7 +964,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -1038,7 +1038,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -1113,7 +1113,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -1184,7 +1184,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
@@ -1239,7 +1239,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-302\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;..\osf\xapian\xapian-core\include;..\osf\abseil;..\osf\mupdf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
@@ -1290,6 +1290,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\PPLib\alcodecl-ru.cpp" />
+    <ClCompile Include="..\PPLib\pdfview.cpp" />
     <ClCompile Include="..\PPLib\ppfts.cpp" />
     <ClCompile Include="..\PPLib\styloq.cpp" />
     <ClCompile Include="..\PPLib\styloq_prccmd.cpp" />
@@ -2246,6 +2247,9 @@
     <ProjectReference Include="icu-stubdata.vcxproj">
       <Project>{203ec78a-0531-43f0-a636-285439bde025}</Project>
     </ProjectReference>
+    <ProjectReference Include="jbig2dec.vcxproj">
+      <Project>{d2064942-1272-448a-86e8-d3d18359cc55}</Project>
+    </ProjectReference>
     <ProjectReference Include="lcms2.vcxproj">
       <Project>{71dede59-3f1e-486b-a899-4283000f76b5}</Project>
     </ProjectReference>
@@ -2259,6 +2263,9 @@
       <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="libmupdf.vcxproj">
+      <Project>{5f615f91-dff8-4f05-bf48-6222b7d86519}</Project>
+    </ProjectReference>
     <ProjectReference Include="libphonenumber.vcxproj">
       <Project>{8614d47b-23e6-4a77-9618-db89c420be35}</Project>
     </ProjectReference>
@@ -2268,6 +2275,12 @@
     </ProjectReference>
     <ProjectReference Include="libprotobuf.vcxproj">
       <Project>{f794984c-5ecc-3922-ba3f-6d27cd4bdec7}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libresources.vcxproj">
+      <Project>{52dcab29-c8ee-4422-954c-29afa6b33e22}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libthirdparty.vcxproj">
+      <Project>{5edcf4fd-0291-4fb9-8d96-d58957ca5e3c}</Project>
     </ProjectReference>
     <ProjectReference Include="libwebp-slib.vcxproj">
       <Project>{05255f31-2054-4df4-ad6d-5bc5da8ccccf}</Project>
@@ -2291,6 +2304,9 @@
     </ProjectReference>
     <ProjectReference Include="onig.vcxproj">
       <Project>{d115c575-b8ee-3bd7-8046-688a4d145686}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openjp2.vcxproj">
+      <Project>{c756e07c-5895-39df-8310-7126f3c6fd84}</Project>
     </ProjectReference>
     <ProjectReference Include="pcre.vcxproj">
       <Project>{d4b6d08a-d79e-428e-85ea-f9929c6aa367}</Project>

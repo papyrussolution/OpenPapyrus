@@ -220,8 +220,8 @@ uint64_t lzma_raw_coder_memusage(lzma_filter_find coder_find, const lzma_filter 
 //
 //
 //
-lzma_ret lzma_raw_buffer_encode(const lzma_filter *filters, const lzma_allocator *allocator, const uint8_t *in, size_t in_size,
-	uint8_t *out, size_t *out_pos, size_t out_size)
+lzma_ret lzma_raw_buffer_encode(const lzma_filter *filters, const lzma_allocator *allocator, const uint8 *in, size_t in_size,
+	uint8 *out, size_t *out_pos, size_t out_size)
 {
 	// Validate what isn't validated later in filter_common.c.
 	if((in == NULL && in_size != 0) || out == NULL || out_pos == NULL || *out_pos > out_size)
@@ -253,7 +253,7 @@ lzma_ret lzma_raw_buffer_encode(const lzma_filter *filters, const lzma_allocator
 //
 //
 lzma_ret lzma_raw_buffer_decode(const lzma_filter *filters, const lzma_allocator *allocator,
-	const uint8_t *in, size_t *in_pos, size_t in_size, uint8_t *out, size_t *out_pos, size_t out_size)
+	const uint8 *in, size_t *in_pos, size_t in_size, uint8 *out, size_t *out_pos, size_t out_size)
 {
 	// Validate what isn't validated later in filter_common.c.
 	if(in == NULL || in_pos == NULL || *in_pos > in_size || out == NULL || out_pos == NULL || *out_pos > out_size)
@@ -293,7 +293,7 @@ lzma_ret lzma_raw_buffer_decode(const lzma_filter *filters, const lzma_allocator
 				// then the output buffer was too small. If
 				// we cannot get a new output byte, the input
 				// is truncated.
-				uint8_t tmp[1];
+				uint8 tmp[1];
 				size_t tmp_pos = 0;
 				(void)next.code(next.coder, allocator, in, in_pos, in_size, tmp, &tmp_pos, 1, LZMA_FINISH);
 				if(tmp_pos == 1)
@@ -341,7 +341,7 @@ lzma_ret lzma_filter_flags_encode(const lzma_filter *filter, uint8 *out, size_t 
 //
 //
 //
-lzma_ret lzma_filter_flags_decode(lzma_filter *filter, const lzma_allocator *allocator, const uint8_t *in, size_t *in_pos, size_t in_size)
+lzma_ret lzma_filter_flags_decode(lzma_filter *filter, const lzma_allocator *allocator, const uint8 *in, size_t *in_pos, size_t in_size)
 {
 	// Set the pointer to NULL so the caller can always safely free it.
 	filter->options = NULL;
@@ -388,7 +388,7 @@ struct lzma_filter_encoder {
 	///             - LZMA_OPTIONS_ERROR: Unsupported options
 	///             - LZMA_PROG_ERROR: Invalid options or not enough
 	///               output space
-	lzma_ret (* props_encode)(const void * options, uint8_t * out);
+	lzma_ret (* props_encode)(const void * options, uint8 * out);
 };
 
 static const lzma_filter_encoder * encoder_find(lzma_vli id)
@@ -673,7 +673,7 @@ lzma_ret lzma_properties_size(uint32 * size, const lzma_filter * filter)
 	return fe->props_size_get(size, filter->options);
 }
 
-lzma_ret lzma_properties_encode(const lzma_filter *filter, uint8_t *props)
+lzma_ret lzma_properties_encode(const lzma_filter *filter, uint8 *props)
 {
 	const lzma_filter_encoder * const fe = encoder_find(filter->id);
 	if(fe == NULL)
@@ -687,7 +687,7 @@ lzma_ret lzma_properties_encode(const lzma_filter *filter, uint8_t *props)
 //
 struct lzma_filter_decoder {
 	lzma_filter_decoder(lzma_vli _id, lzma_init_function initFunc, uint64_t (* memUsageFunc)(const void *),
-		lzma_ret (* propsDecodeFunc)(void **, const lzma_allocator *, const uint8_t *, size_t)) : id(_id), init(initFunc),
+		lzma_ret (* propsDecodeFunc)(void **, const lzma_allocator *, const uint8 *, size_t)) : id(_id), init(initFunc),
 		memusage(memUsageFunc), props_decode(propsDecodeFunc)
 	{
 	}
@@ -699,7 +699,7 @@ struct lzma_filter_decoder {
 	/// \return     - LZMA_OK: Properties decoded successfully.
 	///             - LZMA_OPTIONS_ERROR: Unsupported properties
 	///             - LZMA_MEM_ERROR: Memory allocation failed.
-	lzma_ret (* props_decode)(void ** options, const lzma_allocator * allocator, const uint8_t * props, size_t props_size);
+	lzma_ret (* props_decode)(void ** options, const lzma_allocator * allocator, const uint8 * props, size_t props_size);
 };
 
 static const lzma_filter_decoder * decoder_find(lzma_vli id)
@@ -889,7 +889,7 @@ uint64_t lzma_raw_decoder_memusage(const lzma_filter *filters)
 	return lzma_raw_coder_memusage((lzma_filter_find)(&decoder_find), filters);
 }
 
-lzma_ret lzma_properties_decode(lzma_filter *filter, const lzma_allocator *allocator, const uint8_t *props, size_t props_size)
+lzma_ret lzma_properties_decode(lzma_filter *filter, const lzma_allocator *allocator, const uint8 *props, size_t props_size)
 {
 	// Make it always NULL so that the caller can always safely free() it.
 	filter->options = NULL;

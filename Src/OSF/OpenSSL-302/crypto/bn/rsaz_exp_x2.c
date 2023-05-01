@@ -40,8 +40,8 @@ NON_EMPTY_TRANSLATION_UNIT
 #define BITS2WORD8_SIZE(x)  (((x) + 7) >> 3)
 #define BITS2WORD64_SIZE(x) (((x) + 63) >> 6)
 
-static ossl_inline uint64_t get_digit52(const uint8_t * in, int in_len);
-static ossl_inline void put_digit52(uint8_t * out, int out_len, uint64_t digit);
+static ossl_inline uint64_t get_digit52(const uint8 * in, int in_len);
+static ossl_inline void put_digit52(uint8 * out, int out_len, uint64_t digit);
 static void to_words52(BN_ULONG * out, int out_len, const BN_ULONG * in,
     int in_bitsize);
 static void from_words52(BN_ULONG * bn_out, int out_bitsize, const BN_ULONG * in);
@@ -414,7 +414,7 @@ static void RSAZ_exp52x20_x2_256(BN_ULONG * out,          /* [2][20] */
 #undef BITSIZE_MODULUS
 }
 
-static ossl_inline uint64_t get_digit52(const uint8_t * in, int in_len)
+static ossl_inline uint64_t get_digit52(const uint8 * in, int in_len)
 {
 	uint64_t digit = 0;
 
@@ -434,14 +434,14 @@ static ossl_inline uint64_t get_digit52(const uint8_t * in, int in_len)
 static void to_words52(BN_ULONG * out, int out_len,
     const BN_ULONG * in, int in_bitsize)
 {
-	uint8_t * in_str = NULL;
+	uint8 * in_str = NULL;
 
 	assert(out != NULL);
 	assert(in != NULL);
 	/* Check destination buffer capacity */
 	assert(out_len >= number_of_digits(in_bitsize, DIGIT_SIZE));
 
-	in_str = (uint8_t*)in;
+	in_str = (uint8*)in;
 
 	for(; in_bitsize >= (2 * DIGIT_SIZE); in_bitsize -= (2 * DIGIT_SIZE), out += 2) {
 		out[0] = (*(uint64_t*)in_str) & DIGIT_MASK;
@@ -475,12 +475,12 @@ static void to_words52(BN_ULONG * out, int out_len,
 	}
 }
 
-static ossl_inline void put_digit52(uint8_t * pStr, int strLen, uint64_t digit)
+static ossl_inline void put_digit52(uint8 * pStr, int strLen, uint64_t digit)
 {
 	assert(pStr != NULL);
 
 	for(; strLen > 0; strLen--) {
-		*pStr++ = (uint8_t)(digit & 0xFF);
+		*pStr++ = (uint8)(digit & 0xFF);
 		digit >>= 8;
 	}
 }
@@ -501,7 +501,7 @@ static void from_words52(BN_ULONG * out, int out_bitsize, const BN_ULONG * in)
 		out[i] = 0;
 
 	{
-		uint8_t * out_str = (uint8_t*)out;
+		uint8 * out_str = (uint8*)out;
 
 		for(; out_bitsize >= (2 * DIGIT_SIZE); out_bitsize -= (2 * DIGIT_SIZE), in += 2) {
 			(*(uint64_t*)out_str) = in[0];

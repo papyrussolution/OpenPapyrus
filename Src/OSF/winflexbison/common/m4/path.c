@@ -36,14 +36,14 @@ static includes * dir_list;              /* the list of path directories */
 static includes * dir_list_end;          /* the end of same */
 static int dir_max_length;              /* length of longest directory name */
 
-void include_init(void)
+void include_init()
 {
 	dir_list = NULL;
 	dir_list_end = NULL;
 	dir_max_length = 0;
 }
 
-void include_env_init(void)
+void include_env_init()
 {
 	char * path_end;
 	if(!no_gnu_extensions) {
@@ -52,7 +52,7 @@ void include_env_init(void)
 			env_path = xstrdup(env_path);
 			char * path = env_path;
 			do {
-				path_end = strchr(path, ':');
+				path_end = sstrchr(path, ':');
 				if(path_end)
 					*path_end = '\0';
 				add_include_directory(path);
@@ -155,7 +155,7 @@ FILE * m4_path_search(const char * file, char ** result)
 
 #ifdef DEBUG_INCL
 
-static void M4_GNUC_UNUSED include_dump(void)
+static void M4_GNUC_UNUSED include_dump()
 {
 	includes * incl;
 	xfprintf(stderr, "include_dump:\n");

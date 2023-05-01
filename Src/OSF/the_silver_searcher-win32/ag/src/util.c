@@ -138,7 +138,7 @@ void generate_find_skip(const char * find, const size_t f_len, size_t ** skip_lo
 //size_t ag_max(size_t a, size_t b) { return (b > a) ? b : a; }
 //size_t ag_min(size_t a, size_t b) { return (b < a) ? b : a; }
 
-void generate_hash(const char * find, const size_t f_len, uint8_t * h_table, const int case_sensitive) 
+void generate_hash(const char * find, const size_t f_len, uint8 * h_table, const int case_sensitive) 
 {
 	for(int i = f_len - sizeof(uint16_t); i >= 0; i--) {
 		// Add all 2^sizeof(uint16_t) combinations of capital letters to the hash table
@@ -184,7 +184,7 @@ const char * boyer_moore_strnstr(const char * s, const char * find, const size_t
 // Clang's -fsanitize=alignment (included in -fsanitize=undefined) will flag
 // the intentional unaligned access here, so suppress it for this function
 NO_SANITIZE_ALIGNMENT const char * hash_strnstr(const char * s, const char * find, const size_t s_len, const size_t f_len,
-    uint8_t * h_table, const int case_sensitive) 
+    uint8 * h_table, const int case_sensitive) 
 {
 	if(s_len < f_len)
 		return NULL;

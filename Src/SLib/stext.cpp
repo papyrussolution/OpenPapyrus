@@ -1766,7 +1766,7 @@ uint FASTCALL iseol(const char * pStr, SEOLFormat eolf)
 size_t FASTCALL sstrnlen(const char * pStr, size_t maxLen)
 {
 	if(pStr) {
-		const char * p_end = static_cast<const char *>(memchr(pStr, '\0', maxLen));
+		const char * p_end = static_cast<const char *>(smemchr(pStr, '\0', maxLen)); // @v11.7.0 memchr-->smemchr
 		return p_end ? (size_t)(p_end - pStr) : maxLen;
 	}
 	else
@@ -1776,14 +1776,14 @@ size_t FASTCALL sstrnlen(const char * pStr, size_t maxLen)
 const char * FASTCALL sstrchr(const char * pStr, char c)
 {
 	const  size_t len = implement_sstrlen(pStr);
-	const  char * p = len ? static_cast<const char *>(memchr(pStr, static_cast<uchar>(c), len)) : 0;
+	const  char * p = len ? static_cast<const char *>(smemchr(pStr, static_cast<uchar>(c), len)) : 0; // @v11.7.0 memchr-->smemchr
 	return p;
 }
 
 char * FASTCALL sstrchr(char * pStr, char c)
 {
 	const  size_t len = implement_sstrlen(pStr);
-	char * p = len ? static_cast<char *>(memchr(pStr, static_cast<uchar>(c), len)) : 0;
+	char * p = len ? static_cast<char *>(const_cast<void *>(smemchr(pStr, static_cast<uchar>(c), len))) : 0; // @v11.7.0 memchr-->smemchr
 	return p;
 }
 
@@ -2095,7 +2095,7 @@ char * STDCALL strnzcpy(char * dest, const char * src, size_t maxlen)
 	if(dest) {
 		if(src) {
 			if(maxlen) {
-				const char * p = static_cast<const char *>(memchr(src, 0, maxlen));
+				const char * p = static_cast<const char *>(smemchr(src, 0, maxlen)); // @v11.7.0 memchr-->smemchr
 				if(p)
 					memcpy(dest, src, (size_t)(p - src)+1);
 				else {
@@ -2458,7 +2458,8 @@ int SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 	if(hdc && maxStrSize > 0 && maxStrsCount > 0 && aBuf.Len()) {
 		const  char * p_dots = "...";
 		char   ret_buf[1024];
-		int    src_pos = 0, dest_pos = 0, dots_pos = -1;
+		int    src_pos = 0, dest_pos = 0;
+		int    dots_pos = -1;
 		size_t dots_size = 0;
 		SIZE   size;
 		memzero(ret_buf, sizeof(ret_buf));
@@ -2478,7 +2479,7 @@ int SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 					dest_spc_pos = dest_pos;
 				}
 				if(is_last_str)
-					dots_pos = word_size + dots_size <= maxStrSize ? dest_pos : dots_pos;
+					dots_pos = word_size + (dots_size <= maxStrSize) ? dest_pos : dots_pos;
 #ifdef _WIN32_WCE // {
 				GetTextExtentPoint32(hdc, &aBuf[src_pos], 1, &size);
 #else
@@ -2497,7 +2498,7 @@ int SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 					if(dots_pos >= 0) {
 						ret_buf[dots_pos] = '\0';
 						strcat(ret_buf, p_dots);
-						dest_pos = dots_pos + implement_sstrlen(p_dots) - 1;
+						dest_pos = dots_pos + sstrleni(p_dots) - 1;
 					}
 				}
 				else
@@ -3237,7 +3238,7 @@ const char * byteshift_strstr(const char * pHayStack, const char * pNeedle)
 	const char needle_first  = *pNeedle;
 	// Runs strchr() on the first section of the haystack as it has a lower
 	// algorithmic complexity for discarding the first non-matching characters.
-	pHayStack = strchr(pHayStack, needle_first);
+	pHayStack = sstrchr(pHayStack, needle_first);
 	if(!pHayStack) // First character of needle is not in the haystack.
 		return NULL;
 	// First characters of haystack and needle are the same now. Both are
@@ -3384,38 +3385,89 @@ int main(int argc, char **argv )
 	return rc;
 }
 #endif // } 0
+//
+//
+//
+#if SLTEST_RUNNING // {
 
-static int Test_memchr(char * (*func)(const char * pHeystack, char needle, size_t len)) // @construction
-{
-	int    ok = 1;
-	LongArray target_pos_list;
-	LongArray pos_list;
-	LongArray len_list;
-	SString heystack;
-	const char needle_char = 'A';
+const void * fast_memchr(const void * haystack, int n, size_t len);
+//const void * fast_memchr_sse2(const void * haystack, int n, size_t len);
+
+struct Test_memchr_Block {
+	Test_memchr_Block(const char needle, const char * pHaystackFileName) : Needle(needle), Status(0)
 	{
-		for(uint i = 0; i < heystack.Len(); i++) {
-			pos_list.add((long)i);
-			len_list.add((long)(i+1));
-			if(heystack.C(i) == needle_char) {
-				target_pos_list.add((long)i);
+		Status |= stError;
+		SFile f_in(pHaystackFileName, SFile::mRead);
+		if(f_in.IsValid()) {
+			STempBuffer _buf(SMEGABYTE(1));
+			size_t actual_size = 0;
+			if(f_in.ReadAll(_buf, 0, &actual_size) > 0) {
+				Status &= ~stError;
+				Haystack.CatN(_buf.cptr(), actual_size);
+				//
+				const uint hs_len = Haystack.Len();
+				for(uint i = 0; i < hs_len; i++) {
+					PosList.add((long)i);
+					if(hs_len <= 1024) {
+						LenList.add((long)(i+1));
+					}
+					else if(i < 512/* || i >= (hs_len - 512)*/)
+						LenList.add((long)(i+1));
+					if(Haystack.C(i) == Needle) {
+						TargetPosList.add((long)i);
+					}
+				}
+				TargetPosList.sort();
+				LenList.shuffle();
+				PosList.shuffle();
 			}
 		}
-		target_pos_list.sort();
 	}
+	enum {
+		stError = 0x0001
+	};
+	bool   IsValid() const { return !(Status & stError); }
+
+	const  char Needle;
+	uint8  Reserve[3]; // @alignment
+	int    Status;
+	SString Haystack;
+	LongArray TargetPosList; // Список позиций, в которых встрачается целевой символ
+	LongArray PosList; // Список позиций, начиная с которых следует осуществлять поиск
+	LongArray LenList; // Список длин отрезков, на которых следует осуществлять поиск
+};
+
+static int Test_memchr(Test_memchr_Block & rBlk, const void * (*func)(const void * pHaystack, int needle, size_t len))
+{
+	int    ok = 1;
 	{
-		const char * p_heystack = heystack.cptr();
-		len_list.shuffle();
-		pos_list.shuffle();
-		for(uint lidx = 0; lidx < len_list.getCount(); lidx++) {
-			const size_t len = (size_t)len_list.get(lidx);
-			for(uint pidx = 0; pidx < pos_list.getCount(); pidx++) {
-				const uint pos = (size_t)pos_list.get(pidx);
-				if((pos+len) <= heystack.Len()) {
-					const char * p_target = func(p_heystack, needle_char, len);
+		const char * p_haystack = rBlk.Haystack.cptr();
+		const size_t haystack_len = rBlk.Haystack.Len();
+		for(uint lidx = 0; ok && lidx < rBlk.LenList.getCount(); lidx++) {
+			const size_t len = (size_t)rBlk.LenList.get(lidx);
+			for(uint pidx = 0; ok && pidx < rBlk.PosList.getCount(); pidx++) {
+				const uint pos = (size_t)rBlk.PosList.get(pidx);
+				if((pos+len) <= haystack_len) {
+					const char * p_target = static_cast<const char *>(func(const_cast<char *>(p_haystack+pos), rBlk.Needle, len));
+					const long pos_key = (long)pos;
+					uint  pos_key_idx = 0;
+					const bool tpl_search_result = rBlk.TargetPosList.bsearchGe(&pos_key, &pos_key_idx, CMPF_LONG);
+					const size_t found_pos = tpl_search_result ? static_cast<ssize_t>(rBlk.TargetPosList.get(pos_key_idx)) : 0;
 					if(p_target) {
+						if(tpl_search_result && (p_target - p_haystack) == found_pos) {
+							; // ok
+						}
+						else {
+							ok = 0;
+						}
 					}
 					else {
+						if(!tpl_search_result || found_pos >= (pos+len)) {
+							; // ok
+						}
+						else {
+							ok = 0;
+						}
 					}
 				}
 			}
@@ -3423,22 +3475,73 @@ static int Test_memchr(char * (*func)(const char * pHeystack, char needle, size_
 	}
 	return ok;
 }
-//
-//
-//
-#if SLTEST_RUNNING // {
 
-static int Test_strstr(const char * pHeyStack, const char * pNeedle, const size_t * pPosList, uint posListCount, const char * (* funcStrStr)(const char *, const char *))
+static int Profile_memchr(Test_memchr_Block & rBlk, const void * (*func)(const void * pHaystack, int needle, size_t len))
+{
+	int    ok = 1;
+	{
+		const char * p_haystack = rBlk.Haystack.cptr();
+		const size_t haystack_len = rBlk.Haystack.Len();
+		volatile char * p_target = 0;
+		for(uint lidx = 0; ok && lidx < rBlk.LenList.getCount(); lidx++) {
+			const size_t len = (size_t)rBlk.LenList.get(lidx);
+			for(uint pidx = 0; ok && pidx < rBlk.PosList.getCount(); pidx++) {
+				const uint pos = (size_t)rBlk.PosList.get(pidx);
+				if((pos+len) <= haystack_len) {
+					p_target = const_cast<volatile char *>(static_cast<const char *>(func(const_cast<char *>(p_haystack+pos), rBlk.Needle, len)));
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+SLTEST_R(memchr)
+{
+	//benchmark=memchr;fast_memchr;fast_memchr_sse2
+	int    bm = -1;
+	if(pBenchmark == 0) 
+		bm = 0;
+	else if(sstreqi_ascii(pBenchmark, "memchr"))        
+		bm = 1;
+	else if(sstreqi_ascii(pBenchmark, "fast_memchr"))   
+		bm = 2;
+	else if(sstreqi_ascii(pBenchmark, "fast_memchr_sse2"))      
+		bm = 3;
+	SString test_data_path(MakeInputFilePath("sherlock-holmes-huge.txt"));
+	Test_memchr_Block blk('A', test_data_path);
+	THROW(SLTEST_CHECK_NZ(blk.IsValid()));
+	if(bm == 0) {
+		SLTEST_CHECK_NZ(Test_memchr(blk, memchr));
+		SLTEST_CHECK_NZ(Test_memchr(blk, fast_memchr));
+		SLTEST_CHECK_NZ(Test_memchr(blk, /*fast_memchr_sse2*/smemchr));
+	}
+	else if(bm == 1) {
+		Profile_memchr(blk, memchr);
+	}
+	else if(bm == 2) {
+		Profile_memchr(blk, fast_memchr);
+	}
+	else if(bm == 3) {
+		Profile_memchr(blk, /*fast_memchr_sse2*/smemchr);
+	}
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
+	return CurrentStatus;	
+}
+
+static int Test_strstr(const char * pHaystack, const char * pNeedle, const size_t * pPosList, uint posListCount, const char * (* funcStrStr)(const char *, const char *))
 {
 	int    ok = 1;
 	if(funcStrStr) {
 		size_t result_pos_list[128];
 		uint result_count = 0;
-		const char * p = pHeyStack;
+		const char * p = pHaystack;
 		do {
 			p = funcStrStr(p, pNeedle);
 			if(p) {
-				result_pos_list[result_count++] = p-pHeyStack;
+				result_pos_list[result_count++] = p-pHaystack;
 				p++;
 			}
 		} while(p);
@@ -3458,14 +3561,11 @@ static int Test_strstr(const char * pHeyStack, const char * pNeedle, const size_
 
 SLTEST_R(strstr)
 {
-	const char * p_heystack = "abcDEFabcababc";
+	const char * p_haystack = "abcDEFabcababc";
 	const char * p_needle = "abc";
 	const size_t pos_list[] = {0, 6, 11};
-	SLTEST_CHECK_NZ(Test_strstr(p_heystack, p_needle, pos_list, SIZEOFARRAY(pos_list), strstr));
-	SLTEST_CHECK_NZ(Test_strstr(p_heystack, p_needle, pos_list, SIZEOFARRAY(pos_list), byteshift_strstr));
-	CATCH
-		CurrentStatus = 0;
-	ENDCATCH
+	SLTEST_CHECK_NZ(Test_strstr(p_haystack, p_needle, pos_list, SIZEOFARRAY(pos_list), strstr));
+	SLTEST_CHECK_NZ(Test_strstr(p_haystack, p_needle, pos_list, SIZEOFARRAY(pos_list), byteshift_strstr));
 	return CurrentStatus;	
 }
 

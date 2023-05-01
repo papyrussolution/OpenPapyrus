@@ -20,7 +20,7 @@ static const gf MODULUS = {
 };
 
 /* Serialize to wire format. */
-void gf_serialize(uint8_t * serial, const gf x, int with_hibit)
+void gf_serialize(uint8 * serial, const gf x, int with_hibit)
 {
 	unsigned int j = 0, fill = 0;
 	dword_t buffer = 0;
@@ -37,7 +37,7 @@ void gf_serialize(uint8_t * serial, const gf x, int with_hibit)
 			fill += LIMB_PLACE_VALUE(LIMBPERM(j));
 			j++;
 		}
-		serial[i] = (uint8_t)buffer;
+		serial[i] = (uint8)buffer;
 		fill -= 8;
 		buffer >>= 8;
 	}
@@ -64,8 +64,8 @@ mask_t gf_lobit(const gf x)
 }
 
 /* Deserialize from wire format; return -1 on success and 0 on failure. */
-mask_t gf_deserialize(gf x, const uint8_t serial[SER_BYTES], int with_hibit,
-    uint8_t hi_nmask)
+mask_t gf_deserialize(gf x, const uint8 serial[SER_BYTES], int with_hibit,
+    uint8 hi_nmask)
 {
 	unsigned int j = 0, fill = 0;
 	dword_t buffer = 0;
@@ -76,7 +76,7 @@ mask_t gf_deserialize(gf x, const uint8_t serial[SER_BYTES], int with_hibit,
 
 	for(i = 0; i < NLIMBS; i++) {
 		while(fill < LIMB_PLACE_VALUE(LIMBPERM(i)) && j < nbytes) {
-			uint8_t sj;
+			uint8 sj;
 
 			sj = serial[j];
 			if(j == nbytes - 1)

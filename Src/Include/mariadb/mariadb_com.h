@@ -261,9 +261,9 @@ typedef struct st_net {
 	uchar * buff;
 	uchar * buff_end, * write_pos, * read_pos;
 	my_socket fd;                           /* For Perl DBI/dbd */
-	unsigned long remain_in_buf, length;
-	unsigned long buf_length, where_b;
-	unsigned long max_packet, max_packet_size;
+	ulong remain_in_buf, length;
+	ulong buf_length, where_b;
+	ulong max_packet, max_packet_size;
 	uint pkt_nr, compress_pkt_nr;
 	uint write_timeout, read_timeout, retry_count;
 	int fcntl;
@@ -381,8 +381,8 @@ enum enum_field_types {
 #define FIELD_TYPE_GEOMETRY MYSQL_TYPE_GEOMETRY
 #define FIELD_TYPE_BIT MYSQL_TYPE_BIT
 
-extern unsigned long max_allowed_packet;
-extern unsigned long net_buffer_length;
+extern ulong max_allowed_packet;
+extern ulong net_buffer_length;
 
 #define net_new_transaction(net) ((net)->pkt_nr = 0)
 
@@ -393,10 +393,10 @@ int     ma_net_flush(NET * net);
 int     ma_net_write(NET * net, const uchar * packet, size_t len);
 int     ma_net_write_command(NET * net, uchar command, const char * packet, size_t len, bool disable_flush);
 int     ma_net_real_write(NET * net, const char * packet, size_t len);
-extern unsigned long ma_net_read(NET * net);
+extern ulong ma_net_read(NET * net);
 
 struct rand_struct {
-	unsigned long seed1, seed2, max_value;
+	ulong seed1, seed2, max_value;
 	double max_value_dbl;
 };
 
@@ -408,7 +408,7 @@ typedef struct st_udf_args {
 	uint arg_count; /* Number of arguments */
 	enum Item_result * arg_type; /* Pointer to item_results */
 	char ** args;   /* Pointer to argument */
-	unsigned long * lengths; /* Length of string arguments */
+	ulong * lengths; /* Length of string arguments */
 	char * maybe_null; /* Set to 1 for all maybe_null args */
 } UDF_ARGS;
 
@@ -442,7 +442,7 @@ extern "C" {
 
 char * ma_scramble_323(char * to, const char * message, const char * password);
 void ma_scramble_41(const uchar * buffer, const char * scramble, const char * password);
-void ma_hash_password(unsigned long * result, const char * password, size_t len);
+void ma_hash_password(ulong * result, const char * password, size_t len);
 void ma_make_scrambled_password(char * to, const char * password);
 
 /* Some other useful functions */

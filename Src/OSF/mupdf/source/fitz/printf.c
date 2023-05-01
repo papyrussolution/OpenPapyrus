@@ -94,9 +94,7 @@ static void fmtfloat_f(struct fmtbuf * out, double f, int w, int p)
 static void fmtuint32(struct fmtbuf * out, uint a, int s, int z, int w, int base)
 {
 	char buf[40];
-	int i;
-
-	i = 0;
+	int i = 0;
 	if(!a)
 		buf[i++] = '0';
 	while(a) {
@@ -118,9 +116,7 @@ static void fmtuint32(struct fmtbuf * out, uint a, int s, int z, int w, int base
 static void fmtuint64(struct fmtbuf * out, uint64_t a, int s, int z, int w, int base)
 {
 	char buf[80];
-	int i;
-
-	i = 0;
+	int i = 0;
 	if(!a)
 		buf[i++] = '0';
 	while(a) {
@@ -142,7 +138,6 @@ static void fmtuint64(struct fmtbuf * out, uint64_t a, int s, int z, int w, int 
 static void fmtint32(struct fmtbuf * out, int value, int s, int z, int w, int base)
 {
 	uint a;
-
 	if(value < 0) {
 		s = '-';
 		a = -value;
@@ -161,7 +156,6 @@ static void fmtint32(struct fmtbuf * out, int value, int s, int z, int w, int ba
 static void fmtint64(struct fmtbuf * out, int64_t value, int s, int z, int w, int base)
 {
 	uint64_t a;
-
 	if(value < 0) {
 		s = '-';
 		a = -value;

@@ -123,7 +123,6 @@ static DSO_FUNC_TYPE dl_bind_func(DSO * dso, const char * symname)
 {
 	shl_t ptr;
 	void * sym;
-
 	if((dso == NULL) || (symname == NULL)) {
 		ERR_raise(ERR_LIB_DSO, ERR_R_PASSED_NULL_PARAMETER);
 		return NULL;
@@ -154,7 +153,6 @@ static DSO_FUNC_TYPE dl_bind_func(DSO * dso, const char * symname)
 static char * dl_merger(DSO * dso, const char * filespec1, const char * filespec2)
 {
 	char * merged;
-
 	if(!filespec1 && !filespec2) {
 		ERR_raise(ERR_LIB_DSO, ERR_R_PASSED_NULL_PARAMETER);
 		return NULL;
@@ -188,11 +186,9 @@ static char * dl_merger(DSO * dso, const char * filespec1, const char * filespec
 		 * concatenation of filespec2 followed by a slash followed by
 		 * filespec1.
 		 */
-		int spec2len, len;
-
-		spec2len = (filespec2 ? strlen(filespec2) : 0);
-		len = spec2len + (filespec1 ? strlen(filespec1) : 0);
-
+		int len;
+		int spec2len = sstrlen(filespec2);
+		int len = spec2len + sstrlen(filespec1);
 		if(spec2len && filespec2[spec2len - 1] == '/') {
 			spec2len--;
 			len--;

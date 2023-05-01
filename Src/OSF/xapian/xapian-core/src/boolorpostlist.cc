@@ -53,7 +53,6 @@ PostList * BoolOrPostList::next(double)
 			delete plist[0].pl;
 			plist[0].pl = res;
 		}
-
 		if(plist[0].pl->at_end()) {
 			if(n_kids == 1) {
 				// We've reached the end of all posting lists - prune
@@ -68,7 +67,6 @@ PostList * BoolOrPostList::next(double)
 		plist[0].did = plist[0].pl->get_docid();
 		Heap::replace(plist, plist + n_kids, std::greater<PostListAndDocID>());
 	}
-
 	if(n_kids == 1) {
 		n_kids = 0;
 		return plist[0].pl;
@@ -109,22 +107,17 @@ PostList * BoolOrPostList::skip_to(Xapian::docid did_min, double)
 		else if(j != i) {
 			plist[j] = plist[i];
 		}
-
 		did = min(did, plist[j].did);
-
 		++j;
 	}
-
 	Assert(j != 0);
 	n_kids = j;
 	if(n_kids == 1) {
 		n_kids = 0;
 		return plist[0].pl;
 	}
-
 	// Restore the heap invariant.
 	Heap::make(plist, plist + n_kids, std::greater<PostListAndDocID>());
-
 	return NULL;
 }
 

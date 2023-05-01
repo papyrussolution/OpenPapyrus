@@ -23,7 +23,7 @@ uint32_t lzma_vli_size(lzma_vli vli)
 //
 // Descr: Encodes variable-length integers
 //
-lzma_ret lzma_vli_encode(lzma_vli vli, size_t * vli_pos, uint8_t * out, size_t * out_pos, size_t out_size)
+lzma_ret lzma_vli_encode(lzma_vli vli, size_t * vli_pos, uint8 * out, size_t * out_pos, size_t out_size)
 {
 	// If we haven't been given vli_pos, work in single-call mode.
 	size_t vli_pos_internal = 0;
@@ -54,13 +54,13 @@ lzma_ret lzma_vli_encode(lzma_vli vli, size_t * vli_pos, uint8_t * out, size_t *
 		++*vli_pos;
 		assert(*vli_pos < LZMA_VLI_BYTES_MAX);
 		// Write the next byte.
-		out[*out_pos] = (uint8_t)(vli) | 0x80;
+		out[*out_pos] = (uint8)(vli) | 0x80;
 		vli >>= 7;
 		if(++*out_pos == out_size)
 			return vli_pos == &vli_pos_internal ? LZMA_PROG_ERROR : LZMA_OK;
 	}
 	// Write the last byte.
-	out[*out_pos] = (uint8_t)(vli);
+	out[*out_pos] = (uint8)(vli);
 	++*out_pos;
 	++*vli_pos;
 	return vli_pos == &vli_pos_internal ? LZMA_OK : LZMA_STREAM_END;
@@ -68,7 +68,7 @@ lzma_ret lzma_vli_encode(lzma_vli vli, size_t * vli_pos, uint8_t * out, size_t *
 //
 // Descr: Decodes variable-length integers
 //
-lzma_ret lzma_vli_decode(lzma_vli * vli, size_t * vli_pos, const uint8_t * in, size_t * in_pos, size_t in_size)
+lzma_ret lzma_vli_decode(lzma_vli * vli, size_t * vli_pos, const uint8 * in, size_t * in_pos, size_t in_size)
 {
 	// If we haven't been given vli_pos, work in single-call mode.
 	size_t vli_pos_internal = 0;
@@ -95,7 +95,7 @@ lzma_ret lzma_vli_decode(lzma_vli * vli, size_t * vli_pos, const uint8_t * in, s
 	do {
 		// Read the next byte. Use a temporary variable so that we
 		// can update *in_pos immediately.
-		const uint8_t byte = in[*in_pos];
+		const uint8 byte = in[*in_pos];
 		++*in_pos;
 		// Add the newly read byte to *vli.
 		*vli += (lzma_vli)(byte & 0x7F) << (*vli_pos * 7);

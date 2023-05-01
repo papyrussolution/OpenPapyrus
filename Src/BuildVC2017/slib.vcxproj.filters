@@ -256,6 +256,8 @@
     <ClCompile Include="..\SLib\mimalloc\segment-cache.c">
       <Filter>MiMalloc</Filter>
     </ClCompile>
+    <ClCompile Include="..\SLib\smemchr.cpp" />
+    <ClCompile Include="..\OSF\AVX-Memmove\memset.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -606,6 +608,9 @@
     </Filter>
     <Filter Include="MiMalloc\Test">
       <UniqueIdentifier>{57e86c28-dcc4-4858-a8ed-c5db19e21433}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="__TEMP__">
+      <UniqueIdentifier>{c5cd39d1-64ad-4e8c-8f7f-b2a84f69014d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

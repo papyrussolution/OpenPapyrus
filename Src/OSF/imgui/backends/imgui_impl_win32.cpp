@@ -13,14 +13,15 @@
 // If you are new to Dear ImGui, read documentation from the docs/ folder + read the top of imgui.cpp.
 // Read online: https://github.com/ocornut/imgui/tree/master/docs
 
-#include "imgui.h"
+#include <imgui-slib-internal.h>
+#pragma hdrstop
 #include "imgui_impl_win32.h"
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <windows.h>
+//#ifndef WIN32_LEAN_AND_MEAN
+//#define WIN32_LEAN_AND_MEAN
+//#endif
+//#include <windows.h>
 #include <windowsx.h> // GET_X_LPARAM(), GET_Y_LPARAM()
-#include <tchar.h>
+//#include <tchar.h>
 #include <dwmapi.h>
 
 // Configuration flags to add in your imconfig.h file:
@@ -28,9 +29,9 @@
 
 // Using XInput for gamepad (will load DLL dynamically)
 #ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
-#include <xinput.h>
-typedef DWORD (WINAPI * PFN_XInputGetCapabilities)(DWORD, DWORD, XINPUT_CAPABILITIES*);
-typedef DWORD (WINAPI * PFN_XInputGetState)(DWORD, XINPUT_STATE*);
+	#include <xinput.h>
+	typedef DWORD (WINAPI * PFN_XInputGetCapabilities)(DWORD, DWORD, XINPUT_CAPABILITIES*);
+	typedef DWORD (WINAPI * PFN_XInputGetState)(DWORD, XINPUT_STATE*);
 #endif
 
 // CHANGELOG
@@ -91,7 +92,6 @@ struct ImGui_ImplWin32_Data {
 	INT64 Time;
 	INT64 TicksPerSecond;
 	ImGuiMouseCursor LastMouseCursor;
-
 #ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
 	bool HasGamepad;
 	bool WantUpdateHasGamepad;
@@ -99,8 +99,10 @@ struct ImGui_ImplWin32_Data {
 	PFN_XInputGetCapabilities XInputGetCapabilities;
 	PFN_XInputGetState XInputGetState;
 #endif
-
-	ImGui_ImplWin32_Data()      { memset((void*)this, 0, sizeof(*this)); }
+	ImGui_ImplWin32_Data()      
+	{ 
+		THISZERO();
+	}
 };
 
 // Backend data stored in io.BackendPlatformUserData to allow support for multiple Dear ImGui contexts
@@ -116,7 +118,7 @@ static ImGui_ImplWin32_Data* ImGui_ImplWin32_GetBackendData()
 bool    ImGui_ImplWin32_Init(void* hwnd)
 {
 	ImGuiIO& io = ImGui::GetIO();
-	IM_ASSERT(io.BackendPlatformUserData == nullptr && "Already initialized a platform backend!");
+	assert(io.BackendPlatformUserData == nullptr && "Already initialized a platform backend!");
 	INT64 perf_frequency, perf_counter;
 	if(!::QueryPerformanceFrequency((LARGE_INTEGER*)&perf_frequency))
 		return false;
@@ -159,7 +161,7 @@ bool    ImGui_ImplWin32_Init(void* hwnd)
 void    ImGui_ImplWin32_Shutdown()
 {
 	ImGui_ImplWin32_Data* bd = ImGui_ImplWin32_GetBackendData();
-	IM_ASSERT(bd != nullptr && "No platform backend to shutdown, or already shutdown?");
+	assert(bd != nullptr && "No platform backend to shutdown, or already shutdown?");
 	ImGuiIO& io = ImGui::GetIO();
 
 	// Unload XInput library
@@ -243,7 +245,7 @@ static void ImGui_ImplWin32_UpdateMouseData()
 {
 	ImGui_ImplWin32_Data* bd = ImGui_ImplWin32_GetBackendData();
 	ImGuiIO& io = ImGui::GetIO();
-	IM_ASSERT(bd->hWnd != 0);
+	assert(bd->hWnd != 0);
 
 	HWND focused_window = ::GetForegroundWindow();
 	const bool is_app_focused = (focused_window == bd->hWnd);
@@ -325,7 +327,7 @@ void    ImGui_ImplWin32_NewFrame()
 {
 	ImGuiIO& io = ImGui::GetIO();
 	ImGui_ImplWin32_Data* bd = ImGui_ImplWin32_GetBackendData();
-	IM_ASSERT(bd != nullptr && "Did you call ImGui_ImplWin32_Init()?");
+	assert(bd != nullptr && "Did you call ImGui_ImplWin32_Init()?");
 
 	// Setup display size (every frame to accommodate for window resizing)
 	RECT rect = { 0, 0, 0, 0 };
@@ -775,7 +777,7 @@ float ImGui_ImplWin32_GetDpiScaleForMonitor(void* monitor)
 			GetDpiForMonitorFn = (PFN_GetDpiForMonitor)::GetProcAddress(shcore_dll, "GetDpiForMonitor");
 		if(GetDpiForMonitorFn != nullptr) {
 			GetDpiForMonitorFn((HMONITOR)monitor, MDT_EFFECTIVE_DPI, &xdpi, &ydpi);
-			IM_ASSERT(xdpi == ydpi); // Please contact me if you hit this assert!
+			assert(xdpi == ydpi); // Please contact me if you hit this assert!
 			return xdpi / 96.0f;
 		}
 	}
@@ -783,7 +785,7 @@ float ImGui_ImplWin32_GetDpiScaleForMonitor(void* monitor)
 	const HDC dc = ::GetDC(nullptr);
 	xdpi = ::GetDeviceCaps(dc, LOGPIXELSX);
 	ydpi = ::GetDeviceCaps(dc, LOGPIXELSY);
-	IM_ASSERT(xdpi == ydpi); // Please contact me if you hit this assert!
+	assert(xdpi == ydpi); // Please contact me if you hit this assert!
 	::ReleaseDC(nullptr, dc);
 #endif
 	return xdpi / 96.0f;

@@ -39,11 +39,11 @@ static constexpr size_t kMaxLargeFlatLength = kMaxLargeFlatSize - kFlatOverhead;
 
 // kTagBase should make the Size <--> Tag computation resilient
 // against changes to the value of FLAT when we add a new tag..
-static constexpr uint8_t kTagBase = FLAT - 4;
+static constexpr uint8 kTagBase = FLAT - 4;
 
 // Converts the provided rounded size to the corresponding tag
-constexpr uint8_t AllocatedSizeToTagUnchecked(size_t size) {
-	return static_cast<uint8_t>(size <= 512 ? kTagBase + size / 8
+constexpr uint8 AllocatedSizeToTagUnchecked(size_t size) {
+	return static_cast<uint8>(size <= 512 ? kTagBase + size / 8
 	       : size <= 8192
 	       ? kTagBase + 512 / 8 + size / 64 - 512 / 64
 	       : kTagBase + 512 / 8 + ((8192 - 512) / 64) +
@@ -51,7 +51,7 @@ constexpr uint8_t AllocatedSizeToTagUnchecked(size_t size) {
 }
 
 // Converts the provided tag to the corresponding allocated size
-constexpr size_t TagToAllocatedSize(uint8_t tag) {
+constexpr size_t TagToAllocatedSize(uint8 tag) {
 	return (tag <= kTagBase + 512 / 8) ? tag * 8 - kTagBase * 8
 	       : (tag <= kTagBase + (512 / 8) + ((8192 - 512) / 64))
 	       ? 512 + tag * 64 - kTagBase * 64 - 512 / 8 * 64
@@ -82,15 +82,15 @@ inline size_t RoundUpForTag(size_t size) {
 // does not exactly match a 'tag expressible' size value. The result is
 // undefined if the size exceeds the maximum size that can be encoded in
 // a tag, i.e., if size is larger than TagToAllocatedSize(<max tag>).
-inline uint8_t AllocatedSizeToTag(size_t size) 
+inline uint8 AllocatedSizeToTag(size_t size) 
 {
-	const uint8_t tag = AllocatedSizeToTagUnchecked(size);
+	const uint8 tag = AllocatedSizeToTagUnchecked(size);
 	assert(tag <= MAX_FLAT_TAG);
 	return tag;
 }
 
 // Converts the provided tag to the corresponding available data length
-constexpr size_t TagToLength(uint8_t tag) { return TagToAllocatedSize(tag) - kFlatOverhead; }
+constexpr size_t TagToLength(uint8 tag) { return TagToAllocatedSize(tag) - kFlatOverhead; }
 
 // Enforce that kMaxFlatSize maps to a well-known exact tag value.
 static_assert(TagToAllocatedSize(MAX_FLAT_TAG) == kMaxLargeFlatSize, "Bad tag logic");

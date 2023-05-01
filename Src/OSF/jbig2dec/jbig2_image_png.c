@@ -61,7 +61,7 @@ static void jbig2_png_flush(png_structp png_ptr)
 
 int jbig2_image_write_png(Jbig2Image * image, FILE * out)
 {
-	uint32_t i;
+	uint32 i;
 	png_infop info;
 	png_bytep rowpointer;
 	png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);

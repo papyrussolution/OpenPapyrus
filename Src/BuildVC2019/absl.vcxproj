@@ -304,6 +304,7 @@
     <ClCompile Include="..\osf\abseil\absl\strings\internal\escaping-internal.cc" />
     <ClCompile Include="..\osf\abseil\absl\strings\internal\memutil.cc" />
     <ClCompile Include="..\osf\abseil\absl\strings\internal\ostringstream.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\internal\pow10_helper.cc" />
     <ClCompile Include="..\osf\abseil\absl\strings\internal\str_format\arg.cc" />
     <ClCompile Include="..\osf\abseil\absl\strings\internal\str_format\bind.cc" />
     <ClCompile Include="..\osf\abseil\absl\strings\internal\str_format\extension.cc" />

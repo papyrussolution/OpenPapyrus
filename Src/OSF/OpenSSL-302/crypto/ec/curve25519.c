@@ -39,7 +39,7 @@ extern "C" void x25519_fe64_sqr(fe64 h, const fe64 f);
 extern "C" void x25519_fe64_mul121666(fe64 h, fe64 f);
 extern "C" void x25519_fe64_add(fe64 h, const fe64 f, const fe64 g);
 extern "C" void x25519_fe64_sub(fe64 h, const fe64 f, const fe64 g);
-extern "C" void x25519_fe64_tobytes(uint8_t * s, const fe64 f);
+extern "C" void x25519_fe64_tobytes(uint8 * s, const fe64 f);
 #define fe64_mul x25519_fe64_mul
 #define fe64_sqr x25519_fe64_sqr
 #define fe64_mul121666 x25519_fe64_mul121666
@@ -47,7 +47,7 @@ extern "C" void x25519_fe64_tobytes(uint8_t * s, const fe64 f);
 #define fe64_sub x25519_fe64_sub
 #define fe64_tobytes x25519_fe64_tobytes
 
-static uint64_t load_8(const uint8_t * in)
+static uint64_t load_8(const uint8 * in)
 {
 	uint64_t result = in[0];
 	result |= ((uint64_t)in[1]) << 8;
@@ -60,7 +60,7 @@ static uint64_t load_8(const uint8_t * in)
 	return result;
 }
 
-static void fe64_frombytes(fe64 h, const uint8_t * s)
+static void fe64_frombytes(fe64 h, const uint8 * s)
 {
 	h[0] = load_8(s);
 	h[1] = load_8(s + 8);
@@ -200,11 +200,11 @@ static void fe64_invert(fe64 out, const fe64 z)
  * Duplicate of original x25519_scalar_mult_generic, but using
  * fe64_* subroutines.
  */
-static void x25519_scalar_mulx(uint8_t out[32], const uint8_t scalar[32],
-    const uint8_t point[32])
+static void x25519_scalar_mulx(uint8 out[32], const uint8 scalar[32],
+    const uint8 point[32])
 {
 	fe64 x1, x2, z2, x3, z3, tmp0, tmp1;
-	uint8_t e[32];
+	uint8 e[32];
 	unsigned swap = 0;
 	int pos;
 
@@ -271,7 +271,7 @@ typedef uint64_t fe51[5];
 
 static const uint64_t MASK51 = 0x7ffffffffffff;
 
-static uint64_t load_7(const uint8_t * in)
+static uint64_t load_7(const uint8 * in)
 {
 	uint64_t result = in[0];
 	result |= ((uint64_t)in[1]) << 8;
@@ -283,7 +283,7 @@ static uint64_t load_7(const uint8_t * in)
 	return result;
 }
 
-static uint64_t load_6(const uint8_t * in)
+static uint64_t load_6(const uint8 * in)
 {
 	uint64_t result = in[0];
 	result |= ((uint64_t)in[1]) << 8;
@@ -294,7 +294,7 @@ static uint64_t load_6(const uint8_t * in)
 	return result;
 }
 
-static void fe51_frombytes(fe51 h, const uint8_t * s)
+static void fe51_frombytes(fe51 h, const uint8 * s)
 {
 	uint64_t h0 = load_7(s);                            /* 56 bits */
 	uint64_t h1 = load_6(s + 7) << 5;                   /* 53 bits */
@@ -312,7 +312,7 @@ static void fe51_frombytes(fe51 h, const uint8_t * s)
 	h[4] = h4;
 }
 
-static void fe51_tobytes(uint8_t * s, const fe51 h)
+static void fe51_tobytes(uint8 * s, const fe51 h)
 {
 	uint64_t h0 = h[0];
 	uint64_t h1 = h[1];
@@ -336,38 +336,38 @@ static void fe51_tobytes(uint8_t * s, const fe51 h)
 	h4 &= MASK51;
 
 	/* smash */
-	s[0] = (uint8_t)(h0 >> 0);
-	s[1] = (uint8_t)(h0 >> 8);
-	s[2] = (uint8_t)(h0 >> 16);
-	s[3] = (uint8_t)(h0 >> 24);
-	s[4] = (uint8_t)(h0 >> 32);
-	s[5] = (uint8_t)(h0 >> 40);
-	s[6] = (uint8_t)((h0 >> 48) | ((uint32_t)h1 << 3));
-	s[7] = (uint8_t)(h1 >> 5);
-	s[8] = (uint8_t)(h1 >> 13);
-	s[9] = (uint8_t)(h1 >> 21);
-	s[10] = (uint8_t)(h1 >> 29);
-	s[11] = (uint8_t)(h1 >> 37);
-	s[12] = (uint8_t)((h1 >> 45) | ((uint32_t)h2 << 6));
-	s[13] = (uint8_t)(h2 >> 2);
-	s[14] = (uint8_t)(h2 >> 10);
-	s[15] = (uint8_t)(h2 >> 18);
-	s[16] = (uint8_t)(h2 >> 26);
-	s[17] = (uint8_t)(h2 >> 34);
-	s[18] = (uint8_t)(h2 >> 42);
-	s[19] = (uint8_t)((h2 >> 50) | ((uint32_t)h3 << 1));
-	s[20] = (uint8_t)(h3 >> 7);
-	s[21] = (uint8_t)(h3 >> 15);
-	s[22] = (uint8_t)(h3 >> 23);
-	s[23] = (uint8_t)(h3 >> 31);
-	s[24] = (uint8_t)(h3 >> 39);
-	s[25] = (uint8_t)((h3 >> 47) | ((uint32_t)h4 << 4));
-	s[26] = (uint8_t)(h4 >> 4);
-	s[27] = (uint8_t)(h4 >> 12);
-	s[28] = (uint8_t)(h4 >> 20);
-	s[29] = (uint8_t)(h4 >> 28);
-	s[30] = (uint8_t)(h4 >> 36);
-	s[31] = (uint8_t)(h4 >> 44);
+	s[0] = (uint8)(h0 >> 0);
+	s[1] = (uint8)(h0 >> 8);
+	s[2] = (uint8)(h0 >> 16);
+	s[3] = (uint8)(h0 >> 24);
+	s[4] = (uint8)(h0 >> 32);
+	s[5] = (uint8)(h0 >> 40);
+	s[6] = (uint8)((h0 >> 48) | ((uint32_t)h1 << 3));
+	s[7] = (uint8)(h1 >> 5);
+	s[8] = (uint8)(h1 >> 13);
+	s[9] = (uint8)(h1 >> 21);
+	s[10] = (uint8)(h1 >> 29);
+	s[11] = (uint8)(h1 >> 37);
+	s[12] = (uint8)((h1 >> 45) | ((uint32_t)h2 << 6));
+	s[13] = (uint8)(h2 >> 2);
+	s[14] = (uint8)(h2 >> 10);
+	s[15] = (uint8)(h2 >> 18);
+	s[16] = (uint8)(h2 >> 26);
+	s[17] = (uint8)(h2 >> 34);
+	s[18] = (uint8)(h2 >> 42);
+	s[19] = (uint8)((h2 >> 50) | ((uint32_t)h3 << 1));
+	s[20] = (uint8)(h3 >> 7);
+	s[21] = (uint8)(h3 >> 15);
+	s[22] = (uint8)(h3 >> 23);
+	s[23] = (uint8)(h3 >> 31);
+	s[24] = (uint8)(h3 >> 39);
+	s[25] = (uint8)((h3 >> 47) | ((uint32_t)h4 << 4));
+	s[26] = (uint8)(h4 >> 4);
+	s[27] = (uint8)(h4 >> 12);
+	s[28] = (uint8)(h4 >> 20);
+	s[29] = (uint8)(h4 >> 28);
+	s[30] = (uint8)(h4 >> 36);
+	s[31] = (uint8)(h4 >> 44);
 }
 
 #if defined(X25519_ASM)
@@ -677,11 +677,11 @@ static void fe51_invert(fe51 out, const fe51 z)
  * Duplicate of original x25519_scalar_mult_generic, but using
  * fe51_* subroutines.
  */
-static void x25519_scalar_mult(uint8_t out[32], const uint8_t scalar[32],
-    const uint8_t point[32])
+static void x25519_scalar_mult(uint8 out[32], const uint8 scalar[32],
+    const uint8 point[32])
 {
 	fe51 x1, x2, z2, x3, z3, tmp0, tmp1;
-	uint8_t e[32];
+	uint8 e[32];
 	unsigned swap = 0;
 	int pos;
 
@@ -761,7 +761,7 @@ static const int64_t kBottom26Bits = 0x3ffffffLL;
 static const int64_t kTop39Bits = 0xfffffffffe000000LL;
 static const int64_t kTop38Bits = 0xfffffffffc000000LL;
 
-static uint64_t load_3(const uint8_t * in)
+static uint64_t load_3(const uint8 * in)
 {
 	uint64_t result  = ((uint64_t)in[0]);
 	result |= ((uint64_t)in[1]) << 8;
@@ -769,7 +769,7 @@ static uint64_t load_3(const uint8_t * in)
 	return result;
 }
 
-static uint64_t load_4(const uint8_t * in)
+static uint64_t load_4(const uint8 * in)
 {
 	uint64_t result  = ((uint64_t)in[0]);
 	result |= ((uint64_t)in[1]) << 8;
@@ -778,7 +778,7 @@ static uint64_t load_4(const uint8_t * in)
 	return result;
 }
 
-static void fe_frombytes(fe h, const uint8_t * s)
+static void fe_frombytes(fe h, const uint8 * s)
 {
 	/* Ignores top bit of h. */
 	int64_t h0 =  load_4(s);
@@ -850,7 +850,7 @@ static void fe_frombytes(fe h, const uint8_t * s)
  *   Have q+2^(-255)x = 2^(-255)(h + 19 2^(-25) h9 + 2^(-1))
  *   so floor(2^(-255)(h + 19 2^(-25) h9 + 2^(-1))) = q.
  */
-static void fe_tobytes(uint8_t * s, const fe h)
+static void fe_tobytes(uint8 * s, const fe h)
 {
 	int32_t h0 = h[0];
 	int32_t h1 = h[1];
@@ -898,38 +898,38 @@ static void fe_tobytes(uint8_t * s, const fe h)
 	 * evidently 2^255 h10-2^255 q = 0.
 	 * Goal: Output h0+...+2^230 h9.
 	 */
-	s[ 0] = (uint8_t)(h0 >>  0);
-	s[ 1] = (uint8_t)(h0 >>  8);
-	s[ 2] = (uint8_t)(h0 >> 16);
-	s[ 3] = (uint8_t)((h0 >> 24) | ((uint32_t)(h1) << 2));
-	s[ 4] = (uint8_t)(h1 >>  6);
-	s[ 5] = (uint8_t)(h1 >> 14);
-	s[ 6] = (uint8_t)((h1 >> 22) | ((uint32_t)(h2) << 3));
-	s[ 7] = (uint8_t)(h2 >>  5);
-	s[ 8] = (uint8_t)(h2 >> 13);
-	s[ 9] = (uint8_t)((h2 >> 21) | ((uint32_t)(h3) << 5));
-	s[10] = (uint8_t)(h3 >>  3);
-	s[11] = (uint8_t)(h3 >> 11);
-	s[12] = (uint8_t)((h3 >> 19) | ((uint32_t)(h4) << 6));
-	s[13] = (uint8_t)(h4 >>  2);
-	s[14] = (uint8_t)(h4 >> 10);
-	s[15] = (uint8_t)(h4 >> 18);
-	s[16] = (uint8_t)(h5 >>  0);
-	s[17] = (uint8_t)(h5 >>  8);
-	s[18] = (uint8_t)(h5 >> 16);
-	s[19] = (uint8_t)((h5 >> 24) | ((uint32_t)(h6) << 1));
-	s[20] = (uint8_t)(h6 >>  7);
-	s[21] = (uint8_t)(h6 >> 15);
-	s[22] = (uint8_t)((h6 >> 23) | ((uint32_t)(h7) << 3));
-	s[23] = (uint8_t)(h7 >>  5);
-	s[24] = (uint8_t)(h7 >> 13);
-	s[25] = (uint8_t)((h7 >> 21) | ((uint32_t)(h8) << 4));
-	s[26] = (uint8_t)(h8 >>  4);
-	s[27] = (uint8_t)(h8 >> 12);
-	s[28] = (uint8_t)((h8 >> 20) | ((uint32_t)(h9) << 6));
-	s[29] = (uint8_t)(h9 >>  2);
-	s[30] = (uint8_t)(h9 >> 10);
-	s[31] = (uint8_t)(h9 >> 18);
+	s[ 0] = (uint8)(h0 >>  0);
+	s[ 1] = (uint8)(h0 >>  8);
+	s[ 2] = (uint8)(h0 >> 16);
+	s[ 3] = (uint8)((h0 >> 24) | ((uint32_t)(h1) << 2));
+	s[ 4] = (uint8)(h1 >>  6);
+	s[ 5] = (uint8)(h1 >> 14);
+	s[ 6] = (uint8)((h1 >> 22) | ((uint32_t)(h2) << 3));
+	s[ 7] = (uint8)(h2 >>  5);
+	s[ 8] = (uint8)(h2 >> 13);
+	s[ 9] = (uint8)((h2 >> 21) | ((uint32_t)(h3) << 5));
+	s[10] = (uint8)(h3 >>  3);
+	s[11] = (uint8)(h3 >> 11);
+	s[12] = (uint8)((h3 >> 19) | ((uint32_t)(h4) << 6));
+	s[13] = (uint8)(h4 >>  2);
+	s[14] = (uint8)(h4 >> 10);
+	s[15] = (uint8)(h4 >> 18);
+	s[16] = (uint8)(h5 >>  0);
+	s[17] = (uint8)(h5 >>  8);
+	s[18] = (uint8)(h5 >> 16);
+	s[19] = (uint8)((h5 >> 24) | ((uint32_t)(h6) << 1));
+	s[20] = (uint8)(h6 >>  7);
+	s[21] = (uint8)(h6 >> 15);
+	s[22] = (uint8)((h6 >> 23) | ((uint32_t)(h7) << 3));
+	s[23] = (uint8)(h7 >>  5);
+	s[24] = (uint8)(h7 >> 13);
+	s[25] = (uint8)((h7 >> 21) | ((uint32_t)(h8) << 4));
+	s[26] = (uint8)(h8 >>  4);
+	s[27] = (uint8)(h8 >> 12);
+	s[28] = (uint8)((h8 >> 20) | ((uint32_t)(h9) << 6));
+	s[29] = (uint8)(h9 >>  2);
+	s[30] = (uint8)(h9 >> 10);
+	s[31] = (uint8)(h9 >> 18);
 }
 
 /* h = f */
@@ -1525,8 +1525,8 @@ static void fe_cmov(fe f, const fe g, unsigned b)
  */
 static int fe_isnonzero(const fe f)
 {
-	uint8_t s[32];
-	static const uint8_t zero[32] = {0};
+	uint8 s[32];
+	static const uint8 zero[32] = {0};
 
 	fe_tobytes(s, f);
 
@@ -1542,7 +1542,7 @@ static int fe_isnonzero(const fe f)
  */
 static int fe_isnegative(const fe f)
 {
-	uint8_t s[32];
+	uint8 s[32];
 
 	fe_tobytes(s, f);
 	return s[0] & 1;
@@ -1808,7 +1808,7 @@ typedef struct {
 	fe T2d;
 } ge_cached;
 
-static void ge_tobytes(uint8_t * s, const ge_p2 * h)
+static void ge_tobytes(uint8 * s, const ge_p2 * h)
 {
 	fe recip;
 	fe x;
@@ -1821,7 +1821,7 @@ static void ge_tobytes(uint8_t * s, const ge_p2 * h)
 	s[31] ^= fe_isnegative(x) << 7;
 }
 
-static void ge_p3_tobytes(uint8_t * s, const ge_p3 * h)
+static void ge_p3_tobytes(uint8 * s, const ge_p3 * h)
 {
 	fe recip;
 	fe x;
@@ -1844,7 +1844,7 @@ static const fe sqrtm1 = {
 	-272473,   -25146209, -2005654, 326686,  11406482
 };
 
-static int ge_frombytes_vartime(ge_p3 * h, const uint8_t * s)
+static int ge_frombytes_vartime(ge_p3 * h, const uint8 * s)
 {
 	fe u;
 	fe v;
@@ -2043,18 +2043,18 @@ static void ge_sub(ge_p1p1 * r, const ge_p3 * p, const ge_cached * q)
 	fe_add(r->T, t0, r->T);
 }
 
-static uint8_t equal(signed char b, signed char c)
+static uint8 equal(signed char b, signed char c)
 {
-	uint8_t ub = b;
-	uint8_t uc = c;
-	uint8_t x = ub ^ uc; /* 0: yes; 1..255: no */
+	uint8 ub = b;
+	uint8 uc = c;
+	uint8 x = ub ^ uc; /* 0: yes; 1..255: no */
 	uint32_t y = x;  /* 0: yes; 1..255: no */
 	y -= 1;          /* 4294967295: yes; 0..254: no */
 	y >>= 31;        /* 1: yes; 0: no */
 	return y;
 }
 
-static void cmov(ge_precomp * t, const ge_precomp * u, uint8_t b)
+static void cmov(ge_precomp * t, const ge_precomp * u, uint8 b)
 {
 	fe_cmov(t->yplusx, u->yplusx, b);
 	fe_cmov(t->yminusx, u->yminusx, b);
@@ -4177,7 +4177,7 @@ static const ge_precomp k25519Precomp[32][8] = {
 	},
 };
 
-static uint8_t negative(signed char b)
+static uint8 negative(signed char b)
 {
 	uint32_t x = b;
 
@@ -4188,8 +4188,8 @@ static uint8_t negative(signed char b)
 static void table_select(ge_precomp * t, int pos, signed char b)
 {
 	ge_precomp minust;
-	uint8_t bnegative = negative(b);
-	uint8_t babs = b - ((uint8_t)((-bnegative) & b) << 1);
+	uint8 bnegative = negative(b);
+	uint8 babs = b - ((uint8)((-bnegative) & b) << 1);
 
 	ge_precomp_0(t);
 	cmov(t, &k25519Precomp[pos][0], equal(babs, 1));
@@ -4215,7 +4215,7 @@ static void table_select(ge_precomp * t, int pos, signed char b)
  * Preconditions:
  *   a[31] <= 127
  */
-static void ge_scalarmult_base(ge_p3 * h, const uint8_t * a)
+static void ge_scalarmult_base(ge_p3 * h, const uint8 * a)
 {
 	signed char e[64];
 	signed char carry;
@@ -4354,11 +4354,11 @@ static void fe_mul121666(fe h, fe f)
 	h[9] = (int32_t)h9;
 }
 
-static void x25519_scalar_mult_generic(uint8_t out[32],
-    const uint8_t scalar[32],
-    const uint8_t point[32]) {
+static void x25519_scalar_mult_generic(uint8 out[32],
+    const uint8 scalar[32],
+    const uint8 point[32]) {
 	fe x1, x2, z2, x3, z3, tmp0, tmp1;
-	uint8_t e[32];
+	uint8 e[32];
 	unsigned swap = 0;
 	int pos;
 
@@ -4405,14 +4405,14 @@ static void x25519_scalar_mult_generic(uint8_t out[32],
 	OPENSSL_cleanse(e, sizeof(e));
 }
 
-static void x25519_scalar_mult(uint8_t out[32], const uint8_t scalar[32],
-    const uint8_t point[32]) {
+static void x25519_scalar_mult(uint8 out[32], const uint8 scalar[32],
+    const uint8 point[32]) {
 	x25519_scalar_mult_generic(out, scalar, point);
 }
 
 #endif
 
-static void slide(signed char * r, const uint8_t * a)
+static void slide(signed char * r, const uint8 * a)
 {
 	int i;
 	int b;
@@ -4523,8 +4523,8 @@ static const ge_precomp Bi[8] = {
  * and b = b[0]+256*b[1]+...+256^31 b[31].
  * B is the Ed25519 base point (x,4/5) with x positive.
  */
-static void ge_double_scalarmult_vartime(ge_p2 * r, const uint8_t * a,
-    const ge_p3 * A, const uint8_t * b)
+static void ge_double_scalarmult_vartime(ge_p2 * r, const uint8 * a,
+    const ge_p3 * A, const uint8 * b)
 {
 	signed char aslide[256];
 	signed char bslide[256];
@@ -4607,7 +4607,7 @@ static void ge_double_scalarmult_vartime(ge_p2 * r, const uint8_t * a,
  *   where l = 2^252 + 27742317777372353535851937790883648493.
  *   Overwrites s in place.
  */
-static void x25519_sc_reduce(uint8_t * s)
+static void x25519_sc_reduce(uint8 * s)
 {
 	int64_t s0  = kBottom21Bits &  load_3(s);
 	int64_t s1  = kBottom21Bits & (load_4(s +  2) >> 5);
@@ -4907,38 +4907,38 @@ static void x25519_sc_reduce(uint8_t * s)
 	s11 += carry10;
 	s10 -= carry10 * (1 << 21);
 
-	s[ 0] = (uint8_t)(s0  >>  0);
-	s[ 1] = (uint8_t)(s0  >>  8);
-	s[ 2] = (uint8_t)((s0  >> 16) | (s1 <<  5));
-	s[ 3] = (uint8_t)(s1  >>  3);
-	s[ 4] = (uint8_t)(s1  >> 11);
-	s[ 5] = (uint8_t)((s1  >> 19) | (s2 <<  2));
-	s[ 6] = (uint8_t)(s2  >>  6);
-	s[ 7] = (uint8_t)((s2  >> 14) | (s3 <<  7));
-	s[ 8] = (uint8_t)(s3  >>  1);
-	s[ 9] = (uint8_t)(s3  >>  9);
-	s[10] = (uint8_t)((s3  >> 17) | (s4 <<  4));
-	s[11] = (uint8_t)(s4  >>  4);
-	s[12] = (uint8_t)(s4  >> 12);
-	s[13] = (uint8_t)((s4  >> 20) | (s5 <<  1));
-	s[14] = (uint8_t)(s5  >>  7);
-	s[15] = (uint8_t)((s5  >> 15) | (s6 <<  6));
-	s[16] = (uint8_t)(s6  >>  2);
-	s[17] = (uint8_t)(s6  >> 10);
-	s[18] = (uint8_t)((s6  >> 18) | (s7 <<  3));
-	s[19] = (uint8_t)(s7  >>  5);
-	s[20] = (uint8_t)(s7  >> 13);
-	s[21] = (uint8_t)(s8  >>  0);
-	s[22] = (uint8_t)(s8  >>  8);
-	s[23] = (uint8_t)((s8  >> 16) | (s9 <<  5));
-	s[24] = (uint8_t)(s9  >>  3);
-	s[25] = (uint8_t)(s9  >> 11);
-	s[26] = (uint8_t)((s9  >> 19) | (s10 <<  2));
-	s[27] = (uint8_t)(s10 >>  6);
-	s[28] = (uint8_t)((s10 >> 14) | (s11 <<  7));
-	s[29] = (uint8_t)(s11 >>  1);
-	s[30] = (uint8_t)(s11 >>  9);
-	s[31] = (uint8_t)(s11 >> 17);
+	s[ 0] = (uint8)(s0  >>  0);
+	s[ 1] = (uint8)(s0  >>  8);
+	s[ 2] = (uint8)((s0  >> 16) | (s1 <<  5));
+	s[ 3] = (uint8)(s1  >>  3);
+	s[ 4] = (uint8)(s1  >> 11);
+	s[ 5] = (uint8)((s1  >> 19) | (s2 <<  2));
+	s[ 6] = (uint8)(s2  >>  6);
+	s[ 7] = (uint8)((s2  >> 14) | (s3 <<  7));
+	s[ 8] = (uint8)(s3  >>  1);
+	s[ 9] = (uint8)(s3  >>  9);
+	s[10] = (uint8)((s3  >> 17) | (s4 <<  4));
+	s[11] = (uint8)(s4  >>  4);
+	s[12] = (uint8)(s4  >> 12);
+	s[13] = (uint8)((s4  >> 20) | (s5 <<  1));
+	s[14] = (uint8)(s5  >>  7);
+	s[15] = (uint8)((s5  >> 15) | (s6 <<  6));
+	s[16] = (uint8)(s6  >>  2);
+	s[17] = (uint8)(s6  >> 10);
+	s[18] = (uint8)((s6  >> 18) | (s7 <<  3));
+	s[19] = (uint8)(s7  >>  5);
+	s[20] = (uint8)(s7  >> 13);
+	s[21] = (uint8)(s8  >>  0);
+	s[22] = (uint8)(s8  >>  8);
+	s[23] = (uint8)((s8  >> 16) | (s9 <<  5));
+	s[24] = (uint8)(s9  >>  3);
+	s[25] = (uint8)(s9  >> 11);
+	s[26] = (uint8)((s9  >> 19) | (s10 <<  2));
+	s[27] = (uint8)(s10 >>  6);
+	s[28] = (uint8)((s10 >> 14) | (s11 <<  7));
+	s[29] = (uint8)(s11 >>  1);
+	s[30] = (uint8)(s11 >>  9);
+	s[31] = (uint8)(s11 >> 17);
 }
 
 /*
@@ -4951,7 +4951,7 @@ static void x25519_sc_reduce(uint8_t * s)
  *   s[0]+256*s[1]+...+256^31*s[31] = (ab+c) mod l
  *   where l = 2^252 + 27742317777372353535851937790883648493.
  */
-static void sc_muladd(uint8_t * s, const uint8_t * a, const uint8_t * b, const uint8_t * c)
+static void sc_muladd(uint8 * s, const uint8 * a, const uint8 * b, const uint8 * c)
 {
 	int64_t a0  = kBottom21Bits &  load_3(a);
 	int64_t a1  = kBottom21Bits & (load_4(a +  2) >> 5);
@@ -5394,46 +5394,46 @@ static void sc_muladd(uint8_t * s, const uint8_t * a, const uint8_t * b, const u
 	s11 += carry10;
 	s10 -= carry10 * (1 << 21);
 
-	s[ 0] = (uint8_t)(s0  >>  0);
-	s[ 1] = (uint8_t)(s0  >>  8);
-	s[ 2] = (uint8_t)((s0  >> 16) | (s1 << 5));
-	s[ 3] = (uint8_t)(s1  >>  3);
-	s[ 4] = (uint8_t)(s1  >> 11);
-	s[ 5] = (uint8_t)((s1  >> 19) | (s2 << 2));
-	s[ 6] = (uint8_t)(s2  >>  6);
-	s[ 7] = (uint8_t)((s2  >> 14) | (s3 << 7));
-	s[ 8] = (uint8_t)(s3  >>  1);
-	s[ 9] = (uint8_t)(s3  >>  9);
-	s[10] = (uint8_t)((s3  >> 17) | (s4 << 4));
-	s[11] = (uint8_t)(s4  >>  4);
-	s[12] = (uint8_t)(s4  >> 12);
-	s[13] = (uint8_t)((s4  >> 20) | (s5 << 1));
-	s[14] = (uint8_t)(s5  >>  7);
-	s[15] = (uint8_t)((s5  >> 15) | (s6 << 6));
-	s[16] = (uint8_t)(s6  >>  2);
-	s[17] = (uint8_t)(s6  >> 10);
-	s[18] = (uint8_t)((s6  >> 18) | (s7 << 3));
-	s[19] = (uint8_t)(s7  >>  5);
-	s[20] = (uint8_t)(s7  >> 13);
-	s[21] = (uint8_t)(s8  >>  0);
-	s[22] = (uint8_t)(s8  >>  8);
-	s[23] = (uint8_t)((s8  >> 16) | (s9 << 5));
-	s[24] = (uint8_t)(s9  >>  3);
-	s[25] = (uint8_t)(s9  >> 11);
-	s[26] = (uint8_t)((s9  >> 19) | (s10 << 2));
-	s[27] = (uint8_t)(s10 >>  6);
-	s[28] = (uint8_t)((s10 >> 14) | (s11 << 7));
-	s[29] = (uint8_t)(s11 >>  1);
-	s[30] = (uint8_t)(s11 >>  9);
-	s[31] = (uint8_t)(s11 >> 17);
+	s[ 0] = (uint8)(s0  >>  0);
+	s[ 1] = (uint8)(s0  >>  8);
+	s[ 2] = (uint8)((s0  >> 16) | (s1 << 5));
+	s[ 3] = (uint8)(s1  >>  3);
+	s[ 4] = (uint8)(s1  >> 11);
+	s[ 5] = (uint8)((s1  >> 19) | (s2 << 2));
+	s[ 6] = (uint8)(s2  >>  6);
+	s[ 7] = (uint8)((s2  >> 14) | (s3 << 7));
+	s[ 8] = (uint8)(s3  >>  1);
+	s[ 9] = (uint8)(s3  >>  9);
+	s[10] = (uint8)((s3  >> 17) | (s4 << 4));
+	s[11] = (uint8)(s4  >>  4);
+	s[12] = (uint8)(s4  >> 12);
+	s[13] = (uint8)((s4  >> 20) | (s5 << 1));
+	s[14] = (uint8)(s5  >>  7);
+	s[15] = (uint8)((s5  >> 15) | (s6 << 6));
+	s[16] = (uint8)(s6  >>  2);
+	s[17] = (uint8)(s6  >> 10);
+	s[18] = (uint8)((s6  >> 18) | (s7 << 3));
+	s[19] = (uint8)(s7  >>  5);
+	s[20] = (uint8)(s7  >> 13);
+	s[21] = (uint8)(s8  >>  0);
+	s[22] = (uint8)(s8  >>  8);
+	s[23] = (uint8)((s8  >> 16) | (s9 << 5));
+	s[24] = (uint8)(s9  >>  3);
+	s[25] = (uint8)(s9  >> 11);
+	s[26] = (uint8)((s9  >> 19) | (s10 << 2));
+	s[27] = (uint8)(s10 >>  6);
+	s[28] = (uint8)((s10 >> 14) | (s11 << 7));
+	s[29] = (uint8)(s11 >>  1);
+	s[30] = (uint8)(s11 >>  9);
+	s[31] = (uint8)(s11 >> 17);
 }
 
-int ossl_ed25519_sign(uint8_t * out_sig, const uint8_t * message, size_t message_len, const uint8_t public_key[32], const uint8_t private_key[32], OSSL_LIB_CTX * libctx, const char * propq)
+int ossl_ed25519_sign(uint8 * out_sig, const uint8 * message, size_t message_len, const uint8 public_key[32], const uint8 private_key[32], OSSL_LIB_CTX * libctx, const char * propq)
 {
-	uint8_t az[SHA512_DIGEST_LENGTH];
-	uint8_t nonce[SHA512_DIGEST_LENGTH];
+	uint8 az[SHA512_DIGEST_LENGTH];
+	uint8 nonce[SHA512_DIGEST_LENGTH];
 	ge_p3 R;
-	uint8_t hram[SHA512_DIGEST_LENGTH];
+	uint8 hram[SHA512_DIGEST_LENGTH];
 	EVP_MD * sha512 = EVP_MD_fetch(libctx, SN_sha512, propq);
 	EVP_MD_CTX * hash_ctx = EVP_MD_CTX_new();
 	unsigned int sz;
@@ -5470,7 +5470,7 @@ err:
 
 static const char allzeroes[15];
 
-int ossl_ed25519_verify(const uint8_t * message, size_t message_len, const uint8_t signature[64], const uint8_t public_key[32], OSSL_LIB_CTX * libctx, const char * propq)
+int ossl_ed25519_verify(const uint8 * message, size_t message_len, const uint8 signature[64], const uint8 public_key[32], OSSL_LIB_CTX * libctx, const char * propq)
 {
 	int i;
 	ge_p3 A;
@@ -5479,15 +5479,15 @@ int ossl_ed25519_verify(const uint8_t * message, size_t message_len, const uint8
 	unsigned int sz;
 	int res = 0;
 	ge_p2 R;
-	uint8_t rcheck[32];
-	uint8_t h[SHA512_DIGEST_LENGTH];
+	uint8 rcheck[32];
+	uint8 h[SHA512_DIGEST_LENGTH];
 	/* 27742317777372353535851937790883648493 in little endian format */
-	const uint8_t l_low[16] = {
+	const uint8 l_low[16] = {
 		0xED, 0xD3, 0xF5, 0x5C, 0x1A, 0x63, 0x12, 0x58, 0xD6, 0x9C, 0xF7, 0xA2,
 		0xDE, 0xF9, 0xDE, 0x14
 	};
-	const uint8_t * r = signature;
-	const uint8_t * s = signature + 32;
+	const uint8 * r = signature;
+	const uint8 * s = signature + 32;
 	/*
 	 * Check 0 <= s < L where L = 2^252 + 27742317777372353535851937790883648493
 	 *
@@ -5543,9 +5543,9 @@ err:
 	return res;
 }
 
-int ossl_ed25519_public_from_private(OSSL_LIB_CTX * ctx, uint8_t out_public_key[32], const uint8_t private_key[32], const char * propq)
+int ossl_ed25519_public_from_private(OSSL_LIB_CTX * ctx, uint8 out_public_key[32], const uint8 private_key[32], const char * propq)
 {
-	uint8_t az[SHA512_DIGEST_LENGTH];
+	uint8 az[SHA512_DIGEST_LENGTH];
 	ge_p3 A;
 	int r;
 	EVP_MD * sha512 = EVP_MD_fetch(ctx, SN_sha512, propq);
@@ -5566,17 +5566,17 @@ int ossl_ed25519_public_from_private(OSSL_LIB_CTX * ctx, uint8_t out_public_key[
 	return 1;
 }
 
-int ossl_x25519(uint8_t out_shared_key[32], const uint8_t private_key[32], const uint8_t peer_public_value[32])
+int ossl_x25519(uint8 out_shared_key[32], const uint8 private_key[32], const uint8 peer_public_value[32])
 {
-	static const uint8_t kZeros[32] = {0};
+	static const uint8 kZeros[32] = {0};
 	x25519_scalar_mult(out_shared_key, private_key, peer_public_value);
 	/* The all-zero output results when the input is a point of small order. */
 	return CRYPTO_memcmp(kZeros, out_shared_key, 32) != 0;
 }
 
-void ossl_x25519_public_from_private(uint8_t out_public_value[32], const uint8_t private_key[32])
+void ossl_x25519_public_from_private(uint8 out_public_value[32], const uint8 private_key[32])
 {
-	uint8_t e[32];
+	uint8 e[32];
 	ge_p3 A;
 	fe zplusy, zminusy, zminusy_inv;
 	memcpy(e, private_key, 32);

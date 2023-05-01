@@ -1049,7 +1049,7 @@ static bool ma_set_connect_attrs(MYSQL * mysql, const char * host)
 */
 
 MYSQL * STDCALL mysql_real_connect(MYSQL * mysql, const char * host, const char * user, const char * passwd, const char * db,
-    uint port, const char * unix_socket, unsigned long client_flag)
+    uint port, const char * unix_socket, ulong client_flag)
 {
 	char * end = NULL;
 	char * connection_handler = (mysql->options.extension) ? mysql->options.extension->connection_handler : 0;
@@ -1117,7 +1117,7 @@ MYSQL * STDCALL mysql_real_connect(MYSQL * mysql, const char * host, const char 
 }
 
 MYSQL * mthd_my_real_connect(MYSQL * mysql, const char * host, const char * user,
-    const char * passwd, const char * db, uint port, const char * unix_socket, unsigned long client_flag)
+    const char * passwd, const char * db, uint port, const char * unix_socket, ulong client_flag)
 {
 	char   buff[NAME_LEN+USERNAME_LENGTH+100];
 	char * end, * end_pkt, * host_info;
@@ -1752,7 +1752,7 @@ int STDCALL mysql_query(MYSQL * mysql, const char * query)
    finish processing it.
  */
 
-int STDCALL mysql_send_query(MYSQL* mysql, const char * query, unsigned long length)
+int STDCALL mysql_send_query(MYSQL* mysql, const char * query, ulong length)
 {
 	return ma_simple_command(mysql, COM_QUERY, query, length, 1, 0);
 }
@@ -1970,7 +1970,7 @@ bool STDCALL mysql_read_query_result(MYSQL * mysql)
 	return test(mysql->methods->db_read_query_result(mysql)) ? 1 : 0;
 }
 
-int STDCALL mysql_real_query(MYSQL * mysql, const char * query, unsigned long length)
+int STDCALL mysql_real_query(MYSQL * mysql, const char * query, ulong length)
 {
 	bool skip_result = OPT_EXT_VAL(mysql, multi_command);
 	if(length == (ulong)-1)
@@ -2373,7 +2373,7 @@ static size_t mariadb_server_version_id(MYSQL * mysql)
 	return (major * 10000L + (ulong)(minor * 100L + patch));
 }
 
-unsigned long STDCALL mysql_get_server_version(MYSQL * mysql)
+ulong STDCALL mysql_get_server_version(MYSQL * mysql)
 {
 	return (ulong)mariadb_server_version_id(mysql);
 }
@@ -3364,7 +3364,7 @@ ulong STDCALL mysql_get_client_version(void)
 	return MARIADB_VERSION_ID;
 }
 
-ulong STDCALL mysql_hex_string(char * to, const char * from, unsigned long len)
+ulong STDCALL mysql_hex_string(char * to, const char * from, ulong len)
 {
 	char * start = to;
 	char hexdigits[] = "0123456789ABCDEF";

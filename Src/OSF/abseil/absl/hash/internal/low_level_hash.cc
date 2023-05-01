@@ -27,7 +27,7 @@ static uint64_t Mix(uint64_t v0, uint64_t v1) {
 
 uint64_t LowLevelHash(const void* data, size_t len, uint64_t seed,
     const uint64_t salt[]) {
-	const uint8_t* ptr = static_cast<const uint8_t*>(data);
+	const uint8* ptr = static_cast<const uint8*>(data);
 	uint64_t starting_length = static_cast<uint64_t>(len);
 	uint64_t current_state = seed ^ salt[0];
 

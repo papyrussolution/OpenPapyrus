@@ -42,13 +42,13 @@ struct lzma_file_info_coder {
 	lzma_stream_flags footer_flags; /// Stream Flags from Stream Footer of the current Stream.
 	size_t temp_pos;
 	size_t temp_size;
-	uint8_t temp[8192];
+	uint8 temp[8192];
 };
 
 /// Copies data from in[*in_pos] into coder->temp until
 /// coder->temp_pos == coder->temp_size. This also keeps coder->file_cur_pos
 /// in sync with *in_pos. Returns true if more input is needed.
-static bool fill_temp(lzma_file_info_coder * coder, const uint8_t * in, size_t * in_pos, size_t in_size)
+static bool fill_temp(lzma_file_info_coder * coder, const uint8 * in, size_t * in_pos, size_t in_size)
 {
 	coder->file_cur_pos += lzma_bufcpy(in, in_pos, in_size, coder->temp, &coder->temp_pos, coder->temp_size);
 	return coder->temp_pos < coder->temp_size;
@@ -141,7 +141,7 @@ static lzma_ret reverse_seek(lzma_file_info_coder * coder, size_t in_start, size
 }
 
 /// Gets the number of zero-bytes at the end of the buffer.
-static size_t get_padding_size(const uint8_t * buf, size_t buf_size)
+static size_t get_padding_size(const uint8 * buf, size_t buf_size)
 {
 	size_t padding = 0;
 	while(buf_size > 0 && buf[--buf_size] == 0x00)
@@ -166,7 +166,7 @@ static lzma_ret hide_format_error(lzma_ret ret)
 /// This is a separate function because the input can be either directly
 /// from the application or from coder->temp.
 static lzma_ret decode_index(lzma_file_info_coder * coder, const lzma_allocator * allocator,
-    const uint8_t * in, size_t * in_pos, size_t in_size, bool update_file_cur_pos)
+    const uint8 * in, size_t * in_pos, size_t in_size, bool update_file_cur_pos)
 {
 	const size_t in_start = *in_pos;
 	const lzma_ret ret = coder->index_decoder.code(coder->index_decoder.coder, allocator, in, in_pos, in_size, NULL, NULL, 0, LZMA_RUN);
@@ -177,9 +177,9 @@ static lzma_ret decode_index(lzma_file_info_coder * coder, const lzma_allocator 
 }
 
 static lzma_ret file_info_decode(void * coder_ptr, const lzma_allocator * allocator,
-    const uint8_t * in, size_t * in_pos,
+    const uint8 * in, size_t * in_pos,
     size_t in_size,
-    uint8_t * out lzma_attribute((__unused__)),
+    uint8 * out lzma_attribute((__unused__)),
     size_t * out_pos lzma_attribute((__unused__)),
     size_t out_size lzma_attribute((__unused__)),
     lzma_action action lzma_attribute((__unused__)))

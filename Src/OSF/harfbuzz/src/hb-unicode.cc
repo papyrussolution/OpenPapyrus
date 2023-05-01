@@ -300,7 +300,7 @@ uint hb_unicode_decompose_compatibility(hb_unicode_funcs_t * ufuncs, hb_codepoin
 
 #ifndef HB_NO_OT_SHAPE
 /* See hb-unicode.hh for details. */
-const uint8_t _hb_modified_combining_class[256] = {
+const uint8 _hb_modified_combining_class[256] = {
 	0, /* HB_UNICODE_COMBINING_CLASS_NOT_REORDERED */
 	1, /* HB_UNICODE_COMBINING_CLASS_OVERLAY */
 	2, 3, 4, 5, 6,

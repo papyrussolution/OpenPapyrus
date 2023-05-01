@@ -207,7 +207,7 @@ static int next_sgilog16(fz_context * ctx, fz_stream * stm, size_t max)
 	fz_sgilog16 * state = (fz_sgilog16 *)stm->state;
 	uint16_t * p;
 	uint16_t * ep;
-	uint8_t * q;
+	uint8 * q;
 	int shift;
 	(void)max;
 	if(state->run < 0)
@@ -256,13 +256,13 @@ static int next_sgilog16(fz_context * ctx, fz_stream * stm, size_t max)
 	}
 
 	p = state->temp;
-	q = (uint8_t*)p;
+	q = (uint8*)p;
 	ep = p + state->w;
 	while(p < ep) {
 		*q++ = sgilog16val(ctx, *p++);
 	}
 
-	stm->rp = (uint8_t*)(state->temp);
+	stm->rp = (uint8*)(state->temp);
 	stm->wp = q;
 	stm->pos += q - stm->rp;
 
@@ -308,7 +308,7 @@ fz_stream * fz_open_sgilog16(fz_context * ctx, fz_stream * chain, int w)
 typedef struct {
 	fz_stream * chain;
 	int err, w;
-	uint8_t * temp;
+	uint8 * temp;
 } fz_sgilog24;
 
 static int uv_decode(float * up, float * vp, int c)  /* decode (u',v') index */
@@ -338,7 +338,7 @@ static int uv_decode(float * up, float * vp, int c)  /* decode (u',v') index */
 	return (0);
 }
 
-static inline int sgilog24val(fz_context * ctx, fz_stream * chain, uint8_t * rgb)
+static inline int sgilog24val(fz_context * ctx, fz_stream * chain, uint8 * rgb)
 {
 	int b0, b1, b2;
 	int luv, p;
@@ -383,9 +383,9 @@ static inline int sgilog24val(fz_context * ctx, fz_stream * chain, uint8_t * rgb
 
 	/* assume 2.0 gamma for speed */
 	/* could use integer sqrt approx., but this is probably faster */
-	rgb[0] = (uint8_t)((r<=0) ? 0 : (r >= 1) ? 255 : (int)(256*sqrtf(r)));
-	rgb[1] = (uint8_t)((g<=0) ? 0 : (g >= 1) ? 255 : (int)(256*sqrtf(g)));
-	rgb[2] = (uint8_t)((b<=0) ? 0 : (b >= 1) ? 255 : (int)(256*sqrtf(b)));
+	rgb[0] = (uint8)((r<=0) ? 0 : (r >= 1) ? 255 : (int)(256*sqrtf(r)));
+	rgb[1] = (uint8)((g<=0) ? 0 : (g >= 1) ? 255 : (int)(256*sqrtf(g)));
+	rgb[2] = (uint8)((b<=0) ? 0 : (b >= 1) ? 255 : (int)(256*sqrtf(b)));
 
 	return 0;
 }
@@ -393,8 +393,8 @@ static inline int sgilog24val(fz_context * ctx, fz_stream * chain, uint8_t * rgb
 static int next_sgilog24(fz_context * ctx, fz_stream * stm, size_t max)
 {
 	fz_sgilog24 * state = (fz_sgilog24 *)stm->state;
-	uint8_t * p;
-	uint8_t * ep;
+	uint8 * p;
+	uint8 * ep;
 	(void)max;
 	if(state->err)
 		return EOF;
@@ -435,7 +435,7 @@ fz_stream * fz_open_sgilog24(fz_context * ctx, fz_stream * chain, int w)
 	{
 		state->err = 0;
 		state->w = w;
-		state->temp = (uint8_t *)Memento_label(fz_malloc(ctx, w * 3), "sgilog24_temp");
+		state->temp = (uint8 *)Memento_label(fz_malloc(ctx, w * 3), "sgilog24_temp");
 		state->chain = fz_keep_stream(ctx, chain);
 	}
 	fz_catch(ctx)
@@ -455,7 +455,7 @@ typedef struct {
 	uint32_t * temp;
 } fz_sgilog32;
 
-static inline void sgilog32val(fz_context * ctx, uint32_t p, uint8_t * rgb)
+static inline void sgilog32val(fz_context * ctx, uint32_t p, uint8 * rgb)
 {
 	float r, g, b;
 	float u, v, s, x, y;
@@ -485,9 +485,9 @@ static inline void sgilog32val(fz_context * ctx, uint32_t p, uint8_t * rgb)
 
 	/* assume 2.0 gamma for speed */
 	/* could use integer sqrt approx., but this is probably faster */
-	rgb[0] = (uint8_t)((r<=0) ? 0 : (r >= 1) ? 255 : (int)(256*sqrtf(r)));
-	rgb[1] = (uint8_t)((g<=0) ? 0 : (g >= 1) ? 255 : (int)(256*sqrtf(g)));
-	rgb[2] = (uint8_t)((b<=0) ? 0 : (b >= 1) ? 255 : (int)(256*sqrtf(b)));
+	rgb[0] = (uint8)((r<=0) ? 0 : (r >= 1) ? 255 : (int)(256*sqrtf(r)));
+	rgb[1] = (uint8)((g<=0) ? 0 : (g >= 1) ? 255 : (int)(256*sqrtf(g)));
+	rgb[2] = (uint8)((b<=0) ? 0 : (b >= 1) ? 255 : (int)(256*sqrtf(b)));
 }
 
 static int next_sgilog32(fz_context * ctx, fz_stream * stm, size_t max)
@@ -495,7 +495,7 @@ static int next_sgilog32(fz_context * ctx, fz_stream * stm, size_t max)
 	fz_sgilog32 * state = (fz_sgilog32 *)stm->state;
 	uint32_t * p;
 	uint32_t * ep;
-	uint8_t * q;
+	uint8 * q;
 	int shift;
 	(void)max;
 	if(state->run < 0)
@@ -542,13 +542,13 @@ static int next_sgilog32(fz_context * ctx, fz_stream * stm, size_t max)
 		}
 	}
 	p = state->temp;
-	q = (uint8_t*)p;
+	q = (uint8*)p;
 	ep = p + state->w;
 	while(p < ep) {
 		sgilog32val(ctx, *p++, q);
 		q += 3;
 	}
-	stm->rp = (uint8_t*)(state->temp);
+	stm->rp = (uint8*)(state->temp);
 	stm->wp = q;
 	stm->pos += q - stm->rp;
 	if(q == stm->rp)

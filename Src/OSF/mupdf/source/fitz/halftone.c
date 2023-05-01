@@ -514,7 +514,6 @@ fz_bitmap * fz_new_bitmap_from_pixmap(fz_context * ctx, fz_pixmap * pix, fz_half
 static int gcd(int u, int v)
 {
 	int r;
-
 	do {
 		if(v == 0)
 			return u;
@@ -530,22 +529,17 @@ fz_bitmap * fz_new_bitmap_from_pixmap_band(fz_context * ctx, fz_pixmap * pix, fz
 	fz_bitmap * out = NULL;
 	uchar * ht_line = NULL;
 	uchar * o, * p;
-	int w, h, x, y, n, pstride, ostride, lcm, i;
+	int w, h, x, y, n, pstride, ostride;
+	int lcm, i;
 	fz_halftone * ht_ = NULL;
 	threshold_fn * thresh;
-
 	fz_var(ht_line);
-
 	if(!pix)
 		return NULL;
-
 	if(pix->alpha != 0)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "pixmap may not have alpha channel to convert to bitmap");
-
 	n = pix->n;
-
-	switch(n)
-	{
+	switch(n) {
 		case 1:
 		    thresh = do_threshold_1;
 		    break;
@@ -556,10 +550,8 @@ fz_bitmap * fz_new_bitmap_from_pixmap_band(fz_context * ctx, fz_pixmap * pix, fz
 		    fz_throw(ctx, FZ_ERROR_GENERIC, "pixmap must be grayscale or CMYK to convert to bitmap");
 		    return NULL;
 	}
-
 	if(ht == NULL)
 		ht_ = ht = fz_default_halftone(ctx, n);
-
 	/* Find the minimum length for the halftone line. This
 	 * is the LCM of the halftone lengths and 8. (We need a
 	 * multiple of 8 for the unrolled threshold routines - if
@@ -572,7 +564,6 @@ fz_bitmap * fz_new_bitmap_from_pixmap_band(fz_context * ctx, fz_pixmap * pix, fz
 		w = ht->comp[i]->w;
 		lcm = lcm / gcd(lcm, w) * w;
 	}
-
 	fz_try(ctx)
 	{
 		ht_line = (uchar*)fz_malloc(ctx, lcm * n);

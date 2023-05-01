@@ -40,32 +40,19 @@ typedef struct IsoCodeEntry {
 static const int32_t LAST_RESORT_DATA[] = { 2, 0, 2, 0 };
 
 // POW10[i] = 10^i, i=0..MAX_POW10
-static const int32_t POW10[] = { 1, 10, 100, 1000, 10000, 100000,
-				 1000000, 10000000, 100000000, 1000000000 };
-
+static const int32_t POW10[] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000 };
 static const int32_t MAX_POW10 = SIZEOFARRAYi(POW10) - 1;
 
 #define ISO_CURRENCY_CODE_LENGTH 3
-
-//------------------------------------------------------------
+//
 // Resource tags
 //
-
 static const char CURRENCY_DATA[] = "supplementalData";
-// Tag for meta-data, in root.
-static const char CURRENCY_META[] = "CurrencyMeta";
-
-// Tag for map from countries to currencies, in root.
-static const char CURRENCY_MAP[] = "CurrencyMap";
-
-// Tag for default meta-data, in CURRENCY_META
-static const char DEFAULT_META[] = "DEFAULT";
-
-// Variant delimiter
-static const char VAR_DELIM = '_';
-
-// Tag for localized display names (symbols) of currencies
-static const char CURRENCIES[] = "Currencies";
+static const char CURRENCY_META[] = "CurrencyMeta"; // Tag for meta-data, in root.
+static const char CURRENCY_MAP[] = "CurrencyMap"; // Tag for map from countries to currencies, in root.
+static const char DEFAULT_META[] = "DEFAULT"; // Tag for default meta-data, in CURRENCY_META
+static const char VAR_DELIM = '_'; // Variant delimiter
+static const char CURRENCIES[] = "Currencies"; // Tag for localized display names (symbols) of currencies
 static const char CURRENCIES_NARROW[] = "Currencies%narrow";
 static const char CURRENCIES_FORMAL[] = "Currencies%formal";
 static const char CURRENCIES_VARIANT[] = "Currencies%variant";
@@ -1543,14 +1530,11 @@ void uprv_currencyLeads(const char * locale, icu::UnicodeSet & result, UErrorCod
  * This is used for backward compatibility with old currency logic in
  * DecimalFormat and DecimalFormatSymbols.
  */
-U_CAPI void uprv_getStaticCurrencyName(const UChar * iso, const char * loc,
-    icu::UnicodeString & result, UErrorCode & ec)
+U_CAPI void uprv_getStaticCurrencyName(const UChar * iso, const char * loc, icu::UnicodeString & result, UErrorCode & ec)
 {
 	U_NAMESPACE_USE
-
 	int32_t len;
-	const UChar * currname = ucurr_getName(iso, loc, UCURR_SYMBOL_NAME,
-		nullptr /* isChoiceFormat */, &len, &ec);
+	const UChar * currname = ucurr_getName(iso, loc, UCURR_SYMBOL_NAME, nullptr /* isChoiceFormat */, &len, &ec);
 	if(U_SUCCESS(ec)) {
 		result.setTo(currname, len);
 	}
@@ -1560,18 +1544,14 @@ U_CAPI int32_t U_EXPORT2 ucurr_getDefaultFractionDigits(const UChar * currency, 
 	return ucurr_getDefaultFractionDigitsForUsage(currency, UCURR_USAGE_STANDARD, ec);
 }
 
-U_CAPI int32_t U_EXPORT2 ucurr_getDefaultFractionDigitsForUsage(const UChar * currency, const UCurrencyUsage usage, UErrorCode * ec) {
+U_CAPI int32_t U_EXPORT2 ucurr_getDefaultFractionDigitsForUsage(const UChar * currency, const UCurrencyUsage usage, UErrorCode * ec) 
+{
 	int32_t fracDigits = 0;
 	if(U_SUCCESS(*ec)) {
 		switch(usage) {
-			case UCURR_USAGE_STANDARD:
-			    fracDigits = (_findMetaData(currency, *ec))[0];
-			    break;
-			case UCURR_USAGE_CASH:
-			    fracDigits = (_findMetaData(currency, *ec))[2];
-			    break;
-			default:
-			    *ec = U_UNSUPPORTED_ERROR;
+			case UCURR_USAGE_STANDARD: fracDigits = (_findMetaData(currency, *ec))[0]; break;
+			case UCURR_USAGE_CASH: fracDigits = (_findMetaData(currency, *ec))[2]; break;
+			default: *ec = U_UNSUPPORTED_ERROR;
 		}
 	}
 	return fracDigits;
@@ -1581,9 +1561,9 @@ U_CAPI double U_EXPORT2 ucurr_getRoundingIncrement(const UChar * currency, UErro
 	return ucurr_getRoundingIncrementForUsage(currency, UCURR_USAGE_STANDARD, ec);
 }
 
-U_CAPI double U_EXPORT2 ucurr_getRoundingIncrementForUsage(const UChar * currency, const UCurrencyUsage usage, UErrorCode * ec) {
+U_CAPI double U_EXPORT2 ucurr_getRoundingIncrementForUsage(const UChar * currency, const UCurrencyUsage usage, UErrorCode * ec) 
+{
 	double result = 0.0;
-
 	const int32_t * data = _findMetaData(currency, *ec);
 	if(U_SUCCESS(*ec)) {
 		int32_t fracDigits;
@@ -1601,7 +1581,6 @@ U_CAPI double U_EXPORT2 ucurr_getRoundingIncrementForUsage(const UChar * currenc
 			    *ec = U_UNSUPPORTED_ERROR;
 			    return result;
 		}
-
 		// If the meta data is invalid, return 0.0
 		if(fracDigits < 0 || fracDigits > MAX_POW10) {
 			*ec = U_INVALID_FORMAT_ERROR;
@@ -1615,7 +1594,6 @@ U_CAPI double U_EXPORT2 ucurr_getRoundingIncrementForUsage(const UChar * currenc
 			}
 		}
 	}
-
 	return result;
 }
 
@@ -2197,37 +2175,28 @@ U_CAPI UEnumeration * U_EXPORT2 ucurr_openISOCurrencies(uint32_t currType, UErro
 	return myEnum;
 }
 
-U_CAPI int32_t U_EXPORT2 ucurr_countCurrencies(const char * locale,
-    UDate date,
-    UErrorCode * ec)
+U_CAPI int32_t U_EXPORT2 ucurr_countCurrencies(const char * locale, UDate date, UErrorCode * ec)
 {
 	int32_t currCount = 0;
-
 	if(ec != NULL && U_SUCCESS(*ec)) {
 		// local variables
 		UErrorCode localStatus = U_ZERO_ERROR;
 		char id[ULOC_FULLNAME_CAPACITY];
-
 		// get country or country_variant in `id'
 		idForLocale(locale, id, sizeof(id), ec);
-
 		if(U_FAILURE(*ec)) {
 			return 0;
 		}
-
 		// Remove variants, which is only needed for registration.
 		char * idDelim = strchr(id, VAR_DELIM);
 		if(idDelim) {
 			idDelim[0] = 0;
 		}
-
 		// Look up the CurrencyMap element in the root bundle.
 		UResourceBundle * rb = ures_openDirect(U_ICUDATA_CURR, CURRENCY_DATA, &localStatus);
 		UResourceBundle * cm = ures_getByKey(rb, CURRENCY_MAP, rb, &localStatus);
-
 		// Using the id derived from the local, get the currency data
 		UResourceBundle * countryArray = ures_getByKey(rb, id, cm, &localStatus);
-
 		// process each currency to see which one is valid for the given date
 		if(U_SUCCESS(localStatus)) {
 			for(int32_t i = 0; i<ures_getSize(countryArray); i++) {

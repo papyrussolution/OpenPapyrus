@@ -20,12 +20,12 @@ using namespace CFF;
 
 struct sid_to_gid_t {
 	uint16_t sid;
-	uint8_t gid;
+	uint8 gid;
 	int cmp(uint16_t a) const { return (a == sid) ? 0 : ((a < sid) ? -1 : 1); }
 };
 
 /* SID to code */
-static const uint8_t standard_encoding_to_code [] =
+static const uint8 standard_encoding_to_code [] =
 {
 	0,   32,   33,   34,   35,   36,   37,   38,  39,   40,   41,   42,   43,   44,   45,   46,
 	47,   48,   49,   50,   51,   52,   53,   54,  55,   56,   57,   58,   59,   60,   61,   62,
@@ -40,7 +40,7 @@ static const uint8_t standard_encoding_to_code [] =
 };
 
 /* SID to code */
-static const uint8_t expert_encoding_to_code [] =
+static const uint8 expert_encoding_to_code [] =
 {
 	0,   32,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,   44,   45,   46,
 	0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,   58,   59,    0,    0,    0,
@@ -170,7 +170,7 @@ static const sid_to_gid_t expert_subset_charset_sid_to_gid [] =
 };
 
 /* code to SID */
-static const uint8_t standard_encoding_to_sid [] =
+static const uint8 standard_encoding_to_sid [] =
 {
 	0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
 	0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,

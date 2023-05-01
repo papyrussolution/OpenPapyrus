@@ -20,7 +20,7 @@
 #include "hb.hh"
 #include "hb-ot-shape-complex.hh"
 
-#define USE_TABLE_ELEMENT_TYPE uint8_t
+#define USE_TABLE_ELEMENT_TYPE uint8
 
 /* Cateories used in the Universal Shaping Engine spec:
  * https://docs.microsoft.com/en-us/typography/script-development/use

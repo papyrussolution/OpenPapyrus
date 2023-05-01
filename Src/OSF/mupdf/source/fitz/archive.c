@@ -67,11 +67,11 @@ fz_archive * fz_open_archive(fz_context * ctx, const char * filename)
 	fz_archive * arch = NULL;
 	fz_stream * file = fz_open_file(ctx, filename);
 	fz_try(ctx)
-	arch = fz_open_archive_with_stream(ctx, file);
+		arch = fz_open_archive_with_stream(ctx, file);
 	fz_always(ctx)
-	fz_drop_stream(ctx, file);
+		fz_drop_stream(ctx, file);
 	fz_catch(ctx)
-	fz_rethrow(ctx);
+		fz_rethrow(ctx);
 	return arch;
 }
 

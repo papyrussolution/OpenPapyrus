@@ -1606,7 +1606,7 @@ int TCanvas::DrawText_(const TRect & rRect, const char * pText, uint options)
 	int    len;
 	char   zero[16];
 	if(pText)
-		len = sstrlen(pText);
+		len = sstrleni(pText);
 	else {
 		len = 0;
 		memzero(zero, sizeof(zero));
@@ -1621,7 +1621,7 @@ int TCanvas::TextOut_(SPoint2S p, const char * pText)
 	int    len;
 	char   zero[16];
 	if(pText)
-		len = sstrlen(pText);
+		len = sstrleni(pText);
 	else {
 		len = 0;
 		memzero(zero, sizeof(zero));

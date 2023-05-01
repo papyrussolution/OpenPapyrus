@@ -16,11 +16,23 @@
 
 typedef struct pdfapp_s pdfapp_t;
 
-enum { ARROW, HAND, WAIT, CARET };
+enum { 
+	ARROW, 
+	HAND, 
+	WAIT, 
+	CARET 
+};
 
-enum { DISCARD, SAVE, CANCEL };
+enum { 
+	DISCARD, 
+	SAVE, 
+	CANCEL
+};
 
-enum { QUERY_NO, QUERY_YES };
+enum { 
+	QUERY_NO, 
+	QUERY_YES 
+};
 
 extern void winwarn(pdfapp_t*, char *s);
 extern void winerror(pdfapp_t*, const char *s);
@@ -28,9 +40,9 @@ extern void wintitle(pdfapp_t*, char *title);
 extern void winresize(pdfapp_t*, int w, int h);
 extern void winrepaint(pdfapp_t*);
 extern void winrepaintsearch(pdfapp_t*);
-extern char *winpassword(pdfapp_t*, char *filename);
-extern char *wintextinput(pdfapp_t*, char *inittext, int retry);
-extern int winchoiceinput(pdfapp_t*, int nopts, const char *opts[], int *nvals, const char *vals[]);
+extern char * winpassword(pdfapp_t*, char *filename);
+extern char * wintextinput(pdfapp_t*, char *inittext, int retry);
+extern int  winchoiceinput(pdfapp_t*, int nopts, const char *opts[], int *nvals, const char *vals[]);
 extern void winopenuri(pdfapp_t*, char *s);
 extern void wincursor(pdfapp_t*, int curs);
 extern void windocopy(pdfapp_t*);
@@ -38,10 +50,10 @@ extern void windrawstring(pdfapp_t*, int x, int y, char *s);
 extern void winclose(pdfapp_t*);
 extern void winhelp(pdfapp_t*);
 extern void winfullscreen(pdfapp_t*, int state);
-extern int winsavequery(pdfapp_t*);
-extern int winquery(pdfapp_t*, const char*);
-extern int wingetcertpath(pdfapp_t *, char *buf, int len);
-extern int wingetsavepath(pdfapp_t*, char *buf, int len);
+extern int  winsavequery(pdfapp_t*);
+extern int  winquery(pdfapp_t*, const char*);
+extern int  wingetcertpath(pdfapp_t *, char *buf, int len);
+extern int  wingetsavepath(pdfapp_t*, char *buf, int len);
 extern void winalert(pdfapp_t *, pdf_alert_event *alert);
 extern void winprint(pdfapp_t *);
 extern void winadvancetimer(pdfapp_t *, float duration);
@@ -49,23 +61,19 @@ extern void winreplacefile(pdfapp_t *, char *source, char *target);
 extern void wincopyfile(pdfapp_t *, char *source, char *target);
 extern void winreloadpage(pdfapp_t *);
 
-struct pdfapp_s
-{
+struct pdfapp_s {
 	/* current document params */
 	fz_document *doc;
 	char *docpath;
 	char *doctitle;
 	fz_outline *outline;
 	int outline_deferred;
-
 	float layout_w;
 	float layout_h;
 	float layout_em;
 	char *layout_css;
 	int layout_use_doc_css;
-
 	int pagecount;
-
 	/* current view params */
 	float default_resolution;
 	float resolution;
@@ -79,7 +87,6 @@ struct pdfapp_s
 	int useicc;
 	int useseparations;
 	int aalevel;
-
 	/* presentation mode */
 	int presentation_mode;
 	int transitions_enabled;
@@ -89,7 +96,6 @@ struct pdfapp_s
 	int in_transit;
 	float duration;
 	fz_transition transition;
-
 	/* current page params */
 	int pageno;
 	fz_page *page;
@@ -100,28 +106,22 @@ struct pdfapp_s
 	fz_link *page_links;
 	int errored;
 	int incomplete;
-
 	/* separations */
 	fz_separations *seps;
-
 	/* snapback history */
 	int hist[256];
 	int histlen;
 	int marks[10];
-
 	/* window system sizes */
 	int winw, winh;
 	int scrw, scrh;
 	int shrinkwrap;
 	int fullscreen;
-
 	/* event handling state */
 	char number[256];
 	int numberlen;
-
 	int ispanning;
 	int panx, pany;
-
 	int iscopying;
 	int selx, sely;
 	/* TODO - While sely keeps track of the relative change in

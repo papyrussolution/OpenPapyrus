@@ -2787,6 +2787,7 @@ int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)
 	cjpeg_source_ptr p_src_mgr = 0;
 	if(fileFmt == SFileFormat::Jpeg) {
 		struct jpeg_decompress_struct di;
+		MEMSZERO(di); // @v11.7.0
 		di.err = jpeg_std_error(&jpeg_err.pub);
 		jpeg_err.pub.error_exit = JpegErr::ExitFunc;
 		err_code = setjmp(jpeg_err.setjmp_buf);

@@ -75,10 +75,10 @@ bool ReadSeedMaterialFromOSEntropyImpl(absl::Span<uint32_t> values) {
 
 // On NaCL use nacl_secure_random to acquire bytes.
 bool ReadSeedMaterialFromOSEntropyImpl(absl::Span<uint32_t> values) {
-	auto buffer = reinterpret_cast<uint8_t*>(values.data());
+	auto buffer = reinterpret_cast<uint8*>(values.data());
 	size_t buffer_size = sizeof(uint32_t) * values.size();
 
-	uint8_t* output_ptr = buffer;
+	uint8* output_ptr = buffer;
 	while(buffer_size > 0) {
 		size_t nread = 0;
 		const int error = nacl_secure_random(output_ptr, buffer_size, &nread);
@@ -95,7 +95,7 @@ bool ReadSeedMaterialFromOSEntropyImpl(absl::Span<uint32_t> values) {
 #elif defined(__Fuchsia__)
 
 bool ReadSeedMaterialFromOSEntropyImpl(absl::Span<uint32_t> values) {
-	auto buffer = reinterpret_cast<uint8_t*>(values.data());
+	auto buffer = reinterpret_cast<uint8*>(values.data());
 	size_t buffer_size = sizeof(uint32_t) * values.size();
 	zx_cprng_draw(buffer, buffer_size);
 	return true;
@@ -108,7 +108,7 @@ bool ReadSeedMaterialFromOSEntropyImpl(absl::Span<uint32_t> values) {
 // getentropy(), but the kernel may not, in which case this function will return
 // false.
 bool ReadSeedMaterialFromGetEntropy(absl::Span<uint32_t> values) {
-	auto buffer = reinterpret_cast<uint8_t*>(values.data());
+	auto buffer = reinterpret_cast<uint8*>(values.data());
 	size_t buffer_size = sizeof(uint32_t) * values.size();
 	while(buffer_size > 0) {
 		// getentropy() has a maximum permitted length of 256.
@@ -132,7 +132,7 @@ bool ReadSeedMaterialFromGetEntropy(absl::Span<uint32_t> values) {
 bool ReadSeedMaterialFromDevURandom(absl::Span<uint32_t> values) {
 	const char kEntropyFile[] = "/dev/urandom";
 
-	auto buffer = reinterpret_cast<uint8_t*>(values.data());
+	auto buffer = reinterpret_cast<uint8*>(values.data());
 	size_t buffer_size = sizeof(uint32_t) * values.size();
 
 	int dev_urandom = open(kEntropyFile, O_RDONLY);

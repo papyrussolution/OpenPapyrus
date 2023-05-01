@@ -787,7 +787,7 @@ SStrScan & FASTCALL SStrScan::Skip(int ws)
 		if(ws & wsSemicol)
 			buf[i++] = ';';
 		const char * p = (P_Buf+Offs);
-		while(memchr(buf, *p, i)) {
+		while(smemchr(buf, *p, i)) { // @v11.7.0 memchr-->smemchr
 			if(ws & wsNewLine && *p == '\x0D' && p[1] == '\x0A')
 				p++;
 			p++;
@@ -823,7 +823,7 @@ int FASTCALL SStrScan::IsSpace(int ws) const
 		memzero(buf, sizeof(buf));
 		size_t i = _MakeWhitespaceCharSet(ws, buf);
 		const char * p = (P_Buf+Offs);
-		if(memchr(buf, *p, i)) {
+		if(smemchr(buf, *p, i)) { // @v11.7.0 memchr-->smemchr
 			yes = 1;
 		}
 	}
@@ -838,7 +838,7 @@ SStrScan & SStrScan::Skip(int ws, uint * pLineCount)
 		memzero(buf, sizeof(buf));
 		size_t i = _MakeWhitespaceCharSet(ws, buf);
 		const char * p = (P_Buf+Offs);
-		while(memchr(buf, *p, i)) {
+		while(smemchr(buf, *p, i)) { // @v11.7.0 memchr-->smemchr
 			if(*p == '\x0D' && p[1] == '\x0A') {
 				p++;
 				line_count++;
@@ -983,7 +983,7 @@ void SString::Obfuscate()
 	if(Size && P_Buf) {
 		SlThreadLocalArea & r_tla = SLS.GetTLA();
 		r_tla.Rg.ObfuscateBuffer(P_Buf, Size);
-		const char * p_zero = static_cast<const char *>(memchr(P_Buf, '\0', Size));
+		const char * p_zero = static_cast<const char *>(smemchr(P_Buf, '\0', Size)); // @v11.7.0 memchr-->smemchr
 		if(p_zero) {
 			L = (p_zero - P_Buf);
 		}
@@ -997,7 +997,7 @@ const char * SString::SearchCharPos(size_t startPos, int c, size_t * pPos) const
 	size_t pos = 0;
 	const  char * p = 0;
 	if(L > (startPos+1)) {
-		p = static_cast<const char *>(memchr(P_Buf+startPos, static_cast<uchar>(c), Len()-startPos));
+		p = static_cast<const char *>(smemchr(P_Buf+startPos, static_cast<uchar>(c), Len()-startPos)); // @v11.7.0 memchr-->smemchr
 		if(p)
 			pos = static_cast<size_t>(p - P_Buf);
 	}
@@ -1034,7 +1034,7 @@ bool FASTCALL SString::HasChr(int c) const
 			case 3:  return (p_buf[0] == c || p_buf[1] == c);
 			case 4:  return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c);
 			case 5:  return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c || p_buf[3] == c);
-			default: return (memchr(p_buf, static_cast<uchar>(c), L-1) != 0);
+			default: return (smemchr(p_buf, static_cast<uchar>(c), L-1) != 0); // @v11.7.0 memchr-->smemchr
 		}
 	}
 }
@@ -1096,13 +1096,13 @@ int SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) const
 			else { // } @speedcritical
 				do {
 					r_temp_buf.Z();
-					while(i < len && !memchr(pDelimChrSet, P_Buf[i], delim_len))
+					while(i < len && !smemchr(pDelimChrSet, P_Buf[i], delim_len)) // @v11.7.0 memchr-->smemchr
 						r_temp_buf.CatChar(P_Buf[i++]);
 					if(r_temp_buf.NotEmpty()) {
 						rResult.add(r_temp_buf);
 						ok = 2;
 					}
-					while(i < len && memchr(pDelimChrSet, P_Buf[i], delim_len))
+					while(i < len && smemchr(pDelimChrSet, P_Buf[i], delim_len)) // @v11.7.0 memchr-->smemchr
 						i++;
 				} while(i < len);
 			}
@@ -1128,7 +1128,7 @@ int SString::Search(const char * pPattern, size_t startPos, int ignoreCase, size
 		const size_t _pat_len = sstrlen(pPattern);
 		if(_pat_len) {
 			if(_pat_len == 1 && !ignoreCase) {
-				const char * p = static_cast<const char *>(memchr(P_Buf+startPos, pPattern[0], _len - startPos));
+				const char * p = static_cast<const char *>(smemchr(P_Buf+startPos, pPattern[0], _len - startPos)); // @v11.7.0 memchr-->smemchr
 				if(p) {
 					ASSIGN_PTR(pPos, (p - P_Buf));
 					ok = 1;
@@ -1304,7 +1304,7 @@ SString & FASTCALL SString::CopyFromN(const char * pS, size_t maxLen)
 	size_t new_len = 1;
 	if(pS) {
 		if(maxLen) {
-			const char * p_zero = static_cast<const char *>(memchr(pS, 0, maxLen));
+			const char * p_zero = static_cast<const char *>(smemchr(pS, 0, maxLen)); // @v11.7.0 memchr-->smemchr
 			new_len += p_zero ? (p_zero - pS) : maxLen;
 		}
 	}
@@ -2285,7 +2285,7 @@ int STDCALL SString::CmpPrefix(const char * pS, int ignoreCase) const
 bool FASTCALL SString::HasPrefix(const char * pS) const
 {
 	const size_t len = sstrlen(pS);
-	return (len && Len() >= len) ? (strncmp(P_Buf, pS, len) == 0) : false;
+	return (len && Len() >= len) ? (memcmp(P_Buf, pS, len) == 0) : false; // @v11.7.0 strncmp-->memcmp
 }
 
 bool FASTCALL SString::HasPrefixNC(const char * pS) const
@@ -2643,7 +2643,7 @@ SString & FASTCALL SString::DotCat(const char * pS)
 SString & FASTCALL SString::CatN(const char * pS, size_t maxLen)
 {
 	if(pS && maxLen) {
-		const char * p_zero = static_cast<const char *>(memchr(pS, 0, maxLen));
+		const char * p_zero = static_cast<const char *>(smemchr(pS, 0, maxLen)); // @v11.7.0 memchr-->smemchr
 		const size_t add_len = p_zero ? (p_zero - pS) : maxLen;
 		if(add_len) {
 			const size_t new_len = (L ? L : 1) + add_len;
@@ -3674,7 +3674,7 @@ int FASTCALL SString::Decode_XMLENT(SString & rBuf) const
 	size_t amp_pos = 0;
 	const char * p_buf = P_Buf;
 	while(cp < len) {
-		const char * p = (p_buf[cp] == '&') ? (p_buf+cp) : static_cast<const char *>(memchr(p_buf+cp, '&', len-cp));
+		const char * p = (p_buf[cp] == '&') ? (p_buf+cp) : static_cast<const char *>(smemchr(p_buf+cp, '&', len-cp)); // @v11.7.0 memchr-->smemchr
 		if(p) {
 			rBuf.CatN(p_buf+cp, (p-p_buf-cp));
 			size_t ofs = (p-p_buf);
@@ -5116,8 +5116,8 @@ static const char * FASTCALL SPathFindNextComponent(const char * pPath)
 {
 	const size_t len = sstrlen(pPath);
 	if(len) {
-		const char * p_slash = static_cast<const char *>(memchr(pPath, '\\', len));
-		SETIFZ(p_slash, static_cast<const char *>(memchr(pPath, '/', len)));
+		const char * p_slash = static_cast<const char *>(smemchr(pPath, '\\', len)); // @v11.7.0 memchr-->smemchr
+		SETIFZ(p_slash, static_cast<const char *>(smemchr(pPath, '/', len))); // @v11.7.0 memchr-->smemchr
 		if(p_slash) {
 			if(oneof2(p_slash[1], '\\', '/'))
 				p_slash++;

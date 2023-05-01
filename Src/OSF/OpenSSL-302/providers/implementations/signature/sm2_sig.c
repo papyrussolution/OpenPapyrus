@@ -228,13 +228,12 @@ error:
 
 static int sm2sig_compute_z_digest(PROV_SM2_CTX * ctx)
 {
-	uint8_t * z = NULL;
+	uint8 * z = NULL;
 	int ret = 1;
 	if(ctx->flag_compute_z_digest) {
 		/* Only do this once */
 		ctx->flag_compute_z_digest = 0;
-
-		if((z = (uint8_t *)OPENSSL_zalloc(ctx->mdsize)) == NULL
+		if((z = (uint8 *)OPENSSL_zalloc(ctx->mdsize)) == NULL
 		    /* get hashed prefix 'z' of tbs message */
 		    || !ossl_sm2_compute_z_digest(z, ctx->md, ctx->id, ctx->id_len,
 		    ctx->ec)
@@ -242,12 +241,10 @@ static int sm2sig_compute_z_digest(PROV_SM2_CTX * ctx)
 			ret = 0;
 		OPENSSL_free(z);
 	}
-
 	return ret;
 }
 
-int sm2sig_digest_signverify_update(void * vpsm2ctx, const unsigned char * data,
-    size_t datalen)
+int sm2sig_digest_signverify_update(void * vpsm2ctx, const unsigned char * data, size_t datalen)
 {
 	PROV_SM2_CTX * psm2ctx = (PROV_SM2_CTX*)vpsm2ctx;
 

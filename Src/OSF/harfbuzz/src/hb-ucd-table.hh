@@ -1059,7 +1059,7 @@ static const uint64_t
 
 #ifndef HB_OPTIMIZE_SIZE
 
-static const uint8_t _hb_ucd_u8[32480] = {
+static const uint8 _hb_ucd_u8[32480] = {
 	0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
 	16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 26, 26, 26, 26, 26,
 	26, 26, 26, 26, 26, 26, 27, 26, 26, 26, 26, 26, 26, 26, 26, 26,
@@ -3830,7 +3830,7 @@ static inline uint_fast8_t _hb_ucd_ccc(uint u)
 	return u<125259u ? _hb_ucd_u8[15060+(((_hb_ucd_u8[13636+(((_hb_ucd_u8[12656+(u>>3>>4)])<<4)+((u>>3)&15u))])<<3)+((u)&7u))] : 0;
 }
 
-static inline unsigned _hb_ucd_b4(const uint8_t* a, uint i)
+static inline unsigned _hb_ucd_b4(const uint8* a, uint i)
 {
 	return (a[i>>1]>>((i&1u)<<2))&15u;
 }
@@ -3852,7 +3852,7 @@ static inline uint_fast16_t _hb_ucd_dm(uint u)
 
 #elif !defined(HB_NO_UCD_UNASSIGNED)
 
-static const uint8_t _hb_ucd_u8[17508] = {
+static const uint8 _hb_ucd_u8[17508] = {
 	0,  1,  2,  3,  4,  5,  6,  7,  7,  8,  7,  7,  7,  7,  7,  7,
 	7,  7,  7,  9, 10, 11,  7,  7,  7,  7, 12, 13, 14, 14, 14, 15,
 	16, 17, 18, 19, 20, 21, 22, 21, 23, 21, 21, 21, 21, 24,  7,  7,
@@ -5556,7 +5556,7 @@ static inline uint_fast8_t _hb_ucd_ccc(uint u)
 	       ((u)&3u))] : 0;
 }
 
-static inline unsigned _hb_ucd_b4(const uint8_t* a, uint i)
+static inline unsigned _hb_ucd_b4(const uint8* a, uint i)
 {
 	return (a[i>>1]>>((i&1u)<<2))&15u;
 }
@@ -5583,7 +5583,7 @@ static inline uint_fast16_t _hb_ucd_dm(uint u)
 
 #else
 
-static const uint8_t
+static const uint8
     _hb_ucd_u8[13344] =
 {
 	0,  1,  2,  3,  4,  5,  5,  5,  5,  5,  6,  5,  5,  7,  8,  9,
@@ -6758,7 +6758,7 @@ static inline uint_fast8_t _hb_ucd_ccc(uint u)
 	       ((u>>2)&3u))])<<2)+((u)&3u))] : 0;
 }
 
-static inline unsigned _hb_ucd_b4(const uint8_t* a, uint i)
+static inline unsigned _hb_ucd_b4(const uint8* a, uint i)
 {
 	return (a[i>>1]>>((i&1u)<<2))&15u;
 }

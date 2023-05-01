@@ -111,7 +111,7 @@ static IUnknown * FASTCALL GetIPapyrusAmountList(SCoClass * pCls, AmtList * pLis
 	return p;
 }
 
-static IUnknown * FASTCALL GetILotList(SCoClass * pCls, SVector * pList, int delList = 1) // @v9.8.8 SArray-->SVector
+static IUnknown * FASTCALL GetILotList(SCoClass * pCls, SVector * pList, int delList = 1)
 {
 	IUnknown * p = 0;
 	if(pList && pCls && pCls->CreateInnerInstance("PPLotList", "ILotList", (void **)&p)) {

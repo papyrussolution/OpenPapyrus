@@ -3138,7 +3138,8 @@ int PPObjGoods::CheckBarcodeList(const PPGoodsPacket * pPack)
 	int    ok = 1;
 	if(pPack) {
 		const int is_group_code = BIN(pPack->Rec.Kind == PPGDSK_GROUP);
-		int    len, allow_empty = 1;
+		int    len;
+		int    allow_empty = 1;
 		SString msg_buf;
 		PPIDArray code_len_list;
 		char * p, k[32];
@@ -3154,7 +3155,7 @@ int PPObjGoods::CheckBarcodeList(const PPGoodsPacket * pPack)
 			InitConfig();
 			for(uint i = 0; ok && i < pPack->Codes.getCount(); i++) {
 				memzero(k, sizeof(k));
-				len = sstrlen(strip(STRNSCPY(k, pPack->Codes.at(i).Code)));
+				len = sstrleni(strip(STRNSCPY(k, pPack->Codes.at(i).Code)));
 				if(!(P_Cfg->Flags & GCF_BCNDIG))
 					for(p = k; *p && ok; p++)
 						THROW_PP((is_group_code && p == k && *p == '@') || isdec(*p), PPERR_INVBARCODE);

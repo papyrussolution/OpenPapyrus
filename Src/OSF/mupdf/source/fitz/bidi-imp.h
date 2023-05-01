@@ -65,7 +65,7 @@ enum {
 };
 
 typedef int fz_bidi_level; /* Note: Max level is 125 */
-typedef uint8_t fz_bidi_chartype;
+typedef uint8 fz_bidi_chartype;
 
 enum {
 	BIDI_LEVEL_MAX = 125 /* Updated for 6.3.0 */
@@ -75,12 +75,8 @@ void fz_bidi_resolve_neutrals(fz_bidi_level baselevel, fz_bidi_chartype * pcls, 
 void fz_bidi_resolve_implicit(const fz_bidi_chartype * pcls, fz_bidi_level * plevel, size_t cch);
 void fz_bidi_resolve_weak(fz_context * ctx, fz_bidi_level baselevel, fz_bidi_chartype * pcls, fz_bidi_level * plevel, size_t cch);
 void fz_bidi_resolve_whitespace(fz_bidi_level baselevel, const fz_bidi_chartype * pcls, fz_bidi_level * plevel, size_t cch);
-size_t fz_bidi_resolve_explicit(fz_bidi_level level,
-    fz_bidi_chartype dir,
-    fz_bidi_chartype * pcls,
-    fz_bidi_level * plevel,
-    size_t cch,
-    fz_bidi_level nNest);
+size_t fz_bidi_resolve_explicit(fz_bidi_level level, fz_bidi_chartype dir, fz_bidi_chartype * pcls, fz_bidi_level * plevel,
+    size_t cch, fz_bidi_level nNest);
 size_t fz_bidi_resolve_paragraphs(fz_bidi_chartype * types, size_t cch);
 
 #endif

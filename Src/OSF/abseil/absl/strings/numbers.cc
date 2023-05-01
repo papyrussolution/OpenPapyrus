@@ -287,7 +287,8 @@ static std::pair<uint64_t, uint64_t> Mul32(std::pair<uint64_t, uint64_t> num,
 // Compute num * 5 ^ expfive, and return the first 128 bits of the result,
 // where the first bit is always a one.  So PowFive(1, 0) starts 0b100000,
 // PowFive(1, 1) starts 0b101000, PowFive(1, 2) starts 0b110010, etc.
-static std::pair<uint64_t, uint64_t> PowFive(uint64_t num, int expfive) {
+static std::pair<uint64_t, uint64_t> PowFive(uint64_t num, int expfive) 
+{
 	std::pair<uint64_t, uint64_t> result = {num, 0};
 	while(expfive >= 13) {
 		// 5^13 is the highest power of five that will fit in a 32-bit integer.

@@ -31,7 +31,7 @@ struct lzma_lzma2_decoder_coder {
 };
 
 static lzma_ret lzma2_decode(void * coder_ptr, lzma_dict * dict,
-    const uint8_t * in, size_t * in_pos, size_t in_size)
+    const uint8 * in, size_t * in_pos, size_t in_size)
 {
 	lzma_lzma2_decoder_coder * coder = (lzma_lzma2_decoder_coder *)coder_ptr;
 	// With SEQ_LZMA it is possible that no new input is needed to do
@@ -197,7 +197,7 @@ extern uint64_t lzma_lzma2_decoder_memusage(const void * options)
 	return sizeof(lzma_lzma2_decoder_coder) + lzma_lzma_decoder_memusage_nocheck(options);
 }
 
-extern lzma_ret lzma_lzma2_props_decode(void ** options, const lzma_allocator * allocator, const uint8_t * props, size_t props_size)
+extern lzma_ret lzma_lzma2_props_decode(void ** options, const lzma_allocator * allocator, const uint8 * props, size_t props_size)
 {
 	if(props_size != 1)
 		return LZMA_OPTIONS_ERROR;

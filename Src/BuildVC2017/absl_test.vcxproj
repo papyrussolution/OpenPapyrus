@@ -93,7 +93,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\include;..\osf\abseil;..\osf\googletest\googlemock;..\osf\googletest\googletest;..\osf\googletest\googletest\include;..\osf\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -101,9 +102,12 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StringPooling>true</StringPooling>
-      <StructMemberAlignment>8Bytes</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>false</FunctionLevelLinking>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -116,7 +120,8 @@
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\include;..\osf\abseil;..\osf\googletest\googlemock;..\osf\googletest\googletest;..\osf\googletest\googletest\include;..\osf\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -124,8 +129,10 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <StringPooling>true</StringPooling>
-      <StructMemberAlignment>8Bytes</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -138,7 +145,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\include;..\osf\abseil;..\osf\googletest\googlemock;..\osf\googletest\googletest;..\osf\googletest\googletest\include;..\osf\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -146,9 +154,12 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StringPooling>true</StringPooling>
-      <StructMemberAlignment>8Bytes</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>false</FunctionLevelLinking>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -161,7 +172,8 @@
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\include;..\osf\abseil;..\osf\googletest\googlemock;..\osf\googletest\googletest;..\osf\googletest\googletest\include;..\osf\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -169,8 +181,10 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <StringPooling>true</StringPooling>
-      <StructMemberAlignment>8Bytes</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -214,10 +228,31 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\OSF\abseil\absl\base\optimization_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\ascii_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\charconv_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\cordz_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\cord_analysis.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\cord_ring_reader_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\cord_ring_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\cord_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\escaping_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\match_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\numbers_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\string_view_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\strip_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\str_cat_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\str_format_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\str_join_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\str_replace_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\str_split_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\substitute_test.cc" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="absl.vcxproj">
       <Project>{3bb14255-1f39-4fc6-bb9d-6c8dac9e5d13}</Project>
+    </ProjectReference>
+    <ProjectReference Include="gmock.vcxproj">
+      <Project>{918f8086-8885-3bba-a7d5-64de17bb1804}</Project>
     </ProjectReference>
     <ProjectReference Include="gtest.vcxproj">
       <Project>{1561c36f-eb82-363b-a782-999b4cd82b5b}</Project>

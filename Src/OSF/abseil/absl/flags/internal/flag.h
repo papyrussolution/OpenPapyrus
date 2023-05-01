@@ -177,7 +177,7 @@ union FlagHelpMsg {
 	HelpGenFunc gen_func;
 };
 
-enum class FlagHelpKind : uint8_t { kLiteral = 0, kGenFunc = 1 };
+enum class FlagHelpKind : uint8 { kLiteral = 0, kGenFunc = 1 };
 
 struct FlagHelpArg {
 	FlagHelpMsg source;
@@ -231,7 +231,7 @@ union FlagDefaultSrc {
 	FlagDfltGenFunc gen_func;
 };
 
-enum class FlagDefaultKind : uint8_t {
+enum class FlagDefaultKind : uint8 {
 	kDynamicValue = 0,
 	kGenFunc = 1,
 	kOneWord = 2 // for default values UP to one word in size
@@ -270,7 +270,7 @@ using FlagUseSequenceLockStorage = std::integral_constant<
 	bool, absl::type_traits_internal::is_trivially_copyable<T>::value &&
 	(sizeof(T) > 8)>;
 
-enum class FlagValueStorageKind : uint8_t {
+enum class FlagValueStorageKind : uint8 {
 	kValueAndInitBit = 0,
 	kOneWordAtomic = 1,
 	kSequenceLocked = 2,
@@ -300,7 +300,7 @@ struct alignas (8)FlagValueAndInitBit {
 	T value;
 	// Use an int instead of a bool to guarantee that a non-zero value has
 	// a bit set.
-	uint8_t init;
+	uint8 init;
 };
 
 template <typename T,
@@ -381,8 +381,8 @@ class FlagImpl final : public CommandLineFlag {
 public:
 	constexpr FlagImpl(const char* name, const char* filename, FlagOpFn op,
 	    FlagHelpArg help, FlagValueStorageKind value_kind, FlagDefaultArg default_arg) : name_(name), filename_(filename),
-		op_(op), help_(help.source), help_source_kind_(static_cast<uint8_t>(help.kind)), value_storage_kind_(static_cast<uint8_t>(value_kind)),
-		def_kind_(static_cast<uint8_t>(default_arg.kind)), modified_(false), on_command_line_(false),
+		op_(op), help_(help.source), help_source_kind_(static_cast<uint8>(help.kind)), value_storage_kind_(static_cast<uint8>(value_kind)),
+		def_kind_(static_cast<uint8>(default_arg.kind)), modified_(false), on_command_line_(false),
 		callback_(nullptr), default_value_(default_arg.source), data_guard_{} 
 	{
 	}
@@ -518,18 +518,18 @@ private:
 	// Help message literal or function to generate it.
 	const FlagHelpMsg help_;
 	// Indicates if help message was supplied as literal or generator func.
-	const uint8_t help_source_kind_ : 1;
+	const uint8 help_source_kind_ : 1;
 	// Kind of storage this flag is using for the flag's value.
-	const uint8_t value_storage_kind_ : 2;
+	const uint8 value_storage_kind_ : 2;
 
-	uint8_t : 0; // The bytes containing the const bitfields must not be
+	uint8 : 0; // The bytes containing the const bitfields must not be
 	             // shared with bytes containing the mutable bitfields.
 
 	// Mutable flag's state (guarded by `data_guard_`).
 
 	// def_kind_ is not guard by DataGuard() since it is accessed in Init without
 	// locks.
-	uint8_t def_kind_ : 2;
+	uint8 def_kind_ : 2;
 	// Has this flag's value been modified?
 	bool modified_ : 1 ABSL_GUARDED_BY(*DataGuard());
 	// Has this flag been specified on command line.

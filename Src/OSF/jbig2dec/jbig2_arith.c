@@ -19,10 +19,10 @@
 #pragma hdrstop
 
 struct _Jbig2ArithState {
-	uint32_t C;
-	uint32_t A;
+	uint32 C;
+	uint32 A;
 	int CT;
-	uint32_t next_word;
+	uint32 next_word;
 	size_t next_word_bytes;
 	int err;
 	Jbig2WordStream * ws;
@@ -345,9 +345,9 @@ static void jbig2_arith_trace(Jbig2ArithState * as, Jbig2ArithCx cx)
 }
 #endif
 
-static int test_get_word(Jbig2Ctx * ctx, Jbig2WordStream * self, size_t offset, uint32_t * word)
+static int test_get_word(Jbig2Ctx * ctx, Jbig2WordStream * self, size_t offset, uint32 * word)
 {
-	uint32_t val = 0;
+	uint32 val = 0;
 	int ret = 0;
 
 	if(self == NULL || word == NULL)

@@ -11,6 +11,7 @@ misc/fonts/
   Fonts loading/merging instructions (e.g. How to handle glyph ranges, how to merge icons fonts).
   Command line tool "binary_to_compressed_c" to create compressed arrays to embed data in source code.
   Suggested fonts and links.
+	@sobolev-note: fonts are moved to src/rsrc/font/imgui
 
 misc/freetype/
   Font atlas builder/rasterizer using FreeType instead of stb_truetype.

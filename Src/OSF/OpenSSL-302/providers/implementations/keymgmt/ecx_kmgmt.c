@@ -688,7 +688,7 @@ static void * ecx_dup(const void * keydata_from, int selection)
 
 static int ecx_key_pairwise_check(const ECX_KEY * ecx, int type)
 {
-	uint8_t pub[64];
+	uint8 pub[64];
 	switch(type) {
 		case ECX_KEY_TYPE_X25519:
 		    ossl_x25519_public_from_private(pub, ecx->privkey);

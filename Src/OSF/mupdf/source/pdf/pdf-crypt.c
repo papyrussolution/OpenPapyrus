@@ -292,13 +292,10 @@ static void pdf_parse_crypt_filter(fz_context * ctx, pdf_crypt_filter * cf, pdf_
 	if((crypt->r == 5 || crypt->r == 6) && cf->length != 256)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "invalid key length: %d", cf->length);
 }
-
 /*
  * Compute an encryption key (PDF 1.7 algorithm 3.2)
  */
-
-static const uchar padding[32] =
-{
+static const uchar padding[32] = {
 	0x28, 0xbf, 0x4e, 0x5e, 0x4e, 0x75, 0x8a, 0x41,
 	0x64, 0x00, 0x4e, 0x56, 0xff, 0xfa, 0x01, 0x08,
 	0x2e, 0x2e, 0x00, 0xb6, 0xd0, 0x68, 0x3e, 0x80,

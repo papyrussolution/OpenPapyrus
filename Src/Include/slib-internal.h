@@ -1,10 +1,12 @@
 // SLIB-INTERNAL.H
-// Copyright (c) A.Sobolev 2020, 2022
+// Copyright (c) A.Sobolev 2020, 2022, 2023
 //
 #ifndef __SLIB_INTERNAL_H
 #define __SLIB_INTERNAL_H
 	#include <slib.h>
 	#include <tv.h>
+	#include <snet.h> // @v11.7.0
+	#include <uri.h>  // @v11.7.0
 
 FORCEINLINE uint implement_iseol(const char * pIn, SEOLFormat eolf)
 {

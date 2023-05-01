@@ -486,10 +486,10 @@ typedef long my_ptrdiff_t;
 #endif
 #ifndef longlong_defined
 	#if defined(HAVE_LONG_LONG) && SIZEOF_LONG != 8
-		typedef unsigned long long ulonglong; /* ulong or uint64 */
+		typedef unsigned long long ulonglong; // ulong or uint64
 		typedef long long int longlong;
 	#else
-		typedef unsigned long ulonglong;	/* ulong or uint64 */
+		typedef unsigned long ulonglong; // ulong or uint64
 		typedef long longlong;
 	#endif
 	#define longlong_defined
@@ -513,7 +513,7 @@ typedef long my_ptrdiff_t;
 #if defined(SIZEOF_OFF_T) && SIZEOF_OFF_T > 4
 	typedef ulonglong my_off_t;
 #else
-	typedef unsigned long my_off_t;
+	typedef ulong my_off_t;
 #endif
 #define MY_FILEPOS_ERROR	(~(my_off_t) 0)
 #ifndef _WIN32
@@ -538,7 +538,7 @@ typedef long my_ptrdiff_t;
 typedef uint8 int7;	/* Most effective integer 0 <= x <= 127 */
 typedef short int15;	/* Most effective integer 0 <= x <= 32767 */
 typedef char * my_string; /* String of characters */
-typedef unsigned long size_s; /* Size of strings (In string-funcs) */
+typedef ulong size_s; /* Size of strings (In string-funcs) */
 typedef int  myf;	/* Type of MyFlags in my_funcs */
 typedef char my_bool_Removed; /* Small bool */
 typedef uint64 my_ulonglong;
@@ -905,7 +905,7 @@ do { doubleget_union _tmp; \
 #if SIZEOF_CHARP == SIZEOF_INT
 	typedef uint intptr;
 #elif SIZEOF_CHARP == SIZEOF_LONG
-	typedef unsigned long intptr;
+	typedef ulong intptr;
 #elif SIZEOF_CHARP == SIZEOF_LONG_LONG
 	typedef uint64 intptr;
 #else

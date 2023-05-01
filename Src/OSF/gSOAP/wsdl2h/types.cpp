@@ -636,7 +636,7 @@ const char * Types::tnameptr(bool flag, const char * prefix, const char * URI, c
 	if(flag) {
 		if(!strncmp(s, "char*", 5))
 			return "char**";
-		if(!strchr(s, '*')) {
+		if(!sstrchr(s, '*')) {
 			char * r = static_cast<char *>(emalloc(strlen(s)+2));
 			strcpy(r, s);
 			strcat(r, "*");
@@ -666,7 +666,7 @@ const char * Types::pname(bool flag, const char * prefix, const char * URI, cons
 		      }
 		      r = s;
 		      while(r && *r) {
-			      r = strchr(r+1, '*');
+			      r = sstrchr(r+1, '*');
 			      if(r && *(r-1) != '/' && *(r+1) != '/')
 				      break;
 		      }
@@ -1117,15 +1117,15 @@ void Types::gen(const char * URI, const char * name, const xs__simpleType & simp
 		      const char * s = tname(NULL, baseURI, base);
 		      if(!anonymous) {
 			      bool is_ptr = false;
-			      is_ptr = (strchr(s, '*') != NULL) || (s == pname(true, NULL, baseURI, base));
+			      is_ptr = (sstrchr(s, '*') != NULL) || (s == pname(true, NULL, baseURI, base));
 			      t = deftname(TYPEDEF, NULL, is_ptr, prefix, URI, name);
 			      if(t)
 				      fprintf(stream, "typedef %s %s", s, t);
 		      }
 		      else {
-				  t = "";
-			    fprintf(stream, elementformat, s, "");
-			    fprintf(stream, "\n"); 
+				t = "";
+				fprintf(stream, elementformat, s, "");
+				fprintf(stream, "\n"); 
 			  }
 		      if(t) {
 			      if(!anonymous && !simpleType.restriction->pattern.empty()) {
@@ -1154,14 +1154,11 @@ void Types::gen(const char * URI, const char * name, const xs__simpleType & simp
 				      is_numeric = true;
 			      if(!anonymous && simpleType.restriction->minLength && simpleType.restriction->minLength->value)
 				      fprintf(stream, " %s", simpleType.restriction->minLength->value);
-			      else if(is_numeric && !anonymous && simpleType.restriction->minInclusive &&
-			              simpleType.restriction->minInclusive->value && is_integer(simpleType.restriction->minInclusive->value))
+			      else if(is_numeric && !anonymous && simpleType.restriction->minInclusive && simpleType.restriction->minInclusive->value && is_integer(simpleType.restriction->minInclusive->value))
 				      fprintf(stream, " %s", simpleType.restriction->minInclusive->value);
-			      else if(is_float && !anonymous && simpleType.restriction->minExclusive &&
-			              simpleType.restriction->minExclusive->value && is_integer(simpleType.restriction->minExclusive->value))
+			      else if(is_float && !anonymous && simpleType.restriction->minExclusive && simpleType.restriction->minExclusive->value && is_integer(simpleType.restriction->minExclusive->value))
 				      fprintf(stream, " %s", simpleType.restriction->minExclusive->value);
-			      else if(is_numeric && !anonymous && simpleType.restriction->minExclusive &&
-			              simpleType.restriction->minExclusive->value && is_integer(simpleType.restriction->minExclusive->value))
+			      else if(is_numeric && !anonymous && simpleType.restriction->minExclusive && simpleType.restriction->minExclusive->value && is_integer(simpleType.restriction->minExclusive->value))
 				      fprintf(stream, " " SOAP_LONG_FORMAT, to_integer(simpleType.restriction->minExclusive->value)+1);
 			      if(!anonymous && simpleType.restriction->maxLength && simpleType.restriction->maxLength->value)
 				      fprintf(stream, ":%s", simpleType.restriction->maxLength->value);
@@ -1296,7 +1293,7 @@ void Types::gen(const char * URI, const char * name, const xs__simpleType & simp
 			      if(!anonymous) {
 				      fprintf(stream, "\n/// \"%s\":%s is a simpleType containing a whitespace separated list of %s.\n",
 					      URI ? URI : "", name, simpleType.list->itemType);
-				      t = deftname(TYPEDEF, NULL, strchr(s, '*') != NULL, prefix, URI, name);
+				      t = deftname(TYPEDEF, NULL, sstrchr(s, '*') != NULL, prefix, URI, name);
 			      }
 			      document(simpleType.annotation);
 			      if(t)
@@ -1364,29 +1361,32 @@ void Types::gen(const char * URI, const char * name, const xs__simpleType & simp
 		if(simpleType.union_->memberTypes)                             {
 			const char * s = tname(NULL, NULL, "xsd:string");
 			if(!anonymous)
-				t = deftname(TYPEDEF, NULL, strchr(s, '*') != NULL, prefix, URI, name);
+				t = deftname(TYPEDEF, NULL, sstrchr(s, '*') != NULL, prefix, URI, name);
 			fprintf(stream, "\n/// union of values \"%s\"\n", simpleType.union_->memberTypes);
 			if(t)
 				fprintf(stream, "typedef %s %s;\n", s, t);
-			else {fprintf(stream, elementformat, s, "");
-			      fprintf(stream, "\n"); }
+			else {
+				fprintf(stream, elementformat, s, "");
+				fprintf(stream, "\n"); 
+			}
 		}
 		else if(!simpleType.union_->simpleType.empty()) {
 			const char * s = tname(NULL, NULL, "xsd:string");
 			fprintf(stream, "\n");
 			if(!anonymous)
-				t = deftname(TYPEDEF, NULL, strchr(s, '*') != NULL, prefix, URI, name);
+				t = deftname(TYPEDEF, NULL, sstrchr(s, '*') != NULL, prefix, URI, name);
 			for(vector <xs__simpleType>::const_iterator simpleType1 = simpleType.union_->simpleType.begin();
 			    simpleType1 != simpleType.union_->simpleType.end(); ++simpleType1)
 				if((*simpleType1).restriction) {
-					fprintf(stream, "/// union of values from \"%s\"\n",
-						(*simpleType1).restriction->base);
+					fprintf(stream, "/// union of values from \"%s\"\n", (*simpleType1).restriction->base);
 					// TODO: are there any other types we should report here?
 				}
 			if(t)
 				fprintf(stream, "typedef %s %s;\n", s, t);
-			else {fprintf(stream, elementformat, s, "");
-			      fprintf(stream, "\n"); }
+			else {
+				fprintf(stream, elementformat, s, "");
+				fprintf(stream, "\n"); 
+			}
 		}
 		else
 			fprintf(stream, "//\tunrecognized\n");
@@ -2588,12 +2588,12 @@ void Types::gen_soap_array(const char * name, const char * t, const char * item,
 	else
 		fprintf(stream, "class %s {\npublic:\n", t);
 	if(dims) {
-		char * s = strchr(dims, ']');
+		char * s = sstrchr(dims, ']');
 		if(s && s != dims)
 			sprintf(size, "[%d]", (int)(s-dims+1));
 	}
 	if(tmp) {
-		if(strchr(tmp, '[') != NULL)          {
+		if(sstrchr(tmp, '[') != NULL)          {
 			gen_soap_array(NULL, "", item, tmp);
 			fprintf(stream, arrayformat, "}", item ? aname(NULL, NULL, item) : "");
 			fprintf(stream, ";\n");

@@ -441,19 +441,15 @@ int fz_search_stext_page(fz_context * ctx, fz_stext_page * page, const char * ne
 	fz_buffer * buffer;
 	const char * haystack, * begin, * end;
 	int c, inside;
-
-	if(strlen(needle) == 0)
+	if(sstrlen(needle) == 0)
 		return 0;
-
 	hits.len = 0;
 	hits.cap = max_quads;
 	hits.box = quads;
 	hits.hfuzz = 0.2f; /* merge kerns but not large gaps */
 	hits.vfuzz = 0.1f;
-
 	buffer = fz_new_buffer_from_stext_page(ctx, page);
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		haystack = fz_string_from_buffer(ctx, buffer);
 		begin = find_string(haystack, needle, &end);
 		if(!begin)
@@ -493,9 +489,8 @@ try_new_match:
 no_more_matches:;
 	}
 	fz_always(ctx)
-	fz_drop_buffer(ctx, buffer);
+		fz_drop_buffer(ctx, buffer);
 	fz_catch(ctx)
-	fz_rethrow(ctx);
-
+		fz_rethrow(ctx);
 	return hits.len;
 }

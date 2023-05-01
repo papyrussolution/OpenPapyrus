@@ -159,8 +159,8 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 									int accept_op = 2; // 1 - accept, 2 - reject
 									pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
 									PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
-									if(pczcr > 0)
-										pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
+									// @v11.7.0 if(pczcr > 0)
+										pPack->SetLineChZnPreprocessResult(/*pos*/0, &chzn_pp_result); // @v11.7.0 pos-->0 (экспериментально: чтобы кассовый чек не содержал эту марку)
 								}
 							}
 						}

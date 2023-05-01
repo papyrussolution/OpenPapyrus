@@ -11,7 +11,18 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace str_format_internal {
-enum class LengthMod : std::uint8_t { h, hh, l, ll, L, j, z, t, q, none };
+enum class LengthMod : uint8 { 
+	h, 
+	hh, 
+	l, 
+	ll, 
+	L, 
+	j, 
+	z, 
+	t, 
+	q, 
+	none 
+};
 
 std::string LengthModToString(LengthMod v);
 
@@ -69,13 +80,13 @@ const char* ConsumeUnboundConversion(const char* p, const char* end, UnboundConv
 // conversions.
 class ConvTag {
 public:
-	constexpr ConvTag(FormatConversionChar conversion_char) : tag_(static_cast<uint8_t>(conversion_char)) // NOLINT
+	constexpr ConvTag(FormatConversionChar conversion_char) : tag_(static_cast<uint8>(conversion_char)) // NOLINT
 	{
 	}
-	constexpr ConvTag(LengthMod length_mod) : tag_(0x80 | static_cast<uint8_t>(length_mod)) // NOLINT
+	constexpr ConvTag(LengthMod length_mod) : tag_(0x80 | static_cast<uint8>(length_mod)) // NOLINT
 	{
 	}
-	constexpr ConvTag(Flags flags) : tag_(0xc0 | static_cast<uint8_t>(flags)) // NOLINT 
+	constexpr ConvTag(Flags flags) : tag_(0xc0 | static_cast<uint8>(flags)) // NOLINT 
 	{
 	}
 	constexpr ConvTag() : tag_(0xFF) 
@@ -106,7 +117,7 @@ public:
 		return static_cast<Flags>(tag_ & 0x1F);
 	}
 private:
-	uint8_t tag_;
+	uint8 tag_;
 };
 
 extern const ConvTag kTags[256];

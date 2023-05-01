@@ -489,7 +489,7 @@ public:
 					uint coord_bytes = 0;
 					uint coords_with_flags = 0;
 					while(glyph < glyph_end) {
-						uint8_t flag = *glyph;
+						uint8 flag = *glyph;
 						glyph++;
 
 						uint repeat = 1;
@@ -540,7 +540,7 @@ public:
 				{
 					float v = 0;
 					for(uint i = 0; i < points_.length; i++) {
-						uint8_t flag = points_[i].flag;
+						uint8 flag = points_[i].flag;
 						if(flag & short_flag) {
 							if(UNLIKELY(!bytes.check_range(p))) return false;
 							if(flag & same_flag)
@@ -582,7 +582,7 @@ public:
 					/* Read flags */
 					for(uint i = 0; i < num_points; i++) {
 						if(UNLIKELY(!bytes.check_range(p))) return false;
-						uint8_t flag = *p++;
+						uint8 flag = *p++;
 						points_[i].flag = flag;
 						if(flag & FLAG_REPEAT) {
 							if(UNLIKELY(!bytes.check_range(p))) return false;

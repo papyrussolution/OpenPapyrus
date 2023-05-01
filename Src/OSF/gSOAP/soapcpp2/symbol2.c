@@ -437,7 +437,7 @@ static char * FASTCALL prefix_of(char * s)
 		s++;
 	t = strstr(s+1, "__");
 	if(!t) {
-		t = strchr(s, ':');
+		t = sstrchr(s, ':');
 		if(t && t[1] == ':')
 			t = NULL;
 	}
@@ -590,7 +590,7 @@ static char * FASTCALL ns_add(const char * tag, const char * ns)
 	char * s = ns_convert(tag);
 	if(*s == ':')
 		return s+1;
-	if(!ns || *s == '-' || (t = strchr(s, ':')))
+	if(!ns || *s == '-' || (t = sstrchr(s, ':')))
 		return s;
 	n = ns_convert(ns);
 	t = emalloc(strlen(n)+strlen(s)+2);
@@ -677,7 +677,7 @@ static int  FASTCALL has_ns_eq(const char * ns, const char * s)
 	if(!ns) {
 		const char * t = strstr(s+1, "__");
 		if(!t || (t[2] == 'x' && ishex(t[3]) && ishex(t[4]) && ishex(t[5]) && ishex(t[6])) || !strncmp(t+2, "DOT", 3) || !strncmp(t+2, "USCORE", 6)) {
-			t = strchr(s, ':');
+			t = sstrchr(s, ':');
 			if(t && t[1] == ':')
 				t = NULL;
 		}
@@ -698,7 +698,7 @@ static int FASTCALL has_ns_t(const Tnode * typ)
 	if(typ->sym) {
 		char * s = strstr(typ->sym->name+1, "__");
 		if(!s) {
-			s = strchr(typ->sym->name, ':');
+			s = sstrchr(typ->sym->name, ':');
 			if(s && s[1] == ':')
 				s = NULL;
 		}
@@ -2980,7 +2980,7 @@ void gen_wsdl(FILE * fd, Table * t, char * ns, char * name, char * URL, char * e
 		fprintf(fd, " <port name=\"%s\" binding=\"tns:%s\">", portname, binding);
 		for(s = URL; s; s = t) {
 			int n;
-			t = strchr(s, ' ');
+			t = sstrchr(s, ' ');
 			if(t) {
 				n = (int)(t-s);
 				t++;
@@ -3521,7 +3521,7 @@ int gen_schema_element(FILE * fd, Tnode * p, Entry * q, char * ns, char * ns1)
 		if(*t == '-')
 			fprintf(fd, "     <any processContents=\"lax\" minOccurs=\"0\" maxOccurs=\"unbounded\"/><!-- %s -->\n",
 				q->next->sym->name);
-		else if((s = strchr(t+1, ':')) && (!strchr(q->next->sym->name+1, ':') || !has_ns_eq(ns, q->next->sym->name))) {
+		else if((s = sstrchr(t+1, ':')) && (!sstrchr(q->next->sym->name+1, ':') || !has_ns_eq(ns, q->next->sym->name))) {
 			if(((Tnode *)q->next->info.typ->ref)->type == Tpointer)
 				if(q->info.maxOccurs == 1)
 					fprintf(fd, "     <element ref=\"%s\" minOccurs=\"" SOAP_LONG_FORMAT "\" maxOccurs=\"unbounded\"", t, q->info.minOccurs);
@@ -3580,20 +3580,16 @@ int gen_schema_element(FILE * fd, Tnode * p, Entry * q, char * ns, char * ns1)
 		if(*t == '-')
 			fprintf(fd, "     <any processContents=\"lax\" minOccurs=\"0\" maxOccurs=\"unbounded\"/><!-- %s -->\n",
 				q->sym->name);
-		else if((s = strchr(t+1, ':')) && (!strchr(q->sym->name+1, ':') || !has_ns_eq(ns, q->sym->name))) {
+		else if((s = sstrchr(t+1, ':')) && (!sstrchr(q->sym->name+1, ':') || !has_ns_eq(ns, q->sym->name))) {
 			if(((Tnode *)q->info.typ->ref)->type == Tpointer)
 				if(q->info.maxOccurs == 1)
-					fprintf(fd, "     <element ref=\"%s\" minOccurs=\"" SOAP_LONG_FORMAT
-						"\" maxOccurs=\"unbounded\"", t, q->info.minOccurs);
+					fprintf(fd, "     <element ref=\"%s\" minOccurs=\"" SOAP_LONG_FORMAT "\" maxOccurs=\"unbounded\"", t, q->info.minOccurs);
 				else
-					fprintf(fd, "     <element ref=\"%s\" minOccurs=\"" SOAP_LONG_FORMAT
-						"\" maxOccurs=\"" SOAP_LONG_FORMAT "\"", t, q->info.minOccurs, q->info.maxOccurs);
+					fprintf(fd, "     <element ref=\"%s\" minOccurs=\"" SOAP_LONG_FORMAT "\" maxOccurs=\"" SOAP_LONG_FORMAT "\"", t, q->info.minOccurs, q->info.maxOccurs);
 			else if(q->info.maxOccurs == 1)
-				fprintf(fd, "     <element ref=\"%s\" minOccurs=\"" SOAP_LONG_FORMAT
-					"\" maxOccurs=\"unbounded\"", t, q->info.minOccurs);
+				fprintf(fd, "     <element ref=\"%s\" minOccurs=\"" SOAP_LONG_FORMAT "\" maxOccurs=\"unbounded\"", t, q->info.minOccurs);
 			else
-				fprintf(fd, "     <element ref=\"%s\" minOccurs=\"" SOAP_LONG_FORMAT
-					"\" maxOccurs=\"" SOAP_LONG_FORMAT "\"", t, q->info.minOccurs, q->info.maxOccurs);
+				fprintf(fd, "     <element ref=\"%s\" minOccurs=\"" SOAP_LONG_FORMAT "\" maxOccurs=\"" SOAP_LONG_FORMAT "\"", t, q->info.minOccurs, q->info.maxOccurs);
 			if(gen_member_documentation(fd, p->id, q, ns))
 				fprintf(fd, "     </element>\n");
 		}
@@ -3662,7 +3658,7 @@ int gen_schema_element(FILE * fd, Tnode * p, Entry * q, char * ns, char * ns1)
 	      if(*t == '-')
 		      fprintf(fd, "     <any processContents=\"lax\" minOccurs=\"0\" maxOccurs=\"1\"/><!-- %s -->\n",
 			      q->sym->name);
-	      else if((s = strchr(t+1, ':')) && (!strchr(q->sym->name+1, ':') || !has_ns_eq(ns, q->sym->name))) {
+	      else if((s = sstrchr(t+1, ':')) && (!sstrchr(q->sym->name+1, ':') || !has_ns_eq(ns, q->sym->name))) {
 		      if(q->info.typ->type == Tpointer || q->info.typ->type == Tarray || is_dynamic_array(q->info.typ))
 			      fprintf(fd, "     <element ref=\"%s\" minOccurs=\"" SOAP_LONG_FORMAT "\" maxOccurs=\"" SOAP_LONG_FORMAT
 				      "\"", t, q->info.minOccurs, q->info.maxOccurs);
@@ -3713,7 +3709,7 @@ void gen_schema_elements_attributes(FILE * fd, Table * t, char * ns, char * ns1,
 		   is_primclass(p->info.typ) || is_dynamic_array(p->info.typ))
 			continue;
 		for(q = ((Table *)p->info.typ->ref)->list; q; q = q->next) {
-			if(!is_repetition(q) && !is_anytype(q) && (!strchr(q->sym->name+1, ':') || !eq_ns(p->sym->name, q->sym->name)) && has_ns_eq(ns, 
+			if(!is_repetition(q) && !is_anytype(q) && (!sstrchr(q->sym->name+1, ':') || !eq_ns(p->sym->name, q->sym->name)) && has_ns_eq(ns, 
 				q->sym->name) && !is_transient(q->info.typ) && q->info.typ->type != Tfun) {
 				Service * sp2;
 				Method * m = NULL;
@@ -3914,7 +3910,7 @@ void gen_schema_attributes(FILE * fd, Tnode * p, char * ns, char * ns1)
 			t = ns_convert(q->sym->name);
 			if(*t == '-' || is_anyAttribute(q->info.typ))
 				fprintf(fd, "     <anyAttribute processContents=\"lax\"/><!-- %s -->\n", q->sym->name);
-			else if((s = strchr(t+1, ':')) && (!strchr(q->sym->name+1, ':') || !has_ns_eq(ns, q->sym->name))) {
+			else if((s = sstrchr(t+1, ':')) && (!sstrchr(q->sym->name+1, ':') || !has_ns_eq(ns, q->sym->name))) {
 				if(r && *r)
 					fprintf(fd, "     <attribute ref=\"%s\" use=\"default\"%s/>\n", t, r);
 				else if(q->info.typ->type != Tpointer || q->info.minOccurs)
@@ -6317,11 +6313,11 @@ const char * FASTCALL soap_type(const Tnode * typ)
 char * res_remove(char * tag)
 {
 	char * s, * t;
-	if(!(s = strchr(tag, ':')))
+	if(!(s = sstrchr(tag, ':')))
 		return tag;
 	s = emalloc(strlen(tag)+1);
 	strcpy(s, tag);
-	while((t = strchr(s, ':')))
+	while((t = sstrchr(s, ':')))
 		*t = '_';
 	return s;
 }

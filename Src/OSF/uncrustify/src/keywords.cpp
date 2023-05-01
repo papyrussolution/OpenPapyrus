@@ -780,40 +780,31 @@ E_Token find_keyword_type(const char * word, size_t len)
 int load_keyword_file(const char * filename)
 {
 	FILE * pf = fopen(filename, "r");
-
 	if(pf == nullptr) {
-		LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n",
-		    __func__, filename, strerror(errno), errno);
+		LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n", __func__, filename, strerror(errno), errno);
 		exit(EX_IOERR);
 	}
 	const int max_line_length = 256;
 	const int max_arg_count   = 2;
-
 	// maximal length of a line in the file
 	char buf[max_line_length];
 	char   * args[max_arg_count];
 	size_t line_no = 0;
-
 	// read file line by line
 	while(fgets(buf, max_line_length, pf) != nullptr) {
 		line_no++;
-
 		// remove comments after '#' sign
 		char * ptr;
-
-		if((ptr = strchr(buf, '#')) != nullptr) {
+		if((ptr = sstrchr(buf, '#')) != nullptr) {
 			*ptr = 0; // set string end where comment begins
 		}
 		size_t argc = Args::SplitLine(buf, args, max_arg_count);
-
 		if(argc > 0) {
-			if(argc == 1
-			    && CharTable::IsKw1(*args[0])) {
+			if(argc == 1 && CharTable::IsKw1(*args[0])) {
 				add_keyword(args[0], CT_TYPE);
 			}
 			else {
-				LOG_FMT(LWARN, "%s:%zu Invalid line (starts with '%s')\n",
-				    filename, line_no, args[0]);
+				LOG_FMT(LWARN, "%s:%zu Invalid line (starts with '%s')\n", filename, line_no, args[0]);
 				exit(EX_SOFTWARE);
 			}
 		}

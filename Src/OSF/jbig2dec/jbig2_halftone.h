@@ -1,8 +1,5 @@
-/* Copyright (C) 2001-2020 Artifex Software, Inc.
-   All Rights Reserved.
-
-   This software is provided AS-IS with no warranty, either express or
-   implied.
+/* Copyright (C) 2001-2020 Artifex Software, Inc. All Rights Reserved.
+   This software is provided AS-IS with no warranty, either express or implied.
 
    This software is distributed under license and may not be copied,
    modified or distributed except as expressly authorized under the terms
@@ -12,7 +9,6 @@
    Artifex Software, Inc.,  1305 Grant Avenue - Suite 200, Novato,
    CA 94945, U.S.A., +1(415)492-9861, for further information.
  */
-
 /*
     jbig2dec
  */
@@ -22,23 +18,23 @@
 typedef struct {
 	int n_patterns;
 	Jbig2Image ** patterns;
-	uint32_t HPW, HPH;
+	uint32 HPW, HPH;
 } Jbig2PatternDict;
 
 /* Table 24 */
 typedef struct {
 	boolint HDMMR;
-	uint32_t HDPW;
-	uint32_t HDPH;
-	uint32_t GRAYMAX;
+	uint32 HDPW;
+	uint32 HDPH;
+	uint32 GRAYMAX;
 	int HDTEMPLATE;
 } Jbig2PatternDictParams;
 
 /* Table 33 */
 typedef struct {
 	byte flags;
-	uint32_t HGW;
-	uint32_t HGH;
+	uint32 HGW;
+	uint32 HGH;
 	int32_t HGX;
 	int32_t HGY;
 	uint16_t HRX;

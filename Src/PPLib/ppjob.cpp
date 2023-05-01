@@ -1,5 +1,5 @@
 // PPJOB.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // @Kernel
 //
@@ -169,7 +169,7 @@ int PPJobMngr::GetResourceList(int loadText, StrAssocArray & rList)
 
 #define JOBSTRGSIGN 'SJPP'
 
-struct JobStrgHeader {     // @persistent @size=64
+struct JobStrgHeader { // @persistent @size=64
 	long   Signature;      // const=JOBSTRGSIGN
 	uint32 Locking;        // @v7.7.9 Отрезок, блокируемый для предотвращения множественного доступа на изменение
 	SVerT  Ver;            // @anchor Версия сессии, создавшей файл

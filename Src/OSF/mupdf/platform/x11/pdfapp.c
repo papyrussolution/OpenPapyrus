@@ -897,16 +897,12 @@ static void pdfapp_showpage(pdfapp_t * app, int loadpage, int drawpage, int repa
 		app->image = NULL;
 		app->imgw = 0;
 		app->imgh = 0;
-
 		fz_var(app->image);
 		fz_var(idev);
-
-		fz_try(app->ctx)
-		{
+		fz_try(app->ctx) {
 			app->image = fz_new_pixmap_with_bbox(app->ctx, colorspace, ibounds, app->seps, 1);
 			app->imgw = fz_pixmap_width(app->ctx, app->image);
 			app->imgh = fz_pixmap_height(app->ctx, app->image);
-
 			fz_clear_pixmap_with_value(app->ctx, app->image, 255);
 			if(app->page_list || app->annotations_list) {
 				idev = fz_new_draw_device(app->ctx, fz_identity, app->image);
@@ -925,21 +921,15 @@ static void pdfapp_showpage(pdfapp_t * app, int loadpage, int drawpage, int repa
 		fz_catch(app->ctx)
 		cookie.errors++;
 	}
-
 	if(transition && drawpage) {
 		app->new_image = app->image;
 		app->image = NULL;
 		app->imgw = 0;
 		app->imgh = 0;
-
-		if(app->grayscale)
-			colorspace = fz_device_gray(app->ctx);
-		else
-			colorspace = app->colorspace;
+		colorspace = app->grayscale ? fz_device_gray(app->ctx) : app->colorspace;
 		app->image = fz_new_pixmap_with_bbox(app->ctx, colorspace, ibounds, app->seps, 1);
 		app->imgw = fz_pixmap_width(app->ctx, app->image);
 		app->imgh = fz_pixmap_height(app->ctx, app->image);
-
 		app->duration = 0;
 		fz_page_presentation(app->ctx, app->page, &app->transition, &app->duration);
 		if(app->duration == 0)
@@ -1050,7 +1040,6 @@ static void pdfapp_search_in_direction(pdfapp_t * app, enum panning * panto, int
 			app->pageno = page;
 			pdfapp_showpage(app, 1, 0, 0, 0, 1);
 		}
-
 		app->hit_count = fz_search_stext_page(app->ctx, app->page_text, app->search, app->hit_bbox, nelem(app->hit_bbox));
 		if(app->hit_count > 0) {
 			*panto = dir == 1 ? PAN_TO_TOP : PAN_TO_BOTTOM;
@@ -1059,14 +1048,13 @@ static void pdfapp_search_in_direction(pdfapp_t * app, enum panning * panto, int
 			winrepaint(app);
 			return;
 		}
-
 		page += dir;
-		if(page < 1) page = app->pagecount;
-		if(page > app->pagecount) page = 1;
+		if(page < 1) 
+			page = app->pagecount;
+		if(page > app->pagecount) 
+			page = 1;
 	} while(page != firstpage);
-
 	pdfapp_warn(app, "String '%s' not found.", app->search);
-
 	app->pageno = firstpage;
 	pdfapp_showpage(app, 1, 0, 0, 0, 0);
 	wincursor(app, HAND);
@@ -1118,7 +1106,6 @@ void pdfapp_onkey(pdfapp_t * app, int c, int modifiers)
 	int oldpage = app->pageno;
 	enum panning panto = PAN_TO_TOP;
 	int loadpage = 1;
-
 	if(app->issearching) {
 		size_t n = strlen(app->search);
 		if(c < ' ') {
@@ -1130,7 +1117,6 @@ void pdfapp_onkey(pdfapp_t * app, int c, int modifiers)
 				app->issearching = 0;
 				if(n > 0) {
 					winrepaintsearch(app);
-
 					if(app->searchdir < 0) {
 						if(app->pageno == 1)
 							app->pageno = app->pagecount;
@@ -1138,7 +1124,6 @@ void pdfapp_onkey(pdfapp_t * app, int c, int modifiers)
 							app->pageno--;
 						pdfapp_showpage(app, 1, 1, 0, 0, 1);
 					}
-
 					pdfapp_onkey(app, 'n', 0);
 				}
 				else
@@ -1158,18 +1143,14 @@ void pdfapp_onkey(pdfapp_t * app, int c, int modifiers)
 		}
 		return;
 	}
-
 	/*
 	 * Save numbers typed for later
 	 */
-
 	if(c >= '0' && c <= '9') {
 		app->number[app->numberlen++] = c;
 		app->number[app->numberlen] = '\0';
 	}
-
-	switch(c)
-	{
+	switch(c) {
 		case 'q':
 		    save_accelerator(app->ctx, app->doc, app->docpath);
 		    winclose(app);
@@ -1358,7 +1339,6 @@ void pdfapp_onkey(pdfapp_t * app, int c, int modifiers)
 		case 'G':
 		    pdfapp_gotopage(app, app->pagecount);
 		    break;
-
 		case 'm':
 		    if(app->numberlen > 0) {
 			    int idx = atoi(app->number);
@@ -1373,11 +1353,9 @@ void pdfapp_onkey(pdfapp_t * app, int c, int modifiers)
 			    app->hist[app->histlen++] = app->pageno;
 		    }
 		    break;
-
 		case 't':
 		    if(app->numberlen > 0) {
 			    int idx = atoi(app->number);
-
 			    if(idx >= 0 && idx < (int)nelem(app->marks))
 				    if(app->marks[idx] > 0)
 					    app->pageno = app->marks[idx];
@@ -1497,7 +1475,6 @@ void pdfapp_onkey(pdfapp_t * app, int c, int modifiers)
 		    app->searchpage = -1;
 		    winrepaintsearch(app);
 		    break;
-
 		case '/':
 		    app->issearching = 1;
 		    app->searchdir = 1;
@@ -1506,35 +1483,24 @@ void pdfapp_onkey(pdfapp_t * app, int c, int modifiers)
 		    app->searchpage = -1;
 		    winrepaintsearch(app);
 		    break;
-
 		case 'n':
-		    if(app->searchdir > 0)
-			    pdfapp_search_in_direction(app, &panto, 1);
-		    else
-			    pdfapp_search_in_direction(app, &panto, -1);
+		    pdfapp_search_in_direction(app, &panto, (app->searchdir > 0) ? 1 : -1);
 		    loadpage = 0;
 		    break;
-
 		case 'N':
-		    if(app->searchdir > 0)
-			    pdfapp_search_in_direction(app, &panto, -1);
-		    else
-			    pdfapp_search_in_direction(app, &panto, 1);
+		    pdfapp_search_in_direction(app, &panto, (app->searchdir > 0) ? -1 : 1);
 		    loadpage = 0;
 		    break;
 	}
-
 	if(c < '0' || c > '9')
 		app->numberlen = 0;
-
 	if(app->pageno < 1)
 		app->pageno = 1;
 	if(app->pageno > app->pagecount)
 		app->pageno = app->pagecount;
 
 	if(app->pageno != oldpage) {
-		switch(panto)
-		{
+		switch(panto) {
 			case PAN_TO_TOP:
 			    app->pany = 0;
 			    break;
@@ -1635,7 +1601,6 @@ void pdfapp_onmouse(pdfapp_t * app, int x, int y, int btn, int modifiers, int st
 	else {
 		wincursor(app, ARROW);
 	}
-
 	if(state == 1 && !processed) {
 		if(btn == 1 && !app->iscopying) {
 			app->ispanning = 1;
@@ -1670,7 +1635,6 @@ void pdfapp_onmouse(pdfapp_t * app, int x, int y, int btn, int modifiers, int st
 			}
 		}
 	}
-
 	else if(state == -1) {
 		if(app->iscopying) {
 			app->iscopying = 0;
@@ -1684,14 +1648,12 @@ void pdfapp_onmouse(pdfapp_t * app, int x, int y, int btn, int modifiers, int st
 		}
 		app->ispanning = 0;
 	}
-
 	else if(app->ispanning) {
 		int newx = app->panx + x - app->selx;
 		int newy = app->pany + y - app->sely;
 		int imgh = app->winh;
 		if(app->image)
 			imgh = fz_pixmap_height(app->ctx, app->image);
-
 		/* Scrolling beyond limits implies flipping pages */
 		/* Are we requested to scroll beyond limits? */
 		if(newy + imgh < app->winh || newy > 0) {
@@ -1735,11 +1697,9 @@ void pdfapp_onmouse(pdfapp_t * app, int x, int y, int btn, int modifiers, int st
 		 * care off. Therefore
 		 */
 		pdfapp_panview(app, newx, newy);
-
 		app->selx = x;
 		app->sely = y;
 	}
-
 	else if(app->iscopying) {
 		app->selr.x0 = fz_mini(app->selx, x) - app->panx + irect.x0;
 		app->selr.x1 = fz_maxi(app->selx, x) - app->panx + irect.x0;

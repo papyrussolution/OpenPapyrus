@@ -1,9 +1,9 @@
 // SSYSTEM.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2016, 2017, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2012, 2013, 2016, 2017, 2019, 2020, 2022, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <wininet.h>
+//#include <wininet.h>
 
 static int is_bigendian_for_test()
 {

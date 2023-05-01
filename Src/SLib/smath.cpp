@@ -1414,6 +1414,76 @@ int Factorize(ulong val, UlongArray * pList)
 	return 1;
 }
 //
+// Descr: calculate best rational approximation for a given fraction
+//   taking into account restricted register size, e.g. to find
+//   appropriate values for a pll with 5 bit denominator and
+//   8 bit numerator register fields, trying to set up with a
+//   frequency ratio of 3.1415, one would say:
+// 
+//   rational_best_approximation(31415, 10000, (1 << 8) - 1, (1 << 5) - 1, &n, &d);
+// 
+//   you may look at given_numerator as a fixed point number,
+//   with the fractional part size described in given_denominator.
+// 
+//   for theoretical background, see: https://en.wikipedia.org/wiki/Continued_fraction
+// 
+void RationalBestApproximation(ulong givenNumerator, ulong givenDenominator, ulong maxNumerator, ulong maxDenominator, ulong * pBestNumerator, ulong * pBestDenominator)
+{
+	// n/d is the starting rational, which is continually
+	// decreased each iteration using the Euclidean algorithm.
+	// 
+	// dp is the value of d from the prior iteration.
+	// 
+	// n2/d2, n1/d1, and n0/d0 are our successively more accurate
+	// approximations of the rational.  They are, respectively,
+	// the current, previous, and two prior iterations of it.
+	// 
+	// a is current term of the continued fraction.
+	// 
+	ulong d1, n2, d2;
+	ulong n = givenNumerator;
+	ulong n0 = d1 = 0;
+	ulong n1 = 1;
+	ulong d0 = 1;
+	for(ulong d = givenDenominator; d != 0;) {
+		// Find next term in continued fraction, 'a', via Euclidean algorithm.
+		const ulong dp = d;
+		const ulong a = n / d;
+		d = n % d;
+		n = dp;
+		// Calculate the current rational approximation (aka
+		// convergent), n2/d2, using the term just found and
+		// the two prior approximations.
+		n2 = n0 + a * n1;
+		d2 = d0 + a * d1;
+		// If the current convergent exceeds the maxes, then
+		// return either the previous convergent or the
+		// largest semi-convergent, the final term of which is
+		// found below as 't'.
+		if((n2 > maxNumerator) || (d2 > maxDenominator)) {
+			ulong t = ULONG_MAX;
+			if(d1)
+				t = (maxDenominator - d0) / d1;
+			if(n1)
+				t = smin(t, (maxNumerator - n0) / n1);
+			// This tests if the semi-convergent is closer than the previous
+			// convergent.  If d1 is zero there is no previous convergent as this
+			// is the 1st iteration, so always choose the semi-convergent.
+			if(!d1 || 2u * t > a || (2u * t == a && d0 * dp > d1 * d)) {
+				n1 = n0 + t * n1;
+				d1 = d0 + t * d1;
+			}
+			break;
+		}
+		n0 = n1;
+		n1 = n2;
+		d0 = d1;
+		d1 = d2;
+	}
+	*pBestNumerator = n1;
+	*pBestDenominator = d1;
+}
+//
 //
 //
 SDecimalFraction::SDecimalFraction() : Mant(0), Exp(0), Flags(0)
@@ -1436,7 +1506,7 @@ SDecimalFraction::SDecimalFraction(double v) : Mant(0), Exp(0), Flags(0)
 		if(!(Flags & (SIEEE754::fINF|SIEEE754::fNAN))) {
 			if(mantissa != 0) { // В противном случае все число - 0 (мантисса, экспонента, знак)
 				Mant = mantissa;
-				Exp = exp;
+				Exp = static_cast<int16>(exp);
 				if(f & SIEEE754::fSIGN)
 					Mant = -Mant;
 			}
@@ -1735,6 +1805,36 @@ int SDecimalFraction::Div(const SDecimalFraction & rA, const SDecimalFraction & 
 
 	SLTEST_R(smath)
 	{
+		{
+			struct rational_test_param {
+				ulong  num;
+				ulong  den;
+				ulong  max_num;
+				ulong  max_den;
+				ulong  exp_num;
+				ulong  exp_den;
+				const  char * name;
+			};
+
+			static const struct rational_test_param test_parameters[] = {
+				{ 1230,	10,	100, 20,	100, 1,    "Exceeds bounds, semi-convergent term > 1/2 last term" },
+				{ 34567,100, 	120, 20,	120, 1,    "Exceeds bounds, semi-convergent term < 1/2 last term" },
+				{ 1, 30,	100, 10,	0, 1,	   "Closest to zero" },
+				{ 1, 19,	100, 10,	1, 10,     "Closest to smallest non-zero" },
+				{ 27,32,	16, 16,		11, 13,    "Use convergent" },
+				{ 1155, 7735,	255, 255,	33, 221,   "Exact answer" },
+				{ 87, 32,	70, 32,		68, 25,    "Semiconvergent, numerator limit" },
+				{ 14533, 4626,	15000, 2400,	7433, 2366, "Semiconvergent, denominator limit" },
+			};
+			for(uint i = 0; i < SIZEOFARRAY(test_parameters); i++) {
+				const rational_test_param & r_param = test_parameters[i];
+				ulong n = 0;
+				ulong d = 0;
+				RationalBestApproximation(r_param.num, r_param.den, r_param.max_num, r_param.max_den, &n, &d);
+				SLTEST_CHECK_EQ(n, r_param.exp_num);
+				SLTEST_CHECK_EQ(d, r_param.exp_den);
+			}
+		}
 		{
 			//
 			// fsplitintofractions

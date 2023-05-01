@@ -329,7 +329,7 @@ int mthd_stmt_fetch_to_bind(MYSQL_STMT * stmt, uchar * row)
 		else {
 			stmt->bind[i].u.row_ptr = row;
 			if(!stmt->bind_result_done || stmt->bind[i].flags & MADB_BIND_DUMMY) {
-				unsigned long length;
+				ulong length;
 				if(stmt->result_callback)
 					stmt->result_callback(stmt->user_data, i, &row);
 				else {
@@ -401,7 +401,7 @@ uchar * mysql_net_store_length(uchar * packet, size_t length)
 	return packet + 8;
 }
 
-static long ma_get_length(MYSQL_STMT * stmt, uint param_nr, unsigned long row_nr)
+static long ma_get_length(MYSQL_STMT * stmt, uint param_nr, ulong row_nr)
 {
 	if(!stmt->params[param_nr].length)
 		return 0;
@@ -413,7 +413,7 @@ static long ma_get_length(MYSQL_STMT * stmt, uint param_nr, unsigned long row_nr
 		return stmt->params[param_nr].length[row_nr];
 }
 
-static signed char ma_get_indicator(MYSQL_STMT * stmt, uint param_nr, unsigned long row_nr)
+static signed char ma_get_indicator(MYSQL_STMT * stmt, uint param_nr, ulong row_nr)
 {
 	if(!MARIADB_STMT_BULK_SUPPORTED(stmt) ||
 	    !stmt->array_size ||
@@ -426,7 +426,7 @@ static signed char ma_get_indicator(MYSQL_STMT * stmt, uint param_nr, unsigned l
 	return stmt->params[param_nr].u.indicator[row_nr];
 }
 
-static void * ma_get_buffer_offset(MYSQL_STMT * stmt, enum enum_field_types type, void * buffer, unsigned long row_nr)
+static void * ma_get_buffer_offset(MYSQL_STMT * stmt, enum enum_field_types type, void * buffer, ulong row_nr)
 {
 	if(stmt->param_callback)
 		return buffer;
@@ -442,7 +442,7 @@ static void * ma_get_buffer_offset(MYSQL_STMT * stmt, enum enum_field_types type
 	return buffer;
 }
 
-int store_param(MYSQL_STMT * stmt, int column, uchar ** p, unsigned long row_nr)
+int store_param(MYSQL_STMT * stmt, int column, uchar ** p, ulong row_nr)
 {
 	void * buf = ma_get_buffer_offset(stmt, stmt->params[column].buffer_type, stmt->params[column].buffer, row_nr);
 	signed char indicator = ma_get_indicator(stmt, column, row_nr);
@@ -1261,7 +1261,7 @@ int STDCALL mysql_stmt_fetch(MYSQL_STMT * stmt)
 	return rc;
 }
 
-int STDCALL mysql_stmt_fetch_column(MYSQL_STMT * stmt, MYSQL_BIND * bind, uint column, unsigned long offset)
+int STDCALL mysql_stmt_fetch_column(MYSQL_STMT * stmt, MYSQL_BIND * bind, uint column, ulong offset)
 {
 	if(stmt->state < MYSQL_STMT_USER_FETCHING || column >= stmt->field_count || stmt->state == MYSQL_STMT_FETCH_DONE) {
 		SET_CLIENT_STMT_ERROR(stmt, CR_NO_DATA, SQLSTATE_UNKNOWN, 0);
@@ -1379,7 +1379,7 @@ int STDCALL mysql_stmt_warning_count(MYSQL_STMT * stmt)
 	return stmt->upsert_status.warning_count;
 }
 
-int STDCALL mysql_stmt_prepare(MYSQL_STMT * stmt, const char * query, unsigned long length)
+int STDCALL mysql_stmt_prepare(MYSQL_STMT * stmt, const char * query, ulong length)
 {
 	MYSQL * mysql = stmt->mysql;
 	int rc = 1;
@@ -1876,7 +1876,7 @@ MYSQL_ROW_OFFSET STDCALL mysql_stmt_row_tell(MYSQL_STMT * stmt)
 	return(stmt->result_cursor);
 }
 
-unsigned long STDCALL mysql_stmt_param_count(MYSQL_STMT * stmt)
+ulong STDCALL mysql_stmt_param_count(MYSQL_STMT * stmt)
 {
 	return stmt->param_count;
 }
@@ -1888,7 +1888,7 @@ MYSQL_ROW_OFFSET STDCALL mysql_stmt_row_seek(MYSQL_STMT * stmt, MYSQL_ROW_OFFSET
 	return(old_row);
 }
 
-bool STDCALL mysql_stmt_send_long_data(MYSQL_STMT * stmt, uint param_number, const char * data, unsigned long length)
+bool STDCALL mysql_stmt_send_long_data(MYSQL_STMT * stmt, uint param_number, const char * data, ulong length)
 {
 	CLEAR_CLIENT_ERROR(stmt->mysql);
 	CLEAR_CLIENT_STMT_ERROR(stmt);

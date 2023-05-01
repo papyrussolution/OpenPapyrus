@@ -25,14 +25,14 @@
 #pragma hdrstop
 
 typedef struct {
-	uint32_t width;
-	uint32_t height;
+	uint32 width;
+	uint32 height;
 	const byte * data;
 	size_t size;
 	size_t consumed_bits;
-	uint32_t data_index;
-	uint32_t bit_index;
-	uint32_t word;
+	uint32 data_index;
+	uint32 bit_index;
+	uint32 word;
 } Jbig2MmrCtx;
 
 #define MINUS1 UINT32_MAX
@@ -730,14 +730,14 @@ const mmr_table_node jbig2_mmr_black_decode[] = {
  * addresses.
  */
 #define getword16(b)  ((uint16_t)(b[0] | (b[1] << 8)))
-#define getword32(b)  ((uint32_t)(getword16(b) | (getword16((b + 2)) << 16)))
+#define getword32(b)  ((uint32)(getword16(b) | (getword16((b + 2)) << 16)))
 
-static uint32_t jbig2_find_changing_element(const byte * line, uint32_t x, uint32_t w)
+static uint32 jbig2_find_changing_element(const byte * line, uint32 x, uint32 w)
 {
 	int a;
-	uint8_t all8;
+	uint8 all8;
 	uint16_t all16;
-	uint32_t all32;
+	uint32 all32;
 	if(line == NULL)
 		return w;
 	if(x == MINUS1) {
@@ -762,7 +762,7 @@ static uint32_t jbig2_find_changing_element(const byte * line, uint32_t x, uint3
 	   [Would it be worth looking at top 4 bits, then at 2 bits then at 1 bit,
 	   instead of iterating over all 8 bits? */
 
-	if(((uint8_t*)line)[ x / 8] == all8) {
+	if(((uint8*)line)[ x / 8] == all8) {
 		/* Don't bother checking individual bits if the enclosing uint8 equals
 		   all8 - just move to the next byte. */
 		x = x / 8 * 8 + 8;
@@ -792,7 +792,7 @@ static uint32_t jbig2_find_changing_element(const byte * line, uint32_t x, uint3
 		if(w - x < 8) {
 			goto check1;
 		}
-		if(((uint8_t*)line)[ x / 8] != all8) {
+		if(((uint8*)line)[ x / 8] != all8) {
 			goto check1;
 		}
 		x += 8; /* This will make x a multiple of 16. */
@@ -848,7 +848,7 @@ check8:
 	}
 check8_no_eof:
 	assert(w - x >= 8);
-	if(((uint8_t*)line)[x/8] != all8) {
+	if(((uint8*)line)[x/8] != all8) {
 		goto check1;
 	}
 	x += 8;
@@ -856,7 +856,7 @@ check8_no_eof:
 	/* Check up to the next 8 bits. */
 check1:
 	assert(x % 8 == 0);
-	if(((uint8_t*)line)[ x / 8] == all8) {
+	if(((uint8*)line)[ x / 8] == all8) {
 		x = w;
 		goto end;
 	}
@@ -879,7 +879,7 @@ end:
 #undef getword16
 #undef getword32
 
-static uint32_t jbig2_find_changing_element_of_color(const byte * line, uint32_t x, uint32_t w, int color)
+static uint32 jbig2_find_changing_element_of_color(const byte * line, uint32 x, uint32 w, int color)
 {
 	if(line == NULL)
 		return w;
@@ -892,18 +892,18 @@ static uint32_t jbig2_find_changing_element_of_color(const byte * line, uint32_t
 static const byte lm[8] = { 0xFF, 0x7F, 0x3F, 0x1F, 0x0F, 0x07, 0x03, 0x01 };
 static const byte rm[8] = { 0x00, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE };
 
-static void jbig2_set_bits(byte * line, uint32_t x0, uint32_t x1)
+static void jbig2_set_bits(byte * line, uint32 x0, uint32 x1)
 {
-	const uint32_t a0 = x0 >> 3;
-	const uint32_t a1 = x1 >> 3;
-	const uint32_t b0 = x0 & 7;
-	const uint32_t b1 = x1 & 7;
+	const uint32 a0 = x0 >> 3;
+	const uint32 a1 = x1 >> 3;
+	const uint32 b0 = x0 & 7;
+	const uint32 b1 = x1 & 7;
 	if(a0 == a1) {
 		line[a0] |= lm[b0] & rm[b1];
 	}
 	else {
 		line[a0] |= lm[b0];
-		for(uint32_t a = a0 + 1; a < a1; a++)
+		for(uint32 a = a0 + 1; a < a1; a++)
 			line[a] = 0xFF;
 		if(b1)
 			line[a1] |= rm[b1];
@@ -912,7 +912,7 @@ static void jbig2_set_bits(byte * line, uint32_t x0, uint32_t x1)
 
 static int FASTCALL jbig2_decode_get_code(Jbig2MmrCtx * mmr, const mmr_table_node * table, int initial_bits)
 {
-	const uint32_t word = mmr->word;
+	const uint32 word = mmr->word;
 	int table_ix = word >> (32 - initial_bits);
 	int val = table[table_ix].val;
 	int n_bits = table[table_ix].n_bits;
@@ -945,11 +945,11 @@ static int FASTCALL jbig2_decode_get_run(Jbig2Ctx * ctx, Jbig2MmrCtx * mmr, cons
 
 static int jbig2_decode_mmr_line(Jbig2Ctx * ctx, Jbig2MmrCtx * mmr, const byte * ref, byte * dst, int * eofb)
 {
-	uint32_t a0 = MINUS1;
-	uint32_t a1, a2, b1, b2;
+	uint32 a0 = MINUS1;
+	uint32 a1, a2, b1, b2;
 	int c = 0; /* 0 is white, black is 1 */
 	while(1) {
-		uint32_t word = mmr->word;
+		uint32 word = mmr->word;
 		/* printf ("%08x\n", word); */
 		if(a0 != MINUS1 && a0 >= mmr->width)
 			break;
@@ -1165,10 +1165,10 @@ int jbig2_decode_generic_mmr(Jbig2Ctx * ctx,
     Jbig2Image * image)
 {
 	Jbig2MmrCtx mmr;
-	const uint32_t rowstride = image->stride;
+	const uint32 rowstride = image->stride;
 	byte * dst = image->data;
 	byte * ref = NULL;
-	uint32_t y;
+	uint32 y;
 	int code = 0;
 	int eofb = 0;
 
@@ -1206,12 +1206,12 @@ int jbig2_decode_halftone_mmr(Jbig2Ctx * ctx, const Jbig2GenericRegionParams * p
     size_t size, Jbig2Image * image, size_t * consumed_bytes)
 {
 	Jbig2MmrCtx mmr;
-	const uint32_t rowstride = image->stride;
+	const uint32 rowstride = image->stride;
 	byte * dst = image->data;
 	byte * ref = NULL;
-	uint32_t y;
+	uint32 y;
 	int code = 0;
-	const uint32_t EOFB = 0x001001;
+	const uint32 EOFB = 0x001001;
 	int eofb = 0;
 	jbig2_decode_mmr_init(&mmr, image->width, image->height, data, size);
 	for(y = 0; !eofb && y < image->height; y++) {

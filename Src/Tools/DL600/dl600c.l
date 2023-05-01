@@ -1,6 +1,6 @@
 /*
 	DL600C.L
-	Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2016, 2020, 2021
+	Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2016, 2020, 2021, 2023
 	Part of project Papyrus
 	Lexer of DL600 language
 */

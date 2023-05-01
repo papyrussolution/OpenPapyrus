@@ -1010,7 +1010,7 @@ static size_t cmt_parse_lead(const UncText &line, bool is_last)
 			}
 			break;
 		}
-		else if(strchr("*|\\#+", line[len]) == nullptr) {
+		else if(sstrchr("*|\\#+", line[len]) == nullptr) {
 			break; // none of the characters '*|\#+' found in line
 		}
 		len++;

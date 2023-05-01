@@ -1424,14 +1424,12 @@ static int get_payload_group_name(enum state state, const struct translation_st 
 		    ERR_raise(ERR_LIB_EVP, EVP_R_UNSUPPORTED_KEY_TYPE);
 		    return 0;
 	}
-
 	/*
 	 * Quietly ignoring unknown groups matches the behaviour on the provider
 	 * side.
 	 */
 	if(ctx->p2 == NULL)
 		return 1;
-
 	ctx->p1 = strlen((const char *)ctx->p2);
 	return default_fixup_args(state, translation, ctx);
 }
@@ -1442,7 +1440,6 @@ static int get_payload_private_key(enum state state, const struct translation_st
 	ctx->p2 = NULL;
 	if(ctx->params->data_type != OSSL_PARAM_UNSIGNED_INTEGER)
 		return 0;
-
 	switch(EVP_PKEY_get_base_id(pkey)) {
 #ifndef OPENSSL_NO_DH
 		case EVP_PKEY_DH:

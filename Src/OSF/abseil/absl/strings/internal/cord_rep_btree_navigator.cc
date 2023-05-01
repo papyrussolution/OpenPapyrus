@@ -71,7 +71,7 @@ namespace absl {
 			// edges that must be skipped.
 			while(height > 0) {
 				node = edge->btree();
-				index_[height] = static_cast<uint8_t>(index);
+				index_[height] = static_cast<uint8>(index);
 				node_[--height] = node;
 				index = node->begin();
 				edge = node->Edge(index);
@@ -82,7 +82,7 @@ namespace absl {
 					edge = node->Edge(index);
 				}
 			}
-			index_[0] = static_cast<uint8_t>(index);
+			index_[0] = static_cast<uint8>(index);
 			return {edge, n};
 		}
 		ReadResult CordRepBtreeNavigator::Read(size_t edge_offset, size_t n) 
@@ -105,7 +105,7 @@ namespace absl {
 			do {
 				length -= edge->length;
 				while(++index == node->end()) {
-					index_[height] = static_cast<uint8_t>(index);
+					index_[height] = static_cast<uint8>(index);
 					if(++height > height_) {
 						subtree->set_end(subtree_end);
 						if(length == 0) return {subtree, 0};
@@ -133,7 +133,7 @@ namespace absl {
 			// edges that must be read, adding 'down' nodes to `subtree`.
 			while(height > 0) {
 				node = edge->btree();
-				index_[height] = static_cast<uint8_t>(index);
+				index_[height] = static_cast<uint8>(index);
 				node_[--height] = node;
 				index = node->begin();
 				edge = node->Edge(index);
@@ -157,7 +157,7 @@ namespace absl {
 				subtree->edges_[subtree_end++] = Substring(edge, 0, length);
 			}
 			subtree->set_end(subtree_end);
-			index_[0] = static_cast<uint8_t>(index);
+			index_[0] = static_cast<uint8>(index);
 			return {tree, length};
 		}
 	}  // namespace cord_internal

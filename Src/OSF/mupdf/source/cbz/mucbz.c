@@ -169,24 +169,20 @@ static fz_page * cbz_load_page(fz_context * ctx, fz_document * doc_, int chapter
 		buf = fz_read_archive_entry(ctx, doc->arch, doc->page[number]);
 	if(!buf)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "cannot load cbz page");
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		page = fz_new_derived_page(ctx, cbz_page);
 		page->super.bound_page = cbz_bound_page;
 		page->super.run_page_contents = cbz_run_page;
 		page->super.drop_page = cbz_drop_page;
 		page->image = fz_new_image_from_buffer(ctx, buf);
 	}
-	fz_always(ctx)
-	{
+	fz_always(ctx) {
 		fz_drop_buffer(ctx, buf);
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_drop_page(ctx, (fz_page*)page);
 		fz_rethrow(ctx);
 	}
-
 	return (fz_page*)page;
 }
 

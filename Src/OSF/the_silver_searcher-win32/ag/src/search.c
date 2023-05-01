@@ -5,7 +5,7 @@
 
 size_t alpha_skip_lookup[256]; // @global
 size_t * find_skip_lookup; // @global
-uint8_t h_table[H_SIZE] /* @sobolev __attribute__((aligned(64)))*/; // @global
+uint8 h_table[H_SIZE] /* @sobolev __attribute__((aligned(64)))*/; // @global
 work_queue_t * work_queue = NULL; // @global
 work_queue_t * work_queue_tail = NULL; // @global
 int done_adding_files = 0; // @global

@@ -26,7 +26,7 @@
 #define U       JOINING_TYPE_U
 #define X       JOINING_TYPE_X
 
-static const uint8_t joining_table[] =
+static const uint8 joining_table[] =
 {
 #define joining_offset_0x0600u 0
 

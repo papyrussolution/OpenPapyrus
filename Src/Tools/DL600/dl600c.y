@@ -1,7 +1,7 @@
 // DL600C.Y
-// Copyright (c) A.Sobolev 2006-2007, 2008, 2009, 2010, 2011, 2016, 2020, 2021
+// Copyright (c) A.Sobolev 2006-2007, 2008, 2009, 2010, 2011, 2016, 2020, 2021, 2023
+// @codepage UTF-8
 //
-
 // debug cmdline: /dict:$(SolutionDir)..\..\BASE\INIT_DL6 /data:$(SolutionDir)..\..\BASE\INIT_DL6 /oracle $(SolutionDir)..\rsrc\dl600\ppdbs.dl6
 // debug cmdline: $(SolutionDir)..\rsrc\dl600\ppui-test.dl6
 
@@ -156,7 +156,7 @@ int CallbackCompress(long, long, const char *, int)
 %token <token>    T_CONST_UUID
 %token <token>    T_CONST_COLORRGB
 %token <token>    T_IDENT
-%token <token>    T_AT_IDENT    // '@' ident (возвращает строку, в которой символ @ уже убран)
+%token <token>    T_AT_IDENT    // '@' ident (РІРѕР·РІСЂР°С‰Р°РµС‚ СЃС‚СЂРѕРєСѓ, РІ РєРѕС‚РѕСЂРѕР№ СЃРёРјРІРѕР» @ СѓР¶Рµ СѓР±СЂР°РЅ)
 %token <token>    T_FMT
 %token <var>      T_VAR
 %token <token>    T_TABLE       // "table"
@@ -399,7 +399,7 @@ ifunc_dclr : type func_declarator '(' ifunc_farg_list ')' ';'
 	if(!DCtx.AddFuncDeclare($2, $4))
 		DCtx.Error();
 	//
-	// Регистрируем тип 'указатель' на ret_type
+	// Р РµРіРёСЃС‚СЂРёСЂСѓРµРј С‚РёРї 'СѓРєР°Р·Р°С‚РµР»СЊ' РЅР° ret_type
 	//
 	DlContext::TypeEntry ret_te_mod;
 	DLSYMBID ptr_typ = DCtx.SetDeclTypeMod($1, STypEx::modPtr);
@@ -616,7 +616,7 @@ decl_expstruc : expstruc_head parent_struc T_LBR
 	} expstruc_declare_list expstruc_body T_RBR
 {
 	DCtx.LeaveScope(); // } hdr
-	DCtx.CompleteExportDataStruc(); // Сейчас текущая область - DlScope::kExpData. Делаем завершающие операции.
+	DCtx.CompleteExportDataStruc(); // РЎРµР№С‡Р°СЃ С‚РµРєСѓС‰Р°СЏ РѕР±Р»Р°СЃС‚СЊ - DlScope::kExpData. Р”РµР»Р°РµРј Р·Р°РІРµСЂС€Р°СЋС‰РёРµ РѕРїРµСЂР°С†РёРё.
 	DCtx.LeaveScope(); // } data
 }
 
@@ -665,7 +665,7 @@ expstruc_iter_list : | expstruc_iter_list expstruc_iter
 {
 }
 
-expstruc_iter : T_ITERATION T_LBR // Неименованный итератор
+expstruc_iter : T_ITERATION T_LBR // РќРµРёРјРµРЅРѕРІР°РЅРЅС‹Р№ РёС‚РµСЂР°С‚РѕСЂ
 	{
 		DCtx.PushScope();
 		DCtx.EnterScope(DlScope::kExpDataIter, "iter@def", 0, 0);
@@ -674,7 +674,7 @@ expstruc_iter : T_ITERATION T_LBR // Неименованный итератор
 {
 	DCtx.LeaveScope();
 	DCtx.PopScope();
-} | T_ITERATION T_IDENT T_LBR // Именованный итератор
+} | T_ITERATION T_IDENT T_LBR // РРјРµРЅРѕРІР°РЅРЅС‹Р№ РёС‚РµСЂР°С‚РѕСЂ
 	{
 		SString temp_buf;
 		(temp_buf = "iter").CatChar('@').Cat($2.U.S);
@@ -687,7 +687,7 @@ expstruc_iter : T_ITERATION T_LBR // Неименованный итератор
 	DCtx.PopScope();
 }
 //
-// Список полей.
+// РЎРїРёСЃРѕРє РїРѕР»РµР№.
 //
 expstruc_field_list : | declaration_exp_field | expstruc_field_list declaration_exp_field
 
@@ -820,7 +820,7 @@ expr : constant { $$.Init($1); }
 {
 	CtmExprConst c;
 	CtmExpr fmt_str;
-	SString val(1); // (1) уверены, что (const char *)val != 0.
+	SString val(1); // (1) СѓРІРµСЂРµРЅС‹, С‡С‚Рѕ (const char *)val != 0.
 	val = $5.U.S;
 	DCtx.AddConst(val, &c);
 	fmt_str.Init(c);
@@ -847,7 +847,7 @@ constant : T_CONST_REAL
 	ZapToken($1);
 } | T_CONST_STR
 {
-	SString val(1); // (1) для уверенности, что (const char *)val != 0.
+	SString val(1); // (1) РґР»СЏ СѓРІРµСЂРµРЅРЅРѕСЃС‚Рё, С‡С‚Рѕ (const char *)val != 0.
 	val = $1.U.S;
 	DCtx.AddConst(val, &$$);
 	ZapToken($1);
@@ -920,12 +920,12 @@ dbindex_seg : T_IDENT dbseg_flag_list
 	ZapToken($1);
 }
 //
-// Наименование индекса (опциональное)
+// РќР°РёРјРµРЅРѕРІР°РЅРёРµ РёРЅРґРµРєСЃР° (РѕРїС†РёРѕРЅР°Р»СЊРЅРѕРµ)
 // <token>
 //
 dbindex_name : { $$.Create(0); } | T_IDENT '=' { $$ = $1; }
 //
-// Список опций сегмента индекса таблицы базы данных
+// РЎРїРёСЃРѕРє РѕРїС†РёР№ СЃРµРіРјРµРЅС‚Р° РёРЅРґРµРєСЃР° С‚Р°Р±Р»РёС†С‹ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
 // <lval>
 //
 dbseg_flag_list :
@@ -937,7 +937,7 @@ dbseg_flag_list :
 	ZapToken($2);
 }
 //
-// Список опций индекса таблицы базы данных
+// РЎРїРёСЃРѕРє РѕРїС†РёР№ РёРЅРґРµРєСЃР° С‚Р°Р±Р»РёС†С‹ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
 // <lval>
 //
 dbindex_flag_list :
@@ -1039,7 +1039,7 @@ properties:
 	padding_top : real
 	padding_right : real
 	padding_bottom : real
-	aspectratio : real // Отношение высоты к ширине
+	aspectratio : real // РћС‚РЅРѕС€РµРЅРёРµ РІС‹СЃРѕС‚С‹ Рє С€РёСЂРёРЅРµ
 	bbox : BOUNDINGBOX
 	var : ident
 	data : ident
@@ -1093,21 +1093,21 @@ brak_prop_list : brak_prop_entry
 {
 	$$.Init();
 	$$.Add($1);
-	$1.Destroy(); // $$ получил собственную копию $1: разрушаем $1
+	$1.Destroy(); // $$ РїРѕР»СѓС‡РёР» СЃРѕР±СЃС‚РІРµРЅРЅСѓСЋ РєРѕРїРёСЋ $1: СЂР°Р·СЂСѓС€Р°РµРј $1
 } | brak_prop_list optional_divider_semicol brak_prop_entry
 {
 	$$.Init();
 	$$.Add($1);
 	$$.Add($3);
-	$1.Destroy(); // $$ получил собственную копию $1: разрушаем $1
-	$3.Destroy(); // $$ получил собственную копию $3: разрушаем $3
+	$1.Destroy(); // $$ РїРѕР»СѓС‡РёР» СЃРѕР±СЃС‚РІРµРЅРЅСѓСЋ РєРѕРїРёСЋ $1: СЂР°Р·СЂСѓС€Р°РµРј $1
+	$3.Destroy(); // $$ РїРѕР»СѓС‡РёР» СЃРѕР±СЃС‚РІРµРЅРЅСѓСЋ РєРѕРїРёСЋ $3: СЂР°Р·СЂСѓС€Р°РµРј $3
 }
 
 brak_prop_sheet : '[' brak_prop_list ']'
 {
 	$$.Init();
 	$$.Add($2);
-	$2.Destroy(); // $$ получил собственную копию $2: разрушаем $2
+	$2.Destroy(); // $$ РїРѕР»СѓС‡РёР» СЃРѕР±СЃС‚РІРµРЅРЅСѓСЋ РєРѕРїРёСЋ $2: СЂР°Р·СЂСѓС€Р°РµРј $2
 }
 
 view_decl_prefix : T_VIEW { $$.Copy($1); ZapToken($1); } 

@@ -1235,6 +1235,9 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
     <Manifest Include="..\OSF\npp-gh20210917\PowerEditor\src\notepad++.exe.manifest" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="lcms2.vcxproj">
+      <Project>{71dede59-3f1e-486b-a899-4283000f76b5}</Project>
+    </ProjectReference>
     <ProjectReference Include="libjpeg.vcxproj">
       <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
     </ProjectReference>

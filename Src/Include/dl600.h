@@ -130,9 +130,9 @@ struct DlFunc {
 		uint   NamePos;
 		uint16 Flags;
 	};
-	static int GetOpName(uint opID, SString & rName); // Compile-time
+	static bool FASTCALL GetOpName(uint opID, SString & rName); // Compile-time
 	DlFunc();
-	int    GetName(uint options, SString & rName) const; // Compile-time
+	bool   GetName(uint options, SString & rName) const; // Compile-time
 	uint   GetArgCount() const;
 	int    GetArg(uint argN, Arg *) const;
 	DLSYMBID GetArgType(uint argN) const;

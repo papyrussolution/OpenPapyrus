@@ -1859,31 +1859,18 @@ class TestWithParam : public Test, public WithParamInterface<T> {};
 //   ASSERT_LT(i, array_size);
 //   ASSERT_GT(records.size(), 0) << "There is no record left.";
 
-#define EXPECT_EQ(val1, val2) \
-	EXPECT_PRED_FORMAT2(::testing::internal::EqHelper::Compare, val1, val2)
-#define EXPECT_NE(val1, val2) \
-	EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperNE, val1, val2)
-#define EXPECT_LE(val1, val2) \
-	EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperLE, val1, val2)
-#define EXPECT_LT(val1, val2) \
-	EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperLT, val1, val2)
-#define EXPECT_GE(val1, val2) \
-	EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperGE, val1, val2)
-#define EXPECT_GT(val1, val2) \
-	EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperGT, val1, val2)
-
-#define GTEST_ASSERT_EQ(val1, val2) \
-	ASSERT_PRED_FORMAT2(::testing::internal::EqHelper::Compare, val1, val2)
-#define GTEST_ASSERT_NE(val1, val2) \
-	ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperNE, val1, val2)
-#define GTEST_ASSERT_LE(val1, val2) \
-	ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperLE, val1, val2)
-#define GTEST_ASSERT_LT(val1, val2) \
-	ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperLT, val1, val2)
-#define GTEST_ASSERT_GE(val1, val2) \
-	ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperGE, val1, val2)
-#define GTEST_ASSERT_GT(val1, val2) \
-	ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperGT, val1, val2)
+#define EXPECT_EQ(val1, val2) EXPECT_PRED_FORMAT2(::testing::internal::EqHelper::Compare, val1, val2)
+#define EXPECT_NE(val1, val2) EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperNE, val1, val2)
+#define EXPECT_LE(val1, val2) EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperLE, val1, val2)
+#define EXPECT_LT(val1, val2) EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperLT, val1, val2)
+#define EXPECT_GE(val1, val2) EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperGE, val1, val2)
+#define EXPECT_GT(val1, val2) EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperGT, val1, val2)
+#define GTEST_ASSERT_EQ(val1, val2) ASSERT_PRED_FORMAT2(::testing::internal::EqHelper::Compare, val1, val2)
+#define GTEST_ASSERT_NE(val1, val2) ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperNE, val1, val2)
+#define GTEST_ASSERT_LE(val1, val2) ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperLE, val1, val2)
+#define GTEST_ASSERT_LT(val1, val2) ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperLT, val1, val2)
+#define GTEST_ASSERT_GE(val1, val2) ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperGE, val1, val2)
+#define GTEST_ASSERT_GT(val1, val2) ASSERT_PRED_FORMAT2(::testing::internal::CmpHelperGT, val1, val2)
 
 // Define macro GTEST_DONT_DEFINE_ASSERT_XY to 1 to omit the definition of
 // ASSERT_XY(), which clashes with some users' own code.

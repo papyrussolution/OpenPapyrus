@@ -183,31 +183,29 @@ LRESULT SplitterContainer::runProc(UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_GETSPLITTER_X:
 		    switch(_splitterMode) {
 			    case SplitterMode::LEFT_FIX:
-					return MAKELONG(_pWin0->getWidth(), static_cast<std::uint8_t>(SplitterMode::LEFT_FIX));
+					return MAKELONG(_pWin0->getWidth(), static_cast<uint8>(SplitterMode::LEFT_FIX));
 			    case SplitterMode::RIGHT_FIX:
 					{
-						int x = getWidth()-_pWin1->getWidth();
-						SETMAX(x, 0);
-						return MAKELONG(x, static_cast<std::uint8_t>(SplitterMode::RIGHT_FIX));
+						const int x = smax(getWidth()-_pWin1->getWidth(), 0);
+						return MAKELONG(x, static_cast<uint8>(SplitterMode::RIGHT_FIX));
 					}
 			    default:
 					break;
 		    }
-		    return MAKELONG(0, static_cast<std::uint8_t>(SplitterMode::DYNAMIC));
+		    return MAKELONG(0, static_cast<uint8>(SplitterMode::DYNAMIC));
 		case WM_GETSPLITTER_Y:
 			switch(_splitterMode) {
 				case SplitterMode::LEFT_FIX:
-					return MAKELONG(_pWin0->getHeight(), static_cast<std::uint8_t>(SplitterMode::LEFT_FIX));
+					return MAKELONG(_pWin0->getHeight(), static_cast<uint8>(SplitterMode::LEFT_FIX));
 				case SplitterMode::RIGHT_FIX:
 					{
-						int y = getHeight()-_pWin1->getHeight();
-						SETMAX(y, 0);
-						return MAKELONG(y, static_cast<std::uint8_t>(SplitterMode::RIGHT_FIX));
+						const int y = smax(getHeight()-_pWin1->getHeight(), 0);
+						return MAKELONG(y, static_cast<uint8>(SplitterMode::RIGHT_FIX));
 					}
 				default:
 				break;
 			}
-			return MAKELONG(0, static_cast<std::uint8_t>(SplitterMode::DYNAMIC));
+			return MAKELONG(0, static_cast<uint8>(SplitterMode::DYNAMIC));
 		case WM_LBUTTONDBLCLK:
 			{
 				POINT pt;

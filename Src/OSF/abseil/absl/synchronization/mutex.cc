@@ -1205,10 +1205,10 @@ static inline void DebugOnlyLockEnter(Mutex * mu, GraphId id)
 }
 
 // Call LockLeave() if in debug mode and deadlock detection is enabled.
-static inline void DebugOnlyLockLeave(Mutex * mu) {
+static inline void DebugOnlyLockLeave(Mutex * mu) 
+{
 	if(kDebugMode) {
-		if(synch_deadlock_detection.load(std::memory_order_acquire) !=
-		    OnDeadlockCycle::kIgnore) {
+		if(synch_deadlock_detection.load(std::memory_order_acquire) != OnDeadlockCycle::kIgnore) {
 			LockLeave(mu, GetGraphId(mu), Synch_GetAllLocks());
 		}
 	}
@@ -1221,15 +1221,13 @@ static char * StackString(void ** pcs, int n, char * buf, int maxlen, bool symbo
 	int len = 0;
 	for(int i = 0; i != n; i++) {
 		if(symbolize) {
-			if(!symbolizer(pcs[i], sym, kSymLen)) {
+			if(!symbolizer(pcs[i], sym, kSymLen))
 				sym[0] = '\0';
-			}
 			snprintf(buf + len, maxlen - len, "%s\t@ %p %s\n", (i == 0 ? "\n" : ""), pcs[i], sym);
 		}
-		else {
+		else
 			snprintf(buf + len, maxlen - len, " %p", pcs[i]);
-		}
-		len += strlen(&buf[len]);
+		len += sstrleni(&buf[len]); // @sobolev strlen-->sstrleni
 	}
 	return buf;
 }

@@ -1382,10 +1382,8 @@ U_CAPI int32_t U_EXPORT2 uidna_nameToUnicode(const UIDNA * idna,
 	return destString.extract(dest, capacity, *pErrorCode);
 }
 
-U_CAPI int32_t U_EXPORT2 uidna_labelToASCII_UTF8(const UIDNA * idna,
-    const char * label, int32_t length,
-    char * dest, int32_t capacity,
-    UIDNAInfo * pInfo, UErrorCode * pErrorCode) {
+U_CAPI int32_t U_EXPORT2 uidna_labelToASCII_UTF8(const UIDNA * idna, const char * label, int32_t length, char * dest, int32_t capacity, UIDNAInfo * pInfo, UErrorCode * pErrorCode) 
+{
 	if(!checkArgs(label, length, dest, capacity, pInfo, pErrorCode)) {
 		return 0;
 	}
@@ -1397,10 +1395,8 @@ U_CAPI int32_t U_EXPORT2 uidna_labelToASCII_UTF8(const UIDNA * idna,
 	return u_terminateChars(dest, capacity, sink.NumberOfBytesAppended(), pErrorCode);
 }
 
-U_CAPI int32_t U_EXPORT2 uidna_labelToUnicodeUTF8(const UIDNA * idna,
-    const char * label, int32_t length,
-    char * dest, int32_t capacity,
-    UIDNAInfo * pInfo, UErrorCode * pErrorCode) {
+U_CAPI int32_t U_EXPORT2 uidna_labelToUnicodeUTF8(const UIDNA * idna, const char * label, int32_t length, char * dest, int32_t capacity, UIDNAInfo * pInfo, UErrorCode * pErrorCode) 
+{
 	if(!checkArgs(label, length, dest, capacity, pInfo, pErrorCode)) {
 		return 0;
 	}

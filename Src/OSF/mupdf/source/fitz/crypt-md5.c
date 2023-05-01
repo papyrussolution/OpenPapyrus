@@ -190,33 +190,26 @@ void fz_md5_init(fz_md5 * context)
 
 void fz_md5_update(fz_md5 * context, const uchar * input, size_t inlen)
 {
-	size_t i, index, partlen;
-
+	size_t i, partlen;
 	/* Compute number of bytes mod 64 */
-	index = (size_t)((context->count[0] >> 3) & 0x3F);
-
+	size_t index = (size_t)((context->count[0] >> 3) & 0x3F);
 	/* Update number of bits */
 	context->count[0] += (uint)inlen << 3;
 	if(context->count[0] < (uint)inlen << 3)
 		context->count[1]++;
 	context->count[1] += (uint)inlen >> 29;
-
 	partlen = 64 - index;
-
 	/* Transform as many times as possible. */
 	if(inlen >= partlen) {
 		memcpy(context->buffer + index, input, partlen);
 		transform(context->state, context->buffer);
-
 		for(i = partlen; i + 63 < inlen; i += 64)
 			transform(context->state, input + i);
-
 		index = 0;
 	}
 	else {
 		i = 0;
 	}
-
 	/* Buffer remaining input */
 	memcpy(context->buffer + index, input + i, inlen - i);
 }

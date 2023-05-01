@@ -6,7 +6,6 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-
 #ifndef OSSL_AES_PLATFORM_H
 #define OSSL_AES_PLATFORM_H
 #pragma once
@@ -79,12 +78,12 @@ void AES_xts_decrypt(const uchar * inp, uchar * out, size_t len, const AES_KEY *
 #define AES_gcm_encrypt armv8_aes_gcm_encrypt
 #define AES_gcm_decrypt armv8_aes_gcm_decrypt
 #define AES_GCM_ASM(gctx) ((gctx)->ctr==aes_v8_ctr32_encrypt_blocks && (gctx)->gcm.ghash==gcm_ghash_v8)
-size_t aes_gcm_enc_128_kernel(const uint8_t * plaintext, uint64_t plaintext_length, uint8_t * ciphertext, uint64_t * Xi, unsigned char ivec[16], const void * key);
-size_t aes_gcm_enc_192_kernel(const uint8_t * plaintext, uint64_t plaintext_length, uint8_t * ciphertext, uint64_t * Xi, unsigned char ivec[16], const void * key);
-size_t aes_gcm_enc_256_kernel(const uint8_t * plaintext, uint64_t plaintext_length, uint8_t * ciphertext, uint64_t * Xi, unsigned char ivec[16], const void * key);
-size_t aes_gcm_dec_128_kernel(const uint8_t * ciphertext, uint64_t plaintext_length, uint8_t * plaintext, uint64_t * Xi, unsigned char ivec[16], const void * key);
-size_t aes_gcm_dec_192_kernel(const uint8_t * ciphertext, uint64_t plaintext_length, uint8_t * plaintext, uint64_t * Xi, unsigned char ivec[16], const void * key);
-size_t aes_gcm_dec_256_kernel(const uint8_t * ciphertext, uint64_t plaintext_length, uint8_t * plaintext, uint64_t * Xi, unsigned char ivec[16], const void * key);
+size_t aes_gcm_enc_128_kernel(const uint8 * plaintext, uint64_t plaintext_length, uint8 * ciphertext, uint64_t * Xi, unsigned char ivec[16], const void * key);
+size_t aes_gcm_enc_192_kernel(const uint8 * plaintext, uint64_t plaintext_length, uint8 * ciphertext, uint64_t * Xi, unsigned char ivec[16], const void * key);
+size_t aes_gcm_enc_256_kernel(const uint8 * plaintext, uint64_t plaintext_length, uint8 * ciphertext, uint64_t * Xi, unsigned char ivec[16], const void * key);
+size_t aes_gcm_dec_128_kernel(const uint8 * ciphertext, uint64_t plaintext_length, uint8 * plaintext, uint64_t * Xi, unsigned char ivec[16], const void * key);
+size_t aes_gcm_dec_192_kernel(const uint8 * ciphertext, uint64_t plaintext_length, uint8 * plaintext, uint64_t * Xi, unsigned char ivec[16], const void * key);
+size_t aes_gcm_dec_256_kernel(const uint8 * ciphertext, uint64_t plaintext_length, uint8 * plaintext, uint64_t * Xi, unsigned char ivec[16], const void * key);
 size_t armv8_aes_gcm_encrypt(const uchar * in, uchar * out, size_t len, const void * key, unsigned char ivec[16], u64 * Xi);
 size_t armv8_aes_gcm_decrypt(const uchar * in, uchar * out, size_t len, const void * key, unsigned char ivec[16], u64 * Xi);
 void gcm_ghash_v8(u64 Xi[2], const u128 Htable[16], const u8 * inp, size_t len);

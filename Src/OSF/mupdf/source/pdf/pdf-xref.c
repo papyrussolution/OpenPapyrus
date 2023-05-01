@@ -7,20 +7,14 @@
 #undef DEBUG_PROGESSIVE_ADVANCE
 
 #ifdef DEBUG_PROGESSIVE_ADVANCE
-#define DEBUGMESS(A) do { fz_warn A; } while(0)
+	#define DEBUGMESS(A) do { fz_warn A; } while(0)
 #else
-#define DEBUGMESS(A) do { } while(0)
+	#define DEBUGMESS(A) do { } while(0)
 #endif
 
 #define isdigit(c) (c >= '0' && c <= '9')
 
-static inline int iswhite(int ch)
-{
-	return
-		ch == '\000' || ch == '\011' || ch == '\012' ||
-		ch == '\014' || ch == '\015' || ch == '\040';
-}
-
+static inline int iswhite(int ch) { return ch == '\000' || ch == '\011' || ch == '\012' || ch == '\014' || ch == '\015' || ch == '\040'; }
 /*
  * xref tables
  */

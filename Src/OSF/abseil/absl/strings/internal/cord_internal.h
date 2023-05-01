@@ -226,7 +226,7 @@ struct CordRep {
 	RefcountAndFlags refcount;
 	// If tag < FLAT, it represents CordRepKind and indicates the type of node.
 	// Otherwise, the node type is CordRepFlat and the tag is the encoded size.
-	uint8_t tag;
+	uint8 tag;
 
 	// `storage` provides two main purposes:
 	// - the starting point for FlatCordRep.Data() [flexible-array-member]
@@ -236,7 +236,7 @@ struct CordRep {
 	// `height`, `begin` and `end` in the 3 entries. Otherwise we would need to
 	// allocate room for these in the derived class, as not all compilers reuse
 	// padding space from the base class (clang and gcc do, MSVC does not, etc)
-	uint8_t storage[3];
+	uint8 storage[3];
 
 	// Returns true if this instance's tag matches the requested type.
 	constexpr bool IsRing() const {
@@ -301,11 +301,11 @@ struct CordRepConcat : public CordRep {
 	CordRep* left;
 	CordRep* right;
 
-	uint8_t depth() const {
+	uint8 depth() const {
 		return storage[0];
 	}
 
-	void set_depth(uint8_t depth) {
+	void set_depth(uint8 depth) {
 		storage[0] = depth;
 	}
 

@@ -63,7 +63,7 @@ void _hb_options_init()
 /* hb_tag_t */
 /**
  * hb_tag_from_string:
- * @str: (array length=len) (element-type uint8_t):
+ * @str: (array length=len) (element-type uint8):
  * @len:
  * Return value:
  * Since: 0.9.2
@@ -85,7 +85,7 @@ hb_tag_t hb_tag_from_string(const char * str, int len)
 /**
  * hb_tag_to_string:
  * @tag:
- * @buf: (out caller-allocates) (array fixed-size=4) (element-type uint8_t):
+ * @buf: (out caller-allocates) (array fixed-size=4) (element-type uint8):
  *
  *
  *
@@ -93,10 +93,10 @@ hb_tag_t hb_tag_from_string(const char * str, int len)
  **/
 void hb_tag_to_string(hb_tag_t tag, char * buf)
 {
-	buf[0] = (char)(uint8_t)(tag >> 24);
-	buf[1] = (char)(uint8_t)(tag >> 16);
-	buf[2] = (char)(uint8_t)(tag >>  8);
-	buf[3] = (char)(uint8_t)(tag >>  0);
+	buf[0] = (char)(uint8)(tag >> 24);
+	buf[1] = (char)(uint8)(tag >> 16);
+	buf[2] = (char)(uint8)(tag >>  8);
+	buf[3] = (char)(uint8)(tag >>  0);
 }
 
 /* hb_direction_t */
@@ -105,7 +105,7 @@ const char direction_strings[][4] = { "ltr", "rtl", "ttb", "btt" };
 
 /**
  * hb_direction_from_string:
- * @str: (array length=len) (element-type uint8_t):
+ * @str: (array length=len) (element-type uint8):
  * @len:
  * Return value:
  * Since: 0.9.2
@@ -257,7 +257,7 @@ retry:
 }
 /**
  * hb_language_from_string:
- * @str: (array length=len) (element-type uint8_t): a string representing
+ * @str: (array length=len) (element-type uint8): a string representing
  * a BCP 47 language tag
  * @len: length of the @str, or -1 if it is %NULL-terminated.
  *
@@ -371,7 +371,7 @@ hb_script_t hb_script_from_iso15924_tag(hb_tag_t tag)
 }
 /**
  * hb_script_from_string:
- * @str: (array length=len) (element-type uint8_t): a string representing an
+ * @str: (array length=len) (element-type uint8): a string representing an
  * ISO 15924 tag.
  * @len: length of the @str, or -1 if it is %NULL-terminated.
  *
@@ -677,7 +677,7 @@ static bool parse_one_feature(const char ** pp, const char * end, hb_feature_t *
 
 /**
  * hb_feature_from_string:
- * @str: (array length=len) (element-type uint8_t): a string to parse
+ * @str: (array length=len) (element-type uint8): a string to parse
  * @len: length of @str, or -1 if string is %NULL terminated
  * @feature: (out): the #hb_feature_t to initialize with the parsed values
  *
@@ -856,7 +856,7 @@ void hb_variation_to_string(hb_variation_t * variation, char * buf, uint size)
  *
  * Since: 2.1.0
  */
-uint8_t (hb_color_get_alpha) (hb_color_t color)
+uint8 (hb_color_get_alpha) (hb_color_t color)
 {
 	return hb_color_get_alpha(color);
 }
@@ -868,7 +868,7 @@ uint8_t (hb_color_get_alpha) (hb_color_t color)
  *
  * Since: 2.1.0
  */
-uint8_t (hb_color_get_red) (hb_color_t color)
+uint8 (hb_color_get_red) (hb_color_t color)
 {
 	return hb_color_get_red(color);
 }
@@ -881,7 +881,7 @@ uint8_t (hb_color_get_red) (hb_color_t color)
  *
  * Since: 2.1.0
  */
-uint8_t (hb_color_get_green) (hb_color_t color)
+uint8 (hb_color_get_green) (hb_color_t color)
 {
 	return hb_color_get_green(color);
 }
@@ -893,7 +893,7 @@ uint8_t (hb_color_get_green) (hb_color_t color)
  *
  * Since: 2.1.0
  */
-uint8_t (hb_color_get_blue)(hb_color_t color)
+uint8 (hb_color_get_blue)(hb_color_t color)
 {
 	return hb_color_get_blue(color);
 }

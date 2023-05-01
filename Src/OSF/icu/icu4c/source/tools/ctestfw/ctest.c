@@ -122,7 +122,7 @@ static int strncmp_nullcheck(const char * s1, const char * s2, int n)
 static void getNextLevel(const char * name, int* nameLen, const char ** nextName)
 {
 	/* Get the next component of the name */
-	*nextName = strchr(name, TEST_SEPARATOR);
+	*nextName = sstrchr(name, TEST_SEPARATOR);
 	if(*nextName != 0) {
 		char n[255];
 		*nameLen = (int)((*nextName) - name);
@@ -735,7 +735,7 @@ void T_CTEST_EXPORT2 log_err(const char * pattern, ...)
 {
 	va_list ap;
 	first_line_err();
-	if(strchr(pattern, '\n') != NULL) {
+	if(sstrchr(pattern, '\n') != NULL) {
 		/*
 		 * Count errors only if there is a line feed in the pattern
 		 * so that we do not exaggerate our error count.
@@ -760,14 +760,12 @@ void T_CTEST_EXPORT2 log_err_status(UErrorCode status, const char * pattern, ...
 {
 	va_list ap;
 	va_start(ap, pattern);
-
 	if((status == U_FILE_ACCESS_ERROR || status == U_MISSING_RESOURCE_ERROR)) {
 		++DATA_ERROR_COUNT; /* for informational message at the end */
-
 		if(WARN_ON_MISSING_DATA == 0) {
 			first_line_err();
 			/* Fatal error. */
-			if(strchr(pattern, '\n') != NULL) {
+			if(sstrchr(pattern, '\n') != NULL) {
 				++ERROR_COUNT;
 			}
 			else {
@@ -782,7 +780,7 @@ void T_CTEST_EXPORT2 log_err_status(UErrorCode status, const char * pattern, ...
 	else {
 		first_line_err();
 		/* Fatal error. */
-		if(strchr(pattern, '\n') != NULL) {
+		if(sstrchr(pattern, '\n') != NULL) {
 			++ERROR_COUNT;
 		}
 		else {
@@ -815,7 +813,7 @@ void T_CTEST_EXPORT2 log_data_err(const char * pattern, ...)
 	++DATA_ERROR_COUNT; /* for informational message at the end */
 	if(WARN_ON_MISSING_DATA == 0) {
 		/* Fatal error. */
-		if(strchr(pattern, '\n') != NULL) {
+		if(sstrchr(pattern, '\n') != NULL) {
 			++ERROR_COUNT;
 		}
 		vlog_err(NULL, pattern, ap); /* no need for prefix in default case */

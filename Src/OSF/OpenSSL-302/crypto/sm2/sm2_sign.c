@@ -20,7 +20,7 @@
 #include <openssl/err.h>
 #include <openssl/bn.h>
 
-int ossl_sm2_compute_z_digest(uint8_t * out, const EVP_MD * digest, const uint8_t * id, const size_t id_len, const EC_KEY * key)
+int ossl_sm2_compute_z_digest(uint8 * out, const EVP_MD * digest, const uint8 * id, const size_t id_len, const EC_KEY * key)
 {
 	int rc = 0;
 	const EC_GROUP * group = EC_KEY_get0_group(key);
@@ -32,9 +32,9 @@ int ossl_sm2_compute_z_digest(uint8_t * out, const EVP_MD * digest, const uint8_
 	BIGNUM * xA = NULL;
 	BIGNUM * yA = NULL;
 	int p_bytes = 0;
-	uint8_t * buf = NULL;
+	uint8 * buf = NULL;
 	uint16_t entl = 0;
-	uint8_t e_byte = 0;
+	uint8 e_byte = 0;
 	EVP_MD_CTX * hash = EVP_MD_CTX_new();
 	BN_CTX * ctx = BN_CTX_new_ex(ossl_ec_key_get_libctx(key));
 	if(hash == NULL || ctx == NULL) {
@@ -85,7 +85,7 @@ int ossl_sm2_compute_z_digest(uint8_t * out, const EVP_MD * digest, const uint8_
 	}
 
 	p_bytes = BN_num_bytes(p);
-	buf = (uint8_t*)OPENSSL_zalloc(p_bytes);
+	buf = (uint8*)OPENSSL_zalloc(p_bytes);
 	if(buf == NULL) {
 		ERR_raise(ERR_LIB_SM2, ERR_R_MALLOC_FAILURE);
 		goto done;
@@ -125,13 +125,13 @@ done:
 
 static BIGNUM * sm2_compute_msg_hash(const EVP_MD * digest,
     const EC_KEY * key,
-    const uint8_t * id,
+    const uint8 * id,
     const size_t id_len,
-    const uint8_t * msg, size_t msg_len)
+    const uint8 * msg, size_t msg_len)
 {
 	EVP_MD_CTX * hash = EVP_MD_CTX_new();
 	const int md_size = EVP_MD_get_size(digest);
-	uint8_t * z = NULL;
+	uint8 * z = NULL;
 	BIGNUM * e = NULL;
 	EVP_MD * fetched_digest = NULL;
 	OSSL_LIB_CTX * libctx = ossl_ec_key_get_libctx(key);
@@ -142,7 +142,7 @@ static BIGNUM * sm2_compute_msg_hash(const EVP_MD * digest,
 		goto done;
 	}
 
-	z = (uint8_t*)OPENSSL_zalloc(md_size);
+	z = (uint8*)OPENSSL_zalloc(md_size);
 	if(hash == NULL || z == NULL) {
 		ERR_raise(ERR_LIB_SM2, ERR_R_MALLOC_FAILURE);
 		goto done;
@@ -355,7 +355,7 @@ done:
 	return ret;
 }
 
-ECDSA_SIG * ossl_sm2_do_sign(const EC_KEY * key, const EVP_MD * digest, const uint8_t * id, const size_t id_len, const uint8_t * msg, size_t msg_len)
+ECDSA_SIG * ossl_sm2_do_sign(const EC_KEY * key, const EVP_MD * digest, const uint8 * id, const size_t id_len, const uint8 * msg, size_t msg_len)
 {
 	ECDSA_SIG * sig = NULL;
 	BIGNUM * e = sm2_compute_msg_hash(digest, key, id, id_len, msg, msg_len);
@@ -369,8 +369,8 @@ done:
 	return sig;
 }
 
-int ossl_sm2_do_verify(const EC_KEY * key, const EVP_MD * digest, const ECDSA_SIG * sig, const uint8_t * id,
-    const size_t id_len, const uint8_t * msg, size_t msg_len)
+int ossl_sm2_do_verify(const EC_KEY * key, const EVP_MD * digest, const ECDSA_SIG * sig, const uint8 * id,
+    const size_t id_len, const uint8 * msg, size_t msg_len)
 {
 	int ret = 0;
 	BIGNUM * e = sm2_compute_msg_hash(digest, key, id, id_len, msg, msg_len);

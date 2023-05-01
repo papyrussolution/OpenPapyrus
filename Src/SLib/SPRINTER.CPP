@@ -1,11 +1,12 @@
 // SPRINTER.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2006, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2006, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2019, 2020, 2021, 2023
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
 #include <report.h>
 
-#define max MAX // Файл gdisplus.h оперирует исключительно макросами min и max. Так как мы их элиминировали по всем проектам, то специальной для gdiplus включаем
+#define max MAX // Р¤Р°Р№Р» gdisplus.h РѕРїРµСЂРёСЂСѓРµС‚ РёСЃРєР»СЋС‡РёС‚РµР»СЊРЅРѕ РјР°РєСЂРѕСЃР°РјРё min Рё max. РўР°Рє РєР°Рє РјС‹ РёС… СЌР»РёРјРёРЅРёСЂРѕРІР°Р»Рё РїРѕ РІСЃРµРј РїСЂРѕРµРєС‚Р°Рј, С‚Рѕ СЃРїРµС†РёР°Р»СЊРЅРѕР№ РґР»СЏ gdiplus РІРєР»СЋС‡Р°РµРј
 #define min MIN
 #include <gdiplus.h>
 using namespace Gdiplus;
@@ -22,7 +23,7 @@ int   SPrinter::printLine(const char *, size_t) { return 1; }
 int   SPrinter::startPage() { return 1; }
 int   SPrinter::endPage() { return 1; }
 //
-// @todo перенести функционал в SPrinter
+// @todo РїРµСЂРµРЅРµСЃС‚Рё С„СѓРЅРєС†РёРѕРЅР°Р» РІ SPrinter
 //
 SPrinting::SPrinting(HWND screenHwnd) : Top(2), PrinterDc(0), OldFont(0), PageStarted(0), DocStarted(0), OldColor(-1)
 {

@@ -212,9 +212,8 @@
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <CompileAsManaged>false</CompileAsManaged>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
-      <BufferSecurityCheck>
-      </BufferSecurityCheck>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
       <StringPooling>true</StringPooling>
     </ClCompile>
     <ResourceCompile>
@@ -348,9 +347,8 @@
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <CompileAsManaged>false</CompileAsManaged>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
-      <BufferSecurityCheck>
-      </BufferSecurityCheck>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
       <StringPooling>true</StringPooling>
     </ClCompile>
     <ResourceCompile>
@@ -479,9 +477,8 @@
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <CompileAsManaged>false</CompileAsManaged>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
-      <BufferSecurityCheck>
-      </BufferSecurityCheck>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
       <StringPooling>true</StringPooling>
     </ClCompile>
     <ResourceCompile>
@@ -612,9 +609,8 @@
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <CompileAsManaged>false</CompileAsManaged>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
-      <BufferSecurityCheck>
-      </BufferSecurityCheck>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
       <StringPooling>true</StringPooling>
     </ClCompile>
     <ResourceCompile>

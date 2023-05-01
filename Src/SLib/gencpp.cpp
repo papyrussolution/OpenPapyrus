@@ -1,5 +1,5 @@
 // GENCPP.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2016, 2018, 2020, 2022
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2016, 2018, 2020, 2022, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -87,27 +87,23 @@ int Generator_CPP::Wr_Comment(const char * pBuf)
 
 SString & Generator_CPP::CatCls(int cls, SString & rBuf)
 {
-	if(cls == clsClass)
-		rBuf.Cat("class");
-	else if(cls == clsStruct)
-		rBuf.Cat("struct");
-	else if(cls == clsUnion)
-		rBuf.Cat("union");
-	else if(cls == clsEnum)
-		rBuf.Cat("enum");
-	else if(cls == clsInterface)
-		rBuf.Cat("interface");
+	switch(cls) {
+		case clsClass: rBuf.Cat("class"); break;
+		case clsStruct: rBuf.Cat("struct"); break;
+		case clsUnion: rBuf.Cat("union"); break;
+		case clsEnum: rBuf.Cat("enum"); break;
+		case clsInterface: rBuf.Cat("interface"); break;
+	}
 	return rBuf;
 }
 
 SString & Generator_CPP::CatAcs(int acs, SString & rBuf)
 {
-	if(acs == acsPublic)
-		rBuf.Cat("public");
-	else if(acs == acsProtected)
-		rBuf.Cat("protected");
-	else if(acs == acsPrivate)
-		rBuf.Cat("private");
+	switch(acs) {
+		case acsPublic: rBuf.Cat("public"); break;
+		case acsProtected: rBuf.Cat("protected"); break;
+		case acsPrivate: rBuf.Cat("private"); break;
+	}
 	return rBuf;
 }
 
@@ -134,11 +130,18 @@ int Generator_CPP::Wr_StartClassDecl(int cls, const char * pName, const char * p
 {
 	TempBuf.Z();
 	CatIndent(TempBuf);
+	CatCls(cls, TempBuf);
 	if(declAlignment) {
-		TempBuf.Cat("__declspec(align(").Cat(declAlignment).CatCharN(')', 2).Space();
+		if(oneof5(declAlignment, 1, 2, 4, 8, 16)) {
+			//TempBuf.Space().Cat("__declspec(align(").Cat(declAlignment).CatCharN(')', 2);
+			TempBuf.Space().Cat("alignas(").Cat(declAlignment).CatChar(')');
+		}
+		else {
+			; // @todo warning message
+		}
 	}
-	CatCls(cls, TempBuf).Space().Cat(pName).Space();
-	if(pBase && pBase[0]) {
+	TempBuf.Space().Cat(pName).Space();
+	if(!isempty(pBase)) {
 		TempBuf.CatDiv(':', 2);
 		CatAcs(acs, TempBuf).Space().Cat(pBase).Space();
 	}

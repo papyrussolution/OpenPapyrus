@@ -1529,8 +1529,8 @@ public:
 	static size_t SizeofCordRepConcat();
 	static size_t SizeofCordRepExternal();
 	static size_t SizeofCordRepSubstring();
-	static size_t FlatTagToLength(uint8_t tag);
-	static uint8_t LengthToTag(size_t s);
+	static size_t FlatTagToLength(uint8 tag);
+	static uint8 LengthToTag(size_t s);
 };
 }  // namespace strings_internal
 ABSL_NAMESPACE_END

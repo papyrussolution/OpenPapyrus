@@ -202,69 +202,50 @@ bool WireFormatLite::SkipField(io::CodedInputStream* input, uint32_t tag,
 	}
 }
 
-bool WireFormatLite::SkipMessage(io::CodedInputStream* input) {
+bool WireFormatLite::SkipMessage(io::CodedInputStream* input) 
+{
 	while(true) {
 		uint32_t tag = input->ReadTag();
 		if(tag == 0) {
 			// End of input.  This is a valid place to end, so return true.
 			return true;
 		}
-
 		WireFormatLite::WireType wire_type = WireFormatLite::GetTagWireType(tag);
-
 		if(wire_type == WireFormatLite::WIRETYPE_END_GROUP) {
 			// Must be the end of the message.
 			return true;
 		}
-
 		if(!SkipField(input, tag)) return false;
 	}
 }
 
-bool WireFormatLite::SkipMessage(io::CodedInputStream* input,
-    io::CodedOutputStream* output) {
+bool WireFormatLite::SkipMessage(io::CodedInputStream* input, io::CodedOutputStream* output) 
+{
 	while(true) {
 		uint32_t tag = input->ReadTag();
 		if(tag == 0) {
 			// End of input.  This is a valid place to end, so return true.
 			return true;
 		}
-
 		WireFormatLite::WireType wire_type = WireFormatLite::GetTagWireType(tag);
-
 		if(wire_type == WireFormatLite::WIRETYPE_END_GROUP) {
 			output->WriteVarint32(tag);
 			// Must be the end of the message.
 			return true;
 		}
-
-		if(!SkipField(input, tag, output)) return false;
+		if(!SkipField(input, tag, output)) 
+			return false;
 	}
 }
 
-bool FieldSkipper::SkipField(io::CodedInputStream* input, uint32_t tag) {
-	return WireFormatLite::SkipField(input, tag);
-}
+bool FieldSkipper::SkipField(io::CodedInputStream* input, uint32_t tag) { return WireFormatLite::SkipField(input, tag); }
+bool FieldSkipper::SkipMessage(io::CodedInputStream* input) { return WireFormatLite::SkipMessage(input); }
+void FieldSkipper::SkipUnknownEnum(int /* field_number */, int /* value */) { /*Nothing.*/ }
+bool CodedOutputStreamFieldSkipper::SkipField(io::CodedInputStream* input, uint32_t tag) { return WireFormatLite::SkipField(input, tag, unknown_fields_); }
+bool CodedOutputStreamFieldSkipper::SkipMessage(io::CodedInputStream* input) { return WireFormatLite::SkipMessage(input, unknown_fields_); }
 
-bool FieldSkipper::SkipMessage(io::CodedInputStream* input) {
-	return WireFormatLite::SkipMessage(input);
-}
-
-void FieldSkipper::SkipUnknownEnum(int /* field_number */, int /* value */) {
-	// Nothing.
-}
-
-bool CodedOutputStreamFieldSkipper::SkipField(io::CodedInputStream* input,
-    uint32_t tag) {
-	return WireFormatLite::SkipField(input, tag, unknown_fields_);
-}
-
-bool CodedOutputStreamFieldSkipper::SkipMessage(io::CodedInputStream* input) {
-	return WireFormatLite::SkipMessage(input, unknown_fields_);
-}
-
-void CodedOutputStreamFieldSkipper::SkipUnknownEnum(int field_number,
-    int value) {
+void CodedOutputStreamFieldSkipper::SkipUnknownEnum(int field_number, int value) 
+{
 	unknown_fields_->WriteVarint32(field_number);
 	unknown_fields_->WriteVarint64(value);
 }
@@ -283,8 +264,7 @@ bool WireFormatLite::ReadPackedEnumPreserveUnknowns(io::CodedInputStream* input,
 			values->Add(value);
 		}
 		else {
-			uint32_t tag = WireFormatLite::MakeTag(field_number,
-				WireFormatLite::WIRETYPE_VARINT);
+			uint32_t tag = WireFormatLite::MakeTag(field_number, WireFormatLite::WIRETYPE_VARINT);
 			unknown_fields_stream->WriteVarint32(tag);
 			unknown_fields_stream->WriteVarint32(value);
 		}
@@ -296,33 +276,13 @@ bool WireFormatLite::ReadPackedEnumPreserveUnknowns(io::CodedInputStream* input,
 #if !defined(PROTOBUF_LITTLE_ENDIAN)
 
 namespace {
-void EncodeFixedSizeValue(float v, uint8_t* dest) {
-	WireFormatLite::WriteFloatNoTagToArray(v, dest);
-}
-
-void EncodeFixedSizeValue(double v, uint8_t* dest) {
-	WireFormatLite::WriteDoubleNoTagToArray(v, dest);
-}
-
-void EncodeFixedSizeValue(uint32_t v, uint8_t* dest) {
-	WireFormatLite::WriteFixed32NoTagToArray(v, dest);
-}
-
-void EncodeFixedSizeValue(uint64_t v, uint8_t* dest) {
-	WireFormatLite::WriteFixed64NoTagToArray(v, dest);
-}
-
-void EncodeFixedSizeValue(int32_t v, uint8_t* dest) {
-	WireFormatLite::WriteSFixed32NoTagToArray(v, dest);
-}
-
-void EncodeFixedSizeValue(int64_t v, uint8_t* dest) {
-	WireFormatLite::WriteSFixed64NoTagToArray(v, dest);
-}
-
-void EncodeFixedSizeValue(bool v, uint8_t* dest) {
-	WireFormatLite::WriteBoolNoTagToArray(v, dest);
-}
+	void EncodeFixedSizeValue(float v, uint8_t* dest) { WireFormatLite::WriteFloatNoTagToArray(v, dest); }
+	void EncodeFixedSizeValue(double v, uint8_t* dest) { WireFormatLite::WriteDoubleNoTagToArray(v, dest); }
+	void EncodeFixedSizeValue(uint32_t v, uint8_t* dest) { WireFormatLite::WriteFixed32NoTagToArray(v, dest); }
+	void EncodeFixedSizeValue(uint64_t v, uint8_t* dest) { WireFormatLite::WriteFixed64NoTagToArray(v, dest); }
+	void EncodeFixedSizeValue(int32_t v, uint8_t* dest) { WireFormatLite::WriteSFixed32NoTagToArray(v, dest); }
+	void EncodeFixedSizeValue(int64_t v, uint8_t* dest) { WireFormatLite::WriteSFixed64NoTagToArray(v, dest); }
+	void EncodeFixedSizeValue(bool v, uint8_t* dest) { WireFormatLite::WriteBoolNoTagToArray(v, dest); }
 }  // anonymous namespace
 
 #endif  // !defined(PROTOBUF_LITTLE_ENDIAN)
@@ -346,73 +306,73 @@ static void WriteArray(const CType* a, int n, io::CodedOutputStream* output) {
 #endif
 }
 
-void WireFormatLite::WriteFloatArray(const float* a, int n,
-    io::CodedOutputStream* output) {
+void WireFormatLite::WriteFloatArray(const float* a, int n, io::CodedOutputStream* output) 
+{
 	WriteArray<float>(a, n, output);
 }
 
-void WireFormatLite::WriteDoubleArray(const double* a, int n,
-    io::CodedOutputStream* output) {
+void WireFormatLite::WriteDoubleArray(const double* a, int n, io::CodedOutputStream* output) 
+{
 	WriteArray<double>(a, n, output);
 }
 
-void WireFormatLite::WriteFixed32Array(const uint32_t* a, int n,
-    io::CodedOutputStream* output) {
+void WireFormatLite::WriteFixed32Array(const uint32_t* a, int n, io::CodedOutputStream* output) 
+{
 	WriteArray<uint32_t>(a, n, output);
 }
 
-void WireFormatLite::WriteFixed64Array(const uint64_t* a, int n,
-    io::CodedOutputStream* output) {
+void WireFormatLite::WriteFixed64Array(const uint64_t* a, int n, io::CodedOutputStream* output) 
+{
 	WriteArray<uint64_t>(a, n, output);
 }
 
-void WireFormatLite::WriteSFixed32Array(const int32_t* a, int n,
-    io::CodedOutputStream* output) {
+void WireFormatLite::WriteSFixed32Array(const int32_t* a, int n, io::CodedOutputStream* output) 
+{
 	WriteArray<int32_t>(a, n, output);
 }
 
-void WireFormatLite::WriteSFixed64Array(const int64_t* a, int n,
-    io::CodedOutputStream* output) {
+void WireFormatLite::WriteSFixed64Array(const int64_t* a, int n, io::CodedOutputStream* output) 
+{
 	WriteArray<int64_t>(a, n, output);
 }
 
-void WireFormatLite::WriteBoolArray(const bool* a, int n,
-    io::CodedOutputStream* output) {
+void WireFormatLite::WriteBoolArray(const bool* a, int n, io::CodedOutputStream* output) 
+{
 	WriteArray<bool>(a, n, output);
 }
 
-void WireFormatLite::WriteInt32(int field_number, int32_t value,
-    io::CodedOutputStream* output) {
+void WireFormatLite::WriteInt32(int field_number, int32_t value, io::CodedOutputStream* output) 
+{
 	WriteTag(field_number, WIRETYPE_VARINT, output);
 	WriteInt32NoTag(value, output);
 }
 
-void WireFormatLite::WriteInt64(int field_number, int64_t value,
-    io::CodedOutputStream* output) {
+void WireFormatLite::WriteInt64(int field_number, int64_t value, io::CodedOutputStream* output) 
+{
 	WriteTag(field_number, WIRETYPE_VARINT, output);
 	WriteInt64NoTag(value, output);
 }
 
-void WireFormatLite::WriteUInt32(int field_number, uint32_t value,
-    io::CodedOutputStream* output) {
+void WireFormatLite::WriteUInt32(int field_number, uint32_t value, io::CodedOutputStream* output) 
+{
 	WriteTag(field_number, WIRETYPE_VARINT, output);
 	WriteUInt32NoTag(value, output);
 }
 
-void WireFormatLite::WriteUInt64(int field_number, uint64_t value,
-    io::CodedOutputStream* output) {
+void WireFormatLite::WriteUInt64(int field_number, uint64_t value, io::CodedOutputStream* output) 
+{
 	WriteTag(field_number, WIRETYPE_VARINT, output);
 	WriteUInt64NoTag(value, output);
 }
 
-void WireFormatLite::WriteSInt32(int field_number, int32_t value,
-    io::CodedOutputStream* output) {
+void WireFormatLite::WriteSInt32(int field_number, int32_t value, io::CodedOutputStream* output) 
+{
 	WriteTag(field_number, WIRETYPE_VARINT, output);
 	WriteSInt32NoTag(value, output);
 }
 
-void WireFormatLite::WriteSInt64(int field_number, int64_t value,
-    io::CodedOutputStream* output) {
+void WireFormatLite::WriteSInt64(int field_number, int64_t value, io::CodedOutputStream* output) 
+{
 	WriteTag(field_number, WIRETYPE_VARINT, output);
 	WriteSInt64NoTag(value, output);
 }
@@ -718,21 +678,13 @@ size_t WireFormatLite::EnumSize(const RepeatedField<int>& value) {
 // enable this.
 #define USE_SSE_FOR_64_BIT_INTEGER_ARRAYS 0
 #if USE_SSE_FOR_64_BIT_INTEGER_ARRAYS
-size_t WireFormatLite::Int64Size(const RepeatedField<int64_t>& value) {
-	return VarintSize64<false>(value.data(), value.size());
-}
-
-size_t WireFormatLite::UInt64Size(const RepeatedField<uint64_t>& value) {
-	return VarintSize64<false>(value.data(), value.size());
-}
-
-size_t WireFormatLite::SInt64Size(const RepeatedField<int64_t>& value) {
-	return VarintSize64<true>(value.data(), value.size());
-}
-
+	size_t WireFormatLite::Int64Size(const RepeatedField<int64_t>& value) { return VarintSize64<false>(value.data(), value.size()); }
+	size_t WireFormatLite::UInt64Size(const RepeatedField<uint64_t>& value) { return VarintSize64<false>(value.data(), value.size()); }
+	size_t WireFormatLite::SInt64Size(const RepeatedField<int64_t>& value) { return VarintSize64<true>(value.data(), value.size()); }
 #else
 
-size_t WireFormatLite::Int64Size(const RepeatedField<int64_t>& value) {
+size_t WireFormatLite::Int64Size(const RepeatedField<int64_t>& value) 
+{
 	size_t out = 0;
 	const int n = value.size();
 	for(int i = 0; i < n; i++) {
@@ -741,7 +693,8 @@ size_t WireFormatLite::Int64Size(const RepeatedField<int64_t>& value) {
 	return out;
 }
 
-size_t WireFormatLite::UInt64Size(const RepeatedField<uint64_t>& value) {
+size_t WireFormatLite::UInt64Size(const RepeatedField<uint64_t>& value) 
+{
 	size_t out = 0;
 	const int n = value.size();
 	for(int i = 0; i < n; i++) {

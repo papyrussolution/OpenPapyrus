@@ -261,16 +261,14 @@ string PragmaMarker::ParseAttributeValue(const char* value_start,
 	return attribute_value;
 }
 
-PragmaMarker::PragmaMarker(const char* token_start, const char* token_end,
-    string* error_msg) {
+PragmaMarker::PragmaMarker(const char* token_start, const char* token_end, string* error_msg) 
+{
 	assert(error_msg);
 	string error;
-	const char* identifier_end =
-	    (const char *)memchr(token_start, ' ', token_end - token_start);
+	const char* identifier_end = (const char *)memchr(token_start, ' ', token_end - token_start);
 	if(identifier_end == NULL)
 		identifier_end = token_end;
-	pragma_id_ = PragmaMarker::GetPragmaId(token_start,
-		identifier_end - token_start);
+	pragma_id_ = PragmaMarker::GetPragmaId(token_start, identifier_end - token_start);
 	if(pragma_id_ == PI_ERROR) {
 		error = "Unrecognized pragma identifier.";
 	}
@@ -319,17 +317,15 @@ PragmaMarker::PragmaMarker(const char* token_start, const char* token_end,
 //    string, or NULL if not found.  The mem version of strstr.
 // ----------------------------------------------------------------------
 
-static const char * memmatch(const char * haystack, size_t haystack_len,
-    const char * needle, size_t needle_len) {
+static const char * memmatch(const char * haystack, size_t haystack_len, const char * needle, size_t needle_len) 
+{
 	if(needle_len == 0)
 		return haystack; // even if haystack_len is 0
 	else if(needle_len > haystack_len)
 		return NULL;
-
-	const char* match;
-	const char* hayend = haystack + haystack_len - needle_len + 1;
-	while((match = (const char *)memchr(haystack, needle[0],
-	    hayend - haystack))) {
+	const char * match;
+	const char * hayend = haystack + haystack_len - needle_len + 1;
+	while((match = (const char *)memchr(haystack, needle[0], hayend - haystack))) {
 		if(memcmp(match, needle, needle_len) == 0)
 			return match;
 		else
@@ -1848,17 +1844,13 @@ TemplateToken SectionTemplateNode::GetNextToken(Template * my_template) {
 
 		    // Now we have the name, possibly with following modifiers.
 		    // Find the modifier-start.
-		    const char* mod_start = (const char *)memchr(token_start, ':',
-			    token_end - token_start);
+		    const char* mod_start = (const char *)memchr(token_start, ':', token_end - token_start);
 		    if(mod_start == NULL)
 			    mod_start = token_end;
-
 		    // Make sure the name is legal.
 		    if(!IsValidName(token_start, mod_start - token_start)) {
-			    FAIL("Illegal name in template '"
-				    << string(token_start, mod_start-token_start) << "'");
+			    FAIL("Illegal name in template '" << string(token_start, mod_start-token_start) << "'");
 		    }
-
 		    // Figure out what all the modifiers are.  Mods are colon-separated.
 		    vector<ModifierAndValue> modifiers;
 		    const char* mod_end;
@@ -1878,41 +1870,26 @@ TemplateToken SectionTemplateNode::GetNextToken(Template * my_template) {
 				    value, mod_end - value);
 			    // There are various ways a modifier syntax can be illegal.
 			    if(modstruct == NULL) {
-				    FAIL("Unknown modifier for variable "
-					    << string(token_start, mod_start - token_start) << ": "
-					    << "'" << string(mod, value - mod) << "'");
+				    FAIL("Unknown modifier for variable " << string(token_start, mod_start - token_start) << ": " << "'" << string(mod, value - mod) << "'");
 			    }
 			    else if(!modstruct->modval_required && value < mod_end) {
-				    FAIL("Modifier for variable "
-					    << string(token_start, mod_start - token_start) << ":"
-					    << string(mod, value - mod) << " "
-					    << "has illegal mod-value '" << value_string << "'");
+				    FAIL("Modifier for variable " << string(token_start, mod_start - token_start) << ":" << string(mod, value - mod) << " " << "has illegal mod-value '" << value_string << "'");
 			    }
 			    else if(modstruct->modval_required && value == mod_end) {
-				    FAIL("Modifier for variable "
-					    << string(token_start, mod_start - token_start) << ":"
-					    << string(mod, value - mod) << " "
-					    << "is missing a required mod-value");
+				    FAIL("Modifier for variable " << string(token_start, mod_start - token_start) << ":" << string(mod, value - mod) << " " << "is missing a required mod-value");
 			    }
-
 			    // We rely on the fact that the memory pointed to by 'value'
 			    // remains valid throughout the life of this token since
 			    // ModifierAndValue does not itself manage its memory.
-			    modifiers.push_back(
-				    ModifierAndValue(modstruct, value, mod_end - value));
+			    modifiers.push_back(ModifierAndValue(modstruct, value, mod_end - value));
 		    }
-
 		    // For now, we only allow variable and include nodes to have
 		    // modifiers.  I think it's better not to have this for
 		    // sections, but instead to modify all the text and vars in the
 		    // section appropriately, but I could be convinced otherwise.
-		    if(!modifiers.empty() &&
-			ttype != TOKENTYPE_VARIABLE && ttype != TOKENTYPE_TEMPLATE) {
-			    FAIL(string(token_start, token_end - token_start)
-				    << "malformed: only variables and template-includes "
-				    << "are allowed to have modifiers");
+		    if(!modifiers.empty() && ttype != TOKENTYPE_VARIABLE && ttype != TOKENTYPE_TEMPLATE) {
+			    FAIL(string(token_start, token_end - token_start) << "malformed: only variables and template-includes " << "are allowed to have modifiers");
 		    }
-
 		    // Whew!  We passed the gauntlet.  Get ready for the next token
 		    ps->phase = Template::ParseState::GETTING_TEXT;
 		    ps->bufstart = token_end + ps->current_delimiters.end_marker_len;
@@ -2241,8 +2218,8 @@ bool Template::StringToTemplateCache(const TemplateString& key,
 //    exactly one space, no internal ='s), false else.
 // ----------------------------------------------------------------------
 
-bool Template::ParseDelimiters(const char* text, size_t textlen,
-    MarkerDelimiters* delim) {
+bool Template::ParseDelimiters(const char* text, size_t textlen, MarkerDelimiters* delim) 
+{
 	const char* space = (const char *)memchr(text, ' ', textlen);
 	if(textlen < 3 ||
 	    text[0] != '=' || text[textlen - 1] != '=' ||  // no = at ends
@@ -2279,12 +2256,12 @@ bool Template::ParseDelimiters(const char* text, size_t textlen,
 
 // We define our own version rather than using the one in strutil, mostly
 // so we can take a size_t instead of an int.  The code is simple enough.
-static void StripTemplateWhiteSpace(const char** str, size_t* len) {
+static void StripTemplateWhiteSpace(const char** str, size_t* len) 
+{
 	// Strip off trailing whitespace.
 	while((*len) > 0 && ascii_isspace((*str)[(*len)-1])) {
 		(*len)--;
 	}
-
 	// Strip off leading whitespace.
 	while((*len) > 0 && ascii_isspace((*str)[0])) {
 		(*len)--;
@@ -2294,11 +2271,11 @@ static void StripTemplateWhiteSpace(const char** str, size_t* len) {
 
 // Adjusts line and length iff condition is met, and RETURNS true.
 // MarkerDelimiters are {{ and }}, or equivalent.
-bool Template::IsBlankOrOnlyHasOneRemovableMarker(const char** line, size_t* len, const Template::MarkerDelimiters& delim) {
+bool Template::IsBlankOrOnlyHasOneRemovableMarker(const char** line, size_t* len, const Template::MarkerDelimiters& delim) 
+{
 	const char * clean_line = *line;
 	size_t new_len = *len;
 	StripTemplateWhiteSpace(&clean_line, &new_len);
-
 	// If there was only white space on the line, new_len will now be zero.
 	// In that case the line should be removed, so return true.
 	if(new_len == 0) {
@@ -2316,22 +2293,14 @@ bool Template::IsBlankOrOnlyHasOneRemovableMarker(const char** line, size_t* len
 
 	// Only {{#...}}, {{/....}, {{>...}, {{!...}, {{%...}} and {{=...=}}
 	// are "removable"
-	if(memcmp(clean_line, delim.start_marker, delim.start_marker_len) != 0 ||
-	    !strchr("#/>!%=", clean_line[delim.start_marker_len])) {
+	if(memcmp(clean_line, delim.start_marker, delim.start_marker_len) != 0 || !strchr("#/>!%=", clean_line[delim.start_marker_len])) {
 		return false;
 	}
-
-	const char * found_end_marker = memmatch(clean_line + delim.start_marker_len,
-		new_len - delim.start_marker_len,
-		delim.end_marker,
-		delim.end_marker_len);
-
+	const char * found_end_marker = memmatch(clean_line + delim.start_marker_len, new_len - delim.start_marker_len, delim.end_marker, delim.end_marker_len);
 	// Make sure the end marker comes at the end of the line.
-	if(!found_end_marker ||
-	    found_end_marker + delim.end_marker_len != clean_line + new_len) {
+	if(!found_end_marker || found_end_marker + delim.end_marker_len != clean_line + new_len) {
 		return false;
 	}
-
 	// else return the line stripped of its white space chars so when the
 	// marker is removed in expansion, no white space is left from the line
 	// that has now been removed
@@ -2340,16 +2309,14 @@ bool Template::IsBlankOrOnlyHasOneRemovableMarker(const char** line, size_t* len
 	return true;
 }
 
-size_t Template::InsertLine(const char * line, size_t len, Strip strip,
-    const MarkerDelimiters& delim, char* buffer) {
+size_t Template::InsertLine(const char * line, size_t len, Strip strip, const MarkerDelimiters& delim, char* buffer) 
+{
 	bool add_newline = (len > 0 && line[len-1] == '\n');
 	if(add_newline)
 		len--;     // so we ignore the newline from now on
-
 	if(strip >= STRIP_WHITESPACE) {
 		StripTemplateWhiteSpace(&line, &len);
 		add_newline = false;
-
 		// IsBlankOrOnlyHasOneRemovableMarker may modify the two input
 		// parameters if the line contains only spaces or only one input
 		// marker.  This modification must be done before the line is
@@ -2360,16 +2327,15 @@ size_t Template::InsertLine(const char * line, size_t len, Strip strip,
 	 && IsBlankOrOnlyHasOneRemovableMarker(&line, &len, delim)) {
 		add_newline = false;
 	}
-
 	memcpy(buffer, line, len);
-
 	if(add_newline) {
 		buffer[len++] = '\n';
 	}
 	return len;
 }
 
-void Template::StripBuffer(char ** buffer, size_t* len) {
+void Template::StripBuffer(char ** buffer, size_t* len) 
+{
 	if(strip_ == DO_NOT_STRIP)
 		return;
 

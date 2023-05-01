@@ -126,7 +126,7 @@ typedef struct {
 
 static void ps_init_stack(ps_stack * st)
 {
-	memset(st->stack, 0, sizeof(st->stack));
+	memzero(st->stack, sizeof(st->stack));
 	st->sp = 0;
 }
 

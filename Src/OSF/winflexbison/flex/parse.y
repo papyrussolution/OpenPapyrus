@@ -112,26 +112,25 @@ int previous_continued_action;	/* whether the previous rule's action was '|' */
 %}
 
 %%
-goal		:  initlex sect1 sect1end sect2 initforrule
-			{ /* add default rule */
-			int def_rule;
-			pat = cclinit();
-			cclnegate( pat );
-			def_rule = mkstate( -pat );
-			/* Remember the number of the default rule so we
-			 * don't generate "can't match" warnings for it.
-			 */
-			default_rule = num_rules;
-			finish_rule( def_rule, false, 0, 0, 0);
-			for(i = 1; i <= lastsc; ++i)
-				scset[i] = mkbranch( scset[i], def_rule );
-			if(spprdflt)
-				add_action("YY_FATAL_ERROR( \"flex scanner jammed\" )" );
-			else
-				add_action( "ECHO" );
-			add_action( ";\n\tYY_BREAK]]\n" );
-			}
-		;
+goal :  initlex sect1 sect1end sect2 initforrule
+{ /* add default rule */
+	int def_rule;
+	pat = cclinit();
+	cclnegate( pat );
+	def_rule = mkstate( -pat );
+	/* Remember the number of the default rule so we
+	* don't generate "can't match" warnings for it.
+	*/
+	default_rule = num_rules;
+	finish_rule( def_rule, false, 0, 0, 0);
+	for(i = 1; i <= lastsc; ++i)
+		scset[i] = mkbranch( scset[i], def_rule );
+	if(spprdflt)
+		add_action("YY_FATAL_ERROR( \"flex scanner jammed\" )" );
+	else
+		add_action( "ECHO" );
+	add_action( ";\n\tYY_BREAK]]\n" );
+};
 
 initlex		:
 			{ /* initialize for processing rules */
@@ -141,46 +140,39 @@ initlex		:
 			}
 		;
 
-sect1		:  sect1 startconddecl namelist1
-		|  sect1 options
-		|
-		|  error
-			{ synerr( _("unknown error processing section 1") ); }
-		;
+sect1 : sect1 startconddecl namelist1 | sect1 options | | error { synerr( _("unknown error processing section 1") ); };
 
-sect1end	:  SECTEND
-			{
-			check_options();
-			scon_stk = allocate_integer_array( lastsc + 1 );
-			scon_stk_ptr = 0;
-			}
-		;
+sect1end : SECTEND
+{
+	check_options();
+	scon_stk = allocate_integer_array( lastsc + 1 );
+	scon_stk_ptr = 0;
+};
 
-startconddecl	:  SCDECL
-			{ xcluflg = false; }
+startconddecl : SCDECL
+{ 
+	xcluflg = false; 
+} | XSCDECL
+{ 
+	xcluflg = true; 
+};
 
-		|  XSCDECL
-			{ xcluflg = true; }
-		;
+namelist1 : namelist1 NAME
+{
+	scinstal( nmstr, xcluflg ); 
+} | NAME
+{ 
+	scinstal( nmstr, xcluflg ); 
+} | error
+{ 
+	synerr( _("bad start condition list") ); 
+};
 
-namelist1	:  namelist1 NAME
-			{ scinstal( nmstr, xcluflg ); }
+options : TOK_OPTION optionlist ;
 
-		|  NAME
-			{ scinstal( nmstr, xcluflg ); }
+optionlist : optionlist option | ;
 
-		|  error
-			{ synerr( _("bad start condition list") ); }
-		;
-
-options		:  TOK_OPTION optionlist
-		;
-
-optionlist	:  optionlist option
-		|
-		;
-
-option		:  TOK_OUTFILE '=' NAME
+option :  TOK_OUTFILE '=' NAME
 			{
 			outfilename = xstrdup(nmstr);
 			did_outfilename = 1;
@@ -188,18 +180,22 @@ option		:  TOK_OUTFILE '=' NAME
 		|  TOK_EXTRA_TYPE '=' NAME
 			{ extra_type = xstrdup(nmstr); }
 		|  TOK_PREFIX '=' NAME
-			{ prefix = xstrdup(nmstr);
-                          if(strchr(prefix, '[') || strchr(prefix, ']'))
-                              flexerror(_("Prefix must not contain [ or ]")); }
-		|  TOK_YYCLASS '=' NAME
-			{ yyclass = xstrdup(nmstr); }
-		|  TOK_HEADER_FILE '=' NAME
-			{ headerfilename = xstrdup(nmstr); }
-	    |  TOK_TABLES_FILE '=' NAME
-            { tablesext = true; tablesfilename = xstrdup(nmstr); }
-		;
-
-sect2		:  sect2 scon initforrule flexrule '\n'
+		{ 
+			prefix = xstrdup(nmstr);
+			if(sstrchr(prefix, '[') || sstrchr(prefix, ']'))
+				flexerror(_("Prefix must not contain [ or ]")); 
+		} |  TOK_YYCLASS '=' NAME
+		{ 
+			yyclass = xstrdup(nmstr); 
+		} | TOK_HEADER_FILE '=' NAME
+		{ 
+			headerfilename = xstrdup(nmstr); 
+		} | TOK_TABLES_FILE '=' NAME
+		{ 
+			tablesext = true; 
+			tablesfilename = xstrdup(nmstr); 
+		};
+sect2 :  sect2 scon initforrule flexrule '\n'
 			{ scon_stk_ptr = $2; }
 		|  sect2 scon '{' sect2 '}'
 			{ scon_stk_ptr = $2; }
@@ -921,7 +917,7 @@ void lwarn( const char *str )
 void format_pinpoint_message( const char *msg, const char arg[] )
 {
 	char errmsg[MAXLINE];
-	snprintf( errmsg, sizeof(errmsg), msg, arg );
+	snprintf(errmsg, sizeof(errmsg), msg, arg);
 	pinpoint_message( errmsg );
 }
 

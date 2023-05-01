@@ -1322,7 +1322,7 @@
 #define PPTAG_LOT_EGIASINFAREG      47L // Подробная информация о справке А (сжатая в одну строку)
 #define PPTAG_PERSON_EGAISSRVURL    48L // URL сервера ЕГАИС (это значение переопределяет URL заданный в PPAlbatrossConfig)
 #define PPTAG_BILL_EDIRECADVCONFIRM 49L // Номер отправленного по каналу EDI нашего согласия/не согласия с полученным RECADV
-#define PPTAG_LOT_DIMENTIONS        50L // Размерности товара, ассоциированные с лотом (для изделий неправильной/нестандартной формы)
+#define PPTAG_LOT_DIMENSIONS        50L // Размерности товара, ассоциированные с лотом (для изделий неправильной/нестандартной формы) // @v11.7.0 @fix PPTAG_LOT_DIMENTIONS-->PPTAG_LOT_DIMENSIONS
 #define PPTAG_BILL_EDIREJECTACK     51L // По каналу EDI отправлено требование отменить ранее совершенную передачу документа
 #define PPTAG_GOODS_OUTERPOSCODE    52L // (в ppdata.rc не добавлять) Код товара у источника данных для POS-узла
 #define PPTAG_BILL_EDICHANNEL       53L // Символьное обозначение EDI-канала, по которому был доставлен документ в базу данных.
@@ -1388,6 +1388,7 @@
 #define PPTAG_LOC_TRUNKPOINT       102L // @v11.2.9  Магистральная точка, ближайшая к адресу. Используется в логистике для планирования маршрутов.
 #define PPTAG_TSESS_OUTERCODE      103L // @v11.6.6  Внешний код технологической сессии
 #define PPTAG_PERSON_TRANSPORTTO   104L // @v11.6.9  Транспорт, используемый для доставки товара клиенту по-умолчанию (используется для интеграции с VETIS)
+#define PPTAG_LOT_ACCEPTANCE       105L // @v11.7.0  Результат "физической" приемки документа. Структурированная информация сжата в строку.
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -11416,6 +11417,7 @@
 	#define CTL_STQINLPARAM_ACTIONS          (15 + WINDOWS_ID_BIAS)
 	#define CTL_STQINLPARAM_PERIOD           (16 + WINDOWS_ID_BIAS)
 	#define CTLCAL_STQINLPARAM_PERIOD        (17 + WINDOWS_ID_BIAS)
+	#define CTL_STQINLPARAM_ACCEPT           (18 + WINDOWS_ID_BIAS) // @v11.7.0
 #define DLG_STQSTATUSL            1423
 	#define CTL_STQSTATUSL_LIST              (1  + WINDOWS_ID_BIAS)
 #define DLG_STQSTATUSE            1424
@@ -11445,6 +11447,13 @@
 	#define CTL_STQPEVPARAM_MAXDIST         (1  + WINDOWS_ID_BIAS)
 	#define CTLBUT_STQPEVPARAM_PACK         (2  + WINDOWS_ID_BIAS)
 #define DLG_TECHFOLDER            1429 // @v11.6.3 TECH Технология верхнего уровня (папка)
+#define DLG_TIACCEPTNC            1430 // @v11.7.0 Результататы приемки строки товарного документа
+	#define CTL_TIACCEPTNC_QTTY             (1  + WINDOWS_ID_BIAS)
+	#define CTL_TIACCEPTNC_COST             (2  + WINDOWS_ID_BIAS)
+	#define CTL_TIACCEPTNC_PRICE            (3  + WINDOWS_ID_BIAS)
+	#define CTL_TIACCEPTNC_AQTTY            (4  + WINDOWS_ID_BIAS)
+	#define CTL_TIACCEPTNC_ACOST            (5  + WINDOWS_ID_BIAS)
+	#define CTL_TIACCEPTNC_APRICE           (6  + WINDOWS_ID_BIAS)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

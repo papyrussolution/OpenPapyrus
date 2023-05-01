@@ -18,13 +18,19 @@
 #define U_STATIC_IMPLEMENTATION // @v11.3.0 ICU включается как статическая библиотека
 #ifndef RC_INVOKED
 	#include <slport.h>
+#endif
+//
+// Далее идут включения файлов из штатных библиотек компилятора и Windows API
+// Visual Studio требует default-выравнивания структур данных. Потому обрамляем эту зону 
+// парой sl-packing-set08.h/sl-packing-reset.h
+//
+#include <sl-packing-set_compiler_default.h> // @v11.7.0
+#ifndef RC_INVOKED
 	#ifndef __STDIO_H
 		#include <stdio.h>
 	#endif
-	#if !defined(__palmos__) && !defined(_WIN32_WCE)
-		#ifndef __IO_H
-			#include <io.h>
-		#endif
+	#ifndef __IO_H
+		#include <io.h>
 	#endif
 	#include <assert.h>
 	#include <limits.h>
@@ -110,16 +116,24 @@
 			#define _WIN32_IE 0x0700 // =_WIN32_IE_IE70 @v10.9.9
 		#endif
 	#endif
+	/* @v11.7.0 (выше определена директива установки выравнивания по умолчанию для компилятора)
 	#if _M_X64
 		#pragma pack(push)
 		#pragma pack(8)
-	#endif
+	#endif*/
 	#include <winsock2.h>
 	#include <ws2tcpip.h> // @v10.9.9
+	/* @v11.7.0 (выше определена директива установки выравнивания по умолчанию для компилятора)
 	#if _M_X64
 		#pragma pack(pop)
-	#endif
+	#endif*/
 	#include <windows.h>
+	// @v11.7.0 {
+	#ifndef RC_INVOKED
+		#include <wininet.h> 
+		#include <iphlpapi.h>
+	#endif
+	// } @v11.7.0 
 	#define _Windows
 	// @v11.3.10 (for Visual C _MSC_VER == 1310) {
 	#ifndef MAXUINT32
@@ -134,41 +148,12 @@
 	// } @v11.3.10 
 	// @v10.3.10 #define pow10l(x) pow(10,(x))
 	// @v10.3.10 #define pow10(x)  pow(10,(x))
-	#define MAXDRIVE 3
-	#define MAXFILE 257
-	#define MAXEXT 5
-	#define MAXDIR 257
-	#define MAXPATH 261
+	#define MAXDRIVE   3
+	#define MAXFILE  257
+	#define MAXEXT     5
+	#define MAXDIR   257
+	#define MAXPATH  261
 #endif // _WIN32
-// @v5.0.4 AHTOXA {
-#ifdef _WIN32_WCE
-	#define OEMRESOURCE
-	#define _WIN32_WINDOWS 0x0410 // Papyrus @v4.1.12
-	#include <winsock2.h>
-	#include <windows.h>
-	#define _Windows
-	#define asm __asm
-	#define stricmp         _stricmp
-	#define strnicmp        _strnicmp
-	#define stpcpy(s1, s2) (strcpy((s1), (s2)), s1 + strlen((s2)))
-	#define strcmpi         stricmp
-	#define strset          _strset
-	#define strupr          _strupr
-	#define strlwr          _strlwr
-	#define strdup          _strdup
-	#define fcvt _fcvt
-	#define itoa            _itoa
-	#define ltoa            _ltoa
-	#define ultoa           _ultoa
-	#define pow10l(x) pow(10,(x))
-	#define pow10(x) pow(10,(x))
-	#define MAXDRIVE 3
-	#define MAXFILE 257
-	#define MAXEXT 5
-	#define MAXDIR 257
-	#define MAXPATH 261
-#endif
-// } @v5.0.4 AHTOXA
 #ifndef SLIB_DONT_UNDEF_MINMAX // @v11.1.11
 	#undef min // @v9.8.11
 	#undef max // @v9.8.11
@@ -238,7 +223,9 @@
 	#include <forward_list>
 	#include <numeric>
 #endif
-
+#ifndef RC_INVOKED
+	#include <sl-packing-reset.h>
+#endif
 //#if _MSC_VER >= 1910
 #if CXX_HAS_STATIC_ASSERT
 	#define STATIC_ASSERT static_assert
@@ -257,12 +244,7 @@
 #define FMAXEXP     38
 #define DMINEXP     -307
 #define FMINEXP     -37
-#if(__BORLANDC__ < 0x500)
-	// @v10.8.2 (replaced with SMathConst::Max) #define MAXDOUBLE   1.797693E+308
-	// @v10.8.2 (replaced with SMathConst::Min) #define MINDOUBLE   2.225074E-308
-	// @v10.9.6 #define MAXFLOAT    3.37E+38f
-	// @v10.9.6 #define MINFLOAT    8.43E-37
-#endif
+
 #define DSIGNIF     53
 #define FSIGNIF     24
 #define DMAXPOWTWO  0x3FF
@@ -1137,9 +1119,7 @@ class  SPoint2S;
 class  TRect;
 class  SPoint2R;
 class  LMatrix;
-#ifndef _WIN32_WCE // {
 class  SFile;
-#endif // } _WIN32_WCE
 class  StringSet;
 class  SIniFileBuffer;
 struct SStrScan;
@@ -2466,7 +2446,7 @@ enum {
 // Descr: Представление даты в формате MS-DOS.
 // Note: obsolete (практически не используется)
 //
-struct SDosDate {
+struct SDosDate { // @size=4
 	int16  da_year; // Year - 1980
 	int8   da_day;  // Day of the month
 	int8   da_mon;  // Month (1 = Jan)
@@ -2576,7 +2556,7 @@ struct CALDATE : public LDATE {
 //   Как следствие, для точного хрометража (например времени исполнения кода) этот
 //   формат не годится, но для большинства остальных приложений очень хорош.
 //
-struct LTIME {
+struct LTIME { // @size=4
 	DECL_INVARIANT_C();
 	operator unsigned long() const { return v; }
 	operator OleDate() const;
@@ -2611,7 +2591,7 @@ private:
 // Descr: Представление, обеспечивающее хранение времени с точностью до миллисекунд
 //   и с фактором временного пояса.
 //
-class STIME {
+class STIME { // @size=4
 public:
 	DECL_INVARIANT_C();
 	operator unsigned long() const { return v; }
@@ -2862,7 +2842,7 @@ public:
 		uint8  DayOfMonth;   // @#[1..31]
 		uint8  Zero;         // @reserve
 	};
-	struct RepeatAfterPrd {
+	struct RepeatAfterPrd { // @size=4
 		int16  NumPrd;       // Кол-во периодов
 		int16  AfterStart;   // 0 - Дату выполнения считать от предыдущей даты окончания, 1 - от предыдущей даты начала
 	};
@@ -3873,8 +3853,6 @@ public:
 	//
 	static const char * FASTCALL GetBool(int b);
 };
-
-#ifndef _WIN32_WCE // {
 //
 // Descr: Класс, реализующий препроцессинг образца и поиск образца в строке
 //
@@ -3919,8 +3897,6 @@ private:
 	size_t PreprocSize;    // Длина буфера, выделенного под препроцессинг
 	size_t HashSize;       // Количество элементов хэш-таблицы для правила плохого двойного слова
 };
-
-#endif // } _WIN32_WCE
 //
 // Descr: Класс, реализующий механизм работы со строками.
 //
@@ -4116,10 +4092,7 @@ public:
 	//  !0 - искомый образец найден в строке this и находится по смещению *pPos, начиная с первого
 	//       символа строки this.
 	//
-#ifndef _WIN32_WCE
-	int    Search(const SSrchPattern * pBlk, size_t startPos, size_t * pPos) const;
-#endif
-		// @>>SSrchPattern::Search
+	int    Search(const SSrchPattern * pBlk, size_t startPos, size_t * pPos) const; // @>>SSrchPattern::Search
 	int    Search(const char * pPattern, size_t startPos, int ignoreCase, size_t * pPos) const;
 	//
 	// Descr: Делит строку на две части, используя в качестве разделителя символ divChr.
@@ -4347,10 +4320,8 @@ public:
 	SString & STDCALL  CatDivIfNotEmpty(int c, int addSpaces/* = 0*/);
 	SString & FASTCALL Cat(long);
 	SString & FASTCALL Cat(ulong);
-#ifndef _WIN32_WCE // {
 	SString & Cat(int64);
 	SString & Cat(uint64);
-#endif // } _WIN32_WCE
 	SString & FASTCALL Cat(int);
 	SString & FASTCALL Cat(uint);
 	//
@@ -4748,10 +4719,8 @@ public:
 	//
 	int    FASTCALL Read(SBuffer & rBuf);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
-#ifndef _WIN32_WCE // {
 	int    Write(SFile & rFile, long) const;
 	int    Read(SFile & rFile, long);
-#endif // } _WIN32_WCE
 protected:
 	int    Init(const char * pDelim, size_t prealloc);
 	int    FASTCALL Alloc(size_t sz);
@@ -4911,9 +4880,7 @@ struct SSrchParam {
 
 // short  bioscom(int cmd, char abyte, int port);
 int    getdisk();
-#ifndef  _WIN32_WCE // {
-	char * FASTCALL stpcpy(char *to, const char *from);
-#endif // _WIN32_WCE {
+char * FASTCALL stpcpy(char *to, const char *from);
 int    fnsplit(const char *, char *, char *, char *, char *);
 void   fnmerge(char *, const char *, const char *, const char *nameP, const char *);
 
@@ -5927,6 +5894,10 @@ public:
 // Memory manipulation functions
 //
 void * catmem(void * pDest, size_t destSz, const void * pSrc, size_t srcSz);
+//
+// Descr: Реализация спецификации memchr. Очень быстрая (SSE-2)
+//
+const void * smemchr(const void * pHaystack, int n, size_t len);
 //
 // Descr: Быстро меняет содержимое по указателям p1 и p2 размером size.
 //
@@ -7613,7 +7584,15 @@ public:
 	int    imp_lsearch(const void *, uint * pos, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
 	bool   bsearch(const void * key, uint * pIdx, CompFunc, size_t ofs, void * pExtraData) const;
 	bool   bsearch(const void * key, uint * pIdx, CompFunc fcmp) const;
+	//
+	// Descr: Ищет первый элемент, который больше или равен ключевому элементу key.
+	//
+	bool   bsearchGe(const void * key, uint * pIdx, CompFunc fcmp, size_t ofs = 0, void * pExtraData = 0) const;
 	bool   lsearch(const void * key, uint * pIdx, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
+	//
+	// Descr: Ищет первый элемент, который больше или равен ключевому элементу key.
+	//
+	bool   lsearchGe(const void * key, uint * pIdx, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
 	void   sort(CompFunc fcmp, void * pExtraData = 0);
 	void   sort2(CompFunc fcmp, void * pExtraData = 0);
 	double sumDouble(uint offs, uint firstIdx, uint lastIdx) const;
@@ -7793,7 +7772,6 @@ public:
 	//   на перемещение участков памяти при серии единичных удалений.
 	//
 	int    freeChunk(uint lowPos, uint uppPos);
-#ifndef _WIN32_WCE // {
 	//
 	// Descr: Функция записывает массив в бинарный файл rFile.
 	//   Формат записи следующий:
@@ -7815,7 +7793,6 @@ public:
 	//   поскольку формат чтения этих функций различается.
 	//
 	int    Read(SFile & rFile, long);
-#endif // } !_WIN32_WCE
 };
 //
 // @v9.7.11 Все 5 методов элиминированы (фактически, перенесены как static в dl200.cpp поскольку только там и используются).
@@ -8171,9 +8148,7 @@ public:
 	//   (@see LongArray::sort()).
 	//
 	void   intersect(const LongArray * pList, int binary = 0);
-#ifndef _WIN32_WCE // {
 	void   intersect(const UintHashTable * pList);
-#endif // } _WIN32_WCE
 	int    FASTCALL add(long value);
 	LongArray & FASTCALL addr(long value);
 	//
@@ -8502,8 +8477,6 @@ public:
 	void   SortByX();
 	void   SortByY();
 };
-
-#ifndef _WIN32_WCE // {
 //
 //
 //
@@ -8520,7 +8493,6 @@ public:
 	bool   SearchVal(const S_GUID_Base &, long * pKey, uint * pPos) const;
 	int    GetMaxKey(long * pMaxKey, uint * pPos) const;
 };
-#endif // } _WIN32_WCE
 //
 // Descr: Вспомогательный класс, управляющий набором строк, каждая из которых идентифицируется своей позицией
 //   в пуле StringSet.
@@ -8773,11 +8745,8 @@ public:
 	int    GetTextByPos(uint textPos, SString & rBuf) const;
 	int    FASTCALL Write(SBuffer & rBuf, long o) const;
 	int    FASTCALL Read(SBuffer & rBuf, long o);
-#ifndef _WIN32_WCE // {
 	int    Write(SFile & rFile, long) const;
 	int    Read(SFile & rFile, long);
-#endif // } _WIN32_WCE
-
 	// @v10.7.11 int    Test_Cmp(const TaggedStringArray_obsolete &, int * pNEqPos) const;
 	static int Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const LAssoc * p2, StrAssocArray * pArray, LAssocArray * pRecurTracer); // @reallyprivate
 protected:
@@ -10749,7 +10718,6 @@ class SUnicodeBlock {
 public:
     SUnicodeBlock();
     ~SUnicodeBlock();
-
     int    ReadRaw(const char * pUnicodePath, const char * pCpPath);
     int    Read(const char * pFileName);
     int    Write(const char * pFileName);
@@ -12570,7 +12538,6 @@ public:
 	//   Если матрица является вырожденной, то возвращает 0.
 	//
 	int    Invert();
-
 	int    IsIdentical() const;
 	double GetDeterminant() const;
 	SPoint2R & FASTCALL TransformDistance(SPoint2R & rP) const;
@@ -14513,7 +14480,7 @@ public:
 	int    Wr_IfDef(const char * pSymb, int _ifndef = 0);
 	int    Wr_EndIf(const char * pSymb);
 	int    Wr_ClassPrototype(int cls, const char * pName);
-	int    Wr_StartClassDecl(int cls, const char * pName, const char * pBase, int acs = acsPublic, uint declAlignment = 0);
+	int    Wr_StartClassDecl(int cls, const char * pName, const char * pBase, int acs/*= acsPublic*/, uint declAlignment/*= 0*/);
 	int    Wr_StartIdlInterfaceDecl(const char * pName, int dispIface = 0);
 	int    Wr_StartIdlCoClassDecl(const char * pName);
 	int    Wr_ClassAcsZone(int acs);

@@ -1951,8 +1951,7 @@ static char ** argv;
 static const struct s_options * op;
 static FILE * errstream;
 
-#define ISOPT(X) ((X)[0]=='-'||(X)[0]=='+'||strchr((X), '=')!=0)
-
+#define ISOPT(X) ((X)[0]=='-'||(X)[0]=='+'||sstrchr((X), '=')!=0)
 /*
 ** Print the command line with a carrot pointing to the k-th character
 ** of the n-th field.
@@ -2047,10 +2046,9 @@ static int handleswitch(int i, FILE * err)
 	int lv = 0;
 	double dv = 0.0;
 	char * sv = 0, * end;
-	char * cp;
 	int j;
 	int errcnt = 0;
-	cp = strchr(argv[i], '=');
+	char * cp = sstrchr(argv[i], '=');
 	assert(cp!=0);
 	*cp = 0;
 	for(j = 0; op[j].label; j++) {
@@ -2142,7 +2140,7 @@ int OptInit(char ** a, const struct s_options * o, FILE * err)
 			if(argv[i][0]=='+' || argv[i][0]=='-') {
 				errcnt += handleflags(i, err);
 			}
-			else if(strchr(argv[i], '=')) {
+			else if(sstrchr(argv[i], '=')) {
 				errcnt += handleswitch(i, err);
 			}
 		}
@@ -3460,7 +3458,7 @@ PRIVATE char * pathsearch(char * argv0, char * name, int modemask)
 			pathbufptr = pathbuf;
 			sstrcpy(pathbuf, pathlist);
 			while(*pathbuf) {
-				cp = strchr(pathbuf, ':');
+				cp = sstrchr(pathbuf, ':');
 				if(cp==0) 
 					cp = &pathbuf[sstrlen(pathbuf)];
 				c = *cp;

@@ -216,13 +216,10 @@ bool ConvertIntImplInnerSlow(const IntDigits &as_digits,
 			precision = std::max(precision, needed);
 		}
 	}
-
 	size_t num_zeroes = Excess(formatted.size(), precision);
 	ReducePadding(num_zeroes, &fill);
-
 	size_t num_left_spaces = !conv.has_left_flag() ? fill : 0;
 	size_t num_right_spaces = conv.has_left_flag() ? fill : 0;
-
 	// From POSIX description of the '0' (zero) flag:
 	//   "For d, i, o, u, x, and X conversion specifiers, if a precision
 	//   is specified, the '0' flag is ignored."
@@ -230,7 +227,6 @@ bool ConvertIntImplInnerSlow(const IntDigits &as_digits,
 		num_zeroes += num_left_spaces;
 		num_left_spaces = 0;
 	}
-
 	sink->Append(num_left_spaces, ' ');
 	sink->Append(sign);
 	sink->Append(base_indicator);
@@ -240,54 +236,32 @@ bool ConvertIntImplInnerSlow(const IntDigits &as_digits,
 	return true;
 }
 
-template <typename T>
-bool ConvertIntArg(T v, const FormatConversionSpecImpl conv,
-    FormatSinkImpl * sink) {
+template <typename T> bool ConvertIntArg(T v, const FormatConversionSpecImpl conv, FormatSinkImpl * sink) 
+{
 	using U = typename MakeUnsigned<T>::type;
 	IntDigits as_digits;
-
 	// This odd casting is due to a bug in -Wswitch behavior in gcc49 which causes
 	// it to complain about a switch/case type mismatch, even though both are
 	// FormatConverionChar.  Likely this is because at this point
 	// FormatConversionChar is declared, but not defined.
-	switch(static_cast<uint8_t>(conv.conversion_char())) {
-		case static_cast<uint8_t>(FormatConversionCharInternal::c):
-		    return ConvertCharImpl(static_cast<unsigned char>(v), conv, sink);
-
-		case static_cast<uint8_t>(FormatConversionCharInternal::o):
-		    as_digits.PrintAsOct(static_cast<U>(v));
-		    break;
-
-		case static_cast<uint8_t>(FormatConversionCharInternal::x):
-		    as_digits.PrintAsHexLower(static_cast<U>(v));
-		    break;
-		case static_cast<uint8_t>(FormatConversionCharInternal::X):
-		    as_digits.PrintAsHexUpper(static_cast<U>(v));
-		    break;
-
-		case static_cast<uint8_t>(FormatConversionCharInternal::u):
-		    as_digits.PrintAsDec(static_cast<U>(v));
-		    break;
-
-		case static_cast<uint8_t>(FormatConversionCharInternal::d):
-		case static_cast<uint8_t>(FormatConversionCharInternal::i):
-		    as_digits.PrintAsDec(v);
-		    break;
-
-		case static_cast<uint8_t>(FormatConversionCharInternal::a):
-		case static_cast<uint8_t>(FormatConversionCharInternal::e):
-		case static_cast<uint8_t>(FormatConversionCharInternal::f):
-		case static_cast<uint8_t>(FormatConversionCharInternal::g):
-		case static_cast<uint8_t>(FormatConversionCharInternal::A):
-		case static_cast<uint8_t>(FormatConversionCharInternal::E):
-		case static_cast<uint8_t>(FormatConversionCharInternal::F):
-		case static_cast<uint8_t>(FormatConversionCharInternal::G):
-		    return ConvertFloatImpl(static_cast<double>(v), conv, sink);
-
-		default:
-		    ABSL_INTERNAL_ASSUME(false);
+	switch(static_cast<uint8>(conv.conversion_char())) {
+		case static_cast<uint8>(FormatConversionCharInternal::c): return ConvertCharImpl(static_cast<unsigned char>(v), conv, sink);
+		case static_cast<uint8>(FormatConversionCharInternal::o): as_digits.PrintAsOct(static_cast<U>(v)); break;
+		case static_cast<uint8>(FormatConversionCharInternal::x): as_digits.PrintAsHexLower(static_cast<U>(v)); break;
+		case static_cast<uint8>(FormatConversionCharInternal::X): as_digits.PrintAsHexUpper(static_cast<U>(v)); break;
+		case static_cast<uint8>(FormatConversionCharInternal::u): as_digits.PrintAsDec(static_cast<U>(v)); break;
+		case static_cast<uint8>(FormatConversionCharInternal::d):
+		case static_cast<uint8>(FormatConversionCharInternal::i): as_digits.PrintAsDec(v); break;
+		case static_cast<uint8>(FormatConversionCharInternal::a):
+		case static_cast<uint8>(FormatConversionCharInternal::e):
+		case static_cast<uint8>(FormatConversionCharInternal::f):
+		case static_cast<uint8>(FormatConversionCharInternal::g):
+		case static_cast<uint8>(FormatConversionCharInternal::A):
+		case static_cast<uint8>(FormatConversionCharInternal::E):
+		case static_cast<uint8>(FormatConversionCharInternal::F):
+		case static_cast<uint8>(FormatConversionCharInternal::G): return ConvertFloatImpl(static_cast<double>(v), conv, sink);
+		default: ABSL_INTERNAL_ASSUME(false);
 	}
-
 	if(conv.is_basic()) {
 		sink->Append(as_digits.with_neg_and_zero());
 		return true;

@@ -26,7 +26,7 @@ struct lzma_lzma2_encoder_coder {
 	size_t compressed_size;
 	size_t buf_pos; /// Read position in buf[]
 	/// Buffer to hold the chunk header and LZMA compressed data
-	uint8_t buf[LZMA2_HEADER_MAX + LZMA2_CHUNK_MAX];
+	uint8 buf[LZMA2_HEADER_MAX + LZMA2_CHUNK_MAX];
 };
 
 static void lzma2_header_lzma(lzma_lzma2_encoder_coder * coder)
@@ -53,7 +53,7 @@ static void lzma2_header_lzma(lzma_lzma2_encoder_coder * coder)
 	coder->buf[pos++] = size & 0xFF;
 	// Compressed size
 	size = coder->compressed_size - 1;
-	coder->buf[pos++] = static_cast<uint8_t>(size >> 8);
+	coder->buf[pos++] = static_cast<uint8>(size >> 8);
 	coder->buf[pos++] = size & 0xFF;
 	// Properties, if needed
 	if(coder->need_properties)
@@ -75,13 +75,13 @@ static void lzma2_header_uncompressed(lzma_lzma2_encoder_coder * coder)
 	coder->buf[0] = coder->need_dictionary_reset ? 1 : 2;
 	coder->need_dictionary_reset = false;
 	// "Compressed" size
-	coder->buf[1] = static_cast<uint8_t>((coder->uncompressed_size - 1) >> 8);
+	coder->buf[1] = static_cast<uint8>((coder->uncompressed_size - 1) >> 8);
 	coder->buf[2] = (coder->uncompressed_size - 1) & 0xFF;
 	// Set the start position for copying.
 	coder->buf_pos = 0;
 }
 
-static lzma_ret lzma2_encode(void * coder_ptr, lzma_mf * mf, uint8_t * out, size_t * out_pos, size_t out_size)
+static lzma_ret lzma2_encode(void * coder_ptr, lzma_mf * mf, uint8 * out, size_t * out_pos, size_t out_size)
 {
 	lzma_lzma2_encoder_coder * coder = (lzma_lzma2_encoder_coder *)coder_ptr;
 	while(*out_pos < out_size)
@@ -249,7 +249,7 @@ extern uint64_t lzma_lzma2_encoder_memusage(const void * options)
 	return (lzma_mem == UINT64_MAX) ? UINT64_MAX : (sizeof(lzma_lzma2_encoder_coder) + lzma_mem);
 }
 
-extern lzma_ret lzma_lzma2_props_encode(const void * options, uint8_t * out)
+extern lzma_ret lzma_lzma2_props_encode(const void * options, uint8 * out)
 {
 	const lzma_options_lzma * const opt = (const lzma_options_lzma *)options;
 	uint32_t d = MAX(opt->dict_size, LZMA_DICT_SIZE_MIN);

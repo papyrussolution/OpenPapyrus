@@ -135,22 +135,9 @@ static void css_lex_init(fz_context * ctx, struct lexbuf * buf, fz_pool * pool, 
 	buf->string_len = 0;
 }
 
-static inline int iswhite(int c)
-{
-	return c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\f';
-}
-
-static int isnmstart(int c)
-{
-	return c == '\\' || c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
-	       (c >= 128 && c <= 255);
-}
-
-static int isnmchar(int c)
-{
-	return c == '\\' || c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
-	       (c >= '0' && c <= '9') || c == '-' || (c >= 128 && c <= 255);
-}
+static inline int iswhite(int c) { return c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\f'; }
+static int isnmstart(int c) { return c == '\\' || c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= 128 && c <= 255); }
+static int isnmchar(int c) { return c == '\\' || c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || (c >= 128 && c <= 255); }
 
 static void css_push_char(struct lexbuf * buf, int c)
 {

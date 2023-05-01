@@ -251,7 +251,7 @@ private:
 	    const param_type& p) {
 		if(p.method_ == param_type::DEGENERATE_SMALL && p.alpha_ == p.beta_) {
 			// Returns 0 or 1 with equal probability.
-			random_internal::FastUniformBits<uint8_t> fast_u8;
+			random_internal::FastUniformBits<uint8> fast_u8;
 			return static_cast<result_type>((fast_u8(g) & 0x10) !=
 			       0);         // pick any single bit.
 		}

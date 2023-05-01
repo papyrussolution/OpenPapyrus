@@ -383,13 +383,13 @@ bool FASTCALL Splitter::isInRightBottomZone(const POINT& p) const
 int Splitter::getSplitterFixPosX() const
 {
 	long result = long(::SendMessage(_hParent, WM_GETSPLITTER_X, 0, 0));
-	return (LOWORD(result) - ((HIWORD(result) == static_cast<std::uint8_t>(SplitterMode::RIGHT_FIX)) ? _splitterSize : 0));
+	return (LOWORD(result) - ((HIWORD(result) == static_cast<uint8>(SplitterMode::RIGHT_FIX)) ? _splitterSize : 0));
 }
 
 int Splitter::getSplitterFixPosY() const
 {
 	long result = long(::SendMessage(_hParent, WM_GETSPLITTER_Y, 0, 0));
-	return (LOWORD(result) - ((HIWORD(result) == static_cast<std::uint8_t>(SplitterMode::RIGHT_FIX)) ? _splitterSize : 0));
+	return (LOWORD(result) - ((HIWORD(result) == static_cast<uint8>(SplitterMode::RIGHT_FIX)) ? _splitterSize : 0));
 }
 
 void Splitter::drawSplitter()

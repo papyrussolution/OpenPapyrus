@@ -663,23 +663,19 @@ static char * get_field_name(fz_context * ctx, pdf_obj * field, int spare)
 	pdf_obj * parent;
 	const char * lname;
 	int llen;
-
 	fz_try(ctx)
 	{
 		if(pdf_mark_obj(ctx, field))
 			fz_throw(ctx, FZ_ERROR_GENERIC, "Cycle in field parents");
-
 		parent = pdf_dict_get(ctx, field, PDF_NAME(Parent));
 		lname = pdf_dict_get_text_string(ctx, field, PDF_NAME(T));
 		llen = (int)strlen(lname);
-
 		/*
 		 * If we found a name at this point in the field hierarchy
 		 * then we'll need extra space for it and a dot
 		 */
 		if(llen)
 			spare += llen+1;
-
 		if(parent) {
 			res = get_field_name(ctx, parent, spare);
 		}
@@ -687,11 +683,9 @@ static char * get_field_name(fz_context * ctx, pdf_obj * field, int spare)
 			res = (char *)Memento_label(fz_malloc(ctx, spare+1), "form_field_name");
 			res[0] = 0;
 		}
-
 		if(llen) {
 			if(res[0])
 				strcat(res, ".");
-
 			strcat(res, lname);
 		}
 	}
@@ -699,7 +693,6 @@ static char * get_field_name(fz_context * ctx, pdf_obj * field, int spare)
 	pdf_unmark_obj(ctx, field);
 	fz_catch(ctx)
 	fz_rethrow(ctx);
-
 	return res;
 }
 
@@ -710,10 +703,8 @@ char * pdf_field_name(fz_context * ctx, pdf_obj * field)
 
 void pdf_create_field_name(fz_context * ctx, pdf_document * doc, const char * prefix, char * buf, size_t len)
 {
-	pdf_obj * form = pdf_dict_getl(ctx, pdf_trailer(ctx, doc),
-		PDF_NAME(Root), PDF_NAME(AcroForm), PDF_NAME(Fields), NULL);
-	int i;
-	for(i = 0; i < 65536; ++i) {
+	pdf_obj * form = pdf_dict_getl(ctx, pdf_trailer(ctx, doc), PDF_NAME(Root), PDF_NAME(AcroForm), PDF_NAME(Fields), NULL);
+	for(int i = 0; i < 65536; ++i) {
 		fz_snprintf(buf, len, "%s%d", prefix, i);
 		if(!pdf_lookup_field(ctx, form, buf))
 			return;

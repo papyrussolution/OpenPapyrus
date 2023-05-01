@@ -410,6 +410,24 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					else if(view_id == R.id.STDCTL_CANCELBUTTON) {
 						this.dismiss();
 					}
+					else if(view_id == R.id.CTLBUT_DOACCEPT) {
+						Document.TransferItem _data = (Data != null && Data instanceof Document.TransferItem) ? (Document.TransferItem)Data : null;
+						if(_data != null && _data.Set != null) {
+							if(_data.SetAccepted == null)
+								_data.SetAccepted = new Document.ValuSet();
+							_data.SetAccepted.Qtty = _data.Set.Qtty;
+							SLib.SetCtrlString(this, R.id.CTL_TI_ACCEPTED_QTTY, SLib.formatdouble(_data.SetAccepted.Qtty, 3));
+						}
+					}
+					else if(view_id == R.id.CTLBUT_DOREJECT) {
+						Document.TransferItem _data = (Data != null && Data instanceof Document.TransferItem) ? (Document.TransferItem)Data : null;
+						if(_data != null && _data.Set != null) {
+							if(_data.SetAccepted == null)
+								_data.SetAccepted = new Document.ValuSet();
+							_data.SetAccepted.Qtty = 0;
+							SLib.SetCtrlString(this, R.id.CTL_TI_ACCEPTED_QTTY, SLib.formatdouble(_data.SetAccepted.Qtty, 3));
+						}
+					}
 					break;
 			}
 			return result;
@@ -769,8 +787,9 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						JSONObject js_doc_decl = null; // @v11.6.6
 						String svc_reply_doc_json = null;
 						StyloQApp app_ctx = GetAppCtx();
-						if(app_ctx != null) {
-							StyloQDatabase db = app_ctx.GetDB();
+						StyloQDatabase db = (app_ctx != null) ? app_ctx.GetDB() : null;
+						if(db != null) {
+							CPM.SetupCurrentState(db); // @v11.7.0
 							ArrayList <UUID> possible_doc_uuid_list = null;
 							if(doc_id > 0) {
 								StyloQDatabase.SecStoragePacket doc_packet = db.GetPeerEntry(doc_id);
@@ -932,7 +951,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 													SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_QTTY, (ti.Set != null) ? CPM.FormatQtty(ti.Set.Qtty, uom_id, false) : "");
 													double item_amont = (ti.Set != null) ? (ti.Set.Qtty * ti.Set.Price) : 0.0;
 													SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_AMOUNT, " = " + CPM.FormatCurrency(item_amont));
-													if(ti.SetAccepted != null) {
+													if(ti.SetAccepted != null && ti.SetAccepted.Qtty > 0.0) {
 														SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_ACCPTED_PRICE, CPM.FormatCurrency(ti.SetAccepted.Price));
 														SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_ACCPTED_QTTY, CPM.FormatQtty(ti.SetAccepted.Qtty, uom_id, false));
 														item_amont = (ti.Set != null) ? (ti.SetAccepted.Qtty * ti.SetAccepted.Price) : 0.0;
@@ -942,6 +961,26 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 													else {
 														SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_TI_ACCEPTED_TEXT, View.GONE);
 													}
+													// @v11.7.0 {
+													{
+														ImageView ctl = (ImageView) iv.findViewById(R.id.CTL_DOCUMENT_TI_ACCEPTED_STATUS);
+														if(ctl != null) {
+															int rcid = 0;
+															if(ti.Set != null && ti.SetAccepted != null) {
+																if(ti.SetAccepted.Qtty > 0.0)
+																	rcid = R.drawable.ic_accept01;
+																else if(ti.SetAccepted.Qtty == 0.0)
+																	rcid = R.drawable.ic_reject01;
+															}
+															if(rcid != 0) {
+																ctl.setVisibility(View.VISIBLE);
+																ctl.setImageResource(rcid);
+															}
+															else
+																ctl.setVisibility(View.GONE);
+														}
+													}
+													// } @v11.7.0
 												}
 											}
 										}

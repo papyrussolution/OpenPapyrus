@@ -9,7 +9,6 @@
         exhibiting bad behaviour if entries are inserted
         and removed frequently.
  */
-
 enum { MAX_KEY_LEN = 48 };
 
 typedef struct {
@@ -26,11 +25,10 @@ struct fz_hash_table {
 	fz_hash_entry * ents;
 };
 
-static unsigned hash(const uchar * s, int len)
+static uint hash(const uchar * s, int len)
 {
-	unsigned val = 0;
-	int i;
-	for(i = 0; i < len; i++) {
+	uint   val = 0;
+	for(int i = 0; i < len; i++) {
 		val += s[i];
 		val += (val << 10);
 		val ^= (val >> 6);
@@ -44,9 +42,7 @@ static unsigned hash(const uchar * s, int len)
 fz_hash_table * fz_new_hash_table(fz_context * ctx, int initialsize, int keylen, int lock, fz_hash_table_drop_fn * drop_val)
 {
 	fz_hash_table * table;
-
 	assert(keylen <= MAX_KEY_LEN);
-
 	table = fz_malloc_struct(ctx, fz_hash_table);
 	table->keylen = keylen;
 	table->size = initialsize;
@@ -56,43 +52,37 @@ fz_hash_table * fz_new_hash_table(fz_context * ctx, int initialsize, int keylen,
 	fz_try(ctx)
 	{
 		table->ents = Memento_label(fz_malloc_array(ctx, table->size, fz_hash_entry), "hash_entries");
-		memset(table->ents, 0, sizeof(fz_hash_entry) * table->size);
+		memzero(table->ents, sizeof(fz_hash_entry) * table->size);
 	}
 	fz_catch(ctx)
 	{
 		fz_free(ctx, table);
 		fz_rethrow(ctx);
 	}
-
 	return table;
 }
 
 void fz_drop_hash_table(fz_context * ctx, fz_hash_table * table)
 {
-	if(!table)
-		return;
-
-	if(table->drop_val) {
-		int i, n = table->size;
-		for(i = 0; i < n; ++i) {
-			void * v = table->ents[i].val;
-			if(v)
-				table->drop_val(ctx, v);
+	if(table) {
+		if(table->drop_val) {
+			const int n = table->size;
+			for(int i = 0; i < n; ++i) {
+				void * v = table->ents[i].val;
+				if(v)
+					table->drop_val(ctx, v);
+			}
 		}
+		fz_free(ctx, table->ents);
+		fz_free(ctx, table);
 	}
-
-	fz_free(ctx, table->ents);
-	fz_free(ctx, table);
 }
 
 static void * do_hash_insert(fz_context * ctx, fz_hash_table * table, const void * key, void * val)
 {
-	fz_hash_entry * ents;
-	unsigned size;
-	unsigned pos;
-	ents = table->ents;
-	size = table->size;
-	pos = hash((const uchar *)key, table->keylen) % size;
+	fz_hash_entry * ents = table->ents;
+	uint size = table->size;
+	uint pos = hash((const uchar *)key, table->keylen) % size;
 	if(table->lock >= 0)
 		fz_assert_lock_held(ctx, table->lock);
 	while(1) {
@@ -102,12 +92,10 @@ static void * do_hash_insert(fz_context * ctx, fz_hash_table * table, const void
 			table->load++;
 			return NULL;
 		}
-
 		if(memcmp(key, ents[pos].key, table->keylen) == 0) {
 			/* This is legal, but should rarely happen. */
 			return ents[pos].val;
 		}
-
 		pos = (pos + 1) % size;
 	}
 }
@@ -144,10 +132,9 @@ static void fz_resize_hash(fz_context * ctx, fz_hash_table * table, int newsize)
 	if(newents == NULL)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "hash table resize failed; out of memory (%d entries)", newsize);
 	table->ents = newents;
-	memset(table->ents, 0, sizeof(fz_hash_entry) * newsize);
+	memzero(table->ents, sizeof(fz_hash_entry) * newsize);
 	table->size = newsize;
 	table->load = 0;
-
 	for(i = 0; i < oldsize; i++) {
 		if(oldents[i].val) {
 			do_hash_insert(ctx, table, oldents[i].key, oldents[i].val);

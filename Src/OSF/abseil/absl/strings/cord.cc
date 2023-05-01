@@ -1960,11 +1960,11 @@ size_t CordTestAccess::MaxFlatLength() {
 	return cord_internal::kMaxFlatLength;
 }
 
-size_t CordTestAccess::FlatTagToLength(uint8_t tag) {
+size_t CordTestAccess::FlatTagToLength(uint8 tag) {
 	return cord_internal::TagToLength(tag);
 }
 
-uint8_t CordTestAccess::LengthToTag(size_t s) {
+uint8 CordTestAccess::LengthToTag(size_t s) {
 	ABSL_INTERNAL_CHECK(s <= kMaxFlatLength, absl::StrCat("Invalid length ", s));
 	return cord_internal::AllocatedSizeToTag(s + cord_internal::kFlatOverhead);
 }

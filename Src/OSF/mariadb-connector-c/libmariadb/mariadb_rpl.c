@@ -31,14 +31,11 @@ MARIADB_RPL * STDCALL mariadb_rpl_init_ex(MYSQL * mysql, uint version)
 {
 	MARIADB_RPL * rpl;
 	if(version < MARIADB_RPL_REQUIRED_VERSION || version > MARIADB_RPL_VERSION) {
-		my_set_error(mysql, CR_VERSION_MISMATCH, SQLSTATE_UNKNOWN, 0, version,
-		    MARIADB_RPL_VERSION, MARIADB_RPL_REQUIRED_VERSION);
+		my_set_error(mysql, CR_VERSION_MISMATCH, SQLSTATE_UNKNOWN, 0, version, MARIADB_RPL_VERSION, MARIADB_RPL_REQUIRED_VERSION);
 		return 0;
 	}
-
 	if(!mysql)
 		return NULL;
-
 	if(!(rpl = (MARIADB_RPL*)SAlloc::C(1, sizeof(MARIADB_RPL)))) {
 		SET_CLIENT_ERROR(mysql, CR_OUT_OF_MEMORY, SQLSTATE_UNKNOWN, 0);
 		return 0;
@@ -104,7 +101,7 @@ MARIADB_RPL_EVENT * STDCALL mariadb_rpl_fetch(MARIADB_RPL * rpl, MARIADB_RPL_EVE
 		return 0;
 
 	while(1) {
-		unsigned long pkt_len = ma_net_safe_read(rpl->mysql);
+		ulong pkt_len = ma_net_safe_read(rpl->mysql);
 
 		if(pkt_len == packet_error) {
 			rpl->buffer_size = 0;
@@ -146,7 +143,6 @@ MARIADB_RPL_EVENT * STDCALL mariadb_rpl_fetch(MARIADB_RPL * rpl, MARIADB_RPL_EVE
 			ma_init_alloc_root(&rpl_event->memroot, 8192, 0);
 		}
 		rpl_event->checksum = uint4korr(rpl->buffer + rpl->buffer_size - 4);
-
 		rpl_event->ok = rpl->buffer[0];
 		rpl_event->timestamp = uint4korr(rpl->buffer + 1);
 		rpl_event->event_type = (mariadb_rpl_event)*(rpl->buffer + 5);
@@ -154,21 +150,18 @@ MARIADB_RPL_EVENT * STDCALL mariadb_rpl_fetch(MARIADB_RPL * rpl, MARIADB_RPL_EVE
 		rpl_event->event_length = uint4korr(rpl->buffer + 10);
 		rpl_event->next_event_pos = uint4korr(rpl->buffer + 14);
 		rpl_event->flags = uint2korr(rpl->buffer + 18);
-
 		ev = rpl->buffer + EVENT_HEADER_OFS;
-
 		if(rpl->use_checksum) {
 			rpl_event->checksum = *(ev + rpl_event->event_length - 4);
 			rpl_event->event_length -= 4;
 		}
-
 		switch(rpl_event->event_type) {
 			case HEARTBEAT_LOG_EVENT:
 			    rpl_event->event.heartbeat.timestamp = uint4korr(ev);
 			    ev += 4;
 			    rpl_event->event.heartbeat.next_position = uint4korr(ev);
 			    ev += 4;
-			    rpl_event->event.heartbeat.type = (uint8_t)*ev;
+			    rpl_event->event.heartbeat.type = (uint8)*ev;
 			    ev += 1;
 			    rpl_event->event.heartbeat.flags = uint2korr(ev);
 			    break;
@@ -185,7 +178,7 @@ MARIADB_RPL_EVENT * STDCALL mariadb_rpl_fetch(MARIADB_RPL * rpl, MARIADB_RPL_EVE
 			    ev += 50;
 			    rpl_event->event.format_description.timestamp = uint4korr(ev);
 			    ev += 4;
-			    rpl->fd_header_len = rpl_event->event.format_description.header_len = (uint8_t)*ev;
+			    rpl->fd_header_len = rpl_event->event.format_description.header_len = (uint8)*ev;
 			    ev = rpl->buffer + rpl->buffer_size - 5;
 			    rpl->use_checksum = *ev;
 			    break;
@@ -399,7 +392,7 @@ int mariadb_rpl_optionsv(MARIADB_RPL * rpl,
 		case MARIADB_RPL_FILENAME:
 	    {
 		    char * arg1 = va_arg(ap, char *);
-		    rpl->filename_length = (uint32_t)va_arg(ap, size_t);
+		    rpl->filename_length = (uint32)va_arg(ap, size_t);
 		    SAlloc::F((void *)rpl->filename);
 		    rpl->filename = NULL;
 		    if(rpl->filename_length) {
@@ -408,7 +401,7 @@ int mariadb_rpl_optionsv(MARIADB_RPL * rpl,
 		    }
 		    else if(arg1) {
 			    rpl->filename = sstrdup((const char *)arg1);
-			    rpl->filename_length = (uint32_t)strlen(rpl->filename);
+			    rpl->filename_length = (uint32)strlen(rpl->filename);
 		    }
 		    break;
 	    }
@@ -424,7 +417,7 @@ int mariadb_rpl_optionsv(MARIADB_RPL * rpl,
 	    }
 		case MARIADB_RPL_START:
 	    {
-		    rpl->start_position = va_arg(ap, unsigned long);
+		    rpl->start_position = va_arg(ap, ulong);
 		    break;
 	    }
 		default:
@@ -471,7 +464,7 @@ int mariadb_rpl_get_optionsv(MARIADB_RPL * rpl,
 	    }
 		case MARIADB_RPL_START:
 	    {
-		    unsigned long * start = va_arg(ap, unsigned long *);
+		    ulong * start = va_arg(ap, ulong *);
 		    *start = rpl->start_position;
 		    break;
 	    }

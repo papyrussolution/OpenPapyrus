@@ -1,11 +1,10 @@
 // STCP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <snet.h>
-#include <wininet.h>
+// @v11.7.0 #include <wininet.h> 
 #include <slib-ossl.h>
 //
 // @v7.3.0 При большом размере буфера чтения не стабильно принимаются значительные по объему данные без терминатора

@@ -9178,6 +9178,9 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_GOODSSTOCK01
 	PPDV_TECH // @v11.6.3 (still bad icon)
 	PPDV_CREATEPERSON01 // @v11.6.3
+	PPDV_DOB01    // @v11.7.0
+	PPDV_ACCEPT01 // @v11.7.0
+	PPDV_REJECT01 // @v11.7.0
 }
 //
 // Следующие изображения используются без замещения цвета

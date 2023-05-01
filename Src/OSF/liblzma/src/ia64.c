@@ -9,7 +9,7 @@
 #pragma hdrstop
 #include "simple_private.h"
 
-static size_t ia64_code(void * simple lzma_attribute((__unused__)), uint32_t now_pos, bool is_encoder, uint8_t * buffer, size_t size)
+static size_t ia64_code(void * simple lzma_attribute((__unused__)), uint32_t now_pos, bool is_encoder, uint8 * buffer, size_t size)
 {
 	static const uint32_t BRANCH_TABLE[32] = {
 		0, 0, 0, 0, 0, 0, 0, 0,
@@ -47,7 +47,7 @@ static size_t ia64_code(void * simple lzma_attribute((__unused__)), uint32_t now
 				instruction &= (1U << bit_res) - 1;
 				instruction |= (inst_norm << bit_res);
 				for(size_t j = 0; j < 6; j++)
-					buffer[i + j + byte_pos] = (uint8_t)(instruction >> (8 * j));
+					buffer[i + j + byte_pos] = (uint8)(instruction >> (8 * j));
 			}
 		}
 	}

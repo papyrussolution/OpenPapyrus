@@ -72,7 +72,7 @@ struct my_context {
 #include <stdint.h>
 
 struct my_context {
-	uint64_t save[9];
+	uint64 save[9];
 	void * stack_top;
 	void * stack_bot;
 #ifdef HAVE_VALGRIND
@@ -89,7 +89,7 @@ struct my_context {
 #include <stdint.h>
 
 struct my_context {
-	uint64_t save[7];
+	uint64 save[7];
 	void * stack_top;
 	void * stack_bot;
 #ifdef HAVE_VALGRIND

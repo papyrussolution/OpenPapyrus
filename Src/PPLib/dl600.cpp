@@ -77,9 +77,10 @@ int DlFunc::GetArgName(uint argN, SString & rArgName) const
 	return ok;
 }
 
-/*static*/int DlFunc::GetOpName(uint opID, SString & rName)
+/*static*/bool FASTCALL DlFunc::GetOpName(uint opID, SString & rName)
 {
-	static const struct OpName { uint16 OpID; const char * P_Name; } OpNameList[] = {
+	// @v11.7.0 static const struct OpName { uint16 OpID; const char * P_Name; } OpNameList[] = {
+	static const SIntToSymbTabEntry OpNameList[] = {
 		{dlopConstructor, "constructor" },
 		{dlopDestructor,  "destructor"  },
 		{dlopNew,         "@ new" },
@@ -109,7 +110,22 @@ int DlFunc::GetArgName(uint argN, SString & rArgName) const
 		{dlopDot,         "@."  },
 		{dlopQuest,       "@?"  }
 	};
-	uint   i = sizeof(OpNameList) / sizeof(OpName);
+	// @v11.7.0 {
+	const char * p_symb_ptr = SIntToSymbTab_GetSymbPtr(OpNameList, SIZEOFARRAY(OpNameList), static_cast<int>(opID));
+	if(p_symb_ptr) {
+		if(*p_symb_ptr == '@')
+			(rName = "operator").Cat(p_symb_ptr+1);
+		else
+			rName = p_symb_ptr;
+		return 1;
+	}
+	else {
+		rName.Z();
+		return 0;
+	}
+	// } @v11.7.0 
+	/* @v11.7.0
+	uint   i = SIZEOFARRAY(OpNameList);
 	do {
 		--i;
 		if((uint)OpNameList[i].OpID == opID) {
@@ -123,12 +139,14 @@ int DlFunc::GetArgName(uint argN, SString & rArgName) const
 	} while(i);
 	rName.Z();
 	return 0;
+	*/
 }
 
-int DlFunc::GetName(uint options, SString & rName) const
+bool DlFunc::GetName(uint options, SString & rName) const
 {
-	int    ok = 1;
-	if(Name.C(0) == '?' && Name.C(1) == '?')
+	bool   ok = true;
+	// @v11.7.0 if(Name.C(0) == '?' && Name.C(1) == '?')
+	if(Name.HasPrefix("??")) // @v11.7.0
 		ok = GetOpName(Name.C(2), rName);
 	else
 		rName = Name;

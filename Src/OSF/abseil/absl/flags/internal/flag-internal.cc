@@ -120,7 +120,7 @@ void FlagImpl::Init()
 		    }
 		    if(ValueStorageKind() == FlagValueStorageKind::kValueAndInitBit) {
 			    // We presume here the memory layout of FlagValueAndInitBit struct.
-			    uint8_t initialized = 1;
+			    uint8 initialized = 1;
 			    memcpy(buf.data() + Sizeof(op_), &initialized,
 				sizeof(initialized));
 		    }
@@ -533,7 +533,7 @@ bool FlagImpl::ParseFrom(absl::string_view value, FlagSettingMode set_mode,
 		    }
 		    else {
 			    default_value_.dynamic_value = tentative_value.release();
-			    def_kind_ = static_cast<uint8_t>(FlagDefaultKind::kDynamicValue);
+			    def_kind_ = static_cast<uint8>(FlagDefaultKind::kDynamicValue);
 		    }
 
 		    if(!modified_) {

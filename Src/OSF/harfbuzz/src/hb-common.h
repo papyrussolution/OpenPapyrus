@@ -43,7 +43,7 @@
 #elif defined (_MSC_VER) && _MSC_VER < 1600
 /* VS 2010 (_MSC_VER 1600) has stdint.h */
 typedef __int8 int8_t;
-typedef unsigned __int8 uint8_t;
+typedef unsigned __int8 uint8;
 typedef __int16 int16_t;
 typedef unsigned __int16 uint16_t;
 typedef __int32 int32_t;
@@ -85,7 +85,7 @@ typedef union _hb_var_int_t {
 	int32_t i32;
 	uint16_t u16[2];
 	int16_t i16[2];
-	uint8_t u8[4];
+	uint8 u8[4];
 	int8_t i8[4];
 } hb_var_int_t;
 
@@ -94,7 +94,7 @@ typedef union _hb_var_int_t {
 typedef uint32_t hb_tag_t;
 
 #define HB_TAG(c1, c2, c3, c4) ((hb_tag_t)((((uint32_t)(c1)&0xFF)<<24)|(((uint32_t)(c2)&0xFF)<<16)|(((uint32_t)(c3)&0xFF)<<8)|((uint32_t)(c4)&0xFF)))
-#define HB_UNTAG(tag)   (uint8_t)(((tag)>>24)&0xFF), (uint8_t)(((tag)>>16)&0xFF), (uint8_t)(((tag)>>8)&0xFF), (uint8_t)((tag)&0xFF)
+#define HB_UNTAG(tag)   (uint8)(((tag)>>24)&0xFF), (uint8)(((tag)>>16)&0xFF), (uint8)(((tag)>>8)&0xFF), (uint8)((tag)&0xFF)
 
 #define HB_TAG_NONE HB_TAG(0, 0, 0, 0)
 #define HB_TAG_MAX HB_TAG(0xff, 0xff, 0xff, 0xff)
@@ -437,16 +437,16 @@ typedef uint32_t hb_color_t;
 
 #define HB_COLOR(b, g, r, a) ((hb_color_t)HB_TAG((b), (g), (r), (a)))
 
-HB_EXTERN uint8_t hb_color_get_alpha(hb_color_t color);
+HB_EXTERN uint8 hb_color_get_alpha(hb_color_t color);
 #define hb_color_get_alpha(color)       ((color) & 0xFF)
 
-HB_EXTERN uint8_t hb_color_get_red(hb_color_t color);
+HB_EXTERN uint8 hb_color_get_red(hb_color_t color);
 #define hb_color_get_red(color)         (((color) >> 8) & 0xFF)
 
-HB_EXTERN uint8_t hb_color_get_green(hb_color_t color);
+HB_EXTERN uint8 hb_color_get_green(hb_color_t color);
 #define hb_color_get_green(color)       (((color) >> 16) & 0xFF)
 
-HB_EXTERN uint8_t hb_color_get_blue(hb_color_t color);
+HB_EXTERN uint8 hb_color_get_blue(hb_color_t color);
 #define hb_color_get_blue(color)        (((color) >> 24) & 0xFF)
 
 HB_END_DECLS

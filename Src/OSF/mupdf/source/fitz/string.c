@@ -9,9 +9,7 @@
 
 static inline int fz_tolower(int c)
 {
-	if(c >= 'A' && c <= 'Z')
-		return c + 32;
-	return c;
+	return (c >= 'A' && c <= 'Z') ? (c + 32) : c;
 }
 
 size_t fz_strnlen(const char * s, size_t n)
@@ -42,7 +40,8 @@ int fz_strcasecmp(const char * a, const char * b)
 char * fz_strsep(char ** stringp, const char * delim)
 {
 	char * ret = *stringp;
-	if(!ret) return NULL;
+	if(!ret) 
+		return NULL;
 	if((*stringp = strpbrk(*stringp, delim)) != NULL)
 		*((*stringp)++) = '\0';
 	return ret;
@@ -183,11 +182,9 @@ void fz_format_output_path(fz_context * ctx, char * path, size_t size, const cha
 	char num[40];
 	int i, n;
 	int z = 0;
-
 	for(i = 0; page; page /= 10)
 		num[i++] = '0' + page % 10;
 	num[i] = 0;
-
 	s = p = strchr(fmt, '%');
 	if(p) {
 		++p;
@@ -202,7 +199,6 @@ void fz_format_output_path(fz_context * ctx, char * path, size_t size, const cha
 		if(!p)
 			s = p = fmt + strlen(fmt);
 	}
-
 	if(z < 1)
 		z = 1;
 	while(i < z && i < (int)sizeof num)
@@ -222,9 +218,7 @@ char * fz_cleanname(char * name)
 {
 	char * p, * q, * dotdot;
 	int rooted;
-
 	rooted = name[0] == '/';
-
 	/*
 	 * invariants:
 	 *		p points at beginning of path element we're considering.

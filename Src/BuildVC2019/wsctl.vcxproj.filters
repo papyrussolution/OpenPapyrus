@@ -9,58 +9,8 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="ImGUI">
-      <UniqueIdentifier>{d898f5ca-fc18-4a97-884a-1198450b393a}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\OSF\imgui\imgui.cpp">
-      <Filter>ImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\imgui\imgui_draw.cpp">
-      <Filter>ImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\imgui\imgui_tables.cpp">
-      <Filter>ImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\imgui\imgui_widgets.cpp">
-      <Filter>ImGUI</Filter>
-    </ClCompile>
     <ClCompile Include="..\PPMain\wsctl-main.cpp" />
-    <ClCompile Include="..\OSF\imgui\backends\imgui_impl_dx9.cpp">
-      <Filter>ImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\imgui\backends\imgui_impl_dx10.cpp">
-      <Filter>ImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\imgui\backends\imgui_impl_dx11.cpp">
-      <Filter>ImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\imgui\backends\imgui_impl_win32.cpp">
-      <Filter>ImGUI</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\OSF\imgui\imconfig.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\imgui\imgui.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\imgui\imgui_internal.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\imgui\backends\imgui_impl_dx9.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\imgui\backends\imgui_impl_dx10.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\imgui\backends\imgui_impl_dx11.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\imgui\backends\imgui_impl_win32.h">
-      <Filter>Header</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

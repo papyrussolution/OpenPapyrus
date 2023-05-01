@@ -288,14 +288,12 @@ static void pwg_write_mono_band(fz_context * ctx,
 fz_band_writer * fz_new_mono_pwg_band_writer(fz_context * ctx, fz_output * out, const fz_pwg_options * pwg)
 {
 	pwg_band_writer * writer = fz_new_band_writer(ctx, pwg_band_writer, out);
-
 	writer->super.header = pwg_write_mono_header;
 	writer->super.band = pwg_write_mono_band;
 	if(pwg)
 		writer->pwg = *pwg;
 	else
-		memset(&writer->pwg, 0, sizeof(writer->pwg));
-
+		memzero(&writer->pwg, sizeof(writer->pwg));
 	return &writer->super;
 }
 
@@ -303,14 +301,12 @@ static void pwg_write_header(fz_context * ctx, fz_band_writer * writer_, fz_colo
 {
 	pwg_band_writer * writer = (pwg_band_writer*)writer_;
 	int n = writer->super.n;
-
 	if(writer->super.s != 0)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "PWG band writer cannot cope with spot colors");
 	if(writer->super.alpha != 0)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "PWG band writer cannot cope with alpha");
 	if(n != 1 && n != 3 && n != 4)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "pixmap must be grayscale, rgb or cmyk to write as pwg");
-
 	pwg_page_header(ctx, writer->super.out, &writer->pwg,
 	    writer->super.xres, writer->super.yres, writer->super.w, writer->super.h, n*8);
 }
@@ -396,14 +392,12 @@ static void pwg_write_band(fz_context * ctx,
 fz_band_writer * fz_new_pwg_band_writer(fz_context * ctx, fz_output * out, const fz_pwg_options * pwg)
 {
 	pwg_band_writer * writer = fz_new_band_writer(ctx, pwg_band_writer, out);
-
 	writer->super.header = pwg_write_header;
 	writer->super.band = pwg_write_band;
 	if(pwg)
 		writer->pwg = *pwg;
 	else
-		memset(&writer->pwg, 0, sizeof(writer->pwg));
-
+		memzero(&writer->pwg, sizeof(writer->pwg));
 	return &writer->super;
 }
 
@@ -454,9 +448,7 @@ static void warn_if_long(fz_context * ctx, const char * str, size_t ret)
 fz_pwg_options * fz_parse_pwg_options(fz_context * ctx, fz_pwg_options * opts, const char * args)
 {
 	const char * val;
-
-	memset(opts, 0, sizeof *opts);
-
+	memzero(opts, sizeof *opts);
 	if(fz_has_option(ctx, args, "media_class", &val))
 		warn_if_long(ctx, "media_class", fz_copy_option(ctx, val, opts->media_class, 64));
 	if(fz_has_option(ctx, args, "media_color", &val))

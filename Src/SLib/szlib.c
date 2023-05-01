@@ -2740,7 +2740,7 @@ int ZEXPORT gzgetc(gzFile file)
 			}
 			else {
 				// nothing there -- try gz_read() 
-				ret = gz_read(state, buf, 1);
+				ret = static_cast<int>(gz_read(state, buf, 1));
 				return (ret < 1) ? -1 : buf[0];
 			}
 		}
@@ -2807,7 +2807,7 @@ char * ZEXPORT gzgets(gzFile file, char * buf, int len)
 {
 	char * str = 0;
 	uint left, n;
-	uchar * eol;
+	const uchar * eol;
 	gz_state * state;
 	// check parameters and get internal structure 
 	if(file == NULL || buf == NULL || len < 1)
@@ -2837,7 +2837,7 @@ char * ZEXPORT gzgets(gzFile file, char * buf, int len)
 		}
 		/* look for end-of-line in current output buffer */
 		n = state->x.have > left ? left : state->x.have;
-		eol = (uchar *)memchr(state->x.next, '\n', n);
+		eol = static_cast<const uchar *>(smemchr(state->x.next, '\n', n)); // @v11.7.0 memchr-->smemchr
 		if(eol)
 			n = (uint)(eol - state->x.next) + 1;
 		/* copy through end-of-line, or remainder if not found */

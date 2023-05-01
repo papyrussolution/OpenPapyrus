@@ -1776,7 +1776,7 @@ int StringStore2::GenerateJavaFile(const char * pFileName, const char * pSrcFile
 	gen.WriteBlancLine();
 	//
 	gen.Wr_Indent();
-	gen.Wr_StartClassDecl(Generator_CPP::clsClass, ps.Nam, 0);
+	gen.Wr_StartClassDecl(Generator_CPP::clsClass, ps.Nam, 0, Generator_CPP::acsPublic, 0);
 	gen.IndentInc();
 	{
 		static const SIntToSymbTabEntry StrGroupList[] = {

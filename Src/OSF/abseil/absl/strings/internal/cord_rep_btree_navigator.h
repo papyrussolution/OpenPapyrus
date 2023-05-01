@@ -128,7 +128,7 @@ private:
 	// `index_` and `node_` contain the navigation state as the 'path' to the
 	// current data edge which is at `node_[0]->Edge(index_[0])`. The contents
 	// of these are undefined until the instance is initialized (`height_ >= 0`).
-	uint8_t index_[CordRepBtree::kMaxHeight];
+	uint8 index_[CordRepBtree::kMaxHeight];
 	CordRepBtree* node_[CordRepBtree::kMaxHeight];
 };
 
@@ -165,12 +165,12 @@ inline CordRep* CordRepBtreeNavigator::Init(CordRepBtree* tree) {
 	int height = height_ = tree->height();
 	size_t index = tree->index(edge_type);
 	node_[height] = tree;
-	index_[height] = static_cast<uint8_t>(index);
+	index_[height] = static_cast<uint8>(index);
 	while(--height >= 0) {
 		tree = tree->Edge(index)->btree();
 		node_[height] = tree;
 		index = tree->index(edge_type);
-		index_[height] = static_cast<uint8_t>(index);
+		index_[height] = static_cast<uint8>(index);
 	}
 	return node_[0]->Edge(index);
 }
@@ -181,12 +181,12 @@ inline CordRepBtreeNavigator::Position CordRepBtreeNavigator::Seek(size_t offset
 	CordRepBtree* edge = node_[height];
 	if(ABSL_PREDICT_FALSE(offset >= edge->length)) return {nullptr, 0};
 	CordRepBtree::Position index = edge->IndexOf(offset);
-	index_[height] = static_cast<uint8_t>(index.index);
+	index_[height] = static_cast<uint8>(index.index);
 	while(--height >= 0) {
 		edge = edge->Edge(index.index)->btree();
 		node_[height] = edge;
 		index = edge->IndexOf(index.n);
-		index_[height] = static_cast<uint8_t>(index.index);
+		index_[height] = static_cast<uint8>(index.index);
 	}
 	return {edge->Edge(index.index), index.n};
 }
@@ -219,10 +219,10 @@ inline CordRep* CordRepBtreeNavigator::NextUp() {
 		edge = node_[height];
 		index = index_[height] + 1;
 	} while(index == edge->end());
-	index_[height] = static_cast<uint8_t>(index);
+	index_[height] = static_cast<uint8>(index);
 	do {
 		node_[--height] = edge = edge->Edge(index)->btree();
-		index_[height] = static_cast<uint8_t>(index = edge->begin());
+		index_[height] = static_cast<uint8>(index = edge->begin());
 	} while(height > 0);
 	return edge->Edge(index);
 }
@@ -237,10 +237,10 @@ inline CordRep* CordRepBtreeNavigator::PreviousUp() {
 		edge = node_[height];
 		index = index_[height];
 	} while(index == edge->begin());
-	index_[height] = static_cast<uint8_t>(--index);
+	index_[height] = static_cast<uint8>(--index);
 	do {
 		node_[--height] = edge = edge->Edge(index)->btree();
-		index_[height] = static_cast<uint8_t>(index = edge->back());
+		index_[height] = static_cast<uint8>(index = edge->back());
 	} while(height > 0);
 	return edge->Edge(index);
 }

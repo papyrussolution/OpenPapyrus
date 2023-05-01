@@ -1,5 +1,6 @@
 // SFXTREE2.CPP
-// Copyright (c) A.Sobolev 2016, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2016, 2018, 2019, 2020, 2022, 2023
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -14,9 +15,9 @@ public:
 		uint   NodeCount;
 		uint   EdgeCount;
 		uint   EdgeHubCount;
-		uint   NodeWideMax; // Максимальное количество ребер, исходящих из узла
-		double NodeWideAvg; // Среднее количество ребер, исходящих из узла
-		uint   NodeWithSfxLinkCount; // Количество узлов с ненулевым индекстом суффиксной связи
+		uint   NodeWideMax; // РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЂРµР±РµСЂ, РёСЃС…РѕРґСЏС‰РёС… РёР· СѓР·Р»Р°
+		double NodeWideAvg; // РЎСЂРµРґРЅРµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЂРµР±РµСЂ, РёСЃС…РѕРґСЏС‰РёС… РёР· СѓР·Р»Р°
+		uint   NodeWithSfxLinkCount; // РљРѕР»РёС‡РµСЃС‚РІРѕ СѓР·Р»РѕРІ СЃ РЅРµРЅСѓР»РµРІС‹Рј РёРЅРґРµРєСЃС‚РѕРј СЃСѓС„С„РёРєСЃРЅРѕР№ СЃРІСЏР·Рё
 		size_t MemStr;
 		size_t MemEdge;
 		size_t MemNode;
@@ -29,12 +30,12 @@ public:
 	int    AddChunkToString(uint strP, const void * pItems, uint itemsCount);
 	int    InsertString(uint stringP);
 	//
-	// Descr: Ищет символ алфавита pChr. Если символ найден, то возвращает
-	//   номер позиции [1..], в противном случае возвращает 0.
+	// Descr: РС‰РµС‚ СЃРёРјРІРѕР» Р°Р»С„Р°РІРёС‚Р° pChr. Р•СЃР»Рё СЃРёРјРІРѕР» РЅР°Р№РґРµРЅ, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµС‚
+	//   РЅРѕРјРµСЂ РїРѕР·РёС†РёРё [1..], РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ РІРѕР·РІСЂР°С‰Р°РµС‚ 0.
 	//
     uint   FASTCALL SearchChrInAlphabet(const void * pChr);
     //
-    // Descr: Возвращает символ алфавита по номеру позиции [1..]
+    // Descr: Р’РѕР·РІСЂР°С‰Р°РµС‚ СЃРёРјРІРѕР» Р°Р»С„Р°РІРёС‚Р° РїРѕ РЅРѕРјРµСЂСѓ РїРѕР·РёС†РёРё [1..]
     //
     const  void * FASTCALL GetChrFromAlphabet(uint pos) const;
 	uint   FASTCALL GetEdgeLen(uint edgeP) const;
@@ -50,8 +51,8 @@ private:
 	public:
 		String(uint itemSize, uint32 id);
 
-        uint32 ID;
-        uint   PhasePosition;
+		uint32 ID;
+		uint   PhasePosition;
 	};
 
 	class StringArray : public TSArray <SSuffixTree::String> { 
@@ -73,11 +74,11 @@ private:
 		void   Init();
 		IndexBase & FASTCALL operator = (const IndexBase & rS);
 
-		uint   StrP;     // Позиция строки в SSuffixTree::StrList
+		uint   StrP;     // РџРѕР·РёС†РёСЏ СЃС‚СЂРѕРєРё РІ SSuffixTree::StrList
 		uint   StartIdx; // Start and end indices in the string
 		uint   EndIdx;
 		enum {
-			fPhasePosRef = 0x0001 // EndIdx ссылается на позицю SSuffixTree::String.PhasePosion
+			fPhasePosRef = 0x0001 // EndIdx СЃСЃС‹Р»Р°РµС‚СЃСЏ РЅР° РїРѕР·РёС†СЋ SSuffixTree::String.PhasePosion
 		};
 		uint   Flags;
 	};
@@ -118,9 +119,9 @@ private:
 	struct Node {
 		Node();
 		int    IsLeaf() const { return (EdgeHubP == 0); }
-		uint   UpEdgeP;      // Индекс в массиве SSuffixArray::EdgeL входящего ребра
-		uint   EdgeHubP;     // Позиция хаба исходящих ребер
-		uint   SfxLinkNodeP; // Индекс в массиве SSuffixArray::NodeL суффиксной связи
+		uint   UpEdgeP;      // РРЅРґРµРєСЃ РІ РјР°СЃСЃРёРІРµ SSuffixArray::EdgeL РІС…РѕРґСЏС‰РµРіРѕ СЂРµР±СЂР°
+		uint   EdgeHubP;     // РџРѕР·РёС†РёСЏ С…Р°Р±Р° РёСЃС…РѕРґСЏС‰РёС… СЂРµР±РµСЂ
+		uint   SfxLinkNodeP; // РРЅРґРµРєСЃ РІ РјР°СЃСЃРёРІРµ SSuffixArray::NodeL СЃСѓС„С„РёРєСЃРЅРѕР№ СЃРІСЏР·Рё
 	};
 	//
 	// A path in an implicit suffix tree can end at either a node, or
@@ -145,7 +146,7 @@ private:
 	uint   CreateEdge(uint srcNodeP, uint destNodeP, uint strP, uint startIdx, uint endIdx);
 	uint   Helper_CreateEdge(uint srcNodeP, uint destNodeP, uint strP, uint startIdx, uint endIdx, uint flags);
 	//
-	// Descr: Создает листовой узел с индексом leafNodeIdx и ребро от srcNodeP к новому листовому узлу
+	// Descr: РЎРѕР·РґР°РµС‚ Р»РёСЃС‚РѕРІРѕР№ СѓР·РµР» СЃ РёРЅРґРµРєСЃРѕРј leafNodeIdx Рё СЂРµР±СЂРѕ РѕС‚ srcNodeP Рє РЅРѕРІРѕРјСѓ Р»РёСЃС‚РѕРІРѕРјСѓ СѓР·Р»Сѓ
 	//
 	uint   CreateLeaf(uint srcNodeP, /*int leafNodeIdx,*/ uint strP, uint startIdx);
 	Edge * FASTCALL GetEdge(uint p) const;
@@ -172,12 +173,12 @@ private:
 	uint   RootNodeP;
 	uint32 LastStrAutoId;
 	StringArray StrList;
-	String Alphabet; // Список символов, встречающихся во всех строках StrList. Каждый
-		// символ представлен уникально, но массив не отсортирован (Edge ссылается на элементы
-		// массива по индексу позиции [0..]).
-	TSVector <Node> NodeL; // Нулевая позиция в массиве - эксклюзивная // @v9.8.4 TSArray-->TSVector
-	TSVector <SSuffixTree::Edge> EdgeL; // Нулевая позиция в массиве - эксклюзивная // @v9.8.4 TSArray-->TSVector
-	EdgeHubArray HubL; // Нулевая позиция в массиве - эксклюзивная
+	String Alphabet; // РЎРїРёСЃРѕРє СЃРёРјРІРѕР»РѕРІ, РІСЃС‚СЂРµС‡Р°СЋС‰РёС…СЃСЏ РІРѕ РІСЃРµС… СЃС‚СЂРѕРєР°С… StrList. РљР°Р¶РґС‹Р№
+		// СЃРёРјРІРѕР» РїСЂРµРґСЃС‚Р°РІР»РµРЅ СѓРЅРёРєР°Р»СЊРЅРѕ, РЅРѕ РјР°СЃСЃРёРІ РЅРµ РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅ (Edge СЃСЃС‹Р»Р°РµС‚СЃСЏ РЅР° СЌР»РµРјРµРЅС‚С‹
+		// РјР°СЃСЃРёРІР° РїРѕ РёРЅРґРµРєСЃСѓ РїРѕР·РёС†РёРё [0..]).
+	TSVector <Node> NodeL; // РќСѓР»РµРІР°СЏ РїРѕР·РёС†РёСЏ РІ РјР°СЃСЃРёРІРµ - СЌРєСЃРєР»СЋР·РёРІРЅР°СЏ // @v9.8.4 TSArray-->TSVector
+	TSVector <SSuffixTree::Edge> EdgeL; // РќСѓР»РµРІР°СЏ РїРѕР·РёС†РёСЏ РІ РјР°СЃСЃРёРІРµ - СЌРєСЃРєР»СЋР·РёРІРЅР°СЏ // @v9.8.4 TSArray-->TSVector
+	EdgeHubArray HubL; // РќСѓР»РµРІР°СЏ РїРѕР·РёС†РёСЏ РІ РјР°СЃСЃРёРІРµ - СЌРєСЃРєР»СЋР·РёРІРЅР°СЏ
 	//
 	// Current phase of Ukkonen's algorithm. In order to implement the "Once a leaf, always a leaf"
 	// Trick as explained by Gusfield, we make this a pointer to an integer.
@@ -278,13 +279,13 @@ int SSuffixTree::StringArray::CreateNewItem(const SSuffixTree * pT, uint32 id, u
 	uint   ex_pos = 0;
 	uint   new_pos = 0;
 	THROW(id);
-	THROW(SearchById(id, &ex_pos) == 0); // Дублирование идентификатора строки
+	THROW(SearchById(id, &ex_pos) == 0); // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃС‚СЂРѕРєРё
 	{
 		SSuffixTree::String new_item(pT->GetItemSize(), id);
 		new_pos = getCount();
 		THROW(insert(&new_item));
-		new_item.setFlag(aryDataOwner, 0); // Снимаем флаг владения данными что бы
-			// не разрушить переданный массиву объект при вызове деструктора new_item
+		new_item.setFlag(aryDataOwner, 0); // РЎРЅРёРјР°РµРј С„Р»Р°Рі РІР»Р°РґРµРЅРёСЏ РґР°РЅРЅС‹РјРё С‡С‚Рѕ Р±С‹
+			// РЅРµ СЂР°Р·СЂСѓС€РёС‚СЊ РїРµСЂРµРґР°РЅРЅС‹Р№ РјР°СЃСЃРёРІСѓ РѕР±СЉРµРєС‚ РїСЂРё РІС‹Р·РѕРІРµ РґРµСЃС‚СЂСѓРєС‚РѕСЂР° new_item
 	}
 	ASSIGN_PTR(pPos, new_pos);
 	CATCHZOK
@@ -485,16 +486,16 @@ SSuffixTree::SSuffixTree(uint32 itemSize) : Alphabet(itemSize, 0), ItemSize(item
 	//P_Phase = 0;
 	//Ext = 0;
 	{
-		// Нулевая позиция списка строк - эксклюзивная
+		// РќСѓР»РµРІР°СЏ РїРѕР·РёС†РёСЏ СЃРїРёСЃРєР° СЃС‚СЂРѕРє - СЌРєСЃРєР»СЋР·РёРІРЅР°СЏ
 		CreateString(0);
 	}
 	{
-		// Нулевая позиция списка узлов - эксклюзивная
+		// РќСѓР»РµРІР°СЏ РїРѕР·РёС†РёСЏ СЃРїРёСЃРєР° СѓР·Р»РѕРІ - СЌРєСЃРєР»СЋР·РёРІРЅР°СЏ
 		Node zero_node;
 		NodeL.insert(&zero_node);
 	}
 	{
-		// Нулевая позиция списка ребер - эксклюзивная
+		// РќСѓР»РµРІР°СЏ РїРѕР·РёС†РёСЏ СЃРїРёСЃРєР° СЂРµР±РµСЂ - СЌРєСЃРєР»СЋР·РёРІРЅР°СЏ
 		Edge zero_edge;
 		EdgeL.insert(&zero_edge);
 	}
@@ -520,8 +521,8 @@ uint FASTCALL SSuffixTree::CreateString(uint32 * pId)
 	return new_pos;
 }
 //
-// Descr: Ищет символ алфавита pChr. Если символ найден, то возвращает
-//   номер позиции [1..], в противном случае возвращает 0.
+// Descr: РС‰РµС‚ СЃРёРјРІРѕР» Р°Р»С„Р°РІРёС‚Р° pChr. Р•СЃР»Рё СЃРёРјРІРѕР» РЅР°Р№РґРµРЅ, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµС‚
+//   РЅРѕРјРµСЂ РїРѕР·РёС†РёРё [1..], РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ РІРѕР·РІСЂР°С‰Р°РµС‚ 0.
 //
 uint FASTCALL SSuffixTree::SearchChrInAlphabet(const void * pChr)
 {
@@ -529,7 +530,7 @@ uint FASTCALL SSuffixTree::SearchChrInAlphabet(const void * pChr)
 	return Alphabet.lsearch(pChr, &pos, PTR_CMPFUNC(SfxTreeChr), 0, this) ? (pos+1) : 0;
 }
 //
-// Descr: Возвращает символ алфавита по номеру позиции [1..]
+// Descr: Р’РѕР·РІСЂР°С‰Р°РµС‚ СЃРёРјРІРѕР» Р°Р»С„Р°РІРёС‚Р° РїРѕ РЅРѕРјРµСЂСѓ РїРѕР·РёС†РёРё [1..]
 //
 const void * FASTCALL SSuffixTree::GetChrFromAlphabet(uint pos) const
 {
@@ -691,7 +692,7 @@ uint SSuffixTree::Helper_CreateEdge(uint srcNodeP, uint destNodeP, uint strP, ui
 	return new_edge_p;
 }
 //
-// Descr: Создает листовой узел с индексом leafNodeIdx и ребро от srcNodeP к новому листовому узлу
+// Descr: РЎРѕР·РґР°РµС‚ Р»РёСЃС‚РѕРІРѕР№ СѓР·РµР» СЃ РёРЅРґРµРєСЃРѕРј leafNodeIdx Рё СЂРµР±СЂРѕ РѕС‚ srcNodeP Рє РЅРѕРІРѕРјСѓ Р»РёСЃС‚РѕРІРѕРјСѓ СѓР·Р»Сѓ
 //
 uint SSuffixTree::CreateLeaf(uint srcNodeP, /*int leafNodeIdx,*/ uint strP, uint startIdx)
 {
@@ -1049,7 +1050,7 @@ int SSuffixTree::InsertString(uint stringP)
 	SSuffixTree::String * p_bstring = GetStr(stringP);
 	assert(p_bstring);
 	p_bstring->PhasePosition = 0;
-	if(RootNodeP == 0) { // Первая добавленная строка
+	if(RootNodeP == 0) { // РџРµСЂРІР°СЏ РґРѕР±Р°РІР»РµРЅРЅР°СЏ СЃС‚СЂРѕРєР°
 		//D0("No strings in tree yet.\n");
 		RootNodeP = CreateNode(/*-1*/);
 		THROW(RootNodeP);
@@ -1313,7 +1314,7 @@ int SSuffixTree::InsertString(uint stringP)
 							}
 							{
 								//
-								// После создания новых ребер объект по указателю p_end_edge мог измениться - необходимо инициализировать снова
+								// РџРѕСЃР»Рµ СЃРѕР·РґР°РЅРёСЏ РЅРѕРІС‹С… СЂРµР±РµСЂ РѕР±СЉРµРєС‚ РїРѕ СѓРєР°Р·Р°С‚РµР»СЋ p_end_edge РјРѕРі РёР·РјРµРЅРёС‚СЊСЃСЏ - РЅРµРѕР±С…РѕРґРёРјРѕ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ СЃРЅРѕРІР°
 								//
 								p_end_edge = GetEdge(end.EdgeP);
 								//
@@ -1531,7 +1532,7 @@ int TestSuffixTree()
 			SSuffixTree st(1);
 			{
 				//const char * p_string = "mississippi";
-				//const char * p_string = "писатель, ещё при жизни признанный главой русской литературы. творчество льва толстого ознаменовало новый этап в русском и мировом реализме, выступив мостом между классическим романом xix века и литературой xx века. лев толстой оказал сильное влияние на эволюцию европейского гуманизма, а также на развитие реалистических традиций в мировой литературе. произведения льва толстого многократно экранизировались и инсценировались в ссср и за рубежом; его пьесы ставились на сценах всего мира.";
+				//const char * p_string = "РїРёСЃР°С‚РµР»СЊ, РµС‰С‘ РїСЂРё Р¶РёР·РЅРё РїСЂРёР·РЅР°РЅРЅС‹Р№ РіР»Р°РІРѕР№ СЂСѓСЃСЃРєРѕР№ Р»РёС‚РµСЂР°С‚СѓСЂС‹. С‚РІРѕСЂС‡РµСЃС‚РІРѕ Р»СЊРІР° С‚РѕР»СЃС‚РѕРіРѕ РѕР·РЅР°РјРµРЅРѕРІР°Р»Рѕ РЅРѕРІС‹Р№ СЌС‚Р°Рї РІ СЂСѓСЃСЃРєРѕРј Рё РјРёСЂРѕРІРѕРј СЂРµР°Р»РёР·РјРµ, РІС‹СЃС‚СѓРїРёРІ РјРѕСЃС‚РѕРј РјРµР¶РґСѓ РєР»Р°СЃСЃРёС‡РµСЃРєРёРј СЂРѕРјР°РЅРѕРј xix РІРµРєР° Рё Р»РёС‚РµСЂР°С‚СѓСЂРѕР№ xx РІРµРєР°. Р»РµРІ С‚РѕР»СЃС‚РѕР№ РѕРєР°Р·Р°Р» СЃРёР»СЊРЅРѕРµ РІР»РёСЏРЅРёРµ РЅР° СЌРІРѕР»СЋС†РёСЋ РµРІСЂРѕРїРµР№СЃРєРѕРіРѕ РіСѓРјР°РЅРёР·РјР°, Р° С‚Р°РєР¶Рµ РЅР° СЂР°Р·РІРёС‚РёРµ СЂРµР°Р»РёСЃС‚РёС‡РµСЃРєРёС… С‚СЂР°РґРёС†РёР№ РІ РјРёСЂРѕРІРѕР№ Р»РёС‚РµСЂР°С‚СѓСЂРµ. РїСЂРѕРёР·РІРµРґРµРЅРёСЏ Р»СЊРІР° С‚РѕР»СЃС‚РѕРіРѕ РјРЅРѕРіРѕРєСЂР°С‚РЅРѕ СЌРєСЂР°РЅРёР·РёСЂРѕРІР°Р»РёСЃСЊ Рё РёРЅСЃС†РµРЅРёСЂРѕРІР°Р»РёСЃСЊ РІ СЃСЃСЃСЂ Рё Р·Р° СЂСѓР±РµР¶РѕРј; РµРіРѕ РїСЊРµСЃС‹ СЃС‚Р°РІРёР»РёСЃСЊ РЅР° СЃС†РµРЅР°С… РІСЃРµРіРѕ РјРёСЂР°.";
 #if	0 // {
 				{
 					SFile f_in("D:\\Papyrus\\Src\\PPTEST\\DATA\\rustext.txt", SFile::mRead|SFile::mBinary);

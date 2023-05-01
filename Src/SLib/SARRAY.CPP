@@ -712,7 +712,8 @@ int SVectorBase::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp, size_
 		if(fcmp == CMPF_LONG && !(VFlags & aryPtrContainer)) {
 			const long test = *static_cast<const long *>(key);
 			while(lo <= up) {
-				const uint8 * p = p_org + (i = (lo + up) >> 1) * isize;
+				i = (lo + up) >> 1;
+				const uint8 * p = p_org + i * isize;
 				cmp = CMPSIGN(*reinterpret_cast<const long *>(p+ofs), test);
 				if(cmp < 0)
 					lo = i + 1;
@@ -721,8 +722,7 @@ int SVectorBase::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp, size_
 				else {
 					//
 					// На случай, если мы попали не на самый первый элемент, удовлетворяющий условию,
-					// перемещаемся "вниз" до тех пор, пока не наткнемся на первый
-					// "неудовлетворительный" элемент: мы у цели.
+					// перемещаемся "вниз" до тех пор, пока не наткнемся на первый "неудовлетворительный" элемент: мы у цели.
 					//
 					for(uint j = i; j > 0;) {
 						p -= isize;
@@ -737,7 +737,8 @@ int SVectorBase::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp, size_
 		}
 		else {
 			while(lo <= up) {
-				const uint8 * p = p_org + (i = (lo + up) >> 1) * isize;
+				i = (lo + up) >> 1;
+				const uint8 * p = p_org + i * isize;
 				cmp = fcmp(PTR8C(_USERPTR_C(p))+ofs, key, pExtraData);
 				if(cmp < 0)
 					lo = i + 1;
@@ -746,8 +747,7 @@ int SVectorBase::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp, size_
 				else {
 					//
 					// На случай, если мы попали не на самый первый элемент, удовлетворяющий условию,
-					// перемещаемся "вниз" до тех пор, пока не наткнемся на первый
-					// "неудовлетворительный" элемент: мы у цели.
+					// перемещаемся "вниз" до тех пор, пока не наткнемся на первый "неудовлетворительный" элемент: мы у цели.
 					//
 					for(uint j = i; j > 0;) {
 						p -= isize;
@@ -770,6 +770,75 @@ bool SVectorBase::bsearch(const void * key, uint * pIdx, CompFunc fcmp, size_t o
 bool SVectorBase::bsearch(const void * key, uint * pIdx, CompFunc fcmp) const
 	{ return (imp_bsearch(key, pIdx, fcmp, 0, 0) == 0) ? true : SLS.SetError(SLERR_ARYITEMNFOUND); }
 
+bool SVectorBase::bsearchGe(const void * key, uint * pIdx, CompFunc fcmp, size_t ofs, void * pExtraData) const
+{
+	bool   result = false;
+	int    cmp = 1;
+	uint   i  = 0;
+	if(count) {
+		uint   lo  = 0;
+		uint   up  = count - 1;
+		const  uint8 * p_org = P_VData;
+		while(lo <= up) {
+			i = (lo + up) >> 1;
+			const uint8 * p = p_org + i * isize;
+			cmp = fcmp(PTR8C(_USERPTR_C(p))+ofs, key, pExtraData);
+			if(cmp < 0)
+				lo = i + 1;
+			else if(cmp && i)
+				up = i - 1;
+			else {
+				//
+				// На случай, если мы попали не на самый первый элемент, удовлетворяющий условию,
+				// перемещаемся "вниз" до тех пор, пока не наткнемся на первый "неудовлетворительный" элемент: мы у цели.
+				//
+				for(uint j = i; j > 0;) {
+					p -= isize;
+					if(fcmp(PTR8C(_USERPTR_C(p))+ofs, key, pExtraData) == 0)
+						i = --j;
+					else
+						j = 0; // exit loop
+				}
+				result = true;
+				break;
+			}
+		}
+		if(cmp != 0) {
+			if(cmp < 0) {
+				i++;
+				const uint8 * p = p_org + i * isize;
+				while(i < count) {
+					if(fcmp(PTR8C(_USERPTR_C(p))+ofs, key, pExtraData) >= 0) {
+						result = true;
+						break;
+					}
+					else {
+						i++;
+						p += isize;
+					}
+				}
+			}
+			else { // cmp > 0
+				result = true;
+				const uint8 * p = p_org + i * isize;
+				for(uint j = i; j > 0;) {
+					p -= isize;
+					const int r = fcmp(PTR8C(_USERPTR_C(p))+ofs, key, pExtraData);
+					if(r >= 0) {
+						// Если функция написана правильно, то мы не можем здесь встретить вариант (r == 0), но для тестирования правильности кода делаем дополнительную проверку assert
+						assert(r != 0); 
+						i = --j;
+					}
+					else
+						j = 0; // exit loop
+				}				
+			}
+		}
+	}
+	ASSIGN_PTR(pIdx, i);
+	return result;
+}
+
 bool SVectorBase::isItemEq(const void * pKey, uint pos, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const
 {
 	if(pos < count) {
@@ -786,6 +855,7 @@ bool SVectorBase::lsearch(const void * pcKey, uint * pIdx, CompFunc fcmp, size_t
 	const  uint    lim = count * isize;
 	const  uint8 * p_org = PTR8(P_VData);
 	if(VFlags & aryPtrContainer) {
+		// Для контейнера указателей специальная ветка!
 		for(; i < lim; i += sizeof(void *))
 			if(fcmp(PTR8(*(void **)(p_org + i)) + ofs, pcKey, pExtraData) == 0) {
 				ASSIGN_PTR(pIdx, i / sizeof(void *));
@@ -795,10 +865,7 @@ bool SVectorBase::lsearch(const void * pcKey, uint * pIdx, CompFunc fcmp, size_t
 	else {
 		p_org += ofs;
 		if(fcmp == CMPF_LONG) {
-			//
-			// Так как функция сравнения 4-байтовых значений очень популярна,
-			// применяем для такого случая специальную обработку (без вызова, собственно, функции сравнения).
-			//
+			// Так как функция сравнения 4-байтовых значений очень популярна, применяем для такого случая специальную обработку (без вызова, собственно, функции сравнения).
 			const uint32 test = *PTR32C(pcKey);
 			for(; i < lim; i += isize)
 				if(*PTR32C(p_org + i) == test) {
@@ -807,6 +874,7 @@ bool SVectorBase::lsearch(const void * pcKey, uint * pIdx, CompFunc fcmp, size_t
 				}
 		}
 		else if(fcmp == CMPF_INT64) {
+			// То же оптимизированный популярный вариант поиска по 8-байтовому ключу
 			const uint64 test = *PTR64C(pcKey);
 			for(; i < lim; i += isize)
 				if(*PTR64C(p_org + i) == test) {
@@ -831,6 +899,54 @@ bool SVectorBase::lsearch(const void * pcKey, uint * pIdx, CompFunc fcmp, size_t
 			return true;
 		}
 #endif // } 0
+	return SLS.SetError(SLERR_ARYITEMNFOUND);
+}
+
+bool SVectorBase::lsearchGe(const void * pcKey, uint * pIdx, CompFunc fcmp, size_t ofs/*= 0*/, void * pExtraData/*= 0*/) const
+{
+	uint   i = pIdx ? (*pIdx * isize) : 0;
+	const  uint    lim = count * isize;
+	const  uint8 * p_org = PTR8(P_VData);
+	if(VFlags & aryPtrContainer) {
+		// Для контейнера указателей специальная ветка!
+		for(; i < lim; i += sizeof(void *)) {
+			const int r = fcmp(PTR8(*(void **)(p_org + i)) + ofs, pcKey, pExtraData);
+			if(r >= 0) {
+				ASSIGN_PTR(pIdx, i / sizeof(void *));
+				return true;
+			}
+		}
+	}
+	else {
+		p_org += ofs;
+		if(fcmp == CMPF_LONG) {
+			// Так как функция сравнения 4-байтовых значений очень популярна, применяем для такого случая специальную обработку (без вызова, собственно, функции сравнения).
+			const long test = *static_cast<const long *>(pcKey);
+			for(; i < lim; i += isize)
+				if(*reinterpret_cast<const long *>(p_org + i) >= test) {
+					ASSIGN_PTR(pIdx, i / isize);
+					return true;
+				}
+		}
+		else if(fcmp == CMPF_INT64) {
+			// То же оптимизированный популярный вариант поиска по 8-байтовому ключу
+			const int64 test = *static_cast<const int64 *>(pcKey);
+			for(; i < lim; i += isize)
+				if(*reinterpret_cast<const int64 *>(p_org + i) >= test) {
+					ASSIGN_PTR(pIdx, i / isize);
+					return true;
+				}
+		}
+		else {
+			for(; i < lim; i += isize) {
+				const int r = fcmp(p_org + i, pcKey, pExtraData);
+				if(r >= 0) {
+					ASSIGN_PTR(pIdx, i / isize);
+					return true;
+				}
+			}
+		}
+	}
 	return SLS.SetError(SLERR_ARYITEMNFOUND);
 }
 
@@ -5005,11 +5121,13 @@ struct TestFixtureSArray {
 SLTEST_FIXTURE(SArray, TestFixtureSArray)
 {
 	uint   i;
-	SArray * p_list = 0;
-	p_list = new SArray(sizeof(long));
-	const uint cs1 = 0,   cc1 = F.GetSaCount() / 4;
-	const uint cs2 = cc1, cc2 = cc1 + F.GetSaCount() / 2;
-	const uint cs3 = cc2, cc3 = cc2 + F.GetSaCount() / 4;
+	SArray * p_list = new SArray(sizeof(long));
+	const uint cs1 = 0;
+	const uint cc1 = F.GetSaCount() / 4;
+	const uint cs2 = cc1;
+	const uint cc2 = cc1 + F.GetSaCount() / 2;
+	const uint cs3 = cc2;
+	const uint cc3 = cc2 + F.GetSaCount() / 4;
 	//
 	// Четверть элементов вставляем в конец списка (самая простая и быстрая операция)
 	//
@@ -5131,11 +5249,13 @@ SLTEST_FIXTURE(SArray, TestFixtureSArray)
 SLTEST_FIXTURE(SVector, TestFixtureSArray)
 {
 	uint   i;
-	SVector * p_list = 0;
-	p_list = new SVector(sizeof(long));
-	const uint cs1 = 0,   cc1 = F.GetSaCount() / 4;
-	const uint cs2 = cc1, cc2 = cc1 + F.GetSaCount() / 2;
-	const uint cs3 = cc2, cc3 = cc2 + F.GetSaCount() / 4;
+	SVector * p_list = new SVector(sizeof(long));
+	const uint cs1 = 0;
+	const uint cc1 = F.GetSaCount() / 4;
+	const uint cs2 = cc1;
+	const uint cc2 = cc1 + F.GetSaCount() / 2;
+	const uint cs3 = cc2;
+	const uint cc3 = cc2 + F.GetSaCount() / 4;
 	//
 	// Четверть элементов вставляем в конец списка (самая простая и быстрая операция)
 	//
@@ -5210,12 +5330,12 @@ SLTEST_FIXTURE(SVector, TestFixtureSArray)
 			//
 			// Убеждаемся, что массив более не отсортирован
 			//
-			int    sorted = 1;
+			bool sorted = true;
 			for(i = 0; sorted && i < p_list->getCount()-1; i++) {
 				if(*(long *)p_list->at(i) > *(long *)p_list->at(i+1))
-					sorted = 0;
+					sorted = false;
 			}
-			SLTEST_CHECK_EQ(sorted, 0);
+			SLTEST_CHECK_Z(sorted);
 		}
 		//
 		// Теперь сортируем список p_list методом sort2 и тестируем правильность сортировки
@@ -5246,7 +5366,129 @@ SLTEST_FIXTURE(SVector, TestFixtureSArray)
 		}
 	}
 	// @todo Тест удаления элементов из массива
-	delete p_list;
+	ZDELETE(p_list);
+	// @v11.7.0 {
+	{
+		const long raw_items[] = { 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 11, 11 }; // Между 9 и 11 - пропуск!
+		TSVector <long> vec;
+		for(uint i = 0; i < SIZEOFARRAY(raw_items); i++) {
+			vec.insert(&raw_items[i]);
+		}
+		long key;
+		uint pos = 0;
+		{
+			key = 1;
+			SLTEST_CHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 0U);
+		}
+		{
+			key = 2;
+			SLTEST_CHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 2U);
+		}
+		{
+			key = 3;
+			SLTEST_CHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 4U);
+		}
+		{
+			key = 4;
+			SLTEST_CHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 6U);
+		}
+		{
+			key = 5;
+			SLTEST_CHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 8U);
+		}
+		{
+			key = 6;
+			SLTEST_CHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 10U);
+		}
+		{
+			key = 7;
+			SLTEST_CHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 12U);
+		}
+		{
+			key = 8;
+			SLTEST_CHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 14U);
+		}
+		{
+			key = 9;
+			SLTEST_CHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 16U);
+		}
+		{
+			key = 19; // нет такого элемента
+			SLTEST_CHECK_Z(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+		}
+		//
+		{
+			key = 1;
+			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 0U);
+		}
+		{
+			key = 2;
+			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 2U);
+		}
+		{
+			key = 3;
+			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 4U);
+		}
+		{
+			key = 4;
+			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 6U);
+		}
+		{
+			key = 5;
+			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 8U);
+		}
+		{
+			key = 6;
+			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 10U);
+		}
+		{
+			key = 7;
+			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 12U);
+		}
+		{
+			key = 8;
+			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 14U);
+		}
+		{
+			key = 9;
+			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 16U);
+		}
+		{
+			key = 10; // Такого элемента нет в списке - bsearchGe должна найти следующий (11)
+			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 18U);
+			SLTEST_CHECK_LE(key, vec.at(pos));
+		}
+		{
+			key = -1; // Такого элемента нет в списке - bsearchGe должна найти следующий (1)
+			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLTEST_CHECK_EQ(pos, 0U);
+			SLTEST_CHECK_LE(key, vec.at(pos));
+		}
+		{
+			key = 19; // нет такого элемента
+			SLTEST_CHECK_Z(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+		}
+	}
+	// } @v11.7.0 
 	return CurrentStatus;
 }
 

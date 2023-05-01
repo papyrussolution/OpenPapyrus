@@ -33,7 +33,7 @@ public:
 	}
 
 	// Copy bytes into out.
-	void Fill(uint8_t* out, size_t bytes) ABSL_LOCKS_EXCLUDED(mu_);
+	void Fill(uint8* out, size_t bytes) ABSL_LOCKS_EXCLUDED(mu_);
 
 	// Returns random bits from the buffer in units of T.
 	template <typename T>
@@ -55,10 +55,10 @@ private:
 };
 
 template <>
-inline uint8_t RandenPoolEntry::Generate<uint8_t>() {
+inline uint8 RandenPoolEntry::Generate<uint8>() {
 	SpinLockHolder l(&mu_);
 	MaybeRefill();
-	return static_cast<uint8_t>(state_[next_++]);
+	return static_cast<uint8>(state_[next_++]);
 }
 
 template <>
@@ -90,7 +90,7 @@ inline uint64_t RandenPoolEntry::Generate<uint64_t>() {
 	return result;
 }
 
-void RandenPoolEntry::Fill(uint8_t* out, size_t bytes) {
+void RandenPoolEntry::Fill(uint8* out, size_t bytes) {
 	SpinLockHolder l(&mu_);
 	while(bytes > 0) {
 		MaybeRefill();
@@ -209,11 +209,11 @@ typename RandenPool<T>::result_type RandenPool<T>::Generate() {
 template <typename T>
 void RandenPool<T>::Fill(absl::Span<result_type> data) {
 	auto* pool = GetPoolForCurrentThread();
-	pool->Fill(reinterpret_cast<uint8_t*>(data.data()),
+	pool->Fill(reinterpret_cast<uint8*>(data.data()),
 	    data.size() * sizeof(result_type));
 }
 
-template class RandenPool<uint8_t>;
+template class RandenPool<uint8>;
 template class RandenPool<uint16_t>;
 template class RandenPool<uint32_t>;
 template class RandenPool<uint64_t>;

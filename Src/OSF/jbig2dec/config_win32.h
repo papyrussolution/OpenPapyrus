@@ -1,8 +1,5 @@
-/* Copyright (C) 2001-2020 Artifex Software, Inc.
-   All Rights Reserved.
-
-   This software is provided AS-IS with no warranty, either express or
-   implied.
+/* Copyright (C) 2001-2020 Artifex Software, Inc. All Rights Reserved.
+   This software is provided AS-IS with no warranty, either express or implied.
 
    This software is distributed under license and may not be copied,
    modified or distributed except as expressly authorized under the terms
@@ -12,11 +9,9 @@
    Artifex Software, Inc.,  1305 Grant Avenue - Suite 200, Novato,
    CA 94945, U.S.A., +1(415)492-9861, for further information.
 */
-
 /*
     jbig2dec
 */
-
 /* configuration header file for compiling under Microsoft Windows */
 
 #ifdef _MSC_VER
@@ -29,9 +24,9 @@ typedef signed char int8_t;
 typedef short int int16_t;
 typedef int int32_t;
 typedef __int64 int64_t;
-typedef uchar uint8_t;
+typedef uchar uint8;
 typedef unsigned short int uint16_t;
-typedef unsigned int uint32_t;
+typedef unsigned int uint32;
 typedef unsigned __int64 uint64_t;
 #ifndef SIZE_MAX
 #define SIZE_MAX (~((size_t) 0))

@@ -34,5 +34,23 @@
     <ClCompile Include="..\OSF\abseil\absl\base\invoke_test.cc" />
     <ClCompile Include="..\OSF\abseil\absl\base\log_severity_test.cc" />
     <ClCompile Include="..\OSF\abseil\absl\base\optimization_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\ascii_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\charconv_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\cord_analysis.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\cord_ring_reader_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\cord_ring_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\cord_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\cordz_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\escaping_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\match_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\numbers_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\str_cat_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\str_format_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\str_join_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\str_replace_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\str_split_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\string_view_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\strip_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\strings\substitute_test.cc" />
   </ItemGroup>
 </Project>

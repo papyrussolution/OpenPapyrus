@@ -294,7 +294,7 @@ int my_context_continue(struct my_context * c)
 
 int my_context_yield(struct my_context * c)
 {
-	uint64_t * save = &c->save[0];
+	uint64 * save = &c->save[0];
 	__asm__ __volatile__
 	(
 		"movq (%[save]), %%rax\n\t"
@@ -513,7 +513,7 @@ int my_context_continue(struct my_context * c)
 
 int my_context_yield(struct my_context * c)
 {
-	uint64_t * save = &c->save[0];
+	uint64 * save = &c->save[0];
 	__asm__ __volatile__
 	(
 		"movl (%[save]), %%eax\n\t"

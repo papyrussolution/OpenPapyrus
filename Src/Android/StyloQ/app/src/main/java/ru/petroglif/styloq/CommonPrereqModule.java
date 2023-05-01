@@ -224,7 +224,8 @@ public class CommonPrereqModule {
 	public ArrayList<BusinessEntity.QuotKind> QkListData; // @v11.6.8
 	public ArrayList<Document> IncomingDocListData;
 	public GoodsFilt Gf;
-	public RegistryFilt Rf; // @v11.5.3
+	// @v11.7.0 public RegistryFilt Rf; // @v11.5.3
+	public StyloQCurrentState Cs; // @v11.7.0
 	//
 	// Descr: Структура инкапсулирующая общие параметры, передаваемые сервисом
 	//
@@ -306,6 +307,47 @@ public class CommonPrereqModule {
 			PredefPeriod = SLib.PREDEFPRD_NONE;
 		}
 		boolean IsEmpty() { return ((Period == null || Period.IsZero()) && Flags == 0); }
+		public JSONObject ToJsonObj()
+		{
+			JSONObject result = null;
+			if(!IsEmpty()) {
+				try {
+					result = new JSONObject();
+					if(Period != null && !Period.IsZero()) {
+						String period_text = Period.Format();
+						if(SLib.GetLen(period_text) > 0) {
+							result.put("period", period_text);
+						}
+					}
+					if(Flags != 0)
+						result.put("flags", Flags);
+					if(PredefPeriod != 0)
+						result.put("predefperiod", PredefPeriod);
+				} catch(JSONException exn) {
+					result = null;
+				}
+			}
+			return result;
+		}
+		public boolean FromJsonObj(JSONObject jsObj)
+		{
+			boolean result = false;
+			if(jsObj != null) {
+				String period_text = jsObj.optString("period", null);
+				if(SLib.GetLen(period_text) > 0) {
+					if(Period == null)
+						Period = new SLib.DateRange();
+					if(!Period.FromString(period_text))
+						Period = null;
+				}
+				Flags = jsObj.optInt("flags");
+				PredefPeriod = jsObj.optInt("predefperiod");
+				if(!IsEmpty())
+					result = true;
+			}
+			return result;
+		}
+
 		public static final int fHideRejected = 0x00001;
 		SLib.DateRange Period;
 		int    Flags;
@@ -452,6 +494,14 @@ public class CommonPrereqModule {
 	protected void ResetCurrentDocument()
 	{
 		CurrentOrder = null;
+		// @v11.7.0 {
+		if(Cs != null || SetupCurrentState(null)) {
+			if(Cs.OpenedDocID != 0) {
+				Cs.OpenedDocID = 0;
+				RegisterCurrentStateModification(null);
+			}
+		}
+		// } @v11.7.0
 	}
 	protected boolean SetIncomingDocument(Document doc)
 	{
@@ -548,6 +598,26 @@ public class CommonPrereqModule {
 				try {
 					StyloQDatabase db = app_ctx.GetDB();
 					if(db != null) {
+						// @v11.7.0 {
+						if(Cs != null && Cs.OpenedDocID != 0) {
+							StyloQDatabase.SecStoragePacket pack = db.GetPeerEntry(Cs.OpenedDocID);
+							if(pack != null) {
+								JSONObject js_doc = (pack.Pool != null) ? pack.Pool.GetJsonObject(SecretTagPool.tagRawData) : null;
+								if(js_doc != null) {
+									Document rd = new Document();
+									if(rd.FromJsonObj(js_doc)) {
+										// На этапе разработки было множество проблем, по этому,
+										// вероятно расхождение между идентификаторами в json и в заголовке записи.
+										if(rd.H.ID != pack.Rec.ID)
+											rd.H.ID = pack.Rec.ID;
+										rd.H.Flags = pack.Rec.Flags;
+										CurrentOrder = rd;
+									}
+								}
+							}
+						}
+						// } @v11.7.0
+						/* @v11.7.0
 						StyloQDatabase.SecStoragePacket rdd = db.FindRecentDraftDoc(StyloQDatabase.SecStoragePacket.doctypGeneric,0, null, CmdUuid);
 						JSONObject js_doc = (rdd != null && rdd.Pool != null) ? rdd.Pool.GetJsonObject(SecretTagPool.tagRawData) : null;
 						if(js_doc != null) {
@@ -560,7 +630,7 @@ public class CommonPrereqModule {
 								rd.H.Flags = rdd.Rec.Flags;
 								CurrentOrder = rd;
 							}
-						}
+						}*/
 					}
 				} catch(StyloQException exn) {
 					;
@@ -663,10 +733,22 @@ public class CommonPrereqModule {
 								direction = +1;
 							long doc_id = db.PutDocument(direction, StyloQDatabase.SecStoragePacket.doctypGeneric, CurrentOrder.H.Flags, doc_ident, svc_id, doc_pool);
 							if(doc_id > 0) {
+								boolean debug_mark = false;
 								assert(CurrentOrder.H.ID == 0 || CurrentOrder.H.ID == doc_id);
 								if(CurrentOrder.H.ID == 0 || CurrentOrder.H.ID == doc_id) {
 									CurrentOrder.H.ID = doc_id;
+									// @v11.7.0 {
+									if(Cs != null || SetupCurrentState(db)) {
+										if(Cs.OpenedDocID != doc_id) {
+											Cs.OpenedDocID = doc_id;
+											RegisterCurrentStateModification(db);
+										}
+									}
+									// } @v11.7.0
 									turn_doc_result = 1;
+								}
+								else {
+									debug_mark = true;
 								}
 							}
 						}
@@ -1336,7 +1418,8 @@ public class CommonPrereqModule {
 		IncomingDocListData = null;
 		CSVCP = new CommonSvcParam();
 		Gf = null;
-		Rf = null; // @v11.5.3
+		// @v11.7.0 Rf = null; // @v11.5.3
+		Cs = null; // @v11.7.0
 		CurrentOrder = null;
 		RegistryHList = null;
 		ProcessorListData = null;
@@ -1370,6 +1453,47 @@ public class CommonPrereqModule {
 			CmdDescr = intent.getStringExtra("CmdDescr");
 			CmdUuid = SLib.strtouuid(intent.getStringExtra("CmdUuid"));
 		}
+	}
+	public boolean SetupCurrentState(StyloQDatabase __db)
+	{
+		if(SLib.GetLen(SvcIdent) > 0 && CmdUuid != null) {
+			StyloQApp app_ctx = GetAppCtx();
+			try {
+				StyloQDatabase local_db = __db;
+				if(local_db == null)
+					local_db = (app_ctx != null) ? app_ctx.GetDB() : null;
+				if(local_db != null) {
+					Cs = local_db.GetCurrentState(SvcIdent, CmdUuid);
+					if(Cs == null)
+						Cs = new StyloQCurrentState(SvcIdent, CmdUuid);
+				}
+			} catch(StyloQException exn) {
+				;
+			}
+		}
+		else
+			Cs = null;
+		return (Cs != null);
+	}
+	public boolean RegisterCurrentStateModification(StyloQDatabase __db)
+	{
+		boolean ok = false;
+		if(Cs != null) {
+			StyloQApp app_ctx = GetAppCtx();
+			try {
+				StyloQDatabase local_db = __db;
+				if(local_db == null)
+					local_db = (app_ctx != null) ? app_ctx.GetDB() : null;
+				if(local_db != null) {
+					long current_state_id = local_db.StoreCurrentState(Cs);
+					if(current_state_id != 0)
+						ok = true;
+				}
+			} catch(StyloQException exn) {
+				ok = false;
+			}
+		}
+		return ok;
 	}
 	public void SetupActivity(StyloQDatabase db, int viewPagerResourceId, int tabLayoutResourceId) throws StyloQException
 	{
@@ -1746,7 +1870,8 @@ public class CommonPrereqModule {
 								StyloQDatabase.SecStoragePacket local_doc_pack = db.GetPeerEntry(local_doc_id);
 								final int st = StyloQDatabase.SecTable.Rec.GetDocStatus(local_doc_pack.Rec.Flags);
 								boolean do_skip = false;
-								if(Rf != null && (Rf.Flags & RegistryFilt.fHideRejected) != 0) {
+								// @v11.7.0 if(Rf != null && (Rf.Flags & RegistryFilt.fHideRejected) != 0) {
+								if(Cs != null && Cs.Rf != null && (Cs.Rf.Flags & RegistryFilt.fHideRejected) != 0) { // @v11.7.0
 									if(st == StyloQDatabase.SecStoragePacket.styloqdocstCANCELLEDDRAFT || st == StyloQDatabase.SecStoragePacket.styloqdocstREJECTED ||
 										st == StyloQDatabase.SecStoragePacket.styloqdocstCANCELLED) {
 										do_skip = true;
@@ -1758,8 +1883,9 @@ public class CommonPrereqModule {
 										Document local_doc = new Document();
 										if(local_doc.FromJsonObj(js_doc)) {
 											final SLib.LDATE dt = local_doc.GetNominalDate();
-											if(Rf != null && !Rf.Period.IsZero()) {
-												if(!Rf.Period.CheckDate(dt))
+											// @v11.7.0 if(Rf != null && !Rf.Period.IsZero()) {
+											if(Cs != null && Cs.Rf != null && !Cs.Rf.Period.IsZero()) {
+												if(!Cs.Rf.Period.CheckDate(dt))
 													do_skip = true;
 											}
 											if(!do_skip) {

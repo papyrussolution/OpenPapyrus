@@ -2206,6 +2206,17 @@ class ppstr2 {
 	public static final int PPERR_SHTRIHFRGETPROPFAULT = 12189;
 	public static final int PPERR_SHTRIHFRCALLMETHFAULT = 12190;
 	public static final int PPERR_SHTRIHFRINVRESULTCODE = 12191;
+	public static final int PPERR_SQ_INDOCHASNTUUID = 12192;
+	public static final int PPERR_SQ_INDOCINVOP = 12193;
+	public static final int PPERR_SQ_INDOCINVIXOP = 12194;
+	public static final int PPERR_SQ_INDOCINVTIME = 12195;
+	public static final int PPERR_SQ_INDOCNOTIITEMS = 12196;
+	public static final int PPERR_SQ_INDOCGOODSNFOUND = 12197;
+	public static final int PPERR_SQ_INDOCINVQTTY = 12198;
+	public static final int PPERR_SQ_INDOCINVTITEM = 12199;
+	public static final int PPERR_SQ_INDOCINVCLI = 12200;
+	public static final int PPERR_SQ_INDOCINVCLIACS = 12201;
+	public static final int PPERR_DEBUG = 12202;
 	//
 	// .N.
 	//
@@ -4542,6 +4553,12 @@ class ppstr2 {
 	public static final int PPINIPARAM_DISABLESTQQRLOGIN = 12081;
 	public static final int PPTXT_ROUNDHOURPICKER = 12082;
 	public static final int PPTXT_ROUNDMINUTEPICKER = 12083;
+	public static final int PPTXT_SUPPLIXSVCACCEPTSDOCSFAULT = 12084;
+	public static final int PPTXT_SUPPLIXTESTMODE_NOSENDING = 12085;
+	public static final int PPTXT_SUPPLIXTESTMODE_DOCSENDING = 12086;
+	public static final int PPFILNAM_STYLOQSVC_LOG = 12087;
+	public static final int PPTXT_SUPPLIXSVCERRPARSINGFAULT = 12088;
+	public static final int PPTXT_SUPPLIXTESTMODE_STOCKSENDING = 12089;
 	//
 	// .N.
 	//

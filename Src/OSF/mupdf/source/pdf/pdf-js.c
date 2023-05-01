@@ -441,19 +441,15 @@ static void util_printf_f(fz_context * ctx, fz_buffer * out, int ds, int sign, i
 	char buf[40], * point, * digits = buf;
 	size_t n = 0;
 	int m = 0;
-
 	fz_snprintf(buf, sizeof buf, "%.*f", p, value);
-
 	if(*digits == '-') {
 		sign = '-';
 		++digits;
 	}
-
 	if(*digits != '.' && (*digits < '0' || *digits > '9')) {
 		fz_append_string(ctx, out, "nan");
 		return;
 	}
-
 	n = strlen(digits);
 	if(sign)
 		++n;

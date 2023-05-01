@@ -378,20 +378,15 @@ static void png_read_image(fz_context * ctx, struct info * info, const uchar * p
 	uint passw[7], passh[7], passofs[8];
 	uint code, size;
 	z_stream stm;
-
-	memset(info, 0, sizeof(struct info));
+	memzero(info, sizeof(struct info));
 	memset(info->palette, 255, sizeof(info->palette));
 	info->xres = 96;
 	info->yres = 96;
-
 	/* Read signature */
-
 	if(total < 8 + 12 || memcmp(p, png_signature, 8))
 		fz_throw(ctx, FZ_ERROR_GENERIC, "not a png image (wrong signature)");
-
 	p += 8;
 	total -= 8;
-
 	/* Read IHDR chunk (must come first) */
 
 	size = getuint(p);

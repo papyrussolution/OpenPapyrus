@@ -330,7 +330,7 @@ static int print_usage(void)
 	return 1;
 }
 
-static void error_callback(void * error_callback_data, const char * message, Jbig2Severity severity, uint32_t seg_idx)
+static void error_callback(void * error_callback_data, const char * message, Jbig2Severity severity, uint32 seg_idx)
 {
 	jbig2dec_error_callback_state_t * state = (jbig2dec_error_callback_state_t*)error_callback_data;
 	const char * type;
@@ -491,7 +491,7 @@ int main(int argc, char ** argv)
 	jbig2dec_allocator_t * allocator = &allocator_;
 	Jbig2Ctx * ctx = NULL;
 	FILE * f = NULL, * f_page = NULL;
-	uint8_t buf[4096];
+	uint8 buf[4096];
 	int filearg;
 	int result = 1;
 	int code;

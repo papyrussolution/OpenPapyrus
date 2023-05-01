@@ -420,14 +420,11 @@ void check_options()
 				do {
 					size_t length = strlen(path);
 					struct stat sbuf;
-
-					const char * endOfDir = strchr(path, ':');
+					const char * endOfDir = sstrchr(path, ':');
 					if(!endOfDir)
 						endOfDir = path+length;
-
 					{
 						char * m4_path = SAlloc::C(endOfDir-path + 1 + m4_length + 1, 1);
-
 						memcpy(m4_path, path, endOfDir-path);
 						m4_path[endOfDir-path] = '/';
 						memcpy(m4_path + (endOfDir-path) + 1, m4, m4_length + 1);
@@ -509,7 +506,7 @@ void check_options()
 		buf_m4_define(&m4defs_buf, "M4_YY_BISON_LVAL", NULL);
 	if(bison_bridge_lloc)
 		buf_m4_define(&m4defs_buf, "<M4_YY_BISON_LLOC>", NULL);
-	if(strchr(prefix, '[') || strchr(prefix, ']'))
+	if(sstrchr(prefix, '[') || sstrchr(prefix, ']'))
 		flexerror(_("Prefix cannot include '[' or ']'"));
 	buf_m4_define(&m4defs_buf, "M4_YY_PREFIX", prefix);
 	if(did_outfilename)

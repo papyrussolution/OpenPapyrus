@@ -1821,10 +1821,9 @@ static int file_gen_utility_names(struct archive_write * a, struct file * file)
 	}
 	p = dirname;
 	len = strlen(p);
-
 	if(archive_entry_filetype(file->entry) == AE_IFLNK) {
 		size_t len2;
-		/* Convert symlink name too. */
+		// Convert symlink name too
 		if(archive_entry_symlink_l(file->entry, &pp, &len2,
 		    xar->sconv) != 0) {
 			if(errno == ENOMEM) {
@@ -1854,7 +1853,6 @@ static int file_gen_utility_names(struct archive_write * a, struct file * file)
 		*file->parentdir.s = '\0';
 		return r;
 	}
-
 	/* Make a basename from dirname and slash */
 	*slash  = '\0';
 	file->parentdir.length = slash - dirname;
@@ -1867,7 +1865,8 @@ static int get_path_component(char * name, int n, const char * fn)
 	int l;
 	const char * p = strchr(fn, '/');
 	if(!p) {
-		if((l = strlen(fn)) == 0)
+		l = strlen(fn);
+		if(l == 0)
 			return 0;
 	}
 	else

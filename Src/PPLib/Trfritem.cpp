@@ -1,5 +1,5 @@
 // TRFRITEM.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2023
 // @codepage UTF-8
 // @Kernel
 //
@@ -53,7 +53,54 @@ int PPTransferItem::FreightPackage::FromStr(const SString & rBuf)
 	CATCHZOK
 	return ok;
 }
+//
+//
+//
+PPTransferItem::Acceptance::Acceptance() : Ver(0), Flags(0), Qtty(0.0), Cost(0.0), Price(0.0)
+{
+}
 
+int PPTransferItem::Acceptance::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW_SL(pSCtx->Serialize(dir, Ver, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
+	THROW(SrcOid.Serialize(dir, rBuf, pSCtx));
+	THROW_SL(pSCtx->Serialize(dir, Qtty, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Cost, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Price, rBuf));
+	CATCHZOK
+	return ok;
+}
+
+int PPTransferItem::Acceptance::ToStr(SString & rBuf)
+{
+	int    ok = 1;
+	rBuf.Z();
+	SSerializeContext sctx;
+	SBuffer sbuf;
+	THROW(Serialize(+1, sbuf, &sctx));
+	rBuf.EncodeMime64(sbuf.GetBuf(sbuf.GetRdOffs()), sbuf.GetAvailableSize());
+	CATCHZOK
+	return ok;
+}
+
+int PPTransferItem::Acceptance::FromStr(const SString & rBuf)
+{
+	int    ok = 1;
+	uint8  mime_buf[512];
+	size_t binary_size = 0;
+	SSerializeContext sctx;
+	SBuffer sbuf;
+	THROW_SL(rBuf.DecodeMime64(mime_buf, sizeof(mime_buf), &binary_size));
+	THROW_SL(sbuf.Write(mime_buf, binary_size));
+	THROW(Serialize(-1, sbuf, &sctx));
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
 PPTransferItem::PPTransferItem()
 {
 	THISZERO();
