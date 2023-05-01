@@ -739,7 +739,7 @@ public:
 		const SUiLayout * Get(uint idx) const;
 	};
 
-	struct Result { // @persistent @size=24
+	struct Result { // @persistent @size=24+sizeof(void *)
 		enum {
 			fNotFit = 0x0001, // Элемент не уместился в контейнер
 			fDegradedWidth  = 0x0002, // Ширина элемента деградировала (меньше или равна 0)

@@ -10716,6 +10716,13 @@ private:
 
 class SUnicodeBlock {
 public:
+    struct StrgHeader { // @size=32
+        uint32 Signature; // UTCP = 0x50435455
+        uint32 Version;
+        uint32 Flags;
+        uint32 CRC;       // CRC32 сериализованного буфера данных (заголовок не включен)
+        uint8  Reserve[16]; // @reserve
+    };
     SUnicodeBlock();
     ~SUnicodeBlock();
     int    ReadRaw(const char * pUnicodePath, const char * pCpPath);
@@ -10724,14 +10731,6 @@ public:
 
 	SUnicodeTable Ut;
 	SCodepageMapPool Cpmp;
-private:
-    struct StrgHeader { // @size=32
-        uint32 Signature; // UTCP = 0x50435455
-        uint32 Version;
-        uint32 Flags;
-        uint32 CRC;       // CRC32 сериализованного буфера данных (заголовок не включен)
-        uint8  Reserve[16]; // @reserve
-    };
 };
 //
 // Descr: Low level data alphabet analyzer

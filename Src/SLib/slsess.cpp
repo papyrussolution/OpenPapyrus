@@ -274,10 +274,11 @@ static void InitTest()
 		// Проверяем работоспособность *& для присваивания указателя по ссылке.
 		//
 		struct LocalData {
-			LocalData(int a, double b) : A(a), B(b)
+			LocalData(int a, uint8 c, double b) : A(a), C(c), B(b)
 			{
 			}
 			int    A;
+			uint8  C; // @v11.7.0
 			double B;
 		};
 
@@ -285,14 +286,19 @@ static void InitTest()
 		public:
 			static void Func1(LocalData *& prData)
 			{
-				prData = new LocalData(1, 10.0);
+				prData = new LocalData(1, 15, 10.0);
 			}
 		};
 		LocalData * p_data = 0;
 		LocalBlock::Func1(p_data);
-		assert(p_data != 0 && p_data->A == 1 && p_data->B == 10.0);
+		assert(p_data != 0 && p_data->A == 1 && p_data->B == 10.0 && p_data->C == 15);
 		ZDELETE(p_data);
 		assert(p_data == 0);
+		//
+		// @v11.7.0
+		// Кроме того, проверяем, чтобы код компилировался с выравниванием по 1 байту
+		// 
+		assert(sizeof(LocalData) == 11);
 	}
 	{
 		//
@@ -447,6 +453,9 @@ static void InitTest()
 #endif
 	STATIC_ASSERT(sizeof(DateRepeating) == 8);
 	STATIC_ASSERT(sizeof(DateTimeRepeating) == 12);
+	STATIC_ASSERT(sizeof(WorkDate) == 2); // @v11.7.0
+	STATIC_ASSERT(sizeof(SUnicodeBlock::StrgHeader) == 32); // @v11.7.0
+	STATIC_ASSERT(sizeof(LMatrix2D) == 48); // @v11.7.0
 	//
 	STATIC_ASSERT(sizeof(TYPEID) == 4);
 	STATIC_ASSERT(sizeof(STypEx) == 16);
@@ -466,6 +475,10 @@ static void InitTest()
 		}
 	}
 	// } @v11.2.0 
+	STATIC_ASSERT(sizeof(SPoint2S) == sizeof(4)); // @v11.7.0
+	STATIC_ASSERT(sizeof(MACAddr) == 6); // @v11.7.0
+	STATIC_ASSERT(sizeof(KeyDownCommand) == 4); // @v11.7.0
+	STATIC_ASSERT(sizeof(SUiLayout::Result) == (24+sizeof(void *))); // @v11.7.0
 	// @v11.4.8 {
 	{
 		// Убеждаемся в том, что memset(mem, 0xff, size) заполнит весь отрезок битовыми единицами
