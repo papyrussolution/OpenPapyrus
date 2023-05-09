@@ -315,6 +315,7 @@
       <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers />
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -414,6 +415,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers />
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
