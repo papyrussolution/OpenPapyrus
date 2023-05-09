@@ -179,16 +179,13 @@ static uint svg_hex_color(fz_context * ctx, fz_colorspace * colorspace, const fl
 {
 	float rgb[3];
 	int r, g, b;
-
 	if(colorspace != fz_device_rgb(ctx)) {
 		fz_convert_color(ctx, colorspace, color, fz_device_rgb(ctx), rgb, NULL, color_params);
 		color = rgb;
 	}
-
-	r = fz_clampi(255 * color[0] + 0.5f, 0, 255);
-	g = fz_clampi(255 * color[1] + 0.5f, 0, 255);
-	b = fz_clampi(255 * color[2] + 0.5f, 0, 255);
-
+	r = sclamp(255 * color[0] + 0.5f, 0.0f, 255.0f);
+	g = sclamp(255 * color[1] + 0.5f, 0.0f, 255.0f);
+	b = sclamp(255 * color[2] + 0.5f, 0.0f, 255.0f);
 	return (r << 16) | (g << 8) | b;
 }
 

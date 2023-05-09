@@ -40,9 +40,9 @@
 
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#if defined(_MSC_VER)
+//#if defined(_MSC_VER)
 //#include <winsock2.h>  // for timeval
-#endif
+//#endif
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

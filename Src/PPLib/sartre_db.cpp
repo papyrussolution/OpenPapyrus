@@ -1,11 +1,11 @@
 // SARTRE_DB.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 #include <sartre.h>
-#include <locale.h>
+// @v11.7.1 #include <locale.h>
 #include <berkeleydb.h>
 //#include <berkeleydb-6232.h>
 //

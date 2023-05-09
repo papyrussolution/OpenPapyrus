@@ -9,16 +9,60 @@
 #include <mupdf/fitz.h>
 #include <mupdf/pdf.h>
 
-class PdfBrowser : public TBaseBrowserWindow {
+class PdfView : public TWindowBase {
 public:
-	static int RegWindowClass(HINSTANCE hInst);
-	static LPCTSTR WndClsName;
-	PdfBrowser();
-	~PdfBrowser();
+	PdfView() : TWindowBase(L"PapyrusPdfView", 0)
+	{
+	}
 private:
-	static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-	int    WMHCreate();
-	
+	DECL_HANDLE_EVENT
+	{
+		TWindowBase::handleEvent(event);
+		if(TVKEYDOWN) {
+			//switch(TVKEY) {
+			//}
+		}
+		else if(TVINFOPTR) {
+			if(event.isCmd(cmInit)) {
+				CreateBlock * p_blk = static_cast<CreateBlock *>(TVINFOPTR);
+				//W.SetArea(getClientRect());
+				//{
+				//	IntRange rx, ry;
+					//W.GetScrollRange(&rx, &ry);
+					//ScrlB.SetRangeX(rx);
+					//ScrlB.SetRangeY(ry);
+				//}
+				//ScrlB.SetupWindow(H());
+			}
+			else if(event.isCmd(cmPaint)) {
+				PaintEvent * p_blk = static_cast<PaintEvent *>(TVINFOPTR);
+				//CreateFont_();
+				if(oneof2(p_blk->PaintType, PaintEvent::tPaint, PaintEvent::tEraseBackground)) {
+					/*
+					if(GetWbCapability() & wbcDrawBuffer) {
+						// Если используется буферизованная отрисовка, то фон нужно перерисовать в любом случае а на событие PaintEvent::tEraseBackground
+						// не реагировать
+						if(p_blk->PaintType == PaintEvent::tPaint) {
+							SPaintToolBox & r_tb = APPL->GetUiToolBox();
+							TCanvas2 canv(r_tb, static_cast<HDC>(p_blk->H_DeviceContext));
+							canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
+							DrawLayout(canv, P_Lfc);
+						}
+					}
+					else {
+						SPaintToolBox & r_tb = APPL->GetUiToolBox();
+						TCanvas2 canv(r_tb, static_cast<HDC>(p_blk->H_DeviceContext));
+						if(p_blk->PaintType == PaintEvent::tEraseBackground)
+							canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
+						if(p_blk->PaintType == PaintEvent::tPaint)
+							DrawLayout(canv, P_Lfc);
+					}
+					*/
+					clearEvent(event);
+				}
+			}
+		}
+	}
 	struct PdfApp {
 		PdfApp()
 		{
@@ -141,6 +185,19 @@ private:
 	};
 
 	PdfApp Pb;
+	SPaintToolBox Tb;
+};
+
+class PdfBrowser : public TBaseBrowserWindow {
+public:
+	static int RegWindowClass(HINSTANCE hInst);
+	static LPCTSTR WndClsName;
+	PdfBrowser();
+	~PdfBrowser();
+private:
+	static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	int    WMHCreate();
+
 };
 
 /*static*/LPCTSTR PdfBrowser::WndClsName = _T("SPdfBrowser"); // @global
@@ -157,7 +214,7 @@ private:
 	wc.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
 	wc.hCursor       = NULL; // LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = ::CreateSolidBrush(RGB(0xEE, 0xEE, 0xEE));
-	wc.lpszClassName = STextBrowser::WndClsName;
+	wc.lpszClassName = PdfBrowser::WndClsName;
 #if !defined(_PPDLL) && !defined(_PPSERVER)
 	//Scintilla_RegisterClasses(hInst);
 #endif

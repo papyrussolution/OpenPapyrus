@@ -72,16 +72,18 @@ public:
 	}
 	intrusive_ptr(T * p) : px(p)
 	{
-		if(px != 0) ++px->_refs;
+		if(px != 0) 
+			++px->_refs;
 	}
 	template <class U> intrusive_ptr(intrusive_ptr<U> const & rhs) : px(rhs.get() )
 	{
-		if(px != 0) ++px->_refs;
+		if(px != 0) 
+			++px->_refs;
 	}
-
 	intrusive_ptr(intrusive_ptr const & rhs) : px(rhs.px)
 	{
-		if(px != 0) ++px->_refs;
+		if(px != 0) 
+			++px->_refs;
 	}
 	~intrusive_ptr()
 	{

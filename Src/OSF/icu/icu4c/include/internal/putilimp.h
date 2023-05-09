@@ -259,7 +259,7 @@ U_CAPI double U_EXPORT2 uprv_pow(double d, double exponent);
  * Floating point utility to calculate 10 to the power of exponent (10^exponent).
  * @internal
  */
-U_CAPI double U_EXPORT2 uprv_pow10(int32_t exponent);
+// @sobolev (replaced with fpow10i) U_CAPI double U_EXPORT2 uprv_pow10(int32_t exponent);
 /**
  * Floating point utility to calculate the maximum value of two doubles.
  * @internal

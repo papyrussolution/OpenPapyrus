@@ -19,6 +19,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -502,7 +503,9 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				int vg_id = vg.getId();
 				if(vg_id == R.id.LAYOUT_ORDERPREPREQ_ORDR) {
 					boolean umr = CPM.UpdateMemoInCurrentDocument(SLib.GetCtrlString(vg, R.id.CTL_DOCUMENT_MEMO));
-					if(umr)
+					int qk_id = SLib.GetStrAssocComboData(vg, R.id.CTLSEL_DOCUMENT_QUOTKIND); // @v11.7.1
+					boolean uqkr = CPM.UpdateQuotKindInCurrentDocument(qk_id); // @v11.7.1
+					if(umr || uqkr)
 						CPM.OnCurrentDocumentModification();
 				}
 			}
@@ -666,6 +669,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										CommonPrereqModule.TabEntry te = CPM.TabList.get(i);
 										if(te != null) {
 											TabLayout.Tab tab = lo_tab.newTab();
+											//tab.setCustomView(R.layout.tab_common); // @v11.7.1
 											int icon_rc_id = 0;
 											if(te.TabId == CommonPrereqModule.Tab.tabGoods)
 												icon_rc_id = R.drawable.ic_obj_goods_kanji_054c1;
@@ -683,8 +687,10 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 												//Drawable draw = getResources().getDrawable(icon_rc_id, getTheme());
 												Drawable draw = AppCompatResources.getDrawable(this, icon_rc_id);
 												if(draw != null) {
-													//draw = new ScaleDrawable(draw, 0, 24, 24);
-													//draw.setBounds(0, 0, 10, 10);
+													//ScaleDrawable sd = new ScaleDrawable(draw, Gravity.CENTER, 0.5f, 0.5f);
+													//sd.setLevel(1);
+													//draw = sd.getDrawable();
+													//draw.setBounds(0, 0, 12, 12);
 													tab.setIcon(draw);
 												}
 												//tab.setIcon(icon_rc_id);
@@ -785,6 +791,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON4, View.GONE);
 							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_DUEDATE_NEXT, View.GONE);
 							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_DUEDATE_PREV, View.GONE);
+							SLib.SetCtrlVisibility(vg, R.id.CTLSEL_DOCUMENT_QUOTKIND, View.GONE); // @v11.7.1
 						}
 						else {
 							Document _doc = CPM.GetCurrentDocument();
@@ -846,6 +853,25 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								}
 								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_CLI, cli_name);
 								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DLVRLOC, addr);
+								// @v11.7.1 {
+								if((SLib.GetCount(CPM.QkListData) > 0) && (
+									CPM.GetQuotKindUsage() == CommonPrereqModule.qkoAuto || CPM.GetQuotKindUsage() == CommonPrereqModule.qkoManual)) {
+									View spinner_view_ = vg.findViewById(R.id.CTLSEL_DOCUMENT_QUOTKIND);
+									if(spinner_view_ != null && spinner_view_ instanceof Spinner) {
+										SLib.SetCtrlVisibility(vg, R.id.CTLSEL_DOCUMENT_QUOTKIND, View.VISIBLE);
+										SLib.StrAssocArray qk_list = new SLib.StrAssocArray();
+										qk_list.Set(0, app_ctx.GetString("quotkind_undef"));
+										for(BusinessEntity.QuotKind qk : CPM.QkListData) {
+											qk_list.Set(qk.ID, qk.Name);
+										}
+										SLib.SetupStrAssocCombo(app_ctx, vg, R.id.CTLSEL_DOCUMENT_QUOTKIND, qk_list, _doc.H.QuotKindID);
+										spinner_view_.setEnabled((CPM.GetQuotKindUsage() == CommonPrereqModule.qkoManual));
+									}
+
+								}
+								else
+									SLib.SetCtrlVisibility(vg, R.id.CTLSEL_DOCUMENT_QUOTKIND, View.GONE);
+								// } @v11.7.1
 							}
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_MEMO, _doc.H.Memo);
 							{
@@ -1086,7 +1112,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 												}
 												else
 													SLib.SetCtrlVisibility(iv, R.id.CTLGRP_GOODS_EXPIRY, View.GONE);
-												BusinessEntity.SelectedPrice sp = cur_entry.Item.QueryPrice(CPM.QkListData, 0/*cliID*/);
+												final Document _doc = CPM.GetCurrentDocument();
+												BusinessEntity.SelectedPrice sp = cur_entry.Item.QueryPrice(_doc, CPM.QkListData);
 												double _price = sp.GetValue();
 												SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_PRICE, (_price > 0.0) ? CPM.FormatCurrency(_price) : "");
 												{
@@ -1565,18 +1592,36 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			case SLib.EV_CBSELECTED:
 				if(subj != null && subj instanceof SLib.ListViewEvent) {
 					SLib.ListViewEvent lve = (SLib.ListViewEvent)subj;
+					int view_id = (srcObj instanceof View) ? ((View)srcObj).getId() : 0;
 					if(lve.ItemIdx >= 0 && lve.ItemId >= 0) {
 						CommonPrereqModule.TabEntry te = null;
 						View v = findViewById(R.id.VIEWPAGER_ORDERPREREQ);
 						if(v != null && v instanceof ViewPager2) {
-							for(CommonPrereqModule.TabEntry iter : CPM.TabList) {
-								if(iter != null && iter.TabId == CommonPrereqModule.Tab.tabSearch) {
-									te = iter;
-									break;
+							// @v11.7.1 {
+							if(view_id == R.id.CTLSEL_DOCUMENT_QUOTKIND) {
+								for(CommonPrereqModule.TabEntry iter : CPM.TabList) {
+									if(iter != null && iter.TabId == CommonPrereqModule.Tab.tabCurrentDocument) {
+										te = iter;
+										break;
+									}
 								}
+								if(te != null && te.TabView != null) {
+									int qk_id = SLib.GetStrAssocComboData(te.TabView, R.id.CTLSEL_DOCUMENT_QUOTKIND);
+									if(CPM.UpdateQuotKindInCurrentDocument(qk_id))
+										CPM.OnCurrentDocumentModification();
+									//SLib.GetStrAssocComboData()
+								}
+							} // } @v11.7.1
+							else {
+								for(CommonPrereqModule.TabEntry iter : CPM.TabList) {
+									if(iter != null && iter.TabId == CommonPrereqModule.Tab.tabSearch) {
+										te = iter;
+										break;
+									}
+								}
+								if(te != null && te.TabView != null)
+									CPM.SelectSearchPaneObjRestriction(te.TabView.getView(), (int) lve.ItemId);
 							}
-							if(te != null && te.TabView != null)
-								CPM.SelectSearchPaneObjRestriction(te.TabView.getView(), (int)lve.ItemId);
 						}
 					}
 				}

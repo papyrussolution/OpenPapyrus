@@ -67,7 +67,7 @@ void SylkWriter::PutRec(int typeChr, const char * pStr)
 
 int SylkWriter::PutVal(const char * pStr, int cvtOemToChr)
 {
-	char temp_buf[128];
+	char temp_buf[512]; // @v11.7.1 [128]-->[512]
 	if(pStr) {
 		size_t d = 0;
 		const char * s = pStr;
@@ -987,7 +987,7 @@ int BrowserWindow::CopyToClipboard()
 			p_def_->top();
 			do {
 				for(j = 0; j < cn_count; j++) {
-					long cn  = SelectedColumns.at(j);
+					long cn = SelectedColumns.at(j);
 					if(cn >= 0 && cn < p_def_->getCountI()) {
 						long  len = 0;
 						uint  stype = col_types.at(j);

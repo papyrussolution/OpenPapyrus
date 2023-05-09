@@ -20,21 +20,14 @@ class FormatRawSinkImpl {
 public:
 	// Implicitly convert from any type that provides the hook function as
 	// described above.
-	template <typename T, decltype(str_format_internal::InvokeFlush(
-		    std::declval<T*>(), string_view()))* = nullptr>
-	FormatRawSinkImpl(T* raw) // NOLINT
-		: sink_(raw), write_(&FormatRawSinkImpl::Flush<T>) {
-	}
-	void Write(string_view s) {
-		write_(sink_, s);
-	}
-	template <typename T>
-	static FormatRawSinkImpl Extract(T s) {
-		return s.sink_;
-	}
+	template <typename T, decltype(str_format_internal::InvokeFlush(std::declval<T*>(), string_view()))* = nullptr>
+	FormatRawSinkImpl(T* raw) : sink_(raw), write_(&FormatRawSinkImpl::Flush<T>) 
+	{
+	} // NOLINT
+	void Write(string_view s) { write_(sink_, s); }
+	template <typename T> static FormatRawSinkImpl Extract(T s) { return s.sink_; }
 private:
-	template <typename T>
-	static void Flush(void* r, string_view s) 
+	template <typename T> static void Flush(void* r, string_view s) 
 	{
 		str_format_internal::InvokeFlush(static_cast<T*>(r), s);
 	}
@@ -45,23 +38,28 @@ private:
 // An abstraction to which conversions write their string data.
 class FormatSinkImpl {
 public:
-	explicit FormatSinkImpl(FormatRawSinkImpl raw) : raw_(raw) {
+	explicit FormatSinkImpl(FormatRawSinkImpl raw) : raw_(raw) 
+	{
 	}
-	~FormatSinkImpl() {
+	~FormatSinkImpl() 
+	{
 		Flush();
 	}
-	void Flush() {
+	void Flush() 
+	{
 		raw_.Write(string_view(buf_, static_cast<size_t>(pos_ - buf_)));
 		pos_ = buf_;
 	}
-
-	void Append(size_t n, char c) {
-		if(n == 0) return;
+	void Append(size_t n, char c) 
+	{
+		if(n == 0) 
+			return;
 		size_ += n;
-		auto raw_append = [&](size_t count) {
-			    memset(pos_, c, count);
-			    pos_ += count;
-		    };
+		auto raw_append = [&](size_t count) 
+		{ 
+			memset(pos_, c, count); 
+			pos_ += count;
+		};
 		while(n > Avail()) {
 			n -= Avail();
 			if(Avail() > 0) {
@@ -71,10 +69,11 @@ public:
 		}
 		raw_append(n);
 	}
-
-	void Append(string_view v) {
+	void Append(string_view v) 
+	{
 		size_t n = v.size();
-		if(n == 0) return;
+		if(n == 0) 
+			return;
 		size_ += n;
 		if(n >= Avail()) {
 			Flush();
@@ -84,28 +83,13 @@ public:
 		memcpy(pos_, v.data(), n);
 		pos_ += n;
 	}
-
-	size_t size() const {
-		return size_;
-	}
-
+	size_t size() const { return size_; }
 	// Put 'v' to 'sink' with specified width, precision, and left flag.
 	bool PutPaddedString(string_view v, int width, int precision, bool left);
-
-	template <typename T>
-	T Wrap() {
-		return T(this);
-	}
-
-	template <typename T>
-	static FormatSinkImpl* Extract(T* s) {
-		return s->sink_;
-	}
-
+	template <typename T> T Wrap() { return T(this); }
+	template <typename T> static FormatSinkImpl* Extract(T* s) { return s->sink_; }
 private:
-	size_t Avail() const {
-		return static_cast<size_t>(buf_ + sizeof(buf_) - pos_);
-	}
+	size_t Avail() const { return static_cast<size_t>(buf_ + sizeof(buf_) - pos_); }
 
 	FormatRawSinkImpl raw_;
 	size_t size_ = 0;

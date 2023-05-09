@@ -101,7 +101,7 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <CompileAs>CompileAsCpp</CompileAs>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\imgui;..\Include\freetype</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
     </ClCompile>
@@ -126,7 +126,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <OmitFramePointers>false</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\OSF\imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\imgui;..\Include\freetype</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
     </ClCompile>
@@ -151,7 +151,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <OmitFramePointers>true</OmitFramePointers>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\OSF\imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\imgui;..\Include\freetype</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
     </ClCompile>
@@ -178,7 +178,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <OmitFramePointers>true</OmitFramePointers>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\OSF\imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\imgui;..\Include\freetype</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
     </ClCompile>
@@ -203,6 +203,7 @@
     <ClCompile Include="..\OSF\imgui\imgui_draw.cpp" />
     <ClCompile Include="..\OSF\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\OSF\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="..\OSF\imgui\misc\freetype\imgui_freetype.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\imgui\backends\imgui_impl_dx10.h" />
@@ -213,6 +214,7 @@
     <ClInclude Include="..\OSF\imgui\imgui-slib-internal.h" />
     <ClInclude Include="..\OSF\imgui\imgui.h" />
     <ClInclude Include="..\OSF\imgui\imgui_internal.h" />
+    <ClInclude Include="..\OSF\imgui\misc\freetype\imgui_freetype.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

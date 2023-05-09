@@ -416,6 +416,8 @@ int SAlloc::Stat::Output(SString & rBuf)
 	return p_result;
 }
 
+/*static*/void * FASTCALL SAlloc::M_zon0(size_t sz) { return sz ? M(sz) : 0; }
+
 /*static*/void * FASTCALL SAlloc::C(size_t n, size_t sz)
 {
 #if SLGATHERALLOCSTATISTICS
@@ -430,6 +432,8 @@ int SAlloc::Stat::Output(SString & rBuf)
 		SLS.SetError(SLERR_NOMEM);
 	return p_result;
 }
+
+/*static*/void * FASTCALL SAlloc::C_zon0(size_t n, size_t sz) { return (n && sz) ? C(n, sz) : 0; }
 
 /*static*/void * FASTCALL SAlloc::R(void * ptr, size_t sz)
 {

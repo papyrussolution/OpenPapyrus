@@ -5959,7 +5959,8 @@ int RunInputProcessThread(PPID posNodeID)
 		virtual void Run()
 		{
 			DirChangeNotification * p_dcn = 0;
-			SString msg_buf, temp_buf;
+			SString temp_buf;
+			SString msg_buf;
 			STimer timer;
 			Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
 			THROW(DS.Login(IB.DbSymb, IB.UserName, IB.Password, PPSession::loginfSkipLicChecking));

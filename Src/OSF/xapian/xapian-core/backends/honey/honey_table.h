@@ -46,31 +46,27 @@
 #include <cstdlib> // std::abort()
 #include <type_traits>
 #ifdef HAVE_SYS_UIO_H
-# include <sys/uio.h>
+	#include <sys/uio.h>
 #endif
-
 #include <sys/types.h>
 #include "safesysstat.h"
 #include "safeunistd.h"
-
 #include "compression_stream.h"
 #include "honey_defs.h"
 #include "honey_version.h"
-#include "internaltypes.h"
+//#include "internaltypes.h"
 #include "io_utils.h"
 #include "pack.h"
 #include "str.h"
 #include "stringutils.h"
 #include "wordaccess.h"
-
 #include "unicode/description_append.h"
 
 #ifdef BLK_UNUSED
-# undef BLK_UNUSED
+	#undef BLK_UNUSED
 #endif // FIXME: namespace it?
 
 const uint4 BLK_UNUSED = uint4(-1);
-
 class HoneyFreeListChecker;
 
 class BufferedFileCommon {
@@ -99,9 +95,9 @@ class BufferedFile {
 	const int FORCED_CLOSE = -2;
 
 public:
-	BufferedFile() {
+	BufferedFile() 
+	{
 	}
-
 	BufferedFile(const BufferedFile& o) : common(o.common) {
 		if(!o.read_only) std::abort();
 		if(common) ++common->_refs;

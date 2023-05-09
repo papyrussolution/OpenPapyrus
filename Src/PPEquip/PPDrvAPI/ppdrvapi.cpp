@@ -1,5 +1,5 @@
 // PPDRVAPI.CPP
-// Copyright (c) A.Sobolev 2013, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2013, 2017, 2018, 2019, 2020, 2023
 // @codepage UTF-8
 //
 #pragma hdrstop
@@ -121,7 +121,7 @@ int PPDrvThreadLocalArea::SignalFinishEvent()
 
 long PPDrvThreadLocalArea::GetId() const { return Id; }
 ThreadID PPDrvThreadLocalArea::GetThreadID() const { return TId; }
-int PPDrvThreadLocalArea::IsConsistent() const { return BIN(Sign == SIGN_PPDRVTLA); }
+bool PPDrvThreadLocalArea::IsConsistent() const { return (Sign == SIGN_PPDRVTLA); }
 
 PPDrvSession::~PPDrvSession()
 {

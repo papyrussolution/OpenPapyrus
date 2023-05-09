@@ -492,8 +492,8 @@ const char * fz_parse_page_range(fz_context * ctx, const char * s, int * a, int 
 	}
 	else
 		*b = *a;
-	*a = fz_clampi(*a, 1, n);
-	*b = fz_clampi(*b, 1, n);
+	*a = sclamp(*a, 1, n);
+	*b = sclamp(*b, 1, n);
 	return s;
 }
 

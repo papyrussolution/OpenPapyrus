@@ -105,8 +105,8 @@ static void TestPUtilAPI() {
 	doAssert(uprv_trunc(uprv_getNaN()), uprv_getNaN(), "uprv_trunc(uprv_getNaN()) failed. with parameter=NaN");
 	doAssert(uprv_trunc(uprv_getInfinity()), uprv_getInfinity(), "uprv_trunc(uprv_getInfinity()) failed. with parameter=Infinity");
 
-	log_verbose("Testing the API uprv_pow10()\n");
-	doAssert(uprv_pow10(4), 10000, "uprv_pow10(4) failed.");
+	log_verbose("Testing the API /*uprv_pow10*/fpow10i()\n");
+	doAssert(fpow10i(4), 10000, "/*uprv_pow10*/fpow10i(4) failed.");
 
 	log_verbose("Testing the API uprv_isNegativeInfinity()\n");
 	isTrue = uprv_isNegativeInfinity(uprv_getInfinity() * -1);

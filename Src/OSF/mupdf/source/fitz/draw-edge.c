@@ -149,21 +149,18 @@ static void fz_insert_gel(fz_context * ctx, fz_rasterizer * ras, float fx0, floa
 	int d, v;
 	const int hscale = fz_rasterizer_aa_hscale(ras);
 	const int vscale = fz_rasterizer_aa_vscale(ras);
-
 	fx0 = floorf(fx0 * hscale);
 	fx1 = floorf(fx1 * hscale);
 	fy0 = floorf(fy0 * vscale);
 	fy1 = floorf(fy1 * vscale);
-
 	/* Call fz_clamp so that clamping is done in the float domain, THEN
-	 * cast down to an int. Calling fz_clampi causes problems due to the
+	 * cast down to an int. Calling sclamp causes problems due to the
 	 * implicit cast down from float to int of the first argument
 	 * over/underflowing and flipping sign at extreme values. */
 	x0 = (int)fz_clamp(fx0, BBOX_MIN * hscale, BBOX_MAX * hscale);
 	y0 = (int)fz_clamp(fy0, BBOX_MIN * vscale, BBOX_MAX * vscale);
 	x1 = (int)fz_clamp(fx1, BBOX_MIN * hscale, BBOX_MAX * hscale);
 	y1 = (int)fz_clamp(fy1, BBOX_MIN * vscale, BBOX_MAX * vscale);
-
 	d = clip_lerp_y(ras->clip.y0, 0, x0, y0, x1, y1, &v);
 	if(d == OUTSIDE) return;
 	if(d == LEAVE) {
@@ -172,7 +169,6 @@ static void fz_insert_gel(fz_context * ctx, fz_rasterizer * ras, float fx0, floa
 	if(d == ENTER) {
 		y0 = ras->clip.y0; x0 = v;
 	}
-
 	d = clip_lerp_y(ras->clip.y1, 1, x0, y0, x1, y1, &v);
 	if(d == OUTSIDE) return;
 	if(d == LEAVE) {
@@ -244,7 +240,7 @@ static void fz_insert_gel_rect(fz_context * ctx, fz_rasterizer * ras, float fx0,
 	fy1 = fz_clamp(fy1, ras->clip.y0, ras->clip.y1);
 
 	/* Call fz_clamp so that clamping is done in the float domain, THEN
-	 * cast down to an int. Calling fz_clampi causes problems due to the
+	 * cast down to an int. Calling sclamp causes problems due to the
 	 * implicit cast down from float to int of the first argument
 	 * over/underflowing and flipping sign at extreme values. */
 	x0 = (int)fz_clamp(fx0, BBOX_MIN * hscale, BBOX_MAX * hscale);
@@ -688,19 +684,13 @@ clip_ended:
  * Sharp (not anti-aliased) scan conversion
  */
 
-static inline void blit_sharp(int x0,
-    int x1,
-    int y,
-    const fz_irect * clip,
-    fz_pixmap * dst,
-    uchar * color,
-    fz_solid_color_painter_t * fn,
-    fz_overprint * eop)
+static inline void blit_sharp(int x0, int x1, int y, const fz_irect * clip,
+    fz_pixmap * dst, uchar * color, fz_solid_color_painter_t * fn, fz_overprint * eop)
 {
 	uchar * dp;
 	int da = dst->alpha;
-	x0 = fz_clampi(x0, dst->x, dst->x + dst->w);
-	x1 = fz_clampi(x1, dst->x, dst->x + dst->w);
+	x0 = sclamp(x0, dst->x, dst->x + dst->w);
+	x1 = sclamp(x1, dst->x, dst->x + dst->w);
 	if(x0 < x1) {
 		dp = dst->samples + (y - dst->y) * (size_t)dst->stride + (x0 - dst->x) * (size_t)dst->n;
 		if(color)

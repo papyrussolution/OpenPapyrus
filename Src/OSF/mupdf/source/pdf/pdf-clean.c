@@ -482,10 +482,10 @@ static fz_pixmap * pdf_redact_image_imp(fz_context * ctx, fz_matrix ctm, fz_imag
 
 	inv_ctm = fz_post_scale(fz_invert_matrix(ctm), pixmap->w, pixmap->h);
 	r = fz_round_rect(fz_transform_rect(fz_rect_from_quad(q), inv_ctm));
-	r.x0 = fz_clampi(r.x0, 0, pixmap->w);
-	r.x1 = fz_clampi(r.x1, 0, pixmap->w);
-	r.y1 = fz_clampi(pixmap->h - r.y1, 0, pixmap->h);
-	r.y0 = fz_clampi(pixmap->h - r.y0, 0, pixmap->h);
+	r.x0 = sclamp(r.x0, 0, pixmap->w);
+	r.x1 = sclamp(r.x1, 0, pixmap->w);
+	r.y1 = sclamp(pixmap->h - r.y1, 0, pixmap->h);
+	r.y0 = sclamp(pixmap->h - r.y0, 0, pixmap->h);
 	for(y = r.y1; y < r.y0; ++y) {
 		for(x = r.x0; x < r.x1; ++x) {
 			uchar * s = &pixmap->samples[(size_t)y * pixmap->stride + (size_t)x * bpp];

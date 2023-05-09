@@ -25,10 +25,10 @@
 #define DEFAULT_DBL_FORMAT  "%.10g" // Double formatting
 
 #ifdef CMS_IS_WINDOWS_
-#include <io.h>
-#define DIR_CHAR    '\\'
+	//#include <io.h>
+	#define DIR_CHAR    '\\'
 #else
-#define DIR_CHAR    '/'
+	#define DIR_CHAR    '/'
 #endif
 
 // Symbols
@@ -453,10 +453,7 @@ static SYMBOL BinSrchKey(const char * id)
 }
 
 // 10 ^n
-static double xpow10(int n)
-{
-	return pow(10, (double)n);
-}
+// @v11.7.01 (replaced with fpow10i) static double xpow10(int n) { return pow(10, (double)n); }
 
 //  Reads a Real number, tries to follow from integer number
 static void ReadReal(cmsIT8 * it8, int32 inum)
@@ -478,17 +475,13 @@ static void ReadReal(cmsIT8 * it8, int32 inum)
 			prec++;
 			NextCh(it8);
 		}
-
-		it8->dnum = it8->dnum + (frac / xpow10(prec));
+		it8->dnum = it8->dnum + (frac / fpow10i(prec));
 	}
-
 	// Exponent, example 34.00E+20
 	if(toupper(it8->ch) == 'E') {
 		int32 e;
 		int32 sgn;
-
 		NextCh(it8); sgn = 1;
-
 		if(it8->ch == '-') {
 			sgn = -1; NextCh(it8);
 		}
@@ -506,9 +499,8 @@ static void ReadReal(cmsIT8 * it8, int32 inum)
 
 			NextCh(it8);
 		}
-
 		e = sgn*e;
-		it8->dnum = it8->dnum * xpow10(e);
+		it8->dnum = it8->dnum * fpow10i(e);
 	}
 }
 
@@ -519,7 +511,6 @@ static double ParseFloatNumber(const char * Buffer)
 {
 	double dnum = 0.0;
 	int sign = 1;
-
 	// keep safe
 	if(Buffer == NULL) return 0.0;
 
@@ -542,38 +533,37 @@ static double ParseFloatNumber(const char * Buffer)
 		while(*Buffer && isdigit((int)*Buffer)) {
 			frac = frac * 10.0 + (*Buffer - '0');
 			prec++;
-			if(*Buffer) Buffer++;
+			if(*Buffer) 
+				Buffer++;
 		}
-
-		dnum = dnum + (frac / xpow10(prec));
+		dnum = dnum + (frac / fpow10i(prec));
 	}
-
 	// Exponent, example 34.00E+20
 	if(*Buffer && toupper(*Buffer) == 'E') {
 		int e;
 		int sgn;
-
-		if(*Buffer) Buffer++;
+		if(*Buffer) 
+			Buffer++;
 		sgn = 1;
-
 		if(*Buffer == '-') {
 			sgn = -1;
-			if(*Buffer) Buffer++;
+			if(*Buffer) 
+				Buffer++;
 		}
 		else if(*Buffer == '+') {
 			sgn = +1;
 			if(*Buffer) Buffer++;
 		}
-
 		e = 0;
 		while(*Buffer && isdigit((int)*Buffer)) {
 			int32 digit = (*Buffer - '0');
 			if((double)e * 10.0 + digit < (double)+2147483647.0)
 				e = e * 10 + digit;
-			if(*Buffer) Buffer++;
+			if(*Buffer) 
+				Buffer++;
 		}
 		e = sgn*e;
-		dnum = dnum * xpow10(e);
+		dnum = dnum * fpow10i(e);
 	}
 	return sign * dnum;
 }

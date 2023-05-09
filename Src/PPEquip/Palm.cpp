@@ -188,8 +188,8 @@ PPGeoTrackingMode & PPGeoTrackingMode::Z()
 	return *this;
 }
 
-int FASTCALL PPGeoTrackingMode::operator == (const PPGeoTrackingMode & rS) const { return BIN(Mode == rS.Mode && Cycle == rS.Cycle); }
-int FASTCALL PPGeoTrackingMode::operator != (const PPGeoTrackingMode & rS) const { return BIN(Mode != rS.Mode || Cycle != rS.Cycle); }
+bool FASTCALL PPGeoTrackingMode::operator == (const PPGeoTrackingMode & rS) const { return (Mode == rS.Mode && Cycle == rS.Cycle); }
+bool FASTCALL PPGeoTrackingMode::operator != (const PPGeoTrackingMode & rS) const { return (Mode != rS.Mode || Cycle != rS.Cycle); }
 
 PPStyloPalmPacket::PPStyloPalmPacket() : P_Path(0), P_FTPPath(0)
 {
@@ -245,15 +245,8 @@ int PPStyloPalmPacket::MakePath(const char * pSuffix, SString & rBuf) const
 		return 0;
 }
 
-int PPStyloPalmPacket::MakeOutputPath(SString & rBuf) const
-{
-	return MakePath("IN", rBuf);
-}
-
-int PPStyloPalmPacket::MakeInputPath(SString & rBuf) const
-{
-	return (Rec.Flags & PLMF_ANDROID) ? MakePath(0, rBuf) : MakePath("OUT", rBuf);
-}
+int PPStyloPalmPacket::MakeOutputPath(SString & rBuf) const { return MakePath("IN", rBuf); }
+int PPStyloPalmPacket::MakeInputPath(SString & rBuf) const { return (Rec.Flags & PLMF_ANDROID) ? MakePath(0, rBuf) : MakePath("OUT", rBuf); }
 //
 //
 //
@@ -501,7 +494,7 @@ public:
 	{
 		RVALUEPTR(Data, pData);
 		SString temp_buf;
-		PPID   agent_accsheet_id = GetAgentAccSheet();
+		const   PPID   agent_accsheet_id = GetAgentAccSheet();
 		setCtrlData(CTL_PALM_NAME, Data.Rec.Name);
 		setCtrlData(CTL_PALM_SYMB, Data.Rec.Symb);
 		setCtrlData(CTL_PALM_ID,   &Data.Rec.ID);
@@ -521,6 +514,12 @@ public:
 		{
 			QuotKindCtrlGroup::Rec qk_rec(&Data.QkList__);
 			setGroupData(ctlgroupQuotKind, &qk_rec);
+			// @v11.7.1 {
+			AddClusterAssocDef(CTL_PALM_QUOTKINDOPTIONS, 0, PPStyloPalm2::qkoNone);
+			AddClusterAssoc(CTL_PALM_QUOTKINDOPTIONS, 1, PPStyloPalm2::qkoAuto);
+			AddClusterAssoc(CTL_PALM_QUOTKINDOPTIONS, 2, PPStyloPalm2::qkoManual);
+			SetClusterData(CTL_PALM_QUOTKINDOPTIONS, Data.Rec.QuotKindOptions);
+			// } @v11.7.1 
 		}
 		SetupPPObjCombo(this, CTLSEL_PALM_GGRP, PPOBJ_GOODSGROUP, Data.Rec.GoodsGrpID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);
 		SetupPPObjCombo(this, CTLSEL_PALM_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.Rec.FTPAcctID, 0, reinterpret_cast<void *>(PPObjInternetAccount::filtfFtp));
@@ -615,6 +614,7 @@ public:
 			QuotKindCtrlGroup::Rec qk_rec;
 			getGroupData(ctlgroupQuotKind, &qk_rec);
 			Data.QkList__ = qk_rec.List;
+			GetClusterData(CTL_PALM_QUOTKINDOPTIONS, &Data.Rec.QuotKindOptions); // @v11.7.1
 		}
 		getCtrlData(CTLSEL_PALM_GGRP,  &Data.Rec.GoodsGrpID);
 		getCtrlData(CTLSEL_PALM_OP,    &Data.Rec.OrderOpID);
@@ -669,6 +669,10 @@ private:
 				if(flags2 & PLMF_INHFLAGS) {
 					flags2 &= ~PLMF_INHMASK;
 					flags2 |= (sp_rec.Flags & PLMF_INHMASK);
+					// @v11.7.1 {
+					Data.Rec.QuotKindOptions = sp_rec.QuotKindOptions; 
+					SetClusterData(CTL_PALM_QUOTKINDOPTIONS, Data.Rec.QuotKindOptions);
+					// } @v11.7.1
 				}
 			}
 			else
@@ -678,7 +682,7 @@ private:
 			flags2 &= ~PLMF_INHFLAGS;
 		if(flags2 != Data.Rec.Flags)
 			SetClusterData(CTL_PALM_FLAGS, Data.Rec.Flags = flags2);
-		int    dsbl_flags = (Data.Rec.GroupID && flags2 & PLMF_INHFLAGS);
+		const bool dsbl_flags = (Data.Rec.GroupID && flags2 & PLMF_INHFLAGS);
 		DisableClusterItem(CTL_PALM_FLAGS, 0, !Data.Rec.GroupID);
 		// @v11.6.2 {
 		const long idx_list[] = {1L, 2L, 3L, 4L, 5L, 6L, 7L};
@@ -688,6 +692,7 @@ private:
 		else
 			items_to_disable.addr(8).addr(9).addr(10);
 		DisableClusterItems(CTL_PALM_FLAGS, items_to_disable, dsbl_flags);
+		disableCtrl(CTL_PALM_QUOTKINDOPTIONS, dsbl_flags); // @v11.7.1
 		// } @v11.6.2 
 		/* @v11.6.2 {
 		DisableClusterItem(CTL_PALM_FLAGS, 1, dsbl_flags);
@@ -841,7 +846,7 @@ int PPObjStyloPalm::Helper_GetPacket(PPID id, PPStyloPalmPacket * pPack, PPIDArr
 			SETIFZ(pStack, &inner_stack);
 			if(pStack->addUnique(pPack->Rec.GroupID) < 0) {
 				//
-				// Не завершаем функцию, дабы не смотря на рекурсию она могла функционировать.
+				// Не завершаем функцию, дабы не смотря на рекурсию она могла работать.
 				// В журнале pperror.log появится информация о проблеме.
 				//
 				PPSetError(PPERR_STYLOPALMCYCLE, pPack->Rec.Name);
@@ -852,6 +857,7 @@ int PPObjStyloPalm::Helper_GetPacket(PPID id, PPStyloPalmPacket * pPack, PPIDArr
 				if(pPack->Rec.Flags & PLMF_INHFLAGS) {
 					pPack->Rec.Flags &= ~PLMF_INHMASK;
 					pPack->Rec.Flags |= (group_pack.Rec.Flags & PLMF_INHMASK);
+					pPack->Rec.QuotKindOptions = group_pack.Rec.QuotKindOptions; // @v11.7.1
 				}
 				if(!pPack->LocList.GetCount() && group_pack.LocList.GetCount())
 					pPack->LocList = group_pack.LocList;
@@ -926,7 +932,8 @@ int PPObjStyloPalm::ResolveClientID(const char * pInTblPath, PPID inID, PPID * p
 			}
 			else if(SearchObject(PPOBJ_ACCSHEET, acsh_id, &acs_rec) > 0)
 				if(acs_rec.Assoc == PPOBJ_PERSON) {
-					PPID   psn_id = 0, ar_id = 0;
+					PPID   psn_id = 0;
+					PPID   ar_id = 0;
 					PPObjPerson psn_obj;
 					THROW(psn_obj.AddSimple(&psn_id, pda_rec.Name, acs_rec.ObjGroup, PPPRS_LEGAL, 1));
 					if(ar_obj.P_Tbl->SearchObjRef(acsh_id, psn_id) < 0) {
@@ -947,15 +954,15 @@ int PPObjStyloPalm::ResolveClientID(const char * pInTblPath, PPID inID, PPID * p
 	return ok;
 }
 
-int PPObjStyloPalm::CheckSignalForInput(const char * pPath)
+bool PPObjStyloPalm::CheckSignalForInput(const char * pPath)
 {
 	SString sig_file_name;
 	if(fileExists((sig_file_name = pPath).SetLastSlash().Cat("sp_ready"))) {
 		//SFile::Remove(sig_file_name);
-		return 1;
+		return true;
 	}
 	else
-		return 0;
+		return false;
 }
 
 void PPObjStyloPalm::ClearInputSemaphore(const char * pPath)
@@ -2262,6 +2269,7 @@ int PPObjStyloPalm::IsPacketEq(const PPStyloPalmPacket & rS1, const PPStyloPalmP
 	CMP_MEMB(AgentID);
 	CMP_MEMB(MaxUnsentOrders);
 	CMP_MEMB(TransfDaysAgo);
+	CMP_MEMB(QuotKindOptions); // @v11.7.1
 	CMP_MEMB(InhBillTagVal);
 #undef CMP_MEMBS
 #undef CMP_MEMB
@@ -3363,10 +3371,10 @@ int PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & r
 						if(rBlk.P_BrObj->Fetch(goods_rec.BrandID, &brand_rec) > 0)
 							drec_goods.put(10, brand_rec.OwnerID);
 					}
-					//
-					// Минимальный заказ
-					//
 					{
+						//
+						// Минимальный заказ
+						//
 						GoodsStockExt stock;
 						if(rBlk.P_GObj->GetStockExt(goods_rec.ID, &stock, 1) > 0) {
 							drec_goods.put(11, stock.MinShippmQtty);

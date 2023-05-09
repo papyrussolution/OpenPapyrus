@@ -861,7 +861,7 @@ void ui_splitter(int * x, int min, int max, enum side side)
 	}
 
 	if(ui.active == x)
-		*x = fz_clampi(start_x + (ui.x - ui.down_x), min, max);
+		*x = sclamp(start_x + (ui.x - ui.down_x), min, max);
 
 	if(ui.hot == x || ui.active == x)
 		ui.cursor = GLUT_CURSOR_LEFT_RIGHT;

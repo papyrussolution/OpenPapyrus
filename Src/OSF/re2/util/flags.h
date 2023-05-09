@@ -10,17 +10,11 @@
 // If you want to do that, see
 // https://gflags.github.io/gflags/
 
-#define DEFINE_FLAG(type, name, deflt, desc) \
-	namespace re2 { type FLAGS_##name = deflt; }
-
-#define DECLARE_FLAG(type, name) \
-	namespace re2 { extern type FLAGS_##name; }
+#define DEFINE_FLAG(type, name, deflt, desc) namespace re2 { type FLAGS_ ## name = deflt; }
+#define DECLARE_FLAG(type, name) namespace re2 { extern type FLAGS_ ## name; }
 
 namespace re2 {
-template <typename T>
-T GetFlag(const T& flag) {
-  return flag;
-}
+	template <typename T> T GetFlag(const T& flag) { return flag; }
 }  // namespace re2
 
 #endif  // UTIL_FLAGS_H_

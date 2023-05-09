@@ -455,7 +455,7 @@ map_device_n_spot:
 									if(v != 0) {
 										int a = dd[-1];
 										for(j = 0; j < dc; j++)
-											dd[j] = fz_clampi(dd[j] + v * convert[j], 0, a);
+											dd[j] = sclamp(dd[j] + v * convert[j], 0, a);
 									}
 									dd += dn;
 								}
@@ -469,7 +469,7 @@ map_device_n_spot:
 									uchar v = sd[i];
 									if(v != 0) {
 										for(j = 0; j < dc; j++)
-											dd[j] = fz_clampi(dd[j] + v * convert[j], 0, 255);
+											dd[j] = sclamp(dd[j] + v * convert[j], 0, 255);
 									}
 									dd += dn;
 									sd += sn;
@@ -488,7 +488,7 @@ map_device_n_spot:
 									if(v != 0) {
 										int a = sd[-1];
 										for(j = 0; j < dc; j++)
-											dd[j] = fz_clampi(dd[j] - v * (1-convert[j]), 0, a);
+											dd[j] = sclamp(dd[j] - v * (1-convert[j]), 0, a);
 									}
 									dd += dn;
 								}
@@ -503,7 +503,7 @@ map_device_n_spot:
 									if(v != 0) {
 										for(j = 0; j < dc; j++)
 											dd[j] =
-											    fz_clampi(dd[j] - v * (1-convert[j]), 0, 255);
+											    sclamp(dd[j] - v * (1-convert[j]), 0, 255);
 									}
 									dd += dn;
 									sd += sn;
@@ -537,7 +537,7 @@ map_device_n_spot:
 									if(v != 0) {
 										uchar a = sd[sc];
 										for(j = 0; j < dc; j++)
-											dd[j] = fz_clampi(dd[j] + v * convert[j], 0, a);
+											dd[j] = sclamp(dd[j] + v * convert[j], 0.0f, (float)a);
 									}
 									dd += dn;
 									sd += sn;
@@ -552,7 +552,7 @@ map_device_n_spot:
 									uchar v = sd[i];
 									if(v != 0)
 										for(j = 0; j < dc; j++)
-											dd[j] = fz_clampi(dd[j] + v * convert[j], 0, 255);
+											dd[j] = sclamp(dd[j] + v * convert[j], 0.0f, 255.0f);
 									dd += dn;
 									sd += sn;
 								}
@@ -573,7 +573,7 @@ map_device_n_spot:
 								cc.convert(ctx, &cc, colors, convert);
 
 								for(j = 0; j < dc; j++)
-									dd[j] = fz_clampi(255 * convert[j], 0, 255);
+									dd[j] = sclamp(255 * convert[j], 0.0f, 255.0f);
 								dd += dn;
 								sd += sn;
 							}
@@ -591,7 +591,7 @@ map_device_n_spot:
 								cc.convert(ctx, &cc, colors, convert);
 
 								for(j = 0; j < dc; j++)
-									dd[j] = fz_clampi(a * convert[j], 0, a);
+									dd[j] = sclamp(a * convert[j], 0.0f, (float)a);
 								dd += dn;
 								sd += sn;
 							}
@@ -695,7 +695,7 @@ map_device_n_spot:
 									if(v != 0) {
 										uchar a = sd[ss];
 										for(k = 0; k < dc; k++)
-											dd[k] = fz_clampi(dd[k] + v * convert[k], 0, a);
+											dd[k] = sclamp(dd[k] + v * convert[k], 0.0f, (float)a);
 									}
 									dd += dn;
 									sd += sn;
@@ -710,7 +710,7 @@ map_device_n_spot:
 									uchar v = sd[i];
 									if(v != 0)
 										for(k = 0; k < dc; k++)
-											dd[k] = fz_clampi(dd[k] + v * convert[k], 0, 255);
+											dd[k] = sclamp(dd[k] + v * convert[k], 0.0f, 255.0f);
 									dd += dn;
 									sd += sn;
 								}
@@ -729,7 +729,7 @@ map_device_n_spot:
 									if(v != 0) {
 										uchar a = sd[ss];
 										for(k = 0; k < dc; k++)
-											dd[k] = fz_clampi(dd[k] + v * convert[k], 0, a);
+											dd[k] = sclamp(dd[k] + v * convert[k], 0.0f, (float)a);
 									}
 									dd += dn;
 									sd += sn;
@@ -744,7 +744,7 @@ map_device_n_spot:
 									uchar v = 0xff - sd[i];
 									if(v != 0)
 										for(k = 0; k < dc; k++)
-											dd[k] = fz_clampi(dd[k] + v * convert[k], 0, 255);
+											dd[k] = sclamp(dd[k] + v * convert[k], 0.0f, 255.0f);
 									dd += dn;
 									sd += sn;
 								}
@@ -767,7 +767,7 @@ map_device_n_spot:
 									if(v != 0) {
 										uchar a = sd[ss];
 										for(k = 0; k < dc; k++)
-											dd[k] = fz_clampi(dd[k] - v * convert[k], 0, a);
+											dd[k] = sclamp(dd[k] - v * convert[k], 0.0f, (float)a);
 									}
 									dd += dn;
 									sd += sn;
@@ -782,7 +782,7 @@ map_device_n_spot:
 									uchar v = sd[i];
 									if(v != 0)
 										for(k = 0; k < dc; k++)
-											dd[k] = fz_clampi(dd[k] - v * convert[k], 0, 255);
+											dd[k] = sclamp(dd[k] - v * convert[k], 0.0f, 255.0f);
 									dd += dn;
 									sd += sn;
 								}
@@ -801,7 +801,7 @@ map_device_n_spot:
 									if(v != 0) {
 										uchar a = sd[ss];
 										for(k = 0; k < dc; k++)
-											dd[k] = fz_clampi(dd[k] - v * convert[k], 0, a);
+											dd[k] = sclamp(dd[k] - v * convert[k], 0.0f, (float)a);
 									}
 									dd += dn;
 									sd += sn;
@@ -816,7 +816,7 @@ map_device_n_spot:
 									uchar v = 0xff - sd[i];
 									if(v != 0)
 										for(k = 0; k < dc; k++)
-											dd[k] = fz_clampi(dd[k] - v * convert[k], 0, 255);
+											dd[k] = sclamp(dd[k] - v * convert[k], 0.0f, 255.0f);
 									dd += dn;
 									sd += sn;
 								}

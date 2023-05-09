@@ -3,7 +3,7 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <malloc.h>
+// @v11.7.1 #include <malloc.h>
 #include <crtdbg.h>
 
 bool SlBreakpointCondition[16];

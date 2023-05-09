@@ -288,7 +288,7 @@ void fz_decode_indexed_tile(fz_context * ctx, fz_pixmap * pix, const float * dec
 		while(len--) {
 			for(k = 0; k < n; k++) {
 				int value = (add[k] + (((p[k] << 8) * mul[k]) >> 8)) >> 8;
-				p[k] = fz_clampi(value, 0, 255);
+				p[k] = sclamp(value, 0, 255);
 			}
 			p += pn;
 		}
@@ -320,7 +320,7 @@ void fz_decode_tile(fz_context * ctx, fz_pixmap * pix, const float * decode)
 		while(len--) {
 			for(k = 0; k < n; k++) {
 				int value = add[k] + fz_mul255(p[k], mul[k]);
-				p[k] = fz_clampi(value, 0, 255);
+				p[k] = sclamp(value, 0, 255);
 			}
 			p += pix->n;
 		}

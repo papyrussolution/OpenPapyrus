@@ -299,7 +299,7 @@ static fz_pixmap * pnm_ascii_read_image(fz_context * ctx,
 						int v = 0;
 						p = pnm_read_number(ctx, p, e, &v);
 						p = pnm_read_white(ctx, p, e, 0);
-						v = fz_clampi(v, 0, pnm->maxval);
+						v = sclamp(v, 0, pnm->maxval);
 						*dp++ = map_color(ctx, v, pnm->maxval, 255);
 					}
 		}

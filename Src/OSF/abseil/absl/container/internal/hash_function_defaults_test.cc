@@ -106,25 +106,21 @@ TYPED_TEST(HashString, Works) {
 }
 
 struct NoDeleter {
-	template <class T>
-	void operator()(const T* ptr) const {}
+	template <class T> void operator()(const T* ptr) const {}
 };
 
-using PointerTypes =
-    ::testing::Types<const int*, int*, std::unique_ptr<const int>,
+using PointerTypes = ::testing::Types<const int*, int*, std::unique_ptr<const int>,
 	std::unique_ptr<const int, NoDeleter>,
 	std::unique_ptr<int>, std::unique_ptr<int, NoDeleter>,
 	std::shared_ptr<const int>, std::shared_ptr<int> >;
 
-template <class T>
-struct EqPointer : ::testing::Test {
+template <class T> struct EqPointer : ::testing::Test {
 	hash_default_eq<T> key_eq;
 };
 
 TYPED_TEST_SUITE(EqPointer, PointerTypes);
 
-template <class T>
-struct HashPointer : ::testing::Test {
+template <class T> struct HashPointer : ::testing::Test {
 	hash_default_hash<T> hasher;
 };
 
@@ -168,16 +164,14 @@ TEST(Hash, DerivedAndBase) {
 	EXPECT_EQ(hasher(static_cast<Base*>(dp.get())), hasher(dp));
 }
 
-TEST(Hash, FunctionPointer) {
+TEST(Hash, FunctionPointer) 
+{
 	using Func = int (*)();
 	hash_default_hash<Func> hasher;
 	hash_default_eq<Func> eq;
 
-	Func p1 = [] {
-		    return 1;
-	    }, p2 = [] {
-		    return 2;
-	    };
+	Func p1 = [] { return 1; };
+	Func p2 = [] { return 2; };
 	EXPECT_EQ(hasher(p1), hasher(p1));
 	EXPECT_TRUE(eq(p1, p1));
 
@@ -251,7 +245,8 @@ TEST(HashCord, FragmentedCordWorks) {
 	EXPECT_EQ(hash(c), hash("abc"));
 }
 
-TEST(HashCord, FragmentedLongCordWorks) {
+TEST(HashCord, FragmentedLongCordWorks) 
+{
 	hash_default_hash<absl::Cord> hash;
 	// Crete some large strings which do not fit on the stack.
 	std::string a(65536, 'a');
@@ -261,7 +256,8 @@ TEST(HashCord, FragmentedLongCordWorks) {
 	EXPECT_EQ(hash(c), hash(a + b));
 }
 
-TEST(HashCord, RandomCord) {
+TEST(HashCord, RandomCord) 
+{
 	hash_default_hash<absl::Cord> hash;
 	auto bitgen = absl::BitGen();
 	for(int i = 0; i < 1000; ++i) {
@@ -271,9 +267,7 @@ TEST(HashCord, RandomCord) {
 			std::string str;
 			str.resize(absl::Uniform(bitgen, 0, 4096));
 			// MSVC needed the explicit return type in the lambda.
-			std::generate(str.begin(), str.end(), [&]() -> char {
-							return static_cast<char>(absl::Uniform<unsigned char>(bitgen));
-						});
+			std::generate(str.begin(), str.end(), [&]() -> char { return static_cast<char>(absl::Uniform<unsigned char>(bitgen)); });
 			pieces.push_back(str);
 		}
 		absl::Cord c = absl::MakeFragmentedCord(pieces);
@@ -301,8 +295,7 @@ using StringTypesCartesianProduct = Types<
 constexpr char kFirstString[] = "abc123";
 constexpr char kSecondString[] = "ijk456";
 
-template <typename T>
-struct StringLikeTest : public ::testing::Test {
+template <typename T> struct StringLikeTest : public ::testing::Test {
 	typename T::first_type a1{kFirstString};
 	typename T::second_type b1{kFirstString};
 	typename T::first_type a2{kSecondString};
@@ -347,35 +340,31 @@ enum Hash : size_t {
 
 // H is a bitmask of Hash enumerations.
 // Hashable<H> is hashable via all means specified in H.
-template <int H>
-struct Hashable {
+template <int H> struct Hashable {
 	static constexpr bool HashableBy(Hash h) { return h & H; }
 };
 
 namespace std {
-template <int H>
-struct hash<Hashable<H> > {
-	template <class E = Hashable<H>,
-	    class = typename std::enable_if<E::HashableBy(kStd)>::type>
-	size_t operator()(E) const {
-		return kStd;
-	}
-};
+	template <int H> struct hash<Hashable<H> > {
+		template <class E = Hashable<H>,
+			class = typename std::enable_if<E::HashableBy(kStd)>::type>
+		size_t operator()(E) const {
+			return kStd;
+		}
+	};
 }  // namespace std
 
 namespace absl {
-ABSL_NAMESPACE_BEGIN
-namespace container_internal {
-namespace {
-template <class T>
-size_t Hash(const T& v) {
-	return hash_default_hash<T>()(v);
-}
+	ABSL_NAMESPACE_BEGIN
+		namespace container_internal {
+			namespace {
+				template <class T> size_t Hash(const T& v) { return hash_default_hash<T>()(v); }
 
-TEST(Delegate, HashDispatch) {
-	EXPECT_EQ(Hash(kStd), Hash(Hashable<kStd>()));
-}
-}  // namespace
-}  // namespace container_internal
-ABSL_NAMESPACE_END
+				TEST(Delegate, HashDispatch) 
+				{
+					EXPECT_EQ(Hash(kStd), Hash(Hashable<kStd>()));
+				}
+			}  // namespace
+		}  // namespace container_internal
+	ABSL_NAMESPACE_END
 }  // namespace absl

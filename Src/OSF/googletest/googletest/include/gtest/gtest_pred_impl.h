@@ -129,14 +129,11 @@ AssertionResult AssertPred2Helper(const char* pred_text, const char* e1,
 
 // Internal macro for implementing {EXPECT|ASSERT}_PRED_FORMAT2.
 // Don't use this in your code.
-#define GTEST_PRED_FORMAT2_(pred_format, v1, v2, on_failure) \
-	GTEST_ASSERT_(pred_format(#v1, #v2, v1, v2), on_failure)
+#define GTEST_PRED_FORMAT2_(pred_format, v1, v2, on_failure) GTEST_ASSERT_(pred_format(#v1, #v2, v1, v2), on_failure)
 
 // Internal macro for implementing {EXPECT|ASSERT}_PRED2.  Don't use
 // this in your code.
-#define GTEST_PRED2_(pred, v1, v2, on_failure)                               \
-	GTEST_ASSERT_(::testing::AssertPred2Helper(#pred, #v1, #v2, pred, v1, v2), \
-	    on_failure)
+#define GTEST_PRED2_(pred, v1, v2, on_failure) GTEST_ASSERT_(::testing::AssertPred2Helper(#pred, #v1, #v2, pred, v1, v2), on_failure)
 
 // Binary predicate assertion macros.
 #define EXPECT_PRED_FORMAT2(pred_format, v1, v2) GTEST_PRED_FORMAT2_(pred_format, v1, v2, GTEST_NONFATAL_FAILURE_)

@@ -1682,6 +1682,11 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 	return ok;
 }
 
+static bool FASTCALL IsAgentsOrders(const StyloQCommandList::Item & rCmdItem)
+{
+	return (rCmdItem.ObjTypeRestriction == PPOBJ_PERSON && rCmdItem.ObjGroupRestriction == PPPRK_AGENT);
+}
+
 int PPStyloQInterchange::ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, 
 	SString & rResult, SString & rDocDeclaration, uint prccmdFlags)
 {
@@ -1718,7 +1723,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandL
 	THROW(cn_obj.GetSync(posnode_id, &cn_sync_pack) > 0);
 	//THROW(stp_obj.GetPacket(posnode_id, &stp_pack) > 0);
 	{
-		const bool is_agent_orders = (rCmdItem.ObjTypeRestriction == PPOBJ_PERSON && rCmdItem.ObjGroupRestriction == PPPRK_AGENT);
+		//const bool is_agent_orders = (rCmdItem.ObjTypeRestriction == PPOBJ_PERSON && rCmdItem.ObjGroupRestriction == PPPRK_AGENT);
 		SJson js(SJson::tOBJECT);
 		// @v11.6.2 {
 		if(!!rCmdItem.Uuid)
@@ -1782,7 +1787,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 			export_zstock = true;
 		if(palm_pack.Rec.Flags & PLMF_EXPGOODSEXPIRYTAGS) { // @v11.6.2
 			export_expiry_tags = true;
-			ahead_expiry_days = BillObj->GetConfig().WarnLotExpirDays;
+			ahead_expiry_days = p_bobj->GetConfig().WarnLotExpirDays;
 			SETMAX(ahead_expiry_days, 0);
 		}
 	}
@@ -1793,24 +1798,25 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 		PPIDArray final_loc_list; // @v11.6.2 ‘инальный список складов, с которыми работает агент. may be empty!
 		const PPID single_loc_id = rParam.PalmID ? palm_pack.LocList.GetSingle() : rParam.LocID;
 		PPID   single_qk_id = 0; // Ќаиболее приоритетный вид котировки из списка таковых
-		PPIDArray qk_list;
+		PPIDArray qk_id_list;
+		TSVector <PPQuotKind2> qk_rec_list; // @v11.7.1
 		PPIDArray goods_list_by_qk;
 		PPIDArray temp_list;
 		if(rParam.PalmID) {
 			palm_pack.LocList.Get(final_loc_list);
-			palm_pack.QkList__.Get(qk_list);
+			palm_pack.QkList__.Get(qk_id_list);
 		}
 		else {
 			final_loc_list.add(rParam.LocID);
-			qk_list.addnz(rParam.QuotKindID);
+			qk_id_list.addnz(rParam.QuotKindID);
 		}
 		THROW_PP_S(final_loc_list.getCount(), PPERR_STQ_UNDEFWHFORORDERPREREQ, cmd_name);
-		qk_obj.ArrangeList(now_dtm, qk_list, 0);
-		if(qk_list.getCount()) {
-			single_qk_id = qk_list.get(0);
+		qk_obj.ArrangeList(now_dtm, qk_id_list, 0);
+		if(qk_id_list.getCount()) {
+			single_qk_id = qk_id_list.get(0);
 			SJson * p_js_list = 0;
-			for(uint i = 0; i < qk_list.getCount(); i++) {
-				const PPID qk_id = qk_list.get(i);
+			for(uint i = 0; i < qk_id_list.getCount(); i++) {
+				const PPID qk_id = qk_id_list.get(i);
 				PPQuotKind2 qk_rec;
 				if(qk_obj.Fetch(qk_id, &qk_rec) > 0) {
 					if(export_zstock) {
@@ -1827,6 +1833,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 					p_jsobj->InsertString("nm", (temp_buf = qk_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
 					p_jsobj->InsertInt("rank", qk_rec.Rank); // @v11.6.8
 					p_js_list->InsertChild(p_jsobj);
+					qk_rec_list.insert(&qk_rec); // @v11.7.1
 				}
 			}
 			pJs->InsertNz("quotkind_list", p_js_list);
@@ -1898,8 +1905,8 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 					double price = 0.0;
 					double rest = 0.0;
 					double unitperpack = 0.0;
-					for(uint qkidx = 0; qkidx < qk_list.getCount(); qkidx++) {
-						const PPID qk_id = qk_list.get(qkidx);
+					for(uint qkidx = 0; qkidx < qk_id_list.getCount(); qkidx++) {
+						const PPID qk_id = qk_id_list.get(qkidx);
 						double quot = 0.0;
 						QuotIdent qi(QIDATE(now_dtm.d), single_loc_id, qk_id);
 						if(mige_blk.GObj.GetQuotExt(goods_id, qi, 0.0, 0.0, &quot, 1) > 0) {
@@ -1985,13 +1992,14 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 					}
 					// } @v11.6.2 
 					{
+						//IsAgentsOrders(rCmdItem)
 						//
 						//  отировки
 						//
 						SJson * p_js_quot_list = 0;
-						Transfer * p_trfr = BillObj->trfr;
-						for(uint i = 0; i < qk_list.getCount(); i++) {
-							const PPID qk_id = qk_list.get(i);
+						Transfer * p_trfr = p_bobj->trfr;
+						for(uint i = 0; i < qk_id_list.getCount(); i++) {
+							const PPID qk_id = qk_id_list.get(i);
 							double quot = 0.0;
 							QuotIdent qi(QIDATE(now_dtm.d), single_loc_id, qk_id);
 							if(mige_blk.GObj.GetQuotExt(r_goods_entry.GoodsID, qi, r_goods_entry.Cost, r_goods_entry.Price, &quot, 1) > 0) {
@@ -2064,6 +2072,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 	bool   export_expiry_tags = false; // @v11.6.2 ≈сли true, то дл€ агентских заказов пользователь может видеть дополнительную информацию о сроке годности товаров.
 	int    ahead_expiry_days = 0; // @v11.6.2 ≈сли export_expiry_tags, то эта переменна€ получает количество дней до истечени€ срока годности, когда этот срок становитс€ критичным.
 		// «начение извлекаетс€ из конфигурации документов (PPBillConfig::WarnLotExpirDays)
+	int    quotkind_usage = 0; // @v11.7.1 ѕроекци€ stp_pack.Rec.QuotKindOptions
 	PPID   agent_psn_id = 0;
 	StyloQDocumentPrereqParam * p_filt = 0;
 	SBuffer param_buf(rCmdItem.Param);
@@ -2101,11 +2110,12 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 				if(ahead_expiry_days < 0)
 					ahead_expiry_days = 0;
 			}
+			quotkind_usage = stp_pack.Rec.QuotKindOptions; // @v11.7.1
 		}
 		// } @v11.5.2 
 	}
 	{
-		const bool is_agent_orders = (rCmdItem.ObjTypeRestriction == PPOBJ_PERSON && rCmdItem.ObjGroupRestriction == PPPRK_AGENT);
+		//const bool is_agent_orders = (rCmdItem.ObjTypeRestriction == PPOBJ_PERSON && rCmdItem.ObjGroupRestriction == PPPRK_AGENT);
 		SJson js(SJson::tOBJECT);
 		// @v11.6.2 {
 		if(!!rCmdItem.Uuid)
@@ -2121,8 +2131,14 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 				js.InsertInt("svcopid", op_id);
 		}
 		// } @v11.4.9 
-		if(is_agent_orders && agent_psn_id) {
+		if(IsAgentsOrders(rCmdItem) && agent_psn_id) {
 			js.InsertInt("agentid", agent_psn_id);
+			// @v11.7.1 {
+			if(quotkind_usage == PPStyloPalm2::qkoAuto)
+				js.InsertString("qko", "auto");
+			else if(quotkind_usage == PPStyloPalm2::qkoManual)
+				js.InsertString("qko", "manual");
+			// } @v11.7.1 
 		}
 		// @v11.4.8 {
 		{
@@ -2169,10 +2185,10 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 			}
 		}
 		// } @v11.5.0 
-		THROW(MakeRsrvPriceListResponse_ExportGoods(rCmdItem, bc_own_ident, /*&stp_pack*/*p_filt, &js, &stat));
-		if(is_agent_orders) {
+		if(IsAgentsOrders(rCmdItem)) {
 			THROW(MakeRsrvPriceListResponse_ExportClients(bc_own_ident, /*&stp_pack*/*p_filt, &js, &stat));
 		}
+		THROW(MakeRsrvPriceListResponse_ExportGoods(rCmdItem, bc_own_ident, /*&stp_pack*/*p_filt, &js, &stat));
 		THROW(js.ToStr(rResult));
 		// @debug {
 		if(prccmdFlags & prccmdfDebugOutput) {

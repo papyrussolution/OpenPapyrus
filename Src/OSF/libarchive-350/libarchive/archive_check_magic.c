@@ -36,7 +36,7 @@ static __LA_DEAD void diediedie(void)
 	abort(); /* Terminate the program abnormally. */
 }
 
-static const char * state_name(unsigned s)
+static const char * FASTCALL state_name(uint s)
 {
 	switch(s) {
 		case ARCHIVE_STATE_NEW:         return ("new");
@@ -49,7 +49,7 @@ static const char * state_name(unsigned s)
 	}
 }
 
-static const char * archive_handle_type_name(unsigned m)
+static const char * FASTCALL archive_handle_type_name(uint m)
 {
 	switch(m) {
 		case ARCHIVE_WRITE_MAGIC:       return ("archive_write");
@@ -65,9 +65,9 @@ static char * write_all_states(char * buff, uint states)
 {
 	uint lowbit;
 	buff[0] = '\0';
-	/* A trick for computing the lowest set bit. */
+	// A trick for computing the lowest set bit
 	while((lowbit = states & (1 + ~states)) != 0) {
-		states &= ~lowbit; /* Clear the low bit. */
+		states &= ~lowbit; // Clear the low bit
 		strcat(buff, state_name(lowbit));
 		if(states != 0)
 			strcat(buff, "/");

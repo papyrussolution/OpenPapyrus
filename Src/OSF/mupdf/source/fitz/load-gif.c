@@ -162,7 +162,7 @@ static const uchar * gif_read_lsd(fz_context * ctx, struct info * info, const uc
 	info->has_gct = (p[4] >> 7) & 0x1;
 	if(info->has_gct) {
 		info->gct_entries = 1 << ((p[4] & 0x7) + 1);
-		info->gct_background = fz_clampi(p[5], 0, info->gct_entries - 1);
+		info->gct_background = sclamp((int)p[5], 0, info->gct_entries - 1);
 	}
 	info->aspect = p[6];
 
@@ -219,15 +219,13 @@ static void gif_read_line(fz_context * ctx, struct info * info, int ct_entries, 
 	uchar * dp = &samples[index * 4];
 	uchar * mp = &info->mask[index];
 	uint x, k;
-
 	if(info->image_top + y >= info->height)
 		return;
-
 	for(x = 0; x < info->image_width && info->image_left + x < info->width; x++, sp++, mp++, dp += 4)
 		if(!info->has_transparency || *sp != info->transparent) {
 			*mp = 0x02;
 			for(k = 0; k < 3; k++)
-				dp[k] = ct[fz_clampi(*sp, 0, ct_entries - 1) * 3 + k];
+				dp[k] = ct[sclamp((int)*sp, 0, ct_entries - 1) * 3 + k];
 			dp[3] = 255;
 		}
 		else if(*mp == 0x01)

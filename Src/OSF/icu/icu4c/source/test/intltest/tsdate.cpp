@@ -224,19 +224,17 @@ double IntlTestDateFormat::randDouble()
 				poke[i] = (char)(rand() & 0xFF);
 			}
 		} while(uprv_isNaN(d) || uprv_isInfinite(d));
-
 		if(d < 0.0)
 			d = -d;
 		if(d > 0.0) {
 			double e = uprv_floor(log10(d));
 			if(e < -2.0)
-				d *= uprv_pow10((int32_t)(-e-2));
+				d *= fpow10i((int32_t)(-e-2));
 			else if(e > -1.0)
-				d /= uprv_pow10((int32_t)(e+1));
+				d /= fpow10i((int32_t)(e+1));
 		}
 		// While this is not a real normalized number make another one.
-	} while(uprv_isNaN(d) || uprv_isInfinite(d)
-	    || !((-DBL_MAX < d && d < DBL_MAX) || (d < -DBL_MIN && DBL_MIN < d)));
+	} while(uprv_isNaN(d) || uprv_isInfinite(d) || !((-DBL_MAX < d && d < DBL_MAX) || (d < -DBL_MIN && DBL_MIN < d)));
 	return d;
 }
 

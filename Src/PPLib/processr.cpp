@@ -1,5 +1,5 @@
 // PROCESSR.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1682,9 +1682,6 @@ int PPObjProcessor::Edit(PPID * pID, void * extraPtr /*parentID*/)
 {
 	const  PPID extra_parent_id = reinterpret_cast<PPID>(extraPtr);
 	int    ok = cmCancel;
-	int    valid_data = 0;
-	uint   dlg_id = 0;
-	ProcessorDialog * dlg = 0;
 	PPProcessorPacket pack;
 	ProcessorTbl::Rec grp_rec;
 	if(*pID) {
@@ -1716,37 +1713,84 @@ int PPObjProcessor::Edit(PPID * pID, void * extraPtr /*parentID*/)
 			}
 		}
 	}
-	if(pack.Rec.Kind == PPPRCK_GROUP)
-		dlg_id = DLG_PRCGROUP;
-	else if(pack.Rec.Kind == PPPRCK_PROCESSOR)
-		dlg_id = DLG_PRC;
-	else {
-		char   kind_buf[32];
-		CALLEXCEPT_PP_S(PPERR_INVPRCKIND, ltoa(pack.Rec.Kind, kind_buf, 10));
-	}
-	THROW(CheckDialogPtr(&(dlg = new ProcessorDialog(dlg_id))));
-	dlg->setDTS(&pack);
-	while(!valid_data && ExecView(dlg) == cmOK) {
-		if(dlg->getDTS(&pack)) {
-			ProcessorTbl::Rec _rec;
-			if(strip(pack.Rec.Code)[0] && SearchByCode(pack.Rec.Code, 0, &_rec) > 0 && _rec.ID != pack.Rec.ID) {
-				PPObject::SetLastErrObj(Obj, _rec.ID);
-				PPError(PPERR_DUPSYMB, 0);
+	{
+		bool repeat = false;
+		do {
+			repeat = false;
+			const int edr = EditDialog(&pack);
+			if(edr > 0) {
+				ProcessorTbl::Rec _rec;
+				if(strip(pack.Rec.Code)[0] && SearchByCode(pack.Rec.Code, 0, &_rec) > 0 && _rec.ID != pack.Rec.ID) {
+					PPObject::SetLastErrObj(Obj, _rec.ID);
+					PPError(PPERR_DUPSYMB, 0);
+					repeat = true;
+				}
+				else if(PutPacket(pID, &pack, 1))
+					ok = cmOK;
+				else {
+					PPError();
+					repeat = true;
+				}
 			}
-			else if(PutPacket(pID, &pack, 1))
-				ok = valid_data = cmOK;
-			else
-				PPError();
+		} while(repeat);
+	}
+	CATCHZOKPPERR
+	return ok;
+}
+
+int PPObjProcessor::EditDialog(PPProcessorPacket * pData)
+{
+	int    ok = -1;
+	uint   dlg_id = 0;
+	ProcessorDialog * dlg = 0;
+	if(pData) {
+		if(pData->Rec.Kind == PPPRCK_GROUP)
+			dlg_id = DLG_PRCGROUP;
+		else if(pData->Rec.Kind == PPPRCK_PROCESSOR)
+			dlg_id = DLG_PRC;
+		else {
+			char   kind_buf[32];
+			CALLEXCEPT_PP_S(PPERR_INVPRCKIND, ltoa(pData->Rec.Kind, kind_buf, 10));
 		}
+		THROW(CheckDialogPtr(&(dlg = new ProcessorDialog(dlg_id))));
+		dlg->setDTS(pData);
+		while(ok < 0 && ExecView(dlg) == cmOK) {
+			if(dlg->getDTS(pData)) {
+				ok = 1;
+			}
+		}		
 	}
 	CATCHZOKPPERR
 	delete dlg;
 	return ok;
 }
 
+int PPObjProcessor::AddBySample(PPID * pID, PPID sampleID)
+{
+	int    ok = -1;
+	if(sampleID > 0) {
+		PPProcessorPacket sample_pack;
+		SString temp_buf;
+		THROW(CheckRights(PPR_INS));
+		THROW(GetPacket(sampleID, &sample_pack) > 0);
+		{
+			PPProcessorPacket pack(sample_pack);
+			pack.Rec.ID = 0;
+			while(ok <= 0 && (ok = EditDialog(&pack)) > 0)
+				if(PutPacket(pID, &pack, 1))
+					ok = 1;
+				else
+					ok = PPErrorZ();
+		}
+	}
+	CATCHZOKPPERR
+	return ok;
+}
+
 int PPObjProcessor::AddListItem(StrAssocArray * pList, ProcessorTbl::Rec * pRec, PPIDArray * pRecurTrace)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	PPIDArray local_recur_trace;
 	if(pList->Search(pRec->ID))
 		ok = -1;
@@ -2095,6 +2139,15 @@ int PPViewProcessor::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 	if(ok == -2) {
 		PPID   prc_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
+			case PPVCMD_ADDBYSAMPLE:
+				{
+					PPID   sample_id = prc_id;
+					prc_id = 0;
+					ok = -1;
+					if(sample_id && PrcObj.AddBySample(&prc_id, sample_id) > 0)
+						ok = 1;
+				}
+				break;
 			case PPVCMD_VIEWTECH:
 				ok = -1;
 				if(prc_id) {
@@ -2311,7 +2364,6 @@ struct UhttProcessorBlock {
 	};
 	UhttProcessorBlock() : PlacePos(0), State(0)
 	{
-		// @v10.9.9 Clear();
 	}
 	void Clear()
 	{
@@ -2433,7 +2485,7 @@ int PPALDD_UhttProcessor::Set(long iterId, int commit)
 			r_blk.Pack.Rec.LinkObjType = H.LinkObjType;
 			r_blk.Pack.Rec.LinkObjID = H.LinkObjID;
 			r_blk.Pack.Rec.CipPersonKindID = H.CipPersonKindID;
-			r_blk.Pack.Rec.CipMax = (int16)H.CipMax;
+			r_blk.Pack.Rec.CipMax = static_cast<int16>(H.CipMax);
 			r_blk.Pack.Ext.SetOwnerGuaID(H.OwnerGuaID);
 			STRNSCPY(r_blk.Pack.Rec.Name, H.Name);
 			STRNSCPY(r_blk.Pack.Rec.Code, H.Symb);

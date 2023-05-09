@@ -3068,7 +3068,7 @@ static int parse_aa_opts(const char * val)
 	if(fz_option_eq(val, "app"))
 		return 10;
 	if(val[0] == 'a' && val[1] == 'a' && val[2] >= '0' && val[2] <= '9')
-		return fz_clampi(fz_atoi(&val[2]), 0, 8);
+		return sclamp(fz_atoi(&val[2]), 0, 8);
 	return 8;
 }
 

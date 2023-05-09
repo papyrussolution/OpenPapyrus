@@ -32,7 +32,8 @@ using str_format_internal::FormatArgImpl;
 
 using FormatEntryPointTest = ::testing::Test;
 
-TEST_F(FormatEntryPointTest, Format) {
+TEST_F(FormatEntryPointTest, Format) 
+{
 	std::string sink;
 	EXPECT_TRUE(Format(&sink, "A format %d", 123));
 	EXPECT_EQ("A format 123", sink);
@@ -42,6 +43,7 @@ TEST_F(FormatEntryPointTest, Format) {
 	EXPECT_TRUE(Format(&sink, pc, 123));
 	EXPECT_EQ("A format 123", sink);
 }
+
 TEST_F(FormatEntryPointTest, UntypedFormat) 
 {
 	constexpr const char* formats[] = {"", "a", "%80d",
@@ -437,14 +439,13 @@ using str_format_internal::ParsedFormatBase;
 struct SummarizeConsumer {
 	std::string* out;
 	explicit SummarizeConsumer(std::string* out) : out(out) {}
-
-	bool Append(string_view s) {
+	bool Append(string_view s) 
+	{
 		*out += "[" + std::string(s) + "]";
 		return true;
 	}
-
-	bool ConvertOne(const str_format_internal::UnboundConversion& conv,
-	    string_view s) {
+	bool ConvertOne(const str_format_internal::UnboundConversion& conv, string_view s) 
+	{
 		*out += "{";
 		*out += std::string(s);
 		*out += ":";
@@ -461,54 +462,49 @@ struct SummarizeConsumer {
 	}
 };
 
-std::string SummarizeParsedFormat(const ParsedFormatBase& pc) {
+std::string SummarizeParsedFormat(const ParsedFormatBase& pc) 
+{
 	std::string out;
-	if(!pc.ProcessFormat(SummarizeConsumer(&out)))  out += "!";
+	if(!pc.ProcessFormat(SummarizeConsumer(&out)))  
+		out += "!";
 	return out;
 }
 
 using ParsedFormatTest = ::testing::Test;
 
-TEST_F(ParsedFormatTest, SimpleChecked) {
-	EXPECT_EQ("[ABC]{d:1$d}[DEF]",
-	    SummarizeParsedFormat(ParsedFormat<'d'>("ABC%dDEF")));
-	EXPECT_EQ("{s:1$s}[FFF]{d:2$d}[ZZZ]{f:3$f}",
-	    SummarizeParsedFormat(ParsedFormat<'s', 'd', 'f'>("%sFFF%dZZZ%f")));
-	EXPECT_EQ("{s:1$s}[ ]{.*d:3$.2$*d}",
-	    SummarizeParsedFormat(ParsedFormat<'s', '*', 'd'>("%s %.*d")));
+TEST_F(ParsedFormatTest, SimpleChecked) 
+{
+	EXPECT_EQ("[ABC]{d:1$d}[DEF]", SummarizeParsedFormat(ParsedFormat<'d'>("ABC%dDEF")));
+	EXPECT_EQ("{s:1$s}[FFF]{d:2$d}[ZZZ]{f:3$f}", SummarizeParsedFormat(ParsedFormat<'s', 'd', 'f'>("%sFFF%dZZZ%f")));
+	EXPECT_EQ("{s:1$s}[ ]{.*d:3$.2$*d}", SummarizeParsedFormat(ParsedFormat<'s', '*', 'd'>("%s %.*d")));
 }
 
-TEST_F(ParsedFormatTest, SimpleUncheckedCorrect) {
+TEST_F(ParsedFormatTest, SimpleUncheckedCorrect) 
+{
 	auto f = ParsedFormat<'d'>::New("ABC%dDEF");
 	ASSERT_TRUE(f);
 	EXPECT_EQ("[ABC]{d:1$d}[DEF]", SummarizeParsedFormat(*f));
-
 	std::string format = "%sFFF%dZZZ%f";
 	auto f2 = ParsedFormat<'s', 'd', 'f'>::New(format);
-
 	ASSERT_TRUE(f2);
 	EXPECT_EQ("{s:1$s}[FFF]{d:2$d}[ZZZ]{f:3$f}", SummarizeParsedFormat(*f2));
-
 	f2 = ParsedFormat<'s', 'd', 'f'>::New("%s %d %f");
-
 	ASSERT_TRUE(f2);
 	EXPECT_EQ("{s:1$s}[ ]{d:2$d}[ ]{f:3$f}", SummarizeParsedFormat(*f2));
-
 	auto star = ParsedFormat<'*', 'd'>::New("%*d");
 	ASSERT_TRUE(star);
 	EXPECT_EQ("{*d:2$1$*d}", SummarizeParsedFormat(*star));
-
 	auto dollar = ParsedFormat<'d', 's'>::New("%2$s %1$d");
 	ASSERT_TRUE(dollar);
 	EXPECT_EQ("{2$s:2$s}[ ]{1$d:1$d}", SummarizeParsedFormat(*dollar));
 	// with reuse
 	dollar = ParsedFormat<'d', 's'>::New("%2$s %1$d %1$d");
 	ASSERT_TRUE(dollar);
-	EXPECT_EQ("{2$s:2$s}[ ]{1$d:1$d}[ ]{1$d:1$d}",
-	    SummarizeParsedFormat(*dollar));
+	EXPECT_EQ("{2$s:2$s}[ ]{1$d:1$d}[ ]{1$d:1$d}", SummarizeParsedFormat(*dollar));
 }
 
-TEST_F(ParsedFormatTest, SimpleUncheckedIgnoredArgs) {
+TEST_F(ParsedFormatTest, SimpleUncheckedIgnoredArgs) 
+{
 	EXPECT_FALSE((ParsedFormat<'d', 's'>::New("ABC")));
 	EXPECT_FALSE((ParsedFormat<'d', 's'>::New("%dABC")));
 	EXPECT_FALSE((ParsedFormat<'d', 's'>::New("ABC%2$s")));

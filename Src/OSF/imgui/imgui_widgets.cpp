@@ -4405,11 +4405,8 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 			// FIXME-OPT: CPU waste to do this every time the widget is active, should mark dirty state from the stb_textedit callbacks.
 
 			// User callback
-			if((flags &
-			    (ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackEdit |
-			    ImGuiInputTextFlags_CallbackAlways)) != 0) {
+			if((flags & (ImGuiInputTextFlags_CallbackCompletion|ImGuiInputTextFlags_CallbackHistory|ImGuiInputTextFlags_CallbackEdit|ImGuiInputTextFlags_CallbackAlways)) != 0) {
 				assert(callback != NULL);
-
 				// The reason we specify the usage semantic (Completion/History) is that Completion needs to disable keyboard TABBING at the moment.
 				ImGuiInputTextFlags event_flag = 0;
 				ImGuiKey event_key = ImGuiKey_None;
@@ -4466,14 +4463,11 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 					}
 					if(callback_data.SelectionStart != utf8_selection_start || buf_dirty) {
 						state->Stb.select_start = (callback_data.SelectionStart == callback_data.CursorPos) ? state->Stb.cursor : ImTextCountCharsFromUtf8(
-							callback_data.Buf,
-							callback_data.Buf + callback_data.SelectionStart);
+							callback_data.Buf, callback_data.Buf + callback_data.SelectionStart);
 					}
 					if(callback_data.SelectionEnd != utf8_selection_end || buf_dirty) {
-						state->Stb.select_end =
-						    (callback_data.SelectionEnd == callback_data.SelectionStart) ? state->Stb.select_start : ImTextCountCharsFromUtf8(
-							callback_data.Buf,
-							callback_data.Buf + callback_data.SelectionEnd);
+						state->Stb.select_end = (callback_data.SelectionEnd == callback_data.SelectionStart) ? state->Stb.select_start : ImTextCountCharsFromUtf8(
+							callback_data.Buf, callback_data.Buf + callback_data.SelectionEnd);
 					}
 					if(buf_dirty) {
 						assert((flags & ImGuiInputTextFlags_ReadOnly) == 0);
@@ -4507,7 +4501,6 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 		}
 		g.InputTextDeactivatedState.ID = 0;
 	}
-
 	// Copy result to user buffer. This can currently only happen when (g.ActiveId == id)
 	if(apply_new_text != NULL) {
 		// We cannot test for 'backup_current_text_length != apply_new_text_length' here because we have no guarantee that the size
@@ -4575,7 +4568,6 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 		// FIXME: This should occur on buf_display but we'd need to maintain cursor/select_start/select_end for UTF-8.
 		const ImWchar* text_begin = state->TextW.Data;
 		ImVec2 cursor_offset, select_start_offset;
-
 		{
 			// Find lines numbers straddling 'cursor' (slot 0) and 'select_start' (slot 1) positions.
 			const ImWchar* searches_input_ptr[2] = { NULL, NULL };
@@ -4625,7 +4617,6 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 			if(is_multiline)
 				text_size = ImVec2(inner_size.x, line_count * g.FontSize);
 		}
-
 		// Scroll
 		if(render_cursor && state->CursorFollow) {
 			// Horizontal scroll in chunks of quarter width
@@ -4771,10 +4762,7 @@ void ImGui::DebugNodeInputTextState(ImGuiInputTextState* state)
 	Text("CurLenW: %d, CurLenA: %d, Cursor: %d, Selection: %d..%d", state->CurLenW, state->CurLenA, stb_state->cursor, stb_state->select_start, stb_state->select_end);
 	Text("has_preferred_x: %d (%.2f)", stb_state->has_preferred_x, stb_state->preferred_x);
 	Text("undo_point: %d, redo_point: %d, undo_char_point: %d, redo_char_point: %d",
-	    undo_state->undo_point,
-	    undo_state->redo_point,
-	    undo_state->undo_char_point,
-	    undo_state->redo_char_point);
+	    undo_state->undo_point, undo_state->redo_point, undo_state->undo_char_point, undo_state->redo_char_point);
 	if(BeginChild("undopoints", ImVec2(0.0f, GetTextLineHeight() * 15), true)) { // Visualize undo state
 		PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 		for(int n = 0; n < STB_TEXTEDIT_UNDOSTATECOUNT; n++) {
@@ -4784,9 +4772,7 @@ void ImGui::DebugNodeInputTextState(ImGuiInputTextState* state)
 				BeginDisabled();
 			char buf[64] = "";
 			if(undo_rec_type != ' ' && undo_rec->char_storage != -1)
-				ImTextStrToUtf8(buf,
-				    IM_ARRAYSIZE(buf),
-				    undo_state->undo_char + undo_rec->char_storage,
+				ImTextStrToUtf8(buf, IM_ARRAYSIZE(buf), undo_state->undo_char + undo_rec->char_storage,
 				    undo_state->undo_char + undo_rec->char_storage + undo_rec->insert_length);
 			Text("%c [%02d] where %03d, insert %03d, delete %03d, char_storage %03d \"%s\"",
 			    undo_rec_type, n, undo_rec->where, undo_rec->insert_length, undo_rec->delete_length, undo_rec->char_storage, buf);
@@ -5038,19 +5024,16 @@ bool ImGui::ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flag
 		}
 		if((flags & ImGuiColorEditFlags_DisplayRGB) && (flags & ImGuiColorEditFlags_InputHSV))
 			ColorConvertRGBtoHSV(f[0], f[1], f[2], f[0], f[1], f[2]);
-
 		col[0] = f[0];
 		col[1] = f[1];
 		col[2] = f[2];
 		if(alpha)
 			col[3] = f[3];
 	}
-
 	if(set_current_color_edit_id)
 		g.ColorEditCurrentID = 0;
 	PopID();
 	EndGroup();
-
 	// Drag and Drop Target
 	// NB: The flag test is merely an optional micro-optimization, BeginDragDropTarget() does the same test.
 	if((g.LastItemData.StatusFlags & ImGuiItemStatusFlags_HoveredRect) && !(flags & ImGuiColorEditFlags_NoDragDrop) && BeginDragDropTarget()) {
@@ -5063,17 +5046,14 @@ bool ImGui::ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flag
 			memcpy((float*)col, payload->Data, sizeof(float) * components);
 			value_changed = accepted_drag_drop = true;
 		}
-
 		// Drag-drop payloads are always RGB
 		if(accepted_drag_drop && (flags & ImGuiColorEditFlags_InputHSV))
 			ColorConvertRGBtoHSV(col[0], col[1], col[2], col[0], col[1], col[2]);
 		EndDragDropTarget();
 	}
-
 	// When picker is being actively used, use its active id so IsItemActive() will function on ColorEdit4().
 	if(picker_active_window && g.ActiveId != 0 && g.ActiveIdWindow == picker_active_window)
 		g.LastItemData.ID = g.ActiveId;
-
 	if(value_changed && g.LastItemData.ID != 0) // In case of ID collision, the second EndGroup() won't catch g.ActiveId
 		MarkItemEdited(g.LastItemData.ID);
 

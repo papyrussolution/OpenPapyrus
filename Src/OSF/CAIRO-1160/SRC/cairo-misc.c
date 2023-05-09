@@ -693,7 +693,7 @@ uint16 _cairo_half_from_float(float f)
 }
 
 #ifndef __BIONIC__
-	#include <locale.h>
+	// @v11.7.1 #include <locale.h>
 	const char * _cairo_get_locale_decimal_point(void)
 	{
 		struct lconv * locale_data = localeconv();

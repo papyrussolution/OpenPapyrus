@@ -1,5 +1,5 @@
 // STHREAD.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -689,7 +689,7 @@ int SlThread::InitStartupSignal()
 	}
 }
 
-int  SlThread::IsConsistent() const { return BIN(Sign == SIGN_SLTHREAD); }
+bool SlThread::IsConsistent() const { return (Sign == SIGN_SLTHREAD); }
 int  SlThread::SignalStartup() { return P_StartupSignal ? P_StartupSignal->Signal() : 0; }
 void SlThread::SetIdleState() { State_Slt |= stIdle; }
 void SlThread::ResetIdleState() { State_Slt &= ~stIdle; }

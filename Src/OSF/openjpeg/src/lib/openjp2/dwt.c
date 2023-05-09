@@ -1001,9 +1001,8 @@ static void opj_dwt_encode_1_real(void * aIn, int32_t dn, int32_t sn,
 
 static void opj_dwt_encode_stepsize(int32_t stepsize, int32_t numbps, opj_stepsize_t * bandno_stepsize)
 {
-	int32_t p, n;
-	p = opj_int_floorlog2(stepsize) - 13;
-	n = 11 - opj_int_floorlog2(stepsize);
+	int32_t p = opj_int_floorlog2(stepsize) - 13;
+	int32_t n = 11 - opj_int_floorlog2(stepsize);
 	bandno_stepsize->mant = (n < 0 ? stepsize >> -n : stepsize << n) & 0x7ff;
 	bandno_stepsize->expn = numbps - p;
 }

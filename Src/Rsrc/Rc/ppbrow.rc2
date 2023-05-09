@@ -1121,6 +1121,8 @@ toolbar export LIST_WORKBOOK TB_FIRST_TOOLBAR {
 
 toolbar export LIST_GOODSSTRUC TB_FIRST_TOOLBAR {
 	cmaEdit,           "@{edit}\tEnter",              PPDV_EDITFILE02
+	cmCopyToClipboard, "@{cbcopy}\tCtrl-Insert",      PPDV_CLIPBOARDCOPY01
+
 	//cmaInsert,         "@{add}\tInsert",              PPDV_ADDFILE02
 	//cmaDelete,         "@{delete}\tDelete",           PPDV_DELETEFILE02
 	//separator
@@ -5224,20 +5226,21 @@ browser PROCESSOR north(100), 1, 1, "@{view_processor} {%s}", OWNER|GRID, 0
 	"@group",                3, notype, 0, 20
 	"@warehouse",            4, notype, 0, 20
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM     : kbEnter,  PPDV_EDITFILE02,     "@{edit}\tEnter"
-		ADDITEM      : kbIns,    PPDV_ADDFILE02,      "@{add}\tInsert"
-		DELETEITEM   : kbDel,    PPDV_DELETEFILE02,   "@{delete}\tDelete"
-		DETAIL       : kbF3,     PPDV_LINS01,         "@{detail}\tF3"
+		EDITITEM     : kbEnter,  PPDV_EDITFILE02,       "@{edit}\tEnter"
+		ADDITEM      : kbIns,    PPDV_ADDFILE02,        "@{add}\tInsert"
+		ADDBYSAMPLE  : kbAltF2, PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2" // @v11.7.1
+		DELETEITEM   : kbDel,    PPDV_DELETEFILE02,     "@{delete}\tDelete"
+		DETAIL       : kbF3,     PPDV_LINS01,           "@{detail}\tF3"
 		separator
-		VIEWTECH     : kbCtrlT,  TBBM_TECH,           "@{view_tech}\tCtrl-T"
-		VIEWTSESS    : kbCtrlS,  TBBM_TSESS,          "@{view_tsession}\tCtrl-S"
+		VIEWTECH     : kbCtrlT,  TBBM_TECH,             "@{view_tech}\tCtrl-T"
+		VIEWTSESS    : kbCtrlS,  TBBM_TSESS,            "@{view_tsession}\tCtrl-S"
 		separator
-		SYSJ         : kbCtrlJ,  PPDV_SYSJOURNAL,     "@{view_sysjournal}\tCtrl-J"
-		TRANSMIT     : kbCtrlH,  PPDV_SYNC01,         "@{dotransmit}\tCtrl-H" // @v7.7.2
-		PRINT        : kbF7,     PPDV_PRINTER01,      "@{print}\tF7"
+		SYSJ         : kbCtrlJ,  PPDV_SYSJOURNAL,       "@{view_sysjournal}\tCtrl-J"
+		TRANSMIT     : kbCtrlH,  PPDV_SYNC01,           "@{dotransmit}\tCtrl-H" // @v7.7.2
+		PRINT        : kbF7,     PPDV_PRINTER01,        "@{print}\tF7"
 		separator
-		TOGGLEPRCGRP : kbCtrlA,  PPDV_TOGGLE01,       "@{processor_pl}/@{processorgroup_pl}" // @v11.3.10
-		CHANGEFILT   : kbCtrlV,  PPDV_FILTER01,       "@{filter}\tCtrl-V"
+		TOGGLEPRCGRP : kbCtrlA,  PPDV_TOGGLE01,         "@{processor_pl}/@{processorgroup_pl}" // @v11.3.10
+		CHANGEFILT   : kbCtrlV,  PPDV_FILTER01,         "@{filter}\tCtrl-V"
 	}
 }
 //
@@ -5946,6 +5949,7 @@ browser LOCTRANSF_DISP north(100), 3, 1, "Складское размещение документов {%s}",
 
 browser PALM north(100), 1, 1, "КПК", OWNER|GRID, 0
 {
+	"@id",                  0, notype, 0,  6 // @v11.7.1
 	"@appellation",         1, notype, 0, 10
 	"@symbol",              8, notype, 0, 10
 	"@warehouse",           2, notype, 0, 20

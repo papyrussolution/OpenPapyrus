@@ -2968,7 +2968,7 @@ public:
 	};
 	DbSession();
 	~DbSession();
-	int    IsConsistent() const;
+	bool   IsConsistent() const;
 	//void   SetFlag(long f, int set);
 	//long   GetFlag(long f) const;
 	void   SetConfig(const Config * pCfg);
@@ -4292,7 +4292,7 @@ public:
 	operator DB * ();
 	operator DB_TXN * ();
 	TSCollection <BDbTable> & GetIdxList();
-	int    IsConsistent() const;
+	bool   IsConsistent() const;
 	int    FASTCALL GetState(long stateFlag) const;
 	int    GetConfig(int idx, Config & rCfg);
 	int    Create(const char * pFileName, int createMode, BDbTable::Config * pCfg);

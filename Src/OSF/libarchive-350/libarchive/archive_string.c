@@ -32,10 +32,10 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_string.c 201095 2009-12-28 02:33
 #ifdef HAVE_LOCALCHARSET_H
 #include <localcharset.h>
 #endif
-#if defined(_WIN32) && !defined(__CYGWIN__)
+// @v11.7.1 #if defined(_WIN32) && !defined(__CYGWIN__)
 //#include <windows.h>
-#include <locale.h>
-#endif
+// @v11.7.1 #include <locale.h>
+// @v11.7.1 #endif
 #include "archive_string_composition.h"
 #if !defined(HAVE_WMEMCPY) && !defined(wmemcpy)
 	#define wmemcpy(a, b, i)  (wchar_t *)memcpy((a), (b), (i) * sizeof(wchar_t))

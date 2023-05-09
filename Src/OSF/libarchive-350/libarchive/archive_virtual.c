@@ -1,6 +1,5 @@
 /*-
- * Copyright (c) 2003-2007 Tim Kientzle
- * All rights reserved.
+ * Copyright (c) 2003-2007 Tim Kientzle All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,17 +28,11 @@ int archive_write_fail(Archive * a)
 }
 
 int archive_write_free(Archive * a) { return archive_free(a); }
-
-#if ARCHIVE_VERSION_NUMBER < 4000000
-	/* For backwards compatibility; will be removed with libarchive 4.0. */
-	int archive_write_finish(Archive * a) { return archive_write_free(a); }
-#endif
-
 int archive_read_free(Archive * a) { return archive_free(a); }
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
-	/* For backwards compatibility; will be removed with libarchive 4.0. */
-	int archive_read_finish(Archive * a) { return archive_read_free(a); }
+	int archive_write_finish(Archive * a) { return archive_write_free(a); } // For backwards compatibility; will be removed with libarchive 4.0
+	int archive_read_finish(Archive * a)  { return archive_read_free(a); } // For backwards compatibility; will be removed with libarchive 4.0
 #endif
 
 int archive_write_header(Archive * a, ArchiveEntry * entry)
@@ -48,15 +41,8 @@ int archive_write_header(Archive * a, ArchiveEntry * entry)
 	return ((a->vtable->archive_write_header)(a, entry));
 }
 
-int archive_write_finish_entry(Archive * a)
-{
-	return ((a->vtable->archive_write_finish_entry)(a));
-}
-
-la_ssize_t archive_write_data(Archive * a, const void * buff, size_t s)
-{
-	return ((a->vtable->archive_write_data)(a, buff, s));
-}
+int archive_write_finish_entry(Archive * a) { return ((a->vtable->archive_write_finish_entry)(a)); }
+la_ssize_t archive_write_data(Archive * a, const void * buff, size_t s) { return ((a->vtable->archive_write_data)(a, buff, s)); }
 
 la_ssize_t archive_write_data_block(Archive * a, const void * buff, size_t s, la_int64_t o)
 {
@@ -68,17 +54,6 @@ la_ssize_t archive_write_data_block(Archive * a, const void * buff, size_t s, la
 	return ((a->vtable->archive_write_data_block)(a, buff, s, o));
 }
 
-int archive_read_next_header(Archive * a, ArchiveEntry ** entry)
-{
-	return ((a->vtable->archive_read_next_header)(a, entry));
-}
-
-int archive_read_next_header2(Archive * a, ArchiveEntry * entry)
-{
-	return ((a->vtable->archive_read_next_header2)(a, entry));
-}
-
-int archive_read_data_block(Archive * a, const void ** buff, size_t * s, la_int64_t * o)
-{
-	return ((a->vtable->archive_read_data_block)(a, buff, s, o));
-}
+int archive_read_next_header(Archive * a, ArchiveEntry ** entry) { return ((a->vtable->archive_read_next_header)(a, entry)); }
+int archive_read_next_header2(Archive * a, ArchiveEntry * entry) { return ((a->vtable->archive_read_next_header2)(a, entry)); }
+int archive_read_data_block(Archive * a, const void ** buff, size_t * s, la_int64_t * o) { return ((a->vtable->archive_read_data_block)(a, buff, s, o)); }

@@ -15,13 +15,13 @@
 #ifdef _WIN32
 	#define USE_ALLOCA
 #endif
-#ifdef USE_ALLOCA
-	#ifdef _WIN32
-		#include <malloc.h>
-	#else
+// @v11.7.1 #ifdef USE_ALLOCA
+	// @v11.7.1 #ifdef _WIN32
+		// @v11.7.1 #include <malloc.h>
+	// @v11.7.1 #else
 		//#include <stdlib.h>
-	#endif
-#endif
+	// @v11.7.1 #endif
+// @v11.7.1 #endif
 #if defined(_WIN32) || defined(UNIX_USE_WIN_FILE)
 	#define USE_WIN_FILE
 #endif

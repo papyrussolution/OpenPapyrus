@@ -16,7 +16,7 @@
 //#include <string.h>
 #ifdef WEBP_HAVE_PNG
 	#include <libpng/png.h>
-	#include <setjmp.h>   // note: this must be included *after* png.h
+	// @v11.7.1 #include <setjmp.h>   // note: this must be included *after* png.h
 #endif
 #ifdef HAVE_WINCODEC_H
 #ifdef __MINGW32__
@@ -27,7 +27,7 @@
 //#define _WIN32_IE 0x500  // Workaround bug in shlwapi.h when compiling C++ code with COBJMACROS.
 #include <ole2.h>  // CreateStreamOnHGlobal()
 #include <shlwapi.h>
-#include <tchar.h>
+//@v11.7.1 #include <tchar.h>
 //#include <windows.h>
 #include <wincodec.h>
 #endif

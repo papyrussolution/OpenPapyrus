@@ -32,7 +32,7 @@
 #endif
 
 namespace {
-using absl::strings_internal::Pow10;
+// @sobolev using absl::strings_internal::Pow10;
 
 #if ABSL_COMPILER_DOES_EXACT_ROUNDING
 
@@ -659,9 +659,7 @@ TEST(FromChars, NaNFloats) {
 }
 
 // Returns an integer larger than step.  The values grow exponentially.
-int NextStep(int step) {
-	return step + (step >> 2) + 1;
-}
+int NextStep(int step) { return step + (step >> 2) + 1; }
 
 // Test a conversion on a family of input strings, checking that the calculation
 // is correct for in-bounds values, and that overflow and underflow are done
@@ -674,10 +672,9 @@ int NextStep(int step) {
 //
 // lower_bound and upper_bound denote the smallest and largest values for which
 // the conversion is expected to succeed.
-template <typename Float>
-void TestOverflowAndUnderflow(const std::function<std::string(int)>& input_generator,
-    const std::function<Float(int)>& expected_generator, int lower_bound,
-    int upper_bound) {
+template <typename Float> void TestOverflowAndUnderflow(const std::function<std::string(int)>& input_generator,
+    const std::function<Float(int)>& expected_generator, int lower_bound, int upper_bound) 
+{
 	// test legal values near lower_bound
 	int index, step;
 	for(index = lower_bound, step = 1; index < upper_bound;
@@ -686,11 +683,9 @@ void TestOverflowAndUnderflow(const std::function<std::string(int)>& input_gener
 		SCOPED_TRACE(input);
 		Float expected = expected_generator(index);
 		Float actual;
-		auto result =
-		    absl::from_chars(input.data(), input.data() + input.size(), actual);
+		auto result = absl::from_chars(input.data(), input.data() + input.size(), actual);
 		EXPECT_EQ(result.ec, std::errc());
-		EXPECT_EQ(expected, actual)
-			<< absl::StrFormat("%a vs %a", expected, actual);
+		EXPECT_EQ(expected, actual) << absl::StrFormat("%a vs %a", expected, actual);
 	}
 	// test legal values near upper_bound
 	for(index = upper_bound, step = 1; index > lower_bound;
@@ -699,11 +694,9 @@ void TestOverflowAndUnderflow(const std::function<std::string(int)>& input_gener
 		SCOPED_TRACE(input);
 		Float expected = expected_generator(index);
 		Float actual;
-		auto result =
-		    absl::from_chars(input.data(), input.data() + input.size(), actual);
+		auto result = absl::from_chars(input.data(), input.data() + input.size(), actual);
 		EXPECT_EQ(result.ec, std::errc());
-		EXPECT_EQ(expected, actual)
-			<< absl::StrFormat("%a vs %a", expected, actual);
+		EXPECT_EQ(expected, actual) << absl::StrFormat("%a vs %a", expected, actual);
 	}
 	// Test underflow values below lower_bound
 	for(index = lower_bound - 1, step = 1; index > -1000000;
@@ -711,8 +704,7 @@ void TestOverflowAndUnderflow(const std::function<std::string(int)>& input_gener
 		std::string input = input_generator(index);
 		SCOPED_TRACE(input);
 		Float actual;
-		auto result =
-		    absl::from_chars(input.data(), input.data() + input.size(), actual);
+		auto result = absl::from_chars(input.data(), input.data() + input.size(), actual);
 		EXPECT_EQ(result.ec, std::errc::result_out_of_range);
 		EXPECT_LT(actual, 1.0); // check for underflow
 	}
@@ -722,8 +714,7 @@ void TestOverflowAndUnderflow(const std::function<std::string(int)>& input_gener
 		std::string input = input_generator(index);
 		SCOPED_TRACE(input);
 		Float actual;
-		auto result =
-		    absl::from_chars(input.data(), input.data() + input.size(), actual);
+		auto result = absl::from_chars(input.data(), input.data() + input.size(), actual);
 		EXPECT_EQ(result.ec, std::errc::result_out_of_range);
 		EXPECT_GT(actual, 1.0); // check for overflow
 	}
@@ -736,12 +727,8 @@ void TestOverflowAndUnderflow(const std::function<std::string(int)>& input_gener
 // 0x1p-1074.  Therefore 1023 and -1074 are the limits of acceptable exponents
 // in this test.
 TEST(FromChars, HexdecimalDoubleLimits) {
-	auto input_gen = [](int index) {
-		    return absl::StrCat("0x1.0p", index);
-	    };
-	auto expected_gen = [](int index) {
-		    return std::ldexp(1.0, index);
-	    };
+	auto input_gen = [](int index) { return absl::StrCat("0x1.0p", index); };
+	auto expected_gen = [](int index) { return std::ldexp(1.0, index); };
 	TestOverflowAndUnderflow<double>(input_gen, expected_gen, -1074, 1023);
 }
 
@@ -751,12 +738,8 @@ TEST(FromChars, HexdecimalDoubleLimits) {
 // representable subnormal is 0x0.000002p-126, which equals 0x1p-149.
 // Therefore 127 and -149 are the limits of acceptable exponents in this test.
 TEST(FromChars, HexdecimalFloatLimits) {
-	auto input_gen = [](int index) {
-		    return absl::StrCat("0x1.0p", index);
-	    };
-	auto expected_gen = [](int index) {
-		    return std::ldexp(1.0f, index);
-	    };
+	auto input_gen = [](int index) { return absl::StrCat("0x1.0p", index); };
+	auto expected_gen = [](int index) { return std::ldexp(1.0f, index); };
 	TestOverflowAndUnderflow<float>(input_gen, expected_gen, -149, 127);
 }
 
@@ -767,12 +750,8 @@ TEST(FromChars, HexdecimalFloatLimits) {
 // the smallest representable positive value.  -323 and 308 are the limits of
 // acceptable exponents in this test.
 TEST(FromChars, DecimalDoubleLimits) {
-	auto input_gen = [](int index) {
-		    return absl::StrCat("1.0e", index);
-	    };
-	auto expected_gen = [](int index) {
-		    return Pow10(index);
-	    };
+	auto input_gen = [](int index) { return absl::StrCat("1.0e", index); };
+	auto expected_gen = [](int index) { return /*Pow10*/fpow10i(index); };
 	TestOverflowAndUnderflow<double>(input_gen, expected_gen, -323, 308);
 }
 
@@ -783,12 +762,8 @@ TEST(FromChars, DecimalDoubleLimits) {
 // the smallest representable positive value.  -45 and 38 are the limits of
 // acceptable exponents in this test.
 TEST(FromChars, DecimalFloatLimits) {
-	auto input_gen = [](int index) {
-		    return absl::StrCat("1.0e", index);
-	    };
-	auto expected_gen = [](int index) {
-		    return Pow10(index);
-	    };
+	auto input_gen = [](int index) { return absl::StrCat("1.0e", index); };
+	auto expected_gen = [](int index) { return /*Pow10*/fpow10i(index); };
 	TestOverflowAndUnderflow<float>(input_gen, expected_gen, -45, 38);
 }
 }  // namespace

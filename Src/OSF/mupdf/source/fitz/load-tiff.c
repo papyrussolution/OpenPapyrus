@@ -1008,9 +1008,9 @@ static void tiff_ycc_to_rgb(fz_context * ctx, struct tiff * tiff)
 			ycc[1] = row[x * offset + 1] - 128;
 			ycc[2] = row[x * offset + 2] - 128;
 
-			row[x * offset + 0] = fz_clampi(ycc[0] + 1.402f * ycc[2], 0, 255);
-			row[x * offset + 1] = fz_clampi(ycc[0] - 0.34413f * ycc[1] - 0.71414f * ycc[2], 0, 255);
-			row[x * offset + 2] = fz_clampi(ycc[0] + 1.772f * ycc[1], 0, 255);
+			row[x * offset + 0] = sclamp(ycc[0] + 1.402f * ycc[2], 0.0f, 255.0f);
+			row[x * offset + 1] = sclamp(ycc[0] - 0.34413f * ycc[1] - 0.71414f * ycc[2], 0.0f, 255.0f);
+			row[x * offset + 2] = sclamp(ycc[0] + 1.772f * ycc[1], 0.0f, 255.0f);
 		}
 	}
 }

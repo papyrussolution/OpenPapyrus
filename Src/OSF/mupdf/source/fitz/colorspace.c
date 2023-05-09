@@ -739,7 +739,7 @@ static void indexed_via_base(fz_context * ctx, fz_color_converter * cc, const fl
 	float base[4];
 	int i, k;
 	i = src[0] * 255;
-	i = fz_clampi(i, 0, high);
+	i = sclamp(i, 0, high);
 	if(ss->u.indexed.base->type == FZ_COLORSPACE_LAB) {
 		base[0] = lookup[i * 3 + 0] * 100 / 255.0f;
 		base[1] = lookup[i * 3 + 1] - 128;

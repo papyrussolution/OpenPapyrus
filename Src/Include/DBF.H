@@ -7,6 +7,7 @@
 #define __DBF_H
 
 #include <db.h>
+#include <sl-packing-set01.h> // @v11.7.1
 
 #define DEFSWAPBUFSIZE 8
 
@@ -195,5 +196,7 @@ private:
 	char * P_Buffer;
 	int    Mod; // Признак модификации таблицы
 };
+
+#include <sl-packing-reset.h> // @v11.7.1
 
 #endif //  __DBF_H

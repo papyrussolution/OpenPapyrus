@@ -562,9 +562,9 @@ static int hexrgb_from_color(fz_context * ctx, fz_colorspace * colorspace, const
 	float rgb[3];
 	fz_convert_color(ctx, colorspace, color, fz_device_rgb(ctx), rgb, NULL, fz_default_color_params);
 	return
-		(fz_clampi(rgb[0] * 255, 0, 255) << 16) |
-		(fz_clampi(rgb[1] * 255, 0, 255) << 8) |
-		(fz_clampi(rgb[2] * 255, 0, 255));
+		(sclamp((int)(rgb[0] * 255.0f), 0, 255) << 16) |
+		(sclamp((int)(rgb[1] * 255.0f), 0, 255) << 8) |
+		(sclamp((int)(rgb[2] * 255.0f), 0, 255));
 }
 
 static void fz_stext_fill_text(fz_context * ctx, fz_device * dev, const fz_text * text, fz_matrix ctm,

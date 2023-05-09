@@ -138,6 +138,7 @@ public class Document {
 			SvcOpID = 0;
 			InterchangeOpID = 0;
 			AgentID = 0; // @v11.4.6
+			QuotKindID = 0; // @v11.7.1
 			PosNodeID = 0; // @v11.4.6
 			ClientID = 0;
 			DlvrLocID = 0;
@@ -164,6 +165,7 @@ public class Document {
 				copy.SvcOpID = s.SvcOpID;
 				copy.InterchangeOpID = s.InterchangeOpID;
 				copy.AgentID = s.AgentID;
+				copy.QuotKindID = s.QuotKindID; // @v11.7.1
 				copy.PosNodeID = s.PosNodeID;
 				copy.ClientID = s.ClientID;
 				copy.DlvrLocID = s.DlvrLocID;
@@ -195,6 +197,8 @@ public class Document {
 			else if(ClientID != s.ClientID)
 				yes = false;
 			else if(AgentID != s.AgentID)
+				yes = false;
+			else if(QuotKindID != s.QuotKindID) // @v11.7.1
 				yes = false;
 			else if(PosNodeID != s.PosNodeID)
 				yes = false;
@@ -288,6 +292,9 @@ public class Document {
 		int    DlvrLocID; // service-domain-id
 		int    AgentID;   // @v11.4.6 Для документа агентского заказа - ид агента (фактически, он ассоциируется с владельцем нашего устройства)
 		int    PosNodeID; // @v11.4.6 Для кассового чека - кассовый узел, к которому он привязывается //
+		int    QuotKindID;   // @v11.7.1 Вид котировки, по которому выбираются цены для документа.
+			// Этот вид может быть либо определен автоматически в соответствии с клиентом,
+			// либо, если допускает конфигурация, выбран агентом (для агентского заказа)
 		int    Flags;     // Проекция поля SecTable.Rec.Flags styloqfDocXXX
 		int    StatusSurrId; // @v11.5.1 Специальное суррогатное значение, идентифицирующее клиентский статус документа.
 			// Значение ссылается на поле BusinessEntity.DocStatus.SurrId.
@@ -1266,6 +1273,9 @@ public class Document {
 				if(H.AgentID > 0) { // @v11.4.6
 					result.put("agentid", H.AgentID);
 				}
+				if(H.QuotKindID > 0) { // @v11.7.1
+					result.put("quotkindid", H.QuotKindID);
+				}
 				if(H.ClientID > 0) {
 					result.put("cliid", H.ClientID);
 				}
@@ -1471,6 +1481,7 @@ public class Document {
 				H.ClientID = jsObj.optInt("cliid", 0);
 				H.PosNodeID = jsObj.optInt("posnodeid", 0);
 				H.AgentID = jsObj.optInt("agentid", 0);
+				H.QuotKindID = jsObj.optInt("quotkindid", 0); // @v11.7.1
 				H.DlvrLocID = jsObj.optInt("dlvrlocid", 0);
 				H.StatusSurrId = jsObj.optInt("statussurrid", 0); // @v11.5.1
 				{

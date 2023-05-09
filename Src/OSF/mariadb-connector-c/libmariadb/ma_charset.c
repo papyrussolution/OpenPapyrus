@@ -50,7 +50,7 @@
 	#endif
 #endif
 #if defined(HAVE_NL_LANGINFO) && defined(HAVE_SETLOCALE)
-	#include <locale.h>
+	// @v11.7.1 #include <locale.h>
 	#include <langinfo.h>
 #endif
 /*

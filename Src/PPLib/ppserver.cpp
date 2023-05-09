@@ -1,5 +1,5 @@
 // PPSERVER.CPP
-// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -108,7 +108,7 @@ void FASTCALL PPThread::ResetOuterSignatureByTimeout(int64 currentEpochTime, int
 	OtrSigntr.Lck.Lock();
 	if(OtrSigntr.Signature[0]) {
 		if((currentEpochTime - OtrSigntr.Tm) > timeoutSec) {
-			PTR32(OtrSigntr.Signature)[0] = 0;
+			OtrSigntr.Signature[0] = 0;
 			OtrSigntr.Tm = 0;
 		}
 	}
@@ -244,48 +244,6 @@ int FASTCALL PPServerCmd::PutParam(int parid, const char * pVal)
 		ok = 0;
 	return ok;
 }
-
-#if 0 // @v10.5.7 (moved to PPTextCommandBlock) {
-int PPServerCmd::GetWord(const char * pBuf, size_t * pPos)
-{
-	int    ok = 1;
-	size_t p = DEREFPTRORZ(pPos);
-	Term.Z();
-	while(oneof2(pBuf[p], ' ', '\t'))
-		p++;
-	if(pBuf[p]) {
-		int    q = 0;
-		if(pBuf[p] == '\"') {
-			p++;
-			q = 1;
-		}
-		/*char*/int c = pBuf[p];
-		while(c != 0) {
-			if(q && c == '\"') {
-				p++;
-				break;
-			}
-			else if(!q && oneof2(c, ' ', '\t')) {
-				break;
-			}
-			else {
-				if(q && c == '\\' && pBuf[p+1] == '\"') {
-					c = '\"';
-					p++;
-				}
-				Term.CatChar(c);
-				c = pBuf[++p];
-			}
-		}
-		while(oneof2(pBuf[p], ' ', '\t'))
-			p++;
-	}
-	else
-		ok = 0;
-	ASSIGN_PTR(pPos, p);
-	return ok;
-}
-#endif // } 0
 
 int PPServerCmd::ParseLine(const SString & rLine, long flags)
 {

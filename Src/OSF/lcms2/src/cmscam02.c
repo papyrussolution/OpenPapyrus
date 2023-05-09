@@ -68,8 +68,7 @@ static CAM02COLOR XYZtoCAT02(CAM02COLOR clr)
 
 static CAM02COLOR ChromaticAdaptation(CAM02COLOR clr, cmsCIECAM02* pMod)
 {
-	uint32 i;
-	for(i = 0; i < 3; i++) {
+	for(uint32 i = 0; i < 3; i++) {
 		clr.RGBc[i] = ((pMod->adoptedWhite.XYZ[1] * (pMod->D / pMod->adoptedWhite.RGB[i])) + (1.0 - pMod->D)) * clr.RGB[i];
 	}
 	return clr;

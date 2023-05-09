@@ -90,13 +90,125 @@ public:
 };
 
 static ImGuiRuntimeBlock ImgRtb;
+//
+// Descr: Очередь команд потоку, передающему эти команды серверу
+//
+class WsCtlReqQueue : private SQueue { //req_queue(1024)
+public:
+	struct Req {
+		uint   Cmd;
+		uint32 Dummy;
+	};
+	WsCtlReqQueue() : SQueue(sizeof(Req), 1024, aryDataOwner), NonEmptyEv(Evnt::modeCreateAutoReset)
+	{
+	}
+	int    FASTCALL Push(const Req * pReq)
+	{
+		int    ok = 0;
+		Lck.Lock();
+		ok = SQueue::push(pReq);
+		Lck.Unlock();
+		return ok;
+	}
+	Req * FASTCALL Pop()
+	{
+		Req * p_req = 0;
+		Lck.Lock();
+		p_req = static_cast<Req *>(SQueue::pop());
+		Lck.Unlock();
+		return p_req;
+	}
+
+	Evnt   NonEmptyEv; // Событие поможет "разбудить" поток, принимающий данные из этой очереди. 
+private:
+	SMtLock Lck;
+};
 
 class WsCtl_ImGuiSceneBlock {
+public:
+	struct DAccount {
+	};
+	struct DPrices {
+	};
+	struct DTSess {
+	};
+	struct JobSrvParam {
+		JobSrvParam() : Port(0), Timeout(0)
+		{
+		}
+		SString Addr;
+		int    Port;
+		int    Timeout;
+	};
+	//
+	// Descr: Структура, описывающая текущее состояние системы.
+	//   Элементы структуры могут обновляються другими потоками.
+	//
+	struct State {
+		enum {
+			syncdataUndef   = 0,
+			syncdataTest,    // Тестовый блок данных для отладки взаимодействия с сервером 
+			syncdataAccount, // DAccount
+			syncdataPrices,  // DPrices
+			syncdataTSess,   // DTSess
+		};
+		//
+		// Descr: Элемент состояния, который получен от сервера.
+		//   Кроме собственно данных содержит блокировку, время актуализации и время истечения срока действия.
+		//
+		class SyncEntry {
+		public:
+			SyncEntry() : TmActual(0), TmExpiry(0)
+			{
+			}
+		private:
+			SMtLock Lck;
+			int64  TmActual;
+			int64  TmExpiry;
+		};				
+	};
 private:
+	//
+	// Descr: Поток, реализующий запросы к серверу.
+	//   Так как концепция imgui предполагает перманентную отрисовку сетевые запросы придется //
+	//   делать строго асинхронно.
+	//
+	class WsCtl_CliSession : public PPThread {
+	public:
+		WsCtl_CliSession(WsCtl_ImGuiSceneBlock::State * pSt, WsCtlReqQueue * pQ) : PPThread(PPThread::kWsCtl, 0, 0), P_St(pSt)
+		{
+		}
+		virtual void Run()
+		{
+			SString temp_buf;
+			Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
+			for(int stop = 0; !stop;) {
+				int    h_count = 0;
+				int    evidx_stop = -1;
+				int    evidx_dcn = -1;
+				int    evidx_forceperiod = -1;
+				int    evidx_localforceperiod = -1;
+				HANDLE h_list[32];
+				{
+					evidx_stop = h_count++;
+					h_list[evidx_stop] = stop_event;
+				}
+				;
+			}
+		}
+	private:
+		// Указатель на состояние блока управления панелью. При получении ответа от сервера
+		// наш поток будет вносить изменения в это состояние (защита блокировками подразумевается).
+		WsCtl_ImGuiSceneBlock::State * P_St; // @notowned
+		WsCtlReqQueue * P_Q; // @notowned
+	};
 	bool   ShowDemoWindow; // @sobolev true-->false
 	bool   ShowAnotherWindow;
 	ImVec4 ClearColor;
 	SUiLayout Lo01; // = new SUiLayout(SUiLayoutParam(DIREC_VERT, 0, SUiLayoutParam::alignStretch));
+	JobSrvParam JsP;
+	State  St;
+	WsCtlReqQueue * P_CmdQ; // Очередь команд для сервера. Указатель передается в совместное владение потоку обработки команд
 	//
 	enum {
 		loidRoot = 1,
@@ -180,10 +292,23 @@ private:
 	//
 	char   TestInput[128];
 public:
-	WsCtl_ImGuiSceneBlock() : ShowDemoWindow(false), ShowAnotherWindow(false), ClearColor(0.45f, 0.55f, 0.60f, 1.00f)
+	WsCtl_ImGuiSceneBlock() : ShowDemoWindow(false), ShowAnotherWindow(false), ClearColor(0.45f, 0.55f, 0.60f, 1.00f), P_CmdQ(0)
 	{
 		TestInput[0] = 0;
 		MakeLayout();
+	}
+	int  DiscoverJobSrv()
+	{
+		int    ok = 0;
+		PPIniFile ini_file;
+		if((ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_PORT, &JsP.Port) <= 0 || JsP.Port <= 0))
+			JsP.Port = InetUrl::GetDefProtocolPort(InetUrl::prot_p_PapyrusServer);//DEFAULT_SERVER_PORT;
+		if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_CLIENTSOCKETTIMEOUT, &JsP.Timeout) <= 0 || JsP.Timeout <= 0)
+			JsP.Timeout = -1;
+		ini_file.Get(PPINISECT_SERVER, PPINIPARAM_SERVER_NAME, JsP.Addr);
+		if(JsP.Addr.NotEmpty())
+			ok = 1;
+		return ok;
 	}
 	void BuildScene()
 	{
@@ -215,9 +340,7 @@ public:
 						ImGui::SetNextWindowSize(sz);
 						ImGui::Begin("CTL-01", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
 						ImGui::Text("CTL-01");
-
 						ImGui::InputText("Кое-что по-русски", TestInput, sizeof(TestInput), 0, CbInput, this);
-
 						ImGui::End();
 					}
 				}
@@ -232,6 +355,8 @@ public:
 						ImGui::SetNextWindowSize(sz);
 						ImGui::Begin("CTL-02", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
 						ImGui::Text("CTL-02");
+						
+						ImGui::Text(SLS.AcquireRvlStr().Cat("Сервер").CatDiv(':', 2).Cat(JsP.Addr).CatChar(':').Cat(JsP.Port));
 						ImGui::End();
 					}
 				}
@@ -347,6 +472,9 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 int main(int, char**)
 {
+	int    result = 0;
+	//
+	DS.Init(PPSession::fWsCtlApp, 0);
 	// Create application window
 	//ImGui_ImplWin32_EnableDpiAwareness();
 	WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"WSCTL_WCLS", nullptr };
@@ -354,9 +482,7 @@ int main(int, char**)
 	HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"WSCTL", WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, nullptr, nullptr, wc.hInstance, nullptr);
 	// Initialize Direct3D
 	if(!ImgRtb.CreateDeviceD3D(hwnd)) {
-		ImgRtb.CleanupDeviceD3D();
-		::UnregisterClassW(wc.lpszClassName, wc.hInstance);
-		return 1;
+		result = 1;
 	}
 	else {
 		// Show the window
@@ -395,6 +521,7 @@ int main(int, char**)
 		//bool show_another_window = false;
 		//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		WsCtl_ImGuiSceneBlock scene_blk;
+		scene_blk.DiscoverJobSrv();
 		{
 			static const ImWchar ranges[] = {
 				0x0020, 0x00FF, // Basic Latin + Latin Supplement
@@ -425,9 +552,12 @@ int main(int, char**)
 		ImGui_ImplDX11_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
-		ImgRtb.CleanupDeviceD3D();
+		//ImgRtb.CleanupDeviceD3D();
 		::DestroyWindow(hwnd);
-		::UnregisterClassW(wc.lpszClassName, wc.hInstance);
-		return 0;
+		//::UnregisterClassW(wc.lpszClassName, wc.hInstance);
+		result = 0;
 	}
+	ImgRtb.CleanupDeviceD3D();
+	::UnregisterClassW(wc.lpszClassName, wc.hInstance);
+	return result;
 }

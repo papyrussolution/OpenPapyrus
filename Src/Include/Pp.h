@@ -5828,6 +5828,9 @@ private:
 #define PPSCMD_SQ_SRPAUTH_ACK        10123 // @v11.0.11 Авторизация по SRP-протоколу (завершающее сообщение от клиента серверу об Успешности авторизации)
 #define PPSCMD_SQ_COMMAND            10124 // @v11.0.11 Собственно команда в рамках протокола Stylo-Q
 #define PPSCMD_EXECJOBIMM            10125 // @v11.3.9  Запустить задачу непосредственно по этой команде.
+#define PPSCMD_WSCTL_INIT            10126 // @v11.7.1  WSCTL Инициирующий запрос для получения базовых параметров работы управляемой рабочей станции
+#define PPSCMD_WSCTL_GETQUOTLIST     10127 // @v11.7.1  WSCTL Получить список котировок для рабочей станции
+#define PPSCMD_WSCTL_GETACCOUNTSTATE 10128 // @v11.7.1  WSCTL Получить информацию об аккаунте клиента
 
 #define PPSCMD_TEST                  11000 // Сеанс тестирования //
 //
@@ -6013,8 +6016,6 @@ public:
 	long   SessID;   // Идентификатор сессии, к которой отправлен запрос
 	SelectObjectBlock * P_SoBlk;
 private:
-	// @v10.5.7 (moved to PPTextCommandBlock) int    GetWord(const char * pBuf, size_t *);
-	// @v10.5.7 (moved to PPTextCommandBlock) SString Term;
 	StrAssocArray ParamL;
 	const  SymbHashTable * P_ShT; // Таблица символов, полученная вызовом PPGetStringHash(int)
 };
@@ -6423,7 +6424,7 @@ class MqbEventResponder {
 public:
 	MqbEventResponder();
 	~MqbEventResponder();
-	int    IsConsistent() const;
+	bool   IsConsistent() const;
 private:
 	static int AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr);
 	static int ResponseByAdviseCallback(const SString & rResponseMsg, const PPMqbClient::Envelope * pEnv, MqbEventResponder * pSelf, SString &rDomainBuf);
@@ -6457,7 +6458,7 @@ class SysMaintenanceEventResponder {
 public:
 	SysMaintenanceEventResponder();
 	~SysMaintenanceEventResponder();
-	int    IsConsistent() const;
+	bool   IsConsistent() const;
 private:
 	static int AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr);
 	static int ResponseByAdviseCallback(const SString & rResponseMsg, const PPMqbClient::Envelope * pEnv, SysMaintenanceEventResponder * pSelf, SString &rDomainBuf);
@@ -6565,7 +6566,7 @@ public:
 		friend class PPSession;
 
 		~Client();
-		int   IsConsistent() const;
+		bool  IsConsistent() const;
 		int64 GetMarker() const;
 		int   Register(long dbPathID, PPAdviseEventQueue * pQueue);
 	protected:
@@ -6633,7 +6634,7 @@ public:
 	int    FASTCALL ReleasePtr(uint idx);
 	void   PushErrContext();
 	void   PopErrContext();
-	int    IsConsistent() const;
+	bool   IsConsistent() const;
 	long   GetId() const { return Id; }
 	//
 	// Descr: Возвращает !0 если поток авторизован в базе данных Papyrus
@@ -7284,7 +7285,7 @@ public:
 	PPRFile();
 	~PPRFile();
 	PPRFile & Z();
-	int    IsConsistent() const;
+	bool   IsConsistent() const;
 
 	PPID   ID;
 	PPID   PathID;
@@ -7335,7 +7336,8 @@ public:
 		kNginxWorker,    // Рабочий поток сервера NGINX (запускается потоком kNginxServer)
 		kStyloQServer,   // @v11.0.9 Поток сервера, принимающего запросы StyloQ
 		kStyloQSession,  // @v11.0.0 Поток, получающий управление сеансом обмена от сервера StyloQ
-		kCasualJob       // @v11.4.2 Поток для исполнения утилитарной функции
+		kCasualJob,      // @v11.4.2 Поток для исполнения утилитарной функции
+		kWsCtl           // @v11.7.1 Поток подсистемы ws-ctl, реализующий асинхронные запросы к серверу
 	};
 	static int FASTCALL GetKindText(int kind, SString & rBuf);
 	PPThread(int kind, const char * pText, void * pInitData);
@@ -7395,7 +7397,7 @@ private:
 	struct OuterSignatureBlock {
 		OuterSignatureBlock() : Tm(0)
 		{
-			PTR32(Signature)[0] = 0;
+			Signature[0] = 0;
 		}
 		char   Signature[64]; // Собственно, сигнатура. Реализована в виде плоского массива символов
 			// с целью снизить накладные расходы на обработку.
@@ -7561,7 +7563,8 @@ class PPSession {
 public:
 	enum {
 		fInitPaths    = 0x0001, // Инициализировать пути (извлекает из pp.ini)
-		fDenyLogQueue = 0x0002  // Не инициализировать очередь журнальных сообщений (вывод прямо в файл)
+		fDenyLogQueue = 0x0002, // Не инициализировать очередь журнальных сообщений (вывод прямо в файл)
+		fWsCtlApp     = 0x0004  // @v11.7.1 Объект инициализирован для отдельного приложения WsCtl
 	};
 	enum {
 		cmdlHelp = 0,  // ?
@@ -15975,7 +15978,7 @@ public:
 	static const void * GetDescriptionExtra(long id);
 
 	virtual ~PPView();
-	int    IsConsistent() const;
+	bool   IsConsistent() const;
 	enum {
 		implChangeFilt          = 0x0001, // Порожденный класс самостоятельно обрабатывает команду PPVCMD_CHANGEFILT
 		implOnAddSetupPos       = 0x0002, // Базовый класс PPView должен установить позицию по новому идентификатору
@@ -19897,7 +19900,7 @@ public:
 	struct ExtraParam {
 		ExtraParam();
 		ExtraParam & FASTCALL operator = (const ExtraParam & rS);
-		int    IsConsistent() const;
+		bool   IsConsistent() const;
 
 		enum {
 			fShowAll       = 0x0001, // Флаг для отображения в списке всех типов объектов Secur
@@ -22567,14 +22570,22 @@ private:
 struct PPGeoTrackingMode { // @persistent @size==8
 	PPGeoTrackingMode();
 	PPGeoTrackingMode & Z();
-	int    FASTCALL operator == (const PPGeoTrackingMode & rS) const;
-	int    FASTCALL operator != (const PPGeoTrackingMode & rS) const;
+	bool   FASTCALL operator == (const PPGeoTrackingMode & rS) const;
+	bool   FASTCALL operator != (const PPGeoTrackingMode & rS) const;
 
 	int32  Mode;  // @flags GTMF_XXX
 	int32  Cycle; // Периодичность автоматической регистрации положения устройства (ms)
 };
 
 struct PPStyloPalm2 {          // @persistent @store(Reference2Tbl+)
+	//
+	// Descr: Опции выбора вида котировки на устройстве
+	//
+	enum {
+		qkoNone   = 0, // Не ассоциировать вид котировки с документов
+		qkoAuto   = 1, // Автомитически выбирать вид котировки (по данным клиента)
+		qkoManual = 2  // Разрешать выбирать вид котировки вручную
+	};
 	PPID   Tag;                // Const=PPOBJ_STYLOPALM
 	PPID   ID;                 // @id
 	char   Name[48];           // @name @!refname
@@ -22584,7 +22595,8 @@ struct PPStyloPalm2 {          // @persistent @store(Reference2Tbl+)
 	LDATETIME LastExchgTime;   // Время последнего обмена данными
 	uint32 DeviceVer;          // Версия системы на устройсве, считанная при последнем обмене
   	int16  TransfDaysAgo;      // Количество дней назад, начиная с которого надо отправлять документы с устройства. 0 - все, что есть
-  	char   Reserve1[6];        // @reserve
+	int16  QuotKindOptions;    // @v11.7.1 qkoXXX Опции выбора котировки на устройстве
+  	char   Reserve1[4];        // @reserve @v11.7.1 [6]-->[4]
   	int32  InhBillTagVal;      // Значение тега документа, наследуемое принимаемыми заказами от устройства
 		// Сам тег определяется в конфигурации StyloPalm
 	PPGeoTrackingMode Gtm;     // Режим отслеживания положения устройства
@@ -22810,7 +22822,7 @@ public:
 	int    GetListByPerson(PPID personID, PPIDArray & rPalmList);
 	int    GetPacket(PPID id, PPStyloPalmPacket * pPack);
 	int    PutPacket(PPID * pID, PPStyloPalmPacket * pPack, int use_ta);
-	int    CheckSignalForInput(const char * pPath);
+	bool   CheckSignalForInput(const char * pPath);
 	void   ClearInputSemaphore(const char * pPath);
 	int    ReadInput(PPID id, PalmInputParam * pParam, long flags, PPLogger * pLogger, long * pOrdCount);
 		// @<<PPObjStyloPalm::ImportData, @<<PalmImportWaiter::Activate
@@ -23176,7 +23188,7 @@ class PhoneServiceEventResponder {
 public:
 	PhoneServiceEventResponder();
 	~PhoneServiceEventResponder();
-	int    IsConsistent() const;
+	bool   IsConsistent() const;
 	int    IdentifyCaller(const char * pCaller, PPObjIDArray & rList);
 	const  StrAssocArray * GetInternalPhoneList();
 private:
@@ -24958,7 +24970,7 @@ struct QuotKindFilt {
 #define QUOTKF_NODIS          0x0100L // Если применяется этот вид котировки, то скидки по картам не действуют.
 #define QUOTKF_USEROUNDING    0x0200L // @v10.9.10 Применять округление значений котировок в соответствии с полями PPQuotKind2::RoundingPrec,  PPQuotKind2::RoundingDir
 
-struct PPQuotKind2 {       // @persistent @store(Reference2Tbl+)
+struct PPQuotKind2 { // @flat @persistent @store(Reference2Tbl+)
 	PPQuotKind2();
 	int    GetTimeRange(TimeRange & rRange) const;
 	void   SetTimeRange(const TimeRange & rRange);
@@ -31079,8 +31091,8 @@ class GoodsStrucTreeListViewBlock {
 public:
 	explicit GoodsStrucTreeListViewBlock(const GoodsStrucProcessingBlock & rCb);
 	StrAssocTree * MakeTree();
-	const GoodsStrucProcessingBlock::ItemEntry * GetEntryByIdx(uint idx) const;
-	const GoodsStrucProcessingBlock::StrucEntry * GetStrucEntryByID(PPID id) const;
+	const  GoodsStrucProcessingBlock::ItemEntry * GetEntryByIdx(uint idx) const;
+	const  GoodsStrucProcessingBlock::StrucEntry * GetStrucEntryByID(PPID id) const;
 
 	GoodsStrucProcessingBlock Cb; // @todo must be private
 private:
@@ -36978,6 +36990,8 @@ public:
 	//
 	virtual int Edit(PPID * pID, void * extraPtr /*parentID*/);
 	virtual int Browse(void * extraPtr);
+	int    EditDialog(PPProcessorPacket * pData);
+	int    AddBySample(PPID * pID, PPID sampleID);
 	int    Fetch(PPID id, ProcessorTbl::Rec * pRec);
 	//
 	// Descr: Ищет запись процессора вида kind с именем pName. Если kind == 0,
@@ -47636,6 +47650,7 @@ public:
 		int    ClientID;  // service-domain-id
 		int    DlvrLocID; // service-domain-id
 		int    AgentID;   // @v11.4.6 service-domain-id
+		int    QuotKindID; // @v11.7.1 "quotkindid"
 		int    PosNodeID; // @v11.4.6 service-domain-id
 		int    StatusSurrId; // @v11.5.1 Специальное суррогатное значение, идентифицирующее клиентский статус документа.
 			// Значение ссылается на поле BusinessEntity.DocStatus.SurrId.

@@ -37,7 +37,7 @@
 #ifdef HAVE_SYS_UTIME_H
 	#include <sys/utime.h>
 #endif
-#include <locale.h>
+// @v11.7.1 #include <locale.h>
 #include <share.h>
 
 #define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)

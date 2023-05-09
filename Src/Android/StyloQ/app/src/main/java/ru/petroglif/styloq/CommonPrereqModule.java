@@ -212,6 +212,13 @@ public class CommonPrereqModule {
 		return result;
 	}
 
+	//
+	// Опции выбора вида котировки на устройстве (prototype at Papyrus: PPStyloPalm2)
+	//
+	public static final int qkoNone   = 0; // Не ассоциировать вид котировки с документов
+	public static final int qkoAuto   = 1; // Автомитически выбирать вид котировки (по данным клиента)
+	public static final int qkoManual = 2;  // Разрешать выбирать вид котировки вручную
+	//
 	private SimpleSearchBlock SsB;
 	public byte[] SvcIdent; // Получает через intent ("SvcIdent")
 	public String CmdName; // Получает через intent ("CmdName")
@@ -235,6 +242,7 @@ public class CommonPrereqModule {
 			BaseCurrencySymb = null;
 			DefDuePeriodHour = 0;
 			AgentID = 0;
+			QuotKindUsage = qkoNone;
 			ActionFlags = 0;
 			SvcOpID = 0;
 			PosNodeID = 0;
@@ -254,6 +262,21 @@ public class CommonPrereqModule {
 				BaseCurrencySymb = jsHead.optString("basecurrency", null);
 				DefDuePeriodHour = jsHead.optInt("dueperiodhr", 0); // @v11.4.8
 				AgentID = jsHead.optInt("agentid", 0);
+				// @11.7.1 {
+				{
+					String qko_text = jsHead.optString("qko");
+					if(SLib.GetLen(qko_text) > 0) {
+						if(qko_text.equalsIgnoreCase("auto"))
+							QuotKindUsage = qkoAuto;
+						else if(qko_text.equalsIgnoreCase("manual"))
+							QuotKindUsage = qkoManual;
+						else
+							QuotKindUsage = qkoNone;
+					}
+					else
+						QuotKindUsage = qkoNone;
+				}
+				// } @11.7.1
 				SvcOpID = jsHead.optInt("svcopid", 0); // @v11.4.9
 				PosNodeID = jsHead.optInt("posnodeid", 0);
 				ActionFlags = Document.IncomingListActionsFromString(jsHead.optString("actions", null)); // @v11.4.8
@@ -272,10 +295,12 @@ public class CommonPrereqModule {
 				// } @v11.6.2
 			}
 		}
+		//
 		public String BaseCurrencySymb;
 		public int DefDuePeriodHour; // @v11.4.8 Срок исполнения заказа по умолчанию (в часах). Извлекается из заголока данных по тегу "dueperiodhr"
 		public int AgentID; // Если исходный документ для формирования заказов ассоциирован
 			// с агентом, то в этом поле устанавливается id этого агента (field agentid)
+		public int QuotKindUsage; // @v11.7.1 qkoXXX Опции выбора котировки на устройстве
 		public int ActionFlags; // Document.actionXXX flags. Извлекается из заголока данных по тегу "actions"
 		public int SvcOpID; // @v11.4.9 Вид операции для новых документов, переданный сервисом в заголовке с тегом "svcopid"
 		public int PosNodeID; // Если исходный документ сформирован для indoor-обслуживания,
@@ -793,6 +818,40 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
+	//
+	// Descr: Меняет значение выбранного вида котировки в текущем документе
+	//   при условии, что конфигуарционный параметр QuotKindUsage допускает ручное изменение
+	//   вида котировки.
+	//
+	protected boolean UpdateQuotKindInCurrentDocument(int quotKindID)
+	{
+		boolean result = false;
+		if(!IsCurrentDocumentEmpty()) {
+			int qko = GetQuotKindUsage();
+			if(qko == qkoManual) {
+				final int preserve_qk_id = CurrentOrder.H.QuotKindID;
+				CurrentOrder.H.QuotKindID = (quotKindID > 0) ? quotKindID : 0;
+				if(CurrentOrder.H.QuotKindID != preserve_qk_id) {
+					//
+					// Если изменился вид котировки в шапке документа, то необходимо пересчитать
+					// цены по строкам
+					//
+					if(SLib.GetCount(CurrentOrder.TiList) > 0) {
+						for(Document.TransferItem ti : CurrentOrder.TiList) {
+							WareEntry goods_item = (ti != null) ? FindGoodsItemByGoodsID(ti.GoodsID) : null;
+							if(goods_item != null) {
+								BusinessEntity.SelectedPrice sp = goods_item.Item.QueryPrice(CurrentOrder, QkListData);
+								if(ti.Set != null)
+									ti.Set.Price = sp.GetValue();
+							}
+						}
+					}
+				}
+				result = true;
+			}
+		}
+		return result;
+	}
 	protected boolean UpdateTransferItemQttyInCurrentDocument(final Document.TransferItem srcData)
 	{
 		boolean result = false;
@@ -838,7 +897,7 @@ public class CommonPrereqModule {
 				WareEntry goods_item = FindGoodsItemByGoodsID(item.GoodsID);
 				//double price = goods_item.JsItem.optDouble("price", 0.0);
 				//double price = goods_item.Item.Price;
-				BusinessEntity.SelectedPrice sp = goods_item.Item.QueryPrice(QkListData, 0/*cliID*/);
+				BusinessEntity.SelectedPrice sp = goods_item.Item.QueryPrice(GetCurrentDocument(), QkListData);
 				assert(sp != null);
 				int    interchange_op_id = 0;
 				int    posnode_id = GetPosNodeID();
@@ -911,17 +970,22 @@ public class CommonPrereqModule {
 			if(cliID > 0 && app_ctx != null) {
 				JSONObject new_cli_entry = FindClientEntry(cliID);
 				if(new_cli_entry != null) {
+					final int cli_quotkind_id = new_cli_entry.optInt("quotkind", 0);
+					int qko = GetQuotKindUsage();// == CommonPrereqModule.qkoAuto || CPM.GetQuotKindUsage() == CommonPrereqModule.qkoManual)) {
+					final int preserve_quotkind_id = (CurrentOrder != null && CurrentOrder.H != null) ? CurrentOrder.H.QuotKindID : 0;
 					if(CurrentOrder == null) {
 						InitCurrenDocument(interchangeOpID);
 						CurrentOrder.H.ClientID = cliID;
 						CurrentOrder.H.DlvrLocID = dlvrLocID;
 						CurrentOrder.H.BaseCurrencySymb = CSVCP.BaseCurrencySymb;
+						CurrentOrder.H.QuotKindID = (qko == qkoAuto || qko == qkoManual) ? cli_quotkind_id : 0;
 						result = true;
 					}
 					else {
 						if(CurrentOrder.H.ClientID == 0) {
 							CurrentOrder.H.ClientID = cliID;
 							CurrentOrder.H.DlvrLocID = dlvrLocID;
+							CurrentOrder.H.QuotKindID = (qko == qkoAuto || qko == qkoManual) ? cli_quotkind_id : 0;
 							result = true;
 						}
 						else if(CurrentOrder.H.ClientID == cliID) {
@@ -935,6 +999,7 @@ public class CommonPrereqModule {
 							if(forceUpdate) {
 								CurrentOrder.H.ClientID = cliID;
 								CurrentOrder.H.DlvrLocID = dlvrLocID;
+								CurrentOrder.H.QuotKindID = (qko == qkoAuto || qko == qkoManual) ? cli_quotkind_id : 0;
 								result = true;
 							}
 							else {
@@ -950,7 +1015,7 @@ public class CommonPrereqModule {
 											@Override public void OnResult(SLib.ConfirmationResult r)
 											{
 												if(r == SLib.ConfirmationResult.YES) {
-													if(SetClientToCurrentDocument(interchangeOpID, cliID, dlvrLocID, true)) {
+													if(SetClientToCurrentDocument(interchangeOpID, cliID, dlvrLocID, true)) { // @recursion
 														// @v11.6.11 {
 														if(ActivityInstance != null && ActivityInstance instanceof CmdROrderPrereqActivity)
 															((CmdROrderPrereqActivity)ActivityInstance).GotoTab(CommonPrereqModule.Tab.tabCurrentDocument, R.id.orderPrereqOrdrListView, -1, -1);
@@ -971,8 +1036,27 @@ public class CommonPrereqModule {
 							}
 						}
 					}
-					if(result)
+					if(result) {
+						// @v11.7.1 {
+						if(CurrentOrder != null && CurrentOrder.H != null && preserve_quotkind_id != CurrentOrder.H.QuotKindID) {
+							//
+							// Если изменился вид котировки в шапке документа, то необходимо пересчитать
+							// цены по строкам
+							//
+							if(SLib.GetCount(CurrentOrder.TiList) > 0) {
+								for(Document.TransferItem ti : CurrentOrder.TiList) {
+									WareEntry goods_item = (ti != null) ? FindGoodsItemByGoodsID(ti.GoodsID) : null;
+									if(goods_item != null) {
+										BusinessEntity.SelectedPrice sp = goods_item.Item.QueryPrice(CurrentOrder, QkListData);
+										if(ti.Set != null)
+											ti.Set.Price = sp.GetValue();
+									}
+								}
+							}
+						}
+						// } @v11.7.1
 						OnCurrentDocumentModification();
+					}
 				}
 				else {
 					; // @err
@@ -1441,6 +1525,7 @@ public class CommonPrereqModule {
 	int   GetAgentID() { return CSVCP.AgentID; }
 	int   GetPosNodeID() { return CSVCP.PosNodeID; }
 	int   GetActionFlags() { return CSVCP.ActionFlags; }
+	int   GetQuotKindUsage() { return CSVCP.QuotKindUsage; } // @v11.7.1
 	boolean GetOption_UseCliDebt() { return CSVCP.UseCliDebt; }
 	boolean GetOption_DueDateAsNominal() { return CSVCP.DueDateAsNominal; } // @v11.6.4
 	boolean GetOption_HideStock() { return CSVCP.HideStock; } // @v11.6.4
@@ -3256,7 +3341,7 @@ public class CommonPrereqModule {
 			else {
 				Document.TransferItem ti = new Document.TransferItem();
 				if(ti != null) {
-					BusinessEntity.SelectedPrice sp = item.Item.QueryPrice(QkListData, 0/*cliID*/);
+					BusinessEntity.SelectedPrice sp = item.Item.QueryPrice(GetCurrentDocument(), QkListData);
 					ti.GoodsID = goods_id;
 					ti.Set.Price = sp.GetValue();
 					ti.Set.Qtty = (qtty > 0.0) ? qtty : 0.0;

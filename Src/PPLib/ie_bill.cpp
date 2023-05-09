@@ -6021,7 +6021,7 @@ DocNalogRu_Generator::Document::Document(DocNalogRu_Generator & rG, const Docume
 		N.PutAttrib("ВремИнфЗак", temp_buf);
 	}
 	*/
-	if(oneof2(rInfo.KND, "1115131", "1115101")) {
+	if(oneof3(rInfo.KND, "1115131", "1115101", "1115133")) { // @v11.7.1 "1115133"
 		LDATETIME dtm_now = getcurdatetime_();
 		temp_buf.Z().Cat(dtm_now.d, DATF_GERMANCENT);
 		N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_SELLERINFODATE), temp_buf);
@@ -6454,7 +6454,8 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 			else {
 				n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_UNITNAME), unit_name);
 			}
-			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WARETYPE), "1"); // @v11.4.11 ПрТовРаб="1"
+			if(!correction) // @v11.7.1 (Для корректировки не нужно)
+				n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WARETYPE), "1"); // @v11.4.11 ПрТовРаб="1"
 			// @v11.4.10 {
 			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREARTICLE), temp_buf.Z().Cat(goods_id)); // @v11.5.10 Собственный идентификатор (по специальной просьбе)
 			if(oneof2(chzn_prod_type, GTCHZNPT_MILK, GTCHZNPT_WATER)) {
@@ -6515,15 +6516,20 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 		}
 		// } @v10.6.11
 		// @v11.5.9 {
-		if(barcode_for_exchange.NotEmpty()) {
-			SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXTRA2));
-			temp_buf = GetToken_Ansi(PPHSC_RU_EXTRA_BARCODE);
-			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_IDENTIF), temp_buf);
-			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_VAL), barcode_for_exchange);
+		if(!correction) {
+			if(barcode_for_exchange.NotEmpty()) {
+				SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXTRA2));
+				temp_buf = GetToken_Ansi(PPHSC_RU_EXTRA_BARCODE);
+				n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_IDENTIF), temp_buf);
+				n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_VAL), barcode_for_exchange);
+			}
+		}
+		else {
+			//
 		}
 		// } @v11.5.9
 	}
-	{
+	if(!correction) { // @v11.7.1 (для корректировки не нужно)
 		SXml::WNode n_t(P_X, GetToken_Ansi(PPHSC_RU_TOTALTOPAYM)/*"ВсегоОпл"*/);
 		n_t.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTWOVATTOTAL), temp_buf.Z().Cat(total_amt_wovat, MKSFMTD(0, 2, 0)));
 		n_t.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTTOTAL), temp_buf.Z().Cat(total_amt, MKSFMTD(0, 2, 0)));
@@ -7397,6 +7403,7 @@ int WriteBill_NalogRu2_CorrInvoice(const PPBillImpExpParam & rParam, const PPBil
 			DocNalogRu_Generator::DocumentInfo docinfo;
 			docinfo.KND = "1115133";
 			docinfo.Subj = temp_buf;
+			docinfo.Function = "КСЧФДИС"; // @v11.7.1
 			DocNalogRu_Generator::Document d(_blk.G, docinfo);
 			{
 				DocNalogRu_Generator::Invoice inv(_blk.G, rBp, true/*correction*/);
@@ -7438,7 +7445,7 @@ int WriteBill_NalogRu2_CorrInvoice(const PPBillImpExpParam & rParam, const PPBil
 						_buyer_person_id = buyer_psn_id;
 					_blk.G.WriteOrgInfo(_blk.GetToken(PPHSC_RU_BUYERINFO), _buyer_person_id, /*consignee_loc_id*/0, rBp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
 				}
-				{
+				/* @v11.7.1 (для корректировки это не нужно) {
 					//<ДокПодтвОтгр НаимДокОтгр="Накладная" НомДокОтгр="21-00491132391" ДатаДокОтгр="08.07.2021"/>
 					SXml::WNode n(_blk.G.P_X, _blk.GetToken(PPHSC_RU_CONFSHIPMDOC));
 					temp_buf = _blk.GetToken(PPHSC_RU_CONFSHIPMDOCNAM_BILL);
@@ -7446,7 +7453,7 @@ int WriteBill_NalogRu2_CorrInvoice(const PPBillImpExpParam & rParam, const PPBil
 					temp_buf = rBp.Rec.Code;
 					n.PutAttrib(_blk.GetToken(PPHSC_RU_CONFSHIPMDOCNO), _blk.EncText(temp_buf));
 					n.PutAttrib(_blk.GetToken(PPHSC_RU_CONFSHIPMDOCDATE), temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMANCENT));
-				}
+				}*/
 			}
 			_blk.G.WriteInvoiceItems(rParam, _blk._Hi, rBp, true);
 			_blk.G.Underwriter(0);

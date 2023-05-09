@@ -5279,6 +5279,33 @@ class ppstr2 {
 	public static final int PPHSC_VETIS_FILLINGOUTERROR = 10240;
 	public static final int PPHSC_RU_WAREIDENT_TPACKCODE = 10241;
 	public static final int PPHSC_RU_WAREARTICLE = 10242;
+	public static final int PPHSC_RU_WAREQTTY_BEFORE = 10243;
+	public static final int PPHSC_RU_WAREQTTY_AFTER = 10244;
+	public static final int PPHSC_RU_WAREOKEI_BEFORE = 10245;
+	public static final int PPHSC_RU_WAREOKEI_AFTER = 10246;
+	public static final int PPHSC_RU_UNITNAME_BEFORE = 10247;
+	public static final int PPHSC_RU_UNITNAME_AFTER = 10248;
+	public static final int PPHSC_RU_TAXRATE_BEFORE = 10249;
+	public static final int PPHSC_RU_TAXRATE_AFTER = 10250;
+	public static final int PPHSC_RU_WAREPRICE_BEFORE = 10251;
+	public static final int PPHSC_RU_WAREPRICE_AFTER = 10252;
+	public static final int PPHSC_RU_WAREAMT_BEFORE = 10253;
+	public static final int PPHSC_RU_WAREAMT_AFTER = 10254;
+	public static final int PPHSC_RU_WAREAMT_INCR = 10255;
+	public static final int PPHSC_RU_WAREAMT_DECR = 10256;
+	public static final int PPHSC_RU_EXCISE_BEFORE = 10257;
+	public static final int PPHSC_RU_EXCISE_AFTER = 10258;
+	public static final int PPHSC_RU_AMTTAX_BEFORE = 10259;
+	public static final int PPHSC_RU_AMTTAX_AFTER = 10260;
+	public static final int PPHSC_RU_AMTTAX_DIFF = 10261;
+	public static final int PPHSC_RU_CORRINVOICEHEADER = 10262;
+	public static final int PPHSC_RU_CORRINVOICENUMBER = 10263;
+	public static final int PPHSC_RU_CORRINVOICEDATE = 10264;
+	public static final int PPHSC_RU_INVOICE_ABBR = 10265;
+	public static final int PPHSC_RU_CORRINVOICETAB = 10266;
+	public static final int PPHSC_RU_AMTTAX_INCR = 10267;
+	public static final int PPHSC_RU_AMTTAX_DECR = 10268;
+	public static final int PPHSC_RU_EXTRA_TRACING = 10269;
 	//
 	// .N.
 	//

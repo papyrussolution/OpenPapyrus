@@ -68,9 +68,9 @@ static void IMAGEN_mapsinit();
 static void IMAGEN_createmap(int name, ushort * map);
 
 /*
- #ifndef __malloc_h
- #include <malloc.h>
- #endif
+ // @v11.7.1 #ifndef __malloc_h
+ // @v11.7.1 #include <malloc.h>
+ // @v11.7.1 #endif
  */
 #include "impcodes.h"
 

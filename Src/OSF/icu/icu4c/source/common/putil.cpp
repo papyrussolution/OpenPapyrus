@@ -401,7 +401,7 @@ U_CAPI double U_EXPORT2 uprv_fabs(double x) { return fabs(x); }
 U_CAPI double U_EXPORT2 uprv_modf(double x, double* y) { return modf(x, y); }
 U_CAPI double U_EXPORT2 uprv_fmod(double x, double y) { return fmod(x, y); }
 U_CAPI double U_EXPORT2 uprv_pow(double x, double y) { return pow(x, y); /* This is declared as "double pow(double x, double y)" */ }
-U_CAPI double U_EXPORT2 uprv_pow10(int32_t x) { return pow(10.0, (double)x); }
+// @sobolev (replaced with fpow10i) U_CAPI double U_EXPORT2 uprv_pow10(int32_t x) { return pow(10.0, (double)x); }
 
 U_CAPI double U_EXPORT2 uprv_fmax(double x, double y)
 {

@@ -937,7 +937,8 @@ static const char two_ASCII_digits[100][2] = {
 	{'9', '5'}, {'9', '6'}, {'9', '7'}, {'9', '8'}, {'9', '9'}
 };
 
-char* FastUInt32ToBufferLeft(uint32 u, char* buffer) {
+char* FastUInt32ToBufferLeft(uint32 u, char* buffer) 
+{
 	uint32 digits;
 	const char * ASCII_digits = nullptr;
 	// The idea of this implementation is to trim the number of divides to as few
@@ -988,26 +989,26 @@ done:
 		*buffer = 0;
 		return buffer;
 	}
-
 	if(u < 100) {
 		digits = u;
-		if(u >= 10) goto lt100;
+		if(u >= 10) 
+			goto lt100;
 		*buffer++ = '0' + digits;
 		goto done;
 	}
-	if(u  <  10000) {// 10,000
+	if(u < 10000) {// 10,000
 		if(u >= 1000) goto lt10_000;
 		digits = u / 100;
 		*buffer++ = '0' + digits;
 		goto sublt100;
 	}
-	if(u  <  1000000) {// 1,000,000
+	if(u < 1000000) {// 1,000,000
 		if(u >= 100000) goto lt1_000_000;
 		digits = u / 10000; //    10,000
 		*buffer++ = '0' + digits;
 		goto sublt10_000;
 	}
-	if(u  <  100000000) {// 100,000,000
+	if(u < 100000000) {// 100,000,000
 		if(u >= 10000000) goto lt100_000_000;
 		digits = u / 1000000; //   1,000,000
 		*buffer++ = '0' + digits;
@@ -1031,13 +1032,13 @@ char* FastInt32ToBufferLeft(int32 i, char* buffer) {
 	return FastUInt32ToBufferLeft(u, buffer);
 }
 
-char* FastUInt64ToBufferLeft(uint64 u64, char* buffer) {
+char* FastUInt64ToBufferLeft(uint64 u64, char* buffer) 
+{
 	int digits;
 	const char * ASCII_digits = nullptr;
-
 	uint32 u = static_cast<uint32>(u64);
-	if(u == u64) return FastUInt32ToBufferLeft(u, buffer);
-
+	if(u == u64) 
+		return FastUInt32ToBufferLeft(u, buffer);
 	uint64 top_11_digits = u64 / 1000000000;
 	buffer = FastUInt64ToBufferLeft(top_11_digits, buffer);
 	u = u64 - (top_11_digits * 1000000000);

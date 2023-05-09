@@ -9,7 +9,7 @@
 #define liolib_c
 #define LUA_LIB
 
-#include <locale.h>
+// @v11.7.1 #include <locale.h>
 #include "lua.h"
 #include "lauxlib.h"
 #include "lualib.h"
@@ -25,9 +25,9 @@
 #endif
 
 /* Check whether 'mode' matches '[rwa]%+?[L_MODEEXT]*' */
-static int l_checkmode(const char * mode) {
-	return (*mode != '\0' && sstrchr("rwa", *(mode++)) &&
-	       (*mode != '+' || (++mode, 1)) && /* skip if char is '+' */
+static int l_checkmode(const char * mode) 
+{
+	return (*mode != '\0' && sstrchr("rwa", *(mode++)) && (*mode != '+' || (++mode, 1)) && /* skip if char is '+' */
 	       (strspn(mode, L_MODEEXT) == strlen(mode))); /* check extensions */
 }
 

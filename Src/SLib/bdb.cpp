@@ -1249,7 +1249,7 @@ BDbTable::operator DB * () { return H; }
 BDbTable::operator DB_TXN * () { return P_Db ? static_cast<DB_TXN *>(*P_Db) : static_cast<DB_TXN *>(0); }
 int    BDbTable::operator ! () const { return !GetState(stOpened); }
 int    FASTCALL BDbTable::GetState(long stateFlag) const { return BIN(State & stateFlag); }
-int    BDbTable::IsConsistent() const { return (Sign == BDBT_SIGNATURE) ? 1 : DBS.SetError(BE_BDB_INVALID_TABLE, 0); }
+bool   BDbTable::IsConsistent() const { return (Sign == BDBT_SIGNATURE) ? true : LOGIC(DBS.SetError(BE_BDB_INVALID_TABLE, 0)); }
 TSCollection <BDbTable> & BDbTable::GetIdxList() { return IdxList; }
 
 /*virtual*/int BDbTable::Implement_Cmp(const BDbTable::Buffer * pKey1, const BDbTable::Buffer * pKey2)

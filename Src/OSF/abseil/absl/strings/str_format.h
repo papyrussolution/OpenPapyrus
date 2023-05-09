@@ -483,13 +483,10 @@ private:
 //
 // On failure, this function returns `false` and the state of the sink is
 // unspecified.
-template <typename ... Args>
-bool Format(FormatRawSink raw_sink, const FormatSpec<Args ...>& format,
-    const Args& ... args) {
-	return str_format_internal::FormatUntyped(
-		str_format_internal::FormatRawSinkImpl::Extract(raw_sink),
-		str_format_internal::UntypedFormatSpecImpl::Extract(format),
-		{str_format_internal::FormatArgImpl(args) ...});
+template <typename ... Args> bool Format(FormatRawSink raw_sink, const FormatSpec<Args ...>& format, const Args& ... args) 
+{
+	return str_format_internal::FormatUntyped(str_format_internal::FormatRawSinkImpl::Extract(raw_sink),
+		str_format_internal::UntypedFormatSpecImpl::Extract(format), {str_format_internal::FormatArgImpl(args) ...});
 }
 
 // FormatArg

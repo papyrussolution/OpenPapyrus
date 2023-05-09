@@ -909,7 +909,8 @@ void DecimalFormat::setSignAlwaysShown(bool value) {
 	touchNoError();
 }
 
-int32_t DecimalFormat::getMultiplier() const {
+int32_t DecimalFormat::getMultiplier() const 
+{
 	const DecimalFormatProperties * dfp;
 	// Not much we can do to report an error.
 	if(fields == nullptr) {
@@ -923,21 +924,21 @@ int32_t DecimalFormat::getMultiplier() const {
 		return dfp->multiplier;
 	}
 	else if(dfp->magnitudeMultiplier != 0) {
-		return static_cast<int32_t>(uprv_pow10(dfp->magnitudeMultiplier));
+		return static_cast<int32_t>(fpow10i(dfp->magnitudeMultiplier));
 	}
 	else {
 		return 1;
 	}
 }
 
-void DecimalFormat::setMultiplier(int32_t multiplier) {
+void DecimalFormat::setMultiplier(int32_t multiplier) 
+{
 	if(fields == nullptr) {
 		return;
 	}
 	if(multiplier == 0) {
 		multiplier = 1; // one being the benign default value for a multiplier.
 	}
-
 	// Try to convert to a magnitude multiplier first
 	int delta = 0;
 	int value = multiplier;

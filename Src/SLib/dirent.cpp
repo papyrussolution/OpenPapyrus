@@ -582,7 +582,7 @@ int strverscmp(const char * a, const char * b)
 
 #if SLTEST_RUNNING // {
 
-#include <locale.h>
+// @v11.7.1 #include <locale.h>
 #include <direct.h>
 
 static int T_Dirent(STestCase & rCase, const char * pBaseDir)

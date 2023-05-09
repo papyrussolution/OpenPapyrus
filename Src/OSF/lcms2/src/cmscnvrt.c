@@ -59,11 +59,10 @@ _cmsIntentsPluginChunkType _cmsIntentsPluginChunk = { NULL };
 static void DupPluginIntentsList(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
 	_cmsIntentsPluginChunkType newHead = { NULL };
-	cmsIntentsList*  entry;
-	cmsIntentsList*  Anterior = NULL;
+	cmsIntentsList * Anterior = NULL;
 	_cmsIntentsPluginChunkType* head = (_cmsIntentsPluginChunkType*)src->chunks[IntentPlugin];
 	// Walk the list copying all nodes
-	for(entry = head->Intents; entry != NULL; entry = entry->Next) {
+	for(cmsIntentsList * entry = head->Intents; entry != NULL; entry = entry->Next) {
 		cmsIntentsList * newEntry = (cmsIntentsList*)_cmsSubAllocDup(ctx->MemPool, entry, sizeof(cmsIntentsList));
 		if(!newEntry)
 			return;
@@ -94,9 +93,11 @@ static cmsIntentsList* SearchIntent(cmsContext ContextID, uint32 Intent)
 	_cmsIntentsPluginChunkType* ctx = (_cmsIntentsPluginChunkType*)_cmsContextGetClientChunk(ContextID, IntentPlugin);
 	cmsIntentsList* pt;
 	for(pt = ctx->Intents; pt; pt = pt->Next)
-		if(pt->Intent == Intent) return pt;
+		if(pt->Intent == Intent) 
+			return pt;
 	for(pt = DefaultIntents; pt; pt = pt->Next)
-		if(pt->Intent == Intent) return pt;
+		if(pt->Intent == Intent) 
+			return pt;
 	return NULL;
 }
 
@@ -140,9 +141,10 @@ static double CHAD2Temp(const cmsMAT3* Chad)
 	cmsCIEXYZ Dest;
 	cmsCIExyY DestChromaticity;
 	double TempK;
-	cmsMAT3 m1, m2;
-	m1 = *Chad;
-	if(!_cmsMAT3inverse(&m1, &m2)) return FALSE;
+	cmsMAT3 m2;
+	cmsMAT3 m1 = *Chad;
+	if(!_cmsMAT3inverse(&m1, &m2)) 
+		return FALSE;
 	s.n[VX] = cmsD50_XYZ()->X;
 	s.n[VY] = cmsD50_XYZ()->Y;
 	s.n[VZ] = cmsD50_XYZ()->Z;
@@ -161,7 +163,6 @@ static void Temp2CHAD(cmsMAT3* Chad, double Temp)
 {
 	cmsCIEXYZ White;
 	cmsCIExyY ChromaticityOfWhite;
-
 	cmsWhitePointFromTemp(&ChromaticityOfWhite, Temp);
 	cmsxyY2XYZ(&White, &ChromaticityOfWhite);
 	_cmsAdaptationMatrix(Chad, NULL, &White, cmsD50_XYZ());
@@ -169,18 +170,12 @@ static void Temp2CHAD(cmsMAT3* Chad, double Temp)
 
 // Join scalings to obtain relative input to absolute and then to relative output.
 // Result is stored in a 3x3 matrix
-static boolint ComputeAbsoluteIntent(double AdaptationState,
-    const cmsCIEXYZ* WhitePointIn,
-    const cmsMAT3* ChromaticAdaptationMatrixIn,
-    const cmsCIEXYZ* WhitePointOut,
-    const cmsMAT3* ChromaticAdaptationMatrixOut,
-    cmsMAT3* m)
+static boolint ComputeAbsoluteIntent(double AdaptationState, const cmsCIEXYZ* WhitePointIn, const cmsMAT3* ChromaticAdaptationMatrixIn,
+    const cmsCIEXYZ* WhitePointOut, const cmsMAT3* ChromaticAdaptationMatrixOut, cmsMAT3* m)
 {
 	cmsMAT3 Scale, m1, m2, m3, m4;
-
 	// TODO: Follow Marc Mahy's recommendation to check if CHAD is same by using M1*M2 == M2*M1. If so, do nothing.
 	// TODO: Add support for ArgyllArts tag
-
 	// Adaptation state
 	if(AdaptationState == 1.0) {
 		// Observer is fully adapted. Keep chromatic adaptation.
@@ -243,63 +238,42 @@ static boolint IsEmptyLayer(cmsMAT3* m, cmsVEC3* off)
 	double diff = 0;
 	cmsMAT3 Ident;
 	int i;
-
 	if(m == NULL && off == NULL) return TRUE; // NULL is allowed as an empty layer
 	if(m == NULL && off != NULL) return FALSE; // This is an internal error
-
 	_cmsMAT3identity(&Ident);
-
 	for(i = 0; i < 3*3; i++)
 		diff += fabs(((double *)m)[i] - ((double *)&Ident)[i]);
-
 	for(i = 0; i < 3; i++)
 		diff += fabs(((double *)off)[i]);
-
 	return (diff < 0.002);
 }
 
 // Compute the conversion layer
-static boolint ComputeConversion(uint32 i,
-    cmsHPROFILE hProfiles[],
-    uint32 Intent,
-    boolint BPC,
-    double AdaptationState,
-    cmsMAT3* m, cmsVEC3* off)
+static boolint ComputeConversion(uint32 i, cmsHPROFILE hProfiles[], uint32 Intent, boolint BPC, double AdaptationState, cmsMAT3* m, cmsVEC3* off)
 {
 	int k;
-
 	// m  and off are set to identity and this is detected latter on
 	_cmsMAT3identity(m);
 	_cmsVEC3init(off, 0, 0, 0);
-
 	// If intent is abs. colorimetric,
 	if(Intent == INTENT_ABSOLUTE_COLORIMETRIC) {
 		cmsCIEXYZ WhitePointIn, WhitePointOut;
 		cmsMAT3 ChromaticAdaptationMatrixIn, ChromaticAdaptationMatrixOut;
-
 		_cmsReadMediaWhitePoint(&WhitePointIn,  hProfiles[i-1]);
 		_cmsReadCHAD(&ChromaticAdaptationMatrixIn, hProfiles[i-1]);
-
 		_cmsReadMediaWhitePoint(&WhitePointOut,  hProfiles[i]);
 		_cmsReadCHAD(&ChromaticAdaptationMatrixOut, hProfiles[i]);
-
-		if(!ComputeAbsoluteIntent(AdaptationState,
-		    &WhitePointIn,  &ChromaticAdaptationMatrixIn,
-		    &WhitePointOut, &ChromaticAdaptationMatrixOut, m)) return FALSE;
+		if(!ComputeAbsoluteIntent(AdaptationState, &WhitePointIn,  &ChromaticAdaptationMatrixIn, &WhitePointOut, &ChromaticAdaptationMatrixOut, m)) 
+			return FALSE;
 	}
 	else {
 		// Rest of intents may apply BPC.
-
 		if(BPC) {
 			cmsCIEXYZ BlackPointIn, BlackPointOut;
-
 			cmsDetectBlackPoint(&BlackPointIn,  hProfiles[i-1], Intent, 0);
 			cmsDetectDestinationBlackPoint(&BlackPointOut, hProfiles[i], Intent, 0);
-
 			// If black points are equal, then do nothing
-			if(BlackPointIn.X != BlackPointOut.X ||
-			    BlackPointIn.Y != BlackPointOut.Y ||
-			    BlackPointIn.Z != BlackPointOut.Z)
+			if(BlackPointIn.X != BlackPointOut.X || BlackPointIn.Y != BlackPointOut.Y || BlackPointIn.Z != BlackPointOut.Z)
 				ComputeBlackPointCompensation(&BlackPointIn, &BlackPointOut, m, off);
 		}
 	}
@@ -312,11 +286,9 @@ static boolint ComputeConversion(uint32 i,
 	// y = M x'c + Off
 	// y = y'c; y' = y / c
 	// y' = (Mx'c + Off) /c = Mx' + (Off / c)
-
 	for(k = 0; k < 3; k++) {
 		off->n[k] /= MAX_ENCODEABLE_XYZ;
 	}
-
 	return TRUE;
 }
 
@@ -715,7 +687,6 @@ static boolint BlackPreservingSampler(const uint16 In[], uint16 Out[], void * Ca
 	Error = cmsDeltaE(&ColorimetricLab, &BlackPreservingLab);
 	if(Error > bp->MaxError)
 		bp->MaxError = Error;
-
 	return TRUE;
 }
 
@@ -729,14 +700,12 @@ static cmsPipeline * BlackPreservingKPlaneIntents(cmsContext ContextID, uint32 n
 	cmsStage *         CLUT;
 	uint32 i, nGridPoints;
 	cmsHPROFILE hLab;
-
 	// Sanity check
-	if(nProfiles < 1 || nProfiles > 255) return NULL;
-
+	if(nProfiles < 1 || nProfiles > 255) 
+		return NULL;
 	// Translate black-preserving intents to ICC ones
 	for(i = 0; i < nProfiles; i++)
 		ICCIntents[i] = TranslateNonICCIntents(TheIntents[i]);
-
 	// Check for non-cmyk profiles
 	if(cmsGetColorSpace(hProfiles[0]) != cmsSigCmykData ||
 	    !(cmsGetColorSpace(hProfiles[nProfiles-1]) == cmsSigCmykData ||
@@ -750,39 +719,26 @@ static cmsPipeline * BlackPreservingKPlaneIntents(cmsContext ContextID, uint32 n
 	// We need the input LUT of the last profile, assuming this one is responsible of
 	// black generation. This LUT will be searched in inverse order.
 	bp.LabK2cmyk = _cmsReadInputLUT(hProfiles[nProfiles-1], INTENT_RELATIVE_COLORIMETRIC);
-	if(bp.LabK2cmyk == NULL) goto Cleanup;
-
+	if(bp.LabK2cmyk == NULL) 
+		goto Cleanup;
 	// Get total area coverage (in 0..1 domain)
 	bp.MaxTAC = cmsDetectTAC(hProfiles[nProfiles-1]) / 100.0;
-	if(bp.MaxTAC <= 0) goto Cleanup;
-
+	if(bp.MaxTAC <= 0) 
+		goto Cleanup;
 	// Create a LUT holding normal ICC transform
-	bp.cmyk2cmyk = DefaultICCintents(ContextID,
-		nProfiles,
-		ICCIntents,
-		hProfiles,
-		BPC,
-		AdaptationStates,
-		dwFlags);
-	if(bp.cmyk2cmyk == NULL) goto Cleanup;
-
+	bp.cmyk2cmyk = DefaultICCintents(ContextID, nProfiles, ICCIntents, hProfiles, BPC, AdaptationStates, dwFlags);
+	if(bp.cmyk2cmyk == NULL) 
+		goto Cleanup;
 	// Now the tone curve
-	bp.KTone = _cmsBuildKToneCurve(ContextID, 4096, nProfiles,
-		ICCIntents,
-		hProfiles,
-		BPC,
-		AdaptationStates,
-		dwFlags);
-	if(bp.KTone == NULL) goto Cleanup;
-
+	bp.KTone = _cmsBuildKToneCurve(ContextID, 4096, nProfiles, ICCIntents, hProfiles, BPC, AdaptationStates, dwFlags);
+	if(bp.KTone == NULL) 
+		goto Cleanup;
 	// To measure the output, Last profile to Lab
 	hLab = cmsCreateLab4ProfileTHR(ContextID, NULL);
 	bp.hProofOutput = cmsCreateTransformTHR(ContextID, hProfiles[nProfiles-1],
-		CHANNELS_SH(4)|BYTES_SH(2), hLab, TYPE_Lab_DBL,
-		INTENT_RELATIVE_COLORIMETRIC,
-		cmsFLAGS_NOCACHE|cmsFLAGS_NOOPTIMIZE);
-	if(bp.hProofOutput == NULL) goto Cleanup;
-
+		CHANNELS_SH(4)|BYTES_SH(2), hLab, TYPE_Lab_DBL, INTENT_RELATIVE_COLORIMETRIC, cmsFLAGS_NOCACHE|cmsFLAGS_NOOPTIMIZE);
+	if(bp.hProofOutput == NULL) 
+		goto Cleanup;
 	// Same as anterior, but lab in the 0..1 range
 	bp.cmyk2Lab = cmsCreateTransformTHR(ContextID, hProfiles[nProfiles-1],
 		FLOAT_SH(1)|CHANNELS_SH(4)|BYTES_SH(4), hLab,
@@ -861,20 +817,20 @@ uint32 CMSEXPORT cmsGetSupportedIntentsTHR(cmsContext ContextID, uint32 nMax, ui
 	_cmsIntentsPluginChunkType* ctx = (_cmsIntentsPluginChunkType*)_cmsContextGetClientChunk(ContextID, IntentPlugin);
 	cmsIntentsList* pt;
 	uint32 nIntents;
-	for(nIntents = 0, pt = ctx->Intents; pt != NULL; pt = pt->Next) {
+	for(nIntents = 0, pt = ctx->Intents; pt; pt = pt->Next) {
 		if(nIntents < nMax) {
-			if(Codes != NULL)
+			if(Codes)
 				Codes[nIntents] = pt->Intent;
-			if(Descriptions != NULL)
+			if(Descriptions)
 				Descriptions[nIntents] = pt->Description;
 		}
 		nIntents++;
 	}
-	for(nIntents = 0, pt = DefaultIntents; pt != NULL; pt = pt->Next) {
+	for(nIntents = 0, pt = DefaultIntents; pt; pt = pt->Next) {
 		if(nIntents < nMax) {
-			if(Codes != NULL)
+			if(Codes)
 				Codes[nIntents] = pt->Intent;
-			if(Descriptions != NULL)
+			if(Descriptions)
 				Descriptions[nIntents] = pt->Description;
 		}
 		nIntents++;
@@ -892,19 +848,21 @@ boolint _cmsRegisterRenderingIntentPlugin(cmsContext id, cmsPluginBase* Data)
 {
 	_cmsIntentsPluginChunkType* ctx = (_cmsIntentsPluginChunkType*)_cmsContextGetClientChunk(id, IntentPlugin);
 	cmsPluginRenderingIntent* Plugin = (cmsPluginRenderingIntent*)Data;
-	cmsIntentsList* fl;
 	// Do we have to reset the custom intents?
 	if(!Data) {
 		ctx->Intents = NULL;
 		return TRUE;
 	}
-	fl = (cmsIntentsList*)_cmsPluginMalloc(id, sizeof(cmsIntentsList));
-	if(fl == NULL) return FALSE;
-	fl->Intent  = Plugin->Intent;
-	strncpy(fl->Description, Plugin->Description, sizeof(fl->Description)-1);
-	fl->Description[sizeof(fl->Description)-1] = 0;
-	fl->Link    = Plugin->Link;
-	fl->Next = ctx->Intents;
-	ctx->Intents = fl;
-	return TRUE;
+	else {
+		cmsIntentsList * fl = (cmsIntentsList*)_cmsPluginMalloc(id, sizeof(cmsIntentsList));
+		if(fl == NULL) 
+			return FALSE;
+		fl->Intent  = Plugin->Intent;
+		strncpy(fl->Description, Plugin->Description, sizeof(fl->Description)-1);
+		fl->Description[sizeof(fl->Description)-1] = 0;
+		fl->Link    = Plugin->Link;
+		fl->Next = ctx->Intents;
+		ctx->Intents = fl;
+		return TRUE;
+	}
 }

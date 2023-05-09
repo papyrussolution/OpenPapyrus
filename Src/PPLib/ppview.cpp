@@ -1,5 +1,5 @@
 // PPVIEW.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023`
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8 // @v11.0.4
 //
 #include <pp.h>
@@ -1460,7 +1460,7 @@ PPView::~PPView()
 	delete P_Ct;
 }
 
-int    PPView::IsConsistent() const { return BIN(Sign == _PPConst.Signature_PPView); }
+bool   PPView::IsConsistent() const { return (Sign == _PPConst.Signature_PPView); }
 const  PPBaseFilt * PPView::GetBaseFilt() const { return P_F ? P_F : (PPSetError(PPERR_BASEFILTUNSUPPORTED), 0); }
 
 int FASTCALL PPView::Helper_InitBaseFilt(const PPBaseFilt * pFilt)

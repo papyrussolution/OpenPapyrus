@@ -8,7 +8,7 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <tchar.h>
+//@v11.7.1 #include <tchar.h>
 #include <sspi.h>
 #include <lm.h>
 

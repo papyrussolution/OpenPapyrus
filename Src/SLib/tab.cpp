@@ -1,5 +1,5 @@
 // TAB.CPP
-// Copyright (c) Sobolev A. 1995-2000, 2003, 2010, 2013, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) Sobolev A. 1995-2000, 2003, 2010, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -77,10 +77,6 @@ int ai_tab(const void * tbl, int req, int def)
 //
 //
 //
-
-//
-//
-//
 #define STAB_ROW_SIGN 0x54425257U
 
 STab::Row::Row() : Set("^\001"), Sign(STAB_ROW_SIGN)
@@ -93,10 +89,7 @@ STab::Row::~Row()
 	Sign = 0;
 }
 
-int STab::Row::IsConsistent() const
-{
-	return BIN(Sign == STAB_ROW_SIGN);
-}
+bool STab::Row::IsConsistent() const { return (Sign == STAB_ROW_SIGN); }
 
 void STab::Row::Clear()
 {
@@ -127,10 +120,7 @@ int FASTCALL STab::Row::Add(long intVal)
 	return Add(temp_buf.Cat(intVal));
 }
 
-uint STab::Row::GetCount() const
-{
-	return PosList.getCount();
-}
+uint STab::Row::GetCount() const { return PosList.getCount(); }
 
 int STab::Row::Get(uint pos, SString & rStr) const
 {
@@ -202,10 +192,7 @@ STab & STab::Z()
 	return *this;
 }
 
-uint STab::GetCount() const
-{
-	return Data.getCount();
-}
+uint STab::GetCount() const { return Data.getCount(); }
 
 int FASTCALL STab::AddRow(const Row & rRow)
 {

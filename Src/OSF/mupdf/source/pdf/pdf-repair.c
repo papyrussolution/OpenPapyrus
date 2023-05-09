@@ -416,7 +416,7 @@ have_next_token:
 					goto have_next_token;
 				}
 
-				gen = fz_clampi(gen, 0, 65535);
+				gen = sclamp(gen, 0, 65535);
 
 				if(listlen + 1 == listcap) {
 					listcap = (listcap * 3) / 2;

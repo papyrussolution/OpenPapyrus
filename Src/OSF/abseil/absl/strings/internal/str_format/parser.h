@@ -142,8 +142,7 @@ template <typename Consumer> bool ParseFormatString(string_view src, Consumer co
 	const char* p = src.data();
 	const char* const end = p + src.size();
 	while(p != end) {
-		const char* percent =
-		    static_cast<const char*>(memchr(p, '%', static_cast<size_t>(end - p)));
+		const char* percent = static_cast<const char*>(memchr(p, '%', static_cast<size_t>(end - p)));
 		if(!percent) {
 			// We found the last substring.
 			return consumer.Append(string_view(p, end - p));
@@ -194,24 +193,21 @@ template <typename Consumer> bool ParseFormatString(string_view src, Consumer co
 
 // Always returns true, or fails to compile in a constexpr context if s does not
 // point to a constexpr char array.
-constexpr bool EnsureConstexpr(string_view s) {
-	return s.empty() || s[0] == s[0];
-}
+constexpr bool EnsureConstexpr(string_view s) { return s.empty() || s[0] == s[0]; }
 
 class ParsedFormatBase {
 public:
-	explicit ParsedFormatBase(string_view format, bool allow_ignored,
-	    std::initializer_list<FormatConversionCharSet> convs);
-
-	ParsedFormatBase(const ParsedFormatBase& other) {
+	explicit ParsedFormatBase(string_view format, bool allow_ignored, std::initializer_list<FormatConversionCharSet> convs);
+	ParsedFormatBase(const ParsedFormatBase& other) 
+	{
 		*this = other;
 	}
-
-	ParsedFormatBase(ParsedFormatBase&& other) {
+	ParsedFormatBase(ParsedFormatBase&& other) 
+	{
 		*this = std::move(other);
 	}
-
-	ParsedFormatBase& operator = (const ParsedFormatBase& other) {
+	ParsedFormatBase& operator = (const ParsedFormatBase& other) 
+	{
 		if(this == &other) return *this;
 		has_error_ = other.has_error_;
 		items_ = other.items_;
@@ -221,7 +217,8 @@ public:
 		return *this;
 	}
 
-	ParsedFormatBase& operator = (ParsedFormatBase&& other) {
+	ParsedFormatBase& operator = (ParsedFormatBase&& other) 
+	{
 		if(this == &other) return *this;
 		has_error_ = other.has_error_;
 		data_ = std::move(other.data_);
@@ -231,14 +228,13 @@ public:
 		return *this;
 	}
 
-	template <typename Consumer>
-	bool ProcessFormat(Consumer consumer) const {
+	template <typename Consumer> bool ProcessFormat(Consumer consumer) const 
+	{
 		const char* const base = data_.get();
 		string_view text(base, 0);
 		for(const auto& item : items_) {
 			const char* const end = text.data() + text.size();
-			text =
-			    string_view(end, static_cast<size_t>((base + item.text_end) - end));
+			text = string_view(end, static_cast<size_t>((base + item.text_end) - end));
 			if(item.is_conversion) {
 				if(!consumer.ConvertOne(item.conv, text)) return false;
 			}
@@ -248,11 +244,7 @@ public:
 		}
 		return !has_error_;
 	}
-
-	bool has_error() const {
-		return has_error_;
-	}
-
+	bool has_error() const { return has_error_; }
 private:
 	// Returns whether the conversions match and if !allow_ignored it verifies
 	// that all conversions are used by the format.

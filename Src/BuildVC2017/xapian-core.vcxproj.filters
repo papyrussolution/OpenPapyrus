@@ -541,9 +541,6 @@
     <ClInclude Include="..\OSF\xapian\xapian-core\src\errno_to_string.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\xapian\xapian-core\src\exp10.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\xapian\xapian-core\src\fd.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -563,9 +560,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\xapian\xapian-core\src\keyword.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\xapian\xapian-core\src\log2.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\xapian\xapian-core\src\min_non_zero.h">

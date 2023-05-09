@@ -21,7 +21,6 @@
 #define ABSL_STRINGS_INTERNAL_POW10_HELPER_H_
 
 #include <vector>
-
 #include "absl/base/config.h"
 
 namespace absl {
@@ -31,7 +30,7 @@ namespace strings_internal {
 // Computes the precise value of 10^exp. (I.e. the nearest representable
 // double to the exact value, rounding to nearest-even in the (single) case of
 // being exactly halfway between.)
-double Pow10(int exp);
+// @sobolev (moved to smath.cpp as fpow10i) double Pow10(int exp);
 
 }  // namespace strings_internal
 ABSL_NAMESPACE_END

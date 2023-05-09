@@ -9,7 +9,7 @@
 #define lobject_c
 #define LUA_CORE
 
-#include <locale.h>
+// @v11.7.1 #include <locale.h>
 #include "lua.h"
 #include "lctype.h"
 #include "ldebug.h"

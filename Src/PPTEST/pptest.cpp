@@ -250,7 +250,7 @@ int TestLogin()
 
 #else //
 
-#include <locale.h>
+// @v11.7.1 #include <locale.h>
 /*
 #define ABCD virtual void abc(int & r)
 
@@ -1452,6 +1452,8 @@ static void Test_LibPhoneNumber()
 //#include <memory>
 //#include <string>
 
+//void TestPow10Tab(); // prototype(dconvstr.c)
+
 int DoConstructionTest()
 {
 	int    ok = -1;
@@ -1509,10 +1511,11 @@ int DoConstructionTest()
 #if(_MSC_VER >= 1900)
 	//Test_Fts();
 #endif
+	//TestPow10Tab();
 	//ImportSpecial("D:\\DEV\\RESOURCE\\DATA\\ETC");
 	//Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
 	//TestSArchive();
-	//SDecimalFraction::Test();
+	//SDecimal::Test();
 	//ReformatRazoomnick("D:/Papyrus/Universe-HTT/DATA/Razoomnick-barcodes.csv");	
 	TestGtinStruc();
 	//PPStyloQInterchange::PrepareAhed(true);

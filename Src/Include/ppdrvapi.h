@@ -1,5 +1,6 @@
 // PPDRVAPI.H
-// Copyright (c) A.Sobolev 2013, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2013, 2019, 2020, 2021, 2023
+// @codepage UTF-8
 //
 #ifndef __PPDRVAPI_H
 #define __PPDRVAPI_H
@@ -17,16 +18,16 @@ public:
 	friend class PPDrvSession;
 	PPDrvThreadLocalArea();
 	~PPDrvThreadLocalArea();
-	int    IsConsistent() const;
+	bool   IsConsistent() const;
 	long   GetId() const;
 	ThreadID GetThreadID() const;
 private:
 	int    ResetFinishEvent();
 	int    SignalFinishEvent();
 
-	int    Sign;           // Если Sign == SIGN_PPDRVTLA, то данный объект является валидным (в частности, не разрушен деструктором)
+	int    Sign;           // Р•СЃР»Рё Sign == SIGN_PPDRVTLA, С‚Рѕ РґР°РЅРЅС‹Р№ РѕР±СЉРµРєС‚ СЏРІР»СЏРµС‚СЃСЏ РІР°Р»РёРґРЅС‹Рј (РІ С‡Р°СЃС‚РЅРѕСЃС‚Рё, РЅРµ СЂР°Р·СЂСѓС€РµРЅ РґРµСЃС‚СЂСѓРєС‚РѕСЂРѕРј)
 	long   Id;             // @id
-	ThreadID TId;          // Идентификатор потока
+	ThreadID TId;          // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕС‚РѕРєР°
 	Evnt * P_FinishEvnt;
 public:
 	PPBaseDriver * I;
@@ -35,9 +36,9 @@ public:
 	SString AddedMsgString;
 };
 //
-// Descr: Утилитный класс, реализующий разбор строки входных параметров.
-//   Формат строки: KEY1=VAL1; KEY2=VAL2
-//   Пробелы не значимы.
+// Descr: РЈС‚РёР»РёС‚РЅС‹Р№ РєР»Р°СЃСЃ, СЂРµР°Р»РёР·СѓСЋС‰РёР№ СЂР°Р·Р±РѕСЂ СЃС‚СЂРѕРєРё РІС…РѕРґРЅС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ.
+//   Р¤РѕСЂРјР°С‚ СЃС‚СЂРѕРєРё: KEY1=VAL1; KEY2=VAL2
+//   РџСЂРѕР±РµР»С‹ РЅРµ Р·РЅР°С‡РёРјС‹.
 //
 class PPDrvInputParamBlock {
 public:
@@ -73,8 +74,8 @@ public:
 	const PPDrvThreadLocalArea & GetConstTLA() const;
 	PPBaseDriver * GetI();
 	//
-	// Descr: Задает таблицу с соответствием текст сообщения об ошибке с кодами.
-	//   Элементы таблицы должны соответствовать структуре TextTableEntry.
+	// Descr: Р—Р°РґР°РµС‚ С‚Р°Р±Р»РёС†Сѓ СЃ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµРј С‚РµРєСЃС‚ СЃРѕРѕР±С‰РµРЅРёСЏ РѕР± РѕС€РёР±РєРµ СЃ РєРѕРґР°РјРё.
+	//   Р­Р»РµРјРµРЅС‚С‹ С‚Р°Р±Р»РёС†С‹ РґРѕР»Р¶РЅС‹ СЃРѕРѕС‚РІРµС‚СЃС‚РІРѕРІР°С‚СЊ СЃС‚СЂСѓРєС‚СѓСЂРµ TextTableEntry.
 	//
 	void   DefineErrTextTable(uint numEntries, const SIntToSymbTabEntry * pTab);
 	int    GetLastErr();
@@ -97,11 +98,11 @@ private:
 	const  uint VerMajor;
 	const  uint VerMinor;
 	const  PPDrv_CreateInstanceProc Proc;
-	long   TlsIdx;         // Ид локальной области потока    //
+	long   TlsIdx;         // РРґ Р»РѕРєР°Р»СЊРЅРѕР№ РѕР±Р»Р°СЃС‚Рё РїРѕС‚РѕРєР°    //
 	long   Id;
 	ACount LastThread;
-	ACount DllRef;         // Счетчик активных клиентов для DLL-сервера
-	SCriticalSection::Data Cs_Log; // Критическая секция защиты записи в Log и собственно переменной LogFileName
+	ACount DllRef;         // РЎС‡РµС‚С‡РёРє Р°РєС‚РёРІРЅС‹С… РєР»РёРµРЅС‚РѕРІ РґР»СЏ DLL-СЃРµСЂРІРµСЂР°
+	SCriticalSection::Data Cs_Log; // РљСЂРёС‚РёС‡РµСЃРєР°СЏ СЃРµРєС†РёСЏ Р·Р°С‰РёС‚С‹ Р·Р°РїРёСЃРё РІ Log Рё СЃРѕР±СЃС‚РІРµРЅРЅРѕ РїРµСЂРµРјРµРЅРЅРѕР№ LogFileName
 	SString LogFileName;
 	StrAssocArray ErrText;
 };
@@ -119,8 +120,8 @@ public:
 	PPBaseDriver();
 	virtual ~PPBaseDriver();
 	//
-	// Descr: Обрабатывает все команды, кроме INIT и RELEASE. Текст команды поступает в ProcessCommand
-	//   в верхнем регистре.
+	// Descr: РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ РІСЃРµ РєРѕРјР°РЅРґС‹, РєСЂРѕРјРµ INIT Рё RELEASE. РўРµРєСЃС‚ РєРѕРјР°РЅРґС‹ РїРѕСЃС‚СѓРїР°РµС‚ РІ ProcessCommand
+	//   РІ РІРµСЂС…РЅРµРј СЂРµРіРёСЃС‚СЂРµ.
 	//
 	virtual  int  ProcessCommand(const SString & rCmd, const char * pInputData, SString & rOutput);
 private:
@@ -129,7 +130,7 @@ private:
 	SString LogFileName;
 };
 //
-// Descr: Макрос, который должен использоваться для инициализации драйвера устройства.
+// Descr: РњР°РєСЂРѕСЃ, РєРѕС‚РѕСЂС‹Р№ РґРѕР»Р¶РµРЅ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РґР»СЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё РґСЂР°Р№РІРµСЂР° СѓСЃС‚СЂРѕР№СЃС‚РІР°.
 // Sample:
 //   static PPDrvSession::TextTableEntry _SampleDrvErrTab[] = { { 1, "error text 1" }, { 2, "error text 2" } };
 //   class PPDrvSample : public PPBaseDriver { };

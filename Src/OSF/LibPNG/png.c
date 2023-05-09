@@ -2313,20 +2313,20 @@ int png_check_fp_string(const char * string, size_t size)
 //
 // Utility used below - a simple accurate power of ten from an integral exponent.
 //
+/* @sobolev (replaced with fpow10i)
 static double png_pow10(int power)
 {
 	int recip = 0;
 	double d = 1;
-	/* Handle negative exponent with a reciprocal at the end because
-	 * 10 is exact whereas .1 is inexact in base 2
-	 */
+	// Handle negative exponent with a reciprocal at the end because
+	// 10 is exact whereas .1 is inexact in base 2
 	if(power < 0) {
 		if(power < DBL_MIN_10_EXP) 
 			return 0;
 		recip = 1, power = -power;
 	}
 	if(power > 0) {
-		/* Decompose power bitwise. */
+		// Decompose power bitwise
 		double mult = 10;
 		do {
 			if(power & 1) 
@@ -2337,9 +2337,9 @@ static double png_pow10(int power)
 		if(recip != 0) 
 			d = 1/d;
 	}
-	/* else power is 0 and d is 1 */
+	// else power is 0 and d is 1
 	return d;
-}
+}*/
 
 /* Function to format a floating point value in ASCII with a given
  * precision.
@@ -2378,10 +2378,10 @@ void /*PRIVATE*/ png_ascii_from_fp(png_const_structrp png_ptr, char * ascii, siz
 			(void)frexp(fp, &exp_b10); /* exponent to base 2 */
 			exp_b10 = (exp_b10 * 77) >> 8; /* <= exponent to base 10 */
 			/* Avoid underflow here. */
-			base = png_pow10(exp_b10); /* May underflow */
+			base = fpow10i(exp_b10); /* May underflow */
 			while(base < DBL_MIN || base < fp) {
 				/* And this may overflow. */
-				double test = png_pow10(exp_b10+1);
+				double test = fpow10i(exp_b10+1);
 				if(test <= DBL_MAX) {
 					++exp_b10;
 					base = test;

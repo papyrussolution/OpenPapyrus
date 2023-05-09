@@ -23,15 +23,12 @@
 #define XAPIAN_INCLUDED_HONEY_VERSION_H
 
 #include "honey_defs.h"
-
 #include "omassert.h"
-
 #include <algorithm>
 #include <cstring>
 #include <string>
-
 #include "backends/uuids.h"
-#include "internaltypes.h"
+//#include "internaltypes.h"
 #include "min_non_zero.h"
 #include "xapian/types.h"
 

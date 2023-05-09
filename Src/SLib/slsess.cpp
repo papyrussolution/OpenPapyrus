@@ -4,7 +4,6 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <locale.h> // setlocale()
 // htmlhelp.h {
 #define HH_INITIALIZE            0x001C  // Initializes the help system.
 #define HH_UNINITIALIZE          0x001D  // Uninitializes the help system.
@@ -267,9 +266,10 @@ static void InitTest()
 		// @paranoic (Эта проверка нужна мне для успокоения, ибо меня преследует фобия, что такое равенство не выполняется)
 		//
 		char   temp_buf[32];
-		assert((void *)temp_buf == (void *)&temp_buf);
+		STATIC_ASSERT((void *)temp_buf == (void *)&temp_buf);
 	}
 	{
+		//#pragma pack(show)
 		//
 		// Проверяем работоспособность *& для присваивания указателя по ссылке.
 		//
@@ -298,7 +298,8 @@ static void InitTest()
 		// @v11.7.0
 		// Кроме того, проверяем, чтобы код компилировался с выравниванием по 1 байту
 		// 
-		assert(sizeof(LocalData) == 11);
+		STATIC_ASSERT(offsetof(LocalData, A) == 0 && offsetof(LocalData, C) == 4 && offsetof(LocalData, B) == 5);
+		STATIC_ASSERT(sizeof(LocalData) == 13);
 	}
 	{
 		//

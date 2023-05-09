@@ -3070,6 +3070,15 @@ uint StrAssocTree::ENTRY::BaseList::GetCount() const
 	return _c;
 }
 
+uint StrAssocTree::ENTRY::BaseList::GetDepth() const
+{
+	uint   _d = 0;
+	for(uint i = 0; i < getCount(); i++) {
+		SETMAX(_d, at(i).GetDepth());
+	}
+	return _d;
+}
+
 bool StrAssocTree::ENTRY::BaseList::Implement_Get_Unsafe(SHandle h, int32 currentParentId, long * pId, long * pParentId, uint * pStrP) const
 {
 	bool result = false;
@@ -3262,10 +3271,8 @@ int FASTCALL StrAssocTree::ENTRY::Copy(const ENTRY & rS)
 	return ok;
 }
 
-uint StrAssocTree::ENTRY::GetCount() const
-{
-	return 1 + (P_Children ? P_Children->GetCount() : 0);
-}
+uint StrAssocTree::ENTRY::GetCount() const { return 1 + (P_Children ? P_Children->GetCount() : 0); }
+uint StrAssocTree::ENTRY::GetDepth() const { return 1 + (P_Children ? P_Children->GetDepth() : 0); }
 
 StrAssocTree::StrAssocTree() : SStrGroup(), TextCmpProc(0), L(0)
 {
@@ -3299,9 +3306,26 @@ uint StrAssocTree::GetCount() const
 	return L.GetCount();
 }
 
+uint StrAssocTree::GetDepth(SHandle h) const
+{
+	uint   result = 0;
+	if(!h) {
+		result = L.GetDepth();
+	}
+	else {
+		; // @todo
+		long   id = 0;
+		long   parent_id = 0;
+		if(Get_Unsafe(h, &id, &parent_id, 0)) {
+			result = static_cast<const ENTRY *>(static_cast<void *>(h))->GetDepth();
+		}
+	}
+	return result;
+}
+
 bool StrAssocTree::HasChildren(long id) const
 {
-	ENTRY * p_entry = L.Implement_Search(id, 0, 0);
+	const ENTRY * p_entry = L.Implement_Search(id, 0, 0);
 	return (p_entry && p_entry->P_Children && p_entry->P_Children->SArray::getCount());
 }
 	

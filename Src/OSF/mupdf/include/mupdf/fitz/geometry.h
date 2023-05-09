@@ -71,7 +71,7 @@ static inline int fz_maxi(int a, int b) { return (a > b ? a : b); }
 static inline size_t fz_maxz(size_t a, size_t b) { return (a > b ? a : b); }
 static inline int64_t fz_maxi64(int64_t a, int64_t b) { return (a > b ? a : b); }
 static inline float fz_clamp(float f, float min, float max) { return (f > min ? (f < max ? f : max) : min); }
-static inline int fz_clampi(int i, int min, int max) { return (i > min ? (i < max ? i : max) : min); }
+// @sobolev static inline int fz_clampi_Removed(int i, int min, int max) { return (i > min ? (i < max ? i : max) : min); }
 static inline double fz_clampd(double d, double min, double max) { return (d > min ? (d < max ? d : max) : min); }
 static inline void * fz_clampp(void * p, void * min, void * max) { return (p > min ? (p < max ? p : max) : min); }
 

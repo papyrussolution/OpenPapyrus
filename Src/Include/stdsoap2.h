@@ -471,7 +471,7 @@
 /* if we have xlocale.h we use it to avoid decimal point conversion issues */
  #ifdef WITH_C_LOCALE
   #ifdef WIN32
-   #include <locale.h>
+   // @v11.7.1 #include <locale.h>
   #else
    #include <xlocale.h>
   #endif
@@ -500,9 +500,9 @@
   #define SOAP_BUFLEN (32767)
   #define SOAP_SOCKET short
   #pragma nolist
-  #include <sys\param.h>
-  #include <sys\socket.h>
-  #include <netinet\in.h>
+  #include <sys/param.h>
+  #include <sys/socket.h>
+  #include <netinet/in.h>
   #include <netdb.h>
   #include <stdio.h>
   #include <fcntl.h>

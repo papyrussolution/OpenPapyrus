@@ -26,12 +26,8 @@
 //
 #include <sl-packing-set_compiler_default.h> // @v11.7.0
 #ifndef RC_INVOKED
-	#ifndef __STDIO_H
-		#include <stdio.h>
-	#endif
-	#ifndef __IO_H
-		#include <io.h>
-	#endif
+	#include <stdio.h>
+	#include <io.h>
 	#include <assert.h>
 	#include <limits.h>
 	#include <stddef.h>
@@ -41,6 +37,7 @@
 	#include <errno.h>
 	#include <signal.h> // @v11.2.12
 	#include <setjmp.h> // @v11.2.12
+	#include <locale.h> // @v11.7.1
 	// @v10.9.6 {
 	#if _MSC_VER < 1900
 		// POSIX Supplement
@@ -90,11 +87,14 @@
 	#endif
 	// } @v10.9.6
 	#include <fcntl.h>
-	#include <sys\stat.h>
+	#include <sys/locking.h> // @v11.7.1
+	#include <sys/stat.h>
+	#include <sys/types.h> // @v11.7.1
 	#include <tchar.h>
 	#include <wchar.h>
 	#include <stdint.h> // @v10.8.1
 	#include <string.h> // @v11.0.7
+	#include <malloc.h> // @v11.7.1 
 	// @v10.4.3
 	#ifdef HAVE_UNISTD_H
 		#include <unistd.h>
@@ -5373,6 +5373,7 @@ public:
 	// Descr: Unpack floating-point double precision binary value according to IEEE 754
 	// 
 	static uint STDCALL UnpackDouble(double input, uint64 * pOutBinaryMantissa, int32 * pOutBinaryExponent);
+	static int  STDCALL PackDouble(int inputIsNan, int inputSign, uint64 inputBinaryMantissa, int32 inputBinaryExponent, int inputIsInfinity, double * pOutput);
 	//
 	// Descr: Print IEEE 754 floating-point double precision value to string
 	// @param  outbuf            Address of variable with a pointer to output buffer filled by the function.
@@ -8801,6 +8802,7 @@ private:
 			BaseList & Z();
 			int    FASTCALL Copy(const BaseList & rS);
 			uint   GetCount() const;
+			uint   GetDepth() const;
 			bool   Implement_Get_Unsafe(SHandle h, int32 currentParentId, long * pId, long * pParentId, uint * pStrP) const;
 			//
 			// Descr: Реализует вставку в конец вектора нового элемента с идентификатором key и позицией строки strP.
@@ -8832,6 +8834,7 @@ private:
 		void   Destroy();
 		int    FASTCALL Copy(const ENTRY & rS);
 		uint   GetCount() const;
+		uint   GetDepth() const;
 		//
 		int32  Key;
 		uint32 StrP;
@@ -8867,6 +8870,11 @@ public:
 	int32  GetNodeKey(SHandle h) const;
 	SString & GetNodeString(SHandle h, SString & rBuf) const;
 	uint   GetNodeFlags(SHandle h) const;
+	//
+	// Descr: Возвращает глубину вложенности вниз элемента h (включая его самого).
+	//   Если h == 0, то возвращает глубину вложенности всего дерева.
+	//
+	uint   GetDepth(SHandle h) const;
 	//
 	// Descr: Формирует полный список ключевых идентификаторов, хранящихся в дереве.
 	//  Порядок обхода элементов дерева - в глубину: перебираются элементы корневого уровня и для каждого элемента,
@@ -12323,20 +12331,20 @@ int    GetNthTransposition(long list[], long count, long n);
 //         24 - nominator
 //         23 - denominator  
 //
-class SDecimalFraction {
+class SDecimal {
 public:
-	SDecimalFraction();
-	explicit SDecimalFraction(double v);
-	SDecimalFraction(int64 mantissa, int16 exp);
+	SDecimal();
+	explicit SDecimal(double v);
+	SDecimal(int64 mantissa, int16 exp);
 	double GetReal() const;
 	bool   Normalize();
-	SDecimalFraction & Z();
+	SDecimal & Z();
 	bool   IsZero() const;
-	static SDecimalFraction Neg(const SDecimalFraction & rV);
-	int    Add(const SDecimalFraction & rA, const SDecimalFraction & rB);
-	int    Sub(const SDecimalFraction & rA, const SDecimalFraction & rB);
-	int    Mul(const SDecimalFraction & rA, const SDecimalFraction & rB);
-	int    Div(const SDecimalFraction & rA, const SDecimalFraction & rB);
+	static SDecimal Neg(const SDecimal & rV);
+	int    Add(const SDecimal & rA, const SDecimal & rB);
+	int    Sub(const SDecimal & rA, const SDecimal & rB);
+	int    Mul(const SDecimal & rA, const SDecimal & rB);
+	int    Div(const SDecimal & rA, const SDecimal & rB);
 
 	uint64 ToUed(uint numBits) const;
 	int   FromUed(uint64 ued, uint numBits);
@@ -14355,7 +14363,7 @@ public:
 		//   это - действительно STab::Row и он не был разрушен деструктором.
 		//   Валидность проверяется по сигнатуре Sign.
 		//
-		int    IsConsistent() const;
+		bool   IsConsistent() const;
 		void   Clear();
 		int    FASTCALL Add(const char * pStr);
 		int    FASTCALL Add(long intVal);
@@ -15172,10 +15180,12 @@ public:
 	// Descr: Функция, замещающая malloc.
 	//
 	static void * FASTCALL M(size_t sz);
+	static void * FASTCALL M_zon0(size_t sz); // Тот же SAlloc::M, но гарантированно возвращающий null при аргументе sz==0
 	//
 	// Descr: Функция, замещающая calloc.
 	//
 	static void * FASTCALL C(size_t n, size_t sz);
+	static void * FASTCALL C_zon0(size_t n, size_t sz); // Тот же SAlloc::C, но гарантированно возвращающий null при аргументе sz==0
 	//
 	// Descr: Функция, замещающая realloc.
 	//
@@ -15333,7 +15343,7 @@ public:
 	//
 	explicit SlThread(void * pInitData = 0, long stopTimeout = SLTHREAD_DEFAULT_STOP_TIMEOUT);
 	virtual ~SlThread();
-	int    IsConsistent() const;
+	bool   IsConsistent() const;
 	operator HANDLE() const { return Handle; }
 	//
 	// Descr: Создает поток и запускает его на исполнение.

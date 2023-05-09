@@ -68,11 +68,10 @@ main := (
 }%%
 
 /* Works only for n < 512 */
-static inline double
-_pow10 (unsigned exponent)
+/* @sobolev (replaced with fpow10i)
+static inline double _pow10 (unsigned exponent)
 {
-  static const double _powers_of_10[] =
-  {
+  static const double _powers_of_10[] = {
     1.0e+256,
     1.0e+128,
     1.0e+64,
@@ -88,11 +87,10 @@ _pow10 (unsigned exponent)
   for (const double *power = _powers_of_10; mask; ++power, mask >>= 1)
     if (exponent & mask) result *= *power;
   return result;
-}
+}*/
 
 /* a variant of strtod that also gets end of buffer in its second argument */
-static inline double
-strtod_rl (const char *p, const char **end_ptr /* IN/OUT */)
+static inline double strtod_rl(const char *p, const char **end_ptr /* IN/OUT */)
 {
   double value = 0;
   double frac = 0;
@@ -114,20 +112,19 @@ strtod_rl (const char *p, const char **end_ptr /* IN/OUT */)
 
   *end_ptr = p;
 
-  if (frac_count) value += frac / _pow10 (frac_count);
-  if (neg) value *= -1.;
-
-  if (unlikely (exp_overflow))
-  {
+  if (frac_count) 
+	value += frac / fpow10i(frac_count);
+  if (neg) 
+	value *= -1.;
+  if (unlikely (exp_overflow)) {
     if (value == 0) return value;
     if (exp_neg)    return neg ? -DBL_MIN : DBL_MIN;
     else            return neg ? -DBL_MAX : DBL_MAX;
   }
 
-  if (exp)
-  {
-    if (exp_neg) value /= _pow10 (exp);
-    else         value *= _pow10 (exp);
+  if (exp) {
+    if (exp_neg) value /= fpow10i(exp);
+    else         value *= fpow10i(exp);
   }
 
   return value;

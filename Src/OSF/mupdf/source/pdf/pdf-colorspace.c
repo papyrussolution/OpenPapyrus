@@ -166,7 +166,7 @@ static fz_colorspace * load_indexed(fz_context * ctx, pdf_obj * array)
 	{
 		base = pdf_load_colorspace(ctx, baseobj);
 		high = pdf_to_int(ctx, highobj);
-		high = fz_clampi(high, 0, 255);
+		high = sclamp(high, 0, 255);
 		n = (size_t)base->n * (high + 1);
 		lookup = (uchar*)Memento_label(fz_malloc(ctx, n), "cs_lookup");
 		if(pdf_is_string(ctx, lookupobj)) {

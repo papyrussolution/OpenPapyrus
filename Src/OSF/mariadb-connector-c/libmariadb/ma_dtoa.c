@@ -214,13 +214,10 @@ size_t ma_gcvt(double x, my_gcvt_arg_type type, int width, char * to, bool * err
 			*error = TRUE;
 		return 1;
 	}
-
 	if(error)
 		*error = FALSE;
-
 	src = res;
 	len = (int)(end - res);
-
 	/*
 	   Number of digits in the exponent from the 'e' conversion.
 	   The sign of the exponent is taken into account separetely, we don't need
@@ -400,11 +397,9 @@ size_t ma_gcvt(double x, my_gcvt_arg_type type, int width, char * to, bool * err
 		if(dst < dend)
 			*dst++ = decpt % 10 + '0';
 	}
-
 end:
 	dtoa_free(res, buf, sizeof(buf));
 	*dst = '\0';
-
 	return dst - to;
 }
 
@@ -1122,8 +1117,7 @@ static char * dtoa(double dd, int mode, int ndigits, int * decpt, int * sign, ch
 	   then *decpt is set to DTOA_OVERFLOW.
 
 	   mode:
-	        0 ==> shortest string that yields d when read in
-	              and rounded to nearest.
+	        0 ==> shortest string that yields d when read in and rounded to nearest.
 	        1 ==> like 0, but with Steele & White stopping rule;
 	              e.g. with IEEE P754 arithmetic , mode 0 gives
 	              1e23 whereas mode 1 gives 9.999999999999999e22.
@@ -1140,8 +1134,7 @@ static char * dtoa(double dd, int mode, int ndigits, int * decpt, int * sign, ch
 	              With IEEE arithmetic and compilation with
 	              -DHonor_FLT_ROUNDS, modes 4 and 5 behave the same
 	              as modes 2 and 3 when FLT_ROUNDS != 1.
-	        6-9 ==> Debugging modes similar to mode - 4:  don't try
-	              fast floating-point estimate (if applicable).
+	        6-9 ==> Debugging modes similar to mode - 4:  don't try fast floating-point estimate (if applicable).
 
 	    Values of mode other than 0-9 are treated as mode 0.
 
@@ -1177,9 +1170,7 @@ static char * dtoa(double dd, int mode, int ndigits, int * decpt, int * sign, ch
 
 	/* If infinity, set decpt to DTOA_OVERFLOW, if 0 set it to 1 */
 	/* coverity[assign_where_compare_meant] */
-	if(((word0(&u) & Exp_mask) == Exp_mask && (*decpt = DTOA_OVERFLOW)) ||
-	    /* coverity[assign_where_compare_meant] */
-	    (!dval(&u) && (*decpt = 1))) {
+	if(((word0(&u) & Exp_mask) == Exp_mask && (*decpt = DTOA_OVERFLOW)) || /* coverity[assign_where_compare_meant] */ (!dval(&u) && (*decpt = 1))) {
 		/* Infinity, NaN, 0 */
 		char * res = (char *)dtoa_alloc(2, &alloc);
 		res[0] = '0';
@@ -1188,7 +1179,6 @@ static char * dtoa(double dd, int mode, int ndigits, int * decpt, int * sign, ch
 			*rve = res + 1;
 		return res;
 	}
-
 #ifdef Honor_FLT_ROUNDS
 	if((rounding = Flt_Rounds) >= 2) {
 		if(*sign)
@@ -1197,13 +1187,11 @@ static char * dtoa(double dd, int mode, int ndigits, int * decpt, int * sign, ch
 			rounding = 0;
 	}
 #endif
-
 	b = d2b(&u, &be, &bbits, &alloc);
 	if((i = (int)(word0(&u) >> Exp_shift1 & (Exp_mask>>Exp_shift1)))) {
 		dval(&d2) = dval(&u);
 		word0(&d2) &= Frac_mask1;
 		word0(&d2) |= Exp_11;
-
 		/*
 		   log(x)       ~=~ log(1.5) + (x-1.5)/1.5
 		   log10(x)      =  log(x) / log(10)

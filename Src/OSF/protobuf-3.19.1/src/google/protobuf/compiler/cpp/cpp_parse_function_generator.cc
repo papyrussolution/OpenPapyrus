@@ -438,7 +438,8 @@ void ParseFunctionGenerator::GenerateTailcallFieldParseFunctions(Formatter& form
 	}
 }
 
-void ParseFunctionGenerator::GenerateDataDecls(io::Printer* printer) {
+void ParseFunctionGenerator::GenerateDataDecls(io::Printer* printer) 
+{
 	if(!should_generate_tctable()) {
 		return;
 	}
@@ -448,10 +449,7 @@ void ParseFunctionGenerator::GenerateDataDecls(io::Printer* printer) {
 		format("#ifdef PROTOBUF_TAIL_CALL_TABLE_PARSER_ENABLED\n");
 		format.Indent();
 	}
-	format(
-		"static const ::$proto_ns$::internal::TcParseTable<$1$>\n"
-		"    _table_;\n",
-		tc_table_info_->table_size_log2);
+	format("static const ::$proto_ns$::internal::TcParseTable<$1$>\n    _table_;\n", tc_table_info_->table_size_log2);
 	if(should_generate_guarded_tctable()) {
 		format.Outdent();
 		format("#endif  // PROTOBUF_TAIL_CALL_TABLE_PARSER_ENABLED\n");
@@ -459,7 +457,8 @@ void ParseFunctionGenerator::GenerateDataDecls(io::Printer* printer) {
 	}
 }
 
-void ParseFunctionGenerator::GenerateDataDefinitions(io::Printer* printer) {
+void ParseFunctionGenerator::GenerateDataDefinitions(io::Printer* printer) 
+{
 	if(!should_generate_tctable()) {
 		return;
 	}
@@ -473,9 +472,9 @@ void ParseFunctionGenerator::GenerateDataDefinitions(io::Printer* printer) {
 	}
 }
 
-void ParseFunctionGenerator::GenerateLoopingParseFunction(Formatter& format) {
-	format(
-		"const char* $classname$::_InternalParse(const char* ptr, "
+void ParseFunctionGenerator::GenerateLoopingParseFunction(Formatter& format) 
+{
+	format("const char* $classname$::_InternalParse(const char* ptr, "
 		"::$proto_ns$::internal::ParseContext* ctx) {\n"
 		"$annotate_deserialize$"
 		"#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure\n");

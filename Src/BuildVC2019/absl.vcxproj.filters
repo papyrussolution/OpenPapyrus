@@ -477,6 +477,9 @@
     <ClInclude Include="..\OSF\abseil\absl\absl-internal.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\strings\internal\pow10_helper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\osf\abseil\absl\types\bad_any_cast.cc" />

@@ -2209,7 +2209,6 @@ void ImGui::ColorConvertRGBtoHSV(float r, float g, float b, float& out_h, float&
 		ImSwap(r, g);
 		K = -2.f / 6.f - K;
 	}
-
 	const float chroma = r - (g < b ? g : b);
 	out_h = ImFabs(K + (g - b) / (6.f * chroma + 1e-20f));
 	out_s = chroma / (r + 1e-20f);
@@ -5112,10 +5111,8 @@ bool ImGui::BeginChildEx(const char* name, ImGuiID id, const ImVec2& size_arg, b
 {
 	ImGuiContext & g = *GImGui;
 	ImGuiWindow* parent_window = g.CurrentWindow;
-
 	flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_ChildWindow;
 	flags |= (parent_window->Flags & ImGuiWindowFlags_NoMove); // Inherit the NoMove flag
-
 	// Size
 	const ImVec2 content_avail = GetContentRegionAvail();
 	ImVec2 size = ImFloor(size_arg);
@@ -5125,29 +5122,24 @@ bool ImGui::BeginChildEx(const char* name, ImGuiID id, const ImVec2& size_arg, b
 	if(size.y <= 0.0f)
 		size.y = ImMax(content_avail.y + size.y, 4.0f);
 	SetNextWindowSize(size);
-
 	// Build up name. If you need to append to a same child from multiple location in the ID stack, use BeginChild(ImGuiID id) with a stable value.
 	const char* temp_window_name;
 	if(name)
 		ImFormatStringToTempBuffer(&temp_window_name, NULL, "%s/%s_%08X", parent_window->Name, name, id);
 	else
 		ImFormatStringToTempBuffer(&temp_window_name, NULL, "%s/%08X", parent_window->Name, id);
-
 	const float backup_border_size = g.Style.ChildBorderSize;
 	if(!border)
 		g.Style.ChildBorderSize = 0.0f;
 	bool ret = Begin(temp_window_name, NULL, flags);
 	g.Style.ChildBorderSize = backup_border_size;
-
 	ImGuiWindow* child_window = g.CurrentWindow;
 	child_window->ChildId = id;
 	child_window->AutoFitChildAxises = (ImS8)auto_fit_axises;
-
 	// Set the cursor to handle case where the user called SetNextWindowPos()+BeginChild() manually.
 	// While this is not really documented/defined, it seems that the expected thing to do.
 	if(child_window->BeginCount == 1)
 		parent_window->DC.CursorPos = child_window->Pos;
-
 	// Process navigation-in immediately so NavInit can run on first frame
 	if(g.NavActivateId == id && !(flags & ImGuiWindowFlags_NavFlattened) && (child_window->DC.NavLayersActiveMask != 0 || child_window->DC.NavHasScroll)) {
 		FocusWindow(child_window);

@@ -10,7 +10,7 @@
 #include <slib-internal.h>
 #pragma hdrstop
 //#include <fcntl.h>
-//#include <sys\stat.h>
+//#include <sys/stat.h>
 //
 // Defines
 //

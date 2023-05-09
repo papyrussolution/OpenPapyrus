@@ -265,20 +265,16 @@ void fz_append_int16_le(fz_context * ctx, fz_buffer * buf, int x)
 void fz_append_bits(fz_context * ctx, fz_buffer * buf, int val, int bits)
 {
 	int shift;
-
 	/* Throughout this code, the invariant is that we need to write the
 	 * bottom 'bits' bits of 'val' into the stream. On entry we assume
 	 * that val & ((1<<bits)-1) == val, but we do not rely on this after
 	 * having written the first partial byte. */
-
 	if(!bits)
 		return;
-
 	/* buf->len always covers all the bits in the buffer, including
 	 * any unused ones in the last byte, which will always be 0.
 	 * buf->unused_bits = the number of unused bits in the last byte.
 	 */
-
 	/* Find the amount we need to shift val up by so that it will be in
 	 * the correct position to be inserted into any existing data byte. */
 	shift = (buf->unused_bits - bits);
@@ -290,7 +286,6 @@ void fz_append_bits(fz_context * ctx, fz_buffer * buf, int val, int bits)
 		int extra = (7-shift)>>3; /* Round up to bytes */
 		fz_ensure_buffer(ctx, buf, buf->len + extra);
 	}
-
 	/* Write any bits that will fit into the existing byte */
 	if(buf->unused_bits) {
 		buf->data[buf->len-1] |= (shift >= 0 ? (((uint)val)<<shift) : (((uint)val)>> -shift));
@@ -303,7 +298,6 @@ void fz_append_bits(fz_context * ctx, fz_buffer * buf, int val, int bits)
 		 * fit in this first byte. */
 		bits = -shift;
 	}
-
 	/* Write any whole bytes */
 	while(bits >= 8) {
 		bits -= 8;

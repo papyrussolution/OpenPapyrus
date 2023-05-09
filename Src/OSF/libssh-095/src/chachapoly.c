@@ -27,7 +27,6 @@ struct ssh_packet_header {
 	uint32_t length;
 	uint8 payload[];
 };
-
 #pragma pack(pop)
 
 static const uint8 zero_block_counter[8] = {0, 0, 0, 0, 0, 0, 0, 0};

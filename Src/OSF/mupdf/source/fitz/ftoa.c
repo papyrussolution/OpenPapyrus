@@ -212,7 +212,6 @@ static int powers_ten_e[84] = {
 static diy_fp_t cached_power(int i)
 {
 	diy_fp_t result;
-
 	assert(i >= -37 && i <= 46);
 	result.f = powers_ten[i + 37];
 	result.e = powers_ten_e[i + 37];
@@ -250,7 +249,6 @@ static int digit_gen_mix_grisu2(diy_fp_t D_upper, diy_fp_t delta, char* buffer, 
 	*K += kappa;
 	return len;
 }
-
 /*
         Compute decimal integer m, exp such that:
                 f = m * 10^exp
@@ -261,22 +259,16 @@ int fz_grisu(float v, char* buffer, int* K)
 {
 	diy_fp_t w_lower, w_upper, D_upper, D_lower, c_mk, delta;
 	int length, mk, alpha = -DIY_SIGNIFICAND_SIZE + 4;
-
 	normalized_boundaries(v, &w_lower, &w_upper);
 	mk = k_comp(alpha - w_upper.e - DIY_SIGNIFICAND_SIZE);
 	c_mk = cached_power(mk);
-
 	D_upper = multiply(w_upper, c_mk);
 	D_lower = multiply(w_lower, c_mk);
-
 	D_upper.f--;
 	D_lower.f++;
-
 	delta = minus(D_upper, D_lower);
-
 	*K = -mk;
 	length = digit_gen_mix_grisu2(D_upper, delta, buffer, K);
-
 	buffer[length] = 0;
 	return length;
 }

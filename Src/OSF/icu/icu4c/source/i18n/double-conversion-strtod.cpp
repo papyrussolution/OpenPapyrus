@@ -215,10 +215,8 @@ static bool DoubleStrtod(Vector<const char> trimmed, int exponent, double* resul
 			*result *= exact_powers_of_ten[exponent];
 			return true;
 		}
-		int remaining_digits =
-		    kMaxExactDoubleIntegerDecimalDigits - trimmed.length();
-		if((0 <= exponent) &&
-		    (exponent - remaining_digits < kExactPowersOfTenSize)) {
+		int remaining_digits = kMaxExactDoubleIntegerDecimalDigits - trimmed.length();
+		if((0 <= exponent) && (exponent - remaining_digits < kExactPowersOfTenSize)) {
 			// The trimmed string was short and we can multiply it with
 			// 10^remaining_digits. As a result the remaining exponent now fits
 			// into a double too.

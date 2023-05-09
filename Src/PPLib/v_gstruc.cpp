@@ -10,8 +10,7 @@ GoodsStrucProcessingBlock::GoodsStrucProcessingBlock()
 {
 }
 
-GoodsStrucProcessingBlock::GoodsStrucProcessingBlock(const GoodsStrucProcessingBlock & rS) : 
-	StrucList(rS.StrucList), ItemList(rS.ItemList), StrPool(rS.StrPool)
+GoodsStrucProcessingBlock::GoodsStrucProcessingBlock(const GoodsStrucProcessingBlock & rS) : StrucList(rS.StrucList), ItemList(rS.ItemList), StrPool(rS.StrPool)
 {
 }
 
@@ -935,7 +934,7 @@ void PPViewGoodsStruc::ViewTotal()
 GoodsStrucTreeListViewBlock::GoodsStrucTreeListViewBlock(const GoodsStrucProcessingBlock & rCb) : Cb(rCb), ItemOffset(0x70000000L)
 {
 }
-	
+
 StrAssocTree * GoodsStrucTreeListViewBlock::MakeTree()
 {
 	StrAssocTree * p_list = new StrAssocTree;
@@ -1048,7 +1047,6 @@ void GoodsStrucTreeListViewBlock::AddEntry_TopDown(StrAssocTree * pList, uint le
 	}
 }
 
-#if 1 // {
 static int __MakeGoodsStrucTreeListView(/*PPViewBrowser * pBrw*/)
 {
 	class GStrucListWindow : public ListWindow {
@@ -1154,7 +1152,70 @@ static int __MakeGoodsStrucTreeListView(/*PPViewBrowser * pBrw*/)
 	}*/
 	return ok;
 }
-#endif // } 0
+
+static int Helper_TreeListToSylk(const StrAssocTree * pData, SHandle hEntry, uint & rRowN, uint levelN, SylkWriter & rSw)
+{
+	int    ok = 0;
+	assert(pData);
+	if(pData) {
+		long   id = 0;
+		long   parent_id = 0;
+		SString text_buf;
+		bool   do_process_list = false;
+		if(!hEntry) {
+			do_process_list = true;
+		}
+		else if(pData->Get_Unsafe(hEntry, &id, &parent_id, &text_buf)) {
+			rSw.PutFormat("FG0L", 2, levelN+1, ++rRowN);
+			rSw.PutVal(text_buf.cptr(), 1);
+			do_process_list = true;
+		}
+		if(do_process_list) {
+			TSVector <SHandle> inner_list;
+			if(pData->GetListByParent_Unsafe(hEntry, false, inner_list) > 0) {
+				assert(inner_list.getCount());
+				for(uint i = 0; i < inner_list.getCount(); i++) {
+					Helper_TreeListToSylk(pData, inner_list.at(i), rRowN, levelN+1, rSw); // @recursion
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+static int CopyTreeListToClipboard(const StrAssocTree * pData)
+{
+	int    ok = -1;
+	if(pData && pData->GetCount()) {
+		const uint _depth = pData->GetDepth(SHandle(0));
+		SString val_buf;
+		SString out_buf;
+		if(_depth > 0) {
+			const char * p_fontface_tnr = "Times New Roman";
+			SString dec;
+			SylkWriter sw(0);
+			sw.PutRec("ID", "PPapyrus");
+			{
+				char   buf[64];
+				::GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buf, sizeof(buf));
+				dec.Cat(buf);
+			}
+			sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
+			sw.PutFont('F', p_fontface_tnr, 8,  0);
+			sw.PutRec('F', "G");
+			uint   rown = 0;
+			uint   level = 0;
+			Helper_TreeListToSylk(pData, SHandle(0), rown, level, sw);
+			sw.PutLine("E");
+			{
+				sw.GetBuf(&out_buf);
+				SClipboard::Copy_SYLK(out_buf);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
 
 int PPViewGoodsStruc::MakeTreeListView(PPViewBrowser * pBrw) // @v11.1.12 
 {
@@ -1175,12 +1236,25 @@ int PPViewGoodsStruc::MakeTreeListView(PPViewBrowser * pBrw) // @v11.1.12
 		{
 			if(event.isCmd(cmLBDblClk))
 				TVCMD = cmaEdit;
-			else if(TVKEYDOWN && TVKEY == kbEnter) {
-				event.what = TEvent::evCommand;
-				TVCMD = cmaEdit;
+			else {
+				if(TVKEYDOWN) {
+					if(TVKEY == kbEnter) {
+						event.what = TEvent::evCommand;
+						TVCMD = cmaEdit;
+					}
+				}
 			}
 			ListWindow::handleEvent(event);
-			if(event.isCmd(cmLBItemFocused)) {
+			if(TVKEYDOWN) {
+				if(event.isKeyDown(kbCtrlIns)) {
+					if(P_Def) {
+						StdTreeListBoxDef2_ * p_d = static_cast<StdTreeListBoxDef2_ *>(P_Def);
+						CopyTreeListToClipboard(p_d->GetData());
+						clearEvent(event);
+					}
+				}
+			}
+			else if(event.isCmd(cmLBItemFocused)) {
 				if(H_MainBrwWindow) {
 					long   ident = 0;
 					if(getResult(&ident)) {
@@ -1190,6 +1264,13 @@ int PPViewGoodsStruc::MakeTreeListView(PPViewBrowser * pBrw) // @v11.1.12
 						ForeignFocusEvent & r_p = FfeRing.push(ev_data);
 						::PostMessage(static_cast<HWND>(H_MainBrwWindow), WM_USER_NOTIFYOTHERWNDEVNT, cmNotifyForeignFocus, reinterpret_cast<LPARAM>(&r_p));
 					}
+				}
+			}
+			else if(event.isCmd(cmCopyToClipboard)) {
+				if(P_Def) {
+					StdTreeListBoxDef2_ * p_d = static_cast<StdTreeListBoxDef2_ *>(P_Def);
+					CopyTreeListToClipboard(p_d->GetData());
+					clearEvent(event);
 				}
 			}
 			else if(event.isCmd(cmaEdit)) {

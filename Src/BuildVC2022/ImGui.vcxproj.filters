@@ -20,6 +20,7 @@
     <ClCompile Include="..\OSF\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\OSF\imgui\imgui_widgets.cpp" />
     <ClCompile Include="..\OSF\imgui\imgui-pch.cpp" />
+    <ClCompile Include="..\OSF\imgui\misc\freetype\imgui_freetype.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\imgui\imconfig.h">
@@ -44,6 +45,9 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\imgui\imgui-slib-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\imgui\misc\freetype\imgui_freetype.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

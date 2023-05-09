@@ -322,7 +322,8 @@ const uint8 kPrefixEncodeExtraBitsValue[PREFIX_LOOKUP_IDX_MAX] = {
 	112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126
 };
 
-static float FastSLog2Slow_C(uint32_t v) {
+static float FastSLog2Slow_C(uint32_t v) 
+{
 	assert(v >= LOG_LOOKUP_IDX_MAX);
 	if(v < APPROX_LOG_WITH_CORRECTION_MAX) {
 #if !defined(WEBP_HAVE_SLOW_CLZ_CTZ)

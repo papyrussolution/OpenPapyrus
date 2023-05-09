@@ -1447,7 +1447,7 @@
 #define uprv_parseCurrency U_ICU_ENTRY_POINT_RENAME(uprv_parseCurrency)
 #define uprv_pathIsAbsolute U_ICU_ENTRY_POINT_RENAME(uprv_pathIsAbsolute)
 #define uprv_pow U_ICU_ENTRY_POINT_RENAME(uprv_pow)
-#define uprv_pow10 U_ICU_ENTRY_POINT_RENAME(uprv_pow10)
+// @sobolev (replaced with fpow10i) #define uprv_pow10 U_ICU_ENTRY_POINT_RENAME(uprv_pow10)
 #define uprv_realloc U_ICU_ENTRY_POINT_RENAME(uprv_realloc)
 #define uprv_round U_ICU_ENTRY_POINT_RENAME(uprv_round)
 #define uprv_sortArray U_ICU_ENTRY_POINT_RENAME(uprv_sortArray)

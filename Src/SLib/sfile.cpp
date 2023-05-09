@@ -4,7 +4,7 @@
 #include <slib-internal.h>
 #pragma hdrstop
 #include <share.h>
-#include <sys\locking.h>
+// @v11.7.1 #include <sys/locking.h>
 
 #if 0 // @construction {
 /*static*/void * SIo::SCreateFile(int ioType, const char * pName, uint32 mode, uint32 secMode /*= 0*/)

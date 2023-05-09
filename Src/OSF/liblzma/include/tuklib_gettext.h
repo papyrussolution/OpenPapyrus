@@ -14,16 +14,15 @@
 #define TUKLIB_GETTEXT_H
 
 #include "tuklib_common.h"
-#include <locale.h>
+// @v11.7.1 #include <locale.h>
 
 #ifndef TUKLIB_GETTEXT
-#	ifdef ENABLE_NLS
-#		define TUKLIB_GETTEXT 1
-#	else
-#		define TUKLIB_GETTEXT 0
-#	endif
+	#ifdef ENABLE_NLS
+		#define TUKLIB_GETTEXT 1
+	#else
+		#define TUKLIB_GETTEXT 0
+	#endif
 #endif
-
 #if TUKLIB_GETTEXT
 #include <libintl.h>
 #define tuklib_gettext_init(package, localedir) \

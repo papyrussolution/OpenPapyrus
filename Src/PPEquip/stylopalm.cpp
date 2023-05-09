@@ -1,16 +1,17 @@
 // STYLOPALM.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2015, 2018, 2019, 2021
+// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2015, 2018, 2019, 2021, 2023
+// @codepage UTF-8
 //
 #pragma hdrstop
 #include <stylopalm.h>
-#include <ctype.h>
+//#include <ctype.h>
 
 const char * P_PalmConfigFileName     = "palmcfg.bin";
 const char * P_StyloPalmCreatorID     = "SPII";
-const char * P_PalmArcTblName = "SpiiUcl.pdb";
+const char * P_PalmArcTblName         = "SpiiUcl.pdb";
 const char * P_PalmPackedDataTblName  = "SpiiPD.pdb";
-const char * P_PalmProgramFileName    = "StyloWce.exe";  // обновление файлов поддерживают только устройства с ОС Windows Mobile
-extern const char * P_PalmDllFileName = "TodayItem.dll"; // обновление файлов поддерживают только устройства с ОС Windows Mobile
+const char * P_PalmProgramFileName    = "StyloWce.exe";  // РѕР±РЅРѕРІР»РµРЅРёРµ С„Р°Р№Р»РѕРІ РїРѕРґРґРµСЂР¶РёРІР°СЋС‚ С‚РѕР»СЊРєРѕ СѓСЃС‚СЂРѕР№СЃС‚РІР° СЃ РћРЎ Windows Mobile
+extern const char * P_PalmDllFileName = "TodayItem.dll"; // РѕР±РЅРѕРІР»РµРЅРёРµ С„Р°Р№Р»РѕРІ РїРѕРґРґРµСЂР¶РёРІР°СЋС‚ С‚РѕР»СЊРєРѕ СѓСЃС‚СЂРѕР№СЃС‚РІР° СЃ РћРЎ Windows Mobile
 
 PalmConfig::PalmConfig()
 {
@@ -26,15 +27,8 @@ void PalmConfig::Init()
 	RecvBufSize = PALMARCBUFSIZE;
 }
 //
-int PalmConfig::CompressData() const
-{
-	return BIN(Flags & CFGF_COMPRESSDATA);
-}
-
-int PalmConfig::PalmCompressedData() const
-{
-	return BIN(Flags & CFGF_PALMCOMPRESSEDDATA);
-}
+int PalmConfig::CompressData() const { return BIN(Flags & CFGF_COMPRESSDATA); }
+int PalmConfig::PalmCompressedData() const { return BIN(Flags & CFGF_PALMCOMPRESSEDDATA); }
 
 void PalmConfig::ToHostRec()
 {
@@ -259,7 +253,7 @@ int PalmArcHdr::FromBuf(const void * pBuf)
 
 SpiiCmdBuf::SpiiCmdBuf()
 {
-	memzero(this, sizeof(SpiiCmdBuf));
+	THISZERO();
 }
 
 #ifndef __palmos__
@@ -337,7 +331,7 @@ int SpGoodsStruc::FromBuf(const void * pBuf)
 		THROW(P_Quots = new Quot[QuotCount * sizeof(Quot)]);
 		for(int16 i = 0; i < QuotCount; i++) {
 			Quot * p_q = &P_Quots[i];
-			memcpy(&p_q->QuotKindID, p_buf + bytes,                           sizeof(p_q->QuotKindID));
+			memcpy(&p_q->QuotKindID, p_buf + bytes, sizeof(p_q->QuotKindID));
 			memcpy(&p_q->Price,      p_buf + bytes + sizeof(p_q->QuotKindID), sizeof(p_q->Price));
 			bytes += quot_size;
 		}

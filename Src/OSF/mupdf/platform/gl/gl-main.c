@@ -308,7 +308,7 @@ static void load_history(void)
 
 		if(js_hasproperty(J, -1, "history")) {
 			if(js_isarray(J, -1)) {
-				history_count = fz_clampi(js_getlength(J, -1), 0, nelem(history));
+				history_count = sclamp(js_getlength(J, -1), 0, nelem(history));
 				for(i = 0; i < history_count; ++i) {
 					js_getindex(J, -1, i);
 					history[i].loc = try_location(J);
@@ -320,7 +320,7 @@ static void load_history(void)
 
 		if(js_hasproperty(J, -1, "future")) {
 			if(js_isarray(J, -1)) {
-				future_count = fz_clampi(js_getlength(J, -1), 0, nelem(future));
+				future_count = sclamp(js_getlength(J, -1), 0, nelem(future));
 				for(i = 0; i < future_count; ++i) {
 					js_getindex(J, -1, i);
 					future[i].loc = try_location(J);
@@ -332,7 +332,7 @@ static void load_history(void)
 
 		if(js_hasproperty(J, -1, "marks")) {
 			if(js_isarray(J, -1)) {
-				n = fz_clampi(js_getlength(J, -1), 0, nelem(marks));
+				n = sclamp(js_getlength(J, -1), 0, nelem(marks));
 				for(i = 0; i < n; ++i) {
 					js_getindex(J, -1, i);
 					marks[i].loc = try_location(J);

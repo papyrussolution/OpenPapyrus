@@ -10,7 +10,7 @@
 #define LUA_LIB
 
 //#include <errno.h>
-#include <locale.h>
+// @v11.7.1 #include <locale.h>
 //#include <stdlib.h>
 //#include <string.h>
 //#include <time.h>

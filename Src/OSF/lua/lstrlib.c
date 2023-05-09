@@ -9,8 +9,8 @@
 #define lstrlib_c
 #define LUA_LIB
 
-#include <float.h>
-#include <locale.h>
+// @v11.7.1 #include <float.h>
+// @v11.7.1 #include <locale.h>
 #include "lua.h"
 #include "lauxlib.h"
 #include "lualib.h"

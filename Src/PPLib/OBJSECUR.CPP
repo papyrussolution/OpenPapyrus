@@ -124,7 +124,7 @@ PPObjSecur::ExtraParam & PPObjSecur::ExtraParam::operator = (const PPObjSecur::E
     return *this;
 }
 
-int PPObjSecur::ExtraParam::IsConsistent() const { return BIN(Signature == SECUREXTRAPARAMSIGN); }
+bool PPObjSecur::ExtraParam::IsConsistent() const { return (Signature == SECUREXTRAPARAMSIGN); }
 
 static int UsrListFilt(void * rec, void * extraPtr/*grp*/)
 {

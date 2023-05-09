@@ -274,11 +274,10 @@ static int lzma_bidder_bid(ArchiveReadFilterBidder * self, ArchiveReadFilter * f
 
 static int lzip_has_member(ArchiveReadFilter * filter)
 {
-	const uchar * buffer;
 	ssize_t avail;
 	int bits_checked;
 	int log2dic;
-	buffer = static_cast<const uchar *>(__archive_read_filter_ahead(filter, 6, &avail));
+	const uchar * buffer = static_cast<const uchar *>(__archive_read_filter_ahead(filter, 6, &avail));
 	if(!buffer)
 		return 0;
 	/*

@@ -52,9 +52,9 @@
 	char * strstr(const char *, const char *);
 #endif
 #ifndef HAVE_STDLIB_H
-	#ifdef HAVE_MALLOC_H
-		#include <malloc.h>
-	#endif
+	// @v11.7.1 #ifdef HAVE_MALLOC_H
+		// @v11.7.1 #include <malloc.h>
+	// @v11.7.1 #endif
 	char * getenv();
 	int system();
 	double atof();
@@ -191,7 +191,7 @@
 	#define DBL_EPSILON     2.2204460492503131E-16
 #endif
 #ifdef HAVE_LOCALE_H
-	#include <locale.h>
+	// @v11.7.1 #include <locale.h>
 #endif
 #ifdef HAVE_MATH_H
 	#include <math.h>

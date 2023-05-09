@@ -281,7 +281,7 @@ void fz_paint_shade(fz_context * ctx,
 						int a = *s++;
 						const float * f = shade->function[v];
 						for(k = 0; k < n; k++)
-							*d++ = fz_clampi(255 * f[k], 0, 255);
+							*d++ = sclamp(255.0f * f[k], 0.0f, 255.0f);
 						*d++ = a;
 					}
 					d += conv->stride - conv->w * (size_t)conv->n;

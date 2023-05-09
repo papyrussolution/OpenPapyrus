@@ -662,7 +662,7 @@ static int32_t u_printf_scidbl_handler(const u_printf_stream_handler * handler, 
 		/* call the double handler */
 		retVal = u_printf_double_handler(handler, context, formatBundle, &scidbl_info, args);
 	}
-	else if(num < 0.0001 || (scidbl_info.fPrecision < 1 && 1000000.0 <= num) || (scidbl_info.fPrecision != -1 && num > uprv_pow10(scidbl_info.fPrecision))) {
+	else if(num < 0.0001 || (scidbl_info.fPrecision < 1 && 1000000.0 <= num) || (scidbl_info.fPrecision != -1 && num > fpow10i(scidbl_info.fPrecision))) {
 		/* use 'e' or 'E' notation */
 		scidbl_info.fSpec = scidbl_info.fSpec - 2;
 		if(scidbl_info.fPrecision == -1) {

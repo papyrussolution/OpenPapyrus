@@ -14,8 +14,8 @@
 		#include <slib.h>
 	#endif
 #endif
-#include <ppbrow.h> // Automaticaly generated file
-#include <pphelp.h> // Automaticaly generated file
+#include <ppbrow.h> // @autogen
+#include <pphelp.h> // @autogen
 //
 // Navigation:
 //   LastObject
@@ -27,7 +27,6 @@
 //
 #define WINDOWS_ID_BIAS   1200   //
 #define TXTREF_PROP_BIAS 20000   // Смещение идентификаторов текстовых свойств, хранящихся в TextRefTbl
-
 #ifdef __WIN32__
 	#define KB_CTRLENTER   kbF11
 #else
@@ -184,7 +183,7 @@
 #define ACY_REGISTER         4   // Регистр
 #define ACY_PERSONAL         5   // Персональный счет (under construction)
 #define ACY_ALIAS            6   // @v4.6.4 Элиас счета
-#define ACY_BUDGET           7   // @v6.5.12 Буджетный счет
+#define ACY_BUDGET           7   // @v6.5.12 Бюджетный счет
 //
 // Порядок счета
 //
@@ -5911,6 +5910,7 @@
 	#define CTLSEL_PALM_INHBTAGVAL       (26 + WINDOWS_ID_BIAS)
 	#define CTL_PALM_QUOTKIND            (27 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PALM_QUOTKIND         (28 + WINDOWS_ID_BIAS)
+	#define CTL_PALM_QUOTKINDOPTIONS     (29 + WINDOWS_ID_BIAS) // @v11.7.1
 #define DLG_PALMPANE              535 // PDA Import/Export Panel
 	#define CTL_PALMPANE_PALM            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PALMPANE_PALM         (2 + WINDOWS_ID_BIAS)

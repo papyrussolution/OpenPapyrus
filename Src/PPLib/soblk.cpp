@@ -2497,8 +2497,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				const PPQuotItemArray * p_qlist = qview.GetQList();
 				if(p_qlist && (!Page.IsZero() || P_QF->GoodsSubText.NotEmpty() || (P_QF->LocalFlags & P_QF->lfNonZeroDraftRestOnly))) {
 					//
-					// @todo Здесь следует скопировать в temp_list только необходимые элементы.
-					// (а не копировать все и вырезать не нужное).
+					// @todo Здесь следует скопировать в temp_list только необходимые элементы (а не копировать все и вырезать не нужное).
 					//
 					temp_list = *p_qlist;
 					uint   c = temp_list.getCount();

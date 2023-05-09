@@ -3584,7 +3584,7 @@ PPStyloQInterchange::Document::BookingItem::BookingItem() : RowIdx(0), PrcID(0),
 }
 
 PPStyloQInterchange::Document::Document() : ID(0), CreationTime(ZERODATETIME), Time(ZERODATETIME), DueTime(ZERODATETIME), InterchangeOpID(0), SvcOpID(0),
-	ClientID(0), DlvrLocID(0), AgentID(0), PosNodeID(0), StatusSurrId(0), Amount(0.0)
+	ClientID(0), DlvrLocID(0), AgentID(0), QuotKindID(0), PosNodeID(0), StatusSurrId(0), Amount(0.0)
 {
 }
 
@@ -3600,6 +3600,7 @@ PPStyloQInterchange::Document & PPStyloQInterchange::Document::Z()
 	ClientID = 0;
 	DlvrLocID = 0;
 	AgentID = 0;
+	QuotKindID = 0; // @v11.7.1
 	PosNodeID = 0;
 	StatusSurrId = 0; // @v11.5.1
 	Amount = 0.0;
@@ -3662,6 +3663,7 @@ SJson * PPStyloQInterchange::Document::ToJsonObject() const
 	p_result->InsertIntNz("agentid", AgentID); // @v11.4.6
 	p_result->InsertIntNz("cliid", ClientID);
 	p_result->InsertIntNz("dlvrlocid", DlvrLocID);
+	p_result->InsertIntNz("quotkindid", QuotKindID); // @v11.7.1
 	p_result->InsertDouble("amount", Amount, MKSFMTD(0, 5, NMBF_NOTRAILZ|NMBF_OMITEPS));
 	if(Memo.NotEmpty()) {
 		p_result->InsertString("memo", temp_buf.Z().Cat(Memo).Escape());
@@ -3885,6 +3887,9 @@ int PPStyloQInterchange::Document::FromJsonObject(const SJson * pJsObj)
 			}
 			else if(p_cur->Text.IsEqiAscii("dlvrlocid")) {
 				DlvrLocID = p_cur->P_Child->Text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("quotkindid")) { // @v11.7.1
+				QuotKindID = p_cur->P_Child->Text.ToLong();
 			}
 			else if(p_cur->Text.IsEqiAscii("statussurrid")) { // @v11.5.1
 				StatusSurrId = p_cur->P_Child->Text.ToLong();
@@ -7408,7 +7413,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportClients(const SBinaryCh
 	int    ok = 1;
 	SString temp_buf;
 	PPObjBill * p_bobj = BillObj;
-	const  int use_omt_paym_amt = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
+	const  bool use_omt_paym_amt = LOGIC(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
 	DebtTrnovrViewItem debt_item;
 	PPViewDebtTrnovr * p_debt_view = 0; // @stub
 	PPStyloPalmPacket palm_pack;
@@ -7499,7 +7504,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportClients(const SBinaryCh
 						p_js_obj->InsertString("rukpp", kpp_buf.Transf(CTRANSF_INNER_TO_UTF8).Escape());
 				}
 				if(quot_kind_id) {
-					p_js_obj->InsertInt("quotkid", quot_kind_id);
+					p_js_obj->InsertInt("quotkind", quot_kind_id); // @v11.7.1 @fix "quotkid"-->"quotkind"
 				}
 				if(valid_debt) {
 					p_js_obj->InsertDouble("debt", debt_item.Debt, MKSFMTD(0, 2, NMBF_NOTRAILZ));

@@ -222,9 +222,9 @@ static void fz_luminosity_rgb(uchar * rd, uchar * gd, uchar * bd, int rb, int gb
 		b = y + (((b - y) * scale + 0x8000) >> 16);
 	}
 
-	*rd = fz_clampi(r, 0, 255);
-	*gd = fz_clampi(g, 0, 255);
-	*bd = fz_clampi(b, 0, 255);
+	*rd = sclamp(r, 0, 255);
+	*gd = sclamp(g, 0, 255);
+	*bd = sclamp(b, 0, 255);
 }
 
 static void fz_saturation_rgb(uchar * rd, uchar * gd, uchar * bd, int rb, int gb, int bb, int rs, int gs, int bs)
@@ -239,7 +239,7 @@ static void fz_saturation_rgb(uchar * rd, uchar * gd, uchar * bd, int rb, int gb
 	maxb = fz_maxi(rb, fz_maxi(gb, bb));
 	if(minb == maxb) {
 		/* backdrop has zero saturation, avoid divide by 0 */
-		gb = fz_clampi(gb, 0, 255);
+		gb = sclamp(gb, 0, 255);
 		*rd = gb;
 		*gd = gb;
 		*bd = gb;
@@ -278,9 +278,9 @@ static void fz_saturation_rgb(uchar * rd, uchar * gd, uchar * bd, int rb, int gb
 		b = y + (((b - y) * scale + 0x8000) >> 16);
 	}
 
-	*rd = fz_clampi(r, 0, 255);
-	*gd = fz_clampi(g, 0, 255);
-	*bd = fz_clampi(b, 0, 255);
+	*rd = sclamp(r, 0, 255);
+	*gd = sclamp(g, 0, 255);
+	*bd = sclamp(b, 0, 255);
 }
 
 static void fz_color_rgb(uchar * rr, uchar * rg, uchar * rb, int br, int bg, int bb, int sr, int sg, int sb)
@@ -647,7 +647,7 @@ static inline void fz_blend_separable_nonisolated(byte * FZ_RESTRICT bp,
 				}
 				/* Uncomposite (see above) */
 				sc = sc + (((sc-bc) * scale)>>8);
-				sc = fz_clampi(sc, 0, 255);
+				sc = sclamp(sc, 0, 255);
 				switch(blendmode) {
 					default:
 					case FZ_BLEND_NORMAL: rc = sc; break;
@@ -691,7 +691,7 @@ static inline void fz_blend_separable_nonisolated(byte * FZ_RESTRICT bp,
 				if(complement)
 					rc = ra - rc;
 
-				bp[k] = fz_clampi(rc, 0, ra);
+				bp[k] = sclamp(rc, 0, ra);
 			}
 
 			/* Spots */
@@ -781,7 +781,7 @@ static inline void fz_blend_nonseparable_nonisolated_gray(byte * FZ_RESTRICT bp,
 
 					/* Uncomposite */
 					sg = (((sg - bg)*invha) >> 8) + bg;
-					sg = fz_clampi(sg, 0, 255);
+					sg = sclamp(sg, 0, 255);
 					switch(blendmode) {
 						default:
 						case FZ_BLEND_HUE:
@@ -801,9 +801,9 @@ static inline void fz_blend_nonseparable_nonisolated_gray(byte * FZ_RESTRICT bp,
 						int rc;
 
 						sc = (((sc - bc) * invha + 128) >> 8) + bc;
-						sc = fz_clampi(sc, 0, 255);
+						sc = sclamp(sc, 0, 255);
 						rc = bc + fz_mul255(sa, fz_mul255(255 - ba, sc) + fz_mul255(ba, sc) - bc);
-						rc = fz_clampi(rc, 0, 255);
+						rc = sclamp(rc, 0, 255);
 						bp[k] = fz_mul255(rc, ra);
 					}
 				}
@@ -885,11 +885,11 @@ static inline void fz_blend_nonseparable_nonisolated(byte * FZ_RESTRICT bp,
 
 					/* Uncomposite */
 					sr = (((sr - br)*invha) >> 8) + br;
-					sr = fz_clampi(sr, 0, 255);
+					sr = sclamp(sr, 0, 255);
 					sg = (((sg - bg)*invha) >> 8) + bg;
-					sg = fz_clampi(sg, 0, 255);
+					sg = sclamp(sg, 0, 255);
 					sb = (((sb - bb)*invha) >> 8) + bb;
-					sb = fz_clampi(sb, 0, 255);
+					sb = sclamp(sb, 0, 255);
 					switch(blendmode) {
 						default:
 						case FZ_BLEND_HUE:
@@ -952,8 +952,8 @@ static inline void fz_blend_nonseparable_nonisolated(byte * FZ_RESTRICT bp,
 						sk = sa ? (sp[3] * invsa) >> 8 : 255;
 						bk = ba ? (bp[3] * invba) >> 8 : 255;
 
-						bk = fz_clampi(bk, 0, 255);
-						sk = fz_clampi(sk, 0, 255);
+						bk = sclamp(bk, 0, 255);
+						sk = sclamp(sk, 0, 255);
 
 						if(blendmode == FZ_BLEND_LUMINOSITY)
 							rk = sk;
@@ -985,9 +985,9 @@ static inline void fz_blend_nonseparable_nonisolated(byte * FZ_RESTRICT bp,
 						int rc;
 
 						sc = (((sc - bc) * invha + 128) >> 8) + bc;
-						sc = fz_clampi(sc, 0, 255);
+						sc = sclamp(sc, 0, 255);
 						rc = bc + fz_mul255(ha, fz_mul255(255 - ba, sc) + fz_mul255(ba, sc) - bc);
-						rc = fz_clampi(rc, 0, 255);
+						rc = sclamp(rc, 0, 255);
 						bp[k] = fz_mul255(rc, ra);
 					}
 				}

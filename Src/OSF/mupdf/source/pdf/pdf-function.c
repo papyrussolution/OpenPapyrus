@@ -1326,7 +1326,7 @@ pdf_function * pdf_load_function(fz_context * ctx, pdf_obj * dict, int in, int o
 
 	/* required for all */
 	obj = pdf_dict_get(ctx, dict, PDF_NAME(Domain));
-	func->m = fz_clampi(pdf_array_len(ctx, obj) / 2, 1, MAX_M);
+	func->m = sclamp(pdf_array_len(ctx, obj) / 2, 1, (int)MAX_M);
 	for(i = 0; i < func->m; i++) {
 		func->domain[i][0] = pdf_array_get_real(ctx, obj, i * 2 + 0);
 		func->domain[i][1] = pdf_array_get_real(ctx, obj, i * 2 + 1);
@@ -1336,7 +1336,7 @@ pdf_function * pdf_load_function(fz_context * ctx, pdf_obj * dict, int in, int o
 	obj = pdf_dict_get(ctx, dict, PDF_NAME(Range));
 	if(pdf_is_array(ctx, obj)) {
 		func->has_range = 1;
-		func->n = fz_clampi(pdf_array_len(ctx, obj) / 2, 1, MAX_N);
+		func->n = sclamp(pdf_array_len(ctx, obj) / 2, 1, (int)MAX_N);
 		for(i = 0; i < func->n; i++) {
 			func->range[i][0] = pdf_array_get_real(ctx, obj, i * 2 + 0);
 			func->range[i][1] = pdf_array_get_real(ctx, obj, i * 2 + 1);
@@ -1346,20 +1346,15 @@ pdf_function * pdf_load_function(fz_context * ctx, pdf_obj * dict, int in, int o
 		func->has_range = 0;
 		func->n = out;
 	}
-
 	if(func->m != in)
 		fz_warn(ctx, "wrong number of function inputs");
 	if(func->n != out)
 		fz_warn(ctx, "wrong number of function outputs");
-
-	fz_try(ctx)
-	{
-		switch(func->type)
-		{
+	fz_try(ctx) {
+		switch(func->type) {
 			case SAMPLE:
 			    load_sample_func(ctx, func, dict);
 			    break;
-
 			case EXPONENTIAL:
 			    load_exponential_func(ctx, func, dict);
 			    break;

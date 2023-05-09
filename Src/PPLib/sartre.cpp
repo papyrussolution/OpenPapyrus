@@ -13,7 +13,7 @@
 	#include <unicode\unumberformatter.h>
 #endif
 #include <sartre.h>
-#include <locale.h>
+// @v11.7.1 #include <locale.h>
 //
 //
 /*

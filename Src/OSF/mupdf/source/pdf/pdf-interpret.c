@@ -146,11 +146,11 @@ static void pdf_process_extgstate(fz_context * ctx, pdf_processor * proc, pdf_cs
 
 	obj = pdf_dict_get(ctx, dict, PDF_NAME(LC));
 	if(pdf_is_int(ctx, obj) && proc->op_J)
-		proc->op_J(ctx, proc, fz_clampi(pdf_to_int(ctx, obj), 0, 2));
+		proc->op_J(ctx, proc, sclamp(pdf_to_int(ctx, obj), 0, 2));
 
 	obj = pdf_dict_get(ctx, dict, PDF_NAME(LJ));
 	if(pdf_is_int(ctx, obj) && proc->op_j)
-		proc->op_j(ctx, proc, fz_clampi(pdf_to_int(ctx, obj), 0, 2));
+		proc->op_j(ctx, proc, sclamp(pdf_to_int(ctx, obj), 0, 2));
 
 	obj = pdf_dict_get(ctx, dict, PDF_NAME(ML));
 	if(pdf_is_number(ctx, obj) && proc->op_M)
@@ -543,8 +543,8 @@ static void pdf_process_keyword(fz_context * ctx, pdf_processor * proc, pdf_csi 
 
 		/* general graphics state */
 		case A('w'): if(proc->op_w) proc->op_w(ctx, proc, s[0]); break;
-		case A('j'): if(proc->op_j) proc->op_j(ctx, proc, fz_clampi(s[0], 0, 2)); break;
-		case A('J'): if(proc->op_J) proc->op_J(ctx, proc, fz_clampi(s[0], 0, 2)); break;
+		case A('j'): if(proc->op_j) proc->op_j(ctx, proc, sclamp(s[0], 0.0f, 2.0f)); break;
+		case A('J'): if(proc->op_J) proc->op_J(ctx, proc, sclamp(s[0], 0.0f, 2.0f)); break;
 		case A('M'): if(proc->op_M) proc->op_M(ctx, proc, s[0]); break;
 		case A('d'): if(proc->op_d) proc->op_d(ctx, proc, csi->obj, s[0]); break;
 		case B('r', 'i'): if(proc->op_ri) proc->op_ri(ctx, proc, csi->name); break;

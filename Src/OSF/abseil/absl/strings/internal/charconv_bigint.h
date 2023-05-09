@@ -139,7 +139,8 @@ public:
 	}
 
 	// Multiplies in place by 5 to the power of n.  n must be non-negative.
-	void MultiplyByFiveToTheNth(int n) {
+	void MultiplyByFiveToTheNth(int n) 
+	{
 		while(n >= kMaxSmallPowerOfFive) {
 			MultiplyBy(kFiveToNth[kMaxSmallPowerOfFive]);
 			n -= kMaxSmallPowerOfFive;
@@ -148,9 +149,9 @@ public:
 			MultiplyBy(kFiveToNth[n]);
 		}
 	}
-
 	// Multiplies in place by 10 to the power of n.  n must be non-negative.
-	void MultiplyByTenToTheNth(int n) {
+	void MultiplyByTenToTheNth(int n) 
+	{
 		if(n > kMaxSmallPowerOfTen) {
 			// For large n, raise to a power of 5, then shift left by the same amount.
 			// (10**n == 5**n * 2**n.)  This requires fewer multiplications overall.

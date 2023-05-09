@@ -448,45 +448,43 @@ uint64 ui64pow(uint64 x, uint n)
 
 double FASTCALL fpowi(double x, int n)
 {
-	if(!n)
+	if(n == 0)
 		return 1.0;
+	else if(n == 1)
+		return x;
+	else if(x == 10.0)
+		return fpow10i(x);
+	else if(n == -1) // Этот вариант после if(x == 10.0) потому что fpow10i - табличная, т.е. очень быстрая (без деления)
+		return 1.0 / x;
 	else {
 		//
 		// Ничего умнее, чем продублировать код для разных знаков степени я не придумал.
 		// Остальные варианты работать будут (по моему мнению) медленнее.
 		//
 		if(n > 0) {
-			if(n == 1)
-				return x;
-			else {
-				double value = 1.0;
-				do {
-					if(n & 1)
-						value *= x;
-					n >>= 1;
-					if(!n)
-						return value;
-					else
-						x *= x;
-				} while(1);
-			}
+			double value = 1.0;
+			do {
+				if(n & 1)
+					value *= x;
+				n >>= 1;
+				if(!n)
+					return value;
+				else
+					x *= x;
+			} while(1);
 		}
 		else {
 			n = -n;
-			if(n == 1)
-				return 1.0 / x;
-			else {
-				double value = 1.0;
-				do {
-					if(n & 1)
-						value *= x;
-					n >>= 1;
-					if(!n)
-						return (1.0 / value);
-					else
-						x *= x;
-				} while(1);
-			}
+			double value = 1.0;
+			do {
+				if(n & 1)
+					value *= x;
+				n >>= 1;
+				if(!n)
+					return (1.0 / value);
+				else
+					x *= x;
+			} while(1);
 		}
 	}
 }
@@ -562,8 +560,93 @@ uint64 FASTCALL ui64pow10(uint n)
 	}
 }
 
+// The exact value of 1e23 falls precisely halfway between two representable
+// doubles. Furthermore, the rounding rules we prefer (break ties by rounding
+// to the nearest even) dictate in this case that the number should be rounded
+// down, but this is not completely specified for floating-point literals in
+// C++. (It just says to use the default rounding mode of the standard
+// library.) We ensure the result we want by using a number that has an
+// unambiguous correctly rounded answer.
+static constexpr double k1e23 = 9999999999999999e7;
+
+constexpr double kPowersOfTen[] = {
+	0.0,    1e-323, 1e-322, 1e-321, 1e-320, 1e-319, 1e-318, 1e-317, 1e-316,
+	1e-315, 1e-314, 1e-313, 1e-312, 1e-311, 1e-310, 1e-309, 1e-308, 1e-307,
+	1e-306, 1e-305, 1e-304, 1e-303, 1e-302, 1e-301, 1e-300, 1e-299, 1e-298,
+	1e-297, 1e-296, 1e-295, 1e-294, 1e-293, 1e-292, 1e-291, 1e-290, 1e-289,
+	1e-288, 1e-287, 1e-286, 1e-285, 1e-284, 1e-283, 1e-282, 1e-281, 1e-280,
+	1e-279, 1e-278, 1e-277, 1e-276, 1e-275, 1e-274, 1e-273, 1e-272, 1e-271,
+	1e-270, 1e-269, 1e-268, 1e-267, 1e-266, 1e-265, 1e-264, 1e-263, 1e-262,
+	1e-261, 1e-260, 1e-259, 1e-258, 1e-257, 1e-256, 1e-255, 1e-254, 1e-253,
+	1e-252, 1e-251, 1e-250, 1e-249, 1e-248, 1e-247, 1e-246, 1e-245, 1e-244,
+	1e-243, 1e-242, 1e-241, 1e-240, 1e-239, 1e-238, 1e-237, 1e-236, 1e-235,
+	1e-234, 1e-233, 1e-232, 1e-231, 1e-230, 1e-229, 1e-228, 1e-227, 1e-226,
+	1e-225, 1e-224, 1e-223, 1e-222, 1e-221, 1e-220, 1e-219, 1e-218, 1e-217,
+	1e-216, 1e-215, 1e-214, 1e-213, 1e-212, 1e-211, 1e-210, 1e-209, 1e-208,
+	1e-207, 1e-206, 1e-205, 1e-204, 1e-203, 1e-202, 1e-201, 1e-200, 1e-199,
+	1e-198, 1e-197, 1e-196, 1e-195, 1e-194, 1e-193, 1e-192, 1e-191, 1e-190,
+	1e-189, 1e-188, 1e-187, 1e-186, 1e-185, 1e-184, 1e-183, 1e-182, 1e-181,
+	1e-180, 1e-179, 1e-178, 1e-177, 1e-176, 1e-175, 1e-174, 1e-173, 1e-172,
+	1e-171, 1e-170, 1e-169, 1e-168, 1e-167, 1e-166, 1e-165, 1e-164, 1e-163,
+	1e-162, 1e-161, 1e-160, 1e-159, 1e-158, 1e-157, 1e-156, 1e-155, 1e-154,
+	1e-153, 1e-152, 1e-151, 1e-150, 1e-149, 1e-148, 1e-147, 1e-146, 1e-145,
+	1e-144, 1e-143, 1e-142, 1e-141, 1e-140, 1e-139, 1e-138, 1e-137, 1e-136,
+	1e-135, 1e-134, 1e-133, 1e-132, 1e-131, 1e-130, 1e-129, 1e-128, 1e-127,
+	1e-126, 1e-125, 1e-124, 1e-123, 1e-122, 1e-121, 1e-120, 1e-119, 1e-118,
+	1e-117, 1e-116, 1e-115, 1e-114, 1e-113, 1e-112, 1e-111, 1e-110, 1e-109,
+	1e-108, 1e-107, 1e-106, 1e-105, 1e-104, 1e-103, 1e-102, 1e-101, 1e-100,
+	1e-99,  1e-98,  1e-97,  1e-96,  1e-95,  1e-94,  1e-93,  1e-92,  1e-91,
+	1e-90,  1e-89,  1e-88,  1e-87,  1e-86,  1e-85,  1e-84,  1e-83,  1e-82,
+	1e-81,  1e-80,  1e-79,  1e-78,  1e-77,  1e-76,  1e-75,  1e-74,  1e-73,
+	1e-72,  1e-71,  1e-70,  1e-69,  1e-68,  1e-67,  1e-66,  1e-65,  1e-64,
+	1e-63,  1e-62,  1e-61,  1e-60,  1e-59,  1e-58,  1e-57,  1e-56,  1e-55,
+	1e-54,  1e-53,  1e-52,  1e-51,  1e-50,  1e-49,  1e-48,  1e-47,  1e-46,
+	1e-45,  1e-44,  1e-43,  1e-42,  1e-41,  1e-40,  1e-39,  1e-38,  1e-37,
+	1e-36,  1e-35,  1e-34,  1e-33,  1e-32,  1e-31,  1e-30,  1e-29,  1e-28,
+	1e-27,  1e-26,  1e-25,  1e-24,  1e-23,  1e-22,  1e-21,  1e-20,  1e-19,
+	1e-18,  1e-17,  1e-16,  1e-15,  1e-14,  1e-13,  1e-12,  1e-11,  1e-10,
+	1e-9,   1e-8,   1e-7,   1e-6,   1e-5,   1e-4,   1e-3,   1e-2,   1e-1,
+	1e+0,   1e+1,   1e+2,   1e+3,   1e+4,   1e+5,   1e+6,   1e+7,   1e+8,
+	1e+9,   1e+10,  1e+11,  1e+12,  1e+13,  1e+14,  1e+15,  1e+16,  1e+17,
+	1e+18,  1e+19,  1e+20,  1e+21,  1e+22,  k1e23,  1e+24,  1e+25,  1e+26,
+	1e+27,  1e+28,  1e+29,  1e+30,  1e+31,  1e+32,  1e+33,  1e+34,  1e+35,
+	1e+36,  1e+37,  1e+38,  1e+39,  1e+40,  1e+41,  1e+42,  1e+43,  1e+44,
+	1e+45,  1e+46,  1e+47,  1e+48,  1e+49,  1e+50,  1e+51,  1e+52,  1e+53,
+	1e+54,  1e+55,  1e+56,  1e+57,  1e+58,  1e+59,  1e+60,  1e+61,  1e+62,
+	1e+63,  1e+64,  1e+65,  1e+66,  1e+67,  1e+68,  1e+69,  1e+70,  1e+71,
+	1e+72,  1e+73,  1e+74,  1e+75,  1e+76,  1e+77,  1e+78,  1e+79,  1e+80,
+	1e+81,  1e+82,  1e+83,  1e+84,  1e+85,  1e+86,  1e+87,  1e+88,  1e+89,
+	1e+90,  1e+91,  1e+92,  1e+93,  1e+94,  1e+95,  1e+96,  1e+97,  1e+98,
+	1e+99,  1e+100, 1e+101, 1e+102, 1e+103, 1e+104, 1e+105, 1e+106, 1e+107,
+	1e+108, 1e+109, 1e+110, 1e+111, 1e+112, 1e+113, 1e+114, 1e+115, 1e+116,
+	1e+117, 1e+118, 1e+119, 1e+120, 1e+121, 1e+122, 1e+123, 1e+124, 1e+125,
+	1e+126, 1e+127, 1e+128, 1e+129, 1e+130, 1e+131, 1e+132, 1e+133, 1e+134,
+	1e+135, 1e+136, 1e+137, 1e+138, 1e+139, 1e+140, 1e+141, 1e+142, 1e+143,
+	1e+144, 1e+145, 1e+146, 1e+147, 1e+148, 1e+149, 1e+150, 1e+151, 1e+152,
+	1e+153, 1e+154, 1e+155, 1e+156, 1e+157, 1e+158, 1e+159, 1e+160, 1e+161,
+	1e+162, 1e+163, 1e+164, 1e+165, 1e+166, 1e+167, 1e+168, 1e+169, 1e+170,
+	1e+171, 1e+172, 1e+173, 1e+174, 1e+175, 1e+176, 1e+177, 1e+178, 1e+179,
+	1e+180, 1e+181, 1e+182, 1e+183, 1e+184, 1e+185, 1e+186, 1e+187, 1e+188,
+	1e+189, 1e+190, 1e+191, 1e+192, 1e+193, 1e+194, 1e+195, 1e+196, 1e+197,
+	1e+198, 1e+199, 1e+200, 1e+201, 1e+202, 1e+203, 1e+204, 1e+205, 1e+206,
+	1e+207, 1e+208, 1e+209, 1e+210, 1e+211, 1e+212, 1e+213, 1e+214, 1e+215,
+	1e+216, 1e+217, 1e+218, 1e+219, 1e+220, 1e+221, 1e+222, 1e+223, 1e+224,
+	1e+225, 1e+226, 1e+227, 1e+228, 1e+229, 1e+230, 1e+231, 1e+232, 1e+233,
+	1e+234, 1e+235, 1e+236, 1e+237, 1e+238, 1e+239, 1e+240, 1e+241, 1e+242,
+	1e+243, 1e+244, 1e+245, 1e+246, 1e+247, 1e+248, 1e+249, 1e+250, 1e+251,
+	1e+252, 1e+253, 1e+254, 1e+255, 1e+256, 1e+257, 1e+258, 1e+259, 1e+260,
+	1e+261, 1e+262, 1e+263, 1e+264, 1e+265, 1e+266, 1e+267, 1e+268, 1e+269,
+	1e+270, 1e+271, 1e+272, 1e+273, 1e+274, 1e+275, 1e+276, 1e+277, 1e+278,
+	1e+279, 1e+280, 1e+281, 1e+282, 1e+283, 1e+284, 1e+285, 1e+286, 1e+287,
+	1e+288, 1e+289, 1e+290, 1e+291, 1e+292, 1e+293, 1e+294, 1e+295, 1e+296,
+	1e+297, 1e+298, 1e+299, 1e+300, 1e+301, 1e+302, 1e+303, 1e+304, 1e+305,
+	1e+306, 1e+307, 1e+308,
+};
+
 double FASTCALL fpow10i(int n)
 {
+	return (n < -324) ? 0.0 : ((n > 308) ? INFINITY : kPowersOfTen[n + 324]); // @v11.7.1
+	/* @v11.7.1
 	switch(n) {
 		case  0: return 1.0;
 		case  1: return 10.0;
@@ -579,10 +662,10 @@ double FASTCALL fpow10i(int n)
 		case -5: return 0.00001;
 		case -6: return 0.000001;
 		default: return fpowi(10., n);
-	}
+	}*/
 }
 
-float  FASTCALL fpow10fi(int n)
+float FASTCALL fpow10fi(int n)
 {
 	switch(n) {
 		case  0: return 1.0f;
@@ -1486,11 +1569,33 @@ void RationalBestApproximation(ulong givenNumerator, ulong givenDenominator, ulo
 //
 //
 //
-SDecimalFraction::SDecimalFraction() : Mant(0), Exp(0), Flags(0)
+static uint64 AndMask(uint numBits)
+{
+	uint64 result = 0;
+	assert(numBits <= 64);
+	switch(numBits) {
+		case 64: result = 0xffffffffffffffffULL; break;
+		case 48: result = 0x0000ffffffffffffULL; break;
+		case 32: result = 0x00000000ffffffffULL; break;
+		default:
+			for(uint i = 0; i < (numBits-1); i++) 
+				result |= (1ULL << i);
+	}
+	return result;
+}
+
+static uint64 GetUedMaxMantissa(uint numMantissaBits)
+{
+	uint64 result = 0ULL;
+	assert(numMantissaBits >= 3 && numMantissaBits <= 64);
+	return AndMask(numMantissaBits);
+}
+
+SDecimal::SDecimal() : Mant(0), Exp(0), Flags(0)
 {
 }
 
-SDecimalFraction::SDecimalFraction(double v) : Mant(0), Exp(0), Flags(0)
+SDecimal::SDecimal(double v) : Mant(0), Exp(0), Flags(0)
 {
 	// @construction 
 	uint64 mantissa = 0;
@@ -1514,34 +1619,48 @@ SDecimalFraction::SDecimalFraction(double v) : Mant(0), Exp(0), Flags(0)
 	}
 }
 	
-SDecimalFraction::SDecimalFraction(int64 mantissa, int16 exp) : Mant(mantissa), Exp(exp), Flags(0)
+SDecimal::SDecimal(int64 mantissa, int16 exp) : Mant(mantissa), Exp(exp), Flags(0)
 {
 }
 	
-double SDecimalFraction::GetReal() const
+double SDecimal::GetReal() const
 {
 	assert(Exp > -8 && Exp < 8);
 	return static_cast<double>(Mant) * fpow10i(Exp);
 }
 	
-bool SDecimalFraction::Normalize()
+bool SDecimal::Normalize()
 {
+	//
+	// Под нормализацией (в контексте наших требований) предполагается
+	// минимизация модуля экспоненты
+	//
 	bool ok = false;
 	if(Mant == 0) {
 		Exp = 0;
 		ok = true;
 	}
 	else {
-		while(Exp < 0 && (Mant % 10) == 0) {
-			Mant /= 10;
-			Exp++;
+		if(Exp < 0) {
+			while(Exp < 0 && !(Mant & 1) && (Mant % 10) == 0) {
+				Mant /= 10;
+				Exp++;
+			}
+			assert(Exp <= 0);
+		}
+		if(Exp > 0) {
+			const uint64 _max_mant_div_10 = GetUedMaxMantissa(64) / 10;
+			while(Exp > 0 && (uint64)abs(Mant) <= _max_mant_div_10) {
+				Mant *= 10;
+				Exp--;
+			}
 		}
 		ok = true;
 	}
 	return ok;
 }
 
-SDecimalFraction & SDecimalFraction::Z()
+SDecimal & SDecimal::Z()
 {
 	Mant = 0;
 	Exp = 0;
@@ -1549,48 +1668,60 @@ SDecimalFraction & SDecimalFraction::Z()
 	return *this;
 }
 	
-bool SDecimalFraction::IsZero() const
+bool SDecimal::IsZero() const
 {
 	return (Mant == 0);
 }
 
-/*static*/SDecimalFraction SDecimalFraction::Neg(const SDecimalFraction & rV)
+/*static*/SDecimal SDecimal::Neg(const SDecimal & rV)
 {
 	if(rV.IsZero())
 		return rV;
 	else
-		return SDecimalFraction(-rV.Mant, rV.Exp);
+		return SDecimal(-rV.Mant, rV.Exp);
 }
-//
-// 3 bits
-//   000 exponent zero bits 
-//   001 exponent 4 bits [-7..+7]
-//   010 exponent 6 bits [-31..+31]
-//   011 exponent 7 bits [-63..+63]
-//   100 exponent 8bits  [-127..+127]
-//   101 +INF
-//   110 -INF
-//   111 NAN
-// E bits ([0..8] depends on special 3 bits above) bits  
-//   exponent (upper bit - sign)
-// (N-3-E) bits
-//   mantissa (upper bit - sign)
-//
-uint64 GetUedMaxMantissa(uint numMantissaBits)
+
+static uint64 RoundToNearestMul10(uint64 m) // @construction
 {
-	uint64 result = 0ULL;
-	assert(numMantissaBits >= 3 && numMantissaBits <= 64);
-	for(uint i = 0; i < (numMantissaBits-1); i++) 
-		result |= (1 << i);
+	const uint64 m_div_10 = (m / 10ULL);
+	const uint64 m_l = m_div_10 * 10ULL;
+	uint64 result = m_l;
+	if(m_l != m) {
+		const uint64 dl = m - m_l;
+		if(dl >= 5) {
+			const uint64 m_u = m_l * 10ULL;
+			if(dl > 5)
+				result = m_u;
+			else {
+				assert(dl == 5);
+				result = (m_div_10 & 1) ? m_u : m_l; // Ближайшее четное
+			}
+		}
+	}
 	return result;
 }
 
-uint64 SDecimalFraction::ToUed(uint numBits) const // @construction
+uint64 SDecimal::ToUed(uint numBits) const // @construction
 {
+	//
+	// 3 bits
+	//   000 exponent zero bits 
+	//   001 exponent 4 bits [-7..+7]
+	//   010 exponent 6 bits [-31..+31]
+	//   011 exponent 7 bits [-63..+63]
+	//   100 exponent 8bits  [-127..+127]
+	//   101 +INF
+	//   110 -INF
+	//   111 NAN
+	// E bits ([0..8] depends on special 3 bits above) bits  
+	//   exponent (upper bit - sign)
+	// (N-3-E) bits
+	//   mantissa (upper bit - sign)
+	//
 	uint64 ued = 0;
 	assert(numBits >= 24 && numBits <= 64);
 	if(numBits >= 24 && numBits <= 64) {
-		uint   special = 0;
+		uint64 special = 0;
 		if(Flags & SIEEE754::fNAN)
 			special |= 0x7;
 		else {
@@ -1599,24 +1730,25 @@ uint64 SDecimalFraction::ToUed(uint numBits) const // @construction
 			else {
 				uint  exp_bits = 0;
 				int16 abs_exp = abs(Exp);
+				uint  sign_exp = (Exp < 0) ? 1 : 0;
 				uint64 maxmant = 0;
 				if(abs_exp == 0) {
 					exp_bits = 0;
 					maxmant = GetUedMaxMantissa(numBits-3-exp_bits);
 				}
-				else if(abs_exp <= 7) {
+				else if(abs_exp < 8) {
 					exp_bits = 4;
 					maxmant = GetUedMaxMantissa(numBits-3-exp_bits);
 				}
-				else if(abs_exp <= 31) {
+				else if(abs_exp < 32) {
 					exp_bits = 6;
 					maxmant = GetUedMaxMantissa(numBits-3-exp_bits);
 				}
-				else if(abs_exp <= 63) {
+				else if(abs_exp < 64) {
 					exp_bits = 7;
 					maxmant = GetUedMaxMantissa(numBits-3-exp_bits);
 				}
-				else if(abs_exp <= 127) {
+				else if(abs_exp < 128) {
 					exp_bits = 8;
 					maxmant = GetUedMaxMantissa(numBits-3-exp_bits);
 				}
@@ -1625,7 +1757,13 @@ uint64 SDecimalFraction::ToUed(uint numBits) const // @construction
 				}
 				assert(maxmant > 0);
 				if(static_cast<uint64>(abs(Mant)) <= maxmant) {
-					//special = 
+					const uint mb = (numBits-3-exp_bits);
+					ued = (AndMask(mb) & Mant);
+					assert(ued == Mant);
+					if(exp_bits) {
+						ued |= (((sign_exp << (exp_bits-1)) | (AndMask(exp_bits) & abs_exp)) << mb);
+					}
+					ued |= (special << (numBits-3));
 				}
 			}
 		}
@@ -1636,7 +1774,7 @@ uint64 SDecimalFraction::ToUed(uint numBits) const // @construction
 	return ued;
 }
 
-int SDecimalFraction::FromUed(uint64 ued, uint numBits) // @construction
+int SDecimal::FromUed(uint64 ued, uint numBits) // @construction
 {
 	int    ok = 0;
 	assert(numBits >= 24 && numBits <= 64);
@@ -1646,7 +1784,7 @@ int SDecimalFraction::FromUed(uint64 ued, uint numBits) // @construction
 	return ok;
 }
 
-int SDecimalFraction::Add(const SDecimalFraction & rA, const SDecimalFraction & rB)
+int SDecimal::Add(const SDecimal & rA, const SDecimal & rB)
 {
 	int ok = 1;
 	if(rA.IsZero()) {
@@ -1674,12 +1812,12 @@ int SDecimalFraction::Add(const SDecimalFraction & rA, const SDecimalFraction & 
 	return ok;
 }
 
-int SDecimalFraction::Sub(const SDecimalFraction & rA, const SDecimalFraction & rB)
+int SDecimal::Sub(const SDecimal & rA, const SDecimal & rB)
 {
 	return Add(rA, Neg(rB));
 }
 	
-int SDecimalFraction::Mul(const SDecimalFraction & rA, const SDecimalFraction & rB)
+int SDecimal::Mul(const SDecimal & rA, const SDecimal & rB)
 {
 	int    ok = 1;
 	if(rA.IsZero() || rB.IsZero())
@@ -1692,7 +1830,7 @@ int SDecimalFraction::Mul(const SDecimalFraction & rA, const SDecimalFraction & 
 	return ok;
 }
 
-int SDecimalFraction::Div(const SDecimalFraction & rA, const SDecimalFraction & rB)
+int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 {
 	int ok = 1;
 	if(rB.IsZero())
@@ -1715,7 +1853,7 @@ int SDecimalFraction::Div(const SDecimalFraction & rA, const SDecimalFraction & 
 	return ok;
 }
 
-/*static*/int SDecimalFraction::Test()
+/*static*/int SDecimal::Test()
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1744,53 +1882,53 @@ int SDecimalFraction::Div(const SDecimalFraction & rA, const SDecimalFraction & 
 			{ 5LL, +1, 50.0 },
 			{ 0LL, 0, 0.0 },
 		};
-		assert(SDecimalFraction().IsZero());
-		assert(!SDecimalFraction(1, 1).IsZero());
+		assert(SDecimal().IsZero());
+		assert(!SDecimal(1, 1).IsZero());
 		for(uint i = 0; i < SIZEOFARRAY(entries); i++) {
 			const TestEntry & r_te = entries[i];
-			const double tv = SDecimalFraction(r_te.N, r_te.Dp).GetReal();
+			const double tv = SDecimal(r_te.N, r_te.Dp).GetReal();
 			assert(tv == r_te.Rv);
-			SDecimalFraction r(r_te.Rv);
+			SDecimal r(r_te.Rv);
 			assert(r.GetReal() == tv);
 		}
 		{
-			SDecimalFraction r;
-			SDecimalFraction r2;
-			r.Add(SDecimalFraction(0, 0), SDecimalFraction(1, 0));
+			SDecimal r;
+			SDecimal r2;
+			r.Add(SDecimal(0, 0), SDecimal(1, 0));
 			assert(r.GetReal() == 1.0);
-			r2.Sub(r, SDecimalFraction(1, 0));
+			r2.Sub(r, SDecimal(1, 0));
 			assert(r2.GetReal() == 0.0);
 			assert(r2.IsZero());
 			//
-			r.Add(SDecimalFraction(0, 0), SDecimalFraction(1, -5));
+			r.Add(SDecimal(0, 0), SDecimal(1, -5));
 			assert(r.GetReal() == 0.00001);
-			r2.Sub(r, SDecimalFraction(1, -5));
+			r2.Sub(r, SDecimal(1, -5));
 			assert(r2.GetReal() == 0.0);
 			assert(r2.IsZero());
 			//
-			r.Add(SDecimalFraction(1, 0), SDecimalFraction(1, -1));
+			r.Add(SDecimal(1, 0), SDecimal(1, -1));
 			assert(r.GetReal() == 1.1);
-			r2.Sub(r, SDecimalFraction(1, -1));
+			r2.Sub(r, SDecimal(1, -1));
 			assert(r2.GetReal() == 1.0);
 			//
-			r.Add(SDecimalFraction(703, 6), SDecimalFraction(1, -1));
+			r.Add(SDecimal(703, 6), SDecimal(1, -1));
 			assert(r.GetReal() == 703000000.1);
-			r2.Sub(r, SDecimalFraction(1, -1));
+			r2.Sub(r, SDecimal(1, -1));
 			assert(r2.GetReal() == 703000000.0);
 			//
-			r.Mul(SDecimalFraction(1, 0), SDecimalFraction(17, -3));
+			r.Mul(SDecimal(1, 0), SDecimal(17, -3));
 			assert(r.GetReal() == 0.017);
 			//
-			r.Mul(SDecimalFraction(2, 0), SDecimalFraction(17, -3));
+			r.Mul(SDecimal(2, 0), SDecimal(17, -3));
 			assert(r.GetReal() == 0.034);
 			//
-			r.Mul(SDecimalFraction(1, 1), SDecimalFraction(17, -3));
+			r.Mul(SDecimal(1, 1), SDecimal(17, -3));
 			assert(r.GetReal() == 0.17);
 			//
 			{
 				r.Z();
 				for(uint i = 0; i < 1000; i++) {
-					r.Add(r, SDecimalFraction(1, -6));
+					r.Add(r, SDecimal(1, -6));
 				}
 				assert(r.GetReal() == 0.001);
 			}
@@ -1876,6 +2014,97 @@ int SDecimalFraction::Div(const SDecimalFraction & rA, const SDecimalFraction & 
 			//
 			for(int i = -9; i < +9; i++) {
 				SLTEST_CHECK_EQ(fpow10i(i), pow(10.0, i));
+			}
+		}
+		{
+			struct Pow10i_TestEntry {
+				int    power;     // Testing Pow10(power)
+				uint64 significand; // Raw bits of the expected value
+				int    radix;     // significand is adjusted by 2^radix
+			};
+			//
+			// The logic in pow10_helper.cc is so simple that theoretically we don't even
+			// need a test. However, we're paranoid and believe that there may be
+			// compilers that don't round floating-point literals correctly, even though
+			// it is specified by the standard. We check various edge cases, just to be sure.
+			//
+			constexpr Pow10i_TestEntry pow10i_test_entries[] = {
+				// Subnormals
+				{-323, 0x2, -1074},
+				{-322, 0x14, -1074},
+				{-321, 0xca, -1074},
+				{-320, 0x7e8, -1074},
+				{-319, 0x4f10, -1074},
+				{-318, 0x316a2, -1074},
+				{-317, 0x1ee257, -1074},
+				{-316, 0x134d761, -1074},
+				{-315, 0xc1069cd, -1074},
+				{-314, 0x78a42205, -1074},
+				{-313, 0x4b6695433, -1074},
+				{-312, 0x2f201d49fb, -1074},
+				{-311, 0x1d74124e3d1, -1074},
+				{-310, 0x12688b70e62b, -1074},
+				{-309, 0xb8157268fdaf, -1074},
+				{-308, 0x730d67819e8d2, -1074},
+				// Values that are very close to rounding the other way.
+				// Comment shows difference of significand from the true value.
+				{-307, 0x11fa182c40c60d, -1072}, // -.4588
+				{-290, 0x18f2b061aea072, -1016}, //  .4854
+				{-276, 0x11BA03F5B21000, -969}, //  .4709
+				{-259, 0x1899C2F6732210, -913}, //  .4830
+				{-252, 0x1D53844EE47DD1, -890}, // -.4743
+				{-227, 0x1E5297287C2F45, -807}, // -.4708
+				{-198, 0x1322E220A5B17E, -710}, // -.4714
+				{-195, 0x12B010D3E1CF56, -700}, //  .4928
+				{-192, 0x123FF06EEA847A, -690}, //  .4968
+				{-163, 0x1708D0F84D3DE7, -594}, // -.4977
+				{-145, 0x13FAAC3E3FA1F3, -534}, // -.4785
+				{-111, 0x133D4032C2C7F5, -421}, //  .4774
+				{-106, 0x1D5B561574765B, -405}, // -.4869
+				{-104, 0x16EF5B40C2FC77, -398}, // -.4741
+				{-88, 0x197683DF2F268D, -345}, // -.4738
+				{-86, 0x13E497065CD61F, -338}, //  .4736
+				{-76, 0x17288E1271F513, -305}, // -.4761
+				{-63, 0x1A53FC9631D10D, -262}, //  .4929
+				{-30, 0x14484BFEEBC2A0, -152}, //  .4758
+				{-21, 0x12E3B40A0E9B4F, -122}, // -.4916
+				{-5, 0x14F8B588E368F1, -69}, //  .4829
+				{23, 0x152D02C7E14AF6, 24}, // -.5000 (exactly, round-to-even)
+				{29, 0x1431E0FAE6D721, 44}, // -.4870
+				{34, 0x1ED09BEAD87C03, 60}, // -.4721
+				{70, 0x172EBAD6DDC73D, 180}, //  .4733
+				{105, 0x1BE7ABD3781ECA, 296}, // -.4850
+				{126, 0x17A2ECC414A03F, 366}, // -.4999
+				{130, 0x1CDA62055B2D9E, 379}, //  .4855
+				{165, 0x115D847AD00087, 496}, // -.4913
+				{172, 0x14B378469B6732, 519}, //  .4818
+				{187, 0x1262DFEEBBB0F9, 569}, // -.4805
+				{210, 0x18557F31326BBB, 645}, // -.4992
+				{212, 0x1302CB5E6F642A, 652}, // -.4838
+				{215, 0x1290BA9A38C7D1, 662}, // -.4881
+				{236, 0x1F736F9B3494E9, 731}, //  .4707
+				{244, 0x176EC98994F489, 758}, //  .4924
+				{250, 0x1658E3AB795204, 778}, // -.4963
+				{252, 0x117571DDF6C814, 785}, //  .4873
+				{254, 0x1B4781EAD1989E, 791}, // -.4887
+				{260, 0x1A03FDE214CAF1, 811}, //  .4784
+				{284, 0x1585041B2C477F, 891}, //  .4798
+				{304, 0x1D2A1BE4048F90, 957}, // -.4987
+				// Out-of-range values
+				{-324, 0x0, 0},
+				{-325, 0x0, 0},
+				{-326, 0x0, 0},
+				{309, 1, 2000},
+				{310, 1, 2000},
+				{311, 1, 2000},
+			};
+			for(const Pow10i_TestEntry & r_entry : pow10i_test_entries) {
+				SLTEST_CHECK_EQ(fpow10i(r_entry.power), ldexp(r_entry.significand, r_entry.radix));
+				/*
+				EXPECT_EQ(Pow10(test_case.power), std::ldexp(test_case.significand, test_case.radix))
+					<< absl::StrFormat("Failure for Pow10(%d): %a vs %a", test_case.power,
+					Pow10(test_case.power), std::ldexp(test_case.significand, test_case.radix));
+				*/
 			}
 		}
 		{

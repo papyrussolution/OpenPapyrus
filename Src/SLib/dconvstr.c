@@ -1777,7 +1777,8 @@ static bool FASTCALL convert_binary_to_extended_decimal(uint64 a, int32 b, uint6
 // @returns  0  overflow / underflow condition (when strtod(3) would have set errno = ERANGE).
 //   1  exited normally, neither overflow nor underflow
 // 
-static int FASTCALL pack_ieee754_double(int input_is_nan, int input_sign, uint64 input_binary_mantissa, int32 input_binary_exponent, int input_is_infinity, double * output)
+//static int FASTCALL pack_ieee754_double(int inputIsNan, int inputSign, uint64 inputBinaryMantissa, int32 inputBinaryExponent, int inputIsInfinity, double * pOutput)
+/*static*/int STDCALL SIEEE754::PackDouble(int inputIsNan, int inputSign, uint64 inputBinaryMantissa, int32 inputBinaryExponent, int inputIsInfinity, double * pOutput)
 {
 	// 1. Initialize values to pack
 	uint64 output_sign     = 0;
@@ -1785,55 +1786,55 @@ static int FASTCALL pack_ieee754_double(int input_is_nan, int input_sign, uint64
 	uint64 output_mantissa = 0;
 	// 2. Handle special case: NaN
 	int had_overflow_or_underflow_in_exponent = 0;
-	if(input_is_nan) {
+	if(inputIsNan) {
 		output_sign     = 1;      // Quiet NaN
 		output_exponent = 0x7FF;
 		output_mantissa = (1ULL << 51); // mantissa MSB set
 	}
 	else {
 		// 3. Handle special case: +INF/-INF
-		output_sign = (input_sign ? 1 : 0);
-		if(input_is_infinity) {
+		output_sign = (inputSign ? 1 : 0);
+		if(inputIsInfinity) {
 			output_exponent = 0x7FF;
 			output_mantissa = 0;
 		}
 		// 4. Handle special case: +0/-0
-		else if(input_binary_mantissa == 0) {
+		else if(inputBinaryMantissa == 0) {
 			output_exponent = 0;
 			output_mantissa = 0;
 		}
 		else {
-			uint lz = count_leading_zeros(input_binary_mantissa);
-			input_binary_mantissa <<= lz;
-			input_binary_exponent  -= lz;
-			if(input_binary_exponent > 1023) {
+			uint lz = count_leading_zeros(inputBinaryMantissa);
+			inputBinaryMantissa <<= lz;
+			inputBinaryExponent  -= lz;
+			if(inputBinaryExponent > 1023) {
 				// 5. Handle unintentional infinity (due to exponent overflow)
 				output_exponent = 0x7FF;
 				output_mantissa = 0;
 				had_overflow_or_underflow_in_exponent = 1;
 			}
-			else if(input_binary_exponent >= -1022) {
+			else if(inputBinaryExponent >= -1022) {
 				// 6. Handle normalized numbers
-				output_exponent = ((uint64)(input_binary_exponent + 1023));
-				output_mantissa = (input_binary_mantissa >> 11) & ((1ULL << 52) - 1ULL);
+				output_exponent = ((uint64)(inputBinaryExponent + 1023));
+				output_mantissa = (inputBinaryMantissa >> 11) & ((1ULL << 52) - 1ULL);
 			}
 			else {
 				// 7. Handle denormalized numbers
 				//    and unintentional zero (due to exponent underflow)
-				input_binary_mantissa >>= 11;
-				while(( input_binary_mantissa != 0)&&( input_binary_exponent < -1022 )) {
-					input_binary_mantissa >>= 1;
-					++input_binary_exponent;
+				inputBinaryMantissa >>= 11;
+				while((inputBinaryMantissa != 0) && (inputBinaryExponent < -1022)) {
+					inputBinaryMantissa >>= 1;
+					++inputBinaryExponent;
 				}
 				output_exponent = 0;
-				output_mantissa = input_binary_mantissa;
-				had_overflow_or_underflow_in_exponent = (input_binary_mantissa == 0);
+				output_mantissa = inputBinaryMantissa;
+				had_overflow_or_underflow_in_exponent = (inputBinaryMantissa == 0);
 			}
 		}
 	}
 	// 8. Pack bits up
 	uint64 output_bits = (output_sign << 63) | ((output_exponent & 0x7FFULL) << 52) | (output_mantissa & ((1ULL << 52) - 1ULL));
-	*reinterpret_cast<uint64 *>(output) = output_bits;
+	*reinterpret_cast<uint64 *>(pOutput) = output_bits;
 	return (!had_overflow_or_underflow_in_exponent);
 }
 // 
@@ -2339,23 +2340,23 @@ int STDCALL SIEEE754::Scan(const char * pInput, const char ** ppInputEnd, double
 	// 1. Handle special cases
 	if(oneof2(pInput[0], 'n', 'N') && oneof2(pInput[1], 'a', 'A') && oneof2(pInput[2], 'n', 'N')) {
 		ASSIGN_PTR(ppInputEnd, pInput + 3);
-		pack_ieee754_double(1/*input_is_nan*/, 0/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 0/*input_is_infinity*/, pOutput);
+		SIEEE754::PackDouble(1/*input_is_nan*/, 0/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 0/*input_is_infinity*/, pOutput);
 	}
 	else if(oneof2(pInput[0], 'i', 'I') && oneof2(pInput[1], 'n', 'N') && oneof2(pInput[2], 'f', 'F')) {
 		ASSIGN_PTR(ppInputEnd, pInput + 3);
-		pack_ieee754_double( 0/*input_is_nan*/, 0/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, pOutput);
+		SIEEE754::PackDouble(0/*input_is_nan*/, 0/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, pOutput);
 	}
 	else if(pInput[0] == '-' && oneof2(pInput[1], 'i', 'I') && oneof2(pInput[2], 'n', 'N') && oneof2(pInput[3], 'f', 'F')) {
 		ASSIGN_PTR(ppInputEnd, pInput + 4);
-		pack_ieee754_double(0/*input_is_nan*/, 1/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, pOutput);
+		SIEEE754::PackDouble(0/*input_is_nan*/, 1/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, pOutput);
 	}
 	else {
 		// 2. Parse input string
 		//    (Code from this section was adopted from http://golang.org/src/lib9/fmt/fltfmt.c)
 		uint8  parsed_digits[20];
-		int    n_parsed_digits        = 0;       // number of digits in parsed_digits[]
-		int32  exponent       = 0;
-		int32  exponent_offset        = 0;
+		int    n_parsed_digits = 0; // number of digits in parsed_digits[]
+		int32  exponent = 0;
+		int32  exponent_offset = 0;
 		int    flag_negative_mantissa = 0;
 		int    flag_negative_exponent = 0;
 		int    flag_syntax_error      = 0;
@@ -2522,11 +2523,11 @@ int STDCALL SIEEE754::Scan(const char * pInput, const char ** ppInputEnd, double
 		exponent = (mantissa == 0) ? 0 : (((exponent < 350) ? exponent_offset : 0) + (flag_negative_exponent ? -exponent : exponent));
 		// 5. Check exponent for overflow and underflow
 		if(exponent <= -350) {
-			pack_ieee754_double(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 0/*input_is_infinity*/, pOutput);
+			SIEEE754::PackDouble(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 0/*input_is_infinity*/, pOutput);
 			output_erange = 1; // strtod(3) would set errno = ERANGE
 		}
 		else if(exponent >= 350) {
-			pack_ieee754_double(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, pOutput);
+			SIEEE754::PackDouble(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, pOutput);
 			output_erange = 1; // strtod(3) would set errno = ERANGE
 		}
 		else {
@@ -2534,7 +2535,7 @@ int STDCALL SIEEE754::Scan(const char * pInput, const char ** ppInputEnd, double
 			if(mantissa != 0 && !convert_extended_decimal_to_binary_and_round(mantissa, exponent, &mantissa, &exponent))
 				ok = 0; // internal error
 			else {
-				output_erange = (!pack_ieee754_double(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, mantissa/*input_binary_mantissa*/, 
+				output_erange = (!SIEEE754::PackDouble(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, mantissa/*input_binary_mantissa*/, 
 					exponent/*input_binary_exponent*/, 0/*input_is_infinity*/, pOutput));
 			}
 		}
@@ -2542,3 +2543,16 @@ int STDCALL SIEEE754::Scan(const char * pInput, const char ** ppInputEnd, double
 	ASSIGN_PTR(pOutputERange, output_erange);
 	return ok;
 }
+
+/*void TestPow10Tab()
+{
+	for(uint i = 0; i < SIZEOFARRAY(powers_of_ten_); i++) {
+		const power_of_ten & r_entry = powers_of_ten_[i];
+		if(r_entry.decimal_exponent >= -286 && r_entry.decimal_exponent <= 308) {
+			double p = 0.0;
+			int r = SIEEE754::PackDouble(0, 0, r_entry.binary_mantissa, r_entry.binary_exponent, 0, &p);
+			assert(r);
+			assert(p == fpow10i(r_entry.decimal_exponent));
+		}
+	}
+}*/

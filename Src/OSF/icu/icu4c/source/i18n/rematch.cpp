@@ -14,7 +14,6 @@
 #include "regexst.h"
 #include "regextxt.h"
 #include "ucase.h"
-
 // #include <malloc.h>        // Needed for heapcheck testing
 
 U_NAMESPACE_BEGIN

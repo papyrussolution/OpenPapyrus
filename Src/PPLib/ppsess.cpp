@@ -1078,7 +1078,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 }
 
 int    PPThreadLocalArea::IsAuth() const { return (State & stAuth) ? 1 : PPSetError(PPERR_SESSNAUTH); }
-int    PPThreadLocalArea::IsConsistent() const { return BIN(Sign == _PPConst.Signature_PPThreadLocalArea); }
+bool   PPThreadLocalArea::IsConsistent() const { return (Sign == _PPConst.Signature_PPThreadLocalArea); }
 PPView * PPThreadLocalArea::GetPPViewPtr(int32 id) const { return (id > 0 && id <= SrvViewList.getCountI()) ? SrvViewList.at(id-1) : 0; }
 
 int32 PPThreadLocalArea::CreatePPViewPtr(PPView * pView)
@@ -2000,6 +2000,7 @@ static void InitTest()
 	STATIC_ASSERT(sizeof(PPDynanicObjItem) == sizeof(Reference2Tbl::Rec));
 	STATIC_ASSERT(sizeof(PPStaffEntry) == sizeof(Reference2Tbl::Rec));
 	STATIC_ASSERT(sizeof(PPAccount) == sizeof(Reference2Tbl::Rec));
+	STATIC_ASSERT(sizeof(PPQuotKind) == sizeof(Reference2Tbl::Rec)); // @v11.7.1
 	{
         PPAccount::_A_ a1;
         PPAccount::_A_ a2;
@@ -2298,7 +2299,10 @@ int PPSession::Init(long flags, HINSTANCE hInst)
 	SString temp_buf;
 	signal(SIGFPE, reinterpret_cast<void (*)(int)>(FpeCatcher));
 	SLS.Init(0, hInst);
-	{
+	if(flags & fWsCtlApp) {
+		SLS.SetAppName("WSCTL");
+	}
+	else {
 		PPVersionInfo vi = GetVersionInfo();
 		//vi.GetProductName(temp_buf);
 		vi.GetTextAttrib(vi.taiProductName, temp_buf);
@@ -2341,9 +2345,11 @@ int PPSession::Init(long flags, HINSTANCE hInst)
             epb.F_LoadString = PPLoadStringFunc;
             epb.F_ExpandString = PPExpandStringFunc;
             epb.F_GetGlobalSecureConfig = PPGetGlobalSecureConfig;
-            epb.F_CallHelp = PPCallHelp;
-            epb.F_CallCalc = PPCalculator;
-            epb.F_CallCalendar = ExecDateCalendar;
+			if(!(flags & fWsCtlApp)) {
+				epb.F_CallHelp = PPCallHelp;
+				epb.F_CallCalc = PPCalculator;
+				epb.F_CallCalendar = ExecDateCalendar;
+			}
             epb.F_GetDefaultEncrKey = PPGetDefaultEncrKey;
             epb.F_QueryPath = PPQueryPathFunc;
             SLS.SetExtraProcBlock(&epb);
@@ -2473,11 +2479,13 @@ int PPSession::Init(long flags, HINSTANCE hInst)
 	}
 #endif
 	// } @v11.4.1
-	// @v11.4.4 {
-	// Регистрация специальных типов View. Я не уверен, что нашел удачную точку для такой регистрации, но надо по-быстрому :(
-	PPView::InitializeDescriptionList();
-	// }
-	InitTest();
+	if(!(flags & fWsCtlApp)) {
+		// @v11.4.4 {
+		// Регистрация специальных типов View. Я не уверен, что нашел удачную точку для такой регистрации, но надо по-быстрому :(
+		PPView::InitializeDescriptionList();
+		// }
+		InitTest();
+	}
 	CATCHZOK
 	return ok;
 }
@@ -4866,10 +4874,7 @@ PPRFile::~PPRFile()
 	Sign = 0;
 }
 
-int PPRFile::IsConsistent() const
-{
-	return BIN(Sign == PPRFILE_SIGN);
-}
+bool PPRFile::IsConsistent() const { return (Sign == PPRFILE_SIGN); }
 
 PPRFile & PPRFile::Z()
 {
@@ -5693,7 +5698,7 @@ PPAdviseEventQueue::Client::~Client()
 	Sign = 0;
 }
 
-int PPAdviseEventQueue::Client::IsConsistent() const { return BIN(Sign == ADVEVQCLISIGN); }
+bool  PPAdviseEventQueue::Client::IsConsistent() const { return (Sign == ADVEVQCLISIGN); }
 int64 PPAdviseEventQueue::Client::GetMarker() const { return Marker; }
 
 int PPAdviseEventQueue::Client::Register(long dbPathID, PPAdviseEventQueue * pQueue)
@@ -5935,8 +5940,7 @@ SysMaintenanceEventResponder::~SysMaintenanceEventResponder()
 {
 }
 
-int SysMaintenanceEventResponder::IsConsistent() const
-	{ return (Signature == _PPConst.Signature_SysMaintenanceEventResponder); }
+bool SysMaintenanceEventResponder::IsConsistent() const { return (Signature == _PPConst.Signature_SysMaintenanceEventResponder); }
 
 /*static*/int SysMaintenanceEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 {

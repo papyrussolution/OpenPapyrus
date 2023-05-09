@@ -883,6 +883,7 @@ cd $(ProjectDir)</Command>
     <ClCompile Include="..\OSF\xapian\xapian-core\src\weightinternal.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian-internal.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\documenttermlist.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\documentvaluelist.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\editdistance.h" />
@@ -968,15 +969,12 @@ cd $(ProjectDir)</Command>
     <ClInclude Include="..\OSF\xapian\xapian-core\src\compression_stream.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\debuglog.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\errno_to_string.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\src\exp10.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\fd.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\filetests.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\fileutils.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\heap.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\src\internaltypes.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\io_utils.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\keyword.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\src\log2.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\min_non_zero.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\msvcignoreinvalidparam.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\omassert.h" />

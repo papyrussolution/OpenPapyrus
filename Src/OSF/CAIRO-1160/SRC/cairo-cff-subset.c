@@ -38,7 +38,7 @@
 #if CAIRO_HAS_FONT_SUBSET
 
 #include "cairo-truetype-subset-private.h"
-#include <locale.h>
+// @v11.7.1 #include <locale.h>
 
 // CFF Dict Operators. If the high byte is 0 the command is encoded with a single byte. 
 #define BASEFONTNAME_OP  0x0c16

@@ -577,14 +577,14 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 	return result;
 }
 
-int TView::IsConsistent() const
+bool TView::IsConsistent() const
 {
-	int    ok = 1;
+	bool   ok = true;
 	__try {
-		ok = BIN(Sign == SIGN_TVIEW);
+		ok = (Sign == SIGN_TVIEW);
 	}
 	__except(1) {
-		ok = 0;
+		ok = false;
 	}
 	return ok;
 }
@@ -722,8 +722,8 @@ TView & TView::SetId(uint id)
 
 void   TView::select() { CALLPTRMEMB(P_Owner, SetCurrentView(this, normalSelect)); }
 uint   TView::GetId() const { return (this && IsConsistent()) ? static_cast<uint>(Id) : 0; }
-int    FASTCALL TView::TestId(uint id) const { return (this && IsConsistent() && id && id == static_cast<uint>(Id)); }
-int    FASTCALL TView::IsInState(uint s) const { return ((Sf & s) == s); }
+bool   FASTCALL TView::TestId(uint id) const { return (this && IsConsistent() && id && id == static_cast<uint>(Id)); }
+bool   FASTCALL TView::IsInState(uint s) const { return ((Sf & s) == s); }
 void * FASTCALL TView::MessageCommandToOwner(uint command) { return P_Owner ? TView::messageCommand(P_Owner, command, this) : 0; }
 HWND   TView::getHandle() const { return GetDlgItem(Parent, Id); }
 int    FASTCALL TView::valid(ushort) { return 1; }

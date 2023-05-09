@@ -21,6 +21,9 @@ namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace strings_internal {
 namespace {
+
+#if 0 // @sobolev (moved to smath.cpp)
+
 // The exact value of 1e23 falls precisely halfway between two representable
 // doubles. Furthermore, the rounding rules we prefer (break ties by rounding
 // to the nearest even) dictate in this case that the number should be rounded
@@ -103,8 +106,9 @@ constexpr double kPowersOfTen[] = {
 	1e+297, 1e+298, 1e+299, 1e+300, 1e+301, 1e+302, 1e+303, 1e+304, 1e+305,
 	1e+306, 1e+307, 1e+308,
 };
+#endif // } @sobolev
 }  // namespace
-
+#if 0 // @sobolev {
 double Pow10(int exp) 
 {
 	if(exp < -324) {
@@ -117,6 +121,7 @@ double Pow10(int exp)
 		return kPowersOfTen[exp + 324];
 	}
 }
+#endif // } @sobolev
 }  // namespace strings_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

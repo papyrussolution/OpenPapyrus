@@ -440,21 +440,33 @@ public class BusinessEntity {
 			}
 			return result;
 		}
-		public SelectedPrice QueryPrice(ArrayList <QuotKind> qkList, int cliID)
+		public SelectedPrice QueryPrice(final Document doc, ArrayList <QuotKind> qkList)
 		{
 			SelectedPrice result = new SelectedPrice();
 			result.Nominal = Price;
 			if(SLib.GetCount(qkList) > 0 && SLib.GetCount(QuotList) > 0) {
 				// Предполагаем, что qkList отсортирован по рангу (QuotKind.Rank): бошьший ранг идет раньше меньшего!
 				boolean done = false;
-				for(int qkidx = 0; !done && qkidx < qkList.size(); qkidx++) {
-					final QuotKind qk = qkList.get(qkidx);
-					if(qk != null) {
-						for(int qidx = 0; !done && qidx < QuotList.size(); qidx++) {
-							final Quot q = QuotList.get(qidx);
-							if(q != null && q.ID == qk.ID) {
-								result.Quot = q.Val;
-								done = true;
+				final int select_qk_id = (doc != null && doc.H != null) ? doc.H.QuotKindID : 0;
+				if(select_qk_id > 0) {
+					for(int qidx = 0; !done && qidx < QuotList.size(); qidx++) {
+						final Quot q = QuotList.get(qidx);
+						if(q != null && q.ID == select_qk_id) {
+							result.Quot = q.Val;
+							done = true;
+						}
+					}
+				}
+				else {
+					for(int qkidx = 0; !done && qkidx < qkList.size(); qkidx++) {
+						final QuotKind qk = qkList.get(qkidx);
+						if(qk != null) {
+							for(int qidx = 0; !done && qidx < QuotList.size(); qidx++) {
+								final Quot q = QuotList.get(qidx);
+								if(q != null && q.ID == qk.ID) {
+									result.Quot = q.Val;
+									done = true;
+								}
 							}
 						}
 					}

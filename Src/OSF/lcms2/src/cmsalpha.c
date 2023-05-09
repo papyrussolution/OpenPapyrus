@@ -65,15 +65,8 @@ static void from8to16SE(void * dst, const void * src)
 	*(uint16*)dst = CHANGE_ENDIAN(FROM_8_TO_16(n));
 }
 
-static void from8toFLT(void * dst, const void * src)
-{
-	*(float *)dst = (*(uint8 *)src) / 255.0f;
-}
-
-static void from8toDBL(void * dst, const void * src)
-{
-	*(double *)dst = (*(uint8 *)src) / 255.0;
-}
+static void from8toFLT(void * dst, const void * src) { *(float *)dst = (*(uint8 *)src) / 255.0f; }
+static void from8toDBL(void * dst, const void * src) { *(double *)dst = (*(uint8 *)src) / 255.0; }
 
 static void from8toHLF(void * dst, const void * src)
 {
@@ -110,25 +103,10 @@ static void from16to16(void * dst, const void * src)
 	*(uint16*)dst = CHANGE_ENDIAN(n);
 }
 
-static void from16toFLT(void * dst, const void * src)
-{
-	*(float *)dst = (*(uint16*)src) / 65535.0f;
-}
-
-static void from16SEtoFLT(void * dst, const void * src)
-{
-	*(float *)dst = (CHANGE_ENDIAN(*(uint16*)src)) / 65535.0f;
-}
-
-static void from16toDBL(void * dst, const void * src)
-{
-	*(double *)dst = (*(uint16*)src) / 65535.0f;
-}
-
-static void from16SEtoDBL(void * dst, const void * src)
-{
-	*(double *)dst = (CHANGE_ENDIAN(*(uint16*)src)) / 65535.0f;
-}
+static void from16toFLT(void * dst, const void * src) { *(float *)dst = (*(uint16*)src) / 65535.0f; }
+static void from16SEtoFLT(void * dst, const void * src) { *(float *)dst = (CHANGE_ENDIAN(*(uint16*)src)) / 65535.0f; }
+static void from16toDBL(void * dst, const void * src) { *(double *)dst = (*(uint16*)src) / 65535.0f; }
+static void from16SEtoDBL(void * dst, const void * src) { *(double *)dst = (CHANGE_ENDIAN(*(uint16*)src)) / 65535.0f; }
 
 static void from16toHLF(void * dst, const void * src)
 {

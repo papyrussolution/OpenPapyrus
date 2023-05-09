@@ -126,8 +126,7 @@ static void fghDrawNormalVisualization20(GLint attribute_v_coord);
  */
 void fghDrawGeometryWire(GLfloat * vertices, GLfloat * normals, GLsizei numVertices,
     GLushort * vertIdxs, GLsizei numParts, GLsizei numVertPerPart, GLenum vertexMode,
-    GLushort * vertIdxs2, GLsizei numParts2, GLsizei numVertPerPart2
-    )
+    GLushort * vertIdxs2, GLsizei numParts2, GLsizei numVertPerPart2)
 {
 	GLint attribute_v_coord  = fgStructure.CurrentWindow->Window.attribute_v_coord;
 	GLint attribute_v_normal = fgStructure.CurrentWindow->Window.attribute_v_normal;
@@ -176,7 +175,6 @@ void fghDrawGeometrySolid(GLfloat * vertices, GLfloat * normals, GLfloat * textc
 	GLint attribute_v_coord   = fgStructure.CurrentWindow->Window.attribute_v_coord;
 	GLint attribute_v_normal  = fgStructure.CurrentWindow->Window.attribute_v_normal;
 	GLint attribute_v_texture = fgStructure.CurrentWindow->Window.attribute_v_texture;
-
 	if(fgStructure.CurrentWindow->State.VisualizeNormals)
 		/* generate normals for each vertex to be drawn as well */
 		fghGenerateNormalVisualization(vertices, normals, numVertices);

@@ -40,8 +40,8 @@
 	#define _WIN32_WINNT 0x0400
 #endif
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <sys/types.h>
+// @v11.7.1 #include <windows.h>
+// @v11.7.1 #include <sys/types.h>
 /*
  * In case windows.h doesn't define it (e.g. WinCE perhaps)
  */
@@ -76,9 +76,9 @@
 	static void __ptw32_set_errno(int err) { errno = err; SetLastError(err); }
 	#define __PTW32_SET_ERRNO(err) __ptw32_set_errno(err)
 #endif
-#if !defined(malloc)
-	#include <malloc.h>
-#endif
+// @v11.7.1 #if !defined(malloc)
+	// @v11.7.1 #include <malloc.h>
+// @v11.7.1 #endif
 // use local include files during development
 #include "semaphore.h"
 #include "sched.h"

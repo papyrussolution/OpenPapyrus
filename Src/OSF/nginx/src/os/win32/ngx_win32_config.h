@@ -44,7 +44,7 @@
 #ifdef __GNUC__
 	#include <stdint.h>
 #endif
-#include <locale.h>
+// @v11.7.1 #include <locale.h>
 #ifdef __WATCOMC__
 	#define _TIME_T_DEFINED
 	typedef long  time_t;

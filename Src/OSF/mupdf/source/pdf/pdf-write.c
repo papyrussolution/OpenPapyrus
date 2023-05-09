@@ -2302,16 +2302,12 @@ static int my_log2(int x)
 {
 	int i = 0;
 	const int sign_bit = sizeof(int)*8-1;
-
 	if(x <= 0)
 		return 0;
-
 	while((1<<i) <= x && i < sign_bit)
 		i++;
-
 	if(i >= sign_bit)
 		return 0;
-
 	return i;
 }
 
@@ -2334,18 +2330,15 @@ static void make_page_offset_hints(fz_context * ctx, pdf_document * doc, pdf_wri
 	min_shared_length = opts->file_len;
 	max_shared_length = 0;
 	for(i = 1; i < xref_len; i++) {
-		int min, max, page;
-
-		min = opts->ofs_list[i];
+		int max, page;
+		int min = opts->ofs_list[i];
 		if(i == opts->start-1 || (opts->start == 1 && i == xref_len-1))
 			max = opts->main_xref_offset;
 		else if(i == xref_len-1)
 			max = opts->ofs_list[1];
 		else
 			max = opts->ofs_list[i+1];
-
 		assert(max > min);
-
 		if(opts->use_list[i] & USE_SHARED) {
 			page = -1;
 			if(i < min_shared_object)
@@ -2370,7 +2363,6 @@ static void make_page_offset_hints(fz_context * ctx, pdf_document * doc, pdf_wri
 			page = -1;
 		else
 			page = opts->use_list[i]>>USE_PAGE_SHIFT;
-
 		if(page >= 0) {
 			pop[page]->num_objects++;
 			if(pop[page]->min_ofs > min)
@@ -2379,7 +2371,6 @@ static void make_page_offset_hints(fz_context * ctx, pdf_document * doc, pdf_wri
 				pop[page]->max_ofs = max;
 		}
 	}
-
 	min_objs_per_page = max_objs_per_page = pop[0]->num_objects;
 	min_page_length = max_page_length = pop[0]->max_ofs - pop[0]->min_ofs;
 	for(i = 1; i < opts->page_count; i++) {
@@ -2394,7 +2385,6 @@ static void make_page_offset_hints(fz_context * ctx, pdf_document * doc, pdf_wri
 		if(tmp > max_page_length)
 			max_page_length = tmp;
 	}
-
 	for(i = 0; i < opts->page_count; i++) {
 		int count = 0;
 		page_objects * po = opts->page_object_lists->page[i];

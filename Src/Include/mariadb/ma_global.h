@@ -926,7 +926,7 @@ do { doubleget_union _tmp; \
 #endif
 
 #include <memory.h>
-#include <malloc.h>
+// @v11.7.1 #include <malloc.h>
 #include <mariadb_ctype.h>
 #include <ma_sys.h>
 #include <ma_string.h>

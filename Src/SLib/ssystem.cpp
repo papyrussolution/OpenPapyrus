@@ -321,9 +321,9 @@ int psnip_cpu_count(void)
 //
 #if _MSC_VER >= 1900 // {
 //
-#include <sys\locking.h>
-#include <sys\stat.h>
-#include <errno.h>
+//@v11.7.1 #include <sys/locking.h>
+//@v11.7.1 #include <sys/stat.h>
+//@v11.7.1 #include <errno.h>
 
 extern "C" /*_Check_return_opt_*/ __int64 __cdecl _lseeki64_nolock(int _FileHandle, __int64 _Offset, int _Origin);
 extern "C" void __cdecl __acrt_lowio_lock_fh(int _FileHandle);

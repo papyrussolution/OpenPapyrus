@@ -17,11 +17,10 @@
  * It may be used for any purpose as long as this notice remains intact
  * on all source code distributions.
  */
-
 #ifdef HAVE_LONG_DOUBLE
-#define LDOUBLE long double
+	#define LDOUBLE long double
 #else
-#define LDOUBLE double
+	#define LDOUBLE double
 #endif
 
 static int fmtstr(char **, char **, size_t *, size_t *, const char *, int, int, int);
@@ -30,9 +29,7 @@ static int fmtint(char **, char **, size_t *, size_t *, int64_t, int, int, int, 
 static int fmtfp(char **, char **, size_t *, size_t *, LDOUBLE, int, int, int, int);
 #endif
 static int doapr_outch(char **, char **, size_t *, size_t *, int);
-static int _dopr(char ** sbuffer, char ** buffer,
-    size_t * maxlen, size_t * retlen, int * truncated,
-    const char * format, va_list args);
+static int _dopr(char ** sbuffer, char ** buffer, size_t * maxlen, size_t * retlen, int * truncated, const char * format, va_list args);
 
 /* format read states */
 #define DP_S_DEFAULT    0
@@ -45,20 +42,13 @@ static int _dopr(char ** sbuffer, char ** buffer,
 #define DP_S_DONE       7
 
 /* format flags - Bits */
-/* left-aligned padding */
-#define DP_F_MINUS      (1 << 0)
-/* print an explicit '+' for a value with positive sign */
-#define DP_F_PLUS       (1 << 1)
-/* print an explicit ' ' for a value with positive sign */
-#define DP_F_SPACE      (1 << 2)
-/* print 0/0x prefix for octal/hex and decimal point for floating point */
-#define DP_F_NUM        (1 << 3)
-/* print leading zeroes */
-#define DP_F_ZERO       (1 << 4)
-/* print HEX in UPPPERcase */
-#define DP_F_UP         (1 << 5)
-/* treat value as unsigned */
-#define DP_F_UNSIGNED   (1 << 6)
+#define DP_F_MINUS      (1 << 0) /* left-aligned padding */
+#define DP_F_PLUS       (1 << 1) /* print an explicit '+' for a value with positive sign */
+#define DP_F_SPACE      (1 << 2) /* print an explicit ' ' for a value with positive sign */
+#define DP_F_NUM        (1 << 3) /* print 0/0x prefix for octal/hex and decimal point for floating point */
+#define DP_F_ZERO       (1 << 4) /* print leading zeroes */
+#define DP_F_UP         (1 << 5) /* print HEX in UPPPERcase */
+#define DP_F_UNSIGNED   (1 << 6) /* treat value as unsigned */
 
 /* conversion flags */
 #define DP_C_SHORT      1
@@ -76,10 +66,7 @@ static int _dopr(char ** sbuffer, char ** buffer,
 #define char_to_int(p) (p - '0')
 #define OSSL_MAX(p, q) ((p >= q) ? p : q)
 
-static int _dopr(char ** sbuffer,
-    char ** buffer,
-    size_t * maxlen,
-    size_t * retlen, int * truncated, const char * format, va_list args)
+static int _dopr(char ** sbuffer, char ** buffer, size_t * maxlen, size_t * retlen, int * truncated, const char * format, va_list args)
 {
 	char ch;
 	int64_t value;
@@ -422,10 +409,7 @@ static int fmtstr(char ** sbuffer,
 	return 1;
 }
 
-static int fmtint(char ** sbuffer,
-    char ** buffer,
-    size_t * currlen,
-    size_t * maxlen, int64_t value, int base, int min, int max, int flags)
+static int fmtint(char ** sbuffer, char ** buffer, size_t * currlen, size_t * maxlen, int64_t value, int base, int min, int max, int flags)
 {
 	int signvalue = 0;
 	const char * prefix = "";
@@ -435,7 +419,6 @@ static int fmtint(char ** sbuffer,
 	int spadlen = 0;
 	int zpadlen = 0;
 	int caps = 0;
-
 	if(max < 0)
 		max = 0;
 	uvalue = value;
@@ -458,17 +441,14 @@ static int fmtint(char ** sbuffer,
 	if(flags & DP_F_UP)
 		caps = 1;
 	do {
-		convert[place++] = (caps ? "0123456789ABCDEF" : "0123456789abcdef")
-		    [uvalue % (unsigned)base];
+		convert[place++] = (caps ? "0123456789ABCDEF" : "0123456789abcdef")[uvalue % (unsigned)base];
 		uvalue = (uvalue / (unsigned)base);
 	} while(uvalue && (place < (int)sizeof(convert)));
 	if(place == sizeof(convert))
 		place--;
 	convert[place] = 0;
-
 	zpadlen = max - place;
-	spadlen =
-	    min - OSSL_MAX(max, place) - (signvalue ? 1 : 0) - strlen(prefix);
+	spadlen = min - OSSL_MAX(max, place) - (signvalue ? 1 : 0) - strlen(prefix);
 	if(zpadlen < 0)
 		zpadlen = 0;
 	if(spadlen < 0)
@@ -532,7 +512,7 @@ static LDOUBLE abs_val(LDOUBLE value)
 	return result;
 }
 
-static LDOUBLE pow_10(int in_exp)
+/* @sobolev (replaced with fpow10i) static LDOUBLE pow_10(int in_exp)
 {
 	LDOUBLE result = 1;
 	while(in_exp) {
@@ -540,22 +520,18 @@ static LDOUBLE pow_10(int in_exp)
 		in_exp--;
 	}
 	return result;
-}
+}*/
 
 static long roundv(LDOUBLE value)
 {
-	long intpart;
-	intpart = (long)value;
+	long intpart = (long)value;
 	value = value - intpart;
 	if(value >= 0.5)
 		intpart++;
 	return intpart;
 }
 
-static int fmtfp(char ** sbuffer,
-    char ** buffer,
-    size_t * currlen,
-    size_t * maxlen, LDOUBLE fvalue, int min, int max, int flags, int style)
+static int fmtfp(char ** sbuffer, char ** buffer, size_t * currlen, size_t * maxlen, LDOUBLE fvalue, int min, int max, int flags, int style)
 {
 	int signvalue = 0;
 	LDOUBLE ufvalue;
@@ -569,21 +545,18 @@ static int fmtfp(char ** sbuffer,
 	int padlen = 0;
 	int zpadlen = 0;
 	long exp = 0;
-	unsigned long intpart;
-	unsigned long fracpart;
-	unsigned long max10;
+	ulong intpart;
+	ulong fracpart;
+	ulong max10;
 	int realstyle;
-
 	if(max < 0)
 		max = 6;
-
 	if(fvalue < 0)
 		signvalue = '-';
 	else if(flags & DP_F_PLUS)
 		signvalue = '+';
 	else if(flags & DP_F_SPACE)
 		signvalue = ' ';
-
 	/*
 	 * G_FORMAT sometimes prints like E_FORMAT and sometimes like F_FORMAT
 	 * depending on the number to be printed. Work out which one it is and use
@@ -596,8 +569,7 @@ static int fmtfp(char ** sbuffer,
 		else if(fvalue < 0.0001) {
 			realstyle = E_FORMAT;
 		}
-		else if((max == 0 && fvalue >= 10)
-		    || (max > 0 && fvalue >= pow_10(max))) {
+		else if((max == 0 && fvalue >= 10) || (max > 0 && fvalue >= fpow10i(max))) {
 			realstyle = E_FORMAT;
 		}
 		else {
@@ -607,7 +579,6 @@ static int fmtfp(char ** sbuffer,
 	else {
 		realstyle = style;
 	}
-
 	if(style != F_FORMAT) {
 		tmpvalue = fvalue;
 		/* Calculate the exponent */
@@ -673,8 +644,8 @@ static int fmtfp(char ** sbuffer,
 	 * we "cheat" by converting the fractional part to integer by multiplying
 	 * by a factor of 10
 	 */
-	max10 = roundv(pow_10(max));
-	fracpart = roundv(pow_10(max) * (ufvalue - intpart));
+	max10 = roundv(fpow10i(max));
+	fracpart = roundv(fpow10i(max) * (ufvalue - intpart));
 	if(fracpart >= max10) {
 		intpart++;
 		fracpart -= max10;
@@ -820,21 +791,17 @@ static int fmtfp(char ** sbuffer,
 
 #define BUFFER_INC  1024
 
-static int doapr_outch(char ** sbuffer,
-    char ** buffer, size_t * currlen, size_t * maxlen, int c)
+static int doapr_outch(char ** sbuffer, char ** buffer, size_t * currlen, size_t * maxlen, int c)
 {
 	/* If we haven't at least one buffer, someone has done a big booboo */
 	if(!ossl_assert(*sbuffer != NULL || buffer != NULL))
 		return 0;
-
 	/* |currlen| must always be <= |*maxlen| */
 	if(!ossl_assert(*currlen <= *maxlen))
 		return 0;
-
 	if(buffer && *currlen == *maxlen) {
 		if(*maxlen > INT_MAX - BUFFER_INC)
 			return 0;
-
 		*maxlen += BUFFER_INC;
 		if(*buffer == NULL) {
 			if((*buffer = (char*)OPENSSL_malloc(*maxlen)) == NULL) {
@@ -858,28 +825,21 @@ static int doapr_outch(char ** sbuffer,
 			*buffer = tmpbuf;
 		}
 	}
-
 	if(*currlen < *maxlen) {
 		if(*sbuffer)
 			(*sbuffer)[(*currlen)++] = (char)c;
 		else
 			(*buffer)[(*currlen)++] = (char)c;
 	}
-
 	return 1;
 }
-
-/***************************************************************************/
 
 int BIO_printf(BIO * bio, const char * format, ...)
 {
 	va_list args;
 	int ret;
-
 	va_start(args, format);
-
 	ret = BIO_vprintf(bio, format, args);
-
 	va_end(args);
 	return ret;
 }
@@ -888,15 +848,11 @@ int BIO_vprintf(BIO * bio, const char * format, va_list args)
 {
 	int ret;
 	size_t retlen;
-	char hugebuf[1024 * 2]; /* Was previously 10k, which is unreasonable
-	                         * in small-stack environments, like threads
-	                         * or DOS programs. */
+	char hugebuf[1024 * 2]; /* Was previously 10k, which is unreasonable in small-stack environments, like threads or DOS programs. */
 	char * hugebufp = hugebuf;
 	size_t hugebufsize = sizeof(hugebuf);
-	char * dynbuf = NULL;
 	int ignored;
-
-	dynbuf = NULL;
+	char * dynbuf = NULL;
 	if(!_dopr(&hugebufp, &dynbuf, &hugebufsize, &retlen, &ignored, format,
 	    args)) {
 		OPENSSL_free(dynbuf);
@@ -911,7 +867,6 @@ int BIO_vprintf(BIO * bio, const char * format, va_list args)
 	}
 	return ret;
 }
-
 /*
  * As snprintf is not available everywhere, we provide our own
  * implementation. This function has nothing to do with BIOs, but it's
@@ -922,11 +877,8 @@ int BIO_snprintf(char * buf, size_t n, const char * format, ...)
 {
 	va_list args;
 	int ret;
-
 	va_start(args, format);
-
 	ret = BIO_vsnprintf(buf, n, format, args);
-
 	va_end(args);
 	return ret;
 }
@@ -935,10 +887,8 @@ int BIO_vsnprintf(char * buf, size_t n, const char * format, va_list args)
 {
 	size_t retlen;
 	int truncated;
-
 	if(!_dopr(&buf, NULL, &n, &retlen, &truncated, format, args))
 		return -1;
-
 	if(truncated)
 		/*
 		 * In case of truncation, return -1 like traditional snprintf.

@@ -1189,7 +1189,7 @@ TEST_F(SimpleDtoaTest, ExhaustiveDoubleToSixDigits) {
 		}
 
 		for(int exponent = -324; exponent <= 308; ++exponent) {
-			double powten = absl::strings_internal::Pow10(exponent);
+			double powten = /*absl::strings_internal::Pow10*/fpow10i(exponent);
 			if(powten == 0)  powten = 5e-324;
 			if(kFloatNumCases >= 1e9) {
 				// The exhaustive test takes a very long time, so log progress.

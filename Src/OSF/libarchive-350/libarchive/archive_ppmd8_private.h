@@ -21,7 +21,6 @@ struct CPpmd8_Context_;
 #endif
 
 #pragma pack(push, 1)
-
 typedef struct CPpmd8_Context_ {
 	Byte NumStats;
 	Byte Flags;
@@ -29,7 +28,6 @@ typedef struct CPpmd8_Context_ {
 	CPpmd_State_Ref Stats;
 	CPpmd8_Context_Ref Suffix;
 } CPpmd8_Context;
-
 #pragma pack(pop)
 
 #define Ppmd8Context_OneState(p) ((CPpmd_State*)&(p)->SummFreq)

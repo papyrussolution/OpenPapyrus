@@ -21,12 +21,10 @@
 #ifndef XAPIAN_INCLUDED_HONEY_DEFS_H
 #define XAPIAN_INCLUDED_HONEY_DEFS_H
 
-#include "internaltypes.h"
+//#include "internaltypes.h"
 
 #define SST_SEARCH
-
-/// Honey table extension.
-#define HONEY_TABLE_EXTENSION "honey"
+#define HONEY_TABLE_EXTENSION "honey" /// Honey table extension.
 
 /** Minimum size to pad a honey table to.
  *
@@ -34,10 +32,7 @@
  *  stub database file isn't a single file database.
  */
 #define HONEY_MIN_DB_SIZE 2048
-
-/// Maximum key length.
-#define HONEY_MAX_KEY_LENGTH 255
-
+#define HONEY_MAX_KEY_LENGTH 255 /// Maximum key length.
 /** Maximum size of a postlist chunk in bytes.
  *
  *  This isn't a hard maximum, but we won't exceed it by much.
@@ -45,16 +40,13 @@
  *  FIXME: 2000 is what glass uses, but we should probably tune this.
  */
 #define HONEY_POSTLIST_CHUNK_MAX 2000
-
-// Maximum size of a document length chunk in bytes.
-#define HONEY_DOCLEN_CHUNK_MAX 2017
+#define HONEY_DOCLEN_CHUNK_MAX 2017 // Maximum size of a document length chunk in bytes.
 
 // HONEY_DOCLEN_CHUNK_MAX should be one more than a
 // multiple of 12 so for widths 1,2,3,4 we can fix the
 // initial byte which indicates the width for the chunk
 // plus an exact number of entries.
-static_assert((HONEY_DOCLEN_CHUNK_MAX - 1) % 12 == 0,
-	      "HONEY_DOCLEN_CHUNK_MAX should be (12 * x + 1)");
+static_assert((HONEY_DOCLEN_CHUNK_MAX - 1) % 12 == 0, "HONEY_DOCLEN_CHUNK_MAX should be (12 * x + 1)");
 
 /** The largest docid value supported by honey.
  *
@@ -92,18 +84,12 @@ enum {
 
 #define KEY_DOCLEN_PREFIX "\0\xf7"
 
-static_assert(((KEY_VALUE_CHUNK_HI - KEY_VALUE_CHUNK) & 0x07) == 0,
-	      "No wasted values");
+static_assert(((KEY_VALUE_CHUNK_HI - KEY_VALUE_CHUNK) & 0x07) == 0, "No wasted values");
 
 }
 
-/// A block number in a honey Btree file.
-typedef uint4 honey_block_t;
-
-/// The revision number of a honey database.
-typedef uint4 honey_revision_number_t;
-
-/// How many entries there are in a table.
-typedef unsigned long long honey_tablesize_t;
+typedef uint4 honey_block_t; /// A block number in a honey Btree file.
+typedef uint4 honey_revision_number_t; /// The revision number of a honey database.
+typedef unsigned long long honey_tablesize_t; /// How many entries there are in a table.
 
 #endif // XAPIAN_INCLUDED_HONEY_DEFS_H

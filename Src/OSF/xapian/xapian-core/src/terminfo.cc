@@ -37,29 +37,21 @@ bool TermInfo::add_position(Xapian::termcount wdf_inc, Xapian::termpos termpos)
 	if(termpos > positions.back()) {
 		if(split) {
 			// Check for duplicate before split.
-			auto i = lower_bound(positions.cbegin(),
-				positions.cbegin() + split,
-				termpos);
+			auto i = lower_bound(positions.cbegin(), positions.cbegin() + split, termpos);
 			if(i != positions.cbegin() + split && *i == termpos)
 				return false;
 		}
 		positions.push_back(termpos);
 		return false;
 	}
-
-	if(termpos == positions.back()) {
-		// Duplicate of last entry.
+	if(termpos == positions.back()) { // Duplicate of last entry?
 		return false;
 	}
-
 	if(split > 0) {
-		// We could merge in the new entry at the same time, but that seems to
-		// make things much more complex for minor gains.
+		// We could merge in the new entry at the same time, but that seems to make things much more complex for minor gains.
 		merge();
 	}
-
-	// We keep positions sorted, so use lower_bound() which can binary chop to
-	// find the entry.
+	// We keep positions sorted, so use lower_bound() which can binary chop to find the entry.
 	auto i = lower_bound(positions.cbegin(), positions.cend(), termpos);
 	// Add unless termpos is already in the list.
 	if(i == positions.cend() || *i != termpos) {
@@ -88,10 +80,8 @@ bool TermInfo::add_position(Xapian::termcount wdf_inc, Xapian::termpos termpos)
 bool TermInfo::remove_position(Xapian::termpos termpos)
 {
 	Assert(!is_deleted());
-
 	if(UNLIKELY(positions.empty()))
 		return false;
-
 	// Special case removing the final position, which we can handle in O(1).
 	if(positions.back() == termpos) {
 		positions.pop_back();
@@ -101,7 +91,6 @@ bool TermInfo::remove_position(Xapian::termpos termpos)
 		}
 		return true;
 	}
-
 	if(split > 0) {
 		// We could remove the requested entry at the same time, but that seems
 		// fiddly to do.
@@ -127,7 +116,6 @@ Xapian::termpos TermInfo::remove_positions(Xapian::termpos termpos_first, Xapian
 		// seems fiddly to do.
 		merge();
 	}
-
 	// Find the range [i, j) that the specified termpos range maps to.  Use
 	// binary chop to search, since this is a sorted list.
 	auto i = lower_bound(positions.cbegin(), positions.cend(), termpos_first);

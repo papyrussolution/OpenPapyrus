@@ -295,9 +295,8 @@ U_CAPI int32_t U_EXPORT2 ubrk_swap(const UDataSwapper * ds, const void * inData,
 	//
 	const uint8 * inBytes = (const uint8 *)inData+headerSize;
 	RBBIDataHeader * rbbiDH = (RBBIDataHeader*)inBytes;
-	if(ds->readUInt32(rbbiDH->fMagic) != 0xb1a0 ||
-	    !RBBIDataWrapper::isDataVersionAcceptable(rbbiDH->fFormatVersion) ||
-	    ds->readUInt32(rbbiDH->fLength)  <  sizeof(RBBIDataHeader)) {
+	if(ds->readUInt32(rbbiDH->fMagic) != 0xb1a0 || !RBBIDataWrapper::isDataVersionAcceptable(rbbiDH->fFormatVersion) || 
+		ds->readUInt32(rbbiDH->fLength) < sizeof(RBBIDataHeader)) {
 		udata_printError(ds, "ubrk_swap(): RBBI Data header is invalid.\n");
 		*status = U_UNSUPPORTED_ERROR;
 		return 0;

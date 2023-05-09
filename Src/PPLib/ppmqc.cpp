@@ -1,5 +1,5 @@
 // PPMQC.CPP
-// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022, 2023
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1081,8 +1081,7 @@ MqbEventResponder::~MqbEventResponder()
 	Signature = 0;
 }
 	
-int MqbEventResponder::IsConsistent() const
-	{ return BIN(Signature == _PPConst.Signature_MqbEventResponder); }
+bool MqbEventResponder::IsConsistent() const { return (Signature == _PPConst.Signature_MqbEventResponder); }
 
 MqbEventResponder::Command::Command() : Cmd(cmdNone), IdVal(0)
 {

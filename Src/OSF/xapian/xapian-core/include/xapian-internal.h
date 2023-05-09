@@ -15,8 +15,14 @@
 #include "stringutils.h"
 #include "pack.h"
 #include "overflow.h"
-#include "log2.h"
-#include "internaltypes.h"
+// @sobolev (inlined below) #include "log2.h"
+//#include "internaltypes.h"
+// The standard marks these types as optional, as an implementation may not
+// directly support a type of the appropriate width.  If there are platforms
+// we care about which lack them, we could use wider types with some care
+// around where we read and write them.
+typedef uint32_t uint4;
+//
 #include "serialise-double.h"
 #include "stdclamp.h"
 #include "min_non_zero.h"
@@ -157,5 +163,20 @@
 #include "backends\glass\glass_termlist.h"
 #include "backends\glass\glass_valuelist.h"
 #include "backends\glass\glass_databasereplicator.h"
-
+//exp10.h
+#if !HAVE_DECL_EXP10
+	#if HAVE_DECL___EXP10
+		inline double exp10(double x) { return __exp10(x); }
+	#elif defined HAVE___BUILTIN_EXP10
+		inline double exp10(double x) { return __builtin_exp10(x); }
+	#else
+		inline double exp10(double x) { return std::pow(10.0, x); }
+	#endif
+#endif
+//
+//log2.h
+#if !HAVE_DECL_LOG2
+	inline double log2(double x) { return std::log(x) / std::log(2.0); }
+#endif
+//
 #endif // __XAPIAN_INTERNAL_H

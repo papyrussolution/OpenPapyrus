@@ -133,32 +133,19 @@ const uint32_t kLargePowersOfFive[] = {
 
 // Returns a pointer to the big integer data for (5**27)**i.  i must be
 // between 1 and 20, inclusive.
-const uint32_t* LargePowerOfFiveData(int i) {
-	return kLargePowersOfFive + i * (i - 1);
-}
-
+const uint32_t* LargePowerOfFiveData(int i) { return kLargePowersOfFive + i * (i - 1); }
 // Returns the size of the big integer data for (5**27)**i, in words.  i must be
 // between 1 and 20, inclusive.
-int LargePowerOfFiveSize(int i) {
-	return 2 * i;
-}
+int LargePowerOfFiveSize(int i) { return 2 * i; }
 }  // namespace
 
-ABSL_DLL const uint32_t kFiveToNth[14] = {
-	1,     5,      25,      125,     625,      3125,      15625,
-	78125, 390625, 1953125, 9765625, 48828125, 244140625, 1220703125,
-};
+ABSL_DLL const uint32_t kFiveToNth[14] = { 1, 5, 25, 125, 625, 3125, 15625, 78125, 390625, 1953125, 9765625, 48828125, 244140625, 1220703125, };
+ABSL_DLL const uint32_t kTenToNth[10] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, };
 
-ABSL_DLL const uint32_t kTenToNth[10] = {
-	1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000,
-};
-
-template <int max_words>
-int BigUnsigned<max_words>::ReadFloatMantissa(const ParsedFloat& fp,
-    int significant_digits) {
+template <int max_words> int BigUnsigned<max_words>::ReadFloatMantissa(const ParsedFloat& fp, int significant_digits) 
+{
 	SetToZero();
 	assert(fp.type == FloatType::kNumber);
-
 	if(fp.subrange_begin == nullptr) {
 		// We already exactly parsed the mantissa, so no more work is necessary.
 		words_[0] = fp.mantissa & 0xffffffffu;
@@ -171,14 +158,12 @@ int BigUnsigned<max_words>::ReadFloatMantissa(const ParsedFloat& fp,
 		}
 		return fp.exponent;
 	}
-	int exponent_adjust =
-	    ReadDigits(fp.subrange_begin, fp.subrange_end, significant_digits);
+	int exponent_adjust = ReadDigits(fp.subrange_begin, fp.subrange_end, significant_digits);
 	return fp.literal_exponent + exponent_adjust;
 }
 
-template <int max_words>
-int BigUnsigned<max_words>::ReadDigits(const char* begin, const char* end,
-    int significant_digits) {
+template <int max_words> int BigUnsigned<max_words>::ReadDigits(const char* begin, const char* end, int significant_digits) 
+{
 	assert(significant_digits <= Digits10() + 1);
 	SetToZero();
 
@@ -232,8 +217,7 @@ int BigUnsigned<max_words>::ReadDigits(const char* begin, const char* end,
 		}
 		int digit = (*begin - '0');
 		--significant_digits;
-		if(significant_digits == 0 && std::next(begin) != end &&
-		    (digit == 0 || digit == 5)) {
+		if(significant_digits == 0 && std::next(begin) != end && (digit == 0 || digit == 5)) {
 			// If this is the very last significant digit, but insignificant digits
 			// remain, we know that the last of those remaining significant digits is
 			// nonzero.  (If it wasn't, we would have stripped it before we got here.)
@@ -278,20 +262,16 @@ template <int max_words> /*static*/BigUnsigned<max_words> BigUnsigned<max_words>
 	// Seed from the table of large powers, if possible.
 	bool first_pass = true;
 	while(n >= kLargePowerOfFiveStep) {
-		int big_power =
-		    std::min(n / kLargePowerOfFiveStep, kLargestPowerOfFiveIndex);
+		int big_power = std::min(n / kLargePowerOfFiveStep, kLargestPowerOfFiveIndex);
 		if(first_pass) {
 			// just copy, rather than multiplying by 1
-			std::copy(
-				LargePowerOfFiveData(big_power),
-				LargePowerOfFiveData(big_power) + LargePowerOfFiveSize(big_power),
+			std::copy(LargePowerOfFiveData(big_power), LargePowerOfFiveData(big_power) + LargePowerOfFiveSize(big_power),
 				answer.words_);
 			answer.size_ = LargePowerOfFiveSize(big_power);
 			first_pass = false;
 		}
 		else {
-			answer.MultiplyBy(LargePowerOfFiveSize(big_power),
-			    LargePowerOfFiveData(big_power));
+			answer.MultiplyBy(LargePowerOfFiveSize(big_power), LargePowerOfFiveData(big_power));
 		}
 		n -= kLargePowerOfFiveStep * big_power;
 	}
@@ -299,13 +279,11 @@ template <int max_words> /*static*/BigUnsigned<max_words> BigUnsigned<max_words>
 	return answer;
 }
 
-template <int max_words>
-void BigUnsigned<max_words>::MultiplyStep(int original_size,
-    const uint32_t* other_words,
-    int other_size, int step) {
+template <int max_words> void BigUnsigned<max_words>::MultiplyStep(int original_size,
+    const uint32_t* other_words, int other_size, int step) 
+{
 	int this_i = std::min(original_size - 1, step);
 	int other_i = step - this_i;
-
 	uint64_t this_word = 0;
 	uint64_t carry = 0;
 	for(; this_i >= 0 && other_i < other_size; --this_i, ++other_i) {
@@ -322,8 +300,8 @@ void BigUnsigned<max_words>::MultiplyStep(int original_size,
 	}
 }
 
-template <int max_words>
-std::string BigUnsigned<max_words>::ToString() const {
+template <int max_words> std::string BigUnsigned<max_words>::ToString() const 
+{
 	BigUnsigned<max_words> copy = *this;
 	std::string result;
 	// Build result in reverse order

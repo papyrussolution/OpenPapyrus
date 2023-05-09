@@ -32,9 +32,9 @@
 
 #include "zint.h"
 //#include <stdlib.h>
-#include <locale.h>
+// @v11.7.1 #include <locale.h>
 #ifdef _MSC_VER
-	#include <malloc.h>
+	// @v11.7.1 #include <malloc.h>
 	//#include <fcntl.h>
 	#define inline _inline
 #endif

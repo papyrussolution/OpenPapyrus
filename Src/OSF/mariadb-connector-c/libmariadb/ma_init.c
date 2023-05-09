@@ -15,7 +15,7 @@
 #pragma hdrstop
 #ifdef _WIN32
 	#ifdef _MSC_VER
-		#include <locale.h>
+		// @v11.7.1 #include <locale.h>
 		#include <crtdbg.h>
 	#endif
 	static bool my_win_init(void);

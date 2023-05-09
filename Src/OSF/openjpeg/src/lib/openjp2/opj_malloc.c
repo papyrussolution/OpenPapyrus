@@ -20,9 +20,9 @@
 #include "opj_includes.h"
 #pragma hdrstop
 #define OPJ_SKIP_POISON
-#if defined(OPJ_HAVE_MALLOC_H) && defined(OPJ_HAVE_MEMALIGN)
-	#include <malloc.h>
-#endif
+// @v11.7.1 #if defined(OPJ_HAVE_MALLOC_H) && defined(OPJ_HAVE_MEMALIGN)
+	// @v11.7.1 #include <malloc.h>
+// @v11.7.1 #endif
 #ifndef SIZE_MAX
 	#define SIZE_MAX ((size_t)-1)
 #endif

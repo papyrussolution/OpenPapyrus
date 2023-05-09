@@ -1,11 +1,11 @@
 // PPSYNC.CPP
-// (c) Alexander Simanov, Anton Sobolev 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2020, 2021, 2022
+// (c) Alexander Simanov, Anton Sobolev 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2020, 2021, 2022, 2023
 // Database lock file implementation
 //
 #include <pp.h>
 #pragma hdrstop
 #include <share.h>
-#include <sys\locking.h>
+//@v11.7.1 #include <sys/locking.h>
 
 #define LOCK_MAGIC        0x18051974L
 #define LOCK_PRFX_SIZE    sizeof(long)

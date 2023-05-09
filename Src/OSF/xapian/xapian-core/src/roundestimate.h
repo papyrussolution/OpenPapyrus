@@ -11,7 +11,7 @@
 #ifndef XAPIAN_INCLUDED_ROUNDESTIMATE_H
 #define XAPIAN_INCLUDED_ROUNDESTIMATE_H
 
-#include "exp10.h"
+// @sobolev (inlined at xapian-internal.h) #include "exp10.h"
 
 /** Round a bounded estimate to an appropriate number of S.F.
  *

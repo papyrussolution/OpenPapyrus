@@ -118,7 +118,8 @@ static double GetPSNR(double v, double size) {
 	       : kMinDistortion_dB;
 }
 
-static double GetLogSSIM(double v, double size) {
+static double GetLogSSIM(double v, double size) 
+{
 	v = (size > 0.) ? v / size : 1.;
 	return (v < 1.) ? -10.0 * log10(1. - v) : kMinDistortion_dB;
 }

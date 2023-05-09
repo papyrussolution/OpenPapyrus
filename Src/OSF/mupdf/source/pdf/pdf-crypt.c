@@ -308,7 +308,7 @@ static void pdf_compute_encryption_key(fz_context * ctx, pdf_crypt * crypt, ucha
 	uint p;
 	int i;
 	fz_md5 md5;
-	int n = fz_clampi(crypt->length / 8, 0, 16);
+	int n = sclamp(crypt->length / 8, 0, 16);
 	// Step 1 - copy and pad password string 
 	SETMIN(pwlen, 32);
 	memcpy(buf, password, pwlen);
@@ -478,7 +478,7 @@ static void pdf_compute_encryption_key_r6(fz_context * ctx, pdf_crypt * crypt, u
  */
 static void pdf_compute_user_password(fz_context * ctx, pdf_crypt * crypt, uchar * password, size_t pwlen, uchar * output)
 {
-	int n = fz_clampi(crypt->length / 8, 0, 16);
+	int n = sclamp(crypt->length / 8, 0, 16);
 	if(crypt->r == 2) {
 		fz_arc4 arc4;
 		pdf_compute_encryption_key(ctx, crypt, password, pwlen, crypt->key);
@@ -542,7 +542,7 @@ static int pdf_authenticate_user_password(fz_context * ctx, pdf_crypt * crypt, u
 
 static int pdf_authenticate_owner_password(fz_context * ctx, pdf_crypt * crypt, uchar * ownerpass, size_t pwlen)
 {
-	int n = fz_clampi(crypt->length / 8, 0, 16);
+	int n = sclamp(crypt->length / 8, 0, 16);
 
 	if(crypt->r == 2) {
 		uchar pwbuf[32];
@@ -711,23 +711,16 @@ int pdf_document_permissions(fz_context * ctx, pdf_document * doc)
  * Compute the owner password (PDF 1.7 algorithm 3.3)
  */
 
-static void pdf_compute_owner_password(fz_context * ctx,
-    pdf_crypt * crypt,
-    uchar * opassword,
-    size_t opwlen,
-    uchar * upassword,
-    size_t upwlen,
-    uchar * output)
+static void pdf_compute_owner_password(fz_context * ctx, pdf_crypt * crypt, uchar * opassword,
+    size_t opwlen, uchar * upassword, size_t upwlen, uchar * output)
 {
 	uchar obuf[32];
 	uchar ubuf[32];
 	uchar digest[32];
-	int i, n;
+	int i;
 	fz_md5 md5;
 	fz_arc4 arc4;
-
-	n = fz_clampi(crypt->length / 8, 0, 16);
-
+	int n = sclamp(crypt->length / 8, 0, 16);
 	/* Step 1 - copy and pad owner password string */
 	if(opwlen > 32)
 		opwlen = 32;

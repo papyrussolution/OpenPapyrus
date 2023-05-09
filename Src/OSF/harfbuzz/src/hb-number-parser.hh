@@ -78,10 +78,10 @@ static const int double_parser_en_main = 1;
 #line 68 "hb-number-parser.rl"
 
 /* Works only for n < 512 */
+/* @sobolev (replaced with fpow10i)
 static inline double _pow10(unsigned exponent)
 {
-	static const double _powers_of_10[] =
-	{
+	static const double _powers_of_10[] = {
 		1.0e+256,
 		1.0e+128,
 		1.0e+64,
@@ -92,12 +92,13 @@ static inline double _pow10(unsigned exponent)
 		100.,
 		10.
 	};
-	unsigned mask = 1 << (ARRAY_LENGTH(_powers_of_10) - 1);
+	uint   mask = 1 << (ARRAY_LENGTH(_powers_of_10) - 1);
 	double result = 1;
 	for(const double * power = _powers_of_10; mask; ++power, mask >>= 1)
-		if(exponent & mask) result *= *power;
+		if(exponent & mask) 
+			result *= *power;
 	return result;
-}
+}*/
 
 /* a variant of strtod that also gets end of buffer in its second argument */
 static inline double strtod_rl(const char * p, const char ** end_ptr /* IN/OUT */)
@@ -191,7 +192,7 @@ _out:           {}
 	}
 #line 113 "hb-number-parser.rl"
 	*end_ptr = p;
-	if(frac_count) value += frac / _pow10(frac_count);
+	if(frac_count) value += frac / fpow10i(frac_count);
 	if(neg) value *= -1.0;
 	if(UNLIKELY(exp_overflow)) {
 		if(value == 0) return value;
@@ -199,8 +200,10 @@ _out:           {}
 		else return neg ? -DBL_MAX : DBL_MAX;
 	}
 	if(exp) {
-		if(exp_neg) value /= _pow10(exp);
-		else value *= _pow10(exp);
+		if(exp_neg) 
+			value /= fpow10i(exp);
+		else 
+			value *= fpow10i(exp);
 	}
 	return value;
 }

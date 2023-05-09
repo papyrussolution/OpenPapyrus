@@ -1391,10 +1391,7 @@ static const ColorName ColorNameList[] = {
 	{ 0x009acd32, "Yellowgreen" }
 };
 
-static char FASTCALL hexdigit(uint d)
-{
-	return (d >= 0 && d <= 9) ? (d + '0') : ((d >= 10 && d <= 15) ? (d - 10 + 'A') : '0');
-}
+static char FASTCALL hexdigit(uint d) { return (d >= 0 && d <= 9) ? (d + '0') : ((d >= 10 && d <= 15) ? (d - 10 + 'A') : '0'); }
 
 int FASTCALL SColorBase::FromStr(const char * pStr)
 {
@@ -1483,7 +1480,7 @@ SString & SColorBase::ToStr(SString & rBuf, int format) const
 		}
 	}
 	if(rBuf.IsEmpty()) {
-		long f = (format & ~fmtName);
+		const long f = (format & ~fmtName);
 		if(f == fmtRGB) {
 			rBuf.Cat("rgb").CatChar('(').Cat((uint)R).Comma().Cat((uint)G).Comma().Cat((uint)B).CatChar(')');
 		}
@@ -1698,10 +1695,7 @@ void UiCoord::Reset()
 	Reserve = 0;
 }
 
-bool UiCoord::IsEmpty() const
-{
-	return (Val == 0.0f && Flags == 0);
-}
+bool UiCoord::IsEmpty() const { return (Val == 0.0f && Flags == 0); }
 
 UiRelPoint & FASTCALL UiRelPoint::Set(const SPoint2S & rP)
 {
@@ -1725,10 +1719,7 @@ void UiRelRect::Reset()
 	R.Y.Reset();
 }
 
-bool UiRelRect::IsEmpty() const
-{
-	return (L.X.IsEmpty() && L.Y.IsEmpty() && R.X.IsEmpty() && R.Y.IsEmpty());
-}
+bool UiRelRect::IsEmpty() const { return (L.X.IsEmpty() && L.Y.IsEmpty() && R.X.IsEmpty() && R.Y.IsEmpty()); }
 //
 //
 //
@@ -1755,10 +1746,7 @@ void SRegion::Destroy()
 	}
 }
 
-bool SRegion::operator !() const
-{
-	return (!H);
-}
+bool SRegion::operator !() const { return (!H); }
 
 SRegion & FASTCALL SRegion::operator = (const SRegion & rS)
 {

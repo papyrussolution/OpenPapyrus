@@ -20,9 +20,9 @@ inline bool BindFromPosition(int position, int* value, absl::Span<const FormatAr
 
 class ArgContext {
 public:
-	explicit ArgContext(absl::Span<const FormatArgImpl> pack) : pack_(pack) {
+	explicit ArgContext(absl::Span<const FormatArgImpl> pack) : pack_(pack) 
+	{
 	}
-
 	// Fill 'bound' with the results of applying the context's argument pack
 	// to the specified 'unbound'. We synthesize a BoundConversion by
 	// lining up a UnboundConversion with a user argument. We also
@@ -30,18 +30,17 @@ public:
 	// this call, 'bound' has all the information it needs to be formatted.
 	// Returns false on failure.
 	bool Bind(const UnboundConversion* unbound, BoundConversion* bound);
-
 private:
 	absl::Span<const FormatArgImpl> pack_;
 };
 
-inline bool ArgContext::Bind(const UnboundConversion* unbound,
-    BoundConversion* bound) {
+inline bool ArgContext::Bind(const UnboundConversion* unbound, BoundConversion* bound) 
+{
 	const FormatArgImpl* arg = nullptr;
 	int arg_position = unbound->arg_position;
-	if(static_cast<size_t>(arg_position - 1) >= pack_.size()) return false;
+	if(static_cast<size_t>(arg_position - 1) >= pack_.size()) 
+		return false;
 	arg = &pack_[arg_position - 1]; // 1-based
-
 	if(unbound->flags != Flags::kBasic) {
 		int width = unbound->width.value();
 		bool force_left = false;
@@ -56,20 +55,15 @@ inline bool ArgContext::Bind(const UnboundConversion* unbound,
 				width = -std::max(width, -std::numeric_limits<int>::max());
 			}
 		}
-
 		int precision = unbound->precision.value();
 		if(unbound->precision.is_from_arg()) {
-			if(!BindFromPosition(unbound->precision.get_from_arg(), &precision,
-			    pack_))
+			if(!BindFromPosition(unbound->precision.get_from_arg(), &precision, pack_))
 				return false;
 		}
-
 		FormatConversionSpecImplFriend::SetWidth(width, bound);
 		FormatConversionSpecImplFriend::SetPrecision(precision, bound);
-
 		if(force_left) {
-			FormatConversionSpecImplFriend::SetFlags(unbound->flags | Flags::kLeft,
-			    bound);
+			FormatConversionSpecImplFriend::SetFlags(unbound->flags | Flags::kLeft, bound);
 		}
 		else {
 			FormatConversionSpecImplFriend::SetFlags(unbound->flags, bound);
@@ -85,71 +79,61 @@ inline bool ArgContext::Bind(const UnboundConversion* unbound,
 	return true;
 }
 
-template <typename Converter>
-class ConverterConsumer {
+template <typename Converter> class ConverterConsumer {
 public:
-	ConverterConsumer(Converter converter, absl::Span<const FormatArgImpl> pack)
-		: converter_(converter), arg_context_(pack) {
+	ConverterConsumer(Converter converter, absl::Span<const FormatArgImpl> pack) : converter_(converter), arg_context_(pack) 
+	{
 	}
-
-	bool Append(string_view s) {
+	bool Append(string_view s) 
+	{
 		converter_.Append(s);
 		return true;
 	}
-
-	bool ConvertOne(const UnboundConversion& conv, string_view conv_string) {
+	bool ConvertOne(const UnboundConversion& conv, string_view conv_string) 
+	{
 		BoundConversion bound;
-		if(!arg_context_.Bind(&conv, &bound)) return false;
+		if(!arg_context_.Bind(&conv, &bound)) 
+			return false;
 		return converter_.ConvertOne(bound, conv_string);
 	}
-
 private:
 	Converter converter_;
 	ArgContext arg_context_;
 };
 
-template <typename Converter>
-bool ConvertAll(const UntypedFormatSpecImpl format,
-    absl::Span<const FormatArgImpl> args, Converter converter) {
+template <typename Converter> bool ConvertAll(const UntypedFormatSpecImpl format, absl::Span<const FormatArgImpl> args, Converter converter) 
+{
 	if(format.has_parsed_conversion()) {
-		return format.parsed_conversion()->ProcessFormat(
-			ConverterConsumer<Converter>(converter, args));
+		return format.parsed_conversion()->ProcessFormat(ConverterConsumer<Converter>(converter, args));
 	}
 	else {
-		return ParseFormatString(format.str(),
-			   ConverterConsumer<Converter>(converter, args));
+		return ParseFormatString(format.str(), ConverterConsumer<Converter>(converter, args));
 	}
 }
 
 class DefaultConverter {
 public:
-	explicit DefaultConverter(FormatSinkImpl* sink) : sink_(sink) {
+	explicit DefaultConverter(FormatSinkImpl* sink) : sink_(sink) 
+	{
 	}
-
-	void Append(string_view s) const {
-		sink_->Append(s);
-	}
-
-	bool ConvertOne(const BoundConversion& bound, string_view /*conv*/) const {
+	void Append(string_view s) const { sink_->Append(s); }
+	bool ConvertOne(const BoundConversion& bound, string_view /*conv*/) const 
+	{
 		return FormatArgImplFriend::Convert(*bound.arg(), bound, sink_);
 	}
-
 private:
 	FormatSinkImpl* sink_;
 };
 
 class SummarizingConverter {
 public:
-	explicit SummarizingConverter(FormatSinkImpl* sink) : sink_(sink) {
+	explicit SummarizingConverter(FormatSinkImpl* sink) : sink_(sink) 
+	{
 	}
-
-	void Append(string_view s) const {
-		sink_->Append(s);
-	}
-
-	bool ConvertOne(const BoundConversion& bound, string_view /*conv*/) const {
+	void Append(string_view s) const { sink_->Append(s); }
+	bool ConvertOne(const BoundConversion& bound, string_view /*conv*/) const 
+	{
 		UntypedFormatSpecImpl spec("%d");
-
 		std::ostringstream ss;
 		ss << "{" << Streamable(spec, {*bound.arg()}) << ":"
 		   << FormatConversionSpecImplFriend::FlagsToString(bound);
@@ -159,20 +143,18 @@ public:
 		Append(ss.str());
 		return true;
 	}
-
 private:
 	FormatSinkImpl* sink_;
 };
 }  // namespace
 
-bool BindWithPack(const UnboundConversion* props,
-    absl::Span<const FormatArgImpl> pack,
-    BoundConversion* bound) {
+bool BindWithPack(const UnboundConversion* props, absl::Span<const FormatArgImpl> pack, BoundConversion* bound) 
+{
 	return ArgContext(pack).Bind(props, bound);
 }
 
-std::string Summarize(const UntypedFormatSpecImpl format,
-    absl::Span<const FormatArgImpl> args) {
+std::string Summarize(const UntypedFormatSpecImpl format, absl::Span<const FormatArgImpl> args) 
+{
 	typedef SummarizingConverter Converter;
 	std::string out;
 	{
@@ -186,21 +168,22 @@ std::string Summarize(const UntypedFormatSpecImpl format,
 	return out;
 }
 
-bool FormatUntyped(FormatRawSinkImpl raw_sink,
-    const UntypedFormatSpecImpl format,
-    absl::Span<const FormatArgImpl> args) {
+bool FormatUntyped(FormatRawSinkImpl raw_sink, const UntypedFormatSpecImpl format, absl::Span<const FormatArgImpl> args) 
+{
 	FormatSinkImpl sink(raw_sink);
 	using Converter = DefaultConverter;
 	return ConvertAll(format, args, Converter(&sink));
 }
 
-std::ostream & Streamable::Print(std::ostream & os) const {
-	if(!FormatUntyped(&os, format_, args_)) os.setstate(std::ios::failbit);
+std::ostream & Streamable::Print(std::ostream & os) const 
+{
+	if(!FormatUntyped(&os, format_, args_)) 
+		os.setstate(std::ios::failbit);
 	return os;
 }
 
-std::string & AppendPack(std::string* out, const UntypedFormatSpecImpl format,
-    absl::Span<const FormatArgImpl> args) {
+std::string & AppendPack(std::string* out, const UntypedFormatSpecImpl format, absl::Span<const FormatArgImpl> args) 
+{
 	size_t orig = out->size();
 	if(ABSL_PREDICT_FALSE(!FormatUntyped(out, format, args))) {
 		out->erase(orig);
@@ -208,8 +191,8 @@ std::string & AppendPack(std::string* out, const UntypedFormatSpecImpl format,
 	return *out;
 }
 
-std::string FormatPack(const UntypedFormatSpecImpl format,
-    absl::Span<const FormatArgImpl> args) {
+std::string FormatPack(const UntypedFormatSpecImpl format, absl::Span<const FormatArgImpl> args) 
+{
 	std::string out;
 	if(ABSL_PREDICT_FALSE(!FormatUntyped(&out, format, args))) {
 		out.clear();
@@ -217,8 +200,8 @@ std::string FormatPack(const UntypedFormatSpecImpl format,
 	return out;
 }
 
-int FprintF(std::FILE* output, const UntypedFormatSpecImpl format,
-    absl::Span<const FormatArgImpl> args) {
+int FprintF(std::FILE* output, const UntypedFormatSpecImpl format, absl::Span<const FormatArgImpl> args) 
+{
 	FILERawSink sink(output);
 	if(!FormatUntyped(&sink, format, args)) {
 		errno = EINVAL;

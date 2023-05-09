@@ -137,6 +137,7 @@
                         />
                 </LinearLayout>
             </LinearLayout>
+            <Spinner style="@style/ComboBox" android:layout_marginBottom="4dp" android:id="@+id/CTLSEL_DOCUMENT_QUOTKIND"/>
             <com.google.android.material.textfield.TextInputLayout style="@style/InputLine"
                 android:id="@+id/CTL_DOCUMENT_MEMO"
                 android:layout_width="match_parent"

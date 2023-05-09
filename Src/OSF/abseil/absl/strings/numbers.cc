@@ -108,7 +108,8 @@ const char one_ASCII_final_digits[10][2] {
 };
 }  // namespace
 
-char* numbers_internal::FastIntToBuffer(uint32_t i, char* buffer) {
+char* numbers_internal::FastIntToBuffer(uint32_t i, char* buffer) 
+{
 	uint32_t digits;
 	// The idea of this implementation is to trim the number of divides to as few
 	// as possible, and also reducing memory stores and branches, by going in
@@ -143,10 +144,10 @@ lt100:
 		*buffer = 0;
 		return buffer;
 	}
-
 	if(i < 100) {
 		digits = i;
-		if(i >= 10) goto lt100;
+		if(i >= 10) 
+			goto lt100;
 		memcpy(buffer, one_ASCII_final_digits[i], 2);
 		return buffer + 1;
 	}

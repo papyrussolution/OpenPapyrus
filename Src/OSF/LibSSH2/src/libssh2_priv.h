@@ -422,10 +422,10 @@ int _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION * session, uchar ** method, 
     uchar ** pubkeydata, size_t * pubkeydata_len, const char * privatekeydata, size_t privatekeydata_len, const char * passphrase);
 void _libssh2_init_aes_ctr(void);
 //
-#ifdef HAVE_WINSOCK2_H
+//#ifdef HAVE_WINSOCK2_H
 	//#include <winsock2.h>
 	//#include <ws2tcpip.h>
-#endif
+//#endif
 
 /* RFC4253 section 6.1 Maximum Packet Length says:
  *

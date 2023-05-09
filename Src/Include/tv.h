@@ -2091,12 +2091,12 @@ public:
 	uint   getHelpCtx();
 	TView & SetId(uint id);
 	uint   GetId() const;
-	int    FASTCALL TestId(uint id) const;
+	bool   FASTCALL TestId(uint id) const;
 	//
 	// Descr: Возвращает !0 если поле состояние объекта содержит хотя бы один
 	//   из флагов, установленных в параметре s.
 	//
-	int    FASTCALL IsInState(uint s) const;
+	bool   FASTCALL IsInState(uint s) const;
 	void * FASTCALL MessageCommandToOwner(uint command);
 	//
 	// @v9.8.12 @construction
@@ -2131,7 +2131,7 @@ public:
 	TView * prevView() const;
 	TView * prev() const;
 	TView * TopView();
-	int    IsConsistent() const;
+	bool   IsConsistent() const;
 	int    FASTCALL IsSubSign(uint) const;
 	uint   GetSubSign() const { return SubSign; }
 	int    GetEndModalCmd() const { return EndModalCmd; }
@@ -3984,6 +3984,7 @@ public:
 	virtual int    search(const void * pPattern, CompFunc fcmp, int srchMode);
 	virtual int    GetFrameSize() const;
 	virtual int    GetFrameState();
+	const  StrAssocTree * GetData() const { return P_SaList; }
 	int    AddTopLevelRestrictionId(long id); // @v11.4.0
 	//
 	// Descr: Возвращает true если идентификатор id следует отображать среди узлов верхнего уровня.
