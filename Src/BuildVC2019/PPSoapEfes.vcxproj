@@ -367,6 +367,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers />
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -459,6 +460,7 @@
       <SwapRunFromNET>true</SwapRunFromNET>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers />
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
@@ -552,6 +554,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers />
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
@@ -644,6 +647,7 @@
       <SwapRunFromNET>true</SwapRunFromNET>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers />
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
@@ -735,6 +739,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers />
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">

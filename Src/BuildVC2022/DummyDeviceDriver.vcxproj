@@ -271,6 +271,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
@@ -314,6 +315,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -357,6 +359,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -399,6 +402,7 @@
       <ImportLibrary>$(OutDir)DummyDeviceDriver.lib</ImportLibrary>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
@@ -441,6 +445,7 @@
       <ImportLibrary>$(OutDir)DummyDeviceDriver.lib</ImportLibrary>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
@@ -483,6 +488,7 @@
       <ImportLibrary>$(OutDir)DummyDeviceDriver.lib</ImportLibrary>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -531,6 +537,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
@@ -580,6 +587,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
@@ -629,6 +637,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -677,6 +686,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
@@ -725,6 +735,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
@@ -773,6 +784,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
