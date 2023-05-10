@@ -1,0 +1,51 @@
+//=============================================================================
+//  Custom Attribution License ("PD with Credit")
+//=============================================================================
+
+Copyright (c) 2019 KNNSpeed
+
+This software is provided free of charge in hopes that it may be useful, and it
+can be downloaded and used in whole or in part. However, by using, copying,
+modifying, and/or distributing this software you agree, implicitly, to the
+following terms:
+
+1) You will appropriately credit this project when and where code directly
+derived from it is implemented, even if what is implemented is just a small part
+of this codebase.
+
+Below are examples of appropriate citations; pick your favorite, put it
+somewhere reasonable like in an acknowledgements or references section, as a
+comment in the code, at the bottom of a README or in a LICENSE file, etc., and
+change "[Date you got it]" to the date you acquired my code. Note that these are
+just examples: the important point is that the exact original source is
+identified and attributed.
+
+Short:
+// From V1.3 of https://github.com/KNNSpeed/AVX-Memmove
+
+Medium:
+// From KNNSpeed's "AVX Memmove," V1.3:
+// https://github.com/KNNSpeed/AVX-Memmove
+
+Long (Recommended):
+// From KNNSpeed's "AVX Memmove":
+// https://github.com/KNNSpeed/AVX-Memmove
+// V1.3, [Date you got it]
+
+The last line of the long form might look like:
+V1.3, February 18, 2019
+
+2) THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+Failure to honor this license will cause annoying little elves to appear at your
+doorstep, and they will pester you without rest until the terms are satisfied.
+...Not really: for as long as you do not comply with this license, you are
+simply not permitted to do anything with the software. This includes even
+printing it out and brushing your cat's teeth with it... Unless, of course, you
+printed an appropriate citation along with it.

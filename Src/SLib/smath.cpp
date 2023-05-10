@@ -1704,19 +1704,23 @@ static uint64 RoundToNearestMul10(uint64 m) // @construction
 uint64 SDecimal::ToUed(uint numBits) const // @construction
 {
 	//
-	// 3 bits
-	//   000 exponent zero bits 
-	//   001 exponent 4 bits [-7..+7]
-	//   010 exponent 6 bits [-31..+31]
-	//   011 exponent 7 bits [-63..+63]
-	//   100 exponent 8bits  [-127..+127]
-	//   101 +INF
-	//   110 -INF
-	//   111 NAN
+	// 5 bits // 3-->5
+	//   000    exponent zero bits 
+	//   001    exponent 3 bits [1..8]
+	//   010    exponent 5 bits [9..32]
+	//   011    exponent 5 bits [33..64]
+	//   100    exponent 6 bits [65..128]
+	//   101    +INF
+	//   110    -INF
+	//   111    NAN
+	//       00 exp+, mantissa+
+	//       01 exp+, mantissa-
+	//       10 exp-, mantissa+
+	//       11 exp-, mantissa-
 	// E bits ([0..8] depends on special 3 bits above) bits  
-	//   exponent (upper bit - sign)
-	// (N-3-E) bits
-	//   mantissa (upper bit - sign)
+	//   exponent (absolute)
+	// (N-4-E) bits
+	//   mantissa (absolute)
 	//
 	uint64 ued = 0;
 	assert(numBits >= 24 && numBits <= 64);
@@ -1764,6 +1768,9 @@ uint64 SDecimal::ToUed(uint numBits) const // @construction
 						ued |= (((sign_exp << (exp_bits-1)) | (AndMask(exp_bits) & abs_exp)) << mb);
 					}
 					ued |= (special << (numBits-3));
+				}
+				else {
+					RoundToNearestMul10(abs(Mant));
 				}
 			}
 		}

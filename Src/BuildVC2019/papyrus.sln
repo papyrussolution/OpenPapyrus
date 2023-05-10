@@ -787,7 +787,6 @@ Global
 		{53F461BA-506B-4A59-9F88-AF412F22EB79}.MtDllRelease|x64.ActiveCfg = MtDllRelease|x64
 		{53F461BA-506B-4A59-9F88-AF412F22EB79}.MtDllRelease|x64.Build.0 = MtDllRelease|x64
 		{53F461BA-506B-4A59-9F88-AF412F22EB79}.MtDllRelease|x86.ActiveCfg = MtDllRelease|Win32
-		{53F461BA-506B-4A59-9F88-AF412F22EB79}.MtDllRelease|x86.Build.0 = MtDllRelease|Win32
 		{53F461BA-506B-4A59-9F88-AF412F22EB79}.Release|Any CPU.ActiveCfg = Release|Win32
 		{53F461BA-506B-4A59-9F88-AF412F22EB79}.Release|x64.ActiveCfg = Release|x64
 		{53F461BA-506B-4A59-9F88-AF412F22EB79}.Release|x64.Build.0 = Release|x64
@@ -2367,7 +2366,6 @@ Global
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.MtDllRelease|x64.ActiveCfg = MtDllRelease|x64
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.MtDllRelease|x64.Build.0 = MtDllRelease|x64
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.MtDllRelease|x86.ActiveCfg = MtDllRelease|Win32
-		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.MtDllRelease|x86.Build.0 = MtDllRelease|Win32
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.Release|Any CPU.ActiveCfg = Release|Win32
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.Release|x64.ActiveCfg = Release|x64
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.Release|x64.Build.0 = Release|x64
@@ -2425,7 +2423,6 @@ Global
 		{9169ADD9-E016-49DF-8E74-E30564D23682}.MtDllRelease|x64.ActiveCfg = MtDllRelease|x64
 		{9169ADD9-E016-49DF-8E74-E30564D23682}.MtDllRelease|x64.Build.0 = MtDllRelease|x64
 		{9169ADD9-E016-49DF-8E74-E30564D23682}.MtDllRelease|x86.ActiveCfg = MtDllRelease|Win32
-		{9169ADD9-E016-49DF-8E74-E30564D23682}.MtDllRelease|x86.Build.0 = MtDllRelease|Win32
 		{9169ADD9-E016-49DF-8E74-E30564D23682}.Release|Any CPU.ActiveCfg = Release|Win32
 		{9169ADD9-E016-49DF-8E74-E30564D23682}.Release|x64.ActiveCfg = Release|x64
 		{9169ADD9-E016-49DF-8E74-E30564D23682}.Release|x64.Build.0 = Release|x64
@@ -2541,7 +2538,6 @@ Global
 		{8AF33FE1-70BB-4FD6-85B1-CED6C2424212}.MtDllRelease|x64.ActiveCfg = MtDllRelease|x64
 		{8AF33FE1-70BB-4FD6-85B1-CED6C2424212}.MtDllRelease|x64.Build.0 = MtDllRelease|x64
 		{8AF33FE1-70BB-4FD6-85B1-CED6C2424212}.MtDllRelease|x86.ActiveCfg = MtDllRelease|Win32
-		{8AF33FE1-70BB-4FD6-85B1-CED6C2424212}.MtDllRelease|x86.Build.0 = MtDllRelease|Win32
 		{8AF33FE1-70BB-4FD6-85B1-CED6C2424212}.Release|Any CPU.ActiveCfg = Release|Win32
 		{8AF33FE1-70BB-4FD6-85B1-CED6C2424212}.Release|x64.ActiveCfg = Release|x64
 		{8AF33FE1-70BB-4FD6-85B1-CED6C2424212}.Release|x64.Build.0 = Release|x64
@@ -2564,7 +2560,6 @@ Global
 		{8AF33FE1-70BB-4FD6-85B1-CED6C2424212}.ServerRelease|x64.ActiveCfg = ServerRelease|x64
 		{8AF33FE1-70BB-4FD6-85B1-CED6C2424212}.ServerRelease|x64.Build.0 = ServerRelease|x64
 		{8AF33FE1-70BB-4FD6-85B1-CED6C2424212}.ServerRelease|x86.ActiveCfg = ServerRelease|Win32
-		{8AF33FE1-70BB-4FD6-85B1-CED6C2424212}.ServerRelease|x86.Build.0 = ServerRelease|Win32
 		{8AF33FE1-70BB-4FD6-85B1-CED6C2424212}.Universe-HTT|Any CPU.ActiveCfg = ServerRelease|x64
 		{8AF33FE1-70BB-4FD6-85B1-CED6C2424212}.Universe-HTT|Any CPU.Build.0 = ServerRelease|x64
 		{8AF33FE1-70BB-4FD6-85B1-CED6C2424212}.Universe-HTT|x64.ActiveCfg = ServerRelease|x64
@@ -2599,7 +2594,6 @@ Global
 		{720C8B39-5CA1-4CA7-9856-F7AA5615B09E}.MtDllRelease|x64.ActiveCfg = MtDllRelease|x64
 		{720C8B39-5CA1-4CA7-9856-F7AA5615B09E}.MtDllRelease|x64.Build.0 = MtDllRelease|x64
 		{720C8B39-5CA1-4CA7-9856-F7AA5615B09E}.MtDllRelease|x86.ActiveCfg = MtDllRelease|Win32
-		{720C8B39-5CA1-4CA7-9856-F7AA5615B09E}.MtDllRelease|x86.Build.0 = MtDllRelease|Win32
 		{720C8B39-5CA1-4CA7-9856-F7AA5615B09E}.Release|Any CPU.ActiveCfg = Release|Win32
 		{720C8B39-5CA1-4CA7-9856-F7AA5615B09E}.Release|x64.ActiveCfg = Release|x64
 		{720C8B39-5CA1-4CA7-9856-F7AA5615B09E}.Release|x64.Build.0 = Release|x64
@@ -2622,7 +2616,6 @@ Global
 		{720C8B39-5CA1-4CA7-9856-F7AA5615B09E}.ServerRelease|x64.ActiveCfg = ServerRelease|x64
 		{720C8B39-5CA1-4CA7-9856-F7AA5615B09E}.ServerRelease|x64.Build.0 = ServerRelease|x64
 		{720C8B39-5CA1-4CA7-9856-F7AA5615B09E}.ServerRelease|x86.ActiveCfg = ServerRelease|Win32
-		{720C8B39-5CA1-4CA7-9856-F7AA5615B09E}.ServerRelease|x86.Build.0 = ServerRelease|Win32
 		{720C8B39-5CA1-4CA7-9856-F7AA5615B09E}.Universe-HTT|Any CPU.ActiveCfg = ServerRelease|x64
 		{720C8B39-5CA1-4CA7-9856-F7AA5615B09E}.Universe-HTT|Any CPU.Build.0 = ServerRelease|x64
 		{720C8B39-5CA1-4CA7-9856-F7AA5615B09E}.Universe-HTT|x64.ActiveCfg = ServerRelease|x64
@@ -3557,7 +3550,6 @@ Global
 		{57BCD2F3-2FB7-4886-90D8-25C67A9859DD}.MtDllRelease|x64.ActiveCfg = MtDllRelease|x64
 		{57BCD2F3-2FB7-4886-90D8-25C67A9859DD}.MtDllRelease|x64.Build.0 = MtDllRelease|x64
 		{57BCD2F3-2FB7-4886-90D8-25C67A9859DD}.MtDllRelease|x86.ActiveCfg = MtDllRelease|Win32
-		{57BCD2F3-2FB7-4886-90D8-25C67A9859DD}.MtDllRelease|x86.Build.0 = MtDllRelease|Win32
 		{57BCD2F3-2FB7-4886-90D8-25C67A9859DD}.Release|Any CPU.ActiveCfg = Release|Win32
 		{57BCD2F3-2FB7-4886-90D8-25C67A9859DD}.Release|x64.ActiveCfg = Release|x64
 		{57BCD2F3-2FB7-4886-90D8-25C67A9859DD}.Release|x64.Build.0 = Release|x64
@@ -3580,7 +3572,6 @@ Global
 		{57BCD2F3-2FB7-4886-90D8-25C67A9859DD}.ServerRelease|x64.ActiveCfg = ServerRelease|x64
 		{57BCD2F3-2FB7-4886-90D8-25C67A9859DD}.ServerRelease|x64.Build.0 = ServerRelease|x64
 		{57BCD2F3-2FB7-4886-90D8-25C67A9859DD}.ServerRelease|x86.ActiveCfg = ServerRelease|Win32
-		{57BCD2F3-2FB7-4886-90D8-25C67A9859DD}.ServerRelease|x86.Build.0 = ServerRelease|Win32
 		{57BCD2F3-2FB7-4886-90D8-25C67A9859DD}.Universe-HTT|Any CPU.ActiveCfg = ServerRelease|x64
 		{57BCD2F3-2FB7-4886-90D8-25C67A9859DD}.Universe-HTT|Any CPU.Build.0 = ServerRelease|x64
 		{57BCD2F3-2FB7-4886-90D8-25C67A9859DD}.Universe-HTT|x64.ActiveCfg = ServerRelease|x64
@@ -3723,7 +3714,6 @@ Global
 		{C01DC69F-1F0E-43C1-A3B9-70CEAADC844B}.MtDllRelease|x64.ActiveCfg = MtDllRelease|x64
 		{C01DC69F-1F0E-43C1-A3B9-70CEAADC844B}.MtDllRelease|x64.Build.0 = MtDllRelease|x64
 		{C01DC69F-1F0E-43C1-A3B9-70CEAADC844B}.MtDllRelease|x86.ActiveCfg = MtDllRelease|Win32
-		{C01DC69F-1F0E-43C1-A3B9-70CEAADC844B}.MtDllRelease|x86.Build.0 = MtDllRelease|Win32
 		{C01DC69F-1F0E-43C1-A3B9-70CEAADC844B}.Release|Any CPU.ActiveCfg = Release|Win32
 		{C01DC69F-1F0E-43C1-A3B9-70CEAADC844B}.Release|x64.ActiveCfg = Release|x64
 		{C01DC69F-1F0E-43C1-A3B9-70CEAADC844B}.Release|x64.Build.0 = Release|x64
@@ -3746,7 +3736,6 @@ Global
 		{C01DC69F-1F0E-43C1-A3B9-70CEAADC844B}.ServerRelease|x64.ActiveCfg = ServerRelease|x64
 		{C01DC69F-1F0E-43C1-A3B9-70CEAADC844B}.ServerRelease|x64.Build.0 = ServerRelease|x64
 		{C01DC69F-1F0E-43C1-A3B9-70CEAADC844B}.ServerRelease|x86.ActiveCfg = ServerRelease|Win32
-		{C01DC69F-1F0E-43C1-A3B9-70CEAADC844B}.ServerRelease|x86.Build.0 = ServerRelease|Win32
 		{C01DC69F-1F0E-43C1-A3B9-70CEAADC844B}.Universe-HTT|Any CPU.ActiveCfg = ServerRelease|x64
 		{C01DC69F-1F0E-43C1-A3B9-70CEAADC844B}.Universe-HTT|Any CPU.Build.0 = ServerRelease|x64
 		{C01DC69F-1F0E-43C1-A3B9-70CEAADC844B}.Universe-HTT|x64.ActiveCfg = ServerRelease|x64
@@ -3781,7 +3770,6 @@ Global
 		{FCF60E65-1B78-4D1D-AB59-4FC00AC8C248}.MtDllRelease|x64.ActiveCfg = MtDllRelease|x64
 		{FCF60E65-1B78-4D1D-AB59-4FC00AC8C248}.MtDllRelease|x64.Build.0 = MtDllRelease|x64
 		{FCF60E65-1B78-4D1D-AB59-4FC00AC8C248}.MtDllRelease|x86.ActiveCfg = MtDllRelease|Win32
-		{FCF60E65-1B78-4D1D-AB59-4FC00AC8C248}.MtDllRelease|x86.Build.0 = MtDllRelease|Win32
 		{FCF60E65-1B78-4D1D-AB59-4FC00AC8C248}.Release|Any CPU.ActiveCfg = Release|Win32
 		{FCF60E65-1B78-4D1D-AB59-4FC00AC8C248}.Release|x64.ActiveCfg = Release|x64
 		{FCF60E65-1B78-4D1D-AB59-4FC00AC8C248}.Release|x64.Build.0 = Release|x64
@@ -4867,7 +4855,6 @@ Global
 		{2C51DEFB-2CC7-4F3B-AEE7-F0943CCEFA87}.MtDllRelease|x64.ActiveCfg = Release|x64
 		{2C51DEFB-2CC7-4F3B-AEE7-F0943CCEFA87}.MtDllRelease|x64.Build.0 = Release|x64
 		{2C51DEFB-2CC7-4F3B-AEE7-F0943CCEFA87}.MtDllRelease|x86.ActiveCfg = Release|Win32
-		{2C51DEFB-2CC7-4F3B-AEE7-F0943CCEFA87}.MtDllRelease|x86.Build.0 = Release|Win32
 		{2C51DEFB-2CC7-4F3B-AEE7-F0943CCEFA87}.Release|Any CPU.ActiveCfg = Release|Win32
 		{2C51DEFB-2CC7-4F3B-AEE7-F0943CCEFA87}.Release|x64.ActiveCfg = Release|x64
 		{2C51DEFB-2CC7-4F3B-AEE7-F0943CCEFA87}.Release|x64.Build.0 = Release|x64
@@ -4890,7 +4877,6 @@ Global
 		{2C51DEFB-2CC7-4F3B-AEE7-F0943CCEFA87}.ServerRelease|x64.ActiveCfg = Release|x64
 		{2C51DEFB-2CC7-4F3B-AEE7-F0943CCEFA87}.ServerRelease|x64.Build.0 = Release|x64
 		{2C51DEFB-2CC7-4F3B-AEE7-F0943CCEFA87}.ServerRelease|x86.ActiveCfg = Release|Win32
-		{2C51DEFB-2CC7-4F3B-AEE7-F0943CCEFA87}.ServerRelease|x86.Build.0 = Release|Win32
 		{2C51DEFB-2CC7-4F3B-AEE7-F0943CCEFA87}.Universe-HTT|Any CPU.ActiveCfg = Release|x64
 		{2C51DEFB-2CC7-4F3B-AEE7-F0943CCEFA87}.Universe-HTT|Any CPU.Build.0 = Release|x64
 		{2C51DEFB-2CC7-4F3B-AEE7-F0943CCEFA87}.Universe-HTT|x64.ActiveCfg = Release|x64

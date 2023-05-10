@@ -1,5 +1,5 @@
 ; PAPYRUS.NSI
-; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 ; —крипт создани€ инсталл€ции системы Papyrus
 ;
 ;
@@ -195,7 +195,7 @@ FunctionEnd
 ; License page
 ;
 !ifdef OPENSOURCE
-	!insertmacro MUI_PAGE_LICENSE "${SRC_ROOT}\SRC\Doc\license-gnu-affero.txt" ; @v10.8.2
+	!insertmacro MUI_PAGE_LICENSE "${SRC_ROOT}\SRC\Doc\license\license-openpapyrus-gnu-affero"
 !else
 	!insertmacro MUI_PAGE_LICENSE "${SRC_ROOT}\SRC\Doc\LicenseAgreement.rtf"
 !endif
