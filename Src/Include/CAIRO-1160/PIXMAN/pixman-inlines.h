@@ -36,14 +36,14 @@
  * FLAG_HAVE_SOLID_MASK and FLAG_HAVE_NON_SOLID_MASK are mutually
  * exclusive. (It's not allowed to turn both flags on)
  */
-#define FLAG_NONE                               (0)
-#define FLAG_HAVE_SOLID_MASK                    (1 <<   1)
-#define FLAG_HAVE_NON_SOLID_MASK                (1 <<   2)
+#define FLAG_NONE                (0)
+#define FLAG_HAVE_SOLID_MASK     (1 <<   1)
+#define FLAG_HAVE_NON_SOLID_MASK (1 <<   2)
 
 /* To avoid too short repeated scanline function calls, extend source
  * scanlines having width less than below constant value.
  */
-#define REPEAT_NORMAL_MIN_WIDTH                 64
+#define REPEAT_NORMAL_MIN_WIDTH  64
 
 static force_inline boolint repeat(pixman_repeat_t repeat, int32 * c, int size) // @sobolev int-->int32
 {

@@ -384,13 +384,10 @@ static char * vms_merger(DSO * dso, const char * filespec1,
 #define FILESPEC2 ((char*)filespec2)
 #endif                         /* __INITIAL_POINTER_SIZE == 64 [else] */
 
-	if(!filespec1)
-		filespec1 = "";
-	if(!filespec2)
-		filespec2 = "";
+	SETIFZQ(filespec1, "");
+	SETIFZQ(filespec2, "");
 	filespec1len = strlen(filespec1);
 	filespec2len = strlen(filespec2);
-
 #if __INITIAL_POINTER_SIZE == 64
 	/* Copy the file names to storage with a 32-bit pointer. */
 	filespec1_32p = filespec1_32;

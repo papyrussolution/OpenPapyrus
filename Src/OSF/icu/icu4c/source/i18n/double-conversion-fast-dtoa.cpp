@@ -220,7 +220,7 @@ static bool RoundWeedCounted(Vector<char> buffer, int length, uint64_t rest, uin
 
 // Inspired by the method for finding an integer log base 10 from here:
 // http://graphics.stanford.edu/~seander/bithacks.html#IntegerLog10
-static unsigned int const kSmallPowersOfTen[] = { 0, 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000 };
+static uint const kSmallPowersOfTen[] = { 0, 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000 };
 
 static void BiggestPowerTen(uint32_t number, int number_bits, uint32_t* power, int* exponent_plus_one) 
 {

@@ -474,22 +474,22 @@ void fz_format_string(fz_context * ctx, void * user, void (*emit)(fz_context * c
 				    break;
 				case 'Q': /* quoted string (with verbatim unicode) */
 				    str = va_arg(args, const char*);
-				    if(!str) str = "";
+				    SETIFZQ(str, "");
 				    fmtquote(&out, str, '"', '"', 1);
 				    break;
 				case 'q': /* quoted string */
 				    str = va_arg(args, const char*);
-				    if(!str) str = "";
+				    SETIFZQ(str, "");
 				    fmtquote(&out, str, '"', '"', 0);
 				    break;
 				case '(': /* pdf string */
 				    str = va_arg(args, const char*);
-				    if(!str) str = "";
+				    SETIFZQ(str, "");
 				    fmtquote_pdf(&out, str, '(', ')');
 				    break;
 				case 'n': /* pdf name */
 				    str = va_arg(args, const char*);
-				    if(!str) str = "";
+				    SETIFZQ(str, "");
 				    fmtname(&out, str);
 				    break;
 			}

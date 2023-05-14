@@ -165,8 +165,7 @@ bool SearchIterator::operator == (const SearchIterator &that) const
 	       m_search_->matchedLength    == that.m_search_->matchedLength &&
 	       m_search_->textLength       == that.m_search_->textLength &&
 	       getOffset() == that.getOffset() &&
-	       (memcmp(m_search_->text, that.m_search_->text,
-	       m_search_->textLength * sizeof(UChar)) == 0));
+	       (memcmp(m_search_->text, that.m_search_->text, m_search_->textLength * sizeof(UChar)) == 0));
 }
 
 // public methods ----------------------------------------------------

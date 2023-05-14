@@ -505,8 +505,23 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					boolean umr = CPM.UpdateMemoInCurrentDocument(SLib.GetCtrlString(vg, R.id.CTL_DOCUMENT_MEMO));
 					int qk_id = SLib.GetStrAssocComboData(vg, R.id.CTLSEL_DOCUMENT_QUOTKIND); // @v11.7.1
 					boolean uqkr = CPM.UpdateQuotKindInCurrentDocument(qk_id); // @v11.7.1
-					if(umr || uqkr)
+					if(umr || uqkr) {
 						CPM.OnCurrentDocumentModification();
+						// @v11.7.2 {
+						{
+							View lv = findViewById(R.id.orderPrereqOrdrListView);
+							if(lv != null && lv instanceof RecyclerView) {
+								RecyclerView.Adapter gva = ((RecyclerView)lv).getAdapter();
+								if(gva != null)
+									gva.notifyDataSetChanged();
+							}
+						}
+						{
+							double amount = CPM.GetAmountOfCurrentDocument();
+							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_AMOUNT, CPM.FormatCurrency(amount));
+						}
+						// } @v11.7.2
+					}
 				}
 			}
 		}
@@ -935,6 +950,16 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							if(v != null && v instanceof ImageView)
 								((ImageView)v).setImageResource(status_image_rc_id);
 						}
+						// @v11.7.2 {
+						{
+							View lv = findViewById(R.id.orderPrereqOrdrListView);
+							if(lv != null && lv instanceof RecyclerView) {
+								RecyclerView.Adapter gva = ((RecyclerView)lv).getAdapter();
+								if(gva != null)
+									gva.notifyDataSetChanged();
+							}
+						}
+						// } @v11.7.2
 						CPM.DrawCurrentDocumentRemoteOpIndicators();
 					}
 				}
@@ -1606,9 +1631,23 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									}
 								}
 								if(te != null && te.TabView != null) {
+									GetFragmentData(te.TabView); // @v11.7.2
+									/* @v11.7.2
 									int qk_id = SLib.GetStrAssocComboData(te.TabView, R.id.CTLSEL_DOCUMENT_QUOTKIND);
-									if(CPM.UpdateQuotKindInCurrentDocument(qk_id))
+									if(CPM.UpdateQuotKindInCurrentDocument(qk_id)) {
 										CPM.OnCurrentDocumentModification();
+										// @v11.7.2 {
+										{
+											View lv = findViewById(R.id.orderPrereqOrdrListView);
+											if(lv != null && lv instanceof RecyclerView) {
+												RecyclerView.Adapter gva = ((RecyclerView)lv).getAdapter();
+												if(gva != null)
+													gva.notifyDataSetChanged();
+											}
+										}
+										// } @v11.7.2
+									}
+									 */
 									//SLib.GetStrAssocComboData()
 								}
 							} // } @v11.7.1

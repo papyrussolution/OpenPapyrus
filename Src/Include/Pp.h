@@ -480,6 +480,7 @@ public:
 		WrKey_PrefBasketSelSettings("Software\\Papyrus\\Pref\\BasketSel"), // @v11.4.4 (replaced PPRegKeys)
 		WrKey_SysSettings("Software\\Papyrus\\System"), // @v11.4.4 (replaced PPRegKeys)
 		WrKey_Sessions("Software\\Papyrus\\Sessions"), // @v11.4.4 (replaced PPRegKeys)
+		WrKey_WsCtl("Software\\Papyrus\\WsCtl"), // @v11.7.2 HKEY_LOCAL_MACHINE
 		WrParam_ViewQuotsAsListBox("ViewQuotsAsListBox"),
 		WrParam_BillAddFilesFolder("BillAddFilesFolder"),
 		WrParam_CalcPriceParam("CalcPriceParam"),
@@ -492,7 +493,8 @@ public:
 		WrParam_StoreLastSelectedPrinter("StoreLastSelectedPrinter"),
 		WrParam_LastSelectedPrinter("LastSelectedPrinter"),
 		WrParam_BillMultiplePrintCfg2("BillMultiplePrintCfg2"), // @v11.2.0
-		WrParam_StyloQLoclMachineUuid("StyloQLoclMachineUuid") // @v11.2.3
+		WrParam_StyloQLoclMachineUuid("StyloQLoclMachineUuid"), // @v11.2.3
+		WrParam_WsCtl_MachineUUID("MachineUUID") // @v11.7.2 
 	{
 	}
 	enum {
@@ -537,6 +539,7 @@ public:
 	const char * WrKey_PrefBasketSelSettings; // @v11.4.4 (replaced PPRegKeys) "Software\\Papyrus\\Pref\\BasketSel"
 	const char * WrKey_SysSettings;           // @v11.4.4 (replaced PPRegKeys) "Software\\Papyrus\\System"
 	const char * WrKey_Sessions;              // @v11.4.4 (replaced PPRegKeys) "Software\\Papyrus\\Sessions"
+	const char * WrKey_WsCtl;                // @v11.7.2 HKEY_LOCAL_MACHINE "Software\\Papyrus\\WsCtl"
 	const char * WrParam_ViewQuotsAsListBox; // "ViewQuotsAsListBox" [1|0]
 	const char * WrParam_BillAddFilesFolder; // "BillAddFilesFolder" string
 	const char * WrParam_CalcPriceParam;     // "CalcPriceParam" string
@@ -550,6 +553,7 @@ public:
 	const char * WrParam_LastSelectedPrinter;          // "LastSelectedPrinter" // @v10.7.10
 	const char * WrParam_BillMultiplePrintCfg2;        // "BillMultiplePrintCfg2" // @v11.2.0
 	const char * WrParam_StyloQLoclMachineUuid;        // @v11.2.3
+	const char * WrParam_WsCtl_MachineUUID;            // "MachineUUID" @v11.7.2 
 };
 
 extern const PPConstParam _PPConst;
@@ -36875,7 +36879,7 @@ struct PPProcessorConfig { // @persistent @store(PropertyTbl)
 class PPProcessorPacket { // @persistent
 public:
 	PPProcessorPacket();
-	PPProcessorPacket & destroy();
+	PPProcessorPacket & Z();
 
 	struct PlaceDescription {
 		PlaceDescription();
@@ -36889,8 +36893,9 @@ public:
 	class ExtBlock : private SStrGroup { // @persistent
 	public:
 		ExtBlock();
-		ExtBlock & destroy();
+		ExtBlock & Z();
 		bool   IsEmpty() const;
+		bool   IsEq(const ExtBlock & rS) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 		int    GetExtStrData(int fldID, SString & rBuf) const;
 		int    PutExtStrData(int fldID, const char * pBuf);
@@ -36919,6 +36924,10 @@ public:
 	private:
 		uint   ExtStrP; // Позиция строки расширения в пуле SStrGroup
 		struct FlatBlock {
+			FlatBlock();
+			FlatBlock & Z();
+			bool   FASTCALL IsEq(const FlatBlock & rS) const;
+
 			PPID   OwnerGuaID;       // Глобальная учетная запись, владеющая процессором
 			long   CipCancelTimeout; // @#{>=0} Таймаут снятия резерва (секунд).
 			long   CipLockTimeout;   // @#{>=0} Таймаут блокировки резерва за заданное количество секунд до начала сессии
@@ -36933,6 +36942,7 @@ public:
 	};
 	ProcessorTbl::Rec Rec;
 	ExtBlock Ext;
+	ObjTagList TagL; // @v11.7.2 Список тегов
 };
 //
 //
@@ -36984,6 +36994,16 @@ public:
 	static int EditPrcPlaceItem(PPProcessorPacket::PlaceDescription * pItem);
 	explicit PPObjProcessor(void * extraPtr = 0);
 	~PPObjProcessor();
+	//
+	// Descr: Проверяет эквивалентность пакетов rS1 и rS2.
+	// ARG(rS1 IN): Ссылка на первый пакет для сравнения
+	// ARG(rS2 IN): Ссылка на второй пакет для сравнения
+	// ARG(flags IN): @reserved
+	// Returns:
+	//   true - пакеты rS1 и rS2 эквивалентны (возможно, с учетом флагов flags)
+	//   false - пакеты rS1 и rS2 неэквивалентны.
+	//
+	bool   IsPacketEq(const PPProcessorPacket & rS1, const PPProcessorPacket & rS2, long flags);
 	virtual int Search(PPID, void *);
 	//
 	// Если *pID == 0 && parentID & PRCEXDF_GROUP, то функция создает новую группу
@@ -47644,6 +47664,9 @@ public:
 		LDATETIME DueTime;
 		SGeoPosLL CreationGeoLoc; // @v11.6.2
 		int    InterchangeOpID; // @v11.4.9 OpID-->InterchangeOpID
+		int    SvcOpType; // @v11.7.2 Тип операции, определенный на стороне сервиса.
+			// Это значение - только для входящих (по отношению к клиенту) документов.
+			// if SvcOpID == 0 then SvcOpType == 0
 		int    SvcOpID;   // @v11.4.9 Ид вида операции, определенный на стороне сервиса.
 			// Если клиент создает новый документ (в смысле PPObjBill), но не знает точный ид вида операции на
 			// стороне сервиса, то определяет InterchangeOpID.

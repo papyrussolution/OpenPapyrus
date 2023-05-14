@@ -827,61 +827,36 @@ int EVP_PKEY_CTX_get_signature_md(EVP_PKEY_CTX * ctx, const EVP_MD ** md)
 	return 1;
 }
 
-static int evp_pkey_ctx_set_md(EVP_PKEY_CTX * ctx, const EVP_MD * md,
-    int fallback, const char * param, int op,
-    int ctrl)
+static int evp_pkey_ctx_set_md(EVP_PKEY_CTX * ctx, const EVP_MD * md, int fallback, const char * param, int op, int ctrl)
 {
 	OSSL_PARAM md_params[2], * p = md_params;
 	const char * name;
-
 	if(!ctx || (ctx->operation & op) == 0) {
 		ERR_raise(ERR_LIB_EVP, EVP_R_COMMAND_NOT_SUPPORTED);
 		/* Uses the same return values as EVP_PKEY_CTX_ctrl */
 		return -2;
 	}
-
 	if(fallback)
 		return EVP_PKEY_CTX_ctrl(ctx, -1, op, ctrl, 0, (void*)(md));
-
-	if(!md) {
-		name = "";
-	}
-	else {
-		name = EVP_MD_get0_name(md);
-	}
-
-	*p++ = OSSL_PARAM_construct_utf8_string(param,
-	        /*
-	         * Cast away the const. This is read
-	         * only so should be safe
-	         */
-		(char*)name, 0);
+	name = md ? EVP_MD_get0_name(md) : "";
+	*p++ = OSSL_PARAM_construct_utf8_string(param, /* Cast away the const. This is read only so should be safe*/(char*)name, 0);
 	*p = OSSL_PARAM_construct_end();
-
 	return EVP_PKEY_CTX_set_params(ctx, md_params);
 }
 
 int EVP_PKEY_CTX_set_signature_md(EVP_PKEY_CTX * ctx, const EVP_MD * md)
 {
-	return evp_pkey_ctx_set_md(ctx, md, ctx->op.sig.algctx == NULL,
-		   OSSL_SIGNATURE_PARAM_DIGEST,
-		   EVP_PKEY_OP_TYPE_SIG, EVP_PKEY_CTRL_MD);
+	return evp_pkey_ctx_set_md(ctx, md, ctx->op.sig.algctx == NULL, OSSL_SIGNATURE_PARAM_DIGEST, EVP_PKEY_OP_TYPE_SIG, EVP_PKEY_CTRL_MD);
 }
 
 int EVP_PKEY_CTX_set_tls1_prf_md(EVP_PKEY_CTX * ctx, const EVP_MD * md)
 {
-	return evp_pkey_ctx_set_md(ctx, md, ctx->op.kex.algctx == NULL,
-		   OSSL_KDF_PARAM_DIGEST,
-		   EVP_PKEY_OP_DERIVE, EVP_PKEY_CTRL_TLS_MD);
+	return evp_pkey_ctx_set_md(ctx, md, ctx->op.kex.algctx == NULL, OSSL_KDF_PARAM_DIGEST, EVP_PKEY_OP_DERIVE, EVP_PKEY_CTRL_TLS_MD);
 }
 
-static int evp_pkey_ctx_set1_octet_string(EVP_PKEY_CTX * ctx, int fallback,
-    const char * param, int op, int ctrl,
-    const uchar * data,
-    int datalen)
+static int evp_pkey_ctx_set1_octet_string(EVP_PKEY_CTX * ctx, int fallback, const char * param, int op, int ctrl, const uchar * data, int datalen)
 {
 	OSSL_PARAM octet_string_params[2], * p = octet_string_params;
-
 	if(!ctx || (ctx->operation & op) == 0) {
 		ERR_raise(ERR_LIB_EVP, EVP_R_COMMAND_NOT_SUPPORTED);
 		/* Uses the same return values as EVP_PKEY_CTX_ctrl */

@@ -2796,8 +2796,7 @@ void ImGui::TableHeader(const char* label)
 	const int column_n = table->CurrentColumn;
 	ImGuiTableColumn* column = &table->Columns[column_n];
 	// Label
-	if(label == NULL)
-		label = "";
+	SETIFZQ(label, "");
 	const char* label_end = FindRenderedTextEnd(label);
 	ImVec2 label_size = CalcTextSize(label, label_end, true);
 	ImVec2 label_pos = window->DC.CursorPos;

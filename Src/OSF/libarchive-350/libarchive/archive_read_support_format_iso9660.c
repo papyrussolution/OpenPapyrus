@@ -1291,9 +1291,7 @@ static int zisofs_read_data(ArchiveRead * a,
 		if(!zisofs->header_passed &&
 		    zisofs->header_avail == sizeof(zisofs->header)) {
 			int err = 0;
-
-			if(memcmp(zisofs->header, zisofs_magic,
-			    sizeof(zisofs_magic)) != 0)
+			if(memcmp(zisofs->header, zisofs_magic, sizeof(zisofs_magic)) != 0)
 				err = 1;
 			if(archive_le32dec(zisofs->header + 8)
 			    != zisofs->pz_uncompressed_size)
@@ -2267,15 +2265,12 @@ static void parse_rockridge_TF1(struct file_info * file, const uchar * data,
 	}
 }
 
-static void parse_rockridge_SL1(struct file_info * file, const uchar * data,
-    int data_length)
+static void parse_rockridge_SL1(struct file_info * file, const uchar * data, int data_length)
 {
 	const char * separator = "";
-
 	if(!file->symlink_continues || file->symlink.length < 1)
 		archive_string_empty(&file->symlink);
 	file->symlink_continues = 0;
-
 	/*
 	 * Defined flag values:
 	 *  0: This is the last SL record for this symbolic link
@@ -2295,7 +2290,6 @@ static void parse_rockridge_SL1(struct file_info * file, const uchar * data,
 	}
 	++data; /* Skip flag byte. */
 	--data_length;
-
 	/*
 	 * SL extension body stores "components".
 	 * Basically, this is a complicated way of storing
@@ -2309,22 +2303,18 @@ static void parse_rockridge_SL1(struct file_info * file, const uchar * data,
 		uchar flag = *data++;
 		uchar nlen = *data++;
 		data_length -= 2;
-
 		archive_strcat(&file->symlink, separator);
 		separator = "/";
-
 		switch(flag) {
 			case 0: /* Usual case, this is text. */
 			    if(data_length < nlen)
 				    return;
-			    archive_strncat(&file->symlink,
-				(const char *)data, nlen);
+			    archive_strncat(&file->symlink, (const char *)data, nlen);
 			    break;
 			case 0x01: /* Text continues in next component. */
 			    if(data_length < nlen)
 				    return;
-			    archive_strncat(&file->symlink,
-				(const char *)data, nlen);
+			    archive_strncat(&file->symlink, (const char *)data, nlen);
 			    separator = "";
 			    break;
 			case 0x02: /* Current dir. */

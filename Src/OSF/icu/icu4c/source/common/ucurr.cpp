@@ -1185,11 +1185,9 @@ static int32_t binarySearch(const CurrencyNameStruct* currencyNames,
 //                              pass out the new max  matching length
 // @param  maxMatchIndex: the index in currencyName which has the longest
 //                        match with input text.
-static void linearSearch(const CurrencyNameStruct* currencyNames,
-    int32_t begin, int32_t end,
-    const UChar * text, int32_t textLen,
-    int32_t * partialMatchLen,
-    int32_t * maxMatchLen, int32_t* maxMatchIndex) {
+static void linearSearch(const CurrencyNameStruct* currencyNames, int32_t begin, int32_t end, const UChar * text, int32_t textLen,
+    int32_t * partialMatchLen, int32_t * maxMatchLen, int32_t* maxMatchIndex) 
+{
 	int32_t initialPartialMatchLen = *partialMatchLen;
 	for(int32_t index = begin; index <= end; ++index) {
 		int32_t len = currencyNames[index].currencyNameLen;
@@ -1199,8 +1197,7 @@ static void linearSearch(const CurrencyNameStruct* currencyNames,
 			*maxMatchIndex = index;
 			*maxMatchLen = len;
 #ifdef UCURR_DEBUG
-			printf("maxMatchIndex = %d, maxMatchLen = %d\n",
-			    *maxMatchIndex, *maxMatchLen);
+			printf("maxMatchIndex = %d, maxMatchLen = %d\n", *maxMatchIndex, *maxMatchLen);
 #endif
 		}
 		else {

@@ -1355,9 +1355,7 @@ static void U_CALLCONV dataDirectoryInitFn()
 		path = datadir_path_buffer;
 	}
 #endif
-	if(!path) {
-		path = ""; // It looks really bad, set it to something
-	}
+	SETIFZQ(path, ""); // It looks really bad, set it to something
 	u_setDataDirectory(path);
 	return;
 }
@@ -1422,30 +1420,26 @@ static void U_CALLCONV TimeZoneDataDirInitFn(UErrorCode & status)
 		dir = TO_STRING(U_TIMEZONE_FILES_DIR);
 	}
 #endif
-
-	if(!dir) {
-		dir = "";
-	}
-
+	SETIFZQ(dir, "");
 #if defined(ICU_TIMEZONE_FILES_DIR_PREFIX_ENV_VAR)
 	if(prefix) {
 		snprintf(timezonefilesdir_path_buffer, PATH_MAX, "%s%s", prefix, dir);
 		dir = timezonefilesdir_path_buffer;
 	}
 #endif
-
 	setTimeZoneFilesDir(dir, status);
 }
 
-U_CAPI const char * U_EXPORT2 u_getTimeZoneFilesDirectory(UErrorCode * status) {
+U_CAPI const char * U_EXPORT2 u_getTimeZoneFilesDirectory(UErrorCode * status) 
+{
 	umtx_initOnce(gTimeZoneFilesInitOnce, &TimeZoneDataDirInitFn, *status);
 	return U_SUCCESS(*status) ? gTimeZoneFilesDirectory->data() : "";
 }
 
-U_CAPI void U_EXPORT2 u_setTimeZoneFilesDirectory(const char * path, UErrorCode * status) {
+U_CAPI void U_EXPORT2 u_setTimeZoneFilesDirectory(const char * path, UErrorCode * status) 
+{
 	umtx_initOnce(gTimeZoneFilesInitOnce, &TimeZoneDataDirInitFn, *status);
 	setTimeZoneFilesDir(path, *status);
-
 	// Note: this function does some extra churn, first setting based on the
 	//       environment, then immediately replacing with the value passed in.
 	//       The logic is simpler that way, and performance shouldn't be an issue.

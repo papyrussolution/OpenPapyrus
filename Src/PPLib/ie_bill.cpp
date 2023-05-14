@@ -6529,7 +6529,47 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 		}
 		// } @v11.5.9
 	}
-	if(!correction) { // @v11.7.1 (для корректировки не нужно)
+	if(correction) {
+		// СтТовБезНДСВсего PPHSC_RU_WAREAMTWOVATTOTAL
+		// СтТовУчНалВсего  PPHSC_RU_WAREAMTTOTAL
+		// СумНал           PPHSC_RU_AMTTAX
+		/*
+			double total_amt = 0.0;
+			double total_amt_before = 0.0;
+			double total_amt_after = 0.0;
+			double total_amt_wovat = 0.0;
+			double total_amt_wovat_before = 0.0;
+			double total_amt_wovat_after  = 0.0;
+			double total_vat = 0.0;
+			double total_vat_before = 0.0;
+			double total_vat_after = 0.0;
+		*/
+		if(total_amt_after > total_amt_before) {
+			SXml::WNode n_t_incr(P_X, GetToken_Ansi(PPHSC_RU_VALUETOTAL_INCR)/*"ВсегоУвел"*/);
+			n_t_incr.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTWOVATTOTAL), temp_buf.Z().Cat(total_amt_wovat_after - total_amt_wovat_before, MKSFMTD(0, 2, 0)));
+			n_t_incr.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTTOTAL), temp_buf.Z().Cat(total_amt_after - total_amt_before, MKSFMTD(0, 2, 0)));
+			{
+				SXml::WNode n_tax(P_X, GetToken_Ansi(PPHSC_RU_AMTTAX));
+				if(total_vat_after != 0.0 || total_vat_before != 0.0)
+					n_tax.PutInner(GetToken_Ansi(PPHSC_RU_AMTVAT), temp_buf.Z().Cat(total_vat_after - total_vat_before, MKSFMTD(0, 2, 0)));
+				else
+					n_tax.PutInner(GetToken_Ansi(PPHSC_RU_NOVAT_TAG), 0);
+			}
+		}
+		if(total_amt_after < total_amt_before) {
+			SXml::WNode n_t_decr(P_X, GetToken_Ansi(PPHSC_RU_VALUETOTAL_DECR)/*"ВсегоУм"*/);
+			n_t_decr.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTWOVATTOTAL), temp_buf.Z().Cat(total_amt_wovat_before - total_amt_wovat_after, MKSFMTD(0, 2, 0)));
+			n_t_decr.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTTOTAL), temp_buf.Z().Cat(total_amt_before - total_amt_after, MKSFMTD(0, 2, 0)));
+			{
+				SXml::WNode n_tax(P_X, GetToken_Ansi(PPHSC_RU_AMTTAX));
+				if(total_vat_after != 0.0 || total_vat_before != 0.0)
+					n_tax.PutInner(GetToken_Ansi(PPHSC_RU_AMTVAT), temp_buf.Z().Cat(total_vat_before - total_vat_after, MKSFMTD(0, 2, 0)));
+				else
+					n_tax.PutInner(GetToken_Ansi(PPHSC_RU_NOVAT_TAG), 0);
+			}
+		}
+	}
+	else { // @v11.7.1 (для корректировки не нужно)
 		SXml::WNode n_t(P_X, GetToken_Ansi(PPHSC_RU_TOTALTOPAYM)/*"ВсегоОпл"*/);
 		n_t.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTWOVATTOTAL), temp_buf.Z().Cat(total_amt_wovat, MKSFMTD(0, 2, 0)));
 		n_t.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTTOTAL), temp_buf.Z().Cat(total_amt, MKSFMTD(0, 2, 0)));

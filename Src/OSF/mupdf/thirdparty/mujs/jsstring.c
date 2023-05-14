@@ -692,7 +692,6 @@ void jsB_initstring(js_State * J)
 {
 	J->String_prototype->u.s.string = "";
 	J->String_prototype->u.s.length = 0;
-
 	js_pushobject(J, J->String_prototype);
 	{
 		jsB_propf(J, "String.prototype.toString", Sp_toString, 0);

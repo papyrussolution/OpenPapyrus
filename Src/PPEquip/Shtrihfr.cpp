@@ -453,6 +453,7 @@ private:
 		DivisionalQuantity,               // @v11.6.6
 		Numerator,                        // @v11.6.6 
 		Denominator,                      // @v11.6.6
+		FNCloseCheckEx                    // @v11.7.2
 	};
 	//
 	// Descr: Методы вывода штрихкодов
@@ -499,7 +500,8 @@ private:
 		extmethfKMServerCheckingStatus = 0x00000800,
 		extmethfDivisionalQuantity     = 0x00001000,
 		extmethfNumerator              = 0x00002000,
-		extmethfDenominator            = 0x00004000, 
+		extmethfDenominator            = 0x00004000,
+		extmethfFNCloseCheckEx         = 0x00008000  // @v11.7.2
 	};
 	static uint ExtMethodsFlags;   // @v10.6.3 Флаги успешности получения расширенных методов драйвера
 	long   CashierPassword;    // Пароль кассира
@@ -1213,7 +1215,11 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			// } @v11.2.11
 		}
 		if(_fiscal != 0.0) {
-			if(ExtMethodsFlags & extmethfCloseCheckEx) { // @v10.6.3
+			// @v11.7.2 {
+			if(ExtMethodsFlags & extmethfFNCloseCheckEx) {
+				THROW(ExecFRPrintOper(FNCloseCheckEx));
+			} // } @v11.7.2 
+			else if(ExtMethodsFlags & extmethfCloseCheckEx) { // @v10.6.3
 				THROW(ExecFRPrintOper(CloseCheckEx));
 			}
 			else {
@@ -1795,7 +1801,8 @@ FR_INTRF * SCS_SHTRIHFRF::InitDriver()
 		IFC_ENTRY_SS(Summ14, PayTypeRegFlags, (1U << 14)), // @v10.6.1
 		IFC_ENTRY_SS(Summ15, PayTypeRegFlags, (1U << 15)), // @v10.6.1
 		IFC_ENTRY_SS(Summ16, PayTypeRegFlags, (1U << 16)), // @v10.6.1
-		IFC_ENTRY_SS(CloseCheckEx, ExtMethodsFlags, extmethfCloseCheckEx), // @v10.6.3
+		IFC_ENTRY_SS(CloseCheckEx,   ExtMethodsFlags, extmethfCloseCheckEx),   // @v10.6.3
+		IFC_ENTRY_SS(FNCloseCheckEx, ExtMethodsFlags, extmethfFNCloseCheckEx), // @v11.7.2
 		// @v11.2.11 {
 		//if(ExtMethodsFlags & extmethfCloseCheckEx)
 		IFC_ENTRY(TaxType), // must be after CloseCheckEx

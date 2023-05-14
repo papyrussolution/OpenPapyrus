@@ -189,24 +189,18 @@ U_CAPI const char * U_EXPORT2 uprv_detectWindowsTimeZone()
 		// Open the path to the time zones in the Windows registry.
 		LONG ret;
 		HKEY hKeyAllTimeZones = nullptr;
-		ret = RegOpenKeyExW(HKEY_LOCAL_MACHINE, WINDOWS_TIMEZONES_REG_KEY_PATH, 0, KEY_READ,
-			reinterpret_cast<PHKEY>(&hKeyAllTimeZones));
-
+		ret = RegOpenKeyExW(HKEY_LOCAL_MACHINE, WINDOWS_TIMEZONES_REG_KEY_PATH, 0, KEY_READ, reinterpret_cast<PHKEY>(&hKeyAllTimeZones));
 		if(ret != ERROR_SUCCESS) {
 			// If we can't open the key, then we can't do much, so fail.
 			return nullptr;
 		}
-
 		// Read the number of subkeys under the time zone registry path.
 		DWORD numTimeZoneSubKeys;
-		ret = RegQueryInfoKeyW(hKeyAllTimeZones, nullptr, nullptr, nullptr, &numTimeZoneSubKeys,
-			nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
-
+		ret = RegQueryInfoKeyW(hKeyAllTimeZones, nullptr, nullptr, nullptr, &numTimeZoneSubKeys, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
 		if(ret != ERROR_SUCCESS) {
 			RegCloseKey(hKeyAllTimeZones);
 			return nullptr;
 		}
-
 		// Examine each of the subkeys to try and find a match for the localized standard name ("Std").
 		//
 		// Note: The name of the time zone subkey itself is not localized, but the "Std" name is localized. This
@@ -227,26 +221,19 @@ U_CAPI const char * U_EXPORT2 uprv_detectWindowsTimeZone()
 				RegCloseKey(hKeyAllTimeZones);
 				return nullptr;
 			}
-
-			ret = RegOpenKeyExW(hKeyAllTimeZones, timezoneSubKeyName, 0, KEY_READ,
-				reinterpret_cast<PHKEY>(&hKeyTimeZoneSubKey));
-
+			ret = RegOpenKeyExW(hKeyAllTimeZones, timezoneSubKeyName, 0, KEY_READ, reinterpret_cast<PHKEY>(&hKeyTimeZoneSubKey));
 			if(ret != ERROR_SUCCESS) {
 				RegCloseKey(hKeyAllTimeZones);
 				return nullptr;
 			}
-
 			// Note: RegQueryValueExW wants the size of the buffer in bytes.
 			size = sizeof(registryStandardName);
-			ret = RegQueryValueExW(hKeyTimeZoneSubKey, L"Std", nullptr, &registryValueType,
-				reinterpret_cast<LPBYTE>(registryStandardName), &size);
-
+			ret = RegQueryValueExW(hKeyTimeZoneSubKey, L"Std", nullptr, &registryValueType, reinterpret_cast<LPBYTE>(registryStandardName), &size);
 			if(ret != ERROR_SUCCESS || registryValueType != REG_SZ) {
 				RegCloseKey(hKeyTimeZoneSubKey);
 				RegCloseKey(hKeyAllTimeZones);
 				return nullptr;
 			}
-
 			// Note: wcscmp does an ordinal (byte) comparison.
 			if(wcscmp(reinterpret_cast<WCHAR *>(registryStandardName), dynamicTZI.StandardName) == 0) {
 				// Since we are comparing the *localized* time zone name, it's possible that some
@@ -263,10 +250,8 @@ U_CAPI const char * U_EXPORT2 uprv_detectWindowsTimeZone()
 				ret = RegQueryValueExW(hKeyTimeZoneSubKey, L"TZI", nullptr, &registryValueType, reinterpret_cast<LPBYTE>(&registryTziValue), &timezoneTziValueSize);
 				if(ret == ERROR_SUCCESS) {
 					if((dynamicTZI.Bias == registryTziValue.Bias) &&
-					    (memcmp((const void *)&dynamicTZI.StandardDate, (const void *)&registryTziValue.StandardDate,
-					    sizeof(SYSTEMTIME)) == 0) &&
-					    (memcmp((const void *)&dynamicTZI.DaylightDate, (const void *)&registryTziValue.DaylightDate,
-					    sizeof(SYSTEMTIME)) == 0)) {
+					    (memcmp((const void *)&dynamicTZI.StandardDate, (const void *)&registryTziValue.StandardDate, sizeof(SYSTEMTIME)) == 0) &&
+					    (memcmp((const void *)&dynamicTZI.DaylightDate, (const void *)&registryTziValue.DaylightDate, sizeof(SYSTEMTIME)) == 0)) {
 						// We found a matching time zone.
 						windowsTimeZoneName = timezoneSubKeyName;
 						break;
@@ -276,7 +261,6 @@ U_CAPI const char * U_EXPORT2 uprv_detectWindowsTimeZone()
 			RegCloseKey(hKeyTimeZoneSubKey);
 			hKeyTimeZoneSubKey = nullptr;
 		}
-
 		if(hKeyTimeZoneSubKey != nullptr) {
 			RegCloseKey(hKeyTimeZoneSubKey);
 		}

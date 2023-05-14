@@ -1807,23 +1807,14 @@ SSL_TICKET_STATUS tls_decrypt_ticket(SSL * s, const uchar * etick,
 	}
 	else {
 		EVP_CIPHER * aes256cbc = NULL;
-
 		/* Check key name matches */
-		if(memcmp(etick, tctx->ext.tick_key_name,
-		    TLSEXT_KEYNAME_LENGTH) != 0) {
+		if(memcmp(etick, tctx->ext.tick_key_name, TLSEXT_KEYNAME_LENGTH) != 0) {
 			ret = SSL_TICKET_NO_DECRYPT;
 			goto end;
 		}
-
-		aes256cbc = EVP_CIPHER_fetch(s->ctx->libctx, "AES-256-CBC",
-			s->ctx->propq);
-		if(aes256cbc == NULL
-		    || ssl_hmac_init(hctx, tctx->ext.secure->tick_hmac_key,
-		    sizeof(tctx->ext.secure->tick_hmac_key),
-		    "SHA256") <= 0
-		    || EVP_DecryptInit_ex(ctx, aes256cbc, NULL,
-		    tctx->ext.secure->tick_aes_key,
-		    etick + TLSEXT_KEYNAME_LENGTH) <= 0) {
+		aes256cbc = EVP_CIPHER_fetch(s->ctx->libctx, "AES-256-CBC", s->ctx->propq);
+		if(aes256cbc == NULL || ssl_hmac_init(hctx, tctx->ext.secure->tick_hmac_key, sizeof(tctx->ext.secure->tick_hmac_key), "SHA256") <= 0 || 
+			EVP_DecryptInit_ex(ctx, aes256cbc, NULL, tctx->ext.secure->tick_aes_key, etick + TLSEXT_KEYNAME_LENGTH) <= 0) {
 			EVP_CIPHER_free(aes256cbc);
 			ret = SSL_TICKET_FATAL_ERR_OTHER;
 			goto end;

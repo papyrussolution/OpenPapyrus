@@ -833,30 +833,22 @@ static void bmp_load_default_palette(fz_context * ctx, struct info * info, int r
 		memcpy(info->palette, bw_palette, sizeof(bw_palette));
 }
 
-static const uchar * bmp_read_palette(fz_context * ctx,
-    struct info * info,
-    const uchar * begin,
-    const uchar * end,
-    const uchar * p)
+static const uchar * bmp_read_palette(fz_context * ctx, struct info * info, const uchar * begin,
+    const uchar * end, const uchar * p)
 {
-	int i, expected, present, entry_size;
-	const uchar * bitmap;
-
-	entry_size = palette_entry_size(info);
-	bitmap = begin + info->bitmapoffset;
-
-	expected = fz_mini(info->colors, 1 << info->bitcount);
+	int i, present;
+	int entry_size = palette_entry_size(info);
+	const uchar * bitmap = begin + info->bitmapoffset;
+	int expected = fz_mini(info->colors, 1 << info->bitcount);
 	if(expected == 0)
 		expected = 1 << info->bitcount;
 	present = fz_mini(expected, (bitmap - p) / entry_size);
-
 	for(i = 0; i < present; i++) {
 		/* ignore alpha channel even if present */
 		info->palette[3 * i + 0] = read8(p + i * entry_size + 2);
 		info->palette[3 * i + 1] = read8(p + i * entry_size + 1);
 		info->palette[3 * i + 2] = read8(p + i * entry_size + 0);
 	}
-
 	if(present < expected)
 		bmp_load_default_palette(ctx, info, present);
 

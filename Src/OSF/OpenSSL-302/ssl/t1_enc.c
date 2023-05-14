@@ -735,31 +735,17 @@ int tls1_export_keying_material(SSL * s, uchar * out, size_t olen,
 	 * label len) = 15, so size of val > max(prohibited label len) = 15 and
 	 * the comparisons won't have buffer overflow
 	 */
-	if(memcmp(val, TLS_MD_CLIENT_FINISH_CONST,
-	    TLS_MD_CLIENT_FINISH_CONST_SIZE) == 0)
+	if(memcmp(val, TLS_MD_CLIENT_FINISH_CONST, TLS_MD_CLIENT_FINISH_CONST_SIZE) == 0)
 		goto err1;
-	if(memcmp(val, TLS_MD_SERVER_FINISH_CONST,
-	    TLS_MD_SERVER_FINISH_CONST_SIZE) == 0)
+	if(memcmp(val, TLS_MD_SERVER_FINISH_CONST, TLS_MD_SERVER_FINISH_CONST_SIZE) == 0)
 		goto err1;
-	if(memcmp(val, TLS_MD_MASTER_SECRET_CONST,
-	    TLS_MD_MASTER_SECRET_CONST_SIZE) == 0)
+	if(memcmp(val, TLS_MD_MASTER_SECRET_CONST, TLS_MD_MASTER_SECRET_CONST_SIZE) == 0)
 		goto err1;
-	if(memcmp(val, TLS_MD_EXTENDED_MASTER_SECRET_CONST,
-	    TLS_MD_EXTENDED_MASTER_SECRET_CONST_SIZE) == 0)
+	if(memcmp(val, TLS_MD_EXTENDED_MASTER_SECRET_CONST, TLS_MD_EXTENDED_MASTER_SECRET_CONST_SIZE) == 0)
 		goto err1;
-	if(memcmp(val, TLS_MD_KEY_EXPANSION_CONST,
-	    TLS_MD_KEY_EXPANSION_CONST_SIZE) == 0)
+	if(memcmp(val, TLS_MD_KEY_EXPANSION_CONST, TLS_MD_KEY_EXPANSION_CONST_SIZE) == 0)
 		goto err1;
-
-	rv = tls1_PRF(s,
-		val, vallen,
-		NULL, 0,
-		NULL, 0,
-		NULL, 0,
-		NULL, 0,
-		s->session->master_key, s->session->master_key_length,
-		out, olen, 0);
-
+	rv = tls1_PRF(s, val, vallen, NULL, 0, NULL, 0, NULL, 0, NULL, 0, s->session->master_key, s->session->master_key_length, out, olen, 0);
 	goto ret;
 err1:
 	ERR_raise(ERR_LIB_SSL, SSL_R_TLS_ILLEGAL_EXPORTER_LABEL);

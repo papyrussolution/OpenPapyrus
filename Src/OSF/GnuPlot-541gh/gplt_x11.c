@@ -4875,17 +4875,11 @@ static void preset(int argc, char * argv[])
 	int TrueColor_depth, PseudoColor_depth, StaticGray_depth, GrayScale_depth;
 #endif
 	char * db_string;
-
 	FPRINTF((stderr, "(preset) \n"));
-
 	/* avoid bus error when env vars are not set */
-	if(ldisplay == NULL)
-		ldisplay = "";
-	if(home == NULL)
-		home = "";
-
+	SETIFZQ(ldisplay, "");
+	SETIFZQ(home, "");
 /*---set to ignore ^C and ^Z----------------------------------------------*/
-
 	signal(SIGINT, SIG_IGN);
 #ifdef SIGTSTP
 	signal(SIGTSTP, SIG_IGN);

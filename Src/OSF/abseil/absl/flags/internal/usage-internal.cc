@@ -251,20 +251,14 @@ void FlagsHelpImpl(std::ostream & out, PerFlagFilter filter_cb,
 			out << package_separator;
 			package_separator = "\n\n";
 		}
-
 		file_separator = "";
 		for(auto& flags_in_file : package.second) {
 			if(format == HelpFormat::kHumanReadable) {
-				out << file_separator << "  Flags from " << flags_in_file.first
-				    << ":\n";
+				out << file_separator << "  Flags from " << flags_in_file.first << ":\n";
 				file_separator = "\n";
 			}
-
-			std::sort(std::begin(flags_in_file.second),
-			    std::end(flags_in_file.second),
-			    [](const CommandLineFlag* lhs, const CommandLineFlag* rhs) {
-							return lhs->Name() < rhs->Name();
-						});
+			std::sort(std::begin(flags_in_file.second), std::end(flags_in_file.second),
+			    [](const CommandLineFlag* lhs, const CommandLineFlag* rhs) { return lhs->Name() < rhs->Name(); });
 
 			for(const auto* flag : flags_in_file.second) {
 				flags_internal::FlagHelp(out, *flag, format);

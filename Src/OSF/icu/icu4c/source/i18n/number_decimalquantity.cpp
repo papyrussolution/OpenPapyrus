@@ -1160,7 +1160,8 @@ void DecimalQuantity::readIntToBcd(int32_t n) {
 	precision = 16 - i;
 }
 
-void DecimalQuantity::readLongToBcd(int64_t n) {
+void DecimalQuantity::readLongToBcd(int64_t n) 
+{
 	U_ASSERT(n != 0);
 	if(n >= 10000000000000000L) {
 		ensureCapacity();

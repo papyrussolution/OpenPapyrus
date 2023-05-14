@@ -1994,8 +1994,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 #endif
 
 #if !defined (get16bits)
-#define get16bits(d) ((((uint32_t)(((const uint8_t *)(d))[1])) << 8)		\
-	    +(uint32_t)(((const uint8_t *)(d))[0]))
+#define get16bits(d) ((((uint32_t)(((const uint8_t *)(d))[1])) << 8) + (uint32_t)(((const uint8_t *)(d))[0]))
 #endif
 #define HASH_SFH(key, keylen, num_bkts, hashv, bkt)				     \
 	do {										 \

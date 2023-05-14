@@ -1537,28 +1537,18 @@ MSG_PROCESS_RETURN tls_process_server_hello(SSL * s, PACKET * pkt)
 			 */
 			int master_key_length;
 			master_key_length = sizeof(s->session->master_key);
-			if(s->ext.session_secret_cb(s, s->session->master_key,
-			    &master_key_length,
-			    NULL, &pref_cipher,
-			    s->ext.session_secret_cb_arg)
-			    && master_key_length > 0) {
+			if(s->ext.session_secret_cb(s, s->session->master_key, &master_key_length, NULL, &pref_cipher, s->ext.session_secret_cb_arg) && master_key_length > 0) {
 				s->session->master_key_length = master_key_length;
-				s->session->cipher = pref_cipher ?
-				    pref_cipher : ssl_get_cipher_by_char(s, cipherchars, 0);
+				s->session->cipher = pref_cipher ? pref_cipher : ssl_get_cipher_by_char(s, cipherchars, 0);
 			}
 			else {
 				SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
 				goto err;
 			}
 		}
-
-		if(session_id_len != 0
-		    && session_id_len == s->session->session_id_length
-		    && memcmp(PACKET_data(&session_id), s->session->session_id,
-		    session_id_len) == 0)
+		if(session_id_len != 0 && session_id_len == s->session->session_id_length && memcmp(PACKET_data(&session_id), s->session->session_id, session_id_len) == 0)
 			s->hit = 1;
 	}
-
 	if(s->hit) {
 		if(s->sid_ctx_length != s->session->sid_ctx_length
 		    || memcmp(s->session->sid_ctx, s->sid_ctx, s->sid_ctx_length)) {

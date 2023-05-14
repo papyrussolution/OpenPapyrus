@@ -259,21 +259,16 @@ static struct SynchEvent {     // this is a trivial hash table for the events
 // the string name is copied into it.
 // When used with a mutex, the caller should also ensure that kMuEvent
 // is set in the mutex word, and similarly for condition variables and kCVEvent.
-static SynchEvent * EnsureSynchEvent(std::atomic<intptr_t> * addr,
-    const char * name, intptr_t bits,
-    intptr_t lockbit) {
+static SynchEvent * EnsureSynchEvent(std::atomic<intptr_t> * addr, const char * name, intptr_t bits, intptr_t lockbit) 
+{
 	uint32_t h = reinterpret_cast<intptr_t>(addr) % kNSynchEvent;
 	SynchEvent * e;
 	// first look for existing SynchEvent struct..
 	synch_event_mu.Lock();
-	for(e = synch_event[h];
-	    e != nullptr && e->masked_addr != base_internal::HidePtr(addr);
-	    e = e->next) {
+	for(e = synch_event[h]; e != nullptr && e->masked_addr != base_internal::HidePtr(addr); e = e->next) {
 	}
 	if(e == nullptr) { // no SynchEvent struct found; make one.
-		if(name == nullptr) {
-			name = "";
-		}
+		SETIFZQ(name, "");
 		size_t l = strlen(name);
 		e = reinterpret_cast<SynchEvent *>(
 			base_internal::LowLevelAlloc::Alloc(sizeof(*e) + l));

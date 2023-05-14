@@ -660,6 +660,31 @@ static void InitTest()
 		}
 	}
 	// } @v11.3.8
+	{
+		// Экспресс-тест функций setlowbits64 и setlowbits32
+		{
+			for(uint i = 1; i <= 32; i++) {
+				uint32 v = setlowbits32(i);
+				for(uint j = 0; j < 32; j++) {
+					if(j < i)
+						assert((v & (1 << j)) == (1 << j));
+					else 
+						assert((v & (1 << j)) == 0);
+				}
+			}
+		}
+		{
+			for(uint i = 1; i <= 64; i++) {
+				uint64 v = setlowbits64(i);
+				for(uint j = 0; j < 64; j++) {
+					if(j < i)
+						assert((v & (1ULL << j)) == (1ULL << j));
+					else 
+						assert((v & (1ULL << j)) == 0);
+				}
+			}
+		}
+	}
 #endif // } NDEBUG
 }
 

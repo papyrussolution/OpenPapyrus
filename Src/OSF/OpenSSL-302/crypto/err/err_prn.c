@@ -57,29 +57,23 @@ void ERR_add_error_txt(const char * separator, const char * txt)
 	const char * data = NULL;
 	int flags;
 	unsigned long err = ERR_peek_last_error();
-
-	if(separator == NULL)
-		separator = "";
+	SETIFZQ(separator, "");
 	if(err == 0)
 		put_error(ERR_LIB_NONE, NULL, 0, "", 0);
-
 	do {
 		size_t available_len, data_len;
 		const char * curr = txt, * next = txt;
 		const char * leading_separator = separator;
 		int trailing_separator = 0;
 		char * tmp;
-
 		ERR_peek_last_error_all(&file, &line, &func, &data, &flags);
 		if((flags & ERR_TXT_STRING) == 0) {
 			data = "";
 			leading_separator = "";
 		}
 		data_len = strlen(data);
-
 		/* workaround for limit of ERR_print_errors_cb() */
-		if(data_len >= MAX_DATA_LEN
-		    || strlen(separator) >= (size_t)(MAX_DATA_LEN - data_len))
+		if(data_len >= MAX_DATA_LEN || strlen(separator) >= (size_t)(MAX_DATA_LEN - data_len))
 			available_len = 0;
 		else
 			available_len = MAX_DATA_LEN - data_len - strlen(separator) - 1;

@@ -437,11 +437,8 @@ char * ossl_sk_ASN1_UTF8STRING2text(STACK_OF(ASN1_UTF8STRING) * text,
 	size_t length = 0, sep_len;
 	char * result = NULL;
 	char * p;
-
-	if(sep == NULL)
-		sep = "";
+	SETIFZQ(sep, "");
 	sep_len = strlen(sep);
-
 	for(i = 0; i < sk_ASN1_UTF8STRING_num(text); i++) {
 		current = sk_ASN1_UTF8STRING_value(text, i);
 		if(i > 0)

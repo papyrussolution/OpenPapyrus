@@ -23,10 +23,10 @@ namespace {
 class RandenPoolEntry {
 public:
 	static constexpr size_t kState = RandenTraits::kStateBytes / sizeof(uint32_t);
-	static constexpr size_t kCapacity =
-	    RandenTraits::kCapacityBytes / sizeof(uint32_t);
+	static constexpr size_t kCapacity = RandenTraits::kCapacityBytes / sizeof(uint32_t);
 
-	void Init(absl::Span<const uint32_t> data) {
+	void Init(absl::Span<const uint32_t> data) 
+	{
 		SpinLockHolder l(&mu_); // Always uncontested.
 		std::copy(data.begin(), data.end(), std::begin(state_));
 		next_ = kState;
@@ -36,16 +36,14 @@ public:
 	void Fill(uint8* out, size_t bytes) ABSL_LOCKS_EXCLUDED(mu_);
 
 	// Returns random bits from the buffer in units of T.
-	template <typename T>
-	inline T Generate() ABSL_LOCKS_EXCLUDED(mu_);
-
-	inline void MaybeRefill() ABSL_EXCLUSIVE_LOCKS_REQUIRED(mu_) {
+	template <typename T> inline T Generate() ABSL_LOCKS_EXCLUDED(mu_);
+	inline void MaybeRefill() ABSL_EXCLUSIVE_LOCKS_REQUIRED(mu_) 
+	{
 		if(next_ >= kState) {
 			next_ = kCapacity;
 			impl_.Generate(state_);
 		}
 	}
-
 private:
 	// Randen URBG state.
 	uint32_t state_[kState] ABSL_GUARDED_BY(mu_); // First to satisfy alignment.
@@ -54,29 +52,29 @@ private:
 	size_t next_ ABSL_GUARDED_BY(mu_);
 };
 
-template <>
-inline uint8 RandenPoolEntry::Generate<uint8>() {
+template <> inline uint8 RandenPoolEntry::Generate<uint8>() 
+{
 	SpinLockHolder l(&mu_);
 	MaybeRefill();
 	return static_cast<uint8>(state_[next_++]);
 }
 
-template <>
-inline uint16_t RandenPoolEntry::Generate<uint16_t>() {
+template <> inline uint16_t RandenPoolEntry::Generate<uint16_t>() 
+{
 	SpinLockHolder l(&mu_);
 	MaybeRefill();
 	return static_cast<uint16_t>(state_[next_++]);
 }
 
-template <>
-inline uint32_t RandenPoolEntry::Generate<uint32_t>() {
+template <> inline uint32_t RandenPoolEntry::Generate<uint32_t>() 
+{
 	SpinLockHolder l(&mu_);
 	MaybeRefill();
 	return state_[next_++];
 }
 
-template <>
-inline uint64_t RandenPoolEntry::Generate<uint64_t>() {
+template <> inline uint64_t RandenPoolEntry::Generate<uint64_t>() 
+{
 	SpinLockHolder l(&mu_);
 	if(next_ >= kState - 1) {
 		next_ = kCapacity;
@@ -84,13 +82,13 @@ inline uint64_t RandenPoolEntry::Generate<uint64_t>() {
 	}
 	auto p = state_ + next_;
 	next_ += 2;
-
 	uint64_t result;
 	memcpy(&result, p, sizeof(result));
 	return result;
 }
 
-void RandenPoolEntry::Fill(uint8* out, size_t bytes) {
+void RandenPoolEntry::Fill(uint8* out, size_t bytes) 
+{
 	SpinLockHolder l(&mu_);
 	while(bytes > 0) {
 		MaybeRefill();
@@ -158,15 +156,13 @@ int GetPoolID() {
 
 // Allocate a RandenPoolEntry with at least 32-byte alignment, which is required
 // by ARM platform code.
-RandenPoolEntry* PoolAlignedAlloc() {
-	constexpr size_t kAlignment =
-	    ABSL_CACHELINE_SIZE > 32 ? ABSL_CACHELINE_SIZE : 32;
-
+RandenPoolEntry* PoolAlignedAlloc() 
+{
+	constexpr size_t kAlignment = ABSL_CACHELINE_SIZE > 32 ? ABSL_CACHELINE_SIZE : 32;
 	// Not all the platforms that we build for have std::aligned_alloc, however
 	// since we never free these objects, we can over allocate and munge the
 	// pointers to the correct alignment.
-	intptr_t x = reinterpret_cast<intptr_t>(
-		new char[sizeof(RandenPoolEntry) + kAlignment]);
+	intptr_t x = reinterpret_cast<intptr_t>(new char[sizeof(RandenPoolEntry) + kAlignment]);
 	auto y = x % kAlignment;
 	void* aligned = reinterpret_cast<void*>(y == 0 ? x : (x + kAlignment - y));
 	return new (aligned) RandenPoolEntry();
@@ -188,29 +184,28 @@ void InitPoolURBG() {
 	}
 	for(int i = 0; i < kPoolSize; i++) {
 		shared_pools[i] = PoolAlignedAlloc();
-		shared_pools[i]->Init(
-			absl::MakeSpan(&seed_material[i * kSeedSize], kSeedSize));
+		shared_pools[i]->Init(absl::MakeSpan(&seed_material[i * kSeedSize], kSeedSize));
 	}
 }
 
 // Returns the pool entry for the current thread.
-RandenPoolEntry* GetPoolForCurrentThread() {
+RandenPoolEntry* GetPoolForCurrentThread() 
+{
 	absl::call_once(pool_once, InitPoolURBG);
 	return shared_pools[GetPoolID()];
 }
 }  // namespace
 
-template <typename T>
-typename RandenPool<T>::result_type RandenPool<T>::Generate() {
+template <typename T> typename RandenPool<T>::result_type RandenPool<T>::Generate() 
+{
 	auto* pool = GetPoolForCurrentThread();
 	return pool->Generate<T>();
 }
 
-template <typename T>
-void RandenPool<T>::Fill(absl::Span<result_type> data) {
+template <typename T> void RandenPool<T>::Fill(absl::Span<result_type> data) 
+{
 	auto* pool = GetPoolForCurrentThread();
-	pool->Fill(reinterpret_cast<uint8*>(data.data()),
-	    data.size() * sizeof(result_type));
+	pool->Fill(reinterpret_cast<uint8*>(data.data()), data.size() * sizeof(result_type));
 }
 
 template class RandenPool<uint8>;

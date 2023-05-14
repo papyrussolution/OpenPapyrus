@@ -26,6 +26,26 @@ public class Document {
 	public static final int actionCCheckMod           = 0x0080; // @v11.5.2 Модификация чека
 	public static final int actionCCheckRegPrint      = 0x0100; // @v11.5.2 Печать чека на регистраторе
 
+	private static class ActionFlagToSymbAssoc {
+		ActionFlagToSymbAssoc(int f, String s)
+		{
+			Flag = f;
+			Symb = s;
+		}
+		int    Flag;
+		String Symb;
+	}
+	private static ActionFlagToSymbAssoc af2s_list[] = {
+		new ActionFlagToSymbAssoc(actionDocStatus, "DocStatus"),
+		new ActionFlagToSymbAssoc(actionDocAcceptance, "DocAcceptance"),
+		new ActionFlagToSymbAssoc(actionDocAcceptanceMarks, "DocAcceptanceMarks"),
+		new ActionFlagToSymbAssoc(actionDocSettingMarks, "DocSettingMarks"),
+		new ActionFlagToSymbAssoc(actionDocInventory, "DocInventory"),
+		new ActionFlagToSymbAssoc(actionGoodsItemCorrection, "GoodsItemCorrection"),
+		new ActionFlagToSymbAssoc(actionCCheckCreat, "actionCCheckCreat"),
+		new ActionFlagToSymbAssoc(actionCCheckMod, "CCheckMod"),
+		new ActionFlagToSymbAssoc(actionCCheckRegPrint, "CCheckRegPrint"),
+	};
 	public static int IncomingListActionsFromString(final String input)
 	{
 		int    result = 0;
@@ -35,26 +55,12 @@ public class Document {
 			for(int i = 0; i < _c; i++) {
 				String tok = toknzr.nextToken();
 				tok.trim();
-				if(tok.equalsIgnoreCase("DocStatus"))
-					result |= actionDocStatus;
-				else if(tok.equalsIgnoreCase("DocAcceptance"))
-					result |= actionDocAcceptance;
-				else if(tok.equalsIgnoreCase("DocAcceptanceMarks"))
-					result |= actionDocAcceptanceMarks;
-				else if(tok.equalsIgnoreCase("DocSettingMarks"))
-					result |= actionDocSettingMarks;
-				else if(tok.equalsIgnoreCase("DocInventory"))
-					result |= actionDocInventory;
-				else if(tok.equalsIgnoreCase("GoodsItemCorrection"))
-					result |= actionGoodsItemCorrection;
-				// @v11.5.2 {
-				else if(tok.equalsIgnoreCase("CCheckCreat"))
-					result |= actionCCheckCreat;
-				else if(tok.equalsIgnoreCase("CCheckMod"))
-					result |= actionCCheckMod;
-				else if(tok.equalsIgnoreCase("CCheckRegPrint"))
-					result |= actionCCheckRegPrint;
-				// } @v11.5.2
+				for(int j = 0; j < af2s_list.length; j++) {
+					if(tok.equalsIgnoreCase(af2s_list[j].Symb)) {
+						result |= af2s_list[j].Flag;
+						break;
+					}
+				}
 			}
 		}
 		return result;
@@ -63,53 +69,13 @@ public class Document {
 	{
 		String result = "";
 		if(actionFlags != 0) {
-			if((actionFlags & actionDocStatus) != 0) {
-				if(SLib.GetLen(result) > 0)
-					result += ",";
-				result += "DocStatus";
+			for(int i = 0; i < af2s_list.length; i++) {
+				if((actionFlags & af2s_list[i].Flag) != 0) {
+					if(SLib.GetLen(result) > 0)
+						result += ",";
+					result += af2s_list[i].Symb;
+				}
 			}
-			if((actionFlags & actionDocAcceptance) != 0) {
-				if(SLib.GetLen(result) > 0)
-					result += ",";
-				result += "DocAcceptance";
-			}
-			if((actionFlags & actionDocAcceptanceMarks) != 0) {
-				if(SLib.GetLen(result) > 0)
-					result += ",";
-				result += "DocAcceptanceMarks";
-			}
-			if((actionFlags & actionDocSettingMarks) != 0) {
-				if(SLib.GetLen(result) > 0)
-					result += ",";
-				result += "DocSettingMarks";
-			}
-			if((actionFlags & actionDocInventory) != 0) {
-				if(SLib.GetLen(result) > 0)
-					result += ",";
-				result += "DocInventory";
-			}
-			if((actionFlags & actionGoodsItemCorrection) != 0) {
-				if(SLib.GetLen(result) > 0)
-					result += ",";
-				result += "GoodsItemCorrection";
-			}
-			// @v11.5.2 {
-			if((actionFlags & actionCCheckCreat) != 0) {
-				if(SLib.GetLen(result) > 0)
-					result += ",";
-				result += "CCheckCreat";
-			}
-			if((actionFlags & actionCCheckMod) != 0) {
-				if(SLib.GetLen(result) > 0)
-					result += ",";
-				result += "CCheckMod";
-			}
-			if((actionFlags & actionCCheckRegPrint) != 0) {
-				if(SLib.GetLen(result) > 0)
-					result += ",";
-				result += "CCheckRegPrint";
-			}
-			// } @v11.5.2
 		}
 		return result;
 	}
@@ -135,6 +101,7 @@ public class Document {
 			Time = null;
 			DueTime = null;
 			CreationGeoLoc = null; // @v11.6.2
+			SvcOpType = 0; // @v11.7.2
 			SvcOpID = 0;
 			InterchangeOpID = 0;
 			AgentID = 0; // @v11.4.6
@@ -162,6 +129,7 @@ public class Document {
 				copy.Time = SLib.LDATETIME.Copy(s.Time);
 				copy.DueTime = SLib.LDATETIME.Copy(s.DueTime);
 				copy.CreationGeoLoc = SLib.GeoPosLL.Copy(s.CreationGeoLoc); // @v11.6.2
+				copy.SvcOpType = s.SvcOpType; // @v11.7.2
 				copy.SvcOpID = s.SvcOpID;
 				copy.InterchangeOpID = s.InterchangeOpID;
 				copy.AgentID = s.AgentID;
@@ -285,6 +253,9 @@ public class Document {
 		SLib.GeoPosLL  CreationGeoLoc; // @v11.6.2 Координаты, в которых находился клиент при создании документа.
 			// Инициируется для органиченного набора документов и только если разрешена геолокация на устройстве.
 		int    InterchangeOpID; // @v11.4.9 OpID-->InterchangeOpID
+		int    SvcOpType; // @v11.7.2 Тип операции, определенный на стороне сервиса.
+			// Это значение - только для входящих документов.
+			// if SvcOpID == 0 then SvcOpType == 0
 		int    SvcOpID;   // @v11.4.9 Ид вида операции, определенный на стороне сервиса.
 			// Если клиент создает новый документ (в смысле PPObjBill), но не знает точный ид вида операции на
 			// стороне сервиса, то определяет InterchangeOpID.
@@ -1265,26 +1236,24 @@ public class Document {
 					result.put("cr_lon", H.CreationGeoLoc.Lon);
 				}
 				// } @v11.6.2
-				result.put("svcopid", H.SvcOpID);
-				result.put("icopid", H.InterchangeOpID);
-				if(H.PosNodeID > 0) { // @v11.4.6
+				if(H.SvcOpType != 0)
+					result.put("svcoptype", H.SvcOpType); // @v11.7.2
+				if(H.SvcOpID != 0)
+					result.put("svcopid", H.SvcOpID);
+				if(H.InterchangeOpID != 0)
+					result.put("icopid", H.InterchangeOpID);
+				if(H.PosNodeID > 0) // @v11.4.6
 					result.put("posnodeid", H.PosNodeID);
-				}
-				if(H.AgentID > 0) { // @v11.4.6
+				if(H.AgentID > 0) // @v11.4.6
 					result.put("agentid", H.AgentID);
-				}
-				if(H.QuotKindID > 0) { // @v11.7.1
+				if(H.QuotKindID > 0) // @v11.7.1
 					result.put("quotkindid", H.QuotKindID);
-				}
-				if(H.ClientID > 0) {
+				if(H.ClientID > 0)
 					result.put("cliid", H.ClientID);
-				}
-				if(H.DlvrLocID > 0) {
+				if(H.DlvrLocID > 0)
 					result.put("dlvrlocid", H.DlvrLocID);
-				}
-				if(H.StatusSurrId > 0) { // @v11.5.1
+				if(H.StatusSurrId > 0) // @v11.5.1
 					result.put("statussurrid", H.StatusSurrId);
-				}
 				// @v11.4.7 {
 				if(H.Amount > 0)
 					result.put("amount", H.Amount);
@@ -1476,6 +1445,7 @@ public class Document {
 						H.CreationGeoLoc = cr_geoloc;
 				}
 				// } @v11.6.2
+				H.SvcOpType = jsObj.optInt("svcoptype", 0); // @v11.7.2
 				H.SvcOpID = jsObj.optInt("svcopid", 0);
 				H.InterchangeOpID = jsObj.optInt("icopid", 0);
 				H.ClientID = jsObj.optInt("cliid", 0);

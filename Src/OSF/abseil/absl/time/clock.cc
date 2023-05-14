@@ -8,12 +8,12 @@
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
-Time Now() {
+Time Now() 
+{
 	// TODO(bww): Get a timespec instead so we don't have to divide.
 	int64_t n = absl::GetCurrentTimeNanos();
 	if(n >= 0) {
-		return time_internal::FromUnixDuration(
-			time_internal::MakeDuration(n / 1000000000, n % 1000000000 * 4));
+		return time_internal::FromUnixDuration(time_internal::MakeDuration(n / 1000000000, n % 1000000000 * 4));
 	}
 	return time_internal::FromUnixDuration(absl::Nanoseconds(n));
 }

@@ -3,12 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="4dp"
+    android:minHeight="64dp"
     android:orientation="horizontal"
     >
     <TextView style="@style/GenericListItemText"
         android:id="@+id/LVITEM_CMDNAME"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
+        android:fontFamily="sans-serif-medium"
         />
     <View style="@style/FakeView"/>
     <TextView style="@style/ExecuteTimeText" android:id="@+id/CTL_IND_EXECUTETIME"/>

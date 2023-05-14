@@ -5534,7 +5534,7 @@ struct EgaisRestItem { // @flat
     double Rest;
 };
 
-int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod)
+int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod) // @indevelopment
 {
 	int    ok = 1;
 	const  PPID loc_id = pCurrentRestPack ? pCurrentRestPack->Rec.LocID : 0;
@@ -5585,44 +5585,60 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 				ReceiptTbl::Rec lot_rec;
 				PPIDArray lot_id_list;
 				if(Cfg.E.WrOffShopWay == Cfg.woswBalanceWithLots) {
-					if(!v3markMode) {
+					// @v11.7.2 if(!v3markMode) {
 						for(uint i = 0; i < pCurrentRestPack->GetTCount(); i++) {
 							const PPTransferItem & r_ti = pCurrentRestPack->ConstTI(i);
 							if(r_ti.Quantity_ > 0.0 && pCurrentRestPack->LTagL.GetTagStr(i, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code) > 0) {
 								assert(egais_code.NotEmpty());
 								PPRef->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code, &lot_id_list);
 								double current_lot_rest = 0.0;
-								for(uint j = 0; j < lot_id_list.getCount(); j++) {
-									const PPID lot_id = lot_id_list.get(j);
-									if(P_BObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id) {
-										double _rest = 0.0;
-										P_BObj->trfr->GetRest(lot_id, _cur_date, MAXLONG, &_rest, 0);
-										current_lot_rest += _rest;
+								// @v11.7.2 {
+								bool do_process = false;
+								if(!v3markMode) {
+									do_process = true;
+								}
+								else {
+									PrcssrAlcReport::GoodsItem agi;
+									if(PreprocessGoodsItem(labs(r_ti.GoodsID), /*org_lot_id*/0, 0, 0, agi) > 0) {
+										bool is_beer = LOGIC(PrcssrAlcReport::IsBeerCategoryCode(agi.CategoryCode));
+										if(is_beer)
+											do_process = true;
 									}
 								}
-								const double wroff_qtty = (r_ti.Quantity_ - current_lot_rest);
-								if(wroff_qtty > 0.0) { // @v10.4.3 (wroff_qtty >= 1.0)-->(wroff_qtty > 0.0)
-									if(!p_wroff_bp) {
-										THROW_MEM(p_wroff_bp = new PPBillPacket);
-										THROW(p_wroff_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));
+								// } @v11.7.2 
+								if(do_process) {
+									for(uint j = 0; j < lot_id_list.getCount(); j++) {
+										const PPID lot_id = lot_id_list.get(j);
+										if(P_BObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id) {
+											double _rest = 0.0;
+											P_BObj->trfr->GetRest(lot_id, _cur_date, MAXLONG, &_rest, 0);
+											current_lot_rest += _rest;
+										}
 									}
-									{
-										PPTransferItem ti;
-										const uint new_pos = p_wroff_bp->GetTCount();
-										THROW(ti.Init(&p_wroff_bp->Rec, 1));
-										THROW(ti.SetupGoods(r_ti.GoodsID, 0));
-										ti.Quantity_ = wroff_qtty;
-										THROW(p_wroff_bp->LoadTItem(&ti, 0, 0));
+									const double wroff_qtty = (r_ti.Quantity_ - current_lot_rest);
+									if(wroff_qtty > 0.0) { // @v10.4.3 (wroff_qtty >= 1.0)-->(wroff_qtty > 0.0)
+										if(!p_wroff_bp) {
+											THROW_MEM(p_wroff_bp = new PPBillPacket);
+											THROW(p_wroff_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));
+										}
 										{
-											ObjTagList tag_list;
-											tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
-											THROW(p_wroff_bp->LTagL.Set(new_pos, &tag_list));
+											PPTransferItem ti;
+											const uint new_pos = p_wroff_bp->GetTCount();
+											THROW(ti.Init(&p_wroff_bp->Rec, 1));
+											THROW(ti.SetupGoods(r_ti.GoodsID, 0));
+											ti.Quantity_ = wroff_qtty;
+											THROW(p_wroff_bp->LoadTItem(&ti, 0, 0));
+											{
+												ObjTagList tag_list;
+												tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
+												THROW(p_wroff_bp->LTagL.Set(new_pos, &tag_list));
+											}
 										}
 									}
 								}
 							}
 						}
-					}
+					// @v11.7.2 }
 				}
 				else if(Cfg.E.WrOffShopWay == Cfg.woswByCChecks) {
 					int    skip = 0;

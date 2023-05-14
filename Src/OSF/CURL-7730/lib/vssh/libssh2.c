@@ -849,7 +849,6 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 					    if(!sshc->rsa_pub)
 						    out_of_memory = TRUE;
 				    }
-
 				    if(out_of_memory || sshc->rsa == NULL) {
 					    ZFREE(sshc->rsa);
 					    ZFREE(sshc->rsa_pub);
@@ -857,15 +856,11 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 					    sshc->actualcode = CURLE_OUT_OF_MEMORY;
 					    break;
 				    }
-
 				    sshc->passphrase = data->set.ssl.key_passwd;
-				    if(!sshc->passphrase)
-					    sshc->passphrase = "";
-
+				    SETIFZQ(sshc->passphrase, "");
 				    if(sshc->rsa_pub)
 					    infof(data, "Using SSH public key file '%s'\n", sshc->rsa_pub);
 				    infof(data, "Using SSH private key file '%s'\n", sshc->rsa);
-
 				    state(conn, SSH_AUTH_PKEY);
 			    }
 			    else {
@@ -877,18 +872,12 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    /* The function below checks if the files exists, no need to stat() here.
 			     */
 			    rc = libssh2_userauth_publickey_fromfile_ex(sshc->ssh_session,
-				    conn->user,
-				    curlx_uztoui(
-					    strlen(conn->user)),
-				    sshc->rsa_pub,
-				    sshc->rsa, sshc->passphrase);
+				    conn->user, curlx_uztoui(strlen(conn->user)), sshc->rsa_pub, sshc->rsa, sshc->passphrase);
 			    if(rc == LIBSSH2_ERROR_EAGAIN) {
 				    break;
 			    }
-
 			    ZFREE(sshc->rsa_pub);
 			    ZFREE(sshc->rsa);
-
 			    if(rc == 0) {
 				    sshc->authed = TRUE;
 				    infof(data, "Initialized SSH public key authentication\n");

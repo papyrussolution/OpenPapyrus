@@ -1311,8 +1311,7 @@ int tls_get_message_body(SSL * s, size_t * len)
 			return 0;
 		}
 		if(s->msg_callback)
-			s->msg_callback(0, SSL2_VERSION, 0, s->init_buf->data,
-			    (size_t)s->init_num, s, s->msg_callback_arg);
+			s->msg_callback(0, SSL2_VERSION, 0, s->init_buf->data, (size_t)s->init_num, s, s->msg_callback_arg);
 	}
 	else {
 		/*
@@ -1323,13 +1322,9 @@ int tls_get_message_body(SSL * s, size_t * len)
 		 */
 #define SERVER_HELLO_RANDOM_OFFSET  (SSL3_HM_HEADER_LENGTH + 2)
 		/* KeyUpdate and NewSessionTicket do not need to be added */
-		if(!SSL_IS_TLS13(s) || (s->s3.tmp.message_type != SSL3_MT_NEWSESSION_TICKET
-		    && s->s3.tmp.message_type != SSL3_MT_KEY_UPDATE)) {
-			if(s->s3.tmp.message_type != SSL3_MT_SERVER_HELLO
-			    || s->init_num < SERVER_HELLO_RANDOM_OFFSET + SSL3_RANDOM_SIZE
-			    || memcmp(hrrrandom,
-			    s->init_buf->data + SERVER_HELLO_RANDOM_OFFSET,
-			    SSL3_RANDOM_SIZE) != 0) {
+		if(!SSL_IS_TLS13(s) || (s->s3.tmp.message_type != SSL3_MT_NEWSESSION_TICKET && s->s3.tmp.message_type != SSL3_MT_KEY_UPDATE)) {
+			if(s->s3.tmp.message_type != SSL3_MT_SERVER_HELLO || s->init_num < SERVER_HELLO_RANDOM_OFFSET + SSL3_RANDOM_SIZE || 
+				memcmp(hrrrandom, s->init_buf->data + SERVER_HELLO_RANDOM_OFFSET, SSL3_RANDOM_SIZE) != 0) {
 				if(!ssl3_finish_mac(s, (uchar *)s->init_buf->data,
 				    s->init_num + SSL3_HM_HEADER_LENGTH)) {
 					/* SSLfatal() already called */
@@ -1855,16 +1850,13 @@ int ssl_choose_server_version(SSL * s, CLIENTHELLO_MSG * hello, DOWNGRADE * dgrd
 	 */
 	if(version_cmp(s, client_version, TLS1_3_VERSION) >= 0)
 		client_version = TLS1_2_VERSION;
-
 	/*
 	 * No supported versions extension, so we just use the version supplied in
 	 * the ClientHello.
 	 */
 	for(vent = table; vent->version != 0; ++vent) {
 		const SSL_METHOD * method;
-
-		if(vent->smeth == NULL ||
-		    version_cmp(s, client_version, vent->version) < 0)
+		if(vent->smeth == NULL || version_cmp(s, client_version, vent->version) < 0)
 			continue;
 		method = vent->smeth();
 		if(ssl_method_error(s, method) == 0) {
@@ -1922,70 +1914,48 @@ int ssl_choose_client_version(SSL * s, int version, RAW_EXTENSION * extensions)
 		     * ssl_method_error(s, s->method)
 		     */
 		    return 1;
-		case TLS_ANY_VERSION:
-		    table = tls_version_table;
-		    break;
-		case DTLS_ANY_VERSION:
-		    table = dtls_version_table;
-		    break;
+		case TLS_ANY_VERSION: table = tls_version_table; break;
+		case DTLS_ANY_VERSION: table = dtls_version_table; break;
 	}
-
 	ret = ssl_get_min_max_version(s, &ver_min, &ver_max, &real_max);
 	if(ret != 0) {
 		s->version = origv;
 		SSLfatal(s, SSL_AD_PROTOCOL_VERSION, ret);
 		return 0;
 	}
-	if(SSL_IS_DTLS(s) ? DTLS_VERSION_LT(s->version, ver_min)
-	    : s->version < ver_min) {
+	if(SSL_IS_DTLS(s) ? DTLS_VERSION_LT(s->version, ver_min) : s->version < ver_min) {
 		s->version = origv;
 		SSLfatal(s, SSL_AD_PROTOCOL_VERSION, SSL_R_UNSUPPORTED_PROTOCOL);
 		return 0;
 	}
-	else if(SSL_IS_DTLS(s) ? DTLS_VERSION_GT(s->version, ver_max)
-	    : s->version > ver_max) {
+	else if(SSL_IS_DTLS(s) ? DTLS_VERSION_GT(s->version, ver_max) : s->version > ver_max) {
 		s->version = origv;
 		SSLfatal(s, SSL_AD_PROTOCOL_VERSION, SSL_R_UNSUPPORTED_PROTOCOL);
 		return 0;
 	}
-
 	if((s->mode & SSL_MODE_SEND_FALLBACK_SCSV) == 0)
 		real_max = ver_max;
-
 	/* Check for downgrades */
 	if(s->version == TLS1_2_VERSION && real_max > s->version) {
-		if(memcmp(tls12downgrade,
-		    s->s3.server_random + SSL3_RANDOM_SIZE
-		    - sizeof(tls12downgrade),
-		    sizeof(tls12downgrade)) == 0) {
+		if(memcmp(tls12downgrade, s->s3.server_random + SSL3_RANDOM_SIZE - sizeof(tls12downgrade), sizeof(tls12downgrade)) == 0) {
 			s->version = origv;
-			SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER,
-			    SSL_R_INAPPROPRIATE_FALLBACK);
+			SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_R_INAPPROPRIATE_FALLBACK);
 			return 0;
 		}
 	}
-	else if(!SSL_IS_DTLS(s)
-	    && s->version < TLS1_2_VERSION
-	    && real_max > s->version) {
-		if(memcmp(tls11downgrade,
-		    s->s3.server_random + SSL3_RANDOM_SIZE
-		    - sizeof(tls11downgrade),
-		    sizeof(tls11downgrade)) == 0) {
+	else if(!SSL_IS_DTLS(s) && s->version < TLS1_2_VERSION && real_max > s->version) {
+		if(memcmp(tls11downgrade, s->s3.server_random + SSL3_RANDOM_SIZE - sizeof(tls11downgrade), sizeof(tls11downgrade)) == 0) {
 			s->version = origv;
-			SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER,
-			    SSL_R_INAPPROPRIATE_FALLBACK);
+			SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_R_INAPPROPRIATE_FALLBACK);
 			return 0;
 		}
 	}
-
 	for(vent = table; vent->version != 0; ++vent) {
 		if(vent->cmeth == NULL || s->version != vent->version)
 			continue;
-
 		s->method = vent->cmeth();
 		return 1;
 	}
-
 	s->version = origv;
 	SSLfatal(s, SSL_AD_PROTOCOL_VERSION, SSL_R_UNSUPPORTED_PROTOCOL);
 	return 0;

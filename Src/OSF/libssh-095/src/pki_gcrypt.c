@@ -797,8 +797,7 @@ static int asn1_oi_to_nid(const ssh_string oi)
 	};
 	size_t len = ssh_string_len(oi);
 	for(e = mapping; e->length; e++) {
-		if(len == e->length
-		 && memcmp(ssh_string_data(oi), e->identifier, len) == 0) {
+		if(len == e->length && memcmp(ssh_string_data(oi), e->identifier, len) == 0) {
 			return e->nid;
 		}
 	}

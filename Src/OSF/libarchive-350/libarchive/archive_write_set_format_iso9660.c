@@ -1972,9 +1972,7 @@ static void get_system_identitier(char * system_id, size_t size)
 static void set_str(uchar * p, const char * s, size_t l, char f, const char * map)
 {
 	uchar c;
-
-	if(!s)
-		s = "";
+	SETIFZQ(s, "");
 	while((c = *s++) != 0 && l > 0) {
 		if(c >= 0x80 || map[c] == 0) {
 			/* illegal character */
@@ -1988,8 +1986,7 @@ static void set_str(uchar * p, const char * s, size_t l, char f, const char * ma
 		*p++ = c;
 		l--;
 	}
-	/* If l isn't zero, fill p buffer by the character
-	 * which indicated by f. */
+	// If l isn't zero, fill p buffer by the character which indicated by f
 	if(l > 0)
 		memset(p, f, l);
 }
@@ -2011,14 +2008,11 @@ static inline int joliet_allowed_char(uchar high, uchar low)
 	return 1;
 }
 
-static int set_str_utf16be(struct archive_write * a, uchar * p, const char * s,
-    size_t l, uint16 uf, enum vdc vdc)
+static int set_str_utf16be(struct archive_write * a, uchar * p, const char * s, size_t l, uint16 uf, enum vdc vdc)
 {
 	size_t size, i;
 	int onepad;
-
-	if(!s)
-		s = "";
+	SETIFZQ(s, "");
 	if(l & 0x01) {
 		onepad = 1;
 		l &= ~1;
@@ -2027,8 +2021,7 @@ static int set_str_utf16be(struct archive_write * a, uchar * p, const char * s,
 		onepad = 0;
 	if(vdc == VDC_UCS2) {
 		struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
-		if(archive_strncpy_l(&iso9660->utf16be, s, strlen(s),
-		    iso9660->sconv_to_utf16be) != 0 && errno == ENOMEM) {
+		if(archive_strncpy_l(&iso9660->utf16be, s, strlen(s), iso9660->sconv_to_utf16be) != 0 && errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for UTF-16BE");
 			return ARCHIVE_FATAL;
 		}
@@ -2039,7 +2032,6 @@ static int set_str_utf16be(struct archive_write * a, uchar * p, const char * s,
 	}
 	else {
 		const uint16 * u16 = (const uint16*)s;
-
 		size = 0;
 		while(*u16++)
 			size += 2;
@@ -5078,18 +5070,13 @@ static int isoent_tree(struct archive_write * a, struct isoent ** isoentpp)
 	char name[256];
 #endif
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
-	struct isoent * dent, * isoent, * np;
+	struct isoent * np;
 	struct isofile * f1, * f2;
-	const char * fn, * p;
 	int l;
-
-	isoent = *isoentpp;
-	dent = iso9660->primary.rootent;
-	if(isoent->file->parentdir.length > 0)
-		fn = p = isoent->file->parentdir.s;
-	else
-		fn = p = "";
-
+	struct isoent * isoent = *isoentpp;
+	struct isoent * dent = iso9660->primary.rootent;
+	const char * fn = (isoent->file->parentdir.length > 0) ? isoent->file->parentdir.s : "";
+	const char * p = fn;
 	/*
 	 * If the path of the parent directory of `isoent' entry is
 	 * the same as the path of `cur_dirent', add isoent to
@@ -5102,7 +5089,6 @@ static int isoent_tree(struct archive_write * a, struct isoent ** isoentpp)
 		}
 		return ARCHIVE_OK;
 	}
-
 	for(;;) {
 		l = get_path_component(name, sizeof(name), fn);
 		if(l == 0) {

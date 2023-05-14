@@ -1446,8 +1446,7 @@ static int parse_keyword(ArchiveRead * a, struct mtree * mtree,
 		case 'n':
 		    if(sstreq(key, "nlink")) {
 			    *parsed_kws |= MTREE_HAS_NLINK;
-			    archive_entry_set_nlink(entry,
-				(uint)mtree_atol(&val, 10));
+			    archive_entry_set_nlink(entry, (uint)mtree_atol(&val, 10));
 			    break;
 		    }
 		    CXX_FALLTHROUGH;
@@ -1455,10 +1454,8 @@ static int parse_keyword(ArchiveRead * a, struct mtree * mtree,
 		    if(sstreq(key, "resdevice")) {
 			    /* stat(2) st_dev field, e.g. the device ID where the
 			     * inode resides */
-			    int r;
 			    dev_t dev;
-
-			    r = parse_device(&dev, &a->archive, val);
+			    int r = parse_device(&dev, &a->archive, val);
 			    if(r == ARCHIVE_OK)
 				    archive_entry_set_dev(entry, dev);
 			    return r;

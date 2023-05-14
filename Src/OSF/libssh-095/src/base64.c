@@ -216,9 +216,7 @@ static int get_equals(char * string)
 }
 
 /* thanks sysk for debugging my mess :) */
-static void _bin_to_base64(uint8 * dest,
-    const uint8 source[3],
-    size_t len)
+static void _bin_to_base64(uint8 * dest, const uint8 source[3], size_t len)
 {
 #define BITS(n) ((1 << (n)) - 1)
 	switch(len) {

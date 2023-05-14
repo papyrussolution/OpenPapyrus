@@ -3503,7 +3503,7 @@ bool FASTCALL PPStyloQInterchange::InterchangeParam::IsEq(const PPStyloQIntercha
 
 PPStyloQInterchange::Document::LotExtCode::LotExtCode() : Flags(0), BoxRefN(0)
 {
-	PTR32(Code)[0] = 0;
+	Code[0] = 0;
 }
 
 PPStyloQInterchange::Document::ValuSet::ValuSet() : Qtty(0.0), Cost(0.0), Price(0.0), Discount(0.0)
@@ -3583,7 +3583,7 @@ PPStyloQInterchange::Document::BookingItem::BookingItem() : RowIdx(0), PrcID(0),
 	return rBuf;
 }
 
-PPStyloQInterchange::Document::Document() : ID(0), CreationTime(ZERODATETIME), Time(ZERODATETIME), DueTime(ZERODATETIME), InterchangeOpID(0), SvcOpID(0),
+PPStyloQInterchange::Document::Document() : ID(0), CreationTime(ZERODATETIME), Time(ZERODATETIME), DueTime(ZERODATETIME), InterchangeOpID(0), SvcOpType(0), SvcOpID(0),
 	ClientID(0), DlvrLocID(0), AgentID(0), QuotKindID(0), PosNodeID(0), StatusSurrId(0), Amount(0.0)
 {
 }
@@ -3596,6 +3596,7 @@ PPStyloQInterchange::Document & PPStyloQInterchange::Document::Z()
 	DueTime.Z();
 	CreationGeoLoc.Z(); // @v11.6.2
 	InterchangeOpID = 0;
+	SvcOpType = 0; // @v11.7.2
 	SvcOpID = 0;
 	ClientID = 0;
 	DlvrLocID = 0;
@@ -3656,6 +3657,7 @@ SJson * PPStyloQInterchange::Document::ToJsonObject() const
 		p_result->InsertDouble("cr_lon", CreationGeoLoc.Lon, MKSFMTD(0, 12, NMBF_NOTRAILZ));
 	}
 	// } @v11.6.2 
+	p_result->InsertIntNz("svcoptype", SvcOpType); // @v11.7.2
 	p_result->InsertIntNz("svcopid", SvcOpID);
 	p_result->InsertIntNz("icopid", InterchangeOpID);
 	p_result->InsertIntNz("posnodeid", PosNodeID); // @v11.4.6
@@ -3872,6 +3874,9 @@ int PPStyloQInterchange::Document::FromJsonObject(const SJson * pJsObj)
 			}
 			else if(p_cur->Text.IsEqiAscii("icopid")) {
 				InterchangeOpID = p_cur->P_Child->Text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("svcoptype")) { // @v11.7.2
+				SvcOpType = p_cur->P_Child->Text.ToLong();
 			}
 			else if(p_cur->Text.IsEqiAscii("svcopid")) {
 				SvcOpID = p_cur->P_Child->Text.ToLong();
@@ -9009,16 +9014,11 @@ private:
 	{
 		const PPID op_id = getCtrlLong(CTLSEL_STQINLPARAM_OP);
 		const PPID op_type_id = GetOpType(op_id);
-		// StyloQIncomingListParam::actionDocAcceptance
-		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 1, !oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSRECEIPT));
-		// StyloQIncomingListParam::actionDocAcceptanceMarks
-		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 2, !oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSRECEIPT));
-		// StyloQIncomingListParam::actionDocSettingMarks
-		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 3, !oneof2(op_type_id, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND));
-		// StyloQIncomingListParam::actionDocInventory
-		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 4, (op_type_id != PPOPT_INVENTORY));
-		//StyloQIncomingListParam::actionGoodsItemCorrection
-		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 5, (op_type_id != PPOPT_GOODSORDER));
+		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 1, !oneof4(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND)); // StyloQIncomingListParam::actionDocAcceptance
+		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 2, !oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSRECEIPT)); // StyloQIncomingListParam::actionDocAcceptanceMarks
+		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 3, !oneof2(op_type_id, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND)); // StyloQIncomingListParam::actionDocSettingMarks
+		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 4, (op_type_id != PPOPT_INVENTORY)); // StyloQIncomingListParam::actionDocInventory
+		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 5, (op_type_id != PPOPT_GOODSORDER)); //StyloQIncomingListParam::actionGoodsItemCorrection
 	}
 };
 
@@ -9102,6 +9102,7 @@ int PPStyloQInterchange::Document::FromCCheckPacket(const CCheckPacket & rS, PPI
 	Code.Cat(rS.Rec.Code);
 	CreationTime = rS.Ext.CreationDtm;
 	Time.Set(rS.Rec.Dt, rS.Rec.Tm);
+	SvcOpType = 0; // @v11.7.2 Это - не документ. Типа операции нет.
 	SvcOpID = 0; // Это - не документ. Вида операции нет.
 	InterchangeOpID = StyloQCommandList::sqbdtCCheck; // @v11.5.8
 	PosNodeID = posNodeID; // @v11.5.8
@@ -9171,6 +9172,7 @@ int PPStyloQInterchange::Document::FromBillPacket(const PPBillPacket & rS, const
 		CALLPTRMEMB(p_tagitem, GetTimestamp(&CreationTime));
 	}
 	Time.d = rS.Rec.Dt;
+	SvcOpType = rS.OpTypeID; // @v11.7.2
 	SvcOpID = rS.Rec.OpID;
 	AgentID = rS.Ext.AgentID;
 	ClientID = rS.Rec.Object;
@@ -9196,7 +9198,7 @@ int PPStyloQInterchange::Document::FromBillPacket(const PPBillPacket & rS, const
 			if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
 				p_doc_ti->UnitID = goods_rec.UnitID;
 			}
-			p_doc_ti->Set.Qtty = r_inv_item.StockRest;
+			p_doc_ti->Set.Qtty = fabs(r_inv_item.StockRest); // @v11.7.2 fabs
 			p_doc_ti->Set.Price = r_inv_item.StockPrice;
 			CALLPTRMEMB(pGoodsIdList, add(goods_id));
 		}
@@ -9213,7 +9215,7 @@ int PPStyloQInterchange::Document::FromBillPacket(const PPBillPacket & rS, const
 			if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
 				p_doc_ti->UnitID = goods_rec.UnitID;
 			}
-			p_doc_ti->Set.Qtty = r_ti.Qtty();
+			p_doc_ti->Set.Qtty = fabs(r_ti.Qtty()); // @v11.7.2 fabs
 			p_doc_ti->Set.Price = r_ti.Price;
 			p_doc_ti->Set.Discount = r_ti.Discount;
 			if(true/*param.ActionFlags & (StyloQIncomingListParam::actionDocSettingMarks|StyloQIncomingListParam::actionDocAcceptanceMarks)*/) {

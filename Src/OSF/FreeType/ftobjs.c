@@ -4112,17 +4112,14 @@ static void Destroy_Module(FT_Module module)
 
 /* documentation is in ftmodapi.h */
 
-FT_EXPORT_DEF(FT_Error)
-FT_Add_Module(FT_Library library,
-    const FT_Module_Class*  clazz)
+FT_EXPORT_DEF(FT_Error) FT_Add_Module(FT_Library library, const FT_Module_Class*  clazz)
 {
 	FT_Error error;
 	FT_Memory memory;
 	FT_Module module = NULL;
 	FT_UInt nn;
 
-#define FREETYPE_VER_FIXED  (((FT_Long)FREETYPE_MAJOR << 16 ) | \
-	FREETYPE_MINOR                  )
+#define FREETYPE_VER_FIXED  (((FT_Long)FREETYPE_MAJOR << 16 ) | FREETYPE_MINOR)
 
 	if(!library)
 		return FT_THROW(Invalid_Library_Handle);

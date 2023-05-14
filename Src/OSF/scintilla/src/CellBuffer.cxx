@@ -123,8 +123,7 @@ UndoHistory::UndoHistory() : lenActions(100), maxAction(0), currentAction(0), un
 
 UndoHistory::~UndoHistory()
 {
-	delete []actions;
-	actions = 0;
+	ZDELETEARRAY(actions);
 }
 
 void UndoHistory::EnsureUndoRoom()
@@ -143,8 +142,7 @@ void UndoHistory::EnsureUndoRoom()
 	}
 }
 
-const char * UndoHistory::AppendAction(Action::actionType at, int position, const char * data, int lengthData,
-    bool &startSequence, bool mayCoalesce)
+const char * UndoHistory::AppendAction(Action::actionType at, int position, const char * data, int lengthData, bool &startSequence, bool mayCoalesce)
 {
 	EnsureUndoRoom();
 	//Platform::DebugPrintf("%% %d action %d %d %d\n", at, position, lengthData, currentAction);
@@ -399,20 +397,9 @@ void Document::CellBuffer::GetStyleRange(uchar * buffer, int position, int lengt
 	}
 }
 
-const char * Document::CellBuffer::BufferPointer()
-{
-	return substance.BufferPointer();
-}
-
-const char * Document::CellBuffer::RangePointer(int position, int rangeLength)
-{
-	return substance.RangePointer(position, rangeLength);
-}
-
-int Document::CellBuffer::GapPosition() const
-{
-	return substance.GapPosition();
-}
+const char * Document::CellBuffer::BufferPointer() { return substance.BufferPointer(); }
+const char * Document::CellBuffer::RangePointer(int position, int rangeLength) { return substance.RangePointer(position, rangeLength); }
+int Document::CellBuffer::GapPosition() const { return substance.GapPosition(); }
 
 // The char * returned is to an allocation owned by the undo history
 const char * Document::CellBuffer::InsertString(int position, const char * s, int insertLength, bool &startSequence)
@@ -510,16 +497,7 @@ bool Document::CellBuffer::ContainsLineEnd(const char * s, int length) const
 	return false;
 }
 
-int Document::CellBuffer::LineStart(int line) const
-{
-	if(line < 0)
-		return 0;
-	else if(line >= Lines())
-		return Length();
-	else
-		return lv.LineStart(line);
-}
-
+int    Document::CellBuffer::LineStart(int line) const { return (line < 0) ? 0 : ((line >= Lines()) ? Length() : lv.LineStart(line)); }
 int    Document::CellBuffer::Length() const { return substance.Length(); }
 void   Document::CellBuffer::SetPerLine(PerLine * pl) { lv.SetPerLine(pl); }
 int    Document::CellBuffer::Lines() const { return lv.Lines(); }

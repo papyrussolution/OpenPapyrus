@@ -191,10 +191,11 @@ char* numbers_internal::FastIntToBuffer(int32_t i, char* buffer) {
 	return numbers_internal::FastIntToBuffer(u, buffer);
 }
 
-char* numbers_internal::FastIntToBuffer(uint64_t i, char* buffer) {
+char* numbers_internal::FastIntToBuffer(uint64_t i, char* buffer) 
+{
 	uint32_t u32 = static_cast<uint32_t>(i);
-	if(u32 == i) return numbers_internal::FastIntToBuffer(u32, buffer);
-
+	if(u32 == i) 
+		return numbers_internal::FastIntToBuffer(u32, buffer);
 	// Here we know i has at least 10 decimal digits.
 	uint64_t top_1to11 = i / 1000000000;
 	u32 = static_cast<uint32_t>(i - top_1to11 * 1000000000);
@@ -211,7 +212,6 @@ char* numbers_internal::FastIntToBuffer(uint64_t i, char* buffer) {
 		PutTwoDigits(mid_2, buffer);
 		buffer += 2;
 	}
-
 	// We have only 9 digits now, again the maximum uint32_t can handle fully.
 	uint32_t digits = u32 / 10000000; // 10,000,000
 	u32 -= digits * 10000000;

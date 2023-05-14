@@ -21,7 +21,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_tar.c 201161
 #include "archive_entry_locale.h"
 #include "archive_read_private.h"
 
-#define tar_min(a, b) ((a) < (b) ? (a) : (b))
+//#define tar_min(a, b) ((a) < (b) ? (a) : (b))
 
 /*
  * Layout of POSIX 'ustar' tar header.
@@ -167,14 +167,78 @@ static void     pax_time(const char *, int64 * sec, long * nanos);
 static ssize_t  readline(ArchiveRead *, struct tar *, const char **, ssize_t limit, size_t *);
 static int read_body_to_string(ArchiveRead *, struct tar *, archive_string *, const void * h, size_t *);
 static int solaris_sparse_parse(ArchiveRead *, struct tar *, ArchiveEntry *, const char *);
-static int64  tar_atol(const char *, size_t);
-static int64  tar_atol10(const char *, size_t);
 static int64  tar_atol256(const char *, size_t);
-static int64  tar_atol8(const char *, size_t);
-static int tar_read_header(ArchiveRead *, struct tar *, ArchiveEntry *, size_t *);
-static int tohex(int c);
-static char     * url_decode(const char *);
-static void     tar_flush_unconsumed(ArchiveRead *, size_t *);
+static int    tar_read_header(ArchiveRead *, struct tar *, ArchiveEntry *, size_t *);
+static int    tohex(int c);
+static char * url_decode(const char *);
+static void   tar_flush_unconsumed(ArchiveRead *, size_t *);
+// 
+// Note that this implementation does not (and should not!) obey
+// locale settings; you cannot simply substitute strtol here, since
+// it does obey locale.
+// 
+static int64 tar_atol_base_n(const char * p, size_t char_cnt, int base)
+{
+	int64 l;
+	int digit, sign;
+	int64 maxval = INT64_MAX;
+	int64 limit = INT64_MAX / base;
+	int64 last_digit_limit = INT64_MAX % base;
+	/* the pointer will not be dereferenced if char_cnt is zero
+	 * due to the way the && operator is evaluated.
+	 */
+	while(char_cnt != 0 && (*p == ' ' || *p == '\t')) {
+		p++;
+		char_cnt--;
+	}
+	sign = 1;
+	if(char_cnt != 0 && *p == '-') {
+		sign = -1;
+		p++;
+		char_cnt--;
+		maxval = INT64_MIN;
+		limit = -(INT64_MIN / base);
+		last_digit_limit = INT64_MIN % base;
+	}
+	l = 0;
+	if(char_cnt != 0) {
+		digit = *p - '0';
+		while(digit >= 0 && digit < base  && char_cnt != 0) {
+			if(l>limit || (l == limit && digit > last_digit_limit)) {
+				return maxval; /* Truncate on overflow. */
+			}
+			l = (l * base) + digit;
+			digit = *++p - '0';
+			char_cnt--;
+		}
+	}
+	return (sign < 0) ? -l : l;
+}
+
+static int64 tar_atol8(const char * p, size_t char_cnt) { return tar_atol_base_n(p, char_cnt, 8); }
+static int64 tar_atol10(const char * p, size_t char_cnt) { return tar_atol_base_n(p, char_cnt, 10); }
+/*-
+ * Convert text->integer.
+ *
+ * Traditional tar formats (including POSIX) specify base-8 for
+ * all of the standard numeric fields.  This is a significant limitation
+ * in practice:
+ *   = file size is limited to 8GB
+ *   = rdevmajor and rdevminor are limited to 21 bits
+ *   = uid/gid are limited to 21 bits
+ *
+ * There are two workarounds for this:
+ *   = pax extended headers, which use variable-length string fields
+ *   = GNU tar and STAR both allow either base-8 or base-256 in
+ *      most fields.  The high bit is set to indicate base-256.
+ *
+ * On read, this implementation supports both extensions.
+ */
+static int64 tar_atol(const char * p, size_t char_cnt)
+{
+	// Technically, GNU tar considers a field to be in base-256 only if the first byte is 0xff or 0x80.
+	return (*p & 0x80) ? tar_atol256(p, char_cnt) : tar_atol8(p, char_cnt);
+}
 
 int archive_read_support_format_gnutar(Archive * a)
 {
@@ -301,25 +365,18 @@ static int archive_read_format_tar_bid(ArchiveRead * a, int best_bid)
 	if(!checksum(a, h))
 		return 0;
 	bid += 48; /* Checksum is usually 6 octal digits. */
-
 	header = (const struct archive_entry_header_ustar *)h;
-
 	/* Recognize POSIX formats. */
-	if((memcmp(header->magic, "ustar\0", 6) == 0)
-	    && (memcmp(header->version, "00", 2) == 0))
+	if((memcmp(header->magic, "ustar\0", 6) == 0) && (memcmp(header->version, "00", 2) == 0))
 		bid += 56;
-
 	/* Recognize GNU tar format. */
 	if((memcmp(header->magic, "ustar ", 6) == 0) && (memcmp(header->version, " \0", 2) == 0))
 		bid += 56;
 	/* Type flag must be null, digit or A-Z, a-z. */
-	if(header->typeflag[0] != 0 &&
-	    !( header->typeflag[0] >= '0' && header->typeflag[0] <= '9') &&
-	    !( header->typeflag[0] >= 'A' && header->typeflag[0] <= 'Z') &&
-	    !( header->typeflag[0] >= 'a' && header->typeflag[0] <= 'z') )
+	if(header->typeflag[0] != 0 && !( header->typeflag[0] >= '0' && header->typeflag[0] <= '9') &&
+	    !( header->typeflag[0] >= 'A' && header->typeflag[0] <= 'Z') && !( header->typeflag[0] >= 'a' && header->typeflag[0] <= 'z'))
 		return 0;
 	bid += 2; /* 6 bits of variation in an 8-bit field leaves 2 bits. */
-
 	/*
 	 * Check format of mode/uid/gid/mtime/size/rdevmajor/rdevminor fields.
 	 */
@@ -980,8 +1037,7 @@ static int header_common(ArchiveRead * a, struct tar * tar, ArchiveEntry * entry
 		archive_string_empty(&(tar->entry_linkpath));
 
 	/* Parse out the numeric fields (all are octal) */
-	archive_entry_set_mode(entry,
-	    (mode_t)tar_atol(header->mode, sizeof(header->mode)));
+	archive_entry_set_mode(entry, (mode_t)tar_atol(header->mode, sizeof(header->mode)));
 	archive_entry_set_uid(entry, tar_atol(header->uid, sizeof(header->uid)));
 	archive_entry_set_gid(entry, tar_atol(header->gid, sizeof(header->gid)));
 	tar->entry_bytes_remaining = tar_atol(header->size, sizeof(header->size));
@@ -1573,16 +1629,12 @@ static int pax_attribute_acl(ArchiveRead * a, struct tar * tar, ArchiveEntry * e
  * Investigate other vendor-specific extensions and see if
  * any of them look useful.
  */
-static int pax_attribute(ArchiveRead * a, struct tar * tar,
-    ArchiveEntry * entry, const char * key, const char * value, size_t value_length)
+static int pax_attribute(ArchiveRead * a, struct tar * tar, ArchiveEntry * entry, const char * key, const char * value, size_t value_length)
 {
 	int64 s;
 	long n;
 	int err = ARCHIVE_OK, r;
-
-	if(value == NULL)
-		value = ""; /* Disable compiler warning; do not pass
-	                         * NULL pointer to strlen().  */
+	SETIFZQ(value, ""); // Disable compiler warning; do not pass NULL pointer to strlen()
 	switch(key[0]) {
 		case 'G':
 		    /* Reject GNU.sparse.* headers on non-regular files. */
@@ -1600,9 +1652,7 @@ static int pax_attribute(ArchiveRead * a, struct tar * tar,
 		    if(sstreq(key, "GNU.sparse.offset")) {
 			    tar->sparse_offset = tar_atol10(value, strlen(value));
 			    if(tar->sparse_numbytes != -1) {
-				    if(gnu_add_sparse_entry(a, tar,
-					tar->sparse_offset, tar->sparse_numbytes)
-					!= ARCHIVE_OK)
+				    if(gnu_add_sparse_entry(a, tar, tar->sparse_offset, tar->sparse_numbytes) != ARCHIVE_OK)
 					    return ARCHIVE_FATAL;
 				    tar->sparse_offset = -1;
 				    tar->sparse_numbytes = -1;
@@ -1611,9 +1661,7 @@ static int pax_attribute(ArchiveRead * a, struct tar * tar,
 		    if(sstreq(key, "GNU.sparse.numbytes")) {
 			    tar->sparse_numbytes = tar_atol10(value, strlen(value));
 			    if(tar->sparse_numbytes != -1) {
-				    if(gnu_add_sparse_entry(a, tar,
-					tar->sparse_offset, tar->sparse_numbytes)
-					!= ARCHIVE_OK)
+				    if(gnu_add_sparse_entry(a, tar, tar->sparse_offset, tar->sparse_numbytes) != ARCHIVE_OK)
 					    return ARCHIVE_FATAL;
 				    tar->sparse_offset = -1;
 				    tar->sparse_numbytes = -1;
@@ -1723,8 +1771,7 @@ static int pax_attribute(ArchiveRead * a, struct tar * tar,
 				tar_atol10(value, strlen(value)));
 		    }
 		    else if(sstreq(key, "SCHILY.nlink")) {
-			    archive_entry_set_nlink(entry, (uint)
-				tar_atol10(value, strlen(value)));
+			    archive_entry_set_nlink(entry, (uint)tar_atol10(value, strlen(value)));
 		    }
 		    else if(sstreq(key, "SCHILY.realsize")) {
 			    tar->realsize = tar_atol10(value, strlen(value));
@@ -1732,8 +1779,7 @@ static int pax_attribute(ArchiveRead * a, struct tar * tar,
 			    archive_entry_set_size(entry, tar->realsize);
 		    }
 		    else if(strncmp(key, "SCHILY.xattr.", 13) == 0) {
-			    pax_attribute_schily_xattr(entry, key, value,
-				value_length);
+			    pax_attribute_schily_xattr(entry, key, value, value_length);
 		    }
 		    else if(sstreq(key, "SUN.holesdata")) {
 			    /* A Solaris extension for sparse. */
@@ -1822,8 +1868,7 @@ static int pax_attribute(ArchiveRead * a, struct tar * tar,
 		    break;
 		case 'u':
 		    if(sstreq(key, "uid")) {
-			    archive_entry_set_uid(entry,
-				tar_atol10(value, strlen(value)));
+			    archive_entry_set_uid(entry, tar_atol10(value, strlen(value)));
 		    }
 		    else if(sstreq(key, "uname")) {
 			    archive_strcpy(&(tar->entry_uname), value);
@@ -1838,14 +1883,11 @@ static int pax_attribute(ArchiveRead * a, struct tar * tar,
 static void pax_time(const char * p, int64 * ps, long * pn)
 {
 	char digit;
-	int64 s;
 	ulong l;
-	int sign;
-	int64 limit, last_digit_limit;
-	limit = INT64_MAX / 10;
-	last_digit_limit = INT64_MAX % 10;
-	s = 0;
-	sign = 1;
+	int64 limit = INT64_MAX / 10;
+	int64 last_digit_limit = INT64_MAX % 10;
+	int64 s = 0;
+	int sign = 1;
 	if(*p == '-') {
 		sign = -1;
 		p++;
@@ -1860,15 +1902,11 @@ static void pax_time(const char * p, int64 * ps, long * pn)
 		s = (s * 10) + digit;
 		++p;
 	}
-
 	*ps = s * sign;
-
 	/* Calculate nanoseconds. */
 	*pn = 0;
-
 	if(*p != '.')
 		return;
-
 	l = 100000000UL;
 	do {
 		++p;
@@ -1929,16 +1967,12 @@ static int header_gnutar(ArchiveRead * a, struct tar * tar,
 
 	/* Parse out device numbers only for char and block specials */
 	if(header->typeflag[0] == '3' || header->typeflag[0] == '4') {
-		archive_entry_set_rdevmajor(entry, (dev_t)
-		    tar_atol(header->rdevmajor, sizeof(header->rdevmajor)));
-		archive_entry_set_rdevminor(entry, (dev_t)
-		    tar_atol(header->rdevminor, sizeof(header->rdevminor)));
+		archive_entry_set_rdevmajor(entry, (dev_t)tar_atol(header->rdevmajor, sizeof(header->rdevmajor)));
+		archive_entry_set_rdevminor(entry, (dev_t)tar_atol(header->rdevminor, sizeof(header->rdevminor)));
 	}
 	else
 		archive_entry_set_rdev(entry, 0);
-
 	tar->entry_padding = 0x1ff & (-tar->entry_bytes_remaining);
-
 	/* Grab GNU-specific fields. */
 	t = tar_atol(header->atime, sizeof(header->atime));
 	if(t > 0)
@@ -1946,17 +1980,14 @@ static int header_gnutar(ArchiveRead * a, struct tar * tar,
 	t = tar_atol(header->ctime, sizeof(header->ctime));
 	if(t > 0)
 		archive_entry_set_ctime(entry, t, 0);
-
 	if(header->realsize[0] != 0) {
-		tar->realsize
-			= tar_atol(header->realsize, sizeof(header->realsize));
+		tar->realsize = tar_atol(header->realsize, sizeof(header->realsize));
 		archive_entry_set_size(entry, tar->realsize);
 		tar->realsize_override = 1;
 	}
 
 	if(header->sparse[0].offset[0] != 0) {
-		if(gnu_sparse_old_read(a, tar, header, unconsumed)
-		    != ARCHIVE_OK)
+		if(gnu_sparse_old_read(a, tar, header, unconsumed) != ARCHIVE_OK)
 			return ARCHIVE_FATAL;
 	}
 	else {
@@ -1991,9 +2022,8 @@ static int gnu_add_sparse_entry(ArchiveRead * a, struct tar * tar, int64 offset,
 
 static void gnu_clear_sparse_list(struct tar * tar)
 {
-	struct sparse_block * p;
 	while(tar->sparse_list) {
-		p = tar->sparse_list;
+		struct sparse_block * p = tar->sparse_list;
 		tar->sparse_list = p->next;
 		SAlloc::F(p);
 	}
@@ -2088,11 +2118,10 @@ static int gnu_sparse_old_parse(ArchiveRead * a, struct tar * tar, const struct 
 
 static int gnu_sparse_01_parse(ArchiveRead * a, struct tar * tar, const char * p)
 {
-	const char * e;
-	int64 offset = -1, size = -1;
-
+	int64 offset = -1;
+	int64 size = -1;
 	for(;;) {
-		e = p;
+		const char * e = p;
 		while(*e != '\0' && *e != ',') {
 			if(*e < '0' || *e > '9')
 				return ARCHIVE_WARN;
@@ -2155,7 +2184,7 @@ static int64 gnu_sparse_10_atol(ArchiveRead * a, struct tar * tar, int64 * remai
 	 * don't require this, but they should.
 	 */
 	do {
-		bytes_read = readline(a, tar, &p, (ssize_t)tar_min(*remaining, 100), unconsumed);
+		bytes_read = readline(a, tar, &p, (ssize_t)MIN(*remaining, 100), unconsumed);
 		if(bytes_read <= 0)
 			return ARCHIVE_FATAL;
 		*remaining -= bytes_read;
@@ -2229,15 +2258,12 @@ static ssize_t gnu_sparse_10_read(ArchiveRead * a, struct tar * tar, size_t * un
  * pax simply indicates where data and sparse are, so the stored contents
  * consist of both data and hole.
  */
-static int solaris_sparse_parse(ArchiveRead * a, struct tar * tar,
-    ArchiveEntry * entry, const char * p)
+static int solaris_sparse_parse(ArchiveRead * a, struct tar * tar, ArchiveEntry * entry, const char * p)
 {
 	const char * e;
 	int64 start, end;
 	int hole = 1;
-
 	CXX_UNUSED(entry);
-
 	end = 0;
 	if(*p == ' ')
 		p++;
@@ -2266,91 +2292,6 @@ static int solaris_sparse_parse(ArchiveRead * a, struct tar * tar,
 		hole = hole == 0;
 	}
 }
-
-/*-
- * Convert text->integer.
- *
- * Traditional tar formats (including POSIX) specify base-8 for
- * all of the standard numeric fields.  This is a significant limitation
- * in practice:
- *   = file size is limited to 8GB
- *   = rdevmajor and rdevminor are limited to 21 bits
- *   = uid/gid are limited to 21 bits
- *
- * There are two workarounds for this:
- *   = pax extended headers, which use variable-length string fields
- *   = GNU tar and STAR both allow either base-8 or base-256 in
- *      most fields.  The high bit is set to indicate base-256.
- *
- * On read, this implementation supports both extensions.
- */
-static int64 tar_atol(const char * p, size_t char_cnt)
-{
-	/*
-	 * Technically, GNU tar considers a field to be in base-256
-	 * only if the first byte is 0xff or 0x80.
-	 */
-	if(*p & 0x80)
-		return (tar_atol256(p, char_cnt));
-	return (tar_atol8(p, char_cnt));
-}
-
-/*
- * Note that this implementation does not (and should not!) obey
- * locale settings; you cannot simply substitute strtol here, since
- * it does obey locale.
- */
-static int64 tar_atol_base_n(const char * p, size_t char_cnt, int base)
-{
-	int64 l, maxval, limit, last_digit_limit;
-	int digit, sign;
-	maxval = INT64_MAX;
-	limit = INT64_MAX / base;
-	last_digit_limit = INT64_MAX % base;
-	/* the pointer will not be dereferenced if char_cnt is zero
-	 * due to the way the && operator is evaluated.
-	 */
-	while(char_cnt != 0 && (*p == ' ' || *p == '\t')) {
-		p++;
-		char_cnt--;
-	}
-
-	sign = 1;
-	if(char_cnt != 0 && *p == '-') {
-		sign = -1;
-		p++;
-		char_cnt--;
-
-		maxval = INT64_MIN;
-		limit = -(INT64_MIN / base);
-		last_digit_limit = INT64_MIN % base;
-	}
-
-	l = 0;
-	if(char_cnt != 0) {
-		digit = *p - '0';
-		while(digit >= 0 && digit < base  && char_cnt != 0) {
-			if(l>limit || (l == limit && digit > last_digit_limit)) {
-				return maxval; /* Truncate on overflow. */
-			}
-			l = (l * base) + digit;
-			digit = *++p - '0';
-			char_cnt--;
-		}
-	}
-	return (sign < 0) ? -l : l;
-}
-
-static int64 tar_atol8(const char * p, size_t char_cnt)
-{
-	return tar_atol_base_n(p, char_cnt, 8);
-}
-
-static int64 tar_atol10(const char * p, size_t char_cnt)
-{
-	return tar_atol_base_n(p, char_cnt, 10);
-}
-
 /*
  * Parse a base-256 integer.  This is just a variable-length
  * twos-complement signed binary value in big-endian order, except
@@ -2365,9 +2306,9 @@ static int64 tar_atol256(const char * _p, size_t char_cnt)
 {
 	uint64 l;
 	const uchar * p = (const uchar *)_p;
-	uchar c, neg;
+	uchar neg;
 	/* Extend 7-bit 2s-comp to 8-bit 2s-comp, decide sign. */
-	c = *p;
+	uchar c = *p;
 	if(c & 0x40) {
 		neg = 0xff;
 		c |= 0x80;
@@ -2386,12 +2327,10 @@ static int64 tar_atol256(const char * _p, size_t char_cnt)
 			return neg ? INT64_MIN : INT64_MAX;
 		c = *++p;
 	}
-
 	/* c is first byte that fits; if sign mismatch, return overflow */
 	if((c ^ neg) & 0x80) {
 		return neg ? INT64_MIN : INT64_MAX;
 	}
-
 	/* Accumulate remaining bytes. */
 	while(--char_cnt > 0) {
 		l = (l << 8) | c;

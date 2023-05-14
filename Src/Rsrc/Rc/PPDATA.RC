@@ -1008,7 +1008,7 @@ ROD_QUOTKIND PP_RCDATA {
 // {ID, Name, Symb, ObjType, DataType}
 //
 ROD_TAG PP_RCDATA {
-	97,
+	98,
 	 1, "@{rtag_lotclb}\0",                   "LOTCLB\0",             "LOT\0",        "STRING\0" // @v9.8.11
 	 2, "@{rtag_lotserial}\0",                "LOTSERIAL\0",          "LOT\0",        "STRING\0" // @v9.8.11
 	 4, "@{rtag_posrights}\0",                "POSRIGHTS\0",          "PERSON\0",     "STRING\0"
@@ -1106,6 +1106,7 @@ ROD_TAG PP_RCDATA {
 	103, "@{rtag_tsess_outercode}\0",         "TSESSOUTERCODE\0",     "TSESSION\0",   "STRING\0" // @v11.6.6
 	104, "@{rtag_person_transportto}\0",      "TRANSPORTTO\0",        "PERSON\0",     "LINK:TRANSPORT\0" // @v11.6.9
 	105, "@{rtag_lotacceptance}\0",           "ACCEPTANCE\0",         "LOT\0",        "STRING\0" // @v11.7.0
+	106, "@{rtag_prcuuid}\0",                 "PRCUUID\0",            "PROCESSOR\0",  "UUID\0"   // @v11.7.2
 	//#define PPTAG_LOC_VETIS_REGIONGUID  99L // @v11.0.10 ВЕТИС-идент региона локации (склад или адрес доставки) // в терминах ВЕТИС - region GUID (не UUID)
 	// 40, "ФСРАР код товара\0",             "FSRARGOODSCODE\0",    "GOODS\0",      "STRING\0"
 	// @postponed 80, "@{rtag_locvetisentityguid}\0",       "LOCVETISENTITYGUID\0", "LOCATION\0",   "UUID\0"

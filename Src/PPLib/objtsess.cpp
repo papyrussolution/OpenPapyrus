@@ -448,7 +448,7 @@ void TSessionPacket::destroy()
 	CiList.Init(PPCheckInPersonItem::kTSession, 0);
 	Lines.clear();
 	TagL.Destroy();
-	Ext.destroy();
+	Ext.Z();
 	// SMemo.Z(); // @v11.0.4
 }
 //

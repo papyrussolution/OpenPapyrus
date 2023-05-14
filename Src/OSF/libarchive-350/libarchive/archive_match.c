@@ -693,8 +693,7 @@ static int match_list_unmatched_inclusions_next(struct archive_match * a, struct
 			r = archive_mstring_get_mbs(&(a->archive), &(m->pattern), &p);
 			if(r < 0 && errno == ENOMEM)
 				return (error_nomem(a));
-			if(!p)
-				p = "";
+			SETIFZQ(p, "");
 			*vp = p;
 		}
 		else {
@@ -702,8 +701,7 @@ static int match_list_unmatched_inclusions_next(struct archive_match * a, struct
 			r = archive_mstring_get_wcs(&(a->archive), &(m->pattern), &p);
 			if(r < 0 && errno == ENOMEM)
 				return (error_nomem(a));
-			if(!p)
-				p = L"";
+			SETIFZQ(p, L"");
 			*vp = p;
 		}
 		list->unmatched_next = m->next;

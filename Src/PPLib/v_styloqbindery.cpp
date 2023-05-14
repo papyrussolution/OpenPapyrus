@@ -1093,9 +1093,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 					}
 					break;
 				case StyloQCommandList::sqbcRsrvAttendancePrereq: // @v11.3.3
-					{
-						enable_cmd_param = true;
-					}
+					enable_cmd_param = true;
 					break;
 				case StyloQCommandList::sqbcRsrvPushIndexContent: // @v11.3.4
 					enable_cmd_param = true;
@@ -1121,41 +1119,31 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 					}
 					break;
 				case StyloQCommandList::sqbcGoodsInfo: // @v11.4.4
-					{
-						enable_cmd_param = true;
-						enable_viewcmd = false;
-						enable_viewcombo = false;
-					}
+					enable_cmd_param = true;
+					enable_viewcmd = false;
+					enable_viewcombo = false;
 					break;
 				case StyloQCommandList::sqbcLocalBarcodeSearch: // @v11.4.5
 					break;
 				case StyloQCommandList::sqbcIncomingListOrder: // @v11.4.6
-					{
-						enable_cmd_param = true;
-						enable_viewcmd = false;
-						enable_viewcombo = false;
-					}
+					enable_cmd_param = true;
+					enable_viewcmd = false;
+					enable_viewcombo = false;
 					break;
 				case StyloQCommandList::sqbcIncomingListCCheck: // @v11.4.7
-					{
-						enable_cmd_param = true;
-						enable_viewcmd = false;
-						enable_viewcombo = false;
-					}
+					enable_cmd_param = true;
+					enable_viewcmd = false;
+					enable_viewcombo = false;
 					break;
 				case StyloQCommandList::sqbcIncomingListTSess: // @v11.4.7
-					{
-						enable_cmd_param = true;
-						enable_viewcmd = false;
-						enable_viewcombo = false;
-					}
+					enable_cmd_param = true;
+					enable_viewcmd = false;
+					enable_viewcombo = false;
 					break;
 				case StyloQCommandList::sqbcIncomingListTodo: // @v11.4.7
-					{
-						enable_cmd_param = true;
-						enable_viewcmd = false;
-						enable_viewcombo = false;
-					}
+					enable_cmd_param = true;
+					enable_viewcmd = false;
+					enable_viewcombo = false;
 					break;
 				case StyloQCommandList::sqbcDebtList: // @v11.5.4 // @todo
 					break;

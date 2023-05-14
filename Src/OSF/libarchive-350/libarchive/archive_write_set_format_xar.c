@@ -1893,14 +1893,11 @@ static int file_tree(struct archive_write * a, struct file ** filepp)
 	struct xar * xar = (struct xar *)a->format_data;
 	struct file * np;
 	ArchiveEntry * ent;
-	const char * fn, * p;
 	int l;
 	struct file * file = *filepp;
 	struct file * dent = xar->root;
-	if(file->parentdir.length > 0)
-		fn = p = file->parentdir.s;
-	else
-		fn = p = "";
+	const char * fn = (file->parentdir.length > 0) ? file->parentdir.s : "";
+	const char * p = fn;
 	/*
 	 * If the path of the parent directory of `file' entry is
 	 * the same as the path of `cur_dirent', add isoent to

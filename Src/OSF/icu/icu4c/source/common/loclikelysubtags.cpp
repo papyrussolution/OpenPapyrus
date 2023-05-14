@@ -349,42 +349,32 @@ const char * getCanonical(const CharStringMap &aliases, const char * alias) {
 }
 }  // namespace
 
-LSR XLikelySubtags::makeMaximizedLsr(const char * language, const char * script, const char * region,
-    const char * variant, UErrorCode & errorCode) const {
+LSR XLikelySubtags::makeMaximizedLsr(const char * language, const char * script, const char * region, const char * variant, UErrorCode & errorCode) const 
+{
 	// Handle pseudolocales like en-XA, ar-XB, fr-PSCRACK.
 	// They should match only themselves,
 	// not other locales with what looks like the same language and script subtags.
 	char c1;
 	if(region[0] == 'X' && (c1 = region[1]) != 0 && region[2] == 0) {
 		switch(c1) {
-			case 'A':
-			    return LSR(PSEUDO_ACCENTS_PREFIX, language, script, region,
-				       LSR::EXPLICIT_LSR, errorCode);
-			case 'B':
-			    return LSR(PSEUDO_BIDI_PREFIX, language, script, region,
-				       LSR::EXPLICIT_LSR, errorCode);
-			case 'C':
-			    return LSR(PSEUDO_CRACKED_PREFIX, language, script, region,
-				       LSR::EXPLICIT_LSR, errorCode);
+			case 'A': return LSR(PSEUDO_ACCENTS_PREFIX, language, script, region, LSR::EXPLICIT_LSR, errorCode);
+			case 'B': return LSR(PSEUDO_BIDI_PREFIX, language, script, region, LSR::EXPLICIT_LSR, errorCode);
+			case 'C': return LSR(PSEUDO_CRACKED_PREFIX, language, script, region, LSR::EXPLICIT_LSR, errorCode);
 			default: // normal locale
 			    break;
 		}
 	}
-
 	if(variant[0] == 'P' && variant[1] == 'S') {
 		int32_t lsrFlags = *region == 0 ?
 		    LSR::EXPLICIT_LANGUAGE | LSR::EXPLICIT_SCRIPT : LSR::EXPLICIT_LSR;
-		if(strcmp(variant, "PSACCENT") == 0) {
-			return LSR(PSEUDO_ACCENTS_PREFIX, language, script,
-				   *region == 0 ? "XA" : region, lsrFlags, errorCode);
+		if(sstreq(variant, "PSACCENT")) {
+			return LSR(PSEUDO_ACCENTS_PREFIX, language, script, *region == 0 ? "XA" : region, lsrFlags, errorCode);
 		}
-		else if(strcmp(variant, "PSBIDI") == 0) {
-			return LSR(PSEUDO_BIDI_PREFIX, language, script,
-				   *region == 0 ? "XB" : region, lsrFlags, errorCode);
+		else if(sstreq(variant, "PSBIDI")) {
+			return LSR(PSEUDO_BIDI_PREFIX, language, script, *region == 0 ? "XB" : region, lsrFlags, errorCode);
 		}
-		else if(strcmp(variant, "PSCRACK") == 0) {
-			return LSR(PSEUDO_CRACKED_PREFIX, language, script,
-				   *region == 0 ? "XC" : region, lsrFlags, errorCode);
+		else if(sstreq(variant, "PSCRACK")) {
+			return LSR(PSEUDO_CRACKED_PREFIX, language, script, *region == 0 ? "XC" : region, lsrFlags, errorCode);
 		}
 		// else normal locale
 	}
@@ -395,14 +385,15 @@ LSR XLikelySubtags::makeMaximizedLsr(const char * language, const char * script,
 	return maximize(language, script, region);
 }
 
-LSR XLikelySubtags::maximize(const char * language, const char * script, const char * region) const {
-	if(strcmp(language, "und") == 0) {
+LSR XLikelySubtags::maximize(const char * language, const char * script, const char * region) const 
+{
+	if(sstreq(language, "und")) {
 		language = "";
 	}
-	if(strcmp(script, "Zzzz") == 0) {
+	if(sstreq(script, "Zzzz")) {
 		script = "";
 	}
-	if(strcmp(region, "ZZ") == 0) {
+	if(sstreq(region, "ZZ")) {
 		region = "";
 	}
 	if(*script != 0 && *region != 0 && *language != 0) {
@@ -465,7 +456,6 @@ LSR XLikelySubtags::maximize(const char * language, const char * script, const c
 			}
 		}
 	}
-
 	if(value > 0) {
 		// Final value from just language or language+script.
 		if(*region != 0) {
@@ -496,7 +486,6 @@ LSR XLikelySubtags::maximize(const char * language, const char * script, const c
 	if(*language == 0) {
 		language = "und";
 	}
-
 	if(retainOldMask == 0) {
 		// Quickly return a copy of the lookup-result LSR
 		// without new allocation of the subtags.
@@ -515,7 +504,8 @@ LSR XLikelySubtags::maximize(const char * language, const char * script, const c
 	return LSR(language, script, region, retainOldMask);
 }
 
-int32_t XLikelySubtags::compareLikely(const LSR &lsr, const LSR &other, int32_t likelyInfo) const {
+int32_t XLikelySubtags::compareLikely(const LSR &lsr, const LSR &other, int32_t likelyInfo) const 
+{
 	// If likelyInfo >= 0:
 	// likelyInfo bit 1 is set if the previous comparison with lsr
 	// was for equal language and script.
@@ -533,7 +523,7 @@ int32_t XLikelySubtags::compareLikely(const LSR &lsr, const LSR &other, int32_t 
 			likelyInfo = index << 2;
 		}
 		const LSR &likely = lsrs[index];
-		if(strcmp(lsr.script, likely.script) == 0) {
+		if(sstreq(lsr.script, likely.script)) {
 			return likelyInfo | 1;
 		}
 		else {
@@ -550,7 +540,7 @@ int32_t XLikelySubtags::compareLikely(const LSR &lsr, const LSR &other, int32_t 
 			likelyInfo = (index << 2) | 2;
 		}
 		const LSR &likely = lsrs[index];
-		if(strcmp(lsr.region, likely.region) == 0) {
+		if(sstreq(lsr.region, likely.region)) {
 			return likelyInfo | 1;
 		}
 		else {
@@ -561,14 +551,14 @@ int32_t XLikelySubtags::compareLikely(const LSR &lsr, const LSR &other, int32_t 
 }
 
 // Subset of maximize().
-int32_t XLikelySubtags::getLikelyIndex(const char * language, const char * script) const {
-	if(strcmp(language, "und") == 0) {
+int32_t XLikelySubtags::getLikelyIndex(const char * language, const char * script) const 
+{
+	if(sstreq(language, "und")) {
 		language = "";
 	}
-	if(strcmp(script, "Zzzz") == 0) {
+	if(sstreq(script, "Zzzz")) {
 		script = "";
 	}
-
 	BytesTrie iter(trie);
 	uint64_t state;
 	int32_t value;

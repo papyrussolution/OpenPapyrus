@@ -8441,7 +8441,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_orglineident                        "Оригинальный идентификатор строки документа"
 @rtag_lotfreightpackage                   "Транспортная упаковка"
 @rtag_goodsvetisguid                      "@{brand_vetis} GUID товара"
-@rtag_guaguid                             "GUID глобальной учетной записи"
+@rtag_guaguid                             "UUID глобальной учетной записи"
 @rtag_guaaccesskey                        "Ключ доступа к глобальному сервису"
 @rtag_lotlinkbillrow                      "Связанная строка документа (lot)"
 @rtag_guacertsubjcn                       "CN субъекта сертификата электронной подписи"
@@ -8460,6 +8460,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_tsess_outercode                     "Внешний код технологической сессии" // @v11.6.6
 @rtag_person_transportto                  "Транспорт для доставки клиенту по умолчанию" // @v11.6.9
 @rtag_lotacceptance                       "Результат приемки строки документа" // @v11.7.0
+@rtag_prcuuid                             "UUID процессора" // @v11.7.2
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -18252,6 +18253,8 @@ PPHSC_RU_AMTTAX_AFTER          "СумНалПосле"   // @v11.7.0
 PPHSC_RU_AMTTAX_DIFF           "СумНалРазн"    // @v11.7.0
 PPHSC_RU_AMTTAX_INCR           "СумУвел"       // @v11.7.0
 PPHSC_RU_AMTTAX_DECR           "СумУм"         // @v11.7.0
+PPHSC_RU_VALUETOTAL_INCR       "ВсегоУвел"     // @v11.7.2
+PPHSC_RU_VALUETOTAL_DECR       "ВсегоУм"       // @v11.7.2
 PPHSC_RU_NOVAT_TAG             "БезНДС"
 PPHSC_RU_NOVAT_VAL             "без НДС"
 PPHSC_RU_ADDRESS               "Адрес"

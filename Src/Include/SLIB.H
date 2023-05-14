@@ -7179,6 +7179,8 @@ void   STDCALL  setbit32(void * pBuf, size_t len, size_t pos);
 void   STDCALL  resetbit32(void * pBuf, size_t len, size_t pos);
 int    STDCALL  getbit8(const void * pBuf, size_t len, size_t pos);
 int    STDCALL  getbit32(const void * pBuf, size_t len, size_t pos);
+FORCEINLINE uint   setlowbits32(uint n) { assert(n <= 32); return (n == 32) ? 0xffffffffU : ((1U << n) - 1U); }
+FORCEINLINE uint64 setlowbits64(uint64 n) { assert(n <= 64); return (n == 64) ? 0xffffffffffffffffULL : (1ULL << n) - 1ULL; }
 //
 // Descr: Подсчитывает число установленных бит в двойном слове v
 // See: http://graphics.stanford.edu/~seander/bithacks.html
@@ -12336,6 +12338,7 @@ public:
 	SDecimal();
 	explicit SDecimal(double v);
 	SDecimal(int64 mantissa, int16 exp);
+	bool   FASTCALL IsEq(const SDecimal & rS) const; // @construction
 	double GetReal() const;
 	bool   Normalize();
 	SDecimal & Z();
@@ -12346,7 +12349,7 @@ public:
 	int    Mul(const SDecimal & rA, const SDecimal & rB);
 	int    Div(const SDecimal & rA, const SDecimal & rB);
 
-	uint64 ToUed(uint numBits) const;
+	uint64 ToUed_NonConst(uint numBits);
 	int   FromUed(uint64 ued, uint numBits);
 
 	static int Test();

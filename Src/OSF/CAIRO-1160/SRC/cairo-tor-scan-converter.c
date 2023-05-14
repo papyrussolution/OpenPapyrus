@@ -181,18 +181,17 @@ typedef int grid_scaled_y_t;
  *  You can either define GRID_X/Y_BITS to get a power-of-two scale
  *  or define GRID_X/Y separately. */
 #if !defined(GRID_X) && !defined(GRID_X_BITS)
-#define GRID_X_BITS 8
+	#define GRID_X_BITS 8
 #endif
 #if !defined(GRID_Y) && !defined(GRID_Y_BITS)
-#define GRID_Y 15
+	#define GRID_Y 15
 #endif
-
 /* Use GRID_X/Y_BITS to define GRID_X/Y if they're available. */
 #ifdef GRID_X_BITS
-#define GRID_X (1 << GRID_X_BITS)
+	#define GRID_X (1 << GRID_X_BITS)
 #endif
 #ifdef GRID_Y_BITS
-#define GRID_Y (1 << GRID_Y_BITS)
+	#define GRID_Y (1 << GRID_Y_BITS)
 #endif
 
 /* The GRID_X_TO_INT_FRAC macro splits a grid scaled coordinate into

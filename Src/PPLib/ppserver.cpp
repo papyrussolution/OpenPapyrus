@@ -3281,6 +3281,15 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				}
 			}
 			break;
+		case PPSCMD_WSCTL_INIT: // @construction
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
+			{
+				if(pEv->GetAvailableSize() >= sizeof(S_GUID)) {
+					S_GUID  wsctl_uuid;
+					pEv->Read(&wsctl_uuid, sizeof(wsctl_uuid));
+				}
+			}
+			break;
 		/*
 		case PPSCMD_GETTSESSPLACESTATUS:
 			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);

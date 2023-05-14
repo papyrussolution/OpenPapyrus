@@ -95,11 +95,9 @@ int /*ABSL_ATTRIBUTE_SECTION_VARIABLE(.text)*/ regular_func() {
 // Thread-local data may confuse the symbolizer, ensure that it does not.
 // Variable sizes and order are important.
 #if ABSL_PER_THREAD_TLS
-static ABSL_PER_THREAD_TLS_KEYWORD char symbolize_test_thread_small[1];
-static ABSL_PER_THREAD_TLS_KEYWORD char
-    symbolize_test_thread_big[2 * 1024 * 1024];
+	static ABSL_PER_THREAD_TLS_KEYWORD char symbolize_test_thread_small[1];
+	static ABSL_PER_THREAD_TLS_KEYWORD char symbolize_test_thread_big[2 * 1024 * 1024];
 #endif
-
 #if !defined(__EMSCRIPTEN__)
 // Used below to hopefully inhibit some compiler/linker optimizations
 // that may remove kHpageTextPadding, kPadding0, and kPadding1 from
@@ -108,8 +106,7 @@ static volatile bool volatile_bool = false;
 
 // Force the binary to be large enough that a THP .text remap will succeed.
 static constexpr size_t kHpageSize = 1 << 21;
-const char kHpageTextPadding[kHpageSize * 4] ABSL_ATTRIBUTE_SECTION_VARIABLE(
-	.text) = "";
+const char kHpageTextPadding[kHpageSize * 4] ABSL_ATTRIBUTE_SECTION_VARIABLE(.text) = "";
 #endif  // !defined(__EMSCRIPTEN__)
 
 static char try_symbolize_buffer[4096];
@@ -118,32 +115,24 @@ static char try_symbolize_buffer[4096];
 // limit must be < sizeof(try_symbolize_buffer).  Returns null if
 // absl::Symbolize() returns false, otherwise returns try_symbolize_buffer with
 // the result of absl::Symbolize().
-static const char * TrySymbolizeWithLimit(void * pc, int limit) {
-	ABSL_RAW_CHECK(limit <= sizeof(try_symbolize_buffer),
-	    "try_symbolize_buffer is too small");
-
+static const char * TrySymbolizeWithLimit(void * pc, int limit) 
+{
+	ABSL_RAW_CHECK(limit <= sizeof(try_symbolize_buffer), "try_symbolize_buffer is too small");
 	// Use the heap to facilitate heap and buffer sanitizer tools.
 	auto heap_buffer = absl::make_unique<char[]>(sizeof(try_symbolize_buffer));
 	bool found = absl::Symbolize(pc, heap_buffer.get(), limit);
 	if(found) {
-		ABSL_RAW_CHECK(strnlen(heap_buffer.get(), limit) < limit,
-		    "absl::Symbolize() did not properly terminate the string");
-		strncpy(try_symbolize_buffer, heap_buffer.get(),
-		    sizeof(try_symbolize_buffer) - 1);
+		ABSL_RAW_CHECK(strnlen(heap_buffer.get(), limit) < limit, "absl::Symbolize() did not properly terminate the string");
+		strncpy(try_symbolize_buffer, heap_buffer.get(), sizeof(try_symbolize_buffer) - 1);
 		try_symbolize_buffer[sizeof(try_symbolize_buffer) - 1] = '\0';
 	}
-
 	return found ? try_symbolize_buffer : nullptr;
 }
 
 // A wrapper for TrySymbolizeWithLimit(), with a large limit.
-static const char * TrySymbolize(void * pc) {
-	return TrySymbolizeWithLimit(pc, sizeof(try_symbolize_buffer));
-}
+static const char * TrySymbolize(void * pc) { return TrySymbolizeWithLimit(pc, sizeof(try_symbolize_buffer)); }
 
-#if defined(ABSL_INTERNAL_HAVE_ELF_SYMBOLIZE) ||    \
-	defined(ABSL_INTERNAL_HAVE_DARWIN_SYMBOLIZE) || \
-	defined(ABSL_INTERNAL_HAVE_EMSCRIPTEN_SYMBOLIZE)
+#if defined(ABSL_INTERNAL_HAVE_ELF_SYMBOLIZE) || defined(ABSL_INTERNAL_HAVE_DARWIN_SYMBOLIZE) || defined(ABSL_INTERNAL_HAVE_EMSCRIPTEN_SYMBOLIZE)
 
 // Test with a return address.
 void ABSL_ATTRIBUTE_NOINLINE TestWithReturnAddress() {

@@ -379,19 +379,13 @@ private:
  *"icudt62l-curr").
  */
 UDataPathIterator::UDataPathIterator(const char * inPath, const char * pkg,
-    const char * item, const char * inSuffix, bool doCheckLastFour,
-    UErrorCode * pErrorCode)
+    const char * item, const char * inSuffix, bool doCheckLastFour, UErrorCode * pErrorCode)
 {
 #ifdef UDATA_DEBUG
 	slfprintf_stderr("SUFFIX1=%s PATH=%s\n", inSuffix, inPath);
 #endif
 	/** Path **/
-	if(inPath == NULL) {
-		path = u_getDataDirectory();
-	}
-	else {
-		path = inPath;
-	}
+	path = inPath ? inPath : u_getDataDirectory();
 	/** Package **/
 	if(pkg) {
 		packageStub.append(U_FILE_SEP_CHAR, *pErrorCode).append(pkg, *pErrorCode);
@@ -399,11 +393,9 @@ UDataPathIterator::UDataPathIterator(const char * inPath, const char * pkg,
 		slfprintf_stderr("STUB=%s [%d]\n", packageStub.data(), packageStub.length());
 #endif
 	}
-
 	/** Item **/
 	basename = findBasename(item);
 	basenameLen = (int32_t)strlen(basename);
-
 	/** Item path **/
 	if(basename == item) {
 		nextPath = path;
@@ -416,24 +408,13 @@ UDataPathIterator::UDataPathIterator(const char * inPath, const char * pkg,
 	slfprintf_stderr("SUFFIX=%s [%p]\n", inSuffix, (void *)inSuffix);
 #endif
 	/** Suffix  **/
-	if(inSuffix) {
-		suffix = inSuffix;
-	}
-	else {
-		suffix = "";
-	}
+	suffix = inSuffix ? inSuffix : "";
 	checkLastFour = doCheckLastFour;
 	/* pathBuffer will hold the output path strings returned by this iterator */
 
 #ifdef UDATA_DEBUG
 	slfprintf_stderr("0: init %s -> [path=%s], [base=%s], [suff=%s], [itempath=%s], [nextpath=%s], [checklast4=%s]\n",
-	    item,
-	    path,
-	    basename,
-	    suffix.data(),
-	    itemPath.data(),
-	    nextPath,
-	    checkLastFour ? "TRUE" : "false");
+	    item, path, basename, suffix.data(), itemPath.data(), nextPath, checkLastFour ? "TRUE" : "false");
 #endif
 }
 

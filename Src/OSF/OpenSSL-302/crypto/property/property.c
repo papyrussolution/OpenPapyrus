@@ -245,8 +245,7 @@ int ossl_method_store_add(OSSL_METHOD_STORE * store, const OSSL_PROVIDER * prov,
 	int i;
 	if(nid <= 0 || method == NULL || store == NULL)
 		return 0;
-	if(properties == NULL)
-		properties = "";
+	SETIFZQ(properties, "");
 	if(!ossl_assert(prov != NULL))
 		return 0;
 	/* Create new entry */

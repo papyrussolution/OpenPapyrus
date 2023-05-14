@@ -52,34 +52,25 @@ static int print_labeled_bignum(BIO * out, const char * label, const BIGNUM * bn
 	char * hex_str = NULL, * p;
 	const char spaces[] = "    ";
 	const char * post_label_spc = " ";
-
 	const char * neg = "";
 	int bytes;
-
 	if(bn == NULL)
 		return 0;
 	if(label == NULL) {
 		label = "";
 		post_label_spc = "";
 	}
-
 	if(BN_is_zero(bn))
 		return BIO_printf(out, "%s%s0\n", label, post_label_spc);
-
 	if(BN_num_bytes(bn) <= BN_BYTES) {
 		BN_ULONG * words = bn_get_words(bn);
-
 		if(BN_is_negative(bn))
 			neg = "-";
-
-		return BIO_printf(out, "%s%s%s" BN_FMTu " (%s0x" BN_FMTx ")\n",
-			   label, post_label_spc, neg, words[0], neg, words[0]);
+		return BIO_printf(out, "%s%s%s" BN_FMTu " (%s0x" BN_FMTx ")\n", label, post_label_spc, neg, words[0], neg, words[0]);
 	}
-
 	hex_str = BN_bn2hex(bn);
 	if(hex_str == NULL)
 		return 0;
-
 	p = hex_str;
 	if(*p == '-') {
 		++p;

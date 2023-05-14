@@ -275,12 +275,28 @@ PPProcessorPacket::PlaceDescription & PPProcessorPacket::PlaceDescription::Z()
 	return *this;
 }
 
-PPProcessorPacket::ExtBlock::ExtBlock()
+PPProcessorPacket::ExtBlock::FlatBlock::FlatBlock() : OwnerGuaID(0), CipCancelTimeout(0), CipLockTimeout(0)
 {
-	destroy();
+	MEMSZERO(FbReserve);
+}
+			
+PPProcessorPacket::ExtBlock::FlatBlock & PPProcessorPacket::ExtBlock::FlatBlock::Z()
+{
+	THISZERO();
+	return *this;
 }
 
-PPProcessorPacket::ExtBlock & PPProcessorPacket::ExtBlock::destroy()
+bool FASTCALL PPProcessorPacket::ExtBlock::FlatBlock::IsEq(const FlatBlock & rS) const
+{
+	return (OwnerGuaID == rS.OwnerGuaID && CipCancelTimeout == rS.CipCancelTimeout && CipLockTimeout == rS.CipLockTimeout);
+}
+
+PPProcessorPacket::ExtBlock::ExtBlock()
+{
+	Z();
+}
+
+PPProcessorPacket::ExtBlock & PPProcessorPacket::ExtBlock::Z()
 {
 	Ver = DS.GetVersion();
 	CheckInTime = ZEROTIME;
@@ -288,7 +304,7 @@ PPProcessorPacket::ExtBlock & PPProcessorPacket::ExtBlock::destroy()
 	TimeFlags = 0;
 	InitSessStatus = 0;
 	ExtStrP = 0;
-	MEMSZERO(Fb);
+	Fb.Z();
 	DestroyS();
 	Places.clear();
 	return *this;
@@ -297,6 +313,12 @@ PPProcessorPacket::ExtBlock & PPProcessorPacket::ExtBlock::destroy()
 bool PPProcessorPacket::ExtBlock::IsEmpty() const
 {
 	return (CheckInTime == 0 && CheckOutTime == 0 && TimeFlags == 0 && InitSessStatus == 0 && ExtStrP == 0 && !Places.getCount() && !GetOwnerGuaID());
+}
+
+bool PPProcessorPacket::ExtBlock::IsEq(const ExtBlock & rS) const
+{
+	return (CheckInTime == rS.CheckInTime && CheckOutTime == rS.CheckOutTime && TimeFlags == rS.TimeFlags &&
+		InitSessStatus == rS.InitSessStatus && Places.IsEq(rS.Places) && Fb.IsEq(rS.Fb));
 }
 
 int PPProcessorPacket::ExtBlock::GetExtStrData(int fldID, SString & rBuf) const
@@ -461,10 +483,10 @@ PPProcessorPacket::PPProcessorPacket()
 	// @v10.7.1 destroy();
 }
 
-PPProcessorPacket & PPProcessorPacket::destroy()
+PPProcessorPacket & PPProcessorPacket::Z()
 {
 	MEMSZERO(Rec);
-	Ext.destroy();
+	Ext.Z();
 	return *this;
 }
 
@@ -487,6 +509,18 @@ PPObjProcessor::PPObjProcessor(void * extraPtr) : PPObject(PPOBJ_PROCESSOR), Ext
 PPObjProcessor::~PPObjProcessor()
 {
 	TLP_CLOSE(P_Tbl);
+}
+
+bool PPObjProcessor::IsPacketEq(const PPProcessorPacket & rS1, const PPProcessorPacket & rS2, long flags)
+{
+	bool   eq = true;
+	if(!P_Tbl->GetFields().IsEqualRecords(&rS1.Rec, &rS2.Rec))
+		eq = false;
+	else if(!rS1.Ext.IsEq(rS2.Ext))
+		eq = false;
+	else if(!rS1.TagL.IsEq(rS2.TagL))
+		eq = false;
+	return eq;	
 }
 
 int PPObjProcessor::Search(PPID id, void * b)
@@ -607,7 +641,7 @@ int PPObjProcessor::GetListByOwnerGuaID(PPID guaID, PPIDArray & rList)
 			const PPID prc_id = p_ref->Prop.data.ObjID;
 			buffer.Z();
 			if(p_ref->GetPropSBuffer_Current(buffer) > 0) {
-				ext.destroy();
+				ext.Z();
 				if(ext.Serialize(-1, buffer, &sctx) && ext.GetOwnerGuaID() == guaID) {
 					rList.add(prc_id);
 					ok = 1;
@@ -846,45 +880,53 @@ int PPObjProcessor::DeleteObj(PPID id)
 
 int PPObjProcessor::PutPacket(PPID * pID, PPProcessorPacket * pPack, int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
+	int    ta = 0;
 	PPID   log_action_id = 0;
 	const  int has_ext = pPack ? BIN(!pPack->Ext.IsEmpty()) : 0;
-	//ProcessorTbl::Rec rec;
+	Reference * p_ref = PPRef;
 	PPProcessorPacket org_pack;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(*pID) {
-			//THROW(Search(*pID, &rec) > 0);
 			THROW(GetPacket(*pID, &org_pack) > 0);
 			if(pPack == 0) {
 				//
 				// Удаление пакета
 				//
+				THROW(p_ref->Ot.PutList(Obj, *pID, 0, 0)); // @v11.7.2
 				THROW(RemoveObjV(*pID, 0, 0, 0));
 				THROW(PutExtention(*pID, 0, 0));
+				Dirty(*pID);
 			}
 			else {
 				//
 				// Изменение пакета
 				//
-				// @todo Сравнить новый пакет с оригинальным. Если эквивалентны, то ничего не делать!
-				SETFLAG(pPack->Rec.Flags, PRCF_HASEXT, has_ext);
-				if(org_pack.Rec.Kind == PPPRCK_GROUP) {
-					if(org_pack.Rec.LinkObjType)
-						if(pPack->Rec.LinkObjType != org_pack.Rec.LinkObjType || pPack->Rec.LinkObjID != org_pack.Rec.LinkObjID)
-							THROW_PP(GetChildIDList(*pID, 1, 0) < 0, PPERR_UPDLINKNONEMPTYPRCGRP); // @v11.3.1 @fix (>0)-->(<0)
+				// @done(@v11.7.1) @todo Сравнить новый пакет с оригинальным. Если эквивалентны, то ничего не делать!
+				if(IsPacketEq(org_pack, *pPack, 0)) { // @v11.7.2
+					ok = -1;
 				}
-				// @v11.3.12 {
-				if(!sstreq(org_pack.Rec.Name, pPack->Rec.Name)) {
-					THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, Obj, *pID, pPack->Rec.Name, 0) == DBRPL_OK);
+				else {
+					SETFLAG(pPack->Rec.Flags, PRCF_HASEXT, has_ext);
+					if(org_pack.Rec.Kind == PPPRCK_GROUP) {
+						if(org_pack.Rec.LinkObjType)
+							if(pPack->Rec.LinkObjType != org_pack.Rec.LinkObjType || pPack->Rec.LinkObjID != org_pack.Rec.LinkObjID)
+								THROW_PP(GetChildIDList(*pID, 1, 0) < 0, PPERR_UPDLINKNONEMPTYPRCGRP); // @v11.3.1 @fix (>0)-->(<0)
+					}
+					// @v11.3.12 {
+					if(!sstreq(org_pack.Rec.Name, pPack->Rec.Name)) {
+						THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, Obj, *pID, pPack->Rec.Name, 0) == DBRPL_OK);
+					}
+					// } @v11.3.12 
+					THROW(UpdateByID(P_Tbl, Obj, *pID, &pPack->Rec, 0));
+					THROW(PutExtention(*pID, &pPack->Ext, 0));
+					THROW(p_ref->Ot.PutList(Obj, *pID, &pPack->TagL, 0)); // @v11.7.2
+					log_action_id = PPACN_OBJUPD;
+					Dirty(*pID);
 				}
-				// } @v11.3.12 
-				THROW(UpdateByID(P_Tbl, Obj, *pID, &pPack->Rec, 0));
-				THROW(PutExtention(*pID, &pPack->Ext, 0));
-				log_action_id = PPACN_OBJUPD;
 			}
-			Dirty(*pID);
 		}
 		else if(pPack) {
 			//
@@ -894,6 +936,7 @@ int PPObjProcessor::PutPacket(PPID * pID, PPProcessorPacket * pPack, int use_ta)
 			THROW(AddObjRecByID(P_Tbl, Obj, pID, &pPack->Rec, 0));
 			pPack->Rec.ID = *pID;
 			THROW(PutExtention(*pID, &pPack->Ext, 0));
+			THROW(p_ref->Ot.PutList(Obj, *pID, &pPack->TagL, 0)); // @v11.7.2
 			THROW(SendObjMessage(DBMSG_PROCESSORADDED, PPOBJ_ARTICLE, Obj, *pID) == DBRPL_OK); // @v11.3.12
 			log_action_id = PPACN_OBJADD;
 		}
@@ -982,7 +1025,7 @@ int PPObjProcessor::GetExtention(PPID id, PPProcessorPacket::ExtBlock * pExt)
 			ok = p_ref->GetProperty(Obj, id, PRCPRP_EXT, p_strg, sz);
 			assert(ok > 0); // Раз нам удалось считать размер буфера, то последующая ошибка чтения - критична
 			THROW(ok > 0);
-			pExt->destroy();
+			pExt->Z();
 			pExt->CheckInTime = p_strg->CheckInTime;
 			pExt->CheckOutTime = p_strg->CheckOutTime;
 			pExt->TimeFlags = p_strg->TimeFlags;
@@ -1001,11 +1044,13 @@ int PPObjProcessor::GetExtention(PPID id, PPProcessorPacket::ExtBlock * pExt)
 int PPObjProcessor::GetPacket(PPID id, PPProcessorPacket * pPack)
 {
 	int    ok = -1;
-	pPack->destroy();
+	Reference * p_ref = PPRef;
+	pPack->Z();
 	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
 		ok = Search(id, &pPack->Rec);
 		if(ok > 0) {
 			THROW(GetExtention(id, &pPack->Ext));
+			THROW(p_ref->Ot.GetList(Obj, id, &pPack->TagL)); // @v11.7.2
 		}
 	}
 	CATCHZOK
@@ -1496,6 +1541,10 @@ IMPL_HANDLE_EVENT(ProcessorDialog)
 				setupAssoc();
 			}
 		}
+	}
+	else if(event.isCmd(cmTags)) { // @v11.7.2
+		Data.TagL.ObjType = PPOBJ_PROCESSOR;
+		EditObjTagValList(&Data.TagL, 0);
 	}
 	else if(event.isCmd(cmPrcExt)) {
 		EditExt();
@@ -2367,7 +2416,7 @@ struct UhttProcessorBlock {
 	}
 	void Clear()
 	{
-		Pack.destroy();
+		Pack.Z();
 		PlacePos = 0;
 		State = 0;
 	}

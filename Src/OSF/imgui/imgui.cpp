@@ -2449,10 +2449,7 @@ bool ImGuiTextFilter::PassFilter(const char* text, const char* text_end) const
 {
 	if(Filters.empty())
 		return true;
-
-	if(text == NULL)
-		text = "";
-
+	SETIFZQ(text, "");
 	for(int i = 0; i != Filters.Size; i++) {
 		const ImGuiTextRange& f = Filters[i];
 		if(f.empty())
@@ -2468,11 +2465,9 @@ bool ImGuiTextFilter::PassFilter(const char* text, const char* text_end) const
 				return true;
 		}
 	}
-
 	// Implicit * grep
 	if(CountGrep == 0)
 		return true;
-
 	return false;
 }
 

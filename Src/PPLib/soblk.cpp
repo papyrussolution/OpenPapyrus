@@ -1707,7 +1707,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 						for(uint j = 0; j < ResultList.getCount(); j++) {
 							const PPID tsess_id = ResultList.Get(j).Id;
 							if(P_TSesObj->Search(tsess_id, &tses_rec) > 0 && prc_obj.Fetch(tses_rec.PrcID, &prc_rec) > 0) {
-								tses_ext.destroy();
+								tses_ext.Z();
 								P_TSesObj->GetExtention(tsess_id, &tses_ext);
 								prc_obj.GetExtention(tses_rec.PrcID, &prc_ext);
 								if(prc_ext.GetCipLockTimeout() > 0 && checkdate(tses_rec.StDt)) {

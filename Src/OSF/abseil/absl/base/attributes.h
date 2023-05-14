@@ -335,10 +335,8 @@
 // One must ABSL_DECLARE_ATTRIBUTE_SECTION_VARS(name) for this to compile and
 // link.
 //
-#define ABSL_ATTRIBUTE_SECTION_START(name) \
-  (reinterpret_cast<void *>(__start_##name))
-#define ABSL_ATTRIBUTE_SECTION_STOP(name) \
-  (reinterpret_cast<void *>(__stop_##name))
+#define ABSL_ATTRIBUTE_SECTION_START(name) (reinterpret_cast<void *>(__start_##name))
+#define ABSL_ATTRIBUTE_SECTION_STOP(name)  (reinterpret_cast<void *>(__stop_##name))
 
 #else  // !ABSL_HAVE_ATTRIBUTE_SECTION
 

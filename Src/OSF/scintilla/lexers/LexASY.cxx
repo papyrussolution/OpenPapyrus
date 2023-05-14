@@ -138,23 +138,14 @@ static void ColouriseAsyDoc(Sci_PositionU startPos, Sci_Position length, int ini
 	sc.Complete();
 }
 
-static bool IsAsyCommentStyle(int style)
-{
-	return style == SCE_ASY_COMMENT;
-}
-
-static bool FASTCALL isASYidentifier(int ch)
-{
-	return
-		((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z'));
-}
+static bool IsAsyCommentStyle(int style) { return style == SCE_ASY_COMMENT; }
+static bool FASTCALL isASYidentifier(int ch) { return ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z')); }
 
 static int ParseASYWord(Sci_PositionU pos, Accessor & styler, char * word)
 {
 	int length = 0;
 	char ch = styler.SafeGetCharAt(pos);
 	*word = 0;
-
 	while(isASYidentifier(ch) && length<100) {
 		word[length] = ch;
 		length++;
@@ -168,10 +159,8 @@ static bool IsASYDrawingLine(Sci_Position line, Accessor & styler)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
-
 	Sci_Position startpos = pos;
 	char buffer[100] = "";
-
 	while(startpos<eol_pos) {
 		char ch = styler[startpos];
 		ParseASYWord(startpos, styler, buffer);

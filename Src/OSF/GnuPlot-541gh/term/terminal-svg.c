@@ -388,31 +388,17 @@ static void SVG_DefineFillPattern(int fillpat)
 		fprintf(GPT.P_GpOutFile, "\t<defs>\n\t\t<pattern id='gpPat%d' patternUnits='userSpaceOnUse' x='0' y='0' width='8' height='8'>\n", SVG_fillPatternIndex);
 		switch(fillpat) {
 			default:
-			case 0:
-			    path = "";
-			    break;
-			case 1:
-			    path = "M0,0 L8,8 M0,8 L8,0";
-			    break;
-			case 2:
-			    path = "M0,0 L8,8 M0,8 L8,0 M0,4 L4,8 L8,4 L4,0 L0,4";
-			    break;
+			case 0: path = ""; break;
+			case 1: path = "M0,0 L8,8 M0,8 L8,0"; break;
+			case 2: path = "M0,0 L8,8 M0,8 L8,0 M0,4 L4,8 L8,4 L4,0 L0,4"; break;
 			case 3:
 			    path = "M0,0 L0,8 L8,8 L8,0 L0,0";
 			    style = "fill";
 			    break;
-			case 4:
-			    path = "M-4,0 L8,12 M0,-4 L12,8";
-			    break;
-			case 5:
-			    path = "M-4,8 L8,-4 M0,12 L12,0";
-			    break;
-			case 6:
-			    path = "M-2,8 L4,-4 M0,12 L8,-4 M4,12 L10,0";
-			    break;
-			case 7:
-			    path = "M-2,0 L4,12 M0,-4 L8,12 M4,-4 L10,8";
-			    break;
+			case 4: path = "M-4,0 L8,12 M0,-4 L12,8"; break;
+			case 5: path = "M-4,8 L8,-4 M0,12 L12,0"; break;
+			case 6: path = "M-2,8 L4,-4 M0,12 L8,-4 M4,12 L10,0"; break;
+			case 7: path = "M-2,0 L4,12 M0,-4 L8,12 M4,-4 L10,8"; break;
 		}
 		if(*path) {
 			const char * figure = "fill:none;";

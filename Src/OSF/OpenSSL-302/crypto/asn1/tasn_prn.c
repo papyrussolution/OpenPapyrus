@@ -398,10 +398,8 @@ static int asn1_print_integer(BIO * out, const ASN1_INTEGER * str)
 static int asn1_print_oid(BIO * out, const ASN1_OBJECT * oid)
 {
 	char objbuf[80];
-	const char * ln;
-	ln = OBJ_nid2ln(OBJ_obj2nid(oid));
-	if(!ln)
-		ln = "";
+	const char * ln = OBJ_nid2ln(OBJ_obj2nid(oid));
+	SETIFZQ(ln, "");
 	OBJ_obj2txt(objbuf, sizeof(objbuf), oid, 1);
 	if(BIO_printf(out, "%s (%s)", ln, objbuf) <= 0)
 		return 0;

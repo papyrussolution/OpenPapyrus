@@ -95,37 +95,106 @@ static ImGuiRuntimeBlock ImgRtb;
 //
 class WsCtlReqQueue : private SQueue { //req_queue(1024)
 public:
-	struct Req {
+	//
+	// Descr: Запрос к серверу. Помещается в WsCtlReqQueue потому должен быть @flat.
+	//
+	struct Req { // @flat
+		Req() : Cmd(0), Dummy(0)
+		{
+		}
+		Req(uint cmd) : Cmd(cmd), Dummy(0)
+		{
+		}
 		uint   Cmd;
 		uint32 Dummy;
+		struct Param {
+			S_GUID Uuid;
+		};
+		Param P;
 	};
 	WsCtlReqQueue() : SQueue(sizeof(Req), 1024, aryDataOwner), NonEmptyEv(Evnt::modeCreateAutoReset)
 	{
 	}
-	int    FASTCALL Push(const Req * pReq)
+	int    FASTCALL Push(const Req & rReq)
 	{
 		int    ok = 0;
 		Lck.Lock();
-		ok = SQueue::push(pReq);
+		ok = SQueue::push(&rReq);
 		Lck.Unlock();
 		return ok;
 	}
-	Req * FASTCALL Pop()
+	int    FASTCALL Pop(Req & rReq)
 	{
-		Req * p_req = 0;
+		int    ok = -1;
 		Lck.Lock();
-		p_req = static_cast<Req *>(SQueue::pop());
+		Req  * p_item = static_cast<Req *>(SQueue::pop());
+		if(p_item) {
+			rReq = *p_item;
+			ok = 1;
+		}
 		Lck.Unlock();
-		return p_req;
+		return ok;
 	}
 
 	Evnt   NonEmptyEv; // Событие поможет "разбудить" поток, принимающий данные из этой очереди. 
 private:
 	SMtLock Lck;
 };
+//
+// Descr: Блок само-идентификации. 
+//
+class WsCtl_SelfIdentityBlock {
+public:
+	WsCtl_SelfIdentityBlock() : PrcID(0)
+	{
+	}
+	int    GetOwnUuid()
+	{
+		int    ok = 1;
+		bool   found = false;
+		S_GUID _uuid;
+		{
+			WinRegKey reg_key(HKEY_LOCAL_MACHINE, _PPConst.WrKey_WsCtl, 1);
+			if(reg_key.GetBinary(_PPConst.WrParam_WsCtl_MachineUUID, &_uuid, sizeof(_uuid)) > 0) {
+				Uuid = _uuid;
+				found = true;
+			}
+		}
+		if(!found) {
+			WinRegKey reg_key(HKEY_LOCAL_MACHINE, _PPConst.WrKey_WsCtl, 0);
+			_uuid.Generate();
+			if(reg_key.PutBinary(_PPConst.WrParam_WsCtl_MachineUUID, &_uuid, sizeof(_uuid))) {
+				Uuid = _uuid;
+				ok = 2;
+			}
+			else
+				ok = 0;
+		}
+		return ok;
+	}
+	S_GUID   Uuid;
+	PPID   PrcID; // Идентификатор процессора на сервере. Инициируется ответом от сервера.
+	SString PrcName; // Наименование процессора на сервере. Инициируется ответом от сервера.
+};
 
 class WsCtl_ImGuiSceneBlock {
 public:
+	struct DTest {
+		SString Reply;
+	};
+	//
+	// Descr: Информационный блок о состоянии процессора на сервере, с которым ассоциирована данная рабочая станция //
+	//
+	struct DPrc {
+		DPrc() : PrcID(0), CurrentTSessID(0), ReservedTSessID(0)
+		{
+		}
+		S_GUID PrcUuid;
+		PPID   PrcID;
+		PPID   CurrentTSessID;  // Текущая сессия процессора
+		PPID   ReservedTSessID; // Ближайшая (будущая) зарезервированная сессия процессора
+		SString PrcName;
+	};
 	struct DAccount {
 	};
 	struct DPrices {
@@ -144,28 +213,57 @@ public:
 	// Descr: Структура, описывающая текущее состояние системы.
 	//   Элементы структуры могут обновляються другими потоками.
 	//
-	struct State {
+	class State {
+	public:
 		enum {
-			syncdataUndef   = 0,
-			syncdataTest,    // Тестовый блок данных для отладки взаимодействия с сервером 
-			syncdataAccount, // DAccount
-			syncdataPrices,  // DPrices
-			syncdataTSess,   // DTSess
+			syncdataUndef = 0,
+			syncdataTest,            // DTest    Тестовый блок данных для отладки взаимодействия с сервером 
+			syncdataPrc,             // DPrc
+			syncdataAccount,         // DAccount
+			syncdataPrices,          // DPrices
+			syncdataTSess,           // DTSess
+			syncdataJobSrvConnStatus // int статус соединения с сервером
 		};
 		//
 		// Descr: Элемент состояния, который получен от сервера.
 		//   Кроме собственно данных содержит блокировку, время актуализации и время истечения срока действия.
 		//
-		class SyncEntry {
+		template <class T> class SyncEntry {
 		public:
-			SyncEntry() : TmActual(0), TmExpiry(0)
+			SyncEntry(int syncDataId) : SyncDataId(syncDataId), TmActual(0), TmExpiry(0)
 			{
 			}
+			void SetData(const T & rData)
+			{
+				Lck.Lock();
+				Data = rData;
+				Lck.Unlock();
+			}
+			void GetData(T & rData)
+			{
+				Lck.Lock();
+				rData = Data;
+				Lck.Unlock();
+			}
 		private:
+			const  int SyncDataId; // syncdataXXX
+			T      Data;
 			SMtLock Lck;
 			int64  TmActual;
 			int64  TmExpiry;
-		};				
+		};	
+
+		WsCtl_SelfIdentityBlock SidBlk;
+		SyncEntry <DPrc>     D_Prc;
+		SyncEntry <DAccount> D_Acc;
+		SyncEntry <DTest>    D_Test;
+		SyncEntry <DPrices>  D_Prices;
+		SyncEntry <DTSess>   D_TSess;
+		SyncEntry <int> D_ConnStatus;
+
+		State() : D_Prc(syncdataPrc), D_Test(syncdataTest), D_Acc(syncdataAccount), D_Prices(syncdataPrices), D_TSess(syncdataTSess), D_ConnStatus(syncdataJobSrvConnStatus)
+		{
+		}
 	};
 private:
 	//
@@ -175,13 +273,20 @@ private:
 	//
 	class WsCtl_CliSession : public PPThread {
 	public:
-		WsCtl_CliSession(WsCtl_ImGuiSceneBlock::State * pSt, WsCtlReqQueue * pQ) : PPThread(PPThread::kWsCtl, 0, 0), P_St(pSt)
+		WsCtl_CliSession(const JobSrvParam & rJsP, WsCtl_ImGuiSceneBlock::State * pSt, WsCtlReqQueue * pQ) : PPThread(PPThread::kWsCtl, 0, 0), JsP(rJsP), P_St(pSt), P_Queue(pQ)
 		{
+			InitStartupSignal();
 		}
 		virtual void Run()
 		{
 			SString temp_buf;
 			Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
+			const  uint32 wait_timeout = 500;
+
+			PPJobSrvClient cli;
+			PPJobSrvReply reply;
+			int srv_conn_r = cli.Connect(JsP.Addr, JsP.Port);
+			P_St->D_ConnStatus.SetData(srv_conn_r);
 			for(int stop = 0; !stop;) {
 				int    h_count = 0;
 				int    evidx_stop = -1;
@@ -191,16 +296,110 @@ private:
 				HANDLE h_list[32];
 				{
 					evidx_stop = h_count++;
-					h_list[evidx_stop] = stop_event;
+					h_list[evidx_stop] = stop_event;     // #0
 				}
-				;
+				h_list[h_count++] = P_Queue->NonEmptyEv; // #1
+				const  uint r = ::WaitForMultipleObjects(h_count, h_list, 0, wait_timeout);
+				bool   do_check_queue = false;
+				switch(r) {
+					case WAIT_TIMEOUT:
+						do_check_queue = true;
+						break;
+					case (WAIT_OBJECT_0 + 0): // stop event
+						stop = 1; // quit loop
+						break;
+					case (WAIT_OBJECT_0 + 1): // NonEmptyEv
+						do_check_queue = true;
+						break;
+					case WAIT_FAILED:
+						; // @error
+						break;
+				}
+				if(do_check_queue) {
+					uint32 single_ev_count = 0;
+					WsCtlReqQueue::Req req;
+					while(P_Queue->Pop(req) > 0) {
+						single_ev_count++;
+						SendRequest(cli, req);
+						//if(PPSession::Helper_Log(msg_item, lb) > 0) {
+							//S.OutputCount++;
+						//}
+					}
+					if(single_ev_count) {
+						if(!(cli.GetState() & PPJobSrvClient::stConnected)) {
+							srv_conn_r = cli.Connect(JsP.Addr, JsP.Port);							
+							P_St->D_ConnStatus.SetData(srv_conn_r);
+						}
+						if(srv_conn_r > 0) {
+							
+						}
+						/*
+						if(single_ev_count > S.MaxSingleOutputCount)
+							S.MaxSingleOutputCount = single_ev_count;
+						*/
+					}
+					else {
+						//S.FalseNonEmptyEvSwitchCount++;
+					}					
+				}
 			}
 		}
 	private:
+		virtual void Startup()
+		{
+			PPThread::Startup();
+			SignalStartup();
+		}
+		void   SendRequest(PPJobSrvClient & rCli, const WsCtlReqQueue::Req & rReq)
+		{
+			PPJobSrvReply reply;
+			switch(rReq.Cmd) {
+				case PPSCMD_HELLO:
+					if(P_St) {
+						WsCtl_ImGuiSceneBlock::DTest st_data;
+						SString temp_buf;
+						if(rCli.Exec("HELLO", reply) && reply.StartReading(&temp_buf)) {
+							if(reply.CheckRepError()) {
+								(st_data.Reply = "OK").CatDiv(':', 2).Cat(temp_buf);
+							}
+							else {
+								(st_data.Reply = "ERR").CatDiv(':', 2).Cat(temp_buf);
+							}
+							P_St->D_Test.SetData(st_data);
+						}
+						else {
+							st_data.Reply = "Send-Request-To-Server-Error";
+							P_St->D_Test.SetData(st_data);
+						}
+					}
+					break;
+				case PPSCMD_WSCTL_INIT:
+					if(P_St) {
+						PPJobSrvCmd cmd;
+						cmd.StartWriting(PPSCMD_WSCTL_INIT);
+						cmd.Write(&rReq.P.Uuid, sizeof(rReq.P.Uuid));
+						cmd.FinishWriting();
+						if(rCli.Exec(cmd, reply)) {
+							reply.StartReading(0);
+							if(reply.CheckRepError()) {
+								
+							}
+							else {
+								; // @err
+							}
+						}
+						else {
+							; // @err
+						}
+					}
+					break;
+			}
+		}
 		// Указатель на состояние блока управления панелью. При получении ответа от сервера
 		// наш поток будет вносить изменения в это состояние (защита блокировками подразумевается).
 		WsCtl_ImGuiSceneBlock::State * P_St; // @notowned
-		WsCtlReqQueue * P_Q; // @notowned
+		WsCtlReqQueue * P_Queue; // @notowned
+		JobSrvParam JsP;
 	};
 	bool   ShowDemoWindow; // @sobolev true-->false
 	bool   ShowAnotherWindow;
@@ -209,6 +408,14 @@ private:
 	JobSrvParam JsP;
 	State  St;
 	WsCtlReqQueue * P_CmdQ; // Очередь команд для сервера. Указатель передается в совместное владение потоку обработки команд
+	struct TestBlock { // @debug 
+		TestBlock() : DtmLastQuerySent(ZERODATETIME), QuerySentCount(0)
+		{
+		}
+		LDATETIME DtmLastQuerySent; // Время последней отправки тестового запроса серверу
+		uint   QuerySentCount; // Количество отправленных запросов
+	};
+	TestBlock TestBlk;
 	//
 	enum {
 		loidRoot = 1,
@@ -297,7 +504,7 @@ public:
 		TestInput[0] = 0;
 		MakeLayout();
 	}
-	int  DiscoverJobSrv()
+	int  Init()
 	{
 		int    ok = 0;
 		PPIniFile ini_file;
@@ -306,12 +513,32 @@ public:
 		if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_CLIENTSOCKETTIMEOUT, &JsP.Timeout) <= 0 || JsP.Timeout <= 0)
 			JsP.Timeout = -1;
 		ini_file.Get(PPINISECT_SERVER, PPINIPARAM_SERVER_NAME, JsP.Addr);
-		if(JsP.Addr.NotEmpty())
+		St.SidBlk.GetOwnUuid();
+		if(JsP.Addr.NotEmpty()) {
+			P_CmdQ = new WsCtlReqQueue;
+			WsCtl_CliSession * p_sess = new WsCtl_CliSession(JsP, &St, P_CmdQ);
+			p_sess->Start(1);
+			if(!!St.SidBlk.Uuid) {
+				WsCtlReqQueue::Req req(PPSCMD_WSCTL_INIT);
+				req.P.Uuid = St.SidBlk.Uuid;
+				P_CmdQ->Push(req);
+			}
 			ok = 1;
+		}
 		return ok;
 	}
 	void BuildScene()
 	{
+		const LDATETIME now_dtm = getcurdatetime_();
+		if(!TestBlk.DtmLastQuerySent || diffdatetimesec(now_dtm, TestBlk.DtmLastQuerySent) > 5) {
+			if(P_CmdQ) {
+				WsCtlReqQueue::Req qr(PPSCMD_HELLO);
+				P_CmdQ->Push(qr);
+				TestBlk.DtmLastQuerySent = now_dtm;
+				TestBlk.QuerySentCount++;
+			}
+		}
+		//
 		// Start the Dear ImGui frame
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
@@ -357,6 +584,18 @@ public:
 						ImGui::Text("CTL-02");
 						
 						ImGui::Text(SLS.AcquireRvlStr().Cat("Сервер").CatDiv(':', 2).Cat(JsP.Addr).CatChar(':').Cat(JsP.Port));
+						{
+							int conn_status = 0;
+							St.D_ConnStatus.GetData(conn_status);
+							ImGui::Text(SLS.AcquireRvlStr().Cat("Connection status").CatDiv(':', 2).Cat(conn_status));
+						}
+						{
+							DTest test_result;
+							St.D_Test.GetData(test_result);
+							SString & r_temp_buf = SLS.AcquireRvlStr();
+							r_temp_buf.Cat("Test status").Space().CatParStr(TestBlk.QuerySentCount).CatDiv(':', 2).Cat(test_result.Reply);
+							ImGui::Text(r_temp_buf);
+						}
 						ImGui::End();
 					}
 				}
@@ -521,7 +760,7 @@ int main(int, char**)
 		//bool show_another_window = false;
 		//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		WsCtl_ImGuiSceneBlock scene_blk;
-		scene_blk.DiscoverJobSrv();
+		scene_blk.Init();
 		{
 			static const ImWchar ranges[] = {
 				0x0020, 0x00FF, // Basic Latin + Latin Supplement
