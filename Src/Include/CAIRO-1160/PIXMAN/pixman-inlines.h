@@ -45,7 +45,7 @@
  */
 #define REPEAT_NORMAL_MIN_WIDTH  64
 
-static force_inline boolint repeat(pixman_repeat_t repeat, int32 * c, int size) // @sobolev int-->int32
+static FORCEINLINE boolint repeat(pixman_repeat_t repeat, int32 * c, int size) // @sobolev int-->int32
 {
 	if(repeat == PIXMAN_REPEAT_NONE) {
 		if(*c < 0 || *c >= size)
@@ -68,14 +68,14 @@ static force_inline boolint repeat(pixman_repeat_t repeat, int32 * c, int size) 
 	return TRUE;
 }
 
-static force_inline int pixman_fixed_to_bilinear_weight(pixman_fixed_t x)
+static FORCEINLINE int pixman_fixed_to_bilinear_weight(pixman_fixed_t x)
 {
 	return (x >> (16 - BILINEAR_INTERPOLATION_BITS)) & ((1 << BILINEAR_INTERPOLATION_BITS) - 1);
 }
 
 #if BILINEAR_INTERPOLATION_BITS <= 4
 /* Inspired by Filter_32_opaque from Skia */
-static force_inline uint32 bilinear_interpolation(uint32 tl, uint32 tr, uint32 bl, uint32 br, int distx, int disty)
+static FORCEINLINE uint32 bilinear_interpolation(uint32 tl, uint32 tr, uint32 bl, uint32 br, int distx, int disty)
 {
 	int distxy, distxiy, distixy, distixiy;
 	uint32 lo, hi;
@@ -99,7 +99,7 @@ static force_inline uint32 bilinear_interpolation(uint32 tl, uint32 tr, uint32 b
 #else
 #if SIZEOF_LONG > 4
 
-static force_inline uint32 bilinear_interpolation(uint32 tl, uint32 tr, uint32 bl, uint32 br, int distx, int disty)
+static FORCEINLINE uint32 bilinear_interpolation(uint32 tl, uint32 tr, uint32 bl, uint32 br, int distx, int disty)
 {
 	uint64 distxy, distxiy, distixy, distixiy;
 	uint64 tl64, tr64, bl64, br64;
@@ -133,7 +133,7 @@ static force_inline uint32 bilinear_interpolation(uint32 tl, uint32 tr, uint32 b
 
 #else
 
-static force_inline uint32 bilinear_interpolation(uint32 tl, uint32 tr, uint32 bl, uint32 br, int distx, int disty)
+static FORCEINLINE uint32 bilinear_interpolation(uint32 tl, uint32 tr, uint32 bl, uint32 br, int distx, int disty)
 {
 	int distxy, distxiy, distixy, distixiy;
 	uint32 f, r;
@@ -177,7 +177,7 @@ static force_inline uint32 bilinear_interpolation(uint32 tl, uint32 tr, uint32 b
  *  is probably excessive in many cases. This particular function
  *  may need its own correctness test and performance tuning.
  */
-static force_inline void pad_repeat_get_scanline_bounds(int32 source_image_width, pixman_fixed_t vx, pixman_fixed_t unit_x, int32 *  width, int32 *  left_pad, int32 *  right_pad)
+static FORCEINLINE void pad_repeat_get_scanline_bounds(int32 source_image_width, pixman_fixed_t vx, pixman_fixed_t unit_x, int32 *  width, int32 *  left_pad, int32 *  right_pad)
 {
 	int64 max_vx = (int64)source_image_width << 16;
 	int64 tmp;
@@ -231,7 +231,7 @@ static force_inline void pad_repeat_get_scanline_bounds(int32 source_image_width
 #define GET_x888_ALPHA(s) 0xff
 
 #define FAST_NEAREST_SCANLINE(scanline_func_name, SRC_FORMAT, DST_FORMAT, src_type_t, dst_type_t, OP, repeat_mode) \
-	static force_inline void scanline_func_name(dst_type_t * dst, const src_type_t * src, int32 w, pixman_fixed_t vx, \
+	static FORCEINLINE void scanline_func_name(dst_type_t * dst, const src_type_t * src, int32 w, pixman_fixed_t vx, \
 	    pixman_fixed_t unit_x, pixman_fixed_t src_width_fixed, boolint fully_transparent_src) \
 	{                                                                                               \
 		uint32 d;                                                                           \
@@ -418,7 +418,7 @@ static force_inline void pad_repeat_get_scanline_bounds(int32 source_image_width
 	FAST_NEAREST_MAINLOOP_INT(_ ## scale_func_name, scanline_func, src_type_t, mask_type_t, dst_type_t, repeat_mode, have_mask, mask_is_solid)
 
 #define FAST_NEAREST_MAINLOOP_NOMASK(scale_func_name, scanline_func, src_type_t, dst_type_t, repeat_mode) \
-	static force_inline void scanline_func ## scale_func_name ## _wrapper(const uint8 * mask, dst_type_t * dst, const src_type_t *src, \
+	static FORCEINLINE void scanline_func ## scale_func_name ## _wrapper(const uint8 * mask, dst_type_t * dst, const src_type_t *src, \
 		int32 w, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t max_vx, boolint fully_transparent_src) \
 	{                                                                                           \
 		scanline_func(dst, src, w, vx, unit_x, max_vx, fully_transparent_src);                 \
@@ -585,7 +585,7 @@ static force_inline void pad_repeat_get_scanline_bounds(int32 source_image_width
  * whether 2 pixels to be interpolated are fetched from the image itself,
  * from the padding area around it or from both image and padding area.
  */
-static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32 source_image_width,
+static FORCEINLINE void bilinear_pad_repeat_get_scanline_bounds(int32 source_image_width,
     pixman_fixed_t vx, pixman_fixed_t unit_x, int32 *  left_pad, int32 *  left_tz, int32 *  width, int32 *  right_tz, int32 *  right_pad)
 {
 	int32 width1 = *width;

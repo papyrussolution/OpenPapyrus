@@ -4635,8 +4635,7 @@ private:
 		ASSERT_EQUALS("void f ( ) { int final [ 10 ] ; }", tok("void f() { int final[10]; }", true));
 		ASSERT_EQUALS("int * p ;", tok("int * __restrict p;", "test.c"));
 		ASSERT_EQUALS("int * * p ;", tok("int * __restrict__ * p;", "test.c"));
-		ASSERT_EQUALS("void foo ( float * a , float * b ) ;",
-		    tok("void foo(float * __restrict__ a, float * __restrict__ b);", "test.c"));
+		ASSERT_EQUALS("void foo ( float * a , float * b ) ;", tok("void foo(float * __restrict__ a, float * __restrict__ b);", "test.c"));
 		ASSERT_EQUALS("int * p ;", tok("int * restrict p;", "test.c"));
 		ASSERT_EQUALS("int * * p ;", tok("int * restrict * p;", "test.c"));
 		ASSERT_EQUALS("void foo ( float * a , float * b ) ;", tok("void foo(float * restrict a, float * restrict b);", "test.c"));

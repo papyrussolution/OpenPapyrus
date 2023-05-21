@@ -1010,16 +1010,14 @@ static js_Ast * funbody(js_State * J)
 
 static int toint32(double d)
 {
-	double two32 = 4294967296.0;
-	double two31 = 2147483648.0;
-
+	//double two32 = 4294967296.0;
+	//double two31 = 2147483648.0;
 	if(!isfinite(d) || d == 0)
 		return 0;
-
-	d = fmod(d, two32);
-	d = d >= 0 ? floor(d) : ceil(d) + two32;
-	if(d >= two31)
-		return d - two32;
+	d = fmod(d, SMathConst::MaxU32);
+	d = d >= 0 ? floor(d) : ceil(d) + SMathConst::MaxU32;
+	if(d >= SMathConst::MaxU31)
+		return d - SMathConst::MaxU32;
 	else
 		return d;
 }

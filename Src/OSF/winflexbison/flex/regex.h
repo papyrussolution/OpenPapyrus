@@ -240,8 +240,7 @@ typedef enum {
 	REG_NOERROR = 0, /* Success.  */
 	REG_NOMATCH,    /* Didn't find a match (for regexec).  */
 
-	/* POSIX regcomp return error codes.  (In the order listed in the
-	   standard.)  */
+	/* POSIX regcomp return error codes.  (In the order listed in the standard.)  */
 	REG_BADPAT,     /* Invalid pattern.  */
 	REG_ECOLLATE,   /* Not implemented.  */
 	REG_ECTYPE,     /* Invalid character class name.  */
@@ -408,9 +407,9 @@ extern char * re_comp(const char *);
 extern int re_exec(const char *);
 
 /* POSIX compatibility.  */
-extern int regcomp(regex_t * preg, const char * pattern, int cflags);
-extern int regexec(const regex_t * preg, const char * string, size_t nmatch, regmatch_t pmatch[], int eflags);
-extern size_t regerror(int errcode, const regex_t * preg, char * errbuf, size_t errbuf_size);
+extern int regcomp(regex_t * _RESTRICT preg, const char * _RESTRICT pattern, int cflags);
+extern int regexec(const regex_t * _RESTRICT preg, const char * _RESTRICT string, size_t nmatch, regmatch_t pmatch[], int eflags);
+extern size_t regerror(int errcode, const regex_t * _RESTRICT preg, char * _RESTRICT errbuf, size_t errbuf_size);
 extern void regfree(regex_t * preg);
 
 #endif /* not __REGEXP_LIBRARY_H__ */

@@ -2654,6 +2654,10 @@ beko gn%z%(%d%)%>beko gn-%1
 beko rcna%z%(%d%)%>beko rcna-%1
 beko rcnk%z%(%d%)%>beko rcnk-%1
 beko rcsk%z%(%d%)%>beko rcsk-%1
+beko wre%z%(%d%)%>beko wre-%1
+beko wrs%z%(%d%)%>beko wrs-%1
+
+binatone bm%z%(%d%)%>binatone bm-%1
 bosch bgc%z%(%d%)%>bosch bgc-%1
 bosch bgs%z%(%d%)%>bosch bgs-%1
 bosch bsg%z%(%d%)%>bosch bsg-%1
@@ -2700,6 +2704,8 @@ braun hd%z%(%d%)%>braun hd-%1
 braun ts%z%(%d%)%>braun ts-%1
 braun si%z%(%d%)%>braun si-%1
 braun wk%z%(%d%)%>braun wk-%1
+endever delta%z%(%d%)%>endever delta-%1
+irit ir%z%(%d%)%>irit ir-%1
 galaxy gl%z%(%d%)%>galaxy gl-%1
 rowenta cv%z%(%d%)%>rowenta cv-%1
 rowenta cf%z%(%d%)%>rowenta cf-%1
@@ -2732,6 +2738,7 @@ gorenje rk%z%(%d%)%>gorenje rk-%1
 gorenje nrk%z%(%d%)%>gorenje nrk-%1
 gorenje r%z%(%d%)%>gorenje r-%1
 gorenje tgr%z%(%d%)%>gorenje tgr-%1
+moulinex ow%z%(%d%)%>moulinex ow-%1
 neff b%z%(%d%)%>neff b-%1
 neff c%z%(%d%)%>neff c-%1
 neff d%z%(%d%)%>neff d-%1

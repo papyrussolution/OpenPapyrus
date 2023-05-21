@@ -117,7 +117,8 @@ static int MaxDiffAroundPixel(uint32_t current, uint32_t up, uint32_t down,
 	return GetMax(GetMax(diff_up, diff_down), GetMax(diff_left, diff_right));
 }
 
-static uint32_t AddGreenToBlueAndRed(uint32_t argb) {
+static uint32_t AddGreenToBlueAndRed(uint32_t argb) 
+{
 	const uint32_t green = (argb >> 8) & 0xff;
 	uint32_t red_blue = argb & 0x00ff00ffu;
 	red_blue += (green << 16) | green;
@@ -463,10 +464,10 @@ static void CopyImageWithPrediction(int width, int height,
 			}
 #endif
 			for(x = 0; x < width;) {
-				const int mode =
-				    (modes[(y >> bits) * tiles_per_row + (x >> bits)] >> 8) & 0xff;
+				const int mode = (modes[(y >> bits) * tiles_per_row + (x >> bits)] >> 8) & 0xff;
 				int x_end = x + (1 << bits);
-				if(x_end > width) x_end = width;
+				if(x_end > width) 
+					x_end = width;
 				GetResidual(width, height, upper_row, current_row, current_max_diffs,
 				    mode, x, x_end, y, max_quantization, exact,
 				    used_subtract_green, argb + y * width + x);
@@ -511,10 +512,9 @@ void VP8LResidualImage(int width, int height, int bits, int low_effort,
 	    low_effort, max_quantization, exact,
 	    used_subtract_green);
 }
-
-//------------------------------------------------------------------------------
+//
 // Color transform functions.
-
+//
 static FORCEINLINE void MultipliersClear(VP8LMultipliers* const m) 
 {
 	m->green_to_red_ = 0;

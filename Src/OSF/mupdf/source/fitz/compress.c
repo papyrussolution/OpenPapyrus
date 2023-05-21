@@ -18,7 +18,7 @@ void fz_deflate(fz_context * ctx, uchar * dest, size_t * destLen, const uchar * 
 		fz_throw(ctx, FZ_ERROR_GENERIC, "zlib compression failed: %d", err);
 	stream.next_out = dest;
 	stream.avail_out = 0;
-	stream.next_in = (const Bytef*)source;
+	stream.next_in = (const Byte *)source;
 	stream.avail_in = 0;
 	do {
 		if(stream.avail_out == 0) {

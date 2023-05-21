@@ -51,18 +51,18 @@ static __m128i mask_565_fix_g;
 static __m128i mask_565_rb;
 static __m128i mask_565_pack_multiplier;
 
-static force_inline __m128i unpack_32_1x128(uint32 data)
+static FORCEINLINE __m128i unpack_32_1x128(uint32 data)
 {
 	return _mm_unpacklo_epi8(_mm_cvtsi32_si128(data), _mm_setzero_si128());
 }
 
-static force_inline void unpack_128_2x128(__m128i data, __m128i* data_lo, __m128i* data_hi)
+static FORCEINLINE void unpack_128_2x128(__m128i data, __m128i* data_lo, __m128i* data_hi)
 {
 	*data_lo = _mm_unpacklo_epi8(data, _mm_setzero_si128());
 	*data_hi = _mm_unpackhi_epi8(data, _mm_setzero_si128());
 }
 
-static force_inline __m128i unpack_565_to_8888(__m128i lo)
+static FORCEINLINE __m128i unpack_565_to_8888(__m128i lo)
 {
 	__m128i r, g, b, rb, t;
 	r = _mm_and_si128(_mm_slli_epi32(lo, 8), mask_red);
@@ -78,7 +78,7 @@ static force_inline __m128i unpack_565_to_8888(__m128i lo)
 	return _mm_or_si128(rb, g);
 }
 
-static force_inline void unpack_565_128_4x128(__m128i data, __m128i* data0, __m128i* data1, __m128i* data2, __m128i* data3)
+static FORCEINLINE void unpack_565_128_4x128(__m128i data, __m128i* data0, __m128i* data1, __m128i* data2, __m128i* data3)
 {
 	__m128i lo, hi;
 	lo = _mm_unpacklo_epi16(data, _mm_setzero_si128());
@@ -89,17 +89,17 @@ static force_inline void unpack_565_128_4x128(__m128i data, __m128i* data0, __m1
 	unpack_128_2x128(hi, data2, data3);
 }
 
-static force_inline uint16 pack_565_32_16(uint32 pixel)
+static FORCEINLINE uint16 pack_565_32_16(uint32 pixel)
 {
 	return (uint16)(((pixel >> 8) & 0xf800) | ((pixel >> 5) & 0x07e0) | ((pixel >> 3) & 0x001f));
 }
 
-static force_inline __m128i pack_2x128_128(__m128i lo, __m128i hi)
+static FORCEINLINE __m128i pack_2x128_128(__m128i lo, __m128i hi)
 {
 	return _mm_packus_epi16(lo, hi);
 }
 
-static force_inline __m128i pack_565_2packedx128_128(__m128i lo, __m128i hi)
+static FORCEINLINE __m128i pack_565_2packedx128_128(__m128i lo, __m128i hi)
 {
 	__m128i rb0 = _mm_and_si128(lo, mask_565_rb);
 	__m128i rb1 = _mm_and_si128(hi, mask_565_rb);
@@ -117,7 +117,7 @@ static force_inline __m128i pack_565_2packedx128_128(__m128i lo, __m128i hi)
 	return _mm_packs_epi32(t0, t1);
 }
 
-static force_inline __m128i pack_565_2x128_128(__m128i lo, __m128i hi)
+static FORCEINLINE __m128i pack_565_2x128_128(__m128i lo, __m128i hi)
 {
 	__m128i data;
 	__m128i r, g1, g2, b;
@@ -129,38 +129,38 @@ static force_inline __m128i pack_565_2x128_128(__m128i lo, __m128i hi)
 	return _mm_or_si128(_mm_or_si128(_mm_or_si128(r, g1), g2), b);
 }
 
-static force_inline __m128i pack_565_4x128_128(__m128i* xmm0, __m128i* xmm1, __m128i* xmm2, __m128i* xmm3)
+static FORCEINLINE __m128i pack_565_4x128_128(__m128i* xmm0, __m128i* xmm1, __m128i* xmm2, __m128i* xmm3)
 {
 	return _mm_packus_epi16(pack_565_2x128_128(*xmm0, *xmm1), pack_565_2x128_128(*xmm2, *xmm3));
 }
 
-static force_inline int is_opaque(__m128i x)
+static FORCEINLINE int is_opaque(__m128i x)
 {
 	__m128i ffs = _mm_cmpeq_epi8(x, x);
 	return (_mm_movemask_epi8(_mm_cmpeq_epi8(x, ffs)) & 0x8888) == 0x8888;
 }
 
-static force_inline int is_zero(__m128i x)
+static FORCEINLINE int is_zero(__m128i x)
 {
 	return _mm_movemask_epi8(_mm_cmpeq_epi8(x, _mm_setzero_si128())) == 0xffff;
 }
 
-static force_inline int is_transparent(__m128i x)
+static FORCEINLINE int is_transparent(__m128i x)
 {
 	return (_mm_movemask_epi8(_mm_cmpeq_epi8(x, _mm_setzero_si128())) & 0x8888) == 0x8888;
 }
 
-static force_inline __m128i expand_pixel_32_1x128(uint32 data)
+static FORCEINLINE __m128i expand_pixel_32_1x128(uint32 data)
 {
 	return _mm_shuffle_epi32(unpack_32_1x128(data), _MM_SHUFFLE(1, 0, 1, 0));
 }
 
-static force_inline __m128i expand_alpha_1x128(__m128i data)
+static FORCEINLINE __m128i expand_alpha_1x128(__m128i data)
 {
 	return _mm_shufflehi_epi16(_mm_shufflelo_epi16(data, _MM_SHUFFLE(3, 3, 3, 3)), _MM_SHUFFLE(3, 3, 3, 3));
 }
 
-static force_inline void expand_alpha_2x128(__m128i data_lo, __m128i data_hi, __m128i* alpha_lo, __m128i* alpha_hi)
+static FORCEINLINE void expand_alpha_2x128(__m128i data_lo, __m128i data_hi, __m128i* alpha_lo, __m128i* alpha_hi)
 {
 	__m128i lo, hi;
 	lo = _mm_shufflelo_epi16(data_lo, _MM_SHUFFLE(3, 3, 3, 3));
@@ -169,7 +169,7 @@ static force_inline void expand_alpha_2x128(__m128i data_lo, __m128i data_hi, __
 	*alpha_hi = _mm_shufflehi_epi16(hi, _MM_SHUFFLE(3, 3, 3, 3));
 }
 
-static force_inline void expand_alpha_rev_2x128(__m128i data_lo, __m128i data_hi, __m128i* alpha_lo, __m128i* alpha_hi)
+static FORCEINLINE void expand_alpha_rev_2x128(__m128i data_lo, __m128i data_hi, __m128i* alpha_lo, __m128i* alpha_hi)
 {
 	__m128i lo, hi;
 	lo = _mm_shufflelo_epi16(data_lo, _MM_SHUFFLE(0, 0, 0, 0));
@@ -178,7 +178,7 @@ static force_inline void expand_alpha_rev_2x128(__m128i data_lo, __m128i data_hi
 	*alpha_hi = _mm_shufflehi_epi16(hi, _MM_SHUFFLE(0, 0, 0, 0));
 }
 
-static force_inline void pix_multiply_2x128(__m128i* data_lo, __m128i* data_hi, __m128i* alpha_lo, __m128i* alpha_hi, __m128i* ret_lo, __m128i* ret_hi)
+static FORCEINLINE void pix_multiply_2x128(__m128i* data_lo, __m128i* data_hi, __m128i* alpha_lo, __m128i* alpha_hi, __m128i* ret_lo, __m128i* ret_hi)
 {
 	__m128i lo, hi;
 	lo = _mm_mullo_epi16(*data_lo, *alpha_lo);
@@ -189,7 +189,7 @@ static force_inline void pix_multiply_2x128(__m128i* data_lo, __m128i* data_hi, 
 	*ret_hi = _mm_mulhi_epu16(hi, mask_0101);
 }
 
-static force_inline void pix_add_multiply_2x128(__m128i* src_lo,
+static FORCEINLINE void pix_add_multiply_2x128(__m128i* src_lo,
     __m128i* src_hi,
     __m128i* alpha_dst_lo,
     __m128i* alpha_dst_hi,
@@ -208,13 +208,13 @@ static force_inline void pix_add_multiply_2x128(__m128i* src_lo,
 	*ret_hi = _mm_adds_epu8(t1_hi, t2_hi);
 }
 
-static force_inline void negate_2x128(__m128i data_lo, __m128i data_hi, __m128i* neg_lo, __m128i* neg_hi)
+static FORCEINLINE void negate_2x128(__m128i data_lo, __m128i data_hi, __m128i* neg_lo, __m128i* neg_hi)
 {
 	*neg_lo = _mm_xor_si128(data_lo, mask_00ff);
 	*neg_hi = _mm_xor_si128(data_hi, mask_00ff);
 }
 
-static force_inline void invert_colors_2x128(__m128i data_lo,
+static FORCEINLINE void invert_colors_2x128(__m128i data_lo,
     __m128i data_hi,
     __m128i* inv_lo,
     __m128i* inv_hi)
@@ -227,7 +227,7 @@ static force_inline void invert_colors_2x128(__m128i data_lo,
 	*inv_hi = _mm_shufflehi_epi16(hi, _MM_SHUFFLE(3, 0, 1, 2));
 }
 
-static force_inline void over_2x128(__m128i* src_lo,
+static FORCEINLINE void over_2x128(__m128i* src_lo,
     __m128i* src_hi,
     __m128i* alpha_lo,
     __m128i* alpha_hi,
@@ -244,7 +244,7 @@ static force_inline void over_2x128(__m128i* src_lo,
 	*dst_hi = _mm_adds_epu8(*src_hi, *dst_hi);
 }
 
-static force_inline void over_rev_non_pre_2x128(__m128i src_lo,
+static FORCEINLINE void over_rev_non_pre_2x128(__m128i src_lo,
     __m128i src_hi,
     __m128i* dst_lo,
     __m128i* dst_hi)
@@ -264,7 +264,7 @@ static force_inline void over_rev_non_pre_2x128(__m128i src_lo,
 	over_2x128(&lo, &hi, &alpha_lo, &alpha_hi, dst_lo, dst_hi);
 }
 
-static force_inline void in_over_2x128(__m128i* src_lo,
+static FORCEINLINE void in_over_2x128(__m128i* src_lo,
     __m128i* src_hi,
     __m128i* alpha_lo,
     __m128i* alpha_hi,
@@ -283,13 +283,13 @@ static force_inline void in_over_2x128(__m128i* src_lo,
 }
 
 /* load 4 pixels from a 16-byte boundary aligned address */
-static force_inline __m128i load_128_aligned(__m128i* src)
+static FORCEINLINE __m128i load_128_aligned(__m128i* src)
 {
 	return _mm_load_si128(src);
 }
 
 /* load 4 pixels from a unaligned address */
-static force_inline __m128i load_128_unaligned(const __m128i* src)
+static FORCEINLINE __m128i load_128_unaligned(const __m128i* src)
 {
 	return _mm_loadu_si128(src);
 }
@@ -297,43 +297,43 @@ static force_inline __m128i load_128_unaligned(const __m128i* src)
 /* save 4 pixels using Write Combining memory on a 16-byte
  * boundary aligned address
  */
-static force_inline void save_128_write_combining(__m128i* dst,
+static FORCEINLINE void save_128_write_combining(__m128i* dst,
     __m128i data)
 {
 	_mm_stream_si128(dst, data);
 }
 
 /* save 4 pixels on a 16-byte boundary aligned address */
-static force_inline void save_128_aligned(__m128i* dst,
+static FORCEINLINE void save_128_aligned(__m128i* dst,
     __m128i data)
 {
 	_mm_store_si128(dst, data);
 }
 
 /* save 4 pixels on a unaligned address */
-static force_inline void save_128_unaligned(__m128i* dst,
+static FORCEINLINE void save_128_unaligned(__m128i* dst,
     __m128i data)
 {
 	_mm_storeu_si128(dst, data);
 }
 
-static force_inline __m128i load_32_1x128(uint32 data)
+static FORCEINLINE __m128i load_32_1x128(uint32 data)
 {
 	return _mm_cvtsi32_si128(data);
 }
 
-static force_inline __m128i expand_alpha_rev_1x128(__m128i data)
+static FORCEINLINE __m128i expand_alpha_rev_1x128(__m128i data)
 {
 	return _mm_shufflelo_epi16(data, _MM_SHUFFLE(0, 0, 0, 0));
 }
 
-static force_inline __m128i expand_pixel_8_1x128(uint8 data)
+static FORCEINLINE __m128i expand_pixel_8_1x128(uint8 data)
 {
 	return _mm_shufflelo_epi16(
 		unpack_32_1x128((uint32)data), _MM_SHUFFLE(0, 0, 0, 0));
 }
 
-static force_inline __m128i pix_multiply_1x128(__m128i data,
+static FORCEINLINE __m128i pix_multiply_1x128(__m128i data,
     __m128i alpha)
 {
 	return _mm_mulhi_epu16(_mm_adds_epu16(_mm_mullo_epi16(data, alpha),
@@ -341,7 +341,7 @@ static force_inline __m128i pix_multiply_1x128(__m128i data,
 		   mask_0101);
 }
 
-static force_inline __m128i pix_add_multiply_1x128(__m128i* src,
+static FORCEINLINE __m128i pix_add_multiply_1x128(__m128i* src,
     __m128i* alpha_dst,
     __m128i* dst,
     __m128i* alpha_src)
@@ -352,29 +352,29 @@ static force_inline __m128i pix_add_multiply_1x128(__m128i* src,
 	return _mm_adds_epu8(t1, t2);
 }
 
-static force_inline __m128i negate_1x128(__m128i data)
+static FORCEINLINE __m128i negate_1x128(__m128i data)
 {
 	return _mm_xor_si128(data, mask_00ff);
 }
 
-static force_inline __m128i invert_colors_1x128(__m128i data)
+static FORCEINLINE __m128i invert_colors_1x128(__m128i data)
 {
 	return _mm_shufflelo_epi16(data, _MM_SHUFFLE(3, 0, 1, 2));
 }
 
-static force_inline __m128i over_1x128(__m128i src, __m128i alpha, __m128i dst)
+static FORCEINLINE __m128i over_1x128(__m128i src, __m128i alpha, __m128i dst)
 {
 	return _mm_adds_epu8(src, pix_multiply_1x128(dst, negate_1x128(alpha)));
 }
 
-static force_inline __m128i in_over_1x128(__m128i* src, __m128i* alpha, __m128i* mask, __m128i* dst)
+static FORCEINLINE __m128i in_over_1x128(__m128i* src, __m128i* alpha, __m128i* mask, __m128i* dst)
 {
 	return over_1x128(pix_multiply_1x128(*src, *mask),
 		   pix_multiply_1x128(*alpha, *mask),
 		   *dst);
 }
 
-static force_inline __m128i over_rev_non_pre_1x128(__m128i src, __m128i dst)
+static FORCEINLINE __m128i over_rev_non_pre_1x128(__m128i src, __m128i dst)
 {
 	__m128i alpha = expand_alpha_1x128(src);
 
@@ -384,12 +384,12 @@ static force_inline __m128i over_rev_non_pre_1x128(__m128i src, __m128i dst)
 		   dst);
 }
 
-static force_inline uint32 pack_1x128_32(__m128i data)
+static FORCEINLINE uint32 pack_1x128_32(__m128i data)
 {
 	return _mm_cvtsi128_si32(_mm_packus_epi16(data, _mm_setzero_si128()));
 }
 
-static force_inline __m128i expand565_16_1x128(uint16 pixel)
+static FORCEINLINE __m128i expand565_16_1x128(uint16 pixel)
 {
 	__m128i m = _mm_cvtsi32_si128(pixel);
 
@@ -398,7 +398,7 @@ static force_inline __m128i expand565_16_1x128(uint16 pixel)
 	return _mm_unpacklo_epi8(m, _mm_setzero_si128());
 }
 
-static force_inline uint32 core_combine_over_u_pixel_sse2(uint32 src, uint32 dst)
+static FORCEINLINE uint32 core_combine_over_u_pixel_sse2(uint32 src, uint32 dst)
 {
 	uint8 a;
 	__m128i xmms;
@@ -418,7 +418,7 @@ static force_inline uint32 core_combine_over_u_pixel_sse2(uint32 src, uint32 dst
 	return dst;
 }
 
-static force_inline uint32 combine1(const uint32 * ps, const uint32 * pm)
+static FORCEINLINE uint32 combine1(const uint32 * ps, const uint32 * pm)
 {
 	uint32 s = *ps;
 
@@ -437,7 +437,7 @@ static force_inline uint32 combine1(const uint32 * ps, const uint32 * pm)
 	return s;
 }
 
-static force_inline __m128i combine4(const __m128i * ps, const __m128i * pm)
+static FORCEINLINE __m128i combine4(const __m128i * ps, const __m128i * pm)
 {
 	__m128i xmm_src_lo, xmm_src_hi;
 	__m128i xmm_msk_lo, xmm_msk_hi;
@@ -468,7 +468,7 @@ static force_inline __m128i combine4(const __m128i * ps, const __m128i * pm)
 	return s;
 }
 
-static force_inline void core_combine_over_u_sse2_mask(uint32 *    pd,
+static FORCEINLINE void core_combine_over_u_sse2_mask(uint32 *    pd,
     const uint32 *    ps,
     const uint32 *    pm,
     int w)
@@ -547,7 +547,7 @@ static force_inline void core_combine_over_u_sse2_mask(uint32 *    pd,
 	}
 }
 
-static force_inline void core_combine_over_u_sse2_no_mask(uint32 * pd,
+static FORCEINLINE void core_combine_over_u_sse2_no_mask(uint32 * pd,
     const uint32 *    ps,
     int w)
 {
@@ -610,7 +610,7 @@ static force_inline void core_combine_over_u_sse2_no_mask(uint32 * pd,
 	}
 }
 
-static force_inline void sse2_combine_over_u(pixman_implementation_t * imp,
+static FORCEINLINE void sse2_combine_over_u(pixman_implementation_t * imp,
     pixman_op_t op,
     uint32 * pd,
     const uint32 * ps,
@@ -690,7 +690,7 @@ static void sse2_combine_over_reverse_u(pixman_implementation_t * imp,
 	}
 }
 
-static force_inline uint32 core_combine_in_u_pixel_sse2(uint32 src, uint32 dst)
+static FORCEINLINE uint32 core_combine_in_u_pixel_sse2(uint32 src, uint32 dst)
 {
 	uint32 maska = src >> 24;
 
@@ -948,7 +948,7 @@ static void sse2_combine_out_u(pixman_implementation_t * imp,
 	}
 }
 
-static force_inline uint32 core_combine_atop_u_pixel_sse2(uint32 src,
+static FORCEINLINE uint32 core_combine_atop_u_pixel_sse2(uint32 src,
     uint32 dst)
 {
 	__m128i s = unpack_32_1x128(src);
@@ -1027,7 +1027,7 @@ static void sse2_combine_atop_u(pixman_implementation_t * imp,
 	}
 }
 
-static force_inline uint32 core_combine_reverse_atop_u_pixel_sse2(uint32 src,
+static FORCEINLINE uint32 core_combine_reverse_atop_u_pixel_sse2(uint32 src,
     uint32 dst)
 {
 	__m128i s = unpack_32_1x128(src);
@@ -1106,7 +1106,7 @@ static void sse2_combine_atop_reverse_u(pixman_implementation_t * imp,
 	}
 }
 
-static force_inline uint32 core_combine_xor_u_pixel_sse2(uint32 src,
+static FORCEINLINE uint32 core_combine_xor_u_pixel_sse2(uint32 src,
     uint32 dst)
 {
 	__m128i s = unpack_32_1x128(src);
@@ -1191,7 +1191,7 @@ static void sse2_combine_xor_u(pixman_implementation_t * imp,
 	}
 }
 
-static force_inline void sse2_combine_add_u(pixman_implementation_t * imp,
+static FORCEINLINE void sse2_combine_add_u(pixman_implementation_t * imp,
     pixman_op_t op,
     uint32 * dst,
     const uint32 * src,
@@ -1243,7 +1243,7 @@ static force_inline void sse2_combine_add_u(pixman_implementation_t * imp,
 	}
 }
 
-static force_inline uint32 core_combine_saturate_u_pixel_sse2(uint32 src, uint32 dst)
+static FORCEINLINE uint32 core_combine_saturate_u_pixel_sse2(uint32 src, uint32 dst)
 {
 	__m128i ms = unpack_32_1x128(src);
 	__m128i md = unpack_32_1x128(dst);
@@ -1386,7 +1386,7 @@ static void sse2_combine_src_ca(pixman_implementation_t * imp,
 	}
 }
 
-static force_inline uint32 core_combine_over_ca_pixel_sse2(uint32 src, uint32 mask, uint32 dst)
+static FORCEINLINE uint32 core_combine_over_ca_pixel_sse2(uint32 src, uint32 mask, uint32 dst)
 {
 	__m128i s = unpack_32_1x128(src);
 	__m128i expAlpha = expand_alpha_1x128(s);
@@ -1455,7 +1455,7 @@ static void sse2_combine_over_ca(pixman_implementation_t * imp,
 	}
 }
 
-static force_inline uint32 core_combine_over_reverse_ca_pixel_sse2(uint32 src,
+static FORCEINLINE uint32 core_combine_over_reverse_ca_pixel_sse2(uint32 src,
     uint32 mask,
     uint32 dst)
 {
@@ -1750,7 +1750,7 @@ static void sse2_combine_out_reverse_ca(pixman_implementation_t * imp, pixman_op
 	}
 }
 
-static force_inline uint32 core_combine_atop_ca_pixel_sse2(uint32 src, uint32 mask, uint32 dst)
+static FORCEINLINE uint32 core_combine_atop_ca_pixel_sse2(uint32 src, uint32 mask, uint32 dst)
 {
 	__m128i m = unpack_32_1x128(mask);
 	__m128i s = unpack_32_1x128(src);
@@ -1824,7 +1824,7 @@ static void sse2_combine_atop_ca(pixman_implementation_t * imp, pixman_op_t op, 
 	}
 }
 
-static force_inline uint32 core_combine_reverse_atop_ca_pixel_sse2(uint32 src,
+static FORCEINLINE uint32 core_combine_reverse_atop_ca_pixel_sse2(uint32 src,
     uint32 mask,
     uint32 dst)
 {
@@ -1913,7 +1913,7 @@ static void sse2_combine_atop_reverse_ca(pixman_implementation_t * imp,
 	}
 }
 
-static force_inline uint32 core_combine_xor_ca_pixel_sse2(uint32 src,
+static FORCEINLINE uint32 core_combine_xor_ca_pixel_sse2(uint32 src,
     uint32 mask,
     uint32 dst)
 {
@@ -2068,7 +2068,7 @@ static void sse2_combine_add_ca(pixman_implementation_t * imp,
 	}
 }
 
-static force_inline __m128i create_mask_16_128(uint16 mask)
+static FORCEINLINE __m128i create_mask_16_128(uint16 mask)
 {
 	return _mm_set1_epi16(mask);
 }
@@ -2078,7 +2078,7 @@ static force_inline __m128i create_mask_16_128(uint16 mask)
 #define create_mask_2x32_128(mask0, mask1)                             \
 	(_mm_set_epi32((mask0), (mask1), (mask0), (mask1)))
 #else
-static force_inline __m128i create_mask_2x32_128(uint32 mask0,
+static FORCEINLINE __m128i create_mask_2x32_128(uint32 mask0,
     uint32 mask1)
 {
 	return _mm_set_epi32(mask0, mask1, mask0, mask1);
@@ -2580,7 +2580,7 @@ static void sse2_composite_over_8888_8888(pixman_implementation_t * imp, pixman_
 	}
 }
 
-static force_inline uint16 composite_over_8888_0565pixel(uint32 src, uint16 dst)
+static FORCEINLINE uint16 composite_over_8888_0565pixel(uint32 src, uint16 dst)
 {
 	__m128i ms;
 
@@ -4157,7 +4157,7 @@ static void sse2_composite_over_8888_8888_8888(pixman_implementation_t * imp, pi
 }
 
 /* A variant of 'sse2_combine_over_u' with minor tweaks */
-static force_inline void scaled_nearest_scanline_sse2_8888_8888_OVER(uint32 * pd, const uint32 * ps,
+static FORCEINLINE void scaled_nearest_scanline_sse2_8888_8888_OVER(uint32 * pd, const uint32 * ps,
     int32 w, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t src_width_fixed, boolint fully_transparent_src)
 {
 	uint32 s, d;
@@ -4235,7 +4235,7 @@ FAST_NEAREST_MAINLOOP(sse2_8888_8888_none_OVER, scaled_nearest_scanline_sse2_888
 FAST_NEAREST_MAINLOOP(sse2_8888_8888_pad_OVER, scaled_nearest_scanline_sse2_8888_8888_OVER, uint32, uint32, PAD)
 FAST_NEAREST_MAINLOOP(sse2_8888_8888_normal_OVER, scaled_nearest_scanline_sse2_8888_8888_OVER, uint32, uint32, NORMAL)
 
-static force_inline void scaled_nearest_scanline_sse2_8888_n_8888_OVER(const uint32 * mask, uint32 *  dst,
+static FORCEINLINE void scaled_nearest_scanline_sse2_8888_n_8888_OVER(const uint32 * mask, uint32 *  dst,
     const uint32 * src, int32 w, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t src_width_fixed, boolint zero_src)
 {
 	__m128i xmm_mask;
@@ -4443,7 +4443,7 @@ FAST_NEAREST_MAINLOOP_COMMON(sse2_8888_n_8888_normal_OVER, scaled_nearest_scanli
 
 /***********************************************************************************/
 
-static force_inline void scaled_bilinear_scanline_sse2_8888_8888_SRC(uint32 *  dst,
+static FORCEINLINE void scaled_bilinear_scanline_sse2_8888_8888_SRC(uint32 *  dst,
     const uint32 * mask,
     const uint32 * src_top,
     const uint32 * src_bottom,
@@ -4489,7 +4489,7 @@ FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_8888_pad_SRC, scaled_bilinear_scanline_s
 FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_8888_none_SRC, scaled_bilinear_scanline_sse2_8888_8888_SRC, uint32, uint32, uint32, NONE, FLAG_NONE)
 FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_8888_normal_SRC, scaled_bilinear_scanline_sse2_8888_8888_SRC, uint32, uint32, uint32, NORMAL, FLAG_NONE)
 
-static force_inline void scaled_bilinear_scanline_sse2_x888_8888_SRC(uint32 *  dst, const uint32 * mask, const uint32 * src_top,
+static FORCEINLINE void scaled_bilinear_scanline_sse2_x888_8888_SRC(uint32 *  dst, const uint32 * mask, const uint32 * src_top,
     const uint32 * src_bottom, int32 w, int wt, int wb, pixman_fixed_t vx_, pixman_fixed_t unit_x_, pixman_fixed_t max_vx, boolint zero_src)
 {
 	intptr_t vx = vx_;
@@ -4526,7 +4526,7 @@ FAST_BILINEAR_MAINLOOP_COMMON(sse2_x888_8888_cover_SRC, scaled_bilinear_scanline
 FAST_BILINEAR_MAINLOOP_COMMON(sse2_x888_8888_pad_SRC, scaled_bilinear_scanline_sse2_x888_8888_SRC, uint32, uint32, uint32, PAD, FLAG_NONE)
 FAST_BILINEAR_MAINLOOP_COMMON(sse2_x888_8888_normal_SRC, scaled_bilinear_scanline_sse2_x888_8888_SRC, uint32, uint32, uint32, NORMAL, FLAG_NONE)
 
-static force_inline void scaled_bilinear_scanline_sse2_8888_8888_OVER(uint32 *  dst, const uint32 * mask, const uint32 * src_top, const uint32 * src_bottom,
+static FORCEINLINE void scaled_bilinear_scanline_sse2_8888_8888_OVER(uint32 *  dst, const uint32 * mask, const uint32 * src_top, const uint32 * src_bottom,
     int32 w, int wt, int wb, pixman_fixed_t vx_, pixman_fixed_t unit_x_, pixman_fixed_t max_vx, boolint zero_src)
 {
 	intptr_t vx = vx_;
@@ -4580,7 +4580,7 @@ FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_8888_pad_OVER, scaled_bilinear_scanline_
 FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_8888_none_OVER, scaled_bilinear_scanline_sse2_8888_8888_OVER, uint32, uint32, uint32, NONE, FLAG_NONE)
 FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_8888_normal_OVER, scaled_bilinear_scanline_sse2_8888_8888_OVER, uint32, uint32, uint32, NORMAL, FLAG_NONE)
 
-static force_inline void scaled_bilinear_scanline_sse2_8888_8_8888_OVER(uint32 *  dst, const uint8 * mask, const uint32 * src_top, const uint32 * src_bottom,
+static FORCEINLINE void scaled_bilinear_scanline_sse2_8888_8_8888_OVER(uint32 *  dst, const uint8 * mask, const uint32 * src_top, const uint32 * src_bottom,
     int32 w, int wt, int wb, pixman_fixed_t vx_, pixman_fixed_t unit_x_, pixman_fixed_t max_vx, boolint zero_src)
 {
 	intptr_t vx = vx_;
@@ -4675,7 +4675,7 @@ FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_8_8888_pad_OVER, scaled_bilinear_scanlin
 FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_8_8888_none_OVER, scaled_bilinear_scanline_sse2_8888_8_8888_OVER, uint32, uint8, uint32, NONE, FLAG_HAVE_NON_SOLID_MASK)
 FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_8_8888_normal_OVER, scaled_bilinear_scanline_sse2_8888_8_8888_OVER, uint32, uint8, uint32, NORMAL, FLAG_HAVE_NON_SOLID_MASK)
 
-static force_inline void scaled_bilinear_scanline_sse2_8888_n_8888_OVER(uint32 *  dst, const uint32 * mask, const uint32 * src_top,
+static FORCEINLINE void scaled_bilinear_scanline_sse2_8888_n_8888_OVER(uint32 *  dst, const uint32 * mask, const uint32 * src_top,
     const uint32 * src_bottom, int32 w, int wt, int wb, pixman_fixed_t vx_, pixman_fixed_t unit_x_, pixman_fixed_t max_vx, boolint zero_src)
 {
 	intptr_t vx = vx_;

@@ -1583,12 +1583,9 @@ static fz_buffer * deflatebuf(fz_context * ctx, const uchar * p, size_t n)
 
 static int striphexfilter(fz_context * ctx, pdf_document * doc, pdf_obj * dict)
 {
-	pdf_obj * f, * dp;
 	int is_hex = 0;
-
-	f = pdf_dict_get(ctx, dict, PDF_NAME(Filter));
-	dp = pdf_dict_get(ctx, dict, PDF_NAME(DecodeParms));
-
+	pdf_obj * f = pdf_dict_get(ctx, dict, PDF_NAME(Filter));
+	pdf_obj * dp = pdf_dict_get(ctx, dict, PDF_NAME(DecodeParms));
 	if(pdf_is_array(ctx, f)) {
 		/* Remove ASCIIHexDecode from head of filter list */
 		if(pdf_array_get(ctx, f, 0) == PDF_NAME(ASCIIHexDecode)) {
@@ -3264,12 +3261,10 @@ static void do_pdf_save_document(fz_context * ctx, pdf_document * doc, pdf_write
 					lastfree = num;
 				}
 			}
-
 			if(opts->do_linear && opts->page_count > 0) {
 				opts->main_xref_offset = fz_tell_output(ctx, opts->out);
 				writexref(ctx, doc, opts, 0, opts->start, 0, 0, opts->first_xref_offset);
 				opts->file_len = fz_tell_output(ctx, opts->out);
-
 				make_hint_stream(ctx, doc, opts);
 				if(opts->do_ascii) {
 					opts->hintstream_len *= 2;
@@ -3288,12 +3283,9 @@ static void do_pdf_save_document(fz_context * ctx, pdf_document * doc, pdf_write
 				opts->first_xref_offset = fz_tell_output(ctx, opts->out);
 				writexref(ctx, doc, opts, 0, xref_len, 1, 0, opts->first_xref_offset);
 			}
-
 			doc->xref_sections[0].end_ofs = fz_tell_output(ctx, opts->out);
 		}
-
 		complete_signatures(ctx, doc, opts);
-
 		doc->dirty = 0;
 	}
 	fz_always(ctx)
@@ -3307,18 +3299,15 @@ static void do_pdf_save_document(fz_context * ctx, pdf_document * doc, pdf_write
 			pdf_drop_crypt(ctx, opts->crypt);
 		doc->save_in_progress = 0;
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_rethrow(ctx);
 	}
 }
 
 int pdf_has_unsaved_sigs(fz_context * ctx, pdf_document * doc)
 {
-	int s;
-	for(s = 0; s < doc->num_incremental_sections; s++) {
+	for(int s = 0; s < doc->num_incremental_sections; s++) {
 		pdf_xref * xref = &doc->xref_sections[doc->num_incremental_sections - s - 1];
-
 		if(xref->unsaved_sigs)
 			return 1;
 	}
@@ -3329,13 +3318,10 @@ void pdf_write_document(fz_context * ctx, pdf_document * doc, fz_output * out, p
 {
 	pdf_write_options opts_defaults = pdf_default_write_options;
 	pdf_write_state opts = { 0 };
-
 	if(!doc || !out)
 		return;
-
 	if(!in_opts)
 		in_opts = &opts_defaults;
-
 	if(in_opts->do_incremental && doc->repair_attempted)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "Can't do incremental writes on a repaired file");
 	if(in_opts->do_incremental && in_opts->do_garbage)
@@ -3345,14 +3331,9 @@ void pdf_write_document(fz_context * ctx, pdf_document * doc, fz_output * out, p
 	if(in_opts->do_incremental && in_opts->do_encrypt != PDF_ENCRYPT_KEEP)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "Can't do incremental writes when changing encryption");
 	if(pdf_has_unsaved_sigs(ctx, doc) && !fz_output_supports_stream(ctx, out))
-		fz_throw(ctx,
-		    FZ_ERROR_GENERIC,
-		    "Can't write pdf that has unsaved sigs to a fz_output unless it supports fz_stream_from_output!");
-
+		fz_throw(ctx, FZ_ERROR_GENERIC, "Can't write pdf that has unsaved sigs to a fz_output unless it supports fz_stream_from_output!");
 	prepare_for_save(ctx, doc, in_opts);
-
 	opts.out = out;
-
 	do_pdf_save_document(ctx, doc, &opts, in_opts);
 }
 
@@ -3360,13 +3341,10 @@ void pdf_save_document(fz_context * ctx, pdf_document * doc, const char * filena
 {
 	pdf_write_options opts_defaults = pdf_default_write_options;
 	pdf_write_state opts = { 0 };
-
 	if(!doc)
 		return;
-
 	if(!in_opts)
 		in_opts = &opts_defaults;
-
 	if(in_opts->do_incremental && !doc->file)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "Can't do incremental writes on a new document");
 	if(in_opts->do_incremental && doc->repair_attempted)
@@ -3377,7 +3355,6 @@ void pdf_save_document(fz_context * ctx, pdf_document * doc, const char * filena
 		fz_throw(ctx, FZ_ERROR_GENERIC, "Can't do incremental writes with linearisation");
 	if(in_opts->do_incremental && in_opts->do_encrypt != PDF_ENCRYPT_KEEP)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "Can't do incremental writes when changing encryption");
-
 	if(in_opts->do_appearance > 0) {
 		int i, n = pdf_count_pages(ctx, doc);
 		for(i = 0; i < n; ++i) {
@@ -3399,27 +3376,22 @@ void pdf_save_document(fz_context * ctx, pdf_document * doc, const char * filena
 			fz_warn(ctx, "could not create annotation appearances");
 		}
 	}
-
 	prepare_for_save(ctx, doc, in_opts);
-
 	if(in_opts->do_incremental) {
 		opts.out = fz_new_output_with_path(ctx, filename, 1);
 	}
 	else {
 		opts.out = fz_new_output_with_path(ctx, filename, 0);
 	}
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		do_pdf_save_document(ctx, doc, &opts, in_opts);
 		fz_close_output(ctx, opts.out);
 	}
-	fz_always(ctx)
-	{
+	fz_always(ctx) {
 		fz_drop_output(ctx, opts.out);
 		opts.out = NULL;
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_rethrow(ctx);
 	}
 }
@@ -3454,29 +3426,15 @@ char * pdf_format_write_options(fz_context * ctx, char * buffer, size_t buffer_l
 		ADD_OPT("decrypt=yes");
 	else if(opts->do_encrypt == PDF_ENCRYPT_KEEP)
 		ADD_OPT("decrypt=no");
-	switch(opts->do_encrypt)
-	{
+	switch(opts->do_encrypt) {
 		default:
-		case PDF_ENCRYPT_UNKNOWN:
-		    break;
-		case PDF_ENCRYPT_NONE:
-		    ADD_OPT("encrypt=no");
-		    break;
-		case PDF_ENCRYPT_KEEP:
-		    ADD_OPT("encrypt=keep");
-		    break;
-		case PDF_ENCRYPT_RC4_40:
-		    ADD_OPT("encrypt=rc4-40");
-		    break;
-		case PDF_ENCRYPT_RC4_128:
-		    ADD_OPT("encrypt=rc4-128");
-		    break;
-		case PDF_ENCRYPT_AES_128:
-		    ADD_OPT("encrypt=aes-128");
-		    break;
-		case PDF_ENCRYPT_AES_256:
-		    ADD_OPT("encrypt=aes-256");
-		    break;
+		case PDF_ENCRYPT_UNKNOWN: break;
+		case PDF_ENCRYPT_NONE: ADD_OPT("encrypt=no"); break;
+		case PDF_ENCRYPT_KEEP: ADD_OPT("encrypt=keep"); break;
+		case PDF_ENCRYPT_RC4_40: ADD_OPT("encrypt=rc4-40"); break;
+		case PDF_ENCRYPT_RC4_128: ADD_OPT("encrypt=rc4-128"); break;
+		case PDF_ENCRYPT_AES_128: ADD_OPT("encrypt=aes-128"); break;
+		case PDF_ENCRYPT_AES_256: ADD_OPT("encrypt=aes-256"); break;
 	}
 	if(strlen(opts->opwd_utf8)) {
 		ADD_OPT("owner-password=");
@@ -3492,40 +3450,25 @@ char * pdf_format_write_options(fz_context * ctx, char * buffer, size_t buffer_l
 		fz_snprintf(temp, sizeof(temp), "%d", opts->permissions);
 		fz_strlcat(buffer, temp, buffer_len);
 	}
-	switch(opts->do_garbage)
-	{
-		case 0:
-		    break;
-		case 1:
-		    ADD_OPT("garbage=yes");
-		    break;
-		case 2:
-		    ADD_OPT("garbage=compact");
-		    break;
-		case 3:
-		    ADD_OPT("garbage=deduplicate");
-		    break;
+	switch(opts->do_garbage) {
+		case 0: break;
+		case 1: ADD_OPT("garbage=yes"); break;
+		case 2: ADD_OPT("garbage=compact"); break;
+		case 3: ADD_OPT("garbage=deduplicate"); break;
 		default:
-	    {
-		    char temp[32];
-		    fz_snprintf(temp, sizeof(temp), "%d", opts->do_garbage);
-		    ADD_OPT("garbage=");
-		    fz_strlcat(buffer, temp, buffer_len);
-		    break;
-	    }
+			{
+				char temp[32];
+				fz_snprintf(temp, sizeof(temp), "%d", opts->do_garbage);
+				ADD_OPT("garbage=");
+				fz_strlcat(buffer, temp, buffer_len);
+			}
+			break;
 	}
-	switch(opts->do_appearance)
-	{
-		case 1:
-		    ADD_OPT("appearance=yes");
-		    break;
-		case 2:
-		    ADD_OPT("appearance=all");
-		    break;
+	switch(opts->do_appearance) {
+		case 1: ADD_OPT("appearance=yes"); break;
+		case 2: ADD_OPT("appearance=all"); break;
 	}
-
 #undef ADD_OPT
-
 	return buffer;
 }
 
@@ -3534,7 +3477,6 @@ typedef struct {
 	pdf_document * pdf;
 	pdf_write_options opts;
 	fz_output * out;
-
 	fz_rect mediabox;
 	pdf_obj * resources;
 	fz_buffer * contents;
@@ -3551,17 +3493,13 @@ static void pdf_writer_end_page(fz_context * ctx, fz_document_writer * wri_, fz_
 {
 	pdf_writer * wri = (pdf_writer*)wri_;
 	pdf_obj * obj = NULL;
-
 	fz_var(obj);
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		fz_close_device(ctx, dev);
 		obj = pdf_add_page(ctx, wri->pdf, wri->mediabox, 0, wri->resources, wri->contents);
 		pdf_insert_page(ctx, wri->pdf, -1, obj);
 	}
-	fz_always(ctx)
-	{
+	fz_always(ctx) {
 		fz_drop_device(ctx, dev);
 		pdf_drop_obj(ctx, obj);
 		fz_drop_buffer(ctx, wri->contents);
@@ -3591,26 +3529,18 @@ static void pdf_writer_drop_writer(fz_context * ctx, fz_document_writer * wri_)
 
 fz_document_writer * fz_new_pdf_writer_with_output(fz_context * ctx, fz_output * out, const char * options)
 {
-	pdf_writer * wri = fz_new_derived_document_writer(ctx,
-		pdf_writer,
-		pdf_writer_begin_page,
-		pdf_writer_end_page,
-		pdf_writer_close_writer,
-		pdf_writer_drop_writer);
-
-	fz_try(ctx)
-	{
+	pdf_writer * wri = fz_new_derived_document_writer(ctx, pdf_writer, pdf_writer_begin_page, pdf_writer_end_page,
+		pdf_writer_close_writer, pdf_writer_drop_writer);
+	fz_try(ctx) {
 		pdf_parse_write_options(ctx, &wri->opts, options);
 		wri->out = out;
 		wri->pdf = pdf_create_document(ctx);
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		pdf_drop_document(ctx, wri->pdf);
 		fz_free(ctx, wri);
 		fz_rethrow(ctx);
 	}
-
 	return (fz_document_writer*)wri;
 }
 
@@ -3619,9 +3549,8 @@ fz_document_writer * fz_new_pdf_writer(fz_context * ctx, const char * path, cons
 	fz_output * out = fz_new_output_with_path(ctx, path ? path : "out.pdf", 0);
 	fz_document_writer * wri = NULL;
 	fz_try(ctx)
-	wri = fz_new_pdf_writer_with_output(ctx, out, options);
-	fz_catch(ctx)
-	{
+		wri = fz_new_pdf_writer_with_output(ctx, out, options);
+	fz_catch(ctx) {
 		fz_drop_output(ctx, out);
 		fz_rethrow(ctx);
 	}

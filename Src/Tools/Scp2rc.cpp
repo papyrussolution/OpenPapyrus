@@ -1,5 +1,5 @@
 // SCP2RC.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000-2002, 2005, 2007, 2011, 2013, 2016, 2017, 2019, 2020, 2021, 2022
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000-2002, 2005, 2007, 2011, 2013, 2016, 2017, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -580,13 +580,13 @@ public:
 		if(*p == ',')
 			p++;
 		*n = 0;
-		typeLen = atoi(strip(buf));
+		typeLen = satoi(strip(buf));
 		n = buf;
 		while(*p && *p != ',')
 			*n++ = *p++;
 		*n = 0;
 		if(*strip(buf))
-			typeDec = atoi(buf);
+			typeDec = satoi(buf);
 		if(typeName[0] == 0)
 			strcpy(typeName, "S_ZSTRING");
 	}
@@ -610,13 +610,13 @@ public:
 		if(*p == ',')
 			p++;
 		*n = 0;
-		fmtLen = atoi(strip(buf));
+		fmtLen = satoi(strip(buf));
 		n = buf;
 		while(*p && *p != ',')
 			*n++ = *p++;
 		*n = 0;
 		if(*strip(buf))
-			fmtDec = atoi(buf);
+			fmtDec = satoi(buf);
 		if(fmtFlags[0] == 0)
 			strcpy(fmtFlags, "0");
 	}
@@ -630,7 +630,7 @@ public:
 	void GetNumCols()
 	{
 		numCols = 0;
-		numCols = atoi(strip(Fix.extra[3]));
+		numCols = satoi(strip(Fix.extra[3]));
 	}
 	void GetColNames()
 	{

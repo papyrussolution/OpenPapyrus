@@ -246,6 +246,17 @@
     </ClCompile>
     <ClCompile Include="..\SLib\smemchr.cpp" />
     <ClCompile Include="..\OSF\AVX-Memmove\memset.c" />
+    <ClCompile Include="..\SLib\vslocate.c" />
+    <ClCompile Include="..\SLib\SAIS\src\libsais.c">
+      <Filter>SAIS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\SAIS\src\libsais16.c">
+      <Filter>SAIS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\SAIS\src\libsais64.c">
+      <Filter>SAIS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\BZIP3\src\libbz3.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -366,6 +377,15 @@
       <Filter>LMDB</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\gif_lib.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\SAIS\include\libsais.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\SAIS\include\libsais16.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\SAIS\include\libsais64.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
@@ -593,6 +613,9 @@
     </Filter>
     <Filter Include="LMDB\TEST">
       <UniqueIdentifier>{4f7bc91f-fa69-4e3f-b654-b4cadfb1b8d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SAIS">
+      <UniqueIdentifier>{b5c7b64e-db83-44e1-ac49-e80f10aade89}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

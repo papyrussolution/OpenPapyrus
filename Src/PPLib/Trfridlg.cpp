@@ -861,7 +861,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 					break;
 				case cmQuot:
 					{
-						PPID   loc_id = GetQuotLocID();
+						const PPID loc_id = GetQuotLocID();
 						GObj.EditQuotations(Item.GoodsID, loc_id, Item.CurID, 0 /* ArID */, PPQuot::clsGeneral);
 						setupBaseQuot();
 						setupPriceLimit();

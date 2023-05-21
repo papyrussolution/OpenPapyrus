@@ -98,18 +98,18 @@ static int fghJoystickGetOEMProductName(SFG_Joystick* joy, char * buf, int buf_s
 		return 0;
 	/* Open .. MediaResources\CurrentJoystickSettings */
 	_snprintf(buffer, sizeof(buffer), "%s\\%s\\%s", REGSTR_PATH_JOYCONFIG, joy->pJoystick.jsCaps.szRegKey, REGSTR_KEY_JOYCURR);
-	lr = RegOpenKeyEx(HKEY_LOCAL_MACHINE, buffer, 0, KEY_QUERY_VALUE, &hKey);
+	lr = RegOpenKeyExA(HKEY_LOCAL_MACHINE, buffer, 0, KEY_QUERY_VALUE, &hKey);
 	if(lr != ERROR_SUCCESS) return 0;
 	/* Get OEM Key name */
 	dwcb = sizeof(OEMKey);
 	/* JOYSTICKID1-16 is zero-based; registry entries for VJOYD are 1-based. */
 	_snprintf(buffer, sizeof(buffer), "Joystick%d%s", joy->pJoystick.js_id + 1, REGSTR_VAL_JOYOEMNAME);
-	lr = RegQueryValueEx(hKey, buffer, 0, 0, (LPBYTE)OEMKey, &dwcb);
+	lr = RegQueryValueExA(hKey, buffer, 0, 0, (LPBYTE)OEMKey, &dwcb);
 	RegCloseKey(hKey);
 	if(lr != ERROR_SUCCESS) return 0;
 	/* Open OEM Key from ...MediaProperties */
 	_snprintf(buffer, sizeof(buffer), "%s\\%s", REGSTR_PATH_JOYOEM, OEMKey);
-	lr = RegOpenKeyEx(HKEY_LOCAL_MACHINE, buffer, 0, KEY_QUERY_VALUE, &hKey);
+	lr = RegOpenKeyExA(HKEY_LOCAL_MACHINE, buffer, 0, KEY_QUERY_VALUE, &hKey);
 	if(lr != ERROR_SUCCESS) 
 		return 0;
 	/* Get OEM Name */
@@ -128,13 +128,8 @@ void fgPlatformJoystickOpen(SFG_Joystick* joy)
 
 	joy->pJoystick.js.dwFlags = JOY_RETURNALL;
 	joy->pJoystick.js.dwSize  = sizeof( joy->pJoystick.js );
-
 	memset(&joy->pJoystick.jsCaps, 0, sizeof( joy->pJoystick.jsCaps ) );
-
-	joy->error =
-	    ( joyGetDevCaps(joy->pJoystick.js_id, &joy->pJoystick.jsCaps, sizeof( joy->pJoystick.jsCaps ) ) !=
-	    JOYERR_NOERROR );
-
+	joy->error = (joyGetDevCapsA(joy->pJoystick.js_id, &joy->pJoystick.jsCaps, sizeof( joy->pJoystick.jsCaps ) ) != JOYERR_NOERROR );
 	if(joy->pJoystick.jsCaps.wNumAxes == 0) {
 		joy->num_axes = 0;
 		joy->error = GL_TRUE;
@@ -143,8 +138,7 @@ void fgPlatformJoystickOpen(SFG_Joystick* joy)
 		/* Device name from jsCaps is often "Microsoft PC-joystick driver",
 		 * at least for USB.  Try to get the real name from the registry.
 		 */
-		if(!fghJoystickGetOEMProductName(joy, joy->name,
-		    sizeof( joy->name ) )) {
+		if(!fghJoystickGetOEMProductName(joy, joy->name, sizeof( joy->name ) )) {
 			fgWarning("JS: Failed to read joystick name from registry");
 			strncpy(joy->name, joy->pJoystick.jsCaps.szPname, sizeof( joy->name ) );
 		}

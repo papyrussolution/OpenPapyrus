@@ -2344,11 +2344,9 @@ void generate_schema(Table * t)
 							dirpath, prefix, name1, name1);
 					}
 					else
-						fprintf(
-							fd,
+						fprintf(fd,
 							"%s%s.nsmap\"\n\n#ifndef SOAP_DEFMAIN\n# define SOAP_DEFMAIN main\t/* redefine to use your own main() */\n#endif\n\nint SOAP_DEFMAIN(int argc, char **argv)\n{\n\tstruct soap *soap = soap_new1(argc > 1 ? atoi(argv[1]) : 0);\n\tif(argc <= 2)\n\t\treturn %s_serve(soap);\n\tif(soap_valid_socket(soap_bind(soap, NULL, atoi(argv[2]), 100)))\n\t\twhile(soap_valid_socket(soap_accept(soap)))\n\t\t{\t%s_serve(soap);\n\t\t\tsoap_destroy(soap);\n\t\t\tsoap_end(soap);\n\t\t}\n\tsoap_free(soap);\n\treturn 0;\n}\n",
-							dirpath, nflag ? prefix : ns_cname(name,
-								NULL), nflag ? prefix : "soap", nflag ? prefix : "soap");
+							dirpath, nflag ? prefix : ns_cname(name, NULL), nflag ? prefix : "soap", nflag ? prefix : "soap");
 					for(method = t->list; method; method = method->next) {
 						if(method->info.typ->type == Tfun && !(method->info.sto&Sextern)) {
 							Entry * p, * q = entry(t, method->sym);

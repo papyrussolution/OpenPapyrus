@@ -232,7 +232,7 @@ static const mmx_data_t c =
 #define MC(x) c.mmx_ ## x
 #endif
 
-static force_inline __m64 to_m64(uint64 x)
+static FORCEINLINE __m64 to_m64(uint64 x)
 {
 #ifdef USE_CVT_INTRINSICS
 	return _mm_cvtsi64_m64(x);
@@ -248,7 +248,7 @@ static force_inline __m64 to_m64(uint64 x)
 #endif
 }
 
-static force_inline uint64 to_uint64(__m64 x)
+static FORCEINLINE uint64 to_uint64(__m64 x)
 {
 #ifdef USE_CVT_INTRINSICS
 	return _mm_cvtm64_si64(x);
@@ -262,7 +262,7 @@ static force_inline uint64 to_uint64(__m64 x)
 #endif
 }
 
-static force_inline __m64 shift(__m64 v,
+static FORCEINLINE __m64 shift(__m64 v,
     int s)
 {
 	if(s > 0)
@@ -273,7 +273,7 @@ static force_inline __m64 shift(__m64 v,
 		return v;
 }
 
-static force_inline __m64 negate(__m64 mask)
+static FORCEINLINE __m64 negate(__m64 mask)
 {
 	return _mm_xor_si64(mask, MC(4x00ff));
 }
@@ -301,7 +301,7 @@ static force_inline __m64 negate(__m64 mask)
  *
  * prod(a, b) = (temp + (temp >> 8)) >> 8.
  */
-static force_inline __m64 pix_multiply(__m64 a, __m64 b)
+static FORCEINLINE __m64 pix_multiply(__m64 a, __m64 b)
 {
 	__m64 res;
 
@@ -312,34 +312,34 @@ static force_inline __m64 pix_multiply(__m64 a, __m64 b)
 	return res;
 }
 
-static force_inline __m64 pix_add(__m64 a, __m64 b)
+static FORCEINLINE __m64 pix_add(__m64 a, __m64 b)
 {
 	return _mm_adds_pu8(a, b);
 }
 
-static force_inline __m64 expand_alpha(__m64 pixel)
+static FORCEINLINE __m64 expand_alpha(__m64 pixel)
 {
 	return _mm_shuffle_pi16(pixel, _MM_SHUFFLE(3, 3, 3, 3));
 }
 
-static force_inline __m64 expand_alpha_rev(__m64 pixel)
+static FORCEINLINE __m64 expand_alpha_rev(__m64 pixel)
 {
 	return _mm_shuffle_pi16(pixel, _MM_SHUFFLE(0, 0, 0, 0));
 }
 
-static force_inline __m64 invert_colors(__m64 pixel)
+static FORCEINLINE __m64 invert_colors(__m64 pixel)
 {
 	return _mm_shuffle_pi16(pixel, _MM_SHUFFLE(3, 0, 1, 2));
 }
 
-static force_inline __m64 over(__m64 src,
+static FORCEINLINE __m64 over(__m64 src,
     __m64 srca,
     __m64 dest)
 {
 	return _mm_adds_pu8(src, pix_multiply(dest, negate(srca)));
 }
 
-static force_inline __m64 over_rev_non_pre(__m64 src, __m64 dest)
+static FORCEINLINE __m64 over_rev_non_pre(__m64 src, __m64 dest)
 {
 	__m64 srca = expand_alpha(src);
 	__m64 srcfaaa = _mm_or_si64(srca, MC(full_alpha));
@@ -347,13 +347,13 @@ static force_inline __m64 over_rev_non_pre(__m64 src, __m64 dest)
 	return over(pix_multiply(invert_colors(src), srcfaaa), srca, dest);
 }
 
-static force_inline __m64 in(__m64 src, __m64 mask)
+static FORCEINLINE __m64 in(__m64 src, __m64 mask)
 {
 	return pix_multiply(src, mask);
 }
 
 #ifndef _MSC_VER
-static force_inline __m64 in_over(__m64 src, __m64 srca, __m64 mask, __m64 dest)
+static FORCEINLINE __m64 in_over(__m64 src, __m64 srca, __m64 mask, __m64 dest)
 {
 	return over(in(src, mask), pix_multiply(srca, mask), dest);
 }
@@ -367,7 +367,7 @@ static force_inline __m64 in_over(__m64 src, __m64 srca, __m64 mask, __m64 dest)
 
 /* Elemental unaligned loads */
 
-static force_inline __m64 ldq_u(__m64 * p)
+static FORCEINLINE __m64 ldq_u(__m64 * p)
 {
 #ifdef USE_X86_MMX
 	/* x86's alignment restrictions are very relaxed. */
@@ -387,7 +387,7 @@ static force_inline __m64 ldq_u(__m64 * p)
 #endif
 }
 
-static force_inline uint32 ldl_u(const uint32 * p)
+static FORCEINLINE uint32 ldl_u(const uint32 * p)
 {
 #ifdef USE_X86_MMX
 	/* x86's alignment restrictions are very relaxed. */
@@ -400,7 +400,7 @@ static force_inline uint32 ldl_u(const uint32 * p)
 #endif
 }
 
-static force_inline __m64 load(const uint32 * v)
+static FORCEINLINE __m64 load(const uint32 * v)
 {
 #ifdef USE_LOONGSON_MMI
 	__m64 ret;
@@ -414,7 +414,7 @@ static force_inline __m64 load(const uint32 * v)
 #endif
 }
 
-static force_inline __m64 load8888(const uint32 * v)
+static FORCEINLINE __m64 load8888(const uint32 * v)
 {
 #ifdef USE_LOONGSON_MMI
 	return _mm_unpacklo_pi8_f(*(__m32*)v, _mm_setzero_si64());
@@ -423,18 +423,18 @@ static force_inline __m64 load8888(const uint32 * v)
 #endif
 }
 
-static force_inline __m64 load8888u(const uint32 * v)
+static FORCEINLINE __m64 load8888u(const uint32 * v)
 {
 	uint32 l = ldl_u(v);
 	return load8888(&l);
 }
 
-static force_inline __m64 pack8888(__m64 lo, __m64 hi)
+static FORCEINLINE __m64 pack8888(__m64 lo, __m64 hi)
 {
 	return _mm_packs_pu16(lo, hi);
 }
 
-static force_inline void store(uint32 * dest, __m64 v)
+static FORCEINLINE void store(uint32 * dest, __m64 v)
 {
 #ifdef USE_LOONGSON_MMI
 	asm ("swc1 %1, %0\n\t"
@@ -447,13 +447,13 @@ static force_inline void store(uint32 * dest, __m64 v)
 #endif
 }
 
-static force_inline void store8888(uint32 * dest, __m64 v)
+static FORCEINLINE void store8888(uint32 * dest, __m64 v)
 {
 	v = pack8888(v, _mm_setzero_si64());
 	store(dest, v);
 }
 
-static force_inline boolint is_equal(__m64 a, __m64 b)
+static FORCEINLINE boolint is_equal(__m64 a, __m64 b)
 {
 #ifdef USE_LOONGSON_MMI
 	/* __m64 is double, we can compare directly. */
@@ -463,7 +463,7 @@ static force_inline boolint is_equal(__m64 a, __m64 b)
 #endif
 }
 
-static force_inline boolint is_opaque(__m64 v)
+static FORCEINLINE boolint is_opaque(__m64 v)
 {
 #ifdef USE_LOONGSON_MMI
 	return is_equal(_mm_and_si64(v, MC(full_alpha)), MC(full_alpha));
@@ -473,7 +473,7 @@ static force_inline boolint is_opaque(__m64 v)
 #endif
 }
 
-static force_inline boolint is_zero(__m64 v)
+static FORCEINLINE boolint is_zero(__m64 v)
 {
 	return is_equal(v, _mm_setzero_si64());
 }
@@ -492,7 +492,7 @@ static force_inline boolint is_zero(__m64 v)
  * Note the trick here - the top word is shifted by another nibble to
  * avoid it bumping into the middle word
  */
-static force_inline __m64 expand565(__m64 pixel, int pos)
+static FORCEINLINE __m64 expand565(__m64 pixel, int pos)
 {
 	__m64 p = pixel;
 	__m64 t1, t2;
@@ -519,7 +519,7 @@ static force_inline __m64 expand565(__m64 pixel, int pos)
  *
  * AARRGGBBRRGGBB
  */
-static force_inline void expand_4xpacked565(__m64 vin, __m64 * vout0, __m64 * vout1, int full_alpha)
+static FORCEINLINE void expand_4xpacked565(__m64 vin, __m64 * vout0, __m64 * vout1, int full_alpha)
 {
 	__m64 t0, t1, alpha = _mm_setzero_si64();
 	__m64 r = _mm_and_si64(vin, MC(expand_565_r));
@@ -544,7 +544,7 @@ static force_inline void expand_4xpacked565(__m64 vin, __m64 * vout0, __m64 * vo
 	*vout1 = _mm_unpackhi_pi16(t0, t1); /* A3 R3 G3 B3 A2 R2 G2 B2 */
 }
 
-static force_inline __m64 expand8888(__m64 in, int pos)
+static FORCEINLINE __m64 expand8888(__m64 in, int pos)
 {
 	if(pos == 0)
 		return _mm_unpacklo_pi8(in, _mm_setzero_si64());
@@ -552,12 +552,12 @@ static force_inline __m64 expand8888(__m64 in, int pos)
 		return _mm_unpackhi_pi8(in, _mm_setzero_si64());
 }
 
-static force_inline __m64 expandx888(__m64 in, int pos)
+static FORCEINLINE __m64 expandx888(__m64 in, int pos)
 {
 	return _mm_or_si64(expand8888(in, pos), MC(full_alpha));
 }
 
-static force_inline void expand_4x565(__m64 vin, __m64 * vout0, __m64 * vout1, __m64 * vout2, __m64 * vout3, int full_alpha)
+static FORCEINLINE void expand_4x565(__m64 vin, __m64 * vout0, __m64 * vout1, __m64 * vout2, __m64 * vout3, int full_alpha)
 {
 	__m64 v0, v1;
 	expand_4xpacked565(vin, &v0, &v1, full_alpha);
@@ -567,7 +567,7 @@ static force_inline void expand_4x565(__m64 vin, __m64 * vout0, __m64 * vout1, _
 	*vout3 = expand8888(v1, 1);
 }
 
-static force_inline __m64 pack_565(__m64 pixel, __m64 target, int pos)
+static FORCEINLINE __m64 pack_565(__m64 pixel, __m64 target, int pos)
 {
 	__m64 p = pixel;
 	__m64 t = target;
@@ -606,7 +606,7 @@ static force_inline __m64 pack_565(__m64 pixel, __m64 target, int pos)
 #endif
 }
 
-static force_inline __m64 pack_4xpacked565(__m64 a, __m64 b)
+static FORCEINLINE __m64 pack_4xpacked565(__m64 a, __m64 b)
 {
 	__m64 rb0 = _mm_and_si64(a, MC(packed_565_rb));
 	__m64 rb1 = _mm_and_si64(b, MC(packed_565_rb));
@@ -632,12 +632,12 @@ static force_inline __m64 pack_4xpacked565(__m64 a, __m64 b)
 
 #ifndef _MSC_VER
 
-static force_inline __m64 pack_4x565(__m64 v0, __m64 v1, __m64 v2, __m64 v3)
+static FORCEINLINE __m64 pack_4x565(__m64 v0, __m64 v1, __m64 v2, __m64 v3)
 {
 	return pack_4xpacked565(pack8888(v0, v1), pack8888(v2, v3));
 }
 
-static force_inline __m64 pix_add_mul(__m64 x, __m64 a, __m64 y, __m64 b)
+static FORCEINLINE __m64 pix_add_mul(__m64 x, __m64 a, __m64 y, __m64 b)
 {
 	x = pix_multiply(x, a);
 	y = pix_multiply(y, b);
@@ -661,7 +661,7 @@ static force_inline __m64 pix_add_mul(__m64 x, __m64 a, __m64 y, __m64 b)
 
 /* --------------- MMX code patch for fbcompose.c --------------------- */
 
-static force_inline __m64 combine(const uint32 * src, const uint32 * mask)
+static FORCEINLINE __m64 combine(const uint32 * src, const uint32 * mask)
 {
 	__m64 vsrc = load8888(src);
 
@@ -675,7 +675,7 @@ static force_inline __m64 combine(const uint32 * src, const uint32 * mask)
 	return vsrc;
 }
 
-static force_inline __m64 core_combine_over_u_pixel_mmx(__m64 vsrc, __m64 vdst)
+static FORCEINLINE __m64 core_combine_over_u_pixel_mmx(__m64 vsrc, __m64 vdst)
 {
 	vsrc = _mm_unpacklo_pi8(vsrc, _mm_setzero_si64());
 
@@ -3284,7 +3284,7 @@ static void mmx_composite_over_reverse_n_8888(pixman_implementation_t * imp,
 	_mm_empty();
 }
 
-static force_inline void scaled_nearest_scanline_mmx_8888_8888_OVER(uint32 *       pd,
+static FORCEINLINE void scaled_nearest_scanline_mmx_8888_8888_OVER(uint32 *       pd,
     const uint32 * ps,
     int32 w,
     pixman_fixed_t vx,
@@ -3324,7 +3324,7 @@ FAST_NEAREST_MAINLOOP(mmx_8888_8888_normal_OVER,
     scaled_nearest_scanline_mmx_8888_8888_OVER,
     uint32, uint32, NORMAL)
 
-static force_inline void scaled_nearest_scanline_mmx_8888_n_8888_OVER(const uint32 * mask,
+static FORCEINLINE void scaled_nearest_scanline_mmx_8888_n_8888_OVER(const uint32 * mask,
     uint32 *  dst,
     const uint32 * src,
     int32 w,
@@ -3426,7 +3426,7 @@ FAST_NEAREST_MAINLOOP_COMMON(mmx_8888_n_8888_normal_OVER,
 		mm_x = _mm_add_pi16(mm_x, mm_ux);                                          \
 	} while(0)
 
-static force_inline void scaled_bilinear_scanline_mmx_8888_8888_SRC(uint32 *  dst,
+static FORCEINLINE void scaled_bilinear_scanline_mmx_8888_8888_SRC(uint32 *  dst,
     const uint32 * mask,
     const uint32 * src_top,
     const uint32 * src_bottom,
@@ -3467,7 +3467,7 @@ FAST_BILINEAR_MAINLOOP_COMMON(mmx_8888_8888_normal_SRC,
     uint32, uint32, uint32,
     NORMAL, FLAG_NONE)
 
-static force_inline void scaled_bilinear_scanline_mmx_8888_8888_OVER(uint32 *  dst,
+static FORCEINLINE void scaled_bilinear_scanline_mmx_8888_8888_OVER(uint32 *  dst,
     const uint32 * mask,
     const uint32 * src_top,
     const uint32 * src_bottom,
@@ -3514,7 +3514,7 @@ FAST_BILINEAR_MAINLOOP_COMMON(mmx_8888_8888_normal_OVER,
     uint32, uint32, uint32,
     NORMAL, FLAG_NONE)
 
-static force_inline void scaled_bilinear_scanline_mmx_8888_8_8888_OVER(uint32 *  dst,
+static FORCEINLINE void scaled_bilinear_scanline_mmx_8888_8_8888_OVER(uint32 *  dst,
     const uint8 * mask,
     const uint32 * src_top,
     const uint32 * src_bottom,

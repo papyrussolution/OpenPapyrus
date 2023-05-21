@@ -1702,9 +1702,9 @@ private:
 						disableCtrl(CTL_GQUOT_VIEW, 1);
 					}
 					else if(onInit) {
-						WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, /*readonly*/1);
+						WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, /*readonly*/1);
 						uint32 val = 0;
-						if(reg_key.GetDWord(_PPConst.WrParam_ViewQuotsAsListBox, &val) && val)
+						if(reg_key.GetDWord(PPConst::WrParam_ViewQuotsAsListBox, &val) && val)
 							ViewQuotsAsListBox = 1;
 					}
 					setCtrlData(CTL_GQUOT_VIEW, &ViewQuotsAsListBox);
@@ -1847,8 +1847,8 @@ int QuotationDialog::getDTS(PPQuotArray * pAry)
 	getPage();
 	pAry->copy(Data);
 	if(Cls == PPQuot::clsGeneral) {
-		WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 0);
-		reg_key.PutDWord(_PPConst.WrParam_ViewQuotsAsListBox, BIN(getCtrlLong(CTL_GQUOT_VIEW)));
+		WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, 0);
+		reg_key.PutDWord(PPConst::WrParam_ViewQuotsAsListBox, BIN(getCtrlLong(CTL_GQUOT_VIEW)));
 	}
 	return ok;
 }

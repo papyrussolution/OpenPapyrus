@@ -267,14 +267,13 @@
 // <android/ndk-version.h>. For NDK < r16, users should define these macros,
 // e.g. `-D__NDK_MAJOR__=11 -D__NKD_MINOR__=0` for NDK r11.
 #if defined(__ANDROID__) && defined(__clang__)
-#if __has_include(<android/ndk-version.h>)
-#include <android/ndk-version.h>
-#endif  // __has_include(<android/ndk-version.h>)
-#if defined(__ANDROID__) && defined(__clang__) && defined(__NDK_MAJOR__) && defined(__NDK_MINOR__) &&                                               \
-    ((__NDK_MAJOR__ < 12) || ((__NDK_MAJOR__ == 12) && (__NDK_MINOR__ < 1)))
-#undef ABSL_HAVE_TLS
-#undef ABSL_HAVE_THREAD_LOCAL
-#endif
+	#if __has_include(<android/ndk-version.h>)
+		#include <android/ndk-version.h>
+	#endif  // __has_include(<android/ndk-version.h>)
+	#if defined(__ANDROID__) && defined(__clang__) && defined(__NDK_MAJOR__) && defined(__NDK_MINOR__) && ((__NDK_MAJOR__ < 12) || ((__NDK_MAJOR__ == 12) && (__NDK_MINOR__ < 1)))
+		#undef ABSL_HAVE_TLS
+		#undef ABSL_HAVE_THREAD_LOCAL
+	#endif
 #endif  // defined(__ANDROID__) && defined(__clang__)
 
 // ABSL_HAVE_INTRINSIC_INT128
@@ -288,24 +287,21 @@
 //   * Building using Clang for Windows, where the Clang runtime library has
 //     128-bit support only on LP64 architectures, but Windows is LLP64.
 // * On Nvidia's nvcc:
-//   * nvcc also defines __GNUC__ and __SIZEOF_INT128__, but not all versions
-//     actually support __int128.
+//   * nvcc also defines __GNUC__ and __SIZEOF_INT128__, but not all versions actually support __int128.
 #ifdef ABSL_HAVE_INTRINSIC_INT128
-#error ABSL_HAVE_INTRINSIC_INT128 cannot be directly set
+	#error ABSL_HAVE_INTRINSIC_INT128 cannot be directly set
 #elif defined(__SIZEOF_INT128__)
-#if (defined(__clang__) && !defined(_WIN32)) || \
-    (defined(__CUDACC__) && __CUDACC_VER_MAJOR__ >= 9) ||                \
-    (defined(__GNUC__) && !defined(__clang__) && !defined(__CUDACC__))
-#define ABSL_HAVE_INTRINSIC_INT128 1
-#elif defined(__CUDACC__)
-// __CUDACC_VER__ is a full version number before CUDA 9, and is defined to a
-// string explaining that it has been removed starting with CUDA 9. We use
-// nested #ifs because there is no short-circuiting in the preprocessor.
-// NOTE: `__CUDACC__` could be undefined while `__CUDACC_VER__` is defined.
-#if __CUDACC_VER__ >= 70000
-#define ABSL_HAVE_INTRINSIC_INT128 1
-#endif  // __CUDACC_VER__ >= 70000
-#endif  // defined(__CUDACC__)
+	#if (defined(__clang__) && !defined(_WIN32)) || (defined(__CUDACC__) && __CUDACC_VER_MAJOR__ >= 9) || (defined(__GNUC__) && !defined(__clang__) && !defined(__CUDACC__))
+		#define ABSL_HAVE_INTRINSIC_INT128 1
+	#elif defined(__CUDACC__)
+		// __CUDACC_VER__ is a full version number before CUDA 9, and is defined to a
+		// string explaining that it has been removed starting with CUDA 9. We use
+		// nested #ifs because there is no short-circuiting in the preprocessor.
+		// NOTE: `__CUDACC__` could be undefined while `__CUDACC_VER__` is defined.
+		#if __CUDACC_VER__ >= 70000
+			#define ABSL_HAVE_INTRINSIC_INT128 1
+		#endif  // __CUDACC_VER__ >= 70000
+	#endif  // defined(__CUDACC__)
 #endif  // ABSL_HAVE_INTRINSIC_INT128
 
 // ABSL_HAVE_EXCEPTIONS

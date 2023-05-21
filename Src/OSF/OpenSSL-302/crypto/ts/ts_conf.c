@@ -391,15 +391,15 @@ int TS_CONF_set_accuracy(CONF * conf, const char * section, TS_RESP_CTX * ctx)
 		CONF_VALUE * val = sk_CONF_VALUE_value(list, i);
 		if(strcmp(val->name, ENV_VALUE_SECS) == 0) {
 			if(val->value)
-				secs = atoi(val->value);
+				secs = satoi(val->value);
 		}
 		else if(strcmp(val->name, ENV_VALUE_MILLISECS) == 0) {
 			if(val->value)
-				millis = atoi(val->value);
+				millis = satoi(val->value);
 		}
 		else if(strcmp(val->name, ENV_VALUE_MICROSECS) == 0) {
 			if(val->value)
-				micros = atoi(val->value);
+				micros = satoi(val->value);
 		}
 		else {
 			ts_CONF_invalid(section, ENV_ACCURACY);

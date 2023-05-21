@@ -8,22 +8,14 @@
 
 enum { MAXN = 2 + FZ_MAX_COLORS };
 
-static void paint_scan(fz_pixmap * FZ_RESTRICT pix,
-    int y,
-    int fx0,
-    int fx1,
-    int cx0,
-    int cx1,
-    const int * FZ_RESTRICT v0,
-    const int * FZ_RESTRICT v1,
-    int n)
+static void paint_scan(fz_pixmap * _RESTRICT pix, int y, int fx0, int fx1, int cx0, int cx1,
+    const int * _RESTRICT v0, const int * _RESTRICT v1, int n)
 {
 	uchar * p;
 	int c[MAXN], dc[MAXN];
 	int k, w;
 	float div, mul;
 	int x0, x1, pa;
-
 	/* Ensure that fx0 is left edge, and fx1 is right */
 	if(fx0 > fx1) {
 		const int * v;
@@ -71,17 +63,15 @@ typedef struct {
 	int v[2*MAXN];
 } edge_data;
 
-static inline void prepare_edge(const float * FZ_RESTRICT vtop, const float * FZ_RESTRICT vbot, edge_data * FZ_RESTRICT edge, float y,
+static inline void prepare_edge(const float * _RESTRICT vtop, const float * _RESTRICT vbot, edge_data * _RESTRICT edge, float y,
     int n)
 {
 	float r = 1.0f / (vbot[1] - vtop[1]);
 	float t = (y - vtop[1]) * r;
 	float diff = vbot[0] - vtop[0];
 	int i;
-
 	edge->x = vtop[0] + diff * t;
 	edge->dx = diff * r;
-
 	for(i = 0; i < n; i++) {
 		diff = vbot[i+2] - vtop[i+2];
 		edge->v[i] = (int)(65536.0f * (vtop[i+2] + diff * t));
@@ -91,11 +81,8 @@ static inline void prepare_edge(const float * FZ_RESTRICT vtop, const float * FZ
 
 static inline void step_edge(edge_data * edge, int n)
 {
-	int i;
-
 	edge->x += edge->dx;
-
-	for(i = 0; i < n; i++) {
+	for(int i = 0; i < n; i++) {
 		edge->v[i] += edge->v[i + MAXN];
 	}
 }
@@ -116,23 +103,17 @@ static void fz_paint_triangle(fz_pixmap * pix, float * v[3], int n, fz_irect bbo
 	/* Test if the triangle is completely outside the scissor rect */
 	if(v[bot][1] < bbox.y0) return;
 	if(v[top][1] > bbox.y1) return;
-
 	/* Magic! Ensure that mid/top/bot are all different */
 	mid = 3^top^bot;
-
 	assert(top != bot && top != mid && mid != bot);
-
 	minx = fz_maxi(bbox.x0, pix->x);
 	maxx = fz_mini(bbox.x1, pix->x + pix->w);
-
 	y = ceilf(fz_max(bbox.y0, v[top][1]));
 	y1 = ceilf(fz_min(bbox.y1, v[mid][1]));
-
 	n -= 2;
 	prepare_edge(v[top], v[bot], &e0, y, n);
 	if(y < y1) {
 		prepare_edge(v[top], v[mid], &e1, y, n);
-
 		do {
 			paint_scan(pix, y, (int)e0.x, (int)e1.x, minx, maxx, &e0.v[0], &e1.v[0], n);
 			step_edge(&e0, n);

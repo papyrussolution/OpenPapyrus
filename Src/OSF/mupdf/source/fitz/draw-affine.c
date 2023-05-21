@@ -13,9 +13,9 @@
 
 typedef uchar byte;
 
-typedef void (paintfn_t)(byte * FZ_RESTRICT dp, int da, const byte * FZ_RESTRICT sp, int sw, int sh, int ss, int sa, int u, int v, int fa,
-    int fb, int w, int dn, int sn, int alpha, const byte * FZ_RESTRICT color, byte * FZ_RESTRICT hp, byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop);
+typedef void (paintfn_t)(byte * _RESTRICT dp, int da, const byte * _RESTRICT sp, int sw, int sh, int ss, int sa, int u, int v, int fa,
+    int fb, int w, int dn, int sn, int alpha, const byte * _RESTRICT color, byte * _RESTRICT hp, byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop);
 
 static inline int lerp(int a, int b, int t) { return a + (((b - a) * t) >> PREC); }
 static inline int bilerp(int a, int b, int c, int d, int u, int v) { return lerp(lerp(a, b, u), lerp(c, d, u), v); }
@@ -31,9 +31,9 @@ static inline const byte * sample_nearest(const byte * s, int w, int h, int str,
 
 /* Blend premultiplied source image in constant alpha over destination */
 
-static inline void template_affine_alpha_N_lerp(byte * FZ_RESTRICT dp, int da, const byte * FZ_RESTRICT sp,
+static inline void template_affine_alpha_N_lerp(byte * _RESTRICT dp, int da, const byte * _RESTRICT sp,
     int sw, int sh, int ss, int sa, int u, int v, int fa, int fb, int w, int dn1, int sn1, int alpha,
-    byte * FZ_RESTRICT hp, byte * FZ_RESTRICT gp)
+    byte * _RESTRICT hp, byte * _RESTRICT gp)
 {
 	int k;
 	do {
@@ -74,9 +74,9 @@ static inline void template_affine_alpha_N_lerp(byte * FZ_RESTRICT dp, int da, c
 	} while(--w);
 }
 
-static inline void template_affine_alpha_N_lerp_op(byte * FZ_RESTRICT dp, int da, const byte * FZ_RESTRICT sp,
+static inline void template_affine_alpha_N_lerp_op(byte * _RESTRICT dp, int da, const byte * _RESTRICT sp,
     int sw, int sh, int ss, int sa, int u, int v, int fa, int fb, int w, int dn1, int sn1, int alpha,
-    byte * FZ_RESTRICT hp, byte * FZ_RESTRICT gp, const fz_overprint * FZ_RESTRICT eop)
+    byte * _RESTRICT hp, byte * _RESTRICT gp, const fz_overprint * _RESTRICT eop)
 {
 	int k;
 	do {
@@ -121,9 +121,9 @@ static inline void template_affine_alpha_N_lerp_op(byte * FZ_RESTRICT dp, int da
 }
 
 /* Special case code for gray -> rgb */
-static inline void template_affine_alpha_g2rgb_lerp(byte * FZ_RESTRICT dp, int da, const byte * FZ_RESTRICT sp,
+static inline void template_affine_alpha_g2rgb_lerp(byte * _RESTRICT dp, int da, const byte * _RESTRICT sp,
     int sw, int sh, int ss, int sa, int u, int v, int fa, int fb, int w, int alpha,
-    byte * FZ_RESTRICT hp, byte * FZ_RESTRICT gp)
+    byte * _RESTRICT hp, byte * _RESTRICT gp)
 {
 	do {
 		if(u + HALF >= 0 && u + ONE < sw && v + HALF >= 0 && v + ONE < sh) {
@@ -162,9 +162,9 @@ static inline void template_affine_alpha_g2rgb_lerp(byte * FZ_RESTRICT dp, int d
 	} while(--w);
 }
 
-static inline void template_affine_alpha_N_near_fa0(byte * FZ_RESTRICT dp, int da, const byte * FZ_RESTRICT sp,
+static inline void template_affine_alpha_N_near_fa0(byte * _RESTRICT dp, int da, const byte * _RESTRICT sp,
     int sw, int sh, int ss, int sa, int u, int v, int fa, int fb, int w, int dn1, int sn1, int alpha,
-    byte * FZ_RESTRICT hp, byte * FZ_RESTRICT gp)
+    byte * _RESTRICT hp, byte * _RESTRICT gp)
 {
 	int k;
 	int ui = u >> PREC;
@@ -201,9 +201,9 @@ static inline void template_affine_alpha_N_near_fa0(byte * FZ_RESTRICT dp, int d
 	} while(--w);
 }
 
-static inline void template_affine_alpha_N_near_fb0(byte * FZ_RESTRICT dp, int da, const byte * FZ_RESTRICT sp,
+static inline void template_affine_alpha_N_near_fb0(byte * _RESTRICT dp, int da, const byte * _RESTRICT sp,
     int sw, int sh, int ss, int sa, int u, int v, int fa, int fb, int w, int dn1, int sn1, int alpha,
-    byte * FZ_RESTRICT hp, byte * FZ_RESTRICT gp)
+    byte * _RESTRICT hp, byte * _RESTRICT gp)
 {
 	int k;
 	int vi = v >> PREC;
@@ -240,9 +240,9 @@ static inline void template_affine_alpha_N_near_fb0(byte * FZ_RESTRICT dp, int d
 	while(--w);
 }
 
-static inline void template_affine_alpha_N_near(byte * FZ_RESTRICT dp, int da, const byte * FZ_RESTRICT sp,
+static inline void template_affine_alpha_N_near(byte * _RESTRICT dp, int da, const byte * _RESTRICT sp,
     int sw, int sh, int ss, int sa, int u, int v, int fa, int fb, int w, int dn1, int sn1, int alpha,
-    byte * FZ_RESTRICT hp, byte * FZ_RESTRICT gp)
+    byte * _RESTRICT hp, byte * _RESTRICT gp)
 {
 	int k;
 	do {
@@ -276,9 +276,9 @@ static inline void template_affine_alpha_N_near(byte * FZ_RESTRICT dp, int da, c
 	} while(--w);
 }
 
-static inline void template_affine_alpha_N_near_op(byte * FZ_RESTRICT dp,
+static inline void template_affine_alpha_N_near_op(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -291,9 +291,9 @@ static inline void template_affine_alpha_N_near_op(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	int k;
 	do {
@@ -330,9 +330,9 @@ static inline void template_affine_alpha_N_near_op(byte * FZ_RESTRICT dp,
 	while(--w);
 }
 
-static inline void template_affine_alpha_g2rgb_near_fa0(byte * FZ_RESTRICT dp,
+static inline void template_affine_alpha_g2rgb_near_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -343,8 +343,8 @@ static inline void template_affine_alpha_g2rgb_near_fa0(byte * FZ_RESTRICT dp,
     int fb,
     int w,
     int alpha,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp)
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp)
 {
 	int ui = u >> PREC;
 	if(ui < 0 || ui >= sw)
@@ -380,9 +380,9 @@ static inline void template_affine_alpha_g2rgb_near_fa0(byte * FZ_RESTRICT dp,
 	while(--w);
 }
 
-static inline void template_affine_alpha_g2rgb_near_fb0(byte * FZ_RESTRICT dp,
+static inline void template_affine_alpha_g2rgb_near_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -393,8 +393,8 @@ static inline void template_affine_alpha_g2rgb_near_fb0(byte * FZ_RESTRICT dp,
     int fb,
     int w,
     int alpha,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp)
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp)
 {
 	int vi = v >> PREC;
 	if(vi < 0 || vi >= sh)
@@ -430,9 +430,9 @@ static inline void template_affine_alpha_g2rgb_near_fb0(byte * FZ_RESTRICT dp,
 	while(--w);
 }
 
-static inline void template_affine_alpha_g2rgb_near(byte * FZ_RESTRICT dp,
+static inline void template_affine_alpha_g2rgb_near(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -443,8 +443,8 @@ static inline void template_affine_alpha_g2rgb_near(byte * FZ_RESTRICT dp,
     int fb,
     int w,
     int alpha,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp)
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp)
 {
 	do {
 		int ui = u >> PREC;
@@ -479,9 +479,9 @@ static inline void template_affine_alpha_g2rgb_near(byte * FZ_RESTRICT dp,
 }
 
 /* Blend premultiplied source image over destination */
-static inline void template_affine_N_lerp(byte * FZ_RESTRICT dp,
+static inline void template_affine_N_lerp(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -493,8 +493,8 @@ static inline void template_affine_N_lerp(byte * FZ_RESTRICT dp,
     int w,
     int dn1,
     int sn1,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp)
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp)
 {
 	int k;
 
@@ -536,9 +536,9 @@ static inline void template_affine_N_lerp(byte * FZ_RESTRICT dp,
 	while(--w);
 }
 
-static inline void template_affine_N_lerp_op(byte * FZ_RESTRICT dp,
+static inline void template_affine_N_lerp_op(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -550,9 +550,9 @@ static inline void template_affine_N_lerp_op(byte * FZ_RESTRICT dp,
     int w,
     int dn1,
     int sn1,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	int k;
 
@@ -596,9 +596,9 @@ static inline void template_affine_N_lerp_op(byte * FZ_RESTRICT dp,
 	while(--w);
 }
 
-static inline void template_affine_solid_g2rgb_lerp(byte * FZ_RESTRICT dp,
+static inline void template_affine_solid_g2rgb_lerp(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -608,8 +608,8 @@ static inline void template_affine_solid_g2rgb_lerp(byte * FZ_RESTRICT dp,
     int fa,
     int fb,
     int w,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp)
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp)
 {
 	do {
 		if(u + HALF >= 0 && u + ONE < sw && v + HALF >= 0 && v + ONE < sh) {
@@ -647,9 +647,9 @@ static inline void template_affine_solid_g2rgb_lerp(byte * FZ_RESTRICT dp,
 	while(--w);
 }
 
-static inline void template_affine_N_near_fa0(byte * FZ_RESTRICT dp,
+static inline void template_affine_N_near_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -661,8 +661,8 @@ static inline void template_affine_N_near_fa0(byte * FZ_RESTRICT dp,
     int w,
     int dn1,
     int sn1,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp)
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp)
 {
 	int k;
 	int ui = u >> PREC;
@@ -723,9 +723,9 @@ static inline void template_affine_N_near_fa0(byte * FZ_RESTRICT dp,
 	while(--w);
 }
 
-static inline void template_affine_N_near_fb0(byte * FZ_RESTRICT dp,
+static inline void template_affine_N_near_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -737,8 +737,8 @@ static inline void template_affine_N_near_fb0(byte * FZ_RESTRICT dp,
     int w,
     int dn1,
     int sn1,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp)
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp)
 {
 	int k;
 	int vi = v >> PREC;
@@ -799,9 +799,9 @@ static inline void template_affine_N_near_fb0(byte * FZ_RESTRICT dp,
 	while(--w);
 }
 
-static inline void template_affine_N_near(byte * FZ_RESTRICT dp,
+static inline void template_affine_N_near(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -813,8 +813,8 @@ static inline void template_affine_N_near(byte * FZ_RESTRICT dp,
     int w,
     int dn1,
     int sn1,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp)
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp)
 {
 	int k;
 
@@ -874,9 +874,9 @@ static inline void template_affine_N_near(byte * FZ_RESTRICT dp,
 	while(--w);
 }
 
-static inline void template_affine_N_near_op(byte * FZ_RESTRICT dp,
+static inline void template_affine_N_near_op(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -888,9 +888,9 @@ static inline void template_affine_N_near_op(byte * FZ_RESTRICT dp,
     int w,
     int dn1,
     int sn1,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	int k;
 
@@ -952,9 +952,9 @@ static inline void template_affine_N_near_op(byte * FZ_RESTRICT dp,
 	while(--w);
 }
 
-static inline void template_affine_solid_g2rgb_near_fa0(byte * FZ_RESTRICT dp,
+static inline void template_affine_solid_g2rgb_near_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -964,8 +964,8 @@ static inline void template_affine_solid_g2rgb_near_fa0(byte * FZ_RESTRICT dp,
     int fa,
     int fb,
     int w,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp)
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp)
 {
 	int ui = u >> PREC;
 	if(ui < 0 || ui >= sw)
@@ -1013,9 +1013,9 @@ static inline void template_affine_solid_g2rgb_near_fa0(byte * FZ_RESTRICT dp,
 	while(--w);
 }
 
-static inline void template_affine_solid_g2rgb_near_fb0(byte * FZ_RESTRICT dp,
+static inline void template_affine_solid_g2rgb_near_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1025,8 +1025,8 @@ static inline void template_affine_solid_g2rgb_near_fb0(byte * FZ_RESTRICT dp,
     int fa,
     int fb,
     int w,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp)
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp)
 {
 	int vi = v >> PREC;
 	if(vi < 0 || vi >= sh)
@@ -1074,9 +1074,9 @@ static inline void template_affine_solid_g2rgb_near_fb0(byte * FZ_RESTRICT dp,
 	while(--w);
 }
 
-static inline void template_affine_solid_g2rgb_near(byte * FZ_RESTRICT dp,
+static inline void template_affine_solid_g2rgb_near(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1086,8 +1086,8 @@ static inline void template_affine_solid_g2rgb_near(byte * FZ_RESTRICT dp,
     int fa,
     int fb,
     int w,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp)
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp)
 {
 	do {
 		int ui = u >> PREC;
@@ -1135,9 +1135,9 @@ static inline void template_affine_solid_g2rgb_near(byte * FZ_RESTRICT dp,
 
 /* Blend non-premultiplied color in source image mask over destination */
 
-static inline void template_affine_color_N_lerp(byte * FZ_RESTRICT dp,
+static inline void template_affine_color_N_lerp(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1148,9 +1148,9 @@ static inline void template_affine_color_N_lerp(byte * FZ_RESTRICT dp,
     int w,
     int dn1,
     int sn1,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp)
 {
 	int sa = color[dn1];
 	int k;
@@ -1189,9 +1189,9 @@ static inline void template_affine_color_N_lerp(byte * FZ_RESTRICT dp,
 	while(--w);
 }
 
-static inline void template_affine_color_N_lerp_op(byte * FZ_RESTRICT dp,
+static inline void template_affine_color_N_lerp_op(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1202,10 +1202,10 @@ static inline void template_affine_color_N_lerp_op(byte * FZ_RESTRICT dp,
     int w,
     int dn1,
     int sn1,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	int sa = color[dn1];
 	int k;
@@ -1245,9 +1245,9 @@ static inline void template_affine_color_N_lerp_op(byte * FZ_RESTRICT dp,
 	while(--w);
 }
 
-static inline void template_affine_color_N_near(byte * FZ_RESTRICT dp,
+static inline void template_affine_color_N_near(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1258,9 +1258,9 @@ static inline void template_affine_color_N_near(byte * FZ_RESTRICT dp,
     int w,
     int dn1,
     int sn1,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp)
 {
 	int sa = color[dn1];
 	int k;
@@ -1293,9 +1293,9 @@ static inline void template_affine_color_N_near(byte * FZ_RESTRICT dp,
 	while(--w);
 }
 
-static inline void template_affine_color_N_near_op(byte * FZ_RESTRICT dp,
+static inline void template_affine_color_N_near_op(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1306,10 +1306,10 @@ static inline void template_affine_color_N_near_op(byte * FZ_RESTRICT dp,
     int w,
     int dn1,
     int sn1,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	int sa = color[dn1];
 	int k;
@@ -1343,9 +1343,9 @@ static inline void template_affine_color_N_near_op(byte * FZ_RESTRICT dp,
 	while(--w);
 }
 
-static void paint_affine_lerp_da_sa_0(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_sa_0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1358,18 +1358,18 @@ static void paint_affine_lerp_da_sa_0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_lerp(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 0, 0, hp, gp);
 }
 
-static void paint_affine_lerp_da_sa_alpha_0(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_sa_alpha_0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1382,18 +1382,18 @@ static void paint_affine_lerp_da_sa_alpha_0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_lerp(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 0, 0, alpha, hp, gp);
 }
 
-static void paint_affine_lerp_da_0(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1406,18 +1406,18 @@ static void paint_affine_lerp_da_0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_lerp(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 0, 0, hp, gp);
 }
 
-static void paint_affine_lerp_da_alpha_0(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_alpha_0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1430,18 +1430,18 @@ static void paint_affine_lerp_da_alpha_0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_lerp(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 0, 0, alpha, hp, gp);
 }
 
-static void paint_affine_lerp_da_1(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1454,18 +1454,18 @@ static void paint_affine_lerp_da_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_lerp(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 1, 1, hp, gp);
 }
 
-static void paint_affine_lerp_da_alpha_1(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_alpha_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1478,18 +1478,18 @@ static void paint_affine_lerp_da_alpha_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_lerp(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 1, 1, alpha, hp, gp);
 }
 
-static void paint_affine_lerp_1(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1502,18 +1502,18 @@ static void paint_affine_lerp_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_lerp(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 1, 1, hp, gp);
 }
 
-static void paint_affine_lerp_alpha_1(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_alpha_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1526,19 +1526,19 @@ static void paint_affine_lerp_alpha_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_lerp(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 1, 1, alpha, hp, gp);
 }
 
 #if FZ_PLOTTERS_G
-static void paint_affine_lerp_da_sa_1(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_sa_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1551,18 +1551,18 @@ static void paint_affine_lerp_da_sa_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_lerp(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 1, 1, hp, gp);
 }
 
-static void paint_affine_lerp_da_sa_alpha_1(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_sa_alpha_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1575,18 +1575,18 @@ static void paint_affine_lerp_da_sa_alpha_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_lerp(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 1, 1, alpha, hp, gp);
 }
 
-static void paint_affine_lerp_sa_1(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_sa_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1599,18 +1599,18 @@ static void paint_affine_lerp_sa_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_lerp(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 1, 1, hp, gp);
 }
 
-static void paint_affine_lerp_sa_alpha_1(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_sa_alpha_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1623,10 +1623,10 @@ static void paint_affine_lerp_sa_alpha_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_lerp(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 1, 1, alpha, hp, gp);
@@ -1635,9 +1635,9 @@ static void paint_affine_lerp_sa_alpha_1(byte * FZ_RESTRICT dp,
 #endif /* FZ_PLOTTERS_G */
 
 #if FZ_PLOTTERS_RGB
-static void paint_affine_lerp_da_sa_3(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_sa_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1650,18 +1650,18 @@ static void paint_affine_lerp_da_sa_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_lerp(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 3, 3, hp, gp);
 }
 
-static void paint_affine_lerp_da_sa_alpha_3(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_sa_alpha_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1674,18 +1674,18 @@ static void paint_affine_lerp_da_sa_alpha_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_lerp(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 3, 3, alpha, hp, gp);
 }
 
-static void paint_affine_lerp_da_3(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1698,18 +1698,18 @@ static void paint_affine_lerp_da_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_lerp(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 3, 3, hp, gp);
 }
 
-static void paint_affine_lerp_da_alpha_3(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_alpha_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1722,18 +1722,18 @@ static void paint_affine_lerp_da_alpha_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_lerp(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 3, 3, alpha, hp, gp);
 }
 
-static void paint_affine_lerp_sa_3(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_sa_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1746,18 +1746,18 @@ static void paint_affine_lerp_sa_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_lerp(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 3, 3, hp, gp);
 }
 
-static void paint_affine_lerp_sa_alpha_3(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_sa_alpha_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1770,18 +1770,18 @@ static void paint_affine_lerp_sa_alpha_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_lerp(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 3, 3, alpha, hp, gp);
 }
 
-static void paint_affine_lerp_3(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1794,18 +1794,18 @@ static void paint_affine_lerp_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_lerp(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 3, 3, hp, gp);
 }
 
-static void paint_affine_lerp_alpha_3(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_alpha_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1818,10 +1818,10 @@ static void paint_affine_lerp_alpha_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_lerp(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 3, 3, alpha, hp, gp);
@@ -1830,9 +1830,9 @@ static void paint_affine_lerp_alpha_3(byte * FZ_RESTRICT dp,
 #endif /* FZ_PLOTTERS_RGB */
 
 #if FZ_PLOTTERS_CMYK
-static void paint_affine_lerp_da_sa_4(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_sa_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1845,18 +1845,18 @@ static void paint_affine_lerp_da_sa_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_lerp(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 4, 4, hp, gp);
 }
 
-static void paint_affine_lerp_da_sa_alpha_4(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_sa_alpha_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1869,18 +1869,18 @@ static void paint_affine_lerp_da_sa_alpha_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_lerp(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 4, 4, alpha, hp, gp);
 }
 
-static void paint_affine_lerp_da_4(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1893,18 +1893,18 @@ static void paint_affine_lerp_da_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_lerp(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 4, 4, hp, gp);
 }
 
-static void paint_affine_lerp_da_alpha_4(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_alpha_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1917,18 +1917,18 @@ static void paint_affine_lerp_da_alpha_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_lerp(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 4, 4, alpha, hp, gp);
 }
 
-static void paint_affine_lerp_sa_4(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_sa_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1941,18 +1941,18 @@ static void paint_affine_lerp_sa_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_lerp(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 4, 4, hp, gp);
 }
 
-static void paint_affine_lerp_sa_alpha_4(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_sa_alpha_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1965,18 +1965,18 @@ static void paint_affine_lerp_sa_alpha_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_lerp(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 4, 4, alpha, hp, gp);
 }
 
-static void paint_affine_lerp_4(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -1989,18 +1989,18 @@ static void paint_affine_lerp_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_lerp(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 4, 4, hp, gp);
 }
 
-static void paint_affine_lerp_alpha_4(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_alpha_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2013,10 +2013,10 @@ static void paint_affine_lerp_alpha_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_lerp(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 4, 4, alpha, hp, gp);
@@ -2025,9 +2025,9 @@ static void paint_affine_lerp_alpha_4(byte * FZ_RESTRICT dp,
 #endif /* FZ_PLOTTERS_CMYK */
 
 #if FZ_PLOTTERS_N
-static void paint_affine_lerp_da_sa_N(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_sa_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2040,18 +2040,18 @@ static void paint_affine_lerp_da_sa_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_lerp(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, dn, sn, hp, gp);
 }
 
-static void paint_affine_lerp_da_sa_alpha_N(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_sa_alpha_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2064,18 +2064,18 @@ static void paint_affine_lerp_da_sa_alpha_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_lerp(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, dn, sn, alpha, hp, gp);
 }
 
-static void paint_affine_lerp_da_N(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2088,18 +2088,18 @@ static void paint_affine_lerp_da_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_lerp(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, dn, sn, hp, gp);
 }
 
-static void paint_affine_lerp_da_alpha_N(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_alpha_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2112,18 +2112,18 @@ static void paint_affine_lerp_da_alpha_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_lerp(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, dn, sn, alpha, hp, gp);
 }
 
-static void paint_affine_lerp_sa_N(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_sa_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2136,18 +2136,18 @@ static void paint_affine_lerp_sa_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_lerp(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, dn, sn, hp, gp);
 }
 
-static void paint_affine_lerp_sa_alpha_N(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_sa_alpha_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2160,18 +2160,18 @@ static void paint_affine_lerp_sa_alpha_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_lerp(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, dn, sn, alpha, hp, gp);
 }
 
-static void paint_affine_lerp_N(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2184,18 +2184,18 @@ static void paint_affine_lerp_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_lerp(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, dn, sn, hp, gp);
 }
 
-static void paint_affine_lerp_alpha_N(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_alpha_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2208,10 +2208,10 @@ static void paint_affine_lerp_alpha_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_lerp(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, dn, sn, alpha, hp, gp);
@@ -2220,9 +2220,9 @@ static void paint_affine_lerp_alpha_N(byte * FZ_RESTRICT dp,
 #endif /* FZ_PLOTTERS_N */
 
 #if FZ_ENABLE_SPOT_RENDERING
-static void paint_affine_lerp_N_op(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_N_op(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2235,18 +2235,18 @@ static void paint_affine_lerp_N_op(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_lerp_op(dp, da, sp, sw, sh, ss, sa, u, v, fa, fb, w, dn, sn, hp, gp, eop);
 }
 
-static void paint_affine_lerp_alpha_N_op(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_alpha_N_op(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2259,10 +2259,10 @@ static void paint_affine_lerp_alpha_N_op(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_lerp_op(dp, da, sp, sw, sh, ss, sa, u, v, fa, fb, w, dn, sn, alpha, hp, gp, eop);
@@ -2270,7 +2270,7 @@ static void paint_affine_lerp_alpha_N_op(byte * FZ_RESTRICT dp,
 
 #endif /* FZ_ENABLE_SPOT_RENDERING */
 
-static paintfn_t * fz_paint_affine_lerp(int da, int sa, int fa, int fb, int n, int alpha, const fz_overprint * FZ_RESTRICT eop)
+static paintfn_t * fz_paint_affine_lerp(int da, int sa, int fa, int fb, int n, int alpha, const fz_overprint * _RESTRICT eop)
 {
 #if FZ_ENABLE_SPOT_RENDERING
 	if(fz_overprint_required(eop)) {
@@ -2448,7 +2448,7 @@ static paintfn_t * fz_paint_affine_lerp_spots(int da,
     int dn,
     int sn,
     int alpha,
-    const fz_overprint * FZ_RESTRICT eop)
+    const fz_overprint * _RESTRICT eop)
 {
 	if(fz_overprint_required(eop)) {
 		if(alpha == 255)
@@ -2490,9 +2490,9 @@ static paintfn_t * fz_paint_affine_lerp_spots(int da,
 #endif /* FZ_ENABLE_SPOT_RENDERING */
 
 #if FZ_PLOTTERS_RGB
-static void paint_affine_lerp_da_sa_g2rgb(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_sa_g2rgb(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2505,18 +2505,18 @@ static void paint_affine_lerp_da_sa_g2rgb(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_solid_g2rgb_lerp(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, hp, gp);
 }
 
-static void paint_affine_lerp_da_sa_g2rgb_alpha(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_sa_g2rgb_alpha(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2529,18 +2529,18 @@ static void paint_affine_lerp_da_sa_g2rgb_alpha(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_g2rgb_lerp(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, alpha, hp, gp);
 }
 
-static void paint_affine_lerp_da_g2rgb(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_g2rgb(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2553,18 +2553,18 @@ static void paint_affine_lerp_da_g2rgb(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_solid_g2rgb_lerp(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, hp, gp);
 }
 
-static void paint_affine_lerp_da_g2rgb_alpha(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_da_g2rgb_alpha(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2577,18 +2577,18 @@ static void paint_affine_lerp_da_g2rgb_alpha(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_g2rgb_lerp(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, alpha, hp, gp);
 }
 
-static void paint_affine_lerp_sa_g2rgb(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_sa_g2rgb(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2601,18 +2601,18 @@ static void paint_affine_lerp_sa_g2rgb(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_solid_g2rgb_lerp(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, hp, gp);
 }
 
-static void paint_affine_lerp_sa_g2rgb_alpha(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_sa_g2rgb_alpha(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2625,18 +2625,18 @@ static void paint_affine_lerp_sa_g2rgb_alpha(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_g2rgb_lerp(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, alpha, hp, gp);
 }
 
-static void paint_affine_lerp_g2rgb(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_g2rgb(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2649,18 +2649,18 @@ static void paint_affine_lerp_g2rgb(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_solid_g2rgb_lerp(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, hp, gp);
 }
 
-static void paint_affine_lerp_g2rgb_alpha(byte * FZ_RESTRICT dp,
+static void paint_affine_lerp_g2rgb_alpha(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2673,10 +2673,10 @@ static void paint_affine_lerp_g2rgb_alpha(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_g2rgb_lerp(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, alpha, hp, gp);
@@ -2717,9 +2717,9 @@ static paintfn_t * fz_paint_affine_g2rgb_lerp(int da, int sa, int fa, int fb, in
 
 #endif /* FZ_PLOTTERS_RGB */
 
-static void paint_affine_near_da_sa_0_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_0_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2732,18 +2732,18 @@ static void paint_affine_near_da_sa_0_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fa0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 0, 0, hp, gp);
 }
 
-static void paint_affine_near_da_sa_alpha_0_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_alpha_0_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2756,18 +2756,18 @@ static void paint_affine_near_da_sa_alpha_0_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fa0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 0, 0, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_0_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_0_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2780,18 +2780,18 @@ static void paint_affine_near_da_0_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fa0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 0, 0, hp, gp);
 }
 
-static void paint_affine_near_da_alpha_0_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_alpha_0_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2804,18 +2804,18 @@ static void paint_affine_near_da_alpha_0_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fa0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 0, 0, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_sa_0_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_0_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2828,18 +2828,18 @@ static void paint_affine_near_da_sa_0_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fb0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 0, 0, hp, gp);
 }
 
-static void paint_affine_near_da_sa_alpha_0_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_alpha_0_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2852,18 +2852,18 @@ static void paint_affine_near_da_sa_alpha_0_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fb0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 0, 0, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_0_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_0_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2876,18 +2876,18 @@ static void paint_affine_near_da_0_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fb0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 0, 0, hp, gp);
 }
 
-static void paint_affine_near_da_alpha_0_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_alpha_0_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2900,18 +2900,18 @@ static void paint_affine_near_da_alpha_0_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fb0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 0, 0, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_sa_0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2924,18 +2924,18 @@ static void paint_affine_near_da_sa_0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 0, 0, hp, gp);
 }
 
-static void paint_affine_near_da_sa_alpha_0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_alpha_0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2948,18 +2948,18 @@ static void paint_affine_near_da_sa_alpha_0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 0, 0, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2972,18 +2972,18 @@ static void paint_affine_near_da_0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 0, 0, hp, gp);
 }
 
-static void paint_affine_near_da_alpha_0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_alpha_0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -2996,18 +2996,18 @@ static void paint_affine_near_da_alpha_0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 0, 0, alpha, hp, gp);
 }
 
-static void paint_affine_near_1_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_1_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3020,18 +3020,18 @@ static void paint_affine_near_1_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int snn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fa0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 1, 1, hp, gp);
 }
 
-static void paint_affine_near_1_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_1_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3044,18 +3044,18 @@ static void paint_affine_near_1_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fb0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 1, 1, hp, gp);
 }
 
-static void paint_affine_near_1(byte * FZ_RESTRICT dp,
+static void paint_affine_near_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3068,18 +3068,18 @@ static void paint_affine_near_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 1, 1, hp, gp);
 }
 
-static void paint_affine_near_alpha_1_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_alpha_1_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3092,18 +3092,18 @@ static void paint_affine_near_alpha_1_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fa0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 1, 1, alpha, hp, gp);
 }
 
-static void paint_affine_near_alpha_1_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_alpha_1_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3116,18 +3116,18 @@ static void paint_affine_near_alpha_1_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fb0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 1, 1, alpha, hp, gp);
 }
 
-static void paint_affine_near_alpha_1(byte * FZ_RESTRICT dp,
+static void paint_affine_near_alpha_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3140,18 +3140,18 @@ static void paint_affine_near_alpha_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 1, 1, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_1_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_1_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3164,18 +3164,18 @@ static void paint_affine_near_da_1_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fa0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 1, 1, hp, gp);
 }
 
-static void paint_affine_near_da_alpha_1_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_alpha_1_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3188,18 +3188,18 @@ static void paint_affine_near_da_alpha_1_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fa0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 1, 1, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_1_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_1_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3212,18 +3212,18 @@ static void paint_affine_near_da_1_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fb0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 1, 1, hp, gp);
 }
 
-static void paint_affine_near_da_alpha_1_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_alpha_1_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3236,18 +3236,18 @@ static void paint_affine_near_da_alpha_1_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fb0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 1, 1, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_1(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3260,18 +3260,18 @@ static void paint_affine_near_da_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 1, 1, hp, gp);
 }
 
-static void paint_affine_near_da_alpha_1(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_alpha_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3284,19 +3284,19 @@ static void paint_affine_near_da_alpha_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 1, 1, alpha, hp, gp);
 }
 
 #if FZ_PLOTTERS_G
-static void paint_affine_near_da_sa_1_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_1_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3309,18 +3309,18 @@ static void paint_affine_near_da_sa_1_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fa0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 1, 1, hp, gp);
 }
 
-static void paint_affine_near_da_sa_alpha_1_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_alpha_1_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3333,18 +3333,18 @@ static void paint_affine_near_da_sa_alpha_1_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fa0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 1, 1, alpha, hp, gp);
 }
 
-static void paint_affine_near_sa_1_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_1_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3357,18 +3357,18 @@ static void paint_affine_near_sa_1_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fa0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 1, 1, hp, gp);
 }
 
-static void paint_affine_near_sa_alpha_1_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_alpha_1_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3381,18 +3381,18 @@ static void paint_affine_near_sa_alpha_1_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fa0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 1, 1, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_sa_1_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_1_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3405,18 +3405,18 @@ static void paint_affine_near_da_sa_1_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fb0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 1, 1, hp, gp);
 }
 
-static void paint_affine_near_da_sa_alpha_1_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_alpha_1_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3429,18 +3429,18 @@ static void paint_affine_near_da_sa_alpha_1_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fb0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 1, 1, alpha, hp, gp);
 }
 
-static void paint_affine_near_sa_alpha_1_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_alpha_1_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3453,18 +3453,18 @@ static void paint_affine_near_sa_alpha_1_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fb0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 1, 1, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_sa_1(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3477,18 +3477,18 @@ static void paint_affine_near_da_sa_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 1, 1, hp, gp);
 }
 
-static void paint_affine_near_sa_1_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_1_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3501,18 +3501,18 @@ static void paint_affine_near_sa_1_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fb0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 1, 1, hp, gp);
 }
 
-static void paint_affine_near_da_sa_alpha_1(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_alpha_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3525,18 +3525,18 @@ static void paint_affine_near_da_sa_alpha_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 1, 1, alpha, hp, gp);
 }
 
-static void paint_affine_near_sa_1(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3549,18 +3549,18 @@ static void paint_affine_near_sa_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 1, 1, hp, gp);
 }
 
-static void paint_affine_near_sa_alpha_1(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_alpha_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3573,10 +3573,10 @@ static void paint_affine_near_sa_alpha_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 1, 1, alpha, hp, gp);
@@ -3585,9 +3585,9 @@ static void paint_affine_near_sa_alpha_1(byte * FZ_RESTRICT dp,
 #endif /* FZ_PLOTTERS_G */
 
 #if FZ_PLOTTERS_RGB
-static void paint_affine_near_da_sa_3_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_3_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3600,18 +3600,18 @@ static void paint_affine_near_da_sa_3_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fa0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 3, 3, hp, gp);
 }
 
-static void paint_affine_near_da_sa_alpha_3_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_alpha_3_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3624,18 +3624,18 @@ static void paint_affine_near_da_sa_alpha_3_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fa0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 3, 3, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_3_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_3_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3648,18 +3648,18 @@ static void paint_affine_near_da_3_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fa0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 3, 3, hp, gp);
 }
 
-static void paint_affine_near_da_alpha_3_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_alpha_3_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3672,18 +3672,18 @@ static void paint_affine_near_da_alpha_3_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fa0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 3, 3, alpha, hp, gp);
 }
 
-static void paint_affine_near_sa_3_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_3_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3696,18 +3696,18 @@ static void paint_affine_near_sa_3_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fa0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 3, 3, hp, gp);
 }
 
-static void paint_affine_near_sa_alpha_3_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_alpha_3_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3720,18 +3720,18 @@ static void paint_affine_near_sa_alpha_3_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fa0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 3, 3, alpha, hp, gp);
 }
 
-static void paint_affine_near_3_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_3_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3744,18 +3744,18 @@ static void paint_affine_near_3_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fa0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 3, 3, hp, gp);
 }
 
-static void paint_affine_near_alpha_3_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_alpha_3_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3768,18 +3768,18 @@ static void paint_affine_near_alpha_3_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fa0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 3, 3, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_sa_3_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_3_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3792,18 +3792,18 @@ static void paint_affine_near_da_sa_3_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fb0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 3, 3, hp, gp);
 }
 
-static void paint_affine_near_da_sa_alpha_3_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_alpha_3_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3816,18 +3816,18 @@ static void paint_affine_near_da_sa_alpha_3_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fb0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 3, 3, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_3_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_3_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3840,18 +3840,18 @@ static void paint_affine_near_da_3_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fb0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 3, 3, hp, gp);
 }
 
-static void paint_affine_near_da_alpha_3_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_alpha_3_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3864,18 +3864,18 @@ static void paint_affine_near_da_alpha_3_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fb0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 3, 3, alpha, hp, gp);
 }
 
-static void paint_affine_near_sa_alpha_3_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_alpha_3_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3888,18 +3888,18 @@ static void paint_affine_near_sa_alpha_3_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fb0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 3, 3, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_sa_3(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3912,18 +3912,18 @@ static void paint_affine_near_da_sa_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 3, 3, hp, gp);
 }
 
-static void paint_affine_near_alpha_3_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_alpha_3_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3936,18 +3936,18 @@ static void paint_affine_near_alpha_3_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fb0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 3, 3, alpha, hp, gp);
 }
 
-static void paint_affine_near_3_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_3_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3960,18 +3960,18 @@ static void paint_affine_near_3_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fb0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 3, 3, hp, gp);
 }
 
-static void paint_affine_near_sa_3_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_3_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -3984,18 +3984,18 @@ static void paint_affine_near_sa_3_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fb0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 3, 3, hp, gp);
 }
 
-static void paint_affine_near_da_sa_alpha_3(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_alpha_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4008,18 +4008,18 @@ static void paint_affine_near_da_sa_alpha_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 3, 3, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_3(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4032,18 +4032,18 @@ static void paint_affine_near_da_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 3, 3, hp, gp);
 }
 
-static void paint_affine_near_sa_3(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4056,18 +4056,18 @@ static void paint_affine_near_sa_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 3, 3, hp, gp);
 }
 
-static void paint_affine_near_da_alpha_3(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_alpha_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4080,18 +4080,18 @@ static void paint_affine_near_da_alpha_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 3, 3, alpha, hp, gp);
 }
 
-static void paint_affine_near_sa_alpha_3(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_alpha_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4104,18 +4104,18 @@ static void paint_affine_near_sa_alpha_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 3, 3, alpha, hp, gp);
 }
 
-static void paint_affine_near_3(byte * FZ_RESTRICT dp,
+static void paint_affine_near_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4128,18 +4128,18 @@ static void paint_affine_near_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 3, 3, hp, gp);
 }
 
-static void paint_affine_near_alpha_3(byte * FZ_RESTRICT dp,
+static void paint_affine_near_alpha_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4152,10 +4152,10 @@ static void paint_affine_near_alpha_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 3, 3, alpha, hp, gp);
@@ -4164,9 +4164,9 @@ static void paint_affine_near_alpha_3(byte * FZ_RESTRICT dp,
 #endif /* FZ_PLOTTERS_RGB */
 
 #if FZ_PLOTTERS_CMYK
-static void paint_affine_near_da_sa_4_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_4_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4179,18 +4179,18 @@ static void paint_affine_near_da_sa_4_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fa0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 4, 4, hp, gp);
 }
 
-static void paint_affine_near_da_sa_alpha_4_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_alpha_4_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4203,18 +4203,18 @@ static void paint_affine_near_da_sa_alpha_4_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fa0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 4, 4, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_4_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_4_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4227,18 +4227,18 @@ static void paint_affine_near_da_4_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fa0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 4, 4, hp, gp);
 }
 
-static void paint_affine_near_da_alpha_4_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_alpha_4_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4251,18 +4251,18 @@ static void paint_affine_near_da_alpha_4_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fa0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 4, 4, alpha, hp, gp);
 }
 
-static void paint_affine_near_sa_4_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_4_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4275,18 +4275,18 @@ static void paint_affine_near_sa_4_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fa0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 4, 4, hp, gp);
 }
 
-static void paint_affine_near_sa_alpha_4_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_alpha_4_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4299,18 +4299,18 @@ static void paint_affine_near_sa_alpha_4_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fa0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 4, 4, alpha, hp, gp);
 }
 
-static void paint_affine_near_4_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_4_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4323,18 +4323,18 @@ static void paint_affine_near_4_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fa0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 4, 4, hp, gp);
 }
 
-static void paint_affine_near_alpha_4_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_alpha_4_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4347,18 +4347,18 @@ static void paint_affine_near_alpha_4_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fa0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 4, 4, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_sa_4_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_4_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4371,18 +4371,18 @@ static void paint_affine_near_da_sa_4_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fb0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 4, 4, hp, gp);
 }
 
-static void paint_affine_near_da_sa_alpha_4_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_alpha_4_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4395,18 +4395,18 @@ static void paint_affine_near_da_sa_alpha_4_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fb0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 4, 4, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_4_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_4_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4419,18 +4419,18 @@ static void paint_affine_near_da_4_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fb0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 4, 4, hp, gp);
 }
 
-static void paint_affine_near_da_alpha_4_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_alpha_4_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4443,18 +4443,18 @@ static void paint_affine_near_da_alpha_4_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fb0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 4, 4, alpha, hp, gp);
 }
 
-static void paint_affine_near_sa_4_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_4_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4467,18 +4467,18 @@ static void paint_affine_near_sa_4_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fb0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 4, 4, hp, gp);
 }
 
-static void paint_affine_near_sa_alpha_4_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_alpha_4_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4491,18 +4491,18 @@ static void paint_affine_near_sa_alpha_4_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fb0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 4, 4, alpha, hp, gp);
 }
 
-static void paint_affine_near_4_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_4_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4515,18 +4515,18 @@ static void paint_affine_near_4_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fb0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 4, 4, hp, gp);
 }
 
-static void paint_affine_near_alpha_4_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_alpha_4_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4539,18 +4539,18 @@ static void paint_affine_near_alpha_4_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fb0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 4, 4, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_sa_4(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4563,18 +4563,18 @@ static void paint_affine_near_da_sa_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 4, 4, hp, gp);
 }
 
-static void paint_affine_near_da_sa_alpha_4(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_alpha_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4587,18 +4587,18 @@ static void paint_affine_near_da_sa_alpha_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, 4, 4, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_4(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4611,18 +4611,18 @@ static void paint_affine_near_da_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 4, 4, hp, gp);
 }
 
-static void paint_affine_near_da_alpha_4(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_alpha_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4635,18 +4635,18 @@ static void paint_affine_near_da_alpha_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, 4, 4, alpha, hp, gp);
 }
 
-static void paint_affine_near_sa_4(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4659,18 +4659,18 @@ static void paint_affine_near_sa_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 4, 4, hp, gp);
 }
 
-static void paint_affine_near_sa_alpha_4(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_alpha_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4683,18 +4683,18 @@ static void paint_affine_near_sa_alpha_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, 4, 4, alpha, hp, gp);
 }
 
-static void paint_affine_near_4(byte * FZ_RESTRICT dp,
+static void paint_affine_near_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4707,18 +4707,18 @@ static void paint_affine_near_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 4, 4, hp, gp);
 }
 
-static void paint_affine_near_alpha_4(byte * FZ_RESTRICT dp,
+static void paint_affine_near_alpha_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4731,10 +4731,10 @@ static void paint_affine_near_alpha_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, 4, 4, alpha, hp, gp);
@@ -4743,9 +4743,9 @@ static void paint_affine_near_alpha_4(byte * FZ_RESTRICT dp,
 #endif /* FZ_PLOTTERS_CMYK */
 
 #if FZ_PLOTTERS_N
-static void paint_affine_near_da_sa_N_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_N_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4758,18 +4758,18 @@ static void paint_affine_near_da_sa_N_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fa0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, dn, sn, hp, gp);
 }
 
-static void paint_affine_near_da_sa_alpha_N_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_alpha_N_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4782,18 +4782,18 @@ static void paint_affine_near_da_sa_alpha_N_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fa0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, dn, sn, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_N_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_N_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4806,18 +4806,18 @@ static void paint_affine_near_da_N_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fa0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, dn, sn, hp, gp);
 }
 
-static void paint_affine_near_da_alpha_N_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_alpha_N_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4830,18 +4830,18 @@ static void paint_affine_near_da_alpha_N_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fa0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, dn, sn, alpha, hp, gp);
 }
 
-static void paint_affine_near_sa_N_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_N_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4854,18 +4854,18 @@ static void paint_affine_near_sa_N_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fa0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, dn, sn, hp, gp);
 }
 
-static void paint_affine_near_sa_alpha_N_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_alpha_N_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4878,18 +4878,18 @@ static void paint_affine_near_sa_alpha_N_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fa0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, dn, sn, alpha, hp, gp);
 }
 
-static void paint_affine_near_N_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_N_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4902,18 +4902,18 @@ static void paint_affine_near_N_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fa0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, dn, sn, hp, gp);
 }
 
-static void paint_affine_near_alpha_N_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_alpha_N_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4926,18 +4926,18 @@ static void paint_affine_near_alpha_N_fa0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fa0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, dn, sn, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_sa_N_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_N_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4950,18 +4950,18 @@ static void paint_affine_near_da_sa_N_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fb0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, dn, sn, hp, gp);
 }
 
-static void paint_affine_near_da_sa_alpha_N_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_alpha_N_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4974,18 +4974,18 @@ static void paint_affine_near_da_sa_alpha_N_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fb0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, dn, sn, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_N_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_N_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -4998,18 +4998,18 @@ static void paint_affine_near_da_N_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fb0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, dn, sn, hp, gp);
 }
 
-static void paint_affine_near_da_alpha_N_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_alpha_N_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5022,18 +5022,18 @@ static void paint_affine_near_da_alpha_N_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fb0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, dn, sn, alpha, hp, gp);
 }
 
-static void paint_affine_near_sa_N_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_N_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5046,18 +5046,18 @@ static void paint_affine_near_sa_N_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fb0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, dn, sn, hp, gp);
 }
 
-static void paint_affine_near_sa_alpha_N_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_alpha_N_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5070,18 +5070,18 @@ static void paint_affine_near_sa_alpha_N_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fb0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, dn, sn, alpha, hp, gp);
 }
 
-static void paint_affine_near_N_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_N_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5094,18 +5094,18 @@ static void paint_affine_near_N_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_fb0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, dn, sn, hp, gp);
 }
 
-static void paint_affine_near_alpha_N_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_alpha_N_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5118,18 +5118,18 @@ static void paint_affine_near_alpha_N_fb0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_fb0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, dn, sn, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_sa_N(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5142,18 +5142,18 @@ static void paint_affine_near_da_sa_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, dn, sn, hp, gp);
 }
 
-static void paint_affine_near_da_sa_alpha_N(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_alpha_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5166,18 +5166,18 @@ static void paint_affine_near_da_sa_alpha_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, dn, sn, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_N(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5190,18 +5190,18 @@ static void paint_affine_near_da_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, dn, sn, hp, gp);
 }
 
-static void paint_affine_near_da_alpha_N(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_alpha_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5214,18 +5214,18 @@ static void paint_affine_near_da_alpha_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, dn, sn, alpha, hp, gp);
 }
 
-static void paint_affine_near_sa_N(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5238,18 +5238,18 @@ static void paint_affine_near_sa_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, dn, sn, hp, gp);
 }
 
-static void paint_affine_near_sa_alpha_N(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_alpha_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5262,18 +5262,18 @@ static void paint_affine_near_sa_alpha_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, dn, sn, alpha, hp, gp);
 }
 
-static void paint_affine_near_N(byte * FZ_RESTRICT dp,
+static void paint_affine_near_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5286,18 +5286,18 @@ static void paint_affine_near_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, dn, sn, hp, gp);
 }
 
-static void paint_affine_near_alpha_N(byte * FZ_RESTRICT dp,
+static void paint_affine_near_alpha_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5310,10 +5310,10 @@ static void paint_affine_near_alpha_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, dn, sn, alpha, hp, gp);
@@ -5322,9 +5322,9 @@ static void paint_affine_near_alpha_N(byte * FZ_RESTRICT dp,
 #endif /* FZ_PLOTTERS_N */
 
 #if FZ_ENABLE_SPOT_RENDERING
-static void paint_affine_near_N_op(byte * FZ_RESTRICT dp,
+static void paint_affine_near_N_op(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5337,18 +5337,18 @@ static void paint_affine_near_N_op(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_N_near_op(dp, da, sp, sw, sh, ss, sa, u, v, fa, fb, w, dn, sn, hp, gp, eop);
 }
 
-static void paint_affine_near_alpha_N_op(byte * FZ_RESTRICT dp,
+static void paint_affine_near_alpha_N_op(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5361,10 +5361,10 @@ static void paint_affine_near_alpha_N_op(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_N_near_op(dp, da, sp, sw, sh, ss, sa, u, v, fa, fb, w, dn, sn, alpha, hp, gp, eop);
@@ -5372,7 +5372,7 @@ static void paint_affine_near_alpha_N_op(byte * FZ_RESTRICT dp,
 
 #endif /* FZ_ENABLE_SPOT_RENDERING */
 
-static paintfn_t * fz_paint_affine_near(int da, int sa, int fa, int fb, int n, int alpha, const fz_overprint * FZ_RESTRICT eop)
+static paintfn_t * fz_paint_affine_near(int da, int sa, int fa, int fb, int n, int alpha, const fz_overprint * _RESTRICT eop)
 {
 #if FZ_ENABLE_SPOT_RENDERING
 	if(fz_overprint_required(eop)) {
@@ -5766,7 +5766,7 @@ static paintfn_t * fz_paint_affine_near_spots(int da,
     int dn,
     int sn,
     int alpha,
-    const fz_overprint * FZ_RESTRICT eop)
+    const fz_overprint * _RESTRICT eop)
 {
 	if(fz_overprint_required(eop)) {
 		if(alpha == 255)
@@ -5856,9 +5856,9 @@ static paintfn_t * fz_paint_affine_near_spots(int da,
 #endif /* FZ_ENABLE_SPOT_RENDERING */
 
 #if FZ_PLOTTERS_RGB
-static void paint_affine_near_da_sa_g2rgb_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_g2rgb_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5871,18 +5871,18 @@ static void paint_affine_near_da_sa_g2rgb_fa0(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_solid_g2rgb_near_fa0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, hp, gp);
 }
 
-static void paint_affine_near_da_sa_alpha_g2rgb_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_alpha_g2rgb_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5895,18 +5895,18 @@ static void paint_affine_near_da_sa_alpha_g2rgb_fa0(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_g2rgb_near_fa0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_g2rgb_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_g2rgb_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5919,18 +5919,18 @@ static void paint_affine_near_da_g2rgb_fa0(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_solid_g2rgb_near_fa0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, hp, gp);
 }
 
-static void paint_affine_near_da_alpha_g2rgb_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_alpha_g2rgb_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5943,18 +5943,18 @@ static void paint_affine_near_da_alpha_g2rgb_fa0(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_g2rgb_near_fa0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, alpha, hp, gp);
 }
 
-static void paint_affine_near_sa_g2rgb_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_g2rgb_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5967,18 +5967,18 @@ static void paint_affine_near_sa_g2rgb_fa0(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_solid_g2rgb_near_fa0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, hp, gp);
 }
 
-static void paint_affine_near_sa_alpha_g2rgb_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_alpha_g2rgb_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -5991,18 +5991,18 @@ static void paint_affine_near_sa_alpha_g2rgb_fa0(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_g2rgb_near_fa0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, alpha, hp, gp);
 }
 
-static void paint_affine_near_g2rgb_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_g2rgb_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6015,18 +6015,18 @@ static void paint_affine_near_g2rgb_fa0(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_solid_g2rgb_near_fa0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, hp, gp);
 }
 
-static void paint_affine_near_alpha_g2rgb_fa0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_alpha_g2rgb_fa0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6039,18 +6039,18 @@ static void paint_affine_near_alpha_g2rgb_fa0(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_g2rgb_near_fa0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_sa_g2rgb_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_g2rgb_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6063,18 +6063,18 @@ static void paint_affine_near_da_sa_g2rgb_fb0(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_solid_g2rgb_near_fb0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, hp, gp);
 }
 
-static void paint_affine_near_da_sa_alpha_g2rgb_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_alpha_g2rgb_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6087,18 +6087,18 @@ static void paint_affine_near_da_sa_alpha_g2rgb_fb0(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_g2rgb_near_fb0(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_g2rgb_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_g2rgb_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6111,18 +6111,18 @@ static void paint_affine_near_da_g2rgb_fb0(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_solid_g2rgb_near_fb0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, hp, gp);
 }
 
-static void paint_affine_near_da_alpha_g2rgb_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_alpha_g2rgb_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6135,18 +6135,18 @@ static void paint_affine_near_da_alpha_g2rgb_fb0(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_g2rgb_near_fb0(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, alpha, hp, gp);
 }
 
-static void paint_affine_near_sa_g2rgb_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_g2rgb_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6159,18 +6159,18 @@ static void paint_affine_near_sa_g2rgb_fb0(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_solid_g2rgb_near_fb0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, hp, gp);
 }
 
-static void paint_affine_near_sa_alpha_g2rgb_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_alpha_g2rgb_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6183,18 +6183,18 @@ static void paint_affine_near_sa_alpha_g2rgb_fb0(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_g2rgb_near_fb0(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, alpha, hp, gp);
 }
 
-static void paint_affine_near_g2rgb_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_g2rgb_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6207,18 +6207,18 @@ static void paint_affine_near_g2rgb_fb0(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_solid_g2rgb_near_fb0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, hp, gp);
 }
 
-static void paint_affine_near_alpha_g2rgb_fb0(byte * FZ_RESTRICT dp,
+static void paint_affine_near_alpha_g2rgb_fb0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6231,18 +6231,18 @@ static void paint_affine_near_alpha_g2rgb_fb0(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_g2rgb_near_fb0(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_sa_g2rgb(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_g2rgb(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6255,18 +6255,18 @@ static void paint_affine_near_da_sa_g2rgb(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_solid_g2rgb_near(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, hp, gp);
 }
 
-static void paint_affine_near_da_sa_alpha_g2rgb(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_sa_alpha_g2rgb(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6279,18 +6279,18 @@ static void paint_affine_near_da_sa_alpha_g2rgb(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_g2rgb_near(dp, 1, sp, sw, sh, ss, 1, u, v, fa, fb, w, alpha, hp, gp);
 }
 
-static void paint_affine_near_da_g2rgb(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_g2rgb(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6303,18 +6303,18 @@ static void paint_affine_near_da_g2rgb(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_solid_g2rgb_near(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, hp, gp);
 }
 
-static void paint_affine_near_da_alpha_g2rgb(byte * FZ_RESTRICT dp,
+static void paint_affine_near_da_alpha_g2rgb(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6327,18 +6327,18 @@ static void paint_affine_near_da_alpha_g2rgb(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_g2rgb_near(dp, 1, sp, sw, sh, ss, 0, u, v, fa, fb, w, alpha, hp, gp);
 }
 
-static void paint_affine_near_sa_g2rgb(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_g2rgb(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6351,18 +6351,18 @@ static void paint_affine_near_sa_g2rgb(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_solid_g2rgb_near(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, hp, gp);
 }
 
-static void paint_affine_near_sa_alpha_g2rgb(byte * FZ_RESTRICT dp,
+static void paint_affine_near_sa_alpha_g2rgb(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6375,18 +6375,18 @@ static void paint_affine_near_sa_alpha_g2rgb(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_g2rgb_near(dp, 0, sp, sw, sh, ss, 1, u, v, fa, fb, w, alpha, hp, gp);
 }
 
-static void paint_affine_near_g2rgb(byte * FZ_RESTRICT dp,
+static void paint_affine_near_g2rgb(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6399,18 +6399,18 @@ static void paint_affine_near_g2rgb(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_solid_g2rgb_near(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, hp, gp);
 }
 
-static void paint_affine_near_alpha_g2rgb(byte * FZ_RESTRICT dp,
+static void paint_affine_near_alpha_g2rgb(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6423,10 +6423,10 @@ static void paint_affine_near_alpha_g2rgb(byte * FZ_RESTRICT dp,
     int dn1,
     int sn1,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_alpha_g2rgb_near(dp, 0, sp, sw, sh, ss, 0, u, v, fa, fb, w, alpha, hp, gp);
@@ -6523,9 +6523,9 @@ static paintfn_t * fz_paint_affine_g2rgb_near(int da, int sa, int fa, int fb, in
 
 #endif /* FZ_PLOTTERS_RGB */
 
-static void paint_affine_color_lerp_da_0(byte * FZ_RESTRICT dp,
+static void paint_affine_color_lerp_da_0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6538,19 +6538,19 @@ static void paint_affine_color_lerp_da_0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_lerp(dp, 1, sp, sw, sh, ss, u, v, fa, fb, w, 0, 0, color, hp, gp);
 }
 
 #if FZ_PLOTTERS_G
-static void paint_affine_color_lerp_da_1(byte * FZ_RESTRICT dp,
+static void paint_affine_color_lerp_da_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6563,18 +6563,18 @@ static void paint_affine_color_lerp_da_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_lerp(dp, 1, sp, sw, sh, ss, u, v, fa, fb, w, 1, 1, color, hp, gp);
 }
 
-static void paint_affine_color_lerp_1(byte * FZ_RESTRICT dp,
+static void paint_affine_color_lerp_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6587,10 +6587,10 @@ static void paint_affine_color_lerp_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_lerp(dp, 0, sp, sw, sh, ss, u, v, fa, fb, w, 1, 1, color, hp, gp);
@@ -6599,9 +6599,9 @@ static void paint_affine_color_lerp_1(byte * FZ_RESTRICT dp,
 #endif /* FZ_PLOTTERS_G */
 
 #if FZ_PLOTTERS_RGB
-static void paint_affine_color_lerp_3(byte * FZ_RESTRICT dp,
+static void paint_affine_color_lerp_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6614,18 +6614,18 @@ static void paint_affine_color_lerp_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_lerp(dp, 0, sp, sw, sh, ss, u, v, fa, fb, w, 3, 3, color, hp, gp);
 }
 
-static void paint_affine_color_lerp_da_3(byte * FZ_RESTRICT dp,
+static void paint_affine_color_lerp_da_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6638,10 +6638,10 @@ static void paint_affine_color_lerp_da_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_lerp(dp, 1, sp, sw, sh, ss, u, v, fa, fb, w, 3, 3, color, hp, gp);
@@ -6650,9 +6650,9 @@ static void paint_affine_color_lerp_da_3(byte * FZ_RESTRICT dp,
 #endif /* FZ_PLOTTERS_RGB */
 
 #if FZ_PLOTTERS_CMYK
-static void paint_affine_color_lerp_da_4(byte * FZ_RESTRICT dp,
+static void paint_affine_color_lerp_da_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6665,18 +6665,18 @@ static void paint_affine_color_lerp_da_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_lerp(dp, 1, sp, sw, sh, ss, u, v, fa, fb, w, 4, 4, color, hp, gp);
 }
 
-static void paint_affine_color_lerp_4(byte * FZ_RESTRICT dp,
+static void paint_affine_color_lerp_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6689,10 +6689,10 @@ static void paint_affine_color_lerp_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_lerp(dp, 0, sp, sw, sh, ss, u, v, fa, fb, w, 4, 4, color, hp, gp);
@@ -6701,9 +6701,9 @@ static void paint_affine_color_lerp_4(byte * FZ_RESTRICT dp,
 #endif /* FZ_PLOTTERS_G */
 
 #if FZ_PLOTTERS_N
-static void paint_affine_color_lerp_da_N(byte * FZ_RESTRICT dp,
+static void paint_affine_color_lerp_da_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6716,18 +6716,18 @@ static void paint_affine_color_lerp_da_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_lerp(dp, 1, sp, sw, sh, ss, u, v, fa, fb, w, dn, sn, color, hp, gp);
 }
 
-static void paint_affine_color_lerp_N(byte * FZ_RESTRICT dp,
+static void paint_affine_color_lerp_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6740,10 +6740,10 @@ static void paint_affine_color_lerp_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_lerp(dp, 0, sp, sw, sh, ss, u, v, fa, fb, w, dn, sn, color, hp, gp);
@@ -6752,9 +6752,9 @@ static void paint_affine_color_lerp_N(byte * FZ_RESTRICT dp,
 #endif /* FZ_PLOTTERS_N */
 
 #if FZ_ENABLE_SPOT_RENDERING
-static void paint_affine_color_lerp_N_op(byte * FZ_RESTRICT dp,
+static void paint_affine_color_lerp_N_op(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6767,10 +6767,10 @@ static void paint_affine_color_lerp_N_op(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_lerp_op(dp, da, sp, sw, sh, ss, u, v, fa, fb, w, dn, sn, color, hp, gp, eop);
@@ -6778,7 +6778,7 @@ static void paint_affine_color_lerp_N_op(byte * FZ_RESTRICT dp,
 
 #endif /* FZ_ENABLE_SPOT_RENDERING */
 
-static paintfn_t * fz_paint_affine_color_lerp(int da, int sa, int fa, int fb, int n, int alpha, const fz_overprint * FZ_RESTRICT eop)
+static paintfn_t * fz_paint_affine_color_lerp(int da, int sa, int fa, int fb, int n, int alpha, const fz_overprint * _RESTRICT eop)
 {
 #if FZ_ENABLE_SPOT_RENDERING
 	if(fz_overprint_required(eop))
@@ -6810,7 +6810,7 @@ static paintfn_t * fz_paint_affine_color_lerp_spots(int da,
     int dn,
     int sn,
     int alpha,
-    const fz_overprint * FZ_RESTRICT eop)
+    const fz_overprint * _RESTRICT eop)
 {
 	if(fz_overprint_required(eop))
 		return paint_affine_color_lerp_N_op;
@@ -6819,9 +6819,9 @@ static paintfn_t * fz_paint_affine_color_lerp_spots(int da,
 
 #endif /* FZ_ENABLE_SPOT_RENDERING */
 
-static void paint_affine_color_near_da_0(byte * FZ_RESTRICT dp,
+static void paint_affine_color_near_da_0(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6834,19 +6834,19 @@ static void paint_affine_color_near_da_0(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_near(dp, 1, sp, sw, sh, ss, u, v, fa, fb, w, 0, 0, color, hp, gp);
 }
 
 #if FZ_PLOTTERS_G
-static void paint_affine_color_near_da_1(byte * FZ_RESTRICT dp,
+static void paint_affine_color_near_da_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6859,18 +6859,18 @@ static void paint_affine_color_near_da_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_near(dp, 1, sp, sw, sh, ss, u, v, fa, fb, w, 1, 1, color, hp, gp);
 }
 
-static void paint_affine_color_near_1(byte * FZ_RESTRICT dp,
+static void paint_affine_color_near_1(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6883,10 +6883,10 @@ static void paint_affine_color_near_1(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_near(dp, 0, sp, sw, sh, ss, u, v, fa, fb, w, 1, 1, color, hp, gp);
@@ -6895,9 +6895,9 @@ static void paint_affine_color_near_1(byte * FZ_RESTRICT dp,
 #endif /* FZ_PLOTTERS_G */
 
 #if FZ_PLOTTERS_RGB
-static void paint_affine_color_near_da_3(byte * FZ_RESTRICT dp,
+static void paint_affine_color_near_da_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6910,18 +6910,18 @@ static void paint_affine_color_near_da_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_near(dp, 1, sp, sw, sh, ss, u, v, fa, fb, w, 3, 3, color, hp, gp);
 }
 
-static void paint_affine_color_near_3(byte * FZ_RESTRICT dp,
+static void paint_affine_color_near_3(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6934,10 +6934,10 @@ static void paint_affine_color_near_3(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_near(dp, 0, sp, sw, sh, ss, u, v, fa, fb, w, 3, 3, color, hp, gp);
@@ -6946,9 +6946,9 @@ static void paint_affine_color_near_3(byte * FZ_RESTRICT dp,
 #endif /* FZ_PLOTTERS_RGB */
 
 #if FZ_PLOTTERS_CMYK
-static void paint_affine_color_near_da_4(byte * FZ_RESTRICT dp,
+static void paint_affine_color_near_da_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6961,18 +6961,18 @@ static void paint_affine_color_near_da_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_near(dp, 1, sp, sw, sh, ss, u, v, fa, fb, w, 4, 4, color, hp, gp);
 }
 
-static void paint_affine_color_near_4(byte * FZ_RESTRICT dp,
+static void paint_affine_color_near_4(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -6985,10 +6985,10 @@ static void paint_affine_color_near_4(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_near(dp, 0, sp, sw, sh, ss, u, v, fa, fb, w, 4, 4, color, hp, gp);
@@ -6997,9 +6997,9 @@ static void paint_affine_color_near_4(byte * FZ_RESTRICT dp,
 #endif /* FZ_PLOTTERS_CMYK */
 
 #if FZ_PLOTTERS_N
-static void paint_affine_color_near_da_N(byte * FZ_RESTRICT dp,
+static void paint_affine_color_near_da_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -7012,18 +7012,18 @@ static void paint_affine_color_near_da_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_near(dp, 1, sp, sw, sh, ss, u, v, fa, fb, w, dn, sn, color, hp, gp);
 }
 
-static void paint_affine_color_near_N(byte * FZ_RESTRICT dp,
+static void paint_affine_color_near_N(byte * _RESTRICT dp,
     int da,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sw,
     int sh,
     int ss,
@@ -7036,10 +7036,10 @@ static void paint_affine_color_near_N(byte * FZ_RESTRICT dp,
     int dn,
     int sn,
     int alpha,
-    const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp,
-    byte * FZ_RESTRICT gp,
-    const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color,
+    byte * _RESTRICT hp,
+    byte * _RESTRICT gp,
+    const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_near(dp, 0, sp, sw, sh, ss, u, v, fa, fb, w, dn, sn, color, hp, gp);
@@ -7048,17 +7048,17 @@ static void paint_affine_color_near_N(byte * FZ_RESTRICT dp,
 #endif /* FZ_PLOTTERS_N */
 
 #if FZ_ENABLE_SPOT_RENDERING
-static void paint_affine_color_near_da_N_op(byte * FZ_RESTRICT dp, int da, const byte * FZ_RESTRICT sp,
-    int sw, int sh, int ss, int sa, int u, int v, int fa, int fb, int w, int dn, int sn, int alpha, const byte * FZ_RESTRICT color,
-    byte * FZ_RESTRICT hp, byte * FZ_RESTRICT gp, const fz_overprint * FZ_RESTRICT eop)
+static void paint_affine_color_near_da_N_op(byte * _RESTRICT dp, int da, const byte * _RESTRICT sp,
+    int sw, int sh, int ss, int sa, int u, int v, int fa, int fb, int w, int dn, int sn, int alpha, const byte * _RESTRICT color,
+    byte * _RESTRICT hp, byte * _RESTRICT gp, const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_near_op(dp, 1, sp, sw, sh, ss, u, v, fa, fb, w, dn, sn, color, hp, gp, eop);
 }
 
-static void paint_affine_color_near_N_op(byte * FZ_RESTRICT dp, int da, const byte * FZ_RESTRICT sp,
+static void paint_affine_color_near_N_op(byte * _RESTRICT dp, int da, const byte * _RESTRICT sp,
     int sw, int sh, int ss, int sa, int u, int v, int fa, int fb, int w, int dn, int sn, int alpha,
-    const byte * FZ_RESTRICT color, byte * FZ_RESTRICT hp, byte * FZ_RESTRICT gp, const fz_overprint * FZ_RESTRICT eop)
+    const byte * _RESTRICT color, byte * _RESTRICT hp, byte * _RESTRICT gp, const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_affine_color_N_near_op(dp, 0, sp, sw, sh, ss, u, v, fa, fb, w, dn, sn, color, hp, gp, eop);
@@ -7066,7 +7066,7 @@ static void paint_affine_color_near_N_op(byte * FZ_RESTRICT dp, int da, const by
 
 #endif /* FZ_ENABLE_SPOT_RENDERING */
 
-static paintfn_t * fz_paint_affine_color_near(int da, int sa, int fa, int fb, int n, int alpha, const fz_overprint * FZ_RESTRICT eop)
+static paintfn_t * fz_paint_affine_color_near(int da, int sa, int fa, int fb, int n, int alpha, const fz_overprint * _RESTRICT eop)
 {
 #if FZ_ENABLE_SPOT_RENDERING
 	if(fz_overprint_required(eop))
@@ -7092,7 +7092,7 @@ static paintfn_t * fz_paint_affine_color_near(int da, int sa, int fa, int fb, in
 }
 
 #if FZ_ENABLE_SPOT_RENDERING
-static paintfn_t * fz_paint_affine_color_near_spots(int da, int sa, int fa, int fb, int dn, int sn, int alpha, const fz_overprint * FZ_RESTRICT eop)
+static paintfn_t * fz_paint_affine_color_near_spots(int da, int sa, int fa, int fb, int dn, int sn, int alpha, const fz_overprint * _RESTRICT eop)
 {
 	if(fz_overprint_required(eop))
 		return da ? paint_affine_color_near_da_N_op : paint_affine_color_near_N_op;
@@ -7459,16 +7459,16 @@ static void fz_paint_image_imp(fz_context * ctx, fz_pixmap * dst, const fz_irect
 	}
 }
 
-void fz_paint_image_with_color(fz_context * ctx, fz_pixmap * FZ_RESTRICT dst, const fz_irect * FZ_RESTRICT scissor,
-    fz_pixmap * FZ_RESTRICT shape, fz_pixmap * FZ_RESTRICT group_alpha, fz_pixmap * FZ_RESTRICT img,
-    fz_matrix ctm, const byte * FZ_RESTRICT color, int lerp_allowed, int as_tiled, const fz_overprint * FZ_RESTRICT eop)
+void fz_paint_image_with_color(fz_context * ctx, fz_pixmap * _RESTRICT dst, const fz_irect * _RESTRICT scissor,
+    fz_pixmap * _RESTRICT shape, fz_pixmap * _RESTRICT group_alpha, fz_pixmap * _RESTRICT img,
+    fz_matrix ctm, const byte * _RESTRICT color, int lerp_allowed, int as_tiled, const fz_overprint * _RESTRICT eop)
 {
 	assert(img->n == 1);
 	fz_paint_image_imp(ctx, dst, scissor, shape, group_alpha, img, ctm, color, 255, lerp_allowed, as_tiled, eop);
 }
 
-void fz_paint_image(fz_context * ctx, fz_pixmap * FZ_RESTRICT dst, const fz_irect * FZ_RESTRICT scissor, fz_pixmap * FZ_RESTRICT shape,
-    fz_pixmap * FZ_RESTRICT group_alpha, fz_pixmap * FZ_RESTRICT img, fz_matrix ctm, int alpha, int lerp_allowed, int as_tiled, const fz_overprint * FZ_RESTRICT eop)
+void fz_paint_image(fz_context * ctx, fz_pixmap * _RESTRICT dst, const fz_irect * _RESTRICT scissor, fz_pixmap * _RESTRICT shape,
+    fz_pixmap * _RESTRICT group_alpha, fz_pixmap * _RESTRICT img, fz_matrix ctm, int alpha, int lerp_allowed, int as_tiled, const fz_overprint * _RESTRICT eop)
 {
 	fz_paint_image_imp(ctx, dst, scissor, shape, group_alpha, img, ctm, NULL, alpha, lerp_allowed, as_tiled, eop);
 }

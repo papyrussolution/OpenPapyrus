@@ -377,6 +377,7 @@ class  PPTextAnalyzerWrapper;
 class  SelectObjectBlock;
 class  Backend_SelectObjectBlock;
 class  CPosNodeBlock;
+class  WsCtlBlock; // @v11.7.2
 struct CPosProcessor_SetupDiscontBlock; // @v10.2.3
 class  PersonCache;
 class  BhtTSess;
@@ -443,120 +444,179 @@ typedef LongArray PPIDArray;
 //   разбросанных по всему проекту - их надо собрать в одном месте.
 // Attention! Ни в коем случае нельзя менять значения этих констант: последствия могут быть сколь угодно тяжелыми.
 //
-class PPConstParam {
+class PPConst { // @v11.7.3 PPConstParam-->PPConst
 public:
-	PPConstParam() : UseAdvEvQueue(1), Flags(/*fDoSeparateNonFiscalCcItems*/),
-		Signature_PPObjSCard_Filt(0xfbefffffU),
-		Signature_DbDump(0x44445050UL),
-		Signature_VerHist(0x48565050UL), // 'PPVH'
-		Signature_PhoneServiceEventResponder(0x5A6B7C8E),
-		Signature_MqbEventResponder(0xB4C7E6F1),
-		Signature_SysMaintenanceEventResponder(0x35079E8D),
-		Signature_LaunchAppParam(0x4c484150L), // 'LHAP'
-		Signature_Quotation2_DumpHeader(0x7654321098fedcbaULL),
-		Signature_PPView(0x099A099BUL),
-		Signature_PPThreadLocalArea(0x7D08E311UL), // @v10.9.12
-		Signature_StqDbSymbToSvcIdMap(0xBCA10DD9UL), // @v11.1.12
-		Signature_BillMultiPrintParam(0xA4183530UL), // @v11.2.0 Сигнатура класса BillMultiPrintParam
-		Signature_StyloQStoragePacket(0x11A52FB6UL), // @v11.6.0 Сигнатура класса StyloQCore::StoragePacket
-		Signature_StyloQPersonEventParam(0x230759EAUL), // @v11.6.1 Сигнатура класса StyloQPersonEventParam
-		EgaisInRowIdentDivider(27277), // @v10.8.3
-		ReserveU16(0), // @v10.8.3
-		CommonCmdAssocDesktopID(100000L), // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
-		TechSurrogateGoodsIdStart(-524288L), // @v11.6.4
-		P_SubjectDbDiv("$PpyDbDivTransmission$"),
-		P_SubjectOrder("$PpyOrderTransmission$"),
-		P_SubjectCharry("$PpyCharryTransmission$"),
-		P_BillNotePrefix_IntrExpnd("$INTREXPND"),
-		P_MagicFileTransmit("$#FILETRANSMITMAGIC#$"), // @v11.2.9
-		P_ObjMemoDelim("=^%"),
-		P_ObjMemo_UtmRejPfx("UTM Rej"),
-		P_ObjMemo_EgaisRejPfx("EGAIS Rej"),
-		P_ObjMemo_ChznRejPfx("ChZn Rej"),
-		P_TagValRestrict_Empty("#EMPTY"), // @v11.3.6
-		P_TagValRestrict_Exist("#EXIST"), // @v11.3.6
-		P_TagValRestrict_List("#LIST"), // @v11.3.6
-		WrKey_PrefSettings("Software\\Papyrus\\Pref"), // @v11.4.4 (replaced PPRegKeys)
-		WrKey_PrefBasketSelSettings("Software\\Papyrus\\Pref\\BasketSel"), // @v11.4.4 (replaced PPRegKeys)
-		WrKey_SysSettings("Software\\Papyrus\\System"), // @v11.4.4 (replaced PPRegKeys)
-		WrKey_Sessions("Software\\Papyrus\\Sessions"), // @v11.4.4 (replaced PPRegKeys)
-		WrKey_WsCtl("Software\\Papyrus\\WsCtl"), // @v11.7.2 HKEY_LOCAL_MACHINE
-		WrParam_ViewQuotsAsListBox("ViewQuotsAsListBox"),
-		WrParam_BillAddFilesFolder("BillAddFilesFolder"),
-		WrParam_CalcPriceParam("CalcPriceParam"),
-		WrParam_BinPath("BinPath"),
-		WrParam_PhnSvcLocalUpChannelSymbol("PhnSvcLocalChannelSymbol"),
-		WrParam_PhnSvcLocalScanChannelSymbol("PhnSvcLocalScanChannelSymbol"),
-		WrParam_DefaultWindowsPrinter("DefaultWindowsPrinter"),
-		WrParam_PersonAddImageFolder("PersonAddImageFolder"),
-		WrParam_UseDuplexPrinting("UseDuplexPrinting"),
-		WrParam_StoreLastSelectedPrinter("StoreLastSelectedPrinter"),
-		WrParam_LastSelectedPrinter("LastSelectedPrinter"),
-		WrParam_BillMultiplePrintCfg2("BillMultiplePrintCfg2"), // @v11.2.0
-		WrParam_StyloQLoclMachineUuid("StyloQLoclMachineUuid"), // @v11.2.3
-		WrParam_WsCtl_MachineUUID("MachineUUID") // @v11.7.2 
-	{
-	}
+	//PPConst) //: 
+		//UseAdvEvQueue(1), 
+		//Flags(/*fDoSeparateNonFiscalCcItems*/),
+		//EgaisInRowIdentDivider(27277), // @v10.8.3
+		//ReserveU16(0), // @v10.8.3
+		//CommonCmdAssocDesktopID(100000L), // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
+		//TechSurrogateGoodsIdStart(-524288L) // @v11.6.4
+
+		//Signature_PPObjSCard_Filt(0xfbefffffU),
+		//Signature_DbDump(0x44445050UL),
+		//Signature_VerHist(0x48565050UL), // 'PPVH'
+		//Signature_PhoneServiceEventResponder(0x5A6B7C8E),
+		//Signature_MqbEventResponder(0xB4C7E6F1),
+		//Signature_SysMaintenanceEventResponder(0x35079E8D),
+		//Signature_Quotation2_DumpHeader(0x7654321098fedcbaULL),
+		//Signature_PPView(0x099A099BUL),
+		//Signature_PPThreadLocalArea(0x7D08E311UL), // @v10.9.12
+		//Signature_StqDbSymbToSvcIdMap(0xBCA10DD9UL), // @v11.1.12
+		//Signature_BillMultiPrintParam(0xA4183530UL), // @v11.2.0 Сигнатура класса BillMultiPrintParam
+		//Signature_StyloQStoragePacket(0x11A52FB6UL), // @v11.6.0 Сигнатура класса StyloQCore::StoragePacket
+		//Signature_StyloQPersonEventParam(0x230759EAUL), // @v11.6.1 Сигнатура класса StyloQPersonEventParam
+		//Signature_LaunchAppParam(0x4c484150L), // 'LHAP'
+
+		//P_SubjectDbDiv("$PpyDbDivTransmission$"),
+		//P_SubjectOrder("$PpyOrderTransmission$"),
+		//P_SubjectCharry("$PpyCharryTransmission$"),
+		//P_BillNotePrefix_IntrExpnd("$INTREXPND"),
+		//P_MagicFileTransmit("$#FILETRANSMITMAGIC#$"), // @v11.2.9
+		//P_ObjMemoDelim("=^%"),
+		//P_ObjMemo_UtmRejPfx("UTM Rej"),
+		//P_ObjMemo_EgaisRejPfx("EGAIS Rej"),
+		//P_ObjMemo_ChznRejPfx("ChZn Rej"),
+		//P_TagValRestrict_Empty("#EMPTY"), // @v11.3.6
+		//P_TagValRestrict_Exist("#EXIST"), // @v11.3.6
+		//P_TagValRestrict_List("#LIST") // @v11.3.6
+		//WrKey_PrefSettings("Software\\Papyrus\\Pref"), // @v11.4.4 (replaced PPRegKeys)
+		//WrKey_PrefBasketSelSettings("Software\\Papyrus\\Pref\\BasketSel"), // @v11.4.4 (replaced PPRegKeys)
+		//WrKey_SysSettings("Software\\Papyrus\\System"), // @v11.4.4 (replaced PPRegKeys)
+		//WrKey_Sessions("Software\\Papyrus\\Sessions"), // @v11.4.4 (replaced PPRegKeys)
+		//WrKey_WsCtl("Software\\Papyrus\\WsCtl"), // @v11.7.2 HKEY_LOCAL_MACHINE
+		//WrParam_ViewQuotsAsListBox("ViewQuotsAsListBox"),
+		//WrParam_BillAddFilesFolder("BillAddFilesFolder"),
+		//WrParam_CalcPriceParam("CalcPriceParam"),
+		//WrParam_BinPath("BinPath"),
+		//WrParam_PhnSvcLocalUpChannelSymbol("PhnSvcLocalChannelSymbol"),
+		//WrParam_PhnSvcLocalScanChannelSymbol("PhnSvcLocalScanChannelSymbol"),
+		//WrParam_DefaultWindowsPrinter("DefaultWindowsPrinter"),
+		//WrParam_PersonAddImageFolder("PersonAddImageFolder"),
+		//WrParam_UseDuplexPrinting("UseDuplexPrinting"),
+		//WrParam_StoreLastSelectedPrinter("StoreLastSelectedPrinter"),
+		//WrParam_LastSelectedPrinter("LastSelectedPrinter"),
+		//WrParam_BillMultiplePrintCfg2("BillMultiplePrintCfg2"), // @v11.2.0
+		//WrParam_StyloQLoclMachineUuid("StyloQLoclMachineUuid") // @v11.2.3
+		//WrParam_WsCtl_MachineUUID("MachineUUID") // @v11.7.2 
+	//{
+	//}
 	enum {
 		fDoSeparateNonFiscalCcItems = 0x0001
 	};
-	const int    UseAdvEvQueue; // {0, 1, 2} USE_ADVEVQUEUE Использовать очередь сообщений
-	const uint32 Flags;
-	const uint32 Signature_DbDump;
-	const uint32 Signature_VerHist;                      // Сигнатура файла истории обновления версий
-	const uint32 Signature_PPObjSCard_Filt;              // Специальная сигнатура объекта PPObjSCard::Filt
-	const uint32 Signature_PhoneServiceEventResponder;   // Сигнатура респондера событий телефонного сервиса
-	const uint32 Signature_MqbEventResponder;            // Сигнатура респондера событий брокера сообщений
-	const uint32 Signature_SysMaintenanceEventResponder; // Сигнатура респондера событий обслуживания системы
-	const long   Signature_LaunchAppParam;               //
-	const uint64 Signature_Quotation2_DumpHeader;        // Сигнатура дампа котировок = 0x7654321098fedcbaLL; // @persistent
-	const uint32 Signature_PPView;                       // Сигнатура класса PPView 0x099A099BUL (former SIGN_PPVIEW)
-	const uint32 Signature_PPThreadLocalArea;            // @v10.9.12 Сигнатура класса PPThreadLocalArea (former SIGN_PPTLA)
-	const uint32 Signature_StqDbSymbToSvcIdMap;          // @v11.1.12 Сигнатура файла соответствий символов баз данных идентификаторам сервисов Stylo-Q
-	const uint32 Signature_BillMultiPrintParam;          // @v11.2.0  Сигнатура класса BillMultiPrintParam
-	const uint32 Signature_StyloQStoragePacket;          // @v11.6.0  Сигнатура класса StyloQCore::StoragePacket
-	const uint32 Signature_StyloQPersonEventParam;       // @v11.6.2  Сигнатура класса StyloQCore::StoragePacket
-	const int16  EgaisInRowIdentDivider;     // @v9.8.9 10000-->27277 // Специальное смещение для значений номеров строк, с помощью которого
+
+	static constexpr int    UseAdvEvQueue = 1;
+	static constexpr uint32 Flags = 0/*fDoSeparateNonFiscalCcItems*/;
+	static constexpr int16  EgaisInRowIdentDivider = 27277; // @v10.8.3
+	static constexpr long   CommonCmdAssocDesktopID = 100000L; // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
+	static constexpr long   TechSurrogateGoodsIdStart = -524288L; // @v11.6.4
+
+	//const int    UseAdvEvQueue; // {0, 1, 2} USE_ADVEVQUEUE Использовать очередь сообщений
+	//const uint32 Flags;
+	//const int16  EgaisInRowIdentDivider;     // @v9.8.9 10000-->27277 // Специальное смещение для значений номеров строк, с помощью которого
 		// решается проблема одиозных входящих идентификаторов строк документов (0, guid, текст, значения большие чем EgaisInRowIdentDivider)
-	const uint16 ReserveU16;                 // @alignment @v10.8.3
-	const long   CommonCmdAssocDesktopID;    // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
-	const long   TechSurrogateGoodsIdStart;  // @v11.6.4 (-524288L) Верхнее значение специального поля фейковых идентификаторов товаров, используемых для предотвращения дублирования //
+	//const uint16 ReserveU16;                 // @alignment @v10.8.3
+	//const long   CommonCmdAssocDesktopID;    // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
+	//const long   TechSurrogateGoodsIdStart;  // @v11.6.4 (-524288L) Верхнее значение специального поля фейковых идентификаторов товаров, используемых для предотвращения дублирования //
 		// индексов в таблице Tech при создании трехнологий верхнего уровня (folders).
+
+	static constexpr uint32 Signature_PPObjSCard_Filt              = 0xfbefffffU; // Специальная сигнатура объекта PPObjSCard::Filt
+	static constexpr uint32 Signature_DbDump                       = 0x44445050U;
+	static constexpr uint32 Signature_VerHist                      = 0x48565050U; // 'PPVH' Сигнатура файла истории обновления версий
+	static constexpr uint32 Signature_PhoneServiceEventResponder   = 0x5A6B7C8EU; // Сигнатура респондера событий телефонного сервиса
+	static constexpr uint32 Signature_MqbEventResponder            = 0xB4C7E6F1U; // Сигнатура респондера событий брокера сообщений
+	static constexpr uint32 Signature_SysMaintenanceEventResponder = 0x35079E8DU; // Сигнатура респондера событий обслуживания системы
+	static constexpr uint64 Signature_Quotation2_DumpHeader        = 0x7654321098fedcbaULL; // Сигнатура дампа котировок = 0x7654321098fedcbaLL; // @persistent
+	static constexpr uint32 Signature_PPView                       = 0x099A099BU; // Сигнатура класса PPView 0x099A099BUL (former SIGN_PPVIEW)
+	static constexpr uint32 Signature_PPThreadLocalArea            = 0x7D08E311U; // @v10.9.12 Сигнатура класса PPThreadLocalArea (former SIGN_PPTLA)
+	static constexpr uint32 Signature_StqDbSymbToSvcIdMap          = 0xBCA10DD9U; // @v11.1.12 Сигнатура файла соответствий символов баз данных идентификаторам сервисов Stylo-Q
+	static constexpr uint32 Signature_BillMultiPrintParam          = 0xA4183530U; // @v11.2.0  Сигнатура класса BillMultiPrintParam
+	static constexpr uint32 Signature_StyloQStoragePacket          = 0x11A52FB6U; // @v11.6.0 Сигнатура класса StyloQCore::StoragePacket
+	static constexpr uint32 Signature_StyloQPersonEventParam       = 0x230759EAU; // @v11.6.1 Сигнатура класса StyloQPersonEventParam
+	static constexpr long   Signature_LaunchAppParam               = 0x4c484150L; // 'LHAP'
+
+	//const uint32 Signature_DbDump;
+	//const uint32 Signature_VerHist;                      // Сигнатура файла истории обновления версий
+	//const uint32 Signature_PPObjSCard_Filt;              // Специальная сигнатура объекта PPObjSCard::Filt
+	//const uint32 Signature_PhoneServiceEventResponder;   // Сигнатура респондера событий телефонного сервиса
+	//const uint32 Signature_MqbEventResponder;            // Сигнатура респондера событий брокера сообщений
+	//const uint32 Signature_SysMaintenanceEventResponder; // Сигнатура респондера событий обслуживания системы
+	//const uint64 Signature_Quotation2_DumpHeader;        // Сигнатура дампа котировок = 0x7654321098fedcbaLL; // @persistent
+	//const uint32 Signature_PPView;                       // Сигнатура класса PPView 0x099A099BUL (former SIGN_PPVIEW)
+	//const uint32 Signature_PPThreadLocalArea;            // @v10.9.12 Сигнатура класса PPThreadLocalArea (former SIGN_PPTLA)
+	//const uint32 Signature_StqDbSymbToSvcIdMap;          // @v11.1.12 Сигнатура файла соответствий символов баз данных идентификаторам сервисов Stylo-Q
+	//const uint32 Signature_BillMultiPrintParam;          // @v11.2.0  Сигнатура класса BillMultiPrintParam
+	//const uint32 Signature_StyloQStoragePacket;          // @v11.6.0  Сигнатура класса StyloQCore::StoragePacket
+	//const uint32 Signature_StyloQPersonEventParam;       // @v11.6.2  Сигнатура класса StyloQCore::StoragePacket
+	//const long   Signature_LaunchAppParam;               //
+
 	//#define COMMON_DESKCMDASSOC 100000L
-	const char * P_SubjectDbDiv;
-	const char * P_SubjectOrder;
-	const char * P_SubjectCharry;
-	const char * P_BillNotePrefix_IntrExpnd; // "$INTREXPND" Специальный префикс примечания документа передаваемый через ЕГАИС для привязка документа внутренней передачи
-	const char * P_MagicFileTransmit;        // "$#FILETRANSMITMAGIC#$" Префикс команды JobServer'а для передачи файлов
-	const char * P_ObjMemoDelim;             // MemosDelim разделитель примечаний объектов
-	const char * P_ObjMemo_UtmRejPfx;        // "UTM Rej" Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС УТМ
-	const char * P_ObjMemo_EgaisRejPfx;      // "EGAIS Rej" Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС
-	const char * P_ObjMemo_ChznRejPfx;       // "ChZn Rej" Префикс примечания документа для индикации сообщения об ошибке поступившего от честного знака
-	const char * P_TagValRestrict_Empty;     // @v11.3.6 "#EMPTY"
-	const char * P_TagValRestrict_Exist;     // @v11.3.6 "#EXIST"
-	const char * P_TagValRestrict_List;      // @v11.3.6 "#LIST"
-	const char * WrKey_PrefSettings;          // @v11.4.4 (replaced PPRegKeys) "Software\\Papyrus\\Pref"
-	const char * WrKey_PrefBasketSelSettings; // @v11.4.4 (replaced PPRegKeys) "Software\\Papyrus\\Pref\\BasketSel"
-	const char * WrKey_SysSettings;           // @v11.4.4 (replaced PPRegKeys) "Software\\Papyrus\\System"
-	const char * WrKey_Sessions;              // @v11.4.4 (replaced PPRegKeys) "Software\\Papyrus\\Sessions"
-	const char * WrKey_WsCtl;                // @v11.7.2 HKEY_LOCAL_MACHINE "Software\\Papyrus\\WsCtl"
-	const char * WrParam_ViewQuotsAsListBox; // "ViewQuotsAsListBox" [1|0]
-	const char * WrParam_BillAddFilesFolder; // "BillAddFilesFolder" string
-	const char * WrParam_CalcPriceParam;     // "CalcPriceParam" string
-	const char * WrParam_BinPath;            // "BinPath" string
-	const char * WrParam_PhnSvcLocalUpChannelSymbol;   // "PhnSvcLocalChannelSymbol"
-	const char * WrParam_PhnSvcLocalScanChannelSymbol; // "PhnSvcLocalScanChannelSymbol"
-	const char * WrParam_DefaultWindowsPrinter;        // "DefaultWindowsPrinter"
-	const char * WrParam_PersonAddImageFolder;         // "PersonAddImageFolder"
-	const char * WrParam_UseDuplexPrinting;            // "UseDuplexPrinting"
-	const char * WrParam_StoreLastSelectedPrinter;     // "StoreLastSelectedPrinter" // @v10.7.10
-	const char * WrParam_LastSelectedPrinter;          // "LastSelectedPrinter" // @v10.7.10
-	const char * WrParam_BillMultiplePrintCfg2;        // "BillMultiplePrintCfg2" // @v11.2.0
-	const char * WrParam_StyloQLoclMachineUuid;        // @v11.2.3
-	const char * WrParam_WsCtl_MachineUUID;            // "MachineUUID" @v11.7.2 
+	//const char * P_SubjectDbDiv;
+	//const char * P_SubjectOrder;
+	//const char * P_SubjectCharry;
+	//const char * P_BillNotePrefix_IntrExpnd; // "$INTREXPND" Специальный префикс примечания документа передаваемый через ЕГАИС для привязка документа внутренней передачи
+	//const char * P_MagicFileTransmit;        // "$#FILETRANSMITMAGIC#$" Префикс команды JobServer'а для передачи файлов
+	//const char * P_ObjMemoDelim;             // MemosDelim разделитель примечаний объектов
+	//const char * P_ObjMemo_UtmRejPfx;        // "UTM Rej" Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС УТМ
+	//const char * P_ObjMemo_EgaisRejPfx;      // "EGAIS Rej" Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС
+	//const char * P_ObjMemo_ChznRejPfx;       // "ChZn Rej" Префикс примечания документа для индикации сообщения об ошибке поступившего от честного знака
+	//const char * P_TagValRestrict_Empty;     // @v11.3.6 "#EMPTY"
+	//const char * P_TagValRestrict_Exist;     // @v11.3.6 "#EXIST"
+	//const char * P_TagValRestrict_List;      // @v11.3.6 "#LIST"
+	//const char * WrKey_PrefSettings;          // @v11.4.4 (replaced PPRegKeys) "Software\\Papyrus\\Pref"
+	//const char * WrKey_PrefBasketSelSettings; // @v11.4.4 (replaced PPRegKeys) "Software\\Papyrus\\Pref\\BasketSel"
+	//const char * WrKey_SysSettings;           // @v11.4.4 (replaced PPRegKeys) "Software\\Papyrus\\System"
+	//const char * WrKey_Sessions;              // @v11.4.4 (replaced PPRegKeys) "Software\\Papyrus\\Sessions"
+	//const char * WrKey_WsCtl;                // @v11.7.2 HKEY_LOCAL_MACHINE "Software\\Papyrus\\WsCtl"
+	//const char * WrParam_ViewQuotsAsListBox; // "ViewQuotsAsListBox" [1|0]
+	//const char * WrParam_BillAddFilesFolder; // "BillAddFilesFolder" string
+	//const char * WrParam_CalcPriceParam;     // "CalcPriceParam" string
+	//const char * WrParam_BinPath;            // "BinPath" string
+	//const char * WrParam_PhnSvcLocalUpChannelSymbol;   // "PhnSvcLocalChannelSymbol"
+	//const char * WrParam_PhnSvcLocalScanChannelSymbol; // "PhnSvcLocalScanChannelSymbol"
+	//const char * WrParam_DefaultWindowsPrinter;        // "DefaultWindowsPrinter"
+	//const char * WrParam_PersonAddImageFolder;         // "PersonAddImageFolder"
+	//const char * WrParam_UseDuplexPrinting;            // "UseDuplexPrinting"
+	//const char * WrParam_StoreLastSelectedPrinter;     // "StoreLastSelectedPrinter" // @v10.7.10
+	//const char * WrParam_LastSelectedPrinter;          // "LastSelectedPrinter" // @v10.7.10
+	//const char * WrParam_BillMultiplePrintCfg2;        // "BillMultiplePrintCfg2" // @v11.2.0
+	//const char * WrParam_StyloQLoclMachineUuid;        // @v11.2.3
+	//const char * WrParam_WsCtl_MachineUUID;            // "MachineUUID" @v11.7.2 
+	static constexpr const char * P_SubjectDbDiv = "$PpyDbDivTransmission$";
+	static constexpr const char * P_SubjectOrder = "$PpyOrderTransmission$";
+	static constexpr const char * P_SubjectCharry = "$PpyCharryTransmission$";
+	static constexpr const char * P_BillNotePrefix_IntrExpnd = "$INTREXPND"; // "$INTREXPND" Специальный префикс примечания документа передаваемый через ЕГАИС для привязка документа внутренней передачи
+	static constexpr const char * P_MagicFileTransmit = "$#FILETRANSMITMAGIC#$"; // @v11.2.9 "$#FILETRANSMITMAGIC#$" Префикс команды JobServer'а для передачи файлов
+	static constexpr const char * P_ObjMemoDelim      = "=^%"; // MemosDelim разделитель примечаний объектов
+	static constexpr const char * P_ObjMemo_UtmRejPfx = "UTM Rej"; // Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС УТМ
+	static constexpr const char * P_ObjMemo_EgaisRejPfx = "EGAIS Rej"; // Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС
+	static constexpr const char * P_ObjMemo_ChznRejPfx = "ChZn Rej";   // Префикс примечания документа для индикации сообщения об ошибке поступившего от честного знака
+	static constexpr const char * P_TagValRestrict_Empty = "#EMPTY"; // @v11.3.6
+	static constexpr const char * P_TagValRestrict_Exist = "#EXIST"; // @v11.3.6
+	static constexpr const char * P_TagValRestrict_List = "#LIST"; // @v11.3.6
+	static constexpr const char * WrKey_PrefSettings = "Software\\Papyrus\\Pref"; // @v11.4.4 (replaced PPRegKeys)
+	static constexpr const char * WrKey_PrefBasketSelSettings = "Software\\Papyrus\\Pref\\BasketSel"; // @v11.4.4 (replaced PPRegKeys)
+	static constexpr const char * WrKey_SysSettings = "Software\\Papyrus\\System"; // @v11.4.4 (replaced PPRegKeys)
+	static constexpr const char * WrKey_Sessions = "Software\\Papyrus\\Sessions"; // @v11.4.4 (replaced PPRegKeys)
+	static constexpr const char * WrKey_WsCtl = "Software\\Papyrus\\WsCtl"; // @v11.7.2 HKEY_LOCAL_MACHINE
+	static constexpr const char * WrParam_ViewQuotsAsListBox = "ViewQuotsAsListBox";
+	static constexpr const char * WrParam_BillAddFilesFolder = "BillAddFilesFolder";
+	static constexpr const char * WrParam_CalcPriceParam = "CalcPriceParam";
+	static constexpr const char * WrParam_BinPath = "BinPath";
+	static constexpr const char * WrParam_PhnSvcLocalUpChannelSymbol = "PhnSvcLocalChannelSymbol";
+	static constexpr const char * WrParam_PhnSvcLocalScanChannelSymbol = "PhnSvcLocalScanChannelSymbol";
+	static constexpr const char * WrParam_DefaultWindowsPrinter = "DefaultWindowsPrinter";
+	static constexpr const char * WrParam_PersonAddImageFolder = "PersonAddImageFolder";
+	static constexpr const char * WrParam_UseDuplexPrinting = "UseDuplexPrinting";
+	static constexpr const char * WrParam_StoreLastSelectedPrinter = "StoreLastSelectedPrinter";
+	static constexpr const char * WrParam_LastSelectedPrinter = "LastSelectedPrinter";
+	static constexpr const char * WrParam_BillMultiplePrintCfg2 = "BillMultiplePrintCfg2"; // @v11.2.0
+	static constexpr const char * WrParam_StyloQLoclMachineUuid = "StyloQLoclMachineUuid"; // @v11.2.3
+	static constexpr const char * WrParam_WsCtl_MachineUUID = "MachineUUID"; // @v11.7.2 
 };
 
-extern const PPConstParam _PPConst;
+// @v11.7.3 (все константы стали static constexpr) extern const PPConstParam _PPConst;
 //
 // Output message functions
 //
@@ -3754,7 +3814,7 @@ public:
 //
 // Descr: Представление значения тега
 //
-class ObjTagItem {         // @persistent(DBX)
+class ObjTagItem { // @persistent(DBX)
 public:
 	static SString & STDCALL GetTypeString(int tagType, PPID enumId, SString & rBuf);
 
@@ -6707,7 +6767,7 @@ private:
 	private:
 		PPBasketCombine * P;
 	};
-	uint32 Sign;           // Если Sign == _PPConst.Signature_PPThreadLocalArea, то данный объект является валидным (в частности, не разрушен деструктором)
+	uint32 Sign;           // Если Sign == PPConst::Signature_PPThreadLocalArea, то данный объект является валидным (в частности, не разрушен деструктором)
 	long   Id;             // @id
 	ThreadID TId;          // Идентификатор потока
 	uint   PtrVectDim;
@@ -7475,6 +7535,7 @@ protected:
 	long   Counter; // Счетчик, используемый для получения уникального значения, с помощью которого
 		// можно синхронизировать действия с клиентом
 	CPosNodeBlock * P_CPosBlk;
+	WsCtlBlock * P_WsCtlBlk; // @v11.7.3
 	//
 	// Descr: Управляющая структура для сохранения состояния пересылки файла
 	//
@@ -48138,7 +48199,7 @@ public:
 	StyloQPersonEventParam & Z();
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
-	const  uint32 Signature; // _PPConst.Signature_StyloQPersonEventParam
+	const  uint32 Signature; // PPConst::Signature_StyloQPersonEventParam
 	uint32 Flags;
 	double MaxGeoDistance;
 	//
@@ -49657,9 +49718,9 @@ private:
 #define ORDEXT            ".ord"
 #define MAILHDREXT        ".mhd"
 #define SUBJSIZE          96L
-// @v10.5.4 replaced-with(_PPConst.P_SubjectDbDiv)  #define SUBJECTDBDIV      "$PpyDbDivTransmission$"
-// @v10.5.4 replaced-with(_PPConst.P_SubjectOrder)  #define SUBJECTORDER      "$PpyOrderTransmission$"
-// @v10.5.4 replaced-with(_PPConst.P_SubjectCharry) #define SUBJECTCHARRY     "$PpyCharryTransmission$"
+// @v10.5.4 replaced-with(PPConst::P_SubjectDbDiv)  #define SUBJECTDBDIV      "$PpyDbDivTransmission$"
+// @v10.5.4 replaced-with(PPConst::P_SubjectOrder)  #define SUBJECTORDER      "$PpyOrderTransmission$"
+// @v10.5.4 replaced-with(PPConst::P_SubjectCharry) #define SUBJECTCHARRY     "$PpyCharryTransmission$"
 #define SUBJECTFRONTOL    "ATOL_RMK_CHANGE_"
 #define MIN_INET_PSW_SIZE 1
 

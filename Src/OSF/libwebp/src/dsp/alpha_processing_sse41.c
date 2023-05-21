@@ -19,9 +19,7 @@
 
 #include <smmintrin.h>
 
-//------------------------------------------------------------------------------
-
-static int ExtractAlpha_SSE41(const uint8* WEBP_RESTRICT argb, int argb_stride, int width, int height, uint8* WEBP_RESTRICT alpha, int alpha_stride) 
+static int ExtractAlpha_SSE41(const uint8* _RESTRICT argb, int argb_stride, int width, int height, uint8* _RESTRICT alpha, int alpha_stride) 
 {
 	// alpha_and stores an 'and' operation of all the alpha[] values. The final
 	// value is not 0xff if any of the alpha[] is not equal to 0xff.

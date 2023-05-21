@@ -180,14 +180,9 @@ pdf_obj * pdf_new_indirect(fz_context * ctx, pdf_document * doc, int num, int ge
 #define OBJ_IS_DICT(obj) (obj >= PDF_LIMIT && obj->kind == PDF_DICT)
 #define OBJ_IS_INDIRECT(obj) (obj >= PDF_LIMIT && obj->kind == PDF_INDIRECT)
 
-#define RESOLVE(obj) \
-	if(OBJ_IS_INDIRECT(obj)) \
-		obj = pdf_resolve_indirect_chain(ctx, obj); \
+#define RESOLVE(obj) if(OBJ_IS_INDIRECT(obj)) obj = pdf_resolve_indirect_chain(ctx, obj);
 
-int pdf_is_indirect(fz_context * ctx, pdf_obj * obj)
-{
-	return OBJ_IS_INDIRECT(obj);
-}
+int FASTCALL pdf_is_indirect(fz_context * ctx, pdf_obj * obj) { return OBJ_IS_INDIRECT(obj); }
 
 int pdf_is_null(fz_context * ctx, pdf_obj * obj)
 {
@@ -1101,10 +1096,7 @@ static void pdf_dict_get_put(fz_context * ctx, pdf_obj * obj, pdf_obj * key, pdf
 
 		i = -1-i;
 		if((obj->flags & PDF_FLAGS_SORTED) && DICT(obj)->len > 0)
-			memmove(&DICT(obj)->items[i + 1],
-			    &DICT(obj)->items[i],
-			    (DICT(obj)->len - i) * sizeof(struct keyval));
-
+			memmove(&DICT(obj)->items[i + 1], &DICT(obj)->items[i], (DICT(obj)->len - i) * sizeof(struct keyval));
 		DICT(obj)->items[i].k = pdf_keep_obj(ctx, key);
 		DICT(obj)->items[i].v = pdf_keep_obj(ctx, val);
 		DICT(obj)->len++;
@@ -1160,14 +1152,12 @@ void pdf_dict_puts_drop(fz_context * ctx, pdf_obj * obj, const char * key, pdf_o
 	keyobj = pdf_new_name(ctx, key);
 	fz_var(keyobj);
 	fz_try(ctx)
-	pdf_dict_put(ctx, obj, keyobj, val);
-	fz_always(ctx)
-	{
+		pdf_dict_put(ctx, obj, keyobj, val);
+	fz_always(ctx) {
 		pdf_drop_obj(ctx, keyobj);
 		pdf_drop_obj(ctx, val);
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_rethrow(ctx);
 	}
 }
@@ -1223,11 +1213,11 @@ void pdf_dict_putp(fz_context * ctx, pdf_obj * obj, const char * keys, pdf_obj *
 void pdf_dict_putp_drop(fz_context * ctx, pdf_obj * obj, const char * keys, pdf_obj * val)
 {
 	fz_try(ctx)
-	pdf_dict_putp(ctx, obj, keys, val);
+		pdf_dict_putp(ctx, obj, keys, val);
 	fz_always(ctx)
-	pdf_drop_obj(ctx, val);
+		pdf_drop_obj(ctx, val);
 	fz_catch(ctx)
-	fz_rethrow(ctx);
+		fz_rethrow(ctx);
 }
 
 static void pdf_dict_vputl(fz_context * ctx, pdf_obj * obj, pdf_obj * val, va_list keys)
@@ -1271,11 +1261,11 @@ void pdf_dict_putl(fz_context * ctx, pdf_obj * obj, pdf_obj * val, ...)
 	va_list keys;
 	va_start(keys, val);
 	fz_try(ctx)
-	pdf_dict_vputl(ctx, obj, val, keys);
+		pdf_dict_vputl(ctx, obj, val, keys);
 	fz_always(ctx)
-	va_end(keys);
+		va_end(keys);
 	fz_catch(ctx)
-	fz_rethrow(ctx);
+		fz_rethrow(ctx);
 }
 
 void pdf_dict_putl_drop(fz_context * ctx, pdf_obj * obj, pdf_obj * val, ...)
@@ -1283,9 +1273,8 @@ void pdf_dict_putl_drop(fz_context * ctx, pdf_obj * obj, pdf_obj * val, ...)
 	va_list keys;
 	va_start(keys, val);
 	fz_try(ctx)
-	pdf_dict_vputl(ctx, obj, val, keys);
-	fz_always(ctx)
-	{
+		pdf_dict_vputl(ctx, obj, val, keys);
+	fz_always(ctx) {
 		pdf_drop_obj(ctx, val);
 		va_end(keys);
 	}
@@ -1471,12 +1460,12 @@ static void pdf_drop_dict(fz_context * ctx, pdf_obj * obj)
 	fz_free(ctx, obj);
 }
 
-pdf_obj * pdf_keep_obj(fz_context * ctx, pdf_obj * obj)
+pdf_obj * FASTCALL pdf_keep_obj(fz_context * ctx, pdf_obj * obj)
 {
 	return (obj >= PDF_LIMIT) ? (pdf_obj *)fz_keep_imp16(ctx, obj, &obj->refs) : obj;
 }
 
-void pdf_drop_obj(fz_context * ctx, pdf_obj * obj)
+void FASTCALL pdf_drop_obj(fz_context * ctx, pdf_obj * obj)
 {
 	if(obj >= PDF_LIMIT) {
 		if(fz_drop_imp16(ctx, obj, &obj->refs)) {

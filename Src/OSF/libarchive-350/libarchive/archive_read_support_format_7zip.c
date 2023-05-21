@@ -711,7 +711,7 @@ static int archive_read_format_7zip_read_data(ArchiveRead * a,
 
 	/* Update checksum */
 	if((zip->entry->flg & CRC32_IS_SET) && bytes)
-		zip->entry_crc32 = crc32(zip->entry_crc32, static_cast<const Bytef *>(*buff), (uint)bytes);
+		zip->entry_crc32 = crc32(zip->entry_crc32, static_cast<const Byte *>(*buff), (uint)bytes);
 
 	/* If we hit the end, swallow any end-of-data marker. */
 	if(zip->end_of_entry) {
@@ -1263,7 +1263,7 @@ static int decompress(ArchiveRead * a, struct _7zip * zip,
 #endif
 #ifdef HAVE_ZLIB_H
 		case _7Z_DEFLATE:
-		    zip->stream.next_in = (Bytef*)(uintptr_t)t_next_in;
+		    zip->stream.next_in = (Byte *)(uintptr_t)t_next_in;
 		    zip->stream.avail_in = (uInt)t_avail_in;
 		    zip->stream.next_out = t_next_out;
 		    zip->stream.avail_out = (uInt)t_avail_out;

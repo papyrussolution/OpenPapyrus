@@ -4478,27 +4478,27 @@ static int ESECT mdb_env_open2(MDB_env * env, int prev)
 			uname(&uts);
 			if(uts.release[0] < '3') {
 				if(!strncmp(uts.release, "2.6.32.", 7)) {
-					i = atoi(uts.release+7);
+					i = satoi(uts.release+7);
 					if(i >= 60)
 						break; /* 2.6.32.60 and newer is OK */
 				}
 				else if(!strncmp(uts.release, "2.6.34.", 7)) {
-					i = atoi(uts.release+7);
+					i = satoi(uts.release+7);
 					if(i >= 15)
 						break; /* 2.6.34.15 and newer is OK */
 				}
 			}
 			else if(uts.release[0] == '3') {
-				i = atoi(uts.release+2);
+				i = satoi(uts.release+2);
 				if(i > 5)
 					break; /* 3.6 and newer is OK */
 				if(i == 5) {
-					i = atoi(uts.release+4);
+					i = satoi(uts.release+4);
 					if(i >= 4)
 						break; /* 3.5.4 and newer is OK */
 				}
 				else if(i == 2) {
-					i = atoi(uts.release+4);
+					i = satoi(uts.release+4);
 					if(i >= 30)
 						break; /* 3.2.30 and newer is OK */
 				}

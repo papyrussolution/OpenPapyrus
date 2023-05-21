@@ -128,7 +128,7 @@ Jbig2Image * jbig2_image_resize(Jbig2Ctx * ctx, Jbig2Image * image, uint32 width
 	return image;
 }
 
-static inline void template_image_compose_opt(const uint8 * JBIG2_RESTRICT ss, uint8 * JBIG2_RESTRICT dd, int early, int late,
+static inline void template_image_compose_opt(const uint8 * _RESTRICT ss, uint8 * _RESTRICT dd, int early, int late,
     uint8 leftmask, uint8 rightmask, uint32 bytewidth_, uint32 h, uint32 shift, uint32 dstride, uint32 sstride, Jbig2ComposeOp op)
 {
 	int i;
@@ -159,8 +159,8 @@ static inline void template_image_compose_opt(const uint8 * JBIG2_RESTRICT ss, u
 		ss++;
 		for(j = 0; j < h; j++) {
 			/* Left byte */
-			const uint8 * JBIG2_RESTRICT s = ss;
-			uint8 * JBIG2_RESTRICT d = dd;
+			const uint8 * _RESTRICT s = ss;
+			uint8 * _RESTRICT d = dd;
 			if(op == JBIG2_COMPOSE_OR)
 				*d++ |= *s++ & leftmask;
 			else if(op == JBIG2_COMPOSE_AND)
@@ -202,8 +202,8 @@ static inline void template_image_compose_opt(const uint8 * JBIG2_RESTRICT ss, u
 	else {
 		for(j = 0; j < h; j++) {
 			/* Left byte */
-			const uint8 * JBIG2_RESTRICT s = ss;
-			uint8 * JBIG2_RESTRICT d = dd;
+			const uint8 * _RESTRICT s = ss;
+			uint8 * _RESTRICT d = dd;
 			uint8 s0, s1, v;
 			s0 = early ? 0 : *s;
 			s++;

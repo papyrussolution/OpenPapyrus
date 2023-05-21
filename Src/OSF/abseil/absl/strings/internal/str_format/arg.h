@@ -59,10 +59,9 @@ class StreamedWrapper;
 struct VoidPtr {
 	VoidPtr() = default;
 	template <typename T, decltype(reinterpret_cast<uintptr_t>(std::declval<T*>())) = 0>
-	VoidPtr(T* ptr) // NOLINT
-		: value(ptr ? reinterpret_cast<uintptr_t>(ptr) : 0) {
+	VoidPtr(T* ptr) : value(ptr ? reinterpret_cast<uintptr_t>(ptr) : 0) 
+	{
 	}
-
 	uintptr_t value;
 };
 
@@ -154,37 +153,18 @@ IntegralConvertResult FormatConvertImpl(unsigned char v,
     FormatSinkImpl* sink);
 
 // Ints.
-IntegralConvertResult FormatConvertImpl(short v,  // NOLINT
-    FormatConversionSpecImpl conv,
-    FormatSinkImpl* sink);
-IntegralConvertResult FormatConvertImpl(unsigned short v,  // NOLINT
-    FormatConversionSpecImpl conv,
-    FormatSinkImpl* sink);
-IntegralConvertResult FormatConvertImpl(int v, FormatConversionSpecImpl conv,
-    FormatSinkImpl* sink);
-IntegralConvertResult FormatConvertImpl(unsigned v,
-    FormatConversionSpecImpl conv,
-    FormatSinkImpl* sink);
-IntegralConvertResult FormatConvertImpl(long v,  // NOLINT
-    FormatConversionSpecImpl conv,
-    FormatSinkImpl* sink);
-IntegralConvertResult FormatConvertImpl(unsigned long v,  // NOLINT
-    FormatConversionSpecImpl conv,
-    FormatSinkImpl* sink);
-IntegralConvertResult FormatConvertImpl(long long v,  // NOLINT
-    FormatConversionSpecImpl conv,
-    FormatSinkImpl* sink);
-IntegralConvertResult FormatConvertImpl(unsigned long long v,  // NOLINT
-    FormatConversionSpecImpl conv,
-    FormatSinkImpl* sink);
-IntegralConvertResult FormatConvertImpl(int128 v, FormatConversionSpecImpl conv,
-    FormatSinkImpl* sink);
-IntegralConvertResult FormatConvertImpl(uint128 v,
-    FormatConversionSpecImpl conv,
-    FormatSinkImpl* sink);
+IntegralConvertResult FormatConvertImpl(short v, FormatConversionSpecImpl conv, FormatSinkImpl* sink);
+IntegralConvertResult FormatConvertImpl(unsigned short v, FormatConversionSpecImpl conv, FormatSinkImpl* sink);
+IntegralConvertResult FormatConvertImpl(int v, FormatConversionSpecImpl conv, FormatSinkImpl* sink);
+IntegralConvertResult FormatConvertImpl(unsigned v, FormatConversionSpecImpl conv, FormatSinkImpl* sink);
+IntegralConvertResult FormatConvertImpl(long v, FormatConversionSpecImpl conv, FormatSinkImpl* sink);
+IntegralConvertResult FormatConvertImpl(unsigned long v, FormatConversionSpecImpl conv, FormatSinkImpl* sink);
+IntegralConvertResult FormatConvertImpl(long long v, FormatConversionSpecImpl conv, FormatSinkImpl* sink);
+IntegralConvertResult FormatConvertImpl(unsigned long long v, FormatConversionSpecImpl conv, FormatSinkImpl* sink);
+IntegralConvertResult FormatConvertImpl(int128 v, FormatConversionSpecImpl conv, FormatSinkImpl* sink);
+IntegralConvertResult FormatConvertImpl(uint128 v, FormatConversionSpecImpl conv, FormatSinkImpl* sink);
 template <typename T, enable_if_t<std::is_same<T, bool>::value, int> = 0>
-IntegralConvertResult FormatConvertImpl(T v, FormatConversionSpecImpl conv,
-    FormatSinkImpl* sink) {
+IntegralConvertResult FormatConvertImpl(T v, FormatConversionSpecImpl conv, FormatSinkImpl* sink) {
 	return FormatConvertImpl(static_cast<int>(v), conv, sink);
 }
 
@@ -414,14 +394,14 @@ private:
 	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(char, __VA_ARGS__);               \
 	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(signed char, __VA_ARGS__);        \
 	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(unsigned char, __VA_ARGS__);      \
-	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(short, __VA_ARGS__); /* NOLINT */ \
-	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(unsigned short, /* NOLINT */ __VA_ARGS__); \
+	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(short, __VA_ARGS__);  \
+	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(unsigned short,  __VA_ARGS__); \
 	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(int, __VA_ARGS__);                \
 	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(unsigned int, __VA_ARGS__);       \
-	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(long, __VA_ARGS__); /* NOLINT */  \
-	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(unsigned long, /* NOLINT */  __VA_ARGS__); \
-	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(long long, /* NOLINT */ __VA_ARGS__); \
-	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(unsigned long long, /* NOLINT */ __VA_ARGS__); \
+	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(long, __VA_ARGS__);   \
+	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(unsigned long, __VA_ARGS__); \
+	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(long long, __VA_ARGS__); \
+	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(unsigned long long, __VA_ARGS__); \
 	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(int128, __VA_ARGS__);             \
 	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(uint128, __VA_ARGS__);            \
 	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(float, __VA_ARGS__);              \

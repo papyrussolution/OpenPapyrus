@@ -35,19 +35,10 @@
  * render headers.  As it happens, it is the case that all libxrender
  * functions take a pointer as first argument. */
 
-__attribute__((__unused__)) static void   _void_consume(void * p, ...)   {
-}
-
-__attribute__((__unused__)) static void * _voidp_consume(void * p, ...)   {
-	return (void *)0;
-}
-
-__attribute__((__unused__)) static int    _int_consume(void * p, ...)   {
-	return 0;
-}
-
-__attribute__((__unused__)) static void   _void_consume_free(Display * p, XID n) {
-}
+__attribute__((__unused__)) static void   _void_consume(void * p, ...)   {}
+__attribute__((__unused__)) static void * _voidp_consume(void * p, ...)   {	return (void *)0; }
+__attribute__((__unused__)) static int    _int_consume(void * p, ...)   { return 0; }
+__attribute__((__unused__)) static void   _void_consume_free(Display * p, XID n) {}
 
 #if CAIRO_HAS_XLIB_XRENDER_SURFACE
 

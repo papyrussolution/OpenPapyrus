@@ -433,7 +433,7 @@ void muscle_percent_define_insert(char const * var,
 	if(how == MUSCLE_PERCENT_DEFINE_GRAMMAR_FILE) {
 		char const * current_value = muscle_find_const(name);
 		if(current_value) {
-			muscle_percent_define_how how_old = (muscle_percent_define_how)atoi(muscle_find_const(how_name));
+			muscle_percent_define_how how_old = (muscle_percent_define_how)satoi(muscle_find_const(how_name));
 			if(how_old == MUSCLE_PERCENT_DEFINE_F)
 				goto end;
 			/* If assigning the same value, make it a warning.  */

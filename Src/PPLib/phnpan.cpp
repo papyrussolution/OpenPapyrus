@@ -1260,9 +1260,9 @@ int ShowPhoneCallPane(PhoneServiceEventResponder * pPSER, const PhonePaneDialog:
 
 // @v10.6.1 (moved to PPConst) static const uint32 PhoneServiceEventResponder_Signature = 0x5A6B7C8E;
 
-bool PhoneServiceEventResponder::IsConsistent() const { return (Signature == _PPConst.Signature_PhoneServiceEventResponder); }
+bool PhoneServiceEventResponder::IsConsistent() const { return (Signature == PPConst::Signature_PhoneServiceEventResponder); }
 
-PhoneServiceEventResponder::PhoneServiceEventResponder() : Signature(_PPConst.Signature_PhoneServiceEventResponder),
+PhoneServiceEventResponder::PhoneServiceEventResponder() : Signature(PPConst::Signature_PhoneServiceEventResponder),
 	AdvCookie_Ringing(0), AdvCookie_Up(0), P_PsnObj(0), P_InternalPhoneList(0)
 {
 	{

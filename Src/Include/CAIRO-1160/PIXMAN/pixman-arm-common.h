@@ -135,13 +135,8 @@
 	void pixman_scaled_nearest_scanline_ ## name ## _ ## op ## _asm_ ## cputype(int32 w, dst_type * dst, const src_type * src, \
 	    pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t max_vx); \
                                                                               \
-	static force_inline void                                       \
-	    scaled_nearest_scanline_ ## cputype ## _ ## name ## _ ## op(dst_type *  pd,       \
-	    const src_type * ps,       \
-	    int32 w,        \
-	    pixman_fixed_t vx,       \
-	    pixman_fixed_t unit_x,   \
-	    pixman_fixed_t max_vx,   \
+	static FORCEINLINE void scaled_nearest_scanline_ ## cputype ## _ ## name ## _ ## op(dst_type *  pd,       \
+	    const src_type * ps, int32 w, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t max_vx,   \
 	    boolint zero_src) \
 	{                                                                             \
 		pixman_scaled_nearest_scanline_ ## name ## _ ## op ## _asm_ ## cputype(w, pd, ps, vx, unit_x, max_vx);    \
@@ -156,7 +151,7 @@
 	void pixman_scaled_nearest_scanline_ ## name ## _ ## op ## _asm_ ## cputype(int32 w, dst_type * dst, const src_type * src, pixman_fixed_t vx, pixman_fixed_t unit_x, \
 		pixman_fixed_t max_vx, const uint8 *  mask); \
                                                                               \
-	static force_inline void scaled_nearest_scanline_ ## cputype ## _ ## name ## _ ## op(const uint8 *  mask,     \
+	static FORCEINLINE void scaled_nearest_scanline_ ## cputype ## _ ## name ## _ ## op(const uint8 *  mask,     \
 	    dst_type *  pd, const src_type * ps, int32 w, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t max_vx, boolint zero_src) \
 	{                                                                             \
 		if((flags & SKIP_ZERO_SRC) && zero_src)                                  \
@@ -180,7 +175,7 @@
 	void pixman_scaled_bilinear_scanline_ ## name ## _ ## op ## _asm_ ## cputype(dst_type *  dst, const src_type * top, const src_type * bottom, \
 		int wt, int wb, pixman_fixed_t x, pixman_fixed_t ux, int width); \
                                                                               \
-	static force_inline void scaled_bilinear_scanline_ ## cputype ## _ ## name ## _ ## op( \
+	static FORCEINLINE void scaled_bilinear_scanline_ ## cputype ## _ ## name ## _ ## op( \
 		dst_type *  dst, const uint32 * mask, const src_type * src_top, const src_type * src_bottom, int32 w, int wt, int wb, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t max_vx, boolint zero_src) \
 	{                                                                             \
 		if((flags & SKIP_ZERO_SRC) && zero_src)                                  \
@@ -197,7 +192,7 @@
 	void pixman_scaled_bilinear_scanline_ ## name ## _ ## op ## _asm_ ## cputype(dst_type *  dst,         \
 		const uint8 *  mask, const src_type * top, const src_type * bottom, int wt, int wb, pixman_fixed_t x, pixman_fixed_t ux, int width);      \
                                                                               \
-	static force_inline void scaled_bilinear_scanline_ ## cputype ## _ ## name ## _ ## op(dst_type * dst, const uint8 * mask, const src_type * src_top, \
+	static FORCEINLINE void scaled_bilinear_scanline_ ## cputype ## _ ## name ## _ ## op(dst_type * dst, const uint8 * mask, const src_type * src_top, \
 		const src_type * src_bottom, int32 w, int wt, int wb, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t max_vx, boolint zero_src) \
 	{                                                                             \
 		if((flags & SKIP_ZERO_SRC) && zero_src)                                  \

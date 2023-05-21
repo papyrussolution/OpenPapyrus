@@ -2137,15 +2137,15 @@ int ChZnInterface::CommitTicket(const char * pPath, const char * pIdent, const c
 					int   do_update_memos = 0;
 					SString memo_msg;
 					SString memos;
-					StringSet ss_memo(_PPConst.P_ObjMemoDelim);
-					StringSet ss_memo_new(_PPConst.P_ObjMemoDelim);
+					StringSet ss_memo(PPConst::P_ObjMemoDelim);
+					StringSet ss_memo_new(PPConst::P_ObjMemoDelim);
 					p_ref->GetPropVlrString(PPOBJ_BILL, bill_id, PPPRP_BILLMEMO, memos);
 					ss_memo.setBuf(memos);
 					for(uint ssp = 0; ss_memo.get(&ssp, temp_buf);) {
 						if(!temp_buf.NotEmptyS())
 							do_update_memos = 1;
 						else {
-							if(temp_buf.Search(_PPConst.P_ObjMemo_ChznRejPfx, 0, 1, 0)) {
+							if(temp_buf.Search(PPConst::P_ObjMemo_ChznRejPfx, 0, 1, 0)) {
 								temp_buf.Z();
 								do_update_memos = 1;
 								break;
@@ -2156,7 +2156,7 @@ int ChZnInterface::CommitTicket(const char * pPath, const char * pIdent, const c
 					}
 					{
 						if(p_opr->OpComment.NotEmpty()) {
-							memo_msg.Z().Space().Cat(_PPConst.P_ObjMemo_ChznRejPfx).CatDiv(':', 2).Cat(p_opr->OpComment);
+							memo_msg.Z().Space().Cat(PPConst::P_ObjMemo_ChznRejPfx).CatDiv(':', 2).Cat(p_opr->OpComment);
 							ss_memo_new.add(memo_msg);
 							do_update_memos = 1;
 						}
@@ -2164,7 +2164,7 @@ int ChZnInterface::CommitTicket(const char * pPath, const char * pIdent, const c
 							for(uint eridx = 0; eridx < p_opr->Errors.getCount(); eridx++) {
 								const ChZnInterface::Packet::ErrorItem * p_er = p_opr->Errors.at(eridx);
 								if(p_er) {
-									memo_msg.Z().Space().Cat(_PPConst.P_ObjMemo_ChznRejPfx).CatDiv(':', 2).Cat(p_er->Code).Space().Cat(p_er->Ident).Space().Cat(p_er->Descr);
+									memo_msg.Z().Space().Cat(PPConst::P_ObjMemo_ChznRejPfx).CatDiv(':', 2).Cat(p_er->Code).Space().Cat(p_er->Ident).Space().Cat(p_er->Descr);
 									ss_memo_new.add(memo_msg);
 									do_update_memos = 1;
 								}

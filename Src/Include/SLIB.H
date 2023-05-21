@@ -18,6 +18,8 @@
 #define U_STATIC_IMPLEMENTATION // @v11.3.0 ICU включается как статическая библиотека
 #ifndef RC_INVOKED
 	#include <slport.h>
+#else
+	#define SL_LITTLEENDIAN 1
 #endif
 //
 // Далее идут включения файлов из штатных библиотек компилятора и Windows API
@@ -132,6 +134,11 @@
 	#ifndef RC_INVOKED
 		#include <wininet.h> 
 		#include <iphlpapi.h>
+		// @v11.7.3 {
+		#if _MSC_VER >= 1600
+			#include <intrin.h>
+		#endif
+		// } @v11.7.3
 	#endif
 	// } @v11.7.0 
 	#define _Windows
@@ -10952,8 +10959,8 @@ public:
 	// Descr: Returns index into the searched string that corresponds to the  end pointer
 	//
 	long   end() const { return static_cast<long>(endp[0] - P_Text); }
-	int    FASTCALL operator == (const CRegExp_Depricated & r) const;
-	int    FASTCALL operator != (const CRegExp_Depricated & r) const { return (!(*this == r)); }
+	bool   FASTCALL operator == (const CRegExp_Depricated & r) const;
+	bool   FASTCALL operator != (const CRegExp_Depricated & r) const { return (!(*this == r)); }
 	int    FASTCALL deep_equal(const CRegExp_Depricated & r) const; // Same regexp and state?
 	void   set_invalid();
 private:
@@ -12252,8 +12259,43 @@ SJson * json_process(SJson *object);
 //
 // Mathematics {
 //
-class SMathConst {
+#ifndef RC_INVOKED // {
+class SMathConst { // @todo transform to constexpr
 public:
+
+	#define PI__  3.1415926535897932384626433832795
+	#define PI__f 3.14159265358979323846f
+
+	static constexpr double Pi       = PI__;
+	static constexpr double Pi2      = (PI__ * 2.0);
+	static constexpr float  Pi2_f    = (PI__f * 2.0f);
+	static constexpr float  Pi_f     = PI__f;
+	static constexpr double PiDiv180 = (PI__ / 180.0);
+	static constexpr float  PiDiv180_f = (PI__f / 180.0f);
+	static constexpr double PiDiv4   = (PI__ / 4.0);
+	static constexpr float  PiDiv4_f = (PI__f / 4.0f);
+	static constexpr double PiDiv2   = (PI__ / 2.0);
+	static constexpr double E        = 2.71828182845904523536;
+	static constexpr double LnPi     = 1.14472988584940017414342735135; // ln(pi)
+	static constexpr double Ln2      = 0.69314718055994530941723212146; // ln(2)
+	static constexpr double Epsilon  = 2.2204460492503131E-16;          // smallest such that 1.0+DBL_EPSILON != 1.0
+	static constexpr double Root4Epsilon = 1.2207031250000000E-04;
+	static constexpr double Root5Epsilon = 7.4009597974140505E-04;
+	static constexpr double SqrtMin  = 1.4916681462400413E-154;
+	static constexpr double SqrtMax  = 1.3407807929942596E+154;
+	static constexpr double LogMin   = -7.0839641853226408E+02;
+	static constexpr double LogMax   = 7.0978271289338397E+02;
+	static constexpr double Min      = 2.2250738585072014E-308;         // min value
+	static constexpr double Max      = 1.7976931348623158E+308;         // max value
+	static constexpr float  Min_f    = 1.175494351E-38f;         // min normalized positive value
+	static constexpr float  Max_f    = 3.402823466E+38f;         // max float value
+	static constexpr double Euler    = 0.57721566490153286060651209008; // Euler constant
+	static constexpr double Sqrt2    = 1.41421356237309504880168872421; // sqrt(2)
+	static constexpr double SqrtPi   = 1.77245385090551602729816748334; // sqrt(pi)
+	static constexpr double Sqrt1_2  = 0.707106781186547524400844362104849039; // sqrt(0.5)
+	static constexpr double MaxU31   = 2147483648.0;  // @v11.7.3
+	static constexpr double MaxU32   = 4294967296.0;  // @v11.7.3
+	/*
 	static const double Pi;
 	static const double Pi2;        // pi*2
 	static const float  Pi2_f;      // pi*2
@@ -12281,7 +12323,11 @@ public:
 	static const double Sqrt2;   // 1.41421356237309504880168872421      sqrt(2)
 	static const double SqrtPi;  // 1.77245385090551602729816748334      sqrt(pi)
 	static const double Sqrt1_2; // 0.707106781186547524400844362104849039 sqrt(0.5)
+	static const double MaxU31;  // @v11.7.3 2147483648.0
+	static const double MaxU32;  // @v11.7.3 4294967296.0
+	*/
 };
+#endif // } RC_INVOKED
 
 struct SMathResult {
 	operator double() const { return V; }
@@ -12320,6 +12366,32 @@ int    MutualReducePrimeMultiplicators(UlongArray & rA1, UlongArray & rA2, Ulong
 long   GetTranspositionNumber(const long list[], long count);
 int    GetNthTransposition(long list[], long count, long n);
 //
+// 
+// 
+class SUint128 { // @v11.7.3 @size=128 @construction
+public:
+	SUint128() // no initialization!
+	{
+	}
+	//
+	// Descr: Перемножает два 64-битных числа, результат заносит в this.
+	//
+	void   Mul64(uint64 m1, uint64 m2);
+	//
+	// Descr: Умножает v на 10^p. результат заносит в this.
+	// 
+	bool   MulPow10(uint64 v, uint p);
+private:
+#if defined(SL_LITTLEENDIAN)
+	uint64 Lo;
+	uint64 Hi;
+#elif defined(SL_BIGENDIAN)
+	uint64 Hi;
+	uint64 Lo;
+#else
+	#error "Unsupported byte order: must be little-endian or big-endian."
+#endif
+};
 //
 // bits: 
 //   64 = 16+48 (16 - descriptor, 48 - value)
@@ -12358,8 +12430,6 @@ private:
 	int16  Exp;
 	uint16 Flags; // SIEEE754::fXXX
 };
-
-#ifndef _WIN32_WCE // {
 //
 // Descr: Гистограмма.
 //   Каждая корзинка гистограммы ограничивает свой диапазон снизу закрытым условием (>=)
@@ -12424,7 +12494,6 @@ private:
 	double DevWidth;
 	StatBase * P_Stat;
 };
-#endif // } _WIN32_WCE
 //
 //
 //
@@ -13324,6 +13393,14 @@ double GammaIncompleteP(double a, double x);
 double GammaIncompleteQ(double a, double x);
 inline int fsign(double x) { return (x >= 0.0) ? +1 : -1; }
 inline int fsignz(double x) { return (x > 0) ? +1 : ((x < 0) ? -1 : 0); }
+FORCEINLINE uint64 mul32x32to64(uint32 x, uint32 y)
+{
+#if (_MSC_VER >= 1600) && defined(_M_IX86)
+	return __emulu(x, y);
+#else
+	return static_cast<uint64>(x) * static_cast<uint64>(y);
+#endif
+}
 
 // } Mathematics
 //
@@ -17176,6 +17253,19 @@ template <class T> bool checkirange(T n, T low, T upp)
 	else
 		return SLS.SetError(SLERR_BOUNDS, SLS.AcquireRvlStr().CatChar('[').Cat(low).CatCharN('.', 2).Cat(upp).CatChar(']'));
 }
+//
+// @v11.7.3
+// Descr: Специализированный класс для нахождения установленных версий Visual Studio. 
+//   Нужен для модуля автоматической сборки проекта.
+//
+class VisualStudioInstallationLocator {
+public:
+	struct Entry {
+		SString Version; // utf-8
+		SString Path;    // utf-8
+	};
+	static int Locate(TSCollection <Entry> & rResult, SString * pErrMsg);
+};
 //
 // Debug
 //

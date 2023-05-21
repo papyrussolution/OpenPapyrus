@@ -571,7 +571,7 @@ FT_EXPORT_DEF(FT_Error) FT_Gzip_Uncompress(FT_Memory memory, FT_Byte* output, FT
 	if(!memory || !output_len || !output)
 		return FT_THROW(Invalid_Argument);
 	/* this function is modeled after zlib's `uncompress' function */
-	stream.next_in  = (Bytef*)input;
+	stream.next_in  = (Byte *)input;
 	stream.avail_in = (uInt)input_len;
 	stream.next_out  = output;
 	stream.avail_out = (uInt)*output_len;

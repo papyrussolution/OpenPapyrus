@@ -22,7 +22,7 @@
 
 #define F(x)    pixman_int_to_fixed(x)
 
-static force_inline int count_leading_zeros(uint32 x)
+static FORCEINLINE int count_leading_zeros(uint32 x)
 {
 #ifdef HAVE_BUILTIN_CLZ
 	return __builtin_clz(x);
@@ -49,7 +49,7 @@ static force_inline int count_leading_zeros(uint32 x)
  */
 
 /* grade-school unsigned division (128-bit by 48-bit) with rounding to nearest */
-static force_inline uint64 rounded_udiv_128_by_48(uint64 hi, uint64 lo, uint64 div, uint64 * result_hi)
+static FORCEINLINE uint64 rounded_udiv_128_by_48(uint64 hi, uint64 lo, uint64 div, uint64 * result_hi)
 {
 	uint64 tmp, remainder, result_lo;
 	assert(div < ((uint64)1 << 48));
@@ -114,7 +114,7 @@ static inline int64 rounded_sdiv_128_by_49(int64 hi,
  * Multiply 64.16 fixed point value by (2^scalebits) and convert
  * to 128-bit integer.
  */
-static force_inline void fixed_64_16_to_int128(int64 hi,
+static FORCEINLINE void fixed_64_16_to_int128(int64 hi,
     int64 lo,
     int64 * rhi,
     int64 * rlo,
@@ -142,7 +142,7 @@ static force_inline void fixed_64_16_to_int128(int64 hi,
  * Convert 112.16 fixed point value to 48.16 with clamping for the out
  * of range values.
  */
-static force_inline pixman_fixed_48_16_t fixed_112_16_to_fixed_48_16(int64 hi, int64 lo, boolint * clampflag)
+static FORCEINLINE pixman_fixed_48_16_t fixed_112_16_to_fixed_48_16(int64 hi, int64 lo, boolint * clampflag)
 {
 	if((lo >> 63) != hi) {
 		*clampflag = TRUE;

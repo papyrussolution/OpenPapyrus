@@ -103,7 +103,7 @@ static uint32_t opj_bio_getbit(opj_bio_t * bio)
 // 
 // Bit Input/Output interface
 // 
-opj_bio_t* opj_bio_create(void) { return (opj_bio_t *)opj_malloc(sizeof(opj_bio_t)); }
+opj_bio_t* opj_bio_create() { return (opj_bio_t *)opj_malloc(sizeof(opj_bio_t)); }
 void opj_bio_destroy(opj_bio_t * bio) { SAlloc::F(bio); }
 ptrdiff_t opj_bio_numbytes(opj_bio_t * bio) { return (bio->bp - bio->start); }
 

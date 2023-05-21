@@ -146,19 +146,19 @@ XXH_PUBLIC_API unsigned XXH_versionNumber(void);
 // 
 // 32-bit hash
 //
-#if !defined (__VMS) && (defined (__cplusplus) || (defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99 */) )
+//#if !defined (__VMS) && (defined (__cplusplus) || (defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99 */) )
 	//#include <stdint.h>
-    typedef uint32 XXH32_hash_t; // @sobolev uint32_t-->uint32
-#else
-    typedef unsigned int XXH32_hash_t;
-#endif
+    //typedef uint32 XXH32_hash_t_Removed; // @sobolev uint32_t-->uint32 // @v11.7.4 (replaced with uint32)
+//#else
+    //typedef unsigned int XXH32_hash_t_Removed; // @v11.7.4 (replaced with uint32)
+//#endif
 // 
 // Descr: Calculate the 32-bit hash of sequence "length" bytes stored at memory address "input".
 //   The memory between input & input+length must be valid (allocated and read-accessible).
 //   "seed" can be used to alter the result predictably.
 //   Speed on Core 2 Duo @ 3 GHz (single thread, SMHasher benchmark) : 5.4 GB/s */
 // 
-XXH_PUBLIC_API XXH32_hash_t XXH32(const void * input, size_t length, uint seed);
+XXH_PUBLIC_API uint32 XXH32(const void * input, size_t length, uint seed);
 // 
 // Streaming
 // 
@@ -168,7 +168,7 @@ XXH_PUBLIC_API XXH_errorcode  XXH32_freeState(XXH32_state_t* statePtr);
 XXH_PUBLIC_API void XXH32_copyState(XXH32_state_t* dst_state, const XXH32_state_t* src_state);
 XXH_PUBLIC_API XXH_errorcode XXH32_reset(XXH32_state_t* statePtr, uint seed);
 XXH_PUBLIC_API XXH_errorcode XXH32_update(XXH32_state_t* statePtr, const void * input, size_t length);
-XXH_PUBLIC_API XXH32_hash_t  XXH32_digest(const XXH32_state_t* statePtr);
+XXH_PUBLIC_API uint32  XXH32_digest(const XXH32_state_t* statePtr);
 /*
  * Streaming functions generate the xxHash of an input provided in multiple segments.
  * Note that, for small input, they are slower than single-call functions, due to state management.
@@ -193,8 +193,8 @@ XXH_PUBLIC_API XXH32_hash_t  XXH32_digest(const XXH32_state_t* statePtr);
 // Canonical representation
 // 
 typedef struct { uchar digest[4]; } XXH32_canonical_t;
-XXH_PUBLIC_API void XXH32_canonicalFromHash(XXH32_canonical_t* dst, XXH32_hash_t hash);
-XXH_PUBLIC_API XXH32_hash_t XXH32_hashFromCanonical(const XXH32_canonical_t* src);
+XXH_PUBLIC_API void XXH32_canonicalFromHash(XXH32_canonical_t* dst, uint32 hash);
+XXH_PUBLIC_API uint32 XXH32_hashFromCanonical(const XXH32_canonical_t* src);
 
 /* Default result type for XXH functions are primitive unsigned 32 and 64 bits.
  * The canonical representation uses human-readable write convention, aka big-endian (large digits first).
@@ -205,18 +205,18 @@ XXH_PUBLIC_API XXH32_hash_t XXH32_hashFromCanonical(const XXH32_canonical_t* src
 // 
 // 64-bit hash
 // 
-#if !defined (__VMS) && (defined (__cplusplus) || (defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99 */) )
+//#if !defined (__VMS) && (defined (__cplusplus) || (defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99 */) )
 	//#include <stdint.h>
-    typedef uint64_t XXH64_hash_t;
-#else
-    typedef unsigned long long XXH64_hash_t;
-#endif
+    //typedef uint64_t XXH64_hash_t_Removed; // @sobolev (replaced with uint64)
+//#else
+    //typedef unsigned long long XXH64_hash_t_Removed; // @sobolev (replaced with uint64)
+//#endif
 // 
 // Descr: Calculate the 64-bit hash of sequence of length "len" stored at memory address "input".
 //   "seed" can be used to alter the result predictably.
 //   This function runs faster on 64-bit systems, but slower on 32-bit systems (see benchmark).
 // 
-XXH_PUBLIC_API XXH64_hash_t XXH64(const void * input, size_t length, unsigned long long seed);
+XXH_PUBLIC_API uint64 XXH64(const void * input, size_t length, unsigned long long seed);
 //
 // Streaming
 //
@@ -226,13 +226,13 @@ XXH_PUBLIC_API XXH_errorcode  XXH64_freeState(XXH64_state_t* statePtr);
 XXH_PUBLIC_API void XXH64_copyState(XXH64_state_t* dst_state, const XXH64_state_t* src_state);
 XXH_PUBLIC_API XXH_errorcode XXH64_reset(XXH64_state_t* statePtr, unsigned long long seed);
 XXH_PUBLIC_API XXH_errorcode XXH64_update(XXH64_state_t* statePtr, const void * input, size_t length);
-XXH_PUBLIC_API XXH64_hash_t  XXH64_digest(const XXH64_state_t* statePtr);
+XXH_PUBLIC_API uint64  XXH64_digest(const XXH64_state_t* statePtr);
 // 
 // Canonical representation
 // 
 typedef struct { uchar digest[8]; } XXH64_canonical_t;
-XXH_PUBLIC_API void XXH64_canonicalFromHash(XXH64_canonical_t* dst, XXH64_hash_t hash);
-XXH_PUBLIC_API XXH64_hash_t XXH64_hashFromCanonical(const XXH64_canonical_t* src);
+XXH_PUBLIC_API void XXH64_canonicalFromHash(XXH64_canonical_t* dst, uint64 hash);
+XXH_PUBLIC_API uint64 XXH64_hashFromCanonical(const XXH64_canonical_t* src);
 
 #endif  /* XXH_NO_LONG_LONG */
 
@@ -250,28 +250,28 @@ XXH_PUBLIC_API XXH64_hash_t XXH64_hashFromCanonical(const XXH64_canonical_t* src
  * Never **ever** use members directly. */
 
 struct XXH32_state_s {
-	XXH32_hash_t total_len_32;
-	XXH32_hash_t large_len;
-	XXH32_hash_t v1;
-	XXH32_hash_t v2;
-	XXH32_hash_t v3;
-	XXH32_hash_t v4;
-	XXH32_hash_t mem32[4];
-	XXH32_hash_t memsize;
-	XXH32_hash_t reserved; /* never read nor write, might be removed in a future version */
+	uint32 total_len_32;
+	uint32 large_len;
+	uint32 v1;
+	uint32 v2;
+	uint32 v3;
+	uint32 v4;
+	uint32 mem32[4];
+	uint32 memsize;
+	uint32 reserved; /* never read nor write, might be removed in a future version */
 }; /* typedef'd to XXH32_state_t */
 
 #ifndef XXH_NO_LONG_LONG  /* remove 64-bit support */
 	struct XXH64_state_s {
-		XXH64_hash_t total_len;
-		XXH64_hash_t v1;
-		XXH64_hash_t v2;
-		XXH64_hash_t v3;
-		XXH64_hash_t v4;
-		XXH64_hash_t mem64[4];
-		XXH32_hash_t memsize;
-		XXH32_hash_t reserved32; /* required for padding anyway */
-		XXH64_hash_t reserved64; /* never read nor write, might be removed in a future version */
+		uint64 total_len;
+		uint64 v1;
+		uint64 v2;
+		uint64 v3;
+		uint64 v4;
+		uint64 mem64[4];
+		uint32 memsize;
+		uint32 reserved32; /* required for padding anyway */
+		uint64 reserved64; /* never read nor write, might be removed in a future version */
 	}; /* typedef'd to XXH64_state_t */
 #endif   /* XXH_NO_LONG_LONG */
 // 
@@ -342,7 +342,7 @@ struct XXH32_state_s {
 /* XXH3_64bits() :
  * default 64-bit variant, using default secret and default seed of 0.
  * It's the fastest variant. */
-XXH_PUBLIC_API XXH64_hash_t XXH3_64bits(const void * data, size_t len);
+XXH_PUBLIC_API uint64 XXH3_64bits(const void * data, size_t len);
 
 /* XXH3_64bits_withSecret() :
  * It's possible to provide any blob of bytes as a "secret" to generate the hash.
@@ -354,14 +354,14 @@ XXH_PUBLIC_API XXH64_hash_t XXH3_64bits(const void * data, size_t len);
  * Failure to respect these conditions will result in a poor quality hash.
  */
 #define XXH3_SECRET_SIZE_MIN 136
-XXH_PUBLIC_API XXH64_hash_t XXH3_64bits_withSecret(const void * data, size_t len, const void * secret, size_t secretSize);
+XXH_PUBLIC_API uint64 XXH3_64bits_withSecret(const void * data, size_t len, const void * secret, size_t secretSize);
 
 /* XXH3_64bits_withSeed() :
  * This variant generates on the fly a custom secret,
  * based on the default secret, altered using the `seed` value.
  * While this operation is decently fast, note that it's not completely free.
  * note : seed==0 produces same results as XXH3_64bits() */
-XXH_PUBLIC_API XXH64_hash_t XXH3_64bits_withSeed(const void * data, size_t len, XXH64_hash_t seed);
+XXH_PUBLIC_API uint64 XXH3_64bits_withSeed(const void * data, size_t len, uint64 seed);
 
 /* streaming 64-bit */
 #if defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)   /* C11+ */
@@ -380,18 +380,18 @@ typedef struct XXH3_state_s XXH3_state_t;
 #define XXH3_SECRET_DEFAULT_SIZE 192   /* minimum XXH3_SECRET_SIZE_MIN */
 #define XXH3_INTERNALBUFFER_SIZE 256
 struct XXH3_state_s {
-	XXH_ALIGN(64) XXH64_hash_t acc[8];
+	XXH_ALIGN(64) uint64 acc[8];
 	XXH_ALIGN(64) char customSecret[XXH3_SECRET_DEFAULT_SIZE]; /* used to store a custom secret generated from the seed. Makes state larger. Design might change */
 	XXH_ALIGN(64) char buffer[XXH3_INTERNALBUFFER_SIZE];
-	XXH32_hash_t bufferedSize;
-	XXH32_hash_t nbStripesPerBlock;
-	XXH32_hash_t nbStripesSoFar;
-	XXH32_hash_t secretLimit;
-	XXH32_hash_t reserved32;
-	XXH32_hash_t reserved32_2;
-	XXH64_hash_t totalLen;
-	XXH64_hash_t seed;
-	XXH64_hash_t reserved64;
+	uint32 bufferedSize;
+	uint32 nbStripesPerBlock;
+	uint32 nbStripesSoFar;
+	uint32 secretLimit;
+	uint32 reserved32;
+	uint32 reserved32_2;
+	uint64 totalLen;
+	uint64 seed;
+	uint64 reserved64;
 	const void * secret; /* note : there is some padding after, due to alignment on 64 bytes */
 }; /* typedef'd to XXH3_state_t */
 
@@ -412,14 +412,14 @@ XXH_PUBLIC_API XXH_errorcode XXH3_64bits_reset(XXH3_state_t* statePtr);
 // Descr: generate a custom secret from `seed`, and store it into state.
 //   digest will be equivalent to `XXH3_64bits_withSeed()`.
 // 
-XXH_PUBLIC_API XXH_errorcode XXH3_64bits_reset_withSeed(XXH3_state_t* statePtr, XXH64_hash_t seed);
+XXH_PUBLIC_API XXH_errorcode XXH3_64bits_reset_withSeed(XXH3_state_t* statePtr, uint64 seed);
 // 
 // Descr: `secret` is referenced, and must outlive the hash streaming session.
 //   secretSize must be >= XXH3_SECRET_SIZE_MIN.
 // 
 XXH_PUBLIC_API XXH_errorcode XXH3_64bits_reset_withSecret(XXH3_state_t* statePtr, const void * secret, size_t secretSize);
 XXH_PUBLIC_API XXH_errorcode XXH3_64bits_update(XXH3_state_t* statePtr, const void * input, size_t length);
-XXH_PUBLIC_API XXH64_hash_t  XXH3_64bits_digest(const XXH3_state_t* statePtr);
+XXH_PUBLIC_API uint64  XXH3_64bits_digest(const XXH3_state_t* statePtr);
 //
 // 128-bit 
 //
@@ -440,16 +440,16 @@ XXH_PUBLIC_API XXH64_hash_t  XXH3_64bits_digest(const XXH3_state_t* statePtr);
 #endif
 
 typedef struct {
-    XXH64_hash_t low64;
-    XXH64_hash_t high64;
+    uint64 low64;
+    uint64 high64;
 } XXH128_hash_t;
 
-XXH_PUBLIC_API XXH128_hash_t XXH128(const void * data, size_t len, XXH64_hash_t seed);
+XXH_PUBLIC_API XXH128_hash_t XXH128(const void * data, size_t len, uint64 seed);
 XXH_PUBLIC_API XXH128_hash_t XXH3_128bits(const void * data, size_t len);
-XXH_PUBLIC_API XXH128_hash_t XXH3_128bits_withSeed(const void * data, size_t len, XXH64_hash_t seed); /* == XXH128() */
+XXH_PUBLIC_API XXH128_hash_t XXH3_128bits_withSeed(const void * data, size_t len, uint64 seed); /* == XXH128() */
 XXH_PUBLIC_API XXH128_hash_t XXH3_128bits_withSecret(const void * data, size_t len, const void * secret, size_t secretSize);
 XXH_PUBLIC_API XXH_errorcode XXH3_128bits_reset(XXH3_state_t* statePtr);
-XXH_PUBLIC_API XXH_errorcode XXH3_128bits_reset_withSeed(XXH3_state_t* statePtr, XXH64_hash_t seed);
+XXH_PUBLIC_API XXH_errorcode XXH3_128bits_reset_withSeed(XXH3_state_t* statePtr, uint64 seed);
 XXH_PUBLIC_API XXH_errorcode XXH3_128bits_reset_withSecret(XXH3_state_t* statePtr, const void * secret, size_t secretSize);
 XXH_PUBLIC_API XXH_errorcode XXH3_128bits_update(XXH3_state_t* statePtr, const void * input, size_t length);
 XXH_PUBLIC_API XXH128_hash_t XXH3_128bits_digest(const XXH3_state_t* statePtr);

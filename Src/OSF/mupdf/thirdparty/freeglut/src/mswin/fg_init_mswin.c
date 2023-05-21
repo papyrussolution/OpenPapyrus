@@ -87,12 +87,11 @@ void fgPlatformInitialize(const char* displayName)
 
 		fgDisplay.ScreenWidthMM  = GetDeviceCaps(context, HORZSIZE);
 		fgDisplay.ScreenHeightMM = GetDeviceCaps(context, VERTSIZE);
-
 		ReleaseDC(desktop, context);
 	}
 	/* If we have a DisplayName try to use it for metrics */
 	if(fgDisplay.pDisplay.DisplayName) {
-		HDC context = CreateDC(fgDisplay.pDisplay.DisplayName, 0, 0, 0);
+		HDC context = CreateDCA(fgDisplay.pDisplay.DisplayName, 0, 0, 0);
 		if(context) {
 			fgDisplay.ScreenWidth  = GetDeviceCaps(context, HORZRES);
 			fgDisplay.ScreenHeight = GetDeviceCaps(context, VERTRES);

@@ -1129,7 +1129,7 @@ static int read_header(ArchiveRead * a, ArchiveEntry * entry, char head_type)
 	if((h = __archive_read_ahead(a, (size_t)header_size - 7, NULL)) == NULL)
 		return ARCHIVE_FATAL;
 	/* File Header CRC check. */
-	crc32_val = crc32(crc32_val, static_cast<const Bytef *>(h), (uint)(header_size - 7));
+	crc32_val = crc32(crc32_val, static_cast<const Byte *>(h), (uint)(header_size - 7));
 	if((crc32_val & 0xffff) != archive_le16dec(rar_header.crc)) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Header CRC error");
 		return ARCHIVE_FATAL;
@@ -1589,7 +1589,7 @@ static int read_data_stored(ArchiveRead * a, const void ** buff, size_t * size, 
 	rar->bytes_remaining -= bytes_avail;
 	rar->bytes_unconsumed = bytes_avail;
 	/* Calculate File CRC. */
-	rar->crc_calculated = crc32(rar->crc_calculated, static_cast<const Bytef *>(*buff), (uint)bytes_avail);
+	rar->crc_calculated = crc32(rar->crc_calculated, static_cast<const Byte *>(*buff), (uint)bytes_avail);
 	return ARCHIVE_OK;
 }
 
@@ -1618,7 +1618,7 @@ static int read_data_compressed(ArchiveRead * a, const void ** buff, size_t * si
 				*offset = rar->offset_outgoing;
 				rar->offset_outgoing += *size;
 				/* Calculate File CRC. */
-				rar->crc_calculated = crc32(rar->crc_calculated, static_cast<const Bytef *>(*buff), (uint)*size);
+				rar->crc_calculated = crc32(rar->crc_calculated, static_cast<const Byte *>(*buff), (uint)*size);
 				rar->unp_offset = 0;
 				return ARCHIVE_OK;
 			}
@@ -1648,7 +1648,7 @@ static int read_data_compressed(ArchiveRead * a, const void ** buff, size_t * si
 				*offset = rar->offset_outgoing;
 				rar->offset_outgoing += *size;
 				/* Calculate File CRC. */
-				rar->crc_calculated = crc32(rar->crc_calculated, static_cast<const Bytef *>(*buff), (uint)*size);
+				rar->crc_calculated = crc32(rar->crc_calculated, static_cast<const Byte *>(*buff), (uint)*size);
 				return ret;
 			}
 			continue;
@@ -1754,7 +1754,7 @@ static int read_data_compressed(ArchiveRead * a, const void ** buff, size_t * si
 	*offset = rar->offset_outgoing;
 	rar->offset_outgoing += *size;
 	/* Calculate File CRC. */
-	rar->crc_calculated = crc32(rar->crc_calculated, static_cast<const Bytef *>(*buff), (uint)*size);
+	rar->crc_calculated = crc32(rar->crc_calculated, static_cast<const Byte *>(*buff), (uint)*size);
 	return ret;
 }
 

@@ -30,11 +30,11 @@
 #define IF_OVERPRINT_COMPONENT(k) if(1)
 #endif
 
-static inline void FUNCTION_NAME(NAME, N, NAME2, NAME3)(const uchar * FZ_RESTRICT colorbv,
+static inline void FUNCTION_NAME(NAME, N, NAME2, NAME3)(const uchar * _RESTRICT colorbv,
 #ifndef N
     const int n1,
 #endif
-    int span, uchar * FZ_RESTRICT dp, const fz_glyph *glyph, int w, int h, int skip_x, int skip_y
+    int span, uchar * _RESTRICT dp, const fz_glyph *glyph, int w, int h, int skip_x, int skip_y
 #ifdef EOP
     , const fz_overprint *eop
 #endif

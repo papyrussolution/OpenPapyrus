@@ -47,25 +47,14 @@ struct U_I18N_API CollationData : public UMemory {
 		MAX_NUM_SCRIPT_RANGES = 256
 	};
 
-	CollationData(const Normalizer2Impl &nfc)
-		: trie(NULL),
-		ce32s(NULL), ces(NULL), contexts(NULL), base(NULL),
-		jamoCE32s(NULL),
-		nfcImpl(nfc),
-		numericPrimary(0x12000000),
-		ce32sLength(0), cesLength(0), contextsLength(0),
-		compressibleBytes(NULL),
-		unsafeBackwardSet(NULL),
-		fastLatinTable(NULL), fastLatinTableLength(0),
-		numScripts(0), scriptsIndex(NULL), scriptStarts(NULL), scriptStartsLength(0),
-		rootElements(NULL), rootElementsLength(0) {
+	CollationData(const Normalizer2Impl &nfc) : trie(NULL), ce32s(NULL), ces(NULL), contexts(NULL), base(NULL),
+		jamoCE32s(NULL), nfcImpl(nfc), numericPrimary(0x12000000), ce32sLength(0), cesLength(0), contextsLength(0),
+		compressibleBytes(NULL), unsafeBackwardSet(NULL), fastLatinTable(NULL), fastLatinTableLength(0),
+		numScripts(0), scriptsIndex(NULL), scriptStarts(NULL), scriptStartsLength(0), rootElements(NULL), rootElementsLength(0) {
 	}
 	uint32_t getCE32(UChar32 c) const { return UTRIE2_GET32(trie, c); }
 	uint32_t getCE32FromSupplementary(UChar32 c) const { return UTRIE2_GET32_FROM_SUPP(trie, c); }
-	bool isDigit(UChar32 c) const 
-	{
-		return c < 0x660 ? c <= 0x39 && 0x30 <= c : Collation::hasCE32Tag(getCE32(c), Collation::DIGIT_TAG);
-	}
+	bool isDigit(UChar32 c) const { return c < 0x660 ? c <= 0x39 && 0x30 <= c : Collation::hasCE32Tag(getCE32(c), Collation::DIGIT_TAG); }
 	bool isUnsafeBackward(UChar32 c, bool numeric) const { return unsafeBackwardSet->contains(c) || (numeric && isDigit(c)); }
 	bool isCompressibleLeadByte(uint32_t b) const { return compressibleBytes[b]; }
 	inline bool isCompressiblePrimary(uint32_t p) const { return isCompressibleLeadByte(p >> 24); }
@@ -116,16 +105,12 @@ struct U_I18N_API CollationData : public UMemory {
 	 *         or 0 if the script is unknown
 	 */
 	uint32_t getLastPrimaryForGroup(int32_t script) const;
-
 	/**
 	 * Finds the reordering group which contains the primary weight.
 	 * @return the first script of the group, or -1 if the weight is beyond the last group
 	 */
 	int32_t getGroupForPrimary(uint32_t p) const;
-
-	int32_t getEquivalentScripts(int32_t script,
-	    int32_t dest[], int32_t capacity, UErrorCode & errorCode) const;
-
+	int32_t getEquivalentScripts(int32_t script, int32_t dest[], int32_t capacity, UErrorCode & errorCode) const;
 	/**
 	 * Writes the permutation of primary-weight ranges
 	 * for the given reordering of scripts and groups.
@@ -136,26 +121,19 @@ struct U_I18N_API CollationData : public UMemory {
 	 * for the CollationSettings::reorderRanges.
 	 * The list will be empty if no ranges are reordered.
 	 */
-	void makeReorderRanges(const int32_t * reorder, int32_t length,
-	    UVector32 &ranges, UErrorCode & errorCode) const;
-
-	/** @see jamoCE32s */
-	static const int32_t JAMO_CE32S_LENGTH = 19 + 21 + 27;
-
-	/** Main lookup trie. */
-	const UTrie2 * trie;
+	void makeReorderRanges(const int32_t * reorder, int32_t length, UVector32 &ranges, UErrorCode & errorCode) const;
+	
+	static const int32_t JAMO_CE32S_LENGTH = 19 + 21 + 27; /** @see jamoCE32s */
+	const UTrie2 * trie; /** Main lookup trie. */
 	/**
 	 * Array of CE32 values.
 	 * At index 0 there must be CE32(U+0000)
 	 * to support U+0000's special-tag for NUL-termination handling.
 	 */
 	const uint32_t * ce32s;
-	/** Array of CE values for expansions and OFFSET_TAG. */
-	const int64_t * ces;
-	/** Array of prefix and contraction-suffix matching data. */
-	const UChar * contexts;
-	/** Base collation data, or NULL if this data itself is a base. */
-	const CollationData * base;
+	const int64_t * ces; /** Array of CE values for expansions and OFFSET_TAG. */
+	const UChar * contexts; /** Array of prefix and contraction-suffix matching data. */
+	const CollationData * base; /** Base collation data, or NULL if this data itself is a base. */
 	/**
 	 * Simple array of JAMO_CE32S_LENGTH=19+21+27 CE32s, one per canonical Jamo L/V/T.
 	 * They are normally simple CE32s, rarely expansions.
@@ -163,28 +141,22 @@ struct U_I18N_API CollationData : public UMemory {
 	 */
 	const uint32_t * jamoCE32s;
 	const Normalizer2Impl &nfcImpl;
-	/** The single-byte primary weight (xx000000) for numeric collation. */
-	uint32_t numericPrimary;
-
+	uint32_t numericPrimary; /** The single-byte primary weight (xx000000) for numeric collation. */
 	int32_t ce32sLength;
 	int32_t cesLength;
 	int32_t contextsLength;
-
-	/** 256 flags for which primary-weight lead bytes are compressible. */
-	const bool * compressibleBytes;
+	const bool * compressibleBytes; /** 256 flags for which primary-weight lead bytes are compressible. */
 	/**
 	 * Set of code points that are unsafe for starting string comparison after an identical prefix,
 	 * or in backwards CE iteration.
 	 */
 	const UnicodeSet * unsafeBackwardSet;
-
 	/**
 	 * Fast Latin table for common-Latin-text string comparisons.
 	 * Data structure see class CollationFastLatin.
 	 */
 	const uint16 * fastLatinTable;
 	int32_t fastLatinTableLength;
-
 	/**
 	 * Data for scripts and reordering groups.
 	 * Uses include building a reordering permutation table and

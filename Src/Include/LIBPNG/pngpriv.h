@@ -59,7 +59,7 @@
 #if defined(HAVE_CONFIG_H) && !defined(PNG_NO_CONFIG_H)
 	#include <config.h>
 	// Pick up the definition of 'restrict' from config.h if it was read: 
-	#define PNG_RESTRICT restrict
+	//#define PNG_RESTRICT restrict
 #endif
 
 /* To support symbol prefixing it is necessary to know *before* including png.h

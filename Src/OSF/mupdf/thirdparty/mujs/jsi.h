@@ -3,6 +3,7 @@
 #ifndef jsi_h
 #define jsi_h
 
+#include <slib.h>
 #include "mujs.h"
 #include <stdio.h>
 #include <stdlib.h>

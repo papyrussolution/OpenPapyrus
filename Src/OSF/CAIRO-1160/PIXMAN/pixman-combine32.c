@@ -97,7 +97,7 @@ static void FASTCALL combine_mask_alpha_ca(const uint32 * src, uint32 * mask)
  * the component version has a 'ca'.  Similarly, functions which deal with
  * this difference will have two versions using the same convention.
  */
-static force_inline uint32 combine_mask(const uint32 * src, const uint32 * mask, int i)
+static FORCEINLINE uint32 combine_mask(const uint32 * src, const uint32 * mask, int i)
 {
 	uint32 s, m;
 	if(mask) {

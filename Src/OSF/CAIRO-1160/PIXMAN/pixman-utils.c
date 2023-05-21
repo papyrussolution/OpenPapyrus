@@ -44,7 +44,7 @@ void * pixman_malloc_abc(uint a, uint b, uint c)
 		return SAlloc::M(a * b * c);
 }
 
-static force_inline uint16 float_to_unorm(float f, int n_bits)
+static FORCEINLINE uint16 float_to_unorm(float f, int n_bits)
 {
 	uint32 u;
 	if(f > 1.0f)
@@ -56,7 +56,7 @@ static force_inline uint16 float_to_unorm(float f, int n_bits)
 	return static_cast<uint16>(u);
 }
 
-static force_inline float unorm_to_float(uint16 u, int n_bits)
+static FORCEINLINE float unorm_to_float(uint16 u, int n_bits)
 {
 	uint32 m = ((1 << n_bits) - 1);
 	return (u & m) * (1.f / static_cast<float>(m));

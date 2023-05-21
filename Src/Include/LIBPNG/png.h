@@ -492,10 +492,10 @@ typedef png_info ** png_infopp;
  * consequentially, writing portable application code is extremely difficult if
  * an attempt is made to use 'restrict'.
  */
-typedef png_struct * PNG_RESTRICT png_structrp;
-typedef const png_struct * PNG_RESTRICT png_const_structrp;
-typedef png_info * PNG_RESTRICT png_inforp;
-typedef const png_info * PNG_RESTRICT png_const_inforp;
+typedef png_struct * _RESTRICT png_structrp;
+typedef const png_struct * _RESTRICT png_const_structrp;
+typedef png_info * _RESTRICT png_inforp;
+typedef const png_info * _RESTRICT png_const_inforp;
 /* Replaced with SColorRGB
    //
    // Three color definitions.  The order of the red, green, and blue, (and the
@@ -2896,9 +2896,8 @@ PNG_EXPORT(240, int, png_image_write_to_stdio,
  * most ancillary chunks.  If you need to write text chunks (e.g. for copyright
  * notices) you need to use one of the other APIs.
  */
-
 PNG_EXPORT(245, int, png_image_write_to_memory, (png_imagep image, void * memory,
-    png_alloc_size_t * PNG_RESTRICT memory_bytes, int convert_to_8_bit,
+    png_alloc_size_t * _RESTRICT memory_bytes, int convert_to_8_bit,
     const void * buffer, png_int_32 row_stride, const void * colormap));
 /* Write the image to the given memory buffer.  The function both writes the
  * whole PNG data stream to *memory and updates *memory_bytes with the count

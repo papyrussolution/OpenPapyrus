@@ -560,13 +560,8 @@ static inline void sort_r_swap(char * __restrict a, char * __restrict b, size_t 
 /* swap a, b iff a>b */
 /* a and b must not be equal! */
 /* __restrict is same as restrict but better support on old machines */
-template <typename ... Ts>
-static inline int sort_r_cmpswap(char * __restrict a,
-    char * __restrict b, size_t w,
-    int (*compar)(const void * _a,
-    const void * _b,
-    Ts ... _ds),
-    Ts ... ds)
+template <typename ... Ts> static inline int sort_r_cmpswap(char * __restrict a,
+    char * __restrict b, size_t w, int (*compar)(const void * _a, const void * _b, Ts ... _ds), Ts ... ds)
 {
 	if(compar(a, b, ds ...) > 0) {
 		sort_r_swap(a, b, w);

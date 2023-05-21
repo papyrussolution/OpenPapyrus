@@ -174,10 +174,7 @@ ulong SRngMT::Get()
 	return k;
 }
 
-double SRngMT::GetReal()
-{
-	return Get() / 4294967296.0;
-}
+double SRngMT::GetReal() { return Get() / SMathConst::MaxU32; }
 //
 //
 //
@@ -256,10 +253,7 @@ ulong SRngUnix::Get()
 	return ret;
 }
 
-double SRngUnix::GetReal()
-{
-	return Get() / 2147483648.0;
-}
+double SRngUnix::GetReal() { return Get() / SMathConst::MaxU31; }
 //
 //
 //
@@ -274,7 +268,7 @@ public:
 		}
 		else {
 			assert(oneof2(rank, 1, 2));
-			IMul = 4294967296.0;
+			IMul = SMathConst::MaxU32;
 		}
 		if(rank == 0)
 			Luxury = 109;

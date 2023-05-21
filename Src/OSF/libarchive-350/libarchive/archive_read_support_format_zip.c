@@ -320,7 +320,7 @@ static void crypt_derive_key_sha1(const void * p, int size, uchar * key, int key
 
 static ulong real_crc32(ulong crc, const void * buff, size_t len)
 {
-	return crc32(crc, static_cast<const Bytef *>(buff), (uint)len);
+	return crc32(crc, static_cast<const Byte *>(buff), (uint)len);
 }
 
 /* Used by "ignorecrc32" option to speed up tests. */
@@ -2017,7 +2017,7 @@ static int zip_read_data_deflate(ArchiveRead * a, const void ** buff,
 	 * next_in pointer, only reads it).  The result: this ugly
 	 * cast to remove 'const'.
 	 */
-	zip->stream.next_in = (Bytef*)(uintptr_t)(const void*)compressed_buff;
+	zip->stream.next_in = (Byte *)(uintptr_t)(const void*)compressed_buff;
 	zip->stream.avail_in = (uInt)bytes_avail;
 	zip->stream.total_in = 0;
 	zip->stream.next_out = zip->uncompressed_buffer;
@@ -3404,7 +3404,7 @@ static int zip_read_mac_metadata(ArchiveRead * a, ArchiveEntry * entry, struct z
 			    if(ret != ARCHIVE_OK)
 				    goto exit_mac_metadata;
 			    zip->stream.next_in =
-				(Bytef*)(uintptr_t)(const void*)p;
+				(Byte *)(uintptr_t)(const void*)p;
 			    zip->stream.avail_in = (uInt)bytes_avail;
 			    zip->stream.total_in = 0;
 			    zip->stream.next_out = mp;

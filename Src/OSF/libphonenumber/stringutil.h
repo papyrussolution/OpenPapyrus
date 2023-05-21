@@ -15,7 +15,7 @@ using std::string;
 using std::vector;
 
 // Supports string("hello") + 10.
-string operator+(const string & s, int n);  // NOLINT(runtime/string)
+string operator+(const string & s, int n);
 
 // Converts integer to string.
 string SimpleItoa(uint64 n);
@@ -59,31 +59,21 @@ void strrmm(string* s, const string & chars);
 
 // Replaces all instances of 'substring' in 's' with 'replacement'. Returns the
 // number of instances replaced. Replacements are not subject to re-matching.
-int GlobalReplaceSubstring(const string & substring, const string & replacement,
-    string* s);
+int GlobalReplaceSubstring(const string & substring, const string & replacement, string* s);
 
 // Holds a reference to a std::string or C string. It can also be constructed
 // from an integer which is converted to a string.
 class StringHolder {
 public:
 	// Don't make the constructors explicit to make the StrCat usage convenient.
-	StringHolder(const string & s); // NOLINT(runtime/explicit)
-	StringHolder(const char* s); // NOLINT(runtime/explicit)
-	StringHolder(uint64 n);   // NOLINT(runtime/explicit)
+	StringHolder(const string & s);
+	StringHolder(const char* s);
+	StringHolder(uint64 n);
 	~StringHolder();
 
-	const string* GetString() const {
-		return string_;
-	}
-
-	const char* GetCString() const {
-		return cstring_;
-	}
-
-	size_t Length() const {
-		return len_;
-	}
-
+	const string* GetString() const { return string_; }
+	const char* GetCString() const { return cstring_; }
+	size_t Length() const { return len_; }
 private:
 	const string converted_string_; // Stores the string converted from integer.
 	const string* const string_;

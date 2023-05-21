@@ -1,5 +1,5 @@
 // RC2.CPP
-// Copyright (c) V.Antonov, A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2017, 2019, 2020, 2021
+// Copyright (c) V.Antonov, A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2017, 2019, 2020, 2021, 2023
 //
 #include <pp.h>
 #include "rc2.h"
@@ -664,7 +664,7 @@ int Rc2Data::GenerateBrowserDefinition(BrowserDefinition * pB)
 		else {
 			fprintf(pRc, "\tTV_BROCOLUMN \"%s\\0\", %d, %s, %s, %d, %d, %s, %d, %d, \"%s\\0\"\n",
 				p_b->Name,
-				atoi(p_b->ReqNumber),
+				satoi(p_b->ReqNumber),
 				p_b->Options,
 				p_b->Type ? GetSTypeName(p_b->Type) : "0",
 				size,

@@ -20,24 +20,22 @@
 // Compiler specifics
 //
 #ifdef __clang__
-#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+	#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #endif
-
 #if defined(_MSC_VER)
-#pragma warning(disable : 4244)
-#pragma warning(disable : 4127)    /* C4127 : Condition expression is constant */
+	#pragma warning(disable : 4244)
+	#pragma warning(disable : 4127)    /* C4127 : Condition expression is constant */
 #endif
 #include "divsufsort.h"
-
 /*- Constants -*/
 #if defined(INLINE)
-#undef INLINE
+	#undef INLINE
 #endif
 #if !defined(INLINE)
 	#define INLINE __inline
 #endif
 #if defined(ALPHABET_SIZE) && (ALPHABET_SIZE < 1)
-#undef ALPHABET_SIZE
+	#undef ALPHABET_SIZE
 #endif
 #if !defined(ALPHABET_SIZE)
 	#define ALPHABET_SIZE (256)
@@ -74,7 +72,6 @@
 #define SS_SMERGE_STACKSIZE (32)
 #define TR_INSERTIONSORT_THRESHOLD (8)
 #define TR_STACKSIZE (64)
-
 /*- Macros -*/
 #ifndef SWAP
 	#define SWAP(_a, _b) do { t = (_a); (_a) = (_b); (_b) = t; } while(0)
@@ -113,11 +110,11 @@
 	} while(0)
 #define BUCKET_A(_c0) bucket_A[(_c0)]
 #if ALPHABET_SIZE == 256
-#define BUCKET_B(_c0, _c1) (bucket_B[((_c1) << 8) | (_c0)])
-#define BUCKET_BSTAR(_c0, _c1) (bucket_B[((_c0) << 8) | (_c1)])
+	#define BUCKET_B(_c0, _c1) (bucket_B[((_c1) << 8) | (_c0)])
+	#define BUCKET_BSTAR(_c0, _c1) (bucket_B[((_c0) << 8) | (_c1)])
 #else
-#define BUCKET_B(_c0, _c1) (bucket_B[(_c1) * ALPHABET_SIZE + (_c0)])
-#define BUCKET_BSTAR(_c0, _c1) (bucket_B[(_c0) * ALPHABET_SIZE + (_c1)])
+	#define BUCKET_B(_c0, _c1) (bucket_B[(_c1) * ALPHABET_SIZE + (_c0)])
+	#define BUCKET_BSTAR(_c0, _c1) (bucket_B[(_c0) * ALPHABET_SIZE + (_c1)])
 #endif
 
 /*- Private Functions -*/
@@ -254,16 +251,15 @@ static INLINE void ss_fixdown(const uchar * Td, const int * PA, int * SA, int i,
 /* Simple top-down heapsort. */
 static void ss_heapsort(const uchar * Td, const int * PA, int * SA, int size) 
 {
-	int i, m;
+	int i;
 	int t;
-	m = size;
+	int m = size;
 	if((size % 2) == 0) {
 		m--;
 		if(Td[PA[SA[m / 2]]] < Td[PA[SA[m]]]) {
 			SWAP(SA[m], SA[m / 2]);
 		}
 	}
-
 	for(i = m / 2 - 1; 0 <= i; --i) {
 		ss_fixdown(Td, PA, SA, i, m);
 	}
@@ -386,7 +382,6 @@ static void ss_mintrosort(const uchar * T, const int * PA, int * first, int * la
 			STACK_POP(first, last, depth, limit);
 			continue;
 		}
-
 		Td = T + depth;
 		if(limit-- == 0) {
 			ss_heapsort(Td, PA, first, last - first);
@@ -424,12 +419,10 @@ static void ss_mintrosort(const uchar * T, const int * PA, int * first, int * la
 			}
 			continue;
 		}
-
 		/* choose pivot */
 		a = ss_pivot(Td, PA, first, last);
 		v = Td[PA[*a]];
 		SWAP(*first, *a);
-
 		/* partition */
 		for(b = first; (++b < last) && ((x = Td[PA[*b]]) == v);) {
 		}
@@ -462,10 +455,8 @@ static void ss_mintrosort(const uchar * T, const int * PA, int * first, int * la
 				}
 			}
 		}
-
 		if(a <= d) {
 			c = b - 1;
-
 			if((s = a - first) > (t = b - a)) {
 				s = t;
 			}
@@ -637,10 +628,10 @@ static void ss_inplacemerge(const uchar * T, const int * PA, int * first, int * 
 /* Merge-forward with internal buffer. */
 static void ss_mergeforward(const uchar * T, const int * PA, int * first, int * middle, int * last, int * buf, int depth) 
 {
-	int * a, * b, * c, * bufend;
+	int * a, * b, * c;
 	int t;
 	int r;
-	bufend = buf + (middle - first) - 1;
+	int * bufend = buf + (middle - first) - 1;
 	ss_blockswap(buf, first, middle - first);
 	for(t = *(a = first), b = buf, c = middle;;) {
 		r = ss_compare(T, PA + *b, PA + *c, depth);
@@ -674,7 +665,6 @@ static void ss_mergeforward(const uchar * T, const int * PA, int * first, int * 
 				}
 				*b++ = *a;
 			} while(*b < 0);
-
 			do {
 				*a++ = *c, *c++ = *a;
 				if(last <= c) {
@@ -693,11 +683,11 @@ static void ss_mergeforward(const uchar * T, const int * PA, int * first, int * 
 static void ss_mergebackward(const uchar * T, const int * PA, int * first, int * middle, int * last, int * buf, int depth) 
 {
 	const int * p1, * p2;
-	int * a, * b, * c, * bufend;
+	int * a, * b, * c;
 	int t;
 	int r;
 	int x;
-	bufend = buf + (last - middle) - 1;
+	int * bufend = buf + (last - middle) - 1;
 	ss_blockswap(buf, middle, last - middle);
 	x = 0;
 	if(*bufend < 0) {
@@ -809,12 +799,10 @@ static void ss_swapmerge(const uchar * T, const int * PA, int * first, int * mid
 		} \
 	} while(0)
 	struct { int * a, * b, * c; int d; } stack[STACK_SIZE];
-
 	int * l, * r, * lm, * rm;
 	int m, len, half;
 	int ssize;
 	int check, next;
-
 	for(check = 0, ssize = 0;;) {
 		if((last - middle) <= bufsize) {
 			if((first < middle) && (middle < last)) {
@@ -824,7 +812,6 @@ static void ss_swapmerge(const uchar * T, const int * PA, int * first, int * mid
 			STACK_POP(first, middle, last, check);
 			continue;
 		}
-
 		if((middle - first) <= bufsize) {
 			if(first < middle) {
 				ss_mergeforward(T, PA, first, middle, last, buf, depth);
@@ -833,7 +820,6 @@ static void ss_swapmerge(const uchar * T, const int * PA, int * first, int * mid
 			STACK_POP(first, middle, last, check);
 			continue;
 		}
-
 		for(m = 0, len = MIN(middle - first, last - middle), half = len >> 1;
 		    0 < len;
 		    len = half, half >>= 1) {
@@ -843,7 +829,6 @@ static void ss_swapmerge(const uchar * T, const int * PA, int * first, int * mid
 				half -= (len & 1) ^ 1;
 			}
 		}
-
 		if(0 < m) {
 			lm = middle - m, rm = middle + m;
 			ss_blockswap(lm, middle, m);
@@ -864,7 +849,6 @@ static void ss_swapmerge(const uchar * T, const int * PA, int * first, int * mid
 					next |= 2;
 				}
 			}
-
 			if((l - first) <= (last - r)) {
 				STACK_PUSH(r, rm, last, (next & 3) | (check & 4));
 				middle = lm, last = l, check = (check & 3) | (next & 4);
@@ -899,17 +883,13 @@ static void sssort(const uchar * T, const int * PA, int * first, int * last, int
 	int j, k, curbufsize, limit;
 #endif
 	int i;
-
 	if(lastsuffix != 0) {
 		++first;
 	}
-
 #if SS_BLOCKSIZE == 0
 	ss_mintrosort(T, PA, first, last, depth);
 #else
-	if((bufsize < SS_BLOCKSIZE) &&
-	    (bufsize < (last - first)) &&
-	    (bufsize < (limit = ss_isqrt(last - first)))) {
+	if((bufsize < SS_BLOCKSIZE) && (bufsize < (last - first)) && (bufsize < (limit = ss_isqrt(last - first)))) {
 		if(SS_BLOCKSIZE < limit) {
 			limit = SS_BLOCKSIZE;
 		}
@@ -953,13 +933,10 @@ static void sssort(const uchar * T, const int * PA, int * first, int * last, int
 		ss_inplacemerge(T, PA, first, middle, last, depth);
 	}
 #endif
-
 	if(lastsuffix != 0) {
 		/* Insert last type B* suffix. */
 		int PAi[2]; PAi[0] = PA[*(first - 1)], PAi[1] = n - 2;
-		for(a = first, i = *(first - 1);
-		    (a < last) && ((*a < 0) || (0 < ss_compare(T, &(PAi[0]), PA + *a, depth)));
-		    ++a) {
+		for(a = first, i = *(first - 1); (a < last) && ((*a < 0) || (0 < ss_compare(T, &(PAi[0]), PA + *a, depth))); ++a) {
 			*(a - 1) = *a;
 		}
 		*(a - 1) = i;
@@ -1011,19 +988,17 @@ static INLINE void tr_fixdown(const int * ISAd, int * SA, int i, int size)
 }
 
 /* Simple top-down heapsort. */
-static
-void tr_heapsort(const int * ISAd, int * SA, int size) {
-	int i, m;
+static void tr_heapsort(const int * ISAd, int * SA, int size) 
+{
+	int i;
 	int t;
-
-	m = size;
+	int m = size;
 	if((size % 2) == 0) {
 		m--;
 		if(ISAd[SA[m / 2]] < ISAd[SA[m]]) {
 			SWAP(SA[m], SA[m / 2]);
 		}
 	}
-
 	for(i = m / 2 - 1; 0 <= i; --i) {
 		tr_fixdown(ISAd, SA, i, m);
 	}
@@ -1056,9 +1031,8 @@ static INLINE int * tr_median3(const int * ISAd, int * v1, int * v2, int * v3)
 }
 
 /* Returns the median of five elements. */
-static INLINE
-int * tr_median5(const int * ISAd,
-    int * v1, int * v2, int * v3, int * v4, int * v5) {
+static INLINE int * tr_median5(const int * ISAd, int * v1, int * v2, int * v3, int * v4, int * v5) 
+{
 	int * t;
 	if(ISAd[*v2] > ISAd[*v3]) {
 		SWAP(v2, v3);
@@ -1084,10 +1058,8 @@ int * tr_median5(const int * ISAd,
 /* Returns the pivot element. */
 static INLINE int * tr_pivot(const int * ISAd, int * first, int * last) 
 {
-	int * middle;
-	int t;
-	t = last - first;
-	middle = first + t / 2;
+	int t = last - first;
+	int * middle = first + t / 2;
 	if(t <= 512) {
 		if(t <= 32) {
 			return tr_median3(ISAd, first, middle, last - 1);
@@ -1188,8 +1160,7 @@ static INLINE void tr_partition(const int * ISAd, int * first, int * middle, int
 
 static void tr_copy(int * ISA, const int * SA, int * first, int * a, int * b, int * last, int depth) 
 {
-	/* sort suffixes of middle partition
-	   by using sorted order of suffixes of left and right partition. */
+	// sort suffixes of middle partition by using sorted order of suffixes of left and right partition
 	int * c, * d, * e;
 	int s, v;
 	v = b - SA - 1;
@@ -1257,13 +1228,11 @@ static void tr_introsort(int * ISA, const int * ISAd, int * SA, int * first, int
 	int incr = ISAd - ISA;
 	int limit, next;
 	int ssize, trlink = -1;
-
 	for(ssize = 0, limit = tr_ilg(last - first);;) {
 		if(limit < 0) {
 			if(limit == -1) {
 				/* tandem repeat partition */
 				tr_partition(ISAd - incr, first, first, last, &a, &b, last - SA - 1);
-
 				/* update ranks */
 				if(a < last) {
 					for(c = first, v = a - SA - 1; c < a; ++c) {
@@ -1275,7 +1244,6 @@ static void tr_introsort(int * ISA, const int * ISAd, int * SA, int * first, int
 						ISA[*c] = v;
 					}
 				}
-
 				/* push */
 				if(1 < (b - a)) {
 					STACK_PUSH5(NULL, a, b, 0, 0);
@@ -1375,13 +1343,11 @@ static void tr_introsort(int * ISA, const int * ISAd, int * SA, int * first, int
 			}
 			continue;
 		}
-
 		if((last - first) <= TR_INSERTIONSORT_THRESHOLD) {
 			tr_insertionsort(ISAd, first, last);
 			limit = -3;
 			continue;
 		}
-
 		if(limit-- == 0) {
 			tr_heapsort(ISAd, first, last - first);
 			for(a = last - 1; first < a; a = b) {
@@ -1392,12 +1358,10 @@ static void tr_introsort(int * ISA, const int * ISAd, int * SA, int * first, int
 			limit = -3;
 			continue;
 		}
-
 		/* choose pivot */
 		a = tr_pivot(ISAd, first, last);
 		SWAP(*first, *a);
 		v = ISAd[*first];
-
 		/* partition */
 		tr_partition(ISAd, first, first + 1, last, &a, &b, v);
 		if((last - first) != (b - a)) {
@@ -1532,9 +1496,8 @@ static void trsort(int * ISA, int * SA, int n, int depth)
 	int * first, * last;
 	trbudget_t budget;
 	int t, skip, unsorted;
-
 	trbudget_init(&budget, tr_ilg(n) * 2 / 3, n);
-/*  trbudget_init(&budget, tr_ilg(n) * 3 / 4, n); */
+	/*  trbudget_init(&budget, tr_ilg(n) * 3 / 4, n); */
 	for(ISAd = ISA + depth; -n < *SA; ISAd += ISAd - ISA) {
 		first = SA;
 		skip = 0;
@@ -1587,7 +1550,6 @@ static int sort_typeBstar(const uchar * T, int * SA, int * bucket_A, int * bucke
 	int d0, d1;
 #endif
 	(void)openMP;
-
 	/* Initialize bucket arrays. */
 	for(i = 0; i < BUCKET_A_SIZE; ++i) {
 		bucket_A[i] = 0;
@@ -1595,10 +1557,9 @@ static int sort_typeBstar(const uchar * T, int * SA, int * bucket_A, int * bucke
 	for(i = 0; i < BUCKET_B_SIZE; ++i) {
 		bucket_B[i] = 0;
 	}
-
-	/* Count the number of occurrences of the first one or two characters of each
-	   type A, B and B* suffix. Moreover, store the beginning position of all
-	   type B* suffixes into the array SA. */
+	// Count the number of occurrences of the first one or two characters of each
+	// type A, B and B* suffix. Moreover, store the beginning position of all
+	// type B* suffixes into the array SA.
 	for(i = n - 1, m = n, c0 = T[n - 1]; 0 <= i;) {
 		/* type A suffix. */
 		do {
@@ -1615,13 +1576,12 @@ static int sort_typeBstar(const uchar * T, int * SA, int * bucket_A, int * bucke
 		}
 	}
 	m = n - m;
-/*
-   note:
-   A type B* suffix is lexicographically smaller than a type B suffix that
-   begins with the same first two characters.
- */
-
-	/* Calculate the index of start/end point of each bucket. */
+	/*
+	   note:
+	   A type B* suffix is lexicographically smaller than a type B suffix that
+	   begins with the same first two characters.
+	 */
+ 	// Calculate the index of start/end point of each bucket
 	for(c0 = 0, i = 0, j = 0; c0 < ALPHABET_SIZE; ++c0) {
 		t = i + BUCKET_A(c0);
 		BUCKET_A(c0) = i + j; /* start point */
@@ -1632,9 +1592,8 @@ static int sort_typeBstar(const uchar * T, int * SA, int * bucket_A, int * bucke
 			i += BUCKET_B(c0, c1);
 		}
 	}
-
 	if(0 < m) {
-		/* Sort the type B* suffixes by their first two characters. */
+		// Sort the type B* suffixes by their first two characters
 		PAb = SA + n - m; ISAb = SA + m;
 		for(i = m - 2; 0 <= i; --i) {
 			t = PAb[i], c0 = T[t], c1 = T[t + 1];
@@ -1642,8 +1601,7 @@ static int sort_typeBstar(const uchar * T, int * SA, int * bucket_A, int * bucke
 		}
 		t = PAb[m - 1], c0 = T[t], c1 = T[t + 1];
 		SA[--BUCKET_BSTAR(c0, c1)] = m - 1;
-
-		/* Sort the type B* substrings using sssort. */
+		// Sort the type B* substrings using sssort
 #ifdef LIBBSC_OPENMP
 		if(openMP) {
 			buf = SA + m;
@@ -1673,8 +1631,7 @@ static int sort_typeBstar(const uchar * T, int * SA, int * bucket_A, int * bucke
 					if(l == 0) {
 						break;
 					}
-					sssort(T, PAb, SA + k, SA + l,
-					    curbuf, bufsize, 2, n, *(SA + k) == (m - 1));
+					sssort(T, PAb, SA + k, SA + l, curbuf, bufsize, 2, n, *(SA + k) == (m - 1));
 				}
 			}
 		}
@@ -1684,8 +1641,7 @@ static int sort_typeBstar(const uchar * T, int * SA, int * bucket_A, int * bucke
 				for(c1 = ALPHABET_SIZE - 1; c0 < c1; j = i, --c1) {
 					i = BUCKET_BSTAR(c0, c1);
 					if(1 < (j - i)) {
-						sssort(T, PAb, SA + i, SA + j,
-						    buf, bufsize, 2, n, *(SA + i) == (m - 1));
+						sssort(T, PAb, SA + i, SA + j, buf, bufsize, 2, n, *(SA + i) == (m - 1));
 					}
 				}
 			}
@@ -1702,7 +1658,6 @@ static int sort_typeBstar(const uchar * T, int * SA, int * bucket_A, int * bucke
 			}
 		}
 #endif
-
 		/* Compute ranks of type B* substrings. */
 		for(i = m - 1; 0 <= i; --i) {
 			if(0 <= SA[i]) {
@@ -1721,10 +1676,8 @@ static int sort_typeBstar(const uchar * T, int * SA, int * bucket_A, int * bucke
 			} while(SA[--i] < 0);
 			ISAb[SA[i]] = j;
 		}
-
 		/* Construct the inverse suffix array of type B* suffixes using trsort. */
 		trsort(ISAb, SA, m, 1);
-
 		/* Set the sorted order of type B* suffixes. */
 		for(i = n - 1, j = m, c0 = T[n - 1]; 0 <= i;) {
 			for(--i, c1 = c0; (0 <= i) && ((c0 = T[i]) >= c1); --i, c1 = c0) {
@@ -1736,16 +1689,14 @@ static int sort_typeBstar(const uchar * T, int * SA, int * bucket_A, int * bucke
 				SA[ISAb[--j]] = ((t == 0) || (1 < (t - i))) ? t : ~t;
 			}
 		}
-
-		/* Calculate the index of start/end point of each bucket. */
+		// Calculate the index of start/end point of each bucket
 		BUCKET_B(ALPHABET_SIZE - 1, ALPHABET_SIZE - 1) = n; /* end point */
 		for(c0 = ALPHABET_SIZE - 2, k = m - 1; 0 <= c0; --c0) {
 			i = BUCKET_A(c0 + 1) - 1;
 			for(c1 = ALPHABET_SIZE - 1; c0 < c1; --c1) {
 				t = i - BUCKET_B(c0, c1);
 				BUCKET_B(c0, c1) = i; /* end point */
-
-				/* Move all type B* suffixes to the correct position. */
+				// Move all type B* suffixes to the correct position
 				for(i = t, j = BUCKET_BSTAR(c0, c1);
 				    j <= k;
 				    --i, --k) {
@@ -1756,25 +1707,21 @@ static int sort_typeBstar(const uchar * T, int * SA, int * bucket_A, int * bucke
 			BUCKET_B(c0, c0) = i; /* end point */
 		}
 	}
-
 	return m;
 }
-
-/* Constructs the suffix array by using the sorted order of type B* suffixes. */
+//
+// Constructs the suffix array by using the sorted order of type B* suffixes
+//
 static void construct_SA(const uchar * T, int * SA, int * bucket_A, int * bucket_B, int n, int m) 
 {
 	int * i, * j, * k;
 	int s;
 	int c0, c1, c2;
 	if(0 < m) {
-		/* Construct the sorted order of type B suffixes by using
-		   the sorted order of type B* suffixes. */
+		// Construct the sorted order of type B suffixes by using the sorted order of type B* suffixes.
 		for(c1 = ALPHABET_SIZE - 2; 0 <= c1; --c1) {
-			/* Scan the suffix array from right to left. */
-			for(i = SA + BUCKET_BSTAR(c1, c1 + 1),
-			    j = SA + BUCKET_A(c1 + 1) - 1, k = NULL, c2 = -1;
-			    i <= j;
-			    --j) {
+			// Scan the suffix array from right to left
+			for(i = SA + BUCKET_BSTAR(c1, c1 + 1), j = SA + BUCKET_A(c1 + 1) - 1, k = NULL, c2 = -1; i <= j; --j) {
 				if(0 < (s = *j)) {
 					assert(T[s] == c1);
 					assert(((s + 1) < n) && (T[s] <= T[s + 1]));
@@ -1790,7 +1737,8 @@ static void construct_SA(const uchar * T, int * SA, int * bucket_A, int * bucket
 						}
 						k = SA + BUCKET_B(c2 = c0, c1);
 					}
-					assert(k < j); assert(k != NULL);
+					assert(k < j); 
+					assert(k != NULL);
 					*k-- = s;
 				}
 				else {
@@ -1800,12 +1748,10 @@ static void construct_SA(const uchar * T, int * SA, int * bucket_A, int * bucket
 			}
 		}
 	}
-
-	/* Construct the suffix array by using
-	   the sorted order of type B suffixes. */
+	// Construct the suffix array by using the sorted order of type B suffixes
 	k = SA + BUCKET_A(c2 = T[n - 1]);
 	*k++ = (T[n - 2] < c2) ? ~(n - 1) : (n - 1);
-	/* Scan the suffix array from left to right. */
+	// Scan the suffix array from left to right
 	for(i = SA, j = SA + n; i < j; ++i) {
 		if(0 < (s = *i)) {
 			assert(T[s - 1] >= T[s]);
@@ -1826,23 +1772,20 @@ static void construct_SA(const uchar * T, int * SA, int * bucket_A, int * bucket
 		}
 	}
 }
-
-/* Constructs the burrows-wheeler transformed string directly
-   by using the sorted order of type B* suffixes. */
+// 
+// Constructs the burrows-wheeler transformed string directly
+// by using the sorted order of type B* suffixes
+// 
 static int construct_BWT(const uchar * T, int * SA, int * bucket_A, int * bucket_B, int n, int m) 
 {
 	int * i, * j, * k, * orig;
 	int s;
 	int c0, c1, c2;
 	if(0 < m) {
-		/* Construct the sorted order of type B suffixes by using
-		   the sorted order of type B* suffixes. */
+		// Construct the sorted order of type B suffixes by using the sorted order of type B* suffixes
 		for(c1 = ALPHABET_SIZE - 2; 0 <= c1; --c1) {
-			/* Scan the suffix array from right to left. */
-			for(i = SA + BUCKET_BSTAR(c1, c1 + 1),
-			    j = SA + BUCKET_A(c1 + 1) - 1, k = NULL, c2 = -1;
-			    i <= j;
-			    --j) {
+			// Scan the suffix array from right to left
+			for(i = SA + BUCKET_BSTAR(c1, c1 + 1), j = SA + BUCKET_A(c1 + 1) - 1, k = NULL, c2 = -1; i <= j; --j) {
 				if(0 < (s = *j)) {
 					assert(T[s] == c1);
 					assert(((s + 1) < n) && (T[s] <= T[s + 1]));
@@ -1872,9 +1815,7 @@ static int construct_BWT(const uchar * T, int * SA, int * bucket_A, int * bucket
 			}
 		}
 	}
-
-	/* Construct the BWTed string by using
-	   the sorted order of type B suffixes. */
+	// Construct the BWTed string by using the sorted order of type B suffixes
 	k = SA + BUCKET_A(c2 = T[n - 1]);
 	*k++ = (T[n - 2] < c2) ? ~((int)T[n - 2]) : (n - 1);
 	/* Scan the suffix array from left to right. */
@@ -1902,9 +1843,10 @@ static int construct_BWT(const uchar * T, int * SA, int * bucket_A, int * bucket
 	}
 	return orig - SA;
 }
-
-/* Constructs the burrows-wheeler transformed string directly
-   by using the sorted order of type B* suffixes. */
+//
+// Constructs the burrows-wheeler transformed string directly
+// by using the sorted order of type B* suffixes.
+//
 static int construct_BWT_indexes(const uchar * T, int * SA, int * bucket_A, int * bucket_B, int n, int m, uchar * num_indexes, int * indexes) 
 {
 	int * i, * j, * k, * orig;
@@ -1912,26 +1854,25 @@ static int construct_BWT_indexes(const uchar * T, int * SA, int * bucket_A, int 
 	int c0, c1, c2;
 	int mod = n / 8;
 	{
-		mod |= mod >> 1;  mod |= mod >> 2;
-		mod |= mod >> 4;  mod |= mod >> 8;
-		mod |= mod >> 16; mod >>= 1;
+		mod |= mod >> 1;  
+		mod |= mod >> 2;
+		mod |= mod >> 4;  
+		mod |= mod >> 8;
+		mod |= mod >> 16; 
+		mod >>= 1;
 		*num_indexes = (uchar)((n - 1) / (mod + 1));
 	}
 	if(0 < m) {
 		// Construct the sorted order of type B suffixes by using the sorted order of type B* suffixes.
 		for(c1 = ALPHABET_SIZE - 2; 0 <= c1; --c1) {
 			// Scan the suffix array from right to left. 
-			for(i = SA + BUCKET_BSTAR(c1, c1 + 1),
-			    j = SA + BUCKET_A(c1 + 1) - 1, k = NULL, c2 = -1;
-			    i <= j;
-			    --j) {
+			for(i = SA + BUCKET_BSTAR(c1, c1 + 1), j = SA + BUCKET_A(c1 + 1) - 1, k = NULL, c2 = -1; i <= j; --j) {
 				if(0 < (s = *j)) {
 					assert(T[s] == c1);
 					assert(((s + 1) < n) && (T[s] <= T[s + 1]));
 					assert(T[s - 1] <= T[s]);
-
-					if((s & mod) == 0) indexes[s / (mod + 1) - 1] = j - SA;
-
+					if((s & mod) == 0) 
+						indexes[s / (mod + 1) - 1] = j - SA;
 					c0 = T[--s];
 					*j = ~((int)c0);
 					if((0 < s) && (T[s - 1] > c0)) {
@@ -1943,7 +1884,8 @@ static int construct_BWT_indexes(const uchar * T, int * SA, int * bucket_A, int 
 						}
 						k = SA + BUCKET_B(c2 = c0, c1);
 					}
-					assert(k < j); assert(k != NULL);
+					assert(k < j); 
+					assert(k != NULL);
 					*k-- = s;
 				}
 				else if(s != 0) {
@@ -1960,7 +1902,8 @@ static int construct_BWT_indexes(const uchar * T, int * SA, int * bucket_A, int 
 	// Construct the BWTed string by using the sorted order of type B suffixes.
 	k = SA + BUCKET_A(c2 = T[n - 1]);
 	if(T[n - 2] < c2) {
-		if(((n - 1) & mod) == 0) indexes[(n - 1) / (mod + 1) - 1] = k - SA;
+		if(((n - 1) & mod) == 0) 
+			indexes[(n - 1) / (mod + 1) - 1] = k - SA;
 		*k++ = ~((int)T[n - 2]);
 	}
 	else {
@@ -1980,7 +1923,8 @@ static int construct_BWT_indexes(const uchar * T, int * SA, int * bucket_A, int 
 			}
 			assert(i < k);
 			if((0 < s) && (T[s - 1] < c0)) {
-				if((s & mod) == 0) indexes[s / (mod + 1) - 1] = k - SA;
+				if((s & mod) == 0) 
+					indexes[s / (mod + 1) - 1] = k - SA;
 				*k++ = ~((int)T[s - 1]);
 			}
 			else
@@ -1993,7 +1937,6 @@ static int construct_BWT_indexes(const uchar * T, int * SA, int * bucket_A, int 
 			orig = i;
 		}
 	}
-
 	return orig - SA;
 }
 
@@ -2011,10 +1954,12 @@ int divsufsort(const uchar * T, int * SA, int n, int openMP)
 		return 0;
 	}
 	else if(n == 1) {
-		SA[0] = 0; return 0;
+		SA[0] = 0; 
+		return 0;
 	}
 	else if(n == 2) {
-		m = (T[0] < T[1]); SA[m ^ 1] = 0, SA[m] = 1; return 0;
+		m = (T[0] < T[1]); 
+		SA[m ^ 1] = 0, SA[m] = 1; return 0;
 	}
 	bucket_A = (int*)SAlloc::M(BUCKET_A_SIZE * sizeof(int));
 	bucket_B = (int*)SAlloc::M(BUCKET_B_SIZE * sizeof(int));
@@ -2034,8 +1979,11 @@ int divsufsort(const uchar * T, int * SA, int n, int openMP)
 int divbwt(const uchar * T, uchar * U, int * A, int n, uchar * num_indexes, int * indexes, int openMP)
 {
 	int * B;
-	int * bucket_A, * bucket_B;
-	int m, pidx, i;
+	int * bucket_A;
+	int * bucket_B;
+	int m;
+	int pidx;
+	int i;
 	/* Check arguments. */
 	if((T == NULL) || (U == NULL) || (n < 0)) {
 		return -1;
@@ -2060,7 +2008,6 @@ int divbwt(const uchar * T, uchar * U, int * A, int n, uchar * num_indexes, int 
 		else {
 			pidx = construct_BWT_indexes(T, B, bucket_A, bucket_B, n, m, num_indexes, indexes);
 		}
-
 		/* Copy to output string. */
 		U[0] = T[n - 1];
 		for(i = 0; i < pidx; ++i) {

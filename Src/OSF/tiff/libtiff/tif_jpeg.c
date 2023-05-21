@@ -36,11 +36,6 @@ int TIFFFillStrip(TIFF * tif, uint32 strip);
 int TIFFFillTile(TIFF * tif, uint32 tile);
 int TIFFReInitJPEG_12(TIFF * tif, int scheme, int is_encode);
 int TIFFJPEGIsFullStripRequired_12(TIFF * tif);
-
-// We undefine FAR to avoid conflict with JPEG definition 
-#ifdef FAR
-	#undef FAR
-#endif
 /*
    Libjpeg's jmorecfg.h defines INT16 and INT32, but only if XMD_H is
    not defined.  Unfortunately, the MinGW and Borland compilers include

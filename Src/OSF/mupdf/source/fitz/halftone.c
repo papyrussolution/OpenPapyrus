@@ -140,20 +140,20 @@ static void make_ht_line(uchar * buf, fz_halftone * ht, int x, int y, int w)
 }
 
 /* Inner mono thresholding code */
-typedef void (threshold_fn)(const uchar * FZ_RESTRICT ht_line, const uchar * FZ_RESTRICT pixmap,
-    uchar * FZ_RESTRICT out, int w, int ht_len);
+typedef void (threshold_fn)(const uchar * _RESTRICT ht_line, const uchar * _RESTRICT pixmap,
+    uchar * _RESTRICT out, int w, int ht_len);
 
 #ifdef ARCH_ARM
-static void do_threshold_1(const uchar * FZ_RESTRICT ht_line,
-    const uchar * FZ_RESTRICT pixmap,
-    uchar * FZ_RESTRICT out,
+static void do_threshold_1(const uchar * _RESTRICT ht_line,
+    const uchar * _RESTRICT pixmap,
+    uchar * _RESTRICT out,
     int w,
     int ht_len)
 __attribute__((naked));
 
-static void do_threshold_1(const uchar * FZ_RESTRICT ht_line,
-    const uchar * FZ_RESTRICT pixmap,
-    uchar * FZ_RESTRICT out,
+static void do_threshold_1(const uchar * _RESTRICT ht_line,
+    const uchar * _RESTRICT pixmap,
+    uchar * _RESTRICT out,
     int w,
     int ht_len)
 {
@@ -277,9 +277,9 @@ static void do_threshold_1(const uchar * FZ_RESTRICT ht_line,
 }
 
 #else
-static void do_threshold_1(const uchar * FZ_RESTRICT ht_line,
-    const uchar * FZ_RESTRICT pixmap,
-    uchar * FZ_RESTRICT out,
+static void do_threshold_1(const uchar * _RESTRICT ht_line,
+    const uchar * _RESTRICT pixmap,
+    uchar * _RESTRICT out,
     int w,
     int ht_len)
 {
@@ -345,16 +345,16 @@ static void do_threshold_1(const uchar * FZ_RESTRICT ht_line,
         BlackIs1 in bitmaps.
  */
 #ifdef ARCH_ARM
-static void do_threshold_4(const uchar * FZ_RESTRICT ht_line,
-    const uchar * FZ_RESTRICT pixmap,
-    uchar * FZ_RESTRICT out,
+static void do_threshold_4(const uchar * _RESTRICT ht_line,
+    const uchar * _RESTRICT pixmap,
+    uchar * _RESTRICT out,
     int w,
     int ht_len)
 __attribute__((naked));
 
-static void do_threshold_4(const uchar * FZ_RESTRICT ht_line,
-    const uchar * FZ_RESTRICT pixmap,
-    uchar * FZ_RESTRICT out,
+static void do_threshold_4(const uchar * _RESTRICT ht_line,
+    const uchar * _RESTRICT pixmap,
+    uchar * _RESTRICT out,
     int w,
     int ht_len)
 {
@@ -452,9 +452,9 @@ static void do_threshold_4(const uchar * FZ_RESTRICT ht_line,
 }
 
 #else
-static void do_threshold_4(const uchar * FZ_RESTRICT ht_line,
-    const uchar * FZ_RESTRICT pixmap,
-    uchar * FZ_RESTRICT out,
+static void do_threshold_4(const uchar * _RESTRICT ht_line,
+    const uchar * _RESTRICT pixmap,
+    uchar * _RESTRICT out,
     int w,
     int ht_len)
 {

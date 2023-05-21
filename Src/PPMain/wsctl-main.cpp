@@ -154,21 +154,26 @@ public:
 		bool   found = false;
 		S_GUID _uuid;
 		{
-			WinRegKey reg_key(HKEY_LOCAL_MACHINE, _PPConst.WrKey_WsCtl, 1);
-			if(reg_key.GetBinary(_PPConst.WrParam_WsCtl_MachineUUID, &_uuid, sizeof(_uuid)) > 0) {
+			WinRegKey reg_key(HKEY_LOCAL_MACHINE, PPConst::WrKey_WsCtl, 1);
+			if(reg_key.GetBinary(PPConst::WrParam_WsCtl_MachineUUID, &_uuid, sizeof(_uuid)) > 0) {
 				Uuid = _uuid;
 				found = true;
 			}
 		}
 		if(!found) {
-			WinRegKey reg_key(HKEY_LOCAL_MACHINE, _PPConst.WrKey_WsCtl, 0);
+			WinRegKey reg_key(HKEY_LOCAL_MACHINE, PPConst::WrKey_WsCtl, 0);
 			_uuid.Generate();
-			if(reg_key.PutBinary(_PPConst.WrParam_WsCtl_MachineUUID, &_uuid, sizeof(_uuid))) {
+			if(reg_key.PutBinary(PPConst::WrParam_WsCtl_MachineUUID, &_uuid, sizeof(_uuid))) {
 				Uuid = _uuid;
 				ok = 2;
 			}
 			else
 				ok = 0;
+		}
+		if(ok > 0) {
+			SString msg_buf;
+			msg_buf.Z().Cat("WSCTL own-uuid").CatDiv(':', 2).Cat(Uuid, S_GUID::fmtIDL);
+			PPLogMessage("wsctl-debug.log", msg_buf, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_SLSSESSGUID);
 		}
 		return ok;
 	}
@@ -179,6 +184,29 @@ public:
 
 class WsCtl_ImGuiSceneBlock {
 public:
+	struct QuotKindEntry {
+		QuotKindEntry() : ID(0)
+		{
+		}
+		PPID   ID;
+		SString NameUtf8;
+	};
+	struct QuotEntry {
+		QuotEntry() : QkID(0), Value(0.0)
+		{
+		}
+		PPID   QkID;
+		double Value;
+	};
+	struct GoodsEntry {
+		GoodsEntry() : GoodsID(0)
+		{
+		}
+		PPID   GoodsID;
+		SString NameUtf8;
+		TSVector <QuotEntry> QuotList;
+	};
+	//
 	struct DTest {
 		SString Reply;
 	};
@@ -198,6 +226,109 @@ public:
 	struct DAccount {
 	};
 	struct DPrices {
+		DPrices()
+		{
+		}
+		DPrices(const DPrices & rS)
+		{
+			Copy(rS);
+		}
+		DPrices & FASTCALL operator == (const DPrices & rS)
+		{
+			return Copy(rS);
+		}
+		DPrices & FASTCALL Copy(const DPrices & rS)
+		{
+			TSCollection_Copy(QkList, rS.QkList);
+			TSCollection_Copy(GoodsList, rS.GoodsList);
+			return *this;
+		}
+		DPrices & Z()
+		{
+			QkList.clear();
+			GoodsList.clear();
+			return *this;
+		}
+		int    FromJsonObject(const SJson * pJsObj)
+		{
+			/*
+				{
+					"quotkind_list" : [
+						{
+							"id" : int
+							"nm" : string
+						}
+					]
+					"goods_list" : [
+						{
+							"id" : int
+							"nm" : string
+							"quot_list" : [
+								{
+									"id" : int
+									"val" : double
+								}
+								{
+									"id" : int
+									"val" : double
+								}
+							]
+						}
+					]
+				}
+			*/
+			int    ok = 1;
+			Z();
+			if(pJsObj && pJsObj->Type == SJson::tOBJECT) {
+				const SJson * p_next = 0;
+				for(const SJson * p_cur = pJsObj->P_Child; p_cur; p_cur = p_next) {
+					p_next = p_cur->P_Next;
+					if(p_cur->P_Child) {
+						if(p_cur->Text.IsEqiAscii("quotkind_list")) {
+							if(SJson::IsArray(p_cur->P_Child)) {
+								for(const SJson * p_js_qk = p_cur->P_Child->P_Child; p_js_qk; p_js_qk = p_js_qk->P_Next) {
+									if(SJson::IsObject(p_js_qk)) {
+										for(const SJson * p_qk_cur = p_js_qk->P_Child; p_qk_cur; p_qk_cur = p_qk_cur->P_Next) {
+											if(p_qk_cur->Text.IsEqiAscii("id")) {
+											}
+											else if(p_qk_cur->Text.IsEqiAscii("nm")) {
+											}
+										}
+									}
+								}
+							}
+						}
+						else if(p_cur->Text.IsEqiAscii("goods_list")) {
+							if(SJson::IsArray(p_cur->P_Child)) {
+								for(const SJson * p_js_gl = p_cur->P_Child->P_Child; p_js_gl; p_js_gl = p_js_gl->P_Next) {
+									if(SJson::IsObject(p_js_gl)) {
+										for(const SJson * p_g_cur = p_js_gl->P_Child; p_g_cur; p_g_cur = p_g_cur->P_Next) {
+											if(p_g_cur->Text.IsEqiAscii("id")) {
+											}
+											else if(p_g_cur->Text.IsEqiAscii("nm")) {
+											}
+											else if(p_g_cur->Text.IsEqiAscii("quot_list")) {
+												if(SJson::IsArray(p_g_cur->P_Child)) {
+													for(const SJson * p_quot_cur = p_g_cur->P_Child; p_quot_cur; p_quot_cur = p_quot_cur->P_Next) {
+														if(SJson::IsObject(p_quot_cur->P_Child)) {
+														}
+													}
+												}
+											}
+										}
+									}
+								}								
+							}
+						}
+					}
+				}
+			}
+			if(!ok)
+				PPSetError(PPERR_SQ_JSONTOCFGFAULT);
+			return ok;
+		}
+		TSCollection <QuotKindEntry> QkList;
+		TSCollection <GoodsEntry> GoodsList;
 	};
 	struct DTSess {
 	};
@@ -208,6 +339,10 @@ public:
 		SString Addr;
 		int    Port;
 		int    Timeout;
+		//
+		SString DbSymb;   // @debug Это поле необходимо будет инкапуслировать во что-то секретное и решить как инициировать
+		SString User;     // @debug Это поле необходимо будет инкапуслировать во что-то секретное и решить как инициировать
+		SString Password; // @debug Это поле необходимо будет инкапуслировать во что-то секретное и решить как инициировать
 	};
 	//
 	// Descr: Структура, описывающая текущее состояние системы.
@@ -264,6 +399,66 @@ public:
 		State() : D_Prc(syncdataPrc), D_Test(syncdataTest), D_Acc(syncdataAccount), D_Prices(syncdataPrices), D_TSess(syncdataTSess), D_ConnStatus(syncdataJobSrvConnStatus)
 		{
 		}
+		int    SetupSyncUpdateTime(int syncDataId, uint msecToUpdate)
+		{
+			int    ok = -1;
+			bool   found = false;
+			for(uint i = 0; !found && i < SutList.getCount(); i++) {
+				SyncUpdateTimer & r_entry = SutList.at(i);
+				if(r_entry.SyncDataId == syncDataId) {
+					if(r_entry.MsecToUpdate != msecToUpdate) {
+						r_entry.MsecToUpdate = msecToUpdate;
+						ok = 1;
+					}
+					found = true;
+				}
+			}
+			if(!found) {
+				SyncUpdateTimer new_entry(syncDataId, msecToUpdate);
+				SutList.insert(&new_entry);
+				ok = 2;
+			}
+			return ok;
+		}
+		int    CheckSyncUpdateTimers(LongArray & rList) const
+		{
+			rList.Z();
+			int    ok = -1;
+			const  time_t now_time = time(0);
+			for(uint i = 0; i < SutList.getCount(); i++) {
+				const SyncUpdateTimer & r_entry = SutList.at(i);
+				if(r_entry.LastReqTime == 0 || now_time >= (r_entry.LastReqTime + (r_entry.MsecToUpdate / 1000))) {
+					rList.insert(&r_entry.SyncDataId);
+					ok = 1;
+				}
+			}
+			return ok;
+		}
+		int    SetSyncUpdateTimerLastReqTime(int syncDataId)
+		{
+			int    ok = -1;
+			bool   found = false;
+			for(uint i = 0; !found && i < SutList.getCount(); i++) {
+				SyncUpdateTimer & r_entry = SutList.at(i);
+				if(r_entry.SyncDataId == syncDataId) {
+					r_entry.LastReqTime = time(0);
+					ok = 1;
+					found = true;
+				}
+			}
+			return ok;
+		}
+	private:
+		class SyncUpdateTimer {
+		public:
+			SyncUpdateTimer(int syncDataId, uint msecToUpdate) : SyncDataId(syncDataId), MsecToUpdate(msecToUpdate), LastReqTime(0)
+			{
+			}
+			const int SyncDataId; // syncdataXXX
+			uint  MsecToUpdate;   // Периодичность обновления данных в миллисекундах  
+			time_t LastReqTime;   // Время последного запроса на обновление
+		};
+		TSVector <SyncUpdateTimer> SutList;
 	};
 private:
 	//
@@ -285,7 +480,7 @@ private:
 
 			PPJobSrvClient cli;
 			PPJobSrvReply reply;
-			int srv_conn_r = cli.Connect(JsP.Addr, JsP.Port);
+			int srv_conn_r = Connect(cli);
 			P_St->D_ConnStatus.SetData(srv_conn_r);
 			for(int stop = 0; !stop;) {
 				int    h_count = 0;
@@ -350,6 +545,16 @@ private:
 			PPThread::Startup();
 			SignalStartup();
 		}
+		int    Connect(PPJobSrvClient & rCli)
+		{
+			int    ok = 1;
+			THROW(rCli.Connect(JsP.Addr, JsP.Port));
+			if(JsP.DbSymb.NotEmpty() && JsP.User.NotEmpty()) {
+				THROW(rCli.Login(JsP.DbSymb, JsP.User, JsP.Password));
+			}
+			CATCHZOK
+			return ok;
+		}
 		void   SendRequest(PPJobSrvClient & rCli, const WsCtlReqQueue::Req & rReq)
 		{
 			PPJobSrvReply reply;
@@ -380,9 +585,30 @@ private:
 						cmd.Write(&rReq.P.Uuid, sizeof(rReq.P.Uuid));
 						cmd.FinishWriting();
 						if(rCli.Exec(cmd, reply)) {
-							reply.StartReading(0);
+							SString reply_buf;
+							reply.StartReading(&reply_buf);
 							if(reply.CheckRepError()) {
-								
+								SJson * p_js_obj = SJson::Parse(reply_buf);
+								const SJson * p_c = 0;
+								if(p_js_obj) {
+									WsCtl_ImGuiSceneBlock::DPrc st_data;
+									p_c = p_js_obj->FindChildByKey("prcid");
+									if(SJson::IsNumber(p_c)) {
+										st_data.PrcID = p_c->Text.ToLong();
+									}
+									p_c = p_js_obj->FindChildByKey("prcnm");
+									if(SJson::IsString(p_c)) {
+										st_data.PrcName = p_c->Text;
+									}
+									p_c = p_js_obj->FindChildByKey("wsctluuid");
+									if(SJson::IsString(p_c)) {
+										st_data.PrcUuid.FromStr(p_c->Text);
+									}
+									P_St->D_Prc.SetData(st_data);
+								}
+								else {
+									; // @err
+								}
 							}
 							else {
 								; // @err
@@ -390,6 +616,27 @@ private:
 						}
 						else {
 							; // @err
+						}
+					}
+					break;
+				case PPSCMD_WSCTL_GETQUOTLIST:
+					if(P_St) {
+						WsCtl_ImGuiSceneBlock::DPrc st_data;
+						P_St->D_Prc.GetData(st_data);
+						if(st_data.PrcID) {
+							PPJobSrvCmd cmd;
+							cmd.StartWriting(PPSCMD_WSCTL_GETQUOTLIST);
+							cmd.Write(&st_data.PrcID, sizeof(st_data.PrcID));
+							cmd.FinishWriting();
+							if(rCli.Exec(cmd, reply)) {
+								SString reply_buf;
+								reply.StartReading(&reply_buf);
+								if(reply.CheckRepError()) {
+									WsCtl_ImGuiSceneBlock::DPrices st_data_prices;
+									SJson * p_js = SJson::Parse(reply_buf);
+									st_data_prices.FromJsonObject(p_js);
+								}
+							}
 						}
 					}
 					break;
@@ -407,6 +654,7 @@ private:
 	SUiLayout Lo01; // = new SUiLayout(SUiLayoutParam(DIREC_VERT, 0, SUiLayoutParam::alignStretch));
 	JobSrvParam JsP;
 	State  St;
+	LongArray SyncReqList; // @fastreuse Список объектов состояния, для которых необходимо запросить обновление у сервера (по таймеру)
 	WsCtlReqQueue * P_CmdQ; // Очередь команд для сервера. Указатель передается в совместное владение потоку обработки команд
 	struct TestBlock { // @debug 
 		TestBlock() : DtmLastQuerySent(ZERODATETIME), QuerySentCount(0)
@@ -515,6 +763,11 @@ public:
 		ini_file.Get(PPINISECT_SERVER, PPINIPARAM_SERVER_NAME, JsP.Addr);
 		St.SidBlk.GetOwnUuid();
 		if(JsP.Addr.NotEmpty()) {
+			//
+			JsP.DbSymb = "wsctl"; // @debug
+			JsP.User = "master"; // @debug
+			JsP.Password = "";   // @debug 
+			//
 			P_CmdQ = new WsCtlReqQueue;
 			WsCtl_CliSession * p_sess = new WsCtl_CliSession(JsP, &St, P_CmdQ);
 			p_sess->Start(1);
@@ -525,7 +778,43 @@ public:
 			}
 			ok = 1;
 		}
+		{
+			St.SetupSyncUpdateTime(State::syncdataPrices, 30000);
+		}
 		return ok;
+	}
+	void EmitEvents()
+	{
+		if(St.CheckSyncUpdateTimers(SyncReqList) > 0) {
+			assert(SyncReqList.getCount() > 0);
+			for(uint i = 0; i < SyncReqList.getCount(); i++) {
+				const int sync_data_id = SyncReqList.get(i);
+				switch(sync_data_id) {
+					case State::syncdataUndef:
+						break;
+					case State::syncdataTest:
+						break;
+					case State::syncdataPrc:
+						break;
+					case State::syncdataAccount:
+						break;
+					case State::syncdataPrices:
+						{
+							WsCtlReqQueue::Req req(PPSCMD_WSCTL_GETQUOTLIST);
+							P_CmdQ->Push(req);
+						}
+						break;
+					case State::syncdataTSess:
+						break;
+					case State::syncdataJobSrvConnStatus:
+						break;
+				}
+				St.SetSyncUpdateTimerLastReqTime(sync_data_id); // Отмечаем время отправки запроса
+			}
+		}
+		else {
+			assert(SyncReqList.getCount() == 0);
+		}
 	}
 	void BuildScene()
 	{
@@ -592,9 +881,14 @@ public:
 						{
 							DTest test_result;
 							St.D_Test.GetData(test_result);
-							SString & r_temp_buf = SLS.AcquireRvlStr();
-							r_temp_buf.Cat("Test status").Space().CatParStr(TestBlk.QuerySentCount).CatDiv(':', 2).Cat(test_result.Reply);
-							ImGui::Text(r_temp_buf);
+							ImGui::Text(SLS.AcquireRvlStr().Cat("Test status").Space().CatParStr(TestBlk.QuerySentCount).CatDiv(':', 2).Cat(test_result.Reply));
+						}
+						{
+							DPrc prc_data;
+							St.D_Prc.GetData(prc_data);
+							if(prc_data.PrcName.NotEmpty()) {
+								ImGui::Text(SLS.AcquireRvlStr().Cat("Processor Name").CatDiv(':', 2).Cat(prc_data.PrcName));
+							}
 						}
 						ImGui::End();
 					}
@@ -784,6 +1078,7 @@ int main(int, char**)
 					done = true;
 			}
 			if(!done) {
+				scene_blk.EmitEvents();
 				scene_blk.BuildScene();
 			}
 		} while(!done);

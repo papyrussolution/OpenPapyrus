@@ -1180,16 +1180,12 @@ bad_pad:
 			    return 0;
 		}
 	}
-
 	p = OSSL_PARAM_locate_const(params, OSSL_SIGNATURE_PARAM_PSS_SALTLEN);
 	if(p) {
 		if(pad_mode != RSA_PKCS1_PSS_PADDING) {
-			ERR_raise_data(ERR_LIB_PROV, PROV_R_NOT_SUPPORTED,
-			    "PSS saltlen can only be specified if "
-			    "PSS padding has been specified first");
+			ERR_raise_data(ERR_LIB_PROV, PROV_R_NOT_SUPPORTED, "PSS saltlen can only be specified if PSS padding has been specified first");
 			return 0;
 		}
-
 		switch(p->data_type) {
 			case OSSL_PARAM_INTEGER: /* Support for legacy pad mode number */
 			    if(!OSSL_PARAM_get_int(p, &saltlen))
@@ -1203,12 +1199,11 @@ bad_pad:
 			    else if(strcmp((const char *)p->data, OSSL_PKEY_RSA_PSS_SALT_LEN_AUTO) == 0)
 				    saltlen = RSA_PSS_SALTLEN_AUTO;
 			    else
-				    saltlen = atoi((const char *)p->data);
+				    saltlen = satoi((const char *)p->data);
 			    break;
 			default:
 			    return 0;
 		}
-
 		/*
 		 * RSA_PSS_SALTLEN_MAX seems curiously named in this check.
 		 * Contrary to what it's name suggests, it's the currently

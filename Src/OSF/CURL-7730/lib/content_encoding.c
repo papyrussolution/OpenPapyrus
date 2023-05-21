@@ -109,7 +109,7 @@ static CURLcode exit_zlib(struct connectdata * conn, z_stream * z, zlibInitState
 {
 	if(*zlib_init == ZLIB_GZIP_HEADER) {
 		//ZFREE(z->next_in);
-		SAlloc::F(const_cast<Bytef *>(z->next_in)); // @badcast
+		SAlloc::F(const_cast<Byte *>(z->next_in)); // @badcast
 		z->next_in = 0;
 	}
 	if(*zlib_init != ZLIB_UNINIT) {
@@ -147,7 +147,7 @@ static CURLcode inflate_stream(struct connectdata * conn, struct contenc_writer 
 	struct zlib_params * zp = (struct zlib_params *)&writer->params;
 	z_stream * z = &zp->z; /* zlib state structure */
 	uInt nread = z->avail_in;
-	const Bytef * orig_in = z->next_in;
+	const Byte * orig_in = z->next_in;
 	bool done = FALSE;
 	CURLcode result = CURLE_OK; /* Curl_client_write status */
 	char * decomp; /* Put the decompressed data here. */
@@ -167,7 +167,7 @@ static CURLcode inflate_stream(struct connectdata * conn, struct contenc_writer 
 		done = TRUE;
 
 		/* (re)set buffer for decompressed output for every iteration */
-		z->next_out = (Bytef*)decomp;
+		z->next_out = (Byte *)decomp;
 		z->avail_out = DSIZ;
 
 #ifdef Z_BLOCK
@@ -261,7 +261,7 @@ static CURLcode deflate_unencode_write(struct connectdata * conn,
 	z_stream * z = &zp->z; /* zlib state structure */
 
 	/* Set the compressed input when this function is called */
-	z->next_in = (Bytef*)buf;
+	z->next_in = (Byte *)buf;
 	z->avail_in = (uInt)nbytes;
 
 	if(zp->zlib_init == ZLIB_EXTERNAL_TRAILER)
@@ -396,7 +396,7 @@ static CURLcode gzip_unencode_write(struct connectdata * conn, struct contenc_wr
 	z_stream * z = &zp->z; /* zlib state structure */
 	if(zp->zlib_init == ZLIB_INIT_GZIP) {
 		/* Let zlib handle the gzip decompression entirely */
-		z->next_in = (Bytef*)buf;
+		z->next_in = (Byte *)buf;
 		z->avail_in = (uInt)nbytes;
 		/* Now uncompress the data */
 		return inflate_stream(conn, writer, ZLIB_INIT_GZIP);
@@ -424,7 +424,7 @@ static CURLcode gzip_unencode_write(struct connectdata * conn, struct contenc_wr
 		    ssize_t hlen;
 		    switch(check_gzip_header((uchar *)buf, nbytes, &hlen)) {
 			    case GZIP_OK:
-				z->next_in = (Bytef*)buf + hlen;
+				z->next_in = (Byte *)buf + hlen;
 				z->avail_in = (uInt)(nbytes - hlen);
 				zp->zlib_init = ZLIB_GZIP_INFLATING; /* Inflating stream state */
 				break;
@@ -438,7 +438,7 @@ static CURLcode gzip_unencode_write(struct connectdata * conn, struct contenc_wr
 				 * immediately afterwards, it should seldom be a problem.
 				 */
 				z->avail_in = (uInt)nbytes;
-				z->next_in = static_cast<Bytef *>(SAlloc::M(z->avail_in));
+				z->next_in = static_cast<Byte *>(SAlloc::M(z->avail_in));
 				if(z->next_in == NULL) {
 					return exit_zlib(conn, z, &zp->zlib_init, CURLE_OUT_OF_MEMORY);
 				}
@@ -459,7 +459,7 @@ static CURLcode gzip_unencode_write(struct connectdata * conn, struct contenc_wr
 		    /* Need more gzip header data state */
 		    ssize_t hlen;
 		    z->avail_in += (uInt)nbytes;
-		    z->next_in = static_cast<const Bytef *>(Curl_saferealloc(const_cast<Bytef *>(z->next_in), z->avail_in)); // @badcast
+		    z->next_in = static_cast<const Byte *>(Curl_saferealloc(const_cast<Byte *>(z->next_in), z->avail_in)); // @badcast
 		    if(z->next_in == NULL) {
 			    return exit_zlib(conn, z, &zp->zlib_init, CURLE_OUT_OF_MEMORY);
 		    }
@@ -468,9 +468,9 @@ static CURLcode gzip_unencode_write(struct connectdata * conn, struct contenc_wr
 		    switch(check_gzip_header(z->next_in, z->avail_in, &hlen)) {
 			    case GZIP_OK:
 				/* This is the zlib stream data */
-				SAlloc::F(const_cast<Bytef *>(z->next_in)); // @badcast
+				SAlloc::F(const_cast<Byte *>(z->next_in)); // @badcast
 				/* Don't point into the malloced block since we just freed it */
-				z->next_in = (Bytef*)buf + hlen + nbytes - z->avail_in;
+				z->next_in = (Byte *)buf + hlen + nbytes - z->avail_in;
 				z->avail_in = (uInt)(z->avail_in - hlen);
 				zp->zlib_init = ZLIB_GZIP_INFLATING; /* Inflating stream state */
 				break;
@@ -486,14 +486,14 @@ static CURLcode gzip_unencode_write(struct connectdata * conn, struct contenc_wr
 	    }
 	    break;
 		case ZLIB_EXTERNAL_TRAILER:
-		    z->next_in = (Bytef*)buf;
+		    z->next_in = (Byte *)buf;
 		    z->avail_in = (uInt)nbytes;
 		    return process_trailer(conn, zp);
 
 		case ZLIB_GZIP_INFLATING:
 		default:
 		    /* Inflating stream state */
-		    z->next_in = (Bytef*)buf;
+		    z->next_in = (Byte *)buf;
 		    z->avail_in = (uInt)nbytes;
 		    break;
 	}

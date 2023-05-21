@@ -140,7 +140,7 @@ int main(int argc, char * argv[])
 		    case 'n': nlocks = (uint)satoi(optarg); break;
 		    case 'p': nprocs = (uint)satoi(optarg); break;
 		    case 't':
-			if((nthreads = (uint)atoi(optarg)) == 0)
+			if((nthreads = (uint)satoi(optarg)) == 0)
 				nthreads = 1;
 #if !defined(MUTEX_THREAD_TEST)
 			if(nthreads != 1) {

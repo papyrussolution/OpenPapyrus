@@ -1680,7 +1680,7 @@ static int png_image_write_memory(void * argument)
 	return png_image_write_main(display);
 }
 
-int PNGAPI png_image_write_to_memory(png_imagep image, void * memory, png_alloc_size_t * PNG_RESTRICT memory_bytes, int convert_to_8bit,
+int PNGAPI png_image_write_to_memory(png_imagep image, void * memory, png_alloc_size_t * _RESTRICT memory_bytes, int convert_to_8bit,
     const void * buffer, png_int_32 row_stride, const void * colormap)
 {
 	// Write the image to the given buffer, or count the bytes if it is NULL 

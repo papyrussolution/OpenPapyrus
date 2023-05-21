@@ -436,9 +436,9 @@ int PPObjPhoneService::PutPacket(PPID * pID, PPPhoneServicePacket * pPack, int u
 	int    ok = 1;
 	SString tail;
 	if(pPack) {
-		WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 0);
-		reg_key.PutString(_PPConst.WrParam_PhnSvcLocalUpChannelSymbol, pPack->LocalChannelSymb);
-		reg_key.PutString(_PPConst.WrParam_PhnSvcLocalScanChannelSymbol, pPack->ScanChannelSymb);
+		WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, 0);
+		reg_key.PutString(PPConst::WrParam_PhnSvcLocalUpChannelSymbol, pPack->LocalChannelSymb);
+		reg_key.PutString(PPConst::WrParam_PhnSvcLocalScanChannelSymbol, pPack->ScanChannelSymb);
 	}
 	{
 		PPTransaction tra(use_ta);
@@ -471,9 +471,9 @@ int PPObjPhoneService::GetPacket(PPID id, PPPhoneServicePacket * pPack)
 	if(r > 0) {
 		THROW(P_Ref->GetPropVlrString(Obj, id, PHNSVCPRP_TAIL, pPack->Tail));
 		{
-			WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 1);
-			reg_key.GetString(_PPConst.WrParam_PhnSvcLocalUpChannelSymbol, pPack->LocalChannelSymb);
-			reg_key.GetString(_PPConst.WrParam_PhnSvcLocalScanChannelSymbol, pPack->ScanChannelSymb);
+			WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, 1);
+			reg_key.GetString(PPConst::WrParam_PhnSvcLocalUpChannelSymbol, pPack->LocalChannelSymb);
+			reg_key.GetString(PPConst::WrParam_PhnSvcLocalScanChannelSymbol, pPack->ScanChannelSymb);
 		}
 	}
 	else

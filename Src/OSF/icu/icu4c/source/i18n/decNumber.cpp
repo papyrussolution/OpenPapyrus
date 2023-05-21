@@ -5042,27 +5042,22 @@ static decNumber * decMultiplyOp(decNumber * res, const decNumber * lhs,
 				*status |= DEC_Insufficient_storage;
 				break;
 			}
-
 			acc = (Unit*)zacc; /* -> target Unit array  */
       #if DECDPUN==1
 			zacc += zoff; /* start uLong accumulator to right  */
       #endif
-
 			/* assemble the chunked copies of the left and right sides  */
 			for(count = lhs->digits, cup = lhs->lsu, lip = zlhi; count>0; lip++)
-				for(p = 0, *lip = 0; p<FASTDIGS && count>0;
-				    p += DECDPUN, cup++, count -= DECDPUN)
+				for(p = 0, *lip = 0; p<FASTDIGS && count>0; p += DECDPUN, cup++, count -= DECDPUN)
 					*lip += *cup*powers[p];
 			lmsi = lip-1; /* save -> msi  */
 			for(count = rhs->digits, cup = rhs->lsu, rip = zrhi; count>0; rip++)
-				for(p = 0, *rip = 0; p<FASTDIGS && count>0;
-				    p += DECDPUN, cup++, count -= DECDPUN)
+				for(p = 0, *rip = 0; p<FASTDIGS && count>0; p += DECDPUN, cup++, count -= DECDPUN)
 					*rip += *cup*powers[p];
 			rmsi = rip-1; /* save -> msi  */
-
 			/* zero the accumulator  */
-			for(lp = zacc; lp<zacc+iacc; lp++) *lp = 0;
-
+			for(lp = zacc; lp<zacc+iacc; lp++) 
+				*lp = 0;
 			/* Start the multiplication */
 			/* Resolving carries can dominate the cost of accumulating the  */
 			/* partial products, so this is only done when necessary.  */
@@ -5154,10 +5149,8 @@ static decNumber * decMultiplyOp(decNumber * res, const decNumber * lhs,
 		for(mer = rhs->lsu; mer<mermsup; mer++) {
 			/* Here, *mer is the next Unit in the multiplier to use  */
 			/* If non-zero [optimization] add it...  */
-			if(*mer!=0) accunits = decUnitAddSub(&acc[shift], accunits-shift,
-					lhs->lsu, madlength, 0,
-					&acc[shift], *mer)
-				    + shift;
+			if(*mer!=0) 
+				accunits = decUnitAddSub(&acc[shift], accunits-shift, lhs->lsu, madlength, 0, &acc[shift], *mer) + shift;
 			else { /* extend acc with a 0; it will be used shortly  */
 				*(acc+accunits) = 0; /* [this avoids length of <=0 later]  */
 				accunits++;

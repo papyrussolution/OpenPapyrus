@@ -415,11 +415,9 @@ static int pkey_ec_ctrl_str(EVP_PKEY_CTX * ctx,
 		return EVP_PKEY_CTX_set_ecdh_kdf_md(ctx, md);
 	}
 	else if(strcmp(type, "ecdh_cofactor_mode") == 0) {
-		int co_mode;
-		co_mode = atoi(value);
+		int co_mode = satoi(value);
 		return EVP_PKEY_CTX_set_ecdh_cofactor_mode(ctx, co_mode);
 	}
-
 	return -2;
 }
 

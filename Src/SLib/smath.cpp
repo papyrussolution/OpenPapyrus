@@ -5,6 +5,7 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
+/*
 #define PI__  3.1415926535897932384626433832795
 #define PI__f 3.14159265358979323846f
 
@@ -35,6 +36,9 @@ const double SMathConst::Euler    = 0.57721566490153286060651209008; // Euler co
 const double SMathConst::Sqrt2    = 1.41421356237309504880168872421; // sqrt(2)
 const double SMathConst::SqrtPi   = 1.77245385090551602729816748334; // sqrt(pi)
 const double SMathConst::Sqrt1_2  = 0.707106781186547524400844362104849039; // sqrt(0.5)
+const double SMathConst::MaxU31   = 2147483648.0;  // @v11.7.3
+const double SMathConst::MaxU32   = 4294967296.0;  // @v11.7.3
+*/
 
 /* @experimental
 static double FASTCALL MakePositiveDouble(uint64 mantissa, int32 order)
@@ -2088,14 +2092,15 @@ int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 			const TestEntry & r_te = entries[i];
 			const double tv = SDecimal(r_te.N, r_te.Dp).GetReal();
 			assert(feqeps(tv, r_te.Rv, 1e-13));
-			SDecimal r(r_te.Rv);
-			assert(r.GetReal() == tv);
-			//
 			{
-				uint64 ued = r.ToUed_NonConst(48);
-				SDecimal r2;
-				r2.FromUed(ued, 48);
-				assert(r.IsEq(r2));
+				SDecimal r(r_te.Rv);
+				assert(r.GetReal() == tv);
+				{
+					uint64 ued = r.ToUed_NonConst(48);
+					SDecimal r2;
+					r2.FromUed(ued, 48);
+					assert(r.IsEq(r2));
+				}
 			}
 		}
 		{

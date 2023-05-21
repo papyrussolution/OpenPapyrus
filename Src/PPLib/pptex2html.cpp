@@ -1,5 +1,5 @@
 // PPTEX2HTML.CPP
-// Copyright (c) A.Sobolev 2014, 2015, 2016, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2014, 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2023
 //
 #include <pp.h>
 #pragma hdrstop
@@ -964,7 +964,7 @@ int PPTex2HtmlPrcssr::ResolvePict(const char * pOrgSymb, const char * pName, uin
 										long   uc = 1;
 										SString suffix, wb_name;
 										do {
-											(suffix = 0).Space().CatChar('#').Cat(++uc);
+											suffix.Z().Space().CatChar('#').Cat(++uc);
 											wb_name = wb_pack.Rec.Name;
 											size_t sum_len = wb_name.Len() + suffix.Len();
 											if(sum_len > max_nm_len)

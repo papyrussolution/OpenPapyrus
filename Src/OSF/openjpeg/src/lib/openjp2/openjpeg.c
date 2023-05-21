@@ -120,10 +120,7 @@ BOOL APIENTRY DllMain(HINSTANCE hModule, DWORD ul_reason_for_call, LPVOID lpRese
 #endif /* OPJ_STATIC */
 #endif /* _WIN32 */
 
-const char* OPJ_CALLCONV opj_version(void)
-{
-	return OPJ_PACKAGE_VERSION;
-}
+const char* OPJ_CALLCONV opj_version() { return OPJ_PACKAGE_VERSION; }
 //
 // DECOMPRESSION FUNCTIONS
 //

@@ -43,7 +43,7 @@ uchar * _mariadb_compress_alloc(const uchar * packet, size_t * len, size_t * com
 	*complen =  *len * 120 / 100 + 12;
 	if(!(compbuf = (uchar *)SAlloc::M(*complen)))
 		return 0; /* Not enough memory */
-	if(compress((Bytef*)compbuf, (ulong *)complen, (Bytef*)packet, (uLong)*len) != Z_OK) {
+	if(compress((Byte *)compbuf, (ulong *)complen, (Byte *)packet, (uLong)*len) != Z_OK) {
 		SAlloc::F(compbuf);
 		return 0;
 	}
@@ -62,7 +62,7 @@ bool _mariadb_uncompress(uchar * packet, size_t * len, size_t * complen)
 		uchar * compbuf = (uchar *)SAlloc::M(*complen);
 		if(!compbuf)
 			return 1; /* Not enough memory */
-		if(uncompress((Bytef*)compbuf, (uLongf*)complen, (Bytef*)packet, (uLongf)*len) != Z_OK) { // Probably wrong packet
+		if(uncompress((Byte *)compbuf, (uLongf*)complen, (Byte *)packet, (uLongf)*len) != Z_OK) { // Probably wrong packet
 			SAlloc::F(compbuf);
 			return 1;
 		}

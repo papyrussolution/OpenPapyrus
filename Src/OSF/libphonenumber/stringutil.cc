@@ -10,7 +10,8 @@ namespace phonenumbers {
 using std::equal;
 using std::stringstream;
 
-string operator+(const string & s, int n) {  // NOLINT(runtime/string)
+string operator+(const string & s, int n) 
+{
 	stringstream stream;
 	stream << s << n;
 	string result;

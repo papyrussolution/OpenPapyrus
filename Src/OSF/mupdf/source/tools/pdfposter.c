@@ -166,7 +166,7 @@ int pdfposter_main(int argc, const char * argv[])
 {
 	const char * infile;
 	const char * outfile = "out.pdf";
-	char * password = "";
+	const char * password = "";
 	int c;
 	pdf_write_options opts = pdf_default_write_options;
 	pdf_document * doc;

@@ -120,7 +120,7 @@ static void ps_write_trailer(fz_context * ctx, fz_band_writer * writer_)
 
 	writer->stream.next_in = NULL;
 	writer->stream.avail_in = 0;
-	writer->stream.next_out = (Bytef*)writer->output;
+	writer->stream.next_out = (Byte *)writer->output;
 	writer->stream.avail_out = (uInt)writer->output_size;
 
 	err = deflate(&writer->stream, Z_FINISH);
@@ -245,9 +245,9 @@ static void ps_write_band(fz_context * ctx,
 		samples += stride - w*n;
 	}
 
-	writer->stream.next_in = (Bytef*)writer->input;
+	writer->stream.next_in = (Byte *)writer->input;
 	writer->stream.avail_in = required_input;
-	writer->stream.next_out = (Bytef*)writer->output;
+	writer->stream.next_out = (Byte *)writer->output;
 	writer->stream.avail_out = (uInt)writer->output_size;
 
 	err = deflate(&writer->stream, Z_NO_FLUSH);

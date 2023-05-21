@@ -1414,10 +1414,10 @@ bool PPBaseFilt::IsEq(const PPBaseFilt * pS, int) const
 //
 //
 //
-// @v10.9.1 (replaced with _PPConst.Signature_PPView) #define SIGN_PPVIEW 0x099A099BUL
+// @v10.9.1 (replaced with PPConst::Signature_PPView) #define SIGN_PPVIEW 0x099A099BUL
 
 PPView::PPView(PPObject * pObj, PPBaseFilt * pBaseFilt, int viewId, long implFlags, long defReportId) : 
-	P_Obj(pObj), Sign(_PPConst.Signature_PPView), ExecFlags(0), ServerInstId(0),
+	P_Obj(pObj), Sign(PPConst::Signature_PPView), ExecFlags(0), ServerInstId(0),
 	ViewId(viewId), BaseState(0), ExtToolbarId(0), P_IterQuery(0), P_Ct(0), P_F(pBaseFilt), ImplementFlags(implFlags), 
 	DefReportId(defReportId), P_LastUpdatedObjects(0)
 {
@@ -1460,7 +1460,7 @@ PPView::~PPView()
 	delete P_Ct;
 }
 
-bool   PPView::IsConsistent() const { return (Sign == _PPConst.Signature_PPView); }
+bool   PPView::IsConsistent() const { return (Sign == PPConst::Signature_PPView); }
 const  PPBaseFilt * PPView::GetBaseFilt() const { return P_F ? P_F : (PPSetError(PPERR_BASEFILTUNSUPPORTED), 0); }
 
 int FASTCALL PPView::Helper_InitBaseFilt(const PPBaseFilt * pFilt)

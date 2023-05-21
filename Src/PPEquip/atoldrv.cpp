@@ -1611,11 +1611,11 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 		double real_fiscal = 0.0;
 		double real_nonfiscal = 0.0;
 		pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);
-		const double _fiscal = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
+		const double _fiscal = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
 		const CcAmountList & r_al = pPack->AL_Const();
 		const bool   is_al = (r_al.getCount() > 0);
 		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
-		const double amt_cash = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
+		const double amt_cash = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
 		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
 		CnObj.GetTaxSystem(NodeID, pPack->Rec.Dt, &tax_sys_id);
 		p_result = SJson::CreateObj();
@@ -1966,11 +1966,11 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			double real_fiscal = 0.0;
 			double real_nonfiscal = 0.0;
 			pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);
-			const double _fiscal = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
+			const double _fiscal = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
 			const CcAmountList & r_al = pPack->AL_Const();
 			const bool   is_al = (r_al.getCount() > 0);
 			const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
-			const double amt_cash = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
+			const double amt_cash = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
 			const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
 			// } @v10.9.0 
 			// @v11.0.0 {

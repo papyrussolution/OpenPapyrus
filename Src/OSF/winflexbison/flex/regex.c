@@ -24,8 +24,8 @@
 #include "flexdef.h"
 #pragma hdrstop
 
-static const char* REGEXP_LINEDIR = "^#line ([[:digit:]]+) \"(.*)\"";
-static const char* REGEXP_BLANK_LINE = "^[[:space:]]*$";
+static const char * REGEXP_LINEDIR = "^#line ([[:digit:]]+) \"(.*)\"";
+static const char * REGEXP_BLANK_LINE = "^[[:space:]]*$";
 
 regex_t regex_linedir; /**< matches line directives */
 regex_t regex_blank_line; /**< matches blank lines */

@@ -1479,8 +1479,7 @@ private:
 	//   ch_set<std::string> s;
 	//   // Uses "abc" directly without copying it into std::string.
 	//   s.count("abc");
-	template <class K = key_type>
-	size_t count(const key_arg<K>& key) const {
+	template <class K = key_type> size_t count(const key_arg<K>& key) const {
 		return find(key) == end() ? 0 : 1;
 	}
 
@@ -1489,8 +1488,7 @@ private:
 	//
 	// NOTE: This is a very low level operation and should not be used without
 	// specific benchmarks indicating its importance.
-	template <class K = key_type>
-	void prefetch(const key_arg<K>& key) const {
+	template <class K = key_type> void prefetch(const key_arg<K>& key) const {
 		(void)key;
 #if defined(__GNUC__)
 		prefetch_heap_block();

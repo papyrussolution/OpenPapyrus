@@ -175,9 +175,7 @@ public:
 	}
 	constexpr XYPOSITION Width() const noexcept { return right - left; }
 	constexpr XYPOSITION Height() const noexcept { return bottom - top; }
-	constexpr bool Empty() const noexcept {
-		return (Height() <= 0) || (Width() <= 0);
-	}
+	constexpr bool Empty() const noexcept { return (Height() <= 0) || (Width() <= 0); }
 };
 
 /**

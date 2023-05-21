@@ -176,15 +176,15 @@ int extract_zip_write_file(extract_zip_t* zip,
 
 	cd_file->mtime = zip->mtime;
 	cd_file->mdate = zip->mtime;
-	cd_file->crc_sum = (int32_t)crc32(crc32(0, NULL, 0), (const Bytef*)data, (int)data_length);
+	cd_file->crc_sum = (int32_t)crc32(crc32(0, NULL, 0), (const Byte *)data, (int)data_length);
 	cd_file->size_compressed = (int)data_length;
 	cd_file->size_uncompressed = (int)data_length;
 	if(extract_strdup(name, &cd_file->name)) goto end;
 	cd_file->offset = (int)extract_buffer_pos(zip->buffer);
 	cd_file->attr_internal = zip->file_attr_internal;
 	cd_file->attr_external = zip->file_attr_external;
-	if(!cd_file->name) goto end;
-
+	if(!cd_file->name) 
+		goto end;
 	/* Write local file header. */
 	{
 		const char extra_local[] = ""; /* Modify for testing. */

@@ -1,21 +1,12 @@
+// derb.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 1999-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  derb.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2000sep6
- *   created by: Vladimir Weinstein as an ICU workshop example
- *   maintained by: Yves Arrouye <yves@realnames.com>
- */
+// Copyright (C) 1999-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2000sep6
+// created by: Vladimir Weinstein as an ICU workshop example
+// maintained by: Yves Arrouye <yves@realnames.com>
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/ucnv.h"
@@ -119,7 +110,7 @@ extern int main(int argc, char * argv[]) {
 	if(options[4].doesOccur) {
 		opt_truncate = TRUE;
 		if(options[4].value != NULL) {
-			truncsize = atoi(options[4].value); /* user defined printable size */
+			truncsize = satoi(options[4].value); /* user defined printable size */
 		}
 		else {
 			truncsize = DERB_DEFAULT_TRUNC; /* we'll use default omitting size */

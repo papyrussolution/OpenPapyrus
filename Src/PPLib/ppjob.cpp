@@ -1736,9 +1736,9 @@ public:
 	SString UserPassword;
 };
 
-// @v10.5.5 (replaced with _PPConst.LaunchAppParam_Signature)#define SIGNATURE_LAUNCHAPPPARAM 0x4c484150L // 'LHAP'
+// @v10.5.5 (replaced with PPConst::LaunchAppParam_Signature)#define SIGNATURE_LAUNCHAPPPARAM 0x4c484150L // 'LHAP'
 
-LaunchAppParam::LaunchAppParam() : Signature(_PPConst.Signature_LaunchAppParam), Ver(0), Flags(0)
+LaunchAppParam::LaunchAppParam() : Signature(PPConst::Signature_LaunchAppParam), Ver(0), Flags(0)
 {
 	memzero(Reserve, sizeof(Reserve));
 }
@@ -1746,7 +1746,7 @@ LaunchAppParam::LaunchAppParam() : Signature(_PPConst.Signature_LaunchAppParam),
 int LaunchAppParam::Write(SBuffer & rBuf, long) const
 {
 	int    ok = 1;
-	long   sign = _PPConst.Signature_LaunchAppParam;
+	long   sign = PPConst::Signature_LaunchAppParam;
 	THROW_SL(rBuf.Write(sign));
 	THROW_SL(rBuf.Write(Ver));
 	THROW_SL(rBuf.Write(Flags));
@@ -1765,7 +1765,7 @@ int LaunchAppParam::Read(SBuffer & rBuf, long)
 	int    ok = -1;
 	if(rBuf.GetAvailableSize()) {
 		THROW_SL(rBuf.Read(Signature));
-		if(Signature == _PPConst.Signature_LaunchAppParam) {
+		if(Signature == PPConst::Signature_LaunchAppParam) {
 			THROW_SL(rBuf.Read(Ver));
 			THROW_SL(rBuf.Read(Flags));
 			THROW_SL(rBuf.Read(Reserve, sizeof(Reserve)));

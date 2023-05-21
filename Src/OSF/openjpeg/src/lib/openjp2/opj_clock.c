@@ -25,7 +25,7 @@
 #include <sys/times.h>
 #endif /* _WIN32 */
 
-double opj_clock(void)
+double opj_clock()
 {
 #ifdef _WIN32
 	/* _WIN32: use QueryPerformance (very accurate) */

@@ -67,24 +67,17 @@ struct from_chars_result {
 // format that strtod() accepts, except that a "0x" prefix is NOT matched.
 // (In particular, in `hex` mode, the input "0xff" results in the largest
 // matching pattern "0".)
-absl::from_chars_result from_chars(const char* first, const char* last,
-    double& value,                                 // NOLINT
-    chars_format fmt = chars_format::general);
-
-absl::from_chars_result from_chars(const char* first, const char* last,
-    float& value,                                 // NOLINT
-    chars_format fmt = chars_format::general);
+absl::from_chars_result from_chars(const char* first, const char* last, double& value, chars_format fmt = chars_format::general);
+absl::from_chars_result from_chars(const char* first, const char* last, float& value, chars_format fmt = chars_format::general);
 
 // std::chars_format is specified as a bitmask type, which means the following
 // operations must be provided:
 inline constexpr chars_format operator&(chars_format lhs, chars_format rhs) {
-	return static_cast<chars_format>(static_cast<int>(lhs) &
-	       static_cast<int>(rhs));
+	return static_cast<chars_format>(static_cast<int>(lhs) & static_cast<int>(rhs));
 }
 
 inline constexpr chars_format operator|(chars_format lhs, chars_format rhs) {
-	return static_cast<chars_format>(static_cast<int>(lhs) |
-	       static_cast<int>(rhs));
+	return static_cast<chars_format>(static_cast<int>(lhs) | static_cast<int>(rhs));
 }
 
 inline constexpr chars_format operator^(chars_format lhs, chars_format rhs) {

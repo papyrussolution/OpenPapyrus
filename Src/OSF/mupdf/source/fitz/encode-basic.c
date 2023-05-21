@@ -288,8 +288,7 @@ static void deflate_write(fz_context * ctx, void * opaque, const void * data, si
 	struct deflate * state = (struct deflate *)opaque;
 	uchar buffer[32 << 10];
 	int err;
-
-	state->z.next_in = (Bytef*)data;
+	state->z.next_in = (Byte *)data;
 	state->z.avail_in = (uInt)n;
 	do {
 		state->z.next_out = buffer;

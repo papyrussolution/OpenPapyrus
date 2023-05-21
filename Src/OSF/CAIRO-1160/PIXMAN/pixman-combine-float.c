@@ -23,15 +23,15 @@
 #endif
 
 /* Workaround for http://gcc.gnu.org/PR54965 */
-/* GCC 4.6 has problems with force_inline, so just use normal inline instead */
+/* GCC 4.6 has problems with FORCEINLINE, so just use normal inline instead */
 #if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ == 6)
-#undef force_inline
-#define force_inline __inline__
+#undef FORCEINLINE
+#define FORCEINLINE __inline__
 #endif
 
 typedef float (* combine_channel_t) (float sa, float s, float da, float d);
 
-static force_inline void combine_inner(boolint component,
+static FORCEINLINE void combine_inner(boolint component,
     float * dest, const float * src, const float * mask, int n_pixels,
     combine_channel_t combine_a, combine_channel_t combine_c)
 {
@@ -146,7 +146,7 @@ typedef enum {
 
 #define CLAMP(v) (((v) < 0.0f) ? 0.0f : (((v) > 1.0f) ? 1.0f : (v)))
 
-static force_inline float get_factor(combine_factor_t factor, float sa, float da)
+static FORCEINLINE float get_factor(combine_factor_t factor, float sa, float da)
 {
 	float f = -1.0f;
 	switch(factor) {
@@ -210,7 +210,7 @@ static force_inline float get_factor(combine_factor_t factor, float sa, float da
 }
 
 #define MAKE_PD_COMBINERS(name, a, b)                                   \
-	static float force_inline                                           \
+	static float FORCEINLINE                                           \
 	pd_combine_ ## name(float sa, float s, float da, float d)          \
 	{                                                                   \
 		const float fa = get_factor(a, sa, da);                        \
@@ -308,13 +308,13 @@ MAKE_PD_COMBINERS(conjoint_xor,                ONE_MINUS_DA_OVER_SA,           O
  */
 
 #define MAKE_SEPARABLE_PDF_COMBINERS(name)                              \
-	static force_inline float                                           \
+	static FORCEINLINE float                                           \
 	combine_ ## name ## _a(float sa, float s, float da, float d)       \
 	{                                                                   \
 		return da + sa - da * sa;                                       \
 	}                                                                   \
                                                                         \
-	static force_inline float                                           \
+	static FORCEINLINE float                                           \
 	    combine_ ## name ## _c(float sa, float s, float da, float d)       \
 	{                                                                   \
 		float f = (1 - sa) * d + (1 - da) * s;                          \
@@ -332,7 +332,7 @@ MAKE_PD_COMBINERS(conjoint_xor,                ONE_MINUS_DA_OVER_SA,           O
  * = d * s
  *
  */
-static force_inline float blend_multiply(float sa, float s, float da, float d)
+static FORCEINLINE float blend_multiply(float sa, float s, float da, float d)
 {
 	return d * s;
 }
@@ -344,7 +344,7 @@ static force_inline float blend_multiply(float sa, float s, float da, float d)
  * = ad * as * (d/ad + s/as - s/as * d/ad)
  * = ad * s + as * d - s * d
  */
-static force_inline float blend_screen(float sa, float s, float da, float d)
+static FORCEINLINE float blend_screen(float sa, float s, float da, float d)
 {
 	return d * sa + s * da - s * d;
 }
@@ -371,7 +371,7 @@ static force_inline float blend_screen(float sa, float s, float da, float d)
  * else
  * as * ad - 2 * (ad - d) * (as - s)
  */
-static force_inline float blend_overlay(float sa, float s, float da, float d)
+static FORCEINLINE float blend_overlay(float sa, float s, float da, float d)
 {
 	if(2 * d < da)
 		return 2 * s * d;
@@ -386,7 +386,7 @@ static force_inline float blend_overlay(float sa, float s, float da, float d)
  * = ad * as * MIN(d/ad, s/as)
  * = MIN (as * d, ad * s)
  */
-static force_inline float blend_darken(float sa, float s, float da, float d)
+static FORCEINLINE float blend_darken(float sa, float s, float da, float d)
 {
 	s = s * da;
 	d = d * sa;
@@ -404,7 +404,7 @@ static force_inline float blend_darken(float sa, float s, float da, float d)
  * = ad * as * MAX(d/ad, s/as)
  * = MAX (as * d, ad * s)
  */
-static force_inline float blend_lighten(float sa, float s, float da, float d)
+static FORCEINLINE float blend_lighten(float sa, float s, float da, float d)
 {
 	s = s * da;
 	d = d * sa;
@@ -433,7 +433,7 @@ static force_inline float blend_lighten(float sa, float s, float da, float d)
  * as * (as * d / (as - s))
  *
  */
-static force_inline float blend_color_dodge(float sa, float s, float da, float d)
+static FORCEINLINE float blend_color_dodge(float sa, float s, float da, float d)
 {
 	if(FLOAT_IS_ZERO(d))
 		return 0.0f;
@@ -465,7 +465,7 @@ static force_inline float blend_color_dodge(float sa, float s, float da, float d
  * else
  * ad * as  - as * as * (ad - d) / s
  */
-static force_inline float blend_color_burn(float sa, float s, float da, float d)
+static FORCEINLINE float blend_color_burn(float sa, float s, float da, float d)
 {
 	if(d >= da)
 		return sa * da;
@@ -494,7 +494,7 @@ static force_inline float blend_color_burn(float sa, float s, float da, float d)
  * else
  * as * ad - 2 * (ad - d) * (as - s)
  */
-static force_inline float blend_hard_light(float sa, float s, float da, float d)
+static FORCEINLINE float blend_hard_light(float sa, float s, float da, float d)
 {
 	if(2 * s < sa)
 		return 2 * s * d;
@@ -519,7 +519,7 @@ static force_inline float blend_hard_light(float sa, float s, float da, float d)
  * else
  * d * as + (sqrt (d * ad) - d) * (2 * s - as);
  */
-static force_inline float blend_soft_light(float sa, float s, float da, float d)
+static FORCEINLINE float blend_soft_light(float sa, float s, float da, float d)
 {
 	if(2 * s <= sa) {
 		if(FLOAT_IS_ZERO(da))
@@ -554,7 +554,7 @@ static force_inline float blend_soft_light(float sa, float s, float da, float d)
  * else
  * ad * s - as * d
  */
-static force_inline float blend_difference(float sa, float s, float da, float d)
+static FORCEINLINE float blend_difference(float sa, float s, float da, float d)
 {
 	float dsa = d * sa;
 	float sda = s * da;
@@ -572,7 +572,7 @@ static force_inline float blend_difference(float sa, float s, float da, float d)
  * = ad * as * (d/ad + s/as - 2 * d/ad * s/as)
  * = as * d + ad * s - 2 * s * d
  */
-static force_inline float blend_exclusion(float sa, float s, float da, float d)
+static FORCEINLINE float blend_exclusion(float sa, float s, float da, float d)
 {
 	return s * da + d * sa - 2 * d * s;
 }
@@ -669,32 +669,32 @@ typedef struct {
 	float b;
 } rgb_t;
 
-static force_inline float minf(float a, float b)
+static FORCEINLINE float minf(float a, float b)
 {
 	return a < b ? a : b;
 }
 
-static force_inline float maxf(float a, float b)
+static FORCEINLINE float maxf(float a, float b)
 {
 	return a > b ? a : b;
 }
 
-static force_inline float channel_min(const rgb_t * c)
+static FORCEINLINE float channel_min(const rgb_t * c)
 {
 	return minf(minf(c->r, c->g), c->b);
 }
 
-static force_inline float channel_max(const rgb_t * c)
+static FORCEINLINE float channel_max(const rgb_t * c)
 {
 	return maxf(maxf(c->r, c->g), c->b);
 }
 
-static force_inline float get_lum(const rgb_t * c)
+static FORCEINLINE float get_lum(const rgb_t * c)
 {
 	return c->r * 0.3f + c->g * 0.59f + c->b * 0.11f;
 }
 
-static force_inline float get_sat(const rgb_t * c)
+static FORCEINLINE float get_sat(const rgb_t * c)
 {
 	return channel_max(c) - channel_min(c);
 }
@@ -809,7 +809,7 @@ static void set_sat(rgb_t * src, float sat)
  * = set_lum (set_sat (ad * s, as * SAT (d)), as * LUM (d), as * ad)
  *
  */
-static force_inline void blend_hsl_hue(rgb_t * res,
+static FORCEINLINE void blend_hsl_hue(rgb_t * res,
     const rgb_t * dest, float da,
     const rgb_t * src, float sa)
 {
@@ -830,7 +830,7 @@ static force_inline void blend_hsl_hue(rgb_t * res,
  *          as * LUM (d), as * ad)
  * = set_lum (set_sat (as * d, ad * SAT (s), as * LUM (d), as * ad))
  */
-static force_inline void blend_hsl_saturation(rgb_t * res,
+static FORCEINLINE void blend_hsl_saturation(rgb_t * res,
     const rgb_t * dest, float da,
     const rgb_t * src, float sa)
 {
@@ -849,7 +849,7 @@ static force_inline void blend_hsl_saturation(rgb_t * res,
  * = as * ad * set_lum (s/as, LUM (d/ad), 1)
  * = set_lum (s * ad, as * LUM (d), as * ad)
  */
-static force_inline void blend_hsl_color(rgb_t * res,
+static FORCEINLINE void blend_hsl_color(rgb_t * res,
     const rgb_t * dest, float da,
     const rgb_t * src, float sa)
 {
@@ -867,7 +867,7 @@ static force_inline void blend_hsl_color(rgb_t * res,
  * = as * ad * set_lum (d/ad, LUM (s/as), 1)
  * = set_lum (as * d, ad * LUM (s), as * ad)
  */
-static force_inline void blend_hsl_luminosity(rgb_t * res,
+static FORCEINLINE void blend_hsl_luminosity(rgb_t * res,
     const rgb_t * dest, float da,
     const rgb_t * src, float sa)
 {

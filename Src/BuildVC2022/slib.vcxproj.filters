@@ -257,6 +257,18 @@
       <Filter>MiMalloc</Filter>
     </ClCompile>
     <ClCompile Include="..\SLib\smemchr.cpp" />
+    <ClCompile Include="..\SLib\vslocate.c" />
+    <ClCompile Include="..\SLib\SAIS\src\libsais.c">
+      <Filter>SAIS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\SAIS\src\libsais16.c">
+      <Filter>SAIS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\SAIS\src\libsais64.c">
+      <Filter>SAIS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\BZIP3\src\libbz3.c" />
+    <ClCompile Include="..\OSF\AVX-Memmove\memset.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -380,6 +392,15 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\gif_lib.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\SAIS\include\libsais.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\SAIS\include\libsais16.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\SAIS\include\libsais64.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
@@ -610,6 +631,9 @@
     </Filter>
     <Filter Include="MiMalloc\Test">
       <UniqueIdentifier>{57e86c28-dcc4-4858-a8ed-c5db19e21433}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SAIS">
+      <UniqueIdentifier>{0501c549-de08-46f4-ba49-4b8291a3fadb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

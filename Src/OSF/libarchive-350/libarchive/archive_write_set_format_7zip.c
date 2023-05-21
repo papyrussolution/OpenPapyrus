@@ -382,7 +382,7 @@ static int _7z_write_header(struct archive_write * a, ArchiveEntry * entry)
 		bytes = compress_out(a, p, (size_t)file->size, ARCHIVE_Z_RUN);
 		if(bytes < 0)
 			return ((int)bytes);
-		zip->entry_crc32 = crc32(zip->entry_crc32, static_cast<const Bytef *>(p), (uint)bytes);
+		zip->entry_crc32 = crc32(zip->entry_crc32, static_cast<const Byte *>(p), (uint)bytes);
 		zip->entry_bytes_remaining -= bytes;
 	}
 	return r;
@@ -427,7 +427,7 @@ static ssize_t compress_out(struct archive_write * a, const void * buff, size_t 
 	if(run == ARCHIVE_Z_FINISH && zip->stream.total_in == 0 && s == 0)
 		return 0;
 	if((zip->crc32flg & PRECODE_CRC32) && s)
-		zip->precode_crc32 = crc32(zip->precode_crc32, static_cast<const Bytef *>(buff), (uint)s);
+		zip->precode_crc32 = crc32(zip->precode_crc32, static_cast<const Byte *>(buff), (uint)s);
 	zip->stream.next_in = (const uchar *)buff;
 	zip->stream.avail_in = s;
 	for(;;) {
@@ -473,7 +473,7 @@ static ssize_t _7z_write_data(struct archive_write * a, const void * buff, size_
 	bytes = compress_out(a, buff, s, ARCHIVE_Z_RUN);
 	if(bytes < 0)
 		return (bytes);
-	zip->entry_crc32 = crc32(zip->entry_crc32, static_cast<const Bytef *>(buff), (uint)bytes);
+	zip->entry_crc32 = crc32(zip->entry_crc32, static_cast<const Byte *>(buff), (uint)bytes);
 	zip->entry_bytes_remaining -= bytes;
 	return (bytes);
 }
@@ -1440,7 +1440,7 @@ static int compression_init_encoder_deflate(Archive * a, struct la_zstream * las
 	/* zlib.h is not const-correct, so we need this one bit
 	 * of ugly hackery to convert a const * pointer to
 	 * a non-const pointer. */
-	strm->next_in = (Bytef*)(uintptr_t)(const void*)lastrm->next_in;
+	strm->next_in = (Byte *)(uintptr_t)(const void*)lastrm->next_in;
 	strm->avail_in = (uInt)lastrm->avail_in;
 	strm->total_in = (uLong)lastrm->total_in;
 	strm->next_out = lastrm->next_out;
@@ -1466,7 +1466,7 @@ static int compression_code_deflate(Archive * a, struct la_zstream * lastrm, enu
 	/* zlib.h is not const-correct, so we need this one bit
 	 * of ugly hackery to convert a const * pointer to
 	 * a non-const pointer. */
-	strm->next_in = (Bytef*)(uintptr_t)(const void*)lastrm->next_in;
+	strm->next_in = (Byte *)(uintptr_t)(const void*)lastrm->next_in;
 	strm->avail_in = (uInt)lastrm->avail_in;
 	strm->total_in = (uLong)lastrm->total_in;
 	strm->next_out = lastrm->next_out;

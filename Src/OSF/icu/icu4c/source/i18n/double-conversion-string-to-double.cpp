@@ -548,15 +548,11 @@ double StringToDoubleConverter::StringToIeee(Iterator input,
 			}
 		}
 	}
-
 	bool octal = leading_zero && (flags_ & ALLOW_OCTALS) != 0;
-
 	// The longest form of simplified number is: "-<significant digits>.1eXXX\0".
 	const int kBufferSize = kMaxSignificantDigits + 10;
-	DOUBLE_CONVERSION_STACK_UNINITIALIZED char
-	    buffer[kBufferSize]; // NOLINT: size is known at compile time.
+	DOUBLE_CONVERSION_STACK_UNINITIALIZED char buffer[kBufferSize]; // NOLINT: size is known at compile time.
 	int buffer_pos = 0;
-
 	// Copy significant digits of the integer part (if any) to the buffer.
 	while(*current >= '0' && *current <= '9') {
 		if(significant_digits < kMaxSignificantDigits) {

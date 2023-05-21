@@ -135,7 +135,7 @@
 
 /* Misc. helpers */
 
-static force_inline void get_shifts(pixman_format_code_t format, int * a, int * r, int * g, int * b)
+static FORCEINLINE void get_shifts(pixman_format_code_t format, int * a, int * r, int * g, int * b)
 {
 	switch(PIXMAN_FORMAT_TYPE(format)) {
 		case PIXMAN_TYPE_A:
@@ -180,7 +180,7 @@ static force_inline void get_shifts(pixman_format_code_t format, int * a, int * 
 	}
 }
 
-static force_inline uint32 convert_channel(uint32 pixel, uint32 def_value, int n_from_bits, int from_shift, int n_to_bits, int to_shift)
+static FORCEINLINE uint32 convert_channel(uint32 pixel, uint32 def_value, int n_from_bits, int from_shift, int n_to_bits, int to_shift)
 {
 	uint32 v;
 	if(n_from_bits && n_to_bits)
@@ -192,7 +192,7 @@ static force_inline uint32 convert_channel(uint32 pixel, uint32 def_value, int n
 	return (v & ((1 << n_to_bits) - 1)) << to_shift;
 }
 
-static force_inline uint32 convert_pixel(pixman_format_code_t from, pixman_format_code_t to, uint32 pixel)
+static FORCEINLINE uint32 convert_pixel(pixman_format_code_t from, pixman_format_code_t to, uint32 pixel)
 {
 	int a_from_shift, r_from_shift, g_from_shift, b_from_shift;
 	int a_to_shift, r_to_shift, g_to_shift, b_to_shift;
@@ -206,7 +206,7 @@ static force_inline uint32 convert_pixel(pixman_format_code_t from, pixman_forma
 	return a | r | g | b;
 }
 
-static force_inline uint32 convert_pixel_to_a8r8g8b8(const bits_image_t * image, pixman_format_code_t format, uint32 pixel)
+static FORCEINLINE uint32 convert_pixel_to_a8r8g8b8(const bits_image_t * image, pixman_format_code_t format, uint32 pixel)
 {
 	if(PIXMAN_FORMAT_TYPE(format) == PIXMAN_TYPE_GRAY || PIXMAN_FORMAT_TYPE(format) == PIXMAN_TYPE_COLOR) {
 		return image->indexed->rgba[pixel];
@@ -216,7 +216,7 @@ static force_inline uint32 convert_pixel_to_a8r8g8b8(const bits_image_t * image,
 	}
 }
 
-static force_inline uint32 convert_pixel_from_a8r8g8b8(const pixman_image_t * image, pixman_format_code_t format, uint32 pixel)
+static FORCEINLINE uint32 convert_pixel_from_a8r8g8b8(const pixman_image_t * image, pixman_format_code_t format, uint32 pixel)
 {
 	if(PIXMAN_FORMAT_TYPE(format) == PIXMAN_TYPE_GRAY) {
 		pixel = CONVERT_RGB24_TO_Y15(pixel);
@@ -231,7 +231,7 @@ static force_inline uint32 convert_pixel_from_a8r8g8b8(const pixman_image_t * im
 	}
 }
 
-static force_inline uint32 fetch_and_convert_pixel(const bits_image_t * image, const uint8 * bits, int offset, pixman_format_code_t format)
+static FORCEINLINE uint32 fetch_and_convert_pixel(const bits_image_t * image, const uint8 * bits, int offset, pixman_format_code_t format)
 {
 	uint32 pixel;
 	switch(PIXMAN_FORMAT_BPP(format)) {
@@ -246,7 +246,7 @@ static force_inline uint32 fetch_and_convert_pixel(const bits_image_t * image, c
 	return convert_pixel_to_a8r8g8b8(image, format, pixel);
 }
 
-static force_inline void convert_and_store_pixel(bits_image_t * image, uint8 * dest, int offset, pixman_format_code_t format, uint32 pixel)
+static FORCEINLINE void convert_and_store_pixel(bits_image_t * image, uint8 * dest, int offset, pixman_format_code_t format, uint32 pixel)
 {
 	const uint32 converted = convert_pixel_from_a8r8g8b8((pixman_image_t*)image, format, pixel);
 	switch(PIXMAN_FORMAT_BPP(format)) {

@@ -42,7 +42,7 @@ struct private_data {
  * Yuck.  zlib.h is not const-correct, so I need this one bit
  * of ugly hackery to convert a const * pointer to a non-const pointer.
  */
-#define SET_NEXT_IN(st, src) (st)->stream.next_in = (Bytef*)(uintptr_t)(const void*)(src)
+#define SET_NEXT_IN(st, src) (st)->stream.next_in = (Byte *)(uintptr_t)(const void*)(src)
 
 static int archive_compressor_gzip_options(struct archive_write_filter *, const char *, const char *);
 static int archive_compressor_gzip_open(struct archive_write_filter *);
@@ -211,7 +211,7 @@ static int archive_compressor_gzip_write(struct archive_write_filter * f, const 
 	struct private_data * data = (struct private_data *)f->data;
 	int ret;
 	/* Update statistics */
-	data->crc = crc32(data->crc, (const Bytef*)buff, (uInt)length);
+	data->crc = crc32(data->crc, (const Byte *)buff, (uInt)length);
 	data->total_in += length;
 
 	/* Compress input data to output buffer */

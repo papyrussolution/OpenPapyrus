@@ -300,7 +300,6 @@ static const size_t * COVER_lower_bound(const size_t * first, const size_t * las
 	}
 	return first;
 }
-
 /**
  * Generic groupBy function.
  * Groups an array sorted by cmp into groups with equivalent values.
@@ -322,18 +321,16 @@ static void COVER_groupBy(const void * data, size_t count, size_t size, COVER_ct
 		ptr = grpEnd;
 	}
 }
-
-/*-*************************************
-*  Cover functions
-***************************************/
-
+//
+// Cover functions
+//
 /**
  * Called on each group of positions with the same dmer.
  * Counts the frequency of each dmer and saves it in the suffix array.
  * Fills `ctx->dmerAt`.
  */
-static void COVER_group(COVER_ctx_t * ctx, const void * group,
-    const void * groupEnd) {
+static void COVER_group(COVER_ctx_t * ctx, const void * group, const void * groupEnd) 
+{
 	/* The group consists of all the positions with the same first d bytes. */
 	const uint32 * grpPtr = (const uint32 *)group;
 	const uint32 * grpEnd = (const uint32 *)groupEnd;
@@ -823,14 +820,13 @@ void COVER_best_init(COVER_best_t * best)
  */
 void COVER_best_wait(COVER_best_t * best) 
 {
-	if(!best) {
-		return;
+	if(best) {
+		ZSTD_pthread_mutex_lock(&best->mutex);
+		while(best->liveJobs != 0) {
+			ZSTD_pthread_cond_wait(&best->cond, &best->mutex);
+		}
+		ZSTD_pthread_mutex_unlock(&best->mutex);
 	}
-	ZSTD_pthread_mutex_lock(&best->mutex);
-	while(best->liveJobs != 0) {
-		ZSTD_pthread_cond_wait(&best->cond, &best->mutex);
-	}
-	ZSTD_pthread_mutex_unlock(&best->mutex);
 }
 /**
  * Call COVER_best_wait() and then destroy the COVER_best_t.
@@ -844,27 +840,25 @@ void COVER_best_destroy(COVER_best_t * best)
 		ZSTD_pthread_cond_destroy(&best->cond);
 	}
 }
-
 /**
  * Called when a thread is about to be launched.
  * Increments liveJobs.
  */
-void COVER_best_start(COVER_best_t * best) {
-	if(!best) {
-		return;
+void COVER_best_start(COVER_best_t * best) 
+{
+	if(best) {
+		ZSTD_pthread_mutex_lock(&best->mutex);
+		++best->liveJobs;
+		ZSTD_pthread_mutex_unlock(&best->mutex);
 	}
-	ZSTD_pthread_mutex_lock(&best->mutex);
-	++best->liveJobs;
-	ZSTD_pthread_mutex_unlock(&best->mutex);
 }
-
 /**
  * Called when a thread finishes executing, both on error or success.
  * Decrements liveJobs and signals any waiting threads if liveJobs == 0.
  * If this dictionary is the best so far save it and its parameters.
  */
-void COVER_best_finish(COVER_best_t * best, ZDICT_cover_params_t parameters,
-    COVER_dictSelection_t selection) {
+void COVER_best_finish(COVER_best_t * best, ZDICT_cover_params_t parameters, COVER_dictSelection_t selection) 
+{
 	void * dict = selection.dictContent;
 	size_t compressedSize = selection.totalCompressedSize;
 	size_t dictSize = selection.dictSize;

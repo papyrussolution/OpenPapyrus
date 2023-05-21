@@ -28,7 +28,6 @@
 #ifndef  FREEGLUT_INTERNAL_MSWIN_H
 #define  FREEGLUT_INTERNAL_MSWIN_H
 
-
 /* All Win32 headers depend on the huge windows.h recursive include.
  * Note: Lower-case header names are used, for best cross-platform
  * compatibility.
@@ -57,8 +56,8 @@
 
 /* MinGW may lack a prototype for ChangeDisplaySettingsEx() (depending on the version?) */
 #if !defined(ChangeDisplaySettingsEx)
-LONG WINAPI ChangeDisplaySettingsExA(LPCSTR,LPDEVMODEA,HWND,DWORD,LPVOID);
-LONG WINAPI ChangeDisplaySettingsExW(LPCWSTR,LPDEVMODEW,HWND,DWORD,LPVOID);
+LONG WINAPI ChangeDisplaySettingsExA(LPCSTR, LPDEVMODEA, HWND, DWORD, LPVOID);
+LONG WINAPI ChangeDisplaySettingsExW(LPCWSTR, LPDEVMODEW, HWND, DWORD, LPVOID);
 #ifdef UNICODE
 #define ChangeDisplaySettingsEx ChangeDisplaySettingsExW
 #   else
@@ -66,64 +65,56 @@ LONG WINAPI ChangeDisplaySettingsExW(LPCWSTR,LPDEVMODEW,HWND,DWORD,LPVOID);
 #endif
 #endif
 
-
 /* Structure Definitions */
 
 typedef struct tagSFG_PlatformDisplay SFG_PlatformDisplay;
-struct tagSFG_PlatformDisplay
-{
-    HINSTANCE       Instance;           /* The application's instance */
-    DEVMODE         DisplayMode;        /* Desktop's display settings */
-    char           *DisplayName;        /* Display name for multi display support*/ 
+struct tagSFG_PlatformDisplay {
+	HINSTANCE Instance; /* The application's instance */
+	DEVMODEA DisplayMode; /* Desktop's display settings */
+	char * DisplayName; /* Display name for multi display support*/
 };
 
 /*
  * Make "freeglut" window handle and context types so that we don't need so
  * much conditionally-compiled code later in the library.
  */
-typedef HWND    SFG_WindowHandleType;
-typedef HGLRC   SFG_WindowContextType;
+typedef HWND SFG_WindowHandleType;
+typedef HGLRC SFG_WindowContextType;
 typedef struct tagSFG_PlatformContext SFG_PlatformContext;
-struct tagSFG_PlatformContext
-{
-    HDC             Device;             /* The window's device context */
+struct tagSFG_PlatformContext {
+	HDC Device;                     /* The window's device context */
 };
-
 
 /* Window's state description. This structure should be kept portable. */
 typedef struct tagSFG_PlatformWindowState SFG_PlatformWindowState;
-struct tagSFG_PlatformWindowState
-{
-    RECT            OldRect;            /* window rect     - stored before the window is made fullscreen */
-    DWORD           OldStyle;           /* window style    - stored before the window is made fullscreen */
-    DWORD           OldStyleEx;         /* window Ex style - stored before the window is made fullscreen */
-    BOOL            OldMaximized;       /* window maximized state - stored before the window is made fullscreen */
+struct tagSFG_PlatformWindowState {
+	RECT OldRect;                   /* window rect     - stored before the window is made fullscreen */
+	DWORD OldStyle;                 /* window style    - stored before the window is made fullscreen */
+	DWORD OldStyleEx;               /* window Ex style - stored before the window is made fullscreen */
+	BOOL OldMaximized;              /* window maximized state - stored before the window is made fullscreen */
 
-    BOOL            MouseTracking;      /* Needed for generating GLUT_ENTERED and GLUT_LEFT entry func callbacks on windows */
+	BOOL MouseTracking;             /* Needed for generating GLUT_ENTERED and GLUT_LEFT entry func callbacks on windows */
 
-    /* Need to store window titles to emulate
-     * glutSetIconTitle/glutSetWindowTitle as Windows has only
-     * one title associated with a window and we need to swap
-     * them out based on the window's iconic state
-     */
-    char*           WindowTitle;
-    char*           IconTitle;
+	/* Need to store window titles to emulate
+	 * glutSetIconTitle/glutSetWindowTitle as Windows has only
+	 * one title associated with a window and we need to swap
+	 * them out based on the window's iconic state
+	 */
+	char*           WindowTitle;
+	char*           IconTitle;
 };
-
-
 
 /* Joystick-Specific Definitions */
 #if !defined(_WIN32_WCE)
 #   define _JS_MAX_AXES  8
 typedef struct tagSFG_PlatformJoystick SFG_PlatformJoystick;
-struct tagSFG_PlatformJoystick
-{
-    JOYCAPS     jsCaps;
-    JOYINFOEX   js;
-    UINT        js_id;
+struct tagSFG_PlatformJoystick {
+	JOYCAPSA jsCaps;
+	JOYINFOEX js;
+	UINT js_id;
 };
-#endif
 
+#endif
 
 /* Menu font and color definitions */
 #define  FREEGLUT_MENU_FONT    GLUT_BITMAP_8_BY_13
@@ -133,9 +124,7 @@ struct tagSFG_PlatformJoystick
 #define  FREEGLUT_MENU_PEN_HFORE_COLORS  {1.0f,  1.0f,  1.0f,  1.0f}
 #define  FREEGLUT_MENU_PEN_HBACK_COLORS  {0.15f, 0.15f, 0.45f, 1.0f}
 
-
 /* Function to be called on exit */
-extern void (__cdecl *__glutExitFunc)( int return_value );
-
+extern void(__cdecl *__glutExitFunc)(int return_value);
 
 #endif  /* FREEGLUT_INTERNAL_MSWIN_H */

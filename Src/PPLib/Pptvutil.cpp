@@ -6019,7 +6019,7 @@ public:
 	int    setDTS(const SString & rMemos)
 	{
 		SString buf;
-		StringSet ss(_PPConst.P_ObjMemoDelim);
+		StringSet ss(PPConst::P_ObjMemoDelim);
 		Memos.Z();
 		ss.setBuf(rMemos);
 		for(uint i = 0, j = 1; ss.get(&i, buf); j++)
@@ -6033,9 +6033,9 @@ public:
 		rMemos.Z();
 		for(uint i = 0; i < Memos.getCount(); i++) {
 			buf = Memos.Get(i).Txt;
-			buf.ReplaceStr(_PPConst.P_ObjMemoDelim, "", 0);
+			buf.ReplaceStr(PPConst::P_ObjMemoDelim, "", 0);
 			if(i != 0)
-				rMemos.Cat(_PPConst.P_ObjMemoDelim);
+				rMemos.Cat(PPConst::P_ObjMemoDelim);
 			rMemos.Cat(buf);
 		}
 		return 1;
@@ -6115,7 +6115,7 @@ int EditObjMemos(PPID objTypeID, PPID prop, PPID objID)
 	EditMemosDialog * p_dlg = 0;
 	PPRef->GetPropVlrString(objTypeID, objID, prop, memos);
 	if(!memos.Len() && InputStringDialog(0, 0, 0, 1, memos) > 0) {
-		memos.ReplaceStr(_PPConst.P_ObjMemoDelim, "", 0);
+		memos.ReplaceStr(PPConst::P_ObjMemoDelim, "", 0);
 		ok = 1;
 	}
 	if(ok == -1 && memos.Len()) {

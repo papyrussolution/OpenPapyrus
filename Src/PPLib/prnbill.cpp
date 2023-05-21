@@ -6,7 +6,7 @@
 #pragma hdrstop
 
 //static const char * BillMultiplePrintCfg2 = "BillMultiplePrintCfg2"; // @v11.2.0
-// _PPConst.WrParam_BillMultiplePrintCfg2
+// PPConst::WrParam_BillMultiplePrintCfg2
 //#define BILL_FORM_COUNT 13
 
 class MultiPrintDialog : public TDialog {
@@ -179,9 +179,9 @@ BillMultiPrintParam & BillMultiPrintParam::Z()
 int BillMultiPrintParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	uint32 signature = _PPConst.Signature_BillMultiPrintParam;
+	uint32 signature = PPConst::Signature_BillMultiPrintParam;
 	THROW_SL(pSCtx->Serialize(dir, signature, rBuf));
-	THROW(dir > 0 || signature == _PPConst.Signature_BillMultiPrintParam);
+	THROW(dir > 0 || signature == PPConst::Signature_BillMultiPrintParam);
 	THROW_SL(pSCtx->SerializeBlock(dir, sizeof(Reserve), Reserve, rBuf, 0));
 	THROW_SL(pSCtx->Serialize(dir, FormBits, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
@@ -196,15 +196,15 @@ int BillMultiPrintParam::LocalSave()
 	int    ok = 1;
 	if(IsEmpty()) {
 		WinRegKey key;
-		THROW_SL(key.DeleteValue(HKEY_CURRENT_USER, _PPConst.WrKey_PrefSettings, _PPConst.WrParam_BillMultiplePrintCfg2));
+		THROW_SL(key.DeleteValue(HKEY_CURRENT_USER, PPConst::WrKey_PrefSettings, PPConst::WrParam_BillMultiplePrintCfg2));
 	}
 	else {
 		SSerializeContext sctx;
 		SBuffer sbuf;
 		THROW(Serialize(+1, sbuf, &sctx));
 		{
-			WinRegKey key(HKEY_CURRENT_USER, _PPConst.WrKey_PrefSettings, 0);
-			THROW_SL(key.PutBinary(_PPConst.WrParam_BillMultiplePrintCfg2, sbuf.constptr(), sbuf.GetAvailableSize()));
+			WinRegKey key(HKEY_CURRENT_USER, PPConst::WrKey_PrefSettings, 0);
+			THROW_SL(key.PutBinary(PPConst::WrParam_BillMultiplePrintCfg2, sbuf.constptr(), sbuf.GetAvailableSize()));
 		}
 	}
 	CATCHZOK
@@ -215,12 +215,12 @@ int BillMultiPrintParam::LocalRestore()
 {
 	Z();
 	int    ok = -1;
-	WinRegKey key(HKEY_CURRENT_USER, _PPConst.WrKey_PrefSettings, 1);
+	WinRegKey key(HKEY_CURRENT_USER, PPConst::WrKey_PrefSettings, 1);
 	size_t rec_size = 0;
-	int r = key.GetRecSize(_PPConst.WrParam_BillMultiplePrintCfg2, &rec_size);
+	int r = key.GetRecSize(PPConst::WrParam_BillMultiplePrintCfg2, &rec_size);
 	if(r > 0) {
 		STempBuffer tb(rec_size + 64); // (+64) insurance
-		THROW_SL(key.GetBinary(_PPConst.WrParam_BillMultiplePrintCfg2, tb, tb.GetSize()) > 0);
+		THROW_SL(key.GetBinary(PPConst::WrParam_BillMultiplePrintCfg2, tb, tb.GetSize()) > 0);
 		{
 			SBuffer sbuf;
 			SSerializeContext sctx;
@@ -233,7 +233,7 @@ int BillMultiPrintParam::LocalRestore()
 		//
 		// Пытаемся считать данные в формате, предшествующем v11.2.0
 		//
-		WinRegKey old_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 1);
+		WinRegKey old_key(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, 1);
 		{
 			static const char * BillMultiplePrintCfg              = "BillMultiplePrintCfg";
 			static const char * BillMultiplePrintDivByCopies      = "BillMultiplePrintDivByCopies";

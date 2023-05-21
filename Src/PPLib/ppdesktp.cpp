@@ -278,7 +278,7 @@ struct DesktopAssocCmdPool_Strg {
 	SVerT  Ver;
 };
 
-// @v10.9.3 (replaced with _PPConst.CommonCmdAssocDesktopID) #define COMMON_DESKCMDASSOC 100000L
+// @v10.9.3 (replaced with PPConst::CommonCmdAssocDesktopID) #define COMMON_DESKCMDASSOC 100000L
 
 int PPDesktopAssocCmdPool::WriteToProp(int use_ta)
 {
@@ -296,7 +296,7 @@ int PPDesktopAssocCmdPool::WriteToProp(int use_ta)
 		}
 	}
 	THROW_PP(desktop_id >= 0, PPERR_UNDEFDESKTID_WRITE);
-	SETIFZ(desktop_id, /*COMMON_DESKCMDASSOC*/_PPConst.CommonCmdAssocDesktopID);
+	SETIFZ(desktop_id, /*COMMON_DESKCMDASSOC*/PPConst::CommonCmdAssocDesktopID);
 	THROW(Pack());
 	{
 		size_t sz = sizeof(*p_strg);
@@ -344,7 +344,7 @@ int PPDesktopAssocCmdPool::ReadFromProp(const S_GUID & rDesktopUuid)
 		assert(desktop_id > 0);
 	}
 	else {
-		desktop_id = _PPConst.CommonCmdAssocDesktopID/*COMMON_DESKCMDASSOC*/;
+		desktop_id = PPConst::CommonCmdAssocDesktopID/*COMMON_DESKCMDASSOC*/;
 	}
 	if(p_ref->GetPropActualSize(PPOBJ_DESKTOP, desktop_id, PPPRP_DESKCMDASSOC, &sz) > 0) {
 		p_strg = static_cast<DesktopAssocCmdPool_Strg *>(SAlloc::M(sz));

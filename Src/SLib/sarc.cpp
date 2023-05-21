@@ -67,7 +67,7 @@ int SCompressor::CompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDes
 		}
 	}
 	else if(Type == tZLib) {
-		//int ZEXPORT compress2(Bytef * dest, uLongf * destLen, const Bytef * source, uLong sourceLen, int level)
+		//int compress2(Byte * dest, uLongf * destLen, const Byte * source, uLong sourceLen, int level)
 		int level = (rate == 0) ? Z_DEFAULT_COMPRESSION : (rate / 10);
 		{
 			z_stream stream;
@@ -86,9 +86,9 @@ int SCompressor::CompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDes
 				STempBuffer temp_buf(temp_buf_size); // small buf for testing several iterations
 				THROW(temp_buf.IsValid());
 				do {
-					stream.next_out = static_cast<Bytef *>(temp_buf.vptr());
+					stream.next_out = static_cast<Byte *>(temp_buf.vptr());
 					stream.avail_out = temp_buf.GetSize();
-					stream.next_in = (const Bytef *)(PTR8C(pSrc)+current_src_offs);
+					stream.next_in = (const Byte *)(PTR8C(pSrc)+current_src_offs);
 					stream.avail_in = current_src_size;
 					const uint prev_total_out = stream.total_out;
 					const uint prev_total_in = stream.total_in;
@@ -132,11 +132,11 @@ int SCompressor::DecompressBlock(const void * pSrc, size_t srcSize, SBuffer & rD
 			STempBuffer temp_buf(temp_buf_size);
 			// decompress until deflate stream ends or end of file 
 			stream.avail_in = srcSize;
-			stream.next_in = static_cast<const Bytef *>(pSrc);
+			stream.next_in = static_cast<const Byte *>(pSrc);
 			// run inflate() on input until output buffer not full 
 			do {
 				stream.avail_out = temp_buf.GetSize();
-				stream.next_out = static_cast<Bytef *>(temp_buf.vptr());
+				stream.next_out = static_cast<Byte *>(temp_buf.vptr());
 				zlib_err = inflate(&stream, Z_NO_FLUSH);
 				THROW_S_S(zlib_err != Z_STREAM_ERROR, SLERR_ZLIB_BUFINFLATEFAULT, stream.msg); // state not clobbered 
 				switch(zlib_err) {

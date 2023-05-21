@@ -43,8 +43,8 @@ const char * CompressionStream::compress(const char * buf, size_t* p_size) {
 		out = new char[size];
 	}
 	deflate_zstream->avail_in = static_cast<uInt>(size);
-	deflate_zstream->next_in = reinterpret_cast<const Bytef*>(buf);
-	deflate_zstream->next_out = reinterpret_cast<Bytef*>(out);
+	deflate_zstream->next_in = reinterpret_cast<const Byte *>(buf);
+	deflate_zstream->next_out = reinterpret_cast<Byte *>(out);
 	// Specify the output buffer size as being the size of the input so zlib
 	// will give up once it discovers it can't compress (while it might seem
 	// we could pass a buffer one byte smaller, in fact that doesn't actually
@@ -55,20 +55,18 @@ const char * CompressionStream::compress(const char * buf, size_t* p_size) {
 		// Deflate failed - presumably the data wasn't compressible.
 		return NULL;
 	}
-
 	if(deflate_zstream->total_out >= size) {
 		// It didn't get smaller.
 		return NULL;
 	}
-
 	*p_size = deflate_zstream->total_out;
 	return out;
 }
 
 bool CompressionStream::decompress_chunk(const char * p, int len, string & buf)
 {
-	Bytef blk[8192];
-	inflate_zstream->next_in = reinterpret_cast<const Bytef*>(p);
+	Byte   blk[8192];
+	inflate_zstream->next_in = reinterpret_cast<const Byte *>(p);
 	inflate_zstream->avail_in = static_cast<uInt>(len);
 	while(true) {
 		inflate_zstream->next_out = blk;

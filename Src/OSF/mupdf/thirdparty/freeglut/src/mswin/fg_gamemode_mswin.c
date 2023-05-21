@@ -28,15 +28,15 @@
 /*
  * Changes to requested devmode, if it doesn't match current mode
  */
-GLboolean fghChangeDisplayMode(GLboolean haveToTest, DEVMODE * devModeRequested)
+GLboolean fghChangeDisplayMode(GLboolean haveToTest, DEVMODEA * devModeRequested)
 {
 	GLboolean success = GL_FALSE;
-	DEVMODE devModeCurrent;
+	DEVMODEA devModeCurrent;
 	const char * fggmstr = NULL;
 	char displayMode[300];
 
 	/* Get current display mode */
-	EnumDisplaySettings(fgDisplay.pDisplay.DisplayName, ENUM_CURRENT_SETTINGS, &devModeCurrent);
+	EnumDisplaySettingsA(fgDisplay.pDisplay.DisplayName, ENUM_CURRENT_SETTINGS, &devModeCurrent);
 	/* Now see if requested matches current mode, then we're done
 	 * There's only four fields we touch:
 	 * - dmPelsWidth
@@ -50,7 +50,7 @@ GLboolean fghChangeDisplayMode(GLboolean haveToTest, DEVMODE * devModeRequested)
 	    devModeCurrent.dmDisplayFrequency==devModeRequested->dmDisplayFrequency) {
 		if(!haveToTest) {
 			/* update vars in case if actual switch was requested */
-			EnumDisplaySettings(fgDisplay.pDisplay.DisplayName, ENUM_CURRENT_SETTINGS, &devModeCurrent);
+			EnumDisplaySettingsA(fgDisplay.pDisplay.DisplayName, ENUM_CURRENT_SETTINGS, &devModeCurrent);
 			fgState.GameModeSize.X  = devModeCurrent.dmPelsWidth;
 			fgState.GameModeSize.Y  = devModeCurrent.dmPelsHeight;
 			fgState.GameModeDepth   = devModeCurrent.dmBitsPerPel;
@@ -62,15 +62,12 @@ GLboolean fghChangeDisplayMode(GLboolean haveToTest, DEVMODE * devModeRequested)
 	}
 
 	/* Ok, we do have a mode switch to perform/test */
-	switch(ChangeDisplaySettingsEx(fgDisplay.pDisplay.DisplayName, devModeRequested, NULL, haveToTest ? CDS_TEST : CDS_FULLSCREEN,
-	    NULL) )
-	{
+	switch(ChangeDisplaySettingsExA(fgDisplay.pDisplay.DisplayName, devModeRequested, NULL, haveToTest ? CDS_TEST : CDS_FULLSCREEN, NULL)) {
 		case DISP_CHANGE_SUCCESSFUL:
 		    success = GL_TRUE;
-
 		    if(!haveToTest) {
 			    /* update vars in case if windows switched to proper mode */
-			    EnumDisplaySettings(fgDisplay.pDisplay.DisplayName, ENUM_CURRENT_SETTINGS, &devModeCurrent);
+			    EnumDisplaySettingsA(fgDisplay.pDisplay.DisplayName, ENUM_CURRENT_SETTINGS, &devModeCurrent);
 			    fgState.GameModeSize.X  = devModeCurrent.dmPelsWidth;
 			    fgState.GameModeSize.Y  = devModeCurrent.dmPelsHeight;
 			    fgState.GameModeDepth   = devModeCurrent.dmBitsPerPel;
@@ -123,12 +120,9 @@ GLboolean fghChangeDisplayMode(GLboolean haveToTest, DEVMODE * devModeRequested)
 void fgPlatformRememberState(void)
 {
 	/* Grab the current desktop settings... */
-	EnumDisplaySettings(fgDisplay.pDisplay.DisplayName, ENUM_CURRENT_SETTINGS,
-	    &fgDisplay.pDisplay.DisplayMode);
-
+	EnumDisplaySettingsA(fgDisplay.pDisplay.DisplayName, ENUM_CURRENT_SETTINGS, &fgDisplay.pDisplay.DisplayMode);
 	/* Make sure we will be restoring all settings needed */
-	fgDisplay.pDisplay.DisplayMode.dmFields |=
-	    DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL | DM_DISPLAYFREQUENCY;
+	fgDisplay.pDisplay.DisplayMode.dmFields |= DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL | DM_DISPLAYFREQUENCY;
 }
 
 /*
@@ -145,12 +139,10 @@ void fgPlatformRestoreState(void)
  */
 GLboolean fgPlatformChangeDisplayMode(GLboolean haveToTest)
 {
-	DEVMODE devMode;
-
+	DEVMODEA devMode;
 	/* Get current display mode */
-	EnumDisplaySettings(fgDisplay.pDisplay.DisplayName, ENUM_CURRENT_SETTINGS, &devMode);
+	EnumDisplaySettingsA(fgDisplay.pDisplay.DisplayName, ENUM_CURRENT_SETTINGS, &devMode);
 	devMode.dmFields = 0;
-
 	if(fgState.GameModeSize.X!=-1) {
 		devMode.dmPelsWidth  = fgState.GameModeSize.X;
 		devMode.dmFields |= DM_PELSWIDTH;

@@ -24,7 +24,7 @@
 #include "pixman-combine32.h"
 #include "pixman-inlines.h"
 
-static force_inline uint32 fetch_24(uint8 * a)
+static FORCEINLINE uint32 fetch_24(uint8 * a)
 {
 	if(((uintptr_t)a) & 1) {
 #ifdef WORDS_BIGENDIAN
@@ -42,7 +42,7 @@ static force_inline uint32 fetch_24(uint8 * a)
 	}
 }
 
-static force_inline void store_24(uint8 * a,
+static FORCEINLINE void store_24(uint8 * a,
     uint32 v)
 {
 	if(((uintptr_t)a) & 1) {
@@ -65,7 +65,7 @@ static force_inline void store_24(uint8 * a,
 	}
 }
 
-static force_inline uint32 over(uint32 src,
+static FORCEINLINE uint32 over(uint32 src,
     uint32 dest)
 {
 	uint32 a = ~src >> 24;
@@ -75,7 +75,7 @@ static force_inline uint32 over(uint32 src,
 	return dest;
 }
 
-static force_inline uint32 in(uint32 x,
+static FORCEINLINE uint32 in(uint32 x,
     uint8 y)
 {
 	uint16 a = y;
@@ -1136,7 +1136,7 @@ static void fast_composite_tiled_repeat(pixman_implementation_t * imp, pixman_co
 }
 
 /* Use more unrolling for src_0565_0565 because it is typically CPU bound */
-static force_inline void scaled_nearest_scanline_565_565_SRC(uint16 *  dst,
+static FORCEINLINE void scaled_nearest_scanline_565_565_SRC(uint16 *  dst,
     const uint16 * src,
     int32 w,
     pixman_fixed_t vx,
@@ -1175,7 +1175,7 @@ FAST_NEAREST_MAINLOOP(565_565_cover_SRC, scaled_nearest_scanline_565_565_SRC, ui
 FAST_NEAREST_MAINLOOP(565_565_none_SRC, scaled_nearest_scanline_565_565_SRC, uint16, uint16, NONE)
 FAST_NEAREST_MAINLOOP(565_565_pad_SRC, scaled_nearest_scanline_565_565_SRC, uint16, uint16, PAD)
 
-static force_inline uint32 fetch_nearest(pixman_repeat_t src_repeat, pixman_format_code_t format, uint32 * src, int32 x, int src_width)
+static FORCEINLINE uint32 fetch_nearest(pixman_repeat_t src_repeat, pixman_format_code_t format, uint32 * src, int32 x, int src_width)
 {
 	if(repeat(src_repeat, &x, src_width)) {
 		if(format == PIXMAN_x8r8g8b8 || format == PIXMAN_x8b8g8r8)
@@ -1188,7 +1188,7 @@ static force_inline uint32 fetch_nearest(pixman_repeat_t src_repeat, pixman_form
 	}
 }
 
-static force_inline void combine_over(uint32 s, uint32 * dst)
+static FORCEINLINE void combine_over(uint32 s, uint32 * dst)
 {
 	if(s) {
 		uint8 ia = 0xff - (s >> 24);
@@ -1200,7 +1200,7 @@ static force_inline void combine_over(uint32 s, uint32 * dst)
 	}
 }
 
-static force_inline void combine_src(uint32 s, uint32 * dst)
+static FORCEINLINE void combine_src(uint32 s, uint32 * dst)
 {
 	*dst = s;
 }
@@ -1711,7 +1711,7 @@ static const pixman_fast_path_t c_fast_paths[] =
 #define A1_FILL_MASK(n, offs) (((1U << (n)) - 1) << (offs))
 #endif
 
-static force_inline void pixman_fill1_line(uint32 * dst, int offs, int width, int v)
+static FORCEINLINE void pixman_fill1_line(uint32 * dst, int offs, int width, int v)
 {
 	if(offs) {
 		int leading_pixels = 32 - offs;
@@ -1926,7 +1926,7 @@ static uint32 * fast_dest_fetch_noop(pixman_iter_t * iter, const uint32 * mask)
 /* Helper function for a workaround, which tries to ensure that 0x1F001F
  * constant is always allocated in a register on RISC architectures.
  */
-static force_inline uint32 convert_8888_to_0565_workaround(uint32 s, uint32 x1F001F)
+static FORCEINLINE uint32 convert_8888_to_0565_workaround(uint32 s, uint32 x1F001F)
 {
 	uint32 a, b;
 	a = (s >> 3) & x1F001F;
@@ -2346,7 +2346,7 @@ static uint32 * bits_image_fetch_bilinear_no_repeat_8888(pixman_iter_t * iter, c
 
 typedef uint32 (* convert_pixel_t) (const uint8 * row, int x);
 
-static force_inline void bits_image_fetch_separable_convolution_affine(pixman_image_t * image,
+static FORCEINLINE void bits_image_fetch_separable_convolution_affine(pixman_image_t * image,
     int offset, int line, int width, uint32 *  buffer, const uint32 * mask,
     convert_pixel_t convert_pixel, pixman_format_code_t format, pixman_repeat_t repeat_mode)
 {
@@ -2464,7 +2464,7 @@ next:
 
 static const uint8 zero[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-static force_inline void bits_image_fetch_bilinear_affine(pixman_image_t * image,
+static FORCEINLINE void bits_image_fetch_bilinear_affine(pixman_image_t * image,
     int offset,
     int line,
     int width,
@@ -2600,7 +2600,7 @@ next:
 	}
 }
 
-static force_inline void bits_image_fetch_nearest_affine(pixman_image_t * image, int offset, int line, int width,
+static FORCEINLINE void bits_image_fetch_nearest_affine(pixman_image_t * image, int offset, int line, int width,
     uint32 *  buffer, const uint32 * mask, convert_pixel_t convert_pixel, pixman_format_code_t format, pixman_repeat_t repeat_mode)
 {
 	pixman_fixed_t x, y;
@@ -2648,22 +2648,22 @@ next:
 	}
 }
 
-static force_inline uint32 convert_a8r8g8b8(const uint8 * row, int x)
+static FORCEINLINE uint32 convert_a8r8g8b8(const uint8 * row, int x)
 {
 	return *(((uint32 *)row) + x);
 }
 
-static force_inline uint32 convert_x8r8g8b8(const uint8 * row, int x)
+static FORCEINLINE uint32 convert_x8r8g8b8(const uint8 * row, int x)
 {
 	return *(((uint32 *)row) + x);
 }
 
-static force_inline uint32 convert_a8(const uint8 * row, int x)
+static FORCEINLINE uint32 convert_a8(const uint8 * row, int x)
 {
 	return *(row + x) << 24;
 }
 
-static force_inline uint32 convert_r5g6b5(const uint8 * row, int x)
+static FORCEINLINE uint32 convert_r5g6b5(const uint8 * row, int x)
 {
 	return convert_0565_to_0888(*((uint16 *)row + x));
 }

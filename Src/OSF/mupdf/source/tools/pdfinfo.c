@@ -733,8 +733,7 @@ static void printinfo(fz_context * ctx, globals * glo, const char * filename, in
 	if(show & SHADINGS && glo->shadings > 0) {
 		fz_write_printf(ctx, out, "Shading patterns (%d):\n", glo->shadings);
 		for(i = 0; i < glo->shadings; i++) {
-			char * shadingtype[] =
-			{
+			const char * shadingtype[] = {
 				"",
 				"Function",
 				"Axial",
@@ -744,7 +743,6 @@ static void printinfo(fz_context * ctx, globals * glo, const char * filename, in
 				"Coons patch",
 				"Tensor patch",
 			};
-
 			fz_write_printf(ctx, out, PAGE_FMT_zu "%s (%d 0 R)\n",
 			    glo->shading[i].page,
 			    pdf_to_num(ctx, glo->shading[i].pageref),
@@ -758,20 +756,17 @@ static void printinfo(fz_context * ctx, globals * glo, const char * filename, in
 		fz_write_printf(ctx, out, "Patterns (%d):\n", glo->patterns);
 		for(i = 0; i < glo->patterns; i++) {
 			if(pdf_to_int(ctx, glo->pattern[i].u.pattern.type) == 1) {
-				char * painttype[] =
-				{
+				const char * painttype[] = {
 					"",
 					"Colored",
 					"Uncolored",
 				};
-				char * tilingtype[] =
-				{
+				const char * tilingtype[] = {
 					"",
 					"Constant",
 					"No distortion",
 					"Constant/fast tiling",
 				};
-
 				fz_write_printf(ctx, out, PAGE_FMT_zu "Tiling %s %s (%d 0 R)\n",
 				    glo->pattern[i].page,
 				    pdf_to_num(ctx, glo->pattern[i].pageref),
@@ -845,7 +840,7 @@ static void showinfo(fz_context * ctx, globals * glo, const char * filename, int
 		printinfo(ctx, glo, filename, show, -1);
 }
 
-static void pdfinfo_info(fz_context * ctx, fz_output * out, const char * filename, char * password, int show, const char * argv[], int argc)
+static void pdfinfo_info(fz_context * ctx, fz_output * out, const char * filename, const char * password, int show, const char * argv[], int argc)
 {
 	enum { NO_FILE_OPENED, NO_INFO_GATHERED, INFO_SHOWN } state;
 
@@ -892,8 +887,8 @@ static void pdfinfo_info(fz_context * ctx, fz_output * out, const char * filenam
 
 int pdfinfo_main(int argc, const char * argv[])
 {
-	char * filename = "";
-	char * password = "";
+	const char * filename = "";
+	const char * password = "";
 	int show = ALL;
 	int c;
 	int ret;

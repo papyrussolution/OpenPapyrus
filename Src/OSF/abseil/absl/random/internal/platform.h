@@ -68,15 +68,14 @@
 //
 // Attribute Checks
 //
-// ABSL_RANDOM_INTERNAL_RESTRICT annotates whether pointers may be considered
-// to be unaliased.
-#if defined(__clang__) || defined(__GNUC__)
-#define ABSL_RANDOM_INTERNAL_RESTRICT __restrict__
-#elif defined(_MSC_VER)
-#define ABSL_RANDOM_INTERNAL_RESTRICT __restrict
-#else
-#define ABSL_RANDOM_INTERNAL_RESTRICT
-#endif
+// ABSL_RANDOM_INTERNAL_RESTRICT annotates whether pointers may be considered to be unaliased.
+//#if defined(__clang__) || defined(__GNUC__)
+	//#define ABSL_RANDOM_INTERNAL_RESTRICT __restrict__
+//#elif defined(_MSC_VER)
+	//#define ABSL_RANDOM_INTERNAL_RESTRICT __restrict
+//#else
+	//#define ABSL_RANDOM_INTERNAL_RESTRICT
+//#endif
 
 // ABSL_HAVE_ACCELERATED_AES indicates whether the currently active compiler
 // flags (e.g. -maes) allow using hardware accelerated AES instructions, which
@@ -84,38 +83,30 @@
 #define ABSL_HAVE_ACCELERATED_AES 0
 
 #if defined(ABSL_ARCH_X86_64)
-
-#if defined(__AES__) || defined(__AVX__)
-#undef ABSL_HAVE_ACCELERATED_AES
-#define ABSL_HAVE_ACCELERATED_AES 1
-#endif
-
+	#if defined(__AES__) || defined(__AVX__)
+		#undef ABSL_HAVE_ACCELERATED_AES
+		#define ABSL_HAVE_ACCELERATED_AES 1
+	#endif
 #elif defined(ABSL_ARCH_PPC)
-
-// Rely on VSX and CRYPTO extensions for vcipher on PowerPC.
-#if (defined(__VEC__) || defined(__ALTIVEC__)) && defined(__VSX__) && \
-    defined(__CRYPTO__)
-#undef ABSL_HAVE_ACCELERATED_AES
-#define ABSL_HAVE_ACCELERATED_AES 1
-#endif
-
+	// Rely on VSX and CRYPTO extensions for vcipher on PowerPC.
+	#if (defined(__VEC__) || defined(__ALTIVEC__)) && defined(__VSX__) && \
+		defined(__CRYPTO__)
+		#undef ABSL_HAVE_ACCELERATED_AES
+		#define ABSL_HAVE_ACCELERATED_AES 1
+	#endif
 #elif defined(ABSL_ARCH_ARM) || defined(ABSL_ARCH_AARCH64)
-
-// http://infocenter.arm.com/help/topic/com.arm.doc.ihi0053c/IHI0053C_acle_2_0.pdf
-// Rely on NEON+CRYPTO extensions for ARM.
-#if defined(__ARM_NEON) && defined(__ARM_FEATURE_CRYPTO)
-#undef ABSL_HAVE_ACCELERATED_AES
-#define ABSL_HAVE_ACCELERATED_AES 1
+	// http://infocenter.arm.com/help/topic/com.arm.doc.ihi0053c/IHI0053C_acle_2_0.pdf
+	// Rely on NEON+CRYPTO extensions for ARM.
+	#if defined(__ARM_NEON) && defined(__ARM_FEATURE_CRYPTO)
+		#undef ABSL_HAVE_ACCELERATED_AES
+		#define ABSL_HAVE_ACCELERATED_AES 1
+	#endif
 #endif
-
-#endif
-
 // NaCl does not allow AES.
 #if defined(__native_client__)
-#undef ABSL_HAVE_ACCELERATED_AES
-#define ABSL_HAVE_ACCELERATED_AES 0
+	#undef ABSL_HAVE_ACCELERATED_AES
+	#define ABSL_HAVE_ACCELERATED_AES 0
 #endif
-
 // ABSL_RANDOM_INTERNAL_AES_DISPATCH indicates whether the currently active
 // platform has, or should use run-time dispatch for selecting the
 // acclerated Randen implementation.

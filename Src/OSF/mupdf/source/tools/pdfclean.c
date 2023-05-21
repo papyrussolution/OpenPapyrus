@@ -51,7 +51,7 @@ int pdfclean_main(int argc, const char * argv[])
 {
 	const char * infile = 0;
 	const char * outfile = "out.pdf";
-	char * password = "";
+	const char * password = "";
 	int c;
 	pdf_write_options opts = pdf_default_write_options;
 	int errors = 0;
@@ -91,12 +91,10 @@ int pdfclean_main(int argc, const char * argv[])
 		slfprintf_stderr("cannot initialise context\n");
 		exit(1);
 	}
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		pdf_clean_file(ctx, infile, outfile, password, &opts, argc - fz_optind, &argv[fz_optind]);
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		errors++;
 	}
 	fz_drop_context(ctx);

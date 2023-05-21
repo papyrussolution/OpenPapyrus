@@ -2988,7 +2988,7 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 		}
 		void   storeFlags()
 		{
-			WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_PrefSettings, 0);
+			WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_PrefSettings, 0);
 			SString param, val;
 			long   flags = 0;
 			GetClusterData(CTL_SELBBSMPL_SAMECODE, &flags);
@@ -2998,7 +2998,7 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 		}
 		void   restoreFlags()
 		{
-			WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_PrefSettings, 1);
+			WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_PrefSettings, 1);
 			SString param;
 			SString temp_buf;
 			PPID   op_id = getCtrlLong(CTLSEL_SELBBSMPL_OP);
@@ -3594,13 +3594,13 @@ int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 								BillTbl::Rec temp_bill_rec; // В итерационном запросе примечания нет - здесь получим полную запись
 								if(P_BObj->Search(draft_bill_rec.ID, &temp_bill_rec) > 0) {
 									temp_buf = temp_bill_rec.Memo;
-									if(temp_buf.HasPrefixIAscii(_PPConst.P_BillNotePrefix_IntrExpnd))
+									if(temp_buf.HasPrefixIAscii(PPConst::P_BillNotePrefix_IntrExpnd))
 										suited = 1;
 								}
 								*/
 								// @v11.1.12 {
 								P_BObj->P_Tbl->GetItemMemo(draft_bill_rec.ID, temp_buf);
-								if(temp_buf.HasPrefixIAscii(_PPConst.P_BillNotePrefix_IntrExpnd))
+								if(temp_buf.HasPrefixIAscii(PPConst::P_BillNotePrefix_IntrExpnd))
 									suited = 1;
 								// } @v11.1.12 
 							}
@@ -6165,7 +6165,7 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 									SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;
 								memos.ReplaceChar('\n', ' ');
 								memos.ReplaceChar('\r', ' ');
-								memos.ReplaceStr(_PPConst.P_ObjMemoDelim, "\n", 0);
+								memos.ReplaceStr(PPConst::P_ObjMemoDelim, "\n", 0);
 								PPTooltipMessage(memos, 0, pBrw->H(), 10000, 0, flags);
 							}
 						}

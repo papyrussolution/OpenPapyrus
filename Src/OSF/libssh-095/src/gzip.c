@@ -62,7 +62,7 @@ static ssh_buffer gzip_compress(ssh_session session, ssh_buffer source, int leve
 		return NULL;
 	}
 	zout->next_out = out_buf;
-	zout->next_in = (const Bytef *)in_ptr;
+	zout->next_in = (const Byte *)in_ptr;
 	zout->avail_in = in_size;
 	do {
 		zout->avail_out = BLOCKSIZE;
@@ -145,7 +145,7 @@ static ssh_buffer gzip_decompress(ssh_session session, ssh_buffer source, size_t
 		return NULL;
 	}
 	zin->next_out = out_buf;
-	zin->next_in = (const Bytef *)in_ptr;
+	zin->next_in = (const Byte *)in_ptr;
 	zin->avail_in = in_size;
 	do {
 		zin->avail_out = BLOCKSIZE;

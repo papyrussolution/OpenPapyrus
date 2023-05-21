@@ -1077,12 +1077,12 @@ zip_source_t * zip_source_pkware(zip_t * za, zip_source_t * src, uint16 em, int 
 static void decrypt(struct trad_pkware * ctx, uint8 * out, const uint8 * in, uint64 len, int update_only)
 {
 	for(uint64 i = 0; i < len; i++) {
-		Bytef b = in[i];
+		Byte   b = in[i];
 		if(!update_only) {
 			// decrypt next byte 
 			uint16 tmp = static_cast<uint16>(ctx->key[2] | 2);
 			tmp = static_cast<uint16>(((uint32)tmp * (tmp ^ 1)) >> 8);
-			b ^= (Bytef)tmp;
+			b ^= (Byte)tmp;
 		}
 		// store cleartext 
 		if(out)
@@ -1090,7 +1090,7 @@ static void decrypt(struct trad_pkware * ctx, uint8 * out, const uint8 * in, uin
 		// update keys 
 		ctx->key[0] = (uint32)crc32(ctx->key[0] ^ 0xffffffffUL, &b, 1) ^ 0xffffffffUL;
 		ctx->key[1] = (ctx->key[1] + (ctx->key[0] & 0xff)) * 134775813 + 1;
-		b = (Bytef)(ctx->key[1] >> 24);
+		b = (Byte)(ctx->key[1] >> 24);
 		ctx->key[2] = (uint32)crc32(ctx->key[2] ^ 0xffffffffUL, &b, 1) ^ 0xffffffffUL;
 	}
 }
@@ -3299,8 +3299,8 @@ void _zip_u2d_time(time_t intime, uint16 * dtime, uint16 * ddate)
 
 int _zip_filerange_crc(zip_source_t * src, uint64 start, uint64 len, uLong * crcp, zip_error_t * error)
 {
-	Bytef buf[BUFSIZE];
-	int64 n;
+	Byte   buf[BUFSIZE];
+	int64  n;
 	*crcp = crc32(0L, Z_NULL, 0);
 	if(start > ZIP_INT64_MAX)
 		return zip_error_set(error, SLERR_ZIP_SEEK, EFBIG);
@@ -3388,7 +3388,7 @@ static int64 crc_read(zip_source_t * src, void * _ctx, void * data, uint64 len, 
 			    uint64 nn;
 			    for(uint64 i = ctx->crc_position - ctx->position; i < (uint64)n; i += nn) {
 				    nn = MIN(UINT64_MAX, (uint64)n-i);
-				    ctx->crc = (uint32)crc32(ctx->crc, (const Bytef*)data+i, (uInt)nn);
+				    ctx->crc = (uint32)crc32(ctx->crc, (const Byte *)data+i, (uInt)nn);
 				    ctx->crc_position += nn;
 			    }
 		    }
@@ -3817,7 +3817,7 @@ static int64 compress_read(zip_source_t * src, ZipDeflate * ctx, void * data, ui
 	}
 	out_offset = 0;
 	out_len = (uInt)MIN(UINT_MAX, len);
-	ctx->zstr.next_out = static_cast<Bytef *>(data);
+	ctx->zstr.next_out = static_cast<Byte *>(data);
 	ctx->zstr.avail_out = out_len;
 	end = 0;
 	while(!end) {
@@ -3837,7 +3837,7 @@ static int64 compress_read(zip_source_t * src, ZipDeflate * ctx, void * data, ui
 				    out_offset += out_len;
 				    if(out_offset < len) {
 					    out_len = (uInt)MIN(UINT_MAX, len-out_offset);
-					    ctx->zstr.next_out = (Bytef *)data+out_offset;
+					    ctx->zstr.next_out = (Byte *)data+out_offset;
 					    ctx->zstr.avail_out = out_len;
 				    }
 				    else {
@@ -3867,7 +3867,7 @@ static int64 compress_read(zip_source_t * src, ZipDeflate * ctx, void * data, ui
 				    else {
 					    if(ctx->zstr.total_in > 0)
 						    ctx->can_store = false; // we overwrote a previously filled ctx->buffer 
-					    ctx->zstr.next_in = static_cast<Bytef *>(ctx->buffer);
+					    ctx->zstr.next_in = static_cast<Byte *>(ctx->buffer);
 					    ctx->zstr.avail_in = (uInt)n;
 				    }
 				    continue;
@@ -3901,7 +3901,7 @@ static int64 decompress_read(zip_source_t * src, ZipDeflate * ctx, void * data, 
 		return 0;
 	out_offset = 0;
 	out_len = (uInt)MIN(UINT64_MAX, len);
-	ctx->zstr.next_out = static_cast<Bytef *>(data);
+	ctx->zstr.next_out = static_cast<Byte *>(data);
 	ctx->zstr.avail_out = out_len;
 	end = 0;
 	while(!end) {
@@ -3912,7 +3912,7 @@ static int64 decompress_read(zip_source_t * src, ZipDeflate * ctx, void * data, 
 				    out_offset += out_len;
 				    if(out_offset < len) {
 					    out_len = (uInt)MIN(UINT64_MAX, len-out_offset);
-					    ctx->zstr.next_out = (Bytef *)data+out_offset;
+					    ctx->zstr.next_out = (Byte *)data+out_offset;
 					    ctx->zstr.avail_out = out_len;
 				    }
 				    else {
@@ -3941,7 +3941,7 @@ static int64 decompress_read(zip_source_t * src, ZipDeflate * ctx, void * data, 
 					    ctx->eof = 1;
 				    }
 				    else {
-					    ctx->zstr.next_in = (Bytef *)ctx->buffer;
+					    ctx->zstr.next_in = (Byte *)ctx->buffer;
 					    ctx->zstr.avail_in = (uInt)n;
 				    }
 				    continue;
@@ -4023,7 +4023,7 @@ static int64 deflate_decompress(zip_source_t * src, void * ud, void * data, uint
 		    ctx->zstr.zalloc = Z_NULL;
 		    ctx->zstr.zfree = Z_NULL;
 		    ctx->zstr.opaque = NULL;
-		    ctx->zstr.next_in = static_cast<Bytef *>(ctx->buffer);
+		    ctx->zstr.next_in = static_cast<Byte *>(ctx->buffer);
 		    ctx->zstr.avail_in = (uInt)n;
 		    // negative value to tell zlib that there is no header 
 		    if((ret = inflateInit2(&ctx->zstr, -MAX_WBITS)) != Z_OK)

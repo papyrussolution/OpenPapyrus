@@ -62,7 +62,7 @@ MacroProps NumberPropertyMapper::oldToNew(const DecimalFormatProperties& propert
 	UCurrencyUsage currencyUsage = properties.currencyUsage.getOrDefault(UCURR_USAGE_STANDARD);
 	if(useCurrency) {
 		// NOTE: Slicing is OK.
-		macros.unit = currency; // NOLINT
+		macros.unit = currency;
 	}
 	//
 	// ROUNDING STRATEGY //

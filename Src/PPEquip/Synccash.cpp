@@ -675,11 +675,11 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		double real_nonfiscal = 0.0;
 		CnObj.GetTaxSystem(NodeID, pPack->Rec.Dt, &tax_sys_id);
 		pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);
-		const double _fiscal = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
+		const double _fiscal = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
 		const CcAmountList & r_al = pPack->AL_Const();
 		const int is_al = BIN(r_al.getCount());
 		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
-		const double amt_cash = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
+		const double amt_cash = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
 		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal); // @v10.4.1
 		SString buyers_email;
 		SString buyers_phone;

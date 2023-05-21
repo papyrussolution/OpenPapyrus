@@ -350,7 +350,7 @@ static void png_read_idat(fz_context * ctx, struct info * info, const uchar * p,
 {
 	int code;
 
-	stm->next_in = (Bytef*)p;
+	stm->next_in = (Byte *)p;
 	stm->avail_in = size;
 
 	code = inflate(stm, Z_SYNC_FLUSH);

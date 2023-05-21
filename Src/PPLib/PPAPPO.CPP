@@ -1296,18 +1296,18 @@ static int StoreLastBinPath()
 	SString temp_buf;
 	PPGetPath(PPPATH_BIN, path);
 	path.RmvLastSlash();
-	WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 0);
+	WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, 0);
 	WinRegValue reg_val;
 	long   last_path_idx = 0;
 	for(uint i = 0; reg_key.EnumValues(&i, &param, &reg_val) > 0;) {
-		const size_t prfx_len = sstrlen(_PPConst.WrParam_BinPath);
-		if(strnicmp(param, _PPConst.WrParam_BinPath, prfx_len) == 0) {
+		const size_t prfx_len = sstrlen(PPConst::WrParam_BinPath);
+		if(strnicmp(param, PPConst::WrParam_BinPath, prfx_len) == 0) {
 			last_path_idx = smax(static_cast<long>(satoi(param+prfx_len)), last_path_idx);
 			if(reg_val.GetString(temp_buf) && path.CmpNC(temp_buf) == 0)
 				return -1;
 		}
 	}
-	(param = _PPConst.WrParam_BinPath).Cat(last_path_idx+1);
+	(param = PPConst::WrParam_BinPath).Cat(last_path_idx+1);
 	return BIN(reg_key.PutString(param, path));
 }
 
@@ -1387,7 +1387,7 @@ int PPVerHistory::Read(const char * pDataPath, Info * pInfo)
 			MEMSZERO(hdr);
 			THROW_SL(f.Open(path, SFile::mRead|SFile::mBinary) > 0);
 			THROW_PP_S(f.Read(&hdr, hdr_size, &len) > 0 && len == hdr_size, PPERR_INVHDRSIZE, path); // @v10.6.9 THROW_PP-->THROW_PP_S(..., path)
-			THROW_PP_S(hdr.Signature == _PPConst.Signature_VerHist, PPERR_VERHISTINVSIGN, path);
+			THROW_PP_S(hdr.Signature == PPConst::Signature_VerHist, PPERR_VERHISTINVSIGN, path);
 			THROW_SL(f.CalcCRC(hdr_size, &crc));
 			SLibError = SLERR_INVALIDCRC;
 			THROW_SL(crc == hdr.CRC);
@@ -1426,7 +1426,7 @@ int PPVerHistory::Write(const char * pDataPath, const Info * pInfo)
 	MEMSZERO(hdr);
 	MEMSZERO(rec);
 	f.Seek(0);
-	hdr.Signature = _PPConst.Signature_VerHist;
+	hdr.Signature = PPConst::Signature_VerHist;
 	hdr.CRC       = crc;
 	hdr.CurVer    = pInfo->CurVer;
 	hdr.MinVer    = pInfo->MinVer;

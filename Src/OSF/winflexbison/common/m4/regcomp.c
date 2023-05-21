@@ -408,23 +408,18 @@ static void re_compile_fastmap_iter(regex_t * bufp, const re_dfastate_t * init_s
    It returns 0 if it succeeds, nonzero if it doesn't.  (See regex.h for
    the return codes and their meanings.)  */
 
-int regcomp(regex_t *_Restrict_ preg, const char * _Restrict_ pattern, int cflags)
+int regcomp(regex_t * _RESTRICT preg, const char * _RESTRICT pattern, int cflags)
 {
 	reg_errcode_t ret;
-	reg_syntax_t syntax = ((cflags & REG_EXTENDED) ? RE_SYNTAX_POSIX_EXTENDED
-	    : RE_SYNTAX_POSIX_BASIC);
-
+	reg_syntax_t syntax = ((cflags & REG_EXTENDED) ? RE_SYNTAX_POSIX_EXTENDED : RE_SYNTAX_POSIX_BASIC);
 	preg->buffer = NULL;
 	preg->allocated = 0;
 	preg->used = 0;
-
 	/* Try to allocate space for the fastmap.  */
 	preg->fastmap = re_malloc(char, SBC_MAX);
 	if(BE(preg->fastmap == NULL, 0))
 		return REG_ESPACE;
-
 	syntax |= (cflags & REG_ICASE) ? RE_ICASE : 0;
-
 	/* If REG_NEWLINE is set, newlines are treated differently.  */
 	if(cflags & REG_NEWLINE) { /* REG_NEWLINE implies neither . nor [^...] match newline.  */
 		syntax &= ~RE_DOT_NEWLINE;
@@ -465,32 +460,25 @@ weak_alias(__regcomp, regcomp)
    from either regcomp or regexec.   We don't use PREG here.  */
 
 #ifdef _LIBC
-size_t regerror(errcode, preg, errbuf, errbuf_size)
-int errcode;
-const regex_t * _Restrict_ preg;
-char * _Restrict_ errbuf;
-size_t errbuf_size;
+	size_t regerror(errcode, preg, errbuf, errbuf_size)
+	int errcode;
+	const regex_t * _RESTRICT preg;
+	char * _RESTRICT errbuf;
+	size_t errbuf_size;
 #else /* size_t might promote */
-size_t regerror(int errcode, const regex_t * _Restrict_ preg,
-    char * _Restrict_ errbuf, size_t errbuf_size)
+	size_t regerror(int errcode, const regex_t * _RESTRICT preg, char * _RESTRICT errbuf, size_t errbuf_size)
 #endif
 {
 	const char * msg;
 	size_t msg_size;
-
-	if(BE(errcode < 0
-	    || errcode >= (int)(sizeof(__re_error_msgid_idx)
-	    / sizeof(__re_error_msgid_idx[0])), 0))
+	if(BE(errcode < 0 || errcode >= (int)(sizeof(__re_error_msgid_idx) / sizeof(__re_error_msgid_idx[0])), 0))
 		/* Only error codes returned by the rest of the code should be passed
 		   to this routine.  If we are given anything else, or if other regex
 		   code generates an invalid error code, then the program has a bug.
 		   Dump core so we can fix it.  */
 		abort();
-
 	msg = gettext(__re_error_msgid + __re_error_msgid_idx[errcode]);
-
 	msg_size = strlen(msg) + 1; /* Includes the null.  */
-
 	if(BE(errbuf_size != 0, 1)) {
 		size_t cpy_size = msg_size;
 		if(BE(msg_size > errbuf_size, 0)) {

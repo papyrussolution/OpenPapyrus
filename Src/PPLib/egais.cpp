@@ -51,7 +51,7 @@ BILL_EDI_USER_STATE
 	-- отказ                             brown       EdiOp == PPEDIOP_EGAIS_WAYBILL && BillCore::GetRecadvConfStatus() == PPEDI_RECADVCONF_STATUS_REJECT
 */
 static const char * P_TempOutputDirName = "temp-query";
-// @v10.8.3 (replaced with _PPConst.P_BillNotePrefix_IntrExpnd) static const char * P_IntrExpndNotePrefix = "$INTREXPND";
+// @v10.8.3 (replaced with PPConst::P_BillNotePrefix_IntrExpnd) static const char * P_IntrExpndNotePrefix = "$INTREXPND";
 
 static SString & Egais_GetBillCode(const BillTbl::Rec & rRec, SString & rBuf)
 {
@@ -2425,7 +2425,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 								{
 									temp_buf.Z();
 									if(is_intrexpend)
-										temp_buf.CatEq(_PPConst.P_BillNotePrefix_IntrExpnd, p_bp->Rec.ID);
+										temp_buf.CatEq(PPConst::P_BillNotePrefix_IntrExpnd, p_bp->Rec.ID);
 									// @v8.9.10 (Поставщики не хотят передавать свои примечания в ЕГАИС) if(p_bp->Rec.Memo[0]) temp_buf.CatDiv('-', 1, 1).Cat(p_bp->Rec.Memo);
 									n_h.PutInnerSkipEmpty(SXml::nst("wb", "Note"), EncText(temp_buf)); // Примечание
 								}
@@ -4354,7 +4354,7 @@ int PPEgaisProcessor::Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPack)
         }
 		else {
 			if(SXml::IsName(p_n, "Content")) {
-				int    surrogate_line_ident = _PPConst.EgaisInRowIdentDivider;
+				int    surrogate_line_ident = PPConst::EgaisInRowIdentDivider;
 				for(const xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
                     InformBItem item;
 					if(SXml::IsName(p_c, "Position")) {
@@ -4364,9 +4364,9 @@ int PPEgaisProcessor::Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPack)
 								STRNSCPY(item.OrgRowIdent, temp_buf);
 								if(temp_buf.IsDigit()) {
 									if(temp_buf == "0")
-										item.P = _PPConst.EgaisInRowIdentDivider;
+										item.P = PPConst::EgaisInRowIdentDivider;
 									else
-										item.P = (temp_buf.ToLong() % _PPConst.EgaisInRowIdentDivider);
+										item.P = (temp_buf.ToLong() % PPConst::EgaisInRowIdentDivider);
 								}
 								else {
 									item.P = ++surrogate_line_ident;
@@ -4682,8 +4682,8 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 					memo_base.Transf(CTRANSF_UTF8_TO_INNER);
                 else if(SXml::GetContentByName(p_h, "Note", memo_note)) {
                 	memo_note.Transf(CTRANSF_UTF8_TO_INNER);
-                	if(memo_note.HasPrefixNC(_PPConst.P_BillNotePrefix_IntrExpnd)) {
-						(temp_buf = memo_note).ShiftLeft(sstrlen(_PPConst.P_BillNotePrefix_IntrExpnd)).Strip().ShiftLeftChr('=').Strip();
+                	if(memo_note.HasPrefixNC(PPConst::P_BillNotePrefix_IntrExpnd)) {
+						(temp_buf = memo_note).ShiftLeft(sstrlen(PPConst::P_BillNotePrefix_IntrExpnd)).Strip().ShiftLeftChr('=').Strip();
 						intr_expend_bill_id = temp_buf.ToLong();
 						SETIFZ(intr_expend_bill_id, -1);
                 	}
@@ -4826,7 +4826,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 			else {
 				SString serial;
 				SString box_number;
-				int    surrogate_line_ident = _PPConst.EgaisInRowIdentDivider;
+				int    surrogate_line_ident = PPConst::EgaisInRowIdentDivider;
 				SString org_line_ident;
 				for(const xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
 					PPTransferItem ti;
@@ -4847,11 +4847,11 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 								if(temp_buf.IsDigit()) {
 									const long dec_id = temp_buf.ToLong();
 									if(temp_buf == "0") {
-										ti.RByBill = _PPConst.EgaisInRowIdentDivider;
+										ti.RByBill = PPConst::EgaisInRowIdentDivider;
 										org_line_ident = temp_buf;
 									}
 									else {
-										ti.RByBill = static_cast<int16>(dec_id % _PPConst.EgaisInRowIdentDivider);
+										ti.RByBill = static_cast<int16>(dec_id % PPConst::EgaisInRowIdentDivider);
 										if(dec_id != ti.RByBill)
 											org_line_ident = temp_buf;
 									}
@@ -5537,6 +5537,7 @@ struct EgaisRestItem { // @flat
 int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod) // @indevelopment
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	const  PPID loc_id = pCurrentRestPack ? pCurrentRestPack->Rec.LocID : 0;
 	const  bool use_lotxcode = LOGIC(CConfig.Flags2 & CCFLG2_USELOTXCODE);
 	PPID   op_id = 0;
@@ -5586,11 +5587,14 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 				PPIDArray lot_id_list;
 				if(Cfg.E.WrOffShopWay == Cfg.woswBalanceWithLots) {
 					// @v11.7.2 if(!v3markMode) {
+						SString ref_a; // @v11.7.3 Справка А из отчета об остатках
+						SString ref_b; // @v11.7.3 Справка Б из отчета об остатках
 						for(uint i = 0; i < pCurrentRestPack->GetTCount(); i++) {
 							const PPTransferItem & r_ti = pCurrentRestPack->ConstTI(i);
 							if(r_ti.Quantity_ > 0.0 && pCurrentRestPack->LTagL.GetTagStr(i, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code) > 0) {
+								bool is_beer = false;
 								assert(egais_code.NotEmpty());
-								PPRef->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code, &lot_id_list);
+								p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code, &lot_id_list);
 								double current_lot_rest = 0.0;
 								// @v11.7.2 {
 								bool do_process = false;
@@ -5600,13 +5604,15 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 								else {
 									PrcssrAlcReport::GoodsItem agi;
 									if(PreprocessGoodsItem(labs(r_ti.GoodsID), /*org_lot_id*/0, 0, 0, agi) > 0) {
-										bool is_beer = LOGIC(PrcssrAlcReport::IsBeerCategoryCode(agi.CategoryCode));
+										is_beer = LOGIC(PrcssrAlcReport::IsBeerCategoryCode(agi.CategoryCode));
 										if(is_beer)
 											do_process = true;
 									}
 								}
 								// } @v11.7.2 
 								if(do_process) {
+									pCurrentRestPack->LTagL.GetTagStr(i, PPTAG_LOT_FSRARINFA, ref_a); // @v11.7.3
+									pCurrentRestPack->LTagL.GetTagStr(i, PPTAG_LOT_FSRARINFB, ref_b); // @v11.7.3
 									for(uint j = 0; j < lot_id_list.getCount(); j++) {
 										const PPID lot_id = lot_id_list.get(j);
 										if(P_BObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id) {
@@ -5631,6 +5637,12 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 											{
 												ObjTagList tag_list;
 												tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
+												// @v11.7.3 {
+												if(is_beer) {
+													tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFA, ref_a);
+													tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFB, ref_b);
+												}
+												// } @v11.7.3 
 												THROW(p_wroff_bp->LTagL.Set(new_pos, &tag_list));
 											}
 										}
@@ -6885,28 +6897,28 @@ int PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, const 
 			SString prefix_buf;
 			StringSet ss_prefix;
 			if(conclusion == 0) {
-				ss_prefix.add((temp_buf = _PPConst.P_ObjMemo_UtmRejPfx).Colon());
-				ss_prefix.add((temp_buf = _PPConst.P_ObjMemo_EgaisRejPfx).Colon());
+				ss_prefix.add((temp_buf = PPConst::P_ObjMemo_UtmRejPfx).Colon());
+				ss_prefix.add((temp_buf = PPConst::P_ObjMemo_EgaisRejPfx).Colon());
 				if(ticketType == 1 && pT->R.Comment.NotEmpty()) {
-					temp_buf.Z().Cat(_PPConst.P_ObjMemo_UtmRejPfx).Space().Cat(pT->R.Time, DATF_ISO8601, TIMF_HMS).Colon();
+					temp_buf.Z().Cat(PPConst::P_ObjMemo_UtmRejPfx).Space().Cat(pT->R.Time, DATF_ISO8601, TIMF_HMS).Colon();
 					ss_prefix.add(temp_buf);
 					memo_msg.Space().Cat(temp_buf).Space().Cat(pT->R.Comment);
 				}
 				else if(ticketType == 2 && pT->OpR.Comment.NotEmpty()) {
-					temp_buf.Z().Cat(_PPConst.P_ObjMemo_EgaisRejPfx).Space().Cat(pT->OpR.Time, DATF_ISO8601, TIMF_HMS).Colon();
+					temp_buf.Z().Cat(PPConst::P_ObjMemo_EgaisRejPfx).Space().Cat(pT->OpR.Time, DATF_ISO8601, TIMF_HMS).Colon();
 					ss_prefix.add(temp_buf);
 					memo_msg.Space().Cat(temp_buf).Space().Cat(pT->OpR.Comment);
 				}
 			}
 			else {
-				ss_prefix.add(_PPConst.P_ObjMemo_UtmRejPfx);
-				ss_prefix.add(_PPConst.P_ObjMemo_EgaisRejPfx);
+				ss_prefix.add(PPConst::P_ObjMemo_UtmRejPfx);
+				ss_prefix.add(PPConst::P_ObjMemo_EgaisRejPfx);
 			}
 			{
 				int   do_update_memos = 0;
 				SString memos;
-				StringSet ss_memo(_PPConst.P_ObjMemoDelim);
-				StringSet ss_memo_new(_PPConst.P_ObjMemoDelim);
+				StringSet ss_memo(PPConst::P_ObjMemoDelim);
+				StringSet ss_memo_new(PPConst::P_ObjMemoDelim);
 				p_ref->GetPropVlrString(PPOBJ_BILL, bill_id, PPPRP_BILLMEMO, memos);
 				ss_memo.setBuf(memos);
 				for(uint ssp = 0; ss_memo.get(&ssp, temp_buf);) {

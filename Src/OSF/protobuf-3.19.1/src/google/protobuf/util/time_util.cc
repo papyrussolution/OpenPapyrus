@@ -402,13 +402,14 @@ Duration& operator+=(Duration& d1, const Duration& d2) {
 	return d1;
 }
 
-Duration& operator-=(Duration& d1, const Duration& d2) {  // NOLINT
-	d1 = CreateNormalized<Duration>(d1.seconds() - d2.seconds(),
-		d1.nanos() - d2.nanos());
+Duration& operator-=(Duration& d1, const Duration& d2) 
+{
+	d1 = CreateNormalized<Duration>(d1.seconds() - d2.seconds(), d1.nanos() - d2.nanos());
 	return d1;
 }
 
-Duration& operator*=(Duration& d, int64_t r) {  // NOLINT
+Duration& operator*=(Duration& d, int64_t r) 
+{
 	bool negative;
 	uint128 value;
 	ToUint128(d, &value, &negative);
@@ -423,7 +424,7 @@ Duration& operator*=(Duration& d, int64_t r) {  // NOLINT
 	return d;
 }
 
-Duration& operator*=(Duration& d, double r) {  // NOLINT
+Duration& operator*=(Duration& d, double r) {
 	double result = (d.seconds() * 1.0 + 1.0 * d.nanos() / kNanosPerSecond) * r;
 	int64_t seconds = static_cast<int64_t>(result);
 	int32_t nanos = static_cast<int32_t>((result - seconds) * kNanosPerSecond);
@@ -435,7 +436,8 @@ Duration& operator*=(Duration& d, double r) {  // NOLINT
 	return d;
 }
 
-Duration& operator/=(Duration& d, int64_t r) {  // NOLINT
+Duration& operator/=(Duration& d, int64_t r) 
+{
 	bool negative;
 	uint128 value;
 	ToUint128(d, &value, &negative);
@@ -450,11 +452,10 @@ Duration& operator/=(Duration& d, int64_t r) {  // NOLINT
 	return d;
 }
 
-Duration& operator/=(Duration& d, double r) {  // NOLINT
-	return d *= 1.0 / r;
-}
+Duration& operator/=(Duration& d, double r) { return d *= 1.0 / r; }
 
-Duration& operator%=(Duration& d1, const Duration& d2) {  // NOLINT
+Duration& operator%=(Duration& d1, const Duration& d2) 
+{
 	bool negative1, negative2;
 	uint128 value1, value2;
 	ToUint128(d1, &value1, &negative1);
@@ -482,21 +483,21 @@ int64_t operator/(const Duration& d1, const Duration& d2) {
 	return result;
 }
 
-Timestamp& operator+=(Timestamp& t, const Duration& d) {  // NOLINT
-	t = CreateNormalized<Timestamp>(t.seconds() + d.seconds(),
-		t.nanos() + d.nanos());
+Timestamp& operator+=(Timestamp& t, const Duration& d) 
+{
+	t = CreateNormalized<Timestamp>(t.seconds() + d.seconds(), t.nanos() + d.nanos());
 	return t;
 }
 
-Timestamp& operator-=(Timestamp& t, const Duration& d) {  // NOLINT
-	t = CreateNormalized<Timestamp>(t.seconds() - d.seconds(),
-		t.nanos() - d.nanos());
+Timestamp& operator-=(Timestamp& t, const Duration& d) 
+{
+	t = CreateNormalized<Timestamp>(t.seconds() - d.seconds(), t.nanos() - d.nanos());
 	return t;
 }
 
-Duration operator-(const Timestamp& t1, const Timestamp& t2) {
-	return CreateNormalized<Duration>(t1.seconds() - t2.seconds(),
-		   t1.nanos() - t2.nanos());
+Duration operator-(const Timestamp& t1, const Timestamp& t2) 
+{
+	return CreateNormalized<Duration>(t1.seconds() - t2.seconds(), t1.nanos() - t2.nanos());
 }
 }  // namespace protobuf
 }  // namespace google

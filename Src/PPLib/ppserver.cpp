@@ -1334,7 +1334,42 @@ void PPJobServer::Run()
 	delete p_dcn;
 }
 //
+// Descr: Блок, отвечающий за взаимодействие серверной сессии с модулем WsCtl
 //
+class WsCtlBlock {
+public:
+	WsCtlBlock() : PrcID(0)
+	{
+	}
+	int    Init(const S_GUID & rUuid)
+	{
+		int    ok = 0;
+		Reference * p_ref = PPRef;
+		if(!!rUuid) {
+			PPIDArray prc_list;
+			p_ref->Ot.SearchObjectsByGuid(PPOBJ_PROCESSOR, PPTAG_PRC_UUID, rUuid, &prc_list);
+			THROW(prc_list.getCount() > 0); // @todo @err ...и надо что-то сделать со случаем, когда prc_list.getCount() > 1
+			{
+				const PPID prc_id = prc_list.get(0);
+				ProcessorTbl::Rec prc_rec;
+				THROW(TSesObj.PrcObj.Fetch(prc_id, &prc_rec) > 0);
+				PrcID = prc_list.get(0);
+				WsUUID = rUuid;
+				(PrcNameUtf8 = prc_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+				ok = 1;
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+	PPObjTSession TSesObj;
+	PPObjGoods GObj;
+	S_GUID WsUUID; // UUID управляемой рабочей станции
+	PPID   PrcID;  // Ид процессора, соответствующего рабочей станции
+	SString PrcNameUtf8;
+};
+//
+// Descr: Блок, отвечающий за взаимодействие сервеной сессии с клиентом, работающий с кассовым узлом
 //
 class CPosNodeBlock {
 public:
@@ -2059,18 +2094,20 @@ PPWorkerSession::FTB::~FTB()
 	delete P_B; // @v11.4.0
 }
 
-PPWorkerSession::PPWorkerSession(int threadKind) : PPThread(/*PPThread::kNetSession*/threadKind, 0, 0), P_CPosBlk(0), State_PPws(0), Counter(0), P_TxtCmdTerminal(0)
+PPWorkerSession::PPWorkerSession(int threadKind) : PPThread(/*PPThread::kNetSession*/threadKind, 0, 0), P_CPosBlk(0), P_WsCtlBlk(0), State_PPws(0), Counter(0), P_TxtCmdTerminal(0)
 {
 }
 
 PPWorkerSession::~PPWorkerSession()
 {
 	ZDELETE(P_CPosBlk);
+	ZDELETE(P_WsCtlBlk); // @v11.7.2
 }
 
 /*virtual*/void PPWorkerSession::Shutdown()
 {
 	ZDELETE(P_CPosBlk);
+	ZDELETE(P_WsCtlBlk); // @v11.7.2
 	FtbList.freeAll();
 	PPThread::Shutdown();
 }
@@ -2833,8 +2870,8 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			break;
 		case PPSCMD_GETFILE:
 			pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
-			THROW_PP_S(name.HasPrefix(_PPConst.P_MagicFileTransmit), PPERR_JOBSRV_FILETRANSM_INVMAGIC, name);
-			name.ShiftLeft(sstrlen(_PPConst.P_MagicFileTransmit));
+			THROW_PP_S(name.HasPrefix(PPConst::P_MagicFileTransmit), PPERR_JOBSRV_FILETRANSM_INVMAGIC, name);
+			name.ShiftLeft(sstrlen(PPConst::P_MagicFileTransmit));
 			ok = TransmitFile(tfvStart, tfctFile, name, rReply);
 			break;
 		case PPSCMD_GETNEXTFILEPART:
@@ -3281,12 +3318,142 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				}
 			}
 			break;
-		case PPSCMD_WSCTL_INIT: // @construction
+		case PPSCMD_WSCTL_INIT: // @v11.7.3 @construction
 			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
 			{
 				if(pEv->GetAvailableSize() >= sizeof(S_GUID)) {
 					S_GUID  wsctl_uuid;
 					pEv->Read(&wsctl_uuid, sizeof(wsctl_uuid));
+
+					ZDELETE(P_WsCtlBlk);
+					P_WsCtlBlk = new WsCtlBlock();
+					THROW_SL(P_WsCtlBlk);
+					THROW(P_WsCtlBlk->Init(wsctl_uuid));
+					{
+						SJson js_obj(SJson::tOBJECT);
+						js_obj.InsertInt("prcid", P_WsCtlBlk->PrcID);
+						js_obj.InsertString("prcnm", P_WsCtlBlk->PrcNameUtf8);
+						js_obj.InsertString("wsctluuid", temp_buf.Z().Cat(P_WsCtlBlk->WsUUID, S_GUID::fmtIDL));
+						THROW_SL(js_obj.ToStr(temp_buf));
+						rReply.SetString(temp_buf);
+						ok = cmdretOK;
+					}
+				}
+			}
+			break;
+		case PPSCMD_WSCTL_GETQUOTLIST: // @construction
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
+			{
+				PPID   prc_id = 0;
+				if(pEv->GetAvailableSize() >= sizeof(prc_id)) {
+					ProcessorTbl::Rec prc_rec;
+					pEv->Read(&prc_id, sizeof(prc_id));
+					SETIFZQ(P_WsCtlBlk, new WsCtlBlock());
+					{
+						/*
+							//wsctl_quotlist 
+							{
+								"quotkind_list" : [
+									{
+										"id" : int
+										"nm" : string
+									}
+								]
+								"goods_list" : [
+									{
+										"id" : int
+										"nm" : string
+										"quot_list" : [
+											{
+												"id" : int
+												"val" : double
+											}
+											{
+												"id" : int
+												"val" : double
+											}
+										]
+									}
+								]
+							}
+						*/
+						PPObjTSession & r_tses_obj = P_WsCtlBlk->TSesObj;
+						PPObjProcessor & r_prc_obj = r_tses_obj.PrcObj;
+						PPObjTech & r_tec_obj = r_tses_obj.TecObj;
+						PPIDArray tec_id_list;
+						PPIDArray goods_id_list;
+						Goods2Tbl::Rec goods_rec;
+						SJson js_reply(SJson::tOBJECT);
+						THROW(r_prc_obj.GetRecWithInheritance(prc_id, &prc_rec, 1) > 0); // @todo @err
+						r_tec_obj.GetGoodsListByPrc(prc_id, &goods_id_list);
+						r_tec_obj.GetListByPrc(prc_id, &tec_id_list);
+						if(goods_id_list.getCount()) {
+							PPObjQuotKind qk_obj;
+							PPQuotKind2 qk_rec;
+							PPIDArray qk_id_list;
+							SJson * p_js_goods_list = 0;
+							SJson * p_js_qk_list = 0;
+							for(uint i = 0; i < goods_id_list.getCount(); i++) {
+								const PPID goods_id = goods_id_list.get(i);
+								if(P_WsCtlBlk->GObj.Fetch(goods_id, &goods_rec) > 0) {
+									PPQuotArray qlist;
+									P_WsCtlBlk->GObj.GetQuotList(goods_id, prc_rec.LocID, qlist);
+									if(qlist.getCount()) {
+										SJson * p_js_quot_list = 0;
+										for(uint qi = 0; qi < qlist.getCount(); qi++) {
+											const PPQuot & r_q = qlist.at(qi);
+											if(qk_obj.Fetch(r_q.Kind, &qk_rec) > 0) {
+												SJson * p_js_quot = SJson::CreateObj();
+												p_js_quot->InsertInt("id", qk_rec.ID);
+												p_js_quot->InsertDouble("val", r_q.Quot, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+												SETIFZQ(p_js_quot_list, SJson::CreateArr());
+												p_js_quot_list->InsertChild(p_js_quot);
+												qk_id_list.add(qk_rec.ID);
+											}
+										}
+										if(p_js_quot_list) {
+											SJson * p_js_ware = SJson::CreateObj();
+											p_js_ware->InsertInt("id", goods_rec.ID);
+											p_js_ware->InsertString("nm", (temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+											p_js_ware->Insert("quot_list", p_js_quot_list);
+											p_js_quot_list = 0;
+											{
+												SETIFZQ(p_js_goods_list, SJson::CreateArr());
+												p_js_goods_list->InsertChild(p_js_ware);
+												p_js_ware = 0;
+											}
+										}
+									}
+								}
+							}
+							if(p_js_goods_list) {
+								if(qk_id_list.getCount()) {
+									qk_id_list.sortAndUndup();
+									for(uint qki = 0; qki < qk_id_list.getCount(); qki++) {
+										const PPID qk_id = qk_id_list.get(qki);
+										if(qk_obj.Fetch(qk_id, &qk_rec) > 0) {
+											SJson * p_js_qk = SJson::CreateObj();
+											p_js_qk->InsertInt("id", qk_rec.ID);
+											p_js_qk->InsertString("nm", (temp_buf = qk_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+											{
+												SETIFZQ(p_js_qk_list, SJson::CreateArr());
+												p_js_qk_list->InsertChild(p_js_qk);
+												p_js_qk = 0;
+											}
+										}
+									}
+								}
+								js_reply.InsertNz("qk_list", p_js_qk_list);
+								p_js_qk_list = 0;
+								js_reply.Insert("goods_list", p_js_goods_list);
+								p_js_goods_list = 0;
+							}
+						}
+						js_reply.ToStr(temp_buf);
+						rReply.SetString(temp_buf);
+						ok = cmdretOK;
+					}
+
 				}
 			}
 			break;
@@ -3939,8 +4106,8 @@ PPServerSession::CmdRet PPServerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				break;
 			case PPSCMD_PUTFILE:
 				pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
-				if(name.HasPrefix(_PPConst.P_MagicFileTransmit))
-					name.ShiftLeft(sstrlen(_PPConst.P_MagicFileTransmit));
+				if(name.HasPrefix(PPConst::P_MagicFileTransmit))
+					name.ShiftLeft(sstrlen(PPConst::P_MagicFileTransmit));
 				else
 					name.Z();
 				ok = ReceiveFile(tfvStart, name, rReply);

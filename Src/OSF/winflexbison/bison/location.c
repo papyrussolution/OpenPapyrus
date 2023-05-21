@@ -444,13 +444,13 @@ void boundary_set_from_string(boundary * bound, char * str)
 	char * at = strrchr(str, '@');
 	if(at) {
 		*at = '\0';
-		bound->byte = atoi(at+1);
+		bound->byte = satoi(at+1);
 	}
 	{
 		char * dot = strrchr(str, '.');
 		aver(dot);
 		*dot = '\0';
-		bound->column = atoi(dot+1);
+		bound->column = satoi(dot+1);
 		if(!at)
 			bound->byte = bound->column;
 	}
@@ -458,7 +458,7 @@ void boundary_set_from_string(boundary * bound, char * str)
 		char * colon = strrchr(str, ':');
 		aver(colon);
 		*colon = '\0';
-		bound->line = atoi(colon+1);
+		bound->line = satoi(colon+1);
 	}
 	bound->file = uniqstr_new(str);
 }

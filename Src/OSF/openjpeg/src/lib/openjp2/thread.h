@@ -4,8 +4,7 @@
  * party and contributor rights, including patent rights, and no such rights
  * are granted under this license.
  *
- * Copyright (c) 2016, Even Rouault
- * All rights reserved.
+ * Copyright (c) 2016, Even Rouault All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -34,15 +33,13 @@
 
 /** @name Mutex */
 /*@{*/
-
-/** Opaque type for a mutex */
-typedef struct opj_mutex_t opj_mutex_t;
+typedef struct opj_mutex_t opj_mutex_t; /** Opaque type for a mutex */
 
 /** Creates a mutex.
  * @return the mutex or NULL in case of error (can for example happen if the library
  * is built without thread support)
  */
-opj_mutex_t* opj_mutex_create(void);
+opj_mutex_t* opj_mutex_create();
 
 /** Lock/acquire the mutex.
  * @param mutex the mutex to acquire.
@@ -71,7 +68,7 @@ typedef struct opj_cond_t opj_cond_t;
  * @return the condition or NULL in case of error (can for example happen if the library
  * is built without thread support)
  */
-opj_cond_t* opj_cond_create(void);
+opj_cond_t* opj_cond_create();
 
 /** Wait for the condition to be signaled.
  * The semantics is the same as the POSIX pthread_cond_wait.
@@ -232,7 +229,5 @@ int opj_thread_pool_get_thread_count(opj_thread_pool_t* tp);
 void opj_thread_pool_destroy(opj_thread_pool_t* tp);
 
 /*@}*/
-
 /*@}*/
-
 #endif /* THREAD_H */

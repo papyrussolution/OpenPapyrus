@@ -164,9 +164,7 @@ public:
 	bool isEnabled;
 };
 
-constexpr int LevelNumber(int level) noexcept {
-	return level & SC_FOLDLEVELNUMBERMASK;
-}
+constexpr int LevelNumber(int level) noexcept { return level & SC_FOLDLEVELNUMBERMASK; }
 
 class LexInterface {
 protected:

@@ -260,7 +260,7 @@ CalcPriceParam::CalcPriceParam()
 int CalcPriceParam::Save() const
 {
 	// VaPercent, RoundPrec, RoundDir, fRoundVat, fVatAboveAddition
-	WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_PrefSettings, 0);
+	WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_PrefSettings, 0);
 	StringSet ss(';', 0);
 	char   temp_buf[64];
 	ss.add(realfmt(VaPercent, MKSFMTD(0, 4, 0), temp_buf));
@@ -268,17 +268,17 @@ int CalcPriceParam::Save() const
 	ss.add(intfmt(RoundDir, 0, temp_buf));
 	ss.add(intfmt(BIN(Flags & fRoundVat), 0, temp_buf));
 	ss.add(intfmt(BIN(Flags & fVatAboveAddition), 0, temp_buf));
-	reg_key.PutString(_PPConst.WrParam_CalcPriceParam, ss.getBuf());
+	reg_key.PutString(PPConst::WrParam_CalcPriceParam, ss.getBuf());
 	return 1;
 }
 
 int CalcPriceParam::Restore()
 {
 	// VaPercent, RoundPrec, RoundDir, fRoundVat, fVatAboveAddition
-	WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_PrefSettings, 1);
+	WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_PrefSettings, 1);
 	//char   buf[128];
 	SString temp_buf;
-	if(reg_key.GetString(_PPConst.WrParam_CalcPriceParam, temp_buf)) {
+	if(reg_key.GetString(PPConst::WrParam_CalcPriceParam, temp_buf)) {
 		StringSet ss(';', temp_buf);
 		uint   pos = 0;
 		if(ss.get(&pos, temp_buf)) {

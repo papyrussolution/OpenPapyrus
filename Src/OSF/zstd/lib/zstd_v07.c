@@ -1253,19 +1253,19 @@ size_t HUFv07_readStats(BYTE * huffWeight, size_t hwSize, uint32 * rankStats,
 // Compiler specifics
 //
 #ifdef _MSC_VER    /* Visual Studio */
-	#define FORCE_INLINE static __forceinline
+	//#define FORCE_INLINE static __forceinline
 	#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
 	#pragma warning(disable : 4214)        /* disable: C4214: non-int bitfields */
 #else
-	#if defined (__cplusplus) || defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L   /* C99 */
-		#ifdef __GNUC__
-			#define FORCE_INLINE static inline __attribute__((always_inline))
-		#else
-			#define FORCE_INLINE static inline
-		#endif
-	#else
-		#define FORCE_INLINE static
-	#endif /* __STDC_VERSION__ */
+	//#if defined (__cplusplus) || defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L   /* C99 */
+		//#ifdef __GNUC__
+			//#define FORCE_INLINE static inline __attribute__((always_inline))
+		//#else
+			//#define FORCE_INLINE static inline
+		//#endif
+	//#else
+		//#define FORCE_INLINE static
+	//#endif /* __STDC_VERSION__ */
 #endif
 //
 // Error Management
@@ -1415,7 +1415,7 @@ size_t FSEv07_buildDTable_raw(FSEv07_DTable* dt, uint nbBits)
 	return 0;
 }
 
-FORCE_INLINE size_t FSEv07_decompress_usingDTable_generic(void* dst, size_t maxDstSize, const void* cSrc, size_t cSrcSize, const FSEv07_DTable* dt, const uint fast)
+static FORCEINLINE size_t FSEv07_decompress_usingDTable_generic(void* dst, size_t maxDstSize, const void* cSrc, size_t cSrcSize, const FSEv07_DTable* dt, const uint fast)
 {
 	BYTE * const ostart = (BYTE *)dst;
 	BYTE * op = ostart;

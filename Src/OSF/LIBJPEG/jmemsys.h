@@ -51,7 +51,7 @@ extern void jpeg_free_small(j_common_ptr cinfo, void * object, size_t sizeofobje
  * in case a different allocation strategy is desirable for large chunks.
  */
 extern void * jpeg_get_large(j_common_ptr cinfo, size_t sizeofobject);
-extern void jpeg_free_large(j_common_ptr cinfo, void FAR * object, size_t sizeofobject);
+extern void jpeg_free_large(j_common_ptr cinfo, void * object, size_t sizeofobject);
 /*
  * The macro MAX_ALLOC_CHUNK designates the maximum number of bytes that may
  * be requested in a single call to jpeg_get_large (and jpeg_get_small for that

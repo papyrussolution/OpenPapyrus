@@ -29,7 +29,7 @@
 	#include <config.h>
 #endif
 
-static force_inline double coordinates_to_parameter(double x, double y, double angle)
+static FORCEINLINE double coordinates_to_parameter(double x, double y, double angle)
 {
 	double t = atan2(y, x) + angle;
 	while(t < 0)

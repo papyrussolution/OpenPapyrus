@@ -43,10 +43,8 @@ public:
 	void reset() 
 	{
 	}
-	template <typename URBG> bool operator()(URBG& g) { // NOLINT(runtime/references)
-		return Generate(param_.p(), g);
-	}
-	template <typename URBG> bool operator()(URBG& g, const param_type& param) { return Generate(param.p(), g); } // NOLINT(runtime/references)
+	template <typename URBG> bool operator()(URBG& g) { return Generate(param_.p(), g); }
+	template <typename URBG> bool operator()(URBG& g, const param_type& param) { return Generate(param.p(), g); }
 	param_type param() const { return param_; }
 	void param(const param_type& param) { param_ = param; }
 	double p() const { return param_.p(); }
@@ -56,12 +54,11 @@ public:
 	friend bool operator != (const bernoulli_distribution& d1, const bernoulli_distribution& d2) { return d1.param_ != d2.param_; }
 private:
 	static constexpr uint64_t kP32 = static_cast<uint64_t>(1) << 32;
-	template <typename URBG> static bool Generate(double p, URBG& g); // NOLINT(runtime/references)
+	template <typename URBG> static bool Generate(double p, URBG& g);
 	param_type param_;
 };
 
-template <typename CharT, typename Traits> std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os,  // NOLINT(runtime/references)
-    const bernoulli_distribution& x) 
+template <typename CharT, typename Traits> std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os, const bernoulli_distribution& x) 
 {
 	auto saver = random_internal::make_ostream_state_saver(os);
 	os.precision(random_internal::stream_precision_helper<double>::kPrecision);
@@ -69,8 +66,7 @@ template <typename CharT, typename Traits> std::basic_ostream<CharT, Traits>& op
 	return os;
 }
 
-template <typename CharT, typename Traits> std::basic_istream<CharT, Traits>& operator>>(std::basic_istream<CharT, Traits>& is,  // NOLINT(runtime/references)
-    bernoulli_distribution& x) // NOLINT(runtime/references)
+template <typename CharT, typename Traits> std::basic_istream<CharT, Traits>& operator>>(std::basic_istream<CharT, Traits>& is, bernoulli_distribution& x)
 {
 	auto saver = random_internal::make_istream_state_saver(is);
 	auto p = random_internal::read_floating_point<double>(is);
@@ -80,8 +76,7 @@ template <typename CharT, typename Traits> std::basic_istream<CharT, Traits>& op
 	return is;
 }
 
-template <typename URBG>
-bool bernoulli_distribution::Generate(double p, URBG& g) // NOLINT(runtime/references)
+template <typename URBG> bool bernoulli_distribution::Generate(double p, URBG& g)
 {
 	random_internal::FastUniformBits<uint32_t> fast_u32;
 	while(true) {

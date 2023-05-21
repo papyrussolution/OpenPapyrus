@@ -15,8 +15,8 @@
 //
 //
 //
-// @v10.4.8 (replaced with _PPConst.UseAdvEvQueue) #define USE_ADVEVQUEUE 1
-const PPConstParam _PPConst;
+// @v10.4.8 (replaced with PPConst::UseAdvEvQueue) #define USE_ADVEVQUEUE 1
+// @v11.7.3 (все константы стали static constexpr) const PPConstParam _PPConst;
 //
 //
 //
@@ -392,7 +392,7 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 PPRevolver_StringSetSCD::PPRevolver_StringSetSCD(uint c) : TSRevolver <PPStringSetSCD>(c) {}
 StringSet & PPRevolver_StringSetSCD::Get() { return Implement_Get().Z(); }
 
-// @v10.9.12 (replaced with _PPConst.Signature_PPThreadLocalArea) #define SIGN_PPTLA 0x7D08E311L
+// @v10.9.12 (replaced with PPConst::Signature_PPThreadLocalArea) #define SIGN_PPTLA 0x7D08E311L
 
 PPThreadLocalArea::IdleCommand::IdleCommand(long repeatEachSeconds) : SCycleTimer(repeatEachSeconds * 1000)
 {
@@ -410,7 +410,7 @@ int FASTCALL PPThreadLocalArea::IdleCommand::Run(const LDATETIME & rPrevRunTime)
 PPThreadLocalArea::PPThreadLocalArea() : Prf(1), UfpSess(0), RvlSsSCD(256)
 {
 	memzero(this, offsetof(PPThreadLocalArea, Rights));
-	Sign = _PPConst.Signature_PPThreadLocalArea;
+	Sign = PPConst::Signature_PPThreadLocalArea;
 	PrnDirId = labs(SLS.GetTLA().Rg.Get());
 	RegisterAdviseObjects();
 }
@@ -1044,7 +1044,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 	}
 	IdleCmdList.insert(new IdleCmdEventCreation(83)); // @v10.9.0
 // @v10.4.8 #if USE_ADVEVQUEUE==2
-	if(_PPConst.UseAdvEvQueue == 2) { // @v10.4.8
+	if(PPConst::UseAdvEvQueue == 2) { // @v10.4.8
 		class IdleCmdTestAdvEvQueue : public IdleCommand, private PPAdviseEventQueue::Client {
 		public:
 			IdleCmdTestAdvEvQueue() : IdleCommand(10)
@@ -1078,7 +1078,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 }
 
 int    PPThreadLocalArea::IsAuth() const { return (State & stAuth) ? 1 : PPSetError(PPERR_SESSNAUTH); }
-bool   PPThreadLocalArea::IsConsistent() const { return (Sign == _PPConst.Signature_PPThreadLocalArea); }
+bool   PPThreadLocalArea::IsConsistent() const { return (Sign == PPConst::Signature_PPThreadLocalArea); }
 PPView * PPThreadLocalArea::GetPPViewPtr(int32 id) const { return (id > 0 && id <= SrvViewList.getCountI()) ? SrvViewList.at(id-1) : 0; }
 
 int32 PPThreadLocalArea::CreatePPViewPtr(PPView * pView)
@@ -1948,12 +1948,18 @@ int HarfBuzzTestGPosSizeParams(const char * pFileName); // ###
 int HarfBuzzTestOtGlyphName(const char * pFileName); // ###
 int HarfBuzzTestOtMeta(const char * pFileName); // ###
 
+const char * Test_GetPPConstCharPtr_P_MagicFileTransmit(); // @prototype(pptest.cpp) { return PPConst::P_MagicFileTransmit; }
+
 static void InitTest()
 {
 #ifndef NDEBUG // {
 	{
 		//TestSStringPerf();
 		//TestPPObjBillParseText();
+	}
+	{
+		// @v11.7.3 Хочу убедиться что компилятор не генерирует разные экземпляры для constexpr-строк в разных модулях (да, я - параноик)
+		assert(Test_GetPPConstCharPtr_P_MagicFileTransmit() == PPConst::P_MagicFileTransmit);
 	}
 	{
 		//
@@ -4166,7 +4172,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					}
 				}
 				else {
-					if(_PPConst.UseAdvEvQueue && !(flags & loginfInternal)) { // @v11.1.8 loginfInternal
+					if(PPConst::UseAdvEvQueue && !(flags & loginfInternal)) { // @v11.1.8 loginfInternal
 						int    cycle_ms = 0;
 						SString mqb_domain; // Имя домена для идентификации при обмене через брокера сообщений
 						const PPPhoneServicePacket * p_phnsvc_pack = 0;
@@ -4290,7 +4296,7 @@ int PPSession::Register()
 	data.Ver = DS.GetVersion();
 	SString uuid_buf;
 	data.Uuid.ToStr(S_GUID::fmtIDL, uuid_buf);
-	WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_Sessions, 0);
+	WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_Sessions, 0);
 	return reg_key.PutBinary(uuid_buf, &data, sizeof(data)-offsetof(RegSessData, ReserveStart));
 }
 
@@ -4301,7 +4307,7 @@ int PPSession::GetRegisteredSess(const S_GUID & rUuid, PPSession::RegSessData * 
 	// @v10.7.9 @ctr MEMSZERO(data);
 	SString uuid_buf;
 	rUuid.ToStr(S_GUID::fmtIDL, uuid_buf);
-	WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_Sessions, 1);
+	WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_Sessions, 1);
 	if(reg_key.GetBinary(uuid_buf, &data, sizeof(data)-offsetof(RegSessData, ReserveStart)) > 0) {
 		data.Uuid = rUuid;
 		ASSIGN_PTR(pData, data);
@@ -4315,7 +4321,7 @@ int PPSession::Unregister()
 	WinRegKey reg_key;
 	SString uuid_buf;
 	SLS.GetSessUuid().ToStr(S_GUID::fmtIDL, uuid_buf);
-	return reg_key.DeleteValue(HKEY_CURRENT_USER, _PPConst.WrKey_Sessions, uuid_buf);
+	return reg_key.DeleteValue(HKEY_CURRENT_USER, PPConst::WrKey_Sessions, uuid_buf);
 }
 
 const SrSyntaxRuleSet * PPSession::GetSrSyntaxRuleSet()
@@ -5212,6 +5218,7 @@ int PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 			case PPOBJ_STYLOPALM: val = PPHS_STYLOPALM; break;
 			case PPOBJ_GEOTRACKING: val = PPHS_GEOTRACKING; break; // @v10.1.5
 			case PPOBJ_STYLOQBINDERY: val = PPHS_STYLOQBINDERY; break; // @v11.3.4
+			case PPOBJ_WSCTL: val = PPHS_WSCTL; break; // @v11.7.3
 		}
 		if(val)
 			ok = P_ObjIdentBlk->P_ShT->GetByAssoc(val, rBuf);
@@ -5271,6 +5278,7 @@ PPID PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 				case PPHS_GEOTRACKING:    val = PPOBJ_GEOTRACKING; break; // @v10.1.5
 				case PPHS_TAG:            val = PPOBJ_TAG; break; // @v10.9.4
 				case PPHS_STYLOQBINDERY:  val = PPOBJ_STYLOQBINDERY; break; // @v11.4.3
+				case PPHS_WSCTL:          val = PPOBJ_WSCTL; break; // @v11.7.3
 				default: PPSetError(PPERR_OBJTYPEBYSYMBNFOUND, pSymb); break;
 			}
 			obj_type = LoWord(val);
@@ -5925,7 +5933,7 @@ int PPAdviseEventQueue::Purge()
 //
 //
 //
-SysMaintenanceEventResponder::SysMaintenanceEventResponder() : Signature(_PPConst.Signature_SysMaintenanceEventResponder), AdvCookie(0)
+SysMaintenanceEventResponder::SysMaintenanceEventResponder() : Signature(PPConst::Signature_SysMaintenanceEventResponder), AdvCookie(0)
 {
 	{
 		PPAdviseBlock adv_blk;
@@ -5940,7 +5948,7 @@ SysMaintenanceEventResponder::~SysMaintenanceEventResponder()
 {
 }
 
-bool SysMaintenanceEventResponder::IsConsistent() const { return (Signature == _PPConst.Signature_SysMaintenanceEventResponder); }
+bool SysMaintenanceEventResponder::IsConsistent() const { return (Signature == PPConst::Signature_SysMaintenanceEventResponder); }
 
 /*static*/int SysMaintenanceEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 {

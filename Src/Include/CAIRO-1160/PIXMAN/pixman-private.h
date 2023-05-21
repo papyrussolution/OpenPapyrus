@@ -516,7 +516,7 @@ void _pixman_iter_init_bits_stride(pixman_iter_t * iter, const pixman_iter_info_
 
 extern pixman_implementation_t * global_implementation;
 
-static force_inline pixman_implementation_t * get_implementation(void)
+static FORCEINLINE pixman_implementation_t * get_implementation(void)
 {
 #ifndef TOOLCHAIN_SUPPORTS_ATTRIBUTE_CONSTRUCTOR
 	if(!global_implementation)
@@ -558,13 +558,13 @@ struct pixman_list_t {
 	pixman_link_t * tail;
 };
 
-static force_inline void pixman_list_init(pixman_list_t * list)
+static FORCEINLINE void pixman_list_init(pixman_list_t * list)
 {
 	list->head = reinterpret_cast<pixman_link_t *>(list);
 	list->tail = reinterpret_cast<pixman_link_t *>(list);
 }
 
-static force_inline void pixman_list_prepend(pixman_list_t * list, pixman_link_t * link)
+static FORCEINLINE void pixman_list_prepend(pixman_list_t * list, pixman_link_t * link)
 {
 	link->next = list->head;
 	link->prev = reinterpret_cast<pixman_link_t *>(list);
@@ -572,13 +572,13 @@ static force_inline void pixman_list_prepend(pixman_list_t * list, pixman_link_t
 	list->head = link;
 }
 
-static force_inline void pixman_list_unlink(pixman_link_t * link)
+static FORCEINLINE void pixman_list_unlink(pixman_link_t * link)
 {
 	link->prev->next = link->next;
 	link->next->prev = link->prev;
 }
 
-static force_inline void pixman_list_move_to_front(pixman_list_t * list, pixman_link_t * link)
+static FORCEINLINE void pixman_list_move_to_front(pixman_list_t * list, pixman_link_t * link)
 {
 	pixman_list_unlink(link);
 	pixman_list_prepend(list, link);
@@ -609,7 +609,7 @@ static force_inline void pixman_list_move_to_front(pixman_list_t * list, pixman_
 
 /* Conversion between 8888 and 0565 */
 
-static force_inline uint16 convert_8888_to_0565(uint32 s)
+static FORCEINLINE uint16 convert_8888_to_0565(uint32 s)
 {
 	/* The following code can be compiled into just 4 instructions on ARM */
 	uint32 a = (s >> 3) & 0x1F001F;
@@ -619,29 +619,29 @@ static force_inline uint16 convert_8888_to_0565(uint32 s)
 	return static_cast<uint16>(a);
 }
 
-static force_inline uint32 convert_0565_to_0888(uint16 s)
+static FORCEINLINE uint32 convert_0565_to_0888(uint16 s)
 {
 	return (((((s) << 3) & 0xf8) | (((s) >> 2) & 0x7)) | ((((s) << 5) & 0xfc00) | (((s) >> 1) & 0x300)) | ((((s) << 8) & 0xf80000) | (((s) << 3) & 0x70000)));
 }
 
-static force_inline uint32 convert_0565_to_8888(uint16 s)
+static FORCEINLINE uint32 convert_0565_to_8888(uint16 s)
 {
 	return convert_0565_to_0888(s) | 0xff000000;
 }
 
 /* Trivial versions that are useful in macros */
 
-static force_inline uint32 convert_8888_to_8888(uint32 s)
+static FORCEINLINE uint32 convert_8888_to_8888(uint32 s)
 {
 	return s;
 }
 
-static force_inline uint32 convert_x888_to_8888(uint32 s)
+static FORCEINLINE uint32 convert_x888_to_8888(uint32 s)
 {
 	return s | 0xff000000;
 }
 
-static force_inline uint16 convert_0565_to_0565(uint16 s)
+static FORCEINLINE uint16 convert_0565_to_0565(uint16 s)
 {
 	return s;
 }
@@ -655,7 +655,7 @@ static force_inline uint16 convert_0565_to_0565(uint16 s)
 	#define SCREEN_SHIFT_RIGHT(x, n)      ((x) << (n))
 #endif
 
-static force_inline uint32 unorm_to_unorm(uint32 val, int from_bits, int to_bits)
+static FORCEINLINE uint32 unorm_to_unorm(uint32 val, int from_bits, int to_bits)
 {
 	uint32 result;
 	if(from_bits == 0)

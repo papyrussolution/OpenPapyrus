@@ -22,18 +22,11 @@
 #define OPJ_INCLUDES_H
 
 #include <slib.h>
-/*
- * This must be included before any system headers,
- * since they can react to macro defined there
- */
-#include "opj_config_private.h"
-
-/*
-   ==========================================================
-   Standard includes used by the library
-   ==========================================================
- */
-#include <memory.h>
+#include "opj_config_private.h" // This must be included before any system headers, since they can react to macro defined there
+//
+// Standard includes used by the library
+//
+#include <memory.h> 
 /*
    Use fseeko() and ftello() if they are available since they use
    'off_t' rather than 'long'.  It is wrong to use fseeko() and
@@ -41,29 +34,26 @@
    (e.g. FreeBSD) support a 64-bit off_t by default.
  */
 #if defined(OPJ_HAVE_FSEEKO) && !defined(fseek)
-#define fseek  fseeko
-#define ftell  ftello
+	#define fseek  fseeko
+	#define ftell  ftello
 #endif
-
-#if defined(WIN32) && !defined(Windows95) && !defined(__BORLANDC__) && \
-	!(defined(_MSC_VER) && _MSC_VER < 1400) && \
-	!(defined(__MINGW32__) && __MSVCRT_VERSION__ < 0x800)
-/*
-   Windows '95 and Borland C do not support _lseeki64
-   Visual Studio does not support _fseeki64 and _ftelli64 until the 2005 release.
-   Without these interfaces, files over 2GB in size are not supported for Windows.
- */
-#define OPJ_FSEEK(stream, offset, whence) _fseeki64(stream, /* __int64 */ offset, whence)
-#define OPJ_FSTAT(fildes, stat_buff) _fstati64(fildes, /* struct _stati64 */ stat_buff)
-#define OPJ_FTELL(stream) /* __int64 */ _ftelli64(stream)
-#define OPJ_STAT_STRUCT_T struct _stati64
-#define OPJ_STAT(path, stat_buff) _stati64(path, /* struct _stati64 */ stat_buff)
+#if defined(WIN32) && !defined(Windows95) && !defined(__BORLANDC__) && !(defined(_MSC_VER) && _MSC_VER < 1400) && !(defined(__MINGW32__) && __MSVCRT_VERSION__ < 0x800)
+	/*
+	   Windows '95 and Borland C do not support _lseeki64
+	   Visual Studio does not support _fseeki64 and _ftelli64 until the 2005 release.
+	   Without these interfaces, files over 2GB in size are not supported for Windows.
+	 */
+	#define OPJ_FSEEK(stream, offset, whence) _fseeki64(stream, /* __int64 */ offset, whence)
+	#define OPJ_FSTAT(fildes, stat_buff) _fstati64(fildes, /* struct _stati64 */ stat_buff)
+	#define OPJ_FTELL(stream) /* __int64 */ _ftelli64(stream)
+	#define OPJ_STAT_STRUCT_T struct _stati64
+	#define OPJ_STAT(path, stat_buff) _stati64(path, /* struct _stati64 */ stat_buff)
 #else
-#define OPJ_FSEEK(stream, offset, whence) fseek(stream, offset, whence)
-#define OPJ_FSTAT(fildes, stat_buff) fstat(fildes, stat_buff)
-#define OPJ_FTELL(stream) ftell(stream)
-#define OPJ_STAT_STRUCT_T struct stat
-#define OPJ_STAT(path, stat_buff) stat(path, stat_buff)
+	#define OPJ_FSEEK(stream, offset, whence) fseek(stream, offset, whence)
+	#define OPJ_FSTAT(fildes, stat_buff) fstat(fildes, stat_buff)
+	#define OPJ_FTELL(stream) ftell(stream)
+	#define OPJ_STAT_STRUCT_T struct stat
+	#define OPJ_STAT(path, stat_buff) stat(path, stat_buff)
 #endif
 /*
    OpenJPEG interface
@@ -74,73 +64,66 @@
  */
 /* Are restricted pointers available? (C99) */
 #if (__STDC_VERSION__ >= 199901L)
-#define OPJ_RESTRICT restrict
+	#define OPJ_RESTRICT restrict
 #else
 /* Not a C99 compiler */
 #if defined(__GNUC__)
-#define OPJ_RESTRICT __restrict__
-
-/*
-   vc14 (2015) outputs wrong results.
-   Need to check OPJ_RESTRICT usage (or a bug in vc14)
- #elif defined(_MSC_VER) && (_MSC_VER >= 1400)
- #define OPJ_RESTRICT __restrict
- */
+	#define OPJ_RESTRICT __restrict__
+	/*
+	   vc14 (2015) outputs wrong results.
+	   Need to check OPJ_RESTRICT usage (or a bug in vc14)
+	 #elif defined(_MSC_VER) && (_MSC_VER >= 1400)
+	 #define OPJ_RESTRICT __restrict
+	 */
 #else
-#define OPJ_RESTRICT /* restrict */
+	#define OPJ_RESTRICT /* restrict */
 #endif
 #endif
-
 #ifdef __has_attribute
-#if __has_attribute(no_sanitize)
-#define OPJ_NOSANITIZE(kind) __attribute__((no_sanitize(kind)))
-#endif
+	#if __has_attribute(no_sanitize)
+		#define OPJ_NOSANITIZE(kind) __attribute__((no_sanitize(kind)))
+	#endif
 #endif
 #ifndef OPJ_NOSANITIZE
-#define OPJ_NOSANITIZE(kind)
+	#define OPJ_NOSANITIZE(kind)
 #endif
 
 /* MSVC before 2013 and Borland C do not have lrintf */
 #if defined(_MSC_VER)
-#include <intrin.h>
-static INLINE long opj_lrintf(float f)
-{
-#ifdef _M_X64
-	return _mm_cvt_ss2si(_mm_load_ss(&f));
-
-	/* commented out line breaks many tests */
-	/* return (long)((f>0.0f) ? (f + 0.5f):(f -0.5f)); */
-#elif defined(_M_IX86)
-	int i;
-	_asm{
-		fld f
-		fistp i
-	};
-
-	return i;
-#else
-	return (long)((f>0.0f) ? (f + 0.5f) : (f - 0.5f));
-#endif
-}
+	#include <intrin.h>
+	static INLINE long opj_lrintf(float f)
+	{
+	#ifdef _M_X64
+		return _mm_cvt_ss2si(_mm_load_ss(&f));
+		/* commented out line breaks many tests */
+		/* return (long)((f>0.0f) ? (f + 0.5f):(f -0.5f)); */
+	#elif defined(_M_IX86)
+		int i;
+		_asm {
+			fld f
+			fistp i
+		};
+		return i;
+	#else
+		return (long)((f>0.0f) ? (f + 0.5f) : (f - 0.5f));
+	#endif
+	}
 #elif defined(__BORLANDC__)
-static INLINE long opj_lrintf(float f)
-{
-#ifdef _M_X64
-	return (long)((f > 0.0f) ? (f + 0.5f) : (f - 0.5f));
+	static INLINE long opj_lrintf(float f)
+	{
+	#ifdef _M_X64
+		return (long)((f > 0.0f) ? (f + 0.5f) : (f - 0.5f));
+	#else
+		int i;
+		_asm {
+			fld f
+			fistp i
+		};
+		return i;
+	#endif
+	}
 #else
-	int i;
-	_asm {
-		fld f
-		fistp i
-	};
-	return i;
-#endif
-}
-#else
-static INLINE long opj_lrintf(float f)
-{
-	return lrintf(f);
-}
+	static INLINE long opj_lrintf(float f) { return lrintf(f); }
 #endif
 
 #if defined(_MSC_VER) && (_MSC_VER < 1400)

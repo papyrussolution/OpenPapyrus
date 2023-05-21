@@ -1341,7 +1341,7 @@ static const void * cab_read_ahead_cfdata_deflate(ArchiveRead * a, ssize_t * ava
 		 * next_in pointer, only reads it).  The result: this ugly
 		 * cast to remove 'const'.
 		 */
-		cab->stream.next_in = (Bytef*)(uintptr_t)d;
+		cab->stream.next_in = (Byte *)(uintptr_t)d;
 		cab->stream.avail_in = (uInt)bytes_avail;
 		cab->stream.total_in = 0;
 		// Cut out a tow-byte MSZIP signature(0x43, 0x4b)

@@ -64,23 +64,19 @@ ActionDuration::ActionDuration(double duration_, double minDuration_, double max
 	duration(duration_), minDuration(minDuration_), maxDuration(maxDuration_) {
 }
 
-void ActionDuration::AddSample(size_t numberActions, double durationOfActions) noexcept {
+void ActionDuration::AddSample(size_t numberActions, double durationOfActions) noexcept 
+{
 	// Only adjust for multiple actions to avoid instability
 	if(numberActions < 8)
 		return;
-
 	// Alpha value for exponential smoothing.
 	// Most recent value contributes 25% to smoothed value.
 	constexpr double alpha = 0.25;
-
 	const double durationOne = durationOfActions / numberActions;
-	duration = std::clamp(alpha * durationOne + (1.0 - alpha) * duration,
-		minDuration, maxDuration);
+	duration = std::clamp(alpha * durationOne + (1.0 - alpha) * duration, minDuration, maxDuration);
 }
 
-double ActionDuration::Duration() const noexcept {
-	return duration;
-}
+double ActionDuration::Duration() const noexcept { return duration; }
 
 Document::Document(int options) :
 	cb((options & SC_DOCUMENTOPTION_STYLES_NONE) == 0, (options & SC_DOCUMENTOPTION_TEXT_LARGE) != 0),

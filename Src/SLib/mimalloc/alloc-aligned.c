@@ -139,8 +139,8 @@ mi_decl_restrict void* mi_heap_zalloc_aligned(mi_heap_t* heap, size_t size, size
 	return mi_heap_zalloc_aligned_at(heap, size, alignment, 0);
 }
 
-mi_decl_restrict void* mi_heap_calloc_aligned_at(mi_heap_t* heap, size_t count, size_t size, size_t alignment,
-    size_t offset) mi_attr_noexcept {
+mi_decl_restrict void* mi_heap_calloc_aligned_at(mi_heap_t* heap, size_t count, size_t size, size_t alignment, size_t offset) mi_attr_noexcept 
+{
 	size_t total;
 	if(mi_count_size_overflow(count, size, &total)) return NULL;
 	return mi_heap_zalloc_aligned_at(heap, total, alignment, offset);

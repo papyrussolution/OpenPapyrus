@@ -1209,6 +1209,7 @@
 #define PPOBJ_VETISIC       1078L  // @v11.3.2 !PPObject Используется для блокировки функций обмена с сервисами ВЕТИС
 	#define PPVETISICFUNC_SETUPOUTGOINGENTRIES 1
 	#define PPVETISICFUNC_PROCESSOUTCOMING     2
+#define PPOBJ_WSCTL         1079L  // @v11.7.3 !PPObject Управляемый компьютер (в рамках проекта WSCTL)
 #define PPOBJ_DBCONVERT     1100L  // Специальный объект, используемый для формирования записей
 	// с информацией о конвертации базы данных. Запись, идентифицирующая конвертацию имеет идентификатор
 	// вида 0xMJMNRR  где MJ - мажор, MN - минор, RR - релиз

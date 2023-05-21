@@ -433,36 +433,31 @@ void * fz_calloc(fz_context * ctx, size_t count, size_t size);
         Throws exception in the event of failure to allocate.
  */
 void * fz_realloc(fz_context * ctx, void * p, size_t size);
-/**
-        Free a previously allocated block of memory.
-
-        fz_free(ctx, NULL) does nothing.
-
-        Never throws exceptions.
- */
+// 
+// Free a previously allocated block of memory.
+// fz_free(ctx, NULL) does nothing.
+// Never throws exceptions.
+// 
 void fz_free(fz_context * ctx, void * p);
-/**
-        fz_malloc equivalent that returns NULL rather than throwing
-        exceptions.
- */
+// 
+// fz_malloc equivalent that returns NULL rather than throwing exceptions.
+// 
 void * fz_malloc_no_throw(fz_context * ctx, size_t size);
-/**
-        fz_calloc equivalent that returns NULL rather than throwing
-        exceptions.
- */
+// 
+// fz_calloc equivalent that returns NULL rather than throwing exceptions.
+// 
 void * fz_calloc_no_throw(fz_context * ctx, size_t count, size_t size);
-/**
-        fz_realloc equivalent that returns NULL rather than throwing
-        exceptions.
- */
+// 
+// fz_realloc equivalent that returns NULL rather than throwing exceptions.
+// 
 void * fz_realloc_no_throw(fz_context * ctx, void * p, size_t size);
-/**
-        Portable strdup implementation, using fz allocators.
- */
+// 
+// Portable strdup implementation, using fz allocators.
+// 
 char * fz_strdup(fz_context * ctx, const char * s);
-/**
-        Fill block with len bytes of pseudo-randomness.
- */
+// 
+// Fill block with len bytes of pseudo-randomness.
+// 
 void fz_memrnd(fz_context * ctx, uint8 * block, int len);
 
 /* Implementation details: subject to change. */

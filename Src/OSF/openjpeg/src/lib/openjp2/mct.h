@@ -120,11 +120,11 @@ void opj_calculate_norms(double * pNorms, uint32_t p_nb_comps, const float * pMa
 /**
    FIXME DOC
  */
-const double * opj_mct_get_mct_norms(void);
+const double * opj_mct_get_mct_norms();
 /**
    FIXME DOC
  */
-const double * opj_mct_get_mct_norms_real(void);
+const double * opj_mct_get_mct_norms_real();
 /*@}*/
 /*@}*/
 #endif /* OPJ_MCT_H */

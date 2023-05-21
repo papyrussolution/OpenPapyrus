@@ -29,9 +29,9 @@ struct uint128_pod;
 // TODO(xiaofeng): Define GOOGLE_PROTOBUF_HAS_CONSTEXPR when constexpr is
 // available.
 #ifdef GOOGLE_PROTOBUF_HAS_CONSTEXPR
-# define UINT128_CONSTEXPR constexpr
+	#define UINT128_CONSTEXPR constexpr
 #else
-# define UINT128_CONSTEXPR
+	#define UINT128_CONSTEXPR
 #endif
 
 // An unsigned 128-bit integer type. Thread-compatible.
@@ -131,14 +131,13 @@ inline UINT128_CONSTEXPR uint128::uint128(uint64 bottom) : lo_(bottom), hi_(0)
 }
 
 #ifndef SWIG
-inline UINT128_CONSTEXPR uint128::uint128(uint32 bottom) : lo_(bottom), hi_(0) 
-{
-}
+	inline UINT128_CONSTEXPR uint128::uint128(uint32 bottom) : lo_(bottom), hi_(0) 
+	{
+	}
 
-inline UINT128_CONSTEXPR uint128::uint128(int bottom) : lo_(bottom), hi_(static_cast<int64>((bottom < 0) ? -1 : 0)) 
-{
-}
-
+	inline UINT128_CONSTEXPR uint128::uint128(int bottom) : lo_(bottom), hi_(static_cast<int64>((bottom < 0) ? -1 : 0)) 
+	{
+	}
 #endif
 
 #undef UINT128_CONSTEXPR

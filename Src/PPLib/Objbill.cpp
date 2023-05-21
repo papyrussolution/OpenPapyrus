@@ -361,22 +361,25 @@ int PPObjBill::IsPacketEq(const PPBillPacket & rS1, const PPBillPacket & rS2, lo
 		if(c1 != c2)
 			eq = 0;
 		else {
-			const int is_intr = IsIntrExpndOp(rS1.Rec.OpID);
+			const bool is_intr = IsIntrExpndOp(rS1.Rec.OpID);
 			SString n1, n2;
 			for(uint i = 0; eq && i < c1; i++) {
 				const PPTransferItem & r_ti1 = rS1.ConstTI(i);
 				const PPTransferItem & r_ti2 = rS2.ConstTI(i);
 				if(!r_ti1.IsEq(r_ti2))
 					eq = 0;
-				else if((r_ti1.Flags & PPTFR_RECEIPT) || is_intr || rS1.IsDraft()){
-					const ObjTagList * p_t1 = rS1.LTagL.Get(i);
-					const ObjTagList * p_t2 = rS2.LTagL.Get(i);
-					if(p_t1 != 0 && p_t2 != 0) {
-						if(!p_t1->IsEq(*p_t2))
+				else {
+					// @v11.7.3 if((r_ti1.Flags & PPTFR_RECEIPT) || is_intr || rS1.IsDraft()) {
+					{ // @v11.7.3
+						const ObjTagList * p_t1 = rS1.LTagL.Get(i);
+						const ObjTagList * p_t2 = rS2.LTagL.Get(i);
+						if(p_t1 != 0 && p_t2 != 0) {
+							if(!p_t1->IsEq(*p_t2))
+								eq = 0;
+						}
+						else if(BIN(p_t1) != BIN(p_t2))
 							eq = 0;
 					}
-					else if(BIN(p_t1) != BIN(p_t2))
-						eq = 0;
 				}
 				if(eq && is_intr) {
 					const ObjTagList * p_t1 = rS1.P_MirrorLTagL ? rS1.P_MirrorLTagL->Get(i) : 0;
@@ -3472,10 +3475,10 @@ struct __PPBillConfig {    // @persistent @store(PropertyTbl)
 		}
 		{
 			size_t buf_size = 0;
-			WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 1);
-			if(reg_key.GetRecSize(_PPConst.WrParam_BillAddFilesFolder, &buf_size) > 0 && buf_size > 0) {
+			WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, 1);
+			if(reg_key.GetRecSize(PPConst::WrParam_BillAddFilesFolder, &buf_size) > 0 && buf_size > 0) {
 				SString param_buf;
-				reg_key.GetString(_PPConst.WrParam_BillAddFilesFolder, param_buf);
+				reg_key.GetString(PPConst::WrParam_BillAddFilesFolder, param_buf);
 				pCfg->AddFilesFolder.CopyFrom(param_buf);
 			}
 		}
@@ -3545,8 +3548,8 @@ int PPObjBill_WriteConfig(PPBillConfig * pCfg, PPOpCounterPacket * pSnCntr, int 
 		{
 			char reg_buf[32];
 			memzero(reg_buf, sizeof(reg_buf));
-			WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 0);
-			reg_key.PutString(_PPConst.WrParam_BillAddFilesFolder, (pCfg->AddFilesFolder.Len() == 0) ? reg_buf : pCfg->AddFilesFolder);
+			WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, 0);
+			reg_key.PutString(PPConst::WrParam_BillAddFilesFolder, (pCfg->AddFilesFolder.Len() == 0) ? reg_buf : pCfg->AddFilesFolder);
 		}
 		THROW(PPRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_BILLCFG, p_temp, sz, 0));
 		DS.LogAction(PPACN_CONFIGUPDATED, PPCFGOBJ_BILL, 0, 0, 0);
@@ -6373,7 +6376,8 @@ int PPObjBill::GetExpendedPartOfReceipt(PPID lotID, const DateRange * pPeriod, c
 
 int PPObjBill::GetTagListByLot(PPID lotID, int skipReserveTags, ObjTagList * pList)
 {
-	int    ok = -1, is_parent_lot = 0;
+	int    ok = -1;
+	int    is_parent_lot = 0;
 	ObjTagList list;
 	if(lotID) {
 		PPIDArray lot_id_list;
@@ -6402,7 +6406,8 @@ int PPObjBill::GetTagListByLot(PPID lotID, int skipReserveTags, ObjTagList * pLi
 
 int PPObjBill::GetClbNumberByLot(PPID lotID, int * pIsParentLot, SString & rBuf)
 {
-	int    ok = -1, is_parent_lot = 0;
+	int    ok = -1;
+	int    is_parent_lot = 0;
 	rBuf.Z();
 	if(lotID) {
 		ObjTagItem oti;
@@ -6531,15 +6536,18 @@ int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 {
 	int    ok = 1;
 	PPObjTag * p_tag_obj = 0;
-	const int is_intrexpnd = IsIntrExpndOp(pPack->Rec.OpID);
+	const bool is_intrexpnd = IsIntrExpndOp(pPack->Rec.OpID);
+	PPLotTagContainer local_ltagl; // @v11.7.3
+	const int lrtr = LoadRowTagListForDraft(pPack->Rec.ID, local_ltagl); // @v11.7.3
 	ZDELETE(pPack->P_MirrorLTagL);
 	if(pPack->IsDraft()) {
 		if(force == 2)
 			pPack->LTagL.Release();
 		if(pPack->LTagL.GetCount() == 0) {
-			const int lrtr = LoadRowTagListForDraft(pPack->Rec.ID, pPack->LTagL);
+			// @v11.7.3 const int lrtr = LoadRowTagListForDraft(pPack->Rec.ID, pPack->LTagL);
 			THROW(lrtr);
 			if(lrtr > 0) {
+				pPack->LTagL = local_ltagl; // @v11.7.3
 				SString img_path;
 				SString img_tag_addendum;
 				SPathStruc sp;
@@ -6564,37 +6572,62 @@ int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 			}
 		}
 	}
-	else if(oneof3(pPack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF, PPOPT_GOODSORDER) || is_intrexpnd || force) {
-		PPTransferItem * p_ti;
-		for(uint i = 0; pPack->EnumTItems(&i, &p_ti);) {
-			if(p_ti->LotID) {
-				const int row_idx = (int)(i-1);
-				if((p_ti->Flags & PPTFR_RECEIPT) || force || is_intrexpnd) {
-					ObjTagList tag_list;
-					GetTagListByLot(p_ti->LotID, 0/*skipReserveTags*/, &tag_list); // @v9.8.11 skipReserved 1-->0
-					pPack->LTagL.Set(row_idx, tag_list.GetCount() ? &tag_list : 0);
-				}
-				if(is_intrexpnd && trfr->SearchByBill(p_ti->BillID, 1, p_ti->RByBill, 0) > 0) {
-					const PPID mirror_lot_id = trfr->data.LotID;
-					if(mirror_lot_id) {
-						ObjTagList mirror_tag_list;
-						GetTagListByLot(mirror_lot_id, 1, &mirror_tag_list);
-						uint   j = mirror_tag_list.GetCount();
-						if(j) {
-							do {
-								const ObjTagItem * p_item = mirror_tag_list.GetItemByPos(--j);
-								THROW_MEM(SETIFZ(p_tag_obj, new PPObjTag));
-								if(p_item && !p_tag_obj->IsUnmirrored(p_item->TagID)) {
-									mirror_tag_list.PutItem(p_item->TagID, 0);
+	else {
+		if(oneof3(pPack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF, PPOPT_GOODSORDER) || is_intrexpnd || force) {
+			// @v11.7.3 PPTransferItem * p_ti;
+			// @v11.7.3 for(uint i = 0; pPack->EnumTItems(&i, &p_ti);) {
+			for(uint i = 0; i < pPack->GetTCount(); i++) {
+				const PPTransferItem & r_ti = pPack->ConstTI(i);
+				const int row_idx = (int)(i);
+				if(r_ti.LotID) {
+					if((r_ti.Flags & PPTFR_RECEIPT) || force || is_intrexpnd) {
+						ObjTagList tag_list;
+						GetTagListByLot(r_ti.LotID, 0/*skipReserveTags*/, &tag_list); // @v9.8.11 skipReserved 1-->0
+						pPack->LTagL.Set(row_idx, tag_list.GetCount() ? &tag_list : 0);
+					}
+					if(is_intrexpnd && trfr->SearchByBill(r_ti.BillID, 1, r_ti.RByBill, 0) > 0) {
+						const PPID mirror_lot_id = trfr->data.LotID;
+						if(mirror_lot_id) {
+							ObjTagList mirror_tag_list;
+							GetTagListByLot(mirror_lot_id, 1, &mirror_tag_list);
+							uint   j = mirror_tag_list.GetCount();
+							if(j) {
+								do {
+									const ObjTagItem * p_item = mirror_tag_list.GetItemByPos(--j);
+									THROW_MEM(SETIFZ(p_tag_obj, new PPObjTag));
+									if(p_item && !p_tag_obj->IsUnmirrored(p_item->TagID)) {
+										mirror_tag_list.PutItem(p_item->TagID, 0);
+									}
+								} while(j);
+								if(mirror_tag_list.GetCount()) {
+									THROW_MEM(SETIFZ(pPack->P_MirrorLTagL, new PPLotTagContainer));
+									pPack->P_MirrorLTagL->Set(row_idx, &mirror_tag_list);
 								}
-							} while(j);
-							if(mirror_tag_list.GetCount()) {
-								THROW_MEM(SETIFZ(pPack->P_MirrorLTagL, new PPLotTagContainer));
-								pPack->P_MirrorLTagL->Set(row_idx, &mirror_tag_list);
 							}
 						}
 					}
 				}
+				// @v11.7.3 {
+				if(local_ltagl.GetCount()) {
+					const ObjTagList * p_local_tag_list = local_ltagl.Get(row_idx);
+					if(p_local_tag_list) {
+						ObjTagList ex_tag_list;
+						ObjTagList * p_ex_tag_list = pPack->LTagL.Get(row_idx);
+						if(p_ex_tag_list)
+							ex_tag_list = *p_ex_tag_list;
+						bool is_updated = false;
+						for(uint ltlidx = 0; ltlidx < p_local_tag_list->GetCount(); ltlidx++) {
+							const ObjTagItem * p_local_tag_item = p_local_tag_list->GetItemByPos(ltlidx);
+							if(p_local_tag_item && !ex_tag_list.GetItem(p_local_tag_item->TagID)) {
+								ex_tag_list.PutItem(p_local_tag_item->TagID, p_local_tag_item);
+								is_updated = true;
+							}
+						}
+						if(is_updated)
+							pPack->LTagL.Set(row_idx, &ex_tag_list);
+					}
+				}
+				// } @v11.7.3 
 			}
 		}
 	}
@@ -6742,88 +6775,150 @@ int PPObjBill::AdjustSerialForUniq(PPID goodsID, PPID lotID, int checkOnly, SStr
 	return ok;
 }
 
+static void PreprocessLTagListBeforeStoreInProps(PPBillPacket * pPack, int16 rbb, ObjTagList * pTagList)
+{
+	if(pTagList) {
+		SString img_tag_addendum;
+		SString fname;
+		for(uint j = 0; j < pTagList->GetCount(); j++) {
+			const ObjTagItem * p_tag_item = pTagList->GetItemByPos(j);
+			if(p_tag_item->TagDataType == OTTYP_IMAGE) {
+				ObjTagItem tag_item = *p_tag_item;
+				//
+				ObjLinkFiles _lf(PPOBJ_TAG);
+				img_tag_addendum.Z().Cat(pPack->Rec.ID).CatChar('-').Cat(rbb);
+				_lf.Load(tag_item.TagID, img_tag_addendum);
+				if(sstrlen(tag_item.Val.PStr)) {
+					fname = tag_item.Val.PStr;
+					_lf.Replace(0, fname);
+				}
+				else
+					_lf.Remove(0);
+				_lf.SaveSingle(tag_item.TagID, img_tag_addendum, 0, &fname);
+				tag_item.SetStr(tag_item.TagID, fname);
+				pTagList->PutItem(tag_item.TagID, &tag_item);
+			}
+		}
+	}
+}
+
 int PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
 	PPObjTag * p_tag_obj = 0;
-	const  int is_intrexpnd = IsIntrExpndOp(pPack->Rec.OpID);
+	const  bool is_intrexpnd = IsIntrExpndOp(pPack->Rec.OpID);
 	// @v11.1.12 const  int do_force_unmirr = BIN(strstr(pPack->Rec.Memo, "#MIRROR-REFAB"));
 	const  int do_force_unmirr = pPack->SMemo.Search("#MIRROR-REFAB", 0, 0, 0); // @v11.1.12
 	SString img_path;
 	SString img_tag_addendum;
 	SString fname;
 	SString temp_buf;
-	if(oneof3(pPack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF, PPOPT_GOODSORDER) || is_intrexpnd) {
-		PPTransferItem * p_ti;
-		SString clb;
+	SSerializeContext sctx;
+	SBuffer tag_srlz_buf;
+	if(oneof4(pPack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF, PPOPT_GOODSORDER, PPOPT_GOODSEXPEND) || is_intrexpnd) { // @v11.7.3 PPOPT_GOODSEXPEND (is_intrexpnd стало лишним, но пока не трогаем)
 		ObjTagList mirror_tag_list;
 		PPIDArray excl_tag_list;
-		for(uint i = 0; pPack->EnumTItems(&i, &p_ti);) {
-			if(p_ti->LotID) {
-				const int row_idx = (int)(i-1);
-				const char * p_clb = 0;
-				ObjTagList * p_tag_list = pPack->LTagL.Get(row_idx); // PPLotTagContainer
-				if(p_ti->Flags & PPTFR_RECEIPT) {
-					THROW(p_ref->Ot.PutListExcl(PPOBJ_LOT, p_ti->LotID, p_tag_list, &excl_tag_list, 0));
-				}
-				//
-				// Сохраняем серийные номера и пользовательские теги для порожденных лотов
-				//
-				else if(is_intrexpnd) {
-					if(trfr->SearchByBill(p_ti->BillID, 1, p_ti->RByBill, 0) > 0) {
-						const PPID mirror_lot_id = trfr->data.LotID;
-						if(mirror_lot_id) {
-							ObjTagList * p_mirror_tag_list = pPack->P_MirrorLTagL ? pPack->P_MirrorLTagL->Get(row_idx) : 0;
-							if(p_mirror_tag_list) {
-								mirror_tag_list = *p_mirror_tag_list;
-								uint   j = mirror_tag_list.GetCount();
-								if(j) do {
-                                    const ObjTagItem * p_item = mirror_tag_list.GetItemByPos(--j);
-                                    THROW_MEM(SETIFZ(p_tag_obj, new PPObjTag));
-                                    if(p_item && (!p_tag_obj->IsUnmirrored(p_item->TagID) || do_force_unmirr)) {
-										mirror_tag_list.PutItem(p_item->TagID, 0);
-                                    }
-								} while(j);
-							}
-							else
-								mirror_tag_list.Destroy();
-							if(p_tag_list) {
-								for(uint j = 0; j < p_tag_list->GetCount(); j++) {
-                                    const ObjTagItem * p_item = p_tag_list->GetItemByPos(j);
-                                    THROW_MEM(SETIFZ(p_tag_obj, new PPObjTag));
-                                    if(p_item && (!p_tag_obj->IsUnmirrored(p_item->TagID) || do_force_unmirr)) {
-										if(p_item->TagDataType == OTTYP_IMAGE) {
-											ObjTagItem tag_item = *p_item;
-											ObjLinkFiles _lf_src(PPOBJ_TAG);
-											_lf_src.Load(p_item->TagID, p_ti->LotID);
-											_lf_src.At(0, img_path);
-											if(::fileExists(img_path)) {
-												ObjLinkFiles _lf_dest(PPOBJ_TAG);
-												_lf_dest.SetMode_IgnoreCheckStorageDir(1);
-												_lf_dest.Replace(0, img_path);
-												_lf_dest.SaveSingle(p_item->TagID, temp_buf.Z().Cat(mirror_lot_id), 0, &fname);
-												tag_item.SetStr(p_item->TagID, fname);
-												mirror_tag_list.PutItem(tag_item.TagID, &tag_item);
-											}
-										}
-										else
-											mirror_tag_list.PutItem(p_item->TagID, p_item);
-                                    }
-								}
-							}
-							THROW(p_ref->Ot.PutList(PPOBJ_LOT, mirror_lot_id, &mirror_tag_list, 0));
+		PPLotTagContainer local_ltagl; // @v11.7.3 Контейнер тегов для сохранения в property ограниченного набора тегов по строкам учетных (не-драфт) документов
+		for(uint i = 0; i < pPack->GetTCount(); i++) {
+			const PPTransferItem & r_ti = pPack->ConstTI(i);
+			const int row_idx = (int)i;
+			ObjTagList * p_tag_list = pPack->LTagL.Get(row_idx); // PPLotTagContainer
+			if(r_ti.Flags & PPTFR_RECEIPT) {
+				if(r_ti.LotID)
+					THROW(p_ref->Ot.PutListExcl(PPOBJ_LOT, r_ti.LotID, p_tag_list, &excl_tag_list, 0));
+			}
+			else if(is_intrexpnd) { // Сохраняем серийные номера и пользовательские теги для порожденных лотов
+				if(r_ti.LotID && trfr->SearchByBill(r_ti.BillID, 1, r_ti.RByBill, 0) > 0) {
+					const PPID mirror_lot_id = trfr->data.LotID;
+					if(mirror_lot_id) {
+						ObjTagList * p_mirror_tag_list = pPack->P_MirrorLTagL ? pPack->P_MirrorLTagL->Get(row_idx) : 0;
+						if(p_mirror_tag_list) {
+							mirror_tag_list = *p_mirror_tag_list;
+							uint   j = mirror_tag_list.GetCount();
+							if(j) do {
+                                const ObjTagItem * p_item = mirror_tag_list.GetItemByPos(--j);
+                                THROW_MEM(SETIFZ(p_tag_obj, new PPObjTag));
+                                if(p_item && (!p_tag_obj->IsUnmirrored(p_item->TagID) || do_force_unmirr)) {
+									mirror_tag_list.PutItem(p_item->TagID, 0);
+                                }
+							} while(j);
 						}
+						else
+							mirror_tag_list.Destroy();
+						if(p_tag_list) {
+							for(uint j = 0; j < p_tag_list->GetCount(); j++) {
+                                const ObjTagItem * p_item = p_tag_list->GetItemByPos(j);
+                                THROW_MEM(SETIFZ(p_tag_obj, new PPObjTag));
+                                if(p_item && (!p_tag_obj->IsUnmirrored(p_item->TagID) || do_force_unmirr)) {
+									if(p_item->TagDataType == OTTYP_IMAGE) {
+										ObjTagItem tag_item = *p_item;
+										ObjLinkFiles _lf_src(PPOBJ_TAG);
+										_lf_src.Load(p_item->TagID, r_ti.LotID);
+										_lf_src.At(0, img_path);
+										if(::fileExists(img_path)) {
+											ObjLinkFiles _lf_dest(PPOBJ_TAG);
+											_lf_dest.SetMode_IgnoreCheckStorageDir(1);
+											_lf_dest.Replace(0, img_path);
+											_lf_dest.SaveSingle(p_item->TagID, temp_buf.Z().Cat(mirror_lot_id), 0, &fname);
+											tag_item.SetStr(p_item->TagID, fname);
+											mirror_tag_list.PutItem(tag_item.TagID, &tag_item);
+										}
+									}
+									else
+										mirror_tag_list.PutItem(p_item->TagID, p_item);
+                                }
+							}
+						}
+						THROW(p_ref->Ot.PutList(PPOBJ_LOT, mirror_lot_id, &mirror_tag_list, 0));
 					}
 				}
 			}
+			// @v11.7.3 {
+			else {
+				//
+				// Для остальные не-драфт операций (не приходы, и не внутренняя передача)
+				// теги сохраняем так: унаследованные от лотов не трогаем, остальные (принадлежащие только строкам этого документа) - 
+				// заносим, по аналогии с тегами драфт-документов, в Property
+				//
+				// @construction
+				ObjTagList inh_tag_list;
+				if(r_ti.LotID) {
+					GetTagListByLot(r_ti.LotID, 0/*skipReserveTags*/, &inh_tag_list);
+				}
+				ObjTagList tag_list_copy;
+				if(p_tag_list) {
+					tag_list_copy = *p_tag_list;
+				}
+				//
+				// Удаляем из списка-копии все унаследованные от лота теги и что останется сохраняем в property (по аналогии с тегами строк драфт-документа)
+				//
+				if(inh_tag_list.GetCount() && tag_list_copy.GetCount()) {
+					for(uint itlidx = 0; itlidx < inh_tag_list.GetCount(); itlidx++) {
+						const ObjTagItem * p_inh_tag_item = inh_tag_list.GetItemByPos(itlidx);
+						if(p_inh_tag_item)
+							tag_list_copy.PutItem(p_inh_tag_item->TagID, 0);
+					}
+				}
+				PreprocessLTagListBeforeStoreInProps(pPack, r_ti.RByBill, &tag_list_copy);
+				if(tag_list_copy.GetCount())
+					local_ltagl.Set(row_idx, &tag_list_copy);
+			}
+			// } @v11.7.3 
 		}
+		// @v11.7.3 {
+		{
+			if(local_ltagl.GetCount())
+				THROW(local_ltagl.Serialize(+1, tag_srlz_buf, &sctx));
+			THROW(p_ref->PutPropSBuffer(Obj, pPack->Rec.ID, BILLPRP_DRAFTTAGLIST, tag_srlz_buf, 0));
+		}
+		// } @v11.7.3
 	}
 	else if(oneof3(pPack->OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) {
-        SBuffer sbuf;
         if(pPack->LTagL.GetCount()) {
-			SPathStruc sp;
 			for(uint i = 0; i < pPack->GetTCount(); i++) {
+				PreprocessLTagListBeforeStoreInProps(pPack, pPack->ConstTI(i).RByBill, pPack->LTagL.Get(i)); // @v11.7.3
+				/* @v11.7.3 
 				ObjTagList * p_tag_list = pPack->LTagL.Get(i);
 				if(p_tag_list) {
 					const PPTransferItem & r_ti = pPack->ConstTI(i);
@@ -6846,14 +6941,11 @@ int PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 							p_tag_list->PutItem(tag_item.TagID, &tag_item);
 						}
 					}
-				}
+				}*/
 			}
-			{
-        		SSerializeContext sctx;
-        		THROW(pPack->LTagL.Serialize(+1, sbuf, &sctx));
-			}
+       		THROW(pPack->LTagL.Serialize(+1, tag_srlz_buf, &sctx));
         }
-        THROW(p_ref->PutPropSBuffer(Obj, pPack->Rec.ID, BILLPRP_DRAFTTAGLIST, sbuf, 0));
+        THROW(p_ref->PutPropSBuffer(Obj, pPack->Rec.ID, BILLPRP_DRAFTTAGLIST, tag_srlz_buf, 0));
 	}
 	THROW(SetTagList(pPack->Rec.ID, &pPack->BTagL, 0));
 	if(P_LotXcT) {
@@ -7947,7 +8039,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	}
 	THROW(SetupSpecialAmounts(pPack));
 
-	THROW(ExtractPacket(id, &org_pack) > 0);
+	THROW(ExtractPacketWithFlags(id, &org_pack, BPLD_FORCESERIALS) > 0); // @v11.7.3 ExtractPacket-->ExtractPacketWithFlags(,,BPLD_FORCESERIALS)
 	if(IsPacketEq(*pPack, org_pack, 0))
 		ok = -1;
 	else {

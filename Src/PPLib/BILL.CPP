@@ -758,7 +758,7 @@ int BillCore::PutBillProp(PPID billID, PPID propID, long isThere, void * pBuf, s
 int BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 {
 	int    ok = 1;
-	const  int is_new = BIN(*pID == 0);
+	const  bool is_new = (*pID == 0);
 	uint   i;
 	AmtEntry * p_ae;
 	{

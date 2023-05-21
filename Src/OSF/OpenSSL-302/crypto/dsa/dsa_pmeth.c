@@ -161,21 +161,18 @@ static int pkey_dsa_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 	}
 }
 
-static int pkey_dsa_ctrl_str(EVP_PKEY_CTX * ctx,
-    const char * type, const char * value)
+static int pkey_dsa_ctrl_str(EVP_PKEY_CTX * ctx, const char * type, const char * value)
 {
 	if(strcmp(type, "dsa_paramgen_bits") == 0) {
-		int nbits;
-		nbits = atoi(value);
+		int nbits = satoi(value);
 		return EVP_PKEY_CTX_set_dsa_paramgen_bits(ctx, nbits);
 	}
 	if(strcmp(type, "dsa_paramgen_q_bits") == 0) {
-		int qbits = atoi(value);
+		int qbits = satoi(value);
 		return EVP_PKEY_CTX_set_dsa_paramgen_q_bits(ctx, qbits);
 	}
 	if(strcmp(type, "dsa_paramgen_md") == 0) {
 		const EVP_MD * md = EVP_get_digestbyname(value);
-
 		if(!md) {
 			ERR_raise(ERR_LIB_DSA, DSA_R_INVALID_DIGEST_TYPE);
 			return 0;

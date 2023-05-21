@@ -917,7 +917,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_recv_raw(struct soap * soap)
 			soap->d_stream->avail_out = SOAP_BUFLEN;
 			r = inflate(soap->d_stream, Z_NO_FLUSH);
 			if(r == Z_NEED_DICT && soap->z_dict)
-				r = inflateSetDictionary(soap->d_stream, (const Bytef*)soap->z_dict, soap->z_dict_len);
+				r = inflateSetDictionary(soap->d_stream, (const Byte *)soap->z_dict, soap->z_dict_len);
 			if(r == Z_OK || r == Z_STREAM_END) {
 				soap->bufidx = 0;
 				ret = soap->buflen = SOAP_BUFLEN-soap->d_stream->avail_out;
@@ -1041,7 +1041,7 @@ zlib_again:
 		soap->d_stream->avail_out = SOAP_BUFLEN;
 		r = inflate(soap->d_stream, Z_NO_FLUSH);
 		if(r == Z_NEED_DICT && soap->z_dict)
-			r = inflateSetDictionary(soap->d_stream, (const Bytef*)soap->z_dict, soap->z_dict_len);
+			r = inflateSetDictionary(soap->d_stream, (const Byte *)soap->z_dict, soap->z_dict_len);
 		if(r == Z_OK || r == Z_STREAM_END) {
 			soap->bufidx = 0;
 			soap->z_buflen = soap->buflen;
@@ -6187,7 +6187,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_begin_send(struct soap * soap)
 		if(deflateInit(soap->d_stream, soap->z_level) != Z_OK)
 			return soap->error = SOAP_ZLIB_ERROR;
 		if(soap->z_dict) {
-			if(deflateSetDictionary(soap->d_stream, (const Bytef*)soap->z_dict, soap->z_dict_len) != Z_OK)
+			if(deflateSetDictionary(soap->d_stream, (const Byte *)soap->z_dict, soap->z_dict_len) != Z_OK)
 				return soap->error = SOAP_ZLIB_ERROR;
 		}
 		DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Deflate initialized\n"));
@@ -7170,13 +7170,11 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_end_recv(struct soap * soap)
 				}
 				soap->z_buf[i] = (char)c;
 			}
-			if(soap->z_crc != ((uLong)(uchar)soap->z_buf[0]|((uLong)(uchar)soap->z_buf[1]<<8)|
-					    ((uLong)(uchar)soap->z_buf[2]<<16)|((uLong)(uchar)soap->z_buf[3]<<24))) {
+			if(soap->z_crc != ((uLong)(uchar)soap->z_buf[0]|((uLong)(uchar)soap->z_buf[1]<<8)|((uLong)(uchar)soap->z_buf[2]<<16)|((uLong)(uchar)soap->z_buf[3]<<24))) {
 				DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Gzip inflate error: crc check failed, message corrupted? (crc32=%lu)\n", (ulong)soap->z_crc));
 				return soap->error = SOAP_ZLIB_ERROR;
 			}
-			if(soap->d_stream->total_out != ((uLong)(uchar)soap->z_buf[4]|((uLong)(uchar)soap->z_buf[5]<<8)|
-					    ((uLong)(uchar)soap->z_buf[6]<<16)|((uLong)(uchar)soap->z_buf[7]<<24))) {
+			if(soap->d_stream->total_out != ((uLong)(uchar)soap->z_buf[4]|((uLong)(uchar)soap->z_buf[5]<<8)|((uLong)(uchar)soap->z_buf[6]<<16)|((uLong)(uchar)soap->z_buf[7]<<24))) {
 				DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Gzip inflate error: incorrect message length\n"));
 				return soap->error = SOAP_ZLIB_ERROR;
 			}
@@ -12662,7 +12660,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_begin_recv(struct soap * soap)
 		if(inflateInit2(soap->d_stream, -MAX_WBITS) != Z_OK)
 			return soap->error = SOAP_ZLIB_ERROR;
 		if(soap->z_dict) {
-			if(inflateSetDictionary(soap->d_stream, (const Bytef*)soap->z_dict, soap->z_dict_len) != Z_OK)
+			if(inflateSetDictionary(soap->d_stream, (const Byte *)soap->z_dict, soap->z_dict_len) != Z_OK)
 				return soap->error = SOAP_ZLIB_ERROR;
 		}
 		soap->zlib_state = SOAP_ZLIB_INFLATE;
@@ -12771,7 +12769,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_begin_recv(struct soap * soap)
 			if(inflateInit(soap->d_stream) != Z_OK)
 				return soap->error = SOAP_ZLIB_ERROR;
 			if(soap->z_dict) {
-				if(inflateSetDictionary(soap->d_stream, (const Bytef*)soap->z_dict, soap->z_dict_len) != Z_OK)
+				if(inflateSetDictionary(soap->d_stream, (const Byte *)soap->z_dict, soap->z_dict_len) != Z_OK)
 					return soap->error = SOAP_ZLIB_ERROR;
 			}
 			soap->zlib_state = SOAP_ZLIB_INFLATE;

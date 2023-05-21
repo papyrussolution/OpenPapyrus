@@ -16,28 +16,27 @@ typedef struct pdf_crypt pdf_crypt;
 
 typedef struct pdf_obj pdf_obj;
 
-pdf_obj *pdf_new_int(fz_context *ctx, int64_t i);
-pdf_obj *pdf_new_real(fz_context *ctx, float f);
-pdf_obj *pdf_new_name(fz_context *ctx, const char *str);
-pdf_obj *pdf_new_string(fz_context *ctx, const char *str, size_t len);
-
+pdf_obj * pdf_new_int(fz_context *ctx, int64_t i);
+pdf_obj * pdf_new_real(fz_context *ctx, float f);
+pdf_obj * pdf_new_name(fz_context *ctx, const char *str);
+pdf_obj * pdf_new_string(fz_context *ctx, const char *str, size_t len);
 /*
 	Create a PDF 'text string' by encoding input string as either ASCII or UTF-16BE.
 	In theory, we could also use PDFDocEncoding.
 */
-pdf_obj *pdf_new_text_string(fz_context *ctx, const char *s);
-pdf_obj *pdf_new_indirect(fz_context *ctx, pdf_document *doc, int num, int gen);
-pdf_obj *pdf_new_array(fz_context *ctx, pdf_document *doc, int initialcap);
-pdf_obj *pdf_new_dict(fz_context *ctx, pdf_document *doc, int initialcap);
-pdf_obj *pdf_new_rect(fz_context *ctx, pdf_document *doc, fz_rect rect);
-pdf_obj *pdf_new_matrix(fz_context *ctx, pdf_document *doc, fz_matrix mtx);
-pdf_obj *pdf_new_date(fz_context *ctx, pdf_document *doc, int64_t time);
-pdf_obj *pdf_copy_array(fz_context *ctx, pdf_obj *array);
-pdf_obj *pdf_copy_dict(fz_context *ctx, pdf_obj *dict);
-pdf_obj *pdf_deep_copy_obj(fz_context *ctx, pdf_obj *obj);
+pdf_obj * pdf_new_text_string(fz_context *ctx, const char *s);
+pdf_obj * pdf_new_indirect(fz_context *ctx, pdf_document *doc, int num, int gen);
+pdf_obj * pdf_new_array(fz_context *ctx, pdf_document *doc, int initialcap);
+pdf_obj * pdf_new_dict(fz_context *ctx, pdf_document *doc, int initialcap);
+pdf_obj * pdf_new_rect(fz_context *ctx, pdf_document *doc, fz_rect rect);
+pdf_obj * pdf_new_matrix(fz_context *ctx, pdf_document *doc, fz_matrix mtx);
+pdf_obj * pdf_new_date(fz_context *ctx, pdf_document *doc, int64_t time);
+pdf_obj * pdf_copy_array(fz_context *ctx, pdf_obj *array);
+pdf_obj * pdf_copy_dict(fz_context *ctx, pdf_obj *dict);
+pdf_obj * pdf_deep_copy_obj(fz_context *ctx, pdf_obj *obj);
 
-pdf_obj *pdf_keep_obj(fz_context *ctx, pdf_obj *obj);
-void pdf_drop_obj(fz_context *ctx, pdf_obj *obj);
+pdf_obj * FASTCALL pdf_keep_obj(fz_context *ctx, pdf_obj *obj);
+void FASTCALL pdf_drop_obj(fz_context *ctx, pdf_obj *obj);
 
 int pdf_is_null(fz_context *ctx, pdf_obj *obj);
 int pdf_is_bool(fz_context *ctx, pdf_obj *obj);
@@ -48,7 +47,7 @@ int pdf_is_name(fz_context *ctx, pdf_obj *obj);
 int pdf_is_string(fz_context *ctx, pdf_obj *obj);
 int pdf_is_array(fz_context *ctx, pdf_obj *obj);
 int pdf_is_dict(fz_context *ctx, pdf_obj *obj);
-int pdf_is_indirect(fz_context *ctx, pdf_obj *obj);
+int FASTCALL pdf_is_indirect(fz_context *ctx, pdf_obj *obj);
 
 /*
 	Check if an object is a stream or not.

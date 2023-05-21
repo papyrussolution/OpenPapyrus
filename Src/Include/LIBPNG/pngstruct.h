@@ -119,9 +119,9 @@ typedef struct png_colorspace {
 
 	/* Flags are always defined to simplify the code. */
 	png_uint_16 flags; /* As defined below */
-} png_colorspace, * PNG_RESTRICT png_colorspacerp;
+} png_colorspace, * _RESTRICT png_colorspacerp;
 
-typedef const png_colorspace * PNG_RESTRICT png_const_colorspacerp;
+typedef const png_colorspace * _RESTRICT png_const_colorspacerp;
 
 /* General flags for the 'flags' field */
 #define PNG_COLORSPACE_HAVE_GAMMA           0x0001

@@ -103,7 +103,7 @@
  * 8 bit alpha
  */
 
-static force_inline uint8 clip255(int x)
+static FORCEINLINE uint8 clip255(int x)
 {
 	if(x > 255)
 		return 255;

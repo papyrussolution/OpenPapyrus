@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 2002-2012, International Business Machines Corporation and
-* others. All Rights Reserved.
-********************************************************************/
-
+// Copyright (c) 2002-2012, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -128,31 +124,27 @@ void UPerfTest::init(UOption addOptions[], int32_t addOptionsCount, UErrorCode &
 	if(options[SOURCEDIR].doesOccur) {
 		sourceDir = options[SOURCEDIR].value;
 	}
-
 	if(options[ENCODING].doesOccur) {
 		encoding = options[ENCODING].value;
 	}
-
 	if(options[USELEN].doesOccur) {
 		uselen = TRUE;
 	}
-
 	if(options[FILE_NAME].doesOccur) {
 		fileName = options[FILE_NAME].value;
 	}
-
 	if(options[PASSES].doesOccur) {
-		passes = atoi(options[PASSES].value);
+		passes = satoi(options[PASSES].value);
 	}
 	if(options[ITERATIONS].doesOccur) {
-		iterations = atoi(options[ITERATIONS].value);
+		iterations = satoi(options[ITERATIONS].value);
 		if(options[TIME].doesOccur) {
 			status = U_ILLEGAL_ARGUMENT_ERROR;
 			return;
 		}
 	}
 	else if(options[TIME].doesOccur) {
-		time = atoi(options[TIME].value);
+		time = satoi(options[TIME].value);
 	}
 	else {
 		iterations = 1000; // some default
@@ -167,11 +159,9 @@ void UPerfTest::init(UOption addOptions[], int32_t addOptionsCount, UErrorCode &
 		bulk_mode = TRUE;
 		line_mode = FALSE;
 	}
-
 	if(options[LOCALE].doesOccur) {
 		locale = options[LOCALE].value;
 	}
-
 	int32_t len = 0;
 	if(fileName!=NULL) {
 		//pre-flight

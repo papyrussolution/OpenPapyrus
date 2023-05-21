@@ -268,14 +268,10 @@ typedef struct {
 	int32 nblock_used;
 	int32 cftab[257];
 	int32 cftabCopy[257];
-
-	/* for undoing the Burrows-Wheeler transform (FAST) */
-	uint32   * tt;
-
+	uint32   * tt; /* for undoing the Burrows-Wheeler transform (FAST) */
 	/* for undoing the Burrows-Wheeler transform (SMALL) */
 	uint16   * ll16;
 	uchar    * ll4;
-
 	/* stored and calculated CRCs */
 	uint32 storedBlockCRC;
 	uint32 storedCombinedCRC;

@@ -54,7 +54,7 @@ GzipInputStream::GzipInputStream(ZeroCopyInputStream* sub_stream, Format format,
 	}
 	output_buffer_ = operator new(output_buffer_length_);
 	GOOGLE_CHECK(output_buffer_ != NULL);
-	zcontext_.next_out = static_cast<Bytef*>(output_buffer_);
+	zcontext_.next_out = static_cast<Byte *>(output_buffer_);
 	zcontext_.avail_out = output_buffer_length_;
 	output_position_ = output_buffer_;
 }
@@ -95,7 +95,7 @@ int GzipInputStream::Inflate(int flush) {
 			zcontext_.avail_out = 0;
 			return Z_STREAM_END;
 		}
-		zcontext_.next_in = static_cast<Bytef*>(const_cast<void*>(in));
+		zcontext_.next_in = static_cast<Byte *>(const_cast<void*>(in));
 		zcontext_.avail_in = in_size;
 		if(first) {
 			int error = internalInflateInit2(&zcontext_, format_);
@@ -104,7 +104,7 @@ int GzipInputStream::Inflate(int flush) {
 			}
 		}
 	}
-	zcontext_.next_out = static_cast<Bytef*>(output_buffer_);
+	zcontext_.next_out = static_cast<Byte *>(output_buffer_);
 	zcontext_.avail_out = output_buffer_length_;
 	output_position_ = output_buffer_;
 	int error = inflate(&zcontext_, flush);
@@ -255,7 +255,7 @@ int GzipOutputStream::Deflate(int flush) {
 				return Z_BUF_ERROR;
 			}
 			GOOGLE_CHECK_GT(sub_data_size_, 0);
-			zcontext_.next_out = static_cast<Bytef*>(sub_data_);
+			zcontext_.next_out = static_cast<Byte *>(sub_data_);
 			zcontext_.avail_out = sub_data_size_;
 		}
 		error = deflate(&zcontext_, flush);
@@ -283,7 +283,7 @@ bool GzipOutputStream::Next(void** data, int* size) {
 	}
 	if(zcontext_.avail_in == 0) {
 		// all input was consumed. reset the buffer.
-		zcontext_.next_in = static_cast<Bytef*>(input_buffer_);
+		zcontext_.next_in = static_cast<Byte *>(input_buffer_);
 		zcontext_.avail_in = input_buffer_length_;
 		*data = input_buffer_;
 		*size = input_buffer_length_;

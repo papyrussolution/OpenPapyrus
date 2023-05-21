@@ -1063,7 +1063,7 @@ int PPMqbClient::QueueDelete(const char * pQueue, long queueFlags)
 
 // @v10.6.1 (moved to PPConst) static const uint32 MqbEventResponder_Signature = 0xB4C7E6F1;
 
-MqbEventResponder::MqbEventResponder() : Signature(_PPConst.Signature_MqbEventResponder), AdvCookie_Msg(0), P_Cli(0)
+MqbEventResponder::MqbEventResponder() : Signature(PPConst::Signature_MqbEventResponder), AdvCookie_Msg(0), P_Cli(0)
 {
 	{
 		PPAdviseBlock adv_blk;
@@ -1081,7 +1081,7 @@ MqbEventResponder::~MqbEventResponder()
 	Signature = 0;
 }
 	
-bool MqbEventResponder::IsConsistent() const { return (Signature == _PPConst.Signature_MqbEventResponder); }
+bool MqbEventResponder::IsConsistent() const { return (Signature == PPConst::Signature_MqbEventResponder); }
 
 MqbEventResponder::Command::Command() : Cmd(cmdNone), IdVal(0)
 {

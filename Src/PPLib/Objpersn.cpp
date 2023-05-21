@@ -444,8 +444,8 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 			{
 				char   reg_buf[16];
 				memzero(reg_buf, sizeof(reg_buf));
-				WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 0);
-				reg_key.PutString(_PPConst.WrParam_PersonAddImageFolder, (pCfg->AddImageFolder.Len() == 0) ? reg_buf : pCfg->AddImageFolder);
+				WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, 0);
+				reg_key.PutString(PPConst::WrParam_PersonAddImageFolder, (pCfg->AddImageFolder.Len() == 0) ? reg_buf : pCfg->AddImageFolder);
 			}
 		}
 		THROW(PPObject::Helper_PutConfig(prop_cfg_id, cfg_obj_type, is_new, p_cfg, sz, 0));
@@ -504,10 +504,10 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 			pCfg->TopFolder = 0;
 		{
 			size_t buf_size = 0;
-			WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 1);
-			if(reg_key.GetRecSize(_PPConst.WrParam_PersonAddImageFolder, &buf_size) > 0 && buf_size > 0) {
+			WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, 1);
+			if(reg_key.GetRecSize(PPConst::WrParam_PersonAddImageFolder, &buf_size) > 0 && buf_size > 0) {
 				SString temp_buf;
-				reg_key.GetString(_PPConst.WrParam_PersonAddImageFolder, temp_buf);
+				reg_key.GetString(PPConst::WrParam_PersonAddImageFolder, temp_buf);
 				pCfg->AddImageFolder = temp_buf;
 			}
 		}

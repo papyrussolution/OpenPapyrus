@@ -19,16 +19,13 @@ int jsV_numbertointeger(double n)
 
 int jsV_numbertoint32(double n)
 {
-	double two32 = 4294967296.0;
-	double two31 = 2147483648.0;
-
+	//double two32 = 4294967296.0;
 	if(!isfinite(n) || n == 0)
 		return 0;
-
-	n = fmod(n, two32);
-	n = n >= 0 ? floor(n) : ceil(n) + two32;
-	if(n >= two31)
-		return n - two32;
+	n = fmod(n, SMathConst::MaxU32);
+	n = n >= 0 ? floor(n) : ceil(n) + SMathConst::MaxU32;
+	if(n >= SMathConst::MaxU31)
+		return n - SMathConst::MaxU32;
 	else
 		return n;
 }
@@ -86,15 +83,11 @@ static int jsV_valueOf(js_State * J, js_Object * obj)
 void jsV_toprimitive(js_State * J, js_Value * v, int preferred)
 {
 	js_Object * obj;
-
 	if(v->type != JS_TOBJECT)
 		return;
-
 	obj = v->u.object;
-
 	if(preferred == JS_HNONE)
 		preferred = obj->type == JS_CDATE ? JS_HSTRING : JS_HNUMBER;
-
 	if(preferred == JS_HSTRING) {
 		if(jsV_toString(J, obj) || jsV_valueOf(J, obj)) {
 			*v = *js_tovalue(J, -1);
@@ -109,10 +102,8 @@ void jsV_toprimitive(js_State * J, js_Value * v, int preferred)
 			return;
 		}
 	}
-
 	if(J->strict)
 		js_typeerror(J, "cannot convert object to primitive");
-
 	v->type = JS_TLITSTR;
 	v->u.litstr = "[object]";
 	return;

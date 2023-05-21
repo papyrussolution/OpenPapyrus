@@ -3048,7 +3048,29 @@ uint32 FASTCALL _texttodec32(const char * pT, uint len)
 	}
 	return result;
 }
-
+/*
+Интересный подход у jsteemann (https://github.com/jsteemann/atoi.git)
+позволяет избежать операции умножения.
+Надо проверить производительность этого решения по сравнению с другими.
+//
+template <typename T> inline T atoi_negative_unchecked(char const* p, char const* e) noexcept 
+{
+	T result = 0;
+	while(p != e) {
+		result = (result << 1) + (result << 3) - (*(p++) - '0');
+	}
+	return result;
+}
+  
+template <typename T> inline T atoi_positive_unchecked(char const* p, char const* e) noexcept 
+{
+	T result = 0;
+	while(p != e) {
+		result = (result << 1) + (result << 3) + *(p++) - '0';
+	}
+	return result;
+}
+*/
 uint32 FASTCALL _texttodec32(const wchar_t * pT, uint len)
 {
 	uint32 result;
@@ -3331,15 +3353,8 @@ int64 FASTCALL satoi64(const wchar_t * pT)
 	return result;
 }
 
-long SString::ToLong() const
-{
-	return (L > 1) ? satoi(P_Buf) : 0;
-}
-
-int64 SString::ToInt64() const
-{
-	return (L > 1) ? satoi64(P_Buf) : 0;
-}
+long  SString::ToLong() const { return (L > 1) ? satoi(P_Buf) : 0; }
+int64 SString::ToInt64() const { return (L > 1) ? satoi64(P_Buf) : 0; }
 
 double SString::ToReal() const
 {

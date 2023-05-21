@@ -793,7 +793,7 @@ public:
 	int	   Run();
 private:
 	struct DumpHeader {
-		uint32 Signature;   // PPDD 0x44445050 _PPConst.DbDumpSignature
+		uint32 Signature;   // PPDD 0x44445050 PPConst::DbDumpSignature
 		uint32 Crc32;
 		SVerT  Ver;
 		uint32 Flags;
@@ -1074,7 +1074,7 @@ int PrcssrDbDump::OpenStream(const char * pFileName)
 	if(P.Mode) {
 		THROW_SL(FDump.Open(pFileName, SFile::mReadWriteTrunc | SFile::mBinary | SFile::mNoStd));
 		MEMSZERO(hdr);
-		hdr.Signature = _PPConst.Signature_DbDump;
+		hdr.Signature = PPConst::Signature_DbDump;
 		hdr.Ver = DS.GetVersion();
 		THROW_SL(FDump.Write(&hdr, sizeof(hdr)));
 		ok = 1;
@@ -1084,7 +1084,7 @@ int PrcssrDbDump::OpenStream(const char * pFileName)
 		SBuffer buffer;
 		THROW_SL(FDump.Open(pFileName, SFile::mRead | SFile::mBinary | SFile::mNoStd));
 		THROW_SL(FDump.Read(&hdr, sizeof(hdr)));
-		THROW(hdr.Signature == _PPConst.Signature_DbDump);
+		THROW(hdr.Signature == PPConst::Signature_DbDump);
 		THROW_SL(FDump.CalcCRC(sizeof(hdr), &crc));
 		THROW(hdr.Crc32 == crc);
 
@@ -1112,7 +1112,7 @@ int PrcssrDbDump::CloseStream()
 		THROW_SL(FDump.Write(buffer));
 
 		MEMSZERO(hdr);
-		hdr.Signature = _PPConst.Signature_DbDump;
+		hdr.Signature = PPConst::Signature_DbDump;
 		hdr.Ver = DS.GetVersion();
 		hdr.CtxOffs = state_offs;
 		THROW_SL(FDump.CalcCRC(sizeof(hdr), &hdr.Crc32));

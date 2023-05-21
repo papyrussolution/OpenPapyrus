@@ -494,10 +494,10 @@ int PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
 				TechTbl::Key2 k2;
 				MEMSZERO(k2);
 				k2.GoodsID = MINLONG32;
-				if(P_Tbl->search(2, &k2, spGt) && P_Tbl->data.GoodsID <= _PPConst.TechSurrogateGoodsIdStart)
+				if(P_Tbl->search(2, &k2, spGt) && P_Tbl->data.GoodsID <= PPConst::TechSurrogateGoodsIdStart)
 					surrogate_goods_id = P_Tbl->data.GoodsID-1;
 				else
-					surrogate_goods_id = _PPConst.TechSurrogateGoodsIdStart;
+					surrogate_goods_id = PPConst::TechSurrogateGoodsIdStart;
 				pPack->Rec.GoodsID = surrogate_goods_id;
 			}
 			// } @v11.6.4 
@@ -644,7 +644,7 @@ static const char * WrParam_CalcCapacity = "CalcCapacity";
 
 int CalcCapacity::Save() const
 {
-	WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_PrefSettings, 0);
+	WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_PrefSettings, 0);
 	SString buf;
 	reg_key.PutString(WrParam_CalcCapacity, ToText(buf));
 	return 1;
@@ -653,7 +653,7 @@ int CalcCapacity::Save() const
 int CalcCapacity::Restore()
 {
 	int    ok = -1;
-	WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_PrefSettings, 1);
+	WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_PrefSettings, 1);
 	SString temp_buf;
 	if(reg_key.GetString(WrParam_CalcCapacity, temp_buf))
 		ok = FromText(temp_buf);

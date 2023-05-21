@@ -492,7 +492,7 @@ typedef struct opj_j2k {
 	opj_thread_pool_t* m_tp; /** Thread pool */
 	uint32_t ihdr_w; /** Image width coming from JP2 IHDR box. 0 from a pure codestream */
 	uint32_t ihdr_h; /** Image height coming from JP2 IHDR box. 0 from a pure codestream */
-	unsigned int dump_state; /** Set to 1 by the decoder initialization if OPJ_DPARAMETERS_DUMP_FLAG is set */
+	uint   dump_state; /** Set to 1 by the decoder initialization if OPJ_DPARAMETERS_DUMP_FLAG is set */
 } opj_j2k_t;
 
 /** @name Exported functions */
@@ -511,7 +511,7 @@ boolint opj_j2k_set_threads(opj_j2k_t * j2k, uint32_t num_threads);
  *
  * @return Returns a handle to a J2K compressor if successful, returns NULL otherwise
  */
-opj_j2k_t* opj_j2k_create_compress(void);
+opj_j2k_t* opj_j2k_create_compress();
 boolint opj_j2k_setup_encoder(opj_j2k_t * p_j2k, opj_cparameters_t * parameters, opj_image_t * image, opj_event_mgr_t * p_manager);
 /**
    Converts an enum type progression order to string type
@@ -616,7 +616,7 @@ boolint opj_j2k_set_decode_area(opj_j2k_t * p_j2k, opj_image_t* p_image, int32_t
  *
  * @return a handle to a J2K decompressor if successful, NULL otherwise.
  */
-opj_j2k_t* opj_j2k_create_decompress(void);
+opj_j2k_t* opj_j2k_create_decompress();
 /**
  * Dump some elements from the J2K decompression structure .
  *

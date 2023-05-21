@@ -241,19 +241,15 @@ static int make_header(struct archive_write_filter * f)
 
 	memcpy(data->compressed, header, sizeof(header));
 	/* Overwrite library version. */
-	data->compressed[HEADER_LIBVERSION] = (uchar)
-	    (lzo_version() >> 8) & 0xff;
-	data->compressed[HEADER_LIBVERSION + 1] = (uchar)
-	    lzo_version() & 0xff;
+	data->compressed[HEADER_LIBVERSION] = (uchar)(lzo_version() >> 8) & 0xff;
+	data->compressed[HEADER_LIBVERSION + 1] = (uchar)lzo_version() & 0xff;
 	/* Overwrite method and level. */
 	data->compressed[HEADER_METHOD] = (uchar)data->method;
 	data->compressed[HEADER_LEVEL] = data->level;
 	/* Overwrite mtime with current time. */
 	t = (int64)time(NULL);
-	archive_be32enc(&data->compressed[HEADER_MTIME_LOW],
-	    (uint32)(t & 0xffffffff));
-	archive_be32enc(&data->compressed[HEADER_MTIME_HIGH],
-	    (uint32)((t >> 32) & 0xffffffff));
+	archive_be32enc(&data->compressed[HEADER_MTIME_LOW], (uint32)(t & 0xffffffff));
+	archive_be32enc(&data->compressed[HEADER_MTIME_HIGH], (uint32)((t >> 32) & 0xffffffff));
 	/* Overwrite header checksum with calculated value. */
 	checksum = lzo_adler32(1, data->compressed + HEADER_VERSION,
 		(lzo_uint)(HEADER_H_CHECKSUM - HEADER_VERSION));

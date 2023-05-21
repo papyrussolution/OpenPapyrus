@@ -576,16 +576,12 @@ static void fghPlatformOnWindowStatusNotify(SFG_Window * window, GLboolean visSt
 		   visibility state */
 		if(!window->Parent && window->State.pWState.IconTitle) {
 			if(visState)
-				/* visible, set window title */
-				SetWindowText(window->Window.Handle, window->State.pWState.WindowTitle);
+				SetWindowTextA(window->Window.Handle, window->State.pWState.WindowTitle); /* visible, set window title */
 			else
-				/* not visible, set icon title */
-				SetWindowText(window->Window.Handle, window->State.pWState.IconTitle);
+				SetWindowTextA(window->Window.Handle, window->State.pWState.IconTitle); /* not visible, set icon title */
 		}
-
 		notify = GL_TRUE;
 	}
-
 	if(notify || forceNotify) {
 		SFG_Window * saved_window = fgStructure.CurrentWindow;
 

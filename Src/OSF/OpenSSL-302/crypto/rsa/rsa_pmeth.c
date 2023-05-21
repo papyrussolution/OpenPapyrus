@@ -614,8 +614,7 @@ bad_pad:
 	}
 }
 
-static int pkey_rsa_ctrl_str(EVP_PKEY_CTX * ctx,
-    const char * type, const char * value)
+static int pkey_rsa_ctrl_str(EVP_PKEY_CTX * ctx, const char * type, const char * value)
 {
 	if(value == NULL) {
 		ERR_raise(ERR_LIB_RSA, RSA_R_VALUE_MISSING);
@@ -623,7 +622,6 @@ static int pkey_rsa_ctrl_str(EVP_PKEY_CTX * ctx,
 	}
 	if(strcmp(type, "rsa_padding_mode") == 0) {
 		int pm;
-
 		if(strcmp(value, "pkcs1") == 0) {
 			pm = RSA_PKCS1_PADDING;
 		}
@@ -648,10 +646,8 @@ static int pkey_rsa_ctrl_str(EVP_PKEY_CTX * ctx,
 		}
 		return EVP_PKEY_CTX_set_rsa_padding(ctx, pm);
 	}
-
 	if(strcmp(type, "rsa_pss_saltlen") == 0) {
 		int saltlen;
-
 		if(!strcmp(value, "digest"))
 			saltlen = RSA_PSS_SALTLEN_DIGEST;
 		else if(!strcmp(value, "max"))
@@ -659,19 +655,15 @@ static int pkey_rsa_ctrl_str(EVP_PKEY_CTX * ctx,
 		else if(!strcmp(value, "auto"))
 			saltlen = RSA_PSS_SALTLEN_AUTO;
 		else
-			saltlen = atoi(value);
+			saltlen = satoi(value);
 		return EVP_PKEY_CTX_set_rsa_pss_saltlen(ctx, saltlen);
 	}
-
 	if(strcmp(type, "rsa_keygen_bits") == 0) {
-		int nbits = atoi(value);
-
+		int nbits = satoi(value);
 		return EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, nbits);
 	}
-
 	if(strcmp(type, "rsa_keygen_pubexp") == 0) {
 		int ret;
-
 		BIGNUM * pubexp = NULL;
 		if(!BN_asc2bn(&pubexp, value))
 			return 0;
@@ -679,43 +671,28 @@ static int pkey_rsa_ctrl_str(EVP_PKEY_CTX * ctx,
 		BN_free(pubexp);
 		return ret;
 	}
-
 	if(strcmp(type, "rsa_keygen_primes") == 0) {
-		int nprimes = atoi(value);
-
+		int nprimes = satoi(value);
 		return EVP_PKEY_CTX_set_rsa_keygen_primes(ctx, nprimes);
 	}
-
 	if(strcmp(type, "rsa_mgf1_md") == 0)
-		return EVP_PKEY_CTX_md(ctx,
-			   EVP_PKEY_OP_TYPE_SIG | EVP_PKEY_OP_TYPE_CRYPT,
-			   EVP_PKEY_CTRL_RSA_MGF1_MD, value);
-
+		return EVP_PKEY_CTX_md(ctx, EVP_PKEY_OP_TYPE_SIG | EVP_PKEY_OP_TYPE_CRYPT, EVP_PKEY_CTRL_RSA_MGF1_MD, value);
 	if(pkey_ctx_is_pss(ctx)) {
 		if(strcmp(type, "rsa_pss_keygen_mgf1_md") == 0)
-			return EVP_PKEY_CTX_md(ctx, EVP_PKEY_OP_KEYGEN,
-				   EVP_PKEY_CTRL_RSA_MGF1_MD, value);
-
+			return EVP_PKEY_CTX_md(ctx, EVP_PKEY_OP_KEYGEN, EVP_PKEY_CTRL_RSA_MGF1_MD, value);
 		if(strcmp(type, "rsa_pss_keygen_md") == 0)
-			return EVP_PKEY_CTX_md(ctx, EVP_PKEY_OP_KEYGEN,
-				   EVP_PKEY_CTRL_MD, value);
-
+			return EVP_PKEY_CTX_md(ctx, EVP_PKEY_OP_KEYGEN, EVP_PKEY_CTRL_MD, value);
 		if(strcmp(type, "rsa_pss_keygen_saltlen") == 0) {
-			int saltlen = atoi(value);
-
+			int saltlen = satoi(value);
 			return EVP_PKEY_CTX_set_rsa_pss_keygen_saltlen(ctx, saltlen);
 		}
 	}
-
 	if(strcmp(type, "rsa_oaep_md") == 0)
-		return EVP_PKEY_CTX_md(ctx, EVP_PKEY_OP_TYPE_CRYPT,
-			   EVP_PKEY_CTRL_RSA_OAEP_MD, value);
-
+		return EVP_PKEY_CTX_md(ctx, EVP_PKEY_OP_TYPE_CRYPT, EVP_PKEY_CTRL_RSA_OAEP_MD, value);
 	if(strcmp(type, "rsa_oaep_label") == 0) {
 		uchar * lab;
 		long lablen;
 		int ret;
-
 		lab = OPENSSL_hexstr2buf(value, &lablen);
 		if(!lab)
 			return 0;

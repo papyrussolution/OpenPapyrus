@@ -7443,7 +7443,14 @@ int WriteBill_NalogRu2_CorrInvoice(const PPBillImpExpParam & rParam, const PPBil
 			DocNalogRu_Generator::DocumentInfo docinfo;
 			docinfo.KND = "1115133";
 			docinfo.Subj = temp_buf;
-			docinfo.Function = "КСЧФДИС"; // @v11.7.1
+			/*
+				Принимает значение: КСЧФ | КСЧФДИС | ДИС, где:
+				КСЧФ - корректировочный счет-фактура, применяемый при расчетах по налогу на добавленную стоимость;
+				КСЧФДИС - корректировочный счет-фактура, применяемый при расчетах по налогу на добавленную стоимость, 
+					и документ об изменении стоимости отгруженных товаров (выполненных работ, оказанных услуг), переданных имущественных прав;
+				ДИС - документ об изменении стоимости отгруженных товаров (выполненных работ, оказанных услуг), переданных имущественных прав.
+			*/
+			docinfo.Function = "КСЧФ"; // @v11.7.1
 			DocNalogRu_Generator::Document d(_blk.G, docinfo);
 			{
 				DocNalogRu_Generator::Invoice inv(_blk.G, rBp, true/*correction*/);

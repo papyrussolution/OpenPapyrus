@@ -1046,10 +1046,11 @@ void blueprint_helpers::parseCurrencyOption(const StringSegment& segment, MacroP
 		return;
 	}
 	// Slicing is OK
-	macros.unit = currency; // NOLINT
+	macros.unit = currency;
 }
 
-void blueprint_helpers::generateCurrencyOption(const CurrencyUnit& currency, UnicodeString & sb, UErrorCode&) {
+void blueprint_helpers::generateCurrencyOption(const CurrencyUnit& currency, UnicodeString & sb, UErrorCode&) 
+{
 	sb.append(currency.getISOCurrency(), -1);
 }
 

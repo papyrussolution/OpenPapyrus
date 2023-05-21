@@ -25,7 +25,7 @@
 	else {
 		rColorBuf.Z();
 		(rRestrictionBuf = pItemString).Strip();
-		if(rRestrictionBuf.HasPrefixIAscii(_PPConst.P_TagValRestrict_List))
+		if(rRestrictionBuf.HasPrefixIAscii(PPConst::P_TagValRestrict_List))
 			ok = 4;
 		else
 			ok = 1;
@@ -43,7 +43,7 @@
 		ok = 1;
 	}
 	else if(_c > 1) {
-		rRestrictionBuf.Cat(_PPConst.P_TagValRestrict_List).Colon();
+		rRestrictionBuf.Cat(PPConst::P_TagValRestrict_List).Colon();
 		for(uint i = 0; i < _c; i++) {
 			if(i)
 				rRestrictionBuf.Semicol();
@@ -58,9 +58,9 @@
 {
 	int    ok = -1;
 	CALLPTRMEMB(pList, clear());
-	if(rRestrictionBuf.HasPrefixIAscii(_PPConst.P_TagValRestrict_List)) {
+	if(rRestrictionBuf.HasPrefixIAscii(PPConst::P_TagValRestrict_List)) {
 		SString restrict = rRestrictionBuf;
-		restrict.ShiftLeft(sstrlen(_PPConst.P_TagValRestrict_List)).Strip().ShiftLeftChr(':').Strip();
+		restrict.ShiftLeft(sstrlen(PPConst::P_TagValRestrict_List)).Strip().ShiftLeftChr(':').Strip();
 		StringSet ss(';', restrict);
 		for(uint ssp = 0; ss.get(&ssp, restrict);) {
 			const PPID restrict_val = restrict.ToLong();
@@ -152,9 +152,9 @@ static int CheckTagItemForRawRestriction(const ObjTagItem * pTagItem, const char
 	if(pTagItem) {
 		SString restriction;
 		TagFilt::GetRestriction(pRawRestrictionString, restriction);
-		if(restriction.IsEqiAscii(_PPConst.P_TagValRestrict_Empty))
+		if(restriction.IsEqiAscii(PPConst::P_TagValRestrict_Empty))
 			select_ok = pTagItem->IsZeroVal();
-		else if(restriction.IsEqiAscii(_PPConst.P_TagValRestrict_Exist))
+		else if(restriction.IsEqiAscii(PPConst::P_TagValRestrict_Exist))
 			select_ok = 1;
 		else if(oneof3(pTagItem->TagDataType, OTTYP_BOOL, OTTYP_ENUM, OTTYP_OBJLINK))
 			select_ok = BIN(restriction.ToLong() == pTagItem->Val.IntVal);
@@ -253,16 +253,16 @@ int TagFilt::CheckTagItemForRestrict(const ObjTagItem * pItem, const SString & r
 		if(Flags & TagFilt::fNotTagsInList)
 			check_ok = 0;
 		else {
-			if(rRestrict.IsEqiAscii(_PPConst.P_TagValRestrict_Empty))
+			if(rRestrict.IsEqiAscii(PPConst::P_TagValRestrict_Empty))
 				check_ok = pItem->IsZeroVal();
-			else if(rRestrict.IsEqiAscii(_PPConst.P_TagValRestrict_Exist))
+			else if(rRestrict.IsEqiAscii(PPConst::P_TagValRestrict_Exist))
 				check_ok = 1;
 			else if(oneof2(pItem->TagDataType, OTTYP_BOOL, OTTYP_OBJLINK))
 				check_ok = BIN(rRestrict.ToLong() == pItem->Val.IntVal);
 			else if(pItem->TagDataType == OTTYP_ENUM) {
-				if(rRestrict.HasPrefixIAscii(_PPConst.P_TagValRestrict_List)) {
+				if(rRestrict.HasPrefixIAscii(PPConst::P_TagValRestrict_List)) {
 					SString restrict = rRestrict;
-					restrict.ShiftLeft(sstrlen(_PPConst.P_TagValRestrict_List)).Strip().ShiftLeftChr(':').Strip();
+					restrict.ShiftLeft(sstrlen(PPConst::P_TagValRestrict_List)).Strip().ShiftLeftChr(':').Strip();
 					StringSet ss(';', restrict);
 					check_ok = 0;
 					for(uint ssp = 0; !check_ok && ss.get(&ssp, restrict);) {
@@ -303,7 +303,7 @@ int TagFilt::CheckTagItemForRestrict(const ObjTagItem * pItem, const SString & r
 			}
 		}
 	}
-	else if(!(Flags & TagFilt::fNotTagsInList) && !rRestrict.IsEqiAscii(_PPConst.P_TagValRestrict_Empty))
+	else if(!(Flags & TagFilt::fNotTagsInList) && !rRestrict.IsEqiAscii(PPConst::P_TagValRestrict_Empty))
 		check_ok = 0;
 	return check_ok;
 }
@@ -1350,7 +1350,7 @@ int PPObjTag::GetObjListByFilt(PPID objType, const TagFilt * pFilt, UintHashTabl
 				StrAssocArray::Item item = pFilt->TagsRestrict.Get(i);
 				TagFilt::GetRestriction(item.Txt, restrict);
 				UintHashTable local_list;
-				if(restrict.IsEqiAscii(_PPConst.P_TagValRestrict_Empty)) {
+				if(restrict.IsEqiAscii(PPConst::P_TagValRestrict_Empty)) {
 					if(P_Ref->Ot.GetObjectList(objType, item.Id, local_list) > 0) {
 						for(ulong v = 0; local_list.Enum(&v);) {
 							ObjTagItem tag_item;
@@ -1361,7 +1361,7 @@ int PPObjTag::GetObjListByFilt(PPID objType, const TagFilt * pFilt, UintHashTabl
 				}
 				else {
 					if(P_Ref->Ot.GetObjectList(objType, item.Id, local_list) > 0) {
-						if(restrict.IsEqiAscii(_PPConst.P_TagValRestrict_Exist)) {
+						if(restrict.IsEqiAscii(PPConst::P_TagValRestrict_Exist)) {
 							if(intersect_list_inited)
 								intersect_list.Intersect(local_list);
 							else {
@@ -1867,9 +1867,9 @@ public:
 		SetupPPObjCombo(this, CTLSEL_SELTAG_TAG, PPOBJ_TAG, Data.Id, 0, &tag_flt);
 		GetTagRec(Data.Id, &tag);
 		int    option = 0;
-		if(Data.Txt.IsEqiAscii(_PPConst.P_TagValRestrict_Empty))
+		if(Data.Txt.IsEqiAscii(PPConst::P_TagValRestrict_Empty))
 			option = 1;
-		else if(Data.Txt.IsEqiAscii(_PPConst.P_TagValRestrict_Exist))
+		else if(Data.Txt.IsEqiAscii(PPConst::P_TagValRestrict_Exist))
 			option = 2;
 		else
 			option = 0;
@@ -1899,9 +1899,9 @@ public:
 		THROW(GetTagRec(Data.Id, &tag));
 		THROW_PP(tag.TagDataType != 0, PPERR_MUSTBETAG);
 		if(option == 1)
-			restrict_buf = _PPConst.P_TagValRestrict_Empty;
+			restrict_buf = PPConst::P_TagValRestrict_Empty;
 		else if(option == 2)
-			restrict_buf = _PPConst.P_TagValRestrict_Exist;
+			restrict_buf = PPConst::P_TagValRestrict_Exist;
 		else {
 			getCtrlString(CTL_SELTAG_RESTRICT, restrict_buf);
 			if(oneof2(tag.TagDataType, OTTYP_ENUM, OTTYP_OBJLINK)) {
@@ -1981,10 +1981,10 @@ private:
 			getCtrlData(CTLSEL_SELTAG_TAG, &Data.Id);
 			getCtrlString(CTL_SELTAG_RESTRICT, restrict_buf);
 			if(option == 1)
-				restrict_buf = _PPConst.P_TagValRestrict_Empty;
+				restrict_buf = PPConst::P_TagValRestrict_Empty;
 			else if(option == 2)
-				restrict_buf = _PPConst.P_TagValRestrict_Exist;
-			else if(restrict_buf.IsEqiAscii(_PPConst.P_TagValRestrict_Empty) || restrict_buf.IsEqiAscii(_PPConst.P_TagValRestrict_Exist))
+				restrict_buf = PPConst::P_TagValRestrict_Exist;
+			else if(restrict_buf.IsEqiAscii(PPConst::P_TagValRestrict_Empty) || restrict_buf.IsEqiAscii(PPConst::P_TagValRestrict_Exist))
 				restrict_buf = 0;
 			SetupRestrict(tag.TagDataType, restrict_buf, tag.TagEnumID);
 		}
@@ -2030,9 +2030,9 @@ private:
 	{
 		SString restrict(pTxt);
 		int    option = 0;
-		if(restrict.IsEqiAscii(_PPConst.P_TagValRestrict_Empty))
+		if(restrict.IsEqiAscii(PPConst::P_TagValRestrict_Empty))
 			option = 1;
-		else if(restrict.IsEqiAscii(_PPConst.P_TagValRestrict_Exist))
+		else if(restrict.IsEqiAscii(PPConst::P_TagValRestrict_Exist))
 			option = 2;
 		else
 			option = 0;

@@ -960,26 +960,20 @@ static int fix_dh_nid5114(enum state state,
 			    ERR_raise(ERR_LIB_EVP, EVP_R_INVALID_VALUE);
 			    return 0;
 		    }
-
 		    ctx->p1 = 0;
 		    break;
-
 		case PRE_CTRL_STR_TO_PARAMS:
 		    if(ctx->p2 == NULL)
 			    return 0;
-		    if((ctx->p2 = (char*)ossl_ffc_named_group_get_name
-				(ossl_ffc_uid_to_dh_named_group(atoi((const char *)ctx->p2)))) == NULL) {
+		    if((ctx->p2 = (char*)ossl_ffc_named_group_get_name (ossl_ffc_uid_to_dh_named_group(satoi((const char *)ctx->p2)))) == NULL) {
 			    ERR_raise(ERR_LIB_EVP, EVP_R_INVALID_VALUE);
 			    return 0;
 		    }
-
 		    ctx->p1 = 0;
 		    break;
-
 		default:
 		    break;
 	}
-
 	return default_fixup_args(state, translation, ctx);
 }
 
@@ -993,7 +987,7 @@ static int fix_dh_paramgen_type(enum state state, const struct translation_st * 
 	if(ctx->action_type != SET)
 		return 0;
 	if(state == PRE_CTRL_STR_TO_PARAMS) {
-		ctx->p2 = (char*)ossl_dh_gen_type_id2name(atoi((const char *)ctx->p2));
+		ctx->p2 = (char*)ossl_dh_gen_type_id2name(satoi((const char *)ctx->p2));
 		ctx->p1 = strlen((const char *)ctx->p2);
 	}
 	return default_fixup_args(state, translation, ctx);
@@ -1317,7 +1311,7 @@ static int fix_rsa_pss_saltlen(enum state state,
 			if(strcmp((const char *)ctx->p2, (const char *)str_value_map[i].ptr) == 0)
 				break;
 		}
-		val = i == SIZEOFARRAY(str_value_map) ? atoi((const char *)ctx->p2) : (int)str_value_map[i].id;
+		val = i == SIZEOFARRAY(str_value_map) ? satoi((const char *)ctx->p2) : (int)str_value_map[i].id;
 		if(state == POST_CTRL_TO_PARAMS) {
 			/*
 			 * EVP_PKEY_CTRL_GET_RSA_PSS_SALTLEN weirdness explained further

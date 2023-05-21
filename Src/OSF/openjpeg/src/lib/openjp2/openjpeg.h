@@ -320,30 +320,18 @@ typedef void (* opj_msg_callback)(const char * msg, void * client_data);
  * Progression order changes
  */
 typedef struct opj_poc {
-	/** Resolution num start, Component num start, given by POC */
-	uint32_t resno0, compno0;
-	/** Layer num end,Resolution num end, Component num end, given by POC */
-	uint32_t layno1, resno1, compno1;
-	/** Layer num start,Precinct num start, Precinct num end */
-	uint32_t layno0, precno0, precno1;
-	/** Progression order enum*/
-	OPJ_PROG_ORDER prg1, prg;
-	/** Progression order string*/
-	char progorder[5];
-	/** Tile number (starting at 1) */
-	uint32_t tile;
-	/** Start and end values for Tile width and height*/
-	OPJ_UINT32_SEMANTICALLY_BUT_INT32 tx0, tx1, ty0, ty1;
-	/** Start value, initialised in pi_initialise_encode*/
-	uint32_t layS, resS, compS, prcS;
-	/** End value, initialised in pi_initialise_encode */
-	uint32_t layE, resE, compE, prcE;
-	/** Start and end values of Tile width and height, initialised in pi_initialise_encode*/
-	uint32_t txS, txE, tyS, tyE, dx, dy;
-	/** Temporary values for Tile parts, initialised in pi_create_encode */
-	uint32_t lay_t, res_t, comp_t, prc_t, tx0_t, ty0_t;
+	uint32_t resno0, compno0; /** Resolution num start, Component num start, given by POC */
+	uint32_t layno1, resno1, compno1; /** Layer num end,Resolution num end, Component num end, given by POC */
+	uint32_t layno0, precno0, precno1; /** Layer num start,Precinct num start, Precinct num end */
+	OPJ_PROG_ORDER prg1, prg; /** Progression order enum*/
+	char progorder[5]; /** Progression order string*/
+	uint32_t tile; /** Tile number (starting at 1) */
+	OPJ_UINT32_SEMANTICALLY_BUT_INT32 tx0, tx1, ty0, ty1; /** Start and end values for Tile width and height*/
+	uint32_t layS, resS, compS, prcS; /** Start value, initialised in pi_initialise_encode*/
+	uint32_t layE, resE, compE, prcE; /** End value, initialised in pi_initialise_encode */
+	uint32_t txS, txE, tyS, tyE, dx, dy; /** Start and end values of Tile width and height, initialised in pi_initialise_encode*/
+	uint32_t lay_t, res_t, comp_t, prc_t, tx0_t, ty0_t; /** Temporary values for Tile parts, initialised in pi_create_encode */
 } opj_poc_t;
-
 /**
  * Compression parameters
  * */
@@ -394,35 +382,21 @@ typedef struct opj_cparameters {
 	/* UniPG>> */ /* NOT YET USED IN THE V2 VERSION OF OPENJPEG */
 	/**@name JPWL encoding parameters */
 	/*@{*/
-	/** enables writing of EPC in MH, thus activating JPWL */
-	boolint jpwl_epc_on;
-	/** error protection method for MH (0,1,16,32,37-128) */
-	int jpwl_hprot_MH;
-	/** tile number of header protection specification (>=0) */
-	int jpwl_hprot_TPH_tileno[JPWL_MAX_NO_TILESPECS];
-	/** error protection methods for TPHs (0,1,16,32,37-128) */
-	int jpwl_hprot_TPH[JPWL_MAX_NO_TILESPECS];
-	/** tile number of packet protection specification (>=0) */
-	int jpwl_pprot_tileno[JPWL_MAX_NO_PACKSPECS];
-	/** packet number of packet protection specification (>=0) */
-	int jpwl_pprot_packno[JPWL_MAX_NO_PACKSPECS];
-	/** error protection methods for packets (0,1,16,32,37-128) */
-	int jpwl_pprot[JPWL_MAX_NO_PACKSPECS];
-	/** enables writing of ESD, (0=no/1/2 bytes) */
-	int jpwl_sens_size;
-	/** sensitivity addressing size (0=auto/2/4 bytes) */
-	int jpwl_sens_addr;
-	/** sensitivity range (0-3) */
-	int jpwl_sens_range;
-	/** sensitivity method for MH (-1=no,0-7) */
-	int jpwl_sens_MH;
-	/** tile number of sensitivity specification (>=0) */
-	int jpwl_sens_TPH_tileno[JPWL_MAX_NO_TILESPECS];
-	/** sensitivity methods for TPHs (-1=no,0-7) */
-	int jpwl_sens_TPH[JPWL_MAX_NO_TILESPECS];
+	boolint jpwl_epc_on; /** enables writing of EPC in MH, thus activating JPWL */
+	int jpwl_hprot_MH; /** error protection method for MH (0,1,16,32,37-128) */
+	int jpwl_hprot_TPH_tileno[JPWL_MAX_NO_TILESPECS]; /** tile number of header protection specification (>=0) */
+	int jpwl_hprot_TPH[JPWL_MAX_NO_TILESPECS]; /** error protection methods for TPHs (0,1,16,32,37-128) */
+	int jpwl_pprot_tileno[JPWL_MAX_NO_PACKSPECS]; /** tile number of packet protection specification (>=0) */
+	int jpwl_pprot_packno[JPWL_MAX_NO_PACKSPECS]; /** packet number of packet protection specification (>=0) */
+	int jpwl_pprot[JPWL_MAX_NO_PACKSPECS]; /** error protection methods for packets (0,1,16,32,37-128) */
+	int jpwl_sens_size; /** enables writing of ESD, (0=no/1/2 bytes) */
+	int jpwl_sens_addr; /** sensitivity addressing size (0=auto/2/4 bytes) */
+	int jpwl_sens_range; /** sensitivity range (0-3) */
+	int jpwl_sens_MH; /** sensitivity method for MH (-1=no,0-7) */
+	int jpwl_sens_TPH_tileno[JPWL_MAX_NO_TILESPECS]; /** tile number of sensitivity specification (>=0) */
+	int jpwl_sens_TPH[JPWL_MAX_NO_TILESPECS]; /** sensitivity methods for TPHs (-1=no,0-7) */
 	/*@}*/
 	/* <<UniPG */
-
 	/**
 	 * DEPRECATED: use RSIZ, OPJ_PROFILE_* and MAX_COMP_SIZE instead
 	 * Digital Cinema compliance 0-not compliant, 1-compliant
@@ -450,8 +424,7 @@ typedef struct opj_cparameters {
 	 * and a warning is issued.
 	 * */
 	int max_cs_size;
-	/** RSIZ value
-	    To be used to combine OPJ_PROFILE_*, OPJ_EXTENSION_* and (sub)levels values. */
+	/** RSIZ value To be used to combine OPJ_PROFILE_*, OPJ_EXTENSION_* and (sub)levels values. */
 	uint16 rsiz;
 } opj_cparameters_t;
 
@@ -480,14 +453,10 @@ typedef struct opj_dparameters {
 
 	/**@name command line decoder parameters (not used inside the library) */
 	/*@{*/
-	/** input file name */
-	char infile[OPJ_PATH_LEN];
-	/** output file name */
-	char outfile[OPJ_PATH_LEN];
-	/** input file format 0: J2K, 1: JP2, 2: JPT */
-	int decod_format;
-	/** output file format 0: PGX, 1: PxM, 2: BMP */
-	int cod_format;
+	char infile[OPJ_PATH_LEN]; /** input file name */
+	char outfile[OPJ_PATH_LEN]; /** output file name */
+	int decod_format; /** input file format 0: J2K, 1: JP2, 2: JPT */
+	int cod_format; /** output file format 0: PGX, 1: PxM, 2: BMP */
 	uint32_t DA_x0; /** Decoding area left boundary */
 	uint32_t DA_x1; /** Decoding area right boundary */
 	uint32_t DA_y0; /** Decoding area up boundary */
@@ -503,8 +472,7 @@ typedef struct opj_dparameters {
 	int jpwl_exp_comps; /** expected number of components */
 	int jpwl_max_tiles; /** maximum number of tiles */
 	/*@}*/
-	/* <<UniPG */
-	unsigned int flags;
+	uint   flags; /* <<UniPG */
 } opj_dparameters_t;
 /**
  * JPEG2000 codec V2.
@@ -865,7 +833,7 @@ extern "C" {
 // openjpeg version
 // 
 /* Get the version of the openjpeg library*/
-OPJ_API const char * OPJ_CALLCONV opj_version(void);
+OPJ_API const char * OPJ_CALLCONV opj_version();
 // 
 // image functions definitions
 // 
@@ -1378,10 +1346,10 @@ OPJ_API boolint OPJ_CALLCONV opj_set_MCT(opj_cparameters_t * parameters, float *
 /** Returns if the library is built with thread support.
  * TRUE if mutex, condition, thread, thread pool are available.
  */
-OPJ_API boolint OPJ_CALLCONV opj_has_thread_support(void);
+OPJ_API boolint OPJ_CALLCONV opj_has_thread_support();
 
 /** Return the number of virtual CPUs */
-OPJ_API int OPJ_CALLCONV opj_get_num_cpus(void);
+OPJ_API int OPJ_CALLCONV opj_get_num_cpus();
 
 #ifdef __cplusplus
 }

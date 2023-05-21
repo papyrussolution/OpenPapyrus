@@ -800,12 +800,12 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 		double real_fiscal = 0.0;
 		double real_nonfiscal = 0.0;
 		pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);
-		const double _fiscal = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
+		const double _fiscal = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
 		const CcAmountList & r_al = pPack->AL_Const();
 		const bool   is_al = LOGIC(r_al.getCount());
 		const bool   is_vat_free = (CnObj.IsVatFree(NodeID) > 0); // @v11.2.11
 		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
-		const double amt_cash = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
+		const double amt_cash = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
 		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
 		// } @v10.1.11 
 		PPID   tax_sys_id = 0;

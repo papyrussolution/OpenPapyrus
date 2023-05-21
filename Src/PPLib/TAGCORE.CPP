@@ -1,5 +1,5 @@
 // TAGCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000-2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1998, 1999, 2000-2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023
 // @codepage windows-1251
 // @Kernel
 // Теги объектов
@@ -796,10 +796,8 @@ int FASTCALL ObjTagList::IsEq(const ObjTagList & rS) const
 
 uint ObjTagList::GetCount() const { return count; }
 /*virtual*/void FASTCALL ObjTagList::freeItem(void * pItem) { static_cast<ObjTagItem *>(pItem)->Destroy(); }
-const ObjTagItem * FASTCALL ObjTagList::GetItemByPos(uint pos) const
-	{ return (pos < count) ? static_cast<const ObjTagItem *>(at(pos)) : 0; }
-const ObjTagItem * FASTCALL ObjTagList::EnumItems(uint * pos) const
-	{ return (*pos < count) ? static_cast<const ObjTagItem *>(at((*pos)++)) : 0; }
+const ObjTagItem * FASTCALL ObjTagList::GetItemByPos(uint pos) const { return (pos < count) ? static_cast<const ObjTagItem *>(at(pos)) : 0; }
+const ObjTagItem * FASTCALL ObjTagList::EnumItems(uint * pos) const  { return (*pos < count) ? static_cast<const ObjTagItem *>(at((*pos)++)) : 0; }
 
 const ObjTagItem * FASTCALL ObjTagList::GetItem(PPID id) const
 {
@@ -1512,60 +1510,3 @@ int ObjTagCore::GetObjTextList(PPID objType, PPID tagID, StrAssocArray & rList)
 		ok = 1;
 	return ok;
 }
-
-#if 0 // @obsolete since @v9.0.11 {
-int ObjTagCore::CreateUniqueStr(PPID objType, PPID tagID, PPID * pObjID, const char * pStr, int use_ta)
-{
-	int    ok = -1;
-	PPID   obj_id = 0;
-	const  size_t _len = sstrlen(pStr);
-	if(_len) {
-		ObjTagTbl::Key3 k3;
-		MEMSZERO(k3);
-		k3.TagID = tagID;
-		STRNSCPY(k3.StrVal, pStr);
-		BExtQuery q(this, 3);
-		THROW_PP_S(_len <= sizeof(data.StrVal)-1, PPERR_EXCSTRLEN, pStr);
-		{
-			PPTransaction tra(use_ta);
-			THROW(tra);
-			if(search(3, &k3, spEq)) {
-				do {
-					if(data.ObjType == objType) {
-						obj_id = data.ObjID;
-						ok = 1;
-					}
-				} while(ok < 0 && search(3, &k3, spNext) && data.TagID == tagID && stricmp866(k3.StrVal, pStr) == 0);
-			}
-			if(ok < 0) {
-				ObjTagTbl::Key1 k1;
-				MEMSZERO(k1);
-				k1.TagID = tagID;
-				k1.ObjID = MAXLONG;
-				obj_id = 1;
-				while(search(1, &k1, spLt) && k1.TagID == tagID)
-					if(data.ObjType == objType) {
-						obj_id = data.ObjID+1;
-						break;
-					}
-				{
-					ObjTagTbl::Rec rec;
-					// @v10.6.4 MEMSZERO(rec);
-					rec.ObjType = objType;
-					rec.ObjID = obj_id;
-					rec.TagID = tagID;
-					THROW(GetNewTagByObjCounter(objType, obj_id, tagID, &rec.TagByObj));
-					STRNSCPY(rec.StrVal, pStr);
-					THROW_DB(insertRecBuf(&rec));
-					DS.LogAction(PPACN_OBJTAGUPD, objType, obj_id, tagID, 0);
-					ok = 2;
-				}
-			}
-			THROW(tra.Commit());
-		}
-	}
-	CATCHZOK
-	ASSIGN_PTR(pObjID, obj_id);
-	return ok;
-}
-#endif // } 0 @obsolete since @v9.0.11

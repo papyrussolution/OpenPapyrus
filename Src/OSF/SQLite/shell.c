@@ -7736,7 +7736,7 @@ static int zipfileDeflate(const u8 * aIn, int nIn,         /* Input */
 	u8 * aOut;
 
 	memset(&str, 0, sizeof(str));
-	str.next_in = (Bytef*)aIn;
+	str.next_in = (Byte *)aIn;
 	str.avail_in = nIn;
 	deflateInit2(&str, 9, Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY);
 
@@ -9006,12 +9006,12 @@ static void sqlarCompressFunc(sqlite3_context * context,
     ){
 	assert(argc==1);
 	if(sqlite3_value_type(argv[0])==SQLITE_BLOB) {
-		const Bytef * pData = sqlite3_value_blob(argv[0]);
+		const Byte * pData = sqlite3_value_blob(argv[0]);
 		uLong nData = sqlite3_value_bytes(argv[0]);
 		uLongf nOut = compressBound(nData);
-		Bytef * pOut;
+		Byte * pOut;
 
-		pOut = (Bytef*)sqlite3_malloc(nOut);
+		pOut = (Byte *)sqlite3_malloc(nOut);
 		if(pOut==0) {
 			sqlite3_result_error_nomem(context);
 			return;
@@ -9058,8 +9058,8 @@ static void sqlarUncompressFunc(sqlite3_context * context,
 		sqlite3_result_value(context, argv[0]);
 	}
 	else {
-		const Bytef * pData = sqlite3_value_blob(argv[0]);
-		Bytef * pOut = sqlite3_malloc(sz);
+		const Byte * pData = sqlite3_value_blob(argv[0]);
+		Byte * pOut = sqlite3_malloc(sz);
 		if(Z_OK!=uncompress(pOut, &sz, pData, nData)) {
 			sqlite3_result_error(context, "error in uncompress()", -1);
 		}

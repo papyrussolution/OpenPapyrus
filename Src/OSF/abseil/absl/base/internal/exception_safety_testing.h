@@ -223,14 +223,14 @@ extern exceptions_internal::StrongGuaranteeTagType strong_guarantee;
 // instrumented to throw at a controlled time.
 class ThrowingBool {
 public:
-	ThrowingBool(bool b) noexcept : b_(b) {
-	}                                   // NOLINT(runtime/explicit)
-
-	operator bool() const {             // NOLINT
+	ThrowingBool(bool b) noexcept : b_(b) 
+	{
+	}
+	operator bool() const 
+	{
 		exceptions_internal::MaybeThrow(ABSL_PRETTY_FUNCTION);
 		return b_;
 	}
-
 private:
 	bool b_;
 };
@@ -541,57 +541,51 @@ public:
 	}
 
 	// Pointer operators
-	void operator&() const = delete; // NOLINT(runtime/operator)
-
+	void operator&() const = delete;
 	// Stream operators
-	friend std ::ostream& operator<<(std::ostream& os, const ThrowingValue& tv) {
+	friend std ::ostream& operator<<(std::ostream& os, const ThrowingValue& tv) 
+	{
 		exceptions_internal::MaybeThrow(ABSL_PRETTY_FUNCTION);
 		return os << GetInstanceString(tv.dummy_);
 	}
-
-	friend std ::istream& operator>>(std::istream& is, const ThrowingValue&) {
+	friend std ::istream& operator>>(std::istream& is, const ThrowingValue&) 
+	{
 		exceptions_internal::MaybeThrow(ABSL_PRETTY_FUNCTION);
 		return is;
 	}
-
 	// Memory management operators
-	static void* operator new(size_t s) noexcept (
-		IsSpecified(TypeSpec::kNoThrowNew)) {
+	static void* operator new(size_t s) noexcept (IsSpecified(TypeSpec::kNoThrowNew)) 
+	{
 		if(!IsSpecified(TypeSpec::kNoThrowNew)) {
 			exceptions_internal::MaybeThrow(ABSL_PRETTY_FUNCTION, true);
 		}
 		return ::operator new(s);
 	}
-
-	static void* operator new[](size_t s) noexcept (
-		IsSpecified(TypeSpec::kNoThrowNew)) {
+	static void* operator new[](size_t s) noexcept (IsSpecified(TypeSpec::kNoThrowNew)) 
+	{
 		if(!IsSpecified(TypeSpec::kNoThrowNew)) {
 			exceptions_internal::MaybeThrow(ABSL_PRETTY_FUNCTION, true);
 		}
 		return ::operator new[](s);
 	}
-
-	template <typename ... Args>
-	static void* operator new(size_t s, Args&& ... args) noexcept (
-		IsSpecified(TypeSpec::kNoThrowNew)) {
+	template <typename ... Args> static void* operator new(size_t s, Args&& ... args) noexcept (IsSpecified(TypeSpec::kNoThrowNew)) 
+	{
 		if(!IsSpecified(TypeSpec::kNoThrowNew)) {
 			exceptions_internal::MaybeThrow(ABSL_PRETTY_FUNCTION, true);
 		}
 		return ::operator new(s, std::forward<Args>(args) ...);
 	}
-
-	template <typename ... Args>
-	static void* operator new[](size_t s, Args&& ... args) noexcept (
-		IsSpecified(TypeSpec::kNoThrowNew)) {
+	template <typename ... Args> static void* operator new[](size_t s, Args&& ... args) noexcept (IsSpecified(TypeSpec::kNoThrowNew)) 
+	{
 		if(!IsSpecified(TypeSpec::kNoThrowNew)) {
 			exceptions_internal::MaybeThrow(ABSL_PRETTY_FUNCTION, true);
 		}
 		return ::operator new[](s, std::forward<Args>(args) ...);
 	}
-
 	// Abseil doesn't support throwing overloaded operator delete.  These are
 	// provided so a throwing operator-new can clean up after itself.
-	void operator delete(void* p) noexcept {
+	void operator delete(void* p) noexcept 
+	{
 		::operator delete(p);
 	}
 
@@ -671,119 +665,90 @@ public:
 	using value_type = T;
 	using size_type = size_t;
 	using difference_type = ptrdiff_t;
-
-	using is_nothrow =
-	    std::integral_constant<bool, Spec == AllocSpec::kNoThrowAllocate>;
+	using is_nothrow = std::integral_constant<bool, Spec == AllocSpec::kNoThrowAllocate>;
 	using propagate_on_container_copy_assignment = std::true_type;
 	using propagate_on_container_move_assignment = std::true_type;
 	using propagate_on_container_swap = std::true_type;
 	using is_always_equal = std::false_type;
 
-	ThrowingAllocator() : TrackedObject(GetInstanceString(next_id_)) {
+	ThrowingAllocator() : TrackedObject(GetInstanceString(next_id_)) 
+	{
 		exceptions_internal::MaybeThrow(ABSL_PRETTY_FUNCTION);
 		dummy_ = std::make_shared<const int>(next_id_++);
 	}
-
-	template <typename U>
-	ThrowingAllocator(const ThrowingAllocator<U, Spec>& other) noexcept // NOLINT
-		: TrackedObject(GetInstanceString(*other.State())),
-		dummy_(other.State()) {
+	template <typename U> ThrowingAllocator(const ThrowingAllocator<U, Spec>& other) noexcept : TrackedObject(GetInstanceString(*other.State())), dummy_(other.State()) 
+	{
 	}
 
 	// According to C++11 standard [17.6.3.5], Table 28, the move/copy ctors of
 	// allocator shall not exit via an exception, thus they are marked noexcept.
-	ThrowingAllocator(const ThrowingAllocator& other) noexcept
-		: TrackedObject(GetInstanceString(*other.State())),
-		dummy_(other.State()) {
+	ThrowingAllocator(const ThrowingAllocator& other) noexcept : TrackedObject(GetInstanceString(*other.State())), dummy_(other.State()) 
+	{
 	}
-
-	template <typename U>
-	ThrowingAllocator(ThrowingAllocator<U, Spec>&& other) noexcept // NOLINT
-		: TrackedObject(GetInstanceString(*other.State())),
-		dummy_(std::move(other.State())) {
+	template <typename U> ThrowingAllocator(ThrowingAllocator<U, Spec>&& other) noexcept : TrackedObject(GetInstanceString(*other.State())), dummy_(std::move(other.State())) 
+	{
 	}
-
-	ThrowingAllocator(ThrowingAllocator&& other) noexcept
-		: TrackedObject(GetInstanceString(*other.State())),
-		dummy_(std::move(other.State())) {
+	ThrowingAllocator(ThrowingAllocator&& other) noexcept : TrackedObject(GetInstanceString(*other.State())), dummy_(std::move(other.State())) 
+	{
 	}
-
 	~ThrowingAllocator() noexcept = default;
-
-	ThrowingAllocator& operator=(const ThrowingAllocator& other) noexcept {
+	ThrowingAllocator& operator=(const ThrowingAllocator& other) noexcept 
+	{
 		dummy_ = other.State();
 		return *this;
 	}
-
-	template <typename U>
-	ThrowingAllocator& operator=(const ThrowingAllocator<U, Spec>& other) noexcept {
+	template <typename U> ThrowingAllocator& operator=(const ThrowingAllocator<U, Spec>& other) noexcept 
+	{
 		dummy_ = other.State();
 		return *this;
 	}
-
-	template <typename U>
-	ThrowingAllocator& operator=(ThrowingAllocator<U, Spec>&& other) noexcept {
+	template <typename U> ThrowingAllocator& operator=(ThrowingAllocator<U, Spec>&& other) noexcept 
+	{
 		dummy_ = std::move(other.State());
 		return *this;
 	}
-
-	template <typename U>
-	struct rebind {
+	template <typename U> struct rebind {
 		using other = ThrowingAllocator<U, Spec>;
 	};
-
-	pointer allocate(size_type n) noexcept (
-		IsSpecified(AllocSpec::kNoThrowAllocate)) {
+	pointer allocate(size_type n) noexcept (IsSpecified(AllocSpec::kNoThrowAllocate)) 
+	{
 		ReadStateAndMaybeThrow(ABSL_PRETTY_FUNCTION);
 		return static_cast<pointer>(::operator new(n * sizeof(T)));
 	}
-
-	pointer allocate(size_type n, const_void_pointer) noexcept (
-		IsSpecified(AllocSpec::kNoThrowAllocate)) {
+	pointer allocate(size_type n, const_void_pointer) noexcept (IsSpecified(AllocSpec::kNoThrowAllocate)) 
+	{
 		return allocate(n);
 	}
-
-	void deallocate(pointer ptr, size_type) noexcept {
+	void deallocate(pointer ptr, size_type) noexcept 
+	{
 		ReadState();
 		::operator delete(static_cast<void*>(ptr));
 	}
-
-	template <typename U, typename ... Args>
-	void construct(U* ptr, Args&& ... args) noexcept (
-		IsSpecified(AllocSpec::kNoThrowAllocate)) {
+	template <typename U, typename ... Args> void construct(U* ptr, Args&& ... args) noexcept (IsSpecified(AllocSpec::kNoThrowAllocate)) 
+	{
 		ReadStateAndMaybeThrow(ABSL_PRETTY_FUNCTION);
 		::new (static_cast<void*>(ptr)) U(std::forward<Args>(args) ...);
 	}
-
-	template <typename U>
-	void destroy(U* p) noexcept {
+	template <typename U> void destroy(U* p) noexcept 
+	{
 		ReadState();
 		p->~U();
 	}
-
-	size_type max_size() const noexcept {
-		return (std::numeric_limits<difference_type>::max)() / sizeof(value_type);
-	}
-
-	ThrowingAllocator select_on_container_copy_construction() noexcept (
-		IsSpecified(AllocSpec::kNoThrowAllocate)) {
+	size_type max_size() const noexcept { return (std::numeric_limits<difference_type>::max)() / sizeof(value_type); }
+	ThrowingAllocator select_on_container_copy_construction() noexcept (IsSpecified(AllocSpec::kNoThrowAllocate)) 
+	{
 		ReadStateAndMaybeThrow(ABSL_PRETTY_FUNCTION);
 		return *this;
 	}
-
-	template <typename U>
-	bool operator==(const ThrowingAllocator<U, Spec>& other) const noexcept {
+	template <typename U> bool operator==(const ThrowingAllocator<U, Spec>& other) const noexcept 
+	{
 		return dummy_ == other.dummy_;
 	}
-
-	template <typename U>
-	bool operator!=(const ThrowingAllocator<U, Spec>& other) const noexcept {
+	template <typename U> bool operator!=(const ThrowingAllocator<U, Spec>& other) const noexcept 
+	{
 		return dummy_ != other.dummy_;
 	}
-
-	template <typename, AllocSpec>
-	friend class ThrowingAllocator;
-
+	template <typename, AllocSpec> friend class ThrowingAllocator;
 private:
 	static std::string GetInstanceString(int dummy) {
 		return absl::StrCat("ThrowingAllocator<",
@@ -1156,5 +1121,4 @@ private:
 }  // namespace testing
 
 #endif  // ABSL_HAVE_EXCEPTIONS
-
 #endif  // ABSL_BASE_INTERNAL_EXCEPTION_SAFETY_TESTING_H_

@@ -202,19 +202,15 @@ static int pkey_dh_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 	}
 }
 
-static int pkey_dh_ctrl_str(EVP_PKEY_CTX * ctx,
-    const char * type, const char * value)
+static int pkey_dh_ctrl_str(EVP_PKEY_CTX * ctx, const char * type, const char * value)
 {
 	if(strcmp(type, "dh_paramgen_prime_len") == 0) {
-		int len;
-		len = atoi(value);
+		int len = satoi(value);
 		return EVP_PKEY_CTX_set_dh_paramgen_prime_len(ctx, len);
 	}
 	if(strcmp(type, "dh_rfc5114") == 0) {
 		DH_PKEY_CTX * dctx = (DH_PKEY_CTX *)ctx->data;
-		int id;
-
-		id = atoi(value);
+		int id = satoi(value);
 		if(id < 0 || id > 3)
 			return -2;
 		dctx->param_nid = id;
@@ -232,37 +228,31 @@ static int pkey_dh_ctrl_str(EVP_PKEY_CTX * ctx,
 		return 1;
 	}
 	if(strcmp(type, "dh_paramgen_generator") == 0) {
-		int len;
-		len = atoi(value);
+		int len = satoi(value);
 		return EVP_PKEY_CTX_set_dh_paramgen_generator(ctx, len);
 	}
 	if(strcmp(type, "dh_paramgen_subprime_len") == 0) {
-		int len;
-		len = atoi(value);
+		int len = satoi(value);
 		return EVP_PKEY_CTX_set_dh_paramgen_subprime_len(ctx, len);
 	}
 	if(strcmp(type, "dh_paramgen_type") == 0) {
-		int typ;
-		typ = atoi(value);
+		int typ = satoi(value);
 		return EVP_PKEY_CTX_set_dh_paramgen_type(ctx, typ);
 	}
 	if(strcmp(type, "dh_pad") == 0) {
-		int pad;
-		pad = atoi(value);
+		int pad = satoi(value);
 		return EVP_PKEY_CTX_set_dh_pad(ctx, pad);
 	}
 	return -2;
 }
 
-static DH * ffc_params_generate(OSSL_LIB_CTX * libctx, DH_PKEY_CTX * dctx,
-    BN_GENCB * pcb)
+static DH * ffc_params_generate(OSSL_LIB_CTX * libctx, DH_PKEY_CTX * dctx, BN_GENCB * pcb)
 {
 	DH * ret;
 	int rv = 0;
 	int res;
 	int prime_len = dctx->prime_len;
 	int subprime_len = dctx->subprime_len;
-
 	if(dctx->paramgen_type > DH_PARAMGEN_TYPE_FIPS_186_4)
 		return NULL;
 	ret = DH_new();

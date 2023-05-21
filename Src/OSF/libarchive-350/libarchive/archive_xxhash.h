@@ -22,10 +22,10 @@
 } XXH_errorcode;*/
 
 struct archive_xxhash {
-	XXH32_hash_t (* XXH32)(const void * input, size_t len, uint seed);
+	uint32 (* XXH32)(const void * input, size_t len, uint seed);
 	void * (* XXH32_init)(uint seed);
 	XXH_errorcode (* XXH32_update)(XXH32_state_t * state, const void * input, size_t len);
-	XXH32_hash_t (* XXH32_digest)(const XXH32_state_t * state);
+	uint32 (* XXH32_digest)(const XXH32_state_t * state);
 };
 
 extern const struct archive_xxhash __archive_xxhash;

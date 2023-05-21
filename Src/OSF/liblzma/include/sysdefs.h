@@ -142,13 +142,13 @@
 	#ifndef inline
 		#define inline __inline
 	#endif
-	#ifndef restrict_Removed
-		#if _MSC_VER >= 1600
-			#define restrict_Removed __restrict
-		#else
-			#define restrict_Removed
-		#endif
-	#endif
+	//#ifndef restrict_Removed
+		//#if _MSC_VER >= 1600
+			//#define restrict_Removed __restrict
+		//#else
+			//#define restrict_Removed
+		//#endif
+	//#endif
 #endif
 //
 // Macros //

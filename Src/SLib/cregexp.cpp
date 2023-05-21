@@ -40,9 +40,9 @@ int  CRegExp_Depricated::GetLastErr() const { return ErrCode; }
 bool CRegExp_Depricated::IsValid() const { return (ErrCode == 0); }
 void CRegExp_Depricated::set_invalid() { ZDELETE(P_Program); }
 
-int FASTCALL CRegExp_Depricated::operator == (const CRegExp_Depricated & rxp) const
+bool FASTCALL CRegExp_Depricated::operator == (const CRegExp_Depricated & rxp) const
 {
-	return BIN(ProgSize == rxp.ProgSize && memcmp(P_Program, rxp.P_Program, ProgSize) == 0);
+	return (ProgSize == rxp.ProgSize && memcmp(P_Program, rxp.P_Program, ProgSize) == 0);
 }
 //
 // Descr: Two CRegExp objects that are deep_equal are both == and have ;

@@ -1487,7 +1487,10 @@ int ProcessorDialog::setupParent()
 				SString obj_title;
 				GetObjectTitle(grp_rec.LinkObjType, obj_title);
 				setLabelText(CTL_PRC_LINKOBJ, obj_title);
-				SetupPPObjCombo(this, CTLSEL_PRC_LINKOBJ, grp_rec.LinkObjType, Data.Rec.LinkObjID, OLW_CANINSERT, reinterpret_cast<void *>(link_extra));
+				if(grp_rec.LinkObjType == PPOBJ_WSCTL)
+					disableCtrl(CTLSEL_PRC_LINKOBJ, true);
+				else
+					SetupPPObjCombo(this, CTLSEL_PRC_LINKOBJ, grp_rec.LinkObjType, Data.Rec.LinkObjID, OLW_CANINSERT, reinterpret_cast<void *>(link_extra));
 			}
 			else
 				setLabelText(CTL_PRC_LINKOBJ, 0);
@@ -1568,6 +1571,7 @@ int ProcessorDialog::setupAssoc()
 		AddClusterAssocDef(CTL_PRC_ASSOC,  0, 0);
 		AddClusterAssoc(CTL_PRC_ASSOC,  1, PPOBJ_PERSON);
 		AddClusterAssoc(CTL_PRC_ASSOC,  2, PPOBJ_TRANSPORT);
+		AddClusterAssoc(CTL_PRC_ASSOC,  3, PPOBJ_WSCTL); // @v11.7.3
 		SetClusterData(CTL_PRC_ASSOC, Data.Rec.LinkObjType);
 		disableCtrl(CTLSEL_PRC_ASSOCGROUP, !(Data.Rec.LinkObjType == PPOBJ_PERSON));
 		if(Data.Rec.LinkObjType == PPOBJ_PERSON)

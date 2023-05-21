@@ -1709,11 +1709,11 @@ StyloQCommandList * StyloQCommandList::CreateSubListByContext(PPObjID oid, int b
 	return p_result;
 }
 
-StyloQCore::StoragePacket::StoragePacket() : Signature(_PPConst.Signature_StyloQStoragePacket)
+StyloQCore::StoragePacket::StoragePacket() : Signature(PPConst::Signature_StyloQStoragePacket)
 {
 }
 
-StyloQCore::StoragePacket::StoragePacket(const StoragePacket & rS) : Signature(_PPConst.Signature_StyloQStoragePacket), Rec(rS.Rec), Pool(rS.Pool)
+StyloQCore::StoragePacket::StoragePacket(const StoragePacket & rS) : Signature(PPConst::Signature_StyloQStoragePacket), Rec(rS.Rec), Pool(rS.Pool)
 {
 }
 
@@ -1744,7 +1744,7 @@ bool FASTCALL StyloQCore::StoragePacket::IsEq(const StyloQCore::StoragePacket & 
 bool StyloQCore::StoragePacket::IsValid() const
 {
 	bool   ok = true;
-	THROW(Signature == _PPConst.Signature_StyloQStoragePacket); // @v11.6.0
+	THROW(Signature == PPConst::Signature_StyloQStoragePacket); // @v11.6.0
 	THROW(oneof8(Rec.Kind, kNativeService, kForeignService, kDocIncoming, kDocOutcoming, kClient, kSession, kFace, kCounter))
 	THROW(oneof2(Rec.Kind, kNativeService, kForeignService) || !(Rec.Flags & styloqfMediator));
 	THROW(oneof2(Rec.Kind, kDocIncoming, kDocOutcoming) || !(Rec.Flags & styloqfDocStatusFlags));
@@ -2838,14 +2838,14 @@ int StyloQCore::SvcDbSymbMap::Serialize(int dir, SBuffer & rBuf, SSerializeConte
 	int    ok = 1;
 	const SVerT cur_ver = DS.GetVersion();
 	if(dir > 0) {
-		THROW_SL(rBuf.Write(&_PPConst.Signature_StqDbSymbToSvcIdMap, sizeof(_PPConst.Signature_StqDbSymbToSvcIdMap)));
+		THROW_SL(rBuf.Write(&PPConst::Signature_StqDbSymbToSvcIdMap, sizeof(PPConst::Signature_StqDbSymbToSvcIdMap)));
 		THROW_SL(rBuf.Write(&cur_ver, sizeof(cur_ver)));
 	}
 	else if(dir < 0) {
 		SVerT ver;
-		uint8 signature[sizeof(_PPConst.Signature_StqDbSymbToSvcIdMap)];
+		uint8 signature[sizeof(PPConst::Signature_StqDbSymbToSvcIdMap)];
 		THROW_SL(rBuf.Read(signature, sizeof(signature)));
-		THROW(memcmp(signature, &_PPConst.Signature_StqDbSymbToSvcIdMap, sizeof(_PPConst.Signature_StqDbSymbToSvcIdMap)) == 0);
+		THROW(memcmp(signature, &PPConst::Signature_StqDbSymbToSvcIdMap, sizeof(PPConst::Signature_StqDbSymbToSvcIdMap)) == 0);
 		THROW_SL(rBuf.Read(&ver, sizeof(ver)));
 	}
 	THROW_SL(TSCollection_Serialize(*this, dir, rBuf, pSCtx));
@@ -6228,22 +6228,22 @@ int PPStyloQInterchange::KexServiceReply(SSecretTagPool & rSessCtx, const SSecre
 		S_GUID lmid;
 		SString temp_buf;
 		{
-			WinRegKey reg_key_r(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 1);
-			reg_key_r.GetString(_PPConst.WrParam_StyloQLoclMachineUuid, temp_buf);
+			WinRegKey reg_key_r(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, 1);
+			reg_key_r.GetString(PPConst::WrParam_StyloQLoclMachineUuid, temp_buf);
 			if(temp_buf.NotEmpty() && lmid.FromStr(temp_buf))
 				result = lmid;
 		}
 		if(!result) {
 			{
 				lmid.Generate();
-				WinRegKey reg_key_w(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 0);
+				WinRegKey reg_key_w(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, 0);
 				temp_buf.Z().Cat(lmid, S_GUID::fmtLower|S_GUID::fmtPlain);
-				reg_key_w.PutString(_PPConst.WrParam_StyloQLoclMachineUuid, temp_buf);
+				reg_key_w.PutString(PPConst::WrParam_StyloQLoclMachineUuid, temp_buf);
 			}
 			{ // Так как нам очень важно, что ключ постоянно один для всех сеансов на этой машине, 
 				// то мы не просто воспользуемся сгенерированным ключем, а для страховки извлечем его и реестра.
-				WinRegKey reg_key_r(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 1);
-				reg_key_r.GetString(_PPConst.WrParam_StyloQLoclMachineUuid, temp_buf);
+				WinRegKey reg_key_r(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, 1);
+				reg_key_r.GetString(PPConst::WrParam_StyloQLoclMachineUuid, temp_buf);
 				if(temp_buf.NotEmpty() && lmid.FromStr(temp_buf))
 					result = lmid;
 			}
@@ -7931,7 +7931,7 @@ int StyloQIndexingParam::InitInstance()
 //
 //
 //
-StyloQPersonEventParam::StyloQPersonEventParam() : Signature(_PPConst.Signature_StyloQPersonEventParam), Flags(0), MaxGeoDistance(0.0)
+StyloQPersonEventParam::StyloQPersonEventParam() : Signature(PPConst::Signature_StyloQPersonEventParam), Flags(0), MaxGeoDistance(0.0)
 {
 	MEMSZERO(Fb);
 }
@@ -7939,14 +7939,14 @@ StyloQPersonEventParam::StyloQPersonEventParam() : Signature(_PPConst.Signature_
 StyloQPersonEventParam::StyloQPersonEventParam(const StyloQPersonEventParam & rS) : Signature(rS.Signature), Flags(rS.Flags), 
 	MaxGeoDistance(rS.MaxGeoDistance), PePack(rS.PePack)
 {
-	assert(Signature == _PPConst.Signature_StyloQPersonEventParam);
+	assert(Signature == PPConst::Signature_StyloQPersonEventParam);
 	memcpy(&Fb, &rS.Fb, sizeof(Fb));
 }
 	
 StyloQPersonEventParam & FASTCALL StyloQPersonEventParam::operator = (const StyloQPersonEventParam & rS)
 {
-	assert(Signature == _PPConst.Signature_StyloQPersonEventParam);
-	assert(rS.Signature == _PPConst.Signature_StyloQPersonEventParam);
+	assert(Signature == PPConst::Signature_StyloQPersonEventParam);
+	assert(rS.Signature == PPConst::Signature_StyloQPersonEventParam);
 	Flags = rS.Flags;
 	MaxGeoDistance = rS.MaxGeoDistance;
 	PePack = rS.PePack;
@@ -7956,7 +7956,7 @@ StyloQPersonEventParam & FASTCALL StyloQPersonEventParam::operator = (const Styl
 
 StyloQPersonEventParam & StyloQPersonEventParam::Z()
 {
-	assert(Signature == _PPConst.Signature_StyloQPersonEventParam);
+	assert(Signature == PPConst::Signature_StyloQPersonEventParam);
 	Flags = 0;
 	MaxGeoDistance = 0.0;
 	PePack.Destroy();
@@ -7969,7 +7969,7 @@ int StyloQPersonEventParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext
 	int    ok = 1;
 	bool   done = false;
 	const size_t preserve_offs = rBuf.GetRdOffs();
-	assert(Signature == _PPConst.Signature_StyloQPersonEventParam);
+	assert(Signature == PPConst::Signature_StyloQPersonEventParam);
 	PPObjPersonEvent pe_obj;
 	PPObject::SerializeSignature pre_1162_signature(pe_obj.Obj);
 	uint32 _signature = Signature;
@@ -7990,7 +7990,7 @@ int StyloQPersonEventParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext
 	}
 	if(!done) {
 		THROW(pSCtx->Serialize(dir, _signature, rBuf));
-		THROW(dir > 0 || _signature == _PPConst.Signature_StyloQPersonEventParam); // @todo @err
+		THROW(dir > 0 || _signature == PPConst::Signature_StyloQPersonEventParam); // @todo @err
 		THROW(pSCtx->Serialize(dir, Flags, rBuf));
 		THROW(pSCtx->Serialize(dir, MaxGeoDistance, rBuf));
 		THROW(pe_obj.SerializePacket(dir, &PePack, rBuf, pSCtx));

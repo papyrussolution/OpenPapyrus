@@ -18,7 +18,7 @@
 #if defined(WEBP_USE_SSE2)
 #include <emmintrin.h>
 
-static int DispatchAlpha_SSE2(const uint8* WEBP_RESTRICT alpha, int alpha_stride, int width, int height, uint8* WEBP_RESTRICT dst, int dst_stride) 
+static int DispatchAlpha_SSE2(const uint8* _RESTRICT alpha, int alpha_stride, int width, int height, uint8* _RESTRICT dst, int dst_stride) 
 {
 	// alpha_and stores an 'and' operation of all the alpha[] values. The final
 	// value is not 0xff if any of the alpha[] is not equal to 0xff.
@@ -71,9 +71,9 @@ static int DispatchAlpha_SSE2(const uint8* WEBP_RESTRICT alpha, int alpha_stride
 	return (alpha_and != 0xff);
 }
 
-static void DispatchAlphaToGreen_SSE2(const uint8* WEBP_RESTRICT alpha,
+static void DispatchAlphaToGreen_SSE2(const uint8* _RESTRICT alpha,
     int alpha_stride, int width, int height,
-    uint32_t* WEBP_RESTRICT dst,
+    uint32_t* _RESTRICT dst,
     int dst_stride) {
 	int i, j;
 	const __m128i zero = _mm_setzero_si128();
@@ -98,9 +98,9 @@ static void DispatchAlphaToGreen_SSE2(const uint8* WEBP_RESTRICT alpha,
 	}
 }
 
-static int ExtractAlpha_SSE2(const uint8* WEBP_RESTRICT argb, int argb_stride,
+static int ExtractAlpha_SSE2(const uint8* _RESTRICT argb, int argb_stride,
     int width, int height,
-    uint8* WEBP_RESTRICT alpha, int alpha_stride) {
+    uint8* _RESTRICT alpha, int alpha_stride) {
 	// alpha_and stores an 'and' operation of all the alpha[] values. The final
 	// value is not 0xff if any of the alpha[] is not equal to 0xff.
 	uint32_t alpha_and = 0xff;
@@ -318,9 +318,8 @@ static void MultARGBRow_SSE2(uint32_t* const ptr, int width, int inverse) {
 	if(width > 0) WebPMultARGBRow_C(ptr + x, width, inverse);
 }
 
-static void MultRow_SSE2(uint8* WEBP_RESTRICT const ptr,
-    const uint8* WEBP_RESTRICT const alpha,
-    int width, int inverse) {
+static void MultRow_SSE2(uint8* _RESTRICT const ptr, const uint8* _RESTRICT const alpha, int width, int inverse) 
+{
 	int x = 0;
 	if(!inverse) {
 		const __m128i zero = _mm_setzero_si128();

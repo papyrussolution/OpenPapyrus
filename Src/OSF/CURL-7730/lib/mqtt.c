@@ -264,7 +264,7 @@ static CURLcode mqtt_subscribe(struct connectdata * conn)
 	packet[1 + n] = (conn->proto.mqtt.packetid >> 8) & 0xff;
 	packet[2 + n] = conn->proto.mqtt.packetid & 0xff;
 	packet[3 + n] = (topiclen >> 8) & 0xff;
-	packet[4 + n ] = topiclen & 0xff;
+	packet[4 + n] = topiclen & 0xff;
 	memcpy(&packet[5 + n], topic, topiclen);
 	packet[5 + n + topiclen] = 0; /* QoS zero */
 

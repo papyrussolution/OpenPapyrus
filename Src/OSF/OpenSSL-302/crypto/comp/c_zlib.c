@@ -74,8 +74,8 @@ static COMP_METHOD zlib_stateful_method = {
 #include "internal/dso.h"
 
 /* Function pointers */
-typedef int (* compress_ft) (Bytef * dest, uLongf * destLen,
-    const Bytef * source, uLong sourceLen);
+typedef int (* compress_ft) (Byte * dest, uLongf * destLen,
+    const Byte * source, uLong sourceLen);
 typedef int (* inflateEnd_ft) (z_streamp strm);
 typedef int (* inflate_ft) (z_streamp strm, int flush);
 typedef int (* inflateInit__ft) (z_streamp strm,
@@ -433,7 +433,7 @@ static int bio_zlib_write(BIO * b, const char * in, int inl)
 		zout->avail_out = ctx->obufsize;
 	}
 	/* Obtain input data directly from supplied buffer */
-	zout->next_in = (Bytef *)in;
+	zout->next_in = (Byte *)in;
 	zout->avail_in = inl;
 	for(;;) {
 		/* If data in output buffer write it first */

@@ -34,12 +34,9 @@ size_t Xapian::sortable_serialise_(double value, char * buf) noexcept
 {
 	double mantissa;
 	int exponent;
-
 	// Negative infinity.
 	if(value < -DBL_MAX) return 0;
-
 	mantissa = frexp(value, &exponent);
-
 	/* Deal with zero specially.
 	 *
 	 * IEEE representation of doubles uses 11 bits for the exponent, with a
@@ -120,7 +117,7 @@ size_t Xapian::sortable_serialise_(double value, char * buf) noexcept
 	mantissa *= 1 << (negative ? 26 : 27);
 	uint word1 = static_cast<uint>(mantissa);
 	mantissa -= word1;
-	uint word2 = static_cast<uint>(mantissa * 4294967296.0); // 1<<32
+	uint word2 = static_cast<uint>(mantissa * SMathConst::MaxU32); // 1<<32
 	// If the number is positive, the first bit will always be set because 0.5
 	// <= mantissa < 1, unless mantissa is zero, which we handle specially
 	// above).  If the number is negative, we negate the mantissa instead of
@@ -232,15 +229,14 @@ double Xapian::sortable_unserialise(const std::string & value) noexcept
 	if(!negative) word1 |= 1<<26;
 
 	double mantissa = 0;
-	if(word2) mantissa = word2 / 4294967296.0; // 1<<32
+	if(word2) mantissa = word2 / SMathConst::MaxU32; // 1<<32
 	mantissa += word1;
 	mantissa /= 1 << (negative ? 26 : 27);
-
-	if(exponent_negative) exponent = -exponent;
+	if(exponent_negative) 
+		exponent = -exponent;
 	exponent += 8;
-
-	if(negative) mantissa = -mantissa;
-
+	if(negative) 
+		mantissa = -mantissa;
 	// We use scalbn() since it's equivalent to ldexp() when FLT_RADIX == 2
 	// (which we currently assume), except that ldexp() will set errno if the
 	// result overflows or underflows, which isn't really desirable here.

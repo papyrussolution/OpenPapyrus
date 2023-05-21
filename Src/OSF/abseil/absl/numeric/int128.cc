@@ -112,68 +112,67 @@ uint128::uint128(long double v) : uint128(MakeUint128FromFloat(v))
 }
 
 #if !defined(ABSL_HAVE_INTRINSIC_INT128)
-uint128 operator/(uint128 lhs, uint128 rhs) 
-{
-	uint128 quotient = 0;
-	uint128 remainder = 0;
-	DivModImpl(lhs, rhs, &quotient, &remainder);
-	return quotient;
-}
+	uint128 operator/(uint128 lhs, uint128 rhs) 
+	{
+		uint128 quotient = 0;
+		uint128 remainder = 0;
+		DivModImpl(lhs, rhs, &quotient, &remainder);
+		return quotient;
+	}
 
-uint128 operator%(uint128 lhs, uint128 rhs) 
-{
-	uint128 quotient = 0;
-	uint128 remainder = 0;
-	DivModImpl(lhs, rhs, &quotient, &remainder);
-	return remainder;
-}
-
-#endif  // !defined(ABSL_HAVE_INTRINSIC_INT128)
+	uint128 operator%(uint128 lhs, uint128 rhs) 
+	{
+		uint128 quotient = 0;
+		uint128 remainder = 0;
+		DivModImpl(lhs, rhs, &quotient, &remainder);
+		return remainder;
+	}
+#endif
 
 namespace {
-std::string Uint128ToFormattedString(uint128 v, std::ios_base::fmtflags flags) 
-{
-	// Select a divisor which is the largest power of the base < 2^64.
-	uint128 div;
-	int div_base_log;
-	switch(flags & std::ios::basefield) {
-		case std::ios::hex:
-		    div = 0x1000000000000000; // 16^15
-		    div_base_log = 15;
-		    break;
-		case std::ios::oct:
-		    div = 01000000000000000000000; // 8^21
-		    div_base_log = 21;
-		    break;
-		default: // std::ios::dec
-		    div = 10000000000000000000u; // 10^19
-		    div_base_log = 19;
-		    break;
+	std::string Uint128ToFormattedString(uint128 v, std::ios_base::fmtflags flags) 
+	{
+		// Select a divisor which is the largest power of the base < 2^64.
+		uint128 div;
+		int div_base_log;
+		switch(flags & std::ios::basefield) {
+			case std::ios::hex:
+				div = 0x1000000000000000; // 16^15
+				div_base_log = 15;
+				break;
+			case std::ios::oct:
+				div = 01000000000000000000000; // 8^21
+				div_base_log = 21;
+				break;
+			default: // std::ios::dec
+				div = 10000000000000000000u; // 10^19
+				div_base_log = 19;
+				break;
+		}
+		// Now piece together the uint128 representation from three chunks of the
+		// original value, each less than "div" and therefore representable as a
+		// uint64_t.
+		std::ostringstream os;
+		std::ios_base::fmtflags copy_mask = std::ios::basefield | std::ios::showbase | std::ios::uppercase;
+		os.setf(flags & copy_mask, copy_mask);
+		uint128 high = v;
+		uint128 low;
+		DivModImpl(high, div, &high, &low);
+		uint128 mid;
+		DivModImpl(high, div, &high, &mid);
+		if(Uint128Low64(high) != 0) {
+			os << Uint128Low64(high);
+			os << std::noshowbase << std::setfill('0') << std::setw(div_base_log);
+			os << Uint128Low64(mid);
+			os << std::setw(div_base_log);
+		}
+		else if(Uint128Low64(mid) != 0) {
+			os << Uint128Low64(mid);
+			os << std::noshowbase << std::setfill('0') << std::setw(div_base_log);
+		}
+		os << Uint128Low64(low);
+		return os.str();
 	}
-	// Now piece together the uint128 representation from three chunks of the
-	// original value, each less than "div" and therefore representable as a
-	// uint64_t.
-	std::ostringstream os;
-	std::ios_base::fmtflags copy_mask = std::ios::basefield | std::ios::showbase | std::ios::uppercase;
-	os.setf(flags & copy_mask, copy_mask);
-	uint128 high = v;
-	uint128 low;
-	DivModImpl(high, div, &high, &low);
-	uint128 mid;
-	DivModImpl(high, div, &high, &mid);
-	if(Uint128Low64(high) != 0) {
-		os << Uint128Low64(high);
-		os << std::noshowbase << std::setfill('0') << std::setw(div_base_log);
-		os << Uint128Low64(mid);
-		os << std::setw(div_base_log);
-	}
-	else if(Uint128Low64(mid) != 0) {
-		os << Uint128Low64(mid);
-		os << std::noshowbase << std::setfill('0') << std::setw(div_base_log);
-	}
-	os << Uint128Low64(low);
-	return os.str();
-}
 }  // namespace
 
 std::ostream & operator<<(std::ostream & os, uint128 v) 
@@ -206,54 +205,54 @@ namespace {
 }
 
 #if !defined(ABSL_HAVE_INTRINSIC_INT128)
-namespace {
-	template <typename T> int128 MakeInt128FromFloat(T v) 
+	namespace {
+		template <typename T> int128 MakeInt128FromFloat(T v) 
+		{
+			// Conversion when v is NaN or cannot fit into int128 would be undefined
+			// behavior if using an intrinsic 128-bit integer.
+			assert(std::isfinite(v) && (std::numeric_limits<T>::max_exponent <= 127 || (v >= -std::ldexp(static_cast<T>(1), 127) && v < std::ldexp(static_cast<T>(1), 127))));
+			// We must convert the absolute value and then negate as needed, because
+			// floating point types are typically sign-magnitude. Otherwise, the
+			// difference between the high and low 64 bits when interpreted as two's
+			// complement overwhelms the precision of the mantissa.
+			uint128 result = v < 0 ? -MakeUint128FromFloat(-v) : MakeUint128FromFloat(v);
+			return MakeInt128(int128_internal::BitCastToSigned(Uint128High64(result)), Uint128Low64(result));
+		}
+	} // namespace
+
+	int128::int128(float v) : int128(MakeInt128FromFloat(v)) 
 	{
-		// Conversion when v is NaN or cannot fit into int128 would be undefined
-		// behavior if using an intrinsic 128-bit integer.
-		assert(std::isfinite(v) && (std::numeric_limits<T>::max_exponent <= 127 || (v >= -std::ldexp(static_cast<T>(1), 127) && v < std::ldexp(static_cast<T>(1), 127))));
-		// We must convert the absolute value and then negate as needed, because
-		// floating point types are typically sign-magnitude. Otherwise, the
-		// difference between the high and low 64 bits when interpreted as two's
-		// complement overwhelms the precision of the mantissa.
-		uint128 result = v < 0 ? -MakeUint128FromFloat(-v) : MakeUint128FromFloat(v);
-		return MakeInt128(int128_internal::BitCastToSigned(Uint128High64(result)), Uint128Low64(result));
 	}
-} // namespace
 
-int128::int128(float v) : int128(MakeInt128FromFloat(v)) 
-{
-}
+	int128::int128(double v) : int128(MakeInt128FromFloat(v)) 
+	{
+	}
 
-int128::int128(double v) : int128(MakeInt128FromFloat(v)) 
-{
-}
+	int128::int128(long double v) : int128(MakeInt128FromFloat(v)) 
+	{
+	}
 
-int128::int128(long double v) : int128(MakeInt128FromFloat(v)) 
-{
-}
+	int128 operator/(int128 lhs, int128 rhs) 
+	{
+		assert(lhs != Int128Min() || rhs != -1); // UB on two's complement.
+		uint128 quotient = 0;
+		uint128 remainder = 0;
+		DivModImpl(UnsignedAbsoluteValue(lhs), UnsignedAbsoluteValue(rhs), &quotient, &remainder);
+		if((Int128High64(lhs) < 0) != (Int128High64(rhs) < 0)) 
+			quotient = -quotient;
+		return MakeInt128(int128_internal::BitCastToSigned(Uint128High64(quotient)), Uint128Low64(quotient));
+	}
 
-int128 operator/(int128 lhs, int128 rhs) 
-{
-	assert(lhs != Int128Min() || rhs != -1); // UB on two's complement.
-	uint128 quotient = 0;
-	uint128 remainder = 0;
-	DivModImpl(UnsignedAbsoluteValue(lhs), UnsignedAbsoluteValue(rhs), &quotient, &remainder);
-	if((Int128High64(lhs) < 0) != (Int128High64(rhs) < 0)) quotient = -quotient;
-	return MakeInt128(int128_internal::BitCastToSigned(Uint128High64(quotient)), Uint128Low64(quotient));
-}
-
-int128 operator%(int128 lhs, int128 rhs) 
-{
-	assert(lhs != Int128Min() || rhs != -1); // UB on two's complement.
-	uint128 quotient = 0;
-	uint128 remainder = 0;
-	DivModImpl(UnsignedAbsoluteValue(lhs), UnsignedAbsoluteValue(rhs), &quotient, &remainder);
-	if(Int128High64(lhs) < 0) remainder = -remainder;
-	return MakeInt128(int128_internal::BitCastToSigned(Uint128High64(remainder)), Uint128Low64(remainder));
-}
-
-#endif  // ABSL_HAVE_INTRINSIC_INT128
+	int128 operator%(int128 lhs, int128 rhs) 
+	{
+		assert(lhs != Int128Min() || rhs != -1); // UB on two's complement.
+		uint128 quotient = 0;
+		uint128 remainder = 0;
+		DivModImpl(UnsignedAbsoluteValue(lhs), UnsignedAbsoluteValue(rhs), &quotient, &remainder);
+		if(Int128High64(lhs) < 0) remainder = -remainder;
+		return MakeInt128(int128_internal::BitCastToSigned(Uint128High64(remainder)), Uint128Low64(remainder));
+	}
+#endif
 
 std::ostream & operator<<(std::ostream & os, int128 v) 
 {
@@ -293,7 +292,6 @@ std::ostream & operator<<(std::ostream & os, int128 v)
 			    break;
 		}
 	}
-
 	return os << rep;
 }
 

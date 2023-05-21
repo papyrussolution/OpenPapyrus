@@ -2438,56 +2438,38 @@ HCURSOR LoadReverseArrowCursor(UINT dpi) noexcept {
 		if(info.hbmColor)
 			::DeleteObject(info.hbmColor);
 	}
-
 	if(created) {
 		::DestroyCursor(cursor);
 	}
 	return reverseArrowCursor;
 }
 
-void Window::SetCursor(Cursor curs) {
+void Window::SetCursor(Cursor curs) 
+{
 	switch(curs) {
-		case cursorText:
-		    ::SetCursor(::LoadCursor(NULL, IDC_IBEAM));
-		    break;
-		case cursorUp:
-		    ::SetCursor(::LoadCursor(NULL, IDC_UPARROW));
-		    break;
-		case cursorWait:
-		    ::SetCursor(::LoadCursor(NULL, IDC_WAIT));
-		    break;
-		case cursorHoriz:
-		    ::SetCursor(::LoadCursor(NULL, IDC_SIZEWE));
-		    break;
-		case cursorVert:
-		    ::SetCursor(::LoadCursor(NULL, IDC_SIZENS));
-		    break;
-		case cursorHand:
-		    ::SetCursor(::LoadCursor(NULL, IDC_HAND));
-		    break;
+		case cursorText: ::SetCursor(::LoadCursor(NULL, IDC_IBEAM)); break;
+		case cursorUp: ::SetCursor(::LoadCursor(NULL, IDC_UPARROW)); break;
+		case cursorWait: ::SetCursor(::LoadCursor(NULL, IDC_WAIT)); break;
+		case cursorHoriz: ::SetCursor(::LoadCursor(NULL, IDC_SIZEWE)); break;
+		case cursorVert: ::SetCursor(::LoadCursor(NULL, IDC_SIZENS)); break;
+		case cursorHand: ::SetCursor(::LoadCursor(NULL, IDC_HAND)); break;
 		case cursorReverseArrow:
 		case cursorArrow:
 		case cursorInvalid: // Should not occur, but just in case.
-		    ::SetCursor(::LoadCursor(NULL, IDC_ARROW));
-		    break;
+		    ::SetCursor(::LoadCursor(NULL, IDC_ARROW)); break;
 	}
 }
 
 /* Returns rectangle of monitor pt is on, both rect and pt are in Window's
    coordinates */
-PRectangle Window::GetMonitorRect(Point pt) {
+PRectangle Window::GetMonitorRect(Point pt) 
+{
 	const PRectangle rcPosition = GetPosition();
-	POINT ptDesktop = {static_cast<LONG>(pt.x + rcPosition.left),
-			   static_cast<LONG>(pt.y + rcPosition.top)};
+	POINT ptDesktop = {static_cast<LONG>(pt.x + rcPosition.left), static_cast<LONG>(pt.y + rcPosition.top)};
 	HMONITOR hMonitor = MonitorFromPoint(ptDesktop, MONITOR_DEFAULTTONEAREST);
-
 	const RECT rcWork = RectFromMonitor(hMonitor);
 	if(rcWork.left < rcWork.right) {
-		PRectangle rcMonitor(
-			rcWork.left - rcPosition.left,
-			rcWork.top - rcPosition.top,
-			rcWork.right - rcPosition.left,
-			rcWork.bottom - rcPosition.top);
+		PRectangle rcMonitor(rcWork.left - rcPosition.left, rcWork.top - rcPosition.top, rcWork.right - rcPosition.left, rcWork.bottom - rcPosition.top);
 		return rcMonitor;
 	}
 	else {
@@ -2502,16 +2484,15 @@ struct ListItemData {
 
 class LineToItem {
 	std::vector<char> words;
-
 	std::vector<ListItemData> data;
-
 public:
-	void Clear() noexcept {
+	void Clear() noexcept 
+	{
 		words.clear();
 		data.clear();
 	}
-
-	ListItemData Get(size_t index) const noexcept {
+	ListItemData Get(size_t index) const noexcept 
+	{
 		if(index < data.size()) {
 			return data[index];
 		}
@@ -2520,17 +2501,14 @@ public:
 			return missing;
 		}
 	}
-
-	int Count() const noexcept {
-		return static_cast<int>(data.size());
-	}
-
-	void AllocItem(const char * text, int pixId) {
+	int Count() const noexcept { return static_cast<int>(data.size()); }
+	void AllocItem(const char * text, int pixId) 
+	{
 		ListItemData lid = { text, pixId };
 		data.push_back(lid);
 	}
-
-	char * SetWords(const char * s) {
+	char * SetWords(const char * s) 
+	{
 		words = std::vector<char>(s, s+strlen(s)+1);
 		return &words[0];
 	}
@@ -2538,10 +2516,12 @@ public:
 
 const TCHAR ListBoxX_ClassName[] = TEXT("ListBoxX");
 
-ListBox::ListBox() noexcept {
+ListBox::ListBox() noexcept 
+{
 }
 
-ListBox::~ListBox() {
+ListBox::~ListBox() 
+{
 }
 
 class ListBoxX : public ListBox {

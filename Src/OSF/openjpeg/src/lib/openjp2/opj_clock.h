@@ -34,7 +34,7 @@ The functions in OPJ_CLOCK.C are internal utilities mainly used for timing.
 Difference in successive opj_clock() calls tells you the elapsed time
 @return Returns time in seconds
 */
-double opj_clock(void);
+double opj_clock();
 /*@}*/
 
 /*@}*/

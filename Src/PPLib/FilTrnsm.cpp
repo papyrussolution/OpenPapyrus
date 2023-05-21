@@ -244,17 +244,17 @@ int GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long filtFla
 			temp_buf.EncodeUrl("/*.pps", 0);
 			url.SetComponent(InetUrl::cPath, temp_buf);
 			//
-			temp_buf.EncodeUrl(eq_buf.Z().CatEq("subject", _PPConst.P_SubjectDbDiv), 0);
+			temp_buf.EncodeUrl(eq_buf.Z().CatEq("subject", PPConst::P_SubjectDbDiv), 0);
 			url.SetComponent(InetUrl::cQuery, temp_buf);
 		}
 		else if(filtFlags & SMailMessage::fPpyCharry) {
 			temp_buf.EncodeUrl("/*.chy", 0);
 			url.SetComponent(InetUrl::cPath, temp_buf);
-			temp_buf.EncodeUrl(eq_buf.Z().CatEq("subject", _PPConst.P_SubjectCharry), 0);
+			temp_buf.EncodeUrl(eq_buf.Z().CatEq("subject", PPConst::P_SubjectCharry), 0);
 			url.SetComponent(InetUrl::cQuery, temp_buf);
 		}
 		else if(filtFlags & SMailMessage::fPpyOrder) {
-			temp_buf.EncodeUrl(eq_buf.Z().CatEq("subject", _PPConst.P_SubjectOrder), 0);
+			temp_buf.EncodeUrl(eq_buf.Z().CatEq("subject", PPConst::P_SubjectOrder), 0);
 			url.SetComponent(InetUrl::cQuery, temp_buf);
 		}
 		url.Composite(0, temp_buf);
@@ -619,7 +619,7 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 				SString data_domain;
 				if(PPMqbClient::InitClient(mqc, &data_domain)) {
 					SString queue_name;
-					queue_name.Z().Cat(_PPConst.P_SubjectDbDiv).Dot().Cat(data_domain).Dot().Cat(dbdiv_pack.Rec.ID);
+					queue_name.Z().Cat(PPConst::P_SubjectDbDiv).Dot().Cat(data_domain).Dot().Cat(dbdiv_pack.Rec.ID);
 					if(mqc.QueueDeclare(queue_name, 0)) {
 						SString consumer_tag;
 						if(mqc.Consume(queue_name, &consumer_tag, 0)) {
@@ -893,7 +893,7 @@ int PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 			// } @v10.5.4 
 			if(IsEmailAddr(dest)) {
 				BackupTransmittedFiles(fep, trnsmFlags); // @v10.7.5
-				THROW(PutFilesToEmail(&fep, 0, dest, _PPConst.P_SubjectDbDiv, trnsmFlags));
+				THROW(PutFilesToEmail(&fep, 0, dest, PPConst::P_SubjectDbDiv, trnsmFlags));
 			}
 			else if(IsFtpAddr(dest)) {
 				BackupTransmittedFiles(fep, trnsmFlags); // @v10.7.5

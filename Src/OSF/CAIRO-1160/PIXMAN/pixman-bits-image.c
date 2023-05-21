@@ -44,7 +44,7 @@ static uint32 * _pixman_image_get_scanline_generic_float(pixman_iter_t * iter, c
 
 /* Fetch functions */
 
-static force_inline uint32 fetch_pixel_no_alpha(bits_image_t * image, int x, int y, boolint check_bounds)
+static FORCEINLINE uint32 fetch_pixel_no_alpha(bits_image_t * image, int x, int y, boolint check_bounds)
 {
 	if(check_bounds && (x < 0 || x >= image->width || y < 0 || y >= image->height)) {
 		return 0;
@@ -54,7 +54,7 @@ static force_inline uint32 fetch_pixel_no_alpha(bits_image_t * image, int x, int
 
 typedef uint32 (* get_pixel_t) (bits_image_t * image, int x, int y, boolint check_bounds);
 
-static force_inline uint32 bits_image_fetch_pixel_nearest(bits_image_t * image, pixman_fixed_t x,
+static FORCEINLINE uint32 bits_image_fetch_pixel_nearest(bits_image_t * image, pixman_fixed_t x,
     pixman_fixed_t y, get_pixel_t get_pixel)
 {
 	int32 x0 = pixman_fixed_to_int(x - pixman_fixed_e);
@@ -69,7 +69,7 @@ static force_inline uint32 bits_image_fetch_pixel_nearest(bits_image_t * image, 
 	}
 }
 
-static force_inline uint32 bits_image_fetch_pixel_bilinear(bits_image_t * image, pixman_fixed_t x, pixman_fixed_t y, get_pixel_t get_pixel)
+static FORCEINLINE uint32 bits_image_fetch_pixel_bilinear(bits_image_t * image, pixman_fixed_t x, pixman_fixed_t y, get_pixel_t get_pixel)
 {
 	pixman_repeat_t repeat_mode = image->common.repeat;
 	int width = image->width;
@@ -102,7 +102,7 @@ static force_inline uint32 bits_image_fetch_pixel_bilinear(bits_image_t * image,
 	return bilinear_interpolation(tl, tr, bl, br, distx, disty);
 }
 
-static force_inline uint32 bits_image_fetch_pixel_convolution(bits_image_t * image, pixman_fixed_t x, pixman_fixed_t y, get_pixel_t get_pixel)
+static FORCEINLINE uint32 bits_image_fetch_pixel_convolution(bits_image_t * image, pixman_fixed_t x, pixman_fixed_t y, get_pixel_t get_pixel)
 {
 	pixman_fixed_t * params = image->common.filter_params;
 	int x_off = (params[0] - pixman_fixed_1) >> 1;
@@ -228,7 +228,7 @@ static uint32 bits_image_fetch_pixel_separable_convolution(bits_image_t * image,
 	return ((satot << 24) | (srtot << 16) | (sgtot <<  8) | (sbtot));
 }
 
-static force_inline uint32 bits_image_fetch_pixel_filtered(bits_image_t * image, pixman_fixed_t x, pixman_fixed_t y, get_pixel_t get_pixel)
+static FORCEINLINE uint32 bits_image_fetch_pixel_filtered(bits_image_t * image, pixman_fixed_t x, pixman_fixed_t y, get_pixel_t get_pixel)
 {
 	switch(image->common.filter) {
 		case PIXMAN_FILTER_NEAREST:
@@ -282,7 +282,7 @@ static uint32 * bits_image_fetch_affine_no_alpha(pixman_iter_t *  iter, const ui
 }
 
 /* General fetcher */
-static force_inline uint32 fetch_pixel_general(bits_image_t * image, int x, int y, boolint check_bounds)
+static FORCEINLINE uint32 fetch_pixel_general(bits_image_t * image, int x, int y, boolint check_bounds)
 {
 	uint32 pixel;
 	if(check_bounds && (x < 0 || x >= image->width || y < 0 || y >= image->height)) {

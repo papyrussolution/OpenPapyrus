@@ -111,7 +111,7 @@ public class CmdRGridActivity extends SLib.SlActivity {
 											if(vdl_item != null) {
 												vdl_item.Mrgn = fld_mrgn;
 												vdl_item.StyleRcId = R.style.ReportListItemText;
-												ViewDescriptionList.DataPreprocessBlock dpb = Vdl.StartDataPreprocessing(this, i);
+												ViewDescriptionList.DataPreprocessBlock dpb = Vdl.StartDataPreprocessing(this, i, false);
 												if(dpb != null && dpb.ColumnDescription != null) {
 													for(int j = 0; j < ListData.length(); j++) {
 														JSONObject cur_entry = (JSONObject)ListData.get(j);

@@ -731,9 +731,9 @@ class ABSL_DLL MixingHashState : public HashStateBase<MixingHashState> {
 	// We use the intrinsic when available to improve performance.
 #ifdef ABSL_HAVE_INTRINSIC_INT128
 	using uint128 = __uint128_t;
-#else   // ABSL_HAVE_INTRINSIC_INT128
+#else
 	using uint128 = absl::uint128;
-#endif  // ABSL_HAVE_INTRINSIC_INT128
+#endif
 	static constexpr uint64_t kMul = sizeof(size_t) == 4 ? uint64_t{0xcc9e2d51} : uint64_t{0x9ddfea08eb382d69};
 	template <typename T> using IntegralFastPath = conjunction<std::is_integral<T>, is_uniquely_represented<T> >;
 public:

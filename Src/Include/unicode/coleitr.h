@@ -340,24 +340,18 @@ private:
     * @param order         the collation object.
     * @param status        the error code status.
     */
-    CollationElementIterator(const CharacterIterator& sourceText,
-        const RuleBasedCollator* order, UErrorCode & status);
-
+    CollationElementIterator(const CharacterIterator& sourceText, const RuleBasedCollator* order, UErrorCode & status);
     /**
     * Assignment operator
     *
     * @param other    the object to be copied
     */
-    const CollationElementIterator&
-        operator = (const CollationElementIterator& other);
+    const CollationElementIterator & operator = (const CollationElementIterator& other);
 
     CollationElementIterator(); // default constructor not implemented
-
     /** Normalizes dir_=1 (just after setOffset()) to dir_=0 (just after reset()). */
     inline int8 normalizeDir() const { return dir_ == 1 ? 0 : dir_; }
-
     static UHashtable *computeMaxExpansions(const CollationData *data, UErrorCode & errorCode);
-
     static int32_t getMaxExpansion(const UHashtable *maxExpansions, int32_t order);
 
     // CollationElementIterator private data members ----------------------------
@@ -376,36 +370,18 @@ private:
      * that are consistent with forward iteration.
      */
     UVector32 *offsets_;
-
     UnicodeString string_;
 };
 
 // CollationElementIterator inline method definitions --------------------------
 
-inline int32_t CollationElementIterator::primaryOrder(int32_t order)
-{
-    return (order >> 16) & 0xffff;
-}
-
-inline int32_t CollationElementIterator::secondaryOrder(int32_t order)
-{
-    return (order >> 8) & 0xff;
-}
-
-inline int32_t CollationElementIterator::tertiaryOrder(int32_t order)
-{
-    return order & 0xff;
-}
-
-inline bool CollationElementIterator::isIgnorable(int32_t order)
-{
-    return (order & 0xffff0000) == 0;
-}
+inline int32_t CollationElementIterator::primaryOrder(int32_t order) { return (order >> 16) & 0xffff; }
+inline int32_t CollationElementIterator::secondaryOrder(int32_t order) { return (order >> 8) & 0xff; }
+inline int32_t CollationElementIterator::tertiaryOrder(int32_t order) { return order & 0xff; }
+inline bool CollationElementIterator::isIgnorable(int32_t order) { return (order & 0xffff0000) == 0; }
 
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_COLLATION */
-
 #endif /* U_SHOW_CPLUSPLUS_API */
-
 #endif

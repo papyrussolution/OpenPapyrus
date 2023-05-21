@@ -213,7 +213,7 @@ Pragma	**pp;
 
 \******************************************************************************/
 
-prog	: s1 exts	{ if (lflag)
+prog	: s1 exts	{ if(lflag)
     			  {	custom_header = 0;
     			  	custom_fault = 0;
 			  }
@@ -255,173 +255,150 @@ exts1	: /* empty */	{ add_soap();
 	;
 ext	: dclrs ';'	{ }
 	| pragma	{ }
-	| error ';'	{ synerror("input before ; skipped");
-			  while (sp > stack)
-			  {	freetable(sp->table);
+	| error ';'	{ 
+				synerror("input before ; skipped");
+			  while (sp > stack) {
+				freetable(sp->table);
 			  	exitscope();
 			  }
 			  yyerrok;
 			}
-	| t1		{ }
-	| t2		{ }
+	| t1 {}
+	| t2 {}
 	;
-pragma	: PRAGMA	{ if ($1[1] >= 'a' && $1[1] <= 'z')
-			  {	for (pp = &pragmas; *pp; pp = &(*pp)->next)
+pragma	: PRAGMA	{ if($1[1] >= 'a' && $1[1] <= 'z')
+			  {	
+				for(pp = &pragmas; *pp; pp = &(*pp)->next)
 			          ;
 				*pp = (Pragma*)emalloc(sizeof(Pragma));
 				(*pp)->pragma = (char *)emalloc(strlen($1)+1);
 				strcpy((*pp)->pragma, $1);
 				(*pp)->next = NULL;
 			  }
-			  else if ((i = atoi($1+2)) > 0)
+			  else if((i = satoi($1+2)) > 0)
 				yylineno = i;
-			  else
-			  {	sprintf(errbuf, "directive '%s' ignored (use #import to import files and/or use option -i)", $1);
+			  else {
+				sprintf(errbuf, "directive '%s' ignored (use #import to import files and/or use option -i)", $1);
 			  	semwarn(errbuf);
 			  }
 			}
 	;
 
-/******************************************************************************\
-
-	Declarations
-
-\******************************************************************************/
-
+/*
+ Declarations
+*/
 decls	: /* empty */	{ transient &= ~6;
 			  permission = 0;
 			}
-	| dclrs ';' decls
-			{ }
-	| PRIVATE ':' t3 decls
-			{ }
-	| PROTECTED ':' t4 decls
-			{ }
-	| PUBLIC ':' t5 decls
-			{ }
-	| t1 decls t2 decls
-			{ }
+	| dclrs ';' decls {}
+	| PRIVATE ':' t3 decls {}
+	| PROTECTED ':' t4 decls {}
+	| PUBLIC ':' t5 decls {}
+	| t1 decls t2 decls {}
 	| error ';' 	{ synerror("declaration expected"); yyerrok; }
 	;
-t1	: '['		{ transient |= 1;
-			}
+t1	: '[' { transient |= 1; }
 	;
-t2	: ']'		{ transient &= ~1;
-			}
+t2	: ']' { transient &= ~1; }
 	;
-t3	:		{ permission = Sprivate;
-			}
+t3	: { permission = Sprivate; }
 	;
-t4	:		{ permission = Sprotected;
-			}
+t4	: { permission = Sprotected; }
 	;
-t5	:		{ permission = 0;
-			}
+t5	: { permission = 0; }
 	;
-dclrs	: spec		{ }
+dclrs	: spec { }
 	| spec dclr	{ }
-	| spec fdclr func
-			{ }
+	| spec fdclr func { }
 	| constr func	{ }
 	| destr func	{ }
 	| dclrs ',' dclr{ }
-	| dclrs ',' fdclr func
-			{ }
+	| dclrs ',' fdclr func { }
 	;
 dclr	: ptrs ID arrayck tag occurs init
-			{ if (($3.sto & Stypedef) && sp->table->level == GLOBAL)
-			  {	if (($3.typ->type != Tstruct && $3.typ->type != Tunion && $3.typ->type != Tenum) || strcmp($2->name, $3.typ->id->name))
-				{	p = enter(typetable, $2);
-					p->info.typ = mksymtype($3.typ, $2);
-			  		if ($3.sto & Sextern)
-						p->info.typ->transient = -1;
-					else
-						p->info.typ->transient = $3.typ->transient;
-			  		p->info.sto = $3.sto;
-					p->info.typ->pattern = $5.pattern;
-					p->info.typ->minLength = $5.minLength;
-					p->info.typ->maxLength = $5.maxLength;
-				}
-				$2->token = TOK_TYPE;
-			  }
-			  else {	
-				p = enter(sp->table, $2);
-			  	p->tag = $4;
-			  	p->info.typ = $3.typ;
-			  	p->info.sto = (Storage)((int)$3.sto | permission);
-				if ($6.hasval) {	
-					p->info.hasval = True;
-					switch ($3.typ->type) {	
-						case Tchar:
-						case Tuchar:
-						case Tshort:
-						case Tushort:
-						case Tint:
-						case Tuint:
-						case Tlong:
-						case Tulong:
-						case Tllong:
-						case Tullong:
-						case Tenum:
-						case Ttime:
-							if ($6.typ->type == Tint || $6.typ->type == Tchar || $6.typ->type == Tenum)
-								sp->val = p->info.val.i = $6.val.i;
-							else
-							{	semerror("type error in initialization constant");
-								p->info.hasval = False;
-							}
-							break;
-						case Tfloat:
-						case Tdouble:
-						case Tldouble:
-							if ($6.typ->type == Tfloat || $6.typ->type == Tdouble || $6.typ->type == Tldouble)
-								p->info.val.r = $6.val.r;
-							else if ($6.typ->type == Tint)
-								p->info.val.r = (double)$6.val.i;
-							else
-							{	semerror("type error in initialization constant");
-								p->info.hasval = False;
-							}
-							break;
-						default:
-							if ($3.typ->type == Tpointer
-							 && ((Tnode*)$3.typ->ref)->type == Tchar
-							 && $6.typ->type == Tpointer
-							 && ((Tnode*)$6.typ->ref)->type == Tchar)
-								p->info.val.s = $6.val.s;
-							else if (bflag
-							 && $3.typ->type == Tarray
-							 && ((Tnode*)$3.typ->ref)->type == Tchar
-							 && $6.typ->type == Tpointer
-							 && ((Tnode*)$6.typ->ref)->type == Tchar)
-							{	if ($3.typ->width / ((Tnode*)$3.typ->ref)->width - 1 < strlen($6.val.s))
-								{	semerror("char[] initialization constant too long");
-									p->info.val.s = "";
-								}
-
-								else
-									p->info.val.s = $6.val.s;
-							}
-							else if ($3.typ->type == Tpointer
-							      && ((Tnode*)$3.typ->ref)->id == lookup("std::string"))
-							      	p->info.val.s = $6.val.s;
-							else if ($3.typ->id == lookup("std::string"))
-							      	p->info.val.s = $6.val.s;
-							else if ($3.typ->type == Tpointer
-							      && $6.typ->type == Tint
-							      && $6.val.i == 0)
-								p->info.val.i = 0;
-							else
-							{	semerror("type error in initialization constant");
-								p->info.hasval = False;
-							}
-							break;
+			{ 
+				if(($3.sto & Stypedef) && sp->table->level == GLOBAL) {
+					if(($3.typ->type != Tstruct && $3.typ->type != Tunion && $3.typ->type != Tenum) || strcmp($2->name, $3.typ->id->name)) {
+						p = enter(typetable, $2);
+						p->info.typ = mksymtype($3.typ, $2);
+			  			if($3.sto & Sextern)
+							p->info.typ->transient = -1;
+						else
+							p->info.typ->transient = $3.typ->transient;
+			  			p->info.sto = $3.sto;
+						p->info.typ->pattern = $5.pattern;
+						p->info.typ->minLength = $5.minLength;
+						p->info.typ->maxLength = $5.maxLength;
 					}
+					$2->token = TOK_TYPE;
+				}
+				else {	
+					p = enter(sp->table, $2);
+			  		p->tag = $4;
+			  		p->info.typ = $3.typ;
+			  		p->info.sto = (Storage)((int)$3.sto | permission);
+					if($6.hasval) {	
+						p->info.hasval = True;
+						switch($3.typ->type) {	
+							case Tchar:
+							case Tuchar:
+							case Tshort:
+							case Tushort:
+							case Tint:
+							case Tuint:
+							case Tlong:
+							case Tulong:
+							case Tllong:
+							case Tullong:
+							case Tenum:
+							case Ttime:
+								if($6.typ->type == Tint || $6.typ->type == Tchar || $6.typ->type == Tenum)
+									sp->val = p->info.val.i = $6.val.i;
+								else
+								{	semerror("type error in initialization constant");
+									p->info.hasval = False;
+								}
+								break;
+							case Tfloat:
+							case Tdouble:
+							case Tldouble:
+								if($6.typ->type == Tfloat || $6.typ->type == Tdouble || $6.typ->type == Tldouble)
+									p->info.val.r = $6.val.r;
+								else if($6.typ->type == Tint)
+									p->info.val.r = (double)$6.val.i;
+								else
+								{	semerror("type error in initialization constant");
+									p->info.hasval = False;
+								}
+								break;
+							default:
+								if($3.typ->type == Tpointer && ((Tnode*)$3.typ->ref)->type == Tchar && $6.typ->type == Tpointer && ((Tnode*)$6.typ->ref)->type == Tchar)
+									p->info.val.s = $6.val.s;
+								else if(bflag && $3.typ->type == Tarray && ((Tnode*)$3.typ->ref)->type == Tchar && $6.typ->type == Tpointer && ((Tnode*)$6.typ->ref)->type == Tchar) {
+									if($3.typ->width / ((Tnode*)$3.typ->ref)->width - 1 < strlen($6.val.s)) {
+										semerror("char[] initialization constant too long");
+										p->info.val.s = "";
+									}
+									else
+										p->info.val.s = $6.val.s;
+								}
+								else if($3.typ->type == Tpointer && ((Tnode*)$3.typ->ref)->id == lookup("std::string"))
+						      		p->info.val.s = $6.val.s;
+								else if($3.typ->id == lookup("std::string"))
+						      		p->info.val.s = $6.val.s;
+								else if($3.typ->type == Tpointer && $6.typ->type == Tint && $6.val.i == 0)
+									p->info.val.i = 0;
+								else {	
+									semerror("type error in initialization constant");
+									p->info.hasval = False;
+								}
+								break;
+						}
 				}
 				else
 					p->info.val.i = sp->val;
-			        if ($5.minOccurs < 0)
-			        {	if (($3.sto & Sattribute) || $3.typ->type == Tpointer || $3.typ->type == Ttemplate || !strncmp($2->name, "__size", 6))
+			        if($5.minOccurs < 0) {
+						if(($3.sto & Sattribute) || $3.typ->type == Tpointer || $3.typ->type == Ttemplate || !strncmp($2->name, "__size", 6))
 			        		p->info.minOccurs = 0;
 			        	else
 			        		p->info.minOccurs = 1;
@@ -429,38 +406,39 @@ dclr	: ptrs ID arrayck tag occurs init
 				else
 					p->info.minOccurs = $5.minOccurs;
 				p->info.maxOccurs = $5.maxOccurs;
-				if (sp->mask)
+				if(sp->mask)
 					sp->val <<= 1;
 				else
 					sp->val++;
 			  	p->info.offset = sp->offset;
-				if ($3.sto & Sextern)
+				if($3.sto & Sextern)
 					p->level = GLOBAL;
-				else if ($3.sto & Stypedef)
+				else if($3.sto & Stypedef)
 					;
-			  	else if (sp->grow)
+			  	else if(sp->grow)
 					sp->offset += p->info.typ->width;
-				else if (p->info.typ->width > sp->offset)
+				else if(p->info.typ->width > sp->offset)
 					sp->offset = p->info.typ->width;
 			  }
 			  sp->entry = p;
 			}
 	;
-fdclr	: ptrs name	{ if ($1.sto & Stypedef)
-			  {	sprintf(errbuf, "invalid typedef qualifier for '%s'", $2->name);
+fdclr	: ptrs name	{ 
+			if($1.sto & Stypedef) {
+				sprintf(errbuf, "invalid typedef qualifier for '%s'", $2->name);
 				semwarn(errbuf);
-			  }
-			  p = enter(sp->table, $2);
-			  p->info.typ = $1.typ;
-			  p->info.sto = $1.sto;
-			  p->info.hasval = False;
-			  p->info.offset = sp->offset;
-			  if (sp->grow)
-				sp->offset += p->info.typ->width;
-			  else if (p->info.typ->width > sp->offset)
-				sp->offset = p->info.typ->width;
-			  sp->entry = p;
 			}
+			p = enter(sp->table, $2);
+			p->info.typ = $1.typ;
+			p->info.sto = $1.sto;
+			p->info.hasval = False;
+			p->info.offset = sp->offset;
+			if(sp->grow)
+			sp->offset += p->info.typ->width;
+			else if(p->info.typ->width > sp->offset)
+			sp->offset = p->info.typ->width;
+			sp->entry = p;
+		}
 	;
 id	: ID		{ $$ = $1; }
 	| TOK_TYPE  { $$ = $1; }
@@ -509,7 +487,7 @@ name	: ID		{ $$ = $1; }
 			  strcat(s, s1);
 			  strcat(s, s2);
 			  $$ = lookup(s);
-			  if (!$$)
+			  if(!$$)
 				$$ = install(s, ID);
 			}
 	;
@@ -531,7 +509,7 @@ destr	: virtual '~' TOK_TYPE {
 			  strcpy(s, "~");
 			  strcat(s, $3->name);
 			  sym = lookup(s);
-			  if (!sym)
+			  if(!sym)
 				sym = install(s, ID);
 			  sp->entry = enter(sp->table, sym);
 			  sp->entry->info.typ = mknone();
@@ -542,21 +520,21 @@ destr	: virtual '~' TOK_TYPE {
 			}
 	;
 func	: fname '(' s6 fargso ')' constobj abstract
-			{ if ($1->level == GLOBAL)
-			  {	if (!($1->info.sto & Sextern) && sp->entry && sp->entry->info.typ->type == Tpointer && ((Tnode*)sp->entry->info.typ->ref)->type == Tchar)
+			{ if($1->level == GLOBAL)
+			  {	if(!($1->info.sto & Sextern) && sp->entry && sp->entry->info.typ->type == Tpointer && ((Tnode*)sp->entry->info.typ->ref)->type == Tchar)
 			  	{	sprintf(errbuf, "last output parameter of remote method function prototype '%s' is a pointer to a char which will only return one byte: use char** instead to return a string", $1->sym->name);
 					semwarn(errbuf);
 				}
-				if ($1->info.sto & Sextern)
+				if($1->info.sto & Sextern)
 				 	$1->info.typ = mkmethod($1->info.typ, sp->table);
-			  	else if (sp->entry && (sp->entry->info.typ->type == Tpointer || sp->entry->info.typ->type == Treference || sp->entry->info.typ->type == Tarray || is_transient(sp->entry->info.typ)))
-				{	if ($1->info.typ->type == Tint)
+			  	else if(sp->entry && (sp->entry->info.typ->type == Tpointer || sp->entry->info.typ->type == Treference || sp->entry->info.typ->type == Tarray || is_transient(sp->entry->info.typ)))
+				{	if($1->info.typ->type == Tint)
 					{	sp->entry->info.sto = (Storage)((int)sp->entry->info.sto | (int)Sreturn);
 						$1->info.typ = mkfun(sp->entry);
 						$1->info.typ->id = $1->sym;
-						if (!is_transient(sp->entry->info.typ)) {
-							if (!is_response(sp->entry->info.typ)) {
-								if (!is_XML(sp->entry->info.typ))
+						if(!is_transient(sp->entry->info.typ)) {
+							if(!is_response(sp->entry->info.typ)) {
+								if(!is_XML(sp->entry->info.typ))
 									add_response($1, sp->entry);
 							}
 							else
@@ -572,10 +550,10 @@ func	: fname '(' s6 fargso ')' constobj abstract
 			  	{	sprintf(errbuf, "last output parameter of remote method function prototype '%s' is a return parameter and must be a pointer or reference, or use %s(void) for no return parameter", $1->sym->name, $1->sym->name);
 					semerror(errbuf);
 			  	}
-				if (!($1->info.sto & Sextern))
+				if(!($1->info.sto & Sextern))
 			  	{	unlinklast(sp->table);
-			  		if ((p = entry(classtable, $1->sym)))
-					{	if (p->info.typ->ref)
+			  		if((p = entry(classtable, $1->sym)))
+					{	if(p->info.typ->ref)
 						{	sprintf(errbuf, "remote method name clash: struct/class '%s' already declared at line %d", $1->sym->name, p->lineno);
 							semerror(errbuf);
 						}
@@ -591,7 +569,7 @@ func	: fname '(' s6 fargso ')' constobj abstract
 			  		}
 			  	}
 			  }
-			  else if ($1->level == INTERNAL)
+			  else if($1->level == INTERNAL)
 			  {	$1->info.typ = mkmethod($1->info.typ, sp->table);
 				$1->info.sto = (Storage)((int)$1->info.sto | (int)$6 | (int)$7);
 			  	transient &= ~1;
@@ -608,13 +586,13 @@ fargs	: farg		{ }
 	| farg ',' fargs{ }
 	;
 farg	: tspec ptrs arg arrayck occurs init
-			{ if ($4.sto & Stypedef)
+			{ if($4.sto & Stypedef)
 			  	semwarn("typedef in function argument");
 			  p = enter(sp->table, $3);
 			  p->info.typ = $4.typ;
 			  p->info.sto = $4.sto;
-			  if ($5.minOccurs < 0)
-			  {	if (($4.sto & Sattribute) || $4.typ->type == Tpointer)
+			  if($5.minOccurs < 0)
+			  {	if(($4.sto & Sattribute) || $4.typ->type == Tpointer)
 			        	p->info.minOccurs = 0;
 			       	else
 			        	p->info.minOccurs = 1;
@@ -622,7 +600,7 @@ farg	: tspec ptrs arg arrayck occurs init
 			  else
 				p->info.minOccurs = $5.minOccurs;
 			  p->info.maxOccurs = $5.maxOccurs;
-			  if ($6.hasval)
+			  if($6.hasval)
 			  {	p->info.hasval = True;
 				switch ($4.typ->type)
 				{	case Tchar:
@@ -635,7 +613,7 @@ farg	: tspec ptrs arg arrayck occurs init
 					case Tulong:
 					case Tenum:
 					case Ttime:
-						if ($6.typ->type == Tint || $6.typ->type == Tchar || $6.typ->type == Tenum)
+						if($6.typ->type == Tint || $6.typ->type == Tchar || $6.typ->type == Tenum)
 							sp->val = p->info.val.i = $6.val.i;
 						else
 						{	semerror("type error in initialization constant");
@@ -645,9 +623,9 @@ farg	: tspec ptrs arg arrayck occurs init
 					case Tfloat:
 					case Tdouble:
 					case Tldouble:
-						if ($6.typ->type == Tfloat || $6.typ->type == Tdouble || $6.typ->type == Tldouble)
+						if($6.typ->type == Tfloat || $6.typ->type == Tdouble || $6.typ->type == Tldouble)
 							p->info.val.r = $6.val.r;
-						else if ($6.typ->type == Tint)
+						else if($6.typ->type == Tint)
 							p->info.val.r = (double)$6.val.i;
 						else
 						{	semerror("type error in initialization constant");
@@ -655,17 +633,17 @@ farg	: tspec ptrs arg arrayck occurs init
 						}
 						break;
 					default:
-						if ($4.typ->type == Tpointer
+						if($4.typ->type == Tpointer
 						 && ((Tnode*)$4.typ->ref)->type == Tchar
 						 && $6.typ->type == Tpointer
 						 && ((Tnode*)$6.typ->ref)->type == Tchar)
 							p->info.val.s = $6.val.s;
-						else if ($4.typ->type == Tpointer
+						else if($4.typ->type == Tpointer
 						      && ((Tnode*)$4.typ->ref)->id == lookup("std::string"))
 						      	p->info.val.s = $6.val.s;
-						else if ($4.typ->id == lookup("std::string"))
+						else if($4.typ->id == lookup("std::string"))
 						      	p->info.val.s = $6.val.s;
-						else if ($4.typ->type == Tpointer
+						else if($4.typ->type == Tpointer
 						      && $6.typ->type == Tint
 						      && $6.val.i == 0)
 							p->info.val.i = 0;
@@ -677,23 +655,23 @@ farg	: tspec ptrs arg arrayck occurs init
 				}
 			  }
 			  p->info.offset = sp->offset;
-			  if ($4.sto & Sextern)
+			  if($4.sto & Sextern)
 				p->level = GLOBAL;
-			  else if (sp->grow)
+			  else if(sp->grow)
 				sp->offset += p->info.typ->width;
-			  else if (p->info.typ->width > sp->offset)
+			  else if(p->info.typ->width > sp->offset)
 				sp->offset = p->info.typ->width;
 			  sp->entry = p;
 			}
 	;
-arg	: /* empty */	{ if (sp->table->level != PARAM)
+arg	: /* empty */	{ if(sp->table->level != PARAM)
 			    $$ = gensymidx("param", (int)++sp->val);
-			  else if (eflag)
+			  else if(eflag)
 				$$ = gensymidx("_param", (int)++sp->val);
 			  else
 				$$ = gensym("_param");
 			}
-	| ID		{ if (vflag != 1 && *$1->name == '_' && sp->table->level == GLOBAL)
+	| ID		{ if(vflag != 1 && *$1->name == '_' && sp->table->level == GLOBAL)
 			  { sprintf(errbuf, "SOAP 1.2 does not support anonymous parameters '%s'", $1->name);
 			    semwarn(errbuf);
 			  }
@@ -719,15 +697,15 @@ spec	: /*empty */	{ $$.typ = mkint();
 			}
 	| store spec	{ $$.typ = $2.typ;
 			  $$.sto = (Storage)((int)$1 | (int)$2.sto);
-			  if (($$.sto & Sattribute) && !is_primitive_or_string($2.typ) && !is_stdstr($2.typ) && !is_binary($2.typ) && !is_external($2.typ))
+			  if(($$.sto & Sattribute) && !is_primitive_or_string($2.typ) && !is_stdstr($2.typ) && !is_binary($2.typ) && !is_external($2.typ))
 			  {	semwarn("invalid attribute type");
 			  	$$.sto = (Storage)((int)$$.sto & ~Sattribute);
 			  }
 			  sp->node = $$;
-			  if ($1 & Sextern)
+			  if($1 & Sextern)
 				transient = 0;
 			}
-	| type spec	{ if ($1->type == Tint)
+	| type spec	{ if($1->type == Tint)
 				switch ($2.typ->type)
 				{ case Tchar:	$$.typ = $2.typ; break;
 				  case Tshort:	$$.typ = $2.typ; break;
@@ -737,7 +715,7 @@ spec	: /*empty */	{ $$.typ = mkint();
 				  default:	semwarn("illegal use of 'signed'");
 						$$.typ = $2.typ;
 				}
-			  else if ($1->type == Tuint)
+			  else if($1->type == Tuint)
 				switch ($2.typ->type)
 				{ case Tchar:	$$.typ = mkuchar(); break;
 				  case Tshort:	$$.typ = mkushort(); break;
@@ -747,7 +725,7 @@ spec	: /*empty */	{ $$.typ = mkint();
 				  default:	semwarn("illegal use of 'unsigned'");
 						$$.typ = $2.typ;
 				}
-			  else if ($1->type == Tlong)
+			  else if($1->type == Tlong)
 				switch ($2.typ->type)
 				{ case Tint:	$$.typ = $1; break;
 				  case Tlong:	$$.typ = mkllong(); break;
@@ -757,7 +735,7 @@ spec	: /*empty */	{ $$.typ = mkint();
 				  default:	semwarn("illegal use of 'long'");
 						$$.typ = $2.typ;
 				}
-			  else if ($1->type == Tulong)
+			  else if($1->type == Tulong)
 				switch ($2.typ->type)
 				{ case Tint:	$$.typ = $1; break;
 				  case Tlong:	$$.typ = mkullong(); break;
@@ -766,7 +744,7 @@ spec	: /*empty */	{ $$.typ = mkint();
 				  default:	semwarn("illegal use of 'long'");
 						$$.typ = $2.typ;
 				}
-			  else if ($2.typ->type == Tint)
+			  else if($2.typ->type == Tint)
 				$$.typ = $1;
 			  else
 			  	semwarn("invalid type (missing ';' or type name used as non-type identifier?)");
@@ -777,7 +755,7 @@ spec	: /*empty */	{ $$.typ = mkint();
 tspec	: store		{ $$.typ = mkint();
 			  $$.sto = $1;
 			  sp->node = $$;
-			  if ($1 & Sextern)
+			  if($1 & Sextern)
 				transient = 0;
 			}
 	| type		{ $$.typ = $1;
@@ -786,15 +764,15 @@ tspec	: store		{ $$.typ = mkint();
 			}
 	| store tspec	{ $$.typ = $2.typ;
 			  $$.sto = (Storage)((int)$1 | (int)$2.sto);
-			  if (($$.sto & Sattribute) && !is_primitive_or_string($2.typ) && !is_stdstr($2.typ) && !is_binary($2.typ) && !is_external($2.typ))
+			  if(($$.sto & Sattribute) && !is_primitive_or_string($2.typ) && !is_stdstr($2.typ) && !is_binary($2.typ) && !is_external($2.typ))
 			  {	semwarn("invalid attribute type");
 			  	$$.sto = (Storage)((int)$$.sto & ~Sattribute);
 			  }
 			  sp->node = $$;
-			  if ($1 & Sextern)
+			  if($1 & Sextern)
 				transient = 0;
 			}
-	| type tspec	{ if ($1->type == Tint)
+	| type tspec	{ if($1->type == Tint)
 				switch ($2.typ->type)
 				{ case Tchar:	$$.typ = $2.typ; break;
 				  case Tshort:	$$.typ = $2.typ; break;
@@ -804,7 +782,7 @@ tspec	: store		{ $$.typ = mkint();
 				  default:	semwarn("illegal use of 'signed'");
 						$$.typ = $2.typ;
 				}
-			  else if ($1->type == Tuint)
+			  else if($1->type == Tuint)
 				switch ($2.typ->type)
 				{ case Tchar:	$$.typ = mkuchar(); break;
 				  case Tshort:	$$.typ = mkushort(); break;
@@ -814,7 +792,7 @@ tspec	: store		{ $$.typ = mkint();
 				  default:	semwarn("illegal use of 'unsigned'");
 						$$.typ = $2.typ;
 				}
-			  else if ($1->type == Tlong)
+			  else if($1->type == Tlong)
 				switch ($2.typ->type)
 				{ case Tint:	$$.typ = $1; break;
 				  case Tlong:	$$.typ = mkllong(); break;
@@ -824,7 +802,7 @@ tspec	: store		{ $$.typ = mkint();
 				  default:	semwarn("illegal use of 'long'");
 						$$.typ = $2.typ;
 				}
-			  else if ($1->type == Tulong)
+			  else if($1->type == Tulong)
 				switch ($2.typ->type)
 				{ case Tint:	$$.typ = $1; break;
 				  case Tlong:	$$.typ = mkullong(); break;
@@ -833,7 +811,7 @@ tspec	: store		{ $$.typ = mkint();
 				  default:	semwarn("illegal use of 'long'");
 						$$.typ = $2.typ;
 				}
-			  else if ($2.typ->type == Tint)
+			  else if($2.typ->type == Tint)
 				$$.typ = $1;
 			  else
 			  	semwarn("invalid type");
@@ -896,7 +874,7 @@ type	: TOK_VOID { $$ = mkvoid(); }
 			  p->info.typ->ref = sp->table;
 			  p->info.typ->width = sp->offset;
 			  p->info.typ->id = p->sym;
-			  if (p->info.typ->base)
+			  if(p->info.typ->base)
 			  	sp->table->prev = (Table*)entry(classtable, p->info.typ->base)->info.typ->ref;
 			  $$ = p->info.typ;
 			  exitscope();
@@ -904,11 +882,11 @@ type	: TOK_VOID { $$ = mkvoid(); }
 	| class ':' base '{' s2 decls '}'
 			{ p = reenter(classtable, $1->sym);
 			  sp->table->sym = p->sym;
-			  if (!$3)
+			  if(!$3)
 				semerror("invalid base class");
 			  else
 			  {	sp->table->prev = (Table*)$3->info.typ->ref;
-				if (!sp->table->prev && !$3->info.typ->transient)
+				if(!sp->table->prev && !$3->info.typ->transient)
 				{	sprintf(errbuf, "class '%s' has incomplete type", $3->sym->name);
 					semerror(errbuf);
 				}
@@ -924,10 +902,10 @@ type	: TOK_VOID { $$ = mkvoid(); }
 			  $$ = $1->info.typ;
 			}
 	| class ':' base
-			{ if (!$3)
+			{ if(!$3)
 				semerror("invalid base class");
 			  else
-			  {	if (!$3->info.typ->ref && !$3->info.typ->transient)
+			  {	if(!$3->info.typ->ref && !$3->info.typ->transient)
 				{	sprintf(errbuf, "class '%s' has incomplete type", $3->sym->name);
 					semerror(errbuf);
 				}
@@ -940,8 +918,8 @@ type	: TOK_VOID { $$ = mkvoid(); }
 			{ sym = gensym("_Struct");
 			  sprintf(errbuf, "anonymous struct will be named '%s'", sym->name);
 			  semwarn(errbuf);
-			  if ((p = entry(classtable, sym)))
-			  {	if (p->info.typ->ref || p->info.typ->type != Tstruct)
+			  if((p = entry(classtable, sym)))
+			  {	if(p->info.typ->ref || p->info.typ->type != Tstruct)
 				{	sprintf(errbuf, "struct '%s' already declared at line %d", sym->name, p->lineno);
 					semerror(errbuf);
 				}
@@ -959,9 +937,9 @@ type	: TOK_VOID { $$ = mkvoid(); }
 			  exitscope();
 			}
 	| struct '{' s2 decls '}'
-			{ if ((p = entry(classtable, $1->sym)) && p->info.typ->ref)
-			  {	if (is_mutable(p->info.typ))
-			  	{	if (merge((Table*)p->info.typ->ref, sp->table))
+			{ if((p = entry(classtable, $1->sym)) && p->info.typ->ref)
+			  {	if(is_mutable(p->info.typ))
+			  	{	if(merge((Table*)p->info.typ->ref, sp->table))
 					{	sprintf(errbuf, "member name clash in struct '%s' declared at line %d", $1->sym->name, p->lineno);
 						semerror(errbuf);
 					}
@@ -977,8 +955,8 @@ type	: TOK_VOID { $$ = mkvoid(); }
 			  $$ = p->info.typ;
 			  exitscope();
 			}
-	| STRUCT ID	{ if ((p = entry(classtable, $2)))
-			  {	if (p->info.typ->type == Tstruct)
+	| STRUCT ID	{ if((p = entry(classtable, $2)))
+			  {	if(p->info.typ->type == Tstruct)
 			  		$$ = p->info.typ;
 			  	else
 				{	sprintf(errbuf, "'struct %s' redeclaration (line %d)", $2->name, p->lineno);
@@ -994,7 +972,7 @@ type	: TOK_VOID { $$ = mkvoid(); }
 			}
 	| STRUCT TOK_TYPE { 
 			if((p = entry(classtable, $2))) {	
-				if (p->info.typ->type == Tstruct)
+				if(p->info.typ->type == Tstruct)
 					$$ = p->info.typ;
 			  	else {	
 					sprintf(errbuf, "'struct %s' redeclaration (line %d)", $2->name, p->lineno);
@@ -1013,8 +991,8 @@ type	: TOK_VOID { $$ = mkvoid(); }
 			  sprintf(errbuf, "anonymous union will be named '%s'", sym->name);
 			  semwarn(errbuf);
 			  $$ = mkunion(sp->table, sp->offset);
-			  if ((p = entry(classtable, sym)))
-			  {	if (p->info.typ->ref)
+			  if((p = entry(classtable, sym)))
+			  {	if(p->info.typ->ref)
 				{	sprintf(errbuf, "union or struct '%s' already declared at line %d", sym->name, p->lineno);
 					semerror(errbuf);
 				}
@@ -1032,8 +1010,8 @@ type	: TOK_VOID { $$ = mkvoid(); }
 			  exitscope();
 			}
 	| UNION id '{' s3 decls '}'
-			{ if ((p = entry(classtable, $2)))
-			  {	if (p->info.typ->ref || p->info.typ->type != Tunion)
+			{ if((p = entry(classtable, $2)))
+			  {	if(p->info.typ->ref || p->info.typ->type != Tunion)
 			  	{	sprintf(errbuf, "union '%s' already declared at line %d", $2->name, p->lineno);
 					semerror(errbuf);
 				}
@@ -1051,8 +1029,8 @@ type	: TOK_VOID { $$ = mkvoid(); }
 			  $$ = p->info.typ;
 			  exitscope();
 			}
-	| UNION ID	{ if ((p = entry(classtable, $2)))
-			  {	if (p->info.typ->type == Tunion)
+	| UNION ID	{ if((p = entry(classtable, $2)))
+			  {	if(p->info.typ->type == Tunion)
 					$$ = p->info.typ;
 			  	else
 				{	sprintf(errbuf, "'union %s' redeclaration (line %d)", $2->name, p->lineno);
@@ -1086,8 +1064,8 @@ type	: TOK_VOID { $$ = mkvoid(); }
 			{ sym = gensym("_Enum");
 			  sprintf(errbuf, "anonymous enum will be named '%s'", sym->name);
 			  semwarn(errbuf);
-			  if ((p = entry(enumtable, sym)))
-			  {	if (p->info.typ->ref)
+			  if((p = entry(enumtable, sym)))
+			  {	if(p->info.typ->ref)
 				{	sprintf(errbuf, "enum '%s' already declared at line %d", sym->name, p->lineno);
 					semerror(errbuf);
 				}
@@ -1105,8 +1083,8 @@ type	: TOK_VOID { $$ = mkvoid(); }
 			  exitscope();
 			}
 	| enum '{' s2 dclrs s5 '}'
-			{ if ((p = entry(enumtable, $1->sym)))
-			  {	if (p->info.typ->ref)
+			{ if((p = entry(enumtable, $1->sym)))
+			  {	if(p->info.typ->ref)
 				{	sprintf(errbuf, "enum '%s' already declared at line %d", $1->sym->name, p->lineno);
 					semerror(errbuf);
 				}
@@ -1124,8 +1102,8 @@ type	: TOK_VOID { $$ = mkvoid(); }
 			  exitscope();
 			}
 	| ENUM '*' id '{' s4 dclrs s5 '}'
-			{ if ((p = entry(enumtable, $3)))
-			  {	if (p->info.typ->ref)
+			{ if((p = entry(enumtable, $3)))
+			  {	if(p->info.typ->ref)
 				{	sprintf(errbuf, "enum '%s' already declared at line %d", $3->name, p->lineno);
 					semerror(errbuf);
 				}
@@ -1142,7 +1120,7 @@ type	: TOK_VOID { $$ = mkvoid(); }
 			  $$ = p->info.typ;
 			  exitscope();
 			}
-	| ENUM ID	{ if ((p = entry(enumtable, $2)))
+	| ENUM ID	{ if((p = entry(enumtable, $2)))
 			  	$$ = p->info.typ;
 			  else
 			  {	p = enter(enumtable, $2);
@@ -1162,11 +1140,11 @@ type	: TOK_VOID { $$ = mkvoid(); }
 	| TOK_TYPE { 
 			if((p = entry(typetable, $1)))
 				$$ = p->info.typ;
-			  else if ((p = entry(classtable, $1)))
+			  else if((p = entry(classtable, $1)))
 			  	$$ = p->info.typ;
-			  else if ((p = entry(enumtable, $1)))
+			  else if((p = entry(enumtable, $1)))
 			  	$$ = p->info.typ;
-			  else if ($1 == lookup("std::string") || $1 == lookup("std::wstring")) {	
+			  else if($1 == lookup("std::string") || $1 == lookup("std::wstring")) {	
 				p = enter(classtable, $1);
 				$$ = p->info.typ = mkclass((Table*)0, 0);
 			  	p->info.typ->id = $1;
@@ -1208,9 +1186,9 @@ type	: TOK_VOID { $$ = mkvoid(); }
 			  $$ = mkint();
 			}
 	;
-struct	: STRUCT id	{ if ((p = entry(classtable, $2)))
-			  {	if (p->info.typ->ref)
-			   	{	if (!is_mutable(p->info.typ))
+struct	: STRUCT id	{ if((p = entry(classtable, $2)))
+			  {	if(p->info.typ->ref)
+			   	{	if(!is_mutable(p->info.typ))
 					{	sprintf(errbuf, "struct '%s' already declared at line %d", $2->name, p->lineno);
 						semerror(errbuf);
 					}
@@ -1226,8 +1204,8 @@ struct	: STRUCT id	{ if ((p = entry(classtable, $2)))
 			}
 	;
 class	: CLASS id	{ 
-			if ((p = entry(classtable, $2))) {	
-				if (p->info.typ->ref) {	
+			if((p = entry(classtable, $2))) {	
+				if(p->info.typ->ref) {	
 					if(!is_mutable(p->info.typ)) {	
 						sprintf(errbuf, "class '%s' already declared at line %d", $2->name, p->lineno);
 						semerror(errbuf);
@@ -1245,8 +1223,8 @@ class	: CLASS id	{
 			  $$ = p;
 			}
 	;
-enum	: ENUM id	{ if ((p = entry(enumtable, $2)))
-			  {	if (p->info.typ->ref)
+enum	: ENUM id	{ if((p = entry(enumtable, $2)))
+			  {	if(p->info.typ->ref)
 				{	sprintf(errbuf, "enum '%s' already declared at line %d", $2->name, p->lineno);
 					semerror(errbuf);
 				}
@@ -1269,22 +1247,22 @@ base	: PROTECTED base{ $$ = $2; }
 	| PRIVATE base	{ $$ = $2; }
 	| PUBLIC base	{ $$ = $2; }
 	| TOK_TYPE      { $$ = entry(classtable, $1);
-			  if (!$$) {	
+			  if(!$$) {	
 				p = entry(typetable, $1);
-			  	if (p && (p->info.typ->type == Tclass || p->info.typ->type == Tstruct))
+			  	if(p && (p->info.typ->type == Tclass || p->info.typ->type == Tstruct))
 					$$ = p;
 			  }
 			}
 	| STRUCT ID	{ $$ = entry(classtable, $2); }
 	;
-s2	: /* empty */	{ if (transient == -2)
+s2	: /* empty */	{ if(transient == -2)
 			  	transient = 0;
 			  permission = 0;
 			  enterscope(mktable(NULL), 0);
 			  sp->entry = NULL;
 			}
 	;
-s3	: /* empty */	{ if (transient == -2)
+s3	: /* empty */	{ if(transient == -2)
 			  	transient = 0;
 			  permission = 0;
 			  enterscope(mktable(NULL), 0);
@@ -1301,7 +1279,7 @@ s4	: /* empty */	{ enterscope(mktable(NULL), 0);
 s5	: /* empty */	{ }
 	| ','		{ }
 	;
-s6	: /* empty */	{ if (sp->table->level == INTERNAL)
+s6	: /* empty */	{ if(sp->table->level == INTERNAL)
 			  	transient |= 1;
 			  permission = 0;
 			  enterscope(mktable(NULL), 0);
@@ -1322,7 +1300,7 @@ store	: AUTO		{ $$ = Sauto; }
 	| MUSTUNDERSTAND{ $$ = SmustUnderstand; }
 	| RETURN	{ $$ = Sreturn; }
 	| '@'		{ $$ = Sattribute;
-			  if (eflag)
+			  if(eflag)
 			   	semwarn("SOAP RPC encoding does not support XML attributes");
 			}
 	| '$'		{ $$ = Sspecial; }
@@ -1339,7 +1317,7 @@ virtual : /* empty */	{ $$ = Snone; }
 	;
 ptrs	: /* empty */	{ $$ = tmp = sp->node; }
 	| ptrs '*'	{ /* handle const pointers, such as const char* */
-			  if (/*tmp.typ->type == Tchar &&*/ (tmp.sto & Sconst))
+			  if(/*tmp.typ->type == Tchar &&*/ (tmp.sto & Sconst))
 			  	tmp.sto = (Storage)(((int)tmp.sto & ~Sconst) | Sconstptr);
 			  tmp.typ = mkpointer(tmp.typ);
 			  tmp.typ->transient = transient;
@@ -1353,11 +1331,11 @@ ptrs	: /* empty */	{ $$ = tmp = sp->node; }
 array	: /* empty */ 	{ $$ = tmp;	/* tmp is inherited */
 			}
 	| '[' cexp ']' array
-			{ if (!bflag && $4.typ->type == Tchar)
+			{ if(!bflag && $4.typ->type == Tchar)
 			  {	sprintf(errbuf, "char[" SOAP_LONG_FORMAT "] will be serialized as an array of " SOAP_LONG_FORMAT " bytes: use soapcpp2 option -b to enable char[] string serialization or use char* for strings", $2.val.i, $2.val.i);
 			  	semwarn(errbuf);
 			  }
-			  if ($2.hasval && $2.typ->type == Tint && $2.val.i > 0 && $4.typ->width > 0)
+			  if($2.hasval && $2.typ->type == Tint && $2.val.i > 0 && $4.typ->width > 0)
 				$$.typ = mkarray($4.typ, (int) $2.val.i * $4.typ->width);
 			  else
 			  {	$$.typ = mkarray($4.typ, 0);
@@ -1369,8 +1347,8 @@ array	: /* empty */ 	{ $$ = tmp;	/* tmp is inherited */
 			  $$.sto = $3.sto;
 			}
 	;
-arrayck	: array		{ if ($1.typ->type == Tstruct || $1.typ->type == Tclass)
-				if (!$1.typ->ref && !$1.typ->transient && !($1.sto & Stypedef))
+arrayck	: array		{ if($1.typ->type == Tstruct || $1.typ->type == Tclass)
+				if(!$1.typ->ref && !$1.typ->transient && !($1.sto & Stypedef))
 			   	{	sprintf(errbuf, "struct/class '%s' has incomplete type", $1.typ->id->name);
 					semerror(errbuf);
 				}
@@ -1378,7 +1356,7 @@ arrayck	: array		{ if ($1.typ->type == Tstruct || $1.typ->type == Tclass)
 			}
 	;
 init	: /* empty */   { $$.hasval = False; }
-	| '=' cexp      { if ($2.hasval)
+	| '=' cexp      { if($2.hasval)
 			  {	$$.typ = $2.typ;
 				$$.hasval = True;
 				$$.val = $2.val;
@@ -1457,12 +1435,10 @@ cexp	: obex '?' qexp ':' cexp
 qexp	: expr		{ $$ = $1; }
 	;
 /* oexp : or-expression */
-oexp	: obex OR aexp	{ $$.hasval = False;
-			  $$.typ = mkint();
-			}
-	| aexp		{ $$ = $1; }
+oexp	: obex OR aexp	{ $$.hasval = False; $$.typ = mkint(); }
+	| aexp { $$ = $1; }
 	;
-obex	: oexp		{ $$ = $1; }
+obex	: oexp { $$ = $1; }
 	;
 /* aexp : and-expression */
 aexp	: abex AN rexp	{ $$.hasval = False;
@@ -1492,20 +1468,20 @@ rexp	: rexp '|' rexp	{ $$ = iop("|", $1, $3); }
 	| lexp		{ $$ = $1; }
 	;
 /* lexp : lvalue kind of expression with optional prefix contructs */
-lexp	: '!' lexp	{ if ($2.hasval)
+lexp	: '!' lexp	{ if($2.hasval)
 				$$.val.i = !$2.val.i;
 			  $$.typ = $2.typ;
 			  $$.hasval = $2.hasval;
 			}
-	| '~' lexp	{ if ($2.hasval)
+	| '~' lexp	{ if($2.hasval)
 				$$.val.i = ~$2.val.i;
 			  $$.typ = $2.typ;
 			  $$.hasval = $2.hasval;
 			}
-	| '-' lexp	{ if ($2.hasval) {
-				if (integer($2.typ))
+	| '-' lexp	{ if($2.hasval) {
+				if(integer($2.typ))
 					$$.val.i = -$2.val.i;
-				else if (real($2.typ))
+				else if(real($2.typ))
 					$$.val.r = -$2.val.r;
 				else	typerror("string?");
 			  }
@@ -1513,7 +1489,7 @@ lexp	: '!' lexp	{ if ($2.hasval)
 			  $$.hasval = $2.hasval;
 			}
 	| '+' lexp	{ $$ = $2; }
-	| '*' lexp	{ if ($2.typ->type == Tpointer) {
+	| '*' lexp	{ if($2.typ->type == Tpointer) {
 			  	$$.typ = (Tnode*)$2.typ->ref;
 			  } else
 			  	typerror("dereference of non-pointer type");
@@ -1533,67 +1509,39 @@ lexp	: '!' lexp	{ if ($2.hasval)
 	;
 /* pexp : primitive expression with optional postfix constructs */
 pexp	: '(' expr ')'	{ $$ = $2; }
-	| ID		{ if ((p = enumentry($1)) == (Entry*) 0)
-				p = undefined($1);
-			  else
-			  	$$.hasval = True;
-			  $$.typ = p->info.typ;
-			  $$.val = p->info.val;
-			}
-	| LNG		{ $$.typ = mkint();
-			  $$.hasval = True;
-			  $$.val.i = $1;
-			}
-	| null		{ $$.typ = mkint();
-			  $$.hasval = True;
-			  $$.val.i = 0;
-			}
-	| DBL		{ $$.typ = mkfloat();
-			  $$.hasval = True;
-			  $$.val.r = $1;
-			}
-	| CHR		{ $$.typ = mkchar();
-			  $$.hasval = True;
-			  $$.val.i = $1;
-			}
-	| STR		{ $$.typ = mkstring();
-			  $$.hasval = True;
-			  $$.val.s = $1;
-			}
-	| CFALSE	{ $$.typ = mkbool();
-			  $$.hasval = True;
-			  $$.val.i = 0;
-			}
-	| CTRUE		{ $$.typ = mkbool();
-			  $$.hasval = True;
-			  $$.val.i = 1;
-			}
+	| ID {
+		if((p = enumentry($1)) == (Entry*) 0)
+			p = undefined($1);
+		else
+			$$.hasval = True;
+		$$.typ = p->info.typ;
+		$$.val = p->info.val;
+	}
+	| LNG { $$.typ = mkint(); $$.hasval = True; $$.val.i = $1; }
+	| null { $$.typ = mkint(); $$.hasval = True; $$.val.i = 0; }
+	| DBL { $$.typ = mkfloat(); $$.hasval = True; $$.val.r = $1; }
+	| CHR { $$.typ = mkchar(); $$.hasval = True; $$.val.i = $1; }
+	| STR { $$.typ = mkstring(); $$.hasval = True; $$.val.s = $1; }
+	| CFALSE { $$.typ = mkbool(); $$.hasval = True; $$.val.i = 0; }
+	| CTRUE { $$.typ = mkbool(); $$.hasval = True; $$.val.i = 1; }
 	;
 
 %%
-
 /*
  * ???
  */
-extern "C" int yywrap()
-{	
-	return 1;
-} 
-
-/******************************************************************************\
-
+extern "C" int yywrap() { return 1; } 
+/*
 	Support routines
-
-\******************************************************************************/
-
+*/
 static Node op(const char *op, Node p, Node q)
 {	
 	Node	r;
 	Tnode	*typ;
 	r.typ = p.typ;
 	r.sto = Snone;
-	if (p.hasval && q.hasval) {
-		if (integer(p.typ) && integer(q.typ))
+	if(p.hasval && q.hasval) {
+		if(integer(p.typ) && integer(q.typ))
 			switch (op[0]) {
 			case '|':	r.val.i = p.val.i |  q.val.i; break;
 			case '^':	r.val.i = p.val.i ^  q.val.i; break;
@@ -1607,7 +1555,7 @@ static Node op(const char *op, Node p, Node q)
 			case '%':	r.val.i = p.val.i %  q.val.i; break;
 			default:	typerror(op);
 			}
-		else if (real(p.typ) && real(q.typ))
+		else if(real(p.typ) && real(q.typ))
 			switch (op[0]) {
 			case '+':	r.val.r = p.val.r + q.val.r; break;
 			case '-':	r.val.r = p.val.r - q.val.r; break;
@@ -1617,7 +1565,8 @@ static Node op(const char *op, Node p, Node q)
 			}
 		else	semerror("illegal constant operation");
 		r.hasval = True;
-	} else {
+	} 
+	else {
 		typ = mgtype(p.typ, q.typ);
 		r.hasval = False;
 	}
@@ -1626,7 +1575,7 @@ static Node op(const char *op, Node p, Node q)
 
 static Node iop(const char *iop, Node p, Node q)
 {	
-	if (integer(p.typ) && integer(q.typ))
+	if(integer(p.typ) && integer(q.typ))
 		return op(iop, p, q);
 	typerror("integer operands only");
 	return p;
@@ -1639,32 +1588,27 @@ static Node relop(const char *op, Node p, Node q)
 	r.typ = mkint();
 	r.sto = Snone;
 	r.hasval = False;
-	if (p.typ->type != Tpointer || p.typ != q.typ)
+	if(p.typ->type != Tpointer || p.typ != q.typ)
 		typ = mgtype(p.typ, q.typ);
 	return r;
 }
-
-/******************************************************************************\
-
-	Scope management
-
-\******************************************************************************/
-
 /*
-mkscope - initialize scope stack with a new table and offset
+	Scope management
 */
-static void
-mkscope(Table *table, int offset)
-{	sp = stack-1;
+/*
+	mkscope - initialize scope stack with a new table and offset
+*/
+static void mkscope(Table *table, int offset)
+{	
+	sp = stack-1;
 	enterscope(table, offset);
 }
-
 /*
-enterscope - enter a new scope by pushing a new table and offset on the stack
+	enterscope - enter a new scope by pushing a new table and offset on the stack
 */
-static void
-enterscope(Table *table, int offset)
-{	if (++sp == stack+MAXNEST)
+static void enterscope(Table *table, int offset)
+{	
+	if(++sp == stack+MAXNEST)
 		execerror("maximum scope depth exceeded");
 	sp->table = table;
 	sp->val = 0;
@@ -1672,24 +1616,19 @@ enterscope(Table *table, int offset)
 	sp->grow = True;	/* by default, offset grows */
 	sp->mask = False;
 }
-
 /*
-exitscope - exit a scope by popping the table and offset from the stack
+	exitscope - exit a scope by popping the table and offset from the stack
 */
-static void
-exitscope(void)
-{	check(sp-- != stack, "exitscope() has no matching enterscope()");
+static void exitscope(void)
+{	
+	check(sp-- != stack, "exitscope() has no matching enterscope()");
 }
-
-/******************************************************************************\
-
+/*
 	Undefined symbol
-
-\******************************************************************************/
-
-static Entry*
-undefined(Symbol *sym)
-{	Entry	*p;
+*/
+static Entry * undefined(Symbol *sym)
+{	
+	Entry	*p;
 	sprintf(errbuf, "undefined identifier '%s'", sym->name);
 	semwarn(errbuf);
 	p = enter(sp->table, sym);
@@ -1699,27 +1638,22 @@ undefined(Symbol *sym)
 	p->info.hasval = False;
 	return p;
 }
-
 /*
-mgtype - return most general type among two numerical types
+	mgtype - return most general type among two numerical types
 */
 Tnode * mgtype(Tnode *typ1, Tnode *typ2)
 {	
-	if (numeric(typ1) && numeric(typ2)) {
-		if (typ1->type < typ2->type)
+	if(numeric(typ1) && numeric(typ2)) {
+		if(typ1->type < typ2->type)
 			return typ2;
 		} 
 		else	
 			typerror("non-numeric type");
 	return typ1;
 }
-
-/******************************************************************************\
-
+/*
 	Type checks
-
-\******************************************************************************/
-
+*/
 static int integer(Tnode *typ)
 {	
 	switch (typ->type) {
@@ -1743,111 +1677,108 @@ static int real(Tnode *typ)
 	return False;
 }
 
-static int numeric(Tnode *typ)
-{	
-	return integer(typ) || real(typ);
-}
+static int numeric(Tnode *typ) { return integer(typ) || real(typ); }
 
 static void add_fault(Table *gt)
 { 
 	Table *t;
-  Entry *p1, *p2, *p3, *p4;
-  Symbol *s1, *s2, *s3, *s4;
-  imported = NULL;
-  s1 = lookup("SOAP_ENV__Code");
-  p1 = entry(classtable, s1);
-  if (!p1 || !p1->info.typ->ref)
-  { t = mktable((Table*)0);
-    if (!p1)
-    { p1 = enter(classtable, s1);
-      p1->info.typ = mkstruct(t, 3*4);
-      p1->info.typ->id = s1;
-    }
-    else
-      p1->info.typ->ref = t;
-    p2 = enter(t, lookup("SOAP_ENV__Value"));
-    p2->info.typ = qname;
-    p2->info.minOccurs = 0;
-    p2 = enter(t, lookup("SOAP_ENV__Subcode"));
-    p2->info.typ = mkpointer(p1->info.typ);
-    p2->info.minOccurs = 0;
-  }
-  s2 = lookup("SOAP_ENV__Detail");
-  p2 = entry(classtable, s2);
-  if (!p2 || !p2->info.typ->ref)
-  { t = mktable((Table*)0);
-    if (!p2)
-    { p2 = enter(classtable, s2);
-      p2->info.typ = mkstruct(t, 3*4);
-      p2->info.typ->id = s2;
-    }
-    else
-      p2->info.typ->ref = t;
-    p3 = enter(t, lookup("__any"));
-    p3->info.typ = xml;
-    p3->info.minOccurs = 0;
-    p3 = enter(t, lookup("__type"));
-    p3->info.typ = mkint();
-    p3->info.minOccurs = 0;
-    p3 = enter(t, lookup("fault"));
-    p3->info.typ = mkpointer(mkvoid());
-    p3->info.minOccurs = 0;
-    custom_fault = 0;
-  }
-  s4 = lookup("SOAP_ENV__Reason");
-  p4 = entry(classtable, s4);
-  if (!p4 || !p4->info.typ->ref)
-  { t = mktable((Table*)0);
-    if (!p4)
-    { p4 = enter(classtable, s4);
-      p4->info.typ = mkstruct(t, 4);
-      p4->info.typ->id = s4;
-    }
-    else
-      p4->info.typ->ref = t;
-    p3 = enter(t, lookup("SOAP_ENV__Text"));
-    p3->info.typ = mkstring();
-    p3->info.minOccurs = 0;
-  }
-  s3 = lookup("SOAP_ENV__Fault");
-  p3 = entry(classtable, s3);
-  if (!p3 || !p3->info.typ->ref)
-  { t = mktable(NULL);
-    if (!p3)
-    { p3 = enter(classtable, s3);
-      p3->info.typ = mkstruct(t, 9*4);
-      p3->info.typ->id = s3;
-    }
-    else
-      p3->info.typ->ref = t;
-    p3 = enter(t, lookup("faultcode"));
-    p3->info.typ = qname;
-    p3->info.minOccurs = 0;
-    p3 = enter(t, lookup("faultstring"));
-    p3->info.typ = mkstring();
-    p3->info.minOccurs = 0;
-    p3 = enter(t, lookup("faultactor"));
-    p3->info.typ = mkstring();
-    p3->info.minOccurs = 0;
-    p3 = enter(t, lookup("detail"));
-    p3->info.typ = mkpointer(p2->info.typ);
-    p3->info.minOccurs = 0;
-    p3 = enter(t, s1);
-    p3->info.typ = mkpointer(p1->info.typ);
-    p3->info.minOccurs = 0;
-    p3 = enter(t, s4);
-    p3->info.typ = mkpointer(p4->info.typ);
-    p3->info.minOccurs = 0;
-    p3 = enter(t, lookup("SOAP_ENV__Node"));
-    p3->info.typ = mkstring();
-    p3->info.minOccurs = 0;
-    p3 = enter(t, lookup("SOAP_ENV__Role"));
-    p3->info.typ = mkstring();
-    p3->info.minOccurs = 0;
-    p3 = enter(t, lookup("SOAP_ENV__Detail"));
-    p3->info.typ = mkpointer(p2->info.typ);
-    p3->info.minOccurs = 0;
-  }
+	Entry *p1, *p2, *p3, *p4;
+	Symbol *s1, *s2, *s3, *s4;
+	imported = NULL;
+	s1 = lookup("SOAP_ENV__Code");
+	p1 = entry(classtable, s1);
+	if(!p1 || !p1->info.typ->ref) { 
+		t = mktable((Table*)0);
+		if(!p1) { 
+			p1 = enter(classtable, s1);
+			p1->info.typ = mkstruct(t, 3*4);
+			p1->info.typ->id = s1;
+		}
+		else
+			p1->info.typ->ref = t;
+		p2 = enter(t, lookup("SOAP_ENV__Value"));
+		p2->info.typ = qname;
+		p2->info.minOccurs = 0;
+		p2 = enter(t, lookup("SOAP_ENV__Subcode"));
+		p2->info.typ = mkpointer(p1->info.typ);
+		p2->info.minOccurs = 0;
+	}
+	s2 = lookup("SOAP_ENV__Detail");
+	p2 = entry(classtable, s2);
+	if(!p2 || !p2->info.typ->ref) { 
+		t = mktable((Table*)0);
+		if(!p2) { 
+			p2 = enter(classtable, s2);
+			p2->info.typ = mkstruct(t, 3*4);
+			p2->info.typ->id = s2;
+		}
+		else
+			p2->info.typ->ref = t;
+		p3 = enter(t, lookup("__any"));
+		p3->info.typ = xml;
+		p3->info.minOccurs = 0;
+		p3 = enter(t, lookup("__type"));
+		p3->info.typ = mkint();
+		p3->info.minOccurs = 0;
+		p3 = enter(t, lookup("fault"));
+		p3->info.typ = mkpointer(mkvoid());
+		p3->info.minOccurs = 0;
+		custom_fault = 0;
+	}
+	s4 = lookup("SOAP_ENV__Reason");
+	p4 = entry(classtable, s4);
+	if(!p4 || !p4->info.typ->ref) {
+		t = mktable((Table*)0);
+		if(!p4) { 
+			p4 = enter(classtable, s4);
+			p4->info.typ = mkstruct(t, 4);
+			p4->info.typ->id = s4;
+		}
+		else
+			p4->info.typ->ref = t;
+		p3 = enter(t, lookup("SOAP_ENV__Text"));
+		p3->info.typ = mkstring();
+		p3->info.minOccurs = 0;
+	}
+	s3 = lookup("SOAP_ENV__Fault");
+	p3 = entry(classtable, s3);
+	if(!p3 || !p3->info.typ->ref) {
+		t = mktable(NULL);
+		if(!p3) { 
+			p3 = enter(classtable, s3);
+			p3->info.typ = mkstruct(t, 9*4);
+			p3->info.typ->id = s3;
+		}
+		else
+			p3->info.typ->ref = t;
+		p3 = enter(t, lookup("faultcode"));
+		p3->info.typ = qname;
+		p3->info.minOccurs = 0;
+		p3 = enter(t, lookup("faultstring"));
+		p3->info.typ = mkstring();
+		p3->info.minOccurs = 0;
+		p3 = enter(t, lookup("faultactor"));
+		p3->info.typ = mkstring();
+		p3->info.minOccurs = 0;
+		p3 = enter(t, lookup("detail"));
+		p3->info.typ = mkpointer(p2->info.typ);
+		p3->info.minOccurs = 0;
+		p3 = enter(t, s1);
+		p3->info.typ = mkpointer(p1->info.typ);
+		p3->info.minOccurs = 0;
+		p3 = enter(t, s4);
+		p3->info.typ = mkpointer(p4->info.typ);
+		p3->info.minOccurs = 0;
+		p3 = enter(t, lookup("SOAP_ENV__Node"));
+		p3->info.typ = mkstring();
+		p3->info.minOccurs = 0;
+		p3 = enter(t, lookup("SOAP_ENV__Role"));
+		p3->info.typ = mkstring();
+		p3->info.minOccurs = 0;
+		p3 = enter(t, lookup("SOAP_ENV__Detail"));
+		p3->info.typ = mkpointer(p2->info.typ);
+		p3->info.minOccurs = 0;
+	}
 }
 
 static void add_soap(void)
@@ -1884,9 +1815,9 @@ static void add_header(Table *gt)
 	Symbol *s = lookup("SOAP_ENV__Header");
 	imported = NULL;
 	p = entry(classtable, s);
-	if (!p || !p->info.typ->ref) { 
+	if(!p || !p->info.typ->ref) { 
 		t = mktable((Table*)0);
-		if (!p)
+		if(!p)
 			p = enter(classtable, s);
 		p->info.typ = mkstruct(t, 0);
 		p->info.typ->id = s;
@@ -1909,7 +1840,7 @@ static void add_response(Entry *fun, Entry *ret)
 	t = mktable((Table*)0);
 	q = enter(t, ret->sym);
 	q->info = ret->info;
-	if (q->info.typ->type == Treference)
+	if(q->info.typ->type == Treference)
 	q->info.typ = (Tnode*)q->info.typ->ref;
 	p = enter(classtable, s);
 	p->info.typ = mkstruct(t, 4);

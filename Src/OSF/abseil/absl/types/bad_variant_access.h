@@ -61,5 +61,4 @@ ABSL_NAMESPACE_END
 }  // namespace absl
 
 #endif  // ABSL_USES_STD_VARIANT
-
 #endif  // ABSL_TYPES_BAD_VARIANT_ACCESS_H_

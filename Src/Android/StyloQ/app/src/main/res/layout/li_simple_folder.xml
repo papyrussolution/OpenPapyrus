@@ -7,8 +7,8 @@
     android:orientation="horizontal">
     <ImageView
         android:id="@+id/LVITEM_EXPANDSTATUS"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:src="@drawable/ic_triangleright03">
     </ImageView>
     <View style="@style/FakeView"/>

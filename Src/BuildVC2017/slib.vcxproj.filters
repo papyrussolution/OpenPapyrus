@@ -258,6 +258,11 @@
     </ClCompile>
     <ClCompile Include="..\SLib\smemchr.cpp" />
     <ClCompile Include="..\OSF\AVX-Memmove\memset.c" />
+    <ClCompile Include="..\SLib\vslocate.c" />
+    <ClCompile Include="..\SLib\SAIS\src\libsais.c">
+      <Filter>SAIS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\BZIP3\src\libbz3.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -378,6 +383,9 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\dbkv-lmdb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\SAIS\include\libsais.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
@@ -611,6 +619,9 @@
     </Filter>
     <Filter Include="__TEMP__">
       <UniqueIdentifier>{c5cd39d1-64ad-4e8c-8f7f-b2a84f69014d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SAIS">
+      <UniqueIdentifier>{a9eb51ba-fa34-428c-a3bf-2edbc948987d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

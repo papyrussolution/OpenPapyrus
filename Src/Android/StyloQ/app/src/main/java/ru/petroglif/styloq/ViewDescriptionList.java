@@ -92,6 +92,7 @@ public class ViewDescriptionList {
 			Min = Double.MAX_VALUE;
 			V = null;
 			Tp = null;
+			FakeData = false;
 		}
 		Item   ColumnDescription;
 		int    NzTextCount; // Количество элементов данных с непустым текстом
@@ -103,6 +104,9 @@ public class ViewDescriptionList {
 		double Min;
 		View   V;// = Vdl.CreateBaseEntryTextView(this, 0, 0, i);
 		TextPaint Tp;// = tv.getPaint();
+		boolean FakeData; // Данные, переданные итерациями DataPreprocessingIter в блок были фейковыми,
+			// и применялись с целью формирования правильной ширины столбцов. Этот признак
+			// используется функцией FinishDataProcessing для того, чтобы не рассчитывать итоговые значения.
 	}
 	private ArrayList<Item> L;
 	private int HeaderStyleRcId;
@@ -370,7 +374,7 @@ public class ViewDescriptionList {
 		// } @v11.5.3
 		return result;
 	}
-	DataPreprocessBlock StartDataPreprocessing(Context ctx, int columnIdx)
+	DataPreprocessBlock StartDataPreprocessing(Context ctx, int columnIdx, boolean fakeData)
 	{
 		DataPreprocessBlock result = null;
 		if(L != null && columnIdx >= 0 && columnIdx < L.size()) {
@@ -380,6 +384,7 @@ public class ViewDescriptionList {
 			if(result.V != null && result.V instanceof TextView) {
 				result.Tp = ((TextView)result.V).getPaint();
 			}
+			result.FakeData = fakeData;
 		}
 		return result;
 	}
@@ -470,6 +475,10 @@ public class ViewDescriptionList {
 			ok = false;
 		return ok;
 	}
+	//
+	// Descr: Реализует финальные операции по расчету раскладки динамической таблицы.
+	// ARG(dpb IN): Блок обработки данных, предварительно сформированный вызовами DataPreprocessingIter
+	//
 	boolean FinishDataProcessing(DataPreprocessBlock dpb)
 	{
 		boolean ok = true;
@@ -490,14 +499,16 @@ public class ViewDescriptionList {
 			// } @v11.6.11
 			if(dpb.ColumnDescription.TotalFunc > 0) {
 				String total_text = null;
-				boolean is_total_real = false;
-				switch(dpb.ColumnDescription.TotalFunc) {
-					case SLib.AGGRFUNC_COUNT:
-						dpb.ColumnDescription.ITotalResult = dpb.Count;
-						total_text = Integer.toString(dpb.Count);
-						break;
-					case SLib.AGGRFUNC_SUM:
-						{
+				if(dpb.FakeData)
+					total_text = "   ";
+				else {
+					boolean is_total_real = false;
+					switch(dpb.ColumnDescription.TotalFunc) {
+						case SLib.AGGRFUNC_COUNT:
+							dpb.ColumnDescription.ITotalResult = dpb.Count;
+							total_text = Integer.toString(dpb.Count);
+							break;
+						case SLib.AGGRFUNC_SUM: {
 							dpb.ColumnDescription.RTotalResult = dpb.Sum;
 							is_total_real = true;
 							//total_text = Double.toString(dpb.ColumnDescription.RTotalResult);
@@ -506,32 +517,33 @@ public class ViewDescriptionList {
 							//total_text = String.format("%10.2f", dpb.ColumnDescription.RTotalResult);
 						}
 						break;
-					case SLib.AGGRFUNC_AVG:
-						dpb.ColumnDescription.RTotalResult = (dpb.Count > 0) ? dpb.Sum / dpb.Count : 0.0;
-						is_total_real = true;
-						//total_text = Double.toString(dpb.ColumnDescription.RTotalResult);
-						break;
-					case SLib.AGGRFUNC_MAX:
-						dpb.ColumnDescription.RTotalResult = (dpb.Max > -Double.MAX_VALUE) ? dpb.Max : 0.0;
-						is_total_real = true;
-						//total_text = Double.toString(dpb.ColumnDescription.RTotalResult);
-						break;
-					case SLib.AGGRFUNC_MIN:
-						dpb.ColumnDescription.RTotalResult = (dpb.Min < Double.MAX_VALUE) ? dpb.Min : 0.0;
-						is_total_real = true;
-						//total_text = Double.toString(dpb.ColumnDescription.RTotalResult);
-						break;
-				}
-				if(is_total_real) {
-					int prec = 0;
-					if(dpb.ColumnDescription.SlFormat != 0)
-						prec = SLib.SFMTPRC(dpb.ColumnDescription.SlFormat);
-					else
-						prec = 2;
-					DecimalFormat df = new DecimalFormat();
-					df.setMaximumFractionDigits(prec);
-					df.setMinimumFractionDigits(prec);
-					total_text = df.format(dpb.ColumnDescription.RTotalResult);
+						case SLib.AGGRFUNC_AVG:
+							dpb.ColumnDescription.RTotalResult = (dpb.Count > 0) ? dpb.Sum / dpb.Count : 0.0;
+							is_total_real = true;
+							//total_text = Double.toString(dpb.ColumnDescription.RTotalResult);
+							break;
+						case SLib.AGGRFUNC_MAX:
+							dpb.ColumnDescription.RTotalResult = (dpb.Max > -Double.MAX_VALUE) ? dpb.Max : 0.0;
+							is_total_real = true;
+							//total_text = Double.toString(dpb.ColumnDescription.RTotalResult);
+							break;
+						case SLib.AGGRFUNC_MIN:
+							dpb.ColumnDescription.RTotalResult = (dpb.Min < Double.MAX_VALUE) ? dpb.Min : 0.0;
+							is_total_real = true;
+							//total_text = Double.toString(dpb.ColumnDescription.RTotalResult);
+							break;
+					}
+					if(is_total_real) {
+						int prec = 0;
+						if(dpb.ColumnDescription.SlFormat != 0)
+							prec = SLib.SFMTPRC(dpb.ColumnDescription.SlFormat);
+						else
+							prec = 2;
+						DecimalFormat df = new DecimalFormat();
+						df.setMaximumFractionDigits(prec);
+						df.setMinimumFractionDigits(prec);
+						total_text = df.format(dpb.ColumnDescription.RTotalResult);
+					}
 				}
 				if(SLib.GetLen(total_text) > 0) {
 					float tw = dpb.Tp.measureText(total_text);

@@ -4,6 +4,6 @@
 /*
 	Read infile, and write selected pages to outfile with the given options.
 */
-void pdf_clean_file(fz_context *ctx, const char *infile, const char *outfile, char *password, pdf_write_options *opts, int retainlen, const char * retainlist[]);
+void pdf_clean_file(fz_context *ctx, const char *infile, const char *outfile, const char *password, pdf_write_options *opts, int retainlen, const char * retainlist[]);
 
 #endif

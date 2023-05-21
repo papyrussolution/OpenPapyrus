@@ -192,7 +192,7 @@ static uchar * cd_alloc(struct zip * zip, size_t length)
 
 static ulong real_crc32(ulong crc, const void * buff, size_t len)
 {
-	return crc32(crc, static_cast<const Bytef *>(buff), (uint)len);
+	return crc32(crc, static_cast<const Byte *>(buff), (uint)len);
 }
 
 static ulong fake_crc32(ulong crc, const void * buff, size_t len)

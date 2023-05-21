@@ -1049,7 +1049,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 								SLib.SetupTabLayoutListener(this, lo_tab, view_pager);
 								if(CPM.IsCurrentDocumentEmpty())
 									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBookingDocument, View.GONE);
-								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabRegistry, (SLib.GetCount(CPM.RegistryHList) > 0) ? View.VISIBLE : View.GONE);
+								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabRegistry, (CPM.RegBlk.GetState() == 0) ? View.GONE : View.VISIBLE);
 							}
 						}
 						SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
@@ -1079,7 +1079,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 						case R.id.attendancePrereqProcessorListView: result = new Integer(SLib.GetCount(CPM.ProcessorListData)); break;
 						case R.id.attendancePrereqAttendanceView: result = new Integer((AttdcBlk != null) ? AttdcBlk.GetWorkhoursCount() : 0); break;
 						case R.id.attendancePrereqBookingListView: result = new Integer(CPM.GetCurrentDocumentBookingListCount()); break;
-						case R.id.attendancePrereqRegistryListView: result = new Integer(SLib.GetCount(CPM.RegistryHList)); break;
+						case R.id.attendancePrereqRegistryListView: result = new Integer(CPM.RegBlk.GetCount()); break;
 						case R.id.searchPaneListView: result = new Integer(CPM.SearchResult_GetObjTypeCount()); break;
 					}
 				}
@@ -1673,50 +1673,48 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 									}
 								}
 								else if(a.GetListRcId() == R.id.attendancePrereqRegistryListView) { // Список зафиксированных заказов
-									if(CPM.RegistryHList != null && ev_subj.ItemIdx < CPM.RegistryHList.size()) {
-										View iv = ev_subj.RvHolder.itemView;
-										Document.DisplayEntry cur_entry = CPM.RegistryHList.get(ev_subj.ItemIdx);
-										if(cur_entry != null && cur_entry.H != null) {
-											final int _vdlc = VdlDocs.GetCount();
-											for(int i = 0; i < _vdlc; i++) {
-												//TextView ctl = (TextView)iv.findViewById(i+1);
-												View ctl_view = iv.findViewById(i+1);
-												if(ctl_view != null) {
-													ViewDescriptionList.Item di = VdlDocs.Get(i);
-													if(di != null) {
-														String text = null;
-														if(i == 0) { // indicator image
-															if(ctl_view instanceof ImageView) {
-																final int ds = StyloQDatabase.SecTable.Rec.GetDocStatus(cur_entry.H.Flags);
-																int ir = Document.GetImageResourceByDocStatus(ds);
-																if(ir != 0)
-																	((ImageView)ctl_view).setImageResource(ir);
+									Document.DisplayEntry cur_entry = CPM.RegBlk.GetItem(ev_subj.ItemIdx);
+									View iv = ev_subj.RvHolder.itemView;
+									if(iv != null && cur_entry != null && cur_entry.H != null) {
+										final int _vdlc = VdlDocs.GetCount();
+										for(int i = 0; i < _vdlc; i++) {
+											//TextView ctl = (TextView)iv.findViewById(i+1);
+											View ctl_view = iv.findViewById(i+1);
+											if(ctl_view != null) {
+												ViewDescriptionList.Item di = VdlDocs.Get(i);
+												if(di != null) {
+													String text = null;
+													if(i == 0) { // indicator image
+														if(ctl_view instanceof ImageView) {
+															final int ds = StyloQDatabase.SecTable.Rec.GetDocStatus(cur_entry.H.Flags);
+															int ir = Document.GetImageResourceByDocStatus(ds);
+															if(ir != 0)
+																((ImageView)ctl_view).setImageResource(ir);
+														}
+													}
+													else if(ctl_view instanceof TextView) {
+														if(i == 1) { // date
+															SLib.LDATE d = cur_entry.GetNominalDate(CPM.GetOption_DueDateAsNominal());
+															if(d != null)
+																text = d.Format(SLib.DATF_DMY);
+														}
+														else if(i == 2) { // code
+															text = cur_entry.H.Code;
+														}
+														else if(i == 3) { // amount
+															text = CPM.FormatCurrency(cur_entry.H.Amount);
+														}
+														else if(i == 4) { // time
+															if(cur_entry.SingleBkItem != null && cur_entry.SingleBkItem.ReqTime != null) {
+																SLib.STimeChunk tc = cur_entry.SingleBkItem.GetEsimatedTimeChunk();
+																if(tc != null)
+																	text = tc.Format(SLib.DATF_DMY, SLib.TIMF_HM);
 															}
 														}
-														else if(ctl_view instanceof TextView) {
-															if(i == 1) { // date
-																SLib.LDATE d = cur_entry.GetNominalDate(CPM.GetOption_DueDateAsNominal());
-																if(d != null)
-																	text = d.Format(SLib.DATF_DMY);
-															}
-															else if(i == 2) { // code
-																text = cur_entry.H.Code;
-															}
-															else if(i == 3) { // amount
-																text = CPM.FormatCurrency(cur_entry.H.Amount);
-															}
-															else if(i == 4) { // time
-																if(cur_entry.SingleBkItem != null && cur_entry.SingleBkItem.ReqTime != null) {
-																	SLib.STimeChunk tc = cur_entry.SingleBkItem.GetEsimatedTimeChunk();
-																	if(tc != null)
-																		text = tc.Format(SLib.DATF_DMY, SLib.TIMF_HM);
-																}
-															}
-															else if(i == 5) { // memo
-																text = cur_entry.H.Memo;
-															}
-															((TextView)ctl_view).setText(text);
+														else if(i == 5) { // memo
+															text = cur_entry.H.Memo;
 														}
+														((TextView)ctl_view).setText(text);
 													}
 												}
 											}
@@ -1813,14 +1811,15 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 															col.Mrgn = fld_mrgn;
 															VdlDocs.AddItem(col);
 														}
-														if(SLib.GetCount(CPM.RegistryHList) > 0) {
+														if(CPM.RegBlk.GetCount() > 0) {
 															final int _vdlc = VdlDocs.GetCount();
 															assert (_vdlc > 0);
+															final int _regc = CPM.RegBlk.GetCount();
 															for(int i = 0; i < _vdlc; i++) {
-																ViewDescriptionList.DataPreprocessBlock dpb = VdlDocs.StartDataPreprocessing(this, i);
+																ViewDescriptionList.DataPreprocessBlock dpb = VdlDocs.StartDataPreprocessing(this, i, false);
 																if(dpb != null && dpb.ColumnDescription != null) {
-																	for(int j = 0; j < CPM.RegistryHList.size(); j++) {
-																		Document.DisplayEntry cur_entry = CPM.RegistryHList.get(j);
+																	for(int j = 0; j < _regc; j++) {
+																		Document.DisplayEntry cur_entry = CPM.RegBlk.GetItem(j);
 																		if(cur_entry != null && cur_entry.H != null) {
 																			String text = null;
 																			if(i == 0) { // status image
@@ -1915,6 +1914,15 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 										if(sr_oid != null && !sr_oid.IsEmpty()) {
 											if(sr_oid.Type == SLib.PPOBJ_GOODS) {
 												int _idx = CPM.FindGoodsItemIndexByID(sr_oid.Id);
+												// @v11.7.3 {
+												if(CPM.Gf != null) {
+													CommonPrereqModule.WareEntry goods_item = CPM.GetGoodsListItemByIdx(_idx);
+													if(!CPM.CheckGoodsListItemForFilt(goods_item)) {
+														CPM.ResetGoodsFiter();
+														SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
+													}
+												}
+												// } @v11.7.3
 												GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.attendancePrereqGoodsListView, _idx, -1);
 											}
 											/*else if(sr_oid.Type == SLib.PPOBJ_PERSON) {
@@ -2049,14 +2057,12 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 										}
 										break;
 									case R.id.attendancePrereqRegistryListView:
-										if(CPM.RegistryHList != null && ev_subj.ItemIdx < CPM.RegistryHList.size()) {
-											Document.DisplayEntry entry = CPM.RegistryHList.get(ev_subj.ItemIdx);
-											if(entry != null) {
-												if(CPM.LoadDocument(entry.H.ID)) {
-													SetupCurrentDocument(true, false);
-													//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
-													//GotoTab(CommonPrereqModule.Tab.tabBookingDocument, R.id.attendancePrereqBookingListView, -1, -1);
-												}
+										{
+											Document.DisplayEntry entry = CPM.RegBlk.GetItem(ev_subj.ItemIdx);
+											if(entry != null && CPM.LoadDocument(entry.H.ID)) {
+												SetupCurrentDocument(true, false);
+												//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
+												//GotoTab(CommonPrereqModule.Tab.tabBookingDocument, R.id.attendancePrereqBookingListView, -1, -1);
 											}
 										}
 										break;
@@ -2363,11 +2369,16 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 								ResetAttendanceBlock();
 							}
 							//NotifyCurrentOrderChanged();
-							if(SLib.GetCount(CPM.RegistryHList) > 0) {
+							final int rb_state = CPM.RegBlk.GetState();
+							if(rb_state == 1 || rb_state == 2) {
 								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabRegistry, View.VISIBLE);
-								NotifyTabContentChanged(CommonPrereqModule.Tab.tabRegistry, R.id.attendancePrereqRegistryListView);
-								GotoTab(CommonPrereqModule.Tab.tabRegistry, R.id.attendancePrereqRegistryListView, -1, -1);
+								if(rb_state == 1) {
+									NotifyTabContentChanged(CommonPrereqModule.Tab.tabRegistry, R.id.attendancePrereqRegistryListView);
+									GotoTab(CommonPrereqModule.Tab.tabRegistry, R.id.attendancePrereqRegistryListView, -1, -1);
+								}
 							}
+							else
+								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabRegistry, View.GONE);
 							CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBookingDocument, View.GONE);
 						}
 						else {
@@ -2385,11 +2396,16 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 								ResetAttendanceBlock();
 							}
 							//NotifyCurrentOrderChanged();
-							if(SLib.GetCount(CPM.RegistryHList) > 0) {
+							final int rb_state = CPM.RegBlk.GetState();
+							if(rb_state == 1 || rb_state == 2) {
 								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabRegistry, View.VISIBLE);
-								NotifyTabContentChanged(CommonPrereqModule.Tab.tabRegistry, R.id.attendancePrereqRegistryListView);
-								GotoTab(CommonPrereqModule.Tab.tabRegistry, R.id.attendancePrereqRegistryListView, -1, -1);
+								if(rb_state == 1) {
+									NotifyTabContentChanged(CommonPrereqModule.Tab.tabRegistry, R.id.attendancePrereqRegistryListView);
+									GotoTab(CommonPrereqModule.Tab.tabRegistry, R.id.attendancePrereqRegistryListView, -1, -1);
+								}
 							}
+							else
+								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabRegistry, View.GONE);
 							CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBookingDocument, View.GONE);
 						}
 						else {

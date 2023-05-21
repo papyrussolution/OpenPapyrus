@@ -1016,41 +1016,30 @@ private:
 
 		UErrorCode errorCode;
 	} fUnion;
-
 	bool fHasError = false;
-
 	IntegerWidth(impl::digits_t minInt, impl::digits_t maxInt, bool formatFailIfMoreThanMaxDigits);
-
-	IntegerWidth(UErrorCode errorCode) { // NOLINT
+	IntegerWidth(UErrorCode errorCode) 
+	{
 		fUnion.errorCode = errorCode;
 		fHasError = true;
 	}
-
-	IntegerWidth() { // NOLINT
+	IntegerWidth() 
+	{
 		fUnion.minMaxInt.fMinInt = -1;
 	}
-
 	/** Returns the default instance. */
-	static IntegerWidth standard() {
-		return IntegerWidth::zeroFillTo(1);
-	}
-
-	bool isBogus() const {
-		return !fHasError && fUnion.minMaxInt.fMinInt == -1;
-	}
-
-	bool copyErrorTo(UErrorCode & status) const {
+	static IntegerWidth standard() { return IntegerWidth::zeroFillTo(1); }
+	bool isBogus() const { return !fHasError && fUnion.minMaxInt.fMinInt == -1; }
+	bool copyErrorTo(UErrorCode & status) const 
+	{
 		if(fHasError) {
 			status = fUnion.errorCode;
 			return true;
 		}
 		return false;
 	}
-
 	void apply(impl::DecimalQuantity &quantity, UErrorCode & status) const;
-
 	bool operator==(const IntegerWidth& other) const;
-
 	// To allow MacroProps/MicroProps to initialize empty instances:
 	friend struct impl::MacroProps;
 	friend struct impl::MicroProps;
@@ -1472,23 +1461,18 @@ private:
 
 		UErrorCode errorCode;
 	} fUnion;
-
 	Padder(UChar32 cp, int32_t width, UNumberFormatPadPosition position);
-
 	Padder(int32_t width);
-
-	Padder(UErrorCode errorCode) : fWidth(-3) { // NOLINT
+	Padder(UErrorCode errorCode) : fWidth(-3) 
+	{
 		fUnion.errorCode = errorCode;
 	}
-
-	Padder() : fWidth(-2) {
-	}                    // NOLINT
-
-	bool isBogus() const {
-		return fWidth == -2;
+	Padder() : fWidth(-2) 
+	{
 	}
-
-	bool copyErrorTo(UErrorCode & status) const {
+	bool isBogus() const { return fWidth == -2; }
+	bool copyErrorTo(UErrorCode & status) const 
+	{
 		if(fWidth == -3) {
 			status = fUnion.errorCode;
 			return true;

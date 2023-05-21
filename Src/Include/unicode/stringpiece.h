@@ -60,15 +60,14 @@ class U_COMMON_API StringPiece : public UMemory {
 private:
 	const char * ptr_;
 	int32_t length_;
-
 public:
 	/**
 	 * Default constructor, creates an empty StringPiece.
 	 * @stable ICU 4.2
 	 */
-	StringPiece() : ptr_(nullptr), length_(0) {
+	StringPiece() : ptr_(nullptr), length_(0) 
+	{
 	}
-
 	/**
 	 * Constructs from a NUL-terminated const char * pointer.
 	 * @param str a NUL-terminated const char * pointer
@@ -91,17 +90,16 @@ public:
 	 * @param p nullptr
 	 * @stable ICU 67
 	 */
-	StringPiece(std::nullptr_t p) : ptr_(p), length_(0) {
+	StringPiece(std::nullptr_t p) : ptr_(p), length_(0) 
+	{
 	}
-
 	/**
 	 * Constructs from a std::string.
 	 * @stable ICU 4.2
 	 */
-	StringPiece(const std::string & str)
-		: ptr_(str.data()), length_(static_cast<int32_t>(str.size())) {
+	StringPiece(const std::string & str) : ptr_(str.data()), length_(static_cast<int32_t>(str.size())) 
+	{
 	}
-
 #if defined(__cpp_lib_char8_t) || defined(U_IN_DOXYGEN)
 	/**
 	 * Constructs from a std::u8string.
@@ -179,7 +177,6 @@ public:
 	 * @stable ICU 4.2
 	 */
 	StringPiece(const StringPiece& x, int32_t pos, int32_t len);
-
 	/**
 	 * Returns the string pointer. May be nullptr if it is empty.
 	 *
@@ -190,55 +187,45 @@ public:
 	 * @return the string pointer
 	 * @stable ICU 4.2
 	 */
-	const char * data() const {
-		return ptr_;
-	}
-
+	const char * data() const { return ptr_; }
 	/**
 	 * Returns the string length. Same as length().
 	 * @return the string length
 	 * @stable ICU 4.2
 	 */
-	int32_t size() const {
-		return length_;
-	}
-
+	int32_t size() const { return length_; }
 	/**
 	 * Returns the string length. Same as size().
 	 * @return the string length
 	 * @stable ICU 4.2
 	 */
-	int32_t length() const {
-		return length_;
-	}
-
+	int32_t length() const { return length_; }
 	/**
 	 * Returns whether the string is empty.
 	 * @return true if the string is empty
 	 * @stable ICU 4.2
 	 */
-	bool empty() const {
-		return length_ == 0;
-	}
-
+	bool empty() const { return length_ == 0; }
 	/**
 	 * Sets to an empty string.
 	 * @stable ICU 4.2
 	 */
-	void clear() {
-		ptr_ = nullptr; length_ = 0;
+	void clear() 
+	{
+		ptr_ = nullptr; 
+		length_ = 0;
 	}
-
 	/**
 	 * Reset the stringpiece to refer to new data.
 	 * @param xdata pointer the new string data.  Need not be nul terminated.
 	 * @param len the length of the new data
 	 * @stable ICU 4.8
 	 */
-	void set(const char * xdata, int32_t len) {
-		ptr_ = xdata; length_ = len;
+	void set(const char * xdata, int32_t len) 
+	{
+		ptr_ = xdata; 
+		length_ = len;
 	}
-
 	/**
 	 * Reset the stringpiece to refer to new data.
 	 * @param str a pointer to a NUL-terminated string.
@@ -253,27 +240,21 @@ public:
 	 * @param len the length of the new data
 	 * @stable ICU 67
 	 */
-	inline void set(const char8_t* xdata, int32_t len) {
-		set(reinterpret_cast<const char *>(xdata), len);
-	}
-
+	inline void set(const char8_t* xdata, int32_t len) { set(reinterpret_cast<const char *>(xdata), len); }
 	/**
 	 * Resets the stringpiece to refer to new data.
 	 * @param str a pointer to a NUL-terminated string.
 	 * @stable ICU 67
 	 */
-	inline void set(const char8_t* str) {
-		set(reinterpret_cast<const char *>(str));
-	}
-
+	inline void set(const char8_t* str) { set(reinterpret_cast<const char *>(str)); }
 #endif
-
 	/**
 	 * Removes the first n string units.
 	 * @param n prefix length, must be non-negative and <=length()
 	 * @stable ICU 4.2
 	 */
-	void remove_prefix(int32_t n) {
+	void remove_prefix(int32_t n) 
+	{
 		if(n >= 0) {
 			if(n > length_) {
 				n = length_;
@@ -288,7 +269,8 @@ public:
 	 * @param n suffix length, must be non-negative and <=length()
 	 * @stable ICU 4.2
 	 */
-	void remove_suffix(int32_t n) {
+	void remove_suffix(int32_t n) 
+	{
 		if(n >= 0) {
 			if(n <= length_) {
 				length_ -= n;

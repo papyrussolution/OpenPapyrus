@@ -40,7 +40,7 @@ static void * decompress_zlib(const void * buf, const int buf_len, const char * 
 	}
 	stream.avail_in = buf_len;
 	/* Explicitly cast away the const-ness of buf */
-	stream.next_in = (Bytef*)buf;
+	stream.next_in = (Byte *)buf;
 	// @sobolev pagesize = getpagesize();
 	pagesize = SLS.SSys.PageSize; // @sobolev
 	result_size = ((buf_len + pagesize - 1) & ~(pagesize - 1));

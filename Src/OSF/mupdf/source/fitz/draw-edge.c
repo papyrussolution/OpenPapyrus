@@ -482,7 +482,7 @@ static inline void even_odd_aa(fz_context * ctx, fz_gel * gel, int * list, int x
 	}
 }
 
-static inline void undelta_aa(fz_context * ctx, uchar * FZ_RESTRICT out, int * FZ_RESTRICT in, int n, int scale)
+static inline void undelta_aa(fz_context * ctx, uchar * _RESTRICT out, int * _RESTRICT in, int n, int scale)
 {
 	int d = 0;
 	(void)scale; /* Avoid warnings in some builds */

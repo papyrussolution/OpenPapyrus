@@ -5060,7 +5060,7 @@ public:
 	XXHashTest(STestCase & rCase) : R_Case(rCase)
 	{
 	}
-	/*void BMK_checkResult32(XXH32_hash_t r1, XXH32_hash_t r2)
+	/*void BMK_checkResult32(uint32 r1, uint32 r2)
 	{
 		static int nbTests = 1;
 		if(r1!=r2) {
@@ -5071,7 +5071,7 @@ public:
 		}
 		nbTests++;
 	}*/
-	/*void BMK_checkResult64(XXH64_hash_t r1, XXH64_hash_t r2)
+	/*void BMK_checkResult64(uint64 r1, uint64 r2)
 	{
 		static int nbTests = 1;
 		if(r1!=r2) {

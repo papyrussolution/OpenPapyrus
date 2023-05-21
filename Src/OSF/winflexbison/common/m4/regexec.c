@@ -29,17 +29,10 @@ static re_sub_match_last_t * match_ctx_add_sublast(re_sub_match_top_t * subtop, 
 static void sift_ctx_init(re_sift_context_t * sctx, re_dfastate_t ** sifted_sts, re_dfastate_t ** limited_sts, Idx last_node, Idx last_str_idx) internal_function;
 static reg_errcode_t re_search_internal(const regex_t * preg, const char * string, Idx length, Idx start, Idx last_start, Idx stop,
     size_t nmatch, regmatch_t pmatch[], int eflags) internal_function;
-static regoff_t re_search_2_stub(struct re_pattern_buffer * bufp,
-    const char * string1, Idx length1,
-    const char * string2, Idx length2,
-    Idx start, regoff_t range,
-    struct re_registers * regs,
-    Idx stop, bool ret_len) internal_function;
-static regoff_t re_search_stub(struct re_pattern_buffer * bufp,
-    const char * string, Idx length, Idx start,
-    regoff_t range, Idx stop,
-    struct re_registers * regs,
-    bool ret_len) internal_function;
+static regoff_t re_search_2_stub(struct re_pattern_buffer * bufp, const char * string1, Idx length1,
+    const char * string2, Idx length2, Idx start, regoff_t range, struct re_registers * regs, Idx stop, bool ret_len) internal_function;
+static regoff_t re_search_stub(struct re_pattern_buffer * bufp, const char * string, Idx length, Idx start, regoff_t range, Idx stop,
+    struct re_registers * regs, bool ret_len) internal_function;
 static uint re_copy_regs(struct re_registers * regs, regmatch_t * pmatch, Idx nregs, int regs_allocated) internal_function;
 static reg_errcode_t prune_impossible_nodes(re_match_context_t * mctx) internal_function;
 static Idx check_matching(re_match_context_t * mctx, bool fl_longest_match, Idx * p_match_first) internal_function;
@@ -59,18 +52,10 @@ static reg_errcode_t add_epsilon_src_nodes(const re_dfa_t * dfa, re_node_set * d
 static bool check_dst_limits(const re_match_context_t * mctx, const re_node_set * limits, Idx dst_node, Idx dst_idx, Idx src_node, Idx src_idx) internal_function;
 static int check_dst_limits_calc_pos_1(const re_match_context_t * mctx, int boundaries, Idx subexp_idx, Idx from_node, Idx bkref_idx) internal_function;
 static int check_dst_limits_calc_pos(const re_match_context_t * mctx, Idx limit, Idx subexp_idx, Idx node, Idx str_idx, Idx bkref_idx) internal_function;
-static reg_errcode_t check_subexp_limits(const re_dfa_t * dfa,
-    re_node_set * dest_nodes,
-    const re_node_set * candidates,
-    re_node_set * limits,
-    struct re_backref_cache_entry * bkref_ents,
-    Idx str_idx) internal_function;
-static reg_errcode_t sift_states_bkref(const re_match_context_t * mctx,
-    re_sift_context_t * sctx, Idx str_idx, const re_node_set * candidates) internal_function;
-static reg_errcode_t merge_state_array(const re_dfa_t * dfa,
-    re_dfastate_t ** dst,
-    re_dfastate_t ** src, Idx num)
-internal_function;
+static reg_errcode_t check_subexp_limits(const re_dfa_t * dfa, re_node_set * dest_nodes,
+    const re_node_set * candidates, re_node_set * limits, struct re_backref_cache_entry * bkref_ents, Idx str_idx) internal_function;
+static reg_errcode_t sift_states_bkref(const re_match_context_t * mctx, re_sift_context_t * sctx, Idx str_idx, const re_node_set * candidates) internal_function;
+static reg_errcode_t merge_state_array(const re_dfa_t * dfa, re_dfastate_t ** dst, re_dfastate_t ** src, Idx num) internal_function;
 static re_dfastate_t * find_recover_state(reg_errcode_t * err, re_match_context_t * mctx) internal_function;
 static re_dfastate_t * transit_state(reg_errcode_t * err, re_match_context_t * mctx, re_dfastate_t * state) internal_function;
 static re_dfastate_t * merge_state_with_log(reg_errcode_t * err, re_match_context_t * mctx, re_dfastate_t * next_state) internal_function;
@@ -122,7 +107,7 @@ static reg_errcode_t extend_buffers(re_match_context_t * mctx) internal_function
 
    We return 0 if we find a match and REG_NOMATCH if not.  */
 
-int regexec(const regex_t *_Restrict_ preg, const char * _Restrict_ string, size_t nmatch, regmatch_t pmatch[_Restrict_arr_], int eflags)
+int regexec(const regex_t * _RESTRICT preg, const char * _RESTRICT string, size_t nmatch, regmatch_t pmatch[_Restrict_arr_], int eflags)
 {
 	reg_errcode_t err;
 	Idx start, length;
@@ -155,8 +140,7 @@ versioned_symbol(libc, __regexec, regexec, GLIBC_2_3_4);
 # if SHLIB_COMPAT(libc, GLIBC_2_0, GLIBC_2_3_4)
 __typeof__(__regexec)__compat_regexec;
 
-int attribute_compat_text_section __compat_regexec(const regex_t * _Restrict_ preg,
-    const char * _Restrict_ string, size_t nmatch, regmatch_t pmatch[], int eflags)
+int attribute_compat_text_section __compat_regexec(const regex_t * _RESTRICT preg, const char * _RESTRICT string, size_t nmatch, regmatch_t pmatch[], int eflags)
 {
 	return regexec(preg, string, nmatch, pmatch, eflags & (REG_NOTBOL | REG_NOTEOL));
 }

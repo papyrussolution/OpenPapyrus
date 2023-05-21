@@ -492,10 +492,10 @@ static BOOL CALLBACK m_proc(HMONITOR mon,
     LPARAM data)
 {
 	m_proc_t * dp = (m_proc_t*)data;
-	MONITORINFOEX info;
+	MONITORINFOEXA info;
 	BOOL res;
 	info.cbSize = sizeof(info);
-	res = GetMonitorInfo(mon, (LPMONITORINFO)&info);
+	res = GetMonitorInfoA(mon, (LPMONITORINFO)&info);
 	if(res) {
 		if(strcmp(dp->name, info.szDevice)==0) {
 			*(dp->x) = info.rcMonitor.left;
@@ -645,20 +645,9 @@ void fgPlatformOpenWindow(SFG_Window* window, const char* title,
 #if defined(_WIN32_WCE)
 	{
 		wchar_t* wstr = fghWstrFromStr(title);
-
-		window->Window.Handle = CreateWindow(
-			_T("FREEGLUT"),
-			wstr,
-			WS_VISIBLE | WS_POPUP,
-			0, 0, 240, 320,
-			NULL,
-			NULL,
-			fgDisplay.pDisplay.Instance,
-			(LPVOID)window
-			);
-
+		window->Window.Handle = CreateWindow(_T("FREEGLUT"), wstr, WS_VISIBLE | WS_POPUP,
+			0, 0, 240, 320, NULL, NULL, fgDisplay.pDisplay.Instance, (LPVOID)window);
 		free(wstr);
-
 		SHFullScreen(window->Window.Handle, SHFS_HIDESTARTICON);
 		SHFullScreen(window->Window.Handle, SHFS_HIDESIPBUTTON);
 		SHFullScreen(window->Window.Handle, SHFS_HIDETASKBAR);
@@ -667,17 +656,9 @@ void fgPlatformOpenWindow(SFG_Window* window, const char* title,
 		UpdateWindow(window->Window.Handle);
 	}
 #else
-	window->Window.Handle = CreateWindowEx(
-		exFlags,
-		_T("FREEGLUT"),
-		title,
-		flags,
-		x, y, w, h,
-		(HWND)window->Parent == NULL ? NULL : window->Parent->Window.Handle,
-		(HMENU)NULL,
-		fgDisplay.pDisplay.Instance,
-		(LPVOID)window
-		);
+	window->Window.Handle = CreateWindowExA(exFlags, ("FREEGLUT"), title, flags, x, y, w, h,
+		(HWND)window->Parent == NULL ? NULL : window->Parent->Window.Handle, (HMENU)NULL,
+		fgDisplay.pDisplay.Instance, (LPVOID)window);
 #endif /* defined(_WIN32_WCE) */
 
 	/* WM_CREATE message got sent and was handled by window proc */
@@ -783,7 +764,7 @@ void fgPlatformGlutSetWindowTitle(const char* title)
 	}
 #else
 	if(!IsIconic(fgStructure.CurrentWindow->Window.Handle))
-		SetWindowText(fgStructure.CurrentWindow->Window.Handle, title);
+		SetWindowTextA(fgStructure.CurrentWindow->Window.Handle, title);
 #endif
 
 	/* Make copy of string to refer to later */
@@ -799,9 +780,8 @@ void fgPlatformGlutSetIconTitle(const char* title)
 {
 #ifndef _WIN32_WCE
 	if(IsIconic(fgStructure.CurrentWindow->Window.Handle))
-		SetWindowText(fgStructure.CurrentWindow->Window.Handle, title);
+		SetWindowTextA(fgStructure.CurrentWindow->Window.Handle, title);
 #endif
-
 	/* Make copy of string to refer to later */
 	if(fgStructure.CurrentWindow->State.pWState.IconTitle)
 		free(fgStructure.CurrentWindow->State.pWState.IconTitle);

@@ -165,16 +165,16 @@ void fz_free_argv(int argc, char ** argv);
 		#define inline
 	#endif
 #endif
-/* restrict is standard in C99, but not in all C++ compilers. */
-#if defined (__STDC_VERSION_) && (__STDC_VERSION__ >= 199901L) /* C99 */
-#define FZ_RESTRICT restrict
-#elif defined(_MSC_VER) && (_MSC_VER >= 1600) /* MSVC 10 or newer */
-#define FZ_RESTRICT __restrict
-#elif defined(__GNUC__) && (__GNUC__ >= 3) /* GCC 3 or newer */
-#define FZ_RESTRICT __restrict
-#else /* Unknown or ancient */
-#define FZ_RESTRICT
-#endif
+// restrict is standard in C99, but not in all C++ compilers
+//#if defined (__STDC_VERSION_) && (__STDC_VERSION__ >= 199901L) /* C99 */
+	//#define FZ_RESTRICT restrict
+//#elif defined(_MSC_VER) && (_MSC_VER >= 1600) /* MSVC 10 or newer */
+	//#define FZ_RESTRICT __restrict
+//#elif defined(__GNUC__) && (__GNUC__ >= 3) /* GCC 3 or newer */
+	//#define FZ_RESTRICT __restrict
+//#else /* Unknown or ancient */
+	//#define FZ_RESTRICT
+//#endif
 
 /* noreturn is a GCC extension */
 #ifdef __GNUC__
@@ -271,8 +271,7 @@ void fz_free_argv(int argc, char ** argv);
 /**
  * Trig functions
  */
-static float
-    my_atan_table[258] =
+static float my_atan_table[258] =
 {
 	0.0000000000f, 0.00390623013f, 0.00781234106f, 0.0117182136f,
 	0.0156237286f, 0.0195287670f, 0.0234332099f, 0.0273369383f,

@@ -35,7 +35,7 @@
     defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || \
     defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7EM__)
 
-static force_inline uint32 un8x4_add_un8x4 (uint32 x, uint32 y)
+static FORCEINLINE uint32 un8x4_add_un8x4 (uint32 x, uint32 y)
 {
     uint32 t;
     asm ("uqadd8 %0, %1, %2" : "=r" (t) : "%r" (x), "r" (y));

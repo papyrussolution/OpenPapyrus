@@ -62,7 +62,6 @@ static cairo_uint64_t uint64_lo(cairo_uint64_t i)
 static cairo_uint64_t uint64_hi(cairo_uint64_t i)
 {
 	cairo_uint64_t s;
-
 	s.lo = i.hi;
 	s.hi = 0;
 	return s;
@@ -71,7 +70,6 @@ static cairo_uint64_t uint64_hi(cairo_uint64_t i)
 static cairo_uint64_t uint64_shift32(cairo_uint64_t i)
 {
 	cairo_uint64_t s;
-
 	s.lo = 0;
 	s.hi = i.lo;
 	return s;
@@ -82,21 +80,16 @@ static const cairo_uint64_t uint64_carry32 = { 0, 1 };
 cairo_uint64_t _cairo_double_to_uint64(double i)
 {
 	cairo_uint64_t q;
-
-	q.hi = i * (1. / 4294967296.);
-	q.lo = i - q.hi * 4294967296.;
+	q.hi = i * (1.0 / SMathConst::MaxU32);
+	q.lo = i - q.hi * SMathConst::MaxU32;
 	return q;
 }
 
-double _cairo_uint64_to_double(cairo_uint64_t i)
-{
-	return i.hi * 4294967296. + i.lo;
-}
+double _cairo_uint64_to_double(cairo_uint64_t i) { return i.hi * SMathConst::MaxU32 + i.lo; }
 
 cairo_int64_t _cairo_double_to_int64(double i)
 {
 	cairo_uint64_t q;
-
 	q.hi = i * (1. / INT32_MAX);
 	q.lo = i - q.hi * (double)INT32_MAX;
 	return q;
@@ -407,19 +400,14 @@ cairo_uint128_t _cairo_uint128_sub(cairo_uint128_t a, cairo_uint128_t b)
 cairo_uint128_t _cairo_uint64x64_128_mul(cairo_uint64_t a, cairo_uint64_t b)
 {
 	cairo_uint128_t s;
-	uint32 ah, al, bh, bl;
-	cairo_uint64_t r0, r1, r2, r3;
-
-	al = uint64_lo32(a);
-	ah = uint64_hi32(a);
-	bl = uint64_lo32(b);
-	bh = uint64_hi32(b);
-
-	r0 = _cairo_uint32x32_64_mul(al, bl);
-	r1 = _cairo_uint32x32_64_mul(al, bh);
-	r2 = _cairo_uint32x32_64_mul(ah, bl);
-	r3 = _cairo_uint32x32_64_mul(ah, bh);
-
+	uint32 al = uint64_lo32(a);
+	uint32 ah = uint64_hi32(a);
+	uint32 bl = uint64_lo32(b);
+	uint32 bh = uint64_hi32(b);
+	cairo_uint64_t r0 = _cairo_uint32x32_64_mul(al, bl);
+	cairo_uint64_t r1 = _cairo_uint32x32_64_mul(al, bh);
+	cairo_uint64_t r2 = _cairo_uint32x32_64_mul(ah, bl);
+	cairo_uint64_t r3 = _cairo_uint32x32_64_mul(ah, bh);
 	r1 = _cairo_uint64_add(r1, uint64_hi(r0)); /* no carry possible */
 	r1 = _cairo_uint64_add(r1, r2); /* but this can carry */
 	if(_cairo_uint64_lt(r1, r2))                /* check */
@@ -681,9 +669,7 @@ cairo_uquorem64_t _cairo_uint_96by64_32x64_divrem(cairo_uint128_t num,
 		uint32 quotient; /* will contain final quotient. */
 		uint32 q;
 		uint32 r;
-
-		/* Approximate quotient by dividing the high 64 bits of num by
-		 * u+1. Watch out for overflow of u+1. */
+		// Approximate quotient by dividing the high 64 bits of num by u+1. Watch out for overflow of u+1.
 		if(u+1) {
 			quorem = _cairo_uint64_divrem(x, _cairo_uint32_to_uint64(u+1));
 			q = _cairo_uint64_to_uint32(quorem.quo);
@@ -694,33 +680,26 @@ cairo_uquorem64_t _cairo_uint_96by64_32x64_divrem(cairo_uint128_t num,
 			r = _cairo_uint64_to_uint32(x);
 		}
 		quotient = q;
-
-		/* Add the main term's contribution to quotient.  Note B-v =
-		 * -v as an uint32 (unless v = 0) */
+		// Add the main term's contribution to quotient.  Note B-v = -v as an uint32 (unless v = 0) */
 		if(v)
 			quorem = _cairo_uint64_divrem(_cairo_uint32x32_64_mul(q, -v), den);
 		else
 			quorem = _cairo_uint64_divrem(_cairo_uint32s_to_uint64(q, 0), den);
 		quotient += _cairo_uint64_to_uint32(quorem.quo);
-
-		/* Add the contribution of the subterm and start computing the
-		 * true remainder. */
+		// Add the contribution of the subterm and start computing the true remainder.
 		remainder = _cairo_uint32s_to_uint64(r, y);
 		if(_cairo_uint64_ge(remainder, den)) {
 			remainder = _cairo_uint64_sub(remainder, den);
 			quotient++;
 		}
-
 		/* Add the contribution of the main term's remainder. The
 		 * funky test here checks that remainder + main_rem >= den,
 		 * taking into account overflow of the addition. */
 		remainder = _cairo_uint64_add(remainder, quorem.rem);
-		if(_cairo_uint64_ge(remainder, den) ||
-		    _cairo_uint64_lt(remainder, quorem.rem)) {
+		if(_cairo_uint64_ge(remainder, den) || _cairo_uint64_lt(remainder, quorem.rem)) {
 			remainder = _cairo_uint64_sub(remainder, den);
 			quotient++;
 		}
-
 		result.quo = _cairo_uint32_to_uint64(quotient);
 		result.rem = remainder;
 	}

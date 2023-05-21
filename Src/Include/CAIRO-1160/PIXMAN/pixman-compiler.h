@@ -8,7 +8,7 @@
  * export functions from a shared library
  * limits	     limits for various types must be defined
  * inline         must be defined
- * force_inline   must be defined
+ * FORCEINLINE   must be defined
  */
 #if defined (__GNUC__)
 	#define FUNC     ((const char *)(__PRETTY_FUNCTION__))
@@ -58,21 +58,21 @@
 	//#define M_PI                    3.14159265358979323846
 //#endif
 #ifdef _MSC_VER
-/* 'inline' is available only in C++ in MSVC */
-#define inline __inline
-#define force_inline __forceinline
-#define noinline __declspec(noinline)
+	/* 'inline' is available only in C++ in MSVC */
+	#define inline __inline
+	//#define force_inline_Removed __forceinline
+	#define noinline __declspec(noinline)
 #elif defined __GNUC__ || (defined(__SUNPRO_C) && (__SUNPRO_C >= 0x590))
-#define inline __inline__
-#define force_inline __inline__ __attribute__ ((__always_inline__))
-#define noinline __attribute__((noinline))
+	#define inline __inline__
+	//#define force_inline_Removed __inline__ __attribute__ ((__always_inline__))
+	#define noinline __attribute__((noinline))
 #else
-#ifndef force_inline
-#define force_inline inline
-#endif
-#ifndef noinline
-#define noinline
-#endif
+	#ifndef FORCEINLINE
+		//#define force_inline_Removed inline
+	#endif
+	#ifndef noinline
+		#define noinline
+	#endif
 #endif
 
 /* GCC visibility */
@@ -118,7 +118,7 @@
 			TlsSetValue(tls_ ## name ## _index, value);                \
 		return value;                                                   \
 	}                                                                   \
-	static force_inline type * tls_ ## name ## _get(void) \
+	static FORCEINLINE type * tls_ ## name ## _get(void) \
 	{                                                                   \
 		type * value;                                                    \
 		if(!tls_ ## name ## _initialized) { \
@@ -170,7 +170,7 @@
 			pthread_setspecific(tls_ ## name ## _key, value);          \
 		return value;                                                   \
 	}                                                                   \
-	static force_inline type * tls_ ## name ## _get(void) \
+	static FORCEINLINE type * tls_ ## name ## _get(void) \
 	{                                                                   \
 		type * value = NULL;                                             \
 		if(pthread_once(&tls_ ## name ## _once_control, tls_ ## name ## _make_key) == 0) { \

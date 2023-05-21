@@ -14,7 +14,7 @@ static void infousage(void)
 	exit(1);
 }
 
-static int showbox(fz_context * ctx, fz_output * out, pdf_obj * page, char * text, pdf_obj * name)
+static int showbox(fz_context * ctx, fz_output * out, pdf_obj * page, const char * text, pdf_obj * name)
 {
 	fz_rect bbox;
 	pdf_obj * obj;
@@ -35,7 +35,7 @@ static int showbox(fz_context * ctx, fz_output * out, pdf_obj * page, char * tex
 	return failed;
 }
 
-static int shownum(fz_context * ctx, fz_output * out, pdf_obj * page, char * text, pdf_obj * name)
+static int shownum(fz_context * ctx, fz_output * out, pdf_obj * page, const char * text, pdf_obj * name)
 {
 	pdf_obj * obj;
 	int failed = 0;
@@ -106,7 +106,7 @@ static int showpages(fz_context * ctx, pdf_document * doc, fz_output * out, cons
 	return ret;
 }
 
-static int pdfpages_pages(fz_context * ctx, fz_output * out, const char * filename, char * password, const char * argv[], int argc)
+static int pdfpages_pages(fz_context * ctx, fz_output * out, const char * filename, const char * password, const char * argv[], int argc)
 {
 	enum { NO_FILE_OPENED, NO_INFO_GATHERED, INFO_SHOWN } state;
 
@@ -147,8 +147,8 @@ static int pdfpages_pages(fz_context * ctx, fz_output * out, const char * filena
 
 int pdfpages_main(int argc, const char * argv[])
 {
-	char * filename = "";
-	char * password = "";
+	const char * filename = "";
+	const char * password = "";
 	int c;
 	int ret;
 	fz_context * ctx;

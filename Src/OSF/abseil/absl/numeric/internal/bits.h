@@ -83,7 +83,7 @@ ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_POPCOUNT inline int Popcoun
 
 ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_POPCOUNT inline int Popcount64(uint64_t x) noexcept {
 #if ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(__builtin_popcountll)
-	static_assert(sizeof(unsigned long long) == sizeof(x), "__builtin_popcount does not take 64-bit arg"); // NOLINT(runtime/int)
+	static_assert(sizeof(unsigned long long) == sizeof(x), "__builtin_popcount does not take 64-bit arg");
 	return __builtin_popcountll(x);
 #else
 	x -= (x >> 1) & 0x5555555555555555ULL;
@@ -110,7 +110,7 @@ ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_CLZ inline int CountLeading
 	// Handle 0 as a special case because __builtin_clz(0) is undefined.
 	return x == 0 ? 32 : __builtin_clz(x);
 #elif defined(_MSC_VER) && !defined(__clang__)
-	unsigned long result = 0; // NOLINT(runtime/int)
+	unsigned long result = 0;
 	if(_BitScanReverse(&result, x)) {
 		return 31 - result;
 	}
@@ -135,7 +135,7 @@ ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_CLZ inline int CountLeading
 
 ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_CLZ inline int CountLeadingZeroes16(uint16_t x) {
 #if ABSL_HAVE_BUILTIN(__builtin_clzs)
-	static_assert(sizeof(unsigned short) == sizeof(x), "__builtin_clzs does not take 16-bit arg"); // NOLINT(runtime/int)
+	static_assert(sizeof(unsigned short) == sizeof(x), "__builtin_clzs does not take 16-bit arg");
 	return x == 0 ? 16 : __builtin_clzs(x);
 #else
 	return CountLeadingZeroes32(x) - 16;
@@ -148,26 +148,21 @@ ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_CLZ inline int CountLeading
 	//  x86: bsr, lzcnt
 	//  ARM64: clz
 	//  PPC: cntlzd
-	static_assert(sizeof(unsigned long long) == sizeof(x), "__builtin_clzll does not take 64-bit arg"); // NOLINT(runtime/int)
+	static_assert(sizeof(unsigned long long) == sizeof(x), "__builtin_clzll does not take 64-bit arg");
 	// Handle 0 as a special case because __builtin_clzll(0) is undefined.
 	return x == 0 ? 64 : __builtin_clzll(x);
 #elif defined(_MSC_VER) && !defined(__clang__) && (defined(_M_X64) || defined(_M_ARM64))
 	// MSVC does not have __buitin_clzll. Use _BitScanReverse64.
-	unsigned long result = 0; // NOLINT(runtime/int)
+	unsigned long result = 0;
 	if(_BitScanReverse64(&result, x)) {
 		return 63 - result;
 	}
 	return 64;
 #elif defined(_MSC_VER) && !defined(__clang__)
 	// MSVC does not have __buitin_clzll. Compose two calls to _BitScanReverse
-	unsigned long result = 0; // NOLINT(runtime/int)
-	if((x >> 32) &&
-	    _BitScanReverse(&result, static_cast<unsigned long>(x >> 32))) {
-		return 31 - result;
-	}
-	if(_BitScanReverse(&result, static_cast<unsigned long>(x))) {
-		return 63 - result;
-	}
+	unsigned long result = 0;
+	if((x >> 32) && _BitScanReverse(&result, static_cast<unsigned long>(x >> 32))) { return 31 - result; }
+	if(_BitScanReverse(&result, static_cast<unsigned long>(x))) { return 63 - result; }
 	return 64;
 #else
 	int zeroes = 60;
@@ -206,7 +201,7 @@ ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_CTZ inline int CountTrailin
 	static_assert(sizeof(unsigned int) == sizeof(x), "__builtin_ctz does not take 32-bit arg");
 	return __builtin_ctz(x);
 #elif defined(_MSC_VER) && !defined(__clang__)
-	unsigned long result = 0; // NOLINT(runtime/int)
+	unsigned long result = 0;
 	_BitScanForward(&result, x);
 	return result;
 #else
@@ -223,14 +218,14 @@ ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_CTZ inline int CountTrailin
 
 ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_CTZ inline int CountTrailingZeroesNonzero64(uint64_t x) {
 #if ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(__builtin_ctzll)
-	static_assert(sizeof(unsigned long long) == sizeof(x), "__builtin_ctzll does not take 64-bit arg"); // NOLINT(runtime/int)
+	static_assert(sizeof(unsigned long long) == sizeof(x), "__builtin_ctzll does not take 64-bit arg");
 	return __builtin_ctzll(x);
 #elif defined(_MSC_VER) && !defined(__clang__) && (defined(_M_X64) || defined(_M_ARM64))
-	unsigned long result = 0; // NOLINT(runtime/int)
+	unsigned long result = 0;
 	_BitScanForward64(&result, x);
 	return result;
 #elif defined(_MSC_VER) && !defined(__clang__)
-	unsigned long result = 0; // NOLINT(runtime/int)
+	unsigned long result = 0;
 	if(static_cast<uint32_t>(x) == 0) {
 		_BitScanForward(&result, static_cast<unsigned long>(x >> 32));
 		return result + 32;
@@ -252,7 +247,7 @@ ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_CTZ inline int CountTrailin
 
 ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_CTZ inline int CountTrailingZeroesNonzero16(uint16_t x) {
 #if ABSL_HAVE_BUILTIN(__builtin_ctzs)
-	static_assert(sizeof(unsigned short) == sizeof(x), "__builtin_ctzs does not take 16-bit arg"); // NOLINT(runtime/int)
+	static_assert(sizeof(unsigned short) == sizeof(x), "__builtin_ctzs does not take 16-bit arg");
 	return __builtin_ctzs(x);
 #else
 	return CountTrailingZeroesNonzero32(x);

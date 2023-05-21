@@ -111,10 +111,10 @@
 // provide prototypes for these when building zlib without LFS 
 //
 #if !defined(_LARGEFILE64_SOURCE) || _LFS64_LARGEFILE-0 == 0
-	ZEXTERN gzFile ZEXPORT gzopen64(const char *, const char *);
-	ZEXTERN z_off64_t ZEXPORT gzseek64(gzFile, z_off64_t, int);
-	ZEXTERN z_off64_t ZEXPORT gztell64(gzFile);
-	ZEXTERN z_off64_t ZEXPORT gzoffset64(gzFile);
+	ZEXTERN gzFile gzopen64(const char *, const char *);
+	ZEXTERN z_off64_t gzseek64(gzFile, z_off64_t, int);
+	ZEXTERN z_off64_t gztell64(gzFile);
+	ZEXTERN z_off64_t gzoffset64(gzFile);
 #endif
 //
 // default memLevel 
@@ -293,7 +293,7 @@ static uint syncsearch(uint * have, const uchar * buf, uint len);
 #endif
 //
 //
-uLong ZEXPORT adler32_z(uLong adler, const Bytef * buf, size_t len)
+uLong adler32_z(uLong adler, const Byte * buf, size_t len)
 {
 	uint   n;
 	// split Adler-32 into component sums 
@@ -352,7 +352,7 @@ uLong ZEXPORT adler32_z(uLong adler, const Bytef * buf, size_t len)
 	}
 }
 
-uLong ZEXPORT adler32(uLong adler, const Bytef * buf, uInt len)
+uLong adler32(uLong adler, const Byte * buf, uInt len)
 {
 	return adler32_z(adler, buf, len);
 }
@@ -384,9 +384,9 @@ static uLong adler32_combine_(uLong adler1, uLong adler2, z_off64_t len2)
 	return sum1 | (sum2 << 16);
 }
 
-uLong ZEXPORT adler32_combine(uLong adler1, uLong adler2, z_off_t len2)
+uLong adler32_combine(uLong adler1, uLong adler2, z_off_t len2)
 	{ return adler32_combine_(adler1, adler2, len2); }
-uLong ZEXPORT adler32_combine64(uLong adler1, uLong adler2, z_off64_t len2)
+uLong adler32_combine64(uLong adler1, uLong adler2, z_off64_t len2)
 	{ return adler32_combine_(adler1, adler2, len2); }
 
 #undef DO1
@@ -504,7 +504,7 @@ static void make_crc_table()
 		if(!out) return;
 		fprintf(out, "/* crc32.h -- tables for rapid CRC calculation\n");
 		fprintf(out, " * Generated automatically by crc32.c\n */\n\n");
-		fprintf(out, "local const z_crc_t FAR ");
+		fprintf(out, "local const z_crc_t ");
 		fprintf(out, "crc_table[TBLS][256] =\n{\n  {\n");
 		write_table(out, crc_table[0]);
 #ifdef BYFOUR
@@ -978,19 +978,19 @@ static void write_table(FILE * out, const z_crc_t  * table)
 //
 // This function can be used by asm versions of crc32()
 //
-const z_crc_t  * ZEXPORT get_crc_table()
+const z_crc_t  * get_crc_table()
 {
 #ifdef DYNAMIC_CRC_TABLE
 	if(crc_table_empty)
 		make_crc_table();
-#endif /* DYNAMIC_CRC_TABLE */
+#endif
 	return (const z_crc_t *)crc_table;
 }
 
 #define DO1 crc = crc_table[0][((int)crc ^ (*buf++)) & 0xff] ^ (crc >> 8)
 #define DO8 DO1; DO1; DO1; DO1; DO1; DO1; DO1; DO1
 
-ulong ZEXPORT crc32_z(ulong crc, const uchar  * buf, size_t len)
+ulong crc32_z(ulong crc, const uchar  * buf, size_t len)
 {
 	if(buf == Z_NULL) 
 		return 0UL;
@@ -1018,7 +1018,7 @@ ulong ZEXPORT crc32_z(ulong crc, const uchar  * buf, size_t len)
 	return crc ^ 0xffffffffUL;
 }
 
-ulong ZEXPORT crc32(ulong crc, const uchar  * buf, uInt len)
+ulong crc32(ulong crc, const uchar  * buf, uInt len)
 {
 	return crc32_z(crc, buf, len);
 }
@@ -1158,9 +1158,9 @@ static uLong crc32_combine_(uLong crc1, uLong crc2, z_off64_t len2)
 	return crc1;
 }
 
-uLong ZEXPORT crc32_combine(uLong crc1, uLong crc2, z_off_t len2)
+uLong crc32_combine(uLong crc1, uLong crc2, z_off_t len2)
 	{ return crc32_combine_(crc1, crc2, len2); }
-uLong ZEXPORT crc32_combine64(uLong crc1, uLong crc2, z_off64_t len2)
+uLong crc32_combine64(uLong crc1, uLong crc2, z_off64_t len2)
 	{ return crc32_combine_(crc1, crc2, len2); }
 //
 // ZUTIL
@@ -1178,12 +1178,12 @@ const char * const z_errmsg[10] = {
 	""
 };
 
-const char * ZEXPORT zlibVersion()
+const char * zlibVersion()
 {
 	return ZLIB_VERSION;
 }
 
-uLong ZEXPORT zlibCompileFlags()
+uLong zlibCompileFlags()
 {
 	uLong flags = 0;
 	switch((int)(sizeof(uInt))) {
@@ -1279,7 +1279,7 @@ uLong ZEXPORT zlibCompileFlags()
 //
 // exported to allow conversion of error code to string for compress() and uncompress()
 //
-const char * ZEXPORT zError(int err)
+const char * zError(int err)
 {
 	return ERR_MSG(err);
 }
@@ -1291,7 +1291,7 @@ const char * ZEXPORT zError(int err)
 	int errno = 0;
 #endif
 #ifndef HAVE_MEMCPY
-	/*void ZLIB_INTERNAL zmemcpy_Removed(Bytef* dest, const Bytef* source, uInt len)
+	/*void ZLIB_INTERNAL zmemcpy_Removed(Byte * dest, const Byte * source, uInt len)
 	{
 		if(len) {
 			do {
@@ -1299,7 +1299,7 @@ const char * ZEXPORT zError(int err)
 			} while(--len != 0);
 		}
 	}*/
-	int ZLIB_INTERNAL zmemcmp(const Bytef* s1, const Bytef* s2, uInt len)
+	int ZLIB_INTERNAL zmemcmp(const Byte * s1, const Byte * s2, uInt len)
 	{
 		uInt j;
 		for(j = 0; j < len; j++) {
@@ -1307,7 +1307,7 @@ const char * ZEXPORT zError(int err)
 		}
 		return 0;
 	}
-	/* void ZLIB_INTERNAL zmemzero_Removed(Bytef* dest, uInt len)
+	/* void ZLIB_INTERNAL zmemzero_Removed(Byte * dest, uInt len)
 	{
 		if(len) {
 			do {
@@ -1440,7 +1440,7 @@ const char * ZEXPORT zError(int err)
 // if there was not enough room in the output buffer, or Z_DATA_ERROR if the input data was corrupted, 
 // including if the input data is an incomplete zlib stream.
 //
-int ZEXPORT uncompress2(Bytef * dest, uLongf * destLen, const Bytef * source, uLong * sourceLen)
+int uncompress2(Byte * dest, uLongf * destLen, const Byte * source, uLong * sourceLen)
 {
 	z_stream stream;
 	int err;
@@ -1486,7 +1486,7 @@ int ZEXPORT uncompress2(Bytef * dest, uLongf * destLen, const Bytef * source, uL
 	return (err == Z_STREAM_END) ? Z_OK : (err == Z_NEED_DICT) ? Z_DATA_ERROR : (err == Z_BUF_ERROR && (left + stream.avail_out)) ? Z_DATA_ERROR : err;
 }
 
-int ZEXPORT uncompress(Bytef * dest, uLongf * destLen, const Bytef * source, uLong sourceLen)
+int uncompress(Byte * dest, uLongf * destLen, const Byte * source, uLong sourceLen)
 {
 	return uncompress2(dest, destLen, source, &sourceLen);
 }
@@ -1771,7 +1771,7 @@ int ZLIB_INTERNAL inflate_table(codetype type, ushort  * lens, uint codes, ZInfT
 // memory, Z_BUF_ERROR if there was not enough room in the output buffer,
 // Z_STREAM_ERROR if the level parameter is invalid.
 //
-int ZEXPORT compress2(Bytef * dest, uLongf * destLen, const Bytef * source, uLong sourceLen, int level)
+int compress2(Byte * dest, uLongf * destLen, const Byte * source, uLong sourceLen, int level)
 {
 	z_stream stream;
 	int err;
@@ -1804,14 +1804,14 @@ int ZEXPORT compress2(Bytef * dest, uLongf * destLen, const Bytef * source, uLon
 	return (err == Z_STREAM_END) ? Z_OK : err;
 }
 
-int ZEXPORT compress(Bytef * dest, uLongf * destLen, const Bytef * source, uLong sourceLen)
+int compress(Byte * dest, uLongf * destLen, const Byte * source, uLong sourceLen)
 {
 	return compress2(dest, destLen, source, sourceLen, Z_DEFAULT_COMPRESSION);
 }
 //
 // If the default memLevel or windowBits for deflateInit() is changed, then this function needs to be updated.
 //
-uLong ZEXPORT compressBound(uLong sourceLen)
+uLong compressBound(uLong sourceLen)
 {
 	return (sourceLen + (sourceLen >> 12) + (sourceLen >> 14) + (sourceLen >> 25) + 13);
 }
@@ -2003,7 +2003,7 @@ static size_t FASTCALL gz_write(gz_state * state, voidpc buf, size_t len)
 		if(state->strm.avail_in && gz_comp(state, Z_NO_FLUSH) == -1)
 			return 0;
 		// directly compress user buffer to file 
-		state->strm.next_in = static_cast<const Bytef *>(buf);
+		state->strm.next_in = static_cast<const Byte *>(buf);
 		do {
 			uint n = static_cast<uint>(-1);
 			SETMIN(n, len);
@@ -2018,7 +2018,7 @@ static size_t FASTCALL gz_write(gz_state * state, voidpc buf, size_t len)
 	return put;
 }
 
-int ZEXPORT gzwrite(gzFile file, voidpc buf, uint len)
+int gzwrite(gzFile file, voidpc buf, uint len)
 {
 	gz_state * state;
 	// get internal structure 
@@ -2037,7 +2037,7 @@ int ZEXPORT gzwrite(gzFile file, voidpc buf, uint len)
 	return (int)gz_write(state, buf, len); // write len bytes from buf (the return value will fit in an int) 
 }
 
-size_t ZEXPORT gzfwrite(voidpc buf, size_t size, size_t nitems, gzFile file)
+size_t gzfwrite(voidpc buf, size_t size, size_t nitems, gzFile file)
 {
 	size_t len = 0;
 	if(file) {
@@ -2060,7 +2060,7 @@ size_t ZEXPORT gzfwrite(voidpc buf, size_t size, size_t nitems, gzFile file)
 	return len;
 }
 
-int ZEXPORT gzputc(gzFile file, int c)
+int gzputc(gzFile file, int c)
 {
 	uint have;
 	uchar buf[1];
@@ -2097,7 +2097,7 @@ int ZEXPORT gzputc(gzFile file, int c)
 	return (gz_write(state, buf, 1) != 1) ? -1 : (c & 0xff);
 }
 
-int ZEXPORT gzputs(gzFile file, const char * str)
+int gzputs(gzFile file, const char * str)
 {
 	if(!file)
 		return -1;
@@ -2118,7 +2118,7 @@ int ZEXPORT gzputs(gzFile file, const char * str)
 #if defined(STDC) || defined(Z_HAVE_STDARG_H)
 //#include <stdarg.h>
 
-int ZEXPORTVA gzvprintf(gzFile file, const char * format, va_list va)
+int gzvprintf(gzFile file, const char * format, va_list va)
 {
 	int    len;
 	uint   left;
@@ -2185,7 +2185,7 @@ int ZEXPORTVA gzvprintf(gzFile file, const char * format, va_list va)
 	return len;
 }
 
-int ZEXPORTVA gzprintf(gzFile file, const char * format, ...)
+int gzprintf(gzFile file, const char * format, ...)
 {
 	va_list va;
 	int ret;
@@ -2198,7 +2198,7 @@ int ZEXPORTVA gzprintf(gzFile file, const char * format, ...)
 #else /* !STDC && !Z_HAVE_STDARG_H */
 
 /* -- see zlib.h -- */
-int ZEXPORTVA gzprintf(gzFile file, const char * format, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9,
+int gzprintf(gzFile file, const char * format, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9,
     int a10, int a11, int a12, int a13, int a14, int a15, int a16, int a17, int a18, int a19, int a20)
 {
 	uint len, left;
@@ -2269,7 +2269,7 @@ int ZEXPORTVA gzprintf(gzFile file, const char * format, int a1, int a2, int a3,
 
 #endif
 
-int ZEXPORT gzflush(gzFile file, int flush)
+int gzflush(gzFile file, int flush)
 {
 	gz_state * state;
 	// get internal structure 
@@ -2293,7 +2293,7 @@ int ZEXPORT gzflush(gzFile file, int flush)
 	return state->err;
 }
 
-int ZEXPORT gzsetparams(gzFile file, int level, int strategy)
+int gzsetparams(gzFile file, int level, int strategy)
 {
 	gz_state * state;
 	z_streamp strm;
@@ -2326,7 +2326,7 @@ int ZEXPORT gzsetparams(gzFile file, int level, int strategy)
 	return Z_OK;
 }
 
-int ZEXPORT gzclose_w(gzFile file)
+int gzclose_w(gzFile file)
 {
 	int ret = Z_OK;
 	gz_state * state;
@@ -2669,7 +2669,7 @@ static size_t FASTCALL gz_read(gz_state * state, void * buf, size_t len)
 	return got; // return number of bytes read into user buffer 
 }
 
-int ZEXPORT gzread(gzFile file, void * buf, uint len)
+int gzread(gzFile file, void * buf, uint len)
 {
 	if(!file)
 		return -1;
@@ -2692,7 +2692,7 @@ int ZEXPORT gzread(gzFile file, void * buf, uint len)
 	}
 }
 
-size_t ZEXPORT gzfread(void * buf, size_t size, size_t nitems, gzFile file)
+size_t gzfread(void * buf, size_t size, size_t nitems, gzFile file)
 {
 	size_t len;
 	gz_state * state;
@@ -2719,7 +2719,7 @@ size_t ZEXPORT gzfread(void * buf, size_t size, size_t nitems, gzFile file)
 	#undef gzgetc
 #endif
 
-int ZEXPORT gzgetc(gzFile file)
+int gzgetc(gzFile file)
 {
 	int ret;
 	uchar buf[1];
@@ -2747,12 +2747,12 @@ int ZEXPORT gzgetc(gzFile file)
 	}
 }
 
-int ZEXPORT gzgetc_(gzFile file)
+int gzgetc_(gzFile file)
 {
 	return gzgetc(file);
 }
 
-int ZEXPORT gzungetc(int c, gzFile file)
+int gzungetc(int c, gzFile file)
 {
 	gz_state * state;
 	// get internal structure 
@@ -2803,7 +2803,7 @@ int ZEXPORT gzungetc(int c, gzFile file)
 //
 // -- see zlib.h -- 
 //
-char * ZEXPORT gzgets(gzFile file, char * buf, int len)
+char * gzgets(gzFile file, char * buf, int len)
 {
 	char * str = 0;
 	uint left, n;
@@ -2857,7 +2857,7 @@ char * ZEXPORT gzgets(gzFile file, char * buf, int len)
 	}
 }
 
-int ZEXPORT gzdirect(gzFile file)
+int gzdirect(gzFile file)
 {
 	gz_state * state;
 	// get internal structure 
@@ -2872,7 +2872,7 @@ int ZEXPORT gzdirect(gzFile file)
 //
 // -- see zlib.h -- 
 //
-int ZEXPORT gzclose_r(gzFile file)
+int gzclose_r(gzFile file)
 {
 	int ret, err;
 	gz_state * state;
@@ -2899,7 +2899,7 @@ int ZEXPORT gzclose_r(gzFile file)
 //
 // GZCLOSE
 //
-int ZEXPORT gzclose(gzFile file)
+int gzclose(gzFile file)
 {
 #ifndef NO_GZCOMPRESS
 	gz_state * state;
@@ -3121,10 +3121,10 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 	return (gzFile)state; /* return stream */
 }
 
-gzFile ZEXPORT gzopen(const char * path, const char * mode)   { return gz_open(path, -1, mode); }
-gzFile ZEXPORT gzopen64(const char * path, const char * mode) { return gz_open(path, -1, mode); }
+gzFile gzopen(const char * path, const char * mode)   { return gz_open(path, -1, mode); }
+gzFile gzopen64(const char * path, const char * mode) { return gz_open(path, -1, mode); }
 
-gzFile ZEXPORT gzdopen(int fd, const char * mode)
+gzFile gzdopen(int fd, const char * mode)
 {
 	char * path; /* identifier for error messages */
 	gzFile gz;
@@ -3141,10 +3141,10 @@ gzFile ZEXPORT gzdopen(int fd, const char * mode)
 }
 
 #ifdef WIDECHAR
-	gzFile ZEXPORT gzopen_w(const wchar_t * path, const char * mode) { return gz_open(path, -2, mode); }
+	gzFile gzopen_w(const wchar_t * path, const char * mode) { return gz_open(path, -2, mode); }
 #endif
 
-int ZEXPORT gzbuffer(gzFile file, uint size)
+int gzbuffer(gzFile file, uint size)
 {
 	gz_state * state;
 	/* get internal structure and check integrity */
@@ -3165,7 +3165,7 @@ int ZEXPORT gzbuffer(gzFile file, uint size)
 	return 0;
 }
 
-int ZEXPORT gzrewind(gzFile file)
+int gzrewind(gzFile file)
 {
 	gz_state * state;
 	// get internal structure 
@@ -3182,7 +3182,7 @@ int ZEXPORT gzrewind(gzFile file)
 	return 0;
 }
 
-z_off64_t ZEXPORT gzseek64(gzFile file, z_off64_t offset, int whence)
+z_off64_t gzseek64(gzFile file, z_off64_t offset, int whence)
 {
 	uint n;
 	z_off64_t ret;
@@ -3242,13 +3242,13 @@ z_off64_t ZEXPORT gzseek64(gzFile file, z_off64_t offset, int whence)
 	return state->x.pos + offset;
 }
 
-z_off_t ZEXPORT gzseek(gzFile file, z_off_t offset, int whence)
+z_off_t gzseek(gzFile file, z_off_t offset, int whence)
 {
 	z_off64_t ret = gzseek64(file, (z_off64_t)offset, whence);
 	return ret == (z_off_t)ret ? (z_off_t)ret : -1;
 }
 
-z_off64_t ZEXPORT gztell64(gzFile file)
+z_off64_t gztell64(gzFile file)
 {
 	gz_state * state;
 	// get internal structure and check integrity 
@@ -3261,13 +3261,13 @@ z_off64_t ZEXPORT gztell64(gzFile file)
 	return state->x.pos + (state->seek ? state->skip : 0);
 }
 
-z_off_t ZEXPORT gztell(gzFile file)
+z_off_t gztell(gzFile file)
 {
 	z_off64_t ret = gztell64(file);
 	return (ret == (z_off_t)ret) ? (z_off_t)ret : -1;
 }
 
-z_off64_t ZEXPORT gzoffset64(gzFile file)
+z_off64_t gzoffset64(gzFile file)
 {
 	z_off64_t offset;
 	gz_state * state;
@@ -3286,13 +3286,13 @@ z_off64_t ZEXPORT gzoffset64(gzFile file)
 	return offset;
 }
 
-z_off_t ZEXPORT gzoffset(gzFile file)
+z_off_t gzoffset(gzFile file)
 {
 	z_off64_t ret = gzoffset64(file);
 	return ret == (z_off_t)ret ? (z_off_t)ret : -1;
 }
 
-int ZEXPORT gzeof(gzFile file)
+int gzeof(gzFile file)
 {
 	gz_state * state;
 	// get internal structure and check integrity 
@@ -3305,7 +3305,7 @@ int ZEXPORT gzeof(gzFile file)
 	return (state->mode == GZ_READ) ? state->past : 0;
 }
 
-const char * ZEXPORT gzerror(gzFile file, int * errnum)
+const char * gzerror(gzFile file, int * errnum)
 {
 	gz_state * state;
 	// get internal structure and check integrity 
@@ -3319,7 +3319,7 @@ const char * ZEXPORT gzerror(gzFile file, int * errnum)
 	return (state->err == Z_MEM_ERROR) ? SlTxtOutOfMem : (state->msg == NULL ? "" : state->msg);
 }
 
-void ZEXPORT gzclearerr(gzFile file)
+void gzclearerr(gzFile file)
 {
 	if(file) { 
 		gz_state * state = reinterpret_cast<gz_state *>(file); // get internal structure and check integrity 
@@ -3411,7 +3411,7 @@ uint ZLIB_INTERNAL gz_intmax()
 // windowBits is in the range 8..15, and window is a user-supplied
 // window and output buffer that is 2**windowBits bytes.
 // 
-int ZEXPORT inflateBackInit_(z_streamp strm, int windowBits, uchar  * window, const char * version, int stream_size)
+int inflateBackInit_(z_streamp strm, int windowBits, uchar  * window, const char * version, int stream_size)
 {
 	struct inflate_state * state;
 	if(version == Z_NULL || version[0] != ZLIB_VERSION[0] || stream_size != (int)(sizeof(z_stream)))
@@ -3704,7 +3704,7 @@ static void FASTCALL fixedtables(struct inflate_state * state)
    inflateBack() can also return Z_STREAM_ERROR if the input parameters
    are not correct, i.e. strm is Z_NULL or the state was not initialized.
  */
-int ZEXPORT inflateBack(z_streamp strm, in_func in, void * in_desc, out_func out, void * out_desc)
+int inflateBack(z_streamp strm, in_func in, void * in_desc, out_func out, void * out_desc)
 {
 	struct inflate_state * state;
 	const uchar * next; /* next input */
@@ -4047,7 +4047,7 @@ inf_leave:
 	return ret;
 }
 
-int ZEXPORT inflateBackEnd(z_streamp strm)
+int inflateBackEnd(z_streamp strm)
 {
 	if(strm == Z_NULL || strm->state == Z_NULL || strm->zfree == (free_func)0)
 		return Z_STREAM_ERROR;
@@ -4215,13 +4215,13 @@ static void FASTCALL slide_hash(deflate_state * s)
 #endif
 }
 
-int ZEXPORT deflateInit_(z_streamp strm, int level, const char * version, int stream_size)
+int deflateInit_(z_streamp strm, int level, const char * version, int stream_size)
 {
 	return deflateInit2_(strm, level, Z_DEFLATED, MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, version, stream_size);
 	/* To do: ignore strm->next_in if we use it as window */
 }
 
-int ZEXPORT deflateInit2_(z_streamp strm, int level, int method, int windowBits, int memLevel, int strategy, const char * version, int stream_size)
+int deflateInit2_(z_streamp strm, int level, int method, int windowBits, int memLevel, int strategy, const char * version, int stream_size)
 {
 	deflate_state * s;
 	int wrap = 1;
@@ -4287,7 +4287,7 @@ int ZEXPORT deflateInit2_(z_streamp strm, int level, int method, int windowBits,
 	s->hash_size = 1 << s->hash_bits;
 	s->hash_mask = s->hash_size - 1;
 	s->hash_shift =  ((s->hash_bits+MIN_MATCH-1)/MIN_MATCH);
-	s->window = static_cast<Bytef *>(ZLIB_ALLOC(strm, s->w_size, 2*sizeof(Byte)));
+	s->window = static_cast<Byte *>(ZLIB_ALLOC(strm, s->w_size, 2*sizeof(Byte)));
 	s->prev   = static_cast<Posf *>(ZLIB_ALLOC(strm, s->w_size, sizeof(Pos)));
 	s->head   = static_cast<Posf *>(ZLIB_ALLOC(strm, s->hash_size, sizeof(Pos)));
 	s->high_water = 0; /* nothing written to s->window yet */
@@ -4327,7 +4327,7 @@ static int FASTCALL deflateStateCheck(z_streamp strm)
 	return 0;
 }
 
-int ZEXPORT deflateSetDictionary(z_streamp strm, const Bytef * dictionary, uInt dictLength)
+int deflateSetDictionary(z_streamp strm, const Byte * dictionary, uInt dictLength)
 {
 	deflate_state * s;
 	uInt str, n;
@@ -4388,7 +4388,7 @@ int ZEXPORT deflateSetDictionary(z_streamp strm, const Bytef * dictionary, uInt 
 	return Z_OK;
 }
 
-int ZEXPORT deflateGetDictionary(z_streamp strm, Bytef * dictionary, uInt  * dictLength)
+int deflateGetDictionary(z_streamp strm, Byte * dictionary, uInt  * dictLength)
 {
 	if(deflateStateCheck(strm))
 		return Z_STREAM_ERROR;
@@ -4403,7 +4403,7 @@ int ZEXPORT deflateGetDictionary(z_streamp strm, Bytef * dictionary, uInt  * dic
 	}
 }
 
-int ZEXPORT deflateResetKeep(z_streamp strm)
+int deflateResetKeep(z_streamp strm)
 {
 	deflate_state * s;
 	if(deflateStateCheck(strm)) {
@@ -4460,7 +4460,7 @@ static void lm_init(deflate_state * s)
 #endif
 }
 
-int ZEXPORT deflateReset(z_streamp strm)
+int deflateReset(z_streamp strm)
 {
 	int ret = deflateResetKeep(strm);
 	if(ret == Z_OK)
@@ -4468,7 +4468,7 @@ int ZEXPORT deflateReset(z_streamp strm)
 	return ret;
 }
 
-int ZEXPORT deflateSetHeader(z_streamp strm, gz_headerp head)
+int deflateSetHeader(z_streamp strm, gz_headerp head)
 {
 	if(deflateStateCheck(strm) || strm->state->wrap != 2)
 		return Z_STREAM_ERROR;
@@ -4478,7 +4478,7 @@ int ZEXPORT deflateSetHeader(z_streamp strm, gz_headerp head)
 	}
 }
 
-int ZEXPORT deflatePending(z_streamp strm, uint * pending, int * bits)
+int deflatePending(z_streamp strm, uint * pending, int * bits)
 {
 	if(deflateStateCheck(strm)) 
 		return Z_STREAM_ERROR;
@@ -4489,13 +4489,13 @@ int ZEXPORT deflatePending(z_streamp strm, uint * pending, int * bits)
 	}
 }
 
-int ZEXPORT deflatePrime(z_streamp strm, int bits, int value)
+int deflatePrime(z_streamp strm, int bits, int value)
 {
 	if(deflateStateCheck(strm)) 
 		return Z_STREAM_ERROR;
 	else {
 		deflate_state * s = strm->state;
-		if((Bytef *)(s->d_buf) < s->pending_out + ((Buf_size + 7) >> 3))
+		if((Byte *)(s->d_buf) < s->pending_out + ((Buf_size + 7) >> 3))
 			return Z_BUF_ERROR;
 		else {
 			do {
@@ -4512,7 +4512,7 @@ int ZEXPORT deflatePrime(z_streamp strm, int bits, int value)
 	}
 }
 
-int ZEXPORT deflateParams(z_streamp strm, int level, int strategy)
+int deflateParams(z_streamp strm, int level, int strategy)
 {
 	deflate_state * s;
 	compress_func func;
@@ -4554,7 +4554,7 @@ int ZEXPORT deflateParams(z_streamp strm, int level, int strategy)
 	return Z_OK;
 }
 
-int ZEXPORT deflateTune(z_streamp strm, int good_length, int max_lazy, int nice_length, int max_chain)
+int deflateTune(z_streamp strm, int good_length, int max_lazy, int nice_length, int max_chain)
 {
 	if(deflateStateCheck(strm)) 
 		return Z_STREAM_ERROR;
@@ -4583,7 +4583,7 @@ int ZEXPORT deflateTune(z_streamp strm, int good_length, int max_lazy, int nice_
 // every combination of windowBits and memLevel.  But even the conservative
 // upper bound of about 14% expansion does not seem onerous for output buffer allocation.
 // 
-uLong ZEXPORT deflateBound(z_streamp strm, uLong sourceLen)
+uLong deflateBound(z_streamp strm, uLong sourceLen)
 {
 	deflate_state * s;
 	uLong wraplen;
@@ -4605,7 +4605,7 @@ uLong ZEXPORT deflateBound(z_streamp strm, uLong sourceLen)
 		case 2: // gzip wrapper 
 		    wraplen = 18;
 		    if(s->gzhead) { // user-supplied gzip header 
-			    Bytef * str;
+			    Byte * str;
 			    if(s->gzhead->extra)
 				    wraplen += 2 + s->gzhead->extra_len;
 			    str = s->gzhead->name;
@@ -4674,7 +4674,7 @@ static void FASTCALL flush_pending(z_streamp strm)
 			strm->adler = crc32(strm->adler, s->pending_buf + (beg), s->pending - (beg)); \
 	} while(0)
 
-int ZEXPORT deflate(z_streamp strm, int flush)
+int deflate(z_streamp strm, int flush)
 {
 	int old_flush; // value of flush param for previous deflate call 
 	deflate_state * s;
@@ -4952,7 +4952,7 @@ int ZEXPORT deflate(z_streamp strm, int flush)
 	return s->pending != 0 ? Z_OK : Z_STREAM_END;
 }
 
-int ZEXPORT deflateEnd(z_streamp strm)
+int deflateEnd(z_streamp strm)
 {
 	if(deflateStateCheck(strm)) 
 		return Z_STREAM_ERROR;
@@ -4973,7 +4973,7 @@ int ZEXPORT deflateEnd(z_streamp strm)
 // To simplify the source, this is not supported for 16-bit MSDOS (which
 // doesn't have enough memory anyway to duplicate compression states).
 //
-int ZEXPORT deflateCopy(z_streamp dest, z_streamp source)
+int deflateCopy(z_streamp dest, z_streamp source)
 {
 #ifdef MAXSEG_64K
 	return Z_STREAM_ERROR;
@@ -4992,7 +4992,7 @@ int ZEXPORT deflateCopy(z_streamp dest, z_streamp source)
 	memcpy((void *)ds, (void *)ss, sizeof(deflate_state));
 	ds->strm = dest;
 
-	ds->window = static_cast<Bytef *>(ZLIB_ALLOC(dest, ds->w_size, 2*sizeof(Byte)));
+	ds->window = static_cast<Byte *>(ZLIB_ALLOC(dest, ds->w_size, 2*sizeof(Byte)));
 	ds->prev   = (Posf*)ZLIB_ALLOC(dest, ds->w_size, sizeof(Pos));
 	ds->head   = (Posf*)ZLIB_ALLOC(dest, ds->hash_size, sizeof(Pos));
 	overlay = (ushort *)ZLIB_ALLOC(dest, ds->lit_bufsize, sizeof(ushort)+2);
@@ -5026,7 +5026,7 @@ int ZEXPORT deflateCopy(z_streamp dest, z_streamp source)
 // allocating a large strm->next_in buffer and copying from it.
 // (See also flush_pending()).
 // 
-static uint read_buf(z_streamp strm, Bytef * buf, uint size)
+static uint read_buf(z_streamp strm, Byte * buf, uint size)
 {
 	uint len = strm->avail_in;
 	SETMIN(len, size);
@@ -5063,8 +5063,8 @@ static uint read_buf(z_streamp strm, Bytef * buf, uint size)
 static uInt FASTCALL longest_match(deflate_state * s, IPos cur_match)
 {
 	uint chain_length = s->max_chain_length; /* max hash chain length */
-	Bytef * scan = s->window + s->strstart; /* current string */
-	Bytef * match; /* matched string */
+	Byte * scan = s->window + s->strstart; /* current string */
+	Byte * match; /* matched string */
 	int len; /* length of current match */
 	int best_len = (int)s->prev_length; /* best match length so far */
 	int nice_match = s->nice_match; /* stop if match long enough */
@@ -5076,11 +5076,11 @@ static uInt FASTCALL longest_match(deflate_state * s, IPos cur_match)
 #ifdef UNALIGNED_OK
 	// Compare two bytes at a time. Note: this is not always beneficial.
 	// Try with and without -DUNALIGNED_OK to check.
-	Bytef * strend = s->window + s->strstart + MAX_MATCH - 1;
+	Byte * strend = s->window + s->strstart + MAX_MATCH - 1;
 	ushort scan_start = *(ushort *)scan;
 	ushort scan_end   = *(ushort *)(scan+best_len-1);
 #else
-	Bytef * strend = s->window + s->strstart + MAX_MATCH;
+	Byte * strend = s->window + s->strstart + MAX_MATCH;
 	Byte scan_end1  = scan[best_len-1];
 	Byte scan_end   = scan[best_len];
 #endif
@@ -5178,10 +5178,10 @@ static uInt FASTCALL longest_match(deflate_state * s, IPos cur_match)
 // 
 static uInt FASTCALL longest_match(deflate_state * s, IPos cur_match)
 {
-	Bytef * scan = s->window + s->strstart; /* current string */
-	Bytef * match; /* matched string */
+	Byte * scan = s->window + s->strstart; /* current string */
+	Byte * match; /* matched string */
 	int len; /* length of current match */
-	Bytef * strend = s->window + s->strstart + MAX_MATCH;
+	Byte * strend = s->window + s->strstart + MAX_MATCH;
 	/* The code is optimized for HASH_BITS >= 8 and MAX_MATCH-2 multiple of 16.
 	 * It is easy to get rid of this optimization if necessary.
 	 */
@@ -5763,7 +5763,7 @@ static block_state FASTCALL deflate_rle(deflate_state * s, int flush)
 {
 	int bflush; /* set if current block must be flushed */
 	uInt prev; /* byte at distance one to match */
-	Bytef * scan, * strend; /* scan goes up to strend for length of run */
+	Byte * scan, * strend; /* scan goes up to strend for length of run */
 	for(;; ) {
 		/* Make sure that we always have enough lookahead, except
 		 * at the end of the input file. We need MAX_MATCH bytes
@@ -6661,7 +6661,7 @@ void ZLIB_INTERNAL _tr_stored_block(deflate_state * s, charf * buf, ulong stored
 	bi_windup(s); /* align on byte boundary */
 	put_short(s, (ushort)stored_len);
 	put_short(s, (ushort) ~stored_len);
-	memcpy(s->pending_buf + s->pending, (Bytef *)buf, stored_len);
+	memcpy(s->pending_buf + s->pending, (Byte *)buf, stored_len);
 	s->pending += stored_len;
 #ifdef ZLIB_DEBUG
 	s->compressed_len = (s->compressed_len + 3 + 7) & (ulong) ~7L;
@@ -7298,7 +7298,7 @@ static int FASTCALL inflateStateCheck(const z_streamp strm)
 	}
 }
 
-int ZEXPORT inflateResetKeep(z_streamp strm)
+int inflateResetKeep(z_streamp strm)
 {
 	struct inflate_state  * state;
 	if(inflateStateCheck(strm)) 
@@ -7322,7 +7322,7 @@ int ZEXPORT inflateResetKeep(z_streamp strm)
 	return Z_OK;
 }
 
-int ZEXPORT inflateReset(z_streamp strm)
+int inflateReset(z_streamp strm)
 {
 	if(inflateStateCheck(strm)) 
 		return Z_STREAM_ERROR;
@@ -7335,7 +7335,7 @@ int ZEXPORT inflateReset(z_streamp strm)
 	}
 }
 
-int ZEXPORT inflateReset2(z_streamp strm, int windowBits)
+int inflateReset2(z_streamp strm, int windowBits)
 {
 	// get the state 
 	if(inflateStateCheck(strm)) 
@@ -7371,7 +7371,7 @@ int ZEXPORT inflateReset2(z_streamp strm, int windowBits)
 	}
 }
 
-int ZEXPORT inflateInit2_(z_streamp strm, int windowBits, const char * version, int stream_size)
+int inflateInit2_(z_streamp strm, int windowBits, const char * version, int stream_size)
 {
 	int ret;
 	struct inflate_state  * state;
@@ -7409,12 +7409,12 @@ int ZEXPORT inflateInit2_(z_streamp strm, int windowBits, const char * version, 
 	return ret;
 }
 
-int ZEXPORT inflateInit_(z_streamp strm, const char * version, int stream_size)
+int inflateInit_(z_streamp strm, const char * version, int stream_size)
 {
 	return inflateInit2_(strm, DEF_WBITS, version, stream_size);
 }
 
-int ZEXPORT inflatePrime(z_streamp strm, int bits, int value)
+int inflatePrime(z_streamp strm, int bits, int value)
 {
 	if(inflateStateCheck(strm)) 
 		return Z_STREAM_ERROR;
@@ -7708,7 +7708,7 @@ static int updatewindow(z_streamp strm, const uchar * end, uint copy)
    when flush is set to Z_FINISH, inflate() cannot return Z_OK.  Instead it
    will return Z_BUF_ERROR if it has not reached the end of the stream.
  */
-int ZEXPORT inflate(z_streamp strm, int flush)
+int inflate(z_streamp strm, int flush)
 {
 	struct inflate_state * state;
 	const uchar * next; // next input 
@@ -7864,7 +7864,7 @@ int ZEXPORT inflate(z_streamp strm, int flush)
 				    do {
 					    len = (uint)(next[copy++]);
 					    if(state->head && state->head->name && state->length < state->head->name_max)
-						    state->head->name[state->length++] = (Bytef)len;
+						    state->head->name[state->length++] = (Byte)len;
 				    } while(len && copy < have);
 				    if((state->flags & 0x0200) && (state->wrap & 4))
 					    state->check = crc32(state->check, next, copy);
@@ -7884,7 +7884,7 @@ int ZEXPORT inflate(z_streamp strm, int flush)
 				    do {
 					    len = (uint)(next[copy++]);
 					    if(state->head && state->head->comment && state->length < state->head->comm_max)
-						    state->head->comment[state->length++] = (Bytef)len;
+						    state->head->comment[state->length++] = (Byte)len;
 				    } while(len && copy < have);
 				    if((state->flags & 0x0200) && (state->wrap & 4))
 					    state->check = crc32(state->check, next, copy);
@@ -8342,7 +8342,7 @@ inf_leave:
 	return ret;
 }
 
-int ZEXPORT inflateEnd(z_streamp strm)
+int inflateEnd(z_streamp strm)
 {
 	if(inflateStateCheck(strm))
 		return Z_STREAM_ERROR;
@@ -8357,7 +8357,7 @@ int ZEXPORT inflateEnd(z_streamp strm)
 	}
 }
 
-int ZEXPORT inflateGetDictionary(z_streamp strm, Bytef * dictionary, uInt * dictLength)
+int inflateGetDictionary(z_streamp strm, Byte * dictionary, uInt * dictLength)
 {
 	if(inflateStateCheck(strm)) // check state 
 		return Z_STREAM_ERROR;
@@ -8373,7 +8373,7 @@ int ZEXPORT inflateGetDictionary(z_streamp strm, Bytef * dictionary, uInt * dict
 	}
 }
 
-int ZEXPORT inflateSetDictionary(z_streamp strm, const Bytef * dictionary, uInt dictLength)
+int inflateSetDictionary(z_streamp strm, const Byte * dictionary, uInt dictLength)
 {
 	if(inflateStateCheck(strm))  // check state 
 		return Z_STREAM_ERROR;
@@ -8405,7 +8405,7 @@ int ZEXPORT inflateSetDictionary(z_streamp strm, const Bytef * dictionary, uInt 
 	}
 }
 
-int ZEXPORT inflateGetHeader(z_streamp strm, gz_headerp head)
+int inflateGetHeader(z_streamp strm, gz_headerp head)
 {
 	if(inflateStateCheck(strm))  // check state 
 		return Z_STREAM_ERROR;
@@ -8449,7 +8449,7 @@ static uint syncsearch(uint * have, const uchar  * buf, uint len)
 	return next;
 }
 
-int ZEXPORT inflateSync(z_streamp strm)
+int inflateSync(z_streamp strm)
 {
 	if(inflateStateCheck(strm)) // check parameters 
 		return Z_STREAM_ERROR;
@@ -8502,7 +8502,7 @@ int ZEXPORT inflateSync(z_streamp strm)
 // block. When decompressing, PPP checks that at the end of input packet,
 // inflate is waiting for these length bytes.
 // 
-int ZEXPORT inflateSyncPoint(z_streamp strm)
+int inflateSyncPoint(z_streamp strm)
 {
 	if(inflateStateCheck(strm)) 
 		return Z_STREAM_ERROR;
@@ -8512,7 +8512,7 @@ int ZEXPORT inflateSyncPoint(z_streamp strm)
 	}
 }
 
-int ZEXPORT inflateCopy(z_streamp dest, z_streamp source)
+int inflateCopy(z_streamp dest, z_streamp source)
 {
 	struct inflate_state  * state;
 	struct inflate_state  * copy;
@@ -8552,7 +8552,7 @@ int ZEXPORT inflateCopy(z_streamp dest, z_streamp source)
 	return Z_OK;
 }
 
-int ZEXPORT inflateUndermine(z_streamp strm, int subvert)
+int inflateUndermine(z_streamp strm, int subvert)
 {
 	if(inflateStateCheck(strm)) 
 		return Z_STREAM_ERROR;
@@ -8569,7 +8569,7 @@ int ZEXPORT inflateUndermine(z_streamp strm, int subvert)
 	}
 }
 
-int ZEXPORT inflateValidate(z_streamp strm, int check)
+int inflateValidate(z_streamp strm, int check)
 {
 	if(inflateStateCheck(strm)) 
 		return Z_STREAM_ERROR;
@@ -8586,7 +8586,7 @@ int ZEXPORT inflateValidate(z_streamp strm, int check)
 	}
 }
 
-long ZEXPORT inflateMark(z_streamp strm)
+long inflateMark(z_streamp strm)
 {
 	if(inflateStateCheck(strm))
 		return -(1L << 16);
@@ -8596,7 +8596,7 @@ long ZEXPORT inflateMark(z_streamp strm)
 	}
 }
 
-ulong ZEXPORT inflateCodesUsed(z_streamp strm)
+ulong inflateCodesUsed(z_streamp strm)
 {
 	if(inflateStateCheck(strm)) 
 		return (ulong)-1;

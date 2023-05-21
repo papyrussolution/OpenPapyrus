@@ -585,7 +585,7 @@ bad:
 #define APP14_DATA_LEN  12      /* Length of interesting data in APP14 */
 #define APPN_DATA_LEN   14      /* Must be the largest of the above!! */
 
-static void examine_app0(j_decompress_ptr cinfo, JOCTET FAR * data, uint datalen, INT32 remaining)
+static void examine_app0(j_decompress_ptr cinfo, JOCTET * data, uint datalen, INT32 remaining)
 /* Examine first few bytes from an APP0.
  * Take appropriate action if it is a JFIF marker.
  * datalen is # of bytes at data[], remaining is length of rest of marker data.
@@ -643,7 +643,7 @@ static void examine_app0(j_decompress_ptr cinfo, JOCTET FAR * data, uint datalen
 	}
 }
 
-static void examine_app14(j_decompress_ptr cinfo, JOCTET FAR * data, uint datalen, INT32 remaining)
+static void examine_app14(j_decompress_ptr cinfo, JOCTET * data, uint datalen, INT32 remaining)
 /* Examine first few bytes from an APP14.
  * Take appropriate action if it is an Adobe marker.
  * datalen is # of bytes at data[], remaining is length of rest of marker data.
@@ -689,10 +689,10 @@ METHODDEF(boolean) get_interesting_appn(j_decompress_ptr cinfo)
 	/* process it */
 	switch(cinfo->unread_marker) {
 		case M_APP0:
-		    examine_app0(cinfo, (JOCTET FAR*)b, numtoread, length);
+		    examine_app0(cinfo, (JOCTET *)b, numtoread, length);
 		    break;
 		case M_APP14:
-		    examine_app14(cinfo, (JOCTET FAR*)b, numtoread, length);
+		    examine_app14(cinfo, (JOCTET *)b, numtoread, length);
 		    break;
 		default:
 		    /* can't get here unless jpeg_save_markers chooses wrong processor */
@@ -714,7 +714,7 @@ METHODDEF(boolean) save_marker(j_decompress_ptr cinfo)
 	my_marker_ptr marker = (my_marker_ptr)cinfo->marker;
 	jpeg_saved_marker_ptr cur_marker = marker->cur_marker;
 	uint bytes_read, data_length;
-	JOCTET FAR * data;
+	JOCTET * data;
 	INT32 length = 0;
 	INPUT_VARS(cinfo);
 	if(cur_marker == NULL) {
@@ -737,7 +737,7 @@ METHODDEF(boolean) save_marker(j_decompress_ptr cinfo)
 			cur_marker->original_length = (uint)length;
 			cur_marker->data_length = limit;
 			/* data area is just beyond the jpeg_marker_struct */
-			data = cur_marker->data = (JOCTET FAR*)(cur_marker + 1);
+			data = cur_marker->data = (JOCTET *)(cur_marker + 1);
 			marker->cur_marker = cur_marker;
 			marker->bytes_read = 0;
 			bytes_read = 0;

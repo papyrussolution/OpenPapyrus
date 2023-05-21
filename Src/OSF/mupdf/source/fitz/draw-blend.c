@@ -130,20 +130,9 @@ static inline int fz_hard_light_byte(int b, int s)
 	return (s <= 127) ? fz_mul255(b, s2) : fz_screen_byte(b, s2 - 255);
 }
 
-static inline int fz_overlay_byte(int b, int s)
-{
-	return fz_hard_light_byte(s, b); /* note swapped order */
-}
-
-static inline int fz_darken_byte(int b, int s)
-{
-	return fz_mini(b, s);
-}
-
-static inline int fz_lighten_byte(int b, int s)
-{
-	return fz_maxi(b, s);
-}
+static inline int fz_overlay_byte(int b, int s) { return fz_hard_light_byte(s, b); /* note swapped order */ }
+static inline int fz_darken_byte(int b, int s) { return fz_mini(b, s); }
+static inline int fz_lighten_byte(int b, int s) { return fz_maxi(b, s); }
 
 static inline int fz_color_dodge_byte(int b, int s)
 {
@@ -182,46 +171,33 @@ static inline int fz_soft_light_byte(int b, int s)
 	}
 }
 
-static inline int fz_difference_byte(int b, int s)
-{
-	return fz_absi(b - s);
-}
-
-static inline int fz_exclusion_byte(int b, int s)
-{
-	return b + s - (fz_mul255(b, s)<<1);
-}
+static inline int fz_difference_byte(int b, int s) { return fz_absi(b - s); }
+static inline int fz_exclusion_byte(int b, int s) { return b + s - (fz_mul255(b, s)<<1); }
 
 /* Non-separable blend modes */
 
 static void fz_luminosity_rgb(uchar * rd, uchar * gd, uchar * bd, int rb, int gb, int bb, int rs, int gs, int bs)
 {
-	int delta, scale;
-	int r, g, b, y;
-
+	int scale;
 	/* 0.3f, 0.59f, 0.11f in fixed point */
-	delta = ((rs - rb) * 77 + (gs - gb) * 151 + (bs - bb) * 28 + 0x80) >> 8;
-	r = rb + delta;
-	g = gb + delta;
-	b = bb + delta;
-
+	int delta = ((rs - rb) * 77 + (gs - gb) * 151 + (bs - bb) * 28 + 0x80) >> 8;
+	int r = rb + delta;
+	int g = gb + delta;
+	int b = bb + delta;
 	if((r | g | b) & 0x100) {
-		y = (rs * 77 + gs * 151 + bs * 28 + 0x80) >> 8;
+		int y = (rs * 77 + gs * 151 + bs * 28 + 0x80) >> 8;
 		if(delta > 0) {
-			int max;
-			max = fz_maxi(r, fz_maxi(g, b));
+			int max = fz_maxi(r, fz_maxi(g, b));
 			scale = (max == y ? 0 : ((255 - y) << 16) / (max - y));
 		}
 		else {
-			int min;
-			min = fz_mini(r, fz_mini(g, b));
+			int min = fz_mini(r, fz_mini(g, b));
 			scale = (y == min ? 0 : (y << 16) / (y - min));
 		}
 		r = y + (((r - y) * scale + 0x8000) >> 16);
 		g = y + (((g - y) * scale + 0x8000) >> 16);
 		b = y + (((b - y) * scale + 0x8000) >> 16);
 	}
-
 	*rd = sclamp(r, 0, 255);
 	*gd = sclamp(g, 0, 255);
 	*bd = sclamp(b, 0, 255);
@@ -234,7 +210,6 @@ static void fz_saturation_rgb(uchar * rd, uchar * gd, uchar * bd, int rb, int gb
 	int y;
 	int scale;
 	int r, g, b;
-
 	minb = fz_mini(rb, fz_mini(gb, bb));
 	maxb = fz_maxi(rb, fz_maxi(gb, bb));
 	if(minb == maxb) {
@@ -297,9 +272,9 @@ static void fz_hue_rgb(uchar * rr, uchar * rg, uchar * rb, int br, int bg, int b
 
 /* Blending loops */
 
-static inline void fz_blend_separable(byte * FZ_RESTRICT bp,
+static inline void fz_blend_separable(byte * _RESTRICT bp,
     int bal,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sal,
     int n1,
     int w,
@@ -391,9 +366,9 @@ static inline void fz_blend_separable(byte * FZ_RESTRICT bp,
 	while(--w);
 }
 
-static inline void fz_blend_nonseparable_gray(byte * FZ_RESTRICT bp,
+static inline void fz_blend_nonseparable_gray(byte * _RESTRICT bp,
     int bal,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sal,
     int n,
     int w,
@@ -444,9 +419,9 @@ static inline void fz_blend_nonseparable_gray(byte * FZ_RESTRICT bp,
 	} while(--w);
 }
 
-static inline void fz_blend_nonseparable(byte * FZ_RESTRICT bp,
+static inline void fz_blend_nonseparable(byte * _RESTRICT bp,
     int bal,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sal,
     int n,
     int w,
@@ -552,15 +527,15 @@ static inline void fz_blend_nonseparable(byte * FZ_RESTRICT bp,
 	while(--w);
 }
 
-static inline void fz_blend_separable_nonisolated(byte * FZ_RESTRICT bp,
+static inline void fz_blend_separable_nonisolated(byte * _RESTRICT bp,
     int bal,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sal,
     int n1,
     int w,
     int blendmode,
     int complement,
-    const byte * FZ_RESTRICT hp,
+    const byte * _RESTRICT hp,
     int alpha,
     int first_spot)
 {
@@ -738,14 +713,14 @@ static inline void fz_blend_separable_nonisolated(byte * FZ_RESTRICT bp,
 	while(--w);
 }
 
-static inline void fz_blend_nonseparable_nonisolated_gray(byte * FZ_RESTRICT bp,
+static inline void fz_blend_nonseparable_nonisolated_gray(byte * _RESTRICT bp,
     int bal,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sal,
     int n,
     int w,
     int blendmode,
-    const byte * FZ_RESTRICT hp,
+    const byte * _RESTRICT hp,
     int alpha,
     int first_spot)
 {
@@ -814,15 +789,15 @@ static inline void fz_blend_nonseparable_nonisolated_gray(byte * FZ_RESTRICT bp,
 	} while(--w);
 }
 
-static inline void fz_blend_nonseparable_nonisolated(byte * FZ_RESTRICT bp,
+static inline void fz_blend_nonseparable_nonisolated(byte * _RESTRICT bp,
     int bal,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sal,
     int n,
     int w,
     int blendmode,
     int complement,
-    const byte * FZ_RESTRICT hp,
+    const byte * _RESTRICT hp,
     int alpha,
     int first_spot)
 {
@@ -1000,7 +975,7 @@ static inline void fz_blend_nonseparable_nonisolated(byte * FZ_RESTRICT bp,
 }
 
 #ifdef PARANOID_PREMULTIPLY
-static void verify_premultiply(fz_context * ctx, const fz_pixmap * FZ_RESTRICT dst)
+static void verify_premultiply(fz_context * ctx, const fz_pixmap * _RESTRICT dst)
 {
 	uchar * dp = dst->samples;
 	int w = dst->w;
@@ -1024,12 +999,12 @@ static void verify_premultiply(fz_context * ctx, const fz_pixmap * FZ_RESTRICT d
 #endif
 
 void fz_blend_pixmap(fz_context * ctx,
-    fz_pixmap * FZ_RESTRICT dst,
-    fz_pixmap * FZ_RESTRICT src,
+    fz_pixmap * _RESTRICT dst,
+    fz_pixmap * _RESTRICT src,
     int alpha,
     int blendmode,
     int isolated,
-    const fz_pixmap * FZ_RESTRICT shape)
+    const fz_pixmap * _RESTRICT shape)
 {
 	uchar * sp;
 	uchar * dp;
@@ -1204,13 +1179,13 @@ void fz_blend_pixmap(fz_context * ctx,
 #endif
 }
 
-static inline void fz_blend_knockout(byte * FZ_RESTRICT bp,
+static inline void fz_blend_knockout(byte * _RESTRICT bp,
     int bal,
-    const byte * FZ_RESTRICT sp,
+    const byte * _RESTRICT sp,
     int sal,
     int n1,
     int w,
-    const byte * FZ_RESTRICT hp)
+    const byte * _RESTRICT hp)
 {
 	int k;
 	do {
@@ -1251,9 +1226,9 @@ static inline void fz_blend_knockout(byte * FZ_RESTRICT bp,
 }
 
 void fz_blend_pixmap_knockout(fz_context * ctx,
-    fz_pixmap * FZ_RESTRICT dst,
-    fz_pixmap * FZ_RESTRICT src,
-    const fz_pixmap * FZ_RESTRICT shape)
+    fz_pixmap * _RESTRICT dst,
+    fz_pixmap * _RESTRICT src,
+    const fz_pixmap * _RESTRICT shape)
 {
 	uchar * sp;
 	uchar * dp;

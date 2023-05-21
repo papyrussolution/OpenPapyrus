@@ -820,7 +820,8 @@ static const int kFastInt32ToBufferOffset = 11;
 // Yes, this is a duplicate of FastInt64ToBuffer.  But, we need this for the
 // compiler to generate 32 bit arithmetic instructions.  It's much faster, at
 // least with 32 bit binaries.
-char * FastInt32ToBuffer(int32 i, char* buffer) {
+char * FastInt32ToBuffer(int32 i, char* buffer) 
+{
 	// We could collapse the positive and negative sections, but that
 	// would be slightly slower for positive numbers...
 	// 12 bytes is enough to store -2**32, -4294967296.
@@ -860,9 +861,9 @@ char * FastInt32ToBuffer(int32 i, char* buffer) {
 	}
 }
 
-char * FastHexToBuffer(int i, char* buffer) {
+char * FastHexToBuffer(int i, char* buffer) 
+{
 	GOOGLE_CHECK(i >= 0) << "FastHexToBuffer() wants non-negative integers, not " << i;
-
 	static const char * hexdigits = "0123456789abcdef";
 	char * p = buffer + 21;
 	*p-- = '\0';
@@ -890,13 +891,8 @@ char * InternalFastHexToBuffer(uint64 value, char* buffer, int num_byte) {
 	return buffer;
 }
 
-char * FastHex64ToBuffer(uint64 value, char* buffer) {
-	return InternalFastHexToBuffer(value, buffer, 16);
-}
-
-char * FastHex32ToBuffer(uint32 value, char* buffer) {
-	return InternalFastHexToBuffer(value, buffer, 8);
-}
+char * FastHex64ToBuffer(uint64 value, char* buffer) { return InternalFastHexToBuffer(value, buffer, 16); }
+char * FastHex32ToBuffer(uint32 value, char* buffer) { return InternalFastHexToBuffer(value, buffer, 8); }
 
 // ----------------------------------------------------------------------
 // FastInt32ToBufferLeft()

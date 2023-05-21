@@ -86,8 +86,7 @@ static uint hash(const char * str, size_t len)
 
 struct PropertyNameCtype * onigenc_sjis_lookup_property_name(const char * str, size_t len)
 {
-	static struct PropertyNameCtype wordlist[] =
-	{
+	static struct PropertyNameCtype wordlist[] = {
 		{""}, {""}, {""}, {""},
 #line 22 "sjis_prop.gperf"
 		{"Word",     12},

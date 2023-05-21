@@ -80,7 +80,7 @@ static const char * DESC(struct _scanopt_t * s, int i) { return s->options[i].de
 			return COLS;
 	#endif
 		if((env = getenv("COLUMNS")) != NULL)
-			cols = atoi(env);
+			cols = satoi(env);
 		return cols;
 	}
 #endif

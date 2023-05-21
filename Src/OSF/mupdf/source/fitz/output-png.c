@@ -272,7 +272,7 @@ static void png_write_band(fz_context * ctx, fz_band_writer * writer_, int strid
 		}
 	}
 
-	writer->stream.next_in = (Bytef*)writer->udata;
+	writer->stream.next_in = (Byte *)writer->udata;
 	writer->stream.avail_in = (uInt)(dp - writer->udata);
 	do {
 		writer->stream.next_out = writer->cdata;

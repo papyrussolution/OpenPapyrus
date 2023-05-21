@@ -67,8 +67,8 @@
 #define uInt   uint32_t
 #define Unit   decNumberUnit
 #if DECUSE64
-#define Long   int64_t
-#define uLong  uint64_t
+	#define Long   int64_t
+	#define uLong  uint64_t
 #endif
 
 /* Development-use definitions  */

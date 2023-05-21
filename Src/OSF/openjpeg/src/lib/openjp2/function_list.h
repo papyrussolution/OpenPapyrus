@@ -28,39 +28,27 @@
 
 /** @defgroup VAL VAL - validation procedure*/
 /*@{*/
-
-/**************************************************************************************************
-***************************************** FORWARD DECLARATION ************************************
-**************************************************************************************************/
-
+//
+// FORWARD DECLARATION
+//
 /**
  * declare a function pointer
  */
-typedef void (* opj_procedure)(void);
-
+typedef void (* opj_procedure)();
 /**
  * A list of procedures.
  */
 typedef struct opj_procedure_list {
-	/**
-	 * The number of validation procedures.
-	 */
-	uint32_t m_nb_procedures;
-	/**
-	 * The number of the array of validation procedures.
-	 */
-	uint32_t m_nb_max_procedures;
-	/**
-	 * The array of procedures.
-	 */
-	opj_procedure * m_procedures;
+	uint32_t m_nb_procedures; // The number of validation procedures.
+	uint32_t m_nb_max_procedures; // The number of the array of validation procedures.
+	opj_procedure * m_procedures; // The array of procedures.
 } opj_procedure_list_t;
 /**
  * Creates a validation list.
  *
  * @return  the newly created validation list.
  */
-opj_procedure_list_t *  opj_procedure_list_create(void);
+opj_procedure_list_t *  opj_procedure_list_create();
 /**
  * Destroys a validation list.
  *

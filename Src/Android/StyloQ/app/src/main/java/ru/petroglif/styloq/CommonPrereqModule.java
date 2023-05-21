@@ -225,7 +225,6 @@ public class CommonPrereqModule {
 	public String CmdDescr; // Получает через intent ("CmdDescr")
 	public UUID CmdUuid;  // Получает через intent ("CmdUuid")
 	public ArrayList<CliEntry> CliListData;
-	// @v11.6.4 public ArrayList<JSONObject> GoodsGroupListData;
 	public BusinessEntity.GoodsGroupList GoodsGroupListData;
 	public ArrayList<BusinessEntity.Brand> BrandListData;
 	public ArrayList<BusinessEntity.QuotKind> QkListData; // @v11.6.8
@@ -383,7 +382,61 @@ public class CommonPrereqModule {
 	public ArrayList<CommonPrereqModule.TabEntry> TabList;
 	private Stack<Tab> TabNavStack; // @v11.5.0
 	protected OnBackPressedCallback Callback_BackButton; // @v11.5.0
-	public ArrayList <Document.DisplayEntry> RegistryHList;
+
+	public static class RegistryBlock {
+		RegistryBlock()
+		{
+			HList = null;
+			State = 0;
+		}
+		int   GetCount() { return SLib.GetCount(HList); }
+		Document.DisplayEntry GetItem(int idx) { return (idx >= 0 && idx < GetCount()) ? HList.get(idx) : null; }
+		RegistryBlock Z()
+		{
+			if(HList != null)
+				HList.clear();
+			State = 0;
+			return this;
+		}
+		void Append(Document.DisplayEntry entry)
+		{
+			if(entry != null) {
+				if(HList == null)
+					HList = new ArrayList<Document.DisplayEntry>();
+				HList.add(entry);
+				State = 1;
+			}
+		}
+		//
+		// Descr: Устанавливает состояние блока как не содержащего ничего, но
+		//   тем не менее доступного для обработки (то есть, документы в регистре
+		//   есть, но они не удовлетворяют фильтру).
+		//
+		void SetAsFilteredEmpty()
+		{
+			State = (GetCount() > 0) ? 1 : 2;
+		}
+		int  GetState() { return State; }
+		void Sort(boolean dueDateAsNominal)
+		{
+			if(GetCount() > 1) {
+				HList.sort(new Comparator<Document.DisplayEntry>() {
+					@Override public int compare(Document.DisplayEntry lh, Document.DisplayEntry rh)
+					{
+						final SLib.LDATE lh_d = lh.GetNominalDate(dueDateAsNominal);
+						final SLib.LDATE rh_d = rh.GetNominalDate(dueDateAsNominal);
+						int si = SLib.Cmp(lh_d, rh_d);
+						return si;
+						//return (lh_d < rh_d) ? +1 : ((lh > rh) ? -1 : 0);
+					}
+				});
+			}
+		}
+		private ArrayList <Document.DisplayEntry> HList;
+		private int State; // 0 - empty, 1 - non empty, 2 - filtered empty
+	}
+	//public ArrayList <Document.DisplayEntry> RegistryHList;
+	public RegistryBlock RegBlk;
 	public ArrayList <ProcessorEntry> ProcessorListData;
 	public ArrayList <BusinessEntity.Uom> UomListData;
 	private Document CurrentOrder;
@@ -1505,7 +1558,8 @@ public class CommonPrereqModule {
 		// @v11.7.0 Rf = null; // @v11.5.3
 		Cs = null; // @v11.7.0
 		CurrentOrder = null;
-		RegistryHList = null;
+		// @v11.7.3 RegistryHList = null;
+		RegBlk = new RegistryBlock(); // @v11.7.3 notnull!
 		ProcessorListData = null;
 		UomListData = null;
 		CommitCurrentDocument_Locker = false;
@@ -1938,8 +1992,7 @@ public class CommonPrereqModule {
 	}
 	public void MakeCurrentDocList()
 	{
-		if(RegistryHList != null)
-			RegistryHList.clear();
+		RegBlk.Z();
 		try {
 			if(SvcIdent != null) {
 				StyloQApp app_ctx = GetAppCtx();
@@ -1976,32 +2029,21 @@ public class CommonPrereqModule {
 											if(!do_skip) {
 												if(local_doc.H != null)
 													local_doc.H.Flags = local_doc_pack.Rec.Flags;
-												if(RegistryHList == null)
-													RegistryHList = new ArrayList<Document.DisplayEntry>();
 												// Эти операторы нужны на начальном этапе разработки поскольку
 												// финализация пакета документа появилась не сразу {
 												if(local_doc.GetNominalAmount() == 0.0)
 													local_doc.H.Amount = local_doc.CalcNominalAmount();
 												// }
-												RegistryHList.add(new Document.DisplayEntry(local_doc));
+												RegBlk.Append(new Document.DisplayEntry(local_doc));
 												local_doc.H = null;
 											}
+											else
+												RegBlk.SetAsFilteredEmpty();
 										}
 									}
 								}
 							}
-							if(SLib.GetCount(RegistryHList) > 1) {
-								RegistryHList.sort(new Comparator<Document.DisplayEntry>() {
-									@Override public int compare(Document.DisplayEntry lh, Document.DisplayEntry rh)
-									{
-										final SLib.LDATE lh_d = lh.GetNominalDate(GetOption_DueDateAsNominal());
-										final SLib.LDATE rh_d = rh.GetNominalDate(GetOption_DueDateAsNominal());
-										int si = SLib.Cmp(lh_d, rh_d);
-										return si;
-										//return (lh_d < rh_d) ? +1 : ((lh > rh) ? -1 : 0);
-									}
-								});
-							}
+							RegBlk.Sort(GetOption_DueDateAsNominal());
 						}
 					}
 				}

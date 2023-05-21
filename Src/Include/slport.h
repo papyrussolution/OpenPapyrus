@@ -235,7 +235,7 @@
 	#if !defined(CXX_CPLUSPLUS)
 		#define CXX_CPLUSPLUS 0
 	#endif
-	#ifndef __has_builtin
+	#if !defined(__has_builtin)
 		#define __has_builtin(x) 0
 	#endif
 	//
@@ -616,6 +616,31 @@
 		#error "Conflict at SL_LITTLEENDIAN and CXX_ARCH_BE definitions"
 	#endif
 	// } @v11.4.0
+	// @v11.7.3 {
+	// CXX_HAVE_INTRINSIC_INT128. Определение взято у библиотеки abseil с заменой префикса ABSL-->CXX
+	//
+	// Checks whether the __int128 compiler extension for a 128-bit integral type is supported.
+	//
+	// Note: __SIZEOF_INT128__ is defined by Clang and GCC when __int128 is
+	// supported, but we avoid using it in certain cases:
+	// * On Clang: Building using Clang for Windows, where the Clang runtime library has 128-bit support only on LP64 architectures, but Windows is LLP64.
+	// * On Nvidia's nvcc: nvcc also defines __GNUC__ and __SIZEOF_INT128__, but not all versions actually support __int128.
+	#ifdef CXX_HAVE_INTRINSIC_INT128
+		#error CXX_HAVE_INTRINSIC_INT128 cannot be directly set
+	#elif defined(__SIZEOF_INT128__)
+		#if (defined(__clang__) && !defined(_WIN32)) || (defined(__CUDACC__) && __CUDACC_VER_MAJOR__ >= 9) || (defined(__GNUC__) && !defined(__clang__) && !defined(__CUDACC__))
+			#define CXX_HAVE_INTRINSIC_INT128 1
+		#elif defined(__CUDACC__)
+			// __CUDACC_VER__ is a full version number before CUDA 9, and is defined to a
+			// string explaining that it has been removed starting with CUDA 9. We use
+			// nested #ifs because there is no short-circuiting in the preprocessor.
+			// NOTE: `__CUDACC__` could be undefined while `__CUDACC_VER__` is defined.
+			#if __CUDACC_VER__ >= 70000
+				#define CXX_HAVE_INTRINSIC_INT128 1
+			#endif  // __CUDACC_VER__ >= 70000
+		#endif  // defined(__CUDACC__)
+	#endif
+	// } @v11.7.3
 	//
 	// [Target OS]
 	//
@@ -733,6 +758,10 @@
 	#if CXX_HAS_X_ATTRIBUTE_ALWAYS_INLINE
 		#define CXX_FORCEINLINE inline __attribute__((__always_inline__))
 	#elif CXX_HAS_X_FORCEINLINE
+		// [Comment is borrowed from abseil library]
+		// We can achieve something similar to attribute((always_inline)) with MSVC by
+		// using the __forceinline keyword, however this is not perfect. MSVC is
+		// much less aggressive about inlining, and even with the __forceinline keyword.
 		#define CXX_FORCEINLINE __forceinline
 	#else
 		#define CXX_FORCEINLINE inline
@@ -889,6 +918,28 @@
 #else
 	#define NOEXCEPT throw()
 #endif
+// @v11.7.3 {
+// restrict is standard in C99, but not in all C++ compilers
+#if defined (__STDC_VERSION_) && (__STDC_VERSION__ >= 199901L) // C99
+    #define _RESTRICT restrict
+#elif defined(_MSC_VER) && (_MSC_VER >= 1600) // MSVC 10 or newer // there is a variant of (>=1400) in libpng
+    #define _RESTRICT __restrict
+#elif defined(__INTEL_COMPILER)
+	#define _RESTRICT __restrict
+#elif defined(__clang__) // || defined(__GNUC__)
+	#define _RESTRICT __restrict__
+#elif defined(__GNUC__)
+	#if (__GNUC__ >= 3) // GCC 3 or newer
+		#define _RESTRICT __restrict
+	#else
+		#define _RESTRICT __restrict__
+	#endif
+#elif defined(__WATCOMC__)
+	#define _RESTRICT __restrict
+#else // Unknown or ancient
+    #define _RESTRICT
+#endif
+// } @v11.7.3
 #if defined(_WIN32) || defined(_WIN64)
 	//typedef long pid_t;
 	// @v10.8.5 #define getpid GetCurrentProcessId

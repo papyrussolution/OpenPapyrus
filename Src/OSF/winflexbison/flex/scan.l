@@ -31,26 +31,22 @@ extern const char *escaped_qstart, *escaped_qend;
 
 #define M4QSTART "[""["
 #define M4QEND "]""]"
-
 #define ESCAPED_QSTART "[" M4QEND M4QSTART "[" M4QEND M4QSTART
 #define ESCAPED_QEND M4QEND "]" M4QSTART M4QEND "]" M4QSTART
-
 #define ACTION_ECHO add_action( yytext )
 #define ACTION_IFDEF(def, should_define) { if(should_define) action_define(def, 1); }
-
 #define ACTION_ECHO_QSTART add_action (ESCAPED_QSTART)
 #define ACTION_ECHO_QEND   add_action (ESCAPED_QEND)
 
 #define ACTION_M4_IFDEF(def, should_define) \
     do { \
-        if(should_define ) \
-            buf_m4_define( &m4defs_buf, def, NULL);\
+        if(should_define) \
+            buf_m4_define(&m4defs_buf, def, NULL);\
         else \
-            buf_m4_undefine( &m4defs_buf, def);\
+            buf_m4_undefine(&m4defs_buf, def);\
     } while(0)
 
 #define MARK_END_OF_PROLOG mark_prolog();
-
 #define YY_DECL int flexscan()
 
 #define RETURNCHAR \
@@ -69,9 +65,10 @@ extern const char *escaped_qstart, *escaped_qend;
 	 } while(0)
 
 #define PUT_BACK_STRING(str, start) \
-	{ size_t i = strlen( str );	\
-	  while(i > start)		\
-	    unput((str)[--i]);		\
+	{ \
+		size_t i = strlen( str );	\
+		while(i > start)		\
+			unput((str)[--i]);		\
 	}
 
 #define CHECK_REJECT(str) \

@@ -560,43 +560,71 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	}
 	private void PreprocessRegistryData()
 	{
-		final int rhlist_count = SLib.GetCount(CPM.RegistryHList);
+		final int rhlist_count = CPM.RegBlk.GetCount(); //SLib.GetCount(CPM.RegistryHList);
 		final int _vdlc = VdlDocs.GetCount();
 		assert (_vdlc > 0);
 		for(int i = 0; i < _vdlc; i++) {
-			ViewDescriptionList.DataPreprocessBlock dpb = VdlDocs.StartDataPreprocessing(this, i);
+			ViewDescriptionList.DataPreprocessBlock dpb = VdlDocs.StartDataPreprocessing(this, i, (rhlist_count <= 0));
 			if(dpb != null && dpb.ColumnDescription != null) {
-				for(int j = 0; j < /*CPM.RegistryHList.size()*/rhlist_count; j++) {
-					assert(CPM.RegistryHList != null);
-					Document.DisplayEntry cur_entry = CPM.RegistryHList.get(j);
-					if(cur_entry != null && cur_entry.H != null) {
-						String text = null;
-						if(dpb.ColumnDescription.Id == 1) { // status image
-							; // По-моему, здесь ничего замерять не надо - мы и так зафиксировали размер элемента
-						}
-						else if(dpb.ColumnDescription.Id == 2) { // date
-							SLib.LDATE d = cur_entry.GetNominalDate(CPM.GetOption_DueDateAsNominal());
-							if(d != null)
-								VdlDocs.DataPreprocessingIter(dpb, d.Format(SLib.DATF_DMY));
-						}
-						else if(dpb.ColumnDescription.Id == 3) { // code
-							VdlDocs.DataPreprocessingIter(dpb, cur_entry.H.Code);
-						}
-						else if(dpb.ColumnDescription.Id == 4) { // amount
-							text = CPM.FormatCurrency(cur_entry.H.Amount);
-							VdlDocs.DataPreprocessingIter(dpb, new Double(cur_entry.H.Amount), text);
-						}
-						else if(dpb.ColumnDescription.Id == 5) { // client
-							if(cur_entry.H.ClientID > 0) {
-								JSONObject cli_entry = CPM.FindClientEntry(cur_entry.H.ClientID);
-								if(cli_entry != null)
-									text = cli_entry.optString("nm", "");
+				if(rhlist_count > 0) {
+					for(int j = 0; j < /*CPM.RegistryHList.size()*/rhlist_count; j++) {
+						//assert(CPM.RegistryHList != null);
+						Document.DisplayEntry cur_entry = CPM.RegBlk.GetItem(j); //CPM.RegistryHList.get(j);
+						if(cur_entry != null && cur_entry.H != null) {
+							String text = null;
+							if(dpb.ColumnDescription.Id == 1) { // status image
+								; // По-моему, здесь ничего замерять не надо - мы и так зафиксировали размер элемента
 							}
-							VdlDocs.DataPreprocessingIter(dpb, text);
+							else if(dpb.ColumnDescription.Id == 2) { // date
+								SLib.LDATE d = cur_entry.GetNominalDate(CPM.GetOption_DueDateAsNominal());
+								if(d != null)
+									VdlDocs.DataPreprocessingIter(dpb, d.Format(SLib.DATF_DMY));
+							}
+							else if(dpb.ColumnDescription.Id == 3) { // code
+								VdlDocs.DataPreprocessingIter(dpb, cur_entry.H.Code);
+							}
+							else if(dpb.ColumnDescription.Id == 4) { // amount
+								text = CPM.FormatCurrency(cur_entry.H.Amount);
+								VdlDocs.DataPreprocessingIter(dpb, new Double(cur_entry.H.Amount), text);
+							}
+							else if(dpb.ColumnDescription.Id == 5) { // client
+								if(cur_entry.H.ClientID > 0) {
+									JSONObject cli_entry = CPM.FindClientEntry(cur_entry.H.ClientID);
+									if(cli_entry != null)
+										text = cli_entry.optString("nm", "");
+								}
+								VdlDocs.DataPreprocessingIter(dpb, text);
+							}
+							else if(dpb.ColumnDescription.Id == 6) { // memo
+								VdlDocs.DataPreprocessingIter(dpb, null, cur_entry.H.Memo);
+							}
 						}
-						else if(dpb.ColumnDescription.Id == 6) { // memo
-							VdlDocs.DataPreprocessingIter(dpb, null, cur_entry.H.Memo);
-						}
+					}
+				}
+				else {
+					String text = null;
+					if(dpb.ColumnDescription.Id == 1) { // status image
+						; // По-моему, здесь ничего замерять не надо - мы и так зафиксировали размер элемента
+					}
+					else if(dpb.ColumnDescription.Id == 2) { // date
+						SLib.LDATE d = SLib.GetCurDate();
+						if(d != null)
+							VdlDocs.DataPreprocessingIter(dpb, d.Format(SLib.DATF_DMY));
+					}
+					else if(dpb.ColumnDescription.Id == 3) { // code
+						VdlDocs.DataPreprocessingIter(dpb, "AAA-00001");
+					}
+					else if(dpb.ColumnDescription.Id == 4) { // amount
+						double fake_amt = 0.0;
+						text = CPM.FormatCurrency(fake_amt);
+						VdlDocs.DataPreprocessingIter(dpb, new Double(fake_amt), text);
+					}
+					else if(dpb.ColumnDescription.Id == 5) { // client
+						text = "Fake Client Name";
+						VdlDocs.DataPreprocessingIter(dpb, text);
+					}
+					else if(dpb.ColumnDescription.Id == 6) { // memo
+						VdlDocs.DataPreprocessingIter(dpb, null, "Fake Memo");
 					}
 				}
 				VdlDocs.FinishDataProcessing(dpb);
@@ -718,7 +746,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									SLib.SetupTabLayoutListener(this, lo_tab, view_pager);
 									if(CPM.IsCurrentDocumentEmpty())
 										CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.GONE);
-									if(SLib.GetCount(CPM.RegistryHList) <= 0)
+									if(CPM.RegBlk.GetState() == 0)
 										CPM.SetTabVisibility(CommonPrereqModule.Tab.tabRegistry, View.GONE);
 									//SetTabVisibility(Tab.tabSearch, View.GONE);
 								}
@@ -771,7 +799,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 						case R.id.orderPrereqBrandListView: result = new Integer(SLib.GetCount(CPM.BrandListData)); break;
 						case R.id.orderPrereqOrdrListView: result = new Integer(CPM.GetCurrentDocumentTransferListCount()); break;
 						case R.id.orderPrereqRegistryListView:
-							final int _c = SLib.GetCount(CPM.RegistryHList);
+							final int _c = CPM.RegBlk.GetCount();
 							result = new Integer((_c > 0) ? _c : 1);
 							break;
 						case R.id.orderPrereqClientsListView: result = new Integer(SLib.GetCount(CPM.CliListData)); break;
@@ -1191,7 +1219,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										}
 										break;
 									case R.id.orderPrereqRegistryListView: // Список зафиксированных заказов
-										if(SLib.GetCount(CPM.RegistryHList) <= 0) {
+										if(CPM.RegBlk.GetCount() <= 0) {
 											if(ev_subj.ItemIdx == 0) {
 												// Пустая строка
 												View iv = ev_subj.RvHolder.itemView;
@@ -1214,48 +1242,50 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 												}
 											}
 										}
-										else if(SLib.IsInRange(ev_subj.ItemIdx, CPM.RegistryHList)) {
-											View iv = ev_subj.RvHolder.itemView;
-											Document.DisplayEntry cur_entry = CPM.RegistryHList.get(ev_subj.ItemIdx);
-											if(cur_entry != null && cur_entry.H != null) {
-												final int _vdlc = VdlDocs.GetCount();
-												for(int i = 0; i < _vdlc; i++) {
-													View ctl_view = iv.findViewById(i+1);
-													if(ctl_view != null) {
-														ViewDescriptionList.Item di = VdlDocs.Get(i);
-														if(di != null) {
-															String text = null;
-															if(di.Id == 1) { // indicator image
-																if(ctl_view instanceof ImageView) {
-																	final int ds = StyloQDatabase.SecTable.Rec.GetDocStatus(cur_entry.H.Flags);
-																	int ir = Document.GetImageResourceByDocStatus(ds);
-																	if(ir != 0)
-																		((ImageView)ctl_view).setImageResource(ir);
-																}
-															}
-															else if(ctl_view instanceof TextView){
-																if(di.Id == 2) { // date
-																	SLib.LDATE d = cur_entry.GetNominalDate(CPM.GetOption_DueDateAsNominal());
-																	if(d != null)
-																		text = d.Format(SLib.DATF_DMY);
-																}
-																else if(di.Id == 3) { // code
-																	text = cur_entry.H.Code;
-																}
-																else if(di.Id == 4) { // amount
-																	text = CPM.FormatCurrency(cur_entry.H.Amount);
-																}
-																else if(di.Id == 5) { // client
-																	if(cur_entry.H.ClientID > 0) {
-																		JSONObject cli_entry = CPM.FindClientEntry(cur_entry.H.ClientID);
-																		if(cli_entry != null)
-																			text = cli_entry.optString("nm", "");
+										else {
+											Document.DisplayEntry cur_entry = CPM.RegBlk.GetItem(ev_subj.ItemIdx);
+											if(cur_entry != null) {
+												View iv = ev_subj.RvHolder.itemView;
+												if(cur_entry != null && cur_entry.H != null) {
+													final int _vdlc = VdlDocs.GetCount();
+													for(int i = 0; i < _vdlc; i++) {
+														View ctl_view = iv.findViewById(i + 1);
+														if(ctl_view != null) {
+															ViewDescriptionList.Item di = VdlDocs.Get(i);
+															if(di != null) {
+																String text = null;
+																if(di.Id == 1) { // indicator image
+																	if(ctl_view instanceof ImageView) {
+																		final int ds = StyloQDatabase.SecTable.Rec.GetDocStatus(cur_entry.H.Flags);
+																		int ir = Document.GetImageResourceByDocStatus(ds);
+																		if(ir != 0)
+																			((ImageView) ctl_view).setImageResource(ir);
 																	}
 																}
-																else if(di.Id == 6) { // memo
-																	text = cur_entry.H.Memo;
+																else if(ctl_view instanceof TextView) {
+																	if(di.Id == 2) { // date
+																		SLib.LDATE d = cur_entry.GetNominalDate(CPM.GetOption_DueDateAsNominal());
+																		if(d != null)
+																			text = d.Format(SLib.DATF_DMY);
+																	}
+																	else if(di.Id == 3) { // code
+																		text = cur_entry.H.Code;
+																	}
+																	else if(di.Id == 4) { // amount
+																		text = CPM.FormatCurrency(cur_entry.H.Amount);
+																	}
+																	else if(di.Id == 5) { // client
+																		if(cur_entry.H.ClientID > 0) {
+																			JSONObject cli_entry = CPM.FindClientEntry(cur_entry.H.ClientID);
+																			if(cli_entry != null)
+																				text = cli_entry.optString("nm", "");
+																		}
+																	}
+																	else if(di.Id == 6) { // memo
+																		text = cur_entry.H.Memo;
+																	}
+																	((TextView) ctl_view).setText(text);
 																}
-																((TextView)ctl_view).setText(text);
 															}
 														}
 													}
@@ -1430,6 +1460,15 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										switch(sr_oid.Type) {
 											case SLib.PPOBJ_GOODS:
 												_idx = CPM.FindGoodsItemIndexByID(sr_oid.Id);
+												// @v11.7.3 {
+												if(CPM.Gf != null) {
+													CommonPrereqModule.WareEntry goods_item = CPM.GetGoodsListItemByIdx(_idx);
+													if(!CPM.CheckGoodsListItemForFilt(goods_item)) {
+														CPM.ResetGoodsFiter();
+														SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
+													}
+												}
+												// } @v11.7.3
 												GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, _idx, -1);
 												break;
 											case SLib.PPOBJ_PERSON:
@@ -1555,7 +1594,20 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 												else {
 													// @v11.4.8 {
 													ArrayList <JSONObject> dlvr_loc_list = item.GetDlvrLocListAsArray();
-													if(dlvr_loc_list == null || dlvr_loc_list.size() == 0) {
+													if(SLib.GetCount(dlvr_loc_list) > 0) {
+														// @v11.7.3 Если у клиента есть адреса доставки, то развернем/свернем список адресов {
+														// change expand status
+														if(item.AddrExpandStatus == 1) {
+															item.AddrExpandStatus = 2;
+															a.notifyItemChanged(ev_subj.ItemIdx);
+														}
+														else if(item.AddrExpandStatus == 2) {
+															item.AddrExpandStatus = 1;
+															a.notifyItemChanged(ev_subj.ItemIdx);
+														}
+														// } @v11.7.3
+													}
+													else {
 														// У контрагента нет адресов доставки - можно выбрать просто заголовочную запись
 														if(SetCurrentOrderClient(item.JsItem, null)) {
 															GotoTab(CommonPrereqModule.Tab.tabCurrentDocument, R.id.orderPrereqOrdrListView, -1, -1);
@@ -1596,8 +1648,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										}
 										break;
 									case R.id.orderPrereqRegistryListView:
-										if(SLib.IsInRange(ev_subj.ItemIdx, CPM.RegistryHList)) {
-											Document.DisplayEntry entry = CPM.RegistryHList.get(ev_subj.ItemIdx);
+										{
+											Document.DisplayEntry entry = CPM.RegBlk.GetItem(ev_subj.ItemIdx);
 											if(entry != null) {
 												if(CPM.LoadDocument(entry.H.ID)) {
 													SetupCurrentDocument(true, false);
@@ -1965,11 +2017,16 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								CPM.MakeCurrentDocList();
 								CPM.ResetCurrentDocument();
 								NotifyCurrentDocumentChanged();
-								if(SLib.GetCount(CPM.RegistryHList) > 0) {
+								final int rb_state = CPM.RegBlk.GetState();
+								if(rb_state == 1 || rb_state == 2) {
 									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabRegistry, View.VISIBLE);
-									NotifyTabContentChanged(CommonPrereqModule.Tab.tabRegistry, R.id.orderPrereqRegistryListView);
-									GotoTab(CommonPrereqModule.Tab.tabRegistry, R.id.orderPrereqRegistryListView, -1, -1);
+									if(rb_state == 1) {
+										NotifyTabContentChanged(CommonPrereqModule.Tab.tabRegistry, R.id.orderPrereqRegistryListView);
+										GotoTab(CommonPrereqModule.Tab.tabRegistry, R.id.orderPrereqRegistryListView, -1, -1);
+									}
 								}
+								else
+									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabRegistry, View.GONE);
 								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.GONE);
 							}
 							else {
@@ -1994,11 +2051,16 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								CPM.MakeCurrentDocList();
 								CPM.ResetCurrentDocument();
 								NotifyCurrentDocumentChanged();
-								if(SLib.GetCount(CPM.RegistryHList) > 0) {
+								int rb_state = CPM.RegBlk.GetState();
+								if(rb_state == 1 || rb_state == 2) {
 									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabRegistry, View.VISIBLE);
-									NotifyTabContentChanged(CommonPrereqModule.Tab.tabRegistry, R.id.orderPrereqRegistryListView);
-									GotoTab(CommonPrereqModule.Tab.tabRegistry, R.id.orderPrereqRegistryListView, -1, -1);
+									if(rb_state == 1) {
+										NotifyTabContentChanged(CommonPrereqModule.Tab.tabRegistry, R.id.orderPrereqRegistryListView);
+										GotoTab(CommonPrereqModule.Tab.tabRegistry, R.id.orderPrereqRegistryListView, -1, -1);
+									}
 								}
+								else
+									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabRegistry, View.GONE);
 								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentDocument, View.GONE);
 							}
 							else {

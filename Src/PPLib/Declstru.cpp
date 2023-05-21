@@ -279,7 +279,7 @@ int PrcssrMailCharry::Run()
 	PPGetPath(PPPATH_OUT, src_path);
 	SFileEntryPool fep;
 	THROW(fep.Scan(src_path, "*" CHARRYEXT, 0));
-	THROW(PutFilesToEmail(/*&fary*/&fep, P.MailAccID, P.DestAddr, _PPConst.P_SubjectCharry, 0));
+	THROW(PutFilesToEmail(/*&fary*/&fep, P.MailAccID, P.DestAddr, PPConst::P_SubjectCharry, 0));
 	CATCHZOK
 	return ok;
 }

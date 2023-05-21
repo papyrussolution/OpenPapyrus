@@ -6,7 +6,7 @@
 #ifndef I18N_PHONENUMBERS_GEOCODING_PHONENUMBER_OFFLINE_GEOCODER_H_
 #define I18N_PHONENUMBERS_GEOCODING_PHONENUMBER_OFFLINE_GEOCODER_H_
 
-#include <unicode/locid.h>  // NOLINT(build/include_order)
+#include <unicode/locid.h>
 #include "absl/synchronization/mutex.h"
 
 namespace i18n {

@@ -43,8 +43,7 @@ void VP8LoadFinalBytes(VP8BitReader* const br);
 // Inlined critical functions
 //
 // makes sure br->value_ has at least BITS bits worth of data
-static WEBP_UBSAN_IGNORE_UNDEF FORCEINLINE
-void VP8LoadNewBytes(VP8BitReader* WEBP_RESTRICT const br) 
+static WEBP_UBSAN_IGNORE_UNDEF FORCEINLINE void VP8LoadNewBytes(VP8BitReader* _RESTRICT const br) 
 {
 	assert(br != NULL && br->buf_ != NULL);
 	// Read 'BITS' bits at a time if possible.
@@ -95,7 +94,7 @@ void VP8LoadNewBytes(VP8BitReader* WEBP_RESTRICT const br)
 }
 
 // Read a bit with proba 'prob'. Speed-critical function!
-static FORCEINLINE int VP8GetBit(VP8BitReader* WEBP_RESTRICT const br, int prob, const char label[]) 
+static FORCEINLINE int VP8GetBit(VP8BitReader* _RESTRICT const br, int prob, const char label[]) 
 {
 	// Don't move this declaration! It makes a big speed difference to store
 	// 'range' *before* calling VP8LoadNewBytes(), even if this function doesn't
@@ -129,8 +128,8 @@ static FORCEINLINE int VP8GetBit(VP8BitReader* WEBP_RESTRICT const br, int prob,
 
 // simplified version of VP8GetBit() for prob=0x80 (note shift is always 1 here)
 static WEBP_UBSAN_IGNORE_UNSIGNED_OVERFLOW FORCEINLINE
-int VP8GetSigned(VP8BitReader* WEBP_RESTRICT const br, int v,
-    const char label[]) {
+int VP8GetSigned(VP8BitReader* _RESTRICT const br, int v, const char label[]) 
+{
 	if(br->bits_ < 0) {
 		VP8LoadNewBytes(br);
 	}
@@ -148,8 +147,8 @@ int VP8GetSigned(VP8BitReader* WEBP_RESTRICT const br, int v,
 	}
 }
 
-static FORCEINLINE int VP8GetBitAlt(VP8BitReader* WEBP_RESTRICT const br,
-    int prob, const char label[]) {
+static FORCEINLINE int VP8GetBitAlt(VP8BitReader* _RESTRICT const br, int prob, const char label[]) 
+{
 	// Don't move this declaration! It makes a big speed difference to store
 	// 'range' *before* calling VP8LoadNewBytes(), even if this function doesn't
 	// alter br->range_ value.

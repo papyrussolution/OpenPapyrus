@@ -1025,8 +1025,8 @@ public:
 			list.Z();
 			long   sel_prn_id = 0;
 			if(PrnCfg.Flags & PrnCfg.fStoreLastSelPrn) {
-				WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 0);
-				reg_key.GetString(_PPConst.WrParam_LastSelectedPrinter, last_selected_printer);
+				WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, 0);
+				reg_key.GetString(PPConst::WrParam_LastSelectedPrinter, last_selected_printer);
 			}
 			//
 			// Перемещаем принтер по умолчанию на верх списка
@@ -1088,8 +1088,8 @@ public:
 		// @v10.7.10 {
 		Data.Printer.Strip();
 		if(PrnCfg.Flags & PrnCfg.fStoreLastSelPrn) {
-			WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 0);
-			reg_key.PutString(_PPConst.WrParam_LastSelectedPrinter, Data.Printer);
+			WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, 0);
+			reg_key.PutString(PPConst::WrParam_LastSelectedPrinter, Data.Printer);
 		}
 		// } @v10.7.10 
 		ASSIGN_PTR(pData, Data);
@@ -1664,12 +1664,12 @@ static int SetPrinterParam(short hJob, const char * pPrinter, long options, cons
 int GetWindowsPrinter(PPID * pPrnID, SString * pPort)
 {
 	int    ok = -1;
-	WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 1);
+	WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, 1);
 	uint32 loc_prn_id = 0;
 	PPLocPrinter loc_prn;
  	PPObjLocPrinter obj_locprn;
  	MEMSZERO(loc_prn);
- 	reg_key.GetDWord(_PPConst.WrParam_DefaultWindowsPrinter, &loc_prn_id);
+ 	reg_key.GetDWord(PPConst::WrParam_DefaultWindowsPrinter, &loc_prn_id);
  	if(loc_prn_id && (ok = obj_locprn.Search(loc_prn_id, &loc_prn)) > 0) {
 		ASSIGN_PTR(pPrnID, (PPID)loc_prn_id);
 		CALLPTRMEMB(pPort, CopyFrom(loc_prn.Port));
@@ -2296,10 +2296,10 @@ int EditDefaultPrinterCfg()
 		dlg->getCtrlData(CTL_PRNCFG_PORT, cfg.Port);
 		{
 			uint32 dw_loc_prn_id = 0;
-			WinRegKey reg_key(HKEY_CURRENT_USER, _PPConst.WrKey_SysSettings, 0);
+			WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, 0);
 			dlg->getCtrlData(CTLSEL_PRNCFG_WINPRINTER, &loc_prn_id);
 			dw_loc_prn_id = static_cast<uint32>(loc_prn_id);
-			reg_key.PutDWord(_PPConst.WrParam_DefaultWindowsPrinter, dw_loc_prn_id);
+			reg_key.PutDWord(PPConst::WrParam_DefaultWindowsPrinter, dw_loc_prn_id);
 		}
 		cfg.Flags = static_cast<int16>(dlg->GetClusterData(CTL_PRNCFG_FLAGS));
 		THROW(PPSetPrinterCfg(PPOBJ_CONFIG, PPCFG_MAIN, &cfg));

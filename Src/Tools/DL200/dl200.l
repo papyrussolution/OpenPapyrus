@@ -46,7 +46,7 @@ ACCVAL      (\x5b)({ACCDEF})?(([DdCc])?([IiRrTtSs])?)?(:{ACCDEF})?(,{PERIODOFFS}
 "DATE"      { yylval.ival = DL2CIT_DATE; return T_COLUMNTYPE; }
 "TIME"      { yylval.ival = DL2CIT_TIME; return T_COLUMNTYPE; }
 "PERIOD"    { yylval.ival = DL2CIT_PERIOD; return T_COLUMNTYPE; }
-{INTVAL}    { yylval.ival = atoi(yytext); return T_INTVAL;  }
+{INTVAL}    { yylval.ival = satoi(yytext); return T_INTVAL;  }
 {REALVAL}   { yylval.rval = atof(yytext); return T_REALVAL; }
 "{"         { yybrace_count++; return T_LBRACE; }
 "}"         { yybrace_count--; return T_RBRACE; }

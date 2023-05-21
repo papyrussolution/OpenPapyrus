@@ -1035,7 +1035,7 @@ static uint32_t opj_j2k_get_num_tp(opj_cp_t * cp, uint32_t pino,
 static boolint opj_j2k_calculate_tp(opj_j2k_t * p_j2k, opj_cp_t * cp, uint32_t * p_nb_tiles, opj_image_t * image, opj_event_mgr_t * p_manager);
 static void opj_j2k_dump_MH_info(opj_j2k_t* p_j2k, FILE* out_stream);
 static void opj_j2k_dump_MH_index(opj_j2k_t* p_j2k, FILE* out_stream);
-static opj_codestream_index_t* opj_j2k_create_cstr_index(void);
+static opj_codestream_index_t* opj_j2k_create_cstr_index();
 static float opj_j2k_get_tp_stride(opj_tcp_t * p_tcp);
 static float opj_j2k_get_default_stride(opj_tcp_t * p_tcp);
 static int opj_j2k_initialise_4K_poc(opj_poc_t * POC, int numres);
@@ -5326,7 +5326,7 @@ static int opj_j2k_get_default_thread_count()
 // 
 // J2K encoder interface
 // 
-opj_j2k_t* opj_j2k_create_compress(void)
+opj_j2k_t* opj_j2k_create_compress()
 {
 	opj_j2k_t * l_j2k = (opj_j2k_t*)opj_calloc(1, sizeof(opj_j2k_t));
 	if(!l_j2k) {
@@ -8446,7 +8446,7 @@ boolint opj_j2k_set_decode_area(opj_j2k_t * p_j2k, opj_image_t* p_image, int32_t
 	return ret;
 }
 
-opj_j2k_t* opj_j2k_create_decompress(void)
+opj_j2k_t* opj_j2k_create_decompress()
 {
 	opj_j2k_t * l_j2k = (opj_j2k_t*)opj_calloc(1, sizeof(opj_j2k_t));
 	if(!l_j2k) {
@@ -8504,7 +8504,7 @@ opj_j2k_t* opj_j2k_create_decompress(void)
 	return l_j2k;
 }
 
-static opj_codestream_index_t* opj_j2k_create_cstr_index(void)
+static opj_codestream_index_t* opj_j2k_create_cstr_index()
 {
 	opj_codestream_index_t* cstr_index = (opj_codestream_index_t*)opj_calloc(1, sizeof(opj_codestream_index_t));
 	if(!cstr_index) {

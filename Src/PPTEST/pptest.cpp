@@ -522,6 +522,8 @@ int Test_Alg_SS_Z(const char * pInputFileName);
 int TestTextDbFile(const char * pInDbfFile);
 int Test_InterfaceCall();
 int DummyProc_dirent(); // @prototype @forcelink
+int DummyProc_bzip3(); // @prototype @forcelink
+int DummyProc_sfxtree(); // @forcelink
 int DummyProc_TulipIndicators(); // @prototype @forcelink
 // @v11.2.0 {
 // Для сборки _MSC_VER менее чем 2015 мы не будем поддерживать LMDB. Здесь включена пустышка для пропуска соответствующего теста
@@ -541,6 +543,8 @@ int TestNoLogin()
 	STestSuite s;
 	SRng::CreateInstance((SRng::Algorithm)0, 0); // @forcelink RandomNumberGeneragtor
 	DummyProc_dirent(); // @v10.9.12 @forcelink
+	DummyProc_bzip3(); // @v11.7.4 @forcelink
+	DummyProc_sfxtree(); // @v11.7.4 @forcelink
 	DummyProc_TulipIndicators(); // @v11.4.4 @forcelink
 #if _MSC_VER >= 1900
 	DummyProc_LMDB(); // @v11.2.0 @forcelink
@@ -736,7 +740,7 @@ static inline uint MtGet(void * p_vstate)
 	return k;
 }
 
-static double MtGetDouble (void * p_vstate) {return MtGet (p_vstate) / 4294967296.0;}
+static double MtGetDouble (void * p_vstate) { return MtGet (p_vstate) / SMathConst::MaxU32; }
 
 static void MtSet(void * p_vstate, uint s)
 {
@@ -1425,6 +1429,8 @@ extern int OnigTestP_main(FILE * fOut);
 extern int OnigTestC_main(FILE * fOut);
 extern int OnigTestC_Windows_main(FILE * fOut);
 
+const char * Test_GetPPConstCharPtr_P_MagicFileTransmit() { return PPConst::P_MagicFileTransmit; }
+
 /*static int TestWorkspacePath()
 {
 	SString path;
@@ -1511,11 +1517,24 @@ int DoConstructionTest()
 #if(_MSC_VER >= 1900)
 	//Test_Fts();
 #endif
+	{
+		SString get_vs_inst_msg;
+		//get_vs_installations(/*instance_callback callback,*/&get_vs_inst_msg);
+		TSCollection <VisualStudioInstallationLocator::Entry> vs_entry_list;
+		if(VisualStudioInstallationLocator::Locate(vs_entry_list, &get_vs_inst_msg)) {
+			for(uint i = 0; i < vs_entry_list.getCount(); i++) {
+				VisualStudioInstallationLocator::Entry * p_entry = vs_entry_list.at(i);
+				if(p_entry) {
+					
+				}
+			}
+		}
+	}
 	//TestPow10Tab();
 	//ImportSpecial("D:\\DEV\\RESOURCE\\DATA\\ETC");
 	//Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
 	//TestSArchive();
-	SDecimal::Test();
+	//SDecimal::Test();
 	//ReformatRazoomnick("D:/Papyrus/Universe-HTT/DATA/Razoomnick-barcodes.csv");	
 	TestGtinStruc();
 	//PPStyloQInterchange::PrepareAhed(true);

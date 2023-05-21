@@ -469,8 +469,8 @@ static fz_weights * make_weights(fz_context * ctx,
 	return weights;
 }
 
-static void scale_row_to_temp(uchar * FZ_RESTRICT dst, const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights)
+static void scale_row_to_temp(uchar * _RESTRICT dst, const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights)
 {
 	const int * contrib = &weights->index[weights->index[0]];
 	int len, i, j, n;
@@ -521,45 +521,45 @@ static void scale_row_to_temp(uchar * FZ_RESTRICT dst, const uchar * FZ_RESTRICT
 
 #ifdef ARCH_ARM
 
-static void scale_row_to_temp1(uchar * FZ_RESTRICT dst,
-    const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights)
+static void scale_row_to_temp1(uchar * _RESTRICT dst,
+    const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights)
 __attribute__((naked));
 
-static void scale_row_to_temp2(uchar * FZ_RESTRICT dst,
-    const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights)
+static void scale_row_to_temp2(uchar * _RESTRICT dst,
+    const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights)
 __attribute__((naked));
 
-static void scale_row_to_temp3(uchar * FZ_RESTRICT dst,
-    const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights)
+static void scale_row_to_temp3(uchar * _RESTRICT dst,
+    const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights)
 __attribute__((naked));
 
-static void scale_row_to_temp4(uchar * FZ_RESTRICT dst,
-    const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights)
+static void scale_row_to_temp4(uchar * _RESTRICT dst,
+    const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights)
 __attribute__((naked));
 
-static void scale_row_from_temp(uchar * FZ_RESTRICT dst,
-    const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights,
+static void scale_row_from_temp(uchar * _RESTRICT dst,
+    const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights,
     int width,
     int n,
     int row)
 __attribute__((naked));
 
-static void scale_row_from_temp_alpha(uchar * FZ_RESTRICT dst,
-    const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights,
+static void scale_row_from_temp_alpha(uchar * _RESTRICT dst,
+    const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights,
     int width,
     int n,
     int row)
 __attribute__((naked));
 
-static void scale_row_to_temp1(uchar * FZ_RESTRICT dst,
-    const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights)
+static void scale_row_to_temp1(uchar * _RESTRICT dst,
+    const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights)
 {
 	asm volatile (
 		ENTER_ARM
@@ -625,9 +625,9 @@ static void scale_row_to_temp1(uchar * FZ_RESTRICT dst,
 		);
 }
 
-static void scale_row_to_temp2(uchar * FZ_RESTRICT dst,
-    const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights)
+static void scale_row_to_temp2(uchar * _RESTRICT dst,
+    const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights)
 {
 	asm volatile (
 		ENTER_ARM
@@ -696,9 +696,9 @@ static void scale_row_to_temp2(uchar * FZ_RESTRICT dst,
 		);
 }
 
-static void scale_row_to_temp3(uchar * FZ_RESTRICT dst,
-    const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights)
+static void scale_row_to_temp3(uchar * _RESTRICT dst,
+    const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights)
 {
 	asm volatile (
 		ENTER_ARM
@@ -780,9 +780,9 @@ static void scale_row_to_temp3(uchar * FZ_RESTRICT dst,
 		);
 }
 
-static void scale_row_to_temp4(uchar * FZ_RESTRICT dst,
-    const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights)
+static void scale_row_to_temp4(uchar * _RESTRICT dst,
+    const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights)
 {
 	asm volatile (
 		ENTER_ARM
@@ -855,9 +855,9 @@ static void scale_row_to_temp4(uchar * FZ_RESTRICT dst,
 		);
 }
 
-static void scale_row_from_temp(uchar * FZ_RESTRICT dst,
-    const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights,
+static void scale_row_from_temp(uchar * _RESTRICT dst,
+    const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights,
     int width,
     int n,
     int row)
@@ -941,9 +941,9 @@ static void scale_row_from_temp(uchar * FZ_RESTRICT dst,
 		);
 }
 
-static void scale_row_from_temp_alpha(uchar * FZ_RESTRICT dst,
-    const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights,
+static void scale_row_from_temp_alpha(uchar * _RESTRICT dst,
+    const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights,
     int width,
     int n,
     int row)
@@ -997,9 +997,9 @@ static void scale_row_from_temp_alpha(uchar * FZ_RESTRICT dst,
 
 #else
 
-static void scale_row_to_temp1(uchar * FZ_RESTRICT dst,
-    const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights)
+static void scale_row_to_temp1(uchar * _RESTRICT dst,
+    const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights)
 {
 	const int * contrib = &weights->index[weights->index[0]];
 	int len, i;
@@ -1031,9 +1031,9 @@ static void scale_row_to_temp1(uchar * FZ_RESTRICT dst,
 	}
 }
 
-static void scale_row_to_temp2(uchar * FZ_RESTRICT dst,
-    const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights)
+static void scale_row_to_temp2(uchar * _RESTRICT dst,
+    const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights)
 {
 	const int * contrib = &weights->index[weights->index[0]];
 	int len, i;
@@ -1071,9 +1071,9 @@ static void scale_row_to_temp2(uchar * FZ_RESTRICT dst,
 	}
 }
 
-static void scale_row_to_temp3(uchar * FZ_RESTRICT dst,
-    const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights)
+static void scale_row_to_temp3(uchar * _RESTRICT dst,
+    const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights)
 {
 	const int * contrib = &weights->index[weights->index[0]];
 	int len, i;
@@ -1119,9 +1119,9 @@ static void scale_row_to_temp3(uchar * FZ_RESTRICT dst,
 	}
 }
 
-static void scale_row_to_temp4(uchar * FZ_RESTRICT dst,
-    const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights)
+static void scale_row_to_temp4(uchar * _RESTRICT dst,
+    const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights)
 {
 	const int * contrib = &weights->index[weights->index[0]];
 	int len, i;
@@ -1171,9 +1171,9 @@ static void scale_row_to_temp4(uchar * FZ_RESTRICT dst,
 	}
 }
 
-static void scale_row_from_temp(uchar * FZ_RESTRICT dst,
-    const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights,
+static void scale_row_from_temp(uchar * _RESTRICT dst,
+    const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights,
     int w,
     int n,
     int row)
@@ -1199,9 +1199,9 @@ static void scale_row_from_temp(uchar * FZ_RESTRICT dst,
 	}
 }
 
-static void scale_row_from_temp_alpha(uchar * FZ_RESTRICT dst,
-    const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights,
+static void scale_row_from_temp_alpha(uchar * _RESTRICT dst,
+    const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights,
     int w,
     int n,
     int row)
@@ -1234,8 +1234,8 @@ static void scale_row_from_temp_alpha(uchar * FZ_RESTRICT dst,
 #endif
 
 #ifdef SINGLE_PIXEL_SPECIALS
-static void duplicate_single_pixel(uchar * FZ_RESTRICT dst,
-    const uchar * FZ_RESTRICT src,
+static void duplicate_single_pixel(uchar * _RESTRICT dst,
+    const uchar * _RESTRICT src,
     int n,
     int forcealpha,
     int w,
@@ -1262,10 +1262,10 @@ static void duplicate_single_pixel(uchar * FZ_RESTRICT dst,
 	}
 }
 
-static void scale_single_row(uchar * FZ_RESTRICT dst,
+static void scale_single_row(uchar * _RESTRICT dst,
     int dstride,
-    const uchar * FZ_RESTRICT src,
-    const fz_weights * FZ_RESTRICT weights,
+    const uchar * _RESTRICT src,
+    const fz_weights * _RESTRICT weights,
     int src_w,
     int h,
     int forcealpha)
@@ -1327,11 +1327,11 @@ static void scale_single_row(uchar * FZ_RESTRICT dst,
 	}
 }
 
-static void scale_single_col(uchar * FZ_RESTRICT dst,
+static void scale_single_col(uchar * _RESTRICT dst,
     int dstride,
-    const uchar * FZ_RESTRICT src,
+    const uchar * _RESTRICT src,
     int sstride,
-    const fz_weights * FZ_RESTRICT weights,
+    const fz_weights * _RESTRICT weights,
     int src_w,
     int n,
     int w,
@@ -1401,7 +1401,7 @@ static void scale_single_col(uchar * FZ_RESTRICT dst,
 
 #endif /* SINGLE_PIXEL_SPECIALS */
 
-static void get_alpha_edge_values(const fz_weights * FZ_RESTRICT rows, int * FZ_RESTRICT tp, int * FZ_RESTRICT bp)
+static void get_alpha_edge_values(const fz_weights * _RESTRICT rows, int * _RESTRICT tp, int * _RESTRICT bp)
 {
 	const int * contrib = &rows->index[rows->index[0]];
 	int len, i, t, b;
@@ -1434,7 +1434,7 @@ static void get_alpha_edge_values(const fz_weights * FZ_RESTRICT rows, int * FZ_
 	}
 }
 
-static void adjust_alpha_edges(fz_pixmap * FZ_RESTRICT pix, const fz_weights * FZ_RESTRICT rows, const fz_weights * FZ_RESTRICT cols)
+static void adjust_alpha_edges(fz_pixmap * _RESTRICT pix, const fz_weights * _RESTRICT rows, const fz_weights * _RESTRICT cols)
 {
 	int t, l, r, b, tl, tr, bl, br, x, y;
 	uchar * dp = pix->samples;
@@ -1714,10 +1714,10 @@ fz_pixmap * fz_scale_pixmap_cached(fz_context * ctx,
 	else
 #endif /* SINGLE_PIXEL_SPECIALS */
 	{
-		void (* row_scale_in)(uchar * FZ_RESTRICT dst, const uchar * FZ_RESTRICT src,
-		    const fz_weights * FZ_RESTRICT weights);
-		void (* row_scale_out)(uchar * FZ_RESTRICT dst, const uchar * FZ_RESTRICT src,
-		    const fz_weights * FZ_RESTRICT weights, int w, int n, int row);
+		void (* row_scale_in)(uchar * _RESTRICT dst, const uchar * _RESTRICT src,
+		    const fz_weights * _RESTRICT weights);
+		void (* row_scale_out)(uchar * _RESTRICT dst, const uchar * _RESTRICT src,
+		    const fz_weights * _RESTRICT weights, int w, int n, int row);
 
 		temp_span = contrib_cols->count * src->n;
 		temp_rows = contrib_rows->max_len;

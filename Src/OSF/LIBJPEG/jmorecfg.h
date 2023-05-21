@@ -216,19 +216,6 @@ typedef unsigned int JDIMENSION;
 #ifndef HAVE_NORETURN_T
 	typedef void noreturn_t;
 #endif
-// 
-// Here is the pseudo-keyword for declaring pointers that must be "far"
-// on 80x86 machines.  Most of the specialized coding for 80x86 is handled
-// by just saying "FAR *" where such a pointer is needed.  In a few places
-// explicit coding is needed; see uses of the NEED_FAR_POINTERS symbol.
-// 
-#ifndef FAR
-	#ifdef NEED_FAR_POINTERS
-		#define FAR  far
-	#else
-		#define FAR
-	#endif
-#endif
 /*
  * On a few systems, type boolean and/or its values FALSE, TRUE may appear
  * in standard header files.  Or you may have conflicts with application-

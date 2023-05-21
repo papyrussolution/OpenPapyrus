@@ -305,12 +305,11 @@ static void retainpages(fz_context * ctx, globals * glo, int argc, const char * 
 	pdf_drop_obj(ctx, root);
 }
 
-void pdf_clean_file(fz_context * ctx, const char * infile, const char * outfile, char * password, pdf_write_options * opts, int argc, const char * argv[])
+void pdf_clean_file(fz_context * ctx, const char * infile, const char * outfile, const char * password, pdf_write_options * opts, int argc, const char * argv[])
 {
 	globals glo = { 0 };
 	glo.ctx = ctx;
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		glo.doc = pdf_open_document(ctx, infile);
 		if(pdf_needs_password(ctx, glo.doc))
 			if(!pdf_authenticate_password(ctx, glo.doc, password))
@@ -320,12 +319,10 @@ void pdf_clean_file(fz_context * ctx, const char * infile, const char * outfile,
 			retainpages(ctx, &glo, argc, argv);
 		pdf_save_document(ctx, glo.doc, outfile, opts);
 	}
-	fz_always(ctx)
-	{
+	fz_always(ctx) {
 		pdf_drop_document(ctx, glo.doc);
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_rethrow(ctx);
 	}
 }
