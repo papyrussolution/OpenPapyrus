@@ -12,5 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\PPMain\wsctl-main.cpp" />
+    <ClCompile Include="..\OSF\imgui\imgui_demo.cpp" />
   </ItemGroup>
 </Project>

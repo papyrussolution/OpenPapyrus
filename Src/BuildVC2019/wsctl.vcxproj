@@ -219,6 +219,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\OSF\imgui\imgui_demo.cpp" />
     <ClCompile Include="..\PPMain\wsctl-main.cpp" />
   </ItemGroup>
   <ItemGroup>
