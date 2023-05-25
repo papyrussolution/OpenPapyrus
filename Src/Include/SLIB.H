@@ -531,6 +531,8 @@
 #define HiByte(w)             (static_cast<uint8>(static_cast<uint16>(w) >> 8))
 #define LoWord(l)             (static_cast<uint16>(l))
 #define HiWord(l)             (static_cast<uint16>(static_cast<uint32>(l) >> 16))
+#define LoDWord(ll)           (static_cast<uint32>(static_cast<uint64>(ll) & 0xffffffffULL))
+#define HiDWord(ll)           (static_cast<uint32>(static_cast<uint64>(ll) >> 32))
 #define MakeLong(low,high)    (static_cast<long>((static_cast<uint16>(low)) | ((static_cast<ulong>(static_cast<uint16>(high))) << 16)))
 
 #define oneof2(f,c1,c2)                   ((f)==(c1)||(f)==(c2))
@@ -1164,54 +1166,186 @@ typedef struct _cairo_font_face cairo_font_face_t;
 typedef struct _cairo_scaled_font cairo_scaled_font_t;
 struct Archive; // @v10.4.4 libarchive
 //
+// Formats for date binary representation
+//
+#define DF_DOS              1
+#define DF_FAT              2
+#define DF_XBASE            3
+// @v10.2.8 #define DF_PARADOX          4
+#define DF_CLARION          5
+#define DF_BTRIEVE          6
+//
+// Common format flags
+//
+#define ALIGN_RIGHT    0x1000  // Выравнивать строку вправо
+#define ALIGN_LEFT     0x2000  // Выравнивать строку влево
+#define ALIGN_CENTER   0x3000  // Центрировать строку
+#define COMF_FILLOVF   0x4000  // Если результирующая строка не помещается в указанную длину, то заполнять символами '#'
+#define COMF_SQL       0x8000  // Форматировать значения в пригодном для SQL виде
+	// Этот флаг передается в функции форматирования различных типов для того, чтобы они смогли
+	// правильно сформировать строковое представление данных.
+//
+// Number format flags
+//
+#define NMBF_NONEG     0x0001  // Отрицательное значение заменяется пустой строкой
+#define NMBF_NEGPAR    0x0002  // Отрицательное значение обрамляется круглыми скобками
+#define NMBF_FORCEPOS  0x0004  // Перед положительным значением указывать знак '+'
+#define NMBF_NOZERO    0x0008  // Нулевое значение заменяется пустой строкой
+#define NMBF_TRICOMMA  0x0010  // Разделять тройки цифр запятой
+#define NMBF_TRIAPOSTR 0x0020  // Разделять тройки цифр апострофом '
+#define NMBF_TRISPACE  0x0040  // Разделять тройки цифр пробелом
+#define NMBF_DELCOMMA  NMBF_TRICOMMA   // @obsolete (still used in resource)
+#define NMBF_DELAPOSTR NMBF_TRIAPOSTR  // @obsolete (still used in resource)
+#define NMBF_DELSPACE  NMBF_TRISPACE   // @obsolete (still used in resource)
+#define NMBF_NOTRAILZ  0x0080  // Обрезать незначащие нули после десятичной точки
+#define NMBF_DECCOMMA  0x0100  // Десятичный разделитель - запятая ',', иначе - точка '.'
+#define NMBF_EXPLFLOAT 0x0200  // Если float-число не имеет знаков после точки, то оставлять в формате 999.0 (актуально только при флаге NMBF_NOTRAILZ)
+#define NMBF_OMITEPS   0x0400  // Если за очередной десятичной цифрой следует OMITEPSDITITS или больше '9' либо '0' то
+	// число форматируется с округлением до ближайшей соседней десятичной цифры с заменой последующих на нули.
+	// Например:
+	// 369,9000000000001  --> 369,9000000000000
+	// 4043,1599999999994 --> 4043,1600000000000
+
+#define OMITEPSDIGITS  5
+//
+// Text number format flags
+//
+#define NTTF_FEMIN     0x0001  // В женском роде
+#define NTTF_CURRENCY  0x0002  // Добавить полное наименование валюты
+#define NTTF_ABBRCURR  0x0004  // Добавить краткое наименование валюты
+#define NTTF_DECCURR   0x0008  // Дробная денежная единица (коп.)
+#define NTTF_FIRSTCAP  0x0010  // Первая буква заглавная //
+#define NTTF_NOZERO    0x0020  // Не выводить нулевое значение
+//
+// Date format flags
+// @persistent
+//
+#define DATF_AMERICAN       1  // mm/dd/yy
+#define DATF_ANSI           2  // yy.mm.dd
+#define DATF_BRITISH        3  // dd/mm/yy
+#define DATF_FRENCH         4  // dd/mm/yy
+#define DATF_GERMAN         5  // dd.mm.yy
+#define DATF_ITALIAN        6  // dd-mm-yy
+#define DATF_JAPAN          7  // yy/mm/dd
+#define DATF_USA            8  // mm-dd-yy
+#define DATF_MDY            9  // mm/dd/yy
+#define DATF_DMY           10  // dd/mm/yy
+#define DATF_YMD           11  // yy/mm/dd
+#define DATF_SQL           12  // DATE 'YYYY-MM-DD'
+#define DATF_INTERNET      13  // Wed, 27 Feb 2008
+#define DATF_ISO8601       14  // yyyy-mm-dd
+#define DATF_CENTURY   0x0010  // Century flag
+#define DATF_NOZERO    0x0020  // Не отображать нулевое значение
+#define DATF_NODIV     0x0040  // день, месяц и год следуют друг за другом без разделителей.
+#define DATF_GERMANCENT    (DATF_GERMAN|DATF_CENTURY) // @v11.3.12
+#define DATF_ISO8601CENT   (DATF_ISO8601|DATF_CENTURY) // @v11.3.12
+	// Порядок следования определяется младшими битами (DATF_AMERICAN..DATF_YMD). Если установлен
+	// флаг DATF_CENTURY, то год должен быть полным (2011), в противном случае - только последние две
+	// цифры года (11).
+//
+// Time format flags
+// @persistent
+//
+#define TIMF_HMS            1  // 23:20:59
+#define TIMF_HM             2  // 23:20
+#define TIMF_MS             3  // 20:59
+#define TIMF_S              4  // 59
+#define TIMF_SQL            5  // TIMESTAMP 'YYYY-MM-DD HH:MM:SS.HS'
+#define TIMF_MSEC      0x0008  // 23:20:59.019
+#define TIMF_BLANK     0x0010  //
+#define TIMF_NOZERO    TIMF_BLANK // Не отображать нулевое значение
+#define TIMF_TIMEZONE  0x0020  // +0300
+#define TIMF_NODIV     0x0040  //
+#define TIMF_DOTDIV    0x0080  // Разделители часов, минут и секунд - точки. Например: 23.20.59
+//
+// String format flags
+//
+#define STRF_UPPER     0x0001  // Все буквы переводить в прописные
+#define STRF_LOWER     0x0002  // Все буквы переводить в строчные
+#define STRF_PASSWORD  0x0004  // Все символы заменять символом '*'
+#define STRF_OEM       0x0008  // AnsiToOem (Windows only)
+#define STRF_ANSI      0x0010  // OemToAnsi (Windows only)
+//
+// Structure of format field:
+//   Precision           4 bit
+//   Text output length 12 bit
+//   Flags              16 bit
+//
+#define SFFLAGMASK  0x0000ffffL
+#define SFLENMASK   0x0fff0000L
+#define SFPRCMASK   0xf0000000L
+#define SFALIGNMASK  (static_cast<unsigned long>(ALIGN_LEFT|ALIGN_RIGHT|ALIGN_CENTER))
+#define SFCOMMONMASK (static_cast<unsigned long>(SFALIGNMASK|COMF_FILLOVF))
+#define MKSFMT(l,f)           (((static_cast<long>(l))<<16)|(static_cast<long>(f)))
+#define MKSFMTD(l,p,f)        (((static_cast<long>(p))<<28)|((static_cast<long>(l))<<16)|(static_cast<long>(f)))
+#define SFMTFLAG(fmt)         (static_cast<unsigned>((fmt)&SFFLAGMASK))
+#define SFMTLEN(fmt)          (static_cast<uint16>(((fmt)&SFLENMASK)>>16))
+#define SFMTPRC(fmt)          (((fmt)&SFPRCMASK)>>28)
+#define SFMTALIGN(fmt)        ((fmt)&SFALIGNMASK)
+#define SETSFMTLEN(fmt,l)     (fmt)=(((static_cast<long>(l))<<16)|(static_cast<long>((fmt)&~SFLENMASK)))
+#define SETSFMTPRC(fmt,p)     (fmt)=(((static_cast<long>(p))<<28)|(static_cast<long>((fmt)&~SFPRCMASK)))
+#define SETSFMTFLAG(fmt,f)    (fmt)=((static_cast<long>(f))|(static_cast<long>((fmt)&~SFFLAGMASK)))
+
+#define SFMT_MONEY            MKSFMTD(0,2,0)
+#define SFMT_QTTY             MKSFMTD(0,3,0)
 //
 //
-class SlConstParam {
+//
+class SlConst { // @v11.7.4 SlConstParam-->SlConst
 public:
-	SlConstParam() :
-		VectorImageMask(0x00008000U),
-		Ssc_CompressionSignature(0xFDB975312468ACE0ULL),
-		WaitableObjCheckTimeout(1 * 60 * 1000),
-		SUiLayoutSignature(0x28785EB8U),
-		ListBoxDefSignature_INVALID(0x00000000),  // Invalid (destroyed) instance
-		ListBoxDefSignature_DEFAULT(0x1234ABCD),  // Instance of base class ListBoxDef or subclass hasn't own Sign
-		ListBoxDefSignature_STD(0xABCD0001),      // StdListBoxDef
-		ListBoxDefSignature_STRASSOC(0xABCD0002), // StrAssocListBoxDef
-		ListBoxDefSignature_STDTREE(0xABCD0003),  // StdTreeListBoxDef
-		ListBoxDefSignature_STRING(0xABCD0004),   // StringListBoxDef
-		ListBoxDefSignature_DBQ(0xABCD0005),      // DBQListBoxDef
-		ListBoxDefSignature_STDTREE2(0xABCD0006), // StdTreeListBoxDef2
-		MagicHashPrime32(2654435761U)/*0x9e3779b1*/, // Knuth multiplicative hashing.  (Sorting & Searching, p. 510). the closest prime number to (2**32)*golden_ratio, where golden_ratio = (sqrt(5) - 1)/2.
-		GoldenRatioInt32(2654435769U)/*0x9e3779b9*/, // The integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
-		MagicMurmurC1(0xcc9e2d51U), // @v11.4.0 Magic number C1 for 32-bit hashing from Murmur3
-		MagicMurmurC2(0x1b873593U)  // @v11.4.0 Magic number C2 for 32-bit hashing from Murmur3
-	{
-	}
-	const uint VectorImageMask;
-	const uint64 Ssc_CompressionSignature; // Сигнатура сжатия в буфере SBuffer
+	//SlConstParam() :
+		//VectorImageMask(0x00008000U),
+		//Ssc_CompressionSignature(0xFDB975312468ACE0ULL),
+		//WaitableObjCheckTimeout(1 * 60 * 1000),
+		//SUiLayoutSignature(0x28785EB8U),
+		//ListBoxDefSignature_INVALID(0x00000000),  // Invalid (destroyed) instance
+		//ListBoxDefSignature_DEFAULT(0x1234ABCD),  // Instance of base class ListBoxDef or subclass hasn't own Sign
+		//ListBoxDefSignature_STD(0xABCD0001),      // StdListBoxDef
+		//ListBoxDefSignature_STRASSOC(0xABCD0002), // StrAssocListBoxDef
+		//ListBoxDefSignature_STDTREE(0xABCD0003),  // StdTreeListBoxDef
+		//ListBoxDefSignature_STRING(0xABCD0004),   // StringListBoxDef
+		//ListBoxDefSignature_DBQ(0xABCD0005),      // DBQListBoxDef
+		//ListBoxDefSignature_STDTREE2(0xABCD0006), // StdTreeListBoxDef2
+		//MagicHashPrime32(2654435761U)/*0x9e3779b1*/, // Knuth multiplicative hashing.  (Sorting & Searching, p. 510). the closest prime number to (2**32)*golden_ratio, where golden_ratio = (sqrt(5) - 1)/2.
+		//GoldenRatioInt32(2654435769U)/*0x9e3779b9*/, // The integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
+		//MagicMurmurC1(0xcc9e2d51U), // @v11.4.0 Magic number C1 for 32-bit hashing from Murmur3
+		//MagicMurmurC2(0x1b873593U)  // @v11.4.0 Magic number C2 for 32-bit hashing from Murmur3
+	//{}
+
+//#define DEFAULT_BIN_DATE_FORMAT   DF_BTRIEVE
+//#define DEFAULT_TXT_DATE_FORMAT   DATF_GERMAN
+//#define DEFAULT_OVERFLOW_SYMB     '#'
+//#define DEFAULT_PASSWORD_SYMB     '*'
+
+	static constexpr long DefaultBinDateFormat = DF_BTRIEVE;
+	static constexpr long DefaultTxtDateFormat = DATF_GERMAN;
+	static constexpr char DefaultOverflowSymb  = '#';
+	static constexpr char DefaultPasswordSymb  = '*';
+	static constexpr uint VectorImageMask = 0x00008000U;
+	static constexpr uint64 Ssc_CompressionSignature = 0xFDB975312468ACE0ULL; // Сигнатура сжатия в буфере SBuffer
 	//
 	// Descr: Контрольный таймаут ожидания для заданных бесконечных таймаутов (milliseconds).
 	//   Если в течении этого таймаута ожидание на завершилось, то предпринимаются
 	//   информирующие действия (например, вывод в журнал).
 	//
-	const long WaitableObjCheckTimeout;
-	const uint32 SUiLayoutSignature; // @v11.2.4 Сигнатура экземпляров класса SUiLayout для верификации валидности
-	const uint32 ListBoxDefSignature_INVALID;  //0x00000000 // Invalid (destroyed) instance
-	const uint32 ListBoxDefSignature_DEFAULT;  //0x1234ABCD // Instance of base class ListBoxDef or subclass hasn't own Sign
-	const uint32 ListBoxDefSignature_STD;      //0xABCD0001 // StdListBoxDef
-	const uint32 ListBoxDefSignature_STRASSOC; //0xABCD0002 // StrAssocListBoxDef
-	const uint32 ListBoxDefSignature_STDTREE;  //0xABCD0003 // StdTreeListBoxDef
-	const uint32 ListBoxDefSignature_STRING;   //0xABCD0004 // StringListBoxDef
-	const uint32 ListBoxDefSignature_DBQ;      //0xABCD0005 // DBQListBoxDef
-	const uint32 ListBoxDefSignature_STDTREE2; //0xABCD0006 // StdTreeListBoxDef2
-	const uint32 MagicHashPrime32;             // @v11.3.10 Knuth multiplicative hashing.  (Sorting & Searching, p. 510). the closest prime number to (2**32)*golden_ratio, where golden_ratio = (sqrt(5) - 1)/2.
-	const uint32 GoldenRatioInt32;             // @v11.3.12 The integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
-	//0x9e3779b9 is the integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
-	const uint32 MagicMurmurC1; // @v11.4.0 0xcc9e2d51 // Magic number C1 for 32-bit hashing from Murmur3
-	const uint32 MagicMurmurC2; // @v11.4.0 0x1b873593 // Magic number C2 for 32-bit hashing from Murmur3
+	static constexpr const long WaitableObjCheckTimeout = (1 * 60 * 1000);
+	static constexpr uint32 SUiLayoutSignature = 0x28785EB8U; // @v11.2.4 Сигнатура экземпляров класса SUiLayout для верификации валидности
+	static constexpr uint32 ListBoxDefSignature_INVALID = 0x00000000U;  //0x00000000 // Invalid (destroyed) instance
+	static constexpr uint32 ListBoxDefSignature_DEFAULT = 0x1234ABCD;  //0x1234ABCD // Instance of base class ListBoxDef or subclass hasn't own Sign
+	static constexpr uint32 ListBoxDefSignature_STD = 0xABCD0001;      //0xABCD0001 // StdListBoxDef
+	static constexpr uint32 ListBoxDefSignature_STRASSOC = 0xABCD0002; //0xABCD0002 // StrAssocListBoxDef
+	static constexpr uint32 ListBoxDefSignature_STDTREE = 0xABCD0003;  //0xABCD0003 // StdTreeListBoxDef
+	static constexpr uint32 ListBoxDefSignature_STRING  = 0xABCD0004;  //0xABCD0004 // StringListBoxDef
+	static constexpr uint32 ListBoxDefSignature_DBQ = 0xABCD0005;      //0xABCD0005 // DBQListBoxDef
+	static constexpr uint32 ListBoxDefSignature_STDTREE2 = 0xABCD0006; //0xABCD0006 // StdTreeListBoxDef2
+	static constexpr uint32 MagicHashPrime32 = 2654435761U; // @v11.3.10 Knuth multiplicative hashing.  (Sorting & Searching, p. 510). the closest prime number to (2**32)*golden_ratio, where golden_ratio = (sqrt(5) - 1)/2.
+	static constexpr uint32 GoldenRatioInt32 = 2654435769U; // @v11.3.12 The integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
+		//0x9e3779b9 is the integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
+	static constexpr uint32 MagicMurmurC1 = 0xcc9e2d51U; // @v11.4.0 0xcc9e2d51 // Magic number C1 for 32-bit hashing from Murmur3
+	static constexpr uint32 MagicMurmurC2 = 0x1b873593U; // @v11.4.0 0x1b873593 // Magic number C2 for 32-bit hashing from Murmur3
 };
 
-extern const SlConstParam _SlConst;
+// @v11.7.4 extern const SlConstParam _SlConst_Removed;
 
 template <class T> T * AssignPtr2Ptr(T *& prDest, const T * pSrc) // @v11.4.12
 {
@@ -3190,121 +3324,6 @@ void FASTCALL RegisterSType(TYPEID, DataType *);
 //
 // } @ModuleDecl(SType)
 //
-//
-// Common format flags
-//
-#define ALIGN_RIGHT    0x1000  // Выравнивать строку вправо
-#define ALIGN_LEFT     0x2000  // Выравнивать строку влево
-#define ALIGN_CENTER   0x3000  // Центрировать строку
-#define COMF_FILLOVF   0x4000  // Если результирующая строка не помещается в указанную длину, то заполнять символами '#'
-#define COMF_SQL       0x8000  // Форматировать значения в пригодном для SQL виде
-	// Этот флаг передается в функции форматирования различных типов для того, чтобы они смогли
-	// правильно сформировать строковое представление данных.
-//
-// Number format flags
-//
-#define NMBF_NONEG     0x0001  // Отрицательное значение заменяется пустой строкой
-#define NMBF_NEGPAR    0x0002  // Отрицательное значение обрамляется круглыми скобками
-#define NMBF_FORCEPOS  0x0004  // Перед положительным значением указывать знак '+'
-#define NMBF_NOZERO    0x0008  // Нулевое значение заменяется пустой строкой
-#define NMBF_TRICOMMA  0x0010  // Разделять тройки цифр запятой
-#define NMBF_TRIAPOSTR 0x0020  // Разделять тройки цифр апострофом '
-#define NMBF_TRISPACE  0x0040  // Разделять тройки цифр пробелом
-#define NMBF_DELCOMMA  NMBF_TRICOMMA   // @obsolete (still used in resource)
-#define NMBF_DELAPOSTR NMBF_TRIAPOSTR  // @obsolete (still used in resource)
-#define NMBF_DELSPACE  NMBF_TRISPACE   // @obsolete (still used in resource)
-#define NMBF_NOTRAILZ  0x0080  // Обрезать незначащие нули после десятичной точки
-#define NMBF_DECCOMMA  0x0100  // Десятичный разделитель - запятая ',', иначе - точка '.'
-#define NMBF_EXPLFLOAT 0x0200  // Если float-число не имеет знаков после точки, то оставлять в формате 999.0 (актуально только при флаге NMBF_NOTRAILZ)
-#define NMBF_OMITEPS   0x0400  // Если за очередной десятичной цифрой следует OMITEPSDITITS или больше '9' либо '0' то
-	// число форматируется с округлением до ближайшей соседней десятичной цифры с заменой последующих на нули.
-	// Например:
-	// 369,9000000000001  --> 369,9000000000000
-	// 4043,1599999999994 --> 4043,1600000000000
-
-#define OMITEPSDIGITS  5
-//
-// Text number format flags
-//
-#define NTTF_FEMIN     0x0001  // В женском роде
-#define NTTF_CURRENCY  0x0002  // Добавить полное наименование валюты
-#define NTTF_ABBRCURR  0x0004  // Добавить краткое наименование валюты
-#define NTTF_DECCURR   0x0008  // Дробная денежная единица (коп.)
-#define NTTF_FIRSTCAP  0x0010  // Первая буква заглавная //
-#define NTTF_NOZERO    0x0020  // Не выводить нулевое значение
-//
-// Date format flags
-// @persistent
-//
-#define DATF_AMERICAN       1  // mm/dd/yy
-#define DATF_ANSI           2  // yy.mm.dd
-#define DATF_BRITISH        3  // dd/mm/yy
-#define DATF_FRENCH         4  // dd/mm/yy
-#define DATF_GERMAN         5  // dd.mm.yy
-#define DATF_ITALIAN        6  // dd-mm-yy
-#define DATF_JAPAN          7  // yy/mm/dd
-#define DATF_USA            8  // mm-dd-yy
-#define DATF_MDY            9  // mm/dd/yy
-#define DATF_DMY           10  // dd/mm/yy
-#define DATF_YMD           11  // yy/mm/dd
-#define DATF_SQL           12  // DATE 'YYYY-MM-DD'
-#define DATF_INTERNET      13  // Wed, 27 Feb 2008
-#define DATF_ISO8601       14  // yyyy-mm-dd
-#define DATF_CENTURY   0x0010  // Century flag
-#define DATF_NOZERO    0x0020  // Не отображать нулевое значение
-#define DATF_NODIV     0x0040  // день, месяц и год следуют друг за другом без разделителей.
-#define DATF_GERMANCENT    (DATF_GERMAN|DATF_CENTURY) // @v11.3.12
-#define DATF_ISO8601CENT   (DATF_ISO8601|DATF_CENTURY) // @v11.3.12
-	// Порядок следования определяется младшими битами (DATF_AMERICAN..DATF_YMD). Если установлен
-	// флаг DATF_CENTURY, то год должен быть полным (2011), в противном случае - только последние две
-	// цифры года (11).
-//
-// Time format flags
-// @persistent
-//
-#define TIMF_HMS            1  // 23:20:59
-#define TIMF_HM             2  // 23:20
-#define TIMF_MS             3  // 20:59
-#define TIMF_S              4  // 59
-#define TIMF_SQL            5  // TIMESTAMP 'YYYY-MM-DD HH:MM:SS.HS'
-#define TIMF_MSEC      0x0008  // 23:20:59.019
-#define TIMF_BLANK     0x0010  //
-#define TIMF_NOZERO    TIMF_BLANK // Не отображать нулевое значение
-#define TIMF_TIMEZONE  0x0020  // +0300
-#define TIMF_NODIV     0x0040  //
-#define TIMF_DOTDIV    0x0080  // Разделители часов, минут и секунд - точки. Например: 23.20.59
-//
-// String format flags
-//
-#define STRF_UPPER     0x0001  // Все буквы переводить в прописные
-#define STRF_LOWER     0x0002  // Все буквы переводить в строчные
-#define STRF_PASSWORD  0x0004  // Все символы заменять символом '*'
-#define STRF_OEM       0x0008  // AnsiToOem (Windows only)
-#define STRF_ANSI      0x0010  // OemToAnsi (Windows only)
-//
-// Structure of format field:
-//   Precision           4 bit
-//   Text output length 12 bit
-//   Flags              16 bit
-//
-#define SFFLAGMASK  0x0000ffffL
-#define SFLENMASK   0x0fff0000L
-#define SFPRCMASK   0xf0000000L
-#define SFALIGNMASK  (static_cast<unsigned long>(ALIGN_LEFT|ALIGN_RIGHT|ALIGN_CENTER))
-#define SFCOMMONMASK (static_cast<unsigned long>(SFALIGNMASK|COMF_FILLOVF))
-#define MKSFMT(l,f)           (((static_cast<long>(l))<<16)|(static_cast<long>(f)))
-#define MKSFMTD(l,p,f)        (((static_cast<long>(p))<<28)|((static_cast<long>(l))<<16)|(static_cast<long>(f)))
-#define SFMTFLAG(fmt)         (static_cast<unsigned>((fmt)&SFFLAGMASK))
-#define SFMTLEN(fmt)          (static_cast<uint16>(((fmt)&SFLENMASK)>>16))
-#define SFMTPRC(fmt)          (((fmt)&SFPRCMASK)>>28)
-#define SFMTALIGN(fmt)        ((fmt)&SFALIGNMASK)
-#define SETSFMTLEN(fmt,l)     (fmt)=(((static_cast<long>(l))<<16)|(static_cast<long>((fmt)&~SFLENMASK)))
-#define SETSFMTPRC(fmt,p)     (fmt)=(((static_cast<long>(p))<<28)|(static_cast<long>((fmt)&~SFPRCMASK)))
-#define SETSFMTFLAG(fmt,f)    (fmt)=((static_cast<long>(f))|(static_cast<long>((fmt)&~SFFLAGMASK)))
-
-#define SFMT_MONEY            MKSFMTD(0,2,0)
-#define SFMT_QTTY             MKSFMTD(0,3,0)
-
 #ifndef RC_INVOKED
 //
 // Descr: Блок форматов вывода различных типов данных в строку.
@@ -5141,15 +5160,6 @@ inline const wchar_t * FASTCALL SUcSwitchA(const wchar_t * pStr) { return pStr; 
 #else
 	#define SUcSwitch SUcSwitchA
 #endif
-//
-// Formats for date binary representation
-//
-#define DF_DOS              1
-#define DF_FAT              2
-#define DF_XBASE            3
-// @v10.2.8 #define DF_PARADOX          4
-#define DF_CLARION          5
-#define DF_BTRIEVE          6
 //
 // Week days
 //
@@ -7527,7 +7537,7 @@ public:
 	// ARG(pItems IN): указатель на блок памяти, содержащий значения новых элементов.
 	//   Если pItems == 0, то все вновь распределенное пространство обнуляется.
 	// Note: Работает быстрее, чем вставка по-одному, но требует большей тщательности в использовании.
-	//   Наибольшую сложность представляет вставка указательей на элементы (aryPtrContainer).
+	//   Наибольшую сложность представляет вставка указателей на элементы (aryPtrContainer).
 	//   В этом случае указатель pItems должен быть массивом указателей, которые должны
 	//   быть вставлены. Например:
 	//
@@ -11967,6 +11977,14 @@ public:
 		int    Sis;    // ssisXXX
 		int    Var;    // Вариация
 	};
+	//
+	// 
+	//
+	static int List(int type, int * pFormat, const char * pName, uint flags, SFileEntryPool & rPool);
+	static int Inflate(int type, const char * pName, uint flags, const SFileEntryPool & rPool, const char * pDestPath);
+	static int InflateAll(int type, const char * pName, uint flags, const char * pDestPath);
+	static int Deflate(int type, int format, const char * pName, uint flags, const SFileEntryPool & rPool);
+
 	explicit SArchive(int type);
 	~SArchive();
 	int    Open(const char * pName, int mode/*SFile::mXXX*/, SArchive::Format * pFmt);
@@ -12366,31 +12384,59 @@ int    MutualReducePrimeMultiplicators(UlongArray & rA1, UlongArray & rA2, Ulong
 long   GetTranspositionNumber(const long list[], long count);
 int    GetNthTransposition(long list[], long count, long n);
 //
+// Descr: Базовые структуры для представления 128-битного целого числа для low-endian и big-endian
+// архитектур.
+// Note: Я заимствовал дифференциацию представления по le/be-архитектурам у библиотеки abseil.
+//   Мне стыдно, но я не понимаю зачем нужна такая дифференциация. Надеюсь, в google'е знают.
 // 
-// 
-class SUint128 { // @v11.7.3 @size=128 @construction
+struct _baseuint128_le { uint64 lo; uint64 hi; };
+struct _baseint128_le  { uint64 lo; int64  hi; };
+struct _baseuint128_be { uint64 hi; uint64 lo; };
+struct _baseint128_be  { int64  hi; uint64 lo; };
+//
+// Low-level int128 operations @construction
+//
+void SlUint128_Add(uint64 a, uint64 b, _baseuint128_le * pResult);
+void SlUint128_Add(const _baseuint128_le * pA, const _baseuint128_le * pB, _baseuint128_le * pResult);
+void SlUint128_Sub(const _baseuint128_le * pA, const _baseuint128_le * pB, _baseint128_le * pResult);
+void SlUint128_Mul(uint64 a, uint64 b, _baseuint128_le * pResult);
+void SlUint128_Mul(const _baseuint128_le * pA, const _baseuint128_le * pB, _baseuint128_le * pResult);
+void SlUint128_Div(const _baseuint128_le * pA, uint64 b, uint64 * pResult);
+void SlUint128_Div(const _baseuint128_le * pA, uint64 b, _baseuint128_le * pResult);
+//
+//
+//
+class SUint128 : private
+#if defined(SL_LITTLEENDIAN)
+	_baseuint128_le
+#elif defined(SL_BIGENDIAN)
+	_baseuint128_be
+#else
+	#error "Unsupported byte order: must be little-endian or big-endian."
+#endif
+{ // @v11.7.3 @size=128 @construction
 public:
 	SUint128() // no initialization!
 	{
 	}
+	SUint128(uint64 _hi, uint64 _lo)
+	{
+		hi = _hi;
+		lo = _lo;
+	}
+	SUint128(uint64 v)
+	{
+		hi = 0;
+		lo = v;
+	}
 	//
 	// Descr: Перемножает два 64-битных числа, результат заносит в this.
 	//
-	void   Mul64(uint64 m1, uint64 m2);
+	SUint128 & Mul64(uint64 a, uint64 b);
 	//
 	// Descr: Умножает v на 10^p. результат заносит в this.
 	// 
 	bool   MulPow10(uint64 v, uint p);
-private:
-#if defined(SL_LITTLEENDIAN)
-	uint64 Lo;
-	uint64 Hi;
-#elif defined(SL_BIGENDIAN)
-	uint64 Hi;
-	uint64 Lo;
-#else
-	#error "Unsupported byte order: must be little-endian or big-endian."
-#endif
 };
 //
 // bits: 

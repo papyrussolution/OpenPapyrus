@@ -90,7 +90,7 @@ int TStatusWin::Update()
 		const long icon_id = r_item.Icon;
 		if(icon_id) {
 			HICON h_icon = 0;
-			if(icon_id & _SlConst.VectorImageMask) {
+			if(icon_id & SlConst::VectorImageMask) {
 				TWhatmanToolArray::Item tool_item;
 				const SDrawFigure * p_fig = APPL->LoadDrawFigureById(icon_id, &tool_item);
 				const uint _w = 16;
@@ -2145,7 +2145,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 					case IDB_PHONEFORWARDED: dv_id = PPDV_PHONEFORWARDED01; break; // @v10.0.04
 					case IDB_GEAR:           dv_id = PPDV_GEAR01; break; // @v10.4.11
 					default:
-						if(bmp_id & _SlConst.VectorImageMask) { // @v10.5.5
+						if(bmp_id & SlConst::VectorImageMask) { // @v10.5.5
 							dv_id = bmp_id;
 						}
 						else {

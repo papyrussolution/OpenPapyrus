@@ -34,8 +34,8 @@ static const uint64_t k1 = 0xb492b66fbe98f273ULL;
 static const uint64_t k2 = 0x9ae16a3b2f90404fULL;
 
 // Magic numbers for 32-bit hashing.  Copied from Murmur3.
-// @v11.4.0 (replaced with _SlConst.MagicMurmurC1) static const uint32_t c1 = 0xcc9e2d51;
-// @v11.4.0 (replaced with _SlConst.MagicMurmurC2) static const uint32_t c2 = 0x1b873593;
+// @v11.4.0 (replaced with SlConst::MagicMurmurC1) static const uint32_t c1 = 0xcc9e2d51;
+// @v11.4.0 (replaced with SlConst::MagicMurmurC2) static const uint32_t c2 = 0x1b873593;
 
 // A 32-bit to 32-bit integer hash copied from Murmur3.
 static uint32_t fmix(uint32_t h) 
@@ -64,9 +64,9 @@ static uint32_t Rotate32(uint32_t val, int shift)
 static uint32_t Mur(uint32_t a, uint32_t h) 
 {
 	// Helper from Murmur3 for combining two 32-bit values.
-	a *= _SlConst.MagicMurmurC1;
+	a *= SlConst::MagicMurmurC1;
 	a = Rotate32(a, 17);
-	a *= _SlConst.MagicMurmurC2;
+	a *= SlConst::MagicMurmurC2;
 	h ^= a;
 	h = Rotate32(h, 19);
 	return h * 5 + 0xe6546b64;
@@ -90,7 +90,7 @@ static uint32_t Hash32Len0to4(const char * s, size_t len)
 	uint32_t c = 9;
 	for(size_t i = 0; i < len; i++) {
 		signed char v = s[i];
-		b = b * _SlConst.MagicMurmurC1 + v;
+		b = b * SlConst::MagicMurmurC1 + v;
 		c ^= b;
 	}
 	return fmix(Mur(b, Mur(len, c)));
@@ -112,13 +112,13 @@ uint32_t CityHash32(const char * s, size_t len)
 	}
 	// len > 24
 	uint32_t h = len;
-	uint32_t g = _SlConst.MagicMurmurC1 * len;
+	uint32_t g = SlConst::MagicMurmurC1 * len;
 	uint32_t f = g;
-	uint32_t a0 = Rotate32(Fetch32(s + len - 4) * _SlConst.MagicMurmurC1, 17) * _SlConst.MagicMurmurC2;
-	uint32_t a1 = Rotate32(Fetch32(s + len - 8) * _SlConst.MagicMurmurC1, 17) * _SlConst.MagicMurmurC2;
-	uint32_t a2 = Rotate32(Fetch32(s + len - 16) * _SlConst.MagicMurmurC1, 17) * _SlConst.MagicMurmurC2;
-	uint32_t a3 = Rotate32(Fetch32(s + len - 12) * _SlConst.MagicMurmurC1, 17) * _SlConst.MagicMurmurC2;
-	uint32_t a4 = Rotate32(Fetch32(s + len - 20) * _SlConst.MagicMurmurC1, 17) * _SlConst.MagicMurmurC2;
+	uint32_t a0 = Rotate32(Fetch32(s + len - 4) * SlConst::MagicMurmurC1, 17) * SlConst::MagicMurmurC2;
+	uint32_t a1 = Rotate32(Fetch32(s + len - 8) * SlConst::MagicMurmurC1, 17) * SlConst::MagicMurmurC2;
+	uint32_t a2 = Rotate32(Fetch32(s + len - 16) * SlConst::MagicMurmurC1, 17) * SlConst::MagicMurmurC2;
+	uint32_t a3 = Rotate32(Fetch32(s + len - 12) * SlConst::MagicMurmurC1, 17) * SlConst::MagicMurmurC2;
+	uint32_t a4 = Rotate32(Fetch32(s + len - 20) * SlConst::MagicMurmurC1, 17) * SlConst::MagicMurmurC2;
 	h ^= a0;
 	h = Rotate32(h, 19);
 	h = h * 5 + 0xe6546b64;
@@ -136,17 +136,17 @@ uint32_t CityHash32(const char * s, size_t len)
 	f = f * 5 + 0xe6546b64;
 	size_t iters = (len - 1) / 20;
 	do {
-		uint32_t b0 = Rotate32(Fetch32(s) * _SlConst.MagicMurmurC1, 17) * _SlConst.MagicMurmurC2;
+		uint32_t b0 = Rotate32(Fetch32(s) * SlConst::MagicMurmurC1, 17) * SlConst::MagicMurmurC2;
 		uint32_t b1 = Fetch32(s + 4);
-		uint32_t b2 = Rotate32(Fetch32(s + 8) * _SlConst.MagicMurmurC1, 17) * _SlConst.MagicMurmurC2;
-		uint32_t b3 = Rotate32(Fetch32(s + 12) * _SlConst.MagicMurmurC1, 17) * _SlConst.MagicMurmurC2;
+		uint32_t b2 = Rotate32(Fetch32(s + 8) * SlConst::MagicMurmurC1, 17) * SlConst::MagicMurmurC2;
+		uint32_t b3 = Rotate32(Fetch32(s + 12) * SlConst::MagicMurmurC1, 17) * SlConst::MagicMurmurC2;
 		uint32_t b4 = Fetch32(s + 16);
 		h ^= b0;
 		h = Rotate32(h, 18);
 		h = h * 5 + 0xe6546b64;
 		f += b1;
 		f = Rotate32(f, 19);
-		f = f * _SlConst.MagicMurmurC1;
+		f = f * SlConst::MagicMurmurC1;
 		g += b2;
 		g = Rotate32(g, 18);
 		g = g * 5 + 0xe6546b64;
@@ -161,16 +161,16 @@ uint32_t CityHash32(const char * s, size_t len)
 		PERMUTE3(f, h, g);
 		s += 20;
 	} while(--iters != 0);
-	g = Rotate32(g, 11) * _SlConst.MagicMurmurC1;
-	g = Rotate32(g, 17) * _SlConst.MagicMurmurC1;
-	f = Rotate32(f, 11) * _SlConst.MagicMurmurC1;
-	f = Rotate32(f, 17) * _SlConst.MagicMurmurC1;
+	g = Rotate32(g, 11) * SlConst::MagicMurmurC1;
+	g = Rotate32(g, 17) * SlConst::MagicMurmurC1;
+	f = Rotate32(f, 11) * SlConst::MagicMurmurC1;
+	f = Rotate32(f, 17) * SlConst::MagicMurmurC1;
 	h = Rotate32(h + g, 19);
 	h = h * 5 + 0xe6546b64;
-	h = Rotate32(h, 17) * _SlConst.MagicMurmurC1;
+	h = Rotate32(h, 17) * SlConst::MagicMurmurC1;
 	h = Rotate32(h + f, 19);
 	h = h * 5 + 0xe6546b64;
-	h = Rotate32(h, 17) * _SlConst.MagicMurmurC1;
+	h = Rotate32(h, 17) * SlConst::MagicMurmurC1;
 	return h;
 }
 

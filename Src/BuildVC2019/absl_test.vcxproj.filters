@@ -61,5 +61,14 @@
     <ClCompile Include="..\OSF\abseil\absl\container\internal\unordered_set_test.cc" />
     <ClCompile Include="..\OSF\abseil\absl\container\internal\test_instance_tracker.cc" />
     <ClCompile Include="..\OSF\abseil\absl\container\internal\hash_generator_testing.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\numeric\int128_stream_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\numeric\int128_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\civil_time_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\clock_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\duration_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\format_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\time_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\time_zone_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\internal\test_util.cc" />
   </ItemGroup>
 </Project>

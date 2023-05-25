@@ -785,7 +785,7 @@ void PPDesktop::DrawIcon(TCanvas & rC, long id, SPoint2S coord, const SString & 
 		{
 			long icon_id = rIcon.ToLong();
 			if(icon_id) {
-				if(icon_id & _SlConst.VectorImageMask) {
+				if(icon_id & SlConst::VectorImageMask) {
 					// @v10.7.8 {
 					TWhatmanToolArray::Item tool_item;
 					const SDrawFigure * p_fig = APPL->LoadDrawFigureById(icon_id, &tool_item);

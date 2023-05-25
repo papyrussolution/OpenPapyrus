@@ -3806,7 +3806,6 @@ void ImGui::BeginColumns(const char* str_id, int columns_count, ImGuiOldColumnFl
 			columns->Columns.push_back(column);
 		}
 	}
-
 	for(int n = 0; n < columns_count; n++) {
 		// Compute clipping rectangle
 		ImGuiOldColumnData* column = &columns->Columns[n];
@@ -3815,13 +3814,11 @@ void ImGui::BeginColumns(const char* str_id, int columns_count, ImGuiOldColumnFl
 		column->ClipRect = ImRect(clip_x1, -FLT_MAX, clip_x2, +FLT_MAX);
 		column->ClipRect.ClipWithFull(window->ClipRect);
 	}
-
 	if(columns->Count > 1) {
 		columns->Splitter.Split(window->DrawList, 1 + columns->Count);
 		columns->Splitter.SetCurrentChannel(window->DrawList, 1);
 		PushColumnClipRect(0);
 	}
-
 	// We don't generally store Indent.x inside ColumnsOffset because it may be manipulated by the user.
 	float offset_0 = GetColumnOffset(columns->Current);
 	float offset_1 = GetColumnOffset(columns->Current + 1);

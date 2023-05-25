@@ -1924,7 +1924,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 	uint32 hashv = 0xfeedbeef;
 	uint32 _hj_i, _hj_j;
 	char * _hj_key = (char *)pKey;
-	_hj_i = _hj_j = _SlConst.GoldenRatioInt32/*0x9e3779b9*/;
+	_hj_i = _hj_j = SlConst::GoldenRatioInt32/*0x9e3779b9*/;
 	size_t _hj_k = keyLen;
 	for(; _hj_k >= 12; _hj_k -= 12) {
 		_hj_i += (_hj_key[0] + ((uint)_hj_key[1] << 8) + ((uint)_hj_key[2]  << 16) + ((uint)_hj_key[3]  << 24));
@@ -1958,7 +1958,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 		unsigned _hj_i, _hj_j, _hj_k;							 \
 		char * _hj_key = (char *)(key);							  \
 		hashv = 0xfeedbeef;							       \
-		_hj_i = _hj_j = _SlConst.GoldenRatioInt32/*0x9e3779b9*/; \
+		_hj_i = _hj_j = SlConst::GoldenRatioInt32/*0x9e3779b9*/; \
 		_hj_k = (uint)keylen;								 \
 		while(_hj_k >= 12) {							      \
 			_hj_i += (_hj_key[0] + ((uint)_hj_key[1] << 8) + ((uint)_hj_key[2]  << 16) + ((uint)_hj_key[3]  << 24)); \
@@ -2084,8 +2084,8 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 		const uint8_t * _mur_data = (const uint8_t *)(key);		      \
 		const int _mur_nblocks = (keylen) / 4;				     \
 		uint32_t _mur_h1 = 0xf88D5353;					     \
-		const uint32_t _mur_c1 = _SlConst.MagicMurmurC1; \
-		const uint32_t _mur_c2 = _SlConst.MagicMurmurC2; \
+		const uint32_t _mur_c1 = SlConst::MagicMurmurC1; \
+		const uint32_t _mur_c2 = SlConst::MagicMurmurC2; \
 		uint32_t _mur_k1 = 0;						     \
 		const uint8_t * _mur_tail;					      \
 		const uint32_t * _mur_blocks = (const uint32_t*)(_mur_data+_mur_nblocks*4); \

@@ -183,7 +183,8 @@ template <typename Consumer> bool ParseFormatString(string_view src, Consumer co
 			}
 		}
 		else {
-			if(ABSL_PREDICT_FALSE(!consumer.Append("%"))) return false;
+			if(ABSL_PREDICT_FALSE(!consumer.Append("%"))) 
+				return false;
 			p = percent + 2;
 			continue;
 		}
@@ -208,7 +209,8 @@ public:
 	}
 	ParsedFormatBase& operator = (const ParsedFormatBase& other) 
 	{
-		if(this == &other) return *this;
+		if(this == &other) 
+			return *this;
 		has_error_ = other.has_error_;
 		items_ = other.items_;
 		size_t text_size = items_.empty() ? 0 : items_.back().text_end;
@@ -219,7 +221,8 @@ public:
 
 	ParsedFormatBase& operator = (ParsedFormatBase&& other) 
 	{
-		if(this == &other) return *this;
+		if(this == &other) 
+			return *this;
 		has_error_ = other.has_error_;
 		data_ = std::move(other.data_);
 		items_ = std::move(other.items_);

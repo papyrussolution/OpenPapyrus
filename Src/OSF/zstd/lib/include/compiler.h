@@ -89,26 +89,25 @@
  */
 #define BMI2_TARGET_ATTRIBUTE TARGET_ATTRIBUTE("lzcnt,bmi,bmi2")
 
-/* prefetch
- * can be disabled, by declaring NO_PREFETCH build macro */
+/* prefetch can be disabled, by declaring NO_PREFETCH build macro */
 #if defined(NO_PREFETCH)
-#define PREFETCH_L1(ptr)  (void)(ptr)  /* disabled */
-#define PREFETCH_L2(ptr)  (void)(ptr)  /* disabled */
+	#define PREFETCH_L1(ptr)  (void)(ptr)  /* disabled */
+	#define PREFETCH_L2(ptr)  (void)(ptr)  /* disabled */
 #else
-#if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_I86))  /* _mm_prefetch() is not defined outside of x86/x64 */
-#include <mmintrin.h>   /* https://msdn.microsoft.com/fr-fr/library/84szxsww(v=vs.90).aspx */
-#define PREFETCH_L1(ptr)  _mm_prefetch((const char *)(ptr), _MM_HINT_T0)
-#define PREFETCH_L2(ptr)  _mm_prefetch((const char *)(ptr), _MM_HINT_T1)
-#elif defined(__GNUC__) && ( (__GNUC__ >= 4) || ( (__GNUC__ == 3) && (__GNUC_MINOR__ >= 1) ) )
-#define PREFETCH_L1(ptr)  __builtin_prefetch((ptr), 0 /* rw==read */, 3 /* locality */)
-#define PREFETCH_L2(ptr)  __builtin_prefetch((ptr), 0 /* rw==read */, 2 /* locality */)
-#elif defined(__aarch64__)
-#define PREFETCH_L1(ptr)  __asm__ __volatile__("prfm pldl1keep, %0" ::"Q"(*(ptr)))
-#define PREFETCH_L2(ptr)  __asm__ __volatile__("prfm pldl2keep, %0" ::"Q"(*(ptr)))
-#else
-#define PREFETCH_L1(ptr) (void)(ptr)  /* disabled */
-#define PREFETCH_L2(ptr) (void)(ptr)  /* disabled */
-#  endif
+	#if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_I86))  /* _mm_prefetch() is not defined outside of x86/x64 */
+		#include <mmintrin.h>   /* https://msdn.microsoft.com/fr-fr/library/84szxsww(v=vs.90).aspx */
+		#define PREFETCH_L1(ptr)  _mm_prefetch((const char *)(ptr), _MM_HINT_T0)
+		#define PREFETCH_L2(ptr)  _mm_prefetch((const char *)(ptr), _MM_HINT_T1)
+	#elif defined(__GNUC__) && ( (__GNUC__ >= 4) || ( (__GNUC__ == 3) && (__GNUC_MINOR__ >= 1) ) )
+		#define PREFETCH_L1(ptr)  __builtin_prefetch((ptr), 0 /* rw==read */, 3 /* locality */)
+		#define PREFETCH_L2(ptr)  __builtin_prefetch((ptr), 0 /* rw==read */, 2 /* locality */)
+	#elif defined(__aarch64__)
+		#define PREFETCH_L1(ptr)  __asm__ __volatile__("prfm pldl1keep, %0" ::"Q"(*(ptr)))
+		#define PREFETCH_L2(ptr)  __asm__ __volatile__("prfm pldl2keep, %0" ::"Q"(*(ptr)))
+	#else
+		#define PREFETCH_L1(ptr) (void)(ptr)  /* disabled */
+		#define PREFETCH_L2(ptr) (void)(ptr)  /* disabled */
+	#endif
 #endif  /* NO_PREFETCH */
 
 #define CACHELINE_SIZE 64
@@ -126,15 +125,14 @@
  * older GCC (pre gcc-4.3 picked as the cutoff) uses a different syntax,
  * and some compilers, like Intel ICC and MCST LCC, do not support it at all. */
 #if !defined(__INTEL_COMPILER) && !defined(__clang__) && defined(__GNUC__) && !defined(__LCC__)
-#if (__GNUC__ == 4 && __GNUC_MINOR__ > 3) || (__GNUC__ >= 5)
-#define DONT_VECTORIZE __attribute__((optimize("no-tree-vectorize")))
+	#if (__GNUC__ == 4 && __GNUC_MINOR__ > 3) || (__GNUC__ >= 5)
+		#define DONT_VECTORIZE __attribute__((optimize("no-tree-vectorize")))
+	#else
+		#define DONT_VECTORIZE _Pragma("GCC optimize(\"no-tree-vectorize\")")
+	#endif
 #else
-#define DONT_VECTORIZE _Pragma("GCC optimize(\"no-tree-vectorize\")")
-#  endif
-#else
-#define DONT_VECTORIZE
+	#define DONT_VECTORIZE
 #endif
-
 /* Tell the compiler that a branch is likely or unlikely.
  * Only use these macros if it causes the compiler to generate better code.
  * If you can remove a LIKELY/UNLIKELY annotation without speed changes in gcc

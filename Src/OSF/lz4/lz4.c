@@ -462,9 +462,9 @@ int LZ4_decompress_safe_forceExtDict(const char * in, char * out, int inSize, in
 static uint32 FASTCALL LZ4_hash4(uint32 sequence, tableType_t const tableType)
 {
 	if(tableType == byU16)
-		return ((sequence * _SlConst.MagicHashPrime32) >> ((MINMATCH*8)-(LZ4_HASHLOG+1)));
+		return ((sequence * SlConst::MagicHashPrime32) >> ((MINMATCH*8)-(LZ4_HASHLOG+1)));
 	else
-		return ((sequence * _SlConst.MagicHashPrime32) >> ((MINMATCH*8)-LZ4_HASHLOG));
+		return ((sequence * SlConst::MagicHashPrime32) >> ((MINMATCH*8)-LZ4_HASHLOG));
 }
 
 static uint32 FASTCALL LZ4_hash5(uint64 sequence, tableType_t const tableType)

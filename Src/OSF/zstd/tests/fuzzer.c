@@ -78,7 +78,7 @@ void FUZ_bug976(void)
 #define FUZ_rotl32(x, r) ((x << r) | (x >> (32 - r)))
 static uint32 FUZ_rand(uint32* src)
 {
-	static const uint32 prime1 = _SlConst.MagicHashPrime32/*2654435761U*/;
+	static const uint32 prime1 = SlConst::MagicHashPrime32/*2654435761U*/;
 	static const uint32 prime2 = 2246822519U;
 	uint32 rand32 = *src;
 	rand32 *= prime1;
@@ -802,7 +802,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		for(level = 1; level <= 5; ++level) {
 			for(ldmEnabled = 0; ldmEnabled <= 1; ++ldmEnabled) {
 				size_t cSize0;
-				XXH64_hash_t compressedChecksum0;
+				/*XXH64_hash_t*/uint64 compressedChecksum0;
 
 				CHECK_Z(ZSTD_CCtx_setParameter(cctx, ZSTD_c_checksumFlag, 1));
 				CHECK_Z(ZSTD_CCtx_setParameter(cctx, ZSTD_c_compressionLevel, level));
@@ -3815,7 +3815,7 @@ static int fuzzerTests(uint32 seed, unsigned nbTests, unsigned startTest, const 
 		FUZ_rand(&coreSeed);
 		{ 
 			//const uint32 prime1 = _SlConst.MagicHashPrime32/*2654435761U*/; 
-			lseed = coreSeed ^ _SlConst.MagicHashPrime32/*prime1*/; 
+			lseed = coreSeed ^ SlConst::MagicHashPrime32/*prime1*/; 
 		}
 		/* srcBuffer selection [0-4] */
 		{   

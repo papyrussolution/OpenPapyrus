@@ -52,5 +52,14 @@
     <ClCompile Include="..\OSF\abseil\absl\strings\string_view_test.cc" />
     <ClCompile Include="..\OSF\abseil\absl\strings\strip_test.cc" />
     <ClCompile Include="..\OSF\abseil\absl\strings\substitute_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\numeric\int128_stream_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\numeric\int128_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\civil_time_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\clock_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\duration_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\format_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\time_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\time_zone_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\internal\test_util.cc" />
   </ItemGroup>
 </Project>

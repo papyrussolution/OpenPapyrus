@@ -584,9 +584,9 @@ int  SmartListBox::SetupTreeWnd2(void * pParent)
 		SString err_msg;
 		StdTreeListBoxDef * p_def = 0;
 		StdTreeListBoxDef2_ * p_def2 = 0;
-		if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE)
+		if(P_Def->GetSignature() == SlConst::ListBoxDefSignature_STDTREE)
 			p_def = static_cast<StdTreeListBoxDef *>(P_Def);
-		else if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2)
+		else if(P_Def->GetSignature() == SlConst::ListBoxDefSignature_STDTREE2)
 			p_def2 = static_cast<StdTreeListBoxDef2_ *>(P_Def);
 		if(p_def2) {
 			StrAssocTree * p_tree = p_def2->P_SaList;
@@ -733,11 +733,11 @@ int  SmartListBox::GetStringByID(long id, SString & rBuf)
 	rBuf.Z();
 	int    ok = 0;
 	if(P_Def) {
-		if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE) {
+		if(P_Def->GetSignature() == SlConst::ListBoxDefSignature_STDTREE) {
 			StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(P_Def);
 			ok = p_def->GetStringByID(id, rBuf);
 		}
-		else if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2) {
+		else if(P_Def->GetSignature() == SlConst::ListBoxDefSignature_STDTREE2) {
 			StdTreeListBoxDef2_ * p_def = static_cast<StdTreeListBoxDef2_ *>(P_Def);
 			ok = p_def->GetStringByID(id, rBuf);
 		}
@@ -749,15 +749,15 @@ int  SmartListBox::GetImageIdxByID(long id, long * pIdx)
 {
 	int    ok = 0;
 	if(P_Def) {
-		if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE) {
+		if(P_Def->GetSignature() == SlConst::ListBoxDefSignature_STDTREE) {
 			StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(P_Def);
 			ok = p_def->GetImageIdxByID(id, pIdx);
 		}
-		else if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2) {
+		else if(P_Def->GetSignature() == SlConst::ListBoxDefSignature_STDTREE2) {
 			StdTreeListBoxDef2_ * p_def = static_cast<StdTreeListBoxDef2_ *>(P_Def);
 			ok = p_def->GetImageIdxByID(id, pIdx);
 		}
-		else if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STD) {
+		else if(P_Def->GetSignature() == SlConst::ListBoxDefSignature_STD) {
 			StdListBoxDef * p_def = static_cast<StdListBoxDef *>(P_Def);
 			ok = p_def->GetImageIdxByID(id, pIdx);
 		}
@@ -989,11 +989,11 @@ int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					case TVN_SELCHANGED:
 						{
 							LPNMTREEVIEW pnmtv = reinterpret_cast<LPNMTREEVIEW>(lParam);
-							if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE) {
+							if(P_Def->GetSignature() == SlConst::ListBoxDefSignature_STDTREE) {
 								StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(P_Def);
 								p_def->GoByID(pnmtv->itemNew.lParam);
 							}
-							else if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2) {
+							else if(P_Def->GetSignature() == SlConst::ListBoxDefSignature_STDTREE2) {
 								StdTreeListBoxDef2_ * p_def = static_cast<StdTreeListBoxDef2_ *>(P_Def);
 								p_def->GoByID(pnmtv->itemNew.lParam);
 							}
@@ -1021,11 +1021,11 @@ int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							t_item.mask = TVIF_PARAM;
 							t_item.hItem = TreeView_HitTest(h_tlist, &ht);
 							TreeView_GetItem(h_tlist, &t_item);
-							if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE) {
+							if(P_Def->GetSignature() == SlConst::ListBoxDefSignature_STDTREE) {
 								StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(P_Def);
 								p_def->GoByID(t_item.lParam);
 							}
-							else if(P_Def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2) {
+							else if(P_Def->GetSignature() == SlConst::ListBoxDefSignature_STDTREE2) {
 								StdTreeListBoxDef2_ * p_def = static_cast<StdTreeListBoxDef2_ *>(P_Def);
 								p_def->GoByID(t_item.lParam);
 							}

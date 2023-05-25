@@ -25,8 +25,8 @@ int cmapdump_main(int argc, const char * argv[]);
 
 static struct {
 	int (* func)(int argc, const char * argv[]);
-	char * name;
-	char * desc;
+	const char * name;
+	const char * desc;
 } tools[] = {
 #if FZ_ENABLE_PDF
 	{ pdfclean_main, "clean", "rewrite pdf file" },

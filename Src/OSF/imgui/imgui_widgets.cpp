@@ -1076,7 +1076,6 @@ bool ImGui::RadioButton(const char* label, bool active)
 	const ImGuiStyle& style = g.Style;
 	const ImGuiID id = window->GetID(label);
 	const ImVec2 label_size = CalcTextSize(label, NULL, true);
-
 	const float square_sz = GetFrameHeight();
 	const ImVec2 pos = window->DC.CursorPos;
 	const ImRect check_bb(pos, pos + ImVec2(square_sz, square_sz));
@@ -1084,39 +1083,31 @@ bool ImGui::RadioButton(const char* label, bool active)
 	ItemSize(total_bb, style.FramePadding.y);
 	if(!ItemAdd(total_bb, id))
 		return false;
-
 	ImVec2 center = check_bb.GetCenter();
 	center.x = IM_ROUND(center.x);
 	center.y = IM_ROUND(center.y);
 	const float radius = (square_sz - 1.0f) * 0.5f;
-
 	bool hovered, held;
 	bool pressed = ButtonBehavior(total_bb, id, &hovered, &held);
 	if(pressed)
 		MarkItemEdited(id);
-
 	RenderNavHighlight(total_bb, id);
 	const int num_segment = window->DrawList->_CalcCircleAutoSegmentCount(radius);
-	window->DrawList->AddCircleFilled(center,
-	    radius,
-	    GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg),
+	window->DrawList->AddCircleFilled(center, radius, GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg),
 	    num_segment);
 	if(active) {
 		const float pad = ImMax(1.0f, IM_FLOOR(square_sz / 6.0f));
 		window->DrawList->AddCircleFilled(center, radius - pad, GetColorU32(ImGuiCol_CheckMark));
 	}
-
 	if(style.FrameBorderSize > 0.0f) {
 		window->DrawList->AddCircle(center + ImVec2(1, 1), radius, GetColorU32(ImGuiCol_BorderShadow), num_segment, style.FrameBorderSize);
 		window->DrawList->AddCircle(center, radius, GetColorU32(ImGuiCol_Border), num_segment, style.FrameBorderSize);
 	}
-
 	ImVec2 label_pos = ImVec2(check_bb.Max.x + style.ItemInnerSpacing.x, check_bb.Min.y + style.FramePadding.y);
 	if(g.LogEnabled)
 		LogRenderedText(&label_pos, active ? "(x)" : "( )");
 	if(label_size.x > 0.0f)
 		RenderText(label_pos, label);
-
 	IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags);
 	return pressed;
 }
@@ -2252,19 +2243,18 @@ bool ImGui::DragScalar(const char* label, ImGuiDataType data_type, void* p_data,
 		const bool make_active = (input_requested_by_tabbing || clicked || double_clicked || g.NavActivateId == id);
 		if(make_active && (clicked || double_clicked))
 			SetKeyOwner(ImGuiKey_MouseLeft, id);
-		if(make_active && temp_input_allowed)
-			if(input_requested_by_tabbing || (clicked && g.IO.KeyCtrl) || double_clicked ||
-			    (g.NavActivateId == id && (g.NavActivateFlags & ImGuiActivateFlags_PreferInput)))
+		if(make_active && temp_input_allowed) {
+			if(input_requested_by_tabbing || (clicked && g.IO.KeyCtrl) || double_clicked || (g.NavActivateId == id && (g.NavActivateFlags & ImGuiActivateFlags_PreferInput)))
 				temp_input_is_active = true;
-
+		}
 		// (Optional) simple click (without moving) turns Drag into an InputText
-		if(g.IO.ConfigDragClickToInputText && temp_input_allowed && !temp_input_is_active)
+		if(g.IO.ConfigDragClickToInputText && temp_input_allowed && !temp_input_is_active) {
 			if(g.ActiveId == id && hovered && g.IO.MouseReleased[0] && !IsMouseDragPastThreshold(0, g.IO.MouseDragThreshold * DRAG_MOUSE_THRESHOLD_FACTOR)) {
 				g.NavActivateId = id;
 				g.NavActivateFlags = ImGuiActivateFlags_PreferInput;
 				temp_input_is_active = true;
 			}
-
+		}
 		if(make_active && !temp_input_is_active) {
 			SetActiveID(id, window);
 			SetFocusID(id, window);
@@ -2272,7 +2262,6 @@ bool ImGui::DragScalar(const char* label, ImGuiDataType data_type, void* p_data,
 			g.ActiveIdUsingNavDirMask = (1 << ImGuiDir_Left) | (1 << ImGuiDir_Right);
 		}
 	}
-
 	if(temp_input_is_active) {
 		// Only clamp CTRL+Click input when ImGuiSliderFlags_AlwaysClamp is set
 		const bool is_clamp_input = (flags & ImGuiSliderFlags_AlwaysClamp) != 0 && (p_min == NULL || p_max == NULL || DataTypeCompare(data_type, p_min, p_max) < 0);
@@ -2881,25 +2870,18 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
 	ImGuiWindow * window = GetCurrentWindow();
 	if(window->SkipItems)
 		return false;
-
 	ImGuiContext & g = *GImGui;
 	const ImGuiStyle& style = g.Style;
 	const ImGuiID id = window->GetID(label);
 	const float w = CalcItemWidth();
-
 	const ImVec2 label_size = CalcTextSize(label, NULL, true);
 	const ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 2.0f));
 	const ImRect total_bb(frame_bb.Min, frame_bb.Max + ImVec2(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f, 0.0f));
-
 	const bool temp_input_allowed = (flags & ImGuiSliderFlags_NoInput) == 0;
 	ItemSize(total_bb, style.FramePadding.y);
 	if(!ItemAdd(total_bb, id, &frame_bb, temp_input_allowed ? ImGuiItemFlags_Inputable : 0))
 		return false;
-
-	// Default format string when passing NULL
-	if(format == NULL)
-		format = DataTypeGetInfo(data_type)->PrintFmt;
-
+	SETIFZQ(format, DataTypeGetInfo(data_type)->PrintFmt); // Default format string when passing NULL
 	const bool hovered = ItemHoverable(frame_bb, id);
 	bool temp_input_is_active = temp_input_allowed && TempInputIsActive(id);
 	if(!temp_input_is_active) {
@@ -2920,7 +2902,6 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
 			g.ActiveIdUsingNavDirMask |= (1 << ImGuiDir_Left) | (1 << ImGuiDir_Right);
 		}
 	}
-
 	if(temp_input_is_active) {
 		// Only clamp CTRL+Click input when ImGuiSliderFlags_AlwaysClamp is set
 		const bool is_clamp_input = (flags & ImGuiSliderFlags_AlwaysClamp) != 0;
@@ -3040,35 +3021,22 @@ bool ImGui::SliderInt4(const char* label, int v[4], int v_min, int v_max, const 
 	return SliderScalarN(label, ImGuiDataType_S32, v, 4, &v_min, &v_max, format, flags);
 }
 
-bool ImGui::VSliderScalar(const char* label,
-    const ImVec2& size,
-    ImGuiDataType data_type,
-    void* p_data,
-    const void* p_min,
-    const void* p_max,
-    const char* format,
-    ImGuiSliderFlags flags)
+bool ImGui::VSliderScalar(const char* label, const ImVec2& size, ImGuiDataType data_type, void* p_data,
+    const void* p_min, const void* p_max, const char* format, ImGuiSliderFlags flags)
 {
 	ImGuiWindow * window = GetCurrentWindow();
 	if(window->SkipItems)
 		return false;
-
 	ImGuiContext & g = *GImGui;
 	const ImGuiStyle& style = g.Style;
 	const ImGuiID id = window->GetID(label);
-
 	const ImVec2 label_size = CalcTextSize(label, NULL, true);
 	const ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + size);
 	const ImRect bb(frame_bb.Min, frame_bb.Max + ImVec2(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f, 0.0f));
-
 	ItemSize(bb, style.FramePadding.y);
 	if(!ItemAdd(frame_bb, id))
 		return false;
-
-	// Default format string when passing NULL
-	if(format == NULL)
-		format = DataTypeGetInfo(data_type)->PrintFmt;
-
+	SETIFZQ(format, DataTypeGetInfo(data_type)->PrintFmt); // Default format string when passing NULL
 	const bool hovered = ItemHoverable(frame_bb, id);
 	const bool clicked = hovered && IsMouseClicked(0, id);
 	if(clicked || g.NavActivateId == id) {
@@ -3079,22 +3047,18 @@ bool ImGui::VSliderScalar(const char* label,
 		FocusWindow(window);
 		g.ActiveIdUsingNavDirMask |= (1 << ImGuiDir_Up) | (1 << ImGuiDir_Down);
 	}
-
 	// Draw frame
 	const ImU32 frame_col = GetColorU32(g.ActiveId == id ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg);
 	RenderNavHighlight(frame_bb, id);
 	RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, g.Style.FrameRounding);
-
 	// Slider behavior
 	ImRect grab_bb;
 	const bool value_changed = SliderBehavior(frame_bb, id, data_type, p_data, p_min, p_max, format, flags | ImGuiSliderFlags_Vertical, &grab_bb);
 	if(value_changed)
 		MarkItemEdited(id);
-
 	// Render grab
 	if(grab_bb.Max.y > grab_bb.Min.y)
 		window->DrawList->AddRectFilled(grab_bb.Min, grab_bb.Max, GetColorU32(g.ActiveId == id ? ImGuiCol_SliderGrabActive : ImGuiCol_SliderGrab), style.GrabRounding);
-
 	// Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
 	// For the vertical slider we allow centered text to overlap the frame padding
 	char value_buf[64];
@@ -3102,7 +3066,6 @@ bool ImGui::VSliderScalar(const char* label,
 	RenderTextClipped(ImVec2(frame_bb.Min.x, frame_bb.Min.y + style.FramePadding.y), frame_bb.Max, value_buf, value_buf_end, NULL, ImVec2(0.5f, 0.0f));
 	if(label_size.x > 0.0f)
 		RenderText(ImVec2(frame_bb.Max.x + style.ItemInnerSpacing.x, frame_bb.Min.y + style.FramePadding.y), label);
-
 	return value_changed;
 }
 
@@ -6603,7 +6566,6 @@ bool ImGui::BeginMenuBar()
 	    IM_ROUND(ImMax(bar_rect.Min.x, bar_rect.Max.x - ImMax(window->WindowRounding, window->WindowBorderSize))), IM_ROUND(bar_rect.Max.y));
 	clip_rect.ClipWith(window->OuterRectClipped);
 	PushClipRect(clip_rect.Min, clip_rect.Max, false);
-
 	// We overwrite CursorMaxPos because BeginGroup sets it to CursorPos (essentially the .EmitItem hack in EndMenuBar() would need something analogous here, maybe a BeginGroupEx() with flags).
 	window->DC.CursorPos = window->DC.CursorMaxPos = ImVec2(bar_rect.Min.x + window->DC.MenuBarOffset.x, bar_rect.Min.y + window->DC.MenuBarOffset.y);
 	window->DC.LayoutType = ImGuiLayoutType_Horizontal;

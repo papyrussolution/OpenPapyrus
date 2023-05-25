@@ -1,5 +1,5 @@
 // OBJCSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -616,6 +616,140 @@ int PPObjCSession::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 	if(!pDlg)
 		delete dlg;
 	return r;
+}
+
+/*static*/int PPObjCSession::ValidateCcDate2MaxIdIndex(const LAssocArray & rIndex)
+{
+	int    ok = 1;
+	uint   _i = 0;
+	if(!rIndex.getCount())
+		ok = -1;
+	else {
+		LDATE prev_dt = ZERODATE;
+		long prev_max_id = 0;
+		for(_i = 0; _i < rIndex.getCount(); _i++) {
+			const LAssoc & r_entry = rIndex.at(_i);
+			LDATE _dt;
+			_dt.v = static_cast<ulong>(r_entry.Key);
+			const long max_id = r_entry.Val;
+			THROW_PP(checkdate(_dt), PPERR_INVALIDCCDATE2MAXIDINDEX);
+			THROW_PP(_dt > prev_dt, PPERR_INVALIDCCDATE2MAXIDINDEX);
+			THROW_PP(max_id >= prev_max_id, PPERR_INVALIDCCDATE2MAXIDINDEX);
+			prev_dt = _dt;
+			prev_max_id = max_id;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+static int StoreCcDate2MaxIdIndex(LAssocArray & rIndex)
+{
+	int    ok = 1;
+	Reference * p_ref = PPRef;
+	SBuffer cbuf;
+	if(rIndex.getCount()) {
+		SBuffer _sbuf;
+		SSerializeContext sctx;
+		THROW(PPObjCSession::ValidateCcDate2MaxIdIndex(rIndex));
+		sctx.Serialize(+1, &rIndex, _sbuf);
+		if(_sbuf.GetAvailableSize() > 128) {
+			uint8 cs[32];
+			size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
+			SCompressor compr(SCompressor::tZLib);
+			THROW_SL(cbuf.Write(cs, cs_size));
+			THROW_SL(compr.CompressBlock(_sbuf.GetBuf(0), _sbuf.GetAvailableSize(), cbuf, 0, 0));
+		}
+		else {
+			cbuf = _sbuf;
+		}
+		THROW(p_ref->PutPropSBuffer(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CCDATETOMAXIDINDEX, cbuf, 1));
+	}
+	else {
+		THROW(p_ref->PutPropSBuffer(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CCDATETOMAXIDINDEX, cbuf, 1));
+		ok = -1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+static int RecallCcDate2MaxIdIndex(LAssocArray & rIndex)
+{
+	rIndex.clear();
+	int    ok = 1;
+	SBuffer cbuf;
+	Reference * p_ref = PPRef;
+	if(p_ref->GetPropSBuffer(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CCDATETOMAXIDINDEX, cbuf) > 0) {
+		SSerializeContext sctx;
+		const size_t actual_size = cbuf.GetAvailableSize();
+		const size_t cs_size = SSerializeContext::GetCompressPrefix(0);
+		if(actual_size > cs_size && SSerializeContext::IsCompressPrefix(cbuf.GetBuf(cbuf.GetRdOffs()))) {
+			SCompressor compr(SCompressor::tZLib);
+			SBuffer dbuf;
+			int  inflr = compr.DecompressBlock(cbuf.GetBuf(cbuf.GetRdOffs()+cs_size), actual_size-cs_size, dbuf);
+			THROW_SL(inflr);
+			THROW_SL(sctx.Serialize(-1, &rIndex, dbuf));
+		}
+		else {
+			THROW_SL(sctx.Serialize(-1, &rIndex, cbuf));
+		}
+		THROW(PPObjCSession::ValidateCcDate2MaxIdIndex(rIndex));
+	}
+	else
+		ok = -1;
+	CATCH
+		rIndex.clear();
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+int PPObjCSession::BuildCcDate2MaxIdIndex(int mode)
+{
+	constexpr long max_date_diff = 3;
+	int    ok = -1;
+	//buildccdate2maxidindexMode_Force = 0,    // Безусловно перестроить индекс
+	//buildccdate2maxidindexMode_SkipIfCached, // Ничего не делать если индекс уже кэширован
+	//buildccdate2maxidindexMode_SkipIfActual, // Ничего не делать если последний элемент индекса не старше чем дата последнего чека минус 3 дня //
+	bool do_rebuild = false;
+	if(mode == buildccdate2maxidindexMode_Force)
+		do_rebuild = true;
+	else {
+		if(mode == buildccdate2maxidindexMode_SkipIfCached && IsCcDate2MaxIdIndexLoaded()) {
+			do_rebuild = false;
+		}
+		else {
+			LAssocArray index;
+			assert(oneof2(mode, buildccdate2maxidindexMode_SkipIfCached, buildccdate2maxidindexMode_SkipIfActual));
+			THROW(RecallCcDate2MaxIdIndex(index));
+			{
+				LDATE last_date = ZERODATE;
+				if(index.getCount()) {
+					last_date.v = static_cast<ulong>(index.at(index.getCount()-1).Key);
+				}
+				if(!last_date)
+					do_rebuild = true;
+				else {
+					CCheckTbl::Rec last_cc_rec;
+					if(P_Cc->GetLastCheck(&last_cc_rec) > 0 && diffdate(last_cc_rec.Dt, last_date) > max_date_diff)
+						do_rebuild = true;
+				}
+			}
+		}
+	}
+	if(do_rebuild) {
+		LAssocArray index;
+		THROW(P_Cc->MakeDate2MaxIdIndex(index));
+		THROW(StoreCcDate2MaxIdIndex(index));
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPObjCSession::GetCcDate2MaxIdIndex(LAssocArray & rIndex)
+{
+	return RecallCcDate2MaxIdIndex(rIndex);
 }
 
 int PPObjCSession::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, ObjTransmContext * pCtx)
@@ -1991,9 +2125,54 @@ public:
 		int16  Temporary;
 	};
 	CSessCache();
+	int    GetCcDate2MaxIdIndex(LAssocArray & rIndex)
+	{
+		int    ok = 1;
+		CcD2MiiBlk.Lck.ReadLock_();
+		if(!CcD2MiiBlk.IsLoaded) {
+			CcD2MiiBlk.Lck.Unlock_();
+			CcD2MiiBlk.Lck.WriteLock_();
+			{
+				PPObjCSession cs_obj;
+				int r = cs_obj.GetCcDate2MaxIdIndex(CcD2MiiBlk.Index);
+				if(!r) {
+					; // @todo @err
+				}
+				CcD2MiiBlk.IsLoaded = 1;
+			}
+		}
+		rIndex = CcD2MiiBlk.Index;
+		CcD2MiiBlk.Lck.Unlock_();
+		return ok;
+	}
+	bool   IsCcDate2MaxIdIndexLoaded() 
+	{
+		bool  result = false;
+		CcD2MiiBlk.Lck.ReadLock_();
+		result = LOGIC(CcD2MiiBlk.IsLoaded);
+		CcD2MiiBlk.Lck.Unlock_();
+		return result;
+	}
+	void   DirtyCcDate2MaxIdIndex()
+	{
+		CcD2MiiBlk.Lck.WriteLock_();
+		CcD2MiiBlk.IsLoaded = 0;
+		CcD2MiiBlk.Lck.Unlock_();
+	}
 private:
 	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+
+	struct CcDate2MaxIdIndex_Block { // @v11.7.4
+		CcDate2MaxIdIndex_Block() : IsLoaded(0)
+		{
+		}
+		ReadWriteLock Lck; // Блокировка списка CcDate2MaxIdIndex
+		LAssocArray Index; // 
+		bool  IsLoaded;    //
+		uint8 Reserve[3];  // @alignment
+	};
+	CcDate2MaxIdIndex_Block CcD2MiiBlk; // @v11.7.4
 };
 
 CSessCache::CSessCache() : ObjCacheHash(PPOBJ_CSESSION, sizeof(Data), (1024*1024), 8)
@@ -2046,4 +2225,32 @@ int PPObjCSession::Fetch(PPID id, CSessionTbl::Rec * pRec)
 	return p_cache ? p_cache->Get(id, pRec, 0) : Search(id, pRec);
 }
 
+int PPObjCSession::FetchCcDate2MaxIdIndex(LAssocArray & rIndex)
+{
+	CSessCache * p_cache = GetDbLocalCachePtr <CSessCache> (PPOBJ_CSESSION);
+	return p_cache ? p_cache->GetCcDate2MaxIdIndex(rIndex) : GetCcDate2MaxIdIndex(rIndex);
+}
+
+bool PPObjCSession::IsCcDate2MaxIdIndexLoaded()
+{
+	CSessCache * p_cache = GetDbLocalCachePtr <CSessCache> (PPOBJ_CSESSION);
+	return p_cache ? p_cache->IsCcDate2MaxIdIndexLoaded() : false;
+}
+
 IMPL_OBJ_DIRTY(PPObjCSession, CSessCache);
+
+int PPObjCSession::GetListByEgaisMark(const char * pText, PPIDArray & rCcList, BitArray * pSentList)
+{
+	const uint back_days = 90;
+	LAssocArray index;
+	LAssocArray * p_index = FetchCcDate2MaxIdIndex(index) ? &index : 0;
+	return P_Cc ? P_Cc->Helper_GetListByMark(pText, CCheckPacket::lnextEgaisMark, p_index, back_days, CCheckPacket::extssEgaisUrl, rCcList, pSentList) : 0;
+}
+
+int PPObjCSession::GetListByChZnMark(const char * pText, PPIDArray & rCcList)
+{
+	const uint back_days = 90;
+	LAssocArray index;
+	LAssocArray * p_index = FetchCcDate2MaxIdIndex(index) ? &index : 0;
+	return P_Cc ? P_Cc->Helper_GetListByMark(pText, CCheckPacket::lnextChZnMark, p_index, back_days, 0, rCcList, 0) : 0;
+}

@@ -1379,13 +1379,13 @@ struct SscDbtItem {
 /*static*/size_t FASTCALL SSerializeContext::GetCompressPrefix(uint8 * pBuf) // size of pBuf >= 8
 {
 	if(pBuf)
-		*reinterpret_cast<uint64 *>(pBuf) = _SlConst.Ssc_CompressionSignature;
-	return sizeof(_SlConst.Ssc_CompressionSignature);
+		*reinterpret_cast<uint64 *>(pBuf) = SlConst::Ssc_CompressionSignature;
+	return sizeof(SlConst::Ssc_CompressionSignature);
 }
 
 /*static*/int  FASTCALL SSerializeContext::IsCompressPrefix(const void * pBuf)
 {
-	return BIN(*reinterpret_cast<const uint64 *>(pBuf) == _SlConst.Ssc_CompressionSignature);
+	return BIN(*reinterpret_cast<const uint64 *>(pBuf) == SlConst::Ssc_CompressionSignature);
 }
 
 SSerializeContext::SSerializeContext() : SymbTbl(2048, 1), TempDataBuf(0), LastSymbId(0), SuppDate(ZERODATE), State(0), Flags(0), P_DbtDescrList(0)

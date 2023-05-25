@@ -7,11 +7,7 @@
 #pragma hdrstop
 #include <ppsoapclient.h>
 
-static int DoCCheckTextLog()
-{
-	const PPCommConfig & r_ccfg = CConfig;
-	return BIN(/* @temp(..31/12/2010) {*/r_ccfg.Flags & CCFLG_DEBUG || /*}*/ r_ccfg.Flags & CCFLG_LOGCCHECK);
-}
+static bool DoCCheckTextLog() { return LOGIC(CConfig.Flags & (CCFLG_DEBUG|CCFLG_LOGCCHECK)); }
 
 //#define DECL_INVARIANT_C()    int InvariantC(SInvariantParam * pInvP) const
 //#define IMPL_INVARIANT_C(cls) int cls::InvariantC(SInvariantParam * pInvP) const
@@ -32,12 +28,14 @@ bool FASTCALL CcAmountEntry::IsEq(const CcAmountEntry & rS) const
 int CcAmountEntry::GetTypeText(SString & rBuf) const
 {
 	int    ok = 1;
-	if(Type == CCAMTTYP_CASH)
-		PPLoadString("paymt_cash", rBuf);
-	else if(Type == CCAMTTYP_BANK)
-		PPLoadString("paymt_bank", rBuf);
-	else if(Type == CCAMTTYP_CRDCARD)
-		PPLoadString("crdcard", rBuf);
+	const char * p_symb = 0;
+	switch(Type) {
+		case CCAMTTYP_CASH: p_symb = "paymt_cash"; break;
+		case CCAMTTYP_BANK: p_symb = "paymt_bank"; break;
+		case CCAMTTYP_CRDCARD: p_symb = "crdcard"; break;
+	}
+	if(p_symb)
+		PPLoadString(p_symb, rBuf);
 	else {
 		rBuf = "Unknown";
 		ok = 0;
@@ -1015,12 +1013,6 @@ int CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
 	return ok;
 }
 
-/* @v10.3.9 int CCheckPacket::PackLineTextExt(SString & rResult) const
-{
-	rResult.Z();
-	return Helper_PackLineTextExt(rResult);
-}*/
-
 /*static*/int CCheckPacket::Helper_UnpackTextExt(const SString & rBuf, PPExtStrContainer * pSc, StrAssocArray * pList)
 {
 	int   ok = -1;
@@ -1059,29 +1051,6 @@ int CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
 	return ok;
 }
 
-/* @v10.3.9 (replaced with Helper_UnpackTextExt) int CCheckPacket::Helper_UnpackLineTextExt(const SString & rBuf, StrAssocArray & rList)
-{
-	int   ok = 1;
-	rList.Z();
-	SString temp_buf;
-	SString line_buf;
-	PPExtStringStorage ess;
-	int    fld_id = 0;
-	for(uint p = 0; ess.Enum(rBuf, &p, &fld_id, temp_buf) > 0;) {
-		if(temp_buf.NotEmptyS()) {
-			if(fld_id > 100) {
-				const int row_no = fld_id / 100;
-				const int fld_no = fld_id % 100;
-				Helper_SetLineTextExt(row_no, fld_no, rList, temp_buf);
-			}
-			else {
-				; // @error
-			}
-		}
-	}
-	return ok;
-}*/
-
 /*static*/int CCheckPacket::Helper_SetLineTextExt(int pos /* 1.. */, int lnextId, StrAssocArray & rList, const char * pText)
 {
 	int    ok = 1;
@@ -1104,11 +1073,6 @@ int CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
 	return ok;
 }
 
-/* @v10.3.9 int CCheckPacket::UnpackLineTextExt(const SString & rBuf) 
-{ 
-	// @v10.3.9 return Helper_UnpackLineTextExt(rBuf, LnTextList); 
-	return Helper_UnpackTextExt(rBuf, 0, &LnTextList); // @v10.3.9 
-}*/
 int CCheckPacket::SetLineTextExt(int pos /* 1.. */, int lnextId, const char * pText) { return Helper_SetLineTextExt(pos, lnextId, LnTextList, pText); }
 int CCheckPacket::GetLineTextExt(int pos /* 1.. */, int lnextId, SString & rBuf) const { return Helper_GetLineTextExt(pos, lnextId, LnTextList, rBuf); }
 
@@ -1446,7 +1410,7 @@ void CCheckPacket::SetTotalDiscount__(double dis, long flags/*int pctdis, int pl
 	}
 	else
 		discount = (flags & stdfPctDis) ? (dis * fdiv100r(amount)) : dis;
-	/* @v9.8.1 {*/ if(last_index && (dis / max_price) <= 0.01) {
+	if(last_index && (dis / max_price) <= 0.01) {
 		p_item = &Items_.at(last_index-1);
 		d = (discount / fabs(p_item->Quantity));
 		p_item->Dscnt = d;
@@ -1457,8 +1421,8 @@ void CCheckPacket::SetTotalDiscount__(double dis, long flags/*int pctdis, int pl
 		else
 			p_item->Dscnt = d;
 	}
-	else /* } @v9.8.1 */ {
-		for(i = 0; Items_.enumItems(&i, (void **)&p_item);)
+	else {
+		for(i = 0; Items_.enumItems(&i, (void **)&p_item);) {
 			if(i != last_index) {
 				qtty = fabs(p_item->Quantity);
 				if(qtty > 0.0) {
@@ -1475,6 +1439,7 @@ void CCheckPacket::SetTotalDiscount__(double dis, long flags/*int pctdis, int pl
 					part_amount += (p * qtty);
 				}
 			}
+		}
 		if(last_index) {
 			p_item = &Items_.at(last_index-1);
 			d = ((discount - part_dis) / fabs(p_item->Quantity));
@@ -2194,20 +2159,35 @@ int CCheckCore::LoadLinesByList(PPID goodsID, const ObjIdListFilt * pCheckList, 
 	return ok;
 }
 
+int CCheckCore::GetLastCheck(CCheckTbl::Rec * pRec)
+{
+	int    ok = 0;
+	CCheckTbl::Key1 k;
+	k.Dt = MAXDATE;
+	k.Tm = MAXTIME;
+	k.CashID = MAXLONG;
+	if(search(1, &k, spLt)) {
+		copyBufTo(pRec);
+		ok = 1;		
+	}
+	return ok;
+}
+
 int CCheckCore::GetLastCheck(PPID sessID, long cashN, CCheckTbl::Rec * pRec)
 {
+	int    ok = 0;
 	CCheckTbl::Key3 k;
 	k.SessID = sessID;
 	k.CashID = cashN;
 	k.Dt = MAXDATE;
 	k.Tm = MAXTIME;
-	while(search(3, &k, spLt) && data.SessID == sessID && data.CashID == cashN) {
+	while(!ok && search(3, &k, spLt) && data.SessID == sessID && data.CashID == cashN) {
 		if(!(data.Flags & CCHKF_SKIP)) {
 			copyBufTo(pRec);
-			return 1;
+			ok = 1;
 		}
 	}
-	return PPDbSearchError();
+	return NZOR(ok, PPDbSearchError());
 }
 
 int CCheckCore::GetLastCheckByCode(long cashN, CCheckTbl::Rec * pRec)
@@ -3376,7 +3356,7 @@ int CCheckCore::GetActiveExpendByLocList(const ObjIdListFilt * pLocList, DraftRc
 	return ok;
 }
 
-int CCheckCore::Helper_GetListByMark(const char * pText, int markLnextTextId, int sentLnextTextId, PPIDArray & rCcList, BitArray * pSentList)
+int CCheckCore::Helper_GetListByMark(const char * pText, int markLnextTextId, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, int sentLnextTextId, PPIDArray & rCcList, BitArray * pSentList)
 {
 	int    ok = -1;
 	rCcList.clear();
@@ -3387,37 +3367,42 @@ int CCheckCore::Helper_GetListByMark(const char * pText, int markLnextTextId, in
 	TextRefEnumItem iter_item;
 	StrAssocArray text_by_row_list;
 	PPExtStrContainer sc;
-	for(SEnum en = r_utrc.Enum(PPOBJ_CCHECK, PPTRPROP_CC_LNEXT); en.Next(&iter_item) > 0;) {
-		CCheckPacket::Helper_UnpackTextExt(iter_item.S.Transf(CTRANSF_UTF8_TO_INNER), &sc, &text_by_row_list);
-		uint   pos = 0;
-		for(uint i = 0; i < text_by_row_list.getCount(); i++) {
-			StrAssocArray::Item item = text_by_row_list.at_WithoutParent(i);
-			temp_buf = item.Txt;
-			if(PPGetExtStrData(markLnextTextId, temp_buf, target_buf) > 0 && target_buf.CmpNC(pText) == 0) {
-				rCcList.add(iter_item.O.Id);
-				if(pSentList && sentLnextTextId) {
-					if(sc.GetExtStrData(sentLnextTextId, temp_buf))
-						pSentList->insert(1);
-					else
-						pSentList->insert(0);
+	{
+		PPID   min_id = 0;
+		if(pCcDate2MaxIdIndex) {
+			LDATE first_date = plusdate(getcurdate_(), -backDays);
+			uint i = pCcDate2MaxIdIndex->getCount();
+			if(i) do {
+				const LAssoc & r_entry = pCcDate2MaxIdIndex->at(--i);
+				LDATE iter_dt;
+				iter_dt.v = static_cast<ulong>(r_entry.Key);
+				if(iter_dt <= first_date)
+					min_id = r_entry.Val;
+			} while(!min_id && i);
+		}
+		SEnum en = (min_id > 0) ? r_utrc.Enum(PPOBJ_CCHECK, PPTRPROP_CC_LNEXT, min_id) : r_utrc.Enum(PPOBJ_CCHECK, PPTRPROP_CC_LNEXT);
+		while(en.Next(&iter_item) > 0) {
+			CCheckPacket::Helper_UnpackTextExt(iter_item.S.Transf(CTRANSF_UTF8_TO_INNER), &sc, &text_by_row_list);
+			uint   pos = 0;
+			for(uint i = 0; i < text_by_row_list.getCount(); i++) {
+				StrAssocArray::Item item = text_by_row_list.at_WithoutParent(i);
+				temp_buf = item.Txt;
+				if(PPGetExtStrData(markLnextTextId, temp_buf, target_buf) > 0 && target_buf.CmpNC(pText) == 0) {
+					rCcList.add(iter_item.O.Id);
+					if(pSentList && sentLnextTextId) {
+						if(sc.GetExtStrData(sentLnextTextId, temp_buf))
+							pSentList->insert(1);
+						else
+							pSentList->insert(0);
+					}
+					ok = 1;
+					break;
 				}
-				ok = 1;
-				break;
 			}
 		}
 	}
 	assert(!pSentList || pSentList->getCount() == rCcList.getCount());
 	return ok;
-}
-
-int CCheckCore::GetListByEgaisMark(const char * pText, PPIDArray & rCcList, BitArray * pSentList)
-{
-	return Helper_GetListByMark(pText, CCheckPacket::lnextEgaisMark, CCheckPacket::extssEgaisUrl, rCcList, pSentList);
-}
-
-int CCheckCore::GetListByChZnMark(const char * pText, PPIDArray & rCcList)
-{
-	return Helper_GetListByMark(pText, CCheckPacket::lnextChZnMark, 0, rCcList, 0);
 }
 
 int CCheckCore::GetListByUuid(S_GUID & rUuid, PPIDArray & rCcList)
@@ -5978,6 +5963,47 @@ int CCheckCore::SerializePacket(int dir, CCheckPacket * pPack, SBuffer & rBuf, S
 	THROW_SL(Lines.SerializeArrayOfRecords(dir, &pPack->Items_, rBuf, pCtx));
 	THROW_SL(pCtx->Serialize(dir, pPack->LnTextList, rBuf));
 	CATCHZOK
+	return ok;
+}
+//
+//
+//
+int CCheckCore::MakeDate2MaxIdIndex(LAssocArray & rIndex)
+{
+	rIndex.clear();
+	int    ok = -1;
+	//SString log_buf;
+	//SFile f_log(PPGetFilePathS(PPPATH_LOG, "MakeDate2MaxIdIndex.log", SLS.AcquireRvlStr()), SFile::mWrite);
+	{
+		LDATE iter_dt = ZERODATE;
+		long  iter_max_id = 0;
+		long  prev_max_id = 0;
+		bool  debug_mark = false;
+		CCheckTbl::Key1 k;
+		BExtQuery q(this, 1, 128);
+		q.select(this->ID, this->Dt, 0L);
+		MEMSZERO(k);
+		for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
+			//f_log.WriteLine(log_buf.Z().Cat(" ").Tab().Cat(data.Dt, DATF_DMY).Tab().Cat(data.ID).CR());
+			if(data.Dt != iter_dt) {
+				if(iter_max_id) {
+					rIndex.Add(iter_dt.v, iter_max_id);
+					//f_log.WriteLine(log_buf.Z().Cat("t").Tab().Cat(iter_dt, DATF_DMY).Tab().Cat(iter_max_id).CR());
+					prev_max_id = iter_max_id;
+				}
+			}
+			iter_dt = data.Dt;
+			SETMAX(iter_max_id, data.ID);
+		}
+		if(iter_max_id) {
+			rIndex.Add(iter_dt.v, iter_max_id);
+			//f_log.WriteLine(log_buf.Z().Cat("t").Tab().Cat(iter_dt, DATF_DMY).Tab().Cat(iter_max_id).CR());
+		}
+		if(rIndex.getCount()) {
+			assert(PPObjCSession::ValidateCcDate2MaxIdIndex(rIndex));
+			ok = 1;
+		}
+	}
 	return ok;
 }
 //

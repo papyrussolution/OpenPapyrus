@@ -241,7 +241,7 @@ static void read_history_file_as_json(js_State * J)
 			json = fz_string_from_buffer(ctx, buf);
 		}
 		fz_catch(ctx)
-		;
+			;
 	}
 	js_getglobal(J, "JSON");
 	js_getproperty(J, -1, "parse");
@@ -292,14 +292,10 @@ static void load_history(void)
 	js_State * J;
 	char absname[PATH_MAX];
 	int i, n;
-
 	if(!fz_realpath(filename, absname))
 		return;
-
 	J = js_newstate(NULL, NULL, 0);
-
 	read_history_file_as_json(J);
-
 	if(js_hasproperty(J, -1, absname)) {
 		if(js_hasproperty(J, -1, "current")) {
 			currentpage = try_location(J);
@@ -308,7 +304,7 @@ static void load_history(void)
 
 		if(js_hasproperty(J, -1, "history")) {
 			if(js_isarray(J, -1)) {
-				history_count = sclamp(js_getlength(J, -1), 0, nelem(history));
+				history_count = sclamp(js_getlength(J, -1), 0, SIZEOFARRAYi(history));
 				for(i = 0; i < history_count; ++i) {
 					js_getindex(J, -1, i);
 					history[i].loc = try_location(J);
@@ -320,7 +316,7 @@ static void load_history(void)
 
 		if(js_hasproperty(J, -1, "future")) {
 			if(js_isarray(J, -1)) {
-				future_count = sclamp(js_getlength(J, -1), 0, nelem(future));
+				future_count = sclamp(js_getlength(J, -1), 0, SIZEOFARRAYi(future));
 				for(i = 0; i < future_count; ++i) {
 					js_getindex(J, -1, i);
 					future[i].loc = try_location(J);
@@ -329,10 +325,9 @@ static void load_history(void)
 			}
 			js_pop(J, 1);
 		}
-
 		if(js_hasproperty(J, -1, "marks")) {
 			if(js_isarray(J, -1)) {
-				n = sclamp(js_getlength(J, -1), 0, nelem(marks));
+				n = sclamp(js_getlength(J, -1), 0, SIZEOFARRAYi(marks));
 				for(i = 0; i < n; ++i) {
 					js_getindex(J, -1, i);
 					marks[i].loc = try_location(J);
@@ -342,7 +337,6 @@ static void load_history(void)
 			js_pop(J, 1);
 		}
 	}
-
 	js_freestate(J);
 }
 
@@ -1156,7 +1150,6 @@ static void do_page_selection(void)
 	static fz_quad hits[1000];
 	fz_rect rect;
 	int i, n;
-
 	if(ui_mouse_inside(view_page_area)) {
 		ui.hot = &pt;
 		if(!ui.active && ui.right) {
@@ -1165,14 +1158,11 @@ static void do_page_selection(void)
 			pt.y = ui.y;
 		}
 	}
-
 	if(ui.active == &pt) {
 		fz_point page_a = { pt.x, pt.y };
 		fz_point page_b = { ui.x, ui.y };
-
 		page_a = fz_transform_point(page_a, view_page_inv_ctm);
 		page_b = fz_transform_point(page_b, view_page_inv_ctm);
-
 		if(ui.mod == GLUT_ACTIVE_CTRL)
 			fz_snap_selection(ctx, page_text, &page_a, &page_b, FZ_SELECT_WORDS);
 		else if(ui.mod == GLUT_ACTIVE_CTRL + GLUT_ACTIVE_SHIFT)

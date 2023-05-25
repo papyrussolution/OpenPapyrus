@@ -150,7 +150,7 @@ static int DiB_loadFiles(void* buffer, size_t* bufferSizePtr, size_t* sampleSize
 #define DiB_rotl32(x, r) ((x << r) | (x >> (32 - r)))
 static uint32 DiB_rand(uint32* src)
 {
-	static const uint32 prime1 = _SlConst.MagicHashPrime32/*2654435761U*/;
+	static const uint32 prime1 = SlConst::MagicHashPrime32/*2654435761U*/;
 	static const uint32 prime2 = 2246822519U;
 	uint32 rand32 = *src;
 	rand32 *= prime1;
@@ -200,7 +200,7 @@ static void DiB_fillNoise(void* buffer, size_t length)
 {
 	//const uint prime1 = _SlConst.MagicHashPrime32/*2654435761U*/;
 	const uint prime2 = 2246822519U;
-	uint acc = _SlConst.MagicHashPrime32/*prime1*/;
+	uint acc = SlConst::MagicHashPrime32/*prime1*/;
 	for(size_t p = 0; p<length; p++) {
 		acc *= prime2;
 		((uchar*)buffer)[p] = (uchar)(acc >> 21);

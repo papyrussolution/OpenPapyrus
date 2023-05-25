@@ -886,9 +886,7 @@ static const ARIA_u128 c3 = {{
  */
 static void xor128(ARIA_c128 o, const ARIA_c128 x, const ARIA_u128 * y)
 {
-	int i;
-
-	for(i = 0; i < ARIA_BLOCK_SIZE; i++)
+	for(int i = 0; i < ARIA_BLOCK_SIZE; i++)
 		o[i] = x[i] ^ y->c[i];
 }
 

@@ -42,7 +42,7 @@ int FASTCALL SWaitableObject::Wait(long timeout)
 		ok = ::WaitForSingleObject(H, timeout);
 	}
 	else {
-		int    r = ::WaitForSingleObject(H, _SlConst.WaitableObjCheckTimeout); // @v10.7.7 _CheckTimeout-->_SlConst.WaitableObjCheckTimeout
+		int    r = ::WaitForSingleObject(H, SlConst::WaitableObjCheckTimeout); // @v10.7.7 _CheckTimeout-->SlConst::WaitableObjCheckTimeout
 		if(r < 0) {
 			// @v10.4.0 {
 			{

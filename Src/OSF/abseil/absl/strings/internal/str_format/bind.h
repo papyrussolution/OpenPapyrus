@@ -52,8 +52,7 @@ private:
 	size_t size_;
 };
 
-template <typename T, FormatConversionCharSet ...>
-struct MakeDependent {
+template <typename T, FormatConversionCharSet ...> struct MakeDependent {
 	using type = T;
 };
 
@@ -92,40 +91,32 @@ public:
 		static_assert(sizeof(T*) == 0, "Format specified does not match the arguments passed.");
 	}
 	// Good format overload.
-	FormatSpecTemplate(const char* s) // NOLINT
-	__attribute__((enable_if(ValidFormatImpl<Args ...>(s), "bad format trap"))) : Base(s) 
+	FormatSpecTemplate(const char* s) __attribute__((enable_if(ValidFormatImpl<Args ...>(s), "bad format trap"))) : Base(s) 
 	{
 	}
-	FormatSpecTemplate(string_view s) // NOLINT
-	__attribute__((enable_if(ValidFormatImpl<Args ...>(s), "bad format trap")))
-		: Base(s) {
+	FormatSpecTemplate(string_view s) __attribute__((enable_if(ValidFormatImpl<Args ...>(s), "bad format trap"))) : Base(s) 
+	{
 	}
-
 #else  // ABSL_INTERNAL_ENABLE_FORMAT_CHECKER
-
-	FormatSpecTemplate(const char* s) : Base(s) {
-	}                                         // NOLINT
-
-	FormatSpecTemplate(string_view s) : Base(s) {
-	}                                         // NOLINT
+	FormatSpecTemplate(const char* s) : Base(s) 
+	{
+	}
+	FormatSpecTemplate(string_view s) : Base(s) 
+	{
+	}
 
 #endif  // ABSL_INTERNAL_ENABLE_FORMAT_CHECKER
 
-	template <
-		FormatConversionCharSet ... C,
-		typename = typename std::enable_if<sizeof ... (C) == sizeof ... (Args)>::type,
-		typename = typename std::enable_if<AllOf(Contains(Args,
-		C) ...)>::type>
-	FormatSpecTemplate(const ExtendedParsedFormat<C ...>& pc) // NOLINT
-		: Base(&pc) {
+	template <FormatConversionCharSet ... C, typename = typename std::enable_if<sizeof ... (C) == sizeof ... (Args)>::type,
+		typename = typename std::enable_if<AllOf(Contains(Args, C) ...)>::type> FormatSpecTemplate(const ExtendedParsedFormat<C ...>& pc) : Base(&pc) 
+	{
 	}
 };
 
 class Streamable {
 public:
-	Streamable(const UntypedFormatSpecImpl& format,
-	    absl::Span<const FormatArgImpl> args)
-		: format_(format) {
+	Streamable(const UntypedFormatSpecImpl& format, absl::Span<const FormatArgImpl> args) : format_(format) 
+	{
 		if(args.size() <= ABSL_ARRAYSIZE(few_args_)) {
 			for(size_t i = 0; i < args.size(); ++i) {
 				few_args_[i] = args[i];
@@ -137,9 +128,7 @@ public:
 			args_ = many_args_;
 		}
 	}
-
 	std::ostream & Print(std::ostream & os) const;
-
 	friend std ::ostream& operator<<(std::ostream & os, const Streamable& l) {
 		return l.Print(os);
 	}
@@ -148,46 +137,31 @@ private:
 	const UntypedFormatSpecImpl& format_;
 	absl::Span<const FormatArgImpl> args_;
 	// if args_.size() is 4 or less:
-	FormatArgImpl few_args_[4] = {FormatArgImpl(0), FormatArgImpl(0),
-				      FormatArgImpl(0), FormatArgImpl(0)};
+	FormatArgImpl few_args_[4] = {FormatArgImpl(0), FormatArgImpl(0), FormatArgImpl(0), FormatArgImpl(0)};
 	// if args_.size() is more than 4:
 	std::vector <FormatArgImpl> many_args_;
 };
 
 // for testing
-std::string Summarize(UntypedFormatSpecImpl format,
-    absl::Span<const FormatArgImpl> args);
-bool BindWithPack(const UnboundConversion* props,
-    absl::Span<const FormatArgImpl> pack, BoundConversion* bound);
+std::string Summarize(UntypedFormatSpecImpl format, absl::Span<const FormatArgImpl> args);
+bool BindWithPack(const UnboundConversion* props, absl::Span<const FormatArgImpl> pack, BoundConversion* bound);
 
-bool FormatUntyped(FormatRawSinkImpl raw_sink,
-    UntypedFormatSpecImpl format,
-    absl::Span<const FormatArgImpl> args);
-
-std::string & AppendPack(std::string* out, UntypedFormatSpecImpl format,
-    absl::Span<const FormatArgImpl> args);
-
-std::string FormatPack(const UntypedFormatSpecImpl format,
-    absl::Span<const FormatArgImpl> args);
-
-int FprintF(std::FILE* output, UntypedFormatSpecImpl format,
-    absl::Span<const FormatArgImpl> args);
-int SnprintF(char* output, size_t size, UntypedFormatSpecImpl format,
-    absl::Span<const FormatArgImpl> args);
+bool FormatUntyped(FormatRawSinkImpl raw_sink, UntypedFormatSpecImpl format, absl::Span<const FormatArgImpl> args);
+std::string & AppendPack(std::string* out, UntypedFormatSpecImpl format, absl::Span<const FormatArgImpl> args);
+std::string FormatPack(const UntypedFormatSpecImpl format, absl::Span<const FormatArgImpl> args);
+int FprintF(std::FILE* output, UntypedFormatSpecImpl format, absl::Span<const FormatArgImpl> args);
+int SnprintF(char* output, size_t size, UntypedFormatSpecImpl format, absl::Span<const FormatArgImpl> args);
 
 // Returned by Streamed(v). Converts via '%s' to the std::string created
 // by std::ostream << v.
-template <typename T>
-class StreamedWrapper {
+template <typename T> class StreamedWrapper {
 public:
-	explicit StreamedWrapper(const T& v) : v_(v) {
+	explicit StreamedWrapper(const T& v) : v_(v) 
+	{
 	}
-
 private:
-	template <typename S>
-	friend ArgConvertResult<FormatConversionCharSetInternal::s> FormatConvertImpl(const StreamedWrapper<S>& v,
-	    FormatConversionSpecImpl conv,
-	    FormatSinkImpl* out);
+	template <typename S> friend ArgConvertResult<FormatConversionCharSetInternal::s> FormatConvertImpl(const StreamedWrapper<S>& v,
+	    FormatConversionSpecImpl conv, FormatSinkImpl* out);
 	const T& v_;
 };
 }  // namespace str_format_internal

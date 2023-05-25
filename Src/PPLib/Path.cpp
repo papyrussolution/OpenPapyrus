@@ -493,6 +493,12 @@ int STDCALL PPGetFilePath(PPID pathID, const char * pFileName, SString & rBuf)
 		return 0;
 }
 
+SString & STDCALL PPGetFilePathS(PPID pathID, const char * pFileName, SString & rBuf)
+{
+	PPGetFilePath(pathID, pFileName, rBuf);
+	return rBuf;
+}
+
 int STDCALL PPGetFilePath(PPID pathID, uint fileNameID, SString & rBuf)
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr();

@@ -2835,17 +2835,37 @@ int UnxTextRefCore::_Enum::Next(void * pRec)
 	return ok;
 }
 
-int UnxTextRefCore::InitEnum(PPID objType, int prop, long * pHandle)
+int UnxTextRefCore::InitEnum(PPID objType, int prop, PPID minObjID, long * pHandle)
 {
-	BExtQuery * q = new BExtQuery(this, 0);
-	q->select(this->ObjType, this->ObjID, this->Prop, this->Lang, this->Size, 0);
-	if(prop)
-		q->where(this->ObjType == objType && this->Prop == static_cast<long>(prop));
-	else
-		q->where(this->ObjType == objType);
 	UnxTextRefTbl::Key0 k0;
 	MEMSZERO(k0);
 	k0.ObjType = static_cast<int16>(objType);
+	BExtQuery * q = new BExtQuery(this, 0);
+	q->select(this->ObjType, this->ObjID, this->Prop, this->Lang, this->Size, 0);
+	if(prop) {
+		q->where(this->ObjType == objType && this->ObjID >= minObjID && this->Prop == static_cast<long>(prop));
+		k0.Prop = prop;
+		k0.ObjID = minObjID;
+	}
+	else
+		q->where(this->ObjType == objType && this->ObjID >= minObjID);
+	q->initIteration(false, &k0, spGe);
+	return EnumList.RegisterIterHandler(q, pHandle);
+}
+
+int UnxTextRefCore::InitEnum(PPID objType, int prop, long * pHandle)
+{
+	UnxTextRefTbl::Key0 k0;
+	MEMSZERO(k0);
+	k0.ObjType = static_cast<int16>(objType);
+	BExtQuery * q = new BExtQuery(this, 0);
+	q->select(this->ObjType, this->ObjID, this->Prop, this->Lang, this->Size, 0);
+	if(prop) {
+		q->where(this->ObjType == objType && this->Prop == static_cast<long>(prop));
+		k0.Prop = static_cast<long>(prop);
+	}
+	else
+		q->where(this->ObjType == objType);
 	q->initIteration(false, &k0, spGe);
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
@@ -2854,6 +2874,12 @@ SEnum::Imp * UnxTextRefCore::Enum(PPID objType, int prop)
 {
 	long   h = -1;
 	return InitEnum(objType, prop, &h) ? new _Enum(this, h) : 0;
+}
+
+SEnum::Imp * UnxTextRefCore::Enum(PPID objType, int prop, PPID minObjID)
+{
+	long   h = -1;
+	return InitEnum(objType, prop, minObjID, &h) ? new _Enum(this, h) : 0;
 }
 //
 //

@@ -1,5 +1,5 @@
 // LOCATION.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018, 2019, 2020, 2022, 2023
 // @codepage UTF-8
 // @Kernel
 //
@@ -127,7 +127,7 @@ int LocationFilt::SetExField(int fldId, const char * pBuf)
 	return 1;
 }
 
-/*static*/int FASTCALL LocationCore::GetExField(const LocationTbl::Rec * pRec, int fldId, SString & rBuf)
+/*static*/int STDCALL LocationCore::GetExField(const LocationTbl::Rec * pRec, int fldId, SString & rBuf)
 {
 	int    ok = -1;
 	rBuf.Z();
@@ -140,13 +140,13 @@ int LocationFilt::SetExField(int fldId, const char * pBuf)
 	return ok;
 }
 
-/*static*/SString & FASTCALL LocationCore::GetExFieldS(const LocationTbl::Rec * pRec, int fldId, SString & rBuf)
+/*static*/SString & STDCALL LocationCore::GetExFieldS(const LocationTbl::Rec * pRec, int fldId, SString & rBuf)
 {
 	LocationCore::GetExField(pRec, fldId, rBuf);
 	return rBuf;
 }
 
-/*static*/int FASTCALL LocationCore::SetExField(LocationTbl::Rec * pRec, int fldId, const char * pBuf)
+/*static*/int STDCALL LocationCore::SetExField(LocationTbl::Rec * pRec, int fldId, const char * pBuf)
 {
 	int    ok = -1;
 	if(oneof6(fldId, LOCEXSTR_ZIP, LOCEXSTR_SHORTADDR, LOCEXSTR_FULLADDR, LOCEXSTR_EMAIL, LOCEXSTR_PHONE, LOCEXSTR_CONTACT) || fldId > LOCEXSTR_EXTFLDSOFFS) {
@@ -275,7 +275,6 @@ int LocationCore::Helper_GetCodeByTempl(const char * pPrfx, const char * pSfx, i
 int LocationCore::GetCodeByTemplate(const char * pTempl, SString & rBuf)
 {
 	rBuf.Z();
-
 	int    ok = -1;
 	size_t x_len = 0, r_len = 0;
 	double low = 0, upp = 0;
@@ -526,7 +525,7 @@ int LocationCore::SearchRef(PPID locType, PPID objType, PPID objID, PPID * pID)
 	return ok;
 }
 
-/*static*/int FASTCALL LocationCore::GetAddress(const LocationTbl::Rec & rRec, uint, SString & rBuf)
+/*static*/int STDCALL LocationCore::GetAddress(const LocationTbl::Rec & rRec, uint, SString & rBuf)
 {
 	rBuf.Z();
 	if(rRec.Flags & LOCF_MANUALADDR)

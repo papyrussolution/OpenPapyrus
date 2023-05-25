@@ -1151,7 +1151,7 @@ static const uint32 ZSTD_magicNumber = 0xFD2FB51E;   /* 3rd version : seqNb head
 #define HASH_LOG (ZSTD_MEMORY_USAGE - 2)
 #define HASH_TABLESIZE (1 << HASH_LOG)
 #define HASH_MASK (HASH_TABLESIZE - 1)
-// @sobolev (replaced with _SlConst.MagicHashPrime32) #define KNUTH 2654435761
+// @sobolev (replaced with SlConst::MagicHashPrime32) #define KNUTH 2654435761
 #define BIT7 128
 #define BIT6  64
 #define BIT5  32

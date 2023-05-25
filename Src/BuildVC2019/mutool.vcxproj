@@ -1028,6 +1028,9 @@
     <ProjectReference Include="lcms2.vcxproj">
       <Project>{71dede59-3f1e-486b-a899-4283000f76b5}</Project>
     </ProjectReference>
+    <ProjectReference Include="openjp2.vcxproj">
+      <Project>{c756e07c-5895-39df-8310-7126f3c6fd84}</Project>
+    </ProjectReference>
     <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
     </ProjectReference>

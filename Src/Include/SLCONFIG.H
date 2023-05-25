@@ -82,11 +82,10 @@
 
 /* Remove comment if clarion date format is needed
 #define USE_DF_CLARION */
-#define DEFAULT_BIN_DATE_FORMAT   DF_BTRIEVE
-#define DEFAULT_TXT_DATE_FORMAT   DATF_GERMAN
-
-#define DEFAULT_OVERFLOW_SYMB     '#'
-#define DEFAULT_PASSWORD_SYMB     '*'
+// @v11.7.4 (replaced with SlConst::DefaultBinDateFormat) #define DEFAULT_BIN_DATE_FORMAT   DF_BTRIEVE
+// @v11.7.4 (replaced with SlConst::DefaultTxtDateFormat) #define DEFAULT_TXT_DATE_FORMAT   DATF_GERMAN
+// @v11.7.4 (replaced with SlConst::DefaultOverflowSymb) #define DEFAULT_OVERFLOW_SYMB     '#'
+// @v11.7.4 (replaced with SlConst::DefaultPasswordSymb) #define DEFAULT_PASSWORD_SYMB     '*'
 
 // #define OBJSTORE_STREAM // Remove comment if ObjStore streaming is needed
 //

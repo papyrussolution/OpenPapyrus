@@ -317,7 +317,7 @@ template <> inline uint32_t hb_array_t<const char>::hash() const
 {
 	uint32_t current = 0;
 	for(uint i = 0; i < this->length; i++)
-		current = current * 31 + (uint32_t)(this->arrayZ[i] * _SlConst.MagicHashPrime32);
+		current = current * 31 + (uint32_t)(this->arrayZ[i] * SlConst::MagicHashPrime32);
 	return current;
 }
 
@@ -325,7 +325,7 @@ template <> inline uint32_t hb_array_t<const uchar>::hash() const
 {
 	uint32_t current = 0;
 	for(uint i = 0; i < this->length; i++)
-		current = current * 31 + (uint32_t)(this->arrayZ[i] * _SlConst.MagicHashPrime32);
+		current = current * 31 + (uint32_t)(this->arrayZ[i] * SlConst::MagicHashPrime32);
 	return current;
 }
 

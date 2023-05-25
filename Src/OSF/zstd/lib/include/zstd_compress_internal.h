@@ -702,8 +702,8 @@ static uint32    ZSTD_hash3(uint32 u, uint32 h) { return ((u << (32-24)) * prime
 
 MEM_STATIC size_t ZSTD_hash3Ptr(const void* ptr, uint32 h) { return ZSTD_hash3(MEM_readLE32(ptr), h); } /* only in zstd_opt.h */
 
-//static const uint32 prime4bytes = _SlConst.MagicHashPrime32/*2654435761U*/;
-static uint32 ZSTD_hash4(uint32 u, uint32 h) { return (u * _SlConst.MagicHashPrime32/*prime4bytes*/) >> (32-h); }
+//static const uint32 prime4bytes = SlConst::MagicHashPrime32/*2654435761U*/;
+static uint32 ZSTD_hash4(uint32 u, uint32 h) { return (u * SlConst::MagicHashPrime32/*prime4bytes*/) >> (32-h); }
 static size_t ZSTD_hash4Ptr(const void* ptr, uint32 h) { return ZSTD_hash4(MEM_read32(ptr), h); }
 static const uint64 prime5bytes = 889523592379ULL;
 static size_t ZSTD_hash5(uint64 u, uint32 h) { return (size_t)(((u << (64-40)) * prime5bytes) >> (64-h)); }

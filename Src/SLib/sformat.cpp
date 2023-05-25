@@ -1,5 +1,5 @@
 // SFORMAT.CPP
-// Copyright (c) A.Sobolev 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -18,7 +18,7 @@ char * FASTCALL _commfmt(long fmt, char * pBuf)
 		const size_t src_len = sstrlen(pBuf);
 		if(src_len > len) {
 			if(SFMTFLAG(fmt) & COMF_FILLOVF)
-				memset(pBuf, DEFAULT_OVERFLOW_SYMB, len);
+				memset(pBuf, SlConst::DefaultOverflowSymb, len);
 			pBuf[len] = '\0';
 		}
 		else if(src_len < len) {
@@ -42,7 +42,7 @@ SString & FASTCALL _commfmt(long fmt, SString & rBuf)
 		const size_t src_len = rBuf.Len();
 		if(src_len > len) {
 			if(SFMTFLAG(fmt) & COMF_FILLOVF)
-				rBuf.Z().CatCharN(DEFAULT_OVERFLOW_SYMB, len);
+				rBuf.Z().CatCharN(SlConst::DefaultOverflowSymb, len);
 			rBuf.Trim(len);
 		}
 		else if(src_len < len) {
@@ -100,7 +100,7 @@ char * STDCALL strfmt(const char * str, long fmt, char * buf)
 		else if(flag & STRF_LOWER)
 			strlwr866(buf);
 		if(flag & STRF_PASSWORD)
-			strset(buf, DEFAULT_PASSWORD_SYMB);
+			strset(buf, SlConst::DefaultPasswordSymb);
 		if(flag & COMF_SQL) {
 			const size_t len = sstrlen(buf);
 			buf[len] = '\'';

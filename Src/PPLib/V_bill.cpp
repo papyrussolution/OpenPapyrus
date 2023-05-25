@@ -12,7 +12,7 @@ BillFilt::FiltExtraParam::FiltExtraParam(long setupValues, BrowseBillsType bbt) 
 {
 }
 
-IMPLEMENT_PPFILT_FACTORY(Bill); BillFilt::BillFilt() : PPBaseFilt(PPFILT_BILL, 0, 3), P_SjF(0), P_TagF(0) // @v8.2.9 ver 2-->3
+IMPLEMENT_PPFILT_FACTORY(Bill); BillFilt::BillFilt() : PPBaseFilt(PPFILT_BILL, 0, 4), P_SjF(0), P_TagF(0) // @v8.2.9 ver 2-->3 // @v11.7.4 ver 3-->4
 {
 	SetFlatChunk(offsetof(BillFilt, ReserveStart),
 		offsetof(BillFilt, ReserveEnd)-offsetof(BillFilt, ReserveStart)+sizeof(ReserveEnd));
@@ -21,6 +21,13 @@ IMPLEMENT_PPFILT_FACTORY(Bill); BillFilt::BillFilt() : PPBaseFilt(PPFILT_BILL, 0
 	SetBranchBaseFiltPtr(PPFILT_SYSJOURNAL, offsetof(BillFilt, P_SjF));
 	SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(BillFilt, P_TagF));
 	SetBranchDisplayExtList(offsetof(BillFilt, Dl));
+	//
+	SetBranchSString(offsetof(BillFilt, ExtString));          // @v11.7.4
+	SetBranchObjIdListFilt(offsetof(BillFilt, ObjList));      // @v11.7.4 @reserve
+	SetBranchObjIdListFilt(offsetof(BillFilt, Obj2List));     // @v11.7.4 @reserve 
+	SetBranchObjIdListFilt(offsetof(BillFilt, AgentList));    // @v11.7.4 @reserve
+	SetBranchObjIdListFilt(offsetof(BillFilt, ReservedList)); // @v11.7.4 @reserve
+	//
 	Init(1, 0);
 	Bbt = bbtUndef; // @v10.9.1
 }
@@ -28,7 +35,127 @@ IMPLEMENT_PPFILT_FACTORY(Bill); BillFilt::BillFilt() : PPBaseFilt(PPFILT_BILL, 0
 int BillFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
-	if(ver == 2) {
+	if(ver == 3) {
+		class BillFilt_v3 : public PPBaseFilt {
+		public:
+			BillFilt_v3() : PPBaseFilt(PPFILT_BILL, 0, 3), P_SjF(0), P_TagF(0) // @v8.2.9 ver 2-->3
+			{
+				SetFlatChunk(offsetof(BillFilt_v3, ReserveStart),
+					offsetof(BillFilt_v3, ReserveEnd)-offsetof(BillFilt_v3, ReserveStart)+sizeof(ReserveEnd));
+				SetBranchObjIdListFilt(offsetof(BillFilt_v3, List));
+				SetBranchObjIdListFilt(offsetof(BillFilt_v3, LocList));
+				SetBranchBaseFiltPtr(PPFILT_SYSJOURNAL, offsetof(BillFilt_v3, P_SjF));
+				SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(BillFilt_v3, P_TagF));
+				SetBranchDisplayExtList(offsetof(BillFilt_v3, Dl));
+				Init(1, 0);
+				Bbt = bbtUndef; // @v10.9.1
+			}
+			char   ReserveStart[24];
+			PPID   CliPsnCategoryID;
+			PPID   GoodsGroupID;
+			long   Tag;
+			DateRange DuePeriod;
+			uint32 Count;
+			int16  Ft_Declined;
+			int16  Ft_CheckPrintStatus;
+			PPID   StorageLocID;
+			int16  EdiRecadvStatus;
+			int16  EdiRecadvConfStatus;
+			int16  OrderFulfillmentStatus;
+			uint8  Reserve[6];
+			BrowseBillsType Bbt;
+			DateRange Period;
+			DateRange PaymPeriod;
+			PPID   MainOrgID;
+			PPID   PoolOpID;
+			PPID   OpID;
+			PPID   CurID;
+			PPID   AccSheetID;
+			PPID   ObjectID;
+			PPID   Object2ID;
+			PPID   PayerID;
+			PPID   AgentID;
+			PPID   CreatorID;
+			PPID   StatusID;
+			PPID   AssocID;
+			PPID   PoolBillID;
+			long   Flags;
+			uint   DenyFlags;
+			int16  ClientCardMode;
+			int16  Ft_STax;
+			int16  Ft_ClosedOrder;
+			int16  SortOrder;
+			PPID   Sel;
+			RealRange AmtRange;
+			long   ReserveEnd;     // @anchor
+			SysJournalFilt * P_SjF;
+			ObjIdListFilt List;
+			ObjIdListFilt LocList;
+			TagFilt * P_TagF;
+			PPViewDisplayExtList Dl;
+		};		
+		BillFilt_v3 fv3;
+		THROW(fv3.Read(rBuf, 0));
+		memzero(ReserveStart, sizeof(ReserveStart));
+		memzero(Reserve, sizeof(Reserve));
+#define CPYFLD(f) f = fv3.f
+			CPYFLD(CliPsnCategoryID);
+			CPYFLD(GoodsGroupID);
+			CPYFLD(Tag);
+			CPYFLD(DuePeriod);
+			CPYFLD(Count);
+			CPYFLD(Ft_Declined);
+			CPYFLD(Ft_CheckPrintStatus);
+			CPYFLD(StorageLocID);
+			CPYFLD(EdiRecadvStatus);
+			CPYFLD(EdiRecadvConfStatus);
+			CPYFLD(OrderFulfillmentStatus);
+			CPYFLD(Bbt);
+			CPYFLD(Period);
+			CPYFLD(PaymPeriod);
+			CPYFLD(MainOrgID);
+			CPYFLD(PoolOpID);
+			CPYFLD(OpID);
+			CPYFLD(CurID);
+			CPYFLD(AccSheetID);
+			CPYFLD(ObjectID);
+			CPYFLD(Object2ID);
+			CPYFLD(PayerID);
+			CPYFLD(AgentID);
+			CPYFLD(CreatorID);
+			CPYFLD(StatusID);
+			CPYFLD(AssocID);
+			CPYFLD(PoolBillID);
+			CPYFLD(Flags);
+			CPYFLD(DenyFlags);
+			CPYFLD(ClientCardMode);
+			CPYFLD(Ft_STax);
+			CPYFLD(Ft_ClosedOrder);
+			CPYFLD(SortOrder);
+			CPYFLD(Sel);
+			CPYFLD(AmtRange);
+			CPYFLD(ReserveEnd); // @anchor
+#undef CPYFLD
+		if(fv3.P_SjF) {
+			THROW_MEM(P_SjF = new SysJournalFilt);
+			*P_SjF = *fv3.P_SjF;
+		}
+		else
+			ZDELETE(P_SjF);
+		if(fv3.P_TagF) {
+			THROW_MEM(P_TagF = new TagFilt);
+			*P_TagF = *fv3.P_TagF;
+		}
+		else
+			ZDELETE(P_TagF);
+		PPExtStrContainer::Z(); // new field
+		ObjList.Z(); // new field
+		Obj2List.Z(); // new field
+		AgentList.Z(); // new field
+		ReservedList.Z(); // new field
+		ok = 1;
+	}
+	else if(ver == 2) {
 		class BillFilt_v2 : public PPBaseFilt {
 		public:
 			BillFilt_v2() : PPBaseFilt(PPFILT_BILL, 0, 2), P_SjF(0), P_TagF(0)
@@ -227,7 +354,7 @@ int BillFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 
 BillFilt & FASTCALL BillFilt::operator = (const BillFilt & s)
 {
-	Copy(&s, 0);
+	PPBaseFilt::Copy(&s, 0);
 	return *this;
 }
 
@@ -588,10 +715,11 @@ void BillFiltDialog::SetupLocationCombo()
 
 int BillFiltDialog::setDTS(const BillFilt * pFilt)
 {
-	if(!Data.IsEq(pFilt, 0)) {
+	if(!Data.PPBaseFilt::IsEq(pFilt, 0)) {
 		const  PPID cur_user_id = LConfig.UserID;
 		ushort v;
-		PPID   acc_sheet_id = 0, acc_sheet2_id = 0;
+		PPID   acc_sheet_id = 0;
+		PPID   acc_sheet2_id = 0;
 		int    is_op_kind_list = 0;
 		PPIDArray types;
 		PPObjOprKind opk_obj;
@@ -680,6 +808,13 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 		AddClusterAssoc(CTL_BILLFLT_ORDER, 2, BillFilt::ordByCode);     // @v11.0.11 1-->2
 		AddClusterAssoc(CTL_BILLFLT_ORDER, 3, BillFilt::ordByObject);   // @v11.0.11 2-->3
 		SetClusterData(CTL_BILLFLT_ORDER, static_cast<long>(Data.SortOrder));
+		// @v11.7.4 {
+		if(getCtrlView(CTL_BILLFLT_MEMOTEXT)) {
+			SString temp_buf;
+			Data.GetExtStrData(BillFilt::extssMemoText, temp_buf);
+			setCtrlString(CTL_BILLFLT_MEMOTEXT, temp_buf);
+		}
+		// } @v11.7.4 
 	}
 	return 1;
 }
@@ -734,6 +869,13 @@ int BillFiltDialog::getDTS(BillFilt * pFilt)
 	THROW((Data.Flags & BillFilt::fDebtOnly) || AdjustPeriodToRights(temp_period, 1));
 	Data.Period = temp_period;
 	Data.SortOrder = (int16)GetClusterData(CTL_BILLFLT_ORDER);
+	// @v11.7.4 {
+	if(getCtrlView(CTL_BILLFLT_MEMOTEXT)) {
+		SString temp_buf;
+		getCtrlString(CTL_BILLFLT_MEMOTEXT, temp_buf);
+		Data.PutExtStrData(BillFilt::extssMemoText, temp_buf);
+	}
+	// } @v11.7.4 
 	ASSIGN_PTR(pFilt, Data);
 	CATCHZOKPPERRBYDLG
 	return ok;
@@ -881,14 +1023,12 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 	// } @v11.0.11 
 	if(IsTempTblNeeded()) {
 		IterOrder ord = OrdByDefault;
-		if(Filt.SortOrder == BillFilt::ordByDate)
-			ord = OrdByDate;
-		else if(Filt.SortOrder == BillFilt::ordByCode)
-			ord = OrdByCode;
-		else if(Filt.SortOrder == BillFilt::ordByObject)
-			ord = OrdByObjectName;
-		else if(Filt.SortOrder == BillFilt::ordByDateCode) // @v11.0.11
-			ord = OrdByDateCode;
+		switch(Filt.SortOrder) {
+			case BillFilt::ordByDate: ord = OrdByDate; break;
+			case BillFilt::ordByCode: ord = OrdByCode; break;
+			case BillFilt::ordByObject: ord = OrdByObjectName; break;
+			case BillFilt::ordByDateCode: ord = OrdByDateCode; break; // @v11.0.11
+		}
 		THROW(CreateTempTable(ord, 0));
 	}
 	CATCHZOK
@@ -897,12 +1037,13 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 
 int PPViewBill::EditBaseFilt(PPBaseFilt * pFilt)
 {
-	int    ok = -1, caption = -1;
+	int    ok = -1;
+	int    caption = -1;
 	TDialog * d = 0;
 	PPID   single_op_id = 0;
 	PPIDArray op_list;
 	uint   rez_id = DLG_BILLFLT;
-	BrowseBillsType bbt = (pFilt) ? static_cast<const BillFilt *>(pFilt)->Bbt : bbtUndef;
+	const BrowseBillsType bbt = (pFilt) ? static_cast<const BillFilt *>(pFilt)->Bbt : bbtUndef;
 	BillFilt * p_filt = static_cast<BillFilt *>(pFilt);
 	if(oneof3(bbt, bbtOrderBills, bbtInventoryBills, bbtPoolBills)) {
 		uint f;

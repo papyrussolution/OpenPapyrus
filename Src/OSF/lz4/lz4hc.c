@@ -51,7 +51,7 @@
 /*===   Macros   ===*/
 //#define MIN(a, b)   ( (a) < (b) ? (a) : (b) )
 //#define MAX(a, b)   ( (a) > (b) ? (a) : (b) )
-#define HASH_FUNCTION(i)         (((i) * _SlConst.MagicHashPrime32) >> ((MINMATCH*8)-LZ4HC_HASH_LOG))
+#define HASH_FUNCTION(i)         (((i) * SlConst::MagicHashPrime32) >> ((MINMATCH*8)-LZ4HC_HASH_LOG))
 #define DELTANEXTMAXD(p)         chainTable[(p) & LZ4HC_MAXD_MASK]    /* flexible, LZ4HC_MAXD dependent */
 #define DELTANEXTU16(table, pos) table[static_cast<uint16>(pos)]   /* faster */
 

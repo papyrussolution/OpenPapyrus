@@ -3240,6 +3240,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	SString temp_buf;
 	SString font_face;
 	if(!(Flags & fNoEdit)) {
+		CsObj.BuildCcDate2MaxIdIndex(PPObjCSession::buildccdate2maxidindexMode_SkipIfCached); // @v11.7.4
 		P_PalmWaiter = new PalmImportWaiter(CheckPaneDialog::PalmImport, this); // @newok
 		{
 			// @v11.2.6 UserInterfaceSettings uis;
@@ -8690,7 +8691,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 												CCheckCore & r_cc = GetCc();
 												int    cc_even = 0;
 												temp_buf.Z();
-												if(r_cc.GetListByEgaisMark(egais_mark, cc_list, &sent_list) > 0) {
+												if(CsObj.GetListByEgaisMark(egais_mark, cc_list, &sent_list) > 0) {
 													SString debug_msg_buf;
 													for(uint j = 0; j < cc_list.getCount(); j++) {
 														const PPID cc_id = cc_list.get(j);
@@ -8753,7 +8754,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 						}
 						if(!is_mark_processed) {
 							if(gt_rec.Flags & GTF_GMARKED || (rBlk.Flags & PgsBlock::fMarkedBarcode)) {
-								const int disable_chzn_mark_backtest = 1; // @v10.8.1 Проблемы с сигаретами - слишком много продаж и идентификация дубликатов занимает много времени
+								const int disable_chzn_mark_backtest = 0; // @v10.8.1 Проблемы с сигаретами - слишком много продаж и идентификация дубликатов занимает много времени // @v11.7.4 1-->0
 								if(!(CnSpeciality == PPCashNode::spApteka && (rBlk.Qtty > 0.0 && rBlk.Qtty < 1.0))) // @v11.6.9
 									rBlk.Qtty = 1.0; // Маркированная продукциия - строго по одной штуке на строку чека (исключение: аптека и остаток менее 1)
 								SString chzn_mark = rBlk.ChZnMark;
@@ -8770,7 +8771,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 											CCheckCore & r_cc = GetCc();
 											int    cc_even = 0;
 											temp_buf.Z();
-											if(r_cc.GetListByChZnMark(chzn_mark, cc_list) > 0) {
+											if(CsObj.GetListByChZnMark(chzn_mark, cc_list) > 0) {
 												for(uint j = 0; j < cc_list.getCount(); j++) {
 													const PPID cc_id = cc_list.get(j);
 													CCheckTbl::Rec cc_rec;

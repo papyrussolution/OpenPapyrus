@@ -513,9 +513,9 @@ _cleanup:
 
 static void ZDICT_fillNoise(void * buffer, size_t length)
 {
-	//const uint prime1 = _SlConst.MagicHashPrime32 /*2654435761U*/;
+	//const uint prime1 = SlConst::MagicHashPrime32 /*2654435761U*/;
 	const uint prime2 = 2246822519U;
-	uint acc = _SlConst.MagicHashPrime32/*prime1*/;
+	uint acc = SlConst::MagicHashPrime32/*prime1*/;
 	for(size_t p = 0; p<length; p++) {
 		acc *= prime2;
 		((uchar*)buffer)[p] = (uchar)(acc >> 21);

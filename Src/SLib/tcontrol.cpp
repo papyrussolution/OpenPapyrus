@@ -548,7 +548,7 @@ void TInputLine::Setup(void * pThisHandle, void * pParentHandle)
 	HWND hw_this = static_cast<HWND>(pThisHandle);
 	SendDlgItemMessage(hw_parent, Id, EM_SETLIMITTEXT, MaxLen ? (MaxLen-1) : 0, 0);
 	if(Format & STRF_PASSWORD)
-		SendDlgItemMessage(hw_parent, Id, EM_SETPASSWORDCHAR, DEFAULT_PASSWORD_SYMB, 0);
+		SendDlgItemMessage(hw_parent, Id, EM_SETPASSWORDCHAR, SlConst::DefaultPasswordSymb, 0);
 	Draw_();
 	//HWND h_wnd = getHandle();
 	TView::SetWindowProp(hw_this, GWLP_USERDATA, this);
@@ -729,7 +729,7 @@ void TInputLine::setFormat(long f)
 		Format = f;
 		setMaxLen(SFMTLEN(Format));
 		if(Format & STRF_PASSWORD)
-			::SendDlgItemMessage(Parent, Id, EM_SETPASSWORDCHAR, DEFAULT_PASSWORD_SYMB, 0);
+			::SendDlgItemMessage(Parent, Id, EM_SETPASSWORDCHAR, SlConst::DefaultPasswordSymb, 0);
 		TransmitData(+1, buf);
 	}
 }

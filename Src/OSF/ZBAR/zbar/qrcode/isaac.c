@@ -82,7 +82,7 @@ void isaac_init(isaac_ctx * _ctx, const void * _seed, int _nseed)
 	_ctx->a = _ctx->b = _ctx->c = 0;
 	m = _ctx->m;
 	r = _ctx->r;
-	x[0] = x[1] = x[2] = x[3] = x[4] = x[5] = x[6] = x[7] = _SlConst.GoldenRatioInt32/*0x9E3779B9*/;
+	x[0] = x[1] = x[2] = x[3] = x[4] = x[5] = x[6] = x[7] = SlConst::GoldenRatioInt32/*0x9E3779B9*/;
 	for(i = 0; i<4; i++) 
 		isaac_mix(x);
 	if(_nseed>ISAAC_SEED_SZ_MAX) 

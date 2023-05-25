@@ -3816,7 +3816,8 @@ public:
 	}
 	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
-		int    ok = -1, r = 1;
+		int    ok = -1;
+		int    r = 1;
 		uint   val = 0;
 		SSerializeContext sctx;
 		PPBillImpExpBaseProcessBlock blk;

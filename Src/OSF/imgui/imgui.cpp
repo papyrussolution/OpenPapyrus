@@ -2167,7 +2167,7 @@ IM_MSVC_RUNTIME_CHECKS_RESTORE
 // Note: The Convert functions are early design which are not consistent with other API.
 //-----------------------------------------------------------------------------
 
-IMGUI_API ImU32 ImAlphaBlendColors(ImU32 col_a, ImU32 col_b)
+ImU32 ImAlphaBlendColors(ImU32 col_a, ImU32 col_b)
 {
 	float t = ((col_b >> IM_COL32_A_SHIFT) & 0xFF) / 255.f;
 	int r = ImLerp((int)(col_a >> IM_COL32_R_SHIFT) & 0xFF, (int)(col_b >> IM_COL32_R_SHIFT) & 0xFF, t);
@@ -10315,10 +10315,8 @@ void ImGui::SetFocusID(ImGuiID id, ImGuiWindow * window)
 {
 	ImGuiContext & g = *GImGui;
 	assert(id != 0);
-
 	if(g.NavWindow != window)
 		SetNavWindow(window);
-
 	// Assume that SetFocusID() is called in the context where its window->DC.NavLayerCurrent and g.CurrentFocusScopeId are valid.
 	// Note that window may be != g.CurrentWindow (e.g. SetFocusID call in InputTextEx for multi-line text)
 	const ImGuiNavLayer nav_layer = window->DC.NavLayerCurrent;
@@ -10328,7 +10326,6 @@ void ImGui::SetFocusID(ImGuiID id, ImGuiWindow * window)
 	window->NavLastIds[nav_layer] = id;
 	if(g.LastItemData.ID == id)
 		window->NavRectRel[nav_layer] = WindowRectAbsToRel(window, g.LastItemData.NavRect);
-
 	if(g.ActiveIdSource == ImGuiInputSource_Keyboard || g.ActiveIdSource == ImGuiInputSource_Gamepad)
 		g.NavDisableMouseHover = true;
 	else
@@ -10754,13 +10751,11 @@ void ImGui::NavInitWindow(ImGuiWindow * window, bool force_reinit)
 {
 	ImGuiContext & g = *GImGui;
 	assert(window == g.NavWindow);
-
 	if(window->Flags & ImGuiWindowFlags_NoNavInputs) {
 		g.NavId = 0;
 		g.NavFocusScopeId = window->NavRootFocusScopeId;
 		return;
 	}
-
 	bool init_for_nav = false;
 	if(window == window->RootWindow || (window->Flags & ImGuiWindowFlags_Popup) || (window->NavLastIds[0] == 0) || force_reinit)
 		init_for_nav = true;
@@ -10829,28 +10824,39 @@ static void ImGui::NavUpdate()
 {
 	ImGuiContext & g = *GImGui;
 	ImGuiIO& io = g.IO;
-
 	io.WantSetMousePos = false;
 	//if (g.NavScoringDebugCount > 0) IMGUI_DEBUG_LOG_NAV("[nav] NavScoringDebugCount %d for '%s' layer %d (Init:%d, Move:%d)\n", g.NavScoringDebugCount, g.NavWindow ? g.NavWindow->Name : "NULL", g.NavLayer, g.NavInitRequest || g.NavInitResultId != 0, g.NavMoveRequest);
-
 	// Set input source based on which keys are last pressed (as some features differs when used with Gamepad vs Keyboard)
 	// FIXME-NAV: Now that keys are separated maybe we can get rid of NavInputSource?
 	const bool nav_gamepad_active = (io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) != 0 && (io.BackendFlags & ImGuiBackendFlags_HasGamepad) != 0;
-	const ImGuiKey nav_gamepad_keys_to_change_source[] =
-	{ ImGuiKey_GamepadFaceRight, ImGuiKey_GamepadFaceLeft, ImGuiKey_GamepadFaceUp, ImGuiKey_GamepadFaceDown, ImGuiKey_GamepadDpadRight, ImGuiKey_GamepadDpadLeft,
-	  ImGuiKey_GamepadDpadUp, ImGuiKey_GamepadDpadDown };
+	const ImGuiKey nav_gamepad_keys_to_change_source[] = { 
+		ImGuiKey_GamepadFaceRight, 
+		ImGuiKey_GamepadFaceLeft, 
+		ImGuiKey_GamepadFaceUp, 
+		ImGuiKey_GamepadFaceDown, 
+		ImGuiKey_GamepadDpadRight, 
+		ImGuiKey_GamepadDpadLeft, 
+		ImGuiKey_GamepadDpadUp, 
+		ImGuiKey_GamepadDpadDown 
+	};
 	if(nav_gamepad_active)
 		for(ImGuiKey key : nav_gamepad_keys_to_change_source)
 			if(IsKeyDown(key))
 				g.NavInputSource = ImGuiInputSource_Gamepad;
 	const bool nav_keyboard_active = (io.ConfigFlags & ImGuiConfigFlags_NavEnableKeyboard) != 0;
-	const ImGuiKey nav_keyboard_keys_to_change_source[] =
-	{ ImGuiKey_Space, ImGuiKey_Enter, ImGuiKey_Escape, ImGuiKey_RightArrow, ImGuiKey_LeftArrow, ImGuiKey_UpArrow, ImGuiKey_DownArrow };
+	const ImGuiKey nav_keyboard_keys_to_change_source[] = { 
+		ImGuiKey_Space, 
+		ImGuiKey_Enter, 
+		ImGuiKey_Escape, 
+		ImGuiKey_RightArrow, 
+		ImGuiKey_LeftArrow, 
+		ImGuiKey_UpArrow, 
+		ImGuiKey_DownArrow 
+	};
 	if(nav_keyboard_active)
 		for(ImGuiKey key : nav_keyboard_keys_to_change_source)
 			if(IsKeyDown(key))
 				g.NavInputSource = ImGuiInputSource_Keyboard;
-
 	// Process navigation init request (select first/default focus)
 	if(g.NavInitResultId != 0)
 		NavInitRequestApplyResult();
@@ -10858,13 +10864,11 @@ static void ImGui::NavUpdate()
 	g.NavInitRequestFromMove = false;
 	g.NavInitResultId = 0;
 	g.NavJustMovedToId = 0;
-
 	// Process navigation move request
 	if(g.NavMoveSubmitted)
 		NavMoveRequestApplyResult();
 	g.NavTabbingCounter = 0;
 	g.NavMoveSubmitted = g.NavMoveScoringItems = false;
-
 	// Schedule mouse position update (will be done at the bottom of this function, after 1) processing all move requests and 2) updating scrolling)
 	bool set_mouse_pos = false;
 	if(g.NavMousePosDirty && g.NavIdIsAlive)
@@ -10872,23 +10876,18 @@ static void ImGui::NavUpdate()
 			set_mouse_pos = true;
 	g.NavMousePosDirty = false;
 	assert(g.NavLayer == ImGuiNavLayer_Main || g.NavLayer == ImGuiNavLayer_Menu);
-
 	// Store our return window (for returning from Menu Layer to Main Layer) and clear it as soon as we step back in our own Layer 0
 	if(g.NavWindow)
 		NavSaveLastChildNavWindowIntoParent(g.NavWindow);
 	if(g.NavWindow && g.NavWindow->NavLastChildNavWindow != NULL && g.NavLayer == ImGuiNavLayer_Main)
 		g.NavWindow->NavLastChildNavWindow = NULL;
-
 	// Update CTRL+TAB and Windowing features (hold Square to move/resize/etc.)
 	NavUpdateWindowing();
-
 	// Set output flags for user application
 	io.NavActive = (nav_keyboard_active || nav_gamepad_active) && g.NavWindow && !(g.NavWindow->Flags & ImGuiWindowFlags_NoNavInputs);
 	io.NavVisible = (io.NavActive && g.NavId != 0 && !g.NavDisableHighlight) || (g.NavWindowingTarget != NULL);
-
 	// Process NavCancel input (to close a popup, get back to parent, clear focus)
 	NavUpdateCancelRequest();
-
 	// Process manual activation request
 	g.NavActivateId = g.NavActivateDownId = g.NavActivatePressedId = 0;
 	g.NavActivateFlags = ImGuiActivateFlags_None;
@@ -10916,7 +10915,6 @@ static void ImGui::NavUpdate()
 		g.NavDisableHighlight = true;
 	if(g.NavActivateId != 0)
 		assert(g.NavActivateDownId == g.NavActivateId);
-
 	// Process programmatic activation request
 	// FIXME-NAV: Those should eventually be queued (unlike focus they don't cancel each others)
 	if(g.NavNextActivateId != 0) {
@@ -10924,14 +10922,12 @@ static void ImGui::NavUpdate()
 		g.NavActivateFlags = g.NavNextActivateFlags;
 	}
 	g.NavNextActivateId = 0;
-
 	// Process move requests
 	NavUpdateCreateMoveRequest();
 	if(g.NavMoveDir == ImGuiDir_None)
 		NavUpdateCreateTabbingRequest();
 	NavUpdateAnyRequestFlag();
 	g.NavIdIsAlive = false;
-
 	// Scrolling
 	if(g.NavWindow && !(g.NavWindow->Flags & ImGuiWindowFlags_NoNavInputs) && !g.NavWindowingTarget) {
 		// *Fallback* manual-scroll with Nav directional keys when window has no navigable item
@@ -11657,8 +11653,7 @@ void ImGui::NavUpdateWindowingOverlay()
 	assert(g.NavWindowingTarget != NULL);
 	if(g.NavWindowingTimer < NAV_WINDOWING_LIST_APPEAR_DELAY)
 		return;
-	if(g.NavWindowingListWindow == NULL)
-		g.NavWindowingListWindow = FindWindowByName("###NavWindowingList");
+	SETIFZQ(g.NavWindowingListWindow, FindWindowByName("###NavWindowingList"));
 	const ImGuiViewport* viewport = GetMainViewport();
 	SetNextWindowSizeConstraints(ImVec2(viewport->Size.x * 0.20f, viewport->Size.y * 0.20f), ImVec2(FLT_MAX, FLT_MAX));
 	SetNextWindowPos(viewport->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
@@ -11711,11 +11706,9 @@ bool ImGui::BeginDragDropSource(ImGuiDragDropFlags flags)
 {
 	ImGuiContext & g = *GImGui;
 	ImGuiWindow * window = g.CurrentWindow;
-
 	// FIXME-DRAGDROP: While in the common-most "drag from non-zero active id" case we can tell the mouse button,
 	// in both SourceExtern and id==0 cases we may requires something else (explicit flags or some heuristic).
 	ImGuiMouseButton mouse_button = ImGuiMouseButton_Left;
-
 	bool source_drag_active = false;
 	ImGuiID source_id = 0;
 	ImGuiID source_parent_id = 0;
@@ -11737,14 +11730,12 @@ bool ImGui::BeginDragDropSource(ImGuiDragDropFlags flags)
 				return false;
 			if((g.LastItemData.StatusFlags & ImGuiItemStatusFlags_HoveredRect) == 0 && (g.ActiveId == 0 || g.ActiveIdWindow != window))
 				return false;
-
 			// If you want to use BeginDragDropSource() on an item with no unique identifier for interaction, such as Text() or Image(), you need to:
 			// A) Read the explanation below, B) Use the ImGuiDragDropFlags_SourceAllowNullID flag.
 			if(!(flags & ImGuiDragDropFlags_SourceAllowNullID)) {
 				assert(0);
 				return false;
 			}
-
 			// Magic fallback to handle items with no assigned ID, e.g. Text(), Image()
 			// We build a throwaway ID based on current ID stack + relative AABB of items in window.
 			// THE IDENTIFIER WON'T SURVIVE ANY REPOSITIONING/RESIZINGG OF THE WIDGET, so if your widget moves your dragging operation will be canceled.
@@ -11764,7 +11755,6 @@ bool ImGui::BeginDragDropSource(ImGuiDragDropFlags flags)
 			return false;
 		source_parent_id = window->IDStack.back();
 		source_drag_active = IsMouseDragging(mouse_button);
-
 		// Disable navigation and key inputs while dragging + cancel existing request if any
 		SetActiveIdUsingAllKeyboardKeys();
 	}
@@ -11773,12 +11763,11 @@ bool ImGui::BeginDragDropSource(ImGuiDragDropFlags flags)
 		source_id = ImHashStr("#SourceExtern");
 		source_drag_active = true;
 	}
-
 	if(source_drag_active) {
 		if(!g.DragDropActive) {
 			assert(source_id != 0);
 			ClearDragDrop();
-			ImGuiPayload& payload = g.DragDropPayload;
+			ImGuiPayload & payload = g.DragDropPayload;
 			payload.SourceId = source_id;
 			payload.SourceParentId = source_parent_id;
 			g.DragDropActive = true;
@@ -11789,21 +11778,17 @@ bool ImGui::BeginDragDropSource(ImGuiDragDropFlags flags)
 		}
 		g.DragDropSourceFrameCount = g.FrameCount;
 		g.DragDropWithinSource = true;
-
 		if(!(flags & ImGuiDragDropFlags_SourceNoPreviewTooltip)) {
 			// Target can request the Source to not display its tooltip (we use a dedicated flag to make this request explicit)
 			// We unfortunately can't just modify the source flags and skip the call to BeginTooltip, as caller may be emitting contents.
 			bool ret = BeginTooltip();
 			assert(ret); // FIXME-NEWBEGIN: If this ever becomes false, we need to Begin("##Hidden", NULL, ImGuiWindowFlags_NoSavedSettings) + SetWindowHiddendAndSkipItemsForCurrentFrame().
 			IM_UNUSED(ret);
-
 			if(g.DragDropAcceptIdPrev && (g.DragDropAcceptFlags & ImGuiDragDropFlags_AcceptNoPreviewTooltip))
 				SetWindowHiddendAndSkipItemsForCurrentFrame(g.CurrentWindow);
 		}
-
 		if(!(flags & ImGuiDragDropFlags_SourceNoDisableHover) && !(flags & ImGuiDragDropFlags_SourceExtern))
 			g.LastItemData.StatusFlags &= ~ImGuiItemStatusFlags_HoveredRect;
-
 		return true;
 	}
 	return false;
@@ -11814,10 +11799,8 @@ void ImGui::EndDragDropSource()
 	ImGuiContext & g = *GImGui;
 	assert(g.DragDropActive);
 	assert(g.DragDropWithinSource && "Not after a BeginDragDropSource()?");
-
 	if(!(g.DragDropSourceFlags & ImGuiDragDropFlags_SourceNoPreviewTooltip))
 		EndTooltip();
-
 	// Discard the drag if have not called SetDragDropPayload()
 	if(g.DragDropPayload.DataFrameCount == -1)
 		ClearDragDrop();
@@ -11857,7 +11840,6 @@ bool ImGui::SetDragDropPayload(const char* type, const void* data, size_t data_s
 		payload.DataSize = (int)data_size;
 	}
 	payload.DataFrameCount = g.FrameCount;
-
 	// Return whether the payload has been accepted
 	return (g.DragDropAcceptFrameCount == g.FrameCount) || (g.DragDropAcceptFrameCount == g.FrameCount - 1);
 }
@@ -11892,14 +11874,12 @@ bool ImGui::BeginDragDropTarget()
 	ImGuiContext & g = *GImGui;
 	if(!g.DragDropActive)
 		return false;
-
 	ImGuiWindow * window = g.CurrentWindow;
 	if(!(g.LastItemData.StatusFlags & ImGuiItemStatusFlags_HoveredRect))
 		return false;
 	ImGuiWindow* hovered_window = g.HoveredWindowUnderMovingWindow;
 	if(hovered_window == NULL || window->RootWindow != hovered_window->RootWindow || window->SkipItems)
 		return false;
-
 	const ImRect& display_rect = (g.LastItemData.StatusFlags & ImGuiItemStatusFlags_HasDisplayRect) ? g.LastItemData.DisplayRect : g.LastItemData.Rect;
 	ImGuiID id = g.LastItemData.ID;
 	if(id == 0) {
@@ -14151,7 +14131,6 @@ void ImGui::UpdateDebugToolItemPicker()
 	g.DebugItemPickerBreakId = 0;
 	if(!g.DebugItemPickerActive)
 		return;
-
 	const ImGuiID hovered_id = g.HoveredIdPreviousFrame;
 	SetMouseCursor(ImGuiMouseCursor_Hand);
 	if(IsKeyPressed(ImGuiKey_Escape))
@@ -14173,8 +14152,7 @@ void ImGui::UpdateDebugToolItemPicker()
 	if(change_mapping)
 		Text("Remap w/ Ctrl+Shift: click anywhere to select new mouse button.");
 	else
-		TextColored(GetStyleColorVec4(hovered_id ? ImGuiCol_Text : ImGuiCol_TextDisabled),
-		    "Click %s Button to break in debugger! (remap w/ Ctrl+Shift)",
+		TextColored(GetStyleColorVec4(hovered_id ? ImGuiCol_Text : ImGuiCol_TextDisabled), "Click %s Button to break in debugger! (remap w/ Ctrl+Shift)",
 		    mouse_button_names[g.DebugItemPickerMouseButton]);
 	EndTooltip();
 }
@@ -14184,12 +14162,10 @@ void ImGui::UpdateDebugToolStackQueries()
 {
 	ImGuiContext & g = *GImGui;
 	ImGuiStackTool* tool = &g.DebugStackTool;
-
 	// Clear hook when stack tool is not visible
 	g.DebugHookIdInfo = 0;
 	if(g.FrameCount != tool->LastActiveFrame + 1)
 		return;
-
 	// Update queries. The steps are: -1: query Stack, >= 0: query each stack item
 	// We can only perform 1 ID Info query every frame. This is designed so the GetID() tests are cheap and constant-time
 	const ImGuiID query_id = g.HoveredIdPreviousFrame ? g.HoveredIdPreviousFrame : g.ActiveId;

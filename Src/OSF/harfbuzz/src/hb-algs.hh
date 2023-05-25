@@ -59,7 +59,7 @@ struct {
 private:
 	template <typename T> constexpr auto impl(const T& v, hb_priority<1>) const HB_RETURN(uint32_t, hb_deref(v).hash())
 	template <typename T, hb_enable_if(hb_is_integral(T))> constexpr auto impl(const T& v, hb_priority<0>) const HB_AUTO_RETURN
-	( (uint32_t)v * _SlConst.MagicHashPrime32 /* Knuth's multiplicative method: */ )
+	( (uint32_t)v * SlConst::MagicHashPrime32 /* Knuth's multiplicative method: */ )
 public:
 	template <typename T> constexpr auto operator() (const T &v) const HB_RETURN(uint32_t, impl(v, hb_prioritize))
 } HB_FUNCOBJ(hb_hash);

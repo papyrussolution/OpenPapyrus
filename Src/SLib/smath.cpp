@@ -1573,7 +1573,28 @@ void RationalBestApproximation(ulong givenNumerator, ulong givenDenominator, ulo
 	*pBestDenominator = d1;
 }
 //
+// SUint128
+// 
+SUint128 & SUint128::Mul64(uint64 a, uint64 b)
+{
+	uint32 al = LoDWord(a);
+	uint32 ah = HiDWord(a);
+	uint32 bl = LoDWord(b);
+	uint32 bh = HiDWord(b);
+	uint64 r0 = static_cast<uint64>(al) * static_cast<uint64>(bl);
+	uint64 r1 = static_cast<uint64>(al) * static_cast<uint64>(bh);
+	uint64 r2 = static_cast<uint64>(ah) * static_cast<uint64>(bl);
+	uint64 r3 = static_cast<uint64>(ah) * static_cast<uint64>(bh);
+	r1 = r1 + HiDWord(r0); /* no carry possible */
+	r1 = r1 + r2; /* but this can carry */
+	if(r1 < r2) /* check */
+		r3 = r3 + (1ULL << 32); // (1ULL << 32) - carry32
+	hi = r3 + HiDWord(r1);
+	lo = (r1 << 32) + LoDWord(r0);
+	return *this;
+}
 //
+// 
 //
 static uint64 GetUedMaxMantissa(uint numMantissaBits)
 {

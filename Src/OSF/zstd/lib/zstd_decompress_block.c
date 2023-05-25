@@ -1001,11 +1001,8 @@ HINT_INLINE size_t ZSTD_execSequence(BYTE * op, BYTE * const oend, seq_t sequenc
 	return sequenceLength;
 }
 
-HINT_INLINE
-size_t ZSTD_execSequenceSplitLitBuffer(BYTE * op,
-    BYTE * const oend, const BYTE * const oend_w, seq_t sequence,
-    const BYTE ** litPtr, const BYTE * const litLimit,
-    const BYTE * const prefixStart, const BYTE * const virtualStart, const BYTE * const dictEnd)
+HINT_INLINE size_t ZSTD_execSequenceSplitLitBuffer(BYTE * op, BYTE * const oend, const BYTE * const oend_w, seq_t sequence,
+    const BYTE ** litPtr, const BYTE * const litLimit, const BYTE * const prefixStart, const BYTE * const virtualStart, const BYTE * const dictEnd)
 {
 	BYTE * const oLitEnd = op + sequence.litLength;
 	const size_t sequenceLength = sequence.litLength + sequence.matchLength;
@@ -1020,10 +1017,7 @@ size_t ZSTD_execSequenceSplitLitBuffer(BYTE * op,
 	 *   - Match end is within WILDCOPY_OVERLIMIT of oend
 	 *   - 32-bit mode and the match length overflows
 	 */
-	if(UNLIKELY(
-		    iLitEnd > litLimit ||
-		    oMatchEnd > oend_w ||
-		    (MEM_32bits() && (size_t)(oend - op) < sequenceLength + WILDCOPY_OVERLENGTH)))
+	if(UNLIKELY(iLitEnd > litLimit || oMatchEnd > oend_w || (MEM_32bits() && (size_t)(oend - op) < sequenceLength + WILDCOPY_OVERLENGTH)))
 		return ZSTD_execSequenceEndSplitLitBuffer(op, oend, oend_w, sequence, litPtr, litLimit, prefixStart, virtualStart, dictEnd);
 
 	/* Assumptions (everything else goes into ZSTD_execSequenceEnd()) */
@@ -1082,10 +1076,8 @@ size_t ZSTD_execSequenceSplitLitBuffer(BYTE * op,
 		return sequenceLength;
 	}
 	assert(sequence.offset < WILDCOPY_VECLEN);
-
 	/* Copy 8 bytes and spread the offset to be >= 8. */
 	ZSTD_overlapCopy8(&op, &match, sequence.offset);
-
 	/* If the match length is > 8 bytes, then continue with the wildcopy. */
 	if(sequence.matchLength > 8) {
 		assert(op < oMatchEnd);
@@ -1677,13 +1669,10 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_decompressSequencesLong_body(ZSTD_DCtx* dctx,
 		{ int i; for(i = 0; i<ZSTD_REP_NUM; i++) seqState.prevOffset[i] = dctx->entropy.rep[i]; }
 		assert(dst != NULL);
 		assert(iend >= ip);
-		RETURN_ERROR_IF(
-			ERR_isError(BIT_initDStream(&seqState.DStream, ip, iend-ip)),
-			corruption_detected, "");
+		RETURN_ERROR_IF(ERR_isError(BIT_initDStream(&seqState.DStream, ip, iend-ip)), corruption_detected, "");
 		ZSTD_initFseState(&seqState.stateLL, &seqState.DStream, dctx->LLTptr);
 		ZSTD_initFseState(&seqState.stateOffb, &seqState.DStream, dctx->OFTptr);
 		ZSTD_initFseState(&seqState.stateML, &seqState.DStream, dctx->MLTptr);
-
 		/* prepare in advance */
 		for(seqNb = 0; (BIT_reloadDStream(&seqState.DStream) <= BIT_DStream_completed) && (seqNb<seqAdvance); seqNb++) {
 			seq_t const sequence = ZSTD_decodeSequence(&seqState, isLongOffset);
@@ -1696,16 +1685,12 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_decompressSequencesLong_body(ZSTD_DCtx* dctx,
 		for(; (BIT_reloadDStream(&(seqState.DStream)) <= BIT_DStream_completed) && (seqNb < nbSeq); seqNb++) {
 			seq_t sequence = ZSTD_decodeSequence(&seqState, isLongOffset);
 			size_t oneSeqSize;
-
-			if(dctx->litBufferLocation == ZSTD_split &&
-			    litPtr + sequences[(seqNb - ADVANCED_SEQS) & STORED_SEQS_MASK].litLength > dctx->litBufferEnd) {
+			if(dctx->litBufferLocation == ZSTD_split && litPtr + sequences[(seqNb - ADVANCED_SEQS) & STORED_SEQS_MASK].litLength > dctx->litBufferEnd) {
 				/* lit buffer is reaching split point, empty out the first buffer and transition to
 				   litExtraBuffer */
 				const size_t leftoverLit = dctx->litBufferEnd - litPtr;
 				if(leftoverLit) {
-					RETURN_ERROR_IF(leftoverLit > (size_t)(oend - op),
-					    dstSize_tooSmall,
-					    "remaining lit must fit within dstBuffer");
+					RETURN_ERROR_IF(leftoverLit > (size_t)(oend - op), dstSize_tooSmall, "remaining lit must fit within dstBuffer");
 					ZSTD_safecopyDstBeforeSrc(op, litPtr, leftoverLit);
 					sequences[(seqNb - ADVANCED_SEQS) & STORED_SEQS_MASK].litLength -= leftoverLit;
 					op += leftoverLit;
@@ -1723,12 +1708,8 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_decompressSequencesLong_body(ZSTD_DCtx* dctx,
 					dictEnd);
 #if defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION) && defined(FUZZING_ASSERT_VALID_SEQUENCE)
 				assert(!ZSTD_isError(oneSeqSize));
-				if(frame) ZSTD_assertValidSequence(dctx,
-					    op,
-					    oend,
-					    sequences[(seqNb - ADVANCED_SEQS) & STORED_SEQS_MASK],
-					    prefixStart,
-					    dictStart);
+				if(frame) 
+					ZSTD_assertValidSequence(dctx, op, oend, sequences[(seqNb - ADVANCED_SEQS) & STORED_SEQS_MASK], prefixStart, dictStart);
 #endif
 				if(ZSTD_isError(oneSeqSize)) return oneSeqSize;
 
@@ -1738,32 +1719,16 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_decompressSequencesLong_body(ZSTD_DCtx* dctx,
 			}
 			else {
 				/* lit buffer is either wholly contained in first or second split, or not split at all*/
-				oneSeqSize = dctx->litBufferLocation == ZSTD_split ?
-				    ZSTD_execSequenceSplitLitBuffer(op,
-					oend,
-					litPtr + sequences[(seqNb - ADVANCED_SEQS) & STORED_SEQS_MASK].litLength - WILDCOPY_OVERLENGTH,
-					sequences[(seqNb - ADVANCED_SEQS) & STORED_SEQS_MASK],
-					&litPtr,
-					litBufferEnd,
-					prefixStart,
-					dictStart,
-					dictEnd) :
-				    ZSTD_execSequence(op,
-					oend,
-					sequences[(seqNb - ADVANCED_SEQS) & STORED_SEQS_MASK],
-					&litPtr,
-					litBufferEnd,
-					prefixStart,
-					dictStart,
-					dictEnd);
+				oneSeqSize = dctx->litBufferLocation == ZSTD_split ? ZSTD_execSequenceSplitLitBuffer(op,
+					oend, litPtr + sequences[(seqNb - ADVANCED_SEQS) & STORED_SEQS_MASK].litLength - WILDCOPY_OVERLENGTH,
+					sequences[(seqNb - ADVANCED_SEQS) & STORED_SEQS_MASK], &litPtr,
+					litBufferEnd, prefixStart, dictStart, dictEnd) : ZSTD_execSequence(op, oend,
+					sequences[(seqNb - ADVANCED_SEQS) & STORED_SEQS_MASK], &litPtr, litBufferEnd, prefixStart,
+					dictStart, dictEnd);
 #if defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION) && defined(FUZZING_ASSERT_VALID_SEQUENCE)
 				assert(!ZSTD_isError(oneSeqSize));
-				if(frame) ZSTD_assertValidSequence(dctx,
-					    op,
-					    oend,
-					    sequences[(seqNb - ADVANCED_SEQS) & STORED_SEQS_MASK],
-					    prefixStart,
-					    dictStart);
+				if(frame) 
+					ZSTD_assertValidSequence(dctx, op, oend, sequences[(seqNb - ADVANCED_SEQS) & STORED_SEQS_MASK], prefixStart, dictStart);
 #endif
 				if(ZSTD_isError(oneSeqSize)) return oneSeqSize;
 
@@ -1781,9 +1746,7 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_decompressSequencesLong_body(ZSTD_DCtx* dctx,
 			if(dctx->litBufferLocation == ZSTD_split && litPtr + sequence->litLength > dctx->litBufferEnd) {
 				const size_t leftoverLit = dctx->litBufferEnd - litPtr;
 				if(leftoverLit) {
-					RETURN_ERROR_IF(leftoverLit > (size_t)(oend - op),
-					    dstSize_tooSmall,
-					    "remaining lit must fit within dstBuffer");
+					RETURN_ERROR_IF(leftoverLit > (size_t)(oend - op), dstSize_tooSmall, "remaining lit must fit within dstBuffer");
 					ZSTD_safecopyDstBeforeSrc(op, litPtr, leftoverLit);
 					sequence->litLength -= leftoverLit;
 					op += leftoverLit;
@@ -1792,53 +1755,36 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_decompressSequencesLong_body(ZSTD_DCtx* dctx,
 				litBufferEnd = dctx->litExtraBuffer + ZSTD_LITBUFFEREXTRASIZE;
 				dctx->litBufferLocation = ZSTD_not_in_dst;
 				{
-					const size_t oneSeqSize = ZSTD_execSequence(op,
-						oend,
-						*sequence,
-						&litPtr,
-						litBufferEnd,
-						prefixStart,
-						dictStart,
-						dictEnd);
+					const size_t oneSeqSize = ZSTD_execSequence(op, oend, *sequence, &litPtr, litBufferEnd, prefixStart, dictStart, dictEnd);
 #if defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION) && defined(FUZZING_ASSERT_VALID_SEQUENCE)
 					assert(!ZSTD_isError(oneSeqSize));
-					if(frame) ZSTD_assertValidSequence(dctx,
-						    op,
-						    oend,
-						    sequences[seqNb&STORED_SEQS_MASK],
-						    prefixStart,
-						    dictStart);
+					if(frame) ZSTD_assertValidSequence(dctx, op, oend, sequences[seqNb&STORED_SEQS_MASK], prefixStart, dictStart);
 #endif
-					if(ZSTD_isError(oneSeqSize)) return oneSeqSize;
+					if(ZSTD_isError(oneSeqSize)) 
+						return oneSeqSize;
 					op += oneSeqSize;
 				}
 			}
 			else {
 				const size_t oneSeqSize = dctx->litBufferLocation == ZSTD_split ?
-				    ZSTD_execSequenceSplitLitBuffer(op,
-					oend,
-					litPtr + sequence->litLength - WILDCOPY_OVERLENGTH,
-					*sequence,
-					&litPtr,
-					litBufferEnd,
-					prefixStart,
-					dictStart,
-					dictEnd) :
-				    ZSTD_execSequence(op, oend, *sequence, &litPtr, litBufferEnd, prefixStart, dictStart, dictEnd);
+				    ZSTD_execSequenceSplitLitBuffer(op, oend, litPtr + sequence->litLength - WILDCOPY_OVERLENGTH, *sequence,
+						&litPtr, litBufferEnd, prefixStart, dictStart, dictEnd) : ZSTD_execSequence(op, oend, *sequence, &litPtr, litBufferEnd, prefixStart, dictStart, dictEnd);
 #if defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION) && defined(FUZZING_ASSERT_VALID_SEQUENCE)
 				assert(!ZSTD_isError(oneSeqSize));
-				if(frame) ZSTD_assertValidSequence(dctx, op, oend, sequences[seqNb&STORED_SEQS_MASK], prefixStart,
-					    dictStart);
+				if(frame) 
+					ZSTD_assertValidSequence(dctx, op, oend, sequences[seqNb&STORED_SEQS_MASK], prefixStart, dictStart);
 #endif
-				if(ZSTD_isError(oneSeqSize)) return oneSeqSize;
+				if(ZSTD_isError(oneSeqSize)) 
+					return oneSeqSize;
 				op += oneSeqSize;
 			}
 		}
-
 		/* save reps for next block */
-		{ uint32 i; for(i = 0; i<ZSTD_REP_NUM; i++) dctx->entropy.rep[i] = (uint32)(seqState.prevOffset[i]); }
+		{ 
+			for(uint32 i = 0; i<ZSTD_REP_NUM; i++) 
+				dctx->entropy.rep[i] = (uint32)(seqState.prevOffset[i]); 
+		}
 	}
-
 	/* last literal segment */
 	if(dctx->litBufferLocation == ZSTD_split) { /* first deplete literal buffer in dst, then copy litExtraBuffer */
 		const size_t lastLLSize = litBufferEnd - litPtr;
@@ -2039,28 +1985,20 @@ size_t ZSTD_decompressBlock_internal(ZSTD_DCtx* dctx,
 		srcSize -= seqHSize;
 		RETURN_ERROR_IF(dst == NULL && nbSeq > 0, dstSize_tooSmall, "NULL not handled");
 
-#if !defined(ZSTD_FORCE_DECOMPRESS_SEQUENCES_SHORT) && \
-		!defined(ZSTD_FORCE_DECOMPRESS_SEQUENCES_LONG)
-		if(!usePrefetchDecoder
-		    && (!frame || (dctx->fParams.windowSize > (1<<24)))
-		    && (nbSeq>ADVANCED_SEQS) ) { /* could probably use a larger nbSeq limit */
+#if !defined(ZSTD_FORCE_DECOMPRESS_SEQUENCES_SHORT) && !defined(ZSTD_FORCE_DECOMPRESS_SEQUENCES_LONG)
+		if(!usePrefetchDecoder && (!frame || (dctx->fParams.windowSize > (1<<24))) && (nbSeq>ADVANCED_SEQS) ) { /* could probably use a larger nbSeq limit */
 			const uint32 shareLongOffsets = ZSTD_getLongOffsetsShare(dctx->OFTptr);
-			const uint32 minShare = MEM_64bits() ? 7 : 20; /* heuristic values, correspond to 2.73% and 7.81%
-			                                               */
+			const uint32 minShare = MEM_64bits() ? 7 : 20; /* heuristic values, correspond to 2.73% and 7.81% */
 			usePrefetchDecoder = (shareLongOffsets >= minShare);
 		}
 #endif
-
 		dctx->ddictIsCold = 0;
-
-#if !defined(ZSTD_FORCE_DECOMPRESS_SEQUENCES_SHORT) && \
-		!defined(ZSTD_FORCE_DECOMPRESS_SEQUENCES_LONG)
+#if !defined(ZSTD_FORCE_DECOMPRESS_SEQUENCES_SHORT) && !defined(ZSTD_FORCE_DECOMPRESS_SEQUENCES_LONG)
 		if(usePrefetchDecoder)
 #endif
 #ifndef ZSTD_FORCE_DECOMPRESS_SEQUENCES_SHORT
 		return ZSTD_decompressSequencesLong(dctx, dst, dstCapacity, ip, srcSize, nbSeq, isLongOffset, frame);
 #endif
-
 #ifndef ZSTD_FORCE_DECOMPRESS_SEQUENCES_LONG
 		/* else */
 		if(dctx->litBufferLocation == ZSTD_split)

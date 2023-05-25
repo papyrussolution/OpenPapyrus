@@ -1068,7 +1068,6 @@ static int read_header(ArchiveRead * a, ArchiveEntry * entry, char head_type)
 {
 	const void * h;
 	const char * p, * endp;
-	struct rar * rar;
 	struct rar_header rar_header;
 	struct rar_file_header file_header;
 	int64 header_size;
@@ -1078,12 +1077,11 @@ static int read_header(ArchiveRead * a, ArchiveEntry * entry, char head_type)
 	char packed_size[8];
 	char unp_size[8];
 	int ttime;
-	archive_string_conv * sconv, * fn_sconv;
+	archive_string_conv * fn_sconv;
 	ulong crc32_val;
 	int ret = (ARCHIVE_OK), ret2;
-	rar = (struct rar *)(a->format->data);
-	/* Setup a string conversion object for non-rar-unicode filenames. */
-	sconv = rar->opt_sconv;
+	struct rar * rar = (struct rar *)(a->format->data);
+	archive_string_conv * sconv = rar->opt_sconv; // Setup a string conversion object for non-rar-unicode filenames
 	if(sconv == NULL) {
 		if(!rar->init_default_conversion) {
 			rar->sconv_default = archive_string_default_conversion_for_read(&(a->archive));

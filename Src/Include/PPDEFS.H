@@ -326,6 +326,7 @@
 #define PPPRP_PERSONDETECTIONLIST  139L  // @vmiller Список конфигураций для определения новизны клиента
 #define PPPRP_ALCREPORTCFG         140L  // Конфигурация алкогольной декларации
 #define PPPRP_TSSTAKECFG           141L  // PPObjTimeSeries
+#define PPPRP_CCDATETOMAXIDINDEX   142L  // @v11.7.4 (Не конфигурация!) Индекс соответствий {дата чека}->{максимальный ид} для быстрого поиска расширенных данных по чекам.
 //
 // Layout of extra record of access rights
 //
@@ -2899,6 +2900,7 @@
 	#define CTLSEL_BILLFLT_FRGHTAGNT    (84 + WINDOWS_ID_BIAS)
 	#define CTL_BILLFLT_DUEPERIOD       (85 + WINDOWS_ID_BIAS)
 	#define CTLCAL_BILLFLT_DUEPERIOD    (86 + WINDOWS_ID_BIAS)
+	#define CTL_BILLFLT_MEMOTEXT        (87 + WINDOWS_ID_BIAS) // @v11.7.4
 #define DLG_GTO                   133 // Фильтр товарооборота
 	#define CTL_GTO_PERIOD               (1 + WINDOWS_ID_BIAS)
 	#define CTL_GTO_SUPPL                (3 + WINDOWS_ID_BIAS)

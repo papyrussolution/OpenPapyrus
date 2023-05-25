@@ -511,7 +511,7 @@ __LA_DECL int   archive_read_has_encrypted_entries(Archive *);
  * Returns a bitmask of capabilities that are supported by the archive format reader.
  * If the reader has no special capabilities, ARCHIVE_READ_FORMAT_CAPS_NONE is returned.
  */
-__LA_DECL int            archive_read_format_capabilities(Archive *);
+__LA_DECL int   archive_read_format_capabilities(Archive *);
 
 /* Read data from the body of an entry.  Similar to read(2). */
 __LA_DECL la_ssize_t archive_read_data(Archive *, void *, size_t);
@@ -564,33 +564,21 @@ __LA_DECL int archive_read_set_passphrase_callback(Archive *, void * client_data
 
 /* The "flags" argument selects optional behavior, 'OR' the flags you want. */
 
-/* Default: Do not try to set owner/group. */
-#define ARCHIVE_EXTRACT_OWNER                   (0x0001)
-/* Default: Do obey umask, do not restore SUID/SGID/SVTX bits. */
-#define ARCHIVE_EXTRACT_PERM                    (0x0002)
-/* Default: Do not restore mtime/atime. */
-#define ARCHIVE_EXTRACT_TIME                    (0x0004)
-/* Default: Replace existing files. */
-#define ARCHIVE_EXTRACT_NO_OVERWRITE            (0x0008)
-/* Default: Try create first, unlink only if create fails with EEXIST. */
-#define ARCHIVE_EXTRACT_UNLINK                  (0x0010)
-/* Default: Do not restore ACLs. */
-#define ARCHIVE_EXTRACT_ACL                     (0x0020)
-/* Default: Do not restore fflags. */
-#define ARCHIVE_EXTRACT_FFLAGS                  (0x0040)
-/* Default: Do not restore xattrs. */
-#define ARCHIVE_EXTRACT_XATTR                   (0x0080)
+#define ARCHIVE_EXTRACT_OWNER                   (0x0001) /* Default: Do not try to set owner/group. */
+#define ARCHIVE_EXTRACT_PERM                    (0x0002) /* Default: Do obey umask, do not restore SUID/SGID/SVTX bits. */
+#define ARCHIVE_EXTRACT_TIME                    (0x0004) /* Default: Do not restore mtime/atime. */
+#define ARCHIVE_EXTRACT_NO_OVERWRITE            (0x0008) /* Default: Replace existing files. */
+#define ARCHIVE_EXTRACT_UNLINK                  (0x0010) /* Default: Try create first, unlink only if create fails with EEXIST. */
+#define ARCHIVE_EXTRACT_ACL                     (0x0020) /* Default: Do not restore ACLs. */
+#define ARCHIVE_EXTRACT_FFLAGS                  (0x0040) /* Default: Do not restore fflags. */
+#define ARCHIVE_EXTRACT_XATTR                   (0x0080) /* Default: Do not restore xattrs. */
 /* Default: Do not try to guard against extracts redirected by symlinks. */
 /* Note: With ARCHIVE_EXTRACT_UNLINK, will remove any intermediate symlink. */
 #define ARCHIVE_EXTRACT_SECURE_SYMLINKS         (0x0100)
-/* Default: Do not reject entries with '..' as path elements. */
-#define ARCHIVE_EXTRACT_SECURE_NODOTDOT         (0x0200)
-/* Default: Create parent directories as needed. */
-#define ARCHIVE_EXTRACT_NO_AUTODIR              (0x0400)
-/* Default: Overwrite files, even if one on disk is newer. */
-#define ARCHIVE_EXTRACT_NO_OVERWRITE_NEWER      (0x0800)
-/* Detect blocks of 0 and write holes instead. */
-#define ARCHIVE_EXTRACT_SPARSE                  (0x1000)
+#define ARCHIVE_EXTRACT_SECURE_NODOTDOT         (0x0200) /* Default: Do not reject entries with '..' as path elements. */
+#define ARCHIVE_EXTRACT_NO_AUTODIR              (0x0400) /* Default: Create parent directories as needed. */
+#define ARCHIVE_EXTRACT_NO_OVERWRITE_NEWER      (0x0800) /* Default: Overwrite files, even if one on disk is newer. */
+#define ARCHIVE_EXTRACT_SPARSE                  (0x1000) /* Detect blocks of 0 and write holes instead. */
 /* Default: Do not restore Mac extended metadata. */
 /* This has no effect except on Mac OS. */
 #define ARCHIVE_EXTRACT_MAC_METADATA            (0x2000)
@@ -600,29 +588,26 @@ __LA_DECL int archive_read_set_passphrase_callback(Archive *, void * client_data
 /* Default: Do not use HFS+ compression if it was not compressed. */
 /* This has no effect except on Mac OS v10.6 or later. */
 #define ARCHIVE_EXTRACT_HFS_COMPRESSION_FORCED  (0x8000)
-/* Default: Do not reject entries with absolute paths */
-#define ARCHIVE_EXTRACT_SECURE_NOABSOLUTEPATHS (0x10000)
-/* Default: Do not clear no-change flags when unlinking object */
-#define ARCHIVE_EXTRACT_CLEAR_NOCHANGE_FFLAGS   (0x20000)
-/* Default: Do not extract atomically (using rename) */
-#define ARCHIVE_EXTRACT_SAFE_WRITES             (0x40000)
+#define ARCHIVE_EXTRACT_SECURE_NOABSOLUTEPATHS (0x10000) /* Default: Do not reject entries with absolute paths */
+#define ARCHIVE_EXTRACT_CLEAR_NOCHANGE_FFLAGS   (0x20000) /* Default: Do not clear no-change flags when unlinking object */
+#define ARCHIVE_EXTRACT_SAFE_WRITES             (0x40000) /* Default: Do not extract atomically (using rename) */
 
 __LA_DECL int archive_read_extract(Archive *, ArchiveEntry *, int flags);
 __LA_DECL int archive_read_extract2(Archive *, ArchiveEntry *, Archive * /* dest */);
-__LA_DECL void   archive_read_extract_set_progress_callback(Archive *, void (* _progress_func)(void *), void * _user_data);
+__LA_DECL void archive_read_extract_set_progress_callback(Archive *, void (* _progress_func)(void *), void * _user_data);
 
 /* Record the dev/ino of a file that will not be written.  This is
  * generally set to the dev/ino of the archive being read. */
 __LA_DECL void archive_read_extract_set_skip_file(Archive *, la_int64_t, la_int64_t);
 
 /* Close the file and release most resources. */
-__LA_DECL int            archive_read_close(Archive *);
+__LA_DECL int  archive_read_close(Archive *);
 /* Release all resources and destroy the object. */
 /* Note that archive_read_free will call archive_read_close for you. */
-__LA_DECL int            archive_read_free(Archive *);
+__LA_DECL int  archive_read_free(Archive *);
 #if ARCHIVE_VERSION_NUMBER < 4000000
 /* Synonym for archive_read_free() for backwards compatibility. */
-__LA_DECL int            archive_read_finish(Archive *) __LA_DEPRECATED;
+__LA_DECL int  archive_read_finish(Archive *) __LA_DEPRECATED;
 #endif
 
 /*-
@@ -649,18 +634,17 @@ __LA_DECL int archive_write_get_bytes_in_last_block(Archive *);
 
 /* The dev/ino of a file that won't be archived.  This is used
  * to avoid recursively adding an archive to itself. */
-__LA_DECL int archive_write_set_skip_file(Archive *,
-    la_int64_t, la_int64_t);
+__LA_DECL int archive_write_set_skip_file(Archive *, la_int64_t, la_int64_t);
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
-__LA_DECL int archive_write_set_compression_bzip2(Archive *) __LA_DEPRECATED;
-__LA_DECL int archive_write_set_compression_compress(Archive *) __LA_DEPRECATED;
-__LA_DECL int archive_write_set_compression_gzip(Archive *) __LA_DEPRECATED;
-__LA_DECL int archive_write_set_compression_lzip(Archive *) __LA_DEPRECATED;
-__LA_DECL int archive_write_set_compression_lzma(Archive *) __LA_DEPRECATED;
-__LA_DECL int archive_write_set_compression_none(Archive *) __LA_DEPRECATED;
-__LA_DECL int archive_write_set_compression_program(Archive *, const char * cmd) __LA_DEPRECATED;
-__LA_DECL int archive_write_set_compression_xz(Archive *) __LA_DEPRECATED;
+	__LA_DECL int archive_write_set_compression_bzip2(Archive *) __LA_DEPRECATED;
+	__LA_DECL int archive_write_set_compression_compress(Archive *) __LA_DEPRECATED;
+	__LA_DECL int archive_write_set_compression_gzip(Archive *) __LA_DEPRECATED;
+	__LA_DECL int archive_write_set_compression_lzip(Archive *) __LA_DEPRECATED;
+	__LA_DECL int archive_write_set_compression_lzma(Archive *) __LA_DEPRECATED;
+	__LA_DECL int archive_write_set_compression_none(Archive *) __LA_DEPRECATED;
+	__LA_DECL int archive_write_set_compression_program(Archive *, const char * cmd) __LA_DEPRECATED;
+	__LA_DECL int archive_write_set_compression_xz(Archive *) __LA_DEPRECATED;
 #endif
 
 /* A convenience function to set the filter based on the code. */

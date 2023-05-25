@@ -523,7 +523,23 @@ int SArchive::ExtractEntry(int64 idx, const char * pDestName)
 		}
 		else if(Type == tLA) { // @v11.7.0
 			if(P_Cb_Blk) {
-				
+				Archive * p_larc = static_cast<Archive *>(H);
+				ArchiveEntry * p_entry = 0;
+				SFileEntryPool::Entry fep_entry;
+				for(int64 iter_idx = 0; archive_read_next_header(p_larc, &p_entry) == ARCHIVE_OK; iter_idx++) {
+					if(iter_idx == idx) {
+						SFileEntryPool::Entry fep_entry;
+						SString full_path;
+						if(Fep.Get(static_cast<uint>(iter_idx), &fep_entry, &full_path)) {
+							const wchar_t * p_entry_name = archive_entry_pathname_w(p_entry);
+							int64 entry_size = archive_entry_size(p_entry);
+							
+						}
+						//
+						break;
+					}
+					//Fep.Add(fep_entry);
+				}				
 			}
 		}
     }
@@ -801,6 +817,21 @@ SLTEST_R(SArchive)
 		int r = arc.Open(temp_buf, SFile::mRead, 0);
 		THROW(SLTEST_CHECK_NZ(r));
 		SLTEST_CHECK_EQ(arc.GetEntriesCount(), 2263LL);
+		{
+			SString out_path;
+			long   _cntr = 0;
+			SLS.QueryPath("testroot", out_path);
+			out_path.SetLastSlash().Cat("out").SetLastSlash();
+			do {
+				(temp_buf = out_path).Cat("sarc-test-out");
+				if(_cntr++)
+					temp_buf.CatChar('-').CatLongZ(_cntr, 3);
+			} while(IsDirectory(temp_buf));
+			createDir(temp_buf);
+			for(uint i = 0; i < arc.GetEntriesCount(); i++) {
+				arc.ExtractEntry(i, temp_buf);
+			}
+		}
 	}
 	CATCH
 		CurrentStatus = 0;

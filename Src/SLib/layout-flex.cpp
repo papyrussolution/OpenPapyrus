@@ -756,12 +756,12 @@ SUiLayout::Result & SUiLayout::Result::CopyWithOffset(const SUiLayout::Result & 
 	return *this;
 }
 
-SUiLayout::SUiLayout() : Signature(_SlConst.SUiLayoutSignature), P_Parent(0), P_Link(0), managed_ptr(0), 
+SUiLayout::SUiLayout() : Signature(SlConst::SUiLayoutSignature), P_Parent(0), P_Link(0), managed_ptr(0), 
 	CbSelfSizing(0), CbSetup(0), State(0), ALB(), P_HgL(0), P_Children(0), ID(0)
 {
 }
 
-SUiLayout::SUiLayout(const SUiLayoutParam & rP) : Signature(_SlConst.SUiLayoutSignature), P_Parent(0), P_Link(0), managed_ptr(0), 
+SUiLayout::SUiLayout(const SUiLayoutParam & rP) : Signature(SlConst::SUiLayoutSignature), P_Parent(0), P_Link(0), managed_ptr(0), 
 	CbSelfSizing(0), CbSetup(0), State(0), ALB(), P_HgL(0), P_Children(0), ID(0)
 {
 	SetLayoutBlock(rP);
@@ -777,7 +777,7 @@ SUiLayout::~SUiLayout()
 	P_Link = 0;
 }
 
-bool SUiLayout::IsConsistent() const { return (this != 0 && Signature == _SlConst.SUiLayoutSignature); }
+bool SUiLayout::IsConsistent() const { return (this != 0 && Signature == SlConst::SUiLayoutSignature); }
 
 int SUiLayout::GetID() const { return ID; }
 

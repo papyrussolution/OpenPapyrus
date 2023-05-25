@@ -937,10 +937,9 @@ static int _archive_read_next_header(Archive * _a, ArchiveEntry ** entryp)
 static int _archive_read_next_header2(Archive * _a, ArchiveEntry * entry)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-	struct tree * t;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, __FUNCTION__);
-	t = a->tree;
+	struct tree * t = a->tree;
 	if(t->entry_fh != INVALID_HANDLE_VALUE) {
 		cancel_async(t);
 		close_and_restore_time(t->entry_fh, t, &t->restore_time);

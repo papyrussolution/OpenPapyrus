@@ -125,8 +125,8 @@ static int COVER_map_init(COVER_map_t * map, uint32 size)
 /**
  * Internal hash function
  */
-//static const uint32 COVER_prime4bytes = _SlConst.MagicHashPrime32/*2654435761U*/;
-static uint32 FASTCALL COVER_map_hash(const COVER_map_t * map, uint32 key) { return (key * _SlConst.MagicHashPrime32/*COVER_prime4bytes*/) >> (32 - map->sizeLog); }
+//static const uint32 COVER_prime4bytes = SlConst::MagicHashPrime32/*2654435761U*/;
+static uint32 FASTCALL COVER_map_hash(const COVER_map_t * map, uint32 key) { return (key * SlConst::MagicHashPrime32/*COVER_prime4bytes*/) >> (32 - map->sizeLog); }
 /**
  * Helper function that returns the index that a key should be placed into.
  */

@@ -24,7 +24,8 @@ public:
 	{
 		// Setup swap chain
 		DXGI_SWAP_CHAIN_DESC sd;
-		ZeroMemory(&sd, sizeof(sd));
+		// @sobolev ZeroMemory(&sd, sizeof(sd));
+		MEMSZERO(sd); // @sobolev
 		sd.BufferCount = 2;
 		sd.BufferDesc.Width = 0;
 		sd.BufferDesc.Height = 0;
@@ -199,10 +200,20 @@ public:
 		double Value;
 	};
 	struct GoodsEntry {
-		GoodsEntry() : GoodsID(0)
+		GoodsEntry() : ID(0)
 		{
 		}
-		PPID   GoodsID;
+		GoodsEntry(const GoodsEntry & rS) : ID(rS.ID), NameUtf8(rS.NameUtf8), QuotList(rS.QuotList)
+		{
+		}
+		GoodsEntry & FASTCALL operator = (const GoodsEntry & rS)
+		{
+			ID = rS.ID;
+			NameUtf8 = rS.NameUtf8;
+			QuotList = rS.QuotList;
+			return *this;
+		}
+		PPID   ID;
 		SString NameUtf8;
 		TSVector <QuotEntry> QuotList;
 	};
@@ -233,7 +244,7 @@ public:
 		{
 			Copy(rS);
 		}
-		DPrices & FASTCALL operator == (const DPrices & rS)
+		DPrices & FASTCALL operator = (const DPrices & rS)
 		{
 			return Copy(rS);
 		}
@@ -249,11 +260,21 @@ public:
 			GoodsList.clear();
 			return *this;
 		}
+		const  GoodsEntry * GetGoodsEntryByID(PPID goodsID) const
+		{
+			const  GoodsEntry * p_result = 0;
+			for(uint i = 0; !p_result && i < GoodsList.getCount(); i++) {
+				GoodsEntry * p_iter = GoodsList.at(i);
+				if(p_iter && p_iter->ID == goodsID)
+					p_result = p_iter;
+			}
+			return p_result;
+		}
 		int    FromJsonObject(const SJson * pJsObj)
 		{
 			/*
 				{
-					"quotkind_list" : [
+					"qk_list" : [
 						{
 							"id" : int
 							"nm" : string
@@ -284,14 +305,17 @@ public:
 				for(const SJson * p_cur = pJsObj->P_Child; p_cur; p_cur = p_next) {
 					p_next = p_cur->P_Next;
 					if(p_cur->P_Child) {
-						if(p_cur->Text.IsEqiAscii("quotkind_list")) {
+						if(p_cur->Text.IsEqiAscii("qk_list")) {
 							if(SJson::IsArray(p_cur->P_Child)) {
 								for(const SJson * p_js_qk = p_cur->P_Child->P_Child; p_js_qk; p_js_qk = p_js_qk->P_Next) {
 									if(SJson::IsObject(p_js_qk)) {
+										QuotKindEntry * p_entry = QkList.CreateNewItem();
 										for(const SJson * p_qk_cur = p_js_qk->P_Child; p_qk_cur; p_qk_cur = p_qk_cur->P_Next) {
 											if(p_qk_cur->Text.IsEqiAscii("id")) {
+												p_entry->ID = p_qk_cur->P_Child->Text.ToLong();
 											}
 											else if(p_qk_cur->Text.IsEqiAscii("nm")) {
+												(p_entry->NameUtf8 = p_qk_cur->P_Child->Text).Unescape();
 											}
 										}
 									}
@@ -302,15 +326,30 @@ public:
 							if(SJson::IsArray(p_cur->P_Child)) {
 								for(const SJson * p_js_gl = p_cur->P_Child->P_Child; p_js_gl; p_js_gl = p_js_gl->P_Next) {
 									if(SJson::IsObject(p_js_gl)) {
+										GoodsEntry * p_entry = GoodsList.CreateNewItem();
 										for(const SJson * p_g_cur = p_js_gl->P_Child; p_g_cur; p_g_cur = p_g_cur->P_Next) {
 											if(p_g_cur->Text.IsEqiAscii("id")) {
+												p_entry->ID = p_g_cur->P_Child->Text.ToLong();
 											}
 											else if(p_g_cur->Text.IsEqiAscii("nm")) {
+												(p_entry->NameUtf8 = p_g_cur->P_Child->Text).Unescape();
 											}
 											else if(p_g_cur->Text.IsEqiAscii("quot_list")) {
 												if(SJson::IsArray(p_g_cur->P_Child)) {
 													for(const SJson * p_quot_cur = p_g_cur->P_Child; p_quot_cur; p_quot_cur = p_quot_cur->P_Next) {
 														if(SJson::IsObject(p_quot_cur->P_Child)) {
+															QuotEntry q_entry;
+															for(const SJson * p_q_cur = p_quot_cur->P_Child; p_q_cur; p_q_cur = p_q_cur->P_Next) {
+																if(p_q_cur->Text.IsEqiAscii("id")) {
+																	q_entry.QkID = p_q_cur->P_Child->Text.ToLong();
+																}
+																else if(p_q_cur->Text.IsEqiAscii("val")) {
+																	q_entry.Value = p_q_cur->P_Child->Text.ToReal_Plain();
+																}
+															}
+															if(q_entry.QkID && q_entry.Value > 0.0) {
+																p_entry->QuotList.insert(&q_entry);
+															}
 														}
 													}
 												}
@@ -396,8 +435,19 @@ public:
 		SyncEntry <DTSess>   D_TSess;
 		SyncEntry <int> D_ConnStatus;
 
-		State() : D_Prc(syncdataPrc), D_Test(syncdataTest), D_Acc(syncdataAccount), D_Prices(syncdataPrices), D_TSess(syncdataTSess), D_ConnStatus(syncdataJobSrvConnStatus)
+		State() : D_Prc(syncdataPrc), D_Test(syncdataTest), D_Acc(syncdataAccount), D_Prices(syncdataPrices), D_TSess(syncdataTSess), 
+			D_ConnStatus(syncdataJobSrvConnStatus), SelectedTecGoodsID(0)
 		{
+		}
+		PPID   GetSelectedTecGoodsID() const { return SelectedTecGoodsID; }
+		bool   SetSelectedTecGoodsID(PPID goodsID)
+		{
+			if(goodsID != SelectedTecGoodsID) {
+				SelectedTecGoodsID = goodsID;
+				return true;
+			}
+			else
+				return false;
 		}
 		int    SetupSyncUpdateTime(int syncDataId, uint msecToUpdate)
 		{
@@ -459,6 +509,7 @@ public:
 			time_t LastReqTime;   // Время последного запроса на обновление
 		};
 		TSVector <SyncUpdateTimer> SutList;
+		PPID   SelectedTecGoodsID; // Выбранные товар для техсессии
 	};
 private:
 	//
@@ -634,7 +685,12 @@ private:
 								if(reply.CheckRepError()) {
 									WsCtl_ImGuiSceneBlock::DPrices st_data_prices;
 									SJson * p_js = SJson::Parse(reply_buf);
-									st_data_prices.FromJsonObject(p_js);
+									if(st_data_prices.FromJsonObject(p_js)) {
+										P_St->D_Prices.SetData(st_data_prices);
+									}
+									else {
+										; // @err
+									}
 								}
 							}
 						}
@@ -833,106 +889,139 @@ public:
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+		//ShowDemoWindow = true; // @debug
 		if(ShowDemoWindow) {
-			// @sobolev ImGui::ShowDemoWindow(&show_demo_window);
+			// @sobolev 
+			ImGui::ShowDemoWindow(/*&show_demo_window*/);
 		}
-		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
-		{
-			ImGuiViewport * p_vp = ImGui::GetMainViewport();
-			if(p_vp) {
-				ImVec2 sz = p_vp->Size;
-				SUiLayout::Param evp;
-				evp.ForceWidth = static_cast<float>(sz.x);
-				evp.ForceHeight = static_cast<float>(sz.y);
-				Lo01.Evaluate(&evp);
-				{
-					const SUiLayout * p_lo = Lo01.FindByID(loidCtl01);
-					if(p_lo) {
-						FRect r = p_lo->GetFrameAdjustedToParent();
-						SPoint2F s = r.GetSize();
-						ImVec2 lu(r.a.x, r.a.y);
-						ImVec2 sz(s.x, s.y);
-						ImGui::SetNextWindowPos(lu);
-						ImGui::SetNextWindowSize(sz);
-						ImGui::Begin("CTL-01", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
-						ImGui::Text("CTL-01");
-						ImGui::InputText("Кое-что по-русски", TestInput, sizeof(TestInput), 0, CbInput, this);
-						ImGui::End();
+		else {
+			// 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+			{
+				ImGuiViewport * p_vp = ImGui::GetMainViewport();
+				if(p_vp) {
+					ImVec2 sz = p_vp->Size;
+					SUiLayout::Param evp;
+					evp.ForceWidth = static_cast<float>(sz.x);
+					evp.ForceHeight = static_cast<float>(sz.y);
+					Lo01.Evaluate(&evp);
+					{
+						const SUiLayout * p_lo = Lo01.FindByID(loidCtl01);
+						if(p_lo) {
+							FRect r = p_lo->GetFrameAdjustedToParent();
+							SPoint2F s = r.GetSize();
+							ImVec2 lu(r.a.x, r.a.y);
+							ImVec2 sz(s.x, s.y);
+							ImGui::SetNextWindowPos(lu);
+							ImGui::SetNextWindowSize(sz);
+							ImGui::Begin("CTL-01", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
+							ImGui::Text("CTL-01");
+							ImGui::InputText("Кое-что по-русски", TestInput, sizeof(TestInput), 0, CbInput, this);
+							ImGui::End();
+						}
 					}
-				}
-				{
-					const SUiLayout * p_lo = Lo01.FindByID(loidCtl02);
-					if(p_lo) {
-						FRect r = p_lo->GetFrameAdjustedToParent();
-						SPoint2F s = r.GetSize();
-						ImVec2 lu(r.a.x, r.a.y);
-						ImVec2 sz(s.x, s.y);
-						ImGui::SetNextWindowPos(lu);
-						ImGui::SetNextWindowSize(sz);
-						ImGui::Begin("CTL-02", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
-						ImGui::Text("CTL-02");
+					{
+						const SUiLayout * p_lo = Lo01.FindByID(loidCtl02);
+						if(p_lo) {
+							FRect r = p_lo->GetFrameAdjustedToParent();
+							SPoint2F s = r.GetSize();
+							ImVec2 lu(r.a.x, r.a.y);
+							ImVec2 sz(s.x, s.y);
+							ImGui::SetNextWindowPos(lu);
+							ImGui::SetNextWindowSize(sz);
+							ImGui::Begin("CTL-02", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
+							ImGui::Text("CTL-02");
 						
-						ImGui::Text(SLS.AcquireRvlStr().Cat("Сервер").CatDiv(':', 2).Cat(JsP.Addr).CatChar(':').Cat(JsP.Port));
-						{
-							int conn_status = 0;
-							St.D_ConnStatus.GetData(conn_status);
-							ImGui::Text(SLS.AcquireRvlStr().Cat("Connection status").CatDiv(':', 2).Cat(conn_status));
-						}
-						{
-							DTest test_result;
-							St.D_Test.GetData(test_result);
-							ImGui::Text(SLS.AcquireRvlStr().Cat("Test status").Space().CatParStr(TestBlk.QuerySentCount).CatDiv(':', 2).Cat(test_result.Reply));
-						}
-						{
-							DPrc prc_data;
-							St.D_Prc.GetData(prc_data);
-							if(prc_data.PrcName.NotEmpty()) {
-								ImGui::Text(SLS.AcquireRvlStr().Cat("Processor Name").CatDiv(':', 2).Cat(prc_data.PrcName));
+							ImGui::Text(SLS.AcquireRvlStr().Cat("Сервер").CatDiv(':', 2).Cat(JsP.Addr).CatChar(':').Cat(JsP.Port));
+							{
+								int conn_status = 0;
+								St.D_ConnStatus.GetData(conn_status);
+								ImGui::Text(SLS.AcquireRvlStr().Cat("Connection status").CatDiv(':', 2).Cat(conn_status));
 							}
+							{
+								DTest test_result;
+								St.D_Test.GetData(test_result);
+								ImGui::Text(SLS.AcquireRvlStr().Cat("Test status").Space().CatParStr(TestBlk.QuerySentCount).CatDiv(':', 2).Cat(test_result.Reply));
+							}
+							{
+								DPrc prc_data;
+								St.D_Prc.GetData(prc_data);
+								if(prc_data.PrcName.NotEmpty()) {
+									ImGui::Text(SLS.AcquireRvlStr().Cat("Processor Name").CatDiv(':', 2).Cat(prc_data.PrcName));
+								}
+							}
+							{
+								DPrices st_data_prices;
+								St.D_Prices.GetData(st_data_prices);
+								if(st_data_prices.GoodsList.getCount()) {
+									const PPID selected_tec_goods_id = St.GetSelectedTecGoodsID();
+									//PPID   new_selected_tec_goods_id = 0;
+									if(ImGui::BeginTable("Prices", 1)) {
+										for(uint i = 0; i < st_data_prices.GoodsList.getCount(); i++) {
+											const GoodsEntry * p_entry = st_data_prices.GoodsList.at(i);
+											if(p_entry) {
+												//ImGui::RadioButton(
+												ImGui::TableNextColumn();
+												const char * p_item_text = p_entry->NameUtf8;
+												if(ImGui::/*RadioButton*/Selectable(p_item_text, (p_entry->ID == selected_tec_goods_id)))
+													St.SetSelectedTecGoodsID(p_entry->ID);
+													//new_selected_tec_goods_id = p_entry->ID;
+											}
+										}
+										ImGui::EndTable();
+									}
+								}
+								{
+									const PPID selected_tec_goods_id = St.GetSelectedTecGoodsID();
+									const GoodsEntry * p_ge = st_data_prices.GetGoodsEntryByID(selected_tec_goods_id);
+									SString & r_text_buf = SLS.AcquireRvlStr();
+									r_text_buf.Cat("Selected Tec Goods ID").CatDiv(':', 2).Cat(p_ge ? p_ge->NameUtf8 : "undefined");
+									ImGui::Text(r_text_buf);
+								}
+							}
+							ImGui::End();
 						}
-						ImGui::End();
 					}
-				}
-				{
-					const SUiLayout * p_lo = Lo01.FindByID(loidAdv01);
-					if(p_lo) {
-						FRect r = p_lo->GetFrameAdjustedToParent();
-						SPoint2F s = r.GetSize();
-						ImVec2 lu(r.a.x, r.a.y);
-						ImVec2 sz(s.x, s.y);
-						ImGui::SetNextWindowPos(lu);
-						ImGui::SetNextWindowSize(sz);
-						ImGui::Begin("ADV-01", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
-						ImGui::Text("ADV-01");
-						ImGui::End();
+					{
+						const SUiLayout * p_lo = Lo01.FindByID(loidAdv01);
+						if(p_lo) {
+							FRect r = p_lo->GetFrameAdjustedToParent();
+							SPoint2F s = r.GetSize();
+							ImVec2 lu(r.a.x, r.a.y);
+							ImVec2 sz(s.x, s.y);
+							ImGui::SetNextWindowPos(lu);
+							ImGui::SetNextWindowSize(sz);
+							ImGui::Begin("ADV-01", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
+							ImGui::Text("ADV-01");
+							ImGui::End();
+						}
 					}
-				}
-				{
-					const SUiLayout * p_lo = Lo01.FindByID(loidAdv02);
-					if(p_lo) {
-						FRect r = p_lo->GetFrameAdjustedToParent();
-						SPoint2F s = r.GetSize();
-						ImVec2 lu(r.a.x, r.a.y);
-						ImVec2 sz(s.x, s.y);
-						ImGui::SetNextWindowPos(lu);
-						ImGui::SetNextWindowSize(sz);
-						ImGui::Begin("ADV-02", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
-						ImGui::Text("ADV-02");
-						ImGui::End();
+					{
+						const SUiLayout * p_lo = Lo01.FindByID(loidAdv02);
+						if(p_lo) {
+							FRect r = p_lo->GetFrameAdjustedToParent();
+							SPoint2F s = r.GetSize();
+							ImVec2 lu(r.a.x, r.a.y);
+							ImVec2 sz(s.x, s.y);
+							ImGui::SetNextWindowPos(lu);
+							ImGui::SetNextWindowSize(sz);
+							ImGui::Begin("ADV-02", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
+							ImGui::Text("ADV-02");
+							ImGui::End();
+						}
 					}
-				}
-				{
-					const SUiLayout * p_lo = Lo01.FindByID(loidAdv03);
-					if(p_lo) {
-						FRect r = p_lo->GetFrameAdjustedToParent();
-						SPoint2F s = r.GetSize();
-						ImVec2 lu(r.a.x, r.a.y);
-						ImVec2 sz(s.x, s.y);
-						ImGui::SetNextWindowPos(lu);
-						ImGui::SetNextWindowSize(sz);
-						ImGui::Begin("ADV-03", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
-						ImGui::Text("ADV-03");
-						ImGui::End();
+					{
+						const SUiLayout * p_lo = Lo01.FindByID(loidAdv03);
+						if(p_lo) {
+							FRect r = p_lo->GetFrameAdjustedToParent();
+							SPoint2F s = r.GetSize();
+							ImVec2 lu(r.a.x, r.a.y);
+							ImVec2 sz(s.x, s.y);
+							ImGui::SetNextWindowPos(lu);
+							ImGui::SetNextWindowSize(sz);
+							ImGui::Begin("ADV-03", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
+							ImGui::Text("ADV-03");
+							ImGui::End();
+						}
 					}
 				}
 			}

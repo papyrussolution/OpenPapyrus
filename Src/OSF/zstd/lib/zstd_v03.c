@@ -2018,7 +2018,7 @@ static size_t HUF_decompress(void* dst, size_t dstSize, const void* cSrc, size_t
 #define HASH_LOG (ZSTD_MEMORY_USAGE - 2)
 #define HASH_TABLESIZE (1 << HASH_LOG)
 #define HASH_MASK (HASH_TABLESIZE - 1)
-// @sobolev (replaced with _SlConst.MagicHashPrime32) #define KNUTH 2654435761
+// @sobolev (replaced with SlConst::MagicHashPrime32) #define KNUTH 2654435761
 #define BIT7 128
 #define BIT6  64
 #define BIT5  32

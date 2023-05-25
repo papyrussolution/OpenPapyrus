@@ -54,15 +54,16 @@ TEST(Hash, Int32) {
 
 enum class MyEnum { A, B, C, D };
 
-TEST(Eq, Enum) {
+TEST(Eq, Enum) 
+{
 	hash_default_eq<MyEnum> eq;
 	EXPECT_TRUE(eq(MyEnum::A, MyEnum::A));
 	EXPECT_FALSE(eq(MyEnum::A, MyEnum::B));
 }
 
-TEST(Hash, Enum) {
+TEST(Hash, Enum) 
+{
 	hash_default_hash<MyEnum> hash;
-
 	for(MyEnum e : {MyEnum::A, MyEnum::B, MyEnum::C}) {
 		auto h = hash(e);
 		EXPECT_EQ(h, hash_default_hash<int>{}(static_cast<int>(e)));
@@ -72,15 +73,13 @@ TEST(Hash, Enum) {
 
 using StringTypes = ::testing::Types<std::string, absl::string_view>;
 
-template <class T>
-struct EqString : ::testing::Test {
+template <class T> struct EqString : ::testing::Test {
 	hash_default_eq<T> key_eq;
 };
 
 TYPED_TEST_SUITE(EqString, StringTypes);
 
-template <class T>
-struct HashString : ::testing::Test {
+template <class T> struct HashString : ::testing::Test {
 	hash_default_hash<T> hasher;
 };
 

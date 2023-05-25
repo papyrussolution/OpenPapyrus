@@ -3487,7 +3487,7 @@ SString & SString::Fmt(long fmt)
 	}
 	if(flag & STRF_PASSWORD) {
 		const size_t org_len = Len();
-		Z().CatCharN(DEFAULT_PASSWORD_SYMB, org_len);
+		Z().CatCharN(SlConst::DefaultPasswordSymb, org_len);
 	}
 	if(flag & COMF_SQL) {
 		Quot('\'', '\'');

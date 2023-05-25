@@ -3737,6 +3737,7 @@ browser QUOT_SER north(100), 2, 1, "@{view_quot_ser} (%s)", OWNER|GRID, 0
 
 browser CCHECK north(100), 1, 1, "@{poscheck_pl}", OWNER|GRID, 0
 {
+	"@id",            0, notype, 0, 10 // @v11.7.4
 	"@date",          1, notype, DATF_DMY, 8
 	"@time",          2, notype, TIMF_HMS | TIMF_MSEC, 8
 	"@posnode_s",     9, notype, 0, 15 // @v10.1.11 3-->9

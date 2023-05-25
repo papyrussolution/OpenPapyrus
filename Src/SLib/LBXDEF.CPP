@@ -14,7 +14,7 @@ static int FASTCALL substFCMP(const void * i1, const void * i2, void * pExtraDat
 ListBoxDef::ListBoxDef(uint aOptions, TYPEID aType) : Options(aOptions), Format(0), Type(aType),
 	ViewHight(1), TopItem(0), CurItem(0), CFlags(0), ScrollDelta(0)
 {
-	SetCapability(0, _SlConst.ListBoxDefSignature_DEFAULT);
+	SetCapability(0, SlConst::ListBoxDefSignature_DEFAULT);
 	UserData.Init();
 }
 
@@ -129,8 +129,8 @@ long   ListBoxDef::GetRecsCount() const { return 0; }
 void * FASTCALL ListBoxDef::getRow_(long idx) { return 0; }
 int    ListBoxDef::refresh() { return 1; }
 int    ListBoxDef::GetImageIdxByID(long id, long * pIDx) { return ImageIdxAssoc.Search(id, pIDx, 0); }
-int    ListBoxDef::AddImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID & ~_SlConst.VectorImageMask), 0); }
-int    ListBoxDef::AddVecImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID | _SlConst.VectorImageMask), 0); }
+int    ListBoxDef::AddImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID & ~SlConst::VectorImageMask), 0); }
+int    ListBoxDef::AddVecImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID | SlConst::VectorImageMask), 0); }
 bool   ListBoxDef::HasItemColorSpec() const { return (ColorAssoc.getCount() > 0); }
 
 #define RANGE(val,min,max) ((val)<(min)?(min):((val)>(max)?(max):(val)))
@@ -196,7 +196,7 @@ void * ListBoxDef::CreateImageList(HINSTANCE hInst) // @v10.9.4 HIMAGELIST-->(vo
 			uint image_id = static_cast<uint>(ImageAssoc.at(i).Val);
 			long image_idx = -1;
 			if(!added_list.Search(image_id, &image_idx, 0)) {
-				if(image_id & _SlConst.VectorImageMask) {
+				if(image_id & SlConst::VectorImageMask) {
 					TWhatmanToolArray::Item tool_item;
 					const SDrawFigure * p_fig = APPL->LoadDrawFigureById(image_id, &tool_item); // @v10.5.0 (image_id & ~0x40000000)-->image_id
 					if(p_fig) {
@@ -315,7 +315,7 @@ StrAssocArray * ListBoxDef::GetListByPattern(const char * pText)
 //
 StdListBoxDef::StdListBoxDef(SArray * pArray, uint aOptions, TYPEID t) : ListBoxDef(aOptions, t), P_Data(pArray)
 {
-	SetCapability(ListBoxDef::cCountable|ListBoxDef::cFullInMem, _SlConst.ListBoxDefSignature_STD);
+	SetCapability(ListBoxDef::cCountable|ListBoxDef::cFullInMem, SlConst::ListBoxDefSignature_STD);
 	top();
 }
 
@@ -395,7 +395,7 @@ StrAssocListBoxDef::StrAssocListBoxDef(StrAssocArray * pList, uint options) :
 	ListBoxDef(options, MKSTYPE(S_ZSTRING, 252)), P_Data(pList)
 {
 	OneItem.Init();
-	SetCapability(ListBoxDef::cCountable|ListBoxDef::cFullInMem, _SlConst.ListBoxDefSignature_STRASSOC);
+	SetCapability(ListBoxDef::cCountable|ListBoxDef::cFullInMem, SlConst::ListBoxDefSignature_STRASSOC);
 	top();
 }
 
@@ -492,7 +492,7 @@ int StrAssocListBoxDef::addItem(long id, const char * pStr, long * pPos)
 //
 StdTreeListBoxDef::StdTreeListBoxDef(StrAssocArray * pList, uint aOptions, TYPEID t) : ListBoxDef(aOptions, t), T(sizeof(TreeItem)), P_SaList(0)
 {
-	SetCapability(ListBoxDef::cTree|ListBoxDef::cFullInMem, _SlConst.ListBoxDefSignature_STDTREE);
+	SetCapability(ListBoxDef::cTree|ListBoxDef::cFullInMem, SlConst::ListBoxDefSignature_STDTREE);
 	setArray(pList);
 }
 
@@ -741,7 +741,7 @@ StdTreeListBoxDef2_::SearchBlock & StdTreeListBoxDef2_::SearchBlock::Z()
 StdTreeListBoxDef2_::StdTreeListBoxDef2_(StrAssocTree * pList, uint aOptions, TYPEID t) : ListBoxDef(aOptions, t), /*T(sizeof(TreeItem)),*/ P_SaList(0),
 	P_TopLevelRestrictionIdList(0) /* @v11.4.0 */
 {
-	SetCapability(ListBoxDef::cTree|ListBoxDef::cFullInMem, _SlConst.ListBoxDefSignature_STDTREE2);
+	SetCapability(ListBoxDef::cTree|ListBoxDef::cFullInMem, SlConst::ListBoxDefSignature_STDTREE2);
 	setArray(pList);
 }
 
@@ -1071,7 +1071,7 @@ void StringListBoxDef::freeAll()
 //
 DBQListBoxDef::DBQListBoxDef(DBQuery & rQuery, uint aOptions, uint aBufSize) : ListBoxDef(aOptions, 0), query(0)
 {
-	SetCapability(0, _SlConst.ListBoxDefSignature_DBQ);
+	SetCapability(0, SlConst::ListBoxDefSignature_DBQ);
 	setQuery(rQuery, aBufSize);
 }
 

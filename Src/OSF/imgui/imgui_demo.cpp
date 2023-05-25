@@ -246,7 +246,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
 {
 	// Exceptionally add an extra assert here for people confused about initial Dear ImGui setup
 	// Most functions would normally just crash if the context is missing.
-	IM_ASSERT(ImGui::GetCurrentContext() != NULL && "Missing dear imgui context. Refer to examples app!");
+	assert(ImGui::GetCurrentContext() != NULL && "Missing dear imgui context. Refer to examples app!");
 
 	// Examples Apps (accessible from the "Examples" menu)
 	static bool show_app_main_menu_bar = false;
@@ -1438,7 +1438,7 @@ static void ShowDemoWindowWidgets()
 				{
 					if(data->EventFlag == ImGuiInputTextFlags_CallbackResize) {
 						ImVector<char>* my_str = (ImVector<char>*)data->UserData;
-						IM_ASSERT(my_str->begin() == data->Buf);
+						assert(my_str->begin() == data->Buf);
 						my_str->resize(data->BufSize); // NB: On resizing calls, generally data->BufSize == data->BufTextLen + 1
 						data->Buf = my_str->begin();
 					}
@@ -1449,7 +1449,7 @@ static void ShowDemoWindowWidgets()
 				// For example, you code may declare a function 'ImGui::InputText(const char* label, MyString* my_str)'
 				static bool MyInputTextMultiline(const char* label, ImVector<char>* my_str, const ImVec2& size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0)
 				{
-					IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
+					assert((flags & ImGuiInputTextFlags_CallbackResize) == 0);
 					return ImGui::InputTextMultiline(label,
 						   my_str->begin(),
 						   (size_t)my_str->size(),
@@ -2206,7 +2206,7 @@ static void ShowDemoWindowWidgets()
 				}
 				if(ImGui::BeginDragDropTarget()) {
 					if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_DEMO_CELL")) {
-						IM_ASSERT(payload->DataSize == sizeof(int));
+						assert(payload->DataSize == sizeof(int));
 						int payload_n = *(const int*)payload->Data;
 						if(mode == Mode_Copy) {
 							names[n] = names[payload_n];
@@ -3572,7 +3572,7 @@ struct MyItem {
 				case MyItemColumnID_Name:           delta = (strcmp(a->Name, b->Name));     break;
 				case MyItemColumnID_Quantity:       delta = (a->Quantity - b->Quantity);    break;
 				case MyItemColumnID_Description:    delta = (strcmp(a->Name, b->Name));     break;
-				default: IM_ASSERT(0); break;
+				default: assert(0); break;
 			}
 			if(delta > 0)
 				return (sort_spec->SortDirection == ImGuiSortDirection_Ascending) ? +1 : -1;
@@ -4580,9 +4580,9 @@ static void ShowDemoWindowTables()
 		ImGui::Combo("row bg target", (int*)&row_bg_target, "RowBg0\0RowBg1\0"); ImGui::SameLine(); HelpMarker(
 			"Target RowBg0 to override the alternating odd/even colors,\nTarget RowBg1 to blend with them.");
 		ImGui::Combo("cell bg type", (int*)&cell_bg_type, "None\0Blue\0"); ImGui::SameLine(); HelpMarker("We are colorizing cells to B1->C2 here.");
-		IM_ASSERT(row_bg_type >= 0 && row_bg_type <= 2);
-		IM_ASSERT(row_bg_target >= 0 && row_bg_target <= 1);
-		IM_ASSERT(cell_bg_type >= 0 && cell_bg_type <= 1);
+		assert(row_bg_type >= 0 && row_bg_type <= 2);
+		assert(row_bg_target >= 0 && row_bg_target <= 1);
+		assert(cell_bg_type >= 0 && cell_bg_type <= 1);
 		PopStyleCompact();
 
 		if(ImGui::BeginTable("table1", 5, flags)) {
@@ -5612,7 +5612,7 @@ static void ShowDemoWindowInputs()
 		IMGUI_DEMO_MARKER("Inputs & Focus/Mouse Cursors");
 		if(ImGui::TreeNode("Mouse Cursors")) {
 			const char* mouse_cursors_names[] = { "Arrow", "TextInput", "ResizeAll", "ResizeNS", "ResizeEW", "ResizeNESW", "ResizeNWSE", "Hand", "NotAllowed" };
-			IM_ASSERT(IM_ARRAYSIZE(mouse_cursors_names) == ImGuiMouseCursor_COUNT);
+			assert(IM_ARRAYSIZE(mouse_cursors_names) == ImGuiMouseCursor_COUNT);
 
 			ImGuiMouseCursor current = ImGui::GetMouseCursor();
 			ImGui::Text("Current mouse cursor = %d: %s", current, mouse_cursors_names[current]);
@@ -5881,7 +5881,9 @@ void ImGui::ShowAboutWindow(bool* p_open)
 //-----------------------------------------------------------------------------
 
 // Forward declare ShowFontAtlas() which isn't worth putting in public API yet
-namespace ImGui { IMGUI_API void ShowFontAtlas(ImFontAtlas* atlas); }
+namespace ImGui { 
+	void ShowFontAtlas(ImFontAtlas* atlas); 
+}
 
 // Demo helper function to select among loaded fonts.
 // Here we use the regular BeginCombo()/EndCombo() api which is the more flexible one.
@@ -6337,7 +6339,7 @@ static void ShowExampleMenuFile()
 	}
 
 	if(ImGui::BeginMenu("Disabled", false)) { // Disabled
-		IM_ASSERT(0);
+		assert(0);
 	}
 	if(ImGui::MenuItem("Checked", NULL, true)) {
 	}
@@ -6402,7 +6404,7 @@ struct ExampleAppConsole {
 	}
 
 	static char* Strdup(const char* s)                           {
-		IM_ASSERT(s); size_t len = strlen(s) + 1; void* buf = malloc(len); IM_ASSERT(buf); return (char*)memcpy(buf, (const void*)s, len);
+		assert(s); size_t len = strlen(s) + 1; void* buf = malloc(len); assert(buf); return (char*)memcpy(buf, (const void*)s, len);
 	}
 	static void  Strtrim(char* s)                                { char* str_end = s + strlen(s); while(str_end > s && str_end[-1] == ' ')  str_end--; *str_end = 0; }
 

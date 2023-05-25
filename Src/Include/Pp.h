@@ -2998,7 +2998,7 @@ struct PPViewDisplayExtItem {
 };
 //
 // Descr: Класс PPViewDisplayExtList представляющий список (дополнительных) полей для отображения в
-//   в таблицах объектов PPView. "кземпляр класса следует хранить в фильтре.
+//   в таблицах объектов PPView. экземпляр класса следует хранить в фильтре.
 //
 class PPViewDisplayExtList : private SStrGroup {
 public:
@@ -3451,7 +3451,9 @@ public:
 	int    SetTimeSeries(const TextRefIdent & rI, STimeSeries * pTs, int use_ta);
 	//
 	SEnum::Imp * Enum(PPID objType, int prop);
+	SEnum::Imp * Enum(PPID objType, int prop, PPID minObjID);
 	int    InitEnum(PPID objType, int prop, long * pHandle);
+	int    InitEnum(PPID objType, int prop, PPID minObjID, long * pHandle);
 	int    NextEnum(long enumHandle, TextRefEnumItem * pRec);
 private:
 	class _Enum : public SEnum::Imp {
@@ -9625,7 +9627,7 @@ class LocationCore : public LocationTbl {
 public:
 	friend class PPTblEnum <LocationCore>;
 
-	static int FASTCALL GetAddress(const LocationTbl::Rec &, uint, SString & rBuf);
+	static int STDCALL  GetAddress(const LocationTbl::Rec &, uint, SString & rBuf);
 	static int FASTCALL IsEmptyAddressRec(const LocationTbl::Rec & rRec);
 	static int FASTCALL IsEqualRec(const LocationTbl::Rec & rRec1, const LocationTbl::Rec & rRec2);
 	//
@@ -9637,12 +9639,12 @@ public:
 	//    0 - строка с идентификатором fldID не найдена в пуле
 	//   -2 - пул rLine пуст или же в нем нет ни одного тега (плоская строка)
 	//
-	static int FASTCALL GetExField(const LocationTbl::Rec * pRec, int fldID, SString & rBuf);
+	static int STDCALL GetExField(const LocationTbl::Rec * pRec, int fldID, SString & rBuf);
 	//
 	// Descr: То же, что и LocationCore::GetExField, но всегда возвращает rBuf.
 	//
-	static SString & FASTCALL GetExFieldS(const LocationTbl::Rec * pRec, int fldId, SString & rBuf);
-	static int FASTCALL SetExField(LocationTbl::Rec * pRec, int fldId, const char * pBuf);
+	static SString & STDCALL GetExFieldS(const LocationTbl::Rec * pRec, int fldId, SString & rBuf);
+	static int STDCALL SetExField(LocationTbl::Rec * pRec, int fldId, const char * pBuf);
 	//
 	// Descr: Возвращает описатель типа локации locType.
 	//
@@ -15542,17 +15544,6 @@ public:
 	int    GetPaymList(PPID id, CcAmountList & rList);
 	int    GetListByExtFilt(const CCheckFilt & rFlt, ObjIdListFilt & rList);
 	int    GetListByCode(long cashN, long code, TSVector <CCheckTbl::Rec> * pRecList);
-	//
-	// Descr: Возвращает список чеков, по крайней мере одна строка которых содержит текст расширения lnextss
-	//   эквивалентный pText.
-	//
-	// Returns:
-	//   >0 - найден по крайней мере один чек
-	//   <0 - не найдено ни одного чека
-	//   0  - ошибка
-	//
-	int    GetListByEgaisMark(const char * pText, PPIDArray & rCcList, BitArray * pSentList);
-	int    GetListByChZnMark(const char * pText, PPIDArray & rCcList);
 	int    GetListByUuid(S_GUID & rUuid, PPIDArray & rCcList);
 	//
 	// Descr: Возвращает список идентификаторов чеков, обслуживающих чек заказа orderCheckID.
@@ -15627,7 +15618,23 @@ public:
 	// Descr: Вызывает сначала LoadChecksByList, а уже затем LoadLinesByList
 	//
 	int    LoadLinesBySessList(PPID goodsID, const PPIDArray * pSessList, const PPIDArray * pCashList, CCheckLineArray * pLinesList, LDATETIME * pLastCheckDt);
-	int    GetLastCheck(PPID sessID, long cashN, CCheckTbl::Rec *);
+	//
+	// Descr: Находит последний (по дате/времени) чек по критериям:
+	//   CCheckTbl::Rec.SessID == sessID && CCheckTbl::Rec.CashN == cashN && !(CCheckTbl::Rec.Flags & CCHKF_SKIP)
+	// Returns:
+	//   >0 - найден последний чек, соответствующий критерию
+	//   <0 - база данных не содержит ни одного чека по критерию
+	//   0  - ошибка
+	//
+	int    GetLastCheck(PPID sessID, long cashN, CCheckTbl::Rec * pRec);
+	//
+	// Descr: Находит безусловно самый последний (по дате/времени) чек в базе данных
+	// Returns:
+	//   >0 - найден безусловно последний чек
+	//   <0 - база данных не содержит ни одного чека
+	//   0  - ошибка
+	//
+	int    GetLastCheck(CCheckTbl::Rec * pRec);
 	int    GetLastCheckByCode(long cashN, CCheckTbl::Rec * pRec);
 	int    Add(PPID * pID, const CCheckTbl::Rec * pRec, int use_ta);
 	//
@@ -15771,6 +15778,16 @@ public:
 	void   WriteCCheckLogFile(const CCheckPacket * pPack, const CCheckLineTbl::Rec * pLineRec, int action /* CCheckCore::logXXX */, int use_ta);
 	void   WriteCCheckLogFile(const CCheckTbl::Rec * pRec, int action /* CCheckCore::logXXX */, int use_ta);
 	int    CorrectCCLineProblem01();
+	//
+	// Descr: Строит индекс соответствий {дата чека}->{максимальный идентификатор}.
+	//   Индекс нужен для быстрой фильтрации дополнительных текстов чека по дате так как строки расширения 
+	//   хранят только идентификаторы чеков.
+	//   Реальный кейс из-за которого вводится эта функция: ускорение поиска марок егаис или честный знак при продаже товара
+	//   с целью предотвращения повторной продажи отдной и той же марки.
+	//
+	int    MakeDate2MaxIdIndex(LAssocArray & rIndex);
+	// really private (used by PPObjCSession)
+	int    Helper_GetListByMark(const char * pText, int markLnextTextId, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, int sentLnextTextId, PPIDArray & rCcList, BitArray * pSentList);
 
 	CCheckLineTbl Lines;
 	CCheckPaymTbl PaymT;    // Таблица платежей по чекам
@@ -15781,7 +15798,6 @@ private:
 	int    PreprocessPacket(CCheckPacket * pPack);
 	int    PreparePacketForWriting(PPID id, CCheckPacket * pPack, double & rUfpFactor);
 	int    Update(PPID id, const CCheckTbl::Rec * pRec, int use_ta);
-	int    Helper_GetListByMark(const char * pText, int markLnextTextId, int sentLnextTextId, PPIDArray & rCcList, BitArray * pSentList);
 
 	CCheckExtTbl * P_Ext;
 	CheckOpJrnl * P_ChkOpJrnl;
@@ -35945,6 +35961,42 @@ public:
 	int    ReWriteOff(PPID sessID, int level /* @#[0,5,10] */, int use_ta);
 	int    Recover(const PPIDArray & rSessList);
 	int    NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, ObjTransmContext * pCtx);
+	//
+	// Descr: Режимы вызова функции BuildCcDate2MaxIdIndex
+	//
+	enum {
+		buildccdate2maxidindexMode_Force = 0,    // Безусловно перестроить индекс
+		buildccdate2maxidindexMode_SkipIfCached, // Ничего не делать если индекс уже кэширован
+		buildccdate2maxidindexMode_SkipIfActual, // Ничего не делать если последний элемент индекса не старше чем дата последнего чека минус 3 дня //
+	};
+
+	static int ValidateCcDate2MaxIdIndex(const LAssocArray & rIndex);
+	int    BuildCcDate2MaxIdIndex(int mode);
+	//
+	// Descr: Извлекает из базы данных индекс соответстия дат чеков их максимальным идентификаторам.
+	// Note: не используйте на-прямую. Вместо этого применяйте FetchCcDate2MaxIdIndex()
+	//
+	int    GetCcDate2MaxIdIndex(LAssocArray & rIndex);
+	//
+	// Descr: Извлекает из кэша индекс соответстия дат чеков их максимальным идентификаторам.
+	//
+	int    FetchCcDate2MaxIdIndex(LAssocArray & rIndex);
+	//
+	// Descr: Возвращает список чеков, по крайней мере одна строка которых содержит текст расширения lnextss
+	//   эквивалентный pText.
+	//
+	// Returns:
+	//   >0 - найден по крайней мере один чек
+	//   <0 - не найдено ни одного чека
+	//   0  - ошибка
+	//
+	int    GetListByEgaisMark(const char * pText, PPIDArray & rCcList, BitArray * pSentList);
+	int    GetListByChZnMark(const char * pText, PPIDArray & rCcList);
+	//
+	// Descr: Возвращает true если индекс CcDate2MaxIdIndex загружен в кэш.
+	//   Функция требуется для быстрого определения необходимости перестройки индекса.
+	//
+	bool   IsCcDate2MaxIdIndexLoaded();
 	const  PPEquipConfig & GetEqCfg();
 private:
 	virtual const char * GetNamePtr();
@@ -39388,13 +39440,19 @@ enum BrowseBillsType {
 // @todo Заменить OpID на OpList дабы можно было отбирать документы по списку видов операций.
 // @todo Фильтрация по тексту в примечании
 //
-class BillFilt : public PPBaseFilt {
+class BillFilt : public PPBaseFilt, public PPExtStrContainer { // @v11.7.4 (public PPExtStrContainer)
 public:
 	struct FiltExtraParam {
 		FiltExtraParam(long setupValues, BrowseBillsType bbt);
 		long   SetupValues; // Если !0 то функция PPViewBill::CreateFilt установит в создаваемом
 			// фильтре разумные параметры, основываясь не текущем состоянии.
 		BrowseBillsType Bbt;
+	};
+	//
+	// Descr: Идентификаторы текстовых субполей, содержащихся в строке PPExtStrContainer
+	//
+	enum { // @persistent // @v11.7.4
+		extssMemoText   = 1,
 	};
 
 	BillFilt();
@@ -39514,9 +39572,13 @@ public:
 	RealRange AmtRange;    // Диапазон номинальной суммы
 	long   ReserveEnd;     // @anchor
 	SysJournalFilt * P_SjF; //
-	ObjIdListFilt List;    // Список идентификаторов документов, которые следует показать
-	ObjIdListFilt LocList; // Список складов, по которым следует показывать документы
-	TagFilt * P_TagF;      // Теги документов
+	ObjIdListFilt List;         // Список идентификаторов документов, которые следует показать
+	ObjIdListFilt LocList;      // Список складов, по которым следует показывать документы
+	ObjIdListFilt ObjList;      // @v11.7.4 @reserve Список контрагентов (не используем пока не понадобится)
+	ObjIdListFilt Obj2List;     // @v11.7.4 @reserve Список дополнительных статей (не используем пока не понадобится)
+	ObjIdListFilt AgentList;    // @v11.7.4 @reserve Список агентов (не используем пока не понадобится)
+	ObjIdListFilt ReservedList; // @v11.7.4 @reserve Резервируем еще один список на будущее.
+	TagFilt * P_TagF;        // Теги документов
 	PPViewDisplayExtList Dl; // Список дополнительных полей для отображения //
 };
 
@@ -57314,6 +57376,7 @@ int    PPCheckDatabaseChain();
 int    FASTCALL PPGetPath(PPID pathID, SString & rBuf);
 SString & FASTCALL PPGetFileName(uint fnameID, SString & rBuf);
 int    STDCALL PPGetFilePath(PPID pathID, const char * pFileName, SString & rBuf);
+SString & STDCALL PPGetFilePathS(PPID pathID, const char * pFileName, SString & rBuf);
 int    STDCALL PPGetFilePath(PPID pathID, uint fnameID, SString & rBuf);
 //
 // Descr: То же, что и PPGetFilePath но возвращает ссылку на буфер rBuf с целью

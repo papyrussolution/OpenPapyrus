@@ -415,8 +415,7 @@ struct bn_gencb_st {
 #elif (defined(_M_AMD64) || defined(_M_X64)) && defined(SIXTY_FOUR_BIT)
 #if defined(_MSC_VER) && _MSC_VER>=1400
 unsigned __int64 __umulh(unsigned __int64 a, unsigned __int64 b);
-unsigned __int64 _umul128(unsigned __int64 a, unsigned __int64 b,
-    unsigned __int64 * h);
+unsigned __int64 _umul128(unsigned __int64 a, unsigned __int64 b, unsigned __int64 * h);
 #    pragma intrinsic(__umulh,_umul128)
 #define BN_UMULT_HIGH(a, b)           __umulh((a), (b))
 #define BN_UMULT_LOHI(low, high, a, b)  ((low) = _umul128((a), (b), &(high)))

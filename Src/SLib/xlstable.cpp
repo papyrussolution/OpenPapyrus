@@ -193,12 +193,14 @@ int ExcelDbFile::Scan()
 				max_row = is_vert ? 0 : row; // @v10.8.0 
 				max_col = is_vert ? col : 0; // @v10.8.0 
 			}
-			// @v10.8.1 row = is_vert ? row + 1 : row;
-			// @v10.8.1 col = is_vert ? col : col + 1;
-			row = is_vert ? row : row + 1; // @v10.8.1 
-			col = is_vert ? col + 1 : col; // @v10.8.1 
-			// @v10.8.1 stop = is_vert ? BIN(row >= MAX_COLUMN) : BIN(col >= MAX_COLUMN);
-			stop = is_vert ? BIN(col >= MAX_COLUMN) : BIN(row >= MAX_COLUMN); // @v10.8.1 
+			if(is_vert) {
+				col++;
+				stop = BIN(col >= MAX_COLUMN);
+			}
+			else {
+				row++;
+				stop = BIN(row >= MAX_COLUMN);
+			}
 			if(is_vert && stop == 0)
 				stop = BIN(temp_buf.IsEmpty());
 		}

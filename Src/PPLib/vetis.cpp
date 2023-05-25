@@ -8423,6 +8423,7 @@ int PPVetisInterface::PrepareOutgoingConsignment2(OutcomingEntry & rEntry, TSVec
 int PPVetisInterface::PrepareOutgoingTransportData(PPID billID, VetisPrepareOutgoingConsignmentRequest & rReq)
 {
 	int    ok = 1;
+	PPObjBill * p_bobj = BillObj;
 	Reference * p_ref = PPRef;
 	SString temp_buf;
 	PPFreight freight;
@@ -8430,71 +8431,71 @@ int PPVetisInterface::PrepareOutgoingTransportData(PPID billID, VetisPrepareOutg
 	PPID   dlvr_loc_id = 0;
 	int    tst = -1;
 	int    tst_goods = -1;
-	if(rReq.VdRec.LinkGoodsID) {
-		ObjTagItem tag_item;
-		if(p_ref->Ot.GetTag(PPOBJ_GOODS, rReq.VdRec.LinkGoodsID, PPTAG_GOODS_TRANSPVANTYPE, &tag_item) > 0) {
-			PPID   en_id = 0;
-			if(tag_item.GetEnumData(&en_id, 0, 0, &temp_buf) > 0)
-				tst_goods = SIntToSymbTab_GetId(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab), temp_buf);
+	BillTbl::Rec bill_rec;
+	if(p_bobj->Fetch(billID, &bill_rec) > 0) {
+		const PPID cli_psn_id = ObjectToPerson(bill_rec.Object, 0); // @v11.7.4
+		if(rReq.VdRec.LinkGoodsID) {
+			ObjTagItem tag_item;
+			if(p_ref->Ot.GetTag(PPOBJ_GOODS, rReq.VdRec.LinkGoodsID, PPTAG_GOODS_TRANSPVANTYPE, &tag_item) > 0) {
+				PPID   en_id = 0;
+				if(tag_item.GetEnumData(&en_id, 0, 0, &temp_buf) > 0)
+					tst_goods = SIntToSymbTab_GetId(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab), temp_buf);
+			}
 		}
-	}
-	if(BillObj->P_Tbl->GetFreight(billID, &freight) > 0) {
-		dlvr_loc_id = freight.DlvrAddrID;
-		transport_id = freight.ShipID;
-	}
-	// @v11.6.12 {
-	if(!transport_id && dlvr_loc_id && DlvrLocToTranspTagID) {
-		ObjTagItem tag_item;
-		if(p_ref->Ot.GetTag(PPOBJ_LOCATION, dlvr_loc_id, DlvrLocToTranspTagID, &tag_item) > 0)
-			transport_id = tag_item.Val.IntVal;
-	}
-	// } @v11.6.12 
-	// @v10.8.12 {
-	if(!transport_id && dlvr_loc_id && DlvrLocToTranspTagID) {
-		ObjTagItem tag_item;
-		if(p_ref->Ot.GetTag(PPOBJ_LOCATION, dlvr_loc_id, DlvrLocToTranspTagID, &tag_item) > 0)
-			transport_id = tag_item.Val.IntVal;
-	}
-	// } @v10.8.12
-	if(transport_id) {
-		PPObjTransport tr_obj;
-		PPTransportPacket tr_pack;
-		if(tr_obj.Get(transport_id, &tr_pack) > 0) {
-			//transport_type = (oneof2(freight.TrType, PPTRTYP_CAR, PPTRTYP_SHIP)) ? freight.TrType : 0;
-			long   transport_type = tr_pack.Rec.TrType;
-			if(transport_type == PPTRTYP_CAR) {
-				rReq.Transp.TransportType = VetisTransportInfo::ttCar;
-				rReq.Transp.TransportNumber.VehicleNumber = tr_pack.Rec.Code;
-				rReq.Transp.TransportNumber.TrailerNumber = tr_pack.Rec.TrailerCode;
-				{
-					switch(tr_pack.Rec.VanType) {
-						case PPTransport::vantypFrozen: tst = vtstFROZEN; break;
-						case PPTransport::vantypChilled: tst = vtstCHILLED; break;
-						case PPTransport::vantypCooled: tst = vtstCOOLED; break;
-						case PPTransport::vantypVentilated: tst = vtstVENTILATED; break;
-						default: tst = tst_goods; break; // @v10.2.10
-					}
-					if(tst >= 0) {
-						SIntToSymbTab_GetSymb(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab), tst, temp_buf);
-						rReq.TranspStorageType = temp_buf;
+		if(p_bobj->P_Tbl->GetFreight(billID, &freight) > 0) {
+			dlvr_loc_id = freight.DlvrAddrID;
+			transport_id = freight.ShipID;
+		}
+		if(!transport_id && dlvr_loc_id && DlvrLocToTranspTagID) {
+			ObjTagItem tag_item;
+			if(p_ref->Ot.GetTag(PPOBJ_LOCATION, dlvr_loc_id, DlvrLocToTranspTagID, &tag_item) > 0)
+				transport_id = tag_item.Val.IntVal;
+		}
+		if(!transport_id && cli_psn_id && PersonToTranspTagID) {
+			ObjTagItem tag_item;
+			if(p_ref->Ot.GetTag(PPOBJ_PERSON, cli_psn_id, PersonToTranspTagID, &tag_item) > 0)
+				transport_id = tag_item.Val.IntVal;
+		}
+		if(transport_id) {
+			PPObjTransport tr_obj;
+			PPTransportPacket tr_pack;
+			if(tr_obj.Get(transport_id, &tr_pack) > 0) {
+				//transport_type = (oneof2(freight.TrType, PPTRTYP_CAR, PPTRTYP_SHIP)) ? freight.TrType : 0;
+				long   transport_type = tr_pack.Rec.TrType;
+				if(transport_type == PPTRTYP_CAR) {
+					rReq.Transp.TransportType = VetisTransportInfo::ttCar;
+					rReq.Transp.TransportNumber.VehicleNumber = tr_pack.Rec.Code;
+					rReq.Transp.TransportNumber.TrailerNumber = tr_pack.Rec.TrailerCode;
+					{
+						switch(tr_pack.Rec.VanType) {
+							case PPTransport::vantypFrozen: tst = vtstFROZEN; break;
+							case PPTransport::vantypChilled: tst = vtstCHILLED; break;
+							case PPTransport::vantypCooled: tst = vtstCOOLED; break;
+							case PPTransport::vantypVentilated: tst = vtstVENTILATED; break;
+							default: tst = tst_goods; break; // @v10.2.10
+						}
+						if(tst >= 0) {
+							SIntToSymbTab_GetSymb(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab), tst, temp_buf);
+							rReq.TranspStorageType = temp_buf;
+						}
 					}
 				}
-			}
-			else if(transport_type == PPTRTYP_SHIP) {
-				rReq.Transp.TransportType = VetisTransportInfo::ttShip;
-				if(tr_pack.Rec.Code[0])
-					rReq.Transp.TransportNumber.ShipName = tr_pack.Rec.Code;
-				else
-					rReq.Transp.TransportNumber.ShipName = tr_pack.Rec.Name;
+				else if(transport_type == PPTRTYP_SHIP) {
+					rReq.Transp.TransportType = VetisTransportInfo::ttShip;
+					if(tr_pack.Rec.Code[0])
+						rReq.Transp.TransportNumber.ShipName = tr_pack.Rec.Code;
+					else
+						rReq.Transp.TransportNumber.ShipName = tr_pack.Rec.Name;
+				}
 			}
 		}
-	}
-	if(rReq.Transp.TransportNumber.IsEmpty()) {
-		rReq.Transp.TransportType = VetisTransportInfo::ttCar;
-		rReq.Transp.TransportNumber.VehicleNumber = "AB010C";
-		if(tst_goods >= 0) {
-			SIntToSymbTab_GetSymb(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab), tst_goods, temp_buf);
-			rReq.TranspStorageType = temp_buf;
+		if(rReq.Transp.TransportNumber.IsEmpty()) {
+			rReq.Transp.TransportType = VetisTransportInfo::ttCar;
+			rReq.Transp.TransportNumber.VehicleNumber = "М 040 РВ 10";
+			if(tst_goods >= 0) {
+				SIntToSymbTab_GetSymb(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab), tst_goods, temp_buf);
+				rReq.TranspStorageType = temp_buf;
+			}
 		}
 	}
 	return ok;

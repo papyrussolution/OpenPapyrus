@@ -228,6 +228,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\OSF\abseil\absl\base\optimization_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\numeric\int128_stream_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\numeric\int128_test.cc" />
     <ClCompile Include="..\OSF\abseil\absl\strings\ascii_test.cc" />
     <ClCompile Include="..\OSF\abseil\absl\strings\charconv_test.cc" />
     <ClCompile Include="..\OSF\abseil\absl\strings\cordz_test.cc" />
@@ -246,6 +248,13 @@
     <ClCompile Include="..\OSF\abseil\absl\strings\str_replace_test.cc" />
     <ClCompile Include="..\OSF\abseil\absl\strings\str_split_test.cc" />
     <ClCompile Include="..\OSF\abseil\absl\strings\substitute_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\civil_time_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\clock_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\duration_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\format_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\internal\test_util.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\time_test.cc" />
+    <ClCompile Include="..\OSF\abseil\absl\time\time_zone_test.cc" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="absl.vcxproj">

@@ -119,7 +119,6 @@ uint128::uint128(long double v) : uint128(MakeUint128FromFloat(v))
 		DivModImpl(lhs, rhs, &quotient, &remainder);
 		return quotient;
 	}
-
 	uint128 operator%(uint128 lhs, uint128 rhs) 
 	{
 		uint128 quotient = 0;
@@ -231,7 +230,6 @@ namespace {
 	int128::int128(long double v) : int128(MakeInt128FromFloat(v)) 
 	{
 	}
-
 	int128 operator/(int128 lhs, int128 rhs) 
 	{
 		assert(lhs != Int128Min() || rhs != -1); // UB on two's complement.
@@ -242,7 +240,6 @@ namespace {
 			quotient = -quotient;
 		return MakeInt128(int128_internal::BitCastToSigned(Uint128High64(quotient)), Uint128Low64(quotient));
 	}
-
 	int128 operator%(int128 lhs, int128 rhs) 
 	{
 		assert(lhs != Int128Min() || rhs != -1); // UB on two's complement.

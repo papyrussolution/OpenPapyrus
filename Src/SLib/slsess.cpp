@@ -9,7 +9,7 @@
 #define HH_UNINITIALIZE          0x001D  // Uninitializes the help system.
 // } htmlhelp.h
 //
-const SlConstParam _SlConst;
+// @v11.7.4 const SlConstParam _SlConst_Removed;
 //
 //
 // 
@@ -97,7 +97,7 @@ void SlExtraProcBlock::Set(const SlExtraProcBlock * pS)
 //
 //
 SlThreadLocalArea::SlThreadLocalArea() : Prf(1), Id(0), LastErr(0), LastOsErr(0), LastSockErr(0), LastCurlErr(0),
-	BinDateFmt_(DEFAULT_BIN_DATE_FORMAT), TxtDateFmt_(DEFAULT_TXT_DATE_FORMAT), CurrentCp(cpUndef), UiFlags(0), UiLanguageId(-1),
+	BinDateFmt_(SlConst::DefaultBinDateFormat), TxtDateFmt_(SlConst::DefaultTxtDateFormat), CurrentCp(cpUndef), UiFlags(0), UiLanguageId(-1),
 	SAry_OrgFCMP(0), SAry_PtrContainer(0), SAry_SortExtraData(0), FontDc(0), P_Rez(0), RvlSStA(1024), RvlSStW(1024)
 {
 	const LDATETIME now_time = getcurdatetime_();

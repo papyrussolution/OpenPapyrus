@@ -4,6 +4,8 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
+#include "..\slib\sais\include\libsais.h"
+#include "..\OSF\zstd\lib\include\divsufsort.h"
 
 DECL_CMPFUNC(SfxTreeChr);
 
@@ -1598,10 +1600,67 @@ int TestSuffixTree()
 	return ok;
 }
 
-#if SLTEST_RUNNING // {
+class SaIndex {
+	static IMPL_CMPFUNC(SaIndexEntry, pSaIdx, pPattern)
+	{
+		int    result = 0;
+		if(pExtraData) {
+			const SBaseBuffer * p_buf = static_cast<const SBaseBuffer *>(pExtraData);
+			const uint8 * p_text_base = reinterpret_cast<const uint8 *>(p_buf->P_Buf);
+			const int32 & r_idx = *static_cast<const int32 *>(pSaIdx);
+			const SString * p_pattern = static_cast<const SString *>(pPattern);
+			const uint8 * p = p_text_base + r_idx;
+			result = memcmp(p, p_pattern->ucptr(), MIN(p_pattern->Len(), p_buf->Size - r_idx));
+		}
+		return result;
+	}
+public:
+	SaIndex()
+	{
+		Text.Init();
+	}
+	SaIndex(const char * pText, size_t textLen)
+	{
+		Text.Init();
+		if(pText && textLen) {
+			if(Text.Alloc(textLen)) {
+				memcpy(Text.P_Buf, pText, textLen);
+			}
+		}
+	}
+	~SaIndex()
+	{
+		Text.Destroy();
+	}
+	int    Build()
+	{
+		int    ok = -1;
+		if(Text.P_Buf && Text.Size) {
+			if(Sa.insertChunk(Text.Size, 0)) {
+				if(libsais(reinterpret_cast<const uint8 *>(Text.P_Buf), reinterpret_cast<int32_t *>(Sa.dataPtr()), Text.Size, 0, 0/*freq*/) == 0)
+					ok = 1;
+				else
+					ok = 0;
+			}
+			else
+				ok = 0;
+		}
+	}
+	int    Search(const char * pPattern, LongArray * pPosList) const
+	{
+		int    ok = -1;
+		if(Text.P_Buf && Text.Size && Sa.getCount() >= Text.Size && !isempty(pPattern)) {
+			uint   pos = 0;
+			SString pattern(pPattern);
+			Sa.bsearch(&pattern, &pos, PTR_CMPFUNC(SaIndexEntry), 0, const_cast<SBaseBuffer *>(&Text));	
+		}
+		return ok;
+	}
+	SBaseBuffer Text;
+	TSVector <int32> Sa; // suffix array  
+};
 
-#include "..\slib\sais\include\libsais.h"
-#include "..\OSF\zstd\lib\include\divsufsort.h"
+#if SLTEST_RUNNING // {
 
 int DummyProc_sfxtree() { return 1; } // @forcelink
 

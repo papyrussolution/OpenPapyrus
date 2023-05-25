@@ -257,10 +257,8 @@ int I       _cairo_int128_cmp(cairo_int128_t a, cairo_int128_t b);
 #define _cairo_uint128_negate(a)    ((uint128_t)-((int128_t)(a)))
 #define _cairo_uint128_negative(a)  ((int128_t)(a) < 0)
 #define _cairo_uint128_not(a)       (~(a))
-
 #define _cairo_uint128_to_int128(i) ((int128_t)(i))
 #define _cairo_int128_to_uint128(i) ((uint128_t)(i))
-
 #define _cairo_int32_to_int128(i)   ((int128_t)(i))
 #define _cairo_int64_to_int128(i)   ((int128_t)(i))
 #define _cairo_int128_to_int64(i)   ((int64)(i))

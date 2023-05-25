@@ -103,7 +103,6 @@ double _cairo_int64_to_double(cairo_int64_t i)
 cairo_uint64_t _cairo_uint32_to_uint64(uint32 i)
 {
 	cairo_uint64_t q;
-
 	q.lo = i;
 	q.hi = 0;
 	return q;
@@ -112,7 +111,6 @@ cairo_uint64_t _cairo_uint32_to_uint64(uint32 i)
 cairo_int64_t _cairo_int32_to_int64(int32 i)
 {
 	cairo_uint64_t q;
-
 	q.lo = i;
 	q.hi = i < 0 ? -1 : 0;
 	return q;
@@ -121,7 +119,6 @@ cairo_int64_t _cairo_int32_to_int64(int32 i)
 static cairo_uint64_t _cairo_uint32s_to_uint64(uint32 h, uint32 l)
 {
 	cairo_uint64_t q;
-
 	q.lo = l;
 	q.hi = h;
 	return q;
@@ -130,7 +127,6 @@ static cairo_uint64_t _cairo_uint32s_to_uint64(uint32 h, uint32 l)
 cairo_uint64_t _cairo_uint64_add(cairo_uint64_t a, cairo_uint64_t b)
 {
 	cairo_uint64_t s;
-
 	s.hi = a.hi + b.hi;
 	s.lo = a.lo + b.lo;
 	if(s.lo < a.lo)
@@ -141,7 +137,6 @@ cairo_uint64_t _cairo_uint64_add(cairo_uint64_t a, cairo_uint64_t b)
 cairo_uint64_t _cairo_uint64_sub(cairo_uint64_t a, cairo_uint64_t b)
 {
 	cairo_uint64_t s;
-
 	s.hi = a.hi - b.hi;
 	s.lo = a.lo - b.lo;
 	if(s.lo > a.lo)
@@ -194,7 +189,6 @@ cairo_int64_t _cairo_int32x32_64_mul(int32 a, int32 b)
 cairo_uint64_t _cairo_uint64_mul(cairo_uint64_t a, cairo_uint64_t b)
 {
 	cairo_uint64_t s;
-
 	s = _cairo_uint32x32_64_mul(a.lo, b.lo);
 	s.hi += a.lo * b.hi + a.hi * b.lo;
 	return s;
@@ -246,8 +240,7 @@ cairo_int64_t _cairo_uint64_rsa(cairo_int64_t a, int shift)
 
 int _cairo_uint64_lt(cairo_uint64_t a, cairo_uint64_t b)
 {
-	return (a.hi < b.hi ||
-	       (a.hi == b.hi && a.lo < b.lo));
+	return (a.hi < b.hi || (a.hi == b.hi && a.lo < b.lo));
 }
 
 int _cairo_uint64_eq(cairo_uint64_t a, cairo_uint64_t b)
@@ -303,7 +296,6 @@ cairo_uint64_t _cairo_uint64_negate(cairo_uint64_t a)
 		++a.hi;
 	return a;
 }
-
 /*
  * Simple bit-at-a-time divide.
  */
@@ -419,8 +411,7 @@ cairo_uint128_t _cairo_uint64x64_128_mul(cairo_uint64_t a, cairo_uint64_t b)
 
 cairo_int128_t _cairo_int64x64_128_mul(cairo_int64_t a, cairo_int64_t b)
 {
-	cairo_int128_t s;
-	s = _cairo_uint64x64_128_mul(_cairo_int64_to_uint64(a), _cairo_int64_to_uint64(b));
+	cairo_int128_t s = _cairo_uint64x64_128_mul(_cairo_int64_to_uint64(a), _cairo_int64_to_uint64(b));
 	if(_cairo_int64_negative(a))
 		s.hi = _cairo_uint64_sub(s.hi, _cairo_int64_to_uint64(b));
 	if(_cairo_int64_negative(b))
@@ -430,8 +421,7 @@ cairo_int128_t _cairo_int64x64_128_mul(cairo_int64_t a, cairo_int64_t b)
 
 cairo_uint128_t _cairo_uint128_mul(cairo_uint128_t a, cairo_uint128_t b)
 {
-	cairo_uint128_t s;
-	s = _cairo_uint64x64_128_mul(a.lo, b.lo);
+	cairo_uint128_t s = _cairo_uint64x64_128_mul(a.lo, b.lo);
 	s.hi = _cairo_uint64_add(s.hi, _cairo_uint64_mul(a.lo, b.hi));
 	s.hi = _cairo_uint64_add(s.hi, _cairo_uint64_mul(a.hi, b.lo));
 	return s;
@@ -474,8 +464,7 @@ cairo_uint128_t _cairo_uint128_rsa(cairo_int128_t a, int shift)
 		shift -= 64;
 	}
 	if(shift) {
-		a.lo = _cairo_uint64_add(_cairo_uint64_rsl(a.lo, shift),
-			_cairo_uint64_lsl(a.hi, (64 - shift)));
+		a.lo = _cairo_uint64_add(_cairo_uint64_rsl(a.lo, shift), _cairo_uint64_lsl(a.hi, (64 - shift)));
 		a.hi = _cairo_uint64_rsa(a.hi, shift);
 	}
 	return a;
@@ -483,9 +472,7 @@ cairo_uint128_t _cairo_uint128_rsa(cairo_int128_t a, int shift)
 
 int _cairo_uint128_lt(cairo_uint128_t a, cairo_uint128_t b)
 {
-	return (_cairo_uint64_lt(a.hi, b.hi) ||
-	       (_cairo_uint64_eq(a.hi, b.hi) &&
-	       _cairo_uint64_lt(a.lo, b.lo)));
+	return (_cairo_uint64_lt(a.hi, b.hi) || (_cairo_uint64_eq(a.hi, b.hi) && _cairo_uint64_lt(a.lo, b.lo)));
 }
 
 int _cairo_int128_lt(cairo_int128_t a, cairo_int128_t b)
@@ -499,12 +486,8 @@ int _cairo_int128_lt(cairo_int128_t a, cairo_int128_t b)
 
 int _cairo_uint128_cmp(cairo_uint128_t a, cairo_uint128_t b)
 {
-	int cmp;
-
-	cmp = _cairo_uint64_cmp(a.hi, b.hi);
-	if(cmp)
-		return cmp;
-	return _cairo_uint64_cmp(a.lo, b.lo);
+	const int cmp = _cairo_uint64_cmp(a.hi, b.hi);
+	return cmp ? cmp : _cairo_uint64_cmp(a.lo, b.lo);
 }
 
 int _cairo_int128_cmp(cairo_int128_t a, cairo_int128_t b)
@@ -513,14 +496,12 @@ int _cairo_int128_cmp(cairo_int128_t a, cairo_int128_t b)
 		return -1;
 	if(!_cairo_int128_negative(a) && _cairo_int128_negative(b))
 		return 1;
-
 	return _cairo_uint128_cmp(a, b);
 }
 
 int _cairo_uint128_eq(cairo_uint128_t a, cairo_uint128_t b)
 {
-	return (_cairo_uint64_eq(a.hi, b.hi) &&
-	       _cairo_uint64_eq(a.lo, b.lo));
+	return (_cairo_uint64_eq(a.hi, b.hi) && _cairo_uint64_eq(a.lo, b.lo));
 }
 
 #if HAVE_UINT64_T
@@ -532,18 +513,14 @@ int _cairo_uint128_eq(cairo_uint128_t a, cairo_uint128_t b)
 cairo_uquorem128_t _cairo_uint128_divrem(cairo_uint128_t num, cairo_uint128_t den)
 {
 	cairo_uquorem128_t qr;
-	cairo_uint128_t bit;
 	cairo_uint128_t quo;
-
-	bit = _cairo_uint32_to_uint128(1);
-
+	cairo_uint128_t bit = _cairo_uint32_to_uint128(1);
 	/* normalize to make den >= num, but not overflow */
 	while(_cairo_uint128_lt(den, num) && !_cairo_msbset64(den.hi)) {
 		bit = _cairo_uint128_lsl(bit, 1);
 		den = _cairo_uint128_lsl(den, 1);
 	}
 	quo = _cairo_uint32_to_uint128(0);
-
 	/* generate quotient, one bit at a time */
 	while(_cairo_uint128_ne(bit, _cairo_uint32_to_uint128(0))) {
 		if(_cairo_uint128_le(den, num)) {
@@ -580,7 +557,6 @@ cairo_quorem128_t _cairo_int128_divrem(cairo_int128_t num, cairo_int128_t den)
 	int den_neg = _cairo_int128_negative(den);
 	cairo_uquorem128_t uqr;
 	cairo_quorem128_t qr;
-
 	if(num_neg)
 		num = _cairo_int128_negate(num);
 	if(den_neg)
@@ -596,7 +572,6 @@ cairo_quorem128_t _cairo_int128_divrem(cairo_int128_t num, cairo_int128_t den)
 		qr.quo = uqr.quo;
 	return qr;
 }
-
 /**
  * _cairo_uint_96by64_32x64_divrem:
  *
@@ -607,12 +582,10 @@ cairo_quorem128_t _cairo_int128_divrem(cairo_int128_t num, cairo_int128_t den)
  * error to call this function with the high 32 bits of @num being
  * non-zero.
  **/
-cairo_uquorem64_t _cairo_uint_96by64_32x64_divrem(cairo_uint128_t num,
-    cairo_uint64_t den)
+cairo_uquorem64_t _cairo_uint_96by64_32x64_divrem(cairo_uint128_t num, cairo_uint64_t den)
 {
 	cairo_uquorem64_t result;
 	cairo_uint64_t B = _cairo_uint32s_to_uint64(1, 0);
-
 	/* These are the high 64 bits of the *96* bit numerator.  We're
 	 * going to represent the numerator as xB + y, where x is a 64,
 	 * and y is a 32 bit number. */
@@ -626,7 +599,6 @@ cairo_uquorem64_t _cairo_uint_96by64_32x64_divrem(cairo_uint128_t num,
 	if(_cairo_uint64_ge(x, den)) {
 		return /* overflow */ result;
 	}
-
 	if(_cairo_uint64_lt(x, B)) {
 		/* When the final quotient is known to fit in 32 bits, then
 		 * num < 2^64 if and only if den < 2^32. */
