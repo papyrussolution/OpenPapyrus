@@ -893,8 +893,10 @@ static inline mi_threadid_t _mi_thread_id() mi_attr_noexcept
 
 #include <limits.h>       // LONG_MAX
 #define MI_HAVE_FAST_BITSCAN
-static inline size_t mi_clz(uintptr_t x) {
-	if(x==0) return MI_INTPTR_BITS;
+static inline size_t mi_clz(uintptr_t x) 
+{
+	if(x==0) 
+		return MI_INTPTR_BITS;
 #if (INTPTR_MAX == LONG_MAX)
 	return __builtin_clzl(x);
 #else
@@ -902,8 +904,10 @@ static inline size_t mi_clz(uintptr_t x) {
 #endif
 }
 
-static inline size_t mi_ctz(uintptr_t x) {
-	if(x==0) return MI_INTPTR_BITS;
+static inline size_t mi_ctz(uintptr_t x) 
+{
+	if(x==0)
+		return MI_INTPTR_BITS;
 #if (INTPTR_MAX == LONG_MAX)
 	return __builtin_ctzl(x);
 #else
@@ -940,7 +944,8 @@ static inline size_t mi_ctz(uintptr_t x)
 }
 
 #else
-static inline size_t mi_ctz32(uint32_t x) {
+static inline size_t mi_ctz32(uint32_t x) 
+{
 	// de Bruijn multiplication, see <http://supertech.csail.mit.edu/papers/debruijn.pdf>
 	static const unsigned char debruijn[32] = {
 		0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8,
@@ -950,7 +955,8 @@ static inline size_t mi_ctz32(uint32_t x) {
 	return debruijn[((x & -(int32_t)x) * 0x077CB531UL) >> 27];
 }
 
-static inline size_t mi_clz32(uint32_t x) {
+static inline size_t mi_clz32(uint32_t x) 
+{
 	// de Bruijn multiplication, see <http://supertech.csail.mit.edu/papers/debruijn.pdf>
 	static const uint8_t debruijn[32] = {
 		31, 22, 30, 21, 18, 10, 29, 2, 20, 17, 15, 13, 9, 6, 28, 1,
@@ -965,7 +971,8 @@ static inline size_t mi_clz32(uint32_t x) {
 	return debruijn[(uint32_t)(x * 0x07C4ACDDUL) >> 27];
 }
 
-static inline size_t mi_clz(uintptr_t x) {
+static inline size_t mi_clz(uintptr_t x) 
+{
 	if(x==0) return MI_INTPTR_BITS;
 #if (MI_INTPTR_BITS <= 32)
 	return mi_clz32((uint32_t)x);

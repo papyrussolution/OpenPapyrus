@@ -1223,13 +1223,9 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t * surface,
 		    y < ximage.height;
 		    y++, y_off = (y_off+1) % ARRAY_LENGTH(dither_pattern)) {
 			const int8_t * dither_row = dither_pattern[y_off];
-
-			for(x = 0, x_off = x0 % ARRAY_LENGTH(dither_pattern[0]);
-			    x < ximage.width;
-			    x++, x_off = (x_off+1) % ARRAY_LENGTH(dither_pattern[0])) {
+			for(x = 0, x_off = x0 % ARRAY_LENGTH(dither_pattern[0]); x < ximage.width; x++, x_off = (x_off+1) % ARRAY_LENGTH(dither_pattern[0])) {
 				int dither_adjustment = dither_row[x_off];
 				int a, r, g, b;
-
 				if(image_masks.bpp == 1)
 					in_pixel = !!(((uint8 *)row)[x/8] & (1 << (x & 7)));
 				else if(image_masks.bpp <= 8)
@@ -1237,18 +1233,13 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t * surface,
 				else if(image_masks.bpp <= 16)
 					in_pixel = ((uint16 *)row)[x];
 				else if(image_masks.bpp <= 24)
-#ifdef WORDS_BIGENDIAN
-					in_pixel = ((uint8 *)row)[3 * x] << 16 |
-					    ((uint8 *)row)[3 * x + 1] << 8  |
-					    ((uint8 *)row)[3 * x + 2];
+#ifdef SL_BIGENDIAN
+					in_pixel = ((uint8 *)row)[3 * x] << 16 | ((uint8 *)row)[3 * x + 1] << 8 | ((uint8 *)row)[3 * x + 2];
 #else
-					in_pixel = ((uint8 *)row)[3 * x]           |
-					    ((uint8 *)row)[3 * x + 1] << 8  |
-					    ((uint8 *)row)[3 * x + 2] << 16;
+					in_pixel = ((uint8 *)row)[3 * x] | ((uint8 *)row)[3 * x + 1] << 8 | ((uint8 *)row)[3 * x + 2] << 16;
 #endif
 				else
 					in_pixel = row[x];
-
 				/* If the incoming image has no alpha channel, then the input
 				 * is opaque and the output should have the maximum alpha value.
 				 * For all other channels, their absence implies 0.

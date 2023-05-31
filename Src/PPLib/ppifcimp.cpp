@@ -9,18 +9,8 @@
 // @v10.9.3 #include <process.h>
 // @v9.6.2 (moved to pp.h) #include <ppidata.h>
 
-static int IfcImpCheckDictionary()
-{
-	return CurDict ? 1 : PPSetError(PPERR_NOTLOGGEDIN);
-}
-
-static void FASTCALL ReleaseUnknObj(IUnknown ** ppUnkn)
-{
-	if(*ppUnkn) {
-		(*ppUnkn)->Release();
-		(*ppUnkn) = 0;
-	}
-}
+static int IfcImpCheckDictionary() { return CurDict ? 1 : PPSetError(PPERR_NOTLOGGEDIN); }
+static void FASTCALL ReleaseUnknObj(IUnknown ** ppUnkn) { SCOMOBJRELEASE(*ppUnkn); }
 
 SDateRange FASTCALL DateRangeToOleDateRange(DateRange period)
 {

@@ -27,14 +27,14 @@
 static FORCEINLINE uint32 fetch_24(uint8 * a)
 {
 	if(((uintptr_t)a) & 1) {
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 		return (*a << 16) | (*(uint16 *)(a + 1));
 #else
 		return *a | (*(uint16 *)(a + 1) << 8);
 #endif
 	}
 	else {
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 		return (*(uint16 *)a << 8) | *(a + 2);
 #else
 		return *(uint16 *)a | (*(a + 2) << 16);
@@ -42,11 +42,10 @@ static FORCEINLINE uint32 fetch_24(uint8 * a)
 	}
 }
 
-static FORCEINLINE void store_24(uint8 * a,
-    uint32 v)
+static FORCEINLINE void store_24(uint8 * a, uint32 v)
 {
 	if(((uintptr_t)a) & 1) {
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 		*a = (uint8)(v >> 16);
 		*(uint16 *)(a + 1) = (uint16)(v);
 #else
@@ -55,7 +54,7 @@ static FORCEINLINE void store_24(uint8 * a,
 #endif
 	}
 	else {
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 		*(uint16 *)a = (uint16)(v >> 8);
 		*(a + 2) = (uint8)v;
 #else
@@ -65,13 +64,10 @@ static FORCEINLINE void store_24(uint8 * a,
 	}
 }
 
-static FORCEINLINE uint32 over(uint32 src,
-    uint32 dest)
+static FORCEINLINE uint32 over(uint32 src, uint32 dest)
 {
 	uint32 a = ~src >> 24;
-
 	UN8x4_MUL_UN8_ADD_UN8x4(dest, a, src);
-
 	return dest;
 }
 
@@ -775,7 +771,7 @@ static void fast_composite_add_n_8_8(pixman_implementation_t * imp, pixman_compo
 	}
 }
 
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	#define CREATE_BITMASK(n) (0x80000000 >> (n))
 	#define UPDATE_BITMASK(n) ((n) >> 1)
 #else
@@ -1705,10 +1701,10 @@ static const pixman_fast_path_t c_fast_paths[] =
 	{   PIXMAN_OP_NONE  },
 };
 
-#ifdef WORDS_BIGENDIAN
-#define A1_FILL_MASK(n, offs) (((1U << (n)) - 1) << (32 - (offs) - (n)))
+#ifdef SL_BIGENDIAN
+	#define A1_FILL_MASK(n, offs) (((1U << (n)) - 1) << (32 - (offs) - (n)))
 #else
-#define A1_FILL_MASK(n, offs) (((1U << (n)) - 1) << (offs))
+	#define A1_FILL_MASK(n, offs) (((1U << (n)) - 1) << (offs))
 #endif
 
 static FORCEINLINE void pixman_fill1_line(uint32 * dst, int offs, int width, int v)
@@ -1902,7 +1898,7 @@ static uint32 * fast_fetch_r5g6b5(pixman_iter_t * iter, const uint32 * mask)
 		    (sb & 0xFF) | 0xFF000000;
 		t1 = (sr & 0x00FF0000) | ((sg >> 8) & 0x0000FF00) |
 		    (sb >> 16) | 0xFF000000;
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 		*dst++ = t1;
 		*dst++ = t0;
 #else
@@ -1913,7 +1909,6 @@ static uint32 * fast_fetch_r5g6b5(pixman_iter_t * iter, const uint32 * mask)
 	if(w & 1) {
 		*dst = convert_0565_to_8888(*src);
 	}
-
 	return iter->buffer;
 }
 

@@ -13,16 +13,13 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dsp/dsp.h"
 #if defined(WEBP_USE_SSE41)
 #include <smmintrin.h>
-//#include <stdlib.h>  // for abs()
 #include "src/dsp/common_sse2.h"
 #include "src/enc/vp8i_enc.h"
-
-//------------------------------------------------------------------------------
+//
 // Compute susceptibility based on DCT-coeff histograms.
-
+//
 static void CollectHistogram_SSE41(const uint8* ref, const uint8* pred, int start_block, int end_block, VP8Histogram* const histo) 
 {
 	const __m128i max_coeff_thresh = _mm_set1_epi16(MAX_COEFF_THRESH);

@@ -1029,10 +1029,8 @@ static int init_decompression(ArchiveRead * a, struct _7zip * zip, const struct 
 			    return ARCHIVE_FAILED;
 		    }
 		    zip->bzstream_valid = 1;
-		    zip->bzstream.total_in_lo32 = 0;
-		    zip->bzstream.total_in_hi32 = 0;
-		    zip->bzstream.total_out_lo32 = 0;
-		    zip->bzstream.total_out_hi32 = 0;
+		    zip->bzstream.TotalIn = 0;
+		    zip->bzstream.TotalOut = 0;
 		    break;
 #else
 		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "BZ2 codec is unsupported");

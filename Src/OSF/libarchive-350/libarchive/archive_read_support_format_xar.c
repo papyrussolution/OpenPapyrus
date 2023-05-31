@@ -1333,10 +1333,8 @@ static int decompression_init(ArchiveRead * a, enum enctype encoding)
 			    return ARCHIVE_FATAL;
 		    }
 		    xar->bzstream_valid = 1;
-		    xar->bzstream.total_in_lo32 = 0;
-		    xar->bzstream.total_in_hi32 = 0;
-		    xar->bzstream.total_out_lo32 = 0;
-		    xar->bzstream.total_out_hi32 = 0;
+		    xar->bzstream.TotalIn = 0;
+		    xar->bzstream.TotalOut = 0;
 		    break;
 #endif
 #if defined(HAVE_LZMA_H) && defined(HAVE_LIBLZMA)

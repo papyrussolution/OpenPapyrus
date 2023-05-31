@@ -1,6 +1,7 @@
 package ru.petroglif.styloq;
 
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,6 +13,7 @@ import java.util.TimerTask;
 public class NotificationActivity extends SLib.SlActivity {
 	private StyloQApp AppCtx;
 	private ArrayList <StyloQInterchange.SvcNotification> ListData;
+	private int NotificationActualDays; // @v11.7.4 Проекция конфигурационного параметра tagNotificationActualDays
 	private class RefreshTimerTask extends TimerTask {
 		@Override public void run() { runOnUiThread(new Runnable() { @Override public void run() { RefreshStatus(); }}); }
 	}
@@ -20,6 +22,7 @@ public class NotificationActivity extends SLib.SlActivity {
 		super();
 		AppCtx = null;
 		ListData = null;
+		NotificationActualDays = 0;
 	}
 	private void RefreshStatus()
 	{
@@ -36,7 +39,13 @@ public class NotificationActivity extends SLib.SlActivity {
 	private void MakeListData(StyloQDatabase db)
 	{
 		if(db != null) {
-			ListData = db.GetNotifivationList(0, null, false);
+			SLib.LDATETIME since = null;
+			if(NotificationActualDays > 0) {
+				SLib.LDATE now_date = SLib.GetCurDate();
+				SLib.LDATE since_date = SLib.LDATE.Plus(now_date, -NotificationActualDays);
+				since = new SLib.LDATETIME(since_date, new SLib.LTIME());
+			}
+			ListData = db.GetNotifivationList(0, since, false);
 			if(SLib.GetCount(ListData) > 1) {
 				ListData.sort(new Comparator<StyloQInterchange.SvcNotification>() {
 					@Override public int compare(StyloQInterchange.SvcNotification lh, StyloQInterchange.SvcNotification rh)
@@ -59,8 +68,28 @@ public class NotificationActivity extends SLib.SlActivity {
 				{
 					AppCtx = (StyloQApp)getApplication();
 					if(AppCtx != null) {
+						{
+							View vg = findViewById(R.id.CTL_PAGEHEADER_ROOT);
+							if(vg != null && vg instanceof ViewGroup)
+								SLib.SubstituteStringSignatures(AppCtx, (ViewGroup) vg);
+						}
 						try {
 							StyloQDatabase db = AppCtx.GetDB();
+							{
+								StyloQConfig cfg_data = new StyloQConfig();
+								StyloQDatabase.SecStoragePacket pack = db.GetOwnPeerEntry();
+								if(pack != null) {
+									byte[] cfg_bytes = pack.Pool.Get(SecretTagPool.tagPrivateConfig);
+									if(SLib.GetLen(cfg_bytes) > 0) {
+										String cfg_json = new String(cfg_bytes);
+										cfg_data.FromJson(cfg_json);
+										String nad_text = cfg_data.Get(StyloQConfig.tagNotificationActualDays);
+										NotificationActualDays = SLib.satoi(nad_text);
+										if(NotificationActualDays < 0)
+											NotificationActualDays = 0;
+									}
+								}
+							}
 							MakeListData(db);
 							ScheduleRTmr(new RefreshTimerTask(), 1000, 750);
 						} catch(StyloQException exn) {

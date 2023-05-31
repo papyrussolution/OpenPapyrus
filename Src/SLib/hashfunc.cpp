@@ -5892,7 +5892,7 @@ done:
 // Rotate a uint32_t. GCC can optimize this to a rotate instruction at least on x86.
 //static inline uint32_t rotr_32(uint32_t num, unsigned amount) { return (num >> amount) | (num << (32 - amount)); }
 
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	#ifndef conv32be
 		#define conv32be(num) ((uint32_t)(num))
 	#endif
@@ -5910,10 +5910,8 @@ done:
 
 #define LZMA_blk0(i) (W[i] = conv32be(data[i]))
 #define LZMA_blk2(i) (W[i & 15] += LZMA_s1(W[(i - 2) & 15]) + W[(i - 7) & 15] + LZMA_s0(W[(i - 15) & 15]))
-
 #define LZMA_Ch(x, y, z) (z ^ (x & (y ^ z)))
 #define LZMA_Maj(x, y, z) ((x & (y ^ z)) + (y & z))
-
 #define LZMA_a(i) T[(0 - i) & 7]
 #define LZMA_b(i) T[(1 - i) & 7]
 #define LZMA_c(i) T[(2 - i) & 7]

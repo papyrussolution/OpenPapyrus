@@ -1,5 +1,5 @@
 // SCOCLASS.CPP
-// Copyright (c) A.Sobolev 2007, 2015, 2016, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2007, 2015, 2016, 2018, 2019, 2020, 2023
 //
 #pragma hdrstop
 #define DL600R
@@ -210,7 +210,6 @@ HRESULT SCoClass::ImpQueryInterface(REFIID rIID, void ** ppObject)
 		}
 		else {
 			if(P_Ctx && P_Scope && P_Tab) {
-				S_GUID uuid;
 				DLSYMBID scope_id = 0;
 				if(IsEqualIID(rIID, IID_IUnknown)) {
 					if(P_Scope->GetIfaceBaseCount() > 0) {
@@ -225,7 +224,7 @@ HRESULT SCoClass::ImpQueryInterface(REFIID rIID, void ** ppObject)
 					*ppObject = &P_Tab[c];
 					ok = S_OK;
 				}
-				else if(P_Ctx->GetInterface(uuid.Init(rIID), &scope_id, 0)) {
+				else if(P_Ctx->GetInterface(S_GUID(rIID), &scope_id, 0)) {
 					uint   c = P_Scope->GetIfaceBaseCount();
 					assert(c <= TabCount);
 					for(uint i = 0; i < c; i++) {
@@ -267,9 +266,8 @@ HRESULT SCoClass::ImpInterfaceSupportsErrorInfo(REFIID rIID) const
 {
 	HRESULT ok = E_FAIL;
 	if(P_Ctx && !IsEqualIID(rIID, IID_IUnknown) && !IsEqualIID(rIID, IID_ISupportErrorInfo)) {
-		S_GUID uuid;
 		DLSYMBID scope_id = 0;
-		if(P_Ctx->GetInterface(uuid.Init(rIID), &scope_id, 0))
+		if(P_Ctx->GetInterface(S_GUID(rIID), &scope_id, 0))
 			ok = S_OK;
 	}
 	return ok;
@@ -278,8 +276,7 @@ HRESULT SCoClass::ImpInterfaceSupportsErrorInfo(REFIID rIID) const
 HRESULT __stdcall SCoClass::QueryInterface(REFIID rIID, void ** ppObject)
 {
 #ifdef _DEBUG
-	S_GUID guid;
-	guid.Init(rIID);
+	S_GUID guid(rIID);
 	SString b;
 	TRACE_FUNC_S(guid.ToStr(S_GUID::fmtIDL, b));
 #endif
@@ -317,9 +314,8 @@ struct SCoFactory_VTab {
 
 static SCoFactory_VTab VT_SCoFactory;
 
-SCoFactory::SCoFactory(REFCLSID rClsID) : SCoClass(scccFactory, &VT_SCoFactory/*new SCoFactory_VTab*/)
+SCoFactory::SCoFactory(REFCLSID rClsID) : SCoClass(scccFactory, &VT_SCoFactory/*new SCoFactory_VTab*/), ClsUuid(rClsID)
 {
-	ClsUuid.Init(rClsID);
 }
 
 HRESULT __stdcall SCoFactory::CreateInstance(IUnknown * pOuter, const IID & rIID, void ** ppV)
@@ -354,11 +350,8 @@ HRESULT __stdcall SCoFactory::LockServer(BOOL bLock)
 #ifdef _DEBUG
 	SString s, s2;
 	s.Cat(SUCCEEDED(ok) ? 1 : 0).Space();
-	S_GUID uuid;
-	uuid.Init(rClsID);
-	s.Cat(uuid.ToStr(S_GUID::fmtIDL, s2)).Space();
-	uuid.Init(rIID);
-	s.Cat(uuid.ToStr(S_GUID::fmtIDL, s2));
+	s.Cat(S_GUID(rClsID).ToStr(S_GUID::fmtIDL, s2)).Space();
+	s.Cat(S_GUID(rIID).ToStr(S_GUID::fmtIDL, s2));
 	TRACE_FUNC_S(s);
 #endif
 	//p_cf->Release();

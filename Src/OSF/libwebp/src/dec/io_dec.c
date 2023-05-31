@@ -13,18 +13,13 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <assert.h>
-//#include <stdlib.h>
-#include "src/dec/vp8i_dec.h"
-//#include "src/dec/webpi_dec.h"
-//#include "src/dsp/dsp.h"
+//#include "src/dec/vp8i_dec.h"
 #include "src/dsp/yuv.h"
-//#include "src/utils/utils.h"
-
-//------------------------------------------------------------------------------
+//
 // Main YUV<->RGB conversion functions
-
-static int EmitYUV(const VP8Io* const io, WebPDecParams* const p) {
+//
+static int EmitYUV(const VP8Io* const io, WebPDecParams* const p) 
+{
 	WebPDecBuffer* output = p->output;
 	const WebPYUVABuffer* const buf = &output->u.YUVA;
 	uint8* const y_dst = buf->y + (size_t)io->mb_y * buf->y_stride;

@@ -120,12 +120,13 @@ bad:
 
 float FASTCALL TIFFClampDoubleToFloat(double val)
 {
-	if(val > FLT_MAX)
+	return sclamp(val, -SMathConst::Max_f_double, SMathConst::Max_f_double); // @sobolev @v11.7.4
+	/* (@sobolev @v11.7.4) if(val > FLT_MAX)
 		return FLT_MAX;
 	else if(val < -FLT_MAX)
 		return -FLT_MAX;
 	else
-		return (float)val;
+		return (float)val;*/
 }
 
 static int _TIFFVSetField(TIFF * tif, uint32 tag, va_list ap)

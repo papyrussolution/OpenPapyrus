@@ -218,12 +218,12 @@ int ReadTIFF(const uint8* const data, size_t data_size, WebPPicture* const pic, 
 		goto End;
 	// @sobolev raster = (uint32_t*)_TIFFmalloc((tsize_t)alloc_size);
 	raster = (uint32 *)SAlloc::M((tsize_t)alloc_size); // @sobolev
-	if(raster != NULL) {
+	if(raster) {
 		if(TIFFReadRGBAImageOriented(tif, image_width, image_height, raster, ORIENTATION_TOPLEFT, 1)) {
 			pic->width = image_width;
 			pic->height = image_height;
 			// TIFF data is ABGR
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 			TIFFSwabArrayOfLong(raster, image_width * image_height);
 #endif
 			// if we have an alpha channel, we must un-multiply from rgbA to RGBA

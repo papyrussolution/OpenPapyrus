@@ -13,7 +13,7 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-#include "src/dec/vp8i_dec.h"
+//#include "src/dec/vp8i_dec.h"
 
 // @sobolev (replaced with sclamp) static FORCEINLINE int clip(int v, int M) { return v < 0 ? 0 : v > M ? M : v; }
 

@@ -889,10 +889,7 @@ public:
 	}
 	void Release() 
 	{
-		if(_p) {
-			_p->Release(); 
-			_p = NULL;
-		}
+		SCOMOBJRELEASE(_p); 
 	}
 	operator T * () const {  return (T*)_p;  }
 	// T& operator*() const {  return *_p; }

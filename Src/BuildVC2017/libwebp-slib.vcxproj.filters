@@ -157,9 +157,6 @@
     <ClInclude Include="..\osf\libwebp\src\enc\vp8li_enc.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\libwebp\src\utils\bit_reader_inl_utils.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\libwebp\src\utils\bit_reader_utils.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -167,9 +164,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\libwebp\src\utils\color_cache_utils.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\libwebp\src\utils\endian_inl_utils.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\libwebp\src\utils\filters_utils.h">

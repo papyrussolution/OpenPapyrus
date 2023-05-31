@@ -36,9 +36,7 @@
 	} while(0)
 
 // modified version of DEFINE_GUID from guiddef.h.
-#define WEBP_DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
-	static const GUID name = \
-	{ l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } }
+#define WEBP_DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) static const GUID name = { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } }
 
 #ifdef __cplusplus
 #define MAKE_REFGUID(x) (x)
@@ -117,7 +115,8 @@ static HRESULT ExtractICCP(IWICImagingFactory* const factory, IWICBitmapFrameDec
 		return (hr == WINCODEC_ERR_UNSUPPORTEDOPERATION) ? S_OK : hr;
 	}
 	color_contexts = (IWICColorContext**)SAlloc::C(count, sizeof(*color_contexts));
-	if(color_contexts == NULL) return E_OUTOFMEMORY;
+	if(color_contexts == NULL) 
+		return E_OUTOFMEMORY;
 	for(i = 0; SUCCEEDED(hr) && i < count; ++i) {
 		IFS(IWICImagingFactory_CreateColorContext(factory, &color_contexts[i]));
 	}
@@ -150,10 +149,10 @@ static HRESULT ExtractICCP(IWICImagingFactory* const factory, IWICBitmapFrameDec
 	}
 	for(i = 0; i < count; ++i) {
 #ifdef __cplusplus
-		if(color_contexts[i] != NULL) 
+		if(color_contexts[i]) 
 			color_contexts[i]->lpVtbl->Release(color_contexts[i]);
 #else
-		if(color_contexts[i] != NULL) 
+		if(color_contexts[i]) 
 			IUnknown_Release(color_contexts[i]);
 #endif
 	}
@@ -165,7 +164,8 @@ static HRESULT ExtractMetadata(IWICImagingFactory* const factory, IWICBitmapFram
 {
 	// TODO(jzern): add XMP/EXIF extraction.
 	const HRESULT hr = ExtractICCP(factory, frame, &metadata->iccp);
-	if(FAILED(hr)) MetadataFree(metadata);
+	if(FAILED(hr)) 
+		MetadataFree(metadata);
 	return hr;
 }
 
@@ -179,17 +179,14 @@ static int HasPalette(GUID pixel_format)
 	       IsEqualGUID(MAKE_REFGUID(pixel_format), MAKE_REFGUID(GUID_WICPixelFormat8bppIndexed)));
 }
 
-static int HasAlpha(IWICImagingFactory* const factory,
-    IWICBitmapDecoder* const decoder,
-    IWICBitmapFrameDecode* const frame,
-    GUID pixel_format) {
+static int HasAlpha(IWICImagingFactory* const factory, IWICBitmapDecoder* const decoder, IWICBitmapFrameDecode* const frame, GUID pixel_format) 
+{
 	int has_alpha;
 	if(HasPalette(pixel_format)) {
 		IWICPalette* frame_palette = NULL;
 		IWICPalette* global_palette = NULL;
 		BOOL frame_palette_has_alpha = FALSE;
 		BOOL global_palette_has_alpha = FALSE;
-
 		// A palette may exist at the frame or container level,
 		// check IWICPalette::HasAlpha() for both if present.
 		if(SUCCEEDED(IWICImagingFactory_CreatePalette(factory, &frame_palette)) && SUCCEEDED(IWICBitmapFrameDecode_CopyPalette(frame, frame_palette))) {
@@ -341,7 +338,7 @@ int ReadPictureWithWIC(const char* const filename, WebPPicture* const pic, int k
 		if(!ok) hr = E_FAIL;
 	}
 	if(SUCCEEDED(hr)) {
-		if(metadata != NULL) {
+		if(metadata) {
 			hr = ExtractMetadata(factory, frame, metadata);
 			if(FAILED(hr)) {
 				fprintf(stderr, "Error extracting image metadata using WIC!\n");
@@ -350,17 +347,21 @@ int ReadPictureWithWIC(const char* const filename, WebPPicture* const pic, int k
 	}
 	// Cleanup.
 #ifdef __cplusplus
-	if(converter != NULL) converter->lpVtbl->Release(converter);
-	if(frame != NULL) frame->lpVtbl->Release(frame);
-	if(decoder != NULL) decoder->lpVtbl->Release(decoder);
-	if(factory != NULL) factory->lpVtbl->Release(factory);
-	if(stream != NULL) stream->Release();
+	if(converter) 
+		converter->lpVtbl->Release(converter);
+	if(frame) 
+		frame->lpVtbl->Release(frame);
+	if(decoder) 
+		decoder->lpVtbl->Release(decoder);
+	if(factory) 
+		factory->lpVtbl->Release(factory);
+	SCOMOBJRELEASE(stream);
 #else
-	if(converter != NULL) IUnknown_Release(converter);
-	if(frame != NULL) IUnknown_Release(frame);
-	if(decoder != NULL) IUnknown_Release(decoder);
-	if(factory != NULL) IUnknown_Release(factory);
-	if(stream != NULL) IUnknown_Release(stream);
+	if(converter) IUnknown_Release(converter);
+	if(frame) IUnknown_Release(frame);
+	if(decoder) IUnknown_Release(decoder);
+	if(factory) IUnknown_Release(factory);
+	if(stream) IUnknown_Release(stream);
 #endif
 	SAlloc::F(rgb);
 	return SUCCEEDED(hr);
@@ -381,5 +382,3 @@ int ReadPictureWithWIC(const char* const filename, struct WebPPicture* const pic
 }
 
 #endif  // HAVE_WINCODEC_H
-
-// -----------------------------------------------------------------------------

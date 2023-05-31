@@ -315,7 +315,7 @@ uint32_t ssh_agent_get_ident_count(struct ssh_session_struct * session)
 		SSH_BUFFER_FREE(reply);
 		return 0;
 	}
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	type = bswap_32(type);
 #endif
 	SSH_LOG(SSH_LOG_WARN, "Answer type: %d, expected answer: %d", type, SSH2_AGENT_IDENTITIES_ANSWER);
@@ -517,10 +517,9 @@ ssh_string ssh_agent_sign_data(ssh_session session,
 		SSH_BUFFER_FREE(reply);
 		return NULL;
 	}
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	type = bswap_32(type);
 #endif
-
 	if(agent_failed(type)) {
 		SSH_LOG(SSH_LOG_WARN, "Agent reports failure in signing the key");
 		SSH_BUFFER_FREE(reply);

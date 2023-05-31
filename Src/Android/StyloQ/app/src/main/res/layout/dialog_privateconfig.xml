@@ -4,6 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:minWidth="240dp"
     android:paddingTop="4dp"
     android:paddingLeft="4dp"
     android:paddingRight="4dp">
@@ -35,6 +36,18 @@
             />
         <Spinner style="@style/ComboBox" android:id="@+id/CTLSEL_PRIVCFG_DEFFACE"/>
     </LinearLayout>
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/InputLine"
+        android:id="@+id/CTLLBL_PRIVCFG_NOTIFICATIONACTIALDAYS"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/CTL_PRIVCFG_NOTIFICATIONACTIALDAYS"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:hint="@{styloqprivconfig_notificationactualdays}" />
+    </com.google.android.material.textfield.TextInputLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

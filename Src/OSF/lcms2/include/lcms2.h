@@ -170,9 +170,9 @@ typedef uint32 cmsU16Fixed16Number;
 		#undef CMS_USE_BIG_ENDIAN
 	#endif
 #else // CMS_USE_BIG_ENDIAN
-	#ifdef WORDS_BIGENDIAN // set by configure (or explicitly on compiler command line)
+	#ifdef SL_BIGENDIAN // set by configure (or explicitly on compiler command line)
 		#define CMS_USE_BIG_ENDIAN 1
-	#else // WORDS_BIGENDIAN
+	#else
 		// Fall back to platform/compiler specific tests
 		#if defined(__sgi__) || defined(__sgi) || defined(sparc)
 			#define CMS_USE_BIG_ENDIAN      1
@@ -188,7 +188,7 @@ typedef uint32 cmsU16Fixed16Number;
 				#undef CMS_USE_BIG_ENDIAN
 			#endif
 		#endif
-	#endif  // WORDS_BIGENDIAN
+	#endif
 	#if defined(_HOST_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
 		#define CMS_USE_BIG_ENDIAN      1
 	#endif

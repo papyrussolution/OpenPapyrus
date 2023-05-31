@@ -14,9 +14,9 @@
 #ifndef WEBP_MUX_MUXI_H_
 #define WEBP_MUX_MUXI_H_
 
-#include "src/dec/vp8i_dec.h"
-#include "src/dec/vp8li_dec.h"
-#include "src/webp/mux.h"
+//#include "src/dec/vp8i_dec.h"
+//#include "src/dec/vp8li_dec.h"
+//#include "src/webp/mux.h"
 //
 // Defines and constants.
 //

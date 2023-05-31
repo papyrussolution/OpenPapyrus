@@ -1,18 +1,14 @@
 #ifndef PIXMAN_PRIVATE_H
 #define PIXMAN_PRIVATE_H
-
 /*
  * The defines which are shared between C and assembly code
  */
-
 /* bilinear interpolation precision (must be < 8) */
 #define BILINEAR_INTERPOLATION_BITS 7
 #define BILINEAR_INTERPOLATION_RANGE (1 << BILINEAR_INTERPOLATION_BITS)
-
 /*
  * C specific part
  */
-
 #ifndef __ASSEMBLER__
 
 #ifndef PACKAGE
@@ -584,21 +580,6 @@ static FORCEINLINE void pixman_list_move_to_front(pixman_list_t * list, pixman_l
 	pixman_list_prepend(list, link);
 }
 
-/* Misc macros */
-/*
-#ifndef FALSE
-	#define FALSE 0
-#endif
-#ifndef TRUE
-	#define TRUE 1
-#endif
-#ifndef MIN
-	#define MIN(a, b) ((a < b) ? a : b)
-#endif
-#ifndef MAX
-	#define MAX(a, b) ((a > b) ? a : b)
-#endif
-*/
 /* Integer division that rounds towards -infinity */
 #define DIV(a, b) ((((a) < 0) == ((b) < 0)) ? (a) / (b) : ((a) - (b) + 1 - (((b) < 0) << 1)) / (b))
 
@@ -608,7 +589,6 @@ static FORCEINLINE void pixman_list_move_to_front(pixman_list_t * list, pixman_l
 #define FLOAT_IS_ZERO(f)     (-FLT_MIN < (f) && (f) < FLT_MIN)
 
 /* Conversion between 8888 and 0565 */
-
 static FORCEINLINE uint16 convert_8888_to_0565(uint32 s)
 {
 	/* The following code can be compiled into just 4 instructions on ARM */
@@ -624,30 +604,14 @@ static FORCEINLINE uint32 convert_0565_to_0888(uint16 s)
 	return (((((s) << 3) & 0xf8) | (((s) >> 2) & 0x7)) | ((((s) << 5) & 0xfc00) | (((s) >> 1) & 0x300)) | ((((s) << 8) & 0xf80000) | (((s) << 3) & 0x70000)));
 }
 
-static FORCEINLINE uint32 convert_0565_to_8888(uint16 s)
-{
-	return convert_0565_to_0888(s) | 0xff000000;
-}
-
+static FORCEINLINE uint32 convert_0565_to_8888(uint16 s) { return convert_0565_to_0888(s) | 0xff000000; }
 /* Trivial versions that are useful in macros */
-
-static FORCEINLINE uint32 convert_8888_to_8888(uint32 s)
-{
-	return s;
-}
-
-static FORCEINLINE uint32 convert_x888_to_8888(uint32 s)
-{
-	return s | 0xff000000;
-}
-
-static FORCEINLINE uint16 convert_0565_to_0565(uint16 s)
-{
-	return s;
-}
+static FORCEINLINE uint32 convert_8888_to_8888(uint32 s) { return s; }
+static FORCEINLINE uint32 convert_x888_to_8888(uint32 s) { return s | 0xff000000; }
+static FORCEINLINE uint16 convert_0565_to_0565(uint16 s) { return s; }
 
 #define PIXMAN_FORMAT_IS_WIDE(f) (PIXMAN_FORMAT_A(f) > 8 || PIXMAN_FORMAT_R(f) > 8 || PIXMAN_FORMAT_G(f) > 8 || PIXMAN_FORMAT_B(f) > 8 || PIXMAN_FORMAT_TYPE(f) == PIXMAN_TYPE_ARGB_SRGB)
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	#define SCREEN_SHIFT_LEFT(x, n)       ((x) << (n))
 	#define SCREEN_SHIFT_RIGHT(x, n)      ((x) >> (n))
 #else

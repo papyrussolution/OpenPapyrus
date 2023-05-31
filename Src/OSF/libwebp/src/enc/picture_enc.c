@@ -13,16 +13,10 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <assert.h>
-//#include <stdlib.h>
 #include "src/enc/vp8i_enc.h"
-//#include "src/dsp/dsp.h"
-//#include "src/utils/utils.h"
-
-//------------------------------------------------------------------------------
+//
 // WebPPicture
-//------------------------------------------------------------------------------
-
+//
 static int DummyWriter(const uint8* data, size_t data_size, const WebPPicture* const picture) 
 {
 	// The following are to prevent 'unused variable' error message.

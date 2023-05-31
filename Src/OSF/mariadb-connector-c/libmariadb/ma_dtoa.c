@@ -471,7 +471,7 @@ typedef uint64 ULLong;
 
 typedef union { double d; ULong L[2]; } U;
 
-#if defined(HAVE_BIGENDIAN) || defined(WORDS_BIGENDIAN) || (defined(__FLOAT_WORD_ORDER) && (__FLOAT_WORD_ORDER == __BIG_ENDIAN))
+#if defined(HAVE_BIGENDIAN) || defined(SL_BIGENDIAN) || (defined(__FLOAT_WORD_ORDER) && (__FLOAT_WORD_ORDER == __BIG_ENDIAN))
 	#define word0(x) ((x)->L[0])
 	#define word1(x) ((x)->L[1])
 #else
@@ -510,24 +510,21 @@ typedef union { double d; ULong L[2]; } U;
 #define Int_max 14
 
 #ifndef Flt_Rounds
-#ifdef FLT_ROUNDS
-#define Flt_Rounds FLT_ROUNDS
-#else
-#define Flt_Rounds 1
-#endif
+	#ifdef FLT_ROUNDS
+		#define Flt_Rounds FLT_ROUNDS
+	#else
+		#define Flt_Rounds 1
+	#endif
 #endif /*Flt_Rounds*/
-
 #ifdef Honor_FLT_ROUNDS
-#define Rounding rounding
-#undef Check_FLT_ROUNDS
-#define Check_FLT_ROUNDS
+	#define Rounding rounding
+	#undef Check_FLT_ROUNDS
+	#define Check_FLT_ROUNDS
 #else
-#define Rounding Flt_Rounds
+	#define Rounding Flt_Rounds
 #endif
-
 #define rounded_product(a, b) ((a) *= (b))
 #define rounded_quotient(a, b) ((a) /= (b))
-
 #define Big0 (Frac_mask1 | Exp_msk1*(DBL_MAX_EXP+Bias-1))
 #define Big1 0xffffffff
 #define FFFFFFFF 0xffffffffUL

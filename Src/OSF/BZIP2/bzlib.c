@@ -82,12 +82,11 @@ void BZ2_bz__AssertH__fail(int errcode)
 
 static void prepare_new_block(EState* s)
 {
-	int32 i;
 	s->nblock = 0;
 	s->numZ = 0;
 	s->state_out_pos = 0;
 	BZ_INITIALISE_CRC(s->blockCRC);
-	for(i = 0; i < 256; i++) 
+	for(size_t i = 0; i < 256; i++) 
 		s->inUse[i] = false;
 	s->blockNo++;
 }
@@ -144,10 +143,12 @@ int BZ2_bzCompressInit(bz_stream* strm, int blockSize100k, int verbosity, int wo
 	s->zbits     = NULL;
 	s->ptr       = (uint32 *)s->arr1;
 	strm->state  = s;
-	strm->total_in_lo32  = 0;
-	strm->total_in_hi32  = 0;
-	strm->total_out_lo32 = 0;
-	strm->total_out_hi32 = 0;
+	//strm->total_in_lo32  = 0;
+	//strm->total_in_hi32  = 0;
+	//strm->total_out_lo32 = 0;
+	//strm->total_out_hi32 = 0;
+	strm->TotalIn = 0;
+	strm->TotalOut = 0;
 	init_RL(s);
 	prepare_new_block(s);
 	return BZ_OK;
@@ -230,8 +231,7 @@ static bool copy_input_until_stop(EState* s)
 			ADD_CHAR_TO_BLOCK(s, (uint32)(*((uchar *)(s->strm->next_in))));
 			s->strm->next_in++;
 			s->strm->avail_in--;
-			s->strm->total_in_lo32++;
-			if(s->strm->total_in_lo32 == 0) s->strm->total_in_hi32++;
+			s->strm->TotalIn++;
 		}
 	}
 	else {
@@ -240,15 +240,16 @@ static bool copy_input_until_stop(EState* s)
 			/*-- block full? --*/
 			if(s->nblock >= s->nblockMAX) break;
 			/*-- no input? --*/
-			if(s->strm->avail_in == 0) break;
+			if(s->strm->avail_in == 0) 
+				break;
 			/*-- flush/finish end? --*/
-			if(s->avail_in_expect == 0) break;
+			if(s->avail_in_expect == 0) 
+				break;
 			progress_in = true;
 			ADD_CHAR_TO_BLOCK(s, (uint32)(*((uchar *)(s->strm->next_in))));
 			s->strm->next_in++;
 			s->strm->avail_in--;
-			s->strm->total_in_lo32++;
-			if(s->strm->total_in_lo32 == 0) s->strm->total_in_hi32++;
+			s->strm->TotalIn++;
 			s->avail_in_expect--;
 		}
 	}
@@ -270,10 +271,8 @@ static bool copy_output_until_stop(EState* s)
 		s->state_out_pos++;
 		s->strm->avail_out--;
 		s->strm->next_out++;
-		s->strm->total_out_lo32++;
-		if(s->strm->total_out_lo32 == 0) s->strm->total_out_hi32++;
+		s->strm->TotalOut++;
 	}
-
 	return progress_out;
 }
 
@@ -410,11 +409,13 @@ int BZ2_bzDecompressInit(bz_stream* strm, int verbosity, int small)
 	s->bsLive        = 0;
 	s->bsBuff        = 0;
 	s->calculatedCombinedCRC = 0;
-	strm->total_in_lo32      = 0;
-	strm->total_in_hi32      = 0;
-	strm->total_out_lo32     = 0;
-	strm->total_out_hi32     = 0;
-	s->smallDecompress       = small ? true : false;
+	//strm->total_in_lo32      = 0;
+	//strm->total_in_hi32      = 0;
+	//strm->total_out_lo32     = 0;
+	//strm->total_out_hi32     = 0;
+	strm->TotalIn = 0;
+	strm->TotalOut = 0;
+	s->smallDecompress = small ? true : false;
 	s->ll4           = NULL;
 	s->ll16          = NULL;
 	s->tt            = NULL;
@@ -442,9 +443,7 @@ static bool unRLE_obuf_to_output_FAST(DState* s)
 				s->state_out_len--;
 				s->strm->next_out++;
 				s->strm->avail_out--;
-				s->strm->total_out_lo32++;
-				if(s->strm->total_out_lo32 == 0) 
-					s->strm->total_out_hi32++;
+				s->strm->TotalOut++;
 			}
 			/* can a new run be started? */
 			if(s->nblock_used == s->save_nblock+1) 
@@ -506,7 +505,7 @@ static bool unRLE_obuf_to_output_FAST(DState* s)
 		/* end restore */
 		uint32 avail_out_INIT = cs_avail_out;
 		int32 s_save_nblockPP = s->save_nblock+1;
-		uint total_out_lo32_old;
+		//uint total_out_lo32_old;
 		while(true) {
 			/* try to finish existing run */
 			if(c_state_out_len > 0) {
@@ -572,12 +571,12 @@ s_state_out_len_eq_one:
 			c_nblock_used++;
 		}
 return_notr:
-		total_out_lo32_old = s->strm->total_out_lo32;
-		s->strm->total_out_lo32 += (avail_out_INIT - cs_avail_out);
-		if(s->strm->total_out_lo32 < total_out_lo32_old)
-			s->strm->total_out_hi32++;
-
-		/* save */
+		//total_out_lo32_old = s->strm->total_out_lo32;
+		//s->strm->total_out_lo32 += (avail_out_INIT - cs_avail_out);
+		//if(s->strm->total_out_lo32 < total_out_lo32_old)
+			//s->strm->total_out_hi32++;
+		s->strm->TotalOut += (avail_out_INIT - cs_avail_out);
+		// save
 		s->calculatedBlockCRC = c_calculatedBlockCRC;
 		s->state_out_ch       = c_state_out_ch;
 		s->state_out_len      = c_state_out_len;
@@ -625,9 +624,7 @@ static bool unRLE_obuf_to_output_SMALL(DState* s)
 				s->state_out_len--;
 				s->strm->next_out++;
 				s->strm->avail_out--;
-				s->strm->total_out_lo32++;
-				if(s->strm->total_out_lo32 == 0) 
-					s->strm->total_out_hi32++;
+				s->strm->TotalOut++;
 			}
 			/* can a new run be started? */
 			if(s->nblock_used == s->save_nblock+1) 
@@ -693,14 +690,12 @@ static bool unRLE_obuf_to_output_SMALL(DState* s)
 				s->state_out_len--;
 				s->strm->next_out++;
 				s->strm->avail_out--;
-				s->strm->total_out_lo32++;
-				if(s->strm->total_out_lo32 == 0) 
-					s->strm->total_out_hi32++;
+				s->strm->TotalOut++;
 			}
-			/* can a new run be started? */
+			// can a new run be started?
 			if(s->nblock_used == s->save_nblock+1) 
 				return false;
-			/* Only caused by corrupt data stream? */
+			// Only caused by corrupt data stream?
 			if(s->nblock_used > s->save_nblock+1)
 				return true;
 			s->state_out_len = 1;
@@ -840,7 +835,7 @@ BZFILE* BZ2_bzWriteOpen(int*  bzerror, FILE* f, int blockSize100k, int verbosity
 	int32 ret;
 	bzFile * bzf = NULL;
 	BZ_SETERR(BZ_OK);
-	if(f == NULL || (blockSize100k < 1 || blockSize100k > 9) || (workFactor < 0 || workFactor > 250) || (verbosity < 0 || verbosity > 4)) {
+	if(!f || (blockSize100k < 1 || blockSize100k > 9) || (workFactor < 0 || workFactor > 250) || (verbosity < 0 || verbosity > 4)) {
 		BZ_SETERR(BZ_PARAM_ERROR); return NULL;
 	}
 	if(ferror(f)) {
@@ -871,10 +866,10 @@ BZFILE* BZ2_bzWriteOpen(int*  bzerror, FILE* f, int blockSize100k, int verbosity
 	return bzf;
 }
 
-void BZ2_bzWrite(int*    bzerror, BZFILE* b, void *   buf, int len)
+void BZ2_bzWrite(int * bzerror, BZFILE * b, void * buf, int len)
 {
 	int32 n, n2, ret;
-	bzFile* bzf = (bzFile*)b;
+	bzFile * bzf = (bzFile*)b;
 	BZ_SETERR(BZ_OK);
 	if(bzf == NULL || buf == NULL || len < 0) {
 		BZ_SETERR(BZ_PARAM_ERROR); 
@@ -917,15 +912,19 @@ void BZ2_bzWrite(int*    bzerror, BZFILE* b, void *   buf, int len)
 	}
 }
 
-void BZ2_bzWriteClose(int * bzerror, BZFILE * b, int abandon, uint* nbytes_in, uint* nbytes_out)
+void BZ2_bzWriteClose(int * bzerror, BZFILE * b, int abandon, uint * pNBytesIn, uint * pNBytesOut)
 {
-	BZ2_bzWriteClose64(bzerror, b, abandon, nbytes_in, NULL, nbytes_out, NULL);
+	uint64 bytes_in = 0;
+	uint64 bytes_out = 0;
+	BZ2_bzWriteClose64(bzerror, b, abandon, &bytes_in, &bytes_out);
+	ASSIGN_PTR(pNBytesIn, static_cast<uint32>(bytes_in));
+	ASSIGN_PTR(pNBytesOut, static_cast<uint32>(bytes_out));
 }
 
-void BZ2_bzWriteClose64(int * bzerror, BZFILE * b, int abandon, uint* nbytes_in_lo32, uint* nbytes_in_hi32, uint* nbytes_out_lo32, uint* nbytes_out_hi32)
+void BZ2_bzWriteClose64(int * bzerror, BZFILE * b, int abandon, uint64 * pNBytesIn, uint64 * pNBytesOut)
 {
 	int32 n, n2, ret;
-	bzFile* bzf = (bzFile*)b;
+	bzFile * bzf = (bzFile*)b;
 	if(bzf == NULL) {
 		BZ_SETERR(BZ_OK); return;
 	}
@@ -935,17 +934,16 @@ void BZ2_bzWriteClose64(int * bzerror, BZFILE * b, int abandon, uint* nbytes_in_
 	if(ferror(bzf->handle)) {
 		BZ_SETERR(BZ_IO_ERROR); return;
 	}
-	ASSIGN_PTR(nbytes_in_lo32, 0);
-	ASSIGN_PTR(nbytes_in_hi32, 0);
-	ASSIGN_PTR(nbytes_out_lo32, 0);
-	ASSIGN_PTR(nbytes_out_hi32, 0);
+	ASSIGN_PTR(pNBytesIn, 0);
+	ASSIGN_PTR(pNBytesOut, 0);
 	if((!abandon) && bzf->lastErr == BZ_OK) {
 		while(true) {
 			bzf->strm.avail_out = BZ_MAX_UNUSED;
 			bzf->strm.next_out = bzf->buf;
 			ret = BZ2_bzCompress(&(bzf->strm), BZ_FINISH);
 			if(ret != BZ_FINISH_OK && ret != BZ_STREAM_END) {
-				BZ_SETERR(ret); return;
+				BZ_SETERR(ret); 
+				return;
 			}
 			if(bzf->strm.avail_out < BZ_MAX_UNUSED) {
 				n = BZ_MAX_UNUSED - bzf->strm.avail_out;
@@ -964,10 +962,8 @@ void BZ2_bzWriteClose64(int * bzerror, BZFILE * b, int abandon, uint* nbytes_in_
 			BZ_SETERR(BZ_IO_ERROR); return;
 		}
 	}
-	ASSIGN_PTR(nbytes_in_lo32, bzf->strm.total_in_lo32);
-	ASSIGN_PTR(nbytes_in_hi32, bzf->strm.total_in_hi32);
-	ASSIGN_PTR(nbytes_out_lo32, bzf->strm.total_out_lo32);
-	ASSIGN_PTR(nbytes_out_hi32, bzf->strm.total_out_hi32);
+	ASSIGN_PTR(pNBytesIn, bzf->strm.TotalIn);
+	ASSIGN_PTR(pNBytesOut, bzf->strm.TotalOut);
 	BZ_SETERR(BZ_OK);
 	BZ2_bzCompressEnd(&(bzf->strm));
 	SAlloc::F(bzf);
@@ -975,24 +971,20 @@ void BZ2_bzWriteClose64(int * bzerror, BZFILE * b, int abandon, uint* nbytes_in_
 
 BZFILE* BZ2_bzReadOpen(int*  bzerror, FILE* f, int verbosity, int small, void * unused, int nUnused)
 {
-	bzFile* bzf = NULL;
+	bzFile * bzf = NULL;
 	int ret;
 	BZ_SETERR(BZ_OK);
-	if(f == NULL || (small != 0 && small != 1) || (verbosity < 0 || verbosity > 4) ||
-	    (unused == NULL && nUnused != 0) ||
-	    (unused != NULL && (nUnused < 0 || nUnused > BZ_MAX_UNUSED))) {
+	if(!f || (small != 0 && small != 1) || (verbosity < 0 || verbosity > 4) ||
+	    (!unused && nUnused != 0) || (unused && (nUnused < 0 || nUnused > BZ_MAX_UNUSED))) {
 		BZ_SETERR(BZ_PARAM_ERROR); return NULL;
 	}
-	;
 	if(ferror(f)) {
 		BZ_SETERR(BZ_IO_ERROR); return NULL;
 	}
-	;
 	bzf = static_cast<bzFile *>(SAlloc::M(sizeof(bzFile)));
 	if(bzf == NULL) {
 		BZ_SETERR(BZ_MEM_ERROR); return NULL;
 	}
-	;
 	BZ_SETERR(BZ_OK);
 	bzf->initialisedOk = false;
 	bzf->handle  = f;
@@ -1029,14 +1021,14 @@ void BZ2_bzReadClose(int * bzerror, BZFILE *b)
 		BZ_SETERR(BZ_SEQUENCE_ERROR); return;
 	}
 	if(bzf->initialisedOk)
-		(void)BZ2_bzDecompressEnd(&(bzf->strm));
+		BZ2_bzDecompressEnd(&(bzf->strm));
 	SAlloc::F(bzf);
 }
 
 int BZ2_bzRead(int * bzerror, BZFILE* b, void *   buf, int len)
 {
 	int32 n, ret;
-	bzFile* bzf = (bzFile*)b;
+	bzFile * bzf = (bzFile*)b;
 	BZ_SETERR(BZ_OK);
 	if(bzf == NULL || buf == NULL || len < 0) {
 		BZ_SETERR(BZ_PARAM_ERROR); return 0;
@@ -1064,10 +1056,12 @@ int BZ2_bzRead(int * bzerror, BZFILE* b, void *   buf, int len)
 		}
 		ret = BZ2_bzDecompress(&(bzf->strm));
 		if(ret != BZ_OK && ret != BZ_STREAM_END) {
-			BZ_SETERR(ret); return 0;
+			BZ_SETERR(ret); 
+			return 0;
 		}
 		if(ret == BZ_OK && myfeof(bzf->handle) && bzf->strm.avail_in == 0 && bzf->strm.avail_out > 0) {
-			BZ_SETERR(BZ_UNEXPECTED_EOF); return 0;
+			BZ_SETERR(BZ_UNEXPECTED_EOF); 
+			return 0;
 		}
 		if(ret == BZ_STREAM_END) {
 			BZ_SETERR(BZ_STREAM_END);
@@ -1080,7 +1074,7 @@ int BZ2_bzRead(int * bzerror, BZFILE* b, void *   buf, int len)
 	return 0; /*not reached*/
 }
 
-void BZ2_bzReadGetUnused(int*    bzerror, BZFILE* b, void**  unused, int*    nUnused)
+void BZ2_bzReadGetUnused(int * bzerror, BZFILE * b, const void ** unused, int * nUnused)
 {
 	bzFile* bzf = (bzFile*)b;
 	if(bzf == NULL) {
@@ -1106,19 +1100,22 @@ int BZ2_bzBuffToBuffCompress(char * dest, uint * destLen, char * source, uint so
 	int ret;
 	if(dest == NULL || destLen == NULL || source == NULL || blockSize100k < 1 || blockSize100k > 9 || verbosity < 0 || verbosity > 4 || workFactor < 0 || workFactor > 250)
 		return BZ_PARAM_ERROR;
-	SETIFZ(workFactor, 30);
+	SETIFZQ(workFactor, 30);
 	//strm.bzalloc = NULL;
 	//strm.bzfree = NULL;
 	//strm.opaque = NULL;
 	ret = BZ2_bzCompressInit(&strm, blockSize100k, verbosity, workFactor);
-	if(ret != BZ_OK) return ret;
+	if(ret != BZ_OK) 
+		return ret;
 	strm.next_in = source;
 	strm.next_out = dest;
 	strm.avail_in = sourceLen;
 	strm.avail_out = *destLen;
 	ret = BZ2_bzCompress(&strm, BZ_FINISH);
-	if(ret == BZ_FINISH_OK) goto output_overflow;
-	if(ret != BZ_STREAM_END) goto errhandler;
+	if(ret == BZ_FINISH_OK) 
+		goto output_overflow;
+	if(ret != BZ_STREAM_END) 
+		goto errhandler;
 	/* normal termination */
 	*destLen -= strm.avail_out;
 	BZ2_bzCompressEnd(&strm);
@@ -1169,7 +1166,6 @@ errhandler:
 	BZ2_bzDecompressEnd(&strm);
 	return ret;
 }
-
 // 
 // Code contributed by Yoshioka Tsuneo (tsuneo@rr.iij4u.or.jp)
 // to support better zlib compatibility.
@@ -1178,9 +1174,8 @@ errhandler:
 // threading-safeness of it.
 // If this code breaks, please contact both Yoshioka and me.
 // 
-// 
 // return version like "0.9.5d, 4-Sept-1999".
-// 
+//
 const char * BZ2_bzlibVersion(void) { return BZ_VERSION; }
 
 #ifndef BZ_NO_STDIO
@@ -1191,64 +1186,63 @@ const char * BZ2_bzlibVersion(void) { return BZ_VERSION; }
 #endif
 static BZFILE * bzopen_or_bzdopen(const char * path/* no use when bzdopen */, int fd/* no use when bzdopen */, const char * mode, int open_mode/* bzopen: 0, bzdopen:1 */)
 {
+	BZFILE * bzfp = NULL;
 	int bzerr;
 	char unused[BZ_MAX_UNUSED];
 	int blockSize100k = 9;
 	int writing       = 0;
 	char mode2[10]     = "";
 	FILE   * fp   = NULL;
-	BZFILE * bzfp = NULL;
 	int verbosity     = 0;
 	int workFactor    = 30;
 	int smallMode     = 0;
 	int nUnused       = 0;
-	if(mode == NULL) 
-		return NULL;
-	while(*mode) {
-		switch(*mode) {
-			case 'r': writing = 0; break;
-			case 'w': writing = 1; break;
-			case 's': smallMode = 1; break;
-			default:
-			    if(isdigit((int)(*mode))) {
-				    blockSize100k = *mode-BZ_HDR_0;
-			    }
+	if(mode) { 
+		while(*mode) {
+			switch(*mode) {
+				case 'r': writing = 0; break;
+				case 'w': writing = 1; break;
+				case 's': smallMode = 1; break;
+				default:
+					if(isdigit((int)(*mode))) {
+						blockSize100k = *mode-BZ_HDR_0;
+					}
+			}
+			mode++;
 		}
-		mode++;
-	}
-	strcat(mode2, writing ? "w" : "r");
-	strcat(mode2, "b"); /* binary mode */
-	if(open_mode==0) {
-		if(isempty(path)) {
-			fp = (writing ? stdout : stdin);
-			SET_BINARY_MODE(fp);
+		strcat(mode2, writing ? "w" : "r");
+		strcat(mode2, "b"); /* binary mode */
+		if(open_mode==0) {
+			if(isempty(path)) {
+				fp = (writing ? stdout : stdin);
+				SET_BINARY_MODE(fp);
+			}
+			else {
+				fp = fopen(path, mode2);
+			}
 		}
 		else {
-			fp = fopen(path, mode2);
+	#ifdef BZ_STRICT_ANSI
+			fp = NULL;
+	#else
+			fp = _fdopen(fd, mode2);
+	#endif
 		}
-	}
-	else {
-#ifdef BZ_STRICT_ANSI
-		fp = NULL;
-#else
-		fp = _fdopen(fd, mode2);
-#endif
-	}
-	if(!fp) 
-		return NULL;
-	if(writing) {
-		/* Guard against total chaos and anarchy -- JRS */
-		SETMAX(blockSize100k, 1);
-		SETMIN(blockSize100k, 9);
-		bzfp = BZ2_bzWriteOpen(&bzerr, fp, blockSize100k, verbosity, workFactor);
-	}
-	else {
-		bzfp = BZ2_bzReadOpen(&bzerr, fp, verbosity, smallMode, unused, nUnused);
-	}
-	if(bzfp == NULL) {
-		if(fp != stdin && fp != stdout) 
-			fclose(fp);
-		return NULL;
+		if(fp) {
+			if(writing) {
+				// Guard against total chaos and anarchy -- JRS
+				SETMAX(blockSize100k, 1);
+				SETMIN(blockSize100k, 9);
+				bzfp = BZ2_bzWriteOpen(&bzerr, fp, blockSize100k, verbosity, workFactor);
+			}
+			else {
+				bzfp = BZ2_bzReadOpen(&bzerr, fp, verbosity, smallMode, unused, nUnused);
+			}
+			if(!bzfp) {
+				if(fp != stdin && fp != stdout) 
+					fclose(fp);
+			}
+		}
 	}
 	return bzfp;
 }
@@ -1257,15 +1251,8 @@ static BZFILE * bzopen_or_bzdopen(const char * path/* no use when bzdopen */, in
 // ex) bzopen("file","w9")
 // case path="" or NULL => use stdin or stdout.
 // 
-BZFILE * BZ2_bzopen(const char * path, const char * mode)
-{
-	return bzopen_or_bzdopen(path, -1, mode, /*bzopen*/ 0);
-}
-
-BZFILE * BZ2_bzdopen(int fd, const char * mode)
-{
-	return bzopen_or_bzdopen(NULL, fd, mode, /*bzdopen*/ 1);
-}
+BZFILE * BZ2_bzopen(const char * path, const char * mode) { return bzopen_or_bzdopen(path, -1, mode, /*bzopen*/ 0); }
+BZFILE * BZ2_bzdopen(int fd, const char * mode) { return bzopen_or_bzdopen(NULL, fd, mode, /*bzdopen*/ 1); }
 
 int BZ2_bzread(BZFILE* b, void * buf, int len)
 {
@@ -1283,11 +1270,7 @@ int BZ2_bzwrite(BZFILE* b, void * buf, int len)
 	return (bzerr == BZ_OK) ? len : -1;
 }
 
-int BZ2_bzflush(BZFILE *b)
-{
-	/* do nothing now... */
-	return 0;
-}
+int BZ2_bzflush(BZFILE *b) { return 0; /* do nothing now... */ }
 
 void BZ2_bzclose(BZFILE * b)
 {

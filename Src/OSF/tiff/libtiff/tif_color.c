@@ -148,18 +148,18 @@ void FASTCALL TIFFYCbCrtoRGB(TIFFYCbCrToRGB * ycbcr, uint32 Y, int32 Cb, int32 C
 
 // Clamp function for sanitization purposes. Normally clamping should not 
 // occur for well behaved chroma and refBlackWhite coefficients 
-static float CLAMPw(float v, float vmin, float vmax)
+/* @sobolev (replaced with sclamp) static float CLAMPw(float v, float vmin, float vmax)
 {
 	if(v < vmin) {
-		/* printf("%f clamped to %f\n", v, vmin); */
+		// printf("%f clamped to %f\n", v, vmin);
 		return vmin;
 	}
 	if(v > vmax) {
-		/* printf("%f clamped to %f\n", v, vmax); */
+		// printf("%f clamped to %f\n", v, vmax);
 		return vmax;
 	}
 	return v;
-}
+}*/
 /*
  * Initialize the YCbCr->RGB conversion tables.  The conversion
  * is done according to the 6.0 spec:
@@ -210,13 +210,13 @@ int TIFFYCbCrToRGBInit(TIFFYCbCrToRGB* ycbcr, float * luma, float * refBlackWhit
 		 * constructing tables indexed by the raw pixel data.
 		 */
 		for(i = 0, x = -128; i < 256; i++, x++) {
-			int32 Cr = (int32)CLAMPw(Code2V(x, refBlackWhite[4] - 128.0f, refBlackWhite[5] - 128.0f, 127), -128.0f * 32, 128.0f * 32);
-			int32 Cb = (int32)CLAMPw(Code2V(x, refBlackWhite[2] - 128.0f, refBlackWhite[3] - 128.0f, 127), -128.0f * 32, 128.0f * 32);
+			int32 Cr = (int32)/*CLAMPw*/sclamp(Code2V(x, refBlackWhite[4] - 128.0f, refBlackWhite[5] - 128.0f, 127), -128.0f * 32, 128.0f * 32);
+			int32 Cb = (int32)/*CLAMPw*/sclamp(Code2V(x, refBlackWhite[2] - 128.0f, refBlackWhite[3] - 128.0f, 127), -128.0f * 32, 128.0f * 32);
 			ycbcr->Cr_r_tab[i] = (int32)((D1*Cr + ONE_HALF)>>SHIFT);
 			ycbcr->Cb_b_tab[i] = (int32)((D3*Cb + ONE_HALF)>>SHIFT);
 			ycbcr->Cr_g_tab[i] = D2*Cr;
 			ycbcr->Cb_g_tab[i] = D4*Cb + ONE_HALF;
-			ycbcr->Y_tab[i] = (int32)CLAMPw(Code2V(x + 128, refBlackWhite[0], refBlackWhite[1], 255), -128.0f * 32, 128.0f * 32);
+			ycbcr->Y_tab[i] = (int32)/*CLAMPw*/sclamp(Code2V(x + 128, refBlackWhite[0], refBlackWhite[1], 255), -128.0f * 32, 128.0f * 32);
 		}
 	}
 	return 0;

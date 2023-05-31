@@ -159,32 +159,28 @@ int WebPPlaneDistortion(const uint8* src, size_t src_stride,
 	}
 	*distortion = (float)metric(src, width, ref, width, width, height);
 	WebPSafeFree(allocated);
-
-	*result = (type == 1) ? (float)GetLogSSIM(*distortion, (double)width * height)
-	    : (float)GetPSNR(*distortion, (double)width * height);
+	*result = (type == 1) ? (float)GetLogSSIM(*distortion, (double)width * height) : (float)GetPSNR(*distortion, (double)width * height);
 	return 1;
 }
 
-#ifdef WORDS_BIGENDIAN
-#define BLUE_OFFSET 3   // uint32_t 0x000000ff is 0x00,00,00,ff in memory
+#ifdef SL_BIGENDIAN
+	#define BLUE_OFFSET 3   // uint32_t 0x000000ff is 0x00,00,00,ff in memory
 #else
-#define BLUE_OFFSET 0   // uint32_t 0x000000ff is 0xff,00,00,00 in memory
+	#define BLUE_OFFSET 0   // uint32_t 0x000000ff is 0xff,00,00,00 in memory
 #endif
 
-int WebPPictureDistortion(const WebPPicture* src, const WebPPicture* ref,
-    int type, float results[5]) {
+int WebPPictureDistortion(const WebPPicture* src, const WebPPicture* ref, int type, float results[5]) 
+{
 	int w, h, c;
 	int ok = 0;
 	WebPPicture p0, p1;
 	double total_size = 0., total_distortion = 0.;
-	if(src == NULL || ref == NULL ||
-	    src->width != ref->width || src->height != ref->height ||
-	    results == NULL) {
+	if(src == NULL || ref == NULL || src->width != ref->width || src->height != ref->height || results == NULL) {
 		return 0;
 	}
-
 	VP8SSIMDspInit();
-	if(!WebPPictureInit(&p0) || !WebPPictureInit(&p1)) return 0;
+	if(!WebPPictureInit(&p0) || !WebPPictureInit(&p1)) 
+		return 0;
 	w = src->width;
 	h = src->height;
 	if(!WebPPictureView(src, 0, 0, w, h, &p0)) goto Error;

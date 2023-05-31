@@ -10126,7 +10126,7 @@ private:
 //
 class VladimirskiyStandard : public PrcssrSupplInterchange::ExecuteBlock { // @v11.5.10 @construction
 public:
-	VladimirskiyStandard(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger), TsHt(4096)
+	VladimirskiyStandard(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger), TsHt(4096), LocAgentTagID(0)
 	{
 	}
 	~VladimirskiyStandard()
@@ -10135,6 +10135,18 @@ public:
 	int    Init()
 	{
 		int    ok = 1;
+		// @v11.7.4 {
+		PPObjTag tag_obj;
+		PPID   loc_agent_tag_id = 0;
+		if(tag_obj.FetchBySymb("LOC-AGENT-VLDSTD", &loc_agent_tag_id) > 0) {
+			PPObjectTag tag_rec;
+			if(tag_obj.Fetch(loc_agent_tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOCATION) {
+				if(tag_rec.TagDataType == OTTYP_OBJLINK && tag_rec.TagEnumID == PPOBJ_PERSON) {
+					LocAgentTagID = tag_rec.ID;
+				}
+			}
+		}
+		// } @v11.7.4 
 		//MakeGoodsList();
 		return ok;
 	}
@@ -10511,9 +10523,11 @@ public:
 	{
 		const  LDATETIME now_dtm = getcurdatetime_();
 		int    ok = 1;
+		Reference * p_ref = PPRef;
 		SString temp_buf;
 		SString out_file_name;
 		SString cli_code;
+		SString agent_name;
 		TSVector <ObjEntry> loc_list;
 		TSVector <ObjEntry> goods_list;
 		BillPacketCollection bill_list(*this);
@@ -10581,7 +10595,20 @@ public:
 							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRLOC_RADR), addr_buf); // ФактАдресТТ
 							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_LEVEL), "0"); // Уровень
 							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DELEMARK), "false");
-							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_MANAGER), ""); // Менеджер
+							{
+								// @v11.7.4 {
+								agent_name.Z();
+								if(LocAgentTagID) {
+									const ObjTagItem * p_tag_item = loc_pack.TagL.GetItem(LocAgentTagID);
+									long   agent_id = 0;
+									PersonTbl::Rec agent_psn_rec;
+									if(p_tag_item && p_tag_item->GetInt(&agent_id) && PsnObj.Fetch(agent_id, &agent_psn_rec) > 0) {
+										(agent_name = agent_psn_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+									}
+								}
+								// } @v11.7.4 
+								n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_MANAGER), agent_name); // Менеджер
+							}
 						}						
 					}
 				}
@@ -10746,6 +10773,7 @@ private:
 	int    Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, const TSVector <ObjEntry> & rGoodsList, BillPacketCollection & rList)
 	{
 		int    ok = -1;
+		Reference * p_ref = PPRef;
 		uint   new_pack_idx = 0;
 		SString temp_buf;
 		PPBillPacket pack__;
@@ -10791,8 +10819,8 @@ private:
 							p_new_pack->Uuid = uuid;
 						}
 						p_new_pack->ContractorID = psn_pack.Rec.ID;
+						const PPID dlvr_loc_id = pBp->GetDlvrAddrID();
 						{
-							PPID dlvr_loc_id = pBp->GetDlvrAddrID();
 							PPLocationPacket loc_pack;
 							if(dlvr_loc_id && LocObj.GetPacket(dlvr_loc_id, &loc_pack) > 0 && loc_pack.Type == LOCTYP_ADDRESS) {
 								p_new_pack->DlvrLocID = dlvr_loc_id;
@@ -10810,11 +10838,25 @@ private:
 							}
 						}
 						// @v11.7.0 {
-						if(pBp->Ext.AgentID) {
-							PPID agent_psn_id = ObjectToPerson(pBp->Ext.AgentID, 0);
-							PersonTbl::Rec agent_psn_rec;
-							if(agent_psn_id && PsnObj.Fetch(agent_psn_id, &agent_psn_rec) > 0)
-								p_new_pack->AgentID = agent_psn_id;
+						{
+							PPID   agent_id = pBp->Ext.AgentID;
+							// @v11.7.4 {
+							if(LocAgentTagID && dlvr_loc_id) {
+								ObjTagItem tag_item;
+								if(p_ref->Ot.GetTag(PPOBJ_LOCATION, dlvr_loc_id, LocAgentTagID, &tag_item) > 0) {
+									long   inner_agent_id = 0;
+									PersonTbl::Rec inner_agent_psn_rec;
+									if(tag_item.GetInt(&inner_agent_id) && PsnObj.Fetch(inner_agent_id, &inner_agent_psn_rec) > 0)
+										agent_id = inner_agent_id;
+								}
+							}
+							// } @v11.7.4 
+							if(agent_id) {
+								PPID agent_psn_id = ObjectToPerson(agent_id, 0);
+								PersonTbl::Rec agent_psn_rec;
+								if(agent_psn_id && PsnObj.Fetch(agent_psn_id, &agent_psn_rec) > 0)
+									p_new_pack->AgentID = agent_psn_id;
+							}
 						}
 						// } @v11.7.0 
 						/*{
@@ -10936,6 +10978,7 @@ private:
 	PPLogger & R_Logger;
 	SString TokBuf;
 	TokenSymbHashTable TsHt;
+	PPID   LocAgentTagID;
 	//PPIDArray GoodsList;
 };
 //

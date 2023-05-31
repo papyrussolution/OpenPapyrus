@@ -111,15 +111,9 @@ static HRESULT STDMETHODCALLTYPE SetSite(IObjectWithSite * This, IUnknown * pUnk
 {
 	PrintingCallbackHandler * Base = (PrintingCallbackHandler*)((char *)This - offsetof(PrintingCallbackHandler, site));
 #ifdef __cplusplus
-	if(Base->pUnkSite_) {
-		Base->pUnkSite_->Release();
-		Base->pUnkSite_ = NULL;
-	}
+	SCOMOBJRELEASE(Base->pUnkSite_);
 	if(pUnkSite == NULL) {
-		if(Base->services_) {
-			Base->services_->Release();
-			Base->services_ = NULL;
-		}
+		SCOMOBJRELEASE(Base->services_);
 	}
 	else {
 		Base->pUnkSite_ = pUnkSite;

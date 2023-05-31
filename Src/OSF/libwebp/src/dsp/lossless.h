@@ -39,14 +39,10 @@ uint32_t VP8LPredictor12_C(const uint32_t* const left, const uint32_t* const top
 uint32_t VP8LPredictor13_C(const uint32_t* const left, const uint32_t* const top);
 
 // These Add/Sub function expects upper[-1] and out[-1] to be readable.
-typedef void (* VP8LPredictorAddSubFunc)(const uint32_t* in,
-    const uint32_t* upper, int num_pixels,
-    uint32_t* out);
+typedef void (* VP8LPredictorAddSubFunc)(const uint32_t* in, const uint32_t* upper, int num_pixels, uint32_t* out);
 extern VP8LPredictorAddSubFunc VP8LPredictorsAdd[16];
 extern VP8LPredictorAddSubFunc VP8LPredictorsAdd_C[16];
-
-typedef void (* VP8LProcessDecBlueAndRedFunc)(const uint32_t* src,
-    int num_pixels, uint32_t* dst);
+typedef void (* VP8LProcessDecBlueAndRedFunc)(const uint32_t* src, int num_pixels, uint32_t* dst);
 extern VP8LProcessDecBlueAndRedFunc VP8LAddGreenToBlueAndRed;
 
 typedef struct {
@@ -103,19 +99,13 @@ void VP8LColorIndexInverseTransformAlpha(const struct VP8LTransform* const trans
     const uint8* src, uint8* dst);
 
 // Expose some C-only fallback functions
-void VP8LTransformColorInverse_C(const VP8LMultipliers* const m,
-    const uint32_t* src, int num_pixels,
-    uint32_t* dst);
-
+void VP8LTransformColorInverse_C(const VP8LMultipliers* const m, const uint32_t* src, int num_pixels, uint32_t* dst);
 void VP8LConvertBGRAToRGB_C(const uint32_t* src, int num_pixels, uint8* dst);
 void VP8LConvertBGRAToRGBA_C(const uint32_t* src, int num_pixels, uint8* dst);
-void VP8LConvertBGRAToRGBA4444_C(const uint32_t* src,
-    int num_pixels, uint8* dst);
-void VP8LConvertBGRAToRGB565_C(const uint32_t* src,
-    int num_pixels, uint8* dst);
+void VP8LConvertBGRAToRGBA4444_C(const uint32_t* src, int num_pixels, uint8* dst);
+void VP8LConvertBGRAToRGB565_C(const uint32_t* src, int num_pixels, uint8* dst);
 void VP8LConvertBGRAToBGR_C(const uint32_t* src, int num_pixels, uint8* dst);
-void VP8LAddGreenToBlueAndRed_C(const uint32_t* src, int num_pixels,
-    uint32_t* dst);
+void VP8LAddGreenToBlueAndRed_C(const uint32_t* src, int num_pixels, uint32_t* dst);
 
 // Must be called before calling any of the above methods.
 void VP8LDspInit(void);
@@ -157,10 +147,8 @@ extern VP8LPredictorAddSubFunc VP8LPredictorsSub_C[16];
 // Huffman-cost related functions.
 
 typedef double (* VP8LCostFunc)(const uint32_t* population, int length);
-typedef double (* VP8LCostCombinedFunc)(const uint32_t* X, const uint32_t* Y,
-    int length);
-typedef float (* VP8LCombinedShannonEntropyFunc)(const int X[256],
-    const int Y[256]);
+typedef double (* VP8LCostCombinedFunc)(const uint32_t* X, const uint32_t* Y, int length);
+typedef float (* VP8LCombinedShannonEntropyFunc)(const int X[256], const int Y[256]);
 
 extern VP8LCostFunc VP8LExtraCost;
 extern VP8LCostCombinedFunc VP8LExtraCostCombined;

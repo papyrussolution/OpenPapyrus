@@ -494,10 +494,7 @@ void ScintillaWin::EnsureRenderTarget(HDC hdc)
 
 void ScintillaWin::DropRenderTarget()
 {
-	if(pRenderTarget) {
-		pRenderTarget->Release();
-		pRenderTarget = 0;
-	}
+	SCOMOBJRELEASE(pRenderTarget);
 }
 
 #endif
@@ -2204,19 +2201,9 @@ FormatEnumerator::FormatEnumerator(int pos_, CLIPFORMAT formats_[], size_t forma
 }
 
 /// Implement IUnknown
-STDMETHODIMP DropSource_QueryInterface(DropSource * ds, REFIID riid, PVOID * ppv)
-{
-	return ds->sci->QueryInterface(riid, ppv);
-}
-
-STDMETHODIMP_(ULONG) DropSource_AddRef(DropSource *ds) 
-{
-	return ds->sci->AddRef();
-}
-STDMETHODIMP_(ULONG) DropSource_Release(DropSource *ds) 
-{
-	return ds->sci->Release();
-}
+STDMETHODIMP DropSource_QueryInterface(DropSource * ds, REFIID riid, PVOID * ppv) { return ds->sci->QueryInterface(riid, ppv); }
+STDMETHODIMP_(ULONG) DropSource_AddRef(DropSource *ds) { return ds->sci->AddRef(); }
+STDMETHODIMP_(ULONG) DropSource_Release(DropSource *ds) { return ds->sci->Release(); }
 
 /// Implement IDropSource
 STDMETHODIMP DropSource_QueryContinueDrag(DropSource *, BOOL fEsc, DWORD grfKeyState)

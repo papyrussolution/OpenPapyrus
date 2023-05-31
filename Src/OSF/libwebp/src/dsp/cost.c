@@ -11,7 +11,6 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dsp/dsp.h"
 #include "src/enc/cost_enc.h"
 //
 // Boolean-cost cost table

@@ -4,6 +4,7 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
+#include <ShlObj_core.h> // for the express-test of SCOMOBJRELEASE()
 // htmlhelp.h {
 #define HH_INITIALIZE            0x001C  // Initializes the help system.
 #define HH_UNINITIALIZE          0x001D  // Uninitializes the help system.
@@ -685,6 +686,18 @@ static void InitTest()
 			}
 		}
 	}
+	// @v11.7.4 {
+	{
+		// Экспресс-тест макроса SCOMOBJRELEASE
+		IMalloc * p_malloc = 0;
+		SCOMOBJRELEASE(p_malloc);
+		assert(p_malloc == 0);
+		SHGetMalloc(&p_malloc);
+		assert(p_malloc != 0);
+		SCOMOBJRELEASE(p_malloc);
+		assert(p_malloc == 0);
+	}
+	// } @v11.7.4
 #endif // } NDEBUG
 }
 

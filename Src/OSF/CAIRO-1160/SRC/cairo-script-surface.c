@@ -62,13 +62,12 @@
  *
  * Since: 1.12
  **/
-
 #include "cairoint.h"
 #pragma hdrstop
 #if CAIRO_HAS_FT_FONT
 	#include "cairo-ft-private.h"
 #endif
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	#define to_be32(x) x
 #else
 	#define to_be32(x) sbswap32(x)
@@ -847,7 +846,7 @@ static cairo_status_t _write_image_surface(cairo_output_stream_t * output, const
 	ptrdiff_t stride = image->stride;
 	int width = image->width;
 	uint8 * data = image->data;
-#if WORDS_BIGENDIAN
+#if SL_BIGENDIAN
 	switch(image->format) {
 		case CAIRO_FORMAT_A1:
 		    for(row = image->height; row--;) {

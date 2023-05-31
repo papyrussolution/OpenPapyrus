@@ -96,7 +96,7 @@ enum la_zaction {
  * Universal zstream.
  */
 struct la_zstream {
-	const uchar     * next_in;
+	const uchar * next_in;
 	size_t avail_in;
 	uint64 total_in;
 	uchar * next_out;
@@ -2301,12 +2301,10 @@ static int compression_init_encoder_bzip2(Archive * a, struct la_zstream * lastr
 	 * a non-const pointer. */
 	strm->next_in = (char *)(uintptr_t)(const void*)lastrm->next_in;
 	strm->avail_in = lastrm->avail_in;
-	strm->total_in_lo32 = (uint32)(lastrm->total_in & 0xffffffff);
-	strm->total_in_hi32 = (uint32)(lastrm->total_in >> 32);
+	strm->TotalIn = lastrm->total_in;
 	strm->next_out = (char *)lastrm->next_out;
 	strm->avail_out = lastrm->avail_out;
-	strm->total_out_lo32 = (uint32)(lastrm->total_out & 0xffffffff);
-	strm->total_out_hi32 = (uint32)(lastrm->total_out >> 32);
+	strm->TotalOut = lastrm->total_out;
 	if(BZ2_bzCompressInit(strm, level, 0, 30) != BZ_OK) {
 		SAlloc::F(strm);
 		lastrm->real_stream = NULL;
@@ -2320,31 +2318,23 @@ static int compression_init_encoder_bzip2(Archive * a, struct la_zstream * lastr
 	return ARCHIVE_OK;
 }
 
-static int compression_code_bzip2(Archive * a,
-    struct la_zstream * lastrm, enum la_zaction action)
+static int compression_code_bzip2(Archive * a, struct la_zstream * lastrm, enum la_zaction action)
 {
-	bz_stream * strm;
 	int r;
-
-	strm = (bz_stream*)lastrm->real_stream;
-	/* bzlib.h is not const-correct, so we need this one bit
-	 * of ugly hackery to convert a const * pointer to
-	 * a non-const pointer. */
-	strm->next_in = (char *)(uintptr_t)(const void*)lastrm->next_in;
+	bz_stream * strm = (bz_stream*)lastrm->real_stream;
+	strm->next_in = reinterpret_cast<const char *>(lastrm->next_in);
 	strm->avail_in = lastrm->avail_in;
-	strm->total_in_lo32 = (uint32)(lastrm->total_in & 0xffffffff);
-	strm->total_in_hi32 = (uint32)(lastrm->total_in >> 32);
+	strm->TotalIn = lastrm->total_in;
 	strm->next_out = (char *)lastrm->next_out;
 	strm->avail_out = lastrm->avail_out;
-	strm->total_out_lo32 = (uint32)(lastrm->total_out & 0xffffffff);
-	strm->total_out_hi32 = (uint32)(lastrm->total_out >> 32);
+	strm->TotalOut = lastrm->total_out;
 	r = BZ2_bzCompress(strm, (action == ARCHIVE_Z_FINISH) ? BZ_FINISH : BZ_RUN);
 	lastrm->next_in = (const uchar *)strm->next_in;
 	lastrm->avail_in = strm->avail_in;
-	lastrm->total_in = (((uint64)(uint32)strm->total_in_hi32) << 32) + (uint64)(uint32)strm->total_in_lo32;
+	lastrm->total_in = strm->TotalIn;
 	lastrm->next_out = (uchar *)strm->next_out;
 	lastrm->avail_out = strm->avail_out;
-	lastrm->total_out = (((uint64)(uint32)strm->total_out_hi32) << 32) + (uint64)(uint32)strm->total_out_lo32;
+	lastrm->total_out = strm->TotalOut;
 	switch(r) {
 		case BZ_RUN_OK: /* Non-finishing */
 		case BZ_FINISH_OK: /* Finishing: There's more work to do */

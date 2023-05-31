@@ -36,19 +36,18 @@
 
 //#include "xapian/constants.h"
 #include "xapian/error.h"
-
-#include <algorithm>
+//#include <algorithm>
 #if 0
 #include <iostream> // FIXME
 #endif
 
-#include <cstdio> // For EOF
-#include <cstdlib> // std::abort()
-#include <type_traits>
+//#include <cstdio> // For EOF
+//#include <cstdlib> // std::abort()
+//#include <type_traits>
 #ifdef HAVE_SYS_UIO_H
 	#include <sys/uio.h>
 #endif
-#include <sys/types.h>
+//#include <sys/types.h>
 #include "safesysstat.h"
 #include "safeunistd.h"
 #include "compression_stream.h"
@@ -59,7 +58,7 @@
 #include "pack.h"
 #include "str.h"
 #include "stringutils.h"
-#include "wordaccess.h"
+//#include "wordaccess.h"
 #include "unicode/description_append.h"
 
 #ifdef BLK_UNUSED

@@ -1,5 +1,5 @@
 // SPIP.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
 // Program Interface Paradigm
 //
 #include <slib-internal.h>
@@ -258,6 +258,11 @@ S_GUID::S_GUID(const S_GUID_Base & rS)
 S_GUID::S_GUID(const S_GUID & rS)
 {
 	memcpy(Data, rS.Data, sizeof(Data));
+}
+
+S_GUID::S_GUID(const GUID & /*REFIID*/ rS) // @v11.7.4
+{
+	memcpy(Data, &rS, sizeof(Data));
 }
 
 S_GUID::S_GUID(const char * pStr)

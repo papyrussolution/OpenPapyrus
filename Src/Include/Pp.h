@@ -1564,6 +1564,7 @@ public:
 	static int IdTechCapacity;      // @v11.3.10 (fldPrcID, fldCapacity)
 	static int IdTSessBillLinkTo;   // @v11.6.12 (fldBillID)
 	static int IdTSessBillLinkTo_Text; // @v11.6.12 (fldBillID)
+	static int IdBillMemoSubStr;    // @v11.7.4 (fldBillID, const char *) Определяет, содержит ли примечание к документу заданную подстроку
 
 	static int Register();
 	static void STDCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
@@ -3441,6 +3442,8 @@ public:
 	// Descr: Возвращает текст в кодировке utf-8
 	//
 	int    GetText(const TextRefIdent & rI, SString & rBuf);
+	int    FilterIdList(PPID objType, int prop, const char * pPattern, const PPIDArray * pFiltIdList, PPIDArray & rResultIdList);
+	int    FilterIdRange(PPID objType, int prop, const char * pPattern, const IntRange * pFiltIdRange, PPIDArray & rResultIdList);
 	//
 	// Descr: Сохраняет текст, заданный в кодировке utf-8
 	//
@@ -3466,6 +3469,7 @@ private:
 		long   H;
 	};
 	int    FASTCALL PostprocessRead(SStringU & rBuf);
+	int    Helper_Filter(PPID objType, int prop, const char * pPattern, const IntRange & rRange, const PPIDArray * pFiltIdList, PPIDArray & rResultIdList);
 
 	PPTblEnumList EnumList;
 };
@@ -5897,6 +5901,7 @@ private:
 #define PPSCMD_WSCTL_INIT            10126 // @v11.7.1  WSCTL Инициирующий запрос для получения базовых параметров работы управляемой рабочей станции
 #define PPSCMD_WSCTL_GETQUOTLIST     10127 // @v11.7.1  WSCTL Получить список котировок для рабочей станции
 #define PPSCMD_WSCTL_GETACCOUNTSTATE 10128 // @v11.7.1  WSCTL Получить информацию об аккаунте клиента
+#define PPSCMD_WSCTL_AUTH            10129 // @v11.7.1  WSCTL Авторизация клиента
 
 #define PPSCMD_TEST                  11000 // Сеанс тестирования //
 //
@@ -30191,6 +30196,7 @@ public:
 	// Descr: Извлекает товарный тип goodsTypeID через кэш.
 	//
 	int    FetchGoodsType(PPID goodsTypeID, PPGoodsType * pGtRec);
+	bool   IsZeroPriceAllowed(PPID goodsID);
 	//
 	// Descr: Извлекает запись единицы измерения unitID из кэша.
 	//
@@ -39707,7 +39713,7 @@ public:
 	int    ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam);
 	int    CreateMrpTab(PPID billID);
 	int    GetPacket(PPID billID, PPBillPacket * pPack) const; // <<PPALDD_BillInfoList::NextIteration
-	int    CheckIDForFilt(PPID, const BillTbl::Rec *);
+	int    CheckIDForFilt(PPID id, const BillTbl::Rec *);
 	int    SetIterState(const void *, size_t sz);
 	const void * GetIterState() const;
 	static int TransmitByFilt(const BillFilt * pFilt, const ObjTransmitParam * pParam);
@@ -39727,9 +39733,16 @@ private:
 	int    IsTempTblNeeded() const;
 	int    CreateTempTable(IterOrder ord, int * pIsOrdTbl);
 	int    UpdateTempTable(PPID id);
-	int    Helper_EnumProc(PPID billID, const BillTbl::Rec *, int checkForFilt, BillViewEnumProc proc, void * pExtraPtr);
+	//
+	// Descr: Опции функции Enumerator
+	//
+	enum {
+		enfSkipExtssMemo = 0x0001
+	};
+	int    Helper_EnumProc(PPID billID, const BillTbl::Rec *, int checkForFilt, uint flags /* enfXXX */, BillViewEnumProc proc, void * pExtraPtr);
 		// @<<PPViewBill::Enumerator
-	int    Enumerator(BillViewEnumProc, void * pExtraPtr);
+	int    Helper_CheckIDForFilt(uint flags /* enfXXX */, PPID id, const BillTbl::Rec *);
+	int    Enumerator(uint flags /* enfXXX */, BillViewEnumProc, void * pExtraPtr);
 	int    EnumerateDebtCard(BillViewEnumProc, void * pExtraPtr);
 	int    CalcDebtCardInSaldo(double *);
 	int    GetOpList(const BillFilt *, PPIDArray *, PPID * pSingleOpID) const;
@@ -46995,9 +47008,10 @@ public:
 		tagExpiryEpochSec  =  9, // @v11.2.3 Время истечения срока действия (секунды с 1/1/1970)
 		tagPrefLanguage    = 10, // @v11.2.5 (private config) Предпочтительный язык
 		tagDefFace         = 11, // @v11.2.5 (private config) Лик, используемый клиентом по умолчанию
-		tagRole            = 12, // @v11.2.8 StyloQConfig::roleXXX Роль записи 
-		tagCliFlags        = 13  // @v11.6.0 StyloQConfig::clifXXX Флаги клиента на стороне сервиса. То есть, после сопоставления клиента, сервис может
+		tagRole                    = 12, // @v11.2.8 StyloQConfig::roleXXX Роль записи 
+		tagCliFlags                = 13, // @v11.6.0 StyloQConfig::clifXXX Флаги клиента на стороне сервиса. То есть, после сопоставления клиента, сервис может
 			// присвоить ему какие-либо флаги, например, с целью наделить его какими-то полномочиями
+		tagNotificationActualDays  = 14, // @v11.7.4 (private config) Количество дней актуальности уведомлений
 	};
 	enum { // @persistent
 		featrfMediator = 0x0001 // Сервис выполняет функции медиатора (обслуживание других сервисов и клиентов)

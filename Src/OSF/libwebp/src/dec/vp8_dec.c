@@ -13,9 +13,6 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-#include "src/dec/vp8i_dec.h"
-#include "src/dec/vp8li_dec.h"
-#include "src/utils/bit_reader_inl_utils.h"
 
 int WebPGetDecoderVersion(void) { return (DEC_MAJ_VERSION << 16) | (DEC_MIN_VERSION << 8) | DEC_REV_VERSION; }
 //

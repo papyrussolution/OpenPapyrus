@@ -124,7 +124,7 @@
 #endif
 */
 // Define conversion macros using the basic byte swapping macros.
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	#ifndef conv16be
 		#define conv16be(num) ((uint16_t)(num))
 	#endif
@@ -243,7 +243,7 @@ static inline void write64ne(uint8 * buf, uint64_t num)
 
 static inline uint16_t read16be(const uint8 * buf)
 {
-#if defined(WORDS_BIGENDIAN) || defined(TUKLIB_FAST_UNALIGNED_ACCESS)
+#if defined(SL_BIGENDIAN) || defined(TUKLIB_FAST_UNALIGNED_ACCESS)
 	uint16_t num = read16ne(buf);
 	return conv16be(num);
 #else
@@ -254,7 +254,7 @@ static inline uint16_t read16be(const uint8 * buf)
 
 static inline uint16_t read16le(const uint8 * buf)
 {
-#if !defined(WORDS_BIGENDIAN) || defined(TUKLIB_FAST_UNALIGNED_ACCESS)
+#if !defined(SL_BIGENDIAN) || defined(TUKLIB_FAST_UNALIGNED_ACCESS)
 	uint16_t num = read16ne(buf);
 	return conv16le(num);
 #else
@@ -265,7 +265,7 @@ static inline uint16_t read16le(const uint8 * buf)
 
 static inline uint32_t read32be(const uint8 * buf)
 {
-#if defined(WORDS_BIGENDIAN) || defined(TUKLIB_FAST_UNALIGNED_ACCESS)
+#if defined(SL_BIGENDIAN) || defined(TUKLIB_FAST_UNALIGNED_ACCESS)
 	uint32_t num = read32ne(buf);
 	return conv32be(num);
 #else
@@ -279,7 +279,7 @@ static inline uint32_t read32be(const uint8 * buf)
 
 static inline uint32_t read32le(const uint8 * buf)
 {
-#if !defined(WORDS_BIGENDIAN) || defined(TUKLIB_FAST_UNALIGNED_ACCESS)
+#if !defined(SL_BIGENDIAN) || defined(TUKLIB_FAST_UNALIGNED_ACCESS)
 	uint32_t num = read32ne(buf);
 	return conv32le(num);
 #else
@@ -295,11 +295,11 @@ static inline uint32_t read32le(const uint8 * buf)
 // to optimize byte swapping of constants when using glibc's or *BSD's
 // byte swapping macros. The actual write is done in an inline function
 // to make type checking of the buf pointer possible.
-#if defined(WORDS_BIGENDIAN) || defined(TUKLIB_FAST_UNALIGNED_ACCESS)
+#if defined(SL_BIGENDIAN) || defined(TUKLIB_FAST_UNALIGNED_ACCESS)
 	#define write16be(buf, num) write16ne(buf, conv16be(num))
 	#define write32be(buf, num) write32ne(buf, conv32be(num))
 #endif
-#if !defined(WORDS_BIGENDIAN) || defined(TUKLIB_FAST_UNALIGNED_ACCESS)
+#if !defined(SL_BIGENDIAN) || defined(TUKLIB_FAST_UNALIGNED_ACCESS)
 	#define write16le(buf, num) write16ne(buf, conv16le(num))
 	#define write32le(buf, num) write32ne(buf, conv32le(num))
 #endif

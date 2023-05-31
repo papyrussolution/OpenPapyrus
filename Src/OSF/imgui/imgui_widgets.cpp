@@ -841,7 +841,7 @@ bool ImGui::ScrollbarEx(const ImRect& bb_frame, ImGuiID id, ImGuiAxis axis, ImS6
 	const bool allow_interaction = (alpha >= 1.0f);
 
 	ImRect bb = bb_frame;
-	bb.Expand(ImVec2(-ImClamp(IM_FLOOR((bb_frame_width - 2.0f) * 0.5f), 0.0f, 3.0f), -ImClamp(IM_FLOOR((bb_frame_height - 2.0f) * 0.5f), 0.0f, 3.0f)));
+	bb.Expand(ImVec2(-sclamp(IM_FLOOR((bb_frame_width - 2.0f) * 0.5f), 0.0f, 3.0f), -sclamp(IM_FLOOR((bb_frame_height - 2.0f) * 0.5f), 0.0f, 3.0f)));
 
 	// V denote the main, longer axis of the scrollbar (= height for a vertical scrollbar)
 	const float scrollbar_size_v = (axis == ImGuiAxis_X) ? bb.GetWidth() : bb.GetHeight();
@@ -850,7 +850,7 @@ bool ImGui::ScrollbarEx(const ImRect& bb_frame, ImGuiID id, ImGuiAxis axis, ImS6
 	// But we maintain a minimum size in pixel to allow for the user to still aim inside.
 	assert(ImMax(size_contents_v, size_avail_v) > 0.0f); // Adding this assert to check if the ImMax(XXX,1.0f) is still needed. PLEASE CONTACT ME if this triggers.
 	const ImS64 win_size_v = ImMax(ImMax(size_contents_v, size_avail_v), (ImS64)1);
-	const float grab_h_pixels = ImClamp(scrollbar_size_v * ((float)size_avail_v / (float)win_size_v), style.GrabMinSize, scrollbar_size_v);
+	const float grab_h_pixels = sclamp(scrollbar_size_v * ((float)size_avail_v / (float)win_size_v), style.GrabMinSize, scrollbar_size_v);
 	const float grab_h_norm = grab_h_pixels / scrollbar_size_v;
 
 	// Handle input right away. None of the code of Begin() is relying on scrolling position before calling Scrollbar().
@@ -909,20 +909,20 @@ bool ImGui::ScrollbarEx(const ImRect& bb_frame, ImGuiID id, ImGuiAxis axis, ImS6
 void ImGui::Image(ImTextureID user_texture_id, const ImVec2& size, const ImVec2& uv0, const ImVec2& uv1, const ImVec4& tint_col, const ImVec4& border_col)
 {
 	ImGuiWindow * window = GetCurrentWindow();
-	if(window->SkipItems)
-		return;
-	ImRect bb(window->DC.CursorPos, window->DC.CursorPos + size);
-	if(border_col.w > 0.0f)
-		bb.Max += ImVec2(2, 2);
-	ItemSize(bb);
-	if(!ItemAdd(bb, 0))
-		return;
-	if(border_col.w > 0.0f) {
-		window->DrawList->AddRect(bb.Min, bb.Max, GetColorU32(border_col), 0.0f);
-		window->DrawList->AddImage(user_texture_id, bb.Min + ImVec2(1, 1), bb.Max - ImVec2(1, 1), uv0, uv1, GetColorU32(tint_col));
-	}
-	else {
-		window->DrawList->AddImage(user_texture_id, bb.Min, bb.Max, uv0, uv1, GetColorU32(tint_col));
+	if(!window->SkipItems) {
+		ImRect bb(window->DC.CursorPos, window->DC.CursorPos + size);
+		if(border_col.w > 0.0f)
+			bb.Max += ImVec2(2, 2);
+		ItemSize(bb);
+		if(ItemAdd(bb, 0)) {
+			if(border_col.w > 0.0f) {
+				window->DrawList->AddRect(bb.Min, bb.Max, GetColorU32(border_col), 0.0f);
+				window->DrawList->AddImage(user_texture_id, bb.Min + ImVec2(1, 1), bb.Max - ImVec2(1, 1), uv0, uv1, GetColorU32(tint_col));
+			}
+			else {
+				window->DrawList->AddImage(user_texture_id, bb.Min, bb.Max, uv0, uv1, GetColorU32(tint_col));
+			}
+		}
 	}
 }
 
@@ -944,7 +944,7 @@ bool ImGui::ImageButtonEx(ImGuiID id, ImTextureID texture_id, const ImVec2& size
 	// Render
 	const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
 	RenderNavHighlight(bb, id);
-	RenderFrame(bb.Min, bb.Max, col, true, ImClamp((float)ImMin(padding.x, padding.y), 0.0f, g.Style.FrameRounding));
+	RenderFrame(bb.Min, bb.Max, col, true, sclamp((float)ImMin(padding.x, padding.y), 0.0f, g.Style.FrameRounding));
 	if(bg_col.w > 0.0f)
 		window->DrawList->AddRectFilled(bb.Min + padding, bb.Max - padding, GetColorU32(bg_col));
 	window->DrawList->AddImage(texture_id, bb.Min + padding, bb.Max - padding, uv0, uv1, GetColorU32(tint_col));
@@ -1149,7 +1149,7 @@ void ImGui::ProgressBar(float fraction, const ImVec2& size_arg, const char* over
 	}
 	ImVec2 overlay_size = CalcTextSize(overlay, NULL);
 	if(overlay_size.x > 0.0f)
-		RenderTextClipped(ImVec2(ImClamp(fill_br.x + style.ItemSpacing.x, bb.Min.x, bb.Max.x - overlay_size.x - style.ItemInnerSpacing.x), bb.Min.y),
+		RenderTextClipped(ImVec2(sclamp(fill_br.x + style.ItemSpacing.x, bb.Min.x, bb.Max.x - overlay_size.x - style.ItemInnerSpacing.x), bb.Min.y),
 		    bb.Max, overlay, NULL, &overlay_size, ImVec2(0.0f, 0.5f), &bb);
 }
 
@@ -1917,13 +1917,13 @@ bool ImGui::DataTypeApplyFromText(const char* buf, ImGuiDataType data_type, void
 		return false;
 	if(type_info->Size < 4) {
 		if(data_type == ImGuiDataType_S8)
-			*(ImS8*)p_data = (ImS8)ImClamp(v32, (int)IM_S8_MIN, (int)IM_S8_MAX);
+			*(ImS8*)p_data = (ImS8)sclamp(v32, (int)IM_S8_MIN, (int)IM_S8_MAX);
 		else if(data_type == ImGuiDataType_U8)
-			*(ImU8*)p_data = (ImU8)ImClamp(v32, (int)IM_U8_MIN, (int)IM_U8_MAX);
+			*(ImU8*)p_data = (ImU8)sclamp(v32, (int)IM_U8_MIN, (int)IM_U8_MAX);
 		else if(data_type == ImGuiDataType_S16)
-			*(ImS16*)p_data = (ImS16)ImClamp(v32, (int)IM_S16_MIN, (int)IM_S16_MAX);
+			*(ImS16*)p_data = (ImS16)sclamp(v32, (int)IM_S16_MIN, (int)IM_S16_MAX);
 		else if(data_type == ImGuiDataType_U16)
-			*(ImU16*)p_data = (ImU16)ImClamp(v32, (int)IM_U16_MIN, (int)IM_U16_MAX);
+			*(ImU16*)p_data = (ImU16)sclamp(v32, (int)IM_U16_MIN, (int)IM_U16_MAX);
 		else
 			assert(0);
 	}
@@ -2148,10 +2148,8 @@ template <typename TYPE, typename SIGNEDTYPE, typename FLOATTYPE> bool ImGui::Dr
 bool ImGui::DragBehavior(ImGuiID id, ImGuiDataType data_type, void* p_v, float v_speed, const void* p_min, const void* p_max, const char* format, ImGuiSliderFlags flags)
 {
 	// Read imgui.cpp "API BREAKING CHANGES" section for 1.78 if you hit this assert.
-	assert(
-		(flags == 1 || (flags & ImGuiSliderFlags_InvalidMask_) == 0) &&
+	assert((flags == 1 || (flags & ImGuiSliderFlags_InvalidMask_) == 0) &&
 		"Invalid ImGuiSliderFlags flags! Has the 'float power' argument been mistakenly cast to flags? Call function with ImGuiSliderFlags_Logarithmic flags instead.");
-
 	ImGuiContext & g = *GImGui;
 	if(g.ActiveId == id) {
 		// Those are the things we can do easily outside the DragBehaviorT<> template, saves code generation.
@@ -2464,40 +2462,32 @@ float ImGui::ScaleRatioFromValueT(ImGuiDataType data_type, TYPE v, TYPE v_min, T
 	if(v_min == v_max)
 		return 0.0f;
 	IM_UNUSED(data_type);
-
-	const TYPE v_clamped = (v_min < v_max) ? ImClamp(v, v_min, v_max) : ImClamp(v, v_max, v_min);
+	const TYPE v_clamped = (v_min < v_max) ? sclamp(v, v_min, v_max) : sclamp(v, v_max, v_min);
 	if(is_logarithmic) {
 		bool flipped = v_max < v_min;
-
 		if(flipped) // Handle the case where the range is backwards
 			ImSwap(v_min, v_max);
-
 		// Fudge min/max to avoid getting close to log(0)
-		FLOATTYPE v_min_fudged =
-		    (ImAbs((FLOATTYPE)v_min) < logarithmic_zero_epsilon) ? ((v_min < 0.0f) ? -logarithmic_zero_epsilon : logarithmic_zero_epsilon) : (FLOATTYPE)v_min;
-		FLOATTYPE v_max_fudged =
-		    (ImAbs((FLOATTYPE)v_max) < logarithmic_zero_epsilon) ? ((v_max < 0.0f) ? -logarithmic_zero_epsilon : logarithmic_zero_epsilon) : (FLOATTYPE)v_max;
-
+		FLOATTYPE v_min_fudged = (ImAbs((FLOATTYPE)v_min) < logarithmic_zero_epsilon) ? ((v_min < 0.0f) ? -logarithmic_zero_epsilon : logarithmic_zero_epsilon) : (FLOATTYPE)v_min;
+		FLOATTYPE v_max_fudged = (ImAbs((FLOATTYPE)v_max) < logarithmic_zero_epsilon) ? ((v_max < 0.0f) ? -logarithmic_zero_epsilon : logarithmic_zero_epsilon) : (FLOATTYPE)v_max;
 		// Awkward special cases - we need ranges of the form (-100 .. 0) to convert to (-100 .. -epsilon), not (-100 .. epsilon)
 		if((v_min == 0.0f) && (v_max < 0.0f))
 			v_min_fudged = -logarithmic_zero_epsilon;
 		else if((v_max == 0.0f) && (v_min < 0.0f))
 			v_max_fudged = -logarithmic_zero_epsilon;
-
 		float result;
 		if(v_clamped <= v_min_fudged)
 			result = 0.0f; // Workaround for values that are in-range but below our fudge
 		else if(v_clamped >= v_max_fudged)
 			result = 1.0f; // Workaround for values that are in-range but above our fudge
 		else if((v_min * v_max) < 0.0f) { // Range crosses zero, so split into two portions
-			float zero_point_center = (-(float)v_min) / ((float)v_max - (float)v_min); // The zero point in parametric space.  There's an argument we should take the logarithmic nature into account when calculating this, but for now this should do (and the most common case of a symmetrical range works fine)
-			float zero_point_snap_L = zero_point_center - zero_deadzone_halfsize;
-			float zero_point_snap_R = zero_point_center + zero_deadzone_halfsize;
+			const float zero_point_center = (-(float)v_min) / ((float)v_max - (float)v_min); // The zero point in parametric space.  There's an argument we should take the logarithmic nature into account when calculating this, but for now this should do (and the most common case of a symmetrical range works fine)
+			const float zero_point_snap_L = zero_point_center - zero_deadzone_halfsize;
+			const float zero_point_snap_R = zero_point_center + zero_deadzone_halfsize;
 			if(v == 0.0f)
 				result = zero_point_center; // Special case for exactly zero
 			else if(v < 0.0f)
-				result = (1.0f - (float)(ImLog(-(FLOATTYPE)v_clamped / logarithmic_zero_epsilon) / ImLog(-v_min_fudged / logarithmic_zero_epsilon))) *
-				    zero_point_snap_L;
+				result = (1.0f - (float)(ImLog(-(FLOATTYPE)v_clamped / logarithmic_zero_epsilon) / ImLog(-v_min_fudged / logarithmic_zero_epsilon))) * zero_point_snap_L;
 			else
 				result = zero_point_snap_R +
 				    ((float)(ImLog((FLOATTYPE)v_clamped / logarithmic_zero_epsilon) / ImLog(v_max_fudged / logarithmic_zero_epsilon)) * (1.0f - zero_point_snap_R));
@@ -2506,7 +2496,6 @@ float ImGui::ScaleRatioFromValueT(ImGuiDataType data_type, TYPE v, TYPE v_min, T
 			result = 1.0f - (float)(ImLog(-(FLOATTYPE)v_clamped / -v_max_fudged) / ImLog(-v_min_fudged / -v_max_fudged));
 		else
 			result = (float)(ImLog((FLOATTYPE)v_clamped / v_min_fudged) / ImLog(v_max_fudged / v_min_fudged));
-
 		return flipped ? (1.0f - result) : result;
 	}
 	else {
@@ -2529,33 +2518,25 @@ TYPE ImGui::ScaleValueFromRatioT(ImGuiDataType data_type, float t, TYPE v_min, T
 	TYPE result = (TYPE)0;
 	if(is_logarithmic) {
 		// Fudge min/max to avoid getting silly results close to zero
-		FLOATTYPE v_min_fudged =
-		    (ImAbs((FLOATTYPE)v_min) < logarithmic_zero_epsilon) ? ((v_min < 0.0f) ? -logarithmic_zero_epsilon : logarithmic_zero_epsilon) : (FLOATTYPE)v_min;
-		FLOATTYPE v_max_fudged =
-		    (ImAbs((FLOATTYPE)v_max) < logarithmic_zero_epsilon) ? ((v_max < 0.0f) ? -logarithmic_zero_epsilon : logarithmic_zero_epsilon) : (FLOATTYPE)v_max;
-
+		FLOATTYPE v_min_fudged = (ImAbs((FLOATTYPE)v_min) < logarithmic_zero_epsilon) ? ((v_min < 0.0f) ? -logarithmic_zero_epsilon : logarithmic_zero_epsilon) : (FLOATTYPE)v_min;
+		FLOATTYPE v_max_fudged = (ImAbs((FLOATTYPE)v_max) < logarithmic_zero_epsilon) ? ((v_max < 0.0f) ? -logarithmic_zero_epsilon : logarithmic_zero_epsilon) : (FLOATTYPE)v_max;
 		const bool flipped = v_max < v_min; // Check if range is "backwards"
 		if(flipped)
 			ImSwap(v_min_fudged, v_max_fudged);
-
 		// Awkward special case - we need ranges of the form (-100 .. 0) to convert to (-100 .. -epsilon), not (-100 .. epsilon)
 		if((v_max == 0.0f) && (v_min < 0.0f))
 			v_max_fudged = -logarithmic_zero_epsilon;
-
 		float t_with_flip = flipped ? (1.0f - t) : t; // t, but flipped if necessary to account for us flipping the range
-
 		if((v_min * v_max) < 0.0f) { // Range crosses zero, so we have to do this in two parts
-			float zero_point_center = (-(float)ImMin(v_min, v_max)) / ImAbs((float)v_max - (float)v_min); // The zero point in parametric space
-			float zero_point_snap_L = zero_point_center - zero_deadzone_halfsize;
-			float zero_point_snap_R = zero_point_center + zero_deadzone_halfsize;
+			const float zero_point_center = (-(float)ImMin(v_min, v_max)) / ImAbs((float)v_max - (float)v_min); // The zero point in parametric space
+			const float zero_point_snap_L = zero_point_center - zero_deadzone_halfsize;
+			const float zero_point_snap_R = zero_point_center + zero_deadzone_halfsize;
 			if(t_with_flip >= zero_point_snap_L && t_with_flip <= zero_point_snap_R)
 				result = (TYPE)0.0f; // Special case to make getting exactly zero possible (the epsilon prevents it otherwise)
 			else if(t_with_flip < zero_point_center)
 				result = (TYPE)-(logarithmic_zero_epsilon * ImPow(-v_min_fudged / logarithmic_zero_epsilon, (FLOATTYPE)(1.0f - (t_with_flip / zero_point_snap_L))));
 			else
-				result =
-				    (TYPE)(logarithmic_zero_epsilon *
-				    ImPow(v_max_fudged / logarithmic_zero_epsilon, (FLOATTYPE)((t_with_flip - zero_point_snap_R) / (1.0f - zero_point_snap_R))));
+				result = (TYPE)(logarithmic_zero_epsilon * ImPow(v_max_fudged / logarithmic_zero_epsilon, (FLOATTYPE)((t_with_flip - zero_point_snap_R) / (1.0f - zero_point_snap_R))));
 		}
 		else if((v_min < 0.0f) || (v_max < 0.0f)) // Entirely negative slider
 			result = (TYPE)-(-v_max_fudged * ImPow(-v_min_fudged / -v_max_fudged, (FLOATTYPE)(1.0f - t_with_flip)));
@@ -2577,7 +2558,6 @@ TYPE ImGui::ScaleValueFromRatioT(ImGuiDataType data_type, float t, TYPE v_min, T
 			result = (TYPE)((SIGNEDTYPE)v_min + (SIGNEDTYPE)(v_new_off_f + (FLOATTYPE)(v_min > v_max ? -0.5 : 0.5)));
 		}
 	}
-
 	return result;
 }
 
@@ -2633,13 +2613,8 @@ bool ImGui::SliderBehaviorT(const ImRect& bb,
 			else {
 				const float mouse_abs_pos = g.IO.MousePos[axis];
 				if(g.ActiveIdIsJustActivated) {
-					float grab_t = ScaleRatioFromValueT<TYPE, SIGNEDTYPE, FLOATTYPE>(data_type,
-						*v,
-						v_min,
-						v_max,
-						is_logarithmic,
-						logarithmic_zero_epsilon,
-						zero_deadzone_halfsize);
+					float grab_t = ScaleRatioFromValueT<TYPE, SIGNEDTYPE, FLOATTYPE>(data_type, *v, v_min, v_max,
+						is_logarithmic, logarithmic_zero_epsilon, zero_deadzone_halfsize);
 					if(axis == ImGuiAxis_Y)
 						grab_t = 1.0f - grab_t;
 					const float grab_pos = ImLerp(slider_usable_pos_min, slider_usable_pos_max, grab_t);
@@ -2658,7 +2633,6 @@ bool ImGui::SliderBehaviorT(const ImRect& bb,
 				g.SliderCurrentAccum = 0.0f; // Reset any stored nav delta upon activation
 				g.SliderCurrentAccumDirty = false;
 			}
-
 			float input_delta = (axis == ImGuiAxis_X) ? GetNavTweakPressedAmount(axis) : -GetNavTweakPressedAmount(axis);
 			if(input_delta != 0.0f) {
 				const bool tweak_slow = IsKeyDown((g.NavInputSource == ImGuiInputSource_Gamepad) ? ImGuiKey_NavGamepadTweakSlow : ImGuiKey_NavKeyboardTweakSlow);
@@ -2677,24 +2651,16 @@ bool ImGui::SliderBehaviorT(const ImRect& bb,
 				}
 				if(tweak_fast)
 					input_delta *= 10.0f;
-
 				g.SliderCurrentAccum += input_delta;
 				g.SliderCurrentAccumDirty = true;
 			}
-
 			float delta = g.SliderCurrentAccum;
 			if(g.NavActivatePressedId == id && !g.ActiveIdIsJustActivated) {
 				ClearActiveID();
 			}
 			else if(g.SliderCurrentAccumDirty) {
-				clicked_t = ScaleRatioFromValueT<TYPE, SIGNEDTYPE, FLOATTYPE>(data_type,
-					*v,
-					v_min,
-					v_max,
-					is_logarithmic,
-					logarithmic_zero_epsilon,
-					zero_deadzone_halfsize);
-
+				clicked_t = ScaleRatioFromValueT<TYPE, SIGNEDTYPE, FLOATTYPE>(data_type, *v, v_min, v_max,
+					is_logarithmic, logarithmic_zero_epsilon, zero_deadzone_halfsize);
 				if((clicked_t >= 1.0f && delta > 0.0f) || (clicked_t <= 0.0f && delta < 0.0f)) { // This is to avoid applying the saturation when already past the limits
 					set_new_value = false;
 					g.SliderCurrentAccum = 0.0f; // If pushing up against the limits, don't continue to accumulate
@@ -2703,48 +2669,27 @@ bool ImGui::SliderBehaviorT(const ImRect& bb,
 					set_new_value = true;
 					float old_clicked_t = clicked_t;
 					clicked_t = ImSaturate(clicked_t + delta);
-
 					// Calculate what our "new" clicked_t will be, and thus how far we actually moved the slider, and subtract this from the accumulator
-					TYPE v_new = ScaleValueFromRatioT<TYPE, SIGNEDTYPE, FLOATTYPE>(data_type,
-						clicked_t,
-						v_min,
-						v_max,
-						is_logarithmic,
-						logarithmic_zero_epsilon,
-						zero_deadzone_halfsize);
+					TYPE v_new = ScaleValueFromRatioT<TYPE, SIGNEDTYPE, FLOATTYPE>(data_type, clicked_t, v_min, v_max,
+						is_logarithmic, logarithmic_zero_epsilon, zero_deadzone_halfsize);
 					if(is_floating_point && !(flags & ImGuiSliderFlags_NoRoundToFormat))
 						v_new = RoundScalarWithFormatT<TYPE>(format, data_type, v_new);
-					float new_clicked_t = ScaleRatioFromValueT<TYPE, SIGNEDTYPE, FLOATTYPE>(data_type,
-						v_new,
-						v_min,
-						v_max,
-						is_logarithmic,
-						logarithmic_zero_epsilon,
-						zero_deadzone_halfsize);
-
+					float new_clicked_t = ScaleRatioFromValueT<TYPE, SIGNEDTYPE, FLOATTYPE>(data_type, v_new, v_min, v_max,
+						is_logarithmic, logarithmic_zero_epsilon, zero_deadzone_halfsize);
 					if(delta > 0)
 						g.SliderCurrentAccum -= ImMin(new_clicked_t - old_clicked_t, delta);
 					else
 						g.SliderCurrentAccum -= ImMax(new_clicked_t - old_clicked_t, delta);
 				}
-
 				g.SliderCurrentAccumDirty = false;
 			}
 		}
-
 		if(set_new_value) {
-			TYPE v_new = ScaleValueFromRatioT<TYPE, SIGNEDTYPE, FLOATTYPE>(data_type,
-				clicked_t,
-				v_min,
-				v_max,
-				is_logarithmic,
-				logarithmic_zero_epsilon,
-				zero_deadzone_halfsize);
-
+			TYPE v_new = ScaleValueFromRatioT<TYPE, SIGNEDTYPE, FLOATTYPE>(data_type, clicked_t, v_min, v_max,
+				is_logarithmic, logarithmic_zero_epsilon, zero_deadzone_halfsize);
 			// Round to user desired precision based on format string
 			if(is_floating_point && !(flags & ImGuiSliderFlags_NoRoundToFormat))
 				v_new = RoundScalarWithFormatT<TYPE>(format, data_type, v_new);
-
 			// Apply result
 			if(*v != v_new) {
 				*v = v_new;
@@ -2752,7 +2697,6 @@ bool ImGui::SliderBehaviorT(const ImRect& bb,
 			}
 		}
 	}
-
 	if(slider_sz < 1.0f) {
 		*out_grab_bb = ImRect(bb.Min, bb.Min);
 	}
@@ -2767,7 +2711,6 @@ bool ImGui::SliderBehaviorT(const ImRect& bb,
 		else
 			*out_grab_bb = ImRect(bb.Min.x + grab_padding, grab_pos - grab_sz * 0.5f, bb.Max.x - grab_padding, grab_pos + grab_sz * 0.5f);
 	}
-
 	return value_changed;
 }
 
@@ -3607,7 +3550,7 @@ static bool STB_TEXTEDIT_INSERTCHARS(ImGuiInputTextState* obj, int pos, const Im
 		if(!is_resizable)
 			return false;
 		assert(text_len < obj->TextW.Size);
-		obj->TextW.resize(text_len + ImClamp(new_text_len * 4, 32, ImMax(256, new_text_len)) + 1);
+		obj->TextW.resize(text_len + sclamp(new_text_len * 4, 32, ImMax(256, new_text_len)) + 1);
 	}
 	ImWchar* text = obj->TextW.Data;
 	if(pos != text_len)
@@ -3704,7 +3647,7 @@ void ImGuiInputTextCallbackData::InsertChars(int pos, const char* new_text, cons
 		ImGuiInputTextState* edit_state = &g.InputTextState;
 		assert(edit_state->ID != 0 && g.ActiveId == edit_state->ID);
 		assert(Buf == edit_state->TextA.Data);
-		int new_buf_size = BufTextLen + ImClamp(new_text_len * 4, 32, ImMax(256, new_text_len)) + 1;
+		int new_buf_size = BufTextLen + sclamp(new_text_len * 4, 32, ImMax(256, new_text_len)) + 1;
 		edit_state->TextA.reserve(new_buf_size + 1);
 		Buf = edit_state->TextA.Data;
 		BufSize = edit_state->BufCapacityA = new_buf_size;
@@ -4603,7 +4546,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 				else if(cursor_offset.y - (inner_size.y - style.FramePadding.y * 2.0f) >= scroll_y)
 					scroll_y = cursor_offset.y - inner_size.y + style.FramePadding.y * 2.0f;
 				const float scroll_max_y = ImMax((text_size.y + style.FramePadding.y * 2.0f) - inner_size.y, 0.0f);
-				scroll_y = ImClamp(scroll_y, 0.0f, scroll_max_y);
+				scroll_y = sclamp(scroll_y, 0.0f, scroll_max_y);
 				draw_pos.y += (draw_window->Scroll.y - scroll_y); // Manipulate cursor pos immediately avoid a frame of lag
 				draw_window->Scroll.y = scroll_y;
 			}
@@ -4908,9 +4851,9 @@ bool ImGui::ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flag
 		// RGB Hexadecimal Input
 		char buf[64];
 		if(alpha)
-			ImFormatString(buf, IM_ARRAYSIZE(buf), "#%02X%02X%02X%02X", ImClamp(i[0], 0, 255), ImClamp(i[1], 0, 255), ImClamp(i[2], 0, 255), ImClamp(i[3], 0, 255));
+			ImFormatString(buf, IM_ARRAYSIZE(buf), "#%02X%02X%02X%02X", sclamp(i[0], 0, 255), sclamp(i[1], 0, 255), sclamp(i[2], 0, 255), sclamp(i[3], 0, 255));
 		else
-			ImFormatString(buf, IM_ARRAYSIZE(buf), "#%02X%02X%02X", ImClamp(i[0], 0, 255), ImClamp(i[1], 0, 255), ImClamp(i[2], 0, 255));
+			ImFormatString(buf, IM_ARRAYSIZE(buf), "#%02X%02X%02X", sclamp(i[0], 0, 255), sclamp(i[1], 0, 255), sclamp(i[2], 0, 255));
 		SetNextItemWidth(w_inputs);
 		if(InputText("##Text", buf, IM_ARRAYSIZE(buf), ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_CharsUppercase)) {
 			value_changed = true;
@@ -5147,8 +5090,8 @@ bool ImGui::ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags fl
 					current_off_unrotated = ImTriangleClosestPoint(triangle_pa, triangle_pb, triangle_pc, current_off_unrotated);
 				float uu, vv, ww;
 				ImTriangleBarycentricCoords(triangle_pa, triangle_pb, triangle_pc, current_off_unrotated, uu, vv, ww);
-				V = ImClamp(1.0f - vv, 0.0001f, 1.0f);
-				S = ImClamp(uu / V, 0.0001f, 1.0f);
+				V = sclamp(1.0f - vv, 0.0001f, 1.0f);
+				S = sclamp(uu / V, 0.0001f, 1.0f);
 				value_changed = value_changed_sv = true;
 			}
 		}
@@ -5342,8 +5285,8 @@ bool ImGui::ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags fl
 		draw_list->AddRectFilledMultiColor(picker_pos, picker_pos + ImVec2(sv_picker_size, sv_picker_size), col_white, hue_color32, hue_color32, col_white);
 		draw_list->AddRectFilledMultiColor(picker_pos, picker_pos + ImVec2(sv_picker_size, sv_picker_size), 0, 0, col_black, col_black);
 		RenderFrameBorder(picker_pos, picker_pos + ImVec2(sv_picker_size, sv_picker_size), 0.0f);
-		sv_cursor_pos.x = ImClamp(IM_ROUND(picker_pos.x + ImSaturate(S)     * sv_picker_size), picker_pos.x + 2, picker_pos.x + sv_picker_size - 2);// Sneakily prevent the circle to stick out too much
-		sv_cursor_pos.y = ImClamp(IM_ROUND(picker_pos.y + ImSaturate(1 - V) * sv_picker_size), picker_pos.y + 2, picker_pos.y + sv_picker_size - 2);
+		sv_cursor_pos.x = sclamp(IM_ROUND(picker_pos.x + ImSaturate(S)     * sv_picker_size), picker_pos.x + 2, picker_pos.x + sv_picker_size - 2);// Sneakily prevent the circle to stick out too much
+		sv_cursor_pos.y = sclamp(IM_ROUND(picker_pos.y + ImSaturate(1 - V) * sv_picker_size), picker_pos.y + 2, picker_pos.y + sv_picker_size - 2);
 
 		// Render Hue Bar
 		for(int i = 0; i < 6; ++i)
@@ -6363,7 +6306,7 @@ int ImGui::PlotEx(ImGuiPlotType plot_type, const char* label, float (*values_get
 		int item_count = values_count + ((plot_type == ImGuiPlotType_Lines) ? -1 : 0);
 		// Tooltip on hover
 		if(hovered && inner_bb.Contains(g.IO.MousePos)) {
-			const float t = ImClamp((g.IO.MousePos.x - inner_bb.Min.x) / (inner_bb.Max.x - inner_bb.Min.x), 0.0f, 0.9999f);
+			const float t = sclamp((g.IO.MousePos.x - inner_bb.Min.x) / (inner_bb.Max.x - inner_bb.Min.x), 0.0f, 0.9999f);
 			const int v_idx = (int)(t * item_count);
 			assert(v_idx >= 0 && v_idx < values_count);
 			const float v0 = values_getter(data, (v_idx + values_offset) % values_count);
@@ -6814,7 +6757,7 @@ bool ImGui::BeginMenuEx(const char* label, const char* icon, bool enabled)
 			ImVec2 ta = (g.IO.MousePos - g.IO.MouseDelta);
 			ImVec2 tb = (child_dir > 0.0f) ? next_window_rect.GetTL() : next_window_rect.GetTR();
 			ImVec2 tc = (child_dir > 0.0f) ? next_window_rect.GetBL() : next_window_rect.GetBR();
-			float extra = ImClamp(ImFabs(ta.x - tb.x) * 0.30f, ref_unit * 0.5f, ref_unit * 2.5f); // add a bit of extra slack.
+			float extra = sclamp(ImFabs(ta.x - tb.x) * 0.30f, ref_unit * 0.5f, ref_unit * 2.5f); // add a bit of extra slack.
 			ta.x += child_dir * -0.5f;
 			tb.x += child_dir * ref_unit;
 			tc.x += child_dir * ref_unit;
@@ -6859,10 +6802,8 @@ bool ImGui::BeginMenuEx(const char* label, const char* icon, bool enabled)
 		want_close = true;
 	if(want_close && IsPopupOpen(id, ImGuiPopupFlags_None))
 		ClosePopupToLevel(g.BeginPopupStack.Size, true);
-
 	IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags | ImGuiItemStatusFlags_Openable | (menu_is_open ? ImGuiItemStatusFlags_Opened : 0));
 	PopID();
-
 	if(want_open && !menu_is_open && g.OpenPopupStack.Size > g.BeginPopupStack.Size) {
 		// Don't reopen/recycle same menu level in the same frame, first close the other menu and yield for a frame.
 		OpenPopup(label);
@@ -6889,7 +6830,6 @@ bool ImGui::BeginMenuEx(const char* label, const char* icon, bool enabled)
 	else {
 		g.NextWindowData.ClearFlags(); // We behave like Begin() and need to consume those values
 	}
-
 	return menu_is_open;
 }
 
@@ -7480,16 +7420,12 @@ ImGuiTabItem* ImGui::TabBarFindTabByID(ImGuiTabBar* tab_bar, ImGuiID tab_id)
 // Order = visible order, not submission order! (which is tab->BeginOrder)
 ImGuiTabItem* ImGui::TabBarFindTabByOrder(ImGuiTabBar* tab_bar, int order)
 {
-	if(order < 0 || order >= tab_bar->Tabs.Size)
-		return NULL;
-	return &tab_bar->Tabs[order];
+	return (order < 0 || order >= tab_bar->Tabs.Size) ? NULL : &tab_bar->Tabs[order];
 }
 
 ImGuiTabItem* ImGui::TabBarGetCurrentTab(ImGuiTabBar* tab_bar)
 {
-	if(tab_bar->LastTabItemIdx <= 0 || tab_bar->LastTabItemIdx >= tab_bar->Tabs.Size)
-		return NULL;
-	return &tab_bar->Tabs[tab_bar->LastTabItemIdx];
+	return (tab_bar->LastTabItemIdx <= 0 || tab_bar->LastTabItemIdx >= tab_bar->Tabs.Size) ? NULL : &tab_bar->Tabs[tab_bar->LastTabItemIdx];
 }
 
 const char* ImGui::TabBarGetTabName(ImGuiTabBar* tab_bar, ImGuiTabItem* tab)
@@ -7652,17 +7588,13 @@ static ImGuiTabItem* ImGui::TabBarScrollingButtons(ImGuiTabBar* tab_bar)
 {
 	ImGuiContext & g = *GImGui;
 	ImGuiWindow * window = g.CurrentWindow;
-
 	const ImVec2 arrow_button_size(g.FontSize - 2.0f, g.FontSize + g.Style.FramePadding.y * 2.0f);
 	const float scrolling_buttons_width = arrow_button_size.x * 2.0f;
-
 	const ImVec2 backup_cursor_pos = window->DC.CursorPos;
 	//window->DrawList->AddRect(ImVec2(tab_bar->BarRect.Max.x - scrolling_buttons_width, tab_bar->BarRect.Min.y), ImVec2(tab_bar->BarRect.Max.x, tab_bar->BarRect.Max.y), IM_COL32(255,0,0,255));
-
 	int select_dir = 0;
 	ImVec4 arrow_col = g.Style.Colors[ImGuiCol_Text];
 	arrow_col.w *= 0.5f;
-
 	PushStyleColor(ImGuiCol_Text, arrow_col);
 	PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 	const float backup_repeat_delay = g.IO.KeyRepeatDelay;
@@ -8115,7 +8047,6 @@ void ImGui::TabItemLabelAndCloseButton(ImDrawList* draw_list, const ImRect& bb, 
 		const ImRect bullet_bb(button_pos, button_pos + ImVec2(button_sz, button_sz) + g.Style.FramePadding * 2.0f);
 		RenderBullet(draw_list, bullet_bb.GetCenter(), GetColorU32(ImGuiCol_Text));
 	}
-
 	// This is all rather complicated
 	// (the main idea is that because the close button only appears on hover, we don't want it to alter the ellipsis position)
 	// FIXME: if FramePadding is noticeably large, ellipsis_max_x will be wrong here (e.g. #3497), maybe for consistency that parameter of RenderTextEllipsis() shouldn't exist..

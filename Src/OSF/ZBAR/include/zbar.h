@@ -1434,8 +1434,7 @@ static inline int zbar_window_error_spew(const zbar_window_t * window, int verbo
 }
 
 /** retrieve the detail string for the last window error. */
-static inline const char* zbar_window_error_string(const zbar_window_t * window,
-    int verbosity)
+static inline const char* zbar_window_error_string(const zbar_window_t * window, int verbosity)
 {
 	return (_zbar_error_string(window, verbosity));
 }
@@ -1452,8 +1451,7 @@ static inline zbar_error_t zbar_window_get_error_code(const zbar_window_t * wind
  * barcode scanning.  if a format conversion is necessary, it will
  * heuristically attempt to minimize the cost of the conversion
  */
-extern int zbar_negotiate_format(zbar_video_t * video,
-    zbar_window_t * window);
+extern int zbar_negotiate_format(zbar_video_t * video, zbar_window_t * window);
 
 /*@}*/
 
@@ -2209,10 +2207,10 @@ int    qr_ilog(uint _val);
 //#include "symbol.h"
 #define NUM_SYMS  20
 
-struct point_t {
+/* @sobolev (replaced with SPoint2I) struct point_t {
 	int    x;
 	int    y;
-};
+};*/
 
 struct zbar_symbol_set_s {
 	refcnt_t refcnt;
@@ -2230,7 +2228,7 @@ struct zbar_symbol_s {
 	char * P_Data_;            // symbol data 
 	uint   pts_alloc;          // allocation size of pts 
 	uint   npts;               // number of points in location polygon 
-	point_t * pts;             // list of points in location polygon 
+	SPoint2I * pts;            // list of points in location polygon 
 	zbar_orientation_t orient; // coarse orientation 
 	refcnt_t refcnt;           // reference count 
 	zbar_symbol_t * next;      // linked list of results (or siblings) 
@@ -2249,7 +2247,7 @@ void FASTCALL sym_add_point(zbar_symbol_t * sym, int x, int y);
 {
 	int i = sym->npts;
 	if(++sym->npts >= sym->pts_alloc)
-		sym->pts = static_cast<point_t *>(SAlloc::R(sym->pts, ++sym->pts_alloc * sizeof(point_t)));
+		sym->pts = static_cast<SPoint2I *>(SAlloc::R(sym->pts, ++sym->pts_alloc * sizeof(SPoint2I)));
 	sym->pts[i].x = x;
 	sym->pts[i].y = y;
 }*/
@@ -2285,8 +2283,8 @@ struct zbar_window_s {
 	uint dst_height;
 	uint scale_num; /* output scaling */
 	uint scale_den;
-	point_t scaled_offset; /* output position and size */
-	point_t scaled_size;
+	SPoint2I scaled_offset; /* output position and size */
+	SPoint2I scaled_size;
 	uint32 * formats; /* supported formats (zero terminated) */
 	zbar_mutex_t imglock; /* lock displayed image */
 	void * display;
@@ -2337,7 +2335,7 @@ static inline int _zbar_window_add_format(zbar_window_t * w, uint32 fmt)
 	return (i);
 }
 
-static inline point_t window_scale_pt(zbar_window_t * w, point_t p)
+static inline SPoint2I window_scale_pt(zbar_window_t * w, SPoint2I p)
 {
 	p.x = ((long)p.x * w->scale_num + w->scale_den - 1) / w->scale_den;
 	p.y = ((long)p.y * w->scale_num + w->scale_den - 1) / w->scale_den;
@@ -2351,10 +2349,10 @@ extern int _zbar_window_resize(zbar_window_t*);
 extern int _zbar_window_clear(zbar_window_t*);
 extern int _zbar_window_begin(zbar_window_t*);
 extern int _zbar_window_end(zbar_window_t*);
-extern int _zbar_window_draw_marker(zbar_window_t*, uint32, point_t);
-extern int _zbar_window_draw_polygon(zbar_window_t*, uint32, const point_t*, int);
-extern int _zbar_window_draw_text(zbar_window_t*, uint32, point_t, const char*);
-extern int _zbar_window_fill_rect(zbar_window_t*, uint32, point_t, point_t);
+extern int _zbar_window_draw_marker(zbar_window_t*, uint32, SPoint2I);
+extern int _zbar_window_draw_polygon(zbar_window_t*, uint32, const SPoint2I*, int);
+extern int _zbar_window_draw_text(zbar_window_t*, uint32, SPoint2I, const char*);
+extern int _zbar_window_fill_rect(zbar_window_t*, uint32, SPoint2I, SPoint2I);
 extern int _zbar_window_draw_logo(zbar_window_t*);
 //
 #ifdef _WIN32

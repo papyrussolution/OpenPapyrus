@@ -646,9 +646,6 @@
     <ClInclude Include="..\OSF\xapian\xapian-core\src\stringutils.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\xapian\xapian-core\src\wordaccess.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\xapian\xapian-core\backends\alltermslist.h">
       <Filter>Header</Filter>
     </ClInclude>

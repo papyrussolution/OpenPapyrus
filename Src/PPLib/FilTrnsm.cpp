@@ -1063,7 +1063,7 @@ int PPBackupOperationFile(const char * pFileName, const char * pFolderName, long
 		ps.Ext = "zip";
 		ps.Merge(arc_file_name);
 		{
-			SArchive arc(SArchive::tZip);
+			SArchive arc(SArchive::providerZip);
 			SString temp_buf;
 			SString to_arc_name;
 			THROW_SL(arc.Open(arc_file_name, SFile::mReadWrite, 0));

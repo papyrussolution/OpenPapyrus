@@ -312,7 +312,7 @@ static void ImGui_ImplDX10_CreateFontsTexture()
 		desc.BindFlags = D3D10_BIND_SHADER_RESOURCE;
 		desc.CPUAccessFlags = 0;
 
-		ID3D10Texture2D* pTexture = nullptr;
+		ID3D10Texture2D * pTexture = nullptr;
 		D3D10_SUBRESOURCE_DATA subResource;
 		subResource.pSysMem = pixels;
 		subResource.SysMemPitch = desc.Width * 4;
@@ -351,14 +351,13 @@ static void ImGui_ImplDX10_CreateFontsTexture()
 	}
 }
 
-bool    ImGui_ImplDX10_CreateDeviceObjects()
+bool ImGui_ImplDX10_CreateDeviceObjects()
 {
 	ImGui_ImplDX10_Data* bd = ImGui_ImplDX10_GetBackendData();
 	if(!bd->pd3dDevice)
 		return false;
 	if(bd->pFontSampler)
 		ImGui_ImplDX10_InvalidateDeviceObjects();
-
 	// By using D3DCompile() from <d3dcompiler.h> / d3dcompiler.lib, we introduce a dependency to a given version of d3dcompiler_XX.dll (see D3DCOMPILER_DLL_A)
 	// If you would like to use this DX10 sample code but remove this dependency you can:
 	//  1) compile once, save the compiled shader blobs into a file or source code and pass them to CreateVertexShader()/CreatePixelShader() [preferred solution]
@@ -471,7 +470,6 @@ bool    ImGui_ImplDX10_CreateDeviceObjects()
 		desc.RenderTargetWriteMask[0] = D3D10_COLOR_WRITE_ENABLE_ALL;
 		bd->pd3dDevice->CreateBlendState(&desc, &bd->pBlendState);
 	}
-
 	// Create the rasterizer state
 	{
 		D3D10_RASTERIZER_DESC desc;
@@ -482,7 +480,6 @@ bool    ImGui_ImplDX10_CreateDeviceObjects()
 		desc.DepthClipEnable = true;
 		bd->pd3dDevice->CreateRasterizerState(&desc, &bd->pRasterizerState);
 	}
-
 	// Create depth-stencil State
 	{
 		D3D10_DEPTH_STENCIL_DESC desc;
@@ -496,50 +493,28 @@ bool    ImGui_ImplDX10_CreateDeviceObjects()
 		desc.BackFace = desc.FrontFace;
 		bd->pd3dDevice->CreateDepthStencilState(&desc, &bd->pDepthStencilState);
 	}
-
 	ImGui_ImplDX10_CreateFontsTexture();
-
 	return true;
 }
 
 void    ImGui_ImplDX10_InvalidateDeviceObjects()
 {
 	ImGui_ImplDX10_Data* bd = ImGui_ImplDX10_GetBackendData();
-	if(!bd->pd3dDevice)
-		return;
-
-	if(bd->pFontSampler) {
-		bd->pFontSampler->Release(); bd->pFontSampler = nullptr;
-	}
-	if(bd->pFontTextureView) {
-		bd->pFontTextureView->Release(); bd->pFontTextureView = nullptr; ImGui::GetIO().Fonts->SetTexID(0);
-	}                                                                                                                                   // We copied bd->pFontTextureView to io.Fonts->TexID so let's clear that as well.
-	if(bd->pIB) {
-		bd->pIB->Release(); bd->pIB = nullptr;
-	}
-	if(bd->pVB) {
-		bd->pVB->Release(); bd->pVB = nullptr;
-	}
-	if(bd->pBlendState) {
-		bd->pBlendState->Release(); bd->pBlendState = nullptr;
-	}
-	if(bd->pDepthStencilState) {
-		bd->pDepthStencilState->Release(); bd->pDepthStencilState = nullptr;
-	}
-	if(bd->pRasterizerState) {
-		bd->pRasterizerState->Release(); bd->pRasterizerState = nullptr;
-	}
-	if(bd->pPixelShader) {
-		bd->pPixelShader->Release(); bd->pPixelShader = nullptr;
-	}
-	if(bd->pVertexConstantBuffer) {
-		bd->pVertexConstantBuffer->Release(); bd->pVertexConstantBuffer = nullptr;
-	}
-	if(bd->pInputLayout) {
-		bd->pInputLayout->Release(); bd->pInputLayout = nullptr;
-	}
-	if(bd->pVertexShader) {
-		bd->pVertexShader->Release(); bd->pVertexShader = nullptr;
+	if(bd->pd3dDevice) {
+		SCOMOBJRELEASE(bd->pFontSampler);
+		if(bd->pFontTextureView) {
+			SCOMOBJRELEASE(bd->pFontTextureView); 
+			ImGui::GetIO().Fonts->SetTexID(0);
+		} // We copied bd->pFontTextureView to io.Fonts->TexID so let's clear that as well.
+		SCOMOBJRELEASE(bd->pIB); 
+		SCOMOBJRELEASE(bd->pVB); 
+		SCOMOBJRELEASE(bd->pBlendState); 
+		SCOMOBJRELEASE(bd->pDepthStencilState); 
+		SCOMOBJRELEASE(bd->pRasterizerState); 
+		SCOMOBJRELEASE(bd->pPixelShader); 
+		SCOMOBJRELEASE(bd->pVertexConstantBuffer); 
+		SCOMOBJRELEASE(bd->pInputLayout); 
+		SCOMOBJRELEASE(bd->pVertexShader);
 	}
 }
 
@@ -547,13 +522,11 @@ bool    ImGui_ImplDX10_Init(ID3D10Device* device)
 {
 	ImGuiIO& io = ImGui::GetIO();
 	assert(io.BackendRendererUserData == nullptr && "Already initialized a renderer backend!");
-
 	// Setup backend capabilities flags
 	ImGui_ImplDX10_Data* bd = IM_NEW(ImGui_ImplDX10_Data)();
 	io.BackendRendererUserData = (void*)bd;
 	io.BackendRendererName = "imgui_impl_dx10";
 	io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset; // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
-
 	// Get factory from device
 	IDXGIDevice* pDXGIDevice = nullptr;
 	IDXGIAdapter* pDXGIAdapter = nullptr;
@@ -567,7 +540,6 @@ bool    ImGui_ImplDX10_Init(ID3D10Device* device)
 	if(pDXGIDevice)  pDXGIDevice->Release();
 	if(pDXGIAdapter)  pDXGIAdapter->Release();
 	bd->pd3dDevice->AddRef();
-
 	return true;
 }
 
@@ -576,7 +548,6 @@ void ImGui_ImplDX10_Shutdown()
 	ImGui_ImplDX10_Data* bd = ImGui_ImplDX10_GetBackendData();
 	assert(bd != nullptr && "No renderer backend to shutdown, or already shutdown?");
 	ImGuiIO& io = ImGui::GetIO();
-
 	ImGui_ImplDX10_InvalidateDeviceObjects();
 	if(bd->pFactory) {
 		bd->pFactory->Release();

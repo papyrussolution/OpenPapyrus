@@ -1372,9 +1372,6 @@ int  SString::GetIdxBySub(const char * pSubStr, int div)
 
 char * FASTCALL SString::CopyTo(char * pS, size_t bufLen) const
 {
-	// @v9.6.3 return strnzcpy(pS, P_Buf, bufLen);
-	/* @construction @todo (такой вариант предпочтительнее поскольку функция критична по быстродействию, но нужен тест) */
-	// @v9.6.3 (test has been done) {
 	if(pS) {
 		const size_t src_len = Len();
 		if(src_len) {
@@ -1387,15 +1384,13 @@ char * FASTCALL SString::CopyTo(char * pS, size_t bufLen) const
 				}
 			}
 			else {
-				// @v10.3.1 strcpy(pS, P_Buf);
-				memcpy(pS, P_Buf, src_len+1); // @v10.3.1
+				memcpy(pS, P_Buf, src_len+1);
 			}
 		}
 		else
 			pS[0] = 0;
 	}
 	return pS;
-	// @v9.6.3 {
 }
 
 BSTR FASTCALL SString::CopyToOleStr(BSTR * pBuf) const

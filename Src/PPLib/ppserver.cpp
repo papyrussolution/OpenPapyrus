@@ -1338,6 +1338,58 @@ void PPJobServer::Run()
 //
 class WsCtlBlock {
 public:
+	struct AuthBlock {
+		AuthBlock()
+		{
+		}
+		AuthBlock & Z()
+		{
+			//Phone.Z();
+			//Name.Z();
+			//ScCode.Z();
+			WsCtlUuid.Z();
+			LoginText.Z();
+			Pw.Z();
+			return *this;
+		}
+		bool   IsEmpty() const
+		{
+			return LoginText.IsEmpty();//(Phone.NotEmpty() || Name.NotEmpty() || ScCode.NotEmpty());
+		}
+		bool   FromJsonObj(const SJson * pJs)
+		{
+			Z();
+			if(pJs) {
+				const SJson * p_c = pJs->FindChildByKey("login");
+				if(SJson::IsString(p_c))
+					LoginText = p_c->Text;
+				/*
+				p_c = pJs->FindChildByKey("nm");
+				if(SJson::IsString(p_c))
+					Name = p_c->Text;
+				p_c = pJs->FindChildByKey("sccode");
+				if(SJson::IsString(p_c))
+					ScCode = p_c->Text;
+				*/
+				p_c = pJs->FindChildByKey("pw");
+				if(SJson::IsString(p_c))
+					Pw = p_c->Text;
+				p_c = pJs->FindChildByKey("wsctluuid");
+				if(SJson::IsString(p_c)) {
+					WsCtlUuid.FromStr(p_c->Text);
+				}
+			}
+			return !IsEmpty();
+		}
+		S_GUID  WsCtlUuid;
+		SString LoginText;
+		SString Pw;
+		//
+		// Results:
+		//
+		PPID   SCardID;
+		PPID   PsnID;
+	};
 	WsCtlBlock() : PrcID(0)
 	{
 	}
@@ -1362,8 +1414,128 @@ public:
 		CATCHZOK
 		return ok;
 	}
+	int    Auth(AuthBlock & rBlk)
+	{
+		int    ok = 0;
+		PPID   scs_id = 0;
+		PPID   psn_kind_id = 0;
+		SString temp_buf;
+		SCardTbl::Rec sc_rec;
+		PersonTbl::Rec psn_rec;
+		PPSCardConfig sc_cfg;
+		THROW(!rBlk.IsEmpty()); // @todo @err (не определены параметры для авторизации)
+		ScObj.FetchConfig(&sc_cfg);
+		if(sc_cfg.DefCreditSerID) {
+			PPObjSCardSeries scs_obj;
+			PPSCardSeries scs_rec;
+			if(scs_obj.Fetch(sc_cfg.DefCreditSerID, &scs_rec) > 0) {
+				scs_id = sc_cfg.DefCreditSerID;
+				psn_kind_id = scs_rec.PersonKindID;
+			}
+		}
+		THROW(scs_id); // @todo @err (не удалось определить серию карт, с которыми ассоциированы аккаунты клиентов)
+		assert(rBlk.LoginText.NotEmpty()); // Вызов rBlk.IsEmpty() выше должен гарантировать этот инвариант
+		{
+			bool    text_identification_done = false;
+			SNaturalTokenArray nta;
+			STokenRecognizer tr;
+			tr.Run(rBlk.LoginText.ucptr(), rBlk.LoginText.Len(), nta, 0);
+			if(nta.Has(SNTOK_PHONE)) {
+				PPObjIDArray oid_list_by_phone;
+				PPEAddr::Phone::NormalizeStr(rBlk.LoginText, 0, temp_buf);
+				PsnObj.LocObj.P_Tbl->SearchPhoneObjList(temp_buf, 0, oid_list_by_phone);
+				if(oid_list_by_phone.getCount()) {
+					PPID   single_sc_id = 0;
+					PPID   single_psn_id = 0;
+					bool   mult_sc_id_by_phone = false;
+					bool   mult_psn_id_by_phone = false;
+					for(uint i = 0; i < oid_list_by_phone.getCount(); i++) {
+						const PPObjID oid = oid_list_by_phone.at(i);
+						if(oid.Obj == PPOBJ_SCARD && ScObj.Fetch(oid.Id, &sc_rec) > 0 && sc_rec.SeriesID == scs_id) {
+							if(!single_sc_id) {
+								if(!mult_sc_id_by_phone)
+									single_sc_id = oid.Id;
+							}
+							else {
+								single_sc_id = 0;
+								mult_sc_id_by_phone = true;
+							}
+						}
+						else if(oid.Obj == PPOBJ_PERSON && PsnObj.Fetch(oid.Id, &psn_rec) > 0) {
+							if(!single_psn_id) {
+								if(!mult_psn_id_by_phone)
+									single_psn_id = oid.Id;
+							}
+							else {
+								single_psn_id = 0;
+								mult_psn_id_by_phone = true;
+							}
+						}
+					}
+					if(single_sc_id) {
+						THROW(ScObj.Search(single_sc_id, &sc_rec) > 0); // @todo @err // Выше мы проверили single_sc_id на "невисячесть"
+						THROW(sc_rec.PersonID && PsnObj.Search(sc_rec.PersonID, &psn_rec) > 0); // @todo @err
+						rBlk.SCardID = single_sc_id;
+						rBlk.PsnID = psn_rec.ID;
+						// (еще пароль проверить надо) ok = 1;
+					}
+					else if(single_psn_id) {
+						PPIDArray potential_sc_list;
+						THROW(PsnObj.Search(single_psn_id, &psn_rec) > 0); // @todo @err // Выше мы проверили single_psn_id на "невисячесть"
+						ScObj.P_Tbl->GetListByPerson(single_psn_id, scs_id, &potential_sc_list);
+						THROW(potential_sc_list.getCount()); // @todo @err
+						rBlk.SCardID = potential_sc_list.get(0);
+						rBlk.PsnID = single_psn_id;
+						text_identification_done = true;
+						// (еще пароль проверить надо) ok = 1;
+					}
+				}
+			}
+			if(!text_identification_done) {
+				if(ScObj.SearchCode(scs_id, rBlk.LoginText, &sc_rec) > 0) {
+					if(sc_rec.SeriesID == scs_id) {
+						THROW(sc_rec.PersonID && PsnObj.Search(sc_rec.PersonID, &psn_rec) > 0); // @todo @err
+						rBlk.SCardID = sc_rec.ID;
+						rBlk.PsnID = sc_rec.PersonID;
+						text_identification_done = true;
+					}
+				}
+			}
+			if(!text_identification_done) {
+				PPIDArray kind_list;
+				PPIDArray potential_sc_list;
+				THROW(psn_kind_id); // @todo @err (не удалось определить вид персоналий-клиентов для идентификации по имени)
+				kind_list.add(psn_kind_id);
+				(temp_buf = rBlk.LoginText).Transf(CTRANSF_UTF8_TO_INNER); // Строки в rBlk в кодировке utf-8
+				THROW(PsnObj.SearchFirstByName(temp_buf, &kind_list, 0, &psn_rec) > 0);
+				ScObj.P_Tbl->GetListByPerson(psn_rec.ID, scs_id, &potential_sc_list);
+				THROW(potential_sc_list.getCount()); // @todo @err
+				rBlk.SCardID = potential_sc_list.get(0);
+				rBlk.PsnID = psn_rec.ID;
+				text_identification_done = true;
+			}
+		}
+		if(rBlk.SCardID) {
+			PPSCardPacket sc_pack;
+			SString pw_buf;
+			THROW(ScObj.GetPacket(rBlk.SCardID, &sc_pack) > 0); // @todo @err // Выше мы проверили rBlk.SCardID на "невисячесть"
+			sc_pack.GetExtStrData(PPSCardPacket::extssPassword, pw_buf);
+			if(rBlk.Pw.NotEmpty()) {
+				(temp_buf = rBlk.Pw).Transf(CTRANSF_UTF8_TO_INNER);
+				THROW(temp_buf == pw_buf); // @todo @err (неверный пароль)
+			}
+			else {
+				THROW(pw_buf.IsEmpty()); // @todo @err (неверный пароль)
+			}
+			ok = 1;
+		}
+		CATCHZOK
+		return ok;
+	}
 	PPObjTSession TSesObj;
 	PPObjGoods GObj;
+	PPObjPerson PsnObj;
+	PPObjSCard ScObj;
 	S_GUID WsUUID; // UUID управляемой рабочей станции
 	PPID   PrcID;  // Ид процессора, соответствующего рабочей станции
 	SString PrcNameUtf8;
@@ -3454,6 +3626,72 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 						ok = cmdretOK;
 					}
 
+				}
+			}
+			break;
+		case PPSCMD_WSCTL_AUTH: // @v11.7.1  WSCTL Авторизация клиента
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
+			{
+				SString raw_auth_text;
+				if(pEv->ReadLine(raw_auth_text)) {
+					raw_auth_text.Chomp().Strip();
+
+					STempBuffer bin_buf(raw_auth_text.Len()*3);
+					size_t actual_len = 0;
+					if(raw_auth_text.DecodeMime64(bin_buf, bin_buf.GetSize(), &actual_len)) {
+						SETIFZQ(P_WsCtlBlk, new WsCtlBlock());
+						temp_buf.Z().CatN(bin_buf.cptr(), actual_len);
+						SJson * p_js_param = SJson::Parse(temp_buf);
+						if(p_js_param) {
+							WsCtlBlock::AuthBlock auth_blk;
+							if(auth_blk.FromJsonObj(p_js_param)) {
+								if(P_WsCtlBlk->Auth(auth_blk)) {
+									SJson js_reply(SJson::tOBJECT);
+									js_reply.InsertInt("scardid", auth_blk.SCardID);
+									js_reply.InsertInt("personid", auth_blk.PsnID);
+									js_reply.ToStr(temp_buf);
+									rReply.SetString(temp_buf);
+									ok = cmdretOK;
+								}
+							}
+							ZDELETE(p_js_param);
+						}
+					}
+				}
+			}
+			break;
+		case PPSCMD_WSCTL_GETACCOUNTSTATE: // @v11.7.1  WSCTL Получить информацию об аккаунте клиента
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
+			{
+				PPID   scard_id = 0;
+				if(pEv->GetAvailableSize() >= sizeof(scard_id)) {
+					//ProcessorTbl::Rec prc_rec;
+					PPSCardPacket sc_pack;
+					pEv->Read(&scard_id, sizeof(scard_id));
+					SETIFZQ(P_WsCtlBlk, new WsCtlBlock());
+					if(P_WsCtlBlk->ScObj.GetPacket(scard_id, &sc_pack) > 0) {
+						double rest = 0.0;
+						PersonTbl::Rec psn_rec;
+						P_WsCtlBlk->ScObj.P_Tbl->GetRest(scard_id, ZERODATE, &rest);
+						SJson js_reply(SJson::tOBJECT);
+						js_reply.InsertInt("scardid", sc_pack.Rec.ID);
+						js_reply.InsertString("scardcode", (temp_buf = sc_pack.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+						if(sc_pack.Rec.PersonID && P_WsCtlBlk->PsnObj.Fetch(sc_pack.Rec.PersonID, &psn_rec) > 0) {
+							js_reply.InsertInt("personid", psn_rec.ID);
+							(temp_buf = psn_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape();
+							js_reply.InsertString("personnm", (temp_buf = psn_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+						}
+						js_reply.InsertDouble("screst", rest, MKSFMTD(0, 2, 0));
+						js_reply.ToStr(temp_buf);
+						rReply.SetString(temp_buf);
+						ok = cmdretOK;
+					}
+					else {
+						; // @todo @err
+					}
+				}
+				else {
+					; // @todo @err
 				}
 			}
 			break;

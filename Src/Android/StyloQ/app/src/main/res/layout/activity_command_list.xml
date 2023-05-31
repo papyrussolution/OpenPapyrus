@@ -6,8 +6,7 @@ android:layout_width="match_parent"
 android:layout_height="match_parent"
 android:orientation="vertical"
 tools:context=".CommandListActivity">
-<LinearLayout
-    android:id="@+id/CTL_PAGEHEADER_ROOT"
+<LinearLayout android:id="@+id/CTL_PAGEHEADER_ROOT"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"

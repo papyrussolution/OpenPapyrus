@@ -1,10 +1,43 @@
 // SRNG.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2010, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2007, 2008, 2010, 2016, 2017, 2018, 2019, 2020, 2023
+// @codepage UTF-8
 //
 // Random Number Generators
 //
 #include <slib-internal.h>
 #pragma hdrstop
+//
+// Descr: calculate Shannon's entropy: formula => ENT = -ОЈ p(i) * log2(p(i)),
+//   where p(i) = probability(i) = i / length_of_data and 'i' is a single "byte_of_data"
+//
+double EvaluateEntropy(const void * pBuf, size_t bufLen)
+{
+	double result = 0.0;
+	uint32 sentinel_before[256]; // @debug
+	uint32 bytes[256];
+	uint32 sentinel_after[256]; // @debug
+	{
+		memzero(bytes, sizeof(bytes));
+		memzero(sentinel_before, sizeof(sentinel_before)); // @debug
+		memzero(sentinel_after, sizeof(sentinel_after)); // @debug
+		for(size_t i = 0; i < bufLen; i++) {
+			bytes[PTR8C(pBuf)[i]]++;
+		}
+		assert(ismemzero(sentinel_before, sizeof(sentinel_before))); // @debug
+		assert(ismemzero(sentinel_after, sizeof(sentinel_after))); // @debug
+	}
+	{
+		const double _len = static_cast<double>(bufLen);
+		for(size_t i = 0; i < SIZEOFARRAY(bytes); i++) {
+			const uint32 _c = bytes[i];
+			if(_c) {
+				double prob = static_cast<double>(_c) / _len;
+				result -= prob * log2(prob);
+			}
+		}
+	}
+	return result;
+}
 
 SRng::SRng(int alg, uint level, ulong rndMin, ulong rndMax) : Alg(alg), Level(level), RandMin(rndMin), RandMax(rndMax)
 {
@@ -694,7 +727,7 @@ double SRng::GetGammaFrac(double a)
 			q = exp(-x);
 		}
 		else {
-			x = 1 - log(v);
+			x = 1.0 - log(v);
 			q = exp((a - 1) * log(x));
 		}
 	} while(GetReal() >= q);
@@ -707,9 +740,9 @@ double SRng::GetGammaPdf(double x, double a, double b)
 		return 0;
 	else if(x == 0) {
 		if(a == 1)
-			return 1/b;
+			return 1.0/b;
 		else
-			return 0;
+			return 0.0;
 	}
 	else if(a == 1) {
 		return exp(-x/b) / b;
@@ -1096,8 +1129,8 @@ void SRandGenerator::ObfuscateBuffer(void * pBuffer, size_t bufferSize) const
 				p += 4;
 			}
 			else {
-                PTR8(pBuffer)[p] = static_cast<uint8>(P_Inner->GetUniformInt(256));
-                p++;
+                		PTR8(pBuffer)[p] = static_cast<uint8>(P_Inner->GetUniformInt(256));
+                		p++;
 			}
 		}
 		assert(p == bufferSize);
@@ -1223,7 +1256,7 @@ static void TestRngBin(STestCase * pCase, SRng * pRng, double * sigma)
 	pCase->SLTEST_CHECK_CRANGE(fabs(*sigma), 0.003, 3);
 	for(i = BINS; i < BINS+EXTRA; i++) {
 		//
-		// GetUniformInt не должен выходить за пределы определенных для него границ (BINS)
+		// GetUniformInt РЅРµ РґРѕР»Р¶РµРЅ РІС‹С…РѕРґРёС‚СЊ Р·Р° РїСЂРµРґРµР»С‹ РѕРїСЂРµРґРµР»РµРЅРЅС‹С… РґР»СЏ РЅРµРіРѕ РіСЂР°РЅРёС† (BINS)
 		//
 		long count_i =count[i];
 		pCase->SLTEST_CHECK_EQ(count_i, 0L);
@@ -1412,7 +1445,7 @@ SLTEST_R(RandomNumberGenerator)
 		TestRngGeneric(this, rng_types[k].Alg, rng_types[k].Level);
 	{
         //
-        // Тестирование обфьюскатора
+        // РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ РѕР±С„СЊСЋСЃРєР°С‚РѕСЂР°
         //
         const uint8 fix_byte = 0xFAU;
         SRandGenerator obf_rng;
@@ -1423,7 +1456,7 @@ SLTEST_R(RandomNumberGenerator)
         for(size_t i = prefix_size; i < sizeof(test_buffer) - suffix_size - prefix_size; i++) {
 			obf_rng.ObfuscateBuffer(test_buffer + prefix_size, i - prefix_size);
 			for(size_t p = 0; p < prefix_size; p++) {
-                SLTEST_CHECK_EQ(test_buffer[p], fix_byte);
+				SLTEST_CHECK_EQ(test_buffer[p], fix_byte);
 			}
 			for(size_t e = i; e < sizeof(test_buffer); e++) {
 				SLTEST_CHECK_EQ(test_buffer[e], fix_byte);
@@ -1432,7 +1465,7 @@ SLTEST_R(RandomNumberGenerator)
 	}
 	{
 		//
-		// Тестирование функции SRandGenerator::GetProbabilityEvent
+		// РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ С„СѓРЅРєС†РёРё SRandGenerator::GetProbabilityEvent
 		//
 		SRandGenerator rg;
 		const uint tc_list[]     = { /*1000, 10000,*/ 100000, 1000000 };

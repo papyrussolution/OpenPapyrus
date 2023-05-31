@@ -592,6 +592,8 @@
 		#define SL_LITTLEENDIAN 1
 	#elif defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 		#define SL_BIGENDIAN    1
+	#elif defined(_M_PPC) // @v11.7.4 (from libwebp)
+		#define SL_BIGENDIAN    1
 	#elif defined(_WIN32)
 		#define SL_LITTLEENDIAN 1
 	#else

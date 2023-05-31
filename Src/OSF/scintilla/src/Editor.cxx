@@ -37,8 +37,7 @@ EditModel::EditModel() : EditModelFlags(fPrimarySelection), xOffset(0), posDrag(
 
 EditModel::~EditModel()
 {
-	pdoc->Release();
-	pdoc = 0;
+	SCOMOBJRELEASE(pdoc);
 }
 
 ColourDesired EditModel::SelectionBackground(const ViewStyle & vsDraw, bool main) const

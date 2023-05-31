@@ -6113,6 +6113,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 	SString unit_name;
 	SString unit_code;
 	SString goods_code;
+	SString goods_ar_code; // @v11.7.4 Код товара по статье контрагента
 	SString barcode_for_marking;  // @v11.5.9 Валидный штрихкод для формирования суррогатной chzn-марки для некоторых категорий товаров
 	SString barcode_for_exchange; // @v11.5.9 Валидный штрихкод для передачи контрагенту с целью идентификации товара
 	PPLotExtCodeContainer::MarkSet::Entry msentry;
@@ -6165,7 +6166,6 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 		const double qtty_local = fabs(r_ti.Qtty());
 		const PPID   goods_id = labs(r_ti.GoodsID);
 		int   chzn_prod_type = 0; // @v11.4.10
-
 		double org_qtty = 0.0;
 		double org_price = 0.0;
 		const  int govc_result = correction ? p_bobj->trfr->GetOriginalValuesForCorrection(r_ti, correction_bill_chain, 0, &org_qtty, &org_price) : -1;
@@ -6181,6 +6181,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 		goods_code.Z();
 		barcode_for_marking.Z();  // @v11.5.9
 		barcode_for_exchange.Z(); // @v11.5.9
+		goods_ar_code.Z(); // @v11.7.4
 		// my -- {
 		// <СведТов КолТов="1.00" НаимТов="ТО системы защиты от краж ООО "Лента" ТК-180 Петрозаводск, пр. Комсомольский, 27"
 			// НалСт="без НДС" НомСтр="1" ОКЕИ_Тов="796" СтТовБезНДС="9000.00" СтТовУчНал="9000.00" ЦенаТов="9000.00"></СведТов>
@@ -6251,6 +6252,13 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 					chzn_prod_type = gt_rec.ChZnProdType;
 				}
 				// } @v11.4.10 
+				// @v11.7.4 {
+				if(rBp.Rec.Object) {
+					GObj.P_Tbl->GetArCode(rBp.Rec.Object, goods_id, goods_ar_code, 0);
+					if(goods_ar_code.NotEmpty())
+						goods_ar_code.Transf(CTRANSF_INNER_TO_OUTER);
+				}
+				// } @v11.7.3
 			}
 		}
 		if(correction) {
@@ -6522,6 +6530,13 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 				temp_buf = GetToken_Ansi(PPHSC_RU_EXTRA_BARCODE);
 				n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_IDENTIF), temp_buf);
 				n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_VAL), barcode_for_exchange);
+				// @v11.7.4 {
+				if(goods_ar_code.NotEmpty()) {
+					temp_buf = GetToken_Ansi(PPHSC_RU_EXTRA_MATERIALCODE);
+					n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_IDENTIF), temp_buf);
+					n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_VAL), goods_ar_code);
+				}
+				// } @v11.7.4 
 			}
 		}
 		else {
@@ -7709,6 +7724,8 @@ int WriteBill_NalogRu2_UPD(const PPBillImpExpParam & rParam, const PPBillPacket 
 				PPID   buyer_psn_id = 0;
 				int    do_skip = 0;
 				int    is_intrexpend = 0;
+				SString consignor_gln; // @v11.7.4
+				SString consignee_gln; // @v11.7.4
 				{
 					if(oneof2(rBp.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND)) {
 						PPID   ar2_main_org_id = 0;
@@ -7757,6 +7774,12 @@ int WriteBill_NalogRu2_UPD(const PPBillImpExpParam & rParam, const PPBillPacket 
 						}
 					}
 				}
+				// @v11.7.4 {
+				if(consignee_psn_id)
+					_blk.G.PsnObj.GetRegNumber(consignee_psn_id, PPREGT_GLN, consignee_gln);
+				if(shipper_psn_id)
+					_blk.G.PsnObj.GetRegNumber(shipper_psn_id, PPREGT_GLN, consignor_gln);
+				// } @v11.7.4 
 				_blk.G.WriteOrgInfo(_blk.GetToken(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, rBp.Rec.Dt, 0); // @v10.8.7 shipper_loc_id-->0
 				{
 					// @v11.4.12 {
@@ -7790,7 +7813,24 @@ int WriteBill_NalogRu2_UPD(const PPBillImpExpParam & rParam, const PPBillPacket 
 				}
 				// } @v11.1.7 
 				{
+					// @v11.7.4 PPHSC_RU_EXTRA_WAYBILLCODE  номер_накладной
+					// @v11.7.4 PPHSC_RU_EXTRA_WAYBILLDATE  дата_накладной
+					// @v11.7.4 PPHSC_RU_EXTRA_CONSIGNEEGLN GLN_грузополучателя
 					SXml::WNode n(_blk.G.P_X, _blk.GetToken(PPHSC_RU_EXTRA1));
+					// @v11.7.4 {
+					{
+						SXml::WNode n_1(_blk.G.P_X, _blk.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
+						temp_buf = _blk.GetToken(PPHSC_RU_EXTRA_WAYBILLCODE);
+						n_1.PutAttrib(_blk.GetToken(PPHSC_RU_IDENTIF), temp_buf);
+						n_1.PutAttrib(_blk.GetToken(PPHSC_RU_VAL), _blk.EncText(temp_buf = rBp.Rec.Code));
+					}
+					if(consignee_gln.NotEmpty()) {
+						SXml::WNode n_2(_blk.G.P_X, _blk.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
+						temp_buf = _blk.GetToken(PPHSC_RU_EXTRA_CONSIGNEEGLN);
+						n_2.PutAttrib(_blk.GetToken(PPHSC_RU_IDENTIF), temp_buf);
+						n_2.PutAttrib(_blk.GetToken(PPHSC_RU_VAL), _blk.EncText(consignee_gln));
+					}
+					// } @v11.7.4 
 					if(_blk.AgtCode.NotEmpty()) {
 						{
 							SXml::WNode n_1(_blk.G.P_X, _blk.GetToken(PPHSC_RU_TEXTINF)); // [0..20]

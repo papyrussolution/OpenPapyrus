@@ -461,29 +461,26 @@ int _cairo_lround(double d)
 	/* If the integer word order doesn't match the float word order, we swap
 	 * the words of the input double. This is needed because we will be
 	 * treating the whole double as a 64-bit unsigned integer. Notice that we
-	 * use WORDS_BIGENDIAN to detect the integer word order, which isn't
-	 * exactly correct because WORDS_BIGENDIAN refers to byte order, not word
+	 * use SL_BIGENDIAN to detect the integer word order, which isn't
+	 * exactly correct because SL_BIGENDIAN refers to byte order, not word
 	 * order. Thus, we are making the assumption that the byte order is the
 	 * same as the integer word order which, on the modern machines that we
 	 * care about, is OK.
 	 */
-#if( defined(FLOAT_WORDS_BIGENDIAN) && !defined(WORDS_BIGENDIAN)) || \
-	(!defined(FLOAT_WORDS_BIGENDIAN) &&  defined(WORDS_BIGENDIAN))
+#if (defined(FLOAT_WORDS_BIGENDIAN) && !defined(SL_BIGENDIAN)) || (!defined(FLOAT_WORDS_BIGENDIAN) && defined(SL_BIGENDIAN))
 	{
 		uint32 temp = u.ui32[0];
 		u.ui32[0] = u.ui32[1];
 		u.ui32[1] = temp;
 	}
 #endif
-
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
     #define MSW (0) /* Most Significant Word */
     #define LSW (1) /* Least Significant Word */
 #else
     #define MSW (1)
     #define LSW (0)
 #endif
-
 	/* By shifting the most significant word of the input double to the
 	 * right 20 places, we get the very "top" of the double where the exponent
 	 * and sign bit lie.

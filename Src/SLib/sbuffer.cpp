@@ -1330,6 +1330,12 @@ STempBuffer::STempBuffer(size_t sz)
 	Alloc(sz);
 }
 
+STempBuffer::STempBuffer(const STempBuffer & rS)
+{
+	Init();
+	SBaseBuffer::Copy(rS);
+}
+
 STempBuffer::~STempBuffer()
 {
 	Destroy();

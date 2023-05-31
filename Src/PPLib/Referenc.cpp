@@ -2660,6 +2660,81 @@ int UnxTextRefCore::GetText(const TextRefIdent & rI, SString & rBuf)
 	return ok;
 }
 
+int UnxTextRefCore::Helper_Filter(PPID objType, int prop, const char * pPattern, const IntRange & rRange, const PPIDArray * pFiltIdList, PPIDArray & rResultIdList)
+{
+	int    ok = -1;
+	SStringU ubuf;
+	SString temp_buf;
+	UnxTextRefTbl::Key0 k0;
+	k0.ObjType = static_cast<int16>(objType);
+	k0.Prop = prop;
+	k0.ObjID = rRange.low;
+	BExtQuery q(this, 0);
+	q.selectAll().where(this->ObjType == objType && this->Prop == prop && this->ObjID >= rRange.low && this->ObjID <= rRange.upp);
+	for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
+		if(!pFiltIdList || pFiltIdList->bsearch(data.ObjID)) {
+			if(!isempty(pPattern)) {
+				PostprocessRead(ubuf);
+				temp_buf.CopyUtf8FromUnicode(ubuf, ubuf.Len(), 1);
+				temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				if(ExtStrSrch(temp_buf, pPattern, 0)) {
+					rResultIdList.add(data.ObjID);
+					ok = 1;
+				}
+			}
+			else {
+				rResultIdList.add(data.ObjID);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
+int UnxTextRefCore::FilterIdList(PPID objType, int prop, const char * pPattern, const PPIDArray * pFiltIdList, PPIDArray & rResultIdList)
+{
+	int    ok = -1;
+	// Если образец не задан, то считаем, что любой текст подходит
+	if(pFiltIdList) {
+		if(pFiltIdList->getCount()) {
+			assert(pFiltIdList->isSorted());
+			if(pFiltIdList->isSorted()) {
+				IntRange _range;
+				_range.Set(pFiltIdList->get(0), pFiltIdList->get(pFiltIdList->getCount()-1));
+				ok = Helper_Filter(objType, prop, pPattern, _range, pFiltIdList, rResultIdList);
+			}
+		}
+		else {
+			; // nothing to do
+		}
+	}
+	else {
+		// Если базовый список идентификаторов не задан, то извлекаем тексты по всему множеству объектов
+		IntRange _range;
+		_range.Set(0, INT32_MAX);
+		ok = Helper_Filter(objType, prop, pPattern, _range, pFiltIdList, rResultIdList);
+	}
+	return ok;
+}
+
+int UnxTextRefCore::FilterIdRange(PPID objType, int prop, const char * pPattern, const IntRange * pFiltIdRange, PPIDArray & rResultIdList)
+{
+	int    ok = -1;
+	// Если образец не задан, то считаем, что любой текст подходит
+	if(pFiltIdRange) {
+		IntRange _range(*pFiltIdRange);
+		_range.Normalize();
+		ok = Helper_Filter(objType, prop, pPattern, _range, 0, rResultIdList);
+	}
+	else {
+		// Если базовый список идентификаторов не задан, то извлекаем тексты по всему множеству объектов
+		IntRange _range;
+		_range.Set(0, INT32_MAX);
+		ok = Helper_Filter(objType, prop, pPattern, _range, 0, rResultIdList);
+	}
+	return ok;
+}
+
 int UnxTextRefCore::SetText(const TextRefIdent & rI, const char * pText, int use_ta)
 {
 	int    ok = -1;
@@ -2862,7 +2937,7 @@ int UnxTextRefCore::InitEnum(PPID objType, int prop, long * pHandle)
 	q->select(this->ObjType, this->ObjID, this->Prop, this->Lang, this->Size, 0);
 	if(prop) {
 		q->where(this->ObjType == objType && this->Prop == static_cast<long>(prop));
-		k0.Prop = static_cast<long>(prop);
+		k0.Prop = static_cast<int16>(prop);
 	}
 	else
 		q->where(this->ObjType == objType);

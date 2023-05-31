@@ -14,13 +14,9 @@
 #include <libwebp-internal.h>
 #pragma hdrstop
 #include "src/enc/vp8i_enc.h"
-//#include "src/dsp/dsp.h"
-//#include "src/utils/filters_utils.h"
 #include "src/utils/quant_levels_utils.h"
-//#include "src/utils/utils.h"
 #include "src/webp/format_constants.h"
-
-// -----------------------------------------------------------------------------
+//
 // Encodes the given alpha data via specified compression method 'method'.
 // The pre-processing (quantization) is performed if 'quality' is less than 100.
 // For such cases, the encoding is lossy. The valid range is [0, 100] for
@@ -42,7 +38,7 @@
 //         0 if either:
 //           invalid quality or method, or
 //           memory allocation for the compressed data fails.
-
+//
 #include "src/enc/vp8li_enc.h"
 
 static int EncodeLossless(const uint8* const data, int width, int height, int effort_level/*in [0..6] range*/, int use_quality_100, VP8LBitWriter* const bw, WebPAuxStats* const stats) 

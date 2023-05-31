@@ -14,7 +14,7 @@
 //#include "check-internal.h"
 //#include "crc_macros.h"
 
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	#define A1(x) ((x) >> 56)
 #else
 	#define A1 CRC_A
@@ -24,7 +24,7 @@
 uint64_t lzma_crc64(const uint8 *buf, size_t size, uint64_t crc)
 {
 	crc = ~crc;
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	crc = bswap64(crc);
 #endif
 	if(size > 4) {
@@ -35,7 +35,7 @@ uint64_t lzma_crc64(const uint8 *buf, size_t size, uint64_t crc)
 		const uint8 * const limit = buf + (size & ~(size_t)(3));
 		size &= (size_t)(3);
 		while(buf < limit) {
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 			const uint32_t tmp = (crc >> 32) ^ aligned_read32ne(buf);
 #else
 			const uint32_t tmp = static_cast<uint32_t>(crc ^ aligned_read32ne(buf));
@@ -46,7 +46,7 @@ uint64_t lzma_crc64(const uint8 *buf, size_t size, uint64_t crc)
 	}
 	while(size-- != 0)
 		crc = lzma_crc64_table[0][*buf++ ^ A1(crc)] ^ CRC_S8(crc);
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	crc = bswap64(crc);
 #endif
 	return ~crc;

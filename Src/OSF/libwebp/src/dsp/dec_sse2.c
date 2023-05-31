@@ -12,23 +12,22 @@
 //
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dsp/dsp.h"
 
 #if defined(WEBP_USE_SSE2)
 
 // The 3-coeff sparse transform in SSE2 is not really faster than the plain-C
 // one it seems => disable it by default. Uncomment the following to enable:
 #if !defined(USE_TRANSFORM_AC3)
-#define USE_TRANSFORM_AC3 0   // ALTERNATE_CODE
+	#define USE_TRANSFORM_AC3 0   // ALTERNATE_CODE
 #endif
-
 #include <emmintrin.h>
 #include "src/dsp/common_sse2.h"
-#include "src/dec/vp8i_dec.h"
+//#include "src/dec/vp8i_dec.h"
 //
 // Transforms (Paragraph 14.4)
 //
-static void Transform_SSE2(const int16_t* in, uint8* dst, int do_two) {
+static void Transform_SSE2(const int16_t* in, uint8* dst, int do_two) 
+{
 	// This implementation makes use of 16-bit fixed point versions of two
 	// multiply constants:
 	//    K1 = sqrt(2) * cos (pi/8) ~= 85627 / 2^16

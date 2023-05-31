@@ -13,13 +13,12 @@
 #define WEBP_DSP_NEON_H_
 
 #include <arm_neon.h>
-//#include "src/dsp/dsp.h"
 
 // Right now, some intrinsics functions seem slower, so we disable them
 // everywhere except newer clang/gcc or aarch64 where the inline assembly is
 // incompatible.
 #if LOCAL_CLANG_PREREQ(3, 8) || LOCAL_GCC_PREREQ(4, 9) || defined(__aarch64__)
-#define WEBP_USE_INTRINSICS   // use intrinsics when possible
+	#define WEBP_USE_INTRINSICS   // use intrinsics when possible
 #endif
 
 #define INIT_VECTOR2(v, a, b) do {  \

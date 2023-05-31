@@ -6,7 +6,7 @@
 #pragma hdrstop
 //#include "memcmplen.h"
 // See lz_encoder_hash.h. This is a bit hackish but avoids making endianness a conditional in makefiles.
-#if defined(WORDS_BIGENDIAN) && !defined(HAVE_SMALL)
+#if defined(SL_BIGENDIAN) && !defined(HAVE_SMALL)
 	#include "lz_encoder_hash_table.h"
 #endif
 

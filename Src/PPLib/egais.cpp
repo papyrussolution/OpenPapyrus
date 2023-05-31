@@ -5613,12 +5613,17 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 								if(do_process) {
 									pCurrentRestPack->LTagL.GetTagStr(i, PPTAG_LOT_FSRARINFA, ref_a); // @v11.7.3
 									pCurrentRestPack->LTagL.GetTagStr(i, PPTAG_LOT_FSRARINFB, ref_b); // @v11.7.3
+									double _last_cost = 0.0; // @v11.7.4
+									double _last_price = 0.0; // @v11.7.4
 									for(uint j = 0; j < lot_id_list.getCount(); j++) {
 										const PPID lot_id = lot_id_list.get(j);
 										if(P_BObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id) {
 											double _rest = 0.0;
 											P_BObj->trfr->GetRest(lot_id, _cur_date, MAXLONG, &_rest, 0);
 											current_lot_rest += _rest;
+											//
+											_last_cost = lot_rec.Cost; // @v11.7.4
+											_last_price = lot_rec.Price; // @v11.7.4
 										}
 									}
 									const double wroff_qtty = (r_ti.Quantity_ - current_lot_rest);
@@ -5633,6 +5638,8 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 											THROW(ti.Init(&p_wroff_bp->Rec, 1));
 											THROW(ti.SetupGoods(r_ti.GoodsID, 0));
 											ti.Quantity_ = wroff_qtty;
+											ti.Cost  = _last_cost; // @v11.7.4
+											ti.Price = _last_price; // @v11.7.4
 											THROW(p_wroff_bp->LoadTItem(&ti, 0, 0));
 											{
 												ObjTagList tag_list;

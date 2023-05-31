@@ -966,7 +966,7 @@ static cairo_status_t _get_bitmap_surface(FT_Bitmap * bitmap, FT_Library library
 				    }
 			    }
 		    }
-#ifndef WORDS_BIGENDIAN
+#ifndef SL_BIGENDIAN
 		    {
 			    uint8 * d = data;
 			    int count = stride * height;

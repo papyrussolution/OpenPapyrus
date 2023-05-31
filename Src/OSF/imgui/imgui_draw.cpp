@@ -405,7 +405,6 @@ void ImDrawList::AddDrawCmd()
 	draw_cmd.TextureId = _CmdHeader.TextureId;
 	draw_cmd.VtxOffset = _CmdHeader.VtxOffset;
 	draw_cmd.IdxOffset = IdxBuffer.Size;
-
 	assert(draw_cmd.ClipRect.x <= draw_cmd.ClipRect.z && draw_cmd.ClipRect.y <= draw_cmd.ClipRect.w);
 	CmdBuffer.push_back(draw_cmd);
 }
@@ -1006,7 +1005,7 @@ void ImDrawList::_PathArcToFastEx(const ImVec2& center, float radius, int a_min_
 		a_step = IM_DRAWLIST_ARCFAST_SAMPLE_MAX / _CalcCircleAutoSegmentCount(radius);
 
 	// Make sure we never do steps larger than one quarter of the circle
-	a_step = ImClamp(a_step, 1, IM_DRAWLIST_ARCFAST_TABLE_SIZE / 4);
+	a_step = sclamp(a_step, 1, IM_DRAWLIST_ARCFAST_TABLE_SIZE / 4);
 
 	const int sample_range = ImAbs(a_max_sample - a_min_sample);
 	const int a_next_step = a_step;
@@ -1415,7 +1414,7 @@ void ImDrawList::AddCircle(const ImVec2& center, float radius, ImU32 col, int nu
 	}
 	else {
 		// Explicit segment count (still clamp to avoid drawing insanely tessellated shapes)
-		num_segments = ImClamp(num_segments, 3, IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX);
+		num_segments = sclamp(num_segments, 3, IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX);
 
 		// Because we are filling a closed shape we remove 1 from the count of segments/points
 		const float a_max = (IM_PI * 2.0f) * ((float)num_segments - 1.0f) / (float)num_segments;
@@ -1437,7 +1436,7 @@ void ImDrawList::AddCircleFilled(const ImVec2& center, float radius, ImU32 col, 
 	}
 	else {
 		// Explicit segment count (still clamp to avoid drawing insanely tessellated shapes)
-		num_segments = ImClamp(num_segments, 3, IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX);
+		num_segments = sclamp(num_segments, 3, IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX);
 
 		// Because we are filling a closed shape we remove 1 from the count of segments/points
 		const float a_max = (IM_PI * 2.0f) * ((float)num_segments - 1.0f) / (float)num_segments;
@@ -1522,15 +1521,15 @@ void ImDrawList::AddText(const ImVec2& pos, ImU32 col, const char* text_begin, c
 
 void ImDrawList::AddImage(ImTextureID user_texture_id, const ImVec2& p_min, const ImVec2& p_max, const ImVec2& uv_min, const ImVec2& uv_max, ImU32 col)
 {
-	if((col & IM_COL32_A_MASK) == 0)
-		return;
-	const bool push_texture_id = user_texture_id != _CmdHeader.TextureId;
-	if(push_texture_id)
-		PushTextureID(user_texture_id);
-	PrimReserve(6, 4);
-	PrimRectUV(p_min, p_max, uv_min, uv_max, col);
-	if(push_texture_id)
-		PopTextureID();
+	if(col & IM_COL32_A_MASK) {
+		const bool push_texture_id = user_texture_id != _CmdHeader.TextureId;
+		if(push_texture_id)
+			PushTextureID(user_texture_id);
+		PrimReserve(6, 4);
+		PrimRectUV(p_min, p_max, uv_min, uv_max, col);
+		if(push_texture_id)
+			PopTextureID();
+	}
 }
 
 void ImDrawList::AddImageQuad(ImTextureID user_texture_id, const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, const ImVec2& p4,
@@ -1542,7 +1541,6 @@ void ImDrawList::AddImageQuad(ImTextureID user_texture_id, const ImVec2& p1, con
 	const bool push_texture_id = user_texture_id != _CmdHeader.TextureId;
 	if(push_texture_id)
 		PushTextureID(user_texture_id);
-
 	PrimReserve(6, 4);
 	PrimQuadUV(p1, p2, p3, p4, uv1, uv2, uv3, uv4, col);
 	if(push_texture_id)
@@ -1749,7 +1747,7 @@ void ImGui::ShadeVertsLinearColorGradientKeepAlpha(ImDrawList* draw_list, int ve
 	const int col_delta_b = ((int)(col1 >> IM_COL32_B_SHIFT) & 0xFF) - col0_b;
 	for(ImDrawVert* vert = vert_start; vert < vert_end; vert++) {
 		float d = ImDot(vert->pos - gradient_p0, gradient_extent);
-		float t = ImClamp(d * gradient_inv_length2, 0.0f, 1.0f);
+		float t = sclamp(d * gradient_inv_length2, 0.0f, 1.0f);
 		int r = (int)(col0_r + col_delta_r * t);
 		int g = (int)(col0_g + col_delta_g * t);
 		int b = (int)(col0_b + col_delta_b * t);
@@ -1769,7 +1767,7 @@ void ImGui::ShadeVertsLinearUV(ImDrawList* draw_list, int vert_start_idx, int ve
 		const ImVec2 min = ImMin(uv_a, uv_b);
 		const ImVec2 max = ImMax(uv_a, uv_b);
 		for(ImDrawVert* vertex = vert_start; vertex < vert_end; ++vertex)
-			vertex->uv = ImClamp(uv_a + ImMul(ImVec2(vertex->pos.x, vertex->pos.y) - a, scale), min, max);
+			vertex->uv = sclamp(uv_a + ImMul(ImVec2(vertex->pos.x, vertex->pos.y) - a, scale), min, max);
 	}
 	else {
 		for(ImDrawVert* vertex = vert_start; vertex < vert_end; ++vertex)
@@ -3180,7 +3178,7 @@ void ImFont::AddGlyph(const ImFontConfig* cfg, ImWchar codepoint, float x0, floa
 	if(cfg != NULL) {
 		// Clamp & recenter if needed
 		const float advance_x_original = advance_x;
-		advance_x = ImClamp(advance_x, cfg->GlyphMinAdvanceX, cfg->GlyphMaxAdvanceX);
+		advance_x = sclamp(advance_x, cfg->GlyphMinAdvanceX, cfg->GlyphMaxAdvanceX);
 		if(advance_x != advance_x_original) {
 			float char_off_x = cfg->PixelSnapH ? ImFloor((advance_x - advance_x_original) * 0.5f) : (advance_x - advance_x_original) * 0.5f;
 			x0 += char_off_x;
@@ -3678,7 +3676,7 @@ void ImGui::RenderRectFilledRangeH(ImDrawList* draw_list, const ImRect& rect, Im
 		return;
 	}
 
-	rounding = ImClamp(ImMin((rect.Max.x - rect.Min.x) * 0.5f, (rect.Max.y - rect.Min.y) * 0.5f) - 1.0f, 0.0f, rounding);
+	rounding = sclamp(ImMin((rect.Max.x - rect.Min.x) * 0.5f, (rect.Max.y - rect.Min.y) * 0.5f) - 1.0f, 0.0f, rounding);
 	const float inv_rounding = 1.0f / rounding;
 	const float arc0_b = ImAcos01(1.0f - (p0.x - rect.Min.x) * inv_rounding);
 	const float arc0_e = ImAcos01(1.0f - (p1.x - rect.Min.x) * inv_rounding);
@@ -3751,11 +3749,11 @@ void ImGui::RenderColorRectWithAlphaCheckerboard(ImDrawList* draw_list, ImVec2 p
 
 		int yi = 0;
 		for(float y = p_min.y + grid_off.y; y < p_max.y; y += grid_step, yi++) {
-			float y1 = ImClamp(y, p_min.y, p_max.y), y2 = ImMin(y + grid_step, p_max.y);
+			float y1 = sclamp(y, p_min.y, p_max.y), y2 = ImMin(y + grid_step, p_max.y);
 			if(y2 <= y1)
 				continue;
 			for(float x = p_min.x + grid_off.x + (yi & 1) * grid_step; x < p_max.x; x += grid_step * 2.0f) {
-				float x1 = ImClamp(x, p_min.x, p_max.x), x2 = ImMin(x + grid_step, p_max.x);
+				float x1 = sclamp(x, p_min.x, p_max.x), x2 = ImMin(x + grid_step, p_max.x);
 				if(x2 <= x1)
 					continue;
 				ImDrawFlags cell_flags = ImDrawFlags_RoundCornersNone;

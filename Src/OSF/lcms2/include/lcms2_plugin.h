@@ -11,14 +11,6 @@
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 // This is the plug-in header file. Normal LittleCMS clients should not use it.
 // It is provided for plug-in writters that may want to access the support
 // functions to do low level operations. All plug-in related structures
@@ -28,20 +20,18 @@
 
 // Deal with Microsoft's attempt at deprecating C standard runtime functions
 #ifdef _MSC_VER
-#if (_MSC_VER >= 1400)
-#ifndef _CRT_SECURE_NO_DEPRECATE
-#        define _CRT_SECURE_NO_DEPRECATE
+	#if (_MSC_VER >= 1400)
+		#ifndef _CRT_SECURE_NO_DEPRECATE
+			#define _CRT_SECURE_NO_DEPRECATE
+		#endif
+		#ifndef _CRT_SECURE_NO_WARNINGS
+			#define _CRT_SECURE_NO_WARNINGS
+		#endif
+	#endif
 #endif
-#ifndef _CRT_SECURE_NO_WARNINGS
-#        define _CRT_SECURE_NO_WARNINGS
-#endif
-#endif
-#endif
-
 #ifndef _lcms2_H
-#include "lcms2.h"
+	#include "lcms2.h"
 #endif
-
 // We need some standard C functions.
 #include <stdlib.h>
 #include <math.h>

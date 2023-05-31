@@ -15,32 +15,16 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dsp/dsp.h"
-//#include <assert.h>
-//#include <math.h>
-//#include <stdlib.h>
-#include "src/dec/vp8li_dec.h"
-#include "src/utils/endian_inl_utils.h"
+//#include "src/dec/vp8li_dec.h"
+//#include "src/utils/endian_inl_utils.h"
 #include "src/dsp/lossless.h"
 #include "src/dsp/lossless_common.h"
-
-//------------------------------------------------------------------------------
+//
 // Image transforms.
-
-static FORCEINLINE uint32_t Average2(uint32_t a0, uint32_t a1) 
-{
-	return (((a0 ^ a1) & 0xfefefefeu) >> 1) + (a0 & a1);
-}
-
-static FORCEINLINE uint32_t Average3(uint32_t a0, uint32_t a1, uint32_t a2) 
-{
-	return Average2(Average2(a0, a2), a1);
-}
-
-static FORCEINLINE uint32_t Average4(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3) 
-{
-	return Average2(Average2(a0, a1), Average2(a2, a3));
-}
+//
+static FORCEINLINE uint32_t Average2(uint32_t a0, uint32_t a1) { return (((a0 ^ a1) & 0xfefefefeu) >> 1) + (a0 & a1); }
+static FORCEINLINE uint32_t Average3(uint32_t a0, uint32_t a1, uint32_t a2) { return Average2(Average2(a0, a2), a1); }
+static FORCEINLINE uint32_t Average4(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3) { return Average2(Average2(a0, a1), Average2(a2, a3)); }
 
 static FORCEINLINE uint32_t Clip255(uint32_t a) 
 {

@@ -151,14 +151,9 @@ static const cfd_node cf_2d_decode[] = {
 
 /* bit magic */
 
-static inline int getbit(const uchar * buf, int x)
-{
-	return ( buf[x >> 3] >> ( 7 - (x & 7) ) ) & 1;
-}
+static inline int getbit(const uchar * buf, int x) { return ( buf[x >> 3] >> ( 7 - (x & 7) ) ) & 1; }
 
-static const uchar mask[8] = {
-	0x7F, 0x3F, 0x1F, 0x0F, 0x07, 0x03, 0x01, 0
-};
+static const uchar mask[8] = { 0x7F, 0x3F, 0x1F, 0x0F, 0x07, 0x03, 0x01, 0 };
 
 static const uchar clz[256] = {
 	8, 7, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4,
@@ -182,18 +177,15 @@ static const uchar clz[256] = {
 static inline int find_changing(const uchar * line, int x, int w)
 {
 	int a, b, m, W;
-
 	if(!line)
 		return w;
-
 	/* We assume w > 0, -1 <= x < w */
 	if(x < 0) {
 		x = 0;
 		m = 0xFF;
 	}
 	else {
-		/* Mask out the bits we've already used (including the one
-		 * we started from) */
+		// Mask out the bits we've already used (including the one we started from)
 		m = mask[x & 7];
 	}
 	/* We have 'w' pixels (bits) in line. The last pixel that can be
@@ -584,7 +576,6 @@ loop:
 	/* no eol check after makeup codes nor in the middle of an H code */
 	if(fax->stage == STATE_MAKEUP || fax->stage == STATE_H1 || fax->stage == STATE_H2)
 		goto loop;
-
 	/* check for eol conditions */
 	if(fax->eolc || fax->a >= fax->columns) {
 		if(fax->a > 0)
@@ -592,12 +583,9 @@ loop:
 		if(fax->eolc == (fax->k < 0 ? 2 : 6))
 			goto rtc;
 	}
-
 	goto loop;
-
 eol:
 	fax->stage = STATE_EOL;
-
 	if(fax->black_is_1) {
 		while(fax->rp < fax->wp && p < ep)
 			*p++ = *fax->rp++;
@@ -693,17 +681,14 @@ static void close_faxd(fz_context * ctx, void * state_)
 	fz_free(ctx, fax);
 }
 
-fz_stream * fz_open_faxd(fz_context * ctx, fz_stream * chain,
-    int k, int end_of_line, int encoded_byte_align,
+fz_stream * fz_open_faxd(fz_context * ctx, fz_stream * chain, int k, int end_of_line, int encoded_byte_align,
     int columns, int rows, int end_of_block, int black_is_1)
 {
 	fz_faxd * fax;
 	if(columns < 0 || columns >= INT_MAX - 7)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "too many columns lead to an integer overflow (%d)", columns);
-
 	fax = fz_malloc_struct(ctx, fz_faxd);
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		fax->ref = NULL;
 		fax->dst = NULL;
 

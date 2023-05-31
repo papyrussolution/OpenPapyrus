@@ -1039,7 +1039,7 @@ void ImGui::TableUpdateLayout(ImGuiTable* table)
 		}
 
 		if(visible_n < table->FreezeColumnsCount)
-			host_clip_rect.Min.x = ImClamp(column->MaxX + TABLE_BORDER_SIZE, host_clip_rect.Min.x, host_clip_rect.Max.x);
+			host_clip_rect.Min.x = sclamp(column->MaxX + TABLE_BORDER_SIZE, host_clip_rect.Min.x, host_clip_rect.Max.x);
 
 		offset_x += column->WidthGiven + table->CellSpacingX1 + table->CellSpacingX2 + table->CellPaddingX * 2.0f;
 		visible_n++;
@@ -2037,7 +2037,7 @@ void ImGui::TableSetColumnWidth(int column_n, float width)
 	assert(table->MinColumnWidth > 0.0f);
 	const float min_width = table->MinColumnWidth;
 	const float max_width = ImMax(min_width, TableGetMaxColumnWidth(table, column_n));
-	column_0_width = ImClamp(column_0_width, min_width, max_width);
+	column_0_width = sclamp(column_0_width, min_width, max_width);
 	if(column_0->WidthGiven == column_0_width || column_0->WidthRequest == column_0_width)
 		return;
 

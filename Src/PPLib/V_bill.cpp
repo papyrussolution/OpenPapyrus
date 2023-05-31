@@ -916,6 +916,16 @@ PPViewBill::~PPViewBill()
 	DBRemoveTempFiles();
 }
 
+static int IterProc_CrList(const BillViewItem * pItem, void * pExtraPtr)
+{
+	return (pExtraPtr && static_cast<PPIDArray *>(pExtraPtr)->add(pItem->ID)) ? 1 : PPSetErrorSLib();
+}
+
+int PPViewBill::GetBillIDList(PPIDArray * pList)
+{
+	return Enumerator(0, IterProc_CrList, pList);
+}
+
 int PPViewBill::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
@@ -1003,12 +1013,12 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 		SysJournalFilt * p_sjf = Filt.P_SjF;
 		if(p_sjf && !p_sjf->IsEmpty()) {
 			SysJournal * p_sj = DS.GetTLA().P_SysJ;
-			PPIDArray bill_list;
+			PPIDArray local_id_list;
 			p_sjf->Period.Actualize(ZERODATE);
-			THROW(p_sj->GetObjListByEventPeriod(PPOBJ_BILL, p_sjf->UserID, &p_sjf->ActionIDList, &p_sjf->Period, bill_list));
+			THROW(p_sj->GetObjListByEventPeriod(PPOBJ_BILL, p_sjf->UserID, &p_sjf->ActionIDList, &p_sjf->Period, local_id_list));
 			if(IdList.IsExists())
-				bill_list.intersect(&IdList.Get());
-			IdList.Set(&bill_list);
+				local_id_list.intersect(&IdList.Get());
+			IdList.Set(&local_id_list);
 		}
 	}
 	if(!(Filt.Flags & BillFilt::fIgnoreRtPeriod))
@@ -1021,6 +1031,24 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 		GoodsList.sortAndUndup();
 	}
 	// } @v11.0.11 
+	// @v11.7.4 {
+	{
+		SString memo_pattern;
+		Filt.GetExtStrData(BillFilt::extssMemoText, memo_pattern); 
+		if(memo_pattern.NotEmptyS()) {
+			Reference * p_ref = PPRef;
+			PPIDArray id_list;
+			PPIDArray local_id_list;
+			if(Enumerator(enfSkipExtssMemo, IterProc_CrList, &id_list)) {
+				id_list.sortAndUndup();
+				p_ref->UtrC.FilterIdList(PPOBJ_BILL, PPTRPROP_MEMO, memo_pattern, &id_list, local_id_list);
+			}
+			if(IdList.IsExists())
+				local_id_list.intersect(&IdList.Get());
+			IdList.Set(&local_id_list);
+		}
+	}
+	// } @v11.7.4 
 	if(IsTempTblNeeded()) {
 		IterOrder ord = OrdByDefault;
 		switch(Filt.SortOrder) {
@@ -1321,6 +1349,11 @@ int FASTCALL PPViewBill::CheckFlagsForFilt(const BillTbl::Rec * pRec) const
 
 int PPViewBill::CheckIDForFilt(PPID id, const BillTbl::Rec * pRec)
 {
+	return Helper_CheckIDForFilt(0, id, pRec);
+}
+
+int PPViewBill::Helper_CheckIDForFilt(uint flags, PPID id, const BillTbl::Rec * pRec)
+{
 	if(IdList.IsExists() && !IdList.CheckID(id))
 		return 0;
 	if(pRec == 0)
@@ -1370,6 +1403,21 @@ int PPViewBill::CheckIDForFilt(PPID id, const BillTbl::Rec * pRec)
 		else if(Filt.AgentID || Filt.PayerID)
 			return 0;
 	}
+	// @v11.7.4 {
+	if(!(flags & enfSkipExtssMemo)) {
+		SString memo_pattern;
+		if(Filt.GetExtStrData(BillFilt::extssMemoText, memo_pattern) > 0) {
+			assert(memo_pattern.NotEmpty());
+			SString memo;
+			P_BObj->P_Tbl->GetItemMemo(id, memo);
+			if(!memo.NotEmptyS() || !ExtStrSrch(memo, memo_pattern, 0))
+				return 0;
+		}
+		else {
+			assert(memo_pattern.IsEmpty());
+		}
+	}
+	// } @v11.7.4 
 	if(PPObjTag::CheckForTagFilt(PPOBJ_BILL, pRec->ID, Filt.P_TagF) <= 0)
 		return 0;
 	else if(Filt.PoolBillID && !IsMemberOfPool(id))
@@ -1551,12 +1599,12 @@ int PPViewBill::EnumerateDebtCard(BillViewEnumProc proc, void * pExtraPtr)
 	return ok;
 }
 
-int PPViewBill::Helper_EnumProc(PPID billID, const BillTbl::Rec * pRec, int checkForFilt, BillViewEnumProc proc, void * pExtraPtr)
+int PPViewBill::Helper_EnumProc(PPID billID, const BillTbl::Rec * pRec, int checkForFilt, uint flags, BillViewEnumProc proc, void * pExtraPtr)
 {
 	int    ok = 1;
 	BillTbl::Rec rec;
 	SETIFZ(pRec, ((P_BObj->Search(billID, &rec) > 0) ? &rec : 0));
-	if(pRec && (!checkForFilt || CheckIDForFilt(billID, pRec) > 0)) {
+	if(pRec && (!checkForFilt || Helper_CheckIDForFilt(flags, billID, pRec) > 0)) {
 		BillViewItem item;
 		// @v10.7.9 @ctr MEMSZERO(item);
 		memcpy(&item, pRec, sizeof(BillTbl::Rec));
@@ -1591,7 +1639,7 @@ int PPViewBill::EvaluateOrderFulfillmentStatus(PPID billID)
 	return status;
 }
 
-int PPViewBill::Enumerator(BillViewEnumProc proc, void * pExtraPtr)
+int PPViewBill::Enumerator(uint flags, BillViewEnumProc proc, void * pExtraPtr)
 {
 	int    ok = 1;
 	int    r = 1;
@@ -1602,6 +1650,12 @@ int PPViewBill::Enumerator(BillViewEnumProc proc, void * pExtraPtr)
 	int    check_list_item_for_filt = 1;
 	BillCore * t = P_BObj->P_Tbl;
 	BExtQuery * q = 0;
+	// @v11.7.4 {
+	SString memo_pattern;
+	SString memo_buf;
+	if(!(flags & enfSkipExtssMemo))
+		Filt.GetExtStrData(BillFilt::extssMemoText, memo_pattern); 
+	// } @v11.7.4
 	if(IdList.IsExists()) {
 		p_list = &IdList.Get();
 		check_list_item_for_filt = (Filt.Flags & BillFilt::fBillListOnly) ? 0 : 1;
@@ -1705,6 +1759,13 @@ int PPViewBill::Enumerator(BillViewEnumProc proc, void * pExtraPtr)
 					}
 				}
 				// } @v11.1.9 
+				// @v11.7.4 {
+				if(!(flags & enfSkipExtssMemo) && memo_pattern.NotEmpty()) {
+					P_BObj->P_Tbl->GetItemMemo(bill_rec.ID, memo_buf);
+					if(!memo_buf.NotEmptyS() || !ExtStrSrch(memo_buf, memo_pattern, 0))
+						continue;
+				}
+				// } @v11.7.4 
 				// @v11.0.11 {
 				if(Filt.GoodsGroupID && P_BObj->DoesContainGoods(bill_rec.ID, GoodsList) <= 0)
 					continue;
@@ -1716,13 +1777,13 @@ int PPViewBill::Enumerator(BillViewEnumProc proc, void * pExtraPtr)
 						continue;
 				}
 				// } @v11.1.8 
-				THROW(ok = Helper_EnumProc(bill_rec.ID, &bill_rec, 0, proc, pExtraPtr));
+				THROW(ok = Helper_EnumProc(bill_rec.ID, &bill_rec, 0, flags, proc, pExtraPtr));
 			}
 		}
 	}
 	if(p_list) {
 		for(uint i = 0; ok > 0 && i < p_list->getCount(); i++)
-			THROW(ok = Helper_EnumProc(p_list->get(i), 0, check_list_item_for_filt, proc, pExtraPtr));
+			THROW(ok = Helper_EnumProc(p_list->get(i), 0, check_list_item_for_filt, flags, proc, pExtraPtr));
 	}
 	CATCHZOK
 	delete q;
@@ -1781,7 +1842,7 @@ int PPViewBill::CalcTotal(BillTotal * pTotal)
 	if(pTotal) {
 		pTotal->Z();
 		IterProcParam_Total param(P_BObj, &Filt, BIN(Filt.Flags & BillFilt::fCashOnly), pTotal);
-		ok = Enumerator(IterProc_Total, &param);
+		ok = Enumerator(0, IterProc_Total, &param);
 		if(ok && Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments) {
 			CalcDebtCardInSaldo(&pTotal->InSaldo);
 			pTotal->OutSaldo = pTotal->InSaldo + pTotal->Debit - pTotal->Credit;
@@ -1794,16 +1855,6 @@ int PPViewBill::CalcItemTotal(PPID billID, BillTotalData * pTotal)
 {
 	PPBillPacket pack;
 	return (billID && P_BObj->ExtractPacket(billID, &pack) > 0) ? pack.CalcTotal(pTotal, BTC_CALCSALESTAXES) : -1;
-}
-
-static int IterProc_CrList(const BillViewItem * pItem, void * pExtraPtr)
-{
-	return (pExtraPtr && static_cast<PPIDArray *>(pExtraPtr)->add(pItem->ID)) ? 1 : PPSetErrorSLib();
-}
-
-int PPViewBill::GetBillIDList(PPIDArray * pList)
-{
-	return Enumerator(IterProc_CrList, pList);
 }
 
 struct IterProcParam_CrTmpTbl {
@@ -1864,7 +1915,7 @@ int PPViewBill::CreateTempTable(IterOrder ord, int * pIsOrdTbl)
 	{
 		PPTransaction tra(ppDbDependTransaction, 1);
 		THROW(tra);
-		THROW(Enumerator(IterProc_CrTmpTbl, &param));
+		THROW(Enumerator(0, IterProc_CrTmpTbl, &param));
 		THROW_DB(param.bei->flash());
 		if(btbl && (Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments)) {
 			param.Saldo = 0.0;
@@ -2565,6 +2616,7 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE    dbe_cur;
 	DBE    dbe_chkusr;
 	DBE    dbe_chkpsncat; // @v11.1.9
+	DBE    dbe_chkmemosubstr; // @v11.7.4
 	DBE    dbe_issuedate;
 	DBE    dbe_arrvldate;
 	DBE    dbe_agentname;
@@ -2822,6 +2874,19 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				dbq = & (*dbq && dbe_chkpsncat == 1L);
 			}
 			// } @v11.1.9 
+			// @v11.7.4 {
+			{
+				SString memo_pattern;
+				Filt.GetExtStrData(BillFilt::extssMemoText, memo_pattern);
+				if(memo_pattern.NotEmptyS()) {
+					dbe_chkmemosubstr.init();
+					dbe_chkmemosubstr.push(bll->ID);
+					dbe_chkmemosubstr.push(dbconst(memo_pattern));
+					dbe_chkmemosubstr.push(static_cast<DBFunc>(PPDbqFuncPool::IdBillMemoSubStr));
+					dbq = & (*dbq && dbe_chkmemosubstr == 1L);
+				}
+			}
+			// } @v11.7.4 
 			if(!IdList.IsExists()) {
 				dbq = ppcheckflag(dbq, bll->Flags, BILLF_NEEDPAYMENT,   BIN(Filt.Flags & BillFilt::fPaymNeeded));
 				dbq = ppcheckflag(dbq, bll->Flags, BILLF_WHITELABEL,    BIN(Filt.Flags & BillFilt::fLabelOnly));

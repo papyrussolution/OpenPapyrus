@@ -53,35 +53,31 @@
 #define MAKE_REFGUID(x) &(x)
 #endif
 
-static HRESULT CreateOutputStream(const char* out_file_name,
-    int write_to_mem, IStream** stream) {
+static HRESULT CreateOutputStream(const char* out_file_name, int write_to_mem, IStream** stream) 
+{
 	HRESULT hr = S_OK;
 	if(write_to_mem) {
 		// Output to a memory buffer. This is freed when 'stream' is released.
 		IFS(CreateStreamOnHGlobal(NULL, TRUE, stream));
 	}
 	else {
-		IFS(SHCreateStreamOnFile((const LPTSTR)out_file_name,
-		    STGM_WRITE | STGM_CREATE, stream));
+		IFS(SHCreateStreamOnFile((const LPTSTR)out_file_name, STGM_WRITE | STGM_CREATE, stream));
 	}
 	if(FAILED(hr)) {
-		_ftprintf(stderr, _T("Error opening output file %s (%08lx)\n"),
-		    (const LPTSTR)out_file_name, hr);
+		_ftprintf(stderr, _T("Error opening output file %s (%08lx)\n"), (const LPTSTR)out_file_name, hr);
 	}
 	return hr;
 }
 
-static HRESULT WriteUsingWIC(const char* out_file_name, int use_stdout,
-    REFGUID container_guid,
-    uint8* rgb, int stride,
-    uint32_t width, uint32_t height, int has_alpha) {
+static HRESULT WriteUsingWIC(const char* out_file_name, int use_stdout, REFGUID container_guid,
+    uint8* rgb, int stride, uint32_t width, uint32_t height, int has_alpha) 
+{
 	HRESULT hr = S_OK;
 	IWICImagingFactory* factory = NULL;
 	IWICBitmapFrameEncode* frame = NULL;
 	IWICBitmapEncoder* encoder = NULL;
 	IStream* stream = NULL;
-	WICPixelFormatGUID pixel_format = has_alpha ? GUID_WICPixelFormat32bppBGRA
-	    : GUID_WICPixelFormat24bppBGR;
+	WICPixelFormatGUID pixel_format = has_alpha ? GUID_WICPixelFormat32bppBGRA : GUID_WICPixelFormat24bppBGR;
 
 	if(out_file_name == NULL || rgb == NULL) return E_INVALIDARG;
 
@@ -129,7 +125,7 @@ static HRESULT WriteUsingWIC(const char* out_file_name, int use_stdout,
 	if(frame != NULL) frame->lpVtbl->Release(frame);
 	if(encoder != NULL) encoder->lpVtbl->Release(encoder);
 	if(factory != NULL) factory->lpVtbl->Release(factory);
-	if(stream != NULL) stream->Release();
+	SCOMOBJRELEASE(stream);
 #else
 	if(frame != NULL) IUnknown_Release(frame);
 	if(encoder != NULL) IUnknown_Release(encoder);

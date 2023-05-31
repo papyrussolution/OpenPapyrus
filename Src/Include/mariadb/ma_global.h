@@ -805,8 +805,8 @@ do { doubleget_union _tmp; \
                               ((uchar *) &def_temp)[7]=(M)[3];\
                               (V) = def_temp; } while(0)
 #endif /* __FLOAT_WORD_ORDER */
-#define float8get(V,M)   doubleget((V),(M))
-#define float8store(V,M) doublestore((V),(M))
+	#define float8get(V,M)   doubleget((V),(M))
+	#define float8store(V,M) doublestore((V),(M))
 #endif /* WORDS_BIGENDIAN */
 
 #endif /* __i386__ OR _WIN32 */

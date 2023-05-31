@@ -123,9 +123,7 @@ void ImGui_ImplDX11_RenderDrawData(ImDrawData* draw_data)
 	ID3D11DeviceContext* ctx = bd->pd3dDeviceContext;
 	// Create and grow vertex/index buffers if needed
 	if(!bd->pVB || bd->VertexBufferSize < draw_data->TotalVtxCount) {
-		if(bd->pVB) {
-			bd->pVB->Release(); bd->pVB = nullptr;
-		}
+		SCOMOBJRELEASE(bd->pVB);
 		bd->VertexBufferSize = draw_data->TotalVtxCount + 5000;
 		D3D11_BUFFER_DESC desc;
 		memzero(&desc, sizeof(D3D11_BUFFER_DESC));
@@ -138,9 +136,7 @@ void ImGui_ImplDX11_RenderDrawData(ImDrawData* draw_data)
 			return;
 	}
 	if(!bd->pIB || bd->IndexBufferSize < draw_data->TotalIdxCount) {
-		if(bd->pIB) {
-			bd->pIB->Release(); bd->pIB = nullptr;
-		}
+		SCOMOBJRELEASE(bd->pIB);
 		bd->IndexBufferSize = draw_data->TotalIdxCount + 10000;
 		D3D11_BUFFER_DESC desc;
 		memzero(&desc, sizeof(D3D11_BUFFER_DESC));
@@ -420,7 +416,6 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
 			return false;
 		}
 		vertexShaderBlob->Release();
-
 		// Create the constant buffer
 		{
 			D3D11_BUFFER_DESC desc;
@@ -510,57 +505,27 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
 void    ImGui_ImplDX11_InvalidateDeviceObjects()
 {
 	ImGui_ImplDX11_Data* bd = ImGui_ImplDX11_GetBackendData();
-	if(!bd->pd3dDevice)
-		return;
-	if(bd->pFontSampler) {
-		bd->pFontSampler->Release(); bd->pFontSampler = nullptr;
-	}
-	if(bd->pFontTextureView) {
-		bd->pFontTextureView->Release(); 
-		bd->pFontTextureView = nullptr; 
-		ImGui::GetIO().Fonts->SetTexID(0);
-	} // We copied data->pFontTextureView to io.Fonts->TexID so let's clear that as well.
-	if(bd->pIB) {
-		bd->pIB->Release(); 
-		bd->pIB = nullptr;
-	}
-	if(bd->pVB) {
-		bd->pVB->Release(); 
-		bd->pVB = nullptr;
-	}
-	if(bd->pBlendState) {
-		bd->pBlendState->Release(); 
-		bd->pBlendState = nullptr;
-	}
-	if(bd->pDepthStencilState) {
-		bd->pDepthStencilState->Release(); 
-		bd->pDepthStencilState = nullptr;
-	}
-	if(bd->pRasterizerState) {
-		bd->pRasterizerState->Release(); 
-		bd->pRasterizerState = nullptr;
-	}
-	if(bd->pPixelShader) {
-		bd->pPixelShader->Release(); 
-		bd->pPixelShader = nullptr;
-	}
-	if(bd->pVertexConstantBuffer) {
-		bd->pVertexConstantBuffer->Release(); 
-		bd->pVertexConstantBuffer = nullptr;
-	}
-	if(bd->pInputLayout) {
-		bd->pInputLayout->Release(); 
-		bd->pInputLayout = nullptr;
-	}
-	if(bd->pVertexShader) {
-		bd->pVertexShader->Release(); 
-		bd->pVertexShader = nullptr;
+	if(bd->pd3dDevice) {
+		SCOMOBJRELEASE(bd->pFontSampler); 
+		if(bd->pFontTextureView) {
+			SCOMOBJRELEASE(bd->pFontTextureView); 
+			ImGui::GetIO().Fonts->SetTexID(0);
+		} // We copied data->pFontTextureView to io.Fonts->TexID so let's clear that as well.
+		SCOMOBJRELEASE(bd->pIB); 
+		SCOMOBJRELEASE(bd->pVB); 
+		SCOMOBJRELEASE(bd->pBlendState); 
+		SCOMOBJRELEASE(bd->pDepthStencilState); 
+		SCOMOBJRELEASE(bd->pRasterizerState); 
+		SCOMOBJRELEASE(bd->pPixelShader); 
+		SCOMOBJRELEASE(bd->pVertexConstantBuffer); 
+		SCOMOBJRELEASE(bd->pInputLayout); 
+		SCOMOBJRELEASE(bd->pVertexShader);
 	}
 }
 
 bool ImGui_ImplDX11_Init(ID3D11Device* device, ID3D11DeviceContext* device_context)
 {
-	ImGuiIO& io = ImGui::GetIO();
+	ImGuiIO & io = ImGui::GetIO();
 	assert(io.BackendRendererUserData == nullptr && "Already initialized a renderer backend!");
 	// Setup backend capabilities flags
 	ImGui_ImplDX11_Data* bd = IM_NEW(ImGui_ImplDX11_Data)();
@@ -592,7 +557,6 @@ void ImGui_ImplDX11_Shutdown()
 	ImGui_ImplDX11_Data* bd = ImGui_ImplDX11_GetBackendData();
 	assert(bd != nullptr && "No renderer backend to shutdown, or already shutdown?");
 	ImGuiIO& io = ImGui::GetIO();
-
 	ImGui_ImplDX11_InvalidateDeviceObjects();
 	if(bd->pFactory) {
 		bd->pFactory->Release();

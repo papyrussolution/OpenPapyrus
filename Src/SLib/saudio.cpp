@@ -1,5 +1,5 @@
 // SAUDIO.CPP
-// Copyright (c) A.Sobolev 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -19,13 +19,11 @@ int SGetAudioVolume(int decibels, double * pVolume)
 	if(SUCCEEDED(hr) && p_device_enumerator) {
 		IMMDevice * p_default_device = 0;
 		hr = p_device_enumerator->GetDefaultAudioEndpoint(eRender, eConsole, &p_default_device);
-		p_device_enumerator->Release();
-		p_device_enumerator = NULL;
+		SCOMOBJRELEASE(p_device_enumerator);
 		if(SUCCEEDED(hr) && p_default_device) {
 			IAudioEndpointVolume * p_endpoint_volume = NULL;
 			hr = p_default_device->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_INPROC_SERVER, NULL, reinterpret_cast<void **>(&p_endpoint_volume));
-			p_default_device->Release();
-			p_default_device = NULL; 
+			SCOMOBJRELEASE(p_default_device);
 			if(SUCCEEDED(hr) && p_endpoint_volume) {
 				if(decibels) {
 					p_endpoint_volume->GetMasterVolumeLevel(&current_volume);
@@ -35,7 +33,7 @@ int SGetAudioVolume(int decibels, double * pVolume)
 					hr = p_endpoint_volume->GetMasterVolumeLevelScalar(&current_volume);
 					//printf("Current volume as a scalar is: %f\n", currentVolume);
 				}
-				p_endpoint_volume->Release();
+				SCOMOBJRELEASE(p_endpoint_volume);
 				ok = 1;
 			}
 		}
@@ -56,19 +54,17 @@ int SSetAudioVolume(int decibels, double volume)
 	if(SUCCEEDED(hr) && p_device_enumerator) {
 		IMMDevice * p_default_device = 0;
 		hr = p_device_enumerator->GetDefaultAudioEndpoint(eRender, eConsole, &p_default_device);
-		p_device_enumerator->Release();
-		p_device_enumerator = NULL;
+		SCOMOBJRELEASE(p_device_enumerator);
 		if(SUCCEEDED(hr) && p_default_device) {
 			IAudioEndpointVolume * p_endpoint_volume = NULL;
 			hr = p_default_device->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_INPROC_SERVER, NULL, reinterpret_cast<void **>(&p_endpoint_volume));
-			p_default_device->Release();
-			p_default_device = NULL; 
+			SCOMOBJRELEASE(p_default_device);
 			if(SUCCEEDED(hr) && p_endpoint_volume) {
 				if(decibels)
 					hr = p_endpoint_volume->SetMasterVolumeLevel(static_cast<float>(volume), NULL);
 				else
 					hr = p_endpoint_volume->SetMasterVolumeLevelScalar(static_cast<float>(volume), NULL); // newVolume [0.0-1.0]
-				p_endpoint_volume->Release();
+				SCOMOBJRELEASE(p_endpoint_volume);
 			}
 		}
 	}

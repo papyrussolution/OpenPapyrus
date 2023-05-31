@@ -531,10 +531,7 @@ LexState::LexState(Document * pdoc_) : LexInterface(pdoc_), lexCurrent(0), inter
 
 LexState::~LexState()
 {
-	if(instance) {
-		instance->Release();
-		instance = 0;
-	}
+	SCOMOBJRELEASE(instance);
 }
 
 LexState * ScintillaBase::DocumentLexState()
@@ -546,10 +543,7 @@ LexState * ScintillaBase::DocumentLexState()
 void LexState::SetLexerModule(const LexerModule * lex)
 {
 	if(lex != lexCurrent) {
-		if(instance) {
-			instance->Release();
-			instance = 0;
-		}
+		SCOMOBJRELEASE(instance);
 		interfaceVersion = lvOriginal;
 		lexCurrent = lex;
 		if(lexCurrent) {

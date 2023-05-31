@@ -13,13 +13,10 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dsp/dsp.h"
 
 #if defined(WEBP_USE_SSE2)
 
-//#include <assert.h>
 #include <emmintrin.h>
-//#include <string.h>
 #include "src/dsp/yuv.h"
 
 #ifdef FANCY_UPSAMPLING

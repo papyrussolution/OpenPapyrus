@@ -299,7 +299,7 @@ do { \
 //#include "crc_macros.h"
 // Some endian-dependent macros for CRC32 and CRC64
 //
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	#define CRC_A(x) ((x) >> 24)
 	#define CRC_B(x) (((x) >> 16) & 0xFF)
 	#define CRC_C(x) (((x) >> 8) & 0xFF)

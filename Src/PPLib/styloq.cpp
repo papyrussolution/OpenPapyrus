@@ -205,6 +205,7 @@ static const SIntToSymbTabEntry StyloQConfigTagNameList[] = {
 	{ StyloQConfig::tagDefFace,         "defface"  }, // @v11.2.5 (private config) Лик, используемый клиентом по умолчанию
 	{ StyloQConfig::tagRole,            "role"  }, // @v11.2.8 
 	{ StyloQConfig::tagCliFlags,        "cliflags" }, // @v11.6.0
+	{ StyloQConfig::tagNotificationActualDays, "notificationactualdays" }, // @v11.7.4
 };
 
 /*static*/SJson * StyloQConfig::MakeTransmissionJson_(const char * pSrcJson, const void * pClientPacket)

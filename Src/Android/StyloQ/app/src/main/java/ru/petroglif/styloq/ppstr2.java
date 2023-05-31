@@ -2217,6 +2217,7 @@ class ppstr2 {
 	public static final int PPERR_SQ_INDOCINVCLI = 12200;
 	public static final int PPERR_SQ_INDOCINVCLIACS = 12201;
 	public static final int PPERR_DEBUG = 12202;
+	public static final int PPERR_INVALIDCCDATE2MAXIDINDEX = 12203;
 	//
 	// .N.
 	//
@@ -5036,6 +5037,7 @@ class ppstr2 {
 	public static final int PPHS_STYLOQBINDERY = 10311;
 	public static final int PPHS_TIMEZONES = 10312;
 	public static final int PPHS_EXECJOBIMM = 10313;
+	public static final int PPHS_WSCTL = 10314;
 	//
 	// .N.
 	//
@@ -5306,6 +5308,8 @@ class ppstr2 {
 	public static final int PPHSC_RU_AMTTAX_INCR = 10267;
 	public static final int PPHSC_RU_AMTTAX_DECR = 10268;
 	public static final int PPHSC_RU_EXTRA_TRACING = 10269;
+	public static final int PPHSC_RU_VALUETOTAL_INCR = 10270;
+	public static final int PPHSC_RU_VALUETOTAL_DECR = 10271;
 	//
 	// .N.
 	//

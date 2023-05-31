@@ -13,11 +13,11 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-#include "src/dec/vp8li_dec.h"
+//#include "src/dec/vp8li_dec.h"
 #include "src/dsp/lossless.h"
 #include "src/dsp/lossless_common.h"
 #include "src/dsp/yuv.h"
-#include "src/utils/endian_inl_utils.h"
+//#include "src/utils/endian_inl_utils.h"
 #include "src/utils/huffman_utils.h"
 
 #define NUM_ARGB_CACHE_ROWS          16
@@ -630,9 +630,9 @@ static void ConvertToYUVA(const uint32_t* const src, int width, int y_pos, const
 		WebPConvertARGBToUV(src, u, v, width, !(y_pos & 1));
 	}
 	// Lastly, store alpha if needed.
-	if(buf->a != NULL) {
-		uint8* const a = buf->a + y_pos * buf->a_stride;
-#if defined(WORDS_BIGENDIAN)
+	if(buf->a) {
+		uint8 * const a = buf->a + y_pos * buf->a_stride;
+#if defined(SL_BIGENDIAN)
 		WebPExtractAlpha((uint8*)src + 0, 0, width, 1, a, 0);
 #else
 		WebPExtractAlpha((uint8*)src + 3, 0, width, 1, a, 0);
@@ -864,7 +864,7 @@ static void ExtractPalettedAlphaRows(VP8LDecoder* const dec, int last_row) {
 // cyclic rotation of pattern word
 static FORCEINLINE uint32_t Rotate8b(uint32_t V) 
 {
-#if defined(WORDS_BIGENDIAN)
+#if defined(SL_BIGENDIAN)
 	return ((V & 0xff000000u) >> 24) | (V << 8);
 #else
 	return ((V & 0xffu) << 24) | (V >> 8);
@@ -872,8 +872,8 @@ static FORCEINLINE uint32_t Rotate8b(uint32_t V)
 }
 
 // copy 1, 2 or 4-bytes pattern
-static FORCEINLINE void CopySmallPattern8b(const uint8* src, uint8* dst,
-    int length, uint32_t pattern) {
+static FORCEINLINE void CopySmallPattern8b(const uint8* src, uint8* dst, int length, uint32_t pattern) 
+{
 	int i;
 	// align 'dst' to 4-bytes boundary. Adjust the pattern along the way.
 	while((uintptr_t)dst & 3) {
@@ -909,7 +909,7 @@ static FORCEINLINE void CopyBlock8b(uint8* const dst, int dist, int length) {
 #endif
 			    break;
 			case 2:
-#if !defined(WORDS_BIGENDIAN)
+#if !defined(SL_BIGENDIAN)
 			    memcpy(&pattern, src, sizeof(uint16_t));
 #else
 			    pattern = ((uint32_t)src[0] << 8) | src[1];

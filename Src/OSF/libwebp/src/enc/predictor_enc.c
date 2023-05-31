@@ -27,31 +27,27 @@ static const int kPredLowEffort = 11;
 static const uint32_t kMaskAlpha = 0xff000000;
 
 // Mostly used to reduce code size + readability
-static FORCEINLINE int GetMin(int a, int b) {
-	return (a > b) ? b : a;
-}
+static FORCEINLINE int GetMin(int a, int b) { return (a > b) ? b : a; }
 
 //------------------------------------------------------------------------------
 // Methods to calculate Entropy (Shannon).
 
-static float PredictionCostSpatial(const int counts[256], int weight_0,
-    double exp_val) {
+static float PredictionCostSpatial(const int counts[256], int weight_0, double exp_val) 
+{
 	const int significant_symbols = 256 >> 4;
 	const double exp_decay_factor = 0.6;
 	double bits = weight_0 * counts[0];
-	int i;
-	for(i = 1; i < significant_symbols; ++i) {
+	for(int i = 1; i < significant_symbols; ++i) {
 		bits += exp_val * (counts[i] + counts[256 - i]);
 		exp_val *= exp_decay_factor;
 	}
 	return (float)(-0.1 * bits);
 }
 
-static float PredictionCostSpatialHistogram(const int accumulated[4][256],
-    const int tile[4][256]) {
-	int i;
+static float PredictionCostSpatialHistogram(const int accumulated[4][256], const int tile[4][256]) 
+{
 	double retval = 0;
-	for(i = 0; i < 4; ++i) {
+	for(int i = 0; i < 4; ++i) {
 		const double kExpValue = 0.94;
 		retval += PredictionCostSpatial(tile[i], 1, kExpValue);
 		retval += VP8LCombinedShannonEntropy(tile[i], accumulated[i]);
@@ -59,19 +55,19 @@ static float PredictionCostSpatialHistogram(const int accumulated[4][256],
 	return (float)retval;
 }
 
-static FORCEINLINE void UpdateHisto(int histo_argb[4][256], uint32_t argb) {
+static FORCEINLINE void UpdateHisto(int histo_argb[4][256], uint32_t argb) 
+{
 	++histo_argb[0][argb >> 24];
 	++histo_argb[1][(argb >> 16) & 0xff];
 	++histo_argb[2][(argb >> 8) & 0xff];
 	++histo_argb[3][argb & 0xff];
 }
-
-//------------------------------------------------------------------------------
+//
 // Spatial transform functions.
-
+//
 static FORCEINLINE void PredictBatch(int mode, int x_start, int y,
-    int num_pixels, const uint32_t* current,
-    const uint32_t* upper, uint32_t* out) {
+    int num_pixels, const uint32_t* current, const uint32_t* upper, uint32_t* out) 
+{
 	if(x_start == 0) {
 		if(y == 0) {
 			// ARGB_BLACK.

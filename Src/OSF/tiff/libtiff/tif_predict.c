@@ -370,10 +370,10 @@ static int fpAcc(TIFF * tif, uint8 * cp0, tmsize_t cc)
 	for(count = 0; count < wc; count++) {
 		uint32 byte;
 		for(byte = 0; byte < bps; byte++) {
-			#if WORDS_BIGENDIAN
-			cp[bps * count + byte] = tmp[byte * wc + count];
+			#if SL_BIGENDIAN
+				cp[bps * count + byte] = tmp[byte * wc + count];
 			#else
-			cp[bps * count + byte] = tmp[(bps - byte - 1) * wc + count];
+				cp[bps * count + byte] = tmp[(bps - byte - 1) * wc + count];
 			#endif
 		}
 	}
@@ -564,10 +564,10 @@ static int fpDiff(TIFF * tif, uint8 * cp0, tmsize_t cc)
 	for(count = 0; count < wc; count++) {
 		uint32 byte;
 		for(byte = 0; byte < bps; byte++) {
-			#if WORDS_BIGENDIAN
-			cp[byte * wc + count] = tmp[bps * count + byte];
+			#if SL_BIGENDIAN
+				cp[byte * wc + count] = tmp[bps * count + byte];
 			#else
-			cp[(bps - byte - 1) * wc + count] = tmp[bps * count + byte];
+				cp[(bps - byte - 1) * wc + count] = tmp[bps * count + byte];
 			#endif
 		}
 	}

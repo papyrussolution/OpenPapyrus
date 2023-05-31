@@ -150,28 +150,22 @@ void ImGui_ImplDX9_RenderDrawData(ImDrawData* draw_data)
 	// Avoid rendering when minimized
 	if(draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f)
 		return;
-
 	// Create and grow buffers if needed
 	ImGui_ImplDX9_Data* bd = ImGui_ImplDX9_GetBackendData();
 	if(!bd->pVB || bd->VertexBufferSize < draw_data->TotalVtxCount) {
-		if(bd->pVB) {
-			bd->pVB->Release(); bd->pVB = nullptr;
-		}
+		SCOMOBJRELEASE(bd->pVB);
 		bd->VertexBufferSize = draw_data->TotalVtxCount + 5000;
 		if(bd->pd3dDevice->CreateVertexBuffer(bd->VertexBufferSize * sizeof(CUSTOMVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT,
 		    &bd->pVB, nullptr) < 0)
 			return;
 	}
 	if(!bd->pIB || bd->IndexBufferSize < draw_data->TotalIdxCount) {
-		if(bd->pIB) {
-			bd->pIB->Release(); bd->pIB = nullptr;
-		}
+		SCOMOBJRELEASE(bd->pIB);
 		bd->IndexBufferSize = draw_data->TotalIdxCount + 10000;
 		if(bd->pd3dDevice->CreateIndexBuffer(bd->IndexBufferSize * sizeof(ImDrawIdx), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY,
 		    sizeof(ImDrawIdx) == 2 ? D3DFMT_INDEX16 : D3DFMT_INDEX32, D3DPOOL_DEFAULT, &bd->pIB, nullptr) < 0)
 			return;
 	}
-
 	// Backup the DX9 state
 	IDirect3DStateBlock9* d3d9_state_block = nullptr;
 	if(bd->pd3dDevice->CreateStateBlock(D3DSBT_ALL, &d3d9_state_block) < 0)
@@ -180,13 +174,11 @@ void ImGui_ImplDX9_RenderDrawData(ImDrawData* draw_data)
 		d3d9_state_block->Release();
 		return;
 	}
-
 	// Backup the DX9 transform (DX9 documentation suggests that it is included in the StateBlock but it doesn't appear to)
 	D3DMATRIX last_world, last_view, last_projection;
 	bd->pd3dDevice->GetTransform(D3DTS_WORLD, &last_world);
 	bd->pd3dDevice->GetTransform(D3DTS_VIEW, &last_view);
 	bd->pd3dDevice->GetTransform(D3DTS_PROJECTION, &last_projection);
-
 	// Allocate buffers
 	CUSTOMVERTEX* vtx_dst;
 	ImDrawIdx* idx_dst;
@@ -199,7 +191,6 @@ void ImGui_ImplDX9_RenderDrawData(ImDrawData* draw_data)
 		d3d9_state_block->Release();
 		return;
 	}
-
 	// Copy and convert all vertices into a single contiguous buffer, convert colors to DX9 default format.
 	// FIXME-OPT: This is a minor waste of resource, the ideal is to use imconfig.h and
 	//  1) to avoid repacking colors:   #define IMGUI_USE_BGRA_PACKED_COLOR
@@ -290,10 +281,8 @@ bool ImGui_ImplDX9_Init(IDirect3DDevice9* device)
 	io.BackendRendererUserData = (void*)bd;
 	io.BackendRendererName = "imgui_impl_dx9";
 	io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset; // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
-
 	bd->pd3dDevice = device;
 	bd->pd3dDevice->AddRef();
-
 	return true;
 }
 
@@ -301,12 +290,9 @@ void ImGui_ImplDX9_Shutdown()
 {
 	ImGui_ImplDX9_Data* bd = ImGui_ImplDX9_GetBackendData();
 	assert(bd != nullptr && "No renderer backend to shutdown, or already shutdown?");
-	ImGuiIO& io = ImGui::GetIO();
-
+	ImGuiIO & io = ImGui::GetIO();
 	ImGui_ImplDX9_InvalidateDeviceObjects();
-	if(bd->pd3dDevice) {
-		bd->pd3dDevice->Release();
-	}
+	SCOMOBJRELEASE(bd->pd3dDevice);
 	io.BackendRendererName = nullptr;
 	io.BackendRendererUserData = nullptr;
 	IM_DELETE(bd);
@@ -317,10 +303,9 @@ static bool ImGui_ImplDX9_CreateFontsTexture()
 	// Build texture atlas
 	ImGuiIO& io = ImGui::GetIO();
 	ImGui_ImplDX9_Data* bd = ImGui_ImplDX9_GetBackendData();
-	uchar* pixels;
+	uchar * pixels;
 	int width, height, bytes_per_pixel;
 	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height, &bytes_per_pixel);
-
 	// Convert RGBA32 to BGRA32 (because RGBA32 is not well supported by DX9 devices)
 #ifndef IMGUI_USE_BGRA_PACKED_COLOR
 	if(io.Fonts->TexPixelsUseColors) {
@@ -363,19 +348,14 @@ bool ImGui_ImplDX9_CreateDeviceObjects()
 void ImGui_ImplDX9_InvalidateDeviceObjects()
 {
 	ImGui_ImplDX9_Data* bd = ImGui_ImplDX9_GetBackendData();
-	if(!bd || !bd->pd3dDevice)
-		return;
-	if(bd->pVB) {
-		bd->pVB->Release(); 
-		bd->pVB = nullptr;
+	if(bd && bd->pd3dDevice) {
+		SCOMOBJRELEASE(bd->pVB); 
+		SCOMOBJRELEASE(bd->pIB); 
+		if(bd->FontTexture) {
+			SCOMOBJRELEASE(bd->FontTexture); 
+			ImGui::GetIO().Fonts->SetTexID(0);
+		} // We copied bd->pFontTextureView to io.Fonts->TexID so let's clear that as well.
 	}
-	if(bd->pIB) {
-		bd->pIB->Release(); 
-		bd->pIB = nullptr;
-	}
-	if(bd->FontTexture) {
-		bd->FontTexture->Release(); bd->FontTexture = nullptr; ImGui::GetIO().Fonts->SetTexID(0);
-	}                                                                                                              // We copied bd->pFontTextureView to io.Fonts->TexID so let's clear that as well.
 }
 
 void ImGui_ImplDX9_NewFrame()

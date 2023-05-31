@@ -1112,10 +1112,7 @@ SurfaceD2D::~SurfaceD2D()
 
 void SurfaceD2D::Release()
 {
-	if(pBrush) {
-		pBrush->Release();
-		pBrush = 0;
-	}
+	SCOMOBJRELEASE(pBrush);
 	if(pRenderTarget) {
 		while(clipsActive) {
 			pRenderTarget->PopAxisAlignedClip();
@@ -1203,9 +1200,8 @@ void SurfaceD2D::D2DPenColour(ColourDesired fore, int alpha)
 		}
 		else {
 			HRESULT hr = pRenderTarget->CreateSolidColorBrush(col, &pBrush);
-			if(!SUCCEEDED(hr) && pBrush) {
-				pBrush->Release();
-				pBrush = 0;
+			if(!SUCCEEDED(hr)) {
+				SCOMOBJRELEASE(pBrush);
 			}
 		}
 	}
@@ -1432,13 +1428,10 @@ void SurfaceD2D::DrawRGBAImage(PRectangle rc, int width, int height, const uchar
 				pixel[3] = *pixelsImage++;
 			}
 		}
-
 		ID2D1Bitmap * bitmap = 0;
 		D2D1_SIZE_U size = D2D1::SizeU(width, height);
-		D2D1_BITMAP_PROPERTIES props = {{DXGI_FORMAT_B8G8R8A8_UNORM,
-						 D2D1_ALPHA_MODE_PREMULTIPLIED}, 72.0, 72.0};
-		HRESULT hr = pRenderTarget->CreateBitmap(size, &image[0],
-		    width * 4, &props, &bitmap);
+		D2D1_BITMAP_PROPERTIES props = {{DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED}, 72.0, 72.0};
+		HRESULT hr = pRenderTarget->CreateBitmap(size, &image[0], width * 4, &props, &bitmap);
 		if(SUCCEEDED(hr)) {
 			D2D1_RECT_F rcDestination = {rc.left, rc.top, rc.right, rc.bottom};
 			pRenderTarget->DrawBitmap(bitmap, rcDestination);
@@ -1455,7 +1448,6 @@ void SurfaceD2D::Ellipse(PRectangle rc, ColourDesired fore, ColourDesired back)
 			D2D1::Point2F((rc.left + rc.right) / 2.0f, (rc.top + rc.bottom) / 2.0f),
 			radius, radius
 		};
-
 		PenColour(back);
 		pRenderTarget->FillEllipse(ellipse, pBrush);
 		PenColour(fore);
@@ -1467,15 +1459,13 @@ void SurfaceD2D::Copy(PRectangle rc, SciPoint from, SciSurface &surfaceSource)
 {
 	SurfaceD2D &surfOther = static_cast<SurfaceD2D &>(surfaceSource);
 	surfOther.FlushDrawing();
-	ID2D1BitmapRenderTarget * pCompatibleRenderTarget = reinterpret_cast<ID2D1BitmapRenderTarget *>(
-	    surfOther.pRenderTarget);
+	ID2D1BitmapRenderTarget * pCompatibleRenderTarget = reinterpret_cast<ID2D1BitmapRenderTarget *>(surfOther.pRenderTarget);
 	ID2D1Bitmap * pBitmap = NULL;
 	HRESULT hr = pCompatibleRenderTarget->GetBitmap(&pBitmap);
 	if(SUCCEEDED(hr)) {
 		D2D1_RECT_F rcDestination = {rc.left, rc.top, rc.right, rc.bottom};
 		D2D1_RECT_F rcSource = {from.x, from.y, from.x + rc.Width(), from.y + rc.Height()};
-		pRenderTarget->DrawBitmap(pBitmap, rcDestination, 1.0f,
-		    D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR, rcSource);
+		pRenderTarget->DrawBitmap(pBitmap, rcDestination, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR, rcSource);
 		hr = pRenderTarget->Flush();
 		if(FAILED(hr)) {
 			Platform::DebugPrintf("Failed Flush 0x%x\n", hr);
@@ -1487,7 +1477,6 @@ void SurfaceD2D::Copy(PRectangle rc, SciPoint from, SciSurface &surfaceSource)
 void SurfaceD2D::DrawTextCommon(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, UINT fuOptions)
 {
 	SetFont(font_);
-
 	// Use Unicode calls
 	const TextWide tbuf(s, len, unicodeMode, codePageText);
 	if(pRenderTarget && pTextFormat && pBrush) {
@@ -1505,15 +1494,13 @@ void SurfaceD2D::DrawTextCommon(PRectangle rc, SciFont &font_, XYPOSITION ybase,
 			pRenderTarget->DrawTextLayout(origin, pTextLayout, pBrush, D2D1_DRAW_TEXT_OPTIONS_NONE);
 			pTextLayout->Release();
 		}
-
 		if(fuOptions & ETO_CLIPPED) {
 			pRenderTarget->PopAxisAlignedClip();
 		}
 	}
 }
 
-void SurfaceD2D::DrawTextNoClip(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len,
-    ColourDesired fore, ColourDesired back)
+void SurfaceD2D::DrawTextNoClip(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back)
 {
 	if(pRenderTarget) {
 		FillRectangle(rc, back);
@@ -3087,21 +3074,19 @@ int Platform::Maximum(int a, int b) { return (a > b) ? a : b; }
 //#define TRACE
 
 #ifdef TRACE
-void Platform::DebugPrintf(const char * format, ...)
-{
-	char buffer[2000];
-	va_list pArguments;
-	va_start(pArguments, format);
-	vsprintf(buffer, format, pArguments);
-	va_end(pArguments);
-	Platform::DebugDisplay(buffer);
-}
-
+	void Platform::DebugPrintf(const char * format, ...)
+	{
+		char buffer[2000];
+		va_list pArguments;
+		va_start(pArguments, format);
+		vsprintf(buffer, format, pArguments);
+		va_end(pArguments);
+		Platform::DebugDisplay(buffer);
+	}
 #else
-void Platform::DebugPrintf(const char *, ...)
-{
-}
-
+	void Platform::DebugPrintf(const char *, ...)
+	{
+	}
 #endif
 
 static bool assertionPopUps = true;
@@ -3118,8 +3103,7 @@ void Platform::Assert(const char * c, const char * file, int line)
 	char buffer[2000];
 	sprintf(buffer, "Assertion [%s] failed at %s %d%s", c, file, line, assertionPopUps ? "" : "\r\n");
 	if(assertionPopUps) {
-		int idButton = ::MessageBoxA(0, buffer, "Assertion failure",
-		    MB_ABORTRETRYIGNORE|MB_ICONHAND|MB_SETFOREGROUND|MB_TASKMODAL);
+		int idButton = ::MessageBoxA(0, buffer, "Assertion failure", MB_ABORTRETRYIGNORE|MB_ICONHAND|MB_SETFOREGROUND|MB_TASKMODAL);
 		if(idButton == IDRETRY) {
 			::DebugBreak();
 		}
@@ -3167,22 +3151,10 @@ void Platform_Finalise(bool fromDllMain)
 {
 #if defined(USE_D2D)
 	if(!fromDllMain) {
-		if(defaultRenderingParams) {
-			defaultRenderingParams->Release();
-			defaultRenderingParams = 0;
-		}
-		if(customClearTypeRenderingParams) {
-			customClearTypeRenderingParams->Release();
-			customClearTypeRenderingParams = 0;
-		}
-		if(pIDWriteFactory) {
-			pIDWriteFactory->Release();
-			pIDWriteFactory = 0;
-		}
-		if(pD2DFactory) {
-			pD2DFactory->Release();
-			pD2DFactory = 0;
-		}
+		SCOMOBJRELEASE(defaultRenderingParams);
+		SCOMOBJRELEASE(customClearTypeRenderingParams);
+		SCOMOBJRELEASE(pIDWriteFactory);
+		SCOMOBJRELEASE(pD2DFactory);
 		if(hDLLDWrite) {
 			FreeLibrary(hDLLDWrite);
 			hDLLDWrite = NULL;

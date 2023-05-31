@@ -13,9 +13,7 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dsp/dsp.h"
 #include "src/dsp/yuv.h"
-//#include <assert.h>
 //
 // Fancy upsampler
 //

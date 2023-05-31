@@ -22,7 +22,7 @@ using namespace std;
 
 string serialise_double(double v)
 {
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	uint64_t temp;
 	static_assert(sizeof(temp) == sizeof(v), "Check if size of double and 64 bit int is same");
 	memcpy(&temp, &v, sizeof(double));
@@ -39,7 +39,7 @@ double unserialise_double(const char ** p, const char * end)
 		throw Xapian::SerialisationError("Bad encoded double: insufficient data");
 	}
 	double result;
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	uint64_t temp;
 	static_assert(sizeof(temp) == sizeof(double), "Check if size of double and 64 bit int is same");
 	memcpy(&temp, *p, sizeof(double));
@@ -94,7 +94,7 @@ string serialise_double(double v)
 #endif
 	uint64_t scaled_v_int = static_cast<uint64_t>(scaled_v);
 	result |= scaled_v_int;
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	result = do_bswap(result);
 #endif
 	return string(reinterpret_cast<const char *>(&result), sizeof(uint64_t));

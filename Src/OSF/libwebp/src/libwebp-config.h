@@ -62,14 +62,13 @@
 #define WEBP_HAVE_TIFF 1
 #define WEBP_NEAR_LOSSLESS 1 /* Enable near lossless encoding */
 #define WEBP_USE_THREAD 1 /* Undefine this to disable thread support. */
-/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
-   significant byte first (like Motorola and SPARC, unlike Intel). */
-#if defined AC_APPLE_UNIVERSAL_BUILD
-	#if defined __BIG_ENDIAN__
-		#define WORDS_BIGENDIAN 1
-	#endif
-#else
-	#ifndef WORDS_BIGENDIAN
-		#undef WORDS_BIGENDIAN
-	#endif
-#endif
+// Define WORDS_BIGENDIAN to 1 if your processor stores words with the most significant byte first (like Motorola and SPARC, unlike Intel)
+//#if defined AC_APPLE_UNIVERSAL_BUILD
+	//#if defined __BIG_ENDIAN__
+		//#define WORDS_BIGENDIAN 1
+	//#endif
+//#else
+	//#ifndef WORDS_BIGENDIAN
+		//#undef WORDS_BIGENDIAN
+	//#endif
+//#endif

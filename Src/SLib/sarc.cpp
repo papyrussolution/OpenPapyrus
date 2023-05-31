@@ -17,7 +17,7 @@ static const size_t Default_SCompressor_MaxTempBufSize = SKILOBYTE(256);
 
 SCompressor::SCompressor(int type) : Type(type), P_Ctx(0), MaxTempBufSize(Default_SCompressor_MaxTempBufSize)
 {
-	assert(oneof2(Type, tLz4, tZLib));
+	assert(oneof3(Type, tLz4, tZLib, tBZip2));
 	if(Type == tLz4) {
 		/*LZ4F_cctx * p_ctx = 0;
 		if(LZ4F_createCompressionContext(&p_ctx, LZ4F_getVersion())) {
@@ -25,6 +25,9 @@ SCompressor::SCompressor(int type) : Type(type), P_Ctx(0), MaxTempBufSize(Defaul
 		}*/
 		LZ4_stream_t * p_ctx = static_cast<LZ4_stream_t *>(SAlloc::M(sizeof(LZ4_stream_t)));
 		P_Ctx = p_ctx;
+	}
+	else if(Type == tBZip2) {
+		;
 	}
 }
 
@@ -65,6 +68,47 @@ int SCompressor::CompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDes
 			THROW(rDest.Write(temp_buf, rs));
 			ok = rs;
 		}
+	}
+	else if(Type == tBZip2) { // @b11.7.4
+		//BZ2_bzBuffToBuffCompress(char * dest, uint* destLen, char * source, uint sourceLen, int blockSize100k, int verbosity, int workFactor);
+		/*
+		int   work_factor = 30;
+		int   verbosity = 0;
+		int   block_size100k = 9;
+		bz_stream strm;
+		int ret;
+		//if(dest == NULL || destLen == NULL || source == NULL || blockSize100k < 1 || blockSize100k > 9 || verbosity < 0 || verbosity > 4 || workFactor < 0 || workFactor > 250)
+			//return BZ_PARAM_ERROR;
+		ret = BZ2_bzCompressInit(&strm, block_size100k, verbosity, work_factor);
+		THROW(ret == BZ_OK);
+		strm.next_in = source;
+		strm.next_out = dest;
+		strm.avail_in = sourceLen;
+		strm.avail_out = *destLen;
+		ret = BZ2_bzCompress(&strm, BZ_FINISH);
+		if(ret == BZ_FINISH_OK) 
+			goto output_overflow;
+		if(ret != BZ_STREAM_END) 
+			goto errhandler;
+		// normal termination
+		*destLen -= strm.avail_out;
+		BZ2_bzCompressEnd(&strm);
+		return BZ_OK;
+	output_overflow:
+		BZ2_bzCompressEnd(&strm);
+		return BZ_OUTBUFF_FULL;
+	errhandler:
+		BZ2_bzCompressEnd(&strm);
+		//return ret;
+		*/
+		// ??? copy of LZ4_compressBound
+		/*
+		size_t cb = (srcSize > 0x7E000000U) ? 0 : (srcSize) + ((srcSize)/255) + 16;
+		do {
+			const size_t temp_buf_size = MIN(MaxTempBufSize, cb);
+			STempBuffer temp_buf(temp_buf_size); // small buf for testing several iterations
+		} while(false);
+		*/
 	}
 	else if(Type == tZLib) {
 		//int compress2(Byte * dest, uLongf * destLen, const Byte * source, uLong sourceLen, int level)
@@ -175,9 +219,33 @@ struct SArc_Bz2_Block {
 	SString FileName;
 };
 
-SArchive::SArchive(int type) : Type(type), H(0), P_Cb_Blk(0), OpenMode(0)
+/*static*/int SArchive::List(int provided, int * pFormat, const char * pName, uint flags, SFileEntryPool & rPool)
 {
-	assert(oneof3(Type, tLA, tZip, tBz2));
+	int    ok = 0;
+	return ok;
+}
+
+/*static*/int SArchive::Inflate(int provided, const char * pName, uint flags, const SFileEntryPool & rPool, const char * pDestPath)
+{
+	int    ok = 0;
+	return ok;
+}
+
+/*static*/int SArchive::InflateAll(int provided, const char * pName, uint flags, const char * pDestPath)
+{
+	int    ok = 0;
+	return ok;
+}
+
+/*static*/int SArchive::Deflate(int provided, int format, const char * pName, uint flags, const SFileEntryPool & rPool)
+{
+	int    ok = 0;
+	return ok;
+}
+
+SArchive::SArchive(int provider) : Provider(provider), H(0), P_Cb_Blk(0), OpenMode(0)
+{
+	assert(oneof3(Provider, providerLA, providerZip, providerBz2));
 }
 
 SArchive::~SArchive()
@@ -190,18 +258,18 @@ bool SArchive::IsValid() const { return (H != 0); }
 int SArchive::Close()
 {
 	int    ok = 1;
-	if(Type == tZip) {
+	if(Provider == providerZip) {
 		if(H) {
 			THROW(zip_close(static_cast<zip_t *>(H)) == 0);
 		}
 	}
-	else if(Type == tBz2) {
+	else if(Provider == providerBz2) {
 		if(H) {
 			BZ2_bzclose(static_cast<SArc_Bz2_Block *>(H)->Handle);
 			delete static_cast<SArc_Bz2_Block *>(H);
 		}
 	}
-	else if(Type == tLA) {
+	else if(Provider == providerLA) {
 		if(H) {
 			if(OpenMode == SFile::mRead) {
 				Archive * p_larc = static_cast<struct Archive *>(H);
@@ -296,7 +364,7 @@ int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Forma
 	const   int mm = (mode & 0xff);
 	OpenMode = mm;
 	Fep.Z();
-	if(Type == tZip) {
+	if(Provider == providerZip) {
 		//Type = type;
 		int    flags = 0;
 		if(mm == SFile::mRead)
@@ -324,7 +392,7 @@ int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Forma
 			}
 		}
 	}
-	else if(Type == tBz2) {
+	else if(Provider == providerBz2) {
 		//Type = type;
 		const char * p_mode = 0;
 		if(mm == SFile::mRead)
@@ -348,7 +416,7 @@ int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Forma
 		}
 	}
 	// @v10.4.4 {
-	else if(Type == tLA) {
+	else if(Provider == providerLA) {
 		//Type = type;
 		Archive * p_larc = 0;
 		if(mm == SFile::mRead) {
@@ -415,19 +483,19 @@ int64 SArchive::GetEntriesCount() const
 {
 	int64 c = 0;
 	if(H) {
-		if(Type == tZip) {
+		if(Provider == providerZip) {
 			c = static_cast<int64>(Fep.GetCount());
 			//c = zip_get_num_entries(static_cast<const zip_t *>(H), 0 /*zip_flags_t*/);
 			//if(c < 0)
 				//c = 0;
 		}
-		else if(Type == tBz2) {
+		else if(Provider == providerBz2) {
 			if(H)
 				c = 1;
 		}
 	// @v10.4.4 {
 //#if 0 // @construction {
-		else if(Type == tLA) {
+		else if(Provider == providerLA) {
 			if(P_Cb_Blk) {
 				c = static_cast<int64>(Fep.GetCount());
 				/*
@@ -451,14 +519,14 @@ int FASTCALL SArchive::GetEntryName(int64 idx, SString & rBuf)
 	rBuf.Z();
 	int    ok = 1;
 	if(H) {
-		if(Type == tZip) {
+		if(Provider == providerZip) {
 			const char * p = zip_get_name(static_cast<zip_t *>(H), (uint64)idx, 0);
 			if(p)
 				rBuf = p;
 			else
 				ok = 0;
 		}
-		else if(Type == tBz2) {
+		else if(Provider == providerBz2) {
 			if(idx == 0) {
 				const SArc_Bz2_Block * p_blk = static_cast<const SArc_Bz2_Block *>(H);
 				if(p_blk->Handle && p_blk->FileName.NotEmpty()) {
@@ -496,7 +564,7 @@ int SArchive::ExtractEntry(int64 idx, const char * pDestName)
 				temp_buf = pDestName;
 			SPathStruc::NormalizePath(temp_buf, 0, dest_file_name);
         }
-		if(Type == tZip) {
+		if(Provider == providerZip) {
 			THROW(p_zf = zip_fopen_index(static_cast<zip_t *>(H), idx, 0 /*flags*/));
 			{
 				int64  actual_rd_size = 0;
@@ -511,7 +579,7 @@ int SArchive::ExtractEntry(int64 idx, const char * pDestName)
 				} while(actual_rd_size == buffer.GetSize());
 			}
 		}
-		else if(Type == tBz2) {
+		else if(Provider == providerBz2) {
 			SArc_Bz2_Block * p_blk = static_cast<SArc_Bz2_Block *>(H);
 			int64  actual_rd_size = 0;
 			STempBuffer buffer(SKILOBYTE(1024));
@@ -521,7 +589,7 @@ int SArchive::ExtractEntry(int64 idx, const char * pDestName)
 				THROW(actual_rd_size >= 0);
 			} while(actual_rd_size == buffer.GetSize());
 		}
-		else if(Type == tLA) { // @v11.7.0
+		else if(Provider == providerLA) { // @v11.7.0
 			if(P_Cb_Blk) {
 				Archive * p_larc = static_cast<Archive *>(H);
 				ArchiveEntry * p_entry = 0;
@@ -554,7 +622,7 @@ int SArchive::AddEntry(const char * pSrcFileName, const char * pName, int flags)
 	SString temp_buf;
 	zip_source_t * p_zsrc = 0;
     THROW(IsValid());
-	if(Type == tZip) {
+	if(Provider == providerZip) {
 		SPathStruc::NormalizePath(pSrcFileName, SPathStruc::npfSlash, temp_buf);
         THROW(fileExists(temp_buf));
 		{
@@ -583,7 +651,7 @@ int SArchive::AddEntry(const char * pSrcFileName, const char * pName, int flags)
 			}
 		}
 	}
-	else if(Type == tBz2) {
+	else if(Provider == providerBz2) {
 		SPathStruc::NormalizePath(pSrcFileName, SPathStruc::npfSlash, temp_buf);
         THROW(fileExists(temp_buf));
 		THROW(!(flags & (aefDirectory|aefRecursive)));
@@ -596,7 +664,7 @@ int SArchive::AddEntry(const char * pSrcFileName, const char * pName, int flags)
 		}
 	}
 	CATCH
-		if(Type == tZip && p_zsrc) {
+		if(Provider == providerZip && p_zsrc) {
 			zip_source_free(p_zsrc);
 			p_zsrc = 0;
 		}
@@ -740,7 +808,7 @@ void TestSArchive()
 	int    ok = 1;
 	SString temp_buf;
 	{
-		SArchive arc(SArchive::tLA);
+		SArchive arc(SArchive::providerLA);
 		SLS.QueryPath("testroot", temp_buf);
 		temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("Test_Directory.7z");
 		THROW(arc.Open(temp_buf, SFile::mRead, 0));
@@ -756,7 +824,7 @@ void TestSArchive()
 	//const  char * p_root = "d:/papyrus/src/pptest";
 	// "D:\Papyrus\Src\PPTEST\DATA\Test Directory\Test Directory Level 2\Directory With Many Files"
 	{
-		SArchive arc(SArchive::tZip);
+		SArchive arc(SArchive::providerZip);
 		//(temp_buf = p_root).SetLastSlash().Cat("out").SetLastSlash().Cat("zip_test.zip");
 		SLS.QueryPath("testroot", temp_buf);
 		temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("zip_test.zip");
@@ -784,7 +852,7 @@ void TestSArchive()
 		THROW(arc.Close());
 	}
 	{
-		SArchive arc(SArchive::tZip);
+		SArchive arc(SArchive::providerZip);
 		//(temp_buf = p_root).SetLastSlash().Cat("out").SetLastSlash().Cat("zip_test.zip");
 		SLS.QueryPath("testroot", temp_buf);
 		temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("zip_test.zip");
@@ -811,7 +879,7 @@ SLTEST_R(SArchive)
 {
 	SString temp_buf;
 	{
-		SArchive arc(SArchive::tLA);
+		SArchive arc(SArchive::providerLA);
 		SLS.QueryPath("testroot", temp_buf);
 		temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("Test_Directory.7z");
 		int r = arc.Open(temp_buf, SFile::mRead, 0);

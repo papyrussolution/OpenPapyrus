@@ -107,17 +107,17 @@ uint qr_ihypot(int _x, int _y)
 }
 
 #if defined(__GNUC__) && defined(HAVE_FEATURES_H)
-#include <features.h>
-#if __GNUC_PREREQ(3, 4)
-#include <limits.h>
-#if INT_MAX>=2147483647
-#   define QR_CLZ0 sizeof(uint)*CHAR_BIT
-#   define QR_CLZ(_x) (__builtin_clz(_x))
-#elif LONG_MAX>=2147483647L
-#   define QR_CLZ0 sizeof(ulong)*CHAR_BIT
-#   define QR_CLZ(_x) (__builtin_clzl(_x))
-#endif
-#endif
+	#include <features.h>
+	#if __GNUC_PREREQ(3, 4)
+		#include <limits.h>
+		#if INT_MAX>=2147483647
+			#define QR_CLZ0 sizeof(uint)*CHAR_BIT
+			#define QR_CLZ(_x) (__builtin_clz(_x))
+		#elif LONG_MAX>=2147483647L
+			#define QR_CLZ0 sizeof(ulong)*CHAR_BIT
+			#define QR_CLZ(_x) (__builtin_clzl(_x))
+		#endif
+	#endif
 #endif
 
 int qr_ilog(uint _v)

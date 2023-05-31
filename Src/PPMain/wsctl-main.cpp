@@ -62,26 +62,14 @@ public:
 	}
 	void CleanupRenderTarget()
 	{
-		if(g_mainRenderTargetView) {
-			g_mainRenderTargetView->Release(); 
-			g_mainRenderTargetView = nullptr;
-		}
+		SCOMOBJRELEASE(g_mainRenderTargetView); 
 	}
 	void CleanupDeviceD3D()
 	{
 		CleanupRenderTarget();
-		if(g_pSwapChain) {
-			g_pSwapChain->Release(); 
-			g_pSwapChain = nullptr;
-		}
-		if(g_pd3dDeviceContext) {
-			g_pd3dDeviceContext->Release(); 
-			g_pd3dDeviceContext = nullptr;
-		}
-		if(g_pd3dDevice) {
-			g_pd3dDevice->Release(); 
-			g_pd3dDevice = nullptr;
-		}
+		SCOMOBJRELEASE(g_pSwapChain); 
+		SCOMOBJRELEASE(g_pd3dDeviceContext); 
+		SCOMOBJRELEASE(g_pd3dDevice); 
 	}
 	// Data
 	ID3D11Device           * g_pd3dDevice;
@@ -100,16 +88,23 @@ public:
 	// Descr: Запрос к серверу. Помещается в WsCtlReqQueue потому должен быть @flat.
 	//
 	struct Req { // @flat
-		Req() : Cmd(0), Dummy(0)
+		Req() : Cmd(0)
 		{
 		}
-		Req(uint cmd) : Cmd(cmd), Dummy(0)
+		Req(uint cmd) : Cmd(cmd)
 		{
 		}
 		uint   Cmd;
-		uint32 Dummy;
 		struct Param {
+			Param() : SCardID(0)
+			{
+				AuthTextUtf8[0] = 0;
+				AuthPwUtf8[0] = 0;
+			}
 			S_GUID Uuid;
+			PPID   SCardID; // 
+			char   AuthTextUtf8[128];
+			char   AuthPwUtf8[128];
 		};
 		Param P;
 	};
@@ -235,6 +230,32 @@ public:
 		SString PrcName;
 	};
 	struct DAccount {
+		DAccount() : SCardID(0), PersonID(0), ScRest(0.0)
+		{
+		}
+		PPID   SCardID;
+		PPID   PersonID;
+		double ScRest;
+		SString SCardCode;
+		SString PersonName;
+	};
+	struct DAuth {
+		DAuth() : State(0), SCardID(0), PersonID(0)
+		{
+		}
+		DAuth & Z()
+		{
+			State = 0;
+			SCardID = 0;
+			PersonID = 0;
+			return *this;
+		}
+		enum {
+			stWaitOn = 0x0001 // Объект находится в состоянии ожидания результата авторизации
+		};
+		PPID   SCardID;
+		PPID   PersonID;
+		uint   State;
 	};
 	struct DPrices {
 		DPrices()
@@ -391,12 +412,13 @@ public:
 	public:
 		enum {
 			syncdataUndef = 0,
-			syncdataTest,            // DTest    Тестовый блок данных для отладки взаимодействия с сервером 
-			syncdataPrc,             // DPrc
-			syncdataAccount,         // DAccount
-			syncdataPrices,          // DPrices
-			syncdataTSess,           // DTSess
-			syncdataJobSrvConnStatus // int статус соединения с сервером
+			syncdataTest,             // DTest    Тестовый блок данных для отладки взаимодействия с сервером 
+			syncdataPrc,              // DPrc
+			syncdataAccount,          // DAccount
+			syncdataPrices,           // DPrices
+			syncdataTSess,            // DTSess
+			syncdataJobSrvConnStatus, // int статус соединения с сервером
+			syncdataAuth,             // DAuth
 		};
 		//
 		// Descr: Элемент состояния, который получен от сервера.
@@ -434,9 +456,10 @@ public:
 		SyncEntry <DPrices>  D_Prices;
 		SyncEntry <DTSess>   D_TSess;
 		SyncEntry <int> D_ConnStatus;
+		SyncEntry <DAuth>    D_Auth;
 
 		State() : D_Prc(syncdataPrc), D_Test(syncdataTest), D_Acc(syncdataAccount), D_Prices(syncdataPrices), D_TSess(syncdataTSess), 
-			D_ConnStatus(syncdataJobSrvConnStatus), SelectedTecGoodsID(0)
+			D_ConnStatus(syncdataJobSrvConnStatus), D_Auth(syncdataAuth), SelectedTecGoodsID(0)
 		{
 		}
 		PPID   GetSelectedTecGoodsID() const { return SelectedTecGoodsID; }
@@ -609,11 +632,11 @@ private:
 		void   SendRequest(PPJobSrvClient & rCli, const WsCtlReqQueue::Req & rReq)
 		{
 			PPJobSrvReply reply;
+			SString temp_buf;
 			switch(rReq.Cmd) {
 				case PPSCMD_HELLO:
 					if(P_St) {
 						WsCtl_ImGuiSceneBlock::DTest st_data;
-						SString temp_buf;
 						if(rCli.Exec("HELLO", reply) && reply.StartReading(&temp_buf)) {
 							if(reply.CheckRepError()) {
 								(st_data.Reply = "OK").CatDiv(':', 2).Cat(temp_buf);
@@ -626,6 +649,106 @@ private:
 						else {
 							st_data.Reply = "Send-Request-To-Server-Error";
 							P_St->D_Test.SetData(st_data);
+						}
+					}
+					break;
+				case PPSCMD_WSCTL_AUTH:
+					if(P_St) {
+						WsCtl_ImGuiSceneBlock::DAuth st_data;
+						WsCtl_ImGuiSceneBlock::DPrc st_prc;
+						P_St->D_Prc.GetData(st_prc); 
+						//P_St->D_Auth.GetData(st_data);
+						PPJobSrvCmd cmd;
+						cmd.StartWriting(PPSCMD_WSCTL_AUTH);
+						{
+							SJson js_param(SJson::tOBJECT);
+							js_param.InsertString("login", rReq.P.AuthTextUtf8);
+							js_param.InsertString("pw", rReq.P.AuthPwUtf8);
+							temp_buf.Z().Cat(st_prc.PrcUuid, S_GUID::fmtIDL);
+							js_param.InsertString("wsctluuid", temp_buf);
+							js_param.ToStr(temp_buf);
+							SString mime_buf;
+							mime_buf.EncodeMime64(temp_buf.ucptr(), temp_buf.Len());
+							cmd.Write(mime_buf.ucptr(), mime_buf.Len()+1);
+						}
+						cmd.FinishWriting();
+						if(rCli.Exec(cmd, reply)) {
+							SString reply_buf;
+							reply.StartReading(&reply_buf);
+							if(reply.CheckRepError()) {
+								SJson * p_js_obj = SJson::Parse(reply_buf);
+								const SJson * p_c = 0;
+								if(p_js_obj) {
+									p_c = p_js_obj->FindChildByKey("scardid");
+									if(SJson::IsNumber(p_c)) {
+										st_data.SCardID = p_c->Text.ToLong();
+									}
+									p_c = p_js_obj->FindChildByKey("personid");
+									if(SJson::IsNumber(p_c)) {
+										st_data.PersonID = p_c->Text.ToLong();
+									}
+									st_data.State = 0;
+									P_St->D_Auth.SetData(st_data);
+									//
+									{
+										// Сразу отправляем запрос на получение сведений об аккаунте
+										WsCtlReqQueue::Req inner_req(PPSCMD_WSCTL_GETACCOUNTSTATE);
+										inner_req.P.SCardID = st_data.SCardID;
+										SendRequest(rCli, inner_req); // @recursion
+									}
+								}
+								else {
+									; // @err
+								}
+							}
+							else {
+								; // @err
+							}
+						}
+					}
+					break;
+				case PPSCMD_WSCTL_GETACCOUNTSTATE:
+					if(P_St && rReq.P.SCardID) {
+						//WsCtl_ImGuiSceneBlock::DAuth st_auth;
+						WsCtl_ImGuiSceneBlock::DAccount st_data;
+						//P_St->D_Auth.GetData(st_auth);
+						PPJobSrvCmd cmd;
+						cmd.StartWriting(PPSCMD_WSCTL_GETACCOUNTSTATE);
+						cmd.Write(&rReq.P.SCardID, sizeof(rReq.P.SCardID));
+						cmd.FinishWriting();
+						if(rCli.Exec(cmd, reply)) {
+							SString reply_buf;
+							reply.StartReading(&reply_buf);
+							if(reply.CheckRepError()) {
+								SJson * p_js_obj = SJson::Parse(reply_buf);
+								const SJson * p_c = 0;
+								if(p_js_obj) {
+									p_c = p_js_obj->FindChildByKey("scardid");
+									if(SJson::IsNumber(p_c)) {
+										st_data.SCardID = p_c->Text.ToLong();
+									}
+									p_c = p_js_obj->FindChildByKey("scardcode");
+									if(SJson::IsString(p_c)) {
+										(st_data.SCardCode = p_c->Text).Unescape();
+									}
+									p_c = p_js_obj->FindChildByKey("personid");
+									if(SJson::IsNumber(p_c)) {
+										st_data.PersonID = p_c->Text.ToLong();
+									}
+									p_c = p_js_obj->FindChildByKey("personnm");
+									if(SJson::IsString(p_c)) {
+										(st_data.PersonName = p_c->Text).Unescape();
+									}										
+									p_c = p_js_obj->FindChildByKey("screst");
+									if(SJson::IsNumber(p_c)) {
+										st_data.ScRest = p_c->Text.ToReal();
+									}
+									P_St->D_Acc.SetData(st_data);
+								}
+								else {
+									; // @err
+								}
+							}
 						}
 					}
 					break;
@@ -798,14 +921,27 @@ private:
 	}
 	static int CbInput(ImGuiInputTextCallbackData * pInputData)
 	{
+		bool debug_mark = false;
+		if(pInputData) {
+			WsCtl_ImGuiSceneBlock * p_this = static_cast<WsCtl_ImGuiSceneBlock *>(pInputData->UserData);
+			if(p_this) {
+				if(pInputData->Buf == p_this->LoginText) {
+					debug_mark = true;
+				}
+			}
+		}
 		return 0;
 	}
 	//
 	char   TestInput[128];
+	char   LoginText[256];
+	char   PwText[128];
 public:
 	WsCtl_ImGuiSceneBlock() : ShowDemoWindow(false), ShowAnotherWindow(false), ClearColor(0.45f, 0.55f, 0.60f, 1.00f), P_CmdQ(0)
 	{
 		TestInput[0] = 0;
+		LoginText[0] = 0;
+		PwText[0] = 0;
 		MakeLayout();
 	}
 	int  Init()
@@ -836,6 +972,7 @@ public:
 		}
 		{
 			St.SetupSyncUpdateTime(State::syncdataPrices, 30000);
+			St.SetupSyncUpdateTime(State::syncdataAccount, 29000);
 		}
 		return ok;
 	}
@@ -853,6 +990,15 @@ public:
 					case State::syncdataPrc:
 						break;
 					case State::syncdataAccount:
+						{
+							DAuth auth_data;
+							St.D_Auth.GetData(auth_data);
+							if(auth_data.SCardID && !(auth_data.State & auth_data.stWaitOn)) {
+								WsCtlReqQueue::Req req(PPSCMD_WSCTL_GETACCOUNTSTATE);
+								req.P.SCardID = auth_data.SCardID;
+								P_CmdQ->Push(req);
+							}
+						}
 						break;
 					case State::syncdataPrices:
 						{
@@ -871,6 +1017,16 @@ public:
 		else {
 			assert(SyncReqList.getCount() == 0);
 		}
+	}
+	static SString & InputLabelPrefix(const char * pLabel)
+	{
+		float width = ImGui::CalcItemWidth();
+		float x = ImGui::GetCursorPosX();
+		ImGui::Text(pLabel); 
+		//ImGui::SameLine(); 
+		//ImGui::SetCursorPosX(x + width * 0.5f + ImGui::GetStyle().ItemInnerSpacing.x);
+		ImGui::SetNextItemWidth(-1);
+		return SLS.AcquireRvlStr().CatCharN('#', 2).Cat(pLabel);
 	}
 	void BuildScene()
 	{
@@ -915,7 +1071,28 @@ public:
 							ImGui::SetNextWindowSize(sz);
 							ImGui::Begin("CTL-01", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
 							ImGui::Text("CTL-01");
-							ImGui::InputText("Кое-что по-русски", TestInput, sizeof(TestInput), 0, CbInput, this);
+							{
+								DAccount data_acc;
+								St.D_Acc.GetData(data_acc);
+								if(data_acc.SCardID) {
+									SString & r_temp_buf = SLS.AcquireRvlStr();
+									ImGui::Text(r_temp_buf.Z().Cat("Аккаунт").CatDiv(':', 2).Cat(data_acc.SCardCode));
+									ImGui::Text(r_temp_buf.Z().Cat(data_acc.PersonName));
+									ImGui::Text(r_temp_buf.Z().Cat("Остаток").CatDiv(':', 2).Cat(data_acc.ScRest, MKSFMTD(0, 2, 0)));
+								}
+								else {
+									ImGui::InputText(InputLabelPrefix("Текст для авторизации"), LoginText, sizeof(LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+									ImGui::InputText(InputLabelPrefix("Пароль"), PwText, sizeof(PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+									if(!isempty(LoginText)) {
+										if(ImGui::Button("Login")) {
+											WsCtlReqQueue::Req req(PPSCMD_WSCTL_AUTH);
+											STRNSCPY(req.P.AuthTextUtf8, LoginText);
+											STRNSCPY(req.P.AuthPwUtf8, PwText);
+											P_CmdQ->Push(req);
+										}
+									}
+								}
+							}
 							ImGui::End();
 						}
 					}
@@ -1152,7 +1329,7 @@ int main(int, char**)
 			};
 			///Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf
 			//C:/Windows/Fonts/Tahoma.ttf
-			ImFont * p_font = io.Fonts->AddFontFromFileTTF("/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 14.0f, nullptr, ranges);
+			ImFont * p_font = io.Fonts->AddFontFromFileTTF("/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 18.0f, nullptr, ranges);
 		}
 		// Main loop
 		bool done = false;

@@ -2330,6 +2330,19 @@ int PPObjGoods::FetchGoodsType(PPID goodsTypeID, PPGoodsType * pGtRec)
 	return GtObj.Fetch(goodsTypeID, pGtRec);
 }
 
+bool PPObjGoods::IsZeroPriceAllowed(PPID goodsID)
+{
+	bool   yes = false;
+	Goods2Tbl::Rec goods_rec;
+	if(Fetch(goodsID, &goods_rec) > 0) {
+		PPGoodsType gt_rec;
+		// @v11.7.4 Поправка на default-тип товара
+		const PPID gt_id = NZOR(goods_rec.GoodsTypeID, PPGT_DEFAULT);
+		yes = (GtObj.Fetch(gt_id, &gt_rec) > 0 && gt_rec.Flags & GTF_ALLOWZEROPRICE); 
+	}
+	return yes;
+}
+
 int PPObjGoods::MultTaxFactor(PPID goodsID, double * pVal)
 {
 	if(CConfig.Flags & CCFLG_USEGDSCLS) {

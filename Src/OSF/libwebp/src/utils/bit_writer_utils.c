@@ -15,11 +15,12 @@
 #include <libwebp-internal.h>
 #pragma hdrstop
 #include "src/utils/bit_writer_utils.h"
-#include "src/utils/endian_inl_utils.h"
+//#include "src/utils/endian_inl_utils.h"
 //
 // VP8BitWriter
 //
-static int BitWriterResize(VP8BitWriter* const bw, size_t extra_size) {
+static int BitWriterResize(VP8BitWriter* const bw, size_t extra_size) 
+{
 	uint8* new_buf;
 	size_t new_size;
 	const uint64_t needed_size_64b = (uint64_t)bw->pos_ + extra_size;

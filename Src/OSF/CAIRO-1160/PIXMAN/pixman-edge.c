@@ -60,7 +60,7 @@
  */
 #define N_BITS  4
 #define RASTERIZE_EDGES rasterize_edges_4
-#ifndef WORDS_BIGENDIAN
+#ifndef SL_BIGENDIAN
 	#define SHIFT_4(o)      ((o) << 2)
 #else
 	#define SHIFT_4(o)      ((1 - (o)) << 2)
@@ -69,7 +69,7 @@
 #define PUT_4(x, o, v)   (((x) & ~(0xf << SHIFT_4(o))) | (((v) & 0xf) << SHIFT_4(o)))
 
 #define DEFINE_ALPHA(line, x)                                           \
-	uint8   *__ap = (uint8 *)line + ((x) >> 1);                    \
+	uint8 * __ap = (uint8 *)line + ((x) >> 1);                    \
 	int __ao = (x) & 1
 
 #define STEP_ALPHA      ((__ap += __ao), (__ao ^= 1))

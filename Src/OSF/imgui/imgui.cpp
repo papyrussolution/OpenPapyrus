@@ -2604,8 +2604,8 @@ void ImGui::CalcListClipping(int items_count, float items_height, int* out_items
 	if(is_nav_request && g.NavMoveClipDir == ImGuiDir_Down)
 		end++;
 
-	start = ImClamp(start, 0, items_count);
-	end = ImClamp(end + 1, start, items_count);
+	start = sclamp(start, 0, items_count);
+	end = sclamp(end + 1, start, items_count);
 	*out_items_display_start = start;
 	*out_items_display_end = end;
 }
@@ -2826,8 +2826,8 @@ static bool ImGuiListClipper_StepInternal(ImGuiListClipper* clipper)
 			if(data->Ranges[i].PosToIndexConvert) {
 				int m1 = (int)(((double)data->Ranges[i].Min - window->DC.CursorPos.y - data->LossynessOffset) / clipper->ItemsHeight);
 				int m2 = (int)((((double)data->Ranges[i].Max - window->DC.CursorPos.y - data->LossynessOffset) / clipper->ItemsHeight) + 0.999999f);
-				data->Ranges[i].Min = ImClamp(already_submitted + m1 + data->Ranges[i].PosToIndexOffsetMin, already_submitted, clipper->ItemsCount - 1);
-				data->Ranges[i].Max = ImClamp(already_submitted + m2 + data->Ranges[i].PosToIndexOffsetMax, data->Ranges[i].Min + 1, clipper->ItemsCount);
+				data->Ranges[i].Min = sclamp(already_submitted + m1 + data->Ranges[i].PosToIndexOffsetMin, already_submitted, clipper->ItemsCount - 1);
+				data->Ranges[i].Max = sclamp(already_submitted + m2 + data->Ranges[i].PosToIndexOffsetMax, data->Ranges[i].Min + 1, clipper->ItemsCount);
 				data->Ranges[i].PosToIndexConvert = false;
 			}
 		ImGuiListClipper_SortAndFuseRanges(data->Ranges, data->StepNo);
@@ -5327,8 +5327,8 @@ static ImVec2 CalcWindowSizeAfterConstraint(ImGuiWindow * window, const ImVec2& 
 	if(g.NextWindowData.Flags & ImGuiNextWindowDataFlags_HasSizeConstraint) {
 		// Using -1,-1 on either X/Y axis to preserve the current size.
 		ImRect cr = g.NextWindowData.SizeConstraintRect;
-		new_size.x = (cr.Min.x >= 0 && cr.Max.x >= 0) ? ImClamp(new_size.x, cr.Min.x, cr.Max.x) : window->SizeFull.x;
-		new_size.y = (cr.Min.y >= 0 && cr.Max.y >= 0) ? ImClamp(new_size.y, cr.Min.y, cr.Max.y) : window->SizeFull.y;
+		new_size.x = (cr.Min.x >= 0 && cr.Max.x >= 0) ? sclamp(new_size.x, cr.Min.x, cr.Max.x) : window->SizeFull.x;
+		new_size.y = (cr.Min.y >= 0 && cr.Max.y >= 0) ? sclamp(new_size.y, cr.Min.y, cr.Max.y) : window->SizeFull.y;
 		if(g.NextWindowData.SizeCallback) {
 			ImGuiSizeCallbackData data;
 			data.UserData = g.NextWindowData.SizeCallbackUserData;
@@ -5394,7 +5394,7 @@ static ImVec2 CalcWindowAutoFitSize(ImGuiWindow * window, const ImVec2& size_con
 			size_min = ImMin(size_min, ImVec2(4.0f, 4.0f));
 
 		ImVec2 avail_size = ImGui::GetMainViewport()->WorkSize;
-		ImVec2 size_auto_fit = ImClamp(size_desired, size_min, ImMax(size_min, avail_size - style.DisplaySafeAreaPadding * 2.0f));
+		ImVec2 size_auto_fit = sclamp(size_desired, size_min, ImMax(size_min, avail_size - style.DisplaySafeAreaPadding * 2.0f));
 
 		// When the window cannot fit all contents (either because of constraints, either because screen is too small),
 		// we are growing the size on the other axis to compensate for expected scrollbar. FIXME: Might turn bigger than ViewportSize-WindowPadding.
@@ -5579,7 +5579,7 @@ static bool ImGui::UpdateWindowManualResize(ImGuiWindow * window,
 			ImVec2 corner_target = g.IO.MousePos - g.ActiveIdClickOffset + ImLerp(def.InnerDir * grip_hover_outer_size,
 				def.InnerDir * -grip_hover_inner_size,
 				def.CornerPosN);                                                                                                                                // Corner of the window corresponding to our corner grip
-			corner_target = ImClamp(corner_target, clamp_min, clamp_max);
+			corner_target = sclamp(corner_target, clamp_min, clamp_max);
 			CalcResizePosSizeFromAnyCorner(window, corner_target, def.CornerPosN, &pos_target, &size_target);
 		}
 
@@ -5607,7 +5607,7 @@ static bool ImGui::UpdateWindowManualResize(ImGuiWindow * window,
 			ImVec2 clamp_max(border_n == ImGuiDir_Left  ? visibility_rect.Max.x : +FLT_MAX, border_n == ImGuiDir_Up   ? visibility_rect.Max.y : +FLT_MAX);
 			ImVec2 border_target = window->Pos;
 			border_target[axis] = g.IO.MousePos[axis] - g.ActiveIdClickOffset[axis] + WINDOWS_HOVER_PADDING;
-			border_target = ImClamp(border_target, clamp_min, clamp_max);
+			border_target = sclamp(border_target, clamp_min, clamp_max);
 			CalcResizePosSizeFromAnyCorner(window, border_target, ImMin(def.SegmentN1, def.SegmentN2), &pos_target, &size_target);
 		}
 	}
@@ -5662,7 +5662,7 @@ static inline void ClampWindowPos(ImGuiWindow * window, const ImRect& visibility
 	ImVec2 size_for_clamping = window->Size;
 	if(g.IO.ConfigWindowsMoveFromTitleBarOnly && !(window->Flags & ImGuiWindowFlags_NoTitleBar))
 		size_for_clamping.y = window->TitleBarHeight();
-	window->Pos = ImClamp(window->Pos, visibility_rect.Min - size_for_clamping, visibility_rect.Max);
+	window->Pos = sclamp(window->Pos, visibility_rect.Min - size_for_clamping, visibility_rect.Max);
 }
 
 static void ImGui::RenderWindowOuterBorders(ImGuiWindow * window)
@@ -5845,7 +5845,7 @@ void ImGui::RenderWindowTitleBarContents(ImGuiWindow * window, const ImRect& tit
 	ImRect clip_r(layout_r.Min.x, layout_r.Min.y, ImMin(layout_r.Max.x + g.Style.ItemInnerSpacing.x, title_bar_rect.Max.x), layout_r.Max.y);
 	if(flags & ImGuiWindowFlags_UnsavedDocument) {
 		ImVec2 marker_pos;
-		marker_pos.x = ImClamp(layout_r.Min.x + (layout_r.GetWidth() - text_size.x) * style.WindowTitleAlign.x + text_size.x, layout_r.Min.x, layout_r.Max.x);
+		marker_pos.x = sclamp(layout_r.Min.x + (layout_r.GetWidth() - text_size.x) * style.WindowTitleAlign.x + text_size.x, layout_r.Min.x, layout_r.Max.x);
 		marker_pos.y = (layout_r.Min.y + layout_r.Max.y) * 0.5f;
 		if(marker_pos.x > layout_r.Min.x) {
 			RenderBullet(window->DrawList, marker_pos, GetColorU32(ImGuiCol_Text));
@@ -8323,7 +8323,7 @@ void ImGui::UpdateMouseWheel()
 	if(wheel.y != 0.0f && g.IO.KeyCtrl && g.IO.FontAllowUserScaling) {
 		LockWheelingWindow(mouse_window, wheel.y);
 		ImGuiWindow * window = mouse_window;
-		const float new_font_scale = ImClamp(window->FontWindowScale + g.IO.MouseWheel * 0.10f, 0.50f, 2.50f);
+		const float new_font_scale = sclamp(window->FontWindowScale + g.IO.MouseWheel * 0.10f, 0.50f, 2.50f);
 		const float scale = new_font_scale / window->FontWindowScale;
 		window->FontWindowScale = new_font_scale;
 		if(window == window->RootWindow) {
@@ -9118,8 +9118,7 @@ void ImGui::SameLine(float offset_from_start_x, float spacing_w)
 	ImGuiWindow * window = g.CurrentWindow;
 	if(!window->SkipItems) {
 		if(offset_from_start_x != 0.0f) {
-			if(spacing_w < 0.0f)
-				spacing_w = 0.0f;
+			SETMAX(spacing_w, 0.0f);
 			window->DC.CursorPos.x = window->Pos.x - window->Scroll.x + offset_from_start_x + spacing_w + window->DC.GroupOffset.x + window->DC.ColumnsOffset.x;
 			window->DC.CursorPos.y = window->DC.CursorPosPrevLine.y;
 		}
@@ -10157,7 +10156,7 @@ ImVec2 ImGui::FindBestWindowPosForPopupEx(const ImVec2& ref_pos,
     const ImRect& r_avoid,
     ImGuiPopupPositionPolicy policy)
 {
-	ImVec2 base_pos_clamped = ImClamp(ref_pos, r_outer.Min, r_outer.Max - size);
+	ImVec2 base_pos_clamped = sclamp(ref_pos, r_outer.Min, r_outer.Max - size);
 	//GetForegroundDrawList()->AddRect(r_avoid.Min, r_avoid.Max, IM_COL32(255,0,0,255));
 	//GetForegroundDrawList()->AddRect(r_outer.Min, r_outer.Max, IM_COL32(0,255,0,255));
 
@@ -10351,12 +10350,12 @@ static float inline NavScoreItemDistInterval(float a0, float a1, float b0, float
 static void inline NavClampRectToVisibleAreaForMoveDir(ImGuiDir move_dir, ImRect& r, const ImRect& clip_rect)
 {
 	if(move_dir == ImGuiDir_Left || move_dir == ImGuiDir_Right) {
-		r.Min.y = ImClamp(r.Min.y, clip_rect.Min.y, clip_rect.Max.y);
-		r.Max.y = ImClamp(r.Max.y, clip_rect.Min.y, clip_rect.Max.y);
+		r.Min.y = sclamp(r.Min.y, clip_rect.Min.y, clip_rect.Max.y);
+		r.Max.y = sclamp(r.Max.y, clip_rect.Min.y, clip_rect.Max.y);
 	}
 	else { // FIXME: PageUp/PageDown are leaving move_dir == None
-		r.Min.x = ImClamp(r.Min.x, clip_rect.Min.x, clip_rect.Max.x);
-		r.Max.x = ImClamp(r.Max.x, clip_rect.Min.x, clip_rect.Max.x);
+		r.Min.x = sclamp(r.Min.x, clip_rect.Min.x, clip_rect.Max.x);
+		r.Max.x = sclamp(r.Max.x, clip_rect.Min.x, clip_rect.Max.x);
 	}
 }
 
@@ -10547,9 +10546,9 @@ static void ImGui::NavProcessItem()
 			// Features like PageUp/PageDown need to maintain a separate score for the visible set of items.
 			const float VISIBLE_RATIO = 0.70f;
 			if((g.NavMoveFlags & ImGuiNavMoveFlags_AlsoScoreVisibleSet) && window->ClipRect.Overlaps(nav_bb))
-				if(ImClamp(nav_bb.Max.y, window->ClipRect.Min.y,
+				if(sclamp(nav_bb.Max.y, window->ClipRect.Min.y,
 				    window->ClipRect.Max.y) -
-				    ImClamp(nav_bb.Min.y, window->ClipRect.Min.y, window->ClipRect.Max.y) >= (nav_bb.Max.y - nav_bb.Min.y) * VISIBLE_RATIO)
+				    sclamp(nav_bb.Min.y, window->ClipRect.Min.y, window->ClipRect.Max.y) >= (nav_bb.Max.y - nav_bb.Min.y) * VISIBLE_RATIO)
 					if(NavScoreItem(&g.NavMoveResultLocalVisible))
 						NavApplyItemToResult(&g.NavMoveResultLocalVisible);
 		}
@@ -10795,7 +10794,7 @@ static ImVec2 ImGui::NavCalcPreferredRefPos()
 		}
 		ImVec2 pos = ImVec2(rect_rel.Min.x + ImMin(g.Style.FramePadding.x * 4, rect_rel.GetWidth()), rect_rel.Max.y - ImMin(g.Style.FramePadding.y, rect_rel.GetHeight()));
 		ImGuiViewport* viewport = GetMainViewport();
-		return ImFloor(ImClamp(pos, viewport->Pos, viewport->Pos + viewport->Size)); // ImFloor() is important because non-integer mouse position application in backend might be lossy and result in undesirable non-zero delta.
+		return ImFloor(sclamp(pos, viewport->Pos, viewport->Pos + viewport->Size)); // ImFloor() is important because non-integer mouse position application in backend might be lossy and result in undesirable non-zero delta.
 	}
 }
 
@@ -12027,10 +12026,8 @@ void ImGui::LogRenderedText(const ImVec2* ref_pos, const char* text, const char*
 		LogText(IM_NEWLINE);
 		g.LogLineFirstItem = true;
 	}
-
 	if(prefix)
 		LogRenderedText(ref_pos, prefix, prefix + strlen(prefix)); // Calculate end ourself to ensure "##" are included here.
-
 	// Re-adjust padding if we have popped out of our starting depth
 	if(g.LogDepthRef > window->DC.TreeDepth)
 		g.LogDepthRef = window->DC.TreeDepth;
@@ -12166,7 +12163,6 @@ void ImGui::LogFinish()
 		    assert(0);
 		    break;
 	}
-
 	g.LogEnabled = false;
 	g.LogType = ImGuiLogType_None;
 	g.LogFile = NULL;
@@ -12178,10 +12174,10 @@ void ImGui::LogFinish()
 void ImGui::LogButtons()
 {
 	ImGuiContext & g = *GImGui;
-
 	PushID("LogButtons");
 #ifndef IMGUI_DISABLE_TTY_FUNCTIONS
-	const bool log_to_tty = Button("Log To TTY"); SameLine();
+	const bool log_to_tty = Button("Log To TTY"); 
+	SameLine();
 #else
 	const bool log_to_tty = false;
 #endif
@@ -12192,7 +12188,6 @@ void ImGui::LogButtons()
 	SliderInt("Default Depth", &g.LogDepthToExpandDefault, 0, 9, NULL);
 	PopTabStop();
 	PopID();
-
 	// Start logging at the end of the function so that the buttons don't appear in the log
 	if(log_to_tty)
 		LogToTTY();

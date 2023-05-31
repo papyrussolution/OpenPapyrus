@@ -2366,6 +2366,13 @@ int PPBillPacket::SetupRow(int itemNo, PPTransferItem * pItem, const PPTransferI
 		ilti.SetQtty(-extraQtty);
 		if(pItem->Flags & PPTFR_QUOT)
 			fl |= CILTIF_QUOT;
+		// @v11.7.4 {
+		if(ilti.Price == 0.0) {
+			PPObjGoods goods_obj;
+			if(goods_obj.IsZeroPriceAllowed(ilti.GoodsID))
+				fl |= CILTIF_ALLOWZPRICE;
+		}
+		// } @v11.7.4 
 		THROW(P_BObj->ConvertILTI(&ilti, this, &row_pos_list, fl, 0));
 		if(IsIntrExpndOp(Rec.OpID)) {
 			for(uint i = 0; i < row_pos_list.getCount(); i++) {

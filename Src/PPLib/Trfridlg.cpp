@@ -68,7 +68,7 @@ private:
 	int    CheckQuantityForIntVal();
 	int    CheckQuantityVal(double * pExtraQtty);
 	int    isDiscountInSum() const;
-	int    isAllowZeroPrice();
+	bool   IsZeroPriceAllowed();
 	int    setupAllQuantity(int byLot);
 	void   setQuotSign();
 	// @v10.2.11 (unused) SArray * SelectGoodsByPrice(PPID loc, double price);
@@ -1281,18 +1281,9 @@ void TrfrItemDialog::setupQttyFldPrec()
 	}
 }
 
-int TrfrItemDialog::isAllowZeroPrice()
+bool TrfrItemDialog::IsZeroPriceAllowed()
 {
-	int    yes = 0;
-	if(P_Pack && P_Pack->OpTypeID == PPOPT_DRAFTQUOTREQ)
-		yes = 1;
-	else {
-		PPGoodsType gt_rec;
-		Goods2Tbl::Rec goods_rec;
-		yes = BIN(GObj.Fetch(Item.GoodsID, &goods_rec) > 0 &&
-			GTObj.Fetch(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_ALLOWZEROPRICE);
-	}
-	return yes;
+	return (P_Pack && P_Pack->OpTypeID == PPOPT_DRAFTQUOTREQ) ? true : GObj.IsZeroPriceAllowed(Item.GoodsID);
 }
 
 int TrfrItemDialog::CheckQuantityForIntVal()
@@ -2253,7 +2244,7 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	if(Item.Flags & PPTFR_UNLIM) {
 		if(OpTypeID == PPOPT_GOODSORDER || Item.Flags & PPTFR_MINUS) {
 			sel = CTL_LOT_PRICE;
-			THROW_PP(pc > 0.0 || (pc == 0.0 && isAllowZeroPrice()), PPERR_INVPRICE);
+			THROW_PP(pc > 0.0 || (pc == 0.0 && IsZeroPriceAllowed()), PPERR_INVPRICE);
 			Item.SetZeroCost();
 		}
 		else if(OpTypeID != PPOPT_GOODSRETURN) {
@@ -2263,7 +2254,7 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	}
 	else {
 		sel = CTL_LOT_PRICE;
-		THROW_PP(pc > 0.0 || (pc == 0.0 && isAllowZeroPrice()) || OpID == PPOPK_EDI_ACTCHARGEON, PPERR_INVPRICE);
+		THROW_PP(pc > 0.0 || (pc == 0.0 && IsZeroPriceAllowed()) || OpID == PPOPK_EDI_ACTCHARGEON, PPERR_INVPRICE);
 		if(OpTypeID == PPOPT_GOODSORDER) {
 			// @v9.2.9 ds = 0.0;
 		}

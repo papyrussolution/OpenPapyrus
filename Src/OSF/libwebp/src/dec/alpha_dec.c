@@ -13,14 +13,13 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-#include "src/dec/vp8i_dec.h"
-#include "src/dec/vp8li_dec.h"
+//#include "src/dec/vp8i_dec.h"
+//#include "src/dec/vp8li_dec.h"
 #include "src/utils/quant_levels_dec_utils.h"
 #include "src/webp/format_constants.h"
-
-//------------------------------------------------------------------------------
+//
 // ALPHDecoder object.
-
+//
 // Allocates a new alpha decoder instance.
 static ALPHDecoder* ALPHNew(void) {
 	ALPHDecoder* const dec = (ALPHDecoder*)WebPSafeCalloc(1ULL, sizeof(*dec));

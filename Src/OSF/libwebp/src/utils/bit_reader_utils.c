@@ -13,11 +13,6 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#ifdef HAVE_CONFIG_H
-	//#include "src/webp/config.h"
-//#endif
-#include "src/utils/bit_reader_inl_utils.h"
-//#include "src/utils/utils.h"
 //
 // VP8BitReader
 //

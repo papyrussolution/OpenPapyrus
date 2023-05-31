@@ -5,12 +5,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ServiceActivity">
-    <LinearLayout
+    <LinearLayout android:id="@+id/CTL_PAGEHEADER_ROOT"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="4dp"
         >
+        <androidx.appcompat.widget.Toolbar style="@style/PageHeaderRegular"
+            android:id="@+id/toolbarNotificationList"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView style="@style/PageHeaderTitleText"
+                    android:id="@+id/CTL_PAGEHEADER_NOTIFICATIONSTITLE"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{notification_pl}"/>
+            </LinearLayout>
+        </androidx.appcompat.widget.Toolbar>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/notificationListView"
             android:layout_width="match_parent"

@@ -35,9 +35,7 @@ static void makeMaps_d(DState* s)
 		    s->bsLive += 8;				\
 		    s->strm->next_in++;				\
 		    s->strm->avail_in--;			\
-		    s->strm->total_in_lo32++;			\
-		    if(s->strm->total_in_lo32 == 0)	       \
-			    s->strm->total_in_hi32++;		     \
+		    s->strm->TotalIn++;			\
 	    }
 
 #define GET_UCHAR(lll, uuu) GET_BITS(lll, uuu, 8)
@@ -228,13 +226,9 @@ int32 BZ2_decompress(DState * s)
 		/*--- Receive the mapping table ---*/
 		for(i = 0; i < 16; i++) {
 			GET_BIT(BZ_X_MAPPING_1, uc);
-			if(uc == 1)
-				s->inUse16[i] = true; 
-			else
-				s->inUse16[i] = false;
+			s->inUse16[i] = (uc == 1);
 		}
-		for(i = 0; i < 256; i++) 
-			s->inUse[i] = false;
+		memzero(s->inUse, sizeof(s->inUse));
 		for(i = 0; i < 16; i++)
 			if(s->inUse16[i])
 				for(j = 0; j < 16; j++) {
@@ -274,7 +268,8 @@ int32 BZ2_decompress(DState * s)
 				v = s->selectorMtf[i];
 				tmp = pos[v];
 				while(v > 0) {
-					pos[v] = pos[v-1]; v--;
+					pos[v] = pos[v-1]; 
+					v--;
 				}
 				pos[0] = tmp;
 				s->selector[i] = tmp;
@@ -317,14 +312,12 @@ int32 BZ2_decompress(DState * s)
 		nblockMAX = 100000 * s->blockSize100k;
 		groupNo  = -1;
 		groupPos = 0;
-		for(i = 0; i <= 255; i++) 
-			s->unzftab[i] = 0;
+		memzero(s->unzftab, sizeof(s->unzftab));
 		/*-- MTF init --*/
 		{
-			int32 ii, jj, kk;
-			kk = MTFA_SIZE-1;
-			for(ii = 256 / MTFL_SIZE - 1; ii >= 0; ii--) {
-				for(jj = MTFL_SIZE-1; jj >= 0; jj--) {
+			int32 kk = MTFA_SIZE-1;
+			for(int32 ii = 256 / MTFL_SIZE - 1; ii >= 0; ii--) {
+				for(int32 jj = MTFL_SIZE-1; jj >= 0; jj--) {
 					s->mtfa[kk] = (uchar)(ii * MTFL_SIZE + jj);
 					kk--;
 				}

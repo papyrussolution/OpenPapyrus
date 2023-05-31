@@ -214,7 +214,7 @@ static cairo_format_t _cairo_format_from_qimage_format(QImage::Format fmt)
 		case QImage::Format_RGB32: return CAIRO_FORMAT_RGB24;
 		case QImage::Format_Indexed8: // XXX not quite
 		    return CAIRO_FORMAT_A8;
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 		case QImage::Format_Mono:
 #else
 		case QImage::Format_MonoLSB:
@@ -222,7 +222,7 @@ static cairo_format_t _cairo_format_from_qimage_format(QImage::Format fmt)
 		    return CAIRO_FORMAT_A1;
 
 		case QImage::Format_Invalid:
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 		case QImage::Format_MonoLSB:
 #else
 		case QImage::Format_Mono:
@@ -249,24 +249,18 @@ static QImage::Format _qimage_format_from_cairo_format(cairo_format_t fmt)
 	switch(fmt) {
 		case CAIRO_FORMAT_INVALID:
 		    ASSERT_NOT_REACHED;
-		case CAIRO_FORMAT_ARGB32:
-		    return QImage::Format_ARGB32_Premultiplied;
-		case CAIRO_FORMAT_RGB24:
-		    return QImage::Format_RGB32;
-		case CAIRO_FORMAT_RGB16_565:
-		    return QImage::Format_RGB16;
-		case CAIRO_FORMAT_A8:
-		    return QImage::Format_Indexed8; // XXX not quite
+		case CAIRO_FORMAT_ARGB32: return QImage::Format_ARGB32_Premultiplied;
+		case CAIRO_FORMAT_RGB24: return QImage::Format_RGB32;
+		case CAIRO_FORMAT_RGB16_565: return QImage::Format_RGB16;
+		case CAIRO_FORMAT_A8: return QImage::Format_Indexed8; // XXX not quite
 		case CAIRO_FORMAT_A1:
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 		    return QImage::Format_Mono; // XXX think we need to choose between this and LSB
 #else
 		    return QImage::Format_MonoLSB;
 #endif
-		case CAIRO_FORMAT_RGB30:
-		    return QImage::Format_Mono;
+		case CAIRO_FORMAT_RGB30: return QImage::Format_Mono;
 	}
-
 	return QImage::Format_Mono;
 }
 
@@ -515,16 +509,15 @@ static cairo_surface_t * map_qimage_to_image(QImage * qimg, const cairo_rectangl
 		case QImage::Format_Indexed8: // XXX not quite
 		    pixman_format = PIXMAN_a8;
 		    break;
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 		case QImage::Format_Mono:
 #else
 		case QImage::Format_MonoLSB:
 #endif
 		    pixman_format = PIXMAN_a1;
 		    break;
-
 		case QImage::Format_Invalid:
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 		case QImage::Format_MonoLSB:
 #else
 		case QImage::Format_Mono:

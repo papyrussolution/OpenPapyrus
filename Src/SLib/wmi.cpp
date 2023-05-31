@@ -1,5 +1,5 @@
 // WMI.CPP
-// Copyright (c) A.Sobolev 2008, 2010, 2015, 2018, 2020
+// Copyright (c) A.Sobolev 2008, 2010, 2015, 2018, 2020, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -78,7 +78,7 @@ int SWmi::GetSvcError(SString & rBuf)
 		rBuf.CopyFromOleStr(bs_err);
 		ok = 1;
 		SysFreeString(bs_err);
-		p_err_info->Release();
+		SCOMOBJRELEASE(p_err_info);
 	}
 	return ok;
 }
@@ -182,14 +182,8 @@ int SWmi::Method_CreateProcess(const char * pCmdLine)
 
 void SWmi::Release()
 {
-	if(P_Svc) {
-		P_Svc->Release();
-		P_Svc = 0;
-	}
-	if(P_Loc) {
-		P_Loc->Release();
-		P_Loc = 0;
-	}
+	SCOMOBJRELEASE(P_Svc);
+	SCOMOBJRELEASE(P_Loc);
 }
 
 //

@@ -11,20 +11,17 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dsp/dsp.h"
 
 #if defined(WEBP_USE_SSE41)
 
 #include "src/dsp/common_sse41.h"
 #include "src/dsp/lossless.h"
 #include "src/dsp/lossless_common.h"
-
-//------------------------------------------------------------------------------
+//
 // Color-space conversion functions
-
-static void TransformColorInverse_SSE41(const VP8LMultipliers* const m,
-    const uint32_t* const src,
-    int num_pixels, uint32_t* dst) {
+//
+static void TransformColorInverse_SSE41(const VP8LMultipliers* const m, const uint32_t* const src, int num_pixels, uint32_t* dst) 
+{
 // sign-extended multiplying constants, pre-shifted by 5.
 #define CST(X)  (((int16_t)(m->X << 8)) >> 5)   // sign-extend
 	const __m128i mults_rb = _mm_set1_epi32((uint32_t)CST(green_to_red_) << 16 |

@@ -123,12 +123,12 @@ extern uint32 BZ2_crc32Table[256];
 #define BZ_N_QSORT 12
 #define BZ_N_SHELL 18
 #define BZ_N_OVERSHOOT (BZ_N_RADIX + BZ_N_QSORT + BZ_N_SHELL + 2)
-
-/*-- Structure holding all the compression-side stuff. --*/
-
+//
+// Structure holding all the compression-side stuff
+//
 typedef struct {
 	/* pointer back to the struct bz_stream */
-	bz_stream* strm;
+	bz_stream * strm;
 	/* mode this stream is in, and whether inputting */
 	/* or outputting data */
 	int32 mode;
@@ -140,42 +140,42 @@ typedef struct {
 	uint32 *  ftab;
 	int32 origPtr;
 	/* aliases for arr1 and arr2 */
-	uint32 *  ptr;
-	uchar*   block;
-	uint16*  mtfv;
-	uchar*   zbits;
-	int32 workFactor; /* for deciding when to use the fallback sorting algorithm */
+	uint32 * ptr;
+	uchar  * block;
+	uint16 * mtfv;
+	uchar  * zbits;
+	int32  workFactor; /* for deciding when to use the fallback sorting algorithm */
 	/* run-length-encoding of the input */
 	uint32 state_in_ch;
-	int32 state_in_len;
+	int32  state_in_len;
 	BZ_RAND_DECLS;
 	/* input and output limits and current posns */
-	int32 nblock;
-	int32 nblockMAX;
-	int32 numZ;
-	int32 state_out_pos;
+	int32  nblock;
+	int32  nblockMAX;
+	int32  numZ;
+	int32  state_out_pos;
 	/* map of bytes used in block */
-	int32 nInUse;
+	int32  nInUse;
 	/*bool*/uint8 inUse[256];
-	uchar unseqToSeq[256];
+	uchar  unseqToSeq[256];
 	/* the buffer for bit stream creation */
 	uint32 bsBuff;
-	int32 bsLive;
+	int32  bsLive;
 	/* block and combined CRCs */
 	uint32 blockCRC;
 	uint32 combinedCRC;
 	/* misc administratium */
-	int32 verbosity;
-	int32 blockNo;
-	int32 blockSize100k;
+	int32  verbosity;
+	int32  blockNo;
+	int32  blockSize100k;
 	/* stuff for coding the MTF values */
-	int32 nMTF;
-	int32 mtfFreq    [BZ_MAX_ALPHA_SIZE];
-	uchar selector   [BZ_MAX_SELECTORS];
-	uchar selectorMtf[BZ_MAX_SELECTORS];
-	uchar len     [BZ_N_GROUPS][BZ_MAX_ALPHA_SIZE];
-	int32 code    [BZ_N_GROUPS][BZ_MAX_ALPHA_SIZE];
-	int32 rfreq   [BZ_N_GROUPS][BZ_MAX_ALPHA_SIZE];
+	int32  nMTF;
+	int32  mtfFreq[BZ_MAX_ALPHA_SIZE];
+	uchar  selector[BZ_MAX_SELECTORS];
+	uchar  selectorMtf[BZ_MAX_SELECTORS];
+	uchar  len[BZ_N_GROUPS][BZ_MAX_ALPHA_SIZE];
+	int32  code[BZ_N_GROUPS][BZ_MAX_ALPHA_SIZE];
+	int32  rfreq[BZ_N_GROUPS][BZ_MAX_ALPHA_SIZE];
 	uint32 len_pack[BZ_MAX_ALPHA_SIZE][4]; /* second dimension: only 3 needed; 4 makes index calculations faster */
 } EState;
 
@@ -318,9 +318,9 @@ typedef struct {
 	int32 save_zj;
 	int32 save_gSel;
 	int32 save_gMinlen;
-	int32*   save_gLimit;
-	int32*   save_gBase;
-	int32*   save_gPerm;
+	int32 * save_gLimit;
+	int32 * save_gBase;
+	int32 * save_gPerm;
 } DState;
 
 /*-- Macros for decompression. --*/

@@ -13,25 +13,19 @@
 
 //#include <windows.h>
 #define ABSL_RANDOM_USE_BCRYPT 1
-#pragma comment(lib, "bcrypt.lib")
-
+	#pragma comment(lib, "bcrypt.lib")
 #elif defined(__Fuchsia__)
-#include <zircon/syscalls.h>
-
+	#include <zircon/syscalls.h>
 #endif
-
-#if defined(__GLIBC__) && \
-	(__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 25))
-// glibc >= 2.25 has getentropy()
-#define ABSL_RANDOM_USE_GET_ENTROPY 1
+#if defined(__GLIBC__) && (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 25))
+	// glibc >= 2.25 has getentropy()
+	#define ABSL_RANDOM_USE_GET_ENTROPY 1
 #endif
-
 #if defined(__EMSCRIPTEN__)
-#include <sys/random.h>
-// Emscripten has getentropy, but it resides in a different header.
-#define ABSL_RANDOM_USE_GET_ENTROPY 1
+	#include <sys/random.h>
+	// Emscripten has getentropy, but it resides in a different header.
+	#define ABSL_RANDOM_USE_GET_ENTROPY 1
 #endif
-
 #if defined(ABSL_RANDOM_USE_BCRYPT)
 #include <bcrypt.h>
 
@@ -53,11 +47,10 @@ namespace {
 #if defined(ABSL_RANDOM_USE_BCRYPT)
 
 // On Windows potentially use the BCRYPT CNG API to read available entropy.
-bool ReadSeedMaterialFromOSEntropyImpl(absl::Span<uint32_t> values) {
+bool ReadSeedMaterialFromOSEntropyImpl(absl::Span<uint32_t> values) 
+{
 	BCRYPT_ALG_HANDLE hProvider;
-	NTSTATUS ret;
-	ret = BCryptOpenAlgorithmProvider(&hProvider, BCRYPT_RNG_ALGORITHM,
-		MS_PRIMITIVE_PROVIDER, 0);
+	NTSTATUS ret = BCryptOpenAlgorithmProvider(&hProvider, BCRYPT_RNG_ALGORITHM, MS_PRIMITIVE_PROVIDER, 0);
 	if(!(BCRYPT_SUCCESS(ret))) {
 		ABSL_RAW_LOG(ERROR, "Failed to open crypto provider.");
 		return false;
@@ -171,7 +164,8 @@ bool ReadSeedMaterialFromOSEntropyImpl(absl::Span<uint32_t> values) {
 #endif
 }  // namespace
 
-bool ReadSeedMaterialFromOSEntropy(absl::Span<uint32_t> values) {
+bool ReadSeedMaterialFromOSEntropy(absl::Span<uint32_t> values) 
+{
 	assert(values.data() != nullptr);
 	if(values.data() == nullptr) {
 		return false;

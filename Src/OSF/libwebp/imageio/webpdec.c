@@ -5,10 +5,9 @@
 // tree. An additional intellectual property rights grant can be found
 // in the file PATENTS. All contributing project authors may
 // be found in the AUTHORS file in the root of the source tree.
-// -----------------------------------------------------------------------------
 //
 // WebP decode.
-
+//
 #include <libwebp-internal.h>
 #pragma hdrstop
 #include "./webpdec.h"
@@ -17,10 +16,9 @@
 #include "../examples/unicode.h"
 #include "./imageio_util.h"
 #include "./metadata.h"
-
-//------------------------------------------------------------------------------
+//
 // WebP decoding
-
+//
 static const char* const kStatusMessages[VP8_STATUS_NOT_ENOUGH_DATA + 1] = {
 	"OK", "OUT_OF_MEMORY", "INVALID_PARAM", "BITSTREAM_ERROR",
 	"UNSUPPORTED_FEATURE", "SUSPENDED", "USER_ABORT", "NOT_ENOUGH_DATA"
@@ -166,7 +164,7 @@ int ReadWebP(const uint8* const data, size_t data_size, WebPPicture* const pic, 
 			break;
 		}
 		if(pic->use_argb) {
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 			output_buffer->colorspace = MODE_ARGB;
 #else
 			output_buffer->colorspace = MODE_BGRA;
@@ -217,5 +215,3 @@ int ReadWebP(const uint8* const data, size_t data_size, WebPPicture* const pic, 
 	if(!ok) WebPPictureFree(pic);
 	return ok;
 }
-
-// -----------------------------------------------------------------------------

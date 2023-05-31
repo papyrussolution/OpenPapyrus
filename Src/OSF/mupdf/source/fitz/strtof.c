@@ -114,8 +114,7 @@ static strtof_fp_t strtof_cached_power(int i)
 	return result;
 }
 
-/* Find number of leading zero bits in an uint32_t. Derived from the
-   "Bit Twiddling Hacks" at graphics.stanford.edu/~seander/bithacks.html.  */
+// Find number of leading zero bits in an uint32_t. Derived from the "Bit Twiddling Hacks" at graphics.stanford.edu/~seander/bithacks.html.
 static uchar clz_table[256] = {
 	8, 7, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4,
 #define sixteen_times(N) N, N, N, N, N, N, N, N, N, N, N, N, N, N, N, N,
@@ -125,11 +124,9 @@ static uchar clz_table[256] = {
 };
 static unsigned leading_zeros(uint32_t x)
 {
-	unsigned tmp1, tmp2;
-
-	tmp1 = x >> 16;
+	unsigned tmp1 = x >> 16;
 	if(tmp1) {
-		tmp2 = tmp1 >> 8;
+		unsigned tmp2 = tmp1 >> 8;
 		if(tmp2)
 			return clz_table[tmp2];
 		else

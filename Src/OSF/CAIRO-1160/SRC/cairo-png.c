@@ -209,7 +209,7 @@ static cairo_status_t write_png(cairo_surface_t * surface, png_rw_ptr write_func
 		case CAIRO_FORMAT_A1:
 		    bpc = 1;
 		    png_color_type = PNG_COLOR_TYPE_GRAY;
-#ifndef WORDS_BIGENDIAN
+#ifndef SL_BIGENDIAN
 		    png_set_packswap(png);
 #endif
 		    break;

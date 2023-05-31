@@ -14,12 +14,11 @@
 #include <libwebp-internal.h>
 #pragma hdrstop
 //#include <assert.h>
-#include "src/mux/muxi.h"
+//#include "src/mux/muxi.h"
 //#include "src/utils/utils.h"
-
-//------------------------------------------------------------------------------
+//
 // Helper method(s).
-
+//
 // Handy MACRO.
 #define SWITCH_ID_LIST(INDEX, LIST)                                           \
 	if(idx == (INDEX)) {                                                       \

@@ -40,14 +40,16 @@ extern "C" {
 #define BZ_CONFIG_ERROR      (-9)
 
 typedef struct {
-	char * next_in;
+	const  char * next_in; // @sobolev char*-->const char*
 	uint   avail_in;
-	uint   total_in_lo32;
-	uint   total_in_hi32;
+	//uint   total_in_lo32;
+	//uint   total_in_hi32;
+	uint64 TotalIn;
 	char * next_out;
 	uint   avail_out;
-	uint   total_out_lo32;
-	uint   total_out_hi32;
+	//uint   total_out_lo32;
+	//uint   total_out_hi32;
+	uint64 TotalOut;
 	void * state;
 	//void * (*bzalloc)(void *, size_t, size_t);
 	//void   (*bzfree)(void *, void *);
@@ -93,12 +95,13 @@ BZ_EXTERN int BZ2_bzDecompressEnd(bz_stream *strm);
 
 	BZ_EXTERN BZFILE * BZ2_bzReadOpen(int * bzerror, FILE* f, int verbosity, int small, void * unused, int nUnused);
 	BZ_EXTERN void BZ2_bzReadClose(int * bzerror, BZFILE* b);
-	BZ_EXTERN void BZ2_bzReadGetUnused(int * bzerror, BZFILE* b, void ** unused, int * nUnused);
-	BZ_EXTERN int BZ2_bzRead(int * bzerror, BZFILE* b, void *   buf, int len);
+	BZ_EXTERN void BZ2_bzReadGetUnused(int * bzerror, BZFILE * b, const void ** unused, int * nUnused);
+	BZ_EXTERN int BZ2_bzRead(int * bzerror, BZFILE* b, void * buf, int len);
 	BZ_EXTERN BZFILE * BZ2_bzWriteOpen(int * bzerror, FILE* f, int blockSize100k, int verbosity, int workFactor );
 	BZ_EXTERN void BZ2_bzWrite(int * bzerror, BZFILE* b, void *   buf, int len);
 	BZ_EXTERN void BZ2_bzWriteClose(int * bzerror, BZFILE * b, int abandon, uint* nbytes_in, uint* nbytes_out);
-	BZ_EXTERN void BZ2_bzWriteClose64(int * bzerror, BZFILE * b, int abandon, uint* nbytes_in_lo32, uint* nbytes_in_hi32, uint* nbytes_out_lo32, uint* nbytes_out_hi32);
+	//BZ_EXTERN void BZ2_bzWriteClose64(int * bzerror, BZFILE * b, int abandon, uint* nbytes_in_lo32, uint* nbytes_in_hi32, uint* nbytes_out_lo32, uint* nbytes_out_hi32);
+	BZ_EXTERN void BZ2_bzWriteClose64(int * bzerror, BZFILE * b, int abandon, uint64 * pNBytesIn, uint64 * pNBytesOut);
 #endif
 // 
 // Utility functions

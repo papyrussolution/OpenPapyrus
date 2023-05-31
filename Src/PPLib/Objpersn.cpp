@@ -4955,9 +4955,26 @@ int PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 
 int PPObjPerson::Edit(PPID * pID, void * extraPtr)
 {
+	int    ok = -1;
+	assert(pID != 0);
 	EditBlock eb;
 	InitEditBlock(reinterpret_cast<PPID>(extraPtr), eb);
-	return Edit_(pID, eb);
+	// @v11.7.4 {
+	if(!eb.SCardSeriesID) {
+		PPSCardConfig sc_cfg;
+		PPObjSCardSeries scs_obj;
+		PPSCardSeries scs_rec;
+		THROW_MEM(SETIFZ(P_ScObj, new PPObjSCard));
+		P_ScObj->FetchConfig(&sc_cfg);
+		if(scs_obj.Fetch(sc_cfg.DefCreditSerID, &scs_rec) > 0)
+			eb.SCardSeriesID = sc_cfg.DefCreditSerID;
+		else if(scs_obj.Fetch(sc_cfg.DefSerID, &scs_rec) > 0)
+			eb.SCardSeriesID = sc_cfg.DefSerID;
+	}
+	// } @v11.7.4 
+	ok = Edit_(pID, eb);
+	CATCHZOK
+	return ok;
 }
 
 int PPObjPerson::ViewVersion(PPID histID)

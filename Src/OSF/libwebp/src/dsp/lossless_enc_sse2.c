@@ -13,22 +13,18 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dsp/dsp.h"
 #if defined(WEBP_USE_SSE2)
-//#include <assert.h>
 #include <emmintrin.h>
 #include "src/dsp/lossless.h"
 #include "src/dsp/common_sse2.h"
 #include "src/dsp/lossless_common.h"
 
-// For sign-extended multiplying constants, pre-shifted by 5:
-#define CST_5b(X)  (((int16_t)((uint16_t)(X) << 8)) >> 5)
-
-//------------------------------------------------------------------------------
+#define CST_5b(X)  (((int16_t)((uint16_t)(X) << 8)) >> 5) // For sign-extended multiplying constants, pre-shifted by 5:
+//
 // Subtract-Green Transform
-
-static void SubtractGreenFromBlueAndRed_SSE2(uint32_t* argb_data,
-    int num_pixels) {
+//
+static void SubtractGreenFromBlueAndRed_SSE2(uint32_t* argb_data, int num_pixels) 
+{
 	int i;
 	for(i = 0; i + 4 <= num_pixels; i += 4) {
 		const __m128i in = _mm_loadu_si128((__m128i*)&argb_data[i]); // argb
@@ -231,16 +227,16 @@ static void AddVectorEq_SSE2(const uint32_t* a, uint32_t* out, int size) {
 }
 
 #undef LINE_SIZE
-
-//------------------------------------------------------------------------------
+//
 // Entropy
-
+//
 // TODO(https://crbug.com/webp/499): this function produces different results
 // from the C code due to use of double/float resulting in output differences
 // when compared to -noasm.
 #if !(defined(WEBP_HAVE_SLOW_CLZ_CTZ) || defined(__i386__) || defined(_M_IX86))
 
-static float CombinedShannonEntropy_SSE2(const int X[256], const int Y[256]) {
+static float CombinedShannonEntropy_SSE2(const int X[256], const int Y[256]) 
+{
 	int i;
 	double retval = 0.;
 	int sumX = 0, sumXY = 0;

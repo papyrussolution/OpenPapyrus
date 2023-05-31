@@ -13,14 +13,15 @@
 #pragma hdrstop
 //#include "check-internal.h"
 //#include "crc_macros.h"
-
+//
 // If you make any changes, do some benchmarking! Seemingly unrelated
 // changes can very easily ruin the performance (and very probably is
 // very compiler dependent).
+//
 uint32_t lzma_crc32(const uint8 *buf, size_t size, uint32_t crc)
 {
 	crc = ~crc;
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	crc = bswap32(crc);
 #endif
 	if(size > 8) {
@@ -49,7 +50,7 @@ uint32_t lzma_crc32(const uint8 *buf, size_t size, uint32_t crc)
 	}
 	while(size-- != 0)
 		crc = lzma_crc32_table[0][*buf++ ^ CRC_A(crc)] ^ CRC_S8(crc);
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	crc = bswap32(crc);
 #endif
 	return ~crc;

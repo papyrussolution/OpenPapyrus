@@ -77,7 +77,7 @@ static inline uint32_t lzma_attribute((__always_inline__)) lzma_memcmplen(const 
 		len += 16;
 	}
 	return limit;
-#elif defined(TUKLIB_FAST_UNALIGNED_ACCESS) && !defined(WORDS_BIGENDIAN)
+#elif defined(TUKLIB_FAST_UNALIGNED_ACCESS) && !defined(SL_BIGENDIAN)
 	// Generic 32-bit little endian method
 	#define LZMA_MEMCMPLEN_EXTRA 4
 	while(len < limit) {
@@ -94,7 +94,7 @@ static inline uint32_t lzma_attribute((__always_inline__)) lzma_memcmplen(const 
 		len += 4;
 	}
 	return limit;
-#elif defined(TUKLIB_FAST_UNALIGNED_ACCESS) && defined(WORDS_BIGENDIAN)
+#elif defined(TUKLIB_FAST_UNALIGNED_ACCESS) && defined(SL_BIGENDIAN)
 	// Generic 32-bit big endian method
 	#define LZMA_MEMCMPLEN_EXTRA 4
 	while(len < limit) {

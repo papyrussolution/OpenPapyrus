@@ -1835,17 +1835,16 @@ static int zipx_bzip2_init(ArchiveRead * a, struct zip * zip)
 	return ARCHIVE_OK;
 }
 
-static int zip_read_data_zipx_bzip2(ArchiveRead * a, const void ** buff,
-    size_t * size, int64 * offset)
+static int zip_read_data_zipx_bzip2(ArchiveRead * a, const void ** buff, size_t * size, int64 * offset)
 {
 	struct zip * zip = (struct zip *)(a->format->data);
-	ssize_t bytes_avail = 0, in_bytes, to_consume;
+	ssize_t bytes_avail = 0;
+	ssize_t in_bytes;
+	/*ssize_t*/int64 to_consume;
 	const void * compressed_buff;
 	int r;
 	uint64 total_out;
-
 	CXX_UNUSED(offset);
-
 	/* Initialize decompression context if we're here for the first time. */
 	if(!zip->decompress_init) {
 		r = zipx_bzip2_init(a, zip);
@@ -1870,13 +1869,11 @@ static int zip_read_data_zipx_bzip2(ArchiveRead * a, const void ** buff,
 	/* Setup buffer boundaries. */
 	zip->bzstream.next_in = (char *)(uintptr_t)compressed_buff;
 	zip->bzstream.avail_in = in_bytes;
-	zip->bzstream.total_in_hi32 = 0;
-	zip->bzstream.total_in_lo32 = 0;
+	zip->bzstream.TotalIn = 0;
 	zip->bzstream.next_out = (char *)zip->uncompressed_buffer;
 	zip->bzstream.avail_out = zip->uncompressed_buffer_size;
-	zip->bzstream.total_out_hi32 = 0;
-	zip->bzstream.total_out_lo32 = 0;
-	/* Perform the decompression. */
+	zip->bzstream.TotalOut = 0;
+	// Perform the decompression
 	r = BZ2_bzDecompress(&zip->bzstream);
 	switch(r) {
 		case BZ_STREAM_END:
@@ -1900,14 +1897,10 @@ static int zip_read_data_zipx_bzip2(ArchiveRead * a, const void ** buff,
 		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "bzip2 decompression failed");
 		    return ARCHIVE_FATAL;
 	}
-
-	/* Update the pointers so decompressor can continue decoding. */
-	to_consume = zip->bzstream.total_in_lo32;
+	// Update the pointers so decompressor can continue decoding
+	to_consume = static_cast<int64>(zip->bzstream.TotalIn);
 	__archive_read_consume(a, to_consume);
-
-	total_out = ((uint64)zip->bzstream.total_out_hi32 << 32) +
-	    zip->bzstream.total_out_lo32;
-
+	total_out = zip->bzstream.TotalOut;
 	zip->entry_bytes_remaining -= to_consume;
 	zip->entry_compressed_bytes_read += to_consume;
 	zip->entry_uncompressed_bytes_read += total_out;

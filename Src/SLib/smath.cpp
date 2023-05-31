@@ -1572,6 +1572,34 @@ void RationalBestApproximation(ulong givenNumerator, ulong givenDenominator, ulo
 	*pBestNumerator = n1;
 	*pBestDenominator = d1;
 }
+
+void SlI128_Add(uint64 a, uint64 b, _baseuint128_le * pResult)
+{
+}
+
+void SlI128_Add(const _baseuint128_le * pA, const _baseuint128_le * pB, _baseuint128_le * pResult)
+{
+}
+
+void SlI128_Sub(const _baseuint128_le * pA, const _baseuint128_le * pB, _baseint128_le * pResult)
+{
+}
+
+void SlI128_Mul(uint64 a, uint64 b, _baseuint128_le * pResult)
+{
+}
+
+void SlI128_Mul(const _baseuint128_le * pA, const _baseuint128_le * pB, _baseuint128_le * pResult)
+{
+}
+
+void SlI128_Div(const _baseuint128_le * pA, uint64 b, uint64 * pResult)
+{
+}
+
+void SlI128_Div(const _baseuint128_le * pA, uint64 b, _baseuint128_le * pResult)
+{
+}
 //
 // SUint128
 // 

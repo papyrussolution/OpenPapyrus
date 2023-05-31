@@ -5,22 +5,17 @@
 // tree. An additional intellectual property rights grant can be found
 // in the file PATENTS. All contributing project authors may
 // be found in the AUTHORS file in the root of the source tree.
-// -----------------------------------------------------------------------------
 //
-//   Speed-critical functions.
-//
-// Author: Skal (pascal.massimino@gmail.com)
-
 #ifndef WEBP_DSP_DSP_H_
 #define WEBP_DSP_DSP_H_
-
+//
+// Speed-critical functions.
+// Author: Skal (pascal.massimino@gmail.com)
+//
 //#ifdef HAVE_CONFIG_H
 //#include "src/webp/config.h"
 //#endif
 //#include "src/webp/types.h"
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
 #define BPS 32   // this is the common stride for enc/dec
 //
 // WEBP_RESTRICT
@@ -196,9 +191,9 @@
 	#define WEBP_SWAP_16BIT_CSP 0
 #endif
 // some endian fix (e.g.: mips-gcc doesn't define __BIG_ENDIAN__)
-#if !defined(WORDS_BIGENDIAN) && (defined(__BIG_ENDIAN__) || defined(_M_PPC) || (defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)))
-	#define WORDS_BIGENDIAN
-#endif
+//#if !defined(WORDS_BIGENDIAN) && (defined(__BIG_ENDIAN__) || defined(_M_PPC) || (defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)))
+	//#define WORDS_BIGENDIAN
+//#endif
 
 typedef enum {
 	kSSE2,
@@ -517,16 +512,10 @@ void WebPMultRows(uint8* _RESTRICT ptr, int stride, const uint8* _RESTRICT alpha
 // Plain-C versions, used as fallback by some implementations.
 void WebPMultRow_C(uint8* _RESTRICT const ptr, const uint8* _RESTRICT const alpha, int width, int inverse);
 void WebPMultARGBRow_C(uint32_t* const ptr, int width, int inverse);
-
-#ifdef WORDS_BIGENDIAN
-// ARGB packing function: a/r/g/b input is rgba or bgra order.
-extern void (* WebPPackARGB)(const uint8* _RESTRICT a,
-    const uint8* _RESTRICT r,
-    const uint8* _RESTRICT g,
-    const uint8* _RESTRICT b,
-    int len, uint32_t* _RESTRICT out);
+#ifdef SL_BIGENDIAN
+	// ARGB packing function: a/r/g/b input is rgba or bgra order.
+	extern void (* WebPPackARGB)(const uint8* _RESTRICT a, const uint8* _RESTRICT r, const uint8* _RESTRICT g, const uint8* _RESTRICT b, int len, uint32_t* _RESTRICT out);
 #endif
-
 // RGB packing function. 'step' can be 3 or 4. r/g/b input is rgb or bgr order.
 extern void (* WebPPackRGB)(const uint8* _RESTRICT r, const uint8* _RESTRICT g, const uint8* _RESTRICT b, int len, int step, uint32_t* _RESTRICT out);
 // This function returns true if src[i] contains a value different from 0xff.
@@ -538,10 +527,9 @@ extern void (* WebPAlphaReplace)(uint32_t* src, int length, uint32_t color);
 
 // To be called first before using the above.
 void WebPInitAlphaProcessing(void);
-
-//------------------------------------------------------------------------------
+//
 // Filter functions
-
+//
 typedef enum {     // Filter types.
 	WEBP_FILTER_NONE = 0,
 	WEBP_FILTER_HORIZONTAL,
@@ -552,12 +540,10 @@ typedef enum {     // Filter types.
 	WEBP_FILTER_FAST
 } WEBP_FILTER_TYPE;
 
-typedef void (* WebPFilterFunc)(const uint8* in, int width, int height,
-    int stride, uint8* out);
+typedef void (* WebPFilterFunc)(const uint8* in, int width, int height, int stride, uint8* out);
 // In-place un-filtering.
 // Warning! 'prev_line' pointer can be equal to 'cur_line' or 'preds'.
-typedef void (* WebPUnfilterFunc)(const uint8* prev_line, const uint8* preds,
-    uint8* cur_line, int width);
+typedef void (* WebPUnfilterFunc)(const uint8* prev_line, const uint8* preds, uint8* cur_line, int width);
 
 // Filter the given data using the given predictor.
 // 'in' corresponds to a 2-dimensional pixel array of size (stride * height)
@@ -573,9 +559,5 @@ extern WebPUnfilterFunc WebPUnfilters[WEBP_FILTER_LAST];
 
 // To be called first before using the above.
 void VP8FiltersInit(void);
-
-//#ifdef __cplusplus
-//}    // extern "C"
-//#endif
 
 #endif  // WEBP_DSP_DSP_H_

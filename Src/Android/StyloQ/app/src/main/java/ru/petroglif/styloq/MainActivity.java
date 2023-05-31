@@ -125,6 +125,16 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					//
 					SLib.SetupStrAssocCombo(app_ctx, this, R.id.CTLSEL_PRIVCFG_PREFLANG, lang_list, pref_lang_id);
 					SLib.SetupStrAssocCombo(app_ctx, this, R.id.CTLSEL_PRIVCFG_DEFFACE, face_list, def_face_id);
+					// @v11.7.4 {
+					{
+						String nad_txt = _data.Get(StyloQConfig.tagNotificationActualDays);
+						int nad = SLib.satoi(nad_txt);
+						if(nad < 0 || nad > 366)
+							nad = 0;
+						nad_txt = Integer.toString(nad);
+						SLib.SetCtrlString(this, R.id.CTL_PRIVCFG_NOTIFICATIONACTIALDAYS, nad_txt);
+					}
+					// } @v11.7.4
 				}
 			} catch(StyloQException exn) {
 				//e.printStackTrace();
@@ -168,6 +178,16 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 						_data.Set(StyloQConfig.tagPrefLanguage, SLib.GetLinguaCode(lang_id));
 					else
 						_data.Set(StyloQConfig.tagPrefLanguage, null);
+					// @v11.7.4 {
+					{
+						String nad_txt = SLib.GetCtrlString(this, R.id.CTL_PRIVCFG_NOTIFICATIONACTIALDAYS);
+						int nad = SLib.satoi(nad_txt);
+						if(nad < 0 || nad > 366)
+							nad = 0;
+						nad_txt = Integer.toString(nad);
+						_data.Set(StyloQConfig.tagNotificationActualDays, nad_txt);
+					}
+					// } @v11.7.4
 					result = Data;
 				} catch(StyloQException exn) {
 					//e.printStackTrace();
@@ -511,15 +531,35 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 	{
 		try {
 			if(db == null) {
-				StyloQApp app_ctx = (StyloQApp) getApplication();
+				StyloQApp app_ctx = (StyloQApp)getApplication();
 				if(app_ctx != null)
 					db = app_ctx.GetDB();
 			}
 			if(db != null) {
 				View v = SLib.FindViewById(this, R.id.tbButtonNotifications);
 				if(v != null && v instanceof ImageButton) {
+					int notification_actual_days = 0;
+					SLib.LDATETIME since = null;
+					{
+						StyloQConfig cfg_data = new StyloQConfig();
+						StyloQDatabase.SecStoragePacket pack = db.GetOwnPeerEntry();
+						if(pack != null) {
+							byte[] cfg_bytes = pack.Pool.Get(SecretTagPool.tagPrivateConfig);
+							if(SLib.GetLen(cfg_bytes) > 0) {
+								String cfg_json = new String(cfg_bytes);
+								cfg_data.FromJson(cfg_json);
+								String nad_text = cfg_data.Get(StyloQConfig.tagNotificationActualDays);
+								notification_actual_days = SLib.satoi(nad_text);
+							}
+						}
+					}
+					if(notification_actual_days > 0) {
+						SLib.LDATE now_date = SLib.GetCurDate();
+						SLib.LDATE since_date = SLib.LDATE.Plus(now_date, -notification_actual_days);
+						since = new SLib.LDATETIME(since_date, new SLib.LTIME());
+					}
 					ImageButton button = (ImageButton) v;
-					if(db.IsThereUnprocessedNotifications(0, null))
+					if(db.IsThereUnprocessedNotifications(0, since))
 						button.setImageResource(R.drawable.ic_bell_accent01);
 					else if(db.IsThereAnyNotifications(0, null))
 						button.setImageResource(R.drawable.ic_bell01);

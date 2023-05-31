@@ -170,11 +170,11 @@ static void fallbackQSort3(uint32 * fmap, uint32 * eclass, int32 loSt, int32 hiS
       bhtab [ 0 .. 2+(nblock/32) ] destroyed
  */
 
-#define       SET_BH(zz)  bhtab[(zz) >> 5] |= (1 << ((zz) & 31))
-#define     CLEAR_BH(zz)  bhtab[(zz) >> 5] &= ~(1 << ((zz) & 31))
-#define     ISSET_BH(zz)  (bhtab[(zz) >> 5] & (1 << ((zz) & 31)))
-#define      WORD_BH(zz)  bhtab[(zz) >> 5]
-#define UNALIGNED_BH(zz)  ((zz) & 0x01f)
+#define SET_BH(zz)       bhtab[(zz) >> 5] |= (1 << ((zz) & 31))
+#define CLEAR_BH(zz)     bhtab[(zz) >> 5] &= ~(1 << ((zz) & 31))
+#define ISSET_BH(zz)     (bhtab[(zz) >> 5] & (1 << ((zz) & 31)))
+#define WORD_BH(zz)      bhtab[(zz) >> 5]
+#define UNALIGNED_BH(zz) ((zz) & 0x01f)
 
 static void fallbackSort(uint32 * fmap, uint32 * eclass, uint32 * bhtab, int32 nblock, int32 verb)
 {
@@ -183,15 +183,14 @@ static void fallbackSort(uint32 * fmap, uint32 * eclass, uint32 * bhtab, int32 n
 	int32 H, i, j, k, l, r, cc, cc1;
 	int32 nNotDone;
 	int32 nBhtab;
-	uchar* eclass8 = (uchar *)eclass;
+	uchar * eclass8 = (uchar *)eclass;
 	/*--
 	   Initial 1-char radix sort to generate
 	   initial fmap and initial BH bits.
 	   --*/
 	if(verb >= 4)
 		VPrintf0("        bucket sorting ...\n");
-	for(i = 0; i < 257; i++) 
-		ftab[i] = 0;
+	memzero(ftab, sizeof(ftab));
 	for(i = 0; i < nblock; i++) 
 		ftab[eclass8[i]]++;
 	for(i = 0; i < 256; i++) 
@@ -904,32 +903,31 @@ zero:
 #undef BIGFREQ
 #undef SETMASK
 #undef CLEARMASK
-
-/*---------------------------------------------*/
-/* Pre:
-      nblock > 0
-      arr2 exists for [0 .. nblock-1 +N_OVERSHOOT]
-      ((uchar *)arr2)  [0 .. nblock-1] holds block
-      arr1 exists for [0 .. nblock-1]
-
-   Post:
-      ((uchar *)arr2) [0 .. nblock-1] holds block
-      All other areas of block destroyed
-      ftab [ 0 .. 65536 ] destroyed
-      arr1 [0 .. nblock-1] holds sorted order
- */
-void BZ2_blockSort(EState* s)
+//
+// Pre:
+//   nblock > 0
+//   arr2 exists for [0 .. nblock-1 +N_OVERSHOOT]
+//   ((uchar *)arr2)  [0 .. nblock-1] holds block
+//   arr1 exists for [0 .. nblock-1]
+//
+// Post:
+//   ((uchar *)arr2) [0 .. nblock-1] holds block
+//   All other areas of block destroyed
+//   ftab [ 0 .. 65536 ] destroyed
+//   arr1 [0 .. nblock-1] holds sorted order
+//
+void BZ2_blockSort(EState * s)
 {
 	uint32 * ptr    = s->ptr;
-	uchar*  block  = s->block;
+	uchar  * block  = s->block;
 	uint32 * ftab   = s->ftab;
-	int32 nblock = s->nblock;
-	int32 verb   = s->verbosity;
-	int32 wfact  = s->workFactor;
-	uint16* quadrant;
-	int32 budget;
-	int32 budgetInit;
-	int32 i;
+	int32  nblock = s->nblock;
+	int32  verb   = s->verbosity;
+	int32  wfact  = s->workFactor;
+	uint16 * quadrant;
+	int32  budget;
+	int32  budgetInit;
+	int32  i;
 	if(nblock < 10000) {
 		fallbackSort(s->arr1, s->arr2, ftab, nblock, verb);
 	}
@@ -950,10 +948,7 @@ void BZ2_blockSort(EState* s)
 		   resulting compressed stream is now the same regardless
 		   of whether or not we use the main sort or fallback sort.
 		 */
-		if(wfact < 1) 
-			wfact = 1;
-		if(wfact > 100) 
-			wfact = 100;
+		wfact = sclamp(wfact, (int32)1, (int32)100);
 		budgetInit = nblock * ((wfact-1) / 3);
 		budget = budgetInit;
 		mainSort(ptr, block, quadrant, ftab, nblock, verb, &budget);

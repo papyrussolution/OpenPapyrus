@@ -210,20 +210,15 @@ hb_directwrite_face_data_t * _hb_directwrite_shaper_face_data_create(hb_face_t *
 	hr = fontFile->Analyze(&isSupported, &fileType, &faceType, &numberOfFaces);
 	if(FAILED(hr) || !isSupported)
 		FAIL("Font file is not supported.");
-
 #undef FAIL
-
 	IDWriteFontFace * fontFace;
-	dwriteFactory->CreateFontFace(faceType, 1, &fontFile, 0,
-	    DWRITE_FONT_SIMULATIONS_NONE, &fontFace);
-
+	dwriteFactory->CreateFontFace(faceType, 1, &fontFile, 0, DWRITE_FONT_SIMULATIONS_NONE, &fontFace);
 	data->dwriteFactory = dwriteFactory;
 	data->fontFile = fontFile;
 	data->fontFileStream = fontFileStream;
 	data->fontFileLoader = fontFileLoader;
 	data->fontFace = fontFace;
 	data->faceBlob = blob;
-
 	return data;
 }
 
@@ -877,13 +872,10 @@ static hb_blob_t * _hb_directwrite_reference_table(hb_face_t * face CXX_UNUSED_P
 		dw_face->ReleaseFontTable(table_context);
 		return nullptr;
 	}
-
 	_hb_directwrite_font_table_context * context = new _hb_directwrite_font_table_context;
 	context->face = dw_face;
 	context->table_context = table_context;
-
-	return hb_blob_create((const char *)data, length, HB_MEMORY_MODE_READONLY,
-		   context, _hb_directwrite_table_data_release);
+	return hb_blob_create((const char *)data, length, HB_MEMORY_MODE_READONLY, context, _hb_directwrite_table_data_release);
 }
 
 static void _hb_directwrite_font_release(void * data)

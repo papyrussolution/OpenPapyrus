@@ -13,8 +13,6 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <assert.h>
-//#include "src/dsp/dsp.h"
 
 // Tables can be faster on some platform but incur some extra binary size (~2k).
 #if !defined(USE_TABLES_FOR_ALPHA_MULT)
@@ -361,19 +359,16 @@ static FORCEINLINE uint32_t MakeARGB32(int a, int r, int g, int b)
 	return (((uint32_t)a << 24) | (r << 16) | (g << 8) | b);
 }
 
-#ifdef WORDS_BIGENDIAN
-static void PackARGB_C(const uint8* _RESTRICT a, const uint8* _RESTRICT r,
-    const uint8* _RESTRICT g, const uint8* _RESTRICT b, int len, uint32_t* _RESTRICT out) 
-{
-	for(int i = 0; i < len; ++i) {
-		out[i] = MakeARGB32(a[4 * i], r[4 * i], g[4 * i], b[4 * i]);
+#ifdef SL_BIGENDIAN
+	static void PackARGB_C(const uint8* _RESTRICT a, const uint8* _RESTRICT r, const uint8* _RESTRICT g, const uint8* _RESTRICT b, int len, uint32_t* _RESTRICT out) 
+	{
+		for(int i = 0; i < len; ++i) {
+			out[i] = MakeARGB32(a[4 * i], r[4 * i], g[4 * i], b[4 * i]);
+		}
 	}
-}
-
 #endif
 
-static void PackRGB_C(const uint8* _RESTRICT r, const uint8* _RESTRICT g, const uint8* _RESTRICT b,
-    int len, int step, uint32_t* _RESTRICT out) 
+static void PackRGB_C(const uint8* _RESTRICT r, const uint8* _RESTRICT g, const uint8* _RESTRICT b, int len, int step, uint32_t* _RESTRICT out) 
 {
 	int i, offset = 0;
 	for(i = 0; i < len; ++i) {
@@ -388,8 +383,8 @@ int (* WebPDispatchAlpha)(const uint8* _RESTRICT, int, int, int, uint8* _RESTRIC
 void (* WebPDispatchAlphaToGreen)(const uint8* _RESTRICT, int, int, int, uint32_t* _RESTRICT, int);
 int (* WebPExtractAlpha)(const uint8* _RESTRICT, int, int, int, uint8* _RESTRICT, int);
 void (* WebPExtractGreen)(const uint32_t* _RESTRICT argb, uint8* _RESTRICT alpha, int size);
-#ifdef WORDS_BIGENDIAN
-void (* WebPPackARGB)(const uint8* a, const uint8* r, const uint8* g, const uint8* b, int, uint32_t*);
+#ifdef SL_BIGENDIAN
+	void (* WebPPackARGB)(const uint8* a, const uint8* r, const uint8* g, const uint8* b, int, uint32_t*);
 #endif
 void (* WebPPackRGB)(const uint8* _RESTRICT r, const uint8* _RESTRICT g, const uint8* _RESTRICT b, int len, int step, uint32_t* _RESTRICT out);
 int (* WebPHasAlpha8b)(const uint8* src, int length);
@@ -408,7 +403,7 @@ WEBP_DSP_INIT_FUNC(WebPInitAlphaProcessing)
 	WebPMultARGBRow = WebPMultARGBRow_C;
 	WebPMultRow = WebPMultRow_C;
 	WebPApplyAlphaMultiply4444 = ApplyAlphaMultiply_16b_C;
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	WebPPackARGB = PackARGB_C;
 #endif
 	WebPPackRGB = PackRGB_C;
@@ -453,7 +448,7 @@ WEBP_DSP_INIT_FUNC(WebPInitAlphaProcessing)
 	assert(WebPDispatchAlphaToGreen != NULL);
 	assert(WebPExtractAlpha != NULL);
 	assert(WebPExtractGreen != NULL);
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	assert(WebPPackARGB != NULL);
 #endif
 	assert(WebPPackRGB != NULL);

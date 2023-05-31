@@ -120,7 +120,6 @@
 
 /*************************** ENDIAN *****************************/
 
-/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
-   significant byte first (like Motorola and SPARC, unlike Intel). */
+// Define WORDS_BIGENDIAN to 1 if your processor stores words with the most significant byte first (like Motorola and SPARC, unlike Intel).
 //#define WORDS_BIGENDIAN 0
 #endif // } __LIBSSH_CONFIG_H

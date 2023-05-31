@@ -13,18 +13,14 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dsp/dsp.h"
-
 #if defined(WEBP_USE_SSE2)
-
 #include "src/dsp/common_sse2.h"
 #include "src/dsp/lossless.h"
 #include "src/dsp/lossless_common.h"
 #include <emmintrin.h>
-
-//------------------------------------------------------------------------------
+//
 // Predictor Transform
-
+//
 static FORCEINLINE uint32_t ClampedAddSubtractFull_SSE2(uint32_t c0, uint32_t c1, uint32_t c2) 
 {
 	const __m128i zero = _mm_setzero_si128();

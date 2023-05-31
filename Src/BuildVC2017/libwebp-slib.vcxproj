@@ -804,11 +804,9 @@
     <ClInclude Include="..\OSF\libwebp\src\libwebp-internal.h" />
     <ClInclude Include="..\osf\libwebp\src\mux\animi.h" />
     <ClInclude Include="..\osf\libwebp\src\mux\muxi.h" />
-    <ClInclude Include="..\osf\libwebp\src\utils\bit_reader_inl_utils.h" />
     <ClInclude Include="..\osf\libwebp\src\utils\bit_reader_utils.h" />
     <ClInclude Include="..\osf\libwebp\src\utils\bit_writer_utils.h" />
     <ClInclude Include="..\osf\libwebp\src\utils\color_cache_utils.h" />
-    <ClInclude Include="..\osf\libwebp\src\utils\endian_inl_utils.h" />
     <ClInclude Include="..\osf\libwebp\src\utils\filters_utils.h" />
     <ClInclude Include="..\osf\libwebp\src\utils\huffman_encode_utils.h" />
     <ClInclude Include="..\osf\libwebp\src\utils\huffman_utils.h" />

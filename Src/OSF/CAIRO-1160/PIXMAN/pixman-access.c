@@ -34,89 +34,81 @@
 
 /* Fetch macros */
 
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	#define FETCH_1(img, l, o) (((READ((img), ((uint32 *)(l)) + ((o) >> 5))) >> (0x1f - ((o) & 0x1f))) & 0x1)
 #else
 	#define FETCH_1(img, l, o) ((((READ((img), ((uint32 *)(l)) + ((o) >> 5))) >> ((o) & 0x1f))) & 0x1)
 #endif
 #define FETCH_8(img, l, o)    (READ(img, (((uint8 *)(l)) + ((o) >> 3))))
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	#define FETCH_4(img, l, o) (((4 * (o)) & 4) ? (FETCH_8(img, l, 4 * (o)) & 0xf) : (FETCH_8(img, l, (4 * (o))) >> 4))
 #else
 	#define FETCH_4(img, l, o) (((4 * (o)) & 4) ? (FETCH_8(img, l, 4 * (o)) >> 4) : (FETCH_8(img, l, (4 * (o))) & 0xf))
 #endif
-#ifdef WORDS_BIGENDIAN
-#define FETCH_24(img, l, o)                                              \
-	((READ(img, (((uint8 *)(l)) + ((o) * 3) + 0)) << 16)    |       \
-	(READ(img, (((uint8 *)(l)) + ((o) * 3) + 1)) << 8)     |       \
-	(READ(img, (((uint8 *)(l)) + ((o) * 3) + 2)) << 0))
+#ifdef SL_BIGENDIAN
+	#define FETCH_24(img, l, o) ((READ(img, (((uint8 *)(l)) + ((o) * 3) + 0)) << 16) | \
+		(READ(img, (((uint8 *)(l)) + ((o) * 3) + 1)) << 8) | (READ(img, (((uint8 *)(l)) + ((o) * 3) + 2)) << 0))
 #else
-#define FETCH_24(img, l, o)                                               \
-	((READ(img, (((uint8 *)(l)) + ((o) * 3) + 0)) << 0)      |       \
-	(READ(img, (((uint8 *)(l)) + ((o) * 3) + 1)) << 8)      |       \
-	(READ(img, (((uint8 *)(l)) + ((o) * 3) + 2)) << 16))
+	#define FETCH_24(img, l, o) ((READ(img, (((uint8 *)(l)) + ((o) * 3) + 0)) << 0) | \
+		(READ(img, (((uint8 *)(l)) + ((o) * 3) + 1)) << 8) | (READ(img, (((uint8 *)(l)) + ((o) * 3) + 2)) << 16))
 #endif
 
 /* Store macros */
-
-#ifdef WORDS_BIGENDIAN
-#define STORE_1(img, l, o, v)                                              \
-	do { \
-		uint32 * __d = (reinterpret_cast<uint32 *>(l)) + ((o) >> 5);                \
-		uint32 __m = 1 << (0x1f - ((o) & 0x1f));                               \
-		uint32 __v = (v) ? __m : 0;                                             \
-		WRITE((img), __d, (READ((img), __d) & ~__m) | __v);             \
-	} while(0)
+#ifdef SL_BIGENDIAN
+	#define STORE_1(img, l, o, v)                                              \
+		do { \
+			uint32 * __d = (reinterpret_cast<uint32 *>(l)) + ((o) >> 5);                \
+			uint32 __m = 1 << (0x1f - ((o) & 0x1f));                               \
+			uint32 __v = (v) ? __m : 0;                                             \
+			WRITE((img), __d, (READ((img), __d) & ~__m) | __v);             \
+		} while(0)
 #else
-#define STORE_1(img, l, o, v)                                              \
-	do { \
-		uint32 * __d = (reinterpret_cast<uint32 *>(l)) + ((o) >> 5);                \
-		uint32 __m = 1 << ((o) & 0x1f);                                        \
-		uint32 __v = (v) ? __m : 0;                                             \
-		WRITE((img), __d, (READ((img), __d) & ~__m) | __v);             \
-	} while(0)
+	#define STORE_1(img, l, o, v)                                              \
+		do { \
+			uint32 * __d = (reinterpret_cast<uint32 *>(l)) + ((o) >> 5);                \
+			uint32 __m = 1 << ((o) & 0x1f);                                        \
+			uint32 __v = (v) ? __m : 0;                                             \
+			WRITE((img), __d, (READ((img), __d) & ~__m) | __v);             \
+		} while(0)
 #endif
 
 #define STORE_8(img, l, o, v)  (WRITE(img, static_cast<uint8 *>(l) + ((o) >> 3), (v)))
 
-#ifdef WORDS_BIGENDIAN
-#define STORE_4(img, l, o, v)                                              \
-	do { \
-		int bo = 4 * (o);                                               \
-		int v4 = (v) & 0x0f;                                            \
-		STORE_8(img, l, bo, (bo & 4 ? (FETCH_8(img, l, bo) & 0xf0) | (v4) : (FETCH_8(img, l, bo) & 0x0f) | (v4 << 4))); \
-	} while(0)
+#ifdef SL_BIGENDIAN
+	#define STORE_4(img, l, o, v)                                              \
+		do { \
+			int bo = 4 * (o);                                               \
+			int v4 = (v) & 0x0f;                                            \
+			STORE_8(img, l, bo, (bo & 4 ? (FETCH_8(img, l, bo) & 0xf0) | (v4) : (FETCH_8(img, l, bo) & 0x0f) | (v4 << 4))); \
+		} while(0)
 #else
-#define STORE_4(img, l, o, v)                                              \
-	do { \
-		int bo = 4 * (o);                                               \
-		int v4 = (v) & 0x0f;                                            \
-		STORE_8(img, l, bo, (bo & 4 ? (FETCH_8(img, l, bo) & 0x0f) | (v4 << 4) : (FETCH_8(img, l, bo) & 0xf0) | (v4))); \
-	} while(0)
+	#define STORE_4(img, l, o, v)                                              \
+		do { \
+			int bo = 4 * (o);                                               \
+			int v4 = (v) & 0x0f;                                            \
+			STORE_8(img, l, bo, (bo & 4 ? (FETCH_8(img, l, bo) & 0x0f) | (v4 << 4) : (FETCH_8(img, l, bo) & 0xf0) | (v4))); \
+		} while(0)
 #endif
-
-#ifdef WORDS_BIGENDIAN
-#define STORE_24(img, l, o, v)                                            \
-	do { \
-		uint8 * __tmp = (l) + 3 * (o);                                \
-		WRITE((img), __tmp++, ((v) & 0x00ff0000) >> 16);              \
-		WRITE((img), __tmp++, ((v) & 0x0000ff00) >>  8);              \
-		WRITE((img), __tmp++, ((v) & 0x000000ff) >>  0);              \
-	} while(0)
+#ifdef SL_BIGENDIAN
+	#define STORE_24(img, l, o, v)                                            \
+		do { \
+			uint8 * __tmp = (l) + 3 * (o);                                \
+			WRITE((img), __tmp++, ((v) & 0x00ff0000) >> 16);              \
+			WRITE((img), __tmp++, ((v) & 0x0000ff00) >>  8);              \
+			WRITE((img), __tmp++, ((v) & 0x000000ff) >>  0);              \
+		} while(0)
 #else
-#define STORE_24(img, l, o, v)                                            \
-	do { \
-		uint8 * __tmp = (l) + 3 * (o);                                \
-		WRITE((img), __tmp++, static_cast<uint8>(((v) & 0x000000ff) >> 0)); \
-		WRITE((img), __tmp++, static_cast<uint8>(((v) & 0x0000ff00) >>  8)); \
-		WRITE((img), __tmp++, static_cast<uint8>(((v) & 0x00ff0000) >> 16)); \
-	} while(0)
+	#define STORE_24(img, l, o, v)                                            \
+		do { \
+			uint8 * __tmp = (l) + 3 * (o);                                \
+			WRITE((img), __tmp++, static_cast<uint8>(((v) & 0x000000ff) >> 0)); \
+			WRITE((img), __tmp++, static_cast<uint8>(((v) & 0x0000ff00) >>  8)); \
+			WRITE((img), __tmp++, static_cast<uint8>(((v) & 0x00ff0000) >> 16)); \
+		} while(0)
 #endif
-
 /*
  * YV12 setup and access macros
  */
-
 #define YV12_SETUP(image)                                               \
 	bits_image_t *__bits_image = static_cast<bits_image_t *>(image); \
 	uint32 * bits = __bits_image->bits;                                \

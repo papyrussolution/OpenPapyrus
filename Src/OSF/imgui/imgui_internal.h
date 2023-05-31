@@ -348,13 +348,13 @@ const char*   ImParseFormatSanitizeForScanning(const char* fmt_in, char* fmt_out
 int           ImParseFormatPrecision(const char* format, int default_value);
 
 // Helpers: UTF-8 <> wchar conversions
-const char*   ImTextCharToUtf8(char out_buf[5], uint c);                                                      // return out_buf
+const char*   ImTextCharToUtf8(char out_buf[5], uint c);                                        // return out_buf
 int           ImTextStrToUtf8(char* out_buf, int out_buf_size, const ImWchar* in_text, const ImWchar* in_text_end);   // return output UTF-8 bytes count
-int           ImTextCharFromUtf8(uint* out_char, const char* in_text, const char* in_text_end);               // read one character. return input UTF-8 bytes count
+int           ImTextCharFromUtf8(uint* out_char, const char* in_text, const char* in_text_end); // read one character. return input UTF-8 bytes count
 int           ImTextStrFromUtf8(ImWchar* out_buf, int out_buf_size, const char* in_text, const char* in_text_end, const char** in_remaining = NULL);   // return input UTF-8 bytes count
-int           ImTextCountCharsFromUtf8(const char* in_text, const char* in_text_end);                                 // return number of UTF-8 code-points (NOT bytes count)
-int           ImTextCountUtf8BytesFromChar(const char* in_text, const char* in_text_end);                             // return number of bytes to express one char in UTF-8
-int           ImTextCountUtf8BytesFromStr(const ImWchar* in_text, const ImWchar* in_text_end);                        // return number of bytes to express string in UTF-8
+int           ImTextCountCharsFromUtf8(const char* in_text, const char* in_text_end);           // return number of UTF-8 code-points (NOT bytes count)
+int           ImTextCountUtf8BytesFromChar(const char* in_text, const char* in_text_end);       // return number of bytes to express one char in UTF-8
+int           ImTextCountUtf8BytesFromStr(const ImWchar* in_text, const ImWchar* in_text_end);  // return number of bytes to express string in UTF-8
 
 // Helpers: File System
 #ifdef IMGUI_DISABLE_FILE_FUNCTIONS
@@ -408,11 +408,11 @@ static inline float  ImRsqrt(float x)           { return 1.0f / sqrtf(x); }
 #endif
 static inline double ImRsqrt(double x)          { return 1.0 / sqrt(x); }
 #endif
-// - ImMin/ImMax/ImClamp/ImLerp/ImSwap are used by widgets which support variety of types: signed/unsigned int/long long float/double
+// - ImMin/ImMax/sclamp/ImLerp/ImSwap are used by widgets which support variety of types: signed/unsigned int/long long float/double
 // (Exceptionally using templates here but we could also redefine them for those types)
-template <typename T> static inline T ImMin(T lhs, T rhs)                        { return lhs < rhs ? lhs : rhs; }
-template <typename T> static inline T ImMax(T lhs, T rhs)                        { return lhs >= rhs ? lhs : rhs; }
-template <typename T> static inline T ImClamp(T v, T mn, T mx)                   { return (v < mn) ? mn : (v > mx) ? mx : v; }
+template <typename T> static inline T ImMin(T lhs, T rhs) { return lhs < rhs ? lhs : rhs; }
+template <typename T> static inline T ImMax(T lhs, T rhs) { return lhs >= rhs ? lhs : rhs; }
+// @sobolev (replaced with sclamp) template <typename T> static inline T ImClamp__Removed(T v, T mn, T mx) { return (v < mn) ? mn : (v > mx) ? mx : v; }
 template <typename T> static inline T ImLerp(T a, T b, float t)                  { return (T)(a + (b - a) * t); }
 template <typename T> static inline void ImSwap(T& a, T& b)                      { T tmp = a; a = b; b = tmp; }
 template <typename T> static inline T ImAddClampOverflow(T a, T b, T mn, T mx)   { if(b < 0 && (a < mn - b)) return mn; if(b > 0 && (a > mx - b))  return mx; return a + b; }
@@ -420,7 +420,7 @@ template <typename T> static inline T ImSubClampOverflow(T a, T b, T mn, T mx)  
 // - Misc maths helpers
 static inline ImVec2 ImMin(const ImVec2& lhs, const ImVec2& rhs)                { return ImVec2(lhs.x < rhs.x ? lhs.x : rhs.x, lhs.y < rhs.y ? lhs.y : rhs.y); }
 static inline ImVec2 ImMax(const ImVec2& lhs, const ImVec2& rhs)                { return ImVec2(lhs.x >= rhs.x ? lhs.x : rhs.x, lhs.y >= rhs.y ? lhs.y : rhs.y); }
-static inline ImVec2 ImClamp(const ImVec2& v, const ImVec2& mn, ImVec2 mx)      { return ImVec2((v.x < mn.x) ? mn.x : (v.x > mx.x) ? mx.x : v.x, (v.y < mn.y) ? mn.y : (v.y > mx.y) ? mx.y : v.y); }
+static inline ImVec2 sclamp(const ImVec2& v, const ImVec2& mn, ImVec2 mx)      { return ImVec2((v.x < mn.x) ? mn.x : (v.x > mx.x) ? mx.x : v.x, (v.y < mn.y) ? mn.y : (v.y > mx.y) ? mx.y : v.y); }
 static inline ImVec2 ImLerp(const ImVec2& a, const ImVec2& b, float t)          { return ImVec2(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t); }
 static inline ImVec2 ImLerp(const ImVec2& a, const ImVec2& b, const ImVec2& t)  { return ImVec2(a.x + (b.x - a.x) * t.x, a.y + (b.y - a.y) * t.y); }
 static inline ImVec4 ImLerp(const ImVec4& a, const ImVec4& b, float t)          
@@ -541,8 +541,8 @@ struct ImRect {
 	}
 	void ClipWithFull(const ImRect& r) // Full version, ensure both points are fully clipped.
 	{
-		Min = ImClamp(Min, r.Min, r.Max); 
-		Max = ImClamp(Max, r.Min, r.Max); 
+		Min = sclamp(Min, r.Min, r.Max); 
+		Max = sclamp(Max, r.Min, r.Max); 
 	}
 	void   Floor()
 	{ 
@@ -833,7 +833,7 @@ struct ImGuiTextIndex {
 #define IM_ROUNDUP_TO_EVEN(_V)                                  ((((_V)+1) / 2) * 2)
 #define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MIN                     4
 #define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX                     512
-#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(_RAD, _MAXERROR)    ImClamp(IM_ROUNDUP_TO_EVEN((int)ImCeil(IM_PI / ImAcos(1 - ImMin((_MAXERROR), (_RAD)) / (_RAD)))), \
+#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(_RAD, _MAXERROR)    sclamp(IM_ROUNDUP_TO_EVEN((int)ImCeil(IM_PI / ImAcos(1 - ImMin((_MAXERROR), (_RAD)) / (_RAD)))), \
 	    IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MIN, \
 	    IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX)
 
@@ -1168,26 +1168,41 @@ struct ImGuiInputTextState {
 	bool Edited;                                // edited this frame
 	ImGuiInputTextFlags Flags;                  // copy of InputText() flags. may be used to check if e.g. ImGuiInputTextFlags_Password is set.
 
-	ImGuiInputTextState()                   {
+	ImGuiInputTextState()
+	{
 		THISZERO();
 	}
-	void        ClearText()                 { CurLenW = CurLenA = 0; TextW[0] = 0; TextA[0] = 0; CursorClamp(); }
-	void        ClearFreeMemory()           { TextW.clear(); TextA.clear(); InitialTextA.clear(); }
-	int         GetUndoAvailCount() const { return Stb.undostate.undo_point; }
-	int         GetRedoAvailCount() const { return STB_TEXTEDIT_UNDOSTATECOUNT - Stb.undostate.redo_point; }
-	void OnKeyPressed(int key);         // Cannot be inline because we call in code in stb_textedit.h implementation
+	void   ClearText()
+	{ 
+		CurLenW = CurLenA = 0; 
+		TextW[0] = 0; 
+		TextA[0] = 0; 
+		CursorClamp(); 
+	}
+	void   ClearFreeMemory()
+	{ 
+		TextW.clear(); 
+		TextA.clear(); 
+		InitialTextA.clear(); 
+	}
+	int    GetUndoAvailCount() const { return Stb.undostate.undo_point; }
+	int    GetRedoAvailCount() const { return STB_TEXTEDIT_UNDOSTATECOUNT - Stb.undostate.redo_point; }
+	void   OnKeyPressed(int key);         // Cannot be inline because we call in code in stb_textedit.h implementation
 
 	// Cursor & Selection
-	void        CursorAnimReset()           { CursorAnim = -0.30f; }                               // After a user-input the cursor stays on for a while without blinking
-	void        CursorClamp()               {
-		Stb.cursor = ImMin(Stb.cursor, CurLenW); Stb.select_start = ImMin(Stb.select_start, CurLenW); Stb.select_end = ImMin(Stb.select_end, CurLenW);
+	void   CursorAnimReset() { CursorAnim = -0.30f; } // After a user-input the cursor stays on for a while without blinking
+	void   CursorClamp()     
+	{
+		Stb.cursor = ImMin(Stb.cursor, CurLenW); 
+		Stb.select_start = ImMin(Stb.select_start, CurLenW); 
+		Stb.select_end = ImMin(Stb.select_end, CurLenW);
 	}
-	bool        HasSelection() const { return Stb.select_start != Stb.select_end; }
-	void        ClearSelection()            { Stb.select_start = Stb.select_end = Stb.cursor; }
-	int         GetCursorPos() const { return Stb.cursor; }
-	int         GetSelectionStart() const { return Stb.select_start; }
-	int         GetSelectionEnd() const { return Stb.select_end; }
-	void        SelectAll()                 { Stb.select_start = 0; Stb.cursor = Stb.select_end = CurLenW; Stb.has_preferred_x = 0; }
+	bool   HasSelection() const { return Stb.select_start != Stb.select_end; }
+	void   ClearSelection() { Stb.select_start = Stb.select_end = Stb.cursor; }
+	int    GetCursorPos() const { return Stb.cursor; }
+	int    GetSelectionStart() const { return Stb.select_start; }
+	int    GetSelectionEnd() const { return Stb.select_end; }
+	void   SelectAll()                 { Stb.select_start = 0; Stb.cursor = Stb.select_end = CurLenW; Stb.has_preferred_x = 0; }
 };
 
 // Storage for current popup stack
@@ -2839,12 +2854,8 @@ namespace ImGui {
 // If this ever crash because g.CurrentWindow is NULL it means that either
 // - ImGui::NewFrame() has never been called, which is illegal.
 // - You are calling ImGui functions after ImGui::EndFrame()/ImGui::Render() and before the next ImGui::NewFrame(), which is also illegal.
-inline ImGuiWindow *  GetCurrentWindowRead()
-{ 
-	ImGuiContext & g = *GImGui; 
-	return g.CurrentWindow; 
-}
-inline ImGuiWindow *  GetCurrentWindow()          
+inline ImGuiWindow * GetCurrentWindowRead() {  return GImGui->CurrentWindow; }
+inline ImGuiWindow * GetCurrentWindow()          
 { 
 	ImGuiContext & g = *GImGui; 
 	g.CurrentWindow->WriteAccessed = true; 
@@ -3309,8 +3320,7 @@ bool InputTextEx(const char* label, const char* hint, char* buf, int buf_size, c
 void* user_data = NULL);
 void InputTextDeactivateHook(ImGuiID id);
 bool TempInputText(const ImRect& bb, ImGuiID id, const char* label, char* buf, int buf_size, ImGuiInputTextFlags flags);
-bool TempInputScalar(const ImRect& bb, ImGuiID id, const char* label, ImGuiDataType data_type, void* p_data, const char* format, const void* p_clamp_min = NULL,
-const void* p_clamp_max = NULL);
+bool TempInputScalar(const ImRect& bb, ImGuiID id, const char* label, ImGuiDataType data_type, void* p_data, const char* format, const void* p_clamp_min = NULL, const void* p_clamp_max = NULL);
 inline bool TempInputIsActive(ImGuiID id)       { ImGuiContext & g = *GImGui; return (g.ActiveId == id && g.TempInputId == id); }
 inline ImGuiInputTextState* GetInputTextState(ImGuiID id)   { ImGuiContext & g = *GImGui; return (id != 0 && g.InputTextState.ID == id) ? &g.InputTextState : NULL; }     // Get input text state if active
 
@@ -3325,8 +3335,7 @@ const char* overlay_text, float scale_min, float scale_max, const ImVec2& size_a
 
 // Shade functions (write over already created vertices)
 void ShadeVertsLinearColorGradientKeepAlpha(ImDrawList* draw_list, int vert_start_idx, int vert_end_idx, ImVec2 gradient_p0, ImVec2 gradient_p1, ImU32 col0, ImU32 col1);
-void ShadeVertsLinearUV(ImDrawList* draw_list, int vert_start_idx, int vert_end_idx, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b,
-bool clamp);
+void ShadeVertsLinearUV(ImDrawList* draw_list, int vert_start_idx, int vert_end_idx, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, bool clamp);
 
 // Garbage collection
 void GcCompactTransientMiscBuffers();

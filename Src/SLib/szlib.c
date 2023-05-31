@@ -4621,7 +4621,7 @@ uLong deflateBound(z_streamp strm, uLong sourceLen)
 		    }
 		    break;
 #endif
-		default:                    /* for compiler happiness */
+		default: // for compiler happiness
 		    wraplen = 6;
 	}
 	/* if not default parameters, return conservative bound */

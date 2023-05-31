@@ -1002,7 +1002,6 @@ cd $(ProjectDir)</Command>
     <ClInclude Include="..\OSF\xapian\xapian-core\src\stdclamp.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\str.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\stringutils.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\src\wordaccess.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\esetinternal.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\expandweight.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\ortermlist.h" />

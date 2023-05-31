@@ -13,8 +13,8 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-#include "src/dec/vp8i_dec.h"
-#include "src/dec/vp8li_dec.h"
+//#include "src/dec/vp8i_dec.h"
+//#include "src/dec/vp8li_dec.h"
 #include "src/webp/mux_types.h"  // ALPHA_FLAG
 //
 // RIFF layout is:

@@ -28,7 +28,7 @@ void FASTCALL sym_add_point(zbar_symbol_t * sym, int x, int y)
 {
 	int i = sym->npts;
 	if(++sym->npts >= sym->pts_alloc)
-		sym->pts = static_cast<point_t *>(SAlloc::R(sym->pts, ++sym->pts_alloc * sizeof(point_t)));
+		sym->pts = static_cast<SPoint2I *>(SAlloc::R(sym->pts, ++sym->pts_alloc * sizeof(SPoint2I)));
 	sym->pts[i].x = x;
 	sym->pts[i].y = y;
 }

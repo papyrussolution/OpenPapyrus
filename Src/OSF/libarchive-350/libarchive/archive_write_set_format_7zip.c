@@ -1533,12 +1533,10 @@ static int compression_init_encoder_bzip2(Archive * a, struct la_zstream * lastr
 	 * a non-const pointer. */
 	strm->next_in = (char *)(uintptr_t)(const void*)lastrm->next_in;
 	strm->avail_in = lastrm->avail_in;
-	strm->total_in_lo32 = (uint32)(lastrm->total_in & 0xffffffff);
-	strm->total_in_hi32 = (uint32)(lastrm->total_in >> 32);
+	strm->TotalIn = lastrm->total_in;
 	strm->next_out = (char *)lastrm->next_out;
 	strm->avail_out = lastrm->avail_out;
-	strm->total_out_lo32 = (uint32)(lastrm->total_out & 0xffffffff);
-	strm->total_out_hi32 = (uint32)(lastrm->total_out >> 32);
+	strm->TotalOut  = lastrm->total_out;
 	if(BZ2_bzCompressInit(strm, level, 0, 30) != BZ_OK) {
 		SAlloc::F(strm);
 		lastrm->real_stream = NULL;
@@ -1564,24 +1562,17 @@ static int compression_code_bzip2(Archive * a,
 	 * a non-const pointer. */
 	strm->next_in = (char *)(uintptr_t)(const void*)lastrm->next_in;
 	strm->avail_in = lastrm->avail_in;
-	strm->total_in_lo32 = (uint32)(lastrm->total_in & 0xffffffff);
-	strm->total_in_hi32 = (uint32)(lastrm->total_in >> 32);
+	strm->TotalIn = lastrm->total_in;
 	strm->next_out = (char *)lastrm->next_out;
 	strm->avail_out = lastrm->avail_out;
-	strm->total_out_lo32 = (uint32)(lastrm->total_out & 0xffffffff);
-	strm->total_out_hi32 = (uint32)(lastrm->total_out >> 32);
-	r = BZ2_bzCompress(strm,
-		(action == ARCHIVE_Z_FINISH) ? BZ_FINISH : BZ_RUN);
+	strm->TotalOut = lastrm->total_out;
+	r = BZ2_bzCompress(strm, (action == ARCHIVE_Z_FINISH) ? BZ_FINISH : BZ_RUN);
 	lastrm->next_in = (const uchar *)strm->next_in;
 	lastrm->avail_in = strm->avail_in;
-	lastrm->total_in =
-	    (((uint64)(uint32)strm->total_in_hi32) << 32)
-	    + (uint64)(uint32)strm->total_in_lo32;
+	lastrm->total_in = strm->TotalIn;
 	lastrm->next_out = (uchar *)strm->next_out;
 	lastrm->avail_out = strm->avail_out;
-	lastrm->total_out =
-	    (((uint64)(uint32)strm->total_out_hi32) << 32)
-	    + (uint64)(uint32)strm->total_out_lo32;
+	lastrm->total_out = strm->TotalOut;
 	switch(r) {
 		case BZ_RUN_OK: /* Non-finishing */
 		case BZ_FINISH_OK: /* Finishing: There's more work to do */

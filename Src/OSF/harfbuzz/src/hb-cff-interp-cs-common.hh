@@ -90,39 +90,37 @@ protected:
 			x.init();
 			y.init();
 		}
-
 		void set_int(int _x, int _y)
 		{
 			x.set_int(_x);
 			y.set_int(_y);
 		}
-
-		void move_x(const number_t &dx) {
+		void move_x(const number_t &dx) 
+		{
 			x += dx;
 		}
-
-		void move_y(const number_t &dy) {
+		void move_y(const number_t &dy) 
+		{
 			y += dy;
 		}
-
-		void move(const number_t &dx, const number_t &dy) {
-			move_x(dx); move_y(dy);
+		void move(const number_t &dx, const number_t &dy) 
+		{
+			move_x(dx); 
+			move_y(dy);
 		}
-
-		void move(const point_t &d) {
-			move_x(d.x); move_y(d.y);
+		void move(const point_t &d) 
+		{
+			move_x(d.x); 
+			move_y(d.y);
 		}
-
 		number_t x;
 		number_t y;
 	};
 
-	template <typename ARG, typename SUBRS>
-	struct cs_interp_env_t : interp_env_t<ARG> {
+	template <typename ARG, typename SUBRS> struct cs_interp_env_t : interp_env_t<ARG> {
 		void init(const byte_str_t &str, const SUBRS * globalSubrs_, const SUBRS * localSubrs_)
 		{
 			interp_env_t<ARG>::init(str);
-
 			context.init(str, CSType_CharString);
 			seen_moveto = true;
 			seen_hintmask = false;
@@ -134,21 +132,14 @@ protected:
 			globalSubrs.init(globalSubrs_);
 			localSubrs.init(localSubrs_);
 		}
-
 		void fini()
 		{
 			interp_env_t<ARG>::fini();
-
 			callStack.fini();
 			globalSubrs.fini();
 			localSubrs.fini();
 		}
-
-		bool in_error() const
-		{
-			return callStack.in_error() || SUPER::in_error();
-		}
-
+		bool in_error() const { return callStack.in_error() || SUPER::in_error(); }
 		bool pop_subr_num(const biased_subrs_t<SUBRS>& biasedSubrs, uint &subr_num)
 		{
 			subr_num = 0;
@@ -160,7 +151,6 @@ protected:
 			subr_num = (uint)n;
 			return true;
 		}
-
 		void call_subr(const biased_subrs_t<SUBRS>& biasedSubrs, cs_type_t type)
 		{
 			uint subr_num = 0;

@@ -12,13 +12,10 @@
 //
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dsp/dsp.h"
 
 #if defined(WEBP_USE_SSE41)
-
 #include <smmintrin.h>
-#include "src/dec/vp8i_dec.h"
-//#include "src/utils/utils.h"
+//#include "src/dec/vp8i_dec.h"
 
 static void HE16_SSE41(uint8* dst) // horizontal
 {

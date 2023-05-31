@@ -12,7 +12,7 @@
 //
 #include <libwebp-internal.h>
 #pragma hdrstop
-#include "src/mux/muxi.h"
+//#include "src/mux/muxi.h"
 
 #define UNDEFINED_CHUNK_SIZE ((uint32_t)(-1))
 

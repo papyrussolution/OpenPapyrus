@@ -2540,6 +2540,7 @@ public:
 	explicit S_GUID(SCtrGenerate g);
 	S_GUID(const S_GUID_Base & rS);
 	S_GUID(const S_GUID & rS);
+	S_GUID(const GUID & /*REFIID*/ rS); // @v11.7.4
 	explicit S_GUID(const char * pStr);
 	S_GUID & FASTCALL operator = (const S_GUID_Base & rS);
 };
@@ -3387,6 +3388,12 @@ struct IntRange { // @persistent @size=8
 	//
 	IntRange & FASTCALL Set(int val);
 	//
+	// Descr: Если low > upp, то переставляет их местами.
+	// Returns:
+	//   *this
+	//
+	IntRange & Normalize();
+	//
 	// Descr: Вычисляет пересечение дипазонов *this и rD.
 	// ARG(rD IN): Диапазон, с которым сравнивается *this
 	// ARG(pResult OUT): @#{vptr0} Указатель на пересечение диапазонов.
@@ -3397,7 +3404,7 @@ struct IntRange { // @persistent @size=8
 	//   2 - диапазоны пересекаются в одной точке.
 	//  -1 - один или оба диапазона имеют перевернутые границы (low > upp).
 	//
-	int    FASTCALL Intersect(const IntRange & rD, IntRange * pResult) const;
+	int    STDCALL  Intersect(const IntRange & rD, IntRange * pResult) const;
 	int    FASTCALL Intersect(const IntRange & rD) const;
 	SString & Format(long fmt, SString &) const;
 	int    Clamp(int v) const;
@@ -3506,6 +3513,11 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	//
 	RealRange & SetDelta(double lo, double delta);
 	RealRange & Scale(double sc);
+	//
+	// Descr: Если low > upp, то переставляет их местами.
+	// Returns:
+	//   *this
+	//
 	RealRange & Normalize();
 	//
 	// Descr: Расширяет диапазон на величину delta в обе стороны.
@@ -6133,6 +6145,7 @@ struct SBaseBuffer {
 class STempBuffer : private SBaseBuffer {
 public:
 	explicit STempBuffer(size_t sz);
+	STempBuffer(const STempBuffer & rS);
 	~STempBuffer();
 	STempBuffer & FASTCALL operator = (const STempBuffer & rS);
 	bool   IsValid() const { return (P_Buf != 0); }
@@ -11903,9 +11916,10 @@ private:
 class SCompressor {
 public:
 	enum {
-		tUnkn = 0,
-		tZLib = 1,
-		tLz4  = 2
+		tUnkn  = 0,
+		tZLib  = 1,
+		tLz4   = 2,
+		tBZip2 = 3  // @v11.7.4
 	};
 	explicit SCompressor(int type);
 	~SCompressor();
@@ -11963,10 +11977,10 @@ public:
 		afWARC
 	};
 	enum {
-		tUnkn = 0,
-		tZip  = 1, // LibZIP
-		tBz2  = 2,
-		tLA   = 3  // @v10.4.4 LibArchive
+		providerUnkn = 0,
+		providerZip  = 1, // LibZIP
+		providerBz2  = 2,
+		providerLA   = 3  // @v10.4.4 LibArchive
 		//t7Z // @construction
 	};
 	//
@@ -11980,12 +11994,12 @@ public:
 	//
 	// 
 	//
-	static int List(int type, int * pFormat, const char * pName, uint flags, SFileEntryPool & rPool);
-	static int Inflate(int type, const char * pName, uint flags, const SFileEntryPool & rPool, const char * pDestPath);
-	static int InflateAll(int type, const char * pName, uint flags, const char * pDestPath);
-	static int Deflate(int type, int format, const char * pName, uint flags, const SFileEntryPool & rPool);
+	static int List(int provided, int * pFormat, const char * pName, uint flags, SFileEntryPool & rPool);
+	static int Inflate(int provided, const char * pName, uint flags, const SFileEntryPool & rPool, const char * pDestPath);
+	static int InflateAll(int provided, const char * pName, uint flags, const char * pDestPath);
+	static int Deflate(int provided, int format, const char * pName, uint flags, const SFileEntryPool & rPool);
 
-	explicit SArchive(int type);
+	explicit SArchive(int provided);
 	~SArchive();
 	int    Open(const char * pName, int mode/*SFile::mXXX*/, SArchive::Format * pFmt);
 	int    Close();
@@ -12033,7 +12047,7 @@ private:
 	// } @v10.4.4
 	int    Helper_AddEntries(const SString & rRoot, const SString & rSub, const SString & rMask, int flags);
 
-	const  int Type;
+	const  int Provider;
 	int    OpenMode;
 	void * H;
 	LaCbBlock * P_Cb_Blk; // @v10.4.4
@@ -12307,6 +12321,8 @@ public:
 	static constexpr double Max      = 1.7976931348623158E+308;         // max value
 	static constexpr float  Min_f    = 1.175494351E-38f;         // min normalized positive value
 	static constexpr float  Max_f    = 3.402823466E+38f;         // max float value
+	static constexpr double Min_f_double = static_cast<double>(Min_f);  // @v11.7.4 min normalized positive value as a double value
+	static constexpr double Max_f_double = static_cast<double>(Max_f);  // @v11.7.4 max float value as a double value
 	static constexpr double Euler    = 0.57721566490153286060651209008; // Euler constant
 	static constexpr double Sqrt2    = 1.41421356237309504880168872421; // sqrt(2)
 	static constexpr double SqrtPi   = 1.77245385090551602729816748334; // sqrt(pi)
@@ -12396,13 +12412,13 @@ struct _baseint128_be  { int64  hi; uint64 lo; };
 //
 // Low-level int128 operations @construction
 //
-void SlUint128_Add(uint64 a, uint64 b, _baseuint128_le * pResult);
-void SlUint128_Add(const _baseuint128_le * pA, const _baseuint128_le * pB, _baseuint128_le * pResult);
-void SlUint128_Sub(const _baseuint128_le * pA, const _baseuint128_le * pB, _baseint128_le * pResult);
-void SlUint128_Mul(uint64 a, uint64 b, _baseuint128_le * pResult);
-void SlUint128_Mul(const _baseuint128_le * pA, const _baseuint128_le * pB, _baseuint128_le * pResult);
-void SlUint128_Div(const _baseuint128_le * pA, uint64 b, uint64 * pResult);
-void SlUint128_Div(const _baseuint128_le * pA, uint64 b, _baseuint128_le * pResult);
+//void SlI128_Add(uint64 a, uint64 b, _baseuint128_le * pResult);
+//void SlI128_Add(const _baseuint128_le * pA, const _baseuint128_le * pB, _baseuint128_le * pResult);
+//void SlI128_Sub(const _baseuint128_le * pA, const _baseuint128_le * pB, _baseint128_le * pResult);
+//void SlI128_Mul(uint64 a, uint64 b, _baseuint128_le * pResult);
+//void SlI128_Mul(const _baseuint128_le * pA, const _baseuint128_le * pB, _baseuint128_le * pResult);
+//void SlI128_Div(const _baseuint128_le * pA, uint64 b, uint64 * pResult);
+//void SlI128_Div(const _baseuint128_le * pA, uint64 b, _baseuint128_le * pResult);
 //
 //
 //
@@ -14701,6 +14717,10 @@ int    SCheckSystemCredentials(const char * pDomain, const char * pUserName, con
 //
 int    SGetTimeFromRemoteServer(const char * pServerName, LDATETIME * pDtm);
 int    SGetComputerName(SString & rName);
+//
+//
+//
+#define SCOMOBJRELEASE(pComObj) { if(pComObj) { (pComObj)->Release(); (pComObj) = 0; } }
 //
 // Descr: Класс-обертка для работы с динамическими библиотеками (DLL).
 // Example:

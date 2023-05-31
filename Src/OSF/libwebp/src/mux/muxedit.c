@@ -14,12 +14,11 @@
 #include <libwebp-internal.h>
 #pragma hdrstop
 //#include <assert.h>
-#include "src/mux/muxi.h"
+//#include "src/mux/muxi.h"
 //#include "src/utils/utils.h"
-
-//------------------------------------------------------------------------------
+//
 // Life of a mux object.
-
+//
 static void MuxInit(WebPMux* const mux) 
 {
 	assert(mux != NULL);

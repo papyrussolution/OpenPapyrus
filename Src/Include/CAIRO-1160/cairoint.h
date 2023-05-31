@@ -155,12 +155,12 @@ FORCEINLINE boolint _cairo_is_little_endian()
 	return *reinterpret_cast<const char *>(&i) == 0x01;
 }
 
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	#define CAIRO_BITSWAP8_IF_LITTLE_ENDIAN(c) (c)
 #else
 	#define CAIRO_BITSWAP8_IF_LITTLE_ENDIAN(c) CAIRO_BITSWAP8(c)
 #endif
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 	#define cpu_to_be16(v) (v)
 	#define be16_to_cpu(v) (v)
 	#define cpu_to_be32(v) (v)

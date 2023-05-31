@@ -172,24 +172,18 @@ CGImageRef CairoQuartzCreateCGImage(cairo_format_t format,
 		    break;
 
 		case CAIRO_FORMAT_A1:
-#ifdef WORDS_BIGENDIAN
+#ifdef SL_BIGENDIAN
 		    bitsPerComponent = 1;
 		    bitsPerPixel = 1;
 		    break;
 #endif
-
 		case CAIRO_FORMAT_RGB30:
 		case CAIRO_FORMAT_RGB16_565:
 		case CAIRO_FORMAT_INVALID:
 		default:
 		    return NULL;
 	}
-
-	dataProvider = CGDataProviderCreateWithData(releaseInfo,
-		data,
-		height * stride,
-		releaseCallback);
-
+	dataProvider = CGDataProviderCreateWithData(releaseInfo, data, height * stride, releaseCallback);
 	if(UNLIKELY(!dataProvider)) {
 		// manually release
 		if(releaseCallback)

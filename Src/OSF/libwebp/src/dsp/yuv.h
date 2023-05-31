@@ -34,26 +34,18 @@
 
 #ifndef WEBP_DSP_YUV_H_
 #define WEBP_DSP_YUV_H_
-
-//#include "src/dsp/dsp.h"
-//#include "src/dec/vp8_dec.h"
 //
 // YUV -> RGB conversion
 //
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
-
 enum {
 	YUV_FIX = 16,              // fixed-point precision for RGB->YUV
 	YUV_HALF = 1 << (YUV_FIX - 1),
 	YUV_FIX2 = 6,             // fixed-point precision for YUV->RGB
 	YUV_MASK2 = (256 << YUV_FIX2) - 1
 };
-
-//------------------------------------------------------------------------------
+//
 // slower on x86 by ~7-8%, but bit-exact with the SSE2/NEON version
-
+//
 static FORCEINLINE int MultHi(int v, int coeff) { return (v * coeff) >> 8; } // _mm_mulhi_epu16 emulation
 static FORCEINLINE int VP8Clip8(int v) { return ((v & ~YUV_MASK2) == 0) ? (v >> YUV_FIX2) : (v < 0) ? 0 : 255; }
 static FORCEINLINE int VP8YUVToR(int y, int v) { return VP8Clip8(MultHi(y, 19077) + MultHi(v, 26149) - 14234); }
@@ -179,7 +171,4 @@ static FORCEINLINE int VP8RGBToV(int r, int g, int b, int rounding) {
 	return VP8ClipUV(v, rounding);
 }
 
-//#ifdef __cplusplus
-//}    // extern "C"
-//#endif
 #endif  // WEBP_DSP_YUV_H_

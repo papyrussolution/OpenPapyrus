@@ -13,18 +13,12 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dsp/dsp.h"
 
 #if defined(WEBP_USE_SSE2)
-
-//#include <assert.h>
 #include <emmintrin.h>
-//#include <stdlib.h>
-//#include <string.h>
-
-//------------------------------------------------------------------------------
+//
 // Helpful macro.
-
+//
 #define SANITY_CHECK(in, out)                                                 \
 	assert((in) != NULL);                                                        \
 	assert((out) != NULL);                                                       \

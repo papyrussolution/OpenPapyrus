@@ -5,19 +5,17 @@
 // tree. An additional intellectual property rights grant can be found
 // in the file PATENTS. All contributing project authors may
 // be found in the AUTHORS file in the root of the source tree.
-// -----------------------------------------------------------------------------
 //
 // Clipping tables for filtering
 //
 // Author: Skal (pascal.massimino@gmail.com)
-
+//
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dsp/dsp.h"
 
 // define to 0 to have run-time table initialization
 #if !defined(USE_STATIC_TABLES)
-#define USE_STATIC_TABLES 1   // ALTERNATE_CODE
+	#define USE_STATIC_TABLES 1   // ALTERNATE_CODE
 #endif
 
 #if (USE_STATIC_TABLES == 1)

@@ -1655,7 +1655,7 @@ int PPBackupSystemFiles_Arc()
 			f.Close();
 			strtodate(buf, DATF_DMY, &last_copy_dt);
 			if(last_copy_dt < cur_dtm.d) {
-				SArchive arc(SArchive::tZip);
+				SArchive arc(SArchive::providerZip);
 				SString arc_file_name;
 				// NB: archive file name will be created without extention (this is a protection against crypto-viruses)
 				(arc_file_name = backup_dir).SetLastSlash().Cat("bu").CatChar('-').Cat(cur_dtm.d, DATF_YMD|DATF_CENTURY|DATF_NODIV).Cat(cur_dtm.t, TIMF_HMS|TIMF_NODIV);

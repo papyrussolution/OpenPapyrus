@@ -1,16 +1,13 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-	Copyright (C) 2007-2013, International Business Machines Corporation and others. All Rights Reserved.
-*/
+// Copyright (C) 2007-2013, International Business Machines Corporation and others. All Rights Reserved
+//
 #ifndef BASICTZ_H
 #define BASICTZ_H
-
 /**
  * \file
  * \brief C++ API: ICU TimeZone base class
  */
-
 #include "unicode/utypes.h"
 
 #if U_SHOW_CPLUSPLUS_API
@@ -86,9 +83,7 @@ public:
 	 *              time range.
 	 * @stable ICU 3.8
 	 */
-	virtual bool hasEquivalentTransitions(const BasicTimeZone& tz, UDate start, UDate end,
-	    bool ignoreDstAmount, UErrorCode& ec) const;
-
+	virtual bool hasEquivalentTransitions(const BasicTimeZone& tz, UDate start, UDate end, bool ignoreDstAmount, UErrorCode& ec) const;
 	/**
 	 * Returns the number of <code>TimeZoneRule</code>s which represents time transitions,
 	 * for this time zone, that is, all <code>TimeZoneRule</code>s for this time zone except
@@ -98,7 +93,6 @@ public:
 	 * @stable ICU 3.8
 	 */
 	virtual int32_t countTransitionRules(UErrorCode & status) const = 0;
-
 	/**
 	 * Gets the <code>InitialTimeZoneRule</code> and the set of <code>TimeZoneRule</code>
 	 * which represent time transitions for this time zone.  On successful return,

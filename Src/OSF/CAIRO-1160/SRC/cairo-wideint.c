@@ -29,8 +29,7 @@
  *
  * The Initial Developer of the Original Code is Keith Packard
  *
- * Contributor(s):
- *	Keith R. Packard <keithp@keithp.com>
+ * Contributor(s): Keith R. Packard <keithp@keithp.com>
  */
 #include "cairoint.h"
 #pragma hdrstop
@@ -238,15 +237,8 @@ cairo_int64_t _cairo_uint64_rsa(cairo_int64_t a, int shift)
 	return a;
 }
 
-int _cairo_uint64_lt(cairo_uint64_t a, cairo_uint64_t b)
-{
-	return (a.hi < b.hi || (a.hi == b.hi && a.lo < b.lo));
-}
-
-int _cairo_uint64_eq(cairo_uint64_t a, cairo_uint64_t b)
-{
-	return a.hi == b.hi && a.lo == b.lo;
-}
+int _cairo_uint64_lt(cairo_uint64_t a, cairo_uint64_t b) { return (a.hi < b.hi || (a.hi == b.hi && a.lo < b.lo)); }
+int _cairo_uint64_eq(cairo_uint64_t a, cairo_uint64_t b) { return a.hi == b.hi && a.lo == b.lo; }
 
 int _cairo_int64_lt(cairo_int64_t a, cairo_int64_t b)
 {
@@ -277,7 +269,6 @@ int _cairo_int64_cmp(cairo_int64_t a, cairo_int64_t b)
 		return -1;
 	if(!_cairo_int64_negative(a) && _cairo_int64_negative(b))
 		return 1;
-
 	return _cairo_uint64_cmp(a, b);
 }
 
