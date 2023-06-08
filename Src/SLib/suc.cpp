@@ -923,21 +923,21 @@ int SCodepageMapPool::GetByName(const char * pName, SCodepageMapPool::CpMap * pM
 	return ok;
 }
 
-IMPL_CMPCFUNC(CPMCPENTRY, p1, p2)
+IMPL_CMPFUNC(CPMCPENTRY, p1, p2)
 {
 	const SCodepageMapPool::MapEntry * i1 = static_cast<const SCodepageMapPool::MapEntry *>(p1);
 	const SCodepageMapPool::MapEntry * i2 = static_cast<const SCodepageMapPool::MapEntry *>(p2);
 	return CMPSIGN(PTR32C(i1->B)[0], PTR32C(i2->B)[0]);
 }
 
-IMPL_CMPCFUNC(CPMCPENTRY_U, p1, p2)
+IMPL_CMPFUNC(CPMCPENTRY_U, p1, p2)
 {
 	const SCodepageMapPool::MapEntry * i1 = static_cast<const SCodepageMapPool::MapEntry *>(p1);
 	const SCodepageMapPool::MapEntry * i2 = static_cast<const SCodepageMapPool::MapEntry *>(p2);
 	return CMPSIGN(i1->U2, i2->U2);
 }
 
-IMPL_CMPCFUNC(CPMCPENTRYFULLY, p1, p2)
+IMPL_CMPFUNC(CPMCPENTRYFULLY, p1, p2)
 {
 	const SCodepageMapPool::MapEntry * i1 = static_cast<const SCodepageMapPool::MapEntry *>(p1);
 	const SCodepageMapPool::MapEntry * i2 = static_cast<const SCodepageMapPool::MapEntry *>(p2);
@@ -947,7 +947,7 @@ IMPL_CMPCFUNC(CPMCPENTRYFULLY, p1, p2)
 	return si;
 }
 
-IMPL_CMPCFUNC(CPMCPENTRYUREF, p1, p2)
+IMPL_CMPFUNC(CPMCPENTRYUREF, p1, p2)
 {
 	const long r1 = *static_cast<const long *>(p1);
 	const long r2 = *static_cast<const long *>(p2);
@@ -1042,7 +1042,7 @@ int SCodepageMapPool::SearchMapSeq(const TSVector <MapEntry> & rSeq, uint * pPos
     const  uint _c = rSeq.getCount();
 	const  uint _mc = MeL.getCount();
     if(_c) {
-		for(uint p = 0; !ok && MeL.lsearch(&rSeq.at(0), &p, PTR_CMPCFUNC(CPMCPENTRYFULLY));) {
+		for(uint p = 0; !ok && MeL.lsearch(&rSeq.at(0), &p, PTR_CMPFUNC(CPMCPENTRYFULLY));) {
 			ok = 1;
 			uint   i = 1;
 			for(; ok && i < _c; i++) {
@@ -1186,8 +1186,8 @@ int SCodepageMapPool::ParseXmlSingle(void * pXmlContext, const char * pFileName,
 		entry.CodeP = spp;
 		THROW(AddS(cp_version, &spp));
 		entry.VersionP = spp;
-		map_list.sort(PTR_CMPCFUNC(CPMCPENTRY));
-		fallback_list.sort(PTR_CMPCFUNC(CPMCPENTRY_U));
+		map_list.sort(PTR_CMPFUNC(CPMCPENTRY));
+		fallback_list.sort(PTR_CMPFUNC(CPMCPENTRY_U));
 		{
 			entry.MapCount = map_list.getCount();
 			if(entry.MapCount <= 256 && mbml == 1) {
@@ -1305,7 +1305,7 @@ int SCodepageMapPool::CpMap::MakeUIndex(LongArray & rIdx) const
 	for(uint i = 0; i < MapCount; i++) {
 		THROW(rIdx.add(static_cast<long>(i)));
 	}
-	rIdx.SVector::sort(PTR_CMPCFUNC(CPMCPENTRYUREF), const_cast<MapEntry *>(P_Map)); // @badcast
+	rIdx.SVector::sort(PTR_CMPFUNC(CPMCPENTRYUREF), const_cast<MapEntry *>(P_Map)); // @badcast
 	CATCHZOK
 	return ok;
 }
@@ -1553,7 +1553,7 @@ void SCodepageMapPool::CMapTranslIndexTest::Reset()
 	FallbackCount = 0;
 }
 
-IMPL_CMPCFUNC(CMapTranslEntry, p1, p2) 
+IMPL_CMPFUNC(CMapTranslEntry, p1, p2) 
 	{ RET_CMPCASCADE4(static_cast<const SCodepageMapPool::CMapTranslEntry *>(p1), static_cast<const SCodepageMapPool::CMapTranslEntry *>(p2), S[0], S[1], S[2], S[3]); }
 
 SCodepageMapPool::CMapTranslEntry::CMapTranslEntry()
@@ -1563,7 +1563,7 @@ SCodepageMapPool::CMapTranslEntry::CMapTranslEntry()
 
 void SCodepageMapPool::CMapTranslIndexTest::Sort()
 {
-	sort(PTR_CMPCFUNC(CMapTranslEntry));
+	sort(PTR_CMPFUNC(CMapTranslEntry));
 }
 
 SCodepageMapPool::TranslIndex::TranslIndex() : P_Tab(0)

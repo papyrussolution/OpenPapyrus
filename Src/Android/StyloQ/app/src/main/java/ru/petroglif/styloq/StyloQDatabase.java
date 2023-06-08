@@ -45,7 +45,7 @@ public class StyloQDatabase extends Database {
 		public static final int kDocIncoming = 6; // Входящие документы
 		public static final int kDocOutcoming = 7; // Исходящие документы
 		public static final int kCounter = 8; // @v11.2.10 Специальная единственная запись для хранения текущего счетчика (документов и т.д.)
-		public static final int kNotification = 9; // @v11.5.9  Документ извещения. Главным образом, предполагаются извещения от сервисов к клиентам. Но, вероятно,
+		public static final int kNotification_before90v = 9; // @v11.5.9  Документ извещения. Главным образом, предполагаются извещения от сервисов к клиентам. Но, вероятно,
 			// будут возможны и извещения в обратном направлении (клиент о чем-то информирует сервис).
 		public static final int kCurrentState = 10; // @v11.7.0 Документ текущего состояния клиента.
 		//
@@ -209,6 +209,31 @@ public class StyloQDatabase extends Database {
 			return result;
 		}
 	}
+	static class NotificationStoragePacket {
+		NotificationStoragePacket() throws StyloQException
+		{
+			Rec = new NotificationTable.Rec();
+			Pool = new SecretTagPool();
+		}
+		NotificationStoragePacket(NotificationTable.Rec rec) throws StyloQException
+		{
+			Rec = rec;
+			Pool = new SecretTagPool();
+			Pool.Unserialize(Rec.VT);
+		}
+		private boolean PreprocessBeforeStoring() throws StyloQException
+		{
+			boolean ok = false;
+			Rec.VT = Pool.Serialize();
+			if(Rec.VT != null) {
+				ok = true;
+			}
+			return ok;
+		}
+		NotificationTable.Rec Rec;
+		SecretTagPool Pool;
+	}
+
 	@RequiresApi(api = Build.VERSION_CODES.O)
 	long SetupPeerInstance() throws StyloQException
 	{
@@ -1490,19 +1515,19 @@ public class StyloQDatabase extends Database {
 	}
 	public ArrayList <StyloQInterchange.SvcNotification> GetNotifivationList(long svcID, SLib.LDATETIME since, boolean unprocessedOnly)
 	{
-		return Helper_GetNotifivationList(svcID, since, unprocessedOnly, false);
+		return Helper_GetNotifivationList_new(svcID, since, unprocessedOnly, false);
 	}
 	public boolean IsThereUnprocessedNotifications(long svcID, SLib.LDATETIME since)
 	{
-		ArrayList <StyloQInterchange.SvcNotification> list = Helper_GetNotifivationList(svcID, since, true, true);
+		ArrayList <StyloQInterchange.SvcNotification> list = Helper_GetNotifivationList_new(svcID, since, true, true);
 		return (list != null && list.size() > 0);
 	}
 	public boolean IsThereAnyNotifications(long svcID, SLib.LDATETIME since)
 	{
-		ArrayList <StyloQInterchange.SvcNotification> list = Helper_GetNotifivationList(svcID, since, false, true);
+		ArrayList <StyloQInterchange.SvcNotification> list = Helper_GetNotifivationList_new(svcID, since, false, true);
 		return (list != null && list.size() > 0);
 	}
-	private ArrayList <StyloQInterchange.SvcNotification> Helper_GetNotifivationList(long svcID, SLib.LDATETIME since, boolean unprocessedOnly, boolean single)
+	private ArrayList <StyloQInterchange.SvcNotification> Helper_GetNotifivationList_before90v(long svcID, SLib.LDATETIME since, boolean unprocessedOnly, boolean single)
 	{
 		ArrayList <StyloQInterchange.SvcNotification> result = null;
 		try {
@@ -1510,7 +1535,7 @@ public class StyloQDatabase extends Database {
 			if(tbl != null) {
 				final String tn = tbl.GetName();
 				long since_epoch_ms = SLib.LDATETIME.IsEmpty(since) ? 0 : since.ToEpochMilliseconds();
-				String query = "SELECT * FROM " + tn + " WHERE kind=" + SecStoragePacket.kNotification;
+				String query = "SELECT * FROM " + tn + " WHERE kind=" + SecStoragePacket.kNotification_before90v;
 				if(svcID > 0) {
 					query += " " + "and CorrespondID=" + svcID;
 				}
@@ -1548,15 +1573,79 @@ public class StyloQDatabase extends Database {
 		}
 		return result;
 	}
-	public boolean RegisterNotificationAsSeen(long id, boolean useTa)
+	private ArrayList <StyloQInterchange.SvcNotification> Helper_GetNotifivationList_new(long svcID, SLib.LDATETIME since, boolean unprocessedOnly, boolean single)
+	{
+		ArrayList <StyloQInterchange.SvcNotification> result = null;
+		try {
+			Database.Table tbl = CreateTable("NotificationTable");
+			if(tbl != null) {
+				final String tn = tbl.GetName();
+				long since_epoch_ms = SLib.LDATETIME.IsEmpty(since) ? 0 : since.ToEpochMilliseconds();
+				String query = "SELECT * FROM " + tn; // + " WHERE kind=" + SecStoragePacket.kNotification_before90v;
+				if(svcID > 0) {
+					query += " " + "where SvcID=" + svcID + " " + "and TimeStamp> + since_epoch_ms";
+				}
+				if(since_epoch_ms > 0) {
+					query += " " + "where TimeStamp>" + since_epoch_ms;
+				}
+				android.database.Cursor cur = GetHandle().rawQuery(query, null);
+				if(cur != null && cur.moveToFirst()) {
+					do {
+						NotificationTable.Rec rec = new NotificationTable.Rec();
+						rec.Init();
+						rec.Set(cur);
+						if(!unprocessedOnly || (rec.Flags & SecStoragePacket.styloqfProcessed) == 0) {
+							NotificationStoragePacket pack = new NotificationStoragePacket(rec);
+							JSONObject js_obj = (pack.Pool != null) ? pack.Pool.GetJsonObject(SecretTagPool.tagRawData) : null;
+							if(js_obj != null) {
+								StyloQInterchange.SvcNotification item = new StyloQInterchange.SvcNotification();
+								if(item.FromJsonObj(js_obj)) {
+									if(result == null)
+										result = new ArrayList<StyloQInterchange.SvcNotification>();
+									item.InternalID = rec.ID;
+									item.SvcID = rec.SvcID;
+									item.Processed = ((rec.Flags & SecStoragePacket.styloqfProcessed) != 0);
+									result.add(item);
+									if(single)
+										break;
+								}
+							}
+						}
+					} while(cur.moveToNext());
+				}
+			}
+		} catch(StyloQException exn) {
+			result = null;
+		}
+		return result;
+	}
+	/*public boolean RegisterNotificationAsSeen_beforev90v(long id, boolean useTa)
 	{
 		boolean result = false;
 		if(id > 0) {
 			try {
 				SecStoragePacket pack = GetPeerEntry(id);
-				if(pack != null && pack.Rec.Kind == SecStoragePacket.kNotification && (pack.Rec.Flags & SecStoragePacket.styloqfProcessed) == 0) {
+				if(pack != null && pack.Rec.Kind == SecStoragePacket.kNotification_before90v && (pack.Rec.Flags & SecStoragePacket.styloqfProcessed) == 0) {
 					pack.Rec.Flags |= SecStoragePacket.styloqfProcessed;
 					long result_id = PutPeerEntry(id, pack, useTa);
+					if(result_id == id)
+						result = true;
+				}
+			} catch(StyloQException exn) {
+				;
+			}
+		}
+		return result;
+	}*/
+	public boolean RegisterNotificationAsSeen_new(long id, boolean useTa)
+	{
+		boolean result = false;
+		if(id > 0) {
+			try {
+				NotificationStoragePacket pack = GetNotificationEntry(id);
+				if(pack != null && (pack.Rec.Flags & SecStoragePacket.styloqfProcessed) == 0) {
+					pack.Rec.Flags |= SecStoragePacket.styloqfProcessed;
+					long result_id = PutNotificationEntry(id, pack, useTa);
 					if(result_id == id)
 						result = true;
 				}
@@ -1572,27 +1661,27 @@ public class StyloQDatabase extends Database {
 	//   >0 - идентификатор созданной записи уведомления
 	//   <0 - отрицательное значение идентификатор уже существующей записи уведомления
 	//
-	public long StoreNotification(final byte [] svcIdent, StyloQInterchange.SvcNotification item, boolean useTa) throws StyloQException
+	/*public long StoreNotification_before90v(final byte [] svcIdent, StyloQInterchange.SvcNotification item, boolean useTa) throws StyloQException
 	{
 		long    result_id = 0;
 		final int svcidlen = SLib.GetLen(svcIdent);
-		if(item != null && SLib.GetLen(item.Ident) > 0 && svcidlen > 0) {
+		if(item != null && SLib.GetLen(item.Ident_before90v) > 0 && svcidlen > 0) {
 			long correspind_id = 0;
 			Transaction tra = new Transaction(this, useTa);
 			SecStoragePacket correspond_pack = null;
 			correspond_pack = SearchGlobalIdentEntry(SecStoragePacket.kForeignService, svcIdent);
 			if(correspond_pack != null && correspond_pack.Rec.Kind == SecStoragePacket.kForeignService) {
 				final long correspond_id = correspond_pack.Rec.ID;
-				SecStoragePacket ex_pack = SearchGlobalIdentEntry(SecStoragePacket.kNotification, item.Ident);
+				SecStoragePacket ex_pack = SearchGlobalIdentEntry(SecStoragePacket.kNotification_before90v, item.Ident_before90v);
 				if(ex_pack != null) {
 					result_id = -ex_pack.Rec.ID; // Запись найдена: возвращает отрицательное значение идентификатора
 				}
 				else {
 					JSONObject js_obj = item.ToJsonObj(false);
 					if(js_obj != null) {
-						SecStoragePacket pack = new SecStoragePacket(SecStoragePacket.kNotification);
+						SecStoragePacket pack = new SecStoragePacket(SecStoragePacket.kNotification_before90v);
 						pack.Rec.ID = 0;
-						pack.Rec.BI = item.Ident;
+						pack.Rec.BI = item.Ident_before90v;
 						pack.Rec.TimeStamp = item.EventOrgTime.ToEpochMilliseconds();
 						pack.Rec.CorrespondID = correspond_id;
 						pack.Rec.Expiration = 0;
@@ -1601,6 +1690,57 @@ public class StyloQDatabase extends Database {
 							if(SLib.GetLen(js_obj_text) > 0) {
 								pack.Pool.Put(SecretTagPool.tagRawData, js_obj_text.getBytes(StandardCharsets.UTF_8));
 								result_id = PutPeerEntry(0, pack, false);
+							}
+							else {
+								; // @todo @err
+							}
+						}
+					}
+					else {
+						; // @todo @err
+					}
+				}
+			}
+			tra.Commit();
+		}
+		return result_id;
+	}*/
+	public long StoreNotification_new(StyloQInterchange.SvcNotification item, boolean useTa) throws StyloQException
+	{
+		long    result_id = 0;
+		//final int svcidlen = SLib.GetLen(svcIdent);
+		if(item != null && /*SLib.GetLen(item.Ident) > 0 &&*/ item.SvcID > 0) {
+			//long correspind_id = 0;
+			Transaction tra = new Transaction(this, useTa);
+			SecStoragePacket correspond_pack = null;
+			//correspond_pack = SearchGlobalIdentEntry(SecStoragePacket.kForeignService, svcIdent);
+			correspond_pack = GetPeerEntry(item.SvcID);
+			if(correspond_pack != null && correspond_pack.Rec.Kind == SecStoragePacket.kForeignService) {
+				//final long correspond_id = correspond_pack.Rec.ID;
+				//NotificationStoragePacket ex_pack = SearchGlobalIdentEntry(SecStoragePacket.kNotification_before90v, item.Ident);
+				NotificationStoragePacket ex_pack = GetNotificationEntry(item.InternalID);
+				if(ex_pack != null) {
+					result_id = -ex_pack.Rec.ID; // Запись найдена: возвращает отрицательное значение идентификатора
+				}
+				else {
+					JSONObject js_obj = item.ToJsonObj(false);
+					if(js_obj != null) {
+						NotificationStoragePacket pack = new NotificationStoragePacket();
+						pack.Rec.ID = 0;
+						//pack.Rec.BI = item.Ident;
+						if(item.EventOrgTime != null)
+							pack.Rec.TimeStamp = item.EventOrgTime.ToEpochMilliseconds();
+						else if(item.EventIssueTime != null)
+							pack.Rec.TimeStamp = item.EventIssueTime.ToEpochMilliseconds();
+						else if(item.ObjNominalTime != null)
+							pack.Rec.TimeStamp = item.ObjNominalTime.ToEpochMilliseconds();
+						pack.Rec.SvcID = item.SvcID;
+						pack.Rec.Expiration = 0;
+						{
+							String js_obj_text = js_obj.toString();
+							if(SLib.GetLen(js_obj_text) > 0) {
+								pack.Pool.Put(SecretTagPool.tagRawData, js_obj_text.getBytes(StandardCharsets.UTF_8));
+								result_id = PutNotificationEntry(0, pack, false);
 							}
 							else {
 								; // @todo @err
@@ -1746,6 +1886,70 @@ public class StyloQDatabase extends Database {
 		}
 		return result_id;
 	}
+	public NotificationStoragePacket GetNotificationEntry(long id) throws StyloQException
+	{
+		NotificationStoragePacket result = null;
+		Database.Table tbl = CreateTable("NotificationTable");
+		if(tbl != null) {
+			final String tn = tbl.GetName();
+			String query = "SELECT * FROM " + tn + " WHERE id=" + id;
+			android.database.Cursor cur = GetHandle().rawQuery(query, null);
+			if(cur != null && cur.moveToFirst()) {
+				NotificationTable.Rec rec = new NotificationTable.Rec();
+				rec.Init();
+				rec.Set(cur);
+				result = new NotificationStoragePacket(rec);
+				if(result.Pool == null) {
+					result = null;
+				}
+			}
+		}
+		return result;
+	}
+	public long PutNotificationEntry(long id, NotificationStoragePacket pack, boolean useTa) throws StyloQException
+	{
+		long result_id = 0;
+		Database.Table tbl = CreateTable("NotificationTable");
+		if(tbl != null) {
+			if(id == 0) { // insert packet
+				if(pack.PreprocessBeforeStoring()) {
+					Transaction tra = new Transaction(this, useTa);
+					result_id = tbl.Insert(pack.Rec);
+					//if(result_id > 0)
+					//	LogEvent(SLib.PPACN_OBJADD, PPOBJ_STYLOQBINDERY, result_id, 0, false);
+					tra.Commit();
+				}
+			}
+			else { // update packet
+				NotificationStoragePacket ex_pack = GetNotificationEntry(id);
+				if(ex_pack != null) {
+					if(pack == null) {
+						Transaction tra = new Transaction(this, useTa);
+						if(RemoveRec(tbl, id) > 0) {
+							//LogEvent(SLib.PPACN_OBJRMV, PPOBJ_STYLOQBINDERY, id, 0, false);
+							if(tra.Commit())
+								result_id = id;
+						}
+						else
+							tra.Abort();
+					}
+					else {
+						if(pack.PreprocessBeforeStoring()) {
+							Transaction tra = new Transaction(this, useTa);
+							if(UpdateRec(tbl, id, pack.Rec) > 0) {
+								//LogEvent(SLib.PPACN_OBJUPD, PPOBJ_STYLOQBINDERY, id, 0, false);
+								if(tra.Commit())
+									result_id = id;
+							}
+							else
+								tra.Abort();
+						}
+					}
+				}
+			}
+		}
+		return result_id;
+	}
 	// @test-table
 	public static class TestTable extends Table {
 		public final static String TBL_NAME = TestTable.class.getSimpleName();
@@ -1884,10 +2088,68 @@ public class StyloQDatabase extends Database {
 			super(ctx, TBL_NAME);
 		}
 	}
+	//
+	// @v11.7.5
+	// Descr: Определение таблицы уведомлений.
+	//   До версии 11.7.5 уведомления хранились в общей таблице SecTable, однако
+	//   из-за значительного числа уведомлений и неадаптированности индексов
+	//   возникали тяжелые задержки в работе приложения. В связи с чем решено
+	//   уведомления переместить в отдельную таблицу.
+	//
+	public static class NotificationTable extends Table {
+		public final static String TBL_NAME = NotificationTable.class.getSimpleName();
+		public static final String CREATE_SQL = "CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
+			"ID INTEGER PRIMARY KEY," +
+			"SvcID INTEGER(8)," + // ->SecTable.ID
+			"Expiration INTEGER(8)," +
+			"TimeStamp INTEGER(8)," +
+			"Flags INTEGER(4)," +
+			"Counter INTEGER(8)," +
+			"VT BLOB);" +
+			"CREATE UNIQUE INDEX idxSecKey0 ON " + TBL_NAME + " (ID);" +
+			"CREATE UNIQUE INDEX idxSecKey1 ON " + TBL_NAME + " (TimeStamp);" +
+			"CREATE UNIQUE INDEX idxSecKey3 ON " + TBL_NAME + " (SvcID, TimeStamp) where (SvcID > 0);";
+		static class Rec extends Record {
+			public long   ID;
+			public long   SvcID;
+			public long   Expiration; // epoch time, seconds
+			public long   TimeStamp;
+			public int    Flags;   // @v11.2.10
+			public long   Counter; // @v11.2.10 Для записей вида kCounter
+			public byte [] VT;
+			public Rec() throws StyloQException
+			{
+				super();
+			}
+		}
+		public NotificationTable()
+		{
+			super();
+		}
+		public NotificationTable(Context ctx)
+		{
+			super(ctx, TBL_NAME);
+		}
+	}
 	int Upgrade(int curVer, int prevVer) throws StyloQException
 	{
 		int  ok = -1;
 		try {
+			if(curVer >= 90/*debug*/ && prevVer <= 90/*debug*/) {
+				final String s_tn = "SecTable";
+				final String n_tn = "NotificationTable";
+				Database.Table t_sec = CreateTable("SecTable");
+				Database.Table t_n = CreateTable("NotificationTable");
+				ArrayList <StyloQInterchange.SvcNotification> nlist = Helper_GetNotifivationList_before90v(0, null, false, false);
+				if(SLib.GetCount(nlist) > 0) {
+					Transaction tra = new Transaction(this, true);
+					for(StyloQInterchange.SvcNotification nitem : nlist) {
+						StoreNotification_new(nitem, false);
+						PutPeerEntry(nitem.InternalID, null, false);
+					}
+					tra.Commit();
+				}
+			}
 			if(curVer == 2 && prevVer <= 2) {
 				// alter table SecTable
 				//sqlite_master

@@ -129,7 +129,7 @@ static ngx_int_t ngx_http_auth_basic_handler(ngx_http_request_t * r)
 	login = 0;
 	left = 0;
 	offset = 0;
-	for(;; ) {
+	for(;;) {
 		i = left;
 		n = ngx_read_file(&file, buf + left, NGX_HTTP_AUTH_BUF_SIZE - left, offset);
 		if(n == NGX_ERROR) {

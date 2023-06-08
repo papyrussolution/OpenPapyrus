@@ -535,7 +535,7 @@ static void AddSwitchWildcardsToCensor(NWildcard::CCensor &censor, const UString
 		// mix folders with same name
 		for(i = 0; i < node.SubNodes.Size(); i++) {
 			NWildcard::CCensorNode &nextNode1 = node.SubNodes[i];
-			for(uint j = i + 1; j < node.SubNodes.Size(); ) {
+			for(uint j = i + 1; j < node.SubNodes.Size();) {
 				const NWildcard::CCensorNode &nextNode2 = node.SubNodes[j];
 				if(nextNode1.Name.IsEqualTo_NoCase(nextNode2.Name)) {
 					nextNode1.IncludeItems += nextNode2.IncludeItems;
@@ -583,7 +583,7 @@ static const wchar_t kUpdateNewArchivePostCharID = '!';
 
 static bool ParseUpdateCommandString2(const UString & command, NUpdateArchive::CActionSet & actionSet, UString & postString)
 {
-	for(uint i = 0; i < command.Len(); ) {
+	for(uint i = 0; i < command.Len();) {
 		wchar_t c = MyCharLower_Ascii(command[i]);
 		int statePos = FindCharPosInString(kUpdatePairStateIDSet, (char)c);
 		if(c > 0x7F || statePos < 0) {

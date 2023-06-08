@@ -571,7 +571,7 @@ static void htmlAttrDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlAttr * cu
 				while(IS_BLANK_CH(*tmp)) 
 					tmp++;
 				/* URI Escape everything, except server side includes. */
-				for(;; ) {
+				for(;;) {
 					xmlChar * escaped;
 					xmlChar endChar;
 					xmlChar * end = NULL;

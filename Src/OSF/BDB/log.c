@@ -364,7 +364,7 @@ retry:
 		return ret;
 	}
 	/* Search for a valid log file name. */
-	for(cnt = fcnt, clv = logval = 0; --cnt >= 0; ) {
+	for(cnt = fcnt, clv = logval = 0; --cnt >= 0;) {
 		if(strncmp(names[cnt], LFPREFIX, sizeof(LFPREFIX)-1) != 0)
 			continue;
 		/*

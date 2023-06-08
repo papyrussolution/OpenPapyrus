@@ -698,7 +698,7 @@ static char * split_label(const char * label, int * num)
 		return NULL;
 
 	i = len;
-	while(i > 0 && _cairo_isdigit(label[i-1]))
+	while(i > 0 && isdec(label[i-1]))
 		i--;
 
 	while(i < len && label[i] == '0')
@@ -1411,7 +1411,7 @@ static char * iso8601_to_pdf_date_string(const char * iso)
 	/* Check that utf8 contains only the characters "0123456789-T:Z+" */
 	const char * p = iso;
 	while(*p) {
-		if(!_cairo_isdigit(*p) && *p != '-' && *p != 'T' && *p != ':' && *p != 'Z' && *p != '+')
+		if(!isdec(*p) && *p != '-' && *p != 'T' && *p != ':' && *p != 'Z' && *p != '+')
 			return NULL;
 		p++;
 	}

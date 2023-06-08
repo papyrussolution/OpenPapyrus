@@ -2868,15 +2868,7 @@ ObjTagCache::ObjTagCache() : AdvCookie(0), P_Items(0), MaxItems(0), MaxTries(8)
 	Ss.add("$"); // zero index - is empty string
 	const uint init_items_count = SMEGABYTE(1) / sizeof(Entry);
 	MEMSZERO(StatData);
-	size_t i = init_items_count;
-	if(i) {
-		do {
-			if(IsPrime(i)) {
-				MaxItems = i;
-				break;
-			}
-		} while(--i);
-	}
+	MaxItems = GetPrimeLowerThan(init_items_count+1);
 	assert(MaxItems);
 	P_Items = static_cast<Entry *>(SAlloc::C(MaxItems, sizeof(Entry)));
 	if(P_Items) {

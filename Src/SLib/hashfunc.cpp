@@ -10,6 +10,20 @@
 	#include <slib-ossl.h>
 #endif
 
+/*static*/uint SlHash::CalcHashTabIndex(const void * pData, uint dataLen, uint tabCount, uint tryN)
+{
+	// double hashing
+	assert(pData && dataLen && tabCount > 2);
+	uint64 h = SlHash::XX64(pData, dataLen, 843353061036582067ULL);
+	if(tryN) {
+		uint64 h2 = SlHash::XX64(pData, dataLen, 458480108401970387ULL);
+		if(h2 == 0ULL)
+			h2 = 1ULL;
+		h = (h + h2 * tryN);
+	}
+	return (h % tabCount);
+}
+
 static const SIntToSymbTabEntry P_HashFuncDeclList[] = {
 	{ SHASHF_CRC8, "crc8" },
 	{ SHASHF_CRC16, "crc16" },

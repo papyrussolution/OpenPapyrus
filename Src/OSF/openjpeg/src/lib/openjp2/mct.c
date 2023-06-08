@@ -52,7 +52,7 @@ const double * opj_mct_get_mct_norms_real() { return opj_mct_norms_real; }
 /* Forward reversible MCT. */
 /* </summary> */
 #ifdef __SSE2__
-void opj_mct_encode(int32_t* OPJ_RESTRICT c0, int32_t* OPJ_RESTRICT c1, int32_t* OPJ_RESTRICT c2, size_t n)
+void opj_mct_encode(int32_t* _RESTRICT c0, int32_t* _RESTRICT c1, int32_t* _RESTRICT c2, size_t n)
 {
 	size_t i;
 	const size_t len = n;
@@ -90,7 +90,7 @@ void opj_mct_encode(int32_t* OPJ_RESTRICT c0, int32_t* OPJ_RESTRICT c1, int32_t*
 }
 
 #else
-void opj_mct_encode(int32_t* OPJ_RESTRICT c0, int32_t* OPJ_RESTRICT c1, int32_t* OPJ_RESTRICT c2, size_t n)
+void opj_mct_encode(int32_t* _RESTRICT c0, int32_t* _RESTRICT c1, int32_t* _RESTRICT c2, size_t n)
 {
 	size_t i;
 	const size_t len = n;
@@ -113,7 +113,7 @@ void opj_mct_encode(int32_t* OPJ_RESTRICT c0, int32_t* OPJ_RESTRICT c1, int32_t*
 /* Inverse reversible MCT. */
 /* </summary> */
 #ifdef __SSE2__
-void opj_mct_decode(int32_t* OPJ_RESTRICT c0, int32_t* OPJ_RESTRICT c1, int32_t* OPJ_RESTRICT c2, size_t n)
+void opj_mct_decode(int32_t* _RESTRICT c0, int32_t* _RESTRICT c1, int32_t* _RESTRICT c2, size_t n)
 {
 	size_t i;
 	const size_t len = n;
@@ -144,7 +144,7 @@ void opj_mct_decode(int32_t* OPJ_RESTRICT c0, int32_t* OPJ_RESTRICT c1, int32_t*
 }
 
 #else
-void opj_mct_decode(int32_t* OPJ_RESTRICT c0, int32_t* OPJ_RESTRICT c1, int32_t* OPJ_RESTRICT c2, size_t n)
+void opj_mct_decode(int32_t* _RESTRICT c0, int32_t* _RESTRICT c1, int32_t* _RESTRICT c2, size_t n)
 {
 	size_t i;
 	for(i = 0; i < n; ++i) {
@@ -170,7 +170,7 @@ double opj_mct_getnorm(uint32_t compno) { return opj_mct_norms[compno]; }
 /* <summary> */
 /* Forward irreversible MCT. */
 /* </summary> */
-void opj_mct_encode_real(float* OPJ_RESTRICT c0, float* OPJ_RESTRICT c1, float* OPJ_RESTRICT c2, size_t n)
+void opj_mct_encode_real(float* _RESTRICT c0, float* _RESTRICT c1, float* _RESTRICT c2, size_t n)
 {
 	size_t i;
 #ifdef __SSE__
@@ -230,7 +230,7 @@ void opj_mct_encode_real(float* OPJ_RESTRICT c0, float* OPJ_RESTRICT c1, float* 
 /* <summary> */
 /* Inverse irreversible MCT. */
 /* </summary> */
-void opj_mct_decode_real(float* OPJ_RESTRICT c0, float* OPJ_RESTRICT c1, float* OPJ_RESTRICT c2, size_t n)
+void opj_mct_decode_real(float* _RESTRICT c0, float* _RESTRICT c1, float* _RESTRICT c2, size_t n)
 {
 	size_t i;
 #ifdef __SSE__

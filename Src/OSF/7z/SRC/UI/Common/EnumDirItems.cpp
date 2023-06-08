@@ -263,7 +263,7 @@ static HRESULT EnumerateDirItems_Spec(const NWildcard::CCensorNode &curNode, int
 			const UStringVector &addArchivePrefix/*prefix from curNode*/, CDirItems &dirItems)
 		{
 			NFind::CStreamEnumerator enumerator(fullPath);
-			for(;; ) {
+			for(;;) {
 				NFind::CStreamInfo si;
 				bool found;
 				if(!enumerator.Next(si, found))

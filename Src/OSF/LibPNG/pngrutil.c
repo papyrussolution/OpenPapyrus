@@ -2694,7 +2694,7 @@ void /*PRIVATE*/ png_combine_row(png_const_structrp png_ptr, png_bytep pDp, int 
 			else
 #endif
 			mask = MASK(pass, pixel_depth, display, 1);
-			for(;; ) {
+			for(;;) {
 				/* It doesn't matter in the following if uint32 has more than
 				 * 32 bits because the high bits always match those in m<<24; it is,
 				 * however, essential to use OR here, not +, because of this.
@@ -2761,7 +2761,7 @@ void /*PRIVATE*/ png_combine_row(png_const_structrp png_ptr, png_bytep pDp, int 
 			 */
 			switch(bytes_to_copy) {
 				case 1:
-				    for(;; ) {
+				    for(;;) {
 					    *pDp = *sp;
 					    if(row_width <= bytes_to_jump)
 						    return;
@@ -2791,7 +2791,7 @@ void /*PRIVATE*/ png_combine_row(png_const_structrp png_ptr, png_bytep pDp, int 
 				    /* This can only be the RGB case, so each copy is exactly one
 				 * pixel and it is not necessary to check for a partial copy.
 				     */
-				    for(;; ) {
+				    for(;;) {
 					    pDp[0] = sp[0];
 						pDp[1] = sp[1];
 						pDp[2] = sp[2];
@@ -2879,7 +2879,7 @@ void /*PRIVATE*/ png_combine_row(png_const_structrp png_ptr, png_bytep pDp, int 
 #endif /* ALIGN_TYPE code */
 
 				    /* The true default - use a memcpy: */
-				    for(;; ) {
+				    for(;;) {
 					    memcpy(pDp, sp, bytes_to_copy);
 					    if(row_width <= bytes_to_jump)
 						    return;

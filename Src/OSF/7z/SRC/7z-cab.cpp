@@ -154,7 +154,7 @@ namespace NCompress {
 			uint32 offset = start * Range / total;
 			Code -= offset;
 			Low += offset;
-			for(;; ) {
+			for(;;) {
 				if((Low & 0x8000) != (high & 0x8000)) {
 					if((Low & 0x4000) == 0 || (high & 0x4000) != 0)
 						break;
@@ -724,7 +724,7 @@ namespace NArchive {
 					}
 					RINOK(callback->SetCompleted(&numItems, NULL));
 					nextStream = NULL;
-					for(;; ) {
+					for(;;) {
 						const COtherArc * otherArc = NULL;
 						if(!prevChecked) {
 							if(numTempVolumes == 0) {
@@ -1070,7 +1070,7 @@ namespace NArchive {
 			Byte buf[kBufSize];
 			for(uint i = 0; i < kBufSize; i++)
 				buf[i] = 0;
-			for(;; ) {
+			for(;;) {
 				if(!NeedMoreWrite())
 					return S_OK;
 				uint64 remain = GetRemain();
@@ -1138,7 +1138,7 @@ namespace NArchive {
 			if(!cabBlockInStreamSpec->Create())
 				return E_OUTOFMEMORY;
 			CRecordVector <bool> extractStatuses;
-			for(i = 0;; ) {
+			for(i = 0;;) {
 				lps->OutSize = totalUnPacked;
 				lps->InSize = totalPacked;
 				RINOK(lps->SetCur());
@@ -1240,7 +1240,7 @@ namespace NArchive {
 					bool   keepHistory = false;
 					bool   keepInputBuffer = false;
 					bool   thereWasNotAlignedChunk = false;
-					for(uint32 bl = 0; cabFolderOutStream->NeedMoreWrite(); ) {
+					for(uint32 bl = 0; cabFolderOutStream->NeedMoreWrite();) {
 						if(volIndex >= m_Database.Volumes.Size()) {
 							res = S_FALSE;
 							break;
@@ -1388,7 +1388,7 @@ namespace NArchive {
 					_tempBuf.ChangeSize_KeepData(i * 2, i);
 				_tempBuf[i] = b;
 			}
-			for(;; ) {
+			for(;;) {
 				Byte b;
 				if(!_inBuffer.ReadByte(b))
 					throw CUnexpectedEndException();
@@ -1434,12 +1434,12 @@ namespace NArchive {
 		};
 		HRESULT CSignatureFinder::Find()
 		{
-			for(;; ) {
+			for(;;) {
 				Buf[End] = Signature[0]; // it's for fast search;
 				while(End - Pos >= _HeaderSize) {
 					const Byte * p = Buf + Pos;
 					Byte b = Signature[0];
-					for(;; ) {
+					for(;;) {
 						if(*p == b) break; p++;
 						if(*p == b) break; p++;
 					}
@@ -1586,7 +1586,7 @@ namespace NArchive {
 					finder.Processed = db.StartPosition;
 					finder.End = kMainHeaderSize;
 					finder.Pos = 1;
-					for(;; ) {
+					for(;;) {
 						RINOK(finder.Find());
 						if(ai.Parse(finder.Buf + finder.Pos)) {
 							db.StartPosition = finder.Processed + finder.Pos;

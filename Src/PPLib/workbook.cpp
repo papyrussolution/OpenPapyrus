@@ -284,7 +284,7 @@ void PPObjWorkbook::SortIdListByRankAndName(LongArray & rList)
 			RVALUEPTR(Data, pData);
 			setCtrlData(CTL_WBCFG_CODETEMPL, Data.Cntr.Head.CodeTemplate);
 			setCtrlLong(CTL_WBCFG_CODECNTR,  Data.Cntr.Head.Counter);
-			SetupPPObjCombo(this, CTLSEL_WBCFG_UHTTXEVTOK, PPOBJ_EVENTTOKEN, Data.Cfg.UhttXEvTokID, OLW_CANINSERT, 0); // @v9.3.9
+			SetupPPObjCombo(this, CTLSEL_WBCFG_UHTTXEVTOK, PPOBJ_EVENTTOKEN, Data.Cfg.UhttXEvTokID, OLW_CANINSERT, 0);
 			SetupPPObjCombo(this, CTLSEL_WBCFG_DEFIMGFOLD, PPOBJ_WORKBOOK, Data.Cfg.DefImageFolderID, OLW_CANINSERT|OLW_CANSELUPLEVEL, 0);
 			return 1;
 		}

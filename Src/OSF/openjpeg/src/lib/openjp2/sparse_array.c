@@ -88,7 +88,7 @@ static boolint opj_sparse_array_int32_read_or_write(const opj_sparse_array_int32
 		uint32_t block_y_offset;
 		y_incr = (y == y0) ? sa->block_height - (y0 % sa->block_height) : sa->block_height;
 		block_y_offset = sa->block_height - y_incr;
-		y_incr = opj_uint_min(y_incr, y1 - y);
+		y_incr = smin(y_incr, y1 - y);
 		block_x = x0 / block_width;
 		for(x = x0; x < x1; block_x++, x += x_incr) {
 			uint32_t j;
@@ -96,7 +96,7 @@ static boolint opj_sparse_array_int32_read_or_write(const opj_sparse_array_int32
 			int32_t* src_block;
 			x_incr = (x == x0) ? block_width - (x0 % block_width) : block_width;
 			block_x_offset = block_width - x_incr;
-			x_incr = opj_uint_min(x_incr, x1 - x);
+			x_incr = smin(x_incr, x1 - x);
 			src_block = sa->data_blocks[block_y * sa->block_count_hor + block_x];
 			if(is_read_op) {
 				if(src_block == NULL) {
@@ -119,9 +119,9 @@ static boolint opj_sparse_array_int32_read_or_write(const opj_sparse_array_int32
 					}
 				}
 				else {
-					const int32_t* OPJ_RESTRICT src_ptr = src_block + block_y_offset * (size_t)block_width + block_x_offset;
+					const int32_t* _RESTRICT src_ptr = src_block + block_y_offset * (size_t)block_width + block_x_offset;
 					if(buf_col_stride == 1) {
-						int32_t* OPJ_RESTRICT dest_ptr = buf + (y - y0) * (size_t)buf_line_stride + (x - x0) * buf_col_stride;
+						int32_t* _RESTRICT dest_ptr = buf + (y - y0) * (size_t)buf_line_stride + (x - x0) * buf_col_stride;
 						if(x_incr == 4) {
 							/* Same code as general branch, but the compiler */
 							/* can have an efficient memcpy() */
@@ -141,7 +141,7 @@ static boolint opj_sparse_array_int32_read_or_write(const opj_sparse_array_int32
 						}
 					}
 					else {
-						int32_t* OPJ_RESTRICT dest_ptr = buf + (y - y0) * (size_t)buf_line_stride + (x - x0) * buf_col_stride;
+						int32_t* _RESTRICT dest_ptr = buf + (y - y0) * (size_t)buf_line_stride + (x - x0) * buf_col_stride;
 						if(x_incr == 1) {
 							for(j = 0; j < y_incr; j++) {
 								*dest_ptr = *src_ptr;
@@ -199,8 +199,8 @@ static boolint opj_sparse_array_int32_read_or_write(const opj_sparse_array_int32
 					sa->data_blocks[block_y * sa->block_count_hor + block_x] = src_block;
 				}
 				if(buf_col_stride == 1) {
-					int32_t* OPJ_RESTRICT dest_ptr = src_block + block_y_offset * (size_t)block_width + block_x_offset;
-					const int32_t* OPJ_RESTRICT src_ptr = buf + (y - y0) * (size_t)buf_line_stride + (x - x0) * buf_col_stride;
+					int32_t* _RESTRICT dest_ptr = src_block + block_y_offset * (size_t)block_width + block_x_offset;
+					const int32_t* _RESTRICT src_ptr = buf + (y - y0) * (size_t)buf_line_stride + (x - x0) * buf_col_stride;
 					if(x_incr == 4) {
 						/* Same code as general branch, but the compiler */
 						/* can have an efficient memcpy() */
@@ -220,8 +220,8 @@ static boolint opj_sparse_array_int32_read_or_write(const opj_sparse_array_int32
 					}
 				}
 				else {
-					int32_t* OPJ_RESTRICT dest_ptr = src_block + block_y_offset * (size_t)block_width + block_x_offset;
-					const int32_t* OPJ_RESTRICT src_ptr = buf + (y - y0) * (size_t)buf_line_stride + (x - x0) * buf_col_stride;
+					int32_t* _RESTRICT dest_ptr = src_block + block_y_offset * (size_t)block_width + block_x_offset;
+					const int32_t* _RESTRICT src_ptr = buf + (y - y0) * (size_t)buf_line_stride + (x - x0) * buf_col_stride;
 					if(x_incr == 1) {
 						for(j = 0; j < y_incr; j++) {
 							*dest_ptr = *src_ptr;

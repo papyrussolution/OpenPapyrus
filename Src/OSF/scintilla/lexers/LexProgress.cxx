@@ -269,7 +269,7 @@ void SCI_METHOD LexerABL::Lex(Sci_PositionU startPos, Sci_Position length, int i
 	StyleContext sc(startPos, length, initStyle, styler, static_cast<uchar>(0xff));
 	Sci_Position lineEndNext = styler.LineEnd(lineCurrent);
 
-	for(; sc.More(); ) {
+	for(; sc.More();) {
 		if(sc.atLineStart) {
 			visibleChars = 0;
 			visibleChars1 = 0;

@@ -11,7 +11,181 @@
 #define HMONITOR_DECLARED
 #include <d3d9.h>
 #include <d3d11.h>
-#include <tchar.h>
+#include <..\OSF\DirectXTex\SRC\DirectXTex.h>
+#include <..\OSF\DirectXTex\SRC\WICTextureLoader11.h>
+
+/*
+	Style tokens:
+
+	ColorText
+	ColorTextDisabled
+	ColorTextDarker // npp
+	ColorTextLink   // npp
+	Window (oneof: Genric | Popup | Child)
+		Color
+		ColorSofter // npp
+		ColorHot // npp
+		ColorPure // npp
+		ColorError // npp
+	Surface (oneof: Frame | Title | Button | Header | Separator | ResizeGrip | Tab | ScrollbarGrab | Scrollbar)
+		Color
+		ColorHovered
+		ColorActive
+		ColorCollapsed
+		ColorUnfocused       // Tab
+		ColorUnfocusedActive // Tab
+	ColorBorder
+	ColorBorderShadow
+	ColorMenuBarBg
+	ColorScrollbarBg
+	ColorCheckMark
+	ColorSliderGrab
+	ColorSliderGrabActive
+	ColorPlotLines
+	ColorPlotLinesHovered
+	ColorPlotHistogram
+	ColorPlotHistogramHovered
+	ColorTableHeaderBg
+	ColorTableBorderStrong
+	ColorTableBorderLight
+	ColorTableRowBg
+	ColorTableRowBgAlt
+	ColorTextSelectedBg
+	ColorDragDropTarget
+	ColorNavHighlight
+	ColorNavWindowingHighlight
+	ColorNavWindowingDimBg
+	ColorModalWindowDimBg
+*/
+
+static FORCEINLINE float ColorComponentBlendOverlay(float sa, float s, float da, float d)
+{
+	if(2 * d < da)
+		return 2 * s * d;
+	else
+		return sa * da - 2 * (da - d) * (sa - s);
+}
+
+FORCEINLINE ImVec4 __ColorBlendOverlay(const ImVec4 & rS, const ImVec4 & rD, float alpha)
+{
+	return ImVec4(
+		ColorComponentBlendOverlay(1.0f, rS.x, alpha, rD.x),
+		ColorComponentBlendOverlay(1.0f, rS.y, alpha, rD.y),
+		ColorComponentBlendOverlay(1.0f, rS.z, alpha, rD.z),
+		rS.w);
+}
+
+static const ImVec4 MainBackgroundColor(SColor(0x1E, 0x22, 0x28));
+
+class ImGuiObjStack {
+public:
+	enum {
+		objUndef = 0,
+		objFont,
+		objStyleColor,
+		objStyleVar,
+		objTabStop,
+		objButtonRepeat,
+		objItemWidth,
+		objTextWrapPos,
+		objID,
+		objAllowKeyboardFocus, // PushAllowKeyboardFocus
+	};
+	ImGuiObjStack()
+	{
+	}
+	~ImGuiObjStack()
+	{
+		int obj_type = 0;
+		while(St.pop(obj_type)) {
+			switch(obj_type) {
+				case objFont: ImGui::PopFont(); break;
+				case objStyleColor: ImGui::PopStyleColor(); break;
+				case objStyleVar: ImGui::PopStyleVar(); break;
+				case objTabStop: ImGui::PopTabStop(); break;
+				case objButtonRepeat: ImGui::PopButtonRepeat(); break;
+				case objItemWidth: ImGui::PopItemWidth(); break;
+				case objTextWrapPos: ImGui::PopTextWrapPos(); break;
+				case objID: ImGui::PopID(); break;
+				case objAllowKeyboardFocus: ImGui::PopAllowKeyboardFocus(); break;
+			}
+		}
+	}
+	void PushFont(ImFont * pFont)
+	{
+		ImGui::PushFont(pFont);
+		St.push(objFont);
+	}
+	void PushStyleColor(ImGuiCol idx, ImU32 col)
+	{
+		ImGui::PushStyleColor(idx, col);
+		St.push(objStyleColor);
+	}
+	void PushStyleColor(ImGuiCol idx, const ImVec4 & rColor)
+	{
+		ImGui::PushStyleColor(idx, rColor);
+		St.push(objStyleColor);
+	}
+	void PushStyleVar(ImGuiStyleVar idx, float val)
+	{
+		ImGui::PushStyleVar(idx, val);
+		St.push(objStyleVar);
+	}
+	void PushStyleVar(ImGuiStyleVar idx, const ImVec2 & rVal)
+	{
+		ImGui::PushStyleVar(idx, rVal);
+		St.push(objStyleVar);
+	}
+	void PushTabStop(bool tabSstop)
+	{
+		ImGui::PushTabStop(tabSstop);
+		St.push(objTabStop);
+	}
+	void PushButtonrepeat(bool repeat)
+	{
+		ImGui::PushButtonRepeat(repeat);
+		St.push(objButtonRepeat);
+	}
+	void PushItemWidth(float itemWidth)
+	{
+		ImGui::PushItemWidth(itemWidth);
+		St.push(objItemWidth);
+	}
+	void PushTextWrapPos(float wrapLocalPos)
+	{
+		ImGui::PushTextWrapPos(wrapLocalPos);
+		St.push(objTextWrapPos);
+	}
+	void PushID(const char * pStrIdent)
+	{
+		ImGui::PushID(pStrIdent);
+		St.push(objID);
+	}
+	void PushID(const char* pStrIdBegin, const char * pStrIdEnd)
+	{
+		ImGui::PushID(pStrIdBegin, pStrIdEnd);
+		St.push(objID);
+	}
+	void PushID(const void * pIdent)
+	{
+		ImGui::PushID(pIdent);
+		St.push(objID);
+	}
+	void PushID(int id)
+	{
+		ImGui::PushID(id);
+		St.push(objID);
+	}
+	void PushAllowKeyboardFocus(bool tabStop)
+	{
+		ImGui::PushAllowKeyboardFocus(tabStop);
+		St.push(objAllowKeyboardFocus);
+	}
+private:
+	TSStack <int> St;
+};
+
+static void * P_TestImgTexture = 0; // @debug
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam); // Forward declare message handler from imgui_impl_win32.cpp
 
@@ -70,6 +244,20 @@ public:
 		SCOMOBJRELEASE(g_pSwapChain); 
 		SCOMOBJRELEASE(g_pd3dDeviceContext); 
 		SCOMOBJRELEASE(g_pd3dDevice); 
+	}
+	void * LoadTexture(const char * pFileName)
+	{
+		void * p_result = 0;
+		ID3D11Resource * p_texture = 0;
+		ID3D11ShaderResourceView * p_texture_view = 0;
+		SStringU & r_fn = SLS.AcquireRvlStrU();
+		r_fn.CopyFromUtf8R(pFileName, sstrlen(pFileName), 0);
+		HRESULT hr = DirectX::CreateWICTextureFromFile(g_pd3dDevice, g_pd3dDeviceContext, _In_z_ r_fn.ucptr(), &p_texture, &p_texture_view, /*maxsize*/0);
+		if(SUCCEEDED(hr)) {
+			//p_result = p_texture;
+			p_result = p_texture_view;
+		}
+		return p_result;
 	}
 	// Data
 	ID3D11Device           * g_pd3dDevice;
@@ -858,7 +1046,12 @@ private:
 	void   Render()
 	{
 		ImGui::Render();
-		const float clear_color_with_alpha[4] = { ClearColor.x * ClearColor.w, ClearColor.y * ClearColor.w, ClearColor.z * ClearColor.w, ClearColor.w };
+		const float clear_color_with_alpha[4] = { 
+			ClearColor.x * ClearColor.w, 
+			ClearColor.y * ClearColor.w, 
+			ClearColor.z * ClearColor.w, 
+			ClearColor.w 
+		};
 		ImgRtb.g_pd3dDeviceContext->OMSetRenderTargets(1, &ImgRtb.g_mainRenderTargetView, nullptr);
 		ImgRtb.g_pd3dDeviceContext->ClearRenderTargetView(ImgRtb.g_mainRenderTargetView, clear_color_with_alpha);
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -869,14 +1062,17 @@ private:
 	{
 		Lo01.SetLayoutBlock(SUiLayoutParam(DIREC_VERT, 0, SUiLayoutParam::alignStretch));
 		Lo01.SetID(loidRoot);
+		const FRect margin_(2.0f, 1.0f, 2.0f, 1.0f);
 		{
 			SUiLayoutParam alb(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
+			alb.Margin = margin_;
 			alb.GrowFactor = 1.2f;
 			alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 			SUiLayout * p_lo_up_group = Lo01.InsertItem(0, &alb);
 			p_lo_up_group->SetID(loidUpperGroup);
 			{
 				SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+				alb01.Margin = margin_;
 				alb01.GrowFactor = 1.0f;
 				alb01.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 				SUiLayout * p_lo_ctl1 = p_lo_up_group->InsertItem(0, &alb01);
@@ -884,6 +1080,7 @@ private:
 			}
 			{
 				SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+				alb01.Margin = margin_;
 				alb01.GrowFactor = 1.0f;
 				alb01.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 				SUiLayout * p_lo_ctl2 = p_lo_up_group->InsertItem(0, &alb01);
@@ -892,12 +1089,14 @@ private:
 		}
 		{
 			SUiLayoutParam alb(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
+			alb.Margin = margin_;
 			alb.GrowFactor = 0.8f;
 			alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 			SUiLayout * p_lo_dn_group = Lo01.InsertItem(0, &alb);
 			p_lo_dn_group->SetID(loidBottomGroup);
 			{
 				SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+				alb01.Margin = margin_;
 				alb01.GrowFactor = 1.0f;
 				alb01.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 				SUiLayout * p_lo_adv1 = p_lo_dn_group->InsertItem(0, &alb01);
@@ -905,6 +1104,7 @@ private:
 			}
 			{
 				SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+				alb01.Margin = margin_;
 				alb01.GrowFactor = 1.0f;
 				alb01.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 				SUiLayout * p_lo_adv2 = p_lo_dn_group->InsertItem(0, &alb01);
@@ -912,6 +1112,7 @@ private:
 			}
 			{
 				SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+				alb01.Margin = margin_;
 				alb01.GrowFactor = 1.0f;
 				alb01.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 				SUiLayout * p_lo_adv3 = p_lo_dn_group->InsertItem(0, &alb01);
@@ -937,12 +1138,20 @@ private:
 	char   LoginText[256];
 	char   PwText[128];
 public:
-	WsCtl_ImGuiSceneBlock() : ShowDemoWindow(false), ShowAnotherWindow(false), ClearColor(0.45f, 0.55f, 0.60f, 1.00f), P_CmdQ(0)
+	WsCtl_ImGuiSceneBlock() : ShowDemoWindow(false), ShowAnotherWindow(false), 
+		//ClearColor(0.45f, 0.55f, 0.60f, 1.00f), 
+		ClearColor(SColor(0x1E, 0x22, 0x28)),
+		P_CmdQ(new WsCtlReqQueue)
 	{
 		TestInput[0] = 0;
 		LoginText[0] = 0;
 		PwText[0] = 0;
 		MakeLayout();
+	}
+	~WsCtl_ImGuiSceneBlock()
+	{
+		// P_CmdQ не разрушаем поскольку на него ссылается отдельный поток.
+		// Все равно этот объект живет в течении всего жизненного цикла процесса.
 	}
 	int  Init()
 	{
@@ -960,7 +1169,6 @@ public:
 			JsP.User = "master"; // @debug
 			JsP.Password = "";   // @debug 
 			//
-			P_CmdQ = new WsCtlReqQueue;
 			WsCtl_CliSession * p_sess = new WsCtl_CliSession(JsP, &St, P_CmdQ);
 			p_sess->Start(1);
 			if(!!St.SidBlk.Uuid) {
@@ -1053,6 +1261,8 @@ public:
 		else {
 			// 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
 			{
+				const int view_flags = ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoDecoration|
+					0;
 				ImGuiViewport * p_vp = ImGui::GetMainViewport();
 				if(p_vp) {
 					ImVec2 sz = p_vp->Size;
@@ -1060,6 +1270,8 @@ public:
 					evp.ForceWidth = static_cast<float>(sz.x);
 					evp.ForceHeight = static_cast<float>(sz.y);
 					Lo01.Evaluate(&evp);
+					ImGuiObjStack __ost;
+					__ost.PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 					{
 						const SUiLayout * p_lo = Lo01.FindByID(loidCtl01);
 						if(p_lo) {
@@ -1069,8 +1281,8 @@ public:
 							ImVec2 sz(s.x, s.y);
 							ImGui::SetNextWindowPos(lu);
 							ImGui::SetNextWindowSize(sz);
-							ImGui::Begin("CTL-01", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
-							ImGui::Text("CTL-01");
+							ImGui::Begin("##CTL-01", 0, view_flags);
+							//ImGui::Text("CTL-01");
 							{
 								DAccount data_acc;
 								St.D_Acc.GetData(data_acc);
@@ -1081,7 +1293,11 @@ public:
 									ImGui::Text(r_temp_buf.Z().Cat("Остаток").CatDiv(':', 2).Cat(data_acc.ScRest, MKSFMTD(0, 2, 0)));
 								}
 								else {
-									ImGui::InputText(InputLabelPrefix("Текст для авторизации"), LoginText, sizeof(LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+									{
+										//ImGuiObjStack ost;
+										//ost.PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
+										ImGui::InputText(InputLabelPrefix("Текст для авторизации"), LoginText, sizeof(LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+									}
 									ImGui::InputText(InputLabelPrefix("Пароль"), PwText, sizeof(PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
 									if(!isempty(LoginText)) {
 										if(ImGui::Button("Login")) {
@@ -1105,9 +1321,8 @@ public:
 							ImVec2 sz(s.x, s.y);
 							ImGui::SetNextWindowPos(lu);
 							ImGui::SetNextWindowSize(sz);
-							ImGui::Begin("CTL-02", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
-							ImGui::Text("CTL-02");
-						
+							ImGui::Begin("##CTL-02", 0, view_flags);
+							//ImGui::Text("CTL-02");
 							ImGui::Text(SLS.AcquireRvlStr().Cat("Сервер").CatDiv(':', 2).Cat(JsP.Addr).CatChar(':').Cat(JsP.Port));
 							{
 								int conn_status = 0;
@@ -1167,8 +1382,16 @@ public:
 							ImVec2 sz(s.x, s.y);
 							ImGui::SetNextWindowPos(lu);
 							ImGui::SetNextWindowSize(sz);
-							ImGui::Begin("ADV-01", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
-							ImGui::Text("ADV-01");
+							ImGui::Begin("##ADV-01", 0, view_flags);
+							//ImGui::Text("ADV-01");
+							// @debug {
+							if(P_TestImgTexture) {
+								ImVec2 sz;
+								sz.x = 128;
+								sz.y = 128;
+								ImGui::Image(P_TestImgTexture, sz);
+							}
+							// } @debug 
 							ImGui::End();
 						}
 					}
@@ -1181,8 +1404,8 @@ public:
 							ImVec2 sz(s.x, s.y);
 							ImGui::SetNextWindowPos(lu);
 							ImGui::SetNextWindowSize(sz);
-							ImGui::Begin("ADV-02", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
-							ImGui::Text("ADV-02");
+							ImGui::Begin("##ADV-02", 0, view_flags);
+							//ImGui::Text("ADV-02");
 							ImGui::End();
 						}
 					}
@@ -1195,8 +1418,8 @@ public:
 							ImVec2 sz(s.x, s.y);
 							ImGui::SetNextWindowPos(lu);
 							ImGui::SetNextWindowSize(sz);
-							ImGui::Begin("ADV-03", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
-							ImGui::Text("ADV-03");
+							ImGui::Begin("##ADV-03", 0, view_flags);
+							//ImGui::Text("ADV-03");
 							ImGui::End();
 						}
 					}
@@ -1269,6 +1492,65 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return ::DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
+static void WsCtlStyleColors(ImGuiStyle * dst)
+{
+	ImGuiStyle * style = dst ? dst : &ImGui::GetStyle();
+	ImVec4 * colors = style->Colors;
+	colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+	colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+	colors[ImGuiCol_WindowBg]               = SColor(0x2B, 0x30, 0x38);//ImVec4(0.06f, 0.06f, 0.06f, 0.94f);
+	colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+	colors[ImGuiCol_PopupBg]                = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
+	colors[ImGuiCol_Border]                 = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
+	colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+	colors[ImGuiCol_FrameBg]                = SColor(SClrBlack, 0.95f); //ImVec4(0.16f, 0.29f, 0.48f, 0.54f);
+	colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
+	colors[ImGuiCol_FrameBgActive]          = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+	colors[ImGuiCol_TitleBg]                = ImVec4(0.04f, 0.04f, 0.04f, 1.00f);
+	colors[ImGuiCol_TitleBgActive]          = ImVec4(0.16f, 0.29f, 0.48f, 1.00f);
+	colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.00f, 0.00f, 0.00f, 0.51f);
+	colors[ImGuiCol_MenuBarBg]              = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+	colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
+	colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
+	colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+	colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.51f, 0.51f, 0.51f, 1.00f);
+	colors[ImGuiCol_CheckMark]              = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+	colors[ImGuiCol_SliderGrab]             = ImVec4(0.24f, 0.52f, 0.88f, 1.00f);
+	colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+	colors[ImGuiCol_Button]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
+	colors[ImGuiCol_ButtonHovered]          = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+	colors[ImGuiCol_ButtonActive]           = ImVec4(0.06f, 0.53f, 0.98f, 1.00f);
+	colors[ImGuiCol_Header]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
+	colors[ImGuiCol_HeaderHovered]          = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
+	colors[ImGuiCol_HeaderActive]           = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+	colors[ImGuiCol_Separator]              = colors[ImGuiCol_Border];
+	colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.10f, 0.40f, 0.75f, 0.78f);
+	colors[ImGuiCol_SeparatorActive]        = ImVec4(0.10f, 0.40f, 0.75f, 1.00f);
+	colors[ImGuiCol_ResizeGrip]             = ImVec4(0.26f, 0.59f, 0.98f, 0.20f);
+	colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+	colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
+	colors[ImGuiCol_Tab]                    = ImLerp(colors[ImGuiCol_Header], colors[ImGuiCol_TitleBgActive], 0.80f);
+	colors[ImGuiCol_TabHovered]             = colors[ImGuiCol_HeaderHovered];
+	colors[ImGuiCol_TabActive]              = ImLerp(colors[ImGuiCol_HeaderActive], colors[ImGuiCol_TitleBgActive], 0.60f);
+	colors[ImGuiCol_TabUnfocused]           = ImLerp(colors[ImGuiCol_Tab], colors[ImGuiCol_TitleBg], 0.80f);
+	colors[ImGuiCol_TabUnfocusedActive]     = ImLerp(colors[ImGuiCol_TabActive], colors[ImGuiCol_TitleBg], 0.40f);
+	colors[ImGuiCol_PlotLines]              = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
+	colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
+	colors[ImGuiCol_PlotHistogram]          = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+	colors[ImGuiCol_PlotHistogramHovered]   = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+	colors[ImGuiCol_TableHeaderBg]          = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
+	colors[ImGuiCol_TableBorderStrong]      = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);// Prefer using Alpha=1.0 here
+	colors[ImGuiCol_TableBorderLight]       = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);// Prefer using Alpha=1.0 here
+	colors[ImGuiCol_TableRowBg]             = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+	colors[ImGuiCol_TableRowBgAlt]          = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
+	colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
+	colors[ImGuiCol_DragDropTarget]         = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
+	colors[ImGuiCol_NavHighlight]           = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+	colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
+	colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
+	colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
+}
+
 int main(int, char**)
 {
 	int    result = 0;
@@ -1295,8 +1577,9 @@ int main(int, char**)
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
 		// Setup Dear ImGui style
-		ImGui::StyleColorsDark();
+		//ImGui::StyleColorsDark();
 		//ImGui::StyleColorsLight();
+		WsCtlStyleColors(0);
 		// Setup Platform/Renderer backends
 		ImGui_ImplWin32_Init(hwnd);
 		ImGui_ImplDX11_Init(ImgRtb.g_pd3dDevice, ImgRtb.g_pd3dDeviceContext);
@@ -1329,7 +1612,11 @@ int main(int, char**)
 			};
 			///Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf
 			//C:/Windows/Fonts/Tahoma.ttf
-			ImFont * p_font = io.Fonts->AddFontFromFileTTF("/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 18.0f, nullptr, ranges);
+			ImFont * p_font = io.Fonts->AddFontFromFileTTF("/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 16.0f, nullptr, ranges);
+		}
+		{
+			const char * p_img_path = "/Papyrus/Src/PPTEST/DATA/test-gif.gif";
+			P_TestImgTexture = ImgRtb.LoadTexture(p_img_path);
 		}
 		// Main loop
 		bool done = false;

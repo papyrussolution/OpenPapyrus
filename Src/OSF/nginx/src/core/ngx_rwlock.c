@@ -14,7 +14,7 @@
 void FASTCALL ngx_rwlock_wlock(ngx_atomic_t * lock)
 {
 	ngx_uint_t i, n;
-	for(;; ) {
+	for(;;) {
 		if(*lock == 0 && ngx_atomic_cmp_set(lock, 0, NGX_RWLOCK_WLOCK)) {
 			return;
 		}
@@ -36,7 +36,7 @@ void FASTCALL ngx_rwlock_rlock(ngx_atomic_t * lock)
 {
 	ngx_uint_t i, n;
 	ngx_atomic_uint_t readers;
-	for(;; ) {
+	for(;;) {
 		readers = *lock;
 		if(readers != NGX_RWLOCK_WLOCK && ngx_atomic_cmp_set(lock, readers, readers + 1)) {
 			return;
@@ -63,7 +63,7 @@ void FASTCALL ngx_rwlock_unlock(ngx_atomic_t * lock)
 		(void)ngx_atomic_cmp_set(lock, NGX_RWLOCK_WLOCK, 0);
 	}
 	else {
-		for(;; ) {
+		for(;;) {
 			if(ngx_atomic_cmp_set(lock, readers, readers - 1)) {
 				return;
 			}

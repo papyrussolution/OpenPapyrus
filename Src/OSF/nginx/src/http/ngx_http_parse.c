@@ -1171,7 +1171,7 @@ ngx_int_t ngx_http_parse_complex_uri(ngx_http_request_t * r, ngx_uint_t merge_sl
 				    case '/':
 					state = sw_slash;
 					u -= 5;
-					for(;; ) {
+					for(;;) {
 						if(u < r->uri.data) {
 							return NGX_HTTP_PARSE_INVALID_REQUEST;
 						}

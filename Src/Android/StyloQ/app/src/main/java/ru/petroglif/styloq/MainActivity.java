@@ -527,7 +527,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 			UpdateSvcListView();
 		}
 	}
-	private void SetupNotificationIcon(StyloQDatabase db)
+	/* @v11.7.5 private void SetupNotificationIcon(StyloQDatabase db)
 	{
 		try {
 			if(db == null) {
@@ -570,9 +570,20 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 		} catch(StyloQException exn) {
 			;
 		}
-	}
+	}*/
 	private class RefreshNotificationIcon_TimerTask extends TimerTask {
-		@Override public void run() { runOnUiThread(new Runnable() { @Override public void run() { SetupNotificationIcon(null); }}); }
+		SLib.EventHandler Handler;
+		RefreshNotificationIcon_TimerTask(SLib.EventHandler handler)
+		{
+			Handler = handler;
+		}
+		@Override public void run()
+		{
+			StyloQApp app_ctx = (StyloQApp)getApplication();
+			if(app_ctx != null)
+				app_ctx.QueryNotificationListStatus(0, Handler);
+			//runOnUiThread(new Runnable() { @Override public void run() { SetupNotificationIcon(null); }});
+		}
 	}
 	private class ResetTouchedListItemIdx_TimerTask extends TimerTask {
 		@Override public void run() { runOnUiThread(new Runnable() { @Override public void run() { SetTouchedItemIndex(-1); }}); }
@@ -708,7 +719,8 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 									AskSystemPermissions(permission_list, MultiplePermissionLauncher);
 								}
 								// } @v11.6.0
-								SetupNotificationIcon(db);
+								// @v11.7.5 SetupNotificationIcon(db);
+								app_ctx.QueryNotificationListStatus(0, this); // @v11.7.5
 							}
 							{
 								//View v = findViewById(R.id.CTL_MAIN_VERSION);
@@ -719,7 +731,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 								{
 									if(RefreshNotificationIcon_Tmr == null) {
 										RefreshNotificationIcon_Tmr = new Timer();
-										RefreshNotificationIcon_Tmr.schedule(new RefreshNotificationIcon_TimerTask(), 2000, 30000);
+										RefreshNotificationIcon_Tmr.schedule(new RefreshNotificationIcon_TimerTask(this), 2000, 30000);
 									}
 								}
 							}
@@ -1086,6 +1098,26 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 									;
 								}
 								// } @v11.4.6
+							}
+						}
+					}
+				}
+				break;
+			case SLib.EV_ASYNCREPLY:
+				//Handler.HandleEvent(SLib.EV_ASYNCREPLY, "QueryNotificationListStatus", ns);
+				if(srcObj != null && srcObj instanceof String) {
+					if(((String)srcObj).equalsIgnoreCase("QueryNotificationListStatus")) {
+						if(subj != null && subj instanceof StyloQApp.NotificationListStatus) {
+							StyloQApp.NotificationListStatus ns = (StyloQApp.NotificationListStatus)subj;
+							View v = SLib.FindViewById(this, R.id.tbButtonNotifications);
+							if(v != null && v instanceof ImageButton) {
+								ImageButton button = (ImageButton) v;
+								if(ns.IsThereUnprocessedNotifications)
+									button.setImageResource(R.drawable.ic_bell_accent01);
+								else if(ns.IsThereAnyNotifications)
+									button.setImageResource(R.drawable.ic_bell01);
+								else
+									button.setVisibility(View.GONE);
 							}
 						}
 					}

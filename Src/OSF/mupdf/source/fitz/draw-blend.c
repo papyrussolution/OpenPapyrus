@@ -84,8 +84,7 @@
 
 typedef uchar byte;
 
-static const char * fz_blendmode_names[] =
-{
+static const char * fz_blendmode_names[] = {
 	"Normal",
 	"Multiply",
 	"Screen",
@@ -119,10 +118,7 @@ const char * fz_blendmode_name(int blendmode)
 
 /* Separable blend modes */
 
-static inline int fz_screen_byte(int b, int s)
-{
-	return b + s - fz_mul255(b, s);
-}
+static inline int fz_screen_byte(int b, int s) { return b + s - fz_mul255(b, s); }
 
 static inline int fz_hard_light_byte(int b, int s)
 {
@@ -272,20 +268,12 @@ static void fz_hue_rgb(uchar * rr, uchar * rg, uchar * rb, int br, int bg, int b
 
 /* Blending loops */
 
-static inline void fz_blend_separable(byte * _RESTRICT bp,
-    int bal,
-    const byte * _RESTRICT sp,
-    int sal,
-    int n1,
-    int w,
-    int blendmode,
-    int complement,
-    int first_spot)
+static inline void fz_blend_separable(byte * _RESTRICT bp, int bal, const byte * _RESTRICT sp,
+    int sal, int n1, int w, int blendmode, int complement, int first_spot)
 {
 	int k;
 	do {
 		int sa = (sal ? sp[n1] : 255);
-
 		if(sa != 0) {
 			int ba = (bal ? bp[n1] : 255);
 			if(ba == 0) {
@@ -295,11 +283,9 @@ static inline void fz_blend_separable(byte * _RESTRICT bp,
 			}
 			else {
 				int saba = fz_mul255(sa, ba);
-
 				/* ugh, division to get non-premul components */
 				int invsa = sa ? 255 * 256 / sa : 0;
 				int invba = ba ? 255 * 256 / ba : 0;
-
 				/* Process colorants */
 				for(k = 0; k < first_spot; k++) {
 					int sc = (sp[k] * invsa) >> 8;
@@ -324,14 +310,11 @@ static inline void fz_blend_separable(byte * _RESTRICT bp,
 						case FZ_BLEND_DIFFERENCE: rc = fz_difference_byte(bc, sc); break;
 						case FZ_BLEND_EXCLUSION: rc = fz_exclusion_byte(bc, sc); break;
 					}
-
 					if(complement) {
 						rc = 255 - rc;
 					}
-
 					bp[k] = fz_mul255(255 - sa, bp[k]) + fz_mul255(255 - ba, sp[k]) + fz_mul255(saba, rc);
 				}
-
 				/* spots */
 				for(; k < n1; k++) {
 					int sc = 255 - ((sp[k] * invsa) >> 8);
@@ -355,29 +338,20 @@ static inline void fz_blend_separable(byte * _RESTRICT bp,
 					}
 					bp[k] = fz_mul255(255 - sa, bp[k]) + fz_mul255(255 - ba, sp[k]) + fz_mul255(saba, 255 - rc);
 				}
-
 				if(bal)
 					bp[k] = ba + sa - saba;
 			}
 		}
 		sp += n1 + sal;
 		bp += n1 + bal;
-	}
-	while(--w);
+	} while(--w);
 }
 
-static inline void fz_blend_nonseparable_gray(byte * _RESTRICT bp,
-    int bal,
-    const byte * _RESTRICT sp,
-    int sal,
-    int n,
-    int w,
-    int blendmode,
-    int first_spot)
+static inline void fz_blend_nonseparable_gray(byte * _RESTRICT bp, int bal, const byte * _RESTRICT sp,
+    int sal, int n, int w, int blendmode, int first_spot)
 {
 	do {
 		int sa = (sal ? sp[n] : 255);
-
 		if(sa != 0) {
 			int ba = (bal ? bp[n] : 255);
 			if(ba == 0) {
@@ -419,21 +393,12 @@ static inline void fz_blend_nonseparable_gray(byte * _RESTRICT bp,
 	} while(--w);
 }
 
-static inline void fz_blend_nonseparable(byte * _RESTRICT bp,
-    int bal,
-    const byte * _RESTRICT sp,
-    int sal,
-    int n,
-    int w,
-    int blendmode,
-    int complement,
-    int first_spot)
+static inline void fz_blend_nonseparable(byte * _RESTRICT bp, int bal, const byte * _RESTRICT sp,
+    int sal, int n, int w, int blendmode, int complement, int first_spot)
 {
 	do {
 		uchar rr, rg, rb;
-
 		int sa = (sal ? sp[n] : 255);
-
 		if(sa != 0) {
 			int ba = (bal ? bp[n] : 255);
 			if(ba == 0) {
@@ -523,8 +488,7 @@ static inline void fz_blend_nonseparable(byte * _RESTRICT bp,
 		}
 		sp += n + sal;
 		bp += n + bal;
-	}
-	while(--w);
+	} while(--w);
 }
 
 static inline void fz_blend_separable_nonisolated(byte * _RESTRICT bp,
@@ -998,13 +962,8 @@ static void verify_premultiply(fz_context * ctx, const fz_pixmap * _RESTRICT dst
 
 #endif
 
-void fz_blend_pixmap(fz_context * ctx,
-    fz_pixmap * _RESTRICT dst,
-    fz_pixmap * _RESTRICT src,
-    int alpha,
-    int blendmode,
-    int isolated,
-    const fz_pixmap * _RESTRICT shape)
+void fz_blend_pixmap(fz_context * ctx, fz_pixmap * _RESTRICT dst, fz_pixmap * _RESTRICT src,
+    int alpha, int blendmode, int isolated, const fz_pixmap * _RESTRICT shape)
 {
 	uchar * sp;
 	uchar * dp;
@@ -1012,7 +971,6 @@ void fz_blend_pixmap(fz_context * ctx,
 	int x, y, w, h, n;
 	int da, sa;
 	int complement;
-
 	/* TODO: fix this hack! */
 	if(isolated && alpha < 255) {
 		uchar * sp2;
@@ -1029,72 +987,44 @@ void fz_blend_pixmap(fz_context * ctx,
 			sp2 += src->stride - nn;
 		}
 	}
-
 	bbox = fz_intersect_irect(fz_pixmap_bbox(ctx, src), fz_pixmap_bbox(ctx, dst));
-
 	x = bbox.x0;
 	y = bbox.y0;
 	w = fz_irect_width(bbox);
 	h = fz_irect_height(bbox);
 	if(!w || !h)
 		return;
-
 	complement = fz_colorspace_is_subtractive(ctx, src->colorspace);
 	n = src->n;
 	sp = src->samples + (y - src->y) * (size_t)src->stride + (x - src->x) * (size_t)src->n;
 	sa = src->alpha;
 	dp = dst->samples + (y - dst->y) * (size_t)dst->stride + (x - dst->x) * (size_t)dst->n;
 	da = dst->alpha;
-
 	if(n == 1)
 		sa = da = 0;
-
 #ifdef PARANOID_PREMULTIPLY
 	if(sa)
 		verify_premultiply(ctx, src);
 	if(da)
 		verify_premultiply(ctx, dst);
 #endif
-
 	n -= sa;
 	assert(n == dst->n - da);
-
 	if(!isolated) {
 		const uchar * hp = shape->samples + (y - shape->y) * (size_t)shape->stride + (x - shape->x);
-
 		while(h--) {
 			if(blendmode >= FZ_BLEND_HUE) {
 				if(complement || src->s > 0)
 					if((n - src->s) == 1)
 						fz_blend_nonseparable_nonisolated_gray(dp, da, sp, sa, n, w, blendmode, hp, alpha, 1);
 					else
-						fz_blend_nonseparable_nonisolated(dp,
-						    da,
-						    sp,
-						    sa,
-						    n,
-						    w,
-						    blendmode,
-						    complement,
-						    hp,
-						    alpha,
-						    n - src->s);
+						fz_blend_nonseparable_nonisolated(dp, da, sp, sa, n, w, blendmode, complement, hp, alpha, n - src->s);
 				else if(da)
 					if(sa)
 						if(n == 1)
 							fz_blend_nonseparable_nonisolated_gray(dp, 1, sp, 1, 1, w, blendmode, hp, alpha, 1);
 						else
-							fz_blend_nonseparable_nonisolated(dp,
-							    1,
-							    sp,
-							    1,
-							    n,
-							    w,
-							    blendmode,
-							    complement,
-							    hp,
-							    alpha,
-							    n);
+							fz_blend_nonseparable_nonisolated(dp, 1, sp, 1, n, w, blendmode, complement, hp, alpha, n);
 					else if(n == 1)
 						fz_blend_nonseparable_nonisolated_gray(dp, 1, sp, 0, 1, w, blendmode, hp, alpha, 1);
 					else
@@ -1172,25 +1102,18 @@ void fz_blend_pixmap(fz_context * ctx,
 			dp += dst->stride;
 		}
 	}
-
 #ifdef PARANOID_PREMULTIPLY
 	if(da)
 		verify_premultiply(ctx, dst);
 #endif
 }
 
-static inline void fz_blend_knockout(byte * _RESTRICT bp,
-    int bal,
-    const byte * _RESTRICT sp,
-    int sal,
-    int n1,
-    int w,
-    const byte * _RESTRICT hp)
+static inline void fz_blend_knockout(byte * _RESTRICT bp, int bal, const byte * _RESTRICT sp,
+    int sal, int n1, int w, const byte * _RESTRICT hp)
 {
 	int k;
 	do {
 		int ha = *hp++;
-
 		if(ha != 0) {
 			int sa = (sal ? sp[n1] : 255);
 			int ba = (bal ? bp[n1] : 255);
@@ -1214,40 +1137,32 @@ static inline void fz_blend_knockout(byte * _RESTRICT bp,
 
 					bp[k] = fz_mul255(ra, rc);
 				}
-
 				if(bal)
 					bp[k] = ra;
 			}
 		}
 		sp += n1 + sal;
 		bp += n1 + bal;
-	}
-	while(--w);
+	} while(--w);
 }
 
-void fz_blend_pixmap_knockout(fz_context * ctx,
-    fz_pixmap * _RESTRICT dst,
-    fz_pixmap * _RESTRICT src,
-    const fz_pixmap * _RESTRICT shape)
+void fz_blend_pixmap_knockout(fz_context * ctx, fz_pixmap * _RESTRICT dst,
+    fz_pixmap * _RESTRICT src, const fz_pixmap * _RESTRICT shape)
 {
 	uchar * sp;
 	uchar * dp;
-	fz_irect sbox, dbox, bbox;
-	int x, y, w, h, n;
+	int n;
 	int da, sa;
 	const uchar * hp;
-
-	dbox = fz_pixmap_bbox_no_ctx(dst);
-	sbox = fz_pixmap_bbox_no_ctx(src);
-	bbox = fz_intersect_irect(dbox, sbox);
-
-	x = bbox.x0;
-	y = bbox.y0;
-	w = fz_irect_width(bbox);
-	h = fz_irect_height(bbox);
+	fz_irect dbox = fz_pixmap_bbox_no_ctx(dst);
+	fz_irect sbox = fz_pixmap_bbox_no_ctx(src);
+	fz_irect bbox = fz_intersect_irect(dbox, sbox);
+	int x = bbox.x0;
+	int y = bbox.y0;
+	int w = fz_irect_width(bbox);
+	int h = fz_irect_height(bbox);
 	if(!w || !h)
 		return;
-
 	n = src->n;
 	sp = src->samples + (y - src->y) * (size_t)src->stride + (x - src->x) * (size_t)src->n;
 	sa = src->alpha;

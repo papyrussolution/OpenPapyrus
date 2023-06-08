@@ -124,7 +124,7 @@ int __bam_rsearch(DBC * dbc, db_recno_t * recnop, uint32 flags, int stop, int * 
 	 * 1-based.  All of the calculations below have to take this
 	 * into account.
 	 */
-	for(total = 0;; ) {
+	for(total = 0;;) {
 		switch(TYPE(h)) {
 		    case P_LBTREE:
 			if(LF_ISSET(SR_MAX)) {
@@ -176,7 +176,7 @@ int __bam_rsearch(DBC * dbc, db_recno_t * recnop, uint32 flags, int stop, int * 
 				indx = NUM_ENT(h);
 				bi = GET_BINTERNAL(dbp, h, indx-1);
 			}
-			else for(indx = 0, top = NUM_ENT(h);; ) {
+			else for(indx = 0, top = NUM_ENT(h);;) {
 				bi = GET_BINTERNAL(dbp, h, indx);
 				if(++indx == top || total+bi->nrecs >= recno)
 					break;
@@ -226,7 +226,7 @@ get_prev:
 				indx = NUM_ENT(h);
 				ri = GET_RINTERNAL(dbp, h, indx-1);
 			}
-			else for(indx = 0, top = NUM_ENT(h);; ) {
+			else for(indx = 0, top = NUM_ENT(h);;) {
 				ri = GET_RINTERNAL(dbp, h, indx);
 				if(++indx == top || total+ri->nrecs >= recno)
 					break;

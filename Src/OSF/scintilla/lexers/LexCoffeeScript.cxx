@@ -142,7 +142,7 @@ static void ColouriseCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length
 
 	StyleContext sc(startPos, endPos - startPos, initStyle, styler);
 
-	for(; sc.More(); ) {
+	for(; sc.More();) {
 		if(sc.atLineStart) {
 			// Reset states to beginning of colourise so no surprises
 			// if different sets of lines lexed.

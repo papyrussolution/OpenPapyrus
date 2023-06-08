@@ -13,8 +13,8 @@ SizeT ARM_Convert(Byte * data, SizeT size, uint32 ip, int encoding)
 	p = data;
 	lim = data + size;
 	if(encoding)
-		for(;; ) {
-			for(;; ) {
+		for(;;) {
+			for(;;) {
 				if(p >= lim)
 					return p - data;
 				p += 4;
@@ -32,8 +32,8 @@ SizeT ARM_Convert(Byte * data, SizeT size, uint32 ip, int encoding)
 			}
 		}
 
-	for(;; ) {
-		for(;; ) {
+	for(;;) {
+		for(;;) {
 			if(p >= lim)
 				return p - data;
 			p += 4;
@@ -60,9 +60,9 @@ SizeT ARMT_Convert(Byte * data, SizeT size, uint32 ip, int encoding)
 	p = data;
 	lim = data + size - 4;
 	if(encoding) {
-		for(;; ) {
+		for(;;) {
 			uint32 b1;
-			for(;; ) {
+			for(;;) {
 				uint32 b3;
 				if(p > lim)
 					return p - data;
@@ -87,9 +87,9 @@ SizeT ARMT_Convert(Byte * data, SizeT size, uint32 ip, int encoding)
 			}
 		}
 	}
-	for(;; ) {
+	for(;;) {
 		uint32 b1;
-		for(;; ) {
+		for(;;) {
 			uint32 b3;
 			if(p > lim)
 				return p - data;
@@ -128,8 +128,8 @@ SizeT PPC_Convert(Byte * data, SizeT size, uint32 ip, int encoding)
 	p = data;
 	lim = data + size;
 
-	for(;; ) {
-		for(;; ) {
+	for(;;) {
+		for(;;) {
 			if(p >= lim)
 				return p - data;
 			p += 4;
@@ -159,8 +159,8 @@ SizeT SPARC_Convert(Byte * data, SizeT size, uint32 ip, int encoding)
 	p = data;
 	lim = data + size;
 
-	for(;; ) {
-		for(;; ) {
+	for(;;) {
+		for(;;) {
 			if(p >= lim)
 				return p - data;
 			/*

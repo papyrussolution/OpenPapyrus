@@ -40,22 +40,22 @@
    Get the minimum of two integers
    @return Returns a if a < b else b
  */
-static INLINE int32_t opj_int_min(int32_t a, int32_t b) { return a < b ? a : b; }
+// @sobolev static INLINE int32_t opj_int_min__Removed(int32_t a, int32_t b) { return a < b ? a : b; }
 /**
    Get the minimum of two integers
    @return Returns a if a < b else b
  */
-static INLINE uint32_t opj_uint_min(uint32_t a, uint32_t b) { return a < b ? a : b; }
+// @sobolev static INLINE uint32_t opj_uint_min__Removed(uint32_t a, uint32_t b) { return a < b ? a : b; }
 /**
    Get the maximum of two integers
    @return Returns a if a > b else b
  */
-static INLINE int32_t opj_int_max(int32_t a, int32_t b) { return (a > b) ? a : b; }
+// @sobolev static INLINE int32_t opj_int_max__Removed(int32_t a, int32_t b) { return (a > b) ? a : b; }
 /**
    Get the maximum of two integers
    @return Returns a if a > b else b
  */
-static INLINE uint32_t opj_uint_max(uint32_t a, uint32_t b) { return (a > b) ? a : b; }
+// @sobolev static INLINE uint32_t opj_uint_max__Removed(uint32_t a, uint32_t b) { return (a > b) ? a : b; }
 /**
    Get the saturated sum of two unsigned integers
    @return Returns saturated sum of a+b

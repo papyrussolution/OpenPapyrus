@@ -45,8 +45,8 @@
    @param c2 Samples blue component
    @param n Number of samples for each component
  */
-void opj_mct_encode(int32_t* OPJ_RESTRICT c0, int32_t* OPJ_RESTRICT c1,
-    int32_t* OPJ_RESTRICT c2, size_t n);
+void opj_mct_encode(int32_t* _RESTRICT c0, int32_t* _RESTRICT c1,
+    int32_t* _RESTRICT c2, size_t n);
 /**
    Apply a reversible multi-component inverse transform to an image
    @param c0 Samples for luminance component
@@ -54,8 +54,8 @@ void opj_mct_encode(int32_t* OPJ_RESTRICT c0, int32_t* OPJ_RESTRICT c1,
    @param c2 Samples for blue chrominance component
    @param n Number of samples for each component
  */
-void opj_mct_decode(int32_t* OPJ_RESTRICT c0, int32_t* OPJ_RESTRICT c1,
-    int32_t* OPJ_RESTRICT c2, size_t n);
+void opj_mct_decode(int32_t* _RESTRICT c0, int32_t* _RESTRICT c1,
+    int32_t* _RESTRICT c2, size_t n);
 /**
    Get norm of the basis function used for the reversible multi-component transform
    @param compno Number of the component (0->Y, 1->U, 2->V)
@@ -70,9 +70,9 @@ double opj_mct_getnorm(uint32_t compno);
    @param c2 Samples blue component
    @param n Number of samples for each component
  */
-void opj_mct_encode_real(float* OPJ_RESTRICT c0,
-    float* OPJ_RESTRICT c1,
-    float* OPJ_RESTRICT c2, size_t n);
+void opj_mct_encode_real(float* _RESTRICT c0,
+    float* _RESTRICT c1,
+    float* _RESTRICT c2, size_t n);
 /**
    Apply an irreversible multi-component inverse transform to an image
    @param c0 Samples for luminance component
@@ -80,8 +80,8 @@ void opj_mct_encode_real(float* OPJ_RESTRICT c0,
    @param c2 Samples for blue chrominance component
    @param n Number of samples for each component
  */
-void opj_mct_decode_real(float* OPJ_RESTRICT c0,
-    float* OPJ_RESTRICT c1, float* OPJ_RESTRICT c2, size_t n);
+void opj_mct_decode_real(float* _RESTRICT c0,
+    float* _RESTRICT c1, float* _RESTRICT c2, size_t n);
 /**
    Get norm of the basis function used for the irreversible multi-component transform
    @param compno Number of the component (0->Y, 1->U, 2->V)

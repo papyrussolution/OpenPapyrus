@@ -932,7 +932,7 @@ void ScintillaWin::AddWString(std::wstring wcs)
 {
 	if(!wcs.empty()) {
 		int codePage = CodePageOfDocument();
-		for(size_t i = 0; i < wcs.size(); ) {
+		for(size_t i = 0; i < wcs.size();) {
 			const size_t ucWidth = UTF16CharLength(wcs[i]);
 			const std::wstring uniChar(wcs, i, ucWidth);
 			std::string docChar = StringEncode(uniChar, codePage);
@@ -975,7 +975,7 @@ sptr_t ScintillaWin::HandleCompositionInline(uptr_t, sptr_t lParam)
 		bool tmpRecordingMacro = BIN(Flags & fRecordingMacro);
 		Flags &= ~fRecordingMacro;
 		int codePage = CodePageOfDocument();
-		for(size_t i = 0; i < wcs.size(); ) {
+		for(size_t i = 0; i < wcs.size();) {
 			const size_t ucWidth = UTF16CharLength(wcs[i]);
 			const std::wstring uniChar(wcs, i, ucWidth);
 			std::string docChar = StringEncode(uniChar, codePage);

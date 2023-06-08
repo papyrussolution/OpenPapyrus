@@ -40,7 +40,7 @@ int __heap_truncate(DBC * dbc, uint32 * countp)
 		__TLPUT(dbc, lock);
 		goto err;
 	}
-	for(;; ) {
+	for(;;) {
 		pgno++;
 		if((ret = __db_lget(dbc, LCK_COUPLE, pgno, DB_LOCK_WRITE, 0, &lock)) != 0)
 			break;

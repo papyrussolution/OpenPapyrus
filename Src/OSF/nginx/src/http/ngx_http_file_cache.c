@@ -659,7 +659,7 @@ static void ngx_http_file_cache_rbtree_insert_value(ngx_rbtree_node_t * temp, ng
 {
 	ngx_rbtree_node_t  ** p;
 	ngx_http_file_cache_node_t * cn, * cnt;
-	for(;; ) {
+	for(;;) {
 		if(node->key < temp->key) {
 			p = &temp->left;
 		}
@@ -1132,7 +1132,7 @@ static time_t ngx_http_file_cache_forced_expire(ngx_http_file_cache_t * cache)
 	tries = 20;
 	sentinel = NULL;
 	ngx_shmtx_lock(&cache->shpool->mutex);
-	for(;; ) {
+	for(;;) {
 		if(ngx_queue_empty(&cache->sh->queue)) {
 			break;
 		}
@@ -1195,7 +1195,7 @@ static time_t ngx_http_file_cache_expire(ngx_http_file_cache_t * cache)
 	memcpy(name, path->name.data, path->name.len);
 	now = ngx_time();
 	ngx_shmtx_lock(&cache->shpool->mutex);
-	for(;; ) {
+	for(;;) {
 		if(ngx_quit || ngx_terminate) {
 			wait = 1;
 			break;
@@ -1299,7 +1299,7 @@ static ngx_msec_t ngx_http_file_cache_manager(void * data)
 		next = cache->manager_sleep;
 		goto done;
 	}
-	for(;; ) {
+	for(;;) {
 		ngx_shmtx_lock(&cache->shpool->mutex);
 		size = cache->sh->size;
 		count = cache->sh->count;

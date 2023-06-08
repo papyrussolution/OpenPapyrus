@@ -4990,7 +4990,7 @@ void FASTCALL xmlNodeAddContentLen(xmlNode * cur, const xmlChar * content, int l
 			case XML_ELEMENT_NODE: 
 				{
 					xmlNode * last = cur->last;
-					for(xmlNode * newNode = xmlNewTextLen(content, len); newNode; ) {
+					for(xmlNode * newNode = xmlNewTextLen(content, len); newNode;) {
 						xmlNode * tmp = xmlAddChild(cur, newNode);
 						if(tmp != newNode)
 							return;

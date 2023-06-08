@@ -80,7 +80,7 @@ void PNGAPI png_read_info(png_structrp png_ptr, png_inforp info_ptr)
 		return;
 	/* Read and check the PNG file signature. */
 	png_read_sig(png_ptr, info_ptr);
-	for(;; ) {
+	for(;;) {
 		uint32 length = png_read_chunk_header(png_ptr);
 		uint32 chunk_name = png_ptr->chunk_name;
 		// IDAT logic needs to happen here to simplify getting the two flags right.
@@ -908,7 +908,6 @@ void PNGAPI png_read_png(png_structrp png_ptr, png_inforp info_ptr, int transfor
 #else
 		png_app_error(png_ptr, "PNG_TRANSFORM_BGR not supported");
 #endif
-
 	/* Swap the RGBA or GA data to ARGB or AG (or BGRA to ABGR) */
 	if((transforms & PNG_TRANSFORM_SWAP_ALPHA) != 0)
 #ifdef PNG_READ_SWAP_ALPHA_SUPPORTED
@@ -916,7 +915,6 @@ void PNGAPI png_read_png(png_structrp png_ptr, png_inforp info_ptr, int transfor
 #else
 		png_app_error(png_ptr, "PNG_TRANSFORM_SWAP_ALPHA not supported");
 #endif
-
 	/* Swap bytes of 16-bit files to least significant byte first */
 	if((transforms & PNG_TRANSFORM_SWAP_ENDIAN) != 0)
 #ifdef PNG_READ_SWAP_SUPPORTED
@@ -924,7 +922,6 @@ void PNGAPI png_read_png(png_structrp png_ptr, png_inforp info_ptr, int transfor
 #else
 		png_app_error(png_ptr, "PNG_TRANSFORM_SWAP_ENDIAN not supported");
 #endif
-
 /* Added at libpng-1.2.41 */
 	/* Invert the alpha channel from opacity to transparency */
 	if((transforms & PNG_TRANSFORM_INVERT_ALPHA) != 0)
@@ -933,7 +930,6 @@ void PNGAPI png_read_png(png_structrp png_ptr, png_inforp info_ptr, int transfor
 #else
 		png_app_error(png_ptr, "PNG_TRANSFORM_INVERT_ALPHA not supported");
 #endif
-
 /* Added at libpng-1.2.41 */
 	/* Expand grayscale image to RGB */
 	if((transforms & PNG_TRANSFORM_GRAY_TO_RGB) != 0)

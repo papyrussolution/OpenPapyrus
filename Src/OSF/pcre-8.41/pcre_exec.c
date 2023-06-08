@@ -178,7 +178,7 @@ static int match_ref(int offset, PCRE_PUCHAR eptr, int length, match_data * md, 
 				ur = GET_UCD(d);
 				if(c != d && c != d + ur->other_case) {
 					const uint32 * pp = PRIV(ucd_caseless_sets) + ur->caseset;
-					for(;; ) {
+					for(;;) {
 						if(c < *pp) return -1;
 						if(c == *pp++) break;
 					}
@@ -665,7 +665,7 @@ TAIL_RECURSE:
 
 /* Now start processing the opcodes. */
 
-	for(;; ) {
+	for(;;) {
 		minimize = possessive = FALSE;
 		op = *ecode;
 		switch(op) {
@@ -880,7 +880,7 @@ TAIL_RECURSE:
 				    md->offset_vector[md->offset_end - number] =
 				    (int)(eptr - md->start_subject);
 
-				    for(;; ) {
+				    for(;;) {
 					    if(op >= OP_SBRA) md->match_function_type = MATCH_CBEGROUP;
 					    RMATCH(eptr, ecode + PRIV(OP_lengths)[*ecode], offset_top, md,
 					    eptrb, RM1);
@@ -959,7 +959,7 @@ TAIL_RECURSE:
 			case OP_SBRA:
 			    DPRINTF(("start non-capturing bracket\n"));
 
-			    for(;; ) {
+			    for(;;) {
 				    if(op >= OP_SBRA || op == OP_ONCE)
 					    md->match_function_type = MATCH_CBEGROUP;
 
@@ -1052,7 +1052,7 @@ POSSESSIVE_CAPTURE:
 			       continue from afterwards. Otherwise it has failed; restore the previous
 			       capture values before returning NOMATCH. */
 
-			    for(;; ) {
+			    for(;;) {
 				    md->offset_vector[md->offset_end - number] =
 				    (int)(eptr - md->start_subject);
 				    if(op >= OP_SBRA) md->match_function_type = MATCH_CBEGROUP;
@@ -1115,7 +1115,7 @@ POSSESSIVE_NON_CAPTURE:
 			    code_offset = (int)(ecode - md->start_code);
 			    save_capture_last = md->capture_last;
 
-			    for(;; ) {
+			    for(;;) {
 				    if(op >= OP_SBRA) md->match_function_type = MATCH_CBEGROUP;
 				    RMATCH(eptr, ecode + PRIV(OP_lengths)[*ecode], offset_top, md,
 				    eptrb, RM48);
@@ -2412,7 +2412,7 @@ VSPACE_CASES:
 
 					    case PT_CLIST:
 						cp = PRIV(ucd_caseless_sets) + ecode[2];
-						for(;; ) {
+						for(;;) {
 							if(c < *cp) {
 								if(op == OP_PROP) {
 									RRETURN(MATCH_NOMATCH);
@@ -2797,7 +2797,7 @@ REF_REPEAT:
 
 						    if(possessive) continue; /* No backtracking */
 
-						    for(;; ) {
+						    for(;;) {
 							    RMATCH(eptr, ecode, offset_top, md, eptrb, RM18);
 							    if(rrc != MATCH_NOMATCH) RRETURN(rrc);
 							    if(eptr-- == pp) break; /* Stop if tried at original pos */
@@ -2938,7 +2938,7 @@ REF_REPEAT:
 
 					    if(possessive) continue; /* No backtracking */
 
-					    for(;; ) {
+					    for(;;) {
 						    RMATCH(eptr, ecode, offset_top, md, eptrb, RM21);
 						    if(rrc != MATCH_NOMATCH) RRETURN(rrc);
 						    if(eptr-- == pp) break; /* Stop if tried at original pos */
@@ -3194,7 +3194,7 @@ REPEATCHAR:
 						    }
 
 						    if(possessive) continue; /* No backtracking */
-						    for(;; ) {
+						    for(;;) {
 							    if(eptr <= pp) goto TAIL_RECURSE;
 							    RMATCH(eptr, ecode, offset_top, md, eptrb, RM23);
 							    if(rrc != MATCH_NOMATCH) RRETURN(rrc);
@@ -3288,7 +3288,7 @@ REPEATCHAR:
 						    eptr++;
 					    }
 					    if(possessive) continue; /* No backtracking */
-					    for(;; ) {
+					    for(;;) {
 						    if(eptr == pp) goto TAIL_RECURSE;
 						    RMATCH(eptr, ecode, offset_top, md, eptrb, RM25);
 						    eptr--;
@@ -3335,7 +3335,7 @@ REPEATCHAR:
 						    eptr++;
 					    }
 					    if(possessive) continue; /* No backtracking */
-					    for(;; ) {
+					    for(;;) {
 						    if(eptr == pp) goto TAIL_RECURSE;
 						    RMATCH(eptr, ecode, offset_top, md, eptrb, RM27);
 						    eptr--;
@@ -3572,7 +3572,7 @@ REPEATNOTCHAR:
 							    eptr += len;
 						    }
 						    if(possessive) continue; /* No backtracking */
-						    for(;; ) {
+						    for(;;) {
 							    if(eptr <= pp) goto TAIL_RECURSE;
 							    RMATCH(eptr, ecode, offset_top, md, eptrb, RM30);
 							    if(rrc != MATCH_NOMATCH) RRETURN(rrc);
@@ -3593,7 +3593,7 @@ REPEATNOTCHAR:
 							    eptr++;
 						    }
 						    if(possessive) continue; /* No backtracking */
-						    for(;; ) {
+						    for(;;) {
 							    if(eptr == pp) goto TAIL_RECURSE;
 							    RMATCH(eptr, ecode, offset_top, md, eptrb, RM31);
 							    if(rrc != MATCH_NOMATCH) RRETURN(rrc);
@@ -3687,7 +3687,7 @@ REPEATNOTCHAR:
 							    eptr += len;
 						    }
 						    if(possessive) continue; /* No backtracking */
-						    for(;; ) {
+						    for(;;) {
 							    if(eptr <= pp) goto TAIL_RECURSE;
 							    RMATCH(eptr, ecode, offset_top, md, eptrb, RM34);
 							    if(rrc != MATCH_NOMATCH) RRETURN(rrc);
@@ -3708,7 +3708,7 @@ REPEATNOTCHAR:
 							    eptr++;
 						    }
 						    if(possessive) continue; /* No backtracking */
-						    for(;; ) {
+						    for(;;) {
 							    if(eptr == pp) goto TAIL_RECURSE;
 							    RMATCH(eptr, ecode, offset_top, md, eptrb, RM35);
 							    if(rrc != MATCH_NOMATCH) RRETURN(rrc);
@@ -3931,7 +3931,7 @@ VSPACE_CASES:
 								}
 								GETCHARINCTEST(c, eptr);
 								cp = PRIV(ucd_caseless_sets) + prop_value;
-								for(;; ) {
+								for(;;) {
 									if(c < *cp) {
 										if(prop_fail_result) break; else            {RRETURN(
 										    MATCH_NOMATCH); }
@@ -4595,7 +4595,7 @@ VSPACE_CASES:
 								}
 								GETCHARINCTEST(c, eptr);
 								cp = PRIV(ucd_caseless_sets) + prop_value;
-								for(;; ) {
+								for(;;) {
 									if(c < *cp) {
 										if(prop_fail_result) break; else            {RRETURN(
 										    MATCH_NOMATCH); }
@@ -5059,7 +5059,7 @@ ENDLOOP99:
 								}
 								GETCHARLENTEST(c, eptr, len);
 								cp = PRIV(ucd_caseless_sets) + prop_value;
-								for(;; ) {
+								for(;;) {
 									if(c < *cp) {
 										if(prop_fail_result) break; else goto GOT_MAX;
 									}
@@ -5093,7 +5093,7 @@ GOT_MAX:
 			                    /* eptr is now past the end of the maximum run */
 
 					    if(possessive) continue; /* No backtracking */
-					    for(;; ) {
+					    for(;;) {
 						    if(eptr <= pp) goto TAIL_RECURSE;
 						    RMATCH(eptr, ecode, offset_top, md, eptrb, RM44);
 						    if(rrc != MATCH_NOMATCH) RRETURN(rrc);
@@ -5133,7 +5133,7 @@ GOT_MAX:
 			                backtracking because the use of \C in UTF mode can cause BACKCHAR to
 			                move back past pp. This is just palliative; the use of \C in UTF mode
 			                is fraught with danger. */
-					    for(;; ) {
+					    for(;;) {
 						    int lgb, rgb;
 						    PCRE_PUCHAR fptr;
 						    if(eptr <= pp) 
@@ -5151,7 +5151,7 @@ GOT_MAX:
 							    GETCHAR(c, eptr);
 						    }
 						    rgb = UCD_GRAPHBREAK(c);
-						    for(;; ) {
+						    for(;;) {
 							    if(eptr <= pp) 
 									goto TAIL_RECURSE; // At start of char run 
 							    fptr = eptr - 1;
@@ -5366,7 +5366,7 @@ VSPACE_CASES: gotspace = TRUE; break;
 					    }
 
 					    if(possessive) continue; /* No backtracking */
-					    for(;; ) {
+					    for(;;) {
 						    if(eptr <= pp) goto TAIL_RECURSE;
 						    RMATCH(eptr, ecode, offset_top, md, eptrb, RM46);
 						    if(rrc != MATCH_NOMATCH) RRETURN(rrc);
@@ -5576,7 +5576,7 @@ ENDLOOP03:
 					    }
 
 					    if(possessive) continue; /* No backtracking */
-					    for(;; ) {
+					    for(;;) {
 						    if(eptr == pp) goto TAIL_RECURSE;
 						    RMATCH(eptr, ecode, offset_top, md, eptrb, RM47);
 						    if(rrc != MATCH_NOMATCH) RRETURN(rrc);
@@ -6055,7 +6055,7 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_exec(const pcre32 * argument_re, c
 /* Loop for handling unanchored repeated matching attempts; for anchored regexs
    the loop runs just once. */
 
-	for(;; ) {
+	for(;;) {
 		PCRE_PUCHAR save_end_subject = end_subject;
 		PCRE_PUCHAR new_start_match;
 

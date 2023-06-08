@@ -348,29 +348,28 @@ static FORCEINLINE float blend_screen(float sa, float s, float da, float d)
 {
 	return d * sa + s * da - s * d;
 }
-
-/*
- * Overlay
- *
- * ad * as * B(d/ad, s/as)
- * = ad * as * Hardlight (s, d)
- * = if(d / ad < 0.5)
- * as * ad * Multiply (s/as, 2 * d/ad)
- * else
- * as * ad * Screen (s/as, 2 * d / ad - 1)
- * = if(d < 0.5 * ad)
- * as * ad * s/as * 2 * d /ad
- * else
- * as * ad * (s/as + 2 * d / ad - 1 - s / as * (2 * d / ad - 1))
- * = if(2 * d < ad)
- * 2 * s * d
- * else
- * ad * s + 2 * as * d - as * ad - ad * s * (2 * d / ad - 1)
- * = if(2 * d < ad)
- * 2 * s * d
- * else
- * as * ad - 2 * (ad - d) * (as - s)
- */
+// 
+// Overlay
+// 
+// ad * as * B(d/ad, s/as)
+// = ad * as * Hardlight (s, d)
+// = if(d / ad < 0.5)
+// as * ad * Multiply (s/as, 2 * d/ad)
+// else
+// as * ad * Screen (s/as, 2 * d / ad - 1)
+// = if(d < 0.5 * ad)
+// as * ad * s/as * 2 * d /ad
+// else
+// as * ad * (s/as + 2 * d / ad - 1 - s / as * (2 * d / ad - 1))
+// = if(2 * d < ad)
+// 2 * s * d
+// else
+// ad * s + 2 * as * d - as * ad - ad * s * (2 * d / ad - 1)
+// = if(2 * d < ad)
+// 2 * s * d
+// else
+// as * ad - 2 * (ad - d) * (as - s)
+// 
 static FORCEINLINE float blend_overlay(float sa, float s, float da, float d)
 {
 	if(2 * d < da)
@@ -378,7 +377,6 @@ static FORCEINLINE float blend_overlay(float sa, float s, float da, float d)
 	else
 		return sa * da - 2 * (da - d) * (sa - s);
 }
-
 /*
  * Darken
  *

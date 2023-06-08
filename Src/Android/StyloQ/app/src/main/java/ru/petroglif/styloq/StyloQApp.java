@@ -94,6 +94,9 @@ public class StyloQApp extends SLib.App {
 						if(cur_ver <= 2) {
 							Db.CreateTableInDb(null, StyloQDatabase.SysJournalTable.TBL_NAME, false);
 						}
+						else if(cur_ver <= 90) {
+							Db.CreateTableInDb(null, StyloQDatabase.NotificationTable.TBL_NAME, false);
+						}
 						StyloQDatabase.SysJournalTable.Rec sjrec = Db.GetLastEvent(SLib.PPACN_RECENTVERSIONLAUNCHED, 0);
 						if(sjrec != null)
 							prev_ver = (int) sjrec.Extra;
@@ -1220,7 +1223,8 @@ public class StyloQApp extends SLib.App {
 						NotificationManager notify_mgr = (NotificationManager)getSystemService(android.content.Context.NOTIFICATION_SERVICE); // @v11.6.1
 						Database.Transaction tra = new Database.Transaction(db, true);
 						for(Long id : SeenNotificationList) {
-							if(db.RegisterNotificationAsSeen(id, false)) {
+							//if(db.RegisterNotificationAsSeen_beforev90v(id, false)) {
+							if(db.RegisterNotificationAsSeen_new(id, false)) {
 								// @v11.6.1 {
 								if(notify_mgr != null)
 									notify_mgr.cancel(id.intValue());
@@ -1245,6 +1249,83 @@ public class StyloQApp extends SLib.App {
 			window_mgr.getDefaultDisplay().getMetrics(display_metrics);
 			int height = display_metrics.heightPixels;
 			int width = display_metrics.widthPixels;
+		}
+	}
+	//
+	//
+	//
+	public static class NotificationListStatus {
+		NotificationListStatus()
+		{
+			IsThereAnyNotifications = false;
+			IsThereUnprocessedNotifications = false;
+			UnprocessedNotificationCount = -1;
+		}
+		boolean IsThereAnyNotifications;
+		boolean IsThereUnprocessedNotifications;
+		int   UnprocessedNotificationCount; // @reserve(-1)
+	}
+	public void QueryNotificationListStatus(int svcId, SLib.EventHandler handler)
+	{
+		Thread thr = new Thread(new ThreadEngine_QueryNotificationListStatus(this, svcId, handler));
+		thr.start();
+	}
+	private static class ThreadEngine_QueryNotificationListStatus implements Runnable { // @v11.7.5
+		private StyloQApp AppCtx;
+		private long SvcId;
+		private SLib.EventHandler Handler;
+		ThreadEngine_QueryNotificationListStatus(StyloQApp appCtx, long svcId, SLib.EventHandler handler)
+		{
+			AppCtx = appCtx;
+			SvcId = svcId;
+			Handler = handler;
+		}
+		@Override public void run()
+		{
+			if(Handler != null && Handler instanceof SLib.SlActivity) {
+				try {
+					StyloQCommand.Item cmd_item = null;
+					StyloQDatabase db = AppCtx.GetDB();
+					if(db != null) {
+						int notification_actual_days = 0;
+						SLib.LDATETIME since = null;
+						{
+							StyloQConfig cfg_data = new StyloQConfig();
+							StyloQDatabase.SecStoragePacket pack = db.GetOwnPeerEntry();
+							if(pack != null) {
+								byte[] cfg_bytes = pack.Pool.Get(SecretTagPool.tagPrivateConfig);
+								if(SLib.GetLen(cfg_bytes) > 0) {
+									String cfg_json = new String(cfg_bytes);
+									cfg_data.FromJson(cfg_json);
+									String nad_text = cfg_data.Get(StyloQConfig.tagNotificationActualDays);
+									notification_actual_days = SLib.satoi(nad_text);
+								}
+							}
+						}
+						if(notification_actual_days > 0) {
+							SLib.LDATE now_date = SLib.GetCurDate();
+							SLib.LDATE since_date = SLib.LDATE.Plus(now_date, -notification_actual_days);
+							since = new SLib.LDATETIME(since_date, new SLib.LTIME());
+						}
+						NotificationListStatus ns = new NotificationListStatus();
+						if(db.IsThereUnprocessedNotifications(0, since)) {
+							ns.IsThereUnprocessedNotifications = true;
+							ns.IsThereAnyNotifications = true;
+						}
+						else if(db.IsThereAnyNotifications(0, null))
+							ns.IsThereAnyNotifications = true;
+
+						((SLib.SlActivity)Handler).runOnUiThread(new Runnable() {
+							@Override public void run()
+							{
+								Handler.HandleEvent(SLib.EV_ASYNCREPLY, "QueryNotificationListStatus", ns);
+							}
+						});
+					}
+				} catch(StyloQException exn) {
+					;
+				}
+			}
 		}
 	}
 }

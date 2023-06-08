@@ -704,7 +704,7 @@ int zbar_scan_image(zbar_image_scanner_t * iscn, zbar_image_t * img)
 	int nean = 0, naddon = 0;
 	if(syms->nsyms) {
 		zbar_symbol_t ** symp;
-		for(symp = &syms->head; *symp; ) {
+		for(symp = &syms->head; *symp;) {
 			zbar_symbol_t * sym = *symp;
 			if(sym->cache_count <= 0 &&
 			    ((sym->type < ZBAR_COMPOSITE && sym->type > ZBAR_PARTIAL) || oneof3(sym->type, ZBAR_DATABAR, ZBAR_DATABAR_EXP, ZBAR_CODABAR))) {
@@ -736,7 +736,7 @@ int zbar_scan_image(zbar_image_scanner_t * iscn, zbar_image_t * img)
 		if(nean == 1 && naddon == 1 && iscn->ean_config) {
 			/* create container symbol for composite result */
 			zbar_symbol_t * ean = NULL, * addon = NULL;
-			for(symp = &syms->head; *symp; ) {
+			for(symp = &syms->head; *symp;) {
 				zbar_symbol_t * sym = *symp;
 				if(sym->type < ZBAR_COMPOSITE && sym->type > ZBAR_PARTIAL) {
 					/* move to composite */

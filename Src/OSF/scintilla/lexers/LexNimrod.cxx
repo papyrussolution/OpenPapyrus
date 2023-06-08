@@ -24,7 +24,7 @@ static bool FASTCALL IsAWordChar(int ch)
 static Sci_Position tillEndOfTripleQuote(Accessor & styler, Sci_Position pos, Sci_Position max)
 {
 	/* search for """ */
-	for(;; ) {
+	for(;;) {
 		if(styler.SafeGetCharAt(pos, '\0') == '\0') return pos;
 		if(pos >= max) return pos;
 		if(styler.Match(pos, "\"\"\"")) {
@@ -44,7 +44,7 @@ static bool inline isNewLine(int ch)
 
 static Sci_Position scanString(Accessor & styler, Sci_Position pos, Sci_Position max, bool rawMode)
 {
-	for(;; ) {
+	for(;;) {
 		if(pos >= max) return pos;
 		char ch = styler.SafeGetCharAt(pos, '\0');
 		if(ch == CR || ch == LF || ch == '\0') return pos;
@@ -60,7 +60,7 @@ static Sci_Position scanString(Accessor & styler, Sci_Position pos, Sci_Position
 
 static Sci_Position scanChar(Accessor & styler, Sci_Position pos, Sci_Position max)
 {
-	for(;; ) {
+	for(;;) {
 		if(pos >= max) return pos;
 		char ch = styler.SafeGetCharAt(pos, '\0');
 		if(ch == CR || ch == LF || ch == '\0') return pos;
@@ -79,7 +79,7 @@ static Sci_Position scanIdent(Accessor & styler, Sci_Position pos, const WordLis
 {
 	char buf[100]; /* copy to lowercase and ignore underscores */
 	Sci_Position i = 0;
-	for(;; ) {
+	for(;;) {
 		char ch = styler.SafeGetCharAt(pos, '\0');
 		if(!IsAWordChar(ch)) break;
 		if(ch != '_' && i < ((int)sizeof(buf))-1) {
@@ -106,7 +106,7 @@ static Sci_Position scanNumber(Accessor & styler, Sci_Position pos)
 	if(ch == '0' && (ch2 == 'b' || ch2 == 'B')) {
 		/* binary number: */
 		pos += 2;
-		for(;; ) {
+		for(;;) {
 			ch = styler.SafeGetCharAt(pos, '\0');
 			if(ch == '_' || (ch >= '0' && ch <= '1')) 
 				++pos;
@@ -117,7 +117,7 @@ static Sci_Position scanNumber(Accessor & styler, Sci_Position pos)
 	else if(ch == '0' && (ch2 == 'o' || ch2 == 'O' || ch2 == 'c' || ch2 == 'C')) {
 		/* octal number: */
 		pos += 2;
-		for(;; ) {
+		for(;;) {
 			ch = styler.SafeGetCharAt(pos, '\0');
 			if(ch == '_' || (ch >= '0' && ch <= '7')) 
 				++pos;
@@ -128,7 +128,7 @@ static Sci_Position scanNumber(Accessor & styler, Sci_Position pos)
 	else if(ch == '0' && (ch2 == 'x' || ch2 == 'X')) {
 		/* hexadecimal number: */
 		pos += 2;
-		for(;; ) {
+		for(;;) {
 			ch = styler.SafeGetCharAt(pos, '\0');
 			if(ch == '_' || (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F')) 
 				++pos;
@@ -138,7 +138,7 @@ static Sci_Position scanNumber(Accessor & styler, Sci_Position pos)
 	}
 	else {
 		// skip decimal part:
-		for(;; ) {
+		for(;;) {
 			ch = styler.SafeGetCharAt(pos, '\0');
 			if(ch == '_' || (ch >= '0' && ch <= '9')) ++pos;
 			else break;
@@ -146,7 +146,7 @@ static Sci_Position scanNumber(Accessor & styler, Sci_Position pos)
 		ch2 = styler.SafeGetCharAt(pos+1, '\0');
 		if(ch == '.' && ch2 >= '0' && ch2 <= '9') {
 			++pos; // skip '.'
-			for(;; ) {
+			for(;;) {
 				ch = styler.SafeGetCharAt(pos, '\0');
 				if(ch == '_' || (ch >= '0' && ch <= '9')) ++pos;
 				else break;
@@ -156,7 +156,7 @@ static Sci_Position scanNumber(Accessor & styler, Sci_Position pos)
 			++pos;
 			ch = styler.SafeGetCharAt(pos, '\0');
 			if(ch == '-' || ch == '+') ++pos;
-			for(;; ) {
+			for(;;) {
 				ch = styler.SafeGetCharAt(pos, '\0');
 				if(ch == '_' || (ch >= '0' && ch <= '9')) 
 					++pos;
@@ -168,7 +168,7 @@ static Sci_Position scanNumber(Accessor & styler, Sci_Position pos)
 	if(ch == '\'') {
 		/* a type suffix: */
 		pos++;
-		for(;; ) {
+		for(;;) {
 			ch = styler.SafeGetCharAt(pos);
 			if((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || ch == '_') 
 				++pos;

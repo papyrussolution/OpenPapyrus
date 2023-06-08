@@ -46,7 +46,7 @@ int __bam_stat(DBC * dbc, void * spp, uint32 flags)
 	if(flags == DB_FAST_STAT)
 		goto meta_only;
 	/* Walk the metadata free list, counting pages. */
-	for(sp->bt_free = 0, pgno = meta->dbmeta.free; pgno != PGNO_INVALID; ) {
+	for(sp->bt_free = 0, pgno = meta->dbmeta.free; pgno != PGNO_INVALID;) {
 		++sp->bt_free;
 		if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, 0, &h)) != 0)
 			goto err;

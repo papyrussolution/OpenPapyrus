@@ -70,7 +70,7 @@ namespace NCompress {
 			_suffixes[256] = 0;
 			HRESULT res = S_OK;
 
-			for(;; ) {
+			for(;;) {
 				if(numBufBits == bitPos) {
 					numBufBits = (uint)inBuffer.ReadBytes(buf, numBits) * 8;
 					bitPos = 0;
@@ -163,7 +163,7 @@ namespace NCompress {
 			data += 3;
 			size -= 3;
 			// printf("\n\n");
-			for(;; ) {
+			for(;;) {
 				if(numBufBits == bitPos) {
 					uint   num = (numBits < size) ? numBits : (uint)size;
 					memcpy(buf, data, num);

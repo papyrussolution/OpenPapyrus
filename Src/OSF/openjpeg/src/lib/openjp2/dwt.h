@@ -74,7 +74,7 @@ boolint opj_dwt_encode_real(opj_tcd_t * p_tcd,
    @param tilec Tile component information (current tile)
    @param numres Number of resolution levels to decode
  */
-boolint opj_dwt_decode_real(opj_tcd_t * p_tcd, opj_tcd_tilecomp_t* OPJ_RESTRICT tilec, uint32_t numres);
+boolint opj_dwt_decode_real(opj_tcd_t * p_tcd, opj_tcd_tilecomp_t* _RESTRICT tilec, uint32_t numres);
 /**
    Get the norm of a wavelet function of a subband at a specified level for the irreversible 9-7 DWT
    @param level Level of the wavelet function

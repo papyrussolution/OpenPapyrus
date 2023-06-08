@@ -66,11 +66,9 @@ public:
 
 	/// associate reader with an existing platform window.
 	/// see zbar_window_attach()
-	void attach(void * x11_display_w32_hwnd,
-	    ulong x11_drawable = 0)
+	void attach(void * x11_display_w32_hwnd, ulong x11_drawable = 0)
 	{
-		if(zbar_window_attach(_window,
-		    x11_display_w32_hwnd, x11_drawable) < 0)
+		if(zbar_window_attach(_window, x11_display_w32_hwnd, x11_drawable) < 0)
 			throw_exception(_window);
 	}
 

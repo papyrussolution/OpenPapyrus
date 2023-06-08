@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\OSF\DirectXTex\SRC\BC.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\BC4BC5.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\BC6HBC7.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\BCDirectCompute.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DirectXTexCompress.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DirectXTexCompressGPU.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DirectXTexConvert.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DirectXTexD3D11.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DirectXTexD3D12.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DirectXTexDDS.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DirectXTexFlipRotate.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DirectXTexHDR.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DirectXTexImage.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DirectXTexMipMaps.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DirectXTexMisc.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DirectXTexNormalMaps.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DirectXTexPMAlpha.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DirectXTexResize.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DirectXTexTGA.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DirectXTexUtil.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DirectXTexWIC.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\DirectXTex\SRC\BC.h" />
+    <ClInclude Include="..\OSF\DirectXTex\SRC\BCDirectCompute.h" />
+    <ClInclude Include="..\OSF\DirectXTex\SRC\d3dx12.h" />
+    <ClInclude Include="..\OSF\DirectXTex\SRC\DDS.h" />
+    <ClInclude Include="..\OSF\DirectXTex\SRC\filters.h" />
+    <ClInclude Include="..\OSF\DirectXTex\SRC\scoped.h" />
+    <ClInclude Include="..\OSF\DirectXTex\SRC\DirectXTex.h" />
+    <ClInclude Include="..\OSF\DirectXTex\SRC\DirectXTexP.h" />
+    <ClInclude Include="..\OSF\DirectXTex\SRC\DirectXTex.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\OSF\DirectXTex\SRC\Shaders\BC6HEncode.hlsl" />
+    <None Include="..\OSF\DirectXTex\SRC\Shaders\BC7Encode.hlsl" />
+    <None Include="..\OSF\DirectXTex\SRC\Shaders\CompileShaders.cmd" />
+  </ItemGroup>
+</Project>

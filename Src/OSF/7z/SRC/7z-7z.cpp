@@ -159,7 +159,7 @@ namespace NArchive {
 			// _DestIn_to_SrcOut.ClearAndSetSize(numOut);
 			uint32 destIn = 0;
 			uint32 destOut = 0;
-			for(uint i = _bindInfo.Coders.Size(); i != 0; ) {
+			for(uint i = _bindInfo.Coders.Size(); i != 0;) {
 				i--;
 				const NCoderMixer2::CCoderStreamsInfo &coder = _bindInfo.Coders[i];
 				numIn--;
@@ -551,7 +551,7 @@ namespace NArchive {
 					   It allows to use more optimal memory usage for temp buffers,
 					   if main_PackStream is largest stream. */
 					uint32 ci = _bindInfo.UnpackCoder;
-					for(;; ) {
+					for(;;) {
 						if(_bindInfo.Coders[ci].NumStreams == 0)
 							break;
 						uint32 outIndex = _bindInfo.Coder_to_Stream[ci];
@@ -1690,7 +1690,7 @@ namespace NArchive {
 			memcpy(buf, _header, kHeaderSize);
 			uint64 offset = 0;
 
-			for(;; ) {
+			for(;;) {
 				uint32 readSize = kBufSize - kHeaderSize;
 				if(searchHeaderSizeLimit) {
 					uint64 rem = *searchHeaderSizeLimit - offset;
@@ -1705,7 +1705,7 @@ namespace NArchive {
 				if(processed == 0)
 					return S_FALSE;
 
-				for(uint32 pos = 0;; ) {
+				for(uint32 pos = 0;;) {
 					const Byte * p = buf + pos + 1;
 					const Byte * lim = buf + processed;
 					for(; p <= lim; p += 4) {
@@ -1758,7 +1758,7 @@ namespace NArchive {
 
 		void CInArchive::ReadArchiveProperties(CInArchiveInfo & /* archiveInfo */)
 		{
-			for(;; ) {
+			for(;;) {
 				if(ReadID() == NID::kEnd)
 					break;
 				SkipData();
@@ -2012,7 +2012,7 @@ namespace NArchive {
 
 		void CInArchive::WaitId(uint64 id)
 		{
-			for(;; ) {
+			for(;;) {
 				uint64 type = ReadID();
 				if(type == id)
 					return;
@@ -2063,7 +2063,7 @@ namespace NArchive {
 			f.PackPositions[numPackStreams] = sum;
 
 			uint64 type;
-			for(;; ) {
+			for(;;) {
 				type = ReadID();
 				if(type == NID::kEnd)
 					return;
@@ -2219,7 +2219,7 @@ namespace NArchive {
 			for(CNum i = 0; i < numCodersOutStreams; i++)
 				folders.CoderUnpackSizes[i] = ReadNumber();
 
-			for(;; ) {
+			for(;;) {
 				uint64 type = ReadID();
 				if(type == NID::kEnd)
 					return;
@@ -2242,7 +2242,7 @@ namespace NArchive {
 
 			uint64 type;
 
-			for(;; ) {
+			for(;;) {
 				type = ReadID();
 				if(type == NID::kNumUnpackStream) {
 					for(i = 0; i < folders.NumFolders; i++)
@@ -2295,7 +2295,7 @@ namespace NArchive {
 					numDigests += numSubstreams;
 			}
 
-			for(;; ) {
+			for(;;) {
 				if(type == NID::kEnd)
 					break;
 				if(type == NID::kCRC) {
@@ -2570,7 +2570,7 @@ namespace NArchive {
 				CBoolVector antiFileVector;
 				CNum numEmptyStreams = 0;
 
-				for(;; ) {
+				for(;;) {
 					const uint64 type2 = ReadID();
 					if(type2 == NID::kEnd)
 						break;
@@ -2836,7 +2836,7 @@ namespace NArchive {
 					}
 					// v3.13 incorrectly worked with empty folders
 					// v4.07: we skip empty folders
-					for(;; ) {
+					for(;;) {
 						if(folderIndex >= NumFolders)
 							ThrowIncorrect();
 						FolderStartFileIndex[folderIndex] = i;
@@ -2859,7 +2859,7 @@ namespace NArchive {
 			   if(indexInFolder != 0)
 			   ThrowIncorrect();
 			 */
-			for(;; ) {
+			for(;;) {
 				if(folderIndex >= NumFolders)
 					return;
 				FolderStartFileIndex[folderIndex] = i;
@@ -4519,14 +4519,14 @@ namespace NArchive {
 		{
 			unsigned extIndex = 1;
 			const char * p = g_Exts;
-			for(;; ) {
+			for(;;) {
 				char c = *p++;
 				if(c == 0)
 					return extIndex;
 				if(c == ' ')
 					continue;
 				unsigned pos = 0;
-				for(;; ) {
+				for(;;) {
 					char c2 = ext[pos++];
 					if(c2 == 0 && (c == 0 || c == ' '))
 						return extIndex;
@@ -4535,7 +4535,7 @@ namespace NArchive {
 					c = *p++;
 				}
 				extIndex++;
-				for(;; ) {
+				for(;;) {
 					if(c == 0)
 						return extIndex;
 					if(c == ' ')
@@ -5903,7 +5903,7 @@ namespace NArchive {
 					 */
 				}
 
-				for(i = 0; i < numFiles; ) {
+				for(i = 0; i < numFiles;) {
 					uint64 totalSize = 0;
 					unsigned numSubFiles;
 
@@ -7338,7 +7338,7 @@ namespace NArchive {
 		{
 			UString s2 = s;
 			s2.MakeLower_Ascii();
-			for(uint i = 0; i < s2.Len(); ) {
+			for(uint i = 0; i < s2.Len();) {
 				const wchar_t * start = ((const wchar_t *)s2) + i;
 				const wchar_t * end;
 				uint64 v = ConvertStringToUInt64(start, &end);

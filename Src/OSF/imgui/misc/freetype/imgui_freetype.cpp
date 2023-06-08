@@ -421,12 +421,11 @@ bool ImFontAtlasBuildWithFreeTypeEx(FT_Library ft_library, ImFontAtlas* atlas, u
 			// Check for valid range. This may also help detect *some* dangling pointers, because a common
 			// user error is to setup ImFontConfig::GlyphRanges with a pointer to data that isn't persistent.
 			assert(src_range[0] <= src_range[1]);
-			src_tmp.GlyphsHighest = ImMax(src_tmp.GlyphsHighest, (int)src_range[1]);
+			src_tmp.GlyphsHighest = smax(src_tmp.GlyphsHighest, (int)src_range[1]);
 		}
 		dst_tmp.SrcCount++;
-		dst_tmp.GlyphsHighest = ImMax(dst_tmp.GlyphsHighest, src_tmp.GlyphsHighest);
+		dst_tmp.GlyphsHighest = smax(dst_tmp.GlyphsHighest, src_tmp.GlyphsHighest);
 	}
-
 	// 2. For every requested codepoint, check for their presence in the font data, and handle redundancy or overlaps between source fonts to avoid unused glyphs.
 	int total_glyphs_count = 0;
 	for(int src_i = 0; src_i < src_tmp_array.Size; src_i++) {
@@ -562,22 +561,18 @@ bool ImFontAtlasBuildWithFreeTypeEx(FT_Library ft_library, ImFontAtlas* atlas, u
 	stbrp_context pack_context;
 	stbrp_init_target(&pack_context, atlas->TexWidth - atlas->TexGlyphPadding, TEX_HEIGHT_MAX - atlas->TexGlyphPadding, pack_nodes.Data, pack_nodes.Size);
 	ImFontAtlasBuildPackCustomRects(atlas, &pack_context);
-
 	// 6. Pack each source font. No rendering yet, we are working with rectangles in an infinitely tall texture at this point.
 	for(int src_i = 0; src_i < src_tmp_array.Size; src_i++) {
 		ImFontBuildSrcDataFT& src_tmp = src_tmp_array[src_i];
 		if(src_tmp.GlyphsCount == 0)
 			continue;
-
 		stbrp_pack_rects(&pack_context, src_tmp.Rects, src_tmp.GlyphsCount);
-
 		// Extend texture height and mark missing glyphs as non-packed so we won't render them.
 		// FIXME: We are not handling packing failure here (would happen if we got off TEX_HEIGHT_MAX or if a single if larger than TexWidth?)
 		for(int glyph_i = 0; glyph_i < src_tmp.GlyphsCount; glyph_i++)
 			if(src_tmp.Rects[glyph_i].was_packed)
-				atlas->TexHeight = ImMax(atlas->TexHeight, src_tmp.Rects[glyph_i].y + src_tmp.Rects[glyph_i].h);
+				atlas->TexHeight = smax(atlas->TexHeight, src_tmp.Rects[glyph_i].y + src_tmp.Rects[glyph_i].h);
 	}
-
 	// 7. Allocate texture
 	atlas->TexHeight = (atlas->Flags & ImFontAtlasFlags_NoPowerOfTwoHeight) ? (atlas->TexHeight + 1) : ImUpperPowerOfTwo(atlas->TexHeight);
 	atlas->TexUvScale = ImVec2(1.0f / atlas->TexWidth, 1.0f / atlas->TexHeight);

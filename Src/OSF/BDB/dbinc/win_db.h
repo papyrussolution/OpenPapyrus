@@ -1,14 +1,11 @@
-/*-
- * Copyright (c) 2010, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
- * The following provides the information necessary to build Berkeley
- * DB on native Windows, and other Windows environments such as MinGW.
- */
-
-/*
- * Berkeley DB requires at least Windows 2000, tell Visual Studio of the
- * requirement.
- */
+// 
+// Copyright (c) 2010, 2011 Oracle and/or its affiliates.  All rights reserved.
+// 
+// The following provides the information necessary to build Berkeley
+// DB on native Windows, and other Windows environments such as MinGW.
+// 
+// Berkeley DB requires at least Windows 2000, tell Visual Studio of the requirement.
+//
 #ifndef _WIN32_WINNT
 	#define	_WIN32_WINNT 0x0600 // @sobolev 0x0500-->0x0600
 #endif
@@ -82,9 +79,8 @@ extern int getopt(int, char * const *, const char *);
  * starts enforcing strict ANSI compliance from this point on.
  */
 #ifndef __STDC__
-#define	__STDC__ 1
+	#define	__STDC__ 1
 #endif
-
 #ifdef _UNICODE
 #define	TO_TSTRING(dbenv, s, ts, ret) do {				\
 		int __len = sstrleni(s) + 1;				\

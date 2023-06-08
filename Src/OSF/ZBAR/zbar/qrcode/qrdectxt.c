@@ -228,7 +228,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 						    inleft = entry->payload.data.len;
 						    // FNC1 uses '%' as an escape character
 							if(fnc1) {
-								for(;; ) {
+								for(;;) {
 								    size_t plen;
 								    char c;
 								    p = memchr(in, '%', inleft*sizeof(*in));

@@ -1053,7 +1053,7 @@ static int __ram_sread(DBC * dbc, db_recno_t top)
 				((uint8 *)data.data)[data.size++] = ch;
 			}
 		else
-			for(;; ) {
+			for(;;) {
 				if((ch = fgetc(t->re_fp)) == EOF) {
 					if(data.size == 0)
 						goto eof;

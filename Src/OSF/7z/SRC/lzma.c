@@ -605,7 +605,7 @@ static uint32 LitEnc_GetPriceMatched(const CLzmaProb * probs, uint32 symbol, uin
 static void FASTCALL RcTree_Encode(CRangeEnc * rc, CLzmaProb * probs, int numBitLevels, uint32 symbol)
 {
 	uint32 m = 1;
-	for(int i = numBitLevels; i != 0; ) {
+	for(int i = numBitLevels; i != 0;) {
 		uint32 bit;
 		i--;
 		bit = (symbol >> i) & 1;
@@ -987,7 +987,7 @@ static uint32 GetOptimum(CLzmaEnc * p, uint32 position, uint32 * backRes)
 		}
     #endif
 	}
-	for(;; ) {
+	for(;;) {
 		uint32 numAvail;
 		uint32 numAvailFull, newLen, numPairs, posPrev, state, posState, startLen;
 		uint32 curPrice, curAnd1Price, matchPrice, repMatchPrice;
@@ -1526,7 +1526,7 @@ static SRes LzmaEnc_CodeOneBlock(CLzmaEnc * p, Bool useLimits, uint32 maxPackSiz
 		nowPos32++;
 	}
 	if(p->matchFinder.GetNumAvailableBytes(p->matchFinderObj) != 0)
-		for(;; ) {
+		for(;;) {
 			uint32 pos, len, posState;
 			len = p->fastMode ? GetOptimumFast(p, &pos) : GetOptimum(p, nowPos32, &pos);
     #ifdef SHOW_STAT2
@@ -1854,7 +1854,7 @@ static SRes LzmaEnc_Encode2(CLzmaEnc * p, ICompressProgress * progress)
 	allocaDummy[0] = 0;
 	allocaDummy[1] = allocaDummy[0];
   #endif
-	for(;; ) {
+	for(;;) {
 		res = LzmaEnc_CodeOneBlock(p, False, 0, 0);
 		if(res != SZ_OK || p->finished)
 			break;
@@ -2720,7 +2720,7 @@ SRes LzmaDec_DecodeToBuf(CLzmaDec * p, Byte * dest, SizeT * destLen, const Byte 
 	SizeT outSize = *destLen;
 	SizeT inSize = *srcLen;
 	*srcLen = *destLen = 0;
-	for(;; ) {
+	for(;;) {
 		SizeT inSizeCur = inSize, outSizeCur, dicPos;
 		ELzmaFinishMode curFinishMode;
 		SRes res;
@@ -3098,7 +3098,7 @@ static SRes Lzma2Enc_EncodeMt1(CLzma2EncInt * p, CLzma2Enc * mainEncoder, ISeqOu
 	}
 	RINOK(Lzma2EncInt_Init(p, &mainEncoder->props));
 	RINOK(LzmaEnc_PrepareForLzma2(p->enc, inStream, LZMA2_KEEP_WINDOW_SIZE, mainEncoder->alloc, mainEncoder->allocBig));
-	for(;; ) {
+	for(;;) {
 		size_t packSize = LZMA2_CHUNK_SIZE_COMPRESSED_MAX;
 		res = Lzma2EncInt_EncodeSubblock(p, mainEncoder->outBuf, &packSize, outStream);
 		if(res != SZ_OK)
@@ -3530,7 +3530,7 @@ SRes Lzma2Dec_DecodeToBuf(CLzma2Dec * p, Byte * dest, SizeT * destLen, const Byt
 {
 	SizeT outSize = *destLen, inSize = *srcLen;
 	*srcLen = *destLen = 0;
-	for(;; ) {
+	for(;;) {
 		SizeT inCur = inSize;
 		SizeT outCur;
 		SizeT dicPos;

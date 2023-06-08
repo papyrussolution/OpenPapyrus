@@ -1,5 +1,5 @@
 // WHATMAN.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -232,8 +232,8 @@ int TWhatmanObject::HandleCommand(int cmd, void * pExt)
 int    TWhatmanObject::GetTextLayout(STextLayout & /*rTl*/, int /*options*/) const { return -1; }
 int    TWhatmanObject::EditTool(TWhatmanToolArray::Item * pWtaItem) { return HandleCommand(cmdEditTool, pWtaItem); }
 int    TWhatmanObject::Edit() { return HandleCommand(cmdEdit, 0); }
-int    FASTCALL TWhatmanObject::HasOption(int f) const { return BIN(Options & f); }
-int    FASTCALL TWhatmanObject::HasState(int f) const { return BIN(State & f); }
+bool   FASTCALL TWhatmanObject::HasOption(int f) const { return LOGIC(Options & f); }
+bool   FASTCALL TWhatmanObject::HasState(int f) const { return LOGIC(State & f); }
 TRect  TWhatmanObject::GetBounds() const { return Bounds; }
 TRect  TWhatmanObject::GetInvalidationRect() const { return TRect(Bounds).grow(4, 4); } // @v11.2.4 grow(10, 10)-->grow(4, 4)
 int    TWhatmanObject::Draw(TCanvas2 & /*rCanv*/) { return -1; }
@@ -1764,7 +1764,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 	LMatrix2D mtx;
 	SPoint2F notch_area;
 	SPoint2F notch_offs;
-	TSVector <RuleNotch> notch_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <RuleNotch> notch_list;
 	TCanvas2::Capability caps;
 	rCanv.GetCapability(&caps);
 	//

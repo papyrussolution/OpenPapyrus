@@ -5,7 +5,7 @@
 
 static THREAD_FUNC_DECL CoderThread(void * p)
 {
-	for(;; ) {
+	for(;;) {
 		CVirtThread * t = (CVirtThread*)p;
 		t->StartEvent.Lock();
 		if(t->Exit)

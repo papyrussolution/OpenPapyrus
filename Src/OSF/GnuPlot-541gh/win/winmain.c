@@ -15,7 +15,6 @@
 #include <shlwapi.h>
 #include <htmlhelp.h>
 #include <dos.h>
-#include <tchar.h>
 #include <fcntl.h>
 #include "winmain.h"
 #include "wcommon.h"

@@ -228,7 +228,7 @@ int PPHistBillPacket::Init(const PPBillPacket * pPack)
 		Head.SCardID    = pPack->Rec.SCardID;
 		Head.PayerID    = pPack->Ext.PayerID;
 		Head.AgentID    = pPack->Ext.AgentID;
-		for(uint i = 0; pPack->EnumTItems(&i, &p_ti) > 0; ) {
+		for(uint i = 0; pPack->EnumTItems(&i, &p_ti) > 0;) {
 			HistTrfrTbl::Rec h_item;
 			// @v10.6.4 MEMSZERO(h_item);
 			h_item.OprNo      = (long)i;
@@ -268,7 +268,7 @@ int PPHistBillPacket::ConvertToBillPack(PPBillPacket * pPack)
 	pPack->Rec.SCardID    = Head.SCardID;
 	pPack->Ext.PayerID    = Head.PayerID;
 	pPack->Ext.AgentID    = Head.AgentID;
-	for(uint i = 0; EnumItems(&i, &p_h_item); ) {
+	for(uint i = 0; EnumItems(&i, &p_h_item);) {
 		PPTransferItem ti(&pPack->Rec, TISIGN_UNDEF);
 		ti.SetupGoods(p_h_item->GoodsID);
 		ti.BillID   = pPack->Rec.ID;

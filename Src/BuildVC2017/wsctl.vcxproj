@@ -210,6 +210,9 @@
     <ClCompile Include="..\PPMain\wsctl-main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="DirectXTex_Desktop.vcxproj">
+      <Project>{86befb39-a15d-4fee-bc3c-b46772941fa4}</Project>
+    </ProjectReference>
     <ProjectReference Include="ImGui.vcxproj">
       <Project>{2c51defb-2cc7-4f3b-aee7-f0943ccefa87}</Project>
     </ProjectReference>

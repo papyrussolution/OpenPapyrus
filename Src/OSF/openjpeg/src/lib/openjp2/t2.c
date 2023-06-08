@@ -493,7 +493,7 @@ boolint opj_t2_decode_packets(opj_tcd_t* tcd,
 				}
 
 				l_img_comp = &(l_image->comps[l_current_pi->compno]);
-				l_img_comp->resno_decoded = opj_uint_max(l_current_pi->resno,
+				l_img_comp->resno_decoded = smax(l_current_pi->resno,
 					l_img_comp->resno_decoded);
 			}
 			else {
@@ -840,7 +840,7 @@ static boolint opj_t2_encode_packet(uint32_t tileno,
 				++nump;
 				len += pass->len;
 				if(pass->term || passno == (cblk->numpasses + layer->numpasses) - 1) {
-					increment = (uint32_t)opj_int_max((int32_t)increment, opj_int_floorlog2((int32_t)len) + 1 - ((int32_t)cblk->numlenbits + opj_int_floorlog2((int32_t)nump)));
+					increment = (uint32_t)smax((int32_t)increment, opj_int_floorlog2((int32_t)len) + 1 - ((int32_t)cblk->numlenbits + opj_int_floorlog2((int32_t)nump)));
 					len = 0;
 					nump = 0;
 				}
@@ -1248,7 +1248,7 @@ static boolint opj_t2_read_packet_header(opj_t2_t* p_t2,
 			else
 				do {
 					uint32_t bit_number;
-					l_cblk->segs[l_segno].numnewpasses = (uint32_t)opj_int_min((int32_t)(l_cblk->segs[l_segno].maxpasses - l_cblk->segs[l_segno].numpasses), n);
+					l_cblk->segs[l_segno].numnewpasses = (uint32_t)smin((int32_t)(l_cblk->segs[l_segno].maxpasses - l_cblk->segs[l_segno].numpasses), n);
 					bit_number = l_cblk->numlenbits + opj_uint_floorlog2(l_cblk->segs[l_segno].numnewpasses);
 					if(bit_number > 32) {
 						opj_event_msg(p_manager, EVT_ERROR, "Invalid bit number %d in opj_t2_read_packet_header()\n", bit_number);

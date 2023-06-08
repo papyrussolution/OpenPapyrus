@@ -175,7 +175,7 @@ uint32 NO_INLINE SortGroup(uint32 BlockSize, uint32 NumSortedBytes, uint32 group
 		/* ---------- Range Sort ---------- */
 		uint32 i;
 		uint32 mid;
-		for(;; ) {
+		for(;;) {
 			uint32 j;
 			if(range <= 1) {
       #ifndef BLOCK_SORT_EXTERNAL_FLAGS
@@ -277,7 +277,7 @@ uint32 NO_INLINE SortGroup(uint32 BlockSize, uint32 NumSortedBytes, uint32 group
 				if((ind2[j] & 0x40000000) != 0)
 					subGroupSize += ((ind2[(size_t)j + 1] >> kNumBitsMax) << kNumExtra0Bits);
 				subGroupSize++;
-				for(;; ) {
+				for(;;) {
 					uint32 original = ind2[j];
 					uint32 sp = original & kIndexMask;
 					if(sp < NumSortedBytes) sp += BlockSize; sp -= NumSortedBytes;
@@ -290,7 +290,7 @@ uint32 NO_INLINE SortGroup(uint32 BlockSize, uint32 NumSortedBytes, uint32 group
 				}
       #else
 				uint32 * Flags = Groups + BlockSize;
-				for(;; ) {
+				for(;;) {
 					uint32 sp = ind2[j]; if(sp < NumSortedBytes) sp += BlockSize; sp -= NumSortedBytes;
 					ind2[j] = sp;
 					Groups[sp] = group;
@@ -380,7 +380,7 @@ uint32 BlockSort(uint32 * Indices, const Byte * data, uint32 blockSize)
 			uint32 finishedGroupSize = 0;
     #endif
 			uint32 newLimit = 0;
-			for(i = 0; i < blockSize; ) {
+			for(i = 0; i < blockSize;) {
 				uint32 groupSize;
       #ifdef BLOCK_SORT_EXTERNAL_FLAGS
 
@@ -441,7 +441,7 @@ uint32 BlockSort(uint32 * Indices, const Byte * data, uint32 blockSize)
 		}
 	}
   #ifndef BLOCK_SORT_EXTERNAL_FLAGS
-	for(i = 0; i < blockSize; ) {
+	for(i = 0; i < blockSize;) {
 		uint32 groupSize = ((Indices[i] & ~0xC0000000) >> kNumBitsMax);
 		if((Indices[i] & 0x40000000) != 0) {
 			groupSize += ((Indices[(size_t)i + 1] >> kNumBitsMax) << kNumExtra0Bits);

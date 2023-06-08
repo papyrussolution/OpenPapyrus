@@ -86,7 +86,7 @@ static ngx_int_t ngx_http_chunked_body_filter(ngx_http_request_t * r, ngx_chain_
 	ll = &out;
 	size = 0;
 	cl = in;
-	for(;; ) {
+	for(;;) {
 		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http chunk: %O", ngx_buf_size(cl->buf));
 		size += ngx_buf_size(cl->buf);
 		if(cl->buf->flush || cl->buf->sync || ngx_buf_in_memory(cl->buf) || cl->buf->in_file) {

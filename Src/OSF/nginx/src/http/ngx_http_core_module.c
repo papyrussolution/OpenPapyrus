@@ -834,7 +834,7 @@ static ngx_int_t ngx_http_core_find_static_location(ngx_http_request_t * r, ngx_
 	size_t len = r->uri.len;
 	const u_char * uri = r->uri.data;
 	ngx_int_t rv = NGX_DECLINED;
-	for(;; ) {
+	for(;;) {
 		if(!node) {
 			return rv;
 		}
@@ -1298,7 +1298,7 @@ static ngx_int_t ngx_http_gzip_accept_encoding(const ngx_str_t * ae)
 	const u_char * p;
 	const u_char * start = ae->data;
 	const u_char * last = start + ae->len;
-	for(;; ) {
+	for(;;) {
 		p = ngx_strcasestrn(start, "gzip", 4 - 1);
 		if(!p) {
 			return NGX_DECLINED;

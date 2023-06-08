@@ -882,21 +882,19 @@ static void * Type_Curve_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER
 		case 0: // Linear.
 	    {
 		    double SingleGamma = 1.0;
-
 		    NewGamma = cmsBuildParametricToneCurve(self->ContextID, 1, &SingleGamma);
-		    if(!NewGamma) return NULL;
+		    if(!NewGamma) 
+				return NULL;
 		    *nItems = 1;
 		    return NewGamma;
 	    }
-
 		case 1: // Specified as the exponent of gamma function
 	    {
 		    uint16 SingleGammaFixed;
 		    double SingleGamma;
-
-		    if(!_cmsReadUInt16Number(io, &SingleGammaFixed)) return NULL;
+		    if(!_cmsReadUInt16Number(io, &SingleGammaFixed)) 
+				return NULL;
 		    SingleGamma = _cms8Fixed8toDouble(SingleGammaFixed);
-
 		    *nItems = 1;
 		    return cmsBuildParametricToneCurve(self->ContextID, 1, &SingleGamma);
 	    }

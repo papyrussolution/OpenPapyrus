@@ -4391,7 +4391,7 @@ SStringU & SStringU::Sub(size_t startPos, size_t len, SStringU & rBuf) const
 /*static*/uint FASTCALL SUnicode::Utf8Length(const wchar_t * pUcBuf, uint tlen)
 {
 	uint len = 0;
-	for(uint i = 0; i < tlen && pUcBuf[i]; ) {
+	for(uint i = 0; i < tlen && pUcBuf[i];) {
 		uint uch = pUcBuf[i];
 		if(uch < 0x80)
 			len++;

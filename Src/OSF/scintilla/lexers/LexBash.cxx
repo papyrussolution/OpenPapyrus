@@ -245,7 +245,7 @@ public:
 	Sci_Position ln = styler.GetLine(startPos);
 	if(ln > 0 && startPos == static_cast<Sci_PositionU>(styler.LineStart(ln)))
 		ln--;
-	for(;; ) {
+	for(;;) {
 		startPos = styler.LineStart(ln);
 		if(ln == 0 || styler.GetLineState(ln) == BASH_CMD_START)
 			break;

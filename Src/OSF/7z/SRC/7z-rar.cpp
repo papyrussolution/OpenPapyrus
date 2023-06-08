@@ -23,7 +23,7 @@ HRESULT FindSignatureInStream(ISequentialInStream * stream, const Byte * signatu
 	uint32 numPrevBytes = signatureSize - 1;
 	memcpy(buffer, (const Byte *)byteBuffer2 + 1, numPrevBytes);
 	resPos = 1;
-	for(;; ) {
+	for(;;) {
 		if(limit)
 			if(resPos > *limit)
 				return S_FALSE;
@@ -99,7 +99,7 @@ namespace NCompress {
 		{
 			uint32 startPos = 2;
 			uint32 num = m_InBitStream.GetValue(12);
-			for(;; ) {
+			for(;;) {
 				uint32 cur = (posTab[(size_t)startPos + 1] - posTab[startPos]) << (12 - startPos);
 				if(num < cur)
 					break;
@@ -235,7 +235,7 @@ namespace NCompress {
 			AvrPlcB += distancePlace;
 			AvrPlcB -= AvrPlcB >> 8;
 
-			for(;; ) {
+			for(;;) {
 				dist = ChSetB[distancePlace & 0xff];
 				newDistancePlace = NToPlB[dist++ & 0xff]++;
 				if(!(dist & 0xff))
@@ -322,7 +322,7 @@ namespace NCompress {
 			m_UnpackSize--;
 			m_OutWindowStream.PutByte((Byte)(ChSet[bytePlace] >> 8));
 
-			for(;; ) {
+			for(;;) {
 				curByte = ChSet[bytePlace];
 				newBytePlace = NToPl[curByte++ & 0xff]++;
 				if((curByte & 0xff) > 0xa1)
@@ -340,7 +340,7 @@ namespace NCompress {
 		{
 			uint32 flags, newFlagsPlace;
 			uint32 flagsPlace = DecodeNum(PosHf2);
-			for(;; ) {
+			for(;;) {
 				flags = ChSetC[flagsPlace];
 				FlagBuf = flags >> 8;
 				newFlagsPlace = NToPlC[flags++ & 0xff]++;
@@ -1533,7 +1533,7 @@ namespace NCompress {
 			uint32 rep2 = _reps[2];
 			uint32 rep3 = _reps[3];
 			uint32 length = _lastLength;
-			for(;; ) {
+			for(;;) {
 				if(((_wrPtr - _winPos) & kWindowMask) < 260 && _wrPtr != _winPos) {
 					RINOK(WriteBuf());
 					if(_writtenFileSize > _unpackSize) {
@@ -1669,7 +1669,7 @@ namespace NCompress {
 					return S_OK;
 			}
 
-			for(;; ) {
+			for(;;) {
 				bool keepDecompressing;
 				if(_lzMode) {
 					if(!TablesOK)
@@ -1751,7 +1751,7 @@ namespace NCompress {
 		uint32 CMemBitDecoder::ReadBits(uint numBits)
 		{
 			uint32 res = 0;
-			for(;; ) {
+			for(;;) {
 				unsigned b = (_bitPos < _bitSize) ? (uint)_data[_bitPos >> 3] : 0;
 				unsigned avail = (uint)(8 - (_bitPos & 7));
 				if(numBits <= avail) {
@@ -1967,7 +1967,7 @@ namespace NCompress {
 				uint32 numCommands = prg->Commands.Size();
 				if(numCommands == 0)
 					return false;
-				for(;; ) {
+				for(;;) {
 					switch(cmd->OpCode) {
 						case CMD_MOV:
 						SetOperand32(&cmd->Op1, GetOperand32(&cmd->Op2));
@@ -2538,7 +2538,7 @@ namespace NCompress {
 				dataSize -= 4;
 				const uint32 kFileSize = 0x1000000;
 				Byte cmpMask = (Byte)(e9 ? 0xFE : 0xFF);
-				for(uint32 curPos = 0; curPos < dataSize; ) {
+				for(uint32 curPos = 0; curPos < dataSize;) {
 					curPos++;
 					if(((*data++) & cmpMask) == 0xE8) {
 						uint32 offset = curPos + fileOffset;
@@ -2963,7 +2963,7 @@ namespace NCompress {
 						uint32 fileOffset = (uint32)(f.Start - _lzFileStart);
 						const uint32 kFileSize = (uint32)1 << 24;
 						Byte cmpMask = (Byte)(f.Type == FILTER_E8 ? 0xFF : 0xFE);
-						for(uint32 curPos = 0; curPos < dataSize; ) {
+						for(uint32 curPos = 0; curPos < dataSize;) {
 							curPos++;
 							if(((*data++) & cmpMask) == 0xE8) {
 								uint32 offset = (curPos + fileOffset) & (kFileSize - 1);
@@ -3027,7 +3027,7 @@ namespace NCompress {
 		HRESULT CDecoder::WriteBuf()
 		{
 			DeleteUnusedFilters();
-			for(uint i = 0; i < _filters.Size(); ) {
+			for(uint i = 0; i < _filters.Size();) {
 				const CFilter &f = _filters[i];
 				uint64 blockStart = f.Start;
 				size_t lzAvail = (size_t)(_lzSize - _lzWritten);
@@ -3170,7 +3170,7 @@ namespace NCompress {
 			_tableWasFilled = false;
 			{
 				Byte lens2[kLevelTableSize];
-				for(uint i = 0; i < kLevelTableSize; ) {
+				for(uint i = 0; i < kLevelTableSize;) {
 					_bitStream.Prepare();
 					uint len = (uint)_bitStream.ReadBits9fix(4);
 					if(len == 15) {
@@ -3277,7 +3277,7 @@ namespace NCompress {
 					rem = kWriteStep;
 				limit = _winPos + rem;
 			}
-			for(;; ) {
+			for(;;) {
 				if(_winPos >= limit) {
 					RINOK(WriteBuf());
 					if(_unpackSize_Defined && _writtenFileSize > _unpackSize)
@@ -4020,7 +4020,7 @@ namespace NArchive {
 		{
 			filled = false;
 			error = k_ErrorType_OK;
-			for(;; ) {
+			for(;;) {
 				m_Stream->Seek(m_Position, STREAM_SEEK_SET, NULL);
 				ArcInfo.EndPos = m_Position;
 				if(!m_CryptoMode && (ArcInfo.Flags &
@@ -4499,7 +4499,7 @@ namespace NArchive {
 				}
 				bool nextVol_is_Required = false;
 				CInArchive archive;
-				for(;; ) {
+				for(;;) {
 					CMyComPtr<IInStream> inStream;
 					if(!_arcs.IsEmpty()) {
 						if(!openVolumeCallback)
@@ -4546,7 +4546,7 @@ namespace NArchive {
 					RINOK(archive.Open(inStream, maxCheckStartPosition));
 					_isArc = true;
 					CItem item;
-					for(;; ) {
+					for(;;) {
 						if(archive.m_Position > endPos) {
 							_errorFlags |= kpv_ErrorFlags_UnexpectedEnd;
 							break;
@@ -5066,7 +5066,7 @@ namespace NArchive {
 		static uint FASTCALL ReadVarInt(const Byte * p, size_t maxSize, uint64 * val)
 		{
 			*val = 0;
-			for(uint i = 0; i < maxSize; ) {
+			for(uint i = 0; i < maxSize;) {
 				Byte b = p[i];
 				if(i < 10)
 					*val |= (uint64)(b & 0x7F) << (7 * i);
@@ -5192,7 +5192,7 @@ namespace NArchive {
 		{
 			recordDataSize = 0;
 			size_t offset = 0;
-			for(;; ) {
+			for(;;) {
 				size_t rem = Extra.Size() - offset;
 				if(rem == 0)
 					return -1;
@@ -5231,7 +5231,7 @@ namespace NArchive {
 		void CItem::PrintInfo(AString &s) const
 		{
 			size_t offset = 0;
-			for(;; ) {
+			for(;;) {
 				size_t rem = Extra.Size() - offset;
 				if(rem == 0)
 					return;
@@ -6189,7 +6189,7 @@ namespace NArchive {
 		{
 			uint64 size = 0;
 			uint index = _refs[refIndex].Item;
-			for(;; ) {
+			for(;;) {
 				const CItem &item = _items[index];
 				size += item.PackSize;
 				if(item.NextItem < 0)
@@ -6620,7 +6620,7 @@ namespace NArchive {
 		static int FindLink(const CHandler &handler, const CUIntVector &sorted, const AString &s, unsigned index)
 		{
 			unsigned left = 0, right = sorted.Size();
-			for(;; ) {
+			for(;;) {
 				if(left == right) {
 					if(left > 0) {
 						unsigned refIndex = sorted[left - 1];
@@ -6710,7 +6710,7 @@ namespace NArchive {
 			int prevMainFile = -1;
 			bool nextVol_is_Required = false;
 			CInArchive arch;
-			for(;; ) {
+			for(;;) {
 				CMyComPtr <IInStream> inStream;
 				if(_arcs.IsEmpty())
 					inStream = stream;
@@ -6768,7 +6768,7 @@ namespace NArchive {
 				arcInfo = arcInfoOpen;
 				arc.Stream = inStream;
 				CItem item;
-				for(;; ) {
+				for(;;) {
 					item.Clear();
 					arcInfo.EndPos = arch.Position;
 					if(arch.Position > endPos) {

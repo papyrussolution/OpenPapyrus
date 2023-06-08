@@ -375,7 +375,7 @@ public class StyloQInterchange {
 			InternalID = 0;
 			SvcID = 0;
 			CmdUuid = null;
-			Ident = null;
+			Ident_before90v = null;
 			EventOrgTime = null;
 			EventIssueTime = null;
 			ObjNominalTime = null;
@@ -394,8 +394,8 @@ public class StyloQInterchange {
 			JSONObject result = null;
 			try {
 				result = new JSONObject();
-				if(SLib.GetLen(Ident) > 0) {
-					String ident_text = Base64.getEncoder().encodeToString(Ident);
+				if(SLib.GetLen(Ident_before90v) > 0) {
+					String ident_text = Base64.getEncoder().encodeToString(Ident_before90v);
 					if(SLib.GetLen(ident_text) > 0)
 						result.put("ident", ident_text);
 				}
@@ -438,11 +438,7 @@ public class StyloQInterchange {
 			boolean result = false;
 			if(jsObj != null) {
 				String ident_text = jsObj.optString("ident", null);
-				if(SLib.GetLen(ident_text) > 0) {
-					Ident = Base64.getDecoder().decode(ident_text);
-				}
-				else
-					Ident = null;
+				Ident_before90v = (SLib.GetLen(ident_text) > 0) ? Base64.getDecoder().decode(ident_text) : null;
 				EventOrgTime = SLib.strtodatetime(jsObj.optString("evnt_org_time"),SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
 				EventIssueTime = SLib.strtodatetime(jsObj.optString("evnt_iss_time"),SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
 				ObjNominalTime = SLib.strtodatetime(jsObj.optString("obj_nominal_time"),SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
@@ -464,7 +460,7 @@ public class StyloQInterchange {
 		long   InternalID; // Внутренний идентификатор, с которым объект сохранен во внутренней базе данных
 		long   SvcID;      // Идентификатор сервиса, с которым ассоциировано событие
 		UUID   CmdUuid;    // Идентификатор команды, с которой ассоциировано событие
-		byte [] Ident;
+		byte [] Ident_before90v;
 		SLib.LDATETIME EventOrgTime;
 		SLib.LDATETIME EventIssueTime;
 		SLib.LDATETIME ObjNominalTime; // Номинальная метка времени объекта. Необходима для адекватной сортировки. Для документа это - номинальная дата документа.
@@ -502,18 +498,16 @@ public class StyloQInterchange {
 						for(int i = 0; i < evnt_list.size(); i++) {
 							final SvcNotification item = evnt_list.get(i);
 							if(item != null) {
-								if(SLib.GetLen(item.Ident) > 0) {
-									long id = db.StoreNotification(svcIdent, item, false);
-									if(id > 0 && SLib.GetLen(svc_name) > 0) {
-										NotificationCompat.Builder builder = new NotificationCompat.Builder(appCtx, StyloQApp.NotificationChannelIdent)
-												.setSmallIcon(R.mipmap.ic_launcher)
-												.setContentTitle(svc_name)
-												.setContentText(item.Message);
-										Notification notification = builder.build();
-										NotificationManager mgr = (NotificationManager)appCtx.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
-										if(mgr != null) {
-											mgr.notify((int)id, notification);
-										}
+								long id = db.StoreNotification_new(item, false);
+								if(id > 0 && SLib.GetLen(svc_name) > 0) {
+									NotificationCompat.Builder builder = new NotificationCompat.Builder(appCtx, StyloQApp.NotificationChannelIdent)
+											.setSmallIcon(R.mipmap.ic_launcher)
+											.setContentTitle(svc_name)
+											.setContentText(item.Message);
+									Notification notification = builder.build();
+									NotificationManager mgr = (NotificationManager)appCtx.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
+									if(mgr != null) {
+										mgr.notify((int)id, notification);
 									}
 								}
 							}

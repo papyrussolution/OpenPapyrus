@@ -711,7 +711,7 @@ int main(void)
 {
 	rs_gf256 gf;
 	rs_gf256_init(&gf, QR_PPOLY);
-	for(;; ) {
+	for(;;) {
 		uchar data[255];
 		uchar erasures[255];
 		int idata[255];

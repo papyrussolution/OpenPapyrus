@@ -6526,15 +6526,18 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 		// @v11.5.9 {
 		if(!correction) {
 			if(barcode_for_exchange.NotEmpty()) {
-				SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXTRA2));
-				temp_buf = GetToken_Ansi(PPHSC_RU_EXTRA_BARCODE);
-				n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_IDENTIF), temp_buf);
-				n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_VAL), barcode_for_exchange);
+				{
+					SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXTRA2));
+					n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_IDENTIF), GetToken_Ansi(PPHSC_RU_EXTRA_BARCODE));
+					n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_VAL), barcode_for_exchange);
+				}
 				// @v11.7.4 {
 				if(goods_ar_code.NotEmpty()) {
-					temp_buf = GetToken_Ansi(PPHSC_RU_EXTRA_MATERIALCODE);
-					n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_IDENTIF), temp_buf);
-					n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_VAL), goods_ar_code);
+					{
+						SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXTRA2));
+						n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_IDENTIF), GetToken_Ansi(PPHSC_RU_EXTRA_MATERIALCODE));
+						n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_VAL), goods_ar_code);
+					}
 				}
 				// } @v11.7.4 
 			}
@@ -7820,34 +7823,29 @@ int WriteBill_NalogRu2_UPD(const PPBillImpExpParam & rParam, const PPBillPacket 
 					// @v11.7.4 {
 					{
 						SXml::WNode n_1(_blk.G.P_X, _blk.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
-						temp_buf = _blk.GetToken(PPHSC_RU_EXTRA_WAYBILLCODE);
-						n_1.PutAttrib(_blk.GetToken(PPHSC_RU_IDENTIF), temp_buf);
+						n_1.PutAttrib(_blk.GetToken(PPHSC_RU_IDENTIF), _blk.GetToken(PPHSC_RU_EXTRA_WAYBILLCODE));
 						n_1.PutAttrib(_blk.GetToken(PPHSC_RU_VAL), _blk.EncText(temp_buf = rBp.Rec.Code));
 					}
 					if(consignee_gln.NotEmpty()) {
 						SXml::WNode n_2(_blk.G.P_X, _blk.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
-						temp_buf = _blk.GetToken(PPHSC_RU_EXTRA_CONSIGNEEGLN);
-						n_2.PutAttrib(_blk.GetToken(PPHSC_RU_IDENTIF), temp_buf);
+						n_2.PutAttrib(_blk.GetToken(PPHSC_RU_IDENTIF), _blk.GetToken(PPHSC_RU_EXTRA_CONSIGNEEGLN));
 						n_2.PutAttrib(_blk.GetToken(PPHSC_RU_VAL), _blk.EncText(consignee_gln));
 					}
 					// } @v11.7.4 
 					if(_blk.AgtCode.NotEmpty()) {
 						{
 							SXml::WNode n_1(_blk.G.P_X, _blk.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
-							temp_buf = _blk.GetToken(PPHSC_RU_CONTRACT);
-							n_1.PutAttrib(_blk.GetToken(PPHSC_RU_IDENTIF), temp_buf);
+							n_1.PutAttrib(_blk.GetToken(PPHSC_RU_IDENTIF), _blk.GetToken(PPHSC_RU_CONTRACT));
 							n_1.PutAttrib(_blk.GetToken(PPHSC_RU_VAL), _blk.EncText(_blk.AgtCode));
 						}
 						if(checkdate(_blk.AgtDate)) {
 							SXml::WNode n_2(_blk.G.P_X, _blk.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
-							temp_buf = _blk.GetToken(PPHSC_RU_CONTRACTDATE);
-							n_2.PutAttrib(_blk.GetToken(PPHSC_RU_IDENTIF), temp_buf);
+							n_2.PutAttrib(_blk.GetToken(PPHSC_RU_IDENTIF), _blk.GetToken(PPHSC_RU_CONTRACTDATE));
 							n_2.PutAttrib(_blk.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(_blk.AgtDate, DATF_GERMANCENT));
 						}
 						if(checkdate(_blk.AgtExpiry)) {
 							SXml::WNode n_3(_blk.G.P_X, _blk.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
-							temp_buf = _blk.GetToken(PPHSC_RU_PERIOD);
-							n_3.PutAttrib(_blk.GetToken(PPHSC_RU_IDENTIF), temp_buf);
+							n_3.PutAttrib(_blk.GetToken(PPHSC_RU_IDENTIF), _blk.GetToken(PPHSC_RU_PERIOD));
 							n_3.PutAttrib(_blk.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(_blk.AgtExpiry, DATF_GERMANCENT));
 						}
 					}

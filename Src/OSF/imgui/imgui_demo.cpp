@@ -852,7 +852,7 @@ static void ShowDemoWindowWidgets()
 						ImGui::TreePop();
 					}
 				}
-				else{
+				else {
 					// Items 3..5 are Tree Leaves
 					// The only reason we use TreeNode at all is to allow selection of the leaf. Otherwise we can
 					// use BulletText() or advance the cursor by GetTreeNodeToLabelSpacing() and call Text().
@@ -1447,7 +1447,7 @@ static void ShowDemoWindowWidgets()
 
 				// Note: Because ImGui:: is a namespace you would typically add your own function into the namespace.
 				// For example, you code may declare a function 'ImGui::InputText(const char* label, MyString* my_str)'
-				static bool MyInputTextMultiline(const char* label, ImVector<char>* my_str, const ImVec2& size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0)
+				static bool MyInputTextMultiline(const char* label, ImVector<char>* my_str, const ImVec2 & size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0)
 				{
 					assert((flags & ImGuiInputTextFlags_CallbackResize) == 0);
 					return ImGui::InputTextMultiline(label,
@@ -1581,7 +1581,7 @@ static void ShowDemoWindowWidgets()
 						active_tabs.push_back(next_tab_id++); // Add new tab
 
 				// Submit our regular tabs
-				for(int n = 0; n < active_tabs.Size; ) {
+				for(int n = 0; n < active_tabs.Size;) {
 					bool open = true;
 					char name[16];
 					snprintf(name, IM_ARRAYSIZE(name), "%04d", active_tabs[n]);
@@ -2974,7 +2974,7 @@ static void ShowDemoWindowLayout()
 						ImGui::TextColored(ImVec4(1, 1, 0, 1), "Item %d", item);
 						ImGui::SetScrollHereY(i * 0.25f); // 0.0f:top, 0.5f:center, 1.0f:bottom
 					}
-					else{
+					else {
 						ImGui::Text("Item %d", item);
 					}
 				}
@@ -3013,7 +3013,7 @@ static void ShowDemoWindowLayout()
 						ImGui::TextColored(ImVec4(1, 1, 0, 1), "Item %d", item);
 						ImGui::SetScrollHereX(i * 0.25f); // 0.0f:left, 0.5f:center, 1.0f:right
 					}
-					else{
+					else {
 						ImGui::Text("Item %d", item);
 					}
 				}
@@ -4041,7 +4041,7 @@ static void ShowDemoWindowTables()
 					if(row == 0) {
 						ImGui::Text("Avail %.2f", ImGui::GetContentRegionAvail().x);
 					}
-					else{
+					else {
 						char buf[32];
 						sprintf(buf, "Hello %d,%d", column, row);
 						ImGui::Button(buf, ImVec2(-FLT_MIN, 0.0f));
@@ -4559,10 +4559,8 @@ static void ShowDemoWindowTables()
 			}
 			ImGui::EndTable();
 		}
-
 		ImGui::TreePop();
 	}
-
 	if(open_action != -1)
 		ImGui::SetNextItemOpen(open_action != 0);
 	IMGUI_DEMO_MARKER("Tables/Background color");
@@ -4571,7 +4569,6 @@ static void ShowDemoWindowTables()
 		static int row_bg_type = 1;
 		static int row_bg_target = 1;
 		static int cell_bg_type = 1;
-
 		PushStyleCompact();
 		ImGui::CheckboxFlags("ImGuiTableFlags_Borders", &flags, ImGuiTableFlags_Borders);
 		ImGui::CheckboxFlags("ImGuiTableFlags_RowBg", &flags, ImGuiTableFlags_RowBg);
@@ -4584,18 +4581,15 @@ static void ShowDemoWindowTables()
 		assert(row_bg_target >= 0 && row_bg_target <= 1);
 		assert(cell_bg_type >= 0 && cell_bg_type <= 1);
 		PopStyleCompact();
-
 		if(ImGui::BeginTable("table1", 5, flags)) {
 			for(int row = 0; row < 6; row++) {
 				ImGui::TableNextRow();
-
 				// Demonstrate setting a row background color with 'ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBgX, ...)'
 				// We use a transparent color so we can see the one behind in case our target is RowBg1 and RowBg0 was already targeted by the ImGuiTableFlags_RowBg flag.
 				if(row_bg_type != 0) {
 					ImU32 row_bg_color = ImGui::GetColorU32(row_bg_type == 1 ? ImVec4(0.7f, 0.3f, 0.3f, 0.65f) : ImVec4(0.2f + row * 0.1f, 0.2f, 0.2f, 0.65f)); // Flat or Gradient?
 					ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0 + row_bg_target, row_bg_color);
 				}
-
 				// Fill cells
 				for(int column = 0; column < 5; column++) {
 					ImGui::TableSetColumnIndex(column);
@@ -4654,7 +4648,7 @@ static void ShowDemoWindowTables()
 							ImGui::TreePop();
 						}
 					}
-					else{
+					else {
 						ImGui::TreeNodeEx(node->Name,
 						    ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_Bullet | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth);
 						ImGui::TableNextColumn();
@@ -5233,7 +5227,7 @@ static void ShowDemoWindowTables()
 								else
 									selection.push_back(item->ID);
 							}
-							else{
+							else {
 								selection.clear();
 								selection.push_back(item->ID);
 							}
@@ -6039,7 +6033,7 @@ void ImGui::ShowStyleEditor(ImGuiStyle* ref)
 					ImGui::LogToTTY();
 				ImGui::LogText("ImVec4* colors = ImGui::GetStyle().Colors;" IM_NEWLINE);
 				for(int i = 0; i < ImGuiCol_COUNT; i++) {
-					const ImVec4& col = style.Colors[i];
+					const ImVec4 & col = style.Colors[i];
 					const char* name = ImGui::GetStyleColorName(i);
 					if(!output_only_modified || memcmp(&col, &ref->Colors[i], sizeof(ImVec4)) != 0)
 						ImGui::LogText("colors[ImGuiCol_%s]%*s= ImVec4(%.2ff, %.2ff, %.2ff, %.2ff);" IM_NEWLINE,
@@ -6601,7 +6595,7 @@ struct ExampleAppConsole {
 			for(int i = first > 0 ? first : 0; i < History.Size; i++)
 				AddLog("%3d: %s\n", i, History[i]);
 		}
-		else{
+		else {
 			AddLog("Unknown command: '%s'\n", command_line);
 		}
 
@@ -6650,7 +6644,7 @@ struct ExampleAppConsole {
 				    data->InsertChars(data->CursorPos, candidates[0]);
 				    data->InsertChars(data->CursorPos, " ");
 			    }
-			    else{
+			    else {
 				    // Multiple matches. Complete as much as we can..
 				    // So inputing "C"+Tab will complete to "CL" then display "CLEAR" and "CLASSIFY" as matches.
 				    int match_len = (int)(word_end - word_start);
@@ -6799,7 +6793,7 @@ struct ExampleAppLog {
 						ImGui::TextUnformatted(line_start, line_end);
 				}
 			}
-			else{
+			else {
 				// The simplest and easy way to display the entire buffer:
 				//   ImGui::TextUnformatted(buf_begin, buf_end);
 				// And it'll just work. TextUnformatted() has specialization for large blob of text and will fast-forward
@@ -6954,7 +6948,7 @@ static void ShowPlaceholderObject(const char* prefix, int uid)
 			if(i < 2) {
 				ShowPlaceholderObject("Child", 424242);
 			}
-			else{
+			else {
 				// Here we use a TreeNode to highlight on hover (we could use e.g. Selectable as well)
 				ImGui::TableNextRow();
 				ImGui::TableSetColumnIndex(0);
@@ -7161,7 +7155,7 @@ static void ShowExampleAppConstrainedResize(bool* p_open)
 			ImGui::SetCursorScreenPos(ImVec2(pos.x + 10, pos.y + 10));
 			ImGui::Text("%.2f x %.2f", avail_size.x, avail_size.y);
 		}
-		else{
+		else {
 			ImGui::Text("(Hold SHIFT to display a dummy viewport)");
 			if(ImGui::Button("Set 200x200")) {
 				ImGui::SetWindowSize(ImVec2(200, 200));
@@ -7564,7 +7558,7 @@ struct MyDocument {
 	bool WantClose;     // Set when the document
 	ImVec4 Color;       // An arbitrary variable associated to the document
 
-	MyDocument(const char* name, bool open = true, const ImVec4& color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f))
+	MyDocument(const char* name, bool open = true, const ImVec4 & color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f))
 	{
 		Name = name;
 		Open = OpenPrev = open;
@@ -7770,7 +7764,7 @@ void ShowExampleAppDocuments(bool* p_open)
 				close_queue[n]->DoForceClose();
 			close_queue.clear();
 		}
-		else{
+		else {
 			if(!ImGui::IsPopupOpen("Save?"))
 				ImGui::OpenPopup("Save?");
 			if(ImGui::BeginPopupModal("Save?", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {

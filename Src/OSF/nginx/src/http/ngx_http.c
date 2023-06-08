@@ -1020,7 +1020,7 @@ static ngx_int_t ngx_http_init_listening(ngx_conf_t * cf, ngx_http_conf_port_t *
 		addr[last-1].opt.bind = 1;
 		bind_wildcard = 1;
 	}
-	for(ngx_uint_t i = 0; i < last; ) {
+	for(ngx_uint_t i = 0; i < last;) {
 		if(bind_wildcard && !addr[i].opt.bind) {
 			i++;
 		}

@@ -3181,7 +3181,7 @@ struct CcDupEntry {
 	double Amount;
 };
 
-IMPL_CMPCFUNC(CcDupEntry, p1, p2)
+IMPL_CMPFUNC(CcDupEntry, p1, p2)
 {
 	const CcDupEntry * i1 = (const CcDupEntry *)p1;
 	const CcDupEntry * i2 = (const CcDupEntry *)p2;
@@ -3196,7 +3196,7 @@ static int DetectCcDups(TSVector <CcDupEntry> & rList, TSVector <CcDupEntry> & r
 	int    ok = -1;
 	const  uint _c = rList.getCount();
 	uint   last_dup_entry_pos = 0;
-	rList.sort(PTR_CMPCFUNC(CcDupEntry));
+	rList.sort(PTR_CMPFUNC(CcDupEntry));
 	for(uint i = 0; i < _c; i++) {
 		const CcDupEntry & r_cur_item = rList.at(i);
 		if(i < (_c-1)) {

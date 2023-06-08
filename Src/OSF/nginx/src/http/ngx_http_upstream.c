@@ -1243,7 +1243,7 @@ static ngx_int_t ngx_http_upstream_send_request_body(ngx_http_request_t * r, ngx
 	else {
 		out = NULL;
 	}
-	for(;; ) {
+	for(;;) {
 		if(do_write) {
 			rc = ngx_output_chain(&u->output, out);
 			if(rc == NGX_ERROR) {
@@ -1354,7 +1354,7 @@ static void ngx_http_upstream_process_header(ngx_http_request_t * r, ngx_http_up
 			}
 #endif
 		}
-		for(;; ) {
+		for(;;) {
 			n = c->recv(c, u->buffer.last, u->buffer.end - u->buffer.last);
 			if(n == NGX_AGAIN) {
 #if 0
@@ -1705,7 +1705,7 @@ static void ngx_http_upstream_process_body_in_memory(ngx_http_request_t * r, ngx
 		return;
 	}
 	b = &u->buffer;
-	for(;; ) {
+	for(;;) {
 		size = b->end - b->last;
 		if(size == 0) {
 			ngx_log_error(NGX_LOG_ALERT, c->log, 0, "upstream buffer is too small to read response");
@@ -2096,7 +2096,7 @@ static void ngx_http_upstream_process_upgraded(ngx_http_request_t * r, ngx_uint_
 			b->tag = u->output.tag;
 		}
 	}
-	for(;; ) {
+	for(;;) {
 		if(do_write) {
 			size = b->last - b->pos;
 			if(size && dst->P_EvWr->ready) {
@@ -2218,7 +2218,7 @@ static void ngx_http_upstream_process_non_buffered_request(ngx_http_request_t * 
 	ngx_connection_t * upstream = u->peer.connection;
 	ngx_buf_t * b = &u->buffer;
 	do_write = do_write || u->length == 0;
-	for(;; ) {
+	for(;;) {
 		if(do_write) {
 			if(u->out_bufs || u->busy_bufs) {
 				rc = ngx_http_output_filter(r, u->out_bufs);
@@ -3317,7 +3317,7 @@ static ngx_int_t ngx_http_upstream_addr_variable(ngx_http_request_t * r, ngx_htt
 	}
 	v->data = p;
 	i = 0;
-	for(;; ) {
+	for(;;) {
 		if(state[i].peer) {
 			p = ngx_cpymem(p, state[i].peer->data, state[i].peer->len);
 		}
@@ -3363,7 +3363,7 @@ static ngx_int_t ngx_http_upstream_status_variable(ngx_http_request_t * r, ngx_h
 	v->data = p;
 	i = 0;
 	state = (ngx_http_upstream_state_t *)r->upstream_states->elts;
-	for(;; ) {
+	for(;;) {
 		if(state[i].status) {
 			p = ngx_sprintf(p, "%ui", state[i].status);
 		}
@@ -3413,7 +3413,7 @@ static ngx_int_t ngx_http_upstream_response_time_variable(ngx_http_request_t * r
 	v->data = p;
 	i = 0;
 	state = (ngx_http_upstream_state_t *)r->upstream_states->elts;
-	for(;; ) {
+	for(;;) {
 		if(state[i].status) {
 			if(data == 1 && state[i].header_time != (ngx_msec_t)-1) {
 				ms = state[i].header_time;
@@ -3473,7 +3473,7 @@ static ngx_int_t ngx_http_upstream_response_length_variable(ngx_http_request_t *
 	v->data = p;
 	i = 0;
 	state = (ngx_http_upstream_state_t *)r->upstream_states->elts;
-	for(;; ) {
+	for(;;) {
 		if(data == 1) {
 			p = ngx_sprintf(p, "%O", state[i].bytes_received);
 		}

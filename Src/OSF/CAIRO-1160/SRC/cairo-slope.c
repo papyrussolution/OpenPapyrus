@@ -56,8 +56,8 @@
  */
 int FASTCALL _cairo_slope_compare(const cairo_slope_t * a, const cairo_slope_t * b)
 {
-	cairo_int64_t ady_bdx = _cairo_int32x32_64_mul(a->dy, b->dx);
-	cairo_int64_t bdy_adx = _cairo_int32x32_64_mul(b->dy, a->dx);
+	int64 ady_bdx = _cairo_int32x32_64_mul(a->dy, b->dx);
+	int64 bdy_adx = _cairo_int32x32_64_mul(b->dy, a->dx);
 	int cmp = _cairo_int64_cmp(ady_bdx, bdy_adx);
 	if(cmp)
 		return cmp;

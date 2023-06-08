@@ -422,6 +422,7 @@ static void InitTest()
 			{ "Ab5", 5 }
 		};
 		STATIC_ASSERT(SIZEOFARRAY(test_array) == 5);
+		STATIC_ASSERT(sizeofarray(test_array) == 5); // @v11.7.5
 	}
 	STATIC_ASSERT(sizeof(bool) == 1);
 	STATIC_ASSERT(sizeof(char) == 1);
@@ -804,7 +805,7 @@ void SlSession::ReleaseThread()
 // (inlined) SlThreadLocalArea & SlSession::GetTLA() { return *(SlThreadLocalArea *)SGetTls(TlsIdx); }
 // (inlined) const SlThreadLocalArea & SlSession::GetConstTLA() const { return *(SlThreadLocalArea *)SGetTls(TlsIdx); }
 
-bool FASTCALL SlSession::SetError(int errCode, const char * pAddedMsg)
+bool SlSession::SetError(int errCode, const char * pAddedMsg)
 {
 	const int sock_err = (errCode == SLERR_SOCK_WINSOCK) ? WSAGetLastError() : 0;
 	SlThreadLocalArea & r_tla = GetTLA();
@@ -816,6 +817,23 @@ bool FASTCALL SlSession::SetError(int errCode, const char * pAddedMsg)
 		//
 		r_tla.LastErr = errCode;
 		r_tla.AddedMsgString = pAddedMsg;
+		r_tla.LastSockErr = sock_err;
+	}
+	return false;
+}
+
+bool SlSession::SetError(int errCode, int addedMsgVal)
+{
+	const int sock_err = (errCode == SLERR_SOCK_WINSOCK) ? WSAGetLastError() : 0;
+	SlThreadLocalArea & r_tla = GetTLA();
+	if(&r_tla) {
+		//
+		// @1 Если глобальный объект SLS разрушается раньше иных глобальных объектов,
+		// которые могут вызвать SlSession::SetError, то при завершении процесса может возникнуть исключение
+		// обращения к нулевому адресу. Во избежании этого проверяем &r_tla на 0.
+		//
+		r_tla.LastErr = errCode;
+		r_tla.AddedMsgString.Z().Cat(addedMsgVal);
 		r_tla.LastSockErr = sock_err;
 	}
 	return false;

@@ -870,7 +870,7 @@ ZIP_EXTERN int64 zip_source_make_command_bitmap(zip_source_cmd_t cmd0, ...)
 	va_list ap;
 	int64 bitmap = ZIP_SOURCE_MAKE_COMMAND_BITMASK(cmd0);
 	va_start(ap, cmd0);
-	for(;; ) {
+	for(;;) {
 		int cmd = va_arg(ap, int);
 		if(cmd < 0) {
 			break;
@@ -5920,13 +5920,13 @@ static int _zip_mkstemp(char * path)
 			break;
 		}
 	}
-	for(;; ) {
+	for(;;) {
 		if((fd = open(path, O_CREAT|O_EXCL|O_RDWR|O_BINARY, 0600)) >= 0)
 			return (fd);
 		if(errno != EEXIST)
 			return 0;
 		// tricky little algorithm for backward compatibility 
-		for(trv = start;; ) {
+		for(trv = start;;) {
 			if(!*trv)
 				return 0;
 			if(*trv == 'z')

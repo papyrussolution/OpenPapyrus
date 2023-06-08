@@ -211,7 +211,7 @@ static ngx_int_t ngx_http_range_parse(ngx_http_request_t * r, ngx_http_range_fil
 	content_length = r->headers_out.content_length_n;
 	cutoff = NGX_MAX_OFF_T_VALUE / 10;
 	cutlim = NGX_MAX_OFF_T_VALUE % 10;
-	for(;; ) {
+	for(;;) {
 		start = 0;
 		end = 0;
 		suffix = 0;

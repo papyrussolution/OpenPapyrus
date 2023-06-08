@@ -1325,7 +1325,7 @@ public:
 	static void SortRefDown(T* p, unsigned k, uint size, int (* compare)(const T*, const T*, void *), void * param)
 	{
 		T temp = p[k];
-		for(;; ) {
+		for(;;) {
 			unsigned s = (k << 1);
 			if(s > size)
 				break;
@@ -1360,7 +1360,7 @@ public:
 	static void SortRefDown2(T* p, unsigned k, uint size)
 	{
 		T temp = p[k];
-		for(;; ) {
+		for(;;) {
 			unsigned s = (k << 1);
 			if(s > size)
 				break;
@@ -1688,7 +1688,7 @@ inline bool IsPathSepar(wchar_t c) { return isdirslash(c); }
 
 inline char * MyStpCpy(char * dest, const char * src)
 {
-	for(;; ) {
+	for(;;) {
 		char c = *src;
 		*dest = c;
 		if(c == 0)
@@ -7885,7 +7885,7 @@ namespace NArchive {
 					unsigned i = _changed.Len();
 					if(i == 0)
 						return UString();
-					for(;; ) {
+					for(;;) {
 						wchar_t c = _changed[--i];
 						if(c == L'9') {
 							c = L'0';

@@ -754,7 +754,7 @@ double _cairo_strtod(const char * nptr, char ** endptr)
 		delta++;
 	}
 	while(*p && (bufptr + decimal_point_len < bufend)) {
-		if(_cairo_isdigit(*p)) {
+		if(isdec(*p)) {
 			*bufptr++ = *p;
 		}
 		else if(*p == '.') {

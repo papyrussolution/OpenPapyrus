@@ -597,7 +597,7 @@ static void ngx_http_process_request_line(ngx_event_t * rev)
 		return;
 	}
 	rc = NGX_AGAIN;
-	for(;; ) {
+	for(;;) {
 		if(rc == NGX_AGAIN) {
 			n = ngx_http_read_request_header(r);
 			if(n == NGX_AGAIN || n == NGX_ERROR) {
@@ -783,7 +783,7 @@ static void ngx_http_process_request_headers(ngx_event_t * rev)
 	else {
 		ngx_http_core_main_conf_t  * cmcf = (ngx_http_core_main_conf_t *)ngx_http_get_module_main_conf(r, ngx_http_core_module);
 		ngx_int_t rc = NGX_AGAIN;
-		for(;; ) {
+		for(;;) {
 			if(rc == NGX_AGAIN) {
 				if(r->header_in->pos == r->header_in->end) {
 					rv = ngx_http_alloc_large_header_buffer(r, 0);
@@ -1444,7 +1444,7 @@ void ngx_http_run_posted_requests(ngx_connection_t * c)
 {
 	ngx_http_request_t  * r;
 	ngx_http_posted_request_t  * pr;
-	for(;; ) {
+	for(;;) {
 		if(c->destroyed) {
 			return;
 		}

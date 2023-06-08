@@ -471,7 +471,6 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
 		desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 		bd->pd3dDevice->CreateBlendState(&desc, &bd->pBlendState);
 	}
-
 	// Create the rasterizer state
 	{
 		D3D11_RASTERIZER_DESC desc;
@@ -482,7 +481,6 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
 		desc.DepthClipEnable = true;
 		bd->pd3dDevice->CreateRasterizerState(&desc, &bd->pRasterizerState);
 	}
-
 	// Create depth-stencil State
 	{
 		D3D11_DEPTH_STENCIL_DESC desc;
@@ -496,9 +494,7 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
 		desc.BackFace = desc.FrontFace;
 		bd->pd3dDevice->CreateDepthStencilState(&desc, &bd->pDepthStencilState);
 	}
-
 	ImGui_ImplDX11_CreateFontsTexture();
-
 	return true;
 }
 
@@ -533,9 +529,9 @@ bool ImGui_ImplDX11_Init(ID3D11Device* device, ID3D11DeviceContext* device_conte
 	io.BackendRendererName = "imgui_impl_dx11";
 	io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset; // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
 	// Get factory from device
-	IDXGIDevice* pDXGIDevice = nullptr;
-	IDXGIAdapter* pDXGIAdapter = nullptr;
-	IDXGIFactory* pFactory = nullptr;
+	IDXGIDevice  * pDXGIDevice = nullptr;
+	IDXGIAdapter * pDXGIAdapter = nullptr;
+	IDXGIFactory * pFactory = nullptr;
 	if(device->QueryInterface(IID_PPV_ARGS(&pDXGIDevice)) == S_OK)
 		if(pDXGIDevice->GetParent(IID_PPV_ARGS(&pDXGIAdapter)) == S_OK)
 			if(pDXGIAdapter->GetParent(IID_PPV_ARGS(&pFactory)) == S_OK) {
@@ -543,10 +539,8 @@ bool ImGui_ImplDX11_Init(ID3D11Device* device, ID3D11DeviceContext* device_conte
 				bd->pd3dDeviceContext = device_context;
 				bd->pFactory = pFactory;
 			}
-	if(pDXGIDevice)  
-		pDXGIDevice->Release();
-	if(pDXGIAdapter)  
-		pDXGIAdapter->Release();
+	SCOMOBJRELEASE(pDXGIDevice);
+	SCOMOBJRELEASE(pDXGIAdapter);
 	bd->pd3dDevice->AddRef();
 	bd->pd3dDeviceContext->AddRef();
 	return true;

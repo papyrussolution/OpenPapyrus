@@ -320,7 +320,7 @@ static void __db_meta(ENV * env, DB * dbp, DBMETA * dbmeta, FN const * fn, uint3
 	if(dbp && !LF_ISSET(DB_PR_RECOVERYTEST)) {
 		mpf = dbp->mpf;
 		__db_msgadd(env, &mb, "\tfree list: %lu", (ulong)dbmeta->free);
-		for(pgno = dbmeta->free, cnt = 0, sep = ", "; pgno != PGNO_INVALID; ) {
+		for(pgno = dbmeta->free, cnt = 0, sep = ", "; pgno != PGNO_INVALID;) {
 			if((ret = __memp_fget(mpf, &pgno, NULL, NULL, 0, &h)) != 0) {
 				DB_MSGBUF_FLUSH(env, &mb);
 				__db_msg(env, "Unable to retrieve free-list page: %lu: %s", (ulong)pgno, db_strerror(ret));
@@ -642,7 +642,7 @@ int __db_prpage_int(ENV * env, DB_MSGBUF * mbp, DB * dbp, const char * lead, PAG
 					len = 1;
 				__db_msgadd(env, mbp, "Duplicates:");
 				DB_MSGBUF_FLUSH(env, mbp);
-				for(p = HKEYDATA_DATA(hk), ep = p+len; p < ep; ) {
+				for(p = HKEYDATA_DATA(hk), ep = p+len; p < ep;) {
 					memcpy(&dlen, p, sizeof(db_indx_t));
 					p += sizeof(db_indx_t);
 					__db_msgadd(env, mbp, "\t\t");
@@ -952,7 +952,7 @@ retry:
 			continue;
 		}
 		DB_MULTIPLE_INIT(pointer, &data);
-		for(;; ) {
+		for(;;) {
 			if(is_recno)
 				DB_MULTIPLE_RECNO_NEXT(pointer, &data, recno, dataret.data, dataret.size);
 			else

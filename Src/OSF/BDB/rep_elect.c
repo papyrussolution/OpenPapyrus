@@ -862,7 +862,7 @@ static int __rep_tally(ENV * env, REP * rep, int eid, uint32 * countp, uint32 eg
 	else
 		tally = (REP_VTALLY *)R_ADDR(env->reginfo, rep->v2tally_off);
 	vtp = &tally[0];
-	for(i = 0; i < *countp; ) {
+	for(i = 0; i < *countp;) {
 		/*
 		 * Ignore votes from earlier elections (i.e. we've heard
 		 * from this site in this election, but its vote from an

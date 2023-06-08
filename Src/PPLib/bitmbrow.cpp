@@ -4134,7 +4134,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 												PPHistBillPacket hb_pack;
 												if(hb_core.GetPacket(p_sj->data.Extra, &hb_pack) > 0 && hb_pack.GetCount()) {
 													HistTrfrTbl::Rec * p_h_item;
-													for(uint i = 0; hb_pack.EnumItems(&i, &p_h_item); ) {
+													for(uint i = 0; hb_pack.EnumItems(&i, &p_h_item);) {
 														PPTransferItem ti(&P_Pack->Rec, TISIGN_UNDEF);
 														ti.SetupGoods(p_h_item->GoodsID);
 														ti.Quantity_ = p_h_item->Quantity;

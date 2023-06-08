@@ -561,7 +561,7 @@ static void png_write_compressed_data_out(png_structrp png_ptr, compression_stat
 	uint32 avail = (sizeof comp->output);
 	png_compression_buffer * next = png_ptr->zbuffer_list;
 
-	for(;; ) {
+	for(;;) {
 		if(avail > output_len)
 			avail = output_len;
 
@@ -835,7 +835,7 @@ void /*PRIVATE*/ png_compress_IDAT(png_structrp png_ptr, png_const_bytep input, 
 	 */
 	png_ptr->zstream.next_in = PNGZ_INPUT_CAST(input);
 	png_ptr->zstream.avail_in = 0; /* set below */
-	for(;; ) {
+	for(;;) {
 		int ret;
 		/* INPUT: from the row data */
 		uInt avail = ZLIB_IO_MAX;

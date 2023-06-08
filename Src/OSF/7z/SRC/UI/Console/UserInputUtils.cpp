@@ -19,7 +19,7 @@ NUserAnswerMode::EEnum ScanUserYesNoAllQuit(CStdOutStream * outStream)
 {
 	if(outStream)
 		*outStream << kFirstQuestionMessage;
-	for(;; ) {
+	for(;;) {
 		if(outStream) {
 			*outStream << kHelpQuestionMessage;
 			outStream->Flush();

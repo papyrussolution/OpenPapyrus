@@ -676,7 +676,7 @@ int __env_openfiles(ENV * env, DB_LOGC * logc, void * txninfo, DBT * data, DB_LS
 	 */
 	log_size = ((LOG *)env->lg_handle->reginfo.primary)->log_size;
 	lsn = *open_lsn;
-	for(;; ) {
+	for(;;) {
 		if(in_recovery && dbenv->db_feedback) {
 			DB_ASSERT(env, last_lsn != NULL);
 			progress = (int)(33*(__lsn_diff(open_lsn, last_lsn, &lsn, log_size, 1)/nfiles));

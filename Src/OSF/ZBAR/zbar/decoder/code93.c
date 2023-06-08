@@ -66,7 +66,7 @@ static inline int encode6(const zbar_decoder_t * dcode)
 	dbprintf(2, " s=%d ", s);
 	if(s < 9)
 		return -1;
-	for(i = 6; --i > 0; ) {
+	for(i = 6; --i > 0;) {
 		uint c = decode_e(pair_width(dcode, i), s, 9);
 		if(c > 3)
 			return -1;
@@ -82,7 +82,7 @@ static inline int validate_sig(int sig)
 	int    sum = 0, emin = 0, sig0 = 0, sig1 = 0;
 	dbprintf(3, " sum=0");
 	{
-		for(int i = 3; --i >= 0; ) {
+		for(int i = 3; --i >= 0;) {
 			int e = sig & 3;
 			sig >>= 2;
 			sum = e - sum;
@@ -268,7 +268,7 @@ static inline int postprocess(zbar_decoder_t * dcode)
 	}
 
 	n -= 2;
-	for(i = 0, j = 0; i < n; ) {
+	for(i = 0, j = 0; i < n;) {
 		uchar d = dcode->buf[i++];
 		if(d < 0xa)
 			d = '0' + d;

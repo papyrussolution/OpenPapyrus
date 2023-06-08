@@ -1676,6 +1676,9 @@
     <ProjectReference Include="BDB.vcxproj">
       <Project>{151f44bb-2aaa-4e54-91a6-79ba38f41639}</Project>
     </ProjectReference>
+    <ProjectReference Include="gravity.vcxproj">
+      <Project>{ec12be0a-025e-4168-9d2d-419a18cb2ef5}</Project>
+    </ProjectReference>
     <ProjectReference Include="harfbuzz.vcxproj">
       <Project>{be9c6ddf-e9c7-3ecb-9ff3-1fd8a3eb2410}</Project>
     </ProjectReference>
@@ -1690,6 +1693,9 @@
     </ProjectReference>
     <ProjectReference Include="libprotobuf.vcxproj">
       <Project>{f794984c-5ecc-3922-ba3f-6d27cd4bdec7}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libwebp-slib.vcxproj">
+      <Project>{05255f31-2054-4df4-ad6d-5bc5da8ccccf}</Project>
     </ProjectReference>
     <ProjectReference Include="libzint.vcxproj">
       <Project>{f0604a96-528f-40e6-8800-c696f03307a1}</Project>

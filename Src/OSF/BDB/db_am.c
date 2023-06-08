@@ -595,7 +595,7 @@ bulk_next:
 	else if((ret = __dbc_get(dbc, &tkey, &data, f_init)) != 0)
 		goto err;
 	/* Walk through the set of key/data pairs, deleting as we go. */
-	for(;; ) {
+	for(;;) {
 		if((ret = __dbc_del(dbc, flags)) != 0)
 			break;
 		/*

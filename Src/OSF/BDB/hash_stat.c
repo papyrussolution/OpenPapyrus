@@ -55,7 +55,7 @@ int __ham_stat(DBC*dbc, void * spp, uint32 flags)
 		goto done;
 	/* Walk the free list, counting pages. */
 	for(sp->hash_free = 0, pgno = hcp->hdr->dbmeta.free;
-	    pgno != PGNO_INVALID; ) {
+	    pgno != PGNO_INVALID;) {
 		++sp->hash_free;
 		if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, 0, &h)) != 0)
 			goto err;

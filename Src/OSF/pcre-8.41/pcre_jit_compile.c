@@ -4711,7 +4711,7 @@ static BOOL check_class_ranges(compiler_common * common, const sljit_u8 * bits, 
 /* All bits will be zero or one (since bit is zero or one). */
 	all = -bit;
 
-	for(i = 0; i < 256; ) {
+	for(i = 0; i < 256;) {
 		byte = i >> 3;
 		if((i & 0x7) == 0 && bits[byte] == all)
 			i += 8;
@@ -5035,7 +5035,7 @@ static const pcre_uchar * SLJIT_CALL do_utf_caselesscmp(pcre_uchar * src1, jit_a
 		ur = GET_UCD(c2);
 		if(c1 != c2 && c1 != c2 + ur->other_case) {
 			pp = PRIV(ucd_caseless_sets) + ur->caseset;
-			for(;; ) {
+			for(;;) {
 				if(c1 < *pp) return NULL;
 				if(c1 == *pp++) break;
 			}

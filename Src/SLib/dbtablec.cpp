@@ -101,9 +101,9 @@ int FASTCALL DBRowId::FromStr(const char * pStr)
 // extern const uint32 SLobSignature[4];
 static const uint32 SLobSignature[4] = { 0x2efc, 0xd421, 0x426c, 0xee07 }; // @v9.7.11 static
 
-int    SLob::IsStructured() const { return BIN(memcmp(Buf.H.Signature, SLobSignature, sizeof(SLobSignature)) == 0); }
-int    SLob::IsPtr() const { return BIN(IsStructured() && Buf.H.Flags & hfPtr); }
-void * SLob::GetRawDataPtr() { return IsStructured() ? ((Buf.H.Flags & hfPtr) ? (void *)Buf.H.H : 0) : Buf.B; }
+bool   SLob::IsStructured() const { return (memcmp(Buf.H.Signature, SLobSignature, sizeof(SLobSignature)) == 0); }
+bool   SLob::IsPtr() const { return (IsStructured() && Buf.H.Flags & hfPtr); }
+void * SLob::GetRawDataPtr() { return IsStructured() ? ((Buf.H.Flags & hfPtr) ? Buf.H.H : 0) : Buf.B; }
 size_t SLob::GetPtrSize() const { return (IsStructured() && Buf.H.Flags & hfPtr) ? Buf.H.PtrSize : 0; }
 
 int SLob::SetStructured()
@@ -169,7 +169,7 @@ int SLob::DestroyPtr()
 	int    ok = -1;
 	if(IsStructured()) {
 		if(Buf.H.Flags & hfPtr) {
-			SAlloc::F((void *)Buf.H.H);
+			SAlloc::F(Buf.H.H);
 			Buf.H.H = 0;
 			Buf.H.PtrSize = 0;
 			Buf.H.Flags &= ~hfPtr;
@@ -219,7 +219,7 @@ int SLob::Serialize(int dir, size_t flatSize, uint8 * pInd, SBuffer & rBuf)
 //
 //
 //
-DBLobBlock::DBLobBlock() : SVector(sizeof(DBLobItem)) // @v9.8.4 SArray-->SVector
+DBLobBlock::DBLobBlock() : SVector(sizeof(DBLobItem))
 {
 }
 

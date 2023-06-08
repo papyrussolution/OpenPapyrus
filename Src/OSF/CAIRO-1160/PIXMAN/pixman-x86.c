@@ -44,7 +44,6 @@ static cpu_features_t detect_cpu_features(void)
 {
 	cpu_features_t features = 0;
 	uint result = 0;
-
 	if(getisax(&result, 1)) {
 		if(result & AV_386_CMOV)
 			features |= X86_CMOV;
@@ -59,24 +58,20 @@ static cpu_features_t detect_cpu_features(void)
 		if(result & AV_386_SSSE3)
 			features |= X86_SSSE3;
 	}
-
 	return features;
 }
 
 #else
 
-#define _PIXMAN_X86_64                                                  \
-	(defined(__amd64__) || defined(__x86_64__) || defined(_M_AMD64))
+#define _PIXMAN_X86_64 (defined(__amd64__) || defined(__x86_64__) || defined(_M_AMD64))
 
 static boolint have_cpuid(void)
 {
 #if _PIXMAN_X86_64 || defined (_MSC_VER)
 
 	return TRUE;
-
 #elif defined (__GNUC__)
 	uint32 result;
-
 	__asm__ volatile (
 		"pushf"                         "\n\t"
 		"pop %%eax"                     "\n\t"
@@ -103,7 +98,6 @@ static boolint have_cpuid(void)
 static void pixman_cpuid(uint32 feature, uint32 * a, uint32 * b, uint32 * c, uint32 * d)
 {
 #if defined (__GNUC__)
-
 #if _PIXMAN_X86_64
 	__asm__ volatile (
 		"cpuid"                         "\n\t"
@@ -234,8 +228,8 @@ static boolint have_feature(cpu_features_t feature)
 
 pixman_implementation_t * _pixman_x86_get_implementations(pixman_implementation_t * imp)
 {
-#define MMX_BITS  (X86_MMX | X86_MMX_EXTENSIONS)
-#define SSE2_BITS (X86_MMX | X86_MMX_EXTENSIONS | X86_SSE | X86_SSE2)
+#define MMX_BITS   (X86_MMX | X86_MMX_EXTENSIONS)
+#define SSE2_BITS  (X86_MMX | X86_MMX_EXTENSIONS | X86_SSE | X86_SSE2)
 #define SSSE3_BITS (X86_SSE | X86_SSE2 | X86_SSSE3)
 
 #ifdef USE_X86_MMX

@@ -150,7 +150,7 @@ vrfyscroll:
 	}
 startscroll:
 	memzero(&data, sizeof(data));
-	for(;; ) {
+	for(;;) {
 		/*
 		 * We may have reached beyond the range we're verifying.
 		 */

@@ -2758,12 +2758,10 @@ static int process_block(ArchiveRead* a)
 		if(ret != ARCHIVE_OK)
 			return ret;
 	}
-
 	if(rar->cstate.block_parsing_finished) {
 		ssize_t block_size;
 		ssize_t to_skip;
 		ssize_t cur_block_size;
-
 		/* The header size won't be bigger than 6 bytes. */
 		if(!read_ahead(a, 6, &p)) {
 			/* Failed to prefetch data block header. */

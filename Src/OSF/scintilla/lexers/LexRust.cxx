@@ -243,7 +243,7 @@ static void ScanIdentifier(Accessor & styler, Sci_Position& pos, WordList * keyw
 static bool ScanDigits(Accessor & styler, Sci_Position& pos, int base)
 {
 	Sci_Position old_pos = pos;
-	for(;; ) {
+	for(;;) {
 		int c = styler.SafeGetCharAt(pos, '\0');
 		if(IsADigit(c, base) || c == '_')
 			pos++;
@@ -395,7 +395,7 @@ static bool IsValidStringEscape(int c)
 
 static bool ScanNumericEscape(Accessor & styler, Sci_Position& pos, Sci_Position num_digits, bool stop_asap)
 {
-	for(;; ) {
+	for(;;) {
 		int c = styler.SafeGetCharAt(pos, '\0');
 		if(!IsADigit(c, 16))
 			break;
@@ -529,7 +529,7 @@ static void ResumeBlockComment(Accessor & styler, Sci_Position& pos, Sci_Positio
 		maybe_doc_comment = true;
 	}
 
-	for(;; ) {
+	for(;;) {
 		int n = styler.SafeGetCharAt(pos + 1, '\0');
 		if(pos == styler.LineEnd(styler.GetLine(pos)))
 			styler.SetLineState(styler.GetLine(pos), level);
@@ -674,7 +674,7 @@ static void ResumeString(Accessor & styler, Sci_Position& pos, Sci_Position max,
 
 static void ResumeRawString(Accessor & styler, Sci_Position& pos, Sci_Position max, int num_hashes, bool ascii_only)
 {
-	for(;; ) {
+	for(;;) {
 		if(pos == styler.LineEnd(styler.GetLine(pos)))
 			styler.SetLineState(styler.GetLine(pos), num_hashes);
 

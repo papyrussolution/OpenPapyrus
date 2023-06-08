@@ -5990,14 +5990,14 @@ int PrcssrOsm::EndElement(const char * pName)
 /*static*/void PrcssrOsm::Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList) { CALLTYPEPTRMEMB(PrcssrOsm, ptr, StartElement((const char *)pName, (const char **)ppAttrList)); }
 /*static*/void PrcssrOsm::Scb_EndElement(void * ptr, const xmlChar * pName) { CALLTYPEPTRMEMB(PrcssrOsm, ptr, EndElement((const char *)pName)); }
 
-IMPL_CMPCFUNC(STRINT64, p1, p2)
+IMPL_CMPFUNC(STRINT64, p1, p2)
 {
 	int64 v1 = satoi64(static_cast<const char *>(p1));
 	int64 v2 = satoi64(static_cast<const char *>(p2));
 	return CMPSIGN(v1, v2);
 }
 
-IMPL_CMPCFUNC(STRUTF8NOCASE, p1, p2)
+IMPL_CMPFUNC(STRUTF8NOCASE, p1, p2)
 {
 	int   si = -1;
 	const size_t len1 = sstrlen(static_cast<const char *>(p1));
@@ -6432,14 +6432,14 @@ int PrcssrOsm::Run()
 		Phase = phaseSortPreprcResults;
         PPLoadText(PPTXT_SORTSPLIT, FmtMsg_SortSplit);
 		PPLoadText(PPTXT_SORTMERGE, FmtMsg_SortMerge);
-		THROW(SortFile(file_name, "distance", PTR_CMPCFUNC(STRINT64)));
-		THROW(SortFile(file_name, "lat", PTR_CMPCFUNC(STRINT64)));
-		THROW(SortFile(file_name, "lon", PTR_CMPCFUNC(STRINT64)));
-		THROW(SortFile(file_name, "nodewayassoc", PTR_CMPCFUNC(STRINT64)));
-		THROW(SortFile(file_name, "tagrel", PTR_CMPCFUNC(STRUTF8NOCASE)));
-		THROW(SortFile(file_name, "tagway", PTR_CMPCFUNC(STRUTF8NOCASE)));
-		THROW(SortFile(file_name, "tagnode", PTR_CMPCFUNC(STRUTF8NOCASE)));
-		THROW(SortFile(file_name, "tag", PTR_CMPCFUNC(STRUTF8NOCASE)));
+		THROW(SortFile(file_name, "distance", PTR_CMPFUNC(STRINT64)));
+		THROW(SortFile(file_name, "lat", PTR_CMPFUNC(STRINT64)));
+		THROW(SortFile(file_name, "lon", PTR_CMPFUNC(STRINT64)));
+		THROW(SortFile(file_name, "nodewayassoc", PTR_CMPFUNC(STRINT64)));
+		THROW(SortFile(file_name, "tagrel", PTR_CMPFUNC(STRUTF8NOCASE)));
+		THROW(SortFile(file_name, "tagway", PTR_CMPFUNC(STRUTF8NOCASE)));
+		THROW(SortFile(file_name, "tagnode", PTR_CMPFUNC(STRUTF8NOCASE)));
+		THROW(SortFile(file_name, "tag", PTR_CMPFUNC(STRUTF8NOCASE)));
 	}
 	if(P.Flags & PrcssrOsmFilt::fAnlzPreprcResults) {
 		{

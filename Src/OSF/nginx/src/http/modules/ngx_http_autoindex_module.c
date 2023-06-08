@@ -197,7 +197,7 @@ static ngx_int_t ngx_http_autoindex_handler(ngx_http_request_t * r)
 	}
 	filename = path.data;
 	filename[path.len] = '/';
-	for(;; ) {
+	for(;;) {
 		ngx_set_errno(0);
 		if(ngx_read_dir(&dir) == NGX_ERROR) {
 			err = ngx_errno;

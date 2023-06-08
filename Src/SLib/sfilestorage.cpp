@@ -4,6 +4,8 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
+int DummyProc_SFileStorage() { return 1; } // @forcelink
+
 SFileStorage::InnerWritingBlock::InnerWritingBlock() : TotalWrSize(0)
 {
 }
@@ -375,8 +377,6 @@ bool SFileStorage::Read(SHandle handle, void * pBuf, size_t bufSize, size_t * pA
 }
 
 #if SLTEST_RUNNING // {
-
-int DummyProc_SFileStorage() { return 1; } // @forcelink
 
 SLTEST_R(SFileStorage)
 {

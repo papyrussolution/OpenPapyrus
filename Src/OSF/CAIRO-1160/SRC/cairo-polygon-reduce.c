@@ -199,8 +199,8 @@ static inline int _slope_compare(const cairo_bo_edge_t * a, const cairo_bo_edge_
 	{
 		int32 ady = a->edge.line.p2.y - a->edge.line.p1.y;
 		int32 bdy = b->edge.line.p2.y - b->edge.line.p1.y;
-		cairo_int64_t adx_bdy = _cairo_int32x32_64_mul(adx, bdy);
-		cairo_int64_t bdx_ady = _cairo_int32x32_64_mul(bdx, ady);
+		int64 adx_bdy = _cairo_int32x32_64_mul(adx, bdy);
+		int64 bdx_ady = _cairo_int32x32_64_mul(bdx, ady);
 		return _cairo_int64_cmp(adx_bdy, bdx_ady);
 	}
 }
@@ -311,7 +311,7 @@ static int edges_compare_x_for_y_general(const cairo_bo_edge_t * a, const cairo_
 			    return adx;
 		    }
 		    else if(a->edge.line.p1.y == b->edge.line.p1.y) { /* common origin */
-			    cairo_int64_t adx_bdy, bdx_ady;
+			    int64 adx_bdy, bdx_ady;
 
 			    /* ∴ A_dx * B_dy ∘ B_dx * A_dy */
 
@@ -328,7 +328,7 @@ static int edges_compare_x_for_y_general(const cairo_bo_edge_t * a, const cairo_
 			    return dx;
 		    }
 		    else {
-			    cairo_int64_t ady_dx, dy_adx;
+			    int64 ady_dx, dy_adx;
 
 			    ady_dx = _cairo_int32x32_64_mul(ady, dx);
 			    dy_adx = _cairo_int32x32_64_mul(a->edge.line.p1.y - y, adx);
@@ -341,7 +341,7 @@ static int edges_compare_x_for_y_general(const cairo_bo_edge_t * a, const cairo_
 			    return dx;
 		    }
 		    else {
-			    cairo_int64_t bdy_dx, dy_bdx;
+			    int64 bdy_dx, dy_bdx;
 
 			    bdy_dx = _cairo_int32x32_64_mul(bdy, dx);
 			    dy_bdx = _cairo_int32x32_64_mul(y - b->edge.line.p1.y, bdx);
@@ -382,7 +382,7 @@ static int edge_compare_for_y_against_x(const cairo_bo_edge_t * a, int32 y, int3
 {
 	int32 adx, ady;
 	int32 dx, dy;
-	cairo_int64_t L, R;
+	int64 L, R;
 	if(x < a->edge.line.p1.x && x < a->edge.line.p2.x)
 		return 1;
 	if(x > a->edge.line.p1.x && x > a->edge.line.p2.x)
@@ -462,13 +462,13 @@ static int _cairo_bo_sweep_line_compare_edges(cairo_bo_sweep_line_t * sweep_line
 	return b->edge.bottom - a->edge.bottom;
 }
 
-static inline cairo_int64_t det32_64(int32 a, int32 b, int32 c, int32 d)
+static inline int64 det32_64(int32 a, int32 b, int32 c, int32 d)
 {
 	/* det = a * d - b * c */
 	return _cairo_int64_sub(_cairo_int32x32_64_mul(a, d), _cairo_int32x32_64_mul(b, c));
 }
 
-static inline cairo_int128_t det64x32_128(cairo_int64_t a, int32 b, cairo_int64_t c, int32 d)
+static inline cairo_int128_t det64x32_128(int64 a, int32 b, int64 c, int32 d)
 {
 	/* det = a * d - b * c */
 	return _cairo_int128_sub(_cairo_int64x32_128_mul(a, d), _cairo_int64x32_128_mul(c, b));
@@ -482,7 +482,7 @@ static inline cairo_int128_t det64x32_128(cairo_int64_t a, int32 b, cairo_int64_
  */
 static boolint intersect_lines(cairo_bo_edge_t * a, cairo_bo_edge_t * b, cairo_bo_intersect_point_t * intersection)
 {
-	cairo_int64_t a_det, b_det;
+	int64 a_det, b_det;
 	/* XXX: We're assuming here that dx and dy will still fit in 32
 	 * bits. That's not true in general as there could be overflow. We
 	 * should prevent that before the tessellation algorithm begins.
@@ -493,9 +493,9 @@ static boolint intersect_lines(cairo_bo_edge_t * a, cairo_bo_edge_t * b, cairo_b
 	int32 dy1 = a->edge.line.p1.y - a->edge.line.p2.y;
 	int32 dx2 = b->edge.line.p1.x - b->edge.line.p2.x;
 	int32 dy2 = b->edge.line.p1.y - b->edge.line.p2.y;
-	cairo_int64_t R;
+	int64 R;
 	cairo_quorem64_t qr;
-	cairo_int64_t den_det = det32_64(dx1, dy1, dx2, dy2);
+	int64 den_det = det32_64(dx1, dy1, dx2, dy2);
 
 	/* Q: Can we determine that the lines do not intersect (within range)
 	 * much more cheaply than computing the intersection point i.e. by

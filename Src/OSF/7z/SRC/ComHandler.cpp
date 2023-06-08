@@ -408,7 +408,7 @@ namespace NArchive {
 				for(uint32 i = 0; i < numFatItems; i++)
 					used[i] = 0;
 				uint32 sid = Get32(p + 0x30); // directory stream SID
-				for(;; ) {
+				for(;;) {
 					if(sid >= numFatItems)
 						return S_FALSE;
 					if(used[sid])

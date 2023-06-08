@@ -281,7 +281,7 @@ HRes CMemBlockManagerMt::AllocateSpaceAlways(size_t desiredNumberOfBlocks, size_
 {
 	if(numNoLockBlocks > desiredNumberOfBlocks)
 		return E_INVALIDARG;
-	for(;; ) {
+	for(;;) {
 		if(AllocateSpace(desiredNumberOfBlocks, numNoLockBlocks) == 0)
 			return 0;
 		if(desiredNumberOfBlocks == numNoLockBlocks)
@@ -702,7 +702,7 @@ namespace NCompress {
 			}
 			bool wasFinished = false;
 			uint64 processedSize = 0;
-			for(;; ) {
+			for(;;) {
 				size_t size = kBufSize;
 				if(outSize) {
 					const uint64 rem = *outSize - processedSize;
@@ -870,7 +870,7 @@ namespace NCompress {
 			RINOK(_outStream.Res);
 
 			uint64 processed = 0;
-			for(;; ) {
+			for(;;) {
 				uint32 size;
 				RINOK(inStream->Read(_inStream.Buf, kBufSize, &size));
 				if(size == 0) {
@@ -940,7 +940,7 @@ namespace NCompress {
 			Byte lastChar2 = 0;
 			bool moreOut = false;
 			HRESULT res = S_FALSE;
-			for(;; ) {
+			for(;;) {
 				_inProcessed = inBuffer.GetProcessedSize();
 				const uint64 nowPos = outBuffer.GetProcessedSize();
 				bool eofCheck = false;
@@ -1416,7 +1416,7 @@ namespace NArchive {
 
 		void CExtraBlock::RemoveUnknownSubBlocks()
 		{
-			for(uint i = SubBlocks.Size(); i != 0; ) {
+			for(uint i = SubBlocks.Size(); i != 0;) {
 				i--;
 				if(SubBlocks[i].ID != NFileHeader::NExtraID::kWzAES)
 					SubBlocks.Delete(i);
@@ -1714,7 +1714,7 @@ namespace NArchive {
 					return E_OUTOFMEMORY;
 			}
 			uint32 crc = CRC_INIT_VAL;
-			for(;; ) {
+			for(;;) {
 				uint32 processed;
 				RINOK(inStream->Read(_buf, kBufSize, &processed));
 				if(processed == 0) {
@@ -2147,7 +2147,7 @@ namespace NArchive {
 		{
 			HRESULT result = S_OK;
 			processed = 0;
-			for(;; ) {
+			for(;;) {
 				if(size == 0)
 					return S_OK;
 				else {
@@ -2359,8 +2359,8 @@ namespace NArchive {
 
 		MY_NO_INLINE static const Byte * FASTCALL FindPK(const Byte * p, const Byte * limit)
 		{
-			for(;; ) {
-				for(;; ) {
+			for(;;) {
+				for(;;) {
 					Byte b0 = p[0];
 					if(p >= limit)
 						return p;
@@ -2427,7 +2427,7 @@ namespace NArchive {
 			}
 			_inBufMode = true;
 			uint64 progressPrev = 0;
-			for(;; ) {
+			for(;;) {
 				RINOK(LookAhead(kBufSize));
 				const size_t avail = GetAvail();
 				size_t limitPos;
@@ -2516,7 +2516,7 @@ namespace NArchive {
 		HRESULT CInArchive::IncreaseRealPosition(uint64 offset, bool &isFinished)
 		{
 			isFinished = false;
-			for(;; ) {
+			for(;;) {
 				const size_t avail = GetAvail();
 				if(offset <= avail) {
 					_bufPos += (size_t)offset;
@@ -2538,7 +2538,7 @@ namespace NArchive {
 				_cnt += offset;
 				return Stream->Seek(offset, STREAM_SEEK_CUR, &_streamPos);
 			}
-			for(;; ) {
+			for(;;) {
 				if(offset == 0)
 					return S_OK;
 				if(Vols.StreamIndex < 0)
@@ -2596,7 +2596,7 @@ namespace NArchive {
 		 */
 		HRESULT CInArchive::LookAhead(size_t minRequired)
 		{
-			for(;; ) {
+			for(;;) {
 				const size_t avail = GetAvail();
 				if(minRequired <= avail)
 					return S_OK;
@@ -2707,7 +2707,7 @@ namespace NArchive {
 		{
 			if(num == 0)
 				return S_OK;
-			for(;; ) {
+			for(;;) {
 				size_t step = (size_t)1 << 24;
 				SETMIN(step, (size_t)num);
 				Skip(step);
@@ -2897,7 +2897,7 @@ namespace NArchive {
 		// #ifdef _WIN32
 		static bool AreEqualPaths_IgnoreSlashes(const char * s1, const char * s2)
 		{
-			for(;; ) {
+			for(;;) {
 				char c1 = *s1++;
 				char c2 = *s2++;
 				if(c1 == c2) {
@@ -3054,7 +3054,7 @@ namespace NArchive {
 			// Byte *buf = Buffer;
 			uint64 packedSize = 0;
 			uint64 progressPrev = _cnt;
-			for(;; ) {
+			for(;;) {
 				/* appnote specification claims that we must use 64-bit descriptor, if there is zip64 extra.
 				   But some old third-party xps archives used 64-bit descriptor without zip64 extra. */
 				// unsigned descriptorSize = kDataDescriptorSize64 + kNextSignatureSize;
@@ -3307,11 +3307,11 @@ namespace NArchive {
 				return res;
 			if(processed != bufSize)
 				return S_FALSE;
-			for(size_t i = bufSize - kEcdSize + 1;; ) {
+			for(size_t i = bufSize - kEcdSize + 1;;) {
 				if(i == 0)
 					return S_FALSE;
 				const Byte * buf = Buffer;
-				for(;; ) {
+				for(;;) {
 					i--;
 					if(buf[i] == 0x50)
 						break;
@@ -3866,7 +3866,7 @@ namespace NArchive {
 			ASSIGN_PTR(processedSize, 0);
 			if(size == 0)
 				return S_OK;
-			for(;; ) {
+			for(;;) {
 				if(StreamIndex < 0)
 					return S_OK;
 				if((uint)StreamIndex >= Streams.Size())
@@ -4088,7 +4088,7 @@ namespace NArchive {
 					return E_FAIL;
 			#endif
 				const uint64 processedCnt_start = _cnt;
-				for(;; ) {
+				for(;;) {
 					CItemEx cdItem;
 					RINOK(ReadCdItem(cdItem));
 					cdItems.Add(cdItem);
@@ -5364,7 +5364,7 @@ namespace NArchive {
 			thereAreData = false;
 			const size_t kBufSize = 1 << 12;
 			Byte buf[kBufSize];
-			for(;; ) {
+			for(;;) {
 				size_t size = kBufSize;
 				RINOK(ReadStream(stream, buf, &size));
 				if(size == 0)
@@ -5814,7 +5814,7 @@ namespace NArchive {
 		}
 		static bool IsSimpleAsciiString(const wchar_t * s)
 		{
-			for(;; ) {
+			for(;;) {
 				wchar_t c = *s++;
 				if(c == 0)
 					return true;
@@ -6334,7 +6334,7 @@ namespace NArchive {
 				HRes CreateThread() { return Thread.Create(CThreadInfo::CoderThread, this); }
 				void WaitAndCode()
 				{
-					for(;; ) {
+					for(;;) {
 						CompressEvent.Lock();
 						if(!ExitThread) {
 							Result = Coder.Compress(EXTERNAL_CODECS_LOC_VARS InStream, OutStream, SeqMode, FileTime, Progress, CompressingResult);
@@ -7065,7 +7065,7 @@ namespace NArchive {
 				_cachedPos = zerosStart = _phySize;
 			if(zerosStart != _virtPos) {
 				// write zeros to [cachedEnd ... _virtPos)
-				for(;; ) {
+				for(;;) {
 					uint64 cachedEnd = _cachedPos + _cachedSize;
 					size_t endPos = (size_t)cachedEnd & kCacheMask;
 					size_t curSize = kCacheSize - endPos;

@@ -463,7 +463,7 @@ next:
 		ctx->index = 0;
 	}
 	if(flush) {
-		for(;; ) {
+		for(;;) {
 			start = offset - (ngx_int_t)tables->min_match_len + 1;
 			if(start >= end) {
 				break;

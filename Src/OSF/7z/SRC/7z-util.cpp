@@ -772,7 +772,7 @@ static const char k_DefultChar = '_';
 		{
 			uint i;
 			const char * s = (const char *)src;
-			for(i = 0;; ) {
+			for(i = 0;;) {
 				Byte c = (Byte)s[i];
 				if(c == 0)
 					break;
@@ -799,7 +799,7 @@ static const char k_DefultChar = '_';
 		{
 			const wchar_t * s = (const wchar_t *)src;
 			uint i;
-			for(i = 0;; ) {
+			for(i = 0;;) {
 				wchar_t c = s[i];
 				if(c == 0)
 					break;
@@ -973,7 +973,7 @@ static void ReplaceIncorrectChars(UString &s)
 		 */
 		{
 			uint i;
-			for(i = s.Len(); i != 0; ) {
+			for(i = s.Len(); i != 0;) {
 				wchar_t c = s[i - 1];
 				if(c != '.' && c != ' ')
 					break;
@@ -1030,7 +1030,7 @@ static void ReplaceIncorrectChars(UString &s)
 					continue;
 				len++;
 			}
-			for(;; ) {
+			for(;;) {
 				wchar_t c = name[len++];
 				if(c == 0 || c == '.')
 					return false;
@@ -1111,7 +1111,7 @@ void Correct_FsPath(bool absIsAllowed, UStringVector &parts, bool isDir)
 		}
     #endif
 	}
-	for(; i < parts.Size(); ) {
+	for(; i < parts.Size();) {
 		UString &s = parts[i];
 		Correct_PathPart(s);
 		if(s.IsEmpty()) {
@@ -1152,7 +1152,7 @@ UString FASTCALL MakePathFromParts(const UStringVector & parts)
 //
 uint FASTCALL GetNumSlashes(const FChar * s)
 {
-	for(uint numSlashes = 0;; ) {
+	for(uint numSlashes = 0;;) {
 		FChar c = *s++;
 		if(c == 0)
 			return numSlashes;

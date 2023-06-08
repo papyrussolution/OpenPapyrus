@@ -1998,10 +1998,10 @@ private:
 #define TV_SUBSIGN_COMBOBOX  17  // ComboBox
 #define TV_SUBSIGN_IMAGEVIEW 18  // TImageView
 
-class TBitmapHash {
+class TBitmapCache {
 public:
-	TBitmapHash();
-	~TBitmapHash();
+	TBitmapCache();
+	~TBitmapCache();
 	HBITMAP    FASTCALL Get(uint bmpId);
 	HBITMAP    FASTCALL GetSystem(uint bmpId);
 private:
@@ -2944,8 +2944,8 @@ public:
 	//
 	// Descr: Возвращает !0 если опция f установлена в поле TWhatmanObject::Options.
 	//
-	int    FASTCALL HasOption(int f) const;
-	int    FASTCALL HasState(int f) const;
+	bool   FASTCALL HasOption(int f) const;
+	bool   FASTCALL HasState(int f) const;
 	int    SetTextOptions(const TextParam * pParam);
 	const TextParam & GetTextOptions() const;
 	//
@@ -4875,7 +4875,7 @@ private:
 	long   State;
 	WNDPROC PrevCloseWndProc;
 	HWND   H_FrameWnd;
-	TBitmapHash BmH;
+	TBitmapCache BmH;
 	SPaintToolBox UiToolBox;      // Набор инструментов для отрисовки компонентов пользовательского интерфейса.
 	TWhatmanToolArray DvToolList; // Векторные изображения, загружаемые из внешнего файла
 	UserInterfaceSettings UICfg;

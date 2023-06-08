@@ -1730,16 +1730,13 @@ static void libsais64_radix_sort_lms_suffixes_32s_6k_block_omp(const sa_sint_t *
 		fast_sint_t omp_num_threads   = omp_get_num_threads();
 #else
 		UNUSED(threads); UNUSED(cache);
-
 		fast_sint_t omp_thread_num    = 0;
 		fast_sint_t omp_num_threads   = 1;
 #endif
 		fast_sint_t omp_block_stride  = (block_size / omp_num_threads) & (-16);
 		fast_sint_t omp_block_start   = omp_thread_num * omp_block_stride;
 		fast_sint_t omp_block_size    = omp_thread_num < omp_num_threads - 1 ? omp_block_stride : block_size - omp_block_start;
-
 		omp_block_start += block_start;
-
 		if(omp_num_threads == 1) {
 			libsais64_radix_sort_lms_suffixes_32s_6k(T, SA, induction_bucket, omp_block_start, omp_block_size);
 		}
@@ -1748,16 +1745,12 @@ static void libsais64_radix_sort_lms_suffixes_32s_6k_block_omp(const sa_sint_t *
 			{
 				libsais64_radix_sort_lms_suffixes_32s_block_gather(T, SA, cache - block_start, omp_block_start, omp_block_size);
 			}
-
 	    #pragma omp barrier
-
 	    #pragma omp master
 			{
 				libsais64_radix_sort_lms_suffixes_32s_6k_block_sort(induction_bucket, cache - block_start, block_start, block_size);
 			}
-
 	    #pragma omp barrier
-
 			{
 				libsais64_place_cached_suffixes(SA, cache - block_start, omp_block_start, omp_block_size);
 			}
@@ -1766,13 +1759,8 @@ static void libsais64_radix_sort_lms_suffixes_32s_6k_block_omp(const sa_sint_t *
 	}
 }
 
-static void libsais64_radix_sort_lms_suffixes_32s_2k_block_omp(const sa_sint_t * _RESTRICT T,
-    sa_sint_t * _RESTRICT SA,
-    sa_sint_t * _RESTRICT induction_bucket,
-    LIBSAIS_THREAD_CACHE * _RESTRICT cache,
-    fast_sint_t block_start,
-    fast_sint_t block_size,
-    sa_sint_t threads)
+static void libsais64_radix_sort_lms_suffixes_32s_2k_block_omp(const sa_sint_t * _RESTRICT T, sa_sint_t * _RESTRICT SA,
+    sa_sint_t * _RESTRICT induction_bucket, LIBSAIS_THREAD_CACHE * _RESTRICT cache, fast_sint_t block_start, fast_sint_t block_size, sa_sint_t threads)
 {
 #if defined(LIBSAIS_OPENMP)
     #pragma omp parallel num_threads(threads) if(threads > 1 && block_size >= 16384)
@@ -1790,9 +1778,7 @@ static void libsais64_radix_sort_lms_suffixes_32s_2k_block_omp(const sa_sint_t *
 		fast_sint_t omp_block_stride  = (block_size / omp_num_threads) & (-16);
 		fast_sint_t omp_block_start   = omp_thread_num * omp_block_stride;
 		fast_sint_t omp_block_size    = omp_thread_num < omp_num_threads - 1 ? omp_block_stride : block_size - omp_block_start;
-
 		omp_block_start += block_start;
-
 		if(omp_num_threads == 1) {
 			libsais64_radix_sort_lms_suffixes_32s_2k(T, SA, induction_bucket, omp_block_start, omp_block_size);
 		}
@@ -1801,16 +1787,12 @@ static void libsais64_radix_sort_lms_suffixes_32s_2k_block_omp(const sa_sint_t *
 			{
 				libsais64_radix_sort_lms_suffixes_32s_block_gather(T, SA, cache - block_start, omp_block_start, omp_block_size);
 			}
-
 	    #pragma omp barrier
-
 	    #pragma omp master
 			{
 				libsais64_radix_sort_lms_suffixes_32s_2k_block_sort(induction_bucket, cache - block_start, block_start, block_size);
 			}
-
 	    #pragma omp barrier
-
 			{
 				libsais64_place_cached_suffixes(SA, cache - block_start, omp_block_start, omp_block_size);
 			}
@@ -1821,13 +1803,8 @@ static void libsais64_radix_sort_lms_suffixes_32s_2k_block_omp(const sa_sint_t *
 
 #endif
 
-static void libsais64_radix_sort_lms_suffixes_32s_6k_omp(const sa_sint_t * _RESTRICT T,
-    sa_sint_t * _RESTRICT SA,
-    sa_sint_t n,
-    sa_sint_t m,
-    sa_sint_t * _RESTRICT induction_bucket,
-    sa_sint_t threads,
-    LIBSAIS_THREAD_STATE * _RESTRICT thread_state)
+static void libsais64_radix_sort_lms_suffixes_32s_6k_omp(const sa_sint_t * _RESTRICT T, sa_sint_t * _RESTRICT SA,
+    sa_sint_t n, sa_sint_t m, sa_sint_t * _RESTRICT induction_bucket, sa_sint_t threads, LIBSAIS_THREAD_STATE * _RESTRICT thread_state)
 {
 	if(threads == 1 || m < 65536) {
 		libsais64_radix_sort_lms_suffixes_32s_6k(T, SA, induction_bucket, (fast_sint_t)n - (fast_sint_t)m + 1, (fast_sint_t)m - 1);
@@ -1839,14 +1816,8 @@ static void libsais64_radix_sort_lms_suffixes_32s_6k_omp(const sa_sint_t * _REST
 			block_end = block_start + (fast_sint_t)threads * LIBSAIS_PER_THREAD_CACHE_SIZE; if(block_end >= m) {
 				block_end = (fast_sint_t)m - 1;
 			}
-
-			libsais64_radix_sort_lms_suffixes_32s_6k_block_omp(T,
-			    SA,
-			    induction_bucket,
-			    thread_state[0].state.cache,
-			    (fast_sint_t)n - block_end,
-			    block_end - block_start,
-			    threads);
+			libsais64_radix_sort_lms_suffixes_32s_6k_block_omp(T, SA, induction_bucket, thread_state[0].state.cache, (fast_sint_t)n - block_end,
+			    block_end - block_start, threads);
 		}
 	}
 #else
@@ -1854,13 +1825,8 @@ static void libsais64_radix_sort_lms_suffixes_32s_6k_omp(const sa_sint_t * _REST
 #endif
 }
 
-static void libsais64_radix_sort_lms_suffixes_32s_2k_omp(const sa_sint_t * _RESTRICT T,
-    sa_sint_t * _RESTRICT SA,
-    sa_sint_t n,
-    sa_sint_t m,
-    sa_sint_t * _RESTRICT induction_bucket,
-    sa_sint_t threads,
-    LIBSAIS_THREAD_STATE * _RESTRICT thread_state)
+static void libsais64_radix_sort_lms_suffixes_32s_2k_omp(const sa_sint_t * _RESTRICT T, sa_sint_t * _RESTRICT SA,
+    sa_sint_t n, sa_sint_t m, sa_sint_t * _RESTRICT induction_bucket, sa_sint_t threads, LIBSAIS_THREAD_STATE * _RESTRICT thread_state)
 {
 	if(threads == 1 || m < 65536) {
 		libsais64_radix_sort_lms_suffixes_32s_2k(T, SA, induction_bucket, (fast_sint_t)n - (fast_sint_t)m + 1, (fast_sint_t)m - 1);
@@ -1872,14 +1838,8 @@ static void libsais64_radix_sort_lms_suffixes_32s_2k_omp(const sa_sint_t * _REST
 			block_end = block_start + (fast_sint_t)threads * LIBSAIS_PER_THREAD_CACHE_SIZE; if(block_end >= m) {
 				block_end = (fast_sint_t)m - 1;
 			}
-
-			libsais64_radix_sort_lms_suffixes_32s_2k_block_omp(T,
-			    SA,
-			    induction_bucket,
-			    thread_state[0].state.cache,
-			    (fast_sint_t)n - block_end,
-			    block_end - block_start,
-			    threads);
+			libsais64_radix_sort_lms_suffixes_32s_2k_block_omp(T, SA, induction_bucket, thread_state[0].state.cache, (fast_sint_t)n - block_end,
+			    block_end - block_start, threads);
 		}
 	}
 #else
@@ -8325,9 +8285,7 @@ static void libsais64_unbwt_decode_6(uint8_t * _RESTRICT U,
 	uint16_t * _RESTRICT U3 = (uint16_t *)(void *)(((uint8_t *)U2) + r);
 	uint16_t * _RESTRICT U4 = (uint16_t *)(void *)(((uint8_t *)U3) + r);
 	uint16_t * _RESTRICT U5 = (uint16_t *)(void *)(((uint8_t *)U4) + r);
-
 	fast_uint_t i, p0 = *i0, p1 = *i1, p2 = *i2, p3 = *i3, p4 = *i4, p5 = *i5;
-
 	for(i = 0; i != k; ++i) {
 		uint16_t c0 = fastbits[p0 >> shift]; if(bucket2[c0] <= p0) {
 			do {
@@ -8366,24 +8324,12 @@ static void libsais64_unbwt_decode_6(uint8_t * _RESTRICT U,
 		}
 		p5 = P[p5]; U5[i] = libsais64_bswap16(c5);
 	}
-
 	*i0 = p0; *i1 = p1; *i2 = p2; *i3 = p3; *i4 = p4; *i5 = p5;
 }
 
-static void libsais64_unbwt_decode_7(uint8_t * _RESTRICT U,
-    sa_uint_t * _RESTRICT P,
-    sa_uint_t * _RESTRICT bucket2,
-    uint16_t * _RESTRICT fastbits,
-    fast_uint_t shift,
-    fast_uint_t r,
-    fast_uint_t * i0,
-    fast_uint_t * i1,
-    fast_uint_t * i2,
-    fast_uint_t * i3,
-    fast_uint_t * i4,
-    fast_uint_t * i5,
-    fast_uint_t * i6,
-    fast_uint_t k)
+static void libsais64_unbwt_decode_7(uint8_t * _RESTRICT U, sa_uint_t * _RESTRICT P, sa_uint_t * _RESTRICT bucket2, uint16_t * _RESTRICT fastbits,
+    fast_uint_t shift, fast_uint_t r, fast_uint_t * i0, fast_uint_t * i1, fast_uint_t * i2, fast_uint_t * i3, fast_uint_t * i4, fast_uint_t * i5,
+    fast_uint_t * i6, fast_uint_t k)
 {
 	uint16_t * _RESTRICT U0 = (uint16_t *)(void *)U;
 	uint16_t * _RESTRICT U1 = (uint16_t *)(void *)(((uint8_t *)U0) + r);
@@ -8392,9 +8338,7 @@ static void libsais64_unbwt_decode_7(uint8_t * _RESTRICT U,
 	uint16_t * _RESTRICT U4 = (uint16_t *)(void *)(((uint8_t *)U3) + r);
 	uint16_t * _RESTRICT U5 = (uint16_t *)(void *)(((uint8_t *)U4) + r);
 	uint16_t * _RESTRICT U6 = (uint16_t *)(void *)(((uint8_t *)U5) + r);
-
 	fast_uint_t i, p0 = *i0, p1 = *i1, p2 = *i2, p3 = *i3, p4 = *i4, p5 = *i5, p6 = *i6;
-
 	for(i = 0; i != k; ++i) {
 		uint16_t c0 = fastbits[p0 >> shift]; if(bucket2[c0] <= p0) {
 			do {
@@ -8439,25 +8383,12 @@ static void libsais64_unbwt_decode_7(uint8_t * _RESTRICT U,
 		}
 		p6 = P[p6]; U6[i] = libsais64_bswap16(c6);
 	}
-
 	*i0 = p0; *i1 = p1; *i2 = p2; *i3 = p3; *i4 = p4; *i5 = p5; *i6 = p6;
 }
 
-static void libsais64_unbwt_decode_8(uint8_t * _RESTRICT U,
-    sa_uint_t * _RESTRICT P,
-    sa_uint_t * _RESTRICT bucket2,
-    uint16_t * _RESTRICT fastbits,
-    fast_uint_t shift,
-    fast_uint_t r,
-    fast_uint_t * i0,
-    fast_uint_t * i1,
-    fast_uint_t * i2,
-    fast_uint_t * i3,
-    fast_uint_t * i4,
-    fast_uint_t * i5,
-    fast_uint_t * i6,
-    fast_uint_t * i7,
-    fast_uint_t k)
+static void libsais64_unbwt_decode_8(uint8_t * _RESTRICT U, sa_uint_t * _RESTRICT P, sa_uint_t * _RESTRICT bucket2, uint16_t * _RESTRICT fastbits,
+    fast_uint_t shift, fast_uint_t r, fast_uint_t * i0, fast_uint_t * i1, fast_uint_t * i2, fast_uint_t * i3, fast_uint_t * i4, fast_uint_t * i5,
+    fast_uint_t * i6, fast_uint_t * i7, fast_uint_t k)
 {
 	uint16_t * _RESTRICT U0 = (uint16_t *)(void *)U;
 	uint16_t * _RESTRICT U1 = (uint16_t *)(void *)(((uint8_t *)U0) + r);
@@ -8467,9 +8398,7 @@ static void libsais64_unbwt_decode_8(uint8_t * _RESTRICT U,
 	uint16_t * _RESTRICT U5 = (uint16_t *)(void *)(((uint8_t *)U4) + r);
 	uint16_t * _RESTRICT U6 = (uint16_t *)(void *)(((uint8_t *)U5) + r);
 	uint16_t * _RESTRICT U7 = (uint16_t *)(void *)(((uint8_t *)U6) + r);
-
 	fast_uint_t i, p0 = *i0, p1 = *i1, p2 = *i2, p3 = *i3, p4 = *i4, p5 = *i5, p6 = *i6, p7 = *i7;
-
 	for(i = 0; i != k; ++i) {
 		uint16_t c0 = fastbits[p0 >> shift]; if(bucket2[c0] <= p0) {
 			do {

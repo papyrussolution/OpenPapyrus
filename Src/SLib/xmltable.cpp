@@ -496,7 +496,7 @@ int XmlDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 				if(fld.Name.HasChr('/') || fld.Name.HasChr('\\')) {
 					const char * p = 0;
 					const size_t len = fld.Name.Len();
-					for(size_t start = 0; start < len; ) {
+					for(size_t start = 0; start < len;) {
 						const char * p_fld_name = (fld.Name + start);
 						p = sstrchr(p_fld_name, '/');
 						SETIFZ(p, sstrchr(p_fld_name, '\\'));

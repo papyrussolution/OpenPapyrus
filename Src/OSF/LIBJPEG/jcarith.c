@@ -452,10 +452,10 @@ METHODDEF(boolean) encode_mcu_AC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data
 		}
 	} while(--ke);
 	// Figure F.5: Encode_AC_Coefficients 
-	for(k = cinfo->Ss - 1; k < ke; ) {
+	for(k = cinfo->Ss - 1; k < ke;) {
 		st = entropy->ac_stats[tbl] + 3 * k;
 		arith_encode(cinfo, st, 0); // EOB decision 
-		for(;; ) {
+		for(;;) {
 			if((v = (*block)[natural_order[++k]]) >= 0) {
 				if(v >>= cinfo->Al) {
 					arith_encode(cinfo, st + 1, 1);
@@ -594,11 +594,11 @@ METHODDEF(boolean) encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 		}
 
 	/* Figure G.10: Encode_AC_Coefficients_SA */
-	for(k = cinfo->Ss - 1; k < ke; ) {
+	for(k = cinfo->Ss - 1; k < ke;) {
 		st = entropy->ac_stats[tbl] + 3 * k;
 		if(k >= kex)
 			arith_encode(cinfo, st, 0); /* EOB decision */
-		for(;; ) {
+		for(;;) {
 			if((v = (*block)[natural_order[++k]]) >= 0) {
 				if(v >>= cinfo->Al) {
 					if(v >> 1) /* previously nonzero coef */
@@ -722,7 +722,7 @@ METHODDEF(boolean) encode_mcu(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 		} while(--ke);
 
 		/* Figure F.5: Encode_AC_Coefficients */
-		for(k = 0; k < ke; ) {
+		for(k = 0; k < ke;) {
 			st = entropy->ac_stats[tbl] + 3 * k;
 			arith_encode(cinfo, st, 0); /* EOB decision */
 			while((v = (*block)[natural_order[++k]]) == 0) {

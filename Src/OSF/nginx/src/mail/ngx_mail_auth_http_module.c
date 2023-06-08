@@ -356,7 +356,7 @@ static void ngx_mail_auth_http_process_headers(ngx_mail_session_t * s, ngx_mail_
 	ngx_int_t rc, port, n;
 	ngx_addr_t  * peer;
 	ngx_log_debug0(NGX_LOG_DEBUG_MAIL, s->connection->log, 0, "mail auth http process headers");
-	for(;; ) {
+	for(;;) {
 		rc = ngx_mail_auth_http_parse_header_line(s, ctx);
 		if(rc == NGX_OK) {
 #if (NGX_DEBUG)

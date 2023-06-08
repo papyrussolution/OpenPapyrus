@@ -4393,21 +4393,23 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 						PPID   grp_id = NZOR(Filt.GrpID, Filt.GrpIDList.GetSingle());
 						PPObjArticle ar_obj;
 						ArticleTbl::Rec ar_rec;
-						// @v10.6.4 MEMSZERO(ar_rec);
 						const PPID acs_id = (ar_obj.Fetch(src_ar_id, &ar_rec) > 0) ? ar_rec.AccSheetID : GetSupplAccSheet();
 						if(acs_id) {
 							TDialog * dlg = new TDialog(DLG_MOVARCODE);
 							if(CheckDialogPtrErr(&dlg)) {
-								SString temp_buf;
 								PPID   dest_ar_id = 0;
+								long   movarcodflags = 0;
 								SetupArCombo(dlg, CTLSEL_MOVARCODE_DESTAR, dest_ar_id, 0, acs_id, sacfDisableIfZeroSheet);
 								dlg->setCtrlData(CTL_MOVARCODE_SRCAR, ar_rec.Name);
-								dlg->setCtrlString(CTL_MOVARCODE_GGRP, GetGoodsName(grp_id, temp_buf));
+								dlg->setCtrlString(CTL_MOVARCODE_GGRP, GetGoodsName(grp_id, SLS.AcquireRvlStr()));
+								dlg->AddClusterAssoc(CTL_MOVARCODE_FLAGS, 0, GoodsCore::movarcodfCopyOnly);
+								dlg->SetClusterData(CTL_MOVARCODE_FLAGS, movarcodflags);
 								if(ExecView(dlg) == cmOK) {
 									dest_ar_id = dlg->getCtrlLong(CTLSEL_MOVARCODE_DESTAR);
+									dlg->GetClusterData(CTL_MOVARCODE_FLAGS, &movarcodflags);
 									if(dest_ar_id) {
 										PPLogger logger;
-										if(!GObj.P_Tbl->MoveArCodes(dest_ar_id, src_ar_id, grp_id, &logger, 1))
+										if(!GObj.P_Tbl->MoveArCodes(dest_ar_id, src_ar_id, grp_id, movarcodflags, &logger, 1))
 											PPError();
 										else {
 											ok = 1;

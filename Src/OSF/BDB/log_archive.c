@@ -323,7 +323,7 @@ static int __build_data(ENV * env, char * pref, char *** listp)
 	memzero(&rec, sizeof(rec));
 	if((ret = __log_cursor(env, &logc)) != 0)
 		return ret;
-	for(n = 0; (ret = __logc_get(logc, &lsn, &rec, DB_PREV)) == 0; ) {
+	for(n = 0; (ret = __logc_get(logc, &lsn, &rec, DB_PREV)) == 0;) {
 		if(rec.size < sizeof(rectype)) {
 			ret = EINVAL;
 			__db_errx(env, DB_STR("2572", "DB_ENV->log_archive: bad log record"));
@@ -383,7 +383,7 @@ free_continue:
 	//
 	// Build the real pathnames, discarding nonexistent files and duplicates.
 	//
-	for(last = nxt = 0; nxt < n; ) {
+	for(last = nxt = 0; nxt < n;) {
 		//
 		// Discard duplicates.  Last is the next slot we're going
 		// to return to the user, nxt is the next slot that we're going to consider.

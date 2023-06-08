@@ -370,7 +370,7 @@ static int locke_shuffle_init(const RealArray & rX, RealArray & rResult)
 	}
 }
 
-IMPL_CMPCFUNC(lockes_test_rand, i1, i2)
+IMPL_CMPFUNC(lockes_test_rand, i1, i2)
 {
 	SRng * p_rng = static_cast<SRng *>(pExtraData);
 	ulong r = p_rng ? p_rng->GetUniformInt(8096) : 0;
@@ -420,7 +420,7 @@ static double Lockes_Z_Test(const RealArray & x)
 		p_rng = SRng::CreateInstance(SRng::algMT, 0);
 		p_rng->Set(getcurtime_());
 		for(uint j = 0; j < nrepeat; j++) {
-			sx.sort(PTR_CMPCFUNC(lockes_test_rand), p_rng);
+			sx.sort(PTR_CMPFUNC(lockes_test_rand), p_rng);
 			t = 0;
 			for(i = 0; i < m; i++) {
 				u[i] = sx[t] + sx[t+1];

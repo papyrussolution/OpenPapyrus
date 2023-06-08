@@ -318,32 +318,27 @@ ft_corner_is_flat(FT_Pos in_x,
  * Return the most significant bit index.
  */
 #ifndef  FT_CONFIG_OPTION_NO_ASSEMBLER
-#if defined( __GNUC__) && (__GNUC__ > 3 || ( __GNUC__ == 3 && __GNUC_MINOR__ >= 4 ))
-	#if FT_SIZEOF_INT == 4
-		#define FT_MSB(x)  ( 31 - __builtin_clz(x))
-	#elif FT_SIZEOF_LONG == 4
-		#define FT_MSB(x)  ( 31 - __builtin_clzl(x))
-	#endif /* __GNUC__ */
-#elif defined( _MSC_VER) && (_MSC_VER >= 1400 )
+	#if defined( __GNUC__) && (__GNUC__ > 3 || ( __GNUC__ == 3 && __GNUC_MINOR__ >= 4 ))
+		#if FT_SIZEOF_INT == 4
+			#define FT_MSB(x)  ( 31 - __builtin_clz(x))
+		#elif FT_SIZEOF_LONG == 4
+			#define FT_MSB(x)  ( 31 - __builtin_clzl(x))
+		#endif /* __GNUC__ */
+	#elif defined( _MSC_VER) && (_MSC_VER >= 1400 )
+		#if FT_SIZEOF_INT == 4
+			#include <intrin.h>
+			#pragma intrinsic( _BitScanReverse )
 
-#if FT_SIZEOF_INT == 4
+			static __inline FT_Int32 FT_MSB_i386(FT_UInt32 x)
+			{
+				ulong where;
+				_BitScanReverse(&where, x);
+				return (FT_Int32)where;
+			}
 
-#include <intrin.h>
-#pragma intrinsic( _BitScanReverse )
-
-static __inline FT_Int32 FT_MSB_i386(FT_UInt32 x)
-{
-	ulong where;
-	_BitScanReverse(&where, x);
-	return (FT_Int32)where;
-}
-
-#define FT_MSB(x)  ( FT_MSB_i386(x))
-
-#endif
-
-#endif /* _MSC_VER */
-
+			#define FT_MSB(x)  ( FT_MSB_i386(x))
+		#endif
+	#endif /* _MSC_VER */
 #endif /* !FT_CONFIG_OPTION_NO_ASSEMBLER */
 
 #ifndef FT_MSB

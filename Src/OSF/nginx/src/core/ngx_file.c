@@ -133,7 +133,7 @@ ngx_int_t ngx_create_temp_file(ngx_file_t * file, ngx_path_t * path, ngx_pool_t 
 	if(cln == NULL) {
 		return NGX_ERROR;
 	}
-	for(;; ) {
+	for(;;) {
 		(void)ngx_sprintf(p, "%010uD%Z", n);
 		if(!prefix) {
 			ngx_create_hashed_filename(path, file->name.data, file->name.len);
@@ -670,7 +670,7 @@ ngx_int_t ngx_walk_tree(ngx_tree_ctx_t * ctx, ngx_str_t * tree)
 	else {
 		data = NULL;
 	}
-	for(;; ) {
+	for(;;) {
 		ngx_set_errno(0);
 		if(ngx_read_dir(&dir) == NGX_ERROR) {
 			err = ngx_errno;

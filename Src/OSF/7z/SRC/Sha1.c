@@ -124,9 +124,9 @@ void Sha1_Update(CSha1 * p, const Byte * data, size_t size)
 			if(pos2 == 0)
 				pos++;
 		}
-		for(;; ) {
+		for(;;) {
 			if(pos == SHA1_NUM_BLOCK_WORDS) {
-				for(;; ) {
+				for(;;) {
 					size_t i;
 					Sha1_UpdateBlock(p);
 					if(size < SHA1_BLOCK_SIZE)

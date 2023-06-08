@@ -66,7 +66,7 @@ class SLob { // @persistent @noctr @novtbl size=32
 public:
 	void   FASTCALL Init(void * descriptor);
 	int    FASTCALL InitPtr(uint32 sz);
-	int    IsPtr() const;
+	bool   IsPtr() const;
 	//
 	// Descr: Устанавливает структурированный объект с нулевым манипулятором.
 	//
@@ -90,7 +90,7 @@ public:
 	int    EnsureUnstructured();
 private:
 	int    SetStructured();
-	int    IsStructured() const;
+	bool   IsStructured() const;
 
 	enum {
 		hfPtr = 0x0001 // Поле Hdr.H является указателем на динамически распределенную
@@ -4091,7 +4091,7 @@ public:
 	};
 	class Config {
 	public:
-		void   Clear();
+		Config & Z();
 
 		int    IdxType;      // BDbTable::idxtypXXX
 		long   Flags;        // BDbTable::cfXXX

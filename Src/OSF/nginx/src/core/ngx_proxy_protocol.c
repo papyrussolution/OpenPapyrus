@@ -27,7 +27,7 @@ u_char * ngx_proxy_protocol_read(ngx_connection_t * c, u_char * buf, u_char * la
 	}
 	p += 5;
 	addr = p;
-	for(;; ) {
+	for(;;) {
 		if(p == last) {
 			goto invalid;
 		}
@@ -46,7 +46,7 @@ u_char * ngx_proxy_protocol_read(ngx_connection_t * c, u_char * buf, u_char * la
 	}
 	memcpy(c->proxy_protocol_addr.data, addr, len);
 	c->proxy_protocol_addr.len = len;
-	for(;; ) {
+	for(;;) {
 		if(p == last) {
 			goto invalid;
 		}
@@ -55,7 +55,7 @@ u_char * ngx_proxy_protocol_read(ngx_connection_t * c, u_char * buf, u_char * la
 		}
 	}
 	port = p;
-	for(;; ) {
+	for(;;) {
 		if(p == last) {
 			goto invalid;
 		}

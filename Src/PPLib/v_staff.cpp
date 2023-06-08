@@ -90,7 +90,7 @@ int FASTCALL PPViewStaffList::CheckForFilt(const PPStaffEntry & rItem) const
 	return BIN((!Filt.OrgID || rItem.OrgID == Filt.OrgID) && (!Filt.DivID || rItem.DivisionID == Filt.DivID));
 }
 
-IMPL_CMPCFUNC(PPViewStaffList_BrwEntry_Name, p1, p2)
+IMPL_CMPFUNC(PPViewStaffList_BrwEntry_Name, p1, p2)
 {
 	int   si = 0;
 	PPObjStaffList * p_obj = static_cast<PPObjStaffList *>(pExtraData);
@@ -142,7 +142,7 @@ int PPViewStaffList::FetchData(PPID id)
 		else if(found)
 			THROW_SL(Data.atFree(pos));
 	}
-	Data.sort(PTR_CMPCFUNC(PPViewStaffList_BrwEntry_Name), &SlObj);
+	Data.sort(PTR_CMPFUNC(PPViewStaffList_BrwEntry_Name), &SlObj);
 	CATCHZOK
 	return ok;
 }

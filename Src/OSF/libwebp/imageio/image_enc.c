@@ -19,17 +19,15 @@
 	// @v11.7.1 #include <setjmp.h>   // note: this must be included *after* png.h
 #endif
 #ifdef HAVE_WINCODEC_H
-#ifdef __MINGW32__
-#define INITGUID  // Without this GUIDs are declared extern and fail to link
-#endif
-#define CINTERFACE
-#define COBJMACROS
-//#define _WIN32_IE 0x500  // Workaround bug in shlwapi.h when compiling C++ code with COBJMACROS.
-#include <ole2.h>  // CreateStreamOnHGlobal()
-#include <shlwapi.h>
-//@v11.7.1 #include <tchar.h>
-//#include <windows.h>
-#include <wincodec.h>
+	#ifdef __MINGW32__
+		#define INITGUID  // Without this GUIDs are declared extern and fail to link
+	#endif
+	#define CINTERFACE
+	#define COBJMACROS
+	//#define _WIN32_IE 0x500  // Workaround bug in shlwapi.h when compiling C++ code with COBJMACROS.
+	#include <ole2.h>  // CreateStreamOnHGlobal()
+	#include <shlwapi.h>
+	#include <wincodec.h>
 #endif
 #include "./imageio_util.h"
 #include "../examples/unicode.h"

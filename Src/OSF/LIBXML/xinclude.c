@@ -1630,7 +1630,7 @@ xinclude_multibyte_fallback:
 	while(xmlParserInputBufferRead(buf, 128) > 0) {
 		const xmlChar * content = xmlBufContent(buf->buffer);
 		int len = xmlBufLength(buf->buffer);
-		for(i = 0; i < len; ) {
+		for(i = 0; i < len;) {
 			int l;
 			int cur = xmlStringCurrentChar(NULL, &content[i], &l);
 			if(!IS_CHAR(cur)) {

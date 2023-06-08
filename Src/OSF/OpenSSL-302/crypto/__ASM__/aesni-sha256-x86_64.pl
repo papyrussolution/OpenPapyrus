@@ -577,7 +577,7 @@ my @insns = (&$body,&$body,&$body,&$body);	# 104 instructions
 	&mov		($_inp,"%r12");
 
     $aesni_cbc_idx=0;
-    for ($i=0; $i<16; ) {
+    for ($i=0; $i<16;) {
 	foreach(body_00_15()) { eval; }
     }
 					}
@@ -846,7 +846,7 @@ my @insns = (&$body,&$body,&$body,&$body);	# 104 instructions
 	&mov		($_inp,"%r12");
 
     $aesni_cbc_idx=0;
-    for ($i=0; $i<16; ) {
+    for ($i=0; $i<16;) {
 	foreach(body_00_15()) { eval; }
     }
 
@@ -1167,7 +1167,7 @@ ___
 	&vpinsrq	($offload,$offload,"%r13",0);
 
     $aesni_cbc_idx=0;
-    for ($i=0; $i<16; ) {
+    for ($i=0; $i<16;) {
 	my $base=$i<8?"+$PUSH8(%rsp)":"(%rsp)";
 	foreach(bodyx_00_15()) { eval; }
     }
@@ -1216,7 +1216,7 @@ $code.=<<___;
 	vpinsrq	\$0,%r13,$offload,$offload
 ___
     $aesni_cbc_idx=0;
-    for ($i=0; $i<16; ) {
+    for ($i=0; $i<16;) {
 	my $base="+16($Tbl)";
 	foreach(bodyx_00_15()) { eval; }
 	&lea	($Tbl,"-$PUSH8($Tbl)")	if ($i==8);

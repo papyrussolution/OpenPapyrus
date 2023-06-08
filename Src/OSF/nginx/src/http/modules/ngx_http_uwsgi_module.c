@@ -939,7 +939,7 @@ static ngx_int_t ngx_http_uwsgi_process_header(ngx_http_request_t * r)
 
 	umcf = (ngx_http_upstream_main_conf_t *)ngx_http_get_module_main_conf(r, ngx_http_upstream_module);
 
-	for(;; ) {
+	for(;;) {
 		rc = ngx_http_parse_header_line(r, &r->upstream->buffer, 1);
 
 		if(rc == NGX_OK) {

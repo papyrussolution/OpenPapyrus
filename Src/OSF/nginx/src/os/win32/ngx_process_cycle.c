@@ -101,7 +101,7 @@ int ngx_master_process_cycle(ngx_cycle_t * pCycle, const NgxStartUpOptions & rO)
 				else {
 					timer = 0;
 					timeout = INFINITE;
-					for(;; ) {
+					for(;;) {
 						nev = 4;
 						for(n = 0; n < ngx_last_process; n++) {
 							if(ngx_processes[n].handle)
@@ -414,7 +414,7 @@ static int ngx_worker_process_cycle(ngx_cycle_t * cycle, char * mevn)
 	if(ngx_create_thread(&cltid, ngx_cache_loader_thread, NULL, log) != 0) {
 		goto failed;
 	}
-	for(;; ) {
+	for(;;) {
 		ev = WaitForMultipleObjects(3, events, 0, INFINITE);
 		err = ngx_errno;
 		ngx_time_update();
@@ -452,7 +452,7 @@ static int ngx_worker_process_cycle(ngx_cycle_t * cycle, char * mevn)
 	events[1] = wtid;
 	events[2] = cmtid;
 	nev = 3;
-	for(;; ) {
+	for(;;) {
 		ev = WaitForMultipleObjects(nev, events, 0, INFINITE);
 		err = ngx_errno;
 		ngx_time_update();
@@ -563,7 +563,7 @@ static ngx_thread_value_t __stdcall ngx_cache_manager_thread(void * data)
 	ngx_cycle_t  * cycle = (ngx_cycle_t*)ngx_cycle;
 	events[0] = ngx_cache_manager_event;
 	events[1] = ngx_cache_manager_mutex;
-	for(;; ) {
+	for(;;) {
 		ev = WaitForMultipleObjects(2, events, 0, INFINITE);
 		err = ngx_errno;
 		ngx_time_update();
@@ -582,7 +582,7 @@ static ngx_thread_value_t __stdcall ngx_cache_manager_thread(void * data)
 		}
 		break;
 	}
-	for(;; ) {
+	for(;;) {
 		if(ngx_terminate || ngx_quit || ngx_exiting) {
 			ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0, "exiting");
 			break;

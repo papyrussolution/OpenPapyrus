@@ -174,7 +174,7 @@ static ngx_int_t ngx_stream_ssl_preread_parse_record(ngx_stream_ssl_preread_ctx_
 	dst = ctx->dst;
 	p = ctx->buf;
 
-	for(;; ) {
+	for(;;) {
 		n = MIN((size_t)(last - pos), size);
 
 		if(dst) {

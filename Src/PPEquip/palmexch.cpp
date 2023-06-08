@@ -6,9 +6,7 @@
 	#define SYNC_API //__declspec(dllimport)
 	#include <pp.h>
 #endif
-
 #include <StyloConduit.h>
-#include <tchar.h>
 #include <commctrl.H>
 // @v11.2.1 #include <condres.h>
 #include <ucl/ucl.h>

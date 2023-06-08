@@ -717,7 +717,7 @@ static ngx_int_t ngx_http_ssi_parse(ngx_http_request_t * r, ngx_http_ssi_ctx_t *
 		ch = *p;
 		if(state == ssi_start_state) {
 			/* the tight loop */
-			for(;; ) {
+			for(;;) {
 				if(ch == '<') {
 					copy_end = p;
 					looked = 1;

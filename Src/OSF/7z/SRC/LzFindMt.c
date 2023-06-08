@@ -130,11 +130,11 @@ DEF_GetHeads(4b, (crc[p[0]] ^ p[1] ^ ((uint32)p[2] << 8) ^ ((uint32)p[3] << 16))
 static void HashThreadFunc(CMatchFinderMt * mt)
 {
 	CMtSync * p = &mt->hashSync;
-	for(;; ) {
+	for(;;) {
 		uint32 numProcessedBlocks = 0;
 		Event_Wait(&p->canStart);
 		Event_Set(&p->wasStarted);
-		for(;; ) {
+		for(;;) {
 			if(p->exit)
 				return;
 			if(p->stopWriting) {
@@ -215,7 +215,7 @@ static int32 NO_INLINE GetMatchesSpecN(uint32 lenLimit, uint32 pos, const Byte *
 		uint32 len0 = 0, len1 = 0;
 		uint32 cutValue = _cutValue;
 		uint32 maxLen = _maxLen;
-		for(;; ) {
+		for(;;) {
 			uint32 delta = pos - curMatch;
 			if(cutValue-- == 0 || delta >= _cyclicBufferSize) {
 				*ptr0 = *ptr1 = kEmptyHashValue;
@@ -372,11 +372,11 @@ static void BtFillBlock(CMatchFinderMt * p, uint32 globalBlockIndex)
 void BtThreadFunc(CMatchFinderMt * mt)
 {
 	CMtSync * p = &mt->btSync;
-	for(;; ) {
+	for(;;) {
 		uint32 blockIndex = 0;
 		Event_Wait(&p->canStart);
 		Event_Set(&p->wasStarted);
-		for(;; ) {
+		for(;;) {
 			if(p->exit)
 				return;
 			if(p->stopWriting) {

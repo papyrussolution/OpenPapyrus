@@ -6,7 +6,7 @@
 #include <slib-internal.h>
 #pragma hdrstop
 #include <ppdefs.h>
-#include <crpe.h>
+// @v11.7.5 #include <crpe.h>
 
 #define MENU_TREELIST 1014
 #define BTN_CLOSE     1015

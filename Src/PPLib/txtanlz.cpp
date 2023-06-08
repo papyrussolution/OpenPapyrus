@@ -2895,12 +2895,7 @@ int PPKeywordListGenerator::RunStat::AddItem(const SString & rItem)
 
 PPKeywordListGenerator::PPKeywordListGenerator() : SStrGroup(), DataFileChangeDetectTimer(60000), DataFileDtm(ZERODATETIME)
 {
-	_Divider = 9999;
-	do {
-		if(IsPrime(_Divider)) {
-			break;
-		}
-	} while(--_Divider);
+	_Divider = GetPrimeLowerThan(9999+1);
 	SString file_name;
 	PPIniFile ini_file;
 	ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_KEYWORDDATAFILE, file_name);
@@ -3447,11 +3442,7 @@ class RandomGenTest {
 public:
 	RandomGenTest(double step, double limit) : _Divider(9999)
 	{
-		do {
-			if(IsPrime(_Divider)) {
-				break;
-			}
-		} while(--_Divider);
+		_Divider = GetPrimeLowerThan(_Divider+1);
 		for(double v = 0.0; v <= limit; v += step) {
 			SerItem * p_item = new SerItem(v);
 			Series.insert(p_item);

@@ -159,14 +159,12 @@ int BDbDatabase::Helper_SetConfig(const char * pHomeDir, const Config & rCfg)
 		if(rCfg.MaxLockers) {
 			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCKER, rCfg.MaxLockers)));
 		}
-		// @v9.6.4 {
 		if(rCfg.MaxLocks) {
 			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCK, rCfg.MaxLocks)));
 		}
 		if(rCfg.MaxLockObjs) {
 			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCKOBJECT, rCfg.MaxLockObjs)));
 		}
-		// } @v9.6.4
 		if(rCfg.MutexCountInit) {
 			THROW(ProcessError(E->mutex_set_init(E, rCfg.MutexCountInit)));
 		}
@@ -215,18 +213,14 @@ BDbDatabase::BDbDatabase(const char * pHomeDir, Config * pCfg, long options) : S
 		int    opf = DB_CREATE|DB_INIT_MPOOL|DB_INIT_LOCK|DB_USE_ENVIRON|DB_INIT_TXN|DB_INIT_LOG;
 		if(options & oRecover)
 			opf |= DB_RECOVER;
-		// @v9.6.4 {
 		if(options & oPrivate)
 			opf |= DB_PRIVATE;
-		// } @v9.6.4
 		// @todo Организовать восстановление транзакций (DB_RECOVER) при запуске приложения.
 		opf |= DB_THREAD;
-		// @v9.7.11 {
 		if(options & oReadOnly)
 			State |= stReadOnly;
 		if(options & oWriteStatOnClose)
 			State |= stWriteStatOnClose;
-		// } @v9.7.11
 		if(options & oExclusive)
 			State |= stExclusive;
 		r = E->open(E, pHomeDir, opf, /* Open flags */0);
@@ -466,18 +460,9 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl, int fla
 				}
 			}
 		}
-		/* @v9.8.2
-		if(pTbl->Cfg.CacheSize) {
-			const uint32 _gb = (pTbl->Cfg.CacheSize / (1024 * 1024));
-			const uint32 _b  = (pTbl->Cfg.CacheSize % (1024 * 1024)) * 1024;
-			THROW(ProcessError(p_db->set_cachesize(p_db, _gb, _b, 1)));
-		}
-		*/
-		// @v9.8.2 {
 		if(pTbl->Cfg.PartitionCount) {
 			THROW(ProcessError(p_db->set_partition(p_db, pTbl->Cfg.PartitionCount, 0, BDbTable::PartitionCallback), p_db, pFileName));
 		}
-		// } @v9.8.2
 	}
 	{
 		int    opf = DB_AUTO_COMMIT|DB_MULTIVERSION|DB_READ_UNCOMMITTED;
@@ -489,10 +474,8 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl, int fla
 		}
 		else
 			opf |= DB_THREAD;
-		// @v9.7.11 {
 		if(flags & BDbTable::ofReadOnly)
 			opf |= DB_RDONLY;
-		// } @v9.7.11
 		// @v10.1.8 {
 		if(flags & BDbTable::ofReadUncommited)
 			opf |= DB_READ_UNCOMMITTED;
@@ -516,7 +499,7 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl, int fla
 bool BDbDatabase::IsFileExists(const char * pFileName)
 {
 	bool   yes = false;
-	DB * p_db = static_cast<DB *>(Helper_Open(pFileName, 0, BDbTable::ofReadOnly)); // @v9.7.11 BDbTable::ofReadOnly
+	DB * p_db = static_cast<DB *>(Helper_Open(pFileName, 0, BDbTable::ofReadOnly));
 	if(p_db) {
 		Helper_Close(p_db);
 		yes = true;
@@ -556,11 +539,9 @@ int BDbDatabase::Helper_Create(const char * pFileName, int createMode, const BDb
 			}
 		}
 	}
-	// @v9.8.2 {
 	if(pCfg->PartitionCount) {
 		THROW(ProcessError(p_db->set_partition(p_db, pCfg->PartitionCount, 0, BDbTable::PartitionCallback), p_db, pFileName));
 	}
-	// } @v9.8.2
 	{
 		int    opf = (DB_CREATE|DB_AUTO_COMMIT/*|DB_MULTIVERSION*/); // @v10.0.1 DB_MULTIVERSION 
 		opf |= DB_THREAD;
@@ -1000,17 +981,17 @@ int FASTCALL BDbTable::Buffer::Get(int64 * pBuf) const { return Get(pBuf, sizeof
 //BDbTable::Config::Config(const char * pName, int idxType /*= idxtypDefault*/, long flags /*= 0*/)
 BDbTable::Config::Config(const char * pName, int idxType, long flags, uint32 pageSize, uint32 cacheSizeKb, uint partitionCount)
 {
-	Clear();
+	Z();
 	IdxType = idxType;
 	Flags = flags;
 	PageSize = pageSize;
 	//CacheSize = cacheSizeKb;
 	DataChunk = 1024;
 	Name = pName;
-	PartitionCount = partitionCount; // @v9.8.2
+	PartitionCount = partitionCount;
 }
 
-void BDbTable::Config::Clear()
+BDbTable::Config & BDbTable::Config::Z()
 {
 	IdxType = idxtypDefault;
 	Flags = 0;
@@ -1021,6 +1002,7 @@ void BDbTable::Config::Clear()
 	HashNElem = 0;
 	PartitionCount = 0;
 	Name.Z();
+	return *this;
 }
 //
 //
@@ -1257,20 +1239,13 @@ TSCollection <BDbTable> & BDbTable::GetIdxList() { return IdxList; }
 	return P_IdxHandle ? P_IdxHandle->Implement_Cmp(this, pKey1, pKey2) : 0;
 }
 
-/*virtual*/uint FASTCALL BDbTable::Implement_PartitionFunc(DBT * pKey)
-{
-	return 0;
-}
-
-SSerializeContext * BDbTable::GetSCtx() const
-{
-	return P_SCtx;
-}
+/*virtual*/uint FASTCALL BDbTable::Implement_PartitionFunc(DBT * pKey) { return 0; }
+SSerializeContext * BDbTable::GetSCtx() const { return P_SCtx; }
 
 int BDbTable::Helper_GetConfig(BDbTable * pT, Config & rCfg)
 {
 	int    ok = 1;
-	rCfg.Clear();
+	rCfg.Z();
 	if(pT && pT->H) {
 		SString temp_buf;
 		DB * p_db = pT->H;
@@ -1301,20 +1276,11 @@ int BDbTable::Helper_GetConfig(BDbTable * pT, Config & rCfg)
 			THROW(BDbDatabase::ProcessError(p_db->get_dbname(p_db, &p_file_name, &p_db_name), p_db, 0));
 			rCfg.Name = p_file_name;
 		}
-		/* @v9.8.2 {
-			uint32 _gb = 0;
-			uint32 _b = 0;
-			int    _c = 0;
-			THROW(BDbDatabase::ProcessError(p_db->get_cachesize(p_db, &_gb, &_b, &_c), p_db, 0));
-			rCfg.CacheSize = (_gb * 1024 * 1024) + _b / 1024;
-		}*/
-		// @v9.8.2 {
 		{
 			uint32 np = 0;
 			BDbDatabase::ProcessError(p_db->get_partition_keys(p_db, &np, 0), p_db, 0);
 			rCfg.PartitionCount = np;
 		}
-		// } @v9.8.2
 		{
 			uint32 _ps = 0;
 			THROW(BDbDatabase::ProcessError(p_db->get_pagesize(p_db, &_ps), p_db, 0));

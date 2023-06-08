@@ -1375,7 +1375,7 @@ static sa_sint_t libsais_initialize_buckets_for_lms_suffixes_radix_sort_8u(const
 		fast_sint_t c0 = T[first_lms_suffix];
 		fast_sint_t c1 = 0;
 
-		for(; --first_lms_suffix >= 0; ) {
+		for(; --first_lms_suffix >= 0;) {
 			c1 = c0; c0 = T[first_lms_suffix]; s = (s << 1) + (fast_uint_t)(c0 > (c1 - (fast_sint_t)(s & 1)));
 			buckets[BUCKETS_INDEX4((fast_uint_t)c1, s & 3)]--;
 		}
@@ -1417,7 +1417,7 @@ static sa_sint_t libsais_initialize_buckets_for_lms_suffixes_radix_sort_32s_6k(c
 		fast_sint_t c0 = T[first_lms_suffix];
 		fast_sint_t c1 = 0;
 
-		for(; --first_lms_suffix >= 0; ) {
+		for(; --first_lms_suffix >= 0;) {
 			c1 = c0; c0 = T[first_lms_suffix]; s = (s << 1) + (fast_uint_t)(c0 > (c1 - (fast_sint_t)(s & 1)));
 			buckets[BUCKETS_INDEX4((fast_uint_t)c1, s & 3)]--;
 		}
@@ -2276,7 +2276,7 @@ static sa_sint_t libsais_partial_sorting_scan_left_to_right_8u_omp(const uint8_t
 #if defined(LIBSAIS_OPENMP)
 	else {
 		fast_sint_t block_start;
-		for(block_start = 0; block_start < left_suffixes_count; ) {
+		for(block_start = 0; block_start < left_suffixes_count;) {
 			if(SA[block_start] == 0) {
 				block_start++;
 			}
@@ -3292,7 +3292,7 @@ static void libsais_partial_sorting_scan_right_to_left_8u_omp(const uint8_t * _R
 		sa_sint_t * _RESTRICT distinct_names   = &buckets[2 * ALPHABET_SIZE];
 
 		fast_sint_t block_start;
-		for(block_start = scan_end - 1; block_start >= scan_start; ) {
+		for(block_start = scan_end - 1; block_start >= scan_start;) {
 			if(SA[block_start] == 0) {
 				block_start--;
 			}
@@ -5462,7 +5462,7 @@ static void libsais_final_bwt_scan_left_to_right_8u_omp(const uint8_t * _RESTRIC
 #if defined(LIBSAIS_OPENMP)
 	else {
 		fast_sint_t block_start;
-		for(block_start = 0; block_start < n; ) {
+		for(block_start = 0; block_start < n;) {
 			if(SA[block_start] == 0) {
 				block_start++;
 			}
@@ -5517,7 +5517,7 @@ static void libsais_final_bwt_aux_scan_left_to_right_8u_omp(const uint8_t * _RES
 #if defined(LIBSAIS_OPENMP)
 	else {
 		fast_sint_t block_start;
-		for(block_start = 0; block_start < n; ) {
+		for(block_start = 0; block_start < n;) {
 			if(SA[block_start] == 0) {
 				block_start++;
 			}
@@ -5568,7 +5568,7 @@ static void libsais_final_sorting_scan_left_to_right_8u_omp(const uint8_t * _RES
 #if defined(LIBSAIS_OPENMP)
 	else {
 		fast_sint_t block_start;
-		for(block_start = 0; block_start < n; ) {
+		for(block_start = 0; block_start < n;) {
 			if(SA[block_start] == 0) {
 				block_start++;
 			}
@@ -6290,7 +6290,7 @@ static sa_sint_t libsais_final_bwt_scan_right_to_left_8u_omp(const uint8_t * _RE
 #if defined(LIBSAIS_OPENMP)
 	else {
 		fast_sint_t block_start;
-		for(block_start = (fast_sint_t)n - 1; block_start >= 0; ) {
+		for(block_start = (fast_sint_t)n - 1; block_start >= 0;) {
 			if(SA[block_start] == 0) {
 				index = (sa_sint_t)block_start--;
 			}
@@ -6341,7 +6341,7 @@ static void libsais_final_bwt_aux_scan_right_to_left_8u_omp(const uint8_t * _RES
 #if defined(LIBSAIS_OPENMP)
 	else {
 		fast_sint_t block_start;
-		for(block_start = (fast_sint_t)n - 1; block_start >= 0; ) {
+		for(block_start = (fast_sint_t)n - 1; block_start >= 0;) {
 			if(SA[block_start] == 0) {
 				block_start--;
 			}
@@ -6390,7 +6390,7 @@ static void libsais_final_sorting_scan_right_to_left_8u_omp(const uint8_t * _RES
 #if defined(LIBSAIS_OPENMP)
 	else {
 		fast_sint_t block_start;
-		for(block_start = (fast_sint_t)n - 1; block_start >= 0; ) {
+		for(block_start = (fast_sint_t)n - 1; block_start >= 0;) {
 			if(SA[block_start] == 0) {
 				block_start--;
 			}

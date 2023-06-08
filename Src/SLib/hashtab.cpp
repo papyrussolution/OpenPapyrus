@@ -1,5 +1,6 @@
 // HASHTAB.CPP
 // Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -8,14 +9,8 @@
 
 HashTableBase::HashTableBase(size_t sz) : P_Tab(0), Flags(0), AddCount(0), CollCount(0), MaxTail(0)
 {
-	size_t i = NZOR(sz, 1024);
-	if(i) do {
-		if(IsPrime(i)) {
-			sz = i;
-			break;
-		}
-	} while(--i);
-	Size = sz;
+	Size = GetPrimeLowerThan(NZOR(sz, 1024)); 
+	assert(Size > 2 && IsPrime(Size));
 }
 
 HashTableBase::HashTableBase(const HashTableBase & rS) : P_Tab(0), Flags(0), AddCount(0), CollCount(0), MaxTail(0)
@@ -341,9 +336,8 @@ int SymbHashTable::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	THROW(pCtx->Serialize(dir, &Assoc, rBuf));
 	if(dir < 0) {
 		DestroyTabItems();
-		// @v9.1.3 (Ïåðåíåñåíî íèæå, èáî èíèöèàëèçèðîâàòü òàáëèöó íåîáõîäèìî è ïðè çàïèñè â ïîòîê) THROW(InitTab());
 	}
-	THROW(InitTab()); // @v9.1.3
+	THROW(InitTab()); // Ð˜Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñƒ Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ð¾ Ð¸ Ð¿Ñ€Ð¸ Ð·Ð°Ð¿Ð¸ÑÐ¸ Ð² Ð¿Ð¾Ñ‚Ð¾Ðº. ÐŸÐ¾ÑÑ‚Ð¾Ð¼Ñƒ, InitTab Ð²Ñ‹Ð·Ñ‹Ð²Ð°ÐµÑ‚ÑÑ Ð½ÐµÐ·Ð°Ð²Ð¸ÑÐ¸Ð¼Ð¾ Ð¾Ñ‚ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ dir
 	for(uint i = 0; i < Size; ++i) {
 		THROW(P_Tab[i].Serialize(dir, rBuf, pCtx));
 	}
@@ -361,15 +355,8 @@ void SymbHashTable::Clear()
 size_t FASTCALL SymbHashTable::Hash(const char * pSymb) const
 {
 	const size_t len = sstrlen(pSymb);
-	uint32 __h = SlHash::BobJenc(pSymb, len);
-	//uint32 __h = SlHash::DJB(pSymb, len);
+	const uint32 __h = SlHash::BobJenc(pSymb, len);
 	return (size_t)(__h % Size);
-	/*
-	ulong __h = 0;
-	for(; *pSymb; pSymb++)
-		__h = 5 * __h + *pSymb;
-	return (size_t)(__h % Size);
-	*/
 }
 
 int FASTCALL SymbHashTable::InitIteration(Iter * pI) const
@@ -498,8 +485,6 @@ int SymbHashTable::GetByAssoc(uint val, SString & rBuf) const
 			ok = SLS.SetError(SLERR_NOFOUND);
 	}
 	else {
-		// @v9.8.1 ok = (SLibError = SLERR_HT_NOASSOC, 0);
-		// @v9.8.1 {
 		ok = SLS.SetError(SLERR_NOFOUND);
 		Iter it;
 		if(InitIteration(&it)) {
@@ -513,7 +498,6 @@ int SymbHashTable::GetByAssoc(uint val, SString & rBuf) const
                 }
 			}
 		}
-		// } @v9.8.1
 	}
 	return ok;
 }
@@ -1253,15 +1237,8 @@ void * UintHashTable::GetBlock(ulong val, int cr)
 	return p;
 }
 
-void UintHashTable::Clear()
-{
-	List.clear();
-}
-
-void UintHashTable::Destroy()
-{
-	List.freeAll();
-}
+void UintHashTable::Clear() { List.clear(); }
+void UintHashTable::Destroy() { List.freeAll(); }
 
 int UintHashTable::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
@@ -1312,9 +1289,9 @@ int FASTCALL UintHashTable::Intersect(const UintHashTable & rS)
 
 int FASTCALL UintHashTable::Remove(ulong val)
 {
-	UhtBlock * p_blk = (UhtBlock *)GetBlock(val, 1);
+	UhtBlock * p_blk = static_cast<UhtBlock *>(GetBlock(val, 1));
 	if(p_blk) {
-		uint   shift = (1 << (val % 32));
+		const uint shift = (1 << (val % 32));
 		if(p_blk->Busy & shift) {
 			p_blk->Busy &= ~shift;
 			return 1;
@@ -1326,17 +1303,17 @@ int FASTCALL UintHashTable::Remove(ulong val)
 		return 0;
 }
 
-int FASTCALL UintHashTable::Has(ulong val) const
+bool FASTCALL UintHashTable::Has(ulong val) const
 {
 	//void * p = 0;
 	ulong  start = val / 32;
 	uint   pos = 0;
 	if(List.bsearch(&start, &pos, CMPF_LONG)) {
-		const UhtBlock * p_blk = (UhtBlock *)List.at(pos);
-		return BIN(p_blk->Busy & (1 << (val % 32)));
+		const UhtBlock * p_blk = static_cast<const UhtBlock *>(List.at(pos));
+		return LOGIC(p_blk->Busy & (1 << (val % 32)));
 	}
 	else
-		return 0;
+		return false;
 }
 
 uint UintHashTable::GetCount() const
@@ -1344,9 +1321,10 @@ uint UintHashTable::GetCount() const
 	uint   c = 0;
 	const uint lcnt = List.getCount();
 	for(uint i = 0; i < lcnt; i++) {
-		uint32 busy = ((UhtBlock *)List.at(i))->Busy;
+		uint32 busy = static_cast<const UhtBlock *>(List.at(i))->Busy;
 		//
-		// Òðþê ñ ïîäñ÷åòîì íåíóëåâûõ áèòîâ ïîñðåäñòâîì îáíóëåíèÿ ïîñëåäíåãî åäèíè÷íîãî áèòà X & (X-1) {
+		// @todo use popcount
+		// Ð¢Ñ€ÑŽÐº Ñ Ð¿Ð¾Ð´ÑÑ‡ÐµÑ‚Ð¾Ð¼ Ð½ÐµÐ½ÑƒÐ»ÐµÐ²Ñ‹Ñ… Ð±Ð¸Ñ‚Ð¾Ð² Ð¿Ð¾ÑÑ€ÐµÐ´ÑÑ‚Ð²Ð¾Ð¼ Ð¾Ð±Ð½ÑƒÐ»ÐµÐ½Ð¸Ñ Ð¿Ð¾ÑÐ»ÐµÐ´Ð½ÐµÐ³Ð¾ ÐµÐ´Ð¸Ð½Ð¸Ñ‡Ð½Ð¾Ð³Ð¾ Ð±Ð¸Ñ‚Ð° X & (X-1) {
 		//
 		uint   popc = 0;
 		for(; busy != 0; busy &= (busy-1))
@@ -1364,10 +1342,10 @@ int FASTCALL UintHashTable::Enum(ulong * pVal) const
 	ulong  start = val / 32;
 	uint   pos = 0;
 	if(List.bsearch(&start, &pos, CMPF_LONG)) {
-		const uint32 busy = ((UhtBlock *)List.at(pos))->Busy;
+		const uint32 busy = static_cast<const UhtBlock *>(List.at(pos))->Busy;
 		for(uint i = val % 32; i < 32; i++)
 			if(busy & (1 << i)) {
-				*pVal = (((UhtBlock *)List.at(pos))->Start * 32) + i;
+				*pVal = (static_cast<const UhtBlock *>(List.at(pos))->Start * 32) + i;
 				return 1;
 			}
 		++pos;
@@ -1375,7 +1353,7 @@ int FASTCALL UintHashTable::Enum(ulong * pVal) const
 	else
 		pos = 0;
 	for(; pos < List.getCount(); pos++) {
-		const UhtBlock * p_blk = (const UhtBlock *)List.at(pos);
+		const UhtBlock * p_blk = static_cast<const UhtBlock *>(List.at(pos));
 		if(p_blk->Start >= (val / 32)) {
 			const uint32 busy = p_blk->Busy;
 			for(uint i = 0; i < 32; i++)
@@ -1410,7 +1388,7 @@ SLTEST_R(HASHTAB)
 				char * p_str = newStr(line_buf);
 				THROW(SLTEST_CHECK_NZ(ptr_collection.insert(p_str)));
 				//
-				// Íå÷åòíûå ïîçèöèè âñòàâëÿåì â êýø, ÷åòíûå - íåò
+				// ÐÐµÑ‡ÐµÑ‚Ð½Ñ‹Ðµ Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ð¸ Ð²ÑÑ‚Ð°Ð²Ð»ÑÐµÐ¼ Ð² ÐºÑÑˆ, Ñ‡ÐµÑ‚Ð½Ñ‹Ðµ - Ð½ÐµÑ‚
 				//
 				if(_count % 2) {
 					THROW(SLTEST_CHECK_NZ(ht.Add(p_str, _count+1, 0)));

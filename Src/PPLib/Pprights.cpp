@@ -1516,7 +1516,7 @@ int FastEditRightsDlg::setupGrpUsrList()
 	PPSecurPacket * p_pack = 0;
 	SmartListBox * p_lbx = 0;
 	THROW_MEM(p_list = new StrAssocArray);
-	for(i = 0; Data.enumItems(&i, (void **)&p_pack) > 0; ) {
+	for(i = 0; Data.enumItems(&i, (void **)&p_pack) > 0;) {
 		temp_buf = p_pack->Secur.Name;
 		if(p_pack->Secur.Tag == PPOBJ_USR) {
 			inh_buf.Z();

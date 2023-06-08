@@ -406,7 +406,7 @@ int Rows2Columns(CharacterSetTable * T, uchar * data, int dataLength,
 			testColumns = 1;
 	}
 
-	for(;; ) {
+	for(;;) {
 		pTestList[testListSize] = testColumns;
 		testListSize++;
 		useColumns = testColumns; /* Make a copy because it may be modified */

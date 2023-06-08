@@ -3281,9 +3281,15 @@ bool SCachedFileEntity::IsModified()
 		return false;
 }
 
+const void * SCachedFileEntity::GetKey(uint * pSize) const // hash-table support
+{
+	ASSIGN_PTR(pSize, FilePath.Len());
+	return FilePath.ucptr();
+}
+
 const char * SCachedFileEntity::GetFilePath() const { return FilePath; }
 
-/*virtual*/bool SCachedFileEntity::InitEntity()
+/*virtual*/bool SCachedFileEntity::InitEntity(void * extraPtr)
 {
 	return false;
 }
@@ -3292,7 +3298,7 @@ const char * SCachedFileEntity::GetFilePath() const { return FilePath; }
 {
 }
 
-int SCachedFileEntity::Reload(bool force)
+int SCachedFileEntity::Reload(bool force, void * extraPtr)
 {
 	int    ok = -1;
 	bool   do_load = false;
@@ -3311,7 +3317,7 @@ int SCachedFileEntity::Reload(bool force)
 	}
 	if(do_load) {
 		DestroyEntity();
-		if(InitEntity()) {
+		if(InitEntity(extraPtr)) {
 			ok = 1;
 			if(!current_mod_time) {
 				if(SFile::GetTime(FilePath, 0, 0, &current_mod_time)) {
@@ -3333,6 +3339,18 @@ int SCachedFileEntity::Reload(bool force)
 	Lck.Unlock();
 	return ok;
 }
+//
+//
+//
+class SFileEntityCache : public TSHashCollection <SCachedFileEntity> { // @v11.7.5
+public:
+	SFileEntityCache() : TSHashCollection <SCachedFileEntity> (2048)
+	{
+	}
+	~SFileEntityCache()
+	{
+	}
+};
 //
 //
 //
@@ -3372,7 +3390,7 @@ SLTEST_R(SCachedFileEntity)
 		virtual ~SCachedFileEntity_TestSs()
 		{
 		}
-		virtual bool InitEntity()
+		virtual bool InitEntity(void * extraPtr)
 		{
 			bool   ok = true;
 			Ss.Z();
@@ -3443,7 +3461,7 @@ SLTEST_R(SCachedFileEntity)
 			uint   prev_count = 0;
 			do {
 				SCachedFileEntity_TestSs * p_obj = SCachedFileEntity_TestSs::GetGlobalObj(FilePath);
-				if(p_obj && p_obj->Reload(false)) {
+				if(p_obj && p_obj->Reload(false, 0)) {
 					p_obj->Get(ss);
 					uint c = ss.getCount();
 					assert(c > 0);

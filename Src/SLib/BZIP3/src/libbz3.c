@@ -19,6 +19,8 @@
 #include "..\slib\bzip3\include\libbz3.h"
 #include "..\slib\sais\include\libsais.h"
 #include "..\slib\bzip3\include\libbz3-common.h"
+
+int DummyProc_bzip3() { return 1; } // @forcelink
 // 
 // CRC32 implementation. Since CRC32 generally takes less than 1% of the runtime on real-world data (e.g. the
 // Silesia corpus), I decided against using hardware CRC32. This implementation is simple, fast, fool-proof and
@@ -886,8 +888,6 @@ malformed_header:
 }
 
 #if SLTEST_RUNNING // {
-
-int DummyProc_bzip3() { return 1; } // @forcelink
 
 SLTEST_R(bzip3)
 {

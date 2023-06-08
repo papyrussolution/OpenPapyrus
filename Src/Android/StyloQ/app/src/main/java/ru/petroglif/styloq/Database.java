@@ -603,6 +603,7 @@ public class Database {
 		}
 		catch(Exception e) {
 			StyloQApp.SetLastError(Ctx, 0, "Таблица '%s' не найдена в базе данных", tableName);
+			tbl = null; // @v11.7.5
 		}
 		return tbl;
 	}

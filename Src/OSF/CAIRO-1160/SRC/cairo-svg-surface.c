@@ -853,19 +853,14 @@ FAIL:
 	return status;
 }
 
-static char const *
-    _cairo_svg_surface_operators[] = {
+static char const * _cairo_svg_surface_operators[] = {
 	"clear",
-
 	"src", "src-over", "src-in",
 	"src-out", "src-atop",
-
 	"dst", "dst-over", "dst-in",
 	"dst-out", "dst-atop",
-
 	"xor", "plus",
 	"color-dodge", /* FIXME: saturate ? */
-
 	"multiply", "screen", "overlay",
 	"darken", "lighten",
 	"color-dodge", "color-burn",
@@ -873,8 +868,7 @@ static char const *
 	"difference", "exclusion"
 };
 
-static boolint _cairo_svg_surface_analyze_operator(cairo_svg_surface_t * surface,
-    cairo_operator_t op)
+static boolint _cairo_svg_surface_analyze_operator(cairo_svg_surface_t * surface, cairo_operator_t op)
 {
 	/* guard against newly added operators */
 	if(op >= ARRAY_LENGTH(_cairo_svg_surface_operators))

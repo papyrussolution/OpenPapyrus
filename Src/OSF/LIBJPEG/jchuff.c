@@ -1019,7 +1019,7 @@ static void jpeg_gen_optimal_table(j_compress_ptr cinfo, JHUFF_TBL * htbl, long 
 	 * will be placed last in the largest codeword category.
 	 */
 	/* Huffman's basic algorithm to assign optimal code lengths to symbols */
-	for(;; ) {
+	for(;;) {
 		/* Find the smallest nonzero frequency, set c1 = its symbol */
 		/* In case of ties, take the larger symbol number */
 		c1 = -1;

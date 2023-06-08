@@ -63,7 +63,7 @@ static void _cairo_hull_init(cairo_hull_t * hull, cairo_pen_vertex_t * vertices,
 	}
 }
 
-static inline cairo_int64_t _slope_length(cairo_slope_t * slope)
+static inline int64 _slope_length(cairo_slope_t * slope)
 {
 	return _cairo_int64_add(_cairo_int32x32_64_mul(slope->dx, slope->dx),
 		   _cairo_int32x32_64_mul(slope->dy, slope->dy));

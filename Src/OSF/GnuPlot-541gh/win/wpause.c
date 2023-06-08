@@ -8,7 +8,6 @@
 #include <gnuplot.h>
 #pragma hdrstop
 #define STRICT
-#include <tchar.h>
 #include "wgnuplib.h"
 #include "wresourc.h"
 #include "wcommon.h"

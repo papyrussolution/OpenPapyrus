@@ -14,6 +14,8 @@
 #pragma hdrstop
 #include "lmdb.h"
 
+int DummyProc_LMDB() { return 1; } // @forcelink
+
 char * mdb_dkey(MDB_val * key, char * buf); // @prototype (mdb.c)
 
 static void Lmdb_CreateTestDirectory(SString & rPath)
@@ -675,8 +677,6 @@ int Lmdb_Test()
 #endif // } 0
 
 #if SLTEST_RUNNING
-
-int DummyProc_LMDB() { return 1; } // @forcelink
 
 SLTEST_R(LMDB)
 {

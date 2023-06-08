@@ -40,7 +40,7 @@ static int FASTCALL line_compare_for_y_against_x(const cairo_line_t * a, int32 y
 {
 	int32 adx, ady;
 	int32 dx, dy;
-	cairo_int64_t L, R;
+	int64 L, R;
 	if(x < a->p1.x && x < a->p2.x)
 		return 1;
 	if(x > a->p1.x && x > a->p2.x)
@@ -138,8 +138,8 @@ static int lines_compare_x_for_y_general(const cairo_line_t * a, const cairo_lin
 		    }
 		    else if(a->p1.y == b->p1.y) { /* common origin */
 			    /* ∴ A_dx * B_dy ∘ B_dx * A_dy */
-			    cairo_int64_t adx_bdy = _cairo_int32x32_64_mul(adx, bdy);
-			    cairo_int64_t bdx_ady = _cairo_int32x32_64_mul(bdx, ady);
+			    int64 adx_bdy = _cairo_int32x32_64_mul(adx, bdy);
+			    int64 bdx_ady = _cairo_int32x32_64_mul(bdx, ady);
 			    return _cairo_int64_cmp(adx_bdy, bdx_ady);
 		    }
 		    else
@@ -150,8 +150,8 @@ static int lines_compare_x_for_y_general(const cairo_line_t * a, const cairo_lin
 			    return dx;
 		    }
 		    else {
-			    cairo_int64_t ady_dx = _cairo_int32x32_64_mul(ady, dx);
-			    cairo_int64_t dy_adx = _cairo_int32x32_64_mul(a->p1.y - y, adx);
+			    int64 ady_dx = _cairo_int32x32_64_mul(ady, dx);
+			    int64 dy_adx = _cairo_int32x32_64_mul(a->p1.y - y, adx);
 			    return _cairo_int64_cmp(ady_dx, dy_adx);
 		    }
 		case HAVE_DX_BDX:
@@ -160,8 +160,8 @@ static int lines_compare_x_for_y_general(const cairo_line_t * a, const cairo_lin
 			    return dx;
 		    }
 		    else {
-			    cairo_int64_t bdy_dx = _cairo_int32x32_64_mul(bdy, dx);
-			    cairo_int64_t dy_bdx = _cairo_int32x32_64_mul(y - b->p1.y, bdx);
+			    int64 bdy_dx = _cairo_int32x32_64_mul(bdy, dx);
+			    int64 dy_bdx = _cairo_int32x32_64_mul(y - b->p1.y, bdx);
 			    return _cairo_int64_cmp(bdy_dx, dy_bdx);
 		    }
 		case HAVE_ALL:

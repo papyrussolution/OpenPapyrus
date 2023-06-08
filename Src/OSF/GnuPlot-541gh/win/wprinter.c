@@ -11,7 +11,6 @@
 #include <commdlg.h>
 #include <commctrl.h>
 #include <ocidl.h>
-#include <tchar.h>
 #include "wgnuplib.h"
 #include "wresourc.h"
 #include "wcommon.h"

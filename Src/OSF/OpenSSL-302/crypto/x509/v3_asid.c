@@ -700,12 +700,12 @@ static int asid_validate_path_internal(X509_STORE_CTX * ctx, STACK_OF(X509) * ch
 			ctx->error = X509_V_ERR_UNSPECIFIED;
 		return 0;
 	}
-	/*
-	 * Figure out where to start.  If we don't have an extension to
-	 * check, we're done.  Otherwise, check canonical form and
-	 * set up for walking up the chain.
-	 */
-	if(ext != NULL) {
+	// 
+	// Figure out where to start.  If we don't have an extension to
+	// check, we're done.  Otherwise, check canonical form and
+	// set up for walking up the chain.
+	// 
+	if(ext) {
 		i = -1;
 		x = NULL;
 	}

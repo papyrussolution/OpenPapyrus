@@ -322,7 +322,7 @@ ngx_int_t ngx_ssl_certificate(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t * cert
 		return NGX_ERROR;
 	}
 	/* read rest of the chain */
-	for(;; ) {
+	for(;;) {
 		x509 = PEM_read_bio_X509(bio, NULL, NULL, NULL);
 		if(x509 == NULL) {
 			n = ERR_peek_last_error();
@@ -414,7 +414,7 @@ ngx_int_t ngx_ssl_certificate(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t * cert
 		pwd = NULL;
 #endif
 	}
-	for(;; ) {
+	for(;;) {
 		if(SSL_CTX_use_PrivateKey_file(ssl->ctx, (char *)key->data, SSL_FILETYPE_PEM) != 0) {
 			break;
 		}
@@ -664,7 +664,7 @@ ngx_array_t * ngx_ssl_read_password_file(ngx_conf_t * cf, ngx_str_t * file)
 			*end++ = LF;
 		}
 		p = buf;
-		for(;; ) {
+		for(;;) {
 			last = ngx_strlchr(last, end, LF);
 			if(!last) {
 				break;
@@ -993,7 +993,7 @@ ssize_t ngx_ssl_recv_chain(ngx_connection_t * c, ngx_chain_t * cl, nginx_off_t l
 	ssize_t bytes = 0;
 	ngx_buf_t * b = cl->buf;
 	u_char   * last = b->last;
-	for(;; ) {
+	for(;;) {
 		size = b->end - last;
 		if(limit) {
 			if(bytes >= limit) {
@@ -1045,7 +1045,7 @@ ssize_t ngx_ssl_recv(ngx_connection_t * c, u_char * buf, size_t size)
 	 * SSL_read() may return data in parts, so try to read
 	 * until SSL_read() would return no data
 	 */
-	for(;; ) {
+	for(;;) {
 		n = SSL_read(c->ssl->connection, buf, size);
 		ngx_log_debug1(NGX_LOG_DEBUG_EVENT, c->log, 0, "SSL_read: %d", n);
 		if(n > 0) {
@@ -1205,7 +1205,7 @@ ngx_chain_t * ngx_ssl_send_chain(ngx_connection_t * c, ngx_chain_t * in, nginx_o
 	}
 	send = buf->last - buf->pos;
 	flush = (in == NULL) ? 1 : buf->flush;
-	for(;; ) {
+	for(;;) {
 		while(in && buf->last < buf->end && send < limit) {
 			if(in->buf->last_buf || in->buf->flush) {
 				flush = 1;
@@ -1526,7 +1526,7 @@ void ngx_cdecl ngx_ssl_error(ngx_uint_t level, ngx_log_t * log, ngx_err_t err, c
 	p = ngx_vslprintf(errstr, last - 1, fmt, args);
 	va_end(args);
 	p = ngx_cpystrn(p, (u_char *)" (SSL:", last - p);
-	for(;; ) {
+	for(;;) {
 		n = ERR_peek_error_line_data(NULL, NULL, &data, &flags);
 		if(n == 0) {
 			break;
@@ -1958,7 +1958,7 @@ static void ngx_ssl_session_rbtree_insert_value(ngx_rbtree_node_t * temp, ngx_rb
 {
 	ngx_rbtree_node_t  ** p;
 	ngx_ssl_sess_id_t * sess_id, * sess_id_temp;
-	for(;; ) {
+	for(;;) {
 		if(node->key < temp->key) {
 			p = &temp->left;
 		}
@@ -2238,7 +2238,7 @@ ngx_int_t ngx_ssl_check_host(ngx_connection_t * c, ngx_str_t * name)
 			goto failed;
 		}
 		i = -1;
-		for(;; ) {
+		for(;;) {
 			i = X509_NAME_get_index_by_NID(sname, NID_commonName, i);
 			if(i < 0) {
 				break;

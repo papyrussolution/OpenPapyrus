@@ -269,9 +269,9 @@ static ngx_int_t ngx_http_gzip_body_filter(ngx_http_request_t * r, ngx_chain_t *
 	else {
 		flush = ctx->busy ? 1 : 0;
 	}
-	for(;; ) {
+	for(;;) {
 		/* cycle while we can write to a client */
-		for(;; ) {
+		for(;;) {
 			/* cycle while there is data to feed zlib and ... */
 			rc = ngx_http_gzip_filter_add_data(r, ctx);
 			if(rc == NGX_DECLINED) {

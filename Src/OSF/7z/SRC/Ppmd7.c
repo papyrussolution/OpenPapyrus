@@ -168,7 +168,7 @@ static void GlueFreeBlocks(CPpmd7 * p)
 	while(n != head) {
 		CPpmd7_Node * node = NODE(n);
 		uint32 nu = (uint32)node->NU;
-		for(;; ) {
+		for(;;) {
 			CPpmd7_Node * node2 = NODE(n) + nu;
 			nu += node2->NU;
 			if(node2->Stamp != 0 || nu >= 0x10000)
@@ -181,7 +181,7 @@ static void GlueFreeBlocks(CPpmd7 * p)
 	}
 
 	/* Fill lists of free blocks */
-	for(n = NODE(head)->Next; n != head; ) {
+	for(n = NODE(head)->Next; n != head;) {
 		CPpmd7_Node * node = NODE(n);
 		unsigned nu;
 		CPpmd7_Node_Ref next = node->Next;
@@ -746,7 +746,7 @@ void Ppmd7_EncodeSymbol(CPpmd7 * p, CPpmd7z_RangeEnc * rc, int symbol)
 			p->PrevSuccess = 0;
 		}
 	}
-	for(;; ) {
+	for(;;) {
 		uint32 escFreq;
 		CPpmd_See * see;
 		CPpmd_State * s;
@@ -905,7 +905,7 @@ int Ppmd7_DecodeSymbol(CPpmd7 * p, const IPpmd7_RangeDec * rc)
 		MASK(Ppmd7Context_OneState(p->MinContext)->Symbol) = 0;
 		p->PrevSuccess = 0;
 	}
-	for(;; ) {
+	for(;;) {
 		CPpmd_State * ps[256], * s;
 		uint32 freqSum, count, hiCnt;
 		CPpmd_See * see;

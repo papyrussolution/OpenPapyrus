@@ -67,7 +67,7 @@ ngx_int_t ngx_output_chain(ngx_output_chain_ctx_t * ctx, ngx_chain_t * in)
 	out = NULL;
 	last_out = &out;
 	last = NGX_NONE;
-	for(;; ) {
+	for(;;) {
 #if (NGX_HAVE_FILE_AIO || NGX_THREADS)
 		if(ctx->aio) {
 			return NGX_AGAIN;

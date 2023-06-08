@@ -47,7 +47,7 @@ struct stroker {
 		cairo_contour_t contour;
 	} cw, ccw;
 
-	cairo_uint64_t contour_tolerance;
+	uint64 contour_tolerance;
 	cairo_polygon_t * polygon;
 	const cairo_matrix_t * ctm;
 	const cairo_matrix_t * ctm_inverse;
@@ -70,14 +70,14 @@ static inline double normalize_slope(double * dx, double * dy);
 
 static void compute_face(const cairo_point_t * point, const cairo_slope_t * dev_slope, struct stroker * stroker, cairo_stroke_face_t * face);
 
-static cairo_uint64_t point_distance_sq(const cairo_point_t * p1, const cairo_point_t * p2)
+static uint64 point_distance_sq(const cairo_point_t * p1, const cairo_point_t * p2)
 {
 	int32 dx = p1->x - p2->x;
 	int32 dy = p1->y - p2->y;
 	return _cairo_int32x32_64_mul(dx, dx) + _cairo_int32x32_64_mul(dy, dy);
 }
 
-static boolint within_tolerance(const cairo_point_t * p1, const cairo_point_t * p2, cairo_uint64_t tolerance)
+static boolint within_tolerance(const cairo_point_t * p1, const cairo_point_t * p2, uint64 tolerance)
 {
 	return FALSE;
 	return _cairo_int64_lt(point_distance_sq(p1, p2), tolerance);
@@ -159,8 +159,8 @@ static void inner_join(struct stroker * stroker, const cairo_stroke_face_t * in,
 	cairo_point_t last;
 	const cairo_point_t * p, * outpt;
 	struct stroker::stroke_contour * inner;
-	cairo_int64_t d_p, d_last;
-	cairo_int64_t half_line_width;
+	int64 d_p, d_last;
+	int64 half_line_width;
 	boolint negate;
 
 	/* XXX line segments shorter than line-width */
@@ -1081,7 +1081,7 @@ cairo_status_t _cairo_path_fixed_stroke_to_polygon(const cairo_path_fixed_t * pa
 	_cairo_contour_init(&stroker.ccw.contour, -1);
 	tolerance *= CAIRO_FIXED_ONE;
 	tolerance *= tolerance;
-	stroker.contour_tolerance = static_cast<cairo_uint64_t>(tolerance);
+	stroker.contour_tolerance = static_cast<uint64>(tolerance);
 	stroker.polygon = polygon;
 	status = _cairo_path_fixed_interpret(path, move_to, line_to, curve_to, close_path, &stroker);
 	/* Cap the start and end of the final sub path as needed */

@@ -832,7 +832,7 @@ LOCAL(boolean) next_marker(j_decompress_ptr cinfo)
 {
 	int c;
 	INPUT_VARS(cinfo);
-	for(;; ) {
+	for(;;) {
 		INPUT_BYTE(cinfo, c, return FALSE);
 		/* Skip any non-FF bytes.
 		 * This may look a bit inefficient, but it will not occur in a valid file.
@@ -908,7 +908,7 @@ LOCAL(boolean) first_marker(j_decompress_ptr cinfo)
 METHODDEF(int) read_markers(j_decompress_ptr cinfo)
 {
 	/* Outer loop repeats once for each marker. */
-	for(;; ) {
+	for(;;) {
 		/* Collect the marker proper, unless we already did. */
 		/* NB: first_marker() enforces the requirement that SOI appear first. */
 		if(cinfo->unread_marker == 0) {
@@ -1144,7 +1144,7 @@ GLOBAL(boolean) jpeg_resync_to_restart(j_decompress_ptr cinfo, int desired)
 	/* Always put up a warning. */
 	WARNMS2(cinfo, JWRN_MUST_RESYNC, marker, desired);
 	/* Outer loop handles repeated decision after scanning forward. */
-	for(;; ) {
+	for(;;) {
 		if(marker < (int)M_SOF0)
 			action = 2; /* invalid marker */
 		else if(marker < (int)M_RST0 || marker > (int)M_RST7)

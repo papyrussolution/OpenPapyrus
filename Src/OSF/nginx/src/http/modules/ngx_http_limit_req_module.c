@@ -212,7 +212,7 @@ static void ngx_http_limit_req_rbtree_insert_value(ngx_rbtree_node_t * temp, ngx
 {
 	ngx_rbtree_node_t ** p;
 	ngx_http_limit_req_node_t * lrn, * lrnt;
-	for(;; ) {
+	for(;;) {
 		if(node->key < temp->key) {
 			p = &temp->left;
 		}

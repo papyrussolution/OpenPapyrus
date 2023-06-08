@@ -180,7 +180,7 @@ int __heap_traverse(DBC * dbc, int (*callback)__P((DBC*, PAGE*, void *, int *)),
 	mpf = dbp->mpf;
 	LOCK_INIT(lock);
 	pgno = FIRST_HEAP_DPAGE;
-	for(;; ) {
+	for(;;) {
 		already_put = 0;
 		h = NULL;
 		if((ret = __db_lget(dbc, 0, pgno, DB_LOCK_READ, 0, &lock)) != 0)

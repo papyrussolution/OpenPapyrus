@@ -1272,7 +1272,7 @@ static int __db_makecopy(ENV * env, const char * src, const char * dest)
 		goto err;
 	if((ret = __os_open(env, dest, 0, DB_OSO_CREATE|DB_OSO_TRUNC, DB_MODE_600, &wfhp)) != 0)
 		goto err;
-	for(;; ) {
+	for(;;) {
 		if((ret = __os_read(env, rfhp, buf, sizeof(buf), &rcnt)) != 0)
 			goto err;
 		if(rcnt == 0)

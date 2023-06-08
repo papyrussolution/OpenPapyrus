@@ -159,7 +159,7 @@ void Sha256_Update(CSha256 * p, const Byte * data, size_t size)
 			memcpy(p->buffer + pos, data, num);
 			data += num;
 		}
-		for(;; ) {
+		for(;;) {
 			Sha256_WriteByteBlock(p);
 			if(size < 64)
 				break;

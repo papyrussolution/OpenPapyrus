@@ -68,7 +68,7 @@ static FORCEINLINE double _cairo_time_1s()
 cairo_time_t _cairo_time_get()
 {
 	QWORD t;
-	cairo_int64_t r;
+	int64 r;
 	DosTmrQueryTime(&t);
 	r = _cairo_int64_lsl(_cairo_int32_to_int64(t.ulHi), 32);
 	r = _cairo_int64_add(r, _cairo_int32_to_int64(t.ulLo));
@@ -86,20 +86,10 @@ static FORCEINLINE double _cairo_time_1s()
 	return static_cast<double>(freq.QuadPart);
 }
 
-#ifndef HAVE_UINT64_T
-static FORCEINLINE cairo_time_t _cairo_time_from_large_integer(LARGE_INTEGER t)
-{
-	cairo_int64_t r;
-	r = _cairo_int64_lsl(_cairo_int32_to_int64(t.HighPart), 32);
-	r = _cairo_int64_add(r, _cairo_int32_to_int64(t.LowPart));
-	return r;
-}
-#else
 static FORCEINLINE cairo_time_t _cairo_time_from_large_integer(LARGE_INTEGER t)
 {
 	return t.QuadPart;
 }
-#endif
 
 cairo_time_t _cairo_time_get()
 {

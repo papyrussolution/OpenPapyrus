@@ -48,7 +48,7 @@ STDMETHODIMP CExtentsStream::Read(void * data, uint32 size, uint32 * processedSi
 	if(size == 0)
 		return S_OK;
 	unsigned left = 0, right = Extents.Size() - 1;
-	for(;; ) {
+	for(;;) {
 		unsigned mid = (left + right) / 2;
 		if(mid == left)
 			break;
@@ -562,7 +562,7 @@ namespace NArchive {
 			AString s;
 			uint len = 0;
 			const CDir * cur = this;
-			for(;; ) {
+			for(;;) {
 				unsigned curLen;
 				cur->GetNameCur(checkSusp, skipSize, curLen);
 				len += curLen;
@@ -573,7 +573,7 @@ namespace NArchive {
 			}
 			char * p = s.GetBuf_SetEnd(len) + len;
 			cur = this;
-			for(;; ) {
+			for(;;) {
 				unsigned curLen;
 				const Byte * name = cur->GetNameCur(checkSusp, skipSize, curLen);
 				p -= curLen;
@@ -593,7 +593,7 @@ namespace NArchive {
 			s.Empty();
 			uint len = 0;
 			const CDir * cur = this;
-			for(;; ) {
+			for(;;) {
 				unsigned curLen = (uint)(cur->FileId.Size() / 2);
 				const Byte * fid = cur->FileId;
 
@@ -609,7 +609,7 @@ namespace NArchive {
 			}
 			wchar_t * p = s.GetBuf_SetEnd(len) + len;
 			cur = this;
-			for(;; ) {
+			for(;;) {
 				unsigned curLen = (uint)(cur->FileId.Size() / 2);
 				const Byte * fid = cur->FileId;
 				uint i;
@@ -925,7 +925,7 @@ namespace NArchive {
 					SeekToBlock(d.ExtentLocation);
 					uint64 startPos = _position;
 					bool firstItem = true;
-					for(;; ) {
+					for(;;) {
 						const uint64 offset = _position - startPos;
 						if(offset >= d.Size)
 							break;
@@ -951,7 +951,7 @@ namespace NArchive {
 		void CInArchive::CreateRefs(CDir & d)
 		{
 			if(d.IsDir()) {
-				for(uint i = 0; i < d._subItems.Size(); ) {
+				for(uint i = 0; i < d._subItems.Size();) {
 					CRef ref;
 					CDir & subItem = d._subItems[i];
 					subItem.Parent = &d;
@@ -960,7 +960,7 @@ namespace NArchive {
 					ref.NumExtents = 1;
 					ref.TotalSize = subItem.Size;
 					if(subItem.IsNonFinalExtent()) {
-						for(;; ) {
+						for(;;) {
 							if(i == d._subItems.Size()) {
 								HeadersError = true;
 								break;
@@ -1018,7 +1018,7 @@ namespace NArchive {
 
 			bool error = false;
 
-			for(;; ) {
+			for(;;) {
 				ReadBytes(buf, 32);
 				Byte headerIndicator = buf[0];
 				if(headerIndicator != NBootEntryId::kMoreHeaders
@@ -1072,7 +1072,7 @@ namespace NArchive {
 			m_BufferPos = 0;
 			// BlockSize = kBlockSize;
 
-			for(;; ) {
+			for(;;) {
 				Byte sig[7];
 				ReadBytes(sig, 7);
 				Byte ver = sig[6];

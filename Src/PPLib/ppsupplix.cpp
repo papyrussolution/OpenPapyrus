@@ -10377,7 +10377,7 @@ public:
 			}
 		}
 	}
-	int    SendRest()
+	int    SendRest(StringSet & rSsFileName)
 	{
 		const  LDATETIME now_dtm = getcurdatetime_();
 		int    ok = 1;
@@ -10515,11 +10515,18 @@ public:
 				}
 			}
 		}
+		// @v11.7.5 {
+		{
+			xmlFreeTextWriter(p_x);
+			p_x = 0;
+			rSsFileName.add(out_file_name); 
+		}
+		// } @v11.7.5 
 		CATCHZOK
 		xmlFreeTextWriter(p_x);
 		return ok;
 	}
-	int    SendSales()
+	int    SendSales(StringSet & rSsFileName)
 	{
 		const  LDATETIME now_dtm = getcurdatetime_();
 		int    ok = 1;
@@ -10690,8 +10697,59 @@ public:
 				}
 			}
 		}
+		// @v11.7.5 {
+		{
+			xmlFreeTextWriter(p_x);
+			p_x = 0;
+			rSsFileName.add(out_file_name); 
+		}
+		// } @v11.7.5 
 		CATCHZOK
 		xmlFreeTextWriter(p_x);
+		return ok;
+	}
+	int      TransmitFiles(const StringSet & rFileNameSet)
+	{
+		//const char * pp_pfx_list[] = { "customers", "debts", "movements", "products", "salesrefunds", "salesreps", "stocks", "warehouses", "trade_points" };
+		int    ok = -1;
+		SString temp_buf;
+		SString msg_buf;
+		SString file_name;
+		SString remote_addr;
+		SString accs_name;
+		SString accs_passw;
+		SString dest_root;
+		SString cli_code;
+		SUniformFileTransmParam uftp;
+		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssRemoteAddr, remote_addr);
+		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsName, accs_name);
+		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsPassw, accs_passw);
+		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssClientCode, cli_code);
+		if(remote_addr.NotEmptyS()) {
+			(dest_root = remote_addr).SetLastDSlash();
+			for(uint ssp = 0; rFileNameSet.get(&ssp, file_name);) {
+				if(fileExists(file_name)) {
+					// inbox/89041
+					SPathStruc ps(file_name);
+					uftp.SrcPath = file_name;
+					(uftp.DestPath = dest_root).SetLastDSlash().Cat("inbox");
+					if(cli_code.NotEmpty())
+						uftp.DestPath.SetLastDSlash().Cat(cli_code);
+					uftp.AccsName = accs_name;
+					uftp.AccsPassword = accs_passw;
+					PPLoadTextS(PPTXT_SENDSUPPLIXDATA, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat(uftp.DestPath);
+					if(uftp.Run(0, 0)) {
+						PPLoadTextS(PPTXT_SUPPLIXDATASENT, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat(uftp.DestPath);
+						ok = 1;
+					}
+					else {
+						ok = PPSetError(PPERR_SLIB);
+						PPGetLastErrorMessage(1, temp_buf);
+						PPLoadTextS(PPTXT_SENDSUPPLIXDATAFAULT, msg_buf).CatDiv(':', 2).Cat(temp_buf);
+					}
+				}
+			}
+		}
 		return ok;
 	}
 private:
@@ -11269,8 +11327,8 @@ int PrcssrSupplInterchange::Run()
 		if(temp_buf.IsEqiAscii("AGENT_PLUS")) { // @v11.6.5
 			AgentPlus cli(r_eb, logger);
 			const long actions = r_eb.P.Actions;
-			PPWaitStart();
 			StringSet ss_file_name;
+			PPWaitStart();
 			THROW(cli.Init());
 			if(actions & SupplInterchangeFilt::opExportBills) {
 				cli.ExportAll(ss_file_name);
@@ -11280,14 +11338,20 @@ int PrcssrSupplInterchange::Run()
 		else if(temp_buf.IsEqiAscii("VLADIMIRSKIY_STANDARD")) { // @v11.5.10
 			VladimirskiyStandard cli(r_eb, logger);
 			const long actions = r_eb.P.Actions;
+			StringSet ss_file_name;
 			PPWaitStart(); // @v11.6.4
 			THROW(cli.Init());
 			if(actions & SupplInterchangeFilt::opExportStocks) {
-				cli.SendRest();
+				cli.SendRest(ss_file_name);
 			}
 			if(actions & SupplInterchangeFilt::opExportSales) {
-				cli.SendSales();
+				cli.SendSales(ss_file_name);
 			}
+			// @v11.7.5 {
+			if(ss_file_name.getCount()) {
+				cli.TransmitFiles(ss_file_name);
+			}
+			// } @v11.7.5 
 		}
 		else if(temp_buf.IsEqiAscii("MERCAPP-GAZPROMNEFT")) { // @v11.5.2
 			GazpromNeft cli(r_eb, logger);

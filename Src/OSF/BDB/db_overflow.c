@@ -124,7 +124,7 @@ skip_alloc:
 	 * one into the buffer.  Never copy more than the total data length.
 	 */
 	dbt->size = needed;
-	for(p = (uint8 *)dbt->data; pgno != PGNO_INVALID && needed > 0; ) {
+	for(p = (uint8 *)dbt->data; pgno != PGNO_INVALID && needed > 0;) {
 		if((ret = __memp_fget(mpf, &pgno, ip, txn, 0, &h)) != 0)
 			return ret;
 		DB_ASSERT(env, TYPE(h) == P_OVERFLOW);
@@ -413,7 +413,7 @@ int __db_moff(DBC * dbc, const DBT * dbt, db_pgno_t pgno, uint32 tlen, int (*cmp
 		return 0;
 	}
 	/* While there are both keys to compare. */
-	for(*cmpp = 0, p1 = (uint8 *)dbt->data, key_left = dbt->size; key_left > 0 && pgno != PGNO_INVALID; ) {
+	for(*cmpp = 0, p1 = (uint8 *)dbt->data, key_left = dbt->size; key_left > 0 && pgno != PGNO_INVALID;) {
 		if((ret = __memp_fget(mpf, &pgno, ip, dbc->txn, 0, &pagep)) != 0)
 			return ret;
 		cmp_bytes = OV_LEN(pagep) < key_left ? OV_LEN(pagep) : key_left;

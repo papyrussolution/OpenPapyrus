@@ -8491,7 +8491,8 @@ int PPVetisInterface::PrepareOutgoingTransportData(PPID billID, VetisPrepareOutg
 		}
 		if(rReq.Transp.TransportNumber.IsEmpty()) {
 			rReq.Transp.TransportType = VetisTransportInfo::ttCar;
-			rReq.Transp.TransportNumber.VehicleNumber = "М 040 РВ 10";
+			// @v11.7.5 rReq.Transp.TransportNumber.VehicleNumber = "М 040 РВ 10";
+			PPLoadText(PPTXT_VETIS_FAKECARNUMBER, rReq.Transp.TransportNumber.VehicleNumber); // @v11.7.5 
 			if(tst_goods >= 0) {
 				SIntToSymbTab_GetSymb(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab), tst_goods, temp_buf);
 				rReq.TranspStorageType = temp_buf;

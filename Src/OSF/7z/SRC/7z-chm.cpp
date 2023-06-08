@@ -475,7 +475,7 @@ namespace NArchive {
 			currentTotalSize = 0;
 			CRecordVector <bool> extractStatuses;
 			CByteBuffer packBuf;
-			for(i = 0;; ) {
+			for(i = 0;;) {
 				RINOK(extractCallback->SetCompleted(&currentTotalSize));
 				if(i >= numItems)
 					break;
@@ -957,7 +957,7 @@ namespace NArchive {
 								  // directory in sequence (-1 if this is the last listing chunk)
 					unsigned numItems = 0;
 
-					for(;; ) {
+					for(;;) {
 						uint64 offset = _inBuffer.GetProcessedSize() - chunkPos;
 						uint32 offsetLimit = dirChunkSize - quickrefLength;
 						if(offset > offsetLimit)
@@ -1142,7 +1142,7 @@ namespace NArchive {
 					ReadUInt32(); // 0 (unknown)
 
 					unsigned numItems = 0;
-					for(;; ) {
+					for(;;) {
 						uint64 offset = _inBuffer.GetProcessedSize() - chunkPos;
 						uint32 offsetLimit = dirChunkSize - quickrefLength;
 						if(offset > offsetLimit)
@@ -1531,7 +1531,7 @@ namespace NArchive {
 					if(limit > *searchHeaderSizeLimit)
 						limit = *searchHeaderSizeLimit;
 				uint64 val = 0;
-				for(;; ) {
+				for(;;) {
 					Byte b;
 					if(!_inBuffer.ReadByte(b))
 						return S_FALSE;

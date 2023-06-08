@@ -475,7 +475,7 @@ HRESULT CArc::GetItemPathToParent(uint32 index, uint32 parent, UStringVector &pa
 	uint32 curIndex = index;
 	UString s;
 	bool prevWasAltStream = false;
-	for(;; ) {
+	for(;;) {
     #ifdef MY_CPU_LE
 		const void * p;
 		uint32 size;
@@ -499,7 +499,7 @@ HRESULT CArc::GetItemPathToParent(uint32 index, uint32 parent, UStringVector &pa
 		uint32 parentType = 0;
 		RINOK(GetRawProps->GetParent(curIndex, &curParent, &parentType));
 		if(parentType != NParentType::kAltStream) {
-			for(;; ) {
+			for(;;) {
 				int pos = s.ReverseFind_PathSepar();
 				if(pos < 0) {
 					break;
@@ -1290,7 +1290,7 @@ HRESULT CArc::CheckZerosTail(const COpenOptions &op, uint64 offset)
 	RINOK(op.stream->Seek(offset, STREAM_SEEK_SET, NULL));
 	const uint32 kBufSize = 1 << 11;
 	Byte buf[kBufSize];
-	for(;; ) {
+	for(;;) {
 		uint32 processed = 0;
 		RINOK(op.stream->Read(buf, kBufSize, &processed));
 		if(processed == 0) {
@@ -2029,7 +2029,7 @@ HRESULT CArc::OpenStream2(const COpenOptions &op)
 			if(!pi.LenIsUnknown && pi.Offset == 0)
 				pos = pi.Size;
 		}
-		for(;; ) {
+		for(;;) {
 			// printf("\nPos = %d", (int)pos);
 			uint64 posInBuf = pos - bufPhyPos;
 			// if(pos > ((uint64)1 << 35)) break;
@@ -2129,7 +2129,7 @@ HRESULT CArc::OpenStream2(const COpenOptions &op)
 			uint   indexOfDifficult = 0;
 			// ---------- Open Loop for Current Pos ----------
 			bool wasOpen = false;
-			for(;; ) {
+			for(;;) {
 				unsigned index;
 				bool isDifficult;
 				if(needCheckStartOpen && indexOfDifficult < difficultFormats.Size()) {
@@ -2561,7 +2561,7 @@ HRESULT CArchiveLink::Open_Strict(COpenOptions &options, IOpenCallbackUI * callb
 
 void CArchiveLink::KeepModeForNextOpen()
 {
-	for(uint i = Arcs.Size(); i != 0; ) {
+	for(uint i = Arcs.Size(); i != 0;) {
 		i--;
 		CMyComPtr<IArchiveKeepModeForNextOpen> keep;
 		Arcs[i].Archive->QueryInterface(IID_IArchiveKeepModeForNextOpen, (void **)&keep);
@@ -2571,7 +2571,7 @@ void CArchiveLink::KeepModeForNextOpen()
 
 HRESULT CArchiveLink::Close()
 {
-	for(uint i = Arcs.Size(); i != 0; ) {
+	for(uint i = Arcs.Size(); i != 0;) {
 		i--;
 		RINOK(Arcs[i].Close());
 	}
@@ -2617,7 +2617,7 @@ HRESULT CArchiveLink::Open(COpenOptions &op)
 	if(op.types->Size() >= 32)
 		return E_NOTIMPL;
 	HRESULT resSpec;
-	for(;; ) {
+	for(;;) {
 		resSpec = S_OK;
 		op.openType = COpenType();
 		if(op.types->Size() >= 1) {
@@ -2981,7 +2981,7 @@ HRESULT CArchiveLink::ReOpen(COpenOptions &op)
 			}
 			type.FormatIndex = index;
 		}
-		for(uint i = pos2; i < s.Len(); ) {
+		for(uint i = pos2; i < s.Len();) {
 			int next = s.Find(L':', i);
 			if(next < 0)
 				next = s.Len();
@@ -2998,7 +2998,7 @@ HRESULT CArchiveLink::ReOpen(COpenOptions &op)
 	bool ParseOpenTypes(CCodecs & codecs, const UString & s, CObjectVector <COpenType> & types)
 	{
 		types.Clear();
-		for(uint pos = 0; pos < s.Len(); ) {
+		for(uint pos = 0; pos < s.Len();) {
 			int pos2 = s.Find(L'.', pos);
 			if(pos2 < 0)
 				pos2 = s.Len();

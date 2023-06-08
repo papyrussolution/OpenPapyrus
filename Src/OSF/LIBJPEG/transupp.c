@@ -1274,7 +1274,7 @@ static void adjust_exif_parameters(JOCTET FAR * data, uint length,
 	firstoffset += 2;
 
 	/* Search for ExifSubIFD offset Tag in IFD0 */
-	for(;; ) {
+	for(;;) {
 		if(firstoffset > length - 12) return; /* check end of data segment */
 		/* Get Tag number */
 		if(is_motorola) {

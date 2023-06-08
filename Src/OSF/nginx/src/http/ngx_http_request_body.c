@@ -194,8 +194,8 @@ static void ngx_http_read_client_request_body_handler(ngx_http_request_t * r)
 	ngx_connection_t * c = r->connection;
 	ngx_http_request_body_t * rb = r->request_body;
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, c->log, 0, "http read client request body");
-	for(;; ) {
-		for(;; ) {
+	for(;;) {
+		for(;;) {
 			if(rb->buf->last == rb->buf->end) {
 				if(rb->buf->pos != rb->buf->last) {
 					// pass buffer to request body filter chain 
@@ -470,7 +470,7 @@ static ngx_int_t ngx_http_read_discarded_request_body(ngx_http_request_t * r)
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http read discarded body");
 	memzero(&b, sizeof(ngx_buf_t));
 	b.temporary = 1;
-	for(;; ) {
+	for(;;) {
 		if(r->headers_in.content_length_n == 0) {
 			r->read_event_handler = ngx_http_block_reading;
 			return NGX_OK;
@@ -517,7 +517,7 @@ static ngx_int_t ngx_http_discard_request_body_filter(ngx_http_request_t * r, ng
 			}
 			r->request_body = rb;
 		}
-		for(;; ) {
+		for(;;) {
 			rc = ngx_http_parse_chunked(r, b, rb->chunked);
 			if(rc == NGX_OK) {
 				// a chunk has been parsed successfully 
@@ -661,7 +661,7 @@ static ngx_int_t ngx_http_request_body_chunked_filter(ngx_http_request_t * r, ng
 	out = NULL;
 	ll = &out;
 	for(cl = in; cl; cl = cl->next) {
-		for(;; ) {
+		for(;;) {
 			ngx_log_debug7(NGX_LOG_DEBUG_EVENT, r->connection->log, 0, "http body chunked buf t:%d f:%d %p, pos %p, size: %z file: %O, size: %O",
 			    cl->buf->temporary, cl->buf->in_file, cl->buf->start, cl->buf->pos, cl->buf->last - cl->buf->pos, cl->buf->file_pos,
 			    cl->buf->file_last - cl->buf->file_pos);

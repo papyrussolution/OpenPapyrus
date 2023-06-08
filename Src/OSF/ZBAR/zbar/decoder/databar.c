@@ -111,7 +111,7 @@ static const uchar exp_checksums[] = { 1, 189, 62, 113, 46, 43, 109, 134, 6, 79,
 static void append_check14(uchar * buf)
 {
 	uchar chk = 0, d;
-	for(int i = 13; --i >= 0; ) {
+	for(int i = 13; --i >= 0;) {
 		d = *(buf++) - '0';
 		chk += d;
 		if(!(i & 1))
@@ -466,7 +466,7 @@ static void databar_postprocess(zbar_decoder_t * dcode, uint d[4])
 	d[3] = r / 10000;
 	dbprintf(2, " r=%ld", r);
 
-	for(i = 4; --i >= 0; ) {
+	for(i = 4; --i >= 0;) {
 		c = r % 10;
 		chk += c;
 		if(i & 1)
@@ -484,7 +484,7 @@ static void databar_postprocess(zbar_decoder_t * dcode, uint d[4])
 	d[3] = r / 10000;
 	dbprintf(2, " r=%ld", r);
 
-	for(i = 4; --i >= 0; ) {
+	for(i = 4; --i >= 0;) {
 		c = r % 10;
 		chk += c;
 		if(i & 1)
@@ -493,11 +493,9 @@ static void databar_postprocess(zbar_decoder_t * dcode, uint d[4])
 		if(i)
 			r /= 10;
 	}
-
 	r = d[2] * 1597 + d[3];
 	dbprintf(2, " d={%d,%d} r=%ld", d[2], d[3], r);
-
-	for(i = 5; --i >= 0; ) {
+	for(i = 5; --i >= 0;) {
 		c = r % 10;
 		chk += c;
 		if(!(i & 1))
@@ -506,7 +504,6 @@ static void databar_postprocess(zbar_decoder_t * dcode, uint d[4])
 		if(i)
 			r /= 10;
 	}
-
 	/* NB linkage flag not supported */
 	if(TEST_CFG(db->config, ZBAR_CFG_EMIT_CHECK)) {
 		chk %= 10;
@@ -647,7 +644,7 @@ static uint lookup_sequence(databar_segment_t * seg, int fixed, int seq[22])
 	fixed >>= 1;
 	seq[0] = 0;
 	seq[1] = 1;
-	for(i = 2; i < n; ) {
+	for(i = 2; i < n;) {
 		int s = *p;
 		if(!(i & 2)) {
 			p++;
@@ -785,7 +782,7 @@ static inline zbar_symbol_type_t match_segment_exp(zbar_decoder_t * dcode, datab
 static uint calc_check(uint sig0, uint sig1, uint side, uint mod)
 {
 	uint chk = 0;
-	for(int i = 4; --i >= 0; ) {
+	for(int i = 4; --i >= 0;) {
 		chk = (chk * 3 + (sig1 & 0xf) + 1) * 3 + (sig0 & 0xf) + 1;
 		sig1 >>= 4;
 		sig0 >>= 4;
@@ -891,7 +888,7 @@ static zbar_symbol_type_t decode_char(zbar_decoder_t * dcode, databar_segment_t 
 	if(s < 13 || !check_width(seg->width, s, n))
 		return ZBAR_NONE;
 
-	for(i = 4; --i >= 0; ) {
+	for(i = 4; --i >= 0;) {
 		int e = decode_e(pair_width(dcode, off), s, n);
 		if(e < 0)
 			return ZBAR_NONE;

@@ -1,5 +1,5 @@
 // V_TSANLZ.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1278,14 +1278,9 @@ int PPALDD_TSessAnlz::NextIteration(PPIterID iterId)
 	STRNSCPY(I.PrcName,       item.PrcName);
 	STRNSCPY(I.DtText,        item.DtText);
 	if(item.PrcID == MAXLONG) {
-		// @v9.7.4 memset(I.Intrn_PrcName, 'я', sizeof(I.Intrn_PrcName)-1);
-		// @v9.7.4 I.Intrn_PrcName[sizeof(I.Intrn_PrcName)-1] = 0;
-		// @v9.7.4 SCharToOem(I.Intrn_PrcName);
-		// @v9.7.4 {
 		SString temp_buf;
 		temp_buf.CatCharN(255, sizeof(I.Intrn_PrcName)-1); // @v10.5.3 'я'-->255
 		STRNSCPY(I.Intrn_PrcName, temp_buf);
-		// } @v9.7.4
 	}
 	else
 		STRNSCPY(I.Intrn_PrcName, I.PrcName);

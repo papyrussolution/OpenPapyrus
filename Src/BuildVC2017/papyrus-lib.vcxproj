@@ -1676,6 +1676,9 @@
     <ProjectReference Include="libprotobuf.vcxproj">
       <Project>{f794984c-5ecc-3922-ba3f-6d27cd4bdec7}</Project>
     </ProjectReference>
+    <ProjectReference Include="libwebp-slib.vcxproj">
+      <Project>{05255f31-2054-4df4-ad6d-5bc5da8ccccf}</Project>
+    </ProjectReference>
     <ProjectReference Include="libzint.vcxproj">
       <Project>{f0604a96-528f-40e6-8800-c696f03307a1}</Project>
     </ProjectReference>

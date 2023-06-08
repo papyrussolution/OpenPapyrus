@@ -169,9 +169,7 @@ int StringStore2::CreateHash(int doTest)
 		const uint slc = SignatureList.getCount();
 		if(slc > 16) { // Если количество сигнатур не больше 16 то нет смысла городить огород с хэшем
 			// Размер хэша должен быть точно больше количества сигнатур и при этом должен быть простым числом
-			size_t hash_size = slc+1;
-			while(!IsPrime((ulong)hash_size))
-				hash_size++;
+			size_t hash_size = GetPrimeGreaterThan(slc);
 			THROW_MEM(P_SignatureHash = new SymbHashTable(hash_size, 0));
 			for(uint i = 0; i < slc; i++) {
 				StrAssocArray::Item item = SignatureList.at_WithoutParent(i);
@@ -186,9 +184,7 @@ int StringStore2::CreateHash(int doTest)
 			if(p_item && !p_item->P_PositionHash) {
 				const uint lc = p_item->List.getCount();
 				if(lc > 16) {
-					size_t hash_size = lc+1;
-					while(!IsPrime((ulong)hash_size))
-						hash_size++;
+					const size_t hash_size = GetPrimeGreaterThan(lc);
 					THROW_MEM(p_item->P_PositionHash = new StringStore2::Hash(hash_size));
 					for(uint i = 0; i < lc; i++) {
 						StrAssocArray::Item li = p_item->List.at_WithoutParent(i);
@@ -252,10 +248,8 @@ SymbHashTable * StringStore2::LoadStringHash(int group) const
 			p_item->HashAssocList.GetListByKey(group, str_id_list);
 			if(str_id_list.getCount()) {
 				SString temp_buf;
-				uint result_count = 0;
-                uint ht_size = (str_id_list.getCount() * 3);
-                while(!IsPrime(ht_size))
-					ht_size++;
+				uint  result_count = 0;
+				const uint ht_size = GetPrimeGreaterThan((str_id_list.getCount() * 3) - 1);
 				THROW_MEM(p_tab = new SymbHashTable(ht_size, 1)); // @v9.6.5 useAssoc 0-->1
 				for(uint i = 0; i < str_id_list.getCount(); i++) {
 					const long str_id = str_id_list.get(i);

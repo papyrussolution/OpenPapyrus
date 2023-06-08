@@ -630,7 +630,7 @@ static CTX_PTR ReduceOrder(CPpmd8 * p, CPpmd_State * s1, CTX_PTR c)
 	SetSuccessor(p->FoundState, upBranch);
 	p->OrderFall++;
 
-	for(;; ) {
+	for(;;) {
 		if(s1) {
 			c = SUFFIX(c);
 			s = s1;
@@ -1088,7 +1088,7 @@ void Ppmd8_EncodeSymbol(CPpmd8 * p, int symbol)
 			p->PrevSuccess = 0;
 		}
 	}
-	for(;; ) {
+	for(;;) {
 		uint32 escFreq;
 		CPpmd_See * see;
 		CPpmd_State * s;
@@ -1214,7 +1214,7 @@ int FASTCALL Ppmd8_DecodeSymbol(CPpmd8 * p)
 		MASK(Ppmd8Context_OneState(p->MinContext)->Symbol) = 0;
 		p->PrevSuccess = 0;
 	}
-	for(;; ) {
+	for(;;) {
 		CPpmd_State * ps[256], * s;
 		uint32 freqSum, count, hiCnt;
 		CPpmd_See * see;

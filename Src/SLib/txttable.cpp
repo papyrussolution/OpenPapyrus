@@ -1,5 +1,5 @@
 // TXTTABLE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2015, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -463,7 +463,7 @@ int TextDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 	}
 	THROW(F.WriteLine(line.CR()));
 	RecPosList.insert(&pos);
-	F.Flush(); // @v9.2.0
+	F.Flush();
 	CATCHZOK
 	return ok;
 }

@@ -5,7 +5,7 @@
 #pragma hdrstop
 
 #define HeapSortDown(p, k, size, temp) \
-	{ for(;; ) { \
+	{ for(;;) { \
 		  size_t s = (k << 1); \
 		  if(s > size) break; \
 		  if(s < size && p[s + 1] > p[s]) s++; \

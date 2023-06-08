@@ -24,6 +24,22 @@ SVectorBase::~SVectorBase()
 {
 }
 
+void SVectorBase::__MoveTo(SVectorBase & rDest)
+{
+	rDest.count = count;
+	rDest.pointer = pointer;
+	rDest.isize = isize;
+	rDest.Limit = Limit;
+	rDest.VFlags = VFlags;
+	rDest.P_VData = P_VData;
+	//
+	count = 0;
+	pointer = 0;
+	Limit = 0;
+	P_VData = 0;
+	// isize and VFlags остаются неизменными!
+}
+
 int FASTCALL SVectorBase::CopyS(const SVectorBase & rS)
 {
 	int    ok = 1;
@@ -4648,7 +4664,7 @@ int STimeChunkAssocArray::Remove(long chunkId)
 //
 //
 //
-static int FASTCALL Subst(const void * i1, const void * i2, void * pExtraData)
+static int Subst(const void * i1, const void * i2, void * pExtraData)
 {
 	return stcomp(reinterpret_cast<TYPEID>(pExtraData), i1, i2);
 }
@@ -5513,6 +5529,59 @@ SLTEST_FIXTURE(SVector, TestFixtureSArray)
 		}
 	}
 	// } @v11.7.0 
+	return CurrentStatus;
+}
+
+SLTEST_R(TSHashCollection)
+{
+	struct Sample_HashTableEntry {
+		const void * GetKey(uint * pKeySize) const
+		{
+			ASSIGN_PTR(pKeySize, CityEn.Len());
+			return CityEn;
+		}
+		SString CityEn;
+		SString CityRu;
+	};
+	TSCollection <Sample_HashTableEntry> city_list;
+	TSHashCollection <Sample_HashTableEntry> city_hash_table(1024);
+
+	SString in_file_path;
+	SString left, right;
+	SString line_buf;
+	SLS.QueryPath("testroot", in_file_path);
+	in_file_path.SetLastSlash().Cat("data").SetLastSlash().Cat("city-enru-pair.csv");
+	SFile f_in(in_file_path, SFile::mRead);
+	THROW(SLTEST_CHECK_NZ(f_in.IsValid()));
+	{
+		while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+			if(line_buf.Divide(';', left, right) > 0 && left.NotEmptyS()) {
+				Sample_HashTableEntry * p_new_entry = city_list.CreateNewItem();
+				THROW(SLTEST_CHECK_NZ(p_new_entry));
+				p_new_entry->CityEn = left;
+				p_new_entry->CityRu = right.Strip();
+			}
+		}
+	}
+	{
+		for(uint i = 0; i < city_list.getCount(); i++) {
+			Sample_HashTableEntry * p_hash_entry = new Sample_HashTableEntry(*city_list.at(i));
+			int hash_table_put_result = city_hash_table.Put(p_hash_entry, false);
+			THROW(SLTEST_CHECK_EQ(hash_table_put_result, 1));
+		}
+	}
+	{
+		for(uint i = 0; i < city_list.getCount(); i++) {
+			const Sample_HashTableEntry * p_entry = city_list.at(i);
+			const Sample_HashTableEntry * p_hash_entry = city_hash_table.Get(p_entry->CityEn, p_entry->CityEn.Len());
+			THROW(SLTEST_CHECK_NZ(p_hash_entry));
+			THROW(SLTEST_CHECK_EQ(p_hash_entry->CityEn, p_entry->CityEn));
+			THROW(SLTEST_CHECK_EQ(p_hash_entry->CityRu, p_entry->CityRu));
+		}
+	}
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
 	return CurrentStatus;
 }
 

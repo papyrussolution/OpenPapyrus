@@ -152,7 +152,7 @@ u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list ar
 			while(*fmt >= '0' && *fmt <= '9') {
 				width = width * 10 + (*fmt++ - '0');
 			}
-			for(;; ) {
+			for(;;) {
 				switch(*fmt) {
 					case 'u':
 					    sign = 0;
@@ -456,7 +456,7 @@ static u_char * ngx_sprintf_num(u_char * buf, u_char * last, uint64_t ui64, u_ch
 ngx_int_t FASTCALL ngx_strcasecmp(const u_char * s1, const u_char * s2)
 {
 	ngx_uint_t c1, c2;
-	for(;; ) {
+	for(;;) {
 		c1 = (ngx_uint_t)*s1++;
 		c2 = (ngx_uint_t)*s2++;
 		c1 = (c1 >= 'A' && c1 <= 'Z') ? (c1 | 0x20) : c1;
@@ -578,7 +578,7 @@ ngx_int_t ngx_rstrncmp(u_char * s1, u_char * s2, size_t n)
 		return 0;
 	}
 	n--;
-	for(;; ) {
+	for(;;) {
 		if(s1[n] != s2[n]) {
 			return s1[n] - s2[n];
 		}
@@ -596,7 +596,7 @@ ngx_int_t ngx_rstrncasecmp(u_char * s1, u_char * s2, size_t n)
 		return 0;
 	}
 	n--;
-	for(;; ) {
+	for(;;) {
 		c1 = s1[n];
 		if(c1 >= 'a' && c1 <= 'z') {
 			c1 -= 'a' - 'A';
@@ -637,7 +637,7 @@ ngx_int_t ngx_memn2cmp(u_char * s1, u_char * s2, size_t n1, size_t n2)
 ngx_int_t FASTCALL ngx_dns_strcmp(const u_char * s1, const u_char * s2)
 {
 	ngx_uint_t c1, c2;
-	for(;; ) {
+	for(;;) {
 		c1 = (ngx_uint_t)*s1++;
 		c2 = (ngx_uint_t)*s2++;
 		c1 = (c1 >= 'A' && c1 <= 'Z') ? (c1 | 0x20) : c1;
@@ -1371,7 +1371,7 @@ uintptr_t FASTCALL ngx_escape_json(u_char * dst, u_char * src, size_t size)
 void ngx_str_rbtree_insert_value(ngx_rbtree_node_t * temp, ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel)
 {
 	ngx_rbtree_node_t  ** p;
-	for(;; ) {
+	for(;;) {
 		ngx_str_node_t * n = (ngx_str_node_t*)node;
 		ngx_str_node_t * t = (ngx_str_node_t*)temp;
 		if(node->key != temp->key) {

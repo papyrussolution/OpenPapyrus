@@ -640,10 +640,7 @@ static inline int64 getprofiletime(HANDLE thrId)
 static inline int64 getprofilesystime()
 {
 	FILETIME tm;
-	// @v9.9.5 SYSTEMTIME stm;
-	// @v9.9.5 GetSystemTime(&stm);
-	// @v9.9.5 SystemTimeToFileTime(&stm, &tm);
-	GetSystemTimeAsFileTime(&tm); // @v9.9.5
+	GetSystemTimeAsFileTime(&tm);
 	return FILE_TIME_TO_QWORD(tm);
 }
 

@@ -595,7 +595,7 @@ int SUsbDevice::Write(const void * pBuf, size_t bufSize)
 		memcpy(p_buf, pBuf, bufSize);
 		if(DevClass == clsHid) {
 			// ¬ цикле подаем команду на устройство
-			for(; buf_size; ) {
+			for(; buf_size;) {
 				memzero(p_segm_buf, OutputReportByteLength);
 				// ¬ начало буфера нулевой байт оставл€ем нулем, а в 1-й пишем размер передаваемой подстроки
 				*(p_segm_buf + 1) = (buf_size < (OutputReportByteLength - 2)) ? (char)buf_size : (OutputReportByteLength - 2);
@@ -609,7 +609,7 @@ int SUsbDevice::Write(const void * pBuf, size_t bufSize)
 		}
 		else {
 			// ¬ цикле подаем команду на устройство
-			for(; buf_size; ) {
+			for(; buf_size;) {
 				memzero(p_segm_buf, OutputReportByteLength);
 				*p_segm_buf = (buf_size < OutputReportByteLength) ? (char)buf_size : OutputReportByteLength;
 				memcpy(p_segm_buf + 1, p_buf, (buf_size < (OutputReportByteLength - 1)) ? buf_size : (OutputReportByteLength - 1));
@@ -763,7 +763,7 @@ int SRawInputData::InitRawInputProc(int unreg)
 }
 
 
-SRawInputInitArray::SRawInputInitArray() : SVector(sizeof(RAWINPUTDEVICE)) // @v9.8.7 SArray-->SVector
+SRawInputInitArray::SRawInputInitArray() : SVector(sizeof(RAWINPUTDEVICE))
 {
 }
 

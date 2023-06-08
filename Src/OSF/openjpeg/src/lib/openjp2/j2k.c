@@ -1376,15 +1376,15 @@ static boolint opj_j2k_check_poc_val(const opj_poc_t * p_pocs, uint32_t tileno, 
 		if(tileno + 1 == poc->tile) {
 			index = step_r * poc->resno0;
 			/* take each resolution for each poc */
-			for(resno = poc->resno0; resno < opj_uint_min(poc->resno1, p_nb_resolutions); ++resno) {
+			for(resno = poc->resno0; resno < smin(poc->resno1, p_nb_resolutions); ++resno) {
 				uint32_t res_index = index + poc->compno0 * step_c;
 				/* take each comp of each resolution for each poc */
-				for(compno = poc->compno0; compno < opj_uint_min(poc->compno1, p_num_comps); ++compno) {
+				for(compno = poc->compno0; compno < smin(poc->compno1, p_num_comps); ++compno) {
 					/* The layer index always starts at zero for every progression. */
 					const uint32_t layno0 = 0;
 					uint32_t comp_index = res_index + layno0 * step_l;
 					/* and finally take each layer of each res of ... */
-					for(layno = layno0; layno < opj_uint_min(poc->layno1, p_num_layers); ++layno) {
+					for(layno = layno0; layno < smin(poc->layno1, p_num_layers); ++layno) {
 						packet_array[comp_index] = 1;
 						comp_index += step_l;
 					}
@@ -2299,7 +2299,7 @@ static uint32_t opj_j2k_get_max_coc_size(opj_j2k_t * p_j2k)
 	uint32_t l_nb_comp = p_j2k->m_private_image->numcomps;
 	for(uint32_t i = 0; i < l_nb_tiles; ++i) {
 		for(uint32_t j = 0; j < l_nb_comp; ++j) {
-			l_max = opj_uint_max(l_max, opj_j2k_get_SPCod_SPCoc_size(p_j2k, i, j));
+			l_max = smax(l_max, opj_j2k_get_SPCod_SPCoc_size(p_j2k, i, j));
 		}
 	}
 	return 6 + l_max;
@@ -2661,9 +2661,9 @@ static void opj_j2k_write_poc_in_memory(opj_j2k_t * p_j2k, uint8 * p_data, uint3
 		opj_write_bytes(l_current_data, (uint32_t)l_current_poc->prg, 1); /* Ppoc_i */
 		++l_current_data;
 		/* change the value of the max layer according to the actual number of layers in the file, components and resolutions*/
-		l_current_poc->layno1 = (uint32_t)opj_int_min((int32_t)l_current_poc->layno1, (int32_t)l_tcp->numlayers);
-		l_current_poc->resno1 = (uint32_t)opj_int_min((int32_t)l_current_poc->resno1, (int32_t)l_tccp->numresolutions);
-		l_current_poc->compno1 = (uint32_t)opj_int_min((int32_t)l_current_poc->compno1, (int32_t)l_nb_comp);
+		l_current_poc->layno1 = (uint32_t)smin((int32_t)l_current_poc->layno1, (int32_t)l_tcp->numlayers);
+		l_current_poc->resno1 = (uint32_t)smin((int32_t)l_current_poc->resno1, (int32_t)l_tccp->numresolutions);
+		l_current_poc->compno1 = (uint32_t)smin((int32_t)l_current_poc->compno1, (int32_t)l_nb_comp);
 		++l_current_poc;
 	}
 	*p_data_written = l_poc_size;
@@ -2678,7 +2678,7 @@ static uint32_t opj_j2k_get_max_poc_size(opj_j2k_t * p_j2k)
 	l_tcp = p_j2k->m_cp.tcps;
 	l_nb_tiles = p_j2k->m_cp.th * p_j2k->m_cp.tw;
 	for(i = 0; i < l_nb_tiles; ++i) {
-		l_max_poc = opj_uint_max(l_max_poc, l_tcp->numpocs);
+		l_max_poc = smax(l_max_poc, l_tcp->numpocs);
 		++l_tcp;
 	}
 	++l_max_poc;
@@ -2694,7 +2694,7 @@ static uint32_t opj_j2k_get_max_toc_size(opj_j2k_t * p_j2k)
 	l_tcp = p_j2k->m_cp.tcps;
 	l_nb_tiles = p_j2k->m_cp.tw * p_j2k->m_cp.th;
 	for(i = 0; i < l_nb_tiles; ++i) {
-		l_max = opj_uint_max(l_max, l_tcp->m_nb_tile_parts);
+		l_max = smax(l_max, l_tcp->m_nb_tile_parts);
 		++l_tcp;
 	}
 	return 12 * l_max;
@@ -2720,7 +2720,7 @@ static uint32_t opj_j2k_get_specific_header_sizes(opj_j2k_t * p_j2k)
 		const opj_cp_t * l_cp = &(p_j2k->m_cp);
 		uint32_t l_max_packet_count = 0;
 		for(i = 0; i < l_cp->th * l_cp->tw; ++i) {
-			l_max_packet_count = opj_uint_max(l_max_packet_count, opj_get_encoding_packet_count(p_j2k->m_private_image, l_cp, i));
+			l_max_packet_count = smax(l_max_packet_count, opj_get_encoding_packet_count(p_j2k->m_private_image, l_cp, i));
 		}
 		/* Minimum 6 bytes per PLT marker, and at a minimum (taking a pessimistic */
 		/* estimate of 4 bytes for a packet size), one can write */
@@ -2788,7 +2788,7 @@ static boolint opj_j2k_read_poc(opj_j2k_t * p_j2k, uint8 * p_header_data, uint32
 		p_header_data += l_comp_room;
 		opj_read_bytes(p_header_data, &(l_current_poc->layno1), 2); /* LYEpoc_i */
 		/* make sure layer end is in acceptable bounds */
-		l_current_poc->layno1 = opj_uint_min(l_current_poc->layno1, l_tcp->numlayers);
+		l_current_poc->layno1 = smin(l_current_poc->layno1, l_tcp->numlayers);
 		p_header_data += 2;
 		opj_read_bytes(p_header_data, &(l_current_poc->resno1), 1); /* REpoc_i */
 		++p_header_data;
@@ -2798,7 +2798,7 @@ static boolint opj_j2k_read_poc(opj_j2k_t * p_j2k, uint8 * p_header_data, uint32
 		++p_header_data;
 		l_current_poc->prg = (OPJ_PROG_ORDER)l_tmp;
 		/* make sure comp is in acceptable bounds */
-		l_current_poc->compno1 = opj_uint_min(l_current_poc->compno1, l_nb_comp);
+		l_current_poc->compno1 = smin(l_current_poc->compno1, l_nb_comp);
 		++l_current_poc;
 	}
 	l_tcp->numpocs = l_current_poc_nb - 1;
@@ -4205,10 +4205,10 @@ static boolint opj_j2k_update_rates(opj_j2k_t * p_j2k, opj_stream_private_t * p_
 		for(j = 0; j < l_cp->tw; ++j) {
 			float l_offset = (float)(*l_tp_stride_func)(l_tcp) / (float)l_tcp->numlayers;
 			/* 4 borders of the tile rescale on the image if necessary */
-			l_x0 = opj_int_max((int32_t)(l_cp->tx0 + j * l_cp->tdx), (int32_t)l_image->x0);
-			l_y0 = opj_int_max((int32_t)(l_cp->ty0 + i * l_cp->tdy), (int32_t)l_image->y0);
-			l_x1 = opj_int_min((int32_t)(l_cp->tx0 + (j + 1) * l_cp->tdx), (int32_t)l_image->x1);
-			l_y1 = opj_int_min((int32_t)(l_cp->ty0 + (i + 1) * l_cp->tdy), (int32_t)l_image->y1);
+			l_x0 = smax((int32_t)(l_cp->tx0 + j * l_cp->tdx), (int32_t)l_image->x0);
+			l_y0 = smax((int32_t)(l_cp->ty0 + i * l_cp->tdy), (int32_t)l_image->y0);
+			l_x1 = smin((int32_t)(l_cp->tx0 + (j + 1) * l_cp->tdx), (int32_t)l_image->x1);
+			l_y1 = smin((int32_t)(l_cp->ty0 + (i + 1) * l_cp->tdy), (int32_t)l_image->y1);
 			l_rates = l_tcp->rates;
 			/* Modification of the RATE >> */
 			for(k = 0; k < l_tcp->numlayers; ++k) {
@@ -6566,7 +6566,7 @@ boolint opj_j2k_setup_encoder(opj_j2k_t * p_j2k,
 					tcp_poc->compno0        = parameters->POC[numpocs_tile].compno0;
 					tcp_poc->layno1         = parameters->POC[numpocs_tile].layno1;
 					tcp_poc->resno1         = parameters->POC[numpocs_tile].resno1;
-					tcp_poc->compno1        = opj_uint_min(parameters->POC[numpocs_tile].compno1, image->numcomps);
+					tcp_poc->compno1        = smin(parameters->POC[numpocs_tile].compno1, image->numcomps);
 					tcp_poc->prg1           = parameters->POC[numpocs_tile].prg1;
 					tcp_poc->tile           = parameters->POC[numpocs_tile].tile;
 					numpocs_tile++;

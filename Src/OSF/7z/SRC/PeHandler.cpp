@@ -28,7 +28,7 @@ namespace NArchive {
 		Byte * buf = buffer;
 		uint32 sum = 0;
 		uint32 pos = 0;
-		for(;; ) {
+		for(;;) {
 			uint32 rem = size - pos;
 			if(rem > bufSize)
 				rem = bufSize;
@@ -1366,7 +1366,7 @@ namespace NArchive {
 
 	static void CopyToUString(const Byte * p, UString &s)
 	{
-		for(;; ) {
+		for(;;) {
 			wchar_t c = (wchar_t)Get16(p);
 			p += 2;
 			if(c == 0)
@@ -1378,7 +1378,7 @@ namespace NArchive {
 	static bool CompareWStrStrings(const Byte * p, const char * s)
 	{
 		unsigned pos = 0;
-		for(;; ) {
+		for(;;) {
 			Byte c = *s++;
 			if(Get16(p + pos) != c)
 				return false;
@@ -1400,7 +1400,7 @@ namespace NArchive {
 	static int Get_Utf16Str_Len_InBytes(const Byte * p, size_t size)
 	{
 		unsigned pos = 0;
-		for(;; ) {
+		for(;;) {
 			if(pos + 1 >= size)
 				return -1;
 			if(Get16(p + pos) == 0)
@@ -1472,7 +1472,7 @@ namespace NArchive {
 			pos += vb.ValueLen;
 		}
 		f.OpenBlock(0);
-		for(;; ) {
+		for(;;) {
 			pos += (4 - pos) & 3;
 			if(pos >= size)
 				break;
@@ -1490,7 +1490,7 @@ namespace NArchive {
 			f.OpenBlock(2);
 			if(CompareWStrStrings(p + pos, "VarFileInfo")) {
 				pos += vb.StrSize + 2;
-				for(;; ) {
+				for(;;) {
 					pos += (4 - pos) & 3;
 					if(pos >= endPos)
 						break;
@@ -1530,7 +1530,7 @@ namespace NArchive {
 				if(!CompareWStrStrings(p + pos, "StringFileInfo"))
 					return false;
 				pos += vb.StrSize + 2;
-				for(;; ) {
+				for(;;) {
 					pos += (4 - pos) & 3;
 					if(pos >= endPos)
 						break;
@@ -1550,7 +1550,7 @@ namespace NArchive {
 					f.NewLine();
 					f.OpenBlock(4);
 
-					for(;; ) {
+					for(;;) {
 						pos += (4 - pos) & 3;
 						if(pos >= endPos2)
 							break;
@@ -1626,7 +1626,7 @@ namespace NArchive {
 			RINOK(stream->Seek(sect.Pa, STREAM_SEEK_SET, NULL));
 			_buf.Alloc(fileSize);
 			size_t pos;
-			for(pos = 0; pos < fileSize; ) {
+			for(pos = 0; pos < fileSize;) {
 				{
 					const uint64 offset64 = pos;
 					if(callback)

@@ -471,7 +471,7 @@ int __repmgr_select_loop(ENV*env)
 	LOCK_MUTEX(db_rep->mutex);
 	if((ret = __repmgr_first_try_connections(env)) != 0)
 		goto unlock;
-	for(;; ) {
+	for(;;) {
 		/* Start with the two events that we always wait for. */
 #define SIGNALER_INDEX  0
 #define LISTENER_INDEX  1

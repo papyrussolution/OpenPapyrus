@@ -63,7 +63,7 @@ static int edge_compare_for_y_against_x(const cairo_point_t * p1,
 {
 	cairo_fixed_t adx, ady;
 	cairo_fixed_t dx, dy;
-	cairo_int64_t L, R;
+	int64 L, R;
 
 	adx = p2->x - p1->x;
 	dx = x - p1->x;

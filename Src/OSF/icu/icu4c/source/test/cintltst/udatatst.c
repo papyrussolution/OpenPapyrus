@@ -836,11 +836,8 @@ static void TestUDataGetInfo() {
 		return;
 	}
 	udata_getInfo(result, &dataInfo);
-	if(dataInfo.size==20 &&  dataInfo.size!=30 &&
-	    dataInfo.isBigEndian==U_IS_BIG_ENDIAN &&
-	    dataInfo.charsetFamily==U_CHARSET_FAMILY &&
-	    dataInfo.dataFormat[0]==0x43 &&  dataInfo.dataFormat[0]!=0x54 &&/* dataFormat="CvAl" and not "Test". The
-	                                                                       values are set for cnvalias.dat*/
+	if(dataInfo.size==20 &&  dataInfo.size!=30 && dataInfo.isBigEndian==U_IS_BIG_ENDIAN && dataInfo.charsetFamily==U_CHARSET_FAMILY &&
+	    dataInfo.dataFormat[0]==0x43 &&  dataInfo.dataFormat[0]!=0x54 &&/* dataFormat="CvAl" and not "Test". The values are set for cnvalias.dat*/
 	    dataInfo.dataFormat[1]==0x76 &&  dataInfo.dataFormat[1]!=0x65 &&
 	    dataInfo.dataFormat[2]==0x41 &&  dataInfo.dataFormat[2]!=0x73 &&
 	    dataInfo.dataFormat[3]==0x6c &&  dataInfo.dataFormat[3]!=0x74 &&
@@ -857,11 +854,7 @@ static void TestUDataGetInfo() {
 	log_verbose("Testing udata_getInfo() for test.icu\n");
 	result = udata_open(testPath, type, name2, &status);
 	if(U_FAILURE(status)) {
-		log_data_err("FAIL: udata_open() failed for path=%s name2=%s, type=%s, \n errorcode=%s\n",
-		    testPath,
-		    name2,
-		    type,
-		    myErrorName(status));
+		log_data_err("FAIL: udata_open() failed for path=%s name2=%s, type=%s, \n errorcode=%s\n", testPath, name2, type, myErrorName(status));
 		return;
 	}
 	udata_getInfo(result, &dataInfo);
@@ -883,22 +876,20 @@ static void TestUDataGetInfo() {
 	udata_close(result);
 }
 
-static void TestUDataGetMemory() {
+static void TestUDataGetMemory() 
+{
 	UDataMemory * result;
 	const int32_t * table = NULL;
 	uint16_t* intValue = 0;
 	UErrorCode status = U_ZERO_ERROR;
 	const char * name = "cnvalias";
 	const char * type;
-
 	const char * name2 = "test";
-
 	const char * testPath = loadTestData(&status);
 	if(U_FAILURE(status)) {
 		log_data_err("Could not load testdata.dat, status = %s\n", u_errorName(status));
 		return;
 	}
-
 	type = "icu";
 	log_verbose("Testing udata_getMemory() for \"cnvalias.icu\"\n");
 	result = udata_openChoice(NULL, type, name, isAcceptable1, NULL, &status);
@@ -919,24 +910,18 @@ static void TestUDataGetMemory() {
 	log_verbose("Testing udata_getMemory for \"test.icu\"()\n");
 	result = udata_openChoice(testPath, type, name2, isAcceptable3, NULL, &status);
 	if(U_FAILURE(status)) {
-		log_data_err("FAIL: udata_openChoice() failed for path=%s name=%s, type=%s, \n errorcode=%s\n",
-		    testPath,
-		    name2,
-		    type,
-		    myErrorName(status));
+		log_data_err("FAIL: udata_openChoice() failed for path=%s name=%s, type=%s, \n errorcode=%s\n", testPath, name2, type, myErrorName(status));
 		return;
 	}
 	intValue = (uint16_t*)udata_getMemory(result);
 	/*printf("%d ..... %s", *(intValue), intValue+1));*/
 	if(*intValue != 2000 || strcmp((char *)(intValue+1), "YEAR") != 0)
-		log_err("FAIL: udata_getMemory() failed: intValue :- Expected:2000 Got:%d \n\tstringValue:- Expected:YEAR Got:%s\n",
-		    *intValue,
-		    (intValue+1));
-
+		log_err("FAIL: udata_getMemory() failed: intValue :- Expected:2000 Got:%d \n\tstringValue:- Expected:YEAR Got:%s\n", *intValue, (intValue+1));
 	udata_close(result);
 }
 
-static void TestErrorConditions() {
+static void TestErrorConditions() 
+{
 	UDataMemory * result = NULL;
 	UErrorCode status = U_ZERO_ERROR;
 	uint16_t* intValue = 0;

@@ -58,7 +58,7 @@ bool ConvertUtcFileTimeToString(const FILETIME &utc, char * s, int level) throw(
 				{
 					unsigned numDigits = 7;
 					uint32 val = (uint32)((((uint64)ft.dwHighDateTime << 32) + ft.dwLowDateTime) % 10000000);
-					for(uint i = numDigits; i != 0; ) {
+					for(uint i = numDigits; i != 0;) {
 						i--;
 						s[i] = (char)('0' + val % 10); val /= 10;
 					}
@@ -642,7 +642,7 @@ namespace NWindows {
 					return;
 				Byte * buf = static_cast<Byte *>(MidAlloc(kClusterSize));
 				bool needbackward = true;
-				for(;; ) {
+				for(;;) {
 					uint32 processed = 0;
 					// up test is slow for "PhysicalDrive".
 					// processed size for latest block for "PhysicalDrive0" is 0.
@@ -658,7 +658,7 @@ namespace NWindows {
 				}
 				if(needbackward && pos != 0) {
 					pos -= kClusterSize;
-					for(;; ) {
+					for(;;) {
 						// break;
 						if(!Seek(pos, realNewPosition))
 							break;
@@ -1225,7 +1225,7 @@ namespace NWindows {
 				}
 				const FString path2(path);
 				pos = path.Len();
-				for(;; ) {
+				for(;;) {
 					if(CreateDir2(path))
 						break;
 					if(::GetLastError() == ERROR_ALREADY_EXISTS)
@@ -1832,7 +1832,7 @@ namespace NWindows {
 				// s.Replace(L'/', WCHAR_PATH_SEPARATOR);
 			  #endif
 
-				for(uint i = 0;; ) {
+				for(uint i = 0;;) {
 					const wchar_t c = s[i];
 					if(c == 0)
 						return true;
@@ -2278,7 +2278,7 @@ namespace NWindows {
 		 */
 		static void FASTCALL WriteString(Byte * dest, const wchar_t * path)
 		{
-			for(;; ) {
+			for(;;) {
 				wchar_t c = *path++;
 				if(c == 0)
 					return;
@@ -2867,7 +2867,7 @@ namespace NWindows {
 						Attrib &= ~(FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT);
 						Size = 0;
 						CStreamEnumerator enumerator(filePath);
-						for(;; ) {
+						for(;;) {
 							CStreamInfo si;
 							bool found;
 							if(!enumerator.Next(si, found))
@@ -2987,7 +2987,7 @@ namespace NWindows {
 			}
 			bool CEnumerator::Next(CFileInfo &fi)
 			{
-				for(;; ) {
+				for(;;) {
 					if(!NextAny(fi))
 						return false;
 					else if(!fi.IsDots())

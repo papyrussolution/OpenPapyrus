@@ -255,7 +255,7 @@ size_t FASTCALL CInBufferBase::ReadBytes(Byte * buf, size_t size)
 size_t CInBufferBase::Skip(size_t size)
 {
 	size_t processed = 0;
-	for(;; ) {
+	for(;;) {
 		size_t rem = (_bufLim - _buf);
 		if(rem >= size) {
 			_buf += size;

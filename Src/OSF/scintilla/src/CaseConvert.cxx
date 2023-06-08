@@ -517,7 +517,7 @@ void AddSymmetric(enum CaseConversion conversion, int lower, int upper)
 void SetupConversions(enum CaseConversion conversion)
 {
 	// First initialize for the symmetric ranges
-	for(size_t i = 0; i < SIZEOFARRAY(symmetricCaseConversionRanges); ) {
+	for(size_t i = 0; i < SIZEOFARRAY(symmetricCaseConversionRanges);) {
 		const int lower = symmetricCaseConversionRanges[i++];
 		const int upper = symmetricCaseConversionRanges[i++];
 		const int length = symmetricCaseConversionRanges[i++];
@@ -527,7 +527,7 @@ void SetupConversions(enum CaseConversion conversion)
 		}
 	}
 	// Add the symmetric singletons
-	for(size_t i = 0; i < SIZEOFARRAY(symmetricCaseConversions); ) {
+	for(size_t i = 0; i < SIZEOFARRAY(symmetricCaseConversions);) {
 		const int lower = symmetricCaseConversions[i++];
 		const int upper = symmetricCaseConversions[i++];
 		AddSymmetric(conversion, lower, upper);

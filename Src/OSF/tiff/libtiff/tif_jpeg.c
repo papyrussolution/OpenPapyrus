@@ -1288,7 +1288,7 @@ static int JPEGDecode(TIFF * tif, uint8 * buf, tmsize_t cc, uint16 s)
 #endif
 					if(hsamp == 1) {
 						/* fast path for at least Cb and Cr */
-						for(nclump = clumps_per_line; nclump-- > 0; ) {
+						for(nclump = clumps_per_line; nclump-- > 0;) {
 							outptr[0] = *inptr++;
 							outptr += samples_per_clump;
 						}
@@ -1296,7 +1296,7 @@ static int JPEGDecode(TIFF * tif, uint8 * buf, tmsize_t cc, uint16 s)
 					else {
 						int xpos;
 						/* general case */
-						for(nclump = clumps_per_line; nclump-- > 0; ) {
+						for(nclump = clumps_per_line; nclump-- > 0;) {
 							for(xpos = 0; xpos < hsamp; xpos++)
 								outptr[xpos] = *inptr++;
 							outptr += samples_per_clump;
@@ -1795,14 +1795,14 @@ static int JPEGEncodeRaw(TIFF * tif, uint8 * buf, tmsize_t cc, uint16 s)
 				outptr = sp->ds_buffer[ci][sp->scancount*vsamp + ypos];
 				if(hsamp == 1) {
 					/* fast path for at least Cb and Cr */
-					for(nclump = clumps_per_line; nclump-- > 0; ) {
+					for(nclump = clumps_per_line; nclump-- > 0;) {
 						*outptr++ = inptr[0];
 						inptr += samples_per_clump;
 					}
 				}
 				else {
 					/* general case */
-					for(nclump = clumps_per_line; nclump-- > 0; ) {
+					for(nclump = clumps_per_line; nclump-- > 0;) {
 						for(xpos = 0; xpos < hsamp; xpos++)
 							*outptr++ = inptr[xpos];
 						inptr += samples_per_clump;

@@ -221,7 +221,7 @@ namespace NArchive {
 		numZeros = 0;
 		const size_t kBufSize = 1 << 11;
 		Byte buf[kBufSize];
-		for(;; ) {
+		for(;;) {
 			uint32 size = 0;
 			HRESULT(stream->Read(buf, kBufSize, &size));
 			if(size == 0)
@@ -486,7 +486,7 @@ namespace NArchive {
 			{
 				{
 					uint   i = _changedPart.Len();
-					for(;; ) {
+					for(;;) {
 						wchar_t c = _changedPart[--i];
 						if(_splitStyle) {
 							if(c == 'z') {
@@ -593,7 +593,7 @@ namespace NArchive {
 				const uint64 numFiles = _streams.Size();
 				RINOK(callback->SetCompleted(&numFiles, NULL));
 			}
-			for(;; ) {
+			for(;;) {
 				UString fullName;
 				if(!seqName.GetNextName(fullName))
 					break;

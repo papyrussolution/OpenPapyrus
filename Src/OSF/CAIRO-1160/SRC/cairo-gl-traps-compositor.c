@@ -137,129 +137,72 @@ static cairo_int_status_t composite_boxes(void * _dst,
 	_cairo_gl_composite_set_mask_operand(&setup,
 	    source_to_operand(abstract_mask));
 	_cairo_gl_operand_translate(&setup.mask, dst_x-mask_x, dst_y-mask_y);
-
 	status = _cairo_gl_composite_begin(&setup, &ctx);
 	if(UNLIKELY(status))
 		goto FAIL;
-
 	emit_aligned_boxes(ctx, boxes);
 	status = _cairo_gl_context_release(ctx, CAIRO_STATUS_SUCCESS);
-
 FAIL:
 	_cairo_gl_composite_fini(&setup);
 	return status;
 }
 
-static cairo_int_status_t composite(void * _dst,
-    cairo_operator_t op,
-    cairo_surface_t * abstract_src,
-    cairo_surface_t * abstract_mask,
-    int src_x,
-    int src_y,
-    int mask_x,
-    int mask_y,
-    int dst_x,
-    int dst_y,
-    uint width,
-    uint height)
+static cairo_int_status_t composite(void * _dst, cairo_operator_t op, cairo_surface_t * abstract_src, cairo_surface_t * abstract_mask,
+    int src_x, int src_y, int mask_x, int mask_y, int dst_x, int dst_y, uint width, uint height)
 {
 	cairo_gl_composite_t setup;
 	cairo_gl_context_t * ctx;
-	cairo_int_status_t status;
-
-	status = _cairo_gl_composite_init(&setup, op, _dst, FALSE);
+	cairo_int_status_t status = _cairo_gl_composite_init(&setup, op, _dst, FALSE);
 	if(UNLIKELY(status))
 		goto FAIL;
-
-	_cairo_gl_composite_set_source_operand(&setup,
-	    source_to_operand(abstract_src));
+	_cairo_gl_composite_set_source_operand(&setup, source_to_operand(abstract_src));
 	_cairo_gl_operand_translate(&setup.src, dst_x-src_x, dst_y-src_y);
-
-	_cairo_gl_composite_set_mask_operand(&setup,
-	    source_to_operand(abstract_mask));
+	_cairo_gl_composite_set_mask_operand(&setup, source_to_operand(abstract_mask));
 	_cairo_gl_operand_translate(&setup.mask, dst_x-mask_x, dst_y-mask_y);
-
 	status = _cairo_gl_composite_begin(&setup, &ctx);
 	if(UNLIKELY(status))
 		goto FAIL;
-
 	/* XXX clip */
 	_cairo_gl_context_emit_rect(ctx, dst_x, dst_y, dst_x+width, dst_y+height);
 	status = _cairo_gl_context_release(ctx, CAIRO_STATUS_SUCCESS);
-
 FAIL:
 	_cairo_gl_composite_fini(&setup);
 	return status;
 }
 
-static cairo_int_status_t lerp(void * dst,
-    cairo_surface_t * src,
-    cairo_surface_t * mask,
-    int src_x,
-    int src_y,
-    int mask_x,
-    int mask_y,
-    int dst_x,
-    int dst_y,
-    uint width,
-    uint height)
+static cairo_int_status_t lerp(void * dst, cairo_surface_t * src, cairo_surface_t * mask, int src_x, int src_y,
+    int mask_x, int mask_y, int dst_x, int dst_y, uint width, uint height)
 {
 	cairo_int_status_t status;
-
 	/* we could avoid some repetition... */
-	status = composite(dst, CAIRO_OPERATOR_DEST_OUT, mask, NULL,
-		mask_x, mask_y,
-		0, 0,
-		dst_x, dst_y,
-		width, height);
+	status = composite(dst, CAIRO_OPERATOR_DEST_OUT, mask, NULL, mask_x, mask_y, 0, 0, dst_x, dst_y, width, height);
 	if(UNLIKELY(status))
 		return status;
-
-	status = composite(dst, CAIRO_OPERATOR_ADD, src, mask,
-		src_x, src_y,
-		mask_x, mask_y,
-		dst_x, dst_y,
-		width, height);
+	status = composite(dst, CAIRO_OPERATOR_ADD, src, mask, src_x, src_y, mask_x, mask_y, dst_x, dst_y, width, height);
 	if(UNLIKELY(status))
 		return status;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_int_status_t traps_to_operand(void * _dst,
-    const cairo_rectangle_int_t * extents,
-    cairo_antialias_t antialias,
-    cairo_traps_t * traps,
-    cairo_gl_operand_t * operand,
-    int dst_x, int dst_y)
+static cairo_int_status_t traps_to_operand(void * _dst, const cairo_rectangle_int_t * extents, cairo_antialias_t antialias,
+    cairo_traps_t * traps, cairo_gl_operand_t * operand, int dst_x, int dst_y)
 {
 	pixman_format_code_t pixman_format;
 	pixman_image_t * pixman_image;
 	cairo_surface_t * image, * mask;
 	cairo_surface_pattern_t pattern;
 	cairo_status_t status;
-
 	pixman_format = antialias != CAIRO_ANTIALIAS_NONE ? PIXMAN_a8 : PIXMAN_a1;
-	pixman_image = pixman_image_create_bits(pixman_format,
-		extents->width,
-		extents->height,
-		NULL, 0);
+	pixman_image = pixman_image_create_bits(pixman_format, extents->width, extents->height, NULL, 0);
 	if(UNLIKELY(pixman_image == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	_pixman_image_add_traps(pixman_image, extents->x, extents->y, traps);
-	image = _cairo_image_surface_create_for_pixman_image(pixman_image,
-		pixman_format);
+	image = _cairo_image_surface_create_for_pixman_image(pixman_image, pixman_format);
 	if(UNLIKELY(image->status)) {
 		pixman_image_unref(pixman_image);
 		return image->status;
 	}
-
-	mask = _cairo_surface_create_scratch(_dst,
-		CAIRO_CONTENT_COLOR_ALPHA,
-		extents->width,
-		extents->height,
-		NULL);
+	mask = _cairo_surface_create_scratch(_dst, CAIRO_CONTENT_COLOR_ALPHA, extents->width, extents->height, NULL);
 	if(UNLIKELY(mask->status)) {
 		cairo_surface_destroy(image);
 		return mask->status;

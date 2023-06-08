@@ -475,7 +475,7 @@ struct SFileEntryPool_SortExtraBlock {
     SString TempBuf2;
 };
 
-IMPL_CMPCFUNC(SFileEntryPool_Entry, p1, p2)
+IMPL_CMPFUNC(SFileEntryPool_Entry, p1, p2)
 {
 	int    si = 0;
 	SFileEntryPool_SortExtraBlock * p_blk = static_cast<SFileEntryPool_SortExtraBlock *>(pExtraData);
@@ -526,5 +526,5 @@ void SFileEntryPool::Sort(int criteria)
 	SFileEntryPool_SortExtraBlock blk;
 	blk.Order = criteria;
 	blk.P_Pool = this;
-	L.sort(PTR_CMPCFUNC(SFileEntryPool_Entry), &blk);
+	L.sort(PTR_CMPFUNC(SFileEntryPool_Entry), &blk);
 }

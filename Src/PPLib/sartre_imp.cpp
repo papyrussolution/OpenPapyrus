@@ -2215,7 +2215,7 @@ public:
 		L.insert(&int_item);
 		return ok;
 	}
-	void   Sort() { L.sort(PTR_CMPCFUNC(SrImpHumanNameEntry), this); }
+	void   Sort() { L.sort(PTR_CMPFUNC(SrImpHumanNameEntry), this); }
 private:
 	struct InnerEntry { // @flat
 		explicit InnerEntry(uint gender) : NameP(0), Gender(gender)
@@ -2224,7 +2224,7 @@ private:
 		uint   NameP;
 		int    Gender;
 	};
-	static IMPL_CMPCFUNC(SrImpHumanNameEntry, i1, i2)
+	static IMPL_CMPFUNC(SrImpHumanNameEntry, i1, i2)
 	{
 		const InnerEntry * p1 = static_cast<const InnerEntry *>(i1);
 		const InnerEntry * p2 = static_cast<const InnerEntry *>(i2);

@@ -361,44 +361,6 @@ private:
 //
 //
 //
-#if 0 // @v9.9.0 (obsolete) {
-class MailSession {
-public:
-	MailSession(SOCKET s, struct sockaddr_in r);
-	//
-	// Create a session to a remote host and port. This function reads a timeout value from the ArgvMap class
-	// and does a nonblocking connect to support this timeout. It should be noted that nonblocking connects
-	// suffer from bad portability problems, so look here if you see weird problems on new platforms
-	//
-	MailSession(const char * pRemote, int port, int timeout = 0);
-	MailSession(u_long ip, int port, int timeout = 0);
-	~MailSession();
-	int    getLine(SString & rBuf);
-	int    haveLine(); //!< returns true if a line is available
-	int    putBuffer(const void * pBuf, size_t bufLen);
-	int    putLine(const char *); //!< Write a line to the remote
-	int    timeoutRead(int s, char *buf, size_t len, size_t * pRdBytes);
-	int    isError() const { return Err; }
-	int    close(); //!< close and disconnect the connection
-	void   setTimeout(int seconds);
-private:
-	int    doConnect(u_long ip, int port);
-	int    init();
-
-	int    Err;
-	size_t RealBufSize;
-	char * P_Buf;
-	size_t BufSize;
-	size_t RdOffs;
-	size_t WrOffs;
-	SOCKET clisock;
-	struct sockaddr_in remote;
-	int    Timeout;
-};
-#endif // } 0 @v9.9.0 (obsolete)
-//
-//
-//
 class SMailClient {
 public:
 	enum {

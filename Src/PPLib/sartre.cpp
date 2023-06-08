@@ -694,7 +694,7 @@ SrNGram & SrNGram::Z()
 	return *this;
 }
 
-static IMPL_CMPCFUNC(SrNGram_ByLength, p1, p2)
+static IMPL_CMPFUNC(SrNGram_ByLength, p1, p2)
 {
 	const SrNGram * p_ng1 = static_cast<const SrNGram *>(p1);
 	const SrNGram * p_ng2 = static_cast<const SrNGram *>(p2);
@@ -707,7 +707,7 @@ SrNGramCollection::SrNGramCollection() : TSCollection <SrNGram>()
 
 void SrNGramCollection::SortByLength()
 {
-	sort(PTR_CMPCFUNC(SrNGram_ByLength));
+	sort(PTR_CMPFUNC(SrNGram_ByLength));
 }
 //
 //

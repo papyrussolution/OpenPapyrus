@@ -5063,6 +5063,12 @@ public:
 	//
 	int    GetListByAr(PPID codeArID, PPIDArray * pList);
 	//
+	// Descr: Флаги переноса кодов по статьям (функция MoveArCodes)
+	//
+	enum {
+		movarcodfCopyOnly = 0x0001 // Только скопировать (не удалять код со статьи-источника)
+	};
+	//
 	// Descr: Переносит товарные коды по статьям со статьи srcArID на destArID.
 	//   Если задан ид существующей товарной группы grpID, то переносятся только коды товаров,
 	//   принадлежащих этой группе.
@@ -5072,7 +5078,7 @@ public:
 	//   Если pLogger != 0, тогда информация о ходе процесса (и возможных проблемах) отображается в
 	//   журнале.
 	//
-	int    MoveArCodes(PPID destArID, PPID srcArID, PPID grpID, PPLogger * pLogger, int use_ta);
+	int    MoveArCodes(PPID destArID, PPID srcArID, PPID grpID, uint flags, PPLogger * pLogger, int use_ta);
 	int    GetSingleBarcode(PPID id, SString & rBuf);
 	int    FetchSingleBarcode(PPID id, SString & rBuf);
 	int    SearchGoodsAnalogs(PPID id, PPIDArray & rList, SString * pTransitComponentBuf);
@@ -5406,10 +5412,6 @@ struct AcctID {
 	PPID   ac;
 	PPID   ar;
 };
-
-// @v9.3.9 char * AccToStr(const Acct *, long format, char *); // ACCBIN_NATURE
-// @v9.3.9 SString & AccToStr(const Acct * acc, long format, SString & rBuf);
-// @v9.3.9 int    StrToAcc(Acct *, long format, const char *); // ACCBIN_NATURE
 //
 // Тип STAcct подогнан под использование в списках ComboBox'а
 //
@@ -9981,10 +9983,10 @@ public:
 		enum {
 			extssClientCode   = 1, // Код данного клиента на сервере поставщика
 			extssEDIPrvdrSymb = 2, // Символ провайдера EDI
-			extssRemoteAddr   = 3, // @v9.2.0 Адрес для обмена данными (это может быть e-mail, url иди каталог)
-			extssAccsName     = 4, // @v9.2.0 Имя аккаунат для доступа к обмену данными
-			extssAccsPassw    = 5, // @v9.2.0 Пароль для доступа к обмену данными
-			extssTechSymbol   = 6  // @v9.2.1 Символ технологии обмена
+			extssRemoteAddr   = 3, // Адрес для обмена данными (это может быть e-mail, url иди каталог)
+			extssAccsName     = 4, // Имя аккаунат для доступа к обмену данными
+			extssAccsPassw    = 5, // Пароль для доступа к обмену данными
+			extssTechSymbol   = 6  // Символ технологии обмена
 		};
 		//
 		// Descr: Способы идентификации товаров
@@ -11373,7 +11375,7 @@ public:
 #define BPLD_LOCK         0x0002 // Устанавливать логич блокировку на документ
 #define BPLD_FORCESERIALS 0x0004 // Обязательная загрузка серийных номеров по всем товарных строкам
 	// Если этот флаг не установлен, то серийные номера загружаются только для строк, генерирующих лоты
-#define BPLD_LOADINVLINES 0x0008 // @v9.9.12 Загружать строки инвентаризации
+#define BPLD_LOADINVLINES 0x0008 // Загружать строки инвентаризации
 //
 // Опции обработки недостаточного количества составляющих комплектации
 //
@@ -11606,8 +11608,7 @@ public:
 	int    OPcug;
 	PPID   LocID;
 	LDATE  Dt;           // Date of the earliest deficit bill
-	PPID   SupplAccSheetForSubstID; // @v9.2.1 Идент таблицы статей для подстановки поставщиков
-		// Если 0, то подстановка поставщиков не может быть применена.
+	PPID   SupplAccSheetForSubstID; // Идент таблицы статей для подстановки поставщиков. Если 0, то подстановка поставщиков не может быть применена.
 	uint16 ActionsCount; //
 	int16  Actions[9];   //
 	int    CostByCalc;
@@ -11624,8 +11625,8 @@ struct CompleteItem { // @flat
 	CompleteItem();
 	enum {
 		fExclude = 0x0001, // Этот лот исключен операцией рекомплектации
-		fBranch  = 0x0002, // @v9.0.4 Лот, произведенный из исходного лота (выход)
-		fSource  = 0x0004  // @v9.0.4 Источник (расход)
+		fBranch  = 0x0002, // Лот, произведенный из исходного лота (выход)
+		fSource  = 0x0004  // Источник (расход)
 	};
 	PPID   GoodsID;
 	PPID   LotID;
@@ -14604,8 +14605,8 @@ private:
 	//   6. Если предыдущий пункт не привел к успеху, то ищется запись {0, -(день/месяц/1996)-100}
 	//   7. Если предыдущий пункт не привел к успеху, заданный день - рабочий
 	//
-	SVector * P_HldTab; // @v9.9.4 SArray-->SVector
-	SVector * P_SaveHldTab; // @v9.9.4 SArray-->SVector
+	SVector * P_HldTab;
+	SVector * P_SaveHldTab;
 };
 //
 // Descr: Флаги операция по персональным картам
@@ -16149,7 +16150,7 @@ public:
 private:
 	uint32 Sign; // Подпись экземпляра класса. Используется для идентификации инвалидных экземпляров.
 	int    ExecFlags; // Флаги, с которыми была вызвана функция PPView::Execute()
-	LongArray * P_LastUpdatedObjects; // @v9.0.4 Список идентификаторов объектов, созданных, измененных
+	LongArray * P_LastUpdatedObjects; // Список идентификаторов объектов, созданных, измененных
 		// или удаленный при последнем вызове PPView::ProcessCommand. Необходим для того,
 		// что бы порожденный класс мог отреагировать на обработку событий базовым классом.
 	static int FASTCALL CreateInstance(int viewID, int32 * pSrvInstId, PPView ** ppV);
@@ -19995,7 +19996,7 @@ public:
 		const  uint32 Signature; // @anchor Специальный признак, идентифицирующий то, что по указателю находится именно этот объект
         PPID   Type;
         PPID   ParentID;
-		PPID   SampleID; // @v9.8.4 Идентификатор объекта-образца для создания нового экземпляра
+		PPID   SampleID; // Идентификатор объекта-образца для создания нового экземпляра
         long   Flags;
 	};
 	class Exclusion {
@@ -21099,7 +21100,7 @@ public:
 	PPID   GoodsGrpID;       // Товарная группа, которой следует ограничивать загрузку товаров в асинхр модуль либо
 		// отбор товаров в синхронном узле. // Reserve4-->GoodsGrpID
 	SArray * P_DivGrpList;   // (move from PPAsyncCashNode)
-	ObjTagList TagL;         // @v9.6.5 @dbd_exchange Список тегов
+	ObjTagList TagL;         // @dbd_exchange Список тегов
 };
 
 class PPAsyncCashNode : public PPGenCashNode {
@@ -21152,7 +21153,7 @@ public:
 	PPID   TouchScreenID;    //
 	PPID   ExtCashNodeID;    //
 	//PPID   PapyrusNodeID_unused; // ИД кассового узла Папирус @v9.6.8 unused
-	PPID   AlternateRegID;   // @v9.7.10 Явно обозначенный альтернативный регистратор
+	PPID   AlternateRegID;   // Явно обозначенный альтернативный регистратор
 		// (if ExtFlags & CASHFX_EXTNODEASALT && !AlternateRegID) то альтернативным регистратором является ExtCashNodeID
 	PPID   ScaleID;          //
 	PPID   CustDispType;     // Тип дисплея покупателя //
@@ -44409,7 +44410,7 @@ private:
 
 struct TrfrAnlzViewItem {
 	TrfrAnlzViewItem();
-	void   Clear();
+	TrfrAnlzViewItem & Z();
 
 	LDATE  Dt;             // Дата операции
 	long   OprNo;          // Номер операции за день (с группировкой - 0)
@@ -45020,6 +45021,9 @@ private:
 };
 
 struct SCardTotal {
+	SCardTotal() : Count(0), Turnover(0.0)
+	{
+	}
 	long   Count;
 	double Turnover;       // Суммарный оборот
 };
@@ -47263,7 +47267,7 @@ public:
 		kDocIncoming    = 6, // Входящие документы
 		kDocOutcoming   = 7, // Исходящие документы
 		kCounter        = 8, // @v11.2.10 Специальная единственная запись для хранения текущего счетчика (документов и т.д.)
-		kNotification   = 9, // @v11.5.9  Документ извещения. Главным образом, предполагаются извещения от сервисов к клиентам. Но, вероятно,
+		kNotification_before90v = 9, // @obsolete since @v11.7.5 (Stylo-Q v90) @v11.5.9  Документ извещения. Главным образом, предполагаются извещения от сервисов к клиентам. Но, вероятно,
 			// будут возможны и извещения в обратном направлении (клиент о чем-то информирует сервис).
 	};
 	//
@@ -47287,7 +47291,7 @@ public:
 		styloqfAutoObjMatching     = 0x0400, // @v11.5.6 Объект (обычно, персоналия), соответствующий клиентской записи, был создан автоматически.
 			// Флаг необходим для дифференцированного изменения записи объекта в зависимости от того, пришел он изначально от клиента или же существует
 			// в базе данных серсиса самостоятельно (матчинг с клиентом был осуществлен вручную).
-		styloqfProcessed           = 0x0800, // @v11.5.10 Запись обработана. Флаг изначально введен для пометки записей типа kNotification как прочитанных. 
+		styloqfProcessed           = 0x0800, // @v11.5.10 Запись обработана. Флаг изначально введен для пометки записей типа kNotification_before90v как прочитанных. 
 			// В дальнейшем будет, вероятно, применяться и для других типов записей.
 	};
 	//
@@ -50015,7 +50019,7 @@ public:
 	int    ExportPosSession(const PPIDArray & rSessList, PPID srcPosNodeID, const PPPosProtocol::RouteBlock * pSrc, const PPPosProtocol::RouteBlock * pDestination);
 	int    ProcessInput(ProcessInputBlock & rPib);
 private:
-	friend DECL_CMPCFUNC(ObjBlockRef_);
+	friend DECL_CMPFUNC(ObjBlockRef_);
 
 	struct WriteBlock {
 		WriteBlock();

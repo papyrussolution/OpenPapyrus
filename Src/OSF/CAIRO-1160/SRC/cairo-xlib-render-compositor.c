@@ -494,7 +494,6 @@ static int _render_operator(cairo_operator_t op)
 	switch(op) {
 		case CAIRO_OPERATOR_CLEAR:
 		    return PictOpClear;
-
 		case CAIRO_OPERATOR_SOURCE:
 		    return PictOpSrc;
 		case CAIRO_OPERATOR_OVER:
@@ -505,7 +504,6 @@ static int _render_operator(cairo_operator_t op)
 		    return PictOpOut;
 		case CAIRO_OPERATOR_ATOP:
 		    return PictOpAtop;
-
 		case CAIRO_OPERATOR_DEST:
 		    return PictOpDst;
 		case CAIRO_OPERATOR_DEST_OVER:
@@ -516,14 +514,12 @@ static int _render_operator(cairo_operator_t op)
 		    return PictOpOutReverse;
 		case CAIRO_OPERATOR_DEST_ATOP:
 		    return PictOpAtopReverse;
-
 		case CAIRO_OPERATOR_XOR:
 		    return PictOpXor;
 		case CAIRO_OPERATOR_ADD:
 		    return PictOpAdd;
 		case CAIRO_OPERATOR_SATURATE:
 		    return PictOpSaturate;
-
 		case CAIRO_OPERATOR_MULTIPLY:
 		    return PictOpMultiply;
 		case CAIRO_OPERATOR_SCREEN:

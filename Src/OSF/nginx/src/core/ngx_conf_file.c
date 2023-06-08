@@ -174,7 +174,7 @@ char * ngx_conf_parse(ngx_conf_t * cf, ngx_str_t * filename)
 	else {
 		type = parse_param;
 	}
-	for(;; ) {
+	for(;;) {
 		rc = ngx_conf_read_token(cf);
 		/*
 		 * ngx_conf_read_token() may return
@@ -360,7 +360,7 @@ static ngx_int_t ngx_conf_read_token(ngx_conf_t * cf)
 	start = b->pos;
 	start_line = cf->conf_file->line;
 	file_size = ngx_file_size(&cf->conf_file->file.info);
-	for(;; ) {
+	for(;;) {
 		if(b->pos >= b->last) {
 			if(cf->conf_file->file.offset >= file_size) {
 				if(cf->args->nelts > 0 || !last_space) {
@@ -595,7 +595,7 @@ const char * ngx_conf_include(ngx_conf_t * cf, const ngx_command_t * cmd, void *
 		return NGX_CONF_ERROR;
 	}
 	rv = NGX_CONF_OK;
-	for(;; ) {
+	for(;;) {
 		n = ngx_read_glob(&gl, &name);
 		if(n != NGX_OK) {
 			break;

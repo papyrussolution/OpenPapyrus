@@ -48,7 +48,7 @@ uint32 __ham_func2(DB * dbp, const void * key, uint32 len)
 		COMPQUIET(dbp, 0);
 	k = static_cast<const uint8 *>(key);
 	e = k+len;
-	for(h = 0; k != e; ) {
+	for(h = 0; k != e;) {
 		c = *k++;
 		if(!c && k > e)
 			break;

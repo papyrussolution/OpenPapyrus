@@ -145,8 +145,7 @@ int SCT_set1_extensions(SCT * sct, const uchar * ext, size_t ext_len)
 	sct->ext = NULL;
 	sct->ext_len = 0;
 	sct->validation_status = SCT_VALIDATION_STATUS_NOT_SET;
-
-	if(ext != NULL && ext_len > 0) {
+	if(ext && ext_len > 0) {
 		sct->ext = (uchar *)OPENSSL_memdup(ext, ext_len);
 		if(sct->ext == NULL) {
 			ERR_raise(ERR_LIB_CT, ERR_R_MALLOC_FAILURE);

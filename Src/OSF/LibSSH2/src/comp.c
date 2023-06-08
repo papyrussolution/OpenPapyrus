@@ -170,7 +170,7 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION * session, uchar ** dest, siz
 	if(!strm->next_out)
 		return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate decompression buffer");
 	// Loop until it's all inflated or hit error 
-	for(;; ) {
+	for(;;) {
 		size_t out_ofs;
 		char * newout;
 		int status = inflate(strm, Z_PARTIAL_FLUSH);

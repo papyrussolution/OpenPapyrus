@@ -307,10 +307,10 @@ static cairo_int_status_t parse_name(const char * p, const char ** end, char ** 
 	const char * p2;
 	char * name;
 	int len;
-	if(!_cairo_isalpha(*p))
+	if(!isasciialpha(*p))
 		return _cairo_error(CAIRO_STATUS_TAG_ERROR);
 	p2 = p;
-	while(_cairo_isalpha(*p2) || _cairo_isdigit(*p2))
+	while(isasciialpha(*p2) || isdec(*p2))
 		p2++;
 	len = p2 - p;
 	name = (char *)_cairo_malloc(len + 1);

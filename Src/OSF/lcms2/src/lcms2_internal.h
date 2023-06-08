@@ -801,10 +801,9 @@ CMSCHECKPOINT float CMSEXPORT _cmsHalf2Float(uint16 h);
 CMSCHECKPOINT uint16 CMSEXPORT _cmsFloat2Half(float flt);
 
 #endif
-
+//
 // Transform logic
-// ------------------------------------------------------------------------------------------------------
-
+//
 struct _cmstransform_struct;
 
 typedef struct {

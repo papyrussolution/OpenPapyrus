@@ -14,7 +14,6 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-//#include <tchar.h> // @sobolev
 #ifdef LIBXML_CATALOG_ENABLED
 	#define MAX_DELEGATE    50
 	#define MAX_CATAL_DEPTH 50
@@ -23,7 +22,6 @@
 	#else
 		#define PATH_SEAPARATOR ':'
 	#endif
-
 /**
  * @todo 
  *

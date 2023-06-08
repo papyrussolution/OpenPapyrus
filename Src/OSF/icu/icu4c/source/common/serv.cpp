@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/**
- *******************************************************************************
- * Copyright (C) 2001-2014, International Business Machines Corporation.
- * All Rights Reserved.
- *******************************************************************************
- */
+// Copyright (C) 2001-2014, International Business Machines Corporation. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -293,10 +289,7 @@ bool StringPair::isBogus() const {
 	return displayName.isBogus() || id.isBogus();
 }
 
-StringPair::StringPair(const UnicodeString & _displayName,
-    const UnicodeString & _id)
-	: displayName(_displayName)
-	, id(_id)
+StringPair::StringPair(const UnicodeString & _displayName, const UnicodeString & _id) : displayName(_displayName), id(_id)
 {
 }
 
@@ -313,23 +306,11 @@ U_CDECL_END
 
 static UMutex lock;
 
-ICUService::ICUService()
-	: name()
-	, timestamp(0)
-	, factories(NULL)
-	, serviceCache(NULL)
-	, idCache(NULL)
-	, dnCache(NULL)
+ICUService::ICUService() : name(), timestamp(0), factories(NULL), serviceCache(NULL), idCache(NULL), dnCache(NULL)
 {
 }
 
-ICUService::ICUService(const UnicodeString & newName)
-	: name(newName)
-	, timestamp(0)
-	, factories(NULL)
-	, serviceCache(NULL)
-	, idCache(NULL)
-	, dnCache(NULL)
+ICUService::ICUService(const UnicodeString & newName) : name(newName), timestamp(0), factories(NULL), serviceCache(NULL), idCache(NULL), dnCache(NULL)
 {
 }
 
@@ -772,7 +753,6 @@ URegistryKey ICUService::registerInstance(UObject * objToAdopt, const UnicodeStr
 		UnicodeString canonicalID;
 		key->canonicalID(canonicalID);
 		delete key;
-
 		ICUServiceFactory* f = createSimpleFactory(objToAdopt, canonicalID, visible, status);
 		if(f) {
 			return registerFactory(f, status);

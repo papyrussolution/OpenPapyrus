@@ -160,7 +160,7 @@ namespace NCompress {
 			SetOutStreamSize(outSize);
 			SizeT wrPos = _state.decoder.dicPos;
 			HRESULT readRes = S_OK;
-			for(;; ) {
+			for(;;) {
 				if(_inPos == _inLim && readRes == S_OK) {
 					_inPos = _inLim = 0;
 					readRes = inStream->Read(_inBuf, _inBufSize, &_inLim);
@@ -242,7 +242,7 @@ namespace NCompress {
 					}
 				}
 				HRESULT readRes = S_OK;
-				for(;; ) {
+				for(;;) {
 					if(_inPos == _inLim && readRes == S_OK) {
 						_inPos = _inLim = 0;
 						readRes = _inStream->Read(_inBuf, _inBufSize, &_inLim);
@@ -485,7 +485,7 @@ namespace NCompress {
 			const uint64 startInProgress = _inProcessed;
 			SizeT wrPos = _state.dicPos;
 			HRESULT readRes = S_OK;
-			for(;; ) {
+			for(;;) {
 				if(_inPos == _inLim && readRes == S_OK) {
 					_inPos = _inLim = 0;
 					readRes = inStream->Read(_inBuf, _inBufSize, &_inLim);
@@ -593,7 +593,7 @@ namespace NCompress {
 				}
 			}
 			HRESULT readRes = S_OK;
-			for(;; ) {
+			for(;;) {
 				if(_inPos == _inLim && readRes == S_OK) {
 					_inPos = _inLim = 0;
 					readRes = _inStream->Read(_inBuf, _inBufSize, &_inLim);
@@ -1067,7 +1067,7 @@ namespace NArchive {
 			uint64 unpackSize = 0;
 			uint64 numStreams = 0;
 			bool dataAfterEnd = false;
-			for(;; ) {
+			for(;;) {
 				lps->InSize = packSize;
 				lps->OutSize = unpackSize;
 				RINOK(lps->SetCur());

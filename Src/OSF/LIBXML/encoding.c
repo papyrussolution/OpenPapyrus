@@ -623,7 +623,6 @@ static int UTF8ToUTF16LE(uchar * outb, int * outlen, const uchar * in, int * inl
 				c <<= 6;
 				c |= d & 0x3F;
 			}
-
 			/* assertion: c is a single UTF-4 value */
 			if(c < 0x10000) {
 				if(out >= outend)

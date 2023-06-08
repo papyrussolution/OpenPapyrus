@@ -2196,6 +2196,30 @@ static void InitTest()
 		//PrcssrBuild::FindMsvs(_MSC_VER, msc_ver_list, &msc_path);
 	}
 	// } @v11.3.11
+	// @v11.7.5 {
+	{
+		SString get_vs_inst_msg;
+		//get_vs_installations(/*instance_callback callback,*/&get_vs_inst_msg);
+		TSCollection <VisualStudioInstallationLocator::Entry> vs_entry_list;
+		if(VisualStudioInstallationLocator::Locate(vs_entry_list, &get_vs_inst_msg)) {
+			SString temp_buf;
+			SFile f_out(PPGetFilePathS(PPPATH_LOG, "wsinst.log", temp_buf), SFile::mWrite);
+			for(uint i = 0; i < vs_entry_list.getCount(); i++) {
+				VisualStudioInstallationLocator::Entry * p_entry = vs_entry_list.at(i);
+				if(p_entry) {
+					temp_buf.Z().Cat("instId").CatDiv(':', 2).Cat(p_entry->InstanceId).
+						Space().Cat("instTime").CatDiv(':', 2).Cat(p_entry->InstallTime, DATF_ISO8601CENT, 0).
+						Space().Cat("dispName").CatDiv(':', 2).Cat(p_entry->DisplayName).
+						Space().Cat("descr").CatDiv(':', 2).Cat(p_entry->Description).
+						Space().Cat("name").CatDiv(':', 2).Cat(p_entry->Name).
+						Space().Cat("ver").CatDiv(':', 2).Cat(p_entry->Version).
+						Space().Cat("path").CatDiv(':', 2).Cat(p_entry->Path);
+					f_out.WriteLine(temp_buf.CR());
+				}
+			}
+		}
+	}
+	// } @v11.7.5 
 #endif // } _DEBUG
 }
 
@@ -4290,7 +4314,6 @@ int PPSession::Register()
 {
 	int    ok = 1;
 	RegSessData data;
-	// @v10.7.9 @ctr MEMSZERO(data);
 	data.Uuid = SLS.GetSessUuid();
 	data.InitTime = getcurdatetime_();
 	data.Ver = DS.GetVersion();

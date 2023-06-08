@@ -366,7 +366,7 @@ static int __rep_log_split(ENV * env, DB_THREAD_INFO * ip, __rep_control_args * 
 	F_CLR(&tmprp, REPCTL_LOG_END|REPCTL_PERM);
 	is_dup = ret = save_ret = 0;
 	for(ep = (uint8 *)rec->data+rec->size, p = (uint8 *)rec->data;
-	    p < ep; ) {
+	    p < ep;) {
 		/*
 		 * First thing in the buffer is the length.  Then the LSN
 		 * of this record, then the record itself.

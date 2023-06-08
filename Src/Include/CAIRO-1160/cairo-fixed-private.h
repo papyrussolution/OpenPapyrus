@@ -217,15 +217,15 @@ static inline double _cairo_fixed_16_16_to_double(cairo_fixed_16_16_t f)
 
 static inline cairo_fixed_t _cairo_fixed_mul(cairo_fixed_t a, cairo_fixed_t b)
 {
-	cairo_int64_t temp = _cairo_int32x32_64_mul(a, b);
+	int64 temp = _cairo_int32x32_64_mul(a, b);
 	return _cairo_int64_to_int32(_cairo_int64_rsl(temp, CAIRO_FIXED_FRAC_BITS));
 }
 
 /* computes round (a * b / c) */
 static inline cairo_fixed_t _cairo_fixed_mul_div(cairo_fixed_t a, cairo_fixed_t b, cairo_fixed_t c)
 {
-	cairo_int64_t ab  = _cairo_int32x32_64_mul(a, b);
-	cairo_int64_t c64 = _cairo_int32_to_int64(c);
+	int64 ab  = _cairo_int32x32_64_mul(a, b);
+	int64 c64 = _cairo_int32_to_int64(c);
 	return _cairo_int64_to_int32(_cairo_int64_divrem(ab, c64).quo);
 }
 

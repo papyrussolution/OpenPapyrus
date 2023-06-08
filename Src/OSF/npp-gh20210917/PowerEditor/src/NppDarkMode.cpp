@@ -14,8 +14,7 @@
 
 #pragma comment(lib, "uxtheme.lib")
 
-namespace NppDarkMode
-{
+namespace NppDarkMode {
 struct Brushes {
 	HBRUSH background = nullptr;
 	HBRUSH softerBackground = nullptr;
@@ -23,15 +22,13 @@ struct Brushes {
 	HBRUSH pureBackground = nullptr;
 	HBRUSH errorBackground = nullptr;
 
-	Brushes(const Colors& colors)
-		: background(::CreateSolidBrush(colors.background))
-		, softerBackground(::CreateSolidBrush(colors.softerBackground))
-		, hotBackground(::CreateSolidBrush(colors.hotBackground))
-		, pureBackground(::CreateSolidBrush(colors.pureBackground))
-		, errorBackground(::CreateSolidBrush(colors.errorBackground))
+	Brushes(const Colors& colors) : background(::CreateSolidBrush(colors.background)), 
+		softerBackground(::CreateSolidBrush(colors.softerBackground)), 
+		hotBackground(::CreateSolidBrush(colors.hotBackground)), 
+		pureBackground(::CreateSolidBrush(colors.pureBackground)), 
+		errorBackground(::CreateSolidBrush(colors.errorBackground))
 	{
 	}
-
 	~Brushes()
 	{
 		::DeleteObject(background);                     background = nullptr;
@@ -40,7 +37,6 @@ struct Brushes {
 		::DeleteObject(pureBackground);         pureBackground = nullptr;
 		::DeleteObject(errorBackground);        errorBackground = nullptr;
 	}
-
 	void change(const Colors& colors)
 	{
 		::DeleteObject(background);
@@ -61,18 +57,15 @@ struct Pens {
 	HPEN darkerTextPen = nullptr;
 	HPEN edgePen = nullptr;
 
-	Pens(const Colors& colors)
-		: darkerTextPen(::CreatePen(PS_SOLID, 1, colors.darkerText))
-		, edgePen(::CreatePen(PS_SOLID, 1, colors.edge))
+	Pens(const Colors& colors) : darkerTextPen(::CreatePen(PS_SOLID, 1, colors.darkerText)), 
+		edgePen(::CreatePen(PS_SOLID, 1, colors.edge))
 	{
 	}
-
 	~Pens()
 	{
 		::DeleteObject(darkerTextPen);  darkerTextPen = nullptr;
 		::DeleteObject(edgePen);                edgePen = nullptr;
 	}
-
 	void change(const Colors& colors)
 	{
 		::DeleteObject(darkerTextPen);

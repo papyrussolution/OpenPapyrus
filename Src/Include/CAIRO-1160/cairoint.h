@@ -70,25 +70,11 @@ CAIRO_BEGIN_DECLS
 	#define tmpfile() _cairo_win32_tmpfile()
 #endif
 
-//#undef MIN
-//#define MIN(a, b) ((a) < (b) ? (a) : (b))
-//#undef MAX
-//#define MAX(a, b) ((a) > (b) ? (a) : (b))
-
 #if _XOPEN_SOURCE >= 600 || defined (_ISOC99_SOURCE)
 	#define ISFINITE(x) isfinite(x)
 #else
 	#define ISFINITE(x) ((x) * (x) >= 0.) /* check for NaNs */
 #endif
-//#ifndef FALSE
-	//#define FALSE 0
-//#endif
-//#ifndef TRUE
-	//#define TRUE 1
-//#endif
-//#ifndef M_PI
-	//#define M_PI 3.14159265358979323846
-//#endif
 #ifndef M_SQRT2
 	#define M_SQRT2 1.41421356237309504880
 #endif
@@ -142,8 +128,7 @@ inline int cairo_const _cairo_popcount(uint32 mask)
 #if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
 	return __builtin_popcount(mask);
 #else
-	int y;
-	y = (mask >> 1) &033333333333;
+	int y = (mask >> 1) &033333333333;
 	y = mask - y - ((y >>1) & 033333333333);
 	return (((y + (y >> 3)) & 030707070707) % 077);
 #endif
@@ -194,8 +179,8 @@ inline void put_unaligned_be32(uint32 v, uchar * p)
 // The glibc versions of ispace() and isdigit() are slow in UTF-8 locales.
 //
 inline int cairo_const _cairo_isspace(int c) { return (c == 0x20 || (c >= 0x09 && c <= 0x0d)); }
-inline int cairo_const _cairo_isdigit(int c) { return (c >= '0' && c <= '9'); }
-inline int cairo_const _cairo_isalpha(int c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
+// @sobolev inline int cairo_const _cairo_isdigit__Removed(int c) { return (c >= '0' && c <= '9'); }
+// @sobolev inline int cairo_const _cairo_isalpha__Removed(int c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
 
 #include "cairo-atomic-private.h"
 #include "cairo-reference-count-private.h"

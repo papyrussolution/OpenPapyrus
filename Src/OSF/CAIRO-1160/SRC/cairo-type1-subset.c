@@ -232,7 +232,7 @@ static void cairo_type1_font_erase_dict_key(cairo_type1_font_subset_t * font, co
 		if(start) {
 			const char * p = start + strlen(key);
 			/* skip integers or array of integers */
-			while(p < segment_end && (_cairo_isspace(*p) || _cairo_isdigit(*p) || *p == '[' || *p == ']')) {
+			while(p < segment_end && (_cairo_isspace(*p) || isdec(*p) || *p == '[' || *p == ']')) {
 				p++;
 			}
 			if((p + 3) < segment_end && memcmp(p, "def", 3) == 0) {

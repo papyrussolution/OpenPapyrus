@@ -84,7 +84,7 @@ static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 	tf = tlcf->try_files;
 	clcf = (ngx_http_core_loc_conf_t*)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
 	alias = clcf->alias;
-	for(;; ) {
+	for(;;) {
 		if(tf->lengths) {
 			memzero(&e, sizeof(ngx_http_script_engine_t));
 			e.ip = (u_char *)tf->lengths->elts;

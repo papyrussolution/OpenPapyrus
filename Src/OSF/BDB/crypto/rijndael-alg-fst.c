@@ -740,7 +740,7 @@ int __db_rijndaelKeySetupEnc(u32 * rk /* rk[4*(Nr + 1)] */, const u8 * cipherKey
 	rk[2] = GETU32(cipherKey+8);
 	rk[3] = GETU32(cipherKey+12);
 	if(keyBits == 128) {
-		for(;; ) {
+		for(;;) {
 			temp  = rk[3];
 			rk[4] = rk[0]^
 			        (Te4[(temp>>16)&0xff]&0xff000000)^
@@ -760,7 +760,7 @@ int __db_rijndaelKeySetupEnc(u32 * rk /* rk[4*(Nr + 1)] */, const u8 * cipherKey
 	rk[4] = GETU32(cipherKey+16);
 	rk[5] = GETU32(cipherKey+20);
 	if(keyBits == 192) {
-		for(;; ) {
+		for(;;) {
 			temp = rk[ 5];
 			rk[ 6] = rk[ 0]^
 			         (Te4[(temp>>16)&0xff]&0xff000000)^
@@ -782,7 +782,7 @@ int __db_rijndaelKeySetupEnc(u32 * rk /* rk[4*(Nr + 1)] */, const u8 * cipherKey
 	rk[6] = GETU32(cipherKey+24);
 	rk[7] = GETU32(cipherKey+28);
 	if(keyBits == 256) {
-		for(;; ) {
+		for(;;) {
 			temp = rk[ 7];
 			rk[ 8] = rk[ 0]^
 			         (Te4[(temp>>16)&0xff]&0xff000000)^
@@ -957,7 +957,7 @@ void __db_rijndaelEncrypt(u32 * rk /* rk[4*(Nr + 1)] */, int Nr, const u8 * pt, 
 	 * Nr - 1 full rounds:
 	 */
 	r = Nr>>1;
-	for(;; ) {
+	for(;;) {
 		t0 =
 		        Te0[(s0>>24)       ]^
 		        Te1[(s1>>16)&0xff]^
@@ -1142,7 +1142,7 @@ void __db_rijndaelDecrypt(u32 * rk /* rk[4*(Nr + 1)] */, int Nr, const u8 * ct, 
 	 * Nr - 1 full rounds:
 	 */
 	r = Nr>>1;
-	for(;; ) {
+	for(;;) {
 		t0 =
 		        Td0[(s0>>24)       ]^
 		        Td1[(s3>>16)&0xff]^

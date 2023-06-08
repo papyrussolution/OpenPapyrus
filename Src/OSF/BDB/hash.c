@@ -420,7 +420,7 @@ next:
 	 * Must always enter this loop to do error handling and
 	 * check for big key/data pair.
 	 */
-	for(;; ) {
+	for(;;) {
 		if(ret != 0 && ret != DB_NOTFOUND)
 			goto err;
 		else if(F_ISSET(hcp, H_OK)) {

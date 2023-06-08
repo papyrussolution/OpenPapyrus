@@ -88,9 +88,10 @@ static size_t environment_variable(const char* variable, char* value, size_t cap
 	return (required > 0 && required <= capacity) ? required : 0;
 }
 
-static size_t get_library_path(char* path, size_t capacity) 
+static size_t get_library_path(char * path, size_t capacity) 
 {
-#if defined( __x86_64__ ) ||  defined( __x86_64 ) || defined( __amd64 ) || defined( _M_AMD64 ) || defined( _AMD64_ )
+//#if defined(__x86_64__) ||  defined(__x86_64) || defined(__amd64) || defined(_M_AMD64) || defined(_AMD64_)
+#if CXX_ARCH_X86_64
 	const char subpath[] = "\\Microsoft\\VisualStudio\\Setup\\x64\\Microsoft.VisualStudio.Setup.Configuration.Native.dll\0";
 #else
 	const char subpath[] = "\\Microsoft\\VisualStudio\\Setup\\x86\\Microsoft.VisualStudio.Setup.Configuration.Native.dll\0";
@@ -105,69 +106,63 @@ static size_t get_library_path(char* path, size_t capacity)
 
 int VisualStudioInstallationLocator::Locate(TSCollection <Entry> & rList, SString * pErrMsg)
 {
-	//HMODULE lib = 0;
-	int    ok = 0;
+	int    ok = 1;
 	char   lib_path[512];
 	size_t path_length = get_library_path(lib_path, sizeof(lib_path));
-	if(!path_length) {
-		ASSIGN_PTR(pErrMsg, "ERROR: Unable to get VisualStudio Setup Configuration library path");
-		goto cleanup;
-	}
+	THROW_S(path_length, SLERR_VSLOC_GETVSSETUPCFGLIB_FAULT);
 	{
+		const LCID def_lcid = GetSystemDefaultLCID();
 		SDynLibrary _lib(lib_path);
-		//lib = LoadLibraryA(lib_path);
-		//if(!lib) {
-		if(!_lib.IsValid()) {
-			ASSIGN_PTR(pErrMsg, "ERROR: Unable to load VisualStudio Setup Configuration library");
-			goto cleanup;
-		}
+		IEnumSetupInstances * enum_instances = 0;
+		ISetupConfiguration * configuration = 0;
+		HRESULT code = 0;
+		THROW_S(_lib.IsValid(), SLERR_VSLOC_LOADVSSETUPCFGLIB_FAULT);
 		//GetSetupConfigurationFn get_setup_configuration = (GetSetupConfigurationFn)GetProcAddress(lib, "GetSetupConfiguration");
 		GetSetupConfigurationFn get_setup_configuration = (GetSetupConfigurationFn)_lib.GetProcAddr("GetSetupConfiguration");
-		if(!get_setup_configuration) {
-			ASSIGN_PTR(pErrMsg, "ERROR: Unable to get VisualStudio Setup Configuration entry point");
-			goto cleanup;
-		}
-		ISetupConfiguration * configuration = 0;
-		HRESULT code = get_setup_configuration(&configuration, 0);
-		if(code != S_OK) {
-			if(pErrMsg)
-				pErrMsg->Printf("ERROR: GetSetupConfiguration call failed (0x%08lx)", code);
-			goto cleanup;
-		}
-		IEnumSetupInstances * enum_instances = 0;
+		THROW_S(get_setup_configuration, SLERR_VSLOC_GETVSSETUPCFGEP_FAULT);
+		code = get_setup_configuration(&configuration, 0);
+		THROW_S_S(code == S_OK, SLERR_VSLOC_GETSETUPCFGEPCALL_FAULT, code);
 		code = configuration->vtable->EnumInstances(configuration, &enum_instances);
-		if(code != S_OK) {
-			if(pErrMsg)
-				pErrMsg->Printf("ERROR: EnumInstances call failed (0x%08lx)", code);
-			goto cleanup;
-		}
-		ok = 1;
-		while(enum_instances) {
-			ULONG fetched = 0;
-			ISetupInstance* setup_instance = 0;
-			code = enum_instances->vtable->Next(enum_instances, 1, &setup_instance, &fetched);
-			if((code == S_FALSE) || !fetched)
-				break;
-			if(code != S_OK) {
-				if(pErrMsg)
-					pErrMsg->Printf("ERROR: While enumerating instances, Next call failed (0x%08lx)", code);
-				goto cleanup;
-			}
-			wchar_t * version = 0;
-			wchar_t * path = 0;
-			code = setup_instance->vtable->GetInstallationVersion(setup_instance, &version);
-			if(code == S_OK) {
-				code = setup_instance->vtable->GetInstallationPath(setup_instance, &path);
-				Entry * p_new_entry = rList.CreateNewItem();
-				if(p_new_entry) {
-					p_new_entry->Version.CopyUtf8FromUnicode(version, sstrlen(version), 1);
-					p_new_entry->Path.CopyUtf8FromUnicode(path, sstrlen(path), 1);
+		THROW_S_S(code == S_OK, SLERR_VSLOC_ENUMINSTCALL_FAULT, code);
+		if(enum_instances) {
+			bool done = false;
+			do {
+				ULONG fetched = 0;
+				wchar_t * version = 0;
+				wchar_t * path = 0;
+				ISetupInstance * setup_instance = 0;
+				code = enum_instances->vtable->Next(enum_instances, 1, &setup_instance, &fetched);
+				if(code == S_FALSE || !fetched)
+					done = true;
+				else {
+					THROW_S_S(code == S_OK, SLERR_VSLOC_NEXTINSTCALL_FAULT, code);
+					code = setup_instance->vtable->GetInstallationVersion(setup_instance, &version);
+					if(code == S_OK) {
+						code = setup_instance->vtable->GetInstallationPath(setup_instance, &path);
+						Entry * p_new_entry = rList.CreateNewItem();
+						if(p_new_entry) {
+							wchar_t * p_text = 0;
+							FILETIME ftime;
+							MEMSZERO(ftime);
+							if(setup_instance->vtable->GetInstanceId(setup_instance, &p_text) == S_OK)
+								p_new_entry->InstanceId.CopyUtf8FromUnicode(p_text, sstrlen(p_text), 1);
+							if(setup_instance->vtable->GetInstallationName(setup_instance, &p_text) == S_OK)
+								p_new_entry->Name.CopyUtf8FromUnicode(p_text, sstrlen(p_text), 1);
+							if(setup_instance->vtable->GetDisplayName(setup_instance, def_lcid, &p_text) == S_OK)
+								p_new_entry->DisplayName.CopyUtf8FromUnicode(p_text, sstrlen(p_text), 1);
+							if(setup_instance->vtable->GetDescription(setup_instance, def_lcid, &p_text) == S_OK)
+								p_new_entry->Description.CopyUtf8FromUnicode(p_text, sstrlen(p_text), 1);
+							if(setup_instance->vtable->GetInstallDate(setup_instance, &ftime) == S_OK) {
+								p_new_entry->InstallTime = ftime;
+							}
+							p_new_entry->Version.CopyUtf8FromUnicode(version, sstrlen(version), 1);
+							p_new_entry->Path.CopyUtf8FromUnicode(path, sstrlen(path), 1);
+						}
+					}
 				}
-			}
+			} while(!done);
 		}
 	}
-cleanup:
-	//if(lib)
-		//FreeLibrary(lib);
+	CATCHZOK
 	return ok;
 }

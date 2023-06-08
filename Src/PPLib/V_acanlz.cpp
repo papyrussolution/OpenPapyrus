@@ -2126,7 +2126,7 @@ int PPViewAccAnlz::CalcTotalAccTrnovr(AccAnlzTotal * pTotal)
 		pTotal->InRestCrd.freeAll();
 		pTotal->OutRestDbt.freeAll();
 		pTotal->OutRestCrd.freeAll();
-		for(InitIteration(); NextIteration(&item) > 0; ) {
+		for(InitIteration(); NextIteration(&item) > 0;) {
 			if(item.InRest > 0)
 				pTotal->InRestDbt.Add(0, item.CurID, item.InRest);
 			else

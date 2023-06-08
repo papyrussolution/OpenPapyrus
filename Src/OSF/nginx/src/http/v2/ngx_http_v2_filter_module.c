@@ -546,7 +546,7 @@ static ngx_http_v2_out_frame_t * ngx_http_v2_create_headers_frame(ngx_http_reque
 	type = NGX_HTTP_V2_HEADERS_FRAME;
 	flags = fin ? NGX_HTTP_V2_END_STREAM_FLAG : NGX_HTTP_V2_NO_FLAG;
 	frame_size = stream->connection->frame_size;
-	for(;; ) {
+	for(;;) {
 		if(rest <= frame_size) {
 			frame_size = rest;
 			flags |= NGX_HTTP_V2_END_HEADERS_FLAG;
@@ -660,7 +660,7 @@ static ngx_chain_t * ngx_http_v2_send_chain(ngx_connection_t * fc, ngx_chain_t *
 #if (NGX_SUPPRESS_WARN)
 	cl = NULL;
 #endif
-	for(;; ) {
+	for(;;) {
 		if((nginx_off_t)frame_size > limit) {
 			frame_size = (size_t)limit;
 		}
@@ -877,7 +877,7 @@ static ngx_int_t ngx_http_v2_headers_frame_handler(ngx_http_v2_connection_t * h2
 {
 	ngx_http_v2_stream_t  * stream = frame->stream;
 	ngx_chain_t * cl = frame->first;
-	for(;; ) {
+	for(;;) {
 		if(cl->buf->pos != cl->buf->last) {
 			frame->first = cl;
 			ngx_log_debug2(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0, "http2:%ui HEADERS frame %p was sent partially", stream->node->id, frame);
@@ -925,7 +925,7 @@ static ngx_int_t ngx_http_v2_data_frame_handler(ngx_http_v2_connection_t * h2c, 
 		}
 		cl = ln;
 	}
-	for(;; ) {
+	for(;;) {
 		if(cl->buf->tag == (ngx_buf_tag_t)&ngx_http_v2_filter_get_shadow) {
 			buf = cl->buf->shadow;
 			if(ngx_buf_in_memory(buf)) {
@@ -1002,7 +1002,7 @@ static void ngx_http_v2_filter_cleanup(void * data)
 		size_t window = 0;
 		ngx_http_v2_connection_t  * h2c = stream->connection;
 		ngx_http_v2_out_frame_t ** fn = &h2c->last_out;
-		for(;; ) {
+		for(;;) {
 			ngx_http_v2_out_frame_t * frame = *fn;
 			if(frame == NULL) {
 				break;

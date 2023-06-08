@@ -14,6 +14,8 @@
 #include <slib-internal.h>
 #pragma hdrstop
 #include <tulipindicators.h>
+
+int DummyProc_TulipIndicators() { return 1; } // @forcelink
 // 
 // This is used for the simple functions that take one input vectors and apply a unary
 // operator for a single output. (e.g. sqrt, sin)
@@ -3264,8 +3266,6 @@ const ti_indicator_info * ti_find_indicator(const char * name)
 }
 
 #if SLTEST_RUNNING // {
-
-int DummyProc_TulipIndicators() { return 1; } // @forcelink
 
 SLTEST_R(TulipIndicators)
 {

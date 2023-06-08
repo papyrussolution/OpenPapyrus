@@ -65,7 +65,7 @@ int FASTCALL FindCharPosInString(const wchar_t * s, wchar_t c)
  */
 void MyStringLower_Ascii(char * s) throw()
 {
-	for(;; ) {
+	for(;;) {
 		char c = *s;
 		if(c == 0)
 			return;
@@ -75,7 +75,7 @@ void MyStringLower_Ascii(char * s) throw()
 
 void MyStringLower_Ascii(wchar_t * s) throw()
 {
-	for(;; ) {
+	for(;;) {
 		wchar_t c = *s;
 		if(c == 0)
 			return;
@@ -168,7 +168,7 @@ wchar_t MyCharUpper_WIN(wchar_t c) throw()
 
 bool IsString1PrefixedByString2(const char * s1, const char * s2) throw()
 {
-	for(;; ) {
+	for(;;) {
 		uchar c2 = (uchar)*s2++; if(c2 == 0) return true;
 		uchar c1 = (uchar)*s1++; if(c1 != c2) return false;
 	}
@@ -176,7 +176,7 @@ bool IsString1PrefixedByString2(const char * s1, const char * s2) throw()
 
 bool StringsAreEqualNoCase(const wchar_t * s1, const wchar_t * s2) throw()
 {
-	for(;; ) {
+	for(;;) {
 		wchar_t c1 = *s1++;
 		wchar_t c2 = *s2++;
 		if(c1 != c2 && MyCharUpper(c1) != MyCharUpper(c2)) return false;
@@ -189,7 +189,7 @@ bool StringsAreEqualNoCase(const wchar_t * s1, const wchar_t * s2) throw()
 bool AString::IsPrefixedBy_Ascii_NoCase(const char * s) const throw()
 {
 	const char * s1 = _chars;
-	for(;; ) {
+	for(;;) {
 		char c2 = *s++;
 		if(c2 == 0)
 			return true;
@@ -202,7 +202,7 @@ bool AString::IsPrefixedBy_Ascii_NoCase(const char * s) const throw()
 bool UString::IsPrefixedBy_Ascii_NoCase(const char * s) const throw()
 {
 	const wchar_t * s1 = _chars;
-	for(;; ) {
+	for(;;) {
 		char c2 = *s++;
 		if(c2 == 0)
 			return true;
@@ -214,7 +214,7 @@ bool UString::IsPrefixedBy_Ascii_NoCase(const char * s) const throw()
 
 bool StringsAreEqual_Ascii(const wchar_t * u, const char * a) throw()
 {
-	for(;; ) {
+	for(;;) {
 		uchar c = *a;
 		if(c != *u)
 			return false;
@@ -227,7 +227,7 @@ bool StringsAreEqual_Ascii(const wchar_t * u, const char * a) throw()
 
 /* @sobolev (replaced with sstreqi_ascii) bool StringsAreEqualNoCase_Ascii__(const char * s1, const char * s2) throw()
 {
-	for(;; ) {
+	for(;;) {
 		char c1 = *s1++;
 		char c2 = *s2++;
 		if(c1 != c2 && MyCharLower_Ascii(c1) != MyCharLower_Ascii(c2))
@@ -239,7 +239,7 @@ bool StringsAreEqual_Ascii(const wchar_t * u, const char * a) throw()
 
 bool StringsAreEqualNoCase_Ascii__(const wchar_t * s1, const wchar_t * s2) throw()
 {
-	for(;; ) {
+	for(;;) {
 		wchar_t c1 = *s1++;
 		wchar_t c2 = *s2++;
 		if(c1 != c2 && MyCharLower_Ascii(c1) != MyCharLower_Ascii(c2))
@@ -251,7 +251,7 @@ bool StringsAreEqualNoCase_Ascii__(const wchar_t * s1, const wchar_t * s2) throw
 
 bool StringsAreEqualNoCase_Ascii__(const wchar_t * s1, const char * s2) throw()
 {
-	for(;; ) {
+	for(;;) {
 		wchar_t c1 = *s1++;
 		char c2 = *s2++;
 		if(c1 != (uchar)c2 && (c1 > 0x7F || MyCharLower_Ascii(c1) != (uchar)MyCharLower_Ascii(c2)))
@@ -263,7 +263,7 @@ bool StringsAreEqualNoCase_Ascii__(const wchar_t * s1, const char * s2) throw()
 
 bool IsString1PrefixedByString2(const wchar_t * s1, const wchar_t * s2) throw()
 {
-	for(;; ) {
+	for(;;) {
 		wchar_t c2 = *s2++; if(c2 == 0) return true;
 		wchar_t c1 = *s1++; if(c1 != c2) return false;
 	}
@@ -271,7 +271,7 @@ bool IsString1PrefixedByString2(const wchar_t * s1, const wchar_t * s2) throw()
 
 bool IsString1PrefixedByString2(const wchar_t * s1, const char * s2) throw()
 {
-	for(;; ) {
+	for(;;) {
 		uchar c2 = (uchar)(*s2++); 
 		if(c2 == 0) 
 			return true;
@@ -283,7 +283,7 @@ bool IsString1PrefixedByString2(const wchar_t * s1, const char * s2) throw()
 
 bool IsString1PrefixedByString2_NoCase_Ascii(const wchar_t * s1, const char * s2) throw()
 {
-	for(;; ) {
+	for(;;) {
 		char c2 = *s2++; if(c2 == 0) return true;
 		wchar_t c1 = *s1++;
 		if(c1 != (uchar)c2 && MyCharLower_Ascii(c1) != (uchar)MyCharLower_Ascii(c2))
@@ -293,7 +293,7 @@ bool IsString1PrefixedByString2_NoCase_Ascii(const wchar_t * s1, const char * s2
 
 bool IsString1PrefixedByString2_NoCase(const wchar_t * s1, const wchar_t * s2) throw()
 {
-	for(;; ) {
+	for(;;) {
 		wchar_t c2 = *s2++; if(c2 == 0) return true;
 		wchar_t c1 = *s1++;
 		if(c1 != c2 && MyCharUpper(c1) != MyCharUpper(c2))
@@ -304,7 +304,7 @@ bool IsString1PrefixedByString2_NoCase(const wchar_t * s1, const wchar_t * s2) t
 // NTFS order: uses upper case
 int MyStringCompareNoCase(const wchar_t * s1, const wchar_t * s2) throw()
 {
-	for(;; ) {
+	for(;;) {
 		wchar_t c1 = *s1++;
 		wchar_t c2 = *s2++;
 		if(c1 != c2) {
@@ -720,7 +720,7 @@ int AString::ReverseFind(char c) const throw()
 	if(_len == 0)
 		return -1;
 	const char * p = _chars + _len - 1;
-	for(;; ) {
+	for(;;) {
 		if(*p == c)
 			return (int)(p - _chars);
 		if(p == _chars)
@@ -734,7 +734,7 @@ int AString::ReverseFind_PathSepar() const throw()
 	if(_len == 0)
 		return -1;
 	const char * p = _chars + _len - 1;
-	for(;; ) {
+	for(;;) {
 		char c = *p;
 		if(isdirslash(c))
 			return (int)(p - _chars);
@@ -815,7 +815,7 @@ void AString::Insert(uint index, const AString &s)
 void AString::RemoveChar(char ch) throw()
 {
 	char * src = _chars;
-	for(;; ) {
+	for(;;) {
 		char c = *src++;
 		if(c == 0)
 			return;
@@ -823,7 +823,7 @@ void AString::RemoveChar(char ch) throw()
 			break;
 	}
 	char * dest = src - 1;
-	for(;; ) {
+	for(;;) {
 		char c = *src++;
 		if(c == 0)
 			break;
@@ -1320,7 +1320,7 @@ int UString::ReverseFind(wchar_t c) const throw()
 	if(_len == 0)
 		return -1;
 	const wchar_t * p = _chars + _len - 1;
-	for(;; ) {
+	for(;;) {
 		if(*p == c)
 			return (int)(p - _chars);
 		if(p == _chars)
@@ -1334,7 +1334,7 @@ int UString::ReverseFind_PathSepar() const throw()
 	if(_len == 0)
 		return -1;
 	const wchar_t * p = _chars + _len - 1;
-	for(;; ) {
+	for(;;) {
 		wchar_t c = *p;
 		if(isdirslash(c))
 			return (int)(p - _chars);
@@ -1416,7 +1416,7 @@ void UString::RemoveChar(wchar_t ch) throw()
 {
 	wchar_t * src = _chars;
 
-	for(;; ) {
+	for(;;) {
 		wchar_t c = *src++;
 		if(c == 0)
 			return;
@@ -1424,7 +1424,7 @@ void UString::RemoveChar(wchar_t ch) throw()
 			break;
 	}
 	wchar_t * dest = src - 1;
-	for(;; ) {
+	for(;;) {
 		wchar_t c = *src++;
 		if(c == 0)
 			break;
@@ -1661,7 +1661,7 @@ static inline UINT GetCurrentCodePage()
 
 bool FASTCALL CheckUTF8(const char * src, bool allowReduced) throw()
 {
-	for(;; ) {
+	for(;;) {
 		Byte c = *src++;
 		if(c == 0)
 			return true;
@@ -1692,7 +1692,7 @@ static bool Utf8_To_Utf16(wchar_t * dest, size_t * destLen, const char * src, co
 {
 	size_t destPos = 0;
 	bool ok = true;
-	for(;; ) {
+	for(;;) {
 		Byte c;
 		if(src == srcLim) {
 			*destLen = destPos;
@@ -1750,7 +1750,7 @@ static bool Utf8_To_Utf16(wchar_t * dest, size_t * destLen, const char * src, co
 static size_t Utf16_To_Utf8_Calc(const wchar_t * src, const wchar_t * srcLim)
 {
 	size_t size = srcLim - src;
-	for(;; ) {
+	for(;;) {
 		if(src == srcLim)
 			return size;
 		uint32 val = *src++;
@@ -1782,7 +1782,7 @@ static size_t Utf16_To_Utf8_Calc(const wchar_t * src, const wchar_t * srcLim)
 
 static char * Utf16_To_Utf8(char * dest, const wchar_t * src, const wchar_t * srcLim)
 {
-	for(;; ) {
+	for(;;) {
 		if(src == srcLim)
 			return dest;
 		uint32 val = *src++;

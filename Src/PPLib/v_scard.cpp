@@ -2352,28 +2352,15 @@ int PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 						ok = ViewCCheck(&flt, 0);
 					}
 					break;
-				case PPVCMD_OPERATIONS:
-					ok = ViewOps(hdr.ID);
-					break;
-				case PPVCMD_CHARGE:
-					ok = ChargeCredit();
-					break;
-				case PPVCMD_TRANSMIT:
-					Transmit(hdr.ID);
-					break;
-				case PPVCMD_CHNGDSCNT:
-					ok = ChangeDiscount();
-					break;
-				case PPVCMD_CALCTRNOVR:
-					ok = RecalcTurnover();
-					break;
+				case PPVCMD_OPERATIONS: ok = ViewOps(hdr.ID); break;
+				case PPVCMD_CHARGE: ok = ChargeCredit(); break;
+				case PPVCMD_TRANSMIT: Transmit(hdr.ID); break;
+				case PPVCMD_CHNGDSCNT: ok = ChangeDiscount(); break;
+				case PPVCMD_CALCTRNOVR: ok = RecalcTurnover(); break;
 				case PPVCMD_AUTOFILL:
-					//ok = Filt.SeriesID ? SCObj.AutoFill(Filt.SeriesID, 1) : -1;
 					ok = SeriesList.GetSingle() ? SCObj.AutoFill(SeriesList.GetSingle(), 1) : -1;
 					break;
-				case PPVCMD_DELETEALL:
-					ok = DeleteItem(0);
-					break;
+				case PPVCMD_DELETEALL: ok = DeleteItem(0); break;
 				case PPVCMD_REPLACECARD:
 					if(hdr.ID)
 						ok = ReplaceCardInChecks(hdr.ID);
@@ -2381,9 +2368,7 @@ int PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				case PPVCMD_AFILLDEFPSN: // @unused
 					ok = -1;
 					break;
-				case PPVCMD_RENAMEDUP:
-					ok = RenameDup(&id_list);
-					break;
+				case PPVCMD_RENAMEDUP: ok = RenameDup(&id_list); break;
 				case PPVCMD_PROCESSSELECTION:
 					{
 						PPLogger logger;
@@ -2405,12 +2390,10 @@ int PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 			}
 		}
 	}
-	if(ok > 0 && (oneof7(ppvCmd, PPVCMD_CHARGE, PPVCMD_CHNGDSCNT, PPVCMD_AUTOFILL,
-		PPVCMD_DELETEALL, PPVCMD_AFILLDEFPSN, PPVCMD_CHNGFLAGS, PPVCMD_RENAMEDUP))) {
+	if(ok > 0 && (oneof7(ppvCmd, PPVCMD_CHARGE, PPVCMD_CHNGDSCNT, PPVCMD_AUTOFILL, PPVCMD_DELETEALL, PPVCMD_AFILLDEFPSN, PPVCMD_CHNGFLAGS, PPVCMD_RENAMEDUP))) {
 		UpdateTempTable(id_list.getCount() ? &id_list : 0);
 	}
-	else if(ok > 0 && oneof6(ppvCmd, PPVCMD_EDITITEM, PPVCMD_DELETEITEM, PPVCMD_ADDITEM,
-		PPVCMD_CCHECKS, PPVCMD_OPERATIONS, PPVCMD_REPLACECARD)) {
+	else if(ok > 0 && oneof6(ppvCmd, PPVCMD_EDITITEM, PPVCMD_DELETEITEM, PPVCMD_ADDITEM, PPVCMD_CCHECKS, PPVCMD_OPERATIONS, PPVCMD_REPLACECARD)) {
 		id_list.add(hdr.ID);
 		ok = UpdateTempTable(&id_list);
 	}
@@ -2420,7 +2403,6 @@ int PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 void PPViewSCard::ViewTotal()
 {
 	SCardTotal total;
-	MEMSZERO(total);
 	SCardViewItem item;
 	PPWaitStart();
 	for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
@@ -2891,7 +2873,13 @@ DBQuery * PPViewSCardOp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 
 int PPViewSCardOp::Recover()
 {
+	enum {
+		faultkindUndef = 0,
+		faultkindAbsCcRetroLink = 1,
+		faultkindInvOpSign      = 2
+	};
 	struct FaultItem { // @flat
+		int    FaultKind; // @v11.7.5
 		PPID   CCheckID;
 		PPID   SCardID;
 		LDATETIME Dtm;
@@ -2899,17 +2887,19 @@ int PPViewSCardOp::Recover()
 	int    ok = -1;
 	SCardOpTbl & t = SCObj.P_Tbl->ScOp;
 	CCheckCore & r_cc = *SCObj.P_CcTbl;
-	SVector fault_list(sizeof(FaultItem)); // @v10.9.0 SArray-->SVector
+	SVector fault_list(sizeof(FaultItem));
 	PPLogger logger;
 	SString msg_buf, fmt_buf, temp_buf;
 	SCardOpTbl::Key0 k0;
+	SCardOpTbl::Rec rec;
 	MEMSZERO(k0);
 	PPWaitStart();
 	if(t.search(0, &k0, spFirst)) do {
+		t.copyBufTo(&rec);
 		// @todo 20230317 Скорректировать знак суммы в соответствии с чеком (иногда проскакивают такие проблемы)
-		if(t.data.LinkObjType == PPOBJ_CCHECK) {
-			PPID   sc_id = t.data.SCardID;
-			PPID   cc_id = t.data.LinkObjID;
+		if(rec.LinkObjType == PPOBJ_CCHECK) {
+			const PPID sc_id = rec.SCardID;
+			const PPID cc_id = rec.LinkObjID;
 			CCheckPacket cc_pack;
 			if(r_cc.LoadPacket(cc_id, 0, &cc_pack) > 0) {
 				if(cc_pack.Rec.SCardID != sc_id && !cc_pack.AL_Const().SearchAddedID(sc_id, 0)) {
@@ -2922,12 +2912,44 @@ int PPViewSCardOp::Recover()
 					}
 					{
 						FaultItem fi;
+						fi.FaultKind = faultkindAbsCcRetroLink;
 						fi.SCardID = sc_id;
-						fi.Dtm.Set(t.data.Dt, t.data.Tm);
+						fi.Dtm.Set(rec.Dt, rec.Tm);
 						fi.CCheckID = cc_id;
 						fault_list.insert(&fi);
 					}
 				}
+				// @v11.7.5 {
+				// Потенциальная ошибка, возникшая из-за дефекта в нескольких версиях системы
+				{
+					uint   paym_idx = 0;
+					if(cc_pack.AL_Const().SearchAddedID(sc_id, &paym_idx)) {
+						const CcAmountEntry & r_paym_entry = cc_pack.AL_Const().at(paym_idx);
+						if(cc_pack.Rec.Flags & CCHKF_RETURN) {
+							// не уверен насчет возврата - нет кейса: пока не трогаю
+						}
+						else {
+							if(r_paym_entry.Amount > 0.0 && rec.Amount > 0.0) {
+								{
+									//PPTXT_INVSCOPSIGN                   "Неверный знак операции, ссылающейся на чек '@zstr', по карте '@scard'"
+									PPLoadText(PPTXT_INVSCOPSIGN, fmt_buf);
+									CCheckCore::MakeCodeString(&cc_pack.Rec, temp_buf);
+									PPFormat(fmt_buf, &msg_buf, temp_buf.cptr(), sc_id);
+									logger.Log(msg_buf);
+								}
+								{
+									FaultItem fi;
+									fi.FaultKind = faultkindInvOpSign;
+									fi.SCardID = sc_id;
+									fi.Dtm.Set(rec.Dt, rec.Tm);
+									fi.CCheckID = cc_id;
+									fault_list.insert(&fi);
+								}
+							}
+						}
+					}
+				}
+				// } @v11.7.5 
 			}
 		}
 	} while(t.search(0, &k0, spNext));
@@ -2939,14 +2961,25 @@ int PPViewSCardOp::Recover()
 			THROW(tra);
 			for(uint i = 0; i < flc; i++) {
 				const FaultItem & r_item = *static_cast<const FaultItem *>(fault_list.at(i));
-				if(i == 0 || r_item.CCheckID != static_cast<const FaultItem *>(fault_list.at(i-1))->CCheckID) {
-					THROW(SCObj.P_Tbl->RemoveOpByCheck(r_item.CCheckID, 0));
-					{
-						CCheckPacket cc_pack;
-						THROW(r_cc.LoadPacket(r_item.CCheckID, 0, &cc_pack) > 0);
-						THROW(r_cc.TurnSCardPayment(&cc_pack, CCheckCore::tscpfSkipScSpcTrt|CCheckCore::tscpfCorrection, 0));
+				if(r_item.FaultKind ==  faultkindAbsCcRetroLink) {
+					if(i == 0 || r_item.CCheckID != static_cast<const FaultItem *>(fault_list.at(i-1))->CCheckID) {
+						THROW(SCObj.P_Tbl->RemoveOpByCheck(r_item.CCheckID, 0));
+						{
+							CCheckPacket cc_pack;
+							THROW(r_cc.LoadPacket(r_item.CCheckID, 0, &cc_pack) > 0);
+							THROW(r_cc.TurnSCardPayment(&cc_pack, CCheckCore::tscpfSkipScSpcTrt|CCheckCore::tscpfCorrection, 0));
+						}
 					}
 				}
+				// @v11.7.5 {
+				else if(r_item.FaultKind == faultkindInvOpSign) {
+					SCardCore::OpBlock op_blk;
+					if(SCObj.P_Tbl->GetOp(r_item.SCardID, r_item.Dtm, &op_blk) > 0) {
+						op_blk.Amount = -op_blk.Amount;
+						THROW(SCObj.P_Tbl->PutOpBlk(op_blk, 0, 0));
+					}
+				}
+				// } @v11.7.5 
 				PPWaitPercent(i, flc);
 			}
 			THROW(tra.Commit());

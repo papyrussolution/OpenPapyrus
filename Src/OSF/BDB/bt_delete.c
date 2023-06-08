@@ -309,7 +309,7 @@ err:
 	root_pgno = BAM_ROOT_PGNO(dbc);
 	if(pgno != root_pgno)
 		return 0;
-	for(done = 0; !done; ) {
+	for(done = 0; !done;) {
 		/* Initialize. */
 		parent = child = NULL;
 		LOCK_INIT(p_lock);

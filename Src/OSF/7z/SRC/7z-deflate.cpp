@@ -321,7 +321,7 @@ namespace NCompress {
 
 				uint32 cur = 0;
 
-				for(;; ) {
+				for(;;) {
 					++cur;
 					if(cur == lenEnd || cur == kNumOptsBase || m_Pos >= kMatchArrayLimit)
 						return Backward(backRes, cur);
@@ -548,7 +548,7 @@ namespace NCompress {
 				m_ValueIndex = 0;
 				uint32 blockSize = BlockSizeRes;
 				BlockSizeRes = 0;
-				for(;; ) {
+				for(;;) {
 					if(m_OptimumCurrentIndex == m_OptimumEndIndex) {
 						if(m_Pos >= kMatchArrayLimit || BlockSizeRes >= blockSize || !m_SecondPass &&
 										((Inline_MatchFinder_GetNumAvailableBytes(&_lzInWindow) ==
@@ -1123,7 +1123,7 @@ namespace NCompress {
 				m_OutWindowStream.SetStream(outStream);
 				CCoderReleaser flusher(this);
 				const uint64 inStart = _needInitInStream ? 0 : m_InBitStream.GetProcessedSize();
-				for(;; ) {
+				for(;;) {
 					const uint32 kInputProgressLimit = 1 << 21;
 					uint32 curSize = 1 << 20;
 					bool finishInputStream = false;

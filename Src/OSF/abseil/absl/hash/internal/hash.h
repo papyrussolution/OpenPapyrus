@@ -7,25 +7,6 @@
 #ifndef ABSL_HASH_INTERNAL_HASH_H_
 #define ABSL_HASH_INTERNAL_HASH_H_
 
-//#include <algorithm>
-//#include <array>
-//#include <bitset>
-//#include <cmath>
-//#include <cstring>
-//#include <deque>
-//#include <forward_list>
-//#include <functional>
-//#include <iterator>
-//#include <limits>
-//#include <list>
-//#include <map>
-//#include <memory>
-//#include <set>
-//#include <string>
-//#include <tuple>
-//#include <type_traits>
-//#include <utility>
-//#include <vector>
 #include "absl/base/config.h"
 #include "absl/base/internal/unaligned_access.h"
 #include "absl/base/port.h"
@@ -632,11 +613,10 @@ typename std::enable_if<!is_uniquely_represented<T>::value, H>::type hash_range_
 	return hash_state;
 }
 
-#if defined(ABSL_INTERNAL_LEGACY_HASH_NAMESPACE) && \
-	ABSL_META_INTERNAL_STD_HASH_SFINAE_FRIENDLY_
-#define ABSL_HASH_INTERNAL_SUPPORT_LEGACY_HASH_ 1
+#if defined(ABSL_INTERNAL_LEGACY_HASH_NAMESPACE) && ABSL_META_INTERNAL_STD_HASH_SFINAE_FRIENDLY_
+	#define ABSL_HASH_INTERNAL_SUPPORT_LEGACY_HASH_ 1
 #else
-#define ABSL_HASH_INTERNAL_SUPPORT_LEGACY_HASH_ 0
+	#define ABSL_HASH_INTERNAL_SUPPORT_LEGACY_HASH_ 0
 #endif
 
 // HashSelect
@@ -651,25 +631,21 @@ typename std::enable_if<!is_uniquely_represented<T>::value, H>::type hash_range_
 struct HashSelect {
 private:
 	struct State : HashStateBase<State> {
-		static State combine_contiguous(State hash_state, const unsigned char*,
-		    size_t);
+		static State combine_contiguous(State hash_state, const unsigned char*, size_t);
 		using State::HashStateBase::combine_contiguous;
 	};
 
 	struct UniquelyRepresentedProbe {
-		template <typename H, typename T>
-		static auto Invoke(H state, const T& value)
-		->absl::enable_if_t<is_uniquely_represented<T>::value, H> {
+		template <typename H, typename T> static auto Invoke(H state, const T& value)->absl::enable_if_t<is_uniquely_represented<T>::value, H> 
+		{
 			return hash_internal::hash_bytes(std::move(state), value);
 		}
 	};
 
 	struct HashValueProbe {
 		template <typename H, typename T>
-		static auto Invoke(H state, const T& value)->absl::enable_if_t<
-			std::is_same<H,
-			decltype(AbslHashValue(std::move(state), value))>::value,
-			H> {
+		static auto Invoke(H state, const T& value)->absl::enable_if_t<std::is_same<H, decltype(AbslHashValue(std::move(state), value))>::value, H> 
+		{
 			return AbslHashValue(std::move(state), value);
 		}
 	};
@@ -692,21 +668,17 @@ private:
 
 	struct StdHashProbe {
 		template <typename H, typename T>
-		static auto Invoke(H state, const T& value)
-		->absl::enable_if_t<type_traits_internal::IsHashable<T>::value, H> {
+		static auto Invoke(H state, const T& value)->absl::enable_if_t<type_traits_internal::IsHashable<T>::value, H> 
+		{
 			return hash_internal::hash_bytes(std::move(state), std::hash<T>{} (value));
 		}
 	};
-
 	template <typename Hash, typename T>
 	struct Probe : Hash {
 private:
-		template <typename H, typename = decltype(H::Invoke(
-			    std::declval<State>(), std::declval<const T&>()))>
+		template <typename H, typename = decltype(H::Invoke(std::declval<State>(), std::declval<const T&>()))>
 		static std::true_type Test(int);
-		template <typename U>
-		static std::false_type Test(char);
-
+		template <typename U> static std::false_type Test(char);
 public:
 		static constexpr bool value = decltype(Test<Hash>(0))::value;
 	};
@@ -782,7 +754,8 @@ private:
 	// type.
 	MixingHashState(const MixingHashState&) = default;
 
-	explicit MixingHashState(uint64_t state) : state_(state) {
+	explicit MixingHashState(uint64_t state) : state_(state) 
+	{
 	}
 
 	// Implementation of the base case for combine_contiguous where we actually
@@ -816,7 +789,8 @@ private:
 	}
 
 	// Reads 4 to 8 bytes from p. Zero pads to fill uint64_t.
-	static uint64_t Read4To8(const unsigned char* p, size_t len) {
+	static uint64_t Read4To8(const unsigned char* p, size_t len) 
+	{
 		uint32_t low_mem = absl::base_internal::UnalignedLoad32(p);
 		uint32_t high_mem = absl::base_internal::UnalignedLoad32(p + len - 4);
 #ifdef SL_LITTLEENDIAN
@@ -826,8 +800,7 @@ private:
 		uint32_t most_significant = low_mem;
 		uint32_t least_significant = high_mem;
 #endif
-		return (static_cast<uint64_t>(most_significant) << (len - 4) * 8) |
-		       least_significant;
+		return (static_cast<uint64_t>(most_significant) << (len - 4) * 8) | least_significant;
 	}
 
 	// Reads 1 to 3 bytes from p. Zero pads to fill uint32_t.
@@ -844,9 +817,7 @@ private:
 		unsigned char significant1 = mem1;
 		unsigned char significant0 = mem2;
 #endif
-		return static_cast<uint32_t>(significant0 |         //
-		       (significant1 << (len / 2 * 8)) |            //
-		       (significant2 << ((len - 1) * 8)));
+		return static_cast<uint32_t>(significant0 | (significant1 << (len / 2 * 8)) | (significant2 << ((len - 1) * 8)));
 	}
 
 	ABSL_ATTRIBUTE_ALWAYS_INLINE static uint64_t Mix(uint64_t state, uint64_t v) {
@@ -912,8 +883,8 @@ private:
 };
 
 // MixingHashState::CombineContiguousImpl()
-inline uint64_t MixingHashState::CombineContiguousImpl(uint64_t state, const unsigned char* first, size_t len,
-    std::integral_constant<int, 4> /* sizeof_size_t */) {
+inline uint64_t MixingHashState::CombineContiguousImpl(uint64_t state, const unsigned char* first, size_t len, std::integral_constant<int, 4> /* sizeof_size_t */) 
+{
 	// For large values we use CityHash, for small ones we just use a
 	// multiplicative hash.
 	uint64_t v;
@@ -978,9 +949,7 @@ struct PoisonedHash : private AggregateBarrier {
 };
 
 template <typename T> struct HashImpl {
-	size_t operator()(const T& value) const {
-		return MixingHashState::hash(value);
-	}
+	size_t operator()(const T& value) const { return MixingHashState::hash(value); }
 };
 
 template <typename T> struct Hash : absl::conditional_t<is_hashable<T>::value, HashImpl<T>, PoisonedHash> {};
@@ -998,16 +967,14 @@ H HashStateBase<H>::combine_contiguous(H state, const T* data, size_t size) {
 }
 
 // HashStateBase::PiecewiseCombiner::add_buffer()
-template <typename H>
-H PiecewiseCombiner::add_buffer(H state, const unsigned char* data,
-    size_t size) {
+template <typename H> H PiecewiseCombiner::add_buffer(H state, const unsigned char* data, size_t size) 
+{
 	if(position_ + size < PiecewiseChunkSize()) {
 		// This partial chunk does not fill our existing buffer
 		memcpy(buf_ + position_, data, size);
 		position_ += size;
 		return state;
 	}
-
 	// If the buffer is partially filled we need to complete the buffer
 	// and hash it.
 	if(position_ != 0) {

@@ -104,7 +104,7 @@ void ngx_rbtree_insert(ngx_rbtree_t * tree, ngx_rbtree_node_t * node)
 void ngx_rbtree_insert_value(ngx_rbtree_node_t * temp, ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel)
 {
 	ngx_rbtree_node_t  ** p;
-	for(;; ) {
+	for(;;) {
 		p = (node->key < temp->key) ? &temp->left : &temp->right;
 		if(*p == sentinel) {
 			break;
@@ -121,7 +121,7 @@ void ngx_rbtree_insert_value(ngx_rbtree_node_t * temp, ngx_rbtree_node_t * node,
 void ngx_rbtree_insert_timer_value(ngx_rbtree_node_t * temp, ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel)
 {
 	ngx_rbtree_node_t  ** p;
-	for(;; ) {
+	for(;;) {
 		/*
 		 * Timer values
 		 * 1) are spread in small range, usually several minutes,
@@ -291,7 +291,7 @@ const ngx_rbtree_node_t * ngx_rbtree_next(const ngx_rbtree_t * tree, const ngx_r
 	}
 	else {
 		root = tree->root;
-		for(;; ) {
+		for(;;) {
 			parent = node->parent;
 			if(node == root) {
 				return NULL;

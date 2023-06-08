@@ -180,7 +180,7 @@ static void Aes_Encode(const uint32 * w, uint32 * dest, const uint32 * src)
 	s[2] = src[2] ^ w[2];
 	s[3] = src[3] ^ w[3];
 	w += 4;
-	for(;; ) {
+	for(;;) {
 		HT16(m, s, 0);
 		if(--numRounds2 == 0)
 			break;
@@ -201,7 +201,7 @@ static void Aes_Decode(const uint32 * w, uint32 * dest, const uint32 * src)
 	s[1] = src[1] ^ w[1];
 	s[2] = src[2] ^ w[2];
 	s[3] = src[3] ^ w[3];
-	for(;; ) {
+	for(;;) {
 		w -= 8;
 		HD16(m, s, 4);
 		if(--numRounds2 == 0)

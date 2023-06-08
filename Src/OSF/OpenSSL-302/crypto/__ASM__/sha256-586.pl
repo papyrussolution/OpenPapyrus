@@ -930,7 +930,7 @@ sub body_00_15 () {
 	&cmp	(&DWP(16*$j,$K256),0x00010203);
 	&jne	(&label("ssse3_00_47"));
 
-    for ($i=0; $i<16; ) {
+    for ($i=0; $i<16;) {
 	foreach(body_00_15()) { eval; }
     }
 
@@ -1096,7 +1096,7 @@ my $insn;
 	&cmp	(&DWP(16*$j,$K256),0x00010203);
 	&jne	(&label("avx_00_47"));
 
-    for ($i=0; $i<16; ) {
+    for ($i=0; $i<16;) {
 	foreach(body_00_15()) { eval; }
     }
 
@@ -1237,7 +1237,7 @@ sub bodyx_00_15 () {			# +10%
 	&cmp	(&DWP(16*$j,$K256),0x00010203);
 	&jne	(&label("avx_bmi_00_47"));
 
-    for ($i=0; $i<16; ) {
+    for ($i=0; $i<16;) {
 	foreach(bodyx_00_15()) { eval; }
     }
 

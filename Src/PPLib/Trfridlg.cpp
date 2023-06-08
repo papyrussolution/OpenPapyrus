@@ -368,8 +368,7 @@ int EditTransferItem(PPBillPacket & rPack, int itemNo, TIDlgInitData * pInitData
 		// Если у пользователя нет прав на изменение синхронизированного документа,
 		// то менять скидку на весь документ он не может - это приведет к изменению сумм по строкам.
 		//
-		if(oneof6(rPack.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF,
-			PPOPT_GOODSRETURN, PPOPT_GOODSORDER)) {
+		if(oneof6(rPack.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_GOODSRETURN, PPOPT_GOODSORDER)) {
 			if(!p_bobj->CheckRights(BILLOPRT_MODTRANSM, 1))
 				rt_to_modif = 0;
 		}
@@ -3303,68 +3302,6 @@ int PPObjBill::SelectLot2(SelectLotParam & rParam)
 	rParam.RetLotID = lotid;
 	return r;
 }
-
-#if 0 // @v9.3.6 {
-int SelectLot__(PPID locID, PPID goodsID, PPID excludeLotID, PPID * pLotID, ReceiptTbl::Rec * pRec)
-{
-	PPObjBill * p_bobj = BillObj;
-	PPID     lotid = 0;
-	SelLotBrowser::Entry * p_sel;
-	int      r = -1;
-	DateIter diter;
-	SArray * p_ary = 0;
-	SelLotBrowser * p_brw = 0;
-	ReceiptCore & rcpt  = p_bobj->trfr->Rcpt;
-	PPObjGoods goods_obj;
-	Goods2Tbl::Rec goods_rec;
-	if(goodsID && goods_obj.Fetch(labs(goodsID), &goods_rec) > 0) {
-		uint   s = 0;
-		THROW(p_ary = SelLotBrowser::CreateArray());
-		diter.Init();
-		while(1) {
-			ReceiptTbl::Rec lot_rec;
-			r = locID ? rcpt.EnumLots(goodsID, locID, &diter, &lot_rec) : rcpt.EnumByGoods(goodsID, &diter, &lot_rec);
-			if(r > 0) {
-				if(lot_rec.ID != excludeLotID) {
-					if(goodsID >= 0 || lot_rec.Rest > 0.0)
-						THROW(r = SelLotBrowser::AddItemToArray(p_ary, &lot_rec, ZERODATE, lot_rec.Rest));
-				}
-			}
-			else {
-				THROW(r);
-				if(pLotID && *pLotID)
-					if(rcpt.Search(*pLotID, &lot_rec) > 0 && lot_rec.ID != excludeLotID) {
-						if(goodsID >= 0 || lot_rec.Rest > 0.0)
-							THROW(r = SelLotBrowser::AddItemToArray(p_ary, &lot_rec, ZERODATE, lot_rec.Rest));
-					}
-				break;
-			}
-		}
-		p_ary->sort(PTR_CMPFUNC(SelLotBrowser_Entry_dt_oprno));
-		if(pLotID && *pLotID)
-			if(!p_ary->lsearch(pLotID, &(s = 0), CMPF_LONG, offsetof(SelLotBrowser::Entry, LotID)))
-				s = 0;
-		THROW_MEM(p_brw = new SelLotBrowser(p_bobj, p_ary, s, goodsID, 0));
-		if(ExecView(p_brw) == cmOK)
-			if((p_sel = (SelLotBrowser::Entry *)p_brw->view->getCurItem()) != 0) {
-				lotid = p_sel->LotID;
-				if(pRec && lotid)
-					r = (rcpt.Search(lotid, pRec) > 0) ? 1 : -1;
-				else
-					r = 1;
-			}
-	}
-	CATCH
-		r = 0;
-		if(p_brw == 0)
-			delete p_ary;
-		PPError();
-	ENDCATCH
-	delete p_brw;
-	ASSIGN_PTR(pLotID, lotid);
-	return r;
-}
-#endif // } 0 @v9.3.6
 //
 //
 //

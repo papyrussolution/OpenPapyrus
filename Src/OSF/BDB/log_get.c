@@ -771,7 +771,7 @@ static int __logc_inregion(DB_LOGC * logc, DB_LSN * lsn, RLOCK * rlockp, DB_LSN 
 	if(lp->b_off <= lp->len)
 		b_region = (uint32)lp->b_off;
 	else
-		for(p = dblp->bufp+(lp->b_off-lp->len);; ) {
+		for(p = dblp->bufp+(lp->b_off-lp->len);;) {
 			memcpy(hdr, p, hdr->size);
 			if(LOG_SWAPPED(env))
 				__log_hdrswap(hdr, CRYPTO_ON(env));

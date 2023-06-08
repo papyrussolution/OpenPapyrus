@@ -324,7 +324,7 @@ METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 	do {
 		st = entropy->ac_stats[tbl] + 3 * k;
 		if(arith_decode(cinfo, st)) break; /* EOB flag */
-		for(;; ) {
+		for(;;) {
 			k++;
 			if(arith_decode(cinfo, st + 1)) break;
 			st += 3;
@@ -440,7 +440,7 @@ METHODDEF(boolean) decode_mcu_AC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_d
 		st = entropy->ac_stats[tbl] + 3 * k;
 		if(k >= kex)
 			if(arith_decode(cinfo, st)) break; /* EOB flag */
-		for(;; ) {
+		for(;;) {
 			thiscoef = *block + natural_order[++k];
 			if(*thiscoef) {         /* previously nonzero coef */
 				if(arith_decode(cinfo, st + 2)) {
@@ -554,7 +554,7 @@ METHODDEF(boolean) decode_mcu(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 		do {
 			st = entropy->ac_stats[tbl] + 3 * k;
 			if(arith_decode(cinfo, st)) break; /* EOB flag */
-			for(;; ) {
+			for(;;) {
 				k++;
 				if(arith_decode(cinfo, st + 1)) break;
 				st += 3;

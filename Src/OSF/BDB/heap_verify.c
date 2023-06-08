@@ -286,7 +286,7 @@ static int __heap_safe_gsplit(DB * dbp, VRFY_DBINFO * vdp, PAGE * h, db_indx_t i
 	dbt->size = 0;
 	ret = 0;
 	gotpg = 0;
-	for(;; ) {
+	for(;;) {
 		hdr = (HEAPSPLITHDR *)P_ENTRY(dbp, h, i);
 		reclen = hdr->std_hdr.size;
 		/* First copy the data from this page */

@@ -35,8 +35,7 @@ enum
 	FZ_DEVFLAG_GRIDFIT_AS_TILED = 4096,
 };
 
-enum
-{
+enum {
 	/* PDF 1.4 -- standard separable */
 	FZ_BLEND_NORMAL,
 	FZ_BLEND_MULTIPLY,
@@ -50,24 +49,20 @@ enum
 	FZ_BLEND_SOFT_LIGHT,
 	FZ_BLEND_DIFFERENCE,
 	FZ_BLEND_EXCLUSION,
-
 	/* PDF 1.4 -- standard non-separable */
 	FZ_BLEND_HUE,
 	FZ_BLEND_SATURATION,
 	FZ_BLEND_COLOR,
 	FZ_BLEND_LUMINOSITY,
-
 	/* For packing purposes */
 	FZ_BLEND_MODEMASK = 15,
 	FZ_BLEND_ISOLATED = 16,
 	FZ_BLEND_KNOCKOUT = 32
 };
-
 /**
 	Map from (case sensitive) blend mode string to enumeration.
 */
 int fz_lookup_blendmode(const char *name);
-
 /**
 	Map from enumeration to blend mode string.
 

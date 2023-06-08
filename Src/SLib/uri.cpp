@@ -105,7 +105,7 @@ static int FASTCALL UriMergePath(UriUri * absWork, const UriUri * relAppend)
 		sourceWalker = relAppend->pathHead->next;
 		if(sourceWalker) {
 			destPrev = absWork->pathTail;
-			for(; ok; ) {
+			for(; ok;) {
 				UriUri::PathSegment * const dup = new UriUri::PathSegment(sourceWalker->text.P_First, sourceWalker->text.P_AfterLast);
 				if(dup == NULL) {
 					destPrev->next = NULL;
@@ -183,7 +183,7 @@ static char * FASTCALL UriEscapeEx(const char * inFirst, const char * inAfterLas
 		return out;
 	}
 	else {
-		for(;; ) {
+		for(;;) {
 			if(inAfterLast && read >= inAfterLast) {
 				write[0] = _UT('\0');
 				return write;
@@ -697,7 +697,7 @@ static int UriFilenameToUriString(const char * pFileName, char * uriString, int 
 		output += prefixLen;
 	}
 	// Copy and escape on the fly 
-	for(;; ) {
+	for(;;) {
 		if((input[0] == _UT('\0')) ||(fromUnix && input[0] == _UT('/')) ||(!fromUnix && input[0] == _UT('\\'))) {
 			// Copy text after last seperator 
 			if(lastSep+1 < input) {
@@ -2737,14 +2737,14 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 	int    ip4OctetsDone = 0;
 	uchar  quadsAfterZipper[14];
 	int    quadsAfterZipperCount = 0;
-	for(;; ) {
+	for(;;) {
 		if(first >= afterLast) {
 			return StopSyntax(first);
 		}
 		// Inside IPv4 part? 
 		if(ip4OctetsDone > 0) {
 			// Eat rest of IPv4 address 
-			for(;; ) {
+			for(;;) {
 				switch(*first) {
 				    case URI_SET_DIGIT:
 						if(digitCount == 4) {

@@ -1,5 +1,5 @@
 // DBTABLE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -11,14 +11,12 @@
 //
 int FASTCALL Btr2SLibType(int t)
 {
-	if(t == 26)
-		return S_WZSTRING;
-	else if(t == 25)
-		return S_WCHAR;
-	else if(t == 27)
-		return S_UUID_;
-	else
-		return (t + 1);
+	switch(t) {
+		case 26: return S_WZSTRING;
+		case 25: return S_WCHAR;
+		case 27: return S_UUID_;
+		default: return (t + 1);
+	}
 }
 
 int FASTCALL SLib2BtrType(int t)
@@ -395,8 +393,7 @@ int DBTable::Btr_Implement_InsertRec(int idx, void * pKeyBuf, const void * pData
 				temp_buf.Write(P_DBuf, FixRecSize);
 				temp_buf.Write(lob_buffer.constptr(), lob_buffer.GetAvailableSize());
 				p_data_buf = (char *)temp_buf.constptr(); // @badcast
-				// @v9.1.12 @fix retBufLen = (uint16)lob_size;
-				retBufLen = static_cast<RECORDSIZE>(temp_buf.GetAvailableSize()); // @v9.1.12 @fix
+				retBufLen = static_cast<RECORDSIZE>(temp_buf.GetAvailableSize());
 			}
 		}
 		else {

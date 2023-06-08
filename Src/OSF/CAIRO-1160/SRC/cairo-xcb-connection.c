@@ -591,22 +591,14 @@ cairo_xcb_connection_t * _cairo_xcb_connection_get(xcb_connection_t * xcb_connec
 	}
 
 	cairo_list_init(&connection->free_xids);
-	_cairo_freepool_init(&connection->xid_pool,
-	    sizeof(cairo_xcb_xid_t));
-
+	_cairo_freepool_init(&connection->xid_pool, sizeof(cairo_xcb_xid_t));
 	cairo_list_init(&connection->shm_pools);
 	cairo_list_init(&connection->shm_pending);
-	_cairo_freepool_init(&connection->shm_info_freelist,
-	    sizeof(cairo_xcb_shm_info_t));
-
-	connection->maximum_request_length =
-	    xcb_get_maximum_request_length(xcb_connection);
-
+	_cairo_freepool_init(&connection->shm_info_freelist, sizeof(cairo_xcb_shm_info_t));
+	connection->maximum_request_length = xcb_get_maximum_request_length(xcb_connection);
 	CAIRO_MUTEX_INIT(connection->shm_mutex);
 	CAIRO_MUTEX_INIT(connection->screens_mutex);
-
 	CAIRO_MUTEX_LOCK(connection->device.mutex);
-
 	connection->flags = 0;
 	connection->force_precision = -1;
 	xcb_prefetch_extension_data(xcb_connection, &xcb_big_requests_id);
@@ -628,7 +620,7 @@ cairo_xcb_connection_t * _cairo_xcb_connection_get(xcb_connection_t * xcb_connec
 		goto unlock;
 	}
 	ext = xcb_get_extension_data(xcb_connection, &xcb_render_id);
-	if(ext != NULL && ext->present) {
+	if(ext && ext->present) {
 		status = _cairo_xcb_connection_query_render(connection);
 		if(UNLIKELY(status)) {
 			CAIRO_MUTEX_UNLOCK(connection->device.mutex);
@@ -640,14 +632,14 @@ cairo_xcb_connection_t * _cairo_xcb_connection_get(xcb_connection_t * xcb_connec
 	}
 #if 0
 	ext = xcb_get_extension_data(connection, &xcb_cairo_id);
-	if(ext != NULL && ext->present)
+	if(ext && ext->present)
 		_cairo_xcb_connection_query_cairo(connection);
 #endif
 
 	connection->shm = NULL;
 #if CAIRO_HAS_XCB_SHM_FUNCTIONS
 	ext = xcb_get_extension_data(xcb_connection, &xcb_shm_id);
-	if(ext != NULL && ext->present) {
+	if(ext && ext->present) {
 		_cairo_xcb_connection_query_shm(connection);
 		connection->shm = ext;
 	}
@@ -657,7 +649,6 @@ cairo_xcb_connection_t * _cairo_xcb_connection_get(xcb_connection_t * xcb_connec
 	cairo_list_add(&connection->link, &connections);
 unlock:
 	CAIRO_MUTEX_UNLOCK(_cairo_xcb_connections_mutex);
-
 	return connection;
 }
 

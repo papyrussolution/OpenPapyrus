@@ -332,7 +332,7 @@ namespace NArchive {
 				inBuf.Init();
 				uint64 outSize = 0;
 				if(ppmd.InitRc(&inBuf) && !inBuf.Extra && inBuf.Res == S_OK) {
-					for(;; ) {
+					for(;;) {
 						lps->InSize = _packSize = inBuf.GetProcessed();
 						lps->OutSize = outSize;
 						RINOK(lps->SetCur());

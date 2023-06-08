@@ -958,7 +958,7 @@ static int __qam_consume(DBC * dbc, QMETA * meta, db_recno_t first)
 	rec_extent = meta->page_ext*meta->rec_page;
 
 	/* Loop until we find a record or hit current */
-	for(;; ) {
+	for(;;) {
 		/*
 		 * Check to see if we are moving off the extent
 		 * and remove the extent.

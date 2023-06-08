@@ -80,7 +80,7 @@ GoodsStrucProcessingBlock::GoodsStrucProcessingBlock(const GoodsStrucProcessingB
 	return si;
 }
 
-static IMPL_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder, i1, i2)
+static IMPL_CMPFUNC(GoodsStrucView_ItemEntry_CurrentOrder, i1, i2)
 {
 	PPViewGoodsStruc * p_view = static_cast<PPViewGoodsStruc *>(pExtraData);
 	return p_view ? PPViewGoodsStruc::Cmp_ItemEntry(p_view, p_view->GetCurrentViewOrder(), i1, i2) : 0;
@@ -255,7 +255,7 @@ int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 			}
 		}
 	}
-	Cb.ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
+	Cb.ItemList.sort(PTR_CMPFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
 	// @v10.7.5 {
 	if(pBrw) {
 		pBrw->Helper_SetAllColumnsSortable();
@@ -765,7 +765,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 							int r = Cb.GSObj.Put(&struc_id, &gs, 1);
 							if(r > 0) {
 								Cb.AddItem(r_struc_entry.PrmrGoodsID, struc_id, Filt.ScndGoodsGrpID, Filt.ScndGoodsID, GoodsStrucProcessingBlock::addifCheckExistance);
-								Cb.ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
+								Cb.ItemList.sort(PTR_CMPFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
 								ok = 1;
 							}
 							else if(!r)
@@ -1106,7 +1106,7 @@ static int __MakeGoodsStrucTreeListView(/*PPViewBrowser * pBrw*/)
 									if(r > 0) {
 										P_Blk->Cb.AddItem(p_struc_entry->PrmrGoodsID, struc_id, 0/*Filt.ScndGoodsGrpID*/, /*Filt.ScndGoodsID*/0, 
 											GoodsStrucProcessingBlock::addifCheckExistance);
-										P_Blk->Cb.ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
+										P_Blk->Cb.ItemList.sort(PTR_CMPFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
 										//ok = 1;
 									}
 									else if(!r) {
@@ -1297,7 +1297,7 @@ int PPViewGoodsStruc::MakeTreeListView(PPViewBrowser * pBrw) // @v11.1.12
 									if(r > 0) {
 										P_Blk->Cb.AddItem(p_struc_entry->PrmrGoodsID, struc_id, 0/*Filt.ScndGoodsGrpID*/, /*Filt.ScndGoodsID*/0, 
 											GoodsStrucProcessingBlock::addifCheckExistance);
-										P_Blk->Cb.ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), P_Owner); // @v11.5.8 @fix this-->P_Owner
+										P_Blk->Cb.ItemList.sort(PTR_CMPFUNC(GoodsStrucView_ItemEntry_CurrentOrder), P_Owner); // @v11.5.8 @fix this-->P_Owner
 										//ok = 1;
 									}
 									else if(!r) {

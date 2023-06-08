@@ -968,6 +968,13 @@
 #define SLERR_PHONENMB_TOO_SHORT_NSN           763
 #define SLERR_PHONENMB_TOO_LONG_NSN            764 // TOO_LONG in the java version.
 
+#define SLERR_VSLOC_GETVSSETUPCFGLIB_FAULT     780 //"ERROR: Unable to get VisualStudio Setup Configuration library path"
+#define SLERR_VSLOC_LOADVSSETUPCFGLIB_FAULT    781 //"ERROR: Unable to load VisualStudio Setup Configuration library"
+#define SLERR_VSLOC_GETVSSETUPCFGEP_FAULT      782 //"ERROR: Unable to get VisualStudio Setup Configuration entry point"
+#define SLERR_VSLOC_GETSETUPCFGEPCALL_FAULT    783 //"ERROR: GetSetupConfiguration call failed (0x%08lx)"
+#define SLERR_VSLOC_ENUMINSTCALL_FAULT         784 //"ERROR: EnumInstances call failed (0x%08lx)"
+#define SLERR_VSLOC_NEXTINSTCALL_FAULT         785 //"ERROR: While enumerating instances, Next call failed (0x%08lx)"
+
 #define SLERR_ERRNO_OFFSET                    2000 // Смещение с которого начинаются коды ошибок, соответствующие posix-мнемоникам (errno)
 #define SLERR_ERRNO_LAST                      2999 // Максимальное значение для posix errno (если я правильно понял, то errno не имеет официального максимуму потому использую свой собственный).
 
@@ -1363,17 +1370,12 @@ template <class T> T * AssignPtr2Ptr(T *& prDest, const T * pSrc) // @v11.4.12
 //
 // Прототип функций сравнения и макросы для использования этих функций
 //
-typedef int (FASTCALL *CompFunc)(const void *, const void *, void * pExtraData);
+typedef int (* CompFunc)(const void *, const void *, void * pExtraData);
 
-#define DECL_CMPFUNC(typ)        int FASTCALL Cmp_##typ (const void *, const void *, void * pExtraData)
-#define IMPL_CMPFUNC(typ,p1,p2)  int FASTCALL Cmp_##typ (const void * p1, const void * p2, void * pExtraData)
+#define DECL_CMPFUNC(typ)        int Cmp_##typ(const void * p1, const void * p2, void * pExtraData)
+#define IMPL_CMPFUNC(typ,p1,p2)  int Cmp_##typ(const void * p1, const void * p2, void * pExtraData)
 #define PTR_CMPFUNC(typ)         Cmp_##typ
 #define CMPFUNC(typ,p1,p2)       Cmp_##typ(p1,p2,0)
-#define DECL_CMPCFUNC(typ)       int FASTCALL CmpC_##typ (const void *, const void *, void * pExtraData)
-#define IMPL_CMPCFUNC(typ,p1,p2) int FASTCALL CmpC_##typ (const void * p1, const void * p2, void * pExtraData)
-#define PTR_CMPCFUNC(typ)        CmpC_##typ
-#define CMPCFUNC(typ,p1,p2)      CmpC_##typ(p1,p2,0)
-
 #define CMPF_LONG                Cmp_long
 #define CMPF_INT64               Cmp_int64
 
@@ -1425,6 +1427,8 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 #define SIZEOFARRAYi(array) static_cast<int>(sizeof(array)/sizeof((array)[0]))
 #define IS_ODD(n)          ((n) & 1)
 #define IS_EVEN(n)         (!(IS_ODD(n)))
+
+template <typename T, int N> static constexpr size_t sizeofarray(const T(&arr)[N]) { return N; }
 
 #define SKILOBYTE(v)       (1024 * (v))
 #define SKILOBYTELL(v)     (1024i64 * (v))
@@ -3758,19 +3762,43 @@ private:
 //
 class SPoint2F { // @persistent
 public:
-	//
-	// Descr: Конструктор по умолчанию. Ради скорости ничего не инициализирует.
-	//
-	SPoint2F();
-	//
-	// Descr: Конструктор. Инициализирует X и Y в xy.
-	//
-	explicit SPoint2F(float xy);
-	SPoint2F(float x, float y);
+	constexpr SPoint2F() : x(0.0f), y(0.0f)
+	{
+	}
+	constexpr SPoint2F(float xy) : x(xy), y(xy)
+	{
+	}
+	constexpr SPoint2F(float _x, float _y) : x(_x), y(_y)
+	{
+	}
 	SPoint2F & FASTCALL operator = (const SPoint2S & p);
 	SPoint2F & FASTCALL operator = (float f);
 	bool   FASTCALL operator == (const SPoint2F & rS) const;
 	bool   FASTCALL operator != (const SPoint2F & rS) const;
+	//
+	// Следующие две имплементации operator[] нужны для замещения типа ImVec2
+	// в модуле ImGui
+	//
+	float & operator[](size_t idx)
+	{ 
+		switch(idx) {
+			case 0: return x;
+			case 1: return y;
+			default:
+				assert(oneof2(idx, 0, 1));
+				return x;
+		}
+	}
+	float operator[](size_t idx) const 
+	{ 
+		switch(idx) {
+			case 0: return x;
+			case 1: return y;
+			default:
+				assert(oneof2(idx, 0, 1));
+				return 0.0f;
+		}
+	}
 	bool   FASTCALL IsEq(const SPoint2F & rS) const;
 	bool   IsZero() const;
 	bool   IsPositive() const;
@@ -6675,6 +6703,11 @@ public:
 	static int GetAlgorithmSymb(int ident, SString & rBuf);
 	static int IdentifyAlgorithmSymb(const char * pSymb);
 	//
+	// Descr: Специализированная функция, вычисляющая индекс хэш-таблицы длиной tabCount
+	//   по значению ключа pData размером dataLen на tryN-попытке разрешения коллизии.
+	//
+	static uint CalcHashTabIndex(const void * pData, uint dataLen, uint tabCount, uint tryN);
+	//
 	// Descr: Проверяет соответствует ли хэш данных, заданных параметрами {pBuf; bufLen} значению
 	//   хэш-функции hashFuncIdent заданному параметрами {pHash, hashLen}.
 	// Note: Поддерживаются следующие хэш-функции: SHASHF_SHA1, SHASHF_SHA256, SHASHF_SHA512, SHASHF_MD5, SHASHF_CRC32.
@@ -7633,6 +7666,13 @@ protected:
 	SVectorBase(uint itemSize, uint o);
 	~SVectorBase();
 	//
+	// Descr: Функция перемещает все содержимое this в экземпляр rDest.
+	//   В результате в экземпляре this все данные исчезают, но базовые факторы isize и VFlags остаются неизменными.
+	// Attention: Функция не пытается предварительно разрушить содержимое rDest, поэтому, если
+	//   вызывающий модуль не позаботился об этом, то получит утечку памяти (весьма вероятно, значительную)
+	//
+	void   __MoveTo(SVectorBase & rDest);
+	//
 	// Descr: Базовая функция копирования массива.
 	// Note: Как упоминалось, копируются только собственно данные, хранящиеся в массиве.
 	//   Глубокое копирование выполнено быть не может по определению.
@@ -7905,21 +7945,15 @@ public:
 
 template <class T> class TSCollection : public SCollection {
 public:
-	TSCollection() : SCollection(/*DEFCOLLECTDELTA, O_COLLECTION*/)
+	TSCollection() : SCollection()
 	{
 	}
 	~TSCollection()
 	{
 		freeAll();
 	}
-	T *  FASTCALL at(uint pos) const
-	{
-		return static_cast<T *>(SCollection::at(pos));
-	}
-	virtual void FASTCALL freeItem(void * pItem)
-	{
-		delete reinterpret_cast<T *>(pItem);
-	}
+	T *  FASTCALL at(uint pos) const { return static_cast<T *>(SCollection::at(pos)); }
+	virtual void FASTCALL freeItem(void * pItem) { delete reinterpret_cast<T *>(pItem); }
 	//
 	// Descr: Распределяет память для нового элемента T и вставляет его
 	//   в коллекцию.
@@ -8951,7 +8985,7 @@ private:
 //
 class SFileEntryPool : public SStrGroup {
 public:
-	friend DECL_CMPCFUNC(SFileEntryPool_Entry);
+	friend DECL_CMPFUNC(SFileEntryPool_Entry);
 	struct Entry {
 		Entry();
 		Entry & Z();
@@ -9555,7 +9589,7 @@ public:
 	int    FASTCALL Add(const UintHashTable & rS);
 	int    FASTCALL Intersect(const UintHashTable & rS);
 	int    FASTCALL Remove(ulong);
-	int    FASTCALL Has(ulong) const;
+	bool   FASTCALL Has(ulong) const;
 	//
 	// Descr: Подсчитывает количество элементов в хэше.
 	// Perf: Так как количество именно "подсчитывается", то есть пробегаются все элементы
@@ -12391,6 +12425,32 @@ float  fgetnanf();    // NAN
 double fgetposinf(); // +INF
 double fgetneginf(); // -INF
 //
+// Descr: Вычисляет наибольший общий делитель (GCD) a и b
+//
+ulong  FASTCALL Gcd(ulong a, ulong b);
+//
+// Descr: Вычисляет наименьшее общее кратное (LCM) a и b
+//
+ulong  FASTCALL Lcm(ulong a, ulong b);
+//
+// use next three functions for replacing (is_)power_of_two in assimilated projects
+//
+//FORCEINLINE bool IsPowerOfTwo(uint val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
+//FORCEINLINE bool IsPowerOfTwo(uint32 val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
+//FORCEINLINE bool IsPowerOfTwo(uint64 val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
+template <class T> CONSTEXPR bool IsPowerOfTwo(T val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
+//
+// Descr: Если val - простое число, то возвращает !0, в противном случае - 0.
+//
+int    FASTCALL IsPrime(ulong val);
+ulong  FASTCALL GetPrimeGreaterThan(ulong val);
+ulong  FASTCALL GetPrimeLowerThan(ulong val);
+//
+// Descr: Возвращает указатель на таблицу простых чисел. Количество элементов в таблице
+//   возвращается по указателю pCount.
+//
+const  ushort * FASTCALL GetPrimeTab(size_t * pCount);
+//
 // Descr: Раскладывает число val на простые множители.
 //   Список простых множителей заносится в массив pList.
 //   Сейчас используется самый наивный алгоритм перебора.
@@ -13204,30 +13264,6 @@ private:
 	SRng * P_Inner;
 };
 //
-// Descr: Вычисляет наибольший общий делитель (GCD) a и b
-//
-ulong  FASTCALL Gcd(ulong a, ulong b);
-//
-// Descr: Вычисляет наименьшее общее кратное (LCM) a и b
-//
-ulong  FASTCALL Lcm(ulong a, ulong b);
-//
-// use next three functions for replacing (is_)power_of_two in assimilated projects
-//
-//FORCEINLINE bool IsPowerOfTwo(uint val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
-//FORCEINLINE bool IsPowerOfTwo(uint32 val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
-//FORCEINLINE bool IsPowerOfTwo(uint64 val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
-template <class T> CONSTEXPR bool IsPowerOfTwo(T val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
-//
-// Descr: Если val - простое число, то возвращает !0, в противном случае - 0.
-//
-int    FASTCALL IsPrime(ulong val);
-//
-// Descr: Возвращает указатель на таблицу простых чисел. Количество элементов в таблице
-//   возвращается по указателю pCount.
-//
-const  ushort * FASTCALL GetPrimeTab(size_t * pCount);
-//
 // Descr: Специальная функция, сжимающая 64-битное целое число до минимально возможного
 //   размера (кратного байту), убирая ведущие нули.
 // Note: Функция используется для компактного хранения целого числа если одновременно
@@ -13513,6 +13549,7 @@ struct FRect { // @persistent
 	//   *this
 	//
 	FRect & Set(float v);
+	FRect & Set(float left, float top, float right, float bottom);
 	FRect & FASTCALL operator = (SPoint2F p);
 	FRect & Around(SPoint2F p, SPoint2F size);
 	FRect & Grow(float aDX, float aDY);
@@ -14060,11 +14097,11 @@ struct SColorRGB {
 //   В большинстве случаев следует использовать SColor, порожденный от SColorBase.
 //
 struct SColorBase { // @persistent
-	float RedF() const;
-	float GreenF() const;
-	float BlueF() const;
-	float AlphaF() const;
-	float OpacityF() const;
+	float RedF() const { return (R / 255.0f); }
+	float GreenF() const { return (G / 255.0f); }
+	float BlueF() const { return (B / 255.0f); }
+	float AlphaF() const { return (Alpha / 255.0f); }
+	float OpacityF() const { return (1.0f - (Alpha / 255.0f)); }
 
 	operator COLORREF() const;
 	operator RGBQUAD() const;
@@ -14109,6 +14146,7 @@ struct SColor : public SColorBase { // @persistent
 	SColor(uint r, uint g, uint b);
 	SColor(uint r, uint g, uint b, uint alpha);
 	SColor(SColourCollection c);
+	SColor(SColourCollection c, float opacity/*[0.0f..1.0f]*/);
 	SColor(COLORREF c);
 	SColor & FASTCALL operator = (const SColorBase & rS);
 	SColor FASTCALL Lighten(float factor) const;
@@ -14410,6 +14448,118 @@ template <class T> int TSCollection_Serialize(TSCollection <T> & rC, int dir, SB
 	CATCHZOK
 	return ok;
 }
+//
+//
+//
+template <class T> class TSHashCollection : private SCollection {
+	static constexpr uint MaxTries = 8;
+public:
+	TSHashCollection(uint initCount) : SCollection()
+	{
+		insertChunk(GetPrimeLowerThan((initCount < 31) ? 1024 : initCount), 0);
+	}
+	~TSHashCollection()
+	{
+		freeAll();
+	}
+	const T * Get(const char * pKey, uint keySize) const
+	{
+		const T * p_result = 0;
+		if(pKey) {
+			for(uint try_n = 0; !p_result && try_n < MaxTries; try_n++) {
+				uint  idx = SlHash::CalcHashTabIndex(pKey, keySize, getCount(), try_n);
+				uint  ex_ks = 0;
+				const void * p_ex_key = 0;
+				const void * p_ex_entry = Helper_GetByIdx(idx, &p_ex_key, &ex_ks);
+				if(p_ex_entry) {
+					if(ex_ks == keySize && memcmp(p_ex_key, pKey, keySize) == 0) { // found!
+						p_result = static_cast<const T *>(p_ex_entry);
+					}
+					else { // another item (conflicted)
+						;
+					}
+				}
+			}
+		}
+		return p_result;
+	}
+	int    Put(T * pEntry, bool forceUpdate)
+	{
+		uint  ks = 0;
+		const void * p_key = pEntry ? pEntry->GetKey(&ks) : 0;
+		return (p_key && ks) ? Implement_Put(pEntry, forceUpdate, p_key, ks) : 0; 
+	}
+private:
+	virtual void FASTCALL freeItem(void * pItem) { delete reinterpret_cast<T *>(pItem); }
+	void * Helper_GetByIdx(uint idx, const void ** ppKey, uint * pKeyLen) const
+	{
+		T * p_entry = static_cast<T *>(at(idx));
+		if(ppKey && pKeyLen) {
+			if(p_entry) {
+				const void * p_key = p_entry->GetKey(pKeyLen);
+				*ppKey = p_key;
+			}
+			else {
+				*ppKey = 0;
+				*pKeyLen = 0;
+			}
+		}
+		return p_entry;
+	}
+	int    Implement_Put(T * pEntry, bool forceUpdate, const void * pKey, const uint keySize)
+	{
+		int    ok = 0;
+		assert(pEntry && pKey && keySize);
+		for(uint try_n = 0; ok == 0 && try_n < MaxTries; try_n++) {
+			uint idx = SlHash::CalcHashTabIndex(pKey, keySize, getCount(), try_n);
+			T * p_ex_entry = static_cast<T *>(at(idx));
+			if(p_ex_entry == 0) {
+				atPut(idx, pEntry);
+				ok = 1; // break-for (see for-condition)
+			}
+			else {
+				uint  ex_ks = 0;
+				const void * p_ex_key = p_ex_entry->GetKey(&ex_ks);
+				if(ex_ks == keySize && memcmp(p_ex_key, pKey, keySize) == 0) { // already there!
+					if(forceUpdate) {
+						delete p_ex_entry;
+						atPut(idx, pEntry);
+						ok = 2; // break-for (see for-condition)
+					}
+					else
+						ok = -1; // break-for (see for-condition)
+				}
+				else { // conflict
+					;
+				}
+			}
+		}
+		if(!ok) { // Превышено число максимальных попыток разрешения конфликтов: перестраиваем таблицу
+			const uint prev_count = getCount();
+			if(Resize()) {
+				assert(getCount() > prev_count);		
+				ok = Implement_Put(pEntry, forceUpdate, pKey, keySize); // @recursion 
+			}
+		}
+		return ok;
+	}
+	int    Resize()
+	{
+		int    ok = 1;
+		TSHashCollection <T> new_instance(getCount() * 2);
+		for(uint i = 0; i < getCount(); i++) {
+			T * p_entry = static_cast<T *>(at(i));
+			if(p_entry) {
+				THROW(new_instance.Put(p_entry, 0));
+				atPut(i, 0);
+			}
+		}
+		freeAll();
+		new_instance.__MoveTo(*this);
+		CATCHZOK
+		return ok;
+	}
+};
 //
 // Descr: Управление Ini-файлами
 //
@@ -15783,7 +15933,8 @@ public:
 	//
 	// Returns: false
 	//
-	bool   FASTCALL SetError(int errCode, const char * pAddedMsg);
+	bool   SetError(int errCode, const char * pAddedMsg);
+	bool   SetError(int errCode, int addedMsgVal);
 	//
 	// Descr: Функция должна вызываться в случае, если ошибка описывается переменной errno.
 	//   Фактически будет вызвана SetError(SLERR_ERRNO_OFFSET+errno, pAddedMsg)
@@ -15955,6 +16106,7 @@ class SCachedFileEntity {
 public:
 	SCachedFileEntity();
 	virtual ~SCachedFileEntity();
+	const void * GetKey(uint * pSize) const; // hash-table support
 	const char * GetFilePath() const;
 	int    Init(const char * pFilePath);
 	//
@@ -15967,9 +16119,9 @@ public:
 	//   >0 - перезагрузка осуществлена успешно
 	//    0 - error
 	//
-	int    Reload(bool force);
+	int    Reload(bool force, void * extraPtr);
 protected:
-	virtual bool InitEntity();
+	virtual bool InitEntity(void * extraPtr);
 	virtual void DestroyEntity();
 	bool   InitFileModTime();
 	bool   IsModified();
@@ -17327,8 +17479,16 @@ template <class T> bool checkirange(T n, T low, T upp)
 class VisualStudioInstallationLocator {
 public:
 	struct Entry {
+		Entry() : InstallTime(ZERODATETIME)
+		{
+		}
+		LDATETIME InstallTime; 
+		SString InstanceId; // utf-8
+		SString Name; // utf-8
 		SString Version; // utf-8
 		SString Path;    // utf-8
+		SString DisplayName; // utf-8
+		SString Description; // utf-8
 	};
 	static int Locate(TSCollection <Entry> & rResult, SString * pErrMsg);
 };

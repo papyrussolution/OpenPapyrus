@@ -14,7 +14,7 @@ SizeT x86_Convert(Byte * data, SizeT size, uint32 ip, uint32 * state, int encodi
 		return 0;
 	size -= 4;
 	ip += 5;
-	for(;; ) {
+	for(;;) {
 		Byte * p = data + pos;
 		const Byte * limit = data + size;
 		for(; p < limit; p++)

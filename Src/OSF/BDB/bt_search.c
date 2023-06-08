@@ -259,7 +259,7 @@ retry:
 	BT_STK_CLR(cp);
 	/* Choose a comparison function. */
 	func = F_ISSET(dbc, DBC_OPD) ? (dbp->dup_compare == NULL ? __bam_defcmp : dbp->dup_compare) : t->bt_compare;
-	for(;; ) {
+	for(;;) {
 		if(TYPE(h) == P_LBTREE)
 			adjust = P_INDX;
 		else {

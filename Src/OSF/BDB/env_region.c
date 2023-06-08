@@ -806,7 +806,7 @@ static void __env_remove_file(ENV * env)
 	/*
 	 * Remove files from the region directory.
 	 */
-	for(lastrm = -1, cnt = fcnt; --cnt >= 0; ) {
+	for(lastrm = -1, cnt = fcnt; --cnt >= 0;) {
 		/* Skip anything outside our name space. */
 		if(strncmp(names[cnt], DB_REGION_PREFIX, sizeof(DB_REGION_PREFIX)-1) != 0)
 			continue;

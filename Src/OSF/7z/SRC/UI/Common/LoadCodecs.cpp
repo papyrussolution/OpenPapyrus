@@ -676,7 +676,7 @@ HRESULT CCodecs::Load()
 	bool CCodecs::FindFormatForArchiveType(const UString &arcType, CIntVector &formatIndices) const
 	{
 		formatIndices.Clear();
-		for(uint pos = 0; pos < arcType.Len(); ) {
+		for(uint pos = 0; pos < arcType.Len();) {
 			int pos2 = arcType.Find(L'.', pos);
 			if(pos2 < 0)
 				pos2 = arcType.Len();

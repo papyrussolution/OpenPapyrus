@@ -1214,7 +1214,7 @@ int __rep_bulk_page(ENV * env, DB_THREAD_INFO * ip, int eid, __rep_control_args 
 	memcpy(&tmprp, rp, sizeof(tmprp));
 	tmprp.rectype = REP_PAGE;
 	ret = 0;
-	for(ep = (uint8 *)rec->data+rec->size, p = (uint8 *)rec->data; p < ep; ) {
+	for(ep = (uint8 *)rec->data+rec->size, p = (uint8 *)rec->data; p < ep;) {
 		/*
 		 * First thing in the buffer is the length.  Then the LSN
 		 * of this page, then the page info itself.

@@ -589,7 +589,7 @@ namespace NArchive {
 
 		static bool AreStringsEqual_16and8(const Byte * p16, const char * p8)
 		{
-			for(;; ) {
+			for(;;) {
 				unsigned c16 = Get16(p16); p16 += 2;
 				unsigned c = (Byte)(*p8++);
 				if(c16 != c)
@@ -716,7 +716,7 @@ namespace NArchive {
 			Raw_AString.Empty();
 
 			if(NsisType != k_NsisType_Nsis3) {
-				for(;; ) {
+				for(;;) {
 					Byte c = *s++;
 					if(c == 0)
 						return;
@@ -747,7 +747,7 @@ namespace NArchive {
 			}
 
 			// NSIS-3 ANSI
-			for(;; ) {
+			for(;;) {
 				Byte c = *s++;
 				if(c <= NS_3_CODE_SKIP) {
 					if(c == 0)
@@ -781,7 +781,7 @@ namespace NArchive {
 
 		void CInArchive::GetNsisString(AString &res, const Byte * s)
 		{
-			for(;; ) {
+			for(;;) {
 				Byte c = *s++;
 				if(c == 0)
 					return;
@@ -859,7 +859,7 @@ namespace NArchive {
 			Raw_UString.Empty();
 
 			if(IsPark()) {
-				for(;; ) {
+				for(;;) {
 					unsigned c = Get16(p);
 					p += 2;
 					if(c == 0)
@@ -898,7 +898,7 @@ namespace NArchive {
 			}
 
 			// NSIS-3 Unicode
-			for(;; ) {
+			for(;;) {
 				unsigned c = Get16(p);
 				p += 2;
 				if(c > NS_3_CODE_SKIP) {
@@ -937,7 +937,7 @@ namespace NArchive {
 
 		void CInArchive::GetNsisString_Unicode(AString &res, const Byte * p)
 		{
-			for(;; ) {
+			for(;;) {
 				unsigned c = Get16(p);
 				p += 2;
 				if(c == 0)
@@ -1083,7 +1083,7 @@ namespace NArchive {
 			if(IsUnicode) {
 				const Byte * p1 = p + param1 * 2;
 				const Byte * p2 = p + param2 * 2;
-				for(;; ) {
+				for(;;) {
 					uint16 c = Get16(p1);
 					if(c != Get16(p2))
 						return false;
@@ -1096,7 +1096,7 @@ namespace NArchive {
 			else {
 				const Byte * p1 = p + param1;
 				const Byte * p2 = p + param2;
-				for(;; ) {
+				for(;;) {
 					Byte c = *p1++;
 					if(c != *p2++)
 						return false;
@@ -1113,7 +1113,7 @@ namespace NArchive {
 			uint32 numUsedVars = 0;
 			const Byte * data = (const Byte *)_data + _stringsPos;
 			unsigned npi = 0;
-			for(uint32 i = 0; i < NumStringChars; ) {
+			for(uint32 i = 0; i < NumStringChars;) {
 				bool process = true;
 				if(npi < noParseStringIndexes.Size() && noParseStringIndexes[npi] == i) {
 					process = false;
@@ -1122,7 +1122,7 @@ namespace NArchive {
 
 				if(IsUnicode) {
 					if(IsPark()) {
-						for(;; ) {
+						for(;;) {
 							unsigned c = Get16(data + i * 2);
 							i++;
 							if(c == 0)
@@ -1142,7 +1142,7 @@ namespace NArchive {
 						}
 					}
 					else { // NSIS-3 Unicode
-						for(;; ) {
+						for(;;) {
 							unsigned c = Get16(data + i * 2);
 							i++;
 							if(c == 0)
@@ -1164,7 +1164,7 @@ namespace NArchive {
 				}
 				else { // not Unicode (ANSI)
 					if(NsisType != k_NsisType_Nsis3) {
-						for(;; ) {
+						for(;;) {
 							Byte c = data[i++];
 							if(c == 0)
 								break;
@@ -1188,7 +1188,7 @@ namespace NArchive {
 					}
 					else {
 						// NSIS-3 ANSI
-						for(;; ) {
+						for(;;) {
 							Byte c = data[i++];
 							if(c == 0)
 								break;
@@ -1308,7 +1308,7 @@ namespace NArchive {
 			char c = s[0];
 			if(c == 0 || c == '#' || c == ';' || (c == '/' && s[1] == '*'))
 				return true;
-			for(;; ) {
+			for(;;) {
 				char c = *s++;
 				if(c == 0)
 					return false;
@@ -4855,7 +4855,7 @@ namespace NArchive {
 			AddLF();
 			CommentOpen();
 
-			for(i = 0; i < NumStringChars; ) {
+			for(i = 0; i < NumStringChars;) {
 				if(!strUsed[i] && i != 0) {
 					// Script += "!!! ";
 					Add_UInt(i);
@@ -5095,7 +5095,7 @@ namespace NArchive {
 			size_t bufSize = 0;
 			uint64 pePos = (uint64)-1LL;
 
-			for(;; ) {
+			for(;;) {
 				bufSize = kStep;
 				RINOK(ReadStream(inStream, buf, &bufSize));
 				if(bufSize < kStartHeaderSize)
@@ -5118,7 +5118,7 @@ namespace NArchive {
 
 			if(pePos == (uint64)-1LL) {
 				uint64 posCur = StartOffset;
-				for(;; ) {
+				for(;;) {
 					if(posCur < kStep)
 						break;
 					posCur -= kStep;
@@ -5422,7 +5422,7 @@ namespace NArchive {
 				unpackSize = 0xFFFFFFFF;
 			uint32 offset = 0;
 			HRESULT res = S_OK;
-			for(;; ) {
+			for(;;) {
 				size_t rem = unpackSize - offset;
 				if(rem == 0)
 					break;
@@ -5757,7 +5757,7 @@ namespace NArchive {
 
 		static bool UninstallerPatch(const Byte * p, size_t size, CByteBuffer &dest)
 		{
-			for(;; ) {
+			for(;;) {
 				if(size < 4)
 					return false;
 				uint32 len = Get32(p);

@@ -22,7 +22,7 @@ void Delta_Encode(Byte * state, unsigned delta, Byte * data, SizeT size)
 	uint   j = 0;
 	memcpy(buf, state, delta);
 	{
-		for(SizeT i = 0; i < size; ) {
+		for(SizeT i = 0; i < size;) {
 			for(j = 0; j < delta && i < size; i++, j++) {
 				Byte b = data[i];
 				data[i] = (Byte)(b - buf[j]);
@@ -42,7 +42,7 @@ void Delta_Decode(Byte * state, unsigned delta, Byte * data, SizeT size)
 	uint   j = 0;
 	memcpy(buf, state, delta);
 	{
-		for(SizeT i = 0; i < size; ) {
+		for(SizeT i = 0; i < size;) {
 			for(j = 0; j < delta && i < size; i++, j++) {
 				buf[j] = data[i] = (Byte)(buf[j] + data[i]);
 			}

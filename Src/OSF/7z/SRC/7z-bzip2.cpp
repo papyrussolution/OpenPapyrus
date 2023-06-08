@@ -165,7 +165,7 @@ namespace NCompress {
 
 			DWORD CThreadInfo::ThreadFunc()
 			{
-				for(;; ) {
+				for(;;) {
 					Encoder->CanProcessEvent.Lock();
 					Encoder->CS.Enter();
 					if(Encoder->CloseThreads) {
@@ -823,7 +823,7 @@ namespace NCompress {
 			else
 		  #endif
 			{
-				for(;; ) {
+				for(;;) {
 			  #ifndef _7ZIP_ST
 					CThreadInfo & ti = ThreadsInfo[0];
 			  #else
@@ -1060,7 +1060,7 @@ namespace NCompress {
 
 		NO_INLINE SRes CBase::ReadStreamSignature2()
 		{
-			for(;; ) {
+			for(;;) {
 				uint   b;
 				READ_BITS_8(b, 8);
 				if(state2 == 0 && b != kArSig0 || state2 == 1 && b != kArSig1 || state2 == 2 && b != kArSig2 || state2 == 3 && (b <= kArSig3 || b > kArSig3 + kBlockSizeMultMax))
@@ -1175,7 +1175,7 @@ namespace NCompress {
 					const uint kMtfBits = 4;
 					const uint32 kMtfMask = (1 << kMtfBits) - 1;
 					do {
-						for(;; ) {
+						for(;;) {
 							uint   b;
 							READ_BIT(b);
 							if(!b)
@@ -1205,7 +1205,7 @@ namespace NCompress {
 						}
 						const uint alphaSize = numInUse + 2;
 						for(; state4 < alphaSize; state4++) {
-							for(;; ) {
+							for(;;) {
 								if(state3 < 1 || state3 > kMaxHuffmanLen)
 									return SZ_ERROR_DATA;
 								if(state5 == 0) {
@@ -1251,7 +1251,7 @@ namespace NCompress {
 			{
 				LOAD_LOCAL
 				const CHuffmanDecoder * huff = &huffs[selectors[groupIndex]];
-				for(;; ) {
+				for(;;) {
 					if(groupSize == 0) {
 						if(++groupIndex >= numSelectors)
 							return SZ_ERROR_DATA;
@@ -1498,7 +1498,7 @@ namespace NCompress {
 			uint32 blockSize = _blockSize;
 			const uint32 * tt = _tt;
 			if(data != lim && blockSize) {
-				for(;; ) {
+				for(;;) {
 					unsigned b = (uint)(tPos & 0xFF);
 					tPos = tt[tPos >> 8];
 					blockSize--;
@@ -1579,7 +1579,7 @@ namespace NCompress {
 			block._blockSize = props.blockSize;
 			block._tt = _counters + 256;
 			block.Init(props.origPtr, props.randMode);
-			for(;; ) {
+			for(;;) {
 				Byte * data = _outBuf + _outPos;
 				size_t size = kOutBufSize - _outPos;
 				if(_outSizeDefined) {
@@ -1662,7 +1662,7 @@ namespace NCompress {
 
 		HRESULT CDecoder::ReadStreamSignature()
 		{
-			for(;; ) {
+			for(;;) {
 				RINOK(ReadInput());
 				SRes res = Base.ReadStreamSignature2();
 				if(res != SZ_OK)
@@ -1684,7 +1684,7 @@ namespace NCompress {
 
 		HRESULT CDecoder::ReadBlockSignature()
 		{
-			for(;; ) {
+			for(;;) {
 				RINOK(ReadInput());
 				SRes res = Base.ReadBlockSignature2();
 				if(Base.state == STATE_STREAM_FINISHED)
@@ -1702,7 +1702,7 @@ namespace NCompress {
 
 		HRESULT CDecoder::ReadBlock()
 		{
-			for(;; ) {
+			for(;;) {
 				RINOK(ReadInput());
 				SRes res = Base.ReadBlock2();
 				if(res != SZ_OK)
@@ -1738,7 +1738,7 @@ namespace NCompress {
 				uint64 packPos = 0;
 				CBlockProps props;
 				props.blockSize = 0;
-				for(;; ) {
+				for(;;) {
 					if(progress) {
 						const uint64 outCur = GetOutProcessedSize();
 						if(packPos - inPrev >= kProgressStep || outCur - outPrev >= kProgressStep) {
@@ -1985,7 +1985,7 @@ namespace NCompress {
 
 		void CDecoder::RunScout()
 		{
-			for(;; ) {
+			for(;;) {
 				{
 					PRIN_MT("ScoutEvent.Lock()");
 					WRes wres = ScoutEvent.Lock();
@@ -2009,7 +2009,7 @@ namespace NCompress {
 					block.Crc_Defined = false;
 					// block.NextCrc_Defined = false;
 					block.NextCrc = 0;
-					for(;; ) {
+					for(;;) {
 						if(Base.state == STATE_BLOCK_SIGNATURE) {
 							res = ReadBlockSignature();
 							if(res != S_OK)
@@ -2140,7 +2140,7 @@ namespace NCompress {
 			try {
 				if(ErrorResult != S_OK)
 					return ErrorResult;
-				for(;; ) {
+				for(;;) {
 					if(Base.state == STATE_STREAM_FINISHED) {
 						if(!Base.DecodeAllStreams)
 							return ErrorResult;
@@ -2222,7 +2222,7 @@ namespace NCompress {
 					Base.state = STATE_BLOCK_SIGNATURE;
 					// Base.state2 = 0;
 				}
-				for(;; ) {
+				for(;;) {
 					if(_blockFinished && Base.state == STATE_BLOCK_SIGNATURE) {
 						ErrorResult = ReadInput();
 						if(ErrorResult != S_OK)

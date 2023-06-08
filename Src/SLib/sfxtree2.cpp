@@ -7,6 +7,8 @@
 #include "..\slib\sais\include\libsais.h"
 #include "..\OSF\zstd\lib\include\divsufsort.h"
 
+int DummyProc_sfxtree() { return 1; } // @forcelink
+
 DECL_CMPFUNC(SfxTreeChr);
 
 class SSuffixTree {
@@ -49,7 +51,7 @@ public:
 	void   DebugOutput(long flags, SString & rBuf);
 	void   DebugOutputStat(SString & rBuf) const;
 private:
-	class String : public SVector { // @v9.8.4 SArray-->SVector
+	class String : public SVector {
 	public:
 		String(uint itemSize, uint32 id);
 
@@ -178,8 +180,8 @@ private:
 	String Alphabet; // Список символов, встречающихся во всех строках StrList. Каждый
 		// символ представлен уникально, но массив не отсортирован (Edge ссылается на элементы
 		// массива по индексу позиции [0..]).
-	TSVector <Node> NodeL; // Нулевая позиция в массиве - эксклюзивная // @v9.8.4 TSArray-->TSVector
-	TSVector <SSuffixTree::Edge> EdgeL; // Нулевая позиция в массиве - эксклюзивная // @v9.8.4 TSArray-->TSVector
+	TSVector <Node> NodeL; // Нулевая позиция в массиве - эксклюзивная //
+	TSVector <SSuffixTree::Edge> EdgeL; // Нулевая позиция в массиве - эксклюзивная //
 	EdgeHubArray HubL; // Нулевая позиция в массиве - эксклюзивная
 	//
 	// Current phase of Ukkonen's algorithm. In order to implement the "Once a leaf, always a leaf"
@@ -247,7 +249,7 @@ IMPL_CMPFUNC(SfxTreeChr, p1, p2)
     return result;
 }
 
-SSuffixTree::String::String(uint itemSize, uint32 id) : SVector(itemSize, O_ARRAY), ID(id), PhasePosition(0) // @v9.8.4 SArray-->SVector
+SSuffixTree::String::String(uint itemSize, uint32 id) : SVector(itemSize, O_ARRAY), ID(id), PhasePosition(0)
 {
 }
 
@@ -1537,7 +1539,7 @@ int TestSuffixTree()
 				//const char * p_string = "писатель, ещё при жизни признанный главой русской литературы. творчество льва толстого ознаменовало новый этап в русском и мировом реализме, выступив мостом между классическим романом xix века и литературой xx века. лев толстой оказал сильное влияние на эволюцию европейского гуманизма, а также на развитие реалистических традиций в мировой литературе. произведения льва толстого многократно экранизировались и инсценировались в ссср и за рубежом; его пьесы ставились на сценах всего мира.";
 #if	0 // {
 				{
-					SFile f_in("D:\\Papyrus\\Src\\PPTEST\\DATA\\rustext.txt", SFile::mRead|SFile::mBinary);
+					SFile f_in("\\Papyrus\\Src\\PPTEST\\DATA\\rustext.txt", SFile::mRead|SFile::mBinary);
 					THROW(f_in.IsValid());
 					{
 						uint32 str_id = 0;
@@ -1569,7 +1571,7 @@ int TestSuffixTree()
 						uint32 str_id = 0;
 						uint str_p = st.CreateString(&str_id);
 						const char * p_string = "mississippi";
-						const size_t len = sstrlen(p_string);
+						const uint len = static_cast<uint>(sstrlen(p_string));
 						THROW(str_p);
 						THROW(st.AddChunkToString(str_p, p_string, len));
 						THROW(st.InsertString(str_p));
@@ -1578,7 +1580,7 @@ int TestSuffixTree()
 						uint32 str_id = 0;
 						uint str_p = st.CreateString(&str_id);
 						const char * p_string = "abc";
-						const size_t len = sstrlen(p_string);
+						const uint   len = static_cast<uint>(sstrlen(p_string));
 						THROW(str_p);
 						THROW(st.AddChunkToString(str_p, p_string, len));
 						THROW(st.InsertString(str_p));
@@ -1639,8 +1641,8 @@ public:
 	{
 		int    ok = -1;
 		if(Text.Len()) {
-			if(Sa.insertChunk(Text.Len(), 0)) {
-				if(libsais(Text.ucptr(), reinterpret_cast<int32_t *>(Sa.dataPtr()), Text.Len(), 0, 0/*freq*/) == 0)
+			if(Sa.insertChunk(static_cast<uint>(Text.Len()), 0)) {
+				if(libsais(Text.ucptr(), reinterpret_cast<int32_t *>(Sa.dataPtr()), static_cast<uint>(Text.Len()), 0, 0/*freq*/) == 0)
 					ok = 1;
 				else
 					ok = 0;
@@ -1653,11 +1655,11 @@ public:
 	uint   Search_fallback(const char * pPattern, LongArray * pPosList) const
 	{
 		uint   _count = 0;
-		uint   pos = 0;
+		size_t  pos = 0;
 		if(Text.Search(pPattern, 0, 0, &pos)) {
 			do {
 				if(pPosList)
-					pPosList->add(pos);
+					pPosList->add(static_cast<uint>(pos));
 				_count++;
 				pos++;				
 			} while(pos < Text.Len() && Text.Search(pPattern, pos, 0, &pos));
@@ -1687,8 +1689,6 @@ public:
 };
 
 #if SLTEST_RUNNING // {
-
-int DummyProc_sfxtree() { return 1; } // @forcelink
 
 struct TestFixtureSuffixArray {
 	TestFixtureSuffixArray() : SfxArray_Sais(0), SfxArray_DivSufSort(0), InBuf(SKILOBYTE(16)), InBufSize(0)

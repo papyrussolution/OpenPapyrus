@@ -64,7 +64,7 @@ static void FASTCALL MatchFinder_ReadBlock(CMatchFinder * p)
 			p->streamEndWasReached = 1;
 		return;
 	}
-	for(;; ) {
+	for(;;) {
 		Byte * dest = p->buffer + (p->streamPos - p->pos);
 		size_t size = (p->bufferBase + p->blockSize - dest);
 		if(size == 0)
@@ -312,7 +312,7 @@ static uint32 * Hc_GetMatchesSpec(uint32 lenLimit, uint32 curMatch, uint32 pos, 
     uint32 * distances, uint32 maxLen)
 {
 	son[_cyclicBufferPos] = curMatch;
-	for(;; ) {
+	for(;;) {
 		uint32 delta = pos - curMatch;
 		if(cutValue-- == 0 || delta >= _cyclicBufferSize)
 			return distances;
@@ -342,7 +342,7 @@ uint32 * GetMatchesSpec1(uint32 lenLimit, uint32 curMatch, uint32 pos, const Byt
 	CLzRef * ptr0 = son + (_cyclicBufferPos << 1) + 1;
 	CLzRef * ptr1 = son + (_cyclicBufferPos << 1);
 	uint32 len0 = 0, len1 = 0;
-	for(;; ) {
+	for(;;) {
 		uint32 delta = pos - curMatch;
 		if(cutValue-- == 0 || delta >= _cyclicBufferSize) {
 			*ptr0 = *ptr1 = kEmptyHashValue;
@@ -388,7 +388,7 @@ static void SkipMatchesSpec(uint32 lenLimit, uint32 curMatch, uint32 pos, const 
 	CLzRef * ptr0 = son + (_cyclicBufferPos << 1) + 1;
 	CLzRef * ptr1 = son + (_cyclicBufferPos << 1);
 	uint32 len0 = 0, len1 = 0;
-	for(;; ) {
+	for(;;) {
 		uint32 delta = pos - curMatch;
 		if(cutValue-- == 0 || delta >= _cyclicBufferSize) {
 			*ptr0 = *ptr1 = kEmptyHashValue;

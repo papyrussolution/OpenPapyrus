@@ -629,7 +629,7 @@ namespace NCoderMixer2 {
 			uint   ci = _bi.UnpackCoder;
 			int    firstNonFilter = -1;
 			int    firstAllowed = ci;
-			for(;; ) {
+			for(;;) {
 				const CCoderST & coder = _coders[ci];
 				// break;
 				if(ci != _bi.UnpackCoder)
@@ -856,7 +856,7 @@ namespace NCoderMixer2 {
 		{
 			uint   ci = _bi.UnpackCoder;
 			if(!useFirst)
-				for(;; ) {
+				for(;;) {
 					if(_coders[ci].NumStreams != 1)
 						break;
 					if(!IsFilter_Vector[ci])

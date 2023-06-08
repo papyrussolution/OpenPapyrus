@@ -483,7 +483,7 @@ int __os_dirlist(ENV * env, const char * dir, int returndir, char *** namesp, in
 	}
 	names = NULL;
 	arraysz = cnt = ret = 0;
-	for(;; ) {
+	for(;;) {
 		if(returndir || (fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) == 0) {
 			if(fdata.cFileName[0] == _T('.') && (fdata.cFileName[1] == _T('\0') || (fdata.cFileName[1] == _T('.') && fdata.cFileName[2] == _T('\0'))))
 				goto next;
@@ -1033,7 +1033,7 @@ int __os_fdlock(ENV * env, DB_FH * fhp, off_t offset, int acquire, int nowait)
 		}
 		else {
 			/* Windows 9x/ME doesn't support a blocking call. */
-			for(;; ) {
+			for(;;) {
 				RETRY_CHK_EINTR_ONLY(!LockFile(fhp->handle, low, high, 1, 0), ret);
 				if(__os_posix_err(ret) != EAGAIN)
 					break;

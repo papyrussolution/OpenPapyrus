@@ -961,7 +961,6 @@ int SCardCore::PutOpBlk(const OpBlock & rBlk, TSVector <UpdateRestNotifyEntry> *
 	*/
 	{
 		SCardOpTbl::Rec rec;
-		// @v10.6.4 MEMSZERO(rec);
 		if(!(rBlk.Flags & rBlk.fEdit)) {
 			rec.SCardID = rBlk.SCardID;
 			rec.Dt = rBlk.Dtm.d;

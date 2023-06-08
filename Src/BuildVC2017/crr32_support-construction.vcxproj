@@ -196,6 +196,11 @@
   <ItemGroup>
     <ClCompile Include="..\PPMain\crr32_support.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="papyrus-lib.vcxproj">
+      <Project>{5de86347-bd75-4816-9508-cf1e41f309de}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

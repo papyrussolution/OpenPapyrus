@@ -1111,7 +1111,7 @@ public:
 	StyloQCommandList_CachedFileEntity() : SCachedFileEntity()
 	{
 	}
-	virtual bool InitEntity()
+	virtual bool InitEntity(void * extraPtr)
 	{
 		Data.Z();
 		return Data.Load(0, GetFilePath());
@@ -1146,7 +1146,7 @@ private:
 	bool   ok = false;
 	StyloQCommandList_CachedFileEntity * p_obj = StyloQCommandList_CachedFileEntity::GetGlobalObj();
 	if(p_obj) {
-		if(p_obj->Reload(false)) {
+		if(p_obj->Reload(false, 0)) {
 			if(isempty(pDbSymb))
 				p_obj->Get(rList);
 			else

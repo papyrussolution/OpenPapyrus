@@ -1904,7 +1904,7 @@ static ngx_http_v2_node_t * ngx_http_v2_get_closed_node(ngx_http_v2_connection_t
 	ngx_queue_remove(q);
 	node = ngx_queue_data(q, ngx_http_v2_node_t, reuse);
 	next = &h2c->streams_index[ngx_http_v2_index(h2scf, node->id)];
-	for(;; ) {
+	for(;;) {
 		n = *next;
 		if(n == node) {
 			*next = n->index;

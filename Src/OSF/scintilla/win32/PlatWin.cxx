@@ -238,7 +238,6 @@ static void SetLogFont(LOGFONTW &lf, const char * faceName, int characterSet, fl
 	lf.lfQuality = Win32MapFontQuality(extraFontFlag);
 	UTF16FromUTF8(faceName, sstrlen(faceName)+1, lf.lfFaceName, LF_FACESIZE);
 }
-
 /**
  * Create a hash from the parameters for a font to allow easy checking for identity.
  * If one font is the same as another, its hash will be the same, but if the hash is the
@@ -246,14 +245,7 @@ static void SetLogFont(LOGFONTW &lf, const char * faceName, int characterSet, fl
  */
 static int HashFont(const FontParameters &fp)
 {
-	return
-		static_cast<int>(fp.size) ^
-		(fp.characterSet << 10) ^
-		((fp.extraFontFlag & SC_EFF_QUALITY_MASK) << 9) ^
-		((fp.weight/100) << 12) ^
-		(fp.italic ? 0x20000000 : 0) ^
-		(fp.technology << 15) ^
-		fp.faceName[0];
+	return static_cast<int>(fp.size) ^ (fp.characterSet << 10) ^ ((fp.extraFontFlag & SC_EFF_QUALITY_MASK) << 9) ^ ((fp.weight/100) << 12) ^ (fp.italic ? 0x20000000 : 0) ^ (fp.technology << 15) ^ fp.faceName[0];
 }
 
 class FontCached : SciFont {
@@ -1623,7 +1615,7 @@ void SurfaceD2D::MeasureWidths(SciFont &font_, const char * s, int len, XYPOSITI
 		// May be more than one byte per position
 		uint ui = 0;
 		FLOAT position = 0.0f;
-		for(int i = 0; i < len; ) {
+		for(int i = 0; i < len;) {
 			if(ui < count)
 				position = poses.buffer[ui];
 			if(Platform::IsDBCSLeadByte(codePageText, s[i])) {

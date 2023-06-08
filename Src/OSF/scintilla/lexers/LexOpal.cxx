@@ -29,7 +29,7 @@ inline bool HandleString(Sci_PositionU & cur, Sci_PositionU one_too_much, Access
 	// Wait for string to close
 	bool even_backslash_count = true; // Without gaps in between
 	cur++; // Skip initial quote
-	for(;; ) {
+	for(;;) {
 		if(cur >= one_too_much) {
 			styler.ColourTo(cur - 1, SCE_OPAL_STRING);
 			return false; // STOP
@@ -89,7 +89,7 @@ inline bool HandleCommentBlock(Sci_PositionU & cur, Sci_PositionU one_too_much, 
 	// Wait for comment close
 	cur++;
 	bool star_found = false;
-	for(;; ) {
+	for(;;) {
 		if(cur >= one_too_much) {
 			styler.ColourTo(cur - 1, SCE_OPAL_COMMENT_BLOCK);
 			return false; // STOP
@@ -149,7 +149,7 @@ inline bool HandleCommentLine(Sci_PositionU & cur, Sci_PositionU one_too_much, A
 	}
 	// Wait for end of line
 	bool fifteen_found = false;
-	for(;; ) {
+	for(;;) {
 		cur++;
 		if(cur >= one_too_much) {
 			styler.ColourTo(cur - 1, SCE_OPAL_COMMENT_LINE);
@@ -201,7 +201,7 @@ inline bool HandleSpace(Sci_PositionU & cur, Sci_PositionU one_too_much, Accesso
 	char ch;
 
 	cur++;
-	for(;; ) {
+	for(;;) {
 		if(cur >= one_too_much) {
 			styler.ColourTo(cur - 1, SCE_OPAL_SPACE);
 			return false;
@@ -228,7 +228,7 @@ inline bool HandleSpace(Sci_PositionU & cur, Sci_PositionU one_too_much, Accesso
 inline bool HandleInteger(Sci_PositionU & cur, Sci_PositionU one_too_much, Accessor & styler)
 {
 	char ch;
-	for(;; ) {
+	for(;;) {
 		cur++;
 		if(cur >= one_too_much) {
 			styler.ColourTo(cur - 1, SCE_OPAL_INTEGER);
@@ -249,7 +249,7 @@ inline bool HandleWord(Sci_PositionU & cur, Sci_PositionU one_too_much, Accessor
 	const Sci_PositionU beg = cur;
 
 	cur++;
-	for(;; ) {
+	for(;;) {
 		ch = styler.SafeGetCharAt(cur);
 		if(( ch != '_') && (ch != '-' ) &&
 		    !(IsASCII(ch) && ( islower(ch) || isupper(ch) || isdec(ch) ) ) ) break;
@@ -334,7 +334,7 @@ static void ColouriseOpalDoc(Sci_PositionU startPos, Sci_Position length, int in
 	Sci_PositionU & cur = startPos;
 	const Sci_PositionU one_too_much = startPos + length;
 	int state = initStyle;
-	for(;; ) {
+	for(;;) {
 		switch(state)
 		{
 			case SCE_OPAL_KEYWORD:

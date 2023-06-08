@@ -724,7 +724,7 @@ int xmlCheckUTF8(const uchar * utf)
 	 *  1110xxxx 10xxxxxx 10xxxxxx          valid 3-byte
 	 *  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx valid 4-byte
 	 */
-	for(ix = 0; (c = utf[ix]); ) { // string is 0-terminated 
+	for(ix = 0; (c = utf[ix]);) { // string is 0-terminated 
 		if((c & 0x80) == 0x00) { // 1-byte code, starts with 10 
 			ix++;
 		}

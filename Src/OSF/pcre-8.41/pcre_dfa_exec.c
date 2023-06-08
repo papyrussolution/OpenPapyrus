@@ -459,7 +459,7 @@ static int internal_dfa_exec(dfa_match_data * md, const pcre_uchar * this_start_
 	DPRINTF(("%.*sEnd state = %d\n", rlevel*2-2, SP, (int)(end_code - start_code)));
 	// Loop for scanning the subject 
 	ptr = current_subject;
-	for(;; ) {
+	for(;;) {
 		int i, j;
 		int clen, dlen;
 		uint32 c, d;
@@ -907,7 +907,7 @@ static int internal_dfa_exec(dfa_match_data * md, const pcre_uchar * this_start_
 								break;
 						    case PT_CLIST:
 							cp = PRIV(ucd_caseless_sets) + code[2];
-							for(;; ) {
+							for(;;) {
 								if(c < *cp) {
 									OK = FALSE; break;
 								}
@@ -1134,7 +1134,7 @@ static int internal_dfa_exec(dfa_match_data * md, const pcre_uchar * this_start_
 
 						    case PT_CLIST:
 							cp = PRIV(ucd_caseless_sets) + code[3];
-							for(;; ) {
+							for(;;) {
 								if(c < *cp) {
 									OK = FALSE; break;
 								}
@@ -1363,7 +1363,7 @@ QS1:
 
 						    case PT_CLIST:
 							cp = PRIV(ucd_caseless_sets) + code[3];
-							for(;; ) {
+							for(;;) {
 								if(c < *cp) {
 									OK = FALSE; break;
 								}
@@ -1614,7 +1614,7 @@ QS5:
 
 						    case PT_CLIST:
 							cp = PRIV(ucd_caseless_sets) + code[1 + IMM2_SIZE + 2];
-							for(;; ) {
+							for(;;) {
 								if(c < *cp) {
 									OK = FALSE; break;
 								}
@@ -2992,7 +2992,7 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_dfa_exec(const pcre32 * argument_r
    failed match. If not restarting, perform certain optimizations at the start of
    a match. */
 
-	for(;; ) {
+	for(;;) {
 		int rc;
 
 		if((options & PCRE_DFA_RESTART) == 0) {

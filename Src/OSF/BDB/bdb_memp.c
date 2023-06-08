@@ -174,7 +174,7 @@ search:
 	// Walk the hash buckets and find the next two with potentially useful
 	// buffers.  Free the buffer with the lowest priority from the buckets' chains.
 	//
-	for(;; ) {
+	for(;;) {
 		// All pages have been freed, make one last try
 		if(c_mp->pages == 0)
 			goto alloc;
@@ -4659,7 +4659,7 @@ int __memp_get_bucket(ENV * env, MPOOLFILE * mfp, db_pgno_t pgno, REGINFO ** inf
 	roff_t mf_offset = R_OFFSET(dbmp->reginfo, mfp);
 	MPOOL * mp = (MPOOL *)dbmp->reginfo[0].primary;
 	int    ret = 0;
-	for(;; ) {
+	for(;;) {
 		const uint32 nbuckets = mp->nbuckets;
 		MP_BUCKET(mf_offset, pgno, nbuckets, bucket);
 		/*
@@ -4670,7 +4670,7 @@ int __memp_get_bucket(ENV * env, MPOOLFILE * mfp, db_pgno_t pgno, REGINFO ** inf
 		 */
 		region = NREGION(mp, bucket);
 		regids = (uint32 *)R_ADDR(dbmp->reginfo, mp->regids);
-		for(;; ) {
+		for(;;) {
 			infop = *infopp = &dbmp->reginfo[region];
 			c_mp = (MPOOL *)infop->primary;
 			/* If we have the correct region mapped, we're done. */

@@ -234,7 +234,7 @@ namespace NArchive {
 			error = k_ErrorType_OK;
 			filled = false;
 			bool thereAreEmptyRecords = false;
-			for(;; ) {
+			for(;;) {
 				size_t processedSize = NFileHeader::kRecordSize;
 				RINOK(ReadStream(stream, buf, &processedSize));
 				if(processedSize == 0) {
@@ -403,7 +403,7 @@ namespace NArchive {
 		static bool ParsePaxLongName(const AString &src, AString &dest)
 		{
 			dest.Empty();
-			for(uint pos = 0;; ) {
+			for(uint pos = 0;;) {
 				if(pos >= src.Len())
 					return false;
 				const char * start = src.Ptr(pos);
@@ -440,7 +440,7 @@ namespace NArchive {
 			AString nameL;
 			AString nameK;
 			AString pax;
-			for(;; ) {
+			for(;;) {
 				RINOK(GetNextItemReal(stream, filled, item, error));
 				if(!filled) {
 					if(error == k_ErrorType_OK && (flagL || flagK))
@@ -578,7 +578,7 @@ namespace NArchive {
 			}
 			RINOK(WriteBytes(record, NFileHeader::kRecordSize));
 			if(item.IsSparse()) {
-				for(uint i = 4; i < item.SparseBlocks.Size(); ) {
+				for(uint i = 4; i < item.SparseBlocks.Size();) {
 					memzero(record, NFileHeader::kRecordSize);
 					for(uint t = 0; t < 21 && i < item.SparseBlocks.Size(); t++, i++) {
 						const CSparseBlock &sb = item.SparseBlocks[i];
@@ -947,7 +947,7 @@ namespace NArchive {
 				if(!utf8_OK)
 					_curCodePage = k_DefaultCodePage;
 			}
-			for(;; ) {
+			for(;;) {
 				CItemEx item;
 				bool filled;
 				RINOK(ReadItem2(stream, filled, item));
@@ -1293,7 +1293,7 @@ namespace NArchive {
 				memzero(data, size);
 			else {
 				uint   left = 0, right = item.SparseBlocks.Size();
-				for(;; ) {
+				for(;;) {
 					uint   mid = (left + right) / 2;
 					if(mid == left)
 						break;

@@ -263,7 +263,7 @@ static void _cairo_dtostr(char * buffer, size_t size, double d, boolint limited_
 			p = buffer;
 			if(*p == '+' || *p == '-')
 				p++;
-			while(_cairo_isdigit(*p))
+			while(isdec(*p))
 				p++;
 			if(strncmp(p, decimal_point, decimal_point_len) == 0)
 				p += decimal_point_len;
@@ -278,7 +278,7 @@ static void _cairo_dtostr(char * buffer, size_t size, double d, boolint limited_
 	p = buffer;
 	if(*p == '+' || *p == '-')
 		p++;
-	while(_cairo_isdigit(*p))
+	while(isdec(*p))
 		p++;
 	if(strncmp(p, decimal_point, decimal_point_len) == 0) {
 		*p = '.';
@@ -339,7 +339,7 @@ void _cairo_output_stream_vprintf(cairo_output_stream_t * stream, const char * f
 			f++;
 		}
 
-		while(_cairo_isdigit(*f))
+		while(isdec(*f))
 			f++;
 
 		length_modifier = 0;

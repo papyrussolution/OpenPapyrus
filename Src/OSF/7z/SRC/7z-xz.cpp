@@ -217,7 +217,7 @@ namespace NCompress {
 			uint32 inPos = 0;
 			SizeT outPos = 0;
 			HRESULT readRes = S_OK;
-			for(;; ) {
+			for(;;) {
 				if(inPos == inSize && readRes == S_OK) {
 					inPos = inSize = 0;
 					readRes = seqInStream->Read(xzu.InBuf, kInBufSize, &inSize);

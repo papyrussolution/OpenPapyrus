@@ -863,7 +863,7 @@ int __env_rep_enter(ENV*env, int checklock)
 			return EINVAL;
 	}
 	REP_SYSTEM_LOCK(env);
-	for(cnt = 0; FLD_ISSET(rep->lockout_flags, REP_LOCKOUT_API); ) {
+	for(cnt = 0; FLD_ISSET(rep->lockout_flags, REP_LOCKOUT_API);) {
 		REP_SYSTEM_UNLOCK(env);
 		/*
 		 * We're spinning - environment may be hung. Check if
@@ -1062,7 +1062,7 @@ int __op_rep_enter(ENV*env, int local_nowait, int obey_user)
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	REP_SYSTEM_LOCK(env);
-	for(cnt = 0; FLD_ISSET(rep->lockout_flags, REP_LOCKOUT_OP); ) {
+	for(cnt = 0; FLD_ISSET(rep->lockout_flags, REP_LOCKOUT_OP);) {
 		REP_SYSTEM_UNLOCK(env);
 		/*
 		 * We're spinning - environment may be hung.  Check if
@@ -1278,7 +1278,7 @@ static int __rep_lockout_int(ENV*env, REP * rep, uint32 * fieldp, uint32 field_v
 {
 	int ret, wait_cnt;
 	FLD_SET(rep->lockout_flags, lockout_flag);
-	for(wait_cnt = 0; *fieldp > field_val; ) {
+	for(wait_cnt = 0; *fieldp > field_val;) {
 		if((ret = __rep_notify_threads(env, LOCKOUT)) != 0)
 			return ret;
 		REP_SYSTEM_UNLOCK(env);

@@ -1632,6 +1632,8 @@ public class SLib {
 	public static final int EV_DATETIMEPICKERREPLY  = 25; // @v11.6.9 Посылается диалогом семейства DateTimePicker в ответ на выбор
 		// пользователем даты/времени/периода. srcObj: экземпляр класса, создавший сообщение, subj: SLib.LDATE || SLib.LTIME || SLib.DateRange || SLib.STimeChunk
 	public static final int EV_ACTIVITYSTOP         = 26; // @v11.7.0 Посылается в SlActivity функцией onStop
+	public static final int EV_ASYNCREPLY           = 27; // @v11.7.5 Посылается иным потоком в ответ на асинхронный запрос.
+		// srcObj: символ запроса, subj: объект данных, содержащий ответ на запрос. ret(null)
 	//
 	public static final int cmOK                    = 10; // Значение эквивалентно тому же в tvdefs.h
 	public static final int cmCancel                = 11; // Значение эквивалентно тому же в tvdefs.h

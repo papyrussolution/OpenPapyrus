@@ -1525,7 +1525,7 @@ DECLAREContigPutFunc(putcontig8bitYCbCr44tile)
 	}
 	else {
 		while(h > 0) {
-			for(x = w; x > 0; ) {
+			for(x = w; x > 0;) {
 				int32 Cb = pp[16];
 				int32 Cr = pp[17];
 				switch(x) {
@@ -1617,7 +1617,7 @@ DECLAREContigPutFunc(putcontig8bitYCbCr42tile)
 	}
 	else {
 		while(h > 0) {
-			for(x = w; x > 0; ) {
+			for(x = w; x > 0;) {
 				int32 Cb = pp[8];
 				int32 Cr = pp[9];
 				switch(x) {

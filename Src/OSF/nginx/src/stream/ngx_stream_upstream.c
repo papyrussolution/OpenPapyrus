@@ -95,7 +95,7 @@ static ngx_int_t ngx_stream_upstream_addr_variable(ngx_stream_session_t * s, ngx
 		}
 		v->data = p;
 		i = 0;
-		for(;; ) {
+		for(;;) {
 			if(state[i].peer) {
 				p = ngx_cpymem(p, state[i].peer->data, state[i].peer->len);
 			}
@@ -131,7 +131,7 @@ static ngx_int_t ngx_stream_upstream_bytes_variable(ngx_stream_session_t * s, ng
 	v->data = p;
 	i = 0;
 	state = (ngx_stream_upstream_state_t *)s->upstream_states->elts;
-	for(;; ) {
+	for(;;) {
 		if(data == 1) {
 			p = ngx_sprintf(p, "%O", state[i].bytes_received);
 		}
@@ -170,7 +170,7 @@ static ngx_int_t ngx_stream_upstream_response_time_variable(ngx_stream_session_t
 	v->data = p;
 	i = 0;
 	state = (ngx_stream_upstream_state_t *)s->upstream_states->elts;
-	for(;; ) {
+	for(;;) {
 		if(data == 1) {
 			if(state[i].first_byte_time == (ngx_msec_t)-1) {
 				*p++ = '-';

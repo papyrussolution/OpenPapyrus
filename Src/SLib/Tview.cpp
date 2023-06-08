@@ -169,11 +169,11 @@ static TCommandSet initCommands()
 //
 //
 //
-TBitmapHash::TBitmapHash()
+TBitmapCache::TBitmapCache()
 {
 }
 
-TBitmapHash::~TBitmapHash()
+TBitmapCache::~TBitmapCache()
 {
 	for(uint i = 0; i < List.getCount(); i++) {
 		Entry & r_entry = List.at(i);
@@ -182,7 +182,7 @@ TBitmapHash::~TBitmapHash()
 	}
 }
 
-HBITMAP FASTCALL TBitmapHash::Get(uint bmpId)
+HBITMAP FASTCALL TBitmapCache::Get(uint bmpId)
 {
 	HBITMAP h = 0;
 	ENTER_CRITICAL_SECTION
@@ -204,7 +204,7 @@ HBITMAP FASTCALL TBitmapHash::Get(uint bmpId)
 	return h;
 }
 
-HBITMAP FASTCALL TBitmapHash::GetSystem(uint bmpId)
+HBITMAP FASTCALL TBitmapCache::GetSystem(uint bmpId)
 {
 	HBITMAP h = 0;
 	ENTER_CRITICAL_SECTION

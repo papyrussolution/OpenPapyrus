@@ -1254,7 +1254,7 @@ static void opj_t1_clbl_decode_processor(void* user_data, opj_tls_t* tls)
 	opj_tcd_band_t* band;
 	opj_tcd_tilecomp_t* tilec;
 	opj_tccp_t* tccp;
-	int32_t* OPJ_RESTRICT datap;
+	int32_t* _RESTRICT datap;
 	uint32_t cblk_w, cblk_h;
 	int32_t x, y;
 	uint32_t i, j;
@@ -1413,7 +1413,7 @@ static void opj_t1_clbl_decode_processor(void* user_data, opj_tls_t* tls)
 		}
 	}
 	else if(tccp->qmfbid == 1) {
-		int32_t* OPJ_RESTRICT tiledp = &tilec->data[(size_t)y * tile_w + (size_t)x];
+		int32_t* _RESTRICT tiledp = &tilec->data[(size_t)y * tile_w + (size_t)x];
 		for(j = 0; j < cblk_h; ++j) {
 			i = 0;
 			for(; i < (cblk_w & ~(uint32_t)3U); i += 4U) {
@@ -1434,10 +1434,10 @@ static void opj_t1_clbl_decode_processor(void* user_data, opj_tls_t* tls)
 	}
 	else {      /* if (tccp->qmfbid == 0) */
 		const float stepsize = 0.5f * band->stepsize;
-		float* OPJ_RESTRICT tiledp = (float*)&tilec->data[(size_t)y *
+		float* _RESTRICT tiledp = (float*)&tilec->data[(size_t)y *
 		    tile_w + (size_t)x];
 		for(j = 0; j < cblk_h; ++j) {
-			float* OPJ_RESTRICT tiledp2 = tiledp;
+			float* _RESTRICT tiledp2 = tiledp;
 			for(i = 0; i < cblk_w; ++i) {
 				float tmp = (float)*datap * stepsize;
 				*tiledp2 = tmp;
@@ -1462,7 +1462,7 @@ void opj_t1_decode_cblks(opj_tcd_t* tcd, volatile boolint* pret, opj_tcd_tilecom
 	for(resno = 0; resno < tilec->minimum_num_resolutions; ++resno) {
 		opj_tcd_resolution_t* res = &tilec->resolutions[resno];
 		for(bandno = 0; bandno < res->numbands; ++bandno) {
-			opj_tcd_band_t* OPJ_RESTRICT band = &res->bands[bandno];
+			opj_tcd_band_t* _RESTRICT band = &res->bands[bandno];
 			for(precno = 0; precno < res->pw * res->ph; ++precno) {
 				opj_tcd_precinct_t* precinct = &band->precincts[precno];
 				if(!opj_tcd_is_subband_area_of_interest(tcd, tilec->compno, resno, band->bandno, (uint32_t)precinct->x0, (uint32_t)precinct->y0, (uint32_t)precinct->x1, (uint32_t)precinct->y1)) {
@@ -1761,7 +1761,7 @@ static void opj_t1_cblk_encode_processor(void* user_data, opj_tls_t* tls)
 	opj_t1_t* t1;
 	const uint32_t tile_w = (uint32_t)(tilec->x1 - tilec->x0);
 
-	int32_t* OPJ_RESTRICT tiledp;
+	int32_t* _RESTRICT tiledp;
 	uint32_t cblk_w;
 	uint32_t cblk_h;
 	uint32_t i, j;
@@ -1812,8 +1812,8 @@ static void opj_t1_cblk_encode_processor(void* user_data, opj_tls_t* tls)
 		 * representation
 		 * Fixes https://github.com/uclouvain/openjpeg/issues/1053
 		 */
-		uint32_t* OPJ_RESTRICT tiledp_u = (uint32_t*)tiledp;
-		uint32_t* OPJ_RESTRICT t1data = (uint32_t*)t1->data;
+		uint32_t* _RESTRICT tiledp_u = (uint32_t*)tiledp;
+		uint32_t* _RESTRICT t1data = (uint32_t*)t1->data;
 		/* Change from "natural" order to "zigzag" order of T1 passes */
 		for(j = 0; j < (cblk_h & ~3U); j += 4) {
 			for(i = 0; i < cblk_w; ++i) {
@@ -1835,8 +1835,8 @@ static void opj_t1_cblk_encode_processor(void* user_data, opj_tls_t* tls)
 		}
 	}
 	else {      /* if (tccp->qmfbid == 0) */
-		float* OPJ_RESTRICT tiledp_f = (float*)tiledp;
-		int32_t* OPJ_RESTRICT t1data = t1->data;
+		float* _RESTRICT tiledp_f = (float*)tiledp;
+		int32_t* _RESTRICT t1data = t1->data;
 		/* Change from "natural" order to "zigzag" order of T1 passes */
 		for(j = 0; j < (cblk_h & ~3U); j += 4) {
 			for(i = 0; i < cblk_w; ++i) {
@@ -1911,7 +1911,7 @@ boolint opj_t1_encode_cblks(opj_tcd_t* tcd,
 			opj_tcd_resolution_t * res = &tilec->resolutions[resno];
 
 			for(bandno = 0; bandno < res->numbands; ++bandno) {
-				opj_tcd_band_t* OPJ_RESTRICT band = &res->bands[bandno];
+				opj_tcd_band_t* _RESTRICT band = &res->bands[bandno];
 
 				/* Skip empty bands */
 				if(opj_tcd_is_band_empty(band)) {
@@ -2028,12 +2028,12 @@ static double opj_t1_encode_cblk(opj_t1_t * t1,
 			int32_t tmp = *datap;
 			if(tmp < 0) {
 				uint32_t tmp_unsigned;
-				max = opj_int_max(max, -tmp);
+				max = smax(max, -tmp);
 				tmp_unsigned = opj_to_smr(tmp);
 				memcpy(datap, &tmp_unsigned, sizeof(int32_t));
 			}
 			else {
-				max = opj_int_max(max, tmp);
+				max = smax(max, tmp);
 			}
 		}
 	}

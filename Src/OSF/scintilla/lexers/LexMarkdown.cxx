@@ -109,7 +109,7 @@ static bool FASTCALL AtTermStart(const StyleContext & sc)
 static bool IsValidHrule(const Sci_PositionU endPos, StyleContext &sc) {
 	int count = 1;
 	Sci_PositionU i = 0;
-	for(;; ) {
+	for(;;) {
 		++i;
 		int c = sc.GetRelative(i);
 		if(c == sc.ch)

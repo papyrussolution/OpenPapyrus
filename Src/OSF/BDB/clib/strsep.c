@@ -44,7 +44,7 @@ char * strsep(char ** stringp, const char * delim)
 	char * tok;
 	if((s = *stringp) == NULL)
 		return NULL;
-	for(tok = s;; ) {
+	for(tok = s;;) {
 		c = *s++;
 		spanp = delim;
 		do {

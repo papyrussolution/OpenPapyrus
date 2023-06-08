@@ -185,7 +185,7 @@ ngx_int_t ngx_radix32tree_delete(ngx_radix_tree_t * tree, uint32_t key, uint32_t
 		return NGX_ERROR;
 	}
 
-	for(;; ) {
+	for(;;) {
 		if(node->parent->right == node) {
 			node->parent->right = NULL;
 		}
@@ -334,7 +334,7 @@ ngx_int_t ngx_radix128tree_delete(ngx_radix_tree_t * tree, u_char * key, u_char 
 		}
 		return NGX_ERROR;
 	}
-	for(;; ) {
+	for(;;) {
 		if(node->parent->right == node) {
 			node->parent->right = NULL;
 		}

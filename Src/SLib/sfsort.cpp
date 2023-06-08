@@ -108,7 +108,7 @@ private:
 	SFSortChunkInfoList * P_Parent;
 };
 
-IMPL_CMPCFUNC(SFSortChunkInfo, i1, i2)
+IMPL_CMPFUNC(SFSortChunkInfo, i1, i2)
 {
 	const SFSortChunkInfo * ptr1 = static_cast<const SFSortChunkInfo *>(i1);
 	const SFSortChunkInfo * ptr2 = static_cast<const SFSortChunkInfo *>(i2);
@@ -257,7 +257,7 @@ SFSortChunkInfo * SFSortChunkInfoList::CreateItem()
 
 void SFSortChunkInfoList::Sort()
 {
-	sort(PTR_CMPCFUNC(SFSortChunkInfo), FCmp);
+	sort(PTR_CMPFUNC(SFSortChunkInfo), FCmp);
 }
 
 int SFSortChunkInfoList::ChargeForMerging(uint firstIdx, uint lastIdx)
@@ -624,7 +624,7 @@ SFile::SortParam::SortParam() : MaxChunkSize(8*1024*1024), MaxChunkCount(8), Max
 
 #if SLTEST_RUNNING // {
 
-IMPL_CMPCFUNC(STRINT64_test, p1, p2)
+IMPL_CMPFUNC(STRINT64_test, p1, p2)
 {
 	int64 v1 = _atoi64(static_cast<const char *>(p1));
 	int64 v2 = _atoi64(static_cast<const char *>(p2));
@@ -677,7 +677,7 @@ SLTEST_R(FileSort)
 			ps.Nam.CatChar('-').Cat("sorted");
 			ps.Merge(dest_file_name);
 		}
-		THROW(SLTEST_CHECK_NZ(SFile::Sort(test_file_name, dest_file_name, PTR_CMPCFUNC(STRINT64_test), &sp)));
+		THROW(SLTEST_CHECK_NZ(SFile::Sort(test_file_name, dest_file_name, PTR_CMPFUNC(STRINT64_test), &sp)));
 		{
             SFile f_result(dest_file_name, SFile::mRead|SFile::mNoStd|SFile::mBinary|SFile::mBuffRd);
             uint   test_count = 0;

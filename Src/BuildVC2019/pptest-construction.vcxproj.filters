@@ -12,5 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\PPTEST\pptest-dedicated.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-dirent.cpp" />
   </ItemGroup>
 </Project>

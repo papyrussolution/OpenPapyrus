@@ -59,7 +59,7 @@ static void ngx_open_file_cache_cleanup(void * data)
 	ngx_queue_t   * q;
 	ngx_cached_open_file_t  * file;
 	ngx_log_debug0(NGX_LOG_DEBUG_CORE, ngx_cycle->log, 0, "open file cache cleanup");
-	for(;; ) {
+	for(;;) {
 		if(ngx_queue_empty(&cache->expire_queue)) {
 			break;
 		}
@@ -492,7 +492,7 @@ static ngx_fd_t ngx_open_file_wrapper(ngx_str_t * name, ngx_open_file_info_t * o
 		at_fd = NGX_AT_FDCWD;
 	}
 
-	for(;; ) {
+	for(;;) {
 		cp = ngx_strlchr(p, end, '/');
 		if(cp == NULL) {
 			break;
@@ -814,7 +814,7 @@ static void ngx_open_file_cache_rbtree_insert_value(ngx_rbtree_node_t * temp, ng
 {
 	ngx_rbtree_node_t ** p;
 	ngx_cached_open_file_t  * file, * file_temp;
-	for(;; ) {
+	for(;;) {
 		if(node->key < temp->key) {
 			p = &temp->left;
 		}

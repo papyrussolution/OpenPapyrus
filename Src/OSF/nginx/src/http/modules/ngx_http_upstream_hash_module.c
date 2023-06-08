@@ -133,7 +133,7 @@ static ngx_int_t ngx_http_upstream_get_hash_peer(ngx_peer_connection_t * pc, voi
 	now = ngx_time();
 	pc->cached = 0;
 	pc->connection = NULL;
-	for(;; ) {
+	for(;;) {
 		/*
 		 * Hash expression is compatible with Cache::Memcached:
 		 * ((crc32([REHASH] KEY) >> 16) & 0x7fff) + PREV_HASH
@@ -396,7 +396,7 @@ static ngx_int_t ngx_http_upstream_get_chash_peer(ngx_peer_connection_t * pc, vo
 	hcf = hp->conf;
 	points = hcf->points;
 	point = &points->point[0];
-	for(;; ) {
+	for(;;) {
 		server = point[hp->hash % points->number].server;
 		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, pc->log, 0, "consistent hash peer:%uD, server:\"%V\"", hp->hash, server);
 		best = NULL;

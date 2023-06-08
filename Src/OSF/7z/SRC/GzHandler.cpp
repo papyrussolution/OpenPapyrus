@@ -572,7 +572,7 @@ namespace NArchive {
 		bool crcError = false;
 		HRESULT result = S_OK;
 		try {
-			for(;; ) {
+			for(;;) {
 				lps->InSize = packSize;
 				lps->OutSize = unpackedSize;
 

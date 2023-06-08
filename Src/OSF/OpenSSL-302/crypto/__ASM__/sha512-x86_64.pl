@@ -1077,7 +1077,7 @@ my @insns = (&$body,&$body,&$body,&$body);	# 104 instructions
 	&cmpb	($SZ-1+16*2*$SZ."($Tbl)",0);
 	&jne	(".Lssse3_00_47");
 
-    for ($i=0; $i<16; ) {
+    for ($i=0; $i<16;) {
 	foreach(body_00_15()) { eval; }
     }
 $code.=<<___;
@@ -1338,7 +1338,7 @@ my @insns = (&$body,&$body,&$body,&$body);	# 104 instructions
 	&cmpb	($SZ-1+16*2*$SZ."($Tbl)",0);
 	&jne	(".Lxop_00_47");
 
-    for ($i=0; $i<16; ) {
+    for ($i=0; $i<16;) {
 	foreach(body_00_15()) { eval; }
     }
 
@@ -1466,7 +1466,7 @@ my @insns = (&$body,&$body);			# 52 instructions
 	&cmpb	($SZ-1+16*2*$SZ-0x80."($Tbl)",0);
 	&jne	(".Lxop_00_47");
 
-    for ($i=0; $i<16; ) {
+    for ($i=0; $i<16;) {
 	foreach(body_00_15()) { eval; }
     }
 }
@@ -1685,7 +1685,7 @@ my @insns = (&$body,&$body,&$body,&$body);	# 104 instructions
 	&cmpb	($SZ-1+16*2*$SZ."($Tbl)",0);
 	&jne	(".Lavx_00_47");
 
-    for ($i=0; $i<16; ) {
+    for ($i=0; $i<16;) {
 	foreach(body_00_15()) { eval; }
     }
 
@@ -1792,7 +1792,7 @@ my @insns = (&$body,&$body);			# 52 instructions
 	&cmpb	($SZ-1+16*2*$SZ-0x80."($Tbl)",0);
 	&jne	(".Lavx_00_47");
 
-    for ($i=0; $i<16; ) {
+    for ($i=0; $i<16;) {
 	foreach(body_00_15()) { eval; }
     }
 }
@@ -2063,7 +2063,7 @@ ___
 	&cmpb	(($SZ-1)."($Tbl)",0);
 	&jne	(".Lavx2_00_47");
 
-    for ($i=0; $i<16; ) {
+    for ($i=0; $i<16;) {
 	my $base=$i<8?"+$PUSH8(%rsp)":"(%rsp)";
 	foreach(bodyx_00_15()) { eval; }
     }
@@ -2187,7 +2187,7 @@ ___
 	&cmpb	(($SZ-1-0x80)."($Tbl)",0);
 	&jne	(".Lavx2_00_47");
 
-    for ($i=0; $i<16; ) {
+    for ($i=0; $i<16;) {
 	my $base=$i<8?"+$PUSH8(%rsp)":"(%rsp)";
 	foreach(bodyx_00_15()) { eval; }
     }
@@ -2227,7 +2227,7 @@ $code.=<<___;
 .align	16
 .Lower_avx2:
 ___
-    for ($i=0; $i<8; ) {
+    for ($i=0; $i<8;) {
 	my $base="+16($Tbl)";
 	foreach(bodyx_00_15()) { eval; }
     }

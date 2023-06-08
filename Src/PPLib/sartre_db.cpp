@@ -1144,7 +1144,7 @@ SrGeoNodeTbl::~SrGeoNodeTbl()
 {
 }
 
-IMPL_CMPCFUNC(PPOsm_Node_ByWay, p1, p2)
+IMPL_CMPFUNC(PPOsm_Node_ByWay, p1, p2)
 {
 	uint64 id1 = *(uint64 *)p1;
 	uint64 id2 = *(uint64 *)p2;
@@ -1199,7 +1199,7 @@ int SrGeoNodeTbl::GetWayNodes(const PPOsm::Way & rWay, TSVector <PPOsm::Node> & 
 			}
 		}
     }
-    rNodeList.sort(PTR_CMPCFUNC(PPOsm_Node_ByWay), (void *)&rWay); // @badcast
+    rNodeList.sort(PTR_CMPFUNC(PPOsm_Node_ByWay), (void *)&rWay); // @badcast
 	//
 	// Последнюю точку контура вставляем после сортировки - иначе сортировка сбойнет (вда одинаковых идентификатора)
 	//

@@ -1212,23 +1212,19 @@ static void print_array(cairo_output_stream_t * stream, const uint * array, cons
 
 static const char * operator_names[] = {
 	"CLEAR", /* CAIRO_OPERATOR_CLEAR */
-
 	"SOURCE", /* CAIRO_OPERATOR_SOURCE */
 	"OVER",         /* CAIRO_OPERATOR_OVER */
 	"IN",           /* CAIRO_OPERATOR_IN */
 	"OUT",          /* CAIRO_OPERATOR_OUT */
 	"ATOP",         /* CAIRO_OPERATOR_ATOP */
-
 	"DEST",         /* CAIRO_OPERATOR_DEST */
 	"DEST_OVER",    /* CAIRO_OPERATOR_DEST_OVER */
 	"DEST_IN", /* CAIRO_OPERATOR_DEST_IN */
 	"DEST_OUT", /* CAIRO_OPERATOR_DEST_OUT */
 	"DEST_ATOP",    /* CAIRO_OPERATOR_DEST_ATOP */
-
 	"XOR",          /* CAIRO_OPERATOR_XOR */
 	"ADD",          /* CAIRO_OPERATOR_ADD */
 	"SATURATE", /* CAIRO_OPERATOR_SATURATE */
-
 	"MULTIPLY", /* CAIRO_OPERATOR_MULTIPLY */
 	"SCREEN", /* CAIRO_OPERATOR_SCREEN */
 	"OVERLAY", /* CAIRO_OPERATOR_OVERLAY */

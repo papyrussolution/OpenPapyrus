@@ -38,13 +38,9 @@ struct operator_info_t {
 };
 
 #define PACK(neither, src, dest, both)                  \
-	{{      (uint8)PIXMAN_OP_ ## neither,             \
-		(uint8)PIXMAN_OP_ ## src,                 \
-		(uint8)PIXMAN_OP_ ## dest,                \
-		(uint8)PIXMAN_OP_ ## both         }}
+	{{ (uint8)PIXMAN_OP_ ## neither, (uint8)PIXMAN_OP_ ## src, (uint8)PIXMAN_OP_ ## dest, (uint8)PIXMAN_OP_ ## both }}
 
-static const operator_info_t operator_table[] =
-{
+static const operator_info_t operator_table[] = {
 	/* Neither Opaque         Src Opaque             Dst Opaque             Both Opaque */
 	PACK(CLEAR,                 CLEAR,                 CLEAR,                 CLEAR),
 	PACK(SRC,                   SRC,                   SRC,                   SRC),

@@ -931,9 +931,9 @@ boolint FASTCALL _cairo_path_fixed_is_box(const cairo_path_fixed_t * path, cairo
 static inline boolint _lines_intersect_or_are_coincident(cairo_point_t a, cairo_point_t b, cairo_point_t c, cairo_point_t d)
 {
 	boolint denominator_negative;
-	const cairo_int64_t denominator = _cairo_int64_sub(_cairo_int32x32_64_mul(d.y - c.y, b.x - a.x), _cairo_int32x32_64_mul(d.x - c.x, b.y - a.y));
-	const cairo_int64_t numerator_a = _cairo_int64_sub(_cairo_int32x32_64_mul(d.x - c.x, a.y - c.y), _cairo_int32x32_64_mul(d.y - c.y, a.x - c.x));
-	const cairo_int64_t numerator_b = _cairo_int64_sub(_cairo_int32x32_64_mul(b.x - a.x, a.y - c.y), _cairo_int32x32_64_mul(b.y - a.y, a.x - c.x));
+	const int64 denominator = _cairo_int64_sub(_cairo_int32x32_64_mul(d.y - c.y, b.x - a.x), _cairo_int32x32_64_mul(d.x - c.x, b.y - a.y));
+	const int64 numerator_a = _cairo_int64_sub(_cairo_int32x32_64_mul(d.x - c.x, a.y - c.y), _cairo_int32x32_64_mul(d.y - c.y, a.x - c.x));
+	const int64 numerator_b = _cairo_int64_sub(_cairo_int32x32_64_mul(b.x - a.x, a.y - c.y), _cairo_int32x32_64_mul(b.y - a.y, a.x - c.x));
 	if(_cairo_int64_is_zero(denominator)) {
 		// If the denominator and numerators are both zero, the lines are coincident.
 		if(_cairo_int64_is_zero(numerator_a) && _cairo_int64_is_zero(numerator_b))

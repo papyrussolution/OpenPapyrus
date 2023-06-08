@@ -690,7 +690,7 @@ void SCI_METHOD LexerCPP::Lex(Sci_PositionU startPos, Sci_Position length, int i
 
 	Sci_Position lineEndNext = styler.LineEnd(lineCurrent);
 
-	for(; sc.More(); ) {
+	for(; sc.More();) {
 		if(sc.atLineStart) {
 			// Using MaskActive() is not needed in the following statement.
 			// Inside inactive preprocessor declaration, state will be reset anyway at the end of this block.
@@ -1433,7 +1433,7 @@ void LexerCPP::EvaluateTokens(std::vector <std::string> &tokens, const SymbolTab
 	// Remove whitespace tokens
 	tokens.erase(std::remove_if(tokens.begin(), tokens.end(), OnlySpaceOrTab), tokens.end());
 	// Evaluate defined statements to either 0 or 1
-	for(size_t i = 0; (i+1)<tokens.size(); ) {
+	for(size_t i = 0; (i+1)<tokens.size();) {
 		if(tokens[i] == "defined") {
 			const char * val = "0";
 			if(tokens[i+1] == "(") {
@@ -1470,7 +1470,7 @@ void LexerCPP::EvaluateTokens(std::vector <std::string> &tokens, const SymbolTab
 	// Evaluate identifiers
 	const size_t maxIterations = 100;
 	size_t iterations = 0;  // Limit number of iterations in case there is a recursive macro.
-	for(size_t i = 0; (i<tokens.size()) && (iterations < maxIterations); ) {
+	for(size_t i = 0; (i<tokens.size()) && (iterations < maxIterations);) {
 		iterations++;
 		if(setWordStart.Contains(static_cast<uchar>(tokens[i][0]))) {
 			SymbolTable::const_iterator it = preprocessorDefinitions.find(tokens[i]);
@@ -1495,7 +1495,7 @@ void LexerCPP::EvaluateTokens(std::vector <std::string> &tokens, const SymbolTab
 						tokens.erase(tokens.begin() + i, tokens.begin() + tok + 1);
 						// Substitute values into macro
 						macroTokens.erase(std::remove_if(macroTokens.begin(), macroTokens.end(), OnlySpaceOrTab), macroTokens.end());
-						for(size_t iMacro = 0; iMacro < macroTokens.size(); ) {
+						for(size_t iMacro = 0; iMacro < macroTokens.size();) {
 							if(setWordStart.Contains(static_cast<uchar>(macroTokens[iMacro][0]))) {
 								std::map<std::string, std::string>::const_iterator itFind = arguments.find(macroTokens[iMacro]);
 								if(itFind != arguments.end()) {
@@ -1547,7 +1547,7 @@ void LexerCPP::EvaluateTokens(std::vector <std::string> &tokens, const SymbolTab
 	}
 
 	// Evaluate logical negations
-	for(size_t j = 0; (j+1)<tokens.size(); ) {
+	for(size_t j = 0; (j+1)<tokens.size();) {
 		if(setNegationOp.Contains(tokens[j][0])) {
 			int isTrue = satoi(tokens[j+1].c_str());
 			if(tokens[j] == "!")
@@ -1566,7 +1566,7 @@ void LexerCPP::EvaluateTokens(std::vector <std::string> &tokens, const SymbolTab
 
 	for(int prec = precArithmetic; prec <= precLogical; prec++) {
 		// Looking at 3 tokens at a time so end at 2 before end
-		for(size_t k = 0; (k+2)<tokens.size(); ) {
+		for(size_t k = 0; (k+2)<tokens.size();) {
 			char chOp = tokens[k+1][0];
 			if(((prec==precArithmetic) && setArithmethicOp.Contains(chOp)) || ((prec==precRelative) && setRelOp.Contains(chOp)) || ((prec==precLogical) && setLogicalOp.Contains(chOp))) {
 				int valA = satoi(tokens[k].c_str());

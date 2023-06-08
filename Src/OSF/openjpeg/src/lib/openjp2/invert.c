@@ -89,10 +89,8 @@ static boolint opj_lupDecompose(float * matrix, uint32_t * permutations, float *
 	tmpPermutations = permutations;
 	for(k = 0; k < lLastColum; ++k) {
 		p = 0.0;
-
 		/* take the middle element */
 		lColumnMatrix = lTmpMatrix + k;
-
 		/* make permutation with the biggest value in the column */
 		for(i = k; i < nb_compo; ++i) {
 			temp = ((*lColumnMatrix > 0) ? *lColumnMatrix : -(*lColumnMatrix));
@@ -164,11 +162,8 @@ static boolint opj_lupDecompose(float * matrix, uint32_t * permutations, float *
 	return TRUE;
 }
 
-static void opj_lupSolve(float * pResult,
-    float * pMatrix,
-    float * pVector,
-    uint32_t* pPermutations,
-    uint32_t nb_compo, float * p_intermediate_data)
+static void opj_lupSolve(float * pResult, float * pMatrix, float * pVector,
+    uint32_t* pPermutations, uint32_t nb_compo, float * p_intermediate_data)
 {
 	int32_t k;
 	uint32_t i, j;
@@ -176,17 +171,13 @@ static void opj_lupSolve(float * pResult,
 	float u;
 	uint32_t lStride = nb_compo + 1;
 	float * lCurrentPtr;
-	float * lIntermediatePtr;
 	float * lDestPtr;
 	float * lTmpMatrix;
 	float * lLineMatrix = pMatrix;
 	float * lBeginPtr = pResult + nb_compo - 1;
-	float * lGeneratedData;
 	uint32_t * lCurrentPermutationPtr = pPermutations;
-
-	lIntermediatePtr = p_intermediate_data;
-	lGeneratedData = p_intermediate_data + nb_compo - 1;
-
+	float * lIntermediatePtr = p_intermediate_data;
+	float * lGeneratedData = p_intermediate_data + nb_compo - 1;
 	for(i = 0; i < nb_compo; ++i) {
 		sum = 0.0;
 		lCurrentPtr = p_intermediate_data;
@@ -199,13 +190,10 @@ static void opj_lupSolve(float * pResult,
 		*(lIntermediatePtr++) = pVector[*(lCurrentPermutationPtr++)] - sum;
 		lLineMatrix += nb_compo;
 	}
-
 	/* we take the last point of the matrix */
 	lLineMatrix = pMatrix + nb_compo * nb_compo - 1;
-
 	/* and we take after the last point of the destination vector */
 	lDestPtr = pResult + nb_compo;
-
 	assert(nb_compo != 0);
 	for(k = (int32_t)nb_compo - 1; k != -1; --k) {
 		sum = 0.0;

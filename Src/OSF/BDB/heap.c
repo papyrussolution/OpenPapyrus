@@ -742,7 +742,7 @@ static int __heapc_reloc_partial(DBC * dbc, DBT * key, DBT * data)
 	left = data_size;
 	memzero(&t_data, sizeof(DBT));
 	remaining = 0;
-	for(;; ) {
+	for(;;) {
 		/* Figure out if we have a next piece. */
 		if(F_ISSET(old_hdr, HEAP_RECSPLIT)) {
 			next_rid.pgno = ((HEAPSPLITHDR *)old_hdr)->nextpg;
@@ -1027,7 +1027,7 @@ static int __heapc_reloc(DBC * dbc, DBT * key, DBT * data)
 	left = data->size;
 	// (replaced by ctr) memzero(&t_data, sizeof(DBT));
 	t_data.data = data->data;
-	for(;; ) {
+	for(;;) {
 		/* Figure out if we have a next piece. */
 		if(F_ISSET(old_hdr, HEAP_RECSPLIT)) {
 			next_rid.pgno = ((HEAPSPLITHDR *)old_hdr)->nextpg;
@@ -2074,7 +2074,7 @@ skip_alloc:
 	 */
 	curoff = 0;
 	dbt->size = needed;
-	for(p = (uint8 *)dbt->data; needed > 0; ) {
+	for(p = (uint8 *)dbt->data; needed > 0;) {
 		/* Check if we need any bytes from this page */
 		if(curoff+hdr->std_hdr.size >= start) {
 			bytes = hdr->std_hdr.size;

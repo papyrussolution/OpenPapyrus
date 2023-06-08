@@ -1352,7 +1352,7 @@ static int __bam_merge_internal(DBC * dbc, DBC * ndbc, int level, DB_COMPACT * c
 			continue;
 		fip = bip = GET_BINTERNAL(dbp, epg->page, epg->indx);
 		epg = ncp->csp;
-		for(indx = 0;; ) {
+		for(indx = 0;;) {
 			size = BINTERNAL_PSIZE(bip->len);
 			if(size > freespace)
 				break;

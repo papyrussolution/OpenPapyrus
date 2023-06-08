@@ -482,7 +482,7 @@ METHODDEF(int) consume_markers(j_decompress_ptr cinfo)
 	int val;
 	if(inputctl->pub.eoi_reached) /* After hitting EOI, read no further */
 		return JPEG_REACHED_EOI;
-	for(;; ) {              /* Loop to pass pseudo SOS marker */
+	for(;;) {              /* Loop to pass pseudo SOS marker */
 		val = (*cinfo->marker->read_markers)(cinfo);
 		switch(val) {
 			case JPEG_REACHED_SOS: /* Found SOS */

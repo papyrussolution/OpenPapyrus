@@ -1055,7 +1055,7 @@ static ngx_int_t ngx_http_fastcgi_process_header(ngx_http_request_t * r)
 	ngx_http_fastcgi_ctx_t * f = (ngx_http_fastcgi_ctx_t *)ngx_http_get_module_ctx(r, ngx_http_fastcgi_module);
 	ngx_http_upstream_main_conf_t  * umcf = (ngx_http_upstream_main_conf_t *)ngx_http_get_module_main_conf(r, ngx_http_upstream_module);
 	ngx_http_upstream_t * u = r->upstream;
-	for(;; ) {
+	for(;;) {
 		if(f->state < ngx_http_fastcgi_st_data) {
 			f->pos = u->buffer.pos;
 			f->last = u->buffer.last;
@@ -1192,7 +1192,7 @@ static ngx_int_t ngx_http_fastcgi_process_header(ngx_http_request_t * r)
 		else {
 			last = NULL;
 		}
-		for(;; ) {
+		for(;;) {
 			part_start = u->buffer.pos;
 			part_end = u->buffer.last;
 			rc = ngx_http_parse_header_line(r, &u->buffer, 1);
@@ -1359,7 +1359,7 @@ static ngx_int_t ngx_http_fastcgi_input_filter(ngx_event_pipe_t * p, ngx_buf_t *
 		ngx_buf_t ** prev = &buf->shadow;
 		f->pos = buf->pos;
 		f->last = buf->last;
-		for(;; ) {
+		for(;;) {
 			if(f->state < ngx_http_fastcgi_st_data) {
 				rc = ngx_http_fastcgi_process_record(r, f);
 				if(rc == NGX_AGAIN) {
@@ -1529,7 +1529,7 @@ static ngx_int_t ngx_http_fastcgi_non_buffered_filter(void * data, ssize_t bytes
 	}
 	f->pos = buf->pos;
 	f->last = buf->last;
-	for(;; ) {
+	for(;;) {
 		if(f->state < ngx_http_fastcgi_st_data) {
 			rc = ngx_http_fastcgi_process_record(r, f);
 			if(rc == NGX_AGAIN) {

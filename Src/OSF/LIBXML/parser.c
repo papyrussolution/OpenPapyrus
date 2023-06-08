@@ -9539,7 +9539,7 @@ static int xmlCheckCdataPush(const xmlChar * utf, int len)
 	int codepoint;
 	if(!utf || len <= 0)
 		return 0;
-	for(ix = 0; ix < len; ) {  /* string is 0-terminated */
+	for(ix = 0; ix < len;) {  /* string is 0-terminated */
 		c = utf[ix];
 		if((c & 0x80) == 0x00) { /* 1-byte code, starts with 10 */
 			if(c >= 0x20)

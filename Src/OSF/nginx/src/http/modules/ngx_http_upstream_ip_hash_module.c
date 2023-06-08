@@ -130,7 +130,7 @@ static ngx_int_t ngx_http_upstream_get_ip_hash_peer(ngx_peer_connection_t * pc, 
 	pc->cached = 0;
 	pc->connection = NULL;
 	hash = iphp->hash;
-	for(;; ) {
+	for(;;) {
 		for(i = 0; i < (ngx_uint_t)iphp->addrlen; i++) {
 			hash = (hash * 113 + iphp->addr[i]) % 6271;
 		}

@@ -107,7 +107,7 @@ int __db_vrfy_ovfl_structure(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, uint32
 				"%lu %lu"), (ulong)pgno, (ulong)prev));
 		isbad = 1;
 	}
-	for(;; ) {
+	for(;;) {
 		/*
 		 * We may have seen this page elsewhere, if the overflow entry
 		 * has been promoted to an internal page;  we just want to
@@ -241,7 +241,7 @@ int __db_safe_goff(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, DBT * dbt, void 
 	 * longest possible chains of overflow pages and won't be called again
 	 * with a pgno earlier in the chain, stepping on ourselves.
 	 */
-	for(;; ) {
+	for(;;) {
 		if((ret = __memp_fget(mpf, &pgno, vdp->thread_info, NULL, 0, &h)) != 0)
 			return ret;
 		if(PREV_PGNO(h) == PGNO_INVALID || !IS_VALID_PGNO(PREV_PGNO(h)))

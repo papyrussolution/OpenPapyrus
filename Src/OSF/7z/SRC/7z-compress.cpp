@@ -29,7 +29,7 @@ namespace NCompress {
 				return E_OUTOFMEMORY;
 		}
 		TotalSize = 0;
-		for(;; ) {
+		for(;;) {
 			uint32 size = kBufSize;
 			if(outSize && size > *outSize - TotalSize)
 				size = static_cast<uint32>(*outSize - TotalSize);
@@ -428,12 +428,12 @@ namespace NCompress {
 			uint64 subStreamIndex = 0;
 			uint64 subStreamStartPos = 0;
 			bool readWasFinished = false;
-			for(;; ) {
+			for(;;) {
 				if(needSubSize && getSubStreamSize) {
 					enc.fileIp = 0;
 					enc.fileSize = fileSize_for_Conv;
 					enc.finishMode = BCJ2_ENC_FINISH_MODE_CONTINUE;
-					for(;; ) {
+					for(;;) {
 						uint64 subStreamSize = 0;
 						HRESULT result = getSubStreamSize->GetSubStreamSize(subStreamIndex, &subStreamSize);
 						needSubSize = false;
@@ -582,7 +582,7 @@ namespace NCompress {
 			uint64 outSizeProcessed = 0;
 			uint64 prevProgress = 0;
 			HRESULT res = S_OK;
-			for(;; ) {
+			for(;;) {
 				if(Bcj2Dec_Decode(&dec) != SZ_OK)
 					return S_FALSE;
 				if(dec.state < BCJ2_NUM_STREAMS) {
@@ -723,7 +723,7 @@ namespace NCompress {
 			dec.dest = (Byte *)data;
 			dec.destLim = (const Byte *)data + size;
 			HRESULT res = S_OK;
-			for(;; ) {
+			for(;;) {
 				SRes sres = Bcj2Dec_Decode(&dec);
 				if(sres != SZ_OK)
 					return S_FALSE;

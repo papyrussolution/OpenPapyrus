@@ -1464,6 +1464,30 @@ int FASTCALL IsPrime(ulong val)
 	return Helper_IsPrime(val, 0);
 }
 
+ulong FASTCALL GetPrimeGreaterThan(ulong val)
+{
+	if(val <= 2)
+		val = 3;
+	else {
+		do {
+			val++;
+		} while(!IsPrime(val));
+	}
+	return val;
+}
+
+ulong FASTCALL GetPrimeLowerThan(ulong val)
+{
+	if(val <= 2)
+		val = 0;
+	else {
+		do {
+			val--;
+		} while(!IsPrime(val));
+	}
+	return val;
+}
+
 int MutualReducePrimeMultiplicators(UlongArray & rA1, UlongArray & rA2, UlongArray * pReduceList)
 {
 	int    ok = -1;

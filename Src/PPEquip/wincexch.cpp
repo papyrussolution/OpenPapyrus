@@ -1,5 +1,5 @@
 // WINCEXCH.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -67,7 +67,7 @@ int StyloBHTExch(TcpSocket * pSo)
 				break;
 			case SBHTCmdBuf::cmGetGoods:
 				{
-					char code[256]; // @v9.4.11 [64]-->[256]
+					char code[256];
 					SBHTGoodsRec rec;
 					BarcodeTbl::Rec bc_rec;
 					PPObjGoods gobj;
@@ -301,8 +301,8 @@ int StyloBhtIIExchanger::GetTable(TcpSocket & rSo, int16 cmd, uint fileNameCode,
 		}
 	}
 	CATCH
-		PPError(); // @v9.4.11
-		Log_(PPErrCode, 0, DS.GetTLA().AddedMsgString); // @v9.4.11
+		PPError();
+		Log_(PPErrCode, 0, DS.GetTLA().AddedMsgString);
 		ok = 0;
 	ENDCATCH
 	ZDELETE(p_tbl);
@@ -621,12 +621,7 @@ int StyloBhtIIExchanger::Log_(uint errCode, uint msgCode, const char * pAddInfo)
 		}
 	}
 	else {
-		PPLogMessage(PPFILNAM_INFO_LOG, buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER); // @v9.4.10
-		/* @v9.4.10
-		PPLogger log;
-		log.Log(buf);
-		log.Save(PPFILNAM_INFO_LOG, 0);
-		*/
+		PPLogMessage(PPFILNAM_INFO_LOG, buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 	}
 	return 1;
 }

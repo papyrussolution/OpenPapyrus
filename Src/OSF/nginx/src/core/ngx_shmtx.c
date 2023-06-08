@@ -49,7 +49,7 @@ void FASTCALL ngx_shmtx_lock(ngx_shmtx_t * mtx)
 {
 	ngx_uint_t i, n;
 	ngx_log_debug0(NGX_LOG_DEBUG_CORE, ngx_cycle->log, 0, "shmtx lock");
-	for(;; ) {
+	for(;;) {
 		if(*mtx->lock == 0 && ngx_atomic_cmp_set(mtx->lock, 0, ngx_pid)) {
 			return;
 		}
@@ -114,7 +114,7 @@ static void ngx_shmtx_wakeup(ngx_shmtx_t * mtx)
 	if(!mtx->semaphore) {
 		return;
 	}
-	for(;; ) {
+	for(;;) {
 		wait = *mtx->wait;
 		if((ngx_atomic_int_t)wait <= 0) {
 			return;

@@ -29,7 +29,7 @@ struct Balance_AccItem {
 	PPID   CurID;
 };
 
-IMPL_CMPCFUNC(Balance_AccItem_AcSb, p1, p2) { RET_CMPCASCADE2(static_cast<const Balance_AccItem *>(p1), static_cast<const Balance_AccItem *>(p2), Ac, Sb); }
+IMPL_CMPFUNC(Balance_AccItem_AcSb, p1, p2) { RET_CMPCASCADE2(static_cast<const Balance_AccItem *>(p1), static_cast<const Balance_AccItem *>(p2), Ac, Sb); }
 
 int PPViewBalance::Init_(const PPBaseFilt * pBaseFilt)
 {
@@ -65,7 +65,7 @@ int PPViewBalance::Init_(const PPBaseFilt * pBaseFilt)
 				THROW_SL(aca.insert(&item));
 			}
 		}
-		aca.sort(PTR_CMPCFUNC(Balance_AccItem_AcSb));
+		aca.sort(PTR_CMPFUNC(Balance_AccItem_AcSb));
 		//
 		for(i = 0; aca.enumItems(&i, (void **)&p_aci);) {
 			uint   brf = 0;

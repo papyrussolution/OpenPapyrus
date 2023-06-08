@@ -8308,7 +8308,7 @@ void xmlXPathTranslateFunction(xmlXPathParserContext * ctxt, int nargs)
 	target = xmlBufCreate();
 	if(target) {
 		max = xmlUTF8Strlen(to->stringval);
-		for(cptr = str->stringval; (ch = *cptr); ) {
+		for(cptr = str->stringval; (ch = *cptr);) {
 			offset = xmlUTF8Strloc(from->stringval, cptr);
 			if(offset >= 0) {
 				if(offset < max) {

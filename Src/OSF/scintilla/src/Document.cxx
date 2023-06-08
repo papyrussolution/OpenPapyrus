@@ -939,7 +939,7 @@ int Document::SafeSegment(const char * text, int length, int lengthSegment) cons
 	int lastSpaceBreak = -1;
 	int lastPunctuationBreak = -1;
 	int lastEncodingAllowedBreak = 0;
-	for(int j = 0; j < lengthSegment; ) {
+	for(int j = 0; j < lengthSegment;) {
 		uchar ch = static_cast<uchar>(text[j]);
 		if(j > 0) {
 			if(IsASpaceOrTab(text[j - 1]) && !IsASpaceOrTab(text[j])) {
@@ -1354,7 +1354,7 @@ int FASTCALL Document::GetColumn(int pos)
 	int column = 0;
 	int line = LineFromPosition(pos);
 	if((line >= 0) && (line < LinesTotal())) {
-		for(int i = LineStart(line); i < pos; ) {
+		for(int i = LineStart(line); i < pos;) {
 			char ch = cb.CharAt(i);
 			if(ch == '\t') {
 				column = NextTab(column, tabInChars);
@@ -1879,7 +1879,7 @@ long Document::FindText(int minPos, int maxPos, const char * search, int flags, 
 				int posIndexDocument = pos;
 				int indexSearch = 0;
 				bool characterMatches = true;
-				for(;; ) {
+				for(;;) {
 					const uchar leadByte = static_cast<uchar>(cb.CharAt(posIndexDocument));
 					bytes[0] = leadByte;
 					int widthChar = 1;

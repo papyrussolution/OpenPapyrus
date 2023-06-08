@@ -36,7 +36,7 @@ ngx_chain_t * ngx_wsasend_chain(ngx_connection_t * c, ngx_chain_t * in, nginx_of
 	vec.size = sizeof(WSABUF);
 	vec.nalloc = NGX_WSABUFS;
 	vec.pool = c->pool;
-	for(;; ) {
+	for(;;) {
 		prev = NULL;
 		wsabuf = NULL;
 		prev_send = send;

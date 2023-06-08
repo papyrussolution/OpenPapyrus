@@ -375,7 +375,7 @@ static bool sureThisIsHeredoc(Sci_Position iPrev,
 	}
 	Sci_Position firstWordEndPosn = firstWordPosn;
 	char * dst = prevWord;
-	for(;; ) {
+	for(;;) {
 		if(firstWordEndPosn >= iPrev ||
 		    styler.StyleAt(firstWordEndPosn) != prevStyle) {
 			*dst = 0;

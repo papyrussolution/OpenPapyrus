@@ -60,7 +60,7 @@ uint FASTCALL UTF16CharLength(wchar_t uch)
 uint UTF8Length(const wchar_t * uptr, uint tlen)
 {
 	uint len = 0;
-	for(uint i = 0; i < tlen && uptr[i]; ) {
+	for(uint i = 0; i < tlen && uptr[i];) {
 		uint uch = uptr[i];
 		if(uch < 0x80)
 			len++;
@@ -80,7 +80,7 @@ uint UTF8Length(const wchar_t * uptr, uint tlen)
 void UTF8FromUTF16(const wchar_t * uptr, uint tlen, char * putf, uint len)
 {
 	uint k = 0;
-	for(uint i = 0; i < tlen && uptr[i]; ) {
+	for(uint i = 0; i < tlen && uptr[i];) {
 		uint uch = uptr[i];
 		if(uch < 0x80) {
 			putf[k++] = static_cast<char>(uch);
@@ -125,7 +125,7 @@ size_t UTF16Length(const char * s, size_t len)
 {
 	size_t ulen = 0;
 	size_t charLen;
-	for(size_t i = 0; i < len; ) {
+	for(size_t i = 0; i < len;) {
 		uchar ch = static_cast<uchar>(s[i]);
 		if(ch < 0x80)
 			charLen = 1;

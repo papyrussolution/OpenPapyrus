@@ -95,12 +95,12 @@ void OPJ_CALLCONV opj_image_destroy(opj_image_t * image)
 void opj_image_comp_header_update(opj_image_t * p_image_header, const struct opj_cp * p_cp)
 {
 	opj_image_comp_t* l_img_comp = NULL;
-	uint32_t l_x0 = opj_uint_max(p_cp->tx0, p_image_header->x0);
-	uint32_t l_y0 = opj_uint_max(p_cp->ty0, p_image_header->y0);
+	uint32_t l_x0 = smax(p_cp->tx0, p_image_header->x0);
+	uint32_t l_y0 = smax(p_cp->ty0, p_image_header->y0);
 	uint32_t l_x1 = p_cp->tx0 + (p_cp->tw - 1U) * p_cp->tdx; /* validity of p_cp members used here checked in opj_j2k_read_siz. Can't overflow. */
 	uint32_t l_y1 = p_cp->ty0 + (p_cp->th - 1U) * p_cp->tdy; /* can't overflow */
-	l_x1 = opj_uint_min(opj_uint_adds(l_x1, p_cp->tdx), p_image_header->x1);         /* use add saturated to prevent overflow */
-	l_y1 = opj_uint_min(opj_uint_adds(l_y1, p_cp->tdy), p_image_header->y1);         /* use add saturated to prevent overflow */
+	l_x1 = smin(opj_uint_adds(l_x1, p_cp->tdx), p_image_header->x1);         /* use add saturated to prevent overflow */
+	l_y1 = smin(opj_uint_adds(l_y1, p_cp->tdy), p_image_header->y1);         /* use add saturated to prevent overflow */
 	l_img_comp = p_image_header->comps;
 	for(uint32_t i = 0; i < p_image_header->numcomps; ++i) {
 		uint32_t l_comp_x0 = opj_uint_ceildiv(l_x0, l_img_comp->dx);

@@ -128,7 +128,7 @@ void CPercentPrinter::Print()
 		_temp.Replace('\n', ' ');
 		if(_s.Len() + _temp.Len() > MaxLen) {
 			uint len = FileName.Len();
-			for(; len != 0; ) {
+			for(; len != 0;) {
 				unsigned delta = len / 8;
 				if(delta == 0)
 					delta = 1;

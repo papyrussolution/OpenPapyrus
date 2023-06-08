@@ -846,7 +846,7 @@ bool CStdInStream::Close() throw()
 bool CStdInStream::ScanAStringUntilNewLine(AString &s)
 {
 	s.Empty();
-	for(;; ) {
+	for(;;) {
 		int intChar = GetChar();
 		if(intChar == EOF)
 			return true;
@@ -1033,7 +1033,7 @@ STDMETHODIMP CInFileStream::Read(void * data, uint32 size, uint32 * processedSiz
 			if(size > rem)
 				size = (uint32)rem;
 		}
-		for(;; ) {
+		for(;;) {
 			const uint32 mask = kClusterSize - 1;
 			const uint64 mask2 = ~(uint64)mask;
 			uint64 alignedPos = VirtPos & mask2;
@@ -1387,7 +1387,7 @@ STDMETHODIMP CMultiStream::Read(void * data, uint32 size, uint32 * processedSize
 		return S_OK;
 	{
 		uint   mid = _streamIndex;
-		for(uint left = 0, right = Streams.Size();; ) {
+		for(uint left = 0, right = Streams.Size();;) {
 			CSubStreamInfo &m = Streams[mid];
 			if(_pos < m.GlobalOffset)
 				right = mid;

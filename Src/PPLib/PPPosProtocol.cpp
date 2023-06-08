@@ -1222,11 +1222,11 @@ void * PPPosProtocol::ReadBlock::GetItem(uint refPos, int * pType) const
 	return p_ret;
 }
 
-IMPL_CMPCFUNC(ObjBlockRef_, p1, p2) { RET_CMPCASCADE2((const PPPosProtocol::ObjBlockRef *)p1, (const PPPosProtocol::ObjBlockRef *)p2, Type, P); }
+IMPL_CMPFUNC(ObjBlockRef_, p1, p2) { RET_CMPCASCADE2((const PPPosProtocol::ObjBlockRef *)p1, (const PPPosProtocol::ObjBlockRef *)p2, Type, P); }
 
 /*void PPPosProtocol::ReadBlock::SortRefList()
 {
-	RefList.sort(PTR_CMPCFUNC(ObjBlockRef_));
+	RefList.sort(PTR_CMPFUNC(ObjBlockRef_));
 }*/
 
 int PPPosProtocol::ReadBlock::SearchRef(int type, uint pos, uint * pRefPos) const

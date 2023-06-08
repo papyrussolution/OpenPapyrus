@@ -424,7 +424,7 @@ int __db_byteswap(DB * dbp, db_pgno_t pg, PAGE * h, size_t pagesize, int pgin)
 			    case H_DUPLICATE:
 				len = LEN_HKEYDATA(dbp, h, pagesize, i);
 				p = HKEYDATA_DATA(P_ENTRY(dbp, h, i));
-				for(end = p+len; p < end; ) {
+				for(end = p+len; p < end;) {
 					if(pgin) {
 						P_16_SWAP(p);
 						memcpy(&tmp,
@@ -706,7 +706,7 @@ void __db_recordswap(uint32 op, uint32 size, void * hdr, void * data, uint32 pgi
 			break;
 		    case H_DUPLICATE:
 			p = (uint8 *)hdr;
-			for(end = p+size; p < end; ) {
+			for(end = p+size; p < end;) {
 				if(pgin) {
 					P_16_SWAP(p);
 					memcpy(&tmp, p, sizeof(db_indx_t));

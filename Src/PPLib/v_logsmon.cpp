@@ -330,7 +330,7 @@ int PPViewLogsMonitor::UpdateTempTable(LogsArray *pExpiredLogs)
 				const size_t block_size = 0x100; // изначально читать достаточно большими блоками
 				p_log_file = log_file.operator FILE *();
 				char c, cbuff[0x100];
-				for(j = 0; j < offset; ) { // j: номер строки в файле
+				for(j = 0; j < offset;) { // j: номер строки в файле
 					if(size_t(offset - j) < block_size) { // если "конец близок" то читать по одному байту
 						if(fread(&c, 1, 1, p_log_file)) {
 							if(c=='\n')

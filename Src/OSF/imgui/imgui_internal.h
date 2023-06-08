@@ -410,57 +410,51 @@ static inline double ImRsqrt(double x)          { return 1.0 / sqrt(x); }
 #endif
 // - ImMin/ImMax/sclamp/ImLerp/ImSwap are used by widgets which support variety of types: signed/unsigned int/long long float/double
 // (Exceptionally using templates here but we could also redefine them for those types)
-template <typename T> static inline T ImMin(T lhs, T rhs) { return lhs < rhs ? lhs : rhs; }
-template <typename T> static inline T ImMax(T lhs, T rhs) { return lhs >= rhs ? lhs : rhs; }
+// @sobolev (replaced with smin) template <typename T> static inline T ImMin(T lhs, T rhs) { return lhs < rhs ? lhs : rhs; }
+// @sobolev (replaced with smax) template <typename T> static inline T ImMax(T lhs, T rhs) { return lhs >= rhs ? lhs : rhs; }
 // @sobolev (replaced with sclamp) template <typename T> static inline T ImClamp__Removed(T v, T mn, T mx) { return (v < mn) ? mn : (v > mx) ? mx : v; }
 template <typename T> static inline T ImLerp(T a, T b, float t)                  { return (T)(a + (b - a) * t); }
 template <typename T> static inline void ImSwap(T& a, T& b)                      { T tmp = a; a = b; b = tmp; }
 template <typename T> static inline T ImAddClampOverflow(T a, T b, T mn, T mx)   { if(b < 0 && (a < mn - b)) return mn; if(b > 0 && (a > mx - b))  return mx; return a + b; }
 template <typename T> static inline T ImSubClampOverflow(T a, T b, T mn, T mx)   { if(b > 0 && (a < mn + b)) return mn; if(b < 0 && (a > mx + b))  return mx; return a - b; }
 // - Misc maths helpers
-static inline ImVec2 ImMin(const ImVec2& lhs, const ImVec2& rhs)                { return ImVec2(lhs.x < rhs.x ? lhs.x : rhs.x, lhs.y < rhs.y ? lhs.y : rhs.y); }
-static inline ImVec2 ImMax(const ImVec2& lhs, const ImVec2& rhs)                { return ImVec2(lhs.x >= rhs.x ? lhs.x : rhs.x, lhs.y >= rhs.y ? lhs.y : rhs.y); }
-static inline ImVec2 sclamp(const ImVec2& v, const ImVec2& mn, ImVec2 mx)      { return ImVec2((v.x < mn.x) ? mn.x : (v.x > mx.x) ? mx.x : v.x, (v.y < mn.y) ? mn.y : (v.y > mx.y) ? mx.y : v.y); }
-static inline ImVec2 ImLerp(const ImVec2& a, const ImVec2& b, float t)          { return ImVec2(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t); }
-static inline ImVec2 ImLerp(const ImVec2& a, const ImVec2& b, const ImVec2& t)  { return ImVec2(a.x + (b.x - a.x) * t.x, a.y + (b.y - a.y) * t.y); }
-static inline ImVec4 ImLerp(const ImVec4& a, const ImVec4& b, float t)          
-{ 
-	return ImVec4(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t, a.w + (b.w - a.w) * t); 
-}
-static inline float ImSaturate(float f)                              { return (f < 0.0f) ? 0.0f : (f > 1.0f) ? 1.0f : f; }
-static inline float ImLengthSqr(const ImVec2& lhs)                   { return (lhs.x * lhs.x) + (lhs.y * lhs.y); }
-static inline float ImLengthSqr(const ImVec4& lhs)                   { return (lhs.x * lhs.x) + (lhs.y * lhs.y) + (lhs.z * lhs.z) + (lhs.w * lhs.w); }
-static inline float ImInvLength(const ImVec2& lhs, float fail_value) { float d = (lhs.x * lhs.x) + (lhs.y * lhs.y); if(d > 0.0f)   return ImRsqrt(d); return fail_value; }
-static inline float ImFloor(float f)                                 { return (float)(int)(f); }
-static inline float ImFloorSigned(float f)                           { return (float)((f >= 0 || (float)(int)f == f) ? (int)f : (int)f - 1); }  // Decent replacement for floorf()
-static inline ImVec2 ImFloor(const ImVec2& v)                        { return ImVec2((float)(int)(v.x), (float)(int)(v.y)); }
-static inline ImVec2 ImFloorSigned(const ImVec2& v)                  { return ImVec2(ImFloorSigned(v.x), ImFloorSigned(v.y)); }
-static inline int ImModPositive(int a, int b)                        { return (a + b) % b; }
-static inline float ImDot(const ImVec2& a, const ImVec2& b)          { return a.x * b.x + a.y * b.y; }
-static inline ImVec2 ImRotate(const ImVec2& v, float cos_a, float sin_a)    { return ImVec2(v.x * cos_a - v.y * sin_a, v.x * sin_a + v.y * cos_a); }
+static inline ImVec2 ImMin(const ImVec2 & lhs, const ImVec2 & rhs) { return ImVec2(lhs.x < rhs.x ? lhs.x : rhs.x, lhs.y < rhs.y ? lhs.y : rhs.y); }
+static inline ImVec2 ImMax(const ImVec2 & lhs, const ImVec2 & rhs) { return ImVec2(lhs.x >= rhs.x ? lhs.x : rhs.x, lhs.y >= rhs.y ? lhs.y : rhs.y); }
+static inline ImVec2 sclamp(const ImVec2 & v, const ImVec2 & mn, ImVec2 mx) { return ImVec2((v.x < mn.x) ? mn.x : (v.x > mx.x) ? mx.x : v.x, (v.y < mn.y) ? mn.y : (v.y > mx.y) ? mx.y : v.y); }
+static inline float ImSaturate(float f)             { return (f < 0.0f) ? 0.0f : (f > 1.0f) ? 1.0f : f; }
+static inline float ImLengthSqr(const ImVec2 & lhs) { return (lhs.x * lhs.x) + (lhs.y * lhs.y); }
+static inline float ImLengthSqr(const ImVec4 & lhs) { return (lhs.x * lhs.x) + (lhs.y * lhs.y) + (lhs.z * lhs.z) + (lhs.w * lhs.w); }
+static inline float ImInvLength(const ImVec2 & lhs, float fail_value) { float d = (lhs.x * lhs.x) + (lhs.y * lhs.y); if(d > 0.0f)   return ImRsqrt(d); return fail_value; }
+static inline float ImFloor(float f)                { return (float)(int)(f); }
+static inline float ImFloorSigned(float f)          { return (float)((f >= 0 || (float)(int)f == f) ? (int)f : (int)f - 1); }  // Decent replacement for floorf()
+static inline ImVec2 ImFloor(const ImVec2 & v)      { return ImVec2((float)(int)(v.x), (float)(int)(v.y)); }
+static inline ImVec2 ImFloorSigned(const ImVec2 & v) { return ImVec2(ImFloorSigned(v.x), ImFloorSigned(v.y)); }
+static inline int ImModPositive(int a, int b)        { return (a + b) % b; }
+static inline float ImDot(const ImVec2 & a, const ImVec2 & b) { return a.x * b.x + a.y * b.y; }
+static inline ImVec2 ImRotate(const ImVec2 & v, float cos_a, float sin_a)    { return ImVec2(v.x * cos_a - v.y * sin_a, v.x * sin_a + v.y * cos_a); }
 static inline float ImLinearSweep(float current, float target, float speed)    
 { 
 	if(current < target)   
-		return ImMin(current + speed, target); 
+		return smin(current + speed, target); 
 	if(current > target)  
-		return ImMax(current - speed, target); 
+		return smax(current - speed, target); 
 	return current; 
 }
-static inline ImVec2 ImMul(const ImVec2& lhs, const ImVec2& rhs)                { return ImVec2(lhs.x * rhs.x, lhs.y * rhs.y); }
+static inline ImVec2 ImMul(const ImVec2 & lhs, const ImVec2 & rhs)                { return ImVec2(lhs.x * rhs.x, lhs.y * rhs.y); }
 static inline bool   ImIsFloatAboveGuaranteedIntegerPrecision(float f)          { return f <= -16777216 || f >= 16777216; }
 static inline float  ImExponentialMovingAverage(float avg, float sample, int n) { avg -= avg / n; avg += sample / n; return avg; }
 IM_MSVC_RUNTIME_CHECKS_RESTORE
 
 // Helpers: Geometry
-ImVec2 ImBezierCubicCalc(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, const ImVec2& p4, float t);
-ImVec2 ImBezierCubicClosestPoint(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, const ImVec2& p4, const ImVec2& p, int num_segments);           // For curves with explicit number of segments
-ImVec2 ImBezierCubicClosestPointCasteljau(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, const ImVec2& p4, const ImVec2& p, float tess_tol);    // For auto-tessellated curves you can use tess_tol = style.CurveTessellationTol
-ImVec2 ImBezierQuadraticCalc(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, float t);
-ImVec2 ImLineClosestPoint(const ImVec2& a, const ImVec2& b, const ImVec2& p);
-bool ImTriangleContainsPoint(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& p);
-ImVec2 ImTriangleClosestPoint(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& p);
-void ImTriangleBarycentricCoords(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& p, float& out_u, float& out_v, float& out_w);
-inline float ImTriangleArea(const ImVec2& a, const ImVec2& b, const ImVec2& c) { return ImFabs((a.x * (b.y - c.y)) + (b.x * (c.y - a.y)) + (c.x * (a.y - b.y))) * 0.5f; }
+ImVec2 ImBezierCubicCalc(const ImVec2 & p1, const ImVec2 & p2, const ImVec2 & p3, const ImVec2 & p4, float t);
+ImVec2 ImBezierCubicClosestPoint(const ImVec2 & p1, const ImVec2 & p2, const ImVec2 & p3, const ImVec2 & p4, const ImVec2 & p, int num_segments);           // For curves with explicit number of segments
+ImVec2 ImBezierCubicClosestPointCasteljau(const ImVec2 & p1, const ImVec2 & p2, const ImVec2 & p3, const ImVec2 & p4, const ImVec2 & p, float tess_tol);    // For auto-tessellated curves you can use tess_tol = style.CurveTessellationTol
+ImVec2 ImBezierQuadraticCalc(const ImVec2 & p1, const ImVec2 & p2, const ImVec2 & p3, float t);
+ImVec2 ImLineClosestPoint(const ImVec2 & a, const ImVec2 & b, const ImVec2 & p);
+bool ImTriangleContainsPoint(const ImVec2 & a, const ImVec2 & b, const ImVec2 & c, const ImVec2 & p);
+ImVec2 ImTriangleClosestPoint(const ImVec2 & a, const ImVec2 & b, const ImVec2 & c, const ImVec2 & p);
+void ImTriangleBarycentricCoords(const ImVec2 & a, const ImVec2 & b, const ImVec2 & c, const ImVec2 & p, float& out_u, float& out_v, float& out_w);
+inline float ImTriangleArea(const ImVec2 & a, const ImVec2 & b, const ImVec2 & c) { return ImFabs((a.x * (b.y - c.y)) + (b.x * (c.y - a.y)) + (c.x * (a.y - b.y))) * 0.5f; }
 ImGuiDir ImGetDirQuadrantFromDelta(float dx, float dy);
 
 // Helper: ImVec1 (1D vector)
@@ -482,7 +476,7 @@ struct ImVec2ih {
 	short y;
 	constexpr ImVec2ih()                           : x(0), y(0) {}
 	constexpr ImVec2ih(short _x, short _y)         : x(_x), y(_y) {}
-	constexpr explicit ImVec2ih(const ImVec2& rhs) : x((short)rhs.x), y((short)rhs.y) {}
+	constexpr explicit ImVec2ih(const ImVec2 & rhs) : x((short)rhs.x), y((short)rhs.y) {}
 };
 
 // Helper: ImRect (2D axis aligned bounding-box)
@@ -494,10 +488,10 @@ struct ImRect {
 	constexpr ImRect() : Min(0.0f, 0.0f), Max(0.0f, 0.0f)  
 	{
 	}
-	constexpr ImRect(const ImVec2& min, const ImVec2& max) : Min(min), Max(max)
+	constexpr ImRect(const ImVec2 & min, const ImVec2 & max) : Min(min), Max(max)
 	{
 	}
-	constexpr ImRect(const ImVec4& v) : Min(v.x, v.y), Max(v.z, v.w)
+	constexpr ImRect(const ImVec4 & v) : Min(v.x, v.y), Max(v.z, v.w)
 	{
 	}
 	constexpr ImRect(float x1, float y1, float x2, float y2)  : Min(x1, y1), Max(x2, y2)
@@ -512,7 +506,7 @@ struct ImRect {
 	ImVec2 GetTR() const { return ImVec2(Max.x, Min.y); }                    // Top-right
 	ImVec2 GetBL() const { return ImVec2(Min.x, Max.y); }                    // Bottom-left
 	ImVec2 GetBR() const { return Max; }                                     // Bottom-right
-	bool Contains(const ImVec2& p) const { return p.x     >= Min.x && p.y     >= Min.y && p.x     <  Max.x && p.y     <  Max.y; }
+	bool Contains(const ImVec2 & p) const { return p.x     >= Min.x && p.y     >= Min.y && p.x     <  Max.x && p.y     <  Max.y; }
 	bool Contains(const ImRect& r) const { return r.Min.x >= Min.x && r.Min.y >= Min.y && r.Max.x <= Max.x && r.Max.y <= Max.y; }
 	bool Overlaps(const ImRect& r) const { return r.Min.y <  Max.y && r.Max.y >  Min.y && r.Min.x <  Max.x && r.Max.x >  Min.x; }
 	void Add(const ImVec2 & p)
@@ -530,8 +524,8 @@ struct ImRect {
 		SETMAX(Max.y, r.Max.y);
 	}
 	void Expand(const float amount)   { Min.x -= amount;   Min.y -= amount;   Max.x += amount;   Max.y += amount; }
-	void Expand(const ImVec2& amount) { Min.x -= amount.x; Min.y -= amount.y; Max.x += amount.x; Max.y += amount.y; }
-	void Translate(const ImVec2& d)   { Min.x += d.x; Min.y += d.y; Max.x += d.x; Max.y += d.y; }
+	void Expand(const ImVec2 & amount) { Min.x -= amount.x; Min.y -= amount.y; Max.x += amount.x; Max.y += amount.y; }
+	void Translate(const ImVec2 & d)   { Min.x += d.x; Min.y += d.y; Max.x += d.x; Max.y += d.y; }
 	void TranslateX(float dx)         { Min.x += dx; Max.x += dx; }
 	void TranslateY(float dy)         { Min.y += dy; Max.y += dy; }
 	void ClipWith(const ImRect& r) // Simple version, may lead to an inverted rectangle, which is fine for Contains/Overlaps test but not for display.
@@ -833,19 +827,18 @@ struct ImGuiTextIndex {
 #define IM_ROUNDUP_TO_EVEN(_V)                                  ((((_V)+1) / 2) * 2)
 #define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MIN                     4
 #define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX                     512
-#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(_RAD, _MAXERROR)    sclamp(IM_ROUNDUP_TO_EVEN((int)ImCeil(IM_PI / ImAcos(1 - ImMin((_MAXERROR), (_RAD)) / (_RAD)))), \
-	    IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MIN, \
-	    IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX)
+#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(_RAD, _MAXERROR)    sclamp(IM_ROUNDUP_TO_EVEN((int)ImCeil(IM_PI / ImAcos(1 - smin((_MAXERROR), (_RAD)) / (_RAD)))), \
+	    IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MIN, IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX)
 
 // Raw equation from IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC rewritten for 'r' and 'error'.
-#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_R(_N, _MAXERROR)    ((_MAXERROR) / (1 - ImCos(IM_PI / ImMax((float)(_N), IM_PI))))
-#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_ERROR(_N, _RAD)     ((1 - ImCos(IM_PI / ImMax((float)(_N), IM_PI))) / (_RAD))
+#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_R(_N, _MAXERROR)    ((_MAXERROR) / (1 - ImCos(IM_PI / smax((float)(_N), IM_PI))))
+#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_ERROR(_N, _RAD)     ((1 - ImCos(IM_PI / smax((float)(_N), IM_PI))) / (_RAD))
 
 // ImDrawList: Lookup table size for adaptive arc drawing, cover full circle.
 #ifndef IM_DRAWLIST_ARCFAST_TABLE_SIZE
 #define IM_DRAWLIST_ARCFAST_TABLE_SIZE                          48 // Number of samples in lookup table.
 #endif
-#define IM_DRAWLIST_ARCFAST_SAMPLE_MAX                          IM_DRAWLIST_ARCFAST_TABLE_SIZE // Sample index _PathArcToFastEx() for 360 angle.
+#define IM_DRAWLIST_ARCFAST_SAMPLE_MAX IM_DRAWLIST_ARCFAST_TABLE_SIZE // Sample index _PathArcToFastEx() for 360 angle.
 
 // Data shared between all ImDrawList instances
 // You may want to create your own instance of this if you want to use ImDrawList completely without ImGui. In that case, watch out for future changes to this structure.
@@ -1193,9 +1186,9 @@ struct ImGuiInputTextState {
 	void   CursorAnimReset() { CursorAnim = -0.30f; } // After a user-input the cursor stays on for a while without blinking
 	void   CursorClamp()     
 	{
-		Stb.cursor = ImMin(Stb.cursor, CurLenW); 
-		Stb.select_start = ImMin(Stb.select_start, CurLenW); 
-		Stb.select_end = ImMin(Stb.select_end, CurLenW);
+		Stb.cursor = smin(Stb.cursor, CurLenW); 
+		Stb.select_start = smin(Stb.select_start, CurLenW); 
+		Stb.select_end = smin(Stb.select_end, CurLenW);
 	}
 	bool   HasSelection() const { return Stb.select_start != Stb.select_end; }
 	void   ClearSelection() { Stb.select_start = Stb.select_end = Stb.cursor; }
@@ -1736,9 +1729,9 @@ struct ImGuiViewportP : public ImGuiViewport {
 			IM_DELETE(DrawLists[1]);
 	}
 	// Calculate work rect pos/size given a set of offset (we have 1 pair of offset for rect locked from last frame data, and 1 pair for currently building rect)
-	ImVec2 CalcWorkRectPos(const ImVec2& off_min) const { return ImVec2(Pos.x + off_min.x, Pos.y + off_min.y); }
-	ImVec2 CalcWorkRectSize(const ImVec2& off_min,
-	const ImVec2& off_max) const { return ImVec2(ImMax(0.0f, Size.x - off_min.x + off_max.x), ImMax(0.0f, Size.y - off_min.y + off_max.y)); }
+	ImVec2 CalcWorkRectPos(const ImVec2 & off_min) const { return ImVec2(Pos.x + off_min.x, Pos.y + off_min.y); }
+	ImVec2 CalcWorkRectSize(const ImVec2 & off_min,
+	const ImVec2 & off_max) const { return ImVec2(smax(0.0f, Size.x - off_min.x + off_max.x), smax(0.0f, Size.y - off_min.y + off_max.y)); }
 	void    UpdateWorkRect() // Update public fields
 	{ 
 		WorkPos = CalcWorkRectPos(WorkOffsetMin); 
@@ -2869,10 +2862,10 @@ bool IsWindowChildOf(ImGuiWindow * window, ImGuiWindow* potential_parent, bool p
 bool IsWindowWithinBeginStackOf(ImGuiWindow * window, ImGuiWindow* potential_parent);
 bool IsWindowAbove(ImGuiWindow* potential_above, ImGuiWindow* potential_below);
 bool IsWindowNavFocusable(ImGuiWindow * window);
-void SetWindowPos(ImGuiWindow * window, const ImVec2& pos, ImGuiCond cond = 0);
-void SetWindowSize(ImGuiWindow * window, const ImVec2& size, ImGuiCond cond = 0);
+void SetWindowPos(ImGuiWindow * window, const ImVec2 & pos, ImGuiCond cond = 0);
+void SetWindowSize(ImGuiWindow * window, const ImVec2 & size, ImGuiCond cond = 0);
 void SetWindowCollapsed(ImGuiWindow * window, bool collapsed, ImGuiCond cond = 0);
-void SetWindowHitTestHole(ImGuiWindow * window, const ImVec2& pos, const ImVec2& size);
+void SetWindowHitTestHole(ImGuiWindow * window, const ImVec2 & pos, const ImVec2 & size);
 void SetWindowHiddendAndSkipItemsForCurrentFrame(ImGuiWindow * window);
 inline ImRect WindowRectAbsToRel(ImGuiWindow * window, const ImRect& r) 
 { 
@@ -2974,7 +2967,7 @@ ImGuiID GetIDWithSeed(const char* str_id_begin, const char* str_id_end, ImGuiID 
 ImGuiID GetIDWithSeed(int n, ImGuiID seed);
 
 // Basic Helpers for widget code
-void ItemSize(const ImVec2& size, float text_baseline_y = -1.0f);
+void ItemSize(const ImVec2 & size, float text_baseline_y = -1.0f);
 inline void ItemSize(const ImRect& bb, float text_baseline_y = -1.0f) { ItemSize(bb.GetSize(), text_baseline_y); } // FIXME: This is a misleading API since we expect CursorPos to be bb.Min.
 bool ItemAdd(const ImRect& bb, ImGuiID id, const ImRect* nav_bb = NULL, ImGuiItemFlags extra_flags = 0);
 bool ItemHoverable(const ImRect& bb, ImGuiID id);
@@ -2982,7 +2975,7 @@ bool IsWindowContentHoverable(ImGuiWindow * window, ImGuiHoveredFlags flags = 0)
 bool IsClippedEx(const ImRect& bb, ImGuiID id);
 void SetLastItemData(ImGuiID item_id, ImGuiItemFlags in_flags, ImGuiItemStatusFlags status_flags, const ImRect& item_rect);
 ImVec2 CalcItemSize(ImVec2 size, float default_w, float default_h);
-float CalcWrapWidthForPos(const ImVec2& pos, float wrap_pos_x);
+float CalcWrapWidthForPos(const ImVec2 & pos, float wrap_pos_x);
 void PushMultiItemsWidths(int components, float width_full);
 bool   IsItemToggledSelection(); // Was the last item selection toggled? (after Selectable(), TreeNode() etc. We only returns toggle _event_ in order to handle clipping correctly)
 ImVec2 GetContentRegionMaxAbs();
@@ -3000,7 +2993,7 @@ void LogRenderedText(const ImVec2* ref_pos, const char* text, const char* text_e
 void LogSetNextTextDecoration(const char* prefix, const char* suffix);
 
 // Popups, Modals, Tooltips
-bool BeginChildEx(const char* name, ImGuiID id, const ImVec2& size_arg, bool border, ImGuiWindowFlags flags);
+bool BeginChildEx(const char* name, ImGuiID id, const ImVec2 & size_arg, bool border, ImGuiWindowFlags flags);
 void OpenPopupEx(ImGuiID id, ImGuiPopupFlags popup_flags = ImGuiPopupFlags_None);
 void ClosePopupToLevel(int remaining, bool restore_focus_to_window_under_popup);
 void ClosePopupsOverWindow(ImGuiWindow* ref_window, bool restore_focus_to_window_under_popup);
@@ -3012,7 +3005,7 @@ ImRect GetPopupAllowedExtentRect(ImGuiWindow * window);
 ImGuiWindow*  GetTopMostPopupModal();
 ImGuiWindow*  GetTopMostAndVisiblePopupModal();
 ImVec2 FindBestWindowPosForPopup(ImGuiWindow * window);
-ImVec2 FindBestWindowPosForPopupEx(const ImVec2& ref_pos, const ImVec2& size, ImGuiDir* last_dir, const ImRect& r_outer, const ImRect& r_avoid,
+ImVec2 FindBestWindowPosForPopupEx(const ImVec2 & ref_pos, const ImVec2 & size, ImGuiDir* last_dir, const ImRect& r_outer, const ImRect& r_avoid,
 ImGuiPopupPositionPolicy policy);
 
 // Menus
@@ -3173,7 +3166,7 @@ void  TablePopBackgroundChannel();
 // Tables: Internals
 inline ImGuiTable*   GetCurrentTable() { ImGuiContext & g = *GImGui; return g.CurrentTable; }
 ImGuiTable*   TableFindByID(ImGuiID id);
-bool BeginTableEx(const char* name, ImGuiID id, int columns_count, ImGuiTableFlags flags = 0, const ImVec2& outer_size = ImVec2(0, 0), float inner_width = 0.0f);
+bool BeginTableEx(const char* name, ImGuiID id, int columns_count, ImGuiTableFlags flags = 0, const ImVec2 & outer_size = ImVec2(0, 0), float inner_width = 0.0f);
 void TableBeginInitMemory(ImGuiTable* table, int columns_count);
 void TableBeginApplyRequests(ImGuiTable* table);
 void TableSetupDrawChannels(ImGuiTable* table);
@@ -3242,11 +3235,11 @@ ImGuiID close_button_id, bool is_contents_visible, bool* out_just_closed, bool* 
 // NB: All position are in absolute pixels coordinates (we are never using window coordinates internally)
 void RenderText(ImVec2 pos, const char* text, const char* text_end = NULL, bool hide_text_after_hash = true);
 void RenderTextWrapped(ImVec2 pos, const char* text, const char* text_end, float wrap_width);
-void RenderTextClipped(const ImVec2& pos_min, const ImVec2& pos_max, const char* text, const char* text_end, const ImVec2* text_size_if_known,
-const ImVec2& align = ImVec2(0, 0), const ImRect* clip_rect = NULL);
-void RenderTextClippedEx(ImDrawList* draw_list, const ImVec2& pos_min, const ImVec2& pos_max, const char* text, const char* text_end, const ImVec2* text_size_if_known,
-const ImVec2& align = ImVec2(0, 0), const ImRect* clip_rect = NULL);
-void RenderTextEllipsis(ImDrawList* draw_list, const ImVec2& pos_min, const ImVec2& pos_max, float clip_max_x, float ellipsis_max_x, const char* text,
+void RenderTextClipped(const ImVec2 & pos_min, const ImVec2 & pos_max, const char* text, const char* text_end, const ImVec2* text_size_if_known,
+const ImVec2 & align = ImVec2(0, 0), const ImRect* clip_rect = NULL);
+void RenderTextClippedEx(ImDrawList* draw_list, const ImVec2 & pos_min, const ImVec2 & pos_max, const char* text, const char* text_end, const ImVec2* text_size_if_known,
+const ImVec2 & align = ImVec2(0, 0), const ImRect* clip_rect = NULL);
+void RenderTextEllipsis(ImDrawList* draw_list, const ImVec2 & pos_min, const ImVec2 & pos_max, float clip_max_x, float ellipsis_max_x, const char* text,
 const char* text_end, const ImVec2* text_size_if_known);
 void RenderFrame(ImVec2 p_min, ImVec2 p_max, ImU32 fill_col, bool border = true, float rounding = 0.0f);
 void RenderFrameBorder(ImVec2 p_min, ImVec2 p_max, float rounding = 0.0f);
@@ -3266,9 +3259,9 @@ void RenderRectFilledWithHole(ImDrawList* draw_list, const ImRect& outer, const 
 
 // Widgets
 void TextEx(const char* text, const char* text_end = NULL, ImGuiTextFlags flags = 0);
-bool ButtonEx(const char* label, const ImVec2& size_arg = ImVec2(0, 0), ImGuiButtonFlags flags = 0);
+bool ButtonEx(const char* label, const ImVec2 & size_arg = ImVec2(0, 0), ImGuiButtonFlags flags = 0);
 bool ArrowButtonEx(const char* str_id, ImGuiDir dir, ImVec2 size_arg, ImGuiButtonFlags flags = 0);
-bool ImageButtonEx(ImGuiID id, ImTextureID texture_id, const ImVec2& size, const ImVec2& uv0, const ImVec2& uv1, const ImVec4& bg_col, const ImVec4& tint_col,
+bool ImageButtonEx(ImGuiID id, ImTextureID texture_id, const ImVec2 & size, const ImVec2 & uv0, const ImVec2 & uv1, const ImVec4 & bg_col, const ImVec4 & tint_col,
 ImGuiButtonFlags flags = 0);
 void SeparatorEx(ImGuiSeparatorFlags flags);
 void SeparatorTextEx(ImGuiID id, const char* label, const char* label_end, float extra_width);
@@ -3276,8 +3269,8 @@ bool CheckboxFlags(const char* label, ImS64* flags, ImS64 flags_value);
 bool CheckboxFlags(const char* label, ImU64* flags, ImU64 flags_value);
 
 // Widgets: Window Decorations
-bool CloseButton(ImGuiID id, const ImVec2& pos);
-bool CollapseButton(ImGuiID id, const ImVec2& pos);
+bool CloseButton(ImGuiID id, const ImVec2 & pos);
+bool CollapseButton(ImGuiID id, const ImVec2 & pos);
 void Scrollbar(ImGuiAxis axis);
 bool ScrollbarEx(const ImRect& bb, ImGuiID id, ImGuiAxis axis, ImS64* p_scroll_v, ImS64 avail_v, ImS64 contents_v, ImDrawFlags flags);
 ImRect GetWindowScrollbarRect(ImGuiWindow * window, ImGuiAxis axis);
@@ -3316,7 +3309,7 @@ int DataTypeCompare(ImGuiDataType data_type, const void* arg_1, const void* arg_
 bool DataTypeClamp(ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max);
 
 // InputText
-bool InputTextEx(const char* label, const char* hint, char* buf, int buf_size, const ImVec2& size_arg, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback = NULL,
+bool InputTextEx(const char* label, const char* hint, char* buf, int buf_size, const ImVec2 & size_arg, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback = NULL,
 void* user_data = NULL);
 void InputTextDeactivateHook(ImGuiID id);
 bool TempInputText(const ImRect& bb, ImGuiID id, const char* label, char* buf, int buf_size, ImGuiInputTextFlags flags);
@@ -3331,11 +3324,11 @@ void ColorPickerOptionsPopup(const float* ref_col, ImGuiColorEditFlags flags);
 
 // Plot
 int PlotEx(ImGuiPlotType plot_type, const char* label, float(*values_getter)(void* data, int idx), void* data, int values_count, int values_offset,
-const char* overlay_text, float scale_min, float scale_max, const ImVec2& size_arg);
+const char* overlay_text, float scale_min, float scale_max, const ImVec2 & size_arg);
 
 // Shade functions (write over already created vertices)
 void ShadeVertsLinearColorGradientKeepAlpha(ImDrawList* draw_list, int vert_start_idx, int vert_end_idx, ImVec2 gradient_p0, ImVec2 gradient_p1, ImU32 col0, ImU32 col1);
-void ShadeVertsLinearUV(ImDrawList* draw_list, int vert_start_idx, int vert_end_idx, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, bool clamp);
+void ShadeVertsLinearUV(ImDrawList* draw_list, int vert_start_idx, int vert_end_idx, const ImVec2 & a, const ImVec2 & b, const ImVec2 & uv_a, const ImVec2 & uv_b, bool clamp);
 
 // Garbage collection
 void GcCompactTransientMiscBuffers();

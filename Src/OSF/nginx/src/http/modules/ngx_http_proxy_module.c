@@ -1015,7 +1015,7 @@ static ngx_int_t ngx_http_proxy_body_output_filter(void * data, ngx_chain_t * in
 	size = 0;
 	cl = in;
 	fl = ll;
-	for(;; ) {
+	for(;;) {
 		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "proxy output chunk: %O", ngx_buf_size(cl->buf));
 		size += ngx_buf_size(cl->buf);
 		if(cl->buf->flush || cl->buf->sync || ngx_buf_in_memory(cl->buf) || cl->buf->in_file) {
@@ -1191,7 +1191,7 @@ static ngx_int_t ngx_http_proxy_process_header(ngx_http_request_t * r)
 
 	umcf = (ngx_http_upstream_main_conf_t *)ngx_http_get_module_main_conf(r, ngx_http_upstream_module);
 
-	for(;; ) {
+	for(;;) {
 		rc = ngx_http_parse_header_line(r, &r->upstream->buffer, 1);
 
 		if(rc == NGX_OK) {
@@ -1421,7 +1421,7 @@ static ngx_int_t ngx_http_proxy_chunked_filter(ngx_event_pipe_t * p, ngx_buf_t *
 	}
 	b = NULL;
 	prev = &buf->shadow;
-	for(;; ) {
+	for(;;) {
 		rc = ngx_http_parse_chunked(r, buf, &ctx->chunked);
 		if(rc == NGX_OK) {
 			/* a chunk has been parsed successfully */
@@ -1542,7 +1542,7 @@ static ngx_int_t ngx_http_proxy_non_buffered_chunked_filter(void * data, ssize_t
 	for(cl = u->out_bufs, ll = &u->out_bufs; cl; cl = cl->next) {
 		ll = &cl->next;
 	}
-	for(;; ) {
+	for(;;) {
 		rc = ngx_http_parse_chunked(r, buf, &ctx->chunked);
 		if(rc == NGX_OK) {
 			/* a chunk has been parsed successfully */

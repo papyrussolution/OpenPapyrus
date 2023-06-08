@@ -400,7 +400,7 @@ void Selection::MovePositions(bool insertion, int startChange, int length)
 
 void Selection::TrimSelection(SelectionRange range)
 {
-	for(size_t i = 0; i < Ranges.size(); ) {
+	for(size_t i = 0; i < Ranges.size();) {
 		if((i != mainRange) && Ranges[i].Trim(range)) {
 			// Trimmed to empty so remove
 			for(size_t j = i; j < Ranges.size()-1; j++) {

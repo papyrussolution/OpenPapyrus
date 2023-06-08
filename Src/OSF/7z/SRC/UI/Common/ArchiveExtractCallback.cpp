@@ -647,7 +647,7 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 			isRelative = false;
 			linkPath.DeleteFrontal(4);
 		}
-		for(;; ) {
+		for(;;) {
 			// while (NName::IsAbsolutePath(linkPath))
 			unsigned n = NName::GetRootPrefixSize(linkPath);
 			if(n == 0)

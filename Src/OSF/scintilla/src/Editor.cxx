@@ -868,7 +868,7 @@ void Editor::MultipleSelectAdd(AddNumber addNumber)
 		for(std::vector <Range>::const_iterator it = searchRanges.begin(); it != searchRanges.end(); ++it) {
 			int searchStart = it->start;
 			const int searchEnd = it->end;
-			for(;; ) {
+			for(;;) {
 				int lengthFound = static_cast<int>(selectedText.length());
 				int pos = static_cast<int>(pdoc->FindText(searchStart, searchEnd, selectedText.c_str(), searchFlags, &lengthFound));
 				if(pos >= 0) {
@@ -5341,7 +5341,7 @@ void Editor::FoldExpand(int line, int action, int level)
 
 int Editor::ContractedFoldNext(int lineStart) const
 {
-	for(int line = lineStart; line<pdoc->LinesTotal(); ) {
+	for(int line = lineStart; line<pdoc->LinesTotal();) {
 		if(!cs.GetExpanded(line) && (pdoc->GetLevel(line) & SC_FOLDLEVELHEADERFLAG))
 			return line;
 		line = cs.ContractedNext(line+1);

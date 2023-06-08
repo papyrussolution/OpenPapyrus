@@ -33,8 +33,8 @@
  * Fixed-point configuration
  */
 typedef int32		cairo_fixed_16_16_t;
-typedef cairo_int64_t	cairo_fixed_32_32_t;
-typedef cairo_int64_t	cairo_fixed_48_16_t;
+typedef int64	cairo_fixed_32_32_t;
+typedef int64	cairo_fixed_48_16_t;
 typedef cairo_int128_t	cairo_fixed_64_64_t;
 typedef cairo_int128_t	cairo_fixed_96_32_t;
 // 

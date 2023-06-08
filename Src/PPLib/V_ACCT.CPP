@@ -130,7 +130,7 @@ int FASTCALL PPViewAccount::CheckForFilt(const PPAccount & rItem) const
 	return BIN(rItem.CurID == 0 && CheckFiltID(Filt.Type, rItem.Type) && ObjRts.CheckAccID(rItem.ID, PPR_READ));
 }
 
-IMPL_CMPCFUNC(PPViewAccount_BrwEntry_A, p1, p2) { RET_CMPCASCADE2(static_cast<const PPViewAccount::BrwEntry *>(p1), static_cast<const PPViewAccount::BrwEntry *>(p2), A.Ac, A.Sb); }
+IMPL_CMPFUNC(PPViewAccount_BrwEntry_A, p1, p2) { RET_CMPCASCADE2(static_cast<const PPViewAccount::BrwEntry *>(p1), static_cast<const PPViewAccount::BrwEntry *>(p2), A.Ac, A.Sb); }
 
 int PPViewAccount::FetchData(long id)
 {
@@ -160,7 +160,7 @@ int PPViewAccount::FetchData(long id)
 		else if(found)
 			THROW_SL(Data.atFree(pos));
 	}
-	Data.sort(PTR_CMPCFUNC(PPViewAccount_BrwEntry_A));
+	Data.sort(PTR_CMPFUNC(PPViewAccount_BrwEntry_A));
 	CATCHZOK
 	return ok;
 }

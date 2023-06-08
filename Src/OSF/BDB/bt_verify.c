@@ -2105,7 +2105,7 @@ int __bam_meta2pgset(DB * dbp, VRFY_DBINFO * vdp, BTMETA * btmeta, uint32 flags,
 	mpf = dbp->mpf;
 	h = NULL;
 	ret = err_ret = 0;
-	for(current = btmeta->root;; ) {
+	for(current = btmeta->root;;) {
 		if(!IS_VALID_PGNO(current) || current == PGNO(btmeta)) {
 			err_ret = DB_VERIFY_BAD;
 			goto err;

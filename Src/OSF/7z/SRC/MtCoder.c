@@ -21,7 +21,7 @@ void LoopThread_Close(CLoopThread * p)
 static THREAD_FUNC_RET_TYPE THREAD_FUNC_CALL_TYPE LoopThreadFunc(void * pp)
 {
 	CLoopThread * p = static_cast<CLoopThread *>(pp);
-	for(;; ) {
+	for(;;) {
 		if(Event_Wait(&p->startEvent) != 0)
 			return SZ_ERROR_THREAD;
 		else if(p->stop)
@@ -207,7 +207,7 @@ static SRes MtThread_Process(CMtThread * p, Bool * stop)
 static THREAD_FUNC_RET_TYPE THREAD_FUNC_CALL_TYPE ThreadFunc(void * pp)
 {
 	CMtThread * p = static_cast<CMtThread *>(pp);
-	for(;; ) {
+	for(;;) {
 		Bool stop;
 		CMtThread * next = GET_NEXT_THREAD(p);
 		SRes res = MtThread_Process(p, &stop);

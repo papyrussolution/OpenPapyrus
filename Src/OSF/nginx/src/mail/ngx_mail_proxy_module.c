@@ -696,7 +696,7 @@ static void ngx_mail_proxy_handler(ngx_event_t * ev)
 	}
 	do_write = ev->write ? 1 : 0;
 	ngx_log_debug3(NGX_LOG_DEBUG_MAIL, ev->log, 0, "mail proxy handler: %ui, #%d > #%d", do_write, src->fd, dst->fd);
-	for(;; ) {
+	for(;;) {
 		if(do_write) {
 			size = b->last - b->pos;
 			if(size && dst->P_EvWr->ready) {

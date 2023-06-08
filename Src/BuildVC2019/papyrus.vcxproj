@@ -1849,9 +1849,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="gravity.vcxproj">
-      <Project>{ec12be0a-025e-4168-9d2d-419a18cb2ef5}</Project>
-    </ProjectReference>
     <ProjectReference Include="icu-stubdata.vcxproj">
       <Project>{203ec78a-0531-43f0-a636-285439bde025}</Project>
     </ProjectReference>
@@ -1880,9 +1877,6 @@
     </ProjectReference>
     <ProjectReference Include="libthirdparty.vcxproj">
       <Project>{5edcf4fd-0291-4fb9-8d96-d58957ca5e3c}</Project>
-    </ProjectReference>
-    <ProjectReference Include="libwebp-slib.vcxproj">
-      <Project>{05255f31-2054-4df4-ad6d-5bc5da8ccccf}</Project>
     </ProjectReference>
     <ProjectReference Include="libxml.vcxproj">
       <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>

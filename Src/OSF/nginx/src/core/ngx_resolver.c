@@ -1078,7 +1078,7 @@ static time_t ngx_resolver_resend(ngx_resolver_t * r, ngx_rbtree_t * tree, ngx_q
 	ngx_queue_t * q;
 	ngx_resolver_node_t  * rn;
 	time_t now = ngx_time();
-	for(;; ) {
+	for(;;) {
 		if(ngx_queue_empty(queue)) {
 			return 0;
 		}
@@ -1183,7 +1183,7 @@ static void ngx_resolver_tcp_read(ngx_event_t * rev)
 			goto failed;
 		}
 		b->last += n;
-		for(;; ) {
+		for(;;) {
 			p = b->pos;
 			size = b->last - p;
 			if(size < 2) {
@@ -1637,7 +1637,7 @@ found:
 		i = ans;
 
 		for(a = 0; a < nan; a++) {
-			for(;; ) {
+			for(;;) {
 				if(buf[i] & 0xc0) {
 					i += 2;
 					break;
@@ -2006,7 +2006,7 @@ found:
 		j = 0;
 		i = ans;
 		for(a = 0; a < nan; a++) {
-			for(;; ) {
+			for(;;) {
 				if(buf[i] & 0xc0) {
 					i += 2;
 					break;
@@ -2548,7 +2548,7 @@ static void ngx_resolver_rbtree_insert_value(ngx_rbtree_node_t * temp, ngx_rbtre
 {
 	ngx_rbtree_node_t ** p;
 	ngx_resolver_node_t * rn, * rn_temp;
-	for(;; ) {
+	for(;;) {
 		if(node->key < temp->key) {
 			p = &temp->left;
 		}
@@ -2578,7 +2578,7 @@ static void ngx_resolver_rbtree_insert_addr6_value(ngx_rbtree_node_t * temp, ngx
 {
 	ngx_rbtree_node_t    ** p;
 	ngx_resolver_node_t * rn, * rn_temp;
-	for(;; ) {
+	for(;;) {
 		if(node->key < temp->key) {
 			p = &temp->left;
 		}
@@ -2865,7 +2865,7 @@ done:
 	}
 	name->data = dst;
 	n = *src++;
-	for(;; ) {
+	for(;;) {
 		if(n & 0xc0) {
 			n = ((n & 0x3f) << 8) + *src;
 			src = &buf[n];

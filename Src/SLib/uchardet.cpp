@@ -3250,7 +3250,7 @@ void nsCharSetProber::JapaneseContextAnalysis::HandleData(const char * aBuf, uin
 		// We can choose to record those bytes as well and analyse the character once it
 		// is complete, but since a character will not make much difference, by simply skipping
 		// this character will simply our logic and improve performance.
-		for(uint32 i = mNeedToSkipCharNum; i < aLen; ) {
+		for(uint32 i = mNeedToSkipCharNum; i < aLen;) {
 			uint32 charLen;
 			const int32 order = GetOrder(aBuf+i, &charLen);
 			i += charLen;

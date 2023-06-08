@@ -682,34 +682,23 @@ FormattedRelativeDateTimeData::~FormattedRelativeDateTimeData() = default;
 UPRV_FORMATTED_VALUE_SUBCLASS_AUTO_IMPL(FormattedRelativeDateTime)
 
 RelativeDateTimeFormatter::RelativeDateTimeFormatter(UErrorCode & status) :
-	fCache(nullptr),
-	fNumberFormat(nullptr),
-	fPluralRules(nullptr),
-	fStyle(UDAT_STYLE_LONG),
-	fContext(UDISPCTX_CAPITALIZATION_NONE),
-	fOptBreakIterator(nullptr) {
+	fCache(nullptr), fNumberFormat(nullptr), fPluralRules(nullptr), fStyle(UDAT_STYLE_LONG),
+	fContext(UDISPCTX_CAPITALIZATION_NONE), fOptBreakIterator(nullptr) 
+{
 	init(nullptr, nullptr, status);
 }
 
-RelativeDateTimeFormatter::RelativeDateTimeFormatter(const Locale & locale, UErrorCode & status) :
-	fCache(nullptr),
-	fNumberFormat(nullptr),
-	fPluralRules(nullptr),
-	fStyle(UDAT_STYLE_LONG),
-	fContext(UDISPCTX_CAPITALIZATION_NONE),
-	fOptBreakIterator(nullptr),
-	fLocale(locale) {
+RelativeDateTimeFormatter::RelativeDateTimeFormatter(const Locale & locale, UErrorCode & status) : fCache(nullptr),
+	fNumberFormat(nullptr), fPluralRules(nullptr), fStyle(UDAT_STYLE_LONG), fContext(UDISPCTX_CAPITALIZATION_NONE),
+	fOptBreakIterator(nullptr), fLocale(locale) 
+{
 	init(nullptr, nullptr, status);
 }
 
 RelativeDateTimeFormatter::RelativeDateTimeFormatter(const Locale & locale, NumberFormat * nfToAdopt, UErrorCode & status) :
-	fCache(nullptr),
-	fNumberFormat(nullptr),
-	fPluralRules(nullptr),
-	fStyle(UDAT_STYLE_LONG),
-	fContext(UDISPCTX_CAPITALIZATION_NONE),
-	fOptBreakIterator(nullptr),
-	fLocale(locale) {
+	fCache(nullptr), fNumberFormat(nullptr), fPluralRules(nullptr), fStyle(UDAT_STYLE_LONG), fContext(UDISPCTX_CAPITALIZATION_NONE),
+	fOptBreakIterator(nullptr), fLocale(locale) 
+{
 	init(nfToAdopt, nullptr, status);
 }
 
@@ -821,30 +810,14 @@ FormattedRelativeDateTime RelativeDateTimeFormatter::doFormatToValue(F callback,
 	return FormattedRelativeDateTime(output.orphan());
 }
 
-UnicodeString & RelativeDateTimeFormatter::format(double quantity,
-    UDateDirection direction,
-    UDateRelativeUnit unit,
-    UnicodeString & appendTo,
-    UErrorCode & status) const {
-	return doFormat(
-		&RelativeDateTimeFormatter::formatImpl,
-		appendTo,
-		status,
-		quantity,
-		direction,
-		unit);
+UnicodeString & RelativeDateTimeFormatter::format(double quantity, UDateDirection direction, UDateRelativeUnit unit, UnicodeString & appendTo, UErrorCode & status) const 
+{
+	return doFormat(&RelativeDateTimeFormatter::formatImpl, appendTo, status, quantity, direction, unit);
 }
 
-FormattedRelativeDateTime RelativeDateTimeFormatter::formatToValue(double quantity,
-    UDateDirection direction,
-    UDateRelativeUnit unit,
-    UErrorCode & status) const {
-	return doFormatToValue(
-		&RelativeDateTimeFormatter::formatImpl,
-		status,
-		quantity,
-		direction,
-		unit);
+FormattedRelativeDateTime RelativeDateTimeFormatter::formatToValue(double quantity, UDateDirection direction, UDateRelativeUnit unit, UErrorCode & status) const 
+{
+	return doFormatToValue(&RelativeDateTimeFormatter::formatImpl, status, quantity, direction, unit);
 }
 
 void RelativeDateTimeFormatter::formatImpl(double quantity,
@@ -886,32 +859,18 @@ void RelativeDateTimeFormatter::formatImpl(double quantity,
 		output.getStringRef(), 0, output.getStringRef().length(), status);
 }
 
-UnicodeString & RelativeDateTimeFormatter::formatNumeric(double offset,
-    URelativeDateTimeUnit unit,
-    UnicodeString & appendTo,
-    UErrorCode & status) const {
-	return doFormat(
-		&RelativeDateTimeFormatter::formatNumericImpl,
-		appendTo,
-		status,
-		offset,
-		unit);
+UnicodeString & RelativeDateTimeFormatter::formatNumeric(double offset, URelativeDateTimeUnit unit, UnicodeString & appendTo, UErrorCode & status) const 
+{
+	return doFormat(&RelativeDateTimeFormatter::formatNumericImpl, appendTo, status, offset, unit);
 }
 
-FormattedRelativeDateTime RelativeDateTimeFormatter::formatNumericToValue(double offset,
-    URelativeDateTimeUnit unit,
-    UErrorCode & status) const {
-	return doFormatToValue(
-		&RelativeDateTimeFormatter::formatNumericImpl,
-		status,
-		offset,
-		unit);
+FormattedRelativeDateTime RelativeDateTimeFormatter::formatNumericToValue(double offset, URelativeDateTimeUnit unit, UErrorCode & status) const 
+{
+	return doFormatToValue(&RelativeDateTimeFormatter::formatNumericImpl, status, offset, unit);
 }
 
-void RelativeDateTimeFormatter::formatNumericImpl(double offset,
-    URelativeDateTimeUnit unit,
-    FormattedRelativeDateTimeData& output,
-    UErrorCode & status) const {
+void RelativeDateTimeFormatter::formatNumericImpl(double offset, URelativeDateTimeUnit unit, FormattedRelativeDateTimeData& output, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -925,49 +884,33 @@ void RelativeDateTimeFormatter::formatNumericImpl(double offset,
 		return;
 	}
 	int32_t bFuture = direction == UDAT_DIRECTION_NEXT ? 1 : 0;
-
 	StandardPlural::Form pluralForm;
-	QuantityFormatter::formatAndSelect(
-		offset,
-		**fNumberFormat,
-		**fPluralRules,
-		output.getStringRef(),
-		pluralForm,
-		status);
+	QuantityFormatter::formatAndSelect(offset, **fNumberFormat, **fPluralRules, output.getStringRef(), pluralForm, status);
 	if(U_FAILURE(status)) {
 		return;
 	}
-
-	const SimpleFormatter* formatter =
-	    fCache->getRelativeDateTimeUnitFormatter(fStyle, unit, bFuture, pluralForm);
+	const SimpleFormatter* formatter = fCache->getRelativeDateTimeUnitFormatter(fStyle, unit, bFuture, pluralForm);
 	if(formatter == nullptr) {
 		// TODO: WARN - look at quantity formatter's action with an error.
 		status = U_INVALID_FORMAT_ERROR;
 		return;
 	}
-
 	number::impl::SimpleModifier modifier(*formatter, kRDTLiteralField, false);
-	modifier.formatAsPrefixSuffix(
-		output.getStringRef(), 0, output.getStringRef().length(), status);
+	modifier.formatAsPrefixSuffix(output.getStringRef(), 0, output.getStringRef().length(), status);
 }
 
-UnicodeString & RelativeDateTimeFormatter::format(UDateDirection direction,
-    UDateAbsoluteUnit unit,
-    UnicodeString & appendTo,
-    UErrorCode & status) const {
+UnicodeString & RelativeDateTimeFormatter::format(UDateDirection direction, UDateAbsoluteUnit unit, UnicodeString & appendTo, UErrorCode & status) const 
+{
 	return doFormat(&RelativeDateTimeFormatter::formatAbsoluteImpl, appendTo, status, direction, unit);
 }
 
-FormattedRelativeDateTime RelativeDateTimeFormatter::formatToValue(UDateDirection direction,
-    UDateAbsoluteUnit unit,
-    UErrorCode & status) const {
+FormattedRelativeDateTime RelativeDateTimeFormatter::formatToValue(UDateDirection direction, UDateAbsoluteUnit unit, UErrorCode & status) const 
+{
 	return doFormatToValue(&RelativeDateTimeFormatter::formatAbsoluteImpl, status, direction, unit);
 }
 
-void RelativeDateTimeFormatter::formatAbsoluteImpl(UDateDirection direction,
-    UDateAbsoluteUnit unit,
-    FormattedRelativeDateTimeData& output,
-    UErrorCode & status) const {
+void RelativeDateTimeFormatter::formatAbsoluteImpl(UDateDirection direction, UDateAbsoluteUnit unit, FormattedRelativeDateTimeData& output, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -975,31 +918,22 @@ void RelativeDateTimeFormatter::formatAbsoluteImpl(UDateDirection direction,
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
-
 	// Get string using fallback.
-	output.getStringRef().append(
-		fCache->getAbsoluteUnitString(fStyle, unit, direction),
-		kRDTLiteralField,
-		status);
+	output.getStringRef().append(fCache->getAbsoluteUnitString(fStyle, unit, direction), kRDTLiteralField, status);
 }
 
-UnicodeString & RelativeDateTimeFormatter::format(double offset,
-    URelativeDateTimeUnit unit,
-    UnicodeString & appendTo,
-    UErrorCode & status) const {
+UnicodeString & RelativeDateTimeFormatter::format(double offset, URelativeDateTimeUnit unit, UnicodeString & appendTo, UErrorCode & status) const 
+{
 	return doFormat(&RelativeDateTimeFormatter::formatRelativeImpl, appendTo, status, offset, unit);
 }
 
-FormattedRelativeDateTime RelativeDateTimeFormatter::formatToValue(double offset,
-    URelativeDateTimeUnit unit,
-    UErrorCode & status) const {
+FormattedRelativeDateTime RelativeDateTimeFormatter::formatToValue(double offset, URelativeDateTimeUnit unit, UErrorCode & status) const 
+{
 	return doFormatToValue(&RelativeDateTimeFormatter::formatRelativeImpl, status, offset, unit);
 }
 
-void RelativeDateTimeFormatter::formatRelativeImpl(double offset,
-    URelativeDateTimeUnit unit,
-    FormattedRelativeDateTimeData& output,
-    UErrorCode & status) const {
+void RelativeDateTimeFormatter::formatRelativeImpl(double offset, URelativeDateTimeUnit unit, FormattedRelativeDateTimeData& output, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -1238,14 +1172,8 @@ U_CAPI void U_EXPORT2 ureldatefmt_formatToResult(const URelativeDateTimeFormatte
 	resultImpl->fImpl = fmt->formatToValue(offset, unit, *status);
 }
 
-U_CAPI int32_t U_EXPORT2 ureldatefmt_combineDateAndTime(const URelativeDateTimeFormatter* reldatefmt,
-    const UChar * relativeDateString,
-    int32_t relativeDateStringLen,
-    const UChar * timeString,
-    int32_t timeStringLen,
-    UChar * result,
-    int32_t resultCapacity,
-    UErrorCode * status)
+U_CAPI int32_t U_EXPORT2 ureldatefmt_combineDateAndTime(const URelativeDateTimeFormatter* reldatefmt, const UChar * relativeDateString,
+    int32_t relativeDateStringLen, const UChar * timeString, int32_t timeStringLen, UChar * result, int32_t resultCapacity, UErrorCode * status)
 {
 	if(U_FAILURE(*status)) {
 		return 0;

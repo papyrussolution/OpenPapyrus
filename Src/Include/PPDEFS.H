@@ -9477,6 +9477,7 @@
 	#define CTL_MOVARCODE_SRCAR        (3 + WINDOWS_ID_BIAS)
 	#define CTL_MOVARCODE_GGRP         (4 + WINDOWS_ID_BIAS)
 	#define CTL_MOVARCODE_ST_WARN      (5 + WINDOWS_ID_BIAS)
+	#define CTL_MOVARCODE_FLAGS        (6 + WINDOWS_ID_BIAS) // @v11.7.5
 #define DLG_BUDGITEMS                1122
 // CTL_BUDGITEM_...
 #define DLG_BUDGICYCLEPAR            1123

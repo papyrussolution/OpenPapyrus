@@ -2184,7 +2184,7 @@ int __bam_compress_count(DBC * dbc, uint32 * nkeysp, uint32 * ndatap)
 	if((ret = __bamc_start_decompress(dbc_n)) != 0)
 		goto err;
 	nkeys += 1;
-	for(;; ) {
+	for(;;) {
 		ndata += 1;
 		ret = __bamc_next_decompress(dbc_n);
 		if(ret == DB_NOTFOUND) {

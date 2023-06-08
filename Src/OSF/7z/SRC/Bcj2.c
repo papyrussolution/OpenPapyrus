@@ -88,7 +88,7 @@ SRes Bcj2Dec_Decode(CBcj2Dec * p)
 	   }
 	   }
 	 */
-	for(;; ) {
+	for(;;) {
 		if(BCJ2_IS_32BIT_STREAM(p->state))
 			p->state = BCJ2_DEC_STATE_OK;
 		else {
@@ -121,7 +121,7 @@ SRes Bcj2Dec_Decode(CBcj2Dec * p)
 				if(p->temp[3] == 0x0F && (src[0] & 0xF0) == 0x80)
 					*dest = src[0];
 				else {
-					for(;; ) {
+					for(;;) {
 						Byte b = *src;
 						*dest = b;
 						if(b != 0x0F) {
@@ -258,7 +258,7 @@ static void Bcj2Enc_Encode_2(CBcj2Enc * p)
 		p->bufs[p->state] = cur + 4;
 	}
 	p->state = BCJ2_ENC_STATE_ORIG;
-	for(;; ) {
+	for(;;) {
 		if(p->range < kTopValue) {
 			if(RangeEnc_ShiftLow(p))
 				return;
@@ -289,7 +289,7 @@ static void Bcj2Enc_Encode_2(CBcj2Enc * p)
 				if(p->prevByte == 0x0F && (src[0] & 0xF0) == 0x80)
 					*dest = src[0];
 				else {
-					for(;; ) {
+					for(;;) {
 						Byte b = *src;
 						*dest = b;
 						if(b != 0x0F) {
@@ -383,7 +383,7 @@ void Bcj2Enc_Encode(CBcj2Enc * p)
 	PRF(printf("---- ip = %8d   tempPos = %8d   src = %8d\n", p->ip, p->tempPos, p->srcLim - p->src));
 	if(p->tempPos != 0) {
 		uint   extra = 0;
-		for(;; ) {
+		for(;;) {
 			const Byte * src = p->src;
 			const Byte * srcLim = p->srcLim;
 			uint   finishMode = p->finishMode;

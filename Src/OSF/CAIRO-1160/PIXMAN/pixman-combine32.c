@@ -486,7 +486,6 @@ static inline int32 blend_overlay(int32 d, int32 ad, int32 s, int32 as)
 }
 
 PDF_SEPARABLE_BLEND_MODE(overlay)
-
 /*
  * Darken
  *

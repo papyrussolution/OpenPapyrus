@@ -59,7 +59,7 @@ static int find_minlength(const REAL_PCRE * re, const pcre_uchar * code,
 		cc += IMM2_SIZE;
 	// Scan along the opcodes for this branch. If we get to the end of the
 	// branch, check the length against that of the other branches. 
-	for(;; ) {
+	for(;;) {
 		int d, min;
 		pcre_uchar * cs, * ce;
 		pcre_uchar op = *cc;

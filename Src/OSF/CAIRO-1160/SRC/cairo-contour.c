@@ -176,7 +176,7 @@ cairo_int_status_t _cairo_contour_add_reversed(cairo_contour_t * dst, const cair
 	return CAIRO_INT_STATUS_SUCCESS;
 }
 
-static cairo_uint64_t point_distance_sq(const cairo_point_t * p1, const cairo_point_t * p2)
+static uint64 point_distance_sq(const cairo_point_t * p1, const cairo_point_t * p2)
 {
 	int32 dx = p1->x - p2->x;
 	int32 dy = p1->y - p2->y;

@@ -788,7 +788,7 @@ static void ngx_ssl_ocsp_read_handler(ngx_event_t * rev)
 			return;
 		}
 	}
-	for(;; ) {
+	for(;;) {
 		size = ctx->response->end - ctx->response->last;
 		n = ngx_recv(c, ctx->response->last, size);
 		if(n > 0) {
@@ -1102,7 +1102,7 @@ static ngx_int_t ngx_ssl_ocsp_process_headers(ngx_ssl_ocsp_ctx_t * ctx)
 	size_t len;
 	ngx_int_t rc;
 	ngx_log_debug0(NGX_LOG_DEBUG_EVENT, ctx->log, 0, "ssl ocsp process headers");
-	for(;; ) {
+	for(;;) {
 		rc = ngx_ssl_ocsp_parse_header_line(ctx);
 		if(rc == NGX_OK) {
 			ngx_log_debug4(NGX_LOG_DEBUG_EVENT, ctx->log, 0, "ssl ocsp header \"%*s: %*s\"",

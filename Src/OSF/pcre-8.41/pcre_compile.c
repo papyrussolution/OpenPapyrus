@@ -1501,7 +1501,7 @@ static const pcre_uchar * read_repeat_counts(const pcre_uchar * p, int * minp, i
  */
 static const pcre_uchar * FASTCALL first_significant_code(const pcre_uchar * code, BOOL skipassert)
 {
-	for(;; ) {
+	for(;;) {
 		switch((int)*code) {
 			case OP_ASSERT_NOT:
 			case OP_ASSERTBACK:
@@ -1569,7 +1569,7 @@ static int find_fixedlength(pcre_uchar * code, BOOL utf, BOOL atend, compile_dat
 	pcre_uchar * cc = code + 1 + LINK_SIZE;
 	// Scan along the opcodes for this branch. If we get to the end of the
 	// branch, check the length against that of the other branches. 
-	for(;; ) {
+	for(;;) {
 		int d;
 		pcre_uchar * ce, * cs;
 		pcre_uchar op = *cc;
@@ -1898,7 +1898,7 @@ static int find_fixedlength(pcre_uchar * code, BOOL utf, BOOL atend, compile_dat
 
 const pcre_uchar * PRIV(find_bracket) (const pcre_uchar *code, BOOL utf, int number)
 {
-	for(;; ) {
+	for(;;) {
 		pcre_uchar c = *code;
 		if(c == OP_END) 
 			return NULL;
@@ -1998,7 +1998,7 @@ const pcre_uchar * PRIV(find_bracket) (const pcre_uchar *code, BOOL utf, int num
 
 static const pcre_uchar * find_recurse(const pcre_uchar * code, BOOL utf)
 {
-	for(;; ) {
+	for(;;) {
 		pcre_uchar c = *code;
 		if(c == OP_END) return NULL;
 		if(c == OP_RECURSE) return code;
@@ -2540,7 +2540,7 @@ VSPACE_CASES:
 
 		case PT_CLIST:
 		    p = PRIV(ucd_caseless_sets) + prop->caseset;
-		    for(;; ) {
+		    for(;;) {
 			    if(c < *p) return !negated;
 			    if(c == *p++) return negated;
 		    }
@@ -2745,7 +2745,7 @@ static BOOL compare_opcodes(const pcre_uchar * code, BOOL utf, const compile_dat
 	// (represented by a non-zero value) quantifier. This is a different from
 	// other character type lists, which stores here that the character iterator
 	// matches to an empty string (also represented by a non-zero value). 
-	for(;; ) {
+	for(;;) {
 		// All operations move the code pointer forward. Therefore infinite recursions are not possible. 
 		c = *code;
 		// Skip over callouts 
@@ -3161,7 +3161,7 @@ static void auto_possessify(pcre_uchar * code, BOOL utf, const compile_data * cd
 	pcre_uchar * repeat_opcode;
 	uint32 list[8];
 	int rec_limit;
-	for(;; ) {
+	for(;;) {
 		c = *code;
 		// When a pattern with bad UTF-8 encoding is compiled with NO_UTF_CHECK,
 		// it may compile without complaining, but may get into a loop here if the code
@@ -4077,7 +4077,7 @@ REDO_LOOP:
 			       if the first few characters (either before or after ^) are \Q\E or \E we
 			       skip them too. This makes for compatibility with Perl. */
 			    negate_class = FALSE;
-			    for(;; ) {
+			    for(;;) {
 				    c = *(++ptr);
 				    if(c == CHAR_BACKSLASH) {
 					    if(ptr[1] == CHAR_E)
@@ -4722,7 +4722,7 @@ REPEAT:
 			       this point. */
 			    if((options & PCRE_EXTENDED) != 0) {
 				    const pcre_uchar * p = ptr + 1;
-				    for(;; ) {
+				    for(;;) {
 					    while(MAX_255(*p) && (cd->ctypes[*p] & ctype_space) != 0) 
 							p++;
 					    if(*p != CHAR_NUMBER_SIGN) 
@@ -6809,7 +6809,7 @@ static BOOL compile_regex(int options, pcre_uchar ** codeptr, const pcre_uchar *
 	code += 1 + LINK_SIZE + skipbytes;
 	/* Loop for each alternative branch */
 	orig_bracount = max_bracount = cd->bracount;
-	for(;; ) {
+	for(;;) {
 		/* For a (?| group, reset the capturing bracket count so that each branch uses the same numbers. */
 		if(reset_bracount) 
 			cd->bracount = orig_bracount;

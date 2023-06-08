@@ -42,8 +42,8 @@
 //typedef unsigned __int16 uint16;
 //typedef __int32 int32;
 //typedef unsigned __int32 uint32;
-typedef __int64 int64;
-typedef unsigned __int64 uint64;
+//typedef __int64 int64;
+//typedef unsigned __int64 uint64;
 #ifndef HAVE_UINT64_T
 	#define HAVE_UINT64_T 1
 #endif
@@ -77,23 +77,17 @@ typedef unsigned __int64 uint64;
 //#ifndef bswap_32 // @sobolev (replaced with sbswap32)
 	//#define bswap_32(p) (((((uint32)(p)) & 0x000000ff) << 24) | ((((uint32)(p)) & 0x0000ff00) << 8) | ((((uint32)(p)) & 0x00ff0000) >> 8) | ((((uint32)(p))) >> 24));
 //#endif
-#if !HAVE_UINT64_T
-	typedef struct _cairo_uint64 {
-		uint32 lo, hi;
-	} cairo_uint64_t, cairo_int64_t;
-#else
-	typedef uint64 cairo_uint64_t;
-	typedef int64 cairo_int64_t;
-#endif
+//typedef uint64 cairo_uint64_t__Removed;
+//typedef int64 cairo_int64_t__Removed;
 
 typedef struct _cairo_uquorem64 {
-	cairo_uint64_t quo;
-	cairo_uint64_t rem;
+	uint64 quo;
+	uint64 rem;
 } cairo_uquorem64_t;
 
 typedef struct _cairo_quorem64 {
-	cairo_int64_t quo;
-	cairo_int64_t rem;
+	int64 quo;
+	int64 rem;
 } cairo_quorem64_t;
 
 /* gcc has a non-standard name. */
@@ -104,7 +98,7 @@ typedef struct _cairo_quorem64 {
 #endif
 #if !HAVE_UINT128_T
 	typedef struct cairo_uint128 {
-		cairo_uint64_t lo, hi;
+		uint64 lo, hi;
 	} cairo_uint128_t, cairo_int128_t;
 #else
 	typedef uint128_t cairo_uint128_t;

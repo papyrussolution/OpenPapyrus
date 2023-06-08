@@ -247,6 +247,13 @@ FRect & FRect::Set(float v)
 	return *this;
 }
 
+FRect & FRect::Set(float left, float top, float right, float bottom)
+{
+	a.Set(left, top);
+	b.Set(right, bottom);
+	return *this;
+}
+
 FRect & FRect::Z()
 {
 	a.SetZero();
@@ -1010,18 +1017,6 @@ TRect & TRect::Normalize()
 //
 const SPoint2F ZEROFPOINT;
 
-SPoint2F::SPoint2F() : x(0.0f), y(0.0f)
-{
-}
-
-SPoint2F::SPoint2F(float xy) : x(xy), y(xy)
-{
-}
-
-SPoint2F::SPoint2F(float _x, float _y) : x(_x), y(_y)
-{
-}
-
 SPoint2F & FASTCALL SPoint2F::operator = (const SPoint2S & p)
 {
 	x = (float)p.x;
@@ -1510,12 +1505,6 @@ SColorBase::operator RGBQUAD() const
 	return *reinterpret_cast<const RGBQUAD *>(&q);
 }
 
-float SColorBase::RedF() const { return (R / 255.0f); }
-float SColorBase::GreenF() const { return (G / 255.0f); }
-float SColorBase::BlueF() const { return (B / 255.0f); }
-float SColorBase::AlphaF() const { return (Alpha / 255.0f); }
-float SColorBase::OpacityF() const { return (1.0f - (Alpha / 255.0f)); }
-
 SColorBase SColorBase::Z()
 {
 	R = 0;
@@ -1566,7 +1555,7 @@ SColor::SColor(const SColorBase & rS)
 
 SColor::SColor(float whitePart)
 {
-	R = G = B = (uint8)(255.f * whitePart);
+	R = G = B = (uint8)(255.0f * whitePart);
 	Alpha = 0xff;
 }
 
@@ -1592,6 +1581,19 @@ SColor::SColor(SColourCollection c)
 	G = (uint8)((c & 0x0000ff00) >> 8);
 	B = (uint8)(c & 0xff);
 	Alpha = 0xff;
+}
+
+SColor::SColor(SColourCollection c, float opacity)
+{
+	R = (uint8)((c & 0x00ff0000) >> 16);
+	G = (uint8)((c & 0x0000ff00) >> 8);
+	B = (uint8)(c & 0xff);
+	if(opacity >= 0.0f && opacity <= 1.0f)
+		Alpha = (uint8)(opacity * 255);
+	else if(opacity < 0.0)
+		Alpha = 0;
+	else
+		Alpha = (uint8)255;
 }
 
 SColor::SColor(COLORREF c)

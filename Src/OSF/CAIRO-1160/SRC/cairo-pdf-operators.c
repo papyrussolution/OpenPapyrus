@@ -236,7 +236,7 @@ static int _word_wrap_stream_count_string_up_to(word_wrap_stream_t * stream, con
 			}
 		}
 		else {
-			if(!_cairo_isdigit(*s) || ++stream->escape_digits == 3)
+			if(!isdec(*s) || ++stream->escape_digits == 3)
 				stream->in_escape = FALSE;
 		}
 		s++;

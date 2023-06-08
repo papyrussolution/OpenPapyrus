@@ -472,7 +472,7 @@ boolint opj_tcd_rateallocate(opj_tcd_t * tcd,
 	for(layno = 0; layno < tcd_tcp->numlayers; layno++) {
 		double lo = min;
 		double hi = max;
-		uint32_t maxlen = tcd_tcp->rates[layno] > 0.0f ? opj_uint_min(((
+		uint32_t maxlen = tcd_tcp->rates[layno] > 0.0f ? smin(((
 				uint32_t)ceil(tcd_tcp->rates[layno])), len) : len;
 		double goodthresh = 0;
 		double stable_thresh = 0;
@@ -704,8 +704,8 @@ static INLINE boolint opj_tcd_init_tile(opj_tcd_t * p_tcd, uint32_t p_tile_no, b
 	/* 4 borders of the tile rescale on the image if necessary */
 	l_tx0 = l_cp->tx0 + p *
 	    l_cp->tdx; /* can't be greater than l_image->x1 so won't overflow */
-	l_tile->x0 = (int32_t)opj_uint_max(l_tx0, l_image->x0);
-	l_tile->x1 = (int32_t)opj_uint_min(opj_uint_adds(l_tx0, l_cp->tdx),
+	l_tile->x0 = (int32_t)smax(l_tx0, l_image->x0);
+	l_tile->x1 = (int32_t)smin(opj_uint_adds(l_tx0, l_cp->tdx),
 		l_image->x1);
 	/* all those uint32_t are casted to int32_t, let's do some sanity check */
 	if((l_tile->x0 < 0) || (l_tile->x1 <= l_tile->x0)) {
@@ -714,8 +714,8 @@ static INLINE boolint opj_tcd_init_tile(opj_tcd_t * p_tcd, uint32_t p_tile_no, b
 	}
 	l_ty0 = l_cp->ty0 + q *
 	    l_cp->tdy; /* can't be greater than l_image->y1 so won't overflow */
-	l_tile->y0 = (int32_t)opj_uint_max(l_ty0, l_image->y0);
-	l_tile->y1 = (int32_t)opj_uint_min(opj_uint_adds(l_ty0, l_cp->tdy),
+	l_tile->y0 = (int32_t)smax(l_ty0, l_image->y0);
+	l_tile->y1 = (int32_t)smin(opj_uint_adds(l_ty0, l_cp->tdy),
 		l_image->y1);
 	/* all those uint32_t are casted to int32_t, let's do some sanity check */
 	if((l_tile->y0 < 0) || (l_tile->y1 <= l_tile->y0)) {
@@ -899,8 +899,8 @@ static INLINE boolint opj_tcd_init_tile(opj_tcd_t * p_tcd, uint32_t p_tile_no, b
 				l_res->numbands = 3;
 			}
 
-			cblkwidthexpn = opj_uint_min(l_tccp->cblkw, cbgwidthexpn);
-			cblkheightexpn = opj_uint_min(l_tccp->cblkh, cbgheightexpn);
+			cblkwidthexpn = smin(l_tccp->cblkw, cbgwidthexpn);
+			cblkheightexpn = smin(l_tccp->cblkh, cbgheightexpn);
 			l_band = l_res->bands;
 
 			for(bandno = 0; bandno < l_res->numbands; ++bandno, ++l_band, ++l_step_size) {
@@ -1005,34 +1005,25 @@ static INLINE boolint opj_tcd_init_tile(opj_tcd_t * p_tcd, uint32_t p_tile_no, b
 					   << cbgwidthexpn(=%d)) \n",tlcbgxstart,precno,l_res->pw,cbgwidthexpn);*/
 
 					/* precinct size (global) */
-					/*fprintf(stderr, "\t cbgxstart=%d, l_band->x0 = %d \n",cbgxstart,
-					   l_band->x0);*/
-
-					l_current_precinct->x0 = opj_int_max(cbgxstart, l_band->x0);
-					l_current_precinct->y0 = opj_int_max(cbgystart, l_band->y0);
-					l_current_precinct->x1 = opj_int_min(cbgxend, l_band->x1);
-					l_current_precinct->y1 = opj_int_min(cbgyend, l_band->y1);
+					/*fprintf(stderr, "\t cbgxstart=%d, l_band->x0 = %d \n",cbgxstart, l_band->x0);*/
+					l_current_precinct->x0 = smax(cbgxstart, l_band->x0);
+					l_current_precinct->y0 = smax(cbgystart, l_band->y0);
+					l_current_precinct->x1 = smin(cbgxend, l_band->x1);
+					l_current_precinct->y1 = smin(cbgyend, l_band->y1);
 					/*fprintf(stderr, "\t prc_x0=%d; prc_y0=%d, prc_x1=%d;
 					   prc_y1=%d\n",l_current_precinct->x0, l_current_precinct->y0
 					   ,l_current_precinct->x1, l_current_precinct->y1);*/
 
-					tlcblkxstart = opj_int_floordivpow2(l_current_precinct->x0,
-						(int32_t)cblkwidthexpn) << cblkwidthexpn;
+					tlcblkxstart = opj_int_floordivpow2(l_current_precinct->x0, (int32_t)cblkwidthexpn) << cblkwidthexpn;
 					/*fprintf(stderr, "\t tlcblkxstart =%d\n",tlcblkxstart );*/
-					tlcblkystart = opj_int_floordivpow2(l_current_precinct->y0,
-						(int32_t)cblkheightexpn) << cblkheightexpn;
+					tlcblkystart = opj_int_floordivpow2(l_current_precinct->y0, (int32_t)cblkheightexpn) << cblkheightexpn;
 					/*fprintf(stderr, "\t tlcblkystart =%d\n",tlcblkystart );*/
-					brcblkxend = opj_int_ceildivpow2(l_current_precinct->x1,
-						(int32_t)cblkwidthexpn) << cblkwidthexpn;
+					brcblkxend = opj_int_ceildivpow2(l_current_precinct->x1, (int32_t)cblkwidthexpn) << cblkwidthexpn;
 					/*fprintf(stderr, "\t brcblkxend =%d\n",brcblkxend );*/
-					brcblkyend = opj_int_ceildivpow2(l_current_precinct->y1,
-						(int32_t)cblkheightexpn) << cblkheightexpn;
+					brcblkyend = opj_int_ceildivpow2(l_current_precinct->y1, (int32_t)cblkheightexpn) << cblkheightexpn;
 					/*fprintf(stderr, "\t brcblkyend =%d\n",brcblkyend );*/
-					l_current_precinct->cw = (uint32_t)((brcblkxend - tlcblkxstart) >>
-					    cblkwidthexpn);
-					l_current_precinct->ch = (uint32_t)((brcblkyend - tlcblkystart) >>
-					    cblkheightexpn);
-
+					l_current_precinct->cw = (uint32_t)((brcblkxend - tlcblkxstart) >> cblkwidthexpn);
+					l_current_precinct->ch = (uint32_t)((brcblkyend - tlcblkystart) >> cblkheightexpn);
 					l_nb_code_blocks = l_current_precinct->cw * l_current_precinct->ch;
 					/*fprintf(stderr, "\t\t\t\t precinct_cw = %d x recinct_ch =
 					   %d\n",l_current_precinct->cw, l_current_precinct->ch);      */
@@ -1093,10 +1084,10 @@ static INLINE boolint opj_tcd_init_tile(opj_tcd_t * p_tcd, uint32_t p_tile_no, b
 								return FALSE;
 							}
 							/* code-block size (global) */
-							l_code_block->x0 = opj_int_max(cblkxstart, l_current_precinct->x0);
-							l_code_block->y0 = opj_int_max(cblkystart, l_current_precinct->y0);
-							l_code_block->x1 = opj_int_min(cblkxend, l_current_precinct->x1);
-							l_code_block->y1 = opj_int_min(cblkyend, l_current_precinct->y1);
+							l_code_block->x0 = smax(cblkxstart, l_current_precinct->x0);
+							l_code_block->y0 = smax(cblkystart, l_current_precinct->y0);
+							l_code_block->x1 = smin(cblkxend, l_current_precinct->x1);
+							l_code_block->y1 = smin(cblkyend, l_current_precinct->y1);
 							if(!opj_tcd_code_block_enc_allocate_data(l_code_block)) {
 								return FALSE;
 							}
@@ -1107,10 +1098,10 @@ static INLINE boolint opj_tcd_init_tile(opj_tcd_t * p_tcd, uint32_t p_tile_no, b
 								return FALSE;
 							}
 							/* code-block size (global) */
-							l_code_block->x0 = opj_int_max(cblkxstart, l_current_precinct->x0);
-							l_code_block->y0 = opj_int_max(cblkystart, l_current_precinct->y0);
-							l_code_block->x1 = opj_int_min(cblkxend, l_current_precinct->x1);
-							l_code_block->y1 = opj_int_min(cblkyend, l_current_precinct->y1);
+							l_code_block->x0 = smax(cblkxstart, l_current_precinct->x0);
+							l_code_block->y0 = smax(cblkystart, l_current_precinct->y0);
+							l_code_block->x1 = smin(cblkxend, l_current_precinct->x1);
+							l_code_block->y1 = smin(cblkyend, l_current_precinct->y1);
 						}
 					}
 					++l_current_precinct;
@@ -1469,16 +1460,16 @@ boolint opj_tcd_decode_tile(opj_tcd_t * p_tcd,
 
 			/* Compute the intersection of the area of interest, expressed in tile coordinates */
 			/* with the tile coordinates */
-			tilec->win_x0 = opj_uint_max(
+			tilec->win_x0 = smax(
 				(uint32_t)tilec->x0,
 				opj_uint_ceildiv(p_tcd->win_x0, image_comp->dx));
-			tilec->win_y0 = opj_uint_max(
+			tilec->win_y0 = smax(
 				(uint32_t)tilec->y0,
 				opj_uint_ceildiv(p_tcd->win_y0, image_comp->dy));
-			tilec->win_x1 = opj_uint_min(
+			tilec->win_x1 = smin(
 				(uint32_t)tilec->x1,
 				opj_uint_ceildiv(p_tcd->win_x1, image_comp->dx));
-			tilec->win_y1 = opj_uint_min(
+			tilec->win_y1 = smin(
 				(uint32_t)tilec->y1,
 				opj_uint_ceildiv(p_tcd->win_y1, image_comp->dy));
 			if(tilec->win_x1 < tilec->win_x0 ||
@@ -2632,16 +2623,16 @@ boolint opj_tcd_is_subband_area_of_interest(opj_tcd_t * tcd,
 	opj_image_comp_t* image_comp = &(tcd->image->comps[compno]);
 	/* Compute the intersection of the area of interest, expressed in tile coordinates */
 	/* with the tile coordinates */
-	uint32_t tcx0 = opj_uint_max(
+	uint32_t tcx0 = smax(
 		(uint32_t)tilec->x0,
 		opj_uint_ceildiv(tcd->win_x0, image_comp->dx));
-	uint32_t tcy0 = opj_uint_max(
+	uint32_t tcy0 = smax(
 		(uint32_t)tilec->y0,
 		opj_uint_ceildiv(tcd->win_y0, image_comp->dy));
-	uint32_t tcx1 = opj_uint_min(
+	uint32_t tcx1 = smin(
 		(uint32_t)tilec->x1,
 		opj_uint_ceildiv(tcd->win_x1, image_comp->dx));
-	uint32_t tcy1 = opj_uint_min(
+	uint32_t tcy1 = smin(
 		(uint32_t)tilec->y1,
 		opj_uint_ceildiv(tcd->win_y1, image_comp->dy));
 	/* Compute number of decomposition for this band. See table F-1 */
@@ -2707,16 +2698,16 @@ static boolint opj_tcd_is_whole_tilecomp_decoding(opj_tcd_t * p_tcd,
 	opj_image_comp_t* image_comp = &(p_tcd->image->comps[compno]);
 	/* Compute the intersection of the area of interest, expressed in tile coordinates */
 	/* with the tile coordinates */
-	uint32_t tcx0 = opj_uint_max(
+	uint32_t tcx0 = smax(
 		(uint32_t)tilec->x0,
 		opj_uint_ceildiv(p_tcd->win_x0, image_comp->dx));
-	uint32_t tcy0 = opj_uint_max(
+	uint32_t tcy0 = smax(
 		(uint32_t)tilec->y0,
 		opj_uint_ceildiv(p_tcd->win_y0, image_comp->dy));
-	uint32_t tcx1 = opj_uint_min(
+	uint32_t tcx1 = smin(
 		(uint32_t)tilec->x1,
 		opj_uint_ceildiv(p_tcd->win_x1, image_comp->dx));
-	uint32_t tcy1 = opj_uint_min(
+	uint32_t tcy1 = smin(
 		(uint32_t)tilec->y1,
 		opj_uint_ceildiv(p_tcd->win_y1, image_comp->dy));
 

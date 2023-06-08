@@ -745,7 +745,6 @@ void cairo_pop_group_to_source(cairo_t * cr)
 	cairo_set_source(cr, group_pattern);
 	cairo_pattern_destroy(group_pattern);
 }
-
 /**
  * cairo_set_operator:
  * @cr: a #cairo_t

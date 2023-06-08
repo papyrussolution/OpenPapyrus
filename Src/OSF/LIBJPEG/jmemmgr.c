@@ -261,7 +261,7 @@ METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobje
 		if(slop > (size_t)(MAX_ALLOC_CHUNK-min_request))
 			slop = (size_t)(MAX_ALLOC_CHUNK-min_request);
 		/* Try to get space, if fail reduce slop and try again */
-		for(;; ) {
+		for(;;) {
 			hdr_ptr = (small_pool_ptr)jpeg_get_small(cinfo, min_request + slop);
 			if(hdr_ptr)
 				break;

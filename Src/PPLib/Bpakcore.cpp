@@ -3248,14 +3248,14 @@ int FASTCALL PPBillPacket::SetTPointer(int pos)
 		return 0;
 }
 
-static IMPL_CMPCFUNC(PPTransferItem_RByBill, p1, p2)
+static IMPL_CMPFUNC(PPTransferItem_RByBill, p1, p2)
 {
 	const PPTransferItem * p_ti1 = static_cast<const PPTransferItem *>(p1);
 	const PPTransferItem * p_ti2 = static_cast<const PPTransferItem *>(p2);
 	return CMPSIGN(p_ti1->RByBill, p_ti2->RByBill);
 }
 
-void  PPBillPacket::SortTI() { Lots.sort(PTR_CMPCFUNC(PPTransferItem_RByBill)); }
+void  PPBillPacket::SortTI() { Lots.sort(PTR_CMPFUNC(PPTransferItem_RByBill)); }
 int   FASTCALL PPBillPacket::EnumTItems(uint * pI, PPTransferItem ** ppTI) const { return Lots.enumItems(pI, (void **)ppTI); }
 uint  PPBillPacket::GetTCount() const { return Lots.getCount(); }
 int   PPBillPacket::GetTPointer() const { return static_cast<int>(Lots.getPointer()); }

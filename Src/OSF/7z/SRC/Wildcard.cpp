@@ -35,7 +35,7 @@ int CompareFileNames(const wchar_t * s1, const wchar_t * s2) STRING_UNICODE_THRO
 
 static bool EnhancedMaskTest(const wchar_t * mask, const wchar_t * name)
 {
-	for(;; ) {
+	for(;;) {
 		wchar_t m = *mask;
 		wchar_t c = *name;
 		if(m == 0)

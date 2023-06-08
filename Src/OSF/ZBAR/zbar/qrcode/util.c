@@ -48,7 +48,7 @@ uint qr_isqrt(uint _val)
 	//
 	uint g = 0;
 	uint b = 0x8000;
-	for(int bshift = 16; bshift-- > 0; ) {
+	for(int bshift = 16; bshift-- > 0;) {
 		const uint t = ((g<<1) + b) << bshift;
 		if(t <= _val) {
 			g += b;

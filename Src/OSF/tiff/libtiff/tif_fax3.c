@@ -910,7 +910,7 @@ static int Fax3Encode1DRow(TIFF * tif, uchar * bp, uint32 bits)
 	Fax3CodecState* sp = EncoderState(tif);
 	int32 span;
 	uint32 bs = 0;
-	for(;; ) {
+	for(;;) {
 		span = find0span(bp, bs, bits); /* white span */
 		putspan(tif, span, TIFFFaxWhiteCodes);
 		bs += span;
@@ -955,7 +955,7 @@ static int Fax3Encode2DRow(TIFF * tif, uchar * bp, uchar * rp, uint32 bits)
 	uint32 b1 = (PIXEL(rp, 0) != 0 ? 0 : finddiff(rp, 0, bits, 0));
 	uint32 a2, b2;
 
-	for(;; ) {
+	for(;;) {
 		b2 = finddiff2(rp, b1, bits, PIXEL(rp, b1));
 		if(b2 >= a1) {
 			/* Naive computation triggers -fsanitize=undefined,unsigned-integer-overflow */

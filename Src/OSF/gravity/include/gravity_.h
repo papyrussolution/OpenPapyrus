@@ -1,12 +1,10 @@
 // GRAVITY_.H
 //  Created by Marco Bambini on 01/04/16.
 //  Copyright © 2016 CreoLabs. All rights reserved.
-//  Modified by Anton Sobolev 2020
+//  Modified by Anton Sobolev 2020, 2023
 // 
 #include <slib.h>
 #include <inttypes.h>
-//#include <unistd.h>
-//#include <stdbool.h>
 #if defined(__linux)
 	#include <sys/time.h>
 #endif
@@ -14,14 +12,8 @@
 	#include <mach/mach_time.h>
 #endif
 #if defined(_WIN32)
-	//#include <windows.h>
 	#include <Shlwapi.h>
-	//#include <tchar.h>
 #endif
-/* @v10.8.1 #ifdef _MSC_VER
-	typedef int mode_t; // MSVC doesn't have mode_t 
-	typedef SSIZE_T ssize_t;
-#endif*/
 struct GravityValue;
 struct gravity_class_t;
 struct gravity_closure_t;
@@ -588,11 +580,9 @@ public:
 			default: return 0;
 		};
 	}
-	inline operator bool() const
+	inline operator bool() const { return (type != json_boolean) ? false : (u.boolean != 0); }
+	inline operator double() const 
 	{
-		return (type != json_boolean) ? false : (u.boolean != 0);
-	}
-	inline operator double() const {
 		switch(type) {
 			case json_integer: return (double)u.integer;
 			case json_double: return u.dbl;

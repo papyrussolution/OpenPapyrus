@@ -566,7 +566,7 @@ int __repmgr_read_from_site(ENV * env, REPMGR_CONNECTION * conn)
 	 * Loop, just in case we get EINTR and need to restart the I/O.  (All
 	 * other branches return.)
 	 */
-	for(;; ) {
+	for(;;) {
 		switch((ret = __repmgr_read_conn(conn))) {
 #ifndef DB_WIN32
 		    case EINTR:
@@ -621,7 +621,7 @@ int __repmgr_read_conn(REPMGR_CONNECTION * conn)
 	 * Keep reading pieces as long as we're making some progress, or until
 	 * we complete the current read phase as defined in iovecs.
 	 */
-	for(;; ) {
+	for(;;) {
 		if((ret = __repmgr_readv(conn->fd, &conn->iovecs.vectors[conn->iovecs.offset], conn->iovecs.count-conn->iovecs.offset, &nr)) != 0)
 			return ret;
 		else if(nr == 0)

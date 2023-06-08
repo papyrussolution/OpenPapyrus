@@ -184,7 +184,6 @@ int FASTCALL IsInnerBarcodeType(int32 barcodeType, int bt)
 int BarcodeArray::Add(const char * pCode, long codeType, double qtty)
 {
 	BarcodeTbl::Rec item;
-	// @v10.6.4 MEMSZERO(item);
 	STRNSCPY(item.Code, pCode);
 	item.BarcodeType = codeType;
 	item.Qtty = qtty;
@@ -519,7 +518,6 @@ int GoodsCore::AddBarcode(PPID goodsID, const char * pBarcode, double qtty, int 
 		THROW(tra);
 		if(Fetch(goodsID, &goods_rec) > 0) {
 			BarcodeTbl::Rec rec;
-			// @v10.6.4 MEMSZERO(rec);
 			rec.GoodsID = goodsID;
 			STRNSCPY(rec.Code, pBarcode);
 			rec.Qtty = (qtty > 0.0) ? qtty : 1.0;
@@ -581,7 +579,6 @@ int GoodsCore::SetArCode(PPID goodsID, PPID arID, const char * pCode, int32 pack
 		THROW_DB(deleteFrom(&ACodT, 0, ACodT.GoodsID == goods_id && ACodT.ArID == arID));
 		if(!isempty(pCode) && Search(goodsID) > 0) {
 			ArGoodsCodeTbl::Rec rec;
-			// @v10.6.4 MEMSZERO(rec);
 			rec.GoodsID = goods_id;
 			rec.ArID    = arID;
 			rec.Pack    = pack;
@@ -599,7 +596,7 @@ int GoodsCore::SetArCode(PPID goodsID, PPID arID, const char * pCode, int use_ta
 	return SetArCode(goodsID, arID, pCode, 1000, use_ta);
 }
 
-int GoodsCore::MoveArCodes(PPID destArID, PPID srcArID, PPID grpID, PPLogger * pLogger, int use_ta)
+int GoodsCore::MoveArCodes(PPID destArID, PPID srcArID, PPID grpID, uint flags, PPLogger * pLogger, int use_ta)
 {
 	int    ok = -1;
 	SString code_buf;
@@ -616,7 +613,6 @@ int GoodsCore::MoveArCodes(PPID destArID, PPID srcArID, PPID grpID, PPLogger * p
 					if(SearchByArCode(destArID, r_rec.Code, &found_rec, 0) > 0) {
 						if(PPObjGoods::GenerateOwnArCode(code_buf, 0) > 0) {
 							ArGoodsCodeTbl::Rec new_rec;
-							// @v10.6.4 MEMSZERO(new_rec);
 							new_rec = r_rec;
 							new_rec.ArID = destArID;
 							code_buf.CopyTo(new_rec.Code, sizeof(new_rec.Code));
@@ -627,6 +623,16 @@ int GoodsCore::MoveArCodes(PPID destArID, PPID srcArID, PPID grpID, PPLogger * p
 							CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_MOVARCOD_EXISTSNGEN, &msg_buf, destArID, r_rec.Code, found_rec.GoodsID)));
 						}
 					}
+					// @v11.7.5 {
+					else if(flags & movarcodfCopyOnly) {
+						ArGoodsCodeTbl::Rec new_rec;
+						new_rec = r_rec;
+						new_rec.ArID = destArID;
+						STRNSCPY(new_rec.Code, r_rec.Code);
+						THROW(ACodT.insertRecBuf(&new_rec));
+						CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_MOVARCOD_COPIED, &msg_buf, r_rec.Code, r_rec.GoodsID, srcArID, destArID)));
+					}
+					// } @v11.7.5 
 					else {
 						THROW_DB(updateFor(&ACodT, 0, (ACodT.ArID == srcArID && ACodT.Code == r_rec.Code),
 							set(ACodT.ArID, dbconst(destArID))));

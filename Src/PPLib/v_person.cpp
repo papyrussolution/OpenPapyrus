@@ -678,7 +678,7 @@ int PPViewPerson::UpdateList()
 			PPIDArray id_list;
 			PPLogger logger;
 			PPWaitStart();
-			for(InitIteration(); NextIteration(&item) > 0; ) {
+			for(InitIteration(); NextIteration(&item) > 0;) {
 				id_list.add(item.ID);
 			}
 			id_list.sortAndUndup();
@@ -778,7 +778,7 @@ int PPViewPerson::DeleteItem(PPID id)
 			PPIDArray id_list;
 			PPLogger logger;
 			PPWaitStart();
-			for(InitIteration(); NextIteration(&item) > 0; ) {
+			for(InitIteration(); NextIteration(&item) > 0;) {
 				id_list.addUnique(item.ID);
 			}
 			{

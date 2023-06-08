@@ -154,7 +154,7 @@ void _cairo_rectangle_union(cairo_rectangle_int_t * dst, const cairo_rectangle_i
 boolint _cairo_box_intersects_line_segment(const cairo_box_t * box, cairo_line_t * line)
 {
 	cairo_fixed_t t1 = 0, t2 = 0, t3 = 0, t4 = 0;
-	cairo_int64_t t1y, t2y, t3x, t4x;
+	int64 t1y, t2y, t3x, t4x;
 	cairo_fixed_t xlen, ylen;
 	if(_cairo_box_contains_point(box, &line->p1) || _cairo_box_contains_point(box, &line->p2))
 		return TRUE;

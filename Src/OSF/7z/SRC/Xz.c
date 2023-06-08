@@ -30,7 +30,7 @@ static uint FASTCALL Xz_ReadVarInt(const Byte * p, size_t maxSize, uint64 * valu
 {
 	*value = 0;
 	const uint limit = (maxSize > 9) ? 9 : (uint)maxSize;
-	for(uint i = 0; i < limit; ) {
+	for(uint i = 0; i < limit;) {
 		Byte b = p[i];
 		*value |= (uint64)(b & 0x7F) << (7 * i++);
 		if((b & 0x80) == 0)
@@ -292,7 +292,7 @@ static SRes SeqInFilter_Read(const ISeqInStream * pp, void * data, size_t * size
 	if(sizeOriginal == 0)
 		return SZ_OK;
 	*size = 0;
-	for(;; ) {
+	for(;;) {
 		if(!p->srcWasFinished && p->curPos == p->endPos) {
 			p->curPos = 0;
 			p->endPos = FILTER_BUF_SIZE;
@@ -360,7 +360,7 @@ static SRes SbEncInStream_Read(const ISeqInStream * pp, void * data, size_t * si
 	size_t sizeOriginal = *size;
 	if(sizeOriginal == 0)
 		return SZ_OK;
-	for(;; ) {
+	for(;;) {
 		if(p->enc.needRead && !p->enc.readWasFinished) {
 			size_t processed = p->enc.needReadSizeMax;
 			RINOK(p->inStream->Read(p->inStream, p->enc.buf + p->enc.readPos, &processed));
@@ -886,7 +886,7 @@ static SRes FASTCALL MixCoder_Code(CMixCoder * p, Byte * dest, SizeT * destLen, 
 	}
 	if(p->numCoders != 1)
 		finishMode = CODER_FINISH_ANY;
-	for(;; ) {
+	for(;;) {
 		Bool processed = False;
 		uint i;
 		/*
@@ -1068,7 +1068,7 @@ SRes XzUnpacker_Code(CXzUnpacker * p, Byte * dest, SizeT * destLen, const Byte *
 	*destLen = 0;
 	*srcLen = 0;
 	*status = CODER_STATUS_NOT_SPECIFIED;
-	for(;; ) {
+	for(;;) {
 		SizeT srcRem = srcLenOrig - *srcLen;
 		if(p->state == XZ_STATE_BLOCK) {
 			SizeT destLen2 = destLenOrig - *destLen;
@@ -1441,7 +1441,7 @@ static SRes Xz_ReadBackward(CXzStream * p, ILookInStream * stream, int64 * start
 	if(memcmp(buf + 10, XZ_FOOTER_SIG, XZ_FOOTER_SIG_SIZE) != 0) {
 		uint32 total = 0;
 		pos += XZ_STREAM_FOOTER_SIZE;
-		for(;; ) {
+		for(;;) {
 			size_t i;
       #define TEMP_BUF_SIZE (1 << 10)
 			Byte temp[TEMP_BUF_SIZE];
@@ -1544,7 +1544,7 @@ SRes Xzs_ReadBackward(CXzs * p, ILookInStream * stream, int64 * startOffset, ICo
 	int64 endOffset = 0;
 	RINOK(ILookInStream_Seek(stream, &endOffset, SZ_SEEK_END));
 	*startOffset = endOffset;
-	for(;; ) {
+	for(;;) {
 		CXzStream st;
 		SRes res;
 		Xz_Construct(&st);

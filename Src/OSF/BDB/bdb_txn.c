@@ -3172,7 +3172,7 @@ static void __txn_gid(ENV*env, DB_MSGBUF * mbp, DB_TXN_ACTIVE * txn)
 	uint i;
 	int cnt;
 	__db_msgadd(env, mbp, "\n\tGID:");
-	for(cnt = 0, xp = (uint32 *)txn->gid, i = 0;; ) {
+	for(cnt = 0, xp = (uint32 *)txn->gid, i = 0;;) {
 		memcpy(&v, xp++, sizeof(uint32));
 		__db_msgadd(env, mbp, "%#lx ", (ulong)v);
 		if((i += sizeof(uint32)) >= DB_GID_SIZE)

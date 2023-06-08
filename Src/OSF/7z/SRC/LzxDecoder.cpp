@@ -20,9 +20,9 @@ namespace NCompress {
 			size -= kResidue;
 			Byte save = data[(size_t)size + 4];
 			data[(size_t)size + 4] = 0xE8;
-			for(uint32 i = 0;; ) {
+			for(uint32 i = 0;;) {
 				const Byte * p = data + i;
-				for(;; ) {
+				for(;;) {
 					if(*p++ == 0xE8) break;
 					if(*p++ == 0xE8) break;
 					if(*p++ == 0xE8) break;

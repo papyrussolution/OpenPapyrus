@@ -1179,7 +1179,7 @@ static int userauth_keyboard_interactive(LIBSSH2_SESSION * session, const char *
 		session->userauth_kybd_state = libssh2_NB_state_sent;
 	}
 
-	for(;; ) {
+	for(;;) {
 		if(session->userauth_kybd_state == libssh2_NB_state_sent) {
 			rc = _libssh2_packet_requirev(session, reply_codes, &session->userauth_kybd_data, &session->userauth_kybd_data_len, 0, NULL, 0, &session->userauth_kybd_packet_requirev_state);
 			if(rc == LIBSSH2_ERROR_EAGAIN) {

@@ -1021,7 +1021,7 @@ static void ngx_stream_proxy_process(ngx_stream_session_t * s, ngx_uint_t from_u
 			out = &u->upstream_out;
 			busy = &u->upstream_busy;
 		}
-		for(;; ) {
+		for(;;) {
 			if(do_write && dst) {
 				if(*out || *busy || dst->buffered) {
 					rc = ngx_stream_top_filter(s, *out, from_upstream);

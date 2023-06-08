@@ -175,7 +175,7 @@ static void ngx_http_limit_conn_rbtree_insert_value(ngx_rbtree_node_t * temp, ng
 {
 	ngx_rbtree_node_t  ** p;
 	ngx_http_limit_conn_node_t * lcn, * lcnt;
-	for(;; ) {
+	for(;;) {
 		if(node->key < temp->key) {
 			p = &temp->left;
 		}

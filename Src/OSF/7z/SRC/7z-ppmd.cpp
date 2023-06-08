@@ -111,7 +111,7 @@ namespace NCompress {
 			Ppmd7z_RangeEnc_Init(&_rangeEnc);
 			Ppmd7_Init(&_ppmd, _props.Order);
 			uint64 processed = 0;
-			for(;; ) {
+			for(;;) {
 				uint32 size;
 				RINOK(inStream->Read(_inBuf, kBufSize, &size));
 				if(size == 0) {

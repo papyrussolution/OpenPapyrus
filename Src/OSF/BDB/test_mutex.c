@@ -345,7 +345,7 @@ void * run_lthread(void * arg)
 	printf("Locker: ID %03lu (PID: %lu; TID: %lx)\n", id, (ulong)getpid(), tid);
 	gp = (TM *)gm_addr;
 	tp = (TM *)(tm_addr+id*sizeof(TM));
-	for(nl = nlocks; nl > 0; ) {
+	for(nl = nlocks; nl > 0;) {
 		/* Select and acquire a data lock. */
 		lock = (uint)rand()%maxlocks;
 		mp = (TM *)(lm_addr+lock*sizeof(TM));

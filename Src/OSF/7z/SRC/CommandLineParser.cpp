@@ -29,7 +29,7 @@ namespace NCommandLineParser {
 		UString sTemp(s);
 		sTemp.Trim();
 		parts.Clear();
-		for(;; ) {
+		for(;;) {
 			UString s1, s2;
 			if(SplitCommandLine(sTemp, s1, s2))
 				parts.Add(s1);

@@ -195,7 +195,7 @@ int gif_lzw(uchar * pOut, int OutLength, uchar * pIn, int InLen)
 	/* Submit one 'ClearCode' as the first code */
 	if(AddCodeToBuffer(&State, State.ClearCode, CodeBits))
 		return 0;
-	for(;; ) {
+	for(;;) {
 		char Res;
 		/* generate and save the next code, which may consist of multiple input pixels. */
 		Res = NextCode(&State, &PixelValueCur, CodeBits);

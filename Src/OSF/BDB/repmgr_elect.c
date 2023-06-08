@@ -151,7 +151,7 @@ static int __repmgr_elect_main(ENV * env, REPMGR_RUNNABLE * th)
 		done_repstart = TRUE;
 	}
 	LOCK_MUTEX(db_rep->mutex);
-	for(;; ) {
+	for(;;) {
 		ret = 0;
 		if(db_rep->finished)
 			goto unlock;

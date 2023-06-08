@@ -1439,15 +1439,12 @@ static cairo_status_t _fill_spans(void * abstract_renderer, int y, int h,
 
 #endif
 
-static cairo_status_t _blit_spans(void * abstract_renderer, int y, int h,
-    const cairo_half_open_span_t * spans, unsigned num_spans)
+static cairo_status_t _blit_spans(void * abstract_renderer, int y, int h, const cairo_half_open_span_t * spans, unsigned num_spans)
 {
 	cairo_image_span_renderer_t * r = (cairo_image_span_renderer_t *)abstract_renderer;
 	int cpp;
-
 	if(num_spans == 0)
 		return CAIRO_STATUS_SUCCESS;
-
 	cpp = r->bpp/8;
 	if(LIKELY(h == 1)) {
 		uint8 * src = r->u.blit.src_data + y*r->u.blit.src_stride;
@@ -1458,23 +1455,11 @@ static cairo_status_t _blit_spans(void * abstract_renderer, int y, int h,
 				void * d = dst + spans[0].x*cpp;
 				int len = (spans[1].x - spans[0].x) * cpp;
 				switch(len) {
-					case 1:
-					    *(uint8 *)d = *(uint8 *)s;
-					    break;
-					case 2:
-					    *(uint16 *)d = *(uint16 *)s;
-					    break;
-					case 4:
-					    *(uint32 *)d = *(uint32 *)s;
-					    break;
-#if HAVE_UINT64_T
-					case 8:
-					    *(uint64*)d = *(uint64*)s;
-					    break;
-#endif
-					default:
-					    memcpy(d, s, len);
-					    break;
+					case 1: *(uint8 *)d = *(uint8 *)s; break;
+					case 2: *(uint16 *)d = *(uint16 *)s; break;
+					case 4: *(uint32 *)d = *(uint32 *)s; break;
+					case 8: *(uint64*)d = *(uint64*)s; break;
+					default: memcpy(d, s, len); break;
 				}
 			}
 			spans++;
@@ -1489,23 +1474,11 @@ static cairo_status_t _blit_spans(void * abstract_renderer, int y, int h,
 					void * dst = r->u.blit.data + yy*r->u.blit.stride + spans[0].x*cpp;
 					int len = (spans[1].x - spans[0].x) * cpp;
 					switch(len) {
-						case 1:
-						    *(uint8 *)dst = *(uint8 *)src;
-						    break;
-						case 2:
-						    *(uint16 *)dst = *(uint16 *)src;
-						    break;
-						case 4:
-						    *(uint32 *)dst = *(uint32 *)src;
-						    break;
-#if HAVE_UINT64_T
-						case 8:
-						    *(uint64*)dst = *(uint64*)src;
-						    break;
-#endif
-						default:
-						    memcpy(dst, src, len);
-						    break;
+						case 1: *(uint8 *)dst = *(uint8 *)src; break;
+						case 2: *(uint16 *)dst = *(uint16 *)src; break;
+						case 4: *(uint32 *)dst = *(uint32 *)src; break;
+						case 8: *(uint64*)dst = *(uint64*)src; break;
+						default: memcpy(dst, src, len); break;
 					}
 					yy++;
 				} while(--hh);
@@ -1696,20 +1669,14 @@ static inline uint8 mul8_8(uint8 a, uint8 b)
 
 static inline uint32 lerp8x4(uint32 src, uint8 a, uint32 dst)
 {
-	return (add8x2_8x2(mul8x2_8(src, a),
-	       mul8x2_8(dst, ~a)) |
-	       add8x2_8x2(mul8x2_8(src >> G_SHIFT, a),
-	       mul8x2_8(dst >> G_SHIFT, ~a)) << G_SHIFT);
+	return (add8x2_8x2(mul8x2_8(src, a), mul8x2_8(dst, ~a)) | add8x2_8x2(mul8x2_8(src >> G_SHIFT, a), mul8x2_8(dst >> G_SHIFT, ~a)) << G_SHIFT);
 }
 
-static cairo_status_t _fill_a8_lerp_opaque_spans(void * abstract_renderer, int y, int h,
-    const cairo_half_open_span_t * spans, unsigned num_spans)
+static cairo_status_t _fill_a8_lerp_opaque_spans(void * abstract_renderer, int y, int h, const cairo_half_open_span_t * spans, unsigned num_spans)
 {
 	cairo_image_span_renderer_t * r = (cairo_image_span_renderer_t *)abstract_renderer;
-
 	if(num_spans == 0)
 		return CAIRO_STATUS_SUCCESS;
-
 	if(LIKELY(h == 1)) {
 		uint8 * d = r->u.fill.data + r->u.fill.stride*y;
 		do {
@@ -1836,14 +1803,11 @@ static cairo_status_t _fill_xrgb32_lerp_opaque_spans(void * abstract_renderer, i
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _fill_a8_lerp_spans(void * abstract_renderer, int y, int h,
-    const cairo_half_open_span_t * spans, unsigned num_spans)
+static cairo_status_t _fill_a8_lerp_spans(void * abstract_renderer, int y, int h, const cairo_half_open_span_t * spans, unsigned num_spans)
 {
 	cairo_image_span_renderer_t * r = (cairo_image_span_renderer_t *)abstract_renderer;
-
 	if(num_spans == 0)
 		return CAIRO_STATUS_SUCCESS;
-
 	if(LIKELY(h == 1)) {
 		do {
 			uint8 a = mul8_8(spans[0].coverage, r->bpp);

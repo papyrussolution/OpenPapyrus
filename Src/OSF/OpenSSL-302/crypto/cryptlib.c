@@ -12,90 +12,75 @@
 #include "e_os.h"
 #include "crypto/cryptlib.h"
 #if defined(_WIN32)
-#include <tchar.h>
-#include <signal.h>
 #ifdef __WATCOMC__
-#if defined(_UNICODE) || defined(__UNICODE__)
-#define _vsntprintf _vsnwprintf
-#else
-#define _vsntprintf _vsnprintf
-#endif
+	#if defined(_UNICODE) || defined(__UNICODE__)
+		#define _vsntprintf _vsnwprintf
+	#else
+		#define _vsntprintf _vsnprintf
+	#endif
 #endif
 #ifdef _MSC_VER
-#define alloca _alloca
+	#define alloca _alloca
 #endif
-
 #if defined(_WIN32_WINNT) && _WIN32_WINNT>=0x0333
-#ifdef OPENSSL_SYS_WIN_CORE
-
-int OPENSSL_isservice(void)
-{
-	/* OneCore API cannot interact with GUI */
-	return 1;
-}
-
+	#ifdef OPENSSL_SYS_WIN_CORE
+		int OPENSSL_isservice(void) { return 1; /* OneCore API cannot interact with GUI */ }
+	#else
+		int OPENSSL_isservice(void)
+		{
+			HWINSTA h;
+			DWORD len;
+			WCHAR * name;
+			static union {
+				void * p;
+				FARPROC f;
+			} _OPENSSL_isservice = {
+				NULL
+			};
+			if(_OPENSSL_isservice.p == NULL) {
+				HANDLE mod = GetModuleHandle(NULL);
+				FARPROC f = NULL;
+				if(mod != NULL)
+					f = GetProcAddress((HMODULE)mod, "_OPENSSL_isservice");
+				if(f == NULL)
+					_OPENSSL_isservice.p = (void*)-1;
+				else
+					_OPENSSL_isservice.f = f;
+			}
+			if(_OPENSSL_isservice.p != (void*)-1)
+				return (*_OPENSSL_isservice.f)();
+			h = GetProcessWindowStation();
+			if(h == NULL)
+				return -1;
+			if(GetUserObjectInformationW(h, UOI_NAME, NULL, 0, &len) || GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+				return -1;
+			if(len > 512)
+				return -1;      /* paranoia */
+			len++, len &= ~1;       /* paranoia */
+			name = (WCHAR*)alloca(len + sizeof(WCHAR));
+			if(!GetUserObjectInformationW(h, UOI_NAME, name, len, &len))
+				return -1;
+			len++, len &= ~1;       /* paranoia */
+			name[len / sizeof(WCHAR)] = L'\0'; /* paranoia */
+		#if 1
+			/*
+			 * This doesn't cover "interactive" services [working with real
+			 * WinSta0's] nor programs started non-interactively by Task Scheduler
+			 * [those are working with SAWinSta].
+			 */
+			if(wcsstr(name, L"Service-0x"))
+				return 1;
+		#else
+			/* This covers all non-interactive programs such as services. */
+			if(!wcsstr(name, L"WinSta0"))
+				return 1;
+		#endif
+			else
+				return 0;
+		}
+	#endif
 #else
-int OPENSSL_isservice(void)
-{
-	HWINSTA h;
-	DWORD len;
-	WCHAR * name;
-	static union {
-		void * p;
-		FARPROC f;
-	} _OPENSSL_isservice = {
-		NULL
-	};
-	if(_OPENSSL_isservice.p == NULL) {
-		HANDLE mod = GetModuleHandle(NULL);
-		FARPROC f = NULL;
-		if(mod != NULL)
-			f = GetProcAddress((HMODULE)mod, "_OPENSSL_isservice");
-		if(f == NULL)
-			_OPENSSL_isservice.p = (void*)-1;
-		else
-			_OPENSSL_isservice.f = f;
-	}
-	if(_OPENSSL_isservice.p != (void*)-1)
-		return (*_OPENSSL_isservice.f)();
-	h = GetProcessWindowStation();
-	if(h == NULL)
-		return -1;
-	if(GetUserObjectInformationW(h, UOI_NAME, NULL, 0, &len) || GetLastError() != ERROR_INSUFFICIENT_BUFFER)
-		return -1;
-	if(len > 512)
-		return -1;      /* paranoia */
-	len++, len &= ~1;       /* paranoia */
-	name = (WCHAR*)alloca(len + sizeof(WCHAR));
-	if(!GetUserObjectInformationW(h, UOI_NAME, name, len, &len))
-		return -1;
-
-	len++, len &= ~1;       /* paranoia */
-	name[len / sizeof(WCHAR)] = L'\0'; /* paranoia */
-#if 1
-	/*
-	 * This doesn't cover "interactive" services [working with real
-	 * WinSta0's] nor programs started non-interactively by Task Scheduler
-	 * [those are working with SAWinSta].
-	 */
-	if(wcsstr(name, L"Service-0x"))
-		return 1;
-#else
-	/* This covers all non-interactive programs such as services. */
-	if(!wcsstr(name, L"WinSta0"))
-		return 1;
-#endif
-	else
-		return 0;
-}
-
-#endif
-#else
-int OPENSSL_isservice(void)
-{
-	return 0;
-}
-
+	int OPENSSL_isservice(void) { return 0; }
 #endif
 
 void OPENSSL_showfatal(const char * fmta, ...)
@@ -122,16 +107,13 @@ void OPENSSL_showfatal(const char * fmta, ...)
 		return;
 	}
 #endif
-
 	if(sizeof(TCHAR) == sizeof(char))
 		fmt = (const TCHAR*)fmta;
 	else
 		do {
 			int keepgoing;
 			size_t len_0 = strlen(fmta) + 1, i;
-			WCHAR * fmtw;
-
-			fmtw = (WCHAR*)alloca(len_0 * sizeof(WCHAR));
+			WCHAR * fmtw = (WCHAR*)alloca(len_0 * sizeof(WCHAR));
 			if(fmtw == NULL) {
 				fmt = (const TCHAR*)L"no stack?";
 				break;
@@ -227,24 +209,19 @@ void OPENSSL_showfatal(const char * fmta, ...)
 	MessageBox(NULL, buf, _T("OpenSSL: FATAL"), MB_OK | MB_ICONERROR);
 #endif
 }
-
 #else
-void OPENSSL_showfatal(const char * fmta, ...)
-{
-#ifndef OPENSSL_NO_STDIO
-	va_list ap;
+	void OPENSSL_showfatal(const char * fmta, ...)
+	{
+	#ifndef OPENSSL_NO_STDIO
+		va_list ap;
 
-	va_start(ap, fmta);
-	vfprintf(stderr, fmta, ap);
-	va_end(ap);
-#endif
-}
+		va_start(ap, fmta);
+		vfprintf(stderr, fmta, ap);
+		va_end(ap);
+	#endif
+	}
 
-int OPENSSL_isservice(void)
-{
-	return 0;
-}
-
+	int OPENSSL_isservice(void) { return 0; }
 #endif
 
 void OPENSSL_die(const char * message, const char * file, int line)
@@ -253,9 +230,7 @@ void OPENSSL_die(const char * message, const char * file, int line)
 #if !defined(_WIN32)
 	abort();
 #else
-	/*
-	 * Win32 abort() customarily shows a dialog, but we just did that...
-	 */
+	// Win32 abort() customarily shows a dialog, but we just did that...
 #if !defined(_WIN32_WCE)
 	raise(SIGABRT);
 #endif
@@ -264,16 +239,13 @@ void OPENSSL_die(const char * message, const char * file, int line)
 }
 
 #if defined(__TANDEM) && defined(OPENSSL_VPROC)
-/*
- * Define a VPROC function for HP NonStop build crypto library.
- * This is used by platform version identification tools.
- * Do not inline this procedure or make it static.
- */
-#define OPENSSL_VPROC_STRING_(x)    x ## _CRYPTO
-#define OPENSSL_VPROC_STRING(x)     OPENSSL_VPROC_STRING_(x)
-#define OPENSSL_VPROC_FUNC          OPENSSL_VPROC_STRING(OPENSSL_VPROC)
-void OPENSSL_VPROC_FUNC(void) 
-{
-}
-
+	/*
+	 * Define a VPROC function for HP NonStop build crypto library.
+	 * This is used by platform version identification tools.
+	 * Do not inline this procedure or make it static.
+	 */
+	#define OPENSSL_VPROC_STRING_(x)    x ## _CRYPTO
+	#define OPENSSL_VPROC_STRING(x)     OPENSSL_VPROC_STRING_(x)
+	#define OPENSSL_VPROC_FUNC          OPENSSL_VPROC_STRING(OPENSSL_VPROC)
+	void OPENSSL_VPROC_FUNC(void) {}
 #endif /* __TANDEM */

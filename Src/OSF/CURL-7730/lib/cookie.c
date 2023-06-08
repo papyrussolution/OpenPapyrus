@@ -975,21 +975,17 @@ struct Cookie * Curl_cookie_add(struct Curl_easy * data,
 					if(clist->secure && !co->secure && !secure) {
 						size_t cllen;
 						const char * sep;
-
 						/*
 						 * A non-secure cookie may not overlay an existing secure cookie.
 						 * For an existing cookie "a" with path "/login", refuse a new
 						 * cookie "a" with for example path "/login/en", while the path
 						 * "/loginhelper" is ok.
 						 */
-
 						sep = strchr(clist->spath + 1, '/');
-
 						if(sep)
 							cllen = sep - clist->spath;
 						else
 							cllen = strlen(clist->spath);
-
 						if(strncasecompare(clist->spath, co->spath, cllen)) {
 							freecookie(co);
 							return NULL;
@@ -1005,7 +1001,6 @@ struct Cookie * Curl_cookie_add(struct Curl_easy * data,
 				else
 					replace_old = FALSE;
 			}
-
 			if(replace_old && !co->livecookie && clist->livecookie) {
 				/* Both cookies matched fine, except that the already present
 				   cookie is "live", which means it was set from a header, while

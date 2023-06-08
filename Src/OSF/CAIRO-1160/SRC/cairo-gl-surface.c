@@ -67,7 +67,6 @@ static boolint _cairo_gl_get_image_format_and_type_gles2(pixman_format_code_t pi
 		    *type = GL_UNSIGNED_BYTE;
 		    *needs_swap = !is_little_endian;
 		    return TRUE;
-
 		case PIXMAN_x8b8g8r8:
 		    *internal_format = GL_RGBA;
 		    *format = GL_RGBA;
@@ -75,14 +74,12 @@ static boolint _cairo_gl_get_image_format_and_type_gles2(pixman_format_code_t pi
 		    *has_alpha = FALSE;
 		    *needs_swap = !is_little_endian;
 		    return TRUE;
-
 		case PIXMAN_b8g8r8a8:
 		    *internal_format = GL_BGRA;
 		    *format = GL_BGRA;
 		    *type = GL_UNSIGNED_BYTE;
 		    *needs_swap = is_little_endian;
 		    return TRUE;
-
 		case PIXMAN_b8g8r8x8:
 		    *internal_format = GL_BGRA;
 		    *format = GL_BGRA;
@@ -90,14 +87,12 @@ static boolint _cairo_gl_get_image_format_and_type_gles2(pixman_format_code_t pi
 		    *has_alpha = FALSE;
 		    *needs_swap = is_little_endian;
 		    return TRUE;
-
 		case PIXMAN_r8g8b8:
 		    *internal_format = GL_RGB;
 		    *format = GL_RGB;
 		    *type = GL_UNSIGNED_BYTE;
 		    *needs_swap = is_little_endian;
 		    return TRUE;
-
 		case PIXMAN_b8g8r8:
 		    *internal_format = GL_RGB;
 		    *format = GL_RGB;
@@ -111,21 +106,18 @@ static boolint _cairo_gl_get_image_format_and_type_gles2(pixman_format_code_t pi
 		    *type = GL_UNSIGNED_SHORT_5_6_5;
 		    *needs_swap = FALSE;
 		    return TRUE;
-
 		case PIXMAN_b5g6r5:
 		    *internal_format = GL_RGB;
 		    *format = GL_RGB;
 		    *type = GL_UNSIGNED_SHORT_5_6_5;
 		    *needs_swap = TRUE;
 		    return TRUE;
-
 		case PIXMAN_a1b5g5r5:
 		    *internal_format = GL_RGBA;
 		    *format = GL_RGBA;
 		    *type = GL_UNSIGNED_SHORT_5_5_5_1;
 		    *needs_swap = TRUE;
 		    return TRUE;
-
 		case PIXMAN_x1b5g5r5:
 		    *internal_format = GL_RGBA;
 		    *format = GL_RGBA;
@@ -133,27 +125,22 @@ static boolint _cairo_gl_get_image_format_and_type_gles2(pixman_format_code_t pi
 		    *has_alpha = FALSE;
 		    *needs_swap = TRUE;
 		    return TRUE;
-
 		case PIXMAN_a8:
 		    *internal_format = GL_ALPHA;
 		    *format = GL_ALPHA;
 		    *type = GL_UNSIGNED_BYTE;
 		    *needs_swap = FALSE;
 		    return TRUE;
-
 		default:
 		    return FALSE;
 	}
 }
 
 static boolint _cairo_gl_get_image_format_and_type_gl(pixman_format_code_t pixman_format,
-    GLenum * internal_format, GLenum * format,
-    GLenum * type, boolint * has_alpha,
-    boolint * needs_swap)
+    GLenum * internal_format, GLenum * format, GLenum * type, boolint * has_alpha, boolint * needs_swap)
 {
 	*has_alpha = TRUE;
 	*needs_swap = FALSE;
-
 	switch(pixman_format) {
 		case PIXMAN_a8r8g8b8:
 		    *internal_format = GL_RGBA;

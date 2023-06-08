@@ -817,7 +817,7 @@ GLOBAL(void) jpeg_fdct_9x9(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION st
 
 	    dataptr = data;
 	ctr = 0;
-	for(;; ) {
+	for(;;) {
 		elemptr = sample_data[ctr] + start_col;
 
 		/* Even part */
@@ -927,7 +927,7 @@ GLOBAL(void) jpeg_fdct_10x10(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION 
 
 	    dataptr = data;
 	ctr = 0;
-	for(;; ) {
+	for(;;) {
 		elemptr = sample_data[ctr] + start_col;
 
 		/* Even part */
@@ -1073,7 +1073,7 @@ GLOBAL(void) jpeg_fdct_11x11(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION 
 
 	    dataptr = data;
 	ctr = 0;
-	for(;; ) {
+	for(;;) {
 		elemptr = sample_data[ctr] + start_col;
 
 		/* Even part */
@@ -1240,24 +1240,18 @@ GLOBAL(void) jpeg_fdct_12x12(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION 
 	INT32 tmp0, tmp1, tmp2, tmp3, tmp4, tmp5;
 	INT32 tmp10, tmp11, tmp12, tmp13, tmp14, tmp15;
 	DCTELEM workspace[8*4];
-	DCTELEM * dataptr;
 	DCTELEM * wsptr;
 	JSAMPROW elemptr;
-	int ctr;
 	SHIFT_TEMPS
-
 	/* Pass 1: process rows.
 	 * Note results are scaled up by sqrt(8) compared to a true DCT.
 	 * cK represents sqrt(2) * cos(K*pi/24).
 	 */
-
-	    dataptr = data;
-	ctr = 0;
-	for(;; ) {
+    DCTELEM * dataptr = data;
+	int ctr = 0;
+	for(;;) {
 		elemptr = sample_data[ctr] + start_col;
-
 		/* Even part */
-
 		tmp0 = GETJSAMPLE(elemptr[0]) + GETJSAMPLE(elemptr[11]);
 		tmp1 = GETJSAMPLE(elemptr[1]) + GETJSAMPLE(elemptr[10]);
 		tmp2 = GETJSAMPLE(elemptr[2]) + GETJSAMPLE(elemptr[9]);
@@ -1403,7 +1397,7 @@ GLOBAL(void) jpeg_fdct_13x13(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION 
 	 */
 	    dataptr = data;
 	ctr = 0;
-	for(;; ) {
+	for(;;) {
 		elemptr = sample_data[ctr] + start_col;
 		/* Even part */
 		tmp0 = GETJSAMPLE(elemptr[0]) + GETJSAMPLE(elemptr[12]);
@@ -1579,7 +1573,7 @@ GLOBAL(void) jpeg_fdct_14x14(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION 
 
 	    dataptr = data;
 	ctr = 0;
-	for(;; ) {
+	for(;;) {
 		elemptr = sample_data[ctr] + start_col;
 
 		/* Even part */
@@ -1780,7 +1774,7 @@ GLOBAL(void) jpeg_fdct_15x15(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION 
 
 	    dataptr = data;
 	ctr = 0;
-	for(;; ) {
+	for(;;) {
 		elemptr = sample_data[ctr] + start_col;
 
 		/* Even part */
@@ -1959,7 +1953,7 @@ GLOBAL(void) jpeg_fdct_16x16(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION 
 
 	    dataptr = data;
 	ctr = 0;
-	for(;; ) {
+	for(;;) {
 		elemptr = sample_data[ctr] + start_col;
 
 		/* Even part */
@@ -3030,7 +3024,7 @@ GLOBAL(void) jpeg_fdct_8x16(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION s
 	 */
     dataptr = data;
 	ctr = 0;
-	for(;; ) {
+	for(;;) {
 		elemptr = sample_data[ctr] + start_col;
 		/* Even part per LL&M figure 1 --- note that published figure is faulty;
 		 * rotator "c1" should be "c6".
@@ -3171,7 +3165,7 @@ GLOBAL(void) jpeg_fdct_7x14(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION s
 	 */
 	dataptr = data;
 	ctr = 0;
-	for(;; ) {
+	for(;;) {
 		elemptr = sample_data[ctr] + start_col;
 		/* Even part */
 		tmp0 = GETJSAMPLE(elemptr[0]) + GETJSAMPLE(elemptr[6]);
@@ -3297,7 +3291,7 @@ GLOBAL(void) jpeg_fdct_6x12(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION s
 	 */
 	dataptr = data;
 	ctr = 0;
-	for(;; ) {
+	for(;;) {
 		elemptr = sample_data[ctr] + start_col;
 		/* Even part */
 		tmp0 = GETJSAMPLE(elemptr[0]) + GETJSAMPLE(elemptr[5]);
@@ -3404,7 +3398,7 @@ GLOBAL(void) jpeg_fdct_5x10(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION s
 	 */
 	dataptr = data;
 	ctr = 0;
-	for(;; ) {
+	for(;;) {
 		elemptr = sample_data[ctr] + start_col;
 		/* Even part */
 		tmp0 = GETJSAMPLE(elemptr[0]) + GETJSAMPLE(elemptr[4]);

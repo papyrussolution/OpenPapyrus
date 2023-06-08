@@ -182,8 +182,8 @@ int FASTCALL GCTIterator::GCT_BillCache::Get(PPID id, BillTbl::Rec * pRec)
 //
 //
 //
-IMPL_CMPCFUNC(GCTIterator_GoodsRestEntry, p1, p2) { RET_CMPCASCADE3((const GCTIterator::GoodsRestEntry *)p1, (const GCTIterator::GoodsRestEntry *)p2, GoodsID, LocID, Dt); }
-IMPL_CMPCFUNC(GCTIterator_GoodsRestEntry_ByGoodsLoc, p1, p2) { RET_CMPCASCADE2((const GCTIterator::GoodsRestEntry *)p1, (const GCTIterator::GoodsRestEntry *)p2, GoodsID, LocID); }
+IMPL_CMPFUNC(GCTIterator_GoodsRestEntry, p1, p2) { RET_CMPCASCADE3((const GCTIterator::GoodsRestEntry *)p1, (const GCTIterator::GoodsRestEntry *)p2, GoodsID, LocID, Dt); }
+IMPL_CMPFUNC(GCTIterator_GoodsRestEntry_ByGoodsLoc, p1, p2) { RET_CMPCASCADE2((const GCTIterator::GoodsRestEntry *)p1, (const GCTIterator::GoodsRestEntry *)p2, GoodsID, LocID); }
 
 GCTIterator::GoodsRestArray::GoodsRestArray() : TSVector <GoodsRestEntry> ()
 {
@@ -208,7 +208,7 @@ int GCTIterator::GoodsRestArray::SetAccumItem(PPID goodsID, PPID locID, LDATE dt
 			new_entry.LocID = locID;
 			new_entry.Dt = dt;
 			uint   p = 0;
-			if(lsearch(&new_entry, &p, PTR_CMPCFUNC(GCTIterator_GoodsRestEntry))) {
+			if(lsearch(&new_entry, &p, PTR_CMPFUNC(GCTIterator_GoodsRestEntry))) {
 				GoodsRestEntry & r_entry = at(p);
 				r_entry.Rest += qtty;
 				ok = 2;
@@ -234,7 +234,7 @@ int GCTIterator::GoodsRestArray::SetInitRest(PPID goodsID, PPID locID, double re
 		new_entry.LocID = locID;
 		new_entry.Dt = ZERODATE;
 		uint   p = 0;
-		if(lsearch(&new_entry, &p, PTR_CMPCFUNC(GCTIterator_GoodsRestEntry))) {
+		if(lsearch(&new_entry, &p, PTR_CMPFUNC(GCTIterator_GoodsRestEntry))) {
 			GoodsRestEntry & r_entry = at(p);
 			r_entry.Rest += rest;
 			ok = 2;
@@ -252,7 +252,7 @@ int GCTIterator::GoodsRestArray::SetInitRest(PPID goodsID, PPID locID, double re
 void GCTIterator::GoodsRestArray::Finish()
 {
 	if(State & stAccumulation) {
-		sort(PTR_CMPCFUNC(GCTIterator_GoodsRestEntry));
+		sort(PTR_CMPFUNC(GCTIterator_GoodsRestEntry));
 		{
 			LocList.clear();
 			PPID   current_goods_id = 0;
@@ -288,7 +288,7 @@ double GCTIterator::GoodsRestArray::GetRest(PPID goodsID, PPID locID, LDATE dt) 
 	MEMSZERO(key);
 	key.GoodsID = goodsID;
 	key.LocID = locID;
-	if(bsearch(&key, &pos, PTR_CMPCFUNC(GCTIterator_GoodsRestEntry_ByGoodsLoc))) {
+	if(bsearch(&key, &pos, PTR_CMPFUNC(GCTIterator_GoodsRestEntry_ByGoodsLoc))) {
 		uint last_pos = pos;
         while(pos < getCount() && at(pos).GoodsID == goodsID && at(pos).LocID == locID) {
 			last_pos = pos++;

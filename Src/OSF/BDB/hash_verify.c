@@ -430,7 +430,7 @@ static int __ham_vrfy_bucket(DB * dbp, VRFY_DBINFO * vdp, HMETA * m, uint32 buck
 	flags |= F_ISSET(mip, VRFY_HAS_DUPSORT) ? DB_ST_DUPSORT : 0;
 
 	/* Loop until we find a fatal bug, or until we run out of pages. */
-	for(;; ) {
+	for(;;) {
 		/* Provide feedback on our progress to the application. */
 		if(!LF_ISSET(DB_SALVAGE))
 			__db_vrfy_struct_feedback(dbp, vdp);
@@ -809,7 +809,7 @@ int __ham_meta2pgset(DB * dbp, VRFY_DBINFO * vdp, HMETA * hmeta, uint32 flags, D
 		 *
 		 * Safely walk the list of pages in this bucket.
 		 */
-		for(;; ) {
+		for(;;) {
 			if((ret = __memp_fget(mpf, &pgno, ip, NULL, 0, &h)) != 0)
 				return ret;
 			if(TYPE(h) == P_HASH || TYPE(h) == P_HASH_UNSORTED) {

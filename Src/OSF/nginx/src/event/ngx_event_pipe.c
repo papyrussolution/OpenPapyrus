@@ -37,7 +37,7 @@ ngx_int_t ngx_event_pipe(ngx_event_pipe_t * p, ngx_int_t do_write)
 	ngx_int_t rc;
 	ngx_uint_t flags;
 	ngx_event_t  * rev, * wev;
-	for(;; ) {
+	for(;;) {
 		if(do_write) {
 			p->log->action = "sending to client";
 			rc = ngx_event_pipe_write_to_downstream(p);
@@ -116,7 +116,7 @@ static ngx_int_t ngx_event_pipe_read_upstream(ngx_event_pipe_t * p)
 	}
 #endif
 	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, p->log, 0, "pipe read upstream: %d", p->upstream->P_EvRd->ready);
-	for(;; ) {
+	for(;;) {
 		if(p->upstream_eof || p->upstream_error || p->upstream_done) {
 			break;
 		}
@@ -367,7 +367,7 @@ static ngx_int_t ngx_event_pipe_write_to_downstream(ngx_event_pipe_t * p)
 	}
 #endif
 	flushed = 0;
-	for(;; ) {
+	for(;;) {
 		if(p->downstream_error) {
 			return ngx_event_pipe_drain_chains(p);
 		}
@@ -432,7 +432,7 @@ static ngx_int_t ngx_event_pipe_write_to_downstream(ngx_event_pipe_t * p)
 		flush = 0;
 		ll = NULL;
 		prev_last_shadow = 1;
-		for(;; ) {
+		for(;;) {
 			if(p->out) {
 				cl = p->out;
 				if(cl->buf->recycled) {
@@ -727,7 +727,7 @@ ngx_int_t ngx_event_pipe_add_free_buf(ngx_event_pipe_t * p, ngx_buf_t * b)
 static ngx_int_t ngx_event_pipe_drain_chains(ngx_event_pipe_t * p)
 {
 	ngx_chain_t  * cl, * tl;
-	for(;; ) {
+	for(;;) {
 		if(p->busy) {
 			cl = p->busy;
 			p->busy = NULL;

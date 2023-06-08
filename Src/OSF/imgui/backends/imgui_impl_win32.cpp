@@ -16,12 +16,7 @@
 #include <imgui-slib-internal.h>
 #pragma hdrstop
 #include "imgui_impl_win32.h"
-//#ifndef WIN32_LEAN_AND_MEAN
-//#define WIN32_LEAN_AND_MEAN
-//#endif
-//#include <windows.h>
 #include <windowsx.h> // GET_X_LPARAM(), GET_Y_LPARAM()
-//#include <tchar.h>
 #include <dwmapi.h>
 
 // Configuration flags to add in your imconfig.h file:
@@ -154,7 +149,6 @@ bool    ImGui_ImplWin32_Init(void* hwnd)
 			break;
 		}
 #endif // IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
-
 	return true;
 }
 
@@ -339,22 +333,14 @@ void    ImGui_ImplWin32_NewFrame()
 	::QueryPerformanceCounter((LARGE_INTEGER*)&current_time);
 	io.DeltaTime = (float)(current_time - bd->Time) / bd->TicksPerSecond;
 	bd->Time = current_time;
-
-	// Update OS mouse position
-	ImGui_ImplWin32_UpdateMouseData();
-
-	// Process workarounds for known Windows key handling issues
-	ImGui_ImplWin32_ProcessKeyEventsWorkarounds();
-
-	// Update OS mouse cursor with the cursor requested by imgui
-	ImGuiMouseCursor mouse_cursor = io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor();
+	ImGui_ImplWin32_UpdateMouseData(); // Update OS mouse position
+	ImGui_ImplWin32_ProcessKeyEventsWorkarounds(); // Process workarounds for known Windows key handling issues
+	ImGuiMouseCursor mouse_cursor = io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor(); // Update OS mouse cursor with the cursor requested by imgui
 	if(bd->LastMouseCursor != mouse_cursor) {
 		bd->LastMouseCursor = mouse_cursor;
 		ImGui_ImplWin32_UpdateMouseCursor();
 	}
-
-	// Update game controllers (if enabled and available)
-	ImGui_ImplWin32_UpdateGamepads();
+	ImGui_ImplWin32_UpdateGamepads(); // Update game controllers (if enabled and available)
 }
 
 // There is no distinct VK_xxx for keypad enter, instead it is VK_RETURN + KF_EXTENDED, we assign it an arbitrary value to make code more readable (VK_ codes go up to 255)

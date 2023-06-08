@@ -975,7 +975,7 @@ namespace NCrypto {
 		static uint FASTCALL ReadVarInt(const Byte * p, uint maxSize, uint64 * val)
 		{
 			*val = 0;
-			for(uint i = 0; i < maxSize; ) {
+			for(uint i = 0; i < maxSize;) {
 				Byte b = p[i];
 				if(i < 10)
 					*val |= (uint64)(b & 0x7F) << (7 * i++);

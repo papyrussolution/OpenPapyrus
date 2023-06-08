@@ -148,7 +148,7 @@ ngx_err_t ngx_win32_rename_file(ngx_str_t * from, ngx_str_t * to, ngx_log_t * lo
 	memcpy(name, to->data, to->len);
 	collision = 0;
 	/* mutex_lock() (per cache or single ?) */
-	for(;; ) {
+	for(;;) {
 		num = ngx_next_temp_number(collision);
 		ngx_sprintf(name + to->len, ".%0muA.DELETE%Z", num);
 		if(MoveFile(SUcSwitch(reinterpret_cast<const char *>(to->data)), SUcSwitch(reinterpret_cast<const char *>(name))) != 0) {
@@ -568,7 +568,7 @@ static u_short * ngx_utf8_to_utf16(u_short * utf16, const u_char * utf8, size_t 
 	memcpy(u, utf16, *len * 2);
 	utf16 = u;
 	u += *len;
-	for(;; ) {
+	for(;;) {
 		if(*p < 0x80) {
 			*u++ = (u_short) *p;
 			if(*p == 0) {

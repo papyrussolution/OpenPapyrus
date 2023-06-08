@@ -1675,7 +1675,7 @@ int ZLIB_INTERNAL inflate_table(codetype type, ushort  * lens, uint codes, ZInfT
 			return 1;
 		else {
 			// process all codes and make table entries 
-			for(;; ) {
+			for(;;) {
 				// create table entry 
 				here.bits = (uchar)(len - drop);
 				if(work[sym] + 1U < match) {
@@ -3737,7 +3737,7 @@ int inflateBack(z_streamp strm, in_func in, void * in_desc, out_func out, void *
 	put = state->window;
 	left = state->wsize;
 	// Inflate until end of block marked as last 
-	for(;; )
+	for(;;)
 		switch(state->mode) {
 			case TYPE: // determine and dispatch block type 
 			    if(state->last) {
@@ -3834,7 +3834,7 @@ int inflateBack(z_streamp strm, in_func in, void * in_desc, out_func out, void *
 			    // get length and distance code code lengths 
 			    state->have = 0;
 			    while(state->have < state->nlen + state->ndist) {
-				    for(;; ) {
+				    for(;;) {
 					    here = state->lencode[BITS(state->lenbits)];
 					    if((uint)(here.bits) <= bits) 
 							break;
@@ -3922,7 +3922,7 @@ int inflateBack(z_streamp strm, in_func in, void * in_desc, out_func out, void *
 				    break;
 			    }
 			    // get a literal, length, or end-of-block code 
-			    for(;; ) {
+			    for(;;) {
 				    here = state->lencode[BITS(state->lenbits)];
 				    if((uint)(here.bits) <= bits) 
 						break;
@@ -3930,7 +3930,7 @@ int inflateBack(z_streamp strm, in_func in, void * in_desc, out_func out, void *
 			    }
 			    if(here.op && (here.op & 0xf0) == 0) {
 				    last = here;
-				    for(;; ) {
+				    for(;;) {
 					    here = state->lencode[last.val + (BITS(last.bits + last.op) >> last.bits)];
 					    if((uint)(last.bits + here.bits) <= bits) 
 							break;
@@ -3970,7 +3970,7 @@ int inflateBack(z_streamp strm, in_func in, void * in_desc, out_func out, void *
 			    }
 			    Tracevv((stderr, "inflate:         length %u\n", state->length));
 			    // get distance code 
-			    for(;; ) {
+			    for(;;) {
 				    here = state->distcode[BITS(state->distbits)];
 				    if((uint)(here.bits) <= bits) 
 						break;
@@ -3978,7 +3978,7 @@ int inflateBack(z_streamp strm, in_func in, void * in_desc, out_func out, void *
 			    }
 			    if((here.op & 0xf0) == 0) {
 				    last = here;
-				    for(;; ) {
+				    for(;;) {
 					    here = state->distcode[last.val + (BITS(last.bits + last.op) >> last.bits)];
 					    if((uint)(last.bits + here.bits) <= bits) 
 							break;
@@ -5553,7 +5553,7 @@ static block_state deflate_fast(deflate_state * s, int flush)
 {
 	IPos hash_head; /* head of the hash chain */
 	int bflush; /* set if current block must be flushed */
-	for(;; ) {
+	for(;;) {
 		/* Make sure that we always have enough lookahead, except
 		 * at the end of the input file. We need MAX_MATCH bytes
 		 * for the next match, plus MIN_MATCH bytes to insert the
@@ -5645,7 +5645,7 @@ static block_state deflate_slow(deflate_state * s, int flush)
 	IPos hash_head; /* head of hash chain */
 	int bflush; /* set if current block must be flushed */
 	/* Process the input block. */
-	for(;; ) {
+	for(;;) {
 		/* Make sure that we always have enough lookahead, except
 		 * at the end of the input file. We need MAX_MATCH bytes
 		 * for the next match, plus MIN_MATCH bytes to insert the
@@ -5764,7 +5764,7 @@ static block_state FASTCALL deflate_rle(deflate_state * s, int flush)
 	int bflush; /* set if current block must be flushed */
 	uInt prev; /* byte at distance one to match */
 	Byte * scan, * strend; /* scan goes up to strend for length of run */
-	for(;; ) {
+	for(;;) {
 		/* Make sure that we always have enough lookahead, except
 		 * at the end of the input file. We need MAX_MATCH bytes
 		 * for the longest run, plus one for the unrolled loop.
@@ -5827,7 +5827,7 @@ static block_state FASTCALL deflate_rle(deflate_state * s, int flush)
 static block_state FASTCALL deflate_huff(deflate_state * s, int flush)
 {
 	int bflush; // set if current block must be flushed 
-	for(;; ) {
+	for(;;) {
 		// Make sure that we have a literal to write
 		if(s->lookahead == 0) {
 			fill_window(s);
@@ -7522,7 +7522,7 @@ void makefixed()
 	size = 1U << 9;
 	printf("    static const code lenfix[%u] = {", size);
 	low = 0;
-	for(;; ) {
+	for(;;) {
 		if((low % 7) == 0) printf("\n        ");
 		printf("{%u,%u,%d}", (low & 127) == 99 ? 64 : state.lencode[low].op, state.lencode[low].bits, state.lencode[low].val);
 		if(++low == size) break;
@@ -7532,7 +7532,7 @@ void makefixed()
 	size = 1U << 5;
 	printf("\n    static const code distfix[%u] = {", size);
 	low = 0;
-	for(;; ) {
+	for(;;) {
 		if((low % 6) == 0) printf("\n        ");
 		printf("{%u,%u,%d}", state.distcode[low].op, state.distcode[low].bits,
 		    state.distcode[low].val);
@@ -7737,7 +7737,7 @@ int inflate(z_streamp strm, int flush)
 	in = have;
 	out = left;
 	ret = Z_OK;
-	for(;; )
+	for(;;)
 		switch(state->mode) {
 			case HEAD:
 			    if(state->wrap == 0) {
@@ -8036,7 +8036,7 @@ int inflate(z_streamp strm, int flush)
 			    state->mode = CODELENS;
 			case CODELENS:
 			    while(state->have < state->nlen + state->ndist) {
-				    for(;; ) {
+				    for(;;) {
 					    here = state->lencode[BITS(state->lenbits)];
 					    if((uint)(here.bits) <= bits) 
 							break;
@@ -8125,7 +8125,7 @@ int inflate(z_streamp strm, int flush)
 				    break;
 			    }
 			    state->back = 0;
-			    for(;; ) {
+			    for(;;) {
 				    here = state->lencode[BITS(state->lenbits)];
 				    if((uint)(here.bits) <= bits) 
 						break;
@@ -8133,7 +8133,7 @@ int inflate(z_streamp strm, int flush)
 			    }
 			    if(here.op && (here.op & 0xf0) == 0) {
 				    last = here;
-				    for(;; ) {
+				    for(;;) {
 					    here = state->lencode[last.val + (BITS(last.bits + last.op) >> last.bits)];
 					    if((uint)(last.bits + here.bits) <= bits) 
 							break;
@@ -8174,7 +8174,7 @@ int inflate(z_streamp strm, int flush)
 			    state->was = state->length;
 			    state->mode = DIST;
 			case DIST:
-			    for(;; ) {
+			    for(;;) {
 				    here = state->distcode[BITS(state->distbits)];
 				    if((uint)(here.bits) <= bits) 
 						break;
@@ -8182,7 +8182,7 @@ int inflate(z_streamp strm, int flush)
 			    }
 			    if((here.op & 0xf0) == 0) {
 				    last = here;
-				    for(;; ) {
+				    for(;;) {
 					    here = state->distcode[last.val + (BITS(last.bits + last.op) >> last.bits)];
 					    if((uint)(last.bits + here.bits) <= bits) 
 							break;

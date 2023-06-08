@@ -1165,7 +1165,7 @@ static int qr_finder_locate_crossing(const uchar * _img,
 	step[0] = ((_x0<_x1)<<1)-1;
 	step[1] = ((_y0<_y1)<<1)-1;
 	/*Find the first crossing from !_v to _v.*/
-	for(;; ) {
+	for(;;) {
 		/*If we make it all the way to the other side, there's no crossing.*/
 		if(x0[steep]==x1[steep]) 
 			return -1;
@@ -1180,7 +1180,7 @@ static int qr_finder_locate_crossing(const uchar * _img,
 	}
 	/*Find the last crossing from _v to !_v.*/
 	err = 0;
-	for(;; ) {
+	for(;;) {
 		if(x0[steep]==x1[steep]) 
 			break;
 		x1[steep] -= step[steep];
@@ -1974,7 +1974,7 @@ static int qr_hom_fit(qr_hom * _hom, qr_finder * _ul, qr_finder * _ur,
 	dbyj = _aff->fwd[1][1]*_dl->size[1];
 	/*Now step along the lines, looking for new sample points.*/
 	nrempty = nbempty = 0;
-	for(;; ) {
+	for(;;) {
 		int ret;
 		int x0;
 		int y0;
@@ -2959,7 +2959,7 @@ static void qr_samples_unpack(uchar ** _blocks, int _nblocks,
 		/*Scan up a pair of columns.*/
 		int nbits = (_dim-1&QR_INT_BITS-1)+1;
 		int l = j*stride;
-		for(i = stride; i-->0; ) {
+		for(i = stride; i-->0;) {
 			data1 = _data_bits[l+i];
 			fp_mask1 = _fp_mask[l+i];
 			data2 = _data_bits[l+i-stride];

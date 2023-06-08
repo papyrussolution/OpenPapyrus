@@ -182,7 +182,7 @@ public:
 					uint numLogBits = 5;
 					if(numBitsMax <= (1 << 4) - 1 + kAddBits)
 						numLogBits = 4;
-					for(;; ) {
+					for(;;) {
 						uint32 ppp = GetVal(r, numLogBits) + kAddBits;
 						r = rg.GetRnd();
 						if(ppp > numBitsMax)
@@ -2021,7 +2021,7 @@ static uint32 FASTCALL GetNumThreadsNext(uint i, uint32 numThreads)
 
 static bool AreSameMethodNames(const char * fullName, const char * shortName)
 {
-	for(;; ) {
+	for(;;) {
 		char c2 = *shortName++;
 		if(c2 == 0)
 			return true;
@@ -2511,7 +2511,7 @@ HRESULT Bench(DECL_EXTERNAL_CODECS_LOC_VARS IBenchPrintCallback * printCallback,
 		f.Print("Size");
 		const uint kFieldSize_CrcSpeed = 6;
 		uint numThreadsTests = 0;
-		for(;; ) {
+		for(;;) {
 			uint32 t = GetNumThreadsNext(numThreadsTests, numThreadsSpecified);
 			PrintNumber(f, t, kFieldSize_CrcSpeed);
 			numThreadsTests++;

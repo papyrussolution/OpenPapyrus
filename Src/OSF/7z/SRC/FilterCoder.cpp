@@ -190,7 +190,7 @@ STDMETHODIMP CFilterCoder::Write(const void * data, uint32 size, uint32 * proces
 
 STDMETHODIMP CFilterCoder::OutStreamFinish()
 {
-	for(;; ) {
+	for(;;) {
 		RINOK(Flush2());
 		if(_bufPos == 0)
 			break;

@@ -64,19 +64,19 @@
  */
 /* Are restricted pointers available? (C99) */
 #if (__STDC_VERSION__ >= 199901L)
-	#define OPJ_RESTRICT restrict
+	// @sobolev #define OPJ_RESTRICT__Removed restrict
 #else
 /* Not a C99 compiler */
 #if defined(__GNUC__)
-	#define OPJ_RESTRICT __restrict__
+	// @sobolev #define OPJ_RESTRICT__Removed __restrict__
 	/*
 	   vc14 (2015) outputs wrong results.
-	   Need to check OPJ_RESTRICT usage (or a bug in vc14)
+	   Need to check _RESTRICT usage (or a bug in vc14)
 	 #elif defined(_MSC_VER) && (_MSC_VER >= 1400)
-	 #define OPJ_RESTRICT __restrict
+	 #define _RESTRICT __restrict
 	 */
 #else
-	#define OPJ_RESTRICT /* restrict */
+	// @sobolev #define OPJ_RESTRICT__Removed /* restrict */
 #endif
 #endif
 #ifdef __has_attribute
@@ -132,38 +132,35 @@
 
 /* MSVC x86 is really bad at doing int64 = int32 * int32 on its own. Use intrinsic. */
 #if defined(_MSC_VER) && (_MSC_VER >= 1400) && !defined(__INTEL_COMPILER) && defined(_M_IX86)
-#include <intrin.h>
-#   pragma intrinsic(__emul)
+	#include <intrin.h>
+	#pragma intrinsic(__emul)
 #endif
-
-/* Apparently Visual Studio doesn't define __SSE__ / __SSE2__ macros */
+// Apparently Visual Studio doesn't define __SSE__ / __SSE2__ macros 
 #if defined(_M_X64)
-/* Intel 64bit support SSE and SSE2 */
-#ifndef __SSE__
-#       define __SSE__ 1
-#   endif
-#ifndef __SSE2__
-#       define __SSE2__ 1
-#   endif
+	// Intel 64bit support SSE and SSE2
+	#ifndef __SSE__
+		#define __SSE__ 1
+	#endif
+	#ifndef __SSE2__
+		#define __SSE2__ 1
+	#endif
 #endif
-
-/* For x86, test the value of the _M_IX86_FP macro. */
-/* See https://msdn.microsoft.com/en-us/library/b0084kay.aspx */
+// For x86, test the value of the _M_IX86_FP macro
+// See https://msdn.microsoft.com/en-us/library/b0084kay.aspx 
 #if defined(_M_IX86_FP)
-#   if _M_IX86_FP >= 1
-#       ifndef __SSE__
-#           define __SSE__ 1
-#       endif
-#   endif
-#   if _M_IX86_FP >= 2
-#       ifndef __SSE2__
-#           define __SSE2__ 1
-#       endif
-#   endif
+	#if _M_IX86_FP >= 1
+		#ifndef __SSE__
+			#define __SSE__ 1
+		#endif
+	#endif
+	#if _M_IX86_FP >= 2
+		#ifndef __SSE2__
+			#define __SSE2__ 1
+		#endif
+	#endif
 #endif
 
-/* Type to use for bit-fields in internal headers */
-typedef unsigned int OPJ_BITFIELD;
+typedef unsigned int OPJ_BITFIELD; // Type to use for bit-fields in internal headers
 
 // @sobolev (replaced with CXX_UNUSED) #define OPJ_UNUSED_Removed(x) (void)x
 

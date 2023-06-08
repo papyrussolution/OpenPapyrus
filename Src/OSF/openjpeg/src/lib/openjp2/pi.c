@@ -309,11 +309,11 @@ static boolint opj_pi_next_rpcl(opj_pi_iterator_t * pi)
 				res = &comp->resolutions[resno];
 				if(res->pdx + comp->numresolutions - 1 - resno < 32 && comp->dx <= UINT_MAX / (1u << (res->pdx + comp->numresolutions - 1 - resno))) {
 					dx = comp->dx * (1u << (res->pdx + comp->numresolutions - 1 - resno));
-					pi->dx = !pi->dx ? dx : opj_uint_min(pi->dx, dx);
+					pi->dx = !pi->dx ? dx : smin(pi->dx, dx);
 				}
 				if(res->pdy + comp->numresolutions - 1 - resno < 32 && comp->dy <= UINT_MAX / (1u << (res->pdy + comp->numresolutions - 1 - resno))) {
 					dy = comp->dy * (1u << (res->pdy + comp->numresolutions - 1 - resno));
-					pi->dy = !pi->dy ? dy : opj_uint_min(pi->dy, dy);
+					pi->dy = !pi->dy ? dy : smin(pi->dy, dy);
 				}
 			}
 		}
@@ -436,12 +436,12 @@ static boolint opj_pi_next_pcrl(opj_pi_iterator_t * pi)
 				if(res->pdx + comp->numresolutions - 1 - resno < 32 &&
 				    comp->dx <= UINT_MAX / (1u << (res->pdx + comp->numresolutions - 1 - resno))) {
 					dx = comp->dx * (1u << (res->pdx + comp->numresolutions - 1 - resno));
-					pi->dx = !pi->dx ? dx : opj_uint_min(pi->dx, dx);
+					pi->dx = !pi->dx ? dx : smin(pi->dx, dx);
 				}
 				if(res->pdy + comp->numresolutions - 1 - resno < 32 &&
 				    comp->dy <= UINT_MAX / (1u << (res->pdy + comp->numresolutions - 1 - resno))) {
 					dy = comp->dy * (1u << (res->pdy + comp->numresolutions - 1 - resno));
-					pi->dy = !pi->dy ? dy : opj_uint_min(pi->dy, dy);
+					pi->dy = !pi->dy ? dy : smin(pi->dy, dy);
 				}
 			}
 		}
@@ -462,7 +462,7 @@ static boolint opj_pi_next_pcrl(opj_pi_iterator_t * pi)
 			for(pi->compno = pi->poc.compno0; pi->compno < pi->poc.compno1; pi->compno++) {
 				comp = &pi->comps[pi->compno];
 				for(pi->resno = pi->poc.resno0;
-				    pi->resno < opj_uint_min(pi->poc.resno1, comp->numresolutions); pi->resno++) {
+				    pi->resno < smin(pi->poc.resno1, comp->numresolutions); pi->resno++) {
 					uint32_t levelno;
 					uint32_t trx0, try0;
 					uint32_t trx1, try1;
@@ -578,12 +578,12 @@ static boolint opj_pi_next_cprl(opj_pi_iterator_t * pi)
 			if(res->pdx + comp->numresolutions - 1 - resno < 32 &&
 			    comp->dx <= UINT_MAX / (1u << (res->pdx + comp->numresolutions - 1 - resno))) {
 				dx = comp->dx * (1u << (res->pdx + comp->numresolutions - 1 - resno));
-				pi->dx = !pi->dx ? dx : opj_uint_min(pi->dx, dx);
+				pi->dx = !pi->dx ? dx : smin(pi->dx, dx);
 			}
 			if(res->pdy + comp->numresolutions - 1 - resno < 32 &&
 			    comp->dy <= UINT_MAX / (1u << (res->pdy + comp->numresolutions - 1 - resno))) {
 				dy = comp->dy * (1u << (res->pdy + comp->numresolutions - 1 - resno));
-				pi->dy = !pi->dy ? dy : opj_uint_min(pi->dy, dy);
+				pi->dy = !pi->dy ? dy : smin(pi->dy, dy);
 			}
 		}
 		if(pi->dx == 0 || pi->dy == 0) {
@@ -600,7 +600,7 @@ static boolint opj_pi_next_cprl(opj_pi_iterator_t * pi)
 			for(pi->x = (uint32_t)pi->poc.tx0; pi->x < (uint32_t)pi->poc.tx1;
 			    pi->x += (pi->dx - (pi->x % pi->dx))) {
 				for(pi->resno = pi->poc.resno0;
-				    pi->resno < opj_uint_min(pi->poc.resno1, comp->numresolutions); pi->resno++) {
+				    pi->resno < smin(pi->poc.resno1, comp->numresolutions); pi->resno++) {
 					uint32_t levelno;
 					uint32_t trx0, try0;
 					uint32_t trx1, try1;
@@ -726,12 +726,12 @@ static void opj_get_encoding_parameters(const opj_image_t * p_image,
 	/* find extent of tile */
 	l_tx0 = p_cp->tx0 + p *
 	    p_cp->tdx; /* can't be greater than p_image->x1 so won't overflow */
-	*p_tx0 = opj_uint_max(l_tx0, p_image->x0);
-	*p_tx1 = opj_uint_min(opj_uint_adds(l_tx0, p_cp->tdx), p_image->x1);
+	*p_tx0 = smax(l_tx0, p_image->x0);
+	*p_tx1 = smin(opj_uint_adds(l_tx0, p_cp->tdx), p_image->x1);
 	l_ty0 = p_cp->ty0 + q *
 	    p_cp->tdy; /* can't be greater than p_image->y1 so won't overflow */
-	*p_ty0 = opj_uint_max(l_ty0, p_image->y0);
-	*p_ty1 = opj_uint_min(opj_uint_adds(l_ty0, p_cp->tdy), p_image->y1);
+	*p_ty0 = smax(l_ty0, p_image->y0);
+	*p_ty1 = smin(opj_uint_adds(l_ty0, p_cp->tdy), p_image->y1);
 
 	/* max precision is 0 (can only grow) */
 	*p_max_prec = 0;
@@ -772,8 +772,8 @@ static void opj_get_encoding_parameters(const opj_image_t * p_image,
 			l_dy = l_img_comp->dy * (1u << (l_pdy + l_tccp->numresolutions - 1 - resno));
 
 			/* take the minimum size for dx for each comp and resolution */
-			*p_dx_min = opj_uint_min(*p_dx_min, l_dx);
-			*p_dy_min = opj_uint_min(*p_dy_min, l_dy);
+			*p_dx_min = smin(*p_dx_min, l_dx);
+			*p_dy_min = smin(*p_dy_min, l_dy);
 
 			/* various calculations of extents */
 			l_level_no = l_tccp->numresolutions - 1 - resno;
@@ -851,12 +851,12 @@ static void opj_get_all_encoding_parameters(const opj_image_t * p_image,
 	/* here calculation of tx0, tx1, ty0, ty1, maxprec, l_dx and l_dy */
 	l_tx0 = p_cp->tx0 + p *
 	    p_cp->tdx; /* can't be greater than p_image->x1 so won't overflow */
-	*p_tx0 = opj_uint_max(l_tx0, p_image->x0);
-	*p_tx1 = opj_uint_min(opj_uint_adds(l_tx0, p_cp->tdx), p_image->x1);
+	*p_tx0 = smax(l_tx0, p_image->x0);
+	*p_tx1 = smin(opj_uint_adds(l_tx0, p_cp->tdx), p_image->x1);
 	l_ty0 = p_cp->ty0 + q *
 	    p_cp->tdy; /* can't be greater than p_image->y1 so won't overflow */
-	*p_ty0 = opj_uint_max(l_ty0, p_image->y0);
-	*p_ty1 = opj_uint_min(opj_uint_adds(l_ty0, p_cp->tdy), p_image->y1);
+	*p_ty0 = smax(l_ty0, p_image->y0);
+	*p_ty1 = smin(opj_uint_adds(l_ty0, p_cp->tdy), p_image->y1);
 
 	/* max precision and resolution is 0 (can only grow)*/
 	*p_max_prec = 0;
@@ -904,12 +904,12 @@ static void opj_get_all_encoding_parameters(const opj_image_t * p_image,
 			    l_img_comp->dx <= UINT_MAX / (1u << (l_pdx + l_level_no))) {
 				l_dx = l_img_comp->dx * (1u << (l_pdx + l_level_no));
 				/* take the minimum size for l_dx for each comp and resolution*/
-				*p_dx_min = opj_uint_min(*p_dx_min, l_dx);
+				*p_dx_min = smin(*p_dx_min, l_dx);
 			}
 			if(l_pdy + l_level_no < 32 &&
 			    l_img_comp->dy <= UINT_MAX / (1u << (l_pdy + l_level_no))) {
 				l_dy = l_img_comp->dy * (1u << (l_pdy + l_level_no));
-				*p_dy_min = opj_uint_min(*p_dy_min, l_dy);
+				*p_dy_min = smin(*p_dy_min, l_dy);
 			}
 
 			/* various calculations of extents*/
@@ -1140,7 +1140,7 @@ static void opj_pi_update_decode_poc(opj_pi_iterator_t * p_pi, opj_tcp_t * p_tcp
 		l_current_pi->poc.precno0 = 0;
 		l_current_pi->poc.resno1 = l_current_poc->resno1; /* Resolution Level Index #0 (End) */
 		l_current_pi->poc.compno1 = l_current_poc->compno1; /* Component Index #0 (End) */
-		l_current_pi->poc.layno1 = opj_uint_min(l_current_poc->layno1, p_tcp->numlayers); /* Layer Index #0 (End) */
+		l_current_pi->poc.layno1 = smin(l_current_poc->layno1, p_tcp->numlayers); /* Layer Index #0 (End) */
 		l_current_pi->poc.precno1 = p_max_precision;
 		++l_current_pi;
 		++l_current_poc;

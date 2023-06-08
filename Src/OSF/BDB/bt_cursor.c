@@ -2037,7 +2037,7 @@ static int FASTCALL __bamc_next(DBC * dbc, int initial_move, int deleted_okay)
 	}
 	if(initial_move)
 		cp->indx += adjust;
-	for(;; ) {
+	for(;;) {
 		/*
 		 * If at the end of the page, move to a subsequent page.
 		 *
@@ -2090,7 +2090,7 @@ static int FASTCALL __bamc_prev(DBC * dbc)
 		if(ret)
 			return ret;
 	}
-	for(;; ) {
+	for(;;) {
 		/* If at the beginning of the page, move to a previous one. */
 		if(cp->indx == 0) {
 			if((pgno = PREV_PGNO(cp->page)) == PGNO_INVALID)
