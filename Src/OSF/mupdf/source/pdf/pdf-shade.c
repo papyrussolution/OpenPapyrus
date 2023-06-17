@@ -184,7 +184,7 @@ static void pdf_load_mesh_params(fz_context * ctx, pdf_document * doc, fz_shade 
 
 	obj = pdf_dict_get(ctx, dict, PDF_NAME(Decode));
 	if(pdf_array_len(ctx, obj) >= 6) {
-		n = fz_mini(FZ_MAX_COLORS, (pdf_array_len(ctx, obj) - 4) / 2);
+		n = smin(static_cast<int>(FZ_MAX_COLORS), (pdf_array_len(ctx, obj) - 4) / 2);
 		shade->u.m.x0 = pdf_array_get_real(ctx, obj, 0);
 		shade->u.m.x1 = pdf_array_get_real(ctx, obj, 1);
 		shade->u.m.y0 = pdf_array_get_real(ctx, obj, 2);
@@ -373,15 +373,14 @@ static fz_shade * pdf_load_shading_dict(fz_context * ctx, pdf_document * doc, pd
 		for(i = 0; i < funcs; i++)
 			pdf_drop_function(ctx, func[i]);
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_drop_shade(ctx, shade);
 		fz_rethrow(ctx);
 	}
 	return shade;
 }
 
-static size_t fz_shade_size(fz_context * ctx, fz_shade * s)
+static size_t fz_shade_size(fz_context * ctx, const fz_shade * s)
 {
 	if(!s)
 		return 0;
@@ -392,37 +391,27 @@ static size_t fz_shade_size(fz_context * ctx, fz_shade * s)
 
 fz_shade * pdf_load_shading(fz_context * ctx, pdf_document * doc, pdf_obj * dict)
 {
-	fz_matrix mat;
-	pdf_obj * obj;
-	fz_shade * shade;
-	if((shade = (fz_shade *)pdf_find_item(ctx, fz_drop_shade_imp, dict)) != NULL) {
-		return shade;
-	}
-
-	/* Type 2 pattern dictionary */
-	if(pdf_dict_get(ctx, dict, PDF_NAME(PatternType))) {
-		mat = pdf_dict_get_matrix(ctx, dict, PDF_NAME(Matrix));
-
-		obj = pdf_dict_get(ctx, dict, PDF_NAME(ExtGState));
-		if(obj) {
-			if(pdf_dict_get(ctx, obj, PDF_NAME(CA)) || pdf_dict_get(ctx, obj, PDF_NAME(ca))) {
-				fz_warn(ctx, "shading with alpha not supported");
+	fz_shade * shade = (fz_shade *)pdf_find_item(ctx, fz_drop_shade_imp, dict);
+	if(!shade) {
+		// Type 2 pattern dictionary 
+		if(pdf_dict_get(ctx, dict, PDF_NAME(PatternType))) {
+			fz_matrix mat = pdf_dict_get_matrix(ctx, dict, PDF_NAME(Matrix));
+			pdf_obj * obj = pdf_dict_get(ctx, dict, PDF_NAME(ExtGState));
+			if(obj) {
+				if(pdf_dict_get(ctx, obj, PDF_NAME(CA)) || pdf_dict_get(ctx, obj, PDF_NAME(ca))) {
+					fz_warn(ctx, "shading with alpha not supported");
+				}
 			}
+			obj = pdf_dict_get(ctx, dict, PDF_NAME(Shading));
+			if(!obj)
+				fz_throw(ctx, FZ_ERROR_SYNTAX, "missing shading dictionary");
+			shade = pdf_load_shading_dict(ctx, doc, obj, mat);
 		}
-
-		obj = pdf_dict_get(ctx, dict, PDF_NAME(Shading));
-		if(!obj)
-			fz_throw(ctx, FZ_ERROR_SYNTAX, "missing shading dictionary");
-
-		shade = pdf_load_shading_dict(ctx, doc, obj, mat);
+		// Naked shading dictionary
+		else {
+			shade = pdf_load_shading_dict(ctx, doc, dict, fz_identity);
+		}
+		pdf_store_item(ctx, dict, shade, fz_shade_size(ctx, shade));
 	}
-
-	/* Naked shading dictionary */
-	else {
-		shade = pdf_load_shading_dict(ctx, doc, dict, fz_identity);
-	}
-
-	pdf_store_item(ctx, dict, shade, fz_shade_size(ctx, shade));
-
 	return shade;
 }

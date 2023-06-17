@@ -59,7 +59,7 @@ int WebPPictureHasTransparency(const WebPPicture* picture)
 		return 0;
 	if(picture->use_argb) {
 		const int alpha_offset = ALPHA_OFFSET;
-		return CheckNonOpaque((const uint8*)picture->argb + alpha_offset, picture->width, picture->height, 4, picture->argb_stride * sizeof(*picture->argb));
+		return CheckNonOpaque((const uint8 *)picture->argb + alpha_offset, picture->width, picture->height, 4, picture->argb_stride * sizeof(*picture->argb));
 	}
 	return CheckNonOpaque(picture->a, picture->width, picture->height, 1, picture->a_stride);
 }
@@ -981,7 +981,7 @@ static int PictureARGBToYUVA(WebPPicture* picture, WebPEncCSP colorspace, float 
 		return WebPEncodingSetError(picture, VP8_ENC_ERROR_INVALID_CONFIGURATION);
 	}
 	else {
-		const uint8* const argb = (const uint8*)picture->argb;
+		const uint8* const argb = (const uint8 *)picture->argb;
 		const uint8* const a = argb + CHANNEL_OFFSET(0);
 		const uint8* const r = argb + CHANNEL_OFFSET(1);
 		const uint8* const g = argb + CHANNEL_OFFSET(2);

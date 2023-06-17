@@ -34,42 +34,38 @@
 #endif /* !__cplusplus */
 #endif
 
-#if defined (_SVR4) || defined (SVR4) || defined (__OpenBSD__) || \
-	defined (_sgi) || defined (__sun) || defined (sun) || \
-	defined (__digital__) || defined (__HP_cc)
-#include <inttypes.h>
+#if defined (_SVR4) || defined (SVR4) || defined (__OpenBSD__) || defined (_sgi) || defined (__sun) || defined (sun) || defined (__digital__) || defined (__HP_cc)
+	#include <inttypes.h>
 #elif defined (_AIX)
-#include <sys/inttypes.h>
+	#include <sys/inttypes.h>
 #elif defined (_MSC_VER) && _MSC_VER < 1600
-/* VS 2010 (_MSC_VER 1600) has stdint.h */
-typedef __int8 int8_t;
-typedef unsigned __int8 uint8;
-typedef __int16 int16_t;
-typedef unsigned __int16 uint16_t;
-typedef __int32 int32_t;
-typedef unsigned __int32 uint32_t;
-typedef __int64 int64_t;
-typedef unsigned __int64 uint64_t;
+	/* VS 2010 (_MSC_VER 1600) has stdint.h */
+	typedef __int8 int8_t;
+	typedef unsigned __int8 uint8;
+	typedef __int16 int16_t;
+	typedef unsigned __int16 uint16_t;
+	typedef __int32 int32_t;
+	typedef unsigned __int32 uint32_t;
+	typedef __int64 int64_t;
+	typedef unsigned __int64 uint64_t;
 #elif defined (__KERNEL__)
-#include <linux/types.h>
+	#include <linux/types.h>
 #else
-#include <stdint.h>
+	#include <stdint.h>
 #endif
-
 #if defined(__GNUC__) && ((__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
-#define HB_DEPRECATED __attribute__((__deprecated__))
+	#define HB_DEPRECATED __attribute__((__deprecated__))
 #elif defined(_MSC_VER) && (_MSC_VER >= 1300)
-#define HB_DEPRECATED __declspec(deprecated)
+	#define HB_DEPRECATED __declspec(deprecated)
 #else
-#define HB_DEPRECATED
+	#define HB_DEPRECATED
 #endif
-
 #if defined(__GNUC__) && ((__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5))
-#define HB_DEPRECATED_FOR(f) __attribute__((__deprecated__("Use '" #f "' instead")))
+	#define HB_DEPRECATED_FOR(f) __attribute__((__deprecated__("Use '" #f "' instead")))
 #elif defined(_MSC_FULL_VER) && (_MSC_FULL_VER > 140050320)
-#define HB_DEPRECATED_FOR(f) __declspec(deprecated("is deprecated. Use '" #f "' instead"))
+	#define HB_DEPRECATED_FOR(f) __declspec(deprecated("is deprecated. Use '" #f "' instead"))
 #else
-#define HB_DEPRECATED_FOR(f) HB_DEPRECATED
+	#define HB_DEPRECATED_FOR(f) HB_DEPRECATED
 #endif
 
 HB_BEGIN_DECLS

@@ -165,7 +165,8 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			}
 		}
 	};
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	uint   dlg_id = 0;
 	TSessFiltDialog * dlg = 0;
 	PrcTechCtrlGroup::Rec ptcg_rec;
@@ -174,25 +175,28 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	p_filt = static_cast<TSessionFilt *>(pBaseFilt);
 	dlg_id = (p_filt->Flags & TSessionFilt::fManufPlan) ? DLG_TSESSPLANFILT : DLG_TSESSFILT;
 	THROW(CheckDialogPtr(&(dlg = new TSessFiltDialog(dlg_id))));
-	// @v10.7.8 @ctr MEMSZERO(ptcg_rec);
 	ptcg_rec.PrcID = p_filt->PrcID;
 	if(p_filt->Flags & TSessionFilt::fManufPlan) {
-		//SetupPPObjCombo(dlg, CTLSEL_TSESSFILT_PRC, PPOBJ_PROCESSOR, p_filt->PrcID, 0, PRCEXDF_GROUP);
- 		dlg->addGroup(GRP_PRCTECH, new PrcTechCtrlGroup(CTLSEL_TSESSFILT_PRC, 0, 0, 0, 0, 0));
+		PrcTechCtrlGroup * p_grp = new PrcTechCtrlGroup(CTLSEL_TSESSFILT_PRC, 0, 0, 0, 0, 0);
+		THROW_SL(p_grp);
+		p_grp->enableTechSelUpLevel(true); // @v11.7.6
+ 		dlg->addGroup(GRP_PRCTECH, p_grp);
 		if(p_filt->PrcID == 0)
 			ptcg_rec.PrcParentID = PRCEXDF_GROUP;
  		dlg->setGroupData(GRP_PRCTECH, &ptcg_rec);
 	}
 	else {
- 		dlg->addGroup(GRP_PRCTECH, new PrcTechCtrlGroup(CTLSEL_TSESSFILT_PRC, CTLSEL_TSESSFILT_TECH,
- 			CTL_TSESSFILT_ST_GOODS, CTLSEL_TSESSFILT_AR, CTLSEL_TSESSFILT_AR2, cmSelTechByGoods));
+		PrcTechCtrlGroup * p_grp = new PrcTechCtrlGroup(CTLSEL_TSESSFILT_PRC, CTLSEL_TSESSFILT_TECH,
+ 			CTL_TSESSFILT_ST_GOODS, CTLSEL_TSESSFILT_AR, CTLSEL_TSESSFILT_AR2, cmSelTechByGoods);
+		THROW_SL(p_grp);
+		p_grp->setIdleStatus(dlg, BIN(p_filt->Ft_Idle > 0));
+		p_grp->enableTechSelUpLevel(true); // @v11.7.6
+ 		dlg->addGroup(GRP_PRCTECH, p_grp);
 		ptcg_rec.TechID = p_filt->TechID;
 		ptcg_rec.ArID   = p_filt->ArID;
 		ptcg_rec.Ar2ID  = p_filt->Ar2ID;
 		ptcg_rec.IdleStatus = BIN(p_filt->Ft_Idle > 0);
  		dlg->setGroupData(GRP_PRCTECH, &ptcg_rec);
-		PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(dlg->getGroup(GRP_PRCTECH));
-		CALLPTRMEMB(p_grp, setIdleStatus(dlg, BIN(p_filt->Ft_Idle > 0)));
 	}
 	dlg->AddClusterAssocDef(CTL_TSESSFILT_STATUS, 0, (1 << TSESST_PLANNED));
 	dlg->AddClusterAssoc(CTL_TSESSFILT_STATUS, 1, (1 << TSESST_PENDING));
@@ -290,9 +294,9 @@ void PPViewTSession::MakeTempRec(const TSessionTbl::Rec * pSrcRec, TempOrderTbl:
 	temp_buf.CopyTo(pDestRec->Name, sizeof(pDestRec->Name));
 }
 
-int PPViewTSession::IsTempTblNeeded() const
+bool PPViewTSession::IsTempTblNeeded() const
 {
-	return BIN(Filt.Order || (Filt.StPeriod.low && Filt.StTime) || (Filt.FnPeriod.upp && Filt.FnTime) || Filt.ArID || PrcList.GetCount() > 1);
+	return (Filt.Order || (Filt.StPeriod.low && Filt.StTime) || (Filt.FnPeriod.upp && Filt.FnTime) || Filt.ArID || PrcList.GetCount() > 1);
 }
 
 int PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
@@ -306,6 +310,7 @@ int PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 		BExtQuery::ZDelete(&P_IterQuery);
 		State = 0;
 		PrcList.Set(0);
+		TechList.Set(0); // @v11.7.6
 		Filt.StPeriod.Actualize(ZERODATE);
 		Filt.FnPeriod.Actualize(ZERODATE);
 		if(Filt.Flags & TSessionFilt::fCurrent && Filt.PrcID) {
@@ -368,12 +373,10 @@ int PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 			}
 			else
 				ZDELETE(P_UhttsPack);
-			if(prc_list.getCount() == 0) {
+			if(!prc_list.getCount())
 				State |= stEmpty;
-			}
-			else {
+			else
 				PrcList.Set(&prc_list);
-			}
 		}
 		else if(Filt.PrcID) {
 			ProcessorTbl::Rec prc_rec;
@@ -387,10 +390,17 @@ int PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 				prc_list.add(Filt.PrcID);
 			PrcList.Set(&prc_list);
 		}
+		if(Filt.TechID) {
+			PPIDArray tec_list;
+			TSesObj.TecObj.GetTerminalChildList(Filt.TechID, tec_list);
+			if(tec_list.getCount())
+				TechList.Set(&tec_list);
+		}
 		if(IsTempTblNeeded()) {
 			THROW(P_TempTbl = CreateTempOrderFile());
 			if(!(State & stEmpty)) {
 				PPIDArray prc_id_list;
+				const PPID single_tec_id = TechList.GetSingle();
 				if(PrcList.GetCount())
 					prc_id_list = PrcList.Get();
 				else
@@ -415,9 +425,9 @@ int PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 						k.k4.PrcID = prc_id;
 						k.k4.StDt = Filt.StPeriod.low;
 					}
-					else if(Filt.TechID) {
+					else if(single_tec_id) {
 						idx = 5;
-						k.k5.TechID = Filt.TechID;
+						k.k5.TechID = single_tec_id;
 						k.k5.StDt = Filt.StPeriod.low;
 					}
 					else {
@@ -425,7 +435,7 @@ int PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 						k.k2.StDt = Filt.StPeriod.low;
 					}
 					dbq = ppcheckfiltid(dbq, p_t->PrcID, prc_id);
-					dbq = ppcheckfiltid(dbq, p_t->TechID, Filt.TechID);
+					dbq = ppcheckfiltid(dbq, p_t->TechID, single_tec_id);
 					dbq = &(*dbq && daterange(p_t->StDt, &Filt.StPeriod));
 					dbq = &(*dbq && daterange(p_t->FinDt, &Filt.FnPeriod));
 					dbq = ppcheckfiltid(dbq, p_t->ArID, Filt.ArID);
@@ -468,6 +478,7 @@ int PPViewTSession::InitIteration(int order)
 			P_IterQuery->initIteration(false, &k1, spFirst);
 		}
 		else {
+			const PPID single_tech_id = TechList.GetSingle();
 			union {
 				TSessionTbl::Key0 k0; // ID
 				TSessionTbl::Key2 k2; // StDt
@@ -496,9 +507,9 @@ int PPViewTSession::InitIteration(int order)
 					k.k4.PrcID = PrcList.GetSingle();
 					k.k4.StDt = Filt.StPeriod.low;
 				}
-				else if(Filt.TechID) {
+				else if(single_tech_id) {
 					idx = 5;
-					k.k5.TechID = Filt.TechID;
+					k.k5.TechID = single_tech_id;
 					k.k5.StDt = Filt.StPeriod.low;
 				}
 				else {
@@ -506,7 +517,7 @@ int PPViewTSession::InitIteration(int order)
 					k.k2.StDt = Filt.StPeriod.low;
 				}
 				dbq = ppcheckfiltid(dbq, p_t->PrcID, PrcList.GetSingle());
-				dbq = ppcheckfiltid(dbq, p_t->TechID, Filt.TechID);
+				dbq = ppcheckfiltid(dbq, p_t->TechID, single_tech_id);
 				dbq = &(*dbq && daterange(p_t->StDt, &Filt.StPeriod));
 				dbq = &(*dbq && daterange(p_t->FinDt, &Filt.FnPeriod));
 				dbq = ppcheckfiltid(dbq, p_t->ArID, Filt.ArID);
@@ -758,7 +769,7 @@ DBQuery * PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		}
 		else {
 			dbq = ppcheckfiltid(dbq, p_tsst->PrcID, PrcList.GetSingle());
-			dbq = ppcheckfiltid(dbq, p_tsst->TechID, Filt.TechID);
+			dbq = ppcheckfiltidlist(dbq, p_tsst->TechID, TechList.GetP());
 			dbq = &(*dbq && daterange(p_tsst->StDt, &Filt.StPeriod));
 			dbq = &(*dbq && daterange(p_tsst->FinDt, &Filt.FnPeriod));
 			dbq = ppcheckfiltid(dbq, p_tsst->ArID, Filt.ArID);
@@ -782,7 +793,7 @@ DBQuery * PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				q->orderBy(p_tsst->ParentID, 0L);
 		else if(PrcList.GetSingle())
 			q->orderBy(p_tsst->PrcID, p_tsst->StDt, 0L);
-		else if(Filt.TechID)
+		else if(TechList.GetSingle())
 			q->orderBy(p_tsst->TechID, p_tsst->StDt, 0L);
 		else
 			q->orderBy(p_tsst->StDt, 0L);
@@ -1379,17 +1390,17 @@ PPViewTSessLine::~PPViewTSessLine()
 
 const TSessLineFilt * PPViewTSessLine::GetFilt() const { return &Filt; }
 
-int PPViewTSessLine::IsTempTblNeeded()
+bool PPViewTSessLine::IsTempTblNeeded()
 {
 	if(Filt.TSesList.GetCount() > 1)
-		return 1;
+		return true;
 	else {
 		Goods2Tbl::Rec goods_rec;
 		if(Filt.GoodsID && GObj.Fetch(Filt.GoodsID, &goods_rec) > 0)
 			if(goods_rec.Kind == PPGDSK_GROUP || (goods_rec.Kind == PPGDSK_GOODS && goods_rec.Flags & GF_GENERIC))
-				return 1;
+				return true;
 	}
-	return 0;
+	return false;
 }
 
 int PPViewTSessLine::Init(const TSessLineFilt * pFilt)

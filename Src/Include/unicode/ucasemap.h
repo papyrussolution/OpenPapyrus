@@ -231,8 +231,8 @@ ucasemap_setBreakIterator(UCaseMap *csm, UBreakIterator *iterToAdopt, UErrorCode
  */
 U_CAPI int32_t U_EXPORT2
 ucasemap_toTitle(UCaseMap *csm,
-                 UChar *dest, int32_t destCapacity,
-                 const UChar *src, int32_t srcLength,
+                 char16_t *dest, int32_t destCapacity,
+                 const char16_t *src, int32_t srcLength,
                  UErrorCode *pErrorCode);
 
 #endif  // UCONFIG_NO_BREAK_ITERATION

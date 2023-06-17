@@ -99,7 +99,7 @@ UCharsTrie::Iterator::next(UErrorCode & errorCode) {
 	if(U_FAILURE(errorCode)) {
 		return FALSE;
 	}
-	const UChar * pos = pos_;
+	const char16_t * pos = pos_;
 	if(!pos) {
 		if(stack_->isEmpty()) {
 			return FALSE;
@@ -184,8 +184,8 @@ UCharsTrie::Iterator::next(UErrorCode & errorCode) {
 }
 
 // Branch node, needs to take the first outbound edge and push state for the rest.
-const UChar *
-UCharsTrie::Iterator::branchNext(const UChar *pos, int32_t length, UErrorCode & errorCode) {
+const char16_t *
+UCharsTrie::Iterator::branchNext(const char16_t *pos, int32_t length, UErrorCode & errorCode) {
 	while(length>kMaxBranchLinearSubNodeLength) {
 		++pos; // ignore the comparison unit
 		// Push state for the greater-or-equal edge.
@@ -197,7 +197,7 @@ UCharsTrie::Iterator::branchNext(const UChar *pos, int32_t length, UErrorCode & 
 	}
 	// List of key-value pairs where values are either final values or jump deltas.
 	// Read the first (key, value) pair.
-	UChar trieUnit = *pos++;
+	char16_t trieUnit = *pos++;
 	int32_t node = *pos++;
 	bool isFinal = (bool)(node>>15);
 	int32_t value = readValue(pos, node &= 0x7fff);

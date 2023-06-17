@@ -310,8 +310,8 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8 * s, int32_t start, int3
 				(c) = (((c)&0x1f)<<6)|((s)[(i)++]&0x3f); \
 			} else if((c)<0xf0) { \
 				/* no need for (c&0xf) because the upper bits are truncated after <<12 in the cast to
-				   (UChar) */ \
-				(c) = (UChar)(((c)<<12)|(((s)[i]&0x3f)<<6)|((s)[(i)+1]&0x3f)); \
+				   (char16_t) */ \
+				(c) = (char16_t)(((c)<<12)|(((s)[i]&0x3f)<<6)|((s)[(i)+1]&0x3f)); \
 				(i) += 2; \
 			} else { \
 				(c) = (((c)&7)<<18)|(((s)[i]&0x3f)<<12)|(((s)[(i)+1]&0x3f)<<6)|((s)[(i)+2]&0x3f); \
@@ -717,7 +717,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8 * s, int32_t start, int3
 #define U8_PREV(s, start, i, c) UPRV_BLOCK_MACRO_BEGIN { \
 		(c) = (uint8)(s)[--(i)]; \
 		if(!U8_IS_SINGLE(c)) { \
-			(c) = utf8_prevCharSafeBody((const uint8*)s, start, &(i), c, -1); \
+			(c) = utf8_prevCharSafeBody((const uint8 *)s, start, &(i), c, -1); \
 		} \
 } UPRV_BLOCK_MACRO_END
 
@@ -748,7 +748,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8 * s, int32_t start, int3
 #define U8_PREV_OR_FFFD(s, start, i, c) UPRV_BLOCK_MACRO_BEGIN { \
 		(c) = (uint8)(s)[--(i)]; \
 		if(!U8_IS_SINGLE(c)) { \
-			(c) = utf8_prevCharSafeBody((const uint8*)s, start, &(i), c, -3); \
+			(c) = utf8_prevCharSafeBody((const uint8 *)s, start, &(i), c, -3); \
 		} \
 } UPRV_BLOCK_MACRO_END
 

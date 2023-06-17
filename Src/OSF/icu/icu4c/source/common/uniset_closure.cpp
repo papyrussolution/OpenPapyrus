@@ -96,7 +96,7 @@ UnicodeSet & UnicodeSet::applyPattern(const UnicodeString & pattern, ParsePositi
 // Does not use uset.h to reduce code dependencies
 static void U_CALLCONV _set_add(USet * set, UChar32 c) { ((UnicodeSet*)set)->add(c); }
 static void U_CALLCONV _set_addRange(USet * set, UChar32 start, UChar32 end) { ((UnicodeSet*)set)->add(start, end); }
-static void U_CALLCONV _set_addString(USet * set, const UChar * str, int32_t length) { ((UnicodeSet*)set)->add(UnicodeString((bool)(length<0), str, length)); }
+static void U_CALLCONV _set_addString(USet * set, const char16_t * str, int32_t length) { ((UnicodeSet*)set)->add(UnicodeString((bool)(length<0), str, length)); }
 
 //----------------------------------------------------------------
 // Case folding API
@@ -104,7 +104,7 @@ static void U_CALLCONV _set_addString(USet * set, const UChar * str, int32_t len
 
 // add the result of a full case mapping to the set
 // use str as a temporary string to avoid constructing one
-static inline void addCaseMapping(UnicodeSet & set, int32_t result, const UChar * full, UnicodeString & str) {
+static inline void addCaseMapping(UnicodeSet & set, int32_t result, const char16_t * full, UnicodeString & str) {
 	if(result >= 0) {
 		if(result > UCASE_MAX_STRING_LENGTH) {
 			// add a single-code point case mapping
@@ -146,7 +146,7 @@ UnicodeSet & UnicodeSet::closeOver(int32_t attribute) {
 
 			int32_t n = getRangeCount();
 			UChar32 result;
-			const UChar * full;
+			const char16_t * full;
 
 			for(int32_t i = 0; i<n; ++i) {
 				UChar32 start = getRangeStart(i);

@@ -215,7 +215,7 @@ uint32_t CollationIterator::handleNextCE32(UChar32 &c, UErrorCode & errorCode) {
 	return (c < 0) ? Collation::FALLBACK_CE32 : data->getCE32(c);
 }
 
-UChar CollationIterator::handleGetTrailSurrogate() {
+char16_t CollationIterator::handleGetTrailSurrogate() {
 	return 0;
 }
 
@@ -313,7 +313,7 @@ void CollationIterator::appendCEsFromCE32(const CollationData * d, UChar32 c, ui
 			    }
 			    break;
 			case Collation::CONTRACTION_TAG: {
-			    const UChar * p = d->contexts + Collation::indexFromCE32(ce32);
+			    const char16_t * p = d->contexts + Collation::indexFromCE32(ce32);
 			    uint32_t defaultCE32 = CollationData::readCE32(p); // Default if no suffix match.
 			    if(!forward) {
 				    // Backward contractions are handled by previousCEUnsafe().
@@ -426,7 +426,7 @@ void CollationIterator::appendCEsFromCE32(const CollationData * d, UChar32 c, ui
 			case Collation::LEAD_SURROGATE_TAG: {
 			    U_ASSERT(forward); // Backward iteration should never see lead surrogate code _unit_ data.
 			    U_ASSERT(U16_IS_LEAD(c));
-			    UChar trail;
+			    char16_t trail;
 			    if(U16_IS_TRAIL(trail = handleGetTrailSurrogate())) {
 				    c = U16_GET_SUPPLEMENTARY(c, trail);
 				    ce32 &= Collation::LEAD_TYPE_MASK;
@@ -467,7 +467,7 @@ void CollationIterator::appendCEsFromCE32(const CollationData * d, UChar32 c, ui
 
 uint32_t CollationIterator::getCE32FromPrefix(const CollationData * d, uint32_t ce32,
     UErrorCode & errorCode) {
-	const UChar * p = d->contexts + Collation::indexFromCE32(ce32);
+	const char16_t * p = d->contexts + Collation::indexFromCE32(ce32);
 	ce32 = CollationData::readCE32(p); // Default if no prefix match.
 	p += 2;
 	// Number of code points read before the original code point.
@@ -521,7 +521,7 @@ void CollationIterator::backwardNumSkipped(int32_t n, UErrorCode & errorCode)
 }
 
 uint32_t CollationIterator::nextCE32FromContraction(const CollationData * d, uint32_t contractionCE32,
-    const UChar * p, uint32_t ce32, UChar32 c,
+    const char16_t * p, uint32_t ce32, UChar32 c,
     UErrorCode & errorCode) {
 	// c: next code point after the original one
 

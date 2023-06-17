@@ -323,4 +323,3 @@ int GetFirstMACAddr(MACAddr * pAddr)
 	}
 	return ok;
 }
-

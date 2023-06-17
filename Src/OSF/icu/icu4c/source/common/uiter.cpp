@@ -59,8 +59,8 @@ static const UCharIterator noopIterator = {
 /* UCharIterator implementation for simple strings -------------------------- */
 
 /*
- * This is an implementation of a code unit (UChar) iterator
- * for UChar * strings.
+ * This is an implementation of a code unit (char16_t) iterator
+ * for char16_t * strings.
  *
  * The UCharIterator.context field holds a pointer to the string.
  */
@@ -102,7 +102,7 @@ static bool U_CALLCONV stringIteratorHasPrevious(UCharIterator * iter) { return 
 static UChar32 U_CALLCONV stringIteratorCurrent(UCharIterator * iter) 
 {
 	if(iter->index<iter->limit) {
-		return ((const UChar *)(iter->context))[iter->index];
+		return ((const char16_t *)(iter->context))[iter->index];
 	}
 	else {
 		return U_SENTINEL;
@@ -112,7 +112,7 @@ static UChar32 U_CALLCONV stringIteratorCurrent(UCharIterator * iter)
 static UChar32 U_CALLCONV stringIteratorNext(UCharIterator * iter) 
 {
 	if(iter->index<iter->limit) {
-		return ((const UChar *)(iter->context))[iter->index++];
+		return ((const char16_t *)(iter->context))[iter->index++];
 	}
 	else {
 		return U_SENTINEL;
@@ -122,7 +122,7 @@ static UChar32 U_CALLCONV stringIteratorNext(UCharIterator * iter)
 static UChar32 U_CALLCONV stringIteratorPrevious(UCharIterator * iter) 
 {
 	if(iter->index>iter->start) {
-		return ((const UChar *)(iter->context))[--iter->index];
+		return ((const char16_t *)(iter->context))[--iter->index];
 	}
 	else {
 		return U_SENTINEL;
@@ -161,7 +161,7 @@ static const UCharIterator stringIterator = {
 	stringIteratorSetState
 };
 
-U_CAPI void U_EXPORT2 uiter_setString(UCharIterator * iter, const UChar * s, int32_t length) 
+U_CAPI void U_EXPORT2 uiter_setString(UCharIterator * iter, const char16_t * s, int32_t length) 
 {
 	if(iter!=0) {
 		if(s!=0 && length>=-1) {
@@ -184,19 +184,19 @@ U_CAPI void U_EXPORT2 uiter_setString(UCharIterator * iter, const UChar * s, int
 /* UCharIterator implementation for UTF-16BE strings ------------------------ */
 
 /*
- * This is an implementation of a code unit (UChar) iterator
+ * This is an implementation of a code unit (char16_t) iterator
  * for UTF-16BE strings, i.e., strings in byte-vectors where
- * each UChar is stored as a big-endian pair of bytes.
+ * each char16_t is stored as a big-endian pair of bytes.
  *
  * The UCharIterator.context field holds a pointer to the string.
- * Everything works just like with a normal UChar iterator (uiter_setString),
+ * Everything works just like with a normal char16_t iterator (uiter_setString),
  * except that UChars are assembled from byte pairs.
  */
 
 /* internal helper function */
 static inline UChar32 utf16BEIteratorGet(UCharIterator * iter, int32_t index) {
 	const uint8 * p = (const uint8 *)iter->context;
-	return ((UChar)p[2*index]<<8)|(UChar)p[2*index+1];
+	return ((char16_t)p[2*index]<<8)|(char16_t)p[2*index+1];
 }
 
 static UChar32 U_CALLCONV utf16BEIteratorCurrent(UCharIterator * iter) {
@@ -249,7 +249,7 @@ static const UCharIterator utf16BEIterator = {
 };
 
 /*
- * Count the number of UChars in a UTF-16BE string before a terminating UChar NUL,
+ * Count the number of UChars in a UTF-16BE string before a terminating char16_t NUL,
  * i.e., before a pair of 0 bytes where the first 0 byte is at an even
  * offset from s.
  */
@@ -257,10 +257,10 @@ static int32_t utf16BE_strlen(const char * s) {
 	if(IS_POINTER_EVEN(s)) {
 		/*
 		 * even-aligned, call u_strlen(s)
-		 * we are probably on a little-endian machine, but searching for UChar NUL
+		 * we are probably on a little-endian machine, but searching for char16_t NUL
 		 * does not care about endianness
 		 */
-		return u_strlen((const UChar *)s);
+		return u_strlen((const char16_t *)s);
 	}
 	else {
 		/* odd-aligned, search for pair of 0 bytes */
@@ -281,8 +281,8 @@ U_CAPI void U_EXPORT2 uiter_setUTF16BE(UCharIterator * iter, const char * s, int
 			/* length/=2, except that >>=1 also works for -1 (-1/2==0, -1>>1==-1) */
 			length >>= 1;
 			if(U_IS_BIG_ENDIAN && IS_POINTER_EVEN(s)) {
-				/* big-endian machine and 2-aligned UTF-16BE string: use normal UChar iterator */
-				uiter_setString(iter, (const UChar *)s, length);
+				/* big-endian machine and 2-aligned UTF-16BE string: use normal char16_t iterator */
+				uiter_setString(iter, (const char16_t *)s, length);
 				return;
 			}
 			*iter = utf16BEIterator;
@@ -435,7 +435,7 @@ U_CAPI void U_EXPORT2 uiter_setCharacterIterator(UCharIterator * iter, Character
 /* UCharIterator wrapper around Replaceable --------------------------------- */
 
 /*
- * This is an implementation of a code unit (UChar) iterator
+ * This is an implementation of a code unit (char16_t) iterator
  * based on a Replaceable object.
  *
  * The UCharIterator.context field holds a pointer to the Replaceable.
@@ -511,7 +511,7 @@ U_CAPI void U_EXPORT2 uiter_setReplaceable(UCharIterator * iter, const Replaceab
 
 /*
  * Minimal implementation:
- * Maintain a single-UChar buffer for an additional surrogate.
+ * Maintain a single-char16_t buffer for an additional surrogate.
  * The caller must not modify start and limit because they are used internally.
  *
  * Use UCharIterator fields as follows:
@@ -833,7 +833,7 @@ static UChar32 U_CALLCONV utf8IteratorNext(UCharIterator * iter)
 {
 	int32_t index;
 	if(iter->reservedField!=0) {
-		UChar trail = U16_TRAIL(iter->reservedField);
+		char16_t trail = U16_TRAIL(iter->reservedField);
 		iter->reservedField = 0;
 		if((index = iter->index)>=0) {
 			iter->index = index+1;
@@ -870,7 +870,7 @@ static UChar32 U_CALLCONV utf8IteratorPrevious(UCharIterator * iter)
 {
 	int32_t index;
 	if(iter->reservedField!=0) {
-		UChar lead = U16_LEAD(iter->reservedField);
+		char16_t lead = U16_LEAD(iter->reservedField);
 		iter->reservedField = 0;
 		iter->start -= 4; /* we stayed behind the supplementary code point; go before it now */
 		if((index = iter->index)>0) {

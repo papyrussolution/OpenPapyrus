@@ -19,17 +19,12 @@
 #define STACK_MEM_START(reg, idx) (MEM_STATUS_AT((reg)->push_mem_start, (idx)) != 0 ? STACK_AT(mem_start_stk[idx].i)->u.mem.pstr : mem_start_stk[idx].s)
 #define STACK_MEM_END(reg, idx) (MEM_STATUS_AT((reg)->push_mem_end, (idx)) != 0 ? STACK_AT(mem_end_stk[idx].i)->u.mem.pstr : mem_end_stk[idx].s)
 
-static int forward_search(regex_t* reg, const uchar * str, const uchar * end, uchar * start, uchar * range, uchar ** low, uchar ** high);
+static int forward_search(const regex_t * reg, const uchar * str, const uchar * end, const uchar * start, uchar * range, const uchar ** low, const uchar ** high);
 
-static int search_in_range(regex_t* reg,
-    const uchar * str,
-    const uchar * end,
-    const uchar * start,
-    const uchar * range,
+static int search_in_range(const regex_t * reg, const uchar * str, const uchar * end, const uchar * start, const uchar * range,
     /* match range */ const uchar * data_range,
     /* subject string range */ OnigRegion* region,
-    OnigOptionType option,
-    OnigMatchParam* mp);
+    OnigOptionType option, OnigMatchParam* mp);
 
 #ifdef USE_CALLOUT
 typedef struct {
@@ -880,18 +875,18 @@ extern void onig_region_copy(OnigRegion* to, OnigRegion* from)
 
 #ifdef USE_CALLOUT
 #define CALLOUT_BODY(func, ain, aname_id, anum, user, args, result) do { \
-		args.in    = (ain); \
-		args.name_id       = (aname_id); \
-		args.num   = anum; \
-		args.regex = reg; \
-		args.string        = str; \
-		args.string_end    = end; \
+		args.in      = (ain); \
+		args.name_id = (aname_id); \
+		args.num     = anum; \
+		args.regex   = (OnigRegex)reg; \
+		args.string  = str; \
+		args.string_end = end; \
 		args.start = sstart; \
 		args.right_range   = right_range; \
 		args.current       = s; \
 		args.retry_in_match_counter = retry_in_match_counter; \
 		args.msa   = msa; \
-		args.stk_base      = stk_base; \
+		args.stk_base = stk_base; \
 		args.stk   = stk; \
 		args.mem_start_stk = mem_start_stk; \
 		args.mem_end_stk   = mem_end_stk; \
@@ -1034,11 +1029,11 @@ struct OnigCalloutArgsStruct {
 	const uchar * current; /* current matching position */
 	ulong retry_in_match_counter;
 	/* invisible to users */
-	MatchArg*   msa;
-	StackType*  stk_base;
-	StackType*  stk;
-	StkPtrType* mem_start_stk;
-	StkPtrType* mem_end_stk;
+	MatchArg  * msa;
+	StackType * stk_base;
+	StackType * stk;
+	StkPtrType * mem_start_stk;
+	StkPtrType * mem_end_stk;
 };
 
 #endif
@@ -1308,14 +1303,14 @@ extern int onig_initialize_match_param(OnigMatchParam* mp)
 
 #ifdef USE_CALLOUT
 
-static int adjust_match_param(regex_t* reg, OnigMatchParam* mp)
+static int adjust_match_param(const regex_t * reg, OnigMatchParam* mp)
 {
-	RegexExt* ext = reg->extp;
+	const RegexExt * ext = reg->extp;
 	mp->match_at_call_counter = 0;
 	if(IS_NULL(ext) || ext->callout_num == 0) 
 		return ONIG_NORMAL;
 	if(ext->callout_num > mp->callout_data_alloc_num) {
-		CalloutData* d;
+		CalloutData * d;
 		size_t n = ext->callout_num * sizeof(*d);
 		d = mp->callout_data ? (CalloutData *)SAlloc::R(mp->callout_data, n) : (CalloutData *)SAlloc::M(n);
 		CHECK_NULL_RETURN_MEMERR(d);
@@ -2237,26 +2232,26 @@ static int string_cmp_ic(OnigEncoding enc, int case_fold_flag,
 #define INIT_RIGHT_RANGE    right_range = (uchar *)in_right_range
 
 #ifdef USE_CAPTURE_HISTORY
-static int make_capture_history_tree(OnigCaptureTreeNode* node, StackType** kp, StackType* stk_top, uchar * str, regex_t* reg)
+static int make_capture_history_tree(OnigCaptureTreeNode* node, StackType** kp, StackType* stk_top, uchar * str, const regex_t * reg)
 {
 	int n, r;
-	OnigCaptureTreeNode* child;
-	StackType* k = *kp;
+	OnigCaptureTreeNode * child;
+	StackType * k = *kp;
 	while(k < stk_top) {
 		if(k->type == STK_MEM_START) {
 			n = k->zid;
-			if(n <= ONIG_MAX_CAPTURE_HISTORY_GROUP &&
-			    MEM_STATUS_AT(reg->capture_history, n) != 0) {
+			if(n <= ONIG_MAX_CAPTURE_HISTORY_GROUP && MEM_STATUS_AT(reg->capture_history, n) != 0) {
 				child = history_node_new();
 				CHECK_NULL_RETURN_MEMERR(child);
 				child->group = n;
 				child->beg = (int)(k->u.mem.pstr - str);
 				r = history_tree_add_child(node, child);
-				if(r) return r;
+				if(r) 
+					return r;
 				*kp = (k + 1);
-				r = make_capture_history_tree(child, kp, stk_top, str, reg);
-				if(r) return r;
-
+				r = make_capture_history_tree(child, kp, stk_top, str, reg); // @recursion
+				if(r) 
+					return r;
 				k = *kp;
 				child->end = (int)(k->u.mem.pstr - str);
 			}
@@ -2270,7 +2265,6 @@ static int make_capture_history_tree(OnigCaptureTreeNode* node, StackType** kp, 
 		}
 		k++;
 	}
-
 	return 1; /* 1: root node ending. */
 }
 
@@ -2279,15 +2273,14 @@ static int make_capture_history_tree(OnigCaptureTreeNode* node, StackType** kp, 
 #ifdef USE_BACKREF_WITH_LEVEL
 static int mem_is_in_memp(int mem, int num, MemNumType* memp)
 {
-	int i;
-
-	for(i = 0; i < num; i++) {
-		if(mem == (int)memp[i]) return 1;
+	for(int i = 0; i < num; i++) {
+		if(mem == (int)memp[i]) 
+			return 1;
 	}
 	return 0;
 }
 
-static int backref_match_at_nested_level(regex_t* reg, StackType* top, StackType* stk_base, int ignore_case, int case_fold_flag,
+static int backref_match_at_nested_level(const regex_t * reg, StackType* top, StackType* stk_base, int ignore_case, int case_fold_flag,
     int nest, int mem_num, MemNumType* memp, uchar ** s, const uchar * send)
 {
 	uchar * ss, * p, * pstart, * pend = NULL_UCHARP;
@@ -2309,7 +2302,6 @@ static int backref_match_at_nested_level(regex_t* reg, StackType* top, StackType
 						if(pend - pstart > send - *s) return 0; /* or goto next_mem; */
 						p  = pstart;
 						ss = *s;
-
 						if(ignore_case != 0) {
 							if(string_cmp_ic(reg->enc, case_fold_flag,
 							    pstart, &ss, (int)(pend - pstart)) == 0)
@@ -2337,7 +2329,7 @@ static int backref_match_at_nested_level(regex_t* reg, StackType* top, StackType
 	return 0;
 }
 
-static int backref_check_at_nested_level(regex_t* reg, StackType* top, StackType* stk_base, int nest, int mem_num, MemNumType* memp)
+static int backref_check_at_nested_level(const regex_t * reg, StackType* top, StackType* stk_base, int nest, int mem_num, MemNumType* memp)
 {
 	int level = 0;
 	StackType * k = top;
@@ -2542,9 +2534,10 @@ typedef struct {
 		fprintf(DBGFP, "\n"); \
 		fflush(DBGFP); \
 } while(0)
-
-/* match data(str - end) from position (sstart). */
-static int match_at(regex_t* reg, const uchar * str, const uchar * end, const uchar * in_right_range, const uchar * sstart, MatchArg* msa)
+//
+// match data(str - end) from position (sstart)
+//
+static int match_at(const regex_t * reg, const uchar * str, const uchar * end, const uchar * in_right_range, const uchar * sstart, MatchArg* msa)
 {
 #if defined(USE_DIRECT_THREADED_CODE)
 	static Operation FinishCode[] = { { .opaddr = &&L_FINISH } };
@@ -2986,7 +2979,8 @@ end_best_len:
 		DATA_ENSURE(tlen2);
 		ps = p->exact_len_n.s;
 		while(tlen2-- > 0) {
-			if(*ps != *s) goto fail;
+			if(*ps != *s) 
+				goto fail;
 			ps++; s++;
 		}
 		INC_OP;
@@ -3045,7 +3039,6 @@ cclass_mb:
 			s++;
 			goto cc_mb_not_success;
 		}
-
 cclass_mb_not:
 		{
 			OnigCodePoint code;
@@ -3124,9 +3117,7 @@ cc_mb_not_success:
 
 		CASE_OP(ANYCHAR_STAR_PEEK_NEXT)
 		{
-			uchar c;
-
-			c = p->anychar_star_peek_next.c;
+			uchar c = p->anychar_star_peek_next.c;
 			INC_OP;
 			while(DATA_ENSURE_CHECK1) {
 				if(c == *s) {
@@ -3561,9 +3552,7 @@ backref_with_level:
 			level = p->backref_general.nest_level;
 			tlen  = p->backref_general.num;
 			mems = tlen == 1 ? &(p->backref_general.n1) : p->backref_general.ns;
-
-			if(!backref_match_at_nested_level(reg, stk, stk_base, n,
-			    case_fold_flag, level, (int)tlen, mems, &s, end)) {
+			if(!backref_match_at_nested_level(reg, stk, stk_base, n, case_fold_flag, level, (int)tlen, mems, &s, end)) {
 				goto fail;
 			}
 		}
@@ -3590,21 +3579,16 @@ backref_with_level:
 #ifdef USE_BACKREF_WITH_LEVEL
 		CASE_OP(BACKREF_CHECK_WITH_LEVEL)
 		{
-			LengthType level;
-			MemNumType* mems;
-
-			level = p->backref_general.nest_level;
+			MemNumType * mems;
+			LengthType level = p->backref_general.nest_level;
 			tlen  = p->backref_general.num;
 			mems = tlen == 1 ? &(p->backref_general.n1) : p->backref_general.ns;
-
-			if(backref_check_at_nested_level(reg, stk, stk_base,
-			    (int)level, (int)tlen, mems) == 0)
+			if(backref_check_at_nested_level(reg, stk, stk_base, (int)level, (int)tlen, mems) == 0)
 				goto fail;
 		}
 		INC_OP;
 		JUMP_OUT;
 #endif
-
 		CASE_OP(EMPTY_CHECK_START)
 		mem = p->empty_check_start.mem; /* mem: null check id */
 		STACK_PUSH_EMPTY_CHECK_START(mem, s);
@@ -3843,14 +3827,16 @@ empty_check_found:
 		CASE_OP(MOVE)
 		if(p->move.n < 0) {
 			s = (uchar *)ONIGENC_STEP_BACK(encode, str, s, -p->move.n);
-			if(IS_NULL(s)) goto fail;
+			if(IS_NULL(s)) 
+				goto fail;
 		}
 		else {
 			int len;
 			for(tlen = p->move.n; tlen > 0; tlen--) {
 				len = enclen(encode, s);
 				s += len;
-				if(s > end) goto fail;
+				if(s > end) 
+					goto fail;
 				if(s == end) {
 					if(tlen != 1) goto fail;
 					else break;
@@ -3875,7 +3861,8 @@ empty_check_found:
 
 		CASE_OP(STEP_BACK_NEXT)
 		tlen = (LengthType)stk->zid; /* remaining count */
-		if(tlen != INFINITE_LEN) tlen--;
+		if(tlen != INFINITE_LEN) 
+			tlen--;
 		s = (uchar *)ONIGENC_STEP_BACK(encode, str, s, 1);
 		if(IS_NULL(s)) goto fail;
 		if(tlen != 0) {
@@ -3959,7 +3946,7 @@ get_save_val_type_last_id:
 			int call_result;
 			int name_id;
 			int in;
-			CalloutListEntry* e;
+			const CalloutListEntry * e;
 			OnigCalloutFunc func;
 			OnigCalloutArgs args;
 			of  = ONIG_CALLOUT_OF_NAME;
@@ -3975,10 +3962,8 @@ callout_common_entry:
 				name_id = ONIG_NON_NAME_ID;
 				func = msa->mp->progress_callout_of_contents;
 			}
-
 			if(IS_NOT_NULL(func) && (in & ONIG_CALLOUT_IN_PROGRESS) != 0) {
-				CALLOUT_BODY(func, ONIG_CALLOUT_IN_PROGRESS, name_id,
-				    (int)mem, msa->mp->callout_user_data, args, call_result);
+				CALLOUT_BODY(func, ONIG_CALLOUT_IN_PROGRESS, name_id, (int)mem, msa->mp->callout_user_data, args, call_result);
 				switch(call_result) {
 					case ONIG_CALLOUT_FAIL:
 					    goto fail;
@@ -4015,10 +4000,8 @@ retraction_callout2:
 		INC_OP;
 		JUMP_OUT;
 #endif
-
 		CASE_OP(FINISH)
 		goto match_at_end;
-
 #ifdef ONIG_DEBUG_STATISTICS
 fail:
 		SOP_OUT;
@@ -4079,8 +4062,8 @@ enum SearchRangeStatus {
 
 typedef struct {
 	int state; /* value of enum SearchRangeStatus */
-	uchar * low;
-	uchar * high;
+	const uchar * low;
+	const uchar * high;
 	uchar * sch_range;
 } SearchRange;
 
@@ -4100,12 +4083,13 @@ static /*inline*/int regset_search_body_position_lead(OnigRegSet* set,
     OnigOptionType option, MatchArg* msas, int* rmatch_pos)
 {
 	int r, i;
-	uchar * low, * high;
+	const uchar * low;
+	const uchar * high;
 	uchar * sch_range;
 	regex_t* reg;
 	int n   = set->n;
 	OnigEncoding enc = set->enc;
-	uchar * s = (uchar *)start;
+	const uchar * s = /*(uchar *)*/start;
 	SearchRange * sr = (SearchRange*)SAlloc::M(sizeof(*sr) * n);
 	CHECK_NULL_RETURN_MEMERR(sr);
 	for(i = 0; i < n; i++) {
@@ -4133,9 +4117,9 @@ static /*inline*/int regset_search_body_position_lead(OnigRegSet* set,
 		}
 		else {
 total_active:
-			sr[i].state    = SRS_ALL_RANGE;
-			sr[i].low      = s;
-			sr[i].high     = (uchar *)range;
+			sr[i].state = SRS_ALL_RANGE;
+			sr[i].low   = s;
+			sr[i].high  = (uchar *)range;
 		}
 	}
 #define ACTIVATE_ALL_LOW_HIGH_SEARCH_THRESHOLD_LEN   500
@@ -4499,7 +4483,7 @@ static uchar * slow_search_backward(OnigEncoding enc, uchar * target, uchar * ta
 	return (uchar *)NULL;
 }
 
-static uchar * sunday_quick_search_step_forward(regex_t* reg, const uchar * target, const uchar * target_end,
+static uchar * sunday_quick_search_step_forward(const regex_t * reg, const uchar * target, const uchar * target_end,
     const uchar * text, const uchar * text_end, const uchar * text_range)
 {
 	const uchar * s, * se, * t, * p, * end;
@@ -4543,8 +4527,7 @@ static uchar * sunday_quick_search_step_forward(regex_t* reg, const uchar * targ
 	return (uchar *)NULL;
 }
 
-static uchar * sunday_quick_search(regex_t* reg, const uchar * target, const uchar * target_end,
-    const uchar * text, const uchar * text_end, const uchar * text_range)
+static uchar * sunday_quick_search(const regex_t* reg, const uchar * target, const uchar * target_end, const uchar * text, const uchar * text_end, const uchar * text_range)
 {
 	const uchar * s, * t, * p, * end;
 	int map_offset = reg->map_offset;
@@ -4591,26 +4574,26 @@ static uchar * sunday_quick_search(regex_t* reg, const uchar * target, const uch
 	return (uchar *)NULL;
 }
 
-static uchar * map_search(OnigEncoding enc, uchar map[], const uchar * text, const uchar * text_range)
+static const uchar * map_search(OnigEncoding enc, const uchar map[], const uchar * text, const uchar * text_range)
 {
 	const uchar * s = text;
 	while(s < text_range) {
 		if(map[*s]) 
-			return (uchar *)s;
+			return /*(uchar *)*/s;
 		s += enclen(enc, s);
 	}
-	return (uchar *)NULL;
+	return /*(uchar *)*/NULL;
 }
 
-static uchar * map_search_backward(OnigEncoding enc, uchar map[], const uchar * text, const uchar * adjust_text, const uchar * text_start)
+static const uchar * map_search_backward(OnigEncoding enc, const uchar map[], const uchar * text, const uchar * adjust_text, const uchar * text_start)
 {
 	const uchar * s = text_start;
 	while(PTR_GE(s, text)) {
 		if(map[*s]) 
-			return (uchar *)s;
+			return /*(uchar *)*/s;
 		s = onigenc_get_prev_char_head(enc, adjust_text, s);
 	}
-	return (uchar *)NULL;
+	return /*(uchar *)*/NULL;
 }
 
 extern int onig_match(regex_t* reg, const uchar * str, const uchar * end, const uchar * at, OnigRegion* region, OnigOptionType option)
@@ -4662,9 +4645,10 @@ end:
 	return r;
 }
 
-static int forward_search(regex_t* reg, const uchar * str, const uchar * end, uchar * start, uchar * range, uchar ** low, uchar ** high)
+static int forward_search(const regex_t * reg, const uchar * str, const uchar * end, const uchar * start, uchar * range, const uchar ** low, const uchar ** high)
 {
-	uchar * p, * pprev = (uchar *)NULL;
+	const uchar * p;
+	const uchar * pprev = (uchar *)NULL;
 #ifdef ONIG_DEBUG_SEARCH
 	fprintf(DBGFP, "forward_search: str: %p, end: %p, start: %p, range: %p\n", str, end, start, range);
 #endif
@@ -4676,8 +4660,9 @@ static int forward_search(regex_t* reg, const uchar * str, const uchar * end, uc
 			p += reg->dist_min;
 		}
 		else {
-			uchar * q = p + reg->dist_min;
-			while(p < q) p += enclen(reg->enc, p);
+			const uchar * q = p + reg->dist_min;
+			while(p < q) 
+				p += enclen(reg->enc, p);
 		}
 	}
 retry:
@@ -4738,7 +4723,7 @@ retry_gate:
 		else {
 			if(reg->dist_max != INFINITE_LEN) {
 				if((p - str) < static_cast<ssize_t>(reg->dist_max)) {
-					*low = (uchar *)str;
+					*low = /*(uchar *)*/str;
 				}
 				else {
 					*low = p - reg->dist_max;
@@ -4749,7 +4734,7 @@ retry_gate:
 			}
 			// no needs to adjust *high, *high is used as range check only 
 			if((p - str) < static_cast<ssize_t>(reg->dist_min))
-				*high = (uchar *)str;
+				*high = /*(uchar *)*/str;
 			else
 				*high = p - reg->dist_min;
 		}
@@ -4761,10 +4746,9 @@ retry_gate:
 	return 0; /* fail */
 }
 
-static int backward_search(regex_t* reg, const uchar * str, const uchar * end, uchar * s,
-    const uchar * range, uchar * adjrange, uchar ** low, uchar ** high)
+static int backward_search(const regex_t * reg, const uchar * str, const uchar * end, const uchar * s, const uchar * range, uchar * adjrange, const uchar ** low, const uchar ** high)
 {
-	uchar * p = s;
+	const uchar * p = s;
 retry:
 	switch(reg->optimize) {
 		case OPTIMIZE_STR:
@@ -4848,11 +4832,11 @@ extern int onig_search(regex_t* reg, const uchar * str, const uchar * end, const
 	return r;
 }
 
-static int search_in_range(regex_t* reg, const uchar * str, const uchar * end, const uchar * start, const uchar * range/* match start range */,
+static int search_in_range(const regex_t * reg, const uchar * str, const uchar * end, const uchar * start, const uchar * range/* match start range */,
     const uchar * data_range/* subject string range */, OnigRegion * region, OnigOptionType option, OnigMatchParam* mp)
 {
 	int r;
-	uchar * s;
+	const uchar * s;
 	MatchArg msa;
 	const uchar * orig_start = start;
 #ifdef ONIG_DEBUG_SEARCH
@@ -4892,7 +4876,8 @@ static int search_in_range(regex_t* reg, const uchar * str, const uchar * end, c
 	}
 	// anchor optimize: resume search range 
 	if(reg->anchor != 0 && str < end) {
-		uchar * min_semi_end, * max_semi_end;
+		uchar * min_semi_end;
+		uchar * max_semi_end;
 		if(reg->anchor & ANCR_BEGIN_POSITION) {
 			// search start-position only 
 begin_position:
@@ -4982,7 +4967,7 @@ end_buf:
 #endif
 		if(reg->threshold_len == 0) {
 			start = end = str = address_for_empty_string;
-			s = (uchar *)start;
+			s = /*(uchar *)*/start;
 			MATCH_ARG_INIT(msa, reg, option, region, start, mp);
 			MATCH_AND_RETURN_CHECK(end);
 			goto mismatch;
@@ -4996,7 +4981,9 @@ end_buf:
 	s = (uchar *)start;
 	if(range > start) { // forward search 
 		if(reg->optimize != OPTIMIZE_NONE) {
-			uchar * sch_range, * low, * high;
+			uchar * sch_range;
+			const uchar * low;
+			const uchar * high;
 			if(reg->dist_max) {
 				if(reg->dist_max == INFINITE_LEN)
 					sch_range = (uchar *)end;
@@ -5026,7 +5013,7 @@ end_buf:
 					goto mismatch;
 				if((reg->anchor & ANCR_ANYCHAR_INF) != 0 && (reg->anchor & (ANCR_LOOK_BEHIND | ANCR_PREC_READ_NOT)) == 0) {
 					do {
-						uchar * prev;
+						const uchar * prev;
 						MATCH_AND_RETURN_CHECK(data_range);
 						prev = s;
 						s += enclen(reg->enc, s);
@@ -5053,7 +5040,10 @@ end_buf:
 		if(orig_start < end)
 			orig_start += enclen(reg->enc, orig_start); /* is upper range */
 		if(reg->optimize != OPTIMIZE_NONE) {
-			uchar * low, * high, * adjrange, * sch_start;
+			const uchar * low;
+			const uchar * high;
+			uchar * adjrange;
+			const uchar * sch_start;
 			const uchar * min_range;
 			if((end - range) < reg->threshold_len) 
 				goto mismatch;
@@ -5386,8 +5376,9 @@ extern int onig_get_name_id_by_callout_args(OnigCalloutArgs * args) { return arg
 extern const uchar * onig_get_contents_by_callout_args(OnigCalloutArgs * args)
 {
 	int num = args->num;
-	CalloutListEntry * e = onig_reg_callout_list_at(args->regex, num);
-	if(IS_NULL(e)) return 0;
+	const CalloutListEntry * e = onig_reg_callout_list_at(args->regex, num);
+	if(IS_NULL(e)) 
+		return 0;
 	if(e->of == ONIG_CALLOUT_OF_CONTENTS) {
 		return e->u.content.start;
 	}
@@ -5397,8 +5388,9 @@ extern const uchar * onig_get_contents_by_callout_args(OnigCalloutArgs * args)
 extern const uchar * onig_get_contents_end_by_callout_args(OnigCalloutArgs * args)
 {
 	int num = args->num;
-	CalloutListEntry * e = onig_reg_callout_list_at(args->regex, num);
-	if(IS_NULL(e)) return 0;
+	const CalloutListEntry * e = onig_reg_callout_list_at(args->regex, num);
+	if(IS_NULL(e)) 
+		return 0;
 	if(e->of == ONIG_CALLOUT_OF_CONTENTS) {
 		return e->u.content.end;
 	}
@@ -5408,7 +5400,7 @@ extern const uchar * onig_get_contents_end_by_callout_args(OnigCalloutArgs * arg
 extern int onig_get_args_num_by_callout_args(OnigCalloutArgs * args)
 {
 	int num = args->num;
-	CalloutListEntry * e = onig_reg_callout_list_at(args->regex, num);
+	const CalloutListEntry * e = onig_reg_callout_list_at(args->regex, num);
 	if(IS_NULL(e)) 
 		return ONIGERR_INVALID_ARGUMENT;
 	if(e->of == ONIG_CALLOUT_OF_NAME) {
@@ -5420,8 +5412,9 @@ extern int onig_get_args_num_by_callout_args(OnigCalloutArgs * args)
 extern int onig_get_passed_args_num_by_callout_args(OnigCalloutArgs * args)
 {
 	int num = args->num;
-	CalloutListEntry * e = onig_reg_callout_list_at(args->regex, num);
-	if(IS_NULL(e)) return ONIGERR_INVALID_ARGUMENT;
+	const CalloutListEntry * e = onig_reg_callout_list_at(args->regex, num);
+	if(IS_NULL(e)) 
+		return ONIGERR_INVALID_ARGUMENT;
 	if(e->of == ONIG_CALLOUT_OF_NAME) {
 		return e->u.arg.passed_num;
 	}
@@ -5431,7 +5424,7 @@ extern int onig_get_passed_args_num_by_callout_args(OnigCalloutArgs * args)
 extern int onig_get_arg_by_callout_args(OnigCalloutArgs * args, int index, OnigType * type, OnigValue * val)
 {
 	int num = args->num;
-	CalloutListEntry * e = onig_reg_callout_list_at(args->regex, num);
+	const CalloutListEntry * e = onig_reg_callout_list_at(args->regex, num);
 	if(IS_NULL(e)) 
 		return ONIGERR_INVALID_ARGUMENT;
 	if(e->of == ONIG_CALLOUT_OF_NAME) {

@@ -20,7 +20,6 @@ SECTION .text  align=16
 ; Input: a = eax, c = ecx
 ; Output: abcd[0] = eax, abcd[1] = ebx, abcd[2] = ecx, abcd[3] = edx
 
-
 _cpuid_ex:
         push    ebx
         push    edi

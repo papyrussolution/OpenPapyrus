@@ -165,8 +165,8 @@ typedef struct UBiDiTransform UBiDiTransform;
  * <p>Example of usage of the transformation engine:<br>
  * <pre>
  * \code
- * UChar text1[] = {'a', 'b', 'c', 0x0625, '1', 0};
- * UChar text2[] = {'a', 'b', 'c', 0x0625, '1', 0};
+ * char16_t text1[] = {'a', 'b', 'c', 0x0625, '1', 0};
+ * char16_t text2[] = {'a', 'b', 'c', 0x0625, '1', 0};
  * UErrorCode errorCode = U_ZERO_ERROR;
  * // Run a transformation.
  * ubiditransform_transform(pBidiTransform,
@@ -250,8 +250,8 @@ typedef struct UBiDiTransform UBiDiTransform;
  */
 U_CAPI uint32_t U_EXPORT2
 ubiditransform_transform(UBiDiTransform *pBiDiTransform,
-            const UChar *src, int32_t srcLength,
-            UChar *dest, int32_t destSize,
+            const char16_t *src, int32_t srcLength,
+            char16_t *dest, int32_t destSize,
             UBiDiLevel inParaLevel, UBiDiOrder inOrder,
             UBiDiLevel outParaLevel, UBiDiOrder outOrder,
             UBiDiMirroring doMirroring, uint32_t shapingOptions,

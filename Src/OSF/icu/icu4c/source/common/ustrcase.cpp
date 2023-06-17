@@ -44,8 +44,8 @@ int32_t checkOverflowAndEditsError(int32_t destIndex, int32_t destCapacity,
 }
 
 /* Appends a full case mapping result, see UCASE_MAX_STRING_LENGTH. */
-inline int32_t appendResult(UChar * dest, int32_t destIndex, int32_t destCapacity,
-    int32_t result, const UChar * s, int32_t cpLength, uint32_t options, icu::Edits * edits) 
+inline int32_t appendResult(char16_t * dest, int32_t destIndex, int32_t destCapacity,
+    int32_t result, const char16_t * s, int32_t cpLength, uint32_t options, icu::Edits * edits) 
 {
 	UChar32 c;
 	int32_t length;
@@ -58,7 +58,7 @@ inline int32_t appendResult(UChar * dest, int32_t destIndex, int32_t destCapacit
 		}
 		c = ~result;
 		if(destIndex<destCapacity && c<=0xffff) { // BMP slightly-fastpath
-			dest[destIndex++] = (UChar)c;
+			dest[destIndex++] = (char16_t)c;
 			return destIndex;
 		}
 		length = cpLength;
@@ -69,7 +69,7 @@ inline int32_t appendResult(UChar * dest, int32_t destIndex, int32_t destCapacit
 			length = result;
 		}
 		else if(destIndex<destCapacity && result<=0xffff) { // BMP slightly-fastpath
-			dest[destIndex++] = (UChar)result;
+			dest[destIndex++] = (char16_t)result;
 			CALLPTRMEMB(edits, addReplace(cpLength, 1));
 			return destIndex;
 		}
@@ -114,7 +114,7 @@ inline int32_t appendResult(UChar * dest, int32_t destIndex, int32_t destCapacit
 	return destIndex;
 }
 
-inline int32_t appendUChar(UChar * dest, int32_t destIndex, int32_t destCapacity, UChar c) {
+inline int32_t appendUChar(char16_t * dest, int32_t destIndex, int32_t destCapacity, char16_t c) {
 	if(destIndex<destCapacity) {
 		dest[destIndex] = c;
 	}
@@ -124,7 +124,7 @@ inline int32_t appendUChar(UChar * dest, int32_t destIndex, int32_t destCapacity
 	return destIndex+1;
 }
 
-int32_t appendNonEmptyUnchanged(UChar * dest, int32_t destIndex, int32_t destCapacity, const UChar * s, int32_t length, uint32_t options, icu::Edits * edits) 
+int32_t appendNonEmptyUnchanged(char16_t * dest, int32_t destIndex, int32_t destCapacity, const char16_t * s, int32_t length, uint32_t options, icu::Edits * edits) 
 {
 	CALLPTRMEMB(edits, addUnchanged(length));
 	if(options & U_OMIT_UNCHANGED_TEXT) {
@@ -139,7 +139,7 @@ int32_t appendNonEmptyUnchanged(UChar * dest, int32_t destIndex, int32_t destCap
 	return destIndex + length;
 }
 
-inline int32_t appendUnchanged(UChar * dest, int32_t destIndex, int32_t destCapacity, const UChar * s, int32_t length, uint32_t options, icu::Edits * edits) 
+inline int32_t appendUnchanged(char16_t * dest, int32_t destIndex, int32_t destCapacity, const char16_t * s, int32_t length, uint32_t options, icu::Edits * edits) 
 {
 	if(length <= 0) {
 		return destIndex;
@@ -168,13 +168,13 @@ UChar32 U_CALLCONV utf16_caseContextIterator(void * context, int8 dir) {
 
 	if(dir<0) {
 		if(csc->start<csc->index) {
-			U16_PREV((const UChar *)csc->p, csc->start, csc->index, c);
+			U16_PREV((const char16_t *)csc->p, csc->start, csc->index, c);
 			return c;
 		}
 	}
 	else {
 		if(csc->index<csc->limit) {
-			U16_NEXT((const UChar *)csc->p, csc->index, csc->limit, c);
+			U16_NEXT((const char16_t *)csc->p, csc->index, csc->limit, c);
 			return c;
 		}
 	}
@@ -186,8 +186,8 @@ UChar32 U_CALLCONV utf16_caseContextIterator(void * context, int8 dir) {
  * caseLocale < 0: Case-folds [srcStart..srcLimit[.
  */
 int32_t toLower(int32_t caseLocale, uint32_t options,
-    UChar * dest, int32_t destCapacity,
-    const UChar * src, UCaseContext * csc, int32_t srcStart, int32_t srcLimit,
+    char16_t * dest, int32_t destCapacity,
+    const char16_t * src, UCaseContext * csc, int32_t srcStart, int32_t srcLimit,
     icu::Edits * edits, UErrorCode & errorCode) {
 	const int8 * latinToLower;
 	if(caseLocale == UCASE_LOC_ROOT ||
@@ -205,7 +205,7 @@ int32_t toLower(int32_t caseLocale, uint32_t options,
 	int32_t srcIndex = srcStart;
 	for(;;) {
 		// fast path for simple cases
-		UChar lead = 0;
+		char16_t lead = 0;
 		while(srcIndex < srcLimit) {
 			lead = src[srcIndex];
 			int32_t delta;
@@ -233,7 +233,7 @@ int32_t toLower(int32_t caseLocale, uint32_t options,
 					continue;
 				}
 			}
-			lead += static_cast<UChar>(delta);
+			lead += static_cast<char16_t>(delta);
 			destIndex = appendUnchanged(dest, destIndex, destCapacity,
 				src + prev, srcIndex - 1 - prev, options, edits);
 			if(destIndex >= 0) {
@@ -253,7 +253,7 @@ int32_t toLower(int32_t caseLocale, uint32_t options,
 		}
 		// slow path
 		int32_t cpStart = srcIndex++;
-		UChar trail;
+		char16_t trail;
 		UChar32 c;
 		if(U16_IS_LEAD(lead) && srcIndex < srcLimit && U16_IS_TRAIL(trail = src[srcIndex])) {
 			c = U16_GET_SUPPLEMENTARY(lead, trail);
@@ -262,7 +262,7 @@ int32_t toLower(int32_t caseLocale, uint32_t options,
 		else {
 			c = lead;
 		}
-		const UChar * s;
+		const char16_t * s;
 		if(caseLocale >= 0) {
 			csc->cpStart = cpStart;
 			csc->cpLimit = srcIndex;
@@ -295,8 +295,8 @@ int32_t toLower(int32_t caseLocale, uint32_t options,
 }
 
 int32_t toUpper(int32_t caseLocale, uint32_t options,
-    UChar * dest, int32_t destCapacity,
-    const UChar * src, UCaseContext * csc, int32_t srcLength,
+    char16_t * dest, int32_t destCapacity,
+    const char16_t * src, UCaseContext * csc, int32_t srcLength,
     icu::Edits * edits, UErrorCode & errorCode) {
 	const int8 * latinToUpper;
 	if(caseLocale == UCASE_LOC_TURKISH) {
@@ -311,7 +311,7 @@ int32_t toUpper(int32_t caseLocale, uint32_t options,
 	int32_t srcIndex = 0;
 	for(;;) {
 		// fast path for simple cases
-		UChar lead = 0;
+		char16_t lead = 0;
 		while(srcIndex < srcLength) {
 			lead = src[srcIndex];
 			int32_t delta;
@@ -339,7 +339,7 @@ int32_t toUpper(int32_t caseLocale, uint32_t options,
 					continue;
 				}
 			}
-			lead += static_cast<UChar>(delta);
+			lead += static_cast<char16_t>(delta);
 			destIndex = appendUnchanged(dest, destIndex, destCapacity,
 				src + prev, srcIndex - 1 - prev, options, edits);
 			if(destIndex >= 0) {
@@ -360,7 +360,7 @@ int32_t toUpper(int32_t caseLocale, uint32_t options,
 		// slow path
 		int32_t cpStart;
 		csc->cpStart = cpStart = srcIndex++;
-		UChar trail;
+		char16_t trail;
 		UChar32 c;
 		if(U16_IS_LEAD(lead) && srcIndex < srcLength && U16_IS_TRAIL(trail = src[srcIndex])) {
 			c = U16_GET_SUPPLEMENTARY(lead, trail);
@@ -370,7 +370,7 @@ int32_t toUpper(int32_t caseLocale, uint32_t options,
 			c = lead;
 		}
 		csc->cpLimit = srcIndex;
-		const UChar * s;
+		const char16_t * s;
 		c = ucase_toFullUpper(c, utf16_caseContextIterator, csc, &s, caseLocale);
 		if(c >= 0) {
 			destIndex = appendUnchanged(dest, destIndex, destCapacity,
@@ -403,8 +403,8 @@ U_NAMESPACE_END
 #if !UCONFIG_NO_BREAK_ITERATION
 
 U_CFUNC int32_t U_CALLCONV ustrcase_internalToTitle(int32_t caseLocale, uint32_t options, BreakIterator * iter,
-    UChar * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
+    char16_t * dest, int32_t destCapacity,
+    const char16_t * src, int32_t srcLength,
     icu::Edits * edits,
     UErrorCode & errorCode) {
 	if(!ustrcase_checkTitleAdjustmentOptions(options, errorCode)) {
@@ -474,7 +474,7 @@ U_CFUNC int32_t U_CALLCONV ustrcase_internalToTitle(int32_t caseLocale, uint32_t
 				/* titlecase c which is from [titleStart..titleLimit[ */
 				csc.cpStart = titleStart;
 				csc.cpLimit = titleLimit;
-				const UChar * s;
+				const char16_t * s;
 				c = ucase_toFullTitle(c, utf16_caseContextIterator, &csc, &s, caseLocale);
 				destIndex = appendResult(dest, destIndex, destCapacity, c, s,
 					titleLimit-titleStart, options, edits);
@@ -1003,7 +1003,7 @@ uint32_t getDiacriticData(UChar32 c) {
 	}
 }
 
-bool isFollowedByCasedLetter(const UChar * s, int32_t i, int32_t length) {
+bool isFollowedByCasedLetter(const char16_t * s, int32_t i, int32_t length) {
 	while(i < length) {
 		UChar32 c;
 		U16_NEXT(s, i, length, c);
@@ -1028,8 +1028,8 @@ bool isFollowedByCasedLetter(const UChar * s, int32_t i, int32_t length) {
  * TODO: Try to re-consolidate one way or another with the non-Greek function.
  */
 int32_t toUpper(uint32_t options,
-    UChar * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
+    char16_t * dest, int32_t destCapacity,
+    const char16_t * src, int32_t srcLength,
     Edits * edits,
     UErrorCode & errorCode) {
 	int32_t destIndex = 0;
@@ -1144,7 +1144,7 @@ int32_t toUpper(uint32_t options,
 			}
 
 			if(change) {
-				destIndex = appendUChar(dest, destIndex, destCapacity, (UChar)upper);
+				destIndex = appendUChar(dest, destIndex, destCapacity, (char16_t)upper);
 				if(destIndex >= 0 && (data & HAS_EITHER_DIALYTIKA) != 0) {
 					destIndex = appendUChar(dest, destIndex, destCapacity, 0x308); // restore or add
 						                                                       // a dialytika
@@ -1163,7 +1163,7 @@ int32_t toUpper(uint32_t options,
 			}
 		}
 		else {
-			const UChar * s;
+			const char16_t * s;
 			c = ucase_toFullUpper(c, NULL, NULL, &s, UCASE_LOC_GREEK);
 			destIndex = appendResult(dest, destIndex, destCapacity, c, s,
 				nextIndex - i, options, edits);
@@ -1184,8 +1184,8 @@ U_NAMESPACE_END
 /* functions available in the common library (for unistr_case.cpp) */
 
 U_CFUNC int32_t U_CALLCONV ustrcase_internalToLower(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_UNUSED
-    UChar * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
+    char16_t * dest, int32_t destCapacity,
+    const char16_t * src, int32_t srcLength,
     icu::Edits * edits,
     UErrorCode & errorCode) {
 	UCaseContext csc = UCASECONTEXT_INITIALIZER;
@@ -1200,8 +1200,8 @@ U_CFUNC int32_t U_CALLCONV ustrcase_internalToLower(int32_t caseLocale, uint32_t
 }
 
 U_CFUNC int32_t U_CALLCONV ustrcase_internalToUpper(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_UNUSED
-    UChar * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
+    char16_t * dest, int32_t destCapacity,
+    const char16_t * src, int32_t srcLength,
     icu::Edits * edits,
     UErrorCode & errorCode) {
 	int32_t destIndex;
@@ -1223,8 +1223,8 @@ U_CFUNC int32_t U_CALLCONV ustrcase_internalToUpper(int32_t caseLocale, uint32_t
 }
 
 U_CFUNC int32_t U_CALLCONV ustrcase_internalFold(int32_t /* caseLocale */, uint32_t options, UCASEMAP_BREAK_ITERATOR_UNUSED
-    UChar * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
+    char16_t * dest, int32_t destCapacity,
+    const char16_t * src, int32_t srcLength,
     icu::Edits * edits,
     UErrorCode & errorCode) {
 	int32_t destIndex = toLower(
@@ -1236,7 +1236,7 @@ U_CFUNC int32_t U_CALLCONV ustrcase_internalFold(int32_t /* caseLocale */, uint3
 }
 
 U_CFUNC int32_t ustrcase_map(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_PARAM
-    UChar * dest, int32_t destCapacity, const UChar * src, int32_t srcLength,
+    char16_t * dest, int32_t destCapacity, const char16_t * src, int32_t srcLength,
     UStringCaseMapper * stringCaseMapper, icu::Edits * edits, UErrorCode & errorCode) 
 {
 	int32_t destLength;
@@ -1266,10 +1266,10 @@ U_CFUNC int32_t ustrcase_map(int32_t caseLocale, uint32_t options, UCASEMAP_BREA
 }
 
 U_CFUNC int32_t ustrcase_mapWithOverlap(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_PARAM
-    UChar * dest, int32_t destCapacity, const UChar * src, int32_t srcLength, UStringCaseMapper * stringCaseMapper, UErrorCode & errorCode) 
+    char16_t * dest, int32_t destCapacity, const char16_t * src, int32_t srcLength, UStringCaseMapper * stringCaseMapper, UErrorCode & errorCode) 
 {
-	UChar buffer[300];
-	UChar * temp;
+	char16_t buffer[300];
+	char16_t * temp;
 	int32_t destLength;
 	/* check argument values */
 	if(U_FAILURE(errorCode)) {
@@ -1292,7 +1292,7 @@ U_CFUNC int32_t ustrcase_mapWithOverlap(int32_t caseLocale, uint32_t options, UC
 		}
 		else {
 			/* allocate a buffer */
-			temp = (UChar *)uprv_malloc(destCapacity*U_SIZEOF_UCHAR);
+			temp = (char16_t *)uprv_malloc(destCapacity*U_SIZEOF_UCHAR);
 			if(temp==NULL) {
 				errorCode = U_MEMORY_ALLOCATION_ERROR;
 				return 0;
@@ -1320,8 +1320,8 @@ U_CFUNC int32_t ustrcase_mapWithOverlap(int32_t caseLocale, uint32_t options, UC
 
 /* public API functions */
 
-U_CAPI int32_t U_EXPORT2 u_strFoldCase(UChar * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
+U_CAPI int32_t U_EXPORT2 u_strFoldCase(char16_t * dest, int32_t destCapacity,
+    const char16_t * src, int32_t srcLength,
     uint32_t options,
     UErrorCode * pErrorCode) {
 	return ustrcase_mapWithOverlap(
@@ -1334,8 +1334,8 @@ U_CAPI int32_t U_EXPORT2 u_strFoldCase(UChar * dest, int32_t destCapacity,
 U_NAMESPACE_BEGIN
 
 int32_t CaseMap::fold(uint32_t options,
-    const UChar * src, int32_t srcLength,
-    UChar * dest, int32_t destCapacity, Edits * edits,
+    const char16_t * src, int32_t srcLength,
+    char16_t * dest, int32_t destCapacity, Edits * edits,
     UErrorCode & errorCode) {
 	return ustrcase_map(
 		UCASE_LOC_ROOT, options, UCASEMAP_BREAK_ITERATOR_NULL
@@ -1359,7 +1359,7 @@ U_NAMESPACE_END
 
 /* stack element for previous-level source/decomposition pointers */
 struct CmpEquivLevel {
-	const UChar * start, * s, * limit;
+	const char16_t * start, * s, * limit;
 };
 
 typedef struct CmpEquivLevel CmpEquivLevel;
@@ -1378,31 +1378,31 @@ typedef struct CmpEquivLevel CmpEquivLevel;
  * @param pErrorCode    receives error status
  * @return The result of comparison
  */
-static int32_t _cmpFold(const UChar * s1, int32_t length1,
-    const UChar * s2, int32_t length2,
+static int32_t _cmpFold(const char16_t * s1, int32_t length1,
+    const char16_t * s2, int32_t length2,
     uint32_t options,
     int32_t * matchLen1, int32_t * matchLen2,
     UErrorCode * pErrorCode) {
 	int32_t cmpRes = 0;
 
 	/* current-level start/limit - s1/s2 as current */
-	const UChar * start1, * start2, * limit1, * limit2;
+	const char16_t * start1, * start2, * limit1, * limit2;
 
 	/* points to the original start address */
-	const UChar * org1, * org2;
+	const char16_t * org1, * org2;
 
 	/* points to the end of match + 1 */
-	const UChar * m1, * m2;
+	const char16_t * m1, * m2;
 
 	/* case folding variables */
-	const UChar * p;
+	const char16_t * p;
 	int32_t length;
 
 	/* stacks of previous-level start/current/limit */
 	CmpEquivLevel stack1[2], stack2[2];
 
 	/* case folding buffers, only use current-level start/limit */
-	UChar fold1[UCASE_MAX_STRING_LENGTH+1], fold2[UCASE_MAX_STRING_LENGTH+1];
+	char16_t fold1[UCASE_MAX_STRING_LENGTH+1], fold2[UCASE_MAX_STRING_LENGTH+1];
 
 	/* track which is the current level per string */
 	int32_t level1, level2;
@@ -1504,7 +1504,7 @@ static int32_t _cmpFold(const UChar * s1, int32_t length1,
 		 * either variable c1, c2 is -1 only if the corresponding string is finished
 		 */
 		if(c1==c2) {
-			const UChar * next1, * next2;
+			const char16_t * next1, * next2;
 
 			if(c1<0) {
 				cmpRes = 0; /* c1==c2==-1 indicating end of strings */
@@ -1565,7 +1565,7 @@ static int32_t _cmpFold(const UChar * s1, int32_t length1,
 		/* get complete code points for c1, c2 for lookups if either is a surrogate */
 		cp1 = c1;
 		if(U_IS_SURROGATE(c1)) {
-			UChar c;
+			char16_t c;
 
 			if(U_IS_SURROGATE_LEAD(c1)) {
 				if(s1!=limit1 && U16_IS_TRAIL(c = *s1)) {
@@ -1582,7 +1582,7 @@ static int32_t _cmpFold(const UChar * s1, int32_t length1,
 
 		cp2 = c2;
 		if(U_IS_SURROGATE(c2)) {
-			UChar c;
+			char16_t c;
 
 			if(U_IS_SURROGATE_LEAD(c2)) {
 				if(s2!=limit2 && U16_IS_TRAIL(c = *s2)) {
@@ -1752,8 +1752,8 @@ static int32_t _cmpFold(const UChar * s1, int32_t length1,
 }
 
 /* internal function */
-U_CFUNC int32_t u_strcmpFold(const UChar * s1, int32_t length1,
-    const UChar * s2, int32_t length2,
+U_CFUNC int32_t u_strcmpFold(const char16_t * s1, int32_t length1,
+    const char16_t * s2, int32_t length2,
     uint32_t options,
     UErrorCode * pErrorCode) {
 	return _cmpFold(s1, length1, s2, length2, options, NULL, NULL, pErrorCode);
@@ -1761,8 +1761,8 @@ U_CFUNC int32_t u_strcmpFold(const UChar * s1, int32_t length1,
 
 /* public API functions */
 
-U_CAPI int32_t U_EXPORT2 u_strCaseCompare(const UChar * s1, int32_t length1,
-    const UChar * s2, int32_t length2,
+U_CAPI int32_t U_EXPORT2 u_strCaseCompare(const char16_t * s1, int32_t length1,
+    const char16_t * s2, int32_t length2,
     uint32_t options,
     UErrorCode * pErrorCode) {
 	/* argument checking */
@@ -1778,21 +1778,21 @@ U_CAPI int32_t U_EXPORT2 u_strCaseCompare(const UChar * s1, int32_t length1,
 		   pErrorCode);
 }
 
-U_CAPI int32_t U_EXPORT2 u_strcasecmp(const UChar * s1, const UChar * s2, uint32_t options) {
+U_CAPI int32_t U_EXPORT2 u_strcasecmp(const char16_t * s1, const char16_t * s2, uint32_t options) {
 	UErrorCode errorCode = U_ZERO_ERROR;
 	return u_strcmpFold(s1, -1, s2, -1,
 		   options|U_COMPARE_IGNORE_CASE,
 		   &errorCode);
 }
 
-U_CAPI int32_t U_EXPORT2 u_memcasecmp(const UChar * s1, const UChar * s2, int32_t length, uint32_t options) {
+U_CAPI int32_t U_EXPORT2 u_memcasecmp(const char16_t * s1, const char16_t * s2, int32_t length, uint32_t options) {
 	UErrorCode errorCode = U_ZERO_ERROR;
 	return u_strcmpFold(s1, length, s2, length,
 		   options|U_COMPARE_IGNORE_CASE,
 		   &errorCode);
 }
 
-U_CAPI int32_t U_EXPORT2 u_strncasecmp(const UChar * s1, const UChar * s2, int32_t n, uint32_t options) {
+U_CAPI int32_t U_EXPORT2 u_strncasecmp(const char16_t * s1, const char16_t * s2, int32_t n, uint32_t options) {
 	UErrorCode errorCode = U_ZERO_ERROR;
 	return u_strcmpFold(s1, n, s2, n,
 		   options|(U_COMPARE_IGNORE_CASE|_STRNCMP_STYLE),
@@ -1800,8 +1800,8 @@ U_CAPI int32_t U_EXPORT2 u_strncasecmp(const UChar * s1, const UChar * s2, int32
 }
 
 /* internal API - detect length of shared prefix */
-U_CAPI void u_caseInsensitivePrefixMatch(const UChar * s1, int32_t length1,
-    const UChar * s2, int32_t length2,
+U_CAPI void u_caseInsensitivePrefixMatch(const char16_t * s1, int32_t length1,
+    const char16_t * s2, int32_t length2,
     uint32_t options,
     int32_t * matchLen1, int32_t * matchLen2,
     UErrorCode * pErrorCode) {

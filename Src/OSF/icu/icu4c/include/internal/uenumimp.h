@@ -47,16 +47,16 @@ typedef int32_t U_CALLCONV UEnumCount (UEnumeration * en, UErrorCode * status);
 /**
  * Function type declaration for uenum_unext().
  *
- * This function returns the next element as a UChar *,
+ * This function returns the next element as a char16_t *,
  * or NULL after all elements haven been enumerated.
  *
  * @param en enumeration
  * @param resultLength pointer to result length
  * @param status pointer to UErrorCode variable
- * @return next element as UChar *,
+ * @return next element as char16_t *,
  *         or NULL after all elements haven been enumerated
  */
-typedef const UChar * U_CALLCONV UEnumUNext (UEnumeration* en, int32_t* resultLength, UErrorCode * status);
+typedef const char16_t * U_CALLCONV UEnumUNext (UEnumeration* en, int32_t* resultLength, UErrorCode * status);
 /**
  * Function type declaration for uenum_next().
  *
@@ -98,15 +98,15 @@ struct UEnumeration {
 U_CDECL_END
 
 /* This is the default implementation for uenum_unext().
- * It automatically converts the char * string to UChar *.
+ * It automatically converts the char * string to char16_t *.
  * Don't call this directly.  This is called internally by uenum_unext
  * when a UEnumeration is defined with 'uNext' pointing to this
  * function.
  */
-U_CAPI const UChar * U_EXPORT2 uenum_unextDefault(UEnumeration* en, int32_t* resultLength, UErrorCode * status);
+U_CAPI const char16_t * U_EXPORT2 uenum_unextDefault(UEnumeration* en, int32_t* resultLength, UErrorCode * status);
 
 /* This is the default implementation for uenum_next().
- * It automatically converts the UChar * string to char *.
+ * It automatically converts the char16_t * string to char *.
  * Don't call this directly.  This is called internally by uenum_next
  * when a UEnumeration is defined with 'next' pointing to this
  * function.

@@ -244,7 +244,7 @@ typedef enum USentenceBreakTag {
 U_CAPI UBreakIterator* U_EXPORT2
 ubrk_open(UBreakIteratorType type,
       const char *locale,
-      const UChar *text,
+      const char16_t *text,
       int32_t textLength,
       UErrorCode *status);
 
@@ -264,9 +264,9 @@ ubrk_open(UBreakIteratorType type,
  * @stable ICU 2.2
  */
 U_CAPI UBreakIterator* U_EXPORT2
-ubrk_openRules(const UChar *rules,
+ubrk_openRules(const char16_t *rules,
                int32_t rulesLength,
-               const UChar *text,
+               const char16_t *text,
                int32_t textLength,
                UParseError     *parseErr,
                UErrorCode      *status);
@@ -293,7 +293,7 @@ ubrk_openRules(const UChar *rules,
  */
 U_CAPI UBreakIterator* U_EXPORT2
 ubrk_openBinaryRules(const uint8 *binaryRules, int32_t rulesLength,
-                     const UChar * text, int32_t textLength,
+                     const char16_t * text, int32_t textLength,
                      UErrorCode *   status);
 
 #ifndef U_HIDE_DEPRECATED_API
@@ -392,7 +392,7 @@ U_NAMESPACE_END
  */
 U_CAPI void U_EXPORT2
 ubrk_setText(UBreakIterator* bi,
-             const UChar * text,
+             const char16_t * text,
              int32_t textLength,
              UErrorCode *  status);
 

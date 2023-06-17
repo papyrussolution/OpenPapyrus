@@ -23,8 +23,8 @@ UPRV_FORMATTED_VALUE_CAPI_AUTO_IMPL(FormattedDateInterval,
     udtitvfmt,
     0x46444956)
 
-U_CAPI UDateIntervalFormat* U_EXPORT2 udtitvfmt_open(const char * locale, const UChar * skeleton, int32_t skeletonLength,
-    const UChar * tzID, int32_t tzIDLength, UErrorCode *  status)
+U_CAPI UDateIntervalFormat* U_EXPORT2 udtitvfmt_open(const char * locale, const char16_t * skeleton, int32_t skeletonLength,
+    const char16_t * tzID, int32_t tzIDLength, UErrorCode *  status)
 {
 	if(U_FAILURE(*status)) {
 		return NULL;
@@ -57,7 +57,7 @@ U_CAPI void U_EXPORT2 udtitvfmt_close(UDateIntervalFormat * formatter)
 U_CAPI int32_t U_EXPORT2 udtitvfmt_format(const UDateIntervalFormat* formatter,
     UDate fromDate,
     UDate toDate,
-    UChar * result,
+    char16_t * result,
     int32_t resultCapacity,
     UFieldPosition* position,
     UErrorCode *  status)

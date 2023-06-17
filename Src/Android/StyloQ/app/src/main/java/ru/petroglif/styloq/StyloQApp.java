@@ -16,6 +16,7 @@ import android.location.Location;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.service.notification.StatusBarNotification;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -91,11 +92,11 @@ public class StyloQApp extends SLib.App {
 					{
 						int prev_ver = 0;
 						int cur_ver = GetApplicationVersionCode();
-						if(cur_ver <= 2) {
+						if(cur_ver >= 2) {
 							Db.CreateTableInDb(null, StyloQDatabase.SysJournalTable.TBL_NAME, false);
 						}
-						else if(cur_ver <= 90) {
-							Db.CreateTableInDb(null, StyloQDatabase.NotificationTable.TBL_NAME, false);
+						if(cur_ver >= 90) {
+							Db.CreateTableInDb(null, StyloQDatabase.NotificationTable2.TBL_NAME, false);
 						}
 						StyloQDatabase.SysJournalTable.Rec sjrec = Db.GetLastEvent(SLib.PPACN_RECENTVERSIONLAUNCHED, 0);
 						if(sjrec != null)
@@ -1220,7 +1221,7 @@ public class StyloQApp extends SLib.App {
 				try {
 					StyloQDatabase db = GetDB();
 					if(db != null) {
-						NotificationManager notify_mgr = (NotificationManager)getSystemService(android.content.Context.NOTIFICATION_SERVICE); // @v11.6.1
+						NotificationManager notify_mgr = (NotificationManager) getSystemService(android.content.Context.NOTIFICATION_SERVICE); // @v11.6.1
 						Database.Transaction tra = new Database.Transaction(db, true);
 						for(Long id : SeenNotificationList) {
 							//if(db.RegisterNotificationAsSeen_beforev90v(id, false)) {
@@ -1230,8 +1231,22 @@ public class StyloQApp extends SLib.App {
 									notify_mgr.cancel(id.intValue());
 								// } @v11.6.1
 							}
-
 						}
+						// @v11.7.6 {
+						if(notify_mgr != null) {
+							StatusBarNotification[] nl = notify_mgr.getActiveNotifications();
+							if(nl != null) {
+								for(StatusBarNotification ni : nl) {
+									if(ni != null) {
+										int nid = ni.getId();
+										StyloQDatabase.NotificationStoragePacket np = db.GetNotificationEntry(nid);
+										if(np == null)
+											notify_mgr.cancel(nid);
+									}
+								}
+							}
+						}
+						// } @v11.7.6
 						tra.Commit();
 						SeenNotificationList = null;
 					}

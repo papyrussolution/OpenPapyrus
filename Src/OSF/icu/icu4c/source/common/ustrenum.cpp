@@ -44,7 +44,7 @@ const char * StringEnumeration::next(int32_t * resultLength, UErrorCode & status
 	return NULL;
 }
 
-const UChar * StringEnumeration::unext(int32_t * resultLength, UErrorCode & status) 
+const char16_t * StringEnumeration::unext(int32_t * resultLength, UErrorCode & status) 
 {
 	const UnicodeString * s = snext(status);
 	if(U_SUCCESS(status) && s) {
@@ -90,7 +90,7 @@ UnicodeString * StringEnumeration::setChars(const char * s, int32_t length, UErr
 		if(length<0) {
 			length = (int32_t)strlen(s);
 		}
-		UChar * buffer = unistr.getBuffer(length+1);
+		char16_t * buffer = unistr.getBuffer(length+1);
 		if(buffer) {
 			u_charsToUChars(s, buffer, length);
 			buffer[length] = 0;
@@ -154,7 +154,7 @@ const char * UStringEnumeration::next(int32_t * resultLength, UErrorCode & statu
 const UnicodeString * UStringEnumeration::snext(UErrorCode & status) 
 {
 	int32_t length;
-	const UChar * str = uenum_unext(uenum, &length, &status);
+	const char16_t * str = uenum_unext(uenum, &length, &status);
 	if(str == 0 || U_FAILURE(status)) {
 		return 0;
 	}
@@ -194,7 +194,7 @@ static int32_t U_CALLCONV ustrenum_count(UEnumeration* en, UErrorCode * ec)
 /**
  * Wrapper API to make StringEnumeration look like UEnumeration.
  */
-static const UChar * U_CALLCONV ustrenum_unext(UEnumeration* en, int32_t* resultLength, UErrorCode * ec)
+static const char16_t * U_CALLCONV ustrenum_unext(UEnumeration* en, int32_t* resultLength, UErrorCode * ec)
 {
 	return _THIS_(en)->unext(resultLength, *ec);
 }
@@ -269,14 +269,14 @@ static int32_t U_CALLCONV ucharstrenum_count(UEnumeration* en,
 	return ((UCharStringEnumeration*)en)->count;
 }
 
-static const UChar * U_CALLCONV ucharstrenum_unext(UEnumeration* en,
+static const char16_t * U_CALLCONV ucharstrenum_unext(UEnumeration* en,
     int32_t* resultLength,
     UErrorCode * /*ec*/) {
 	UCharStringEnumeration * e = (UCharStringEnumeration*)en;
 	if(e->index >= e->count) {
 		return NULL;
 	}
-	const UChar * result = ((const UChar **)e->uenum.context)[e->index++];
+	const char16_t * result = ((const char16_t **)e->uenum.context)[e->index++];
 	if(resultLength) {
 		*resultLength = (int32_t)u_strlen(result);
 	}
@@ -343,7 +343,7 @@ U_CAPI UEnumeration* U_EXPORT2 uenum_openCharStringsEnumeration(const char * con
 	return (UEnumeration*)result;
 }
 
-U_CAPI UEnumeration* U_EXPORT2 uenum_openUCharStringsEnumeration(const UChar * const strings[], int32_t count, UErrorCode * ec) 
+U_CAPI UEnumeration* U_EXPORT2 uenum_openUCharStringsEnumeration(const char16_t * const strings[], int32_t count, UErrorCode * ec) 
 {
 	UCharStringEnumeration* result = NULL;
 	if(U_SUCCESS(*ec) && count >= 0 && (count == 0 || strings != 0)) {

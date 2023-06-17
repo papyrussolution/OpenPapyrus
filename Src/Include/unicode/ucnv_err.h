@@ -193,8 +193,8 @@ typedef struct {
 	                          @stable ICU 2.0    */
 	UConverter * converter; /**< Pointer to the converter that is opened and to which this struct is passed as an
 	                           argument. @stable ICU 2.0  */
-	const UChar * source;   /**< Pointer to the source source buffer. @stable ICU 2.0    */
-	const UChar * sourceLimit; /**< Pointer to the limit (end + 1) of source buffer. @stable ICU 2.0    */
+	const char16_t * source;   /**< Pointer to the source source buffer. @stable ICU 2.0    */
+	const char16_t * sourceLimit; /**< Pointer to the limit (end + 1) of source buffer. @stable ICU 2.0    */
 	char * target;          /**< Pointer to the target buffer. @stable ICU 2.0    */
 	const char * targetLimit; /**< Pointer to the limit (end + 1) of target buffer. @stable ICU 2.0     */
 	int32_t * offsets;      /**< Pointer to the buffer that receives the offsets. *offset = blah ; offset++;.
@@ -213,8 +213,8 @@ typedef struct {
 	                           argument. @stable ICU 2.0 */
 	const char * source;    /**< Pointer to the source source buffer. @stable ICU 2.0    */
 	const char * sourceLimit; /**< Pointer to the limit (end + 1) of source buffer. @stable ICU 2.0    */
-	UChar * target;         /**< Pointer to the target buffer. @stable ICU 2.0    */
-	const UChar * targetLimit; /**< Pointer to the limit (end + 1) of target buffer. @stable ICU 2.0     */
+	char16_t * target;         /**< Pointer to the target buffer. @stable ICU 2.0    */
+	const char16_t * targetLimit; /**< Pointer to the limit (end + 1) of target buffer. @stable ICU 2.0     */
 	int32_t * offsets;      /**< Pointer to the buffer that receives the offsets. *offset = blah ; offset++;.
 	                           @stable ICU 2.0  */
 } UConverterToUnicodeArgs;
@@ -235,7 +235,7 @@ typedef struct {
  */
 U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_STOP(const void * context,
     UConverterFromUnicodeArgs * fromUArgs,
-    const UChar * codeUnits,
+    const char16_t * codeUnits,
     int32_t length,
     UChar32 codePoint,
     UConverterCallbackReason reason,
@@ -282,7 +282,7 @@ U_CAPI void U_EXPORT2 UCNV_TO_U_CALLBACK_STOP(const void * context,
  */
 U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_SKIP(const void * context,
     UConverterFromUnicodeArgs * fromUArgs,
-    const UChar * codeUnits,
+    const char16_t * codeUnits,
     int32_t length,
     UChar32 codePoint,
     UConverterCallbackReason reason,
@@ -311,7 +311,7 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_SKIP(const void * context,
  */
 U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_SUBSTITUTE(const void * context,
     UConverterFromUnicodeArgs * fromUArgs,
-    const UChar * codeUnits,
+    const char16_t * codeUnits,
     int32_t length,
     UChar32 codePoint,
     UConverterCallbackReason reason,
@@ -365,7 +365,7 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_SUBSTITUTE(const void * context,
  *      otherwise this value will be set to a failure status.
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context, UConverterFromUnicodeArgs * fromUArgs, const UChar * codeUnits,
+U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context, UConverterFromUnicodeArgs * fromUArgs, const char16_t * codeUnits,
     int32_t length, UChar32 codePoint, UConverterCallbackReason reason, UErrorCode * err);
 /**
  * DO NOT CALL THIS FUNCTION DIRECTLY!

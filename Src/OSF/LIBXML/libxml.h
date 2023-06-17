@@ -119,36 +119,36 @@ int xmlNop(void);
 	/*
 	 * xmlChar handling
 	 */
-	//XMLPUBFUN xmlChar * XMLCALL xmlStrdup_Removed(const xmlChar * cur);
-	XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len);
-	XMLPUBFUN xmlChar * XMLCALL xmlCharStrndup(const char * cur, int len);
-	XMLPUBFUN xmlChar * XMLCALL xmlCharStrdup(const char * cur);
-	XMLPUBFUN xmlChar * XMLCALL xmlStrsub(const xmlChar * str, int start, int len);
-	XMLPUBFUN const xmlChar * /*XMLCALL*/FASTCALL xmlStrchr(const xmlChar * str, xmlChar val);
-	XMLPUBFUN const xmlChar * /*XMLCALL*/FASTCALL xmlStrstr(const xmlChar * str, const xmlChar * val);
-	XMLPUBFUN const xmlChar * XMLCALL xmlStrcasestr(const xmlChar * str, const xmlChar * val);
-	XMLPUBFUN int XMLCALL xmlStrcmp(const xmlChar * str1, const xmlChar * str2);
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlStrncmp(const xmlChar * str1, const xmlChar * str2, int len);
-	XMLPUBFUN int XMLCALL xmlStrcasecmp(const xmlChar * str1, const xmlChar * str2);
-	XMLPUBFUN int XMLCALL xmlStrncasecmp(const xmlChar * str1, const xmlChar * str2, int len);
-	//XMLPUBFUN int XMLCALL xmlStrEqual_Removed(const xmlChar * str1, const xmlChar * str2);
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlStrQEqual(const xmlChar * pref, const xmlChar * name, const xmlChar * str);
-	//XMLPUBFUN int XMLCALL xmlStrlen_Removed(const xmlChar * str);
-	XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlStrcat(xmlChar * cur, const xmlChar * add);
-	XMLPUBFUN xmlChar * XMLCALL xmlStrncat(xmlChar * cur, const xmlChar * add, int len);
-	XMLPUBFUN xmlChar * XMLCALL xmlStrncatNew(const xmlChar * str1, const xmlChar * str2, int len);
-	XMLPUBFUN int XMLCALL xmlStrPrintf(xmlChar * buf, int len, const xmlChar * msg,...);
-	XMLPUBFUN int XMLCALL xmlStrVPrintf(xmlChar * buf, int len, const xmlChar * msg, va_list ap);
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlGetUTF8Char(const uchar * utf, int * len);
-	XMLPUBFUN int XMLCALL xmlCheckUTF8(const uchar * utf);
-	XMLPUBFUN int XMLCALL xmlUTF8Strsize(const xmlChar * utf, int len);
-	XMLPUBFUN xmlChar * XMLCALL xmlUTF8Strndup(const xmlChar * utf, int len);
-	XMLPUBFUN const xmlChar * XMLCALL xmlUTF8Strpos(const xmlChar * utf, int pos);
-	XMLPUBFUN int XMLCALL xmlUTF8Strloc(const xmlChar * utf, const xmlChar * utfchar);
-	XMLPUBFUN xmlChar * XMLCALL xmlUTF8Strsub(const xmlChar * utf, int start, int len);
-	XMLPUBFUN int /*XMLCALL*/FASTCALL  xmlUTF8Strlen(const xmlChar * utf);
-	XMLPUBFUN int XMLCALL xmlUTF8Size(const xmlChar * utf);
-	XMLPUBFUN int XMLCALL xmlUTF8Charcmp(const xmlChar * utf1, const xmlChar * utf2);
+	//XMLPUBFUN xmlChar * xmlStrdup_Removed(const xmlChar * cur);
+	XMLPUBFUN xmlChar * FASTCALL xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len);
+	XMLPUBFUN xmlChar * xmlCharStrndup(const char * cur, int len);
+	XMLPUBFUN xmlChar * xmlCharStrdup(const char * cur);
+	XMLPUBFUN xmlChar * xmlStrsub(const xmlChar * str, int start, int len);
+	XMLPUBFUN const xmlChar * FASTCALL xmlStrchr(const xmlChar * str, xmlChar val);
+	XMLPUBFUN const xmlChar * FASTCALL xmlStrstr(const xmlChar * str, const xmlChar * val);
+	XMLPUBFUN const xmlChar * xmlStrcasestr(const xmlChar * str, const xmlChar * val);
+	XMLPUBFUN int xmlStrcmp(const xmlChar * str1, const xmlChar * str2);
+	XMLPUBFUN int FASTCALL xmlStrncmp(const xmlChar * str1, const xmlChar * str2, int len);
+	XMLPUBFUN int xmlStrcasecmp(const xmlChar * str1, const xmlChar * str2);
+	XMLPUBFUN int xmlStrncasecmp(const xmlChar * str1, const xmlChar * str2, int len);
+	//XMLPUBFUN int xmlStrEqual_Removed(const xmlChar * str1, const xmlChar * str2);
+	XMLPUBFUN int FASTCALL xmlStrQEqual(const xmlChar * pref, const xmlChar * name, const xmlChar * str);
+	//XMLPUBFUN int xmlStrlen_Removed(const xmlChar * str);
+	XMLPUBFUN xmlChar * FASTCALL xmlStrcat(xmlChar * cur, const xmlChar * add);
+	XMLPUBFUN xmlChar * xmlStrncat(xmlChar * cur, const xmlChar * add, int len);
+	XMLPUBFUN xmlChar * xmlStrncatNew(const xmlChar * str1, const xmlChar * str2, int len);
+	XMLPUBFUN int xmlStrPrintf(xmlChar * buf, int len, const xmlChar * msg,...);
+	XMLPUBFUN int xmlStrVPrintf(xmlChar * buf, int len, const xmlChar * msg, va_list ap);
+	XMLPUBFUN int FASTCALL xmlGetUTF8Char(const uchar * utf, int * len);
+	XMLPUBFUN int xmlCheckUTF8(const uchar * utf);
+	XMLPUBFUN int xmlUTF8Strsize(const xmlChar * utf, int len);
+	XMLPUBFUN xmlChar * xmlUTF8Strndup(const xmlChar * utf, int len);
+	XMLPUBFUN const xmlChar * xmlUTF8Strpos(const xmlChar * utf, int pos);
+	XMLPUBFUN int xmlUTF8Strloc(const xmlChar * utf, const xmlChar * utfchar);
+	XMLPUBFUN xmlChar * xmlUTF8Strsub(const xmlChar * utf, int start, int len);
+	XMLPUBFUN int FASTCALL  xmlUTF8Strlen(const xmlChar * utf);
+	XMLPUBFUN int xmlUTF8Size(const xmlChar * utf);
+	XMLPUBFUN int xmlUTF8Charcmp(const xmlChar * utf1, const xmlChar * utf2);
 	/*
 	 * Recent version of gcc produce a warning when a function pointer is assigned
 	 * to an object pointer, or vice versa.  The following macro is a dirty hack
@@ -209,42 +209,42 @@ int xmlNop(void);
 	// Callback when scanning data in a hash with the full scanner.
 	// 
 	typedef void (*xmlHashScannerFull)(void *payload, void *data, const xmlChar *name, const xmlChar *name2, const xmlChar *name3);
-	XMLPUBFUN xmlHashTable * /*XMLCALL*/FASTCALL xmlHashCreate(int size);
-	XMLPUBFUN xmlHashTable * /*XMLCALL*/FASTCALL xmlHashCreateDict(int size, xmlDict * dict);
-	XMLPUBFUN void /*XMLCALL*/FASTCALL xmlHashFree(xmlHashTable * pTable, xmlHashDeallocator f);
+	XMLPUBFUN xmlHashTable * FASTCALL xmlHashCreate(int size);
+	XMLPUBFUN xmlHashTable * FASTCALL xmlHashCreateDict(int size, xmlDict * dict);
+	XMLPUBFUN void FASTCALL xmlHashFree(xmlHashTable * pTable, xmlHashDeallocator f);
 	// 
 	// Add a new entry to the hash table.
 	// 
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlHashAddEntry(xmlHashTable * table, const xmlChar *name, void *userdata);
-	XMLPUBFUN int XMLCALL xmlHashUpdateEntry(xmlHashTable * table, const xmlChar *name, void *userdata, xmlHashDeallocator f);
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlHashAddEntry2(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, void *userdata);
-	XMLPUBFUN int XMLCALL xmlHashUpdateEntry2(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, void *userdata, xmlHashDeallocator f);
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlHashAddEntry3(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3, void *userdata);
-	XMLPUBFUN int XMLCALL xmlHashUpdateEntry3(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3, void *userdata, xmlHashDeallocator f);
+	XMLPUBFUN int FASTCALL xmlHashAddEntry(xmlHashTable * table, const xmlChar *name, void *userdata);
+	XMLPUBFUN int xmlHashUpdateEntry(xmlHashTable * table, const xmlChar *name, void *userdata, xmlHashDeallocator f);
+	XMLPUBFUN int FASTCALL xmlHashAddEntry2(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, void *userdata);
+	XMLPUBFUN int xmlHashUpdateEntry2(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, void *userdata, xmlHashDeallocator f);
+	XMLPUBFUN int FASTCALL xmlHashAddEntry3(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3, void *userdata);
+	XMLPUBFUN int xmlHashUpdateEntry3(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3, void *userdata, xmlHashDeallocator f);
 	// 
 	// Remove an entry from the hash table.
 	// 
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlHashRemoveEntry(xmlHashTable * table, const xmlChar *name, xmlHashDeallocator f);
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlHashRemoveEntry2(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, xmlHashDeallocator f);
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlHashRemoveEntry3(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3,xmlHashDeallocator f);
+	XMLPUBFUN int FASTCALL xmlHashRemoveEntry(xmlHashTable * table, const xmlChar *name, xmlHashDeallocator f);
+	XMLPUBFUN int FASTCALL xmlHashRemoveEntry2(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, xmlHashDeallocator f);
+	XMLPUBFUN int FASTCALL xmlHashRemoveEntry3(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3,xmlHashDeallocator f);
 	// 
 	// Retrieve the userdata.
 	// 
-	XMLPUBFUN void * /*XMLCALL*/FASTCALL xmlHashLookup(xmlHashTable * table, const xmlChar *name);
-	XMLPUBFUN void * /*XMLCALL*/FASTCALL xmlHashLookup2(xmlHashTable * table, const xmlChar *name, const xmlChar *name2);
-	XMLPUBFUN void * /*XMLCALL*/FASTCALL xmlHashLookup3(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3);
-	XMLPUBFUN void * XMLCALL xmlHashQLookup(xmlHashTable * table, const xmlChar *name, const xmlChar *prefix);
-	XMLPUBFUN void * XMLCALL xmlHashQLookup2(xmlHashTable * table, const xmlChar *name, const xmlChar *prefix, const xmlChar *name2, const xmlChar *prefix2);
-	XMLPUBFUN void * XMLCALL xmlHashQLookup3(xmlHashTable * table, const xmlChar *name, const xmlChar *prefix, const xmlChar *name2, const xmlChar *prefix2, const xmlChar *name3, const xmlChar *prefix3);
+	XMLPUBFUN void * FASTCALL xmlHashLookup(xmlHashTable * table, const xmlChar *name);
+	XMLPUBFUN void * FASTCALL xmlHashLookup2(xmlHashTable * table, const xmlChar *name, const xmlChar *name2);
+	XMLPUBFUN void * FASTCALL xmlHashLookup3(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3);
+	XMLPUBFUN void * xmlHashQLookup(xmlHashTable * table, const xmlChar *name, const xmlChar *prefix);
+	XMLPUBFUN void * xmlHashQLookup2(xmlHashTable * table, const xmlChar *name, const xmlChar *prefix, const xmlChar *name2, const xmlChar *prefix2);
+	XMLPUBFUN void * xmlHashQLookup3(xmlHashTable * table, const xmlChar *name, const xmlChar *prefix, const xmlChar *name2, const xmlChar *prefix2, const xmlChar *name3, const xmlChar *prefix3);
 	// 
 	// Helpers.
 	// 
-	XMLPUBFUN xmlHashTable * XMLCALL xmlHashCopy(const xmlHashTable * table, xmlHashCopier f);
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlHashSize(xmlHashTable * table);
-	XMLPUBFUN void XMLCALL xmlHashScan(xmlHashTable * table, xmlHashScanner f, void *data);
-	XMLPUBFUN void XMLCALL xmlHashScan3(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3, xmlHashScanner f, void *data);
-	XMLPUBFUN void XMLCALL xmlHashScanFull(xmlHashTable * table, xmlHashScannerFull f, void *data);
-	XMLPUBFUN void XMLCALL xmlHashScanFull3(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3, xmlHashScannerFull f, void *data);
+	XMLPUBFUN xmlHashTable * xmlHashCopy(const xmlHashTable * table, xmlHashCopier f);
+	XMLPUBFUN int FASTCALL xmlHashSize(xmlHashTable * table);
+	XMLPUBFUN void xmlHashScan(xmlHashTable * table, xmlHashScanner f, void *data);
+	XMLPUBFUN void xmlHashScan3(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3, xmlHashScanner f, void *data);
+	XMLPUBFUN void xmlHashScanFull(xmlHashTable * table, xmlHashScannerFull f, void *data);
+	XMLPUBFUN void xmlHashScanFull3(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3, xmlHashScannerFull f, void *data);
 	#ifdef __cplusplus
 	}
 	#endif
@@ -268,11 +268,11 @@ int xmlNop(void);
 		// 
 		// The POSIX like API
 		// 
-		XMLPUBFUN xmlRegexp * XMLCALL xmlRegexpCompile(const xmlChar *regexp);
-		XMLPUBFUN void /*XMLCALL*/FASTCALL xmlRegFreeRegexp(xmlRegexp * regexp);
-		XMLPUBFUN int  XMLCALL xmlRegexpExec(xmlRegexp * comp, const xmlChar *value);
-		XMLPUBFUN void XMLCALL xmlRegexpPrint(FILE *output, xmlRegexp * regexp);
-		XMLPUBFUN int  XMLCALL xmlRegexpIsDeterminist(xmlRegexp * comp);
+		XMLPUBFUN xmlRegexp * xmlRegexpCompile(const xmlChar *regexp);
+		XMLPUBFUN void FASTCALL xmlRegFreeRegexp(xmlRegexp * regexp);
+		XMLPUBFUN int  xmlRegexpExec(xmlRegexp * comp, const xmlChar *value);
+		XMLPUBFUN void xmlRegexpPrint(FILE *output, xmlRegexp * regexp);
+		XMLPUBFUN int  xmlRegexpIsDeterminist(xmlRegexp * comp);
 		// 
 		// Descr: Callback function when doing a transition in the automata
 		// @exec: the regular expression context
@@ -284,12 +284,12 @@ int xmlNop(void);
 		// 
 		// The progressive API
 		// 
-		XMLPUBFUN xmlRegExecCtxtPtr XMLCALL xmlRegNewExecCtxt(xmlRegexp * comp, xmlRegExecCallbacks callback, void *data);
-		XMLPUBFUN void XMLCALL xmlRegFreeExecCtxt(xmlRegExecCtxtPtr exec); 
-		XMLPUBFUN int  XMLCALL xmlRegExecPushString(xmlRegExecCtxtPtr exec, const xmlChar *value, void *data);
-		XMLPUBFUN int  XMLCALL xmlRegExecPushString2(xmlRegExecCtxtPtr exec, const xmlChar *value, const xmlChar *value2, void *data);
-		XMLPUBFUN int  XMLCALL xmlRegExecNextValues(xmlRegExecCtxtPtr exec, int *nbval, int *nbneg, xmlChar **values, int *terminal);
-		XMLPUBFUN int  XMLCALL xmlRegExecErrInfo(xmlRegExecCtxtPtr exec, const xmlChar **string, int *nbval, int *nbneg, xmlChar **values, int *terminal);
+		XMLPUBFUN xmlRegExecCtxtPtr xmlRegNewExecCtxt(xmlRegexp * comp, xmlRegExecCallbacks callback, void *data);
+		XMLPUBFUN void xmlRegFreeExecCtxt(xmlRegExecCtxtPtr exec); 
+		XMLPUBFUN int  xmlRegExecPushString(xmlRegExecCtxtPtr exec, const xmlChar *value, void *data);
+		XMLPUBFUN int  xmlRegExecPushString2(xmlRegExecCtxtPtr exec, const xmlChar *value, const xmlChar *value2, void *data);
+		XMLPUBFUN int  xmlRegExecNextValues(xmlRegExecCtxtPtr exec, int *nbval, int *nbneg, xmlChar **values, int *terminal);
+		XMLPUBFUN int  xmlRegExecErrInfo(xmlRegExecCtxtPtr exec, const xmlChar **string, int *nbval, int *nbneg, xmlChar **values, int *terminal);
 		#ifdef LIBXML_EXPR_ENABLED
 			// 
 			// Formal regular expression handling
@@ -299,10 +299,10 @@ int xmlNop(void);
 			typedef struct _xmlExpCtxt xmlExpCtxt;
 			typedef xmlExpCtxt *xmlExpCtxtPtr;
 
-			XMLPUBFUN void XMLCALL xmlExpFreeCtxt(xmlExpCtxtPtr ctxt);
-			XMLPUBFUN xmlExpCtxtPtr XMLCALL xmlExpNewCtxt(int maxNodes, xmlDict * dict);
-			XMLPUBFUN int XMLCALL xmlExpCtxtNbNodes(xmlExpCtxtPtr ctxt);
-			XMLPUBFUN int XMLCALL xmlExpCtxtNbCons(xmlExpCtxtPtr ctxt);
+			XMLPUBFUN void xmlExpFreeCtxt(xmlExpCtxtPtr ctxt);
+			XMLPUBFUN xmlExpCtxtPtr xmlExpNewCtxt(int maxNodes, xmlDict * dict);
+			XMLPUBFUN int xmlExpCtxtNbNodes(xmlExpCtxtPtr ctxt);
+			XMLPUBFUN int xmlExpCtxtNbCons(xmlExpCtxtPtr ctxt);
 
 			// Expressions are trees but the tree is opaque 
 			typedef struct _xmlExpNode xmlExpNode;
@@ -325,27 +325,27 @@ int xmlNop(void);
 			/*
 			 * Expressions are reference counted internally
 			 */
-			XMLPUBFUN void /*XMLCALL*/FASTCALL xmlExpFree(xmlExpCtxt * pCtxt, xmlExpNode * pExpr);
-			XMLPUBFUN void XMLCALL xmlExpRef(xmlExpNodePtr expr);
+			XMLPUBFUN void FASTCALL xmlExpFree(xmlExpCtxt * pCtxt, xmlExpNode * pExpr);
+			XMLPUBFUN void xmlExpRef(xmlExpNodePtr expr);
 			/*
 			 * constructors can be either manual or from a string
 			 */
-			XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpParse(xmlExpCtxtPtr ctxt, const char *expr);
-			XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpNewAtom(xmlExpCtxtPtr ctxt, const xmlChar *name, int len);
-			XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpNewOr(xmlExpCtxtPtr ctxt, xmlExpNodePtr left, xmlExpNodePtr right);
-			XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpNewSeq(xmlExpCtxtPtr ctxt, xmlExpNodePtr left, xmlExpNodePtr right);
-			XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpNewRange(xmlExpCtxtPtr ctxt, xmlExpNodePtr subset, int min, int max);
+			XMLPUBFUN xmlExpNodePtr xmlExpParse(xmlExpCtxtPtr ctxt, const char *expr);
+			XMLPUBFUN xmlExpNodePtr xmlExpNewAtom(xmlExpCtxtPtr ctxt, const xmlChar *name, int len);
+			XMLPUBFUN xmlExpNodePtr xmlExpNewOr(xmlExpCtxtPtr ctxt, xmlExpNodePtr left, xmlExpNodePtr right);
+			XMLPUBFUN xmlExpNodePtr xmlExpNewSeq(xmlExpCtxtPtr ctxt, xmlExpNodePtr left, xmlExpNodePtr right);
+			XMLPUBFUN xmlExpNodePtr xmlExpNewRange(xmlExpCtxtPtr ctxt, xmlExpNodePtr subset, int min, int max);
 			/*
 			 * The really interesting APIs
 			 */
-			XMLPUBFUN int XMLCALL xmlExpIsNillable(xmlExpNodePtr expr);
-			XMLPUBFUN int XMLCALL xmlExpMaxToken(xmlExpNodePtr expr);
-			XMLPUBFUN int XMLCALL xmlExpGetLanguage(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, const xmlChar**langList, int len);
-			XMLPUBFUN int XMLCALL xmlExpGetStart(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, const xmlChar**tokList, int len);
-			XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpStringDerive(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, const xmlChar *str, int len);
-			XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpExpDerive	(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, xmlExpNodePtr sub);
-			XMLPUBFUN int XMLCALL xmlExpSubsume(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, xmlExpNodePtr sub);
-			XMLPUBFUN void XMLCALL xmlExpDump(xmlBuffer * buf, xmlExpNodePtr expr);
+			XMLPUBFUN int xmlExpIsNillable(xmlExpNodePtr expr);
+			XMLPUBFUN int xmlExpMaxToken(xmlExpNodePtr expr);
+			XMLPUBFUN int xmlExpGetLanguage(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, const xmlChar**langList, int len);
+			XMLPUBFUN int xmlExpGetStart(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, const xmlChar**tokList, int len);
+			XMLPUBFUN xmlExpNodePtr xmlExpStringDerive(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, const xmlChar *str, int len);
+			XMLPUBFUN xmlExpNodePtr xmlExpExpDerive	(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, xmlExpNodePtr sub);
+			XMLPUBFUN int xmlExpSubsume(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, xmlExpNodePtr sub);
+			XMLPUBFUN void xmlExpDump(xmlBuffer * buf, xmlExpNodePtr expr);
 		#endif // LIBXML_EXPR_ENABLED 
 		#ifdef __cplusplus
 		}
@@ -401,31 +401,31 @@ int xmlNop(void);
 	// External functions:
 	// 
 	#ifdef LIBXML_LEGACY_ENABLED
-		XMLPUBFUN void XMLCALL xmlInitializePredefinedEntities();
+		XMLPUBFUN void xmlInitializePredefinedEntities();
 	#endif /* LIBXML_LEGACY_ENABLED */
-	XMLPUBFUN xmlEntity * XMLCALL xmlNewEntity(xmlDoc * doc, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content);
-	XMLPUBFUN xmlEntity * XMLCALL xmlAddDocEntity(xmlDoc * doc, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content);
-	XMLPUBFUN xmlEntity * XMLCALL xmlAddDtdEntity(xmlDoc * doc, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content);
-	XMLPUBFUN xmlEntity * /*XMLCALL*/FASTCALL  xmlGetPredefinedEntity(const xmlChar * name);
-	XMLPUBFUN xmlEntity * /*XMLCALL*/FASTCALL xmlGetDocEntity(const xmlDoc * doc, const xmlChar * name);
-	XMLPUBFUN xmlEntity * XMLCALL xmlGetDtdEntity(xmlDoc * doc, const xmlChar * name);
-	XMLPUBFUN xmlEntity * XMLCALL xmlGetParameterEntity(xmlDoc * doc, const xmlChar * name);
+	XMLPUBFUN xmlEntity * xmlNewEntity(xmlDoc * doc, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content);
+	XMLPUBFUN xmlEntity * xmlAddDocEntity(xmlDoc * doc, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content);
+	XMLPUBFUN xmlEntity * xmlAddDtdEntity(xmlDoc * doc, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content);
+	XMLPUBFUN xmlEntity * FASTCALL  xmlGetPredefinedEntity(const xmlChar * name);
+	XMLPUBFUN xmlEntity * FASTCALL xmlGetDocEntity(const xmlDoc * doc, const xmlChar * name);
+	XMLPUBFUN xmlEntity * xmlGetDtdEntity(xmlDoc * doc, const xmlChar * name);
+	XMLPUBFUN xmlEntity * xmlGetParameterEntity(xmlDoc * doc, const xmlChar * name);
 	#ifdef LIBXML_LEGACY_ENABLED
-		XMLPUBFUN const xmlChar * XMLCALL xmlEncodeEntities(xmlDoc * doc, const xmlChar * input);
+		XMLPUBFUN const xmlChar * xmlEncodeEntities(xmlDoc * doc, const xmlChar * input);
 	#endif /* LIBXML_LEGACY_ENABLED */
-	XMLPUBFUN xmlChar * XMLCALL xmlEncodeEntitiesReentrant(xmlDoc * doc, const xmlChar * input);
-	XMLPUBFUN xmlChar * XMLCALL xmlEncodeSpecialChars(const xmlDoc * doc, const xmlChar * input);
-	XMLPUBFUN xmlEntitiesTablePtr XMLCALL xmlCreateEntitiesTable();
+	XMLPUBFUN xmlChar * xmlEncodeEntitiesReentrant(xmlDoc * doc, const xmlChar * input);
+	XMLPUBFUN xmlChar * xmlEncodeSpecialChars(const xmlDoc * doc, const xmlChar * input);
+	XMLPUBFUN xmlEntitiesTablePtr xmlCreateEntitiesTable();
 	#ifdef LIBXML_TREE_ENABLED
-		XMLPUBFUN xmlEntitiesTablePtr XMLCALL xmlCopyEntitiesTable(const xmlEntitiesTablePtr table);
+		XMLPUBFUN xmlEntitiesTablePtr xmlCopyEntitiesTable(const xmlEntitiesTablePtr table);
 	#endif /* LIBXML_TREE_ENABLED */
-	XMLPUBFUN void XMLCALL  xmlFreeEntitiesTable(xmlEntitiesTablePtr table);
+	XMLPUBFUN void  xmlFreeEntitiesTable(xmlEntitiesTablePtr table);
 	#ifdef LIBXML_OUTPUT_ENABLED
-		XMLPUBFUN void XMLCALL  xmlDumpEntitiesTable(xmlBuffer * buf, xmlEntitiesTablePtr table);
-		XMLPUBFUN void XMLCALL  xmlDumpEntityDecl(xmlBuffer * buf, xmlEntity * ent);
+		XMLPUBFUN void  xmlDumpEntitiesTable(xmlBuffer * buf, xmlEntitiesTablePtr table);
+		XMLPUBFUN void  xmlDumpEntityDecl(xmlBuffer * buf, xmlEntity * ent);
 	#endif /* LIBXML_OUTPUT_ENABLED */
 	#ifdef LIBXML_LEGACY_ENABLED
-		XMLPUBFUN void XMLCALL  xmlCleanupPredefinedEntities();
+		XMLPUBFUN void  xmlCleanupPredefinedEntities();
 	#endif /* LIBXML_LEGACY_ENABLED */
 	//
 	//#include <libxml/parserInternals.h>
@@ -625,122 +625,122 @@ int xmlNop(void);
 	// 
 	// Function to finish the work of the macros where needed.
 	// 
-	XMLPUBFUN int XMLCALL xmlIsLetter(int c);
+	XMLPUBFUN int xmlIsLetter(int c);
 	// 
 	// Parser context.
 	// 
-	XMLPUBFUN xmlParserCtxt * XMLCALL xmlCreateFileParserCtxt(const char * filename);
-	XMLPUBFUN xmlParserCtxt * XMLCALL xmlCreateURLParserCtxt(const char * filename, int options);
-	XMLPUBFUN xmlParserCtxt * XMLCALL xmlCreateMemoryParserCtxt(const char * buffer, int size);
-	XMLPUBFUN xmlParserCtxt * XMLCALL xmlCreateEntityParserCtxt(const xmlChar * URL, const xmlChar * ID, const xmlChar * base);
-	XMLPUBFUN int XMLCALL xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc);
-	XMLPUBFUN int XMLCALL xmlSwitchToEncoding(xmlParserCtxt * ctxt, xmlCharEncodingHandler * handler);
-	XMLPUBFUN int XMLCALL xmlSwitchInputEncoding(xmlParserCtxt * ctxt, xmlParserInput * input, xmlCharEncodingHandler * handler);
+	XMLPUBFUN xmlParserCtxt * xmlCreateFileParserCtxt(const char * filename);
+	XMLPUBFUN xmlParserCtxt * xmlCreateURLParserCtxt(const char * filename, int options);
+	XMLPUBFUN xmlParserCtxt * xmlCreateMemoryParserCtxt(const char * buffer, int size);
+	XMLPUBFUN xmlParserCtxt * xmlCreateEntityParserCtxt(const xmlChar * URL, const xmlChar * ID, const xmlChar * base);
+	XMLPUBFUN int xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc);
+	XMLPUBFUN int xmlSwitchToEncoding(xmlParserCtxt * ctxt, xmlCharEncodingHandler * handler);
+	XMLPUBFUN int xmlSwitchInputEncoding(xmlParserCtxt * ctxt, xmlParserInput * input, xmlCharEncodingHandler * handler);
 	#ifdef IN_LIBXML
 		// internal error reporting 
-		XMLPUBFUN void /*XMLCALL*/FASTCALL __xmlErrEncoding(xmlParserCtxt * ctxt, xmlParserErrors xmlerr, const char * msg, const xmlChar * str1, const xmlChar * str2);
+		XMLPUBFUN void FASTCALL __xmlErrEncoding(xmlParserCtxt * ctxt, xmlParserErrors xmlerr, const char * msg, const xmlChar * str1, const xmlChar * str2);
 	#endif
 	// 
 	// Input Streams.
 	// 
-	XMLPUBFUN xmlParserInput * XMLCALL xmlNewStringInputStream(xmlParserCtxt * ctxt, const xmlChar * buffer);
-	XMLPUBFUN xmlParserInput * XMLCALL xmlNewEntityInputStream(xmlParserCtxt * ctxt, xmlEntity * entity);
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlPushInput(xmlParserCtxt * ctxt, xmlParserInput * input);
-	XMLPUBFUN xmlChar /*XMLCALL*/FASTCALL xmlPopInput(xmlParserCtxt * ctxt);
-	XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeInputStream(xmlParserInput * input);
-	XMLPUBFUN xmlParserInput * XMLCALL xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filename);
-	XMLPUBFUN xmlParserInput * XMLCALL xmlNewInputStream(xmlParserCtxt * ctxt);
+	XMLPUBFUN xmlParserInput * xmlNewStringInputStream(xmlParserCtxt * ctxt, const xmlChar * buffer);
+	XMLPUBFUN xmlParserInput * xmlNewEntityInputStream(xmlParserCtxt * ctxt, xmlEntity * entity);
+	XMLPUBFUN int FASTCALL xmlPushInput(xmlParserCtxt * ctxt, xmlParserInput * input);
+	XMLPUBFUN xmlChar FASTCALL xmlPopInput(xmlParserCtxt * ctxt);
+	XMLPUBFUN void FASTCALL xmlFreeInputStream(xmlParserInput * input);
+	XMLPUBFUN xmlParserInput * xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filename);
+	XMLPUBFUN xmlParserInput * xmlNewInputStream(xmlParserCtxt * ctxt);
 	// 
 	// Namespaces.
 	// 
-	XMLPUBFUN xmlChar * XMLCALL xmlSplitQName(xmlParserCtxt * ctxt, const xmlChar * name, xmlChar ** prefix);
+	XMLPUBFUN xmlChar * xmlSplitQName(xmlParserCtxt * ctxt, const xmlChar * name, xmlChar ** prefix);
 	// 
 	// Generic production rules.
 	// 
-	XMLPUBFUN const xmlChar * /*XMLCALL*/FASTCALL xmlParseName(xmlParserCtxt * ctxt);
-	XMLPUBFUN xmlChar * XMLCALL xmlParseNmtoken(xmlParserCtxt * ctxt);
-	XMLPUBFUN xmlChar * XMLCALL xmlParseEntityValue(xmlParserCtxt * ctxt, xmlChar ** orig);
-	XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlParseAttValue(xmlParserCtxt * ctxt);
-	XMLPUBFUN xmlChar * XMLCALL xmlParseSystemLiteral(xmlParserCtxt * ctxt);
-	XMLPUBFUN xmlChar * XMLCALL xmlParsePubidLiteral(xmlParserCtxt * ctxt);
-	XMLPUBFUN void /*XMLCALL*/FASTCALL xmlParseCharData(xmlParserCtxt * ctxt, int cdata);
-	XMLPUBFUN xmlChar * XMLCALL xmlParseExternalID(xmlParserCtxt * ctxt, xmlChar ** publicID, int strict);
-	XMLPUBFUN void XMLCALL xmlParseComment(xmlParserCtxt * ctxt);
-	XMLPUBFUN const xmlChar * XMLCALL xmlParsePITarget(xmlParserCtxt * ctxt);
-	XMLPUBFUN void XMLCALL xmlParsePI(xmlParserCtxt * ctxt);
-	XMLPUBFUN void XMLCALL xmlParseNotationDecl(xmlParserCtxt * ctxt);
-	XMLPUBFUN void XMLCALL xmlParseEntityDecl(xmlParserCtxt * ctxt);
-	XMLPUBFUN int XMLCALL xmlParseDefaultDecl(xmlParserCtxt * ctxt, xmlChar ** value);
-	XMLPUBFUN xmlEnumeration * XMLCALL xmlParseNotationType(xmlParserCtxt * ctxt);
-	XMLPUBFUN xmlEnumeration * XMLCALL xmlParseEnumerationType(xmlParserCtxt * ctxt);
-	XMLPUBFUN int XMLCALL xmlParseEnumeratedType(xmlParserCtxt * ctxt, xmlEnumeration ** tree);
-	XMLPUBFUN int XMLCALL xmlParseAttributeType(xmlParserCtxt * ctxt, xmlEnumeration ** tree);
-	XMLPUBFUN void XMLCALL xmlParseAttributeListDecl(xmlParserCtxt * ctxt);
-	XMLPUBFUN xmlElementContent * XMLCALL xmlParseElementMixedContentDecl(xmlParserCtxt * ctxt, int inputchk);
-	XMLPUBFUN xmlElementContent * XMLCALL xmlParseElementChildrenContentDecl(xmlParserCtxt * ctxt, int inputchk);
-	XMLPUBFUN int XMLCALL xmlParseElementContentDecl(xmlParserCtxt * ctxt, const xmlChar * name, xmlElementContent ** result);
-	XMLPUBFUN int XMLCALL xmlParseElementDecl(xmlParserCtxt * ctxt);
-	XMLPUBFUN void XMLCALL xmlParseMarkupDecl(xmlParserCtxt * ctxt);
-	XMLPUBFUN int XMLCALL xmlParseCharRef(xmlParserCtxt * ctxt);
-	XMLPUBFUN xmlEntity * XMLCALL xmlParseEntityRef(xmlParserCtxt * ctxt);
-	XMLPUBFUN void XMLCALL xmlParseReference(xmlParserCtxt * ctxt);
-	XMLPUBFUN void XMLCALL xmlParsePEReference(xmlParserCtxt * ctxt);
-	XMLPUBFUN void XMLCALL xmlParseDocTypeDecl(xmlParserCtxt * ctxt);
+	XMLPUBFUN const xmlChar * FASTCALL xmlParseName(xmlParserCtxt * ctxt);
+	XMLPUBFUN xmlChar * xmlParseNmtoken(xmlParserCtxt * ctxt);
+	XMLPUBFUN xmlChar * xmlParseEntityValue(xmlParserCtxt * ctxt, xmlChar ** orig);
+	XMLPUBFUN xmlChar * FASTCALL xmlParseAttValue(xmlParserCtxt * ctxt);
+	XMLPUBFUN xmlChar * xmlParseSystemLiteral(xmlParserCtxt * ctxt);
+	XMLPUBFUN xmlChar * xmlParsePubidLiteral(xmlParserCtxt * ctxt);
+	XMLPUBFUN void FASTCALL xmlParseCharData(xmlParserCtxt * ctxt, int cdata);
+	XMLPUBFUN xmlChar * xmlParseExternalID(xmlParserCtxt * ctxt, xmlChar ** publicID, int strict);
+	XMLPUBFUN void xmlParseComment(xmlParserCtxt * ctxt);
+	XMLPUBFUN const xmlChar * xmlParsePITarget(xmlParserCtxt * ctxt);
+	XMLPUBFUN void xmlParsePI(xmlParserCtxt * ctxt);
+	XMLPUBFUN void xmlParseNotationDecl(xmlParserCtxt * ctxt);
+	XMLPUBFUN void xmlParseEntityDecl(xmlParserCtxt * ctxt);
+	XMLPUBFUN int xmlParseDefaultDecl(xmlParserCtxt * ctxt, xmlChar ** value);
+	XMLPUBFUN xmlEnumeration * xmlParseNotationType(xmlParserCtxt * ctxt);
+	XMLPUBFUN xmlEnumeration * xmlParseEnumerationType(xmlParserCtxt * ctxt);
+	XMLPUBFUN int xmlParseEnumeratedType(xmlParserCtxt * ctxt, xmlEnumeration ** tree);
+	XMLPUBFUN int xmlParseAttributeType(xmlParserCtxt * ctxt, xmlEnumeration ** tree);
+	XMLPUBFUN void xmlParseAttributeListDecl(xmlParserCtxt * ctxt);
+	XMLPUBFUN xmlElementContent * xmlParseElementMixedContentDecl(xmlParserCtxt * ctxt, int inputchk);
+	XMLPUBFUN xmlElementContent * xmlParseElementChildrenContentDecl(xmlParserCtxt * ctxt, int inputchk);
+	XMLPUBFUN int xmlParseElementContentDecl(xmlParserCtxt * ctxt, const xmlChar * name, xmlElementContent ** result);
+	XMLPUBFUN int xmlParseElementDecl(xmlParserCtxt * ctxt);
+	XMLPUBFUN void xmlParseMarkupDecl(xmlParserCtxt * ctxt);
+	XMLPUBFUN int xmlParseCharRef(xmlParserCtxt * ctxt);
+	XMLPUBFUN xmlEntity * xmlParseEntityRef(xmlParserCtxt * ctxt);
+	XMLPUBFUN void xmlParseReference(xmlParserCtxt * ctxt);
+	XMLPUBFUN void xmlParsePEReference(xmlParserCtxt * ctxt);
+	XMLPUBFUN void xmlParseDocTypeDecl(xmlParserCtxt * ctxt);
 	#ifdef LIBXML_SAX1_ENABLED
-		XMLPUBFUN const xmlChar * /*XMLCALL*/FASTCALL xmlParseAttribute(xmlParserCtxt * ctxt, xmlChar ** value);
-		XMLPUBFUN const xmlChar * XMLCALL xmlParseStartTag(xmlParserCtxt * ctxt);
-		XMLPUBFUN void XMLCALL xmlParseEndTag(xmlParserCtxt * ctxt);
+		XMLPUBFUN const xmlChar * FASTCALL xmlParseAttribute(xmlParserCtxt * ctxt, xmlChar ** value);
+		XMLPUBFUN const xmlChar * xmlParseStartTag(xmlParserCtxt * ctxt);
+		XMLPUBFUN void xmlParseEndTag(xmlParserCtxt * ctxt);
 	#endif /* LIBXML_SAX1_ENABLED */
-	XMLPUBFUN void XMLCALL xmlParseCDSect(xmlParserCtxt * ctxt);
-	XMLPUBFUN void /*XMLCALL*/FASTCALL xmlParseContent(xmlParserCtxt * ctxt);
-	XMLPUBFUN void /*XMLCALL*/FASTCALL xmlParseElement(xmlParserCtxt * ctxt);
-	XMLPUBFUN xmlChar * XMLCALL xmlParseVersionNum(xmlParserCtxt * ctxt);
-	XMLPUBFUN xmlChar * XMLCALL xmlParseVersionInfo(xmlParserCtxt * ctxt);
-	XMLPUBFUN xmlChar * XMLCALL xmlParseEncName(xmlParserCtxt * ctxt);
-	XMLPUBFUN const xmlChar * XMLCALL xmlParseEncodingDecl(xmlParserCtxt * ctxt);
-	XMLPUBFUN int XMLCALL xmlParseSDDecl(xmlParserCtxt * ctxt);
-	XMLPUBFUN void XMLCALL xmlParseXMLDecl(xmlParserCtxt * ctxt);
-	XMLPUBFUN void XMLCALL xmlParseTextDecl(xmlParserCtxt * ctxt);
-	XMLPUBFUN void XMLCALL xmlParseMisc(xmlParserCtxt * ctxt);
-	XMLPUBFUN void XMLCALL xmlParseExternalSubset(xmlParserCtxt * ctxt, const xmlChar * ExternalID, const xmlChar * SystemID);
+	XMLPUBFUN void xmlParseCDSect(xmlParserCtxt * ctxt);
+	XMLPUBFUN void FASTCALL xmlParseContent(xmlParserCtxt * ctxt);
+	XMLPUBFUN void FASTCALL xmlParseElement(xmlParserCtxt * ctxt);
+	XMLPUBFUN xmlChar * xmlParseVersionNum(xmlParserCtxt * ctxt);
+	XMLPUBFUN xmlChar * xmlParseVersionInfo(xmlParserCtxt * ctxt);
+	XMLPUBFUN xmlChar * xmlParseEncName(xmlParserCtxt * ctxt);
+	XMLPUBFUN const xmlChar * xmlParseEncodingDecl(xmlParserCtxt * ctxt);
+	XMLPUBFUN int xmlParseSDDecl(xmlParserCtxt * ctxt);
+	XMLPUBFUN void xmlParseXMLDecl(xmlParserCtxt * ctxt);
+	XMLPUBFUN void xmlParseTextDecl(xmlParserCtxt * ctxt);
+	XMLPUBFUN void xmlParseMisc(xmlParserCtxt * ctxt);
+	XMLPUBFUN void xmlParseExternalSubset(xmlParserCtxt * ctxt, const xmlChar * ExternalID, const xmlChar * SystemID);
 
 	#define XML_SUBSTITUTE_NONE     0 // If no entities need to be substituted.
 	#define XML_SUBSTITUTE_REF      1 // Whether general entities need to be substituted.
 	#define XML_SUBSTITUTE_PEREF    2 // Whether parameter entities need to be substituted.
 	#define XML_SUBSTITUTE_BOTH     3 // Both general and parameter entities need to be substituted.
 
-	XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlStringDecodeEntities(xmlParserCtxt * ctxt, const xmlChar * str, int what, xmlChar end, xmlChar end2, xmlChar end3);
-	XMLPUBFUN xmlChar * XMLCALL xmlStringLenDecodeEntities(xmlParserCtxt * ctxt, const xmlChar * str, int len, int what, xmlChar end, xmlChar end2, xmlChar end3);
+	XMLPUBFUN xmlChar * FASTCALL xmlStringDecodeEntities(xmlParserCtxt * ctxt, const xmlChar * str, int what, xmlChar end, xmlChar end2, xmlChar end3);
+	XMLPUBFUN xmlChar * xmlStringLenDecodeEntities(xmlParserCtxt * ctxt, const xmlChar * str, int len, int what, xmlChar end, xmlChar end2, xmlChar end3);
 	// 
 	// Generated by MACROS on top of parser.c c.f. PUSH_AND_POP.
 	// 
-	XMLPUBFUN int XMLCALL nodePush(xmlParserCtxt * ctxt, xmlNode * value);
-	XMLPUBFUN xmlNode * XMLCALL nodePop(xmlParserCtxt * ctxt);
-	XMLPUBFUN int /*XMLCALL*/FASTCALL inputPush(xmlParserCtxt * ctxt, xmlParserInput * value);
-	XMLPUBFUN xmlParserInput * XMLCALL inputPop(xmlParserCtxt * ctxt);
-	XMLPUBFUN const xmlChar * XMLCALL namePop(xmlParserCtxt * ctxt);
-	XMLPUBFUN int XMLCALL namePush(xmlParserCtxt * ctxt, const xmlChar * value);
+	XMLPUBFUN int nodePush(xmlParserCtxt * ctxt, xmlNode * value);
+	XMLPUBFUN xmlNode * nodePop(xmlParserCtxt * ctxt);
+	XMLPUBFUN int FASTCALL inputPush(xmlParserCtxt * ctxt, xmlParserInput * value);
+	XMLPUBFUN xmlParserInput * inputPop(xmlParserCtxt * ctxt);
+	XMLPUBFUN const xmlChar * namePop(xmlParserCtxt * ctxt);
+	XMLPUBFUN int namePush(xmlParserCtxt * ctxt, const xmlChar * value);
 	// 
 	// other commodities shared between parser.c and parserInternals.
 	// 
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlSkipBlankChars(xmlParserCtxt * ctxt);
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlStringCurrentChar(xmlParserCtxt * ctxt, const xmlChar * cur, int * len);
-	XMLPUBFUN void /*XMLCALL*/FASTCALL xmlParserHandlePEReference(xmlParserCtxt * ctxt);
-	XMLPUBFUN int XMLCALL xmlCheckLanguageID(const xmlChar * lang);
+	XMLPUBFUN int FASTCALL xmlSkipBlankChars(xmlParserCtxt * ctxt);
+	XMLPUBFUN int FASTCALL xmlStringCurrentChar(xmlParserCtxt * ctxt, const xmlChar * cur, int * len);
+	XMLPUBFUN void FASTCALL xmlParserHandlePEReference(xmlParserCtxt * ctxt);
+	XMLPUBFUN int xmlCheckLanguageID(const xmlChar * lang);
 	// 
 	// Really core function shared with HTML parser.
 	// 
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlCurrentChar(xmlParserCtxt * ctxt, int * len);
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlCopyCharMultiByte(xmlChar * out, int val);
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlCopyChar(int len, xmlChar * out, int val);
-	XMLPUBFUN void /*XMLCALL*/FASTCALL xmlNextChar(xmlParserCtxt * ctxt);
-	XMLPUBFUN void /*XMLCALL*/FASTCALL xmlParserInputShrink(xmlParserInput * in);
+	XMLPUBFUN int FASTCALL xmlCurrentChar(xmlParserCtxt * ctxt, int * len);
+	XMLPUBFUN int FASTCALL xmlCopyCharMultiByte(xmlChar * out, int val);
+	XMLPUBFUN int FASTCALL xmlCopyChar(int len, xmlChar * out, int val);
+	XMLPUBFUN void FASTCALL xmlNextChar(xmlParserCtxt * ctxt);
+	XMLPUBFUN void FASTCALL xmlParserInputShrink(xmlParserInput * in);
 	#ifdef LIBXML_HTML_ENABLED
 		// 
 		// Actually comes from the HTML parser but launched from the init stuff.
 		// 
-		XMLPUBFUN void XMLCALL htmlInitAutoClose();
-		XMLPUBFUN htmlParserCtxt * XMLCALL htmlCreateFileParserCtxt(const char * filename, const char * encoding);
+		XMLPUBFUN void htmlInitAutoClose();
+		XMLPUBFUN htmlParserCtxt * htmlCreateFileParserCtxt(const char * filename, const char * encoding);
 	#endif
 	// 
 	// Specific function to keep track of entities references and used by the XSLT debugger.
@@ -755,47 +755,47 @@ int xmlNop(void);
 		// provenance of a chunk of nodes inherited from an entity replacement.
 		// 
 		typedef void (*xmlEntityReferenceFunc)(xmlEntity * ent, xmlNode * firstNode, xmlNode * lastNode);
-		XMLPUBFUN void XMLCALL xmlSetEntityReferenceFunc(xmlEntityReferenceFunc func);
-		XMLPUBFUN xmlChar * XMLCALL xmlParseQuotedString(xmlParserCtxt * ctxt);
-		XMLPUBFUN void XMLCALL xmlParseNamespace(xmlParserCtxt * ctxt);
-		XMLPUBFUN xmlChar * XMLCALL xmlNamespaceParseNSDef(xmlParserCtxt * ctxt);
-		XMLPUBFUN xmlChar * XMLCALL xmlScanName(xmlParserCtxt * ctxt);
-		XMLPUBFUN xmlChar * XMLCALL xmlNamespaceParseNCName(xmlParserCtxt * ctxt);
-		XMLPUBFUN void XMLCALL xmlParserHandleReference(xmlParserCtxt * ctxt);
-		XMLPUBFUN xmlChar * XMLCALL xmlNamespaceParseQName(xmlParserCtxt * ctxt, xmlChar ** prefix);
+		XMLPUBFUN void xmlSetEntityReferenceFunc(xmlEntityReferenceFunc func);
+		XMLPUBFUN xmlChar * xmlParseQuotedString(xmlParserCtxt * ctxt);
+		XMLPUBFUN void xmlParseNamespace(xmlParserCtxt * ctxt);
+		XMLPUBFUN xmlChar * xmlNamespaceParseNSDef(xmlParserCtxt * ctxt);
+		XMLPUBFUN xmlChar * xmlScanName(xmlParserCtxt * ctxt);
+		XMLPUBFUN xmlChar * xmlNamespaceParseNCName(xmlParserCtxt * ctxt);
+		XMLPUBFUN void xmlParserHandleReference(xmlParserCtxt * ctxt);
+		XMLPUBFUN xmlChar * xmlNamespaceParseQName(xmlParserCtxt * ctxt, xmlChar ** prefix);
 		// 
 		// Entities
 		// 
-		XMLPUBFUN xmlChar * XMLCALL xmlDecodeEntities(xmlParserCtxt * ctxt, int len, int what, xmlChar end, xmlChar end2, xmlChar end3);
-		XMLPUBFUN void XMLCALL xmlHandleEntity(xmlParserCtxt * ctxt, xmlEntity * entity);
+		XMLPUBFUN xmlChar * xmlDecodeEntities(xmlParserCtxt * ctxt, int len, int what, xmlChar end, xmlChar end2, xmlChar end3);
+		XMLPUBFUN void xmlHandleEntity(xmlParserCtxt * ctxt, xmlEntity * entity);
 	#endif /* LIBXML_LEGACY_ENABLED */
 	#ifdef IN_LIBXML
 		// 
 		// internal only
 		// 
-		XMLPUBFUN void /*XMLCALL*/FASTCALL xmlErrMemory(xmlParserCtxt * ctxt, const char * extra);
+		XMLPUBFUN void FASTCALL xmlErrMemory(xmlParserCtxt * ctxt, const char * extra);
 	#endif
 	//
-	XMLPUBFUN xmlMutex * XMLCALL xmlNewMutex();
-	XMLPUBFUN void /*XMLCALL*/FASTCALL xmlMutexLock(xmlMutex * tok);
-	XMLPUBFUN void /*XMLCALL*/FASTCALL xmlMutexUnlock(xmlMutex * tok);
-	XMLPUBFUN void XMLCALL xmlFreeMutex(xmlMutex * tok);
-	XMLPUBFUN xmlRMutex * XMLCALL xmlNewRMutex();
-	XMLPUBFUN void /*XMLCALL*/FASTCALL xmlRMutexLock(xmlRMutex * tok);
-	XMLPUBFUN void /*XMLCALL*/FASTCALL xmlRMutexUnlock(xmlRMutex * tok);
-	XMLPUBFUN void XMLCALL xmlFreeRMutex(xmlRMutex * tok);
+	XMLPUBFUN xmlMutex * xmlNewMutex();
+	XMLPUBFUN void FASTCALL xmlMutexLock(xmlMutex * tok);
+	XMLPUBFUN void FASTCALL xmlMutexUnlock(xmlMutex * tok);
+	XMLPUBFUN void xmlFreeMutex(xmlMutex * tok);
+	XMLPUBFUN xmlRMutex * xmlNewRMutex();
+	XMLPUBFUN void FASTCALL xmlRMutexLock(xmlRMutex * tok);
+	XMLPUBFUN void FASTCALL xmlRMutexUnlock(xmlRMutex * tok);
+	XMLPUBFUN void xmlFreeRMutex(xmlRMutex * tok);
 	// 
 	// Library wide APIs.
 	// 
-	XMLPUBFUN void XMLCALL xmlInitThreads();
-	XMLPUBFUN void XMLCALL xmlLockLibrary();
-	XMLPUBFUN void XMLCALL xmlUnlockLibrary();
-	XMLPUBFUN int XMLCALL xmlGetThreadId();
-	XMLPUBFUN int XMLCALL xmlIsMainThread();
-	XMLPUBFUN void XMLCALL xmlCleanupThreads();
-	XMLPUBFUN xmlGlobalState * XMLCALL xmlGetGlobalState();
+	XMLPUBFUN void xmlInitThreads();
+	XMLPUBFUN void xmlLockLibrary();
+	XMLPUBFUN void xmlUnlockLibrary();
+	XMLPUBFUN int xmlGetThreadId();
+	XMLPUBFUN int xmlIsMainThread();
+	XMLPUBFUN void xmlCleanupThreads();
+	XMLPUBFUN xmlGlobalState * xmlGetGlobalState();
 	#if defined(HAVE_WIN32_THREADS) && !defined(HAVE_COMPILER_TLS) && defined(LIBXML_STATIC_FOR_DLL)
-		int XMLCALL xmlDllMain(void *hinstDLL, unsigned long fdwReason, void *lpvReserved);
+		int xmlDllMain(void *hinstDLL, unsigned long fdwReason, void *lpvReserved);
 	#endif
 	#ifdef LIBXML_XPTR_ENABLED
 		/**
@@ -907,17 +907,17 @@ int xmlNop(void);
 		// 
 		// The default detection routine, can be overridden, they call the default detection callbacks.
 		// 
-		XMLPUBFUN xlinkNodeDetectFunc XMLCALL xlinkGetDefaultDetect();
-		XMLPUBFUN void XMLCALL xlinkSetDefaultDetect(xlinkNodeDetectFunc func);
+		XMLPUBFUN xlinkNodeDetectFunc xlinkGetDefaultDetect();
+		XMLPUBFUN void xlinkSetDefaultDetect(xlinkNodeDetectFunc func);
 		// 
 		// Routines to set/get the default handlers.
 		// 
-		XMLPUBFUN xlinkHandlerPtr XMLCALL xlinkGetDefaultHandler();
-		XMLPUBFUN void XMLCALL xlinkSetDefaultHandler(xlinkHandlerPtr handler);
+		XMLPUBFUN xlinkHandlerPtr xlinkGetDefaultHandler();
+		XMLPUBFUN void xlinkSetDefaultHandler(xlinkHandlerPtr handler);
 		// 
 		// Link detection module itself.
 		// 
-		XMLPUBFUN xlinkType XMLCALL xlinkIsLink(xmlDoc * doc, xmlNode * pNode);
+		XMLPUBFUN xlinkType xlinkIsLink(xmlDoc * doc, xmlNode * pNode);
 	#endif
 
 	#ifdef __cplusplus
@@ -929,47 +929,47 @@ int xmlNop(void);
 		#ifdef __cplusplus
 		extern "C" {
 		#endif
-			XMLPUBFUN const xmlChar * XMLCALL getPublicId(void *ctx);
-			XMLPUBFUN const xmlChar * XMLCALL getSystemId(void *ctx);
-			XMLPUBFUN void XMLCALL setDocumentLocator(void *ctx, xmlSAXLocator * loc);
-			XMLPUBFUN int XMLCALL getLineNumber(void *ctx);
-			XMLPUBFUN int XMLCALL getColumnNumber(void *ctx);
-			XMLPUBFUN int XMLCALL isStandalone(void *ctx);
-			XMLPUBFUN int XMLCALL hasInternalSubset(void *ctx);
-			XMLPUBFUN int XMLCALL hasExternalSubset(void *ctx);
-			XMLPUBFUN void XMLCALL internalSubset(void *ctx, const xmlChar *name, const xmlChar *ExternalID, const xmlChar *SystemID);
-			XMLPUBFUN void XMLCALL externalSubset(void *ctx, const xmlChar *name, const xmlChar *ExternalID, const xmlChar *SystemID);
-			XMLPUBFUN xmlEntity * XMLCALL getEntity(void *ctx, const xmlChar *name);
-			XMLPUBFUN xmlEntity * XMLCALL getParameterEntity(void *ctx, const xmlChar *name);
-			XMLPUBFUN xmlParserInput * XMLCALL resolveEntity(void *ctx, const xmlChar *publicId, const xmlChar *systemId);
-			XMLPUBFUN void XMLCALL entityDecl(void *ctx, const xmlChar *name, int type, const xmlChar *publicId, const xmlChar *systemId, xmlChar *content);
-			XMLPUBFUN void XMLCALL attributeDecl(void *ctx, const xmlChar *elem, const xmlChar *fullname, int type, int def, const xmlChar *defaultValue, xmlEnumeration * tree);
-			XMLPUBFUN void XMLCALL elementDecl(void *ctx, const xmlChar *name, int type, xmlElementContent * content);
-			XMLPUBFUN void XMLCALL notationDecl(void *ctx, const xmlChar *name, const xmlChar *publicId, const xmlChar *systemId);
-			XMLPUBFUN void XMLCALL unparsedEntityDecl(void *ctx, const xmlChar *name, const xmlChar *publicId, const xmlChar *systemId, const xmlChar *notationName);
-			XMLPUBFUN void XMLCALL startDocument(void *ctx);
-			XMLPUBFUN void XMLCALL endDocument(void *ctx);
-			XMLPUBFUN void XMLCALL attribute(void *ctx, const xmlChar *fullname, const xmlChar *value);
-			XMLPUBFUN void XMLCALL startElement(void *ctx, const xmlChar *fullname, const xmlChar **atts);
-			XMLPUBFUN void XMLCALL endElement(void *ctx, const xmlChar *name);
-			XMLPUBFUN void XMLCALL reference(void *ctx, const xmlChar *name);
-			XMLPUBFUN void XMLCALL characters(void *ctx, const xmlChar *ch, int len);
-			XMLPUBFUN void XMLCALL ignorableWhitespace(void *ctx, const xmlChar *ch, int len);
-			XMLPUBFUN void XMLCALL processingInstruction(void *ctx, const xmlChar *target, const xmlChar *data);
-			XMLPUBFUN void XMLCALL globalNamespace(void *ctx, const xmlChar *href, const xmlChar *prefix);
-			XMLPUBFUN void XMLCALL setNamespace(void *ctx, const xmlChar *name);
-			XMLPUBFUN xmlNs * XMLCALL getNamespace(void *ctx);
-			XMLPUBFUN int XMLCALL checkNamespace(void *ctx, xmlChar *nameSpace);
-			XMLPUBFUN void XMLCALL namespaceDecl(void *ctx, const xmlChar *href, const xmlChar *prefix);
-			XMLPUBFUN void XMLCALL comment(void *ctx, const xmlChar *value);
-			XMLPUBFUN void XMLCALL cdataBlock(void *ctx, const xmlChar *value, int len);
+			XMLPUBFUN const xmlChar * getPublicId(void *ctx);
+			XMLPUBFUN const xmlChar * getSystemId(void *ctx);
+			XMLPUBFUN void setDocumentLocator(void *ctx, xmlSAXLocator * loc);
+			XMLPUBFUN int getLineNumber(void *ctx);
+			XMLPUBFUN int getColumnNumber(void *ctx);
+			XMLPUBFUN int isStandalone(void *ctx);
+			XMLPUBFUN int hasInternalSubset(void *ctx);
+			XMLPUBFUN int hasExternalSubset(void *ctx);
+			XMLPUBFUN void internalSubset(void *ctx, const xmlChar *name, const xmlChar *ExternalID, const xmlChar *SystemID);
+			XMLPUBFUN void externalSubset(void *ctx, const xmlChar *name, const xmlChar *ExternalID, const xmlChar *SystemID);
+			XMLPUBFUN xmlEntity * getEntity(void *ctx, const xmlChar *name);
+			XMLPUBFUN xmlEntity * getParameterEntity(void *ctx, const xmlChar *name);
+			XMLPUBFUN xmlParserInput * resolveEntity(void *ctx, const xmlChar *publicId, const xmlChar *systemId);
+			XMLPUBFUN void entityDecl(void *ctx, const xmlChar *name, int type, const xmlChar *publicId, const xmlChar *systemId, xmlChar *content);
+			XMLPUBFUN void attributeDecl(void *ctx, const xmlChar *elem, const xmlChar *fullname, int type, int def, const xmlChar *defaultValue, xmlEnumeration * tree);
+			XMLPUBFUN void elementDecl(void *ctx, const xmlChar *name, int type, xmlElementContent * content);
+			XMLPUBFUN void notationDecl(void *ctx, const xmlChar *name, const xmlChar *publicId, const xmlChar *systemId);
+			XMLPUBFUN void unparsedEntityDecl(void *ctx, const xmlChar *name, const xmlChar *publicId, const xmlChar *systemId, const xmlChar *notationName);
+			XMLPUBFUN void startDocument(void *ctx);
+			XMLPUBFUN void endDocument(void *ctx);
+			XMLPUBFUN void attribute(void *ctx, const xmlChar *fullname, const xmlChar *value);
+			XMLPUBFUN void startElement(void *ctx, const xmlChar *fullname, const xmlChar **atts);
+			XMLPUBFUN void endElement(void *ctx, const xmlChar *name);
+			XMLPUBFUN void reference(void *ctx, const xmlChar *name);
+			XMLPUBFUN void characters(void *ctx, const xmlChar *ch, int len);
+			XMLPUBFUN void ignorableWhitespace(void *ctx, const xmlChar *ch, int len);
+			XMLPUBFUN void processingInstruction(void *ctx, const xmlChar *target, const xmlChar *data);
+			XMLPUBFUN void globalNamespace(void *ctx, const xmlChar *href, const xmlChar *prefix);
+			XMLPUBFUN void setNamespace(void *ctx, const xmlChar *name);
+			XMLPUBFUN xmlNs * getNamespace(void *ctx);
+			XMLPUBFUN int checkNamespace(void *ctx, xmlChar *nameSpace);
+			XMLPUBFUN void namespaceDecl(void *ctx, const xmlChar *href, const xmlChar *prefix);
+			XMLPUBFUN void comment(void *ctx, const xmlChar *value);
+			XMLPUBFUN void cdataBlock(void *ctx, const xmlChar *value, int len);
 			#ifdef LIBXML_SAX1_ENABLED
-				XMLPUBFUN void XMLCALL initxmlDefaultSAXHandler(xmlSAXHandlerV1 *hdlr, int warning);
+				XMLPUBFUN void initxmlDefaultSAXHandler(xmlSAXHandlerV1 *hdlr, int warning);
 				#ifdef LIBXML_HTML_ENABLED 
-					XMLPUBFUN void XMLCALL inithtmlDefaultSAXHandler(xmlSAXHandlerV1 *hdlr);
+					XMLPUBFUN void inithtmlDefaultSAXHandler(xmlSAXHandlerV1 *hdlr);
 				#endif
 				#ifdef LIBXML_DOCB_ENABLED
-					XMLPUBFUN void XMLCALL initdocbDefaultSAXHandler(xmlSAXHandlerV1 *hdlr);
+					XMLPUBFUN void initdocbDefaultSAXHandler(xmlSAXHandlerV1 *hdlr);
 				#endif
 			#endif /* LIBXML_SAX1_ENABLED */
 		#ifdef __cplusplus
@@ -980,53 +980,53 @@ int xmlNop(void);
 	#ifdef __cplusplus
 	extern "C" {
 	#endif
-		XMLPUBFUN const xmlChar * XMLCALL xmlSAX2GetPublicId(void * ctx);
-		XMLPUBFUN const xmlChar * XMLCALL xmlSAX2GetSystemId(void * ctx);
-		XMLPUBFUN void XMLCALL xmlSAX2SetDocumentLocator(void * ctx, xmlSAXLocator * loc);
-		XMLPUBFUN int XMLCALL xmlSAX2GetLineNumber(void * ctx);
-		XMLPUBFUN int XMLCALL xmlSAX2GetColumnNumber(void * ctx);
-		XMLPUBFUN int XMLCALL xmlSAX2IsStandalone(void * ctx);
-		XMLPUBFUN int XMLCALL xmlSAX2HasInternalSubset(void * ctx);
-		XMLPUBFUN int XMLCALL xmlSAX2HasExternalSubset(void * ctx);
-		XMLPUBFUN void XMLCALL xmlSAX2InternalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
-		XMLPUBFUN void XMLCALL xmlSAX2ExternalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
-		XMLPUBFUN xmlEntity * XMLCALL xmlSAX2GetEntity(void * ctx, const xmlChar * name);
-		XMLPUBFUN xmlEntity * XMLCALL xmlSAX2GetParameterEntity(void * ctx, const xmlChar * name);
-		XMLPUBFUN xmlParserInput * XMLCALL xmlSAX2ResolveEntity(void * ctx, const xmlChar * publicId, const xmlChar * systemId);
-		XMLPUBFUN void XMLCALL xmlSAX2EntityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content);
-		XMLPUBFUN void XMLCALL xmlSAX2AttributeDecl(void * ctx, const xmlChar * elem, const xmlChar * fullname, int type, int def, const xmlChar * defaultValue, xmlEnumeration * tree);
-		XMLPUBFUN void XMLCALL xmlSAX2ElementDecl(void * ctx, const xmlChar * name, int type, xmlElementContent * content);
-		XMLPUBFUN void XMLCALL xmlSAX2NotationDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId);
-		XMLPUBFUN void XMLCALL xmlSAX2UnparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId, const xmlChar * notationName);
-		XMLPUBFUN void XMLCALL xmlSAX2StartDocument(void * ctx);
-		XMLPUBFUN void XMLCALL xmlSAX2EndDocument(void * ctx);
+		XMLPUBFUN const xmlChar * xmlSAX2GetPublicId(void * ctx);
+		XMLPUBFUN const xmlChar * xmlSAX2GetSystemId(void * ctx);
+		XMLPUBFUN void xmlSAX2SetDocumentLocator(void * ctx, xmlSAXLocator * loc);
+		XMLPUBFUN int xmlSAX2GetLineNumber(void * ctx);
+		XMLPUBFUN int xmlSAX2GetColumnNumber(void * ctx);
+		XMLPUBFUN int xmlSAX2IsStandalone(void * ctx);
+		XMLPUBFUN int xmlSAX2HasInternalSubset(void * ctx);
+		XMLPUBFUN int xmlSAX2HasExternalSubset(void * ctx);
+		XMLPUBFUN void xmlSAX2InternalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
+		XMLPUBFUN void xmlSAX2ExternalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
+		XMLPUBFUN xmlEntity * xmlSAX2GetEntity(void * ctx, const xmlChar * name);
+		XMLPUBFUN xmlEntity * xmlSAX2GetParameterEntity(void * ctx, const xmlChar * name);
+		XMLPUBFUN xmlParserInput * xmlSAX2ResolveEntity(void * ctx, const xmlChar * publicId, const xmlChar * systemId);
+		XMLPUBFUN void xmlSAX2EntityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content);
+		XMLPUBFUN void xmlSAX2AttributeDecl(void * ctx, const xmlChar * elem, const xmlChar * fullname, int type, int def, const xmlChar * defaultValue, xmlEnumeration * tree);
+		XMLPUBFUN void xmlSAX2ElementDecl(void * ctx, const xmlChar * name, int type, xmlElementContent * content);
+		XMLPUBFUN void xmlSAX2NotationDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId);
+		XMLPUBFUN void xmlSAX2UnparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId, const xmlChar * notationName);
+		XMLPUBFUN void xmlSAX2StartDocument(void * ctx);
+		XMLPUBFUN void xmlSAX2EndDocument(void * ctx);
 		#if defined(LIBXML_SAX1_ENABLED) || defined(LIBXML_HTML_ENABLED) || defined(LIBXML_WRITER_ENABLED) || defined(LIBXML_DOCB_ENABLED) || defined(LIBXML_LEGACY_ENABLED)
-			XMLPUBFUN void XMLCALL xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** atts);
-			XMLPUBFUN void XMLCALL xmlSAX2EndElement(void * ctx, const xmlChar * name);
+			XMLPUBFUN void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** atts);
+			XMLPUBFUN void xmlSAX2EndElement(void * ctx, const xmlChar * name);
 		#endif
-		XMLPUBFUN void XMLCALL xmlSAX2StartElementNs(void * ctx, const xmlChar * localname, const xmlChar * prefix,
+		XMLPUBFUN void xmlSAX2StartElementNs(void * ctx, const xmlChar * localname, const xmlChar * prefix,
 			const xmlChar * URI, int nb_namespaces, const xmlChar ** namespaces, int nb_attributes, int nb_defaulted, const xmlChar ** attributes);
-		XMLPUBFUN void XMLCALL xmlSAX2EndElementNs(void * ctx, const xmlChar * localname, const xmlChar * prefix, const xmlChar * URI);
-		XMLPUBFUN void XMLCALL xmlSAX2Reference(void * ctx, const xmlChar * name);
-		XMLPUBFUN void XMLCALL xmlSAX2Characters(void * ctx, const xmlChar * ch, int len);
-		XMLPUBFUN void XMLCALL xmlSAX2IgnorableWhitespace(void * ctx, const xmlChar * ch, int len);
-		XMLPUBFUN void XMLCALL xmlSAX2ProcessingInstruction(void * ctx, const xmlChar * target, const xmlChar * data);
-		XMLPUBFUN void XMLCALL xmlSAX2Comment(void * ctx, const xmlChar * value);
-		XMLPUBFUN void XMLCALL xmlSAX2CDataBlock(void * ctx, const xmlChar * value, int len);
+		XMLPUBFUN void xmlSAX2EndElementNs(void * ctx, const xmlChar * localname, const xmlChar * prefix, const xmlChar * URI);
+		XMLPUBFUN void xmlSAX2Reference(void * ctx, const xmlChar * name);
+		XMLPUBFUN void xmlSAX2Characters(void * ctx, const xmlChar * ch, int len);
+		XMLPUBFUN void xmlSAX2IgnorableWhitespace(void * ctx, const xmlChar * ch, int len);
+		XMLPUBFUN void xmlSAX2ProcessingInstruction(void * ctx, const xmlChar * target, const xmlChar * data);
+		XMLPUBFUN void xmlSAX2Comment(void * ctx, const xmlChar * value);
+		XMLPUBFUN void xmlSAX2CDataBlock(void * ctx, const xmlChar * value, int len);
 		#ifdef LIBXML_SAX1_ENABLED
-			XMLPUBFUN int XMLCALL xmlSAXDefaultVersion(int version);
+			XMLPUBFUN int xmlSAXDefaultVersion(int version);
 		#endif
-		XMLPUBFUN int XMLCALL xmlSAXVersion(xmlSAXHandler * hdlr, int version);
-		XMLPUBFUN void XMLCALL xmlSAX2InitDefaultSAXHandler(xmlSAXHandler * hdlr, int warning);
+		XMLPUBFUN int xmlSAXVersion(xmlSAXHandler * hdlr, int version);
+		XMLPUBFUN void xmlSAX2InitDefaultSAXHandler(xmlSAXHandler * hdlr, int warning);
 		#ifdef LIBXML_HTML_ENABLED
-			XMLPUBFUN void XMLCALL xmlSAX2InitHtmlDefaultSAXHandler(xmlSAXHandler * hdlr);
-			XMLPUBFUN void XMLCALL htmlDefaultSAXHandlerInit();
+			XMLPUBFUN void xmlSAX2InitHtmlDefaultSAXHandler(xmlSAXHandler * hdlr);
+			XMLPUBFUN void htmlDefaultSAXHandlerInit();
 		#endif
 		#ifdef LIBXML_DOCB_ENABLED
-			XMLPUBFUN void XMLCALL xmlSAX2InitDocbDefaultSAXHandler(xmlSAXHandler * hdlr);
-			XMLPUBFUN void XMLCALL docbDefaultSAXHandlerInit();
+			XMLPUBFUN void xmlSAX2InitDocbDefaultSAXHandler(xmlSAXHandler * hdlr);
+			XMLPUBFUN void docbDefaultSAXHandlerInit();
 		#endif
-		XMLPUBFUN void XMLCALL xmlDefaultSAXHandlerInit();
+		XMLPUBFUN void xmlDefaultSAXHandlerInit();
 	#ifdef __cplusplus
 	}
 	#endif
@@ -1363,60 +1363,60 @@ int xmlNop(void);
 		 */
 		#define xmlXPathNodeSetIsEmpty(ns) (((ns) == NULL) || ((ns)->nodeNr == 0) || ((ns)->PP_NodeTab == NULL))
 
-		XMLPUBFUN void /*XMLCALL*/FASTCALL xmlXPathFreeObject(xmlXPathObject * obj);
-		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathNodeSetCreate(xmlNode * val);
-		XMLPUBFUN void XMLCALL xmlXPathFreeNodeSetList(xmlXPathObject * obj);
-		XMLPUBFUN void XMLCALL xmlXPathFreeNodeSet(xmlNodeSet * obj);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathObjectCopy(xmlXPathObject * val);
-		XMLPUBFUN int XMLCALL xmlXPathCmpNodes(xmlNode * node1, xmlNode * node2);
+		XMLPUBFUN void FASTCALL xmlXPathFreeObject(xmlXPathObject * obj);
+		XMLPUBFUN xmlNodeSet * xmlXPathNodeSetCreate(xmlNode * val);
+		XMLPUBFUN void xmlXPathFreeNodeSetList(xmlXPathObject * obj);
+		XMLPUBFUN void xmlXPathFreeNodeSet(xmlNodeSet * obj);
+		XMLPUBFUN xmlXPathObject * xmlXPathObjectCopy(xmlXPathObject * val);
+		XMLPUBFUN int xmlXPathCmpNodes(xmlNode * node1, xmlNode * node2);
 		// 
 		// Conversion functions to basic types.
 		// 
-		XMLPUBFUN int XMLCALL xmlXPathCastNumberToBoolean(double val);
-		XMLPUBFUN int XMLCALL xmlXPathCastStringToBoolean(const xmlChar * val);
-		XMLPUBFUN int XMLCALL xmlXPathCastNodeSetToBoolean(const xmlNodeSet * ns);
-		XMLPUBFUN int XMLCALL xmlXPathCastToBoolean	(xmlXPathObject * val);
-		XMLPUBFUN double XMLCALL xmlXPathCastBooleanToNumber(int val);
-		XMLPUBFUN double XMLCALL xmlXPathCastStringToNumber(const xmlChar * val);
-		XMLPUBFUN double XMLCALL xmlXPathCastNodeToNumber(xmlNode * pNode);
-		XMLPUBFUN double XMLCALL xmlXPathCastNodeSetToNumber(xmlNodeSet * ns);
-		XMLPUBFUN double XMLCALL xmlXPathCastToNumber(xmlXPathObject * val);
-		XMLPUBFUN xmlChar * XMLCALL xmlXPathCastBooleanToString(int val);
-		XMLPUBFUN xmlChar * XMLCALL xmlXPathCastNumberToString(double val);
-		XMLPUBFUN xmlChar * XMLCALL xmlXPathCastNodeToString(xmlNode * pNode);
-		XMLPUBFUN xmlChar * XMLCALL xmlXPathCastNodeSetToString(xmlNodeSet * ns);
-		XMLPUBFUN xmlChar * XMLCALL xmlXPathCastToString(xmlXPathObject * val);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathConvertBoolean(xmlXPathObject * val);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathConvertNumber(xmlXPathObject * val);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathConvertString(xmlXPathObject * val);
+		XMLPUBFUN int xmlXPathCastNumberToBoolean(double val);
+		XMLPUBFUN int xmlXPathCastStringToBoolean(const xmlChar * val);
+		XMLPUBFUN int xmlXPathCastNodeSetToBoolean(const xmlNodeSet * ns);
+		XMLPUBFUN int xmlXPathCastToBoolean	(xmlXPathObject * val);
+		XMLPUBFUN double xmlXPathCastBooleanToNumber(int val);
+		XMLPUBFUN double xmlXPathCastStringToNumber(const xmlChar * val);
+		XMLPUBFUN double xmlXPathCastNodeToNumber(xmlNode * pNode);
+		XMLPUBFUN double xmlXPathCastNodeSetToNumber(xmlNodeSet * ns);
+		XMLPUBFUN double xmlXPathCastToNumber(xmlXPathObject * val);
+		XMLPUBFUN xmlChar * xmlXPathCastBooleanToString(int val);
+		XMLPUBFUN xmlChar * xmlXPathCastNumberToString(double val);
+		XMLPUBFUN xmlChar * xmlXPathCastNodeToString(xmlNode * pNode);
+		XMLPUBFUN xmlChar * xmlXPathCastNodeSetToString(xmlNodeSet * ns);
+		XMLPUBFUN xmlChar * xmlXPathCastToString(xmlXPathObject * val);
+		XMLPUBFUN xmlXPathObject * xmlXPathConvertBoolean(xmlXPathObject * val);
+		XMLPUBFUN xmlXPathObject * xmlXPathConvertNumber(xmlXPathObject * val);
+		XMLPUBFUN xmlXPathObject * xmlXPathConvertString(xmlXPathObject * val);
 		// 
 		// Context handling.
 		// 
-		XMLPUBFUN xmlXPathContext * XMLCALL xmlXPathNewContext(xmlDoc * doc);
-		XMLPUBFUN void XMLCALL xmlXPathFreeContext(xmlXPathContext * ctxt);
-		XMLPUBFUN int XMLCALL xmlXPathContextSetCache(xmlXPathContext * ctxt, int active, int value, int options);
+		XMLPUBFUN xmlXPathContext * xmlXPathNewContext(xmlDoc * doc);
+		XMLPUBFUN void xmlXPathFreeContext(xmlXPathContext * ctxt);
+		XMLPUBFUN int xmlXPathContextSetCache(xmlXPathContext * ctxt, int active, int value, int options);
 		// 
 		// Evaluation functions.
 		// 
-		XMLPUBFUN long XMLCALL xmlXPathOrderDocElems(xmlDoc * doc);
-		XMLPUBFUN int XMLCALL xmlXPathSetContextNode(xmlNode * pNode, xmlXPathContext * ctx);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathNodeEval(xmlNode * pNode, const xmlChar * str, xmlXPathContext * ctx);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathEval(const xmlChar *str, xmlXPathContext * ctx);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathEvalExpression(const xmlChar *str, xmlXPathContext * ctxt);
-		XMLPUBFUN int XMLCALL xmlXPathEvalPredicate(xmlXPathContext * ctxt, xmlXPathObject * res);
+		XMLPUBFUN long xmlXPathOrderDocElems(xmlDoc * doc);
+		XMLPUBFUN int xmlXPathSetContextNode(xmlNode * pNode, xmlXPathContext * ctx);
+		XMLPUBFUN xmlXPathObject * xmlXPathNodeEval(xmlNode * pNode, const xmlChar * str, xmlXPathContext * ctx);
+		XMLPUBFUN xmlXPathObject * xmlXPathEval(const xmlChar *str, xmlXPathContext * ctx);
+		XMLPUBFUN xmlXPathObject * xmlXPathEvalExpression(const xmlChar *str, xmlXPathContext * ctxt);
+		XMLPUBFUN int xmlXPathEvalPredicate(xmlXPathContext * ctxt, xmlXPathObject * res);
 		/**
 		 * Separate compilation/evaluation entry points.
 		 */
-		XMLPUBFUN xmlXPathCompExprPtr XMLCALL xmlXPathCompile(const xmlChar *str);
-		XMLPUBFUN xmlXPathCompExprPtr XMLCALL xmlXPathCtxtCompile(xmlXPathContext * ctxt, const xmlChar *str);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathCompiledEval(xmlXPathCompExprPtr comp, xmlXPathContext * ctx);
-		XMLPUBFUN int XMLCALL xmlXPathCompiledEvalToBoolean(xmlXPathCompExprPtr comp, xmlXPathContext * ctxt);
-		XMLPUBFUN void XMLCALL xmlXPathFreeCompExpr(xmlXPathCompExprPtr comp);
+		XMLPUBFUN xmlXPathCompExprPtr xmlXPathCompile(const xmlChar *str);
+		XMLPUBFUN xmlXPathCompExprPtr xmlXPathCtxtCompile(xmlXPathContext * ctxt, const xmlChar *str);
+		XMLPUBFUN xmlXPathObject * xmlXPathCompiledEval(xmlXPathCompExprPtr comp, xmlXPathContext * ctx);
+		XMLPUBFUN int xmlXPathCompiledEvalToBoolean(xmlXPathCompExprPtr comp, xmlXPathContext * ctxt);
+		XMLPUBFUN void xmlXPathFreeCompExpr(xmlXPathCompExprPtr comp);
 	#endif /* LIBXML_XPATH_ENABLED */
 	#if defined(LIBXML_XPATH_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED)
-		XMLPUBFUN void XMLCALL xmlXPathInit();
-		// @v10.9.11 XMLPUBFUN int XMLCALL xmlXPathIsNaN_Removed(double val);
-		XMLPUBFUN int /*XMLCALL*/FASTCALL xmlXPathIsInf(double val);
+		XMLPUBFUN void xmlXPathInit();
+		// @v10.9.11 XMLPUBFUN int xmlXPathIsNaN_Removed(double val);
+		XMLPUBFUN int FASTCALL xmlXPathIsInf(double val);
 		#ifdef __cplusplus
 		}
 		#endif
@@ -1439,27 +1439,27 @@ int xmlNop(void);
 		// 
 		// Handling of location sets.
 		// 
-		XMLPUBFUN xmlLocationSet * /*XMLCALL*/FASTCALL xmlXPtrLocationSetCreate(xmlXPathObject * val);
-		XMLPUBFUN void XMLCALL xmlXPtrFreeLocationSet(xmlLocationSet * obj);
-		XMLPUBFUN xmlLocationSet * XMLCALL xmlXPtrLocationSetMerge(xmlLocationSet * val1, xmlLocationSet * val2);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRange(xmlNode * start, int startindex, xmlNode * end, int endindex);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRangePoints(xmlXPathObject * start, xmlXPathObject * end);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRangeNodePoint(xmlNode * start, xmlXPathObject * end);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRangePointNode(xmlXPathObject * start, xmlNode * end);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRangeNodes(xmlNode * start, xmlNode * end);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewLocationSetNodes(xmlNode * start, xmlNode * end);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewLocationSetNodeSet(xmlNodeSet * set);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRangeNodeObject(xmlNode * start, xmlXPathObject * end);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewCollapsedRange(xmlNode * start);
-		XMLPUBFUN void /*XMLCALL*/FASTCALL xmlXPtrLocationSetAdd(xmlLocationSet * cur, xmlXPathObject * val);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrWrapLocationSet(xmlLocationSet * val);
-		XMLPUBFUN void XMLCALL xmlXPtrLocationSetDel(xmlLocationSet * cur, xmlXPathObject * val);
-		XMLPUBFUN void XMLCALL xmlXPtrLocationSetRemove(xmlLocationSet * cur, int val);
-		XMLPUBFUN xmlXPathContext * XMLCALL xmlXPtrNewContext(xmlDoc * doc, xmlNode * here, xmlNode * origin);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrEval(const xmlChar * str, xmlXPathContext * ctx);
-		XMLPUBFUN void XMLCALL xmlXPtrRangeToFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN xmlNode * XMLCALL xmlXPtrBuildNodeList(xmlXPathObject * obj);
-		XMLPUBFUN void XMLCALL xmlXPtrEvalRangePredicate(xmlXPathParserContext * ctxt);
+		XMLPUBFUN xmlLocationSet * FASTCALL xmlXPtrLocationSetCreate(xmlXPathObject * val);
+		XMLPUBFUN void xmlXPtrFreeLocationSet(xmlLocationSet * obj);
+		XMLPUBFUN xmlLocationSet * xmlXPtrLocationSetMerge(xmlLocationSet * val1, xmlLocationSet * val2);
+		XMLPUBFUN xmlXPathObject * xmlXPtrNewRange(xmlNode * start, int startindex, xmlNode * end, int endindex);
+		XMLPUBFUN xmlXPathObject * xmlXPtrNewRangePoints(xmlXPathObject * start, xmlXPathObject * end);
+		XMLPUBFUN xmlXPathObject * xmlXPtrNewRangeNodePoint(xmlNode * start, xmlXPathObject * end);
+		XMLPUBFUN xmlXPathObject * xmlXPtrNewRangePointNode(xmlXPathObject * start, xmlNode * end);
+		XMLPUBFUN xmlXPathObject * xmlXPtrNewRangeNodes(xmlNode * start, xmlNode * end);
+		XMLPUBFUN xmlXPathObject * xmlXPtrNewLocationSetNodes(xmlNode * start, xmlNode * end);
+		XMLPUBFUN xmlXPathObject * xmlXPtrNewLocationSetNodeSet(xmlNodeSet * set);
+		XMLPUBFUN xmlXPathObject * xmlXPtrNewRangeNodeObject(xmlNode * start, xmlXPathObject * end);
+		XMLPUBFUN xmlXPathObject * xmlXPtrNewCollapsedRange(xmlNode * start);
+		XMLPUBFUN void FASTCALL xmlXPtrLocationSetAdd(xmlLocationSet * cur, xmlXPathObject * val);
+		XMLPUBFUN xmlXPathObject * xmlXPtrWrapLocationSet(xmlLocationSet * val);
+		XMLPUBFUN void xmlXPtrLocationSetDel(xmlLocationSet * cur, xmlXPathObject * val);
+		XMLPUBFUN void xmlXPtrLocationSetRemove(xmlLocationSet * cur, int val);
+		XMLPUBFUN xmlXPathContext * xmlXPtrNewContext(xmlDoc * doc, xmlNode * here, xmlNode * origin);
+		XMLPUBFUN xmlXPathObject * xmlXPtrEval(const xmlChar * str, xmlXPathContext * ctx);
+		XMLPUBFUN void xmlXPtrRangeToFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN xmlNode * xmlXPtrBuildNodeList(xmlXPathObject * obj);
+		XMLPUBFUN void xmlXPtrEvalRangePredicate(xmlXPathParserContext * ctxt);
 		#ifdef __cplusplus
 		}
 		#endif
@@ -1527,11 +1527,11 @@ int xmlNop(void);
 		 */
 		#define xmlXPathGetContextNode(ctxt)    ((ctxt)->context->P_Node)
 
-		XMLPUBFUN int XMLCALL xmlXPathPopBoolean(xmlXPathParserContext * ctxt);
-		XMLPUBFUN double XMLCALL xmlXPathPopNumber(xmlXPathParserContext * ctxt);
-		XMLPUBFUN xmlChar * XMLCALL xmlXPathPopString(xmlXPathParserContext * ctxt);
-		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathPopNodeSet(xmlXPathParserContext * ctxt);
-		XMLPUBFUN void * XMLCALL xmlXPathPopExternal(xmlXPathParserContext * ctxt);
+		XMLPUBFUN int xmlXPathPopBoolean(xmlXPathParserContext * ctxt);
+		XMLPUBFUN double xmlXPathPopNumber(xmlXPathParserContext * ctxt);
+		XMLPUBFUN xmlChar * xmlXPathPopString(xmlXPathParserContext * ctxt);
+		XMLPUBFUN xmlNodeSet * xmlXPathPopNodeSet(xmlXPathParserContext * ctxt);
+		XMLPUBFUN void * xmlXPathPopExternal(xmlXPathParserContext * ctxt);
 		/**
 		 * xmlXPathReturnBoolean:
 		 * @ctxt:  an XPath parser context
@@ -1672,145 +1672,145 @@ int xmlNop(void);
 		/*
 		 * Variable Lookup forwarding.
 		 */
-		XMLPUBFUN void XMLCALL xmlXPathRegisterVariableLookup(xmlXPathContext * ctxt, xmlXPathVariableLookupFunc f, void * data);
+		XMLPUBFUN void xmlXPathRegisterVariableLookup(xmlXPathContext * ctxt, xmlXPathVariableLookupFunc f, void * data);
 		/*
 		 * Function Lookup forwarding.
 		 */
-		XMLPUBFUN void XMLCALL xmlXPathRegisterFuncLookup(xmlXPathContext * ctxt, xmlXPathFuncLookupFunc f, void * funcCtxt);
+		XMLPUBFUN void xmlXPathRegisterFuncLookup(xmlXPathContext * ctxt, xmlXPathFuncLookupFunc f, void * funcCtxt);
 		// 
 		// Error reporting.
 		// 
-		XMLPUBFUN void XMLCALL xmlXPatherror(xmlXPathParserContext * ctxt, /*const char * file, int line,*/int no);
-		XMLPUBFUN void /*XMLCALL*/FASTCALL xmlXPathErr(xmlXPathParserContext * ctxt, int error);
+		XMLPUBFUN void xmlXPatherror(xmlXPathParserContext * ctxt, /*const char * file, int line,*/int no);
+		XMLPUBFUN void FASTCALL xmlXPathErr(xmlXPathParserContext * ctxt, int error);
 		#ifdef LIBXML_DEBUG_ENABLED
-			XMLPUBFUN void XMLCALL xmlXPathDebugDumpObject(FILE * output, xmlXPathObject * cur, int depth);
-			XMLPUBFUN void XMLCALL xmlXPathDebugDumpCompExpr(FILE * output, xmlXPathCompExprPtr comp, int depth);
+			XMLPUBFUN void xmlXPathDebugDumpObject(FILE * output, xmlXPathObject * cur, int depth);
+			XMLPUBFUN void xmlXPathDebugDumpCompExpr(FILE * output, xmlXPathCompExprPtr comp, int depth);
 		#endif
 		// 
 		// NodeSet handling.
 		// 
-		XMLPUBFUN int XMLCALL xmlXPathNodeSetContains(const xmlNodeSet * cur, const xmlNode * val);
-		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathDifference(xmlNodeSet * nodes1, xmlNodeSet * nodes2);
-		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathIntersection(xmlNodeSet * nodes1, xmlNodeSet * nodes2);
-		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathDistinctSorted(xmlNodeSet * nodes);
-		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathDistinct(xmlNodeSet * nodes);
-		XMLPUBFUN int XMLCALL xmlXPathHasSameNodes(xmlNodeSet * nodes1, xmlNodeSet * nodes2);
-		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathNodeLeadingSorted(xmlNodeSet * nodes, xmlNode * pNode);
-		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathLeadingSorted(xmlNodeSet * nodes1, xmlNodeSet * nodes2);
-		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathNodeLeading(xmlNodeSet * nodes, xmlNode * pNode);
-		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathLeading(xmlNodeSet * nodes1, xmlNodeSet * nodes2);
-		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathNodeTrailingSorted(xmlNodeSet * nodes, xmlNode * pNode);
-		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathTrailingSorted(xmlNodeSet * nodes1, xmlNodeSet * nodes2);
-		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathNodeTrailing(xmlNodeSet * nodes, xmlNode * pNode);
-		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathTrailing(xmlNodeSet * nodes1, xmlNodeSet * nodes2);
+		XMLPUBFUN int xmlXPathNodeSetContains(const xmlNodeSet * cur, const xmlNode * val);
+		XMLPUBFUN xmlNodeSet * xmlXPathDifference(xmlNodeSet * nodes1, xmlNodeSet * nodes2);
+		XMLPUBFUN xmlNodeSet * xmlXPathIntersection(xmlNodeSet * nodes1, xmlNodeSet * nodes2);
+		XMLPUBFUN xmlNodeSet * xmlXPathDistinctSorted(xmlNodeSet * nodes);
+		XMLPUBFUN xmlNodeSet * xmlXPathDistinct(xmlNodeSet * nodes);
+		XMLPUBFUN int xmlXPathHasSameNodes(xmlNodeSet * nodes1, xmlNodeSet * nodes2);
+		XMLPUBFUN xmlNodeSet * xmlXPathNodeLeadingSorted(xmlNodeSet * nodes, xmlNode * pNode);
+		XMLPUBFUN xmlNodeSet * xmlXPathLeadingSorted(xmlNodeSet * nodes1, xmlNodeSet * nodes2);
+		XMLPUBFUN xmlNodeSet * xmlXPathNodeLeading(xmlNodeSet * nodes, xmlNode * pNode);
+		XMLPUBFUN xmlNodeSet * xmlXPathLeading(xmlNodeSet * nodes1, xmlNodeSet * nodes2);
+		XMLPUBFUN xmlNodeSet * xmlXPathNodeTrailingSorted(xmlNodeSet * nodes, xmlNode * pNode);
+		XMLPUBFUN xmlNodeSet * xmlXPathTrailingSorted(xmlNodeSet * nodes1, xmlNodeSet * nodes2);
+		XMLPUBFUN xmlNodeSet * xmlXPathNodeTrailing(xmlNodeSet * nodes, xmlNode * pNode);
+		XMLPUBFUN xmlNodeSet * xmlXPathTrailing(xmlNodeSet * nodes1, xmlNodeSet * nodes2);
 		// 
 		// Extending a context.
 		// 
-		XMLPUBFUN int XMLCALL xmlXPathRegisterNs(xmlXPathContext * ctxt, const xmlChar * prefix, const xmlChar * ns_uri);
-		XMLPUBFUN const xmlChar * XMLCALL xmlXPathNsLookup(xmlXPathContext * ctxt, const xmlChar * prefix);
-		XMLPUBFUN void XMLCALL xmlXPathRegisteredNsCleanup(xmlXPathContext * ctxt);
-		XMLPUBFUN int /*XMLCALL*/FASTCALL xmlXPathRegisterFunc(xmlXPathContext * ctxt, const xmlChar * name, xmlXPathFunction f);
-		XMLPUBFUN int XMLCALL xmlXPathRegisterFuncNS(xmlXPathContext * ctxt, const xmlChar * name, const xmlChar * ns_uri, xmlXPathFunction f);
-		XMLPUBFUN int XMLCALL xmlXPathRegisterVariable(xmlXPathContext * ctxt, const xmlChar * name, xmlXPathObject * value);
-		XMLPUBFUN int XMLCALL xmlXPathRegisterVariableNS(xmlXPathContext * ctxt, const xmlChar * name, const xmlChar * ns_uri, xmlXPathObject * value);
-		XMLPUBFUN xmlXPathFunction XMLCALL xmlXPathFunctionLookup(xmlXPathContext * ctxt, const xmlChar * name);
-		XMLPUBFUN xmlXPathFunction XMLCALL xmlXPathFunctionLookupNS(xmlXPathContext * ctxt, const xmlChar * name, const xmlChar * ns_uri);
-		XMLPUBFUN void XMLCALL xmlXPathRegisteredFuncsCleanup(xmlXPathContext * ctxt);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathVariableLookup(xmlXPathContext * ctxt, const xmlChar * name);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathVariableLookupNS(xmlXPathContext * ctxt, const xmlChar * name, const xmlChar * ns_uri);
-		XMLPUBFUN void XMLCALL xmlXPathRegisteredVariablesCleanup(xmlXPathContext * ctxt);
+		XMLPUBFUN int xmlXPathRegisterNs(xmlXPathContext * ctxt, const xmlChar * prefix, const xmlChar * ns_uri);
+		XMLPUBFUN const xmlChar * xmlXPathNsLookup(xmlXPathContext * ctxt, const xmlChar * prefix);
+		XMLPUBFUN void xmlXPathRegisteredNsCleanup(xmlXPathContext * ctxt);
+		XMLPUBFUN int FASTCALL xmlXPathRegisterFunc(xmlXPathContext * ctxt, const xmlChar * name, xmlXPathFunction f);
+		XMLPUBFUN int xmlXPathRegisterFuncNS(xmlXPathContext * ctxt, const xmlChar * name, const xmlChar * ns_uri, xmlXPathFunction f);
+		XMLPUBFUN int xmlXPathRegisterVariable(xmlXPathContext * ctxt, const xmlChar * name, xmlXPathObject * value);
+		XMLPUBFUN int xmlXPathRegisterVariableNS(xmlXPathContext * ctxt, const xmlChar * name, const xmlChar * ns_uri, xmlXPathObject * value);
+		XMLPUBFUN xmlXPathFunction xmlXPathFunctionLookup(xmlXPathContext * ctxt, const xmlChar * name);
+		XMLPUBFUN xmlXPathFunction xmlXPathFunctionLookupNS(xmlXPathContext * ctxt, const xmlChar * name, const xmlChar * ns_uri);
+		XMLPUBFUN void xmlXPathRegisteredFuncsCleanup(xmlXPathContext * ctxt);
+		XMLPUBFUN xmlXPathObject * xmlXPathVariableLookup(xmlXPathContext * ctxt, const xmlChar * name);
+		XMLPUBFUN xmlXPathObject * xmlXPathVariableLookupNS(xmlXPathContext * ctxt, const xmlChar * name, const xmlChar * ns_uri);
+		XMLPUBFUN void xmlXPathRegisteredVariablesCleanup(xmlXPathContext * ctxt);
 		// 
 		// Utilities to extend XPath.
 		// 
-		XMLPUBFUN xmlXPathParserContext * XMLCALL xmlXPathNewParserContext(const xmlChar * str, xmlXPathContext * ctxt);
-		XMLPUBFUN void XMLCALL xmlXPathFreeParserContext(xmlXPathParserContext * ctxt);
+		XMLPUBFUN xmlXPathParserContext * xmlXPathNewParserContext(const xmlChar * str, xmlXPathContext * ctxt);
+		XMLPUBFUN void xmlXPathFreeParserContext(xmlXPathParserContext * ctxt);
 		/* @todo remap to xmlXPathValuePop and Push. */
-		XMLPUBFUN xmlXPathObject * /*XMLCALL*/FASTCALL valuePop(xmlXPathParserContext * pCtxt);
-		XMLPUBFUN int /*XMLCALL*/FASTCALL valuePush(xmlXPathParserContext * pCtxt, xmlXPathObject * pValue);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathNewString(const xmlChar * val);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathNewCString(const char * val);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathWrapString(xmlChar * val);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathWrapCString(char * val);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathNewFloat(double val);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathNewBoolean(int val);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathNewNodeSet(xmlNode * val);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathNewValueTree(xmlNode * val);
-		XMLPUBFUN int XMLCALL xmlXPathNodeSetAdd(xmlNodeSet * cur, xmlNode * val);
-		XMLPUBFUN int XMLCALL xmlXPathNodeSetAddUnique(xmlNodeSet * cur, xmlNode * val);
-		XMLPUBFUN int XMLCALL xmlXPathNodeSetAddNs(xmlNodeSet * cur, xmlNode * pNode, xmlNs * ns);
-		XMLPUBFUN void XMLCALL xmlXPathNodeSetSort(xmlNodeSet * set);
-		XMLPUBFUN void XMLCALL xmlXPathRoot(xmlXPathParserContext * ctxt);
-		XMLPUBFUN void XMLCALL xmlXPathEvalExpr(xmlXPathParserContext * ctxt);
-		XMLPUBFUN xmlChar * XMLCALL xmlXPathParseName(xmlXPathParserContext * ctxt);
-		XMLPUBFUN xmlChar * XMLCALL xmlXPathParseNCName(xmlXPathParserContext * ctxt);
+		XMLPUBFUN xmlXPathObject * FASTCALL valuePop(xmlXPathParserContext * pCtxt);
+		XMLPUBFUN int FASTCALL valuePush(xmlXPathParserContext * pCtxt, xmlXPathObject * pValue);
+		XMLPUBFUN xmlXPathObject * xmlXPathNewString(const xmlChar * val);
+		XMLPUBFUN xmlXPathObject * xmlXPathNewCString(const char * val);
+		XMLPUBFUN xmlXPathObject * xmlXPathWrapString(xmlChar * val);
+		XMLPUBFUN xmlXPathObject * xmlXPathWrapCString(char * val);
+		XMLPUBFUN xmlXPathObject * xmlXPathNewFloat(double val);
+		XMLPUBFUN xmlXPathObject * xmlXPathNewBoolean(int val);
+		XMLPUBFUN xmlXPathObject * xmlXPathNewNodeSet(xmlNode * val);
+		XMLPUBFUN xmlXPathObject * xmlXPathNewValueTree(xmlNode * val);
+		XMLPUBFUN int xmlXPathNodeSetAdd(xmlNodeSet * cur, xmlNode * val);
+		XMLPUBFUN int xmlXPathNodeSetAddUnique(xmlNodeSet * cur, xmlNode * val);
+		XMLPUBFUN int xmlXPathNodeSetAddNs(xmlNodeSet * cur, xmlNode * pNode, xmlNs * ns);
+		XMLPUBFUN void xmlXPathNodeSetSort(xmlNodeSet * set);
+		XMLPUBFUN void xmlXPathRoot(xmlXPathParserContext * ctxt);
+		XMLPUBFUN void xmlXPathEvalExpr(xmlXPathParserContext * ctxt);
+		XMLPUBFUN xmlChar * xmlXPathParseName(xmlXPathParserContext * ctxt);
+		XMLPUBFUN xmlChar * xmlXPathParseNCName(xmlXPathParserContext * ctxt);
 		// 
 		// Existing functions.
 		// 
-		XMLPUBFUN double XMLCALL xmlXPathStringEvalNumber(const xmlChar * str);
-		XMLPUBFUN int    XMLCALL xmlXPathEvaluatePredicateResult(xmlXPathParserContext * ctxt, xmlXPathObject * res);
-		XMLPUBFUN void   XMLCALL xmlXPathRegisterAllFunctions(xmlXPathContext * ctxt);
-		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathNodeSetMerge(xmlNodeSet * val1, xmlNodeSet * val2);
-		XMLPUBFUN void   XMLCALL xmlXPathNodeSetDel(xmlNodeSet * cur, xmlNode * val);
-		XMLPUBFUN void   XMLCALL xmlXPathNodeSetRemove(xmlNodeSet * cur, int val);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathNewNodeSetList(xmlNodeSet * val);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathWrapNodeSet(xmlNodeSet * val);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathWrapExternal(void * val);
-		XMLPUBFUN int    XMLCALL xmlXPathEqualValues(xmlXPathParserContext * ctxt);
-		XMLPUBFUN int    XMLCALL xmlXPathNotEqualValues(xmlXPathParserContext * ctxt);
-		XMLPUBFUN int    XMLCALL xmlXPathCompareValues(xmlXPathParserContext * ctxt, int inf, int strict);
-		XMLPUBFUN void   XMLCALL xmlXPathValueFlipSign(xmlXPathParserContext * ctxt);
-		XMLPUBFUN void   XMLCALL xmlXPathAddValues(xmlXPathParserContext * ctxt);
-		XMLPUBFUN void   XMLCALL xmlXPathSubValues(xmlXPathParserContext * ctxt);
-		XMLPUBFUN void   XMLCALL xmlXPathMultValues(xmlXPathParserContext * ctxt);
-		XMLPUBFUN void   XMLCALL xmlXPathDivValues(xmlXPathParserContext * ctxt);
-		XMLPUBFUN void   XMLCALL xmlXPathModValues(xmlXPathParserContext * ctxt);
-		XMLPUBFUN int    XMLCALL xmlXPathIsNodeType(const xmlChar * name);
+		XMLPUBFUN double xmlXPathStringEvalNumber(const xmlChar * str);
+		XMLPUBFUN int    xmlXPathEvaluatePredicateResult(xmlXPathParserContext * ctxt, xmlXPathObject * res);
+		XMLPUBFUN void   xmlXPathRegisterAllFunctions(xmlXPathContext * ctxt);
+		XMLPUBFUN xmlNodeSet * xmlXPathNodeSetMerge(xmlNodeSet * val1, xmlNodeSet * val2);
+		XMLPUBFUN void   xmlXPathNodeSetDel(xmlNodeSet * cur, xmlNode * val);
+		XMLPUBFUN void   xmlXPathNodeSetRemove(xmlNodeSet * cur, int val);
+		XMLPUBFUN xmlXPathObject * xmlXPathNewNodeSetList(xmlNodeSet * val);
+		XMLPUBFUN xmlXPathObject * xmlXPathWrapNodeSet(xmlNodeSet * val);
+		XMLPUBFUN xmlXPathObject * xmlXPathWrapExternal(void * val);
+		XMLPUBFUN int    xmlXPathEqualValues(xmlXPathParserContext * ctxt);
+		XMLPUBFUN int    xmlXPathNotEqualValues(xmlXPathParserContext * ctxt);
+		XMLPUBFUN int    xmlXPathCompareValues(xmlXPathParserContext * ctxt, int inf, int strict);
+		XMLPUBFUN void   xmlXPathValueFlipSign(xmlXPathParserContext * ctxt);
+		XMLPUBFUN void   xmlXPathAddValues(xmlXPathParserContext * ctxt);
+		XMLPUBFUN void   xmlXPathSubValues(xmlXPathParserContext * ctxt);
+		XMLPUBFUN void   xmlXPathMultValues(xmlXPathParserContext * ctxt);
+		XMLPUBFUN void   xmlXPathDivValues(xmlXPathParserContext * ctxt);
+		XMLPUBFUN void   xmlXPathModValues(xmlXPathParserContext * ctxt);
+		XMLPUBFUN int    xmlXPathIsNodeType(const xmlChar * name);
 		// 
 		// Some of the axis navigation routines.
 		// 
-		XMLPUBFUN xmlNode * XMLCALL xmlXPathNextSelf(xmlXPathParserContext * ctxt, xmlNode * cur);
-		XMLPUBFUN xmlNode * XMLCALL xmlXPathNextChild(xmlXPathParserContext * ctxt, xmlNode * cur);
-		XMLPUBFUN xmlNode * XMLCALL xmlXPathNextDescendant(xmlXPathParserContext * ctxt, xmlNode * cur);
-		XMLPUBFUN xmlNode * XMLCALL xmlXPathNextDescendantOrSelf(xmlXPathParserContext * ctxt, xmlNode * cur);
-		XMLPUBFUN xmlNode * XMLCALL xmlXPathNextParent(xmlXPathParserContext * ctxt, xmlNode * cur);
-		XMLPUBFUN xmlNode * XMLCALL xmlXPathNextAncestorOrSelf(xmlXPathParserContext * ctxt, xmlNode * cur);
-		XMLPUBFUN xmlNode * XMLCALL xmlXPathNextFollowingSibling(xmlXPathParserContext * ctxt, xmlNode * cur);
-		XMLPUBFUN xmlNode * XMLCALL xmlXPathNextFollowing(xmlXPathParserContext * ctxt, xmlNode * cur);
-		XMLPUBFUN xmlNode * XMLCALL xmlXPathNextNamespace(xmlXPathParserContext * ctxt, xmlNode * cur);
-		XMLPUBFUN xmlNode * XMLCALL xmlXPathNextAttribute(xmlXPathParserContext * ctxt, xmlNode * cur);
-		XMLPUBFUN xmlNode * XMLCALL xmlXPathNextPreceding(xmlXPathParserContext * ctxt, xmlNode * cur);
-		XMLPUBFUN xmlNode * XMLCALL xmlXPathNextAncestor(xmlXPathParserContext * ctxt, xmlNode * cur);
-		XMLPUBFUN xmlNode * XMLCALL xmlXPathNextPrecedingSibling(xmlXPathParserContext * ctxt, xmlNode * cur);
+		XMLPUBFUN xmlNode * xmlXPathNextSelf(xmlXPathParserContext * ctxt, xmlNode * cur);
+		XMLPUBFUN xmlNode * xmlXPathNextChild(xmlXPathParserContext * ctxt, xmlNode * cur);
+		XMLPUBFUN xmlNode * xmlXPathNextDescendant(xmlXPathParserContext * ctxt, xmlNode * cur);
+		XMLPUBFUN xmlNode * xmlXPathNextDescendantOrSelf(xmlXPathParserContext * ctxt, xmlNode * cur);
+		XMLPUBFUN xmlNode * xmlXPathNextParent(xmlXPathParserContext * ctxt, xmlNode * cur);
+		XMLPUBFUN xmlNode * xmlXPathNextAncestorOrSelf(xmlXPathParserContext * ctxt, xmlNode * cur);
+		XMLPUBFUN xmlNode * xmlXPathNextFollowingSibling(xmlXPathParserContext * ctxt, xmlNode * cur);
+		XMLPUBFUN xmlNode * xmlXPathNextFollowing(xmlXPathParserContext * ctxt, xmlNode * cur);
+		XMLPUBFUN xmlNode * xmlXPathNextNamespace(xmlXPathParserContext * ctxt, xmlNode * cur);
+		XMLPUBFUN xmlNode * xmlXPathNextAttribute(xmlXPathParserContext * ctxt, xmlNode * cur);
+		XMLPUBFUN xmlNode * xmlXPathNextPreceding(xmlXPathParserContext * ctxt, xmlNode * cur);
+		XMLPUBFUN xmlNode * xmlXPathNextAncestor(xmlXPathParserContext * ctxt, xmlNode * cur);
+		XMLPUBFUN xmlNode * xmlXPathNextPrecedingSibling(xmlXPathParserContext * ctxt, xmlNode * cur);
 		// 
 		// The official core of XPath functions.
 		// 
-		XMLPUBFUN void XMLCALL xmlXPathLastFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathPositionFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathCountFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathIdFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathLocalNameFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathNamespaceURIFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathStringFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathStringLengthFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathConcatFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathContainsFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathStartsWithFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathSubstringFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathSubstringBeforeFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathSubstringAfterFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathNormalizeFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathTranslateFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathNotFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathTrueFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathFalseFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathLangFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathNumberFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathSumFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathFloorFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathCeilingFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathRoundFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void XMLCALL xmlXPathBooleanFunction(xmlXPathParserContext * ctxt, int nargs);
-		XMLPUBFUN void /*XMLCALL*/FASTCALL xmlXPathNodeSetFreeNs(xmlNs * ns); // Really internal functions
+		XMLPUBFUN void xmlXPathLastFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathPositionFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathCountFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathIdFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathLocalNameFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathNamespaceURIFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathStringFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathStringLengthFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathConcatFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathContainsFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathStartsWithFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathSubstringFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathSubstringBeforeFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathSubstringAfterFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathNormalizeFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathTranslateFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathNotFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathTrueFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathFalseFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathLangFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathNumberFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathSumFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathFloorFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathCeilingFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathRoundFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void xmlXPathBooleanFunction(xmlXPathParserContext * ctxt, int nargs);
+		XMLPUBFUN void FASTCALL xmlXPathNodeSetFreeNs(xmlNs * ns); // Really internal functions
 
 		#ifdef __cplusplus
 		}
@@ -1853,9 +1853,9 @@ int xmlNop(void);
 				XML_C14N_1_1    = 2  // C14N 1.1 spec 
 			};
 
-			XMLPUBFUN int XMLCALL xmlC14NDocSaveTo(xmlDoc * doc, xmlNodeSet * nodes, int mode/* a xmlC14NMode */, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlOutputBuffer * buf);
-			XMLPUBFUN int XMLCALL xmlC14NDocDumpMemory(xmlDoc * doc, xmlNodeSet * nodes, int mode/* a xmlC14NMode */, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlChar ** doc_txt_ptr);
-			XMLPUBFUN int XMLCALL xmlC14NDocSave(xmlDoc * doc, xmlNodeSet * nodes, int mode/* a xmlC14NMode */, xmlChar ** inclusive_ns_prefixes, int with_comments, const char * filename, int compression);
+			XMLPUBFUN int xmlC14NDocSaveTo(xmlDoc * doc, xmlNodeSet * nodes, int mode/* a xmlC14NMode */, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlOutputBuffer * buf);
+			XMLPUBFUN int xmlC14NDocDumpMemory(xmlDoc * doc, xmlNodeSet * nodes, int mode/* a xmlC14NMode */, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlChar ** doc_txt_ptr);
+			XMLPUBFUN int xmlC14NDocSave(xmlDoc * doc, xmlNodeSet * nodes, int mode/* a xmlC14NMode */, xmlChar ** inclusive_ns_prefixes, int with_comments, const char * filename, int compression);
 			/**
 			 * This is the core C14N function
 			 */
@@ -1871,7 +1871,7 @@ int xmlNop(void);
 			 */
 			typedef int (*xmlC14NIsVisibleCallback)(void * user_data, xmlNode * node, xmlNode * parent);
 
-			XMLPUBFUN int XMLCALL xmlC14NExecute(xmlDoc * doc, xmlC14NIsVisibleCallback is_visible_callback, void * user_data, 
+			XMLPUBFUN int xmlC14NExecute(xmlDoc * doc, xmlC14NIsVisibleCallback is_visible_callback, void * user_data, 
 				int mode/* a xmlC14NMode */, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlOutputBuffer * buf);
 
 			#ifdef __cplusplus
@@ -1899,26 +1899,26 @@ int xmlNop(void);
 			XML_PATTERN_XSFIELD		= 1<<2	/* XPath subset for schema field */
 		};
 
-		XMLPUBFUN void XMLCALL xmlFreePattern(xmlPattern * comp);
-		XMLPUBFUN void XMLCALL xmlFreePatternList(xmlPattern * comp);
-		XMLPUBFUN xmlPattern * XMLCALL xmlPatterncompile(const xmlChar *pattern, xmlDict *dict, int flags, const xmlChar **namespaces);
-		XMLPUBFUN int XMLCALL xmlPatternMatch(xmlPattern * comp, xmlNode * pNode);
+		XMLPUBFUN void xmlFreePattern(xmlPattern * comp);
+		XMLPUBFUN void xmlFreePatternList(xmlPattern * comp);
+		XMLPUBFUN xmlPattern * xmlPatterncompile(const xmlChar *pattern, xmlDict *dict, int flags, const xmlChar **namespaces);
+		XMLPUBFUN int xmlPatternMatch(xmlPattern * comp, xmlNode * pNode);
 
 		/* streaming interfaces */
 		typedef struct _xmlStreamCtxt xmlStreamCtxt;
 		typedef xmlStreamCtxt * xmlStreamCtxtPtr;
 
-		XMLPUBFUN int XMLCALL xmlPatternStreamable(xmlPattern * comp);
-		XMLPUBFUN int XMLCALL xmlPatternMaxDepth(xmlPattern * comp);
-		XMLPUBFUN int XMLCALL xmlPatternMinDepth(xmlPattern * comp);
-		XMLPUBFUN int XMLCALL xmlPatternFromRoot(xmlPattern * comp);
-		XMLPUBFUN xmlStreamCtxtPtr XMLCALL xmlPatternGetStreamCtxt(xmlPattern * comp);
-		XMLPUBFUN void XMLCALL xmlFreeStreamCtxt(xmlStreamCtxtPtr stream);
-		XMLPUBFUN int XMLCALL xmlStreamPushNode(xmlStreamCtxtPtr stream, const xmlChar *name, const xmlChar *ns, int nodeType);
-		XMLPUBFUN int XMLCALL xmlStreamPush(xmlStreamCtxtPtr stream, const xmlChar *name, const xmlChar *ns);
-		XMLPUBFUN int XMLCALL xmlStreamPushAttr(xmlStreamCtxtPtr stream, const xmlChar *name, const xmlChar *ns);
-		XMLPUBFUN int XMLCALL xmlStreamPop(xmlStreamCtxtPtr stream);
-		XMLPUBFUN int XMLCALL xmlStreamWantsAnyNode	(xmlStreamCtxtPtr stream);
+		XMLPUBFUN int xmlPatternStreamable(xmlPattern * comp);
+		XMLPUBFUN int xmlPatternMaxDepth(xmlPattern * comp);
+		XMLPUBFUN int xmlPatternMinDepth(xmlPattern * comp);
+		XMLPUBFUN int xmlPatternFromRoot(xmlPattern * comp);
+		XMLPUBFUN xmlStreamCtxtPtr xmlPatternGetStreamCtxt(xmlPattern * comp);
+		XMLPUBFUN void xmlFreeStreamCtxt(xmlStreamCtxtPtr stream);
+		XMLPUBFUN int xmlStreamPushNode(xmlStreamCtxtPtr stream, const xmlChar *name, const xmlChar *ns, int nodeType);
+		XMLPUBFUN int xmlStreamPush(xmlStreamCtxtPtr stream, const xmlChar *name, const xmlChar *ns);
+		XMLPUBFUN int xmlStreamPushAttr(xmlStreamCtxtPtr stream, const xmlChar *name, const xmlChar *ns);
+		XMLPUBFUN int xmlStreamPop(xmlStreamCtxtPtr stream);
+		XMLPUBFUN int xmlStreamWantsAnyNode	(xmlStreamCtxtPtr stream);
 		#ifdef __cplusplus
 		}
 		#endif
@@ -1971,27 +1971,27 @@ int xmlNop(void);
 		/*
 		 * Interfaces for parsing.
 		 */
-		XMLPUBFUN xmlSchematronParserCtxt * XMLCALL xmlSchematronNewParserCtxt(const char *URL);
-		XMLPUBFUN xmlSchematronParserCtxt * XMLCALL xmlSchematronNewMemParserCtxt(const char *buffer, int size);
-		XMLPUBFUN xmlSchematronParserCtxt * XMLCALL xmlSchematronNewDocParserCtxt(xmlDoc * doc);
-		XMLPUBFUN void XMLCALL xmlSchematronFreeParserCtxt(xmlSchematronParserCtxt * ctxt);
-		// XMLPUBFUN void XMLCALL xmlSchematronSetParserErrors(xmlSchematronParserCtxt * ctxt, xmlSchematronValidityErrorFunc err, xmlSchematronValidityWarningFunc warn, void *ctx);
-		// XMLPUBFUN int XMLCALL xmlSchematronGetParserErrors(xmlSchematronParserCtxt * ctxt, xmlSchematronValidityErrorFunc * err, xmlSchematronValidityWarningFunc * warn, void **ctx);
-		// XMLPUBFUN int XMLCALL xmlSchematronIsValid(xmlSchematronValidCtxt * ctxt);
-		XMLPUBFUN xmlSchematron * XMLCALL xmlSchematronParse(xmlSchematronParserCtxt * ctxt);
-		XMLPUBFUN void XMLCALL xmlSchematronFree(xmlSchematron * schema);
+		XMLPUBFUN xmlSchematronParserCtxt * xmlSchematronNewParserCtxt(const char *URL);
+		XMLPUBFUN xmlSchematronParserCtxt * xmlSchematronNewMemParserCtxt(const char *buffer, int size);
+		XMLPUBFUN xmlSchematronParserCtxt * xmlSchematronNewDocParserCtxt(xmlDoc * doc);
+		XMLPUBFUN void xmlSchematronFreeParserCtxt(xmlSchematronParserCtxt * ctxt);
+		// XMLPUBFUN void xmlSchematronSetParserErrors(xmlSchematronParserCtxt * ctxt, xmlSchematronValidityErrorFunc err, xmlSchematronValidityWarningFunc warn, void *ctx);
+		// XMLPUBFUN int xmlSchematronGetParserErrors(xmlSchematronParserCtxt * ctxt, xmlSchematronValidityErrorFunc * err, xmlSchematronValidityWarningFunc * warn, void **ctx);
+		// XMLPUBFUN int xmlSchematronIsValid(xmlSchematronValidCtxt * ctxt);
+		XMLPUBFUN xmlSchematron * xmlSchematronParse(xmlSchematronParserCtxt * ctxt);
+		XMLPUBFUN void xmlSchematronFree(xmlSchematron * schema);
 		/*
 		 * Interfaces for validating
 		 */
-		XMLPUBFUN void XMLCALL xmlSchematronSetValidStructuredErrors(xmlSchematronValidCtxt * ctxt, xmlStructuredErrorFunc serror, void *ctx);
-		// XMLPUBFUN void XMLCALL xmlSchematronSetValidErrors(xmlSchematronValidCtxt * ctxt, xmlSchematronValidityErrorFunc err, xmlSchematronValidityWarningFunc warn, void *ctx);
-		// XMLPUBFUN int XMLCALL xmlSchematronGetValidErrors(xmlSchematronValidCtxt * ctxt, xmlSchematronValidityErrorFunc *err, xmlSchematronValidityWarningFunc *warn, void **ctx);
-		// XMLPUBFUN int XMLCALL xmlSchematronSetValidOptions(xmlSchematronValidCtxt * ctxt, int options);
-		// XMLPUBFUN int XMLCALL xmlSchematronValidCtxtGetOptions(xmlSchematronValidCtxt * ctxt);
-		// XMLPUBFUN int XMLCALL xmlSchematronValidateOneElement(xmlSchematronValidCtxt * ctxt, xmlNode * elem);
-		XMLPUBFUN xmlSchematronValidCtxt * XMLCALL xmlSchematronNewValidCtxt(xmlSchematron * schema, int options);
-		XMLPUBFUN void XMLCALL xmlSchematronFreeValidCtxt(xmlSchematronValidCtxt * ctxt);
-		XMLPUBFUN int XMLCALL xmlSchematronValidateDoc(xmlSchematronValidCtxt * ctxt, xmlDoc * instance);
+		XMLPUBFUN void xmlSchematronSetValidStructuredErrors(xmlSchematronValidCtxt * ctxt, xmlStructuredErrorFunc serror, void *ctx);
+		// XMLPUBFUN void xmlSchematronSetValidErrors(xmlSchematronValidCtxt * ctxt, xmlSchematronValidityErrorFunc err, xmlSchematronValidityWarningFunc warn, void *ctx);
+		// XMLPUBFUN int xmlSchematronGetValidErrors(xmlSchematronValidCtxt * ctxt, xmlSchematronValidityErrorFunc *err, xmlSchematronValidityWarningFunc *warn, void **ctx);
+		// XMLPUBFUN int xmlSchematronSetValidOptions(xmlSchematronValidCtxt * ctxt, int options);
+		// XMLPUBFUN int xmlSchematronValidCtxtGetOptions(xmlSchematronValidCtxt * ctxt);
+		// XMLPUBFUN int xmlSchematronValidateOneElement(xmlSchematronValidCtxt * ctxt, xmlNode * elem);
+		XMLPUBFUN xmlSchematronValidCtxt * xmlSchematronNewValidCtxt(xmlSchematron * schema, int options);
+		XMLPUBFUN void xmlSchematronFreeValidCtxt(xmlSchematronValidCtxt * ctxt);
+		XMLPUBFUN int xmlSchematronValidateDoc(xmlSchematronValidCtxt * ctxt, xmlDoc * instance);
 
 		#ifdef __cplusplus
 		}
@@ -2005,26 +2005,26 @@ int xmlNop(void);
 		/*
 		 * The standard Dump routines.
 		 */
-		XMLPUBFUN void XMLCALL xmlDebugDumpString(FILE * output, const xmlChar * str);
-		XMLPUBFUN void XMLCALL xmlDebugDumpAttr(FILE * output, xmlAttr * attr, int depth);
-		XMLPUBFUN void XMLCALL xmlDebugDumpAttrList(FILE * output, xmlAttr * attr, int depth);
-		XMLPUBFUN void XMLCALL xmlDebugDumpOneNode(FILE * output, xmlNode * pNode, int depth);
-		XMLPUBFUN void XMLCALL xmlDebugDumpNode(FILE * output, xmlNode * pNode, int depth);
-		XMLPUBFUN void XMLCALL xmlDebugDumpNodeList(FILE * output, xmlNode * pNode, int depth);
-		XMLPUBFUN void XMLCALL xmlDebugDumpDocumentHead(FILE * output, xmlDoc * doc);
-		XMLPUBFUN void XMLCALL xmlDebugDumpDocument(FILE * output, xmlDoc * doc);
-		XMLPUBFUN void XMLCALL xmlDebugDumpDTD(FILE * output, xmlDtd * dtd);
-		XMLPUBFUN void XMLCALL xmlDebugDumpEntities(FILE * output, xmlDoc * doc);
+		XMLPUBFUN void xmlDebugDumpString(FILE * output, const xmlChar * str);
+		XMLPUBFUN void xmlDebugDumpAttr(FILE * output, xmlAttr * attr, int depth);
+		XMLPUBFUN void xmlDebugDumpAttrList(FILE * output, xmlAttr * attr, int depth);
+		XMLPUBFUN void xmlDebugDumpOneNode(FILE * output, xmlNode * pNode, int depth);
+		XMLPUBFUN void xmlDebugDumpNode(FILE * output, xmlNode * pNode, int depth);
+		XMLPUBFUN void xmlDebugDumpNodeList(FILE * output, xmlNode * pNode, int depth);
+		XMLPUBFUN void xmlDebugDumpDocumentHead(FILE * output, xmlDoc * doc);
+		XMLPUBFUN void xmlDebugDumpDocument(FILE * output, xmlDoc * doc);
+		XMLPUBFUN void xmlDebugDumpDTD(FILE * output, xmlDtd * dtd);
+		XMLPUBFUN void xmlDebugDumpEntities(FILE * output, xmlDoc * doc);
 		// 
 		// Checking routines
 		// 
-		XMLPUBFUN int XMLCALL xmlDebugCheckDocument(FILE * output, xmlDoc * doc);
+		XMLPUBFUN int xmlDebugCheckDocument(FILE * output, xmlDoc * doc);
 		// 
 		// XML shell helpers
 		// 
 		XMLPUBFUN void FASTCALL xmlLsOneNode(FILE * output, xmlNode * pNode);
-		XMLPUBFUN int XMLCALL xmlLsCountNode(xmlNode * pNode);
-		XMLPUBFUN const char * XMLCALL xmlBoolToText(int boolval);
+		XMLPUBFUN int xmlLsCountNode(xmlNode * pNode);
+		XMLPUBFUN const char * xmlBoolToText(int boolval);
 		// 
 		// The XML shell related structures and functions
 		// 
@@ -2067,27 +2067,27 @@ int xmlNop(void);
 			 */
 			typedef int (*xmlShellCmd)(xmlShellCtxtPtr ctxt, char * arg, xmlNode * pNode, xmlNode * node2);
 
-			XMLPUBFUN void XMLCALL xmlShellPrintXPathError(int errorType, const char * arg);
-			XMLPUBFUN void XMLCALL xmlShellPrintXPathResult(xmlXPathObject * list);
-			XMLPUBFUN int XMLCALL xmlShellList(xmlShellCtxtPtr ctxt, char * arg, xmlNode * pNode, xmlNode * node2);
-			XMLPUBFUN int XMLCALL xmlShellBase(xmlShellCtxtPtr ctxt, char * arg, xmlNode * pNode, xmlNode * node2);
-			XMLPUBFUN int XMLCALL xmlShellDir(xmlShellCtxtPtr ctxt, char * arg, xmlNode * pNode, xmlNode * node2);
-			XMLPUBFUN int XMLCALL xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename, xmlNode * pNode, xmlNode * node2);
+			XMLPUBFUN void xmlShellPrintXPathError(int errorType, const char * arg);
+			XMLPUBFUN void xmlShellPrintXPathResult(xmlXPathObject * list);
+			XMLPUBFUN int xmlShellList(xmlShellCtxtPtr ctxt, char * arg, xmlNode * pNode, xmlNode * node2);
+			XMLPUBFUN int xmlShellBase(xmlShellCtxtPtr ctxt, char * arg, xmlNode * pNode, xmlNode * node2);
+			XMLPUBFUN int xmlShellDir(xmlShellCtxtPtr ctxt, char * arg, xmlNode * pNode, xmlNode * node2);
+			XMLPUBFUN int xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename, xmlNode * pNode, xmlNode * node2);
 			#ifdef LIBXML_OUTPUT_ENABLED
-				XMLPUBFUN void XMLCALL xmlShellPrintNode(xmlNode * pNode);
-				XMLPUBFUN int XMLCALL xmlShellCat(xmlShellCtxtPtr ctxt, char * arg, xmlNode * pNode, xmlNode * node2);
-				XMLPUBFUN int XMLCALL xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNode * pNode, xmlNode * node2);
-				XMLPUBFUN int XMLCALL xmlShellSave(xmlShellCtxtPtr ctxt, char * filename, xmlNode * pNode, xmlNode * node2);
+				XMLPUBFUN void xmlShellPrintNode(xmlNode * pNode);
+				XMLPUBFUN int xmlShellCat(xmlShellCtxtPtr ctxt, char * arg, xmlNode * pNode, xmlNode * node2);
+				XMLPUBFUN int xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNode * pNode, xmlNode * node2);
+				XMLPUBFUN int xmlShellSave(xmlShellCtxtPtr ctxt, char * filename, xmlNode * pNode, xmlNode * node2);
 			#endif
 			#ifdef LIBXML_VALID_ENABLED
-				// @v10.9.0 XMLPUBFUN int XMLCALL xmlShellValidate(xmlShellCtxtPtr ctxt, char * dtd, xmlNode * pNode, xmlNode * node2);
+				// @v10.9.0 XMLPUBFUN int xmlShellValidate(xmlShellCtxtPtr ctxt, char * dtd, xmlNode * pNode, xmlNode * node2);
 			#endif
-			// @v10.9.0 XMLPUBFUN int XMLCALL xmlShellDu(xmlShellCtxtPtr ctxt, char * arg, xmlNode * tree, xmlNode * node2);
-			// @v10.9.0 XMLPUBFUN int XMLCALL xmlShellPwd(xmlShellCtxtPtr ctxt, char * buffer, xmlNode * pNode, xmlNode * node2);
+			// @v10.9.0 XMLPUBFUN int xmlShellDu(xmlShellCtxtPtr ctxt, char * arg, xmlNode * tree, xmlNode * node2);
+			// @v10.9.0 XMLPUBFUN int xmlShellPwd(xmlShellCtxtPtr ctxt, char * buffer, xmlNode * pNode, xmlNode * node2);
 			/*
 			 * The Shell interface.
 			 */
-			// @v10.9.0 XMLPUBFUN void XMLCALL xmlShell(xmlDoc * doc, char * filename, xmlShellReadlineFunc input, FILE * output);
+			// @v10.9.0 XMLPUBFUN void xmlShell(xmlDoc * doc, char * filename, xmlShellReadlineFunc input, FILE * output);
 		#endif
 		#ifdef __cplusplus
 		}
@@ -2123,7 +2123,7 @@ int xmlNop(void);
 	// 
 	// Descr: Range checking routine
 	// 
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlCharInRange(uint val, const xmlChRangeGroup * group);
+	XMLPUBFUN int FASTCALL xmlCharInRange(uint val, const xmlChRangeGroup * group);
 	// 
 	// @c: char to validate
 	// Automatically generated by genChRanges.py
@@ -2208,14 +2208,14 @@ int xmlNop(void);
 	// 
 	#define xmlIsPubidCharQ(c) (((c) < 0x100) ? xmlIsPubidChar_ch((c)) : 0)
 
-	XMLPUBFUN int XMLCALL xmlIsBaseChar(uint ch);
-	XMLPUBFUN int XMLCALL xmlIsBlank(uint ch);
-	XMLPUBFUN int XMLCALL xmlIsChar(uint ch);
-	XMLPUBFUN int XMLCALL xmlIsCombining(uint ch);
-	// @v10.9.11 XMLPUBFUN int XMLCALL xmlIsDigit(uint ch);
-	XMLPUBFUN int XMLCALL xmlIsExtender(uint ch);
-	XMLPUBFUN int XMLCALL xmlIsIdeographic(uint ch);
-	XMLPUBFUN int XMLCALL xmlIsPubidChar(uint ch);
+	XMLPUBFUN int xmlIsBaseChar(uint ch);
+	XMLPUBFUN int xmlIsBlank(uint ch);
+	XMLPUBFUN int xmlIsChar(uint ch);
+	XMLPUBFUN int xmlIsCombining(uint ch);
+	// @v10.9.11 XMLPUBFUN int xmlIsDigit(uint ch);
+	XMLPUBFUN int xmlIsExtender(uint ch);
+	XMLPUBFUN int xmlIsIdeographic(uint ch);
+	XMLPUBFUN int xmlIsPubidChar(uint ch);
 	#ifdef __cplusplus
 	}
 	#endif
@@ -2224,172 +2224,172 @@ int xmlNop(void);
 		#ifdef __cplusplus
 		extern "C" {
 		#endif
-		XMLPUBFUN int XMLCALL xmlUCSIsAegeanNumbers(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsAlphabeticPresentationForms(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsArabic(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsArabicPresentationFormsA(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsArabicPresentationFormsB(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsArmenian(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsArrows(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsBasicLatin(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsBengali(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsBlockElements(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsBopomofo(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsBopomofoExtended(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsBoxDrawing(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsBraillePatterns(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsBuhid	(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsByzantineMusicalSymbols(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCJKCompatibility(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCJKCompatibilityForms(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCJKCompatibilityIdeographs(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCJKCompatibilityIdeographsSupplement(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCJKRadicalsSupplement(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCJKSymbolsandPunctuation(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCJKUnifiedIdeographs(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCJKUnifiedIdeographsExtensionA(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCJKUnifiedIdeographsExtensionB(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCherokee(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCombiningDiacriticalMarks(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCombiningDiacriticalMarksforSymbols(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCombiningHalfMarks(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCombiningMarksforSymbols(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsControlPictures(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCurrencySymbols(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCypriotSyllabary(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCyrillic(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCyrillicSupplement(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsDeseret(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsDevanagari(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsDingbats(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsEnclosedAlphanumerics(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsEnclosedCJKLettersandMonths(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsEthiopic(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsGeneralPunctuation(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsGeometricShapes(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsGeorgian(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsGothic(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsGreek(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsGreekExtended(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsGreekandCoptic(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsGujarati(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsGurmukhi(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsHalfwidthandFullwidthForms(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsHangulCompatibilityJamo(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsHangulJamo(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsHangulSyllables(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsHanunoo(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsHebrew(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsHighPrivateUseSurrogates(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsHighSurrogates(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsHiragana	(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsIPAExtensions	(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsIdeographicDescriptionCharacters	(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsKanbun	(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsKangxiRadicals	(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsKannada	(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsKatakana	(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsKatakanaPhoneticExtensions	(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsKhmer	(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsKhmerSymbols	(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsLao	(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsLatin1Supplement(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsLatinExtendedA(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsLatinExtendedB(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsLatinExtendedAdditional(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsLetterlikeSymbols(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsLimbu	(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsLinearBIdeograms(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsLinearBSyllabary(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsLowSurrogates	(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsMalayalam(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsMathematicalAlphanumericSymbols(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsMathematicalOperators(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsMiscellaneousMathematicalSymbolsA(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsMiscellaneousMathematicalSymbolsB(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsMiscellaneousSymbols(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsMiscellaneousSymbolsandArrows(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsMiscellaneousTechnical(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsMongolian(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsMusicalSymbols(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsMyanmar(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsNumberForms(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsOgham(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsOldItalic(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsOpticalCharacterRecognition(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsOriya(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsOsmanya(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsPhoneticExtensions(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsPrivateUse(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsPrivateUseArea(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsRunic(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsShavian(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsSinhala(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsSmallFormVariants(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsSpacingModifierLetters(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsSpecials(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsSuperscriptsandSubscripts(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsSupplementalArrowsA(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsSupplementalArrowsB(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsSupplementalMathematicalOperators(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsSupplementaryPrivateUseAreaA(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsSupplementaryPrivateUseAreaB(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsSyriac(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsTagalog(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsTagbanwa(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsTags(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsTaiLe(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsTaiXuanJingSymbols(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsTamil(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsTelugu(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsThaana(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsThai(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsTibetan(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsUgaritic(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsUnifiedCanadianAboriginalSyllabics(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsVariationSelectors(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsVariationSelectorsSupplement(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsYiRadicals(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsYiSyllables(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsYijingHexagramSymbols(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsBlock(int code, const char *block);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatC(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatCc(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatCf(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatCo(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatCs(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatL(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatLl(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatLm(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatLo(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatLt(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatLu(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatM(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatMc(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatMe(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatMn(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatN(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatNd(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatNl(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatNo(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatP(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatPc(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatPd(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatPe(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatPf(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatPi(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatPo(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatPs(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatS(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatSc(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatSk(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatSm(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatSo(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatZ(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatZl(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatZp(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCatZs(int code);
-		XMLPUBFUN int XMLCALL xmlUCSIsCat(int code, const char *cat);
+		XMLPUBFUN int xmlUCSIsAegeanNumbers(int code);
+		XMLPUBFUN int xmlUCSIsAlphabeticPresentationForms(int code);
+		XMLPUBFUN int xmlUCSIsArabic(int code);
+		XMLPUBFUN int xmlUCSIsArabicPresentationFormsA(int code);
+		XMLPUBFUN int xmlUCSIsArabicPresentationFormsB(int code);
+		XMLPUBFUN int xmlUCSIsArmenian(int code);
+		XMLPUBFUN int xmlUCSIsArrows(int code);
+		XMLPUBFUN int xmlUCSIsBasicLatin(int code);
+		XMLPUBFUN int xmlUCSIsBengali(int code);
+		XMLPUBFUN int xmlUCSIsBlockElements(int code);
+		XMLPUBFUN int xmlUCSIsBopomofo(int code);
+		XMLPUBFUN int xmlUCSIsBopomofoExtended(int code);
+		XMLPUBFUN int xmlUCSIsBoxDrawing(int code);
+		XMLPUBFUN int xmlUCSIsBraillePatterns(int code);
+		XMLPUBFUN int xmlUCSIsBuhid	(int code);
+		XMLPUBFUN int xmlUCSIsByzantineMusicalSymbols(int code);
+		XMLPUBFUN int xmlUCSIsCJKCompatibility(int code);
+		XMLPUBFUN int xmlUCSIsCJKCompatibilityForms(int code);
+		XMLPUBFUN int xmlUCSIsCJKCompatibilityIdeographs(int code);
+		XMLPUBFUN int xmlUCSIsCJKCompatibilityIdeographsSupplement(int code);
+		XMLPUBFUN int xmlUCSIsCJKRadicalsSupplement(int code);
+		XMLPUBFUN int xmlUCSIsCJKSymbolsandPunctuation(int code);
+		XMLPUBFUN int xmlUCSIsCJKUnifiedIdeographs(int code);
+		XMLPUBFUN int xmlUCSIsCJKUnifiedIdeographsExtensionA(int code);
+		XMLPUBFUN int xmlUCSIsCJKUnifiedIdeographsExtensionB(int code);
+		XMLPUBFUN int xmlUCSIsCherokee(int code);
+		XMLPUBFUN int xmlUCSIsCombiningDiacriticalMarks(int code);
+		XMLPUBFUN int xmlUCSIsCombiningDiacriticalMarksforSymbols(int code);
+		XMLPUBFUN int xmlUCSIsCombiningHalfMarks(int code);
+		XMLPUBFUN int xmlUCSIsCombiningMarksforSymbols(int code);
+		XMLPUBFUN int xmlUCSIsControlPictures(int code);
+		XMLPUBFUN int xmlUCSIsCurrencySymbols(int code);
+		XMLPUBFUN int xmlUCSIsCypriotSyllabary(int code);
+		XMLPUBFUN int xmlUCSIsCyrillic(int code);
+		XMLPUBFUN int xmlUCSIsCyrillicSupplement(int code);
+		XMLPUBFUN int xmlUCSIsDeseret(int code);
+		XMLPUBFUN int xmlUCSIsDevanagari(int code);
+		XMLPUBFUN int xmlUCSIsDingbats(int code);
+		XMLPUBFUN int xmlUCSIsEnclosedAlphanumerics(int code);
+		XMLPUBFUN int xmlUCSIsEnclosedCJKLettersandMonths(int code);
+		XMLPUBFUN int xmlUCSIsEthiopic(int code);
+		XMLPUBFUN int xmlUCSIsGeneralPunctuation(int code);
+		XMLPUBFUN int xmlUCSIsGeometricShapes(int code);
+		XMLPUBFUN int xmlUCSIsGeorgian(int code);
+		XMLPUBFUN int xmlUCSIsGothic(int code);
+		XMLPUBFUN int xmlUCSIsGreek(int code);
+		XMLPUBFUN int xmlUCSIsGreekExtended(int code);
+		XMLPUBFUN int xmlUCSIsGreekandCoptic(int code);
+		XMLPUBFUN int xmlUCSIsGujarati(int code);
+		XMLPUBFUN int xmlUCSIsGurmukhi(int code);
+		XMLPUBFUN int xmlUCSIsHalfwidthandFullwidthForms(int code);
+		XMLPUBFUN int xmlUCSIsHangulCompatibilityJamo(int code);
+		XMLPUBFUN int xmlUCSIsHangulJamo(int code);
+		XMLPUBFUN int xmlUCSIsHangulSyllables(int code);
+		XMLPUBFUN int xmlUCSIsHanunoo(int code);
+		XMLPUBFUN int xmlUCSIsHebrew(int code);
+		XMLPUBFUN int xmlUCSIsHighPrivateUseSurrogates(int code);
+		XMLPUBFUN int xmlUCSIsHighSurrogates(int code);
+		XMLPUBFUN int xmlUCSIsHiragana	(int code);
+		XMLPUBFUN int xmlUCSIsIPAExtensions	(int code);
+		XMLPUBFUN int xmlUCSIsIdeographicDescriptionCharacters	(int code);
+		XMLPUBFUN int xmlUCSIsKanbun	(int code);
+		XMLPUBFUN int xmlUCSIsKangxiRadicals	(int code);
+		XMLPUBFUN int xmlUCSIsKannada	(int code);
+		XMLPUBFUN int xmlUCSIsKatakana	(int code);
+		XMLPUBFUN int xmlUCSIsKatakanaPhoneticExtensions	(int code);
+		XMLPUBFUN int xmlUCSIsKhmer	(int code);
+		XMLPUBFUN int xmlUCSIsKhmerSymbols	(int code);
+		XMLPUBFUN int xmlUCSIsLao	(int code);
+		XMLPUBFUN int xmlUCSIsLatin1Supplement(int code);
+		XMLPUBFUN int xmlUCSIsLatinExtendedA(int code);
+		XMLPUBFUN int xmlUCSIsLatinExtendedB(int code);
+		XMLPUBFUN int xmlUCSIsLatinExtendedAdditional(int code);
+		XMLPUBFUN int xmlUCSIsLetterlikeSymbols(int code);
+		XMLPUBFUN int xmlUCSIsLimbu	(int code);
+		XMLPUBFUN int xmlUCSIsLinearBIdeograms(int code);
+		XMLPUBFUN int xmlUCSIsLinearBSyllabary(int code);
+		XMLPUBFUN int xmlUCSIsLowSurrogates	(int code);
+		XMLPUBFUN int xmlUCSIsMalayalam(int code);
+		XMLPUBFUN int xmlUCSIsMathematicalAlphanumericSymbols(int code);
+		XMLPUBFUN int xmlUCSIsMathematicalOperators(int code);
+		XMLPUBFUN int xmlUCSIsMiscellaneousMathematicalSymbolsA(int code);
+		XMLPUBFUN int xmlUCSIsMiscellaneousMathematicalSymbolsB(int code);
+		XMLPUBFUN int xmlUCSIsMiscellaneousSymbols(int code);
+		XMLPUBFUN int xmlUCSIsMiscellaneousSymbolsandArrows(int code);
+		XMLPUBFUN int xmlUCSIsMiscellaneousTechnical(int code);
+		XMLPUBFUN int xmlUCSIsMongolian(int code);
+		XMLPUBFUN int xmlUCSIsMusicalSymbols(int code);
+		XMLPUBFUN int xmlUCSIsMyanmar(int code);
+		XMLPUBFUN int xmlUCSIsNumberForms(int code);
+		XMLPUBFUN int xmlUCSIsOgham(int code);
+		XMLPUBFUN int xmlUCSIsOldItalic(int code);
+		XMLPUBFUN int xmlUCSIsOpticalCharacterRecognition(int code);
+		XMLPUBFUN int xmlUCSIsOriya(int code);
+		XMLPUBFUN int xmlUCSIsOsmanya(int code);
+		XMLPUBFUN int xmlUCSIsPhoneticExtensions(int code);
+		XMLPUBFUN int xmlUCSIsPrivateUse(int code);
+		XMLPUBFUN int xmlUCSIsPrivateUseArea(int code);
+		XMLPUBFUN int xmlUCSIsRunic(int code);
+		XMLPUBFUN int xmlUCSIsShavian(int code);
+		XMLPUBFUN int xmlUCSIsSinhala(int code);
+		XMLPUBFUN int xmlUCSIsSmallFormVariants(int code);
+		XMLPUBFUN int xmlUCSIsSpacingModifierLetters(int code);
+		XMLPUBFUN int xmlUCSIsSpecials(int code);
+		XMLPUBFUN int xmlUCSIsSuperscriptsandSubscripts(int code);
+		XMLPUBFUN int xmlUCSIsSupplementalArrowsA(int code);
+		XMLPUBFUN int xmlUCSIsSupplementalArrowsB(int code);
+		XMLPUBFUN int xmlUCSIsSupplementalMathematicalOperators(int code);
+		XMLPUBFUN int xmlUCSIsSupplementaryPrivateUseAreaA(int code);
+		XMLPUBFUN int xmlUCSIsSupplementaryPrivateUseAreaB(int code);
+		XMLPUBFUN int xmlUCSIsSyriac(int code);
+		XMLPUBFUN int xmlUCSIsTagalog(int code);
+		XMLPUBFUN int xmlUCSIsTagbanwa(int code);
+		XMLPUBFUN int xmlUCSIsTags(int code);
+		XMLPUBFUN int xmlUCSIsTaiLe(int code);
+		XMLPUBFUN int xmlUCSIsTaiXuanJingSymbols(int code);
+		XMLPUBFUN int xmlUCSIsTamil(int code);
+		XMLPUBFUN int xmlUCSIsTelugu(int code);
+		XMLPUBFUN int xmlUCSIsThaana(int code);
+		XMLPUBFUN int xmlUCSIsThai(int code);
+		XMLPUBFUN int xmlUCSIsTibetan(int code);
+		XMLPUBFUN int xmlUCSIsUgaritic(int code);
+		XMLPUBFUN int xmlUCSIsUnifiedCanadianAboriginalSyllabics(int code);
+		XMLPUBFUN int xmlUCSIsVariationSelectors(int code);
+		XMLPUBFUN int xmlUCSIsVariationSelectorsSupplement(int code);
+		XMLPUBFUN int xmlUCSIsYiRadicals(int code);
+		XMLPUBFUN int xmlUCSIsYiSyllables(int code);
+		XMLPUBFUN int xmlUCSIsYijingHexagramSymbols(int code);
+		XMLPUBFUN int xmlUCSIsBlock(int code, const char *block);
+		XMLPUBFUN int xmlUCSIsCatC(int code);
+		XMLPUBFUN int xmlUCSIsCatCc(int code);
+		XMLPUBFUN int xmlUCSIsCatCf(int code);
+		XMLPUBFUN int xmlUCSIsCatCo(int code);
+		XMLPUBFUN int xmlUCSIsCatCs(int code);
+		XMLPUBFUN int xmlUCSIsCatL(int code);
+		XMLPUBFUN int xmlUCSIsCatLl(int code);
+		XMLPUBFUN int xmlUCSIsCatLm(int code);
+		XMLPUBFUN int xmlUCSIsCatLo(int code);
+		XMLPUBFUN int xmlUCSIsCatLt(int code);
+		XMLPUBFUN int xmlUCSIsCatLu(int code);
+		XMLPUBFUN int xmlUCSIsCatM(int code);
+		XMLPUBFUN int xmlUCSIsCatMc(int code);
+		XMLPUBFUN int xmlUCSIsCatMe(int code);
+		XMLPUBFUN int xmlUCSIsCatMn(int code);
+		XMLPUBFUN int xmlUCSIsCatN(int code);
+		XMLPUBFUN int xmlUCSIsCatNd(int code);
+		XMLPUBFUN int xmlUCSIsCatNl(int code);
+		XMLPUBFUN int xmlUCSIsCatNo(int code);
+		XMLPUBFUN int xmlUCSIsCatP(int code);
+		XMLPUBFUN int xmlUCSIsCatPc(int code);
+		XMLPUBFUN int xmlUCSIsCatPd(int code);
+		XMLPUBFUN int xmlUCSIsCatPe(int code);
+		XMLPUBFUN int xmlUCSIsCatPf(int code);
+		XMLPUBFUN int xmlUCSIsCatPi(int code);
+		XMLPUBFUN int xmlUCSIsCatPo(int code);
+		XMLPUBFUN int xmlUCSIsCatPs(int code);
+		XMLPUBFUN int xmlUCSIsCatS(int code);
+		XMLPUBFUN int xmlUCSIsCatSc(int code);
+		XMLPUBFUN int xmlUCSIsCatSk(int code);
+		XMLPUBFUN int xmlUCSIsCatSm(int code);
+		XMLPUBFUN int xmlUCSIsCatSo(int code);
+		XMLPUBFUN int xmlUCSIsCatZ(int code);
+		XMLPUBFUN int xmlUCSIsCatZl(int code);
+		XMLPUBFUN int xmlUCSIsCatZp(int code);
+		XMLPUBFUN int xmlUCSIsCatZs(int code);
+		XMLPUBFUN int xmlUCSIsCat(int code, const char *cat);
 		#ifdef __cplusplus
 		}
 		#endif
@@ -2409,22 +2409,22 @@ int xmlNop(void);
 	// 
 	// Initializer
 	// 
-	// @v10.9.0 (depricated) XMLPUBFUN int XMLCALL xmlInitializeDict();
-	XMLPUBFUN xmlDict * XMLCALL xmlDictCreate();
-	XMLPUBFUN size_t XMLCALL xmlDictSetLimit(xmlDict * dict, size_t limit);
-	XMLPUBFUN size_t XMLCALL xmlDictGetUsage(xmlDict * dict);
-	XMLPUBFUN xmlDict * XMLCALL xmlDictCreateSub(xmlDict * sub);
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlDictReference(xmlDict * dict);
-	XMLPUBFUN void /*XMLCALL*/FASTCALL xmlDictFree(xmlDict * dict);
+	// @v10.9.0 (depricated) XMLPUBFUN int xmlInitializeDict();
+	XMLPUBFUN xmlDict * xmlDictCreate();
+	XMLPUBFUN size_t xmlDictSetLimit(xmlDict * dict, size_t limit);
+	XMLPUBFUN size_t xmlDictGetUsage(xmlDict * dict);
+	XMLPUBFUN xmlDict * xmlDictCreateSub(xmlDict * sub);
+	XMLPUBFUN int FASTCALL xmlDictReference(xmlDict * dict);
+	XMLPUBFUN void FASTCALL xmlDictFree(xmlDict * dict);
 	// 
 	// Lookup of entry in the dictionnary.
 	// 
-	XMLPUBFUN const xmlChar * /*XMLCALL*/FASTCALL xmlDictLookup(xmlDict * dict, const xmlChar *name, int len);
+	XMLPUBFUN const xmlChar * FASTCALL xmlDictLookup(xmlDict * dict, const xmlChar *name, int len);
 	const xmlChar * FASTCALL xmlDictLookupSL(xmlDict * dict, const xmlChar * name);
-	XMLPUBFUN const xmlChar * XMLCALL xmlDictExists(xmlDict * dict, const xmlChar *name, int len);
-	XMLPUBFUN const xmlChar * XMLCALL xmlDictQLookup(xmlDict * dict, const xmlChar *prefix, const xmlChar *name);
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlDictOwns(xmlDict * pDict, const xmlChar * pStr);
-	XMLPUBFUN int XMLCALL xmlDictSize(xmlDict * dict);
+	XMLPUBFUN const xmlChar * xmlDictExists(xmlDict * dict, const xmlChar *name, int len);
+	XMLPUBFUN const xmlChar * xmlDictQLookup(xmlDict * dict, const xmlChar *prefix, const xmlChar *name);
+	XMLPUBFUN int FASTCALL xmlDictOwns(xmlDict * pDict, const xmlChar * pStr);
+	XMLPUBFUN int xmlDictSize(xmlDict * dict);
 	//
 	// Descr: Free a string if it is not owned by the "dict" dictionnary in the current scope
 	//
@@ -2432,7 +2432,7 @@ int xmlNop(void);
 	// 
 	// Cleanup function
 	//
-	XMLPUBFUN void XMLCALL xmlDictCleanup();
+	XMLPUBFUN void xmlDictCleanup();
 	/**
 	 * xmlURI:
 	 *
@@ -2463,21 +2463,21 @@ int xmlNop(void);
 	// This function is in tree.h:
 	// xmlChar * xmlNodeGetBase(xmlDoc * doc, xmlNode * cur);
 	// 
-	XMLPUBFUN xmlURI * XMLCALL xmlCreateURI();
-	XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlBuildURI(const xmlChar * URI, const xmlChar * base);
-	XMLPUBFUN xmlChar * XMLCALL xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base);
-	XMLPUBFUN xmlURI * XMLCALL xmlParseURI(const char * str);
-	XMLPUBFUN xmlURI * XMLCALL xmlParseURIRaw(const char * str, int raw);
-	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlParseURIReference(xmlURI * uri, const char * str);
-	XMLPUBFUN xmlChar * XMLCALL xmlSaveUri(xmlURI * uri);
-	XMLPUBFUN void XMLCALL xmlPrintURI(FILE * stream, xmlURI * uri);
-	XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlURIEscapeStr(const xmlChar * str, const xmlChar * list);
-	XMLPUBFUN char * /*XMLCALL*/FASTCALL xmlURIUnescapeString(const char * str, int len, char * target);
-	XMLPUBFUN int XMLCALL xmlNormalizeURIPath(char * path);
-	XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL  xmlURIEscape(const xmlChar * str);
-	XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeURI(xmlURI * pUri);
-	XMLPUBFUN xmlChar* XMLCALL xmlCanonicPath(const xmlChar * path);
-	XMLPUBFUN xmlChar* XMLCALL xmlPathToURI(const xmlChar * path);
+	XMLPUBFUN xmlURI * xmlCreateURI();
+	XMLPUBFUN xmlChar * FASTCALL xmlBuildURI(const xmlChar * URI, const xmlChar * base);
+	XMLPUBFUN xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base);
+	XMLPUBFUN xmlURI * xmlParseURI(const char * str);
+	XMLPUBFUN xmlURI * xmlParseURIRaw(const char * str, int raw);
+	XMLPUBFUN int FASTCALL xmlParseURIReference(xmlURI * uri, const char * str);
+	XMLPUBFUN xmlChar * xmlSaveUri(xmlURI * uri);
+	XMLPUBFUN void xmlPrintURI(FILE * stream, xmlURI * uri);
+	XMLPUBFUN xmlChar * FASTCALL xmlURIEscapeStr(const xmlChar * str, const xmlChar * list);
+	XMLPUBFUN char * FASTCALL xmlURIUnescapeString(const char * str, int len, char * target);
+	XMLPUBFUN int xmlNormalizeURIPath(char * path);
+	XMLPUBFUN xmlChar * FASTCALL  xmlURIEscape(const xmlChar * str);
+	XMLPUBFUN void FASTCALL xmlFreeURI(xmlURI * pUri);
+	XMLPUBFUN xmlChar* xmlCanonicPath(const xmlChar * path);
+	XMLPUBFUN xmlChar* xmlPathToURI(const xmlChar * path);
 	xmlBuf * xmlBufCreate();
 	xmlBuf * FASTCALL xmlBufCreateSize(size_t size);
 	xmlBuf * FASTCALL xmlBufCreateStatic(void * mem, size_t size);
@@ -2541,58 +2541,58 @@ int xmlNop(void);
 		// 
 		// Operations on a given catalog.
 		// 
-		XMLPUBFUN xmlCatalogPtr XMLCALL xmlNewCatalog(int sgml);
-		XMLPUBFUN xmlCatalogPtr XMLCALL xmlLoadACatalog(const char * filename);
-		XMLPUBFUN xmlCatalogPtr XMLCALL xmlLoadSGMLSuperCatalog(const char * filename);
-		XMLPUBFUN int XMLCALL xmlConvertSGMLCatalog(xmlCatalogPtr catal);
-		XMLPUBFUN int XMLCALL xmlACatalogAdd(xmlCatalogPtr catal, const xmlChar * type, const xmlChar * orig, const xmlChar * replace);
-		XMLPUBFUN int XMLCALL xmlACatalogRemove(xmlCatalogPtr catal, const xmlChar * value);
-		XMLPUBFUN xmlChar * XMLCALL xmlACatalogResolve(xmlCatalogPtr catal, const xmlChar * pubID, const xmlChar * sysID);
-		XMLPUBFUN xmlChar * XMLCALL xmlACatalogResolveSystem(xmlCatalogPtr catal, const xmlChar * sysID);
-		XMLPUBFUN xmlChar * XMLCALL xmlACatalogResolvePublic(xmlCatalogPtr catal, const xmlChar * pubID);
-		XMLPUBFUN xmlChar * XMLCALL xmlACatalogResolveURI(xmlCatalogPtr catal, const xmlChar * URI);
+		XMLPUBFUN xmlCatalogPtr xmlNewCatalog(int sgml);
+		XMLPUBFUN xmlCatalogPtr xmlLoadACatalog(const char * filename);
+		XMLPUBFUN xmlCatalogPtr xmlLoadSGMLSuperCatalog(const char * filename);
+		XMLPUBFUN int xmlConvertSGMLCatalog(xmlCatalogPtr catal);
+		XMLPUBFUN int xmlACatalogAdd(xmlCatalogPtr catal, const xmlChar * type, const xmlChar * orig, const xmlChar * replace);
+		XMLPUBFUN int xmlACatalogRemove(xmlCatalogPtr catal, const xmlChar * value);
+		XMLPUBFUN xmlChar * xmlACatalogResolve(xmlCatalogPtr catal, const xmlChar * pubID, const xmlChar * sysID);
+		XMLPUBFUN xmlChar * xmlACatalogResolveSystem(xmlCatalogPtr catal, const xmlChar * sysID);
+		XMLPUBFUN xmlChar * xmlACatalogResolvePublic(xmlCatalogPtr catal, const xmlChar * pubID);
+		XMLPUBFUN xmlChar * xmlACatalogResolveURI(xmlCatalogPtr catal, const xmlChar * URI);
 		#ifdef LIBXML_OUTPUT_ENABLED
-			XMLPUBFUN void XMLCALL xmlACatalogDump(xmlCatalogPtr catal, FILE * out);
+			XMLPUBFUN void xmlACatalogDump(xmlCatalogPtr catal, FILE * out);
 		#endif
-		XMLPUBFUN void XMLCALL xmlFreeCatalog(xmlCatalogPtr catal);
-		XMLPUBFUN int XMLCALL xmlCatalogIsEmpty(xmlCatalogPtr catal);
+		XMLPUBFUN void xmlFreeCatalog(xmlCatalogPtr catal);
+		XMLPUBFUN int xmlCatalogIsEmpty(xmlCatalogPtr catal);
 		// 
 		// Global operations.
 		// 
-		XMLPUBFUN void XMLCALL xmlInitializeCatalog();
-		XMLPUBFUN int XMLCALL xmlLoadCatalog(const char * filename);
-		XMLPUBFUN void XMLCALL xmlLoadCatalogs(const char * paths);
-		XMLPUBFUN void XMLCALL xmlCatalogCleanup();
+		XMLPUBFUN void xmlInitializeCatalog();
+		XMLPUBFUN int xmlLoadCatalog(const char * filename);
+		XMLPUBFUN void xmlLoadCatalogs(const char * paths);
+		XMLPUBFUN void xmlCatalogCleanup();
 		#ifdef LIBXML_OUTPUT_ENABLED
-			XMLPUBFUN void XMLCALL xmlCatalogDump(FILE * out);
+			XMLPUBFUN void xmlCatalogDump(FILE * out);
 		#endif
-		XMLPUBFUN xmlChar * XMLCALL xmlCatalogResolve(const xmlChar * pubID, const xmlChar * sysID);
-		XMLPUBFUN xmlChar * XMLCALL xmlCatalogResolveSystem(const xmlChar * sysID);
-		XMLPUBFUN xmlChar * XMLCALL xmlCatalogResolvePublic(const xmlChar * pubID);
-		XMLPUBFUN xmlChar * XMLCALL xmlCatalogResolveURI(const xmlChar * URI);
-		XMLPUBFUN int XMLCALL xmlCatalogAdd(const xmlChar * type, const xmlChar * orig, const xmlChar * replace);
-		XMLPUBFUN int XMLCALL xmlCatalogRemove(const xmlChar * value);
-		XMLPUBFUN xmlDoc * XMLCALL xmlParseCatalogFile(const char * filename);
-		XMLPUBFUN int XMLCALL xmlCatalogConvert();
+		XMLPUBFUN xmlChar * xmlCatalogResolve(const xmlChar * pubID, const xmlChar * sysID);
+		XMLPUBFUN xmlChar * xmlCatalogResolveSystem(const xmlChar * sysID);
+		XMLPUBFUN xmlChar * xmlCatalogResolvePublic(const xmlChar * pubID);
+		XMLPUBFUN xmlChar * xmlCatalogResolveURI(const xmlChar * URI);
+		XMLPUBFUN int xmlCatalogAdd(const xmlChar * type, const xmlChar * orig, const xmlChar * replace);
+		XMLPUBFUN int xmlCatalogRemove(const xmlChar * value);
+		XMLPUBFUN xmlDoc * xmlParseCatalogFile(const char * filename);
+		XMLPUBFUN int xmlCatalogConvert();
 		// 
 		// Strictly minimal interfaces for per-document catalogs used by the parser.
 		// 
-		XMLPUBFUN void XMLCALL xmlCatalogFreeLocal(void * catalogs);
-		XMLPUBFUN void * XMLCALL xmlCatalogAddLocal(void * catalogs, const xmlChar * URL);
-		XMLPUBFUN xmlChar * XMLCALL xmlCatalogLocalResolve(void * catalogs, const xmlChar * pubID, const xmlChar * sysID);
-		XMLPUBFUN xmlChar * XMLCALL xmlCatalogLocalResolveURI(void * catalogs, const xmlChar * URI);
+		XMLPUBFUN void xmlCatalogFreeLocal(void * catalogs);
+		XMLPUBFUN void * xmlCatalogAddLocal(void * catalogs, const xmlChar * URL);
+		XMLPUBFUN xmlChar * xmlCatalogLocalResolve(void * catalogs, const xmlChar * pubID, const xmlChar * sysID);
+		XMLPUBFUN xmlChar * xmlCatalogLocalResolveURI(void * catalogs, const xmlChar * URI);
 		// 
 		// Preference settings.
 		// 
-		XMLPUBFUN int XMLCALL xmlCatalogSetDebug(int level);
-		XMLPUBFUN xmlCatalogPrefer XMLCALL xmlCatalogSetDefaultPrefer(xmlCatalogPrefer prefer);
-		XMLPUBFUN void XMLCALL xmlCatalogSetDefaults(xmlCatalogAllow allow);
-		XMLPUBFUN xmlCatalogAllow XMLCALL xmlCatalogGetDefaults();
+		XMLPUBFUN int xmlCatalogSetDebug(int level);
+		XMLPUBFUN xmlCatalogPrefer xmlCatalogSetDefaultPrefer(xmlCatalogPrefer prefer);
+		XMLPUBFUN void xmlCatalogSetDefaults(xmlCatalogAllow allow);
+		XMLPUBFUN xmlCatalogAllow xmlCatalogGetDefaults();
 		// 
 		// DEPRECATED interfaces 
 		// 
-		XMLPUBFUN const xmlChar * XMLCALL xmlCatalogGetSystem(const xmlChar * sysID);
-		XMLPUBFUN const xmlChar * XMLCALL xmlCatalogGetPublic(const xmlChar * pubID);
+		XMLPUBFUN const xmlChar * xmlCatalogGetSystem(const xmlChar * sysID);
+		XMLPUBFUN const xmlChar * xmlCatalogGetPublic(const xmlChar * pubID);
 	#endif
 	// save.h {
 	#ifdef LIBXML_OUTPUT_ENABLED
@@ -2644,19 +2644,19 @@ int xmlNop(void);
 			// 
 			// standalone processing
 			// 
-			XMLPUBFUN int XMLCALL xmlXIncludeProcess(xmlDoc * doc);
-			XMLPUBFUN int XMLCALL xmlXIncludeProcessFlags(xmlDoc * doc, int flags);
-			XMLPUBFUN int XMLCALL xmlXIncludeProcessFlagsData(xmlDoc * doc, int flags, void * data);
-			XMLPUBFUN int XMLCALL xmlXIncludeProcessTreeFlagsData(xmlNode * tree, int flags, void * data);
-			XMLPUBFUN int XMLCALL xmlXIncludeProcessTree(xmlNode * tree);
-			XMLPUBFUN int XMLCALL xmlXIncludeProcessTreeFlags(xmlNode * tree, int flags);
+			XMLPUBFUN int xmlXIncludeProcess(xmlDoc * doc);
+			XMLPUBFUN int xmlXIncludeProcessFlags(xmlDoc * doc, int flags);
+			XMLPUBFUN int xmlXIncludeProcessFlagsData(xmlDoc * doc, int flags, void * data);
+			XMLPUBFUN int xmlXIncludeProcessTreeFlagsData(xmlNode * tree, int flags, void * data);
+			XMLPUBFUN int xmlXIncludeProcessTree(xmlNode * tree);
+			XMLPUBFUN int xmlXIncludeProcessTreeFlags(xmlNode * tree, int flags);
 			// 
 			// contextual processing
 			// 
-			XMLPUBFUN xmlXIncludeCtxtPtr XMLCALL xmlXIncludeNewContext(xmlDoc * doc);
-			XMLPUBFUN int XMLCALL xmlXIncludeSetFlags(xmlXIncludeCtxtPtr ctxt, int flags);
-			XMLPUBFUN void /*XMLCALL*/FASTCALL xmlXIncludeFreeContext(xmlXIncludeCtxtPtr ctxt);
-			XMLPUBFUN int XMLCALL xmlXIncludeProcessNode(xmlXIncludeCtxtPtr ctxt, xmlNode * tree);
+			XMLPUBFUN xmlXIncludeCtxtPtr xmlXIncludeNewContext(xmlDoc * doc);
+			XMLPUBFUN int xmlXIncludeSetFlags(xmlXIncludeCtxtPtr ctxt, int flags);
+			XMLPUBFUN void FASTCALL xmlXIncludeFreeContext(xmlXIncludeCtxtPtr ctxt);
+			XMLPUBFUN int xmlXIncludeProcessNode(xmlXIncludeCtxtPtr ctxt, xmlNode * tree);
 			#ifdef __cplusplus
 			}
 			#endif

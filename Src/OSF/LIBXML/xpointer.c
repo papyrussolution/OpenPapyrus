@@ -572,8 +572,10 @@ void FASTCALL xmlXPtrLocationSetAdd(xmlLocationSet * cur, xmlXPathObject * val)
  */
 xmlLocationSet * xmlXPtrLocationSetMerge(xmlLocationSet * val1, xmlLocationSet * val2)
 {
-	if(val1 == NULL) return 0;
-	if(val2 == NULL) return val1;
+	if(!val1) 
+		return 0;
+	if(!val2) 
+		return val1;
 	/*
 	 * !!!!! this can be optimized a lot, knowing that both
 	 *  val1 and val2 already have unicity of their values.
@@ -812,14 +814,12 @@ static void xmlXPtrGetChildNo(xmlXPathParserContext * ctxt, int indx)
  *
  * @todo there is no new scheme registration mechanism
  */
-
 static void xmlXPtrEvalXPtrPart(xmlXPathParserContext * ctxt, xmlChar * name)
 {
 	xmlChar * buffer, * cur;
 	int len;
 	int level;
-	if(!name)
-		name = xmlXPathParseName(ctxt);
+	SETIFZQ(name, xmlXPathParseName(ctxt));
 	if(!name)
 		XP_ERROR(XPATH_EXPR_ERROR);
 	if(CUR != '(')

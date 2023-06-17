@@ -94,7 +94,7 @@ UnicodeString &ICUDataTable::get(const char * tableKey, const char * subTableKey
 {
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t len = 0;
-	const UChar * s = uloc_getTableStringWithFallback(path, locale.getName(), tableKey, subTableKey, itemKey,
+	const char16_t * s = uloc_getTableStringWithFallback(path, locale.getName(), tableKey, subTableKey, itemKey,
 		&len, &status);
 	if(U_SUCCESS(status) && len > 0) {
 		return result.setTo(s, len);
@@ -106,7 +106,7 @@ UnicodeString &ICUDataTable::getNoFallback(const char * tableKey, const char * s
 {
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t len = 0;
-	const UChar * s = uloc_getTableStringWithFallback(path, locale.getName(), tableKey, subTableKey, itemKey, &len, &status);
+	const char16_t * s = uloc_getTableStringWithFallback(path, locale.getName(), tableKey, subTableKey, itemKey, &len, &status);
 	if(U_SUCCESS(status)) {
 		return result.setTo(s, len);
 	}
@@ -403,17 +403,17 @@ void LocaleDisplayNamesImpl::initialize()
 		pattern = UnicodeString("{0} ({1})", -1, US_INV);
 	}
 	format.applyPatternMinMaxArguments(pattern, 2, 2, status);
-	if(pattern.indexOf((UChar)0xFF08) >= 0) {
-		formatOpenParen.setTo((UChar)0xFF08); // fullwidth (
-		formatReplaceOpenParen.setTo((UChar)0xFF3B); // fullwidth [
-		formatCloseParen.setTo((UChar)0xFF09); // fullwidth )
-		formatReplaceCloseParen.setTo((UChar)0xFF3D); // fullwidth ]
+	if(pattern.indexOf((char16_t)0xFF08) >= 0) {
+		formatOpenParen.setTo((char16_t)0xFF08); // fullwidth (
+		formatReplaceOpenParen.setTo((char16_t)0xFF3B); // fullwidth [
+		formatCloseParen.setTo((char16_t)0xFF09); // fullwidth )
+		formatReplaceCloseParen.setTo((char16_t)0xFF3D); // fullwidth ]
 	}
 	else {
-		formatOpenParen.setTo((UChar)0x0028); // (
-		formatReplaceOpenParen.setTo((UChar)0x005B); // [
-		formatCloseParen.setTo((UChar)0x0029); // )
-		formatReplaceCloseParen.setTo((UChar)0x005D); // ]
+		formatOpenParen.setTo((char16_t)0x0028); // (
+		formatReplaceOpenParen.setTo((char16_t)0x005B); // [
+		formatCloseParen.setTo((char16_t)0x0029); // )
+		formatReplaceCloseParen.setTo((char16_t)0x005D); // ]
 	}
 	UnicodeString ktPattern;
 	langData.get("localeDisplayPattern", "keyTypePattern", ktPattern);
@@ -614,7 +614,7 @@ UnicodeString &LocaleDisplayNamesImpl::localeDisplayName(const Locale & loc, Uni
 			}
 			else {
 				appendWithSep(resultRemainder, temp)
-				.append((UChar)0x3d /* = */)
+				.append((char16_t)0x3d /* = */)
 				.append(temp2);
 			}
 		}
@@ -803,7 +803,7 @@ UnicodeString &LocaleDisplayNamesImpl::keyValueDisplayName(const char * key,
 		UErrorCode sts = U_ZERO_ERROR;
 		UnicodeString ustrValue(value, -1, US_INV);
 		int32_t len;
-		const UChar * currencyName = ucurr_getName(ustrValue.getTerminatedBuffer(),
+		const char16_t * currencyName = ucurr_getName(ustrValue.getTerminatedBuffer(),
 			locale.getBaseName(), UCURR_LONG_NAME, nullptr /* isChoiceFormat */, &len, &sts);
 		if(U_FAILURE(sts)) {
 			// Return the value as is on failure
@@ -903,7 +903,7 @@ U_CAPI UDisplayContext U_EXPORT2 uldn_getContext(const ULocaleDisplayNames * ldn
 
 U_CAPI int32_t U_EXPORT2 uldn_localeDisplayName(const ULocaleDisplayNames * ldn,
     const char * locale,
-    UChar * result,
+    char16_t * result,
     int32_t maxResultSize,
     UErrorCode * pErrorCode) {
 	if(U_FAILURE(*pErrorCode)) {
@@ -924,7 +924,7 @@ U_CAPI int32_t U_EXPORT2 uldn_localeDisplayName(const ULocaleDisplayNames * ldn,
 
 U_CAPI int32_t U_EXPORT2 uldn_languageDisplayName(const ULocaleDisplayNames * ldn,
     const char * lang,
-    UChar * result,
+    char16_t * result,
     int32_t maxResultSize,
     UErrorCode * pErrorCode) {
 	if(U_FAILURE(*pErrorCode)) {
@@ -941,7 +941,7 @@ U_CAPI int32_t U_EXPORT2 uldn_languageDisplayName(const ULocaleDisplayNames * ld
 
 U_CAPI int32_t U_EXPORT2 uldn_scriptDisplayName(const ULocaleDisplayNames * ldn,
     const char * script,
-    UChar * result,
+    char16_t * result,
     int32_t maxResultSize,
     UErrorCode * pErrorCode) {
 	if(U_FAILURE(*pErrorCode)) {
@@ -958,7 +958,7 @@ U_CAPI int32_t U_EXPORT2 uldn_scriptDisplayName(const ULocaleDisplayNames * ldn,
 
 U_CAPI int32_t U_EXPORT2 uldn_scriptCodeDisplayName(const ULocaleDisplayNames * ldn,
     UScriptCode scriptCode,
-    UChar * result,
+    char16_t * result,
     int32_t maxResultSize,
     UErrorCode * pErrorCode) {
 	return uldn_scriptDisplayName(ldn, uscript_getName(scriptCode), result, maxResultSize, pErrorCode);
@@ -966,7 +966,7 @@ U_CAPI int32_t U_EXPORT2 uldn_scriptCodeDisplayName(const ULocaleDisplayNames * 
 
 U_CAPI int32_t U_EXPORT2 uldn_regionDisplayName(const ULocaleDisplayNames * ldn,
     const char * region,
-    UChar * result,
+    char16_t * result,
     int32_t maxResultSize,
     UErrorCode * pErrorCode) {
 	if(U_FAILURE(*pErrorCode)) {
@@ -981,7 +981,7 @@ U_CAPI int32_t U_EXPORT2 uldn_regionDisplayName(const ULocaleDisplayNames * ldn,
 	return temp.extract(result, maxResultSize, *pErrorCode);
 }
 
-U_CAPI int32_t U_EXPORT2 uldn_variantDisplayName(const ULocaleDisplayNames * ldn, const char * variant, UChar * result,
+U_CAPI int32_t U_EXPORT2 uldn_variantDisplayName(const ULocaleDisplayNames * ldn, const char * variant, char16_t * result,
     int32_t maxResultSize, UErrorCode * pErrorCode) 
 {
 	if(U_FAILURE(*pErrorCode)) {
@@ -996,7 +996,7 @@ U_CAPI int32_t U_EXPORT2 uldn_variantDisplayName(const ULocaleDisplayNames * ldn
 	return temp.extract(result, maxResultSize, *pErrorCode);
 }
 
-U_CAPI int32_t U_EXPORT2 uldn_keyDisplayName(const ULocaleDisplayNames * ldn, const char * key, UChar * result,
+U_CAPI int32_t U_EXPORT2 uldn_keyDisplayName(const ULocaleDisplayNames * ldn, const char * key, char16_t * result,
     int32_t maxResultSize, UErrorCode * pErrorCode) 
 {
 	if(U_FAILURE(*pErrorCode)) {
@@ -1012,7 +1012,7 @@ U_CAPI int32_t U_EXPORT2 uldn_keyDisplayName(const ULocaleDisplayNames * ldn, co
 }
 
 U_CAPI int32_t U_EXPORT2 uldn_keyValueDisplayName(const ULocaleDisplayNames * ldn, const char * key,
-    const char * value, UChar * result, int32_t maxResultSize, UErrorCode * pErrorCode) 
+    const char * value, char16_t * result, int32_t maxResultSize, UErrorCode * pErrorCode) 
 {
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;

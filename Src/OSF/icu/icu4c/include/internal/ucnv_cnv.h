@@ -294,8 +294,8 @@ U_CDECL_END
 U_CFUNC void ucnv_getCompleteUnicodeSet(const UConverter * cnv, const USetAdder * sa, UConverterUnicodeSet which, UErrorCode * pErrorCode);
 U_CFUNC void ucnv_getNonSurrogateUnicodeSet(const UConverter * cnv, const USetAdder * sa, UConverterUnicodeSet which, UErrorCode * pErrorCode); 
 U_CFUNC void ucnv_fromUWriteBytes(UConverter * cnv, const char * bytes, int32_t length, char ** target, const char * targetLimit, int32_t ** offsets, int32_t sourceIndex, UErrorCode * pErrorCode);
-U_CFUNC void ucnv_toUWriteUChars(UConverter * cnv, const UChar * uchars, int32_t length, UChar ** target, const UChar * targetLimit, int32_t ** offsets, int32_t sourceIndex, UErrorCode * pErrorCode);
-U_CFUNC void ucnv_toUWriteCodePoint(UConverter * cnv, UChar32 c, UChar ** target, const UChar * targetLimit, int32_t ** offsets, int32_t sourceIndex, UErrorCode * pErrorCode);
+U_CFUNC void ucnv_toUWriteUChars(UConverter * cnv, const char16_t * uchars, int32_t length, char16_t ** target, const char16_t * targetLimit, int32_t ** offsets, int32_t sourceIndex, UErrorCode * pErrorCode);
+U_CFUNC void ucnv_toUWriteCodePoint(UConverter * cnv, UChar32 c, char16_t ** target, const char16_t * targetLimit, int32_t ** offsets, int32_t sourceIndex, UErrorCode * pErrorCode);
 
 #endif
 

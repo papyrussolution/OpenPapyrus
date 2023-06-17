@@ -21,7 +21,7 @@
 // 
 #define XMLPUBFUN        // Macros which declare an exportable function
 #define XMLPUBVAR extern // Macros which declare an exportable variable
-#define XMLCALL          // Macros which declare the called convention for exported functions
+//#define XMLCALL__Removed // Macros which declare the called convention for exported functions
 #define XMLCDECL         // Macro which declares the calling convention for exported functions that use '...'.
 //
 // DOC_DISABLE 
@@ -30,7 +30,7 @@
 #if defined(_WIN32) && defined(_MSC_VER)
 	#undef XMLPUBFUN
 	#undef XMLPUBVAR
-	#undef XMLCALL
+	//#undef XMLCALL__Removed
 	#undef XMLCDECL
 	#if defined(IN_LIBXML) && !defined(LIBXML_STATIC)
 		#define XMLPUBFUN __declspec(dllexport)
@@ -43,11 +43,11 @@
 			#define XMLPUBVAR extern
 		#endif
 	#endif
-	#if defined(LIBXML_FASTCALL)
-		#define XMLCALL __fastcall
-	#else
-		#define XMLCALL __cdecl
-	#endif
+	//#if defined(LIBXML_FASTCALL)
+		//#define XMLCALL__Removed __fastcall
+	//#else
+		//#define XMLCALL__Removed __cdecl
+	//#endif
 	#define XMLCDECL __cdecl
 	#if !defined _REENTRANT
 		#define _REENTRANT
@@ -57,7 +57,7 @@
 #if defined(_WIN32) && defined(__BORLANDC__)
 	#undef XMLPUBFUN
 	#undef XMLPUBVAR
-	#undef XMLCALL
+	//#undef XMLCALL__Removed
 	#undef XMLCDECL
 	#if defined(IN_LIBXML) && !defined(LIBXML_STATIC)
 		#define XMLPUBFUN __declspec(dllexport)
@@ -70,7 +70,7 @@
 			#define XMLPUBVAR extern
 		#endif
 	#endif
-	#define XMLCALL __cdecl
+	#define __cdecl
 	#define XMLCDECL __cdecl
 	#if !defined _REENTRANT
 		#define _REENTRANT
@@ -80,7 +80,7 @@
 #if defined(_WIN32) && defined(__MINGW32__)
 	#undef XMLPUBFUN
 	#undef XMLPUBVAR
-	#undef XMLCALL
+	//#undef XMLCALL__Removed
 	#undef XMLCDECL
 	// 
 	// if defined(IN_LIBXML) this raises problems on mingw with msys
@@ -98,7 +98,7 @@
 			#define XMLPUBVAR extern
 		#endif
 	#endif
-	#define XMLCALL __cdecl
+	#define __cdecl
 	#define XMLCDECL __cdecl
 	#if !defined _REENTRANT
 		#define _REENTRANT
@@ -108,7 +108,7 @@
 #if defined(_WIN32) && defined(__CYGWIN__)
 	#undef XMLPUBFUN
 	#undef XMLPUBVAR
-	#undef XMLCALL
+	//#undef XMLCALL__Removed
 	#undef XMLCDECL
 	#if defined(IN_LIBXML) && !defined(LIBXML_STATIC)
 		#define XMLPUBFUN __declspec(dllexport)
@@ -121,7 +121,7 @@
 			#define XMLPUBVAR
 		#endif
 	#endif
-	#define XMLCALL __cdecl
+	#define __cdecl
 	#define XMLCDECL __cdecl
 #endif
 // Compatibility 
@@ -136,7 +136,7 @@ extern "C" {
 // use those to be sure nothing nasty will happen if your library and includes mismatch
 //
 #ifndef LIBXML2_COMPILING_MSCCDEF
-	XMLPUBFUN void XMLCALL xmlCheckVersion(int version);
+	XMLPUBFUN void xmlCheckVersion(int version);
 #endif
 #define LIBXML_DOTTED_VERSION "2.9.2" // the version string like "1.2.3"
 #define LIBXML_VERSION 20902 // the version number: 1.2.3 value is 10203

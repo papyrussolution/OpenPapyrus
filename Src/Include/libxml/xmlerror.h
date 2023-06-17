@@ -848,14 +848,14 @@ typedef void (XMLCDECL *xmlGenericErrorFunc)(void * ctx, const char *msg, ...) L
  * Signature of the function to use when there is an error and
  * the module handles the new error reporting mechanism.
  */
-typedef void (XMLCALL *xmlStructuredErrorFunc)(void * userData, xmlError * error);
+typedef void (* xmlStructuredErrorFunc)(void * userData, xmlError * error);
 /*
  * Use the following function to reset the two global variables
  * xmlGenericError and xmlGenericErrorContext.
  */
-XMLPUBFUN void XMLCALL xmlSetGenericErrorFunc(void *ctx, xmlGenericErrorFunc handler);
-XMLPUBFUN void XMLCALL initGenericErrorDefaultFunc(xmlGenericErrorFunc *handler);
-XMLPUBFUN void XMLCALL xmlSetStructuredErrorFunc(void *ctx, xmlStructuredErrorFunc handler);
+XMLPUBFUN void xmlSetGenericErrorFunc(void *ctx, xmlGenericErrorFunc handler);
+XMLPUBFUN void initGenericErrorDefaultFunc(xmlGenericErrorFunc *handler);
+XMLPUBFUN void xmlSetStructuredErrorFunc(void *ctx, xmlStructuredErrorFunc handler);
 /*
  * Default message routines used by SAX and Valid context for error
  * and warning reporting.
@@ -864,26 +864,26 @@ XMLPUBFUN void XMLCDECL xmlParserError(void *ctx, const char *msg, ...) LIBXML_A
 XMLPUBFUN void XMLCDECL xmlParserWarning(void *ctx, const char *msg, ...) LIBXML_ATTR_FORMAT(2,3);
 XMLPUBFUN void XMLCDECL xmlParserValidityError(void *ctx, const char *msg, ...) LIBXML_ATTR_FORMAT(2,3);
 XMLPUBFUN void XMLCDECL xmlParserValidityWarning(void *ctx, const char *msg, ...) LIBXML_ATTR_FORMAT(2,3);
-XMLPUBFUN void XMLCALL xmlParserPrintFileInfo(xmlParserInput * input);
-XMLPUBFUN void XMLCALL xmlParserPrintFileContext(xmlParserInput * input);
+XMLPUBFUN void xmlParserPrintFileInfo(xmlParserInput * input);
+XMLPUBFUN void xmlParserPrintFileContext(xmlParserInput * input);
 /*
  * Extended error information routines
  */
-XMLPUBFUN xmlError * XMLCALL xmlGetLastError();
-XMLPUBFUN void XMLCALL xmlResetLastError();
-XMLPUBFUN xmlError * XMLCALL xmlCtxtGetLastError(void *ctx);
-XMLPUBFUN void XMLCALL xmlCtxtResetLastError(void *ctx);
-XMLPUBFUN void XMLCALL xmlResetError(xmlError * err);
-XMLPUBFUN int XMLCALL xmlCopyError(xmlError * from, xmlError * to);
+XMLPUBFUN xmlError * xmlGetLastError();
+XMLPUBFUN void xmlResetLastError();
+XMLPUBFUN xmlError * xmlCtxtGetLastError(void *ctx);
+XMLPUBFUN void xmlCtxtResetLastError(void *ctx);
+XMLPUBFUN void xmlResetError(xmlError * err);
+XMLPUBFUN int xmlCopyError(xmlError * from, xmlError * to);
 
 #ifdef IN_LIBXML
 /*
  * Internal callback reporting routine
  */
-XMLPUBFUN void XMLCALL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFunc channel, void * data, void *ctx,
+XMLPUBFUN void __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFunc channel, void * data, void *ctx,
 	void *node, int domain, int code, xmlErrorLevel level, const char *file, int line, const char *str1, const char *str2, const char *str3,
 	int int1, int col, const char *msg, ...) LIBXML_ATTR_FORMAT(16,17);
-XMLPUBFUN void /*XMLCALL*/FASTCALL __xmlSimpleError(int domain, int code, xmlNode * node, const char *msg, const char *extra);
+XMLPUBFUN void FASTCALL __xmlSimpleError(int domain, int code, xmlNode * node, const char *msg, const char *extra);
 #endif
 #ifdef __cplusplus
 }

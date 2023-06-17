@@ -1693,7 +1693,7 @@ static void fz_draw_fill_image(fz_context * ctx,
 		rect = fz_rect_from_irect(clip);
 		rect = fz_transform_rect(rect, inverse);
 		/* Allow for support requirements for scalers. */
-		rect = fz_expand_rect(rect, fz_max(exp, 1) * 4);
+		rect = fz_expand_rect(rect, smax(exp, 1.0f) * 4);
 		src_area = fz_irect_from_rect(rect);
 		sane.x0 = 0;
 		sane.y0 = 0;
@@ -1837,7 +1837,7 @@ static void fz_draw_fill_image_mask(fz_context * ctx, fz_device * devp, fz_image
 		rect = fz_rect_from_irect(clip);
 		rect = fz_transform_rect(rect, inverse);
 		/* Allow for support requirements for scalers. */
-		rect = fz_expand_rect(rect, fz_max(exp, 1) * 4);
+		rect = fz_expand_rect(rect, smax(exp, 1.0f) * 4);
 		src_area = fz_irect_from_rect(rect);
 		sane.x0 = 0;
 		sane.y0 = 0;
@@ -1847,13 +1847,9 @@ static void fz_draw_fill_image_mask(fz_context * ctx, fz_device * devp, fz_image
 		if(fz_is_empty_irect(src_area))
 			return;
 	}
-
 	pixmap = fz_get_pixmap_from_image(ctx, image, &src_area, &local_ctm, &dx, &dy);
-
 	fz_var(pixmap);
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		if(state->blendmode & FZ_BLEND_KNOCKOUT)
 			state = fz_knockout_begin(ctx, dev);
 
@@ -3068,7 +3064,7 @@ static int parse_aa_opts(const char * val)
 	if(fz_option_eq(val, "app"))
 		return 10;
 	if(val[0] == 'a' && val[1] == 'a' && val[2] >= '0' && val[2] <= '9')
-		return sclamp(fz_atoi(&val[2]), 0, 8);
+		return sclamp(satoi(&val[2]), 0, 8);
 	return 8;
 }
 
@@ -3086,17 +3082,17 @@ fz_draw_options * fz_parse_draw_options(fz_context * ctx, fz_draw_options * opts
 	opts->graphics = fz_aa_level(ctx);
 	opts->text = fz_text_aa_level(ctx);
 	if(fz_has_option(ctx, args, "rotate", &val))
-		opts->rotate = fz_atoi(val);
+		opts->rotate = satoi(val);
 	if(fz_has_option(ctx, args, "resolution", &val))
-		opts->x_resolution = opts->y_resolution = fz_atoi(val);
+		opts->x_resolution = opts->y_resolution = satoi(val);
 	if(fz_has_option(ctx, args, "x-resolution", &val))
-		opts->x_resolution = fz_atoi(val);
+		opts->x_resolution = satoi(val);
 	if(fz_has_option(ctx, args, "y-resolution", &val))
-		opts->y_resolution = fz_atoi(val);
+		opts->y_resolution = satoi(val);
 	if(fz_has_option(ctx, args, "width", &val))
-		opts->width = fz_atoi(val);
+		opts->width = satoi(val);
 	if(fz_has_option(ctx, args, "height", &val))
-		opts->height = fz_atoi(val);
+		opts->height = satoi(val);
 	if(fz_has_option(ctx, args, "colorspace", &val)) {
 		if(fz_option_eq(val, "gray") || fz_option_eq(val, "grey") || fz_option_eq(val, "mono"))
 			opts->colorspace = fz_device_gray(ctx);

@@ -10,14 +10,14 @@ static float dist2(float a, float b)
 	return a * a + b * b;
 }
 
-static float hdist(fz_point * dir, fz_point * a, fz_point * b)
+static float hdist(SPoint2F * dir, SPoint2F * a, SPoint2F * b)
 {
 	float dx = b->x - a->x;
 	float dy = b->y - a->y;
 	return fz_abs(dx * dir->x + dy * dir->y);
 }
 
-static float vdist(fz_point * dir, fz_point * a, fz_point * b)
+static float vdist(SPoint2F * dir, SPoint2F * a, SPoint2F * b)
 {
 	float dx = b->x - a->x;
 	float dy = b->y - a->y;
@@ -33,7 +33,7 @@ static int line_length(fz_stext_line * line)
 	return n;
 }
 
-static int find_closest_in_line(fz_stext_line * line, int idx, fz_point p)
+static int find_closest_in_line(fz_stext_line * line, int idx, SPoint2F p)
 {
 	fz_stext_char * ch;
 	float closest_dist = 1e30f;
@@ -68,7 +68,7 @@ static int find_closest_in_line(fz_stext_line * line, int idx, fz_point p)
 	return closest_idx;
 }
 
-static int find_closest_in_page(fz_stext_page * page, fz_point p)
+static int find_closest_in_page(fz_stext_page * page, SPoint2F p)
 {
 	fz_stext_block * block;
 	fz_stext_line * line;
@@ -104,7 +104,7 @@ static int find_closest_in_page(fz_stext_page * page, fz_point p)
 				float dur = dist2(p.x - box.x1, p.y - box.y0);
 				float dll = dist2(p.x - box.x0, p.y - box.y1);
 				float dlr = dist2(p.x - box.x1, p.y - box.y1);
-				this_dist = fz_min(fz_min(dul, dur), fz_min(dll, dlr));
+				this_dist = smin(smin(dul, dur), smin(dll, dlr));
 			}
 			if(this_dist < closest_dist) {
 				closest_dist = this_dist;
@@ -126,7 +126,7 @@ struct callbacks {
 	void * arg;
 };
 
-static void fz_enumerate_selection(fz_context * ctx, fz_stext_page * page, fz_point a, fz_point b, struct callbacks * cb)
+static void fz_enumerate_selection(fz_context * ctx, fz_stext_page * page, SPoint2F a, SPoint2F b, struct callbacks * cb)
 {
 	fz_stext_block * block;
 	fz_stext_line * line;
@@ -164,7 +164,7 @@ static void fz_enumerate_selection(fz_context * ctx, fz_stext_page * page, fz_po
 	}
 }
 
-fz_quad fz_snap_selection(fz_context * ctx, fz_stext_page * page, fz_point * a, fz_point * b, int mode)
+fz_quad fz_snap_selection(fz_context * ctx, fz_stext_page * page, SPoint2F * a, SPoint2F * b, int mode)
 {
 	fz_stext_block * block;
 	fz_stext_line * line;
@@ -255,7 +255,7 @@ static void on_highlight_line(fz_context * ctx, void * arg, fz_stext_line * line
 {
 }
 
-int fz_highlight_selection(fz_context * ctx, fz_stext_page * page, fz_point a, fz_point b, fz_quad * quads, int max_quads)
+int fz_highlight_selection(fz_context * ctx, fz_stext_page * page, SPoint2F a, SPoint2F b, fz_quad * quads, int max_quads)
 {
 	struct callbacks cb;
 	struct highlight hits;
@@ -299,7 +299,7 @@ static void on_copy_line_lf(fz_context * ctx, void * arg, fz_stext_line * line)
 	fz_append_byte(ctx, buffer, '\n');
 }
 
-char * fz_copy_selection(fz_context * ctx, fz_stext_page * page, fz_point a, fz_point b, int crlf)
+char * fz_copy_selection(fz_context * ctx, fz_stext_page * page, SPoint2F a, SPoint2F b, int crlf)
 {
 	struct callbacks cb;
 	fz_buffer * buffer;

@@ -112,9 +112,9 @@
 //
 #if !defined(_LARGEFILE64_SOURCE) || _LFS64_LARGEFILE-0 == 0
 	ZEXTERN gzFile gzopen64(const char *, const char *);
-	ZEXTERN z_off64_t gzseek64(gzFile, z_off64_t, int);
-	ZEXTERN z_off64_t gztell64(gzFile);
-	ZEXTERN z_off64_t gzoffset64(gzFile);
+	ZEXTERN int64 gzseek64(gzFile, int64, int);
+	ZEXTERN int64 gztell64(gzFile);
+	ZEXTERN int64 gzoffset64(gzFile);
 #endif
 //
 // default memLevel 
@@ -162,14 +162,14 @@ struct gz_state {
 	int    direct; // 0 if processing gzip, 1 if transparent 
 	// just for reading 
 	int    how;      // 0: get header, 1: copy, 2: decompress 
-	z_off64_t start; // where the gzip data started, for rewinding 
+	int64 start; // where the gzip data started, for rewinding 
 	int    eof;      // true if end of input file reached 
 	int    past;     // true if read requested past end 
 	// just for writing 
 	int    level;    // compression level 
 	int    strategy; // compression strategy 
 	// seek request 
-	z_off64_t skip;  // amount to skip (already rewound if backwards) 
+	int64 skip;  // amount to skip (already rewound if backwards) 
 	int    seek;     // true if seek request pending 
 	// error information 
 	int    err;      // error code 
@@ -185,14 +185,14 @@ void ZLIB_INTERNAL FASTCALL gz_error(gz_state *, int, const char *);
 	char ZLIB_INTERNAL * gz_strwinerror(DWORD error);
 #endif
 // 
-// GT_OFF(x), where x is an unsigned value, is true if x > maximum z_off64_t
-// value -- needed when comparing unsigned to z_off64_t, which is signed
-// (possible z_off64_t types off_t, off64_t, and long are all signed) 
+// GT_OFF(x), where x is an unsigned value, is true if x > maximum int64
+// value -- needed when comparing unsigned to int64, which is signed
+// (possible int64 types off_t, off64_t, and long are all signed) 
 #ifdef INT_MAX
-	#define GT_OFF(x) (sizeof(int) == sizeof(z_off64_t) && (x) > INT_MAX)
+	#define GT_OFF(x) (sizeof(int) == sizeof(int64) && (x) > INT_MAX)
 #else
 	unsigned ZLIB_INTERNAL gz_intmax(void);
-	#define GT_OFF(x) (sizeof(int) == sizeof(z_off64_t) && (x) > gz_intmax())
+	#define GT_OFF(x) (sizeof(int) == sizeof(int64) && (x) > gz_intmax())
 #endif
 // 
 // Function prototypes
@@ -275,7 +275,7 @@ static uint syncsearch(uint * have, const uchar * buf, uint len);
 #define MOD(a) do { CHOP(a); MOD28(a); } while(0)
 #define MOD63(a) \
 	do { \ // this assumes a is not negative 
-		z_off64_t tmp = a >> 32; \
+		int64 tmp = a >> 32; \
 		a &= 0xffffffffL; \
 		a += (tmp << 8) - (tmp << 5) + tmp; \
 		tmp = a >> 16; \
@@ -357,7 +357,7 @@ uLong adler32(uLong adler, const Byte * buf, uInt len)
 	return adler32_z(adler, buf, len);
 }
 
-static uLong adler32_combine_(uLong adler1, uLong adler2, z_off64_t len2)
+static uLong adler32_combine_(uLong adler1, uLong adler2, int64 len2)
 {
 	ulong  sum1;
 	ulong  sum2;
@@ -386,7 +386,7 @@ static uLong adler32_combine_(uLong adler1, uLong adler2, z_off64_t len2)
 
 uLong adler32_combine(uLong adler1, uLong adler2, z_off_t len2)
 	{ return adler32_combine_(adler1, adler2, len2); }
-uLong adler32_combine64(uLong adler1, uLong adler2, z_off64_t len2)
+uLong adler32_combine64(uLong adler1, uLong adler2, int64 len2)
 	{ return adler32_combine_(adler1, adler2, len2); }
 
 #undef DO1
@@ -1115,7 +1115,7 @@ static void FASTCALL gf2_matrix_square(ulong * square, ulong * mat)
 		square[n] = gf2_matrix_times(mat, mat[n]);
 }
 
-static uLong crc32_combine_(uLong crc1, uLong crc2, z_off64_t len2)
+static uLong crc32_combine_(uLong crc1, uLong crc2, int64 len2)
 {
 	int n;
 	ulong  row;
@@ -1160,7 +1160,7 @@ static uLong crc32_combine_(uLong crc1, uLong crc2, z_off64_t len2)
 
 uLong crc32_combine(uLong crc1, uLong crc2, z_off_t len2)
 	{ return crc32_combine_(crc1, crc2, len2); }
-uLong crc32_combine64(uLong crc1, uLong crc2, z_off64_t len2)
+uLong crc32_combine64(uLong crc1, uLong crc2, int64 len2)
 	{ return crc32_combine_(crc1, crc2, len2); }
 //
 // ZUTIL
@@ -1935,7 +1935,7 @@ static int FASTCALL gz_comp(gz_state * state, int flush)
 // Compress len zeros to output.  Return -1 on a write error or memory
 // allocation failure by gz_comp(), or 0 on success. 
 //
-static int FASTCALL gz_zero(gz_state * state, z_off64_t len)
+static int FASTCALL gz_zero(gz_state * state, int64 len)
 {
 	z_streamp strm = &(state->strm);
 	// consume whatever's left in the input buffer 
@@ -1945,7 +1945,7 @@ static int FASTCALL gz_zero(gz_state * state, z_off64_t len)
 		// compress len zeros (len guaranteed > 0) 
 		int first = 1;
 		while(len) {
-			const uint n = (GT_OFF(state->size) || (z_off64_t)state->size > len) ? (uint)len : state->size;
+			const uint n = (GT_OFF(state->size) || (int64)state->size > len) ? (uint)len : state->size;
 			if(first) {
 				memzero(state->in, n);
 				first = 0;
@@ -2582,11 +2582,11 @@ static int FASTCALL gz_fetch(gz_state * state)
 //
 // Skip len uncompressed bytes of output.  Return -1 on error, 0 on success. 
 //
-static int FASTCALL gz_skip(gz_state * state, z_off64_t len)
+static int FASTCALL gz_skip(gz_state * state, int64 len)
 {
 	while(len) { // skip over len bytes or reach end-of-file, whichever comes first 
 		if(state->x.have) { // skip over whatever is in output buffer 
-			const uint n = (GT_OFF(state->x.have) || (z_off64_t)state->x.have > len) ? (uint)len : state->x.have;
+			const uint n = (GT_OFF(state->x.have) || (int64)state->x.have > len) ? (uint)len : state->x.have;
 			state->x.have -= n;
 			state->x.next += n;
 			state->x.pos += n;
@@ -2694,23 +2694,27 @@ int gzread(gzFile file, void * buf, uint len)
 
 size_t gzfread(void * buf, size_t size, size_t nitems, gzFile file)
 {
-	size_t len;
-	gz_state * state;
 	// get internal structure 
 	if(!file)
 		return 0;
-	state = (gz_state *)file;
-	// check that we're reading and that there's no (serious) error 
-	if(state->mode != GZ_READ || (state->err != Z_OK && state->err != Z_BUF_ERROR))
-		return 0;
-	// compute bytes to read -- error on overflow 
-	len = nitems * size;
-	if(size && len / size != nitems) {
-		gz_error(state, Z_STREAM_ERROR, "request does not fit in a size_t");
-		return 0;
+	else {
+		gz_state * state = (gz_state *)file;
+		// check that we're reading and that there's no (serious) error 
+		if(state->mode != GZ_READ || (state->err != Z_OK && state->err != Z_BUF_ERROR))
+			return 0;
+		else {
+			// compute bytes to read -- error on overflow 
+			size_t len = nitems * size;
+			if(size && len / size != nitems) {
+				gz_error(state, Z_STREAM_ERROR, "request does not fit in a size_t");
+				return 0;
+			}
+			else {
+				// read len or fewer bytes to buf, return the number of full items read 
+				return len ? gz_read(state, buf, len) / size : 0;
+			}
+		}
 	}
-	// read len or fewer bytes to buf, return the number of full items read 
-	return len ? gz_read(state, buf, len) / size : 0;
 }
 
 #ifdef Z_PREFIX_SET
@@ -2721,17 +2725,12 @@ size_t gzfread(void * buf, size_t size, size_t nitems, gzFile file)
 
 int gzgetc(gzFile file)
 {
-	int ret;
-	uchar buf[1];
+	int ret = -1;
 	// get internal structure 
-	if(!file)
-		return -1;
-	else {
+	if(file) {
 		gz_state * state = (gz_state *)file;
 		// check that we're reading and that there's no (serious) error 
-		if(state->mode != GZ_READ || (state->err != Z_OK && state->err != Z_BUF_ERROR))
-			return -1;
-		else {
+		if(state->mode == GZ_READ && (state->err == Z_OK || state->err == Z_BUF_ERROR)) {
 			// try output buffer (no need to check for skip request) 
 			if(state->x.have) {
 				state->x.have--;
@@ -2740,11 +2739,13 @@ int gzgetc(gzFile file)
 			}
 			else {
 				// nothing there -- try gz_read() 
+				uchar buf[1];
 				ret = static_cast<int>(gz_read(state, buf, 1));
 				return (ret < 1) ? -1 : buf[0];
 			}
 		}
 	}
+	return ret;
 }
 
 int gzgetc_(gzFile file)
@@ -3182,10 +3183,10 @@ int gzrewind(gzFile file)
 	return 0;
 }
 
-z_off64_t gzseek64(gzFile file, z_off64_t offset, int whence)
+int64 gzseek64(gzFile file, int64 offset, int whence)
 {
 	uint n;
-	z_off64_t ret;
+	int64 ret;
 	gz_state * state;
 	// get internal structure and check integrity 
 	if(!file)
@@ -3228,7 +3229,7 @@ z_off64_t gzseek64(gzFile file, z_off64_t offset, int whence)
 	}
 	// if reading, skip what's in output buffer (one less gzgetc() check) 
 	if(state->mode == GZ_READ) {
-		n = GT_OFF(state->x.have) || (z_off64_t)state->x.have > offset ? (uint)offset : state->x.have;
+		n = GT_OFF(state->x.have) || (int64)state->x.have > offset ? (uint)offset : state->x.have;
 		state->x.have -= n;
 		state->x.next += n;
 		state->x.pos += n;
@@ -3244,11 +3245,11 @@ z_off64_t gzseek64(gzFile file, z_off64_t offset, int whence)
 
 z_off_t gzseek(gzFile file, z_off_t offset, int whence)
 {
-	z_off64_t ret = gzseek64(file, (z_off64_t)offset, whence);
+	int64 ret = gzseek64(file, (int64)offset, whence);
 	return ret == (z_off_t)ret ? (z_off_t)ret : -1;
 }
 
-z_off64_t gztell64(gzFile file)
+int64 gztell64(gzFile file)
 {
 	gz_state * state;
 	// get internal structure and check integrity 
@@ -3263,13 +3264,13 @@ z_off64_t gztell64(gzFile file)
 
 z_off_t gztell(gzFile file)
 {
-	z_off64_t ret = gztell64(file);
+	int64 ret = gztell64(file);
 	return (ret == (z_off_t)ret) ? (z_off_t)ret : -1;
 }
 
-z_off64_t gzoffset64(gzFile file)
+int64 gzoffset64(gzFile file)
 {
-	z_off64_t offset;
+	int64 offset;
 	gz_state * state;
 	// get internal structure and check integrity 
 	if(!file)
@@ -3288,7 +3289,7 @@ z_off64_t gzoffset64(gzFile file)
 
 z_off_t gzoffset(gzFile file)
 {
-	z_off64_t ret = gzoffset64(file);
+	int64 ret = gzoffset64(file);
 	return ret == (z_off_t)ret ? (z_off_t)ret : -1;
 }
 
@@ -4768,8 +4769,7 @@ int deflate(z_streamp strm, int flush)
 			}
 		}
 		else {
-			put_byte(s, (s->gzhead->text ? 1 : 0) +
-			    (s->gzhead->hcrc ? 2 : 0) + (s->gzhead->extra == Z_NULL ? 0 : 4) +
+			put_byte(s, (s->gzhead->text ? 1 : 0) + (s->gzhead->hcrc ? 2 : 0) + (s->gzhead->extra == Z_NULL ? 0 : 4) +
 			    (s->gzhead->name == Z_NULL ? 0 : 8) + (s->gzhead->comment == Z_NULL ? 0 : 16));
 			put_byte(s, (Byte)(s->gzhead->time & 0xff));
 			put_byte(s, (Byte)((s->gzhead->time >> 8) & 0xff));
@@ -6071,7 +6071,7 @@ void ZLIB_INTERNAL _tr_flush_bits(deflate_state * s)
 }
 
 #ifdef GEN_TREES_H
-	static void gen_trees_header OF((void));
+	static void gen_trees_header(void);
 #endif
 #ifndef ZLIB_DEBUG
 	#define send_code(s, c, tree) send_bits(s, tree[c].Code, tree[c].Len) // Send a code of the given tree. c and tree must not have side effects 

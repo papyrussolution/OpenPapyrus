@@ -1437,10 +1437,12 @@ browser GOODSSTRUC2 north(100), 3, 1, "@{view_goodsstruc} {%s}", OWNER|GRID, 0
 	"@qtty",                 3, zstring(20), ALIGN_RIGHT, 10, BCO_USERPROC
 	"@netto",                5, double,      NMBF_NOZERO, 10.3, BCO_USERPROC
 	"@type",                 4, zstring(48),  0,     10, BCO_USERPROC
+	// #9  tech
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM        : kbEnter,   PPDV_EDITFILE02,   "@{edit}\tEnter"
 		EDITGOODS       : kbF2,      PPDV_WARESINGLE01, "@{ware}\tF2"
 		EDITITEMGOODS   : kbShiftF2, PPDV_WARESINGLE01, "@{component}\tShift-F2"
+		VIEWTECH        : kbCtrlT,   TBBM_TECH,         "@{view_tech}\tCtrl-T" // @v11.7.6
 		VIEWGOODSOPANLZ : kbF4,      TBBM_GOODSANLZ,    "Товарный отчет по товару-владельцу\tF4"
 		PRINT           : kbF7,      PPDV_PRINTER01,    "@{printlist}\tF7"
 		separator
@@ -1450,7 +1452,7 @@ browser GOODSSTRUC2 north(100), 3, 1, "@{view_goodsstruc} {%s}", OWNER|GRID, 0
 		TRANSMIT        : kbCtrlH,   PPDV_SYNC01,       "@{dotransmit}\tCtrl-H"      // @v10.0.09
 		DORECOVER       : kbCtrlR,   PPDV_REPAIR02,     "Проверка структур\tCtrl-R"  // @v10.0.09
 		TOTAL           : kbF9,      PPDV_SIGMA02,      "@{totals}\tF9"
-		TREEVIEW        : kbCtrlT,   PPDV_TREEVIEW,     "@{doviewtree}\tCtrl-T" // @v11.1.12 @construction
+		TREEVIEW        : kbCtrlT,   PPDV_TREEVIEW,     "@{doviewtree}\tCtrl-E"
 		NEXTPROBLEM     : kbCtrlZ,   PPDV_NOICON,       "@{problemnext}\tCtrl-Z"
 		PREVPROBLEM     : kbCtrlA,   PPDV_NOICON,       "@{problemprev}\tCtrl-A"
 	}

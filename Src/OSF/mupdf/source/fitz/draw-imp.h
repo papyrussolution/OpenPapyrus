@@ -105,15 +105,8 @@ struct fz_overprint {
 	uint32_t mask[(FZ_MAX_COLORS+31)/32];
 };
 
-static void inline fz_set_overprint(fz_overprint * op, int i)
-{
-	op->mask[i>>5] |= 1<<(i&31);
-}
-
-static int inline fz_overprint_component(const fz_overprint * op, int i)
-{
-	return ((op->mask[i>>5]>>(i & 31)) & 1) == 0;
-}
+static void inline fz_set_overprint(fz_overprint * op, int i) { op->mask[i>>5] |= 1<<(i&31); }
+static int inline fz_overprint_component(const fz_overprint * op, int i) { return ((op->mask[i>>5]>>(i & 31)) & 1) == 0; }
 
 static int inline fz_overprint_required(const fz_overprint * op)
 {
@@ -479,27 +472,10 @@ void fz_paint_pixmap_alpha(fz_pixmap * _RESTRICT dst, const fz_pixmap * _RESTRIC
 void fz_paint_pixmap_with_mask(fz_pixmap * _RESTRICT dst, const fz_pixmap * _RESTRICT src, const fz_pixmap * _RESTRICT msk);
 void fz_paint_pixmap_with_bbox(fz_pixmap * _RESTRICT dst, const fz_pixmap * _RESTRICT src, int alpha, fz_irect bbox);
 void fz_paint_pixmap_with_overprint(fz_pixmap * _RESTRICT dst, const fz_pixmap * _RESTRICT src, const fz_overprint * _RESTRICT eop);
-
-void fz_blend_pixmap(fz_context * ctx,
-    fz_pixmap * _RESTRICT dst,
-    fz_pixmap * _RESTRICT src,
-    int alpha,
-    int blendmode,
-    int isolated,
-    const fz_pixmap * _RESTRICT shape);
-void fz_blend_pixmap_knockout(fz_context * ctx,
-    fz_pixmap * _RESTRICT dst,
-    fz_pixmap * _RESTRICT src,
-    const fz_pixmap * _RESTRICT shape);
-
-void fz_paint_glyph(const uchar * _RESTRICT colorbv,
-    fz_pixmap * _RESTRICT dst,
-    uchar * _RESTRICT dp,
-    const fz_glyph * _RESTRICT glyph,
-    int w,
-    int h,
-    int skip_x,
-    int skip_y,
-    const fz_overprint * _RESTRICT eop);
+void fz_blend_pixmap(fz_context * ctx, fz_pixmap * _RESTRICT dst, fz_pixmap * _RESTRICT src, int alpha,
+    int blendmode, int isolated, const fz_pixmap * _RESTRICT shape);
+void fz_blend_pixmap_knockout(fz_context * ctx, fz_pixmap * _RESTRICT dst, fz_pixmap * _RESTRICT src, const fz_pixmap * _RESTRICT shape);
+void fz_paint_glyph(const uchar * _RESTRICT colorbv, fz_pixmap * _RESTRICT dst, uchar * _RESTRICT dp, const fz_glyph * _RESTRICT glyph,
+    int w, int h, int skip_x, int skip_y, const fz_overprint * _RESTRICT eop);
 
 #endif

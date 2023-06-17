@@ -120,7 +120,7 @@
  * @return lead surrogate (U+d800..U+dbff) for supplementary
  * @stable ICU 2.4
  */
-#define U16_LEAD(supplementary) (UChar)(((supplementary)>>10)+0xd7c0)
+#define U16_LEAD(supplementary) (char16_t)(((supplementary)>>10)+0xd7c0)
 
 /**
  * Get the trail surrogate (0xdc00..0xdfff) for a
@@ -129,7 +129,7 @@
  * @return trail surrogate (U+dc00..U+dfff) for supplementary
  * @stable ICU 2.4
  */
-#define U16_TRAIL(supplementary) (UChar)(((supplementary)&0x3ff)|0xdc00)
+#define U16_TRAIL(supplementary) (char16_t)(((supplementary)&0x3ff)|0xdc00)
 
 /**
  * How many 16-bit code units are used to encode this Unicode code point? (1 or 2)
@@ -158,7 +158,7 @@
  * The result is undefined if the offset points to a single, unpaired surrogate.
  * Iteration through a string is more efficient with U16_NEXT_UNSAFE or U16_NEXT.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param i string offset
  * @param c output UChar32 variable
  * @see U16_GET
@@ -190,7 +190,7 @@
  * c is set to that unpaired surrogate.
  * Iteration through a string is more efficient with U16_NEXT_UNSAFE or U16_NEXT.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param start starting string offset (usually 0)
  * @param i string offset, must be start<=i<length
  * @param length string length
@@ -229,7 +229,7 @@
  * c is set to U+FFFD.
  * Iteration through a string is more efficient with U16_NEXT_UNSAFE or U16_NEXT_OR_FFFD.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param start starting string offset (usually 0)
  * @param i string offset, must be start<=i<length
  * @param length string length
@@ -272,7 +272,7 @@
  * will be returned as the code point.
  * The result is undefined if the offset points to a single, unpaired lead surrogate.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param i string offset
  * @param c output UChar32 variable
  * @see U16_NEXT
@@ -299,7 +299,7 @@
  * If the offset points to a trail surrogate or
  * to a single, unpaired lead surrogate, then c is set to that unpaired surrogate.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param i string offset, must be i<length
  * @param length string length
  * @param c output UChar32 variable
@@ -331,7 +331,7 @@
  * If the offset points to a trail surrogate or
  * to a single, unpaired lead surrogate, then c is set to U+FFFD.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param i string offset, must be i<length
  * @param length string length
  * @param c output UChar32 variable
@@ -358,7 +358,7 @@
  * "Unsafe" macro, assumes a valid code point and sufficient space in the string.
  * Otherwise, the result is undefined.
  *
- * @param s const UChar * string buffer
+ * @param s const char16_t * string buffer
  * @param i string offset
  * @param c code point to append
  * @see U16_APPEND
@@ -382,7 +382,7 @@
  * If the code point is not valid or a trail surrogate does not fit,
  * then isError is set to true.
  *
- * @param s const UChar * string buffer
+ * @param s const char16_t * string buffer
  * @param i string offset, must be i<capacity
  * @param capacity size of the string buffer
  * @param c code point to append
@@ -406,7 +406,7 @@
  * (Post-incrementing iteration.)
  * "Unsafe" macro, assumes well-formed UTF-16.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param i string offset
  * @see U16_FWD_1
  * @stable ICU 2.4
@@ -424,7 +424,7 @@
  *
  * The length can be negative for a NUL-terminated string.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param i string offset, must be i<length
  * @param length string length
  * @see U16_FWD_1_UNSAFE
@@ -442,7 +442,7 @@
  * (Post-incrementing iteration.)
  * "Unsafe" macro, assumes well-formed UTF-16.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param i string offset
  * @param n number of code points to skip
  * @see U16_FWD_N
@@ -464,7 +464,7 @@
  *
  * The length can be negative for a NUL-terminated string.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param i int32_t string offset, must be i<length
  * @param length int32_t string length
  * @param n number of code points to skip
@@ -487,7 +487,7 @@
  * Otherwise, it is not modified.
  * "Unsafe" macro, assumes well-formed UTF-16.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param i string offset
  * @see U16_SET_CP_START
  * @stable ICU 2.4
@@ -506,7 +506,7 @@
  * Otherwise, it is not modified.
  * "Safe" macro, handles unpaired surrogates and checks for string boundaries.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param start starting string offset (usually 0)
  * @param i string offset, must be start<=i
  * @see U16_SET_CP_START_UNSAFE
@@ -534,7 +534,7 @@
  * will be returned as the code point.
  * The result is undefined if the offset is behind a single, unpaired trail surrogate.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param i string offset
  * @param c output UChar32 variable
  * @see U16_PREV
@@ -560,7 +560,7 @@
  * If the offset is behind a lead surrogate or behind a single, unpaired
  * trail surrogate, then c is set to that unpaired surrogate.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param start starting string offset (usually 0)
  * @param i string offset, must be start<i
  * @param c output UChar32 variable
@@ -591,7 +591,7 @@
  * If the offset is behind a lead surrogate or behind a single, unpaired
  * trail surrogate, then c is set to U+FFFD.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param start starting string offset (usually 0)
  * @param i string offset, must be start<i
  * @param c output UChar32 variable
@@ -617,7 +617,7 @@
  * The input offset may be the same as the string length.
  * "Unsafe" macro, assumes well-formed UTF-16.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param i string offset
  * @see U16_BACK_1
  * @stable ICU 2.4
@@ -634,7 +634,7 @@
  * The input offset may be the same as the string length.
  * "Safe" macro, handles unpaired surrogates and checks for string boundaries.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param start starting string offset (usually 0)
  * @param i string offset, must be start<i
  * @see U16_BACK_1_UNSAFE
@@ -653,7 +653,7 @@
  * The input offset may be the same as the string length.
  * "Unsafe" macro, assumes well-formed UTF-16.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param i string offset
  * @param n number of code points to skip
  * @see U16_BACK_N
@@ -674,7 +674,7 @@
  * The input offset may be the same as the string length.
  * "Safe" macro, handles unpaired surrogates and checks for string boundaries.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param start start of string
  * @param i string offset, must be start<i
  * @param n number of code points to skip
@@ -697,7 +697,7 @@
  * The input offset may be the same as the string length.
  * "Unsafe" macro, assumes well-formed UTF-16.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param i string offset
  * @see U16_SET_CP_LIMIT
  * @stable ICU 2.4
@@ -718,7 +718,7 @@
  *
  * The length can be negative for a NUL-terminated string.
  *
- * @param s const UChar * string
+ * @param s const char16_t * string
  * @param start int32_t starting string offset (usually 0)
  * @param i int32_t string offset, start<=i<=length
  * @param length int32_t string length

@@ -85,10 +85,7 @@ public class CommonPrereqModule {
 				SelectedItemIdx = -1;
 				SearchResultInfoText = null;
 			}
-			String GetSearchResultInfoText()
-			{
-				return SearchResultInfoText;
-			}
+			String GetSearchResultInfoText() { return SearchResultInfoText; }
 			void SetSelectedItemIndex(int idx) { SelectedItemIdx = (List != null && idx >= 0 && idx < List.size()) ? idx : -1; }
 			void ResetSelectedItemIndex() { SelectedItemIdx = -1; }
 			int  GetSelectedItemIndex() { return SelectedItemIdx; }
@@ -178,7 +175,7 @@ public class CommonPrereqModule {
 		if(SsB.SearchResult != null)
 			SsB.SearchResult.ResetSelectedItemIndex();
 	}
-	public int SearchResult_GetSelectedItmeIndex() { return (SsB.SearchResult != null) ? SsB.SearchResult.GetSelectedItemIndex() : -1; }
+	public int SearchResult_GetSelectedItemIndex() { return (SsB.SearchResult != null) ? SsB.SearchResult.GetSelectedItemIndex() : -1; }
 	public int SearchResult_GetObjTypeCount() { return (SsB.SearchResult != null) ? SsB.SearchResult.GetObjTypeCount() : 0; }
 	//
 	// Descr: Функция вызывается в ответ на касание пользователем элемента списка результатов поиска
@@ -232,6 +229,35 @@ public class CommonPrereqModule {
 	public GoodsFilt Gf;
 	// @v11.7.0 public RegistryFilt Rf; // @v11.5.3
 	public StyloQCurrentState Cs; // @v11.7.0
+
+	public String MakeDocumentText(final Document doc)
+	{
+		String result = null;
+		if(doc != null && doc.H != null) {
+			result = (SLib.GetLen(doc.H.Code) > 0) ? doc.H.Code : "#NOCODE";
+			String time_text = null;
+			if(!SLib.LDATETIME.IsEmpty(doc.H.Time)) {
+				time_text = doc.H.Time.d.Format(SLib.DATF_ISO8601|SLib.DATF_CENTURY);
+			}
+			else if(!SLib.LDATETIME.IsEmpty(doc.H.DueTime)) {
+				time_text = "DUETIME" + ": " + doc.H.DueTime.d.Format(SLib.DATF_ISO8601|SLib.DATF_CENTURY);
+			}
+			else if(!SLib.LDATETIME.IsEmpty(doc.H.CreationTime)) {
+				time_text = "CRTIME" + ": " + doc.H.CreationTime.d.Format(SLib.DATF_ISO8601|SLib.DATF_CENTURY);
+			}
+			if(SLib.GetLen(time_text) > 0) {
+				result += " - " + time_text;
+			}
+			if(doc.H.ClientID > 0) {
+				JSONObject cli_entry = FindClientEntry(doc.H.ClientID);
+				String cli_name = (cli_entry != null) ? cli_entry.optString("nm", "") : null;
+				if(SLib.GetLen(cli_name) > 0) {
+					result += " - " + cli_name;
+				}
+			}
+		}
+		return result;
+	}
 	//
 	// Descr: Структура инкапсулирующая общие параметры, передаваемые сервисом
 	//
@@ -1482,6 +1508,23 @@ public class CommonPrereqModule {
 			}
 		}
 	}
+	public void AddIncomingDocumentsToSimpleIndex() // @v11.7.6 @construction
+	{
+		if(IncomingDocListData != null) {
+			for(int i = 0; i < IncomingDocListData.size(); i++) {
+				Document item = IncomingDocListData.get(i);
+				if(item != null && item.H != null) {
+					int id = (int)item.H.ID;
+					if(id > 0 && SLib.GetLen(item.H.Code) > 0) {
+						String doc_text = MakeDocumentText(item);
+						if(SLib.GetLen(doc_text) <= 0)
+							doc_text = item.H.Code;
+						AddSimpleIndexEntry(SLib.PPOBJ_BILL, id, SLib.PPOBJATTR_CODE, item.H.Code, doc_text);
+					}
+				}
+			}
+		}
+	}
 	public boolean SearchInSimpleIndex(String pattern)
 	{
 		final int min_pattern_len = 4;
@@ -2565,6 +2608,18 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
+	int FindIncomingDocumentItemIndexByID(int id)
+	{
+		int result = -1;
+		if(IncomingDocListData != null && id > 0) {
+			for(int i = 0; result < 0 && i < IncomingDocListData.size(); i++) {
+				Document item = IncomingDocListData.get(i);
+				if(item != null && item.H != null && item.H.ID == id)
+					result = i;
+			}
+		}
+		return result;
+	}
 	public WareEntry FindGoodsItemByGoodsID(int goodsID)
 	{
 		WareEntry result = null;
@@ -2717,6 +2772,18 @@ public class CommonPrereqModule {
 						break;
 					}
 				}
+			}
+		}
+		return result;
+	}
+	int FindClientItemIndexByID(int id)
+	{
+		int result = -1;
+		if(CliListData != null && id > 0) {
+			for(int i = 0; result < 0 && i < CliListData.size(); i++) {
+				final int iter_id = CliListData.get(i).JsItem.optInt("id", 0);
+				if(iter_id == id)
+					result = i;
 			}
 		}
 		return result;

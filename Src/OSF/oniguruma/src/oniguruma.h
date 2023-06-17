@@ -604,7 +604,7 @@ extern void onig_null_warn(const char * s);
 struct re_pattern_buffer;
 
 typedef struct re_pattern_buffer OnigRegexType;
-typedef OnigRegexType*  OnigRegex;
+typedef OnigRegexType * OnigRegex;
 
 #ifndef ONIG_ESCAPE_REGEX_T_COLLISION
 	typedef OnigRegexType regex_t;

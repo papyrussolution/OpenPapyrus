@@ -148,10 +148,10 @@ static void outputString(const char * s, char * outBuf, int32_t * outIx, int32_t
 	} while(c != 0);
 }
 
-static void outputUString(const UChar * s, int32_t len, char * outBuf, int32_t * outIx, int32_t capacity, int32_t indent) 
+static void outputUString(const char16_t * s, int32_t len, char * outBuf, int32_t * outIx, int32_t capacity, int32_t indent) 
 {
 	int32_t i = 0;
-	UChar c;
+	char16_t c;
 	if(s==NULL) {
 		outputString(NULL, outBuf, outIx, capacity, indent);
 		return;
@@ -209,10 +209,10 @@ U_CAPI int32_t U_EXPORT2 utrace_vformat(char * outBuf, int32_t capacity, int32_t
 			    break;
 
 			case 'S':
-			    /* UChar * string, with length, len==-1 for null terminated. */
+			    /* char16_t * string, with length, len==-1 for null terminated. */
 			    ptrArg = va_arg(args, char *); /* Ptr    */
 			    intArg = (int32_t)va_arg(args, int32_t); /* Length */
-			    outputUString((const UChar *)ptrArg, intArg, outBuf, &outIx, capacity, indent);
+			    outputUString((const char16_t *)ptrArg, intArg, outBuf, &outIx, capacity, indent);
 			    break;
 
 			case 'b':
@@ -323,7 +323,7 @@ U_CAPI int32_t U_EXPORT2 utrace_vformat(char * outBuf, int32_t capacity, int32_t
 
 						    case 'S':
 							charsToOutput = 0;
-							outputUString((const UChar *)*ptrPtr, -1, outBuf, &outIx, capacity, indent);
+							outputUString((const char16_t *)*ptrPtr, -1, outBuf, &outIx, capacity, indent);
 							outputChar('\n', outBuf, &outIx, capacity, indent);
 							longArg = *ptrPtr==NULL ? 0 : 1; /* for test for null term.
 							                                    array. */

@@ -13,10 +13,8 @@
 using namespace DirectX;
 using Microsoft::WRL::ComPtr;
 
-namespace
-{
-namespace cs5
-{
+namespace {
+namespace cs5 {
 	#include "BC7Encode_EncodeBlockCS.inc"
 	#include "BC7Encode_TryMode02CS.inc"
 	#include "BC7Encode_TryMode137CS.inc"
@@ -26,8 +24,7 @@ namespace cs5
 	#include "BC6HEncode_TryModeLE10CS.inc"
 }
 
-namespace cs4
-{
+namespace cs4 {
 	#include "BC7Encode_EncodeBlockCS_cs40.inc"
 	#include "BC7Encode_TryMode02CS_cs40.inc"
 	#include "BC7Encode_TryMode137CS_cs40.inc"
@@ -84,20 +81,12 @@ inline void ResetContext(ID3D11DeviceContext* pContext)
 }
 };
 
-GPUCompressBC::GPUCompressBC() noexcept :
-	m_bcformat(DXGI_FORMAT_UNKNOWN),
-	m_srcformat(DXGI_FORMAT_UNKNOWN),
-	m_alphaWeight(1.f),
-	m_bc7_mode02(false),
-	m_bc7_mode137(false),
-	m_width(0),
-	m_height(0)
+GPUCompressBC::GPUCompressBC() noexcept : m_bcformat(DXGI_FORMAT_UNKNOWN), m_srcformat(DXGI_FORMAT_UNKNOWN), m_alphaWeight(1.f),
+	m_bc7_mode02(false), m_bc7_mode137(false), m_width(0), m_height(0)
 {
 }
 
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT GPUCompressBC::Initialize(ID3D11Device* pDevice)
+_Use_decl_annotations_ HRESULT GPUCompressBC::Initialize(ID3D11Device* pDevice)
 {
 	if(!pDevice)
 		return E_INVALIDARG;
@@ -113,20 +102,16 @@ HRESULT GPUCompressBC::Initialize(ID3D11Device* pDevice)
 		D3D11_FEATURE_DATA_D3D10_X_HARDWARE_OPTIONS hwopts;
 		HRESULT hr = pDevice->CheckFeatureSupport(D3D11_FEATURE_D3D10_X_HARDWARE_OPTIONS, &hwopts, sizeof(hwopts));
 		if(FAILED(hr)) {
-			memset(&hwopts, 0, sizeof(hwopts));
+			memzero(&hwopts, sizeof(hwopts));
 		}
-
 		if(!hwopts.ComputeShaders_Plus_RawAndStructuredBuffers_Via_Shader_4_x) {
 			return HRESULT_E_NOT_SUPPORTED;
 		}
 	}
-
 	// Save a device reference and obtain immediate context
 	m_device = pDevice;
-
 	pDevice->GetImmediateContext(m_context.ReleaseAndGetAddressOf());
 	assert(m_context);
-
 	//--- Create compute shader library: BC6H -----------------------------------------
 
 	// Modes 11-14

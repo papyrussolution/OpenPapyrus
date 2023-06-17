@@ -29,7 +29,7 @@
 
 U_CFUNC int32_t
 u_scanf_parse(UFILE *f,
-            const UChar *patternSpecification,
+            const char16_t *patternSpecification,
             va_list     ap);
 
 #endif /* #if !UCONFIG_NO_FORMATTING */

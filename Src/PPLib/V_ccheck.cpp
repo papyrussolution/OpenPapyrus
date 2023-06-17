@@ -1125,10 +1125,10 @@ int FASTCALL CCheckGrpCache::AddItem(const CCheckGrpItem * pItem)
 	return ok;
 }
 
-int PPViewCCheck::IsTempTblNeeded() const
+bool PPViewCCheck::IsTempTblNeeded() const
 {
 	// @v11.0.0 CCheckFilt::fWithMarkOnly
-	return BIN((State & stUseGoodsList) || SessIdList.GetCount() > 1 ||
+	return ((State & stUseGoodsList) || SessIdList.GetCount() > 1 ||
 		Filt.SCardSerID || Filt.SCardID || Filt.ScsList.GetCount() || Filt.HourBefore || Filt.WeekDays || !Filt.QttyR.IsZero() ||
 		(Filt.LowLinesCount > 0 || Filt.UppLinesCount > 0) ||
 		(Filt.Flags & (CCheckFilt::fCalcSkuStat|CCheckFilt::fStartOrderPeriod|CCheckFilt::fWithMarkOnly)) || !!CcIdList);

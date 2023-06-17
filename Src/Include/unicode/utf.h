@@ -46,14 +46,14 @@
  * ICU functions handle supplementary code points (U+10000..U+10ffff)
  * but are optimized for the much more frequently occurring BMP code points.
  *
- * umachine.h defines UChar to be an unsigned 16-bit integer.
- * Since ICU 59, ICU uses char16_t in C++, UChar only in C,
- * and defines UChar=char16_t by default. See the UChar API docs for details.
+ * umachine.h defines char16_t to be an unsigned 16-bit integer.
+ * Since ICU 59, ICU uses char16_t in C++, char16_t only in C,
+ * and defines char16_t=char16_t by default. See the char16_t API docs for details.
  *
  * UChar32 is defined to be a signed 32-bit integer (int32_t), large enough for a 21-bit
  * Unicode code point (Unicode scalar value, 0..0x10ffff) and U_SENTINEL (-1).
  * Before ICU 2.4, the definition of UChar32 was similarly platform-dependent as
- * the definition of UChar. For details see the documentation for UChar32 itself.
+ * the definition of char16_t. For details see the documentation for UChar32 itself.
  *
  * utf.h defines a small number of C macros for single Unicode code points.
  * These are simple checks for surrogates and non-characters.

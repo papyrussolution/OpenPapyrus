@@ -183,7 +183,7 @@ typedef void (U_EXPORT2 *UConverterToUCallback)(const void * context, UConverter
  * @see ucnv_setFromUCallBack
  * @stable ICU 2.0
  */
-typedef void (U_EXPORT2 *UConverterFromUCallback)(const void * context, UConverterFromUnicodeArgs * args, const UChar * codeUnits, int32_t length, UChar32 codePoint,
+typedef void (U_EXPORT2 *UConverterFromUCallback)(const void * context, UConverterFromUnicodeArgs * args, const char16_t * codeUnits, int32_t length, UChar32 codePoint,
 	UConverterCallbackReason reason, UErrorCode * pErrorCode);
 
 U_CDECL_END
@@ -346,7 +346,7 @@ U_CAPI UConverter * U_EXPORT2 ucnv_open(const char * converterName, UErrorCode *
  * @see ucnv_compareNames
  * @stable ICU 2.0
  */
-U_CAPI UConverter * U_EXPORT2 ucnv_openU(const UChar * name,
+U_CAPI UConverter * U_EXPORT2 ucnv_openU(const char16_t * name,
     UErrorCode * err);
 
 /**
@@ -602,7 +602,7 @@ U_CAPI void U_EXPORT2 ucnv_setSubstChars(UConverter * converter, const char * su
  * @see ucnv_getSubstChars
  * @stable ICU 3.6
  */
-U_CAPI void U_EXPORT2 ucnv_setSubstString(UConverter * cnv, const UChar * s, int32_t length, UErrorCode * err);
+U_CAPI void U_EXPORT2 ucnv_setSubstString(UConverter * cnv, const char16_t * s, int32_t length, UErrorCode * err);
 /**
  * Fills in the output parameter, errBytes, with the error characters from the
  * last failing conversion.
@@ -630,7 +630,7 @@ U_CAPI void U_EXPORT2 ucnv_getInvalidChars(const UConverter * converter, char * 
  * <TT>U_INDEX_OUTOFBOUNDS_ERROR</TT> will be returned.
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 ucnv_getInvalidUChars(const UConverter * converter, UChar * errUChars, int8 * len, UErrorCode * err);
+U_CAPI void U_EXPORT2 ucnv_getInvalidUChars(const UConverter * converter, char16_t * errUChars, int8 * len, UErrorCode * err);
 /**
  * Resets the state of a converter to the default state. This is used
  * in the case of an error, to restart a conversion from a known default state.
@@ -658,7 +658,7 @@ U_CAPI void U_EXPORT2 ucnv_resetToUnicode(UConverter * converter);
  */
 U_CAPI void U_EXPORT2 ucnv_resetFromUnicode(UConverter * converter);
 /**
- * Returns the maximum number of bytes that are output per UChar in conversion
+ * Returns the maximum number of bytes that are output per char16_t in conversion
  * from Unicode using this converter.
  * The returned number can be used with UCNV_GET_MAX_BYTES_FOR_STRING
  * to calculate the size of a target buffer for conversion from Unicode.
@@ -674,7 +674,7 @@ U_CAPI void U_EXPORT2 ucnv_resetFromUnicode(UConverter * converter);
  *
  * Examples for special cases that are taken into account:
  * - Supplementary code points may convert to more bytes than BMP code points.
- *   This function returns bytes per UChar (UTF-16 code unit), not per
+ *   This function returns bytes per char16_t (UTF-16 code unit), not per
  *   Unicode code point, for efficient buffer allocation.
  * - State-shifting output (SI/SO, escapes, etc.) from stateful converters.
  * - When m input UChars are converted to n output bytes, then the maximum m/n
@@ -698,7 +698,7 @@ U_CAPI void U_EXPORT2 ucnv_resetFromUnicode(UConverter * converter);
  * - ISO-2022-CN: 8 (4-byte designator sequences + 2-byte SS2/SS3 + DBCS)
  *
  * @param converter The Unicode converter.
- * @return The maximum number of bytes per UChar (16 bit code unit)
+ * @return The maximum number of bytes per char16_t (16 bit code unit)
  *    that are output by ucnv_fromUnicode(),
  *    to be used together with UCNV_GET_MAX_BYTES_FOR_STRING
  *    for buffer allocation.
@@ -748,11 +748,11 @@ U_CAPI int8 U_EXPORT2 ucnv_getMinCharSize(const UConverter * converter);
  * @param displayName user provided buffer to be filled in
  * @param displayNameCapacity size of displayName Buffer
  * @param err error status code
- * @return displayNameLength number of UChar needed in displayName
+ * @return displayNameLength number of char16_t needed in displayName
  * @see ucnv_getName
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 ucnv_getDisplayName(const UConverter * converter, const char * displayLocale, UChar * displayName, int32_t displayNameCapacity, UErrorCode * err);
+U_CAPI int32_t U_EXPORT2 ucnv_getDisplayName(const UConverter * converter, const char * displayLocale, char16_t * displayName, int32_t displayNameCapacity, UErrorCode * err);
 /**
  * Gets the internal, canonical name of the converter (zero-terminated).
  * The lifetime of the returned string will be that of the converter
@@ -959,7 +959,7 @@ U_CAPI void U_EXPORT2 ucnv_setFromUCallBack(UConverter * converter, UConverterFr
  * target does not fit in available buffers.
  *
  * The source pointer is an in/out parameter. It starts out pointing where the
- * conversion is to begin, and ends up pointing after the last UChar consumed.
+ * conversion is to begin, and ends up pointing after the last char16_t consumed.
  *
  * Target similarly starts out pointer at the first available byte in the output
  * buffer, and ends up pointing after the last byte written to the output.
@@ -1014,8 +1014,8 @@ U_CAPI void U_EXPORT2 ucnv_setFromUCallBack(UConverter * converter, UConverterFr
 U_CAPI void U_EXPORT2 ucnv_fromUnicode(UConverter * converter,
     char ** target,
     const char * targetLimit,
-    const UChar ** source,
-    const UChar * sourceLimit,
+    const char16_t ** source,
+    const char16_t * sourceLimit,
     int32_t* offsets,
     bool flush,
     UErrorCode * err);
@@ -1029,9 +1029,9 @@ U_CAPI void U_EXPORT2 ucnv_fromUnicode(UConverter * converter,
  * The source pointer is an in/out parameter. It starts out pointing where the
  * conversion is to begin, and ends up pointing after the last byte of source consumed.
  *
- * Target similarly starts out pointer at the first available UChar in the output
- * buffer, and ends up pointing after the last UChar written to the output.
- * It does NOT necessarily keep UChar sequences together.
+ * Target similarly starts out pointer at the first available char16_t in the output
+ * buffer, and ends up pointing after the last char16_t written to the output.
+ * It does NOT necessarily keep char16_t sequences together.
  *
  * The converter always attempts to consume the entire source buffer, unless
  * (1.) the target buffer is full, or (2.) a failing error is returned from the
@@ -1055,7 +1055,7 @@ U_CAPI void U_EXPORT2 ucnv_fromUnicode(UConverter * converter,
  * returned, until there are no more chunks of source data.
  * @param converter the Unicode converter
  * @param target I/O parameter. Input : Points to the beginning of the buffer to copy
- *  UChars into. Output : points to after the last UChar copied.
+ *  UChars into. Output : points to after the last char16_t copied.
  * @param targetLimit the pointer just after the end of the <TT>target</TT> buffer
  * @param source I/O parameter, pointer to pointer to the source codepage buffer.
  * @param sourceLimit the pointer to the byte after the end of the source buffer
@@ -1081,8 +1081,8 @@ U_CAPI void U_EXPORT2 ucnv_fromUnicode(UConverter * converter,
  * @stable ICU 2.0
  */
 U_CAPI void U_EXPORT2 ucnv_toUnicode(UConverter * converter,
-    UChar ** target,
-    const UChar * targetLimit,
+    char16_t ** target,
+    const char16_t * targetLimit,
     const char ** source,
     const char * sourceLimit,
     int32_t * offsets,
@@ -1118,7 +1118,7 @@ U_CAPI void U_EXPORT2 ucnv_toUnicode(UConverter * converter,
  */
 U_CAPI int32_t U_EXPORT2 ucnv_fromUChars(UConverter * cnv,
     char * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
+    const char16_t * src, int32_t srcLength,
     UErrorCode * pErrorCode);
 
 /**
@@ -1148,7 +1148,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_fromUChars(UConverter * cnv,
  * @stable ICU 2.0
  */
 U_CAPI int32_t U_EXPORT2 ucnv_toUChars(UConverter * cnv,
-    UChar * dest, int32_t destCapacity,
+    char16_t * dest, int32_t destCapacity,
     const char * src, int32_t srcLength,
     UErrorCode * pErrorCode);
 
@@ -1368,8 +1368,8 @@ U_CAPI UChar32 U_EXPORT2 ucnv_getNextUChar(UConverter * converter,
 U_CAPI void U_EXPORT2 ucnv_convertEx(UConverter * targetCnv, UConverter * sourceCnv,
     char ** target, const char * targetLimit,
     const char ** source, const char * sourceLimit,
-    UChar * pivotStart, UChar ** pivotSource,
-    UChar ** pivotTarget, const UChar * pivotLimit,
+    char16_t * pivotStart, char16_t ** pivotSource,
+    char16_t ** pivotTarget, const char16_t * pivotLimit,
     bool reset, bool flush,
     UErrorCode * pErrorCode);
 
@@ -1761,7 +1761,7 @@ U_CAPI void U_EXPORT2 ucnv_setDefaultName(const char * name);
  * @see ucnv_isAmbiguous
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 ucnv_fixFileSeparator(const UConverter * cnv, UChar * source, int32_t sourceLen);
+U_CAPI void U_EXPORT2 ucnv_fixFileSeparator(const UConverter * cnv, char16_t * source, int32_t sourceLen);
 
 /**
  * Determines if the converter contains ambiguous mappings of the same
@@ -1808,13 +1808,13 @@ U_CAPI bool U_EXPORT2 ucnv_usesFallback(const UConverter * cnv);
  * The number of bytes in the signature is output as well.
  *
  * The caller can ucnv_open() a converter using the charset name.
- * The first code unit (UChar) from the start of the stream will be U+FEFF
+ * The first code unit (char16_t) from the start of the stream will be U+FEFF
  * (the Unicode BOM/signature character) and can usually be ignored.
  *
  * For most Unicode charsets it is also possible to ignore the indicated
  * number of initial stream bytes and start converting after them.
  * However, there are stateful Unicode charsets (UTF-7 and BOCU-1) for which
- * this will not work. Therefore, it is best to ignore the first output UChar
+ * this will not work. Therefore, it is best to ignore the first output char16_t
  * instead of the input signature bytes.
  * <p>
  * Usage:

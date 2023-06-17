@@ -4883,9 +4883,8 @@ static decNumber * decDivideOp(decNumber * res,
 /* for calls from other operations (notably exp).   */
 /* ------------------------------------------------------------------ */
 #define FASTMUL (DECUSE64 && DECDPUN<5)
-static decNumber * decMultiplyOp(decNumber * res, const decNumber * lhs,
-    const decNumber * rhs, decContext * set,
-    uInt * status) {
+static decNumber * decMultiplyOp(decNumber * res, const decNumber * lhs, const decNumber * rhs, decContext * set, uInt * status) 
+{
 	Int accunits; /* Units of accumulator in use  */
 	Int exponent; /* work  */
 	Int residue = 0; /* rounding residue  */
@@ -4893,12 +4892,10 @@ static decNumber * decMultiplyOp(decNumber * res, const decNumber * lhs,
 	Unit  * acc; /* -> accumulator Unit array  */
 	Int needbytes; /* size calculator  */
 	void * allocacc = NULL; /* -> allocated accumulator, iff allocated  */
-	Unit accbuff[SD2U(DECBUFFER*4+1)]; /* buffer (+1 for DECBUFFER==0,  */
-	                                   /* *4 for calls from other operations)  */
+	Unit accbuff[SD2U(DECBUFFER*4+1)]; /* buffer (+1 for DECBUFFER==0, *4 for calls from other operations)  */
 	const Unit * mer, * mermsup; /* work  */
 	Int madlength; /* Units in multiplicand  */
 	Int shift; /* Units to shift multiplicand by  */
-
   #if FASTMUL
 	/* if DECDPUN is 1 or 3 work in base 10**9, otherwise  */
 	/* (DECDPUN is 2 or 4) then work in base 10**8  */
@@ -4938,19 +4935,15 @@ static decNumber * decMultiplyOp(decNumber * res, const decNumber * lhs,
 	uLong * lp; /* ..  */
 	Int p; /* ..  */
   #endif
-
   #if DECSUBSET
 	decNumber * alloclhs = NULL; /* -> allocated buffer, iff allocated  */
 	decNumber * allocrhs = NULL; /* -> allocated buffer, iff allocated  */
   #endif
-
   #if DECCHECK
 	if(decCheckOperands(res, lhs, rhs, set)) return res;
   #endif
-
 	/* precalculate result sign  */
 	bits = (uByte)((lhs->bits^rhs->bits)&DECNEG);
-
 	/* handle infinities and NaNs  */
 	if(SPECIALARGS) {          /* a special bit set  */
 		if(SPECIALARGS & (DECSNAN | DECNAN)) { /* one or two NaNs  */

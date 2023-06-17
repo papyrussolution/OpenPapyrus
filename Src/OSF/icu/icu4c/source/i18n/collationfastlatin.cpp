@@ -103,7 +103,7 @@ int32_t CollationFastLatin::getOptions(const CollationData * data, const Collati
 	return ((int32_t)miniVarTop << 16) | settings.options;
 }
 
-int32_t CollationFastLatin::compareUTF16(const uint16 * table, const uint16 * primaries, int32_t options, const UChar * left, int32_t leftLength, const UChar * right, int32_t rightLength) 
+int32_t CollationFastLatin::compareUTF16(const uint16 * table, const uint16 * primaries, int32_t options, const char16_t * left, int32_t leftLength, const char16_t * right, int32_t rightLength) 
 {
 	// This is a modified copy of CollationCompare::compareUpToQuaternary(),
 	// optimized for common Latin text.
@@ -954,7 +954,7 @@ uint32_t CollationFastLatin::lookupUTF8Unsafe(const uint16 * table, UChar32 c,
 }
 
 uint32_t CollationFastLatin::nextPair(const uint16 * table, UChar32 c, uint32_t ce,
-    const UChar * s16, const uint8 * s8, int32_t &sIndex, int32_t &sLength) {
+    const char16_t * s16, const uint8 * s8, int32_t &sIndex, int32_t &sLength) {
 	if(ce >= MIN_LONG || ce < CONTRACTION) {
 		return ce; // simple or special mini CE
 	}

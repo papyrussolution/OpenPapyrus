@@ -291,16 +291,17 @@ float SUiLayoutParam::CalcEffectiveSizeY(float containerSize) const
 	return result;
 }
 
-void SUiLayoutParam::SetFixedSizeX(float s)
+SUiLayoutParam & SUiLayoutParam::SetFixedSizeX(float s)
 {
 	//assert(!fisnanf(s) && s >= 0.0f);
 	if(fisnan(s) || s < 0.0f)
 		s = 0.0f;
 	Size.x = s;
 	SzX = szFixed;
+	return *this;
 }
 
-void SUiLayoutParam::SetVariableSizeX(uint var/* szXXX */, float s)
+SUiLayoutParam & SUiLayoutParam::SetVariableSizeX(uint var/* szXXX */, float s)
 {
 	assert(oneof3(var, szUndef, szByContent, szByContainer));
 	if(var == szByContainer && (s > 0.0f && s <= 1.0f))
@@ -310,24 +311,25 @@ void SUiLayoutParam::SetVariableSizeX(uint var/* szXXX */, float s)
 	else
 		Size.x = 0.0f;
 	SzX = var;
+	return *this;
 }
 
-void SUiLayoutParam::SetFixedSizeY(float s)
+SUiLayoutParam & SUiLayoutParam::SetFixedSizeY(float s)
 {
 	//assert(!fisnanf(s) && s >= 0.0f);
 	if(fisnanf(s) || s < 0.0f)
 		s = 0.0f;
 	Size.y = s;
 	SzY = szFixed;
+	return *this;
 }
 
-void SUiLayoutParam::SetFixedSize(const TRect & rR)
+SUiLayoutParam & SUiLayoutParam::SetFixedSize(const TRect & rR)
 {
-	SetFixedSizeX(static_cast<float>(rR.width()));
-	SetFixedSizeY(static_cast<float>(rR.height()));
+	return SetFixedSizeX(static_cast<float>(rR.width())).SetFixedSizeY(static_cast<float>(rR.height()));
 }
 
-void SUiLayoutParam::SetVariableSizeY(uint var/* szXXX */, float s)
+SUiLayoutParam & SUiLayoutParam::SetVariableSizeY(uint var/* szXXX */, float s)
 {
 	assert(oneof3(var, szUndef, szByContent, szByContainer));
 	if(var == szByContainer && (s > 0.0f && s <= 1.0f))
@@ -337,6 +339,25 @@ void SUiLayoutParam::SetVariableSizeY(uint var/* szXXX */, float s)
 	else
 		Size.y = 0.0f;
 	SzY = var;
+	return *this;
+}
+
+SUiLayoutParam & SUiLayoutParam::SetMargin(const FRect & rMargin)
+{
+	Margin = rMargin;
+	return *this;
+}
+
+SUiLayoutParam & SUiLayoutParam::SetMargin(float allSidesMargin)
+{
+	Margin.Set(allSidesMargin);
+	return *this;
+}
+
+SUiLayoutParam & SUiLayoutParam::SetGrowFactor(float growFactor)
+{
+	GrowFactor = growFactor;
+	return *this;
 }
 
 int SUiLayoutParam::GetContainerDirection() const // returns DIREC_HORZ || DIREC_VERT || DIREC_UNKN
@@ -349,7 +370,7 @@ int SUiLayoutParam::GetContainerDirection() const // returns DIREC_HORZ || DIREC
 		return DIREC_UNKN;
 }
 
-void SUiLayoutParam::SetContainerDirection(int direc /*DIREC_XXX*/)
+SUiLayoutParam & SUiLayoutParam::SetContainerDirection(int direc /*DIREC_XXX*/)
 {
 	if(direc == DIREC_HORZ) {
 		Flags &= ~fContainerCol;
@@ -362,6 +383,7 @@ void SUiLayoutParam::SetContainerDirection(int direc /*DIREC_XXX*/)
 	else {
 		Flags &= ~(fContainerCol|fContainerRow);
 	}
+	return *this;
 }
 
 /*static*/SString & SUiLayoutParam::MarginsToString(const FRect & rR, SString & rBuf)
@@ -1324,7 +1346,7 @@ SUiLayout * SUiLayout::GetRoot()
 	return p_root;
 }
 
-SUiLayout * SUiLayout::InsertItem(void * pManagedPtr, const SUiLayoutParam * pAlb)
+SUiLayout * SUiLayout::InsertItem(void * pManagedPtr, const SUiLayoutParam * pAlb, int id/*=0*/)
 {
 	SUiLayout * p_result_item = 0;
 	if(!P_Children) {
@@ -1337,7 +1359,9 @@ SUiLayout * SUiLayout::InsertItem(void * pManagedPtr, const SUiLayoutParam * pAl
 			p_result_item->managed_ptr = pManagedPtr;
 			if(pAlb)
 				p_result_item->SetLayoutBlock(*pAlb);
-			p_result_item->UpdateShouldOrderChildren();		
+			p_result_item->UpdateShouldOrderChildren();
+			if(id)
+				p_result_item->SetID(id);
 		}
 	}
 	return p_result_item;

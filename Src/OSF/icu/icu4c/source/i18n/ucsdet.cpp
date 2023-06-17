@@ -107,7 +107,7 @@ U_CAPI bool U_EXPORT2 ucsdet_enableInputFilter(UCharsetDetector * ucsd, bool fil
 	return prev;
 }
 
-U_CAPI int32_t U_EXPORT2 ucsdet_getUChars(const UCharsetMatch * ucsm, UChar * buf, int32_t cap, UErrorCode * status)
+U_CAPI int32_t U_EXPORT2 ucsdet_getUChars(const UCharsetMatch * ucsm, char16_t * buf, int32_t cap, UErrorCode * status)
 	{ return U_SUCCESS(*status) ? ((CharsetMatch*)ucsm)->getUChars(buf, cap, status) : 0; }
 U_CAPI void U_EXPORT2 ucsdet_setDetectableCharset(UCharsetDetector * ucsd, const char * encoding, bool enabled, UErrorCode * status)
 	{ ((CharsetDetector*)ucsd)->setDetectableCharset(encoding, enabled, *status); }

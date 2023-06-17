@@ -362,7 +362,7 @@ typedef struct UConverterMBCSTable {
 	uint32_t fromUBytesLength;
 	uint8 outputType, unicodeMask;
 	bool utf8Friendly; /* for utf8Friendly data */
-	UChar maxFastUChar; /* for utf8Friendly data */
+	char16_t maxFastUChar; /* for utf8Friendly data */
 	uint32_t asciiRoundtrips; /* roundtrips */
 	uint8 * reconstitutedData; /* reconstituted data that was omitted from the .cnv file */
 	char * swapLFNLName; /* converter name for swaplfnl */
@@ -475,7 +475,7 @@ U_CFUNC UChar32 ucnv_MBCSSingleSimpleGetNextUChar(UConverterSharedData * sharedD
  * to and from BMP code points, and it always
  * returns fallback values.
  */
-#define _MBCS_SINGLE_SIMPLE_GET_NEXT_BMP(sharedData, b) (UChar)MBCS_ENTRY_FINAL_VALUE_16((sharedData)->mbcs.stateTable[0][(uint8)(b)])
+#define _MBCS_SINGLE_SIMPLE_GET_NEXT_BMP(sharedData, b) (char16_t)MBCS_ENTRY_FINAL_VALUE_16((sharedData)->mbcs.stateTable[0][(uint8)(b)])
 /**
  * This is an internal function that allows other converter implementations
  * to check whether a byte is a lead byte.

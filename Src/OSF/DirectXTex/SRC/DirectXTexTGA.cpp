@@ -128,7 +128,7 @@ HRESULT DecodeTGAHeader(_In_reads_bytes_(size) const void* pSource, size_t size,
 {
 	if(!pSource)
 		return E_INVALIDARG;
-	memset(&metadata, 0, sizeof(TexMetadata));
+	memzero(&metadata, sizeof(TexMetadata));
 	if(size < TGA_HEADER_LEN) {
 		return HRESULT_E_INVALID_DATA;
 	}
@@ -1077,19 +1077,15 @@ HRESULT CopyPixels(_In_reads_bytes_(size) const void* pSource,
 			    return E_FAIL;
 		}
 	}
-
 	return opaquealpha ? S_FALSE : S_OK;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Encodes TGA file header
-//-------------------------------------------------------------------------------------
+//
 HRESULT EncodeTGAHeader(_In_ const Image& image, _Out_ TGA_HEADER& header, _Inout_ uint32_t& convFlags) noexcept
 {
-	memset(&header, 0, TGA_HEADER_LEN);
-
-	if((image.width > UINT16_MAX)
-	    || (image.height > UINT16_MAX)) {
+	memzero(&header, TGA_HEADER_LEN);
+	if((image.width > UINT16_MAX) || (image.height > UINT16_MAX)) {
 		return HRESULT_E_NOT_SUPPORTED;
 	}
 
@@ -1172,16 +1168,13 @@ void Copy24bppScanline(_Out_writes_bytes_(outSize) void* pDestination,
 		}
 	}
 }
-
-//-------------------------------------------------------------------------------------
+//
 // TGA 2.0 Extension helpers
-//-------------------------------------------------------------------------------------
+//
 void SetExtension(_In_ TGA_EXTENSION * ext, TGA_FLAGS flags, const TexMetadata& metadata) noexcept
 {
-	memset(ext, 0, sizeof(TGA_EXTENSION));
-
+	memzero(ext, sizeof(TGA_EXTENSION));
 	ext->wSize = sizeof(TGA_EXTENSION);
-
 	memcpy(ext->szSoftwareId, "DirectXTex", sizeof("DirectXTex"));
 	ext->wVersionNumber = DIRECTX_TEX_VERSION;
 	ext->bVersionLetter = ' ';
@@ -1280,19 +1273,13 @@ DXGI_FORMAT GetSRGBFromExtension(_In_opt_ const TGA_EXTENSION* ext, DXGI_FORMAT 
 	return format;
 }
 }
-
-//=====================================================================================
+//
 // Entry-points
-//=====================================================================================
-
-//-------------------------------------------------------------------------------------
+//
 // Obtain metadata from TGA file in memory/on disk
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::GetMetadataFromTGAMemory(const void* pSource,
-    size_t size,
-    TGA_FLAGS flags,
-    TexMetadata& metadata) noexcept
+//
+_Use_decl_annotations_ HRESULT DirectX::GetMetadataFromTGAMemory(const void* pSource,
+    size_t size, TGA_FLAGS flags, TexMetadata& metadata) noexcept
 {
 	if(!pSource || size == 0)
 		return E_INVALIDARG;
@@ -1323,8 +1310,7 @@ HRESULT DirectX::GetMetadataFromTGAMemory(const void* pSource,
 	return S_OK;
 }
 
-_Use_decl_annotations_
-HRESULT DirectX::GetMetadataFromTGAFile(const wchar_t* szFile, TGA_FLAGS flags, TexMetadata& metadata) noexcept
+_Use_decl_annotations_ HRESULT DirectX::GetMetadataFromTGAFile(const wchar_t* szFile, TGA_FLAGS flags, TexMetadata& metadata) noexcept
 {
 	if(!szFile)
 		return E_INVALIDARG;
@@ -1449,19 +1435,15 @@ HRESULT DirectX::GetMetadataFromTGAFile(const wchar_t* szFile, TGA_FLAGS flags, 
 			}
 		}
 	}
-
 	if(!(flags & TGA_FLAGS_IGNORE_SRGB)) {
 		metadata.format = GetSRGBFromExtension(ext, metadata.format, flags, nullptr);
 	}
-
 	return S_OK;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Load a TGA file in memory
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::LoadFromTGAMemory(const void* pSource,
+//
+_Use_decl_annotations_ HRESULT DirectX::LoadFromTGAMemory(const void* pSource,
     size_t size,
     TGA_FLAGS flags,
     TexMetadata* metadata,
@@ -1546,15 +1528,12 @@ HRESULT DirectX::LoadFromTGAMemory(const void* pSource,
 			metadata->SetAlphaMode(GetAlphaModeFromExtension(ext));
 		}
 	}
-
 	return S_OK;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Load a TGA file from disk
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::LoadFromTGAFile(const wchar_t* szFile,
+//
+_Use_decl_annotations_ HRESULT DirectX::LoadFromTGAFile(const wchar_t* szFile,
     TGA_FLAGS flags,
     TexMetadata* metadata,
     ScratchImage& image) noexcept
@@ -1979,15 +1958,12 @@ HRESULT DirectX::LoadFromTGAFile(const wchar_t* szFile,
 			metadata->SetAlphaMode(GetAlphaModeFromExtension(ext));
 		}
 	}
-
 	return S_OK;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Save a TGA file to memory
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::SaveToTGAMemory(const Image& image,
+//
+_Use_decl_annotations_ HRESULT DirectX::SaveToTGAMemory(const Image& image,
     TGA_FLAGS flags,
     Blob& blob,
     const TexMetadata* metadata) noexcept
@@ -2062,28 +2038,20 @@ HRESULT DirectX::SaveToTGAMemory(const Image& image,
 	footer->dwDeveloperOffset = 0;
 	footer->dwExtensionOffset = extOffset;
 	memcpy(footer->Signature, g_Signature, sizeof(g_Signature));
-
 	return S_OK;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Save a TGA file to disk
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::SaveToTGAFile(const Image& image,
-    TGA_FLAGS flags,
-    const wchar_t* szFile,
-    const TexMetadata* metadata) noexcept
+//
+_Use_decl_annotations_ HRESULT DirectX::SaveToTGAFile(const Image& image,
+    TGA_FLAGS flags, const wchar_t* szFile, const TexMetadata* metadata) noexcept
 {
 	if(!szFile)
 		return E_INVALIDARG;
-
 	if((flags & (TGA_FLAGS_FORCE_LINEAR | TGA_FLAGS_FORCE_SRGB)) != 0 && !metadata)
 		return E_INVALIDARG;
-
 	if(!image.pixels)
 		return E_POINTER;
-
 	TGA_HEADER tga_header = {};
 	uint32_t convFlags = 0;
 	HRESULT hr = EncodeTGAHeader(image, tga_header, convFlags);

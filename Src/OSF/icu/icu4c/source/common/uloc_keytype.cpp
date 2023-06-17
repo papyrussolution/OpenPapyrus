@@ -257,7 +257,7 @@ static void U_CALLCONV initFromResourceBundle(UErrorCode & sts) {
 						int32_t toLen;
 						typeAliasDataEntry.adoptInstead(ures_getNextResource(typeAliasResByKey.getAlias(),
 						    typeAliasDataEntry.orphan(), &sts));
-						const UChar * to = ures_getString(typeAliasDataEntry.getAlias(), &toLen, &sts);
+						const char16_t * to = ures_getString(typeAliasDataEntry.getAlias(), &toLen, &sts);
 						if(U_FAILURE(sts)) {
 							break;
 						}
@@ -299,7 +299,7 @@ static void U_CALLCONV initFromResourceBundle(UErrorCode & sts) {
 						int32_t toLen;
 						bcpTypeAliasDataEntry.adoptInstead(ures_getNextResource(bcpTypeAliasResByKey.getAlias(),
 						    bcpTypeAliasDataEntry.orphan(), &sts));
-						const UChar * to = ures_getString(bcpTypeAliasDataEntry.getAlias(), &toLen, &sts);
+						const char16_t * to = ures_getString(bcpTypeAliasDataEntry.getAlias(), &toLen, &sts);
 						if(U_FAILURE(sts)) {
 							break;
 						}

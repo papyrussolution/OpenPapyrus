@@ -189,7 +189,7 @@ static int32_t ucnv_extMatchToU(const int32_t * cx, int8 sisoState,
 			}
 		}
 
-		/* search for the current UChar */
+		/* search for the current char16_t */
 		value = ucnv_extFindToU(toUSection, length, b);
 		if(value==0) {
 			/* no match here, stop with the longest match so far */
@@ -229,7 +229,7 @@ static int32_t ucnv_extMatchToU(const int32_t * cx, int8 sisoState,
 
 static inline void ucnv_extWriteToU(UConverter * cnv, const int32_t * cx,
     uint32_t value,
-    UChar ** target, const UChar * targetLimit,
+    char16_t ** target, const char16_t * targetLimit,
     int32_t ** offsets, int32_t srcIndex,
     UErrorCode * pErrorCode) {
 	/* output the result */
@@ -245,7 +245,7 @@ static inline void ucnv_extWriteToU(UConverter * cnv, const int32_t * cx,
 		/* output a string - with correct data we have resultLength>0 */
 		ucnv_toUWriteUChars(
 			cnv,
-			UCNV_EXT_ARRAY(cx, UCNV_EXT_TO_U_UCHARS_INDEX, UChar)+
+			UCNV_EXT_ARRAY(cx, UCNV_EXT_TO_U_UCHARS_INDEX, char16_t)+
 			UCNV_EXT_TO_U_GET_INDEX(value),
 			UCNV_EXT_TO_U_GET_LENGTH(value),
 			target, targetLimit,
@@ -272,7 +272,7 @@ static inline void ucnv_extWriteToU(UConverter * cnv, const int32_t * cx,
 U_CFUNC bool ucnv_extInitialMatchToU(UConverter * cnv, const int32_t * cx,
     int32_t firstLength,
     const char ** src, const char * srcLimit,
-    UChar ** target, const UChar * targetLimit,
+    char16_t ** target, const char16_t * targetLimit,
     int32_t ** offsets, int32_t srcIndex,
     bool flush,
     UErrorCode * pErrorCode) {
@@ -454,9 +454,9 @@ static inline bool extFromUUseMapping(bool useFallback, uint32_t value, UChar32 
 }
 
 /*
- * @return index of the UChar, if found; else <0
+ * @return index of the char16_t, if found; else <0
  */
-static inline int32_t ucnv_extFindFromU(const UChar * fromUSection, int32_t length, UChar u) {
+static inline int32_t ucnv_extFindFromU(const char16_t * fromUSection, int32_t length, char16_t u) {
 	int32_t i, start, limit;
 
 	/* binary search */
@@ -525,19 +525,19 @@ static inline int32_t ucnv_extFindFromU(const UChar * fromUSection, int32_t leng
  */
 static int32_t ucnv_extMatchFromU(const int32_t * cx,
     UChar32 firstCP,
-    const UChar * pre, int32_t preLength,
-    const UChar * src, int32_t srcLength,
+    const char16_t * pre, int32_t preLength,
+    const char16_t * src, int32_t srcLength,
     uint32_t * pMatchValue,
     bool useFallback, bool flush) {
 	const uint16 * stage12, * stage3;
 	const uint32_t * stage3b;
 
-	const UChar * fromUTableUChars, * fromUSectionUChars;
+	const char16_t * fromUTableUChars, * fromUSectionUChars;
 	const uint32_t * fromUTableValues, * fromUSectionValues;
 
 	uint32_t value, matchValue;
 	int32_t i, j, idx, length, matchLength;
-	UChar c;
+	char16_t c;
 
 	if(cx==NULL) {
 		return 0; /* no extension data, no match */
@@ -570,7 +570,7 @@ static int32_t ucnv_extMatchFromU(const int32_t * cx,
 		idx = (int32_t)UCNV_EXT_FROM_U_GET_PARTIAL_INDEX(value);
 
 		/* initialize */
-		fromUTableUChars = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_UCHARS_INDEX, UChar);
+		fromUTableUChars = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_UCHARS_INDEX, char16_t);
 		fromUTableValues = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_VALUES_INDEX, uint32_t);
 
 		matchValue = 0;
@@ -616,7 +616,7 @@ static int32_t ucnv_extMatchFromU(const int32_t * cx,
 				}
 			}
 
-			/* search for the current UChar */
+			/* search for the current char16_t */
 			idx = ucnv_extFindFromU(fromUSectionUChars, length, c);
 			if(idx<0) {
 				/* no match here, stop with the longest match so far */
@@ -754,7 +754,7 @@ static inline void ucnv_extWriteFromU(UConverter * cnv, const int32_t * cx,
  */
 U_CFUNC bool ucnv_extInitialMatchFromU(UConverter * cnv, const int32_t * cx,
     UChar32 cp,
-    const UChar ** src, const UChar * srcLimit,
+    const char16_t ** src, const char16_t * srcLimit,
     char ** target, const char * targetLimit,
     int32_t ** offsets, int32_t srcIndex,
     bool flush,
@@ -787,7 +787,7 @@ U_CFUNC bool ucnv_extInitialMatchFromU(UConverter * cnv, const int32_t * cx,
 	}
 	else if(match<0) {
 		/* save state for partial match */
-		const UChar * s;
+		const char16_t * s;
 		int32_t j;
 
 		/* copy the first code point */
@@ -903,7 +903,7 @@ U_CFUNC void ucnv_extContinueMatchFromU(UConverter * cnv, UConverterFromUnicodeA
 	}
 	else if(match<0) {
 		/* save state for partial match */
-		const UChar * s;
+		const char16_t * s;
 		int32_t j;
 
 		/* just _append_ the newly consumed input to preFromU[] */
@@ -983,16 +983,16 @@ static void ucnv_extGetUnicodeSetString(const UConverterSharedData * sharedData,
     UConverterUnicodeSet which,
     int32_t minLength,
     UChar32 firstCP,
-    UChar s[UCNV_EXT_MAX_UCHARS], int32_t length,
+    char16_t s[UCNV_EXT_MAX_UCHARS], int32_t length,
     int32_t sectionIndex,
     UErrorCode * pErrorCode) {
-	const UChar * fromUSectionUChars;
+	const char16_t * fromUSectionUChars;
 	const uint32_t * fromUSectionValues;
 
 	uint32_t value;
 	int32_t i, count;
 
-	fromUSectionUChars = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_UCHARS_INDEX, UChar)+sectionIndex;
+	fromUSectionUChars = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_UCHARS_INDEX, char16_t)+sectionIndex;
 	fromUSectionValues = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_VALUES_INDEX, uint32_t)+sectionIndex;
 
 	/* read first pair of the section */
@@ -1043,7 +1043,7 @@ U_CFUNC void ucnv_extGetUnicodeSet(const UConverterSharedData * sharedData,
 	uint32_t value;
 	int32_t st1, stage1Length, st2, st3, minLength;
 
-	UChar s[UCNV_EXT_MAX_UCHARS];
+	char16_t s[UCNV_EXT_MAX_UCHARS];
 	UChar32 c;
 	int32_t length;
 

@@ -203,8 +203,7 @@ static inline void template_solid_color_4_da(byte * _RESTRICT dp, int n, int w, 
 			dp[3] = color[3];
 			dp[4] = 255;
 			dp += 5;
-		}
-		while(--w);
+		} while(--w);
 	}
 	else {
 		do {
@@ -214,8 +213,7 @@ static inline void template_solid_color_4_da(byte * _RESTRICT dp, int n, int w, 
 			dp[3] = FZ_BLEND(color[3], dp[3], sa);
 			dp[4] = FZ_BLEND(255, dp[5], sa);
 			dp += 5;
-		}
-		while(--w);
+		} while(--w);
 	}
 }
 
@@ -260,8 +258,7 @@ static inline void template_solid_color_N_256(byte * _RESTRICT dp, int n, int w,
 			*(uint32_t*)dp = u.w[2];
 			dp += 4;
 			w -= 4;
-		}
-		while(w > 0);
+		} while(w > 0);
 		w += 4;
 		if(w == 0)
 			return;
@@ -277,16 +274,10 @@ static inline void template_solid_color_N_256(byte * _RESTRICT dp, int n, int w,
 		if(da)
 			dp[n1] = 255;
 		dp += n;
-	}
-	while(--w);
+	} while(--w);
 }
 
-static inline void template_solid_color_N_256_op(byte * _RESTRICT dp,
-    int n,
-    int w,
-    const byte * _RESTRICT color,
-    int da,
-    const fz_overprint * _RESTRICT eop)
+static inline void template_solid_color_N_256_op(byte * _RESTRICT dp, int n, int w, const byte * _RESTRICT color, int da, const fz_overprint * _RESTRICT eop)
 {
 	int k;
 	int n1 = n - da;
@@ -305,8 +296,7 @@ static inline void template_solid_color_N_256_op(byte * _RESTRICT dp,
 		if(da)
 			dp[n1] = 255;
 		dp += n;
-	}
-	while(--w);
+	} while(--w);
 }
 
 static inline void template_solid_color_N_sa(byte * _RESTRICT dp, int n, int w, const byte * _RESTRICT color, int da, int sa)

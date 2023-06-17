@@ -309,12 +309,9 @@ static char * ossl_strerror(ulong error, char * buf, size_t size)
 #else
 	ERR_error_string_n(error, buf, size);
 #endif
-
 	if(size > 1 && !*buf) {
-		strncpy(buf, (error ? "Unknown error" : "No error"), size);
-		buf[size - 1] = '\0';
+		strnzcpy(buf, (error ? "Unknown error" : "No error"), size);
 	}
-
 	return buf;
 }
 
@@ -4010,8 +4007,7 @@ static ssize_t ossl_send(struct connectdata * conn,
 			    else if(sockerr)
 				    Curl_strerror(sockerr, error_buffer, sizeof(error_buffer));
 			    else {
-				    strncpy(error_buffer, SSL_ERROR_to_str(err), sizeof(error_buffer));
-				    error_buffer[sizeof(error_buffer) - 1] = '\0';
+				    strnzcpy(error_buffer, SSL_ERROR_to_str(err), sizeof(error_buffer));
 			    }
 			    failf(conn->data, OSSL_PACKAGE " SSL_write: %s, errno %d",
 				error_buffer, sockerr);
@@ -4100,8 +4096,7 @@ static ssize_t ossl_recv(struct connectdata * conn, /* connection data */
 				    else if(sockerr && err == SSL_ERROR_SYSCALL)
 					    Curl_strerror(sockerr, error_buffer, sizeof(error_buffer));
 				    else {
-					    strncpy(error_buffer, SSL_ERROR_to_str(err), sizeof(error_buffer));
-					    error_buffer[sizeof(error_buffer) - 1] = '\0';
+					    strnzcpy(error_buffer, SSL_ERROR_to_str(err), sizeof(error_buffer));
 				    }
 				    failf(conn->data, OSSL_PACKAGE " SSL_read: %s, errno %d",
 					error_buffer, sockerr);

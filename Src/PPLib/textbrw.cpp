@@ -950,7 +950,7 @@ int STextBrowser::SetSpecialMode(int spcm)
 /*virtual*/TBaseBrowserWindow::IdentBlock & STextBrowser::GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk)
 {
 	rBlk.IdBias = IdBiasTextBrowser;
-	rBlk.ClsName = SUcSwitch(STextBrowser::WndClsName); // @unicodeproblem
+	rBlk.ClsName = SUcSwitch(STextBrowser::WndClsName);
 	(rBlk.InstanceIdent = Doc.FileName).Strip().ToLower();
 	return rBlk;
 }

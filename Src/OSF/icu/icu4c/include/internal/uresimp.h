@@ -245,10 +245,10 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_getByKeyWithFallback(const UResourceBund
  *                could be <TT>U_MISSING_RESOURCE_ERROR</TT> if the key is not found
  *                could be a non-failing error
  *                e.g.: <TT>U_USING_FALLBACK_WARNING</TT>,<TT>U_USING_DEFAULT_WARNING </TT>
- * @return returns a pointer to a zero-terminated UChar array which lives in a
+ * @return returns a pointer to a zero-terminated char16_t array which lives in a
  *         memory mapped/DLL file.
  */
-U_CAPI const UChar * U_EXPORT2 ures_getStringByKeyWithFallback(const UResourceBundle * resB, const char * inKey, int32_t* len, UErrorCode * status);
+U_CAPI const char16_t * U_EXPORT2 ures_getStringByKeyWithFallback(const UResourceBundle * resB, const char * inKey, int32_t* len, UErrorCode * status);
 
 #ifdef __cplusplus
 

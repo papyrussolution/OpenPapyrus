@@ -278,8 +278,8 @@ static const char * const OptGroupByteToCPName[ULMBCS_GRP_LAST + 1] = {
 /* The table & some code to use it: */
 
 static const struct _UniLMBCSGrpMap {
-	const UChar uniStartRange;
-	const UChar uniEndRange;
+	const char16_t uniStartRange;
+	const char16_t uniEndRange;
 	const ulmbcs_byte_t GrpType;
 } UniLMBCSGrpMap[]
 	=
@@ -423,7 +423,7 @@ static const struct _UniLMBCSGrpMap {
 	{0xFFFF, 0xFFFF,  ULMBCS_GRP_UNICODE}
 	};
 
-static ulmbcs_byte_t FindLMBCSUniRange(UChar uniChar)
+static ulmbcs_byte_t FindLMBCSUniRange(char16_t uniChar)
 {
 	const struct _UniLMBCSGrpMap * pTable = UniLMBCSGrpMap;
 
@@ -693,7 +693,7 @@ static UConverter * U_CALLCONV _LMBCSSafeClone(const UConverter * cnv, void * st
 static size_t LMBCSConversionWorker(UConverterDataLMBCS * extraInfo,    /* subconverters, opt & locale groups */
     ulmbcs_byte_t group, /* The group to try */
     ulmbcs_byte_t  * pStartLMBCS,             /* where to put the results */
-    UChar * pUniChar,                  /* The input unicode character */
+    char16_t * pUniChar,                  /* The input unicode character */
     ulmbcs_byte_t * lastConverterIndex, /* output: track last successful group used */
     bool * groups_tried               /* output: track any unsuccessful groups */
     )
@@ -755,7 +755,7 @@ static size_t LMBCSConversionWorker(UConverterDataLMBCS * extraInfo,    /* subco
 /* This is a much simpler version of above, when we
    know we are writing LMBCS using the Unicode group
  */
-static size_t LMBCSConvertUni(ulmbcs_byte_t * pLMBCS, UChar uniChar)
+static size_t LMBCSConvertUni(ulmbcs_byte_t * pLMBCS, char16_t uniChar)
 {
 	/* encode into LMBCS Unicode range */
 	uint8 LowCh =   (uint8)(uniChar & 0x00FF);
@@ -778,7 +778,7 @@ static size_t LMBCSConvertUni(ulmbcs_byte_t * pLMBCS, UChar uniChar)
 static void U_CALLCONV _LMBCSFromUnicode(UConverterFromUnicodeArgs * args, UErrorCode * err)
 {
 	ulmbcs_byte_t lastConverterIndex = 0;
-	UChar uniChar;
+	char16_t uniChar;
 	ulmbcs_byte_t LMBCS[ULMBCS_CHARSIZE_MAX];
 	ulmbcs_byte_t  * pLMBCS;
 	int32_t bytes_written;
@@ -969,7 +969,7 @@ static void U_CALLCONV _LMBCSFromUnicode(UConverterFromUnicodeArgs * args, UErro
 /* Now, the Unicode from LMBCS section */
 
 /* A function to call when we are looking at the Unicode group byte in LMBCS */
-static UChar GetUniFromLMBCSUni(char const ** ppLMBCSin)  /* Called with LMBCS-style Unicode byte stream */
+static char16_t GetUniFromLMBCSUni(char const ** ppLMBCSin)  /* Called with LMBCS-style Unicode byte stream */
 {
 	uint8 HighCh = *(*ppLMBCSin)++; /* Big-endian Unicode in LMBCS compatibility group*/
 	uint8 LowCh  = *(*ppLMBCSin)++;
@@ -978,7 +978,7 @@ static UChar GetUniFromLMBCSUni(char const ** ppLMBCSin)  /* Called with LMBCS-s
 		HighCh = LowCh;
 		LowCh = 0; /* zero-byte in LSB special character */
 	}
-	return (UChar)((HighCh << 8) | LowCh);
+	return (char16_t)((HighCh << 8) | LowCh);
 }
 
 /* CHECK_SOURCE_LIMIT: Helper macro to verify that there are at least'index'
@@ -1125,7 +1125,7 @@ static void U_CALLCONV _LMBCSToUnicodeWithOffsets(UConverterToUnicodeArgs*    ar
     UErrorCode * err)
 {
 	char LMBCS [ULMBCS_CHARSIZE_MAX];
-	UChar uniChar; /* one output UNICODE char */
+	char16_t uniChar; /* one output UNICODE char */
 	const char * saveSource; /* beginning of current code point */
 	const char * pStartLMBCS = args->source; /* beginning of whole string */
 	const char * errSource = NULL; /* pointer to actual input in case an error occurs */
@@ -1150,7 +1150,7 @@ static void U_CALLCONV _LMBCSToUnicodeWithOffsets(UConverterToUnicodeArgs*    ar
 			args->source = errSource = LMBCS;
 			args->sourceLimit = LMBCS+size_old+size_new;
 			savebytes = (int8)(size_old+size_new);
-			uniChar = (UChar)_LMBCSGetNextUCharWorker(args, err);
+			uniChar = (char16_t)_LMBCSGetNextUCharWorker(args, err);
 			args->source = saveSource + ((args->source - LMBCS) - size_old);
 			args->sourceLimit = saveSourceLimit;
 
@@ -1169,7 +1169,7 @@ static void U_CALLCONV _LMBCSToUnicodeWithOffsets(UConverterToUnicodeArgs*    ar
 		}
 		else {
 			errSource = saveSource;
-			uniChar = (UChar)_LMBCSGetNextUCharWorker(args, err);
+			uniChar = (char16_t)_LMBCSGetNextUCharWorker(args, err);
 			savebytes = (int8)(args->source - saveSource);
 		}
 		if(U_SUCCESS(*err)) {

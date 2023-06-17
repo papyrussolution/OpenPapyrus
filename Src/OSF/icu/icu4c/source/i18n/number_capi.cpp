@@ -69,7 +69,7 @@ const DecimalQuantity* icu::number::impl::validateUFormattedNumberToDecimalQuant
 	return &result->fData.quantity;
 }
 
-U_CAPI UNumberFormatter* U_EXPORT2 unumf_openForSkeletonAndLocale(const UChar * skeleton, int32_t skeletonLen, const char * locale,
+U_CAPI UNumberFormatter* U_EXPORT2 unumf_openForSkeletonAndLocale(const char16_t * skeleton, int32_t skeletonLen, const char * locale,
     UErrorCode * ec) {
 	auto* impl = new UNumberFormatterData();
 	if(impl == nullptr) {
@@ -82,7 +82,7 @@ U_CAPI UNumberFormatter* U_EXPORT2 unumf_openForSkeletonAndLocale(const UChar * 
 	return impl->exportForC();
 }
 
-U_CAPI UNumberFormatter* U_EXPORT2 unumf_openForSkeletonAndLocaleWithError(const UChar * skeleton, int32_t skeletonLen, const char * locale,
+U_CAPI UNumberFormatter* U_EXPORT2 unumf_openForSkeletonAndLocaleWithError(const char16_t * skeleton, int32_t skeletonLen, const char * locale,
     UParseError* perror, UErrorCode * ec) {
 	auto* impl = new UNumberFormatterData();
 	if(impl == nullptr) {
@@ -140,7 +140,7 @@ U_CAPI void U_EXPORT2 unumf_formatDecimal(const UNumberFormatter* uformatter, co
 	formatter->fFormatter.formatImpl(&result->fData, *ec);
 }
 
-U_CAPI int32_t U_EXPORT2 unumf_resultToString(const UFormattedNumber* uresult, UChar * buffer, int32_t bufferCapacity,
+U_CAPI int32_t U_EXPORT2 unumf_resultToString(const UFormattedNumber* uresult, char16_t * buffer, int32_t bufferCapacity,
     UErrorCode * ec) {
 	const auto* result = UFormattedNumberApiHelper::validate(uresult, *ec);
 	if(U_FAILURE(*ec)) {

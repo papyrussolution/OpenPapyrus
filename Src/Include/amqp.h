@@ -2893,9 +2893,9 @@ AMQP_END_DECLS
 	#include <sys/time.h>
 #endif
 
-#define AMQP_MS_PER_S 1000
+#define AMQP_MS_PER_S  1000
 #define AMQP_US_PER_MS 1000
-#define AMQP_NS_PER_S 1000000000
+#define AMQP_NS_PER_S  SlConst::OneBillion
 #define AMQP_NS_PER_MS 1000000
 #define AMQP_NS_PER_US 1000
 // 

@@ -33,8 +33,8 @@ JNIEXPORT /*jobject*/jobjectArray JNICALL FUN(StructuredText_highlight)(JNIEnv *
 {
 	fz_context * ctx = get_context(env);
 	fz_stext_page * text = from_StructuredText(env, self);
-	fz_point pt1 = from_Point(env, jpt1);
-	fz_point pt2 = from_Point(env, jpt2);
+	SPoint2F pt1 = from_Point(env, jpt1);
+	SPoint2F pt2 = from_Point(env, jpt2);
 	fz_quad hits[1000];
 	int n = 0;
 	if(!ctx || !text) return NULL;
@@ -49,20 +49,18 @@ JNIEXPORT jobject JNICALL FUN(StructuredText_snapSelection)(JNIEnv *env, jobject
 {
 	fz_context * ctx = get_context(env);
 	fz_stext_page * text = from_StructuredText(env, self);
-	fz_point pt1 = from_Point(env, jpt1);
-	fz_point pt2 = from_Point(env, jpt2);
+	SPoint2F pt1 = from_Point(env, jpt1);
+	SPoint2F pt2 = from_Point(env, jpt2);
 	fz_quad quad;
 	if(!ctx || !text) return NULL;
 	fz_try(ctx)
 	quad = fz_snap_selection(ctx, text, &pt1, &pt2, mode);
 	fz_catch(ctx)
 	jni_rethrow(env, ctx);
-
 	env->SetFloatField(jpt1, fid_Point_x, pt1.x);
 	env->SetFloatField(jpt1, fid_Point_y, pt1.y);
 	env->SetFloatField(jpt2, fid_Point_x, pt2.x);
 	env->SetFloatField(jpt2, fid_Point_y, pt2.y);
-
 	return to_Quad_safe(ctx, env, quad);
 }
 
@@ -70,8 +68,8 @@ JNIEXPORT /*jobject*/jstring JNICALL FUN(StructuredText_copy)(JNIEnv *env, jobje
 {
 	fz_context * ctx = get_context(env);
 	fz_stext_page * text = from_StructuredText(env, self);
-	fz_point pt1 = from_Point(env, jpt1);
-	fz_point pt2 = from_Point(env, jpt2);
+	SPoint2F pt1 = from_Point(env, jpt1);
+	SPoint2F pt2 = from_Point(env, jpt2);
 	jstring jstring = NULL;
 	char * s = NULL;
 	if(!ctx || !text) return NULL;

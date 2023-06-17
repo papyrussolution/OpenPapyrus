@@ -78,8 +78,9 @@
 	#endif
 	// } @v10.9.10 
 #endif
-#define __STDC_LIMIT_MACROS // @v10.5.4
-
+#ifndef __STDC_LIMIT_MACROS
+	#define __STDC_LIMIT_MACROS // @v10.5.4
+#endif
 /* Remove comment if clarion date format is needed
 #define USE_DF_CLARION */
 // @v11.7.4 (replaced with SlConst::DefaultBinDateFormat) #define DEFAULT_BIN_DATE_FORMAT   DF_BTRIEVE

@@ -13,5 +13,8 @@
   <ItemGroup>
     <ClCompile Include="..\PPTEST\pptest-dedicated.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-dirent.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-sarc.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-onig.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-etc.cpp" />
   </ItemGroup>
 </Project>

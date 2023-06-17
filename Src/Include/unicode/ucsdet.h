@@ -271,7 +271,7 @@ U_CAPI int32_t U_EXPORT2 ucsdet_getConfidence(const UCharsetMatch * ucsm, UError
 U_CAPI const char * U_EXPORT2 ucsdet_getLanguage(const UCharsetMatch * ucsm, UErrorCode * status);
 
 /**
- *  Get the entire input text as a UChar string, placing it into
+ *  Get the entire input text as a char16_t string, placing it into
  *  a caller-supplied buffer.  A terminating
  *  NUL character will be appended to the buffer if space is available.
  *
@@ -285,14 +285,14 @@ U_CAPI const char * U_EXPORT2 ucsdet_getLanguage(const UCharsetMatch * ucsm, UEr
  *
  *
  * @param ucsm    The charset match object.
- * @param buf     A UChar buffer to be filled with the converted text data.
+ * @param buf     A char16_t buffer to be filled with the converted text data.
  * @param cap     The capacity of the buffer in UChars.
  * @param status  Any error conditions are reported back in this variable.
  * @return        The number of UChars in the output string.
  *
  * @stable ICU 3.6
  */
-U_CAPI int32_t U_EXPORT2 ucsdet_getUChars(const UCharsetMatch * ucsm, UChar * buf, int32_t cap, UErrorCode * status);
+U_CAPI int32_t U_EXPORT2 ucsdet_getUChars(const UCharsetMatch * ucsm, char16_t * buf, int32_t cap, UErrorCode * status);
 
 /**
  *  Get an iterator over the set of all detectable charsets -

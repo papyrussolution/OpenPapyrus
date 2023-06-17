@@ -97,18 +97,18 @@ static void Increment(int* const v)
 		{
 			const char* const malloc_fail_at_str = getenv("MALLOC_FAIL_AT");
 			if(malloc_fail_at_str) {
-				countdown_to_fail = atoi(malloc_fail_at_str);
+				countdown_to_fail = satoi(malloc_fail_at_str);
 			}
 		}
 #endif
 #if defined(MALLOC_LIMIT)
 		{
-			const char* const malloc_limit_str = getenv("MALLOC_LIMIT");
+			const char * const malloc_limit_str = getenv("MALLOC_LIMIT");
 #if MALLOC_LIMIT > 1
 			mem_limit = (size_t)MALLOC_LIMIT;
 #endif
 			if(malloc_limit_str) {
-				mem_limit = atoi(malloc_limit_str);
+				mem_limit = satoi(malloc_limit_str);
 			}
 		}
 #endif

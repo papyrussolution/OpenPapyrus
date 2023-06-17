@@ -635,10 +635,11 @@ void TimeRange::Set(LTIME lowTm, LTIME uppTm)
 	upp = uppTm;
 }
 
-void TimeRange::SetZero()
+TimeRange & TimeRange::Z()
 {
 	low = ZEROTIME;
 	upp = ZEROTIME;
+	return *this;
 }
 
 bool TimeRange::IsZero() const { return (low == ZEROTIME && upp == ZEROTIME); }

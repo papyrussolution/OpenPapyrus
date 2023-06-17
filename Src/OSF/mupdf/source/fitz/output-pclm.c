@@ -23,7 +23,7 @@ fz_pclm_options * fz_parse_pclm_options(fz_context * ctx, fz_pclm_options * opts
 			fz_throw(ctx, FZ_ERROR_GENERIC, "Unsupported PCLm compression %s (none, or flate only)", val);
 	}
 	if(fz_has_option(ctx, args, "strip-height", &val)) {
-		int i = fz_atoi(val);
+		int i = satoi(val);
 		if(i <= 0)
 			fz_throw(ctx, FZ_ERROR_GENERIC, "Unsupported PCLm strip height %d (suggest 16)", i);
 		opts->strip_height = i;

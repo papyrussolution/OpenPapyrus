@@ -44,7 +44,7 @@
  * int32_t len = unumf_resultToString(uresult, NULL, 0, &ec);
  * // at this point, ec == U_BUFFER_OVERFLOW_ERROR
  * ec = U_ZERO_ERROR;
- * UChar* buffer = (UChar *) malloc((len+1)*sizeof(UChar));
+ * char16_t* buffer = (char16_t *) malloc((len+1)*sizeof(char16_t));
  * unumf_resultToString(uresult, buffer, len+1, &ec);
  * if (U_FAILURE(ec)) { return; }
  * // buffer should equal "5,142"
@@ -564,7 +564,7 @@ typedef struct UFormattedNumber UFormattedNumber;
  * @param ec Set if an error occurs.
  * @stable ICU 62
  */
-U_CAPI UNumberFormatter* U_EXPORT2 unumf_openForSkeletonAndLocale(const UChar* skeleton, int32_t skeletonLen, const char * locale,
+U_CAPI UNumberFormatter* U_EXPORT2 unumf_openForSkeletonAndLocale(const char16_t* skeleton, int32_t skeletonLen, const char * locale,
     UErrorCode* ec);
 
 /**
@@ -582,7 +582,7 @@ U_CAPI UNumberFormatter* U_EXPORT2 unumf_openForSkeletonAndLocale(const UChar* s
  * @param ec Set if an error occurs.
  * @stable ICU 64
  */
-U_CAPI UNumberFormatter* U_EXPORT2 unumf_openForSkeletonAndLocaleWithError(const UChar* skeleton,
+U_CAPI UNumberFormatter* U_EXPORT2 unumf_openForSkeletonAndLocaleWithError(const char16_t* skeleton,
     int32_t skeletonLen,
     const char * locale,
     UParseError* perror,
@@ -673,14 +673,14 @@ U_CAPI void U_EXPORT2 unumf_formatDecimal(const UNumberFormatter* uformatter, co
 U_CAPI const UFormattedValue* U_EXPORT2 unumf_resultAsValue(const UFormattedNumber* uresult, UErrorCode* ec);
 
 /**
- * Extracts the result number string out of a UFormattedNumber to a UChar buffer if possible.
+ * Extracts the result number string out of a UFormattedNumber to a char16_t buffer if possible.
  * If bufferCapacity is greater than the required length, a terminating NUL is written.
  * If bufferCapacity is less than the required length, an error code is set.
  *
  * Also see ufmtval_getString, which returns a NUL-terminated string:
  *
  *     int32_t len;
- *     const UChar* str = ufmtval_getString(unumf_resultAsValue(uresult, &ec), &len, &ec);
+ *     const char16_t* str = ufmtval_getString(unumf_resultAsValue(uresult, &ec), &len, &ec);
  *
  * NOTE: This is a C-compatible API; C++ users should build against numberformatter.h instead.
  *
@@ -691,7 +691,7 @@ U_CAPI const UFormattedValue* U_EXPORT2 unumf_resultAsValue(const UFormattedNumb
  * @return The required length.
  * @stable ICU 62
  */
-U_CAPI int32_t U_EXPORT2 unumf_resultToString(const UFormattedNumber* uresult, UChar* buffer, int32_t bufferCapacity,
+U_CAPI int32_t U_EXPORT2 unumf_resultToString(const UFormattedNumber* uresult, char16_t* buffer, int32_t bufferCapacity,
     UErrorCode* ec);
 
 /**

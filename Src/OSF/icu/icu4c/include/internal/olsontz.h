@@ -267,7 +267,7 @@ public:
 	 * Internal API returning the canonical ID of this zone.
 	 * This ID won't be affected by setID().
 	 */
-	const UChar * getCanonicalID() const;
+	const char16_t * getCanonicalID() const;
 private:
 	/**
 	 * Default constructor.  Creates a time zone with an empty ID and
@@ -347,7 +347,7 @@ private:
 	/*
 	 * Canonical (CLDR) ID of this zone
 	 */
-	const UChar * canonicalID;
+	const char16_t * canonicalID;
 	/* BasicTimeZone support */
 	void clearTransitionRules();
 	void deleteTransitionRules();
@@ -388,7 +388,7 @@ inline int32_t OlsonTimeZone::dstOffsetAt(int16 transIdx) const
 
 inline int32_t OlsonTimeZone::initialRawOffset() const { return typeOffsets[0]; }
 inline int32_t OlsonTimeZone::initialDstOffset() const { return typeOffsets[1]; }
-inline const UChar * OlsonTimeZone::getCanonicalID() const { return canonicalID; }
+inline const char16_t * OlsonTimeZone::getCanonicalID() const { return canonicalID; }
 
 U_NAMESPACE_END
 

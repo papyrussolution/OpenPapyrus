@@ -169,7 +169,7 @@ U_CAPI int32_t U_EXPORT2 ucol_mergeSortkeys(const uint8 * src1, int32_t src1Leng
 	return (int32_t)(p-dest);
 }
 
-U_CAPI int32_t U_EXPORT2 ucol_getSortKey(const UCollator * coll, const UChar * source, int32_t sourceLength, uint8 * result, int32_t resultLength)
+U_CAPI int32_t U_EXPORT2 ucol_getSortKey(const UCollator * coll, const char16_t * source, int32_t sourceLength, uint8 * result, int32_t resultLength)
 {
 	UTRACE_ENTRY(UTRACE_UCOL_GET_SORTKEY);
 	if(UTRACE_LEVEL(UTRACE_VERBOSE)) {
@@ -280,7 +280,7 @@ U_CAPI UColReorderCode U_EXPORT2 ucol_getMaxVariable(const UCollator * coll) {
 	return Collator::fromUCollator(coll)->getMaxVariable();
 }
 
-U_CAPI uint32_t U_EXPORT2 ucol_setVariableTop(UCollator * coll, const UChar * varTop, int32_t len, UErrorCode * status) {
+U_CAPI uint32_t U_EXPORT2 ucol_setVariableTop(UCollator * coll, const char16_t * varTop, int32_t len, UErrorCode * status) {
 	if(U_FAILURE(*status) || coll == NULL) {
 		return 0;
 	}
@@ -375,7 +375,7 @@ U_CAPI UCollationResult U_EXPORT2 ucol_strcollIter(const UCollator * coll, UChar
 /* */
 /* ucol_strcoll     Main public API string comparison function */
 /* */
-U_CAPI UCollationResult U_EXPORT2 ucol_strcoll(const UCollator * coll, const UChar * source, int32_t sourceLength, const UChar * target, int32_t targetLength)
+U_CAPI UCollationResult U_EXPORT2 ucol_strcoll(const UCollator * coll, const char16_t * source, int32_t sourceLength, const char16_t * target, int32_t targetLength)
 {
 	UTRACE_ENTRY(UTRACE_UCOL_STRCOLL);
 	if(UTRACE_LEVEL(UTRACE_VERBOSE)) {
@@ -412,19 +412,19 @@ U_CAPI UCollationResult U_EXPORT2 ucol_strcollUTF8(const UCollator * coll, const
 }
 
 /* convenience function for comparing strings */
-U_CAPI bool U_EXPORT2 ucol_greater(const UCollator * coll, const UChar * source, int32_t sourceLength, const UChar * target, int32_t targetLength)
+U_CAPI bool U_EXPORT2 ucol_greater(const UCollator * coll, const char16_t * source, int32_t sourceLength, const char16_t * target, int32_t targetLength)
 {
 	return (ucol_strcoll(coll, source, sourceLength, target, targetLength) == UCOL_GREATER);
 }
 
 /* convenience function for comparing strings */
-U_CAPI bool U_EXPORT2 ucol_greaterOrEqual(const UCollator * coll, const UChar * source, int32_t sourceLength, const UChar * target, int32_t targetLength)
+U_CAPI bool U_EXPORT2 ucol_greaterOrEqual(const UCollator * coll, const char16_t * source, int32_t sourceLength, const char16_t * target, int32_t targetLength)
 {
 	return (ucol_strcoll(coll, source, sourceLength, target, targetLength) != UCOL_LESS);
 }
 
 /* convenience function for comparing strings */
-U_CAPI bool U_EXPORT2 ucol_equal(const UCollator * coll, const UChar * source, int32_t sourceLength, const UChar * target, int32_t targetLength)
+U_CAPI bool U_EXPORT2 ucol_equal(const UCollator * coll, const char16_t * source, int32_t sourceLength, const char16_t * target, int32_t targetLength)
 {
 	return (ucol_strcoll(coll, source, sourceLength, target, targetLength) == UCOL_EQUAL);
 }
@@ -448,7 +448,7 @@ U_CAPI void U_EXPORT2 ucol_getUCAVersion(const UCollator* coll, UVersionInfo inf
 	}
 }
 
-U_CAPI const UChar * U_EXPORT2 ucol_getRules(const UCollator * coll, int32_t * length) 
+U_CAPI const char16_t * U_EXPORT2 ucol_getRules(const UCollator * coll, int32_t * length) 
 {
 	const RuleBasedCollator * rbc = RuleBasedCollator::rbcFromUCollator(coll);
 	// OK to crash if coll==NULL: We do not want to check "this" pointers.
@@ -458,12 +458,12 @@ U_CAPI const UChar * U_EXPORT2 ucol_getRules(const UCollator * coll, int32_t * l
 		*length = rules.length();
 		return rules.getBuffer();
 	}
-	static const UChar _NUL = 0;
+	static const char16_t _NUL = 0;
 	*length = 0;
 	return &_NUL;
 }
 
-U_CAPI int32_t U_EXPORT2 ucol_getRulesEx(const UCollator * coll, UColRuleOption delta, UChar * buffer, int32_t bufferLen) 
+U_CAPI int32_t U_EXPORT2 ucol_getRulesEx(const UCollator * coll, UColRuleOption delta, char16_t * buffer, int32_t bufferLen) 
 {
 	UnicodeString rules;
 	const RuleBasedCollator * rbc = RuleBasedCollator::rbcFromUCollator(coll);

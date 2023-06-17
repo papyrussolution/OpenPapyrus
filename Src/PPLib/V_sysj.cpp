@@ -1,5 +1,5 @@
 // V_SYSJ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
 //
 #include <pp.h>
 #pragma hdrstop
@@ -170,9 +170,9 @@ int PPViewSysJournal::SerializeState(int dir, SBuffer & rBuf, SSerializeContext 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, SysJournal);
 PP_CREATE_TEMP_FILE_PROC(CreateSubstFile, TempSysJournal);
 
-int PPViewSysJournal::IsTempTblNeeded() const
+bool PPViewSysJournal::IsTempTblNeeded() const
 {
-	return BIN(Filt.ActionIDList.isList() || (Filt.Flags & (SysJournalFilt::fShowObjects|SysJournalFilt::fShowHistoryObj)) || Filt.Sgsj != sgsjNone || Filt.Sgd != sgdNone);
+	return (Filt.ActionIDList.isList() || (Filt.Flags & (SysJournalFilt::fShowObjects|SysJournalFilt::fShowHistoryObj)) || Filt.Sgsj != sgsjNone || Filt.Sgd != sgdNone);
 }
 
 int FASTCALL PPViewSysJournal::CheckRecForFilt(const SysJournalTbl::Rec * pRec)
@@ -1314,9 +1314,9 @@ int PPViewGtaJournal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(GtaJFiltDialog, static_cast<GtaJournalFilt *>(pBaseFilt));
 }
 
-int PPViewGtaJournal::IsTempTblNeeded() const
+bool PPViewGtaJournal::IsTempTblNeeded() const
 {
-	return BIN(Filt.ActionIDList.isList() || (Filt.Flags & SysJournalFilt::fShowObjects));
+	return (Filt.ActionIDList.isList() || (Filt.Flags & SysJournalFilt::fShowObjects));
 }
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempGtaFile, GtaJournal);

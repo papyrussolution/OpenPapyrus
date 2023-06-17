@@ -140,7 +140,7 @@ U_NAMESPACE_END
  * @return The length of the keyword.
  * @stable ICU 4.8
  */
-U_CAPI int32_t U_EXPORT2 uplrules_select(const UPluralRules * uplrules, double number, UChar * keyword, int32_t capacity, UErrorCode * status);
+U_CAPI int32_t U_EXPORT2 uplrules_select(const UPluralRules * uplrules, double number, char16_t * keyword, int32_t capacity, UErrorCode * status);
 /**
  * Given a formatted number, returns the keyword of the first rule
  * that applies to the number, according to the supplied UPluralRules object.
@@ -159,7 +159,7 @@ U_CAPI int32_t U_EXPORT2 uplrules_select(const UPluralRules * uplrules, double n
  * @stable ICU 64
  */
 U_CAPI int32_t U_EXPORT2 uplrules_selectFormatted(const UPluralRules * uplrules, const struct UFormattedNumber* number,
-    UChar * keyword, int32_t capacity, UErrorCode * status);
+    char16_t * keyword, int32_t capacity, UErrorCode * status);
 /**
  * Given a formatted number range, returns the overall plural form of the
  * range. For example, "3-5" returns "other" in English.
@@ -176,7 +176,7 @@ U_CAPI int32_t U_EXPORT2 uplrules_selectFormatted(const UPluralRules * uplrules,
  * @stable ICU 68
  */
 U_CAPI int32_t U_EXPORT2 uplrules_selectForRange(const UPluralRules * uplrules, const struct UFormattedNumberRange* urange,
-    UChar * keyword, int32_t capacity, UErrorCode * status);
+    char16_t * keyword, int32_t capacity, UErrorCode * status);
 
 #ifndef U_HIDE_INTERNAL_API
 /**
@@ -200,7 +200,7 @@ U_CAPI int32_t U_EXPORT2 uplrules_selectForRange(const UPluralRules * uplrules, 
 U_CAPI int32_t U_EXPORT2 uplrules_selectWithFormat(const UPluralRules * uplrules,
     double number,
     const UNumberFormat * fmt,
-    UChar * keyword, int32_t capacity,
+    char16_t * keyword, int32_t capacity,
     UErrorCode * status);
 
 #endif  /* U_HIDE_INTERNAL_API */

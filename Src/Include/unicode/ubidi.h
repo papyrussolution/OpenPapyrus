@@ -82,13 +82,13 @@
  *
  * typedef struct { int32_t limit; Style style; } StyleRun;
  *
- * int getTextWidth(const UChar *text, int32_t start, int32_t limit,
+ * int getTextWidth(const char16_t *text, int32_t start, int32_t limit,
  *                  const StyleRun *styleRuns, int styleRunCount);
  *
  * // set *pLimit and *pStyleRunLimit for a line
  * // from text[start] and from styleRuns[styleRunStart]
  * // using ubidi_getLogicalRun(para, ...)
- * void getLineBreak(const UChar *text, int32_t start, int32_t *pLimit,
+ * void getLineBreak(const char16_t *text, int32_t start, int32_t *pLimit,
  *                  UBiDi *para,
  *                  const StyleRun *styleRuns, int styleRunStart, int *pStyleRunLimit,
  *                  int *pLineWidth);
@@ -100,7 +100,7 @@
  *
  * // render a run of text and advance to the right by the run width
  * // the text[start..limit-1] is always in logical order
- * void renderRun(const UChar *text, int32_t start, int32_t limit,
+ * void renderRun(const char16_t *text, int32_t start, int32_t limit,
  *               UBiDiDirection textDirection, Style style);
  *
  * // We could compute a cross-product
@@ -113,7 +113,7 @@
  *
  * // render a directional run with
  * // (possibly) multiple style runs intersecting with it
- * void renderDirectionalRun(const UChar *text,
+ * void renderDirectionalRun(const char16_t *text,
  *        int32_t start, int32_t limit,
  *        UBiDiDirection direction,
  *        const StyleRun *styleRuns, int styleRunCount) {
@@ -154,7 +154,7 @@
  * }
  *
  * // the line object represents text[start..limit-1]
- * void renderLine(UBiDi *line, const UChar *text,
+ * void renderLine(UBiDi *line, const char16_t *text,
  *                 int32_t start, int32_t limit,
  *                 const StyleRun *styleRuns, int styleRunCount,
  *                 UErrorCode *pErrorCode) {
@@ -196,7 +196,7 @@
  *     }
  * }
  *
- * void renderParagraph(const UChar *text, int32_t length,
+ * void renderParagraph(const char16_t *text, int32_t length,
  *                     UBiDiDirection textDirection,
  *                      const StyleRun *styleRuns, int styleRunCount,
  *                      int lineWidth,
@@ -1122,8 +1122,8 @@ U_CAPI uint32_t U_EXPORT2 ubidi_getReorderingOptions(UBiDi * pBiDi);
  * @stable ICU 4.8
  */
 U_CAPI void U_EXPORT2 ubidi_setContext(UBiDi * pBiDi,
-    const UChar * prologue, int32_t proLength,
-    const UChar * epilogue, int32_t epiLength,
+    const char16_t * prologue, int32_t proLength,
+    const char16_t * epilogue, int32_t epiLength,
     UErrorCode * pErrorCode);
 
 /**
@@ -1208,7 +1208,7 @@ U_CAPI void U_EXPORT2 ubidi_setContext(UBiDi * pBiDi,
  * @param pErrorCode must be a valid pointer to an error code value.
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 ubidi_setPara(UBiDi * pBiDi, const UChar * text, int32_t length,
+U_CAPI void U_EXPORT2 ubidi_setPara(UBiDi * pBiDi, const char16_t * text, int32_t length,
     UBiDiLevel paraLevel, UBiDiLevel * embeddingLevels,
     UErrorCode * pErrorCode);
 
@@ -1307,7 +1307,7 @@ U_CAPI UBiDiDirection U_EXPORT2 ubidi_getDirection(const UBiDi * pBiDi);
  * @see UBiDiDirection
  * @stable ICU 4.6
  */
-U_CAPI UBiDiDirection U_EXPORT2 ubidi_getBaseDirection(const UChar * text,  int32_t length);
+U_CAPI UBiDiDirection U_EXPORT2 ubidi_getBaseDirection(const char16_t * text,  int32_t length);
 
 /**
  * Get the pointer to the text.
@@ -1320,7 +1320,7 @@ U_CAPI UBiDiDirection U_EXPORT2 ubidi_getBaseDirection(const UChar * text,  int3
  * @see ubidi_setLine
  * @stable ICU 2.0
  */
-U_CAPI const UChar * U_EXPORT2 ubidi_getText(const UBiDi * pBiDi);
+U_CAPI const char16_t * U_EXPORT2 ubidi_getText(const UBiDi * pBiDi);
 
 /**
  * Get the length of the text.
@@ -2097,7 +2097,7 @@ U_CAPI void U_EXPORT2 ubidi_getClassCallback(UBiDi * pBiDi, UBiDiClassCallback *
  * @stable ICU 2.0
  */
 U_CAPI int32_t U_EXPORT2 ubidi_writeReordered(UBiDi * pBiDi,
-    UChar * dest, int32_t destSize,
+    char16_t * dest, int32_t destSize,
     uint16 options,
     UErrorCode * pErrorCode);
 
@@ -2147,7 +2147,7 @@ U_CAPI int32_t U_EXPORT2 ubidi_writeReordered(UBiDi * pBiDi,
  * @return The length of the output string.
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 ubidi_writeReverse(const UChar * src, int32_t srcLength, UChar * dest, int32_t destSize, uint16 options, UErrorCode * pErrorCode);
+U_CAPI int32_t U_EXPORT2 ubidi_writeReverse(const char16_t * src, int32_t srcLength, char16_t * dest, int32_t destSize, uint16 options, UErrorCode * pErrorCode);
 
 /*#define BIDI_SAMPLE_CODE*/
 /*@}*/

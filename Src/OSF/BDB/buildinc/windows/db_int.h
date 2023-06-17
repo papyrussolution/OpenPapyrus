@@ -134,12 +134,12 @@ typedef SH_TAILQ_HEAD(__hash_head) DB_HASHTAB;
 #undef	TRUE
 #define	TRUE		(!FALSE)
 */
-#define	NS_PER_MS	1000000		/* Nanoseconds in a millisecond */
-#define	NS_PER_US	1000		/* Nanoseconds in a microsecond */
-#define	NS_PER_SEC	1000000000	/* Nanoseconds in a second */
-#define	US_PER_MS	1000		/* Microseconds in a millisecond */
-#define	US_PER_SEC	1000000		/* Microseconds in a second */
-#define	MS_PER_SEC	1000		/* Milliseconds in a second */
+#define	NS_PER_MS	1000000		// Nanoseconds in a millisecond
+#define	NS_PER_US	1000		// Nanoseconds in a microsecond
+#define	NS_PER_SEC	SlConst::OneBillion	// Nanoseconds in a second 
+#define	US_PER_MS	1000		// Microseconds in a millisecond
+#define	US_PER_SEC	1000000		// Microseconds in a second
+#define	MS_PER_SEC	1000		// Milliseconds in a second
 
 #define	RECNO_OOB	0		/* Illegal record number. */
 

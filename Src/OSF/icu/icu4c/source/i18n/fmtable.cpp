@@ -870,7 +870,7 @@ U_CAPI const void * U_EXPORT2 ufmt_getObject(const UFormattable * fmt, UErrorCod
 	return ret;
 }
 
-U_CAPI const UChar * U_EXPORT2 ufmt_getUChars(UFormattable * fmt, int32_t * len, UErrorCode * status) 
+U_CAPI const char16_t * U_EXPORT2 ufmt_getUChars(UFormattable * fmt, int32_t * len, UErrorCode * status) 
 {
 	Formattable * obj = Formattable::fromUFormattable(fmt);
 	// avoid bogosity by checking the type first.

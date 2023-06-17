@@ -157,8 +157,8 @@ static void save_pdf_options(void)
 struct {
 	int n;
 	int i;
-	char * operation_text;
-	char * progress_text;
+	const char * operation_text;
+	const char * progress_text;
 	int (* step)(int cancel);
 	int display;
 } ui_slow_operation_state;
@@ -251,7 +251,7 @@ static void slow_operation_dialog(void)
 	glutPostRedisplay();
 }
 
-static void ui_start_slow_operation(char * operation, char * progress, int (*step)(int))
+static void ui_start_slow_operation(const char * operation, const char * progress, int (*step)(int))
 {
 	ui.dialog = slow_operation_dialog;
 	ui_slow_operation_state.operation_text = operation;
@@ -458,7 +458,7 @@ static int rects_differ(fz_rect a, fz_rect b, float threshold)
 	return 0;
 }
 
-static int points_differ(fz_point a, fz_point b, float threshold)
+static int points_differ(SPoint2F a, SPoint2F b, float threshold)
 {
 	if(fz_abs(a.x - b.x) > threshold) return 1;
 	if(fz_abs(a.y - b.y) > threshold) return 1;
@@ -578,7 +578,7 @@ static const char * name_from_hex(unsigned int hex)
 	return buf;
 }
 
-static void do_annotate_color(char * label,
+static void do_annotate_color(const char * label,
     void (*get_color)(fz_context * ctx, pdf_annot * annot, int * n, float color[4]),
     void (*set_color)(fz_context * ctx, pdf_annot * annot, int n, const float color[4]))
 {
@@ -1315,7 +1315,7 @@ void do_redact_panel(void)
 
 static void do_edit_icon(fz_irect canvas_area, fz_irect area, fz_rect * rect)
 {
-	static fz_point start_pt;
+	static SPoint2F start_pt;
 	static float w, h;
 	static int moving = 0;
 
@@ -1347,7 +1347,7 @@ static void do_edit_icon(fz_irect canvas_area, fz_irect area, fz_rect * rect)
 
 		/* Commit movement on mouse-up */
 		if(!ui.down) {
-			fz_point dp = { rect->x0 - start_pt.x, rect->y0 - start_pt.y };
+			SPoint2F dp = { rect->x0 - start_pt.x, rect->y0 - start_pt.y };
 			moving = 0;
 			if(fz_abs(dp.x) > 0.1f || fz_abs(dp.y) > 0.1f) {
 				fz_rect trect = pdf_annot_rect(ctx, selected_annot);
@@ -1426,10 +1426,10 @@ static void do_edit_line(fz_irect canvas_area, fz_irect area, fz_rect * rect)
 {
 	enum { EL_NONE, EL_A = 1, EL_B = 2, EL_MOVE = EL_A|EL_B };
 
-	static fz_point start_a, start_b;
+	static SPoint2F start_a, start_b;
 	static int state = EL_NONE;
 	fz_irect a_grab, b_grab;
-	fz_point a, b;
+	SPoint2F a, b;
 	float lw;
 
 	area = fz_expand_irect(area, 5);
@@ -1467,10 +1467,10 @@ static void do_edit_line(fz_irect canvas_area, fz_irect area, fz_rect * rect)
 		glVertex2f(b.x, b.y);
 		glEnd();
 
-		rect->x0 = fz_min(a.x, b.x);
-		rect->y0 = fz_min(a.y, b.y);
-		rect->x1 = fz_max(a.x, b.x);
-		rect->y1 = fz_max(a.y, b.y);
+		rect->x0 = smin(a.x, b.x);
+		rect->y0 = smin(a.y, b.y);
+		rect->x1 = smax(a.x, b.x);
+		rect->y1 = smax(a.y, b.y);
 		lw = pdf_annot_border(ctx, selected_annot);
 		*rect = fz_expand_rect(*rect, fz_matrix_expansion(view_page_ctm) * lw);
 
@@ -1494,7 +1494,7 @@ static void do_edit_line(fz_irect canvas_area, fz_irect area, fz_rect * rect)
 static void do_edit_polygon(fz_irect canvas_area, int close)
 {
 	static int drawing = 0;
-	fz_point a, p;
+	SPoint2F a, p;
 
 	if(ui_mouse_inside(canvas_area) && ui_mouse_inside(view_page_area)) {
 		ui.hot = selected_annot;
@@ -1536,7 +1536,7 @@ static void do_edit_polygon(fz_irect canvas_area, int close)
 
 		/* commit point on mouse-up */
 		if(!ui.down) {
-			fz_point p = fz_transform_point_xy(ui.x, ui.y, view_page_inv_ctm);
+			SPoint2F p = fz_transform_point_xy(ui.x, ui.y, view_page_inv_ctm);
 			trace_action("annot.addVertex(%g, %g)\n", p.x, p.y);
 			pdf_add_annot_vertex(ctx, selected_annot, p);
 			drawing = 0;
@@ -1547,7 +1547,7 @@ static void do_edit_polygon(fz_irect canvas_area, int close)
 static void do_edit_ink(fz_irect canvas_area)
 {
 	static int drawing = 0;
-	static fz_point p[1000];
+	static SPoint2F p[1000];
 	static int n, last_x, last_y;
 	int i;
 
@@ -1606,7 +1606,7 @@ static void do_edit_ink(fz_irect canvas_area)
 
 static void do_edit_quad_points(void)
 {
-	static fz_point pt = { 0, 0 };
+	static SPoint2F pt;
 	static int marking = 0;
 	static fz_quad hits[1000];
 	fz_rect rect;
@@ -1626,23 +1626,16 @@ static void do_edit_quad_points(void)
 	}
 
 	if(ui.active == selected_annot && marking) {
-		fz_point page_a = { pt.x, pt.y };
-		fz_point page_b = { ui.x, ui.y };
-
+		SPoint2F page_a(pt);
+		SPoint2F page_b(ui.x, ui.y);
 		page_a = fz_transform_point(page_a, view_page_inv_ctm);
 		page_b = fz_transform_point(page_b, view_page_inv_ctm);
-
 		if(ui.mod == GLUT_ACTIVE_CTRL)
 			fz_snap_selection(ctx, page_text, &page_a, &page_b, FZ_SELECT_WORDS);
 		else if(ui.mod == GLUT_ACTIVE_CTRL + GLUT_ACTIVE_SHIFT)
 			fz_snap_selection(ctx, page_text, &page_a, &page_b, FZ_SELECT_LINES);
-
 		if(ui.mod == GLUT_ACTIVE_SHIFT) {
-			rect = fz_make_rect(
-				fz_min(page_a.x, page_b.x),
-				fz_min(page_a.y, page_b.y),
-				fz_max(page_a.x, page_b.x),
-				fz_max(page_a.y, page_b.y));
+			rect = fz_make_rect(smin(page_a.x, page_b.x), smin(page_a.y, page_b.y), smax(page_a.x, page_b.x), smax(page_a.y, page_b.y));
 			n = 1;
 			hits[0] = fz_quad_from_rect(rect);
 		}

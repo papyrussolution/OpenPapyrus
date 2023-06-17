@@ -62,7 +62,7 @@ struct U_I18N_API CollationData : public UMemory {
 	 * Returns the CE32 from two contexts words.
 	 * Access to the defaultCE32 for contraction and prefix matching.
 	 */
-	static uint32_t readCE32(const UChar * p) { return ((uint32_t)p[0] << 16) | p[1]; }
+	static uint32_t readCE32(const char16_t * p) { return ((uint32_t)p[0] << 16) | p[1]; }
 	/**
 	 * Returns the CE32 for an indirect special CE32 (e.g., with DIGIT_TAG).
 	 * Requires that ce32 is special.
@@ -132,7 +132,7 @@ struct U_I18N_API CollationData : public UMemory {
 	 */
 	const uint32_t * ce32s;
 	const int64_t * ces; /** Array of CE values for expansions and OFFSET_TAG. */
-	const UChar * contexts; /** Array of prefix and contraction-suffix matching data. */
+	const char16_t * contexts; /** Array of prefix and contraction-suffix matching data. */
 	const CollationData * base; /** Base collation data, or NULL if this data itself is a base. */
 	/**
 	 * Simple array of JAMO_CE32S_LENGTH=19+21+27 CE32s, one per canonical Jamo L/V/T.

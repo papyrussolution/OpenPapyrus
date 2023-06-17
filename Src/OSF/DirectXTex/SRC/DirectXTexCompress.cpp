@@ -519,16 +519,12 @@ bool DirectX::Internal::IsAlphaAllOpaqueBC(_In_ const Image& cImage) noexcept
 
 	return true;
 }
-
-//=====================================================================================
+//
 // Entry-points
-//=====================================================================================
-
-//-------------------------------------------------------------------------------------
+//
 // Compression
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::Compress(const Image& srcImage,
+//
+_Use_decl_annotations_ HRESULT DirectX::Compress(const Image& srcImage,
     DXGI_FORMAT format,
     TEX_COMPRESS_FLAGS compress,
     float threshold,
@@ -570,8 +566,7 @@ HRESULT DirectX::Compress(const Image& srcImage,
 	return hr;
 }
 
-_Use_decl_annotations_
-HRESULT DirectX::Compress(const Image* srcImages,
+_Use_decl_annotations_ HRESULT DirectX::Compress(const Image* srcImages,
     size_t nimages,
     const TexMetadata& metadata,
     DXGI_FORMAT format,
@@ -639,15 +634,12 @@ HRESULT DirectX::Compress(const Image* srcImages,
 			}
 		}
 	}
-
 	return S_OK;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Decompression
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::Decompress(const Image& cImage,
+//
+_Use_decl_annotations_ HRESULT DirectX::Decompress(const Image& cImage,
     DXGI_FORMAT format,
     ScratchImage& image) noexcept
 {
@@ -665,32 +657,26 @@ HRESULT DirectX::Decompress(const Image& cImage,
 	else {
 		if(!IsValid(format))
 			return E_INVALIDARG;
-
 		if(IsTypeless(format) || IsPlanar(format) || IsPalettized(format))
 			return HRESULT_E_NOT_SUPPORTED;
 	}
-
 	// Create decompressed image
 	HRESULT hr = image.Initialize2D(format, cImage.width, cImage.height, 1, 1);
 	if(FAILED(hr))
 		return hr;
-
 	const Image * img = image.GetImage(0, 0, 0);
 	if(!img) {
 		image.Release();
 		return E_POINTER;
 	}
-
 	// Decompress single image
 	hr = DecompressBC(cImage, *img);
 	if(FAILED(hr))
 		image.Release();
-
 	return hr;
 }
 
-_Use_decl_annotations_
-HRESULT DirectX::Decompress(const Image* cImages,
+_Use_decl_annotations_ HRESULT DirectX::Decompress(const Image* cImages,
     size_t nimages,
     const TexMetadata& metadata,
     DXGI_FORMAT format,
@@ -698,10 +684,8 @@ HRESULT DirectX::Decompress(const Image* cImages,
 {
 	if(!cImages || !nimages)
 		return E_INVALIDARG;
-
 	if(!IsCompressed(metadata.format) || IsCompressed(format))
 		return E_INVALIDARG;
-
 	if(format == DXGI_FORMAT_UNKNOWN) {
 		// Pick a default decompressed format based on BC input format
 		format = DefaultDecompress(cImages[0].format);

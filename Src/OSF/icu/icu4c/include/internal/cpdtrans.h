@@ -137,7 +137,7 @@ public:
 	 * ICU "poor man's RTTI", returns a UClassID for this class.
 	 */
 	static UClassID U_EXPORT2 getStaticClassID();
-	static const UChar PASS_STRING[]; /* @internal */
+	static const char16_t PASS_STRING[]; /* @internal */
 private:
 	friend class Transliterator;
 	friend class TransliteratorAlias; // to access private ct

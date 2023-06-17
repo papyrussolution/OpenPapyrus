@@ -277,8 +277,8 @@ U_NAMESPACE_END
  * @stable ICU 4.4
  */
 U_CAPI int32_t U_EXPORT2 unorm2_normalize(const UNormalizer2 * norm2,
-    const UChar * src, int32_t length,
-    UChar * dest, int32_t capacity,
+    const char16_t * src, int32_t length,
+    char16_t * dest, int32_t capacity,
     UErrorCode * pErrorCode);
 /**
  * Appends the normalized form of the second string to the first string
@@ -299,8 +299,8 @@ U_CAPI int32_t U_EXPORT2 unorm2_normalize(const UNormalizer2 * norm2,
  * @stable ICU 4.4
  */
 U_CAPI int32_t U_EXPORT2 unorm2_normalizeSecondAndAppend(const UNormalizer2 * norm2,
-    UChar * first, int32_t firstLength, int32_t firstCapacity,
-    const UChar * second, int32_t secondLength,
+    char16_t * first, int32_t firstLength, int32_t firstCapacity,
+    const char16_t * second, int32_t secondLength,
     UErrorCode * pErrorCode);
 /**
  * Appends the second string to the first string
@@ -321,8 +321,8 @@ U_CAPI int32_t U_EXPORT2 unorm2_normalizeSecondAndAppend(const UNormalizer2 * no
  * @stable ICU 4.4
  */
 U_CAPI int32_t U_EXPORT2 unorm2_append(const UNormalizer2 * norm2,
-    UChar * first, int32_t firstLength, int32_t firstCapacity,
-    const UChar * second, int32_t secondLength,
+    char16_t * first, int32_t firstLength, int32_t firstCapacity,
+    const char16_t * second, int32_t secondLength,
     UErrorCode * pErrorCode);
 
 /**
@@ -345,7 +345,7 @@ U_CAPI int32_t U_EXPORT2 unorm2_append(const UNormalizer2 * norm2,
  * @stable ICU 4.6
  */
 U_CAPI int32_t U_EXPORT2 unorm2_getDecomposition(const UNormalizer2 * norm2,
-    UChar32 c, UChar * decomposition, int32_t capacity,
+    UChar32 c, char16_t * decomposition, int32_t capacity,
     UErrorCode * pErrorCode);
 
 /**
@@ -378,7 +378,7 @@ U_CAPI int32_t U_EXPORT2 unorm2_getDecomposition(const UNormalizer2 * norm2,
  * @stable ICU 49
  */
 U_CAPI int32_t U_EXPORT2 unorm2_getRawDecomposition(const UNormalizer2 * norm2,
-    UChar32 c, UChar * decomposition, int32_t capacity,
+    UChar32 c, char16_t * decomposition, int32_t capacity,
     UErrorCode * pErrorCode);
 
 /**
@@ -426,7 +426,7 @@ U_CAPI uint8 U_EXPORT2 unorm2_getCombiningClass(const UNormalizer2 * norm2, UCha
  * @stable ICU 4.4
  */
 U_CAPI bool U_EXPORT2 unorm2_isNormalized(const UNormalizer2 * norm2,
-    const UChar * s, int32_t length,
+    const char16_t * s, int32_t length,
     UErrorCode * pErrorCode);
 
 /**
@@ -447,7 +447,7 @@ U_CAPI bool U_EXPORT2 unorm2_isNormalized(const UNormalizer2 * norm2,
  * @stable ICU 4.4
  */
 U_CAPI UNormalizationCheckResult U_EXPORT2 unorm2_quickCheck(const UNormalizer2 * norm2,
-    const UChar * s, int32_t length,
+    const char16_t * s, int32_t length,
     UErrorCode * pErrorCode);
 
 /**
@@ -475,7 +475,7 @@ U_CAPI UNormalizationCheckResult U_EXPORT2 unorm2_quickCheck(const UNormalizer2 
  * @stable ICU 4.4
  */
 U_CAPI int32_t U_EXPORT2 unorm2_spanQuickCheckYes(const UNormalizer2 * norm2,
-    const UChar * s, int32_t length,
+    const char16_t * s, int32_t length,
     UErrorCode * pErrorCode);
 
 /**
@@ -576,8 +576,8 @@ U_CAPI bool U_EXPORT2 unorm2_isInert(const UNormalizer2 * norm2, UChar32 c);
  *
  * @stable ICU 2.2
  */
-U_CAPI int32_t U_EXPORT2 unorm_compare(const UChar * s1, int32_t length1,
-    const UChar * s2, int32_t length2,
+U_CAPI int32_t U_EXPORT2 unorm_compare(const char16_t * s1, int32_t length1,
+    const char16_t * s2, int32_t length2,
     uint32_t options,
     UErrorCode * pErrorCode);
 

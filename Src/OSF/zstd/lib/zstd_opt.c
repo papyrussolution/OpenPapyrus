@@ -1167,7 +1167,7 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_compressBlock_opt_generic(ZSTD_matchState_t* m
 				    + (int)ZSTD_rawLiteralsCost(ip+cur-1, 1, optStatePtr, optLevel)
 				    + (int)ZSTD_litLengthPrice(litlen, optStatePtr, optLevel)
 				    - (int)ZSTD_litLengthPrice(litlen-1, optStatePtr, optLevel);
-				assert(price < 1000000000); /* overflow check */
+				assert(price < SlConst::OneBillion); /* overflow check */
 				if(price <= opt[cur].price) {
 					DEBUGLOG(7, "cPos:%zi==rPos:%u : better price (%.2f<=%.2f) using literal (ll==%u) (hist:%u,%u,%u)",
 					    inr-istart, cur, ZSTD_fCost(price), ZSTD_fCost(opt[cur].price), litlen,

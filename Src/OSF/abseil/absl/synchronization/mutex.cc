@@ -31,9 +31,7 @@ using absl::synchronization_internal::KernelTimeout;
 using absl::synchronization_internal::PerThreadSem;
 
 extern "C" {
-ABSL_ATTRIBUTE_WEAK void ABSL_INTERNAL_C_SYMBOL(AbslInternalMutexYield)() {
-	std::this_thread::yield();
-}
+	ABSL_ATTRIBUTE_WEAK void ABSL_INTERNAL_C_SYMBOL(AbslInternalMutexYield)() { std::this_thread::yield(); }
 }  // extern "C"
 
 namespace absl {
@@ -129,42 +127,31 @@ int MutexDelay(int32_t c, int mode) {
 // "*pv | bits" if necessary.  Wait until (*pv & wait_until_clear)==0
 // before making any change.
 // This is used to set flags in mutex and condition variable words.
-static void AtomicSetBits(std::atomic<intptr_t>* pv, intptr_t bits,
-    intptr_t wait_until_clear) {
+static void AtomicSetBits(std::atomic<intptr_t>* pv, intptr_t bits, intptr_t wait_until_clear) 
+{
 	intptr_t v;
 	do {
 		v = pv->load(std::memory_order_relaxed);
-	} while((v & bits) != bits &&
-	    ((v & wait_until_clear) != 0 ||
-	    !pv->compare_exchange_weak(v, v | bits,
-	    std::memory_order_release,
-	    std::memory_order_relaxed)));
+	} while((v & bits) != bits && ((v & wait_until_clear) != 0 || !pv->compare_exchange_weak(v, v | bits, std::memory_order_release, std::memory_order_relaxed)));
 }
 
 // Ensure that "(*pv & bits) == 0" by doing an atomic update of "*pv" to
 // "*pv & ~bits" if necessary.  Wait until (*pv & wait_until_clear)==0
 // before making any change.
 // This is used to unset flags in mutex and condition variable words.
-static void AtomicClearBits(std::atomic<intptr_t>* pv, intptr_t bits,
-    intptr_t wait_until_clear) {
+static void AtomicClearBits(std::atomic<intptr_t>* pv, intptr_t bits, intptr_t wait_until_clear) 
+{
 	intptr_t v;
 	do {
 		v = pv->load(std::memory_order_relaxed);
-	} while((v & bits) != 0 &&
-	    ((v & wait_until_clear) != 0 ||
-	    !pv->compare_exchange_weak(v, v & ~bits,
-	    std::memory_order_release,
-	    std::memory_order_relaxed)));
+	} while((v & bits) != 0 && ((v & wait_until_clear) != 0 || !pv->compare_exchange_weak(v, v & ~bits, std::memory_order_release, std::memory_order_relaxed)));
 }
-
-//------------------------------------------------------------------
 
 // Data for doing deadlock detection.
 ABSL_CONST_INIT static absl::base_internal::SpinLock deadlock_graph_mu(absl::kConstInit, base_internal::SCHEDULE_KERNEL_ONLY);
 
 // Graph used to detect deadlocks.
-ABSL_CONST_INIT static GraphCycles * deadlock_graph
-    ABSL_GUARDED_BY(deadlock_graph_mu) ABSL_PT_GUARDED_BY(deadlock_graph_mu);
+ABSL_CONST_INIT static GraphCycles * deadlock_graph ABSL_GUARDED_BY(deadlock_graph_mu) ABSL_PT_GUARDED_BY(deadlock_graph_mu);
 
 //------------------------------------------------------------------
 // An event mechanism for debugging mutex use.

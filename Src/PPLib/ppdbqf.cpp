@@ -284,7 +284,7 @@ static IMPL_DBE_PROC(dbqf_billfrghtdlvraddr_i)
 				LocationTbl::Rec rec;
 				if(obj.Fetch(freight.DlvrAddrID, &rec) > 0) {
 					if(LocationCore::IsEmptyAddressRec(rec))
-						temp_buf = "#EMPTY";
+						temp_buf = PPConst::P_TagValRestrict_Empty;
 					else {
 						LocationCore::GetAddress(rec, 0, temp_buf);
 						int    name_used = 0;
@@ -299,7 +299,7 @@ static IMPL_DBE_PROC(dbqf_billfrghtdlvraddr_i)
 						if(!temp_buf.NotEmptyS())
 							LocationCore::GetExField(&rec, LOCEXSTR_PHONE, temp_buf);
 						if(!temp_buf.NotEmptyS())
-							temp_buf = "#EMPTY";
+							temp_buf = PPConst::P_TagValRestrict_Empty;
 						else if(!name_used && rec.Name[0]) {
 							SString & r_tt = SLS.AcquireRvlStr();
 							(r_tt = rec.Name).CatDiv('-', 1).Cat(temp_buf);
@@ -413,9 +413,8 @@ static IMPL_DBE_PROC(dbqf_objtagtext_ii)
 		if(tag_id && obj_id) {
 			PPObjTag tag_obj;
 			ObjTagItem tag_item;
-			if(tag_obj.FetchTag(obj_id, tag_id, &tag_item) > 0) {
+			if(tag_obj.FetchTag(obj_id, tag_id, &tag_item) > 0)
 				tag_item.GetStr(temp_buf);
-			}
 		}
 		result->init(temp_buf.Trim(buffer_size-1));
 	}
@@ -437,7 +436,7 @@ static IMPL_DBE_PROC(dbqf_cqtty_rrii)
 		char * p = buf;
 		if(!trust)
 			*p++ = '#';
-		QttyToStr(rest, upp, flags, p, 1); // @@v6.3.1 noabs=1
+		QttyToStr(rest, upp, flags, p, 1/*noabs*/);
 		result->init(buf);
 	}
 }
@@ -1408,7 +1407,7 @@ static IMPL_DBE_PROC(dbqf_goodsstockdim_i)
 		SString temp_buf;
 		PPObjGoods goods_obj;
 		GoodsStockExt gse;
-		if(goods_obj.GetStockExt(params[0].lval, &gse, 1) > 0 && gse.CalcVolume(1.0) > 0.0) { // @v6.2.3 useCache=1
+		if(goods_obj.GetStockExt(params[0].lval, &gse, 1) > 0 && gse.CalcVolume(1.0) > 0.0) {
 			temp_buf.Cat(fdiv1000i(gse.PckgDim.Width),  SFMT_QTTY).CatChar('x');
 			temp_buf.Cat(fdiv1000i(gse.PckgDim.Length), SFMT_QTTY).CatChar('x');
 			temp_buf.Cat(fdiv1000i(gse.PckgDim.Height), SFMT_QTTY);

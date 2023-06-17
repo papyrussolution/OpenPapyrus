@@ -379,9 +379,9 @@ private:
 
 int PPViewSalary::EditItemDialog(SalaryTbl::Rec * pRec) { DIALOG_PROC_BODY(SalaryDialog, pRec); }
 
-int PPViewSalary::IsTempTblNeeded() const
+bool PPViewSalary::IsTempTblNeeded() const
 {
-	return BIN(Filt.StaffID || Filt.OrgID || Filt.DivID || Filt.PersonID || (Filt.Flags & SalaryFilt::fCrosstab));
+	return (Filt.StaffID || Filt.OrgID || Filt.DivID || Filt.PersonID || (Filt.Flags & SalaryFilt::fCrosstab));
 }
 
 void PPViewSalary::MakeTempRec(int order, const SalaryTbl::Rec * pRec, TempSalaryTbl::Rec * pTempRec)

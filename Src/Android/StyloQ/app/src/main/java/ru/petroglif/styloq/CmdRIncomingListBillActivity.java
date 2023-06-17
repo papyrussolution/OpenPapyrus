@@ -223,6 +223,13 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 			return convertView; // Return the completed view to render on screen
 		}
 	}
+	private void MakeSimpleSearchIndex() // @v11.7.6
+	{
+		CPM.InitSimpleIndex();
+		CPM.AddGoodsToSimpleIndex();
+		CPM.AddGoodsGroupsToSimpleIndex();
+		CPM.AddIncomingDocumentsToSimpleIndex();
+	}
 	private void GotoTab(CommonPrereqModule.Tab tab, @IdRes int recyclerViewToUpdate, int goToIndex, int nestedIndex)
 	{
 		CPM.Implement_GotoTab(tab, R.id.VIEWPAGER_INCOMINGLISTBILL, recyclerViewToUpdate, goToIndex, nestedIndex, -1);
@@ -519,10 +526,14 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 				case SLib.EV_LISTVIEWCOUNT:
 					{
 						SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter) srcObj;
-						if(a.GetListRcId() == R.id.CTL_SUBSTTIFORUNASSIGNEDMARK_TILIST) {
-							DataBlock _data = (Data != null && Data instanceof DataBlock) ? (DataBlock)Data : null;
-							if(_data != null && _data.Doc != null && _data.Doc.TiList != null)
-								result = new Integer(_data.Doc.TiList.size());
+						switch(a.GetListRcId()) {
+							case R.id.CTL_SUBSTTIFORUNASSIGNEDMARK_TILIST:
+								{
+									DataBlock _data = (Data != null && Data instanceof DataBlock) ? (DataBlock) Data : null;
+									if(_data != null && _data.Doc != null && _data.Doc.TiList != null)
+										result = new Integer(_data.Doc.TiList.size());
+								}
+								break;
 						}
 					}
 					break;
@@ -816,6 +827,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 									}
 								}
 							}
+							MakeSimpleSearchIndex(); // @v11.7.6
 							//
 							requestWindowFeature(Window.FEATURE_NO_TITLE);
 							setContentView(R.layout.activity_cmdrincominglist_bill);
@@ -885,7 +897,26 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					}
 				}
 				break;
-			case SLib.EV_TABSELECTED: CPM.OnTabSelection(subj); break;
+			case SLib.EV_TABSELECTED:
+				{
+					final CommonPrereqModule.Tab tab_id = CPM.OnTabSelection(subj);
+					// @v11.7.6 {
+					SLib.SetCtrlVisibility(this, R.id.tbButtonLocalTabConfig, (tab_id == CommonPrereqModule.Tab.tabRegistry) ? View.VISIBLE : View.GONE);
+					SLib.SetCtrlVisibility(this, R.id.tbButtonHelp, (tab_id == CommonPrereqModule.Tab.tabRegistry) ? View.VISIBLE : View.GONE);
+					if(tab_id == CommonPrereqModule.Tab.tabSearch) {
+						CommonPrereqModule.TabEntry te = SearchTabEntry(tab_id);
+						if(te != null && te.TabView != null) {
+							View v = te.TabView.getView();
+							if(v != null && v instanceof ViewGroup) {
+								View ftv = ((ViewGroup)v).findViewById(R.id.searchPaneListView);
+								if(ftv != null)
+									ftv.requestFocus();
+							}
+						}
+					}
+					// } @v11.7.6
+				}
+				break;
 			case SLib.EV_LISTVIEWCOUNT:
 				if(srcObj instanceof SLib.FragmentAdapter) {
 					CreateTabList(false);
@@ -912,15 +943,13 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						case R.id.orderPrereqGoodsListView: result = new Integer(CPM.GetGoodsListSize()); break;
 						case R.id.orderPrereqGoodsGroupListView: result = new Integer(CPM.GetGoodsGroupCount()); break;
 						case R.id.orderPrereqBrandListView: result = new Integer(SLib.GetCount(CPM.BrandListData)); break;
+						case R.id.searchPaneListView: result = new Integer(CPM.SearchResult_GetObjTypeCount()); break;
 						/*
 						case R.id.orderPrereqOrdrListView: result = new Integer(CPM.GetCurrentDocumentTransferListCount()); break;
 						case R.id.orderPrereqOrderListView:
 							result = new Integer((CPM.OrderHList != null) ? CPM.OrderHList.size() : 0);
 							break;
 						case R.id.orderPrereqClientsListView: result = new Integer((CPM.CliListData != null) ? CPM.CliListData.size() : 0); break;
-						case R.id.searchPaneListView:
-							result = new Integer(CPM.SearchResult_GetObjTypeCount());
-						break;
 						 */
 					}
 				}
@@ -933,6 +962,9 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							if(SLib.IsRecyclerListAdapter(srcObj)) {
 								SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter) srcObj;
 								switch(a.GetListRcId()) {
+									case R.id.searchPaneListView: // @v11.7.6
+										CPM.GetSearchPaneListViewItem(ev_subj.RvHolder.itemView, ev_subj.ItemIdx);
+										break;
 									case R.id.CTL_DOCUMENT_TILIST:
 										final int cc = CPM.GetCurrentDocumentTransferListCount();
 										if(ev_subj.ItemIdx < cc) {
@@ -986,48 +1018,48 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 										}
 										break;
 									case R.id.orderPrereqGoodsListView:
-									{
-										CommonPrereqModule.WareEntry cur_entry = CPM.GetGoodsListItemByIdx(ev_subj.ItemIdx);
-										if(cur_entry != null && cur_entry.Item != null) {
-											//
-											// @todo С этим элементом есть проблема: если пользователь на телефоне поставил слишком большое масштабирование
-											// экрана, то значок корзинки становится невидимым (уходит за правую грань экрана).
-											// 1. Я попробовал сделать горизонтальное скроллирование в layout_orderprereq_goods.xml, но в этом случае
-											// вся табличка становится шире и корзинка всегда уходит за границу.
-											// 2. В li_orderprereq_goods.xml убирал <View style="@style/FakeView"/>. В этом случае в зависимости от наличия/
-											// отсутствия изображения товара раскладка меняется - не красиво. Это можно компенсировать параметром
-											// dontRemoveIfNoImg=true в функции SLib.SetupImage() но тогда, если сервис не предоставляет картинки товаров,
-											// для полезной информации остается мало места.
-											//
-											// В общем, пока не ясно как с этим бороться.
-											//
-											final int cur_id = cur_entry.Item.ID;
-											View iv = ev_subj.RvHolder.itemView;
-											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.Item.Name);
-											double val = 0.0;
-											val = cur_entry.Item.Price;
-											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_PRICE, (val > 0.0) ? CPM.FormatCurrency(val) : "");
-											val = cur_entry.Item.Stock;
-											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_REST, (val > 0.0) ? SLib.formatdouble(val, 0) : "");
-											if(val > 0) {
+										{
+											CommonPrereqModule.WareEntry cur_entry = CPM.GetGoodsListItemByIdx(ev_subj.ItemIdx);
+											if(cur_entry != null && cur_entry.Item != null) {
+												//
+												// @todo С этим элементом есть проблема: если пользователь на телефоне поставил слишком большое масштабирование
+												// экрана, то значок корзинки становится невидимым (уходит за правую грань экрана).
+												// 1. Я попробовал сделать горизонтальное скроллирование в layout_orderprereq_goods.xml, но в этом случае
+												// вся табличка становится шире и корзинка всегда уходит за границу.
+												// 2. В li_orderprereq_goods.xml убирал <View style="@style/FakeView"/>. В этом случае в зависимости от наличия/
+												// отсутствия изображения товара раскладка меняется - не красиво. Это можно компенсировать параметром
+												// dontRemoveIfNoImg=true в функции SLib.SetupImage() но тогда, если сервис не предоставляет картинки товаров,
+												// для полезной информации остается мало места.
+												//
+												// В общем, пока не ясно как с этим бороться.
+												//
+												final int cur_id = cur_entry.Item.ID;
+												View iv = ev_subj.RvHolder.itemView;
+												SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.Item.Name);
+												double val = 0.0;
+												val = cur_entry.Item.Price;
+												SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_PRICE, (val > 0.0) ? CPM.FormatCurrency(val) : "");
+												val = cur_entry.Item.Stock;
+												SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_REST, (val > 0.0) ? SLib.formatdouble(val, 0) : "");
+												if(val > 0) {
 
-											}
-											else {
+												}
+												else {
 
+												}
+												val = CPM.GetGoodsQttyInCurrentDocument(cur_id);
+												if(val > 0.0) {
+													SLib.SetCtrlVisibility(iv, R.id.ORDERPREREQ_GOODS_ORDEREDQTY, View.VISIBLE);
+													SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_ORDEREDQTY, String.format("%.0f", val));
+												}
+												else {
+													SLib.SetCtrlVisibility(iv, R.id.ORDERPREREQ_GOODS_ORDEREDQTY, View.GONE);
+												}
+												SLib.SetupImage(this, iv.findViewById(R.id.ORDERPREREQ_GOODS_IMG), cur_entry.Item.ImgBlob, false);
+												SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_GOODS, cur_id);
 											}
-											val = CPM.GetGoodsQttyInCurrentDocument(cur_id);
-											if(val > 0.0) {
-												SLib.SetCtrlVisibility(iv, R.id.ORDERPREREQ_GOODS_ORDEREDQTY, View.VISIBLE);
-												SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_ORDEREDQTY, String.format("%.0f", val));
-											}
-											else {
-												SLib.SetCtrlVisibility(iv, R.id.ORDERPREREQ_GOODS_ORDEREDQTY, View.GONE);
-											}
-											SLib.SetupImage(this, iv.findViewById(R.id.ORDERPREREQ_GOODS_IMG), cur_entry.Item.ImgBlob, false);
-											SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_GOODS, cur_id);
 										}
-									}
-									break;
+										break;
 									case R.id.orderPrereqGoodsGroupListView:
 										if(ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < CPM.GetGoodsGroupCount()) {
 											View iv = ev_subj.RvHolder.itemView;
@@ -1130,7 +1162,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 										if(CPM.IncomingDocListData != null && ev_subj.ItemIdx < CPM.IncomingDocListData.size()) {
 											StyloQApp app_ctx = GetAppCtx();
 											View iv = ev_subj.RvHolder.itemView;
-											Document cur_entry = (Document) CPM.IncomingDocListData.get(ev_subj.ItemIdx);
+											Document cur_entry = CPM.IncomingDocListData.get(ev_subj.ItemIdx);
 											if(app_ctx != null && cur_entry.H != null) {
 												{
 													if(SLib.GetLen(cur_entry.H.Code) > 0)
@@ -1214,13 +1246,13 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 																		}
 																	}
 																}
-																else {
+																else
 																	ctl.setVisibility(View.GONE);
-																}
 															}
 														}
 													}
 												}
+												SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_BILL, (int)cur_entry.H.ID); // @v11.7.6
 											}
 										}
 										break;
@@ -1428,7 +1460,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 			case SLib.EV_CREATEFRAGMENT: result = CPM.OnEvent_CreateFragment(subj); break;
 			case SLib.EV_SETUPFRAGMENT:
 				if(subj != null && subj instanceof View) {
-					//final int selected_search_idx = CPM.SearchResult_GetSelectedItmeIndex();
+					//final int selected_search_idx = CPM.SearchResult_GetSelectedItemIndex();
 					//final int selected_search_objtype = (selected_search_idx >= 0) ? CPM.SearchResult.List.get(selected_search_idx).ObjType : 0;
 					//final int selected_search_objid = (selected_search_idx >= 0) ? CPM.SearchResult.List.get(selected_search_idx).ObjID : 0;
 					final SLib.PPObjID selected_search_oid = CPM.SearchResult_GetSelectedOid();
@@ -1460,12 +1492,15 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 											lv = fv.findViewById(R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
 											if(lv != null) {
 												((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-												if(ScanSource == ScanType.Veriy) {
+												if(ScanSource == ScanType.Veriy)
 													SetupRecyclerListView(fv, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST, R.layout.li_incominglist_bill_scanmarks);
-												}
-												else if(ScanSource == ScanType.Setting) {
+												else if(ScanSource == ScanType.Setting)
 													SetupRecyclerListView(fv, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST, R.layout.li_incominglist_bill_scanmarks_setting);
-												}
+											}
+											else { // @v11.7.6
+												lv = fv.findViewById(R.id.searchPaneListView);
+												if(lv != null)
+													CPM.SetupSearchPaneListView(fv, lv);
 											}
 										}
 									}
@@ -1504,6 +1539,53 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 											}
 											break;
 									}*/
+									if(lv.getId() == R.id.searchPaneTerminalListView) {
+										final SLib.PPObjID sr_oid = CPM.SearchResult_ProcessSelection(ev_subj.ItemObj);
+										if(sr_oid != null && !sr_oid.IsEmpty()) {
+											int _idx = -1;
+											switch(sr_oid.Type) {
+												case SLib.PPOBJ_GOODS:
+													_idx = CPM.FindGoodsItemIndexByID(sr_oid.Id);
+													if(CPM.Gf != null) {
+														CommonPrereqModule.WareEntry goods_item = CPM.GetGoodsListItemByIdx(_idx);
+														if(!CPM.CheckGoodsListItemForFilt(goods_item)) {
+															CPM.ResetGoodsFiter();
+															SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
+														}
+													}
+													GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, _idx, -1);
+													break;
+												case SLib.PPOBJ_PERSON:
+													_idx = CPM.FindClientItemIndexByID(sr_oid.Id);
+													GotoTab(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView, _idx, -1);
+													break;
+												case SLib.PPOBJ_LOCATION:
+													JSONObject cli_js_obj = CPM.FindClientEntryByDlvrLocID(sr_oid.Id);
+													if(cli_js_obj != null) {
+														int cli_id = cli_js_obj.optInt("id", 0);
+														if(cli_id > 0) {
+															_idx = CPM.FindClientItemIndexByID(cli_id);
+															int _dlvr_loc_idx = CPM.FindDlvrLocEntryIndexInCliEntry(cli_js_obj, sr_oid.Id);
+															GotoTab(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView, _idx, _dlvr_loc_idx);
+														}
+													}
+													//tab_to_select = Tab.tabClients;
+													break;
+												case SLib.PPOBJ_GOODSGROUP:
+													_idx = CPM.FindGoodsGroupItemIndexByID(sr_oid.Id);
+													GotoTab(CommonPrereqModule.Tab.tabGoodsGroups, R.id.orderPrereqGoodsGroupListView, _idx, -1);
+													break;
+												case SLib.PPOBJ_BRAND:
+													_idx = CPM.FindBrandItemIndexByID(sr_oid.Id);
+													GotoTab(CommonPrereqModule.Tab.tabBrands, R.id.orderPrereqBrandListView, _idx, -1);
+													break;
+												case SLib.PPOBJ_BILL:
+													_idx = CPM.FindIncomingDocumentItemIndexByID(sr_oid.Id);
+													GotoTab(CommonPrereqModule.Tab.tabIncomingList, R.id.CTL_INCOMINGLIST_BILL_LIST, _idx, -1);
+													break;
+											}
+										}
+									}
 								}
 							}
 						}

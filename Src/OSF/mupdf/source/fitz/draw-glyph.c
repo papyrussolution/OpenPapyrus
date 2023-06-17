@@ -82,13 +82,10 @@ static void drop_glyph_cache_entry(fz_context * ctx, fz_glyph_cache_entry * entr
 static void do_purge(fz_context * ctx)
 {
 	fz_glyph_cache * cache = ctx->glyph_cache;
-	int i;
-
-	for(i = 0; i < GLYPH_HASH_LEN; i++) {
+	for(int i = 0; i < GLYPH_HASH_LEN; i++) {
 		while(cache->entry[i])
 			drop_glyph_cache_entry(ctx, cache->entry[i]);
 	}
-
 	cache->total = 0;
 }
 
@@ -162,19 +159,12 @@ float fz_subpixel_adjust(fz_context * ctx, fz_matrix * ctm, fz_matrix * subpix_c
 	return size;
 }
 
-fz_glyph * fz_render_stroked_glyph(fz_context * ctx,
-    fz_font * font,
-    int gid,
-    fz_matrix * trm,
-    fz_matrix ctm,
-    const fz_stroke_state * stroke,
-    const fz_irect * scissor,
-    int aa)
+fz_glyph * fz_render_stroked_glyph(fz_context * ctx, fz_font * font, int gid, fz_matrix * trm, fz_matrix ctm,
+    const fz_stroke_state * stroke, const fz_irect * scissor, int aa)
 {
 	if(fz_font_ft_face(ctx, font)) {
 		fz_matrix subpix_trm;
 		uchar qe, qf;
-
 		if(stroke->dash_len > 0)
 			return NULL;
 		(void)fz_subpixel_adjust(ctx, trm, &subpix_trm, &qe, &qf);
@@ -186,8 +176,7 @@ fz_glyph * fz_render_stroked_glyph(fz_context * ctx,
 static unsigned do_hash(uchar * s, int len)
 {
 	unsigned val = 0;
-	int i;
-	for(i = 0; i < len; i++) {
+	for(int i = 0; i < len; i++) {
 		val += s[i];
 		val += (val << 10);
 		val ^= (val >> 6);

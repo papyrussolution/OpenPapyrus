@@ -695,7 +695,7 @@ U_CFUNC bool ubidi_getRuns(UBiDi * pBiDi, UErrorCode*) {
 	/* handle remove BiDi control characters */
 	if(pBiDi->controlCount>0) {
 		int32_t runIndex;
-		const UChar * start = pBiDi->text, * limit = start+pBiDi->length, * pu;
+		const char16_t * start = pBiDi->text, * limit = start+pBiDi->length, * pu;
 		for(pu = start; pu<limit; pu++) {
 			if(IS_BIDI_CONTROL_CHAR(*pu)) {
 				runIndex = getRunFromLogicalIndex(pBiDi, (int32_t)(pu-start));
@@ -943,7 +943,7 @@ U_CAPI int32_t U_EXPORT2 ubidi_getVisualIndex(UBiDi * pBiDi, int32_t logicalInde
 		Run * runs = pBiDi->runs;
 		int32_t i, j, start, limit, length, insertRemove;
 		int32_t visualStart = 0, controlFound = 0;
-		UChar uchar = pBiDi->text[logicalIndex];
+		char16_t uchar = pBiDi->text[logicalIndex];
 		/* is the logical index pointing to a control ? */
 		if(IS_BIDI_CONTROL_CHAR(uchar)) {
 			return UBIDI_MAP_NOWHERE;
@@ -1038,7 +1038,7 @@ U_CAPI int32_t U_EXPORT2 ubidi_getLogicalIndex(UBiDi * pBiDi, int32_t visualInde
 		/* handle removed BiDi control characters */
 		int32_t controlFound = 0, insertRemove, length;
 		int32_t logicalStart, logicalEnd, visualStart = 0, j, k;
-		UChar uchar;
+		char16_t uchar;
 		bool evenRun;
 		/* add number of controls until visual index */
 		for(i = 0;; i++, visualStart += length) {
@@ -1179,7 +1179,7 @@ U_CAPI void U_EXPORT2 ubidi_getLogicalMap(UBiDi * pBiDi, int32_t * indexMap, UEr
 			int32_t controlFound = 0, runCount = pBiDi->runCount;
 			int32_t length, insertRemove;
 			bool evenRun;
-			UChar uchar;
+			char16_t uchar;
 			visualStart = 0;
 			/* subtract number of controls found until each index */
 			for(i = 0; i<runCount; i++, visualStart += length) {
@@ -1286,7 +1286,7 @@ U_CAPI void U_EXPORT2 ubidi_getVisualMap(UBiDi * pBiDi, int32_t * indexMap, UErr
 		else if(pBiDi->controlCount>0) {
 			int32_t runCount = pBiDi->runCount, logicalEnd;
 			int32_t insertRemove, length, i, j, k, m;
-			UChar uchar;
+			char16_t uchar;
 			bool evenRun;
 			runs = pBiDi->runs;
 			visualStart = 0;

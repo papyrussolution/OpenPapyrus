@@ -175,7 +175,7 @@ U_CAPI void U_EXPORT2 ucfpos_close(UConstrainedFieldPosition* ptr) {
 	delete impl;
 }
 
-U_CAPI const UChar * U_EXPORT2 ufmtval_getString(const UFormattedValue* ufmtval,
+U_CAPI const char16_t * U_EXPORT2 ufmtval_getString(const UFormattedValue* ufmtval,
     int32_t* pLength,
     UErrorCode * ec) {
 	const auto* impl = UFormattedValueApiHelper::validate(ufmtval, *ec);

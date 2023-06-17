@@ -153,7 +153,7 @@ const SimpleFormatter* RelativeDateTimeCacheData::getRelativeDateTimeUnitFormatt
 static bool getStringWithFallback(const UResourceBundle * resource, const char * key, UnicodeString & result, UErrorCode & status) 
 {
 	int32_t len = 0;
-	const UChar * resStr = ures_getStringByKeyWithFallback(
+	const char16_t * resStr = ures_getStringByKeyWithFallback(
 		resource, key, &len, &status);
 	if(U_FAILURE(status)) {
 		return FALSE;
@@ -165,7 +165,7 @@ static bool getStringWithFallback(const UResourceBundle * resource, const char *
 static bool getStringByIndex(const UResourceBundle * resource, int32_t idx, UnicodeString & result, UErrorCode & status) 
 {
 	int32_t len = 0;
-	const UChar * resStr = ures_getStringByIndex(
+	const char16_t * resStr = ures_getStringByIndex(
 		resource, idx, &len, &status);
 	if(U_FAILURE(status)) {
 		return FALSE;
@@ -310,8 +310,8 @@ struct RelDateTimeFmtDataSink : public ResourceSink {
 
 	// Utility functions
 	static UDateRelativeDateTimeFormatterStyle styleFromAliasUnicodeString(UnicodeString s) {
-		static const UChar narrow[7] = {0x002D, 0x006E, 0x0061, 0x0072, 0x0072, 0x006F, 0x0077};
-		static const UChar sshort[6] = {0x002D, 0x0073, 0x0068, 0x006F, 0x0072, 0x0074, };
+		static const char16_t narrow[7] = {0x002D, 0x006E, 0x0061, 0x0072, 0x0072, 0x006F, 0x0077};
+		static const char16_t sshort[6] = {0x002D, 0x0073, 0x0068, 0x006F, 0x0072, 0x0074, };
 		if(s.endsWith(narrow, 7)) {
 			return UDAT_STYLE_NARROW;
 		}
@@ -1105,7 +1105,7 @@ U_CAPI void U_EXPORT2 ureldatefmt_close(URelativeDateTimeFormatter * reldatefmt)
 }
 
 U_CAPI int32_t U_EXPORT2 ureldatefmt_formatNumeric(const URelativeDateTimeFormatter* reldatefmt,
-    double offset, URelativeDateTimeUnit unit, UChar * result, int32_t resultCapacity, UErrorCode *  status)
+    double offset, URelativeDateTimeUnit unit, char16_t * result, int32_t resultCapacity, UErrorCode *  status)
 {
 	if(U_FAILURE(*status)) {
 		return 0;
@@ -1139,7 +1139,7 @@ U_CAPI void U_EXPORT2 ureldatefmt_formatNumericToResult(const URelativeDateTimeF
 }
 
 U_CAPI int32_t U_EXPORT2 ureldatefmt_format(const URelativeDateTimeFormatter* reldatefmt, double offset,
-    URelativeDateTimeUnit unit, UChar * result, int32_t resultCapacity, UErrorCode *  status)
+    URelativeDateTimeUnit unit, char16_t * result, int32_t resultCapacity, UErrorCode *  status)
 {
 	if(U_FAILURE(*status)) {
 		return 0;
@@ -1172,8 +1172,8 @@ U_CAPI void U_EXPORT2 ureldatefmt_formatToResult(const URelativeDateTimeFormatte
 	resultImpl->fImpl = fmt->formatToValue(offset, unit, *status);
 }
 
-U_CAPI int32_t U_EXPORT2 ureldatefmt_combineDateAndTime(const URelativeDateTimeFormatter* reldatefmt, const UChar * relativeDateString,
-    int32_t relativeDateStringLen, const UChar * timeString, int32_t timeStringLen, UChar * result, int32_t resultCapacity, UErrorCode * status)
+U_CAPI int32_t U_EXPORT2 ureldatefmt_combineDateAndTime(const URelativeDateTimeFormatter* reldatefmt, const char16_t * relativeDateString,
+    int32_t relativeDateStringLen, const char16_t * timeString, int32_t timeStringLen, char16_t * result, int32_t resultCapacity, UErrorCode * status)
 {
 	if(U_FAILURE(*status)) {
 		return 0;

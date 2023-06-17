@@ -1715,10 +1715,10 @@ static void pdf_run_d1(fz_context * ctx, pdf_processor * proc, float wx, float w
 	    FZ_DEVFLAG_LINEJOIN_UNDEFINED |
 	    FZ_DEVFLAG_MITERLIMIT_UNDEFINED |
 	    FZ_DEVFLAG_LINEWIDTH_UNDEFINED);
-	pr->dev->d1_rect.x0 = fz_min(llx, urx);
-	pr->dev->d1_rect.y0 = fz_min(lly, ury);
-	pr->dev->d1_rect.x1 = fz_max(llx, urx);
-	pr->dev->d1_rect.y1 = fz_max(lly, ury);
+	pr->dev->d1_rect.x0 = smin(llx, urx);
+	pr->dev->d1_rect.y0 = smin(lly, ury);
+	pr->dev->d1_rect.x1 = smax(llx, urx);
+	pr->dev->d1_rect.y1 = smax(lly, ury);
 }
 
 /* color */

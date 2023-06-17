@@ -25,7 +25,7 @@
  *
  * The Text Access API provides a means to allow text that is stored in alternative
  * formats to work with ICU services.  ICU normally operates on text that is
- * stored in UTF-16 format, in (UChar *) arrays for the C APIs or as type
+ * stored in UTF-16 format, in (char16_t *) arrays for the C APIs or as type
  * UnicodeString for C++ APIs.
  *
  * ICU Text Access allows other formats, such as UTF-8 or non-contiguous
@@ -201,12 +201,12 @@ U_CAPI UText * U_EXPORT2 utext_close(UText * ut);
 U_CAPI UText * U_EXPORT2 utext_openUTF8(UText * ut, const char * s, int64_t length, UErrorCode * status);
 
 /**
- * Open a read-only UText for UChar * string.
+ * Open a read-only UText for char16_t * string.
  *
  * @param ut     Pointer to a UText struct.  If NULL, a new UText will be created.
  *               If non-NULL, must refer to an initialized UText struct, which will then
- *               be reset to reference the specified UChar string.
- * @param s      A UChar (UTF-16) string
+ *               be reset to reference the specified char16_t string.
+ * @param s      A char16_t (UTF-16) string
  * @param length The number of UChars in the input string, or -1 if the string is
  *               zero terminated.
  * @param status Errors are returned here.
@@ -214,7 +214,7 @@ U_CAPI UText * U_EXPORT2 utext_openUTF8(UText * ut, const char * s, int64_t leng
  *               will always be used and returned.
  * @stable ICU 3.4
  */
-U_CAPI UText * U_EXPORT2 utext_openUChars(UText * ut, const UChar * s, int64_t length, UErrorCode * status);
+U_CAPI UText * U_EXPORT2 utext_openUChars(UText * ut, const char16_t * s, int64_t length, UErrorCode * status);
 
 #if U_SHOW_CPLUSPLUS_API
 /**
@@ -285,7 +285,7 @@ U_CAPI UText * U_EXPORT2 utext_openCharacterIterator(UText * ut, icu::CharacterI
  *  required to support deep clones.  The user of clone() must check the status return
  *  and be prepared to handle failures.
  *
- *  The standard UText implementations for UTF8, UChar *, UnicodeString and
+ *  The standard UText implementations for UTF8, char16_t *, UnicodeString and
  *  Replaceable all support deep cloning.
  *
  *  The UText returned from a deep clone will be writable, assuming that the text
@@ -501,7 +501,7 @@ U_CAPI UChar32 U_EXPORT2 utext_previous32From(UText * ut, int64_t nativeIndex);
  * the length of the text.
  * The position is a native index into the input text, in whatever format it
  * may have (possibly UTF-8 for example), and may not always be the same as
- * the corresponding UChar (UTF-16) index.
+ * the corresponding char16_t (UTF-16) index.
  * The returned position will always be aligned to a code point boundary.
  *
  * @param ut the text to be accessed.
@@ -579,7 +579,7 @@ U_CAPI int64_t U_EXPORT2 utext_getPreviousNativeIndex(UText * ut);
 
 /**
  *
- * Extract text from a UText into a UChar buffer.  The range of text to be extracted
+ * Extract text from a UText into a char16_t buffer.  The range of text to be extracted
  * is specified in the native indices of the UText provider.  These may not necessarily
  * be UTF-16 indices.
  * <p>
@@ -601,7 +601,7 @@ U_CAPI int64_t U_EXPORT2 utext_getPreviousNativeIndex(UText * ut);
  *               character to extract.  If the specified index is out of range,
  *               it will be pinned to be within 0 <= index <= textLength.
  *               nativeLimit must be >= nativeStart.
- * @param  dest  the UChar (UTF-16) buffer into which the extracted text is placed
+ * @param  dest  the char16_t (UTF-16) buffer into which the extracted text is placed
  * @param  destCapacity  The size, in UChars, of the destination buffer.  May be zero
  *               for precomputing the required size.
  * @param  status receives any error status.
@@ -613,7 +613,7 @@ U_CAPI int64_t U_EXPORT2 utext_getPreviousNativeIndex(UText * ut);
  */
 U_CAPI int32_t U_EXPORT2 utext_extract(UText * ut,
     int64_t nativeStart, int64_t nativeLimit,
-    UChar * dest, int32_t destCapacity,
+    char16_t * dest, int32_t destCapacity,
     UErrorCode * status);
 
 /************************************************************************************
@@ -683,7 +683,7 @@ U_CAPI int32_t U_EXPORT2 utext_extract(UText * ut,
  * the length of the text.
  * The position is a native index into the input text, in whatever format it
  * may have (possibly UTF-8 for example), and may not always be the same as
- * the corresponding UChar (UTF-16) index.
+ * the corresponding char16_t (UTF-16) index.
  * The returned position will always be aligned to a code point boundary.
  *
  * @stable ICU 3.6
@@ -780,7 +780,7 @@ U_CAPI bool U_EXPORT2 utext_hasMetaData(const UText * ut);
  */
 U_CAPI int32_t U_EXPORT2 utext_replace(UText * ut,
     int64_t nativeStart, int64_t nativeLimit,
-    const UChar * replacementText, int32_t replacementLength,
+    const char16_t * replacementText, int32_t replacementLength,
     UErrorCode * status);
 
 /**
@@ -968,7 +968,7 @@ typedef bool U_CALLCONV
 /**
  * Function type declaration for UText.extract().
  *
- * Extract text from a UText into a UChar buffer.  The range of text to be extracted
+ * Extract text from a UText into a char16_t buffer.  The range of text to be extracted
  * is specified in the native indices of the UText provider.  These may not necessarily
  * be UTF-16 indices.
  * <p>
@@ -982,7 +982,7 @@ typedef bool U_CALLCONV
  * @param  nativeStart   the native index of the first character to extract.
  * @param  nativeLimit   the native string index of the position following the last
  *    character to extract.
- * @param  dest          the UChar (UTF-16) buffer into which the extracted text is placed
+ * @param  dest          the char16_t (UTF-16) buffer into which the extracted text is placed
  * @param  destCapacity  The size, in UChars, of the destination buffer.  May be zero
  *    for precomputing the required size.
  * @param  status        receives any error status.
@@ -995,7 +995,7 @@ typedef bool U_CALLCONV
 typedef int32_t U_CALLCONV
     UTextExtract (UText * ut,
     int64_t nativeStart, int64_t nativeLimit,
-    UChar * dest, int32_t destCapacity,
+    char16_t * dest, int32_t destCapacity,
     UErrorCode * status);
 
 /**
@@ -1030,7 +1030,7 @@ typedef int32_t U_CALLCONV
 typedef int32_t U_CALLCONV
     UTextReplace (UText * ut,
     int64_t nativeStart, int64_t nativeLimit,
-    const UChar * replacementText, int32_t replacmentLength,
+    const char16_t * replacementText, int32_t replacmentLength,
     UErrorCode * status);
 
 /**
@@ -1070,7 +1070,7 @@ typedef void U_CALLCONV
 
 /**
  * Function type declaration for UText.mapOffsetToNative().
- * Map from the current UChar offset within the current text chunk to
+ * Map from the current char16_t offset within the current text chunk to
  *  the corresponding native index in the original source text.
  *
  * This is required only for text providers that do not use native UTF-16 indexes.
@@ -1086,7 +1086,7 @@ typedef int64_t U_CALLCONV
 
 /**
  * Function type declaration for UText.mapIndexToUTF16().
- * Map from a native index to a UChar offset within a text chunk.
+ * Map from a native index to a char16_t offset within a text chunk.
  * Behavior is undefined if the native index does not fall within the
  *   current chunk.
  *
@@ -1354,7 +1354,7 @@ struct UText {
 	 *  if conversion was required, to a buffer owned by the UText.
 	 *  @stable ICU 3.6
 	 */
-	const UChar    * chunkContents;
+	const char16_t    * chunkContents;
 
 	/**
 	 * (public)     Pointer to Dispatch table for accessing functions for this UText.

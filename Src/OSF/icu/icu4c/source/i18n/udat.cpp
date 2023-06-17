@@ -117,9 +117,9 @@ U_CAPI UDateFormatOpener U_EXPORT2 udat_unregisterOpener(UDateFormatOpener opene
 U_CAPI UDateFormat* U_EXPORT2 udat_open(UDateFormatStyle timeStyle,
     UDateFormatStyle dateStyle,
     const char * locale,
-    const UChar * tzID,
+    const char16_t * tzID,
     int32_t tzIDLength,
-    const UChar * pattern,
+    const char16_t * pattern,
     int32_t patternLength,
     UErrorCode * status)
 {
@@ -199,7 +199,7 @@ U_CAPI UDateFormat* U_EXPORT2 udat_clone(const UDateFormat * fmt,
 
 U_CAPI int32_t U_EXPORT2 udat_format(const UDateFormat*    format,
     UDate dateToFormat,
-    UChar * result,
+    char16_t * result,
     int32_t resultLength,
     UFieldPosition* position,
     UErrorCode *  status)
@@ -236,7 +236,7 @@ U_CAPI int32_t U_EXPORT2 udat_format(const UDateFormat*    format,
 
 U_CAPI int32_t U_EXPORT2 udat_formatCalendar(const UDateFormat*  format,
     UCalendar*      calendar,
-    UChar * result,
+    char16_t * result,
     int32_t resultLength,
     UFieldPosition* position,
     UErrorCode *  status)
@@ -273,7 +273,7 @@ U_CAPI int32_t U_EXPORT2 udat_formatCalendar(const UDateFormat*  format,
 
 U_CAPI int32_t U_EXPORT2 udat_formatForFields(const UDateFormat*    format,
     UDate dateToFormat,
-    UChar * result,
+    char16_t * result,
     int32_t resultLength,
     UFieldPositionIterator* fpositer,
     UErrorCode *  status)
@@ -300,7 +300,7 @@ U_CAPI int32_t U_EXPORT2 udat_formatForFields(const UDateFormat*    format,
 
 U_CAPI int32_t U_EXPORT2 udat_formatCalendarForFields(const UDateFormat*  format,
     UCalendar*      calendar,
-    UChar * result,
+    char16_t * result,
     int32_t resultLength,
     UFieldPositionIterator* fpositer,
     UErrorCode *  status)
@@ -326,7 +326,7 @@ U_CAPI int32_t U_EXPORT2 udat_formatCalendarForFields(const UDateFormat*  format
 }
 
 U_CAPI UDate U_EXPORT2 udat_parse(const UDateFormat*        format,
-    const UChar * text,
+    const char16_t * text,
     int32_t textLength,
     int32_t * parsePos,
     UErrorCode * status)
@@ -358,7 +358,7 @@ U_CAPI UDate U_EXPORT2 udat_parse(const UDateFormat*        format,
 
 U_CAPI void U_EXPORT2 udat_parseCalendar(const UDateFormat*    format,
     UCalendar*      calendar,
-    const UChar * text,
+    const char16_t * text,
     int32_t textLength,
     int32_t * parsePos,
     UErrorCode * status)
@@ -425,7 +425,7 @@ U_CAPI void U_EXPORT2 udat_setCalendar(UDateFormat*    fmt,
 	((DateFormat*)fmt)->setCalendar(*((Calendar*)calendarToSet));
 }
 
-U_CAPI const UNumberFormat * U_EXPORT2 udat_getNumberFormatForField(const UDateFormat* fmt, UChar field)
+U_CAPI const UNumberFormat * U_EXPORT2 udat_getNumberFormatForField(const UDateFormat* fmt, char16_t field)
 {
 	UErrorCode status = U_ZERO_ERROR;
 	verifyIsSimpleDateFormat(fmt, &status);
@@ -439,7 +439,7 @@ U_CAPI const UNumberFormat * U_EXPORT2 udat_getNumberFormat(const UDateFormat* f
 }
 
 U_CAPI void U_EXPORT2 udat_adoptNumberFormatForFields(UDateFormat*    fmt,
-    const UChar * fields, UNumberFormat * numberFormatToSet, UErrorCode *  status)
+    const char16_t * fields, UNumberFormat * numberFormatToSet, UErrorCode *  status)
 {
 	verifyIsSimpleDateFormat(fmt, status);
 	if(U_FAILURE(*status)) 
@@ -485,7 +485,7 @@ U_CAPI void U_EXPORT2 udat_set2DigitYearStart(UDateFormat     * fmt, UDate d, UE
 }
 
 U_CAPI int32_t U_EXPORT2 udat_toPattern(const UDateFormat     * fmt, bool localized,
-    UChar * result, int32_t resultLength, UErrorCode * status)
+    char16_t * result, int32_t resultLength, UErrorCode * status)
 {
 	if(U_FAILURE(*status)) {
 		return -1;
@@ -523,7 +523,7 @@ U_CAPI int32_t U_EXPORT2 udat_toPattern(const UDateFormat     * fmt, bool locali
 
 // TODO: should this take an UErrorCode?
 // A: Yes. Of course.
-U_CAPI void U_EXPORT2 udat_applyPattern(UDateFormat     * format, bool localized, const UChar * pattern, int32_t patternLength)
+U_CAPI void U_EXPORT2 udat_applyPattern(UDateFormat     * format, bool localized, const char16_t * pattern, int32_t patternLength)
 {
 	const UnicodeString pat((bool)(patternLength == -1), pattern, patternLength);
 	UErrorCode status = U_ZERO_ERROR;
@@ -537,7 +537,7 @@ U_CAPI void U_EXPORT2 udat_applyPattern(UDateFormat     * format, bool localized
 		((SimpleDateFormat*)format)->applyPattern(pat);
 }
 
-U_CAPI int32_t U_EXPORT2 udat_getSymbols(const UDateFormat     * fmt, UDateFormatSymbolType type, int32_t index, UChar * result, int32_t resultLength, UErrorCode * status)
+U_CAPI int32_t U_EXPORT2 udat_getSymbols(const UDateFormat     * fmt, UDateFormatSymbolType type, int32_t index, char16_t * result, int32_t resultLength, UErrorCode * status)
 {
 	const DateFormatSymbols * syms;
 	const SimpleDateFormat* sdtfmt;
@@ -771,7 +771,7 @@ U_NAMESPACE_BEGIN
 class DateFormatSymbolsSingleSetter /* not : public UObject because all methods are static */ {
 public:
 	static void setSymbol(UnicodeString * array, int32_t count, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		if(array) {
 			if(index>=count) {
@@ -787,157 +787,157 @@ public:
 	}
 
 	static void setEra(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fEras, syms->fErasCount, index, value, valueLength, errorCode);
 	}
 
 	static void setEraName(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fEraNames, syms->fEraNamesCount, index, value, valueLength, errorCode);
 	}
 
 	static void setMonth(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fMonths, syms->fMonthsCount, index, value, valueLength, errorCode);
 	}
 
 	static void setShortMonth(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fShortMonths, syms->fShortMonthsCount, index, value, valueLength, errorCode);
 	}
 
 	static void setNarrowMonth(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fNarrowMonths, syms->fNarrowMonthsCount, index, value, valueLength, errorCode);
 	}
 
 	static void setStandaloneMonth(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fStandaloneMonths, syms->fStandaloneMonthsCount, index, value, valueLength, errorCode);
 	}
 
 	static void setStandaloneShortMonth(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fStandaloneShortMonths, syms->fStandaloneShortMonthsCount, index, value, valueLength, errorCode);
 	}
 
 	static void setStandaloneNarrowMonth(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fStandaloneNarrowMonths, syms->fStandaloneNarrowMonthsCount, index, value, valueLength, errorCode);
 	}
 
 	static void setWeekday(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fWeekdays, syms->fWeekdaysCount, index, value, valueLength, errorCode);
 	}
 
 	static void setShortWeekday(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fShortWeekdays, syms->fShortWeekdaysCount, index, value, valueLength, errorCode);
 	}
 
 	static void setShorterWeekday(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fShorterWeekdays, syms->fShorterWeekdaysCount, index, value, valueLength, errorCode);
 	}
 
 	static void setNarrowWeekday(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fNarrowWeekdays, syms->fNarrowWeekdaysCount, index, value, valueLength, errorCode);
 	}
 
 	static void setStandaloneWeekday(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fStandaloneWeekdays, syms->fStandaloneWeekdaysCount, index, value, valueLength, errorCode);
 	}
 
 	static void setStandaloneShortWeekday(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fStandaloneShortWeekdays, syms->fStandaloneShortWeekdaysCount, index, value, valueLength, errorCode);
 	}
 
 	static void setStandaloneShorterWeekday(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fStandaloneShorterWeekdays, syms->fStandaloneShorterWeekdaysCount, index, value, valueLength, errorCode);
 	}
 
 	static void setStandaloneNarrowWeekday(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fStandaloneNarrowWeekdays, syms->fStandaloneNarrowWeekdaysCount, index, value, valueLength, errorCode);
 	}
 
 	static void setQuarter(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fQuarters, syms->fQuartersCount, index, value, valueLength, errorCode);
 	}
 
 	static void setShortQuarter(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fShortQuarters, syms->fShortQuartersCount, index, value, valueLength, errorCode);
 	}
 
 	static void setNarrowQuarter(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fNarrowQuarters, syms->fNarrowQuartersCount, index, value, valueLength, errorCode);
 	}
 
 	static void setStandaloneQuarter(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fStandaloneQuarters, syms->fStandaloneQuartersCount, index, value, valueLength, errorCode);
 	}
 
 	static void setStandaloneShortQuarter(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fStandaloneShortQuarters, syms->fStandaloneShortQuartersCount, index, value, valueLength, errorCode);
 	}
 
 	static void setStandaloneNarrowQuarter(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fStandaloneNarrowQuarters, syms->fStandaloneNarrowQuartersCount, index, value, valueLength, errorCode);
 	}
 
 	static void setShortYearNames(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fShortYearNames, syms->fShortYearNamesCount, index, value, valueLength, errorCode);
 	}
 
 	static void setShortZodiacNames(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fShortZodiacNames, syms->fShortZodiacNamesCount, index, value, valueLength, errorCode);
 	}
 
 	static void setAmPm(DateFormatSymbols * syms, int32_t index,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(syms->fAmPms, syms->fAmPmsCount, index, value, valueLength, errorCode);
 	}
 
 	static void setLocalPatternChars(DateFormatSymbols * syms,
-	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
+	    const char16_t * value, int32_t valueLength, UErrorCode & errorCode)
 	{
 		setSymbol(&syms->fLocalPatternChars, 1, 0, value, valueLength, errorCode);
 	}
@@ -945,7 +945,7 @@ public:
 
 U_NAMESPACE_END
 
-U_CAPI void U_EXPORT2 udat_setSymbols(UDateFormat * format, UDateFormatSymbolType type, int32_t index, UChar * value, int32_t valueLength, UErrorCode * status)
+U_CAPI void U_EXPORT2 udat_setSymbols(UDateFormat * format, UDateFormatSymbolType type, int32_t index, char16_t * value, int32_t valueLength, UErrorCode * status)
 {
 	verifyIsSimpleDateFormat(format, status);
 	if(U_FAILURE(*status)) return;
@@ -1076,7 +1076,7 @@ static void verifyIsRelativeDateFormat(const UDateFormat* fmt, UErrorCode * stat
 }
 
 U_CAPI int32_t U_EXPORT2 udat_toPatternRelativeDate(const UDateFormat * fmt,
-    UChar * result,
+    char16_t * result,
     int32_t resultLength,
     UErrorCode * status)
 {
@@ -1100,7 +1100,7 @@ U_CAPI int32_t U_EXPORT2 udat_toPatternRelativeDate(const UDateFormat * fmt,
 }
 
 U_CAPI int32_t U_EXPORT2 udat_toPatternRelativeTime(const UDateFormat * fmt,
-    UChar * result,
+    char16_t * result,
     int32_t resultLength,
     UErrorCode * status)
 {
@@ -1122,8 +1122,8 @@ U_CAPI int32_t U_EXPORT2 udat_toPatternRelativeTime(const UDateFormat * fmt,
 	return timePattern.extract(result, resultLength, *status);
 }
 
-U_CAPI void U_EXPORT2 udat_applyPatternRelative(UDateFormat * format, const UChar * datePattern, int32_t datePatternLength,
-    const UChar * timePattern, int32_t timePatternLength, UErrorCode * status)
+U_CAPI void U_EXPORT2 udat_applyPatternRelative(UDateFormat * format, const char16_t * datePattern, int32_t datePatternLength,
+    const char16_t * timePattern, int32_t timePatternLength, UErrorCode * status)
 {
 	verifyIsRelativeDateFormat(format, status);
 	if(U_FAILURE(*status)) return;

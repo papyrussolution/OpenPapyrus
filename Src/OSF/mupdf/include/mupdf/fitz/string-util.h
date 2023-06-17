@@ -13,8 +13,7 @@
 	Return strlen(s), if that is less than maxlen, or maxlen if
 	there is no null byte ('\0') among the first maxlen bytes.
 */
-size_t fz_strnlen(const char *s, size_t maxlen);
-
+// @sobolev (replaced with sstrnlen) size_t fz_strnlen(const char *s, size_t maxlen);
 /**
 	Given a pointer to a C string (or a pointer to NULL) break
 	it at the first occurrence of a delimiter char (from a given

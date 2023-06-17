@@ -296,9 +296,9 @@ int pdf_lookup_anchor(fz_context * ctx, pdf_document * doc, const char * name, f
 	}
 
 	if(!strncmp(name, "page=", 5))
-		return fz_atoi(name + 5) - 1;
+		return satoi(name + 5) - 1;
 
-	return fz_atoi(name) - 1;
+	return satoi(name) - 1;
 }
 
 static void pdf_flatten_inheritable_page_item(fz_context * ctx, pdf_obj * page, pdf_obj * key)
@@ -592,10 +592,10 @@ void pdf_page_obj_transform(fz_context * ctx, pdf_obj * pageobj, fz_rect * page_
 	if(!fz_is_empty_rect(cropbox))
 		mediabox = fz_intersect_rect(mediabox, cropbox);
 
-	page_mediabox->x0 = fz_min(mediabox.x0, mediabox.x1);
-	page_mediabox->y0 = fz_min(mediabox.y0, mediabox.y1);
-	page_mediabox->x1 = fz_max(mediabox.x0, mediabox.x1);
-	page_mediabox->y1 = fz_max(mediabox.y0, mediabox.y1);
+	page_mediabox->x0 = smin(mediabox.x0, mediabox.x1);
+	page_mediabox->y0 = smin(mediabox.y0, mediabox.y1);
+	page_mediabox->x1 = smax(mediabox.x0, mediabox.x1);
+	page_mediabox->y1 = smax(mediabox.y0, mediabox.y1);
 
 	if(page_mediabox->x1 - page_mediabox->x0 < 1 || page_mediabox->y1 - page_mediabox->y0 < 1)
 		*page_mediabox = fz_unit_rect;

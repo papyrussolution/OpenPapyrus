@@ -867,9 +867,9 @@ struct ImDrawListSharedData {
 struct ImDrawDataBuilder {
 	ImVector<ImDrawList*>   Layers[2];       // Global layers for: regular, tooltip
 
-	void Clear()                    { for(int n = 0; n < IM_ARRAYSIZE(Layers); n ++) Layers[n].resize(0); }
-	void ClearFreeMemory()          { for(int n = 0; n < IM_ARRAYSIZE(Layers); n ++) Layers[n].clear(); }
-	int  GetDrawListCount() const { int count = 0; for(int n = 0; n < IM_ARRAYSIZE(Layers); n ++)   count += Layers[n].Size; return count; }
+	void Clear()                    { for(int n = 0; n < SIZEOFARRAYi(Layers); n ++) Layers[n].resize(0); }
+	void ClearFreeMemory()          { for(int n = 0; n < SIZEOFARRAYi(Layers); n ++) Layers[n].clear(); }
+	int  GetDrawListCount() const { int count = 0; for(int n = 0; n < SIZEOFARRAYi(Layers); n ++)   count += Layers[n].Size; return count; }
 	void FlattenIntoSingleLayer();
 };
 
@@ -1453,7 +1453,7 @@ struct ImGuiKeyRoutingTable {
 	}
 	void Clear()
 	{ 
-		for(int n = 0; n < IM_ARRAYSIZE(Index); n ++) 
+		for(int n = 0; n < SIZEOFARRAYi(Index); n ++) 
 			Index[n] = -1; 
 		Entries.clear(); 
 		EntriesNext.clear(); 

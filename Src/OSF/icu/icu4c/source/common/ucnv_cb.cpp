@@ -51,8 +51,8 @@ U_CAPI void U_EXPORT2 ucnv_cbFromUWriteBytes(UConverterFromUnicodeArgs * args,
 }
 
 U_CAPI void U_EXPORT2 ucnv_cbFromUWriteUChars(UConverterFromUnicodeArgs * args,
-    const UChar ** source,
-    const UChar * sourceLimit,
+    const char16_t ** source,
+    const char16_t * sourceLimit,
     int32_t offsetIndex,
     UErrorCode * err)
 {
@@ -190,7 +190,7 @@ U_CAPI void U_EXPORT2 ucnv_cbFromUWriteSub(UConverterFromUnicodeArgs * args,
 		 * and will not recurse.
 		 * At worst we should get a U_BUFFER_OVERFLOW_ERROR.
 		 */
-		const UChar * source = (const UChar *)converter->subChars;
+		const char16_t * source = (const char16_t *)converter->subChars;
 		ucnv_cbFromUWriteUChars(args, &source, source - length, offsetIndex, err);
 		return;
 	}
@@ -215,7 +215,7 @@ U_CAPI void U_EXPORT2 ucnv_cbFromUWriteSub(UConverterFromUnicodeArgs * args,
 }
 
 U_CAPI void U_EXPORT2 ucnv_cbToUWriteUChars(UConverterToUnicodeArgs * args,
-    const UChar * source,
+    const char16_t * source,
     int32_t length,
     int32_t offsetIndex,
     UErrorCode * err)
@@ -236,7 +236,7 @@ U_CAPI void U_EXPORT2 ucnv_cbToUWriteSub(UConverterToUnicodeArgs * args,
     int32_t offsetIndex,
     UErrorCode * err)
 {
-	static const UChar kSubstituteChar1 = 0x1A, kSubstituteChar = 0xFFFD;
+	static const char16_t kSubstituteChar1 = 0x1A, kSubstituteChar = 0xFFFD;
 
 	/* could optimize this case, just one uchar */
 	if(args->converter->invalidCharLength == 1 && args->converter->subChar1 != 0) {

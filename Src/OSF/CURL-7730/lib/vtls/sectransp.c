@@ -888,7 +888,6 @@ CF_INLINE void GetDarwinVersionNumber(int * major, int * minor)
 	size_t os_version_len;
 	char * os_version_major, * os_version_minor;
 	char * tok_buf;
-
 	/* Get the Darwin kernel version from the kernel using sysctl(): */
 	mib[0] = CTL_KERN;
 	mib[1] = KERN_OSRELEASE;
@@ -901,12 +900,11 @@ CF_INLINE void GetDarwinVersionNumber(int * major, int * minor)
 		SAlloc::F(os_version);
 		return;
 	}
-
 	/* Parse the version: */
 	os_version_major = strtok_r(os_version, ".", &tok_buf);
 	os_version_minor = strtok_r(NULL, ".", &tok_buf);
-	*major = atoi(os_version_major);
-	*minor = atoi(os_version_minor);
+	*major = satoi(os_version_major);
+	*minor = satoi(os_version_minor);
 	SAlloc::F(os_version);
 }
 

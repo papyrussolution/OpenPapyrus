@@ -331,7 +331,7 @@ enum {
  * Type Name            Memory layout of values
  *                      (in parentheses: scalar, non-offset values)
  *
- * 0  Unicode String:   int32_t length, UChar[length], (UChar)0, (padding)
+ * 0  Unicode String:   int32_t length, char16_t[length], (char16_t)0, (padding)
  *                  or  (empty string ("") if offset==0)
  * 1  Binary:           int32_t length, uint8[length], (padding)
  *                      - the start of the bytes is 16-aligned -
@@ -341,12 +341,12 @@ enum {
  *                      (new in formatVersion 1.1/ICU 2.8)
  * 5  Table16:          uint16 count, uint16 keyStringOffsets[count], Resource16[count]
  *                      (stored in the 16-bit-units array; new in formatVersion 2/ICU 4.4)
- * 6  Unicode String-v2:UChar[length], (UChar)0; length determined by the first UChar:
+ * 6  Unicode String-v2:char16_t[length], (char16_t)0; length determined by the first char16_t:
  *                      - if first is not a trail surrogate, then the length is implicit
  *     and u_strlen() needs to be called
  *                      - if first<0xdfef then length=first&0x3ff (and skip first)
- *                      - if first<0xdfff then length=((first-0xdfef)<<16) | second UChar
- *                      - if first==0xdfff then length=((second UChar)<<16) | third UChar
+ *                      - if first<0xdfff then length=((first-0xdfef)<<16) | second char16_t
+ *                      - if first==0xdfff then length=((second char16_t)<<16) | third char16_t
  *                      (stored in the 16-bit-units array; new in formatVersion 2/ICU 4.4)
  *
  *                      Starting with formatVersion 3/ICU 56, if offset<poolStringIndexLimit
@@ -408,14 +408,14 @@ U_CAPI UResType U_EXPORT2 res_getPublicType(Resource res);
 // To enable tracing, use the inline versions of the res_get* functions. //
 //
 /*
- * Return a pointer to a zero-terminated, const UChar * string
+ * Return a pointer to a zero-terminated, const char16_t * string
  * and set its length in *pLength.
  * Returns NULL if not found.
  */
-U_CAPI const UChar * U_EXPORT2 res_getStringNoTrace(const ResourceData * pResData, Resource res, int32_t * pLength);
+U_CAPI const char16_t * U_EXPORT2 res_getStringNoTrace(const ResourceData * pResData, Resource res, int32_t * pLength);
 U_CAPI const uint8 * U_EXPORT2 res_getBinaryNoTrace(const ResourceData * pResData, Resource res, int32_t * pLength);
 U_CAPI const int32_t * U_EXPORT2 res_getIntVectorNoTrace(const ResourceData * pResData, Resource res, int32_t * pLength);
-U_CAPI const UChar * U_EXPORT2 res_getAlias(const ResourceData * pResData, Resource res, int32_t * pLength);
+U_CAPI const char16_t * U_EXPORT2 res_getAlias(const ResourceData * pResData, Resource res, int32_t * pLength);
 U_CAPI Resource U_EXPORT2 res_getResource(const ResourceData * pResData, const char * key);
 U_CAPI int32_t U_EXPORT2 res_countArrayItems(const ResourceData * pResData, Resource res);
 U_CAPI Resource U_EXPORT2 res_getArrayItem(const ResourceData * pResData, Resource array, int32_t indexS);
@@ -439,7 +439,7 @@ U_CFUNC Resource res_findResource(const ResourceData * pResData, Resource r, cha
 
 U_NAMESPACE_BEGIN
 
-inline const UChar * res_getString(const ResourceTracer& traceInfo, const ResourceData * pResData, Resource res, int32_t * pLength) 
+inline const char16_t * res_getString(const ResourceTracer& traceInfo, const ResourceData * pResData, Resource res, int32_t * pLength) 
 {
 	traceInfo.trace("string");
 	return res_getStringNoTrace(pResData, res, pLength);
@@ -492,8 +492,8 @@ public:
 	UResourceDataEntry * getValidLocaleDataEntry() const { return validLocaleDataEntry; }
 	Resource getResource() const { return res; }
 	virtual UResType getType() const override;
-	virtual const UChar * getString(int32_t &length, UErrorCode & errorCode) const override;
-	virtual const UChar * getAliasString(int32_t &length, UErrorCode & errorCode) const override;
+	virtual const char16_t * getString(int32_t &length, UErrorCode & errorCode) const override;
+	virtual const char16_t * getAliasString(int32_t &length, UErrorCode & errorCode) const override;
 	virtual int32_t getInt(UErrorCode & errorCode) const override;
 	virtual uint32_t getUInt(UErrorCode & errorCode) const override;
 	virtual const int32_t * getIntVector(int32_t &length, UErrorCode & errorCode) const override;

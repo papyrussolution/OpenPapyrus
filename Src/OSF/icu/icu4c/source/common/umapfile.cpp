@@ -134,7 +134,7 @@ U_CFUNC bool uprv_mapFile(UDataMemory * pData, /* Fill in with info on the resul
 	// Convert from UTF-8 string to UTF-16 string.
 	wchar_t utf16Path[MAX_PATH];
 	int32_t pathUtf16Len = 0;
-	u_strFromUTF8(reinterpret_cast<UChar *>(utf16Path), static_cast<int32_t>(SIZEOFARRAYi(utf16Path)), &pathUtf16Len, path, -1, status);
+	u_strFromUTF8(reinterpret_cast<char16_t *>(utf16Path), static_cast<int32_t>(SIZEOFARRAYi(utf16Path)), &pathUtf16Len, path, -1, status);
 
 	if(U_FAILURE(*status)) {
 		return FALSE;

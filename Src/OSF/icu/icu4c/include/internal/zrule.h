@@ -70,7 +70,7 @@ U_CAPI bool U_EXPORT2 zrule_equals(const ZRule* rule1, const ZRule* rule2);
  * @param name  Receives the name of this time zone.
  * @param nameLength, length of the returned name
  */
-U_CAPI void U_EXPORT2 zrule_getName(ZRule* rule, UChar * name, int32_t nameLength);
+U_CAPI void U_EXPORT2 zrule_getName(ZRule* rule, char16_t * name, int32_t nameLength);
 /**
  * Gets the standard time offset.
  * @param rule, the Zrule to use
@@ -109,7 +109,7 @@ U_CAPI bool U_EXPORT2 zrule_isEquivalentTo(ZRule* rule1,  ZRule* rule2);
  * @param dstSavings    The amount of daylight saving offset adjustment in milliseconds.
  *                      If this ia a rule for standard time, the value of this argument is 0.
  */
-U_CAPI IZRule* U_EXPORT2 izrule_open(const UChar * name, int32_t nameLength, int32_t rawOffset, int32_t dstSavings);
+U_CAPI IZRule* U_EXPORT2 izrule_open(const char16_t * name, int32_t nameLength, int32_t rawOffset, int32_t dstSavings);
 
 /**
  * Disposes of the storage used by a IZRule object.  This function should
@@ -140,7 +140,7 @@ U_CAPI bool U_EXPORT2 izrule_equals(const IZRule* rule1, const IZRule* rule2);
  * @param name  Receives the name of this time zone.
  * @param nameLength, length of the returned name
  */
-U_CAPI void U_EXPORT2 izrule_getName(IZRule* rule, UChar * & name, int32_t & nameLength);
+U_CAPI void U_EXPORT2 izrule_getName(IZRule* rule, char16_t * & name, int32_t & nameLength);
 
 /**
  * Gets the standard time offset.

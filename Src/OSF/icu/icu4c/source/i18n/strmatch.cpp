@@ -92,7 +92,7 @@ UMatchDegree StringMatcher::matches(const Replaceable& text,
 	if(limit < cursor) {
 		// Match in the reverse direction
 		for(i = pattern.length()-1; i>=0; --i) {
-			UChar keyChar = pattern.charAt(i);
+			char16_t keyChar = pattern.charAt(i);
 			UnicodeMatcher* subm = data->lookupMatcher(keyChar);
 			if(subm == 0) {
 				if(cursor > limit &&
@@ -126,7 +126,7 @@ UMatchDegree StringMatcher::matches(const Replaceable& text,
 				// without completing our match.
 				return U_PARTIAL_MATCH;
 			}
-			UChar keyChar = pattern.charAt(i);
+			char16_t keyChar = pattern.charAt(i);
 			UnicodeMatcher* subm = data->lookupMatcher(keyChar);
 			if(subm == 0) {
 				// Don't need the cursor < limit check if
@@ -166,10 +166,10 @@ UnicodeString & StringMatcher::toPattern(UnicodeString & result,
 	result.truncate(0);
 	UnicodeString str, quoteBuf;
 	if(segmentNumber > 0) {
-		result.append((UChar)40); /*(*/
+		result.append((char16_t)40); /*(*/
 	}
 	for(int32_t i = 0; i<pattern.length(); ++i) {
-		UChar keyChar = pattern.charAt(i);
+		char16_t keyChar = pattern.charAt(i);
 		const UnicodeMatcher* m = data->lookupMatcher(keyChar);
 		if(m == 0) {
 			ICU_Utility::appendToRule(result, keyChar, FALSE, escapeUnprintable, quoteBuf);
@@ -180,7 +180,7 @@ UnicodeString & StringMatcher::toPattern(UnicodeString & result,
 		}
 	}
 	if(segmentNumber > 0) {
-		result.append((UChar)41); /*)*/
+		result.append((char16_t)41); /*)*/
 	}
 	// Flush quoteBuf out to result
 	ICU_Utility::appendToRule(result, -1,
@@ -249,7 +249,7 @@ UnicodeString & StringMatcher::toReplacerPattern(UnicodeString & rule,
     bool /*escapeUnprintable*/) const {
 	// assert(segmentNumber > 0);
 	rule.truncate(0);
-	rule.append((UChar)0x0024 /*$*/);
+	rule.append((char16_t)0x0024 /*$*/);
 	ICU_Utility::appendNumber(rule, segmentNumber, 10, 1);
 	return rule;
 }

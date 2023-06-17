@@ -975,8 +975,7 @@ cairo_int_status_t _cairo_scaled_font_subset_create_glyph_names(cairo_scaled_fon
 		if(utf16_len == 1) {
 			int ch = _cairo_unicode_to_winansi(utf16[0]);
 			if(ch > 0 && _cairo_winansi_to_glyphname(ch)) {
-				strncpy(buf, _cairo_winansi_to_glyphname(ch), sizeof(buf));
-				buf[sizeof(buf)-1] = '\0';
+				strnzcpy(buf, _cairo_winansi_to_glyphname(ch), sizeof(buf));
 			}
 			else {
 				snprintf(buf, sizeof(buf), "uni%04X", (int)utf16[0]);

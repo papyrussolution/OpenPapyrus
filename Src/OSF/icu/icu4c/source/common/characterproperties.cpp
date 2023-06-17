@@ -42,27 +42,26 @@ icu::UMutex cpMutex;
 // Does not use uset.h to reduce code dependencies
 void U_CALLCONV _set_add(USet * set, UChar32 c) { ((UnicodeSet*)set)->add(c); }
 void U_CALLCONV _set_addRange(USet * set, UChar32 start, UChar32 end) { ((UnicodeSet*)set)->add(start, end); }
-void U_CALLCONV _set_addString(USet * set, const UChar * str, int32_t length) { ((UnicodeSet*)set)->add(icu::UnicodeString((bool)(length<0), str, length)); }
+void U_CALLCONV _set_addString(USet * set, const char16_t * str, int32_t length) { ((UnicodeSet*)set)->add(icu::UnicodeString((bool)(length<0), str, length)); }
 
 bool U_CALLCONV characterproperties_cleanup() 
 {
 	for(Inclusion &in: gInclusions) {
-		delete in.fSet;
-		in.fSet = nullptr;
+		ZDELETE(in.fSet);
 		in.fInitOnce.reset();
 	}
-	for(int32_t i = 0; i < SIZEOFARRAYi(sets); ++i) {
-		delete sets[i];
-		sets[i] = nullptr;
+	for(uint i = 0; i < SIZEOFARRAY(sets); ++i) {
+		ZDELETE(sets[i]);
 	}
-	for(int32_t i = 0; i < SIZEOFARRAYi(maps); ++i) {
+	for(uint i = 0; i < SIZEOFARRAY(maps); ++i) {
 		ucptrie_close(reinterpret_cast<UCPTrie *>(maps[i]));
 		maps[i] = nullptr;
 	}
 	return TRUE;
 }
 
-void U_CALLCONV initInclusion(UPropertySource src, UErrorCode & errorCode) {
+void U_CALLCONV initInclusion(UPropertySource src, UErrorCode & errorCode) 
+{
 	// This function is invoked only via umtx_initOnce().
 	U_ASSERT(0 <= src && src < UPROPS_SRC_COUNT);
 	if(src == UPROPS_SRC_NONE) {

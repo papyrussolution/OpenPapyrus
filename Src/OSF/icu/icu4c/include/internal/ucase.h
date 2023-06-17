@@ -121,7 +121,7 @@ ucase_addCaseClosure(UChar32 c, const USetAdder *sa);
  * @return true if the string was found
  */
 U_CFUNC bool U_EXPORT2
-ucase_addStringCaseClosure(const UChar *s, int32_t length, const USetAdder *sa);
+ucase_addStringCaseClosure(const char16_t *s, int32_t length, const USetAdder *sa);
 
 #ifdef __cplusplus
 U_NAMESPACE_BEGIN
@@ -142,7 +142,7 @@ private:
     FullCaseFoldingIterator(const FullCaseFoldingIterator &);  // no copy
     FullCaseFoldingIterator & operator = (const FullCaseFoldingIterator &);  // no assignment
 
-    const UChar *unfold;
+    const char16_t *unfold;
     int32_t unfoldRows;
     int32_t unfoldRowWidth;
     int32_t unfoldStringWidth;
@@ -159,9 +159,9 @@ private:
 namespace LatinCase {
 
 /** Case mapping/folding data for code points up to U+017F. */
-constexpr UChar LIMIT = 0x180;
+constexpr char16_t LIMIT = 0x180;
 /** U+017F case-folds and uppercases crossing the ASCII boundary. */
-constexpr UChar LONG_S = 0x17f;
+constexpr char16_t LONG_S = 0x17f;
 /** Exception: Complex mapping, or too-large delta. */
 constexpr int8 EXC = -0x80;
 
@@ -280,24 +280,24 @@ enum {
 U_CAPI int32_t U_EXPORT2
 ucase_toFullLower(UChar32 c,
                   UCaseContextIterator *iter, void *context,
-                  const UChar **pString,
+                  const char16_t **pString,
                   int32_t caseLocale);
 
 U_CAPI int32_t U_EXPORT2
 ucase_toFullUpper(UChar32 c,
                   UCaseContextIterator *iter, void *context,
-                  const UChar **pString,
+                  const char16_t **pString,
                   int32_t caseLocale);
 
 U_CAPI int32_t U_EXPORT2
 ucase_toFullTitle(UChar32 c,
                   UCaseContextIterator *iter, void *context,
-                  const UChar **pString,
+                  const char16_t **pString,
                   int32_t caseLocale);
 
 U_CAPI int32_t U_EXPORT2
 ucase_toFullFolding(UChar32 c,
-                    const UChar **pString,
+                    const char16_t **pString,
                     uint32_t options);
 
 U_CFUNC int32_t U_EXPORT2
@@ -312,7 +312,7 @@ U_CDECL_BEGIN
 typedef int32_t U_CALLCONV
 UCaseMapFull(UChar32 c,
              UCaseContextIterator *iter, void *context,
-             const UChar **pString,
+             const char16_t **pString,
              int32_t caseLocale);
 
 U_CDECL_END

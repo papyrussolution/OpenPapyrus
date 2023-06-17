@@ -152,7 +152,7 @@ static hb_bool_t hb_icu_unicode_decompose(hb_unicode_funcs_t * ufuncs CXX_UNUSED
     hb_codepoint_t * a, hb_codepoint_t * b, void * user_data)
 {
 	const UNormalizer2 * normalizer = (const UNormalizer2*)user_data;
-	UChar decomposed[4];
+	char16_t decomposed[4];
 	int len;
 	UErrorCode icu_err = U_ZERO_ERROR;
 	len = unorm2_getRawDecomposition(normalizer, ab, decomposed, ARRAY_LENGTH(decomposed), &icu_err);

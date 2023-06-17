@@ -675,12 +675,9 @@ static char * raccess_make_file_name(FT_Memory memory, const char  * original_na
 	new_length = ft_strlen(original_name) + ft_strlen(insertion);
 	if(FT_ALLOC(new_name, new_length + 1))
 		return NULL;
-
 	tmp = ft_strrchr(original_name, '/');
 	if(tmp) {
-		ft_strncpy(new_name,
-		    original_name,
-		    (size_t)( tmp - original_name + 1 ));
+		ft_strncpy(new_name, original_name, (size_t)(tmp - original_name + 1));
 		new_name[tmp - original_name + 1] = '\0';
 		slash = tmp + 1;
 	}

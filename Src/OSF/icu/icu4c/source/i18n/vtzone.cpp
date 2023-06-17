@@ -25,51 +25,51 @@ static void U_CALLCONV deleteTimeZoneRule(void * obj) {
 U_CDECL_END
 
 // Smybol characters used by RFC2445 VTIMEZONE
-static const UChar COLON = 0x3A; /* : */
-static const UChar SEMICOLON = 0x3B; /* ; */
-static const UChar EQUALS_SIGN = 0x3D; /* = */
-static const UChar COMMA = 0x2C; /* , */
-static const UChar PLUS = 0x2B; /* + */
-static const UChar MINUS = 0x2D; /* - */
+static const char16_t COLON = 0x3A; /* : */
+static const char16_t SEMICOLON = 0x3B; /* ; */
+static const char16_t EQUALS_SIGN = 0x3D; /* = */
+static const char16_t COMMA = 0x2C; /* , */
+static const char16_t PLUS = 0x2B; /* + */
+static const char16_t MINUS = 0x2D; /* - */
 
 // RFC2445 VTIMEZONE tokens
-static const UChar ICAL_BEGIN_VTIMEZONE[] = {0x42, 0x45, 0x47, 0x49, 0x4E, 0x3A, 0x56, 0x54, 0x49, 0x4D, 0x45, 0x5A, 0x4F, 0x4E, 0x45, 0}; /*
+static const char16_t ICAL_BEGIN_VTIMEZONE[] = {0x42, 0x45, 0x47, 0x49, 0x4E, 0x3A, 0x56, 0x54, 0x49, 0x4D, 0x45, 0x5A, 0x4F, 0x4E, 0x45, 0}; /*
                                                                                                                                               "BEGIN:VTIMEZONE"
        */
-static const UChar ICAL_END_VTIMEZONE[] = {0x45, 0x4E, 0x44, 0x3A, 0x56, 0x54, 0x49, 0x4D, 0x45, 0x5A, 0x4F, 0x4E, 0x45, 0}; /*
+static const char16_t ICAL_END_VTIMEZONE[] = {0x45, 0x4E, 0x44, 0x3A, 0x56, 0x54, 0x49, 0x4D, 0x45, 0x5A, 0x4F, 0x4E, 0x45, 0}; /*
                                                                                                                                 "END:VTIMEZONE"
   */
-static const UChar ICAL_BEGIN[] = {0x42, 0x45, 0x47, 0x49, 0x4E, 0}; /* "BEGIN" */
-static const UChar ICAL_END[] = {0x45, 0x4E, 0x44, 0}; /* "END" */
-static const UChar ICAL_VTIMEZONE[] = {0x56, 0x54, 0x49, 0x4D, 0x45, 0x5A, 0x4F, 0x4E, 0x45, 0}; /* "VTIMEZONE" */
-static const UChar ICAL_TZID[] = {0x54, 0x5A, 0x49, 0x44, 0}; /* "TZID" */
-static const UChar ICAL_STANDARD[] = {0x53, 0x54, 0x41, 0x4E, 0x44, 0x41, 0x52, 0x44, 0}; /* "STANDARD" */
-static const UChar ICAL_DAYLIGHT[] = {0x44, 0x41, 0x59, 0x4C, 0x49, 0x47, 0x48, 0x54, 0}; /* "DAYLIGHT" */
-static const UChar ICAL_DTSTART[] = {0x44, 0x54, 0x53, 0x54, 0x41, 0x52, 0x54, 0}; /* "DTSTART" */
-static const UChar ICAL_TZOFFSETFROM[] = {0x54, 0x5A, 0x4F, 0x46, 0x46, 0x53, 0x45, 0x54, 0x46, 0x52, 0x4F, 0x4D, 0}; /*
+static const char16_t ICAL_BEGIN[] = {0x42, 0x45, 0x47, 0x49, 0x4E, 0}; /* "BEGIN" */
+static const char16_t ICAL_END[] = {0x45, 0x4E, 0x44, 0}; /* "END" */
+static const char16_t ICAL_VTIMEZONE[] = {0x56, 0x54, 0x49, 0x4D, 0x45, 0x5A, 0x4F, 0x4E, 0x45, 0}; /* "VTIMEZONE" */
+static const char16_t ICAL_TZID[] = {0x54, 0x5A, 0x49, 0x44, 0}; /* "TZID" */
+static const char16_t ICAL_STANDARD[] = {0x53, 0x54, 0x41, 0x4E, 0x44, 0x41, 0x52, 0x44, 0}; /* "STANDARD" */
+static const char16_t ICAL_DAYLIGHT[] = {0x44, 0x41, 0x59, 0x4C, 0x49, 0x47, 0x48, 0x54, 0}; /* "DAYLIGHT" */
+static const char16_t ICAL_DTSTART[] = {0x44, 0x54, 0x53, 0x54, 0x41, 0x52, 0x54, 0}; /* "DTSTART" */
+static const char16_t ICAL_TZOFFSETFROM[] = {0x54, 0x5A, 0x4F, 0x46, 0x46, 0x53, 0x45, 0x54, 0x46, 0x52, 0x4F, 0x4D, 0}; /*
                                                                                                                          "TZOFFSETFROM"
     */
-static const UChar ICAL_TZOFFSETTO[] = {0x54, 0x5A, 0x4F, 0x46, 0x46, 0x53, 0x45, 0x54, 0x54, 0x4F, 0}; /* "TZOFFSETTO"
+static const char16_t ICAL_TZOFFSETTO[] = {0x54, 0x5A, 0x4F, 0x46, 0x46, 0x53, 0x45, 0x54, 0x54, 0x4F, 0}; /* "TZOFFSETTO"
         */
-static const UChar ICAL_RDATE[] = {0x52, 0x44, 0x41, 0x54, 0x45, 0}; /* "RDATE" */
-static const UChar ICAL_RRULE[] = {0x52, 0x52, 0x55, 0x4C, 0x45, 0}; /* "RRULE" */
-static const UChar ICAL_TZNAME[] = {0x54, 0x5A, 0x4E, 0x41, 0x4D, 0x45, 0}; /* "TZNAME" */
-static const UChar ICAL_TZURL[] = {0x54, 0x5A, 0x55, 0x52, 0x4C, 0}; /* "TZURL" */
-static const UChar ICAL_LASTMOD[] = {0x4C, 0x41, 0x53, 0x54, 0x2D, 0x4D, 0x4F, 0x44, 0x49, 0x46, 0x49, 0x45, 0x44, 0}; /*
+static const char16_t ICAL_RDATE[] = {0x52, 0x44, 0x41, 0x54, 0x45, 0}; /* "RDATE" */
+static const char16_t ICAL_RRULE[] = {0x52, 0x52, 0x55, 0x4C, 0x45, 0}; /* "RRULE" */
+static const char16_t ICAL_TZNAME[] = {0x54, 0x5A, 0x4E, 0x41, 0x4D, 0x45, 0}; /* "TZNAME" */
+static const char16_t ICAL_TZURL[] = {0x54, 0x5A, 0x55, 0x52, 0x4C, 0}; /* "TZURL" */
+static const char16_t ICAL_LASTMOD[] = {0x4C, 0x41, 0x53, 0x54, 0x2D, 0x4D, 0x4F, 0x44, 0x49, 0x46, 0x49, 0x45, 0x44, 0}; /*
                                                                                                                           "LAST-MODIFIED"
      */
 
-static const UChar ICAL_FREQ[] = {0x46, 0x52, 0x45, 0x51, 0}; /* "FREQ" */
-static const UChar ICAL_UNTIL[] = {0x55, 0x4E, 0x54, 0x49, 0x4C, 0}; /* "UNTIL" */
-static const UChar ICAL_YEARLY[] = {0x59, 0x45, 0x41, 0x52, 0x4C, 0x59, 0}; /* "YEARLY" */
-static const UChar ICAL_BYMONTH[] = {0x42, 0x59, 0x4D, 0x4F, 0x4E, 0x54, 0x48, 0}; /* "BYMONTH" */
-static const UChar ICAL_BYDAY[] = {0x42, 0x59, 0x44, 0x41, 0x59, 0}; /* "BYDAY" */
-static const UChar ICAL_BYMONTHDAY[] = {0x42, 0x59, 0x4D, 0x4F, 0x4E, 0x54, 0x48, 0x44, 0x41, 0x59, 0}; /* "BYMONTHDAY"
+static const char16_t ICAL_FREQ[] = {0x46, 0x52, 0x45, 0x51, 0}; /* "FREQ" */
+static const char16_t ICAL_UNTIL[] = {0x55, 0x4E, 0x54, 0x49, 0x4C, 0}; /* "UNTIL" */
+static const char16_t ICAL_YEARLY[] = {0x59, 0x45, 0x41, 0x52, 0x4C, 0x59, 0}; /* "YEARLY" */
+static const char16_t ICAL_BYMONTH[] = {0x42, 0x59, 0x4D, 0x4F, 0x4E, 0x54, 0x48, 0}; /* "BYMONTH" */
+static const char16_t ICAL_BYDAY[] = {0x42, 0x59, 0x44, 0x41, 0x59, 0}; /* "BYDAY" */
+static const char16_t ICAL_BYMONTHDAY[] = {0x42, 0x59, 0x4D, 0x4F, 0x4E, 0x54, 0x48, 0x44, 0x41, 0x59, 0}; /* "BYMONTHDAY"
         */
 
-static const UChar ICAL_NEWLINE[] = {0x0D, 0x0A, 0}; /* CRLF */
+static const char16_t ICAL_NEWLINE[] = {0x0D, 0x0A, 0}; /* CRLF */
 
-static const UChar ICAL_DOW_NAMES[7][3] = {
+static const char16_t ICAL_DOW_NAMES[7][3] = {
 	{0x53, 0x55, 0}, /* "SU" */
 	{0x4D, 0x4F, 0}, /* "MO" */
 	{0x54, 0x55, 0}, /* "TU" */
@@ -83,9 +83,9 @@ static const UChar ICAL_DOW_NAMES[7][3] = {
 static const int32_t MONTHLENGTH[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 // ICU custom property
-static const UChar ICU_TZINFO_PROP[] = {0x58, 0x2D, 0x54, 0x5A, 0x49, 0x4E, 0x46, 0x4F, 0x3A, 0}; /* "X-TZINFO:" */
-static const UChar ICU_TZINFO_PARTIAL[] = {0x2F, 0x50, 0x61, 0x72, 0x74, 0x69, 0x61, 0x6C, 0x40, 0}; /* "/Partial@" */
-static const UChar ICU_TZINFO_SIMPLE[] = {0x2F, 0x53, 0x69, 0x6D, 0x70, 0x6C, 0x65, 0x40, 0}; /* "/Simple@" */
+static const char16_t ICU_TZINFO_PROP[] = {0x58, 0x2D, 0x54, 0x5A, 0x49, 0x4E, 0x46, 0x4F, 0x3A, 0}; /* "X-TZINFO:" */
+static const char16_t ICU_TZINFO_PARTIAL[] = {0x2F, 0x50, 0x61, 0x72, 0x74, 0x69, 0x61, 0x6C, 0x40, 0}; /* "/Partial@" */
+static const char16_t ICU_TZINFO_SIMPLE[] = {0x2F, 0x53, 0x69, 0x6D, 0x70, 0x6C, 0x65, 0x40, 0}; /* "/Simple@" */
 
 /*
  * Simple fixed digit ASCII number to integer converter
@@ -151,7 +151,7 @@ static UnicodeString & appendAsciiDigits(int32_t number, uint8 length, UnicodeSt
 		str.append(MINUS);
 	}
 	for(i = length - 1; i >= 0; i--) {
-		str.append((UChar)(digits[i] + 0x0030));
+		str.append((char16_t)(digits[i] + 0x0030));
 	}
 	return str;
 }
@@ -186,7 +186,7 @@ static UnicodeString & appendMillis(UDate date, UnicodeString & str) {
 	}
 	i--;
 	while(i >= 0) {
-		str.append((UChar)(digits[i--] + 0x0030));
+		str.append((char16_t)(digits[i--] + 0x0030));
 	}
 	return str;
 }
@@ -202,7 +202,7 @@ static UnicodeString & getDateTimeString(UDate time, UnicodeString & str) {
 	appendAsciiDigits(year, 4, str);
 	appendAsciiDigits(month + 1, 2, str);
 	appendAsciiDigits(dom, 2, str);
-	str.append((UChar)0x0054 /*'T'*/);
+	str.append((char16_t)0x0054 /*'T'*/);
 
 	int32_t t = mid;
 	int32_t hour = t / U_MILLIS_PER_HOUR;
@@ -222,7 +222,7 @@ static UnicodeString & getDateTimeString(UDate time, UnicodeString & str) {
  */
 static UnicodeString & getUTCDateTimeString(UDate time, UnicodeString & str) {
 	getDateTimeString(time, str);
-	str.append((UChar)0x005A /*'Z'*/);
+	str.append((char16_t)0x005A /*'Z'*/);
 	return str;
 }
 
@@ -309,7 +309,7 @@ static int32_t offsetStrToMillis(const UnicodeString & str, UErrorCode & status)
 			break;
 		}
 		// sign
-		UChar s = str.charAt(0);
+		char16_t s = str.charAt(0);
 		if(s == PLUS) {
 			sign = 1;
 		}
@@ -929,9 +929,9 @@ public:
 	~VTZWriter();
 
 	void write(const UnicodeString & str);
-	void write(UChar ch);
-	void write(const UChar * str);
-	//void write(const UChar * str, int32_t length);
+	void write(char16_t ch);
+	void write(const char16_t * str);
+	//void write(const char16_t * str, int32_t length);
 private:
 	UnicodeString * out;
 };
@@ -947,17 +947,17 @@ void VTZWriter::write(const UnicodeString & str) {
 	out->append(str);
 }
 
-void VTZWriter::write(UChar ch) {
+void VTZWriter::write(char16_t ch) {
 	out->append(ch);
 }
 
-void VTZWriter::write(const UChar * str) {
+void VTZWriter::write(const char16_t * str) {
 	out->append(str, -1);
 }
 
 /*
    void
-   VTZWriter::write(const UChar * str, int32_t length) {
+   VTZWriter::write(const char16_t * str, int32_t length) {
     out->append(str, length);
    }
  */
@@ -967,7 +967,7 @@ public:
 	VTZReader(const UnicodeString & input);
 	~VTZReader();
 
-	UChar read();
+	char16_t read();
 private:
 	const UnicodeString * in;
 	int32_t index;
@@ -981,8 +981,8 @@ VTZReader::VTZReader(const UnicodeString & input) {
 VTZReader::~VTZReader() {
 }
 
-UChar VTZReader::read() {
-	UChar ch = 0xFFFF;
+char16_t VTZReader::read() {
+	char16_t ch = 0xFFFF;
 	if(index < in->length()) {
 		ch = in->charAt(index);
 	}
@@ -1099,7 +1099,7 @@ VTimeZone* VTimeZone::createVTimeZoneByID(const UnicodeString & ID)
 	// Set ICU tzdata version
 	UErrorCode status = U_ZERO_ERROR;
 	UResourceBundle * bundle = nullptr;
-	const UChar * versionStr = nullptr;
+	const char16_t * versionStr = nullptr;
 	int32_t len = 0;
 	bundle = ures_openDirect(nullptr, "zoneinfo64", &status);
 	versionStr = ures_getStringByKey(bundle, "TZVersion", &len, &status);
@@ -1129,7 +1129,7 @@ VTimeZone* VTimeZone::createVTimeZoneFromBasicTimeZone(const BasicTimeZone& basi
 
 	// Set ICU tzdata version
 	UResourceBundle * bundle = nullptr;
-	const UChar * versionStr = nullptr;
+	const char16_t * versionStr = nullptr;
 	int32_t len = 0;
 	bundle = ures_openDirect(nullptr, "zoneinfo64", &status);
 	versionStr = ures_getStringByKey(bundle, "TZVersion", &len, &status);
@@ -1279,7 +1279,7 @@ void VTimeZone::load(VTZReader& reader, UErrorCode & status)
 	UnicodeString line;
 
 	while(true) {
-		UChar ch = reader.read();
+		char16_t ch = reader.read();
 		if(ch == 0xFFFF) {
 			// end of file
 			if(start && line.startsWith(ICAL_END_VTIMEZONE, -1)) {
@@ -1867,11 +1867,11 @@ void VTimeZone::write(UDate start, VTZWriter& writer, UErrorCode & status) const
 			goto cleanupWritePartial;
 		}
 		icutzprop->append(olsonzid);
-		icutzprop->append((UChar)0x005B /*'['*/);
+		icutzprop->append((char16_t)0x005B /*'['*/);
 		icutzprop->append(icutzver);
 		icutzprop->append(ICU_TZINFO_PARTIAL, -1);
 		appendMillis(start, *icutzprop);
-		icutzprop->append((UChar)0x005D /*']'*/);
+		icutzprop->append((char16_t)0x005D /*']'*/);
 		customProps.addElementX(icutzprop, status);
 		if(U_FAILURE(status)) {
 			delete icutzprop;
@@ -1924,11 +1924,11 @@ void VTimeZone::writeSimple(UDate time, VTZWriter& writer, UErrorCode & status) 
 				return;
 			}
 			icutzprop->append(olsonzid);
-			icutzprop->append((UChar)0x005B /*'['*/);
+			icutzprop->append((char16_t)0x005B /*'['*/);
 			icutzprop->append(icutzver);
 			icutzprop->append(ICU_TZINFO_SIMPLE, -1);
 			appendMillis(time, *icutzprop);
-			icutzprop->append((UChar)0x005D /*']'*/);
+			icutzprop->append((char16_t)0x005D /*']'*/);
 			customProps.adoptElement(icutzprop.orphan(), status);
 		}
 		writeZone(writer, rbtz, &customProps, status);

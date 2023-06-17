@@ -17,7 +17,7 @@
 #include "sprpimpl.h"
 
 /* it is official IDNA ACE Prefix is "xn--" */
-static const UChar ACE_PREFIX[] = { 0x0078, 0x006E, 0x002d, 0x002d };
+static const char16_t ACE_PREFIX[] = { 0x0078, 0x006E, 0x002d, 0x002d };
 #define ACE_PREFIX_LENGTH 4
 
 #define MAX_LABEL_LENGTH 63
@@ -34,7 +34,7 @@ static const UChar ACE_PREFIX[] = { 0x0078, 0x006E, 0x002d, 0x002d };
 #define CAPITAL_A        0x0041
 #define CAPITAL_Z        0x005A
 
-inline static UChar toASCIILower(UChar ch) 
+inline static char16_t toASCIILower(char16_t ch) 
 {
 	if(CAPITAL_A <= ch && ch <= CAPITAL_Z) {
 		return ch + LOWER_CASE_DELTA;
@@ -42,7 +42,7 @@ inline static UChar toASCIILower(UChar ch)
 	return ch;
 }
 
-inline static bool startsWithPrefix(const UChar * src, int32_t srcLength) 
+inline static bool startsWithPrefix(const char16_t * src, int32_t srcLength) 
 {
 	if(srcLength < ACE_PREFIX_LENGTH) {
 		return FALSE;
@@ -55,7 +55,7 @@ inline static bool startsWithPrefix(const UChar * src, int32_t srcLength)
 	return TRUE;
 }
 
-inline static int32_t compareCaseInsensitiveASCII(const UChar * s1, int32_t s1Len, const UChar * s2, int32_t s2Len) 
+inline static int32_t compareCaseInsensitiveASCII(const char16_t * s1, int32_t s1Len, const char16_t * s2, int32_t s2Len) 
 {
 	int32_t minLength;
 	int32_t lengthResult;
@@ -75,7 +75,7 @@ inline static int32_t compareCaseInsensitiveASCII(const UChar * s1, int32_t s1Le
 		minLength = s1Len;
 		lengthResult = 0;
 	}
-	UChar c1, c2;
+	char16_t c1, c2;
 	int32_t rc;
 	for(int32_t i = 0; /* no condition */; i++) {
 		/* If we reach the ends of both strings then they match */
@@ -103,7 +103,7 @@ inline static int32_t compareCaseInsensitiveASCII(const UChar * s1, int32_t s1Le
  * @return true if the char is a label separator
  * @stable ICU 2.8
  */
-static inline bool isLabelSeparator(UChar ch) 
+static inline bool isLabelSeparator(char16_t ch) 
 {
 	switch(ch) {
 		case 0x002e:
@@ -119,7 +119,7 @@ static inline bool isLabelSeparator(UChar ch)
 // returns the length of the label excluding the separator
 // if *limit == separator then the length returned does not include
 // the separtor.
-static inline int32_t getNextSeparator(UChar * src, int32_t srcLength, UChar ** limit, bool * done) 
+static inline int32_t getNextSeparator(char16_t * src, int32_t srcLength, char16_t ** limit, bool * done) 
 {
 	if(srcLength == -1) {
 		int32_t i;
@@ -152,7 +152,7 @@ static inline int32_t getNextSeparator(UChar * src, int32_t srcLength, UChar ** 
 	}
 }
 
-static inline bool isLDHChar(UChar ch) 
+static inline bool isLDHChar(char16_t ch) 
 {
 	// high runner case
 	if(ch>0x007A) {
@@ -165,14 +165,14 @@ static inline bool isLDHChar(UChar ch)
 	return FALSE;
 }
 
-static int32_t _internal_toASCII(const UChar * src, int32_t srcLength, UChar * dest, int32_t destCapacity, int32_t options,
+static int32_t _internal_toASCII(const char16_t * src, int32_t srcLength, char16_t * dest, int32_t destCapacity, int32_t options,
     UStringPrepProfile* nameprep, UParseError* parseError, UErrorCode * status)
 {
 	// TODO Revisit buffer handling. The label should not be over 63 ASCII characters. ICU4J may need to be updated
 	// too.
-	UChar b1Stack[MAX_LABEL_BUFFER_SIZE], b2Stack[MAX_LABEL_BUFFER_SIZE];
+	char16_t b1Stack[MAX_LABEL_BUFFER_SIZE], b2Stack[MAX_LABEL_BUFFER_SIZE];
 	//initialize pointers to stack buffers
-	UChar * b1 = b1Stack, * b2 = b2Stack;
+	char16_t * b1 = b1Stack, * b2 = b2Stack;
 	int32_t b1Len = 0;
 	int32_t b2Len;
 	int32_t b1Capacity = MAX_LABEL_BUFFER_SIZE;
@@ -189,7 +189,7 @@ static int32_t _internal_toASCII(const UChar * src, int32_t srcLength, UChar * d
 		srcLength = u_strlen(src);
 	}
 	if(srcLength > b1Capacity) {
-		b1 = (UChar *)uprv_malloc(srcLength * U_SIZEOF_UCHAR);
+		b1 = (char16_t *)uprv_malloc(srcLength * U_SIZEOF_UCHAR);
 		if(b1==NULL) {
 			*status = U_MEMORY_ALLOCATION_ERROR;
 			goto CLEANUP;
@@ -213,7 +213,7 @@ static int32_t _internal_toASCII(const UChar * src, int32_t srcLength, UChar * d
 			if(b1 != b1Stack) {
 				uprv_free(b1);
 			}
-			b1 = (UChar *)uprv_malloc(b1Len * U_SIZEOF_UCHAR);
+			b1 = (char16_t *)uprv_malloc(b1Len * U_SIZEOF_UCHAR);
 			if(b1==NULL) {
 				*status = U_MEMORY_ALLOCATION_ERROR;
 				goto CLEANUP;
@@ -290,7 +290,7 @@ static int32_t _internal_toASCII(const UChar * src, int32_t srcLength, UChar * d
 			if(*status == U_BUFFER_OVERFLOW_ERROR) {
 				// redo processing of string
 				/* we do not have enough room so grow the buffer*/
-				b2 = (UChar *)uprv_malloc(b2Len * U_SIZEOF_UCHAR);
+				b2 = (char16_t *)uprv_malloc(b2Len * U_SIZEOF_UCHAR);
 				if(b2 == NULL) {
 					*status = U_MEMORY_ALLOCATION_ERROR;
 					goto CLEANUP;
@@ -337,7 +337,7 @@ CLEANUP:
 	return u_terminateUChars(dest, destCapacity, reqLength, status);
 }
 
-static int32_t _internal_toUnicode(const UChar * src, int32_t srcLength, UChar * dest, int32_t destCapacity,
+static int32_t _internal_toUnicode(const char16_t * src, int32_t srcLength, char16_t * dest, int32_t destCapacity,
     int32_t options, UStringPrepProfile* nameprep, UParseError* parseError, UErrorCode * status)
 {
 	//get the options
@@ -346,10 +346,10 @@ static int32_t _internal_toUnicode(const UChar * src, int32_t srcLength, UChar *
 
 	// TODO Revisit buffer handling. The label should not be over 63 ASCII characters. ICU4J may need to be updated
 	// too.
-	UChar b1Stack[MAX_LABEL_BUFFER_SIZE], b2Stack[MAX_LABEL_BUFFER_SIZE], b3Stack[MAX_LABEL_BUFFER_SIZE];
+	char16_t b1Stack[MAX_LABEL_BUFFER_SIZE], b2Stack[MAX_LABEL_BUFFER_SIZE], b3Stack[MAX_LABEL_BUFFER_SIZE];
 
 	//initialize pointers to stack buffers
-	UChar * b1 = b1Stack, * b2 = b2Stack, * b1Prime = NULL, * b3 = b3Stack;
+	char16_t * b1 = b1Stack, * b2 = b2Stack, * b1Prime = NULL, * b3 = b3Stack;
 	int32_t b1Len = 0, b2Len, b1PrimeLen, b3Len,
 	    b1Capacity = MAX_LABEL_BUFFER_SIZE,
 	    b2Capacity = MAX_LABEL_BUFFER_SIZE,
@@ -402,7 +402,7 @@ static int32_t _internal_toUnicode(const UChar * src, int32_t srcLength, UChar *
 		if(*status == U_BUFFER_OVERFLOW_ERROR) {
 			// redo processing of string
 			/* we do not have enough room so grow the buffer*/
-			b1 = (UChar *)uprv_malloc(b1Len * U_SIZEOF_UCHAR);
+			b1 = (char16_t *)uprv_malloc(b1Len * U_SIZEOF_UCHAR);
 			if(b1==NULL) {
 				*status = U_MEMORY_ALLOCATION_ERROR;
 				goto CLEANUP;
@@ -419,7 +419,7 @@ static int32_t _internal_toUnicode(const UChar * src, int32_t srcLength, UChar *
 	}
 	else {
 		//just point src to b1
-		b1 = (UChar *)src;
+		b1 = (char16_t *)src;
 		b1Len = srcLength;
 	}
 
@@ -441,7 +441,7 @@ static int32_t _internal_toUnicode(const UChar * src, int32_t srcLength, UChar *
 		if(*status == U_BUFFER_OVERFLOW_ERROR) {
 			// redo processing of string
 			/* we do not have enough room so grow the buffer*/
-			b2 = (UChar *)uprv_malloc(b2Len * U_SIZEOF_UCHAR);
+			b2 = (char16_t *)uprv_malloc(b2Len * U_SIZEOF_UCHAR);
 			if(b2==NULL) {
 				*status = U_MEMORY_ALLOCATION_ERROR;
 				goto CLEANUP;
@@ -458,7 +458,7 @@ static int32_t _internal_toUnicode(const UChar * src, int32_t srcLength, UChar *
 		if(*status == U_BUFFER_OVERFLOW_ERROR) {
 			// redo processing of string
 			/* we do not have enough room so grow the buffer*/
-			b3 = (UChar *)uprv_malloc(b3Len * U_SIZEOF_UCHAR);
+			b3 = (char16_t *)uprv_malloc(b3Len * U_SIZEOF_UCHAR);
 			if(b3==NULL) {
 				*status = U_MEMORY_ALLOCATION_ERROR;
 				goto CLEANUP;
@@ -547,7 +547,7 @@ CLEANUP:
 	return u_terminateUChars(dest, destCapacity, reqLength, status);
 }
 
-U_CAPI int32_t U_EXPORT2 uidna_toASCII(const UChar * src, int32_t srcLength, UChar * dest, int32_t destCapacity,
+U_CAPI int32_t U_EXPORT2 uidna_toASCII(const char16_t * src, int32_t srcLength, char16_t * dest, int32_t destCapacity,
     int32_t options, UParseError* parseError, UErrorCode * status) 
 {
 	if(!status || U_FAILURE(*status)) {
@@ -567,7 +567,7 @@ U_CAPI int32_t U_EXPORT2 uidna_toASCII(const UChar * src, int32_t srcLength, UCh
 	return retLen;
 }
 
-U_CAPI int32_t U_EXPORT2 uidna_toUnicode(const UChar * src, int32_t srcLength, UChar * dest, int32_t destCapacity,
+U_CAPI int32_t U_EXPORT2 uidna_toUnicode(const char16_t * src, int32_t srcLength, char16_t * dest, int32_t destCapacity,
     int32_t options, UParseError* parseError, UErrorCode * status) 
 {
 	if(!status || U_FAILURE(*status)) {
@@ -586,7 +586,7 @@ U_CAPI int32_t U_EXPORT2 uidna_toUnicode(const UChar * src, int32_t srcLength, U
 	return retLen;
 }
 
-U_CAPI int32_t U_EXPORT2 uidna_IDNToASCII(const UChar * src, int32_t srcLength, UChar * dest, int32_t destCapacity, int32_t options, UParseError * parseError, UErrorCode * status) 
+U_CAPI int32_t U_EXPORT2 uidna_IDNToASCII(const char16_t * src, int32_t srcLength, char16_t * dest, int32_t destCapacity, int32_t options, UParseError * parseError, UErrorCode * status) 
 {
 	if(!status || U_FAILURE(*status)) {
 		return 0;
@@ -601,9 +601,9 @@ U_CAPI int32_t U_EXPORT2 uidna_IDNToASCII(const UChar * src, int32_t srcLength, 
 		return 0;
 	}
 	//initialize pointers
-	UChar * delimiter = (UChar *)src;
-	UChar * labelStart = (UChar *)src;
-	UChar * currentDest = (UChar *)dest;
+	char16_t * delimiter = (char16_t *)src;
+	char16_t * labelStart = (char16_t *)src;
+	char16_t * currentDest = (char16_t *)dest;
 	int32_t remainingLen = srcLength;
 	int32_t remainingDestCapacity = destCapacity;
 	int32_t labelLen = 0, labelReqLength = 0;
@@ -653,8 +653,8 @@ U_CAPI int32_t U_EXPORT2 uidna_IDNToASCII(const UChar * src, int32_t srcLength, 
 	return u_terminateUChars(dest, destCapacity, reqLength, status);
 }
 
-U_CAPI int32_t U_EXPORT2 uidna_IDNToUnicode(const UChar * src, int32_t srcLength,
-    UChar * dest, int32_t destCapacity,
+U_CAPI int32_t U_EXPORT2 uidna_IDNToUnicode(const char16_t * src, int32_t srcLength,
+    char16_t * dest, int32_t destCapacity,
     int32_t options,
     UParseError* parseError,
     UErrorCode * status) {
@@ -671,9 +671,9 @@ U_CAPI int32_t U_EXPORT2 uidna_IDNToUnicode(const UChar * src, int32_t srcLength
 		return 0;
 	}
 	//initialize pointers
-	UChar * delimiter = (UChar *)src;
-	UChar * labelStart = (UChar *)src;
-	UChar * currentDest = (UChar *)dest;
+	char16_t * delimiter = (char16_t *)src;
+	char16_t * labelStart = (char16_t *)src;
+	char16_t * currentDest = (char16_t *)dest;
 	int32_t remainingLen = srcLength;
 	int32_t remainingDestCapacity = destCapacity;
 	int32_t labelLen = 0, labelReqLength = 0;
@@ -737,20 +737,20 @@ U_CAPI int32_t U_EXPORT2 uidna_IDNToUnicode(const UChar * src, int32_t srcLength
 	return u_terminateUChars(dest, destCapacity, reqLength, status);
 }
 
-U_CAPI int32_t U_EXPORT2 uidna_compare(const UChar * s1, int32_t length1, const UChar * s2, int32_t length2, int32_t options, UErrorCode * status) 
+U_CAPI int32_t U_EXPORT2 uidna_compare(const char16_t * s1, int32_t length1, const char16_t * s2, int32_t length2, int32_t options, UErrorCode * status) 
 {
 	if(!status || U_FAILURE(*status)) {
 		return -1;
 	}
-	UChar b1Stack[MAX_IDN_BUFFER_SIZE], b2Stack[MAX_IDN_BUFFER_SIZE];
-	UChar * b1 = b1Stack, * b2 = b2Stack;
+	char16_t b1Stack[MAX_IDN_BUFFER_SIZE], b2Stack[MAX_IDN_BUFFER_SIZE];
+	char16_t * b1 = b1Stack, * b2 = b2Stack;
 	int32_t b2Len, b1Capacity = MAX_IDN_BUFFER_SIZE, b2Capacity = MAX_IDN_BUFFER_SIZE;
 	int32_t result = -1;
 	UParseError parseError;
 	int32_t b1Len = uidna_IDNToASCII(s1, length1, b1, b1Capacity, options, &parseError, status);
 	if(*status == U_BUFFER_OVERFLOW_ERROR) {
 		// redo processing of string
-		b1 = (UChar *)uprv_malloc(b1Len * U_SIZEOF_UCHAR);
+		b1 = (char16_t *)uprv_malloc(b1Len * U_SIZEOF_UCHAR);
 		if(b1==NULL) {
 			*status = U_MEMORY_ALLOCATION_ERROR;
 			goto CLEANUP;
@@ -761,7 +761,7 @@ U_CAPI int32_t U_EXPORT2 uidna_compare(const UChar * s1, int32_t length1, const 
 	b2Len = uidna_IDNToASCII(s2, length2, b2, b2Capacity, options, &parseError, status);
 	if(*status == U_BUFFER_OVERFLOW_ERROR) {
 		// redo processing of string
-		b2 = (UChar *)uprv_malloc(b2Len * U_SIZEOF_UCHAR);
+		b2 = (char16_t *)uprv_malloc(b2Len * U_SIZEOF_UCHAR);
 		if(b2==NULL) {
 			*status = U_MEMORY_ALLOCATION_ERROR;
 			goto CLEANUP;

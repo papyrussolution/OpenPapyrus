@@ -51,7 +51,7 @@ public:
 	const char * getName() const;
 	const char * getLanguage() const;
 	int32_t getConfidence() const;
-	int32_t getUChars(UChar * buf, int32_t cap, UErrorCode * status) const;
+	int32_t getUChars(char16_t * buf, int32_t cap, UErrorCode * status) const;
 };
 
 U_NAMESPACE_END

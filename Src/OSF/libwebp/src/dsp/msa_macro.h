@@ -71,7 +71,7 @@
 
 #define MSA_LOAD_FUNC(TYPE, INSTR, FUNC_NAME)             \
   static inline TYPE FUNC_NAME(const void* const psrc) {  \
-    const uint8* const psrc_m = (const uint8*)psrc;   \
+    const uint8* const psrc_m = (const uint8 *)psrc;   \
     TYPE val_m;                                           \
     asm volatile (                                        \
       "" #INSTR " %[val_m], %[psrc_m]  \n\t"              \
@@ -148,7 +148,7 @@
  *               Load word in 'out3' from (psrc + 3 * stride)
  */
 #define LW4(psrc, stride, out0, out1, out2, out3) do {  \
-  const uint8* ptmp = (const uint8*)psrc;           \
+  const uint8* ptmp = (const uint8 *)psrc;           \
   out0 = LW(ptmp);                                      \
   ptmp += stride;                                       \
   out1 = LW(ptmp);                                      \

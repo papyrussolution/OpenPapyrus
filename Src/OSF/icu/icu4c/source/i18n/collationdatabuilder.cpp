@@ -547,7 +547,7 @@ void CollationDataBuilder::addCE32(const UnicodeString & prefix, const UnicodeSt
 		if(!isBuilderContextCE32(oldCE32)) {
 			// Replace the simple oldCE32 with a builder context CE32
 			// pointing to a new ConditionalCE32 list head.
-			int32_t index = addConditionalCE32(UnicodeString((UChar)0), oldCE32, errorCode);
+			int32_t index = addConditionalCE32(UnicodeString((char16_t)0), oldCE32, errorCode);
 			if(U_FAILURE(errorCode)) {
 				return;
 			}
@@ -561,7 +561,7 @@ void CollationDataBuilder::addCE32(const UnicodeString & prefix, const UnicodeSt
 			cond->builtCE32 = Collation::NO_CE32;
 		}
 		UnicodeString suffix(s, cLength);
-		UnicodeString context((UChar)prefix.length());
+		UnicodeString context((char16_t)prefix.length());
 		context.append(prefix).append(suffix);
 		unsafeBackwardSet.addAll(suffix);
 		for(;;) {
@@ -792,13 +792,13 @@ uint32_t CollationDataBuilder::copyFromBaseCE32(UChar32 c, uint32_t ce32, bool w
 		case Collation::PREFIX_TAG: {
 		    // Flatten prefixes and nested suffixes (contractions)
 		    // into a linear list of ConditionalCE32.
-		    const UChar * p = base->contexts + Collation::indexFromCE32(ce32);
+		    const char16_t * p = base->contexts + Collation::indexFromCE32(ce32);
 		    ce32 = CollationData::readCE32(p); // Default if no prefix match.
 		    if(!withContext) {
 			    return copyFromBaseCE32(c, ce32, FALSE, errorCode);
 		    }
 		    ConditionalCE32 head;
-		    UnicodeString context((UChar)0);
+		    UnicodeString context((char16_t)0);
 		    int32_t index;
 		    if(Collation::isContractionCE32(ce32)) {
 			    index = copyContractionsFromBaseCE32(context, c, ce32, &head, errorCode);
@@ -815,7 +815,7 @@ uint32_t CollationDataBuilder::copyFromBaseCE32(UChar32 c, uint32_t ce32, bool w
 		    while(prefixes.next(errorCode)) {
 			    context = prefixes.getString();
 			    context.reverse();
-			    context.insert(0, (UChar)context.length());
+			    context.insert(0, (char16_t)context.length());
 			    ce32 = (uint32_t)prefixes.getValue();
 			    if(Collation::isContractionCE32(ce32)) {
 				    index = copyContractionsFromBaseCE32(context, c, ce32, cond, errorCode);
@@ -835,12 +835,12 @@ uint32_t CollationDataBuilder::copyFromBaseCE32(UChar32 c, uint32_t ce32, bool w
 	    }
 		case Collation::CONTRACTION_TAG: {
 		    if(!withContext) {
-			    const UChar * p = base->contexts + Collation::indexFromCE32(ce32);
+			    const char16_t * p = base->contexts + Collation::indexFromCE32(ce32);
 			    ce32 = CollationData::readCE32(p); // Default if no suffix match.
 			    return copyFromBaseCE32(c, ce32, FALSE, errorCode);
 		    }
 		    ConditionalCE32 head;
-		    UnicodeString context((UChar)0);
+		    UnicodeString context((char16_t)0);
 		    copyContractionsFromBaseCE32(context, c, ce32, &head, errorCode);
 		    ce32 = makeBuilderContextCE32(head.next);
 		    contextChars.add(c);
@@ -866,7 +866,7 @@ int32_t CollationDataBuilder::copyContractionsFromBaseCE32(UnicodeString & conte
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
-	const UChar * p = base->contexts + Collation::indexFromCE32(ce32);
+	const char16_t * p = base->contexts + Collation::indexFromCE32(ce32);
 	int32_t index;
 	if((ce32 & Collation::CONTRACT_SINGLE_CP_NO_MATCH) != 0) {
 		// No match on the single code point.
@@ -1225,7 +1225,7 @@ static bool U_CALLCONV enumRangeLeadValue(const void * context, UChar32 /*start*
 U_CDECL_END
 
 void CollationDataBuilder::setLeadSurrogates(UErrorCode & errorCode) {
-	for(UChar lead = 0xd800; lead < 0xdc00; ++lead) {
+	for(char16_t lead = 0xd800; lead < 0xdc00; ++lead) {
 		int32_t value = -1;
 		utrie2_enumForLeadSurrogate(trie, lead, NULL, enumRangeLeadValue, &value);
 		utrie2_set32ForLeadSurrogateCodeUnit(
@@ -1319,7 +1319,7 @@ void CollationDataBuilder::buildMappings(CollationData & data, UErrorCode & erro
 	// Mark each lead surrogate as "unsafe"
 	// if any of its 1024 associated supplementary code points is "unsafe".
 	UChar32 c = 0x10000;
-	for(UChar lead = 0xd800; lead < 0xdc00; ++lead, c += 0x400) {
+	for(char16_t lead = 0xd800; lead < 0xdc00; ++lead, c += 0x400) {
 		if(unsafeBackwardSet.containsSome(c, c + 0x3ff)) {
 			unsafeBackwardSet.add(lead);
 		}
@@ -1508,7 +1508,7 @@ uint32_t CollationDataBuilder::buildContext(ConditionalCE32 * head, UErrorCode &
 int32_t CollationDataBuilder::addContextTrie(uint32_t defaultCE32, UCharsTrieBuilder &trieBuilder, UErrorCode & errorCode) 
 {
 	UnicodeString context;
-	context.append((UChar)(defaultCE32 >> 16)).append((UChar)defaultCE32);
+	context.append((char16_t)(defaultCE32 >> 16)).append((char16_t)defaultCE32);
 	UnicodeString trieString;
 	context.append(trieBuilder.buildUnicodeString(USTRINGTRIE_BUILD_SMALL, trieString, errorCode));
 	if(U_FAILURE(errorCode)) {

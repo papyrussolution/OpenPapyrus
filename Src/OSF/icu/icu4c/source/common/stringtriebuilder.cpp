@@ -128,7 +128,7 @@ int32_t StringTrieBuilder::writeNode(int32_t start, int32_t limit, int32_t unitI
 // start<limit && all strings longer than unitIndex &&
 // length different units at unitIndex
 int32_t StringTrieBuilder::writeBranchSubNode(int32_t start, int32_t limit, int32_t unitIndex, int32_t length) {
-	UChar middleUnits[kMaxSplitBranchLevels];
+	char16_t middleUnits[kMaxSplitBranchLevels];
 	int32_t lessThan[kMaxSplitBranchLevels];
 	int32_t ltLength = 0;
 	while(length>getMaxBranchLinearSubNodeLength()) {
@@ -149,7 +149,7 @@ int32_t StringTrieBuilder::writeBranchSubNode(int32_t start, int32_t limit, int3
 	int32_t unitNumber = 0;
 	do {
 		int32_t i = starts[unitNumber] = start;
-		UChar unit = getElementUnit(i++, unitIndex);
+		char16_t unit = getElementUnit(i++, unitIndex);
 		i = indexOfElementWithNextUnit(i, unitIndex, unit);
 		isFinal[unitNumber] = start==i-1 && unitIndex+1==getElementStringLength(start);
 		start = i;
@@ -258,7 +258,7 @@ StringTrieBuilder::Node * StringTrieBuilder::makeBranchSubNode(int32_t start, in
 	if(U_FAILURE(errorCode)) {
 		return NULL;
 	}
-	UChar middleUnits[kMaxSplitBranchLevels];
+	char16_t middleUnits[kMaxSplitBranchLevels];
 	Node * lessThan[kMaxSplitBranchLevels];
 	int32_t ltLength = 0;
 	while(length>getMaxBranchLinearSubNodeLength()) {
@@ -285,7 +285,7 @@ StringTrieBuilder::Node * StringTrieBuilder::makeBranchSubNode(int32_t start, in
 	int32_t unitNumber = 0;
 	do {
 		int32_t i = start;
-		UChar unit = getElementUnit(i++, unitIndex);
+		char16_t unit = getElementUnit(i++, unitIndex);
 		i = indexOfElementWithNextUnit(i, unitIndex, unit);
 		if(start==i-1 && unitIndex+1==getElementStringLength(start)) {
 			listNode->add(unit, getElementValue(start));
@@ -296,7 +296,7 @@ StringTrieBuilder::Node * StringTrieBuilder::makeBranchSubNode(int32_t start, in
 		start = i;
 	} while(++unitNumber<length-1);
 	// unitNumber==length-1, and the maxUnit elements range is [start..limit[
-	UChar unit = getElementUnit(start, unitIndex);
+	char16_t unit = getElementUnit(start, unitIndex);
 	if(start==limit-1 && unitIndex+1==getElementStringLength(start)) {
 		listNode->add(unit, getElementValue(start));
 	}

@@ -262,7 +262,7 @@ struct UBiDi {
     const UBiDi * pParaBiDi;
 
     /* alias pointer to the current text */
-    const UChar *text;
+    const char16_t *text;
 
     /* length of the current text */
     int32_t originalLength;
@@ -323,9 +323,9 @@ struct UBiDi {
     UBiDiLevel defaultParaLevel;
 
     /* context data */
-    const UChar *prologue;
+    const char16_t *prologue;
     int32_t proLength;
-    const UChar *epilogue;
+    const char16_t *epilogue;
     int32_t epiLength;
 
     /* the following is set in ubidi_setPara, used in processPropertySeq */

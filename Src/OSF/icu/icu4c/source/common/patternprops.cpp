@@ -164,8 +164,8 @@ PatternProps::isWhiteSpace(UChar32 c) {
     }
 }
 
-const UChar *
-PatternProps::skipWhiteSpace(const UChar *s, int32_t length) {
+const char16_t *
+PatternProps::skipWhiteSpace(const char16_t *s, int32_t length) {
     while(length>0 && isWhiteSpace(*s)) {
         ++s;
         --length;
@@ -183,8 +183,8 @@ PatternProps::skipWhiteSpace(const UnicodeString & s, int32_t start) {
     return i;
 }
 
-const UChar *
-PatternProps::trimWhiteSpace(const UChar *s, int32_t &length) {
+const char16_t *
+PatternProps::trimWhiteSpace(const char16_t *s, int32_t &length) {
     if(length<=0 || (!isWhiteSpace(s[0]) && !isWhiteSpace(s[length-1]))) {
         return s;
     }
@@ -205,11 +205,11 @@ PatternProps::trimWhiteSpace(const UChar *s, int32_t &length) {
 }
 
 bool
-PatternProps::isIdentifier(const UChar *s, int32_t length) {
+PatternProps::isIdentifier(const char16_t *s, int32_t length) {
     if(length<=0) {
         return FALSE;
     }
-    const UChar *limit=s+length;
+    const char16_t *limit=s+length;
     do {
         if(isSyntaxOrWhiteSpace(*s++)) {
             return FALSE;
@@ -218,8 +218,8 @@ PatternProps::isIdentifier(const UChar *s, int32_t length) {
     return TRUE;
 }
 
-const UChar *
-PatternProps::skipIdentifier(const UChar *s, int32_t length) {
+const char16_t *
+PatternProps::skipIdentifier(const char16_t *s, int32_t length) {
     while(length>0 && !isSyntaxOrWhiteSpace(*s)) {
         ++s;
         --length;

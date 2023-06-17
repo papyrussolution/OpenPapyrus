@@ -1098,40 +1098,43 @@
     <ResourceCompile Include="..\OSF\mupdf\platform\gl\gl-winres.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BuildVC2017\freetype.vcxproj">
+    <ProjectReference Include="freetype.vcxproj">
       <Project>{d7c20ac1-2566-446f-b49a-598fe7a67094}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\BuildVC2017\harfbuzz.vcxproj">
+    <ProjectReference Include="harfbuzz.vcxproj">
       <Project>{be9c6ddf-e9c7-3ecb-9ff3-1fd8a3eb2410}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\BuildVC2017\jbig2dec.vcxproj">
+    <ProjectReference Include="jbig2dec.vcxproj">
       <Project>{d2064942-1272-448a-86e8-d3d18359cc55}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\BuildVC2017\lcms2.vcxproj">
+    <ProjectReference Include="lcms2.vcxproj">
       <Project>{71dede59-3f1e-486b-a899-4283000f76b5}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\BuildVC2017\libjpeg.vcxproj">
-      <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\BuildVC2017\libpng.vcxproj">
-      <Project>{04aa636d-9d3e-4e79-9c2e-b8d0470719da}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\BuildVC2017\openjp2.vcxproj">
-      <Project>{c756e07c-5895-39df-8310-7126f3c6fd84}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\BuildVC2017\slib.vcxproj">
-      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
     </ProjectReference>
     <ProjectReference Include="libfreeglut.vcxproj">
       <Project>{a1b75d29-9f5c-4a0f-b368-322a10477d0c}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="libjpeg.vcxproj">
+      <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
+    </ProjectReference>
     <ProjectReference Include="libmupdf.vcxproj">
       <Project>{5f615f91-dff8-4f05-bf48-6222b7d86519}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="libpng.vcxproj">
+      <Project>{04aa636d-9d3e-4e79-9c2e-b8d0470719da}</Project>
+    </ProjectReference>
     <ProjectReference Include="libthirdparty.vcxproj">
       <Project>{5edcf4fd-0291-4fb9-8d96-d58957ca5e3c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openjp2.vcxproj">
+      <Project>{c756e07c-5895-39df-8310-7126f3c6fd84}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ossl300-bioprinttest-static.vcxproj">
+      <Project>{1628a578-018a-4d3e-a81c-31b0871d429f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="slib.vcxproj">
+      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

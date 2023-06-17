@@ -408,7 +408,7 @@ static void pdf_dev_text_span(fz_context * ctx, pdf_device * pdev, fz_text_span 
 	gstate * gs = CURRENT_GSTATE(pdev);
 	fz_matrix trm, tm, tlm, inv_trm, inv_tm;
 	fz_matrix inv_tfs;
-	fz_point d;
+	SPoint2F d;
 	float adv;
 	int dx, dy;
 	int i;

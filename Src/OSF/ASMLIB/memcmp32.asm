@@ -35,10 +35,8 @@ global _memcmpAVX2                     ; AVX2 version
 global _memcmpAVX512F                  ; AVX512F version
 global _memcmpAVX512BW                 ; AVX512BW version
 
-
 ; Imported from instrset32.asm
 extern _InstructionSet                 ; Instruction set for CPU dispatcher
-
 
 SECTION .text  align=16
 

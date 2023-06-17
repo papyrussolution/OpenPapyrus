@@ -309,8 +309,8 @@ static void xps_draw_radial_gradient(fz_context * ctx, xps_document * doc, fz_ma
 	if(radius_y_att)
 		yrad = fz_atof(radius_y_att);
 
-	xrad = fz_max(0.01f, xrad);
-	yrad = fz_max(0.01f, yrad);
+	xrad = smax(0.01f, xrad);
+	yrad = smax(0.01f, yrad);
 
 	/* scale the ctm to make ellipses */
 	if(fz_abs(xrad) > FLT_EPSILON) {
@@ -325,14 +325,12 @@ static void xps_draw_radial_gradient(fz_context * ctx, xps_document * doc, fz_ma
 
 	r0 = 0;
 	r1 = xrad;
-
 	inv = fz_invert_matrix(ctm);
 	area = fz_transform_rect(area, inv);
-	ma = fz_maxi(ma, ceilf(hypotf(area.x0 - x0, area.y0 - y0) / xrad));
-	ma = fz_maxi(ma, ceilf(hypotf(area.x1 - x0, area.y0 - y0) / xrad));
-	ma = fz_maxi(ma, ceilf(hypotf(area.x0 - x0, area.y1 - y0) / xrad));
-	ma = fz_maxi(ma, ceilf(hypotf(area.x1 - x0, area.y1 - y0) / xrad));
-
+	ma = smax(ma, fceili(hypotf(area.x0 - x0, area.y0 - y0) / xrad));
+	ma = smax(ma, fceili(hypotf(area.x1 - x0, area.y0 - y0) / xrad));
+	ma = smax(ma, fceili(hypotf(area.x0 - x0, area.y1 - y0) / xrad));
+	ma = smax(ma, fceili(hypotf(area.x1 - x0, area.y1 - y0) / xrad));
 	if(spread == SPREAD_REPEAT) {
 		for(i = ma - 1; i >= 0; i--)
 			xps_draw_one_radial_gradient(ctx, doc, ctm, stops, count, 0, x0, y0, r0 + i * xrad, x1, y1, r1 + i * xrad);
@@ -362,34 +360,33 @@ static void xps_draw_linear_gradient(fz_context * ctx, xps_document * doc, fz_ma
 	float x0, y0, x1, y1;
 	int i, mi, ma;
 	float dx, dy, x, y, k;
-	fz_point p1, p2;
+	SPoint2F p1, p2;
 	fz_matrix inv;
 
 	char * start_point_att = fz_xml_att(root, "StartPoint");
 	char * end_point_att = fz_xml_att(root, "EndPoint");
-
 	x0 = y0 = 0;
 	x1 = y1 = 1;
-
 	if(start_point_att)
 		xps_parse_point(ctx, doc, start_point_att, &x0, &y0);
 	if(end_point_att)
 		xps_parse_point(ctx, doc, end_point_att, &x1, &y1);
-
-	p1.x = x0; p1.y = y0; p2.x = x1; p2.y = y1;
+	p1.x = x0; 
+	p1.y = y0; 
+	p2.x = x1; 
+	p2.y = y1;
 	inv = fz_invert_matrix(ctm);
 	area = fz_transform_rect(area, inv);
 	x = p2.x - p1.x; y = p2.y - p1.y;
 	k = ((area.x0 - p1.x) * x + (area.y0 - p1.y) * y) / (x * x + y * y);
 	mi = floorf(k); ma = ceilf(k);
 	k = ((area.x1 - p1.x) * x + (area.y0 - p1.y) * y) / (x * x + y * y);
-	mi = fz_mini(mi, floorf(k)); ma = fz_maxi(ma, ceilf(k));
+	mi = smin(mi, ffloori(k)); ma = smax(ma, fceili(k));
 	k = ((area.x0 - p1.x) * x + (area.y1 - p1.y) * y) / (x * x + y * y);
-	mi = fz_mini(mi, floorf(k)); ma = fz_maxi(ma, ceilf(k));
+	mi = smin(mi, ffloori(k)); ma = smax(ma, fceili(k));
 	k = ((area.x1 - p1.x) * x + (area.y1 - p1.y) * y) / (x * x + y * y);
-	mi = fz_mini(mi, floorf(k)); ma = fz_maxi(ma, ceilf(k));
+	mi = smin(mi, ffloori(k)); ma = smax(ma, fceili(k));
 	dx = x1 - x0; dy = y1 - y0;
-
 	if(spread == SPREAD_REPEAT) {
 		for(i = mi; i < ma; i++)
 			xps_draw_one_linear_gradient(ctx, doc, ctm, stops, count, 0, x0 + i * dx, y0 + i * dy, x1 + i * dx, y1 + i * dy);
@@ -399,16 +396,7 @@ static void xps_draw_linear_gradient(fz_context * ctx, xps_document * doc, fz_ma
 			mi--;
 		for(i = mi; i < ma; i += 2) {
 			xps_draw_one_linear_gradient(ctx, doc, ctm, stops, count, 0, x0 + i * dx, y0 + i * dy, x1 + i * dx, y1 + i * dy);
-			xps_draw_one_linear_gradient(ctx,
-			    doc,
-			    ctm,
-			    stops,
-			    count,
-			    0,
-			    x0 + (i + 2) * dx,
-			    y0 + (i + 2) * dy,
-			    x1 + i * dx,
-			    y1 + i * dy);
+			xps_draw_one_linear_gradient(ctx, doc, ctm, stops, count, 0, x0 + (i + 2) * dx, y0 + (i + 2) * dy, x1 + i * dx, y1 + i * dy);
 		}
 	}
 	else {
@@ -426,22 +414,17 @@ static void xps_parse_gradient_brush(fz_context * ctx, xps_document * doc, fz_ma
     void (*draw)(fz_context * ctx, xps_document *, fz_matrix, fz_rect, struct stop *, int, fz_xml *, int))
 {
 	fz_xml * node;
-
 	char * opacity_att;
 	char * spread_att;
 	char * transform_att;
-
 	fz_xml * transform_tag = NULL;
 	fz_xml * stop_tag = NULL;
-
 	struct stop stop_list[MAX_STOPS];
 	int stop_count;
 	int spread_method;
-
 	opacity_att = fz_xml_att(root, "Opacity");
 	spread_att = fz_xml_att(root, "SpreadMethod");
 	transform_att = fz_xml_att(root, "Transform");
-
 	for(node = fz_xml_down(root); node; node = fz_xml_next(node)) {
 		if(fz_xml_is_tag(node, "LinearGradientBrush.Transform"))
 			transform_tag = fz_xml_down(node);

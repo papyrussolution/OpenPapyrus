@@ -1243,24 +1243,20 @@ static void pdf_make_width_table(fz_context * ctx, pdf_font_desc * fontdesc)
 				n = gid;
 		}
 	}
-
 	font->width_count = n + 1;
 	font->width_table = Memento_label(fz_malloc_array(ctx, font->width_count, short), "font_widths");
 	fontdesc->size += font->width_count * sizeof(short);
-
 	font->width_default = fontdesc->dhmtx.w;
 	for(i = 0; i < font->width_count; i++)
 		font->width_table[i] = -1;
-
 	for(i = 0; i < fontdesc->hmtx_len; i++) {
 		for(k = fontdesc->hmtx[i].lo; k <= fontdesc->hmtx[i].hi; k++) {
 			cid = pdf_lookup_cmap(fontdesc->encoding, k);
 			gid = pdf_font_cid_to_gid(ctx, fontdesc, cid);
 			if(gid >= 0 && gid < font->width_count)
-				font->width_table[gid] = fz_maxi(fontdesc->hmtx[i].w, font->width_table[gid]);
+				font->width_table[gid] = smax(fontdesc->hmtx[i].w, static_cast<int>(font->width_table[gid]));
 		}
 	}
-
 	for(i = 0; i < font->width_count; i++)
 		if(font->width_table[i] == -1)
 			font->width_table[i] = font->width_default;

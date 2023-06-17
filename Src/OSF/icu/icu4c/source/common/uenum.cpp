@@ -73,14 +73,14 @@ U_CAPI int32_t U_EXPORT2 uenum_count(UEnumeration* en, UErrorCode * status)
 }
 
 /* Don't call this directly. Only uenum_unext should be calling this. */
-U_CAPI const UChar * U_EXPORT2 uenum_unextDefault(UEnumeration* en, int32_t* resultLength, UErrorCode * status)
+U_CAPI const char16_t * U_EXPORT2 uenum_unextDefault(UEnumeration* en, int32_t* resultLength, UErrorCode * status)
 {
-	UChar * ustr = NULL;
+	char16_t * ustr = NULL;
 	int32_t len = 0;
 	if(en->next) {
 		const char * cstr = en->next(en, &len, status);
 		if(cstr) {
-			ustr = (UChar *)_getBuffer(en, (len+1) * sizeof(UChar));
+			ustr = (char16_t *)_getBuffer(en, (len+1) * sizeof(char16_t));
 			if(!ustr)
 				*status = U_MEMORY_ALLOCATION_ERROR;
 			else
@@ -99,7 +99,7 @@ U_CAPI const char * U_EXPORT2 uenum_nextDefault(UEnumeration* en, int32_t* resul
 {
 	if(en->uNext) {
 		char * tempCharVal;
-		const UChar * tempUCharVal = en->uNext(en, resultLength, status);
+		const char16_t * tempUCharVal = en->uNext(en, resultLength, status);
 		if(tempUCharVal == NULL) {
 			return NULL;
 		}
@@ -117,7 +117,7 @@ U_CAPI const char * U_EXPORT2 uenum_nextDefault(UEnumeration* en, int32_t* resul
 	}
 }
 
-U_CAPI const UChar * U_EXPORT2 uenum_unext(UEnumeration* en, int32_t* resultLength, UErrorCode * status)
+U_CAPI const char16_t * U_EXPORT2 uenum_unext(UEnumeration* en, int32_t* resultLength, UErrorCode * status)
 {
 	if(!en || U_FAILURE(*status))
 		return NULL;

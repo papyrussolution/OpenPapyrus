@@ -26,7 +26,7 @@
 #if !UCONFIG_NO_TRANSLITERATION
 
 typedef struct {
-	UChar * buffer; /* Beginning of buffer */
+	char16_t * buffer; /* Beginning of buffer */
 	int32_t capacity; /* Capacity of buffer */
 	int32_t pos; /* Beginning of untranslitted data */
 	int32_t length; /* Length *from beginning of buffer* of untranslitted data */
@@ -36,9 +36,9 @@ typedef struct {
 #endif
 
 typedef struct u_localized_string {
-	UChar       * fPos; /* current pos in fUCBuffer */
-	const UChar * fLimit; /* data limit in fUCBuffer */
-	UChar       * fBuffer; /* Place to write the string */
+	char16_t       * fPos; /* current pos in fUCBuffer */
+	const char16_t * fLimit; /* data limit in fUCBuffer */
+	char16_t       * fBuffer; /* Place to write the string */
 #if !UCONFIG_NO_FORMATTING
 	ULocaleBundle fBundle; /* formatters */
 #endif
@@ -51,7 +51,7 @@ struct UFILE {
 	FILE        * fFile; /* the actual filesystem interface */
 	UConverter  * fConverter; /* for codeset conversion */
 	u_localized_string str; /* struct to handle strings for number formatting */
-	UChar fUCBuffer[UFILE_UCHARBUFFER_SIZE]; /* buffer used for toUnicode */
+	char16_t fUCBuffer[UFILE_UCHARBUFFER_SIZE]; /* buffer used for toUnicode */
 	bool fOwnFile; /* true if fFile should be closed */
 	int32_t fFileno; /* File number. Useful to determine if it's stdin. */
 };
@@ -59,7 +59,7 @@ struct UFILE {
 /**
  * Like u_file_write but takes a flush parameter
  */
-U_CFUNC int32_t U_EXPORT2 u_file_write_flush(const UChar * chars, int32_t count, UFILE * f, bool flushIO, bool flushTranslit);
+U_CFUNC int32_t U_EXPORT2 u_file_write_flush(const char16_t * chars, int32_t count, UFILE * f, bool flushIO, bool flushTranslit);
 /**
  * Fill a UFILE's buffer with converted codepage data.
  * @param f The UFILE containing the buffer to fill.
@@ -71,7 +71,7 @@ void ufile_fill_uchar_buffer(UFILE * f);
  * @param ch The read in character
  * @return true if the character is valid, or false when EOF has been detected
  */
-U_CFUNC bool U_EXPORT2 ufile_getch(UFILE * f, UChar * ch);
+U_CFUNC bool U_EXPORT2 ufile_getch(UFILE * f, char16_t * ch);
 /**
  * Get one character and detect whether the end of file has been reached.
  * @param f The UFILE containing the characters.

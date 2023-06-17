@@ -2669,7 +2669,7 @@ U_CAPI bool U_EXPORT2 u_hasBinaryProperty(UChar32 c, UProperty which);
  * @see u_getUnicodeVersion
  * @draft ICU 70
  */
-U_CAPI bool U_EXPORT2 u_stringHasBinaryProperty(const UChar * s, int32_t length, UProperty which);
+U_CAPI bool U_EXPORT2 u_stringHasBinaryProperty(const char16_t * s, int32_t length, UProperty which);
 
 #endif  // U_HIDE_DRAFT_API
 
@@ -4060,7 +4060,7 @@ U_CAPI void U_EXPORT2 u_getUnicodeVersion(UVersionInfo versionArray);
  *
  * @stable ICU 2.2
  */
-U_CAPI int32_t U_EXPORT2 u_getFC_NFKC_Closure(UChar32 c, UChar * dest, int32_t destCapacity, UErrorCode * pErrorCode);
+U_CAPI int32_t U_EXPORT2 u_getFC_NFKC_Closure(UChar32 c, char16_t * dest, int32_t destCapacity, UErrorCode * pErrorCode);
 
 #endif
 

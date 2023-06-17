@@ -37,12 +37,12 @@ static void U_CALLCONV _Latin1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pAr
 	int32_t sourceIndex;
 	/* set up the local pointers */
 	const uint8 * source = (const uint8 *)pArgs->source;
-	UChar * target = pArgs->target;
+	char16_t * target = pArgs->target;
 	int32_t targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 	offsets = pArgs->offsets;
 	sourceIndex = 0;
 	/*
-	 * since the conversion here is 1:1 UChar:uint8, we need only one counter
+	 * since the conversion here is 1:1 char16_t:uint8, we need only one counter
 	 * for the minimum of the sourceLength and targetCapacity
 	 */
 	length = (int32_t)((const uint8 *)pArgs->sourceLimit-source);
@@ -126,12 +126,12 @@ static void U_CALLCONV _Latin1FromUnicodeWithOffsets(UConverterFromUnicodeArgs *
 	int32_t targetCapacity, length;
 	int32_t * offsets;
 	UChar32 cp;
-	UChar c, max;
+	char16_t c, max;
 	int32_t sourceIndex;
 	/* set up the local pointers */
 	UConverter * cnv = pArgs->converter;
-	const UChar * source = pArgs->source;
-	const UChar * sourceLimit = pArgs->sourceLimit;
+	const char16_t * source = pArgs->source;
+	const char16_t * sourceLimit = pArgs->sourceLimit;
 	target = oldTarget = (uint8 *)pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 	offsets = pArgs->offsets;
@@ -149,7 +149,7 @@ static void U_CALLCONV _Latin1FromUnicodeWithOffsets(UConverterFromUnicodeArgs *
 	sourceIndex = cp==0 ? 0 : -1;
 
 	/*
-	 * since the conversion here is 1:1 UChar:uint8, we need only one counter
+	 * since the conversion here is 1:1 char16_t:uint8, we need only one counter
 	 * for the minimum of the sourceLength and targetCapacity
 	 */
 	length = (int32_t)(sourceLimit-source);
@@ -166,7 +166,7 @@ static void U_CALLCONV _Latin1FromUnicodeWithOffsets(UConverterFromUnicodeArgs *
 	/* unroll the loop with the most common case */
 	if(targetCapacity>=16) {
 		int32_t count, loops;
-		UChar u, oredChars;
+		char16_t u, oredChars;
 		loops = count = targetCapacity>>4;
 		do {
 			oredChars = u = *source++;
@@ -255,7 +255,7 @@ static void U_CALLCONV _Latin1FromUnicodeWithOffsets(UConverterFromUnicodeArgs *
 getTrail:
 			if(source<sourceLimit) {
 				/* test the following code unit */
-				UChar trail = *source;
+				char16_t trail = *source;
 				if(U16_IS_TRAIL(trail)) {
 					++source;
 					cp = U16_GET_SUPPLEMENTARY(cp, trail);
@@ -469,7 +469,7 @@ U_CDECL_BEGIN
 static void U_CALLCONV _ASCIIToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
 	const uint8 * source, * sourceLimit;
-	UChar * target, * oldTarget;
+	char16_t * target, * oldTarget;
 	int32_t targetCapacity, length;
 	int32_t * offsets;
 
@@ -488,7 +488,7 @@ static void U_CALLCONV _ASCIIToUnicodeWithOffsets(UConverterToUnicodeArgs * pArg
 	sourceIndex = 0;
 
 	/*
-	 * since the conversion here is 1:1 UChar:uint8, we need only one counter
+	 * since the conversion here is 1:1 char16_t:uint8, we need only one counter
 	 * for the minimum of the sourceLength and targetCapacity
 	 */
 	length = (int32_t)(sourceLimit-source);
@@ -499,7 +499,7 @@ static void U_CALLCONV _ASCIIToUnicodeWithOffsets(UConverterToUnicodeArgs * pArg
 	if(targetCapacity>=8) {
 		/* This loop is unrolled for speed and improved pipelining. */
 		int32_t count, loops;
-		UChar oredChars;
+		char16_t oredChars;
 
 		loops = count = targetCapacity>>3;
 		do {

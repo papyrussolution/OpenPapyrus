@@ -299,7 +299,7 @@ static int make_fake_doc(pdfapp_t * app)
 		int i;
 		pdf = pdf_create_document(ctx);
 		contents = fz_new_buffer(ctx, 100);
-		fz_append_printf(ctx, contents, "1 0 0 RG %g w 0 0 m %g %g l 0 %g m %g 0 l s\n", fz_min(mediabox.x1, mediabox.y1) / 20,
+		fz_append_printf(ctx, contents, "1 0 0 RG %g w 0 0 m %g %g l 0 %g m %g 0 l s\n", smin(mediabox.x1, mediabox.y1) / 20,
 		    mediabox.x1, mediabox.y1, mediabox.y1, mediabox.x1);
 		/* Create enough copies of our blank(ish) page so that the
 		 * page number is preserved if and when a subsequent load
@@ -1392,7 +1392,7 @@ void pdfapp_onkey(pdfapp_t * app, int c, int modifiers)
 	    {
 		    int number = 1;
 		    if(app->numberlen > 0)
-			    number = fz_maxi(atoi(app->number), number);
+			    number = smax(atoi(app->number), number);
 		    while(number--) {
 			    if(app->pany >= -app->imgh/20) {
 				    if(app->panx >= -app->imgw/20) {
@@ -1421,7 +1421,7 @@ void pdfapp_onkey(pdfapp_t * app, int c, int modifiers)
 	    {
 		    int number = 1;
 		    if(app->numberlen > 0)
-			    number = fz_maxi(atoi(app->number), number);
+			    number = smax(atoi(app->number), number);
 		    while(number--) {
 			    if(app->imgh + app->pany <= app->winh + app->imgh/20) {
 				    if(app->imgw + app->panx <= app->winw + app->imgw/20) {
@@ -1572,7 +1572,7 @@ void pdfapp_onmouse(pdfapp_t * app, int x, int y, int btn, int modifiers, int st
 	fz_irect irect = { 0, 0, static_cast<int>(app->layout_w), static_cast<int>(app->layout_h) };
 	fz_link * link;
 	fz_matrix ctm;
-	fz_point p;
+	SPoint2F p;
 	int processed = 0;
 	if(app->image)
 		irect = fz_pixmap_bbox(app->ctx, app->image);
@@ -1638,10 +1638,10 @@ void pdfapp_onmouse(pdfapp_t * app, int x, int y, int btn, int modifiers, int st
 	else if(state == -1) {
 		if(app->iscopying) {
 			app->iscopying = 0;
-			app->selr.x0 = fz_mini(app->selx, x) - app->panx + irect.x0;
-			app->selr.x1 = fz_maxi(app->selx, x) - app->panx + irect.x0;
-			app->selr.y0 = fz_mini(app->sely, y) - app->pany + irect.y0;
-			app->selr.y1 = fz_maxi(app->sely, y) - app->pany + irect.y0;
+			app->selr.x0 = smin(app->selx, x) - app->panx + irect.x0;
+			app->selr.x1 = smax(app->selx, x) - app->panx + irect.x0;
+			app->selr.y0 = smin(app->sely, y) - app->pany + irect.y0;
+			app->selr.y1 = smax(app->sely, y) - app->pany + irect.y0;
 			winrepaint(app);
 			if(app->selr.x0 < app->selr.x1 && app->selr.y0 < app->selr.y1)
 				windocopy(app);
@@ -1701,10 +1701,10 @@ void pdfapp_onmouse(pdfapp_t * app, int x, int y, int btn, int modifiers, int st
 		app->sely = y;
 	}
 	else if(app->iscopying) {
-		app->selr.x0 = fz_mini(app->selx, x) - app->panx + irect.x0;
-		app->selr.x1 = fz_maxi(app->selx, x) - app->panx + irect.x0;
-		app->selr.y0 = fz_mini(app->sely, y) - app->pany + irect.y0;
-		app->selr.y1 = fz_maxi(app->sely, y) - app->pany + irect.y0;
+		app->selr.x0 = smin(app->selx, x) - app->panx + irect.x0;
+		app->selr.x1 = smax(app->selx, x) - app->panx + irect.x0;
+		app->selr.y0 = smin(app->sely, y) - app->pany + irect.y0;
+		app->selr.y1 = smax(app->sely, y) - app->pany + irect.y0;
 		winrepaint(app);
 	}
 }

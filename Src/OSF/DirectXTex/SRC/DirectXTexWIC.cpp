@@ -81,19 +81,12 @@ constexpr WICConvert g_WICConvert[] = {
 //-------------------------------------------------------------------------------------
 // Returns the DXGI format and optionally the WIC pixel GUID to convert to
 //-------------------------------------------------------------------------------------
-DXGI_FORMAT DetermineFormat(_In_ const WICPixelFormatGUID& pixelFormat,
-    WIC_FLAGS flags,
-    bool iswic2,
-    _Out_opt_ WICPixelFormatGUID* pConvert,
-    _Out_ TEX_ALPHA_MODE* alphaMode) noexcept
+DXGI_FORMAT DetermineFormat(_In_ const WICPixelFormatGUID& pixelFormat, WIC_FLAGS flags,
+    bool iswic2, _Out_opt_ WICPixelFormatGUID* pConvert, _Out_ TEX_ALPHA_MODE* alphaMode) noexcept
 {
-	if(pConvert)
-		memset(pConvert, 0, sizeof(WICPixelFormatGUID));
-
+	memzero(pConvert, sizeof(WICPixelFormatGUID));
 	*alphaMode = TEX_ALPHA_MODE_UNKNOWN;
-
 	DXGI_FORMAT format = WICToDXGI(pixelFormat);
-
 	if(format == DXGI_FORMAT_UNKNOWN) {
 		if(memcmp(&GUID_WICPixelFormat96bppRGBFixedPoint, &pixelFormat, sizeof(WICPixelFormatGUID)) == 0) {
 	    #if (_WIN32_WINNT >= _WIN32_WINNT_WIN8) || defined(_WIN7_PLATFORM_UPDATE)
@@ -171,36 +164,24 @@ DXGI_FORMAT DetermineFormat(_In_ const WICPixelFormatGUID& pixelFormat,
 
 	return format;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // IStream over a Blob for WIC in-memory write functions
-//-------------------------------------------------------------------------------------
-class MemoryStreamOnBlob : public IStream
-{
-	MemoryStreamOnBlob(Blob& blob) noexcept :
-		mBlob(blob),
-		m_streamPosition(0),
-		m_streamEOF(0),
-		mRefCount(1)
+//
+class MemoryStreamOnBlob : public IStream {
+	MemoryStreamOnBlob(Blob& blob) noexcept : mBlob(blob), m_streamPosition(0), m_streamEOF(0), mRefCount(1)
 	{
 		assert(mBlob.GetBufferPointer() && mBlob.GetBufferSize() > 0);
 	}
-
 public:
 	virtual ~MemoryStreamOnBlob() = default;
-
 	MemoryStreamOnBlob(MemoryStreamOnBlob&&) = delete;
 	MemoryStreamOnBlob& operator=(MemoryStreamOnBlob&&) = delete;
-
 	MemoryStreamOnBlob(MemoryStreamOnBlob const&) = delete;
 	MemoryStreamOnBlob& operator=(MemoryStreamOnBlob const&) = delete;
-
 	// IUnknown
 	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void** ppvObject) override
 	{
-		if(iid == __uuidof(IUnknown)
-		    || iid == __uuidof(IStream)
-		    || iid == __uuidof(ISequentialStream)) {
+		if(iid == __uuidof(IUnknown) || iid == __uuidof(IStream) || iid == __uuidof(ISequentialStream)) {
 			*ppvObject = static_cast<IStream*>(this);
 			AddRef();
 			return S_OK;
@@ -208,12 +189,10 @@ public:
 		else
 			return E_NOINTERFACE;
 	}
-
 	ULONG STDMETHODCALLTYPE AddRef() override
 	{
 		return InterlockedIncrement(&mRefCount);
 	}
-
 	ULONG STDMETHODCALLTYPE Release() override
 	{
 		const ULONG res = InterlockedDecrement(&mRefCount);
@@ -306,15 +285,12 @@ public:
 	{
 		if(size.HighPart > 0)
 			return E_OUTOFMEMORY;
-
 		const size_t blobSize = mBlob.GetBufferSize();
-
 		if(blobSize >= size.LowPart) {
 			auto ptr = static_cast<uint8_t*>(mBlob.GetBufferPointer());
 			if(m_streamEOF < size.LowPart) {
-				memset(&ptr[m_streamEOF], 0, size.LowPart - m_streamEOF);
+				memzero(&ptr[m_streamEOF], size.LowPart - m_streamEOF);
 			}
-
 			m_streamEOF = static_cast<size_t>(size.LowPart);
 		}
 		else {
@@ -323,23 +299,19 @@ public:
 			HRESULT hr = ComputeGrowSize(newSize, targetSize);
 			if(FAILED(hr))
 				return hr;
-
 			hr = mBlob.Resize(static_cast<size_t>(newSize));
 			if(FAILED(hr))
 				return hr;
 
 			auto ptr = static_cast<uint8_t*>(mBlob.GetBufferPointer());
 			if(m_streamEOF < size.LowPart) {
-				memset(&ptr[m_streamEOF], 0, size.LowPart - m_streamEOF);
+				memzero(&ptr[m_streamEOF], size.LowPart - m_streamEOF);
 			}
-
 			m_streamEOF = static_cast<size_t>(size.LowPart);
 		}
-
 		if(m_streamPosition > m_streamEOF) {
 			m_streamPosition = m_streamEOF;
 		}
-
 		return S_OK;
 	}
 
@@ -485,7 +457,7 @@ HRESULT DecodeMetadata(WIC_FLAGS flags,
 	if(!decoder || !frame)
 		return E_POINTER;
 
-	memset(&metadata, 0, sizeof(TexMetadata));
+	memzero(&metadata, sizeof(TexMetadata));
 	metadata.depth = 1;
 	metadata.mipLevels = 1;
 	metadata.dimension = TEX_DIMENSION_TEXTURE2D;
@@ -1145,67 +1117,48 @@ _Use_decl_annotations_ HRESULT DirectX::GetMetadataFromWICMemory(const void* pSo
 
 	return S_OK;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Obtain metadata from WIC-supported file on disk
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::GetMetadataFromWICFile(const wchar_t* szFile,
-    WIC_FLAGS flags,
-    TexMetadata& metadata,
-    std::function<void(IWICMetadataQueryReader*)> getMQR)
+//
+_Use_decl_annotations_ HRESULT DirectX::GetMetadataFromWICFile(const wchar_t* szFile,
+    WIC_FLAGS flags, TexMetadata& metadata, std::function<void(IWICMetadataQueryReader*)> getMQR)
 {
 	if(!szFile)
 		return E_INVALIDARG;
-
 	bool iswic2 = false;
 	auto pWIC = GetWICFactory(iswic2);
 	if(!pWIC)
 		return E_NOINTERFACE;
-
 	// Initialize WIC
 	ComPtr<IWICBitmapDecoder> decoder;
 	HRESULT hr = pWIC->CreateDecoderFromFilename(szFile, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, decoder.GetAddressOf());
 	if(FAILED(hr))
 		return hr;
-
 	ComPtr<IWICBitmapFrameDecode> frame;
 	hr = decoder->GetFrame(0, frame.GetAddressOf());
 	if(FAILED(hr))
 		return hr;
-
 	// Get metadata
 	hr = DecodeMetadata(flags, iswic2, decoder.Get(), frame.Get(), metadata, nullptr, getMQR);
 	if(FAILED(hr))
 		return hr;
-
 	return S_OK;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Load a WIC-supported file in memory
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::LoadFromWICMemory(const void* pSource,
-    size_t size,
-    WIC_FLAGS flags,
-    TexMetadata* metadata,
-    ScratchImage& image,
-    std::function<void(IWICMetadataQueryReader*)> getMQR)
+//
+_Use_decl_annotations_ HRESULT DirectX::LoadFromWICMemory(const void* pSource, size_t size,
+    WIC_FLAGS flags, TexMetadata* metadata, ScratchImage& image, std::function<void(IWICMetadataQueryReader*)> getMQR)
 {
 	if(!pSource || size == 0)
 		return E_INVALIDARG;
-
 	if(size > UINT32_MAX)
 		return HRESULT_E_FILE_TOO_LARGE;
-
 	bool iswic2 = false;
 	auto pWIC = GetWICFactory(iswic2);
 	if(!pWIC)
 		return E_NOINTERFACE;
-
 	image.Release();
-
 	// Create input stream for memory
 	ComPtr<IWICStream> stream;
 	HRESULT hr = pWIC->CreateStream(stream.GetAddressOf());
@@ -1240,22 +1193,18 @@ HRESULT DirectX::LoadFromWICMemory(const void* pSource,
 	else {
 		hr = DecodeSingleFrame(flags, mdata, convertGUID, frame.Get(), image);
 	}
-
 	if(FAILED(hr)) {
 		image.Release();
 		return hr;
 	}
-
 	if(metadata)
 		memcpy(metadata, &mdata, sizeof(TexMetadata));
 	return S_OK;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Load a WIC-supported file from disk
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::LoadFromWICFile(const wchar_t* szFile, WIC_FLAGS flags,
+//
+_Use_decl_annotations_ HRESULT DirectX::LoadFromWICFile(const wchar_t* szFile, WIC_FLAGS flags,
     TexMetadata* metadata, ScratchImage& image, std::function<void(IWICMetadataQueryReader*)> getMQR)
 {
 	if(!szFile)
@@ -1296,12 +1245,10 @@ HRESULT DirectX::LoadFromWICFile(const wchar_t* szFile, WIC_FLAGS flags,
 		memcpy(metadata, &mdata, sizeof(TexMetadata));
 	return S_OK;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Save a WIC-supported file to memory
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::SaveToWICMemory(const Image& image,
+//
+_Use_decl_annotations_ HRESULT DirectX::SaveToWICMemory(const Image& image,
     WIC_FLAGS flags,
     REFGUID containerFormat,
     Blob& blob,
@@ -1327,20 +1274,16 @@ HRESULT DirectX::SaveToWICMemory(const Image& image,
 		blob.Release();
 		return hr;
 	}
-
 	hr = stream->Finialize();
 	if(FAILED(hr)) {
 		blob.Release();
 		return hr;
 	}
-
 	stream.Reset();
-
 	return S_OK;
 }
 
-_Use_decl_annotations_
-HRESULT DirectX::SaveToWICMemory(const Image* images,
+_Use_decl_annotations_ HRESULT DirectX::SaveToWICMemory(const Image* images,
     size_t nimages,
     WIC_FLAGS flags,
     REFGUID containerFormat,
@@ -1371,23 +1314,18 @@ HRESULT DirectX::SaveToWICMemory(const Image* images,
 		blob.Release();
 		return hr;
 	}
-
 	hr = stream->Finialize();
 	if(FAILED(hr)) {
 		blob.Release();
 		return hr;
 	}
-
 	stream.Reset();
-
 	return S_OK;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Save a WIC-supported file to disk
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::SaveToWICFile(const Image& image,
+//
+_Use_decl_annotations_ HRESULT DirectX::SaveToWICFile(const Image& image,
     WIC_FLAGS flags,
     REFGUID containerFormat,
     const wchar_t* szFile,
@@ -1424,8 +1362,7 @@ HRESULT DirectX::SaveToWICFile(const Image& image,
 	return S_OK;
 }
 
-_Use_decl_annotations_
-HRESULT DirectX::SaveToWICFile(const Image* images,
+_Use_decl_annotations_ HRESULT DirectX::SaveToWICFile(const Image* images,
     size_t nimages,
     WIC_FLAGS flags,
     REFGUID containerFormat,

@@ -1176,20 +1176,19 @@ int PPViewBill::EditBaseFilt(PPBaseFilt * pFilt)
 	return static_cast<PPBaseFilt *>(p_filt);
 }
 
-int PPViewBill::IsTempTblNeeded() const
+bool PPViewBill::IsTempTblNeeded() const
 {
-	if(State & stNoTempTbl) // @v10.9.0
-		return 0;
+	if(State & stNoTempTbl)
+		return false;
 	else if((Filt.P_SjF && !Filt.P_SjF->IsEmpty()) || (Filt.P_TagF && !Filt.P_TagF->IsEmpty()) || IdList.IsExists() ||
 		(Filt.PoolBillID && Filt.AssocID) || Filt.PayerID || Filt.AgentID ||
 		(Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments) ||
 		!Filt.PaymPeriod.IsZero() || Filt.SortOrder || Filt.Flags & BillFilt::fShowWoAgent || P_Arp || Filt.StatusID || Filt.GoodsGroupID ||
 		(Filt.Bbt == bbtOrderBills && Filt.OrderFulfillmentStatus > 0)) { // @v11.0.11 Filt.GoodsGroupID // @v11.1.8 OrderFulfillmentStatus
-		return 1;
+		return true;
 	}
-	else {
-		return 0;
-	}
+	else
+		return false;
 }
 
 int PPViewBill::GetOpList(const BillFilt * pFilt, PPIDArray * pList, PPID * pSingleOpID) const
@@ -1413,9 +1412,8 @@ int PPViewBill::Helper_CheckIDForFilt(uint flags, PPID id, const BillTbl::Rec * 
 			if(!memo.NotEmptyS() || !ExtStrSrch(memo, memo_pattern, 0))
 				return 0;
 		}
-		else {
+		else
 			assert(memo_pattern.IsEmpty());
-		}
 	}
 	// } @v11.7.4 
 	if(PPObjTag::CheckForTagFilt(PPOBJ_BILL, pRec->ID, Filt.P_TagF) <= 0)

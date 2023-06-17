@@ -112,7 +112,7 @@ static void fz_process_shade_type1(fz_context * ctx, fz_shade * shade, fz_matrix
 
 #define HUGENUM 32000 /* how far to extend linear/radial shadings */
 
-static fz_point fz_point_on_circle(fz_point p, float r, float theta)
+static SPoint2F fz_point_on_circle(SPoint2F p, float r, float theta)
 {
 	p.x = p.x + cosf(theta) * r;
 	p.y = p.y + sinf(theta) * r;
@@ -121,7 +121,7 @@ static fz_point fz_point_on_circle(fz_point p, float r, float theta)
 
 static void fz_process_shade_type2(fz_context * ctx, fz_shade * shade, fz_matrix ctm, fz_mesh_processor * painter, fz_rect scissor)
 {
-	fz_point p0, p1, dir;
+	SPoint2F p0, p1, dir;
 	fz_vertex v0, v1, v2, v3;
 	fz_vertex e0, e1;
 	float theta;
@@ -207,7 +207,7 @@ static void fz_process_shade_type2(fz_context * ctx, fz_shade * shade, fz_matrix
 	}
 }
 
-static void fz_paint_annulus(fz_context * ctx, fz_matrix ctm, fz_point p0, float r0, float c0, fz_point p1, float r1, float c1, int count, fz_mesh_processor * painter)
+static void fz_paint_annulus(fz_context * ctx, fz_matrix ctm, SPoint2F p0, float r0, float c0, SPoint2F p1, float r1, float c1, int count, fz_mesh_processor * painter)
 {
 	fz_vertex t0, t1, t2, t3, b0, b1, b2, b3;
 	float theta, step, a, b;
@@ -244,9 +244,9 @@ static void fz_paint_annulus(fz_context * ctx, fz_matrix ctm, fz_point p0, float
 
 static void fz_process_shade_type3(fz_context * ctx, fz_shade * shade, fz_matrix ctm, fz_mesh_processor * painter)
 {
-	fz_point p0, p1;
+	SPoint2F p0, p1;
 	float r0, r1;
-	fz_point e;
+	SPoint2F e;
 	float er, rs;
 	int count;
 
@@ -259,7 +259,7 @@ static void fz_process_shade_type3(fz_context * ctx, fz_shade * shade, fz_matrix
 	r1 = shade->u.l_or_r.coords[1][2];
 
 	/* number of segments for a half-circle */
-	count = 4 * sqrtf(fz_matrix_expansion(ctm) * fz_max(r0, r1));
+	count = 4 * sqrtf(fz_matrix_expansion(ctm) * smax(r0, r1));
 	if(count < 3)
 		count = 3;
 	if(count > 1024)
@@ -451,7 +451,7 @@ static void fz_process_shade_type5(fz_context * ctx, fz_shade * shade, fz_matrix
 /* Subdivide and tessellate tensor-patches */
 
 typedef struct {
-	fz_point pole[4][4];
+	SPoint2F pole[4][4];
 	float color[4][FZ_MAX_COLORS];
 } tensor_patch;
 
@@ -479,7 +479,7 @@ static inline void midcolor(float * c, float * c1, float * c2, int n)
 		c[i] = (c1[i] + c2[i]) * 0.5f;
 }
 
-static void split_curve(fz_point * pole, fz_point * q0, fz_point * q1, int polestep)
+static void split_curve(SPoint2F * pole, SPoint2F * q0, SPoint2F * q1, int polestep)
 {
 	/*
 	   split bezier curve given by control points pole[0]..pole[3]
@@ -600,10 +600,10 @@ static void draw_patch(fz_context * ctx, fz_mesh_processor * painter, tensor_pat
 	}
 }
 
-static fz_point compute_tensor_interior(fz_point a, fz_point b, fz_point c, fz_point d,
-    fz_point e, fz_point f, fz_point g, fz_point h)
+static SPoint2F compute_tensor_interior(SPoint2F a, SPoint2F b, SPoint2F c, SPoint2F d,
+    SPoint2F e, SPoint2F f, SPoint2F g, SPoint2F h)
 {
-	fz_point pt;
+	SPoint2F pt;
 
 	/* see equations at page 330 in pdf 1.7 */
 
@@ -624,7 +624,7 @@ static fz_point compute_tensor_interior(fz_point a, fz_point b, fz_point c, fz_p
 	return pt;
 }
 
-static void make_tensor_patch(tensor_patch * p, int type, fz_point * pt)
+static void make_tensor_patch(tensor_patch * p, int type, SPoint2F * pt)
 {
 	if(type == 6) {
 		/* see control point stream order at page 325 in pdf 1.7 */
@@ -689,7 +689,7 @@ static void fz_process_shade_type6(fz_context * ctx, fz_shade * shade, fz_matrix
 {
 	fz_stream * stream = fz_open_compressed_buffer(ctx, shade->buffer);
 	float color_storage[2][4][FZ_MAX_COLORS];
-	fz_point point_storage[2][12];
+	SPoint2F point_storage[2][12];
 	int store = 0;
 	int ncomp = painter->ncomp;
 	int i, k;
@@ -706,10 +706,10 @@ static void fz_process_shade_type6(fz_context * ctx, fz_shade * shade, fz_matrix
 	fz_try(ctx)
 	{
 		float (*prevc)[FZ_MAX_COLORS] = NULL;
-		fz_point * prevp = NULL;
+		SPoint2F * prevp = NULL;
 		while(!fz_is_eof_bits(ctx, stream)) {
 			float (*c)[FZ_MAX_COLORS] = color_storage[store];
-			fz_point * v = point_storage[store];
+			SPoint2F * v = point_storage[store];
 			int startcolor;
 			int startpt;
 			int flag;
@@ -802,18 +802,18 @@ static void fz_process_shade_type7(fz_context * ctx, fz_shade * shade, fz_matrix
 	const float * c0 = shade->u.m.c0;
 	const float * c1 = shade->u.m.c1;
 	float color_storage[2][4][FZ_MAX_COLORS];
-	fz_point point_storage[2][16];
+	SPoint2F point_storage[2][16];
 	int store = 0;
 	int ncomp = painter->ncomp;
 	int i, k;
 	float (*prevc)[FZ_MAX_COLORS] = NULL;
-	fz_point(*prevp) = NULL;
+	SPoint2F(*prevp) = NULL;
 
 	fz_try(ctx)
 	{
 		while(!fz_is_eof_bits(ctx, stream)) {
 			float (*c)[FZ_MAX_COLORS] = color_storage[store];
-			fz_point * v = point_storage[store];
+			SPoint2F * v = point_storage[store];
 			int startcolor;
 			int startpt;
 			int flag;
@@ -942,7 +942,7 @@ static fz_rect fz_bound_mesh_type2(fz_context * ctx, fz_shade * shade)
 static fz_rect fz_bound_mesh_type3(fz_context * ctx, fz_shade * shade)
 {
 	fz_rect bbox;
-	fz_point p0, p1;
+	SPoint2F p0, p1;
 	float r0, r1;
 
 	r0 = shade->u.l_or_r.coords[0][2];
@@ -979,10 +979,10 @@ static fz_rect fz_bound_mesh_type3(fz_context * ctx, fz_shade * shade)
 static fz_rect fz_bound_mesh_type4567(fz_context * ctx, fz_shade * shade)
 {
 	fz_rect bbox;
-	bbox.x0 = fz_min(shade->u.m.x0, shade->u.m.x1);
-	bbox.y0 = fz_min(shade->u.m.y0, shade->u.m.y1);
-	bbox.x1 = fz_max(shade->u.m.x0, shade->u.m.x1);
-	bbox.y1 = fz_max(shade->u.m.y0, shade->u.m.y1);
+	bbox.x0 = smin(shade->u.m.x0, shade->u.m.x1);
+	bbox.y0 = smin(shade->u.m.y0, shade->u.m.y1);
+	bbox.x1 = smax(shade->u.m.x0, shade->u.m.x1);
+	bbox.y1 = smax(shade->u.m.y0, shade->u.m.y1);
 	return bbox;
 }
 

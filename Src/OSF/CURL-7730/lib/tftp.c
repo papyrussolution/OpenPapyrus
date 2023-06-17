@@ -295,31 +295,24 @@ static ushort getrpacketblock(const struct tftp_packet * packet)
 	return (ushort)((packet->data[2] << 8) | packet->data[3]);
 }
 
-static size_t Curl_strnlen(const char * string, size_t maxlen)
+/* @sobolev (replaced with sstrnlen) static size_t Curl_strnlen(const char * string, size_t maxlen)
 {
 	const char * end = (const char *)memchr(string, '\0', maxlen);
 	return end ? (size_t)(end - string) : maxlen;
-}
+}*/
 
-static const char * tftp_option_get(const char * buf, size_t len,
-    const char ** option, const char ** value)
+static const char * tftp_option_get(const char * buf, size_t len, const char ** option, const char ** value)
 {
-	size_t loc;
-
-	loc = Curl_strnlen(buf, len);
+	size_t loc = sstrnlen(buf, len);
 	loc++; /* NULL term */
-
 	if(loc >= len)
 		return NULL;
 	*option = buf;
-
-	loc += Curl_strnlen(buf + loc, len-loc);
+	loc += sstrnlen(buf + loc, len-loc);
 	loc++; /* NULL term */
-
 	if(loc > len)
 		return NULL;
 	*value = &buf[strlen(*option) + 1];
-
 	return &buf[loc];
 }
 
@@ -1126,16 +1119,14 @@ static CURLcode tftp_receive_packet(struct connectdata * conn)
 			    char * str = (char *)state->rpacket.data + 4;
 			    size_t strn = state->rbytes - 4;
 			    state->error = (tftp_error_t)error;
-			    if(Curl_strnlen(str, strn) < strn)
+			    if(sstrnlen(str, strn) < strn)
 				    infof(data, "TFTP error: %s\n", str);
 			    break;
 		    }
 			case TFTP_EVENT_ACK:
 			    break;
 			case TFTP_EVENT_OACK:
-			    result = tftp_parse_option_ack(state,
-				    (const char *)state->rpacket.data + 2,
-				    state->rbytes-2);
+			    result = tftp_parse_option_ack(state, (const char *)state->rpacket.data + 2, state->rbytes-2);
 			    if(result)
 				    return result;
 			    break;

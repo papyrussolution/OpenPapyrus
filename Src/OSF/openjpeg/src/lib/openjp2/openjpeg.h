@@ -28,8 +28,11 @@
  */
 #ifndef OPENJPEG_H
 #define OPENJPEG_H
-
-#define OPJ_STATIC // @sobolev
+// @sobolev {
+#ifndef OPJ_STATIC
+	#define OPJ_STATIC 
+#endif
+// } @sobolev
 // 
 // Compiler directives
 // 

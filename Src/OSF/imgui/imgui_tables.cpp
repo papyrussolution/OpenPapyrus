@@ -2268,7 +2268,7 @@ void ImGui::TableMergeDrawChannels(ImGuiTable* table)
 	const int size_for_masks_bitarrays_one = (int)ImBitArrayGetStorageSizeInBytes(max_draw_channels);
 	g.TempBuffer.reserve(size_for_masks_bitarrays_one * 5);
 	memzero(g.TempBuffer.Data, size_for_masks_bitarrays_one * 5);
-	for(int n = 0; n < IM_ARRAYSIZE(merge_groups); n++)
+	for(int n = 0; n < SIZEOFARRAYi(merge_groups); n++)
 		merge_groups[n].ChannelsMask = (ImBitArrayPtr)(void*)(g.TempBuffer.Data + (size_for_masks_bitarrays_one * n));
 	ImBitArrayPtr remaining_mask = (ImBitArrayPtr)(void*)(g.TempBuffer.Data + (size_for_masks_bitarrays_one * 4));
 
@@ -2321,7 +2321,7 @@ void ImGui::TableMergeDrawChannels(ImGuiTable* table)
 	// [DEBUG] Display merge groups
 #if 0
 	if(g.IO.KeyShift)
-		for(int merge_group_n = 0; merge_group_n < IM_ARRAYSIZE(merge_groups); merge_group_n++) {
+		for(int merge_group_n = 0; merge_group_n < SIZEOFARRAYi(merge_groups); merge_group_n++) {
 			MergeGroup* merge_group = &merge_groups[merge_group_n];
 			if(merge_group->ChannelsCount == 0)
 				continue;
@@ -2347,7 +2347,7 @@ void ImGui::TableMergeDrawChannels(ImGuiTable* table)
 		int remaining_count = splitter->_Count - (has_freeze_v ? LEADING_DRAW_CHANNELS + 1 : LEADING_DRAW_CHANNELS);
 		//ImRect host_rect = (table->InnerWindow == table->OuterWindow) ? table->InnerClipRect : table->HostClipRect;
 		ImRect host_rect = table->HostClipRect;
-		for(int merge_group_n = 0; merge_group_n < IM_ARRAYSIZE(merge_groups); merge_group_n++) {
+		for(int merge_group_n = 0; merge_group_n < SIZEOFARRAYi(merge_groups); merge_group_n++) {
 			if(int merge_channels_count = merge_groups[merge_group_n].ChannelsCount) {
 				MergeGroup* merge_group = &merge_groups[merge_group_n];
 				ImRect merge_clip_rect = merge_group->ClipRect;
@@ -2781,7 +2781,7 @@ void ImGui::TableHeader(const char* label)
 	if((table->Flags & ImGuiTableFlags_Sortable) && !(column->Flags & ImGuiTableColumnFlags_NoSort)) {
 		w_arrow = ImFloor(g.FontSize * ARROW_SCALE + g.Style.FramePadding.x);
 		if(column->SortOrder > 0) {
-			ImFormatString(sort_order_suf, IM_ARRAYSIZE(sort_order_suf), "%d", column->SortOrder + 1);
+			ImFormatString(sort_order_suf, SIZEOFARRAYi(sort_order_suf), "%d", column->SortOrder + 1);
 			w_sort_text = g.Style.ItemInnerSpacing.x + CalcTextSize(sort_order_suf).x;
 		}
 	}
@@ -3403,7 +3403,7 @@ void ImGui::DebugNodeTable(ImGuiTable* table)
 {
 	char buf[512];
 	char* p = buf;
-	const char* buf_end = buf + IM_ARRAYSIZE(buf);
+	const char* buf_end = buf + SIZEOFARRAYi(buf);
 	const bool is_active = (table->LastFrameActive >= ImGui::GetFrameCount() - 2); // Note that fully clipped early out scrolling tables will appear as inactive here.
 	ImFormatString(p, buf_end - p, "Table 0x%08X (%d columns, in '%s')%s", table->ID, table->ColumnsCount, table->OuterWindow->Name, is_active ? "" : " *Inactive*");
 	if(!is_active) {
@@ -3445,7 +3445,7 @@ void ImGui::DebugNodeTable(ImGuiTable* table)
 		ImGuiTableColumn* column = &table->Columns[n];
 		const char* name = TableGetColumnName(table, n);
 		ImFormatString(buf,
-		    IM_ARRAYSIZE(buf),
+		    SIZEOFARRAYi(buf),
 		    "Column %d order %d '%s': offset %+.2f to %+.2f%s\n"
 		    "Enabled: %d, VisibleX/Y: %d/%d, RequestOutput: %d, SkipItems: %d, DrawChannels: %d,%d\n"
 		    "WidthGiven: %.1f, Request/Auto: %.1f/%.1f, StretchWeight: %.3f (%.1f%%)\n"

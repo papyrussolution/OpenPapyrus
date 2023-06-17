@@ -47,7 +47,7 @@ public:
 	void setType(ERuleType ruleType) { baseValue = (int32_t)ruleType; }
 	int64_t getBaseValue() const { return baseValue; }
 	void setBaseValue(int64_t value, UErrorCode & status);
-	UChar getDecimalPoint() const { return decimalPoint; }
+	char16_t getDecimalPoint() const { return decimalPoint; }
 	int64_t getDivisor() const;
 	void doFormat(int64_t number, UnicodeString & toAppendTo, int32_t pos, int32_t recursionCount, UErrorCode & status) const;
 	void doFormat(double number, UnicodeString & toAppendTo, int32_t pos, int32_t recursionCount, UErrorCode & status) const;
@@ -74,7 +74,7 @@ private:
 	int64_t baseValue;
 	int32_t radix;
 	int16 exponent;
-	UChar decimalPoint;
+	char16_t decimalPoint;
 	UnicodeString fRuleText;
 	NFSubstitution* sub1;
 	NFSubstitution* sub2;

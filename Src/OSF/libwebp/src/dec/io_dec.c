@@ -326,7 +326,7 @@ static int InitYUVRescaler(const VP8Io* const io, WebPDecParams* const p) {
 	work = (rescaler_t*)p->memory;
 
 	scalers = (WebPRescaler*)WEBP_ALIGN(
-		(const uint8*)work + total_size - rescaler_size);
+		(const uint8 *)work + total_size - rescaler_size);
 	p->scaler_y = &scalers[0];
 	p->scaler_u = &scalers[1];
 	p->scaler_v = &scalers[2];
@@ -519,7 +519,7 @@ static int InitRGBRescaler(const VP8Io* const io, WebPDecParams* const p) {
 	tmp = (uint8*)(work + tmp_size1);
 
 	scalers = (WebPRescaler*)WEBP_ALIGN(
-		(const uint8*)work + total_size - rescaler_size);
+		(const uint8 *)work + total_size - rescaler_size);
 	p->scaler_y = &scalers[0];
 	p->scaler_u = &scalers[1];
 	p->scaler_v = &scalers[2];

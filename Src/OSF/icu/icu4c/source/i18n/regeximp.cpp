@@ -60,7 +60,7 @@ bool CaseFoldingUTextIterator::inExpansion() {
 	return fFoldChars != NULL;
 }
 
-CaseFoldingUCharIterator::CaseFoldingUCharIterator(const UChar * chars, int64_t start, int64_t limit) :
+CaseFoldingUCharIterator::CaseFoldingUCharIterator(const char16_t * chars, int64_t start, int64_t limit) :
 	fChars(chars), fIndex(start), fLimit(limit), fFoldChars(NULL), fFoldLength(0) {
 }
 

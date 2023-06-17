@@ -252,7 +252,7 @@ enum {
 };
 
 typedef struct {
-	char * suffix;
+	const char * suffix;
 	int format;
 	int cs;
 } suffix_t;
@@ -468,8 +468,8 @@ static struct {
 	int min, max;
 	int mininterp, maxinterp;
 	int minpage, maxpage;
-	char * minfilename;
-	char * maxfilename;
+	const char * minfilename;
+	const char * maxfilename;
 } timing;
 
 #define stringify(A) #A
@@ -596,7 +596,7 @@ static int dodrawpage(fz_context * ctx, int pagenum, fz_cookie * cookie, render_
 		DEBUG_THREADS(("Using %d Bands\n", bands));
 		ctm.f += start_offset;
 		if(render->num_workers > 0) {
-			for(band = 0; band < fz_mini(render->num_workers, bands); band++) {
+			for(band = 0; band < smin(render->num_workers, bands); band++) {
 				int band_start = start_offset + band * band_height;
 				worker_t * w = &workers[band];
 				w->band_start = band_start;
@@ -680,7 +680,7 @@ static int dodrawpage(fz_context * ctx, int pagenum, fz_cookie * cookie, render_
 		bit = NULL;
 		if(render->num_workers > 0) {
 			int band;
-			for(band = 0; band < fz_mini(render->num_workers, bands); band++) {
+			for(band = 0; band < smin(render->num_workers, bands); band++) {
 				worker_t * w = &workers[band];
 				w->cookie.abort = 1;
 				if(w->started) {
@@ -865,8 +865,8 @@ static void get_page_render_details(fz_context * ctx, fz_page * page, render_det
 			float sx_90 = height / page_width;
 			float sy_90 = width / page_height;
 			float s_0, s_90;
-			s_0 = fz_min(sx_0, sy_0);
-			s_90 = fz_min(sx_90, sy_90);
+			s_0 = smin(sx_0, sy_0);
+			s_90 = smin(sx_90, sy_90);
 			if(s_0 >= s_90) {
 				rot = 0;
 				if(s_0 < 1) {
@@ -1334,9 +1334,9 @@ static void read_resolution(const char * arg)
 		sep = strchr(arg, ':');
 	if(sep == NULL)
 		sep = strchr(arg, ';');
-	x_resolution = fz_atoi(arg);
+	x_resolution = satoi(arg);
 	if(sep && sep[1])
-		y_resolution = fz_atoi(arg);
+		y_resolution = satoi(arg);
 	else
 		y_resolution = x_resolution;
 }
@@ -1347,7 +1347,7 @@ static int read_rotation(const char * arg)
 	if(strcmp(arg, "auto")) {
 		return -1;
 	}
-	i = fz_atoi(arg);
+	i = satoi(arg);
 	i = i % 360;
 	if(i % 90 != 0) {
 		slfprintf_stderr("Ignoring invalid rotation\n");
@@ -1358,7 +1358,7 @@ static int read_rotation(const char * arg)
 
 int main(int argc, char ** argv)
 {
-	char * password = "";
+	const char * password = "";
 	fz_document * doc = NULL;
 	int c;
 	fz_context * ctx;

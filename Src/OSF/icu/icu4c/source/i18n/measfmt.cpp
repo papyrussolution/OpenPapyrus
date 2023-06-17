@@ -166,7 +166,7 @@ static bool getString(const UResourceBundle * resource,
     UnicodeString & result,
     UErrorCode & status) {
 	int32_t len = 0;
-	const UChar * resStr = ures_getString(resource, &len, &status);
+	const char16_t * resStr = ures_getString(resource, &len, &status);
 	if(U_FAILURE(status)) {
 		return FALSE;
 	}
@@ -196,7 +196,7 @@ static UnicodeString loadNumericDateFormatterPattern(const UResourceBundle * res
 	getString(patternBundle.getAlias(), result, status);
 	// Replace 'h' with 'H'
 	int32_t len = result.length();
-	UChar * buffer = result.getBuffer(len);
+	char16_t * buffer = result.getBuffer(len);
 	for(int32_t i = 0; i < len; ++i) {
 		if(buffer[i] == 0x68) { // 'h'
 			buffer[i] = 0x48; // 'H'
@@ -608,7 +608,7 @@ UnicodeString & MeasureFormat::formatMeasure(const Measure &measure, const Numbe
 	const Formattable& amtNumber = measure.getNumber();
 	const MeasureUnit& amtUnit = measure.getUnit();
 	if(isCurrency(amtUnit)) {
-		UChar isoCode[4];
+		char16_t isoCode[4];
 		u_charsToUChars(amtUnit.getSubtype(), isoCode, 4);
 		return cache->getCurrencyFormat(fWidth)->format(new CurrencyAmount(amtNumber, isoCode, status), appendTo, pos, status);
 	}

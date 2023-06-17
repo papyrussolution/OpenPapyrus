@@ -358,6 +358,7 @@ static void DefaultLogErrorHandlerFunction(FILE * fOut, cmsContext ContextID, ui
 {
 	// slfprintf_stderr("[lcms]: %s\n", Text);
 	// fflush(stderr);
+	CXX_UNUSED(fOut); // @v11.7.6
 	CXX_UNUSED(ContextID);
 	CXX_UNUSED(ErrorCode);
 	CXX_UNUSED(Text);

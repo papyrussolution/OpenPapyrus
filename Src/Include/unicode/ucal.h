@@ -41,9 +41,9 @@
  * <pre>
  * \code
  * UCalendar *caldef;
- * UChar *tzId;
+ * char16_t *tzId;
  * UErrorCode status;
- * tzId=(UChar *)malloc(sizeof(UChar) * (strlen("PST") +1));
+ * tzId=(char16_t *)malloc(sizeof(char16_t) * (strlen("PST") +1));
  * u_uastrcpy(tzId, "PST");
  * caldef=ucal_open(tzID, u_strlen(tzID), NULL, UCAL_TRADITIONAL, &status);
  * \endcode
@@ -630,7 +630,7 @@ U_CAPI UEnumeration* U_EXPORT2 ucal_openCountryTimeZones(const char * country, U
  *
  * @stable ICU 2.6
  */
-U_CAPI int32_t U_EXPORT2 ucal_getDefaultTimeZone(UChar* result, int32_t resultCapacity, UErrorCode* ec);
+U_CAPI int32_t U_EXPORT2 ucal_getDefaultTimeZone(char16_t* result, int32_t resultCapacity, UErrorCode* ec);
 
 /**
  * Set the default time zone.
@@ -641,7 +641,7 @@ U_CAPI int32_t U_EXPORT2 ucal_getDefaultTimeZone(UChar* result, int32_t resultCa
  *
  * @stable ICU 2.6
  */
-U_CAPI void U_EXPORT2 ucal_setDefaultTimeZone(const UChar* zoneID, UErrorCode* ec);
+U_CAPI void U_EXPORT2 ucal_setDefaultTimeZone(const char16_t* zoneID, UErrorCode* ec);
 
 /**
  * Return the current host time zone. The host time zone is detected from
@@ -672,7 +672,7 @@ U_CAPI void U_EXPORT2 ucal_setDefaultTimeZone(const UChar* zoneID, UErrorCode* e
  *
  * @stable ICU 65
  */
-U_CAPI int32_t U_EXPORT2 ucal_getHostTimeZone(UChar * result, int32_t resultCapacity, UErrorCode * ec);
+U_CAPI int32_t U_EXPORT2 ucal_getHostTimeZone(char16_t * result, int32_t resultCapacity, UErrorCode * ec);
 
 /**
  * Return the amount of time in milliseconds that the clock is
@@ -690,7 +690,7 @@ U_CAPI int32_t U_EXPORT2 ucal_getHostTimeZone(UChar * result, int32_t resultCapa
  *
  * @stable ICU 2.6
  */
-U_CAPI int32_t U_EXPORT2 ucal_getDSTSavings(const UChar* zoneID, UErrorCode* ec);
+U_CAPI int32_t U_EXPORT2 ucal_getDSTSavings(const char16_t* zoneID, UErrorCode* ec);
 
 /**
  * Get the current date and time.
@@ -723,7 +723,7 @@ U_CAPI UDate U_EXPORT2 ucal_getNow(void);
  * @see #UCAL_UNKNOWN_ZONE_ID
  * @stable ICU 2.0
  */
-U_CAPI UCalendar* U_EXPORT2 ucal_open(const UChar*   zoneID,
+U_CAPI UCalendar* U_EXPORT2 ucal_open(const char16_t*   zoneID,
     int32_t len,
     const char *    locale,
     UCalendarType type,
@@ -777,7 +777,7 @@ U_CAPI UCalendar* U_EXPORT2 ucal_clone(const UCalendar* cal,
  * @stable ICU 2.0
  */
 U_CAPI void U_EXPORT2 ucal_setTimeZone(UCalendar*    cal,
-    const UChar*  zoneID,
+    const char16_t*  zoneID,
     int32_t len,
     UErrorCode*   status);
 
@@ -792,7 +792,7 @@ U_CAPI void U_EXPORT2 ucal_setTimeZone(UCalendar*    cal,
  * @stable ICU 51
  */
 U_CAPI int32_t U_EXPORT2 ucal_getTimeZoneID(const UCalendar * cal,
-    UChar * result,
+    char16_t * result,
     int32_t resultLength,
     UErrorCode * status);
 
@@ -830,7 +830,7 @@ typedef enum UCalendarDisplayNameType UCalendarDisplayNameType;
 U_CAPI int32_t U_EXPORT2 ucal_getTimeZoneDisplayName(const UCalendar*          cal,
     UCalendarDisplayNameType type,
     const char *               locale,
-    UChar*                    result,
+    char16_t*                    result,
     int32_t resultLength,
     UErrorCode*               status);
 
@@ -1308,8 +1308,8 @@ U_CAPI const char * U_EXPORT2 ucal_getTZDataVersion(UErrorCode* status);
  *                  null.
  * @stable ICU 4.0
  */
-U_CAPI int32_t U_EXPORT2 ucal_getCanonicalTimeZoneID(const UChar* id, int32_t len,
-    UChar* result, int32_t resultCapacity, bool * isSystemID, UErrorCode* status);
+U_CAPI int32_t U_EXPORT2 ucal_getCanonicalTimeZoneID(const char16_t* id, int32_t len,
+    char16_t* result, int32_t resultCapacity, bool * isSystemID, UErrorCode* status);
 /**
  * Get the resource keyword value string designating the calendar type for the UCalendar.
  * @param cal The UCalendar to query.
@@ -1524,8 +1524,8 @@ U_CAPI bool U_EXPORT2 ucal_getTimeZoneTransitionDate(const UCalendar* cal, UTime
  *
  * @stable ICU 52
  */
-U_CAPI int32_t U_EXPORT2 ucal_getWindowsTimeZoneID(const UChar* id, int32_t len,
-    UChar* winid, int32_t winidCapacity, UErrorCode* status);
+U_CAPI int32_t U_EXPORT2 ucal_getWindowsTimeZoneID(const char16_t* id, int32_t len,
+    char16_t* winid, int32_t winidCapacity, UErrorCode* status);
 
 /**
  * Converts a Windows time zone ID to an equivalent system time zone ID
@@ -1556,8 +1556,8 @@ U_CAPI int32_t U_EXPORT2 ucal_getWindowsTimeZoneID(const UChar* id, int32_t len,
  *
  * @stable ICU 52
  */
-U_CAPI int32_t U_EXPORT2 ucal_getTimeZoneIDForWindowsID(const UChar* winid, int32_t len, const char * region,
-    UChar* id, int32_t idCapacity, UErrorCode* status);
+U_CAPI int32_t U_EXPORT2 ucal_getTimeZoneIDForWindowsID(const char16_t* winid, int32_t len, const char * region,
+    char16_t* id, int32_t idCapacity, UErrorCode* status);
 
 #ifndef U_FORCE_HIDE_DRAFT_API
 /**

@@ -63,7 +63,7 @@ typedef struct
 
 	Never throws exceptions.
 */
-size_t fz_compressed_buffer_size(fz_compressed_buffer *buffer);
+size_t fz_compressed_buffer_size(const fz_compressed_buffer * buffer);
 
 /**
 	Open a stream to read the decompressed version of a buffer.

@@ -16,23 +16,23 @@
 
 #if U_HAVE_RBNF
 
-static const UChar gLessThan = 0x003c;
-static const UChar gEquals = 0x003d;
-static const UChar gGreaterThan = 0x003e;
-static const UChar gPercent = 0x0025;
-static const UChar gPound = 0x0023;
-static const UChar gZero = 0x0030;
-static const UChar gSpace = 0x0020;
+static const char16_t gLessThan = 0x003c;
+static const char16_t gEquals = 0x003d;
+static const char16_t gGreaterThan = 0x003e;
+static const char16_t gPercent = 0x0025;
+static const char16_t gPound = 0x0023;
+static const char16_t gZero = 0x0030;
+static const char16_t gSpace = 0x0020;
 
-static const UChar gEqualsEquals[] =
+static const char16_t gEqualsEquals[] =
 {
 	0x3D, 0x3D, 0
 }; /* "==" */
-static const UChar gGreaterGreaterGreaterThan[] =
+static const char16_t gGreaterGreaterGreaterThan[] =
 {
 	0x3E, 0x3E, 0x3E, 0
 }; /* ">>>" */
-static const UChar gGreaterGreaterThan[] =
+static const char16_t gGreaterGreaterThan[] =
 {
 	0x3E, 0x3E, 0
 }; /* ">>" */
@@ -49,7 +49,7 @@ public:
 	virtual double transformNumber(double number) const override { return number; }
 	virtual double composeRuleValue(double newRuleValue, double /*oldRuleValue*/) const override { return newRuleValue; }
 	virtual double calcUpperBound(double oldUpperBound) const override { return oldUpperBound; }
-	virtual UChar tokenChar() const override { return (UChar)0x003d; } // '='
+	virtual char16_t tokenChar() const override { return (char16_t)0x003d; } // '='
 public:
 	static UClassID getStaticClassID();
 	virtual UClassID getDynamicClassID() const override;
@@ -95,7 +95,7 @@ public:
 	{
 		return static_cast<double>(divisor);
 	}
-	virtual UChar tokenChar() const override { return (UChar)0x003c; } // '<'
+	virtual char16_t tokenChar() const override { return (char16_t)0x003c; } // '<'
 public:
 	static UClassID getStaticClassID();
 	virtual UClassID getDynamicClassID() const override;
@@ -138,7 +138,7 @@ public:
 	}
 	virtual double calcUpperBound(double /*oldUpperBound*/) const override { return static_cast<double>(divisor); }
 	virtual bool isModulusSubstitution() const override { return true; }
-	virtual UChar tokenChar() const override { return (UChar)0x003e; } // '>'
+	virtual char16_t tokenChar() const override { return (char16_t)0x003e; } // '>'
 	virtual void toString(UnicodeString & result) const override;
 
 public:
@@ -160,7 +160,7 @@ public:
 	virtual double transformNumber(double number) const override { return uprv_floor(number); }
 	virtual double composeRuleValue(double newRuleValue, double oldRuleValue) const override { return newRuleValue + oldRuleValue; }
 	virtual double calcUpperBound(double /*oldUpperBound*/) const override { return DBL_MAX; }
-	virtual UChar tokenChar() const override { return (UChar)0x003c; } // '<'
+	virtual char16_t tokenChar() const override { return (char16_t)0x003c; } // '<'
 public:
 	static UClassID getStaticClassID();
 	virtual UClassID getDynamicClassID() const override;
@@ -216,8 +216,8 @@ public:
 		return 0.0;
 	}
 
-	virtual UChar tokenChar() const override {
-		return (UChar)0x003e;
+	virtual char16_t tokenChar() const override {
+		return (char16_t)0x003e;
 	}                                                              // '>'
 
 public:
@@ -255,8 +255,8 @@ public:
 		return DBL_MAX;
 	}
 
-	virtual UChar tokenChar() const override {
-		return (UChar)0x003e;
+	virtual char16_t tokenChar() const override {
+		return (char16_t)0x003e;
 	}                                                              // '>'
 
 public:
@@ -307,9 +307,9 @@ public:
 		return newRuleValue / oldRuleValue;
 	}
 	virtual double calcUpperBound(double /*oldUpperBound*/) const override { return denominator; }
-	virtual UChar tokenChar() const override { return (UChar)0x003c; } // '<'
+	virtual char16_t tokenChar() const override { return (char16_t)0x003c; } // '<'
 private:
-	static const UChar LTLT[2];
+	static const char16_t LTLT[2];
 
 public:
 	static UClassID getStaticClassID();
@@ -1281,7 +1281,7 @@ bool NumeratorSubstitution::operator == (const NFSubstitution &rhs) const
 
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(NumeratorSubstitution)
 
-const UChar NumeratorSubstitution::LTLT[] = { 0x003c, 0x003c };
+const char16_t NumeratorSubstitution::LTLT[] = { 0x003c, 0x003c };
 
 U_NAMESPACE_END
 

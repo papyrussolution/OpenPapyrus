@@ -129,7 +129,7 @@ bool CollationFastLatinBuilder::loadGroups(const CollationData & data, UErrorCod
 	}
 	headerLength = 1 + NUM_SPECIAL_GROUPS;
 	uint32_t r0 = (CollationFastLatin::VERSION << 8) | headerLength;
-	result.append((UChar)r0);
+	result.append((char16_t)r0);
 	// The first few reordering groups should be special groups
 	// (space, punct, ..., digit) followed by Latn, then Grek and other scripts.
 	for(int32_t i = 0; i < NUM_SPECIAL_GROUPS; ++i) {
@@ -138,7 +138,7 @@ bool CollationFastLatinBuilder::loadGroups(const CollationData & data, UErrorCod
 			// missing data
 			return FALSE;
 		}
-		result.append((UChar)0); // reserve a slot for this group
+		result.append((char16_t)0); // reserve a slot for this group
 	}
 
 	firstDigitPrimary = data.getFirstPrimaryForGroup(UCOL_REORDER_CODE_DIGIT);
@@ -196,7 +196,7 @@ void CollationFastLatinBuilder::getCEs(const CollationData & data, UErrorCode & 
 		return;
 	}
 	int32_t i = 0;
-	for(UChar c = 0;; ++i, ++c) {
+	for(char16_t c = 0;; ++i, ++c) {
 		if(c == CollationFastLatin::LATIN_LIMIT) {
 			c = CollationFastLatin::PUNCT_START;
 		}
@@ -361,7 +361,7 @@ bool CollationFastLatinBuilder::getCEsFromContractionCE32(const CollationData & 
 	if(U_FAILURE(errorCode)) {
 		return FALSE;
 	}
-	const UChar * p = data.contexts + Collation::indexFromCE32(ce32);
+	const char16_t * p = data.contexts + Collation::indexFromCE32(ce32);
 	ce32 = CollationData::readCE32(p); // Default if no suffix match.
 	// Since the original ce32 is not a prefix mapping,
 	// the default ce32 must not be another contraction.
@@ -481,7 +481,7 @@ bool CollationFastLatinBuilder::encodeUniqueCEs(UErrorCode & errorCode) {
 				U_ASSERT(pri <= CollationFastLatin::MAX_LONG);
 				// Set the group's header entry to the
 				// last "long primary" in or before the group.
-				result.setCharAt(1 + group, (UChar)pri);
+				result.setCharAt(1 + group, (char16_t)pri);
 				if(++group < NUM_SPECIAL_GROUPS) {
 					lastGroupPrimary = lastSpecialPrimaries[group];
 				}
@@ -611,7 +611,7 @@ bool CollationFastLatinBuilder::encodeCharCEs(UErrorCode & errorCode) {
 	}
 	int32_t miniCEsStart = result.length();
 	for(int32_t i = 0; i < CollationFastLatin::NUM_FAST_CHARS; ++i) {
-		result.append((UChar)0); // initialize to completely ignorable
+		result.append((char16_t)0); // initialize to completely ignorable
 	}
 	int32_t indexBase = result.length();
 	for(int32_t i = 0; i < CollationFastLatin::NUM_FAST_CHARS; ++i) {
@@ -629,11 +629,11 @@ bool CollationFastLatinBuilder::encodeCharCEs(UErrorCode & errorCode) {
 				miniCE = CollationFastLatin::BAIL_OUT;
 			}
 			else {
-				result.append((UChar)(miniCE >> 16)).append((UChar)miniCE);
+				result.append((char16_t)(miniCE >> 16)).append((char16_t)miniCE);
 				miniCE = CollationFastLatin::EXPANSION | expansionIndex;
 			}
 		}
-		result.setCharAt(miniCEsStart + i, (UChar)miniCE);
+		result.setCharAt(miniCEsStart + i, (char16_t)miniCE);
 	}
 	return U_SUCCESS(errorCode);
 }
@@ -666,15 +666,15 @@ bool CollationFastLatinBuilder::encodeContractions(UErrorCode & errorCode) {
 			int64_t cce1 = contractionCEs.elementAti(index + 2);
 			uint32_t miniCE = encodeTwoCEs(cce0, cce1);
 			if(miniCE == CollationFastLatin::BAIL_OUT) {
-				result.append((UChar)(x | (1 << CollationFastLatin::CONTR_LENGTH_SHIFT)));
+				result.append((char16_t)(x | (1 << CollationFastLatin::CONTR_LENGTH_SHIFT)));
 			}
 			else if(miniCE <= 0xffff) {
-				result.append((UChar)(x | (2 << CollationFastLatin::CONTR_LENGTH_SHIFT)));
-				result.append((UChar)miniCE);
+				result.append((char16_t)(x | (2 << CollationFastLatin::CONTR_LENGTH_SHIFT)));
+				result.append((char16_t)miniCE);
 			}
 			else {
-				result.append((UChar)(x | (3 << CollationFastLatin::CONTR_LENGTH_SHIFT)));
-				result.append((UChar)(miniCE >> 16)).append((UChar)miniCE);
+				result.append((char16_t)(x | (3 << CollationFastLatin::CONTR_LENGTH_SHIFT)));
+				result.append((char16_t)(miniCE >> 16)).append((char16_t)miniCE);
 			}
 			firstTriple = FALSE;
 		}
@@ -682,11 +682,11 @@ bool CollationFastLatinBuilder::encodeContractions(UErrorCode & errorCode) {
 		// and if so, then we could truncate the result and reuse the other list.
 		// However, that seems unlikely.
 		result.setCharAt(headerLength + i,
-		    (UChar)(CollationFastLatin::CONTRACTION | contractionIndex));
+		    (char16_t)(CollationFastLatin::CONTRACTION | contractionIndex));
 	}
 	if(result.length() > firstContractionIndex) {
 		// Terminate the last contraction list.
-		result.append((UChar)CollationFastLatin::CONTR_CHAR_MASK);
+		result.append((char16_t)CollationFastLatin::CONTR_CHAR_MASK);
 	}
 	if(result.isBogus()) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;

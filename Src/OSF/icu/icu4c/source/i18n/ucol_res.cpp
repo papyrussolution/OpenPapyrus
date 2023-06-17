@@ -38,7 +38,7 @@
 U_NAMESPACE_BEGIN
 
 namespace {
-	static const UChar * rootRules = NULL;
+	static const char16_t * rootRules = NULL;
 	static int32_t rootRulesLength = 0;
 	static UResourceBundle * rootBundle = NULL;
 	static UInitOnce gInitOnceUcolRes = U_INITONCE_INITIALIZER;
@@ -104,7 +104,7 @@ void CollationLoader::loadRules(const char * localeID, const char * collationTyp
 	LocalUResourceBundlePointer data(
 		ures_getByKeyWithFallback(collations.getAlias(), type, NULL, &errorCode));
 	int32_t length;
-	const UChar * s =  ures_getStringByKey(data.getAlias(), "Sequence", &length, &errorCode);
+	const char16_t * s =  ures_getStringByKey(data.getAlias(), "Sequence", &length, &errorCode);
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
@@ -260,7 +260,7 @@ const CollationCacheEntry * CollationLoader::loadFromBundle(UErrorCode & errorCo
 		LocalUResourceBundlePointer def(
 			ures_getByKeyWithFallback(collations, "default", NULL, &internalErrorCode));
 		int32_t length;
-		const UChar * s = ures_getString(def.getAlias(), &length, &internalErrorCode);
+		const char16_t * s = ures_getString(def.getAlias(), &length, &internalErrorCode);
 		if(U_SUCCESS(internalErrorCode) && 0 < length && length < SIZEOFARRAYi(defaultType)) {
 			u_UCharsToChars(s, defaultType, length + 1);
 		}
@@ -408,7 +408,7 @@ const CollationCacheEntry * CollationLoader::loadFromData(UErrorCode & errorCode
 	{
 		UErrorCode internalErrorCode = U_ZERO_ERROR;
 		int32_t len;
-		const UChar * s = ures_getStringByKey(data, "Sequence", &len,
+		const char16_t * s = ures_getStringByKey(data, "Sequence", &len,
 			&internalErrorCode);
 		if(U_SUCCESS(internalErrorCode)) {
 			t->rules.setTo(TRUE, s, len);
@@ -433,7 +433,7 @@ const CollationCacheEntry * CollationLoader::loadFromData(UErrorCode & errorCode
 		UErrorCode internalErrorCode = U_ZERO_ERROR;
 		LocalUResourceBundlePointer def(ures_getByKeyWithFallback(actualBundle.getAlias(), "collations/default", NULL, &internalErrorCode));
 		int32_t len;
-		const UChar * s = ures_getString(def.getAlias(), &len, &internalErrorCode);
+		const char16_t * s = ures_getString(def.getAlias(), &len, &internalErrorCode);
 		if(U_SUCCESS(internalErrorCode) && len < SIZEOFARRAYi(defaultType)) {
 			u_UCharsToChars(s, defaultType, len + 1);
 		}
@@ -520,7 +520,7 @@ U_CAPI UCollator* ucol_open(const char * loc, UErrorCode * status)
 	return result;
 }
 
-U_CAPI int32_t U_EXPORT2 ucol_getDisplayName(const char * objLoc, const char * dispLoc, UChar * result, int32_t resultLength, UErrorCode * status)
+U_CAPI int32_t U_EXPORT2 ucol_getDisplayName(const char * objLoc, const char * dispLoc, char16_t * result, int32_t resultLength, UErrorCode * status)
 {
 	if(U_FAILURE(*status)) 
 		return -1;

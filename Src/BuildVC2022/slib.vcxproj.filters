@@ -635,5 +635,13 @@
     <Filter Include="SAIS">
       <UniqueIdentifier>{0501c549-de08-46f4-ba49-4b8291a3fadb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MASM">
+      <UniqueIdentifier>{68e950da-2e5a-45be-9ae0-a52bc9e9f452}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="..\OSF\ASMLIB\fixedloop.asm">
+      <Filter>MASM</Filter>
+    </MASM>
   </ItemGroup>
 </Project>

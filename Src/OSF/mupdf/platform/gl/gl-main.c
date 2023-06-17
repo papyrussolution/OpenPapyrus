@@ -154,7 +154,7 @@ static const char * paper_size_name(int w, int h)
 #define MAXRES (zoom_list[nelem(zoom_list)-1])
 #define DEFRES 96
 
-static char * password = "";
+static const char * password = "";
 static char * anchor = NULL;
 static float layout_w = FZ_DEFAULT_LAYOUT_W;
 static float layout_h = FZ_DEFAULT_LAYOUT_H;
@@ -204,7 +204,7 @@ static const char * tooltip = NULL;
 
 struct mark {
 	fz_location loc;
-	fz_point scroll;
+	SPoint2F scroll;
 };
 
 static int history_count = 0;
@@ -218,10 +218,10 @@ static char * get_history_filename(void)
 	static char history_path[PATH_MAX];
 	static int once = 0;
 	if(!once) {
-		char * home = getenv("XDG_CACHE_HOME");
-		SETIFZ(home, getenv("HOME"));
-		SETIFZ(home, getenv("USERPROFILE"));
-		SETIFZ(home, "/tmp");
+		const char * home = getenv("XDG_CACHE_HOME");
+		SETIFZQ(home, getenv("HOME"));
+		SETIFZQ(home, getenv("USERPROFILE"));
+		SETIFZQ(home, "/tmp");
 		fz_snprintf(history_path, sizeof history_path, "%s/.mupdf.history", home);
 		fz_cleanname(history_path);
 		once = 1;
@@ -415,10 +415,8 @@ static void save_history(void)
 
 static int convert_to_accel_path(char outname[], char * absname, size_t len)
 {
-	char * tmpdir;
 	char * s;
-
-	tmpdir = getenv("TEMP");
+	const char * tmpdir = getenv("TEMP");
 	if(!tmpdir)
 		tmpdir = getenv("TMP");
 	if(!tmpdir)
@@ -474,7 +472,7 @@ char * search_needle = 0;
 int search_hit_count = 0;
 fz_quad search_hit_quads[5000];
 
-static char * help_dialog_text =
+static const char * help_dialog_text =
     "The middle mouse button (scroll wheel button) pans the document view. "
     "The right mouse button selects a region and copies the marked text to the clipboard."
     "\n"
@@ -689,8 +687,8 @@ void trace_save_snapshot(void)
 void update_title(void)
 {
 	char buf[256];
-	char * title = "MuPDF/GL";
-	char * extra = "";
+	const char * title = "MuPDF/GL";
+	const char * extra = "";
 	size_t n;
 
 	int nc = fz_count_chapters(ctx, doc);
@@ -972,7 +970,7 @@ static void jump_to_location(fz_location loc)
 
 static void jump_to_location_xy(fz_location loc, float x, float y)
 {
-	fz_point p = fz_transform_point_xy(x, y, draw_page_ctm);
+	SPoint2F p = fz_transform_point_xy(x, y, draw_page_ctm);
 	clear_future();
 	push_history();
 	currentpage = fz_clamp_location(ctx, doc, loc);
@@ -992,7 +990,7 @@ static void jump_to_page(int newpage)
 
 static void jump_to_page_xy(int newpage, float x, float y)
 {
-	fz_point p = fz_transform_point_xy(x, y, draw_page_ctm);
+	SPoint2F p = fz_transform_point_xy(x, y, draw_page_ctm);
 	clear_future();
 	push_history();
 	currentpage = fz_location_from_page_number(ctx, doc, newpage);
@@ -1146,7 +1144,7 @@ static void do_links(fz_link * link)
 
 static void do_page_selection(void)
 {
-	static fz_point pt = { 0, 0 };
+	static SPoint2F pt;
 	static fz_quad hits[1000];
 	fz_rect rect;
 	int i, n;
@@ -1159,8 +1157,8 @@ static void do_page_selection(void)
 		}
 	}
 	if(ui.active == &pt) {
-		fz_point page_a = { pt.x, pt.y };
-		fz_point page_b = { ui.x, ui.y };
+		SPoint2F page_a(pt);
+		SPoint2F page_b(ui.x, ui.y);
 		page_a = fz_transform_point(page_a, view_page_inv_ctm);
 		page_b = fz_transform_point(page_b, view_page_inv_ctm);
 		if(ui.mod == GLUT_ACTIVE_CTRL)
@@ -1169,11 +1167,7 @@ static void do_page_selection(void)
 			fz_snap_selection(ctx, page_text, &page_a, &page_b, FZ_SELECT_LINES);
 
 		if(ui.mod == GLUT_ACTIVE_SHIFT) {
-			rect = fz_make_rect(
-				fz_min(page_a.x, page_b.x),
-				fz_min(page_a.y, page_b.y),
-				fz_max(page_a.x, page_b.x),
-				fz_max(page_a.y, page_b.y));
+			rect = fz_make_rect(smin(page_a.x, page_b.x), smin(page_a.y, page_b.y), smax(page_a.x, page_b.x), smax(page_a.y, page_b.y));
 			n = 1;
 			hits[0] = fz_quad_from_rect(rect);
 		}
@@ -1375,10 +1369,9 @@ static void load_document(void)
 	}
 	else {
 		if(anchor)
-			jump_to_page(fz_atoi(anchor) - 1);
+			jump_to_page(satoi(anchor) - 1);
 	}
 	anchor = NULL;
-
 	oldpage = currentpage = fz_clamp_location(ctx, doc, currentpage);
 }
 
@@ -1545,18 +1538,18 @@ static void do_app(void)
 			case 'h': case KEY_LEFT: scroll_x -= canvas_w/10; break;
 			case 'l': case KEY_RIGHT: scroll_x += canvas_w/10; break;
 
-			case 'b': number = fz_maxi(number, 1); while(number--) smart_move_backward(); break;
-			case ' ': number = fz_maxi(number, 1); while(number--) smart_move_forward(); break;
+			case 'b': number = smax(number, 1); while(number--) smart_move_backward(); break;
+			case ' ': number = smax(number, 1); while(number--) smart_move_forward(); break;
 			case 'g': jump_to_page(number - 1); break;
 			case 'G': jump_to_location(fz_last_page(ctx, doc)); break;
 
 			case ',': case KEY_PAGE_UP:
-			    number = fz_maxi(number, 1);
+			    number = smax(number, 1);
 			    while(number--)
 				    currentpage = fz_previous_page(ctx, doc, currentpage);
 			    break;
 			case '.': case KEY_PAGE_DOWN:
-			    number = fz_maxi(number, 1);
+			    number = smax(number, 1);
 			    while(number--)
 				    currentpage = fz_next_page(ctx, doc, currentpage);
 			    break;
@@ -1678,10 +1671,9 @@ static void process_sigs(fz_context * ctx_, pdf_obj * field, void * arg, pdf_obj
 	sigs->sig[sigs->len++] = field;
 }
 
-static char * short_signature_error_desc(pdf_signature_error err)
+static const char * short_signature_error_desc(pdf_signature_error err)
 {
-	switch(err)
-	{
+	switch(err) {
 		case PDF_SIGNATURE_ERROR_OKAY:
 		    return "OK";
 		case PDF_SIGNATURE_ERROR_NO_SIGNATURES:
@@ -2089,14 +2081,11 @@ static void cleanup(void)
 {
 	save_history();
 	save_accelerator();
-
 	ui_finish();
-
 #ifndef NDEBUG
-	if(fz_atoi(getenv("FZ_DEBUG_STORE")))
+	if(satoi(getenv("FZ_DEBUG_STORE")))
 		fz_debug_store(ctx, fz_stdout(ctx));
 #endif
-
 	trace_action("quit(errored);\n");
 	fz_drop_output(ctx, trace_file);
 	fz_drop_stext_page(ctx, page_text);
@@ -2145,7 +2134,7 @@ int main(int argc, char ** argv)
 			case 'U': layout_css = fz_optarg; break;
 			case 'X': layout_use_doc_css = 0; break;
 			case 'J': enable_js = !enable_js; break;
-			case 'A': currentaa = fz_atoi(fz_optarg); break;
+			case 'A': currentaa = satoi(fz_optarg); break;
 			case 'C': currenttint = 1; tint_white = strtol(fz_optarg, NULL, 16); break;
 			case 'B': currenttint = 1; tint_black = strtol(fz_optarg, NULL, 16); break;
 			case 'T': trace_file_name = fz_optarg; break;

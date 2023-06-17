@@ -147,7 +147,7 @@ fz_pdfocr_options * fz_parse_pdfocr_options(fz_context * ctx, fz_pdfocr_options 
 			fz_throw(ctx, FZ_ERROR_GENERIC, "Unsupported PDFOCR compression %s (none, or flate only)", val);
 	}
 	if(fz_has_option(ctx, args, "strip-height", &val)) {
-		int i = fz_atoi(val);
+		int i = satoi(val);
 		if(i <= 0)
 			fz_throw(ctx, FZ_ERROR_GENERIC, "Unsupported PDFOCR strip height %d (suggest 0)", i);
 		opts->strip_height = i;

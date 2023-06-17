@@ -22,7 +22,7 @@ using namespace std;
 //DEBUGGING
 void print(const UnicodeString & s, const char * name)
 {
-	UChar c;
+	char16_t c;
 	cout << name << ":|";
 	for(int i = 0; i < s.length(); ++i) {
 		c = s[i];
@@ -34,9 +34,9 @@ void print(const UnicodeString & s, const char * name)
 	cout << '|' << endl;
 }
 
-void print(const UChar * s, int32_t len, const char * name)
+void print(const char16_t * s, int32_t len, const char * name)
 {
-	UChar c;
+	char16_t c;
 	cout << name << ":|";
 	for(int i = 0; i < len; ++i) {
 		c = s[i];
@@ -54,15 +54,15 @@ void print(const UChar * s, int32_t len, const char * name)
 // Local function definitions for now
 
 // need to copy areas that may overlap
-static inline void us_arrayCopy(const UChar * src, int32_t srcStart, UChar * dst, int32_t dstStart, int32_t count)
+static inline void us_arrayCopy(const char16_t * src, int32_t srcStart, char16_t * dst, int32_t dstStart, int32_t count)
 {
 	if(count>0) {
 		uprv_memmove(dst+dstStart, src+srcStart, (size_t)count*sizeof(*src));
 	}
 }
 
-// u_unescapeAt() callback to get a UChar from a UnicodeString
-U_CDECL_BEGIN static UChar U_CALLCONV UnicodeString_charAt(int32_t offset, void * context) 
+// u_unescapeAt() callback to get a char16_t from a UnicodeString
+U_CDECL_BEGIN static char16_t U_CALLCONV UnicodeString_charAt(int32_t offset, void * context) 
 {
 	return ((icu::UnicodeString *)context)->charAt(offset);
 }
@@ -125,8 +125,8 @@ UnicodeString::UnicodeString(int32_t capacity, UChar32 c, int32_t count)
 			capacity = length;
 		}
 		if(allocate(capacity)) {
-			UChar * array = getArrayStart();
-			UChar unit = (UChar)c;
+			char16_t * array = getArrayStart();
+			char16_t unit = (char16_t)c;
 			for(int32_t i = 0; i < length; ++i) {
 				array[i] = unit;
 			}
@@ -144,9 +144,9 @@ UnicodeString::UnicodeString(int32_t capacity, UChar32 c, int32_t count)
 			capacity = length;
 		}
 		if(allocate(capacity)) {
-			UChar * array = getArrayStart();
-			UChar lead = U16_LEAD(c);
-			UChar trail = U16_TRAIL(c);
+			char16_t * array = getArrayStart();
+			char16_t lead = U16_LEAD(c);
+			char16_t trail = U16_TRAIL(c);
 			for(int32_t i = 0; i < length; i += 2) {
 				array[i] = lead;
 				array[i + 1] = trail;
@@ -156,7 +156,7 @@ UnicodeString::UnicodeString(int32_t capacity, UChar32 c, int32_t count)
 	}
 }
 
-UnicodeString::UnicodeString(UChar ch) {
+UnicodeString::UnicodeString(char16_t ch) {
 	fUnion.fFields.fLengthAndFlags = kLength1 | kShortString;
 	fUnion.fStackFields.fBuffer[0] = ch;
 }
@@ -173,12 +173,12 @@ UnicodeString::UnicodeString(UChar32 ch) {
 	}
 }
 
-UnicodeString::UnicodeString(const UChar * text) {
+UnicodeString::UnicodeString(const char16_t * text) {
 	fUnion.fFields.fLengthAndFlags = kShortString;
 	doAppend(text, 0, -1);
 }
 
-UnicodeString::UnicodeString(const UChar * text,
+UnicodeString::UnicodeString(const char16_t * text,
     int32_t textLength) {
 	fUnion.fFields.fLengthAndFlags = kShortString;
 	doAppend(text, 0, textLength);
@@ -188,7 +188,7 @@ UnicodeString::UnicodeString(bool isTerminated,
     ConstChar16Ptr textPtr,
     int32_t textLength) {
 	fUnion.fFields.fLengthAndFlags = kReadonlyAlias;
-	const UChar * text = textPtr;
+	const char16_t * text = textPtr;
 	if(text == NULL) {
 		// treat as an empty string, do not alias
 		setToEmpty();
@@ -204,12 +204,12 @@ UnicodeString::UnicodeString(bool isTerminated,
 			// text is terminated, or else it would have failed the above test
 			textLength = u_strlen(text);
 		}
-		setArray(const_cast<UChar *>(text), textLength,
+		setArray(const_cast<char16_t *>(text), textLength,
 		    isTerminated ? textLength + 1 : textLength);
 	}
 }
 
-UnicodeString::UnicodeString(UChar * buff,
+UnicodeString::UnicodeString(char16_t * buff,
     int32_t buffLength,
     int32_t buffCapacity) {
 	fUnion.fFields.fLengthAndFlags = kWritableAlias;
@@ -223,7 +223,7 @@ UnicodeString::UnicodeString(UChar * buff,
 	else {
 		if(buffLength == -1) {
 			// fLength = u_strlen(buff); but do not look beyond buffCapacity
-			const UChar * p = buff, * limit = buff + buffCapacity;
+			const char16_t * p = buff, * limit = buff + buffCapacity;
 			while(p != limit && *p != 0) {
 				++p;
 			}
@@ -348,8 +348,8 @@ bool UnicodeString::allocate(int32_t capacity) {
 			*array++ = 1;
 			numBytes -= sizeof(int32_t);
 
-			// have fArray point to the first UChar
-			fUnion.fFields.fArray = (UChar *)array;
+			// have fArray point to the first char16_t
+			fUnion.fFields.fArray = (char16_t *)array;
 			fUnion.fFields.fCapacity = (int32_t)(numBytes / U_SIZEOF_UCHAR);
 			fUnion.fFields.fLengthAndFlags = kLongString;
 			return TRUE;
@@ -424,7 +424,7 @@ UnicodeString UnicodeString::fromUTF32(const UChar32 * utf32, int32_t length) {
 		capacity = length + (length >> 4) + 4;
 	}
 	do {
-		UChar * utf16 = result.getBuffer(capacity);
+		char16_t * utf16 = result.getBuffer(capacity);
 		int32_t length16;
 		UErrorCode errorCode = U_ZERO_ERROR;
 		u_strFromUTF32WithSub(utf16, result.getCapacity(), &length16,
@@ -582,7 +582,7 @@ UnicodeString UnicodeString::unescape() const
 	if(result.isBogus()) {
 		return result;
 	}
-	const UChar * array = getBuffer();
+	const char16_t * array = getBuffer();
 	int32_t len = length();
 	int32_t prev = 0;
 	for(int32_t i = 0;;) {
@@ -620,7 +620,7 @@ bool UnicodeString::doEquals(const UnicodeString & text, int32_t len) const
 
 int8 UnicodeString::doCompare(int32_t start,
     int32_t length,
-    const UChar * srcChars,
+    const char16_t * srcChars,
     int32_t srcStart,
     int32_t srcLength) const
 {
@@ -633,12 +633,12 @@ int8 UnicodeString::doCompare(int32_t start,
 	pinIndices(start, length);
 
 	if(srcChars == NULL) {
-		// treat const UChar *srcChars==NULL as an empty string
+		// treat const char16_t *srcChars==NULL as an empty string
 		return length == 0 ? 0 : 1;
 	}
 
 	// get the correct pointer
-	const UChar * chars = getArrayStart();
+	const char16_t * chars = getArrayStart();
 
 	chars += start;
 	srcChars += srcStart;
@@ -680,12 +680,12 @@ int8 UnicodeString::doCompare(int32_t start,
 
 #if U_IS_BIG_ENDIAN
 		// big-endian: byte comparison works
-		result = memcmp(chars, srcChars, minLength * sizeof(UChar));
+		result = memcmp(chars, srcChars, minLength * sizeof(char16_t));
 		if(result != 0) {
 			return (int8)(result >> 15 | 1);
 		}
 #else
-		// little-endian: compare UChar units
+		// little-endian: compare char16_t units
 		do {
 			result = ((int32_t)*(chars++) - (int32_t)*(srcChars++));
 			if(result != 0) {
@@ -698,10 +698,10 @@ int8 UnicodeString::doCompare(int32_t start,
 }
 
 /* String compare in code point order - doCompare() compares in code unit order. */
-int8 UnicodeString::doCompareCodePointOrder(int32_t start, int32_t length, const UChar * srcChars, int32_t srcStart, int32_t srcLength) const
+int8 UnicodeString::doCompareCodePointOrder(int32_t start, int32_t length, const char16_t * srcChars, int32_t srcStart, int32_t srcLength) const
 {
 	// compare illegal string values
-	// treat const UChar *srcChars==NULL as an empty string
+	// treat const char16_t *srcChars==NULL as an empty string
 	if(isBogus()) {
 		return -1;
 	}
@@ -721,14 +721,14 @@ int8 UnicodeString::doCompareCodePointOrder(int32_t start, int32_t length, const
 }
 
 int32_t UnicodeString::getLength() const { return length(); }
-UChar UnicodeString::getCharAt(int32_t offset) const { return charAt(offset); }
+char16_t UnicodeString::getCharAt(int32_t offset) const { return charAt(offset); }
 UChar32 UnicodeString::getChar32At(int32_t offset) const { return char32At(offset); }
 
 UChar32 UnicodeString::char32At(int32_t offset) const
 {
 	int32_t len = length();
 	if((uint32_t)offset < (uint32_t)len) {
-		const UChar * array = getArrayStart();
+		const char16_t * array = getArrayStart();
 		UChar32 c;
 		U16_GET(array, 0, offset, len, c);
 		return c;
@@ -741,7 +741,7 @@ UChar32 UnicodeString::char32At(int32_t offset) const
 int32_t UnicodeString::getChar32Start(int32_t offset) const 
 {
 	if((uint32_t)offset < (uint32_t)length()) {
-		const UChar * array = getArrayStart();
+		const char16_t * array = getArrayStart();
 		U16_SET_CP_START(array, 0, offset);
 		return offset;
 	}
@@ -754,7 +754,7 @@ int32_t UnicodeString::getChar32Limit(int32_t offset) const
 {
 	int32_t len = length();
 	if((uint32_t)offset < (uint32_t)len) {
-		const UChar * array = getArrayStart();
+		const char16_t * array = getArrayStart();
 		U16_SET_CP_LIMIT(array, 0, offset, len);
 		return offset;
 	}
@@ -786,7 +786,7 @@ int32_t UnicodeString::moveIndex32(int32_t index, int32_t delta) const
 	else if(index>len) {
 		index = len;
 	}
-	const UChar * array = getArrayStart();
+	const char16_t * array = getArrayStart();
 	if(delta>0) {
 		U16_FWD_N(array, index, len, delta);
 	}
@@ -796,12 +796,12 @@ int32_t UnicodeString::moveIndex32(int32_t index, int32_t delta) const
 	return index;
 }
 
-void UnicodeString::doExtract(int32_t start, int32_t length, UChar * dst, int32_t dstStart) const
+void UnicodeString::doExtract(int32_t start, int32_t length, char16_t * dst, int32_t dstStart) const
 {
 	// pin indices to legal values
 	pinIndices(start, length);
 	// do not copy anything if we alias dst itself
-	const UChar * array = getArrayStart();
+	const char16_t * array = getArrayStart();
 	if(array + start != dst + dstStart) {
 		us_arrayCopy(array, start, dst, dstStart, length);
 	}
@@ -815,7 +815,7 @@ int32_t UnicodeString::extract(Char16Ptr dest, int32_t destCapacity, UErrorCode 
 			errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		}
 		else {
-			const UChar * array = getArrayStart();
+			const char16_t * array = getArrayStart();
 			if(len>0 && len<=destCapacity && array!=dest) {
 				u_memcpy(dest, array, len);
 			}
@@ -843,7 +843,7 @@ int32_t UnicodeString::extract(int32_t start, int32_t length, char * target, int
 UnicodeString UnicodeString::tempSubString(int32_t start, int32_t len) const 
 {
 	pinIndices(start, len);
-	const UChar * array = getBuffer(); // not getArrayStart() to check kIsBogus & kOpenGetBuffer
+	const char16_t * array = getBuffer(); // not getArrayStart() to check kIsBogus & kOpenGetBuffer
 	if(array==NULL) {
 		array = fUnion.fStackFields.fBuffer; // anything not NULL because that would make an empty string
 		len = -2; // bogus result string
@@ -929,7 +929,7 @@ int32_t UnicodeString::toUTF32(UChar32 * utf32, int32_t capacity, UErrorCode & e
 	return length32;
 }
 
-int32_t UnicodeString::indexOf(const UChar * srcChars, int32_t srcStart, int32_t srcLength, int32_t start, int32_t length) const
+int32_t UnicodeString::indexOf(const char16_t * srcChars, int32_t srcStart, int32_t srcLength, int32_t start, int32_t length) const
 {
 	if(isBogus() || srcChars == 0 || srcStart < 0 || srcLength == 0) {
 		return -1;
@@ -941,8 +941,8 @@ int32_t UnicodeString::indexOf(const UChar * srcChars, int32_t srcStart, int32_t
 	// get the indices within bounds
 	pinIndices(start, length);
 	// find the first occurrence of the substring
-	const UChar * array = getArrayStart();
-	const UChar * match = u_strFindFirst(array + start, length, srcChars + srcStart, srcLength);
+	const char16_t * array = getArrayStart();
+	const char16_t * match = u_strFindFirst(array + start, length, srcChars + srcStart, srcLength);
 	if(match == NULL) {
 		return -1;
 	}
@@ -951,13 +951,13 @@ int32_t UnicodeString::indexOf(const UChar * srcChars, int32_t srcStart, int32_t
 	}
 }
 
-int32_t UnicodeString::doIndexOf(UChar c, int32_t start, int32_t length) const
+int32_t UnicodeString::doIndexOf(char16_t c, int32_t start, int32_t length) const
 {
 	// pin indices
 	pinIndices(start, length);
 	// find the first occurrence of c
-	const UChar * array = getArrayStart();
-	const UChar * match = u_memchr(array + start, c, length);
+	const char16_t * array = getArrayStart();
+	const char16_t * match = u_memchr(array + start, c, length);
 	if(match == NULL) {
 		return -1;
 	}
@@ -971,8 +971,8 @@ int32_t UnicodeString::doIndexOf(UChar32 c, int32_t start, int32_t length) const
 	// pin indices
 	pinIndices(start, length);
 	// find the first occurrence of c
-	const UChar * array = getArrayStart();
-	const UChar * match = u_memchr32(array + start, c, length);
+	const char16_t * array = getArrayStart();
+	const char16_t * match = u_memchr32(array + start, c, length);
 	if(match == NULL) {
 		return -1;
 	}
@@ -981,7 +981,7 @@ int32_t UnicodeString::doIndexOf(UChar32 c, int32_t start, int32_t length) const
 	}
 }
 
-int32_t UnicodeString::lastIndexOf(const UChar * srcChars, int32_t srcStart, int32_t srcLength, int32_t start, int32_t length) const
+int32_t UnicodeString::lastIndexOf(const char16_t * srcChars, int32_t srcStart, int32_t srcLength, int32_t start, int32_t length) const
 {
 	if(isBogus() || srcChars == 0 || srcStart < 0 || srcLength == 0) {
 		return -1;
@@ -993,12 +993,12 @@ int32_t UnicodeString::lastIndexOf(const UChar * srcChars, int32_t srcStart, int
 	// get the indices within bounds
 	pinIndices(start, length);
 	// find the last occurrence of the substring
-	const UChar * array = getArrayStart();
-	const UChar * match = u_strFindLast(array + start, length, srcChars + srcStart, srcLength);
+	const char16_t * array = getArrayStart();
+	const char16_t * match = u_strFindLast(array + start, length, srcChars + srcStart, srcLength);
 	return match ? (int32_t)(match - array) : -1;
 }
 
-int32_t UnicodeString::doLastIndexOf(UChar c, int32_t start, int32_t length) const
+int32_t UnicodeString::doLastIndexOf(char16_t c, int32_t start, int32_t length) const
 {
 	if(isBogus()) {
 		return -1;
@@ -1006,8 +1006,8 @@ int32_t UnicodeString::doLastIndexOf(UChar c, int32_t start, int32_t length) con
 	// pin indices
 	pinIndices(start, length);
 	// find the last occurrence of c
-	const UChar * array = getArrayStart();
-	const UChar * match = u_memrchr(array + start, c, length);
+	const char16_t * array = getArrayStart();
+	const char16_t * match = u_memrchr(array + start, c, length);
 	return match ? (int32_t)(match - array) : -1;
 }
 
@@ -1016,8 +1016,8 @@ int32_t UnicodeString::doLastIndexOf(UChar32 c, int32_t start, int32_t length) c
 	// pin indices
 	pinIndices(start, length);
 	// find the last occurrence of c
-	const UChar * array = getArrayStart();
-	const UChar * match = u_memrchr32(array + start, c, length);
+	const char16_t * array = getArrayStart();
+	const char16_t * match = u_memrchr32(array + start, c, length);
 	return match ? (int32_t)(match - array) : -1;
 }
 //
@@ -1072,7 +1072,7 @@ const char16_t * UnicodeString::getTerminatedBuffer()
 	if(!isWritable()) {
 		return nullptr;
 	}
-	UChar * array = getArrayStart();
+	char16_t * array = getArrayStart();
 	int32_t len = length();
 	if(len < getCapacity()) {
 		if(fUnion.fFields.fLengthAndFlags & kBufferIsReadonly) {
@@ -1114,7 +1114,7 @@ UnicodeString & UnicodeString::setTo(bool isTerminated, ConstChar16Ptr textPtr, 
 		// do not modify a string that has an "open" getBuffer(minCapacity)
 		return *this;
 	}
-	const UChar * text = textPtr;
+	const char16_t * text = textPtr;
 	if(text == NULL) {
 		// treat as an empty string, do not alias
 		releaseArray();
@@ -1132,12 +1132,12 @@ UnicodeString & UnicodeString::setTo(bool isTerminated, ConstChar16Ptr textPtr, 
 		textLength = u_strlen(text);
 	}
 	fUnion.fFields.fLengthAndFlags = kReadonlyAlias;
-	setArray((UChar *)text, textLength, isTerminated ? textLength + 1 : textLength);
+	setArray((char16_t *)text, textLength, isTerminated ? textLength + 1 : textLength);
 	return *this;
 }
 
 // setTo() analogous to the writable-aliasing constructor with the same signature
-UnicodeString & UnicodeString::setTo(UChar * buffer,
+UnicodeString & UnicodeString::setTo(char16_t * buffer,
     int32_t buffLength,
     int32_t buffCapacity) {
 	if(fUnion.fFields.fLengthAndFlags & kOpenGetBuffer) {
@@ -1158,7 +1158,7 @@ UnicodeString & UnicodeString::setTo(UChar * buffer,
 	}
 	else if(buffLength == -1) {
 		// buffLength = u_strlen(buff); but do not look beyond buffCapacity
-		const UChar * p = buffer, * limit = buffer + buffCapacity;
+		const char16_t * p = buffer, * limit = buffer + buffCapacity;
 		while(p != limit && *p != 0) {
 			++p;
 		}
@@ -1183,7 +1183,7 @@ UnicodeString & UnicodeString::setToUTF8(StringPiece utf8) {
 	else {
 		capacity = length + 1; // +1 for the terminating NUL.
 	}
-	UChar * utf16 = getBuffer(capacity);
+	char16_t * utf16 = getBuffer(capacity);
 	int32_t length16;
 	UErrorCode errorCode = U_ZERO_ERROR;
 	u_strFromUTF8WithSub(utf16, getCapacity(), &length16,
@@ -1199,7 +1199,7 @@ UnicodeString & UnicodeString::setToUTF8(StringPiece utf8) {
 }
 
 UnicodeString & UnicodeString::setCharAt(int32_t offset,
-    UChar c)
+    char16_t c)
 {
 	int32_t len = length();
 	if(cloneArrayIfNeeded() && len > 0) {
@@ -1218,7 +1218,7 @@ UnicodeString & UnicodeString::setCharAt(int32_t offset,
 UnicodeString & UnicodeString::replace(int32_t start,
     int32_t _length,
     UChar32 srcChar) {
-	UChar buffer[U16_MAX_LENGTH];
+	char16_t buffer[U16_MAX_LENGTH];
 	int32_t count = 0;
 	bool isError = FALSE;
 	U16_APPEND(buffer, count, U16_MAX_LENGTH, srcChar, isError);
@@ -1229,7 +1229,7 @@ UnicodeString & UnicodeString::replace(int32_t start,
 }
 
 UnicodeString & UnicodeString::append(UChar32 srcChar) {
-	UChar buffer[U16_MAX_LENGTH];
+	char16_t buffer[U16_MAX_LENGTH];
 	int32_t _length = 0;
 	bool isError = FALSE;
 	U16_APPEND(buffer, _length, U16_MAX_LENGTH, srcChar, isError);
@@ -1254,7 +1254,7 @@ UnicodeString & UnicodeString::doReplace(int32_t start,
 
 UnicodeString & UnicodeString::doReplace(int32_t start,
     int32_t length,
-    const UChar * srcChars,
+    const char16_t * srcChars,
     int32_t srcStart,
     int32_t srcLength)
 {
@@ -1315,7 +1315,7 @@ UnicodeString & UnicodeString::doReplace(int32_t start,
 	newLength += srcLength;
 
 	// Check for insertion into ourself
-	const UChar * oldArray = getArrayStart();
+	const char16_t * oldArray = getArrayStart();
 	if(isBufferWritable() &&
 	    oldArray < srcChars + srcLength &&
 	    srcChars < oldArray + oldLength) {
@@ -1330,7 +1330,7 @@ UnicodeString & UnicodeString::doReplace(int32_t start,
 
 	// cloneArrayIfNeeded(doCopyArray=FALSE) may change fArray but will not copy the current contents;
 	// therefore we need to keep the current fArray
-	UChar oldStackBuffer[US_STACKBUF_SIZE];
+	char16_t oldStackBuffer[US_STACKBUF_SIZE];
 	if((fUnion.fFields.fLengthAndFlags&kUsingStackBuffer) && (newLength > US_STACKBUF_SIZE)) {
 		// copy the stack buffer contents because it will be overwritten with
 		// fUnion.fFields values
@@ -1348,7 +1348,7 @@ UnicodeString & UnicodeString::doReplace(int32_t start,
 
 	// now do the replace
 
-	UChar * newArray = getArrayStart();
+	char16_t * newArray = getArrayStart();
 	if(newArray != oldArray) {
 		// if fArray changed, then we need to copy everything except what will change
 		us_arrayCopy(oldArray, 0, newArray, 0, start);
@@ -1390,7 +1390,7 @@ UnicodeString & UnicodeString::doAppend(const UnicodeString & src, int32_t srcSt
 	return doAppend(src.getArrayStart(), srcStart, srcLength);
 }
 
-UnicodeString & UnicodeString::doAppend(const UChar * srcChars, int32_t srcStart, int32_t srcLength) {
+UnicodeString & UnicodeString::doAppend(const char16_t * srcChars, int32_t srcStart, int32_t srcLength) {
 	if(!isWritable() || srcLength == 0 || srcChars == NULL) {
 		return *this;
 	}
@@ -1412,7 +1412,7 @@ UnicodeString & UnicodeString::doAppend(const UChar * srcChars, int32_t srcStart
 		return *this;
 	}
 	// Check for append onto ourself
-	const UChar * oldArray = getArrayStart();
+	const char16_t * oldArray = getArrayStart();
 	if(isBufferWritable() && oldArray < srcChars + srcLength && srcChars < oldArray + oldLength) {
 		// Copy into a new UnicodeString and start over
 		UnicodeString copy(srcChars, srcLength);
@@ -1424,9 +1424,9 @@ UnicodeString & UnicodeString::doAppend(const UChar * srcChars, int32_t srcStart
 	}
 	// optimize append() onto a large-enough, owned string
 	if((newLength <= getCapacity() && isBufferWritable()) || cloneArrayIfNeeded(newLength, getGrowCapacity(newLength))) {
-		UChar * newArray = getArrayStart();
+		char16_t * newArray = getArrayStart();
 		// Do not copy characters when
-		//   UChar *buffer=str.getAppendBuffer(...);
+		//   char16_t *buffer=str.getAppendBuffer(...);
 		// is followed by
 		//   str.append(buffer, length);
 		// or
@@ -1456,7 +1456,7 @@ void UnicodeString::copy(int32_t start, int32_t limit, int32_t dest) {
 	if(limit <= start) {
 		return; // Nothing to do; avoid bogus malloc call
 	}
-	UChar * text = (UChar *)uprv_malloc(sizeof(UChar) * (limit - start));
+	char16_t * text = (char16_t *)uprv_malloc(sizeof(char16_t) * (limit - start));
 	// Check to make sure text is not null.
 	if(text) {
 		extractBetween(start, limit, text, 0);
@@ -1493,9 +1493,9 @@ UnicodeString & UnicodeString::doReverse(int32_t start, int32_t length) {
 		return *this;
 	}
 
-	UChar * left = getArrayStart() + start;
-	UChar * right = left + length - 1; // -1 for inclusive boundary (length>=2)
-	UChar swap;
+	char16_t * left = getArrayStart() + start;
+	char16_t * right = left + length - 1; // -1 for inclusive boundary (length>=2)
+	char16_t swap;
 	bool hasSupplementary = FALSE;
 
 	// Before the loop we know left<right because length>=2.
@@ -1510,7 +1510,7 @@ UnicodeString & UnicodeString::doReverse(int32_t start, int32_t length) {
 
 	/* if there are supplementary code points in the reversed range, then re-swap their surrogates */
 	if(hasSupplementary) {
-		UChar swap2;
+		char16_t swap2;
 
 		left = getArrayStart() + start;
 		right = left + length - 1; // -1 so that we can look at *(left+1) if left<right
@@ -1529,7 +1529,7 @@ UnicodeString & UnicodeString::doReverse(int32_t start, int32_t length) {
 }
 
 bool UnicodeString::padLeading(int32_t targetLength,
-    UChar padChar)
+    char16_t padChar)
 {
 	int32_t oldLength = length();
 	if(oldLength >= targetLength || !cloneArrayIfNeeded(targetLength)) {
@@ -1537,7 +1537,7 @@ bool UnicodeString::padLeading(int32_t targetLength,
 	}
 	else {
 		// move contents up by padding width
-		UChar * array = getArrayStart();
+		char16_t * array = getArrayStart();
 		int32_t start = targetLength - oldLength;
 		us_arrayCopy(array, 0, array, start, oldLength);
 
@@ -1551,7 +1551,7 @@ bool UnicodeString::padLeading(int32_t targetLength,
 }
 
 bool UnicodeString::padTrailing(int32_t targetLength,
-    UChar padChar)
+    char16_t padChar)
 {
 	int32_t oldLength = length();
 	if(oldLength >= targetLength || !cloneArrayIfNeeded(targetLength)) {
@@ -1559,7 +1559,7 @@ bool UnicodeString::padTrailing(int32_t targetLength,
 	}
 	else {
 		// fill in padding character
-		UChar * array = getArrayStart();
+		char16_t * array = getArrayStart();
 		int32_t length = targetLength;
 		while(--length >= oldLength) {
 			array[length] = padChar;
@@ -1573,7 +1573,7 @@ bool UnicodeString::padTrailing(int32_t targetLength,
 //
 int32_t UnicodeString::doHashCode() const
 {
-	// Delegate hash computation to uhash.  This makes UnicodeString hashing consistent with UChar * hashing.
+	// Delegate hash computation to uhash.  This makes UnicodeString hashing consistent with char16_t * hashing.
 	int32_t hashCode = ustr_hashUCharsN(getArrayStart(), length());
 	if(hashCode == kInvalidHashCode) {
 		hashCode = kEmptyHashCode;
@@ -1602,7 +1602,7 @@ void UnicodeString::releaseBuffer(int32_t newLength)
 		int32_t capacity = getCapacity();
 		if(newLength==-1) {
 			// the new length is the string length, capped by fCapacity
-			const UChar * array = getArrayStart(), * p = array, * limit = array+capacity;
+			const char16_t * array = getArrayStart(), * p = array, * limit = array+capacity;
 			while(p < limit && *p!=0) {
 				++p;
 			}
@@ -1647,8 +1647,8 @@ bool UnicodeString::cloneArrayIfNeeded(int32_t newCapacity, int32_t growCapacity
 			growCapacity = US_STACKBUF_SIZE;
 		}
 		// save old values
-		UChar oldStackBuffer[US_STACKBUF_SIZE];
-		UChar * oldArray;
+		char16_t oldStackBuffer[US_STACKBUF_SIZE];
+		char16_t * oldArray;
 		int32_t oldLength = length();
 		int16 flags = fUnion.fFields.fLengthAndFlags;
 		if(flags&kUsingStackBuffer) {
@@ -1723,21 +1723,21 @@ UnicodeStringAppendable::~UnicodeStringAppendable()
 {
 }
 
-bool UnicodeStringAppendable::appendCodeUnit(UChar c) { return str.doAppend(&c, 0, 1).isWritable(); }
+bool UnicodeStringAppendable::appendCodeUnit(char16_t c) { return str.doAppend(&c, 0, 1).isWritable(); }
 
 bool UnicodeStringAppendable::appendCodePoint(UChar32 c) 
 {
-	UChar buffer[U16_MAX_LENGTH];
+	char16_t buffer[U16_MAX_LENGTH];
 	int32_t cLength = 0;
 	bool isError = FALSE;
 	U16_APPEND(buffer, cLength, U16_MAX_LENGTH, c, isError);
 	return !isError && str.doAppend(buffer, 0, cLength).isWritable();
 }
 
-bool UnicodeStringAppendable::appendString(const UChar * s, int32_t length) { return str.doAppend(s, 0, length).isWritable(); }
+bool UnicodeStringAppendable::appendString(const char16_t * s, int32_t length) { return str.doAppend(s, 0, length).isWritable(); }
 bool UnicodeStringAppendable::reserveAppendCapacity(int32_t appendCapacity) { return str.cloneArrayIfNeeded(str.length() + appendCapacity); }
 
-UChar * UnicodeStringAppendable::getAppendBuffer(int32_t minCapacity, int32_t desiredCapacityHint, UChar * scratch, int32_t scratchCapacity, int32_t * resultCapacity) 
+char16_t * UnicodeStringAppendable::getAppendBuffer(int32_t minCapacity, int32_t desiredCapacityHint, char16_t * scratch, int32_t scratchCapacity, int32_t * resultCapacity) 
 {
 	if(minCapacity < 1 || scratchCapacity < minCapacity) {
 		*resultCapacity = 0;

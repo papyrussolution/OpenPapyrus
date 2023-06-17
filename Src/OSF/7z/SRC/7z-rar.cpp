@@ -6396,7 +6396,7 @@ namespace NArchive {
 						numStamps *= 4;
 						if((flags & NTimeRecord::NFlags::kUnixNs) != 0 && numStamps * 2 <= size) {
 							const uint32 ns = Get32(p2 + numStamps) & 0x3FFFFFFF;
-							if(ns < 1000000000)
+							if(ns < SlConst::OneBillion)
 								val += ns / 100;
 						}
 						ft.dwLowDateTime = (DWORD)val;

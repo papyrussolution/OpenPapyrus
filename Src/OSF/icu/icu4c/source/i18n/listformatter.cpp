@@ -400,8 +400,8 @@ static const char * typeWidthToStyleString(UListFormatterType type, UListFormatt
 	return nullptr;
 }
 
-static const UChar solidus = 0x2F;
-static const UChar aliasPrefix[] = { 0x6C, 0x69, 0x73, 0x74, 0x50, 0x61, 0x74, 0x74, 0x65, 0x72, 0x6E, 0x2F }; // "listPattern/"
+static const char16_t solidus = 0x2F;
+static const char16_t aliasPrefix[] = { 0x6C, 0x69, 0x73, 0x74, 0x50, 0x61, 0x74, 0x74, 0x65, 0x72, 0x6E, 0x2F }; // "listPattern/"
 enum {
 	kAliasPrefixLen = SIZEOFARRAYi(aliasPrefix),
 	kStyleLenMax = 24 // longest currently is 14

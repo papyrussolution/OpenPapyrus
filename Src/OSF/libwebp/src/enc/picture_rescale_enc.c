@@ -71,7 +71,7 @@ int WebPPictureCopy(const WebPPicture* src, WebPPicture* dst) {
 		}
 	}
 	else {
-		WebPCopyPlane((const uint8*)src->argb, 4 * src->argb_stride, (uint8*)dst->argb, 4 * dst->argb_stride, 4 * dst->width, dst->height);
+		WebPCopyPlane((const uint8 *)src->argb, 4 * src->argb_stride, (uint8*)dst->argb, 4 * dst->argb_stride, 4 * dst->width, dst->height);
 	}
 	return 1;
 }
@@ -137,7 +137,7 @@ int WebPPictureCrop(WebPPicture* pic, int left, int top, int width, int height)
 		}
 	}
 	else {
-		const uint8* const src = (const uint8*)(pic->argb + top * pic->argb_stride + left);
+		const uint8* const src = (const uint8 *)(pic->argb + top * pic->argb_stride + left);
 		WebPCopyPlane(src, pic->argb_stride * 4, (uint8*)tmp.argb, tmp.argb_stride * 4, width * 4, height);
 	}
 	WebPPictureFree(pic);
@@ -236,7 +236,7 @@ int WebPPictureRescale(WebPPicture* pic, int width, int height) {
 		// the premultiplication afterward (while preserving the alpha channel).
 		WebPInitAlphaProcessing();
 		AlphaMultiplyARGB(pic, 0);
-		if(!RescalePlane((const uint8*)pic->argb, prev_width, prev_height,
+		if(!RescalePlane((const uint8 *)pic->argb, prev_width, prev_height,
 		    pic->argb_stride * 4,
 		    (uint8*)tmp.argb, width, height,
 		    tmp.argb_stride * 4, work, 4)) {

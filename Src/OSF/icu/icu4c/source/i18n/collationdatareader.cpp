@@ -250,7 +250,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 			errorCode = U_INVALID_FORMAT_ERROR; // Tailored contexts without tailored trie.
 			return;
 		}
-		data->contexts = reinterpret_cast<const UChar *>(inBytes + offset);
+		data->contexts = reinterpret_cast<const char16_t *>(inBytes + offset);
 		data->contextsLength = length / 2;
 	}
 
@@ -320,7 +320,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 		// Mark each lead surrogate as "unsafe"
 		// if any of its 1024 associated supplementary code points is "unsafe".
 		UChar32 c = 0x10000;
-		for(UChar lead = 0xd800; lead < 0xdc00; ++lead, c += 0x400) {
+		for(char16_t lead = 0xd800; lead < 0xdc00; ++lead, c += 0x400) {
 			if(!tailoring.unsafeBackwardSet->containsNone(c, c + 0x3ff)) {
 				tailoring.unsafeBackwardSet->add(lead);
 			}
@@ -427,19 +427,14 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 	const CollationSettings &ts = *tailoring.settings;
 	int32_t options = inIndexes[IX_OPTIONS] & 0xffff;
 	uint16 fastLatinPrimaries[CollationFastLatin::LATIN_LIMIT];
-	int32_t fastLatinOptions = CollationFastLatin::getOptions(
-		tailoring.data, ts, fastLatinPrimaries, SIZEOFARRAYi(fastLatinPrimaries));
+	int32_t fastLatinOptions = CollationFastLatin::getOptions(tailoring.data, ts, fastLatinPrimaries, SIZEOFARRAYi(fastLatinPrimaries));
 	if(options == ts.options && ts.variableTop != 0 &&
 	    reorderCodesLength == ts.reorderCodesLength &&
-	    (reorderCodesLength == 0 ||
-	    memcmp(reorderCodes, ts.reorderCodes, reorderCodesLength * 4) == 0) &&
+	    (reorderCodesLength == 0 || memcmp(reorderCodes, ts.reorderCodes, reorderCodesLength * 4) == 0) &&
 	    fastLatinOptions == ts.fastLatinOptions &&
-	    (fastLatinOptions < 0 ||
-	    memcmp(fastLatinPrimaries, ts.fastLatinPrimaries,
-	    sizeof(fastLatinPrimaries)) == 0)) {
+	    (fastLatinOptions < 0 || memcmp(fastLatinPrimaries, ts.fastLatinPrimaries, sizeof(fastLatinPrimaries)) == 0)) {
 		return;
 	}
-
 	CollationSettings * settings = SharedObject::copyOnWrite(tailoring.settings);
 	if(settings == NULL) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
@@ -447,8 +442,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 	}
 	settings->options = options;
 	// Set variableTop from options and scripts data.
-	settings->variableTop = tailoring.data->getLastPrimaryForGroup(
-		UCOL_REORDER_CODE_FIRST + settings->getMaxVariable());
+	settings->variableTop = tailoring.data->getLastPrimaryForGroup(UCOL_REORDER_CODE_FIRST + settings->getMaxVariable());
 	if(settings->variableTop == 0) {
 		errorCode = U_INVALID_FORMAT_ERROR;
 		return;
@@ -459,34 +453,27 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 		    reorderRanges, reorderRangesLength,
 		    reorderTable, errorCode);
 	}
-
-	settings->fastLatinOptions = CollationFastLatin::getOptions(
-		tailoring.data, *settings,
+	settings->fastLatinOptions = CollationFastLatin::getOptions(tailoring.data, *settings,
 		settings->fastLatinPrimaries, SIZEOFARRAYi(settings->fastLatinPrimaries));
 }
 
-bool U_CALLCONV CollationDataReader::isAcceptable(void * context,
-    const char * /* type */, const char * /*name*/,
-    const UDataInfo * pInfo) {
-	if(
-		pInfo->size >= 20 &&
-		pInfo->isBigEndian == U_IS_BIG_ENDIAN &&
-		pInfo->charsetFamily == U_CHARSET_FAMILY &&
+bool U_CALLCONV CollationDataReader::isAcceptable(void * context, const char * /* type */, const char * /*name*/,
+    const UDataInfo * pInfo) 
+{
+	if(pInfo->size >= 20 && pInfo->isBigEndian == U_IS_BIG_ENDIAN && pInfo->charsetFamily == U_CHARSET_FAMILY &&
 		pInfo->dataFormat[0] == 0x55 && // dataFormat="UCol"
 		pInfo->dataFormat[1] == 0x43 &&
 		pInfo->dataFormat[2] == 0x6f &&
 		pInfo->dataFormat[3] == 0x6c &&
-		pInfo->formatVersion[0] == 5
-		) {
+		pInfo->formatVersion[0] == 5) {
 		UVersionInfo * version = static_cast<UVersionInfo *>(context);
 		if(version != NULL) {
 			uprv_memcpy(version, pInfo->dataVersion, 4);
 		}
 		return TRUE;
 	}
-	else {
+	else
 		return FALSE;
-	}
 }
 
 U_NAMESPACE_END

@@ -1463,9 +1463,7 @@ static int compression_code_deflate(Archive * a, struct la_zstream * lastrm, enu
 {
 	int r;
 	z_stream * strm = (z_stream*)lastrm->real_stream;
-	/* zlib.h is not const-correct, so we need this one bit
-	 * of ugly hackery to convert a const * pointer to
-	 * a non-const pointer. */
+	// zlib.h is not const-correct, so we need this one bit of ugly hackery to convert a const * pointer to a non-const pointer
 	strm->next_in = (Byte *)(uintptr_t)(const void*)lastrm->next_in;
 	strm->avail_in = (uInt)lastrm->avail_in;
 	strm->total_in = (uLong)lastrm->total_in;

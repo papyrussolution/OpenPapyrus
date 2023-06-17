@@ -12,11 +12,11 @@ static inline int fz_tolower(int c)
 	return (c >= 'A' && c <= 'Z') ? (c + 32) : c;
 }
 
-size_t fz_strnlen(const char * s, size_t n)
+/* @sobolev (replaced with sstrnlen) size_t fz_strnlen(const char * s, size_t n)
 {
-	const char * p = (const char *)memchr(s, 0, n);
+	const char * p = (const char *)smemchr(s, 0, n);
 	return p ? (size_t)(p - s) : n;
-}
+}*/
 
 int fz_strncasecmp(const char * a, const char * b, size_t n)
 {
@@ -449,19 +449,12 @@ float fz_atof(const char * s)
 	return result;
 }
 
-int fz_atoi(const char * s)
-{
-	return s ? atoi(s) : 0;
-}
-
-int64_t fz_atoi64(const char * s)
-{
-	return s ? atoll(s) : 0;
-}
+//int fz_atoi_Removed(const char * s) { return s ? satoi(s) : 0; }
+//int64_t fz_atoi64_Removed(const char * s) { return s ? atoll(s) : 0; }
 
 int fz_is_page_range(fz_context * ctx, const char * s)
 {
-	/* TODO: check the actual syntax... */
+	// TODO: check the actual syntax...
 	while(*s) {
 		if((*s < '0' || *s > '9') && *s != 'N' && *s != '-' && *s != ',')
 			return 0;
@@ -631,21 +624,22 @@ static char * twoway_memmem(const uchar * h, const uchar * z, const uchar * n, s
 void * fz_memmem(const void * h0, size_t k, const void * n0, size_t l)
 {
 	const uchar * h = (uchar *)h0, * n = (uchar *)n0;
-
-	/* Return immediately on empty needle */
-	if(!l) return (void *)h;
-
-	/* Return immediately when needle is longer than haystack */
-	if(k<l) return 0;
-
-	/* Use faster algorithms for short needles */
-	h = (uchar *)memchr(h0, *n, k);
-	if(!h || l==1) return (void *)h;
+	if(!l)  // Return immediately on empty needle
+		return (void *)h;
+	if(k<l) // Return immediately when needle is longer than haystack
+		return 0;
+	// Use faster algorithms for short needles 
+	h = (uchar *)smemchr(h0, *n, k);
+	if(!h || l==1) 
+		return (void *)h;
 	k -= h - (const uchar*)h0;
-	if(k<l) return 0;
-	if(l==2) return twobyte_memmem(h, k, n);
-	if(l==3) return threebyte_memmem(h, k, n);
-	if(l==4) return fourbyte_memmem(h, k, n);
-
+	if(k<l) 
+		return 0;
+	if(l==2) 
+		return twobyte_memmem(h, k, n);
+	if(l==3) 
+		return threebyte_memmem(h, k, n);
+	if(l==4) 
+		return fourbyte_memmem(h, k, n);
 	return twoway_memmem(h, h+k, n, l);
 }

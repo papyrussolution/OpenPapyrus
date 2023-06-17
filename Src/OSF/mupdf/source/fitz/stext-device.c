@@ -65,7 +65,7 @@ void fz_add_layout_char(fz_context * ctx, fz_layout_block * block, float x, floa
 typedef struct {
 	fz_device super;
 	fz_stext_page * page;
-	fz_point pen, start;
+	SPoint2F pen, start;
 	fz_matrix trm;
 	int new_obj;
 	int curdir;
@@ -146,7 +146,7 @@ static fz_stext_block * add_image_block_to_page(fz_context * ctx, fz_stext_page 
 	return block;
 }
 
-static fz_stext_line * add_line_to_block(fz_context * ctx, fz_stext_page * page, fz_stext_block * block, const fz_point * dir, int wmode)
+static fz_stext_line * add_line_to_block(fz_context * ctx, fz_stext_page * page, fz_stext_block * block, const SPoint2F * dir, int wmode)
 {
 	fz_stext_line * line = (fz_stext_line *)fz_pool_alloc(ctx, page->pool, sizeof *block->u.t.first_line);
 	line->prev = block->u.t.last_line;
@@ -164,10 +164,10 @@ static fz_stext_line * add_line_to_block(fz_context * ctx, fz_stext_page * page,
 }
 
 static fz_stext_char * add_char_to_line(fz_context * ctx, fz_stext_page * page, fz_stext_line * line,
-    fz_matrix trm, fz_font * font, float size, int c, fz_point * p, fz_point * q, int color)
+    fz_matrix trm, fz_font * font, float size, int c, SPoint2F * p, SPoint2F * q, int color)
 {
 	fz_stext_char * ch = (fz_stext_char *)fz_pool_alloc(ctx, page->pool, sizeof *line->first_char);
-	fz_point a, d;
+	SPoint2F a, d;
 	if(!line->first_char)
 		line->first_char = line->last_char = ch;
 	else {
@@ -259,7 +259,7 @@ static int is_hyphen(int c)
 	return (c == '-' || c == 0xAD || c == 0x2010 || c == 0x2011);
 }
 
-static float vec_dot(const fz_point * a, const fz_point * b)
+static float vec_dot(const SPoint2F * a, const SPoint2F * b)
 {
 	return a->x * b->x + a->y * b->y;
 }
@@ -281,9 +281,9 @@ static void fz_add_stext_char_imp(fz_context * ctx,
 	int new_para = 0;
 	int new_line = 1;
 	int add_space = 0;
-	fz_point dir, ndir, p, q;
+	SPoint2F dir, ndir, p, q;
 	float size;
-	fz_point delta;
+	SPoint2F delta;
 	float spacing = 0;
 	float base_offset = 0;
 	int rtl = 0;

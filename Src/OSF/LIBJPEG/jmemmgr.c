@@ -523,12 +523,11 @@ METHODDEF(void) realize_virt_arrays(j_common_ptr cinfo)
 	 * in each buffer.
 	 */
 	if(avail_mem >= maximum_space)
-		max_minheights = 1000000000L;
+		max_minheights = SlConst::OneBillion;
 	else {
 		max_minheights = avail_mem / space_per_minheight;
-		/* If there doesn't seem to be enough space, try to get the minimum
-		 * anyway.  This allows a "stub" implementation of jpeg_mem_available().
-		 */
+		// If there doesn't seem to be enough space, try to get the minimum
+		// anyway.  This allows a "stub" implementation of jpeg_mem_available().
 		if(max_minheights <= 0)
 			max_minheights = 1;
 	}

@@ -48,8 +48,8 @@
  */
 typedef struct u_scanf_spec_info {
 	int32_t fWidth; /* Width  */
-	UChar  fSpec; /* Format specification  */
-	UChar  fPadChar; /* Padding character  */
+	char16_t  fSpec; /* Format specification  */
+	char16_t  fPadChar; /* Padding character  */
 	bool   fSkipArg; /* TRUE if arg should be skipped */
 	bool   fIsLongDouble; /* L flag  */
 	bool   fIsShort; /* h flag  */
@@ -74,10 +74,10 @@ typedef struct u_scanf_spec {
  * format specifier.
  * @return The number of characters contained in this specifier.
  */
-static int32_t u_scanf_parse_spec(const UChar * fmt, u_scanf_spec    * spec)
+static int32_t u_scanf_parse_spec(const char16_t * fmt, u_scanf_spec    * spec)
 {
-	const UChar * s = fmt;
-	const UChar * backup;
+	const char16_t * s = fmt;
+	const char16_t * backup;
 	u_scanf_spec_info * info = &(spec->fInfo);
 
 	/* initialize spec to default values */
@@ -125,10 +125,10 @@ static int32_t u_scanf_parse_spec(const UChar * fmt, u_scanf_spec    * spec)
 			/* pad character specified */
 			case FLAG_PAREN:
 			    /* first four characters are hex values for pad char */
-			    info->fPadChar = (UChar)ufmt_digitvalue(*s++);
-			    info->fPadChar = (UChar)((info->fPadChar * 16) + ufmt_digitvalue(*s++));
-			    info->fPadChar = (UChar)((info->fPadChar * 16) + ufmt_digitvalue(*s++));
-			    info->fPadChar = (UChar)((info->fPadChar * 16) + ufmt_digitvalue(*s++));
+			    info->fPadChar = (char16_t)ufmt_digitvalue(*s++);
+			    info->fPadChar = (char16_t)((info->fPadChar * 16) + ufmt_digitvalue(*s++));
+			    info->fPadChar = (char16_t)((info->fPadChar * 16) + ufmt_digitvalue(*s++));
+			    info->fPadChar = (char16_t)((info->fPadChar * 16) + ufmt_digitvalue(*s++));
 			    /* final character is ignored */
 			    s++;
 			    break;
@@ -218,7 +218,7 @@ static int32_t u_scanf_parse_spec(const UChar * fmt, u_scanf_spec    * spec)
 typedef int32_t (* u_scanf_handler) (UFILE * stream,
     u_scanf_spec_info  * info,
     ufmt_args * args,
-    const UChar * fmt,
+    const char16_t * fmt,
     int32_t * fmtConsumed,
     int32_t * argConverted);
 
@@ -233,9 +233,9 @@ typedef struct u_scanf_info {
 /* We do not use handlers for 0-0x1f */
 #define USCANF_BASE_FMT_HANDLERS 0x20
 
-static int32_t u_scanf_skip_leading_ws(UFILE * input, UChar pad)
+static int32_t u_scanf_skip_leading_ws(UFILE * input, char16_t pad)
 {
-	UChar c;
+	char16_t c;
 	int32_t count = 0;
 	bool isNotEOF;
 	/* skip all leading ws in the input */
@@ -251,10 +251,10 @@ static int32_t u_scanf_skip_leading_ws(UFILE * input, UChar pad)
 /* TODO: Is always skipping the prefix symbol as a positive sign a good idea in all locales? */
 static int32_t u_scanf_skip_leading_positive_sign(UFILE * input, UNumberFormat * format, UErrorCode * status)
 {
-	UChar c;
+	char16_t c;
 	int32_t count = 0;
 	bool isNotEOF;
-	UChar plusSymbol[USCANF_SYMBOL_BUFFER_SIZE];
+	char16_t plusSymbol[USCANF_SYMBOL_BUFFER_SIZE];
 	int32_t symbolLen;
 	UErrorCode localStatus = U_ZERO_ERROR;
 	if(U_SUCCESS(*status)) {
@@ -273,7 +273,7 @@ static int32_t u_scanf_skip_leading_positive_sign(UFILE * input, UNumberFormat *
 	return count;
 }
 
-static int32_t u_scanf_simple_percent_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const UChar * fmt, int32_t * fmtConsumed, int32_t * argConverted)
+static int32_t u_scanf_simple_percent_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const char16_t * fmt, int32_t * fmtConsumed, int32_t * argConverted)
 {
 	(void)info;
 	(void)args;
@@ -287,7 +287,7 @@ static int32_t u_scanf_simple_percent_handler(UFILE * input, u_scanf_spec_info *
 	return 1;
 }
 
-static int32_t u_scanf_count_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const UChar * fmt, int32_t * fmtConsumed, int32_t * argConverted)
+static int32_t u_scanf_count_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const char16_t * fmt, int32_t * fmtConsumed, int32_t * argConverted)
 {
 	(void)input;
 	(void)fmt;
@@ -307,7 +307,7 @@ static int32_t u_scanf_count_handler(UFILE * input, u_scanf_spec_info * info, uf
 	return 0;
 }
 
-static int32_t u_scanf_double_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const UChar * fmt, int32_t * fmtConsumed, int32_t * argConverted)
+static int32_t u_scanf_double_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const char16_t * fmt, int32_t * fmtConsumed, int32_t * argConverted)
 {
 	(void)fmt;
 	(void)fmtConsumed;
@@ -367,7 +367,7 @@ static int32_t u_scanf_double_handler(UFILE * input, u_scanf_spec_info * info, u
 
 #define UPRINTF_SYMBOL_BUFFER_SIZE 8
 
-static int32_t u_scanf_scientific_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const UChar * fmt, int32_t * fmtConsumed, int32_t * argConverted)
+static int32_t u_scanf_scientific_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const char16_t * fmt, int32_t * fmtConsumed, int32_t * argConverted)
 {
 	(void)fmt;
 	(void)fmtConsumed;
@@ -377,9 +377,9 @@ static int32_t u_scanf_scientific_handler(UFILE * input, u_scanf_spec_info * inf
 	int32_t parsePos    = 0;
 	int32_t skipped;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar srcExpBuf[UPRINTF_SYMBOL_BUFFER_SIZE];
+	char16_t srcExpBuf[UPRINTF_SYMBOL_BUFFER_SIZE];
 	int32_t srcLen, expLen;
-	UChar expBuf[UPRINTF_SYMBOL_BUFFER_SIZE];
+	char16_t expBuf[UPRINTF_SYMBOL_BUFFER_SIZE];
 	/* skip all ws in the input */
 	skipped = u_scanf_skip_leading_ws(input, info->fPadChar);
 	/* fill the input's internal buffer */
@@ -397,7 +397,7 @@ static int32_t u_scanf_scientific_handler(UFILE * input, u_scanf_spec_info * inf
 	/* set the appropriate flags on the formatter */
 	srcLen = unum_getSymbol(format, UNUM_EXPONENTIAL_SYMBOL, srcExpBuf, sizeof(srcExpBuf), &status);
 	/* Upper/lower case the e */
-	if(info->fSpec == (UChar)0x65 /* e */) {
+	if(info->fSpec == (char16_t)0x65 /* e */) {
 		expLen = u_strToLower(expBuf, (int32_t)sizeof(expBuf), srcExpBuf, srcLen, input->str.fBundle.fLocale, &status);
 	}
 	else {
@@ -426,7 +426,7 @@ static int32_t u_scanf_scientific_handler(UFILE * input, u_scanf_spec_info * inf
 	return parsePos + skipped;
 }
 
-static int32_t u_scanf_scidbl_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const UChar * fmt, int32_t * fmtConsumed, int32_t * argConverted)
+static int32_t u_scanf_scidbl_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const char16_t * fmt, int32_t * fmtConsumed, int32_t * argConverted)
 {
 	(void)fmt;
 	(void)fmtConsumed;
@@ -510,7 +510,7 @@ static int32_t u_scanf_scidbl_handler(UFILE * input, u_scanf_spec_info * info, u
 	return parsePos + skipped;
 }
 
-static int32_t u_scanf_integer_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const UChar * fmt, int32_t * fmtConsumed, int32_t * argConverted)
+static int32_t u_scanf_integer_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const char16_t * fmt, int32_t * fmtConsumed, int32_t * argConverted)
 {
 	(void)fmt;
 	(void)fmtConsumed;
@@ -583,7 +583,7 @@ static int32_t u_scanf_integer_handler(UFILE * input, u_scanf_spec_info * info, 
 static int32_t u_scanf_uinteger_handler(UFILE      * input,
     u_scanf_spec_info * info,
     ufmt_args * args,
-    const UChar * fmt,
+    const char16_t * fmt,
     int32_t * fmtConsumed,
     int32_t * argConverted)
 {
@@ -594,7 +594,7 @@ static int32_t u_scanf_uinteger_handler(UFILE      * input,
 static int32_t u_scanf_percent_handler(UFILE * input,
     u_scanf_spec_info * info,
     ufmt_args * args,
-    const UChar * fmt,
+    const char16_t * fmt,
     int32_t * fmtConsumed,
     int32_t * argConverted)
 {
@@ -637,11 +637,11 @@ static int32_t u_scanf_percent_handler(UFILE * input,
 	return parsePos;
 }
 
-static int32_t u_scanf_string_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const UChar * fmt, int32_t * fmtConsumed, int32_t * argConverted)
+static int32_t u_scanf_string_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const char16_t * fmt, int32_t * fmtConsumed, int32_t * argConverted)
 {
 	(void)fmt;
 	(void)fmtConsumed;
-	const UChar * source;
+	const char16_t * source;
 	UConverter  * conv;
 	char * arg    = (char *)(args[0].ptrValue);
 	char * alias  = arg;
@@ -649,7 +649,7 @@ static int32_t u_scanf_string_handler(UFILE * input, u_scanf_spec_info * info, u
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t count;
 	int32_t skipped = 0;
-	UChar c;
+	char16_t c;
 	bool isNotEOF = FALSE;
 	/* skip all ws in the input */
 	if(info->fIsString) {
@@ -693,7 +693,7 @@ static int32_t u_scanf_string_handler(UFILE * input, u_scanf_spec_info * info, u
 	return count + skipped;
 }
 
-static int32_t u_scanf_char_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const UChar * fmt, int32_t * fmtConsumed, int32_t * argConverted)
+static int32_t u_scanf_char_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const char16_t * fmt, int32_t * fmtConsumed, int32_t * argConverted)
 {
 	if(info->fWidth < 0) {
 		info->fWidth = 1;
@@ -702,15 +702,15 @@ static int32_t u_scanf_char_handler(UFILE * input, u_scanf_spec_info * info, ufm
 	return u_scanf_string_handler(input, info, args, fmt, fmtConsumed, argConverted);
 }
 
-static int32_t u_scanf_ustring_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const UChar * fmt, int32_t * fmtConsumed, int32_t * argConverted)
+static int32_t u_scanf_ustring_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const char16_t * fmt, int32_t * fmtConsumed, int32_t * argConverted)
 {
 	(void)fmt;
 	(void)fmtConsumed;
-	UChar * arg     = (UChar *)(args[0].ptrValue);
-	UChar * alias     = arg;
+	char16_t * arg     = (char16_t *)(args[0].ptrValue);
+	char16_t * alias     = arg;
 	int32_t count;
 	int32_t skipped = 0;
-	UChar c;
+	char16_t c;
 	bool isNotEOF = FALSE;
 	/* skip all ws in the input */
 	if(info->fIsString) {
@@ -740,7 +740,7 @@ static int32_t u_scanf_ustring_handler(UFILE * input, u_scanf_spec_info * info, 
 	return count + skipped;
 }
 
-static int32_t u_scanf_uchar_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const UChar * fmt,
+static int32_t u_scanf_uchar_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const char16_t * fmt,
     int32_t * fmtConsumed, int32_t * argConverted)
 {
 	if(info->fWidth < 0) {
@@ -750,7 +750,7 @@ static int32_t u_scanf_uchar_handler(UFILE * input, u_scanf_spec_info * info, uf
 	return u_scanf_ustring_handler(input, info, args, fmt, fmtConsumed, argConverted);
 }
 
-static int32_t u_scanf_spellout_handler(UFILE      * input, u_scanf_spec_info * info, ufmt_args * args, const UChar * fmt, int32_t * fmtConsumed, int32_t * argConverted)
+static int32_t u_scanf_spellout_handler(UFILE      * input, u_scanf_spec_info * info, ufmt_args * args, const char16_t * fmt, int32_t * fmtConsumed, int32_t * argConverted)
 {
 	(void)fmt;
 	(void)fmtConsumed;
@@ -794,7 +794,7 @@ static int32_t u_scanf_spellout_handler(UFILE      * input, u_scanf_spec_info * 
 	return parsePos + skipped;
 }
 
-static int32_t u_scanf_hex_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const UChar * fmt, int32_t * fmtConsumed, int32_t * argConverted)
+static int32_t u_scanf_hex_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const char16_t * fmt, int32_t * fmtConsumed, int32_t * argConverted)
 {
 	(void)fmt;
 	(void)fmtConsumed;
@@ -835,7 +835,7 @@ static int32_t u_scanf_hex_handler(UFILE * input, u_scanf_spec_info * info, ufmt
 	return len + skipped;
 }
 
-static int32_t u_scanf_octal_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const UChar * fmt, int32_t * fmtConsumed, int32_t * argConverted)
+static int32_t u_scanf_octal_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const char16_t * fmt, int32_t * fmtConsumed, int32_t * argConverted)
 {
 	(void)fmt;
 	(void)fmtConsumed;
@@ -870,7 +870,7 @@ static int32_t u_scanf_octal_handler(UFILE * input, u_scanf_spec_info * info, uf
 	return len + skipped;
 }
 
-static int32_t u_scanf_pointer_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const UChar * fmt, int32_t * fmtConsumed, int32_t * argConverted)
+static int32_t u_scanf_pointer_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const char16_t * fmt, int32_t * fmtConsumed, int32_t * argConverted)
 {
 	(void)fmt;
 	(void)fmtConsumed;
@@ -904,13 +904,13 @@ static int32_t u_scanf_pointer_handler(UFILE * input, u_scanf_spec_info * info, 
 	return len + skipped;
 }
 
-static int32_t u_scanf_scanset_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const UChar * fmt, int32_t * fmtConsumed, int32_t * argConverted)
+static int32_t u_scanf_scanset_handler(UFILE * input, u_scanf_spec_info * info, ufmt_args * args, const char16_t * fmt, int32_t * fmtConsumed, int32_t * argConverted)
 {
 	USet    * scanset;
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t chLeft = INT32_MAX;
 	UChar32 c;
-	UChar * alias = (UChar *)(args[0].ptrValue);
+	char16_t * alias = (char16_t *)(args[0].ptrValue);
 	bool isNotEOF = FALSE;
 	bool readCharacter = FALSE;
 	/* Create an empty set */
@@ -1014,9 +1014,9 @@ static const u_scanf_info g_u_scanf_infos[USCANF_NUM_FMT_HANDLERS] = {
 	UFMT_EMPTY,         UFMT_EMPTY,         UFMT_EMPTY,         UFMT_EMPTY,
 };
 
-U_CFUNC int32_t u_scanf_parse(UFILE * f, const UChar * patternSpecification, va_list ap)
+U_CFUNC int32_t u_scanf_parse(UFILE * f, const char16_t * patternSpecification, va_list ap)
 {
-	const UChar * alias;
+	const char16_t * alias;
 	int32_t count, converted, argConsumed, cpConsumed;
 	uint16 handlerNum;
 	ufmt_args args;

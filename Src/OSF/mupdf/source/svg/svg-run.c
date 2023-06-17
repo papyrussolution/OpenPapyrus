@@ -360,7 +360,7 @@ static void svg_run_polygon(fz_context * ctx, fz_device * dev, svg_document * do
 static void svg_add_arc_segment(fz_context * ctx, fz_path * path, fz_matrix mtx, float th0, float th1, int iscw)
 {
 	float t, d;
-	fz_point p;
+	SPoint2F p;
 	while(th1 < th0)
 		th1 += SMathConst::Pi_f * 2;
 	d = SMathConst::Pi_f / 180; /* 1-degree precision */
@@ -379,7 +379,7 @@ static void svg_add_arc_segment(fz_context * ctx, fz_path * path, fz_matrix mtx,
 	}
 }
 
-static float angle_between(const fz_point u, const fz_point v)
+static float angle_between(const SPoint2F u, const SPoint2F v)
 {
 	float det = u.x * v.y - u.y * v.x;
 	float sign = (det < 0 ? -1 : 1);
@@ -398,7 +398,7 @@ static void svg_add_arc(fz_context * ctx, fz_path * path, float size_x, float si
 {
 	fz_matrix rotmat, revmat;
 	fz_matrix mtx;
-	fz_point pt;
+	SPoint2F pt;
 	float rx, ry;
 	float x1, y1, x2, y2;
 	float x1t, y1t;
@@ -468,7 +468,7 @@ static void svg_add_arc(fz_context * ctx, fz_path * path, float size_x, float si
 
 	/* F.6.5.4 */
 	{
-		fz_point coord1, coord2, coord3, coord4;
+		SPoint2F coord1, coord2, coord3, coord4;
 		coord1.x = 1;
 		coord1.y = 0;
 		coord2.x = (x1t - cxt) / rx;
@@ -492,7 +492,7 @@ static void svg_add_arc(fz_context * ctx, fz_path * path, float size_x, float si
 static fz_path * svg_parse_path_data(fz_context * ctx, svg_document * doc, const char * str)
 {
 	fz_path * path;
-	fz_point p;
+	SPoint2F p;
 	float x1, y1, x2, y2;
 	int cmd;
 	float number;
@@ -846,7 +846,7 @@ static void svg_parse_viewbox(fz_context * ctx, svg_document * doc, fz_xml * nod
 		if(preserve_att)
 			preserve = svg_parse_preserve_aspect_ratio(preserve_att, &align_x, &align_y);
 		if(preserve) {
-			sx = sy = fz_min(sx, sy);
+			sx = sy = smin(sx, sy);
 			if(align_x == 1) pad_x = (box_w * sx - state->viewport_w) / 2;
 			if(align_x == 2) pad_x = (box_w * sx - state->viewport_w);
 			if(align_y == 1) pad_y = (box_h * sy - state->viewport_h) / 2;

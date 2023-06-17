@@ -102,26 +102,19 @@ HRESULT ConvertToRGBAF32(const Image& srcImage, ScratchImage& image, TEX_FILTER_
 
 	return S_OK;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Compress using GPU, converting to the proper input format for the shader if needed
-//-------------------------------------------------------------------------------------
-inline HRESULT GPUCompress(_In_ GPUCompressBC* gpubc,
-    const Image& srcImage,
-    const Image& destImage,
-    TEX_COMPRESS_FLAGS compress)
+//
+inline HRESULT GPUCompress(_In_ GPUCompressBC* gpubc, const Image& srcImage, const Image& destImage, TEX_COMPRESS_FLAGS compress)
 {
 	if(!gpubc)
 		return E_POINTER;
-
 	assert(srcImage.pixels && destImage.pixels);
-
 	DXGI_FORMAT tformat = gpubc->GetSourceFormat();
 	if(compress & TEX_COMPRESS_SRGB_OUT) {
 		tformat = MakeSRGB(tformat);
 	}
 	const DXGI_FORMAT sformat = (compress & TEX_COMPRESS_SRGB_IN) ? MakeSRGB(srcImage.format) : srcImage.format;
-
 	if(sformat == tformat) {
 		// Input is already in our required source format
 		return gpubc->Compress(srcImage, destImage);
@@ -130,14 +123,11 @@ inline HRESULT GPUCompress(_In_ GPUCompressBC* gpubc,
 		// Convert format and then use as the source image
 		ScratchImage image;
 		HRESULT hr = E_UNEXPECTED;
-
 		auto const srgb = GetSRGBFlags(compress);
-
 		switch(tformat) {
 			case DXGI_FORMAT_R8G8B8A8_UNORM:
 			    hr = ConvertToRGBA32(srcImage, image, false, srgb);
 			    break;
-
 			case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
 			    hr = ConvertToRGBA32(srcImage, image, true, srgb);
 			    break;
@@ -145,32 +135,24 @@ inline HRESULT GPUCompress(_In_ GPUCompressBC* gpubc,
 			case DXGI_FORMAT_R32G32B32A32_FLOAT:
 			    hr = ConvertToRGBAF32(srcImage, image, srgb);
 			    break;
-
 			default:
 			    break;
 		}
-
 		if(FAILED(hr))
 			return hr;
-
 		const Image * img = image.GetImage(0, 0, 0);
 		if(!img)
 			return E_POINTER;
-
 		return gpubc->Compress(*img, destImage);
 	}
 }
 };
-
-//=====================================================================================
+//
 // Entry-points
-//=====================================================================================
-
-//-------------------------------------------------------------------------------------
+//
 // Compression
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::Compress(ID3D11Device* pDevice,
+//
+_Use_decl_annotations_ HRESULT DirectX::Compress(ID3D11Device* pDevice,
     const Image& srcImage,
     DXGI_FORMAT format,
     TEX_COMPRESS_FLAGS compress,
@@ -215,8 +197,7 @@ HRESULT DirectX::Compress(ID3D11Device* pDevice,
 	return hr;
 }
 
-_Use_decl_annotations_
-HRESULT DirectX::Compress(ID3D11Device* pDevice,
+_Use_decl_annotations_ HRESULT DirectX::Compress(ID3D11Device* pDevice,
     const Image* srcImages,
     size_t nimages,
     const TexMetadata& metadata,

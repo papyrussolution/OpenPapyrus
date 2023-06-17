@@ -324,7 +324,7 @@ UnicodeString * CanonicalIterator::getEquivalents(const UnicodeString & segment,
 	permutations.setValueDeleter(uprv_deleteUObject);
 	basic.setValueDeleter(uprv_deleteUObject);
 
-	UChar USeg[256];
+	char16_t USeg[256];
 	int32_t segLen = segment.extract(USeg, 256, status);
 	getEquivalents2(&basic, USeg, segLen, status);
 
@@ -401,7 +401,7 @@ UnicodeString * CanonicalIterator::getEquivalents(const UnicodeString & segment,
 	return finalResult;
 }
 
-Hashtable * CanonicalIterator::getEquivalents2(Hashtable * fillinResult, const UChar * segment, int32_t segLen, UErrorCode & status) {
+Hashtable * CanonicalIterator::getEquivalents2(Hashtable * fillinResult, const char16_t * segment, int32_t segLen, UErrorCode & status) {
 	if(U_FAILURE(status)) {
 		return NULL;
 	}
@@ -470,7 +470,7 @@ Hashtable * CanonicalIterator::getEquivalents2(Hashtable * fillinResult, const U
  */
 Hashtable * CanonicalIterator::extract(Hashtable * fillinResult,
     UChar32 comp,
-    const UChar * segment,
+    const char16_t * segment,
     int32_t segLen,
     int32_t segmentPos,
     UErrorCode & status) {
@@ -494,7 +494,7 @@ Hashtable * CanonicalIterator::extract(Hashtable * fillinResult,
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}
-	const UChar * decomp = decompString.getBuffer();
+	const char16_t * decomp = decompString.getBuffer();
 	int32_t decompLen = decompString.length();
 
 	// See if it matches the start of segment (at segmentPos)

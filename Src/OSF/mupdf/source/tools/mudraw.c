@@ -939,7 +939,7 @@ static void dodrawpage(fz_context * ctx, fz_page * page, fz_display_list * list,
 			}
 
 			if(num_workers > 0) {
-				for(band = 0; band < fz_mini(num_workers, bands); band++) {
+				for(band = 0; band < smin(num_workers, bands); band++) {
 					workers[band].band = band;
 					workers[band].error = 0;
 					workers[band].ctm = ctm;
@@ -1583,13 +1583,11 @@ static void apply_layer_config(fz_context * ctx, fz_document * doc, const char *
 		slfprintf_stderr("cannot find number expected for -y\n");
 		return;
 	}
-	config = fz_atoi(lc);
+	config = satoi(lc);
 	pdf_select_layer_config(ctx, pdoc, config);
-
 	while(*lc) {
 		int item;
-
-		/* Skip over the last number we read (in the fz_atoi) */
+		/* Skip over the last number we read (in the satoi) */
 		while(*lc >= '0' && *lc <= '9')
 			lc++;
 		while(iswhite(*lc))
@@ -1603,10 +1601,9 @@ static void apply_layer_config(fz_context * ctx, fz_document * doc, const char *
 			slfprintf_stderr("Expected a number for UI item to toggle\n");
 			return;
 		}
-		item = fz_atoi(lc);
+		item = satoi(lc);
 		pdf_toggle_layer_config_ui(ctx, pdoc, item);
 	}
-
 	/* Now list the final state of the config */
 	slfprintf_stderr("Layer Config %d:\n", config);
 	pdf_layer_config_info(ctx, pdoc, config, &info);
@@ -1761,9 +1758,9 @@ int mudraw_main(int argc, const char * argv[])
 			    break;
 #endif
 			case 'm':
-			    if(fz_optarg[0] == 's') trace_info.mem_limit = fz_atoi64(&fz_optarg[1]);
-			    else if(fz_optarg[0] == 'a') trace_info.alloc_limit = fz_atoi64(&fz_optarg[1]);
-			    else trace_info.mem_limit = fz_atoi64(fz_optarg);
+			    if(fz_optarg[0] == 's') trace_info.mem_limit = satoi64(&fz_optarg[1]);
+			    else if(fz_optarg[0] == 'a') trace_info.alloc_limit = satoi64(&fz_optarg[1]);
+			    else trace_info.mem_limit = satoi64(fz_optarg);
 			    break;
 			case 'L': lowmemory = 1; break;
 			case 'P':

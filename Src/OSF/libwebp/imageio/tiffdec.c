@@ -235,7 +235,7 @@ int ReadTIFF(const uint8* const data, size_t data_size, WebPPicture* const pic, 
 					tmp += stride;
 				}
 			}
-			ok = keep_alpha ? WebPPictureImportRGBA(pic, (const uint8*)raster, (int)stride) : WebPPictureImportRGBX(pic, (const uint8*)raster, (int)stride);
+			ok = keep_alpha ? WebPPictureImportRGBA(pic, (const uint8 *)raster, (int)stride) : WebPPictureImportRGBX(pic, (const uint8 *)raster, (int)stride);
 		}
 		// @sobolev _TIFFfree(raster);
 		SAlloc::F(raster); // @sobolev

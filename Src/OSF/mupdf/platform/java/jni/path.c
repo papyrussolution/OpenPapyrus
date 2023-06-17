@@ -26,7 +26,7 @@ JNIEXPORT jobject JNICALL FUN(Path_currentPoint)(JNIEnv *env, jobject self)
 {
 	fz_context * ctx = get_context(env);
 	fz_path * path = from_Path(env, self);
-	fz_point point;
+	SPoint2F point;
 	if(!ctx || !path) return NULL;
 	fz_try(ctx)
 	point = fz_currentpoint(ctx, path);

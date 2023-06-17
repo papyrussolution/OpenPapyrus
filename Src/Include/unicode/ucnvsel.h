@@ -140,7 +140,7 @@ U_CAPI int32_t U_EXPORT2 ucnvsel_serialize(const UConverterSelector* sel, void *
  *
  * @stable ICU 4.2
  */
-U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForString(const UConverterSelector* sel, const UChar * s, int32_t length, UErrorCode * status);
+U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForString(const UConverterSelector* sel, const char16_t * s, int32_t length, UErrorCode * status);
 /**
  * Select converters that can map all characters in a UTF-8 string,
  * ignoring the excluded code points.

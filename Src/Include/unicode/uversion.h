@@ -117,7 +117,7 @@ U_CAPI void U_EXPORT2 u_versionFromString(UVersionInfo versionArray, const char 
  *                      fields with values of up to 255 each.
  * @stable ICU 4.2
  */
-U_CAPI void U_EXPORT2 u_versionFromUString(UVersionInfo versionArray, const UChar * versionString);
+U_CAPI void U_EXPORT2 u_versionFromUString(UVersionInfo versionArray, const char16_t * versionString);
 /**
  * Write a string with dotted-decimal version information according
  * to the input UVersionInfo.

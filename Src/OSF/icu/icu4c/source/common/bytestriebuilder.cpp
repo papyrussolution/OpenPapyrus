@@ -262,7 +262,7 @@ BytesTrieBuilder &BytesTrieBuilder::clear()
 }
 
 int32_t BytesTrieBuilder::getElementStringLength(int32_t i) const { return elements[i].getStringLength(*strings); }
-UChar BytesTrieBuilder::getElementUnit(int32_t i, int32_t byteIndex) const { return (uint8)elements[i].charAt(byteIndex, *strings); }
+char16_t BytesTrieBuilder::getElementUnit(int32_t i, int32_t byteIndex) const { return (uint8)elements[i].charAt(byteIndex, *strings); }
 int32_t BytesTrieBuilder::getElementValue(int32_t i) const { return elements[i].getValue(); }
 
 int32_t BytesTrieBuilder::getLimitOfLinearMatch(int32_t first, int32_t last, int32_t byteIndex) const 
@@ -302,7 +302,7 @@ int32_t BytesTrieBuilder::skipElementsBySomeUnits(int32_t i, int32_t byteIndex, 
 	return i;
 }
 
-int32_t BytesTrieBuilder::indexOfElementWithNextUnit(int32_t i, int32_t byteIndex, UChar byte) const 
+int32_t BytesTrieBuilder::indexOfElementWithNextUnit(int32_t i, int32_t byteIndex, char16_t byte) const 
 {
 	char b = (char)byte;
 	while(b==elements[i].charAt(byteIndex, *strings)) {

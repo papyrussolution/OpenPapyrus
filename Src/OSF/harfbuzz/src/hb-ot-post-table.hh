@@ -86,7 +86,7 @@ public:
 				const postV2Tail &v2 = table->v2X;
 				glyphNameIndex = &v2.glyphNameIndex;
 				pool = &StructAfter<uint8> (v2.glyphNameIndex);
-				const uint8 * end = (const uint8*)(const void*)table + table_length;
+				const uint8 * end = (const uint8 *)(const void*)table + table_length;
 				for(const uint8 * data = pool; index_to_offset.length < 65535 && data < end && data + *data < end; data += 1 + *data)
 					index_to_offset.push(data - pool);
 			}

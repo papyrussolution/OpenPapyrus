@@ -75,7 +75,7 @@ struct U_I18N_API CollationDataReader /* all static */ {
 
 		/** Byte offset to uint32_t rootElements[]. */
 		IX_ROOT_ELEMENTS_OFFSET, // 12
-		/** Byte offset to UChar *contexts[]. */
+		/** Byte offset to char16_t *contexts[]. */
 		IX_CONTEXTS_OFFSET,
 		/** Byte offset to uint16 [] with serialized unsafeBackwardSet. */
 		IX_UNSAFE_BWD_OFFSET,
@@ -192,7 +192,7 @@ private:
  *      Compact storage for all of the CEs that occur in the root collation.
  *      See the CollationRootElements class.
  *
- * UChar *contexts[];
+ * char16_t *contexts[];
  *      Serialized UCharsTrie structures with prefix (pre-context) and contraction mappings.
  *
  * uint16 unsafeBackwardSet[]; -- see UnicodeSet::serialize()

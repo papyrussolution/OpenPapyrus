@@ -147,7 +147,7 @@ int pdf_xref_len(fz_context * ctx, pdf_document * doc)
 	int xref_len = 0;
 
 	while(i < doc->num_xref_sections)
-		xref_len = fz_maxi(xref_len, doc->xref_sections[i++].num_objects);
+		xref_len = smax(xref_len, doc->xref_sections[i++].num_objects);
 
 	return xref_len;
 }
@@ -709,24 +709,20 @@ static int pdf_xref_size_from_old_trailer(fz_context * ctx, pdf_document * doc, 
 		c = fz_peek_byte(ctx, doc->file);
 		if(!isdigit(c))
 			break;
-
 		fz_read_line(ctx, doc->file, buf->scratch, buf->size);
 		s = buf->scratch;
 		fz_strsep(&s, " "); /* ignore start */
 		if(!s)
 			fz_throw(ctx, FZ_ERROR_GENERIC, "xref subsection length missing");
-		len = fz_atoi(fz_strsep(&s, " "));
+		len = satoi(fz_strsep(&s, " "));
 		if(len < 0)
 			fz_throw(ctx, FZ_ERROR_GENERIC, "xref subsection length must be positive");
-
 		/* broken pdfs where the section is not on a separate line */
 		if(s && *s != '\0')
 			fz_seek(ctx, doc->file, -(2 + (int)strlen(s)), SEEK_CUR);
-
 		t = fz_tell(ctx, doc->file);
 		if(t < 0)
 			fz_throw(ctx, FZ_ERROR_GENERIC, "cannot tell in file");
-
 		/* Spec says xref entries should be 20 bytes, but it's not infrequent
 		 * to see 19, in particular for some PCLm drivers. Cope. */
 		if(len > 0) {
@@ -738,31 +734,23 @@ static int pdf_xref_size_from_old_trailer(fz_context * ctx, pdf_document * doc, 
 		}
 		else
 			n = 20;
-
 		if(len > (int64_t)((INT64_MAX - t) / n))
 			fz_throw(ctx, FZ_ERROR_GENERIC, "xref has too many entries");
-
 		fz_seek(ctx, doc->file, t + n * (int64_t)len, SEEK_SET);
 	}
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		tok = pdf_lex(ctx, doc->file, buf);
 		if(tok != PDF_TOK_TRAILER)
 			fz_throw(ctx, FZ_ERROR_GENERIC, "expected trailer marker");
-
 		tok = pdf_lex(ctx, doc->file, buf);
 		if(tok != PDF_TOK_OPEN_DICT)
 			fz_throw(ctx, FZ_ERROR_GENERIC, "expected trailer dictionary");
-
 		trailer = pdf_parse_dict(ctx, doc, doc->file, buf);
-
 		size = pdf_dict_get_int(ctx, trailer, PDF_NAME(Size));
 		if(size < 0 || size > PDF_MAX_OBJECT_NUMBER + 1)
 			fz_throw(ctx, FZ_ERROR_GENERIC, "trailer Size entry out of range");
 	}
-	fz_always(ctx)
-	{
+	fz_always(ctx) {
 		pdf_drop_obj(ctx, trailer);
 	}
 	fz_catch(ctx)
@@ -852,8 +840,8 @@ static pdf_obj * pdf_read_old_xref(fz_context * ctx, pdf_document * doc, pdf_lex
 
 		fz_read_line(ctx, file, buf->scratch, buf->size);
 		s = buf->scratch;
-		start = fz_atoi(fz_strsep(&s, " "));
-		len = fz_atoi(fz_strsep(&s, " "));
+		start = satoi(fz_strsep(&s, " "));
+		len = satoi(fz_strsep(&s, " "));
 
 		/* broken pdfs where the section is not on a separate line */
 		if(s && *s != '\0') {
@@ -3449,7 +3437,7 @@ static void find_locked_fields_value(fz_context * ctx, pdf_locked_fields * field
 				if(fields->p == 0)
 					fields->p = p;
 				else
-					fields->p = fz_mini(fields->p, p);
+					fields->p = smin(fields->p, p);
 			}
 			else if(pdf_name_eq(ctx, tm, PDF_NAME(FieldMDP)))
 				merge_lock_specification(ctx, fields, tp);

@@ -32,10 +32,10 @@
 
 #define GET_U8_BE(X, Y) ((uint8)((X) >> ((3 - Y) * 8)))
 #define GET_U32_BE(X, Y) (                                  \
-		((uint32_t)((const uint8*)(X))[Y * 4    ] << 24) ^   \
-		((uint32_t)((const uint8*)(X))[Y * 4 + 1] << 16) ^   \
-		((uint32_t)((const uint8*)(X))[Y * 4 + 2] <<  8) ^   \
-		((uint32_t)((const uint8*)(X))[Y * 4 + 3]      )     )
+		((uint32_t)((const uint8 *)(X))[Y * 4    ] << 24) ^   \
+		((uint32_t)((const uint8 *)(X))[Y * 4 + 1] << 16) ^   \
+		((uint32_t)((const uint8 *)(X))[Y * 4 + 2] <<  8) ^   \
+		((uint32_t)((const uint8 *)(X))[Y * 4 + 3]      )     )
 
 #define PUT_U32_BE(DEST, IDX, VAL)                              \
 	do {                                                        \

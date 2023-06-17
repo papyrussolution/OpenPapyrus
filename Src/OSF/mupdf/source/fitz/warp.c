@@ -221,7 +221,7 @@ static inline void copy_pixel(uchar * d, const fz_pixmap * src, fz_ipoint p)
 /*
         points are clockwise from NW.
  */
-fz_pixmap * fz_warp_pixmap(fz_context * ctx, fz_pixmap * src, const fz_point points[4], int width, int height)
+fz_pixmap * fz_warp_pixmap(fz_context * ctx, fz_pixmap * src, const SPoint2F points[4], int width, int height)
 {
 	fz_pixmap * dst;
 	uchar * d;

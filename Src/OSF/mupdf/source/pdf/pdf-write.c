@@ -692,14 +692,14 @@ static void removeduplicateobjs(fz_context * ctx, pdf_document * doc, pdf_write_
 			}
 
 			/* Keep the lowest numbered object */
-			newnum = fz_mini(num, other);
-			max_num = fz_maxi(num, other);
+			newnum = smin(num, other);
+			max_num = smax(num, other);
 			if(max_num >= opts->list_len)
 				expand_lists(ctx, opts, max_num);
 			opts->renumber_map[num] = newnum;
 			opts->renumber_map[other] = newnum;
 			opts->rev_renumber_map[newnum] = num; /* Either will do */
-			opts->use_list[fz_maxi(num, other)] = 0;
+			opts->use_list[smax(num, other)] = 0;
 
 			/* One duplicate was found, do not look for another */
 			break;
@@ -2923,7 +2923,7 @@ pdf_write_options * pdf_parse_write_options(fz_context * ctx, pdf_write_options 
 	if(fz_has_option(ctx, args, "user-password", &val))
 		fz_copy_option(ctx, val, opts->upwd_utf8, nelem(opts->upwd_utf8));
 	if(fz_has_option(ctx, args, "permissions", &val))
-		opts->permissions = fz_atoi(val);
+		opts->permissions = satoi(val);
 	else
 		opts->permissions = ~0;
 	if(fz_has_option(ctx, args, "garbage", &val)) {
@@ -2934,7 +2934,7 @@ pdf_write_options * pdf_parse_write_options(fz_context * ctx, pdf_write_options 
 		else if(fz_option_eq(val, "deduplicate"))
 			opts->do_garbage = 3;
 		else
-			opts->do_garbage = fz_atoi(val);
+			opts->do_garbage = satoi(val);
 	}
 	if(fz_has_option(ctx, args, "appearance", &val)) {
 		if(fz_option_eq(val, "yes"))

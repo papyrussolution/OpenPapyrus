@@ -47,7 +47,7 @@ static void pdf_run_annot_with_usage(fz_context * ctx,
 		if(flags & PDF_ANNOT_IS_NO_ROTATE) {
 			int rotate = pdf_to_int(ctx, pdf_dict_get_inheritable(ctx, page->obj, PDF_NAME(Rotate)));
 			fz_rect rect = pdf_dict_get_rect(ctx, annot->obj, PDF_NAME(Rect));
-			fz_point tp = fz_transform_point_xy(rect.x0, rect.y1, page_ctm);
+			SPoint2F tp = fz_transform_point_xy(rect.x0, rect.y1, page_ctm);
 			page_ctm = fz_concat(page_ctm, fz_translate(-tp.x, -tp.y));
 			page_ctm = fz_concat(page_ctm, fz_rotate(-rotate));
 			page_ctm = fz_concat(page_ctm, fz_translate(tp.x, tp.y));

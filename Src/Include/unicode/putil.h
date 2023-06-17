@@ -123,7 +123,7 @@ U_CAPI void U_EXPORT2 u_setTimeZoneFilesDirectory(const char * path, UErrorCode 
 /** @} */
 
 /**
- * Convert char characters to UChar characters.
+ * Convert char characters to char16_t characters.
  * This utility function is useful only for "invariant characters"
  * that are encoded in the platform default encoding.
  * They are a small, constant subset of the encoding and include
@@ -140,9 +140,9 @@ U_CAPI void U_EXPORT2 u_setTimeZoneFilesDirectory(const char * path, UErrorCode 
  * @see U_CHARSET_FAMILY
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 u_charsToUChars(const char * cs, UChar * us, int32_t length);
+U_CAPI void U_EXPORT2 u_charsToUChars(const char * cs, char16_t * us, int32_t length);
 /**
- * Convert UChar characters to char characters.
+ * Convert char16_t characters to char characters.
  * This utility function is useful only for "invariant characters"
  * that can be encoded in the platform default encoding.
  * They are a small, constant subset of the encoding and include
@@ -160,6 +160,6 @@ U_CAPI void U_EXPORT2 u_charsToUChars(const char * cs, UChar * us, int32_t lengt
  * @see U_CHARSET_FAMILY
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 u_UCharsToChars(const UChar * us, char * cs, int32_t length);
+U_CAPI void U_EXPORT2 u_UCharsToChars(const char16_t * us, char * cs, int32_t length);
 
 #endif

@@ -54,7 +54,7 @@ typedef struct UConverterStaticData {   /* +offset: size */
 	int8 platform; /* +68: 1 platform of the converter (only IBM now) */
 	int8 conversionType; /* +69: 1 conversion type */
 	int8 minBytesPerChar; /* +70: 1 Minimum # bytes per char in this codepage */
-	int8 maxBytesPerChar; /* +71: 1 Maximum # bytes output per UChar in this codepage */
+	int8 maxBytesPerChar; /* +71: 1 Maximum # bytes output per char16_t in this codepage */
 	uint8 subChar[UCNV_MAX_SUBCHAR_LEN]; /* +72: 4  [note:  4 and 8 byte boundary] */
 	int8 subCharLen; /* +76: 1 */
 	uint8 hasToUnicodeFallback; /* +77: 1 bool needs to be changed to bool to be consistent across platform */
@@ -106,7 +106,7 @@ struct UConverter {
 	 * Error function pointer called when conversion issues
 	 * occur during a ucnv_fromUnicode call
 	 */
-	void(U_EXPORT2 *fromUCharErrorBehaviour)(const void * context, UConverterFromUnicodeArgs *args, const UChar *codeUnits, int32_t length, UChar32 codePoint, UConverterCallbackReason reason, UErrorCode *);
+	void(U_EXPORT2 *fromUCharErrorBehaviour)(const void * context, UConverterFromUnicodeArgs *args, const char16_t *codeUnits, int32_t length, UChar32 codePoint, UConverterCallbackReason reason, UErrorCode *);
 	/*
 	 * Error function pointer called when conversion issues
 	 * occur during a ucnv_toUnicode call
@@ -121,11 +121,11 @@ struct UConverter {
 	const void * toUContext;
 	/*
 	 * Pointer to charset bytes for substitution string if subCharLen>0,
-	 * or pointer to Unicode string (UChar *) if subCharLen<0.
+	 * or pointer to Unicode string (char16_t *) if subCharLen<0.
 	 * subCharLen==0 is equivalent to using a skip callback.
 	 * If the pointer is !=subUChars then it is allocated with
 	 * UCNV_ERROR_BUFFER_LENGTH * U_SIZEOF_UCHAR bytes.
-	 * The subUChars field is declared as UChar[] not uint8[] to
+	 * The subUChars field is declared as char16_t[] not uint8[] to
 	 * guarantee alignment for UChars.
 	 */
 	uint8 * subChars;
@@ -166,14 +166,14 @@ struct UConverter {
 	bool useSubChar1;
 	char invalidCharBuffer[UCNV_MAX_CHAR_LEN]; /* bytes from last error/callback situation */
 	uint8 charErrorBuffer[UCNV_ERROR_BUFFER_LENGTH]; /* codepage output from Error functions */
-	UChar subUChars[UCNV_MAX_SUBCHAR_LEN/U_SIZEOF_UCHAR]; /* see subChars documentation */
-	UChar invalidUCharBuffer[U16_MAX_LENGTH]; /* UChars from last error/callback situation */
-	UChar UCharErrorBuffer[UCNV_ERROR_BUFFER_LENGTH]; /* unicode output from Error functions */
+	char16_t subUChars[UCNV_MAX_SUBCHAR_LEN/U_SIZEOF_UCHAR]; /* see subChars documentation */
+	char16_t invalidUCharBuffer[U16_MAX_LENGTH]; /* UChars from last error/callback situation */
+	char16_t UCharErrorBuffer[UCNV_ERROR_BUFFER_LENGTH]; /* unicode output from Error functions */
 	/* fields for conversion extension */
 
 	/* store previous UChars/chars to continue partial matches */
 	UChar32 preFromUFirstCP; /* >=0: partial match */
-	UChar preFromU[UCNV_EXT_MAX_UCHARS];
+	char16_t preFromU[UCNV_EXT_MAX_UCHARS];
 	char preToU[UCNV_EXT_MAX_BYTES];
 	int8 preFromULength, preToULength; /* negative: replay */
 	int8 preToUFirstLength; /* length of first character */

@@ -44,17 +44,17 @@
  * Example 1:
  * <pre>
  * \code
- *     UChar *result, *tzID, *str;
- *     UChar pattern[100];
+ *     char16_t *result, *tzID, *str;
+ *     char16_t pattern[100];
  *     int32_t resultLengthOut, resultlength;
  *     UCalendar *cal;
  *     UDate d1;
  *     UDateFormat *def1;
  *     UErrorCode status = U_ZERO_ERROR;
  *
- *     str=(UChar *)malloc(sizeof(UChar) * (strlen("disturbance in force") +1));
+ *     str=(char16_t *)malloc(sizeof(char16_t) * (strlen("disturbance in force") +1));
  *     u_uastrcpy(str, "disturbance in force");
- *     tzID=(UChar *)malloc(sizeof(UChar) * 4);
+ *     tzID=(char16_t *)malloc(sizeof(char16_t) * 4);
  *     u_uastrcpy(tzID, "PST");
  *     cal=ucal_open(tzID, u_strlen(tzID), "en_US", UCAL_TRADITIONAL, &status);
  *     ucal_setDateTime(cal, 1999, UCAL_MARCH, 18, 0, 0, 0, &status);
@@ -65,10 +65,10 @@
  *     if(status==U_BUFFER_OVERFLOW_ERROR){
  *         status=U_ZERO_ERROR;
  *         resultlength=resultLengthOut+1;
- *         result=(UChar *)realloc(result, sizeof(UChar) * resultlength);
+ *         result=(char16_t *)realloc(result, sizeof(char16_t) * resultlength);
  *         u_formatMessage( "en_US", pattern, u_strlen(pattern), result, resultlength, &status, d1, str, 7);
  *     }
- *     printf("%s\n", austrdup(result));//austrdup( a function used to convert UChar* to char *)
+ *     printf("%s\n", austrdup(result));//austrdup( a function used to convert char16_t* to char *)
  *     //output>: "On March 18, 1999, there was a disturbance in force on planet 7
  * \endcode
  * </pre>
@@ -78,14 +78,14 @@
  * Example 2:
  * <pre>
  * \code
- *     UChar* str;
+ *     char16_t* str;
  *     UErrorCode status = U_ZERO_ERROR;
- *     UChar *result;
- *     UChar pattern[100];
+ *     char16_t *result;
+ *     char16_t pattern[100];
  *     int32_t resultlength, resultLengthOut, i;
  *     double testArgs= { 100.0, 1.0, 0.0};
  *
- *     str=(UChar *)malloc(sizeof(UChar) * 10);
+ *     str=(char16_t *)malloc(sizeof(char16_t) * 10);
  *     u_uastrcpy(str, "MyDisk");
  *     u_uastrcpy(pattern, "The disk {1} contains {0,choice,0#no files|1#one file|1<{0,number,integer} files}");
  *     for(i=0; i<3; i++){
@@ -95,10 +95,10 @@
  *       if(status==U_BUFFER_OVERFLOW_ERROR){
  *         status=U_ZERO_ERROR;
  *         resultlength=resultLengthOut+1;
- *         result=(UChar *)malloc(sizeof(UChar) * resultlength);
+ *         result=(char16_t *)malloc(sizeof(char16_t) * resultlength);
  *         u_formatMessage( "en_US", pattern, u_strlen(pattern), result, resultlength, &status, testArgs[i], str);
  *       }
- *       printf("%s\n", austrdup(result));  //austrdup( a function used to convert UChar* to char *)
+ *       printf("%s\n", austrdup(result));  //austrdup( a function used to convert char16_t* to char *)
  *       free(result);
  *     }
  *     // output, with different testArgs:
@@ -112,17 +112,17 @@
  * Example 3:
  * <pre>
  * \code
- * UChar* str;
- * UChar* str1;
+ * char16_t* str;
+ * char16_t* str1;
  * UErrorCode status = U_ZERO_ERROR;
- * UChar *result;
- * UChar pattern[100];
- * UChar expected[100];
+ * char16_t *result;
+ * char16_t pattern[100];
+ * char16_t expected[100];
  * int32_t resultlength,resultLengthOut;
 
- * str=(UChar *)malloc(sizeof(UChar) * 25);
+ * str=(char16_t *)malloc(sizeof(char16_t) * 25);
  * u_uastrcpy(str, "Kirti");
- * str1=(UChar *)malloc(sizeof(UChar) * 25);
+ * str1=(char16_t *)malloc(sizeof(char16_t) * 25);
  * u_uastrcpy(str1, "female");
  * log_verbose("Testing message format with Select test #1\n:");
  * u_uastrcpy(pattern, "{0} est {1, select, female {all\\u00E9e} other {all\\u00E9}} \\u00E0 Paris.");
@@ -133,7 +133,7 @@
  *  {
  *      status=U_ZERO_ERROR;
  *      resultlength=resultLengthOut+1;
- *      result=(UChar *)malloc(sizeof(UChar) * resultlength);
+ *      result=(char16_t *)malloc(sizeof(char16_t) * resultlength);
  *      u_formatMessage( "fr", pattern, u_strlen(pattern), result, resultlength, &status, str , str1);
  *      if(u_strcmp(result, expected)==0)
  *          log_verbose("PASS: MessagFormat successful on Select test#1\n");
@@ -165,8 +165,8 @@
  * @see u_parseMessage
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 u_formatMessage(const char * locale, const UChar * pattern, int32_t patternLength,
-    UChar * result, int32_t resultLength, UErrorCode  * status, ...);
+U_CAPI int32_t U_EXPORT2 u_formatMessage(const char * locale, const char16_t * pattern, int32_t patternLength,
+    char16_t * result, int32_t resultLength, UErrorCode  * status, ...);
 /**
  * Format a message for a locale.
  * This function may perform re-ordering of the arguments depending on the
@@ -185,7 +185,7 @@ U_CAPI int32_t U_EXPORT2 u_formatMessage(const char * locale, const UChar * patt
  * @see u_parseMessage
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 u_vformatMessage(const char * locale, const UChar * pattern, int32_t patternLength, UChar * result,
+U_CAPI int32_t U_EXPORT2 u_vformatMessage(const char * locale, const char16_t * pattern, int32_t patternLength, char16_t * result,
     int32_t resultLength, va_list ap, UErrorCode  * status);
 /**
  * Parse a message.
@@ -203,7 +203,7 @@ U_CAPI int32_t U_EXPORT2 u_vformatMessage(const char * locale, const UChar * pat
  * @see u_formatMessage
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 u_parseMessage(const char   * locale, const UChar  * pattern, int32_t patternLength, const UChar  * source,
+U_CAPI void U_EXPORT2 u_parseMessage(const char   * locale, const char16_t  * pattern, int32_t patternLength, const char16_t  * source,
     int32_t sourceLength, UErrorCode   * status, ...);
 /**
  * Parse a message.
@@ -221,7 +221,7 @@ U_CAPI void U_EXPORT2 u_parseMessage(const char   * locale, const UChar  * patte
  * @see u_formatMessage
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 u_vparseMessage(const char * locale, const UChar * pattern, int32_t patternLength, const UChar * source, int32_t sourceLength, va_list ap, UErrorCode  * status);
+U_CAPI void U_EXPORT2 u_vparseMessage(const char * locale, const char16_t * pattern, int32_t patternLength, const char16_t * source, int32_t sourceLength, va_list ap, UErrorCode  * status);
 /**
  * Format a message for a locale.
  * This function may perform re-ordering of the arguments depending on the
@@ -242,7 +242,7 @@ U_CAPI void U_EXPORT2 u_vparseMessage(const char * locale, const UChar * pattern
  * @see u_parseMessage
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 u_formatMessageWithError(const char    * locale, const UChar * pattern, int32_t patternLength, UChar * result,
+U_CAPI int32_t U_EXPORT2 u_formatMessageWithError(const char    * locale, const char16_t * pattern, int32_t patternLength, char16_t * result,
     int32_t resultLength, UParseError   * parseError, UErrorCode * status, ...);
 /**
  * Format a message for a locale.
@@ -263,7 +263,7 @@ U_CAPI int32_t U_EXPORT2 u_formatMessageWithError(const char    * locale, const 
  * output was truncated.
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 u_vformatMessageWithError(const char   * locale, const UChar  * pattern, int32_t patternLength, UChar * result,
+U_CAPI int32_t U_EXPORT2 u_vformatMessageWithError(const char   * locale, const char16_t  * pattern, int32_t patternLength, char16_t * result,
     int32_t resultLength, UParseError* parseError, va_list ap, UErrorCode   * status);
 /**
  * Parse a message.
@@ -284,9 +284,9 @@ U_CAPI int32_t U_EXPORT2 u_vformatMessageWithError(const char   * locale, const 
  * @stable ICU 2.0
  */
 U_CAPI void U_EXPORT2 u_parseMessageWithError(const char * locale,
-    const UChar * pattern,
+    const char16_t * pattern,
     int32_t patternLength,
-    const UChar * source,
+    const char16_t * source,
     int32_t sourceLength,
     UParseError * parseError,
     UErrorCode  * status,
@@ -311,9 +311,9 @@ U_CAPI void U_EXPORT2 u_parseMessageWithError(const char * locale,
  * @stable ICU 2.0
  */
 U_CAPI void U_EXPORT2 u_vparseMessageWithError(const char * locale,
-    const UChar * pattern,
+    const char16_t * pattern,
     int32_t patternLength,
-    const UChar * source,
+    const char16_t * source,
     int32_t sourceLength,
     va_list ap,
     UParseError * parseError,
@@ -338,7 +338,7 @@ typedef void * UMessageFormat;
  *                      messages, or 0 if an error occurred.
  * @stable ICU 2.0
  */
-U_CAPI UMessageFormat* U_EXPORT2 umsg_open(const UChar * pattern, int32_t patternLength, const char * locale, UParseError     * parseError, UErrorCode      * status);
+U_CAPI UMessageFormat* U_EXPORT2 umsg_open(const char16_t * pattern, int32_t patternLength, const char * locale, UParseError     * parseError, UErrorCode      * status);
 /**
  * Close a UMessageFormat.
  * Once closed, a UMessageFormat may no longer be used.
@@ -407,7 +407,7 @@ U_CAPI const char *  U_EXPORT2 umsg_getLocale(const UMessageFormat * fmt);
  *                      set to a failure result.
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 umsg_applyPattern(UMessageFormat * fmt, const UChar* pattern, int32_t patternLength, UParseError* parseError, UErrorCode* status);
+U_CAPI void U_EXPORT2 umsg_applyPattern(UMessageFormat * fmt, const char16_t* pattern, int32_t patternLength, UParseError* parseError, UErrorCode* status);
 /**
  * Gets the pattern.
  * @param fmt          The formatter to use
@@ -419,7 +419,7 @@ U_CAPI void U_EXPORT2 umsg_applyPattern(UMessageFormat * fmt, const UChar* patte
  * @return the pattern of the format
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 umsg_toPattern(const UMessageFormat * fmt, UChar* result, int32_t resultLength, UErrorCode* status);
+U_CAPI int32_t U_EXPORT2 umsg_toPattern(const UMessageFormat * fmt, char16_t* result, int32_t resultLength, UErrorCode* status);
 /**
  * Format a message for a locale.
  * This function may perform re-ordering of the arguments depending on the
@@ -435,7 +435,7 @@ U_CAPI int32_t U_EXPORT2 umsg_toPattern(const UMessageFormat * fmt, UChar* resul
  *                      the output was truncated.
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 umsg_format(const UMessageFormat * fmt, UChar * result, int32_t resultLength, UErrorCode * status, ...);
+U_CAPI int32_t U_EXPORT2 umsg_format(const UMessageFormat * fmt, char16_t * result, int32_t resultLength, UErrorCode * status, ...);
 /**
  * Format a message for a locale.
  * This function may perform re-ordering of the arguments depending on the
@@ -451,7 +451,7 @@ U_CAPI int32_t U_EXPORT2 umsg_format(const UMessageFormat * fmt, UChar * result,
  *                     the output was truncated.
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 umsg_vformat(const UMessageFormat * fmt, UChar * result, int32_t resultLength, va_list ap, UErrorCode * status);
+U_CAPI int32_t U_EXPORT2 umsg_vformat(const UMessageFormat * fmt, char16_t * result, int32_t resultLength, va_list ap, UErrorCode * status);
 /**
  * Parse a message.
  * For numeric arguments, this function will always use doubles.  Integer types
@@ -466,7 +466,7 @@ U_CAPI int32_t U_EXPORT2 umsg_vformat(const UMessageFormat * fmt, UChar * result
  *                      specified in pattern.
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 umsg_parse(const UMessageFormat * fmt, const UChar    * source, int32_t sourceLength, int32_t * count, UErrorCode * status, ...);
+U_CAPI void U_EXPORT2 umsg_parse(const UMessageFormat * fmt, const char16_t    * source, int32_t sourceLength, int32_t * count, UErrorCode * status, ...);
 /**
  * Parse a message.
  * For numeric arguments, this function will always use doubles.  Integer types
@@ -482,7 +482,7 @@ U_CAPI void U_EXPORT2 umsg_parse(const UMessageFormat * fmt, const UChar    * so
  * @see u_formatMessage
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 umsg_vparse(const UMessageFormat * fmt, const UChar    * source, int32_t sourceLength, int32_t * count, va_list ap, UErrorCode * status);
+U_CAPI void U_EXPORT2 umsg_vparse(const UMessageFormat * fmt, const char16_t    * source, int32_t sourceLength, int32_t * count, va_list ap, UErrorCode * status);
 /**
  * Convert an 'apostrophe-friendly' pattern into a standard
  * pattern.  Standard patterns treat all apostrophes as
@@ -506,7 +506,7 @@ U_CAPI void U_EXPORT2 umsg_vparse(const UMessageFormat * fmt, const UChar    * s
  *        not
  * @stable ICU 3.4
  */
-U_CAPI int32_t U_EXPORT2 umsg_autoQuoteApostrophe(const UChar* pattern, int32_t patternLength, UChar* dest, int32_t destCapacity, UErrorCode* ec);
+U_CAPI int32_t U_EXPORT2 umsg_autoQuoteApostrophe(const char16_t* pattern, int32_t patternLength, char16_t* dest, int32_t destCapacity, UErrorCode* ec);
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
 #endif

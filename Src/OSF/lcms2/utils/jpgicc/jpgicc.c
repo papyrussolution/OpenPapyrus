@@ -26,7 +26,6 @@
 
 
 #include "utils.h"
-
 #include "jpeglib.h"
 #include "iccjpeg.h"
 

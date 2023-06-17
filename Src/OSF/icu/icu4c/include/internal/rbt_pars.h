@@ -94,14 +94,14 @@ private:
 	 * <code>variableLimit</code>.  At any point during parsing, available
 	 * variables are <code>variableNext..variableLimit-1</code>.
 	 */
-	UChar variableNext;
+	char16_t variableNext;
 
 	/**
 	 * The last available stand-in for variables.  This is discovered
 	 * dynamically.  At any point during parsing, available variables are
 	 * <code>variableNext..variableLimit-1</code>.
 	 */
-	UChar variableLimit;
+	char16_t variableLimit;
 
 	/**
 	 * When we encounter an undefined variable, we do not immediately signal
@@ -117,7 +117,7 @@ private:
 	 * patterns.  This is allocated the first time it is needed, and
 	 * reused thereafter.
 	 */
-	UChar dotStandIn;
+	char16_t dotStandIn;
 public:
 	/**
 	 * Constructor.
@@ -253,20 +253,20 @@ private:
 	 * @param pos     the position in pattern at which to start parsing.
 	 * @return        the stand-in character used to represent it.
 	 */
-	UChar parseSet(const UnicodeString & rule, ParsePosition& pos, UErrorCode & status);
+	char16_t parseSet(const UnicodeString & rule, ParsePosition& pos, UErrorCode & status);
 	/**
 	 * Generate and return a stand-in for a new UnicodeFunctor.  Store
 	 * the matcher (adopt it).
 	 * @param adopted the UnicodeFunctor to be adopted.
 	 * @return        a stand-in for a new UnicodeFunctor.
 	 */
-	UChar generateStandInFor(UnicodeFunctor* adopted, UErrorCode & status);
+	char16_t generateStandInFor(UnicodeFunctor* adopted, UErrorCode & status);
 	/**
 	 * Return the standin for segment seg (1-based).
 	 * @param seg    the given segment.
 	 * @return       the standIn character for the given segment.
 	 */
-	UChar getSegmentStandin(int32_t seg, UErrorCode & status);
+	char16_t getSegmentStandin(int32_t seg, UErrorCode & status);
 	/**
 	 * Set the object for segment seg (1-based).
 	 * @param seg      the given segment.
@@ -278,7 +278,7 @@ private:
 	 * time and reused thereafter.
 	 * @return    the stand-in for the dot set.
 	 */
-	UChar getDotStandIn(UErrorCode & status);
+	char16_t getDotStandIn(UErrorCode & status);
 	/**
 	 * Append the value of the given variable name to the given
 	 * UnicodeString.
@@ -315,7 +315,7 @@ U_NAMESPACE_END
  * The target must be equal in size as the source.
  * @internal
  */
-U_CAPI int32_t utrans_stripRules(const UChar * source, int32_t sourceLen, UChar * target, UErrorCode * status);
+U_CAPI int32_t utrans_stripRules(const char16_t * source, int32_t sourceLen, char16_t * target, UErrorCode * status);
 
 #endif /* #if !UCONFIG_NO_TRANSLITERATION */
 #endif

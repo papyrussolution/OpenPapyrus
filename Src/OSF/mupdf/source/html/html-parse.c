@@ -673,11 +673,11 @@ static fz_html_box * generate_boxes(fz_context * ctx,
 					int w, h;
 					const char * w_att = fz_xml_att(node, "width");
 					const char * h_att = fz_xml_att(node, "height");
-					if(w_att && (w = fz_atoi(w_att)) > 0) {
+					if(w_att && (w = satoi(w_att)) > 0) {
 						style.width.value = w;
 						style.width.unit = strchr(w_att, '%') ? N_PERCENT : N_LENGTH;
 					}
-					if(h_att && (h = fz_atoi(h_att)) > 0) {
+					if(h_att && (h = satoi(h_att)) > 0) {
 						style.height.value = h;
 						style.height.unit = strchr(h_att, '%') ? N_PERCENT : N_LENGTH;
 					}
@@ -768,7 +768,7 @@ static fz_html_box * generate_boxes(fz_context * ctx,
 					top = insert_block_box(ctx, box, top);
 					if(g->is_fb2) {
 						if(sstreq(tag, "title") || sstreq(tag, "subtitle"))
-							box->heading = fz_mini(section_depth, 6);
+							box->heading = smin(section_depth, 6);
 					}
 					else {
 						if(tag[0]=='h' && tag[1]>='1' && tag[1]<='6' && tag[2]==0)
@@ -1191,7 +1191,7 @@ static fz_html * fz_parse_html_imp(fz_context * ctx,
 	}
 
 #ifndef NDEBUG
-	if(fz_atoi(getenv("FZ_DEBUG_XML")))
+	if(satoi(getenv("FZ_DEBUG_XML")))
 		fz_debug_xml(root, 0);
 #endif
 
@@ -1224,7 +1224,7 @@ static fz_html * fz_parse_html_imp(fz_context * ctx,
 	}
 
 #ifndef NDEBUG
-	if(fz_atoi(getenv("FZ_DEBUG_CSS")))
+	if(satoi(getenv("FZ_DEBUG_CSS")))
 		fz_debug_css(ctx, g.css);
 #endif
 

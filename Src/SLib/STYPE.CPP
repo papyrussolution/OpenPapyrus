@@ -1,5 +1,5 @@
 // STYPE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2019, 2020, 2022
+// Copyright (c) Sobolev A. 1995, 1996, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2019, 2020, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -7,7 +7,7 @@
 
 #define getVptr(thisPtr) (*(void **)(thisPtr))
 
-static void * type_table[TYPE_TAB_SIZ]; // @global @threadsafe
+static void * P_TypeTable[SlConst::TypeTabSize]; // @global @threadsafe
 
 #define INVALID_TYPEID 0
 
@@ -16,16 +16,16 @@ void FASTCALL RegisterSType(TYPEID id, DataType * typ)
 	int    ok = 1;
 	ENTER_CRITICAL_SECTION
 	void * vptr = getVptr(typ);
-	assert(id < TYPE_TAB_SIZ && (!type_table[GETSTYPE(id)] || type_table[GETSTYPE(id)] == vptr));
-	type_table[GETSTYPE(id)] = vptr;
+	assert(id < SlConst::TypeTabSize && (!P_TypeTable[GETSTYPE(id)] || P_TypeTable[GETSTYPE(id)] == vptr));
+	P_TypeTable[GETSTYPE(id)] = vptr;
 	LEAVE_CRITICAL_SECTION
 }
 
 DataType & FASTCALL stype(TYPEID t, DataType * pT)
 {
-	assert(type_table[GETSTYPE(t)] != 0);
+	assert(P_TypeTable[GETSTYPE(t)] != 0);
 	pT->S = GETSSIZE(t);
-	getVptr(pT) = type_table[GETSTYPE(t)];
+	getVptr(pT) = P_TypeTable[GETSTYPE(t)];
 	return *pT;
 }
 
@@ -61,7 +61,7 @@ int    DataType::fromstr(void *, long, const char *) const { return 0; }
 int    DataType::base() const { return BTS_VOID; }
 void   DataType::tobase(const void * data, void * baseData) const {}
 int    DataType::baseto(void * data, const void * baseData) const { return 0; }
-void   FASTCALL DataType::destroy(void *) const {} // @v9.8.5 const
+void   FASTCALL DataType::destroy(void *) const {}
 void   DataType::minval(void *) const { }
 void   DataType::maxval(void *) const { }
 /*

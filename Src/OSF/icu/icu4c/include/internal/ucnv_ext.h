@@ -113,11 +113,11 @@
  *   // to Unicode table
  *   [1]  index of toUTable[] (array of uint32_t)
  *   [2]  length of toUTable[]
- *   [3]  index of toUUChars[] (array of UChar)
+ *   [3]  index of toUUChars[] (array of char16_t)
  *   [4]  length of toUUChars[]
  *
  *   // from Unicode table, not for the initial code point
- *   [5]  index of fromUTableUChars[] (array of UChar)
+ *   [5]  index of fromUTableUChars[] (array of char16_t)
  *   [6]  index of fromUTableValues[] (array of uint32_t)
  *   [7]  length of fromUTableUChars[] and fromUTableValues[]
  *   [8]  index of fromUBytes[] (array of char)
@@ -136,7 +136,7 @@
  *        31..24 reserved, 0
  *        23..16 maximum input bytes
  *        15.. 8 maximum output bytes
- *         7.. 0 maximum bytes per UChar
+ *         7.. 0 maximum bytes per char16_t
  *
  *   [18] Bit field containing numbers of UChars:
  *        31..24 reserved, 0
@@ -207,13 +207,13 @@
  *   does not start any mapping input.
  *
  *
- * UChar toUUChars[];
+ * char16_t toUUChars[];
  *
  *   Contains toUnicode mapping results, stored as sequences of UChars.
  *   Indexes and lengths stored in the toUTable[].
  *
  *
- * UChar fromUTableUChars[];
+ * char16_t fromUTableUChars[];
  * uint32_t fromUTableValues[];
  *
  *   The fromUTable is split into two arrays, but works otherwise much like
@@ -250,8 +250,8 @@
  *     }
  *       
  *   The first pair in a section contains the number of following pairs in the
- *   UChar position (16 bits, number=1..0xffff).
- *   The value of the initial pair is used when the current UChar is not found
+ *   char16_t position (16 bits, number=1..0xffff).
+ *   The value of the initial pair is used when the current char16_t is not found
  *   in this section.
  *   If the value is not 0, then it represents a result as above.
  *   If the value is 0, then the search has to return a shorter match with an
@@ -353,7 +353,7 @@ U_CFUNC bool
 ucnv_extInitialMatchToU(UConverter *cnv, const int32_t *cx,
                         int32_t firstLength,
                         const char **src, const char *srcLimit,
-                        UChar **target, const UChar *targetLimit,
+                        char16_t **target, const char16_t *targetLimit,
                         int32_t **offsets, int32_t srcIndex,
                         bool flush,
                         UErrorCode *pErrorCode);
@@ -372,7 +372,7 @@ ucnv_extContinueMatchToU(UConverter *cnv,
 U_CFUNC bool
 ucnv_extInitialMatchFromU(UConverter *cnv, const int32_t *cx,
                           UChar32 cp,
-                          const UChar **src, const UChar *srcLimit,
+                          const char16_t **src, const char16_t *srcLimit,
                           char **target, const char *targetLimit,
                           int32_t **offsets, int32_t srcIndex,
                           bool flush,

@@ -943,8 +943,7 @@ static cairo_status_t cairo_type1_font_subset_build_glyph_list(cairo_type1_font_
 	char * s = (char *)_cairo_malloc(name_length + 1);
 	if(UNLIKELY(s == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-	strncpy(s, name, name_length);
-	s[name_length] = 0;
+	strnzcpy(s, name, name_length+1);
 	status = _cairo_array_append(&font->glyph_names_array, &s);
 	if(UNLIKELY(status))
 		return status;

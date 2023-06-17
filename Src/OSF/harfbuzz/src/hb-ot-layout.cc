@@ -45,10 +45,7 @@
  * Return value: true if data found, false otherwise
  *
  **/
-bool hb_ot_layout_has_kerning(const hb_face_t * face)
-{
-	return face->table.kern->has_data();
-}
+bool hb_ot_layout_has_kerning(const hb_face_t * face) { return face->table.kern->has_data(); }
 /**
  * hb_ot_layout_has_machine_kerning:
  * @face: The #hb_face_t to work on
@@ -59,10 +56,7 @@ bool hb_ot_layout_has_kerning(const hb_face_t * face)
  * Return value: true if data found, false otherwise
  *
  **/
-bool hb_ot_layout_has_machine_kerning(hb_face_t * face)
-{
-	return face->table.kern->has_state_machine();
-}
+bool hb_ot_layout_has_machine_kerning(hb_face_t * face) { return face->table.kern->has_state_machine(); }
 /**
  * hb_ot_layout_has_cross_kerning:
  * @face: The #hb_face_t to work on
@@ -77,10 +71,7 @@ bool hb_ot_layout_has_machine_kerning(hb_face_t * face)
  * Return value: true is data found, false otherwise
  *
  **/
-bool hb_ot_layout_has_cross_kerning(hb_face_t * face)
-{
-	return face->table.kern->has_cross_stream();
-}
+bool hb_ot_layout_has_cross_kerning(hb_face_t * face) { return face->table.kern->has_cross_stream(); }
 
 void hb_ot_layout_kern(const hb_ot_shape_plan_t * plan, hb_font_t * font, hb_buffer_t * buffer)
 {
@@ -217,11 +208,7 @@ static void _hb_ot_layout_set_glyph_props(hb_font_t * font, hb_buffer_t * buffer
  * Return value: true if data found, false otherwise
  *
  **/
-hb_bool_t hb_ot_layout_has_glyph_classes(hb_face_t * face)
-{
-	return face->table.GDEF->table->has_glyph_classes();
-}
-
+hb_bool_t hb_ot_layout_has_glyph_classes(hb_face_t * face) { return face->table.GDEF->table->has_glyph_classes(); }
 /**
  * hb_ot_layout_get_glyph_class:
  * @face: The #hb_face_t to work on
@@ -234,12 +221,10 @@ hb_bool_t hb_ot_layout_has_glyph_classes(hb_face_t * face)
  *
  * Since: 0.9.7
  **/
-hb_ot_layout_glyph_class_t hb_ot_layout_get_glyph_class(hb_face_t * face,
-    hb_codepoint_t glyph)
+hb_ot_layout_glyph_class_t hb_ot_layout_get_glyph_class(hb_face_t * face, hb_codepoint_t glyph)
 {
 	return (hb_ot_layout_glyph_class_t)face->table.GDEF->table->get_glyph_class(glyph);
 }
-
 /**
  * hb_ot_layout_get_glyphs_in_class:
  * @face: The #hb_face_t to work on
@@ -256,7 +241,6 @@ void hb_ot_layout_get_glyphs_in_class(hb_face_t * face, hb_ot_layout_glyph_class
 {
 	return face->table.GDEF->table->get_glyphs_in_class(klass, glyphs);
 }
-
 #ifndef HB_NO_LAYOUT_UNUSED
 /**
  * hb_ot_layout_get_attach_points:
@@ -291,12 +275,8 @@ uint hb_ot_layout_get_attach_points(hb_face_t * face, hb_codepoint_t glyph, uint
  * table of the font. The list returned will begin at the offset provided.
  *
  **/
-uint hb_ot_layout_get_ligature_carets(hb_font_t * font,
-    hb_direction_t direction,
-    hb_codepoint_t glyph,
-    uint start_offset,
-    uint * caret_count /* IN/OUT */,
-    hb_position_t * caret_array /*OUT*/)
+uint hb_ot_layout_get_ligature_carets(hb_font_t * font, hb_direction_t direction, hb_codepoint_t glyph, uint start_offset,
+    uint * caret_count /* IN/OUT */, hb_position_t * caret_array /*OUT*/)
 {
 	return font->face->table.GDEF->table->get_lig_carets(font, direction, glyph, start_offset, caret_count, caret_array);
 }
@@ -344,14 +324,9 @@ static const OT::GSUBGPOS&get_gsubgpos_table(hb_face_t * face, hb_tag_t table_ta
  * or GPOS table. The list returned will begin at the offset provided.
  *
  **/
-uint hb_ot_layout_table_get_script_tags(hb_face_t * face,
-    hb_tag_t table_tag,
-    uint start_offset,
-    uint * script_count /* IN/OUT */,
-    hb_tag_t * script_tags /*OUT*/)
+uint hb_ot_layout_table_get_script_tags(hb_face_t * face, hb_tag_t table_tag, uint start_offset, uint * script_count /* IN/OUT */, hb_tag_t * script_tags /*OUT*/)
 {
 	const OT::GSUBGPOS &g = get_gsubgpos_table(face, table_tag);
-
 	return g.get_script_tags(start_offset, script_count, script_tags);
 }
 
@@ -406,7 +381,8 @@ hb_bool_t hb_ot_layout_table_choose_script(hb_face_t * face, hb_tag_t table_tag,
     uint * script_index /*OUT*/, hb_tag_t * chosen_script /*OUT*/)
 {
 	const hb_tag_t * t;
-	for(t = script_tags; *t; t++);
+	for(t = script_tags; *t; t++)
+		;
 	return hb_ot_layout_table_select_script(face, table_tag, t - script_tags, script_tags, script_index, chosen_script);
 }
 
@@ -428,8 +404,7 @@ hb_bool_t hb_ot_layout_table_select_script(hb_face_t * face, hb_tag_t table_tag,
 {
 	static_assert((OT::Index::NOT_FOUND_INDEX == HB_OT_LAYOUT_NO_SCRIPT_INDEX), "");
 	const OT::GSUBGPOS &g = get_gsubgpos_table(face, table_tag);
-	uint i;
-	for(i = 0; i < script_count; i++) {
+	for(uint i = 0; i < script_count; i++) {
 		if(g.find_script_index(script_tags[i], script_index)) {
 			ASSIGN_PTR(chosen_script, script_tags[i]);
 			return true;
@@ -1608,17 +1583,14 @@ public:
  *
  * Since: 2.6.8
  **/
-HB_EXTERN unsigned hb_ot_layout_lookup_get_glyph_alternates(hb_face_t * face,
-    unsigned lookup_index,
-    hb_codepoint_t glyph,
-    unsigned start_offset,
-    unsigned * alternate_count /*IN/OUT May be NULL*/,
-    hb_codepoint_t * alternate_glyphs /*OUT May be NULL*/)
+HB_EXTERN unsigned hb_ot_layout_lookup_get_glyph_alternates(hb_face_t * face, unsigned lookup_index,
+    hb_codepoint_t glyph, unsigned start_offset, unsigned * alternate_count /*IN/OUT May be NULL*/, hb_codepoint_t * alternate_glyphs /*OUT May be NULL*/)
 {
 	hb_get_glyph_alternates_dispatch_t c(face);
 	const OT::SubstLookup &lookup = face->table.GSUB->table->get_lookup(lookup_index);
 	auto ret = lookup.dispatch(&c, glyph, start_offset, alternate_count, alternate_glyphs);
-	if(!ret && alternate_count) *alternate_count = 0;
+	if(!ret && alternate_count) 
+		*alternate_count = 0;
 	return ret;
 }
 

@@ -110,11 +110,12 @@ static ImGui_ImplWin32_Data* ImGui_ImplWin32_GetBackendData()
 }
 
 // Functions
-bool    ImGui_ImplWin32_Init(void* hwnd)
+bool ImGui_ImplWin32_Init(void* hwnd)
 {
 	ImGuiIO& io = ImGui::GetIO();
 	assert(io.BackendPlatformUserData == nullptr && "Already initialized a platform backend!");
-	INT64 perf_frequency, perf_counter;
+	INT64 perf_frequency;
+	INT64 perf_counter;
 	if(!::QueryPerformanceFrequency((LARGE_INTEGER*)&perf_frequency))
 		return false;
 	if(!::QueryPerformanceCounter((LARGE_INTEGER*)&perf_counter))
@@ -134,20 +135,21 @@ bool    ImGui_ImplWin32_Init(void* hwnd)
 	// Dynamically load XInput library
 #ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
 	bd->WantUpdateHasGamepad = true;
-	const char* xinput_dll_names[] = {
+	const char * xinput_dll_names[] = {
 		"xinput1_4.dll", // Windows 8+
 		"xinput1_3.dll", // DirectX SDK
 		"xinput9_1_0.dll", // Windows Vista, Windows 7
 		"xinput1_2.dll", // DirectX SDK
 		"xinput1_1.dll" // DirectX SDK
 	};
-	for(int n = 0; n < IM_ARRAYSIZE(xinput_dll_names); n++)
+	for(uint n = 0; n < SIZEOFARRAY(xinput_dll_names); n++) {
 		if(HMODULE dll = ::LoadLibraryA(xinput_dll_names[n])) {
 			bd->XInputDLL = dll;
 			bd->XInputGetCapabilities = (PFN_XInputGetCapabilities)::GetProcAddress(dll, "XInputGetCapabilities");
 			bd->XInputGetState = (PFN_XInputGetState)::GetProcAddress(dll, "XInputGetState");
 			break;
 		}
+	}
 #endif // IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
 	return true;
 }
@@ -317,17 +319,15 @@ static void ImGui_ImplWin32_UpdateGamepads()
 #endif // #ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
 }
 
-void    ImGui_ImplWin32_NewFrame()
+void ImGui_ImplWin32_NewFrame()
 {
-	ImGuiIO& io = ImGui::GetIO();
-	ImGui_ImplWin32_Data* bd = ImGui_ImplWin32_GetBackendData();
+	ImGuiIO & io = ImGui::GetIO();
+	ImGui_ImplWin32_Data * bd = ImGui_ImplWin32_GetBackendData();
 	assert(bd != nullptr && "Did you call ImGui_ImplWin32_Init()?");
-
 	// Setup display size (every frame to accommodate for window resizing)
 	RECT rect = { 0, 0, 0, 0 };
 	::GetClientRect(bd->hWnd, &rect);
 	io.DisplaySize = ImVec2((float)(rect.right - rect.left), (float)(rect.bottom - rect.top));
-
 	// Setup time step
 	INT64 current_time = 0;
 	::QueryPerformanceCounter((LARGE_INTEGER*)&current_time);

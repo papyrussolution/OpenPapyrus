@@ -142,7 +142,7 @@ u_fopen(const char * filename,
 #define FILENAME_BUF_CAPACITY FILENAME_BUF_MAX
 #endif
 
-U_CAPI UFILE* U_EXPORT2 u_fopen_u(const UChar * filename,
+U_CAPI UFILE* U_EXPORT2 u_fopen_u(const char16_t * filename,
     const char * perm,
     const char * locale,
     const char * codepage)
@@ -189,7 +189,7 @@ U_CAPI UFILE* U_EXPORT2 u_fopen_u(const UChar * filename,
 	return result; /* not a file leak */
 }
 
-U_CAPI UFILE* U_EXPORT2 u_fstropen(UChar * stringBuf, int32_t capacity, const char * locale)
+U_CAPI UFILE* U_EXPORT2 u_fstropen(char16_t * stringBuf, int32_t capacity, const char * locale)
 {
 	UFILE * result;
 	if(capacity < 0) {

@@ -70,7 +70,7 @@ protected:
 
 	virtual int32_t getLength() const override;
 
-	virtual UChar getCharAt(int32_t offset) const override;
+	virtual char16_t getCharAt(int32_t offset) const override;
 
 	virtual UChar32 getChar32At(int32_t offset) const override;
 };
@@ -92,7 +92,7 @@ int32_t ReplaceableGlue::getLength() const {
 	return (*func->length)(rep);
 }
 
-UChar ReplaceableGlue::getCharAt(int32_t offset) const {
+char16_t ReplaceableGlue::getCharAt(int32_t offset) const {
 	return (*func->charAt)(rep, offset);
 }
 
@@ -123,10 +123,10 @@ U_NAMESPACE_END
 ********************************************************************/
 U_NAMESPACE_USE
 
-U_CAPI UTransliterator* U_EXPORT2 utrans_openU(const UChar * id,
+U_CAPI UTransliterator* U_EXPORT2 utrans_openU(const char16_t * id,
     int32_t idLength,
     UTransDirection dir,
-    const UChar * rules,
+    const char16_t * rules,
     int32_t rulesLength,
     UParseError * parseError,
     UErrorCode * status) {
@@ -172,7 +172,7 @@ U_CAPI UTransliterator* U_EXPORT2 utrans_openU(const UChar * id,
 
 U_CAPI UTransliterator* U_EXPORT2 utrans_open(const char * id,
     UTransDirection dir,
-    const UChar * rules,                 /* may be Null */
+    const char16_t * rules,                 /* may be Null */
     int32_t rulesLength,                /* -1 if null-terminated */
     UParseError* parseError,            /* may be Null */
     UErrorCode * status) {
@@ -212,7 +212,7 @@ U_CAPI void U_EXPORT2 utrans_close(UTransliterator* trans) {
 	delete (Transliterator*)trans;
 }
 
-U_CAPI const UChar * U_EXPORT2 utrans_getUnicodeID(const UTransliterator * trans,
+U_CAPI const char16_t * U_EXPORT2 utrans_getUnicodeID(const UTransliterator * trans,
     int32_t * resultLength) {
 	// Transliterator keeps its ID NUL-terminated
 	const UnicodeString & ID = ((Transliterator*)trans)->getID();
@@ -235,7 +235,7 @@ U_CAPI void U_EXPORT2 utrans_register(UTransliterator* adoptedTrans,
 	Transliterator::registerInstance((Transliterator*)adoptedTrans);
 }
 
-U_CAPI void U_EXPORT2 utrans_unregisterID(const UChar * id, int32_t idLength) {
+U_CAPI void U_EXPORT2 utrans_unregisterID(const char16_t * id, int32_t idLength) {
 	UnicodeString ID(idLength<0, id, idLength); // r-o alias
 	Transliterator::unregister(ID);
 }
@@ -246,7 +246,7 @@ U_CAPI void U_EXPORT2 utrans_unregister(const char * id) {
 }
 
 U_CAPI void U_EXPORT2 utrans_setFilter(UTransliterator* trans,
-    const UChar * filterPattern,
+    const char16_t * filterPattern,
     int32_t filterPatternLen,
     UErrorCode * status) {
 	utrans_ENTRY(status);
@@ -293,7 +293,7 @@ static int32_t U_CALLCONV utrans_enum_count(UEnumeration * uenum, UErrorCode * p
 	return ((UTransEnumeration*)uenum)->count;
 }
 
-static const UChar * U_CALLCONV utrans_enum_unext(UEnumeration * uenum,
+static const char16_t * U_CALLCONV utrans_enum_unext(UEnumeration * uenum,
     int32_t* resultLength,
     UErrorCode * pErrorCode) {
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
@@ -403,7 +403,7 @@ U_CAPI void U_EXPORT2 utrans_transIncremental(const UTransliterator* trans,
 }
 
 U_CAPI void U_EXPORT2 utrans_transUChars(const UTransliterator* trans,
-    UChar * text,
+    char16_t * text,
     int32_t* textLength,
     int32_t textCapacity,
     int32_t start,
@@ -432,7 +432,7 @@ U_CAPI void U_EXPORT2 utrans_transUChars(const UTransliterator* trans,
 }
 
 U_CAPI void U_EXPORT2 utrans_transIncrementalUChars(const UTransliterator* trans,
-    UChar * text,
+    char16_t * text,
     int32_t* textLength,
     int32_t textCapacity,
     UTransPosition* pos,
@@ -461,7 +461,7 @@ U_CAPI void U_EXPORT2 utrans_transIncrementalUChars(const UTransliterator* trans
 
 U_CAPI int32_t U_EXPORT2 utrans_toRules(const UTransliterator* trans,
     bool escapeUnprintable,
-    UChar * result, int32_t resultLength,
+    char16_t * result, int32_t resultLength,
     UErrorCode * status) {
 	utrans_ENTRY(status) 0;
 	if((result==NULL) ? resultLength!=0 : resultLength<0) {

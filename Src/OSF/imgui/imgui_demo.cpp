@@ -629,7 +629,7 @@ static void ShowDemoWindowWidgets()
 			if(ImGui::IsItemHovered() && ImGui::BeginTooltip()) {
 				ImGui::Text("I am a fancy tooltip");
 				static float arr[] = { 0.6f, 0.1f, 1.0f, 0.5f, 0.92f, 0.1f, 0.2f };
-				ImGui::PlotLines("Curve", arr, IM_ARRAYSIZE(arr));
+				ImGui::PlotLines("Curve", arr, SIZEOFARRAYi(arr));
 				ImGui::Text("Sin(time) = %f", sinf((float)ImGui::GetTime()));
 				ImGui::EndTooltip();
 			}
@@ -653,7 +653,7 @@ static void ShowDemoWindowWidgets()
 			// see the "Text Input > Resize Callback" section of this demo, and the misc/cpp/imgui_stdlib.h file.
 			IMGUI_DEMO_MARKER("Widgets/Basic/InputText");
 			static char str0[128] = "Hello, world!";
-			ImGui::InputText("input text", str0, IM_ARRAYSIZE(str0));
+			ImGui::InputText("input text", str0, SIZEOFARRAYi(str0));
 			ImGui::SameLine(); HelpMarker(
 				"USER:\n"
 				"Hold SHIFT or use mouse to select text.\n"
@@ -668,7 +668,7 @@ static void ShowDemoWindowWidgets()
 				"in imgui_demo.cpp).");
 
 			static char str1[128] = "";
-			ImGui::InputTextWithHint("input text (w/ hint)", "enter text here", str1, IM_ARRAYSIZE(str1));
+			ImGui::InputTextWithHint("input text (w/ hint)", "enter text here", str1, SIZEOFARRAYi(str1));
 
 			IMGUI_DEMO_MARKER("Widgets/Basic/InputInt, InputFloat");
 			static int i0 = 123;
@@ -759,7 +759,7 @@ static void ShowDemoWindowWidgets()
 			IMGUI_DEMO_MARKER("Widgets/Basic/Combo");
 			const char* items[] = { "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIIIIII", "JJJJ", "KKKKKKK" };
 			static int item_current = 0;
-			ImGui::Combo("combo", &item_current, items, IM_ARRAYSIZE(items));
+			ImGui::Combo("combo", &item_current, items, SIZEOFARRAYi(items));
 			ImGui::SameLine(); HelpMarker(
 				"Using the simplified one-liner Combo API here.\nRefer to the \"Combo\" section below for an explanation of how to use the more flexible and general BeginCombo/EndCombo API.");
 		}
@@ -770,7 +770,7 @@ static void ShowDemoWindowWidgets()
 			IMGUI_DEMO_MARKER("Widgets/Basic/ListBox");
 			const char* items[] = { "Apple", "Banana", "Cherry", "Kiwi", "Mango", "Orange", "Pineapple", "Strawberry", "Watermelon" };
 			static int item_current = 1;
-			ImGui::ListBox("listbox", &item_current, items, IM_ARRAYSIZE(items), 4);
+			ImGui::ListBox("listbox", &item_current, items, SIZEOFARRAYi(items), 4);
 			ImGui::SameLine(); HelpMarker(
 				"Using the simplified one-liner ListBox API here.\nRefer to the \"List boxes\" section below for an explanation of how to use the more flexible and general BeginListBox/EndListBox API.");
 		}
@@ -982,7 +982,7 @@ static void ShowDemoWindowWidgets()
 			ImGui::Text("Kanjis: \xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e (nihongo)");
 			static char buf[32] = "\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e";
 			//static char buf[32] = u8"NIHONGO"; // <- this is how you would write it with C++11, using real kanjis
-			ImGui::InputText("UTF-8 input", buf, IM_ARRAYSIZE(buf));
+			ImGui::InputText("UTF-8 input", buf, SIZEOFARRAYi(buf));
 			ImGui::TreePop();
 		}
 		ImGui::TreePop();
@@ -1096,7 +1096,7 @@ static void ShowDemoWindowWidgets()
 		static int item_current_idx = 0; // Here we store our selection data as an index.
 		const char* combo_preview_value = items[item_current_idx]; // Pass in the preview value visible before opening the combo (it could be anything)
 		if(ImGui::BeginCombo("combo 1", combo_preview_value, flags)) {
-			for(int n = 0; n < IM_ARRAYSIZE(items); n++) {
+			for(int n = 0; n < SIZEOFARRAYi(items); n++) {
 				const bool is_selected = (item_current_idx == n);
 				if(ImGui::Selectable(items[n], is_selected))
 					item_current_idx = n;
@@ -1116,13 +1116,13 @@ static void ShowDemoWindowWidgets()
 		// Simplified one-liner Combo() using an array of const char*
 		// This is not very useful (may obsolete): prefer using BeginCombo()/EndCombo() for full control.
 		static int item_current_3 = -1; // If the selection isn't within 0..count, Combo won't display a preview
-		ImGui::Combo("combo 3 (array)", &item_current_3, items, IM_ARRAYSIZE(items));
+		ImGui::Combo("combo 3 (array)", &item_current_3, items, SIZEOFARRAYi(items));
 
 		// Simplified one-liner Combo() using an accessor function
 		struct Funcs { static bool ItemGetter(void* data, int n, const char** out_str) { *out_str = ((const char**)data)[n]; return true; } };
 
 		static int item_current_4 = 0;
-		ImGui::Combo("combo 4 (function)", &item_current_4, &Funcs::ItemGetter, items, IM_ARRAYSIZE(items));
+		ImGui::Combo("combo 4 (function)", &item_current_4, &Funcs::ItemGetter, items, SIZEOFARRAYi(items));
 
 		ImGui::TreePop();
 	}
@@ -1135,7 +1135,7 @@ static void ShowDemoWindowWidgets()
 		const char* items[] = { "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO" };
 		static int item_current_idx = 0; // Here we store our selection data as an index.
 		if(ImGui::BeginListBox("listbox 1")) {
-			for(int n = 0; n < IM_ARRAYSIZE(items); n++) {
+			for(int n = 0; n < SIZEOFARRAYi(items); n++) {
 				const bool is_selected = (item_current_idx == n);
 				if(ImGui::Selectable(items[n], is_selected))
 					item_current_idx = n;
@@ -1150,7 +1150,7 @@ static void ShowDemoWindowWidgets()
 		// Custom size: use all width, 5 items tall
 		ImGui::Text("Full-width:");
 		if(ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing()))) {
-			for(int n = 0; n < IM_ARRAYSIZE(items); n++) {
+			for(int n = 0; n < SIZEOFARRAYi(items); n++) {
 				const bool is_selected = (item_current_idx == n);
 				if(ImGui::Selectable(items[n], is_selected))
 					item_current_idx = n;
@@ -1254,13 +1254,11 @@ static void ShowDemoWindowWidgets()
 		IMGUI_DEMO_MARKER("Widgets/Selectables/Grid");
 		if(ImGui::TreeNode("Grid")) {
 			static char selected[4][4] = { { 1, 0, 0, 0 }, { 0, 1, 0, 0 }, { 0, 0, 1, 0 }, { 0, 0, 0, 1 } };
-
 			// Add in a bit of silly fun...
 			const float time = (float)ImGui::GetTime();
-			const bool winning_state = memchr(selected, 0, sizeof(selected)) == NULL; // If all cells are selected...
+			const bool winning_state = smemchr(selected, 0, sizeof(selected)) == NULL; // If all cells are selected...
 			if(winning_state)
 				ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0.5f + 0.5f * cosf(time * 2.0f), 0.5f + 0.5f * sinf(time * 3.0f)));
-
 			for(int y = 0; y < 4; y++)
 				for(int x = 0; x < 4; x++) {
 					if(x > 0)
@@ -1338,7 +1336,7 @@ static void ShowDemoWindowWidgets()
 			ImGui::CheckboxFlags("ImGuiInputTextFlags_ReadOnly", &flags, ImGuiInputTextFlags_ReadOnly);
 			ImGui::CheckboxFlags("ImGuiInputTextFlags_AllowTabInput", &flags, ImGuiInputTextFlags_AllowTabInput);
 			ImGui::CheckboxFlags("ImGuiInputTextFlags_CtrlEnterForNewLine", &flags, ImGuiInputTextFlags_CtrlEnterForNewLine);
-			ImGui::InputTextMultiline("##source", text, IM_ARRAYSIZE(text), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
+			ImGui::InputTextMultiline("##source", text, SIZEOFARRAYi(text), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
 			ImGui::TreePop();
 		}
 
@@ -1366,10 +1364,10 @@ static void ShowDemoWindowWidgets()
 		IMGUI_DEMO_MARKER("Widgets/Text Input/Password input");
 		if(ImGui::TreeNode("Password Input")) {
 			static char password[64] = "password123";
-			ImGui::InputText("password", password, IM_ARRAYSIZE(password), ImGuiInputTextFlags_Password);
+			ImGui::InputText("password", password, SIZEOFARRAYi(password), ImGuiInputTextFlags_Password);
 			ImGui::SameLine(); HelpMarker("Display all characters as '*'.\nDisable clipboard cut and copy.\nDisable logging.\n");
-			ImGui::InputTextWithHint("password (w/ hint)", "<password>", password, IM_ARRAYSIZE(password), ImGuiInputTextFlags_Password);
-			ImGui::InputText("password (clear)", password, IM_ARRAYSIZE(password));
+			ImGui::InputTextWithHint("password (w/ hint)", "<password>", password, SIZEOFARRAYi(password), ImGuiInputTextFlags_Password);
+			ImGui::InputText("password (clear)", password, SIZEOFARRAYi(password));
 			ImGui::TreePop();
 		}
 
@@ -1517,7 +1515,7 @@ static void ShowDemoWindowWidgets()
 			// Tab Bar
 			const char* names[4] = { "Artichoke", "Beetroot", "Celery", "Daikon" };
 			static bool opened[4] = { true, true, true, true }; // Persistent user state
-			for(int n = 0; n < IM_ARRAYSIZE(opened); n++) {
+			for(int n = 0; n < SIZEOFARRAYi(opened); n++) {
 				if(n > 0) {
 					ImGui::SameLine();
 				}
@@ -1527,7 +1525,7 @@ static void ShowDemoWindowWidgets()
 			// Passing a bool* to BeginTabItem() is similar to passing one to Begin():
 			// the underlying bool will be set to false when the tab is closed.
 			if(ImGui::BeginTabBar("MyTabBar", tab_bar_flags)) {
-				for(int n = 0; n < IM_ARRAYSIZE(opened); n++)
+				for(int n = 0; n < SIZEOFARRAYi(opened); n++)
 					if(opened[n] && ImGui::BeginTabItem(names[n], &opened[n], ImGuiTabItemFlags_None)) {
 						ImGui::Text("This is the %s tab!", names[n]);
 						if(n & 1)
@@ -1584,7 +1582,7 @@ static void ShowDemoWindowWidgets()
 				for(int n = 0; n < active_tabs.Size;) {
 					bool open = true;
 					char name[16];
-					snprintf(name, IM_ARRAYSIZE(name), "%04d", active_tabs[n]);
+					snprintf(name, SIZEOFARRAYi(name), "%04d", active_tabs[n]);
 					if(ImGui::BeginTabItem(name, &open, ImGuiTabItemFlags_None)) {
 						ImGui::Text("This is the %s tab!", name);
 						ImGui::EndTabItem();
@@ -1615,8 +1613,8 @@ static void ShowDemoWindowWidgets()
 		// Plot as lines and plot as histogram
 		IMGUI_DEMO_MARKER("Widgets/Plotting/PlotLines, PlotHistogram");
 		static float arr[] = { 0.6f, 0.1f, 1.0f, 0.5f, 0.92f, 0.1f, 0.2f };
-		ImGui::PlotLines("Frame Times", arr, IM_ARRAYSIZE(arr));
-		ImGui::PlotHistogram("Histogram", arr, IM_ARRAYSIZE(arr), 0, NULL, 0.0f, 1.0f, ImVec2(0, 80.0f));
+		ImGui::PlotLines("Frame Times", arr, SIZEOFARRAYi(arr));
+		ImGui::PlotHistogram("Histogram", arr, SIZEOFARRAYi(arr), 0, NULL, 0.0f, 1.0f, ImVec2(0, 80.0f));
 
 		// Fill an array of contiguous float values to plot
 		// Tip: If your float aren't contiguous but part of a structure, you can pass a pointer to your first float
@@ -1629,7 +1627,7 @@ static void ShowDemoWindowWidgets()
 		while(refresh_time < ImGui::GetTime()) { // Create data at fixed 60 Hz rate for the demo
 			static float phase = 0.0f;
 			values[values_offset] = cosf(phase);
-			values_offset = (values_offset + 1) % IM_ARRAYSIZE(values);
+			values_offset = (values_offset + 1) % SIZEOFARRAYi(values);
 			phase += 0.10f * values_offset;
 			refresh_time += 1.0f / 60.0f;
 		}
@@ -1638,12 +1636,12 @@ static void ShowDemoWindowWidgets()
 		// (in this example, we will display an average value)
 		{
 			float average = 0.0f;
-			for(int n = 0; n < IM_ARRAYSIZE(values); n++)
+			for(int n = 0; n < SIZEOFARRAYi(values); n++)
 				average += values[n];
-			average /= (float)IM_ARRAYSIZE(values);
+			average /= (float)SIZEOFARRAYi(values);
 			char overlay[32];
 			sprintf(overlay, "avg %f", average);
-			ImGui::PlotLines("Lines", values, IM_ARRAYSIZE(values), values_offset, overlay, -1.0f, 1.0f, ImVec2(0, 80.0f));
+			ImGui::PlotLines("Lines", values, SIZEOFARRAYi(values), values_offset, overlay, -1.0f, 1.0f, ImVec2(0, 80.0f));
 		}
 
 		// Use functions to generate output
@@ -1741,7 +1739,7 @@ static void ShowDemoWindowWidgets()
 		static bool saved_palette_init = true;
 		static ImVec4 saved_palette[32] = {};
 		if(saved_palette_init) {
-			for(int n = 0; n < IM_ARRAYSIZE(saved_palette); n++) {
+			for(int n = 0; n < SIZEOFARRAYi(saved_palette); n++) {
 				ImGui::ColorConvertHSVtoRGB(n / 31.0f, 0.8f, 0.8f,
 				    saved_palette[n].x, saved_palette[n].y, saved_palette[n].z);
 				saved_palette[n].w = 1.0f; // Alpha
@@ -1771,7 +1769,7 @@ static void ShowDemoWindowWidgets()
 				color = backup_color;
 			ImGui::Separator();
 			ImGui::Text("Palette");
-			for(int n = 0; n < IM_ARRAYSIZE(saved_palette); n++) {
+			for(int n = 0; n < SIZEOFARRAYi(saved_palette); n++) {
 				ImGui::PushID(n);
 				if((n % 8) != 0)
 					ImGui::SameLine(0.0f, ImGui::GetStyle().ItemSpacing.y);
@@ -2180,7 +2178,7 @@ static void ShowDemoWindowWidgets()
 				"Brianna", "Barry", "Bernard",
 				"Bibi", "Blaine", "Bryn"
 			};
-			for(int n = 0; n < IM_ARRAYSIZE(names); n++) {
+			for(int n = 0; n < SIZEOFARRAYi(names); n++) {
 				ImGui::PushID(n);
 				if((n % 3) != 0)
 					ImGui::SameLine();
@@ -2235,13 +2233,13 @@ static void ShowDemoWindowWidgets()
 				"We don't use the drag and drop api at all here! "
 				"Instead we query when the item is held but not hovered, and order items accordingly.");
 			static const char* item_names[] = { "Item One", "Item Two", "Item Three", "Item Four", "Item Five" };
-			for(int n = 0; n < IM_ARRAYSIZE(item_names); n++) {
+			for(int n = 0; n < SIZEOFARRAYi(item_names); n++) {
 				const char* item = item_names[n];
 				ImGui::Selectable(item);
 
 				if(ImGui::IsItemActive() && !ImGui::IsItemHovered()) {
 					int n_next = n + (ImGui::GetMouseDragDelta(0).y < 0.f ? -1 : 1);
-					if(n_next >= 0 && n_next < IM_ARRAYSIZE(item_names)) {
+					if(n_next >= 0 && n_next < SIZEOFARRAYi(item_names)) {
 						item_names[n] = item_names[n_next];
 						item_names[n_next] = item;
 						ImGui::ResetMouseDragDelta();
@@ -2264,7 +2262,7 @@ static void ShowDemoWindowWidgets()
 		};
 		static int item_type = 4;
 		static bool item_disabled = false;
-		ImGui::Combo("Item Type", &item_type, item_names, IM_ARRAYSIZE(item_names), IM_ARRAYSIZE(item_names));
+		ImGui::Combo("Item Type", &item_type, item_names, SIZEOFARRAYi(item_names), SIZEOFARRAYi(item_names));
 		ImGui::SameLine();
 		HelpMarker(
 			"Testing how various types of items are interacting with the IsItemXXX functions. Note that the bool return value of most ImGui function is generally equivalent to calling ImGui::IsItemHovered().");
@@ -2293,10 +2291,10 @@ static void ShowDemoWindowWidgets()
 			ret = ImGui::SliderFloat("ITEM: SliderFloat", &col4f[0], 0.0f, 1.0f);
 		}                                                                                       // Testing basic item
 		if(item_type == 5) {
-			ret = ImGui::InputText("ITEM: InputText", &str[0], IM_ARRAYSIZE(str));
+			ret = ImGui::InputText("ITEM: InputText", &str[0], SIZEOFARRAYi(str));
 		}                                                                                       // Testing input text (which handles tabbing)
 		if(item_type == 6) {
-			ret = ImGui::InputTextMultiline("ITEM: InputTextMultiline", &str[0], IM_ARRAYSIZE(str));
+			ret = ImGui::InputTextMultiline("ITEM: InputTextMultiline", &str[0], SIZEOFARRAYi(str));
 		}                                                                                                        // Testing input text (which uses a child window)
 		if(item_type == 7) {
 			ret = ImGui::InputFloat("ITEM: InputFloat", col4f, 1.0f);
@@ -2324,11 +2322,11 @@ static void ShowDemoWindowWidgets()
 			const char* items[] = { "Apple", "Banana", "Cherry", "Kiwi" }; static int current = 1; ret = ImGui::Combo("ITEM: Combo",
 				&current,
 				items,
-				IM_ARRAYSIZE(items));
+				SIZEOFARRAYi(items));
 		}
 		if(item_type == 15) {
 			const char* items[] = { "Apple", "Banana", "Cherry", "Kiwi" }; static int current = 1;
-			ret = ImGui::ListBox("ITEM: ListBox", &current, items, IM_ARRAYSIZE(items), IM_ARRAYSIZE(items));
+			ret = ImGui::ListBox("ITEM: ListBox", &current, items, SIZEOFARRAYi(items), SIZEOFARRAYi(items));
 		}
 
 		bool hovered_delay_none = ImGui::IsItemHovered();
@@ -2379,14 +2377,11 @@ static void ShowDemoWindowWidgets()
 			ImGui::GetItemRectMax().x, ImGui::GetItemRectMax().y,
 			ImGui::GetItemRectSize().x, ImGui::GetItemRectSize().y
 			);
-		ImGui::BulletText(
-			"w/ Hovering Delay: None = %d, Fast %d, Normal = %d", hovered_delay_none, hovered_delay_short, hovered_delay_normal);
-
+		ImGui::BulletText("w/ Hovering Delay: None = %d, Fast %d, Normal = %d", hovered_delay_none, hovered_delay_short, hovered_delay_normal);
 		if(item_disabled)
 			ImGui::EndDisabled();
-
 		char buf[1] = "";
-		ImGui::InputText("unused", buf, IM_ARRAYSIZE(buf), ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputText("unused", buf, SIZEOFARRAYi(buf), ImGuiInputTextFlags_ReadOnly);
 		ImGui::SameLine();
 		HelpMarker("This widget is only here to be able to tab-out of the widgets above and see e.g. Deactivated() status.");
 
@@ -2497,7 +2492,7 @@ static void ShowDemoWindowWidgets()
 		    "  \"-xxx\"     hide lines containing \"xxx\"");
 		filter.Draw();
 		const char* lines[] = { "aaa1.c", "bbb1.c", "ccc1.c", "aaa2.cpp", "bbb2.cpp", "ccc2.cpp", "abc.h", "hello, world" };
-		for(int i = 0; i < IM_ARRAYSIZE(lines); i++)
+		for(int i = 0; i < SIZEOFARRAYi(lines); i++)
 			if(filter.PassFilter(lines[i]))
 				ImGui::BulletText("%s", lines[i]);
 		ImGui::TreePop();
@@ -2711,7 +2706,7 @@ static void ShowDemoWindowLayout()
 		ImGui::PushItemWidth(80);
 		const char* items[] = { "AAAA", "BBBB", "CCCC", "DDDD" };
 		static int item = -1;
-		ImGui::Combo("Combo", &item, items, IM_ARRAYSIZE(items)); ImGui::SameLine();
+		ImGui::Combo("Combo", &item, items, SIZEOFARRAYi(items)); ImGui::SameLine();
 		ImGui::SliderFloat("X", &f0, 0.0f, 5.0f); ImGui::SameLine();
 		ImGui::SliderFloat("Y", &f1, 0.0f, 5.0f); ImGui::SameLine();
 		ImGui::SliderFloat("Z", &f2, 0.0f, 5.0f);
@@ -2723,7 +2718,7 @@ static void ShowDemoWindowLayout()
 		for(int i = 0; i < 4; i++) {
 			if(i > 0)  ImGui::SameLine();
 			ImGui::PushID(i);
-			ImGui::ListBox("", &selection[i], items, IM_ARRAYSIZE(items));
+			ImGui::ListBox("", &selection[i], items, SIZEOFARRAYi(items));
 			ImGui::PopID();
 			//if (ImGui::IsItemHovered()) ImGui::SetTooltip("ListBox %d hovered", i);
 		}
@@ -2782,7 +2777,7 @@ static void ShowDemoWindowLayout()
 		// Capture the group size and create widgets using the same size
 		ImVec2 size = ImGui::GetItemRectSize();
 		const float values[5] = { 0.5f, 0.20f, 0.80f, 0.60f, 0.25f };
-		ImGui::PlotHistogram("##values", values, IM_ARRAYSIZE(values), 0, NULL, 0.0f, 1.0f, size);
+		ImGui::PlotHistogram("##values", values, SIZEOFARRAYi(values), 0, NULL, 0.0f, 1.0f, size);
 
 		ImGui::Button("ACTION", ImVec2((size.x - ImGui::GetStyle().ItemSpacing.x) * 0.5f, size.y));
 		ImGui::SameLine();
@@ -3289,7 +3284,7 @@ static void ShowDemoWindowPopups()
 		ImGui::TextUnformatted(selected_fish == -1 ? "<None>" : names[selected_fish]);
 		if(ImGui::BeginPopup("my_select_popup")) {
 			ImGui::SeparatorText("Aquarium");
-			for(int i = 0; i < IM_ARRAYSIZE(names); i++)
+			for(int i = 0; i < SIZEOFARRAYi(names); i++)
 				if(ImGui::Selectable(names[i]))
 					selected_fish = i;
 			ImGui::EndPopup();
@@ -3299,7 +3294,7 @@ static void ShowDemoWindowPopups()
 		if(ImGui::Button("Toggle.."))
 			ImGui::OpenPopup("my_toggle_popup");
 		if(ImGui::BeginPopup("my_toggle_popup")) {
-			for(int i = 0; i < IM_ARRAYSIZE(names); i++)
+			for(int i = 0; i < SIZEOFARRAYi(names); i++)
 				ImGui::MenuItem(names[i], "", &toggles[i]);
 			if(ImGui::BeginMenu("Sub-menu")) {
 				ImGui::MenuItem("Click me");
@@ -3314,7 +3309,7 @@ static void ShowDemoWindowPopups()
 			if(ImGui::Button("Stacked Popup"))
 				ImGui::OpenPopup("another popup");
 			if(ImGui::BeginPopup("another popup")) {
-				for(int i = 0; i < IM_ARRAYSIZE(names); i++)
+				for(int i = 0; i < SIZEOFARRAYi(names); i++)
 					ImGui::MenuItem(names[i], "", &toggles[i]);
 				if(ImGui::BeginMenu("Sub-menu")) {
 					ImGui::MenuItem("Click me");
@@ -3426,7 +3421,7 @@ static void ShowDemoWindowPopups()
 			ImGui::Button(buf);
 			if(ImGui::BeginPopupContextItem()) {
 				ImGui::Text("Edit name:");
-				ImGui::InputText("##edit", name, IM_ARRAYSIZE(name));
+				ImGui::InputText("##edit", name, SIZEOFARRAYi(name));
 				if(ImGui::Button("Close"))
 					ImGui::CloseCurrentPopup();
 				ImGui::EndPopup();
@@ -3619,12 +3614,12 @@ static void EditTableSizingFlags(ImGuiTableFlags* p_flags)
 		{ ImGuiTableFlags_SizingStretchSame,  "ImGuiTableFlags_SizingStretchSame",  "Columns default to _WidthStretch with same weights." }
 	};
 	int idx;
-	for(idx = 0; idx < IM_ARRAYSIZE(policies); idx++)
+	for(idx = 0; idx < SIZEOFARRAYi(policies); idx++)
 		if(policies[idx].Value == (*p_flags & ImGuiTableFlags_SizingMask_))
 			break;
-	const char* preview_text = (idx < IM_ARRAYSIZE(policies)) ? policies[idx].Name + (idx > 0 ? strlen("ImGuiTableFlags") : 0) : "";
+	const char* preview_text = (idx < SIZEOFARRAYi(policies)) ? policies[idx].Name + (idx > 0 ? strlen("ImGuiTableFlags") : 0) : "";
 	if(ImGui::BeginCombo("Sizing Policy", preview_text)) {
-		for(int n = 0; n < IM_ARRAYSIZE(policies); n++)
+		for(int n = 0; n < SIZEOFARRAYi(policies); n++)
 			if(ImGui::Selectable(policies[n].Name, idx == n))
 				*p_flags = (*p_flags & ~ImGuiTableFlags_SizingMask_) | policies[n].Value;
 		ImGui::EndCombo();
@@ -3633,7 +3628,7 @@ static void EditTableSizingFlags(ImGuiTableFlags* p_flags)
 	ImGui::TextDisabled("(?)");
 	if(ImGui::IsItemHovered() && ImGui::BeginTooltip()) {
 		ImGui::PushTextWrapPos(ImGui::GetFontSize() * 50.0f);
-		for(int m = 0; m < IM_ARRAYSIZE(policies); m++) {
+		for(int m = 0; m < SIZEOFARRAYi(policies); m++) {
 			ImGui::Separator();
 			ImGui::Text("%s:", policies[m].Name);
 			ImGui::Separator();
@@ -4084,7 +4079,7 @@ static void ShowDemoWindowTables()
 					strcpy(text_bufs[cell], "edit me");
 				ImGui::SetNextItemWidth(-FLT_MIN);
 				ImGui::PushID(cell);
-				ImGui::InputText("##cell", text_bufs[cell], IM_ARRAYSIZE(text_bufs[cell]));
+				ImGui::InputText("##cell", text_bufs[cell], SIZEOFARRAYi(text_bufs[cell]));
 				ImGui::PopID();
 			}
 			if(!show_widget_frame_bg)
@@ -4187,7 +4182,7 @@ static void ShowDemoWindowTables()
 					case CT_ShowWidth:  ImGui::Text("W: %.1f", ImGui::GetContentRegionAvail().x); break;
 					case CT_Button:     ImGui::Button(label); break;
 					case CT_FillButton: ImGui::Button(label, ImVec2(-FLT_MIN, 0.0f)); break;
-					case CT_InputText:  ImGui::SetNextItemWidth(-FLT_MIN); ImGui::InputText("##", text_buf, IM_ARRAYSIZE(text_buf)); break;
+					case CT_InputText:  ImGui::SetNextItemWidth(-FLT_MIN); ImGui::InputText("##", text_buf, SIZEOFARRAYi(text_buf)); break;
 				}
 				ImGui::PopID();
 			}
@@ -4911,7 +4906,7 @@ static void ShowDemoWindowTables()
 		if(items.Size == 0) {
 			items.resize(50, MyItem());
 			for(int n = 0; n < items.Size; n++) {
-				const int template_n = n % IM_ARRAYSIZE(template_items_names);
+				const int template_n = n % SIZEOFARRAYi(template_items_names);
 				MyItem& item = items[n];
 				item.ID = n;
 				item.Name = template_items_names[template_n];
@@ -5002,7 +4997,7 @@ static void ShowDemoWindowTables()
 		const char* contents_type_names[] = { "Text", "Button", "SmallButton", "FillButton", "Selectable", "Selectable (span row)" };
 		static int freeze_cols = 1;
 		static int freeze_rows = 1;
-		static int items_count = IM_ARRAYSIZE(template_items_names) * 2;
+		static int items_count = SIZEOFARRAYi(template_items_names) * 2;
 		static ImVec2 outer_size_value = ImVec2(0.0f, TEXT_BASE_HEIGHT * 12);
 		static float row_min_height = 0.0f; // Auto
 		static float inner_width_with_scroll = 0.0f; // Auto-extend
@@ -5113,7 +5108,7 @@ static void ShowDemoWindowTables()
 				ImGui::SameLine(); HelpMarker("Specify height of the Selectable item.");
 
 				ImGui::DragInt("items_count", &items_count, 0.1f, 0, 9999);
-				ImGui::Combo("items_type (first column)", &contents_type, contents_type_names, IM_ARRAYSIZE(contents_type_names));
+				ImGui::Combo("items_type (first column)", &contents_type, contents_type_names, SIZEOFARRAYi(contents_type_names));
 				//filter.Draw("filter");
 				ImGui::TreePop();
 			}
@@ -5131,7 +5126,7 @@ static void ShowDemoWindowTables()
 		if(items.Size != items_count) {
 			items.resize(items_count, MyItem());
 			for(int n = 0; n < items_count; n++) {
-				const int template_n = n % IM_ARRAYSIZE(template_items_names);
+				const int template_n = n % SIZEOFARRAYi(template_items_names);
 				MyItem& item = items[n];
 				item.ID = n;
 				item.Name = template_items_names[template_n];
@@ -5523,7 +5518,7 @@ static void ShowDemoWindowInputs()
 				ImGui::Text("Mouse pos: <INVALID>");
 			ImGui::Text("Mouse delta: (%g, %g)", io.MouseDelta.x, io.MouseDelta.y);
 			ImGui::Text("Mouse down:");
-			for(int i = 0; i < IM_ARRAYSIZE(io.MouseDown); i++)  if(ImGui::IsMouseDown(i)) {
+			for(int i = 0; i < SIZEOFARRAYi(io.MouseDown); i++)  if(ImGui::IsMouseDown(i)) {
 					ImGui::SameLine(); ImGui::Text("b%d (%.02f secs)", i, io.MouseDownDuration[i]);
 				}
 			ImGui::Text("Mouse wheel: %.1f", io.MouseWheel);
@@ -5606,7 +5601,7 @@ static void ShowDemoWindowInputs()
 		IMGUI_DEMO_MARKER("Inputs & Focus/Mouse Cursors");
 		if(ImGui::TreeNode("Mouse Cursors")) {
 			const char* mouse_cursors_names[] = { "Arrow", "TextInput", "ResizeAll", "ResizeNS", "ResizeEW", "ResizeNESW", "ResizeNWSE", "Hand", "NotAllowed" };
-			assert(IM_ARRAYSIZE(mouse_cursors_names) == ImGuiMouseCursor_COUNT);
+			assert(SIZEOFARRAYi(mouse_cursors_names) == ImGuiMouseCursor_COUNT);
 
 			ImGuiMouseCursor current = ImGui::GetMouseCursor();
 			ImGui::Text("Current mouse cursor = %d: %s", current, mouse_cursors_names[current]);
@@ -5633,14 +5628,14 @@ static void ShowDemoWindowInputs()
 		if(ImGui::TreeNode("Tabbing")) {
 			ImGui::Text("Use TAB/SHIFT+TAB to cycle through keyboard editable fields.");
 			static char buf[32] = "hello";
-			ImGui::InputText("1", buf, IM_ARRAYSIZE(buf));
-			ImGui::InputText("2", buf, IM_ARRAYSIZE(buf));
-			ImGui::InputText("3", buf, IM_ARRAYSIZE(buf));
+			ImGui::InputText("1", buf, SIZEOFARRAYi(buf));
+			ImGui::InputText("2", buf, SIZEOFARRAYi(buf));
+			ImGui::InputText("3", buf, SIZEOFARRAYi(buf));
 			ImGui::PushTabStop(false);
-			ImGui::InputText("4 (tab skip)", buf, IM_ARRAYSIZE(buf));
+			ImGui::InputText("4 (tab skip)", buf, SIZEOFARRAYi(buf));
 			ImGui::SameLine(); HelpMarker("Item won't be cycled through when using TAB or Shift+Tab.");
 			ImGui::PopTabStop();
-			ImGui::InputText("5", buf, IM_ARRAYSIZE(buf));
+			ImGui::InputText("5", buf, SIZEOFARRAYi(buf));
 			ImGui::TreePop();
 		}
 
@@ -5653,16 +5648,16 @@ static void ShowDemoWindowInputs()
 			static char buf[128] = "click on a button to set focus";
 
 			if(focus_1)  ImGui::SetKeyboardFocusHere();
-			ImGui::InputText("1", buf, IM_ARRAYSIZE(buf));
+			ImGui::InputText("1", buf, SIZEOFARRAYi(buf));
 			if(ImGui::IsItemActive())  has_focus = 1;
 
 			if(focus_2)  ImGui::SetKeyboardFocusHere();
-			ImGui::InputText("2", buf, IM_ARRAYSIZE(buf));
+			ImGui::InputText("2", buf, SIZEOFARRAYi(buf));
 			if(ImGui::IsItemActive())  has_focus = 2;
 
 			ImGui::PushTabStop(false);
 			if(focus_3)  ImGui::SetKeyboardFocusHere();
-			ImGui::InputText("3 (tab skip)", buf, IM_ARRAYSIZE(buf));
+			ImGui::InputText("3 (tab skip)", buf, SIZEOFARRAYi(buf));
 			if(ImGui::IsItemActive())  has_focus = 3;
 			ImGui::SameLine(); HelpMarker("Item won't be cycled through when using TAB or Shift+Tab.");
 			ImGui::PopTabStop();
@@ -6415,8 +6410,8 @@ struct ExampleAppConsole {
 		char buf[1024];
 		va_list args;
 		va_start(args, fmt);
-		vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
-		buf[IM_ARRAYSIZE(buf)-1] = 0;
+		vsnprintf(buf, SIZEOFARRAYi(buf), fmt, args);
+		buf[SIZEOFARRAYi(buf)-1] = 0;
 		va_end(args);
 		Items.push_back(Strdup(buf));
 	}
@@ -6549,7 +6544,7 @@ struct ExampleAppConsole {
 		bool reclaim_focus = false;
 		ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll | ImGuiInputTextFlags_CallbackCompletion |
 		    ImGuiInputTextFlags_CallbackHistory;
-		if(ImGui::InputText("Input", InputBuf, IM_ARRAYSIZE(InputBuf), input_text_flags, &TextEditCallbackStub, (void*)this)) {
+		if(ImGui::InputText("Input", InputBuf, SIZEOFARRAYi(InputBuf), input_text_flags, &TextEditCallbackStub, (void*)this)) {
 			char* s = InputBuf;
 			Strtrim(s);
 			if(s[0])
@@ -6846,8 +6841,8 @@ static void ShowExampleAppLog(bool* p_open)
 		const char* categories[3] = { "info", "warn", "error" };
 		const char* words[] = { "Bumfuzzled", "Cattywampus", "Snickersnee", "Abibliophobia", "Absquatulate", "Nincompoop", "Pauciloquent" };
 		for(int n = 0; n < 5; n++) {
-			const char* category = categories[counter % IM_ARRAYSIZE(categories)];
-			const char* word = words[counter % IM_ARRAYSIZE(words)];
+			const char* category = categories[counter % SIZEOFARRAYi(categories)];
+			const char* word = words[counter % SIZEOFARRAYi(words)];
 			log.AddLog("[%05d] [%s] Hello, current time is %.1f, here's a word: '%s'\n",
 			    ImGui::GetFrameCount(), category, ImGui::GetTime(), word);
 			counter++;
@@ -7169,7 +7164,7 @@ static void ShowExampleAppConstrainedResize(bool* p_open)
 				ImGui::SetWindowSize(ImVec2(800, 200));
 			}
 			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 20);
-			ImGui::Combo("Constraint", &type, test_desc, IM_ARRAYSIZE(test_desc));
+			ImGui::Combo("Constraint", &type, test_desc, SIZEOFARRAYi(test_desc));
 			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 20);
 			ImGui::DragInt("Lines", &display_lines, 0.2f, 1, 100);
 			ImGui::Checkbox("Auto-resize", &auto_resize);

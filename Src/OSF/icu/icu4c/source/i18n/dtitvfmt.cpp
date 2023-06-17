@@ -21,7 +21,7 @@ U_NAMESPACE_BEGIN
 #define PRINTMESG(msg) { std::cout << "(" << __FILE__ << ":" << __LINE__ << ") " << msg << "\n"; }
 #endif
 
-static const UChar gDateFormatSkeleton[][11] = {
+static const char16_t gDateFormatSkeleton[][11] = {
 //yMMMMEEEEd
 	{LOW_Y, CAP_M, CAP_M, CAP_M, CAP_M, CAP_E, CAP_E, CAP_E, CAP_E, LOW_D, 0},
 //yMMMMd
@@ -37,9 +37,9 @@ static const char gGregorianTag[] = "gregorian";
 static const char gDateTimePatternsTag[] = "DateTimePatterns";
 
 // latestFirst:
-static const UChar gLaterFirstPrefix[] = {LOW_L, LOW_A, LOW_T, LOW_E, LOW_S, LOW_T, CAP_F, LOW_I, LOW_R, LOW_S, LOW_T, COLON};
+static const char16_t gLaterFirstPrefix[] = {LOW_L, LOW_A, LOW_T, LOW_E, LOW_S, LOW_T, CAP_F, LOW_I, LOW_R, LOW_S, LOW_T, COLON};
 // earliestFirst:
-static const UChar gEarlierFirstPrefix[] = {LOW_E, LOW_A, LOW_R, LOW_L, LOW_I, LOW_E, LOW_S, LOW_T, CAP_F, LOW_I, LOW_R, LOW_S, LOW_T, COLON};
+static const char16_t gEarlierFirstPrefix[] = {LOW_E, LOW_A, LOW_R, LOW_L, LOW_I, LOW_E, LOW_S, LOW_T, CAP_F, LOW_I, LOW_R, LOW_S, LOW_T, COLON};
 
 class FormattedDateIntervalData : public FormattedValueFieldPositionIteratorImpl {
 public:
@@ -729,7 +729,7 @@ void DateIntervalFormat::initializePattern(UErrorCode & status)
 		ures_getByKeyWithFallback(dateTimePatternsRes.getAlias(), gGregorianTag, dateTimePatternsRes.getAlias(), &status);
 		ures_getByKeyWithFallback(dateTimePatternsRes.getAlias(), gDateTimePatternsTag, dateTimePatternsRes.getAlias(), &status);
 		int32_t dateTimeFormatLength;
-		const UChar * dateTimeFormat = ures_getStringByIndex(dateTimePatternsRes.getAlias(), (int32_t)DateFormat::kDateTime, &dateTimeFormatLength, &status);
+		const char16_t * dateTimeFormat = ures_getStringByIndex(dateTimePatternsRes.getAlias(), (int32_t)DateFormat::kDateTime, &dateTimeFormatLength, &status);
 		if(U_SUCCESS(status) && dateTimeFormatLength >= 3) {
 			fDateTimeFormat = new UnicodeString(dateTimeFormat, dateTimeFormatLength);
 			if(fDateTimeFormat == nullptr) {
@@ -859,11 +859,11 @@ void DateIntervalFormat::initializePattern(UErrorCode & status)
 UnicodeString DateIntervalFormat::normalizeHourMetacharacters(const UnicodeString & skeleton) const {
 	UnicodeString result = skeleton;
 
-	UChar hourMetachar = u'\0';
+	char16_t hourMetachar = u'\0';
 	int32_t metacharStart = 0;
 	int32_t metacharCount = 0;
 	for(int32_t i = 0; i < result.length(); i++) {
-		UChar c = result[i];
+		char16_t c = result[i];
 		if(c == LOW_J || c == CAP_J || c == CAP_C) {
 			if(hourMetachar == u'\0') {
 				hourMetachar = c;
@@ -880,8 +880,8 @@ UnicodeString DateIntervalFormat::normalizeHourMetacharacters(const UnicodeStrin
 
 	if(hourMetachar != u'\0') {
 		UErrorCode err = U_ZERO_ERROR;
-		UChar hourChar = CAP_H;
-		UChar dayPeriodChar = LOW_A;
+		char16_t hourChar = CAP_H;
+		char16_t dayPeriodChar = LOW_A;
 		UnicodeString convertedPattern = DateFormat::getBestPattern(fLocale, UnicodeString(hourMetachar), err);
 
 		if(U_SUCCESS(err)) {
@@ -958,11 +958,11 @@ void U_EXPORT2 DateIntervalFormat::getDateTimeSkeleton(const UnicodeString & ske
 	int32_t mCount = 0;
 	int32_t vCount = 0;
 	int32_t zCount = 0;
-	UChar hourChar = u'\0';
+	char16_t hourChar = u'\0';
 	int32_t i;
 
 	for(i = 0; i < skeleton.length(); ++i) {
-		UChar ch = skeleton[i];
+		char16_t ch = skeleton[i];
 		switch(ch) {
 			case CAP_E:
 			    dateSkeleton.append(ch);
@@ -1343,7 +1343,7 @@ bool DateIntervalFormat::setIntervalPattern(UCalendarDateFields field,
 		// need to look for it from skeleton 'yMMMd',
 		// if found, adjust field width in interval pattern from
 		// "MMM" to "MMMM".
-		UChar fieldLetter = fgCalendarFieldToPatternLetter[field];
+		char16_t fieldLetter = fgCalendarFieldToPatternLetter[field];
 		if(extendedSkeleton) {
 			*extendedSkeleton = *skeleton;
 			*extendedBestSkeleton = *bestSkeleton;
@@ -1384,7 +1384,7 @@ bool DateIntervalFormat::setIntervalPattern(UCalendarDateFields field,
 
 int32_t U_EXPORT2 DateIntervalFormat::splitPatternInto2Part(const UnicodeString & intervalPattern) {
 	bool inQuote = false;
-	UChar prevCh = 0;
+	char16_t prevCh = 0;
 	int32_t count = 0;
 
 	/* repeatedPattern used to record whether a pattern has already seen.
@@ -1412,7 +1412,7 @@ int32_t U_EXPORT2 DateIntervalFormat::splitPatternInto2Part(const UnicodeString 
 	int32_t i;
 	bool foundRepetition = false;
 	for(i = 0; i < intervalPattern.length(); ++i) {
-		UChar ch = intervalPattern.charAt(i);
+		char16_t ch = intervalPattern.charAt(i);
 
 		if(ch != prevCh && count > 0) {
 			// check the repeativeness of pattern letter
@@ -1559,7 +1559,7 @@ UnicodeString &DateIntervalFormat::fallbackFormat(Calendar& fromCalendar,
 bool U_EXPORT2 DateIntervalFormat::fieldExistsInSkeleton(UCalendarDateFields field,
     const UnicodeString & skeleton)
 {
-	const UChar fieldChar = fgCalendarFieldToPatternLetter[field];
+	const char16_t fieldChar = fgCalendarFieldToPatternLetter[field];
 	return ( (skeleton.indexOf(fieldChar) == -1) ? FALSE : TRUE );
 }
 
@@ -1625,17 +1625,17 @@ void U_EXPORT2 DateIntervalFormat::adjustFieldWidth(const UnicodeString & inputS
 	}
 
 	bool inQuote = false;
-	UChar prevCh = 0;
+	char16_t prevCh = 0;
 	int32_t count = 0;
 
 	// loop through the pattern string character by character
 	int32_t adjustedPtnLength = adjustedPtn.length();
 	int32_t i;
 	for(i = 0; i < adjustedPtnLength; ++i) {
-		UChar ch = adjustedPtn.charAt(i);
+		char16_t ch = adjustedPtn.charAt(i);
 		if(ch != prevCh && count > 0) {
 			// check the repeativeness of pattern letter
-			UChar skeletonChar = prevCh;
+			char16_t skeletonChar = prevCh;
 			if(skeletonChar ==  CAP_L) {
 				// there is no "L" (always be "M") in skeleton,
 				// but there is "L" in pattern.
@@ -1675,7 +1675,7 @@ void U_EXPORT2 DateIntervalFormat::adjustFieldWidth(const UnicodeString & inputS
 	if(count > 0) {
 		// last item
 		// check the repeativeness of pattern letter
-		UChar skeletonChar = prevCh;
+		char16_t skeletonChar = prevCh;
 		if(skeletonChar == CAP_L) {
 			// there is no "L" (always be "M") in skeleton,
 			// but there is "L" in pattern.
@@ -1753,7 +1753,7 @@ void DateIntervalFormat::concatSingleDate2TimeInterval(UnicodeString & format,
 	// it should not happen if the interval format defined is valid
 }
 
-const UChar DateIntervalFormat::fgCalendarFieldToPatternLetter[] =
+const char16_t DateIntervalFormat::fgCalendarFieldToPatternLetter[] =
 {
 	/*GyM*/ CAP_G, LOW_Y, CAP_M,
 	/*wWd*/ LOW_W, CAP_W, LOW_D,

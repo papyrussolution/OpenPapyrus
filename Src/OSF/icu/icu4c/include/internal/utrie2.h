@@ -353,8 +353,8 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_fromUTrie(const UTrie * trie1, uint32_t errorVa
  * and get a 16-bit value from the trie.
  *
  * @param trie (const UTrie2 *, in) a frozen trie
- * @param src (const UChar *, in/out) the source text pointer
- * @param limit (const UChar *, in) the limit pointer for the text, or NULL if NUL-terminated
+ * @param src (const char16_t *, in/out) the source text pointer
+ * @param limit (const char16_t *, in) the limit pointer for the text, or NULL if NUL-terminated
  * @param c (UChar32, out) variable for the code point
  * @param result (uint16, out) uint16 variable for the trie lookup result
  */
@@ -365,8 +365,8 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_fromUTrie(const UTrie * trie1, uint32_t errorVa
  * and get a 32-bit value from the trie.
  *
  * @param trie (const UTrie2 *, in) a frozen trie
- * @param src (const UChar *, in/out) the source text pointer
- * @param limit (const UChar *, in) the limit pointer for the text, or NULL if NUL-terminated
+ * @param src (const char16_t *, in/out) the source text pointer
+ * @param limit (const char16_t *, in) the limit pointer for the text, or NULL if NUL-terminated
  * @param c (UChar32, out) variable for the code point
  * @param result (uint32_t, out) uint32_t variable for the trie lookup result
  */
@@ -377,8 +377,8 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_fromUTrie(const UTrie * trie1, uint32_t errorVa
  * and get a 16-bit value from the trie.
  *
  * @param trie (const UTrie2 *, in) a frozen trie
- * @param start (const UChar *, in) the start pointer for the text
- * @param src (const UChar *, in/out) the source text pointer
+ * @param start (const char16_t *, in) the start pointer for the text
+ * @param src (const char16_t *, in/out) the source text pointer
  * @param c (UChar32, out) variable for the code point
  * @param result (uint16, out) uint16 variable for the trie lookup result
  */
@@ -389,8 +389,8 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_fromUTrie(const UTrie * trie1, uint32_t errorVa
  * and get a 32-bit value from the trie.
  *
  * @param trie (const UTrie2 *, in) a frozen trie
- * @param start (const UChar *, in) the start pointer for the text
- * @param src (const UChar *, in/out) the source text pointer
+ * @param start (const char16_t *, in) the start pointer for the text
+ * @param src (const char16_t *, in/out) the source text pointer
  * @param c (UChar32, out) variable for the code point
  * @param result (uint32_t, out) uint32_t variable for the trie lookup result
  */
@@ -575,36 +575,36 @@ U_NAMESPACE_BEGIN
 // Use the Forward/Backward subclasses below.
 class UTrie2StringIterator : public UMemory {
 public:
-	UTrie2StringIterator(const UTrie2 * t, const UChar * p) : trie(t), codePointStart(p), codePointLimit(p), codePoint(U_SENTINEL) 
+	UTrie2StringIterator(const UTrie2 * t, const char16_t * p) : trie(t), codePointStart(p), codePointLimit(p), codePoint(U_SENTINEL) 
 	{
 	}
 	const UTrie2 * trie;
-	const UChar * codePointStart, * codePointLimit;
+	const char16_t * codePointStart, * codePointLimit;
 	UChar32 codePoint;
 };
 
 class BackwardUTrie2StringIterator : public UTrie2StringIterator {
 public:
-	BackwardUTrie2StringIterator(const UTrie2 * t, const UChar * s, const UChar * p) :
+	BackwardUTrie2StringIterator(const UTrie2 * t, const char16_t * s, const char16_t * p) :
 		UTrie2StringIterator(t, p), start(s) {
 	}
 
 	uint16 previous16();
 
-	const UChar * start;
+	const char16_t * start;
 };
 
 class ForwardUTrie2StringIterator : public UTrie2StringIterator {
 public:
 	// Iteration limit l can be NULL.
 	// In that case, the caller must detect c==0 and stop.
-	ForwardUTrie2StringIterator(const UTrie2 * t, const UChar * p, const UChar * l) :
+	ForwardUTrie2StringIterator(const UTrie2 * t, const char16_t * p, const char16_t * l) :
 		UTrie2StringIterator(t, p), limit(l) {
 	}
 
 	uint16 next16();
 
-	const UChar * limit;
+	const char16_t * limit;
 };
 
 U_NAMESPACE_END
@@ -905,8 +905,8 @@ U_CAPI int32_t U_EXPORT2 utrie2_internalU8PrevIndex(const UTrie2 * trie, UChar32
 					(trie)->index[(UTRIE2_UTF8_2B_INDEX_2_OFFSET-0xc0)+__lead]+ \
 					__t1]; \
 			} else { \
-				int32_t __index = utrie2_internalU8NextIndex((trie), __lead, (const uint8*)(src), \
-					(const uint8*)(limit)); \
+				int32_t __index = utrie2_internalU8NextIndex((trie), __lead, (const uint8 *)(src), \
+					(const uint8 *)(limit)); \
 				(src) += __index&7; \
 				(result) = (trie)->data[__index>>3]; \
 			} \
@@ -919,7 +919,7 @@ U_CAPI int32_t U_EXPORT2 utrie2_internalU8PrevIndex(const UTrie2 * trie, UChar32
 		if(U8_IS_SINGLE(__b)) { \
 			(result) = (trie)->ascii[__b]; \
 		} else { \
-			int32_t __index = utrie2_internalU8PrevIndex((trie), __b, (const uint8*)(start), (const uint8*)(src)); \
+			int32_t __index = utrie2_internalU8PrevIndex((trie), __b, (const uint8 *)(start), (const uint8 *)(src)); \
 			(src) -= __index&7; \
 			(result) = (trie)->data[__index>>3]; \
 		} \

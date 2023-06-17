@@ -127,8 +127,8 @@ static inline int fz_hard_light_byte(int b, int s)
 }
 
 static inline int fz_overlay_byte(int b, int s) { return fz_hard_light_byte(s, b); /* note swapped order */ }
-static inline int fz_darken_byte(int b, int s) { return fz_mini(b, s); }
-static inline int fz_lighten_byte(int b, int s) { return fz_maxi(b, s); }
+static inline int fz_darken_byte(int b, int s) { return smin(b, s); }
+static inline int fz_lighten_byte(int b, int s) { return smax(b, s); }
 
 static inline int fz_color_dodge_byte(int b, int s)
 {
@@ -183,11 +183,11 @@ static void fz_luminosity_rgb(uchar * rd, uchar * gd, uchar * bd, int rb, int gb
 	if((r | g | b) & 0x100) {
 		int y = (rs * 77 + gs * 151 + bs * 28 + 0x80) >> 8;
 		if(delta > 0) {
-			int max = fz_maxi(r, fz_maxi(g, b));
+			int max = smax(r, smax(g, b));
 			scale = (max == y ? 0 : ((255 - y) << 16) / (max - y));
 		}
 		else {
-			int min = fz_mini(r, fz_mini(g, b));
+			int min = smin(r, smin(g, b));
 			scale = (y == min ? 0 : (y << 16) / (y - min));
 		}
 		r = y + (((r - y) * scale + 0x8000) >> 16);
@@ -206,8 +206,8 @@ static void fz_saturation_rgb(uchar * rd, uchar * gd, uchar * bd, int rb, int gb
 	int y;
 	int scale;
 	int r, g, b;
-	minb = fz_mini(rb, fz_mini(gb, bb));
-	maxb = fz_maxi(rb, fz_maxi(gb, bb));
+	minb = smin(rb, smin(gb, bb));
+	maxb = smax(rb, smax(gb, bb));
 	if(minb == maxb) {
 		/* backdrop has zero saturation, avoid divide by 0 */
 		gb = sclamp(gb, 0, 255);
@@ -217,8 +217,8 @@ static void fz_saturation_rgb(uchar * rd, uchar * gd, uchar * bd, int rb, int gb
 		return;
 	}
 
-	mins = fz_mini(rs, fz_mini(gs, bs));
-	maxs = fz_maxi(rs, fz_maxi(gs, bs));
+	mins = smin(rs, smin(gs, bs));
+	maxs = smax(rs, smax(gs, bs));
 
 	scale = ((maxs - mins) << 16) / (maxb - minb);
 	y = (rb * 77 + gb * 151 + bb * 28 + 0x80) >> 8;
@@ -230,8 +230,8 @@ static void fz_saturation_rgb(uchar * rd, uchar * gd, uchar * bd, int rb, int gb
 		int scalemin, scalemax;
 		int min, max;
 
-		min = fz_mini(r, fz_mini(g, b));
-		max = fz_maxi(r, fz_maxi(g, b));
+		min = smin(r, smin(g, b));
+		max = smax(r, smax(g, b));
 
 		if(min < 0)
 			scalemin = (y << 16) / (y - min);
@@ -243,7 +243,7 @@ static void fz_saturation_rgb(uchar * rd, uchar * gd, uchar * bd, int rb, int gb
 		else
 			scalemax = 0x10000;
 
-		scale = fz_mini(scalemin, scalemax);
+		scale = smin(scalemin, scalemax);
 		r = y + (((r - y) * scale + 0x8000) >> 16);
 		g = y + (((g - y) * scale + 0x8000) >> 16);
 		b = y + (((b - y) * scale + 0x8000) >> 16);

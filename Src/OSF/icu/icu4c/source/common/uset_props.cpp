@@ -23,7 +23,7 @@
 
 U_NAMESPACE_USE
 
-U_CAPI USet* U_EXPORT2 uset_openPattern(const UChar * pattern, int32_t patternLength,
+U_CAPI USet* U_EXPORT2 uset_openPattern(const char16_t * pattern, int32_t patternLength,
     UErrorCode * ec)
 {
 	UnicodeString pat(patternLength==-1, pattern, patternLength);
@@ -41,7 +41,7 @@ U_CAPI USet* U_EXPORT2 uset_openPattern(const UChar * pattern, int32_t patternLe
 	return (USet*)set;
 }
 
-U_CAPI USet* U_EXPORT2 uset_openPatternOptions(const UChar * pattern, int32_t patternLength,
+U_CAPI USet* U_EXPORT2 uset_openPatternOptions(const char16_t * pattern, int32_t patternLength,
     uint32_t options,
     UErrorCode * ec)
 {
@@ -61,7 +61,7 @@ U_CAPI USet* U_EXPORT2 uset_openPatternOptions(const UChar * pattern, int32_t pa
 }
 
 U_CAPI int32_t U_EXPORT2 uset_applyPattern(USet * set,
-    const UChar * pattern, int32_t patternLength,
+    const char16_t * pattern, int32_t patternLength,
     uint32_t options,
     UErrorCode * status) {
 	// status code needs to be checked since we
@@ -93,8 +93,8 @@ U_CAPI void U_EXPORT2 uset_applyIntPropertyValue(USet* set,
 }
 
 U_CAPI void U_EXPORT2 uset_applyPropertyAlias(USet* set,
-    const UChar * prop, int32_t propLength,
-    const UChar * value, int32_t valueLength,
+    const char16_t * prop, int32_t propLength,
+    const char16_t * value, int32_t valueLength,
     UErrorCode * ec) {
 	UnicodeString p(prop, propLength);
 	UnicodeString v(value, valueLength);
@@ -102,17 +102,17 @@ U_CAPI void U_EXPORT2 uset_applyPropertyAlias(USet* set,
 	((UnicodeSet*)set)->applyPropertyAlias(p, v, *ec);
 }
 
-U_CAPI bool U_EXPORT2 uset_resemblesPattern(const UChar * pattern, int32_t patternLength,
+U_CAPI bool U_EXPORT2 uset_resemblesPattern(const char16_t * pattern, int32_t patternLength,
     int32_t pos) {
 	UnicodeString pat(pattern, patternLength);
 
 	return ((pos+1) < pat.length() &&
-	       pat.charAt(pos) == (UChar)91 /*[*/) ||
+	       pat.charAt(pos) == (char16_t)91 /*[*/) ||
 	       UnicodeSet::resemblesPattern(pat, pos);
 }
 
 U_CAPI int32_t U_EXPORT2 uset_toPattern(const USet* set,
-    UChar * result, int32_t resultCapacity,
+    char16_t * result, int32_t resultCapacity,
     bool escapeUnprintable,
     UErrorCode * ec) {
 	UnicodeString pat;

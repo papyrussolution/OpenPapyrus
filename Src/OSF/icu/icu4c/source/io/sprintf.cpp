@@ -28,7 +28,7 @@
 #include "locbund.h"
 
 /* u_minstrncpy copies the minimum number of code units of (count or output->available) */
-static int32_t u_sprintf_write(void * context, const UChar * str, int32_t count)
+static int32_t u_sprintf_write(void * context, const char16_t * str, int32_t count)
 {
 	u_localized_print_string * output = (u_localized_print_string*)context;
 	int32_t size = ufmt_min(count, output->available);
@@ -37,7 +37,7 @@ static int32_t u_sprintf_write(void * context, const UChar * str, int32_t count)
 	return size;
 }
 
-static int32_t u_sprintf_pad_and_justify(void * context, const u_printf_spec_info * info, const UChar * result, int32_t resultLen)
+static int32_t u_sprintf_pad_and_justify(void * context, const u_printf_spec_info * info, const char16_t * result, int32_t resultLen)
 {
 	u_localized_print_string * output = (u_localized_print_string*)context;
 	int32_t written = 0;
@@ -80,7 +80,7 @@ static int32_t u_sprintf_pad_and_justify(void * context, const u_printf_spec_inf
 	return written;
 }
 
-U_CAPI int32_t U_EXPORT2 u_sprintf(UChar * buffer,
+U_CAPI int32_t U_EXPORT2 u_sprintf(char16_t * buffer,
     const char * patternSpecification,
     ...)
 {
@@ -94,8 +94,8 @@ U_CAPI int32_t U_EXPORT2 u_sprintf(UChar * buffer,
 	return written;
 }
 
-U_CAPI int32_t U_EXPORT2 u_sprintf_u(UChar * buffer,
-    const UChar * patternSpecification,
+U_CAPI int32_t U_EXPORT2 u_sprintf_u(char16_t * buffer,
+    const char16_t * patternSpecification,
     ...)
 {
 	va_list ap;
@@ -109,14 +109,14 @@ U_CAPI int32_t U_EXPORT2 u_sprintf_u(UChar * buffer,
 }
 
 U_CAPI int32_t U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
-u_vsprintf(UChar * buffer,
+u_vsprintf(char16_t * buffer,
     const char * patternSpecification,
     va_list ap)
 {
 	return u_vsnprintf(buffer, INT32_MAX, patternSpecification, ap);
 }
 
-U_CAPI int32_t U_EXPORT2 u_snprintf(UChar * buffer,
+U_CAPI int32_t U_EXPORT2 u_snprintf(char16_t * buffer,
     int32_t count,
     const char * patternSpecification,
     ...)
@@ -131,9 +131,9 @@ U_CAPI int32_t U_EXPORT2 u_snprintf(UChar * buffer,
 	return written;
 }
 
-U_CAPI int32_t U_EXPORT2 u_snprintf_u(UChar * buffer,
+U_CAPI int32_t U_EXPORT2 u_snprintf_u(char16_t * buffer,
     int32_t count,
-    const UChar * patternSpecification,
+    const char16_t * patternSpecification,
     ...)
 {
 	va_list ap;
@@ -147,19 +147,19 @@ U_CAPI int32_t U_EXPORT2 u_snprintf_u(UChar * buffer,
 }
 
 U_CAPI int32_t U_EXPORT2  /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
-u_vsnprintf(UChar * buffer,
+u_vsnprintf(char16_t * buffer,
     int32_t count,
     const char * patternSpecification,
     va_list ap)
 {
 	int32_t written;
-	UChar * pattern;
-	UChar patBuffer[UFMT_DEFAULT_BUFFER_SIZE];
+	char16_t * pattern;
+	char16_t patBuffer[UFMT_DEFAULT_BUFFER_SIZE];
 	int32_t size = (int32_t)strlen(patternSpecification) + 1;
 
 	/* convert from the default codepage to Unicode */
 	if(size >= (int32_t)MAX_UCHAR_BUFFER_SIZE(patBuffer)) {
-		pattern = (UChar *)uprv_malloc(size * sizeof(UChar));
+		pattern = (char16_t *)uprv_malloc(size * sizeof(char16_t));
 		if(pattern == 0) {
 			return 0;
 		}
@@ -180,8 +180,8 @@ u_vsnprintf(UChar * buffer,
 	return written;
 }
 
-U_CAPI int32_t U_EXPORT2 u_vsprintf_u(UChar * buffer,
-    const UChar * patternSpecification,
+U_CAPI int32_t U_EXPORT2 u_vsprintf_u(char16_t * buffer,
+    const char16_t * patternSpecification,
     va_list ap)
 {
 	return u_vsnprintf_u(buffer, INT32_MAX, patternSpecification, ap);
@@ -193,9 +193,9 @@ static const u_printf_stream_handler g_sprintf_stream_handler = {
 };
 
 U_CAPI int32_t U_EXPORT2  /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
-u_vsnprintf_u(UChar * buffer,
+u_vsnprintf_u(char16_t * buffer,
     int32_t count,
-    const UChar * patternSpecification,
+    const char16_t * patternSpecification,
     va_list ap)
 {
 	int32_t written = 0; /* haven't written anything yet */

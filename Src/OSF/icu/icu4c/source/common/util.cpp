@@ -14,16 +14,16 @@
 #include "unicode/unimatch.h"
 #include "patternprops.h"
 
-// Define UChar constants using hex for EBCDIC compatibility
+// Define char16_t constants using hex for EBCDIC compatibility
 
-static const UChar BACKSLASH  = 0x005C; /*\*/
-static const UChar UPPER_U    = 0x0055; /*U*/
-static const UChar LOWER_U    = 0x0075; /*u*/
-static const UChar APOSTROPHE = 0x0027; // '\''
-static const UChar SPACE      = 0x0020; // ' '
+static const char16_t BACKSLASH  = 0x005C; /*\*/
+static const char16_t UPPER_U    = 0x0055; /*U*/
+static const char16_t LOWER_U    = 0x0075; /*u*/
+static const char16_t APOSTROPHE = 0x0027; // '\''
+static const char16_t SPACE      = 0x0020; // ' '
 
 // "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-static const UChar DIGITS[] = {
+static const char16_t DIGITS[] = {
 	48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
 	65, 66, 67, 68, 69, 70, 71, 72, 73, 74,
 	75, 76, 77, 78, 79, 80, 81, 82, 83, 84,
@@ -36,12 +36,12 @@ UnicodeString & ICU_Utility::appendNumber(UnicodeString & result, int32_t n,
     int32_t radix, int32_t minDigits) {
 	if(radix < 2 || radix > 36) {
 		// Bogus radix
-		return result.append((UChar)63 /*?*/);
+		return result.append((char16_t)63 /*?*/);
 	}
 	// Handle negatives
 	if(n < 0) {
 		n = -n;
-		result.append((UChar)45 /*-*/);
+		result.append((char16_t)45 /*-*/);
 	}
 	// First determine the number of digits
 	int32_t nn = n;
@@ -128,9 +128,9 @@ UnicodeString & ICU_Utility::escape(UnicodeString & result, UChar32 c) {
 /*
    int32_t ICU_Utility::quotedIndexOf(const UnicodeString & text,
                                int32_t start, int32_t limit,
-                               UChar charToFind) {
+                               char16_t charToFind) {
     for (int32_t i=start; i < limit; ++i) {
-        UChar c = text.charAt(i);
+        char16_t c = text.charAt(i);
         if(c == BACKSLASH) {
  ++i;
         } else if(c == APOSTROPHE) {
@@ -155,7 +155,7 @@ UnicodeString & ICU_Utility::escape(UnicodeString & result, UChar32 c) {
 int32_t ICU_Utility::skipWhitespace(const UnicodeString & str, int32_t& pos,
     bool advance) {
 	int32_t p = pos;
-	const UChar * s = str.getBuffer();
+	const char16_t * s = str.getBuffer();
 	p = (int32_t)(PatternProps::skipWhiteSpace(s + p, str.length() - p) - s);
 	if(advance) {
 		pos = p;
@@ -218,7 +218,7 @@ int32_t ICU_Utility::skipWhitespace(const UnicodeString & str, int32_t& pos,
  * @return true if 'ch' is seen preceded by zero or more
  * whitespace characters.
  */
-bool ICU_Utility::parseChar(const UnicodeString & id, int32_t& pos, UChar ch) {
+bool ICU_Utility::parseChar(const UnicodeString & id, int32_t& pos, char16_t ch) {
 	int32_t start = pos;
 	skipWhitespace(id, pos, TRUE);
 	if(pos == id.length() ||
@@ -299,7 +299,7 @@ int32_t ICU_Utility::parsePattern(const UnicodeString & pat,
 
 int32_t ICU_Utility::parseAsciiInteger(const UnicodeString & str, int32_t& pos) {
 	int32_t result = 0;
-	UChar c;
+	char16_t c;
 	while(pos < str.length() && (c = str.charAt(pos)) >= u'0' && c <= u'9') {
 		result = result * 10 + (c - u'0');
 		pos++;

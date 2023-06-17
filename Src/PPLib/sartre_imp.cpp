@@ -5797,7 +5797,7 @@ int PrcssrSartre::UED_ImportIcuNames()
 									bool do_skip = false;
 									for(int i = 0; !do_skip && i < _c; i++) {
 										int32_t len = 0;
-										const UChar * p_text = ures_getStringByIndex(p_urb_wd_w, i, &len, &icu_errcode);
+										const char16_t * p_text = ures_getStringByIndex(p_urb_wd_w, i, &len, &icu_errcode);
 										if(!isempty(p_text)) {
 											temp_buf.Z().CopyUtf8FromUnicode(reinterpret_cast<const wchar_t *>(p_text), len, 1);
 											temp_buf.Utf8ToLower();
@@ -5849,7 +5849,7 @@ int PrcssrSartre::UED_ImportIcuNames()
 										bool do_skip = false;
 										for(int i = 0; !do_skip && i < _c; i++) {
 											int32_t len = 0;
-											const UChar * p_text = ures_getStringByIndex(p_urb_wd_w, i, &len, &icu_errcode);
+											const char16_t * p_text = ures_getStringByIndex(p_urb_wd_w, i, &len, &icu_errcode);
 											if(!isempty(p_text)) {
 												temp_buf.Z().CopyUtf8FromUnicode(reinterpret_cast<const wchar_t *>(p_text), len, 1);
 												temp_buf.Utf8ToLower();

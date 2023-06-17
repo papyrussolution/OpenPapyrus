@@ -41,7 +41,7 @@ void U_CALLCONV initSingleton(UErrorCode & errorCode)
 
 // TODO: turn this into a shared helper function
 // Requires the major version to match, and then requires at least the minor version.
-bool udata_isAcceptableMajorMinor(const UDataInfo &info, const UChar * dataFormat, uint8 major, uint8 minor) 
+bool udata_isAcceptableMajorMinor(const UDataInfo &info, const char16_t * dataFormat, uint8 major, uint8 minor) 
 {
 	return info.size >= 20 && info.isBigEndian == U_IS_BIG_ENDIAN && info.charsetFamily == U_CHARSET_FAMILY &&
 		info.dataFormat[0] == dataFormat[0] && info.dataFormat[1] == dataFormat[1] && info.dataFormat[2] == dataFormat[2] &&
@@ -93,7 +93,7 @@ void EmojiProps::load(UErrorCode & errorCode)
 		offset = inIndexes[i];
 		nextOffset = inIndexes[i + 1];
 		// Set/leave nullptr if there is no UCharsTrie.
-		const UChar * p = nextOffset > offset ? (const UChar *)(inBytes + offset) : nullptr;
+		const char16_t * p = nextOffset > offset ? (const char16_t *)(inBytes + offset) : nullptr;
 		stringTries[getStringTrieIndex(i)] = p;
 	}
 }
@@ -147,13 +147,13 @@ bool EmojiProps::hasBinaryPropertyImpl(UChar32 c, UProperty which) const
 	return (bits >> bit) & 1;
 }
 
-bool EmojiProps::hasBinaryProperty(const UChar * s, int32_t length, UProperty which) {
+bool EmojiProps::hasBinaryProperty(const char16_t * s, int32_t length, UProperty which) {
 	UErrorCode errorCode = U_ZERO_ERROR;
 	const EmojiProps * ep = getSingleton(errorCode);
 	return U_SUCCESS(errorCode) && ep->hasBinaryPropertyImpl(s, length, which);
 }
 
-bool EmojiProps::hasBinaryPropertyImpl(const UChar * s, int32_t length, UProperty which) const 
+bool EmojiProps::hasBinaryPropertyImpl(const char16_t * s, int32_t length, UProperty which) const 
 {
 	if(s == nullptr && length != 0) {
 		return false;
@@ -172,7 +172,7 @@ bool EmojiProps::hasBinaryPropertyImpl(const UChar * s, int32_t length, UPropert
 		lastProp = UCHAR_RGI_EMOJI_ZWJ_SEQUENCE;
 	}
 	for(int32_t prop = firstProp; prop <= lastProp; ++prop) {
-		const UChar * trieUChars = stringTries[prop - UCHAR_BASIC_EMOJI];
+		const char16_t * trieUChars = stringTries[prop - UCHAR_BASIC_EMOJI];
 		if(trieUChars != nullptr) {
 			UCharsTrie trie(trieUChars);
 			UStringTrieResult result = trie.next(s, length);
@@ -198,7 +198,7 @@ void EmojiProps::addStrings(const USetAdder * sa, UProperty which, UErrorCode & 
 		lastProp = UCHAR_RGI_EMOJI_ZWJ_SEQUENCE;
 	}
 	for(int32_t prop = firstProp; prop <= lastProp; ++prop) {
-		const UChar * trieUChars = stringTries[prop - UCHAR_BASIC_EMOJI];
+		const char16_t * trieUChars = stringTries[prop - UCHAR_BASIC_EMOJI];
 		if(trieUChars != nullptr) {
 			UCharsTrie::Iterator iter(trieUChars, 0, errorCode);
 			while(iter.next(errorCode)) {

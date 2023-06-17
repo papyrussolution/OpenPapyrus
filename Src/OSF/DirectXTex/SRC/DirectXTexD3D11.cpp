@@ -23,8 +23,7 @@ static_assert(static_cast<int>(TEX_DIMENSION_TEXTURE1D) == static_cast<int>(D3D1
 static_assert(static_cast<int>(TEX_DIMENSION_TEXTURE2D) == static_cast<int>(D3D11_RESOURCE_DIMENSION_TEXTURE2D), "header enum mismatch");
 static_assert(static_cast<int>(TEX_DIMENSION_TEXTURE3D) == static_cast<int>(D3D11_RESOURCE_DIMENSION_TEXTURE3D), "header enum mismatch");
 
-namespace
-{
+namespace {
 HRESULT Capture(_In_ ID3D11DeviceContext* pContext,
     _In_ ID3D11Resource* pSource,
     const TexMetadata& metadata,
@@ -171,32 +170,22 @@ HRESULT Capture(_In_ ID3D11DeviceContext* pContext,
 	return S_OK;
 }
 }
-
-//=====================================================================================
+//
 // Entry-points
-//=====================================================================================
-
-//-------------------------------------------------------------------------------------
+//
 // Determine if given texture metadata is supported on the given device
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-bool DirectX::IsSupportedTexture(ID3D11Device* pDevice,
-    const TexMetadata& metadata) noexcept
+//
+_Use_decl_annotations_ bool DirectX::IsSupportedTexture(ID3D11Device* pDevice, const TexMetadata& metadata) noexcept
 {
 	if(!pDevice)
 		return false;
-
 	const D3D_FEATURE_LEVEL fl = pDevice->GetFeatureLevel();
-
 	// Validate format
 	const DXGI_FORMAT fmt = metadata.format;
-
 	if(!IsValid(fmt))
 		return false;
-
 	const size_t iWidth = metadata.width;
 	const size_t iHeight = metadata.height;
-
 	switch(fmt) {
 		case DXGI_FORMAT_BC4_TYPELESS:
 		case DXGI_FORMAT_BC4_UNORM:
@@ -394,46 +383,27 @@ bool DirectX::IsSupportedTexture(ID3D11Device* pDevice,
 		    // Not a supported dimension
 		    return false;
 	}
-
 	return true;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Create a texture resource
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::CreateTexture(ID3D11Device* pDevice,
-    const Image* srcImages,
-    size_t nimages,
-    const TexMetadata& metadata,
-    ID3D11Resource** ppResource) noexcept
+//
+_Use_decl_annotations_ HRESULT DirectX::CreateTexture(ID3D11Device* pDevice, const Image* srcImages,
+    size_t nimages, const TexMetadata& metadata, ID3D11Resource** ppResource) noexcept
 {
-	return CreateTextureEx(
-		pDevice, srcImages, nimages, metadata,
-		D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0, CREATETEX_DEFAULT,
+	return CreateTextureEx(pDevice, srcImages, nimages, metadata, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0, CREATETEX_DEFAULT,
 		ppResource);
 }
 
-_Use_decl_annotations_
-HRESULT DirectX::CreateTextureEx(ID3D11Device* pDevice,
-    const Image* srcImages,
-    size_t nimages,
-    const TexMetadata& metadata,
-    D3D11_USAGE usage,
-    unsigned int bindFlags,
-    unsigned int cpuAccessFlags,
-    unsigned int miscFlags,
-    CREATETEX_FLAGS flags,
-    ID3D11Resource** ppResource) noexcept
+_Use_decl_annotations_ HRESULT DirectX::CreateTextureEx(ID3D11Device* pDevice, const Image* srcImages,
+    size_t nimages, const TexMetadata& metadata, D3D11_USAGE usage, unsigned int bindFlags,
+    unsigned int cpuAccessFlags, unsigned int miscFlags, CREATETEX_FLAGS flags, ID3D11Resource** ppResource) noexcept
 {
 	if(!pDevice || !srcImages || !nimages || !ppResource)
 		return E_INVALIDARG;
-
 	*ppResource = nullptr;
-
 	if(!metadata.mipLevels || !metadata.arraySize)
 		return E_INVALIDARG;
-
 	if((metadata.width > UINT32_MAX) || (metadata.height > UINT32_MAX)
 	    || (metadata.mipLevels > UINT16_MAX) || (metadata.arraySize > UINT16_MAX))
 		return E_INVALIDARG;
@@ -596,12 +566,10 @@ HRESULT DirectX::CreateTextureEx(ID3D11Device* pDevice,
 	}
 	return hr;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Create a shader resource view and associated texture
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::CreateShaderResourceView(ID3D11Device* pDevice,
+//
+_Use_decl_annotations_ HRESULT DirectX::CreateShaderResourceView(ID3D11Device* pDevice,
     const Image* srcImages,
     size_t nimages,
     const TexMetadata& metadata,
@@ -613,8 +581,7 @@ HRESULT DirectX::CreateShaderResourceView(ID3D11Device* pDevice,
 		ppSRV);
 }
 
-_Use_decl_annotations_
-HRESULT DirectX::CreateShaderResourceViewEx(ID3D11Device* pDevice,
+_Use_decl_annotations_ HRESULT DirectX::CreateShaderResourceViewEx(ID3D11Device* pDevice,
     const Image* srcImages,
     size_t nimages,
     const TexMetadata& metadata,
@@ -699,21 +666,16 @@ HRESULT DirectX::CreateShaderResourceViewEx(ID3D11Device* pDevice,
 		default:
 		    return E_FAIL;
 	}
-
 	hr = pDevice->CreateShaderResourceView(resource.Get(), &SRVDesc, ppSRV);
 	if(FAILED(hr))
 		return hr;
-
 	assert(*ppSRV);
-
 	return S_OK;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Save a texture resource
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::CaptureTexture(ID3D11Device* pDevice,
+//
+_Use_decl_annotations_ HRESULT DirectX::CaptureTexture(ID3D11Device* pDevice,
     ID3D11DeviceContext* pContext,
     ID3D11Resource* pSource,
     ScratchImage& result) noexcept

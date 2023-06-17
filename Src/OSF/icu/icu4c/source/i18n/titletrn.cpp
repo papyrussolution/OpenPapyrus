@@ -111,7 +111,7 @@ void TitlecaseTransliterator::handleTransliterate(Replaceable& text, UTransPosit
 	csc.limit = offsets.contextLimit;
 
 	UnicodeString tmp;
-	const UChar * s;
+	const char16_t * s;
 	int32_t textPos, delta, result;
 
 	for(textPos = offsets.start; textPos<offsets.limit;) {

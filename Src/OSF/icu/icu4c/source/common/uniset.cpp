@@ -566,7 +566,7 @@ UMatchDegree UnicodeSet::matches(const Replaceable& text,
 			// firstChar is the leftmost char to match in the
 			// forward direction or the rightmost char to match in
 			// the reverse direction.
-			UChar firstChar = text.charAt(offset);
+			char16_t firstChar = text.charAt(offset);
 
 			// If there are multiple strings that can match we
 			// return the longest match.
@@ -578,7 +578,7 @@ UMatchDegree UnicodeSet::matches(const Replaceable& text,
 					continue; // skip the empty string
 				}
 
-				UChar c = trial.charAt(forward ? 0 : trial.length() - 1);
+				char16_t c = trial.charAt(forward ? 0 : trial.length() - 1);
 
 				// Strings are sorted, so we can optimize in the
 				// forward direction.
@@ -2180,7 +2180,7 @@ void UnicodeSet::releasePattern() {
  */
 void UnicodeSet::setPattern(const char16_t * newPat, int32_t newPatLen) {
 	releasePattern();
-	pat = (UChar *)uprv_malloc((newPatLen + 1) * sizeof(UChar));
+	pat = (char16_t *)uprv_malloc((newPatLen + 1) * sizeof(char16_t));
 	if(pat) {
 		patLen = newPatLen;
 		u_memcpy(pat, newPat, patLen);
@@ -2222,7 +2222,7 @@ UnicodeSet * UnicodeSet::freeze() {
 	return this;
 }
 
-int32_t UnicodeSet::span(const UChar * s, int32_t length, USetSpanCondition spanCondition) const {
+int32_t UnicodeSet::span(const char16_t * s, int32_t length, USetSpanCondition spanCondition) const {
 	if(length>0 && bmpSet) {
 		return (int32_t)(bmpSet->span(s, s+length, spanCondition)-s);
 	}
@@ -2258,7 +2258,7 @@ int32_t UnicodeSet::span(const UChar * s, int32_t length, USetSpanCondition span
 	return prev;
 }
 
-int32_t UnicodeSet::spanBack(const UChar * s, int32_t length, USetSpanCondition spanCondition) const 
+int32_t UnicodeSet::spanBack(const char16_t * s, int32_t length, USetSpanCondition spanCondition) const 
 {
 	if(length > 0 && bmpSet) {
 		return (int32_t)(bmpSet->spanBack(s, s+length, spanCondition)-s);

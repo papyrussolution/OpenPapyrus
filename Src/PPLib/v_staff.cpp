@@ -1,5 +1,5 @@
 // V_STAFF.CPP
-// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -782,7 +782,7 @@ int PPViewStaffPost::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 }
 
 // @v6.1.x AHTOXA {
-#define TOP_ID         1000000000L
+#define TOP_ID         SlConst::OneBillion
 #define STAFF_OFFS     (TOP_ID + 1L)
 #define STAFFPOST_OFFS (STAFF_OFFS + 100000000L)
 #define AMOUNTTYPE_OFFS 100000L

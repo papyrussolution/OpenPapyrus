@@ -57,7 +57,7 @@ UnicodeString * Win32DateFormat::getTimeDateFormat(const Calendar *cal, const Lo
 	}
 
 	if(U_FAILURE(status)) {
-		static const UChar defaultPattern[] = {0x007B, 0x0031, 0x007D, 0x0020, 0x007B, 0x0030, 0x007D, 0x0000}; // "{1}
+		static const char16_t defaultPattern[] = {0x007B, 0x0031, 0x007D, 0x0020, 0x007B, 0x0030, 0x007D, 0x0000}; // "{1}
 		                                                                                                        // {0}"
 		return new UnicodeString(defaultPattern, SIZEOFARRAYi(defaultPattern));
 	}
@@ -69,7 +69,7 @@ UnicodeString * Win32DateFormat::getTimeDateFormat(const Calendar *cal, const Lo
 		// Get proper date time format
 		glueIndex = (int32_t)(DateFormat::kDateTimeOffset + (fDateStyle - DateFormat::kDateOffset));
 	}
-	const UChar * resStr = ures_getStringByIndex(patBundle, glueIndex, &resStrLen, &status);
+	const char16_t * resStr = ures_getStringByIndex(patBundle, glueIndex, &resStrLen, &status);
 
 	result = new UnicodeString(TRUE, resStr, resStrLen);
 
@@ -309,7 +309,7 @@ void Win32DateFormat::formatDate(const SYSTEMTIME * st, UnicodeString & appendTo
 		}
 	}
 
-	appendTo.append((const UChar *)buffer, (int32_t)wcslen(buffer));
+	appendTo.append((const char16_t *)buffer, (int32_t)wcslen(buffer));
 
 	if(buffer != stackBuffer) {
 		DELETE_ARRAY(buffer);
@@ -341,7 +341,7 @@ void Win32DateFormat::formatTime(const SYSTEMTIME * st, UnicodeString & appendTo
 		}
 	}
 
-	appendTo.append((const UChar *)buffer, (int32_t)wcslen(buffer));
+	appendTo.append((const char16_t *)buffer, (int32_t)wcslen(buffer));
 
 	if(buffer != stackBuffer) {
 		DELETE_ARRAY(buffer);

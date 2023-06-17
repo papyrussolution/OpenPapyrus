@@ -122,9 +122,9 @@ typedef struct UFormattedDateInterval UFormattedDateInterval;
  * @stable ICU 4.8
  */
 U_CAPI UDateIntervalFormat* U_EXPORT2 udtitvfmt_open(const char *  locale,
-    const UChar* skeleton,
+    const char16_t* skeleton,
     int32_t skeletonLength,
-    const UChar* tzID,
+    const char16_t* tzID,
     int32_t tzIDLength,
     UErrorCode*  status);
 
@@ -241,7 +241,7 @@ U_NAMESPACE_END
 U_CAPI int32_t U_EXPORT2 udtitvfmt_format(const UDateIntervalFormat* formatter,
     UDate fromDate,
     UDate toDate,
-    UChar*          result,
+    char16_t*          result,
     int32_t resultCapacity,
     UFieldPosition* position,
     UErrorCode*     status);

@@ -6,12 +6,17 @@
 #include <pp.h>
 #pragma hdrstop
 
-GoodsStrucProcessingBlock::GoodsStrucProcessingBlock()
+GoodsStrucProcessingBlock::GoodsStrucProcessingBlock() : P_TecObj(0)
 {
 }
 
-GoodsStrucProcessingBlock::GoodsStrucProcessingBlock(const GoodsStrucProcessingBlock & rS) : StrucList(rS.StrucList), ItemList(rS.ItemList), StrPool(rS.StrPool)
+GoodsStrucProcessingBlock::GoodsStrucProcessingBlock(const GoodsStrucProcessingBlock & rS) : P_TecObj(0), StrucList(rS.StrucList), ItemList(rS.ItemList), StrPool(rS.StrPool)
 {
+}
+
+GoodsStrucProcessingBlock::~GoodsStrucProcessingBlock()
+{
+	delete P_TecObj; // @v11.7.6
 }
 
 /*static*/int FASTCALL PPViewGoodsStruc::Cmp_ItemEntry(const PPViewGoodsStruc * pView, int order, const void * i1, const void * i2)
@@ -87,6 +92,7 @@ static IMPL_CMPFUNC(GoodsStrucView_ItemEntry_CurrentOrder, i1, i2)
 }
 
 class GoodsStrucFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(GoodsStrucFilt);
 public:
 	enum {
 		ctlgroupGoodsFiltPrmr = 1,
@@ -97,7 +103,7 @@ public:
 		addGroup(ctlgroupGoodsFiltPrmr, new GoodsFiltCtrlGroup(CTLSEL_GSFILT_PGOODS, CTLSEL_GSFILT_PGGRP, cmPGoodsFilt));
 		addGroup(ctlgroupGoodsFiltScnd, new GoodsFiltCtrlGroup(CTLSEL_GSFILT_SGOODS, CTLSEL_GSFILT_SGGRP, cmSGoodsFilt));
 	}
-	int    setDTS(const GoodsStrucFilt * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
@@ -117,10 +123,11 @@ public:
 		SetClusterData(CTL_GSFILT_ORDER, Data.InitOrder);
 		AddClusterAssoc(CTL_GSFILT_FLAGS, 0, GoodsStrucFilt::fShowUnrefs);
 		AddClusterAssoc(CTL_GSFILT_FLAGS, 1, GoodsStrucFilt::fSkipByPassiveOwner); // @v10.3.2
+		AddClusterAssoc(CTL_GSFILT_FLAGS, 2, GoodsStrucFilt::fShowTech); // @v11.7.6
 		SetClusterData(CTL_GSFILT_FLAGS, Data.Flags);
 		return ok;
 	}
-	int    getDTS(GoodsStrucFilt * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		{
@@ -141,8 +148,6 @@ public:
 		CATCHZOK
 		return ok;
 	}
-private:
-	GoodsStrucFilt Data;
 };
 
 PPBaseFilt * PPViewGoodsStruc::CreateFilt(const void * extraPtr) const
@@ -218,11 +223,16 @@ int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 	Cb.ItemList.clear();
 	Cb.StrPool.ClearS();
 	int    ok = 1;
+	// @v11.7.6 {
+	uint   add_item_flags = 0;
+	if(Filt.Flags & Filt.fShowTech)
+		add_item_flags = GoodsStrucProcessingBlock::addifInitTech;
+	// } @v11.7.6 
 	// @v10.8.2 const  int is_sorting_needed = BIN(pBrw && pBrw->GetSettledOrderList().getCount()); // @v10.7.5
 	Goods2Tbl::Rec grec;
 	if(Filt.PrmrGoodsID) {
 		if(Cb.GObj.Search(Filt.PrmrGoodsID, &grec) > 0) {
-			THROW(Cb.AddItem(grec.ID, grec.StrucID, Filt.ScndGoodsGrpID, Filt.ScndGoodsID, 0));
+			THROW(Cb.AddItem(grec.ID, grec.StrucID, Filt.ScndGoodsGrpID, Filt.ScndGoodsID, add_item_flags));
 		}
 	}
 	else {
@@ -231,7 +241,7 @@ int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 		goods_filt.Flags |= GoodsFilt::fWithStrucOnly;
 		for(GoodsIterator gi(&goods_filt, 0); gi.Next(&grec) > 0;) {
 			if(!(Filt.Flags & Filt.fSkipByPassiveOwner) || !(grec.Flags & GF_PASSIV)) { // @v10.3.2
-				THROW(Cb.AddItem(grec.ID, grec.StrucID, Filt.ScndGoodsGrpID, Filt.ScndGoodsID, 0));
+				THROW(Cb.AddItem(grec.ID, grec.StrucID, Filt.ScndGoodsGrpID, Filt.ScndGoodsID, add_item_flags));
 			}
 			PPWaitPercent(gi.GetIterCounter());
 		}
@@ -248,7 +258,7 @@ int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 				if(!owner_list.getCount() && !(gsh.Flags & GSF_CHILD)) {
 					uint   ex_spos = 0;
 					if(!Cb.StrucList.lsearch(&gs_id, &ex_spos, CMPF_LONG, offsetof(GoodsStrucProcessingBlock::StrucEntry, GStrucID))) {
-						THROW(Cb.AddItem(0, gs_id, Filt.ScndGoodsGrpID, Filt.ScndGoodsID, 0));
+						THROW(Cb.AddItem(0, gs_id, Filt.ScndGoodsGrpID, Filt.ScndGoodsID, add_item_flags));
 					}
 				}
 				PPWaitPercent(p, t);
@@ -312,6 +322,7 @@ int GoodsStrucProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScnd
 		if(count) {
 			SString temp_buf;
 			SString struc_name;
+			PPIDArray tec_id_list; // Список технологий, ассоциированных со структурой
 			uint    struc_entry_pplus1 = 0;
 			for(uint i = 0; i < count; i++) {
 				if(is_folder) {
@@ -334,6 +345,16 @@ int GoodsStrucProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScnd
 							new_entry.GiftAmtRestrict = struc.Rec.GiftAmtRestrict;
 							new_entry.GiftLimit = struc.Rec.GiftLimit;
 							new_entry.VariedPropObjType = struc.Rec.VariedPropObjType;
+							// @v11.7.6 {
+							if((__flags & addifInitTech) && SETIFZ(P_TecObj, new PPObjTech())) {
+								P_TecObj->GetListByGoodsStruc(struc.Rec.ID, &tec_id_list);
+								if(tec_id_list.getCount() > 0) {
+									new_entry.SingleAssociatedTechID = tec_id_list.get(0);
+									if(tec_id_list.getCount() > 1)
+										new_entry.InternalFlags |= intfMultAssociatedTech;
+								}
+							}
+							// } @v11.7.6 
 							{
 								if(struc.Rec.ParentID) {
 									PPGoodsStrucHeader hdr_rec;
@@ -473,6 +494,26 @@ int FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					pBlk->Set(temp_buf);
 				}
 				break;
+			case 9: // @v11.7.6 Ассоциированная технология //
+				{
+					temp_buf.Z();
+					if(p_item->StrucEntryP < Cb.StrucList.getCount()) {
+						const GoodsStrucProcessingBlock::StrucEntry & r_se = Cb.StrucList.at(p_item->StrucEntryP);
+						if(r_se.SingleAssociatedTechID) {
+							if(SETIFZ(Cb.P_TecObj, new PPObjTech())) {
+								TechTbl::Rec tec_rec;
+								if(Cb.P_TecObj->Fetch(r_se.SingleAssociatedTechID, &tec_rec) > 0)
+									temp_buf = tec_rec.Code;
+								else
+									ideqvalstr(r_se.SingleAssociatedTechID, temp_buf);
+								if(r_se.InternalFlags & GoodsStrucProcessingBlock::intfMultAssociatedTech)
+									temp_buf.CatCharN('.', 3);
+								pBlk->Set(temp_buf);
+							}
+						}
+					}
+				}
+				break;
 		}
 	}
 	return ok;
@@ -543,6 +584,9 @@ void PPViewGoodsStruc::PreprocessBrowser(PPViewBrowser * pBrw)
 	if(pBrw) {
 		pBrw->SetDefUserProc(PPViewGoodsStruc::GetDataForBrowser, this);
 		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+		if(Filt.Flags & GoodsStrucFilt::fShowTech) {
+			pBrw->InsColumn(-1, "@tech", 9, MKSTYPE(S_ZSTRING, 64), MKSFMT(0, 64), BCO_USERPROC); // #9  tech
+		}
 		pBrw->Helper_SetAllColumnsSortable(); // @v10.7.5
 	}
 }
@@ -772,6 +816,14 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 								ok = PPErrorZ();
 						}
 					}
+				}
+				break;
+			case PPVCMD_VIEWTECH: // @v11.7.6
+				ok = -1;
+				if(brw_hdr.GStrucID) {
+					TechFilt filt;
+					filt.GStrucID = brw_hdr.GStrucID;
+					::ViewTech(&filt);
 				}
 				break;
 			case PPVCMD_VIEWGOODSOPANLZ:

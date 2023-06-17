@@ -1418,17 +1418,6 @@ int  Test_ListSelectionDialog();
 int  ImportYYE(const char * pSrcPath);
 int  ImportSpecial(const char * pPath);
 int  ReformatRazoomnick(const char * pFileName);
-
-extern int OnigTestSyntax_main(FILE * fOut);
-extern int OnigTestOptions_main(FILE * fOut);
-extern int OnigTestRegSet_main(FILE * fOut);
-extern int OnigTestBack_main(FILE * fOut);
-extern int OnigTestUtf8_main(FILE * fOut);
-extern int OnigTestU_main(FILE * fOut);
-extern int OnigTestP_main(FILE * fOut);
-extern int OnigTestC_main(FILE * fOut);
-extern int OnigTestC_Windows_main(FILE * fOut);
-
 const char * Test_GetPPConstCharPtr_P_MagicFileTransmit() { return PPConst::P_MagicFileTransmit; }
 
 /*static int TestWorkspacePath()
@@ -1581,22 +1570,6 @@ int DoConstructionTest()
 		stp.GeneratePrivateKey(2048);
 	}*/
 	//SrpTest();
-	/*{
-		SString out_file_name;
-		SLS.GetLogPath(out_file_name);
-		out_file_name.SetLastSlash().Cat("onig-test.log");
-		FILE * f_onig_out = fopen(out_file_name, "w");
-		OnigTestSyntax_main(f_onig_out);
-		OnigTestOptions_main(f_onig_out);
-		OnigTestRegSet_main(f_onig_out);
-		OnigTestU_main(f_onig_out);
-		OnigTestP_main(f_onig_out);
-		OnigTestC_main(f_onig_out);
-		OnigTestC_Windows_main(f_onig_out);
-		OnigTestUtf8_main(f_onig_out); // !
-		OnigTestBack_main(f_onig_out); // !
-		SFile::ZClose(&f_onig_out);
-	}*/
 	#if 0 // @construction {
 	{
 		SConsole con;

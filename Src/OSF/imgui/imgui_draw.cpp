@@ -322,8 +322,8 @@ void ImGui::StyleColorsLight(ImGuiStyle* dst)
 ImDrawListSharedData::ImDrawListSharedData()
 {
 	THISZERO();
-	for(int i = 0; i < IM_ARRAYSIZE(ArcFastVtx); i++) {
-		const float a = ((float)i * 2 * IM_PI) / (float)IM_ARRAYSIZE(ArcFastVtx);
+	for(int i = 0; i < SIZEOFARRAYi(ArcFastVtx); i++) {
+		const float a = ((float)i * 2 * IM_PI) / (float)SIZEOFARRAYi(ArcFastVtx);
 		ArcFastVtx[i] = ImVec2(ImCos(a), ImSin(a));
 	}
 	ArcFastRadiusCutoff = IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_R(IM_DRAWLIST_ARCFAST_SAMPLE_MAX, CircleSegmentMaxError);
@@ -335,7 +335,7 @@ void ImDrawListSharedData::SetCircleTessellationMaxError(float max_error)
 		return;
 	assert(max_error > 0.0f);
 	CircleSegmentMaxError = max_error;
-	for(int i = 0; i < IM_ARRAYSIZE(CircleSegmentCounts); i++) {
+	for(int i = 0; i < SIZEOFARRAYi(CircleSegmentCounts); i++) {
 		const float radius = (float)i;
 		CircleSegmentCounts[i] = (ImU8)((i > 0) ? IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(radius, CircleSegmentMaxError) : IM_DRAWLIST_ARCFAST_SAMPLE_MAX);
 	}
@@ -515,7 +515,7 @@ int ImDrawList::_CalcCircleAutoSegmentCount(float radius) const
 {
 	// Automatic segment count
 	const int radius_idx = (int)(radius + 0.999999f); // ceil to never reduce accuracy
-	if(radius_idx < IM_ARRAYSIZE(_Data->CircleSegmentCounts))
+	if(radius_idx < SIZEOFARRAYi(_Data->CircleSegmentCounts))
 		return _Data->CircleSegmentCounts[radius_idx]; // Use cached value
 	else
 		return IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(radius, _Data->CircleSegmentMaxError);
@@ -1954,7 +1954,7 @@ ImFont* ImFontAtlas::AddFontDefault(const ImFontConfig* font_cfg_template)
 	if(font_cfg.SizePixels <= 0.0f)
 		font_cfg.SizePixels = 13.0f * 1.0f;
 	if(font_cfg.Name[0] == '\0')
-		ImFormatString(font_cfg.Name, IM_ARRAYSIZE(font_cfg.Name), "ProggyClean.ttf, %dpx", (int)font_cfg.SizePixels);
+		ImFormatString(font_cfg.Name, SIZEOFARRAYi(font_cfg.Name), "ProggyClean.ttf, %dpx", (int)font_cfg.SizePixels);
 	font_cfg.EllipsisChar = (ImWchar)0x0085;
 	font_cfg.GlyphOffset.y = 1.0f * IM_FLOOR(font_cfg.SizePixels / 13.0f); // Add +1 offset per 13 units
 
@@ -1979,7 +1979,7 @@ ImFont* ImFontAtlas::AddFontFromFileTTF(const char* filename, float size_pixels,
 		const char* p;
 		for(p = filename + strlen(filename); p > filename && p[-1] != '/' && p[-1] != '\\'; p--) {
 		}
-		ImFormatString(font_cfg.Name, IM_ARRAYSIZE(font_cfg.Name), "%s, %.0fpx", p, size_pixels);
+		ImFormatString(font_cfg.Name, SIZEOFARRAYi(font_cfg.Name), "%s, %.0fpx", p, size_pixels);
 	}
 	return AddFontFromMemoryTTF(data, (int)data_size, size_pixels, &font_cfg, glyph_ranges);
 }
@@ -2755,13 +2755,13 @@ const ImWchar*  ImFontAtlas::GetGlyphRangesChineseSimplifiedCommon()
 		0xFF00, 0xFFEF, // Half-width characters
 		0xFFFD, 0xFFFD // Invalid
 	};
-	static ImWchar full_ranges[IM_ARRAYSIZE(base_ranges) + IM_ARRAYSIZE(accumulative_offsets_from_0x4E00) * 2 + 1] = { 0 };
+	static ImWchar full_ranges[SIZEOFARRAYi(base_ranges) + SIZEOFARRAYi(accumulative_offsets_from_0x4E00) * 2 + 1] = { 0 };
 	if(!full_ranges[0]) {
 		memcpy(full_ranges, base_ranges, sizeof(base_ranges));
 		UnpackAccumulativeOffsetsIntoRanges(0x4E00,
 		    accumulative_offsets_from_0x4E00,
-		    IM_ARRAYSIZE(accumulative_offsets_from_0x4E00),
-		    full_ranges + IM_ARRAYSIZE(base_ranges));
+		    SIZEOFARRAYi(accumulative_offsets_from_0x4E00),
+		    full_ranges + SIZEOFARRAYi(base_ranges));
 	}
 	return &full_ranges[0];
 }
@@ -2894,13 +2894,13 @@ const ImWchar*  ImFontAtlas::GetGlyphRangesJapanese()
 		0xFF00, 0xFFEF, // Half-width characters
 		0xFFFD, 0xFFFD // Invalid
 	};
-	static ImWchar full_ranges[IM_ARRAYSIZE(base_ranges) + IM_ARRAYSIZE(accumulative_offsets_from_0x4E00)*2 + 1] = { 0 };
+	static ImWchar full_ranges[SIZEOFARRAYi(base_ranges) + SIZEOFARRAYi(accumulative_offsets_from_0x4E00)*2 + 1] = { 0 };
 	if(!full_ranges[0]) {
 		memcpy(full_ranges, base_ranges, sizeof(base_ranges));
 		UnpackAccumulativeOffsetsIntoRanges(0x4E00,
 		    accumulative_offsets_from_0x4E00,
-		    IM_ARRAYSIZE(accumulative_offsets_from_0x4E00),
-		    full_ranges + IM_ARRAYSIZE(base_ranges));
+		    SIZEOFARRAYi(accumulative_offsets_from_0x4E00),
+		    full_ranges + SIZEOFARRAYi(base_ranges));
 	}
 	return &full_ranges[0];
 }
@@ -3078,8 +3078,8 @@ void ImFont::BuildLookupTable()
 	const ImWchar ellipsis_chars[] = { (ImWchar)0x2026, (ImWchar)0x0085 };
 	const ImWchar dots_chars[] = { (ImWchar)'.', (ImWchar)0xFF0E };
 	if(EllipsisChar == (ImWchar)-1)
-		EllipsisChar = FindFirstExistingGlyph(this, ellipsis_chars, IM_ARRAYSIZE(ellipsis_chars));
-	const ImWchar dot_char = FindFirstExistingGlyph(this, dots_chars, IM_ARRAYSIZE(dots_chars));
+		EllipsisChar = FindFirstExistingGlyph(this, ellipsis_chars, SIZEOFARRAYi(ellipsis_chars));
+	const ImWchar dot_char = FindFirstExistingGlyph(this, dots_chars, SIZEOFARRAYi(dots_chars));
 	if(EllipsisChar != (ImWchar)-1) {
 		EllipsisCharCount = 1;
 		EllipsisWidth = EllipsisCharStep = FindGlyph(EllipsisChar)->X1;
@@ -3096,7 +3096,7 @@ void ImFont::BuildLookupTable()
 	const ImWchar fallback_chars[] = { (ImWchar)IM_UNICODE_CODEPOINT_INVALID, (ImWchar)'?', (ImWchar)' ' };
 	FallbackGlyph = FindGlyphNoFallback(FallbackChar);
 	if(FallbackGlyph == NULL) {
-		FallbackChar = FindFirstExistingGlyph(this, fallback_chars, IM_ARRAYSIZE(fallback_chars));
+		FallbackChar = FindFirstExistingGlyph(this, fallback_chars, SIZEOFARRAYi(fallback_chars));
 		FallbackGlyph = FindGlyphNoFallback(FallbackChar);
 		if(FallbackGlyph == NULL) {
 			FallbackGlyph = &Glyphs.back();
@@ -3404,7 +3404,7 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, const ImVec2 & pos, I
 	const char* s = text_begin;
 	if(y + line_height < clip_rect.y)
 		while(y + line_height < clip_rect.y && s < text_end) {
-			const char* line_end = (const char*)memchr(s, '\n', text_end - s);
+			const char* line_end = (const char*)smemchr(s, '\n', text_end - s);
 			if(word_wrap_enabled) {
 				// FIXME-OPT: This is not optimal as do first do a search for \n before calling CalcWordWrapPositionA().
 				// If the specs for CalcWordWrapPositionA() were reworked to optionally return on \n we could combine both.
@@ -3424,7 +3424,7 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, const ImVec2 & pos, I
 		const char* s_end = s;
 		float y_end = y;
 		while(y_end < clip_rect.w && s_end < text_end) {
-			s_end = (const char*)memchr(s_end, '\n', text_end - s_end);
+			s_end = (const char*)smemchr(s_end, '\n', text_end - s_end);
 			s_end = s_end ? s_end + 1 : text_end;
 			y_end += line_height;
 		}

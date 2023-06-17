@@ -231,25 +231,17 @@ HRESULT ResizePointFilter(const Image& srcImage, const Image& destImage) noexcep
 	auto scanline = make_AlignedArrayXMVECTOR(uint64_t(srcImage.width) + destImage.width);
 	if(!scanline)
 		return E_OUTOFMEMORY;
-
 	XMVECTOR* target = scanline.get();
-
 	XMVECTOR* row = target + destImage.width;
-
     #ifdef _DEBUG
-	memset(row, 0xCD, sizeof(XMVECTOR)*srcImage.width);
+		memset(row, 0xCD, sizeof(XMVECTOR)*srcImage.width);
     #endif
-
 	const uint8_t* pSrc = srcImage.pixels;
 	uint8_t* pDest = destImage.pixels;
-
 	const size_t rowPitch = srcImage.rowPitch;
-
 	const size_t xinc = (srcImage.width << 16) / destImage.width;
 	const size_t yinc = (srcImage.height << 16) / destImage.height;
-
 	size_t lasty = size_t(-1);
-
 	size_t sy = 0;
 	for(size_t y = 0; y < destImage.height; ++y) {
 		if((lasty ^ sy) >> 16) {
@@ -638,20 +630,15 @@ HRESULT ResizeTriangleFilter(const Image& srcImage, TEX_FILTER_FLAGS filter, con
 						return E_OUTOFMEMORY;
 					rowAcc->scanline.swap(nscanline);
 				}
-
-				memset(rowAcc->scanline.get(), 0, sizeof(XMVECTOR) * destImage.width);
+				memzero(rowAcc->scanline.get(), sizeof(XMVECTOR) * destImage.width);
 			}
 		}
-
 		// Load source scanline
 		if((pSrc + rowPitch) > pEndSrc)
 			return E_FAIL;
-
 		if(!LoadScanlineLinear(row, srcImage.width, pSrc, rowPitch, srcImage.format, filter))
 			return E_FAIL;
-
 		pSrc += rowPitch;
-
 		// Process row
 		size_t x = 0;
 		for(FilterFrom* xFrom = tfX->from; xFrom < xFromEnd; ++x) {
@@ -763,33 +750,22 @@ HRESULT PerformResizeUsingCustomFilters(const Image& srcImage, TEX_FILTER_FLAGS 
 	}
 }
 }
-
-//=====================================================================================
+//
 // Entry-points
-//=====================================================================================
-
-//-------------------------------------------------------------------------------------
+//
 // Resize image
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::Resize(const Image& srcImage,
-    size_t width,
-    size_t height,
-    TEX_FILTER_FLAGS filter,
-    ScratchImage& image) noexcept
+//
+_Use_decl_annotations_ HRESULT DirectX::Resize(const Image& srcImage, size_t width, size_t height,
+    TEX_FILTER_FLAGS filter, ScratchImage& image) noexcept
 {
 	if(width == 0 || height == 0)
 		return E_INVALIDARG;
-
 	if((srcImage.width > UINT32_MAX) || (srcImage.height > UINT32_MAX))
 		return E_INVALIDARG;
-
 	if((width > UINT32_MAX) || (height > UINT32_MAX))
 		return E_INVALIDARG;
-
 	if(!srcImage.pixels)
 		return E_POINTER;
-
 	if(IsCompressed(srcImage.format)) {
 		// We don't support resizing compressed images
 		return HRESULT_E_NOT_SUPPORTED;
@@ -839,26 +815,17 @@ HRESULT DirectX::Resize(const Image& srcImage,
 		// Case 3: not using WIC resizing
 		hr = PerformResizeUsingCustomFilters(srcImage, filter, *rimage);
 	}
-
 	if(FAILED(hr)) {
 		image.Release();
 		return hr;
 	}
-
 	return S_OK;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Resize image (complex)
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::Resize(const Image* srcImages,
-    size_t nimages,
-    const TexMetadata& metadata,
-    size_t width,
-    size_t height,
-    TEX_FILTER_FLAGS filter,
-    ScratchImage& result) noexcept
+//
+_Use_decl_annotations_ HRESULT DirectX::Resize(const Image* srcImages,
+    size_t nimages, const TexMetadata& metadata, size_t width, size_t height, TEX_FILTER_FLAGS filter, ScratchImage& result) noexcept
 {
 	if(!srcImages || !nimages || width == 0 || height == 0)
 		return E_INVALIDARG;

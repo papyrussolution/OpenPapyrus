@@ -137,7 +137,7 @@ uldn_getDialectHandling(const ULocaleDisplayNames *ldn);
 U_CAPI int32_t U_EXPORT2
 uldn_localeDisplayName(const ULocaleDisplayNames *ldn,
                        const char *locale,
-                       UChar *result,
+                       char16_t *result,
                        int32_t maxResultSize,
                        UErrorCode *pErrorCode);
 
@@ -157,7 +157,7 @@ uldn_localeDisplayName(const ULocaleDisplayNames *ldn,
 U_CAPI int32_t U_EXPORT2
 uldn_languageDisplayName(const ULocaleDisplayNames *ldn,
                          const char *lang,
-                         UChar *result,
+                         char16_t *result,
                          int32_t maxResultSize,
                          UErrorCode *pErrorCode);
 
@@ -175,7 +175,7 @@ uldn_languageDisplayName(const ULocaleDisplayNames *ldn,
 U_CAPI int32_t U_EXPORT2
 uldn_scriptDisplayName(const ULocaleDisplayNames *ldn,
                        const char *script,
-                       UChar *result,
+                       char16_t *result,
                        int32_t maxResultSize,
                        UErrorCode *pErrorCode);
 
@@ -193,7 +193,7 @@ uldn_scriptDisplayName(const ULocaleDisplayNames *ldn,
 U_CAPI int32_t U_EXPORT2
 uldn_scriptCodeDisplayName(const ULocaleDisplayNames *ldn,
                            UScriptCode scriptCode,
-                           UChar *result,
+                           char16_t *result,
                            int32_t maxResultSize,
                            UErrorCode *pErrorCode);
 
@@ -211,7 +211,7 @@ uldn_scriptCodeDisplayName(const ULocaleDisplayNames *ldn,
 U_CAPI int32_t U_EXPORT2
 uldn_regionDisplayName(const ULocaleDisplayNames *ldn,
                        const char *region,
-                       UChar *result,
+                       char16_t *result,
                        int32_t maxResultSize,
                        UErrorCode *pErrorCode);
 
@@ -229,7 +229,7 @@ uldn_regionDisplayName(const ULocaleDisplayNames *ldn,
 U_CAPI int32_t U_EXPORT2
 uldn_variantDisplayName(const ULocaleDisplayNames *ldn,
                         const char *variant,
-                        UChar *result,
+                        char16_t *result,
                         int32_t maxResultSize,
                         UErrorCode *pErrorCode);
 
@@ -247,7 +247,7 @@ uldn_variantDisplayName(const ULocaleDisplayNames *ldn,
 U_CAPI int32_t U_EXPORT2
 uldn_keyDisplayName(const ULocaleDisplayNames *ldn,
                     const char *key,
-                    UChar *result,
+                    char16_t *result,
                     int32_t maxResultSize,
                     UErrorCode *pErrorCode);
 
@@ -267,7 +267,7 @@ U_CAPI int32_t U_EXPORT2
 uldn_keyValueDisplayName(const ULocaleDisplayNames *ldn,
                          const char *key,
                          const char *value,
-                         UChar *result,
+                         char16_t *result,
                          int32_t maxResultSize,
                          UErrorCode *pErrorCode);
 

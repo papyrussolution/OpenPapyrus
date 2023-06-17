@@ -15,7 +15,7 @@
 
 U_NAMESPACE_BEGIN
 
-static const UChar kSuperscriptDigits[] = {
+static const char16_t kSuperscriptDigits[] = {
 	0x2070,
 	0xB9,
 	0xB2,
@@ -28,8 +28,8 @@ static const UChar kSuperscriptDigits[] = {
 	0x2079
 };
 
-static const UChar kSuperscriptPlusSign = 0x207A;
-static const UChar kSuperscriptMinusSign = 0x207B;
+static const char16_t kSuperscriptPlusSign = 0x207A;
+static const char16_t kSuperscriptMinusSign = 0x207B;
 
 static bool copyAsSuperscript(const UnicodeString & s,
     int32_t beginIndex,

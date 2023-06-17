@@ -2413,10 +2413,7 @@ int xmlUCSIsThai(int code)
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsTibetan(int code) 
-{
-	return ((code >= 0x0F00) && (code <= 0x0FFF));
-}
+int xmlUCSIsTibetan(int code) { return ((code >= 0x0F00) && (code <= 0x0FFF)); }
 /**
  * xmlUCSIsUgaritic:
  * @code: UCS code point
@@ -2425,10 +2422,7 @@ int xmlUCSIsTibetan(int code)
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsUgaritic(int code) 
-{
-	return ((code >= 0x10380) && (code <= 0x1039F));
-}
+int xmlUCSIsUgaritic(int code) { return ((code >= 0x10380) && (code <= 0x1039F)); }
 /**
  * xmlUCSIsUnifiedCanadianAboriginalSyllabics:
  * @code: UCS code point
@@ -2437,10 +2431,7 @@ int xmlUCSIsUgaritic(int code)
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsUnifiedCanadianAboriginalSyllabics(int code) 
-{
-	return ((code >= 0x1400) && (code <= 0x167F));
-}
+int xmlUCSIsUnifiedCanadianAboriginalSyllabics(int code) { return ((code >= 0x1400) && (code <= 0x167F)); }
 /**
  * xmlUCSIsVariationSelectors:
  * @code: UCS code point
@@ -2449,10 +2440,7 @@ int xmlUCSIsUnifiedCanadianAboriginalSyllabics(int code)
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsVariationSelectors(int code) 
-{
-	return ((code >= 0xFE00) && (code <= 0xFE0F));
-}
+int xmlUCSIsVariationSelectors(int code) { return ((code >= 0xFE00) && (code <= 0xFE0F)); }
 /**
  * xmlUCSIsVariationSelectorsSupplement:
  * @code: UCS code point
@@ -2804,11 +2792,7 @@ int xmlUCSIsCatPd(int code)
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsCatPe(int code) 
-{
-	return xmlCharInRange((uint)code, &xmlPeG);
-}
-
+int xmlUCSIsCatPe(int code) { return xmlCharInRange((uint)code, &xmlPeG); }
 /**
  * xmlUCSIsCatPf:
  * @code: UCS code point
@@ -2817,11 +2801,7 @@ int xmlUCSIsCatPe(int code)
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsCatPf(int code) 
-{
-	return oneof4(code, 0xbb, 0x2019, 0x201d, 0x203a);
-}
-
+int xmlUCSIsCatPf(int code) { return oneof4(code, 0xbb, 0x2019, 0x201d, 0x203a); }
 /**
  * xmlUCSIsCatPi:
  * @code: UCS code point
@@ -2835,39 +2815,24 @@ int xmlUCSIsCatPi(int code)
 	//return ((code == 0xab) || (code == 0x2018) || ((code >= 0x201b) && (code <= 0x201c)) || (code == 0x201f) || (code == 0x2039));
 	return (oneof4(code, 0xab, 0x2018, 0x201f, 0x2039) || (code >= 0x201b && code <= 0x201c));
 }
-
 /**
  * xmlUCSIsCatPo:
  * @code: UCS code point
- *
  * Check whether the character is part of Po UCS Category
- *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsCatPo(int code) 
-{
-	return (xmlCharInRange((uint)code, &xmlPoG));
-}
-
+int xmlUCSIsCatPo(int code) { return (xmlCharInRange((uint)code, &xmlPoG)); }
 /**
  * xmlUCSIsCatPs:
  * @code: UCS code point
- *
  * Check whether the character is part of Ps UCS Category
- *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsCatPs(int code) 
-{
-	return (xmlCharInRange((uint)code, &xmlPsG));
-}
-
+int xmlUCSIsCatPs(int code) { return (xmlCharInRange((uint)code, &xmlPsG)); }
 /**
  * xmlUCSIsCatS:
  * @code: UCS code point
- *
  * Check whether the character is part of S UCS Category
- *
  * Returns 1 if true 0 otherwise
  */
 int xmlUCSIsCatS(int code) 
@@ -2883,10 +2848,7 @@ int xmlUCSIsCatS(int code)
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsCatSc(int code) 
-{
-	return (xmlCharInRange((uint)code, &xmlScG));
-}
+int xmlUCSIsCatSc(int code) { return (xmlCharInRange((uint)code, &xmlScG)); }
 
 /**
  * xmlUCSIsCatSk:
@@ -2896,11 +2858,7 @@ int xmlUCSIsCatSc(int code)
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsCatSk(int code) 
-{
-	return (xmlCharInRange((uint)code, &xmlSkG));
-}
-
+int xmlUCSIsCatSk(int code) { return (xmlCharInRange((uint)code, &xmlSkG)); }
 /**
  * xmlUCSIsCatSm:
  * @code: UCS code point
@@ -2909,11 +2867,7 @@ int xmlUCSIsCatSk(int code)
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsCatSm(int code) 
-{
-	return (xmlCharInRange((uint)code, &xmlSmG));
-}
-
+int xmlUCSIsCatSm(int code) { return (xmlCharInRange((uint)code, &xmlSmG)); }
 /**
  * xmlUCSIsCatSo:
  * @code: UCS code point
@@ -2922,11 +2876,7 @@ int xmlUCSIsCatSm(int code)
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsCatSo(int code) 
-{
-	return (xmlCharInRange((uint)code, &xmlSoG));
-}
-
+int xmlUCSIsCatSo(int code) { return (xmlCharInRange((uint)code, &xmlSoG)); }
 /**
  * xmlUCSIsCatZ:
  * @code: UCS code point
@@ -2935,10 +2885,7 @@ int xmlUCSIsCatSo(int code)
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsCatZ(int code) 
-{
-	return (xmlCharInRange((uint)code, &xmlZG));
-}
+int xmlUCSIsCatZ(int code) { return (xmlCharInRange((uint)code, &xmlZG)); }
 
 /**
  * xmlUCSIsCatZl:
@@ -2961,10 +2908,7 @@ int xmlUCSIsCatZl(int code)
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsCatZp(int code) 
-{
-	return ((code == 0x2029));
-}
+int xmlUCSIsCatZp(int code) { return ((code == 0x2029)); }
 
 /**
  * xmlUCSIsCatZs:

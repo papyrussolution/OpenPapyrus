@@ -684,7 +684,7 @@ static UEnumeration * selectForMask(const UConverterSelector* sel,
 }
 
 /* check a string against the selector - UTF16 version */
-U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForString(const UConverterSelector* sel, const UChar * s, int32_t length, UErrorCode * status) 
+U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForString(const UConverterSelector* sel, const char16_t * s, int32_t length, UErrorCode * status) 
 {
 	// check if already failed
 	if(U_FAILURE(*status)) {
@@ -703,7 +703,7 @@ U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForString(const UConverterSelector
 	}
 	memset(mask, ~0, columns *4);
 	if(s) {
-		const UChar * limit;
+		const char16_t * limit;
 		if(length >= 0) {
 			limit = s + length;
 		}

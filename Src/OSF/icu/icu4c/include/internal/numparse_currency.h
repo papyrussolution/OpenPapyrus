@@ -37,7 +37,7 @@ public:
 	bool smokeTest(const StringSegment& segment) const override;
 	UnicodeString toString() const override;
 private:
-	UChar fCurrencyCode[4];
+	char16_t fCurrencyCode[4];
 	UnicodeString fCurrency1;
 	UnicodeString fCurrency2;
 	bool fUseFullCurrencyData;

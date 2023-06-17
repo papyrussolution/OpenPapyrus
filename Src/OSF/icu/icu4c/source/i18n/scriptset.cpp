@@ -1,27 +1,19 @@
+// scriptset.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *
- * scriptset.cpp
- *
- * created on: 2013 Jan 7
- * created by: Andy Heninger
- */
+// Copyright (C) 2014, International Business Machines Corporation and others.  All Rights Reserved.
+//
+// created on: 2013 Jan 7
+// created by: Andy Heninger
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "scriptset.h"
 
 U_NAMESPACE_BEGIN
-
-//----------------------------------------------------------------------------
 //
 //  ScriptSet implementation
 //
-//----------------------------------------------------------------------------
 ScriptSet::ScriptSet() 
 {
 	memzero(bits, sizeof(bits));
@@ -189,7 +181,7 @@ UnicodeString & ScriptSet::displayScripts(UnicodeString & dest) const {
 	bool firstTime = TRUE;
 	for(int32_t i = nextSetBit(0); i >= 0; i = nextSetBit(i + 1)) {
 		if(!firstTime) {
-			dest.append((UChar)0x20);
+			dest.append((char16_t)0x20);
 		}
 		firstTime = FALSE;
 		const char * scriptName = uscript_getShortName((UScriptCode(i)));

@@ -25,7 +25,7 @@
 #include "ufile.h"
 #include "ufmt_cmn.h"
 
-U_CAPI int32_t U_EXPORT2 u_sscanf(const UChar * buffer, const char * patternSpecification, ...)
+U_CAPI int32_t U_EXPORT2 u_sscanf(const char16_t * buffer, const char * patternSpecification, ...)
 {
 	va_list ap;
 	int32_t converted;
@@ -35,7 +35,7 @@ U_CAPI int32_t U_EXPORT2 u_sscanf(const UChar * buffer, const char * patternSpec
 	return converted;
 }
 
-U_CAPI int32_t U_EXPORT2 u_sscanf_u(const UChar * buffer, const UChar * patternSpecification, ...)
+U_CAPI int32_t U_EXPORT2 u_sscanf_u(const char16_t * buffer, const char16_t * patternSpecification, ...)
 {
 	va_list ap;
 	int32_t converted;
@@ -46,18 +46,18 @@ U_CAPI int32_t U_EXPORT2 u_sscanf_u(const UChar * buffer, const UChar * patternS
 }
 
 U_CAPI int32_t U_EXPORT2  /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
-u_vsscanf(const UChar * buffer,
+u_vsscanf(const char16_t * buffer,
     const char * patternSpecification,
     va_list ap)
 {
 	int32_t converted;
-	UChar * pattern;
-	UChar patBuffer[UFMT_DEFAULT_BUFFER_SIZE];
+	char16_t * pattern;
+	char16_t patBuffer[UFMT_DEFAULT_BUFFER_SIZE];
 	int32_t size = (int32_t)strlen(patternSpecification) + 1;
 
 	/* convert from the default codepage to Unicode */
 	if(size >= (int32_t)MAX_UCHAR_BUFFER_SIZE(patBuffer)) {
-		pattern = (UChar *)uprv_malloc(size * sizeof(UChar));
+		pattern = (char16_t *)uprv_malloc(size * sizeof(char16_t));
 		if(pattern == 0) {
 			return 0;
 		}
@@ -78,7 +78,7 @@ u_vsscanf(const UChar * buffer,
 }
 
 U_CAPI int32_t U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
-u_vsscanf_u(const UChar * buffer, const UChar * patternSpecification, va_list ap)
+u_vsscanf_u(const char16_t * buffer, const char16_t * patternSpecification, va_list ap)
 {
 	int32_t converted;
 	UFILE inStr;
@@ -89,8 +89,8 @@ u_vsscanf_u(const UChar * buffer, const UChar * patternSpecification, va_list ap
 	inStr.fTranslit = NULL;
 #endif
 	inStr.fUCBuffer[0] = 0;
-	inStr.str.fBuffer = (UChar *)buffer;
-	inStr.str.fPos = (UChar *)buffer;
+	inStr.str.fBuffer = (char16_t *)buffer;
+	inStr.str.fPos = (char16_t *)buffer;
 	inStr.str.fLimit = buffer + u_strlen(buffer);
 	if(u_locbund_init(&inStr.str.fBundle, "en_US_POSIX") == 0) {
 		return 0;

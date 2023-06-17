@@ -74,7 +74,7 @@ typedef enum UCurrencyUsage UCurrencyUsage;
  *                invalid.
  * @stable ICU 2.8
  */
-U_CAPI int32_t U_EXPORT2 ucurr_forLocale(const char * locale, UChar * buff, int32_t buffCapacity, UErrorCode * ec);
+U_CAPI int32_t U_EXPORT2 ucurr_forLocale(const char * locale, char16_t * buff, int32_t buffCapacity, UErrorCode * ec);
 /**
  * Selector constants for ucurr_getName().
  *
@@ -140,7 +140,7 @@ typedef const void * UCurrRegistryKey;
  * if there was an error.
  * @stable ICU 2.6
  */
-U_CAPI UCurrRegistryKey U_EXPORT2 ucurr_register(const UChar * isoCode, const char * locale, UErrorCode * status);
+U_CAPI UCurrRegistryKey U_EXPORT2 ucurr_register(const char16_t * isoCode, const char * locale, UErrorCode * status);
 /**
  * Unregister the previously-registered currency definitions using the
  * URegistryKey returned from ucurr_register.  Key becomes invalid after
@@ -172,7 +172,7 @@ U_CAPI bool U_EXPORT2 ucurr_unregister(UCurrRegistryKey key, UErrorCode * status
  * returned.
  * @stable ICU 2.6
  */
-U_CAPI const UChar * U_EXPORT2 ucurr_getName(const UChar * currency, const char * locale, UCurrNameStyle nameStyle, bool* isChoiceFormat, int32_t* len, UErrorCode * ec);
+U_CAPI const char16_t * U_EXPORT2 ucurr_getName(const char16_t * currency, const char * locale, UCurrNameStyle nameStyle, bool* isChoiceFormat, int32_t* len, UErrorCode * ec);
 /**
  * Returns the plural name for the given currency in the
  * given locale.  For example, the plural name for the USD
@@ -190,7 +190,7 @@ U_CAPI const UChar * U_EXPORT2 ucurr_getName(const UChar * currency, const char 
  * returned.
  * @stable ICU 4.2
  */
-U_CAPI const UChar * U_EXPORT2 ucurr_getPluralName(const UChar * currency, const char * locale, bool* isChoiceFormat, const char * pluralCount, int32_t* len, UErrorCode * ec);
+U_CAPI const char16_t * U_EXPORT2 ucurr_getPluralName(const char16_t * currency, const char * locale, bool* isChoiceFormat, const char * pluralCount, int32_t* len, UErrorCode * ec);
 /**
  * Returns the number of the number of fraction digits that should
  * be displayed for the given currency.
@@ -208,7 +208,7 @@ U_CAPI const UChar * U_EXPORT2 ucurr_getPluralName(const UChar * currency, const
  * displayed, or 0 if there is an error
  * @stable ICU 3.0
  */
-U_CAPI int32_t U_EXPORT2 ucurr_getDefaultFractionDigits(const UChar * currency, UErrorCode * ec);
+U_CAPI int32_t U_EXPORT2 ucurr_getDefaultFractionDigits(const char16_t * currency, UErrorCode * ec);
 /**
  * Returns the number of the number of fraction digits that should
  * be displayed for the given currency with usage.
@@ -226,7 +226,7 @@ U_CAPI int32_t U_EXPORT2 ucurr_getDefaultFractionDigits(const UChar * currency, 
  * displayed, or 0 if there is an error
  * @stable ICU 54
  */
-U_CAPI int32_t U_EXPORT2 ucurr_getDefaultFractionDigitsForUsage(const UChar * currency, const UCurrencyUsage usage, UErrorCode * ec);
+U_CAPI int32_t U_EXPORT2 ucurr_getDefaultFractionDigitsForUsage(const char16_t * currency, const UCurrencyUsage usage, UErrorCode * ec);
 /**
  * Returns the rounding increment for the given currency, or 0.0 if no
  * rounding is done by the currency.
@@ -237,7 +237,7 @@ U_CAPI int32_t U_EXPORT2 ucurr_getDefaultFractionDigitsForUsage(const UChar * cu
  * or 0.0 if there is an error
  * @stable ICU 3.0
  */
-U_CAPI double U_EXPORT2 ucurr_getRoundingIncrement(const UChar * currency, UErrorCode * ec);
+U_CAPI double U_EXPORT2 ucurr_getRoundingIncrement(const char16_t * currency, UErrorCode * ec);
 /**
  * Returns the rounding increment for the given currency, or 0.0 if no
  * rounding is done by the currency given usage.
@@ -248,7 +248,7 @@ U_CAPI double U_EXPORT2 ucurr_getRoundingIncrement(const UChar * currency, UErro
  * or 0.0 if there is an error
  * @stable ICU 54
  */
-U_CAPI double U_EXPORT2 ucurr_getRoundingIncrementForUsage(const UChar * currency, const UCurrencyUsage usage, UErrorCode * ec);
+U_CAPI double U_EXPORT2 ucurr_getRoundingIncrementForUsage(const char16_t * currency, const UCurrencyUsage usage, UErrorCode * ec);
 /**
  * Selector constants for ucurr_openCurrencies().
  *
@@ -328,7 +328,7 @@ U_CAPI UEnumeration * U_EXPORT2 ucurr_openISOCurrencies(uint32_t currType, UErro
  *
  * @stable ICU 4.8
  */
-U_CAPI bool U_EXPORT2 ucurr_isAvailable(const UChar * isoCode, UDate from, UDate to, UErrorCode * errorCode);
+U_CAPI bool U_EXPORT2 ucurr_isAvailable(const char16_t * isoCode, UDate from, UDate to, UErrorCode * errorCode);
 /**
  * Finds the number of valid currency codes for the
  * given locale and date.
@@ -363,7 +363,7 @@ U_CAPI int32_t U_EXPORT2 ucurr_countCurrencies(const char * locale, UDate date, 
  *               invalid.
  * @stable ICU 4.0
  */
-U_CAPI int32_t U_EXPORT2 ucurr_forLocaleAndDate(const char * locale, UDate date, int32_t index, UChar * buff, int32_t buffCapacity, UErrorCode * ec);
+U_CAPI int32_t U_EXPORT2 ucurr_forLocaleAndDate(const char * locale, UDate date, int32_t index, char16_t * buff, int32_t buffCapacity, UErrorCode * ec);
 /**
  * Given a key and a locale, returns an array of string values in a preferred
  * order that would make a difference. These are all and only those values where
@@ -390,7 +390,7 @@ U_CAPI UEnumeration* U_EXPORT2 ucurr_getKeywordValuesForLocale(const char * key,
  * @return The ISO 4217 numeric code of the currency
  * @stable ICU 49
  */
-U_CAPI int32_t U_EXPORT2 ucurr_getNumericCode(const UChar * currency);
+U_CAPI int32_t U_EXPORT2 ucurr_getNumericCode(const char16_t * currency);
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
 #endif

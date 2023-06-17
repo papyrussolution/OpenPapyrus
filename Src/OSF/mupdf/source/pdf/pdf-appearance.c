@@ -48,7 +48,7 @@ static int pdf_is_dark_fill_color(fz_context * ctx, pdf_annot * annot)
 		    break;
 		case 4:
 		    gray = color[0] * 0.3f + color[1] * 0.59f + color[2] * 0.11f + color[3];
-		    gray = 1 - fz_min(gray, 1);
+		    gray = 1 - smin(gray, 1.0f);
 		    break;
 	}
 	return gray < 0.25f;
@@ -125,7 +125,7 @@ static void maybe_stroke(fz_context * ctx, fz_buffer * buf, int sc)
 	fz_append_string(ctx, buf, sc ? "S\n" : "n\n");
 }
 
-static fz_point rotate_vector(float angle, float x, float y)
+static SPoint2F rotate_vector(float angle, float x, float y)
 {
 	float ca = cosf(angle);
 	float sa = sinf(angle);
@@ -134,12 +134,11 @@ static fz_point rotate_vector(float angle, float x, float y)
 
 static void pdf_write_arrow_appearance(fz_context * ctx, fz_buffer * buf, fz_rect * rect, float x, float y, float dx, float dy, float w)
 {
-	float r = fz_max(1, w);
+	float r = smax(1.0f, w);
 	float angle = atan2f(dy, dx);
-	fz_point v, a, b;
-
-	v = rotate_vector(angle, 8.8f*r, 4.5f*r);
-	a = fz_make_point(x + v.x, y + v.y);
+	SPoint2F b;
+	SPoint2F v = rotate_vector(angle, 8.8f*r, 4.5f*r);
+	SPoint2F a = fz_make_point(x + v.x, y + v.y);
 	v = rotate_vector(angle, 8.8f*r, -4.5f*r);
 	b = fz_make_point(x + v.x, y + v.y);
 
@@ -154,24 +153,23 @@ static void pdf_write_arrow_appearance(fz_context * ctx, fz_buffer * buf, fz_rec
 
 static void include_cap(fz_rect * rect, float x, float y, float r)
 {
-	rect->x0 = fz_min(rect->x0, x-r);
-	rect->y0 = fz_min(rect->y0, y-r);
-	rect->x1 = fz_max(rect->x1, x+r);
-	rect->y1 = fz_max(rect->y1, y+r);
+	rect->x0 = smin(rect->x0, x-r);
+	rect->y0 = smin(rect->y0, y-r);
+	rect->x1 = smax(rect->x1, x+r);
+	rect->y1 = smax(rect->y1, y+r);
 }
 
 static void pdf_write_line_cap_appearance(fz_context * ctx, fz_buffer * buf, fz_rect * rect,
-    float x, float y, float dx, float dy, float w,
-    int sc, int ic, pdf_obj * cap)
+    float x, float y, float dx, float dy, float w, int sc, int ic, pdf_obj * cap)
 {
 	if(cap == PDF_NAME(Square)) {
-		float r = fz_max(2.5f, w * 2.5f);
+		float r = smax(2.5f, w * 2.5f);
 		fz_append_printf(ctx, buf, "%g %g %g %g re\n", x-r, y-r, r*2, r*2);
 		maybe_stroke_and_fill(ctx, buf, sc, ic);
 		include_cap(rect, x, y, r);
 	}
 	else if(cap == PDF_NAME(Circle)) {
-		float r = fz_max(2.5f, w * 2.5f);
+		float r = smax(2.5f, w * 2.5f);
 		float m = r * CIRCLE_MAGIC;
 		fz_append_printf(ctx, buf, "%g %g m\n", x, y+r);
 		fz_append_printf(ctx, buf, "%g %g %g %g %g %g c\n", x+m, y+r, x+r, y+m, x+r, y);
@@ -182,7 +180,7 @@ static void pdf_write_line_cap_appearance(fz_context * ctx, fz_buffer * buf, fz_
 		include_cap(rect, x, y, r);
 	}
 	else if(cap == PDF_NAME(Diamond)) {
-		float r = fz_max(2.5f, w * 2.5f);
+		float r = smax(2.5f, w * 2.5f);
 		fz_append_printf(ctx, buf, "%g %g m\n", x, y+r);
 		fz_append_printf(ctx, buf, "%g %g l\n", x+r, y);
 		fz_append_printf(ctx, buf, "%g %g l\n", x, y-r);
@@ -200,9 +198,9 @@ static void pdf_write_line_cap_appearance(fz_context * ctx, fz_buffer * buf, fz_
 	}
 	/* PDF 1.5 */
 	else if(cap == PDF_NAME(Butt)) {
-		float r = fz_max(3, w * 3);
-		fz_point a = { x-dy*r, y+dx*r };
-		fz_point b = { x+dy*r, y-dx*r };
+		float r = smax(3.0f, w * 3.0f);
+		SPoint2F a(x-dy*r, y+dx*r);
+		SPoint2F b(x+dy*r, y-dx*r);
 		fz_append_printf(ctx, buf, "%g %g m\n", a.x, a.y);
 		fz_append_printf(ctx, buf, "%g %g l\n", b.x, b.y);
 		maybe_stroke(ctx, buf, sc);
@@ -219,9 +217,9 @@ static void pdf_write_line_cap_appearance(fz_context * ctx, fz_buffer * buf, fz_
 	}
 	/* PDF 1.6 */
 	else if(cap == PDF_NAME(Slash)) {
-		float r = fz_max(5, w * 5);
+		float r = smax(5.0f, w * 5.0f);
 		float angle = atan2f(dy, dx) - (30 * SMathConst::Pi_f / 180);
-		fz_point a, b, v;
+		SPoint2F a, b, v;
 		v = rotate_vector(angle, 0, r);
 		a = fz_make_point(x + v.x, y + v.y);
 		v = rotate_vector(angle, 0, -r);
@@ -237,7 +235,7 @@ static void pdf_write_line_cap_appearance(fz_context * ctx, fz_buffer * buf, fz_
 static void pdf_write_line_appearance(fz_context * ctx, pdf_annot * annot, fz_buffer * buf, fz_rect * rect)
 {
 	pdf_obj * line, * le;
-	fz_point a, b;
+	SPoint2F a, b;
 	float w;
 	int sc;
 	int ic;
@@ -255,10 +253,10 @@ static void pdf_write_line_appearance(fz_context * ctx, pdf_annot * annot, fz_bu
 	fz_append_printf(ctx, buf, "%g %g m\n%g %g l\n", a.x, a.y, b.x, b.y);
 	maybe_stroke(ctx, buf, sc);
 
-	rect->x0 = fz_min(a.x, b.x);
-	rect->y0 = fz_min(a.y, b.y);
-	rect->x1 = fz_max(a.x, b.x);
-	rect->y1 = fz_max(a.y, b.y);
+	rect->x0 = smin(a.x, b.x);
+	rect->y0 = smin(a.y, b.y);
+	rect->x1 = smax(a.x, b.x);
+	rect->y1 = smax(a.y, b.y);
 
 	le = pdf_dict_get(ctx, annot->obj, PDF_NAME(LE));
 	if(pdf_array_len(ctx, le) == 2) {
@@ -268,7 +266,7 @@ static void pdf_write_line_appearance(fz_context * ctx, pdf_annot * annot, fz_bu
 		pdf_write_line_cap_appearance(ctx, buf, rect, a.x, a.y, dx/l, dy/l, w, sc, ic, pdf_array_get(ctx, le, 0));
 		pdf_write_line_cap_appearance(ctx, buf, rect, b.x, b.y, -dx/l, -dy/l, w, sc, ic, pdf_array_get(ctx, le, 1));
 	}
-	*rect = fz_expand_rect(*rect, fz_max(1, w));
+	*rect = fz_expand_rect(*rect, smax(1.0f, w));
 }
 
 static void pdf_write_square_appearance(fz_context * ctx, pdf_annot * annot, fz_buffer * buf, fz_rect * rect)
@@ -277,16 +275,13 @@ static void pdf_write_square_appearance(fz_context * ctx, pdf_annot * annot, fz_
 	float lw;
 	int sc;
 	int ic;
-
 	lw = pdf_write_border_appearance(ctx, annot, buf);
 	sc = pdf_write_stroke_color_appearance(ctx, annot, buf);
 	ic = pdf_write_interior_fill_color_appearance(ctx, annot, buf);
-
 	x = rect->x0 + lw;
 	y = rect->y0 + lw;
 	w = rect->x1 - x - lw;
 	h = rect->y1 - y - lw;
-
 	fz_append_printf(ctx, buf, "%g %g %g %g re\n", x, y, w, h);
 	maybe_stroke_and_fill(ctx, buf, sc, ic);
 }
@@ -328,7 +323,7 @@ static void pdf_write_circle_appearance(fz_context * ctx, pdf_annot * annot, fz_
 static void pdf_write_polygon_appearance(fz_context * ctx, pdf_annot * annot, fz_buffer * buf, fz_rect * rect, int close)
 {
 	pdf_obj * verts;
-	fz_point p;
+	SPoint2F p;
 	int i, n;
 	float lw;
 	int sc;
@@ -367,7 +362,7 @@ static void pdf_write_ink_appearance(fz_context * ctx, pdf_annot * annot, fz_buf
 	pdf_obj * ink_list, * stroke;
 	int i, n, k, m;
 	float lw;
-	fz_point p;
+	SPoint2F p;
 	int sc;
 
 	lw = pdf_write_border_appearance(ctx, annot, buf);
@@ -408,7 +403,7 @@ static void pdf_write_ink_appearance(fz_context * ctx, pdf_annot * annot, fz_buf
  */
 enum { UL, UR, LL, LR };
 
-static float extract_quad(fz_context * ctx, fz_point * quad, pdf_obj * obj, int i)
+static float extract_quad(fz_context * ctx, SPoint2F * quad, pdf_obj * obj, int i)
 {
 	float dx, dy;
 	quad[0].x = pdf_array_get_real(ctx, obj, i+0);
@@ -424,17 +419,17 @@ static float extract_quad(fz_context * ctx, fz_point * quad, pdf_obj * obj, int 
 	return sqrtf(dx * dx + dy * dy);
 }
 
-static void union_quad(fz_rect * rect, const fz_point quad[4], float lw)
+static void union_quad(fz_rect * rect, const SPoint2F quad[4], float lw)
 {
 	fz_rect qbox;
-	qbox.x0 = fz_min(fz_min(quad[0].x, quad[1].x), fz_min(quad[2].x, quad[3].x));
-	qbox.y0 = fz_min(fz_min(quad[0].y, quad[1].y), fz_min(quad[2].y, quad[3].y));
-	qbox.x1 = fz_max(fz_max(quad[0].x, quad[1].x), fz_max(quad[2].x, quad[3].x));
-	qbox.y1 = fz_max(fz_max(quad[0].y, quad[1].y), fz_max(quad[2].y, quad[3].y));
+	qbox.x0 = smin(smin(quad[0].x, quad[1].x), smin(quad[2].x, quad[3].x));
+	qbox.y0 = smin(smin(quad[0].y, quad[1].y), smin(quad[2].y, quad[3].y));
+	qbox.x1 = smax(smax(quad[0].x, quad[1].x), smax(quad[2].x, quad[3].x));
+	qbox.y1 = smax(smax(quad[0].y, quad[1].y), smax(quad[2].y, quad[3].y));
 	*rect = fz_union_rect(*rect, fz_expand_rect(qbox, lw));
 }
 
-static fz_point lerp_point(fz_point a, fz_point b, float t)
+static SPoint2F lerp_point(SPoint2F a, SPoint2F b, float t)
 {
 	return fz_make_point(a.x + t * (b.x - a.x), a.y + t * (b.y - a.y));
 }
@@ -443,7 +438,7 @@ static void pdf_write_highlight_appearance(fz_context * ctx, pdf_annot * annot, 
 {
 	pdf_obj * res_egs, * res_egs_h;
 	pdf_obj * qp;
-	fz_point quad[4], mquad[4], v;
+	SPoint2F quad[4], mquad[4], v;
 	float opacity, h, m, dx, dy, vn;
 	int i, n;
 
@@ -503,7 +498,7 @@ static void pdf_write_highlight_appearance(fz_context * ctx, pdf_annot * annot, 
 
 static void pdf_write_underline_appearance(fz_context * ctx, pdf_annot * annot, fz_buffer * buf, fz_rect * rect)
 {
-	fz_point quad[4], a, b;
+	SPoint2F quad[4], a, b;
 	float h;
 	pdf_obj * qp;
 	int i, n;
@@ -535,7 +530,7 @@ static void pdf_write_underline_appearance(fz_context * ctx, pdf_annot * annot, 
 
 static void pdf_write_strike_out_appearance(fz_context * ctx, pdf_annot * annot, fz_buffer * buf, fz_rect * rect)
 {
-	fz_point quad[4], a, b;
+	SPoint2F quad[4], a, b;
 	float h;
 	pdf_obj * qp;
 	int i, n;
@@ -566,7 +561,7 @@ static void pdf_write_strike_out_appearance(fz_context * ctx, pdf_annot * annot,
 
 static void pdf_write_squiggly_appearance(fz_context * ctx, pdf_annot * annot, fz_buffer * buf, fz_rect * rect)
 {
-	fz_point quad[4], a, b, c, v;
+	SPoint2F quad[4], a, b, c, v;
 	float h, x, w;
 	pdf_obj * qp;
 	int i, n;
@@ -608,7 +603,7 @@ static void pdf_write_squiggly_appearance(fz_context * ctx, pdf_annot * annot, f
 
 static void pdf_write_redact_appearance(fz_context * ctx, pdf_annot * annot, fz_buffer * buf, fz_rect * rect)
 {
-	fz_point quad[4];
+	SPoint2F quad[4];
 	pdf_obj * qp;
 	int i, n;
 
@@ -2087,7 +2082,7 @@ void pdf_update_signature_appearance(fz_context * ctx, pdf_annot * annot, const 
 
 			/* Name */
 			name_w = measure_string(ctx, FZ_LANG_UNSET, helv, name);
-			size = fz_min(fz_min((w - 4) / name_w, h), 24);
+			size = smin(smin((w - 4.0f) / name_w, h), 24.0f);
 			fz_append_string(ctx, buf, "BT\n");
 			fz_append_printf(ctx, buf, "%g %g Td\n", rect.x0+2, rect.y1 - size*0.8f - (h-size)/2);
 			add_required_fonts(ctx, annot->page->doc, res_font, lang, helv, "Helv", name);
@@ -2095,7 +2090,7 @@ void pdf_update_signature_appearance(fz_context * ctx, pdf_annot * annot, const 
 			fz_append_string(ctx, buf, "ET\n");
 
 			/* Information text */
-			size = fz_min(fz_min((w / 12), h / 6), 16);
+			size = smin(smin((w / 12.0f), h / 6.0f), 16.0f);
 			fz_append_string(ctx, buf, "BT\n");
 			fz_append_printf(ctx, buf, "%g TL\n", size);
 			fz_append_printf(ctx, buf, "%g %g Td\n", rect.x0+w+2, rect.y1);

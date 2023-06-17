@@ -693,7 +693,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 					//
 					//                                                       #10-#11 время начала и окончания действия скидки
 					//
-					if(qk_rec.ID && qk_rec.GetTimeRange(tmr) > 0)
+					if(qk_rec.ID && qk_rec.GetTimeRange(tmr))
 						f_str.Cat(tmr.low, TIMF_HMS).Semicol().Cat(tmr.upp, TIMF_HMS).Semicol();
 					else
 						f_str.CatCharN(';', 2);

@@ -125,7 +125,7 @@ void fz_paint_shade(fz_context *ctx, fz_shade *shade, fz_colorspace *override_cs
  */
 typedef struct
 {
-	fz_point p;
+	SPoint2F p;
 	float c[FZ_MAX_COLORS];
 } fz_vertex;
 

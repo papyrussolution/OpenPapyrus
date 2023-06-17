@@ -124,7 +124,7 @@ static size_t on_curl_header(void * ptr, size_t size, size_t nmemb, void * state
 	}
 	if(strncmp((const char *)ptr, "Content-Length:", 15) == 0) {
 		char * s = (char *)ptr;
-		state->content_length = fz_atoi(s + 15);
+		state->content_length = satoi(s + 15);
 		DEBUG_MESSAGE(("header arrived with Content-Length: %d\n", state->content_length));
 	}
 	unlock(state);

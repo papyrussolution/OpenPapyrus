@@ -455,7 +455,7 @@ JNIEXPORT jobject JNICALL FUN(PDFAnnotation_getVertex)(JNIEnv *env, jobject self
 {
 	fz_context * ctx = get_context(env);
 	pdf_annot * annot = from_PDFAnnotation(env, self);
-	fz_point v;
+	SPoint2F v;
 
 	fz_try(ctx)
 	v = pdf_annot_vertex(ctx, annot, i);
@@ -519,7 +519,7 @@ JNIEXPORT jobject JNICALL FUN(PDFAnnotation_getInkListStrokeVertex)(JNIEnv *env,
 {
 	fz_context * ctx = get_context(env);
 	pdf_annot * annot = from_PDFAnnotation(env, self);
-	fz_point v;
+	SPoint2F v;
 
 	fz_try(ctx)
 	v = pdf_annot_ink_list_stroke_vertex(ctx, annot, i, k);

@@ -223,7 +223,7 @@ U_NAMESPACE_END
 
 /* public methods ---------------------------------------------------- */
 
-U_CAPI UCollationElements* U_EXPORT2 ucol_openElements(const UCollator * coll, const UChar * text, int32_t textLength, UErrorCode * status)
+U_CAPI UCollationElements* U_EXPORT2 ucol_openElements(const UCollator * coll, const char16_t * text, int32_t textLength, UErrorCode * status)
 {
 	if(U_FAILURE(*status)) {
 		return NULL;
@@ -365,7 +365,7 @@ U_CAPI int32_t U_EXPORT2 ucol_getMaxExpansion(const UCollationElements * elems, 
 	// of the hits...
 }
 
-U_CAPI void U_EXPORT2 ucol_setText(UCollationElements * elems, const UChar * text, int32_t textLength, UErrorCode * status)
+U_CAPI void U_EXPORT2 ucol_setText(UCollationElements * elems, const char16_t * text, int32_t textLength, UErrorCode * status)
 {
 	if(U_FAILURE(*status)) {
 		return;

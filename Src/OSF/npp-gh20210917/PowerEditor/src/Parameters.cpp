@@ -3643,10 +3643,7 @@ void NppParameters::feedKeyWordsParameters(TiXmlNode * node)
 	TiXmlNode * langRoot = node->FirstChildElement(TEXT("Languages"));
 	if(!langRoot)
 		return;
-
-	for(TiXmlNode * langNode = langRoot->FirstChildElement(TEXT("Language"));
-	    langNode;
-	    langNode = langNode->NextSibling(TEXT("Language"))) {
+	for(TiXmlNode * langNode = langRoot->FirstChildElement(TEXT("Language")); langNode; langNode = langNode->NextSibling(TEXT("Language"))) {
 		if(_nbLang < NB_LANG) {
 			TiXmlElement* element = langNode->ToElement();
 			const TCHAR* name = element->Attribute(TEXT("name"));
@@ -3656,14 +3653,10 @@ void NppParameters::feedKeyWordsParameters(TiXmlNode * node)
 				_langList[_nbLang]->setCommentLineSymbol(element->Attribute(TEXT("commentLine")));
 				_langList[_nbLang]->setCommentStart(element->Attribute(TEXT("commentStart")));
 				_langList[_nbLang]->setCommentEnd(element->Attribute(TEXT("commentEnd")));
-
 				int tabSettings;
 				if(element->Attribute(TEXT("tabSettings"), &tabSettings))
 					_langList[_nbLang]->setTabInfo(tabSettings);
-
-				for(TiXmlNode * kwNode = langNode->FirstChildElement(TEXT("Keywords"));
-				    kwNode;
-				    kwNode = kwNode->NextSibling(TEXT("Keywords"))) {
+				for(TiXmlNode * kwNode = langNode->FirstChildElement(TEXT("Keywords")); kwNode; kwNode = kwNode->NextSibling(TEXT("Keywords"))) {
 					const TCHAR * indexName = (kwNode->ToElement())->Attribute(TEXT("name"));
 					TiXmlNode * kwVal = kwNode->FirstChild();
 					const TCHAR * keyWords = TEXT("");
@@ -3690,15 +3683,11 @@ void NppParameters::feedGUIParameters(TiXmlNode * node)
 	TiXmlNode * GUIRoot = node->FirstChildElement(TEXT("GUIConfigs"));
 	if(nullptr == GUIRoot)
 		return;
-
-	for(TiXmlNode * childNode = GUIRoot->FirstChildElement(TEXT("GUIConfig"));
-	    childNode;
-	    childNode = childNode->NextSibling(TEXT("GUIConfig"))) {
+	for(TiXmlNode * childNode = GUIRoot->FirstChildElement(TEXT("GUIConfig")); childNode; childNode = childNode->NextSibling(TEXT("GUIConfig"))) {
 		TiXmlElement* element = childNode->ToElement();
 		const TCHAR* nm = element->Attribute(TEXT("name"));
 		if(nullptr == nm)
 			continue;
-
 		if(sstreq(nm, TEXT("ToolBar"))) {
 			const TCHAR* val = element->Attribute(TEXT("visible"));
 			if(val) {

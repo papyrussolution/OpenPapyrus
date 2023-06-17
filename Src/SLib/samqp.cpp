@@ -3518,7 +3518,6 @@ error_out1:
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN
 	#endif
-
 	uint64 amqp_get_monotonic_timestamp() 
 	{
 		static double NS_PER_COUNT = 0.0;
@@ -4740,11 +4739,9 @@ start_poll:
 	struct timeval * tvp;
 	assert((0 != (event & AMQP_SF_POLLIN)) || (0 != (event & AMQP_SF_POLLOUT)));
 #ifndef _WIN32
-	/* On Win32 connect() failure is indicated through the exceptfds, it does not
-	 * make any sense to allow POLLERR on any other platform or condition */
+	// On Win32 connect() failure is indicated through the exceptfds, it does not make any sense to allow POLLERR on any other platform or condition
 	assert(0 == (event & AMQP_SF_POLLERR));
 #endif
-
 start_select:
 	FD_ZERO(&fds);
 	FD_SET(fd, &fds);
@@ -4827,124 +4824,121 @@ int amqp_open_socket_noblock(char const * hostname, int portnumber, struct timev
 }
 
 #ifdef _WIN32
-static int connect_socket(struct addrinfo * addr, amqp_time_t deadline) 
-{
-	int one = 1;
-	int last_error;
-	/*
-	 * This cast is to squash warnings on Win64, see:
-	 * http://stackoverflow.com/questions/1953639/is-it-safe-to-cast-socket-to-int-under-win64
-	 */
-	SOCKET sockfd = (int)socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
-	if(INVALID_SOCKET == sockfd) {
-		return AMQP_STATUS_SOCKET_ERROR;
-	}
-	/* Set the socket to be non-blocking */
-	if(SOCKET_ERROR == ioctlsocket(sockfd, FIONBIO, reinterpret_cast<u_long *>(&one))) {
-		last_error = AMQP_STATUS_SOCKET_ERROR;
-		goto err;
-	}
-	/* Disable nagle */
-	if(SOCKET_ERROR == setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, (const char *)&one, sizeof(one))) {
-		last_error = AMQP_STATUS_SOCKET_ERROR;
-		goto err;
-	}
-	/* Enable TCP keepalives */
-	if(SOCKET_ERROR == setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, (const char *)&one, sizeof(one))) {
-		last_error = AMQP_STATUS_SOCKET_ERROR;
-		goto err;
-	}
-	if(SOCKET_ERROR != connect(sockfd, addr->ai_addr, (int)addr->ai_addrlen)) {
+	static int connect_socket(struct addrinfo * addr, amqp_time_t deadline) 
+	{
+		int one = 1;
+		int last_error;
+		// 
+		// This cast is to squash warnings on Win64, see: http://stackoverflow.com/questions/1953639/is-it-safe-to-cast-socket-to-int-under-win64
+		// 
+		SOCKET sockfd = (int)socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
+		if(INVALID_SOCKET == sockfd) {
+			return AMQP_STATUS_SOCKET_ERROR;
+		}
+		// Set the socket to be non-blocking
+		if(SOCKET_ERROR == ioctlsocket(sockfd, FIONBIO, reinterpret_cast<u_long *>(&one))) {
+			last_error = AMQP_STATUS_SOCKET_ERROR;
+			goto err;
+		}
+		// Disable nagle
+		if(SOCKET_ERROR == setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, (const char *)&one, sizeof(one))) {
+			last_error = AMQP_STATUS_SOCKET_ERROR;
+			goto err;
+		}
+		// Enable TCP keepalives
+		if(SOCKET_ERROR == setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, (const char *)&one, sizeof(one))) {
+			last_error = AMQP_STATUS_SOCKET_ERROR;
+			goto err;
+		}
+		if(SOCKET_ERROR != connect(sockfd, addr->ai_addr, (int)addr->ai_addrlen)) {
+			return (int)sockfd;
+		}
+		if(WSAEWOULDBLOCK != WSAGetLastError()) {
+			last_error = AMQP_STATUS_SOCKET_ERROR;
+			goto err;
+		}
+		last_error = amqp_poll((int)sockfd, AMQP_SF_POLLOUT | AMQP_SF_POLLERR, deadline);
+		if(AMQP_STATUS_OK != last_error) {
+			goto err;
+		}
+		{
+			int result;
+			int result_len = sizeof(result);
+			if(SOCKET_ERROR == getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (char *)&result, &result_len) || result != 0) {
+				last_error = AMQP_STATUS_SOCKET_ERROR;
+				goto err;
+			}
+		}
 		return (int)sockfd;
+	err:
+		closesocket(sockfd);
+		return last_error;
 	}
-	if(WSAEWOULDBLOCK != WSAGetLastError()) {
-		last_error = AMQP_STATUS_SOCKET_ERROR;
-		goto err;
-	}
-	last_error = amqp_poll((int)sockfd, AMQP_SF_POLLOUT | AMQP_SF_POLLERR, deadline);
-	if(AMQP_STATUS_OK != last_error) {
-		goto err;
-	}
-	{
-		int result;
-		int result_len = sizeof(result);
-		if(SOCKET_ERROR == getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (char *)&result, &result_len) ||
-		    result != 0) {
-			last_error = AMQP_STATUS_SOCKET_ERROR;
-			goto err;
-		}
-	}
-	return (int)sockfd;
-err:
-	closesocket(sockfd);
-	return last_error;
-}
-
 #else
-static int connect_socket(struct addrinfo * addr, amqp_time_t deadline) 
-{
-	int one = 1;
-	int sockfd;
-	int flags;
-	int last_error;
-	sockfd = socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
-	if(-1 == sockfd) {
-		return AMQP_STATUS_SOCKET_ERROR;
-	}
-	/* Enable CLOEXEC on socket */
-	flags = fcntl(sockfd, F_GETFD);
-	if(flags == -1 || fcntl(sockfd, F_SETFD, (long)(flags | FD_CLOEXEC)) == -1) {
-		last_error = AMQP_STATUS_SOCKET_ERROR;
-		goto err;
-	}
-	/* Set the socket as non-blocking */
-	flags = fcntl(sockfd, F_GETFL);
-	if(flags == -1 || fcntl(sockfd, F_SETFL, (long)(flags | O_NONBLOCK)) == -1) {
-		last_error = AMQP_STATUS_SOCKET_ERROR;
-		goto err;
-	}
-#ifdef SO_NOSIGPIPE
-	/* Turn off SIGPIPE on platforms that support it, BSD, MacOSX */
-	if(0 != setsockopt(sockfd, SOL_SOCKET, SO_NOSIGPIPE, &one, sizeof(one))) {
-		last_error = AMQP_STATUS_SOCKET_ERROR;
-		goto err;
-	}
-#endif /* SO_NOSIGPIPE */
-	/* Disable nagle */
-	if(0 != setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one))) {
-		last_error = AMQP_STATUS_SOCKET_ERROR;
-		goto err;
-	}
-	/* Enable TCP keepalives */
-	if(0 != setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, &one, sizeof(one))) {
-		last_error = AMQP_STATUS_SOCKET_ERROR;
-		goto err;
-	}
-	if(0 == connect(sockfd, addr->ai_addr, addr->ai_addrlen)) {
-		return sockfd;
-	}
-	if(EINPROGRESS != errno) {
-		last_error = AMQP_STATUS_SOCKET_ERROR;
-		goto err;
-	}
-	last_error = amqp_poll(sockfd, AMQP_SF_POLLOUT, deadline);
-	if(AMQP_STATUS_OK != last_error) {
-		goto err;
-	}
+	static int connect_socket(struct addrinfo * addr, amqp_time_t deadline) 
 	{
-		int result;
-		socklen_t result_len = sizeof(result);
-		if(-1 == getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &result, &result_len) ||
-		    result != 0) {
+		int one = 1;
+		int sockfd;
+		int flags;
+		int last_error;
+		sockfd = socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
+		if(-1 == sockfd) {
+			return AMQP_STATUS_SOCKET_ERROR;
+		}
+		// Enable CLOEXEC on socket
+		flags = fcntl(sockfd, F_GETFD);
+		if(flags == -1 || fcntl(sockfd, F_SETFD, (long)(flags | FD_CLOEXEC)) == -1) {
 			last_error = AMQP_STATUS_SOCKET_ERROR;
 			goto err;
 		}
+		// Set the socket as non-blocking
+		flags = fcntl(sockfd, F_GETFL);
+		if(flags == -1 || fcntl(sockfd, F_SETFL, (long)(flags | O_NONBLOCK)) == -1) {
+			last_error = AMQP_STATUS_SOCKET_ERROR;
+			goto err;
+		}
+	#ifdef SO_NOSIGPIPE
+		// Turn off SIGPIPE on platforms that support it, BSD, MacOSX
+		if(0 != setsockopt(sockfd, SOL_SOCKET, SO_NOSIGPIPE, &one, sizeof(one))) {
+			last_error = AMQP_STATUS_SOCKET_ERROR;
+			goto err;
+		}
+	#endif /* SO_NOSIGPIPE */
+		// Disable nagle
+		if(0 != setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one))) {
+			last_error = AMQP_STATUS_SOCKET_ERROR;
+			goto err;
+		}
+		// Enable TCP keepalives
+		if(0 != setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, &one, sizeof(one))) {
+			last_error = AMQP_STATUS_SOCKET_ERROR;
+			goto err;
+		}
+		if(0 == connect(sockfd, addr->ai_addr, addr->ai_addrlen)) {
+			return sockfd;
+		}
+		if(EINPROGRESS != errno) {
+			last_error = AMQP_STATUS_SOCKET_ERROR;
+			goto err;
+		}
+		last_error = amqp_poll(sockfd, AMQP_SF_POLLOUT, deadline);
+		if(AMQP_STATUS_OK != last_error) {
+			goto err;
+		}
+		{
+			int result;
+			socklen_t result_len = sizeof(result);
+			if(-1 == getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &result, &result_len) ||
+				result != 0) {
+				last_error = AMQP_STATUS_SOCKET_ERROR;
+				goto err;
+			}
+		}
+		return sockfd;
+	err:
+		close(sockfd);
+		return last_error;
 	}
-	return sockfd;
-err:
-	close(sockfd);
-	return last_error;
-}
 #endif
 
 int amqp_open_socket_inner(char const * hostname, int portnumber, amqp_time_t deadline) 

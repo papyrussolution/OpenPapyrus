@@ -122,7 +122,7 @@ UDataWriteUInt32(uint32_t *p, uint32_t x);
 typedef int32_t U_CALLCONV
 UDataCompareInvChars(const UDataSwapper *ds,
                      const char *outString, int32_t outLength,
-                     const UChar *localString, int32_t localLength);
+                     const char16_t *localString, int32_t localLength);
 
 /**
  * Function for message output when an error occurs during data swapping.
@@ -293,26 +293,26 @@ uprv_copyEbcdic(const UDataSwapper *ds,
                 UErrorCode *pErrorCode);
 
 /**
- * Compare ASCII invariant char * with Unicode invariant UChar *
+ * Compare ASCII invariant char * with Unicode invariant char16_t *
  * @internal
  */
 U_CFUNC int32_t
 uprv_compareInvAscii(const UDataSwapper *ds,
                      const char *outString, int32_t outLength,
-                     const UChar *localString, int32_t localLength);
+                     const char16_t *localString, int32_t localLength);
 
 /**
- * Compare EBCDIC invariant char * with Unicode invariant UChar *
+ * Compare EBCDIC invariant char * with Unicode invariant char16_t *
  * @internal
  */
 U_CFUNC int32_t
 uprv_compareInvEbcdic(const UDataSwapper *ds,
                       const char *outString, int32_t outLength,
-                      const UChar *localString, int32_t localLength);
+                      const char16_t *localString, int32_t localLength);
 
 /**
  * \def uprv_compareInvWithUChar
- * Compare an invariant-character strings with a UChar string
+ * Compare an invariant-character strings with a char16_t string
  * @internal
  */
 #if U_CHARSET_FAMILY==U_ASCII_FAMILY

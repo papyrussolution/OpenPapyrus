@@ -58,7 +58,7 @@ static ossl_inline void blake2s_init0(BLAKE2S_CTX * S)
 static void blake2s_init_param(BLAKE2S_CTX * S, const BLAKE2S_PARAM * P)
 {
 	size_t i;
-	const uint8 * p = (const uint8*)(P);
+	const uint8 * p = (const uint8 *)(P);
 
 	blake2s_init0(S);
 	S->outlen = P->digest_length;
@@ -244,7 +244,7 @@ static void blake2s_compress(BLAKE2S_CTX * S,
 /* Absorb the input data into the hash state.  Always returns 1. */
 int ossl_blake2s_update(BLAKE2S_CTX * c, const void * data, size_t datalen)
 {
-	const uint8 * in = (const uint8*)data;
+	const uint8 * in = (const uint8 *)data;
 	size_t fill;
 	/*
 	 * Intuitively one would expect intermediate buffer, c->buf, to

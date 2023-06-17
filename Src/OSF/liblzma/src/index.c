@@ -1031,7 +1031,7 @@ static lzma_ret hash_append(lzma_index_hash_info * info, lzma_vli unpadded_size,
 	info->index_list_size += lzma_vli_size(unpadded_size) + lzma_vli_size(uncompressed_size);
 	++info->count;
 	const lzma_vli sizes[2] = { unpadded_size, uncompressed_size };
-	lzma_check_update(&info->check, LZMA_CHECK_BEST, (const uint8*)(sizes), sizeof(sizes));
+	lzma_check_update(&info->check, LZMA_CHECK_BEST, (const uint8 *)(sizes), sizeof(sizes));
 	return LZMA_OK;
 }
 

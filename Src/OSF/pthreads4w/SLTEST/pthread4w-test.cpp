@@ -2222,7 +2222,7 @@ static int PThr4wTest_Semaphore4()
 // 
 static int PThr4wTest_Semaphore4t()
 {
-	static const long NANOSEC_PER_SEC = 1000000000L;
+	static const long NANOSEC_PER_SEC = SlConst::OneBillion;
 	static sem_t s;
 
 	class InnerBlock {
@@ -2585,7 +2585,7 @@ static int PThr4wTest_Eyal1()
 static int PThr4wTest_Timeouts()
 {
 	#define DEFAULT_MINTIME_INIT    999999999
-	#define CYG_ONEBILLION          1000000000LL
+	// @sobolev #define CYG_ONEBILLION          1000000000LL
 	#define CYG_ONEMILLION          1000000LL
 	#define CYG_ONEKAPPA            1000LL
 	#define MSEC_F 1000000L
@@ -2648,7 +2648,7 @@ static int PThr4wTest_Timeouts()
 	public:
 		static cyg_tim_t CYG_DIFFT(cyg_tim_t t1, cyg_tim_t t2)
 		{
-			return (cyg_tim_t)((t2 - t1) * CYG_ONEBILLION / frequency.QuadPart); //nsec
+			return (cyg_tim_t)((t2 - t1) * SlConst::OneBillion / frequency.QuadPart); //nsec
 		}
 		static void CYG_InitTimers()
 		{
@@ -2685,9 +2685,9 @@ static int PThr4wTest_Timeouts()
 			GetTimestampTS(&abstime);
 			abstime.tv_sec  += sec;
 			abstime.tv_nsec += nsec;
-			if((sc = (abstime.tv_nsec / 1000000000L))) {
+			if((sc = (abstime.tv_nsec / SlConst::OneBillion))) {
 				abstime.tv_sec += sc;
-				abstime.tv_nsec %= 1000000000L;
+				abstime.tv_nsec %= SlConst::OneBillion;
 			}
 			PTHR4W_TEST_ASSERT(0 == pthread_mutex_lock(&mutex_));
 			// 
@@ -7551,7 +7551,7 @@ static int PThr4wTest_CondVar33()
 {
 	static pthread_cond_t cnd;
 	static pthread_mutex_t mtx;
-	static const long NANOSEC_PER_SEC = 1000000000L;
+	static const long NANOSEC_PER_SEC = SlConst::OneBillion;
 
 	int rc;
 	struct timespec abstime, reltime = { 0, NANOSEC_PER_SEC/2 };

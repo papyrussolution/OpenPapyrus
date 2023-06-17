@@ -210,14 +210,14 @@ DictionaryMatcher * ICULanguageBreakFactory::loadDictionaryMatcherFor(UScriptCod
 	UResourceBundle * b = ures_open(U_ICUDATA_BRKITR, "", &status);
 	b = ures_getByKeyWithFallback(b, "dictionaries", b, &status);
 	int32_t dictnlength = 0;
-	const UChar * dictfname = ures_getStringByKeyWithFallback(b, uscript_getShortName(script), &dictnlength, &status);
+	const char16_t * dictfname = ures_getStringByKeyWithFallback(b, uscript_getShortName(script), &dictnlength, &status);
 	if(U_FAILURE(status)) {
 		ures_close(b);
 		return NULL;
 	}
 	CharString dictnbuf;
 	CharString ext;
-	const UChar * extStart = u_memrchr(dictfname, 0x002e, dictnlength); // last dot
+	const char16_t * extStart = u_memrchr(dictfname, 0x002e, dictnlength); // last dot
 	if(extStart != NULL) {
 		int32_t len = (int32_t)(extStart - dictfname);
 		ext.appendInvariantChars(UnicodeString(FALSE, extStart + 1, dictnlength - len - 1), status);
@@ -239,7 +239,7 @@ DictionaryMatcher * ICULanguageBreakFactory::loadDictionaryMatcherFor(UScriptCod
 			m = new BytesDictionaryMatcher(characters, transform, file);
 		}
 		else if(trieType == DictionaryData::TRIE_TYPE_UCHARS) {
-			const UChar * characters = (const UChar *)(data + offset);
+			const char16_t * characters = (const char16_t *)(data + offset);
 			m = new UCharsDictionaryMatcher(characters, file);
 		}
 		if(m == NULL) {

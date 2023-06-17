@@ -54,10 +54,10 @@ static UHashtable * regionIDMap = NULL;
 static UHashtable * numericCodeMap = NULL;
 static UVector * allRegions = NULL;
 
-static const UChar UNKNOWN_REGION_ID [] = { 0x5A, 0x5A, 0 }; /* "ZZ" */
-static const UChar OUTLYING_OCEANIA_REGION_ID [] = { 0x51, 0x4F, 0 }; /* "QO" */
-static const UChar WORLD_ID [] = { 0x30, 0x30, 0x31, 0 }; /* "001" */
-static const UChar RANGE_MARKER = 0x7E; /* '~' */
+static const char16_t UNKNOWN_REGION_ID [] = { 0x5A, 0x5A, 0 }; /* "ZZ" */
+static const char16_t OUTLYING_OCEANIA_REGION_ID [] = { 0x51, 0x4F, 0 }; /* "QO" */
+static const char16_t WORLD_ID [] = { 0x30, 0x30, 0x31, 0 }; /* "001" */
+static const char16_t RANGE_MARKER = 0x7E; /* '~' */
 
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(RegionNameEnumeration)
 
@@ -107,10 +107,10 @@ void U_CALLCONV Region::loadRegionData(UErrorCode & status) {
 	while(ures_hasNext(regionRegular.getAlias())) {
 		UnicodeString regionName = ures_getNextUnicodeString(regionRegular.getAlias(), NULL, &status);
 		int32_t rangeMarkerLocation = regionName.indexOf(RANGE_MARKER);
-		UChar buf[6];
+		char16_t buf[6];
 		regionName.extract(buf, 6, status);
 		if(rangeMarkerLocation > 0) {
-			UChar endRange = regionName.charAt(rangeMarkerLocation+1);
+			char16_t endRange = regionName.charAt(rangeMarkerLocation+1);
 			buf[rangeMarkerLocation] = 0;
 			while(buf[rangeMarkerLocation-1] <= endRange) {
 				LocalPointer<UnicodeString> newRegion(new UnicodeString(buf), status);
@@ -127,10 +127,10 @@ void U_CALLCONV Region::loadRegionData(UErrorCode & status) {
 	while(ures_hasNext(regionMacro.getAlias())) {
 		UnicodeString regionName = ures_getNextUnicodeString(regionMacro.getAlias(), NULL, &status);
 		int32_t rangeMarkerLocation = regionName.indexOf(RANGE_MARKER);
-		UChar buf[6];
+		char16_t buf[6];
 		regionName.extract(buf, 6, status);
 		if(rangeMarkerLocation > 0) {
-			UChar endRange = regionName.charAt(rangeMarkerLocation+1);
+			char16_t endRange = regionName.charAt(rangeMarkerLocation+1);
 			buf[rangeMarkerLocation] = 0;
 			while(buf[rangeMarkerLocation-1] <= endRange) {
 				LocalPointer<UnicodeString> newRegion(new UnicodeString(buf), status);

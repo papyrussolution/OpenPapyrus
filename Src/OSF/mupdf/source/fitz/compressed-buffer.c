@@ -17,9 +17,8 @@ void fz_drop_compressed_buffer(fz_context * ctx, fz_compressed_buffer * buf)
 
 fz_stream * fz_open_image_decomp_stream_from_buffer(fz_context * ctx, fz_compressed_buffer * buffer, int * l2factor)
 {
-	fz_stream * head, * tail;
-
-	tail = fz_open_buffer(ctx, buffer->buffer);
+	fz_stream * head;
+	fz_stream * tail = fz_open_buffer(ctx, buffer->buffer);
 	fz_try(ctx)
 	head = fz_open_image_decomp_stream(ctx, tail, &buffer->params, l2factor);
 	fz_always(ctx)
@@ -34,8 +33,7 @@ fz_stream * fz_open_image_decomp_stream(fz_context * ctx, fz_stream * tail, fz_c
 	fz_stream * head = NULL, * body = NULL;
 	int our_l2factor = 0;
 	fz_var(body);
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		switch(params->type) {
 			default:
 			    head = fz_keep_stream(ctx, tail);
@@ -61,36 +59,24 @@ fz_stream * fz_open_image_decomp_stream(fz_context * ctx, fz_stream * tail, fz_c
 			    }
 			    head = fz_open_dctd(ctx, tail, params->u.jpeg.color_transform, our_l2factor, NULL);
 			    break;
-
 			case FZ_IMAGE_JBIG2:
 			    head = fz_open_jbig2d(ctx, tail, params->u.jbig2.globals, params->u.jbig2.embedded);
 			    break;
-
 			case FZ_IMAGE_RLD:
 			    head = fz_open_rld(ctx, tail);
 			    break;
-
 			case FZ_IMAGE_FLATE:
 			    head = fz_open_flated(ctx, tail, 15);
 			    if(params->u.flate.predictor > 1) {
 				    body = head;
-				    head = fz_open_predict(ctx, body,
-					    params->u.flate.predictor,
-					    params->u.flate.columns,
-					    params->u.flate.colors,
-					    params->u.flate.bpc);
+				    head = fz_open_predict(ctx, body, params->u.flate.predictor, params->u.flate.columns, params->u.flate.colors, params->u.flate.bpc);
 			    }
 			    break;
-
 			case FZ_IMAGE_LZW:
 			    head = fz_open_lzwd(ctx, tail, params->u.lzw.early_change, 9, 0, 0);
 			    if(params->u.flate.predictor > 1) {
 				    body = head;
-				    head = fz_open_predict(ctx, body,
-					    params->u.lzw.predictor,
-					    params->u.lzw.columns,
-					    params->u.lzw.colors,
-					    params->u.lzw.bpc);
+				    head = fz_open_predict(ctx, body, params->u.lzw.predictor, params->u.lzw.columns, params->u.lzw.colors, params->u.lzw.bpc);
 			    }
 			    break;
 		}
@@ -99,7 +85,6 @@ fz_stream * fz_open_image_decomp_stream(fz_context * ctx, fz_stream * tail, fz_c
 	fz_drop_stream(ctx, body);
 	fz_catch(ctx)
 	fz_rethrow(ctx);
-
 	return head;
 }
 
@@ -108,7 +93,7 @@ fz_stream * fz_open_compressed_buffer(fz_context * ctx, fz_compressed_buffer * b
 	return fz_open_image_decomp_stream_from_buffer(ctx, buffer, NULL);
 }
 
-size_t fz_compressed_buffer_size(fz_compressed_buffer * buffer)
+size_t fz_compressed_buffer_size(const fz_compressed_buffer * buffer)
 {
 	if(!buffer)
 		return 0;

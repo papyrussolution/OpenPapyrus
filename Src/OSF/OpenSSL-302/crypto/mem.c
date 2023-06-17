@@ -94,11 +94,10 @@ static void parseit(void)
 	/* Get the count (atol will stop at the @ if there), and percentage */
 	md_count = atol(md_failstring);
 	atsign = strchr(md_failstring, '@');
-	md_fail_percent = atsign == NULL ? 0 : atoi(atsign + 1);
+	md_fail_percent = atsign == NULL ? 0 : satoi(atsign + 1);
 	if(semi)
 		md_failstring = semi;
 }
-
 /*
  * Windows doesn't have random(), but it has rand()
  * Some rand() implementations aren't good, but we're not
@@ -139,7 +138,7 @@ void ossl_malloc_setup_failures(void)
 	if(cp && (md_failstring = strdup(cp)) != NULL)
 		parseit();
 	if((cp = getenv("OPENSSL_MALLOC_FD")) != NULL)
-		md_tracefd = atoi(cp);
+		md_tracefd = satoi(cp);
 }
 #endif
 

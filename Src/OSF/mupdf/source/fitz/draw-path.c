@@ -69,9 +69,9 @@ static void bezier(fz_context * ctx, fz_rasterizer * rast, fz_matrix ctm, float 
 
 	/* termination check */
 	dmax = fz_abs(xa - xb);
-	dmax = fz_max(dmax, fz_abs(ya - yb));
-	dmax = fz_max(dmax, fz_abs(xd - xc));
-	dmax = fz_max(dmax, fz_abs(yd - yc));
+	dmax = smax(dmax, fz_abs(ya - yb));
+	dmax = smax(dmax, fz_abs(xd - xc));
+	dmax = smax(dmax, fz_abs(yd - yc));
 	if(dmax < flatness || depth >= MAX_DEPTH) {
 		line(ctx, rast, ctm, xa, ya, xd, yd);
 		return;
@@ -113,9 +113,9 @@ static void quad(fz_context * ctx, fz_rasterizer * rast, fz_matrix ctm, float fl
 	float xabc, yabc;
 	/* termination check */
 	dmax = fz_abs(xa - xb);
-	dmax = fz_max(dmax, fz_abs(ya - yb));
-	dmax = fz_max(dmax, fz_abs(xc - xb));
-	dmax = fz_max(dmax, fz_abs(yc - yb));
+	dmax = smax(dmax, fz_abs(ya - yb));
+	dmax = smax(dmax, fz_abs(xc - xb));
+	dmax = smax(dmax, fz_abs(yc - yb));
 	if(dmax < flatness || depth >= MAX_DEPTH) {
 		line(ctx, rast, ctm, xa, ya, xc, yc);
 		return;
@@ -137,8 +137,8 @@ typedef struct {
 	fz_rasterizer * rast;
 	fz_matrix ctm;
 	float flatness;
-	fz_point b;
-	fz_point c;
+	SPoint2F b;
+	SPoint2F c;
 }
 
 flatten_arg;
@@ -296,12 +296,12 @@ typedef struct sctx {
 	int linejoin;
 	float linewidth;
 	float miterlimit;
-	fz_point beg[2];
-	fz_point seg[2];
+	SPoint2F beg[2];
+	SPoint2F seg[2];
 	int sn;
 	int dot;
 	int from_bezier;
-	fz_point cur;
+	SPoint2F cur;
 
 	fz_rect rect;
 	const float * dash_list;
@@ -311,8 +311,8 @@ typedef struct sctx {
 	int toggle, cap;
 	int offset;
 	float phase;
-	fz_point dash_cur;
-	fz_point dash_beg;
+	SPoint2F dash_cur;
+	SPoint2F dash_beg;
 } sctx;
 
 static void fz_add_line(fz_context * ctx, sctx * s, float x0, float y0, float x1, float y1, int rev)
@@ -778,9 +778,9 @@ static void fz_stroke_bezier(fz_context * ctx, struct sctx * s,
 
 	/* termination check */
 	dmax = fz_abs(xa - xb);
-	dmax = fz_max(dmax, fz_abs(ya - yb));
-	dmax = fz_max(dmax, fz_abs(xd - xc));
-	dmax = fz_max(dmax, fz_abs(yd - yc));
+	dmax = smax(dmax, fz_abs(ya - yb));
+	dmax = smax(dmax, fz_abs(xd - xc));
+	dmax = smax(dmax, fz_abs(yd - yc));
 	if(dmax < s->flatness || depth >= MAX_DEPTH) {
 		fz_stroke_lineto(ctx, s, xd, yd, 1);
 		return;
@@ -826,9 +826,9 @@ static void fz_stroke_quad(fz_context * ctx, struct sctx * s,
 
 	/* termination check */
 	dmax = fz_abs(xa - xb);
-	dmax = fz_max(dmax, fz_abs(ya - yb));
-	dmax = fz_max(dmax, fz_abs(xc - xb));
-	dmax = fz_max(dmax, fz_abs(yc - yb));
+	dmax = smax(dmax, fz_abs(ya - yb));
+	dmax = smax(dmax, fz_abs(xc - xb));
+	dmax = smax(dmax, fz_abs(yc - yb));
 	if(dmax < s->flatness || depth >= MAX_DEPTH) {
 		fz_stroke_lineto(ctx, s, xc, yc, 1);
 		return;
@@ -1162,9 +1162,9 @@ static void fz_dash_bezier(fz_context * ctx, struct sctx * s,
 
 	/* termination check */
 	dmax = fz_abs(xa - xb);
-	dmax = fz_max(dmax, fz_abs(ya - yb));
-	dmax = fz_max(dmax, fz_abs(xd - xc));
-	dmax = fz_max(dmax, fz_abs(yd - yc));
+	dmax = smax(dmax, fz_abs(ya - yb));
+	dmax = smax(dmax, fz_abs(xd - xc));
+	dmax = smax(dmax, fz_abs(yd - yc));
 	if(dmax < s->flatness || depth >= MAX_DEPTH) {
 		fz_dash_lineto(ctx, s, xd, yd, 1);
 		return;
@@ -1210,9 +1210,9 @@ static void fz_dash_quad(fz_context * ctx, struct sctx * s,
 
 	/* termination check */
 	dmax = fz_abs(xa - xb);
-	dmax = fz_max(dmax, fz_abs(ya - yb));
-	dmax = fz_max(dmax, fz_abs(xc - xb));
-	dmax = fz_max(dmax, fz_abs(yc - yb));
+	dmax = smax(dmax, fz_abs(ya - yb));
+	dmax = smax(dmax, fz_abs(xc - xb));
+	dmax = smax(dmax, fz_abs(yc - yb));
 	if(dmax < s->flatness || depth >= MAX_DEPTH) {
 		fz_dash_lineto(ctx, s, xc, yc, 1);
 		return;

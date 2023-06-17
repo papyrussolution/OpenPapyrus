@@ -5,7 +5,7 @@
 #pragma hdrstop
 //#include <wininet.h>
 
-static int is_bigendian_for_test()
+static bool is_bigendian_for_test()
 {
 	union {
 		uint32 i;
@@ -14,9 +14,9 @@ static int is_bigendian_for_test()
 	return bint.c[0] == 1;
 }
 
-/*static*/int SSystem::BigEndian()
+/*static*/bool SSystem::BigEndian()
 {
-    int yes = BIN((reinterpret_cast<const int *>("\0\x1\x2\x3\x4\x5\x6\x7")[0] & 255) != 0);
+    bool   yes = ((reinterpret_cast<const int *>("\0\x1\x2\x3\x4\x5\x6\x7")[0] & 255) != 0);
 	assert(is_bigendian_for_test() == yes); // @v10.5.6
 	return yes;
 }
@@ -103,24 +103,21 @@ SSystem::SSystem(int imm) : IsBigEndian(SSystem::BigEndian()), Flags(0),
 	CpuCount(0), PageSize(0)
 {
 	if(imm) {
-		GetCpuInfo();
-		// @v10.9.11 {
-		{
-			SYSTEM_INFO si;
-			::GetSystemInfo(&si);
-			CpuCount = si.dwNumberOfProcessors;
-			PageSize = si.dwPageSize;
-		}
-		// } @v10.9.11
-        // @v10.5.7 {
         {
+			// Этот блок должен исполнятся раньше всех, поскольку другие блоки могут использовать значение PerfFreq
 			LARGE_INTEGER perf_frequency;
 			if(::QueryPerformanceFrequency(&perf_frequency)) {
 				PerfFreq = perf_frequency.QuadPart;
 				Flags |= fPerfFreqIsOk;
 			}
         }
-        // } @v10.5.7
+		GetCpuInfo();
+		{
+			SYSTEM_INFO si;
+			::GetSystemInfo(&si);
+			CpuCount = si.dwNumberOfProcessors;
+			PageSize = si.dwPageSize;
+		}
 	}
 }
 
@@ -134,7 +131,7 @@ int64 SSystem::GetSystemTimestampMks() const
 		return 0;
 }
 
-int SSystem::CpuId(int feature, uint32 * pA, uint32 * pB, uint32 * pC, uint32 * pD) const
+/*static*/int SSystem::CpuId(int feature, uint32 * pA, uint32 * pB, uint32 * pC, uint32 * pD)
 {
 	int    abcd[4];
 	int    ret = 1;
@@ -146,7 +143,7 @@ int SSystem::CpuId(int feature, uint32 * pA, uint32 * pB, uint32 * pC, uint32 * 
 	return ret;
 }
 
-int FASTCALL SSystem::GetCpuInfo()
+int SSystem::GetCpuInfo()
 {
 	int    vendor_idx = 0;
 	int    family_idx = 0;
@@ -170,9 +167,168 @@ int FASTCALL SSystem::GetCpuInfo()
 	CpuCacheSizeL0 = DataCacheSize(0);
 	CpuCacheSizeL1 = DataCacheSize(1);
 	CpuCacheSizeL2 = DataCacheSize(2);
+	CpuBaseFreq = GetBaseCpuFreqHz(); // @v11.7.6
 	return 1;
 }
+//
+// Следующий блок кода заимствован из библиотеки intel-cpu-frequency-library (https://github.com/intel/intel-cpu-frequency-library.git) 
+// с необходимой адаптацией {
+// Copyright (c) 2022, Intel Corporation All rights reserved. 
+//
+#ifdef __GNUC__
 
+#include <sched.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <immintrin.h>
+
+static __inline int64 get_usec()
+{
+	struct timeval t_usecime;
+	gettimeofday(&t_usecime, NULL);
+	return ((int64)(t_usecime.tv_sec) * 1000000 + t_usecime.tv_usec);
+}
+
+static __inline int64 get_tsc(unsigned int* ppid)
+{
+	unsigned int lo, hi, pid;
+	__asm__ __volatile__("rdtscp"
+		: "=a" (lo), "=d" (hi), "=c" (pid)
+		: : "%ebx");
+	ASSIGN_PTR(ppid, pid);
+	return ((int64)hi << 32) | lo;
+}
+
+static  __attribute__((noinline)) void fixed_loop(int count)
+{
+    // executes the loop in 'count' + fixed_overhead number of cycles
+    // due to 1-cycle latency dependency or all non-ancient CPUs
+    __asm__ __volatile__(
+        "          lfence"
+        "\n        .p2align 3"
+        "\n    2:"
+        "\n        and %[cnt], %[v1]"
+        "\n        sub %[cnt], %[v2]"
+        "\n        jg  2b"
+        : : [cnt] "r" (count), [v1] "r" (-1), [v2] "r" (2) : "cc");
+}
+
+#elif _WIN32
+
+static FORCEINLINE int64 get_usec()
+{
+	static int64 perf_freq;
+	static BOOL init_freq = 0;
+	__int64  counter;
+	if(!init_freq)
+		init_freq = QueryPerformanceFrequency((LARGE_INTEGER*)&perf_freq);
+	QueryPerformanceCounter((LARGE_INTEGER*)&counter);
+	return counter * 1000000 / perf_freq; // convert to usec
+}
+
+static FORCEINLINE int64 get_tsc(uint * ppid)
+{
+    uint tsc_aux_;
+    return (int64)__rdtscp(ppid ? ppid : &tsc_aux_);
+}
+
+// implemented in a separate MASM file since VS doesn't support inline assembly 
+extern "C" void __fastcall fixed_loop(int); // src/osf/asmlib/fixed_loop.asm
+
+/*void __fastcall fixed_loop(int)
+{
+	// @stub (реализован в модуле fixedloop.asm, надо подобрать masm-параметры для сборки)
+}*/
+
+#else
+#error "Unknown platform"
+#endif
+
+static float get_curr_to_base_freq_ratio(int attempts)
+{
+	const int fixed_loop_clocks = 10000;
+	for(int i = 0; i < attempts; i++) {
+		uint pid1, pid2, pid3;
+		int64 rdtsc_1 = get_tsc(&pid1);
+		fixed_loop(fixed_loop_clocks); // single charge
+		int64 rdtsc_2 = get_tsc(&pid2);
+		fixed_loop(2 * fixed_loop_clocks); // double charge
+		int64 rdtsc_3 = get_tsc(&pid3);
+		int64 clocks1 = rdtsc_2 - rdtsc_1;
+		int64 clocks2 = rdtsc_3 - rdtsc_2;
+		int64 clocks = clocks2 - clocks1; // single charge minus common overhead
+		// clocks should be close to half of clocks2 (clocks > clocks2/2.125)
+		if(pid1 == pid2 && pid2 == pid3 && clocks < clocks1 && (clocks << 1) + (clocks >> 3) > clocks2) {
+			return ((float)fixed_loop_clocks) / clocks;
+		}
+	}
+	return 0.0f;
+}
+
+static float measure_base_freq_hz_once(int attempts)
+{
+	const int   test_clocks = 500000;
+	const int   test_margin = (test_clocks >> 7);
+	int64  usec = 0, usec1, usec2;
+	int64  clks = 0, clks1, clks2;
+	uint pid;
+	for(int i = 0; i < attempts; ++i) {
+		usec1 = get_usec();
+		clks1 = get_tsc(&pid);
+		fixed_loop(test_clocks);
+		clks1 = get_tsc(&pid) - clks1;
+		usec1 = get_usec() - usec1;
+		usec = get_usec();
+		clks = get_tsc(&pid);
+		fixed_loop(test_clocks << 1);
+		clks = get_tsc(&pid) - clks;
+		usec = get_usec() - usec;
+		usec2 = get_usec();
+		clks2 = get_tsc(&pid);
+		fixed_loop(test_clocks);
+		clks2 = get_tsc(&pid) - clks2;
+		usec2 = get_usec() - usec2;
+		clks -= clks1; /* removing const overhead */
+		usec -= usec1;
+		// checks to skip results affected by interrupts/state change/etc 
+		if(!(clks < 0 || clks1 < 0 || clks > clks1 || clks1 >(clks + test_margin) || 
+			clks2 > (clks1 + test_margin) || clks1 > (clks2 + test_margin) || 
+			usec < 0 || usec1 < 0 || usec > usec1 || usec1 >(usec + 1) || usec > (usec1 + 1))) {
+			return (1e6f * clks) / usec;
+		}
+	}
+	return 0.0f; /* error value */
+}
+
+static float round_freq(float freq, float rndtohz) { return rndtohz * (int)((freq + rndtohz / 2) / rndtohz); }
+
+/*static*/float SSystem::GetBaseCpuFreqHz()
+{
+	//static float s_base_freq_hz = -1.0f;
+	//if(s_base_freq_hz == -1.0f) {
+		constexpr int attempts = 1000;
+		//static float measure_base_freq_hz(int attempts)
+		//{
+			measure_base_freq_hz_once(1);
+			float s_base_freq_hz = round_freq(measure_base_freq_hz_once(attempts) + measure_base_freq_hz_once(attempts) + 
+				measure_base_freq_hz_once(attempts) + measure_base_freq_hz_once(attempts) / 4.0f, 100e6f/* rounded to 100 MHz */);
+			return s_base_freq_hz;
+		//}
+		//s_base_freq_hz = round_freq(measure_base_freq_hz(attempts), 100e6f/* rounded to 100 MHz */);
+	//}
+	//return s_base_freq_hz;
+}
+
+float SSystem::GetCurrCpuFreqHz() const
+{
+	const float ratio = get_curr_to_base_freq_ratio(10);
+	return round_freq(CpuBaseFreq * ratio, 100e6f/* rounded to 100 MHz */);
+}
+
+// } intel-cpu-frequency-library
+//
+//
+//
 #if 0 // @v10.9.11 @construction {
 #if !defined(PSNIP_ONCE__H)
 	//#include "../once/once.h"

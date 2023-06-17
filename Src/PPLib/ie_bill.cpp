@@ -3017,8 +3017,8 @@ int PPBillImporter::Import(int useTa)
 	PPID   mnf_lot_tag_id = 0;
 	PPOprKind op_rec;
 	GetOpData(OpID, &op_rec);
-	const int restrict_by_matrix = BIN(BillParam.Flags & PPBillImpExpParam::fRestrictByMatrix);
-	const int need_price_restrict = BIN(op_rec.ExtFlags & OPKFX_RESTRICTPRICE);
+	const bool restrict_by_matrix  = LOGIC(BillParam.Flags & PPBillImpExpParam::fRestrictByMatrix);
+	const bool need_price_restrict = LOGIC(op_rec.ExtFlags & OPKFX_RESTRICTPRICE);
 	const PPGoodsConfig & r_gcfg = GObj.GetConfig();
 	PPWaitStop();
 	{
@@ -6613,6 +6613,7 @@ int DocNalogRu_Generator::WriteParticipant(const char * pHeaderTag, PPID psnID, 
 		SString temp_buf;
 		SString inn;
 		SString kpp;
+		SString priv_reg_text; // @v11.7.6
 		PPLocationPacket * p_addr_pack = 0;
 		if(!LocationCore::IsEmptyAddressRec(psn_pack.RLoc))
 			p_addr_pack = &psn_pack.RLoc;
@@ -6627,8 +6628,17 @@ int DocNalogRu_Generator::WriteParticipant(const char * pHeaderTag, PPID psnID, 
 		{
 			SXml::WNode n_id(P_X, GetToken_Ansi(PPHSC_RU_IDPARTICIPANT));
 			if(inn.Len() == 12) { // ‘изическое лицо
+				// @v11.7.6 {
+				RegisterTbl::Rec reg_rec;
+				if(psn_pack.Regs.GetRegister(PPREGT_REGFREE, getcurdate_(), 0, &reg_rec) > 0)
+					PPObjRegister::Format(reg_rec, "@regsn #@regno", priv_reg_text);
+				// } @v11.7.6 
 				SXml::WNode n__(P_X, GetToken_Ansi(PPHSC_RU_PRIVEINFO));
 				n__.PutAttrib(GetToken_Ansi(PPHSC_RU_INNPHS), EncText(inn));
+				// @v11.7.6 {
+				if(priv_reg_text.NotEmpty())
+					n__.PutAttrib(GetToken_Ansi(PPHSC_RU_IND_REG), priv_reg_text); 
+				// } @v11.7.6 
 				WriteFIO(psn_pack.Rec.Name, 0, false);
 			}
 			else if(inn.Len() == 10) { // ёридическое лицо
@@ -6691,47 +6701,58 @@ int DocNalogRu_Generator::WriteFIO(const char * pName, long parentTokId, bool as
 int DocNalogRu_Generator::Underwriter(PPID psnID)
 {
 	int    ok = 1;
+	const  LDATETIME now_dtm = getcurdatetime_();
 	int    is_free = 0; // »ндивидуальный предприниматель
 	SString inn;
 	SString temp_buf;
-	PersonTbl::Rec psn_rec;
+	SString priv_reg_text; // @v11.7.6
+	// @v11.7.6 PersonTbl::Rec psn_rec;
+	PPPersonPacket psn_pack; // @v11.7.6
 	const  PPID main_org_id = GetMainOrgID();
-	if(main_org_id && PsnObj.Search(main_org_id, &psn_rec) > 0) {
+	if(main_org_id && PsnObj.GetPacket(main_org_id, &psn_pack, 0) > 0) {
 		RegisterTbl::Rec reg_rec;
-		if(PsnObj.GetRegister(main_org_id, PPREGT_TPID, getcurdate_(), &reg_rec) > 0) {
-			inn = reg_rec.Num;
-			if(inn.Len() == 12)
+		//if(PsnObj.GetRegister(main_org_id, PPREGT_TPID, now_dtm.d, &reg_rec) > 0) {
+		if(psn_pack.Regs.GetRegNumber(PPREGT_TPID, now_dtm.d, inn) > 0) {
+			//inn = reg_rec.Num;
+			if(inn.Len() == 12) {
 				is_free = 1;
+				// @v11.7.6 {
+				if(psn_pack.Regs.GetRegister(PPREGT_REGFREE, now_dtm.d, 0, &reg_rec) > 0)
+					PPObjRegister::Format(reg_rec, "@regsn #@regno", priv_reg_text);
+				// } @v11.7.6 
+			}
 		}
 		if(!psnID) {
 			// @v11.6.7 ѕрин€та во внимание фиксированна€ должность персоналии
 			PPObjStaffList stlobj;
 			PersonPostTbl::Rec post_rec;
 			stlobj.GetFixedPostOnDate(main_org_id, PPFIXSTF_DIRECTOR, ZERODATE, &post_rec);
-			if(post_rec.PersonID) {
-				psnID = post_rec.PersonID;
-			}
-			else {
-				psnID = is_free ? main_org_id : CConfig.MainOrgDirector_;
-			}
+			psnID = post_rec.PersonID ? post_rec.PersonID : (is_free ? main_org_id : CConfig.MainOrgDirector_);
 		}
-		if(psnID && PsnObj.Search(psnID, &psn_rec) > 0) {
-			SXml::WNode n_uw(P_X, GetToken_Ansi(PPHSC_RU_SIGNER));
-			n_uw.PutAttrib(GetToken_Ansi(PPHSC_RU_AREAOFAUTHORITY), "0");
-			n_uw.PutAttrib(GetToken_Ansi(PPHSC_RU_STATUS), "1");
-			temp_buf = GetToken_Ansi(PPHSC_RU_OFFICIAL_DUTIES);
-			n_uw.PutAttrib(GetToken_Ansi(PPHSC_RU_FOUNDATIONOFAUTHORITY), temp_buf);
-			if(is_free) {
-				SXml::WNode n_p(P_X, GetToken_Ansi(PPHSC_RU_PRIVE_S));
-				n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_INNPHS), inn);
-				WriteFIO(psn_rec.Name, 0, false);
-			}
-			else {
-				SXml::WNode n_p(P_X, GetToken_Ansi(PPHSC_RU_JUR_S));
-				n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_INNJUR), inn);
-				temp_buf = GetToken_Ansi(PPHSC_RU_DIRECTOR);
-				n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_STAFFPOSITION), temp_buf);
-				WriteFIO(psn_rec.Name, 0, false);
+		{
+			PersonTbl::Rec psn_rec;
+			if(psnID && PsnObj.Search(psnID, &psn_rec) > 0) {
+				SXml::WNode n_uw(P_X, GetToken_Ansi(PPHSC_RU_SIGNER));
+				n_uw.PutAttrib(GetToken_Ansi(PPHSC_RU_AREAOFAUTHORITY), "0");
+				n_uw.PutAttrib(GetToken_Ansi(PPHSC_RU_STATUS), "1");
+				temp_buf = GetToken_Ansi(PPHSC_RU_OFFICIAL_DUTIES);
+				n_uw.PutAttrib(GetToken_Ansi(PPHSC_RU_FOUNDATIONOFAUTHORITY), temp_buf);
+				if(is_free) {
+					SXml::WNode n_p(P_X, GetToken_Ansi(PPHSC_RU_PRIVE_S));
+					n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_INNPHS), inn);
+					// @v11.7.6 {
+					if(priv_reg_text.NotEmpty())
+						n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_IND_REG), priv_reg_text); 
+					// } @v11.7.6 
+					WriteFIO(psn_rec.Name, 0, false);
+				}
+				else {
+					SXml::WNode n_p(P_X, GetToken_Ansi(PPHSC_RU_JUR_S));
+					n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_INNJUR), inn);
+					temp_buf = GetToken_Ansi(PPHSC_RU_DIRECTOR);
+					n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_STAFFPOSITION), temp_buf);
+					WriteFIO(psn_rec.Name, 0, false);
+				}
 			}
 		}
 	}
@@ -6877,6 +6898,7 @@ int DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID personID,
 	int    region_code = 0;
 	int    j_status = 0; // 1 - росс юр, 2 - росс ип, 3 - иностранец (не “—), 4 - иностранец (таможенный союз)
 	SString inn, kpp;
+	SString priv_reg_text; // @v11.7.6 —видетельство часного предпринимател€ //
 	SString temp_buf;
 	RegisterTbl::Rec reg_rec;
 	PPPersonPacket psn_pack;
@@ -6901,6 +6923,11 @@ int DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID personID,
 	}
 	if(inn.Len() == 12) {
 		j_status = 2;
+		// @v11.7.6 {
+		RegisterTbl::Rec reg_rec;
+		if(psn_pack.Regs.GetRegister(PPREGT_REGFREE, actualDate, 0, &reg_rec) > 0)
+			PPObjRegister::Format(reg_rec, "@regsn #@regno", priv_reg_text);
+		// } @v11.7.6 
 	}
 	else {
 		j_status = 1;
@@ -6912,6 +6939,10 @@ int DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID personID,
 			if(j_status == 2) {
 				SXml::WNode n_p(P_X, GetToken_Ansi(PPHSC_RU_PRIVEINFO));
 				n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_INNPHS), inn);
+				// @v11.7.6 {
+				if(priv_reg_text.NotEmpty())
+					n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_IND_REG), priv_reg_text); 
+				// } @v11.7.6 
 				WriteFIO(psn_pack.Rec.Name, 0, false);
 			}
 			else {
@@ -7159,7 +7190,7 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillImpExpParam & rParam, const PPBil
 											//
 											total_amt_wovat += amt_wo_tax;
 											temp_buf.Z().Cat(amt_wo_tax, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0));
-											n_471.PutAttribSkipEmpty("—тоимЅезЌƒ—", temp_buf); // @optional
+											n_471.PutAttribSkipEmpty(_blk.GetToken(PPHSC_RU_WORKAMTWOVAT)/*"—тоимЅезЌƒ—"*/, temp_buf); // @optional
 											//
 											double amt = vect.GetValue(GTAXVF_BEFORETAXES);
 											total_amt += amt;
@@ -7172,10 +7203,10 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillImpExpParam & rParam, const PPBil
 											excise_sum = vect.GetValue(GTAXVF_EXCISE);
 
 											temp_buf.Z().Cat(price * qtty, MKSFMTD(0, 2, 0));
-											n_471.PutAttribSkipEmpty("—тоим”чЌƒ—", temp_buf); // @optional
+											n_471.PutAttribSkipEmpty(_blk.GetToken(PPHSC_RU_WORKAMT)/*"—тоим”чЌƒ—"*/, temp_buf); // @optional
 										}
-										n_471.PutAttribSkipEmpty(" орр—чƒебет", ""); // @optional
-										n_471.PutAttribSkipEmpty(" орр—ч редит", ""); // @optional
+										n_471.PutAttribSkipEmpty(_blk.GetToken(PPHSC_RU_CORRACCDT)/*" орр—чƒебет"*/, ""); // @optional
+										n_471.PutAttribSkipEmpty(_blk.GetToken(PPHSC_RU_CORRACCCR)/*" орр—ч редит"*/, ""); // @optional
 										{
 											//SXml::WNode n_4711(g.P_X, "ќписание"); // @optional
 											//SXml::WNode n_4712(g.P_X, "»нфѕолеќпис–абот"); // @optional
@@ -7184,7 +7215,7 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillImpExpParam & rParam, const PPBil
 								}
 							}
 							SXml::WNode n_48(_blk.G.P_X, _blk.GetToken(PPHSC_RU_EXTRA1));
-							n_48.PutAttribSkipEmpty("»д‘айл»нфѕол", ""); // @optional
+							n_48.PutAttribSkipEmpty(_blk.GetToken(PPHSC_RU_FILEOFINFFLDUUID)/*"»д‘айл»нфѕол"*/, ""); // @optional
 							{
 								//SString agt_code;
 								//LDATE  agt_date;

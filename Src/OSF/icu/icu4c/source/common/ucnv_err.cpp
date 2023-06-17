@@ -75,7 +75,7 @@
 
 /*Function Pointer STOPS at the ILLEGAL_SEQUENCE */
 U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_STOP(const void * context, UConverterFromUnicodeArgs * fromUArgs,
-    const UChar * codeUnits, int32_t length, UChar32 codePoint, UConverterCallbackReason reason, UErrorCode * err)
+    const char16_t * codeUnits, int32_t length, UChar32 codePoint, UConverterCallbackReason reason, UErrorCode * err)
 {
 	(void)context;
 	(void)fromUArgs;
@@ -105,7 +105,7 @@ U_CAPI void U_EXPORT2 UCNV_TO_U_CALLBACK_STOP(const void * context,
 }
 
 U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_SKIP(const void * context, UConverterFromUnicodeArgs * fromUArgs,
-    const UChar * codeUnits, int32_t length, UChar32 codePoint, UConverterCallbackReason reason, UErrorCode * err)
+    const char16_t * codeUnits, int32_t length, UChar32 codePoint, UConverterCallbackReason reason, UErrorCode * err)
 {
 	(void)fromUArgs;
 	(void)codeUnits;
@@ -126,7 +126,7 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_SKIP(const void * context, UConverter
 }
 
 U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_SUBSTITUTE(const void * context, UConverterFromUnicodeArgs * fromArgs,
-    const UChar * codeUnits, int32_t length, UChar32 codePoint, UConverterCallbackReason reason, UErrorCode * err)
+    const char16_t * codeUnits, int32_t length, UChar32 codePoint, UConverterCallbackReason reason, UErrorCode * err)
 {
 	(void)codeUnits;
 	(void)length;
@@ -152,12 +152,12 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_SUBSTITUTE(const void * context, UCon
  * we revert to substituting with subchar)
  */
 U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context, UConverterFromUnicodeArgs * fromArgs,
-    const UChar * codeUnits, int32_t length, UChar32 codePoint, UConverterCallbackReason reason, UErrorCode * err)
+    const char16_t * codeUnits, int32_t length, UChar32 codePoint, UConverterCallbackReason reason, UErrorCode * err)
 {
-	UChar valueString[VALUE_STRING_LENGTH];
+	char16_t valueString[VALUE_STRING_LENGTH];
 	int32_t valueStringLength = 0;
 	int32_t i = 0;
-	const UChar * myValueSource = NULL;
+	const char16_t * myValueSource = NULL;
 	UErrorCode err2 = U_ZERO_ERROR;
 	UConverterFromUCallback original = NULL;
 	const void * originalContext;
@@ -187,8 +187,8 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context, UConvert
 	}
 	if(context==NULL) {
 		while(i < length) {
-			valueString[valueStringLength++] = (UChar)UNICODE_PERCENT_SIGN_CODEPOINT; /* adding % */
-			valueString[valueStringLength++] = (UChar)UNICODE_U_CODEPOINT; /* adding U */
+			valueString[valueStringLength++] = (char16_t)UNICODE_PERCENT_SIGN_CODEPOINT; /* adding % */
+			valueString[valueStringLength++] = (char16_t)UNICODE_U_CODEPOINT; /* adding U */
 			valueStringLength += uprv_itou(valueString + valueStringLength,
 				VALUE_STRING_LENGTH - valueStringLength,
 				(uint16)codeUnits[i++],
@@ -201,8 +201,8 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context, UConvert
 		{
 			case UCNV_PRV_ESCAPE_JAVA:
 			    while(i < length) {
-				    valueString[valueStringLength++] = (UChar)UNICODE_RS_CODEPOINT; /* adding \ */
-				    valueString[valueStringLength++] = (UChar)UNICODE_U_LOW_CODEPOINT; /* adding u */
+				    valueString[valueStringLength++] = (char16_t)UNICODE_RS_CODEPOINT; /* adding \ */
+				    valueString[valueStringLength++] = (char16_t)UNICODE_U_LOW_CODEPOINT; /* adding u */
 				    valueStringLength += uprv_itou(valueString + valueStringLength,
 					    VALUE_STRING_LENGTH - valueStringLength,
 					    (uint16)codeUnits[i++],
@@ -212,10 +212,10 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context, UConvert
 			    break;
 
 			case UCNV_PRV_ESCAPE_C:
-			    valueString[valueStringLength++] = (UChar)UNICODE_RS_CODEPOINT; /* adding \ */
+			    valueString[valueStringLength++] = (char16_t)UNICODE_RS_CODEPOINT; /* adding \ */
 
 			    if(length==2) {
-				    valueString[valueStringLength++] = (UChar)UNICODE_U_CODEPOINT; /* adding U */
+				    valueString[valueStringLength++] = (char16_t)UNICODE_U_CODEPOINT; /* adding U */
 				    valueStringLength += uprv_itou(valueString + valueStringLength,
 					    VALUE_STRING_LENGTH - valueStringLength,
 					    codePoint,
@@ -223,7 +223,7 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context, UConvert
 					    8);
 			    }
 			    else {
-				    valueString[valueStringLength++] = (UChar)UNICODE_U_LOW_CODEPOINT; /* adding u */
+				    valueString[valueStringLength++] = (char16_t)UNICODE_U_LOW_CODEPOINT; /* adding u */
 				    valueStringLength += uprv_itou(valueString + valueStringLength,
 					    VALUE_STRING_LENGTH - valueStringLength,
 					    (uint16)codeUnits[0],
@@ -234,8 +234,8 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context, UConvert
 
 			case UCNV_PRV_ESCAPE_XML_DEC:
 
-			    valueString[valueStringLength++] = (UChar)UNICODE_AMP_CODEPOINT; /* adding & */
-			    valueString[valueStringLength++] = (UChar)UNICODE_HASH_CODEPOINT; /* adding # */
+			    valueString[valueStringLength++] = (char16_t)UNICODE_AMP_CODEPOINT; /* adding & */
+			    valueString[valueStringLength++] = (char16_t)UNICODE_HASH_CODEPOINT; /* adding # */
 			    if(length==2) {
 				    valueStringLength += uprv_itou(valueString + valueStringLength,
 					    VALUE_STRING_LENGTH - valueStringLength,
@@ -250,14 +250,14 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context, UConvert
 					    10,
 					    0);
 			    }
-			    valueString[valueStringLength++] = (UChar)UNICODE_SEMICOLON_CODEPOINT; /* adding ; */
+			    valueString[valueStringLength++] = (char16_t)UNICODE_SEMICOLON_CODEPOINT; /* adding ; */
 			    break;
 
 			case UCNV_PRV_ESCAPE_XML_HEX:
 
-			    valueString[valueStringLength++] = (UChar)UNICODE_AMP_CODEPOINT; /* adding & */
-			    valueString[valueStringLength++] = (UChar)UNICODE_HASH_CODEPOINT; /* adding # */
-			    valueString[valueStringLength++] = (UChar)UNICODE_X_LOW_CODEPOINT; /* adding x */
+			    valueString[valueStringLength++] = (char16_t)UNICODE_AMP_CODEPOINT; /* adding & */
+			    valueString[valueStringLength++] = (char16_t)UNICODE_HASH_CODEPOINT; /* adding # */
+			    valueString[valueStringLength++] = (char16_t)UNICODE_X_LOW_CODEPOINT; /* adding x */
 			    if(length==2) {
 				    valueStringLength += uprv_itou(valueString + valueStringLength,
 					    VALUE_STRING_LENGTH - valueStringLength,
@@ -272,13 +272,13 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context, UConvert
 					    16,
 					    0);
 			    }
-			    valueString[valueStringLength++] = (UChar)UNICODE_SEMICOLON_CODEPOINT; /* adding ; */
+			    valueString[valueStringLength++] = (char16_t)UNICODE_SEMICOLON_CODEPOINT; /* adding ; */
 			    break;
 
 			case UCNV_PRV_ESCAPE_UNICODE:
-			    valueString[valueStringLength++] = (UChar)UNICODE_LEFT_CURLY_CODEPOINT; /* adding { */
-			    valueString[valueStringLength++] = (UChar)UNICODE_U_CODEPOINT; /* adding U */
-			    valueString[valueStringLength++] = (UChar)UNICODE_PLUS_CODEPOINT; /* adding + */
+			    valueString[valueStringLength++] = (char16_t)UNICODE_LEFT_CURLY_CODEPOINT; /* adding { */
+			    valueString[valueStringLength++] = (char16_t)UNICODE_U_CODEPOINT; /* adding U */
+			    valueString[valueStringLength++] = (char16_t)UNICODE_PLUS_CODEPOINT; /* adding + */
 			    if(length == 2) {
 				    valueStringLength += uprv_itou(valueString + valueStringLength,
 					    VALUE_STRING_LENGTH - valueStringLength,
@@ -293,11 +293,11 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context, UConvert
 					    16,
 					    4);
 			    }
-			    valueString[valueStringLength++] = (UChar)UNICODE_RIGHT_CURLY_CODEPOINT; /* adding } */
+			    valueString[valueStringLength++] = (char16_t)UNICODE_RIGHT_CURLY_CODEPOINT; /* adding } */
 			    break;
 
 			case UCNV_PRV_ESCAPE_CSS2:
-			    valueString[valueStringLength++] = (UChar)UNICODE_RS_CODEPOINT; /* adding \ */
+			    valueString[valueStringLength++] = (char16_t)UNICODE_RS_CODEPOINT; /* adding \ */
 			    valueStringLength += uprv_itou(valueString + valueStringLength,
 				    VALUE_STRING_LENGTH - valueStringLength,
 				    codePoint,
@@ -305,14 +305,14 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context, UConvert
 				    0);
 			    /* Always add space character, because the next character might be whitespace,
 			       which would erroneously be considered the termination of the escape sequence. */
-			    valueString[valueStringLength++] = (UChar)UNICODE_SPACE_CODEPOINT;
+			    valueString[valueStringLength++] = (char16_t)UNICODE_SPACE_CODEPOINT;
 			    break;
 
 			default:
 			    while(i < length) {
-				    valueString[valueStringLength++] = (UChar)UNICODE_PERCENT_SIGN_CODEPOINT; /* adding
+				    valueString[valueStringLength++] = (char16_t)UNICODE_PERCENT_SIGN_CODEPOINT; /* adding
 				                                                                                 % */
-				    valueString[valueStringLength++] = (UChar)UNICODE_U_CODEPOINT; /* adding U */
+				    valueString[valueStringLength++] = (char16_t)UNICODE_U_CODEPOINT; /* adding U */
 				    valueStringLength += uprv_itou(valueString + valueStringLength,
 					    VALUE_STRING_LENGTH - valueStringLength,
 					    (uint16)codeUnits[i++],
@@ -390,7 +390,7 @@ U_CAPI void U_EXPORT2 UCNV_TO_U_CALLBACK_ESCAPE(const void * context,
     UConverterCallbackReason reason,
     UErrorCode * err)
 {
-	UChar uniValueString[VALUE_STRING_LENGTH];
+	char16_t uniValueString[VALUE_STRING_LENGTH];
 	int32_t valueStringLength = 0;
 	int32_t i = 0;
 
@@ -400,8 +400,8 @@ U_CAPI void U_EXPORT2 UCNV_TO_U_CALLBACK_ESCAPE(const void * context,
 
 	if(context==NULL) {
 		while(i < length) {
-			uniValueString[valueStringLength++] = (UChar)UNICODE_PERCENT_SIGN_CODEPOINT; /* adding % */
-			uniValueString[valueStringLength++] = (UChar)UNICODE_X_CODEPOINT; /* adding X */
+			uniValueString[valueStringLength++] = (char16_t)UNICODE_PERCENT_SIGN_CODEPOINT; /* adding % */
+			uniValueString[valueStringLength++] = (char16_t)UNICODE_X_CODEPOINT; /* adding X */
 			valueStringLength += uprv_itou(uniValueString + valueStringLength,
 				VALUE_STRING_LENGTH - valueStringLength,
 				(uint8)codeUnits[i++],
@@ -414,36 +414,36 @@ U_CAPI void U_EXPORT2 UCNV_TO_U_CALLBACK_ESCAPE(const void * context,
 		{
 			case UCNV_PRV_ESCAPE_XML_DEC:
 			    while(i < length) {
-				    uniValueString[valueStringLength++] = (UChar)UNICODE_AMP_CODEPOINT; /* adding & */
-				    uniValueString[valueStringLength++] = (UChar)UNICODE_HASH_CODEPOINT; /* adding # */
+				    uniValueString[valueStringLength++] = (char16_t)UNICODE_AMP_CODEPOINT; /* adding & */
+				    uniValueString[valueStringLength++] = (char16_t)UNICODE_HASH_CODEPOINT; /* adding # */
 				    valueStringLength += uprv_itou(uniValueString + valueStringLength,
 					    VALUE_STRING_LENGTH - valueStringLength,
 					    (uint8)codeUnits[i++],
 					    10,
 					    0);
-				    uniValueString[valueStringLength++] = (UChar)UNICODE_SEMICOLON_CODEPOINT; /* adding
+				    uniValueString[valueStringLength++] = (char16_t)UNICODE_SEMICOLON_CODEPOINT; /* adding
 				                                                                                 ; */
 			    }
 			    break;
 
 			case UCNV_PRV_ESCAPE_XML_HEX:
 			    while(i < length) {
-				    uniValueString[valueStringLength++] = (UChar)UNICODE_AMP_CODEPOINT; /* adding & */
-				    uniValueString[valueStringLength++] = (UChar)UNICODE_HASH_CODEPOINT; /* adding # */
-				    uniValueString[valueStringLength++] = (UChar)UNICODE_X_LOW_CODEPOINT; /* adding x */
+				    uniValueString[valueStringLength++] = (char16_t)UNICODE_AMP_CODEPOINT; /* adding & */
+				    uniValueString[valueStringLength++] = (char16_t)UNICODE_HASH_CODEPOINT; /* adding # */
+				    uniValueString[valueStringLength++] = (char16_t)UNICODE_X_LOW_CODEPOINT; /* adding x */
 				    valueStringLength += uprv_itou(uniValueString + valueStringLength,
 					    VALUE_STRING_LENGTH - valueStringLength,
 					    (uint8)codeUnits[i++],
 					    16,
 					    0);
-				    uniValueString[valueStringLength++] = (UChar)UNICODE_SEMICOLON_CODEPOINT; /* adding
+				    uniValueString[valueStringLength++] = (char16_t)UNICODE_SEMICOLON_CODEPOINT; /* adding
 				                                                                                 ; */
 			    }
 			    break;
 			case UCNV_PRV_ESCAPE_C:
 			    while(i < length) {
-				    uniValueString[valueStringLength++] = (UChar)UNICODE_RS_CODEPOINT; /* adding \ */
-				    uniValueString[valueStringLength++] = (UChar)UNICODE_X_LOW_CODEPOINT; /* adding x */
+				    uniValueString[valueStringLength++] = (char16_t)UNICODE_RS_CODEPOINT; /* adding \ */
+				    uniValueString[valueStringLength++] = (char16_t)UNICODE_X_LOW_CODEPOINT; /* adding x */
 				    valueStringLength += uprv_itou(uniValueString + valueStringLength,
 					    VALUE_STRING_LENGTH - valueStringLength,
 					    (uint8)codeUnits[i++],
@@ -453,10 +453,10 @@ U_CAPI void U_EXPORT2 UCNV_TO_U_CALLBACK_ESCAPE(const void * context,
 			    break;
 			default:
 			    while(i < length) {
-				    uniValueString[valueStringLength++] = (UChar)UNICODE_PERCENT_SIGN_CODEPOINT; /*
+				    uniValueString[valueStringLength++] = (char16_t)UNICODE_PERCENT_SIGN_CODEPOINT; /*
 				                                                                                    adding
 				                                                                                    % */
-				    uniValueString[valueStringLength++] = (UChar)UNICODE_X_CODEPOINT; /* adding X */
+				    uniValueString[valueStringLength++] = (char16_t)UNICODE_X_CODEPOINT; /* adding X */
 				    uprv_itou(uniValueString + valueStringLength,
 					VALUE_STRING_LENGTH - valueStringLength,
 					(uint8)codeUnits[i++],

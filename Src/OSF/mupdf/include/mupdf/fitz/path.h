@@ -165,7 +165,7 @@ fz_path * fz_clone_path(fz_context *ctx, fz_path *path);
 
 	path: path to return the current point of.
 */
-fz_point FASTCALL fz_currentpoint(fz_context *ctx, fz_path *path);
+SPoint2F FASTCALL fz_currentpoint(fz_context *ctx, fz_path *path);
 /**
 	Append a 'moveto' command to a path.
 	This 'opens' a path.

@@ -252,8 +252,9 @@ static const char * collReorderCodes[UCOL_REORDER_CODE_LIMIT - UCOL_REORDER_CODE
 	"space", "punct", "symbol", "currency", "digit"
 };
 
-int32_t getReorderCode(const char * s) {
-	for(int32_t i = 0; i < SIZEOFARRAYi(collReorderCodes); ++i) {
+int32_t getReorderCode(const char * s) 
+{
+	for(uint i = 0; i < SIZEOFARRAY(collReorderCodes); ++i) {
 		if(uprv_stricmp(s, collReorderCodes[i]) == 0) {
 			return UCOL_REORDER_CODE_FIRST + i;
 		}
@@ -305,7 +306,7 @@ void setAttributesFromKeywords(const Locale &loc, Collator &coll, UErrorCode & e
 	if(errorCode == U_STRING_NOT_TERMINATED_WARNING) {
 		errorCode = U_ZERO_ERROR;
 	}
-	for(int32_t i = 0; i < SIZEOFARRAYi(collAttributes); ++i) {
+	for(uint i = 0; i < SIZEOFARRAY(collAttributes); ++i) {
 		length = loc.getKeywordValue(collAttributes[i].name, value, SIZEOFARRAYi(value), errorCode);
 		if(U_FAILURE(errorCode) || errorCode == U_STRING_NOT_TERMINATED_WARNING) {
 			errorCode = U_ILLEGAL_ARGUMENT_ERROR;
@@ -314,8 +315,8 @@ void setAttributesFromKeywords(const Locale &loc, Collator &coll, UErrorCode & e
 		if(!length) {
 			continue;
 		}
-		for(int32_t j = 0;; ++j) {
-			if(j == SIZEOFARRAYi(collAttributeValues)) {
+		for(uint j = 0;; ++j) {
+			if(j == SIZEOFARRAY(collAttributeValues)) {
 				errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 				return;
 			}
@@ -463,8 +464,8 @@ Collator::EComparisonResult Collator::compare(const UnicodeString & source,
 }
 
 // implement deprecated, previously abstract method
-Collator::EComparisonResult Collator::compare(const UChar * source, int32_t sourceLength,
-    const UChar * target, int32_t targetLength)
+Collator::EComparisonResult Collator::compare(const char16_t * source, int32_t sourceLength,
+    const char16_t * target, int32_t targetLength)
 const
 {
 	UErrorCode ec = U_ZERO_ERROR;

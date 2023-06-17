@@ -177,8 +177,7 @@ const XMVECTORF32 g_8BitBias = { { { 0.5f / 255.f, 0.5f / 255.f, 0.5f / 255.f, 0
 // Copies an image row with optional clearing of alpha value to 1.0
 // (can be used in place as well) otherwise copies the image row unmodified.
 //-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-void DirectX::Internal::CopyScanline(void* pDestination,
+_Use_decl_annotations_ void DirectX::Internal::CopyScanline(void* pDestination,
     size_t outSize,
     const void* pSource,
     size_t inSize,
@@ -378,8 +377,7 @@ void DirectX::Internal::CopyScanline(void* pDestination,
 // Swizzles (RGB <-> BGR) an image row with optional clearing of alpha value to 1.0
 // (can be used in place as well) otherwise copies the image row unmodified.
 //-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-void DirectX::Internal::SwizzleScanline(void* pDestination,
+_Use_decl_annotations_ void DirectX::Internal::SwizzleScanline(void* pDestination,
     size_t outSize,
     const void* pSource,
     size_t inSize,
@@ -528,8 +526,7 @@ void DirectX::Internal::SwizzleScanline(void* pDestination,
 // Converts an image row with optional clearing of alpha value to 1.0
 // Returns true if supported, false if expansion case not supported
 //-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-bool DirectX::Internal::ExpandScanline(void* pDestination,
+_Use_decl_annotations_ bool DirectX::Internal::ExpandScanline(void* pDestination,
     size_t outSize,
     DXGI_FORMAT outFormat,
     const void* pSource,
@@ -1469,13 +1466,8 @@ _Use_decl_annotations_ bool DirectX::Internal::LoadScanline(XMVECTOR* pDestinati
 	} \
 	return false;
 
-_Use_decl_annotations_
-bool DirectX::Internal::StoreScanline(void* pDestination,
-    size_t size,
-    DXGI_FORMAT format,
-    const XMVECTOR* pSource,
-    size_t count,
-    float threshold) noexcept
+_Use_decl_annotations_ bool DirectX::Internal::StoreScanline(void* pDestination, size_t size,
+    DXGI_FORMAT format, const XMVECTOR* pSource, size_t count, float threshold) noexcept
 {
 	assert(pDestination != nullptr);
 	assert(IsValid(format) && !IsTypeless(format) && !IsCompressed(format) && !IsPlanar(format) && !IsPalettized(format));
@@ -2283,8 +2275,7 @@ bool DirectX::Internal::StoreScanline(void* pDestination,
 //-------------------------------------------------------------------------------------
 // Convert DXGI image to/from GUID_WICPixelFormat128bppRGBAFloat (no range conversions)
 //-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::Internal::ConvertToR32G32B32A32(const Image& srcImage, ScratchImage& image) noexcept
+_Use_decl_annotations_ HRESULT DirectX::Internal::ConvertToR32G32B32A32(const Image& srcImage, ScratchImage& image) noexcept
 {
 	if(!srcImage.pixels)
 		return E_POINTER;
@@ -2319,8 +2310,7 @@ HRESULT DirectX::Internal::ConvertToR32G32B32A32(const Image& srcImage, ScratchI
 	return S_OK;
 }
 
-_Use_decl_annotations_
-HRESULT DirectX::Internal::ConvertFromR32G32B32A32(const Image& srcImage, const Image& destImage) noexcept
+_Use_decl_annotations_ HRESULT DirectX::Internal::ConvertFromR32G32B32A32(const Image& srcImage, const Image& destImage) noexcept
 {
 	assert(srcImage.format == DXGI_FORMAT_R32G32B32A32_FLOAT);
 
@@ -2344,8 +2334,7 @@ HRESULT DirectX::Internal::ConvertFromR32G32B32A32(const Image& srcImage, const 
 	return S_OK;
 }
 
-_Use_decl_annotations_
-HRESULT DirectX::Internal::ConvertFromR32G32B32A32(const Image& srcImage,
+_Use_decl_annotations_ HRESULT DirectX::Internal::ConvertFromR32G32B32A32(const Image& srcImage,
     DXGI_FORMAT format,
     ScratchImage& image) noexcept
 {
@@ -2371,8 +2360,7 @@ HRESULT DirectX::Internal::ConvertFromR32G32B32A32(const Image& srcImage,
 	return S_OK;
 }
 
-_Use_decl_annotations_
-HRESULT DirectX::Internal::ConvertFromR32G32B32A32(const Image* srcImages,
+_Use_decl_annotations_ HRESULT DirectX::Internal::ConvertFromR32G32B32A32(const Image* srcImages,
     size_t nimages,
     const TexMetadata& metadata,
     DXGI_FORMAT format,
@@ -2438,8 +2426,7 @@ HRESULT DirectX::Internal::ConvertFromR32G32B32A32(const Image* srcImages,
 //-------------------------------------------------------------------------------------
 // Convert DXGI image to/from GUID_WICPixelFormat64bppRGBAHalf (no range conversions)
 //-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::Internal::ConvertToR16G16B16A16(const Image& srcImage, ScratchImage& image) noexcept
+_Use_decl_annotations_ HRESULT DirectX::Internal::ConvertToR16G16B16A16(const Image& srcImage, ScratchImage& image) noexcept
 {
 	if(!srcImage.pixels)
 		return E_POINTER;
@@ -2485,8 +2472,7 @@ HRESULT DirectX::Internal::ConvertToR16G16B16A16(const Image& srcImage, ScratchI
 	return S_OK;
 }
 
-_Use_decl_annotations_
-HRESULT DirectX::Internal::ConvertFromR16G16B16A16(const Image& srcImage, const Image& destImage) noexcept
+_Use_decl_annotations_ HRESULT DirectX::Internal::ConvertFromR16G16B16A16(const Image& srcImage, const Image& destImage) noexcept
 {
 	assert(srcImage.format == DXGI_FORMAT_R16G16B16A16_FLOAT);
 
@@ -2526,8 +2512,7 @@ HRESULT DirectX::Internal::ConvertFromR16G16B16A16(const Image& srcImage, const 
 // if C_linear >  0.0031308 -> C_srgb = ( 1 + a ) * pow( C_Linear, 1 / 2.4 ) - a
 //                             where a = 0.055
 //-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-bool DirectX::Internal::StoreScanlineLinear(void* pDestination,
+_Use_decl_annotations_ bool DirectX::Internal::StoreScanlineLinear(void* pDestination,
     size_t size,
     DXGI_FORMAT format,
     XMVECTOR* pSource,
@@ -2599,8 +2584,7 @@ bool DirectX::Internal::StoreScanlineLinear(void* pDestination,
 // if C_srgb >  0.04045 -> C_linear = pow( ( C_srgb + a ) / ( 1 + a ), 2.4 )
 //                         where a = 0.055
 //-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-bool DirectX::Internal::LoadScanlineLinear(XMVECTOR* pDestination,
+_Use_decl_annotations_ bool DirectX::Internal::LoadScanlineLinear(XMVECTOR* pDestination,
     size_t count,
     const void* pSource,
     size_t size,
@@ -2660,12 +2644,10 @@ bool DirectX::Internal::LoadScanlineLinear(XMVECTOR* pDestination,
 
 	return false;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Convert scanline based on source/target formats
-//-------------------------------------------------------------------------------------
-namespace
-{
+//
+namespace {
 struct ConvertData {
 	DXGI_FORMAT format;
 	size_t datasize;
@@ -2771,8 +2753,7 @@ int __cdecl ConvertCompare(const void* ptr1, const void * ptr2) noexcept
 }
 }
 
-_Use_decl_annotations_
-uint32_t DirectX::Internal::GetConvertFlags(DXGI_FORMAT format) noexcept
+_Use_decl_annotations_ uint32_t DirectX::Internal::GetConvertFlags(DXGI_FORMAT format) noexcept
 {
 #ifdef _DEBUG
 	// Ensure conversion table is in ascending order
@@ -2790,8 +2771,7 @@ uint32_t DirectX::Internal::GetConvertFlags(DXGI_FORMAT format) noexcept
 	return (in) ? in->flags : 0;
 }
 
-_Use_decl_annotations_
-void DirectX::Internal::ConvertScanline(XMVECTOR* pBuffer,
+_Use_decl_annotations_ void DirectX::Internal::ConvertScanline(XMVECTOR* pBuffer,
     size_t count,
     DXGI_FORMAT outFormat,
     DXGI_FORMAT inFormat,
@@ -3450,12 +3430,10 @@ void DirectX::Internal::ConvertScanline(XMVECTOR* pBuffer,
 		}
 	}
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Dithering
-//-------------------------------------------------------------------------------------
-namespace
-{
+//
+namespace {
 // 4X4X4 ordered dithering matrix
 const float g_Dither[] =
 {
@@ -3642,8 +3620,7 @@ const XMVECTORF32 g_ErrorWeight7 = { { { 7.f / 16.f, 7.f / 16.f, 7.f / 16.f, 7.f
 #pragma warning(push)
 #pragma warning( disable : 4127 )
 
-_Use_decl_annotations_
-bool DirectX::Internal::StoreScanlineDither(void* pDestination,
+_Use_decl_annotations_ bool DirectX::Internal::StoreScanlineDither(void* pDestination,
     size_t size,
     DXGI_FORMAT format,
     XMVECTOR* pSource,
@@ -3679,9 +3656,8 @@ bool DirectX::Internal::StoreScanlineDither(void* pDestination,
 			XMVECTOR v = XMVectorAdd(*ptr, *err++);
 			*ptr++ = v;
 		}
-
 		// Reset errors for next scanline
-		memset(pDiffusionErrors, 0, sizeof(XMVECTOR)*(count + 2));
+		memzero(pDiffusionErrors, sizeof(XMVECTOR)*(count + 2));
 	}
 	else {
 		// If pDiffusionErrors == 0, then this function performs ordered dithering
@@ -4130,11 +4106,10 @@ bool DirectX::Internal::StoreScanlineDither(void* pDestination,
 #undef STORE_SCANLINE2
 #undef STORE_SCANLINE1
 
-namespace
-{
-//-------------------------------------------------------------------------------------
+namespace {
+//
 // Selection logic for using WIC vs. our own routines
-//-------------------------------------------------------------------------------------
+//
 inline bool UseWICConversion(_In_ TEX_FILTER_FLAGS filter,
     _In_ DXGI_FORMAT sformat,
     _In_ DXGI_FORMAT tformat,
@@ -4149,9 +4124,8 @@ inline bool UseWICConversion(_In_ TEX_FILTER_FLAGS filter,
 	UNREFERENCED_PARAMETER(targetGUID);
 	return false;
     #else
-	memset(&pfGUID, 0, sizeof(GUID));
-	memset(&targetGUID, 0, sizeof(GUID));
-
+	memzero(&pfGUID, sizeof(GUID));
+	memzero(&targetGUID, sizeof(GUID));
 	if(filter & TEX_FILTER_FORCE_NON_WIC) {
 		// Explicit flag indicates use of non-WIC code paths
 		return false;
@@ -4361,24 +4335,18 @@ HRESULT ConvertCustom(_In_ const Image& srcImage,
 	uint8_t * pDest = destImage.pixels;
 	if(!pSrc || !pDest)
 		return E_POINTER;
-
 	size_t width = srcImage.width;
-
 	if(filter & TEX_FILTER_DITHER_DIFFUSION) {
 		// Error diffusion dithering (aka Floyd-Steinberg dithering)
 		auto scanline = make_AlignedArrayXMVECTOR(uint64_t(width) * 2 + 2);
 		if(!scanline)
 			return E_OUTOFMEMORY;
-
 		XMVECTOR* pDiffusionErrors = scanline.get() + width;
-		memset(pDiffusionErrors, 0, sizeof(XMVECTOR)*(width + 2));
-
+		memzero(pDiffusionErrors, sizeof(XMVECTOR)*(width + 2));
 		for(size_t h = 0; h < srcImage.height; ++h) {
 			if(!LoadScanline(scanline.get(), width, pSrc, srcImage.rowPitch, srcImage.format))
 				return E_FAIL;
-
 			ConvertScanline(scanline.get(), width, destImage.format, srcImage.format, filter);
-
 			if(!StoreScanlineDither(pDest, destImage.rowPitch, destImage.format, scanline.get(), width, threshold, h, z, pDiffusionErrors))
 				return E_FAIL;
 
@@ -4596,8 +4564,7 @@ HRESULT ConvertToSinglePlane_(_In_ const Image& srcImage, _In_ const Image& dest
 //-------------------------------------------------------------------------------------
 // Convert image
 //-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::Convert(const Image& srcImage,
+_Use_decl_annotations_ HRESULT DirectX::Convert(const Image& srcImage,
     DXGI_FORMAT format,
     TEX_FILTER_FLAGS filter,
     float threshold,
@@ -4647,8 +4614,7 @@ HRESULT DirectX::Convert(const Image& srcImage,
 //-------------------------------------------------------------------------------------
 // Convert image (complex)
 //-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::Convert(const Image* srcImages,
+_Use_decl_annotations_ HRESULT DirectX::Convert(const Image* srcImages,
     size_t nimages,
     const TexMetadata& metadata,
     DXGI_FORMAT format,
@@ -4850,22 +4816,18 @@ _Use_decl_annotations_ HRESULT DirectX::ConvertToSinglePlane(const Image* srcIma
 
 		if((src.width > UINT32_MAX) || (src.height > UINT32_MAX))
 			return E_FAIL;
-
 		const Image& dst = dest[index];
 		assert(dst.format == format);
-
 		if(src.width != dst.width || src.height != dst.height) {
 			result.Release();
 			return E_FAIL;
 		}
-
 		hr = ConvertToSinglePlane_(src, dst);
 		if(FAILED(hr)) {
 			result.Release();
 			return hr;
 		}
 	}
-
 	return S_OK;
 }
 //

@@ -49,39 +49,39 @@ typedef int (*xmlListWalker)(const void * data, const void * user);
 //
 // Creation/Deletion 
 //
-XMLPUBFUN xmlList * XMLCALL xmlListCreate(xmlListDeallocator deallocator, xmlListDataCompare compare);
-XMLPUBFUN void /*XMLCALL*/FASTCALL xmlListDelete(xmlList * l);
+XMLPUBFUN xmlList * xmlListCreate(xmlListDeallocator deallocator, xmlListDataCompare compare);
+XMLPUBFUN void FASTCALL xmlListDelete(xmlList * l);
 //
 // Basic Operators 
 //
-XMLPUBFUN void * XMLCALL xmlListSearch(xmlList * pList, void * data);
-XMLPUBFUN void * XMLCALL xmlListReverseSearch(xmlList * l, void * data);
-XMLPUBFUN int /*XMLCALL*/FASTCALL xmlListInsert(xmlList * pList, void * data);
-XMLPUBFUN int XMLCALL xmlListAppend(xmlList * l, void * data);
-XMLPUBFUN int XMLCALL xmlListRemoveFirst(xmlList * l, void * data);
-XMLPUBFUN int XMLCALL xmlListRemoveLast(xmlList * l, void * data);
-XMLPUBFUN int XMLCALL xmlListRemoveAll(xmlList * l, void * data);
-XMLPUBFUN void /*XMLCALL*/FASTCALL xmlListClear(xmlList * l);
-XMLPUBFUN int /*XMLCALL*/FASTCALL xmlListEmpty(const xmlList * l);
-XMLPUBFUN xmlLink * /*XMLCALL*/FASTCALL xmlListFront(xmlList * l);
-XMLPUBFUN xmlLink * XMLCALL xmlListEnd(xmlList * l);
-XMLPUBFUN int XMLCALL xmlListSize(xmlList * l);
-XMLPUBFUN void /*XMLCALL*/FASTCALL xmlListPopFront(xmlList * l);
-XMLPUBFUN void XMLCALL xmlListPopBack(xmlList * l);
-XMLPUBFUN int /*XMLCALL*/FASTCALL xmlListPushFront(xmlList * l, void * data);
-XMLPUBFUN int XMLCALL xmlListPushBack(xmlList * l, void * data);
+XMLPUBFUN void * xmlListSearch(xmlList * pList, void * data);
+XMLPUBFUN void * xmlListReverseSearch(xmlList * l, void * data);
+XMLPUBFUN int FASTCALL xmlListInsert(xmlList * pList, void * data);
+XMLPUBFUN int xmlListAppend(xmlList * l, void * data);
+XMLPUBFUN int xmlListRemoveFirst(xmlList * l, void * data);
+XMLPUBFUN int xmlListRemoveLast(xmlList * l, void * data);
+XMLPUBFUN int xmlListRemoveAll(xmlList * l, void * data);
+XMLPUBFUN void FASTCALL xmlListClear(xmlList * l);
+XMLPUBFUN int FASTCALL xmlListEmpty(const xmlList * l);
+XMLPUBFUN xmlLink * FASTCALL xmlListFront(xmlList * l);
+XMLPUBFUN xmlLink * xmlListEnd(xmlList * l);
+XMLPUBFUN int xmlListSize(xmlList * l);
+XMLPUBFUN void FASTCALL xmlListPopFront(xmlList * l);
+XMLPUBFUN void xmlListPopBack(xmlList * l);
+XMLPUBFUN int FASTCALL xmlListPushFront(xmlList * l, void * data);
+XMLPUBFUN int xmlListPushBack(xmlList * l, void * data);
 //
 // Advanced Operators 
 //
-XMLPUBFUN void XMLCALL xmlListReverse(xmlList * l);
-XMLPUBFUN void XMLCALL xmlListSort(xmlList * l);
-XMLPUBFUN void XMLCALL xmlListWalk(xmlList * l, xmlListWalker walker, const void * user);
-XMLPUBFUN void XMLCALL xmlListReverseWalk(xmlList * l, xmlListWalker walker, const void * user);
-XMLPUBFUN void XMLCALL xmlListMerge(xmlList * l1, xmlList * l2);
-XMLPUBFUN xmlList * XMLCALL xmlListDup(const xmlList * old);
-XMLPUBFUN int XMLCALL xmlListCopy(xmlList * cur, const xmlList * old);
+XMLPUBFUN void xmlListReverse(xmlList * l);
+XMLPUBFUN void xmlListSort(xmlList * l);
+XMLPUBFUN void xmlListWalk(xmlList * l, xmlListWalker walker, const void * user);
+XMLPUBFUN void xmlListReverseWalk(xmlList * l, xmlListWalker walker, const void * user);
+XMLPUBFUN void xmlListMerge(xmlList * l1, xmlList * l2);
+XMLPUBFUN xmlList * xmlListDup(const xmlList * old);
+XMLPUBFUN int xmlListCopy(xmlList * cur, const xmlList * old);
 // Link operators 
-XMLPUBFUN void * /*XMLCALL*/FASTCALL xmlLinkGetData(xmlLink * lk);
+XMLPUBFUN void * FASTCALL xmlLinkGetData(xmlLink * lk);
 /* xmlListUnique() */
 /* xmlListSwap */
 #ifdef __cplusplus

@@ -106,10 +106,10 @@ static void fz_paint_triangle(fz_pixmap * pix, float * v[3], int n, fz_irect bbo
 	/* Magic! Ensure that mid/top/bot are all different */
 	mid = 3^top^bot;
 	assert(top != bot && top != mid && mid != bot);
-	minx = fz_maxi(bbox.x0, pix->x);
-	maxx = fz_mini(bbox.x1, pix->x + pix->w);
-	y = ceilf(fz_max(bbox.y0, v[top][1]));
-	y1 = ceilf(fz_min(bbox.y1, v[mid][1]));
+	minx = smax(bbox.x0, pix->x);
+	maxx = smin(bbox.x1, pix->x + pix->w);
+	y = ceilf(smax(static_cast<float>(bbox.y0), v[top][1]));
+	y1 = ceilf(smin(static_cast<float>(bbox.y1), v[mid][1]));
 	n -= 2;
 	prepare_edge(v[top], v[bot], &e0, y, n);
 	if(y < y1) {
@@ -123,10 +123,9 @@ static void fz_paint_triangle(fz_pixmap * pix, float * v[3], int n, fz_irect bbo
 		while(y < y1);
 	}
 
-	y1 = ceilf(fz_min(bbox.y1, v[bot][1]));
+	y1 = ceilf(smin(static_cast<float>(bbox.y1), v[bot][1]));
 	if(y < y1) {
 		prepare_edge(v[mid], v[bot], &e1, y, n);
-
 		do {
 			paint_scan(pix, y, (int)e0.x, (int)e1.x, minx, maxx, &e0.v[0], &e1.v[0], n);
 			y++;

@@ -23,19 +23,19 @@
 
 #define U_ICUDATA_RBNF U_ICUDATA_NAME U_TREE_SEPARATOR_STRING "rbnf"
 
-static const UChar gPercentPercent[] =
+static const char16_t gPercentPercent[] =
 {
 	0x25, 0x25, 0
 }; /* "%%" */
 
 // All urbnf objects are created through openRules, so we init all of the
 // Unicode string constants required by rbnf, nfrs, or nfr here.
-static const UChar gLenientParse[] =
+static const char16_t gLenientParse[] =
 {
 	0x25, 0x25, 0x6C, 0x65, 0x6E, 0x69, 0x65, 0x6E, 0x74, 0x2D, 0x70, 0x61, 0x72, 0x73, 0x65, 0x3A, 0
 }; /* "%%lenient-parse:" */
-static const UChar gSemiColon = 0x003B;
-static const UChar gSemiPercent[] =
+static const char16_t gSemiColon = 0x003B;
+static const char16_t gSemiPercent[] =
 {
 	0x3B, 0x25, 0
 }; /* ";%" */
@@ -84,13 +84,13 @@ public:
 	}
 
 	virtual int32_t getNumberOfRuleSets() const = 0;
-	virtual const UChar * getRuleSetName(int32_t index) const = 0;
+	virtual const char16_t * getRuleSetName(int32_t index) const = 0;
 	virtual int32_t getNumberOfDisplayLocales() const = 0;
-	virtual const UChar * getLocaleName(int32_t index) const = 0;
-	virtual const UChar * getDisplayName(int32_t localeIndex, int32_t ruleIndex) const = 0;
+	virtual const char16_t * getLocaleName(int32_t index) const = 0;
+	virtual const char16_t * getDisplayName(int32_t localeIndex, int32_t ruleIndex) const = 0;
 
-	virtual int32_t indexForLocale(const UChar * locale) const;
-	virtual int32_t indexForRuleSet(const UChar * ruleset) const;
+	virtual int32_t indexForLocale(const char16_t * locale) const;
+	virtual int32_t indexForRuleSet(const char16_t * ruleset) const;
 
 //    virtual UClassID getDynamicClassID() const = 0;
 //    static UClassID getStaticClassID();
@@ -102,7 +102,7 @@ LocalizationInfo::~LocalizationInfo() {
 //UOBJECT_DEFINE_ABSTRACT_RTTI_IMPLEMENTATION(LocalizationInfo)
 
 // if both strings are NULL, this returns TRUE
-static bool streq(const UChar * lhs, const UChar * rhs) 
+static bool streq(const char16_t * lhs, const char16_t * rhs) 
 {
 	if(rhs == lhs) {
 		return TRUE;
@@ -129,7 +129,7 @@ bool LocalizationInfo::operator == (const LocalizationInfo* rhs) const
 			int32_t dlc = getNumberOfDisplayLocales();
 			if(dlc == rhs->getNumberOfDisplayLocales()) {
 				for(int i = 0; i < dlc; ++i) {
-					const UChar * locale = getLocaleName(i);
+					const char16_t * locale = getLocaleName(i);
 					int32_t ix = rhs->indexForLocale(locale);
 					// if no locale, ix is -1, getLocaleName returns null, so streq returns false
 					if(!streq(locale, rhs->getLocaleName(ix))) {
@@ -148,7 +148,7 @@ bool LocalizationInfo::operator == (const LocalizationInfo* rhs) const
 	return false;
 }
 
-int32_t LocalizationInfo::indexForLocale(const UChar * locale) const {
+int32_t LocalizationInfo::indexForLocale(const char16_t * locale) const {
 	for(int i = 0; i < getNumberOfDisplayLocales(); ++i) {
 		if(streq(locale, getLocaleName(i))) {
 			return i;
@@ -157,7 +157,7 @@ int32_t LocalizationInfo::indexForLocale(const UChar * locale) const {
 	return -1;
 }
 
-int32_t LocalizationInfo::indexForRuleSet(const UChar * ruleset) const {
+int32_t LocalizationInfo::indexForRuleSet(const char16_t * ruleset) const {
 	if(ruleset) {
 		for(int i = 0; i < getNumberOfRuleSets(); ++i) {
 			if(streq(ruleset, getRuleSetName(i))) {
@@ -237,14 +237,14 @@ public:
 class LocDataParser;
 
 class StringLocalizationInfo : public LocalizationInfo {
-	UChar * info;
-	UChar *** data;
+	char16_t * info;
+	char16_t *** data;
 	int32_t numRuleSets;
 	int32_t numLocales;
 
 	friend class LocDataParser;
 
-	StringLocalizationInfo(UChar * i, UChar *** d, int32_t numRS, int32_t numLocs)
+	StringLocalizationInfo(char16_t * i, char16_t *** d, int32_t numRS, int32_t numLocs)
 		: info(i), data(d), numRuleSets(numRS), numLocales(numLocs)
 	{
 	}
@@ -257,13 +257,13 @@ public:
 		return numRuleSets;
 	}
 
-	virtual const UChar * getRuleSetName(int32_t index) const override;
+	virtual const char16_t * getRuleSetName(int32_t index) const override;
 	virtual int32_t getNumberOfDisplayLocales(void) const override {
 		return numLocales;
 	}
 
-	virtual const UChar * getLocaleName(int32_t index) const override;
-	virtual const UChar * getDisplayName(int32_t localeIndex, int32_t ruleIndex) const override;
+	virtual const char16_t * getLocaleName(int32_t index) const override;
+	virtual const char16_t * getDisplayName(int32_t localeIndex, int32_t ruleIndex) const override;
 
 //    virtual UClassID getDynamicClassID() const;
 //    static UClassID getStaticClassID();
@@ -285,10 +285,10 @@ enum {
  * Utility for parsing a localization string and returning a StringLocalizationInfo*.
  */
 class LocDataParser {
-	UChar * data;
-	const UChar * e;
-	UChar * p;
-	UChar ch;
+	char16_t * data;
+	const char16_t * e;
+	char16_t * p;
+	char16_t ch;
 	UParseError& pe;
 	UErrorCode & ec;
 
@@ -304,7 +304,7 @@ public:
 	 * On a successful parse, return a StringLocalizationInfo*, otherwise delete locData, set perror and status,
 	 * and return NULL.  The StringLocalizationInfo will adopt locData if it is created.
 	 */
-	StringLocalizationInfo* parse(UChar * data, int32_t len);
+	StringLocalizationInfo* parse(char16_t * data, int32_t len);
 
 private:
 	inline void inc() 
@@ -312,7 +312,7 @@ private:
 		++p;
 		ch = 0xffff;
 	}
-	inline bool checkInc(UChar c) 
+	inline bool checkInc(char16_t c) 
 	{
 		if(p < e && (ch == c || *p == c)) {
 			inc();
@@ -320,14 +320,14 @@ private:
 		}
 		return FALSE;
 	}
-	inline bool check(UChar c) const { return p < e && (ch == c || *p == c); }
+	inline bool check(char16_t c) const { return p < e && (ch == c || *p == c); }
 	inline void skipWhitespace() 
 	{
 		while(p < e && PatternProps::isWhiteSpace(ch != 0xffff ? ch : *p)) {
 			inc();
 		}
 	}
-	inline bool inList(UChar c, const UChar * list) const 
+	inline bool inList(char16_t c, const char16_t * list) const 
 	{
 		if(*list == SPACE && PatternProps::isWhiteSpace(c)) {
 			return TRUE;
@@ -339,8 +339,8 @@ private:
 	}
 	void parseError(const char * msg);
 	StringLocalizationInfo* doParse();
-	UChar ** nextArray(int32_t& requiredLength);
-	UChar * nextString();
+	char16_t ** nextArray(int32_t& requiredLength);
+	char16_t * nextString();
 };
 
 #ifdef RBNF_DEBUG
@@ -351,16 +351,16 @@ private:
 	#define EXPLANATION_ARG
 #endif
 
-static const UChar DQUOTE_STOPLIST[] = { QUOTE, 0 };
-static const UChar SQUOTE_STOPLIST[] = { TICK, 0 };
-static const UChar NOQUOTE_STOPLIST[] = { SPACE, COMMA, CLOSE_ANGLE, OPEN_ANGLE, TICK, QUOTE, 0 };
+static const char16_t DQUOTE_STOPLIST[] = { QUOTE, 0 };
+static const char16_t SQUOTE_STOPLIST[] = { TICK, 0 };
+static const char16_t NOQUOTE_STOPLIST[] = { SPACE, COMMA, CLOSE_ANGLE, OPEN_ANGLE, TICK, QUOTE, 0 };
 
 static void DeleteFn(void * p) 
 {
 	uprv_free(p);
 }
 
-StringLocalizationInfo* LocDataParser::parse(UChar * _data, int32_t len) 
+StringLocalizationInfo* LocDataParser::parse(char16_t * _data, int32_t len) 
 {
 	if(U_FAILURE(ec)) {
 		if(_data) uprv_free(_data);
@@ -401,7 +401,7 @@ StringLocalizationInfo* LocDataParser::doParse() {
 		int32_t requiredLength = -1;
 		while(mightHaveNext) {
 			mightHaveNext = FALSE;
-			UChar ** elem = nextArray(requiredLength);
+			char16_t ** elem = nextArray(requiredLength);
 			skipWhitespace();
 			bool haveComma = check(COMMA);
 			if(elem) {
@@ -434,7 +434,7 @@ StringLocalizationInfo* LocDataParser::doParse() {
 		array.add(NULL, ec);
 		if(U_SUCCESS(ec)) {
 			int32_t numLocs = array.length() - 2; // subtract first, NULL
-			UChar *** result = (UChar ***)array.release();
+			char16_t *** result = (char16_t ***)array.release();
 
 			return new StringLocalizationInfo(data, result, requiredLength-2, numLocs); // subtract first,
 			                                                                            // NULL
@@ -444,7 +444,7 @@ StringLocalizationInfo* LocDataParser::doParse() {
 	RETURN_ERROR("Unknown error");
 }
 
-UChar ** LocDataParser::nextArray(int32_t& requiredLength) {
+char16_t ** LocDataParser::nextArray(int32_t& requiredLength) {
 	if(U_FAILURE(ec)) {
 		return NULL;
 	}
@@ -458,7 +458,7 @@ UChar ** LocDataParser::nextArray(int32_t& requiredLength) {
 	bool mightHaveNext = TRUE;
 	while(mightHaveNext) {
 		mightHaveNext = FALSE;
-		UChar * elem = nextString();
+		char16_t * elem = nextString();
 		skipWhitespace();
 		bool haveComma = check(COMMA);
 		if(elem) {
@@ -490,18 +490,18 @@ UChar ** LocDataParser::nextArray(int32_t& requiredLength) {
 			ec = U_ILLEGAL_ARGUMENT_ERROR;
 			RETURN_ERROR("Array not of required length");
 		}
-		return (UChar **)array.release();
+		return (char16_t **)array.release();
 	}
 	RETURN_ERROR("Unknown Error");
 }
 
-UChar * LocDataParser::nextString() 
+char16_t * LocDataParser::nextString() 
 {
-	UChar * result = NULL;
+	char16_t * result = NULL;
 	skipWhitespace();
 	if(p < e) {
-		const UChar * terminators;
-		UChar c = *p;
+		const char16_t * terminators;
+		char16_t c = *p;
 		bool haveQuote = c == QUOTE || c == TICK;
 		if(haveQuote) {
 			inc();
@@ -510,13 +510,13 @@ UChar * LocDataParser::nextString()
 		else {
 			terminators = NOQUOTE_STOPLIST;
 		}
-		UChar * start = p;
+		char16_t * start = p;
 		while(p < e && !inList(*p, terminators)) ++p;
 		if(p == e) {
 			RETURN_ERROR("Unexpected end of data");
 		}
 
-		UChar x = *p;
+		char16_t x = *p;
 		if(p > start) {
 			ch = x;
 			*p = 0x0; // terminate by writing to data
@@ -546,17 +546,17 @@ void LocDataParser::parseError(const char * EXPLANATION_ARG)
 		return;
 	}
 
-	const UChar * start = p - U_PARSE_CONTEXT_LEN - 1;
+	const char16_t * start = p - U_PARSE_CONTEXT_LEN - 1;
 	if(start < data) {
 		start = data;
 	}
-	for(UChar * x = p; --x >= start;) {
+	for(char16_t * x = p; --x >= start;) {
 		if(!*x) {
 			start = x+1;
 			break;
 		}
 	}
-	const UChar * limit = p + U_PARSE_CONTEXT_LEN - 1;
+	const char16_t * limit = p + U_PARSE_CONTEXT_LEN - 1;
 	if(limit > e) {
 		limit = e;
 	}
@@ -571,7 +571,7 @@ void LocDataParser::parseError(const char * EXPLANATION_ARG)
 
 	UnicodeString msg;
 	msg.append(start, p - start);
-	msg.append((UChar)0x002f); /* SOLIDUS/SLASH */
+	msg.append((char16_t)0x002f); /* SOLIDUS/SLASH */
 	msg.append(p, limit-p);
 	msg.append(UNICODE_STRING_SIMPLE("'"));
 
@@ -609,7 +609,7 @@ StringLocalizationInfo* StringLocalizationInfo::create(const UnicodeString & inf
 		return NULL; // no error;
 	}
 
-	UChar * p = (UChar *)uprv_malloc(len * sizeof(UChar));
+	char16_t * p = (char16_t *)uprv_malloc(len * sizeof(char16_t));
 	if(!p) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
@@ -624,7 +624,7 @@ StringLocalizationInfo* StringLocalizationInfo::create(const UnicodeString & inf
 }
 
 StringLocalizationInfo::~StringLocalizationInfo() {
-	for(UChar *** p = (UChar ***)data; *p; ++p) {
+	for(char16_t *** p = (char16_t ***)data; *p; ++p) {
 		// remaining data is simply pointer into our unicode string data.
 		if(*p) uprv_free(*p);
 	}
@@ -632,21 +632,21 @@ StringLocalizationInfo::~StringLocalizationInfo() {
 	if(info) uprv_free(info);
 }
 
-const UChar * StringLocalizationInfo::getRuleSetName(int32_t index) const {
+const char16_t * StringLocalizationInfo::getRuleSetName(int32_t index) const {
 	if(index >= 0 && index < getNumberOfRuleSets()) {
 		return data[0][index];
 	}
 	return NULL;
 }
 
-const UChar * StringLocalizationInfo::getLocaleName(int32_t index) const {
+const char16_t * StringLocalizationInfo::getLocaleName(int32_t index) const {
 	if(index >= 0 && index < getNumberOfDisplayLocales()) {
 		return data[index+1][0];
 	}
 	return NULL;
 }
 
-const UChar * StringLocalizationInfo::getDisplayName(int32_t localeIndex, int32_t ruleIndex) const {
+const char16_t * StringLocalizationInfo::getDisplayName(int32_t localeIndex, int32_t ruleIndex) const {
 	if(localeIndex >= 0 && localeIndex < getNumberOfDisplayLocales() &&
 	    ruleIndex >= 0 && ruleIndex < getNumberOfRuleSets()) {
 		return data[localeIndex+1][ruleIndex+1];
@@ -1032,7 +1032,7 @@ UnicodeString RuleBasedNumberFormat::getRuleSetDisplayName(int32_t index, const 
 	if(localizations && index >= 0 && index < localizations->getNumberOfRuleSets()) {
 		UnicodeString localeName(localeParam.getBaseName(), -1, UnicodeString::kInvariant);
 		int32_t len = localeName.length();
-		UChar * localeStr = localeName.getBuffer(len + 1);
+		char16_t * localeStr = localeName.getBuffer(len + 1);
 		while(len >= 0) {
 			localeStr[len] = 0;
 			int32_t ix = localizations->indexForLocale(localeStr);

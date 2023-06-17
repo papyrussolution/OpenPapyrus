@@ -16,7 +16,7 @@
 #include "strrepl.h"
 #include "util.h"
 
-static const UChar FORWARD_OP[] = {32, 62, 32, 0}; // " > "
+static const char16_t FORWARD_OP[] = {32, 62, 32, 0}; // " > "
 
 U_NAMESPACE_BEGIN
 
@@ -468,26 +468,26 @@ UnicodeString & TransliterationRule::toRule(UnicodeString & rule, bool escapeUnp
 	bool emitBraces = (anteContext != NULL) || (postContext != NULL);
 	// Emit start anchor
 	if((flags & ANCHOR_START) != 0) {
-		rule.append((UChar)94 /*^*/);
+		rule.append((char16_t)94 /*^*/);
 	}
 	// Emit the input pattern
 	ICU_Utility::appendToRule(rule, anteContext, escapeUnprintable, quoteBuf);
 	if(emitBraces) {
-		ICU_Utility::appendToRule(rule, (UChar)0x007B /*{*/, TRUE, escapeUnprintable, quoteBuf);
+		ICU_Utility::appendToRule(rule, (char16_t)0x007B /*{*/, TRUE, escapeUnprintable, quoteBuf);
 	}
 	ICU_Utility::appendToRule(rule, key, escapeUnprintable, quoteBuf);
 	if(emitBraces) {
-		ICU_Utility::appendToRule(rule, (UChar)0x007D /*}*/, TRUE, escapeUnprintable, quoteBuf);
+		ICU_Utility::appendToRule(rule, (char16_t)0x007D /*}*/, TRUE, escapeUnprintable, quoteBuf);
 	}
 	ICU_Utility::appendToRule(rule, postContext, escapeUnprintable, quoteBuf);
 	// Emit end anchor
 	if((flags & ANCHOR_END) != 0) {
-		rule.append((UChar)36 /*$*/);
+		rule.append((char16_t)36 /*$*/);
 	}
 	ICU_Utility::appendToRule(rule, UnicodeString(TRUE, FORWARD_OP, 3), TRUE, escapeUnprintable, quoteBuf);
 	// Emit the output pattern
 	ICU_Utility::appendToRule(rule, output->toReplacer()->toReplacerPattern(str, escapeUnprintable), TRUE, escapeUnprintable, quoteBuf);
-	ICU_Utility::appendToRule(rule, (UChar)0x003B /*;*/, TRUE, escapeUnprintable, quoteBuf);
+	ICU_Utility::appendToRule(rule, (char16_t)0x003B /*;*/, TRUE, escapeUnprintable, quoteBuf);
 	return rule;
 }
 

@@ -435,7 +435,7 @@ typedef enum UErrorCode {
 	U_STATE_TOO_OLD_ERROR     = 23, /**< ICU cannot construct a service from this state, as it is no longer supported */
 	U_TOO_MANY_ALIASES_ERROR  = 24, /**< There are too many aliases in the path to the requested resource. It is very possible that a circular alias definition has occurred */
 	U_ENUM_OUT_OF_SYNC_ERROR  = 25, /**< UEnumeration out of sync with underlying collection */
-	U_INVARIANT_CONVERSION_ERROR = 26, /**< Unable to convert a UChar * string to char * with the invariant converter. */
+	U_INVARIANT_CONVERSION_ERROR = 26, /**< Unable to convert a char16_t * string to char * with the invariant converter. */
 	U_INVALID_STATE_ERROR     = 27, /**< Requested operation can not be completed with ICU in its current state */
 	U_COLLATOR_VERSION_MISMATCH = 28, /**< Collator version is not compatible with the base version */
 	U_USELESS_COLLATOR_ERROR  = 29, /**< Collator is options only and no base is specified */

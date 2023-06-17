@@ -395,7 +395,7 @@ void fz_format_string(fz_context * ctx, void * user, void (*emit)(fz_context * c
 			    break;
 				case 'P':
 			    {
-				    fz_point * point = va_arg(args, fz_point*);
+				    SPoint2F * point = va_arg(args, SPoint2F*);
 				    fmtfloat(&out, point->x); fmtputc(&out, ' ');
 				    fmtfloat(&out, point->y);
 			    }
@@ -519,7 +519,6 @@ size_t fz_vsnprintf(char * buffer, size_t space, const char * fmt, va_list args)
 	out.p = buffer;
 	out.s = space > 0 ? space - 1 : 0;
 	out.n = 0;
-
 	/* Note: using a NULL context is safe here */
 	fz_format_string(NULL, &out, snprintf_emit, fmt, args);
 	if(space > 0)
@@ -535,7 +534,6 @@ size_t fz_snprintf(char * buffer, size_t space, const char * fmt, ...)
 	out.p = buffer;
 	out.s = space > 0 ? space - 1 : 0;
 	out.n = 0;
-
 	va_start(ap, fmt);
 	/* Note: using a NULL context is safe here */
 	fz_format_string(NULL, &out, snprintf_emit, fmt, ap);

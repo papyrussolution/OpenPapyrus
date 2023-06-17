@@ -85,7 +85,7 @@ UCharCharacterIterator* UCharCharacterIterator::clone() const {
 	return new UCharCharacterIterator(*this);
 }
 
-UChar UCharCharacterIterator::first() {
+char16_t UCharCharacterIterator::first() {
 	pos = begin;
 	if(pos < end) {
 		return text[pos];
@@ -95,7 +95,7 @@ UChar UCharCharacterIterator::first() {
 	}
 }
 
-UChar UCharCharacterIterator::firstPostInc() {
+char16_t UCharCharacterIterator::firstPostInc() {
 	pos = begin;
 	if(pos < end) {
 		return text[pos++];
@@ -105,7 +105,7 @@ UChar UCharCharacterIterator::firstPostInc() {
 	}
 }
 
-UChar UCharCharacterIterator::last() {
+char16_t UCharCharacterIterator::last() {
 	pos = end;
 	if(pos > begin) {
 		return text[--pos];
@@ -115,7 +115,7 @@ UChar UCharCharacterIterator::last() {
 	}
 }
 
-UChar UCharCharacterIterator::setIndex(int32_t position) {
+char16_t UCharCharacterIterator::setIndex(int32_t position) {
 	if(position < begin) {
 		pos = begin;
 	}
@@ -133,7 +133,7 @@ UChar UCharCharacterIterator::setIndex(int32_t position) {
 	}
 }
 
-UChar UCharCharacterIterator::current() const {
+char16_t UCharCharacterIterator::current() const {
 	if(pos >= begin && pos < end) {
 		return text[pos];
 	}
@@ -142,7 +142,7 @@ UChar UCharCharacterIterator::current() const {
 	}
 }
 
-UChar UCharCharacterIterator::next() {
+char16_t UCharCharacterIterator::next() {
 	if(pos + 1 < end) {
 		return text[++pos];
 	}
@@ -153,7 +153,7 @@ UChar UCharCharacterIterator::next() {
 	}
 }
 
-UChar UCharCharacterIterator::nextPostInc() {
+char16_t UCharCharacterIterator::nextPostInc() {
 	if(pos < end) {
 		return text[pos++];
 	}
@@ -166,7 +166,7 @@ bool UCharCharacterIterator::hasNext() {
 	return (bool)(pos < end ? TRUE : FALSE);
 }
 
-UChar UCharCharacterIterator::previous() {
+char16_t UCharCharacterIterator::previous() {
 	if(pos > begin) {
 		return text[--pos];
 	}

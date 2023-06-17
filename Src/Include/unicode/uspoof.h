@@ -61,8 +61,8 @@
  *
  * \code{.c}
  * UErrorCode status = U_ZERO_ERROR;
- * UChar* str1 = (UChar *) u"Harvest";
- * UChar* str2 = (UChar *) u"\u0397arvest";  // with U+0397 GREEK CAPITAL LETTER ETA
+ * char16_t* str1 = (char16_t *) u"Harvest";
+ * char16_t* str2 = (char16_t *) u"\u0397arvest";  // with U+0397 GREEK CAPITAL LETTER ETA
  *
  * USpoofChecker* sc = uspoof_open(&status);
  * uspoof_setChecks(sc, USPOOF_CONFUSABLE, &status);
@@ -98,21 +98,21 @@
  *
  * \code{.c}
  * UErrorCode status = U_ZERO_ERROR;
- * UChar* str1 = (UChar *) u"Harvest";
- * UChar* str2 = (UChar *) u"\u0397arvest";  // with U+0397 GREEK CAPITAL LETTER ETA
+ * char16_t* str1 = (char16_t *) u"Harvest";
+ * char16_t* str2 = (char16_t *) u"\u0397arvest";  // with U+0397 GREEK CAPITAL LETTER ETA
  *
  * USpoofChecker* sc = uspoof_open(&status);
  * uspoof_setChecks(sc, USPOOF_CONFUSABLE, &status);
  *
  * // Get skeleton 1
  * int32_t skel1Len = uspoof_getSkeleton(sc, 0, str1, -1, NULL, 0, &status);
- * UChar* skel1 = (UChar *) malloc(++skel1Len * sizeof(UChar));
+ * char16_t* skel1 = (char16_t *) malloc(++skel1Len * sizeof(char16_t));
  * status = U_ZERO_ERROR;
  * uspoof_getSkeleton(sc, 0, str1, -1, skel1, skel1Len, &status);
  *
  * // Get skeleton 2
  * int32_t skel2Len = uspoof_getSkeleton(sc, 0, str2, -1, NULL, 0, &status);
- * UChar* skel2 = (UChar *) malloc(++skel2Len * sizeof(UChar));
+ * char16_t* skel2 = (char16_t *) malloc(++skel2Len * sizeof(char16_t));
  * status = U_ZERO_ERROR;
  * uspoof_getSkeleton(sc, 0, str2, -1, skel2, skel2Len, &status);
  *
@@ -131,17 +131,17 @@
  * \code{.c}
  * UErrorCode status = U_ZERO_ERROR;
  * #define DICTIONARY_LENGTH 2
- * UChar* dictionary[DICTIONARY_LENGTH] = { (UChar *) u"lorem", (UChar *) u"ipsum" };
- * UChar* skeletons[DICTIONARY_LENGTH];
- * UChar* str = (UChar *) u"1orern";
+ * char16_t* dictionary[DICTIONARY_LENGTH] = { (char16_t *) u"lorem", (char16_t *) u"ipsum" };
+ * char16_t* skeletons[DICTIONARY_LENGTH];
+ * char16_t* str = (char16_t *) u"1orern";
  *
  * // Setup:
  * USpoofChecker* sc = uspoof_open(&status);
  * uspoof_setChecks(sc, USPOOF_CONFUSABLE, &status);
  * for (size_t i=0; i<DICTIONARY_LENGTH; i++) {
- *     UChar* word = dictionary[i];
+ *     char16_t* word = dictionary[i];
  *     int32_t len = uspoof_getSkeleton(sc, 0, word, -1, NULL, 0, &status);
- *     skeletons[i] = (UChar *) malloc(++len * sizeof(UChar));
+ *     skeletons[i] = (char16_t *) malloc(++len * sizeof(char16_t));
  *     status = U_ZERO_ERROR;
  *     uspoof_getSkeleton(sc, 0, word, -1, skeletons[i], len, &status);
  * }
@@ -149,7 +149,7 @@
  * // Live Check:
  * {
  *     int32_t len = uspoof_getSkeleton(sc, 0, str, -1, NULL, 0, &status);
- *     UChar* skel = (UChar *) malloc(++len * sizeof(UChar));
+ *     char16_t* skel = (char16_t *) malloc(++len * sizeof(char16_t));
  *     status = U_ZERO_ERROR;
  *     uspoof_getSkeleton(sc, 0, str, -1, skel, len, &status);
  *     bool result = false;
@@ -179,7 +179,7 @@
  *
  * \code{.c}
  * UErrorCode status = U_ZERO_ERROR;
- * UChar* str = (UChar *) u"p\u0430ypal";  // with U+0430 CYRILLIC SMALL LETTER A
+ * char16_t* str = (char16_t *) u"p\u0430ypal";  // with U+0430 CYRILLIC SMALL LETTER A
  *
  * // Get the default set of allowable characters:
  * USet* allowed = uset_openEmpty();
@@ -211,7 +211,7 @@
  *
  * \code{.c}
  * UErrorCode status = U_ZERO_ERROR;
- * UChar* str = (UChar *) u"p\u0430ypal";  // with U+0430 CYRILLIC SMALL LETTER A
+ * char16_t* str = (char16_t *) u"p\u0430ypal";  // with U+0430 CYRILLIC SMALL LETTER A
  *
  * // Get the default set of allowable characters:
  * USet* allowed = uset_openEmpty();
@@ -242,7 +242,7 @@
  *
  * \code{.cpp}
  * UErrorCode status = U_ZERO_ERROR;
- * UnicodeString str((UChar *) u"p\u0430ypal");  // with U+0430 CYRILLIC SMALL LETTER A
+ * UnicodeString str((char16_t *) u"p\u0430ypal");  // with U+0430 CYRILLIC SMALL LETTER A
  *
  * // Get the default set of allowable characters:
  * UnicodeSet allowed;
@@ -285,7 +285,7 @@
  *
  * \code{.c}
  * UErrorCode status = U_ZERO_ERROR;
- * UChar* str = (UChar *) u"8\u09EA";  // 8 mixed with U+09EA BENGALI DIGIT FOUR
+ * char16_t* str = (char16_t *) u"8\u09EA";  // 8 mixed with U+09EA BENGALI DIGIT FOUR
  *
  * USpoofChecker* sc = uspoof_open(&status);
  * uspoof_setChecks(sc, USPOOF_INVISIBLE | USPOOF_MIXED_NUMBERS, &status);
@@ -301,7 +301,7 @@
  *
  * \code{.cpp}
  * UErrorCode status = U_ZERO_ERROR;
- * UnicodeString str((UChar *) u"p\u0430ypal");  // with U+0430 CYRILLIC SMALL LETTER A
+ * UnicodeString str((char16_t *) u"p\u0430ypal");  // with U+0430 CYRILLIC SMALL LETTER A
  *
  * // Get the default set of allowable characters:
  * UnicodeSet allowed;
@@ -900,7 +900,7 @@ U_CAPI const USet * U_EXPORT2 uspoof_getAllowedChars(const USpoofChecker * sc, U
  * @stable ICU 4.2
  */
 U_CAPI int32_t U_EXPORT2 uspoof_check(const USpoofChecker * sc,
-    const UChar * id, int32_t length,
+    const char16_t * id, int32_t length,
     int32_t * position,
     UErrorCode * status);
 
@@ -970,7 +970,7 @@ U_CAPI int32_t U_EXPORT2 uspoof_checkUTF8(const USpoofChecker * sc,
  * @stable ICU 58
  */
 U_CAPI int32_t U_EXPORT2 uspoof_check2(const USpoofChecker * sc,
-    const UChar* id, int32_t length,
+    const char16_t* id, int32_t length,
     USpoofCheckResult* checkResult,
     UErrorCode * status);
 
@@ -1124,8 +1124,8 @@ U_CAPI const USet* U_EXPORT2 uspoof_getCheckResultNumerics(const USpoofCheckResu
  * @stable ICU 4.2
  */
 U_CAPI int32_t U_EXPORT2 uspoof_areConfusable(const USpoofChecker * sc,
-    const UChar * id1, int32_t length1,
-    const UChar * id2, int32_t length2,
+    const char16_t * id1, int32_t length1,
+    const char16_t * id2, int32_t length2,
     UErrorCode * status);
 
 /**
@@ -1191,8 +1191,8 @@ U_CAPI int32_t U_EXPORT2 uspoof_areConfusableUTF8(const USpoofChecker * sc,
  */
 U_CAPI int32_t U_EXPORT2 uspoof_getSkeleton(const USpoofChecker * sc,
     uint32_t type,
-    const UChar * id,  int32_t length,
-    UChar * dest, int32_t destCapacity,
+    const char16_t * id,  int32_t length,
+    char16_t * dest, int32_t destCapacity,
     UErrorCode * status);
 
 /**

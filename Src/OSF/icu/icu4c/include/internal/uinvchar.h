@@ -39,7 +39,7 @@ U_CAPI bool U_EXPORT2 uprv_isInvariantString(const char * s, int32_t length);
  *
  * @internal (ICU 2.8)
  */
-U_CAPI bool U_EXPORT2 uprv_isInvariantUString(const UChar * s, int32_t length);
+U_CAPI bool U_EXPORT2 uprv_isInvariantUString(const char16_t * s, int32_t length);
 
 /**
  * \def U_UPPER_ORDINAL

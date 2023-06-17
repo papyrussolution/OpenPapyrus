@@ -879,7 +879,7 @@ static void load_sample_func(fz_context * ctx, pdf_function * func, pdf_obj * di
 	}
 	obj = pdf_dict_get(ctx, dict, PDF_NAME(Encode));
 	if(pdf_is_array(ctx, obj)) {
-		int ranges = fz_mini(func->m, pdf_array_len(ctx, obj) / 2);
+		int ranges = smin(func->m, pdf_array_len(ctx, obj) / 2);
 		if(ranges != func->m)
 			fz_warn(ctx, "wrong number of sample function input mappings");
 
@@ -896,7 +896,7 @@ static void load_sample_func(fz_context * ctx, pdf_function * func, pdf_obj * di
 
 	obj = pdf_dict_get(ctx, dict, PDF_NAME(Decode));
 	if(pdf_is_array(ctx, obj)) {
-		int ranges = fz_mini(func->n, pdf_array_len(ctx, obj) / 2);
+		int ranges = smin(func->n, pdf_array_len(ctx, obj) / 2);
 		if(ranges != func->n)
 			fz_warn(ctx, "wrong number of sample function output mappings");
 
@@ -1068,7 +1068,7 @@ static void load_exponential_func(fz_context * ctx, pdf_function * func, pdf_obj
 
 	obj = pdf_dict_get(ctx, dict, PDF_NAME(C0));
 	if(pdf_is_array(ctx, obj)) {
-		int ranges = fz_mini(func->n, pdf_array_len(ctx, obj));
+		int ranges = smin(func->n, pdf_array_len(ctx, obj));
 		if(ranges != func->n)
 			fz_warn(ctx, "wrong number of C0 constants for exponential function");
 
@@ -1078,7 +1078,7 @@ static void load_exponential_func(fz_context * ctx, pdf_function * func, pdf_obj
 
 	obj = pdf_dict_get(ctx, dict, PDF_NAME(C1));
 	if(pdf_is_array(ctx, obj)) {
-		int ranges = fz_mini(func->n, pdf_array_len(ctx, obj));
+		int ranges = smin(func->n, pdf_array_len(ctx, obj));
 		if(ranges != func->n)
 			fz_warn(ctx, "wrong number of C1 constants for exponential function");
 
@@ -1194,7 +1194,7 @@ static void load_stitching_func(fz_context * ctx, pdf_function * func, pdf_obj *
 
 	obj = pdf_dict_get(ctx, dict, PDF_NAME(Encode));
 	if(pdf_is_array(ctx, obj)) {
-		int ranges = fz_mini(k, pdf_array_len(ctx, obj) / 2);
+		int ranges = smin(k, pdf_array_len(ctx, obj) / 2);
 		if(ranges != k)
 			fz_warn(ctx, "wrong number of stitching function input mappings");
 

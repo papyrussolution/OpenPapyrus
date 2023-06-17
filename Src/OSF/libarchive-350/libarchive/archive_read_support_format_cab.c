@@ -516,7 +516,7 @@ static int truncated_error(ArchiveRead * a)
 	return ARCHIVE_FATAL;
 }
 
-static ssize_t cab_strnlen(const uchar * p, size_t maxlen)
+/* @sobolev (replaced with sstrnlen) static ssize_t cab_strnlen(const uchar * p, size_t maxlen)
 {
 	size_t i;
 	for(i = 0; i <= maxlen; i++) {
@@ -524,9 +524,9 @@ static ssize_t cab_strnlen(const uchar * p, size_t maxlen)
 			break;
 	}
 	if(i > maxlen)
-		return -1; /* invalid */
+		return -1; // invalid
 	return ((ssize_t)i);
-}
+}*/
 
 /* Read bytes as much as remaining. */
 static const void * cab_read_ahead_remaining(ArchiveRead * a, size_t min, ssize_t * avail)
@@ -649,13 +649,13 @@ static int cab_read_header(ArchiveRead * a)
 		/* How many bytes are used for szCabinetPrev. */
 		if((p = static_cast<const uchar *>(__archive_read_ahead(a, used+256, NULL))) == NULL)
 			return (truncated_error(a));
-		if((len = cab_strnlen(p + used, 255)) <= 0)
+		if((len = sstrnlen(p + used, 255)) <= 0)
 			goto invalid;
 		used += len + 1;
 		/* How many bytes are used for szDiskPrev. */
 		if((p = static_cast<const uchar *>(__archive_read_ahead(a, used+256, NULL))) == NULL)
 			return (truncated_error(a));
-		if((len = cab_strnlen(p + used, 255)) <= 0)
+		if((len = sstrnlen(p + used, 255)) <= 0)
 			goto invalid;
 		used += len + 1;
 	}
@@ -663,20 +663,19 @@ static int cab_read_header(ArchiveRead * a)
 		/* How many bytes are used for szCabinetNext. */
 		if((p = static_cast<const uchar *>(__archive_read_ahead(a, used+256, NULL))) == NULL)
 			return (truncated_error(a));
-		if((len = cab_strnlen(p + used, 255)) <= 0)
+		if((len = sstrnlen(p + used, 255)) <= 0)
 			goto invalid;
 		used += len + 1;
 		/* How many bytes are used for szDiskNext. */
 		if((p = static_cast<const uchar *>(__archive_read_ahead(a, used+256, NULL))) == NULL)
 			return (truncated_error(a));
-		if((len = cab_strnlen(p + used, 255)) <= 0)
+		if((len = sstrnlen(p + used, 255)) <= 0)
 			goto invalid;
 		used += len + 1;
 	}
 	__archive_read_consume(a, used);
 	cab->cab_offset += used;
 	used = 0;
-
 	/*
 	 * Read CFFOLDER.
 	 */
@@ -761,15 +760,13 @@ static int cab_read_header(ArchiveRead * a)
 		cab->cab_offset += 16;
 		if((p = static_cast<const uchar *>(cab_read_ahead_remaining(a, 256, &avail))) == NULL)
 			return (truncated_error(a));
-		if((len = cab_strnlen(p, avail-1)) <= 0)
+		if((len = sstrnlen(p, avail-1)) <= 0)
 			goto invalid;
-
 		/* Copy a pathname.  */
 		archive_string_init(&(file->pathname));
 		archive_strncpy(&(file->pathname), p, len);
 		__archive_read_consume(a, len + 1);
 		cab->cab_offset += len + 1;
-
 		/*
 		 * Sanity check if each data is acceptable.
 		 */

@@ -122,10 +122,8 @@ typedef uint MYSQL_FIELD_OFFSET; /* offset to current field */
 #define SET_CLIENT_ERROR(a, b, c, d) \
 	do { \
 		(a)->net.last_errno = (b); \
-		strncpy((a)->net.sqlstate, (c), SQLSTATE_LENGTH); \
-		(a)->net.sqlstate[SQLSTATE_LENGTH] = 0; \
-		strncpy((a)->net.last_error, (d) ? (d) : ER((b)), MYSQL_ERRMSG_SIZE - 1); \
-		(a)->net.last_error[MYSQL_ERRMSG_SIZE - 1] = 0; \
+		strnzcpy((a)->net.sqlstate, (c), sizeof((a)->net.sqlstate)); \
+		strnzcpy((a)->net.last_error, (d) ? (d) : ER((b)), sizeof((a)->net.last_error)); \
 	} while(0)
 
 /* For mysql_async.c */
@@ -295,8 +293,11 @@ enum mysql_protocol_type {
 };
 
 struct st_mysql_options {
-	uint connect_timeout, read_timeout, write_timeout;
-	uint port, protocol;
+	uint connect_timeout;
+	uint read_timeout;
+	uint write_timeout;
+	uint port;
+	uint protocol;
 	ulong client_flag;
 	char * host, * user, * password, * unix_socket, * db;
 	struct st_dynamic_array * init_command;
@@ -327,8 +328,14 @@ struct st_mysql_options {
 typedef struct st_mysql {
 	NET net; /* Communication parameters */
 	void * unused_0;
-	char * host, * user, * passwd, * unix_socket, * server_version, * host_info;
-	char * info, * db;
+	char * host;
+	char * user;
+	char * passwd;
+	char * unix_socket;
+	char * server_version;
+	char * host_info;
+	char * info;
+	char * db;
 	const struct ma_charset_info_st * charset; /* character set */
 	MYSQL_FIELD * fields;
 	MA_MEM_ROOT field_alloc;
@@ -351,29 +358,32 @@ typedef struct st_mysql {
 	bool unused_1;
 	char scramble_buff[20+ 1];
 	/* madded after 3.23.58 */
-	bool unused_2;
-	void          * unused_3, * unused_4, * unused_5, * unused_6;
-	LIST          * stmts;
+	bool   unused_2;
+	void * unused_3;
+	void * unused_4;
+	void * unused_5;
+	void * unused_6;
+	LIST * stmts;
 	const struct  st_mariadb_methods * methods;
-	void          * thd;
-	bool       * unbuffered_fetch_owner;
+	void * thd;
+	bool * unbuffered_fetch_owner;
 	char * info_buffer;
 	struct st_mariadb_extension * extension;
 } MYSQL;
 
 typedef struct st_mysql_res {
 	uint64 row_count;
-	uint field_count, current_field;
-	MYSQL_FIELD   * fields;
-	MYSQL_DATA    * data;
-	MYSQL_ROWS    * data_cursor;
+	uint   field_count, current_field;
+	MYSQL_FIELD * fields;
+	MYSQL_DATA * data;
+	MYSQL_ROWS * data_cursor;
 	MA_MEM_ROOT field_alloc;
 	MYSQL_ROW row; /* If unbuffered read */
 	MYSQL_ROW current_row; /* buffer to current row */
 	ulong * lengths; /* column lengths of current row */
-	MYSQL         * handle; /* for unbuffered reads */
-	bool eof;                    /* Used my mysql_fetch_row */
-	bool is_ps;
+	MYSQL * handle; /* for unbuffered reads */
+	bool   eof; /* Used my mysql_fetch_row */
+	bool   is_ps;
 } MYSQL_RES;
 
 typedef struct {

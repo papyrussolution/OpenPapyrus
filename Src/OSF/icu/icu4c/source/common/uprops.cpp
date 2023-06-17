@@ -238,12 +238,12 @@ static bool changesWhenCasefolded(const BinaryProperty & /*prop*/, UChar32 c, UP
 	}
 	if(c>=0) {
 		/* single code point */
-		const UChar * resultString;
+		const char16_t * resultString;
 		return (bool)(ucase_toFullFolding(c, &resultString, U_FOLD_CASE_DEFAULT)>=0);
 	}
 	else {
 		/* guess some large but stack-friendly capacity */
-		UChar dest[2*UCASE_MAX_STRING_LENGTH];
+		char16_t dest[2*UCASE_MAX_STRING_LENGTH];
 		int32_t destLength;
 		destLength = u_strFoldCase(dest, SIZEOFARRAYi(dest),
 			nfd.getBuffer(), nfd.length(),
@@ -276,7 +276,7 @@ static bool changesWhenNFKC_Casefolded(const BinaryProperty & /*prop*/, UChar32 
 		ReorderingBuffer buffer(*kcf, dest);
 		// Small destCapacity for NFKC_CF(c).
 		if(buffer.init(5, errorCode)) {
-			const UChar * srcArray = src.getBuffer();
+			const char16_t * srcArray = src.getBuffer();
 			kcf->compose(srcArray, srcArray+src.length(), FALSE,
 			    TRUE, buffer, errorCode);
 		}
@@ -426,7 +426,7 @@ U_CAPI bool U_EXPORT2 u_hasBinaryProperty(UChar32 c, UProperty which) {
 	}
 }
 
-U_CAPI bool U_EXPORT2 u_stringHasBinaryProperty(const UChar * s, int32_t length, UProperty which) {
+U_CAPI bool U_EXPORT2 u_stringHasBinaryProperty(const char16_t * s, int32_t length, UProperty which) {
 	if(s == nullptr && length != 0) {
 		return false;
 	}
@@ -803,7 +803,7 @@ U_CFUNC void U_EXPORT2 uprops_addPropertyStarts(UPropertySource src, const USetA
 
 #if !UCONFIG_NO_NORMALIZATION
 
-U_CAPI int32_t U_EXPORT2 u_getFC_NFKC_Closure(UChar32 c, UChar * dest, int32_t destCapacity, UErrorCode * pErrorCode) {
+U_CAPI int32_t U_EXPORT2 u_getFC_NFKC_Closure(UChar32 c, char16_t * dest, int32_t destCapacity, UErrorCode * pErrorCode) {
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
@@ -823,7 +823,7 @@ U_CAPI int32_t U_EXPORT2 u_getFC_NFKC_Closure(UChar32 c, UChar * dest, int32_t d
 	}
 	// first: b = NFKC(Fold(a))
 	UnicodeString folded1String;
-	const UChar * folded1;
+	const char16_t * folded1;
 	int32_t folded1Length = ucase_toFullFolding(c, &folded1, U_FOLD_CASE_DEFAULT);
 	if(folded1Length<0) {
 		const Normalizer2Impl * nfkcImpl = Normalizer2Factory::getImpl(nfkc);

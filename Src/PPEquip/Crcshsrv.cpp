@@ -1840,7 +1840,7 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 			for(uint i = 0; i < temp_list.getCount(); i++) {
 				const PPID qk_id = temp_list.get(i);
 				if(!gi.QuotList.Search(qk_id, 0, 0) && qk_obj.Fetch(qk_id, &qk_rec) > 0) {
-					if(qk_rec.GetTimeRange(tr) > 0 || qk_rec.HasWeekDayRestriction()) {
+					if(qk_rec.GetTimeRange(tr) || qk_rec.HasWeekDayRestriction()) {
 						rtl_quot_list.addUnique(qk_id);
 						// gi.QuotList.Add(qk_id, 0, 1);
 					}

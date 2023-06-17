@@ -36,7 +36,7 @@ const Formattable::Type* MessageFormatAdapter::getArgTypeList(const MessageForma
 U_NAMESPACE_END
 U_NAMESPACE_USE
 
-U_CAPI int32_t u_formatMessage(const char * locale, const UChar * pattern, int32_t patternLength, UChar * result, int32_t resultLength, UErrorCode * status, ...)
+U_CAPI int32_t u_formatMessage(const char * locale, const char16_t * pattern, int32_t patternLength, char16_t * result, int32_t resultLength, UErrorCode * status, ...)
 {
 	va_list ap;
 	int32_t actLen;
@@ -47,8 +47,8 @@ U_CAPI int32_t u_formatMessage(const char * locale, const UChar * pattern, int32
 	return actLen;
 }
 
-U_CAPI int32_t U_EXPORT2 u_vformatMessage(const char * locale, const UChar * pattern, int32_t patternLength,
-    UChar * result, int32_t resultLength, va_list ap, UErrorCode * status)
+U_CAPI int32_t U_EXPORT2 u_vformatMessage(const char * locale, const char16_t * pattern, int32_t patternLength,
+    char16_t * result, int32_t resultLength, va_list ap, UErrorCode * status)
 {
 	//argument checking deferred to subsequent method calls
 	UMessageFormat * fmt = umsg_open(pattern, patternLength, locale, NULL, status);
@@ -57,8 +57,8 @@ U_CAPI int32_t U_EXPORT2 u_vformatMessage(const char * locale, const UChar * pat
 	return retVal;
 }
 
-U_CAPI int32_t u_formatMessageWithError(const char * locale, const UChar * pattern, int32_t patternLength,
-    UChar * result, int32_t resultLength, UParseError * parseError, UErrorCode * status, ...)
+U_CAPI int32_t u_formatMessageWithError(const char * locale, const char16_t * pattern, int32_t patternLength,
+    char16_t * result, int32_t resultLength, UParseError * parseError, UErrorCode * status, ...)
 {
 	va_list ap;
 	int32_t actLen;
@@ -69,8 +69,8 @@ U_CAPI int32_t u_formatMessageWithError(const char * locale, const UChar * patte
 	return actLen;
 }
 
-U_CAPI int32_t U_EXPORT2 u_vformatMessageWithError(const char * locale, const UChar * pattern, int32_t patternLength,
-    UChar * result, int32_t resultLength, UParseError * parseError, va_list ap, UErrorCode * status)
+U_CAPI int32_t U_EXPORT2 u_vformatMessageWithError(const char * locale, const char16_t * pattern, int32_t patternLength,
+    char16_t * result, int32_t resultLength, UParseError * parseError, va_list ap, UErrorCode * status)
 {
 	//argument checking deferred to subsequent method calls
 	UMessageFormat * fmt = umsg_open(pattern, patternLength, locale, parseError, status);
@@ -83,7 +83,7 @@ U_CAPI int32_t U_EXPORT2 u_vformatMessageWithError(const char * locale, const UC
 //  1. Call through to the C++ APIs
 //  2. Just assume the user passed in enough arguments.
 //  3. Iterate through each formattable returned, and assign to the arguments
-U_CAPI void u_parseMessage(const char * locale, const UChar * pattern, int32_t patternLength, const UChar * source, int32_t sourceLength, UErrorCode * status, ...)
+U_CAPI void u_parseMessage(const char * locale, const char16_t * pattern, int32_t patternLength, const char16_t * source, int32_t sourceLength, UErrorCode * status, ...)
 {
 	va_list ap;
 	//argument checking deferred to subsequent method calls
@@ -92,8 +92,8 @@ U_CAPI void u_parseMessage(const char * locale, const UChar * pattern, int32_t p
 	va_end(ap); // end vararg processing
 }
 
-U_CAPI void U_EXPORT2 u_vparseMessage(const char * locale, const UChar * pattern, int32_t patternLength,
-    const UChar * source, int32_t sourceLength, va_list ap, UErrorCode * status)
+U_CAPI void U_EXPORT2 u_vparseMessage(const char * locale, const char16_t * pattern, int32_t patternLength,
+    const char16_t * source, int32_t sourceLength, va_list ap, UErrorCode * status)
 {
 	//argument checking deferred to subsequent method calls
 	UMessageFormat * fmt = umsg_open(pattern, patternLength, locale, NULL, status);
@@ -102,7 +102,7 @@ U_CAPI void U_EXPORT2 u_vparseMessage(const char * locale, const UChar * pattern
 	umsg_close(fmt);
 }
 
-U_CAPI void u_parseMessageWithError(const char * locale, const UChar * pattern, int32_t patternLength, const UChar * source,
+U_CAPI void u_parseMessageWithError(const char * locale, const char16_t * pattern, int32_t patternLength, const char16_t * source,
     int32_t sourceLength, UParseError * error, UErrorCode * status, ...)
 {
 	va_list ap;
@@ -112,8 +112,8 @@ U_CAPI void u_parseMessageWithError(const char * locale, const UChar * pattern, 
 	va_end(ap); // end vararg processing
 }
 
-U_CAPI void U_EXPORT2 u_vparseMessageWithError(const char * locale, const UChar * pattern, int32_t patternLength,
-    const UChar * source, int32_t sourceLength, va_list ap, UParseError * error, UErrorCode * status)
+U_CAPI void U_EXPORT2 u_vparseMessageWithError(const char * locale, const char16_t * pattern, int32_t patternLength,
+    const char16_t * source, int32_t sourceLength, va_list ap, UParseError * error, UErrorCode * status)
 {
 	//argument checking deferred to subsequent method calls
 	UMessageFormat * fmt = umsg_open(pattern, patternLength, locale, error, status);
@@ -124,7 +124,7 @@ U_CAPI void U_EXPORT2 u_vparseMessageWithError(const char * locale, const UChar 
 //
 //  Message format C API
 //
-U_CAPI UMessageFormat* U_EXPORT2 umsg_open(const UChar * pattern, int32_t patternLength, const char * locale, UParseError * parseError, UErrorCode * status)
+U_CAPI UMessageFormat* U_EXPORT2 umsg_open(const char16_t * pattern, int32_t patternLength, const char * locale, UParseError * parseError, UErrorCode * status)
 {
 	//check arguments
 	if(!status || U_FAILURE(*status)) {
@@ -186,7 +186,7 @@ U_CAPI const char * U_EXPORT2 umsg_getLocale(const UMessageFormat * fmt)
 	return fmt ? ((const MessageFormat*)fmt)->getLocale().getName() : "";
 }
 
-U_CAPI void U_EXPORT2 umsg_applyPattern(UMessageFormat * fmt, const UChar * pattern, int32_t patternLength, UParseError* parseError, UErrorCode * status)
+U_CAPI void U_EXPORT2 umsg_applyPattern(UMessageFormat * fmt, const char16_t * pattern, int32_t patternLength, UParseError* parseError, UErrorCode * status)
 {
 	//check arguments
 	UParseError tErr;
@@ -202,7 +202,7 @@ U_CAPI void U_EXPORT2 umsg_applyPattern(UMessageFormat * fmt, const UChar * patt
 	((MessageFormat*)fmt)->applyPattern(UnicodeString(pattern, patternLength), *parseError, *status);
 }
 
-U_CAPI int32_t U_EXPORT2 umsg_toPattern(const UMessageFormat * fmt, UChar * result, int32_t resultLength, UErrorCode * status)
+U_CAPI int32_t U_EXPORT2 umsg_toPattern(const UMessageFormat * fmt, char16_t * result, int32_t resultLength, UErrorCode * status)
 {
 	//check arguments
 	if(status ==NULL||U_FAILURE(*status)) {
@@ -221,7 +221,7 @@ U_CAPI int32_t U_EXPORT2 umsg_toPattern(const UMessageFormat * fmt, UChar * resu
 	return res.extract(result, resultLength, *status);
 }
 
-U_CAPI int32_t umsg_format(const UMessageFormat * fmt, UChar * result, int32_t resultLength, UErrorCode * status, ...)
+U_CAPI int32_t umsg_format(const UMessageFormat * fmt, char16_t * result, int32_t resultLength, UErrorCode * status, ...)
 {
 	va_list ap;
 	int32_t actLen;
@@ -234,7 +234,7 @@ U_CAPI int32_t umsg_format(const UMessageFormat * fmt, UChar * result, int32_t r
 	return actLen;
 }
 
-U_CAPI int32_t U_EXPORT2 umsg_vformat(const UMessageFormat * fmt, UChar * result, int32_t resultLength, va_list ap, UErrorCode * status)
+U_CAPI int32_t U_EXPORT2 umsg_vformat(const UMessageFormat * fmt, char16_t * result, int32_t resultLength, va_list ap, UErrorCode * status)
 {
 	//check arguments
 	if(status==0 || U_FAILURE(*status)) {
@@ -251,7 +251,7 @@ U_CAPI int32_t U_EXPORT2 umsg_vformat(const UMessageFormat * fmt, UChar * result
 	Formattable* args = new Formattable[count ? count : 1];
 	// iterate through the vararg list, and get the arguments out
 	for(int32_t i = 0; i < count; ++i) {
-		UChar * stringVal;
+		char16_t * stringVal;
 		double tDouble = 0;
 		int32_t tInt = 0;
 		int64_t tInt64 = 0;
@@ -279,7 +279,7 @@ U_CAPI int32_t U_EXPORT2 umsg_vformat(const UMessageFormat * fmt, UChar * result
 
 			case Formattable::kString:
 			    // For some reason, a temporary is needed
-			    stringVal = va_arg(ap, UChar *);
+			    stringVal = va_arg(ap, char16_t *);
 			    if(stringVal) {
 				    args[i].setString(UnicodeString(stringVal));
 			    }
@@ -314,7 +314,7 @@ U_CAPI int32_t U_EXPORT2 umsg_vformat(const UMessageFormat * fmt, UChar * result
 	return U_FAILURE(*status) ? -1 : resultStr.extract(result, resultLength, *status);
 }
 
-U_CAPI void umsg_parse(const UMessageFormat * fmt, const UChar * source, int32_t sourceLength, int32_t * count, UErrorCode * status, ...)
+U_CAPI void umsg_parse(const UMessageFormat * fmt, const char16_t * source, int32_t sourceLength, int32_t * count, UErrorCode * status, ...)
 {
 	va_list ap;
 	//argument checking deferred to last method call umsg_vparse which
@@ -325,7 +325,7 @@ U_CAPI void umsg_parse(const UMessageFormat * fmt, const UChar * source, int32_t
 	va_end(ap); // end vararg processing
 }
 
-U_CAPI void U_EXPORT2 umsg_vparse(const UMessageFormat * fmt, const UChar * source, int32_t sourceLength, int32_t * count, va_list ap, UErrorCode * status)
+U_CAPI void U_EXPORT2 umsg_vparse(const UMessageFormat * fmt, const char16_t * source, int32_t sourceLength, int32_t * count, va_list ap, UErrorCode * status)
 {
 	//check arguments
 	if(status==NULL||U_FAILURE(*status)) {
@@ -342,7 +342,7 @@ U_CAPI void U_EXPORT2 umsg_vparse(const UMessageFormat * fmt, const UChar * sour
 	Formattable * args = ((const MessageFormat*)fmt)->parse(srcString, *count, *status);
 	UDate * aDate;
 	double * aDouble;
-	UChar * aString;
+	char16_t * aString;
 	int32_t* aInt;
 	int64_t* aInt64;
 	UnicodeString temp;
@@ -390,7 +390,7 @@ U_CAPI void U_EXPORT2 umsg_vparse(const UMessageFormat * fmt, const UChar * sour
 			    break;
 
 			case Formattable::kString:
-			    aString = va_arg(ap, UChar *);
+			    aString = va_arg(ap, char16_t *);
 			    if(aString) {
 				    args[i].getString(temp);
 				    len = temp.length();
@@ -416,9 +416,9 @@ U_CAPI void U_EXPORT2 umsg_vparse(const UMessageFormat * fmt, const UChar * sour
 	delete [] args; // clean up
 }
 
-#define SINGLE_QUOTE      ((UChar)0x0027)
-#define CURLY_BRACE_LEFT  ((UChar)0x007B)
-#define CURLY_BRACE_RIGHT ((UChar)0x007D)
+#define SINGLE_QUOTE      ((char16_t)0x0027)
+#define CURLY_BRACE_LEFT  ((char16_t)0x007B)
+#define CURLY_BRACE_RIGHT ((char16_t)0x007D)
 
 #define STATE_INITIAL 0
 #define STATE_SINGLE_QUOTE 1
@@ -427,7 +427,7 @@ U_CAPI void U_EXPORT2 umsg_vparse(const UMessageFormat * fmt, const UChar * sour
 
 #define MAppend(c) if(len < destCapacity) dest[len++] = c; else len++
 
-int32_t umsg_autoQuoteApostrophe(const UChar * pattern, int32_t patternLength, UChar * dest, int32_t destCapacity, UErrorCode * ec)
+int32_t umsg_autoQuoteApostrophe(const char16_t * pattern, int32_t patternLength, char16_t * dest, int32_t destCapacity, UErrorCode * ec)
 {
 	int32_t state = STATE_INITIAL;
 	int32_t braceCount = 0;
@@ -444,7 +444,7 @@ int32_t umsg_autoQuoteApostrophe(const UChar * pattern, int32_t patternLength, U
 		patternLength = u_strlen(pattern);
 	}
 	for(int i = 0; i < patternLength; ++i) {
-		UChar c = pattern[i];
+		char16_t c = pattern[i];
 		switch(state) {
 			case STATE_INITIAL:
 			    switch(c) {

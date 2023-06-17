@@ -1,5 +1,5 @@
 // V_TRANSP.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Starodub 2009, 2010, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -268,10 +268,7 @@ int PPViewTransport::CheckForFilt(TransportFilt * pFilt, PPID transpID, const PP
 	return 1;
 }
 
-int PPViewTransport::IsTempTblNeeded()
-{
-	return 1;
-}
+bool PPViewTransport::IsTempTblNeeded() { return true; }
 
 int PPViewTransport::Init_(const PPBaseFilt * pFilt)
 {

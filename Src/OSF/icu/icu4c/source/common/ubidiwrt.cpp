@@ -50,7 +50,7 @@
  * It looks strange to do mirroring in LTR output, but it is only because
  * we are writing RTL output in reverse.
  */
-static int32_t doWriteForward(const UChar * src, int32_t srcLength, UChar * dest, int32_t destSize, uint16 options, UErrorCode * pErrorCode) 
+static int32_t doWriteForward(const char16_t * src, int32_t srcLength, char16_t * dest, int32_t destSize, uint16 options, UErrorCode * pErrorCode) 
 {
 	/* optimize for several combinations of options */
 	switch(options&(UBIDI_REMOVE_BIDI_CONTROLS|UBIDI_DO_MIRRORING)) {
@@ -85,7 +85,7 @@ static int32_t doWriteForward(const UChar * src, int32_t srcLength, UChar * dest
 		case UBIDI_REMOVE_BIDI_CONTROLS: {
 		    /* copy the LTR run and remove any BiDi control characters */
 		    int32_t remaining = destSize;
-		    UChar c;
+		    char16_t c;
 		    do {
 			    c = *src++;
 			    if(!IS_BIDI_CONTROL_CHAR(c)) {
@@ -140,8 +140,8 @@ static int32_t doWriteForward(const UChar * src, int32_t srcLength, UChar * dest
 	} /* end of switch */
 }
 
-static int32_t doWriteReverse(const UChar * src, int32_t srcLength,
-    UChar * dest, int32_t destSize,
+static int32_t doWriteReverse(const char16_t * src, int32_t srcLength,
+    char16_t * dest, int32_t destSize,
     uint16 options,
     UErrorCode * pErrorCode) {
 	/*
@@ -240,7 +240,7 @@ static int32_t doWriteReverse(const UChar * src, int32_t srcLength,
 			    /* we need to find out the destination length of the run,
 			       which will not include the BiDi control characters */
 			    int32_t length = srcLength;
-			    UChar ch;
+			    char16_t ch;
 
 			    i = 0;
 			    do {
@@ -297,8 +297,8 @@ static int32_t doWriteReverse(const UChar * src, int32_t srcLength,
 	return destSize;
 }
 
-U_CAPI int32_t U_EXPORT2 ubidi_writeReverse(const UChar * src, int32_t srcLength,
-    UChar * dest, int32_t destSize,
+U_CAPI int32_t U_EXPORT2 ubidi_writeReverse(const char16_t * src, int32_t srcLength,
+    char16_t * dest, int32_t destSize,
     uint16 options,
     UErrorCode * pErrorCode) {
 	int32_t destLength;
@@ -335,10 +335,10 @@ U_CAPI int32_t U_EXPORT2 ubidi_writeReverse(const UChar * src, int32_t srcLength
 #if(defined(_MSC_VER) && (defined(_M_ARM64)) && (_MSC_VER < 1924))
 #pragma optimize( "", off )
 #endif
-U_CAPI int32_t U_EXPORT2 ubidi_writeReordered(UBiDi * pBiDi, UChar * dest, int32_t destSize, uint16 options, UErrorCode * pErrorCode) 
+U_CAPI int32_t U_EXPORT2 ubidi_writeReordered(UBiDi * pBiDi, char16_t * dest, int32_t destSize, uint16 options, UErrorCode * pErrorCode) 
 {
-	const UChar * text;
-	UChar * saveDest;
+	const char16_t * text;
+	char16_t * saveDest;
 	int32_t length, destCapacity;
 	int32_t run, runCount, logicalStart, runLength;
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
@@ -423,8 +423,8 @@ U_CAPI int32_t U_EXPORT2 ubidi_writeReordered(UBiDi * pBiDi, UChar * dest, int32
 		else {
 			/* insert BiDi controls for "inverse BiDi" */
 			const DirProp * dirProps = pBiDi->dirProps;
-			const UChar * src;
-			UChar uc;
+			const char16_t * src;
+			char16_t uc;
 			UBiDiDirection dir;
 			int32_t markFlag;
 			for(run = 0; run<runCount; ++run) {
@@ -542,7 +542,7 @@ U_CAPI int32_t U_EXPORT2 ubidi_writeReordered(UBiDi * pBiDi, UChar * dest, int32
 		else {
 			/* insert BiDi controls for "inverse BiDi" */
 			const DirProp * dirProps = pBiDi->dirProps;
-			const UChar * src;
+			const char16_t * src;
 			UBiDiDirection dir;
 			for(run = runCount; --run>=0;) {
 				/* reverse output */

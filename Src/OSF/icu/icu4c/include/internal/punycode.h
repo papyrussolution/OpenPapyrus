@@ -47,7 +47,7 @@ http://www.nicemice.net/amc/
  * @param srcLength Number of UChars in src, or -1 if NUL-terminated.
  * @param dest Output Punycode array.
  * @param destCapacity Size of dest.
- * @param caseFlags Vector of boolean values, one per input UChar,
+ * @param caseFlags Vector of boolean values, one per input char16_t,
  *                  indicating that the corresponding character is to be
  *                  marked for the decoder optionally
  *                  uppercasing (true) or lowercasing (false)
@@ -66,8 +66,8 @@ http://www.nicemice.net/amc/
  * @see u_strFromPunycode
  */
 U_CAPI int32_t
-u_strToPunycode(const UChar *src, int32_t srcLength,
-                UChar *dest, int32_t destCapacity,
+u_strToPunycode(const char16_t *src, int32_t srcLength,
+                char16_t *dest, int32_t destCapacity,
                 const bool *caseFlags,
                 UErrorCode *pErrorCode);
 
@@ -101,8 +101,8 @@ u_strToPunycode(const UChar *src, int32_t srcLength,
  * @see u_strToPunycode
  */
 U_CAPI int32_t
-u_strFromPunycode(const UChar *src, int32_t srcLength,
-                  UChar *dest, int32_t destCapacity,
+u_strFromPunycode(const char16_t *src, int32_t srcLength,
+                  char16_t *dest, int32_t destCapacity,
                   bool *caseFlags,
                   UErrorCode *pErrorCode);
 

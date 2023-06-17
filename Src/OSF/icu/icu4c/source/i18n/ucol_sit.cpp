@@ -85,7 +85,7 @@ struct CollatorSpec {
 	CharString locale;
 	UColAttributeValue options[UCOL_ATTRIBUTE_COUNT];
 	uint32_t variableTopValue;
-	UChar variableTopString[locElementCapacity];
+	char16_t variableTopString[locElementCapacity];
 	int32_t variableTopStringLen;
 	bool variableTopSet;
 	CharString entries[UCOL_SIT_ITEMS_COUNT];
@@ -200,9 +200,9 @@ static const char * U_CALLCONV _processCollatorOption(CollatorSpec * spec, uint3
 
 U_CDECL_END
 
-static UChar readHexCodeUnit(const char ** string, UErrorCode * status)
+static char16_t readHexCodeUnit(const char ** string, UErrorCode * status)
 {
-	UChar result = 0;
+	char16_t result = 0;
 	int32_t value = 0;
 	char c;
 	int32_t noDigits = 0;
@@ -223,7 +223,7 @@ static UChar readHexCodeUnit(const char ** string, UErrorCode * status)
 #endif
 			return 0;
 		}
-		result = (result << 4) | (UChar)value;
+		result = (result << 4) | (char16_t)value;
 		noDigits++;
 		(*string)++;
 	}
@@ -454,7 +454,7 @@ U_CAPI void U_EXPORT2 ucol_prepareShortStringOpen(const char * definition,
 		UResourceBundle * defaultColl = ures_getByKeyWithFallback(collations, "default", NULL, status);
 		if(U_SUCCESS(*status)) {
 			int32_t defaultKeyLen = 0;
-			const UChar * defaultKey = ures_getString(defaultColl, &defaultKeyLen, status);
+			const char16_t * defaultKey = ures_getString(defaultColl, &defaultKeyLen, status);
 			u_UCharsToChars(defaultKey, keyBuffer, defaultKeyLen);
 			keyBuffer[defaultKeyLen] = 0;
 		}

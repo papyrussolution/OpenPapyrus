@@ -66,9 +66,9 @@ typedef struct {
 	do {								\
 		(vvp)->tv_sec += (uvp)->tv_sec;				\
 		(vvp)->tv_nsec += (uvp)->tv_nsec;			\
-		if((vvp)->tv_nsec >= 1000000000) {			\
+		if((vvp)->tv_nsec >= SlConst::OneBillion) { \
 			(vvp)->tv_sec++;				\
-			(vvp)->tv_nsec -= 1000000000;			\
+			(vvp)->tv_nsec -= SlConst::OneBillion; \
 		}							\
 	} while(0)
 #undef timespecsub
@@ -78,7 +78,7 @@ typedef struct {
 		(vvp)->tv_nsec -= (uvp)->tv_nsec;			\
 		if((vvp)->tv_nsec < 0) {				\
 			(vvp)->tv_sec--;				\
-			(vvp)->tv_nsec += 1000000000;			\
+			(vvp)->tv_nsec += SlConst::OneBillion; \
 		}							\
 	} while(0)
 

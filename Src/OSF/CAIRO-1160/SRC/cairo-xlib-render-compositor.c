@@ -1112,21 +1112,17 @@ static cairo_xlib_font_glyphset_t * find_pending_free_glyph(cairo_xlib_display_t
 	return NULL;
 }
 
-static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * display,
-    cairo_scaled_font_t * font,
-    cairo_scaled_glyph_t ** pscaled_glyph)
+static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * display, cairo_scaled_font_t * font, cairo_scaled_glyph_t ** pscaled_glyph)
 {
 	XGlyphInfo glyph_info;
-	ulong glyph_index;
 	uchar * data;
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	cairo_scaled_glyph_t * glyph = *pscaled_glyph;
 	cairo_image_surface_t * glyph_surface = glyph->surface;
 	boolint already_had_glyph_surface;
-	cairo_xlib_font_glyphset_t * info;
-	glyph_index = _cairo_scaled_glyph_index(glyph);
+	ulong glyph_index = _cairo_scaled_glyph_index(glyph);
 	/* check to see if we have a pending XRenderFreeGlyph for this glyph */
-	info = find_pending_free_glyph(display, font, glyph_index, glyph_surface);
+	cairo_xlib_font_glyphset_t * info = find_pending_free_glyph(display, font, glyph_index, glyph_surface);
 	if(info)
 		return _cairo_xlib_glyph_attach(display, glyph, info);
 	if(glyph_surface == NULL) {
@@ -1161,30 +1157,19 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 	 */
 	if(glyph_surface->format != info->format) {
 		cairo_surface_pattern_t pattern;
-		cairo_surface_t * tmp_surface;
-
-		tmp_surface = cairo_image_surface_create(info->format,
-			glyph_surface->width,
-			glyph_surface->height);
+		cairo_surface_t * tmp_surface = cairo_image_surface_create(info->format, glyph_surface->width, glyph_surface->height);
 		status = tmp_surface->status;
 		if(UNLIKELY(status))
 			goto BAIL;
-
 		tmp_surface->device_transform = glyph_surface->base.device_transform;
 		tmp_surface->device_transform_inverse = glyph_surface->base.device_transform_inverse;
-
 		_cairo_pattern_init_for_surface(&pattern, &glyph_surface->base);
-		status = _cairo_surface_paint(tmp_surface,
-			CAIRO_OPERATOR_SOURCE, &pattern.base,
-			NULL);
+		status = _cairo_surface_paint(tmp_surface, CAIRO_OPERATOR_SOURCE, &pattern.base, NULL);
 		_cairo_pattern_fini(&pattern.base);
-
 		glyph_surface = (cairo_image_surface_t*)tmp_surface;
-
 		if(UNLIKELY(status))
 			goto BAIL;
 	}
-
 	/* XXX: FRAGILE: We're ignore device_transform scaling here. A bug? */
 	glyph_info.x = _cairo_lround(glyph_surface->base.device_transform.x0);
 	glyph_info.y = _cairo_lround(glyph_surface->base.device_transform.y0);
@@ -1192,9 +1177,7 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 	glyph_info.height = glyph_surface->height;
 	glyph_info.xOff = glyph->x_advance;
 	glyph_info.yOff = glyph->y_advance;
-
 	data = glyph_surface->data;
-
 	/* flip formats around */
 	switch(_cairo_xlib_get_glyphset_index_for_format(glyph->surface->format)) {
 		case GLYPHSET_INDEX_A1:
@@ -1202,17 +1185,16 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 		    if(_cairo_is_little_endian() != (BitmapBitOrder(display->display) == LSBFirst)) {
 			    int c = glyph_surface->stride * glyph_surface->height;
 			    uchar * d;
-			    uchar * new, * n;
-
+			    uchar * p_new;
+				uchar * n;
 			    if(!c)
 				    break;
-
-			    new = _cairo_malloc(c);
-			    if(!new) {
+			    p_new = _cairo_malloc(c);
+			    if(!p_new) {
 				    status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 				    goto BAIL;
 			    }
-			    n = new;
+			    n = p_new;
 			    d = data;
 			    do {
 				    char b = *d++;
@@ -1221,7 +1203,7 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 				    b = ((b << 4) & 0xf0) | ((b >> 4) & 0x0f);
 				    *n++ = b;
 			    } while(--c);
-			    data = new;
+			    data = p_new;
 		    }
 		    break;
 		case GLYPHSET_INDEX_A8:
@@ -1230,23 +1212,22 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 		    if(_cairo_is_little_endian() != (ImageByteOrder(display->display) == LSBFirst)) {
 			    uint c = glyph_surface->stride * glyph_surface->height / 4;
 			    const uint32 * d;
-			    uint32 * new, * n;
-
+			    uint32 * p_new;
+				uint32 * n;
 			    if(!c)
 				    break;
-
-			    new = _cairo_malloc(4 * c);
-			    if(UNLIKELY(new == NULL)) {
+			    p_new = _cairo_malloc(4 * c);
+			    if(UNLIKELY(p_new == NULL)) {
 				    status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 				    goto BAIL;
 			    }
-			    n = new;
+			    n = p_new;
 			    d = (uint32 *)data;
 			    do {
 				    *n++ = sbswap32(*d);
 				    d++;
 			    } while(--c);
-			    data = (uint8 *)new;
+			    data = (uint8 *)p_new;
 		    }
 		    break;
 		default:
@@ -1254,17 +1235,10 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 		    break;
 	}
 	/* XXX assume X server wants pixman padding. Xft assumes this as well */
-
-	XRenderAddGlyphs(display->display, info->glyphset,
-	    &glyph_index, &glyph_info, 1,
-	    (char *)data,
-	    glyph_surface->stride * glyph_surface->height);
-
+	XRenderAddGlyphs(display->display, info->glyphset, &glyph_index, &glyph_info, 1, (char *)data, glyph_surface->stride * glyph_surface->height);
 	if(data != glyph_surface->data)
 		SAlloc::F(data);
-
 	status = _cairo_xlib_glyph_attach(display, glyph, info);
-
 BAIL:
 	if(glyph_surface != glyph->surface)
 		cairo_surface_destroy(&glyph_surface->base);
@@ -1277,21 +1251,11 @@ BAIL:
 	 */
 	if(!already_had_glyph_surface)
 		_cairo_scaled_glyph_set_surface(glyph, font, NULL);
-
 	return status;
 }
 
-typedef void (* cairo_xrender_composite_text_func_t)(Display * dpy,
-    int op,
-    Picture src,
-    Picture dst,
-    _Xconst XRenderPictFormat * maskFormat,
-    int xSrc,
-    int ySrc,
-    int xDst,
-    int yDst,
-    _Xconst XGlyphElt8 * elts,
-    int nelt);
+typedef void (* cairo_xrender_composite_text_func_t)(Display * dpy, int op, Picture src, Picture dst,
+    _Xconst XRenderPictFormat * maskFormat, int xSrc, int ySrc, int xDst, int yDst, _Xconst XGlyphElt8 * elts, int nelt);
 
 /* Build a struct of the same size of #cairo_glyph_t that can be used both as
  * an input glyph with double coordinates, and as "working" glyph with
@@ -1317,42 +1281,26 @@ COMPILE_TIME_ASSERT(sizeof(cairo_xlib_glyph_t) == sizeof(cairo_glyph_t));
  * These same conditions need to be mirrored between
  * _cairo_xlib_surface_emit_glyphs and _emit_glyph_chunks
  */
-#define _start_new_glyph_elt(count, glyph) \
-	(((count) & 127) == 0 || (glyph)->i.x || (glyph)->i.y)
+#define _start_new_glyph_elt(count, glyph) (((count) & 127) == 0 || (glyph)->i.x || (glyph)->i.y)
 
-static cairo_status_t _emit_glyphs_chunk(cairo_xlib_display_t * display,
-    cairo_xlib_surface_t * dst,
-    int dst_x, int dst_y,
-    cairo_xlib_glyph_t * glyphs,
-    int num_glyphs,
-    cairo_scaled_font_t * font,
-    boolint use_mask,
-    cairo_operator_t op,
-    cairo_xlib_source_t * src,
-    int src_x, int src_y,
-    /* info for this chunk */
-    int num_elts,
-    int width,
-    cairo_xlib_font_glyphset_t * info)
+static cairo_status_t _emit_glyphs_chunk(cairo_xlib_display_t * display, cairo_xlib_surface_t * dst, int dst_x, int dst_y,
+    cairo_xlib_glyph_t * glyphs, int num_glyphs, cairo_scaled_font_t * font, boolint use_mask, cairo_operator_t op,
+    cairo_xlib_source_t * src, int src_x, int src_y, /* info for this chunk */int num_elts, int width, cairo_xlib_font_glyphset_t * info)
 {
 	/* Which XRenderCompositeText function to use */
 	cairo_xrender_composite_text_func_t composite_text_func;
 	int size;
-
 	/* Element buffer stuff */
 	XGlyphElt8 * elts;
 	XGlyphElt8 stack_elts[CAIRO_STACK_ARRAY_LENGTH(XGlyphElt8)];
-
 	/* Reuse the input glyph array for output char generation */
-	char * char8 = (char *)glyphs;
-	unsigned short * char16 = (unsigned short*)glyphs;
-	uint * char32 = (uint *)glyphs;
-
+	char * p_char8 = (char *)glyphs;
+	unsigned short * p_char16 = (unsigned short*)glyphs;
+	uint * p_char32 = (uint *)glyphs;
 	int i;
 	int nelt; /* Element index */
 	int n; /* Num output glyphs in current element */
 	int j; /* Num output glyphs so far */
-
 	switch(width) {
 		case 1:
 		    /* don't cast the 8-variant, to catch possible mismatches */
@@ -1378,7 +1326,6 @@ static cairo_status_t _emit_glyphs_chunk(cairo_xlib_display_t * display,
 		if(UNLIKELY(elts == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
-
 	/* Fill them in */
 	nelt = 0;
 	n = 0;
@@ -1396,61 +1343,43 @@ static cairo_status_t _emit_glyphs_chunk(cairo_xlib_display_t * display,
 				nelt++;
 				n = 0;
 			}
-			elts[nelt].chars = char8 + size * j;
+			elts[nelt].chars = p_char8 + size * j;
 			elts[nelt].glyphset = info->glyphset;
 			elts[nelt].xOff = glyphs[i].i.x;
 			elts[nelt].yOff = glyphs[i].i.y;
 		}
-
 		switch(width) {
-			case 1: char8 [j] = (char)glyphs[i].index; break;
-			case 2: char16[j] = (unsigned short)glyphs[i].index; break;
+			case 1: p_char8 [j] = (char)glyphs[i].index; break;
+			case 2: p_char16[j] = (unsigned short)glyphs[i].index; break;
 			default:
-			case 4: char32[j] = (uint)glyphs[i].index; break;
+			case 4: p_char32[j] = (uint)glyphs[i].index; break;
 		}
-
 		n++;
 		j++;
 	}
-
 	if(n) {
 		elts[nelt].nchars = n;
 		nelt++;
 	}
-
 	/* Check that we agree with _cairo_xlib_surface_emit_glyphs() on the
 	 * expected number of xGlyphElts.  */
 	assert(nelt == num_elts);
-
-	composite_text_func(display->display, op,
-	    src->picture,
-	    dst->picture,
-	    use_mask ? info->xrender_format : NULL,
-	    src_x + elts[0].xOff + dst_x,
-	    src_y + elts[0].yOff + dst_y,
-	    elts[0].xOff, elts[0].yOff,
-	    (XGlyphElt8*)elts, nelt);
-
+	composite_text_func(display->display, op, src->picture, dst->picture, use_mask ? info->xrender_format : NULL,
+	    src_x + elts[0].xOff + dst_x, src_y + elts[0].yOff + dst_y, elts[0].xOff, elts[0].yOff, (XGlyphElt8*)elts, nelt);
 	if(elts != stack_elts)
 		SAlloc::F(elts);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_int_status_t check_composite_glyphs(const cairo_composite_rectangles_t * extents,
-    cairo_scaled_font_t * font,
-    cairo_glyph_t * glyphs,
-    int * num_glyphs)
+static cairo_int_status_t check_composite_glyphs(const cairo_composite_rectangles_t * extents, cairo_scaled_font_t * font,
+    cairo_glyph_t * glyphs, int * num_glyphs)
 {
 	cairo_xlib_surface_t * dst = (cairo_xlib_surface_t*)extents->surface;
 	cairo_xlib_display_t * display = dst->display;
 	int max_request_size, size;
-
 	TRACE_FUNCTION_SIMPLE();
-
 	if(!CAIRO_RENDER_SUPPORTS_OPERATOR(display, extents->op))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	/* The glyph coordinates must be representable in an int16.
 	 * When possible, they will be expressed as an offset from the
 	 * previous glyph, otherwise they will be an offset from the
@@ -1587,12 +1516,9 @@ static cairo_int_status_t composite_glyphs(void * surface,
 			x = y = 0;
 			glyphset = this_glyphset_info;
 		}
-
-		/* Convert absolute glyph position to relative-to-current-point
-		 * position */
+		// Convert absolute glyph position to relative-to-current-point position 
 		glyphs[i].i.x = this_x - x;
 		glyphs[i].i.y = this_y - y;
-
 		/* Start a new element for the first glyph,
 		 * or for any glyph that has unexpected position,
 		 * or if current element has too many glyphs.
@@ -1603,22 +1529,15 @@ static cairo_int_status_t composite_glyphs(void * surface,
 			num_elts++;
 			request_size += _cairo_sz_xGlyphElt;
 		}
-
 		/* adjust current-position */
 		x = this_x + glyph->x_advance;
 		y = this_y + glyph->y_advance;
-
 		num_out_glyphs++;
 		request_size += width;
 	}
-
 	if(num_elts) {
-		status = _emit_glyphs_chunk(display, dst, dst_x, dst_y,
-			glyphs, i, info->font, info->use_mask,
-			op, src, src_x, src_y,
-			num_elts, width, glyphset);
+		status = _emit_glyphs_chunk(display, dst, dst_x, dst_y, glyphs, i, info->font, info->use_mask, op, src, src_x, src_y, num_elts, width, glyphset);
 	}
-
 	return status;
 }
 
@@ -1626,11 +1545,8 @@ const cairo_compositor_t * _cairo_xlib_mask_compositor_get(void)
 {
 	static cairo_atomic_once_t once = CAIRO_ATOMIC_ONCE_INIT;
 	static cairo_mask_compositor_t compositor;
-
 	if(_cairo_atomic_init_once_enter(&once)) {
-		_cairo_mask_compositor_init(&compositor,
-		    _cairo_xlib_fallback_compositor_get());
-
+		_cairo_mask_compositor_init(&compositor, _cairo_xlib_fallback_compositor_get());
 		compositor.acquire = acquire;
 		compositor.release = release;
 		compositor.set_clip_region = set_clip_region;

@@ -257,7 +257,7 @@ void fz_write_base64_buffer(fz_context *ctx, fz_output *out, fz_buffer *data, in
 	%C outputs a utf8 encoded int.
 	%M outputs a fz_matrix*.
 	%R outputs a fz_rect*.
-	%P outputs a fz_point*.
+	%P outputs a SPoint2F*.
 	%n outputs a PDF name (with appropriate escaping).
 	%q and %( output escaped strings in C/PDF syntax.
 	%l{d,u,x} indicates that the values are int64_t.

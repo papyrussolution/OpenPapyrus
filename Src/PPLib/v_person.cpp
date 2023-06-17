@@ -1,11 +1,10 @@
 // V_PERSON.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 #include <charry.h>
-// @v10.9.3 #include <process.h>
 #include <ppsoapclient.h>
 
 int ViewPersonInfoBySCard(const char * pCode)
@@ -64,25 +63,24 @@ PPViewPerson::~PPViewPerson()
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempPersonFile, TempPerson);
 
-int PPViewPerson::IsTempTblNeeded()
+bool PPViewPerson::IsTempTblNeeded()
 {
-	int    yes = 0;
+	bool   yes = false;
 	if(Filt.AttribType || Filt.P_RegF || Filt.P_TagF || Filt.P_SjF || (Filt.Flags & PersonFilt::fTagsCrsstab))
-		yes = 1;
+		yes = true;
 	else {
 		SString temp_buf;
 		Filt.GetExtssData(PersonFilt::extssNameText, temp_buf);
 		if(temp_buf.NotEmptyS())
-			yes = 1;
+			yes = true;
 		else {
 			Filt.GetExtssData(PersonFilt::extssEmailText, temp_buf);
 			if(temp_buf.NotEmptyS())
-				yes = 1;
+				yes = true;
 		}
 		if(!yes) {
-			if(Filt.NewCliPeriod.low && Filt.Flags & Filt.fNewClientsOnly && PsnObj.GetConfig().NewClientDetectionList.getCount()) {
-				yes = 1;
-			}
+			if(Filt.NewCliPeriod.low && Filt.Flags & Filt.fNewClientsOnly && PsnObj.GetConfig().NewClientDetectionList.getCount())
+				yes = true;
 		}
 	}
 	return yes;

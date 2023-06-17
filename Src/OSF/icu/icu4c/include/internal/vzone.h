@@ -43,7 +43,7 @@ typedef struct VZone VZone;
  * @return A vzone object initialized by the time zone ID,
  * or NULL when the ID is unknown.
  */
-U_CAPI VZone* U_EXPORT2 vzone_openID(const UChar * ID, int32_t idLength);
+U_CAPI VZone* U_EXPORT2 vzone_openID(const char16_t * ID, int32_t idLength);
 
 /**
  * Create a vzone instance by RFC2445 VTIMEZONE data
@@ -53,7 +53,7 @@ U_CAPI VZone* U_EXPORT2 vzone_openID(const UChar * ID, int32_t idLength);
  * @return A vzone initialized by the VTIMEZONE data or
  * NULL if failed to load the rule from the VTIMEZONE data.
  */
-U_CAPI VZone* U_EXPORT2 vzone_openData(const UChar * vtzdata, int32_t vtzdataLength, UErrorCode & status);
+U_CAPI VZone* U_EXPORT2 vzone_openData(const char16_t * vtzdata, int32_t vtzdataLength, UErrorCode & status);
 
 /**
  * Disposes of the storage used by a VZone object.  This function should
@@ -87,7 +87,7 @@ U_CAPI bool U_EXPORT2 vzone_equals(const VZone* zone1, const VZone* zone2);
  * @param urlLength, length of the url
  * @return true if TZURL attribute is available and value is set.
  */
-U_CAPI bool U_EXPORT2 vzone_getTZURL(VZone* zone, UChar * & url, int32_t & urlLength);
+U_CAPI bool U_EXPORT2 vzone_getTZURL(VZone* zone, char16_t * & url, int32_t & urlLength);
 
 /**
  * Sets the RFC2445 TZURL property value.
@@ -95,7 +95,7 @@ U_CAPI bool U_EXPORT2 vzone_getTZURL(VZone* zone, UChar * & url, int32_t & urlLe
  * @param url The TZURL property value.
  * @param urlLength, length of the url
  */
-U_CAPI void U_EXPORT2 vzone_setTZURL(VZone* zone, UChar * url, int32_t urlLength);
+U_CAPI void U_EXPORT2 vzone_setTZURL(VZone* zone, char16_t * url, int32_t urlLength);
 
 /**
  * Gets the RFC2445 LAST-MODIFIED property value.  When a vzone instance
@@ -122,7 +122,7 @@ U_CAPI void U_EXPORT2 vzone_setLastModified(VZone* zone, UDate lastModified);
  * @param resultLength, length of the result output
  * @param status Output param to filled in with a success or an error.
  */
-U_CAPI void U_EXPORT2 vzone_write(VZone* zone, UChar * & result, int32_t & resultLength, UErrorCode & status);
+U_CAPI void U_EXPORT2 vzone_write(VZone* zone, char16_t * & result, int32_t & resultLength, UErrorCode & status);
 
 /**
  * Writes RFC2445 VTIMEZONE data for this time zone applicable
@@ -133,7 +133,7 @@ U_CAPI void U_EXPORT2 vzone_write(VZone* zone, UChar * & result, int32_t & resul
  * @param resultLength, length of the result output
  * @param status Output param to filled in with a success or an error.
  */
-U_CAPI void U_EXPORT2 vzone_writeFromStart(VZone* zone, UDate start, UChar * & result, int32_t & resultLength, UErrorCode & status);
+U_CAPI void U_EXPORT2 vzone_writeFromStart(VZone* zone, UDate start, char16_t * & result, int32_t & resultLength, UErrorCode & status);
 
 /**
  * Writes RFC2445 VTIMEZONE data applicable for the specified date.
@@ -148,7 +148,7 @@ U_CAPI void U_EXPORT2 vzone_writeFromStart(VZone* zone, UDate start, UChar * & r
  * @param result Output param to filled in with the VTIMEZONE data.
  * @param status Output param to filled in with a success or an error.
  */
-U_CAPI void U_EXPORT2 vzone_writeSimple(VZone* zone, UDate time, UChar * & result, int32_t & resultLength, UErrorCode & status);
+U_CAPI void U_EXPORT2 vzone_writeSimple(VZone* zone, UDate time, char16_t * & result, int32_t & resultLength, UErrorCode & status);
 
 /**
  * Returns the TimeZone's adjusted GMT offset (i.e., the number of milliseconds to add

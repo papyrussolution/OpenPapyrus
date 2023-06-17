@@ -319,9 +319,9 @@ typedef int8 UBool_Removed; // @sobolev _Removed
 #endif
 #endif
 
-/* UChar and UChar32 definitions -------------------------------------------- */
+/* char16_t and UChar32 definitions -------------------------------------------- */
 
-/** Number of bytes in a UChar. @stable ICU 2.0 */
+/** Number of bytes in a char16_t. @stable ICU 2.0 */
 #define U_SIZEOF_UCHAR 2
 
 /**
@@ -342,19 +342,19 @@ typedef int8 UBool_Removed; // @sobolev _Removed
 #endif
 
 /**
- * \var UChar
+ * \var char16_t
  *
  * The base type for UTF-16 code units and pointers.
  * Unsigned 16-bit integer.
- * Starting with ICU 59, C++ API uses char16_t directly, while C API continues to use UChar.
+ * Starting with ICU 59, C++ API uses char16_t directly, while C API continues to use char16_t.
  *
- * UChar is configurable by defining the macro UCHAR_TYPE
+ * char16_t is configurable by defining the macro UCHAR_TYPE
  * on the preprocessor or compiler command line:
  * -DUCHAR_TYPE=uint16 or -DUCHAR_TYPE=wchar_t (if U_SIZEOF_WCHAR_T==2) etc.
  * (The UCHAR_TYPE can also be \#defined earlier in this file, for outside the ICU library code.)
  * This is for transitional use from application code that uses uint16 or wchar_t for UTF-16.
  *
- * The default is UChar=char16_t.
+ * The default is char16_t=char16_t.
  *
  * C++11 defines char16_t as bit-compatible with uint16, but as a distinct type.
  *
@@ -366,41 +366,42 @@ typedef int8 UBool_Removed; // @sobolev _Removed
  */
 
 #if 1
-// #if 1 is normal. UChar defaults to char16_t in C++.
-// For configuration testing of UChar=uint16 temporarily change this to #if 0.
+// #if 1 is normal. char16_t defaults to char16_t in C++.
+// For configuration testing of char16_t=uint16 temporarily change this to #if 0.
 // The intltest Makefile #defines UCHAR_TYPE=char16_t,
 // so we only #define it to uint16 if it is undefined so far.
 #elif !defined(UCHAR_TYPE)
 #define UCHAR_TYPE uint16
 #endif
-
-#if defined(U_COMBINED_IMPLEMENTATION) || defined(U_COMMON_IMPLEMENTATION) || defined(U_I18N_IMPLEMENTATION) || defined(U_IO_IMPLEMENTATION)
-// Inside the ICU library code, never configurable.
-typedef char16_t UChar;
-#elif defined(UCHAR_TYPE)
-typedef UCHAR_TYPE UChar;
-#elif (U_CPLUSPLUS_VERSION >= 11)
-typedef char16_t UChar;
-#else
-typedef uint16 UChar;
-#endif
+// @sobolev UChar__Remove заменен во всех кодах на char16_t
+// в соответствии с изменениями в новых версиях ICU (тем более что мнке это очень импонирует).
+//#if defined(U_COMBINED_IMPLEMENTATION) || defined(U_COMMON_IMPLEMENTATION) || defined(U_I18N_IMPLEMENTATION) || defined(U_IO_IMPLEMENTATION)
+	// Inside the ICU library code, never configurable.
+	//typedef char16_t UChar__Removed;
+//#elif defined(UCHAR_TYPE)
+	//typedef UCHAR_TYPE UChar__Removed;
+//#elif (U_CPLUSPLUS_VERSION >= 11)
+	//typedef char16_t UChar__Removed;
+//#else
+	//typedef uint16 UChar__Removed;
+//#endif
 
 /**
  * \var OldUChar
- * Default ICU 58 definition of UChar.
+ * Default ICU 58 definition of char16_t.
  * A base type for UTF-16 code units and pointers.
  * Unsigned 16-bit integer.
  *
  * Define OldUChar to be wchar_t if that is 16 bits wide.
- * If wchar_t is not 16 bits wide, then define UChar to be uint16.
+ * If wchar_t is not 16 bits wide, then define char16_t to be uint16.
  *
  * This makes the definition of OldUChar platform-dependent
  * but allows direct string type compatibility with platforms with
  * 16-bit wchar_t types.
  *
- * This is how UChar was defined in ICU 58, for transition convenience.
- * Exception: ICU 58 UChar was defined to UCHAR_TYPE if that macro was defined.
- * The current UChar responds to UCHAR_TYPE but OldUChar does not.
+ * This is how char16_t was defined in ICU 58, for transition convenience.
+ * Exception: ICU 58 char16_t was defined to UCHAR_TYPE if that macro was defined.
+ * The current char16_t responds to UCHAR_TYPE but OldUChar does not.
  *
  * @stable ICU 59
  */

@@ -37,7 +37,7 @@
  * an ASCII-based or EBCDIC-based machine. There just does not seem to be a better name for this.
  */
 U_CAPI bool U_EXPORT2 uprv_isASCIILetter(char c);
-// NOTE: For u_asciiToUpper that takes a UChar, see ustr_imp.h
+// NOTE: For u_asciiToUpper that takes a char16_t, see ustr_imp.h
 U_CAPI char U_EXPORT2 uprv_toupper(char c);
 U_CAPI char U_EXPORT2 uprv_asciitolower(char c);
 U_CAPI char U_EXPORT2 uprv_ebcdictolower(char c);

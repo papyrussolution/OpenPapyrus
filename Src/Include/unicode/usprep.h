@@ -237,7 +237,7 @@ U_NAMESPACE_END
  * depending on the options specified in the profile.
  *
  * @param prep          The profile to use 
- * @param src           Pointer to UChar buffer containing the string to prepare
+ * @param src           Pointer to char16_t buffer containing the string to prepare
  * @param srcLength     Number of characters in the source string
  * @param dest          Pointer to the destination buffer to receive the output
  * @param destCapacity  The capacity of destination array
@@ -262,8 +262,8 @@ U_NAMESPACE_END
 
 U_CAPI int32_t U_EXPORT2
 usprep_prepare(   const UStringPrepProfile* prep,
-                  const UChar * src, int32_t srcLength, 
-                  UChar * dest, int32_t destCapacity,
+                  const char16_t * src, int32_t srcLength, 
+                  char16_t * dest, int32_t destCapacity,
                   int32_t options,
                   UParseError* parseError,
                   UErrorCode * status );

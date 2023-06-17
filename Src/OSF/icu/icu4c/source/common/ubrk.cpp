@@ -14,7 +14,7 @@ U_NAMESPACE_USE
 //    ubrk_open      Create a canned type of break iterator based on type (word, line, etc.)
 //                   and locale.
 //
-U_CAPI UBreakIterator* U_EXPORT2 ubrk_open(UBreakIteratorType type, const char * locale, const UChar * text, int32_t textLength, UErrorCode * status)
+U_CAPI UBreakIterator* U_EXPORT2 ubrk_open(UBreakIteratorType type, const char * locale, const char16_t * text, int32_t textLength, UErrorCode * status)
 {
 	if(U_FAILURE(*status)) return 0;
 	BreakIterator * result = 0;
@@ -44,7 +44,7 @@ U_CAPI UBreakIterator* U_EXPORT2 ubrk_open(UBreakIteratorType type, const char *
 //   ubrk_openRules      open a break iterator from a set of break rules.
 //                       Invokes the rule builder.
 //
-U_CAPI UBreakIterator* U_EXPORT2 ubrk_openRules(const UChar * rules, int32_t rulesLength, const UChar * text,
+U_CAPI UBreakIterator* U_EXPORT2 ubrk_openRules(const char16_t * rules, int32_t rulesLength, const char16_t * text,
     int32_t textLength, UParseError  * parseErr, UErrorCode * status) 
 {
 	if(!status || U_FAILURE(*status)) {
@@ -63,7 +63,7 @@ U_CAPI UBreakIterator* U_EXPORT2 ubrk_openRules(const UChar * rules, int32_t rul
 	return uBI;
 }
 
-U_CAPI UBreakIterator* U_EXPORT2 ubrk_openBinaryRules(const uint8 * binaryRules, int32_t rulesLength, const UChar * text, int32_t textLength, UErrorCode *   status)
+U_CAPI UBreakIterator* U_EXPORT2 ubrk_openBinaryRules(const uint8 * binaryRules, int32_t rulesLength, const char16_t * text, int32_t textLength, UErrorCode *   status)
 {
 	if(U_FAILURE(*status)) {
 		return NULL;
@@ -127,12 +127,12 @@ U_CAPI void U_EXPORT2 ubrk_close(UBreakIterator * bi)
 	delete (BreakIterator*)bi;
 }
 
-U_CAPI void U_EXPORT2 ubrk_setText(UBreakIterator* bi, const UChar * text, int32_t textLength, UErrorCode *  status)
+U_CAPI void U_EXPORT2 ubrk_setText(UBreakIterator* bi, const char16_t * text, int32_t textLength, UErrorCode *  status)
 {
 	UText ut = UTEXT_INITIALIZER;
 	utext_openUChars(&ut, text, textLength, status);
 	((BreakIterator*)bi)->setText(&ut, *status);
-	// A stack allocated UText wrapping a UChar * string
+	// A stack allocated UText wrapping a char16_t * string
 	//   can be dumped without explicitly closing it.
 }
 

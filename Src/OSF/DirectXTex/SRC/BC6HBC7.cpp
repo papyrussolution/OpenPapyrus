@@ -426,18 +426,14 @@ inline LDRColorA HDRColorA::ToLDRColorA() const noexcept
 }
 }
 
-namespace
-{
-class INTColor
-{
+namespace {
+class INTColor {
 public:
 	int r, g, b;
 	int pad;
-
 public:
 	INTColor() = default;
 	INTColor(int nr, int ng, int nb) noexcept : r(nr), g(ng), b(nb), pad(0) {}
-
 	INTColor& operator +=(_In_ const INTColor& c) noexcept
 	{
 		r += c.r;
@@ -445,7 +441,6 @@ public:
 		b += c.b;
 		return *this;
 	}
-
 	INTColor& operator -=(_In_ const INTColor& c) noexcept
 	{
 		r -= c.r;
@@ -1082,11 +1077,10 @@ const D3DX_BC7::ModeInfo D3DX_BC7::ms_aInfo[D3DX_BC7::c_NumModes] =
 	// Mode 7: Color+Alpha, 2 Subsets, RGBAP 55551 (unique P-bit), 2-bit indices, 64 partitions
 };
 
-namespace
-{
-//-------------------------------------------------------------------------------------
+namespace {
+//
 // Helper functions
-//-------------------------------------------------------------------------------------
+//
 inline bool IsFixUpOffset(_In_range_(0, 2) size_t uPartitions, _In_range_(0, 63) size_t uShape, _In_range_(0, 15) size_t uOffset) noexcept
 {
 	assert(uPartitions < 3 && uShape < 64 && uOffset < 16);
@@ -1562,15 +1556,12 @@ void FillWithErrorColors(_Out_writes_(NUM_PIXELS_PER_BLOCK) HDRColorA* pOut) noe
 	}
 }
 }
-
-//-------------------------------------------------------------------------------------
+//
 // BC6H Compression
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-void D3DX_BC6H::Decode(bool bSigned, HDRColorA* pOut) const noexcept
+//
+_Use_decl_annotations_ void D3DX_BC6H::Decode(bool bSigned, HDRColorA* pOut) const noexcept
 {
 	assert(pOut);
-
 	size_t uStartBit = 0;
 	uint8_t uMode = GetBits(uStartBit, 2u);
 	if(uMode != 0x00 && uMode != 0x01) {
@@ -1707,13 +1698,10 @@ void D3DX_BC6H::Decode(bool bSigned, HDRColorA* pOut) const noexcept
 	}
 }
 
-_Use_decl_annotations_
-void D3DX_BC6H::Encode(bool bSigned, const HDRColorA* const pIn) noexcept
+_Use_decl_annotations_ void D3DX_BC6H::Encode(bool bSigned, const HDRColorA* const pIn) noexcept
 {
 	assert(pIn);
-
 	EncodeParams EP(pIn, bSigned);
-
 	for(EP.uMode = 0; EP.uMode < c_NumModes && EP.fBestErr > 0; ++EP.uMode) {
 		const uint8_t uShapes = ms_aInfo[EP.uMode].uPartitions ? 32u : 1u;
 		// Number of rough cases to look at. reasonable values of this are 1, uShapes/4, and uShapes
@@ -1746,9 +1734,7 @@ void D3DX_BC6H::Encode(bool bSigned, const HDRColorA* const pIn) noexcept
 	}
 }
 
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-int D3DX_BC6H::Quantize(int iValue, int prec, bool bSigned) noexcept
+_Use_decl_annotations_ int D3DX_BC6H::Quantize(int iValue, int prec, bool bSigned) noexcept
 {
 	assert(prec > 1); // didn't bother to make it work for 1
 	int q, s = 0;
@@ -1772,8 +1758,7 @@ int D3DX_BC6H::Quantize(int iValue, int prec, bool bSigned) noexcept
 	return q;
 }
 
-_Use_decl_annotations_
-int D3DX_BC6H::Unquantize(int comp, uint8_t uBitsPerComp, bool bSigned) noexcept
+_Use_decl_annotations_ int D3DX_BC6H::Unquantize(int comp, uint8_t uBitsPerComp, bool bSigned) noexcept
 {
 	int unq = 0, s = 0;
 	if(bSigned) {
@@ -1803,20 +1788,17 @@ int D3DX_BC6H::Unquantize(int comp, uint8_t uBitsPerComp, bool bSigned) noexcept
 	return unq;
 }
 
-_Use_decl_annotations_
-int D3DX_BC6H::FinishUnquantize(int comp, bool bSigned) noexcept
+_Use_decl_annotations_ int D3DX_BC6H::FinishUnquantize(int comp, bool bSigned) noexcept
 {
 	if(bSigned) {
 		return (comp < 0) ? -(((-comp) * 31) >> 5) : (comp * 31) >> 5; // scale the magnitude by 31/32
 	}
 	else {
-		return (comp * 31) >> 6;                                // scale the magnitude by 31/64
+		return (comp * 31) >> 6; // scale the magnitude by 31/64
 	}
 }
 
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-bool D3DX_BC6H::EndPointsFit(const EncodeParams* pEP, const INTEndPntPair aEndPts[]) noexcept
+_Use_decl_annotations_ bool D3DX_BC6H::EndPointsFit(const EncodeParams* pEP, const INTEndPntPair aEndPts[]) noexcept
 {
 	assert(pEP);
 	assert(pEP->uMode < c_NumModes);
@@ -1858,8 +1840,7 @@ bool D3DX_BC6H::EndPointsFit(const EncodeParams* pEP, const INTEndPntPair aEndPt
 	return true;
 }
 
-_Use_decl_annotations_
-void D3DX_BC6H::GeneratePaletteQuantized(const EncodeParams* pEP, const INTEndPntPair& endPts, INTColor aPalette[]) const noexcept
+_Use_decl_annotations_ void D3DX_BC6H::GeneratePaletteQuantized(const EncodeParams* pEP, const INTEndPntPair& endPts, INTColor aPalette[]) const noexcept
 {
 	assert(pEP);
 	assert(pEP->uMode < c_NumModes);
@@ -1908,8 +1889,7 @@ void D3DX_BC6H::GeneratePaletteQuantized(const EncodeParams* pEP, const INTEndPn
 }
 
 // given a collection of colors and quantized endpoints, generate a palette, choose best entries, and return a single toterr
-_Use_decl_annotations_
-float D3DX_BC6H::MapColorsQuantized(const EncodeParams* pEP, const INTColor aColors[], size_t np, const INTEndPntPair &endPts) const noexcept
+_Use_decl_annotations_ float D3DX_BC6H::MapColorsQuantized(const EncodeParams* pEP, const INTColor aColors[], size_t np, const INTEndPntPair &endPts) const noexcept
 {
 	assert(pEP);
 	assert(pEP->uMode < c_NumModes);
@@ -1942,8 +1922,7 @@ float D3DX_BC6H::MapColorsQuantized(const EncodeParams* pEP, const INTColor aCol
 	return fTotErr;
 }
 
-_Use_decl_annotations_
-float D3DX_BC6H::PerturbOne(const EncodeParams* pEP, const INTColor aColors[], size_t np, uint8_t ch,
+_Use_decl_annotations_ float D3DX_BC6H::PerturbOne(const EncodeParams* pEP, const INTColor aColors[], size_t np, uint8_t ch,
     const INTEndPntPair& oldEndPts, INTEndPntPair& newEndPts, float fOldErr, int do_b) const noexcept
 {
 	assert(pEP);
@@ -1998,8 +1977,7 @@ float D3DX_BC6H::PerturbOne(const EncodeParams* pEP, const INTColor aColors[], s
 	return fMinErr;
 }
 
-_Use_decl_annotations_
-void D3DX_BC6H::OptimizeOne(const EncodeParams* pEP, const INTColor aColors[], size_t np, float aOrgErr,
+_Use_decl_annotations_ void D3DX_BC6H::OptimizeOne(const EncodeParams* pEP, const INTColor aColors[], size_t np, float aOrgErr,
     const INTEndPntPair &aOrgEndPts, INTEndPntPair &aOptEndPts) const noexcept
 {
 	assert(pEP);
@@ -2046,8 +2024,7 @@ void D3DX_BC6H::OptimizeOne(const EncodeParams* pEP, const INTColor aColors[], s
 	}
 }
 
-_Use_decl_annotations_
-void D3DX_BC6H::OptimizeEndPoints(const EncodeParams* pEP, const float aOrgErr[], const INTEndPntPair aOrgEndPts[], INTEndPntPair aOptEndPts[]) const noexcept
+_Use_decl_annotations_ void D3DX_BC6H::OptimizeEndPoints(const EncodeParams* pEP, const float aOrgErr[], const INTEndPntPair aOrgEndPts[], INTEndPntPair aOptEndPts[]) const noexcept
 {
 	assert(pEP);
 	assert(pEP->uMode < c_NumModes);
@@ -2072,8 +2049,7 @@ void D3DX_BC6H::OptimizeEndPoints(const EncodeParams* pEP, const float aOrgErr[]
 }
 
 // Swap endpoints as needed to ensure that the indices at fix up have a 0 high-order bit
-_Use_decl_annotations_
-void D3DX_BC6H::SwapIndices(const EncodeParams* pEP, INTEndPntPair aEndPts[], size_t aIndices[]) noexcept
+_Use_decl_annotations_ void D3DX_BC6H::SwapIndices(const EncodeParams* pEP, INTEndPntPair aEndPts[], size_t aIndices[]) noexcept
 {
 	assert(pEP);
 	assert(pEP->uMode < c_NumModes);
@@ -2101,8 +2077,7 @@ void D3DX_BC6H::SwapIndices(const EncodeParams* pEP, INTEndPntPair aEndPts[], si
 }
 
 // assign indices given a tile, shape, and quantized endpoints, return toterr for each region
-_Use_decl_annotations_
-void D3DX_BC6H::AssignIndices(const EncodeParams* pEP, const INTEndPntPair aEndPts[], size_t aIndices[], float aTotErr[]) const noexcept
+_Use_decl_annotations_ void D3DX_BC6H::AssignIndices(const EncodeParams* pEP, const INTEndPntPair aEndPts[], size_t aIndices[], float aTotErr[]) const noexcept
 {
 	assert(pEP);
 	assert(pEP->uMode < c_NumModes);
@@ -2141,8 +2116,7 @@ void D3DX_BC6H::AssignIndices(const EncodeParams* pEP, const INTEndPntPair aEndP
 	}
 }
 
-_Use_decl_annotations_
-void D3DX_BC6H::QuantizeEndPts(const EncodeParams* pEP, INTEndPntPair* aQntEndPts) const noexcept
+_Use_decl_annotations_ void D3DX_BC6H::QuantizeEndPts(const EncodeParams* pEP, INTEndPntPair* aQntEndPts) const noexcept
 {
 	assert(pEP && aQntEndPts);
 	assert(pEP->uMode < c_NumModes);
@@ -2164,8 +2138,7 @@ void D3DX_BC6H::QuantizeEndPts(const EncodeParams* pEP, INTEndPntPair* aQntEndPt
 	}
 }
 
-_Use_decl_annotations_
-void D3DX_BC6H::EmitBlock(const EncodeParams* pEP, const INTEndPntPair aEndPts[], const size_t aIndices[]) noexcept
+_Use_decl_annotations_ void D3DX_BC6H::EmitBlock(const EncodeParams* pEP, const INTEndPntPair aEndPts[], const size_t aIndices[]) noexcept
 {
 	assert(pEP);
 	assert(pEP->uMode < c_NumModes);
@@ -2207,8 +2180,7 @@ void D3DX_BC6H::EmitBlock(const EncodeParams* pEP, const INTEndPntPair aEndPts[]
 	assert(uStartBit == 128);
 }
 
-_Use_decl_annotations_
-void D3DX_BC6H::Refine(EncodeParams* pEP) noexcept
+_Use_decl_annotations_ void D3DX_BC6H::Refine(EncodeParams* pEP) noexcept
 {
 	assert(pEP);
 	assert(pEP->uMode < c_NumModes);
@@ -2255,8 +2227,7 @@ void D3DX_BC6H::Refine(EncodeParams* pEP) noexcept
 	}
 }
 
-_Use_decl_annotations_
-void D3DX_BC6H::GeneratePaletteUnquantized(const EncodeParams* pEP, size_t uRegion, INTColor aPalette[]) noexcept
+_Use_decl_annotations_ void D3DX_BC6H::GeneratePaletteUnquantized(const EncodeParams* pEP, size_t uRegion, INTColor aPalette[]) noexcept
 {
 	assert(pEP);
 	assert(uRegion < BC6H_MAX_REGIONS && pEP->uShape < BC6H_MAX_SHAPES);
@@ -2290,8 +2261,7 @@ void D3DX_BC6H::GeneratePaletteUnquantized(const EncodeParams* pEP, size_t uRegi
 	}
 }
 
-_Use_decl_annotations_
-float D3DX_BC6H::MapColors(const EncodeParams* pEP, size_t uRegion, size_t np, const size_t* auIndex) const noexcept
+_Use_decl_annotations_ float D3DX_BC6H::MapColors(const EncodeParams* pEP, size_t uRegion, size_t np, const size_t* auIndex) const noexcept
 {
 	assert(pEP);
 	assert(pEP->uMode < c_NumModes);
@@ -2316,8 +2286,7 @@ float D3DX_BC6H::MapColors(const EncodeParams* pEP, size_t uRegion, size_t np, c
 	return fTotalErr;
 }
 
-_Use_decl_annotations_
-float D3DX_BC6H::RoughMSE(EncodeParams* pEP) const noexcept
+_Use_decl_annotations_ float D3DX_BC6H::RoughMSE(EncodeParams* pEP) const noexcept
 {
 	assert(pEP);
 	assert(pEP->uShape < BC6H_MAX_SHAPES);
@@ -2367,21 +2336,16 @@ float D3DX_BC6H::RoughMSE(EncodeParams* pEP) const noexcept
 			aEndPts[p].A.Clamp(0, F16MAX);
 			aEndPts[p].B.Clamp(0, F16MAX);
 		}
-
 		fError += MapColors(pEP, p, np, auPixIdx);
 	}
-
 	return fError;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // BC7 Compression
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-void D3DX_BC7::Decode(HDRColorA* pOut) const noexcept
+//
+_Use_decl_annotations_ void D3DX_BC7::Decode(HDRColorA* pOut) const noexcept
 {
 	assert(pOut);
-
 	size_t uFirst = 0;
 	while(uFirst < 128 && !GetBit(uFirst)) {
 	}
@@ -2555,20 +2519,17 @@ void D3DX_BC7::Decode(HDRColorA* pOut) const noexcept
 		OutputDebugStringA("BC7: Reserved mode 8 encountered during decoding\n");
     #endif
 		// Per the BC7 format spec, we must return transparent black
-		memset(pOut, 0, sizeof(HDRColorA) * NUM_PIXELS_PER_BLOCK);
+		memzero(pOut, sizeof(HDRColorA) * NUM_PIXELS_PER_BLOCK);
 	}
 }
 
-_Use_decl_annotations_
-void D3DX_BC7::Encode(uint32_t flags, const HDRColorA* const pIn) noexcept
+_Use_decl_annotations_ void D3DX_BC7::Encode(uint32_t flags, const HDRColorA* const pIn) noexcept
 {
 	assert(pIn);
-
 	D3DX_BC7 final = *this;
 	EncodeParams EP(pIn);
 	float fMSEBest = FLT_MAX;
 	uint32_t alphaMask = 0xFF;
-
 	for(size_t i = 0; i < NUM_PIXELS_PER_BLOCK; ++i) {
 		EP.aLDRPixels[i].r = uint8_t(std::max<float>(0.0f, std::min<float>(255.0f, pIn[i].r * 255.0f + 0.01f)));
 		EP.aLDRPixels[i].g = uint8_t(std::max<float>(0.0f, std::min<float>(255.0f, pIn[i].g * 255.0f + 0.01f)));
@@ -2651,9 +2612,7 @@ void D3DX_BC7::Encode(uint32_t flags, const HDRColorA* const pIn) noexcept
 	*this = final;
 }
 
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-void D3DX_BC7::GeneratePaletteQuantized(const EncodeParams* pEP, size_t uIndexMode, const LDREndPntPair& endPts, LDRColorA aPalette[]) const noexcept
+_Use_decl_annotations_ void D3DX_BC7::GeneratePaletteQuantized(const EncodeParams* pEP, size_t uIndexMode, const LDREndPntPair& endPts, LDRColorA aPalette[]) const noexcept
 {
 	assert(pEP);
 	assert(pEP->uMode < c_NumModes);
@@ -2682,8 +2641,7 @@ void D3DX_BC7::GeneratePaletteQuantized(const EncodeParams* pEP, size_t uIndexMo
 	}
 }
 
-_Use_decl_annotations_
-float D3DX_BC7::PerturbOne(const EncodeParams* pEP, const LDRColorA aColors[], size_t np, size_t uIndexMode, size_t ch,
+_Use_decl_annotations_ float D3DX_BC7::PerturbOne(const EncodeParams* pEP, const LDRColorA aColors[], size_t np, size_t uIndexMode, size_t ch,
     const LDREndPntPair &oldEndPts, LDREndPntPair &newEndPts, float fOldErr, uint8_t do_b) const noexcept
 {
 	assert(pEP);
@@ -2785,8 +2743,7 @@ _Use_decl_annotations_ void D3DX_BC7::Exhaustive(const EncodeParams* pEP, const 
 	}
 }
 
-_Use_decl_annotations_
-void D3DX_BC7::OptimizeOne(const EncodeParams* pEP, const LDRColorA aColors[], size_t np, size_t uIndexMode,
+_Use_decl_annotations_ void D3DX_BC7::OptimizeOne(const EncodeParams* pEP, const LDRColorA aColors[], size_t np, size_t uIndexMode,
     float fOrgErr, const LDREndPntPair& org, LDREndPntPair& opt) const noexcept
 {
 	assert(pEP);
@@ -2849,8 +2806,7 @@ void D3DX_BC7::OptimizeOne(const EncodeParams* pEP, const LDRColorA aColors[], s
 		Exhaustive(pEP, aColors, np, uIndexMode, ch, fOptErr, opt);
 }
 
-_Use_decl_annotations_
-void D3DX_BC7::OptimizeEndPoints(const EncodeParams* pEP, size_t uShape, size_t uIndexMode, const float afOrgErr[],
+_Use_decl_annotations_ void D3DX_BC7::OptimizeEndPoints(const EncodeParams* pEP, size_t uShape, size_t uIndexMode, const float afOrgErr[],
     const LDREndPntPair aOrgEndPts[], LDREndPntPair aOptEndPts[]) const noexcept
 {
 	assert(pEP);
@@ -2874,8 +2830,7 @@ void D3DX_BC7::OptimizeEndPoints(const EncodeParams* pEP, size_t uShape, size_t 
 	}
 }
 
-_Use_decl_annotations_
-void D3DX_BC7::AssignIndices(const EncodeParams* pEP, size_t uShape, size_t uIndexMode, LDREndPntPair endPts[], size_t aIndices[], size_t aIndices2[],
+_Use_decl_annotations_ void D3DX_BC7::AssignIndices(const EncodeParams* pEP, size_t uShape, size_t uIndexMode, LDREndPntPair endPts[], size_t aIndices[], size_t aIndices2[],
     float afTotErr[]) const noexcept
 {
 	assert(pEP);
@@ -2947,8 +2902,7 @@ void D3DX_BC7::AssignIndices(const EncodeParams* pEP, size_t uShape, size_t uInd
 	}
 }
 
-_Use_decl_annotations_
-void D3DX_BC7::EmitBlock(const EncodeParams* pEP, size_t uShape, size_t uRotation, size_t uIndexMode, const LDREndPntPair aEndPts[], const size_t aIndex[],
+_Use_decl_annotations_ void D3DX_BC7::EmitBlock(const EncodeParams* pEP, size_t uShape, size_t uRotation, size_t uIndexMode, const LDREndPntPair aEndPts[], const size_t aIndex[],
     const size_t aIndex2[]) noexcept
 {
 	assert(pEP);
@@ -3024,12 +2978,10 @@ void D3DX_BC7::EmitBlock(const EncodeParams* pEP, size_t uShape, size_t uRotatio
 	if(uIndexPrec2)
 		for(i = 0; i < NUM_PIXELS_PER_BLOCK; i++)
 			SetBits(uStartBit, i ? uIndexPrec2 : uIndexPrec2 - 1, static_cast<uint8_t>(aI2[i]));
-
 	assert(uStartBit == 128);
 }
 
-_Use_decl_annotations_
-void D3DX_BC7::FixEndpointPBits(const EncodeParams* pEP, const LDREndPntPair * pOrigEndpoints, LDREndPntPair * pFixedEndpoints) noexcept
+_Use_decl_annotations_ void D3DX_BC7::FixEndpointPBits(const EncodeParams* pEP, const LDREndPntPair * pOrigEndpoints, LDREndPntPair * pFixedEndpoints) noexcept
 {
 	assert(pEP);
 	assert(pEP->uMode < c_NumModes);
@@ -3105,8 +3057,7 @@ void D3DX_BC7::FixEndpointPBits(const EncodeParams* pEP, const LDREndPntPair * p
 	}
 }
 
-_Use_decl_annotations_
-float D3DX_BC7::Refine(const EncodeParams* pEP, size_t uShape, size_t uRotation, size_t uIndexMode) noexcept
+_Use_decl_annotations_ float D3DX_BC7::Refine(const EncodeParams* pEP, size_t uShape, size_t uRotation, size_t uIndexMode) noexcept
 {
 	assert(pEP);
 	assert(uShape < BC7_MAX_SHAPES);
@@ -3161,8 +3112,7 @@ float D3DX_BC7::Refine(const EncodeParams* pEP, size_t uShape, size_t uRotation,
 	}
 }
 
-_Use_decl_annotations_
-float D3DX_BC7::MapColors(const EncodeParams* pEP, const LDRColorA aColors[], size_t np, size_t uIndexMode, const LDREndPntPair& endPts, float fMinErr) const noexcept
+_Use_decl_annotations_ float D3DX_BC7::MapColors(const EncodeParams* pEP, const LDRColorA aColors[], size_t np, size_t uIndexMode, const LDREndPntPair& endPts, float fMinErr) const noexcept
 {
 	assert(pEP);
 	assert(pEP->uMode < c_NumModes);
@@ -3185,8 +3135,7 @@ float D3DX_BC7::MapColors(const EncodeParams* pEP, const LDRColorA aColors[], si
 	return fTotalErr;
 }
 
-_Use_decl_annotations_
-float D3DX_BC7::RoughMSE(EncodeParams* pEP, size_t uShape, size_t uIndexMode) noexcept
+_Use_decl_annotations_ float D3DX_BC7::RoughMSE(EncodeParams* pEP, size_t uShape, size_t uIndexMode) noexcept
 {
 	assert(pEP);
 	assert(uShape < BC7_MAX_SHAPES);
@@ -3322,8 +3271,7 @@ _Use_decl_annotations_ void DirectX::D3DXDecodeBC7(XMVECTOR * pColor, const uint
 	reinterpret_cast<const D3DX_BC7*>(pBC)->Decode(reinterpret_cast<HDRColorA*>(pColor));
 }
 
-_Use_decl_annotations_
-void DirectX::D3DXEncodeBC7(uint8_t * pBC, const XMVECTOR * pColor, uint32_t flags) noexcept
+_Use_decl_annotations_ void DirectX::D3DXEncodeBC7(uint8_t * pBC, const XMVECTOR * pColor, uint32_t flags) noexcept
 {
 	assert(pBC && pColor);
 	static_assert(sizeof(D3DX_BC7) == 16, "D3DX_BC7 should be 16 bytes");

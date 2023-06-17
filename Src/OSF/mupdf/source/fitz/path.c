@@ -44,8 +44,8 @@ struct fz_path {
 	uchar * cmds;
 	int coord_len, coord_cap;
 	float * coords;
-	fz_point current;
-	fz_point begin;
+	SPoint2F current;
+	SPoint2F begin;
 };
 
 typedef struct {
@@ -210,7 +210,7 @@ static void STDCALL push_cmd(fz_context * ctx, fz_path * path, int cmd)
 	if(path->refs != 1)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "cannot modify shared paths");
 	if(path->cmd_len + 1 >= path->cmd_cap) {
-		int new_cmd_cap = fz_maxi(16, path->cmd_cap * 2);
+		int new_cmd_cap = smax(16, path->cmd_cap * 2);
 		path->cmds = fz_realloc_array(ctx, path->cmds, new_cmd_cap, uchar);
 		path->cmd_cap = new_cmd_cap;
 	}
@@ -220,7 +220,7 @@ static void STDCALL push_cmd(fz_context * ctx, fz_path * path, int cmd)
 static void STDCALL push_coord(fz_context * ctx, fz_path * path, float x, float y)
 {
 	if(path->coord_len + 2 >= path->coord_cap) {
-		int new_coord_cap = fz_maxi(32, path->coord_cap * 2);
+		int new_coord_cap = smax(32, path->coord_cap * 2);
 		path->coords = fz_realloc_array(ctx, path->coords, new_coord_cap, float);
 		path->coord_cap = new_coord_cap;
 	}
@@ -233,7 +233,7 @@ static void STDCALL push_coord(fz_context * ctx, fz_path * path, float x, float 
 static void STDCALL push_ord(fz_context * ctx, fz_path * path, float xy, int isx)
 {
 	if(path->coord_len + 1 >= path->coord_cap) {
-		int new_coord_cap = fz_maxi(32, path->coord_cap * 2);
+		int new_coord_cap = smax(32, path->coord_cap * 2);
 		path->coords = fz_realloc_array(ctx, path->coords, new_coord_cap, float);
 		path->coord_cap = new_coord_cap;
 	}
@@ -244,7 +244,7 @@ static void STDCALL push_ord(fz_context * ctx, fz_path * path, float xy, int isx
 		path->current.y = xy;
 }
 
-fz_point FASTCALL fz_currentpoint(fz_context * ctx, fz_path * path)
+SPoint2F FASTCALL fz_currentpoint(fz_context * ctx, fz_path * path)
 {
 	return path->current;
 }
@@ -480,7 +480,7 @@ void fz_rectto(fz_context * ctx, fz_path * path, float x1, float y1, float x2, f
 	path->current = path->begin;
 }
 
-static inline void bound_expand(fz_rect * r, fz_point p)
+static inline void bound_expand(fz_rect * r, SPoint2F p)
 {
 	if(p.x < r->x0) r->x0 = p.x;
 	if(p.y < r->y0) r->y0 = p.y;
@@ -687,7 +687,7 @@ void STDCALL fz_walk_path(fz_context * ctx, const fz_path * path, const fz_path_
 typedef struct {
 	fz_matrix ctm;
 	fz_rect rect;
-	fz_point move;
+	SPoint2F move;
 	int trailing_move;
 	int first;
 } bound_path_arg;
@@ -702,7 +702,7 @@ static void bound_moveto(fz_context * ctx, void * arg_, float x, float y)
 static void bound_lineto(fz_context * ctx, void * arg_, float x, float y)
 {
 	bound_path_arg * arg = (bound_path_arg*)arg_;
-	fz_point p = fz_transform_point_xy(x, y, arg->ctm);
+	SPoint2F p = fz_transform_point_xy(x, y, arg->ctm);
 	if(arg->first) {
 		arg->rect.x0 = arg->rect.x1 = p.x;
 		arg->rect.y0 = arg->rect.y1 = p.y;
@@ -719,7 +719,7 @@ static void bound_lineto(fz_context * ctx, void * arg_, float x, float y)
 static void bound_curveto(fz_context * ctx, void * arg_, float x1, float y1, float x2, float y2, float x3, float y3)
 {
 	bound_path_arg * arg = (bound_path_arg*)arg_;
-	fz_point p = fz_transform_point_xy(x1, y1, arg->ctm);
+	SPoint2F p = fz_transform_point_xy(x1, y1, arg->ctm);
 	if(arg->first) {
 		arg->rect.x0 = arg->rect.x1 = p.x;
 		arg->rect.y0 = arg->rect.y1 = p.y;
@@ -785,7 +785,7 @@ fz_rect fz_adjust_rect_for_stroke(fz_context * ctx, fz_rect r, const fz_stroke_s
 void fz_transform_path(fz_context * ctx, fz_path * path, fz_matrix ctm)
 {
 	int i, k, n;
-	fz_point p, p1, p2, p3, q, s;
+	SPoint2F p, p1, p2, p3, q, s;
 
 	if(path->packed)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "Cannot transform a packed path");

@@ -367,12 +367,10 @@ static const char * get_winsock_error(int err, char * buf, size_t len)
 		case WSANO_DATA:
 		    p = "No data record of requested type";
 		    break;
-
 		default:
 		    return NULL;
 	}
-	strncpy(buf, p, len);
-	buf [len-1] = '\0';
+	strnzcpy(buf, p, len);
 	return buf;
 #endif
 }
@@ -569,8 +567,7 @@ const char * Curl_winapi_strerror(DWORD err, char * buf, size_t buflen)
 #else
 	{
 		const char * txt = (err == ERROR_SUCCESS) ? "No error" : "Error";
-		strncpy(buf, txt, buflen);
-		buf[buflen - 1] = '\0';
+		strnzcpy(buf, txt, buflen);
 	}
 #endif
 
@@ -710,18 +707,15 @@ const char * Curl_sspi_strerror(int err, char * buf, size_t buflen)
 		if(get_winapi_error(err, msgbuf, sizeof(msgbuf)))
 			msnprintf(buf, buflen, "%s - %s", txtbuf, msgbuf);
 		else {
-			strncpy(buf, txtbuf, buflen);
-			buf[buflen - 1] = '\0';
+			strnzcpy(buf, txtbuf, buflen);
 		}
 	}
-
 #else
 	if(err == SEC_E_OK)
 		txt = "No error";
 	else
 		txt = "Error";
-	strncpy(buf, txt, buflen);
-	buf[buflen - 1] = '\0';
+	strnzcpy(buf, txt, buflen);
 #endif
 	if(errno != old_errno)
 		errno = old_errno;

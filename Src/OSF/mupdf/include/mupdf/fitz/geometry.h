@@ -50,12 +50,11 @@ float fz_atof(const char * s);
 /**
         atoi that copes with NULL
  */
-int fz_atoi(const char * s);
-
+//int fz_atoi_Removed(const char * s);
 /**
         64bit atoi that copes with NULL
  */
-int64_t fz_atoi64(const char * s);
+//int64_t fz_atoi64_Removed(const char * s);
 /**
         Some standard math functions, done as static inlines for speed.
         People with compilers that do not adequately implement inline
@@ -63,11 +62,11 @@ int64_t fz_atoi64(const char * s);
  */
 static inline float fz_abs(float f) { return (f < 0 ? -f : f); }
 static inline int fz_absi(int i) { return (i < 0 ? -i : i); }
-static inline float fz_min(float a, float b) { return (a < b ? a : b); }
-static inline int fz_mini(int a, int b) { return (a < b ? a : b); }
+// @sobolev (replaced with smin) static inline float fz_min_Removed(float a, float b) { return (a < b ? a : b); }
+// @sobolev (replaced with smin) static inline int fz_mini_Removed(int a, int b) { return (a < b ? a : b); }
 static inline size_t fz_minz(size_t a, size_t b) { return (a < b ? a : b); }
-static inline float fz_max(float a, float b) { return (a > b ? a : b); }
-static inline int fz_maxi(int a, int b) { return (a > b ? a : b); }
+// @sobolev (replaced with smax) static inline float fz_max_Removed(float a, float b) { return (a > b ? a : b); }
+// @sobolev (replaced with smax) static inline int fz_maxi_Removed(int a, int b) { return (a > b ? a : b); }
 static inline size_t fz_maxz(size_t a, size_t b) { return (a > b ? a : b); }
 static inline int64_t fz_maxi64(int64_t a, int64_t b) { return (a > b ? a : b); }
 static inline float fz_clamp(float f, float min, float max) { return (f > min ? (f < max ? f : max) : min); }
@@ -76,20 +75,12 @@ static inline double fz_clampd(double d, double min, double max) { return (d > m
 static inline void * fz_clampp(void * p, void * min, void * max) { return (p > min ? (p < max ? p : max) : min); }
 
 #define DIV_BY_ZERO(a, b, min, max) (((a) < 0) ^ ((b) < 0) ? (min) : (max))
-
 /**
-        fz_point is a point in a two-dimensional space.
+        SPoint2F is a point in a two-dimensional space.
  */
-typedef struct {
-	float x, y;
-} fz_point;
+// @sobolev (replaced with SPoint2F) typedef struct { float x, y; } fz_point_Removed;
 
-static inline fz_point fz_make_point(float x, float y)
-{
-	fz_point p = { x, y };
-	return p;
-}
-
+static inline SPoint2F fz_make_point(float x, float y) { return SPoint2F(x, y); }
 /**
         fz_rect is a rectangle represented by two diagonally opposite
         corners at arbitrary coordinates.
@@ -537,7 +528,7 @@ fz_irect fz_expand_irect(fz_irect a, int expand);
         rectangle must first be set to be the empty rectangle at one of
         the points before including the others.
  */
-fz_rect fz_include_point_in_rect(fz_rect r, fz_point p);
+fz_rect fz_include_point_in_rect(fz_rect r, SPoint2F p);
 
 /**
         Translate bounding box.
@@ -565,8 +556,8 @@ int fz_contains_rect(fz_rect a, fz_rect b);
 
         Returns transform (unchanged).
  */
-fz_point fz_transform_point(fz_point point, fz_matrix m);
-fz_point fz_transform_point_xy(float x, float y, fz_matrix m);
+SPoint2F fz_transform_point(SPoint2F point, fz_matrix m);
+SPoint2F fz_transform_point_xy(float x, float y, fz_matrix m);
 
 /**
         Apply a transformation to a vector.
@@ -577,7 +568,7 @@ fz_point fz_transform_point_xy(float x, float y, fz_matrix m);
 
         vector: Pointer to vector to update.
  */
-fz_point fz_transform_vector(fz_point vector, fz_matrix m);
+SPoint2F fz_transform_vector(SPoint2F vector, fz_matrix m);
 
 /**
         Apply a transform to a rectangle.
@@ -599,7 +590,7 @@ fz_rect fz_transform_rect(fz_rect rect, fz_matrix m);
 /**
         Normalize a vector to length one.
  */
-fz_point fz_normalize_vector(fz_point p);
+SPoint2F fz_normalize_vector(SPoint2F p);
 
 /**
         Grid fit a matrix.
@@ -627,7 +618,7 @@ float fz_matrix_max_expansion(fz_matrix m);
         the edges of quads are not axis aligned.
  */
 typedef struct {
-	fz_point ul, ur, ll, lr;
+	SPoint2F ul, ur, ll, lr;
 } fz_quad;
 
 /**
@@ -657,13 +648,13 @@ fz_quad fz_transform_quad(fz_quad q, fz_matrix m);
 /**
         Inclusion test for quads.
  */
-int fz_is_point_inside_quad(fz_point p, fz_quad q);
+int fz_is_point_inside_quad(SPoint2F p, fz_quad q);
 
 /**
         Inclusion test for rects. (Rect is assumed to be open, i.e.
         top right corner is not included).
  */
-int fz_is_point_inside_rect(fz_point p, fz_rect r);
+int fz_is_point_inside_rect(SPoint2F p, fz_rect r);
 
 /**
         Inclusion test for irects. (Rect is assumed to be open, i.e.

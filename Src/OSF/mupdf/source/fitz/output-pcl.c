@@ -270,12 +270,12 @@ fz_pcl_options * fz_parse_pcl_options(fz_context * ctx, fz_pcl_options * opts, c
 	else
 		fz_pcl_preset(ctx, opts, "generic");
 	if(fz_has_option(ctx, args, "spacing", &val)) {
-		switch(atoi(val)) {
+		switch(satoi(val)) {
 			case 0: opts->features &= ~PCL_ANY_SPACING; break;
 			case 1: opts->features = (opts->features & ~PCL_ANY_SPACING) | PCL3_SPACING; break;
 			case 2: opts->features = (opts->features & ~PCL_ANY_SPACING) | PCL4_SPACING; break;
 			case 3: opts->features = (opts->features & ~PCL_ANY_SPACING) | PCL5_SPACING; break;
-			default: fz_throw(ctx, FZ_ERROR_GENERIC, "Unsupported PCL spacing %d (0-3 only)", atoi(val));
+			default: fz_throw(ctx, FZ_ERROR_GENERIC, "Unsupported PCL spacing %d (0-3 only)", satoi(val));
 		}
 	}
 	if(fz_has_option(ctx, args, "mode2", &val)) {
@@ -342,16 +342,13 @@ fz_pcl_options * fz_parse_pcl_options(fz_context * ctx, fz_pcl_options * opts, c
 		else
 			fz_throw(ctx, FZ_ERROR_GENERIC, "Expected 'yes' or 'no' for is_oce9050 value");
 	}
-
 	return opts;
 }
 
-static void make_init(fz_pcl_options * pcl, char * buf, unsigned long len, const char * str, int res)
+static void make_init(fz_pcl_options * pcl, char * buf, ulong len, const char * str, int res)
 {
 	int paper_source = -1;
-
 	fz_snprintf(buf, len, str, res);
-
 	if(pcl->manual_feed_set && pcl->manual_feed)
 		paper_source = 2;
 	else if(pcl->media_position_set && pcl->media_position >= 0)
@@ -804,7 +801,7 @@ static void color_pcl_compress_column(fz_context * ctx, color_pcl_band_writer * 
 
 			/* Compress the line into our fixed buffer. */
 			if(seed_valid)
-				len = delta_compression(curr, prev, comp2, ss, fz_mini(ss-1, 32767-3));
+				len = delta_compression(curr, prev, comp2, ss, smin(ss-1, 32767-3));
 
 			if(len > 0) {
 				/* Delta compression */

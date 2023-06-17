@@ -303,7 +303,7 @@ void fz_decode_tile(fz_context * ctx, fz_pixmap * pix, const float * decode)
 	uchar * p = pix->samples;
 	size_t stride = pix->stride - pix->w * (size_t)pix->n;
 	int len;
-	int n = fz_maxi(1, pix->n - pix->alpha);
+	int n = smax(1, pix->n - pix->alpha);
 	int k;
 	int h;
 

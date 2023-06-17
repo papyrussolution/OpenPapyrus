@@ -1023,7 +1023,7 @@ static void jpeg_gen_optimal_table(j_compress_ptr cinfo, JHUFF_TBL * htbl, long 
 		/* Find the smallest nonzero frequency, set c1 = its symbol */
 		/* In case of ties, take the larger symbol number */
 		c1 = -1;
-		v = 1000000000L;
+		v = SlConst::OneBillion;
 		for(i = 0; i <= 256; i++) {
 			if(freq[i] && freq[i] <= v) {
 				v = freq[i];
@@ -1033,7 +1033,7 @@ static void jpeg_gen_optimal_table(j_compress_ptr cinfo, JHUFF_TBL * htbl, long 
 		/* Find the next smallest nonzero frequency, set c2 = its symbol */
 		/* In case of ties, take the larger symbol number */
 		c2 = -1;
-		v = 1000000000L;
+		v = SlConst::OneBillion;
 		for(i = 0; i <= 256; i++) {
 			if(freq[i] && freq[i] <= v && i != c1) {
 				v = freq[i];

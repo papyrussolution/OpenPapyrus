@@ -2106,9 +2106,7 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 			{
 				// Группа дней недели и дней месяца
 				SUiLayoutParam alb(DIREC_VERT, 0, SUiLayoutParam::alignStart);
-				alb.GrowFactor = 6.0f;
-				alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-				alb.Margin.Set(def_margin);
+				alb.SetGrowFactor(6.0f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f).SetMargin(def_margin);
 				p_lo_days_group->SetLayoutBlock(alb);
 			}
 			InnerBlock::MakeWeekdaysLayout(this, p_lo_days_group); // Заголовки дней недели
@@ -2116,14 +2114,11 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 		}
 		{
 			SUiLayoutParam alb_buttons(DIREC_HORZ, 0, SUiLayoutParam::alignEnd);
-			alb_buttons.GrowFactor = 1.0f;
-			alb_buttons.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+			alb_buttons.SetGrowFactor(1.0f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 			SUiLayout * p_lo_buttons = p_lo_result->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_Buttons, 0)), &alb_buttons);
 			{
 				SUiLayoutParam alb;
-				alb.GrowFactor = 1.0f;
-				alb.SetFixedSizeY(FixedCtrlHeight);
-				alb.Margin.Set(def_margin);
+				alb.SetGrowFactor(1.0f).SetFixedSizeY(FixedCtrlHeight).SetMargin(def_margin);
 				InnerBlock::InsertButtonLayout(this, p_lo_buttons, CTL_CALENDAR_TODAY, alb, 1.0f);
 				InnerBlock::InsertButtonLayout(this, p_lo_buttons, STDCTL_OKBUTTON, alb, 1.0f);
 				InnerBlock::InsertButtonLayout(this, p_lo_buttons, STDCTL_CANCELBUTTON, alb, 1.0f);
@@ -2139,9 +2134,7 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 					TInputLine * p_il = static_cast<ComboBox *>(p)->link();
 					{
 						SUiLayoutParam alb = p_lo_inp2->GetLayoutBlock();
-						alb.GrowFactor = 1.4f;
-						alb.Margin.Set(def_margin);
-						alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+						alb.SetGrowFactor(1.4f).SetMargin(def_margin).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 						p_lo_inp2->SetLayoutBlock(alb);
 					}
 					SUiLayout * p_lo_inp = p_lo_inp2->FindComplexComponentId(SUiLayout::cmlxcInput);
@@ -2160,14 +2153,11 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 		{
 			// Псевдо-кнопки выбора типа периода: дни, недели, месяцы, кварталы, годы
 			SUiLayoutParam alb_row(DIREC_HORZ);
-			alb_row.GrowFactor = 1.0f;
-			alb_row.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+			alb_row.SetGrowFactor(1.0f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 			SUiLayout * p_lo_prdtypes = p_lo_result->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_PeriodTypeButtons, 0)), &alb_row);
 			{
 				SUiLayoutParam alb;
-				alb.GrowFactor = 1.0f;
-				alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-				alb.Margin.Set(def_margin);
+				alb.SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f).SetMargin(def_margin);
 				const uint pl[] = {PRD_DAY, PRD_WEEK, PRD_MONTH, PRD_QUART, PRD_ANNUAL};
 				for(uint i = 0; i < SIZEOFARRAY(pl); i++)
 					p_lo_prdtypes->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_PeriodTypeButtons, pl[i])), &alb);
@@ -2180,8 +2170,7 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 				if(p_lo_inp2) {
 					{
 						SUiLayoutParam alb = p_lo_inp2->GetLayoutBlock();
-						alb.GrowFactor = 1.8f;
-						alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+						alb.SetGrowFactor(1.8f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 						p_lo_inp2->SetLayoutBlock(alb);
 					}
 					SUiLayout * p_lo_inp = p_lo_inp2->FindComplexComponentId(SUiLayout::cmlxcInput);
@@ -2201,9 +2190,7 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 			{
 				// Группа дней недели и дней месяца
 				SUiLayoutParam alb(DIREC_VERT, 0, SUiLayoutParam::alignStart);
-				alb.GrowFactor = 6.0f;
-				alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-				alb.Margin.Set(def_margin);
+				alb.SetGrowFactor(6.0f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f).SetMargin(def_margin);
 				p_lo_days_group->SetLayoutBlock(alb);
 			}
 			InnerBlock::MakeWeekdaysLayout(this, p_lo_days_group); // Заголовки дней недели		
@@ -2211,15 +2198,12 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 		}
 		{
 			SUiLayoutParam alb_buttons(DIREC_HORZ, 0, SUiLayoutParam::alignEnd);
-			alb_buttons.GrowFactor = 1.0f;
-			alb_buttons.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+			alb_buttons.SetGrowFactor(1.0f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 			SUiLayout * p_lo_buttons = p_lo_result->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_Buttons, 0)), &alb_buttons);
 			{
 				SUiLayoutParam alb;
-				alb.GrowFactor = 1.0f;
+				alb.SetGrowFactor(1.0f).SetFixedSizeY(FixedCtrlHeight).SetMargin(def_margin);
 				//alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-				alb.SetFixedSizeY(FixedCtrlHeight);
-				alb.Margin.Set(def_margin);
 				InnerBlock::InsertButtonLayout(this, p_lo_buttons, CTL_CALENDAR_LEFTRESET, alb, 0.4f);
 				InnerBlock::InsertButtonLayout(this, p_lo_buttons, CTL_CALENDAR_RESET, alb, 0.4f);
 				InnerBlock::InsertButtonLayout(this, p_lo_buttons, CTL_CALENDAR_RIGHTRESET, alb, 0.4f);

@@ -35,8 +35,8 @@ const uint32_t severeErrors =
 
 static inline bool isASCIIString(const UnicodeString & dest) 
 {
-	const UChar * s = dest.getBuffer();
-	const UChar * limit = s+dest.length();
+	const char16_t * s = dest.getBuffer();
+	const char16_t * limit = s+dest.length();
 	while(s < limit) {
 		if(*s++>0x7f) {
 			return FALSE;
@@ -45,7 +45,7 @@ static inline bool isASCIIString(const UnicodeString & dest)
 	return TRUE;
 }
 
-static bool isASCIIOkBiDi(const UChar * s, int32_t length);
+static bool isASCIIOkBiDi(const char16_t * s, int32_t length);
 
 static bool isASCIIOkBiDi(const char * s, int32_t length);
 
@@ -142,9 +142,9 @@ private:
 	// returns the new label length
 	int32_t processLabel(UnicodeString & dest, int32_t labelStart, int32_t labelLength, bool toASCII, IDNAInfo &info, UErrorCode & errorCode) const;
 	int32_t markBadACELabel(UnicodeString & dest, int32_t labelStart, int32_t labelLength, bool toASCII, IDNAInfo &info, UErrorCode & errorCode) const;
-	void checkLabelBiDi(const UChar * label, int32_t labelLength, IDNAInfo &info) const;
-	bool isLabelOkContextJ(const UChar * label, int32_t labelLength) const;
-	void checkLabelContextO(const UChar * label, int32_t labelLength, IDNAInfo &info) const;
+	void checkLabelBiDi(const char16_t * label, int32_t labelLength, IDNAInfo &info) const;
+	bool isLabelOkContextJ(const char16_t * label, int32_t labelLength) const;
+	void checkLabelContextO(const char16_t * label, int32_t labelLength, IDNAInfo &info) const;
 	const Normalizer2 &uts46Norm2; // uts46.nrm
 	uint32_t options;
 };
@@ -253,7 +253,7 @@ UnicodeString & UTS46::process(const UnicodeString & src,
 		dest.setToBogus();
 		return dest;
 	}
-	const UChar * srcArray = src.getBuffer();
+	const char16_t * srcArray = src.getBuffer();
 	if(&dest==&src || srcArray==NULL) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		dest.setToBogus();
@@ -267,7 +267,7 @@ UnicodeString & UTS46::process(const UnicodeString & src,
 		info.errors |= UIDNA_ERROR_EMPTY_LABEL;
 		return dest;
 	}
-	UChar * destArray = dest.getBuffer(srcLength);
+	char16_t * destArray = dest.getBuffer(srcLength);
 	if(destArray==NULL) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
 		return dest;
@@ -291,7 +291,7 @@ UnicodeString & UTS46::process(const UnicodeString & src,
 			dest.releaseBuffer(i);
 			return dest;
 		}
-		UChar c = srcArray[i];
+		char16_t c = srcArray[i];
 		if(c>0x7f) {
 			break;
 		}
@@ -489,11 +489,11 @@ UnicodeString & UTS46::processUnicode(const UnicodeString & src,
 	bool doMapDevChars =
 	    toASCII ? (options&UIDNA_NONTRANSITIONAL_TO_ASCII)==0 :
 	    (options&UIDNA_NONTRANSITIONAL_TO_UNICODE)==0;
-	const UChar * destArray = dest.getBuffer();
+	const char16_t * destArray = dest.getBuffer();
 	int32_t destLength = dest.length();
 	int32_t labelLimit = labelStart;
 	while(labelLimit<destLength) {
-		UChar c = destArray[labelLimit];
+		char16_t c = destArray[labelLimit];
 		if(c==0x2e && !isLabel) {
 			int32_t labelLength = labelLimit-labelStart;
 			int32_t newLength = processLabel(dest, labelStart, labelLength,
@@ -555,7 +555,7 @@ int32_t UTS46::mapDevChars(UnicodeString & dest, int32_t labelStart, int32_t map
 		return 0;
 	}
 	int32_t length = dest.length();
-	UChar * s = dest.getBuffer(dest[mappingStart]==0xdf ? length+1 : length);
+	char16_t * s = dest.getBuffer(dest[mappingStart]==0xdf ? length+1 : length);
 	if(s==NULL) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
 		return length;
@@ -564,7 +564,7 @@ int32_t UTS46::mapDevChars(UnicodeString & dest, int32_t labelStart, int32_t map
 	bool didMapDevChars = FALSE;
 	int32_t readIndex = mappingStart, writeIndex = mappingStart;
 	do {
-		UChar c = s[readIndex++];
+		char16_t c = s[readIndex++];
 		switch(c) {
 			case 0xdf:
 			    // Map sharp s to ss.
@@ -656,7 +656,7 @@ int32_t UTS46::processLabel(UnicodeString & dest,
 	}
 	UnicodeString fromPunycode;
 	UnicodeString * labelString;
-	const UChar * label = dest.getBuffer()+labelStart;
+	const char16_t * label = dest.getBuffer()+labelStart;
 	int32_t destLabelStart = labelStart;
 	int32_t destLabelLength = labelLength;
 	bool wasPunycode;
@@ -673,7 +673,7 @@ int32_t UTS46::processLabel(UnicodeString & dest,
 			return markBadACELabel(dest, labelStart, labelLength, toASCII, info, errorCode);
 		}
 		wasPunycode = TRUE;
-		UChar * unicodeBuffer = fromPunycode.getBuffer(-1); // capacity==-1: most labels should fit
+		char16_t * unicodeBuffer = fromPunycode.getBuffer(-1); // capacity==-1: most labels should fit
 		if(unicodeBuffer==NULL) {
 			// Should never occur if we used capacity==-1 which uses the internal buffer.
 			errorCode = U_MEMORY_ALLOCATION_ERROR;
@@ -752,13 +752,13 @@ int32_t UTS46::processLabel(UnicodeString & dest,
 	// in a non-Punycode label or U+FFFD itself in a Punycode label.
 	// We also check for dots which can come from the input to a single-label function.
 	// Ok to cast away const because we own the UnicodeString.
-	UChar * s = (UChar *)label;
-	const UChar * limit = label+labelLength;
-	UChar oredChars = 0;
+	char16_t * s = (char16_t *)label;
+	const char16_t * limit = label+labelLength;
+	char16_t oredChars = 0;
 	// If we enforce STD3 rules, then ASCII characters other than LDH and dot are disallowed.
 	bool disallowNonLDHDot = (options&UIDNA_USE_STD3_RULES)!=0;
 	do {
-		UChar c = *s;
+		char16_t c = *s;
 		if(c<=0x7f) {
 			if(c==0x2e) {
 				info.labelErrors |= UIDNA_ERROR_LABEL_HAS_DOT;
@@ -789,7 +789,7 @@ int32_t UTS46::processLabel(UnicodeString & dest,
 	U16_NEXT_UNSAFE(label, cpLength, c);
 	if((U_GET_GC_MASK(c)&U_GC_M_MASK)!=0) {
 		info.labelErrors |= UIDNA_ERROR_LEADING_COMBINING_MARK;
-		labelString->replace(labelStart, cpLength, (UChar)0xfffd);
+		labelString->replace(labelStart, cpLength, (char16_t)0xfffd);
 		label = labelString->getBuffer()+labelStart;
 		labelLength += 1-cpLength;
 		if(labelString==&dest) {
@@ -819,7 +819,7 @@ int32_t UTS46::processLabel(UnicodeString & dest,
 			else if(oredChars>=0x80) {
 				// Contains non-ASCII characters.
 				UnicodeString punycode;
-				UChar * buffer = punycode.getBuffer(63); // 63==maximum DNS label length
+				char16_t * buffer = punycode.getBuffer(63); // 63==maximum DNS label length
 				if(buffer==NULL) {
 					errorCode = U_MEMORY_ALLOCATION_ERROR;
 					return destLabelLength;
@@ -886,12 +886,12 @@ int32_t UTS46::markBadACELabel(UnicodeString & dest,
 	bool disallowNonLDHDot = (options&UIDNA_USE_STD3_RULES)!=0;
 	bool isASCII = TRUE;
 	bool onlyLDH = TRUE;
-	const UChar * label = dest.getBuffer()+labelStart;
-	const UChar * limit = label+labelLength;
+	const char16_t * label = dest.getBuffer()+labelStart;
+	const char16_t * limit = label+labelLength;
 	// Start after the initial "xn--".
 	// Ok to cast away const because we own the UnicodeString.
-	for(UChar * s = const_cast<UChar *>(label+4); s<limit; ++s) {
-		UChar c = *s;
+	for(char16_t * s = const_cast<char16_t *>(label+4); s<limit; ++s) {
+		char16_t c = *s;
 		if(c<=0x7f) {
 			if(c==0x2e) {
 				info.labelErrors |= UIDNA_ERROR_LABEL_HAS_DOT;
@@ -911,7 +911,7 @@ int32_t UTS46::markBadACELabel(UnicodeString & dest,
 		}
 	}
 	if(onlyLDH) {
-		dest.insert(labelStart+labelLength, (UChar)0xfffd);
+		dest.insert(labelStart+labelLength, (char16_t)0xfffd);
 		if(dest.isBogus()) {
 			errorCode = U_MEMORY_ALLOCATION_ERROR;
 			return 0;
@@ -951,7 +951,7 @@ const uint32_t R_AL_AN_EN_ES_CS_ET_ON_BN_NSM_MASK = R_AL_MASK|EN_AN_MASK|ES_CS_E
 // In a BiDi domain name, all labels must pass the BiDi Rule, but we might find
 // that a domain name is a BiDi domain name (has an RTL label) only after
 // processing several earlier labels.
-void UTS46::checkLabelBiDi(const UChar * label, int32_t labelLength, IDNAInfo &info) const {
+void UTS46::checkLabelBiDi(const char16_t * label, int32_t labelLength, IDNAInfo &info) const {
 	// IDNA2008 BiDi rule
 	// Get the directionality of the first character.
 	UChar32 c;
@@ -1039,10 +1039,10 @@ void UTS46::checkLabelBiDi(const UChar * label, int32_t labelLength, IDNAInfo &i
 // UTF-16 version, called for mapped ASCII prefix.
 // Cannot contain uppercase A-Z.
 // s[length-1] must be the trailing dot.
-static bool isASCIIOkBiDi(const UChar * s, int32_t length) {
+static bool isASCIIOkBiDi(const char16_t * s, int32_t length) {
 	int32_t labelStart = 0;
 	for(int32_t i = 0; i < length; ++i) {
-		UChar c = s[i];
+		char16_t c = s[i];
 		if(c==0x2e) { // dot
 			if(i>labelStart) {
 				c = s[i-1];
@@ -1102,7 +1102,7 @@ static bool isASCIIOkBiDi(const char * s, int32_t length) {
 	return TRUE;
 }
 
-bool UTS46::isLabelOkContextJ(const UChar * label, int32_t labelLength) const {
+bool UTS46::isLabelOkContextJ(const char16_t * label, int32_t labelLength) const {
 	// [IDNA2008-Tables]
 	// 200C..200D  ; CONTEXTJ    # ZERO WIDTH NON-JOINER..ZERO WIDTH JOINER
 	for(int32_t i = 0; i<labelLength; ++i) {
@@ -1175,7 +1175,7 @@ bool UTS46::isLabelOkContextJ(const UChar * label, int32_t labelLength) const {
 	return TRUE;
 }
 
-void UTS46::checkLabelContextO(const UChar * label, int32_t labelLength, IDNAInfo &info) const {
+void UTS46::checkLabelContextO(const char16_t * label, int32_t labelLength, IDNAInfo &info) const {
 	int32_t labelEnd = labelLength-1; // inclusive
 	int32_t arabicDigits = 0; // -1 for 066x, +1 for 06Fx
 	for(int32_t i = 0; i<=labelEnd; ++i) {
@@ -1323,8 +1323,8 @@ static void idnaInfoToStruct(IDNAInfo &info, UIDNAInfo * pInfo) {
 }
 
 U_CAPI int32_t U_EXPORT2 uidna_labelToASCII(const UIDNA * idna,
-    const UChar * label, int32_t length,
-    UChar * dest, int32_t capacity,
+    const char16_t * label, int32_t length,
+    char16_t * dest, int32_t capacity,
     UIDNAInfo * pInfo, UErrorCode * pErrorCode) {
 	if(!checkArgs(label, length, dest, capacity, pInfo, pErrorCode)) {
 		return 0;
@@ -1338,8 +1338,8 @@ U_CAPI int32_t U_EXPORT2 uidna_labelToASCII(const UIDNA * idna,
 }
 
 U_CAPI int32_t U_EXPORT2 uidna_labelToUnicode(const UIDNA * idna,
-    const UChar * label, int32_t length,
-    UChar * dest, int32_t capacity,
+    const char16_t * label, int32_t length,
+    char16_t * dest, int32_t capacity,
     UIDNAInfo * pInfo, UErrorCode * pErrorCode) {
 	if(!checkArgs(label, length, dest, capacity, pInfo, pErrorCode)) {
 		return 0;
@@ -1353,8 +1353,8 @@ U_CAPI int32_t U_EXPORT2 uidna_labelToUnicode(const UIDNA * idna,
 }
 
 U_CAPI int32_t U_EXPORT2 uidna_nameToASCII(const UIDNA * idna,
-    const UChar * name, int32_t length,
-    UChar * dest, int32_t capacity,
+    const char16_t * name, int32_t length,
+    char16_t * dest, int32_t capacity,
     UIDNAInfo * pInfo, UErrorCode * pErrorCode) {
 	if(!checkArgs(name, length, dest, capacity, pInfo, pErrorCode)) {
 		return 0;
@@ -1368,8 +1368,8 @@ U_CAPI int32_t U_EXPORT2 uidna_nameToASCII(const UIDNA * idna,
 }
 
 U_CAPI int32_t U_EXPORT2 uidna_nameToUnicode(const UIDNA * idna,
-    const UChar * name, int32_t length,
-    UChar * dest, int32_t capacity,
+    const char16_t * name, int32_t length,
+    char16_t * dest, int32_t capacity,
     UIDNAInfo * pInfo, UErrorCode * pErrorCode) {
 	if(!checkArgs(name, length, dest, capacity, pInfo, pErrorCode)) {
 		return 0;

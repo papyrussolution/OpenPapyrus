@@ -1,5 +1,5 @@
 // V_LOT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1282,20 +1282,20 @@ int PPViewLot::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int PPViewLot::IsTempTblNeeded() const
+bool PPViewLot::IsTempTblNeeded() const
 {
-	int    yes = 0;
+	bool   yes = false;
 	if(!(State & stNoTempTbl)) {
 		const long tf = (LotFilt::fOrders|LotFilt::fDeadLots|LotFilt::fWithoutClb|
 			LotFilt::fOnlySpoilage|LotFilt::fCheckOriginLotDate|LotFilt::fShowPriceDev|LotFilt::fLotfPrWoTaxes);
 		if((!Filt.Operation.IsZero() || (Filt.Flags & tf) || (!Filt.GoodsID && Filt.GoodsGrpID) || !Filt.QcExpiryPrd.IsZero()) ||
 			SupplList.GetCount() > 1 || Filt.ParentLotID || (Filt.P_TagF && !Filt.P_TagF->IsEmpty()) || State & stFiltSerial)
-			yes = 1;
+			yes = true;
 		else {
 			SString temp_buf;
 			Filt.GetExtssData(LotFilt::extssSerialText, temp_buf);
 			if(temp_buf.NotEmptyS())
-				yes = 1;
+				yes = true;
 		}
 	}
 	return yes;

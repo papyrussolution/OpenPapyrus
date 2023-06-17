@@ -21,7 +21,7 @@
 #include <sl_pthreads4w.h>
 #pragma hdrstop
 
-static const int64_t NANOSEC_PER_SEC = 1000000000;
+static const int64_t NANOSEC_PER_SEC = SlConst::OneBillion;
 static const int64_t NANOSEC_PER_MILLISEC = 1000000;
 static const int64_t MILLISEC_PER_SEC = 1000;
 static struct pthread_mutexattr_t_ __ptw32_recursive_mutexattr_s = {PTHREAD_PROCESS_PRIVATE, PTHREAD_MUTEX_RECURSIVE, PTHREAD_MUTEX_STALLED};

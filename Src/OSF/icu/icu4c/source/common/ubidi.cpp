@@ -19,14 +19,14 @@
  * rules of the BiDi algorithm, in this example to the second rule of the
  * resolution of weak types.
  *
- * For handling surrogate pairs, where two UChar's form one "abstract" (or UTF-32)
- * character according to UTF-16, the second UChar gets the directional property of
+ * For handling surrogate pairs, where two char16_t's form one "abstract" (or UTF-32)
+ * character according to UTF-16, the second char16_t gets the directional property of
  * the entire character assigned, while the first one gets a BN, a boundary
  * neutral, type, which is ignored by most of the algorithm according to
  * rule (X9) and the implementation suggestions of the BiDi algorithm.
  *
  * Later, adjustWSLevels() will set the level for each BN to that of the
- * following character (UChar), which results in surrogate pairs getting the
+ * following character (char16_t), which results in surrogate pairs getting the
  * same level on each of their surrogates.
  *
  * In a UTF-8 implementation, the same thing could be done: the last byte of
@@ -309,7 +309,7 @@ U_CAPI uint32_t U_EXPORT2 ubidi_getReorderingOptions(UBiDi * pBiDi)
 	return pBiDi ? pBiDi->reorderingOptions : 0;
 }
 
-U_CAPI UBiDiDirection U_EXPORT2 ubidi_getBaseDirection(const UChar * text, int32_t length) 
+U_CAPI UBiDiDirection U_EXPORT2 ubidi_getBaseDirection(const char16_t * text, int32_t length) 
 {
 	int32_t i;
 	UChar32 uchar;
@@ -340,7 +340,7 @@ U_CAPI UBiDiDirection U_EXPORT2 ubidi_getBaseDirection(const UChar * text, int32
  * Requires prologue!=null.
  */
 static DirProp firstL_R_AL(UBiDi * pBiDi) {
-	const UChar * text = pBiDi->prologue;
+	const char16_t * text = pBiDi->prologue;
 	int32_t length = pBiDi->proLength;
 	int32_t i;
 	UChar32 uchar;
@@ -394,7 +394,7 @@ static bool checkParaCount(UBiDi * pBiDi)
  */
 static bool getDirProps(UBiDi * pBiDi) 
 {
-	const UChar * text = pBiDi->text;
+	const char16_t * text = pBiDi->text;
 	DirProp * dirProps = pBiDi->dirPropsMemory; /* pBiDi->dirProps is const */
 	int32_t i = 0, originalLength = pBiDi->originalLength;
 	Flags flags = 0; /* collect all directionalities in the text */
@@ -711,7 +711,7 @@ static void bracketProcessPDI(BracketData * bd) {
 
 /* newly found opening bracket: create an openings entry */
 static bool          /* return TRUE if success */
-bracketAddOpening(BracketData * bd, UChar match, int32_t position) {
+bracketAddOpening(BracketData * bd, char16_t match, int32_t position) {
 	IsoRun * pLastIsoRun = &bd->isoRuns[bd->isoRunLast];
 	Opening * pOpening;
 	if(pLastIsoRun->limit>=bd->openingsCount) { /* no available new entry */
@@ -849,11 +849,11 @@ bracketProcessChar(BracketData * bd, int32_t position) {
 	dirProps = bd->pBiDi->dirProps;
 	dirProp = dirProps[position];
 	if(dirProp==ON) {
-		UChar match;
+		char16_t match;
 		int32_t idx;
 		/* First see if it is a matching closing bracket. Hopefully, this is
 		   more efficient than checking if it is a closing bracket at all */
-		UChar c = bd->pBiDi->text[position];
+		char16_t c = bd->pBiDi->text[position];
 		for(idx = pLastIsoRun->limit-1; idx>=pLastIsoRun->start; idx--) {
 			if(bd->openings[idx].match!=c)
 				continue;
@@ -886,7 +886,7 @@ bracketProcessChar(BracketData * bd, int32_t position) {
 		   bracket or it is a case of N0d */
 		/* Now see if it is an opening bracket */
 		if(c)
-			match = static_cast<UChar>(u_getBidiPairedBracket(c)); /* get the matching char */
+			match = static_cast<char16_t>(u_getBidiPairedBracket(c)); /* get the matching char */
 		else
 			match = 0;
 		if(match!=c &&  /* has a matching char */ ubidi_getPairedBracketType(c)==U_BPT_OPEN) { /* opening bracket */
@@ -1039,7 +1039,7 @@ static UBiDiDirection resolveExplicitLevels(UBiDi * pBiDi, UErrorCode * pErrorCo
 {
 	DirProp * dirProps = pBiDi->dirProps;
 	UBiDiLevel * levels = pBiDi->levels;
-	const UChar * text = pBiDi->text;
+	const char16_t * text = pBiDi->text;
 	int32_t i = 0, length = pBiDi->length;
 	Flags flags = pBiDi->flags; /* collect all directionalities in the text */
 	DirProp dirProp;
@@ -2002,7 +2002,7 @@ static void processPropertySeq(UBiDi * pBiDi, LevState * pLevState, uint8 _prop,
  */
 static DirProp lastL_R_AL(UBiDi * pBiDi) 
 {
-	const UChar * text = pBiDi->prologue;
+	const char16_t * text = pBiDi->prologue;
 	const int32_t length = pBiDi->proLength;
 	for(int32_t i = length; i > 0;) {
 		UChar32 uchar;
@@ -2023,7 +2023,7 @@ static DirProp lastL_R_AL(UBiDi * pBiDi)
  */
 static DirProp firstL_R_AL_EN_AN(UBiDi * pBiDi) 
 {
-	const UChar * text = pBiDi->epilogue;
+	const char16_t * text = pBiDi->epilogue;
 	const int32_t length = pBiDi->epiLength;
 	for(int32_t i = 0; i < length;) {
 		UChar32 uchar;
@@ -2235,7 +2235,7 @@ static void adjustWSLevels(UBiDi * pBiDi)
 	}
 }
 
-U_CAPI void U_EXPORT2 ubidi_setContext(UBiDi * pBiDi, const UChar * prologue, int32_t proLength, const UChar * epilogue, int32_t epiLength, UErrorCode * pErrorCode) 
+U_CAPI void U_EXPORT2 ubidi_setContext(UBiDi * pBiDi, const char16_t * prologue, int32_t proLength, const char16_t * epilogue, int32_t epiLength, UErrorCode * pErrorCode) 
 {
 	/* check the argument values */
 	RETURN_VOID_IF_NULL_OR_FAILING_ERRCODE(pErrorCode);
@@ -2269,11 +2269,11 @@ static void setParaSuccess(UBiDi * pBiDi)
 // @sobolev #define BIDI_MIN(x, y)   ((x)<(y) ? (x) : (y))
 #define BIDI_ABS(x)      ((x)>=0  ? (x) : (-(x)))
 
-static void setParaRunsOnly(UBiDi * pBiDi, const UChar * text, int32_t length, UBiDiLevel paraLevel, UErrorCode * pErrorCode) 
+static void setParaRunsOnly(UBiDi * pBiDi, const char16_t * text, int32_t length, UBiDiLevel paraLevel, UErrorCode * pErrorCode) 
 {
 	int32_t * runsOnlyMemory = NULL;
 	int32_t * visualMap;
-	UChar * visualText;
+	char16_t * visualText;
 	int32_t saveLength, saveTrailingWSStart;
 	const UBiDiLevel * levels;
 	UBiDiLevel * saveLevels;
@@ -2303,13 +2303,13 @@ static void setParaRunsOnly(UBiDi * pBiDi, const UChar * text, int32_t length, U
 		goto cleanup3;
 	}
 	/* obtain memory for mapping table and visual text */
-	runsOnlyMemory = static_cast<int32_t *>(uprv_malloc(length*(sizeof(int32_t)+sizeof(UChar)+sizeof(UBiDiLevel))));
+	runsOnlyMemory = static_cast<int32_t *>(uprv_malloc(length*(sizeof(int32_t)+sizeof(char16_t)+sizeof(UBiDiLevel))));
 	if(runsOnlyMemory==NULL) {
 		*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 		goto cleanup3;
 	}
 	visualMap = runsOnlyMemory;
-	visualText = (UChar *)&visualMap[length];
+	visualText = (char16_t *)&visualMap[length];
 	saveLevels = (UBiDiLevel*)&visualText[length];
 	saveOptions = pBiDi->reorderingOptions;
 	if(saveOptions & UBIDI_OPTION_INSERT_MARKS) {
@@ -2457,7 +2457,7 @@ cleanup3:
 
 /* ubidi_setPara ------------------------------------------------------------ */
 
-U_CAPI void U_EXPORT2 ubidi_setPara(UBiDi * pBiDi, const UChar * text, int32_t length, UBiDiLevel paraLevel, UBiDiLevel * embeddingLevels, UErrorCode * pErrorCode) 
+U_CAPI void U_EXPORT2 ubidi_setPara(UBiDi * pBiDi, const char16_t * text, int32_t length, UBiDiLevel paraLevel, UBiDiLevel * embeddingLevels, UErrorCode * pErrorCode) 
 {
 	UBiDiDirection direction;
 	DirProp * dirProps;
@@ -2746,7 +2746,7 @@ U_CAPI void U_EXPORT2 ubidi_orderParagraphsLTR(UBiDi * pBiDi, bool orderParagrap
 
 U_CAPI bool U_EXPORT2 ubidi_isOrderParagraphsLTR(UBiDi * pBiDi) { return pBiDi ? pBiDi->orderParagraphsLTR : FALSE; }
 U_CAPI UBiDiDirection U_EXPORT2 ubidi_getDirection(const UBiDi * pBiDi) { return IS_VALID_PARA_OR_LINE(pBiDi) ? pBiDi->direction : UBIDI_LTR; }
-U_CAPI const UChar * U_EXPORT2 ubidi_getText(const UBiDi * pBiDi) { return IS_VALID_PARA_OR_LINE(pBiDi) ? pBiDi->text : NULL; }
+U_CAPI const char16_t * U_EXPORT2 ubidi_getText(const UBiDi * pBiDi) { return IS_VALID_PARA_OR_LINE(pBiDi) ? pBiDi->text : NULL; }
 U_CAPI int32_t U_EXPORT2 ubidi_getLength(const UBiDi * pBiDi) { return IS_VALID_PARA_OR_LINE(pBiDi) ? pBiDi->originalLength : 0; }
 U_CAPI int32_t U_EXPORT2 ubidi_getProcessedLength(const UBiDi * pBiDi) { return IS_VALID_PARA_OR_LINE(pBiDi) ? pBiDi->length : 0; }
 U_CAPI int32_t U_EXPORT2 ubidi_getResultLength(const UBiDi * pBiDi) { return IS_VALID_PARA_OR_LINE(pBiDi) ? pBiDi->resultLength : 0; }

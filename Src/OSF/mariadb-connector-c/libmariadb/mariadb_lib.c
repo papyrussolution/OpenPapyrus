@@ -1664,12 +1664,10 @@ void my_set_error(MYSQL * mysql,
 		else
 			errmsg = ER(CR_UNKNOWN_ERROR);
 	}
-
 	mysql->net.last_errno = error_nr;
 	ma_strmake(mysql->net.sqlstate, sqlstate, SQLSTATE_LENGTH);
 	va_start(ap, format);
-	vsnprintf(mysql->net.last_error, MYSQL_ERRMSG_SIZE - 1,
-	    format ? format : errmsg, ap);
+	vsnprintf(mysql->net.last_error, MYSQL_ERRMSG_SIZE - 1, format ? format : errmsg, ap);
 	va_end(ap);
 	return;
 }

@@ -193,16 +193,12 @@ HRESULT TransformImage_(const Image& srcImage, const std::function<void __cdecl(
 	return S_OK;
 }
 };
-
-//=====================================================================================
+//
 // Entry points
-//=====================================================================================
-
-//-------------------------------------------------------------------------------------
+//
 // Copies a rectangle from one image into another
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::CopyRectangle(const Image& srcImage,
+//
+_Use_decl_annotations_ HRESULT DirectX::CopyRectangle(const Image& srcImage,
     const Rect& srcRect,
     const Image& dstImage,
     TEX_FILTER_FLAGS filter,
@@ -289,24 +285,18 @@ HRESULT DirectX::CopyRectangle(const Image& srcImage,
 
 		if(!LoadScanline(scanline.get(), srcRect.w, pSrc, copyS, srcImage.format))
 			return E_FAIL;
-
 		ConvertScanline(scanline.get(), srcRect.w, dstImage.format, srcImage.format, filter);
-
 		if(!StoreScanline(pDest, copyD, dstImage.format, scanline.get(), srcRect.w))
 			return E_FAIL;
-
 		pSrc += srcImage.rowPitch;
 		pDest += dstImage.rowPitch;
 	}
-
 	return S_OK;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Computes the Mean-Squared-Error (MSE) between two images
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::ComputeMSE(const Image& image1,
+//
+_Use_decl_annotations_ HRESULT DirectX::ComputeMSE(const Image& image1,
     const Image& image2,
     float& mse,
     float* mseV,
@@ -380,12 +370,10 @@ HRESULT DirectX::ComputeMSE(const Image& image1,
 		}
 	}
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Evaluates a user-supplied function for all the pixels in the image
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::EvaluateImage(const Image& image,
+//
+_Use_decl_annotations_ HRESULT DirectX::EvaluateImage(const Image& image,
     std::function<void __cdecl(_In_reads_(width) const XMVECTOR* pixels, size_t width, size_t y)> pixelFunc)
 {
 	if(image.width > UINT32_MAX
@@ -415,11 +403,8 @@ HRESULT DirectX::EvaluateImage(const Image& image,
 	}
 }
 
-_Use_decl_annotations_
-HRESULT DirectX::EvaluateImage(const Image* images,
-    size_t nimages,
-    const TexMetadata& metadata,
-    std::function<void __cdecl(_In_reads_(width) const XMVECTOR* pixels, size_t width, size_t y)> pixelFunc)
+_Use_decl_annotations_ HRESULT DirectX::EvaluateImage(const Image* images, size_t nimages,
+    const TexMetadata& metadata, std::function<void __cdecl(_In_reads_(width) const XMVECTOR* pixels, size_t width, size_t y)> pixelFunc)
 {
 	if(!images || !nimages)
 		return E_INVALIDARG;
@@ -520,41 +505,29 @@ _Use_decl_annotations_ HRESULT DirectX::TransformImage(const Image& image,
 		result.Release();
 		return E_POINTER;
 	}
-
 	hr = TransformImage_(image, pixelFunc, *dimg);
 	if(FAILED(hr)) {
 		result.Release();
 		return hr;
 	}
-
 	return S_OK;
 }
 
-_Use_decl_annotations_
-HRESULT DirectX::TransformImage(const Image* srcImages,
-    size_t nimages,
-    const TexMetadata& metadata,
-    std::function<void __cdecl(_Out_writes_(width) XMVECTOR* outPixels, _In_reads_(
-	    width) const XMVECTOR* inPixels, size_t width, size_t y)> pixelFunc,
-    ScratchImage& result)
+_Use_decl_annotations_ HRESULT DirectX::TransformImage(const Image* srcImages,
+    size_t nimages, const TexMetadata& metadata, std::function<void __cdecl(_Out_writes_(width) XMVECTOR* outPixels, _In_reads_(
+	    width) const XMVECTOR* inPixels, size_t width, size_t y)> pixelFunc, ScratchImage& result)
 {
 	if(!srcImages || !nimages)
 		return E_INVALIDARG;
-
 	if(IsPlanar(metadata.format) || IsPalettized(metadata.format) || IsCompressed(metadata.format) || IsTypeless(metadata.format))
 		return HRESULT_E_NOT_SUPPORTED;
-
-	if(metadata.width > UINT32_MAX
-	    || metadata.height > UINT32_MAX)
+	if(metadata.width > UINT32_MAX || metadata.height > UINT32_MAX)
 		return E_INVALIDARG;
-
 	if(metadata.IsVolumemap() && metadata.depth > UINT16_MAX)
 		return E_INVALIDARG;
-
 	HRESULT hr = result.Initialize(metadata);
 	if(FAILED(hr))
 		return hr;
-
 	if(nimages != result.GetImageCount()) {
 		result.Release();
 		return E_FAIL;

@@ -186,16 +186,12 @@ HRESULT DemultiplyAlphaLinear(const Image& srcImage, TEX_PMALPHA_FLAGS flags, co
 	return S_OK;
 }
 }
-
-//=====================================================================================
+//
 // Entry-points
-//=====================================================================================
-
-//-------------------------------------------------------------------------------------
+//
 // Converts to/from a premultiplied alpha version of the texture
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::PremultiplyAlpha(const Image& srcImage,
+//
+_Use_decl_annotations_ HRESULT DirectX::PremultiplyAlpha(const Image& srcImage,
     TEX_PMALPHA_FLAGS flags,
     ScratchImage& image) noexcept
 {
@@ -231,12 +227,10 @@ HRESULT DirectX::PremultiplyAlpha(const Image& srcImage,
 	}
 	return S_OK;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Converts to/from a premultiplied alpha version of the texture (complex)
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::PremultiplyAlpha(const Image* srcImages,
+//
+_Use_decl_annotations_ HRESULT DirectX::PremultiplyAlpha(const Image* srcImages,
     size_t nimages,
     const TexMetadata& metadata,
     TEX_PMALPHA_FLAGS flags,

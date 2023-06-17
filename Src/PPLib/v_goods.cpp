@@ -1875,59 +1875,59 @@ int PPViewGoods::UpdateTempTable(PPID goodsID, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int PPViewGoods::IsTempTblNeeded()
+bool PPViewGoods::IsTempTblNeeded()
 {
 	if(Filt.GrpIDList.IsExists())
-		return 1;
+		return true;
 	else if(Filt.Flags2 & GoodsFilt::f2SoonExpiredOnly) // @v11.6.2
-		return 1;
+		return true;
 	else {
 		SString temp_buf;
 		Filt.GetExtssData(Filt.extssNameText, temp_buf.Z());
 		if(temp_buf.NotEmptyS())
-			return 1;
+			return true;
 		else {
 			Filt.GetExtssData(Filt.extssBarcodeText, temp_buf.Z());
 			if(temp_buf.NotEmptyS())
-				return 1;
+				return true;
 			else {
 				if(Filt.BarcodeLen.NotEmpty())
-					return 1;
+					return true;
 				if(Filt.ManufID) // @v10.6.8
-					return 1;
+					return true;
 				if(Filt.ManufCountryID)
-					return 1;
+					return true;
 				else if(!Filt.GetResultBrandList().IsEmpty())
-					return 1;
+					return true;
 				else if(!Filt.LotPeriod.IsZero())
-					return 1;
+					return true;
 				else if(Filt.SupplID || Filt.VatRate)
-					return 1;
+					return true;
 				else if(Filt.Flags & GoodsFilt::fNegation)
-					return 1;
+					return true;
 				else if(Filt.Ep.GdsClsID)
-					return 1;
+					return true;
 				else if(Filt.Flags & (GoodsFilt::fWoTaxGrp|GoodsFilt::fRestrictByMatrix|GoodsFilt::fOutOfMatrix|GoodsFilt::fActualOnly))
-					return 1;
+					return true;
 				else if(Filt.Flags & GoodsFilt::fShowArCode && !(Filt.Flags & GoodsFilt::fShowWoArCode) &&
 					(Filt.CodeArID || Filt.Flags & GoodsFilt::fShowOwnArCode)) {
-					return 1;
+					return true;
 				}
 				if(Filt.P_SjF && !Filt.P_SjF->IsEmpty())
-					return 1;
+					return true;
 				if(Filt.P_TagF && !Filt.P_TagF->IsEmpty())
-					return 1;
+					return true;
 				else if(Filt.GrpID) {
 					Goods2Tbl::Rec grp_rec;
 					if(GObj.Fetch(Filt.GrpID, &grp_rec) > 0 && (grp_rec.Flags & (GF_FOLDER|GF_GENERIC|GF_DYNAMICALTGRP)))
-						return 1;
+						return true;
 				}
 				else if(!oneof2(Filt.InitOrder, OrdByDefault, OrdByName))
-					return 1;
+					return true;
 			}
 		}
 	}
-	return 0;
+	return false;
 }
 
 int PPViewGoods::Init_(const PPBaseFilt * pFilt)

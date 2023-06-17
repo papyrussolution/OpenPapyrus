@@ -368,11 +368,30 @@ public:
 
 class WsCtl_ImGuiSceneBlock {
 public:
+	//
+	// Descr: Вариант экранов приложения //
+	//
+	enum {
+		screenUndef = 0,    // неопределенный
+		screenConstruction, // Тестовый режим для разработки 
+		screenHybernat,     // спящий режим 
+		screenRegister,         // регистрация //
+		screenLogin,            // авторизация //
+		screenAuthSelectSess,   // авторизованный режим - выбор сессии
+		screenSession           // рабочая сессия //
+	};
 	struct QuotKindEntry {
-		QuotKindEntry() : ID(0)
+		QuotKindEntry() : ID(0), Rank(0), DaysOfWeek(0)
 		{
+			ApplyTm.Z();
 		}
+		bool   HasWeekDayRestriction() const { return (DaysOfWeek && ((DaysOfWeek & 0x7f) != 0x7f)); }
+		bool   CheckWeekDay(LDATE dt) const { return (!DaysOfWeek || !dt || (DaysOfWeek & (1 << (dayofweek(&dt, 1)-1)))); }
+
 		PPID   ID;
+		int    Rank;
+		int    DaysOfWeek;
+		TimeRange ApplyTm;
 		SString NameUtf8;
 	};
 	struct QuotEntry {
@@ -401,13 +420,60 @@ public:
 		TSVector <QuotEntry> QuotList;
 	};
 	//
-	struct DTest {
+	class DServerError {
+	public:
+		DServerError() : _Status(0)
+		{
+		}
+		DServerError(const DServerError & rS)
+		{
+			Copy(rS);
+		}
+		DServerError & FASTCALL operator = (const DServerError & rS)
+		{
+			return Copy(rS);
+		}
+		DServerError & Copy(const DServerError & rS)
+		{
+			_Status = rS._Status;
+			_Message = rS._Message;
+			return *this;
+		}
+		DServerError & Z()
+		{
+			_Status = 0;
+			_Message.Z();
+			return *this;
+		}
+		DServerError & SetupByLastError()
+		{
+			_Status = PPErrCode;
+			PPGetLastErrorMessage(1, _Message);
+			_Message.Transf(CTRANSF_INNER_TO_UTF8);
+			return *this;
+		}
+		int    _Status; // 0 - ok, -1 - abstract error, >0 - error code
+		SString _Message;
+	};
+	class DTest : public DServerError {
+	public:
 		SString Reply;
+	};
+	//
+	//
+	//
+	class DConnectionStatus : public DServerError {
+	public:	
+		DConnectionStatus() : S(0)
+		{
+		}
+		int    S;
 	};
 	//
 	// Descr: Информационный блок о состоянии процессора на сервере, с которым ассоциирована данная рабочая станция //
 	//
-	struct DPrc {
+	class DPrc : public DServerError {
+	public:
 		DPrc() : PrcID(0), CurrentTSessID(0), ReservedTSessID(0)
 		{
 		}
@@ -417,7 +483,8 @@ public:
 		PPID   ReservedTSessID; // Ближайшая (будущая) зарезервированная сессия процессора
 		SString PrcName;
 	};
-	struct DAccount {
+	class DAccount : public DServerError {
+	public:
 		DAccount() : SCardID(0), PersonID(0), ScRest(0.0)
 		{
 		}
@@ -427,7 +494,8 @@ public:
 		SString SCardCode;
 		SString PersonName;
 	};
-	struct DAuth {
+	class DAuth : public DServerError {
+	public:
 		DAuth() : State(0), SCardID(0), PersonID(0)
 		{
 		}
@@ -436,6 +504,7 @@ public:
 			State = 0;
 			SCardID = 0;
 			PersonID = 0;
+			DServerError::Z();
 			return *this;
 		}
 		enum {
@@ -445,140 +514,44 @@ public:
 		PPID   PersonID;
 		uint   State;
 	};
-	struct DPrices {
-		DPrices()
+	class DPrices : public DServerError {
+	public:
+		DPrices();
+		DPrices(const DPrices & rS);
+		DPrices & FASTCALL operator = (const DPrices & rS);
+		DPrices & FASTCALL Copy(const DPrices & rS);
+		DPrices & Z();
+		const  GoodsEntry * GetGoodsEntryByID(PPID goodsID) const;
+		int    FromJsonObject(const SJson * pJsObj);
+		bool   GetGoodsPrice(PPID goodsID, double * pPrice) const
 		{
-		}
-		DPrices(const DPrices & rS)
-		{
-			Copy(rS);
-		}
-		DPrices & FASTCALL operator = (const DPrices & rS)
-		{
-			return Copy(rS);
-		}
-		DPrices & FASTCALL Copy(const DPrices & rS)
-		{
-			TSCollection_Copy(QkList, rS.QkList);
-			TSCollection_Copy(GoodsList, rS.GoodsList);
-			return *this;
-		}
-		DPrices & Z()
-		{
-			QkList.clear();
-			GoodsList.clear();
-			return *this;
-		}
-		const  GoodsEntry * GetGoodsEntryByID(PPID goodsID) const
-		{
-			const  GoodsEntry * p_result = 0;
-			for(uint i = 0; !p_result && i < GoodsList.getCount(); i++) {
-				GoodsEntry * p_iter = GoodsList.at(i);
-				if(p_iter && p_iter->ID == goodsID)
-					p_result = p_iter;
-			}
-			return p_result;
-		}
-		int    FromJsonObject(const SJson * pJsObj)
-		{
-			/*
-				{
-					"qk_list" : [
-						{
-							"id" : int
-							"nm" : string
-						}
-					]
-					"goods_list" : [
-						{
-							"id" : int
-							"nm" : string
-							"quot_list" : [
-								{
-									"id" : int
-									"val" : double
-								}
-								{
-									"id" : int
-									"val" : double
-								}
-							]
-						}
-					]
-				}
-			*/
-			int    ok = 1;
-			Z();
-			if(pJsObj && pJsObj->Type == SJson::tOBJECT) {
-				const SJson * p_next = 0;
-				for(const SJson * p_cur = pJsObj->P_Child; p_cur; p_cur = p_next) {
-					p_next = p_cur->P_Next;
-					if(p_cur->P_Child) {
-						if(p_cur->Text.IsEqiAscii("qk_list")) {
-							if(SJson::IsArray(p_cur->P_Child)) {
-								for(const SJson * p_js_qk = p_cur->P_Child->P_Child; p_js_qk; p_js_qk = p_js_qk->P_Next) {
-									if(SJson::IsObject(p_js_qk)) {
-										QuotKindEntry * p_entry = QkList.CreateNewItem();
-										for(const SJson * p_qk_cur = p_js_qk->P_Child; p_qk_cur; p_qk_cur = p_qk_cur->P_Next) {
-											if(p_qk_cur->Text.IsEqiAscii("id")) {
-												p_entry->ID = p_qk_cur->P_Child->Text.ToLong();
-											}
-											else if(p_qk_cur->Text.IsEqiAscii("nm")) {
-												(p_entry->NameUtf8 = p_qk_cur->P_Child->Text).Unescape();
-											}
-										}
-									}
-								}
-							}
-						}
-						else if(p_cur->Text.IsEqiAscii("goods_list")) {
-							if(SJson::IsArray(p_cur->P_Child)) {
-								for(const SJson * p_js_gl = p_cur->P_Child->P_Child; p_js_gl; p_js_gl = p_js_gl->P_Next) {
-									if(SJson::IsObject(p_js_gl)) {
-										GoodsEntry * p_entry = GoodsList.CreateNewItem();
-										for(const SJson * p_g_cur = p_js_gl->P_Child; p_g_cur; p_g_cur = p_g_cur->P_Next) {
-											if(p_g_cur->Text.IsEqiAscii("id")) {
-												p_entry->ID = p_g_cur->P_Child->Text.ToLong();
-											}
-											else if(p_g_cur->Text.IsEqiAscii("nm")) {
-												(p_entry->NameUtf8 = p_g_cur->P_Child->Text).Unescape();
-											}
-											else if(p_g_cur->Text.IsEqiAscii("quot_list")) {
-												if(SJson::IsArray(p_g_cur->P_Child)) {
-													for(const SJson * p_quot_cur = p_g_cur->P_Child; p_quot_cur; p_quot_cur = p_quot_cur->P_Next) {
-														if(SJson::IsObject(p_quot_cur->P_Child)) {
-															QuotEntry q_entry;
-															for(const SJson * p_q_cur = p_quot_cur->P_Child; p_q_cur; p_q_cur = p_q_cur->P_Next) {
-																if(p_q_cur->Text.IsEqiAscii("id")) {
-																	q_entry.QkID = p_q_cur->P_Child->Text.ToLong();
-																}
-																else if(p_q_cur->Text.IsEqiAscii("val")) {
-																	q_entry.Value = p_q_cur->P_Child->Text.ToReal_Plain();
-																}
-															}
-															if(q_entry.QkID && q_entry.Value > 0.0) {
-																p_entry->QuotList.insert(&q_entry);
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}								
+			bool   ok = false;
+			double price = 0.0;
+			const GoodsEntry * p_goods_entry = GetGoodsEntryByID(goodsID);
+			if(p_goods_entry) {
+				const uint gqlc_ = p_goods_entry->QuotList.getCount();
+				if(gqlc_) {
+					for(uint i = 0; !ok && i < QkList.getCount(); i++) {
+						const PPID qk_id = QkList.at(i)->ID;
+						for(uint j = 0; !ok && j < gqlc_; j++) {
+							const QuotEntry & r_qe = p_goods_entry->QuotList.at(j);
+							if(r_qe.QkID == qk_id && r_qe.Value > 0.0) {
+								price = r_qe.Value;
+								ok = true;
 							}
 						}
 					}
 				}
 			}
-			if(!ok)
-				PPSetError(PPERR_SQ_JSONTOCFGFAULT);
+			ASSIGN_PTR(pPrice, price);
 			return ok;
 		}
-		TSCollection <QuotKindEntry> QkList;
+
+		TSCollection <QuotKindEntry> QkList; // Сервер передает ранжированный список. То есть, значения надо брать исходя из того, что первое приоритетнее следюущего.
 		TSCollection <GoodsEntry> GoodsList;
 	};
-	struct DTSess {
+	class DTSess : public DServerError {
+	public:
 	};
 	struct JobSrvParam {
 		JobSrvParam() : Port(0), Timeout(0)
@@ -601,6 +574,7 @@ public:
 		enum {
 			syncdataUndef = 0,
 			syncdataTest,             // DTest    Тестовый блок данных для отладки взаимодействия с сервером 
+			syncdataServerError,      // DServerError           
 			syncdataPrc,              // DPrc
 			syncdataAccount,          // DAccount
 			syncdataPrices,           // DPrices
@@ -613,14 +587,22 @@ public:
 		//   Кроме собственно данных содержит блокировку, время актуализации и время истечения срока действия.
 		//
 		template <class T> class SyncEntry {
+			friend class WsCtl_ImGuiSceneBlock::State;
+			WsCtl_ImGuiSceneBlock::State * P_OuterState;
+			SyncEntry(int syncDataId, WsCtl_ImGuiSceneBlock::State * pOuterState) : SyncDataId(syncDataId), P_OuterState(pOuterState), TmActual(0), TmExpiry(0)
+			{
+			}
 		public:
-			SyncEntry(int syncDataId) : SyncDataId(syncDataId), TmActual(0), TmExpiry(0)
+			SyncEntry(int syncDataId) : SyncDataId(syncDataId), P_OuterState(0), TmActual(0), TmExpiry(0)
 			{
 			}
 			void SetData(const T & rData)
 			{
 				Lck.Lock();
 				Data = rData;
+				if(P_OuterState) {
+					P_OuterState->D_LastErr.SetData(rData);
+				}
 				Lck.Unlock();
 			}
 			void GetData(T & rData)
@@ -638,77 +620,24 @@ public:
 		};	
 
 		WsCtl_SelfIdentityBlock SidBlk;
+		SyncEntry <DServerError> D_LastErr;
 		SyncEntry <DPrc>     D_Prc;
 		SyncEntry <DAccount> D_Acc;
 		SyncEntry <DTest>    D_Test;
 		SyncEntry <DPrices>  D_Prices;
 		SyncEntry <DTSess>   D_TSess;
-		SyncEntry <int> D_ConnStatus;
+		SyncEntry <DConnectionStatus> D_ConnStatus;
 		SyncEntry <DAuth>    D_Auth;
 
 		State() : D_Prc(syncdataPrc), D_Test(syncdataTest), D_Acc(syncdataAccount), D_Prices(syncdataPrices), D_TSess(syncdataTSess), 
-			D_ConnStatus(syncdataJobSrvConnStatus), D_Auth(syncdataAuth), SelectedTecGoodsID(0)
+			D_ConnStatus(syncdataJobSrvConnStatus), D_Auth(syncdataAuth), SelectedTecGoodsID(0), D_LastErr(syncdataServerError)
 		{
 		}
 		PPID   GetSelectedTecGoodsID() const { return SelectedTecGoodsID; }
-		bool   SetSelectedTecGoodsID(PPID goodsID)
-		{
-			if(goodsID != SelectedTecGoodsID) {
-				SelectedTecGoodsID = goodsID;
-				return true;
-			}
-			else
-				return false;
-		}
-		int    SetupSyncUpdateTime(int syncDataId, uint msecToUpdate)
-		{
-			int    ok = -1;
-			bool   found = false;
-			for(uint i = 0; !found && i < SutList.getCount(); i++) {
-				SyncUpdateTimer & r_entry = SutList.at(i);
-				if(r_entry.SyncDataId == syncDataId) {
-					if(r_entry.MsecToUpdate != msecToUpdate) {
-						r_entry.MsecToUpdate = msecToUpdate;
-						ok = 1;
-					}
-					found = true;
-				}
-			}
-			if(!found) {
-				SyncUpdateTimer new_entry(syncDataId, msecToUpdate);
-				SutList.insert(&new_entry);
-				ok = 2;
-			}
-			return ok;
-		}
-		int    CheckSyncUpdateTimers(LongArray & rList) const
-		{
-			rList.Z();
-			int    ok = -1;
-			const  time_t now_time = time(0);
-			for(uint i = 0; i < SutList.getCount(); i++) {
-				const SyncUpdateTimer & r_entry = SutList.at(i);
-				if(r_entry.LastReqTime == 0 || now_time >= (r_entry.LastReqTime + (r_entry.MsecToUpdate / 1000))) {
-					rList.insert(&r_entry.SyncDataId);
-					ok = 1;
-				}
-			}
-			return ok;
-		}
-		int    SetSyncUpdateTimerLastReqTime(int syncDataId)
-		{
-			int    ok = -1;
-			bool   found = false;
-			for(uint i = 0; !found && i < SutList.getCount(); i++) {
-				SyncUpdateTimer & r_entry = SutList.at(i);
-				if(r_entry.SyncDataId == syncDataId) {
-					r_entry.LastReqTime = time(0);
-					ok = 1;
-					found = true;
-				}
-			}
-			return ok;
-		}
+		bool   SetSelectedTecGoodsID(PPID goodsID);
+		int    SetupSyncUpdateTime(int syncDataId, uint msecToUpdate);
+		int    CheckSyncUpdateTimers(LongArray & rList) const;
+		int    SetSyncUpdateTimerLastReqTime(int syncDataId);
 	private:
 		class SyncUpdateTimer {
 		public:
@@ -722,6 +651,21 @@ public:
 		TSVector <SyncUpdateTimer> SutList;
 		PPID   SelectedTecGoodsID; // Выбранные товар для техсессии
 	};
+	int GetScreen() const { return Screen; }
+	int SetScreen(int scr)
+	{
+		int    ok = 0;
+		if(oneof6(scr, screenConstruction, screenHybernat, screenRegister, screenLogin, screenAuthSelectSess, 
+			screenSession)) {
+			if(Screen != scr) {
+				Screen = scr;
+				ok = 1;
+			}
+			else
+				ok = -1;
+		}
+		return ok;
+	}
 private:
 	//
 	// Descr: Поток, реализующий запросы к серверу.
@@ -730,285 +674,12 @@ private:
 	//
 	class WsCtl_CliSession : public PPThread {
 	public:
-		WsCtl_CliSession(const JobSrvParam & rJsP, WsCtl_ImGuiSceneBlock::State * pSt, WsCtlReqQueue * pQ) : PPThread(PPThread::kWsCtl, 0, 0), JsP(rJsP), P_St(pSt), P_Queue(pQ)
-		{
-			InitStartupSignal();
-		}
-		virtual void Run()
-		{
-			SString temp_buf;
-			Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
-			const  uint32 wait_timeout = 500;
-
-			PPJobSrvClient cli;
-			PPJobSrvReply reply;
-			int srv_conn_r = Connect(cli);
-			P_St->D_ConnStatus.SetData(srv_conn_r);
-			for(int stop = 0; !stop;) {
-				int    h_count = 0;
-				int    evidx_stop = -1;
-				int    evidx_dcn = -1;
-				int    evidx_forceperiod = -1;
-				int    evidx_localforceperiod = -1;
-				HANDLE h_list[32];
-				{
-					evidx_stop = h_count++;
-					h_list[evidx_stop] = stop_event;     // #0
-				}
-				h_list[h_count++] = P_Queue->NonEmptyEv; // #1
-				const  uint r = ::WaitForMultipleObjects(h_count, h_list, 0, wait_timeout);
-				bool   do_check_queue = false;
-				switch(r) {
-					case WAIT_TIMEOUT:
-						do_check_queue = true;
-						break;
-					case (WAIT_OBJECT_0 + 0): // stop event
-						stop = 1; // quit loop
-						break;
-					case (WAIT_OBJECT_0 + 1): // NonEmptyEv
-						do_check_queue = true;
-						break;
-					case WAIT_FAILED:
-						; // @error
-						break;
-				}
-				if(do_check_queue) {
-					uint32 single_ev_count = 0;
-					WsCtlReqQueue::Req req;
-					while(P_Queue->Pop(req) > 0) {
-						single_ev_count++;
-						SendRequest(cli, req);
-						//if(PPSession::Helper_Log(msg_item, lb) > 0) {
-							//S.OutputCount++;
-						//}
-					}
-					if(single_ev_count) {
-						if(!(cli.GetState() & PPJobSrvClient::stConnected)) {
-							srv_conn_r = cli.Connect(JsP.Addr, JsP.Port);							
-							P_St->D_ConnStatus.SetData(srv_conn_r);
-						}
-						if(srv_conn_r > 0) {
-							
-						}
-						/*
-						if(single_ev_count > S.MaxSingleOutputCount)
-							S.MaxSingleOutputCount = single_ev_count;
-						*/
-					}
-					else {
-						//S.FalseNonEmptyEvSwitchCount++;
-					}					
-				}
-			}
-		}
+		WsCtl_CliSession(const JobSrvParam & rJsP, WsCtl_ImGuiSceneBlock::State * pSt, WsCtlReqQueue * pQ);
+		virtual void Run();
 	private:
-		virtual void Startup()
-		{
-			PPThread::Startup();
-			SignalStartup();
-		}
-		int    Connect(PPJobSrvClient & rCli)
-		{
-			int    ok = 1;
-			THROW(rCli.Connect(JsP.Addr, JsP.Port));
-			if(JsP.DbSymb.NotEmpty() && JsP.User.NotEmpty()) {
-				THROW(rCli.Login(JsP.DbSymb, JsP.User, JsP.Password));
-			}
-			CATCHZOK
-			return ok;
-		}
-		void   SendRequest(PPJobSrvClient & rCli, const WsCtlReqQueue::Req & rReq)
-		{
-			PPJobSrvReply reply;
-			SString temp_buf;
-			switch(rReq.Cmd) {
-				case PPSCMD_HELLO:
-					if(P_St) {
-						WsCtl_ImGuiSceneBlock::DTest st_data;
-						if(rCli.Exec("HELLO", reply) && reply.StartReading(&temp_buf)) {
-							if(reply.CheckRepError()) {
-								(st_data.Reply = "OK").CatDiv(':', 2).Cat(temp_buf);
-							}
-							else {
-								(st_data.Reply = "ERR").CatDiv(':', 2).Cat(temp_buf);
-							}
-							P_St->D_Test.SetData(st_data);
-						}
-						else {
-							st_data.Reply = "Send-Request-To-Server-Error";
-							P_St->D_Test.SetData(st_data);
-						}
-					}
-					break;
-				case PPSCMD_WSCTL_AUTH:
-					if(P_St) {
-						WsCtl_ImGuiSceneBlock::DAuth st_data;
-						WsCtl_ImGuiSceneBlock::DPrc st_prc;
-						P_St->D_Prc.GetData(st_prc); 
-						//P_St->D_Auth.GetData(st_data);
-						PPJobSrvCmd cmd;
-						cmd.StartWriting(PPSCMD_WSCTL_AUTH);
-						{
-							SJson js_param(SJson::tOBJECT);
-							js_param.InsertString("login", rReq.P.AuthTextUtf8);
-							js_param.InsertString("pw", rReq.P.AuthPwUtf8);
-							temp_buf.Z().Cat(st_prc.PrcUuid, S_GUID::fmtIDL);
-							js_param.InsertString("wsctluuid", temp_buf);
-							js_param.ToStr(temp_buf);
-							SString mime_buf;
-							mime_buf.EncodeMime64(temp_buf.ucptr(), temp_buf.Len());
-							cmd.Write(mime_buf.ucptr(), mime_buf.Len()+1);
-						}
-						cmd.FinishWriting();
-						if(rCli.Exec(cmd, reply)) {
-							SString reply_buf;
-							reply.StartReading(&reply_buf);
-							if(reply.CheckRepError()) {
-								SJson * p_js_obj = SJson::Parse(reply_buf);
-								const SJson * p_c = 0;
-								if(p_js_obj) {
-									p_c = p_js_obj->FindChildByKey("scardid");
-									if(SJson::IsNumber(p_c)) {
-										st_data.SCardID = p_c->Text.ToLong();
-									}
-									p_c = p_js_obj->FindChildByKey("personid");
-									if(SJson::IsNumber(p_c)) {
-										st_data.PersonID = p_c->Text.ToLong();
-									}
-									st_data.State = 0;
-									P_St->D_Auth.SetData(st_data);
-									//
-									{
-										// Сразу отправляем запрос на получение сведений об аккаунте
-										WsCtlReqQueue::Req inner_req(PPSCMD_WSCTL_GETACCOUNTSTATE);
-										inner_req.P.SCardID = st_data.SCardID;
-										SendRequest(rCli, inner_req); // @recursion
-									}
-								}
-								else {
-									; // @err
-								}
-							}
-							else {
-								; // @err
-							}
-						}
-					}
-					break;
-				case PPSCMD_WSCTL_GETACCOUNTSTATE:
-					if(P_St && rReq.P.SCardID) {
-						//WsCtl_ImGuiSceneBlock::DAuth st_auth;
-						WsCtl_ImGuiSceneBlock::DAccount st_data;
-						//P_St->D_Auth.GetData(st_auth);
-						PPJobSrvCmd cmd;
-						cmd.StartWriting(PPSCMD_WSCTL_GETACCOUNTSTATE);
-						cmd.Write(&rReq.P.SCardID, sizeof(rReq.P.SCardID));
-						cmd.FinishWriting();
-						if(rCli.Exec(cmd, reply)) {
-							SString reply_buf;
-							reply.StartReading(&reply_buf);
-							if(reply.CheckRepError()) {
-								SJson * p_js_obj = SJson::Parse(reply_buf);
-								const SJson * p_c = 0;
-								if(p_js_obj) {
-									p_c = p_js_obj->FindChildByKey("scardid");
-									if(SJson::IsNumber(p_c)) {
-										st_data.SCardID = p_c->Text.ToLong();
-									}
-									p_c = p_js_obj->FindChildByKey("scardcode");
-									if(SJson::IsString(p_c)) {
-										(st_data.SCardCode = p_c->Text).Unescape();
-									}
-									p_c = p_js_obj->FindChildByKey("personid");
-									if(SJson::IsNumber(p_c)) {
-										st_data.PersonID = p_c->Text.ToLong();
-									}
-									p_c = p_js_obj->FindChildByKey("personnm");
-									if(SJson::IsString(p_c)) {
-										(st_data.PersonName = p_c->Text).Unescape();
-									}										
-									p_c = p_js_obj->FindChildByKey("screst");
-									if(SJson::IsNumber(p_c)) {
-										st_data.ScRest = p_c->Text.ToReal();
-									}
-									P_St->D_Acc.SetData(st_data);
-								}
-								else {
-									; // @err
-								}
-							}
-						}
-					}
-					break;
-				case PPSCMD_WSCTL_INIT:
-					if(P_St) {
-						PPJobSrvCmd cmd;
-						cmd.StartWriting(PPSCMD_WSCTL_INIT);
-						cmd.Write(&rReq.P.Uuid, sizeof(rReq.P.Uuid));
-						cmd.FinishWriting();
-						if(rCli.Exec(cmd, reply)) {
-							SString reply_buf;
-							reply.StartReading(&reply_buf);
-							if(reply.CheckRepError()) {
-								SJson * p_js_obj = SJson::Parse(reply_buf);
-								const SJson * p_c = 0;
-								if(p_js_obj) {
-									WsCtl_ImGuiSceneBlock::DPrc st_data;
-									p_c = p_js_obj->FindChildByKey("prcid");
-									if(SJson::IsNumber(p_c)) {
-										st_data.PrcID = p_c->Text.ToLong();
-									}
-									p_c = p_js_obj->FindChildByKey("prcnm");
-									if(SJson::IsString(p_c)) {
-										st_data.PrcName = p_c->Text;
-									}
-									p_c = p_js_obj->FindChildByKey("wsctluuid");
-									if(SJson::IsString(p_c)) {
-										st_data.PrcUuid.FromStr(p_c->Text);
-									}
-									P_St->D_Prc.SetData(st_data);
-								}
-								else {
-									; // @err
-								}
-							}
-							else {
-								; // @err
-							}
-						}
-						else {
-							; // @err
-						}
-					}
-					break;
-				case PPSCMD_WSCTL_GETQUOTLIST:
-					if(P_St) {
-						WsCtl_ImGuiSceneBlock::DPrc st_data;
-						P_St->D_Prc.GetData(st_data);
-						if(st_data.PrcID) {
-							PPJobSrvCmd cmd;
-							cmd.StartWriting(PPSCMD_WSCTL_GETQUOTLIST);
-							cmd.Write(&st_data.PrcID, sizeof(st_data.PrcID));
-							cmd.FinishWriting();
-							if(rCli.Exec(cmd, reply)) {
-								SString reply_buf;
-								reply.StartReading(&reply_buf);
-								if(reply.CheckRepError()) {
-									WsCtl_ImGuiSceneBlock::DPrices st_data_prices;
-									SJson * p_js = SJson::Parse(reply_buf);
-									if(st_data_prices.FromJsonObject(p_js)) {
-										P_St->D_Prices.SetData(st_data_prices);
-									}
-									else {
-										; // @err
-									}
-								}
-							}
-						}
-					}
-					break;
-			}
-		}
+		virtual void Startup();
+		int    Connect(PPJobSrvClient & rCli);
+		void   SendRequest(PPJobSrvClient & rCli, const WsCtlReqQueue::Req & rReq);
 		// Указатель на состояние блока управления панелью. При получении ответа от сервера
 		// наш поток будет вносить изменения в это состояние (защита блокировками подразумевается).
 		WsCtl_ImGuiSceneBlock::State * P_St; // @notowned
@@ -1017,8 +688,11 @@ private:
 	};
 	bool   ShowDemoWindow; // @sobolev true-->false
 	bool   ShowAnotherWindow;
+	int    Screen; // screenXXX
 	ImVec4 ClearColor;
-	SUiLayout Lo01; // = new SUiLayout(SUiLayoutParam(DIREC_VERT, 0, SUiLayoutParam::alignStretch));
+	//SUiLayout Lo01; // = new SUiLayout(SUiLayoutParam(DIREC_VERT, 0, SUiLayoutParam::alignStretch));
+	TSHashCollection <SUiLayout> Cache_Layout;
+	TSHashCollection <SCachedFileEntity> Cache_Texture;
 	JobSrvParam JsP;
 	State  St;
 	LongArray SyncReqList; // @fastreuse Список объектов состояния, для которых необходимо запросить обновление у сервера (по таймеру)
@@ -1033,115 +707,40 @@ private:
 	TestBlock TestBlk;
 	//
 	enum {
-		loidRoot = 1,
-		loidUpperGroup,
+		// Значения до 10000 используются для идентификации экранов (screenXXX) и 
+		// одновременно как идентификаторы соответствующих лейаутов верхнего уровня.
+		//loidRoot = 1,
+		loidUpperGroup = 10001,
 		loidBottomGroup,
 		loidCtl01,
 		loidCtl02,
 		loidAdv01,
 		loidAdv02,
 		loidAdv03,
+		loidMenuBlock,
+		loidMainGroup,
+		loidLoginBlock,
+		loidPersonInfo,
+		loidAccountInfo,
+		loidSessionSelection,
+		loidSessionButtonGroup,
+		loidBottomCtrlGroup,
 	};
 	//
-	void   Render()
-	{
-		ImGui::Render();
-		const float clear_color_with_alpha[4] = { 
-			ClearColor.x * ClearColor.w, 
-			ClearColor.y * ClearColor.w, 
-			ClearColor.z * ClearColor.w, 
-			ClearColor.w 
-		};
-		ImgRtb.g_pd3dDeviceContext->OMSetRenderTargets(1, &ImgRtb.g_mainRenderTargetView, nullptr);
-		ImgRtb.g_pd3dDeviceContext->ClearRenderTargetView(ImgRtb.g_mainRenderTargetView, clear_color_with_alpha);
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-		ImgRtb.g_pSwapChain->Present(1, 0); // Present with vsync
-		//g_pSwapChain->Present(0, 0); // Present without vsync
-	}
-	void MakeLayout()
-	{
-		Lo01.SetLayoutBlock(SUiLayoutParam(DIREC_VERT, 0, SUiLayoutParam::alignStretch));
-		Lo01.SetID(loidRoot);
-		const FRect margin_(2.0f, 1.0f, 2.0f, 1.0f);
-		{
-			SUiLayoutParam alb(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
-			alb.Margin = margin_;
-			alb.GrowFactor = 1.2f;
-			alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-			SUiLayout * p_lo_up_group = Lo01.InsertItem(0, &alb);
-			p_lo_up_group->SetID(loidUpperGroup);
-			{
-				SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-				alb01.Margin = margin_;
-				alb01.GrowFactor = 1.0f;
-				alb01.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-				SUiLayout * p_lo_ctl1 = p_lo_up_group->InsertItem(0, &alb01);
-				p_lo_ctl1->SetID(loidCtl01);
-			}
-			{
-				SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-				alb01.Margin = margin_;
-				alb01.GrowFactor = 1.0f;
-				alb01.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-				SUiLayout * p_lo_ctl2 = p_lo_up_group->InsertItem(0, &alb01);
-				p_lo_ctl2->SetID(loidCtl02);
-			}
-		}
-		{
-			SUiLayoutParam alb(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
-			alb.Margin = margin_;
-			alb.GrowFactor = 0.8f;
-			alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-			SUiLayout * p_lo_dn_group = Lo01.InsertItem(0, &alb);
-			p_lo_dn_group->SetID(loidBottomGroup);
-			{
-				SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-				alb01.Margin = margin_;
-				alb01.GrowFactor = 1.0f;
-				alb01.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-				SUiLayout * p_lo_adv1 = p_lo_dn_group->InsertItem(0, &alb01);
-				p_lo_adv1->SetID(loidAdv01);
-			}
-			{
-				SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-				alb01.Margin = margin_;
-				alb01.GrowFactor = 1.0f;
-				alb01.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-				SUiLayout * p_lo_adv2 = p_lo_dn_group->InsertItem(0, &alb01);
-				p_lo_adv2->SetID(loidAdv02);
-			}
-			{
-				SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-				alb01.Margin = margin_;
-				alb01.GrowFactor = 1.0f;
-				alb01.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-				SUiLayout * p_lo_adv3 = p_lo_dn_group->InsertItem(0, &alb01);
-				p_lo_adv3->SetID(loidAdv03);
-			}
-		}
-	}
-	static int CbInput(ImGuiInputTextCallbackData * pInputData)
-	{
-		bool debug_mark = false;
-		if(pInputData) {
-			WsCtl_ImGuiSceneBlock * p_this = static_cast<WsCtl_ImGuiSceneBlock *>(pInputData->UserData);
-			if(p_this) {
-				if(pInputData->Buf == p_this->LoginText) {
-					debug_mark = true;
-				}
-			}
-		}
-		return 0;
-	}
+	void   Render();
+	void   MakeLayout();
+	static int CbInput(ImGuiInputTextCallbackData * pInputData);
 	//
 	char   TestInput[128];
 	char   LoginText[256];
 	char   PwText[128];
+	DServerError LastSvrErr;
 public:
-	WsCtl_ImGuiSceneBlock() : ShowDemoWindow(false), ShowAnotherWindow(false), 
+	WsCtl_ImGuiSceneBlock() : ShowDemoWindow(false), ShowAnotherWindow(false), Screen(screenUndef),
 		//ClearColor(0.45f, 0.55f, 0.60f, 1.00f), 
 		ClearColor(SColor(0x1E, 0x22, 0x28)),
-		P_CmdQ(new WsCtlReqQueue)
+		P_CmdQ(new WsCtlReqQueue),
+		Cache_Layout(512), Cache_Texture(1024)
 	{
 		TestInput[0] = 0;
 		LoginText[0] = 0;
@@ -1236,98 +835,988 @@ public:
 		ImGui::SetNextItemWidth(-1);
 		return SLS.AcquireRvlStr().CatCharN('#', 2).Cat(pLabel);
 	}
-	void BuildScene()
-	{
-		const LDATETIME now_dtm = getcurdatetime_();
-		if(!TestBlk.DtmLastQuerySent || diffdatetimesec(now_dtm, TestBlk.DtmLastQuerySent) > 5) {
-			if(P_CmdQ) {
-				WsCtlReqQueue::Req qr(PPSCMD_HELLO);
-				P_CmdQ->Push(qr);
-				TestBlk.DtmLastQuerySent = now_dtm;
-				TestBlk.QuerySentCount++;
-			}
+	void BuildScene();
+};
+//
+//
+//
+WsCtl_ImGuiSceneBlock::DPrices::DPrices()
+{
+}
+		
+WsCtl_ImGuiSceneBlock::DPrices::DPrices(const DPrices & rS)
+{
+	Copy(rS);
+}
+
+WsCtl_ImGuiSceneBlock::DPrices & FASTCALL WsCtl_ImGuiSceneBlock::DPrices::operator = (const DPrices & rS)
+{
+	return Copy(rS);
+}
+		
+WsCtl_ImGuiSceneBlock::DPrices & FASTCALL WsCtl_ImGuiSceneBlock::DPrices::Copy(const DPrices & rS)
+{
+	DServerError::Copy(rS);
+	TSCollection_Copy(QkList, rS.QkList);
+	TSCollection_Copy(GoodsList, rS.GoodsList);
+	return *this;
+}
+
+WsCtl_ImGuiSceneBlock::DPrices & WsCtl_ImGuiSceneBlock::DPrices::Z()
+{
+	DServerError::Z();
+	QkList.clear();
+	GoodsList.clear();
+	return *this;
+}
+		
+const WsCtl_ImGuiSceneBlock::GoodsEntry * WsCtl_ImGuiSceneBlock::DPrices::GetGoodsEntryByID(PPID goodsID) const
+{
+	const  GoodsEntry * p_result = 0;
+	for(uint i = 0; !p_result && i < GoodsList.getCount(); i++) {
+		GoodsEntry * p_iter = GoodsList.at(i);
+		if(p_iter && p_iter->ID == goodsID)
+			p_result = p_iter;
+	}
+	return p_result;
+}
+		
+int WsCtl_ImGuiSceneBlock::DPrices::FromJsonObject(const SJson * pJsObj)
+{
+	/*
+		{
+			"qk_list" : [
+				{
+					"id" : int
+					"nm" : string
+				}
+			]
+			"goods_list" : [
+				{
+					"id" : int
+					"nm" : string
+					"quot_list" : [
+						{
+							"id" : int
+							"val" : double
+						}
+						{
+							"id" : int
+							"val" : double
+						}
+					]
+				}
+			]
 		}
-		//
-		// Start the Dear ImGui frame
-		ImGui_ImplDX11_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
-		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-		//ShowDemoWindow = true; // @debug
-		if(ShowDemoWindow) {
-			// @sobolev 
-			ImGui::ShowDemoWindow(/*&show_demo_window*/);
-		}
-		else {
-			// 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
-			{
-				const int view_flags = ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoDecoration|
-					0;
-				ImGuiViewport * p_vp = ImGui::GetMainViewport();
-				if(p_vp) {
-					ImVec2 sz = p_vp->Size;
-					SUiLayout::Param evp;
-					evp.ForceWidth = static_cast<float>(sz.x);
-					evp.ForceHeight = static_cast<float>(sz.y);
-					Lo01.Evaluate(&evp);
-					ImGuiObjStack __ost;
-					__ost.PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-					{
-						const SUiLayout * p_lo = Lo01.FindByID(loidCtl01);
-						if(p_lo) {
-							FRect r = p_lo->GetFrameAdjustedToParent();
-							SPoint2F s = r.GetSize();
-							ImVec2 lu(r.a.x, r.a.y);
-							ImVec2 sz(s.x, s.y);
-							ImGui::SetNextWindowPos(lu);
-							ImGui::SetNextWindowSize(sz);
-							ImGui::Begin("##CTL-01", 0, view_flags);
-							//ImGui::Text("CTL-01");
-							{
-								DAccount data_acc;
-								St.D_Acc.GetData(data_acc);
-								if(data_acc.SCardID) {
-									SString & r_temp_buf = SLS.AcquireRvlStr();
-									ImGui::Text(r_temp_buf.Z().Cat("Аккаунт").CatDiv(':', 2).Cat(data_acc.SCardCode));
-									ImGui::Text(r_temp_buf.Z().Cat(data_acc.PersonName));
-									ImGui::Text(r_temp_buf.Z().Cat("Остаток").CatDiv(':', 2).Cat(data_acc.ScRest, MKSFMTD(0, 2, 0)));
-								}
-								else {
-									{
-										//ImGuiObjStack ost;
-										//ost.PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
-										ImGui::InputText(InputLabelPrefix("Текст для авторизации"), LoginText, sizeof(LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+	*/
+	int    ok = 1;
+	Z();
+	if(pJsObj && pJsObj->Type == SJson::tOBJECT) {
+		const SJson * p_next = 0;
+		for(const SJson * p_cur = pJsObj->P_Child; p_cur; p_cur = p_next) {
+			p_next = p_cur->P_Next;
+			if(p_cur->P_Child) {
+				if(p_cur->Text.IsEqiAscii("qk_list")) {
+					if(SJson::IsArray(p_cur->P_Child)) {
+						for(const SJson * p_js_qk = p_cur->P_Child->P_Child; p_js_qk; p_js_qk = p_js_qk->P_Next) {
+							if(SJson::IsObject(p_js_qk)) {
+								QuotKindEntry * p_entry = QkList.CreateNewItem();
+								for(const SJson * p_qk_cur = p_js_qk->P_Child; p_qk_cur; p_qk_cur = p_qk_cur->P_Next) {
+									if(p_qk_cur->Text.IsEqiAscii("id")) {
+										p_entry->ID = p_qk_cur->P_Child->Text.ToLong();
 									}
-									ImGui::InputText(InputLabelPrefix("Пароль"), PwText, sizeof(PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
-									if(!isempty(LoginText)) {
-										if(ImGui::Button("Login")) {
-											WsCtlReqQueue::Req req(PPSCMD_WSCTL_AUTH);
-											STRNSCPY(req.P.AuthTextUtf8, LoginText);
-											STRNSCPY(req.P.AuthPwUtf8, PwText);
-											P_CmdQ->Push(req);
+									else if(p_qk_cur->Text.IsEqiAscii("nm")) {
+										(p_entry->NameUtf8 = p_qk_cur->P_Child->Text).Unescape();
+									}
+									else if(p_qk_cur->Text.IsEqiAscii("rank")) {
+										p_entry->Rank = p_qk_cur->P_Child->Text.ToLong();
+									}
+									else if(p_qk_cur->Text.IsEqiAscii("daysofweek")) {
+										p_entry->DaysOfWeek = p_qk_cur->P_Child->Text.ToLong();
+									}
+									else if(p_qk_cur->Text.IsEqiAscii("begintm")) {
+										strtotime(p_qk_cur->P_Child->Text, TIMF_HM, &p_entry->ApplyTm.low);
+									}
+									else if(p_qk_cur->Text.IsEqiAscii("endtm")) {
+										strtotime(p_qk_cur->P_Child->Text, TIMF_HM, &p_entry->ApplyTm.upp);
+									}
+								}
+							}
+						}
+					}
+				}
+				else if(p_cur->Text.IsEqiAscii("goods_list")) {
+					if(SJson::IsArray(p_cur->P_Child)) {
+						for(const SJson * p_js_gl = p_cur->P_Child->P_Child; p_js_gl; p_js_gl = p_js_gl->P_Next) {
+							if(SJson::IsObject(p_js_gl)) {
+								GoodsEntry * p_entry = GoodsList.CreateNewItem();
+								for(const SJson * p_g_cur = p_js_gl->P_Child; p_g_cur; p_g_cur = p_g_cur->P_Next) {
+									if(p_g_cur->Text.IsEqiAscii("id")) {
+										p_entry->ID = p_g_cur->P_Child->Text.ToLong();
+									}
+									else if(p_g_cur->Text.IsEqiAscii("nm")) {
+										(p_entry->NameUtf8 = p_g_cur->P_Child->Text).Unescape();
+									}
+									else if(p_g_cur->Text.IsEqiAscii("quot_list")) {
+										if(SJson::IsArray(p_g_cur->P_Child)) {
+											for(const SJson * p_quot_cur = p_g_cur->P_Child; p_quot_cur; p_quot_cur = p_quot_cur->P_Next) {
+												if(SJson::IsObject(p_quot_cur->P_Child)) {
+													for(const SJson * p_q_cur = p_quot_cur->P_Child; p_q_cur; p_q_cur = p_q_cur->P_Next) {
+														if(p_q_cur->IsObject()) {
+															QuotEntry q_entry;
+															for(const SJson * p_gq_obj = p_q_cur->P_Child; p_gq_obj; p_gq_obj = p_gq_obj->P_Next) {
+																if(p_gq_obj->Text.IsEqiAscii("id")) {
+																	q_entry.QkID = p_gq_obj->P_Child->Text.ToLong();
+																}
+																else if(p_gq_obj->Text.IsEqiAscii("val")) {
+																	q_entry.Value = p_gq_obj->P_Child->Text.ToReal_Plain();
+																}
+															}
+															if(q_entry.QkID && q_entry.Value > 0.0) {
+																p_entry->QuotList.insert(&q_entry);
+															}
+														}
+													}
+												}
+											}
 										}
 									}
 								}
 							}
-							ImGui::End();
+						}								
+					}
+				}
+			}
+		}
+	}
+	if(!ok)
+		PPSetError(PPERR_SQ_JSONTOCFGFAULT);
+	return ok;
+}
+//
+//
+//
+	bool WsCtl_ImGuiSceneBlock::State::SetSelectedTecGoodsID(PPID goodsID)
+	{
+		if(goodsID != SelectedTecGoodsID) {
+			SelectedTecGoodsID = goodsID;
+			return true;
+		}
+		else
+			return false;
+	}
+
+	int WsCtl_ImGuiSceneBlock::State::SetupSyncUpdateTime(int syncDataId, uint msecToUpdate)
+	{
+		int    ok = -1;
+		bool   found = false;
+		for(uint i = 0; !found && i < SutList.getCount(); i++) {
+			SyncUpdateTimer & r_entry = SutList.at(i);
+			if(r_entry.SyncDataId == syncDataId) {
+				if(r_entry.MsecToUpdate != msecToUpdate) {
+					r_entry.MsecToUpdate = msecToUpdate;
+					ok = 1;
+				}
+				found = true;
+			}
+		}
+		if(!found) {
+			SyncUpdateTimer new_entry(syncDataId, msecToUpdate);
+			SutList.insert(&new_entry);
+			ok = 2;
+		}
+		return ok;
+	}
+
+	int WsCtl_ImGuiSceneBlock::State::CheckSyncUpdateTimers(LongArray & rList) const
+	{
+		rList.Z();
+		int    ok = -1;
+		const  time_t now_time = time(0);
+		for(uint i = 0; i < SutList.getCount(); i++) {
+			const SyncUpdateTimer & r_entry = SutList.at(i);
+			if(r_entry.LastReqTime == 0 || now_time >= (r_entry.LastReqTime + (r_entry.MsecToUpdate / 1000))) {
+				rList.insert(&r_entry.SyncDataId);
+				ok = 1;
+			}
+		}
+		return ok;
+	}
+		
+	int WsCtl_ImGuiSceneBlock::State::SetSyncUpdateTimerLastReqTime(int syncDataId)
+	{
+		int    ok = -1;
+		bool   found = false;
+		for(uint i = 0; !found && i < SutList.getCount(); i++) {
+			SyncUpdateTimer & r_entry = SutList.at(i);
+			if(r_entry.SyncDataId == syncDataId) {
+				r_entry.LastReqTime = time(0);
+				ok = 1;
+				found = true;
+			}
+		}
+		return ok;
+	}
+//
+//
+//
+WsCtl_ImGuiSceneBlock::WsCtl_CliSession::WsCtl_CliSession(const JobSrvParam & rJsP, WsCtl_ImGuiSceneBlock::State * pSt, WsCtlReqQueue * pQ) : 
+	PPThread(PPThread::kWsCtl, 0, 0), JsP(rJsP), P_St(pSt), P_Queue(pQ)
+{
+	InitStartupSignal();
+}
+
+/*virtual*/void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Run()
+{
+	SString temp_buf;
+	Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
+	const  uint32 wait_timeout = 500;
+
+	PPJobSrvClient cli;
+	PPJobSrvReply reply;
+	{
+		DConnectionStatus srv_conn_status;
+		srv_conn_status.S = Connect(cli);
+		if(!srv_conn_status.S)
+			srv_conn_status.SetupByLastError();
+		P_St->D_ConnStatus.SetData(srv_conn_status);
+	}
+	for(int stop = 0; !stop;) {
+		int    h_count = 0;
+		int    evidx_stop = -1;
+		int    evidx_dcn = -1;
+		int    evidx_forceperiod = -1;
+		int    evidx_localforceperiod = -1;
+		HANDLE h_list[32];
+		{
+			evidx_stop = h_count++;
+			h_list[evidx_stop] = stop_event;     // #0
+		}
+		h_list[h_count++] = P_Queue->NonEmptyEv; // #1
+		const  uint r = ::WaitForMultipleObjects(h_count, h_list, 0, wait_timeout);
+		bool   do_check_queue = false;
+		switch(r) {
+			case WAIT_TIMEOUT:
+				do_check_queue = true;
+				break;
+			case (WAIT_OBJECT_0 + 0): // stop event
+				stop = 1; // quit loop
+				break;
+			case (WAIT_OBJECT_0 + 1): // NonEmptyEv
+				do_check_queue = true;
+				break;
+			case WAIT_FAILED:
+				; // @error
+				break;
+		}
+		if(do_check_queue) {
+			uint32 single_ev_count = 0;
+			WsCtlReqQueue::Req req;
+			while(P_Queue->Pop(req) > 0) {
+				single_ev_count++;
+				SendRequest(cli, req);
+				//if(PPSession::Helper_Log(msg_item, lb) > 0) {
+					//S.OutputCount++;
+				//}
+			}
+			if(single_ev_count) {
+				if(!(cli.GetState() & PPJobSrvClient::stConnected)) {
+					DConnectionStatus srv_conn_status;
+					srv_conn_status.S = cli.Connect(JsP.Addr, JsP.Port);
+					if(!srv_conn_status.S)
+						srv_conn_status.SetupByLastError();
+					P_St->D_ConnStatus.SetData(srv_conn_status);
+				}
+				/*if(srv_conn_r > 0) {
+							
+				}*/
+				/*
+				if(single_ev_count > S.MaxSingleOutputCount)
+					S.MaxSingleOutputCount = single_ev_count;
+				*/
+			}
+			else {
+				//S.FalseNonEmptyEvSwitchCount++;
+			}					
+		}
+	}
+}
+
+/*virtual*/void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Startup()
+{
+	PPThread::Startup();
+	SignalStartup();
+}
+
+int WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Connect(PPJobSrvClient & rCli)
+{
+	int    ok = 1;
+	THROW(rCli.Connect(JsP.Addr, JsP.Port));
+	if(JsP.DbSymb.NotEmpty() && JsP.User.NotEmpty()) {
+		THROW(rCli.Login(JsP.DbSymb, JsP.User, JsP.Password));
+	}
+	CATCHZOK
+	return ok;
+}
+
+void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli, const WsCtlReqQueue::Req & rReq)
+{
+	PPJobSrvReply reply;
+	SString temp_buf;
+	switch(rReq.Cmd) {
+		case PPSCMD_HELLO:
+			if(P_St) {
+				WsCtl_ImGuiSceneBlock::DTest st_data;
+				if(rCli.Exec("HELLO", reply) && reply.StartReading(&temp_buf)) {
+					if(reply.CheckRepError()) {
+						(st_data.Reply = "OK").CatDiv(':', 2).Cat(temp_buf);
+					}
+					else
+						st_data.SetupByLastError();
+				}
+				else
+					st_data.SetupByLastError();
+				P_St->D_Test.SetData(st_data);
+			}
+			break;
+		case PPSCMD_WSCTL_AUTH:
+			if(P_St) {
+				bool   data_settled = false; // Признак того, что данные в блоке состояния инициализированы 
+				WsCtl_ImGuiSceneBlock::DAuth st_data;
+				WsCtl_ImGuiSceneBlock::DPrc st_prc;
+				P_St->D_Prc.GetData(st_prc); 
+				//P_St->D_Auth.GetData(st_data);
+				PPJobSrvCmd cmd;
+				cmd.StartWriting(PPSCMD_WSCTL_AUTH);
+				{
+					SJson js_param(SJson::tOBJECT);
+					js_param.InsertString("login", rReq.P.AuthTextUtf8);
+					js_param.InsertString("pw", rReq.P.AuthPwUtf8);
+					temp_buf.Z().Cat(st_prc.PrcUuid, S_GUID::fmtIDL);
+					js_param.InsertString("wsctluuid", temp_buf);
+					js_param.ToStr(temp_buf);
+					SString mime_buf;
+					mime_buf.EncodeMime64(temp_buf.ucptr(), temp_buf.Len());
+					cmd.Write(mime_buf.ucptr(), mime_buf.Len()+1);
+				}
+				cmd.FinishWriting();
+				if(rCli.Exec(cmd, reply)) {
+					SString reply_buf;
+					reply.StartReading(&reply_buf);
+					if(reply.CheckRepError()) {
+						SJson * p_js_obj = SJson::Parse(reply_buf);
+						const SJson * p_c = 0;
+						if(p_js_obj) {
+							p_c = p_js_obj->FindChildByKey("scardid");
+							if(SJson::IsNumber(p_c)) {
+								st_data.SCardID = p_c->Text.ToLong();
+							}
+							p_c = p_js_obj->FindChildByKey("personid");
+							if(SJson::IsNumber(p_c)) {
+								st_data.PersonID = p_c->Text.ToLong();
+							}
+							st_data.State = 0;
+							P_St->D_Auth.SetData(st_data);
+							data_settled = true; 
+							{
+								// Сразу отправляем запрос на получение сведений об аккаунте
+								WsCtlReqQueue::Req inner_req(PPSCMD_WSCTL_GETACCOUNTSTATE);
+								inner_req.P.SCardID = st_data.SCardID;
+								SendRequest(rCli, inner_req); // @recursion
+							}
+						}
+						else {
+							PPSetErrorSLib();
+							st_data.SetupByLastError();
+						}
+						ZDELETE(p_js_obj);
+					}
+					else {
+						st_data.SetupByLastError();
+					}
+				}
+				else
+					st_data.SetupByLastError();
+				if(!data_settled)
+					P_St->D_Auth.SetData(st_data);
+			}
+			break;
+		case PPSCMD_WSCTL_GETACCOUNTSTATE:
+			if(P_St && rReq.P.SCardID) {
+				//WsCtl_ImGuiSceneBlock::DAuth st_auth;
+				WsCtl_ImGuiSceneBlock::DAccount st_data;
+				//P_St->D_Auth.GetData(st_auth);
+				PPJobSrvCmd cmd;
+				cmd.StartWriting(PPSCMD_WSCTL_GETACCOUNTSTATE);
+				cmd.Write(&rReq.P.SCardID, sizeof(rReq.P.SCardID));
+				cmd.FinishWriting();
+				if(rCli.Exec(cmd, reply)) {
+					SString reply_buf;
+					reply.StartReading(&reply_buf);
+					if(reply.CheckRepError()) {
+						SJson * p_js_obj = SJson::Parse(reply_buf);
+						const SJson * p_c = 0;
+						if(p_js_obj) {
+							p_c = p_js_obj->FindChildByKey("scardid");
+							if(SJson::IsNumber(p_c)) {
+								st_data.SCardID = p_c->Text.ToLong();
+							}
+							p_c = p_js_obj->FindChildByKey("scardcode");
+							if(SJson::IsString(p_c)) {
+								(st_data.SCardCode = p_c->Text).Unescape();
+							}
+							p_c = p_js_obj->FindChildByKey("personid");
+							if(SJson::IsNumber(p_c)) {
+								st_data.PersonID = p_c->Text.ToLong();
+							}
+							p_c = p_js_obj->FindChildByKey("personnm");
+							if(SJson::IsString(p_c)) {
+								(st_data.PersonName = p_c->Text).Unescape();
+							}										
+							p_c = p_js_obj->FindChildByKey("screst");
+							if(SJson::IsNumber(p_c)) {
+								st_data.ScRest = p_c->Text.ToReal();
+							}
+						}
+						else {
+							PPSetErrorSLib();
+							st_data.SetupByLastError();
+						}
+						ZDELETE(p_js_obj);
+					}
+					else
+						st_data.SetupByLastError();
+				}
+				else
+					st_data.SetupByLastError();
+				P_St->D_Acc.SetData(st_data);
+			}
+			break;
+		case PPSCMD_WSCTL_INIT:
+			if(P_St) {
+				WsCtl_ImGuiSceneBlock::DPrc st_data;
+				PPJobSrvCmd cmd;
+				cmd.StartWriting(PPSCMD_WSCTL_INIT);
+				cmd.Write(&rReq.P.Uuid, sizeof(rReq.P.Uuid));
+				cmd.FinishWriting();
+				if(rCli.Exec(cmd, reply)) {
+					SString reply_buf;
+					reply.StartReading(&reply_buf);
+					if(reply.CheckRepError()) {
+						SJson * p_js_obj = SJson::Parse(reply_buf);
+						const SJson * p_c = 0;
+						if(p_js_obj) {
+							p_c = p_js_obj->FindChildByKey("prcid");
+							if(SJson::IsNumber(p_c)) {
+								st_data.PrcID = p_c->Text.ToLong();
+							}
+							p_c = p_js_obj->FindChildByKey("prcnm");
+							if(SJson::IsString(p_c)) {
+								st_data.PrcName = p_c->Text;
+							}
+							p_c = p_js_obj->FindChildByKey("wsctluuid");
+							if(SJson::IsString(p_c)) {
+								st_data.PrcUuid.FromStr(p_c->Text);
+							}
+						}
+						else {
+							PPSetErrorSLib();
+							st_data.SetupByLastError();
+						}
+						ZDELETE(p_js_obj);
+					}
+					else
+						st_data.SetupByLastError();
+				}
+				else
+					st_data.SetupByLastError();
+				P_St->D_Prc.SetData(st_data);
+			}
+			break;
+		case PPSCMD_WSCTL_GETQUOTLIST:
+			if(P_St) {
+				WsCtl_ImGuiSceneBlock::DPrices st_data;
+				WsCtl_ImGuiSceneBlock::DPrc st_prc_data;
+				P_St->D_Prc.GetData(st_prc_data);
+				if(st_prc_data.PrcID) {
+					PPJobSrvCmd cmd;
+					cmd.StartWriting(PPSCMD_WSCTL_GETQUOTLIST);
+					cmd.Write(&st_prc_data.PrcID, sizeof(st_prc_data.PrcID));
+					cmd.FinishWriting();
+					if(rCli.Exec(cmd, reply)) {
+						SString reply_buf;
+						reply.StartReading(&reply_buf);
+						if(reply.CheckRepError()) {
+							SJson * p_js = SJson::Parse(reply_buf);
+							if(st_data.FromJsonObject(p_js)) {
+								;
+							}
+							else
+								st_data.SetupByLastError();
+							ZDELETE(p_js);
+						}
+						else
+							st_data.SetupByLastError();
+					}
+				}
+				else {
+					// @todo Сделать нормальную ошибку
+					st_data._Status = -1;
+					st_data._Message = "Processor is undefined";
+				}
+				P_St->D_Prices.SetData(st_data);
+			}
+			break;
+	}
+}
+//
+//
+//
+void WsCtl_ImGuiSceneBlock::Render()
+{
+	ImGui::Render();
+	const float clear_color_with_alpha[4] = { 
+		ClearColor.x * ClearColor.w, 
+		ClearColor.y * ClearColor.w, 
+		ClearColor.z * ClearColor.w, 
+		ClearColor.w 
+	};
+	ImgRtb.g_pd3dDeviceContext->OMSetRenderTargets(1, &ImgRtb.g_mainRenderTargetView, nullptr);
+	ImgRtb.g_pd3dDeviceContext->ClearRenderTargetView(ImgRtb.g_mainRenderTargetView, clear_color_with_alpha);
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	ImgRtb.g_pSwapChain->Present(1, 0); // Present with vsync
+	//g_pSwapChain->Present(0, 0); // Present without vsync
+}
+
+/*static*/int WsCtl_ImGuiSceneBlock::CbInput(ImGuiInputTextCallbackData * pInputData)
+{
+	bool debug_mark = false;
+	if(pInputData) {
+		WsCtl_ImGuiSceneBlock * p_this = static_cast<WsCtl_ImGuiSceneBlock *>(pInputData->UserData);
+		if(p_this) {
+			if(pInputData->EventKey != 0) {
+				debug_mark = true;
+			}
+			//if(pInputData->Buf == p_this->LoginText) {
+				//debug_mark = true;
+			//}
+		}
+	}
+	return 0;
+}
+
+void WsCtl_ImGuiSceneBlock::MakeLayout()
+{
+	const FRect margin_(2.0f, 1.0f, 2.0f, 1.0f);
+	{
+		//
+		// screenLogin
+		//
+		SUiLayout * p_tl = new SUiLayout();
+		SUiLayoutParam alb(DIREC_VERT, SUiLayoutParam::alignCenter, SUiLayoutParam::alignCenter);
+		alb.AlignItems = SUiLayoutParam::alignCenter;
+		p_tl->SetLayoutBlock(alb);
+		p_tl->SetID(screenLogin);
+		{
+			SUiLayoutParam alb(DIREC_HORZ, SUiLayoutParam::alignCenter, SUiLayoutParam::alignCenter);
+			alb.SetFixedSizeX(480).SetFixedSizeY(360);
+			p_tl->InsertItem(0, &alb, loidLoginBlock);
+		}
+		Cache_Layout.Put(p_tl, true);
+	}
+	{
+		//
+		// screenAuthSelectSess
+		//
+		SUiLayout * p_tl = new SUiLayout();
+		SUiLayoutParam alb(DIREC_HORZ, SUiLayoutParam::alignCenter, SUiLayoutParam::alignCenter);
+		p_tl->SetLayoutBlock(alb);
+		p_tl->SetID(screenAuthSelectSess);
+		{
+			// Left menu
+			SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+			alb01.SetMargin(margin_).SetFixedSizeX(128.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+			p_tl->InsertItem(0, &alb01, loidMenuBlock);			
+		}
+		{
+			SUiLayoutParam alb_mg(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+			alb_mg.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+			SUiLayout * p_lo_main_group = p_tl->InsertItem(0, &alb_mg, loidMainGroup);
+			{
+				SUiLayoutParam alb_ig(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
+				alb_ig.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+				SUiLayout * p_lo_info_group = p_lo_main_group->InsertItem(0, &alb_ig, loidMainGroup);
+				{
+					// Person info
+					SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+					alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+					p_lo_info_group->InsertItem(0, &alb01, loidPersonInfo);
+				}
+				{
+					// Account info
+					SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+					alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+					p_lo_info_group->InsertItem(0, &alb01, loidAccountInfo);
+				}
+				{
+					SUiLayoutParam albg(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+					albg.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+					SUiLayout * p_lo_grp = p_lo_info_group->InsertItem(0, &albg, 0);
+					{
+						// Session selection
+						SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+						alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+						p_lo_grp->InsertItem(0, &alb01, loidSessionSelection);
+					}
+					{
+						SUiLayoutParam alb01(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
+						alb01.SetMargin(margin_).SetFixedSizeY(128.0f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+						p_lo_grp->InsertItem(0, &alb01, loidSessionButtonGroup);
+					}
+				}
+			}
+			{
+				// Buttons group
+				SUiLayoutParam alb01(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
+				alb01.SetMargin(margin_).SetFixedSizeY(128.0f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+				p_lo_main_group->InsertItem(0, &alb01, loidBottomCtrlGroup);
+			}
+		}
+		Cache_Layout.Put(p_tl, true);
+	}
+	{
+		//
+		// screenSession
+		//
+	}
+	{
+		//
+		// screenConstruction
+		//
+		SUiLayout * p_tl = new SUiLayout();
+		p_tl->SetLayoutBlock(SUiLayoutParam(DIREC_HORZ, 0, SUiLayoutParam::alignStretch));
+		p_tl->SetID(screenConstruction);
+		{
+			{
+				SUiLayoutParam alb(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+				alb.SetVArea(SUiLayoutParam::areaSideL);
+				alb.SetFixedSizeX(256).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f).SetMargin(1.0f);
+				p_tl->InsertItem(0, &alb, loidMenuBlock);
+			}
+			{
+				SUiLayoutParam alb_mg(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+				alb_mg.SetVArea(SUiLayoutParam::areaSideL);
+				alb_mg.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f).SetMargin(1.0f);
+				SUiLayout * p_lo_main_group = p_tl->InsertItem(0, &alb_mg, loidMainGroup);
+				{
+					SUiLayoutParam alb(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
+					alb.SetMargin(margin_).SetGrowFactor(1.2f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+					SUiLayout * p_lo_up_group = p_lo_main_group->InsertItem(0, &alb, loidUpperGroup);
+					{
+						SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+						alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+						p_lo_up_group->InsertItem(0, &alb01, loidCtl01);
+					}
+					{
+						SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+						alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+						p_lo_up_group->InsertItem(0, &alb01, loidCtl02);
+					}
+				}
+				{
+					SUiLayoutParam alb(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
+					alb.SetMargin(margin_).SetGrowFactor(0.8f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+					SUiLayout * p_lo_dn_group = p_lo_main_group->InsertItem(0, &alb, loidBottomGroup);
+					{
+						SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+						alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+						p_lo_dn_group->InsertItem(0, &alb01, loidAdv01);
+					}
+					{
+						SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+						alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+						p_lo_dn_group->InsertItem(0, &alb01, loidAdv02);
+					}
+					{
+						SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+						alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+						p_lo_dn_group->InsertItem(0, &alb01, loidAdv03);
+					}
+				}
+			}
+		}
+		Cache_Layout.Put(p_tl, true);
+	}
+}
+
+class ImGuiWindowByLayout {
+public:
+	ImGuiWindowByLayout(const SUiLayout * pLoParent, int loId, const char * pWindowId, ImGuiWindowFlags viewFlags) : 
+		P_Lo(pLoParent ? pLoParent->FindByID(loId) : 0)
+	{
+		if(P_Lo) {
+			FRect r = P_Lo->GetFrameAdjustedToParent();
+			SPoint2F s = r.GetSize();
+			ImVec2 lu(r.a.x, r.a.y);
+			ImVec2 sz(s.x, s.y);
+			ImGui::SetNextWindowPos(lu);
+			ImGui::SetNextWindowSize(sz);
+			SString & r_symb = SLS.AcquireRvlStr();
+			if(pWindowId)
+				r_symb = pWindowId;
+			else {
+				//char  random_data[20];
+				//SLS.GetTLA().Rg.ObfuscateBuffer(random_data, sizeof(random_data));
+				//r_symb.EncodeMime64(random_data, sizeof(random_data)).Insert(0, "##");
+				r_symb.Cat(loId);
+			}
+			ImGui::Begin(r_symb, 0, viewFlags);
+		}
+	}
+	~ImGuiWindowByLayout()
+	{
+		if(P_Lo) {
+			ImGui::End();
+			P_Lo = 0;
+		}
+	}
+	bool IsValid() const { return (P_Lo != 0); }
+	const SUiLayout * P_Lo;
+};
+
+void WsCtl_ImGuiSceneBlock::BuildScene()
+{
+	const LDATETIME now_dtm = getcurdatetime_();
+	if(!TestBlk.DtmLastQuerySent || diffdatetimesec(now_dtm, TestBlk.DtmLastQuerySent) > 5) {
+		if(P_CmdQ) {
+			WsCtlReqQueue::Req qr(PPSCMD_HELLO);
+			P_CmdQ->Push(qr);
+			TestBlk.DtmLastQuerySent = now_dtm;
+			TestBlk.QuerySentCount++;
+		}
+	}
+	//
+	// Start the Dear ImGui frame
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+	ShowDemoWindow = false; // @debug
+	if(ShowDemoWindow) {
+		// @sobolev 
+		ImGui::ShowDemoWindow(/*&show_demo_window*/);
+	}
+	else {
+		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+		const int view_flags = ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoDecoration|
+			0;
+		ImGuiViewport * p_vp = ImGui::GetMainViewport();
+		if(p_vp) {
+			ImVec2 sz = p_vp->Size;
+			const int _screen = GetScreen();
+			SUiLayout::Param evp;
+			evp.ForceWidth = static_cast<float>(sz.x);
+			evp.ForceHeight = static_cast<float>(sz.y);
+			if(_screen == screenLogin) {
+				SUiLayout * p_tl = Cache_Layout.Get(reinterpret_cast<const char *>(&_screen), sizeof(_screen));
+				if(p_tl) {
+					p_tl->Evaluate(&evp);
+					//loidLoginBlock
+					ImGuiWindowByLayout wbl(p_tl, loidLoginBlock, "##LOGINBLOCK", view_flags);
+					if(wbl.IsValid()) {
+						DAuth data_auth;
+						St.D_Auth.GetData(data_auth);
+						if(data_auth.SCardID && data_auth._Status == 0) {
+							SetScreen(screenAuthSelectSess);	
+						}
+						else {
+							bool is_err = false;
+							if(!data_auth.SCardID && data_auth._Status != 0) {
+								LastSvrErr = data_auth;
+								// Сбрасываем информацию об ошибке {
+								data_auth.DServerError::Z();
+								St.D_Auth.SetData(data_auth);
+								// }
+								if(LastSvrErr._Message.NotEmpty())
+									is_err = true;
+							}
+							else if(LastSvrErr._Status != 0) {
+								if(LastSvrErr._Message.NotEmpty())
+									is_err = true;
+							}
+							if(is_err) {
+								const char * p_popup_title = "Error message";
+								ImGui::OpenPopup(p_popup_title);
+								if(ImGui::BeginPopup(p_popup_title)) {
+									ImGui::Text(LastSvrErr._Message);
+									if(ImGui::Button("Close")) {
+										LastSvrErr.Z(); // Сбрасываем информацию об ошибке
+										ImGui::CloseCurrentPopup();
+									}
+									ImGui::EndPopup();
+								}
+							}
+							ImGui::InputText(InputLabelPrefix("Текст для авторизации"), LoginText, sizeof(LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+							ImGui::InputText(InputLabelPrefix("Пароль"), PwText, sizeof(PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+							if(!isempty(LoginText)) {
+								if(ImGui::Button("Login") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
+									WsCtlReqQueue::Req req(PPSCMD_WSCTL_AUTH);
+									STRNSCPY(req.P.AuthTextUtf8, LoginText);
+									STRNSCPY(req.P.AuthPwUtf8, PwText);
+									P_CmdQ->Push(req);
+								}
+							}
+						}
+					}
+				}
+			}
+			else if(_screen == screenAuthSelectSess) {
+				SUiLayout * p_tl = Cache_Layout.Get(reinterpret_cast<const char *>(&_screen), sizeof(_screen));
+				if(p_tl) {
+					p_tl->Evaluate(&evp);
+					{
+						ImGuiWindowByLayout wbl(p_tl, loidMenuBlock, "##MENUBLOCK", view_flags);
+						if(wbl.IsValid()) {
+						}
+					}
+					DAccount st_data_acc;
+					St.D_Acc.GetData(st_data_acc);
+					{
+						ImGuiWindowByLayout wbl(p_tl, loidPersonInfo, "##PERSONINFO", view_flags);
+						if(wbl.IsValid()) {
+							if(st_data_acc.PersonName) {
+								ImGui::Text(st_data_acc.PersonName);
+							}
 						}
 					}
 					{
-						const SUiLayout * p_lo = Lo01.FindByID(loidCtl02);
-						if(p_lo) {
-							FRect r = p_lo->GetFrameAdjustedToParent();
-							SPoint2F s = r.GetSize();
-							ImVec2 lu(r.a.x, r.a.y);
-							ImVec2 sz(s.x, s.y);
-							ImGui::SetNextWindowPos(lu);
-							ImGui::SetNextWindowSize(sz);
-							ImGui::Begin("##CTL-02", 0, view_flags);
+						ImGuiWindowByLayout wbl(p_tl, loidAccountInfo, "##ACCOUNTINFO", view_flags);
+						if(wbl.IsValid()) {
+							SString & r_text_buf = SLS.AcquireRvlStr();
+							ImGui::Text(PPLoadStringUtf8S("account", r_text_buf).CatDiv(':', 2).Cat(st_data_acc.SCardCode));
+							ImGui::Text(PPLoadStringUtf8S("rest", r_text_buf).CatDiv(':', 2).Cat(st_data_acc.ScRest, MKSFMTD(0, 2, 0)));
+						}
+					}
+					{
+						ImGuiWindowByLayout wbl(p_tl, loidSessionSelection, "##SESSIONSELECTION", view_flags);
+						if(wbl.IsValid()) {
+							{
+								DPrices st_data_prices;
+								St.D_Prices.GetData(st_data_prices);
+								if(st_data_prices.GoodsList.getCount()) {
+									const PPID selected_tec_goods_id = St.GetSelectedTecGoodsID();
+									//PPID   new_selected_tec_goods_id = 0;
+									if(ImGui::BeginTable("Prices", 1)) {
+										for(uint i = 0; i < st_data_prices.GoodsList.getCount(); i++) {
+											const GoodsEntry * p_entry = st_data_prices.GoodsList.at(i);
+											if(p_entry) {
+												double price = 0.0;
+												if(st_data_prices.GetGoodsPrice(p_entry->ID, &price)) {
+													//ImGui::RadioButton(
+													ImGui::TableNextColumn();
+													SString & r_temp_buf = SLS.AcquireRvlStr();
+													r_temp_buf.Cat(p_entry->NameUtf8).Space().CatChar('|').Space().Cat(price, MKSFMTD(0, 2, 0));
+													if(ImGui::/*RadioButton*/Selectable(r_temp_buf, (p_entry->ID == selected_tec_goods_id)))
+														St.SetSelectedTecGoodsID(p_entry->ID);
+														//new_selected_tec_goods_id = p_entry->ID;
+												}
+											}
+										}
+										ImGui::EndTable();
+									}
+								}
+								{
+									const PPID selected_tec_goods_id = St.GetSelectedTecGoodsID();
+									const GoodsEntry * p_ge = st_data_prices.GetGoodsEntryByID(selected_tec_goods_id);
+									SString & r_text_buf = SLS.AcquireRvlStr();
+									r_text_buf.Cat("Selected Tec Goods ID").CatDiv(':', 2).Cat(p_ge ? p_ge->NameUtf8 : "undefined");
+									ImGui::Text(r_text_buf);
+								}
+							}
+						}
+					}
+					{
+						//loidSessionButtonGroup
+						ImGuiWindowByLayout wbl(p_tl, loidSessionButtonGroup, "##SESSIONBUTTONGROUP", view_flags);
+						if(wbl.IsValid()) {
+							PPID  sel_goods_id = St.GetSelectedTecGoodsID();
+							if(sel_goods_id) {
+								ImGui::Button("Start Session...");
+							}
+						}
+					}
+
+					{
+						ImGuiWindowByLayout wbl(p_tl, loidBottomCtrlGroup, "##BOTTOMCTRLGROUP", view_flags);
+						if(wbl.IsValid()) {
+						}
+					}
+				}
+			}
+			else if(_screen == screenConstruction) {
+				SUiLayout * p_tl = Cache_Layout.Get(reinterpret_cast<const char *>(&_screen), sizeof(_screen));
+				if(p_tl) {
+					p_tl->Evaluate(&evp);
+					ImGuiObjStack __ost;
+					__ost.PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
+					{
+						ImGuiWindowByLayout wbl(p_tl, loidMenuBlock, "##MENUBLOCK", view_flags);
+						if(wbl.IsValid()) {
+							ImGui::Text("X");
+							if(ImGui::Button("Login...")) {
+								SetScreen(screenLogin);
+							}
+							if(ImGui::Button("Select session...")) {
+								SetScreen(screenAuthSelectSess);
+							}
+							if(ImGui::Button("Start...")) {
+								;
+							}
+						}
+					}
+					{
+						ImGuiWindowByLayout wbl(p_tl, loidCtl01, "##CTL-01", view_flags);
+						if(wbl.IsValid()) {
+							DAccount data_acc;
+							St.D_Acc.GetData(data_acc);
+							if(data_acc.SCardID) {
+								SString & r_temp_buf = SLS.AcquireRvlStr();
+								ImGui::Text(r_temp_buf.Z().Cat("Аккаунт").CatDiv(':', 2).Cat(data_acc.SCardCode));
+								ImGui::Text(r_temp_buf.Z().Cat(data_acc.PersonName));
+								ImGui::Text(r_temp_buf.Z().Cat("Остаток").CatDiv(':', 2).Cat(data_acc.ScRest, MKSFMTD(0, 2, 0)));
+							}
+							else {
+								//ImGui::SetKeyboardFocusHere();
+								ImGui::InputText(InputLabelPrefix("Текст для авторизации"), LoginText, sizeof(LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+								ImGui::InputText(InputLabelPrefix("Пароль"), PwText, sizeof(PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+								if(!isempty(LoginText)) {
+									if(ImGui::Button("Login")) {
+										WsCtlReqQueue::Req req(PPSCMD_WSCTL_AUTH);
+										STRNSCPY(req.P.AuthTextUtf8, LoginText);
+										STRNSCPY(req.P.AuthPwUtf8, PwText);
+										P_CmdQ->Push(req);
+									}
+								}
+							}
+							{
+								//ImGui::PopAllowKeyboardFocus
+							}
+						}
+					}
+					{
+						ImGuiWindowByLayout wbl(p_tl, loidCtl02, "##CTL-02", view_flags);
+						if(wbl.IsValid()) {
 							//ImGui::Text("CTL-02");
 							ImGui::Text(SLS.AcquireRvlStr().Cat("Сервер").CatDiv(':', 2).Cat(JsP.Addr).CatChar(':').Cat(JsP.Port));
 							{
-								int conn_status = 0;
+								DConnectionStatus conn_status;
 								St.D_ConnStatus.GetData(conn_status);
-								ImGui::Text(SLS.AcquireRvlStr().Cat("Connection status").CatDiv(':', 2).Cat(conn_status));
+								if(conn_status.S == 0) {
+									ImGui::Text(SLS.AcquireRvlStr().Cat("Connection status").CatDiv(':', 2).Cat(conn_status._Message));
+								}
+								else {
+									ImGui::Text(SLS.AcquireRvlStr().Cat("Connection status").CatDiv(':', 2).Cat("OK"));
+								}
 							}
 							{
 								DTest test_result;
@@ -1370,98 +1859,71 @@ public:
 									ImGui::Text(r_text_buf);
 								}
 							}
-							ImGui::End();
 						}
 					}
 					{
-						const SUiLayout * p_lo = Lo01.FindByID(loidAdv01);
-						if(p_lo) {
-							FRect r = p_lo->GetFrameAdjustedToParent();
-							SPoint2F s = r.GetSize();
-							ImVec2 lu(r.a.x, r.a.y);
-							ImVec2 sz(s.x, s.y);
-							ImGui::SetNextWindowPos(lu);
-							ImGui::SetNextWindowSize(sz);
-							ImGui::Begin("##ADV-01", 0, view_flags);
+						ImGuiWindowByLayout wbl(p_tl, loidAdv01, "##ADV-01", view_flags);
+						if(wbl.IsValid()) {
 							//ImGui::Text("ADV-01");
 							// @debug {
 							if(P_TestImgTexture) {
-								ImVec2 sz;
-								sz.x = 128;
-								sz.y = 128;
+								ImVec2 sz(128.0f, 128.0f);
 								ImGui::Image(P_TestImgTexture, sz);
 							}
 							// } @debug 
-							ImGui::End();
 						}
 					}
 					{
-						const SUiLayout * p_lo = Lo01.FindByID(loidAdv02);
-						if(p_lo) {
-							FRect r = p_lo->GetFrameAdjustedToParent();
-							SPoint2F s = r.GetSize();
-							ImVec2 lu(r.a.x, r.a.y);
-							ImVec2 sz(s.x, s.y);
-							ImGui::SetNextWindowPos(lu);
-							ImGui::SetNextWindowSize(sz);
-							ImGui::Begin("##ADV-02", 0, view_flags);
+						ImGuiWindowByLayout wbl(p_tl, loidAdv02, "##ADV-02", view_flags);
+						if(wbl.IsValid()) {
 							//ImGui::Text("ADV-02");
-							ImGui::End();
 						}
 					}
 					{
-						const SUiLayout * p_lo = Lo01.FindByID(loidAdv03);
-						if(p_lo) {
-							FRect r = p_lo->GetFrameAdjustedToParent();
-							SPoint2F s = r.GetSize();
-							ImVec2 lu(r.a.x, r.a.y);
-							ImVec2 sz(s.x, s.y);
-							ImGui::SetNextWindowPos(lu);
-							ImGui::SetNextWindowSize(sz);
-							ImGui::Begin("##ADV-03", 0, view_flags);
+						ImGuiWindowByLayout wbl(p_tl, loidAdv03, "##ADV-03", view_flags);
+						if(wbl.IsValid()) {
 							//ImGui::Text("ADV-03");
-							ImGui::End();
 						}
 					}
 				}
 			}
 		}
-		/*
-		{
-			static float f = 0.0f;
-			static int counter = 0;
-			{
-				ImVec2 wp(0.0f, 0.0f);
-				ImGui::SetNextWindowPos(wp);
-			}
-			ImGui::Begin("Hello, world!", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove); // Create a window called "Hello, world!" and append into it.
-			ImGui::Text("This is some useful text.");   // Display some text (you can use a format strings too)
-			ImGui::Checkbox("Demo Window", &ShowDemoWindow); // Edit bools storing our window open/close state
-			ImGui::Checkbox("Another Window", &ShowAnotherWindow);
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f); // Edit 1 float using a slider from 0.0f to 1.0f
-			ImGui::ColorEdit3("clear color", (float *)&ClearColor); // Edit 3 floats representing a color
-			if(ImGui::Button("Button")) // Buttons return true when clicked (most widgets return true when edited/activated)
-				counter++;
-			ImGui::SameLine();
-			ImGui::Text("counter = %d", counter);
-			{
-				ImGuiIO & r_io = ImGui::GetIO(); 
-				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / r_io.Framerate, r_io.Framerate);
-			}
-			ImGui::End();
-		}
-		// 3. Show another simple window.
-		if(ShowAnotherWindow) {
-			ImGui::Begin("Another Window", &ShowAnotherWindow); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-			ImGui::Text("Hello from another window!");
-			if(ImGui::Button("Close Me"))
-				ShowAnotherWindow = false;
-			ImGui::End();
-		}
-		*/
-		Render(); // Rendering
 	}
-};
+	/*
+	{
+		static float f = 0.0f;
+		static int counter = 0;
+		{
+			ImVec2 wp(0.0f, 0.0f);
+			ImGui::SetNextWindowPos(wp);
+		}
+		ImGui::Begin("Hello, world!", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove); // Create a window called "Hello, world!" and append into it.
+		ImGui::Text("This is some useful text.");   // Display some text (you can use a format strings too)
+		ImGui::Checkbox("Demo Window", &ShowDemoWindow); // Edit bools storing our window open/close state
+		ImGui::Checkbox("Another Window", &ShowAnotherWindow);
+		ImGui::SliderFloat("float", &f, 0.0f, 1.0f); // Edit 1 float using a slider from 0.0f to 1.0f
+		ImGui::ColorEdit3("clear color", (float *)&ClearColor); // Edit 3 floats representing a color
+		if(ImGui::Button("Button")) // Buttons return true when clicked (most widgets return true when edited/activated)
+			counter++;
+		ImGui::SameLine();
+		ImGui::Text("counter = %d", counter);
+		{
+			ImGuiIO & r_io = ImGui::GetIO(); 
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / r_io.Framerate, r_io.Framerate);
+		}
+		ImGui::End();
+	}
+	// 3. Show another simple window.
+	if(ShowAnotherWindow) {
+		ImGui::Begin("Another Window", &ShowAnotherWindow); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+		ImGui::Text("Hello from another window!");
+		if(ImGui::Button("Close Me"))
+			ShowAnotherWindow = false;
+		ImGui::End();
+	}
+	*/
+	Render(); // Rendering
+}
 //
 // Win32 message handler
 // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
@@ -1604,6 +2066,7 @@ int main(int, char**)
 		//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		WsCtl_ImGuiSceneBlock scene_blk;
 		scene_blk.Init();
+		scene_blk.SetScreen(WsCtl_ImGuiSceneBlock::screenConstruction);
 		{
 			static const ImWchar ranges[] = {
 				0x0020, 0x00FF, // Basic Latin + Latin Supplement

@@ -55,36 +55,36 @@ static const char gGmtFormatTag[] = "gmtFormat";
 static const char gGmtZeroFormatTag[] = "gmtZeroFormat";
 static const char gHourFormatTag[] = "hourFormat";
 
-static const UChar TZID_GMT[] = {0x0045, 0x0074, 0x0063, 0x002F, 0x0047, 0x004D, 0x0054, 0};    // Etc/GMT
-static const UChar UNKNOWN_ZONE_ID[] = {
+static const char16_t TZID_GMT[] = {0x0045, 0x0074, 0x0063, 0x002F, 0x0047, 0x004D, 0x0054, 0};    // Etc/GMT
+static const char16_t UNKNOWN_ZONE_ID[] = {
 	0x0045, 0x0074, 0x0063, 0x002F, 0x0055, 0x006E, 0x006B, 0x006E, 0x006F, 0x0077, 0x006E, 0
 };                                                                                              // Etc/Unknown
-static const UChar UNKNOWN_SHORT_ZONE_ID[] = {0x0075, 0x006E, 0x006B, 0};   // unk
-static const UChar UNKNOWN_LOCATION[] = {0x0055, 0x006E, 0x006B, 0x006E, 0x006F, 0x0077, 0x006E, 0};    // Unknown
+static const char16_t UNKNOWN_SHORT_ZONE_ID[] = {0x0075, 0x006E, 0x006B, 0};   // unk
+static const char16_t UNKNOWN_LOCATION[] = {0x0055, 0x006E, 0x006B, 0x006E, 0x006F, 0x0077, 0x006E, 0};    // Unknown
 
-static const UChar DEFAULT_GMT_PATTERN[] = {0x0047, 0x004D, 0x0054, 0x007B, 0x0030, 0x007D, 0}; // GMT{0}
-//static const UChar DEFAULT_GMT_ZERO[] = {0x0047, 0x004D, 0x0054, 0}; // GMT
-static const UChar DEFAULT_GMT_POSITIVE_HM[] = {0x002B, 0x0048, 0x003A, 0x006D, 0x006D, 0}; // +H:mm
-static const UChar DEFAULT_GMT_POSITIVE_HMS[] = {0x002B, 0x0048, 0x003A, 0x006D, 0x006D, 0x003A, 0x0073, 0x0073, 0}; // +H:mm:ss
-static const UChar DEFAULT_GMT_NEGATIVE_HM[] = {0x002D, 0x0048, 0x003A, 0x006D, 0x006D, 0}; // -H:mm
-static const UChar DEFAULT_GMT_NEGATIVE_HMS[] = {0x002D, 0x0048, 0x003A, 0x006D, 0x006D, 0x003A, 0x0073, 0x0073, 0}; // -H:mm:ss
-static const UChar DEFAULT_GMT_POSITIVE_H[] = {0x002B, 0x0048, 0}; // +H
-static const UChar DEFAULT_GMT_NEGATIVE_H[] = {0x002D, 0x0048, 0}; // -H
+static const char16_t DEFAULT_GMT_PATTERN[] = {0x0047, 0x004D, 0x0054, 0x007B, 0x0030, 0x007D, 0}; // GMT{0}
+//static const char16_t DEFAULT_GMT_ZERO[] = {0x0047, 0x004D, 0x0054, 0}; // GMT
+static const char16_t DEFAULT_GMT_POSITIVE_HM[] = {0x002B, 0x0048, 0x003A, 0x006D, 0x006D, 0}; // +H:mm
+static const char16_t DEFAULT_GMT_POSITIVE_HMS[] = {0x002B, 0x0048, 0x003A, 0x006D, 0x006D, 0x003A, 0x0073, 0x0073, 0}; // +H:mm:ss
+static const char16_t DEFAULT_GMT_NEGATIVE_HM[] = {0x002D, 0x0048, 0x003A, 0x006D, 0x006D, 0}; // -H:mm
+static const char16_t DEFAULT_GMT_NEGATIVE_HMS[] = {0x002D, 0x0048, 0x003A, 0x006D, 0x006D, 0x003A, 0x0073, 0x0073, 0}; // -H:mm:ss
+static const char16_t DEFAULT_GMT_POSITIVE_H[] = {0x002B, 0x0048, 0}; // +H
+static const char16_t DEFAULT_GMT_NEGATIVE_H[] = {0x002D, 0x0048, 0}; // -H
 
 static const UChar32 DEFAULT_GMT_DIGITS[] = {
 	0x0030, 0x0031, 0x0032, 0x0033, 0x0034,
 	0x0035, 0x0036, 0x0037, 0x0038, 0x0039
 };
 
-static const UChar DEFAULT_GMT_OFFSET_SEP = 0x003A; // ':'
+static const char16_t DEFAULT_GMT_OFFSET_SEP = 0x003A; // ':'
 
-static const UChar ARG0[] = {0x007B, 0x0030, 0x007D};   // "{0}"
+static const char16_t ARG0[] = {0x007B, 0x0030, 0x007D};   // "{0}"
 static const int32_t ARG0_LEN = 3;
 
-static const UChar DEFAULT_GMT_OFFSET_MINUTE_PATTERN[] = {0x006D, 0x006D, 0};   // "mm"
-static const UChar DEFAULT_GMT_OFFSET_SECOND_PATTERN[] = {0x0073, 0x0073, 0};   // "ss"
+static const char16_t DEFAULT_GMT_OFFSET_MINUTE_PATTERN[] = {0x006D, 0x006D, 0};   // "mm"
+static const char16_t DEFAULT_GMT_OFFSET_SECOND_PATTERN[] = {0x0073, 0x0073, 0};   // "ss"
 
-static const UChar ALT_GMT_STRINGS[][4] = {
+static const char16_t ALT_GMT_STRINGS[][4] = {
 	{0x0047, 0x004D, 0x0054, 0}, // GMT
 	{0x0055, 0x0054, 0x0043, 0}, // UTC
 	{0x0055, 0x0054, 0, 0}, // UT
@@ -103,11 +103,11 @@ static const int32_t PARSE_GMT_OFFSET_TYPES[] = {
 	-1
 };
 
-static const UChar SINGLEQUOTE  = 0x0027;
-static const UChar PLUS = 0x002B;
-static const UChar MINUS        = 0x002D;
-static const UChar ISO8601_UTC  = 0x005A;   // 'Z'
-static const UChar ISO8601_SEP  = 0x003A;   // ':'
+static const char16_t SINGLEQUOTE  = 0x0027;
+static const char16_t PLUS = 0x002B;
+static const char16_t MINUS        = 0x002D;
+static const char16_t ISO8601_UTC  = 0x005A;   // 'Z'
+static const char16_t ISO8601_SEP  = 0x003A;   // ':'
 
 static const int32_t MILLIS_PER_HOUR = 60 * 60 * 1000;
 static const int32_t MILLIS_PER_MINUTE = 60 * 1000;
@@ -173,14 +173,14 @@ public:
 	static GMTOffsetField* createText(const UnicodeString & text, UErrorCode & status);
 	static GMTOffsetField* createTimeField(FieldType type, uint8 width, UErrorCode & status);
 	static bool isValid(FieldType type, int32_t width);
-	static FieldType getTypeByLetter(UChar ch);
+	static FieldType getTypeByLetter(char16_t ch);
 
 	FieldType getType() const;
 	uint8 getWidth() const;
-	const UChar * getPatternText() const;
+	const char16_t * getPatternText() const;
 
 private:
-	UChar * fText;
+	char16_t * fText;
 	FieldType fType;
 	uint8 fWidth;
 
@@ -208,7 +208,7 @@ GMTOffsetField* GMTOffsetField::createText(const UnicodeString & text, UErrorCod
 	}
 
 	int32_t len = text.length();
-	result->fText = (UChar *)uprv_malloc((len + 1) * sizeof(UChar));
+	result->fText = (char16_t *)uprv_malloc((len + 1) * sizeof(char16_t));
 	if(result->fText == NULL) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		delete result;
@@ -251,7 +251,7 @@ bool GMTOffsetField::isValid(FieldType type, int32_t width) {
 	return (width > 0);
 }
 
-GMTOffsetField::FieldType GMTOffsetField::getTypeByLetter(UChar ch) {
+GMTOffsetField::FieldType GMTOffsetField::getTypeByLetter(char16_t ch) {
 	if(ch == 0x0048 /* H */) {
 		return HOUR;
 	}
@@ -272,7 +272,7 @@ inline uint8 GMTOffsetField::getWidth() const {
 	return fWidth;
 }
 
-inline const UChar * GMTOffsetField::getPatternText() const {
+inline const char16_t * GMTOffsetField::getPatternText() const {
 	return fText;
 }
 
@@ -324,13 +324,13 @@ TimeZoneFormat::TimeZoneFormat(const Locale & locale, UErrorCode & status)
 		return;
 	}
 
-	const UChar * gmtPattern = NULL;
-	const UChar * hourFormats = NULL;
+	const char16_t * gmtPattern = NULL;
+	const char16_t * hourFormats = NULL;
 
 	UResourceBundle * zoneBundle = ures_open(U_ICUDATA_ZONE, locale.getName(), &status);
 	UResourceBundle * zoneStringsArray = ures_getByKeyWithFallback(zoneBundle, gZoneStringsTag, NULL, &status);
 	if(U_SUCCESS(status)) {
-		const UChar * resStr;
+		const char16_t * resStr;
 		int32_t len;
 		resStr = ures_getStringByKeyWithFallback(zoneStringsArray, gGmtFormatTag, &len, &status);
 		if(len > 0) {
@@ -355,7 +355,7 @@ TimeZoneFormat::TimeZoneFormat(const Locale & locale, UErrorCode & status)
 
 	bool useDefaultOffsetPatterns = TRUE;
 	if(hourFormats) {
-		UChar * sep = u_strchr(hourFormats, (UChar)0x003B /* ';' */);
+		char16_t * sep = u_strchr(hourFormats, (char16_t)0x003B /* ';' */);
 		if(sep != NULL) {
 			UErrorCode tmpStatus = U_ZERO_ERROR;
 			fGMTOffsetPatterns[UTZFMT_PAT_POSITIVE_HM].setTo(FALSE, hourFormats, (int32_t)(sep - hourFormats));
@@ -639,7 +639,7 @@ UnicodeString &TimeZoneFormat::format(UTimeZoneFormatStyle style, const TimeZone
 		    break;
 		case UTZFMT_STYLE_ZONE_ID_SHORT:
 	    {
-		    const UChar * shortID = ZoneMeta::getShortID(tz);
+		    const char16_t * shortID = ZoneMeta::getShortID(tz);
 		    if(shortID == NULL) {
 			    shortID = UNKNOWN_SHORT_ZONE_ID;
 		    }
@@ -751,7 +751,7 @@ UnicodeString &TimeZoneFormat::format(const Formattable& obj, UnicodeString & ap
 		if(tz) {
 			int32_t rawOffset, dstOffset;
 			tz->getOffset(date, FALSE, rawOffset, dstOffset, status);
-			UChar buf[ZONE_NAME_U16_MAX];
+			char16_t buf[ZONE_NAME_U16_MAX];
 			UnicodeString result(buf, 0, SIZEOFARRAYi(buf));
 			formatOffsetLocalizedGMT(rawOffset + dstOffset, result, status);
 			if(U_SUCCESS(status)) {
@@ -817,7 +817,7 @@ TimeZone* TimeZoneFormat::parse(UTimeZoneFormatStyle style, const UnicodeString 
 	}
 
 	UErrorCode status = U_ZERO_ERROR;
-	UChar tzIDBuf[32];
+	char16_t tzIDBuf[32];
 	UnicodeString tzID(tzIDBuf, 0, SIZEOFARRAYi(tzIDBuf));
 
 	bool parseTZDBAbbrev = ((parseOptions & UTZFMT_PARSE_OPTION_TZ_DATABASE_ABBREVIATIONS) != 0);
@@ -1068,7 +1068,7 @@ TimeZone* TimeZoneFormat::parse(UTimeZoneFormatStyle style, const UnicodeString 
 
 	// Failed to parse the input text as the time zone format in the specified style.
 	// Check the longest match among other styles below.
-	UChar parsedIDBuf[32];
+	char16_t parsedIDBuf[32];
 	UnicodeString parsedID(parsedIDBuf, 0, SIZEOFARRAYi(parsedIDBuf));
 	UTimeZoneFormatTimeType parsedTimeType = UTZFMT_TIME_TYPE_UNKNOWN;
 
@@ -1299,7 +1299,7 @@ UnicodeString &TimeZoneFormat::formatGeneric(const TimeZone& tz, int32_t genType
 	}
 
 	if(genType == UTZGNM_LOCATION) {
-		const UChar * canonicalID = ZoneMeta::getCanonicalCLDRID(tz);
+		const char16_t * canonicalID = ZoneMeta::getCanonicalCLDRID(tz);
 		if(canonicalID == NULL) {
 			name.setToBogus();
 			return name;
@@ -1318,7 +1318,7 @@ UnicodeString &TimeZoneFormat::formatSpecific(const TimeZone& tz, UTimeZoneNameT
 
 	UErrorCode status = U_ZERO_ERROR;
 	bool isDaylight = tz.inDaylightTime(date, status);
-	const UChar * canonicalID = ZoneMeta::getCanonicalCLDRID(tz);
+	const char16_t * canonicalID = ZoneMeta::getCanonicalCLDRID(tz);
 
 	if(U_FAILURE(status) || canonicalID == NULL) {
 		name.setToBogus();
@@ -1375,9 +1375,9 @@ const TZDBTimeZoneNames* TimeZoneFormat::getTZDBTimeZoneNames(UErrorCode & statu
 }
 
 UnicodeString &TimeZoneFormat::formatExemplarLocation(const TimeZone& tz, UnicodeString & name) const {
-	UChar locationBuf[ZONE_NAME_U16_MAX];
+	char16_t locationBuf[ZONE_NAME_U16_MAX];
 	UnicodeString location(locationBuf, 0, SIZEOFARRAYi(locationBuf));
-	const UChar * canonicalID = ZoneMeta::getCanonicalCLDRID(tz);
+	const char16_t * canonicalID = ZoneMeta::getCanonicalCLDRID(tz);
 
 	if(canonicalID) {
 		fTimeZoneNames->getExemplarLocationName(UnicodeString(TRUE, canonicalID, -1), location);
@@ -1447,7 +1447,7 @@ UnicodeString &TimeZoneFormat::formatOffsetISO8601(int32_t offset, bool isBasic,
 
 	OffsetFields minFields = isShort ? FIELDS_H : FIELDS_HM;
 	OffsetFields maxFields = ignoreSeconds ? FIELDS_HM : FIELDS_HMS;
-	UChar sep = isBasic ? 0 : ISO8601_SEP;
+	char16_t sep = isBasic ? 0 : ISO8601_SEP;
 
 	// Note: FIELDS_HMS as maxFields is a CLDR/ICU extension. ISO 8601 specification does
 	// not support seconds field.
@@ -1477,7 +1477,7 @@ UnicodeString &TimeZoneFormat::formatOffsetISO8601(int32_t offset, bool isBasic,
 		lastIdx--;
 	}
 
-	UChar sign = PLUS;
+	char16_t sign = PLUS;
 	if(offset < 0) {
 		// if all output fields are 0s, do not use negative sign
 		for(int32_t idx = 0; idx <= lastIdx; idx++) {
@@ -1493,8 +1493,8 @@ UnicodeString &TimeZoneFormat::formatOffsetISO8601(int32_t offset, bool isBasic,
 		if(sep && idx != 0) {
 			result.append(sep);
 		}
-		result.append((UChar)(0x0030 + fields[idx]/10));
-		result.append((UChar)(0x0030 + fields[idx]%10));
+		result.append((char16_t)(0x0030 + fields[idx]/10));
+		result.append((char16_t)(0x0030 + fields[idx]%10));
 	}
 
 	return result;
@@ -1597,8 +1597,8 @@ int32_t TimeZoneFormat::parseOffsetISO8601(const UnicodeString & text, ParsePosi
 		return 0;
 	}
 
-	UChar firstChar = text.charAt(start);
-	if(firstChar == ISO8601_UTC || firstChar == (UChar)(ISO8601_UTC + 0x20)) {
+	char16_t firstChar = text.charAt(start);
+	if(firstChar == ISO8601_UTC || firstChar == (char16_t)(ISO8601_UTC + 0x20)) {
 		// "Z" (or "z") - indicates UTC
 		pos.setIndex(start + 1);
 		return 0;
@@ -1690,7 +1690,7 @@ int32_t TimeZoneFormat::parseOffsetLocalizedGMT(const UnicodeString & text, Pars
 
 	// Check if this is a default GMT zero format
 	for(int32_t i = 0; ALT_GMT_STRINGS[i][0] != 0; i++) {
-		const UChar * defGMTZero = ALT_GMT_STRINGS[i];
+		const char16_t * defGMTZero = ALT_GMT_STRINGS[i];
 		int32_t defGMTZeroLen = u_strlen(defGMTZero);
 		if(text.caseCompare(start, defGMTZeroLen, defGMTZero, 0) == 0) {
 			pos.setIndex(start + defGMTZeroLen);
@@ -1820,7 +1820,7 @@ int32_t TimeZoneFormat::parseOffsetFieldsWithPattern(const UnicodeString & text,
 		const GMTOffsetField* field = (const GMTOffsetField*)patternItems->elementAt(i);
 		GMTOffsetField::FieldType fieldType = field->getType();
 		if(fieldType == GMTOffsetField::TEXT) {
-			const UChar * patStr = field->getPatternText();
+			const char16_t * patStr = field->getPatternText();
 			len = u_strlen(patStr);
 			if(!i) {
 				// When TimeZoneFormat parse() is called from SimpleDateFormat,
@@ -1958,7 +1958,7 @@ int32_t TimeZoneFormat::parseOffsetDefaultLocalizedGMT(const UnicodeString & tex
 		int32_t gmtLen = 0;
 
 		for(int32_t i = 0; ALT_GMT_STRINGS[i][0] != 0; i++) {
-			const UChar * gmt = ALT_GMT_STRINGS[i];
+			const char16_t * gmt = ALT_GMT_STRINGS[i];
 			int32_t len = u_strlen(gmt);
 			if(text.caseCompare(start, len, gmt, 0) == 0) {
 				gmtLen = len;
@@ -1977,7 +1977,7 @@ int32_t TimeZoneFormat::parseOffsetDefaultLocalizedGMT(const UnicodeString & tex
 
 		// parse sign
 		int32_t sign = 1;
-		UChar c = text.charAt(idx);
+		char16_t c = text.charAt(idx);
 		if(c == PLUS) {
 			sign = 1;
 		}
@@ -2019,7 +2019,7 @@ int32_t TimeZoneFormat::parseOffsetDefaultLocalizedGMT(const UnicodeString & tex
 	return offset;
 }
 
-int32_t TimeZoneFormat::parseDefaultOffsetFields(const UnicodeString & text, int32_t start, UChar separator, int32_t& parsedLen) const {
+int32_t TimeZoneFormat::parseDefaultOffsetFields(const UnicodeString & text, int32_t start, char16_t separator, int32_t& parsedLen) const {
 	int32_t max = text.length();
 	int32_t idx = start;
 	int32_t len = 0;
@@ -2127,14 +2127,14 @@ int32_t TimeZoneFormat::parseSingleLocalizedDigit(const UnicodeString & text, in
 }
 
 UnicodeString &TimeZoneFormat::formatOffsetWithAsciiDigits(int32_t offset,
-    UChar sep,
+    char16_t sep,
     OffsetFields minFields,
     OffsetFields maxFields,
     UnicodeString & result) {
 	U_ASSERT(maxFields >= minFields);
 	U_ASSERT(offset > -MAX_OFFSET && offset < MAX_OFFSET);
 
-	UChar sign = PLUS;
+	char16_t sign = PLUS;
 	if(offset < 0) {
 		sign = MINUS;
 		offset = -offset;
@@ -2164,8 +2164,8 @@ UnicodeString &TimeZoneFormat::formatOffsetWithAsciiDigits(int32_t offset,
 		if(sep && idx != 0) {
 			result.append(sep);
 		}
-		result.append((UChar)(0x0030 + fields[idx]/10));
-		result.append((UChar)(0x0030 + fields[idx]%10));
+		result.append((char16_t)(0x0030 + fields[idx]/10));
+		result.append((char16_t)(0x0030 + fields[idx]%10));
 	}
 
 	return result;
@@ -2187,7 +2187,7 @@ int32_t TimeZoneFormat::parseAbuttingAsciiOffsetFields(const UnicodeString & tex
 	int32_t numDigits = 0;
 	int32_t idx = start;
 	while(numDigits < maxDigits && idx < text.length()) {
-		UChar uch = text.charAt(idx);
+		char16_t uch = text.charAt(idx);
 		int32_t digit = DIGIT_VAL(uch);
 		if(digit < 0) {
 			break;
@@ -2258,14 +2258,14 @@ int32_t TimeZoneFormat::parseAbuttingAsciiOffsetFields(const UnicodeString & tex
 
 int32_t TimeZoneFormat::parseAsciiOffsetFields(const UnicodeString & text,
     ParsePosition& pos,
-    UChar sep,
+    char16_t sep,
     OffsetFields minFields,
     OffsetFields maxFields) {
 	int32_t start = pos.getIndex();
 	int32_t fieldVal[] = {0, 0, 0};
 	int32_t fieldLen[] = {0, -1, -1};
 	for(int32_t idx = start, fieldIdx = 0; idx < text.length() && fieldIdx <= maxFields; idx++) {
-		UChar c = text.charAt(idx);
+		char16_t c = text.charAt(idx);
 		if(c == sep) {
 			if(fieldIdx == 0) {
 				if(fieldLen[0] == 0) {
@@ -2382,7 +2382,7 @@ UnicodeString &TimeZoneFormat::unquote(const UnicodeString & pattern, UnicodeStr
 	bool isPrevQuote = FALSE;
 	bool inQuote = FALSE;
 	for(int32_t i = 0; i < pattern.length(); i++) {
-		UChar c = pattern.charAt(i);
+		char16_t c = pattern.charAt(i);
 		if(c == SINGLEQUOTE) {
 			if(isPrevQuote) {
 				result.append(c);
@@ -2414,13 +2414,13 @@ UVector* TimeZoneFormat::parseOffsetPattern(const UnicodeString & pattern, Offse
 	int32_t checkBits = 0;
 	bool isPrevQuote = FALSE;
 	bool inQuote = FALSE;
-	UChar textBuf[32];
+	char16_t textBuf[32];
 	UnicodeString text(textBuf, 0, SIZEOFARRAYi(textBuf));
 	GMTOffsetField::FieldType itemType = GMTOffsetField::TEXT;
 	int32_t itemLength = 1;
 
 	for(int32_t i = 0; i < pattern.length(); i++) {
-		UChar ch = pattern.charAt(i);
+		char16_t ch = pattern.charAt(i);
 		if(ch == SINGLEQUOTE) {
 			if(isPrevQuote) {
 				text.append(SINGLEQUOTE);
@@ -2571,7 +2571,7 @@ UnicodeString &TimeZoneFormat::expandOffsetPattern(const UnicodeString & offsetH
 	}
 
 	UnicodeString sep;
-	int32_t idx_H = offsetHM.tempSubString(0, idx_mm).lastIndexOf((UChar)0x0048 /* H */);
+	int32_t idx_H = offsetHM.tempSubString(0, idx_mm).lastIndexOf((char16_t)0x0048 /* H */);
 	if(idx_H >= 0) {
 		sep = offsetHM.tempSubString(idx_H + 1, idx_mm - (idx_H + 1));
 	}
@@ -2595,12 +2595,12 @@ UnicodeString &TimeZoneFormat::truncateOffsetPattern(const UnicodeString & offse
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return result;
 	}
-	UChar HH[] = {0x0048, 0x0048};
+	char16_t HH[] = {0x0048, 0x0048};
 	int32_t idx_HH = offsetHM.tempSubString(0, idx_mm).lastIndexOf(HH, 2, 0);
 	if(idx_HH >= 0) {
 		return result.setTo(offsetHM.tempSubString(0, idx_HH + 2));
 	}
-	int32_t idx_H = offsetHM.tempSubString(0, idx_mm).lastIndexOf((UChar)0x0048, 0);
+	int32_t idx_H = offsetHM.tempSubString(0, idx_mm).lastIndexOf((char16_t)0x0048, 0);
 	if(idx_H >= 0) {
 		return result.setTo(offsetHM.tempSubString(0, idx_H + 1));
 	}
@@ -2695,7 +2695,7 @@ UTimeZoneFormatTimeType TimeZoneFormat::getTimeType(UTimeZoneNameType nameType) 
 
 UnicodeString &TimeZoneFormat::getTimeZoneID(const TimeZoneNames::MatchInfoCollection* matches, int32_t idx, UnicodeString & tzID) const {
 	if(!matches->getTimeZoneIDAt(idx, tzID)) {
-		UChar mzIDBuf[32];
+		char16_t mzIDBuf[32];
 		UnicodeString mzID(mzIDBuf, 0, SIZEOFARRAYi(mzIDBuf));
 		if(matches->getMetaZoneIDAt(idx, mzID)) {
 			fTimeZoneNames->getReferenceZoneID(mzID, fTargetRegion, tzID);
@@ -2710,11 +2710,11 @@ public:
 	virtual ~ZoneIdMatchHandler();
 
 	bool handleMatch(int32_t matchLength, const CharacterNode * node, UErrorCode & status) override;
-	const UChar * getID();
+	const char16_t * getID();
 	int32_t getMatchLen();
 private:
 	int32_t fLen;
-	const UChar * fID;
+	const char16_t * fID;
 };
 
 ZoneIdMatchHandler::ZoneIdMatchHandler()
@@ -2729,7 +2729,7 @@ bool ZoneIdMatchHandler::handleMatch(int32_t matchLength, const CharacterNode * 
 		return FALSE;
 	}
 	if(node->hasValues()) {
-		const UChar * id = (const UChar *)node->getValue(0);
+		const char16_t * id = (const char16_t *)node->getValue(0);
 		if(id != NULL) {
 			if(fLen < matchLength) {
 				fID = id;
@@ -2740,7 +2740,7 @@ bool ZoneIdMatchHandler::handleMatch(int32_t matchLength, const CharacterNode * 
 	return TRUE;
 }
 
-const UChar * ZoneIdMatchHandler::getID() {
+const char16_t * ZoneIdMatchHandler::getID() {
 	return fID;
 }
 
@@ -2760,9 +2760,9 @@ static void U_CALLCONV initZoneIdTrie(UErrorCode & status) {
 	if(U_SUCCESS(status)) {
 		const UnicodeString * id;
 		while((id = tzenum->snext(status)) != NULL) {
-			const UChar * uid = ZoneMeta::findTimeZoneID(*id);
+			const char16_t * uid = ZoneMeta::findTimeZoneID(*id);
 			if(uid) {
-				gZoneIdTrie->put(uid, const_cast<UChar *>(uid), status);
+				gZoneIdTrie->put(uid, const_cast<char16_t *>(uid), status);
 			}
 		}
 		delete tzenum;
@@ -2808,10 +2808,10 @@ static void U_CALLCONV initShortZoneIdTrie(UErrorCode & status) {
 		else {
 			const UnicodeString * id;
 			while((id = tzenum->snext(status)) != NULL) {
-				const UChar * uID = ZoneMeta::findTimeZoneID(*id);
-				const UChar * shortID = ZoneMeta::getShortID(*id);
+				const char16_t * uID = ZoneMeta::findTimeZoneID(*id);
+				const char16_t * shortID = ZoneMeta::getShortID(*id);
 				if(shortID && uID) {
-					gShortZoneIdTrie->put(shortID, const_cast<UChar *>(uID), status);
+					gShortZoneIdTrie->put(shortID, const_cast<char16_t *>(uID), status);
 				}
 			}
 		}

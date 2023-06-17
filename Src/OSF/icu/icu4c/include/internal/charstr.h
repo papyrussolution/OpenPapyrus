@@ -140,7 +140,7 @@ public:
 	 */
 	char * getAppendBuffer(int32_t minCapacity, int32_t desiredCapacityHint, int32_t &resultCapacity, UErrorCode & errorCode);
 	CharString &appendInvariantChars(const UnicodeString & s, UErrorCode & errorCode);
-	CharString &appendInvariantChars(const UChar * uchars, int32_t ucharsLen, UErrorCode & errorCode);
+	CharString &appendInvariantChars(const char16_t * uchars, int32_t ucharsLen, UErrorCode & errorCode);
 	/**
 	 * Appends a filename/path part, e.g., a directory name.
 	 * First appends a U_FILE_SEP_CHAR or U_FILE_ALT_SEP_CHAR if necessary.

@@ -19,12 +19,12 @@
 
 U_NAMESPACE_USE
 
-U_CAPI VZone * U_EXPORT2 vzone_openID(const UChar * ID, int32_t idLength) {
+U_CAPI VZone * U_EXPORT2 vzone_openID(const char16_t * ID, int32_t idLength) {
 	UnicodeString s(idLength==-1, ID, idLength);
 	return (VZone*)(VTimeZone::createVTimeZoneByID(s));
 }
 
-U_CAPI VZone* U_EXPORT2 vzone_openData(const UChar * vtzdata, int32_t vtzdataLength, UErrorCode & status) {
+U_CAPI VZone* U_EXPORT2 vzone_openData(const char16_t * vtzdata, int32_t vtzdataLength, UErrorCode & status) {
 	UnicodeString s(vtzdataLength==-1, vtzdata, vtzdataLength);
 	return (VZone*)(VTimeZone::createVTimeZone(s, status));
 }
@@ -41,7 +41,7 @@ U_CAPI bool U_EXPORT2 vzone_equals(const VZone* zone1, const VZone* zone2) {
 	return *(const VTimeZone*)zone1 == *(const VTimeZone*)zone2;
 }
 
-U_CAPI bool U_EXPORT2 vzone_getTZURL(VZone* zone, UChar * & url, int32_t & urlLength) {
+U_CAPI bool U_EXPORT2 vzone_getTZURL(VZone* zone, char16_t * & url, int32_t & urlLength) {
 	UnicodeString s;
 	bool b = ((VTimeZone*)zone)->VTimeZone::getTZURL(s);
 
@@ -51,7 +51,7 @@ U_CAPI bool U_EXPORT2 vzone_getTZURL(VZone* zone, UChar * & url, int32_t & urlLe
 	return b;
 }
 
-U_CAPI void U_EXPORT2 vzone_setTZURL(VZone* zone, UChar * url, int32_t urlLength) {
+U_CAPI void U_EXPORT2 vzone_setTZURL(VZone* zone, char16_t * url, int32_t urlLength) {
 	UnicodeString s(urlLength==-1, url, urlLength);
 	((VTimeZone*)zone)->VTimeZone::setTZURL(s);
 }
@@ -64,34 +64,34 @@ U_CAPI void U_EXPORT2 vzone_setLastModified(VZone* zone, UDate lastModified) {
 	return ((VTimeZone*)zone)->VTimeZone::setLastModified(lastModified);
 }
 
-U_CAPI void U_EXPORT2 vzone_write(VZone* zone, UChar * & result, int32_t & resultLength, UErrorCode & status) {
+U_CAPI void U_EXPORT2 vzone_write(VZone* zone, char16_t * & result, int32_t & resultLength, UErrorCode & status) {
 	UnicodeString s;
 	((VTimeZone*)zone)->VTimeZone::write(s, status);
 
 	resultLength = s.length();
-	result = (UChar *)uprv_malloc(resultLength);
+	result = (char16_t *)uprv_malloc(resultLength);
 	memcpy(result, s.getBuffer(), resultLength);
 
 	return;
 }
 
-U_CAPI void U_EXPORT2 vzone_writeFromStart(VZone* zone, UDate start, UChar * & result, int32_t & resultLength, UErrorCode & status) {
+U_CAPI void U_EXPORT2 vzone_writeFromStart(VZone* zone, UDate start, char16_t * & result, int32_t & resultLength, UErrorCode & status) {
 	UnicodeString s;
 	((VTimeZone*)zone)->VTimeZone::write(start, s, status);
 
 	resultLength = s.length();
-	result = (UChar *)uprv_malloc(resultLength);
+	result = (char16_t *)uprv_malloc(resultLength);
 	memcpy(result, s.getBuffer(), resultLength);
 
 	return;
 }
 
-U_CAPI void U_EXPORT2 vzone_writeSimple(VZone* zone, UDate time, UChar * & result, int32_t & resultLength, UErrorCode & status) {
+U_CAPI void U_EXPORT2 vzone_writeSimple(VZone* zone, UDate time, char16_t * & result, int32_t & resultLength, UErrorCode & status) {
 	UnicodeString s;
 	((VTimeZone*)zone)->VTimeZone::writeSimple(time, s, status);
 
 	resultLength = s.length();
-	result = (UChar *)uprv_malloc(resultLength);
+	result = (char16_t *)uprv_malloc(resultLength);
 	memcpy(result, s.getBuffer(), resultLength);
 
 	return;

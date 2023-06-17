@@ -361,7 +361,7 @@ U_CAPI int32_t U_EXPORT2
 ureldatefmt_formatNumeric( const URelativeDateTimeFormatter* reldatefmt,
                     double                offset,
                     URelativeDateTimeUnit unit,
-                    UChar*                result,
+                    char16_t*                result,
                     int32_t               resultCapacity,
                     UErrorCode*           status);
 
@@ -428,7 +428,7 @@ U_CAPI int32_t U_EXPORT2
 ureldatefmt_format( const URelativeDateTimeFormatter* reldatefmt,
                     double                offset,
                     URelativeDateTimeUnit unit,
-                    UChar*                result,
+                    char16_t*                result,
                     int32_t               resultCapacity,
                     UErrorCode*           status);
 
@@ -497,11 +497,11 @@ ureldatefmt_formatToResult(
  */
 U_CAPI int32_t U_EXPORT2
 ureldatefmt_combineDateAndTime( const URelativeDateTimeFormatter* reldatefmt,
-                    const UChar *     relativeDateString,
+                    const char16_t *     relativeDateString,
                     int32_t           relativeDateStringLen,
-                    const UChar *     timeString,
+                    const char16_t *     timeString,
                     int32_t           timeStringLen,
-                    UChar*            result,
+                    char16_t*            result,
                     int32_t           resultCapacity,
                     UErrorCode*       status );
 

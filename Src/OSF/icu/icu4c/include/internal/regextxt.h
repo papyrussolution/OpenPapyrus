@@ -35,10 +35,10 @@ struct URegexUTextUnescapeCharContext {
 };
 #define U_REGEX_UTEXT_UNESCAPE_CONTEXT(text) { (text), -1 }
 
-U_CFUNC UChar U_CALLCONV
+U_CFUNC char16_t U_CALLCONV
 uregex_utext_unescape_charAt(int32_t offset, void * /* struct URegexUTextUnescapeCharContext* */ context);
-U_CFUNC UChar U_CALLCONV
-uregex_ucstr_unescape_charAt(int32_t offset, void * /* UChar * */ context);
+U_CFUNC char16_t U_CALLCONV
+uregex_ucstr_unescape_charAt(int32_t offset, void * /* char16_t * */ context);
 
 U_NAMESPACE_END
 

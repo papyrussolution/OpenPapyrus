@@ -90,7 +90,7 @@ U_CDECL_BEGIN
  * file can be efficiently used on a given machine.
  * The particular fields are of importance only if the data
  * is affected by the properties - if there is integer data
- * with word sizes > 1 byte, char * text, or UChar * text.</p>
+ * with word sizes > 1 byte, char * text, or char16_t * text.</p>
  *
  * <p>The implementation for the <code>udata_open[Choice]()</code>
  * functions may reject data based on the value in <code>isBigEndian</code>.
@@ -131,7 +131,7 @@ typedef struct {
 	 *  @stable ICU 2.0*/
 	uint8 charsetFamily;
 
-	/** sizeof(UChar), one of { 1, 2, 4 }
+	/** sizeof(char16_t), one of { 1, 2, 4 }
 	 *  @stable ICU 2.0*/
 	uint8 sizeofUChar;
 

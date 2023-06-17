@@ -5904,15 +5904,13 @@ static void pr_width()
 			if(*v < '0' || *v > '9' || strlen(v) > 1)
 				fprintf(stderr, "gnuplot: illegal width value %s:%s\n", option, v);
 			else
-				widths[n] = (uint)atoi(v);
+				widths[n] = (uint)satoi(v);
 		}
 	}
 }
-
-/*-----------------------------------------------------------------------------
- *   pr_window - create window
- *---------------------------------------------------------------------------*/
-
+//
+// pr_window - create window
+//
 static void pr_window(plot_struct * plot)
 {
 	char * title = pr_GetR(db, ".title");

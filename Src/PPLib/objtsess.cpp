@@ -711,8 +711,6 @@ int PPObjTSession::CheckForFilt(const TSessionFilt * pFilt, PPID id, const TSess
 		return (pRec->ParentID != pFilt->SuperSessID) ? 0 : 1;
 	}
 	else {
-		if(!CheckFiltID(pFilt->TechID, pRec->TechID))
-			return 0;
 		if(!CheckFiltID(pFilt->ArID, pRec->ArID))
 			return 0;
 		if(!CheckFiltID(pFilt->Ar2ID, pRec->Ar2ID))
@@ -747,6 +745,11 @@ int PPObjTSession::CheckForFilt(const TSessionFilt * pFilt, PPID id, const TSess
 			PPIDArray parent_list;
 			PrcObj.GetParentsList(pRec->PrcID, &parent_list);
 			if(!parent_list.lsearch(pFilt->PrcID))
+				return 0;
+		}
+		if(!CheckFiltID(pFilt->TechID, pRec->TechID)) {
+			int cr = TecObj.IsChildOf(pRec->TechID, pFilt->TechID);
+			if(cr <= 0)
 				return 0;
 		}
 	}
@@ -2081,7 +2084,6 @@ int PPObjTSession::InitRec(TSessionTbl::Rec * pRec, int kind /* TSESK_XXX */, PP
 {
 	int    ok = 1;
 	TSessionTbl::Rec rec;
-	// @v10.7.9 @ctr MEMSZERO(rec);
 	ProcessorTbl::Rec prc_rec;
 	rec.Incomplete = 10;
 	if(PrcObj.GetRecWithInheritance(labs(prcID), &prc_rec) > 0) {

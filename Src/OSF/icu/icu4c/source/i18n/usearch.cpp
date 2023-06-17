@@ -94,10 +94,10 @@ static inline void initializeFCD(UErrorCode * status)
  * @return fcd value
  */
 static
-uint16 getFCD(const UChar * str, int32_t * offset,
+uint16 getFCD(const char16_t * str, int32_t * offset,
     int32_t strlength)
 {
-	const UChar * temp = str + *offset;
+	const char16_t * temp = str + *offset;
 	uint16 result = g_nfcImpl->nextFCD16(temp, str + strlength);
 	*offset = (int32_t)(temp - str);
 	return result;
@@ -370,7 +370,7 @@ static inline void initializePattern(UStringSearch * strsrch, UErrorCode * statu
 		return;
 	}
 	UPattern   * pattern     = &(strsrch->pattern);
-	const UChar * patterntext = pattern->text;
+	const char16_t * patterntext = pattern->text;
 	int32_t length      = pattern->textLength;
 	int32_t index       = 0;
 	// Since the strength is primary, accents are ignored in the pattern.
@@ -496,9 +496,9 @@ inline bool checkIdentical(const UStringSearch * strsrch, int32_t start, int32_t
 
 // constructors and destructor -------------------------------------------
 
-U_CAPI UStringSearch * U_EXPORT2 usearch_open(const UChar * pattern,
+U_CAPI UStringSearch * U_EXPORT2 usearch_open(const char16_t * pattern,
     int32_t patternlength,
-    const UChar * text,
+    const char16_t * text,
     int32_t textlength,
     const char * locale,
     UBreakIterator * breakiter,
@@ -536,9 +536,9 @@ U_CAPI UStringSearch * U_EXPORT2 usearch_open(const UChar * pattern,
 	return nullptr;
 }
 
-U_CAPI UStringSearch * U_EXPORT2 usearch_openFromCollator(const UChar * pattern,
+U_CAPI UStringSearch * U_EXPORT2 usearch_openFromCollator(const char16_t * pattern,
     int32_t patternlength,
-    const UChar * text,
+    const char16_t * text,
     int32_t textlength,
     const UCollator      * collator,
     UBreakIterator * breakiter,
@@ -800,7 +800,7 @@ U_CAPI int32_t U_EXPORT2 usearch_getMatchedStart(const UStringSearch * strsrch)
 }
 
 U_CAPI int32_t U_EXPORT2 usearch_getMatchedText(const UStringSearch * strsrch,
-    UChar * result,
+    char16_t * result,
     int32_t resultCapacity,
     UErrorCode * status)
 {
@@ -825,7 +825,7 @@ U_CAPI int32_t U_EXPORT2 usearch_getMatchedText(const UStringSearch * strsrch,
 	}
 	if(copylength > 0) {
 		uprv_memcpy(result, strsrch->search->text + copyindex,
-		    copylength * sizeof(UChar));
+		    copylength * sizeof(char16_t));
 	}
 	return u_terminateUChars(result, resultCapacity,
 		   strsrch->search->matchedLength, status);
@@ -865,7 +865,7 @@ U_CAPI const UBreakIterator* U_EXPORT2 usearch_getBreakIterator(const UStringSea
 #endif
 
 U_CAPI void U_EXPORT2 usearch_setText(UStringSearch * strsrch,
-    const UChar * text,
+    const char16_t * text,
     int32_t textlength,
     UErrorCode * status)
 {
@@ -897,7 +897,7 @@ U_CAPI void U_EXPORT2 usearch_setText(UStringSearch * strsrch,
 	}
 }
 
-U_CAPI const UChar * U_EXPORT2 usearch_getText(const UStringSearch * strsrch,
+U_CAPI const char16_t * U_EXPORT2 usearch_getText(const UStringSearch * strsrch,
     int32_t * length)
 {
 	if(strsrch) {
@@ -971,7 +971,7 @@ U_CAPI UCollator * U_EXPORT2 usearch_getCollator(const UStringSearch * strsrch)
 }
 
 U_CAPI void U_EXPORT2 usearch_setPattern(UStringSearch * strsrch,
-    const UChar * pattern,
+    const char16_t * pattern,
     int32_t patternlength,
     UErrorCode * status)
 {
@@ -994,7 +994,7 @@ U_CAPI void U_EXPORT2 usearch_setPattern(UStringSearch * strsrch,
 	}
 }
 
-U_CAPI const UChar * U_EXPORT2 usearch_getPattern(const UStringSearch * strsrch,
+U_CAPI const char16_t * U_EXPORT2 usearch_getPattern(const UStringSearch * strsrch,
     int32_t * length)
 {
 	if(strsrch) {
@@ -1354,11 +1354,11 @@ CEIBuffer::CEIBuffer(UStringSearch * ss, UErrorCode * status) {
 	strSearch = ss;
 	bufSize = ss->pattern.pcesLength + CEBUFFER_EXTRA;
 	if(ss->search->elementComparisonType != 0) {
-		const UChar * patText = ss->pattern.text;
+		const char16_t * patText = ss->pattern.text;
 		if(patText) {
-			const UChar * patTextLimit = patText + ss->pattern.textLength;
+			const char16_t * patTextLimit = patText + ss->pattern.textLength;
 			while(patText < patTextLimit) {
-				UChar c = *patText++;
+				char16_t c = *patText++;
 				if(MIGHT_BE_JAMO_L(c)) {
 					bufSize += MAX_TARGET_IGNORABLES_PER_PAT_JAMO_L;
 				}
@@ -1492,7 +1492,7 @@ static int32_t nextBoundaryAfter(UStringSearch * strsrch, int32_t startIndex, UE
 		return startIndex;
 	}
 #if 0
-	const UChar * text = strsrch->search->text;
+	const char16_t * text = strsrch->search->text;
 	int32_t textLen   = strsrch->search->textLength;
 
 	U_ASSERT(startIndex>=0);
@@ -1551,7 +1551,7 @@ static bool isBreakBoundary(UStringSearch * strsrch, int32_t index, UErrorCode &
 		return TRUE;
 	}
 #if 0
-	const UChar * text = strsrch->search->text;
+	const char16_t * text = strsrch->search->text;
 	int32_t textLen   = strsrch->search->textLength;
 
 	U_ASSERT(index>=0);

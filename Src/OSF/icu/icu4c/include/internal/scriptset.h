@@ -1,16 +1,10 @@
+// scriptset.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2013, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *
- * scriptset.h
- *
- * created on: 2013 Jan 7
- * created by: Andy Heninger
- */
+// Copyright (C) 2013, International Business Machines Corporation and others.  All Rights Reserved.
+// created on: 2013 Jan 7
+// created by: Andy Heninger
+//
 #ifndef __SCRIPTSET_H__
 #define __SCRIPTSET_H__
 
@@ -20,8 +14,6 @@
 #include "uelement.h"
 
 U_NAMESPACE_BEGIN
-
-//-------------------------------------------------------------------------------
 //
 //  ScriptSet - A bit set representing a set of scripts.
 //
@@ -30,7 +22,6 @@ U_NAMESPACE_BEGIN
 //              use has since become more general, but the continued use to wrap
 //              prebuilt binary data does constrain the design.
 //
-//-------------------------------------------------------------------------------
 class U_I18N_API ScriptSet : public UMemory {
 public:
 	static constexpr int32_t SCRIPT_LIMIT = 224; // multiple of 32!

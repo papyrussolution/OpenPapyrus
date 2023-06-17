@@ -12,7 +12,7 @@
 
 U_NAMESPACE_USE
 
-static TimeZone* _createTimeZone(const UChar * zoneID, int32_t len, UErrorCode * ec) 
+static TimeZone* _createTimeZone(const char16_t * zoneID, int32_t len, UErrorCode * ec) 
 {
 	TimeZone* zone = nullptr;
 	if(ec != nullptr && U_SUCCESS(*ec)) {
@@ -46,7 +46,7 @@ U_CAPI UEnumeration* U_EXPORT2 ucal_openCountryTimeZones(const char * country, U
 	return ucal_openTimeZoneIDEnumeration(UCAL_ZONE_TYPE_ANY, country, nullptr, ec);
 }
 
-U_CAPI int32_t U_EXPORT2 ucal_getDefaultTimeZone(UChar * result, int32_t resultCapacity, UErrorCode * ec) 
+U_CAPI int32_t U_EXPORT2 ucal_getDefaultTimeZone(char16_t * result, int32_t resultCapacity, UErrorCode * ec) 
 {
 	int32_t len = 0;
 	if(ec != nullptr && U_SUCCESS(*ec)) {
@@ -64,14 +64,14 @@ U_CAPI int32_t U_EXPORT2 ucal_getDefaultTimeZone(UChar * result, int32_t resultC
 	return len;
 }
 
-U_CAPI void U_EXPORT2 ucal_setDefaultTimeZone(const UChar * zoneID, UErrorCode * ec) {
+U_CAPI void U_EXPORT2 ucal_setDefaultTimeZone(const char16_t * zoneID, UErrorCode * ec) {
 	TimeZone* zone = _createTimeZone(zoneID, -1, ec);
 	if(zone != nullptr) {
 		TimeZone::adoptDefault(zone);
 	}
 }
 
-U_CAPI int32_t U_EXPORT2 ucal_getHostTimeZone(UChar * result, int32_t resultCapacity, UErrorCode * ec) {
+U_CAPI int32_t U_EXPORT2 ucal_getHostTimeZone(char16_t * result, int32_t resultCapacity, UErrorCode * ec) {
 	int32_t len = 0;
 	if(ec != nullptr && U_SUCCESS(*ec)) {
 		TimeZone * zone = TimeZone::detectHostTimeZone();
@@ -88,7 +88,7 @@ U_CAPI int32_t U_EXPORT2 ucal_getHostTimeZone(UChar * result, int32_t resultCapa
 	return len;
 }
 
-U_CAPI int32_t U_EXPORT2 ucal_getDSTSavings(const UChar * zoneID, UErrorCode * ec) {
+U_CAPI int32_t U_EXPORT2 ucal_getDSTSavings(const char16_t * zoneID, UErrorCode * ec) {
 	int32_t result = 0;
 	TimeZone* zone = _createTimeZone(zoneID, -1, ec);
 	if(U_SUCCESS(*ec)) {
@@ -126,7 +126,7 @@ U_CAPI UDate U_EXPORT2 ucal_getNow()
 
 #define ULOC_LOCALE_IDENTIFIER_CAPACITY (ULOC_FULLNAME_CAPACITY + 1 + ULOC_KEYWORD_AND_VALUES_CAPACITY)
 
-U_CAPI UCalendar*  U_EXPORT2 ucal_open(const UChar * zoneID,
+U_CAPI UCalendar*  U_EXPORT2 ucal_open(const char16_t * zoneID,
     int32_t len,
     const char * locale,
     UCalendarType caltype,
@@ -186,7 +186,7 @@ U_CAPI UCalendar* U_EXPORT2 ucal_clone(const UCalendar* cal,
 }
 
 U_CAPI void U_EXPORT2 ucal_setTimeZone(UCalendar*      cal,
-    const UChar * zoneID,
+    const char16_t * zoneID,
     int32_t len,
     UErrorCode * status)
 {
@@ -202,7 +202,7 @@ U_CAPI void U_EXPORT2 ucal_setTimeZone(UCalendar*      cal,
 }
 
 U_CAPI int32_t U_EXPORT2 ucal_getTimeZoneID(const UCalendar * cal,
-    UChar * result,
+    char16_t * result,
     int32_t resultLength,
     UErrorCode * status)
 {
@@ -218,7 +218,7 @@ U_CAPI int32_t U_EXPORT2 ucal_getTimeZoneID(const UCalendar * cal,
 U_CAPI int32_t U_EXPORT2 ucal_getTimeZoneDisplayName(const UCalendar*                 cal,
     UCalendarDisplayNameType type,
     const char             * locale,
-    UChar * result,
+    char16_t * result,
     int32_t resultLength,
     UErrorCode * status)
 {
@@ -501,8 +501,8 @@ U_CAPI const char * U_EXPORT2 ucal_getTZDataVersion(UErrorCode * status)
 	return TimeZone::getTZDataVersion(*status);
 }
 
-U_CAPI int32_t U_EXPORT2 ucal_getCanonicalTimeZoneID(const UChar * id, int32_t len,
-    UChar * result, int32_t resultCapacity, bool * isSystemID, UErrorCode * status) 
+U_CAPI int32_t U_EXPORT2 ucal_getCanonicalTimeZoneID(const char16_t * id, int32_t len,
+    char16_t * result, int32_t resultCapacity, bool * isSystemID, UErrorCode * status) 
 {
 	if(!status || U_FAILURE(*status)) {
 		return 0;
@@ -625,7 +625,7 @@ U_CAPI UEnumeration* U_EXPORT2 ucal_getKeywordValuesForLocale(const char * /* ke
 		if(U_SUCCESS(*status)) {
 			for(int i = 0; i < ures_getSize(order); i++) {
 				int32_t len;
-				const UChar * type = ures_getStringByIndex(order, i, &len, status);
+				const char16_t * type = ures_getStringByIndex(order, i, &len, status);
 				char * caltype = (char *)uprv_malloc(len + 1);
 				if(caltype == nullptr) {
 					*status = U_MEMORY_ALLOCATION_ERROR;
@@ -701,7 +701,7 @@ U_CAPI bool U_EXPORT2 ucal_getTimeZoneTransitionDate(const UCalendar* cal, UTime
 	return FALSE;
 }
 
-U_CAPI int32_t U_EXPORT2 ucal_getWindowsTimeZoneID(const UChar * id, int32_t len, UChar * winid, int32_t winidCapacity, UErrorCode * status) {
+U_CAPI int32_t U_EXPORT2 ucal_getWindowsTimeZoneID(const char16_t * id, int32_t len, char16_t * winid, int32_t winidCapacity, UErrorCode * status) {
 	if(U_FAILURE(*status)) {
 		return 0;
 	}
@@ -718,10 +718,10 @@ U_CAPI int32_t U_EXPORT2 ucal_getWindowsTimeZoneID(const UChar * id, int32_t len
 	return resultLen;
 }
 
-U_CAPI int32_t U_EXPORT2 ucal_getTimeZoneIDForWindowsID(const UChar * winid,
+U_CAPI int32_t U_EXPORT2 ucal_getTimeZoneIDForWindowsID(const char16_t * winid,
     int32_t len,
     const char * region,
-    UChar * id,
+    char16_t * id,
     int32_t idCapacity,
     UErrorCode * status) {
 	if(U_FAILURE(*status)) {

@@ -545,6 +545,16 @@ int FASTCALL PPQuotArray::CanUpdateQuot(const PPQuot & rQuot) const
 	return PPQuot::IsQuotAcceptableForLoc(rQuot.LocID, ManagedLocList);
 }
 
+int PPQuotArray::GetQuotKindIdList(PPIDArray & rIdList) const
+{
+	rIdList.Z();
+	for(uint i = 0; i < getCount(); i++) {
+		rIdList.add(at(i).Kind);
+	}
+	rIdList.sortAndUndup();
+	return rIdList.getCount() ? 1 : -1;
+}
+
 int PPQuotArray::SetQuot(const QuotIdent & rQi, double v, long flags, long minQtty, const DateRange * pPeriod)
 {
 	int    ret = 0;

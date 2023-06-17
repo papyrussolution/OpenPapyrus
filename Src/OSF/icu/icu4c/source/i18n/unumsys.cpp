@@ -58,7 +58,7 @@ U_CAPI bool U_EXPORT2 unumsys_isAlgorithmic(const UNumberingSystem * unumsys)
 	return ((NumberingSystem*)unumsys)->isAlgorithmic();
 }
 
-U_CAPI int32_t U_EXPORT2 unumsys_getDescription(const UNumberingSystem * unumsys, UChar * result,
+U_CAPI int32_t U_EXPORT2 unumsys_getDescription(const UNumberingSystem * unumsys, char16_t * result,
     int32_t resultLength, UErrorCode * status)
 {
 	if(U_FAILURE(*status)) {

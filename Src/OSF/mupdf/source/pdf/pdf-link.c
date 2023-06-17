@@ -435,13 +435,13 @@ fz_link * pdf_load_link_annots(fz_context * ctx, pdf_document * doc, pdf_obj * a
 int pdf_resolve_link(fz_context * ctx, pdf_document * doc, const char * uri, float * xp, float * yp)
 {
 	if(uri && uri[0] == '#') {
-		int page = fz_atoi(uri + 1) - 1;
+		int page = satoi(uri + 1) - 1;
 		if(xp || yp) {
 			const char * x = strchr(uri, ',');
 			const char * y = strrchr(uri, ',');
 			if(x && y) {
-				if(xp) *xp = fz_atoi(x + 1);
-				if(yp) *yp = fz_atoi(y + 1);
+				if(xp) *xp = satoi(x + 1);
+				if(yp) *yp = satoi(y + 1);
 			}
 		}
 		return page;

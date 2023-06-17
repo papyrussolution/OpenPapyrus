@@ -424,15 +424,15 @@ static void ffi_pushmatrix(js_State * J, fz_matrix matrix)
 	js_pushnumber(J, matrix.f); js_setindex(J, -2, 5);
 }
 
-static fz_point ffi_topoint(js_State * J, int idx)
+static SPoint2F ffi_topoint(js_State * J, int idx)
 {
-	fz_point point;
+	SPoint2F point;
 	js_getindex(J, idx, 0); point.x = js_tonumber(J, -1); js_pop(J, 1);
 	js_getindex(J, idx, 1); point.y = js_tonumber(J, -1); js_pop(J, 1);
 	return point;
 }
 
-static void ffi_pushpoint(js_State * J, fz_point point)
+static void ffi_pushpoint(js_State * J, SPoint2F point)
 {
 	js_newarray(J);
 	js_pushnumber(J, point.x); js_setindex(J, -2, 0);
@@ -2822,7 +2822,7 @@ static void ffi_Pixmap_warp(js_State * J)
 	int w = js_tonumber(J, 2);
 	int h = js_tonumber(J, 3);
 	fz_pixmap * dest = NULL;
-	fz_point points[4];
+	SPoint2F points[4];
 	int i;
 
 	if(w < 0 || h < 0 || !js_isarray(J, 1) || js_getlength(J, 1) != 8)
@@ -3654,8 +3654,8 @@ static void ffi_StructuredText_highlight(js_State * J)
 {
 	fz_context * ctx = (fz_context *)js_getcontext(J);
 	fz_stext_page * text = (fz_stext_page *)js_touserdata(J, 0, "fz_stext_page");
-	fz_point a = ffi_topoint(J, 1);
-	fz_point b = ffi_topoint(J, 2);
+	SPoint2F a = ffi_topoint(J, 1);
+	SPoint2F b = ffi_topoint(J, 2);
 	fz_quad hits[256];
 	int i, n = 0;
 
@@ -3675,8 +3675,8 @@ static void ffi_StructuredText_copy(js_State * J)
 {
 	fz_context * ctx = (fz_context *)js_getcontext(J);
 	fz_stext_page * text = (fz_stext_page *)js_touserdata(J, 0, "fz_stext_page");
-	fz_point a = ffi_topoint(J, 1);
-	fz_point b = ffi_topoint(J, 2);
+	SPoint2F a = ffi_topoint(J, 1);
+	SPoint2F b = ffi_topoint(J, 2);
 	char * s = NULL;
 
 	fz_try(ctx)
@@ -5427,7 +5427,7 @@ static void ffi_PDFAnnotation_getVertices(js_State * J)
 {
 	fz_context * ctx = (fz_context *)js_getcontext(J);
 	pdf_annot * annot = (pdf_annot *)js_touserdata(J, 0, "pdf_annot");
-	fz_point p;
+	SPoint2F p;
 	int i, n = 0;
 
 	fz_try(ctx)
@@ -5450,7 +5450,7 @@ static void ffi_PDFAnnotation_setVertices(js_State * J)
 {
 	fz_context * ctx = (fz_context *)js_getcontext(J);
 	pdf_annot * annot = (pdf_annot *)js_touserdata(J, 0, "pdf_annot");
-	fz_point p;
+	SPoint2F p;
 	int i, n;
 
 	n = js_getlength(J, 1);
@@ -5487,8 +5487,7 @@ static void ffi_PDFAnnotation_addVertex(js_State * J)
 {
 	fz_context * ctx = (fz_context *)js_getcontext(J);
 	pdf_annot * annot = (pdf_annot *)js_touserdata(J, 0, "pdf_annot");
-	fz_point p = ffi_topoint(J, 1);
-
+	SPoint2F p = ffi_topoint(J, 1);
 	fz_try(ctx)
 	pdf_add_annot_vertex(ctx, annot, p);
 	fz_catch(ctx)
@@ -5500,15 +5499,12 @@ static void ffi_PDFAnnotation_getInkList(js_State * J)
 	fz_context * ctx = (fz_context *)js_getcontext(J);
 	pdf_annot * annot = (pdf_annot *)js_touserdata(J, 0, "pdf_annot");
 	int i, k, m = 0, n = 0;
-	fz_point pt;
-
+	SPoint2F pt;
 	js_newarray(J);
-
 	fz_try(ctx)
 	n = pdf_annot_ink_list_count(ctx, annot);
 	fz_catch(ctx)
 	rethrow(J);
-
 	for(i = 0; i < n; ++i) {
 		fz_try(ctx)
 		m = pdf_annot_ink_list_stroke_count(ctx, annot, i);
@@ -5534,13 +5530,12 @@ static void ffi_PDFAnnotation_setInkList(js_State * J)
 {
 	fz_context * ctx = (fz_context *)js_getcontext(J);
 	pdf_annot * annot = (pdf_annot *)js_touserdata(J, 0, "pdf_annot");
-	fz_point * points = NULL;
+	SPoint2F * points = NULL;
 	int * counts = NULL;
 	int n, nv, k, i, v;
 
 	fz_var(counts);
 	fz_var(points);
-
 	n = js_getlength(J, 1);
 	nv = 0;
 	for(i = 0; i < n; ++i) {
@@ -5548,10 +5543,9 @@ static void ffi_PDFAnnotation_setInkList(js_State * J)
 		nv += js_getlength(J, -1) / 2;
 		js_pop(J, 1);
 	}
-
 	fz_try(ctx) {
 		counts = (int *)fz_malloc(ctx, n * sizeof(int));
-		points = (fz_point *)fz_malloc(ctx, nv * sizeof(fz_point));
+		points = (SPoint2F *)fz_malloc(ctx, nv * sizeof(SPoint2F));
 	} fz_catch(ctx) {
 		fz_free(ctx, counts);
 		fz_free(ctx, points);

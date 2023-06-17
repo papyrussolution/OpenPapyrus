@@ -67,9 +67,9 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry.c 201096 2009-12-28 02:41:
  */
 #define FIX_NS(t, ns) \
 	do {    \
-		t += ns / 1000000000; \
-		ns %= 1000000000; \
-		if(ns < 0) { --t; ns += 1000000000; } \
+		t += ns / SlConst::OneBillion; \
+		ns %= SlConst::OneBillion; \
+		if(ns < 0) { --t; ns += SlConst::OneBillion; } \
 	} while(0)
 
 static char *    ae_fflagstostr(ulong bitset, ulong bitclear);

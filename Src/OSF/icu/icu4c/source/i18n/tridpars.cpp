@@ -15,15 +15,15 @@
 
 U_NAMESPACE_BEGIN
 
-static const UChar ID_DELIM    = 0x003B; // ;
-static const UChar TARGET_SEP  = 0x002D; // -
-static const UChar VARIANT_SEP = 0x002F; // /
-static const UChar OPEN_REV    = 0x0028; // (
-static const UChar CLOSE_REV   = 0x0029; // )
+static const char16_t ID_DELIM    = 0x003B; // ;
+static const char16_t TARGET_SEP  = 0x002D; // -
+static const char16_t VARIANT_SEP = 0x002F; // /
+static const char16_t OPEN_REV    = 0x0028; // (
+static const char16_t CLOSE_REV   = 0x0029; // )
 
-//static const UChar EMPTY[] = {0}; // ""
-static const UChar ANY[] = {65, 110, 121, 0}; // "Any"
-static const UChar ANY_NULL[]  = {65, 110, 121, 45, 78, 117, 108, 108, 0}; // "Any-Null"
+//static const char16_t EMPTY[] = {0}; // ""
+static const char16_t ANY[] = {65, 110, 121, 0}; // "Any"
+static const char16_t ANY_NULL[]  = {65, 110, 121, 45, 78, 117, 108, 108, 0}; // "Any-Null"
 
 static const int32_t FORWARD = UTRANS_FORWARD;
 static const int32_t REVERSE = UTRANS_REVERSE;
@@ -599,7 +599,7 @@ void TransliteratorIDParser::STVtoID(const UnicodeString & source,
 	}
 	// NUL-terminate the ID string for getTerminatedBuffer.
 	// This prevents valgrind and Purify warnings.
-	id.append((UChar)0);
+	id.append((char16_t)0);
 	id.truncate(id.length()-1);
 }
 
@@ -697,7 +697,7 @@ TransliteratorIDParser::Specs* TransliteratorIDParser::parseFilterID(const Unico
 	UnicodeString target;
 	UnicodeString variant;
 	UnicodeString filter;
-	UChar delimiter = 0;
+	char16_t delimiter = 0;
 	int32_t specCount = 0;
 	int32_t start = pos;
 
@@ -726,7 +726,7 @@ TransliteratorIDParser::Specs* TransliteratorIDParser::parseFilterID(const Unico
 		}
 
 		if(delimiter == 0) {
-			UChar c = id.charAt(pos);
+			char16_t c = id.charAt(pos);
 			if((c == TARGET_SEP && target.length() == 0) ||
 			    (c == VARIANT_SEP && variant.length() == 0)) {
 				delimiter = c;

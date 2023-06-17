@@ -2297,6 +2297,9 @@ PPERR_UED_PREVVERV_SYMBREMOVED      "Символ, существовавший 
 PPERR_UED_PREVVERV_PREVSYMBMODIFIED "Символ, существовавший в предудыщей версии, изменен в новой версии (%s)"
 PPERR_DEBUG                         "@{err_internal}: отладочная ошибка."
 PPERR_INVALIDCCDATE2MAXIDINDEX      "Ошибка в индексе ccdate2maxid"
+PPERR_WSCTL_UNABLERECOGNLOGIN       "Не удалось идентифицировать строку авторизации ни как телефон, ни как номер аккаунта, ни как имя владельца"
+PPERR_WSCTL_NAMENOTLINKEDWITHSC     "Имя владельца аккаунта, введенное для авторизации, не сопоставлено ни с одним из аккаунтов"
+PPERR_WSCTL_ACCPSNKINDUNDEF         "Не удалось определить вид персоналий-клиентов для идентификации аккаунта по имени"
 // LastError
 
 [102] // confirmation
@@ -5338,6 +5341,7 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 555  "The JSON-document tree structure is malformed"
 556  "JSON: the parsed string reached the maximum allowed size"
 557  "JSON: some random, unaccounted problem occurred"
+558  "JSON: the JSON-document is empty"
 570  "URI: parsed text violates expected format. %s"
 571  "URI: one of the params passed was NULL although it mustn't be"
 573  "URI: some output is to large for the receiving buffer"
@@ -15024,6 +15028,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @gsfilt_ordbystructypeprmrgoodsname       "По типу структуры"
 @gsfilt_fshowunrefs                       "Показывать структуры, на которые не ссылаются товары"
 @gsfilt_fskipbypassiveowner               "Не показывать структуры с пассивным владельцем"
+@gsfilt_fshowtech                         "Показывать связанные технологии"
 
 @objtransm                                "Перенос объектов"
 @objtransmmod                             "Перенос измененных объектов"
@@ -18202,6 +18207,8 @@ PPHSC_RU_WAREPRICE             "ЦенаТов"
 PPHSC_RU_WAREPRICE_BEFORE      "ЦенаТовДо"
 PPHSC_RU_WAREPRICE_AFTER       "ЦенаТовПосле"
 PPHSC_RU_QUANTITY              "Количество"
+PPHSC_RU_WORKAMTWOVAT          "СтоимБезНДС" // @v11.7.6
+PPHSC_RU_WORKAMT               "СтоимУчНДС"  // @v11.7.6
 PPHSC_RU_WAREAMTWOVAT          "СтТовБезНДС"
 PPHSC_RU_WAREAMT               "СтТовУчНал"
 PPHSC_RU_WAREAMTWOVATTOTAL     "СтТовБезНДСВсего"
@@ -18252,6 +18259,7 @@ PPHSC_RU_INNPHS                "ИННФЛ"
 PPHSC_RU_KPP                   "КПП"
 PPHSC_RU_KPPJUR                "КППЮЛ"
 PPHSC_RU_OKPO                  "ОКПО"
+PPHSC_RU_IND_REG               "СвГосРегИП" // @v11.7.6 Данные о свидетельстве индивидуального предпримателя //
 PPHSC_RU_FIO                   "ФИО"
 PPHSC_RU_SURNAME               "Фамилия"
 PPHSC_RU_NAME                  "Имя"
@@ -18351,6 +18359,9 @@ PPHSC_RU_PE0                   "П0" // дальше идет 10-значный 
 PPHSC_RU_PE1                   "П1" // дальше идет 10-значный номер с набивкой нулями слева
 PPHSC_RU_EGAIS_SALE            "Продажа" // @v11.0.11 Тип операции кассового чека, передаваемого в ЕГАИС
 PPHSC_RU_EGAIS_RETOFSALE       "Возврат" // @v11.0.11 Тип операции кассового чека, передаваемого в ЕГАИС
+PPHSC_RU_CORRACCDT             "КоррСчДебет"   // @v11.7.6
+PPHSC_RU_CORRACCCR             "КоррСчКредит"  // @v11.7.6
+PPHSC_RU_FILEOFINFFLDUUID      "ИдФайлИнфПол"  // @v11.7.6 Идентификатор (GUID) файла информационного поля
 //
 // Далее следуют 16 типов документов, используемых системой VETIS. Текст точно соответствует xsd спецификации dictionary_v2.0.xsd.
 // Номер после PPHSC_VETIS_DOCTYP_ точно соответствует значению enum в спецификации (хотя, это, скорее всего, и не важно).

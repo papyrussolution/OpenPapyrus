@@ -289,7 +289,7 @@ uset_open(UChar32 start, UChar32 end);
  * @stable ICU 2.4
  */
 U_CAPI USet* U_EXPORT2
-uset_openPattern(const UChar * pattern, int32_t patternLength,
+uset_openPattern(const char16_t * pattern, int32_t patternLength,
                  UErrorCode * ec);
 
 /**
@@ -304,7 +304,7 @@ uset_openPattern(const UChar * pattern, int32_t patternLength,
  * @stable ICU 2.4
  */
 U_CAPI USet* U_EXPORT2
-uset_openPatternOptions(const UChar * pattern, int32_t patternLength,
+uset_openPatternOptions(const char16_t * pattern, int32_t patternLength,
                  uint32_t options,
                  UErrorCode * ec);
 
@@ -410,9 +410,9 @@ uset_set(USet* set,
  * <em>Empties the set passed before applying the pattern.</em>
  * A frozen set will not be modified.
  * @param set               The set to which the pattern is to be applied. 
- * @param pattern           A pointer to UChar string specifying what characters are in the set.
+ * @param pattern           A pointer to char16_t string specifying what characters are in the set.
  *       The character at pattern[0] must be a '['.
- * @param patternLength     The length of the UChar string. -1 if NUL terminated.
+ * @param patternLength     The length of the char16_t string. -1 if NUL terminated.
  * @param options           A bitmask for options to apply to the pattern.
  *       Valid options are USET_IGNORE_SPACE and USET_CASE_INSENSITIVE.
  * @param status            Returns an error if the pattern cannot be parsed.
@@ -426,7 +426,7 @@ uset_set(USet* set,
  */
 U_CAPI int32_t U_EXPORT2 
 uset_applyPattern(USet *set,
-                  const UChar *pattern, int32_t patternLength,
+                  const char16_t *pattern, int32_t patternLength,
                   uint32_t options,
                   UErrorCode *status);
 
@@ -493,8 +493,8 @@ uset_applyIntPropertyValue(USet* set,
  */
 U_CAPI void U_EXPORT2
 uset_applyPropertyAlias(USet* set,
-                        const UChar *prop, int32_t propLength,
-                        const UChar *value, int32_t valueLength,
+                        const char16_t *prop, int32_t propLength,
+                        const char16_t *value, int32_t valueLength,
                         UErrorCode * ec);
 
 /**
@@ -507,7 +507,7 @@ uset_applyPropertyAlias(USet* set,
  * @stable ICU 3.2
  */
 U_CAPI bool U_EXPORT2
-uset_resemblesPattern(const UChar *pattern, int32_t patternLength,
+uset_resemblesPattern(const char16_t *pattern, int32_t patternLength,
                       int32_t pos);
 
 /**
@@ -527,7 +527,7 @@ uset_resemblesPattern(const UChar *pattern, int32_t patternLength,
  */
 U_CAPI int32_t U_EXPORT2
 uset_toPattern(const USet* set,
-               UChar * result, int32_t resultCapacity,
+               char16_t * result, int32_t resultCapacity,
                bool escapeUnprintable,
                UErrorCode * ec);
 
@@ -579,7 +579,7 @@ uset_addRange(USet* set, UChar32 start, UChar32 end);
  * @stable ICU 2.4
  */
 U_CAPI void U_EXPORT2
-uset_addString(USet* set, const UChar * str, int32_t strLen);
+uset_addString(USet* set, const char16_t * str, int32_t strLen);
 
 /**
  * Adds each of the characters in this string to the set. Note: "ch" => {"c", "h"}
@@ -591,7 +591,7 @@ uset_addString(USet* set, const UChar * str, int32_t strLen);
  * @stable ICU 3.4
  */
 U_CAPI void U_EXPORT2
-uset_addAllCodePoints(USet* set, const UChar *str, int32_t strLen);
+uset_addAllCodePoints(USet* set, const char16_t *str, int32_t strLen);
 
 /**
  * Removes the given character from the given USet.  After this call,
@@ -626,7 +626,7 @@ uset_removeRange(USet* set, UChar32 start, UChar32 end);
  * @stable ICU 2.4
  */
 U_CAPI void U_EXPORT2
-uset_removeString(USet* set, const UChar * str, int32_t strLen);
+uset_removeString(USet* set, const char16_t * str, int32_t strLen);
 
 #ifndef U_HIDE_DRAFT_API
 /**
@@ -639,7 +639,7 @@ uset_removeString(USet* set, const UChar * str, int32_t strLen);
  * @draft ICU 69
  */
 U_CAPI void U_EXPORT2
-uset_removeAllCodePoints(USet *set, const UChar *str, int32_t length);
+uset_removeAllCodePoints(USet *set, const char16_t *str, int32_t length);
 #endif  // U_HIDE_DRAFT_API
 
 /**
@@ -684,7 +684,7 @@ uset_retain(USet* set, UChar32 start, UChar32 end);
  * @draft ICU 69
  */
 U_CAPI void U_EXPORT2
-uset_retainString(USet *set, const UChar *str, int32_t length);
+uset_retainString(USet *set, const char16_t *str, int32_t length);
 
 /**
  * Retains EACH of the characters in this string. Note: "ch" == {"c", "h"}
@@ -696,7 +696,7 @@ uset_retainString(USet *set, const UChar *str, int32_t length);
  * @draft ICU 69
  */
 U_CAPI void U_EXPORT2
-uset_retainAllCodePoints(USet *set, const UChar *str, int32_t length);
+uset_retainAllCodePoints(USet *set, const char16_t *str, int32_t length);
 #endif  // U_HIDE_DRAFT_API
 
 /**
@@ -769,7 +769,7 @@ uset_complementRange(USet *set, UChar32 start, UChar32 end);
  * @draft ICU 69
  */
 U_CAPI void U_EXPORT2
-uset_complementString(USet *set, const UChar *str, int32_t length);
+uset_complementString(USet *set, const char16_t *str, int32_t length);
 
 /**
  * Complements EACH of the characters in this string. Note: "ch" == {"c", "h"}
@@ -781,7 +781,7 @@ uset_complementString(USet *set, const UChar *str, int32_t length);
  * @draft ICU 69
  */
 U_CAPI void U_EXPORT2
-uset_complementAllCodePoints(USet *set, const UChar *str, int32_t length);
+uset_complementAllCodePoints(USet *set, const char16_t *str, int32_t length);
 #endif  // U_HIDE_DRAFT_API
 
 /**
@@ -898,7 +898,7 @@ uset_containsRange(const USet* set, UChar32 start, UChar32 end);
  * @stable ICU 2.4
  */
 U_CAPI bool U_EXPORT2
-uset_containsString(const USet* set, const UChar * str, int32_t strLen);
+uset_containsString(const USet* set, const char16_t * str, int32_t strLen);
 
 /**
  * Returns the index of the given character within this set, where
@@ -1002,7 +1002,7 @@ uset_getItemCount(const USet* set);
 U_CAPI int32_t U_EXPORT2
 uset_getItem(const USet* set, int32_t itemIndex,
              UChar32* start, UChar32* end,
-             UChar * str, int32_t strCapacity,
+             char16_t * str, int32_t strCapacity,
              UErrorCode * ec);
 
 /**
@@ -1027,7 +1027,7 @@ uset_containsAll(const USet* set1, const USet* set2);
  * @stable ICU 3.4
  */
 U_CAPI bool U_EXPORT2
-uset_containsAllCodePoints(const USet* set, const UChar *str, int32_t strLen);
+uset_containsAllCodePoints(const USet* set, const char16_t *str, int32_t strLen);
 
 /**
  * Returns true if set1 contains none of the characters and strings
@@ -1071,7 +1071,7 @@ uset_containsSome(const USet* set1, const USet* set2);
  * @see USetSpanCondition
  */
 U_CAPI int32_t U_EXPORT2
-uset_span(const USet *set, const UChar *s, int32_t length, USetSpanCondition spanCondition);
+uset_span(const USet *set, const char16_t *s, int32_t length, USetSpanCondition spanCondition);
 
 /**
  * Returns the start of the trailing substring of the input string which
@@ -1092,7 +1092,7 @@ uset_span(const USet *set, const UChar *s, int32_t length, USetSpanCondition spa
  * @see USetSpanCondition
  */
 U_CAPI int32_t U_EXPORT2
-uset_spanBack(const USet *set, const UChar *s, int32_t length, USetSpanCondition spanCondition);
+uset_spanBack(const USet *set, const char16_t *s, int32_t length, USetSpanCondition spanCondition);
 
 /**
  * Returns the length of the initial substring of the input string which

@@ -401,7 +401,7 @@ U_CAPI UCollator* U_EXPORT2 ucol_open(const char * loc, UErrorCode * status);
  * @see ucol_close
  * @stable ICU 2.0
  */
-U_CAPI UCollator* U_EXPORT2 ucol_openRules(const UChar        * rules,
+U_CAPI UCollator* U_EXPORT2 ucol_openRules(const char16_t        * rules,
     int32_t rulesLength,
     UColAttributeValue normalizationMode,
     UCollationStrength strength,
@@ -529,9 +529,9 @@ U_NAMESPACE_END
  * @stable ICU 2.0
  */
 U_CAPI UCollationResult U_EXPORT2 ucol_strcoll(const UCollator    * coll,
-    const UChar        * source,
+    const char16_t        * source,
     int32_t sourceLength,
-    const UChar        * target,
+    const char16_t        * target,
     int32_t targetLength);
 
 /**
@@ -574,8 +574,8 @@ U_CAPI UCollationResult U_EXPORT2 ucol_strcollUTF8(const UCollator * coll,
  * @stable ICU 2.0
  */
 U_CAPI bool U_EXPORT2 ucol_greater(const UCollator * coll,
-    const UChar * source, int32_t sourceLength,
-    const UChar * target, int32_t targetLength);
+    const char16_t * source, int32_t sourceLength,
+    const char16_t * target, int32_t targetLength);
 
 /**
  * Determine if one string is greater than or equal to another.
@@ -592,8 +592,8 @@ U_CAPI bool U_EXPORT2 ucol_greater(const UCollator * coll,
  * @stable ICU 2.0
  */
 U_CAPI bool U_EXPORT2 ucol_greaterOrEqual(const UCollator * coll,
-    const UChar * source, int32_t sourceLength,
-    const UChar * target, int32_t targetLength);
+    const char16_t * source, int32_t sourceLength,
+    const char16_t * target, int32_t targetLength);
 
 /**
  * Compare two strings for equality.
@@ -610,8 +610,8 @@ U_CAPI bool U_EXPORT2 ucol_greaterOrEqual(const UCollator * coll,
  * @stable ICU 2.0
  */
 U_CAPI bool U_EXPORT2 ucol_equal(const UCollator * coll,
-    const UChar * source, int32_t sourceLength,
-    const UChar * target, int32_t targetLength);
+    const char16_t * source, int32_t sourceLength,
+    const char16_t * target, int32_t targetLength);
 
 /**
  * Compare two UTF-8 encoded strings.
@@ -756,7 +756,7 @@ U_CAPI int32_t U_EXPORT2 ucol_getEquivalentReorderCodes(int32_t reorderCode,
  */
 U_CAPI int32_t U_EXPORT2 ucol_getDisplayName(const char * objLoc,
     const char * dispLoc,
-    UChar             * result,
+    char16_t             * result,
     int32_t resultLength,
     UErrorCode        * status);
 
@@ -880,7 +880,7 @@ U_CAPI int32_t U_EXPORT2 ucol_getFunctionalEquivalent(char * result, int32_t res
  * @return The collation tailoring rules.
  * @stable ICU 2.0
  */
-U_CAPI const UChar* U_EXPORT2 ucol_getRules(const UCollator    * coll,
+U_CAPI const char16_t* U_EXPORT2 ucol_getRules(const UCollator    * coll,
     int32_t            * length);
 
 #ifndef U_HIDE_DEPRECATED_API
@@ -960,7 +960,7 @@ U_DEPRECATED int32_t U_EXPORT2 ucol_normalizeShortDefinitionString(const char * 
  * @stable ICU 2.0
  */
 U_CAPI int32_t U_EXPORT2 ucol_getSortKey(const UCollator    * coll,
-    const UChar        * source,
+    const char16_t        * source,
     int32_t sourceLength,
     uint8        * result,
     int32_t resultLength);
@@ -1204,7 +1204,7 @@ U_CAPI UColReorderCode U_EXPORT2 ucol_getMaxVariable(const UCollator * coll);
  * @deprecated ICU 53 Call ucol_setMaxVariable() instead.
  */
 U_DEPRECATED uint32_t U_EXPORT2 ucol_setVariableTop(UCollator * coll,
-    const UChar * varTop, int32_t len,
+    const char16_t * varTop, int32_t len,
     UErrorCode * status);
 #endif  /* U_HIDE_DEPRECATED_API */
 
@@ -1291,7 +1291,7 @@ U_CAPI UCollator* U_EXPORT2 ucol_safeClone(const UCollator * coll,
  * @stable ICU 2.0
  * @see UCOL_FULL_RULES
  */
-U_CAPI int32_t U_EXPORT2 ucol_getRulesEx(const UCollator * coll, UColRuleOption delta, UChar * buffer, int32_t bufferLen);
+U_CAPI int32_t U_EXPORT2 ucol_getRulesEx(const UCollator * coll, UColRuleOption delta, char16_t * buffer, int32_t bufferLen);
 
 #ifndef U_HIDE_DEPRECATED_API
 /**

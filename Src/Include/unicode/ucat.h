@@ -140,7 +140,7 @@ u_catclose(u_nl_catd catd);
  * the set_num/msg_num tuple does not specify a valid message string
  * in this catalog.
  *
- * @return a pointer to a zero-terminated UChar array which lives in
+ * @return a pointer to a zero-terminated char16_t array which lives in
  * an internal buffer area, typically a memory mapped/DLL file. The
  * caller must NOT delete this pointer. If the call is unsuccessful
  * for any reason, then s is returned.  This includes the situation in
@@ -149,9 +149,9 @@ u_catclose(u_nl_catd catd);
  * 
  * @stable ICU 2.6
  */
-U_CAPI const UChar * U_EXPORT2
+U_CAPI const char16_t * U_EXPORT2
 u_catgets(u_nl_catd catd, int32_t set_num, int32_t msg_num,
-          const UChar * s,
+          const char16_t * s,
           int32_t* len, UErrorCode * ec);
 
 U_CDECL_END

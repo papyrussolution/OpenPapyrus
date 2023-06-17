@@ -77,7 +77,7 @@
 	//@sobolev #include <assert.h>
 	//@sobolev #define IM_ASSERT_removed(_EXPR)            assert(_EXPR)                               // You can override the default assert handler by editing imconfig.h
 //@sobolev #endif
-#define IM_ARRAYSIZE(_ARR)          ((int)(sizeof(_ARR) / sizeof(*(_ARR))))     // Size of a static C-style array. Don't use on pointers!
+// @sobolev #define IM_ARRAYSIZE__Removed(_ARR)          ((int)(sizeof(_ARR) / sizeof(*(_ARR))))     // Size of a static C-style array. Don't use on pointers!
 #define IM_UNUSED(_VAR)             ((void)(_VAR))                              // Used to silence "unused variable warnings". Often useful as asserts may be stripped out from final builds.
 #define IM_OFFSETOF(_TYPE, _MEMBER)  offsetof(_TYPE, _MEMBER)                    // Offset of _MEMBER within _TYPE. Standardized as offsetof() in C++11
 #define IMGUI_CHECKVERSION()        ImGui::DebugCheckVersionAndDataLayout(IMGUI_VERSION, \
@@ -850,8 +850,8 @@ void   PopClipRect();
 
 // Focus, Activation
 // - Prefer using "SetItemDefaultFocus()" over "if (IsWindowAppearing()) SetScrollHereY()" when applicable to signify "this is the default item"
-void   SetItemDefaultFocus();                                                  // make last item the default focused item of a window.
-void   SetKeyboardFocusHere(int offset = 0);                                   // focus keyboard on the next widget. Use positive 'offset' to access sub components of a multiple component widget. Use -1 to access previous widget.
+void   SetItemDefaultFocus();                // make last item the default focused item of a window.
+void   SetKeyboardFocusHere(int offset = 0); // focus keyboard on the next widget. Use positive 'offset' to access sub components of a multiple component widget. Use -1 to access previous widget.
 
 // Item/Widgets Utilities and Query Functions
 // - Most of the functions are referring to the previous Item that has been submitted.
@@ -860,20 +860,20 @@ bool   IsItemHovered(ImGuiHoveredFlags flags = 0);       // is the last item hov
 bool   IsItemActive();                                   // is the last item active? (e.g. button being held, text field being edited. This will continuously return true while holding mouse button on an item. Items that don't interact will always return false)
 bool   IsItemFocused();                                  // is the last item focused for keyboard/gamepad navigation?
 bool   IsItemClicked(ImGuiMouseButton mouse_button = 0); // is the last item hovered and mouse clicked on? (**)  == IsMouseClicked(mouse_button) && IsItemHovered()Important. (**) this is NOT equivalent to the behavior of e.g. Button(). Read comments in function definition.
-bool   IsItemVisible();                                  // is the last item visible? (items may be out of sight because of clipping/scrolling)
-bool   IsItemEdited();                                   // did the last item modify its underlying value this frame? or was pressed? This is generally the same as the "bool" return value of many widgets.
-bool   IsItemActivated();                                // was the last item just made active (item was previously inactive).
-bool   IsItemDeactivated();                              // was the last item just made inactive (item was previously active). Useful for Undo/Redo patterns with widgets that require continuous editing.
-bool   IsItemDeactivatedAfterEdit();                     // was the last item just made inactive and made a value change when it was active? (e.g. Slider/Drag moved). Useful for Undo/Redo patterns with widgets that require continuous editing. Note that you may get false positives (some widgets such as Combo()/ListBox()/Selectable() will return true even when clicking an already selected item).
-bool   IsItemToggledOpen();                              // was the last item open state toggled? set by TreeNode().
-bool   IsAnyItemHovered();                               // is any item hovered?
-bool   IsAnyItemActive();                                // is any item active?
-bool   IsAnyItemFocused();                               // is any item focused?
-ImGuiID GetItemID();                                     // get ID of last item (~~ often same ImGui::GetID(label) beforehand)
-ImVec2 GetItemRectMin();                                 // get upper-left bounding rectangle of the last item (screen space)
-ImVec2 GetItemRectMax();                                 // get lower-right bounding rectangle of the last item (screen space)
-ImVec2 GetItemRectSize();                                // get size of last item
-void   SetItemAllowOverlap();                            // allow last item to be overlapped by a subsequent item. sometimes useful with invisible buttons, selectables, etc. to catch unused area.
+bool   IsItemVisible();              // is the last item visible? (items may be out of sight because of clipping/scrolling)
+bool   IsItemEdited();               // did the last item modify its underlying value this frame? or was pressed? This is generally the same as the "bool" return value of many widgets.
+bool   IsItemActivated();            // was the last item just made active (item was previously inactive).
+bool   IsItemDeactivated();          // was the last item just made inactive (item was previously active). Useful for Undo/Redo patterns with widgets that require continuous editing.
+bool   IsItemDeactivatedAfterEdit(); // was the last item just made inactive and made a value change when it was active? (e.g. Slider/Drag moved). Useful for Undo/Redo patterns with widgets that require continuous editing. Note that you may get false positives (some widgets such as Combo()/ListBox()/Selectable() will return true even when clicking an already selected item).
+bool   IsItemToggledOpen();          // was the last item open state toggled? set by TreeNode().
+bool   IsAnyItemHovered();           // is any item hovered?
+bool   IsAnyItemActive();            // is any item active?
+bool   IsAnyItemFocused();           // is any item focused?
+ImGuiID GetItemID();                 // get ID of last item (~~ often same ImGui::GetID(label) beforehand)
+ImVec2 GetItemRectMin();             // get upper-left bounding rectangle of the last item (screen space)
+ImVec2 GetItemRectMax();             // get lower-right bounding rectangle of the last item (screen space)
+ImVec2 GetItemRectSize();            // get size of last item
+void   SetItemAllowOverlap();        // allow last item to be overlapped by a subsequent item. sometimes useful with invisible buttons, selectables, etc. to catch unused area.
 
 // Viewports
 // - Currently represents the Platform Window created by the application which is hosting our Dear ImGui windows.
@@ -2060,27 +2060,27 @@ struct ImGuiIO {
 	//
 	// Configuration                            // Default value
 	//
-	ImGuiConfigFlags ConfigFlags;           // = 0              // See ImGuiConfigFlags_ enum. Set by user/application. Gamepad/keyboard navigation options, etc.
-	ImGuiBackendFlags BackendFlags;         // = 0              // See ImGuiBackendFlags_ enum. Set by backend (imgui_impl_xxx files or custom backend) to communicate features supported by the backend.
-	ImVec2 DisplaySize;                     // <unset>          // Main display size, in pixels (generally == GetMainViewport()->Size). May change every frame.
-	float DeltaTime;                        // = 1.0f/60.0f     // Time elapsed since last frame, in seconds. May change every frame.
-	float IniSavingRate;                    // = 5.0f           // Minimum time between saving positions/sizes to .ini file, in seconds.
-	const char* IniFilename;                // = "imgui.ini"    // Path to .ini file (important: default "imgui.ini" is relative to current working dir!). Set NULL to disable automatic .ini loading/saving or if you want to manually call LoadIniSettingsXXX() / SaveIniSettingsXXX() functions.
-	const char* LogFilename;                // = "imgui_log.txt"// Path to .log file (default parameter to ImGui::LogToFile when no file is specified).
-	float MouseDoubleClickTime;             // = 0.30f          // Time for a double-click, in seconds.
-	float MouseDoubleClickMaxDist;          // = 6.0f           // Distance threshold to stay in to validate a double-click, in pixels.
-	float MouseDragThreshold;               // = 6.0f           // Distance threshold before considering we are dragging.
-	float KeyRepeatDelay;                   // = 0.275f         // When holding a key/button, time before it starts repeating, in seconds (for buttons in Repeat mode, etc.).
-	float KeyRepeatRate;                    // = 0.050f         // When holding a key/button, rate at which it repeats, in seconds.
-	float HoverDelayNormal;                 // = 0.30 sec       // Delay on hovering before IsItemHovered(ImGuiHoveredFlags_DelayNormal) returns true.
-	float HoverDelayShort;                  // = 0.10 sec       // Delay on hovering before IsItemHovered(ImGuiHoveredFlags_DelayShort) returns true.
-	void*       UserData;                   // = NULL           // Store your own data.
+	ImGuiConfigFlags ConfigFlags;      // = 0              // See ImGuiConfigFlags_ enum. Set by user/application. Gamepad/keyboard navigation options, etc.
+	ImGuiBackendFlags BackendFlags;    // = 0              // See ImGuiBackendFlags_ enum. Set by backend (imgui_impl_xxx files or custom backend) to communicate features supported by the backend.
+	ImVec2 DisplaySize;                // <unset>          // Main display size, in pixels (generally == GetMainViewport()->Size). May change every frame.
+	float DeltaTime;                   // = 1.0f/60.0f     // Time elapsed since last frame, in seconds. May change every frame.
+	float IniSavingRate;               // = 5.0f           // Minimum time between saving positions/sizes to .ini file, in seconds.
+	const char* IniFilename;           // = "imgui.ini"    // Path to .ini file (important: default "imgui.ini" is relative to current working dir!). Set NULL to disable automatic .ini loading/saving or if you want to manually call LoadIniSettingsXXX() / SaveIniSettingsXXX() functions.
+	const char* LogFilename;           // = "imgui_log.txt"// Path to .log file (default parameter to ImGui::LogToFile when no file is specified).
+	float MouseDoubleClickTime;        // = 0.30f          // Time for a double-click, in seconds.
+	float MouseDoubleClickMaxDist;     // = 6.0f           // Distance threshold to stay in to validate a double-click, in pixels.
+	float MouseDragThreshold;          // = 6.0f           // Distance threshold before considering we are dragging.
+	float KeyRepeatDelay;              // = 0.275f         // When holding a key/button, time before it starts repeating, in seconds (for buttons in Repeat mode, etc.).
+	float KeyRepeatRate;               // = 0.050f         // When holding a key/button, rate at which it repeats, in seconds.
+	float HoverDelayNormal;            // = 0.30 sec       // Delay on hovering before IsItemHovered(ImGuiHoveredFlags_DelayNormal) returns true.
+	float HoverDelayShort;             // = 0.10 sec       // Delay on hovering before IsItemHovered(ImGuiHoveredFlags_DelayShort) returns true.
+	void * UserData;                   // = NULL           // Store your own data.
 
-	ImFontAtlas* Fonts;                     // <auto>           // Font atlas: load, rasterize and pack one or more fonts into a single texture.
-	float FontGlobalScale;                  // = 1.0f           // Global scale all fonts
-	bool FontAllowUserScaling;              // = false          // Allow user scaling text of individual window with CTRL+Wheel.
-	ImFont*     FontDefault;                // = NULL           // Font to use on NewFrame(). Use NULL to uses Fonts->Fonts[0].
-	ImVec2 DisplayFramebufferScale;         // = (1, 1)         // For retina display or other situations where window coordinates are different from framebuffer coordinates. This generally ends up in ImDrawData::FramebufferScale.
+	ImFontAtlas* Fonts;                // <auto>           // Font atlas: load, rasterize and pack one or more fonts into a single texture.
+	float FontGlobalScale;             // = 1.0f           // Global scale all fonts
+	bool FontAllowUserScaling;         // = false          // Allow user scaling text of individual window with CTRL+Wheel.
+	ImFont * FontDefault;              // = NULL           // Font to use on NewFrame(). Use NULL to uses Fonts->Fonts[0].
+	ImVec2 DisplayFramebufferScale;    // = (1, 1)         // For retina display or other situations where window coordinates are different from framebuffer coordinates. This generally ends up in ImDrawData::FramebufferScale.
 
 	// Miscellaneous options
 	bool MouseDrawCursor;                   // = false          // Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor). Cannot be easily renamed to 'io.ConfigXXX' because this is frequently used by backend implementations.
@@ -2109,23 +2109,23 @@ struct ImGuiIO {
 	// Optional: Platform/Renderer backend name (informational only! will be displayed in About Window) + User data for backend/wrappers to store their own stuff.
 	const char* BackendPlatformName;        // = NULL
 	const char* BackendRendererName;        // = NULL
-	void*       BackendPlatformUserData;    // = NULL           // User data for platform backend
-	void*       BackendRendererUserData;    // = NULL           // User data for renderer backend
-	void*       BackendLanguageUserData;    // = NULL           // User data for non C++ programming language backend
+	void * BackendPlatformUserData;    // = NULL // User data for platform backend
+	void * BackendRendererUserData;    // = NULL // User data for renderer backend
+	void * BackendLanguageUserData;    // = NULL // User data for non C++ programming language backend
 
 	// Optional: Access OS clipboard
 	// (default to use native Win32 clipboard on Windows, otherwise uses a private clipboard. Override to access OS clipboard on other architectures)
 	const char* (*GetClipboardTextFn)(void* user_data);
 	void (*SetClipboardTextFn)(void* user_data, const char* text);
-	void*       ClipboardUserData;
+	void * ClipboardUserData;
 
 	// Optional: Notify OS Input Method Editor of the screen position of your cursor for text input position (e.g. when using Japanese/Chinese IME on Windows)
 	// (default to use native imm32 api on Windows)
 	void (*SetPlatformImeDataFn)(ImGuiViewport* viewport, ImGuiPlatformImeData* data);
 #ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
-	void*       ImeWindowHandle;            // = NULL           // [Obsolete] Set ImGuiViewport::PlatformHandleRaw instead. Set this to your HWND to get automatic IME cursor positioning.
+	void * ImeWindowHandle;            // = NULL           // [Obsolete] Set ImGuiViewport::PlatformHandleRaw instead. Set this to your HWND to get automatic IME cursor positioning.
 #else
-	void*       _UnusedPadding;                                 // Unused field to keep data structure the same size.
+	void * _UnusedPadding;             // Unused field to keep data structure the same size.
 #endif
 	//
 	// Input - Call before calling NewFrame()
@@ -2146,13 +2146,11 @@ struct ImGuiIO {
 	void  SetAppAcceptingEvents(bool accepting_events);       // Set master flag for accepting key/mouse/text events (default to true). Useful if you have native dialog boxes that are interrupting your application loop/refresh, and you want to disable events being queued while your app is frozen.
 	void  ClearInputCharacters();                             // [Internal] Clear the text input buffer manually
 	void  ClearInputKeys();                                   // [Internal] Release all keys
-
-	//------------------------------------------------------------------
+	//
 	// Output - Updated by NewFrame() or EndFrame()/Render()
 	// (when reading from the io.WantCaptureMouse, io.WantCaptureKeyboard flags to dispatch your inputs, it is
 	//  generally easier and more correct to use their state BEFORE calling NewFrame(). See FAQ for details!)
-	//------------------------------------------------------------------
-
+	//
 	bool WantCaptureMouse;                      // Set when Dear ImGui will use mouse inputs, in this case do not dispatch them to your main game/application (either way, always pass on mouse inputs to imgui). (e.g. unclicked mouse is hovering over an imgui window, widget is active, mouse was clicked over an imgui window, etc.).
 	bool WantCaptureKeyboard;                   // Set when Dear ImGui will use keyboard inputs, in this case do not dispatch them to your main game/application (either way, always pass keyboard inputs to imgui). (e.g. InputText active, or an imgui window is focused and navigation is enabled, etc.).
 	bool WantTextInput;                         // Mobile/console: when set, you may display an on-screen keyboard. This is set by Dear ImGui when it wants textual keyboard input to happen (e.g. when a InputText widget is active).
@@ -2176,12 +2174,10 @@ struct ImGuiIO {
 	bool KeysDown[ImGuiKey_COUNT];              // [LEGACY] Input: Keyboard keys that are pressed (ideally left in the "native" order your engine has access to keyboard keys, so you can use your own defines/enums for keys). This used to be [512] sized. It is now ImGuiKey_COUNT to allow legacy io.KeysDown[GetKeyIndex(...)] to work without an overflow.
 	float NavInputs[ImGuiNavInput_COUNT];       // [LEGACY] Since 1.88, NavInputs[] was removed. Backends from 1.60 to 1.86 won't build. Feed gamepad inputs via io.AddKeyEvent() and ImGuiKey_GamepadXXX enums.
 #endif
-
-	//------------------------------------------------------------------
+	//
 	// [Internal] Dear ImGui will maintain those fields. Forward compatibility not guaranteed!
-	//------------------------------------------------------------------
-
-	ImGuiContext* Ctx;                          // Parent UI context (needs to be set explicitly by parent).
+	//
+	ImGuiContext * Ctx;                          // Parent UI context (needs to be set explicitly by parent).
 
 	// Main Input State
 	// (this block used to be written by backend, since 1.87 it is best to NOT write to those directly, call the AddXXX functions above instead)
@@ -2222,13 +2218,11 @@ struct ImGuiIO {
 	ImWchar16 InputQueueSurrogate;              // For AddInputCharacterUTF16()
 	ImVector<ImWchar> InputQueueCharacters;     // Queue of _characters_ input (obtained by platform backend). Fill using AddInputCharacter() helper.
 
-	  ImGuiIO();
+	ImGuiIO();
 };
-
-//-----------------------------------------------------------------------------
+//
 // [SECTION] Misc data structures
-//-----------------------------------------------------------------------------
-
+//
 // Shared state of InputText(), passed as an argument to your callback when a ImGuiInputTextFlags_Callback* flag is used.
 // The callback function should return 0 by default.
 // Callbacks (follow a flag name and see comments in ImGuiInputTextFlags_ declarations for more details)

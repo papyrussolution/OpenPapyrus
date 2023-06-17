@@ -14,7 +14,7 @@
 #include "unicode/ures.h"
 #include "ustr_cnv.h"
 
-U_CAPI UResourceBundle * U_EXPORT2 ures_openU(const UChar * myPath, const char * localeID, UErrorCode * status)
+U_CAPI UResourceBundle * U_EXPORT2 ures_openU(const char16_t * myPath, const char * localeID, UErrorCode * status)
 {
 	char pathBuffer[1024];
 	char * path = pathBuffer;

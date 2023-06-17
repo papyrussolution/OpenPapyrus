@@ -115,8 +115,8 @@ typedef enum {
 #define ISCII_CNV_PREFIX "ISCII,version="
 
 typedef struct {
-	UChar contextCharToUnicode; /* previous Unicode codepoint for contextual analysis */
-	UChar contextCharFromUnicode; /* previous Unicode codepoint for contextual analysis */
+	char16_t contextCharToUnicode; /* previous Unicode codepoint for contextual analysis */
+	char16_t contextCharFromUnicode; /* previous Unicode codepoint for contextual analysis */
 	uint16 defDeltaToUnicode; /* delta for switching to default state when DEF is encountered  */
 	uint16 currentDeltaFromUnicode; /* current delta in Indic block */
 	uint16 currentDeltaToUnicode; /* current delta in Indic block */
@@ -893,8 +893,8 @@ static const uint16 nuktaSpecialCases[][2] = {
  *                      <HALANT> + <ZWJ>
  */
 static void U_CALLCONV UConverter_fromUnicode_ISCII_OFFSETS_LOGIC(UConverterFromUnicodeArgs * args, UErrorCode * err) {
-	const UChar * source = args->source;
-	const UChar * sourceLimit = args->sourceLimit;
+	const char16_t * source = args->source;
+	const char16_t * sourceLimit = args->sourceLimit;
 	unsigned char * target = (unsigned char *)args->target;
 	unsigned char * targetLimit = (unsigned char *)args->targetLimit;
 	int32_t* offsets = args->offsets;
@@ -1055,7 +1055,7 @@ static void U_CALLCONV UConverter_fromUnicode_ISCII_OFFSETS_LOGIC(UConverterFrom
 		}
 		else if(targetByteUnit != missingCharMarker) {
 			if(targetByteUnit==ISCII_HALANT) {
-				converterData->contextCharFromUnicode = (UChar)targetByteUnit;
+				converterData->contextCharFromUnicode = (char16_t)targetByteUnit;
 			}
 			/* write targetByteUnit to target*/
 			WRITE_TO_TARGET_FROM_U(args, offsets, source, target, targetLimit, targetByteUnit, err);
@@ -1072,7 +1072,7 @@ getTrail:
 					/*look ahead to find the trail surrogate*/
 					if(source < sourceLimit) {
 						/* test the following code unit */
-						UChar trail = (*source);
+						char16_t trail = (*source);
 						if(U16_IS_TRAIL(trail)) {
 							source++;
 							sourceChar = U16_GET_SUPPLEMENTARY(sourceChar, trail);
@@ -1139,13 +1139,13 @@ static const uint16 lookupTable[][2] = {
 		}                                                                                    \
 		/* now write the targetUniChar */                                                    \
 		if(target<args->targetLimit) {                                                        \
-			*(target)++ = (UChar)targetUniChar;                                              \
+			*(target)++ = (char16_t)targetUniChar;                                              \
 			if(offsets) {                                                                     \
 				*(offsets)++ = (int32_t)(offset);                                            \
 			}                                                                                \
 		}else {                                                                               \
 			args->converter->UCharErrorBuffer[args->converter->UCharErrorBufferLength++] =   \
-			    (UChar)targetUniChar;                                                        \
+			    (char16_t)targetUniChar;                                                        \
 			*err = U_BUFFER_OVERFLOW_ERROR;                                                  \
 		}                                                                                    \
 } UPRV_BLOCK_MACRO_END
@@ -1187,15 +1187,15 @@ static const uint16 lookupTable[][2] = {
 static void U_CALLCONV UConverter_toUnicode_ISCII_OFFSETS_LOGIC(UConverterToUnicodeArgs * args, UErrorCode * err) 
 {
 	const char * source = (char *)args->source;
-	UChar * target = args->target;
+	char16_t * target = args->target;
 	const char * sourceLimit = args->sourceLimit;
-	const UChar * targetLimit = args->targetLimit;
+	const char16_t * targetLimit = args->targetLimit;
 	uint32_t targetUniChar = 0x0000;
 	uint8 sourceChar = 0x0000;
 	UConverterDataISCII* data;
 	UChar32* toUnicodeStatus = NULL;
 	UChar32 tempTargetUniChar = 0x0000;
-	UChar * contextCharToUnicode = NULL;
+	char16_t * contextCharToUnicode = NULL;
 	bool found;
 	int i;
 	int offset = 0;
@@ -1323,7 +1323,7 @@ static void U_CALLCONV UConverter_toUnicode_ISCII_OFFSETS_LOGIC(UConverterToUnic
 				case ISCII_INV:
 				case EXT:
 				case ATR:
-				    *contextCharToUnicode = (UChar)sourceChar;
+				    *contextCharToUnicode = (char16_t)sourceChar;
 
 				    if(*toUnicodeStatus != missingCharMarker) {
 					    /* Write the previous toUnicodeStatus, this was delayed to handle consonant
@@ -1601,7 +1601,7 @@ static void U_CALLCONV UConverter_toUnicode_ISCII_OFFSETS_LOGIC(UConverterToUnic
 
 			if(targetUniChar != missingCharMarker) {
 				/* now save the targetUniChar for delayed write */
-				*toUnicodeStatus = (UChar)targetUniChar;
+				*toUnicodeStatus = (char16_t)targetUniChar;
 				if(data->resetToDefaultToUnicode==TRUE) {
 					data->currentDeltaToUnicode = data->defDeltaToUnicode;
 					data->currentMaskToUnicode = data->defMaskToUnicode;

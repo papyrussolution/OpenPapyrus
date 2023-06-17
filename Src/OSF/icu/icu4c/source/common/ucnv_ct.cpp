@@ -342,8 +342,8 @@ static void U_CALLCONV UConverter_fromUnicode_CompoundText_OFFSETS(UConverterFro
 	UConverter * cnv = args->converter;
 	uint8 * target = (uint8 *)args->target;
 	const uint8 * targetLimit = (const uint8 *)args->targetLimit;
-	const UChar * source = args->source;
-	const UChar * sourceLimit = args->sourceLimit;
+	const char16_t * source = args->source;
+	const char16_t * sourceLimit = args->sourceLimit;
 	/* int32_t* offsets = args->offsets; */
 	UChar32 sourceChar;
 	bool useFallback = cnv->useFallback;
@@ -373,7 +373,7 @@ getTrail:
 					/*look ahead to find the trail surrogate*/
 					if(source < sourceLimit) {
 						/* test the following code unit */
-						UChar trail = (UChar) *source;
+						char16_t trail = (char16_t) *source;
 						if(U16_IS_TRAIL(trail)) {
 							source++;
 							sourceChar = U16_GET_SUPPLEMENTARY(sourceChar, trail);
@@ -484,7 +484,7 @@ getTrail:
 static void U_CALLCONV UConverter_toUnicode_CompoundText_OFFSETS(UConverterToUnicodeArgs * args,
     UErrorCode * err) {
 	const char * mySource = (char *)args->source;
-	UChar * myTarget = args->target;
+	char16_t * myTarget = args->target;
 	const char * mySourceLimit = args->sourceLimit;
 	const char * tmpSourceLimit = mySourceLimit;
 	uint32_t mySourceChar = 0x0000;

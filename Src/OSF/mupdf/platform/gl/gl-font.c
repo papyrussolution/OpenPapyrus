@@ -316,15 +316,15 @@ float ui_measure_string_part(const char * s, const char * e)
 	return w;
 }
 
-int ui_break_lines(char * a, struct line * lines, int maxlines, int width, int * maxwidth)
+int ui_break_lines(const char * a, struct line * lines, int maxlines, int width, int * maxwidth)
 {
-	char * next, * space = NULL, * b = a;
+	const char * next;
+	const char * space = NULL;
+	const char * b = a;
 	int c, n = 0;
 	float space_x, x = 0, w = 0;
-
 	if(maxwidth)
 		*maxwidth = 0;
-
 	while(*b) {
 		next = b + fz_chartorune(&c, b);
 		if(c == '\r' || c == '\n') {

@@ -101,10 +101,7 @@ cairo_time_t _cairo_time_get()
 #elif defined(CAIRO_CLOCK)
 #include <time.h>
 
-static FORCEINLINE double _cairo_time_1s()
-{
-	return 1000000000;
-}
+static FORCEINLINE double _cairo_time_1s() { return 1000000000; }
 
 cairo_time_t _cairo_time_get()
 {

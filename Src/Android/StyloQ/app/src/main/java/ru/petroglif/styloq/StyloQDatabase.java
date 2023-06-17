@@ -212,10 +212,10 @@ public class StyloQDatabase extends Database {
 	static class NotificationStoragePacket {
 		NotificationStoragePacket() throws StyloQException
 		{
-			Rec = new NotificationTable.Rec();
+			Rec = new NotificationTable2.Rec();
 			Pool = new SecretTagPool();
 		}
-		NotificationStoragePacket(NotificationTable.Rec rec) throws StyloQException
+		NotificationStoragePacket(NotificationTable2.Rec rec) throws StyloQException
 		{
 			Rec = rec;
 			Pool = new SecretTagPool();
@@ -230,7 +230,7 @@ public class StyloQDatabase extends Database {
 			}
 			return ok;
 		}
-		NotificationTable.Rec Rec;
+		NotificationTable2.Rec Rec;
 		SecretTagPool Pool;
 	}
 
@@ -1577,7 +1577,7 @@ public class StyloQDatabase extends Database {
 	{
 		ArrayList <StyloQInterchange.SvcNotification> result = null;
 		try {
-			Database.Table tbl = CreateTable("NotificationTable");
+			Database.Table tbl = CreateTable("NotificationTable2");
 			if(tbl != null) {
 				final String tn = tbl.GetName();
 				long since_epoch_ms = SLib.LDATETIME.IsEmpty(since) ? 0 : since.ToEpochMilliseconds();
@@ -1591,7 +1591,7 @@ public class StyloQDatabase extends Database {
 				android.database.Cursor cur = GetHandle().rawQuery(query, null);
 				if(cur != null && cur.moveToFirst()) {
 					do {
-						NotificationTable.Rec rec = new NotificationTable.Rec();
+						NotificationTable2.Rec rec = new NotificationTable2.Rec();
 						rec.Init();
 						rec.Set(cur);
 						if(!unprocessedOnly || (rec.Flags & SecStoragePacket.styloqfProcessed) == 0) {
@@ -1603,6 +1603,12 @@ public class StyloQDatabase extends Database {
 									if(result == null)
 										result = new ArrayList<StyloQInterchange.SvcNotification>();
 									item.InternalID = rec.ID;
+									// @diag {
+									if(!SLib.AreByteArraysEqual(rec.Ident, item.Ident_before90v)) {
+
+									}
+									// } @diag
+									item.Ident_before90v = rec.Ident;
 									item.SvcID = rec.SvcID;
 									item.Processed = ((rec.Flags & SecStoragePacket.styloqfProcessed) != 0);
 									result.add(item);
@@ -1709,8 +1715,7 @@ public class StyloQDatabase extends Database {
 	{
 		long    result_id = 0;
 		//final int svcidlen = SLib.GetLen(svcIdent);
-		if(item != null && /*SLib.GetLen(item.Ident) > 0 &&*/ item.SvcID > 0) {
-			//long correspind_id = 0;
+		if(item != null && SLib.GetLen(item.Ident_before90v) > 0 && item.SvcID > 0) {
 			Transaction tra = new Transaction(this, useTa);
 			SecStoragePacket correspond_pack = null;
 			//correspond_pack = SearchGlobalIdentEntry(SecStoragePacket.kForeignService, svcIdent);
@@ -1728,6 +1733,7 @@ public class StyloQDatabase extends Database {
 						NotificationStoragePacket pack = new NotificationStoragePacket();
 						pack.Rec.ID = 0;
 						//pack.Rec.BI = item.Ident;
+						pack.Rec.Ident = item.Ident_before90v;
 						if(item.EventOrgTime != null)
 							pack.Rec.TimeStamp = item.EventOrgTime.ToEpochMilliseconds();
 						else if(item.EventIssueTime != null)
@@ -1889,13 +1895,33 @@ public class StyloQDatabase extends Database {
 	public NotificationStoragePacket GetNotificationEntry(long id) throws StyloQException
 	{
 		NotificationStoragePacket result = null;
-		Database.Table tbl = CreateTable("NotificationTable");
+		Database.Table tbl = CreateTable("NotificationTable2");
 		if(tbl != null) {
 			final String tn = tbl.GetName();
 			String query = "SELECT * FROM " + tn + " WHERE id=" + id;
 			android.database.Cursor cur = GetHandle().rawQuery(query, null);
 			if(cur != null && cur.moveToFirst()) {
-				NotificationTable.Rec rec = new NotificationTable.Rec();
+				NotificationTable2.Rec rec = new NotificationTable2.Rec();
+				rec.Init();
+				rec.Set(cur);
+				result = new NotificationStoragePacket(rec);
+				if(result.Pool == null) {
+					result = null;
+				}
+			}
+		}
+		return result;
+	}
+	public NotificationStoragePacket GetNotificationEntryByIdent(final byte [] ident) throws StyloQException
+	{
+		NotificationStoragePacket result = null;
+		Database.Table tbl = CreateTable("NotificationTable2");
+		if(tbl != null && SLib.GetLen(ident) > 0) {
+			final String tn = tbl.GetName();
+			String query = "SELECT * FROM " + tn + " WHERE ident=x'" + SLib.ByteArrayToHexString(ident) + "'";
+			android.database.Cursor cur = GetHandle().rawQuery(query, null);
+			if(cur != null && cur.moveToFirst()) {
+				NotificationTable2.Rec rec = new NotificationTable2.Rec();
 				rec.Init();
 				rec.Set(cur);
 				result = new NotificationStoragePacket(rec);
@@ -1909,15 +1935,35 @@ public class StyloQDatabase extends Database {
 	public long PutNotificationEntry(long id, NotificationStoragePacket pack, boolean useTa) throws StyloQException
 	{
 		long result_id = 0;
-		Database.Table tbl = CreateTable("NotificationTable");
+		Database.Table tbl = CreateTable("NotificationTable2");
 		if(tbl != null) {
 			if(id == 0) { // insert packet
-				if(pack.PreprocessBeforeStoring()) {
-					Transaction tra = new Transaction(this, useTa);
-					result_id = tbl.Insert(pack.Rec);
-					//if(result_id > 0)
-					//	LogEvent(SLib.PPACN_OBJADD, PPOBJ_STYLOQBINDERY, result_id, 0, false);
-					tra.Commit();
+				if(pack != null) {
+					if(pack.PreprocessBeforeStoring()) {
+						if(SLib.GetLen(pack.Rec.Ident) > 0) {
+							Transaction tra = new Transaction(this, useTa);
+							NotificationStoragePacket ex_pack = GetNotificationEntryByIdent(pack.Rec.Ident);
+							if(ex_pack != null) {
+								// Точно такое извещение уже есть в бд: мы ничего не меняем, просто
+								// возвращаем ид существующей записи.
+								// Извещения генерируются сервисом и могут приходить несколько
+								// одинаковых (уникальный идент формирует сервис).
+								// Дабы не перегружать базу данных просто ничего не будем делать
+								// если пришло точно такое же извещение.
+								result_id = ex_pack.Rec.ID;
+							}
+							else {
+								result_id = tbl.Insert(pack.Rec);
+								//if(result_id > 0)
+								//	LogEvent(SLib.PPACN_OBJADD, PPOBJ_STYLOQBINDERY, result_id, 0, false);
+							}
+							tra.Commit();
+						}
+						else {
+							// notification без ident'а нельзя сохранять!
+							// @todo @err
+						}
+					}
 				}
 			}
 			else { // update packet
@@ -1935,14 +1981,22 @@ public class StyloQDatabase extends Database {
 					}
 					else {
 						if(pack.PreprocessBeforeStoring()) {
-							Transaction tra = new Transaction(this, useTa);
-							if(UpdateRec(tbl, id, pack.Rec) > 0) {
-								//LogEvent(SLib.PPACN_OBJUPD, PPOBJ_STYLOQBINDERY, id, 0, false);
-								if(tra.Commit())
-									result_id = id;
+							if(SLib.AreByteArraysEqual(pack.Rec.Ident, ex_pack.Rec.Ident)) {
+								Transaction tra = new Transaction(this, useTa);
+								if(UpdateRec(tbl, id, pack.Rec) > 0) {
+									//LogEvent(SLib.PPACN_OBJUPD, PPOBJ_STYLOQBINDERY, id, 0, false);
+									if(tra.Commit())
+										result_id = id;
+								}
+								else
+									tra.Abort();
 							}
-							else
-								tra.Abort();
+							else {
+								// Что-то не так! Клиент просит изменить пакет извещения с заданным
+								// базовым идентификатором (Rec.ID), но при этом хэш (Rec.Ident)
+								// нового извещения не совпадает с таковым в существующей записи.
+								// @todo @err
+							}
 						}
 					}
 				}
@@ -2089,12 +2143,7 @@ public class StyloQDatabase extends Database {
 		}
 	}
 	//
-	// @v11.7.5
-	// Descr: Определение таблицы уведомлений.
-	//   До версии 11.7.5 уведомления хранились в общей таблице SecTable, однако
-	//   из-за значительного числа уведомлений и неадаптированности индексов
-	//   возникали тяжелые задержки в работе приложения. В связи с чем решено
-	//   уведомления переместить в отдельную таблицу.
+	// Descr: Ошибочная версия таблицы уведомлений (без поля Ident). Заменена на NotificationTable2
 	//
 	public static class NotificationTable extends Table {
 		public final static String TBL_NAME = NotificationTable.class.getSimpleName();
@@ -2131,15 +2180,67 @@ public class StyloQDatabase extends Database {
 			super(ctx, TBL_NAME);
 		}
 	}
+	//
+	// @v11.7.5
+	// Descr: Определение таблицы уведомлений.
+	//   До версии 11.7.5 уведомления хранились в общей таблице SecTable, однако
+	//   из-за значительного числа уведомлений и неадаптированности индексов
+	//   возникали тяжелые задержки в работе приложения. В связи с чем решено
+	//   уведомления переместить в отдельную таблицу.
+	// @v11.7.6 Note: Я, дурень такой, забыл включить в таблицу важнейшее поле Ident.
+	//   из-за этого события сплош дублируются.
+	//
+	public static class NotificationTable2 extends Table {
+		public final static String TBL_NAME = NotificationTable2.class.getSimpleName();
+		public static final String CREATE_SQL = "CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
+			"ID INTEGER PRIMARY KEY," +
+			"Ident BLOB," + // @v11.7.6 Композитный идентификатор события, инициируемый сервисом
+			"SvcID INTEGER(8)," + // ->SecTable.ID
+			"Expiration INTEGER(8)," +
+			"TimeStamp INTEGER(8)," +
+			"Flags INTEGER(4)," +
+			"Counter INTEGER(8)," +
+			"VT BLOB);" +
+			"CREATE UNIQUE INDEX idxSecKey0 ON " + TBL_NAME + " (ID);" +
+			"CREATE UNIQUE INDEX idxSecKey1 ON " + TBL_NAME + " (TimeStamp);" +
+			"CREATE UNIQUE INDEX idxSecKey3 ON " + TBL_NAME + " (SvcID, TimeStamp) where (SvcID > 0);" +
+			"CREATE UNIQUE INDEX idxSecKey4 ON " + TBL_NAME + " (Ident);"; // @v11.7.6
+		static class Rec extends Record {
+			public long   ID;
+			public byte [] Ident; // @v11.7.6
+			public long   SvcID;
+			public long   Expiration; // epoch time, seconds
+			public long   TimeStamp;
+			public int    Flags;   // @v11.2.10
+			public long   Counter; // @v11.2.10 Для записей вида kCounter
+			public byte [] VT;
+			public Rec() throws StyloQException
+			{
+				super();
+			}
+		}
+		public NotificationTable2()
+		{
+			super();
+		}
+		public NotificationTable2(Context ctx)
+		{
+			super(ctx, TBL_NAME);
+		}
+	}
 	int Upgrade(int curVer, int prevVer) throws StyloQException
 	{
 		int  ok = -1;
 		try {
-			if(curVer >= 90/*debug*/ && prevVer <= 90/*debug*/) {
+			if(curVer >= 92/*debug*/ && prevVer < 92/*debug*/) {
+				if(prevVer >= 90)
+					DropTable("NotificationTable");
+			}
+			if(curVer >= 92/*debug*/ && prevVer < 90/*debug*/) {
 				final String s_tn = "SecTable";
-				final String n_tn = "NotificationTable";
+				final String n_tn = "NotificationTable2";
 				Database.Table t_sec = CreateTable("SecTable");
-				Database.Table t_n = CreateTable("NotificationTable");
+				Database.Table t_n = CreateTable("NotificationTable2");
 				ArrayList <StyloQInterchange.SvcNotification> nlist = Helper_GetNotifivationList_before90v(0, null, false, false);
 				if(SLib.GetCount(nlist) > 0) {
 					Transaction tra = new Transaction(this, true);

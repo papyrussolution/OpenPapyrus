@@ -8,7 +8,7 @@ typedef struct {
 	fz_matrix ctm;
 	fz_rect view;
 	fz_rect area;
-	fz_point step;
+	SPoint2F step;
 } tile;
 
 typedef struct glyph {
@@ -247,7 +247,7 @@ static int find_first_char(fz_context * ctx, const fz_text_span * span, int i)
 
 static int find_next_line_break(fz_context * ctx, const fz_text_span * span, fz_matrix inv_tm, int i)
 {
-	fz_point p, old_p;
+	SPoint2F p, old_p;
 
 	old_p.x = span->items[i].x;
 	old_p.y = span->items[i].y;
@@ -289,7 +289,7 @@ static void svg_dev_text_span(fz_context * ctx, svg_device * sdev, fz_matrix ctm
 	char font_family[100];
 	int is_bold, is_italic;
 	fz_matrix tm, inv_tm, final_tm;
-	fz_point p;
+	SPoint2F p;
 	float font_size;
 	fz_text_item * it;
 	int start, end, i;

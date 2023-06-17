@@ -26,7 +26,7 @@
  * DecimalFormat and DecimalFormatSymbols.
  */
 U_CAPI void
-uprv_getStaticCurrencyName(const UChar * iso, const char * loc,
+uprv_getStaticCurrencyName(const char16_t * iso, const char * loc,
                            icu::UnicodeString & result, UErrorCode & ec);
 
 /**
@@ -59,7 +59,7 @@ uprv_parseCurrency(const char * locale,
                    icu::ParsePosition& pos,
                    int8 type,
                    int32_t* partialMatchLen,
-                   UChar * result,
+                   char16_t * result,
                    UErrorCode & ec);
 
 /**

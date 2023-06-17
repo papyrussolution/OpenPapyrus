@@ -94,7 +94,7 @@ static INLINE uint32_t count_leading_zeros(uint32_t val)
 static INLINE uint32_t read_le_uint32(const void* dataIn)
 {
 #if defined(OPJ_BIG_ENDIAN)
-	const uint8* data = (const uint8*)dataIn;
+	const uint8* data = (const uint8 *)dataIn;
 	return ((uint32_t)data[0]) | (uint32_t)(data[1] << 8) | (uint32_t)(
 		data[2] << 16) | (((
 		       uint32_t)data[3]) <<

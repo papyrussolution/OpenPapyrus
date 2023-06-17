@@ -648,7 +648,7 @@ typedef enum UScriptUsage {
  * @stable ICU 51
  */
 U_CAPI int32_t U_EXPORT2
-uscript_getSampleString(UScriptCode script, UChar *dest, int32_t capacity, UErrorCode *pErrorCode);
+uscript_getSampleString(UScriptCode script, char16_t *dest, int32_t capacity, UErrorCode *pErrorCode);
 
 #if U_SHOW_CPLUSPLUS_API
 

@@ -217,7 +217,7 @@ int SRegExp2::Compile(const char * pPattern, SCodepage cp, int syntax, uint flag
 	return ok;
 }
 	
-bool SRegExp2::Find(const char * pText, size_t textLen, uint flags, FindResult * pResult) // TRUE if regexp in char * arg
+bool SRegExp2::Find(const char * pText, size_t textLen, uint flags, FindResult * pResult) const // TRUE if regexp in char * arg
 {
 	bool   ok = false;
 	CALLPTRMEMB(pResult, Z());
@@ -226,7 +226,7 @@ bool SRegExp2::Find(const char * pText, size_t textLen, uint flags, FindResult *
 		onig_region_init(&region);
 		//fNotBOL, fNotEOL, fNotBeginString,  fNotEndString, fNotBeginPosition
 		// @v11.0.3 remove (fNotBOL|fNotEOL|fNotBeginString|fNotEndString|fNotBeginPosition)
-		uint onig_options = SRE2_FlagsToOnigurumaOptions(flags & (/*fNotBOL|fNotEOL|fNotBeginString|fNotEndString|fNotBeginPosition*/0));
+		const uint onig_options = SRE2_FlagsToOnigurumaOptions(flags & (/*fNotBOL|fNotEOL|fNotBeginString|fNotEndString|fNotBeginPosition*/0));
 		int r = onig_search(static_cast<regex_t *>(H), reinterpret_cast<const uchar *>(pText), reinterpret_cast<const uchar *>(pText+textLen), 
 			reinterpret_cast<const uchar *>(pText), reinterpret_cast<const uchar *>(pText+textLen), &region, onig_options);
 		if(r >= 0) {
@@ -244,12 +244,12 @@ bool SRegExp2::Find(const char * pText, size_t textLen, uint flags, FindResult *
 	return ok;
 }
 
-bool SRegExp2::Find(SStrScan * pScan, uint flags)
+bool SRegExp2::Find(SStrScan * pScan, uint flags) const
 {
 	bool   ok = false;
 	const  char * p = pScan ? static_cast<const char *>(*pScan) : 0;
 	if(!isempty(p)) {
-		size_t plen = strlen(p);
+		const size_t plen = strlen(p);
 		FindResult fr;
 		if(Find(p, plen, flags, &fr)) {
 			assert(fr.getCount());
@@ -268,8 +268,8 @@ bool SRegExp2::Find(SStrScan * pScan, uint flags)
 	return ok;
 }
 
-bool SRegExp2::Find(const char * pText) { return Find(pText, sstrlen(pText), 0, 0); }
-bool SRegExp2::Find(SStrScan * pScan) { return Find(pScan, 0); }
+bool SRegExp2::Find(const char * pText) const { return Find(pText, sstrlen(pText), 0, 0); }
+bool SRegExp2::Find(SStrScan * pScan) const { return Find(pScan, 0); }
 SRegExp2::Error SRegExp2::GetLastErr() const { return LastErr; }
 bool SRegExp2::IsValid() const { return (H != 0); }
 

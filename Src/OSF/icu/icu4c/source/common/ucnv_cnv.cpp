@@ -72,10 +72,10 @@ U_CFUNC void ucnv_fromUWriteBytes(UConverter * cnv,
 	}
 }
 
-U_CFUNC void ucnv_toUWriteUChars(UConverter * cnv, const UChar * uchars, int32_t length, UChar ** target, const UChar * targetLimit,
+U_CFUNC void ucnv_toUWriteUChars(UConverter * cnv, const char16_t * uchars, int32_t length, char16_t ** target, const char16_t * targetLimit,
     int32_t ** offsets, int32_t sourceIndex, UErrorCode * pErrorCode) 
 {
-	UChar * t = *target;
+	char16_t * t = *target;
 	int32_t * o;
 	/* write UChars */
 	if(offsets==NULL || (o = *offsets)==NULL) {
@@ -107,21 +107,21 @@ U_CFUNC void ucnv_toUWriteUChars(UConverter * cnv, const UChar * uchars, int32_t
 	}
 }
 
-U_CFUNC void ucnv_toUWriteCodePoint(UConverter * cnv, UChar32 c, UChar ** target, const UChar * targetLimit,
+U_CFUNC void ucnv_toUWriteCodePoint(UConverter * cnv, UChar32 c, char16_t ** target, const char16_t * targetLimit,
     int32_t ** offsets, int32_t sourceIndex, UErrorCode * pErrorCode) 
 {
 	int32_t * o;
-	UChar * t = *target;
+	char16_t * t = *target;
 	if(t<targetLimit) {
 		if(c<=0xffff) {
-			*t++ = (UChar)c;
+			*t++ = (char16_t)c;
 			c = U_SENTINEL;
 		}
 		else { /* c is a supplementary code point */
 			*t++ = U16_LEAD(c);
 			c = U16_TRAIL(c);
 			if(t<targetLimit) {
-				*t++ = (UChar)c;
+				*t++ = (char16_t)c;
 				c = U_SENTINEL;
 			}
 		}

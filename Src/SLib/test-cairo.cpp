@@ -107,13 +107,13 @@ static void _cairo_test_init(cairo_test_context_t * ctx, const cairo_test_contex
 	ctx->malloc_failure = 0;
 #if HAVE_MEMFAULT
 	if(getenv("CAIRO_TEST_MALLOC_FAILURE"))
-		ctx->malloc_failure = atoi(getenv("CAIRO_TEST_MALLOC_FAILURE"));
+		ctx->malloc_failure = satoi(getenv("CAIRO_TEST_MALLOC_FAILURE"));
 	if(ctx->malloc_failure && !RUNNING_ON_MEMFAULT())
 		ctx->malloc_failure = 0;
 #endif
 	ctx->timeout = cairo_test_timeout;
 	if(getenv("CAIRO_TEST_TIMEOUT"))
-		ctx->timeout = atoi(getenv("CAIRO_TEST_TIMEOUT"));
+		ctx->timeout = satoi(getenv("CAIRO_TEST_TIMEOUT"));
 	xasprintf(&log_name, "%s/%s%s", ctx->output, ctx->test_name, CAIRO_TEST_LOG_SUFFIX);
 	_xunlink(NULL, log_name);
 	ctx->log_file = fopen(log_name, "a");

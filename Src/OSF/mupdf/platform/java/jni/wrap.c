@@ -292,7 +292,7 @@ static inline jobject to_PDFObject_safe(fz_context * ctx, JNIEnv * env, pdf_obj 
 	return jobj;
 }
 
-static inline jobject to_Point_safe(fz_context * ctx, JNIEnv * env, fz_point point)
+static inline jobject to_Point_safe(fz_context * ctx, JNIEnv * env, SPoint2F point)
 {
 	if(!ctx) return NULL;
 
@@ -797,9 +797,9 @@ static inline fz_matrix from_Matrix(JNIEnv * env, jobject jmat)
 	return mat;
 }
 
-static inline fz_point from_Point(JNIEnv * env, jobject jpt)
+static inline SPoint2F from_Point(JNIEnv * env, jobject jpt)
 {
-	fz_point pt;
+	SPoint2F pt;
 
 	if(!jpt) {
 		pt.x = pt.y = 0;

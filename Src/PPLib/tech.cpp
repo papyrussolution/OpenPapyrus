@@ -385,6 +385,24 @@ int PPObjTech::GetGoodsListByPrc(PPID prcID, PPIDArray * pList) { return AddItem
 int PPObjTech::GetListByPrcGoods(PPID prcID, PPID goodsID, PPIDArray * pList) { return AddItemsToList(0, pList, 0, prcID, goodsID); }
 int PPObjTech::GetListByGoods(PPID goodsID, PPIDArray * pList) { return AddItemsToList(0, pList, 0, 0, goodsID); }
 int PPObjTech::DeleteObj(PPID id) { return RemoveByID(P_Tbl, id, 0); }
+int PPObjTech::GetListByGoodsStruc(PPID goodsStrucID, PPIDArray * pList) { return AddItemsToList(0, pList, 0, (TECEXDF_GSTRUC | goodsStrucID), 0); } // @v11.7.6
+
+int PPObjTech::IsChildOf(PPID techID, PPID parentID)
+{
+	int    ok = -1;
+	TechTbl::Rec rec;
+	for(PPID tec_id = techID; ok < 0 && tec_id;) {
+		if(Fetch(tec_id, &rec) > 0) {
+			if(rec.ParentID == parentID)
+				ok = 1;
+			else
+				tec_id = rec.ParentID;
+		}
+		else
+			ok = 0;
+	}
+	return ok;
+}
 
 int PPObjTech::GetChildList(PPID techID, PPIDArray & rList)
 {
@@ -399,7 +417,33 @@ int PPObjTech::GetChildList(PPID techID, PPIDArray & rList)
 	return ok;
 }
 
-/*static*/int PPObjTech::SetupCombo(TDialog * dlg, uint ctlID, PPID id, long flags, PPID prcID, PPID goodsID)
+int PPObjTech::GetTerminalChildList(PPID techID, PPIDArray & rList)
+{
+	rList.Z();
+	PPIDArray recur_list;
+	Helper_GetTerminalChildList(techID, rList, recur_list);
+	return rList.getCount() ? 1 : -1;
+}
+
+int PPObjTech::Helper_GetTerminalChildList(PPID techID, PPIDArray & rList, LongArray & rRecurList)
+{
+	int    ok = 1;
+	PPIDArray inner_child_list;
+	TechTbl::Rec tec_rec;
+	if(Fetch(techID, &tec_rec) > 0 && !rRecurList.lsearch(techID)) {
+		GetChildList(techID, inner_child_list);
+		if(inner_child_list.getCount()) {
+			for(uint i = 0; i < inner_child_list.getCount(); i++) {
+				Helper_GetTerminalChildList(inner_child_list.get(i), rList, rRecurList); // @recursion
+			}
+		}
+		else
+			rList.add(techID);
+	}
+	return ok;
+}
+
+/*static*/int PPObjTech::SetupCombo(TDialog * dlg, uint ctlID, PPID id, long olwFlags, PPID prcID, PPID goodsID)
 {
 	int    ok = 0;
 	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
@@ -408,7 +452,7 @@ int PPObjTech::GetChildList(PPID techID, PPIDArray & rList)
 		StrAssocArray * p_list = new StrAssocArray;
 		if(p_list) {
 			if(tec_obj.AddItemsToList(p_list, 0, 0, prcID, goodsID)) {
-				PPObjListWindow * p_lw = new PPObjListWindow(PPOBJ_TECH, p_list, OLW_CANINSERT, 0);
+				PPObjListWindow * p_lw = new PPObjListWindow(PPOBJ_TECH, p_list, olwFlags | OLW_CANINSERT, 0);
 				if(p_lw) {
 					if(id == 0 && p_list->getCount() == 1)
 						id = p_list->Get(0).Id;

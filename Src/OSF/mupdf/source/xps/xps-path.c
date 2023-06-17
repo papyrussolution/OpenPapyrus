@@ -45,7 +45,7 @@ char * xps_parse_point(fz_context * ctx, xps_document * doc, char * s_in, float 
 static void xps_draw_arc_segment(fz_context * ctx, xps_document * doc, fz_path * path, fz_matrix mtx, float th0, float th1, int iscw)
 {
 	float t, d;
-	fz_point p;
+	SPoint2F p;
 	while(th1 < th0)
 		th1 += SMathConst::Pi_f * 2;
 	d = SMathConst::Pi_f / 180; /* 1-degree precision */
@@ -65,7 +65,7 @@ static void xps_draw_arc_segment(fz_context * ctx, xps_document * doc, fz_path *
 }
 
 /* Given two vectors find the angle between them. */
-static float angle_between(fz_point u, fz_point v)
+static float angle_between(SPoint2F u, SPoint2F v)
 {
 	float det = u.x * v.y - u.y * v.x;
 	float sign = (det < 0 ? -1 : 1);
@@ -102,7 +102,7 @@ static void xps_draw_arc(fz_context * ctx, xps_document * doc, fz_path * path,
 {
 	fz_matrix rotmat, revmat;
 	fz_matrix mtx;
-	fz_point pt;
+	SPoint2F pt;
 	float rx, ry;
 	float x1, y1, x2, y2;
 	float x1t, y1t;
@@ -172,7 +172,7 @@ static void xps_draw_arc(fz_context * ctx, xps_document * doc, fz_path * path,
 
 	/* F.6.5.4 */
 	{
-		fz_point coord1, coord2, coord3, coord4;
+		SPoint2F coord1, coord2, coord3, coord4;
 		coord1.x = 1;
 		coord1.y = 0;
 		coord2.x = (x1t - cxt) / rx;
@@ -199,7 +199,7 @@ fz_path * xps_parse_abbreviated_geometry(fz_context * ctx, xps_document * doc, c
 	char ** args = NULL;
 	char ** pargs;
 	char * s = geom;
-	fz_point pt;
+	SPoint2F pt;
 	int i, n;
 	int cmd, old;
 	float x1, y1, x2, y2, x3, y3;
@@ -494,7 +494,7 @@ static void xps_parse_poly_quadratic_bezier_segment(fz_context * ctx,
 	char * is_stroked_att = fz_xml_att(root, "IsStroked");
 	float x[2], y[2];
 	int is_stroked;
-	fz_point pt;
+	SPoint2F pt;
 	char * s;
 	int n;
 	if(!points_att) {

@@ -120,8 +120,8 @@
  * <pre><code>
  * char *tgtstr = "The quick brown fox jumped over the lazy fox";
  * char *patstr = "fox";
- * UChar target[64];
- * UChar pattern[16];
+ * char16_t target[64];
+ * char16_t pattern[16];
  * UErrorCode status = U_ZERO_ERROR;
  * u_uastrcpy(target, tgtstr);
  * u_uastrcpy(pattern, patstr);
@@ -307,9 +307,9 @@ typedef enum {
  * @return search iterator data structure, or NULL if there is an error.
  * @stable ICU 2.4
  */
-U_CAPI UStringSearch * U_EXPORT2 usearch_open(const UChar    * pattern,
+U_CAPI UStringSearch * U_EXPORT2 usearch_open(const char16_t    * pattern,
     int32_t patternlength,
-    const UChar          * text,
+    const char16_t          * text,
     int32_t textlength,
     const char * locale,
     UBreakIterator * breakiter,
@@ -344,9 +344,9 @@ U_CAPI UStringSearch * U_EXPORT2 usearch_open(const UChar    * pattern,
  * @return search iterator data structure, or NULL if there is an error.
  * @stable ICU 2.4
  */
-U_CAPI UStringSearch * U_EXPORT2 usearch_openFromCollator(const UChar          * pattern,
+U_CAPI UStringSearch * U_EXPORT2 usearch_openFromCollator(const char16_t          * pattern,
     int32_t patternlength,
-    const UChar          * text,
+    const char16_t          * text,
     int32_t textlength,
     const UCollator      * collator,
     UBreakIterator * breakiter,
@@ -491,7 +491,7 @@ U_CAPI int32_t U_EXPORT2 usearch_getMatchedLength(const UStringSearch * strsrch)
  * Pre-flighting can be either done with length = 0 or the API
  * <code>usearch_getMatchedLength</code>.
  * @param strsrch search iterator data struct
- * @param result UChar buffer to store the matched string
+ * @param result char16_t buffer to store the matched string
  * @param resultCapacity length of the result buffer
  * @param status error returned if result is not large enough
  * @return exact length of the matched text, not counting the null-termination
@@ -503,7 +503,7 @@ U_CAPI int32_t U_EXPORT2 usearch_getMatchedLength(const UStringSearch * strsrch)
  * @stable ICU 2.4
  */
 U_CAPI int32_t U_EXPORT2 usearch_getMatchedText(const UStringSearch * strsrch,
-    UChar         * result,
+    char16_t         * result,
     int32_t resultCapacity,
     UErrorCode * status);
 
@@ -561,7 +561,7 @@ U_CAPI const UBreakIterator * U_EXPORT2 usearch_getBreakIterator(const UStringSe
  * @stable ICU 2.4
  */
 U_CAPI void U_EXPORT2 usearch_setText(UStringSearch * strsrch,
-    const UChar         * text,
+    const char16_t         * text,
     int32_t textlength,
     UErrorCode * status);
 
@@ -573,7 +573,7 @@ U_CAPI void U_EXPORT2 usearch_setText(UStringSearch * strsrch,
  * @see #usearch_setText
  * @stable ICU 2.4
  */
-U_CAPI const UChar * U_EXPORT2 usearch_getText(const UStringSearch * strsrch,
+U_CAPI const char16_t * U_EXPORT2 usearch_getText(const UStringSearch * strsrch,
     int32_t       * length);
 
 /**
@@ -619,7 +619,7 @@ U_CAPI void U_EXPORT2 usearch_setCollator(UStringSearch * strsrch,
  * @stable ICU 2.4
  */
 U_CAPI void U_EXPORT2 usearch_setPattern(UStringSearch * strsrch,
-    const UChar         * pattern,
+    const char16_t         * pattern,
     int32_t patternlength,
     UErrorCode * status);
 
@@ -631,7 +631,7 @@ U_CAPI void U_EXPORT2 usearch_setPattern(UStringSearch * strsrch,
  * @return pattern string
  * @stable ICU 2.4
  */
-U_CAPI const UChar * U_EXPORT2 usearch_getPattern(const UStringSearch * strsrch,
+U_CAPI const char16_t * U_EXPORT2 usearch_getPattern(const UStringSearch * strsrch,
     int32_t       * length);
 
 /* methods ------------------------------------------------------------- */

@@ -232,7 +232,7 @@ int32_t UnicodeString::doExtract(int32_t start, int32_t length,
 		return 0;
 	}
 
-	const UChar * src = getArrayStart()+start, * srcLimit = src+length;
+	const char16_t * src = getArrayStart()+start, * srcLimit = src+length;
 	char * originalDest = dest;
 	const char * destLimit;
 
@@ -343,7 +343,7 @@ void UnicodeString::doCodepageCreate(const char * codepageData,
 	// set up the conversion parameters
 	const char * mySource     = codepageData;
 	const char * mySourceEnd  = mySource + dataLength;
-	UChar * array, * myTarget;
+	char16_t * array, * myTarget;
 
 	// estimate the size needed:
 	int32_t arraySize;
@@ -352,7 +352,7 @@ void UnicodeString::doCodepageCreate(const char * codepageData,
 		arraySize = US_STACKBUF_SIZE;
 	}
 	else {
-		// 1.25 UChar's per source byte should cover most cases
+		// 1.25 char16_t's per source byte should cover most cases
 		arraySize = dataLength + (dataLength >> 2);
 	}
 
@@ -376,7 +376,7 @@ void UnicodeString::doCodepageCreate(const char * codepageData,
 			// keep the previous conversion results
 			doCopyArray = TRUE;
 			// estimate the new size needed, larger than before
-			// try 2 UChar's per remaining source byte
+			// try 2 char16_t's per remaining source byte
 			arraySize = (int32_t)(length() + 2 * (mySourceEnd - mySource));
 		}
 		else {

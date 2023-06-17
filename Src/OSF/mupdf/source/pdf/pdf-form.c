@@ -772,11 +772,8 @@ void pdf_field_set_text_color(fz_context * ctx, pdf_obj * field, pdf_obj * col)
 	const char * font;
 	float size, color[3], black;
 	const char * da = pdf_to_str_buf(ctx, pdf_dict_get_inheritable(ctx, field, PDF_NAME(DA)));
-
 	pdf_parse_default_appearance(ctx, da, &font, &size, color);
-
-	switch(pdf_array_len(ctx, col))
-	{
+	switch(pdf_array_len(ctx, col)) {
 		default:
 		    color[0] = color[1] = color[2] = 0;
 		    break;
@@ -790,12 +787,11 @@ void pdf_field_set_text_color(fz_context * ctx, pdf_obj * field, pdf_obj * col)
 		    break;
 		case 4:
 		    black = pdf_array_get_real(ctx, col, 3);
-		    color[0] = 1 - fz_min(1, pdf_array_get_real(ctx, col, 0) + black);
-		    color[1] = 1 - fz_min(1, pdf_array_get_real(ctx, col, 1) + black);
-		    color[2] = 1 - fz_min(1, pdf_array_get_real(ctx, col, 2) + black);
+		    color[0] = 1.0f - smin(1.0f, pdf_array_get_real(ctx, col, 0) + black);
+		    color[1] = 1.0f - smin(1.0f, pdf_array_get_real(ctx, col, 1) + black);
+		    color[2] = 1.0f - smin(1.0f, pdf_array_get_real(ctx, col, 2) + black);
 		    break;
 	}
-
 	pdf_print_default_appearance(ctx, buf, sizeof buf, font, size, color);
 	pdf_dict_put_string(ctx, field, PDF_NAME(DA), buf, strlen(buf));
 	pdf_field_mark_dirty(ctx, field);
@@ -1714,62 +1710,23 @@ static void pdf_execute_action_chain(fz_context * ctx, pdf_document * doc, pdf_o
 	fz_rethrow(ctx);
 }
 
-static void pdf_execute_action(fz_context * ctx, pdf_document * doc, pdf_obj * target, const char * path)
+static void STDCALL pdf_execute_action(fz_context * ctx, pdf_document * doc, pdf_obj * target, const char * path)
 {
 	pdf_obj * action = pdf_dict_getp_inheritable(ctx, target, path);
 	if(action)
 		pdf_execute_action_chain(ctx, doc, target, path, action);
 }
 
-void pdf_document_event_will_close(fz_context * ctx, pdf_document * doc)
-{
-	pdf_execute_action(ctx, doc, pdf_trailer(ctx, doc), "Root/AA/WC");
-}
-
-void pdf_document_event_will_save(fz_context * ctx, pdf_document * doc)
-{
-	pdf_execute_action(ctx, doc, pdf_trailer(ctx, doc), "Root/AA/WS");
-}
-
-void pdf_document_event_did_save(fz_context * ctx, pdf_document * doc)
-{
-	pdf_execute_action(ctx, doc, pdf_trailer(ctx, doc), "Root/AA/DS");
-}
-
-void pdf_document_event_will_print(fz_context * ctx, pdf_document * doc)
-{
-	pdf_execute_action(ctx, doc, pdf_trailer(ctx, doc), "Root/AA/WP");
-}
-
-void pdf_document_event_did_print(fz_context * ctx, pdf_document * doc)
-{
-	pdf_execute_action(ctx, doc, pdf_trailer(ctx, doc), "Root/AA/DP");
-}
-
-void pdf_page_event_open(fz_context * ctx, pdf_page * page)
-{
-	pdf_execute_action(ctx, page->doc, page->obj, "AA/O");
-}
-
-void pdf_page_event_close(fz_context * ctx, pdf_page * page)
-{
-	pdf_execute_action(ctx, page->doc, page->obj, "AA/C");
-}
-
-void pdf_annot_event_enter(fz_context * ctx, pdf_annot * annot)
-{
-	pdf_execute_action(ctx, annot->page->doc, annot->obj, "AA/E");
-}
-
-void pdf_annot_event_exit(fz_context * ctx, pdf_annot * annot)
-{
-	pdf_execute_action(ctx, annot->page->doc, annot->obj, "AA/X");
-}
-
-void pdf_annot_event_down(fz_context * ctx, pdf_annot * annot)
-{
-	pdf_execute_action(ctx, annot->page->doc, annot->obj, "AA/D");
-}
+void pdf_document_event_will_close(fz_context * ctx, pdf_document * doc) { pdf_execute_action(ctx, doc, pdf_trailer(ctx, doc), "Root/AA/WC"); }
+void pdf_document_event_will_save(fz_context * ctx, pdf_document * doc) { pdf_execute_action(ctx, doc, pdf_trailer(ctx, doc), "Root/AA/WS"); }
+void pdf_document_event_did_save(fz_context * ctx, pdf_document * doc) { pdf_execute_action(ctx, doc, pdf_trailer(ctx, doc), "Root/AA/DS"); }
+void pdf_document_event_will_print(fz_context * ctx, pdf_document * doc) { pdf_execute_action(ctx, doc, pdf_trailer(ctx, doc), "Root/AA/WP"); }
+void pdf_document_event_did_print(fz_context * ctx, pdf_document * doc) { pdf_execute_action(ctx, doc, pdf_trailer(ctx, doc), "Root/AA/DP"); }
+void pdf_page_event_open(fz_context * ctx, pdf_page * page) { pdf_execute_action(ctx, page->doc, page->obj, "AA/O"); }
+void pdf_page_event_close(fz_context * ctx, pdf_page * page) { pdf_execute_action(ctx, page->doc, page->obj, "AA/C"); }
+void pdf_annot_event_enter(fz_context * ctx, pdf_annot * annot) { pdf_execute_action(ctx, annot->page->doc, annot->obj, "AA/E"); }
+void pdf_annot_event_exit(fz_context * ctx, pdf_annot * annot) { pdf_execute_action(ctx, annot->page->doc, annot->obj, "AA/X"); }
+void pdf_annot_event_down(fz_context * ctx, pdf_annot * annot) { pdf_execute_action(ctx, annot->page->doc, annot->obj, "AA/D"); }
 
 void pdf_annot_event_up(fz_context * ctx, pdf_annot * annot)
 {
@@ -1780,35 +1737,12 @@ void pdf_annot_event_up(fz_context * ctx, pdf_annot * annot)
 		pdf_execute_action(ctx, annot->page->doc, annot->obj, "AA/U");
 }
 
-void pdf_annot_event_focus(fz_context * ctx, pdf_annot * annot)
-{
-	pdf_execute_action(ctx, annot->page->doc, annot->obj, "AA/Fo");
-}
-
-void pdf_annot_event_blur(fz_context * ctx, pdf_annot * annot)
-{
-	pdf_execute_action(ctx, annot->page->doc, annot->obj, "AA/Bl");
-}
-
-void pdf_annot_event_page_open(fz_context * ctx, pdf_annot * annot)
-{
-	pdf_execute_action(ctx, annot->page->doc, annot->obj, "AA/PO");
-}
-
-void pdf_annot_event_page_close(fz_context * ctx, pdf_annot * annot)
-{
-	pdf_execute_action(ctx, annot->page->doc, annot->obj, "AA/PC");
-}
-
-void pdf_annot_event_page_visible(fz_context * ctx, pdf_annot * annot)
-{
-	pdf_execute_action(ctx, annot->page->doc, annot->obj, "AA/PV");
-}
-
-void pdf_annot_event_page_invisible(fz_context * ctx, pdf_annot * annot)
-{
-	pdf_execute_action(ctx, annot->page->doc, annot->obj, "AA/PI");
-}
+void pdf_annot_event_focus(fz_context * ctx, pdf_annot * annot) { pdf_execute_action(ctx, annot->page->doc, annot->obj, "AA/Fo"); }
+void pdf_annot_event_blur(fz_context * ctx, pdf_annot * annot) { pdf_execute_action(ctx, annot->page->doc, annot->obj, "AA/Bl"); }
+void pdf_annot_event_page_open(fz_context * ctx, pdf_annot * annot) { pdf_execute_action(ctx, annot->page->doc, annot->obj, "AA/PO"); }
+void pdf_annot_event_page_close(fz_context * ctx, pdf_annot * annot) { pdf_execute_action(ctx, annot->page->doc, annot->obj, "AA/PC"); }
+void pdf_annot_event_page_visible(fz_context * ctx, pdf_annot * annot) { pdf_execute_action(ctx, annot->page->doc, annot->obj, "AA/PV"); }
+void pdf_annot_event_page_invisible(fz_context * ctx, pdf_annot * annot) { pdf_execute_action(ctx, annot->page->doc, annot->obj, "AA/PI"); }
 
 int pdf_field_event_keystroke(fz_context * ctx, pdf_document * doc, pdf_obj * field, pdf_keystroke_event * evt)
 {

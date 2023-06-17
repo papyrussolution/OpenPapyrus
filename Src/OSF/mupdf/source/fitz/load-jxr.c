@@ -137,7 +137,7 @@ static inline void jxr_unpack_sample(fz_context * ctx, struct info * info, jxr_i
 		return;
 	}
 
-	comps = fz_mini(fz_colorspace_n(ctx, info->cspace), jxr_get_IMAGE_CHANNELS(image));
+	comps = smin(fz_colorspace_n(ctx, info->cspace), jxr_get_IMAGE_CHANNELS(image));
 	alpha = jxr_get_ALPHACHANNEL_FLAG(image);
 	bpc = jxr_get_CONTAINER_BPC(image);
 
@@ -299,15 +299,13 @@ static void jxr_read_image(fz_context * ctx, const uchar * data, int size, struc
 		info->stride = info->width * (fz_colorspace_n(ctx, info->cspace) + 1);
 
 		if(!only_metadata) {
-			unsigned long image_offset;
+			ulong image_offset;
 			uchar image_band;
-			unsigned long alpha_offset;
+			ulong alpha_offset;
 			uchar alpha_band;
-
 			info->ctx = ctx;
 			info->samples = Memento_label(fz_malloc(ctx, info->stride * info->height), "jxr_samples");
 			memset(info->samples, 0xff, info->stride * info->height);
-
 			image_offset = jxrc_image_offset(container, 0);
 			image_band = jxrc_image_band_presence(container, 0);
 			alpha_offset = jxrc_alpha_offset(container, 0);

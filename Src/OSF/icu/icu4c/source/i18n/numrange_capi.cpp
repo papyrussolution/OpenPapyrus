@@ -73,7 +73,7 @@ const UFormattedNumberRangeData* number::impl::validateUFormattedNumberRange(
 	return &result->fData;
 }
 
-U_CAPI UNumberRangeFormatter* U_EXPORT2 unumrf_openForSkeletonWithCollapseAndIdentityFallback(const UChar * skeleton,
+U_CAPI UNumberRangeFormatter* U_EXPORT2 unumrf_openForSkeletonWithCollapseAndIdentityFallback(const char16_t * skeleton,
     int32_t skeletonLen,
     UNumberRangeCollapse collapse,
     UNumberRangeIdentityFallback identityFallback,

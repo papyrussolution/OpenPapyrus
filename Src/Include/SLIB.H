@@ -1062,7 +1062,7 @@
 //
 // Максимальное количество типов в таблице
 //
-#define TYPE_TAB_SIZ 64
+// @v11.7.6 (replaced with SlConst::TypeTabSize) #define TYPE_TAB_SIZ 64
 
 #define S_ARRAY_INT  0x82
 #define S_ARRAY_DBL  0x83
@@ -1329,6 +1329,7 @@ public:
 	static constexpr char DefaultOverflowSymb  = '#';
 	static constexpr char DefaultPasswordSymb  = '*';
 	static constexpr uint VectorImageMask = 0x00008000U;
+	static constexpr uint TypeTabSize = 64U; // @v11.7.6
 	static constexpr uint64 Ssc_CompressionSignature = 0xFDB975312468ACE0ULL; // Сигнатура сжатия в буфере SBuffer
 	//
 	// Descr: Контрольный таймаут ожидания для заданных бесконечных таймаутов (milliseconds).
@@ -1350,6 +1351,7 @@ public:
 		//0x9e3779b9 is the integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
 	static constexpr uint32 MagicMurmurC1 = 0xcc9e2d51U; // @v11.4.0 0xcc9e2d51 // Magic number C1 for 32-bit hashing from Murmur3
 	static constexpr uint32 MagicMurmurC2 = 0x1b873593U; // @v11.4.0 0x1b873593 // Magic number C2 for 32-bit hashing from Murmur3
+	static constexpr long   OneBillion = 1000000000L; // @v11.7.6
 };
 
 // @v11.7.4 extern const SlConstParam _SlConst_Removed;
@@ -1374,6 +1376,7 @@ typedef int (* CompFunc)(const void *, const void *, void * pExtraData);
 
 #define DECL_CMPFUNC(typ)        int Cmp_##typ(const void * p1, const void * p2, void * pExtraData)
 #define IMPL_CMPFUNC(typ,p1,p2)  int Cmp_##typ(const void * p1, const void * p2, void * pExtraData)
+#define IMPL_CMPMEMBFUNC(cls,typ,p1,p2)  int cls::Cmp_##typ(const void * p1, const void * p2, void * pExtraData)
 #define PTR_CMPFUNC(typ)         Cmp_##typ
 #define CMPFUNC(typ,p1,p2)       Cmp_##typ(p1,p2,0)
 #define CMPF_LONG                Cmp_long
@@ -2085,7 +2088,8 @@ enum { // @persistent
 	slangZU      = 552, // ZULU
 	slangZUN     = 553, // ZUNI
 	slangZXX     = 554, // NO LINGUISTIC CONTENT
-	slangZZA     = 555  // ZAZA
+	slangZZA     = 555, // ZAZA
+	slangBN_BD   = 556, // 
 };
 //
 // Descr: Идентификаторы натуральных скриптов
@@ -3621,7 +3625,7 @@ inline bool FASTCALL operator < (const DateRange & r1, const DateRange & r2) { r
 
 struct TimeRange { // @persistent
 	void   Set(LTIME lowTm, LTIME uppTm);
-	void   SetZero();
+	TimeRange & Z();
 	bool   IsZero() const;
 	//
 	// Descr: Проверяет принадлежность момента tm диапазону low..upp.
@@ -4133,6 +4137,7 @@ public:
 	//   0  - не удалось сосканировать ни одного символа.
 	//
 	int    GetWord(size_t * pPos, SString & rBuf) const;
+	int    GetQStr(size_t * pPos, uint flags, SString & rBuf) const;
 	//
 	// Descr: Разбивает строку this на отдельные фрагменты, разделенные одним из символов,
 	//   перечисленных в строке pDelimChrSet. Результирующие фрагменты заносятся в
@@ -4323,8 +4328,18 @@ public:
 	SString & StripQuotes();
 	SString & FASTCALL CopyFrom(const SString &);
 	SString & FASTCALL CopyFrom(const char *);
-	SString & FASTCALL SetIfEmpty(const char *);
-	SString & FASTCALL SetIfEmpty(const SString &);
+	//
+	// Descr: Если строка this пуста (IsEmpty()), то присваивает ей z-строку pS.
+	// Returns:
+	//   *this
+	//
+	SString & FASTCALL SetIfEmpty(const char * pS);
+	//
+	// Descr: Если строка this пуста (IsEmpty()), то присваивает ей строку rS.
+	// Returns:
+	//   *this
+	//
+	SString & FASTCALL SetIfEmpty(const SString & rS);
 	int    IsAscii() const;
 	bool   IsLegalUtf8() const;
 	int    CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion);
@@ -4999,6 +5014,7 @@ FORCEINLINE int    sstrleni(const wchar_t * pStr) { return static_cast<int>(sstr
 //
 uint   FASTCALL iseol(const char * pStr, SEOLFormat eolf);
 size_t FASTCALL sstrnlen(const char * pStr, size_t maxLen);
+FORCEINLINE size_t FASTCALL sstrnlen(const uchar * pStr, size_t maxLen) { return sstrnlen(reinterpret_cast<const char *>(pStr), maxLen); }
 const char * FASTCALL sstrchr(const char * pStr, char c);
 char  * FASTCALL sstrchr(char * pStr, char c);
 const wchar_t * FASTCALL sstrchr(const wchar_t * pStr, wchar_t c);
@@ -9354,6 +9370,7 @@ public:
 		uint   CountItems;
 		uint   Min;
 		uint   Max;
+		uint   Reserve; // @v11.7.6 @alignment
 		double Average;
 		double StdDev;
 	};
@@ -9369,7 +9386,7 @@ protected:
 		int    SetVal(uint key, uint val);
 		int    FASTCALL Remove(uint pos);
 		LAssoc Val;
-		uint16 Count; // Количество элементов в точке кэша (включая Val). То есть, если Count == 0, то точка не содержит элементов.
+		uint32 Count;   // @v11.7.6 uint16-->uint32 Количество элементов в точке кэша (включая Val). То есть, если Count == 0, то точка не содержит элементов.
 		LAssoc * P_Ext;
 	};
 
@@ -9938,6 +9955,7 @@ private:
 //
 //
 class SSystem {
+	friend class SlSession; // no public ctr! private only for SlSession
 public:
 	//
 	// Классификатор систем программной инфраструктуры
@@ -10153,18 +10171,22 @@ public:
 		sslTLS_v13 = 7
 	};
 
-	static int  BigEndian();
+	static bool BigEndian();
 	static int  SGetModuleFileName(void * hModule, SString & rFileName);
 	static uint SFormatMessage(int sysErrCode, SString & rMsg);
 	static uint SFormatMessage(SString & rMsg);
 	static char FASTCALL TranslateWmCharToAnsi(uintptr_t wparam);
-	explicit SSystem(int imm);
-	int    FASTCALL GetCpuInfo();
-	int    CpuId(int feature, uint32 * pA, uint32 * pB, uint32 * pC, uint32 * pD) const;
+	static int  CpuId(int feature, uint32 * pA, uint32 * pB, uint32 * pC, uint32 * pD);
 	//
 	// Descr: Возвращает значение системного таймера в микросекундах
 	//
 	int64  GetSystemTimestampMks() const;
+	//
+	// Descr: Get current CPU frequency in hertzs - dynamic over time. Can be higher or lower than the base frequency.
+	// Returns:
+	//   0 if it fails to detect current frequency.
+	//
+	float  GetCurrCpuFreqHz() const;
 
 	uint   IsBigEndian; // @firstmember 0xfffffff - big-endian arch, 0 - low-endian
 	int64  PerfFreq;    // Frequency of the performance counter. Если !(Flags & fPerfFreqIsOk) то при инициализации PerfFreq произошла ошибка.
@@ -10180,6 +10202,17 @@ public:
 	uint32 Flags;
 	uint32 CpuCount; // @v10.9.11
 	uint32 PageSize; // @v10.9.11
+	float  CpuBaseFreq;  // @v11.7.6
+private:
+	explicit SSystem(int imm);
+	int    GetCpuInfo();
+	//
+	// Descr: Get nominal CPU frequency in hertzs - stable since OS boot.
+	// It also corresponds to the frequency of CPU's time stamp counter. 
+	// Returns: 
+	//   0 if it fails to detect base frequency.
+	//
+	static float GetBaseCpuFreqHz();
 };
 //
 // Descr: Тип функции, используемый для регистрации форматов файлов.
@@ -10986,10 +11019,10 @@ public:
 	// ARG(flags   IN): Флаги поиска. Ноль или |-комбинация одного или нескольких флагов: fNotBOL, fNotEOL, fNotBeginString,
 	//   fNotEndString, fNotBeginPosition.
 	//
-	bool   Find(const char * pText, size_t textLen, uint flags, FindResult * pResult); // TRUE if regexp in char * arg
-	bool   Find(const char * pText);
-	bool   Find(SStrScan * pScan, uint flags);
-	bool   Find(SStrScan * pScan);
+	bool   Find(const char * pText, size_t textLen, uint flags, FindResult * pResult) const; // TRUE if regexp in char * arg
+	bool   Find(const char * pText) const;
+	bool   Find(SStrScan * pScan, uint flags) const;
+	bool   Find(SStrScan * pScan) const;
 	Error  GetLastErr() const;
 	bool   IsValid() const;
 private:
@@ -14462,18 +14495,18 @@ public:
 	{
 		freeAll();
 	}
-	const T * Get(const char * pKey, uint keySize) const
+	T * Get(const char * pKey, uint keySize) const
 	{
-		const T * p_result = 0;
+		T * p_result = 0;
 		if(pKey) {
 			for(uint try_n = 0; !p_result && try_n < MaxTries; try_n++) {
 				uint  idx = SlHash::CalcHashTabIndex(pKey, keySize, getCount(), try_n);
 				uint  ex_ks = 0;
 				const void * p_ex_key = 0;
-				const void * p_ex_entry = Helper_GetByIdx(idx, &p_ex_key, &ex_ks);
+				void * p_ex_entry = Helper_GetByIdx(idx, &p_ex_key, &ex_ks);
 				if(p_ex_entry) {
 					if(ex_ks == keySize && memcmp(p_ex_key, pKey, keySize) == 0) { // found!
-						p_result = static_cast<const T *>(p_ex_entry);
+						p_result = static_cast<T *>(p_ex_entry);
 					}
 					else { // another item (conflicted)
 						;

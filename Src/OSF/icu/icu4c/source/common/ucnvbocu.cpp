@@ -370,7 +370,7 @@ static int32_t packDiff(int32_t diff) {
 
 static void U_CALLCONV _Bocu1FromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
 {
-	const UChar * sourceLimit;
+	const char16_t * sourceLimit;
 	uint8 * target;
 	int32_t targetCapacity;
 	int32_t * offsets;
@@ -378,7 +378,7 @@ static void U_CALLCONV _Bocu1FromUnicodeWithOffsets(UConverterFromUnicodeArgs * 
 	int32_t sourceIndex, nextSourceIndex;
 	/* set up the local pointers */
 	UConverter * cnv = pArgs->converter;
-	const UChar * source = pArgs->source;
+	const char16_t * source = pArgs->source;
 	sourceLimit = pArgs->sourceLimit;
 	target = (uint8 *)pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
@@ -462,7 +462,7 @@ fastSingle:
 getTrail:
 				if(source<sourceLimit) {
 					/* test the following code unit */
-					UChar trail = *source;
+					char16_t trail = *source;
 					if(U16_IS_TRAIL(trail)) {
 						++source;
 						++nextSourceIndex;
@@ -640,8 +640,8 @@ static void U_CALLCONV _Bocu1FromUnicode(UConverterFromUnicodeArgs * pArgs, UErr
 	int32_t prev, c, diff;
 	/* set up the local pointers */
 	UConverter * cnv = pArgs->converter;
-	const UChar * source = pArgs->source;
-	const UChar * sourceLimit = pArgs->sourceLimit;
+	const char16_t * source = pArgs->source;
+	const char16_t * sourceLimit = pArgs->sourceLimit;
 	target = (uint8 *)pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 	/* get the converter state from UConverter */
@@ -709,7 +709,7 @@ fastSingle:
 getTrail:
 				if(source<sourceLimit) {
 					/* test the following code unit */
-					UChar trail = *source;
+					char16_t trail = *source;
 					if(U16_IS_TRAIL(trail)) {
 						++source;
 						c = U16_GET_SUPPLEMENTARY(c, trail);
@@ -947,8 +947,8 @@ static inline int32_t decodeBocu1TrailByte(int32_t count, int32_t b) {
 
 static void U_CALLCONV _Bocu1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
 {
-	UChar * target;
-	const UChar * targetLimit;
+	char16_t * target;
+	const char16_t * targetLimit;
 	int32_t * offsets;
 	int32_t prev, count, diff, c;
 	int8 byteIndex;
@@ -994,7 +994,7 @@ fastSingle:
 		if(BOCU1_START_NEG_2<=(c = *source) && c<BOCU1_START_POS_2) {
 			c = prev+(c-BOCU1_MIDDLE);
 			if(c<0x3000) {
-				*target++ = (UChar)c;
+				*target++ = (char16_t)c;
 				*offsets++ = nextSourceIndex++;
 				prev = BOCU1_SIMPLE_PREV(c);
 			}
@@ -1006,7 +1006,7 @@ fastSingle:
 			if(c!=0x20) {
 				prev = BOCU1_ASCII_PREV;
 			}
-			*target++ = (UChar)c;
+			*target++ = (char16_t)c;
 			*offsets++ = nextSourceIndex++;
 		}
 		else {
@@ -1031,7 +1031,7 @@ fastSingle:
 			/* Write a code point directly from a single-byte difference. */
 			c = prev+(c-BOCU1_MIDDLE);
 			if(c<0x3000) {
-				*target++ = (UChar)c;
+				*target++ = (char16_t)c;
 				*offsets++ = sourceIndex;
 				prev = BOCU1_SIMPLE_PREV(c);
 				sourceIndex = nextSourceIndex;
@@ -1046,7 +1046,7 @@ fastSingle:
 			if(c!=0x20) {
 				prev = BOCU1_ASCII_PREV;
 			}
-			*target++ = (UChar)c;
+			*target++ = (char16_t)c;
 			*offsets++ = sourceIndex;
 			sourceIndex = nextSourceIndex;
 			continue;
@@ -1121,7 +1121,7 @@ getTrail:
 		/* calculate the next prev and output c */
 		prev = BOCU1_PREV(c);
 		if(c<=0xffff) {
-			*target++ = (UChar)c;
+			*target++ = (char16_t)c;
 			*offsets++ = sourceIndex;
 		}
 		else {
@@ -1173,8 +1173,8 @@ endloop:
  */
 static void U_CALLCONV _Bocu1ToUnicode(UConverterToUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
 {
-	UChar * target;
-	const UChar * targetLimit;
+	char16_t * target;
+	const char16_t * targetLimit;
 	int32_t prev, count, diff, c;
 	int8 byteIndex;
 	uint8 * bytes;
@@ -1213,7 +1213,7 @@ fastSingle:
 		if(BOCU1_START_NEG_2<=(c = *source) && c<BOCU1_START_POS_2) {
 			c = prev+(c-BOCU1_MIDDLE);
 			if(c<0x3000) {
-				*target++ = (UChar)c;
+				*target++ = (char16_t)c;
 				prev = BOCU1_SIMPLE_PREV(c);
 			}
 			else {
@@ -1224,7 +1224,7 @@ fastSingle:
 			if(c!=0x20) {
 				prev = BOCU1_ASCII_PREV;
 			}
-			*target++ = (UChar)c;
+			*target++ = (char16_t)c;
 		}
 		else {
 			break;
@@ -1246,7 +1246,7 @@ fastSingle:
 			/* Write a code point directly from a single-byte difference. */
 			c = prev+(c-BOCU1_MIDDLE);
 			if(c<0x3000) {
-				*target++ = (UChar)c;
+				*target++ = (char16_t)c;
 				prev = BOCU1_SIMPLE_PREV(c);
 				goto fastSingle;
 			}
@@ -1259,7 +1259,7 @@ fastSingle:
 			if(c!=0x20) {
 				prev = BOCU1_ASCII_PREV;
 			}
-			*target++ = (UChar)c;
+			*target++ = (char16_t)c;
 			continue;
 		}
 		else if(BOCU1_START_NEG_3<=c && c<BOCU1_START_POS_3 && source<sourceLimit) {
@@ -1329,7 +1329,7 @@ getTrail:
 		/* calculate the next prev and output c */
 		prev = BOCU1_PREV(c);
 		if(c<=0xffff) {
-			*target++ = (UChar)c;
+			*target++ = (char16_t)c;
 		}
 		else {
 			/* output surrogate pair */
@@ -1399,7 +1399,7 @@ static const UConverterStaticData _Bocu1StaticData = {
 	"BOCU-1",
 	1214, /* CCSID for BOCU-1 */
 	UCNV_IBM, UCNV_BOCU1,
-	1, 4, /* one UChar generates at least 1 byte and at most 4 bytes */
+	1, 4, /* one char16_t generates at least 1 byte and at most 4 bytes */
 	{ 0x1a, 0, 0, 0 }, 1, /* BOCU-1 never needs to write a subchar */
 	FALSE, FALSE,
 	0,

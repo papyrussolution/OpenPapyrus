@@ -635,6 +635,7 @@ static const LinguaIdent P_LinguaIdentList[] = {
 	{ slangZUN,    0, "zun" }, // Zuni
 	{ slangZXX,    0, "zxx" }, // No linguistic content
 	{ slangZZA,    0, "zza" }, // Zaza
+	{ slangBN_BD,  0, "bn-bd" },
 };
 
 void GetLinguaSymbList(StringSet & rSs)

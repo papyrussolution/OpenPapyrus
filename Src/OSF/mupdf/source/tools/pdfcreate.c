@@ -141,13 +141,13 @@ static void create_page(const char * input)
 			p = line;
 			s = fz_strsep(&p, " ");
 			if(!strcmp(s, "%%MediaBox")) {
-				mediabox.x0 = fz_atoi(fz_strsep(&p, " "));
-				mediabox.y0 = fz_atoi(fz_strsep(&p, " "));
-				mediabox.x1 = fz_atoi(fz_strsep(&p, " "));
-				mediabox.y1 = fz_atoi(fz_strsep(&p, " "));
+				mediabox.x0 = satoi(fz_strsep(&p, " "));
+				mediabox.y0 = satoi(fz_strsep(&p, " "));
+				mediabox.x1 = satoi(fz_strsep(&p, " "));
+				mediabox.y1 = satoi(fz_strsep(&p, " "));
 			}
 			else if(!strcmp(s, "%%Rotate")) {
-				rotate = fz_atoi(fz_strsep(&p, " "));
+				rotate = satoi(fz_strsep(&p, " "));
 			}
 			else if(!strcmp(s, "%%Font")) {
 				char * name = fz_strsep(&p, " ");

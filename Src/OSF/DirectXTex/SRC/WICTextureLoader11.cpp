@@ -610,12 +610,10 @@ void SetDebugTextureInfo(_In_z_ const wchar_t* fileName, _In_opt_ ID3D11Resource
 				pstrName++;
 			}
 			if(texture && *texture) {
-				(*texture)->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<UINT>(strnlen_s(pstrName, MAX_PATH)), pstrName
-				    );
+				(*texture)->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<UINT>(strnlen_s(pstrName, MAX_PATH)), pstrName);
 			}
 			if(textureView && *textureView) {
-				(*textureView)->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<UINT>(strnlen_s(pstrName, MAX_PATH)), pstrName
-				    );
+				(*textureView)->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<UINT>(strnlen_s(pstrName, MAX_PATH)), pstrName);
 			}
 		}
 	}

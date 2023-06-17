@@ -18,8 +18,7 @@ void win_install(void);
 
 /* UI */
 
-enum
-{
+enum {
 	/* regular control characters */
 	KEY_ESCAPE = 27,
 	KEY_ENTER = '\r',
@@ -59,31 +58,28 @@ enum
 };
 
 enum side { ALL, T, R, B, L };
+
 enum fill { NONE = 0, X = 1, Y = 2, BOTH = 3 };
+
 enum anchor { CENTER, N, NE, E, SE, S, SW, W, NW };
 
-struct layout
-{
+struct layout {
 	enum side side;
 	enum fill fill;
 	enum anchor anchor;
 	int padx, pady;
 };
 
-struct ui
-{
+struct ui {
 	int window_w, window_h;
-
 	int x, y;
 	int down, down_x, down_y;
 	int middle, middle_x, middle_y;
 	int right, right_x, right_y;
-
 	int scroll_x, scroll_y;
 	int key, mod, plain;
-
 	int grab_down, grab_middle, grab_right;
-	const void *hot, *active, *focus;
+	const void * hot, * active, * focus;
 	int last_cursor, cursor;
 
 	int fontsize;
@@ -91,8 +87,8 @@ struct ui
 	int lineheight;
 	int gridsize;
 
-	struct layout *layout;
-	fz_irect *cavity;
+	struct layout * layout;
+	fz_irect * cavity;
 	struct layout layout_stack[32];
 	fz_irect cavity_stack[32];
 
@@ -104,55 +100,56 @@ struct ui
 
 extern struct ui ui;
 
-void ui_init(int w, int h, const char *title);
+void ui_init(int w, int h, const char * title);
 void ui_quit(void);
 void ui_invalidate(void);
 void ui_finish(void);
 
-void ui_set_clipboard(const char *buf);
+void ui_set_clipboard(const char * buf);
 const char *ui_get_clipboard(void);
 
 void ui_init_fonts(void);
 void ui_finish_fonts(void);
 
-void ui_draw_string(float x, float y, const char *str);
-void ui_draw_string_part(float x, float y, const char *s, const char *e);
+void ui_draw_string(float x, float y, const char * str);
+void ui_draw_string_part(float x, float y, const char * s, const char * e);
 void ui_draw_character(float x, float y, int c);
 float ui_measure_character(int ucs);
-float ui_measure_string(const char *str);
-float ui_measure_string_part(const char *s, const char *e);
+float ui_measure_string(const char * str);
+float ui_measure_string_part(const char * s, const char * e);
 
-struct line { char *a, *b; };
+struct line {
+	const char * a;
+	const char * b;
+};
 
-int ui_break_lines(char *a, struct line *lines, int nlines, int width, int *maxwidth);
-void ui_draw_lines(float x, float y, struct line *lines, int n);
+int ui_break_lines(const char * a, struct line * lines, int nlines, int width, int * maxwidth);
+void ui_draw_lines(float x, float y, struct line * lines, int n);
 
-struct texture
-{
+struct texture {
 	GLuint id;
 	int x, y, w, h;
 	float s, t;
 };
 
-void ui_texture_from_pixmap(struct texture *tex, fz_pixmap *pix);
-void ui_draw_image(struct texture *tex, float x, float y);
+void ui_texture_from_pixmap(struct texture * tex, fz_pixmap * pix);
+void ui_draw_image(struct texture * tex, float x, float y);
 
-enum
-{
+enum {
 	UI_INPUT_NONE = 0,
 	UI_INPUT_EDIT = 1,
 	UI_INPUT_ACCEPT = 2,
 };
 
-struct input
-{
+struct input {
 	char text[16*1024];
-	char *end, *p, *q;
+	char * end;
+	char * p;
+	char * q;
 	int scroll;
 };
 
-struct list
-{
+struct list {
 	fz_irect area;
 	int scroll_y;
 	int item_y;
@@ -178,49 +175,48 @@ void ui_panel_begin(int w, int h, int padx, int pady, int opaque);
 void ui_panel_end(void);
 
 void ui_spacer(void);
-void ui_splitter(int *x, int min, int max, enum side side);
-void ui_label(const char *fmt, ...);
-void ui_label_with_scrollbar(char *text, int width, int height, int *scroll);
+void ui_splitter(int * x, int min, int max, enum side side);
+void ui_label(const char * fmt, ...);
+void ui_label_with_scrollbar(const char * text, int width, int height, int * scroll);
 
-int ui_button(const char *label);
+int ui_button(const char * label);
 /* flags: bit 0 -> disabled. all other bits 0 for now. */
-int ui_button_aux(const char *label, int flags);
-int ui_checkbox(const char *label, int *value);
-int ui_checkbox_aux(const char *label, int *value, int flags);
-int ui_slider(int *value, int min, int max, int width);
-int ui_select(const void *id, const char *current, const char *options[], int n);
-int ui_select_aux(const void *id, const char *current, const char *options[], int n, int flags);
+int ui_button_aux(const char * label, int flags);
+int ui_checkbox(const char * label, int * value);
+int ui_checkbox_aux(const char * label, int * value, int flags);
+int ui_slider(int * value, int min, int max, int width);
+int ui_select(const void * id, const char * current, const char * options[], int n);
+int ui_select_aux(const void * id, const char * current, const char * options[], int n, int flags);
 
-void ui_input_init(struct input *input, const char *text);
-int ui_input(struct input *input, int width, int height);
-void ui_scrollbar(int x0, int y0, int x1, int y1, int *value, int page_size, int max);
+void ui_input_init(struct input * input, const char * text);
+int ui_input(struct input * input, int width, int height);
+void ui_scrollbar(int x0, int y0, int x1, int y1, int * value, int page_size, int max);
 
-void ui_tree_begin(struct list *list, int count, int req_w, int req_h, int is_tree);
-int ui_tree_item(struct list *list, const void *id, const char *label, int selected, int depth, int is_branch, int *is_open);
-void ui_tree_end(struct list *list);
+void ui_tree_begin(struct list * list, int count, int req_w, int req_h, int is_tree);
+int ui_tree_item(struct list * list, const void * id, const char * label, int selected, int depth, int is_branch, int * is_open);
+void ui_tree_end(struct list * list);
 
-void ui_list_begin(struct list *list, int count, int req_w, int req_h);
-int ui_list_item(struct list *list, const void *id, const char *label, int selected);
-void ui_list_end(struct list *list);
+void ui_list_begin(struct list * list, int count, int req_w, int req_h);
+int ui_list_item(struct list * list, const void * id, const char * label, int selected);
+void ui_list_end(struct list * list);
 
-int ui_popup(const void *id, const char *label, int is_button, int count);
-int ui_popup_item(const char *title);
-int ui_popup_aux(const void *id, const char *label, int is_button, int count, int flags);
-int ui_popup_item_aux(const char *title, int flags);
+int ui_popup(const void * id, const char * label, int is_button, int count);
+int ui_popup_item(const char * title);
+int ui_popup_aux(const void * id, const char * label, int is_button, int count, int flags);
+int ui_popup_item_aux(const char * title, int flags);
 void ui_popup_end(void);
 
-void ui_init_open_file(const char *dir, int (*filter)(const char *fn));
-int ui_open_file(char filename[], const char *label);
-void ui_init_save_file(const char *path, int (*filter)(const char *fn));
-int ui_save_file(char filename[], void (*extra_panel)(void), const char *label);
+void ui_init_open_file(const char * dir, int (*filter)(const char * fn));
+int ui_open_file(char filename[], const char * label);
+void ui_init_save_file(const char * path, int (*filter)(const char * fn));
+int ui_save_file(char filename[], void (*extra_panel)(void), const char * label);
 
-void ui_show_warning_dialog(const char *fmt, ...);
-void ui_show_error_dialog(const char *fmt, ...);
+void ui_show_warning_dialog(const char * fmt, ...);
+void ui_show_error_dialog(const char * fmt, ...);
 
 /* Theming */
 
-enum
-{
+enum {
 	UI_COLOR_PANEL = 0xc0c0c0,
 	UI_COLOR_BUTTON = 0xc0c0c0,
 	UI_COLOR_SCROLLBAR = 0xdfdfdf,
@@ -243,11 +239,11 @@ void ui_draw_ibevel_rect(fz_irect area, unsigned int fill, int depressed);
 
 /* App */
 
-extern fz_context *ctx;
-extern pdf_document *pdf;
-extern pdf_page *page;
-extern fz_stext_page *page_text;
-extern pdf_annot *selected_annot;
+extern fz_context * ctx;
+extern pdf_document * pdf;
+extern pdf_page * page;
+extern fz_stext_page * page_text;
+extern pdf_annot * selected_annot;
 extern fz_matrix draw_page_ctm, view_page_ctm, view_page_inv_ctm;
 extern fz_rect page_bounds, draw_page_bounds, view_page_bounds;
 extern fz_irect view_page_area;
@@ -255,7 +251,7 @@ extern char filename[];
 extern int showform;
 extern int showannotate;
 extern int reloadrequested;
-extern char *search_needle;
+extern char * search_needle;
 extern int search_hit_count;
 extern fz_quad search_hit_quads[];
 
@@ -265,6 +261,7 @@ enum {
 	ANNOTATE_MODE_NORMAL = 1,
 	ANNOTATE_MODE_REDACT = 2
 };
+
 void toggle_annotate(int mode);
 void run_main_loop(void);
 void do_annotate_panel(void);
@@ -279,7 +276,7 @@ void reload(void);
 void do_save_pdf_file(void);
 void do_save_signed_pdf_file(void);
 int do_sign(void);
-void trace_action(const char *fmt, ...);
+void trace_action(const char * fmt, ...);
 void trace_page_update(void);
 void trace_save_snapshot(void);
 

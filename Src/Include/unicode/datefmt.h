@@ -1,30 +1,20 @@
+// DATEFMT.H
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ********************************************************************************
- *   Copyright (C) 1997-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- ********************************************************************************
- *
- * File DATEFMT.H
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   02/19/97    aliu        Converted from java.
- *   04/01/97    aliu        Added support for centuries.
- *   07/23/98    stephen     JDK 1.2 sync
- *   11/15/99    weiv        Added support for week of year/day of week formatting
- ********************************************************************************
- */
-
+// Copyright (C) 1997-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 02/19/97    aliu        Converted from java.
+// 04/01/97    aliu        Added support for centuries.
+// 07/23/98    stephen     JDK 1.2 sync
+// 11/15/99    weiv        Added support for week of year/day of week formatting
+// 
 #ifndef DATEFMT_H
 #define DATEFMT_H
 
 #include "unicode/utypes.h"
 
 #if U_SHOW_CPLUSPLUS_API
-
 #if !UCONFIG_NO_FORMATTING
 
 #include "unicode/udat.h"
@@ -155,7 +145,6 @@ template class U_I18N_API EnumSet<UDateFormatBooleanAttribute,
  */
 class U_I18N_API DateFormat : public Format {
 public:
-
 	/**
 	 * Constants for various style patterns. These reflect the order of items in
 	 * the DateTimePatterns resource. There are 4 time patterns, 4 date patterns,
@@ -188,17 +177,11 @@ public:
 
 		// relative dates
 		kRelative = (1 << 7),
-
 		kFullRelative = (kFull | kRelative),
-
 		kLongRelative = kLong | kRelative,
-
 		kMediumRelative = kMedium | kRelative,
-
 		kShortRelative = kShort | kRelative,
-
 		kDefault      = kMedium,
-
 		/**
 		 * These constants are provided for backwards compatibility only.
 		 * Please use the C++ style constants defined above.
@@ -229,9 +212,7 @@ public:
 	 * @stable ICU 2.0
 	 */
 	virtual bool operator==(const Format&) const override;
-
 	using Format::format;
-
 	/**
 	 * Format an object to produce a string. This method handles Formattable
 	 * objects with a UDate type. If a the Formattable object type is not a Date,

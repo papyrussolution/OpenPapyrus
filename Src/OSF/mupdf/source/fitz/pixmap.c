@@ -1380,7 +1380,7 @@ fz_pixmap * fz_convert_indexed_pixmap_to_base(fz_context * ctx, const fz_pixmap 
 				int v = *s++;
 				int a = *s++;
 				int aa = a + (a>>7);
-				v = fz_mini(v, high);
+				v = smin(v, high);
 				for(k = 0; k < n; k++)
 					*d++ = (aa * lookup[v * n + k] + 128)>>8;
 				*d++ = a;
@@ -1393,7 +1393,7 @@ fz_pixmap * fz_convert_indexed_pixmap_to_base(fz_context * ctx, const fz_pixmap 
 		for(y = 0; y < src->h; y++) {
 			for(x = 0; x < src->w; x++) {
 				int v = *s++;
-				v = fz_mini(v, high);
+				v = smin(v, high);
 				for(k = 0; k < n; k++)
 					*d++ = lookup[v * n + k];
 			}

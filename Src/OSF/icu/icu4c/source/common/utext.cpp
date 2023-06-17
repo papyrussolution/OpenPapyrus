@@ -99,13 +99,13 @@ U_CAPI void U_EXPORT2 utext_setNativeIndex(UText * ut, int64_t index)
 	// The convention is that the index must always be on a code point boundary.
 	// Adjust the index position if it is in the middle of a surrogate pair.
 	if(ut->chunkOffset<ut->chunkLength) {
-		UChar c = ut->chunkContents[ut->chunkOffset];
+		char16_t c = ut->chunkContents[ut->chunkOffset];
 		if(U16_IS_TRAIL(c)) {
 			if(ut->chunkOffset==0) {
 				ut->pFuncs->access(ut, ut->chunkNativeStart, FALSE);
 			}
 			if(ut->chunkOffset>0) {
-				UChar lead = ut->chunkContents[ut->chunkOffset-1];
+				char16_t lead = ut->chunkContents[ut->chunkOffset-1];
 				if(U16_IS_LEAD(lead)) {
 					ut->chunkOffset--;
 				}
@@ -124,7 +124,7 @@ U_CAPI int64_t U_EXPORT2 utext_getPreviousNativeIndex(UText * ut)
 	int32_t i = ut->chunkOffset - 1;
 	int64_t result;
 	if(i >= 0) {
-		UChar c = ut->chunkContents[i];
+		char16_t c = ut->chunkContents[i];
 		if(U16_IS_TRAIL(c) == FALSE) {
 			if(i <= ut->nativeIndexingLimit) {
 				result = ut->chunkNativeStart + i;
@@ -371,7 +371,7 @@ U_CAPI UChar32 U_EXPORT2 utext_previous32From(UText * ut, int64_t index)
 	return cPrev;
 }
 
-U_CAPI int32_t U_EXPORT2 utext_extract(UText * ut, int64_t start, int64_t limit, UChar * dest, int32_t destCapacity, UErrorCode * status) 
+U_CAPI int32_t U_EXPORT2 utext_extract(UText * ut, int64_t start, int64_t limit, char16_t * dest, int32_t destCapacity, UErrorCode * status) 
 {
 	return ut->pFuncs->extract(ut, start, limit, dest, destCapacity, status);
 }
@@ -408,7 +408,7 @@ U_CAPI bool U_EXPORT2 utext_hasMetaData(const UText * ut)
 	return b;
 }
 
-U_CAPI int32_t U_EXPORT2 utext_replace(UText * ut, int64_t nativeStart, int64_t nativeLimit, const UChar * replacementText, int32_t replacementLength, UErrorCode * status)
+U_CAPI int32_t U_EXPORT2 utext_replace(UText * ut, int64_t nativeStart, int64_t nativeLimit, const char16_t * replacementText, int32_t replacementLength, UErrorCode * status)
 {
 	if(U_FAILURE(*status)) {
 		return 0;
@@ -726,8 +726,8 @@ U_CDECL_END
 //              utext.q    pointer to the other buffer.
 //
 // Chunk size.
-//     Must be less than 85 (256/3), because of byte mapping from UChar indexes to native indexes.
-//     Worst case is three native bytes to one UChar.  (Supplemenaries are 4 native bytes
+//     Must be less than 85 (256/3), because of byte mapping from char16_t indexes to native indexes.
+//     Worst case is three native bytes to one char16_t.  (Supplemenaries are 4 native bytes
 //     to two UChars.)
 //     The longest illegal byte sequence treated as a single error (and converted to U+FFFD)
 //     is a three-byte sequence (truncated four-byte sequence).
@@ -736,7 +736,7 @@ enum { UTF8_TEXT_CHUNK_SIZE = 32 };
 
 //
 // UTF8Buf  Two of these structs will be set up in the UText's extra allocated space.
-//          Each contains the UChar chunk buffer, the to and from native maps, and
+//          Each contains the char16_t chunk buffer, the to and from native maps, and
 //          header info.
 //
 //     because backwards iteration fills the buffers starting at the end and
@@ -749,7 +749,7 @@ enum { UTF8_TEXT_CHUNK_SIZE = 32 };
 //
 
 struct UTF8Buf {
-	int32_t bufNativeStart; // Native index of first char in UChar buf
+	int32_t bufNativeStart; // Native index of first char in char16_t buf
 	int32_t bufNativeLimit; // Native index following last char in buf.
 	int32_t bufStartIdx;                         // First filled position in buf.
 	int32_t bufLimitIdx;                         // Limit of filled range in buf.
@@ -759,13 +759,13 @@ struct UTF8Buf {
 	                                             //   Set to bufNativeStart when filling forwards.
 	                                             //   Set to computed value when filling backwards.
 
-	UChar buf[UTF8_TEXT_CHUNK_SIZE+4];           // The UChar buffer.  Requires one extra position beyond the
+	char16_t buf[UTF8_TEXT_CHUNK_SIZE+4];           // The char16_t buffer.  Requires one extra position beyond the
 	                                             //   the chunk size, to allow for surrogate at the end.
 	                                             //   Length must be identical to mapToNative array, below,
 	                                             //   because of the way indexing works when the array is
 	                                             //   filled backwards during a reverse iteration.  Thus,
 	                                             //   the additional extra size.
-	uint8 mapToNative[UTF8_TEXT_CHUNK_SIZE+4]; // map UChar index in buf to
+	uint8 mapToNative[UTF8_TEXT_CHUNK_SIZE+4]; // map char16_t index in buf to
 	                                             //  native offset from bufNativeStart.
 	                                             //  Requires two extra slots,
 	                                             //    one for a supplementary starting in the last normal position,
@@ -1080,7 +1080,7 @@ fillForward:
 			nulTerminated = TRUE;
 		}
 
-		UChar * buf = u8b_swap->buf;
+		char16_t * buf = u8b_swap->buf;
 		uint8 * mapToNative  = u8b_swap->mapToNative;
 		uint8 * mapToUChars  = u8b_swap->mapToUChars;
 		int32_t destIx       = 0;
@@ -1094,7 +1094,7 @@ fillForward:
 			if(c>0 && c<0x80) {
 				// Special case ASCII range for speed.
 				//   zero is excluded to simplify bounds checking.
-				buf[destIx] = (UChar)c;
+				buf[destIx] = (char16_t)c;
 				mapToNative[destIx] = (uint8)(srcIx - ix);
 				mapToUChars[srcIx-ix]  = (uint8)destIx;
 				srcIx++;
@@ -1187,7 +1187,7 @@ fillReverse:
 		ut->q = ut->p;
 		ut->p = u8b_swap;
 
-		UChar * buf = u8b_swap->buf;
+		char16_t * buf = u8b_swap->buf;
 		uint8 * mapToNative = u8b_swap->mapToNative;
 		uint8 * mapToUChars = u8b_swap->mapToUChars;
 		int32_t toUCharsMapStart = ix - sizeof(UTF8Buf::mapToUChars) + 1;
@@ -1219,7 +1219,7 @@ fillReverse:
 			c = s8[srcIx];
 			if(c<0x80) {
 				// Special case ASCII range for speed.
-				buf[destIx] = (UChar)c;
+				buf[destIx] = (char16_t)c;
 				U_ASSERT(toUCharsMapStart <= srcIx);
 				mapToUChars[srcIx - toUCharsMapStart] = (uint8)destIx;
 				mapToNative[destIx] = (uint8)(srcIx - toUCharsMapStart);
@@ -1238,7 +1238,7 @@ fillReverse:
 
 				// Store the character in UTF-16 buffer.
 				if(c<0x10000) {
-					buf[destIx] = (UChar)c;
+					buf[destIx] = (char16_t)c;
 					mapToNative[destIx] = (uint8)(srcIx - toUCharsMapStart);
 				}
 				else {
@@ -1283,7 +1283,7 @@ fillReverse:
 //     Inserts a Replacement Char rather than failing on invalid UTF-8
 //     Removes unnecessary features.
 //
-static UChar * utext_strFromUTF8(UChar * dest,
+static char16_t * utext_strFromUTF8(char16_t * dest,
     int32_t destCapacity,
     int32_t * pDestLength,
     const char * src,
@@ -1291,8 +1291,8 @@ static UChar * utext_strFromUTF8(UChar * dest,
     UErrorCode * pErrorCode
     )
 {
-	UChar * pDest = dest;
-	UChar * pDestLimit = (dest != NULL) ? (dest+destCapacity) : NULL;
+	char16_t * pDest = dest;
+	char16_t * pDestLimit = (dest != NULL) ? (dest+destCapacity) : NULL;
 	UChar32 ch = 0;
 	int32_t index = 0;
 	int32_t reqLength = 0;
@@ -1301,12 +1301,12 @@ static UChar * utext_strFromUTF8(UChar * dest,
 	while((index < srcLength)&&(pDest<pDestLimit)) {
 		ch = pSrc[index++];
 		if(ch <=0x7f) {
-			*pDest++ = (UChar)ch;
+			*pDest++ = (char16_t)ch;
 		}
 		else {
 			ch = utf8_nextCharSafeBody(pSrc, &index, srcLength, ch, -3);
 			if(U_IS_BMP(ch)) {
-				*(pDest++) = (UChar)ch;
+				*(pDest++) = (char16_t)ch;
 			}
 			else {
 				*(pDest++) = U16_LEAD(ch);
@@ -1338,7 +1338,7 @@ static UChar * utext_strFromUTF8(UChar * dest,
 	return dest;
 }
 
-static int32_t U_CALLCONV utf8TextExtract(UText * ut, int64_t start, int64_t limit, UChar * dest, int32_t destCapacity, UErrorCode * pErrorCode) 
+static int32_t U_CALLCONV utf8TextExtract(UText * ut, int64_t start, int64_t limit, char16_t * dest, int32_t destCapacity, UErrorCode * pErrorCode) 
 {
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
@@ -1521,7 +1521,7 @@ struct ReplExtra {
 	 * Chunk UChars.
 	 * +1 to simplify filling with surrogate pair at the end.
 	 */
-	UChar s[REP_TEXT_CHUNK_SIZE+1];
+	char16_t s[REP_TEXT_CHUNK_SIZE+1];
 };
 
 U_CDECL_BEGIN
@@ -1575,7 +1575,7 @@ static bool U_CALLCONV repTextAccess(UText * ut, int64_t index, bool forward) {
 	 * Compute start/limit boundaries around index, for a segment of text
 	 * to be extracted.
 	 * To allow for the possibility that our user gave an index to the trailing
-	 * half of a surrogate pair, we must request one extra preceding UChar when
+	 * half of a surrogate pair, we must request one extra preceding char16_t when
 	 * going in the forward direction.  This will ensure that the buffer has the
 	 * entire code point at the specified index.
 	 */
@@ -1623,7 +1623,7 @@ static bool U_CALLCONV repTextAccess(UText * ut, int64_t index, bool forward) {
 		// Figure out the bounds of the chunk to extract for reverse iteration.
 		// Need to worry about chunk not splitting surrogate pairs, and while still
 		// containing the data we need.
-		// Fix by requesting a chunk that includes an extra UChar at the end.
+		// Fix by requesting a chunk that includes an extra char16_t at the end.
 		// If this turns out to be a lead surrogate, we can lop it off and still have
 		//   the data we wanted.
 		ut->chunkNativeStart = index32 + 1 - REP_TEXT_CHUNK_SIZE;
@@ -1658,7 +1658,7 @@ static bool U_CALLCONV repTextAccess(UText * ut, int64_t index, bool forward) {
 		}
 	}
 
-	// if the first UChar in the chunk could be the trailing half of a surrogate pair,
+	// if the first char16_t in the chunk could be the trailing half of a surrogate pair,
 	// trim it off.
 	if(ut->chunkNativeStart>0 && U16_IS_TRAIL(ex->s[0])) {
 		++(ut->chunkContents);
@@ -1678,7 +1678,7 @@ static bool U_CALLCONV repTextAccess(UText * ut, int64_t index, bool forward) {
 
 static int32_t U_CALLCONV repTextExtract(UText * ut,
     int64_t start, int64_t limit,
-    UChar * dest, int32_t destCapacity,
+    char16_t * dest, int32_t destCapacity,
     UErrorCode * status) {
 	const Replaceable * rep = (const Replaceable*)ut->context;
 	int32_t length = rep->length();
@@ -1720,7 +1720,7 @@ static int32_t U_CALLCONV repTextExtract(UText * ut,
 
 static int32_t U_CALLCONV repTextReplace(UText * ut,
     int64_t start, int64_t limit,
-    const UChar * src, int32_t length,
+    const char16_t * src, int32_t length,
     UErrorCode * status) {
 	Replaceable * rep = (Replaceable*)ut->context;
 	int32_t oldLength;
@@ -1932,7 +1932,7 @@ static bool U_CALLCONV unistrTextAccess(UText * ut, int64_t index, bool forward)
 
 static int32_t U_CALLCONV unistrTextExtract(UText * t,
     int64_t start, int64_t limit,
-    UChar * dest, int32_t destCapacity,
+    char16_t * dest, int32_t destCapacity,
     UErrorCode * pErrorCode) {
 	const UnicodeString * us = (const UnicodeString *)t->context;
 	int32_t length = us->length();
@@ -1969,7 +1969,7 @@ static int32_t U_CALLCONV unistrTextExtract(UText * t,
 
 static int32_t U_CALLCONV unistrTextReplace(UText * ut,
     int64_t start, int64_t limit,
-    const UChar * src, int32_t length,
+    const char16_t * src, int32_t length,
     UErrorCode * pErrorCode) {
 	UnicodeString * us = (UnicodeString *)ut->context;
 	int32_t oldLength;
@@ -2114,7 +2114,7 @@ U_CAPI UText * U_EXPORT2 utext_openConstUnicodeString(UText * ut, const UnicodeS
 	return ut;
 }
 //
-//     UText implementation for const UChar * strings
+//     UText implementation for const char16_t * strings
 //
 //         Use of UText data members:
 //            context    pointer to UnicodeString
@@ -2138,8 +2138,8 @@ static UText * U_CALLCONV ucstrTextClone(UText * dest, const UText * src, bool d
 		int32_t len = (int32_t)utext_nativeLength(dest);
 
 		// The cloned string IS going to be NUL terminated, whether or not the original was.
-		const UChar * srcStr = (const UChar *)src->context;
-		UChar * copyStr = (UChar *)uprv_malloc((len+1) * sizeof(UChar));
+		const char16_t * srcStr = (const char16_t *)src->context;
+		char16_t * copyStr = (char16_t *)uprv_malloc((len+1) * sizeof(char16_t));
 		if(copyStr == NULL) {
 			*status = U_MEMORY_ALLOCATION_ERROR;
 		}
@@ -2161,7 +2161,7 @@ static void U_CALLCONV ucstrTextClose(UText * ut) {
 	// All that needs to be done here is delete the string if the UText
 	//  owns it.  This occurs if the UText was created by cloning.
 	if(ut->providerProperties & I32_FLAG(UTEXT_PROVIDER_OWNS_TEXT)) {
-		UChar * s = (UChar *)ut->context;
+		char16_t * s = (char16_t *)ut->context;
 		uprv_free(s);
 		ut->context = NULL;
 	}
@@ -2173,7 +2173,7 @@ static int64_t U_CALLCONV ucstrTextLength(UText * ut)
 		// null terminated, we don't yet know the length. Scan for it.
 		//    Access is not convenient for doing this
 		//    because the current iteration position can't be changed.
-		const UChar * str = (const UChar *)ut->context;
+		const char16_t * str = (const char16_t *)ut->context;
 		for(;;) {
 			if(str[ut->chunkNativeLimit] == 0) {
 				break;
@@ -2190,7 +2190,7 @@ static int64_t U_CALLCONV ucstrTextLength(UText * ut)
 
 static bool U_CALLCONV ucstrTextAccess(UText * ut, int64_t index, bool forward) 
 {
-	const UChar * str   = (const UChar *)ut->context;
+	const char16_t * str   = (const char16_t *)ut->context;
 	// pin the requested index to the bounds of the string,
 	//  and set current iteration position.
 	if(index<0) {
@@ -2278,7 +2278,7 @@ breakout:
 	return retVal;
 }
 
-static int32_t U_CALLCONV ucstrTextExtract(UText * ut, int64_t start, int64_t limit, UChar * dest, int32_t destCapacity, UErrorCode * pErrorCode)
+static int32_t U_CALLCONV ucstrTextExtract(UText * ut, int64_t start, int64_t limit, char16_t * dest, int32_t destCapacity, UErrorCode * pErrorCode)
 {
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
@@ -2287,7 +2287,7 @@ static int32_t U_CALLCONV ucstrTextExtract(UText * ut, int64_t start, int64_t li
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-	//const UChar *s=(const UChar *)ut->context;
+	//const char16_t *s=(const char16_t *)ut->context;
 	int32_t si, di;
 	int32_t start32;
 	int32_t limit32;
@@ -2295,7 +2295,7 @@ static int32_t U_CALLCONV ucstrTextExtract(UText * ut, int64_t start, int64_t li
 	//   Pins 'start' to the length of the string, if it came in out-of-bounds.
 	//   Snaps 'start' to the beginning of a code point.
 	ucstrTextAccess(ut, start, TRUE);
-	const UChar * s = ut->chunkContents;
+	const char16_t * s = ut->chunkContents;
 	start32 = ut->chunkOffset;
 	int32_t strLength = (int32_t)ut->a;
 	if(strLength >= 0) {
@@ -2375,9 +2375,9 @@ static const struct UTextFuncs ucstrFuncs =
 
 U_CDECL_END
 
-static const UChar gEmptyUString[] = {0};
+static const char16_t gEmptyUString[] = {0};
 
-U_CAPI UText * U_EXPORT2 utext_openUChars(UText * ut, const UChar * s, int64_t length, UErrorCode * status) 
+U_CAPI UText * U_EXPORT2 utext_openUChars(UText * ut, const char16_t * s, int64_t length, UErrorCode * status) 
 {
 	if(U_FAILURE(*status)) {
 		return NULL;
@@ -2457,7 +2457,7 @@ static bool U_CALLCONV charIterTextAccess(UText * ut, int64_t index, bool forwar
 	}
 	// Find the native index of the start of the buffer containing what we want.
 	neededIndex -= neededIndex % CIBufSize;
-	UChar * buf = NULL;
+	char16_t * buf = NULL;
 	bool needChunkSetup = TRUE;
 	int i;
 	if(ut->chunkNativeStart == neededIndex) {
@@ -2466,19 +2466,19 @@ static bool U_CALLCONV charIterTextAccess(UText * ut, int64_t index, bool forwar
 	}
 	else if(ut->b == neededIndex) {
 		// The first buffer (buffer p) has what we need.
-		buf = (UChar *)ut->p;
+		buf = (char16_t *)ut->p;
 	}
 	else if(ut->c == neededIndex) {
 		// The second buffer (buffer q) has what we need.
-		buf = (UChar *)ut->q;
+		buf = (char16_t *)ut->q;
 	}
 	else {
 		// Neither buffer already has what we need.
 		// Load new data from the character iterator.
 		// Use the buf that is not the current buffer.
-		buf = (UChar *)ut->p;
+		buf = (char16_t *)ut->p;
 		if(ut->p == ut->chunkContents) {
-			buf = (UChar *)ut->q;
+			buf = (char16_t *)ut->q;
 		}
 		ci->setIndex(neededIndex);
 		for(i = 0; i<CIBufSize; i++) {
@@ -2534,7 +2534,7 @@ static UText * U_CALLCONV charIterTextClone(UText * dest, const UText * src, boo
 	return dest;
 }
 
-static int32_t U_CALLCONV charIterTextExtract(UText * ut, int64_t start, int64_t limit, UChar * dest, int32_t destCapacity, UErrorCode * status)
+static int32_t U_CALLCONV charIterTextExtract(UText * ut, int64_t start, int64_t limit, char16_t * dest, int32_t destCapacity, UErrorCode * status)
 {
 	if(U_FAILURE(*status)) {
 		return 0;
@@ -2603,7 +2603,7 @@ U_CAPI UText * U_EXPORT2 utext_openCharacterIterator(UText * ut, CharacterIterat
 	}
 
 	// Extra space in UText for 2 buffers of CIBufSize UChars each.
-	int32_t extraSpace = 2 * CIBufSize * sizeof(UChar);
+	int32_t extraSpace = 2 * CIBufSize * sizeof(char16_t);
 	ut = utext_setup(ut, extraSpace, status);
 	if(U_SUCCESS(*status)) {
 		ut->pFuncs        = &charIterFuncs;
@@ -2612,7 +2612,7 @@ U_CAPI UText * U_EXPORT2 utext_openCharacterIterator(UText * ut, CharacterIterat
 		ut->a            = ci->endIndex();// Length of text
 		ut->p            = ut->pExtra;    // First buffer
 		ut->b            = -1;            // Native index of first buffer contents
-		ut->q            = (UChar *)ut->pExtra+CIBufSize;// Second buffer
+		ut->q            = (char16_t *)ut->pExtra+CIBufSize;// Second buffer
 		ut->c            = -1;            // Native index of second buffer contents
 
 		// Initialize current chunk contents to be empty.
@@ -2621,7 +2621,7 @@ U_CAPI UText * U_EXPORT2 utext_openCharacterIterator(UText * ut, CharacterIterat
 		//          so that getNativeIndex() will correctly compute to zero
 		//          if no call to Access() has ever been made.  They can't be both
 		//          zero without Access() thinking that the chunk is valid.
-		ut->chunkContents        = (UChar *)ut->p;
+		ut->chunkContents        = (char16_t *)ut->p;
 		ut->chunkNativeStart     = -1;
 		ut->chunkOffset  = 1;
 		ut->chunkNativeLimit     = 0;

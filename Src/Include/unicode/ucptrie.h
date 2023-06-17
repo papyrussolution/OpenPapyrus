@@ -373,8 +373,8 @@ U_CAPI int32_t U_EXPORT2 ucptrie_toBinary(const UCPTrie * trie, void * data, int
  *
  * @param trie (const UCPTrie *, in) the trie; must have type UCPTRIE_TYPE_FAST
  * @param dataAccess UCPTRIE_16, UCPTRIE_32, or UCPTRIE_8 according to the trie’s value width
- * @param src (const UChar *, in/out) the source text pointer
- * @param limit (const UChar *, in) the limit pointer for the text, or NULL if NUL-terminated
+ * @param src (const char16_t *, in/out) the source text pointer
+ * @param limit (const char16_t *, in) the limit pointer for the text, or NULL if NUL-terminated
  * @param c (UChar32, out) variable for the code point
  * @param result (out) variable for the trie lookup result
  * @stable ICU 63
@@ -404,8 +404,8 @@ U_CAPI int32_t U_EXPORT2 ucptrie_toBinary(const UCPTrie * trie, void * data, int
  *
  * @param trie (const UCPTrie *, in) the trie; must have type UCPTRIE_TYPE_FAST
  * @param dataAccess UCPTRIE_16, UCPTRIE_32, or UCPTRIE_8 according to the trie’s value width
- * @param start (const UChar *, in) the start pointer for the text
- * @param src (const UChar *, in/out) the source text pointer
+ * @param start (const char16_t *, in) the start pointer for the text
+ * @param src (const char16_t *, in/out) the source text pointer
  * @param c (UChar32, out) variable for the code point
  * @param result (out) variable for the trie lookup result
  * @stable ICU 63
@@ -493,8 +493,8 @@ U_CAPI int32_t U_EXPORT2 ucptrie_toBinary(const UCPTrie * trie, void * data, int
 #define UCPTRIE_FAST_U8_PREV(trie, dataAccess, start, src, result) UPRV_BLOCK_MACRO_BEGIN { \
 		int32_t __index = (uint8)*--(src); \
 		if(!U8_IS_SINGLE(__index)) { \
-			__index = ucptrie_internalU8PrevIndex((trie), __index, (const uint8*)(start), \
-				(const uint8*)(src)); \
+			__index = ucptrie_internalU8PrevIndex((trie), __index, (const uint8 *)(start), \
+				(const uint8 *)(src)); \
 			(src) -= __index & 7; \
 			__index >>= 3; \
 		} \

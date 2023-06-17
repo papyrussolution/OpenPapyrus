@@ -814,8 +814,7 @@ static CURLcode check_telnet_options(struct connectdata * conn)
 			}
 			// Window Size 
 			if(strcasecompare(option_keyword, "WS")) {
-				if(sscanf(option_arg, "%hu%*[xX]%hu",
-				    &tn->subopt_wsx, &tn->subopt_wsy) == 2)
+				if(sscanf(option_arg, "%hu%*[xX]%hu", &tn->subopt_wsx, &tn->subopt_wsy) == 2)
 					tn->us_preferred[CURL_TELOPT_NAWS] = CURL_YES;
 				else {
 					failf(data, "Syntax error in telnet option: %s", head->data);
@@ -824,17 +823,15 @@ static CURLcode check_telnet_options(struct connectdata * conn)
 				}
 				continue;
 			}
-
 			/* To take care or not of the 8th bit in data exchange */
 			if(strcasecompare(option_keyword, "BINARY")) {
-				binary_option = atoi(option_arg);
+				binary_option = satoi(option_arg);
 				if(binary_option != 1) {
 					tn->us_preferred[CURL_TELOPT_BINARY] = CURL_NO;
 					tn->him_preferred[CURL_TELOPT_BINARY] = CURL_NO;
 				}
 				continue;
 			}
-
 			failf(data, "Unknown telnet option %s", head->data);
 			result = CURLE_UNKNOWN_OPTION;
 			break;

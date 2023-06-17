@@ -636,13 +636,16 @@ struct SUiLayoutParam { // @persistent
 	float  CalcEffectiveSizeX(float containerSize) const;
 	float  CalcEffectiveSizeY(float containerSize) const;
 	SPoint2F CalcEffectiveSizeXY(float containerSizeX, float containerSizeY) const;
-	void   SetFixedSizeX(float s);
-	void   SetFixedSizeY(float s);
-	void   SetVariableSizeX(uint var/* szXXX */, float s);
-	void   SetVariableSizeY(uint var/* szXXX */, float s);
-	void   SetFixedSize(const TRect & rR);
+	SUiLayoutParam & SetFixedSizeX(float s);
+	SUiLayoutParam & SetFixedSizeY(float s);
+	SUiLayoutParam & SetVariableSizeX(uint var/* szXXX */, float s);
+	SUiLayoutParam & SetVariableSizeY(uint var/* szXXX */, float s);
+	SUiLayoutParam & SetFixedSize(const TRect & rR);
+	SUiLayoutParam & SetMargin(const FRect & rMargin);
+	SUiLayoutParam & SetMargin(float allSidesMargin);
+	SUiLayoutParam & SetGrowFactor(float growFactor);
 	int    GetContainerDirection() const; // returns DIREC_HORZ || DIREC_VERT || DIREC_UNKN
-	void   SetContainerDirection(int direc /*DIREC_XXX*/);
+	SUiLayoutParam & SetContainerDirection(int direc /*DIREC_XXX*/);
 	static SString & MarginsToString(const FRect & rR, SString & rBuf);
 	static int    MarginsFromString(const char * pBuf, FRect & rR);
 	SString & SizeToString(SString & rBuf) const;
@@ -774,6 +777,14 @@ public:
 	~SUiLayout();
 	bool   IsConsistent() const;
 	//
+	// Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
+	//
+	const void * GetKey(uint * pKeyLen) const
+	{
+		ASSIGN_PTR(pKeyLen, sizeof(ID));
+		return &ID;
+	}
+	//
 	// Descr: Если экземпляр this имеет родителя, то обращается к родительскому
 	//   объекту для того, что бы тот удалил его.
 	// Returns:
@@ -806,7 +817,7 @@ public:
 	};
 	int    Evaluate(const Param * pP);
 	SUiLayout * InsertItem();
-	SUiLayout * InsertItem(void * pManagedPtr, const SUiLayoutParam * pAlb);
+	SUiLayout * InsertItem(void * pManagedPtr, const SUiLayoutParam * pAlb, int id = 0);
 	void   DeleteItem(uint idx);
 	void   DeleteAllItems();
 	int    GetOrder() const;

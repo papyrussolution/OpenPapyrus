@@ -35,8 +35,8 @@
  * Compare strings case-insensitively,
  * in code point order or code unit order.
  */
-U_CFUNC int32_t u_strcmpFold(const UChar * s1, int32_t length1,
-    const UChar * s2, int32_t length2,
+U_CFUNC int32_t u_strcmpFold(const char16_t * s1, int32_t length1,
+    const char16_t * s2, int32_t length2,
     uint32_t options,
     UErrorCode * pErrorCode);
 
@@ -52,8 +52,8 @@ U_CFUNC int32_t u_strcmpFold(const UChar * s1, int32_t length1,
  * @param matchLen2     (output) length of partial prefix match in s2
  * @param pErrorCode    receives error status
  */
-U_CAPI void u_caseInsensitivePrefixMatch(const UChar * s1, int32_t length1,
-    const UChar * s2, int32_t length2,
+U_CAPI void u_caseInsensitivePrefixMatch(const char16_t * s1, int32_t length1,
+    const char16_t * s2, int32_t length2,
     uint32_t options,
     int32_t * matchLen1, int32_t * matchLen2,
     UErrorCode * pErrorCode);
@@ -137,15 +137,15 @@ U_CFUNC int32_t ustrcase_getCaseLocale(const char * locale);
 // TODO: swap src / dest if approved for new public api
 /** Implements UStringCaseMapper. */
 U_CFUNC int32_t U_CALLCONV ustrcase_internalToLower(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_PARAM
-    UChar * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
+    char16_t * dest, int32_t destCapacity,
+    const char16_t * src, int32_t srcLength,
     icu::Edits * edits,
     UErrorCode & errorCode);
 
 /** Implements UStringCaseMapper. */
 U_CFUNC int32_t U_CALLCONV ustrcase_internalToUpper(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_PARAM
-    UChar * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
+    char16_t * dest, int32_t destCapacity,
+    const char16_t * src, int32_t srcLength,
     icu::Edits * edits,
     UErrorCode & errorCode);
 
@@ -154,8 +154,8 @@ U_CFUNC int32_t U_CALLCONV ustrcase_internalToUpper(int32_t caseLocale, uint32_t
 /** Implements UStringCaseMapper. */
 U_CFUNC int32_t U_CALLCONV ustrcase_internalToTitle(int32_t caseLocale, uint32_t options,
     icu::BreakIterator * iter,
-    UChar * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
+    char16_t * dest, int32_t destCapacity,
+    const char16_t * src, int32_t srcLength,
     icu::Edits * edits,
     UErrorCode & errorCode);
 
@@ -163,8 +163,8 @@ U_CFUNC int32_t U_CALLCONV ustrcase_internalToTitle(int32_t caseLocale, uint32_t
 
 /** Implements UStringCaseMapper. */
 U_CFUNC int32_t U_CALLCONV ustrcase_internalFold(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_PARAM
-    UChar * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
+    char16_t * dest, int32_t destCapacity,
+    const char16_t * src, int32_t srcLength,
     icu::Edits * edits,
     UErrorCode & errorCode);
 
@@ -173,8 +173,8 @@ U_CFUNC int32_t U_CALLCONV ustrcase_internalFold(int32_t caseLocale, uint32_t op
  * Implements argument checking.
  */
 U_CFUNC int32_t ustrcase_map(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_PARAM
-    UChar * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
+    char16_t * dest, int32_t destCapacity,
+    const char16_t * src, int32_t srcLength,
     UStringCaseMapper * stringCaseMapper,
     icu::Edits * edits,
     UErrorCode & errorCode);
@@ -185,8 +185,8 @@ U_CFUNC int32_t ustrcase_map(int32_t caseLocale, uint32_t options, UCASEMAP_BREA
  * Implements argument checking and internally works with an intermediate buffer if necessary.
  */
 U_CFUNC int32_t ustrcase_mapWithOverlap(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_PARAM
-    UChar * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
+    char16_t * dest, int32_t destCapacity,
+    const char16_t * src, int32_t srcLength,
     UStringCaseMapper * stringCaseMapper,
     UErrorCode & errorCode);
 

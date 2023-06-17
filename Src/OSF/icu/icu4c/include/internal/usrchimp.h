@@ -130,7 +130,7 @@ U_NAMESPACE_END
 
 struct USearch {
     // required since collation element iterator does not have a getText API
-    const UChar              *text;
+    const char16_t              *text;
           int32_t textLength; // exact length
           bool               isOverlap;
           bool               isCanonicalMatch;
@@ -148,7 +148,7 @@ struct USearch {
 };
 
 struct UPattern {
-    const UChar              *text;
+    const char16_t              *text;
           int32_t textLength; // exact length
           // length required for backwards ce comparison
           int32_t cesLength;

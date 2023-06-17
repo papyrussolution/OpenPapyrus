@@ -18,9 +18,11 @@
 #ifndef _WIN32
 #include <cstdlib>
 
-struct aligned_deleter { void operator()(void* p) noexcept {
-				 free(p);
-			 }
+struct aligned_deleter { 
+	void operator()(void* p) noexcept 
+	{
+		free(p);
+	}
 };
 
 using ScopedAlignedArrayFloat = std::unique_ptr<float[], aligned_deleter>;
@@ -51,9 +53,7 @@ inline ScopedAlignedArrayXMVECTOR make_AlignedArrayXMVECTOR(uint64_t count)
 //---------------------------------------------------------------------------------
 #include <malloc.h>
 
-struct aligned_deleter { void operator()(void* p) noexcept {
-				 _aligned_free(p);
-			 }
+struct aligned_deleter { void operator()(void* p) noexcept { _aligned_free(p); }
 };
 
 using ScopedAlignedArrayFloat = std::unique_ptr<float[], aligned_deleter>;

@@ -24,9 +24,9 @@
 typedef struct u_printf_spec_info {
 	int32_t fPrecision; /* Precision  */
 	int32_t fWidth; /* Width  */
-	UChar fOrigSpec; /* Conversion specification */
-	UChar fSpec; /* Conversion specification */
-	UChar fPadChar; /* Padding character  */
+	char16_t fOrigSpec; /* Conversion specification */
+	char16_t fSpec; /* Conversion specification */
+	char16_t fPadChar; /* Padding character  */
 	bool fAlt; /* # flag  */
 	bool fSpace; /* Space flag  */
 	bool fLeft; /* - flag  */
@@ -38,8 +38,8 @@ typedef struct u_printf_spec_info {
 	bool fIsLongLong; /* ll flag  */
 } u_printf_spec_info;
 
-typedef int32_t U_EXPORT2 u_printf_write_stream (void   * context, const UChar * str, int32_t count);
-typedef int32_t U_EXPORT2 u_printf_pad_and_justify_stream (void   * context, const u_printf_spec_info    * info, const UChar                 * result, int32_t resultLen);
+typedef int32_t U_EXPORT2 u_printf_write_stream (void   * context, const char16_t * str, int32_t count);
+typedef int32_t U_EXPORT2 u_printf_pad_and_justify_stream (void   * context, const u_printf_spec_info    * info, const char16_t                 * result, int32_t resultLen);
 
 typedef struct u_printf_stream_handler {
 	u_printf_write_stream * write;
@@ -48,7 +48,7 @@ typedef struct u_printf_stream_handler {
 
 /* Used by sprintf */
 typedef struct u_localized_print_string {
-	UChar * str; /* Place to write the string */
+	char16_t * str; /* Place to write the string */
 	int32_t available; /* Number of codeunits available to write to */
 	int32_t len; /* Maximum number of code units that can be written to output */
 
@@ -68,7 +68,7 @@ typedef struct u_localized_print_string {
  * @return The number of characters contained in this specifier.
  */
 U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler,
-    const UChar * fmt,
+    const char16_t * fmt,
     void   * context,
     u_localized_print_string * locStringContext,
     ULocaleBundle   * formatBundle,

@@ -67,8 +67,8 @@ typedef struct {
 struct UBiDiTransform {
 	UBiDi   * pBidi; /* pointer to a UBiDi object */
 	const ReorderingScheme  * pActiveScheme; /* effective reordering scheme */
-	UChar * src; /* input text */
-	UChar * dest; /* output text */
+	char16_t * src; /* input text */
+	char16_t * dest; /* output text */
 	uint32_t srcLength; /* input text length - not really needed as we are zero-terminated and can u_strlen */
 	uint32_t srcSize; /* input text capacity excluding the trailing zero */
 	uint32_t destSize; /* output text capacity */
@@ -192,11 +192,11 @@ static bool action_reverse(UBiDiTransform * pTransform, UErrorCode * pErrorCode)
  *
  * @param pTransform A pointer to the <code>UBiDiTransform</code> structure.
  * @param newSrc A pointer whose value is to be used as input text.
- * @param newLength A length of the new text in <code>UChar</code>s.
- * @param newSize A new source capacity in <code>UChar</code>s.
+ * @param newLength A length of the new text in <code>char16_t</code>s.
+ * @param newSize A new source capacity in <code>char16_t</code>s.
  * @param pErrorCode Pointer to the error code value.
  */
-static void updateSrc(UBiDiTransform * pTransform, const UChar * newSrc, uint32_t newLength,
+static void updateSrc(UBiDiTransform * pTransform, const char16_t * newSrc, uint32_t newLength,
     uint32_t newSize, UErrorCode * pErrorCode)
 {
 	if(newSize < newLength) {
@@ -209,7 +209,7 @@ static void updateSrc(UBiDiTransform * pTransform, const UChar * newSrc, uint32_
 			uprv_free(pTransform->src);
 			pTransform->src = NULL;
 		}
-		pTransform->src = (UChar *)uprv_malloc(newSize * sizeof(UChar));
+		pTransform->src = (char16_t *)uprv_malloc(newSize * sizeof(char16_t));
 		if(pTransform->src == NULL) {
 			*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 			//pTransform->srcLength = pTransform->srcSize = 0;
@@ -360,7 +360,7 @@ static const uint32_t nSchemes = sizeof(Schemes) / sizeof(*Schemes);
  * <code>UBIDI_DEFAULT_RTL</code>, resolve the base direction according to that
  * of the first strong bidi character.
  */
-static void resolveBaseDirection(const UChar * text, uint32_t length,
+static void resolveBaseDirection(const char16_t * text, uint32_t length,
     UBiDiLevel * pInLevel, UBiDiLevel * pOutLevel)
 {
 	switch(*pInLevel) {
@@ -407,8 +407,8 @@ static const ReorderingScheme* findMatchingScheme(UBiDiLevel inLevel, UBiDiLevel
 }
 
 U_CAPI uint32_t U_EXPORT2 ubiditransform_transform(UBiDiTransform * pBiDiTransform,
-    const UChar * src, int32_t srcLength,
-    UChar * dest, int32_t destSize,
+    const char16_t * src, int32_t srcLength,
+    char16_t * dest, int32_t destSize,
     UBiDiLevel inParaLevel, UBiDiOrder inOrder,
     UBiDiLevel outParaLevel, UBiDiOrder outOrder,
     UBiDiMirroring doMirroring, uint32_t shapingOptions,

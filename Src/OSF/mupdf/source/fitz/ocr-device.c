@@ -552,15 +552,13 @@ static void debug_word(fz_context * ctx, word_record * word)
 
 #endif
 
-static void rewrite_char(fz_context * ctx, fz_rewrite_device * dev, fz_matrix ctm, fz_text_item * item, fz_point vadv)
+static void rewrite_char(fz_context * ctx, fz_rewrite_device * dev, fz_matrix ctm, fz_text_item * item, SPoint2F vadv)
 {
 	int i, start;
-	fz_point p = { item->x, item->y };
-
+	SPoint2F p(item->x, item->y);
 	/* No point in trying to rewrite spaces! */
 	if(item->ucs == 32)
 		return;
-
 	p = fz_transform_point(p, ctm);
 	p.x += vadv.x/2;
 	p.y += vadv.y/2;
@@ -607,13 +605,12 @@ static fz_text_span * rewrite_span(fz_context * ctx, fz_rewrite_device * dev, fz
 	fz_text_span * rspan = fz_clone_text_span(ctx, span);
 	int wmode = span->wmode;
 	int i;
-	fz_point dir;
+	SPoint2F dir;
 	fz_matrix trm = span->trm;
 
 	trm.e = 0;
 	trm.f = 0;
 	trm = fz_concat(trm, ctm);
-
 	if(wmode == 0) {
 		dir.x = 1;
 		dir.y = 0;
@@ -623,14 +620,12 @@ static fz_text_span * rewrite_span(fz_context * ctx, fz_rewrite_device * dev, fz
 		dir.y = -1;
 	}
 	dir = fz_transform_vector(dir, trm);
-
 	/* And do the actual rewriting */
 	for(i = 0; i < rspan->len; i++) {
 		float advance = fz_advance_glyph(ctx, span->font, rspan->items[i].gid, wmode);
-		fz_point vadv = { dir.x * advance, dir.y * advance };
+		SPoint2F vadv(dir.x * advance, dir.y * advance);
 		rewrite_char(ctx, dev, ctm, &rspan->items[i], vadv);
 	}
-
 	return rspan;
 }
 
@@ -639,9 +634,7 @@ static fz_text * rewrite_text(fz_context * ctx, fz_rewrite_device * dev, fz_matr
 	fz_text * rtext = fz_new_text(ctx);
 	fz_text_span * span = text->head;
 	fz_text_span ** dspan = &rtext->head;
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		while(span) {
 			*dspan = rewrite_span(ctx, dev, ctm, span);
 			rtext->tail = *dspan;
@@ -1143,7 +1136,7 @@ fz_device * fz_new_ocr_device(fz_context * ctx,
 	{
 		fz_rect bbox;
 		fz_irect ibox;
-		fz_point res;
+		SPoint2F res;
 
 		dev->target = target;
 		dev->mediabox = mediabox;

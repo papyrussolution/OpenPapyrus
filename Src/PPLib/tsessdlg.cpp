@@ -1,5 +1,5 @@
 // TSESSDLG.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -16,7 +16,7 @@ PrcTechCtrlGroup::PrcTechCtrlGroup(uint ctlSelPrc, uint ctlSelTech, uint ctlStGo
 	CtlStGoods(ctlStGoods), CtlselAr(ctlSelAr), CtlselAr2(ctlSelAr2), CmdSelTechByGoods(cmdSelTechByGoods), CmdCreateGoods(cmdCreateGoods),
 	SelGoodsID(0), AutoGoodsGrpID(0), IdleStatus(0), Flags(0)
 {
-	Flags |= fEnableSelUpLevel;
+	Flags |= fEnablePrcSelUpLevel;
 }
 
 void PrcTechCtrlGroup::setIdleStatus(TDialog * pDlg, int s)
@@ -30,8 +30,9 @@ void PrcTechCtrlGroup::setIdleStatus(TDialog * pDlg, int s)
 	}
 }
 
-void PrcTechCtrlGroup::enableSelUpLevel(int enbl) { SETFLAG(Flags, fEnableSelUpLevel, enbl); }
-void PrcTechCtrlGroup::enablePrcInsert(int enbl) { SETFLAG(Flags, fEnablePrcInsert, enbl); }
+void PrcTechCtrlGroup::enablePrcSelUpLevel(bool enbl) { SETFLAG(Flags, fEnablePrcSelUpLevel, enbl); }
+void PrcTechCtrlGroup::enableTechSelUpLevel(bool enbl) { SETFLAG(Flags, fEnableTechSelUpLevel, enbl); }
+void PrcTechCtrlGroup::enablePrcInsert(bool enbl) { SETFLAG(Flags, fEnablePrcInsert, enbl); }
 
 void PrcTechCtrlGroup::setupArticle(TDialog * pDlg, const ProcessorTbl::Rec * pPrcRec)
 {
@@ -75,10 +76,10 @@ void PrcTechCtrlGroup::onPrcSelection(TDialog * pDlg, int onIdleStatus)
 				MEMSZERO(prc_rec);
 			if(SelGoodsID) {
 				TecObj.CreateAutoTech(Data.PrcID, SelGoodsID, 0, 1);
-				PPObjTech::SetupCombo(pDlg, CtlselTech, Data.TechID, 0, Data.PrcID, SelGoodsID);
+				PPObjTech::SetupCombo(pDlg, CtlselTech, Data.TechID, GetTechComboOlwFlags(), Data.PrcID, SelGoodsID);
 			}
 			else
-				SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, OLW_SETUPSINGLE, reinterpret_cast<void *>(Data.PrcID));
+				SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, GetTechComboOlwFlags() | OLW_SETUPSINGLE, reinterpret_cast<void *>(Data.PrcID));
 			setupGoodsName(pDlg);
 			if(prc_rec.WrOffOpID != prev_prc_rec.WrOffOpID)
 				setupArticle(pDlg, &prc_rec);
@@ -105,9 +106,9 @@ void PrcTechCtrlGroup::selTechByGoods(TDialog * pDlg)
 				if(dlg->getDTS(&tidi) > 0) {
 					SelGoodsID = tidi.GoodsID;
 					if(SelGoodsID)
-						PPObjTech::SetupCombo(pDlg, CtlselTech, /*Data.TechID*/0, 0, Data.PrcID, SelGoodsID);
+						PPObjTech::SetupCombo(pDlg, CtlselTech, /*Data.TechID*/0, GetTechComboOlwFlags(), Data.PrcID, SelGoodsID);
 					else
-						SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, 0, reinterpret_cast<void *>(Data.PrcID));
+						SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, GetTechComboOlwFlags(), reinterpret_cast<void *>(Data.PrcID));
 					setupGoodsName(pDlg);
 					TView::messageCommand(pDlg, cmCBSelected, pDlg->getCtrlView(CtlselTech));
 				}
@@ -138,7 +139,7 @@ void PrcTechCtrlGroup::setupGoodsName(TDialog * pDlg)
 	SString goods_name;
 	if(TecObj.Search(Data.TechID, &tec_rec) > 0)
 		if(GetGoodsNameR(tec_rec.GoodsID, goods_name) <= 0) {
-			SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, 0, reinterpret_cast<void *>(Data.PrcID));
+			SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, GetTechComboOlwFlags(), reinterpret_cast<void *>(Data.PrcID));
 			SelGoodsID = 0;
 		}
 	pDlg->setStaticText(CtlStGoods, goods_name);
@@ -157,7 +158,7 @@ void PrcTechCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 		if(GObj.Edit(&goods_id, reinterpret_cast<void *>(AutoGoodsGrpID)) == cmOK && goods_id) {
 			if(!Data.TechID && pDlg->getCtrlLong(CtlselTech) == 0) {
 				SelGoodsID = goods_id;
-				PPObjTech::SetupCombo(pDlg, CtlselTech, 0, 0, Data.PrcID, SelGoodsID);
+				PPObjTech::SetupCombo(pDlg, CtlselTech, 0, GetTechComboOlwFlags(), Data.PrcID, SelGoodsID);
 				setupGoodsName(pDlg);
 				TView::messageCommand(pDlg, cmCBSelected, pDlg->getCtrlView(CtlselTech));
 			}
@@ -183,6 +184,14 @@ void PrcTechCtrlGroup::setupCreateGoodsButton(TDialog * pDlg)
 	}
 }
 
+long PrcTechCtrlGroup::GetTechComboOlwFlags() const // @v11.7.6
+{
+	long   olw = 0;
+	if(Flags & fEnableTechSelUpLevel)
+		olw |= OLW_CANSELUPLEVEL;
+	return olw;
+}
+
 int PrcTechCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
 	int    ok = 1;
@@ -193,7 +202,7 @@ int PrcTechCtrlGroup::setData(TDialog * pDlg, void * pData)
 	}
 	{
 		long   olw = 0;
-		if(Flags & fEnableSelUpLevel)
+		if(Flags & fEnablePrcSelUpLevel)
 			olw |= OLW_CANSELUPLEVEL;
 		if(Flags & fEnablePrcInsert)
 			olw |= OLW_CANINSERT;
@@ -207,7 +216,7 @@ int PrcTechCtrlGroup::setData(TDialog * pDlg, void * pData)
 	long   prc_ext_param = Data.PrcParentID;
 	int    r = prc_obj.GetRecWithInheritance(Data.PrcID, &prc_rec);
 	if(r > 0) {
-		SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, OLW_SETUPSINGLE, reinterpret_cast<void *>(Data.PrcID));
+		SetupPPObjCombo(pDlg, CtlselTech, PPOBJ_TECH, Data.TechID, GetTechComboOlwFlags() | OLW_SETUPSINGLE, reinterpret_cast<void *>(Data.PrcID));
 		setupGoodsName(pDlg);
 		setupArticle(pDlg, &prc_rec);
 	}
@@ -1434,7 +1443,7 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 		PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(ctlgroupPrcTech));
 		if(p_grp) {
 			if(!(Data.Rec.Flags & (TSESF_SUPERSESS|TSESF_PLAN)))
-				p_grp->enableSelUpLevel(0);
+				p_grp->enablePrcSelUpLevel(0);
 			p_grp->enablePrcInsert(1);
 		}
 	}
@@ -1975,7 +1984,6 @@ int PPObjTSession::EditDialog(TSessionPacket * pData)
 	int    ok = -1;
 	uint   dlg_id = 0;
 	ProcessorTbl::Rec prc_rec;
-	// @v10.6.4 MEMSZERO(prc_rec);
 	if(pData->Rec.Flags & TSESF_SUPERSESS)
 		dlg_id = DLG_TSES_SUP;
 	else if(pData->Rec.Flags & TSESF_PLAN)

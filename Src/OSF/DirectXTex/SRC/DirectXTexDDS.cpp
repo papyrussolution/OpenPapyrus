@@ -237,33 +237,24 @@ DXGI_FORMAT GetDXGIFormat(const DDS_HEADER& hdr, const DDS_PIXELFORMAT& ddpf,
 
 	return format;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Decodes DDS header including optional DX10 extended header
-//-------------------------------------------------------------------------------------
-HRESULT DecodeDDSHeader(_In_reads_bytes_(size) const void* pSource,
-    size_t size,
-    DDS_FLAGS flags,
-    _Out_ TexMetadata& metadata,
-    _Inout_ uint32_t& convFlags) noexcept
+//
+HRESULT DecodeDDSHeader(_In_reads_bytes_(size) const void* pSource, size_t size, DDS_FLAGS flags,
+    _Out_ TexMetadata& metadata, _Inout_ uint32_t& convFlags) noexcept
 {
 	if(!pSource)
 		return E_INVALIDARG;
-
-	memset(&metadata, 0, sizeof(TexMetadata));
-
+	memzero(&metadata, sizeof(TexMetadata));
 	if(size < (sizeof(DDS_HEADER) + sizeof(uint32_t))) {
 		return HRESULT_E_INVALID_DATA;
 	}
-
 	// DDS files always start with the same magic number ("DDS ")
 	auto const dwMagicNumber = *static_cast<const uint32_t*>(pSource);
 	if(dwMagicNumber != DDS_MAGIC) {
 		return E_FAIL;
 	}
-
 	auto pHeader = reinterpret_cast<const DDS_HEADER*>(static_cast<const uint8_t*>(pSource) + sizeof(uint32_t));
-
 	// Verify header to validate DDS file
 	if(pHeader->size != sizeof(DDS_HEADER)
 	    || pHeader->ddspf.size != sizeof(DDS_PIXELFORMAT)) {
@@ -507,23 +498,16 @@ HRESULT DecodeDDSHeader(_In_reads_bytes_(size) const void* pSource,
 	return S_OK;
 }
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Encodes DDS file header (magic value, header, optional DX10 extended header)
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::EncodeDDSHeader(const TexMetadata& metadata,
-    DDS_FLAGS flags,
-    void* pDestination,
-    size_t maxsize,
-    size_t& required) noexcept
+//
+_Use_decl_annotations_ HRESULT DirectX::EncodeDDSHeader(const TexMetadata& metadata, DDS_FLAGS flags,
+    void* pDestination, size_t maxsize, size_t& required) noexcept
 {
 	if(!IsValid(metadata.format))
 		return E_INVALIDARG;
-
 	if(IsPalettized(metadata.format))
 		return HRESULT_E_NOT_SUPPORTED;
-
 	if(metadata.arraySize > 1) {
 		if((metadata.arraySize != 6) || (metadata.dimension != TEX_DIMENSION_TEXTURE2D) || !(metadata.IsCubemap())) {
 			// Texture1D arrays, Texture2D arrays, and Cubemap arrays must be stored using 'DX10' extended
@@ -666,40 +650,28 @@ HRESULT DirectX::EncodeDDSHeader(const TexMetadata& metadata,
 	if(ddpf.size == 0) {
 		if(flags & DDS_FLAGS_FORCE_DX9_LEGACY)
 			return HRESULT_E_CANNOT_MAKE;
-
 		required += sizeof(DDS_HEADER_DXT10);
 	}
-
 	if(!pDestination)
 		return S_OK;
-
 	if(maxsize < required)
 		return E_NOT_SUFFICIENT_BUFFER;
-
 	*static_cast<uint32_t*>(pDestination) = DDS_MAGIC;
-
 	auto header = reinterpret_cast<DDS_HEADER*>(static_cast<uint8_t*>(pDestination) + sizeof(uint32_t));
 	assert(header);
-
-	memset(header, 0, sizeof(DDS_HEADER));
+	memzero(header, sizeof(DDS_HEADER));
 	header->size = sizeof(DDS_HEADER);
 	header->flags = DDS_HEADER_FLAGS_TEXTURE;
 	header->caps = DDS_SURFACE_FLAGS_TEXTURE;
-
 	if(metadata.mipLevels > 0) {
 		header->flags |= DDS_HEADER_FLAGS_MIPMAP;
-
 		if(metadata.mipLevels > UINT16_MAX)
 			return E_INVALIDARG;
-
 		header->mipMapCount = static_cast<uint32_t>(metadata.mipLevels);
-
 		if(header->mipMapCount > 1)
 			header->caps |= DDS_SURFACE_FLAGS_MIPMAP;
 	}
-
-	switch(metadata.dimension)
-	{
+	switch(metadata.dimension) {
 		case TEX_DIMENSION_TEXTURE1D:
 		    if(metadata.width > UINT32_MAX)
 			    return E_INVALIDARG;
@@ -757,14 +729,11 @@ HRESULT DirectX::EncodeDDSHeader(const TexMetadata& metadata,
 		header->flags |= DDS_HEADER_FLAGS_PITCH;
 		header->pitchOrLinearSize = static_cast<uint32_t>(rowPitch);
 	}
-
 	if(ddpf.size == 0) {
 		memcpy(&header->ddspf, &DDSPF_DX10, sizeof(DDS_PIXELFORMAT));
-
 		auto ext = reinterpret_cast<DDS_HEADER_DXT10*>(reinterpret_cast<uint8_t*>(header) + sizeof(DDS_HEADER));
 		assert(ext);
-
-		memset(ext, 0, sizeof(DDS_HEADER_DXT10));
+		memzero(ext, sizeof(DDS_HEADER_DXT10));
 		ext->dxgiFormat = metadata.format;
 		ext->resourceDimension = metadata.dimension;
 
@@ -1448,20 +1417,13 @@ HRESULT CopyImageInPlace(uint32_t convFlags, _In_ const ScratchImage& image) noe
 	return S_OK;
 }
 }
-
-//=====================================================================================
+//
 // Entry-points
-//=====================================================================================
-
-//-------------------------------------------------------------------------------------
+//
 // Obtain metadata from DDS file in memory/on disk
-//-------------------------------------------------------------------------------------
-
-_Use_decl_annotations_
-HRESULT DirectX::GetMetadataFromDDSMemory(const void* pSource,
-    size_t size,
-    DDS_FLAGS flags,
-    TexMetadata& metadata) noexcept
+//
+_Use_decl_annotations_ HRESULT DirectX::GetMetadataFromDDSMemory(const void* pSource,
+    size_t size, DDS_FLAGS flags, TexMetadata& metadata) noexcept
 {
 	if(!pSource || size == 0)
 		return E_INVALIDARG;
@@ -1470,8 +1432,7 @@ HRESULT DirectX::GetMetadataFromDDSMemory(const void* pSource,
 	return DecodeDDSHeader(pSource, size, flags, metadata, convFlags);
 }
 
-_Use_decl_annotations_
-HRESULT DirectX::GetMetadataFromDDSFile(const wchar_t* szFile,
+_Use_decl_annotations_ HRESULT DirectX::GetMetadataFromDDSFile(const wchar_t* szFile,
     DDS_FLAGS flags,
     TexMetadata& metadata) noexcept
 {
@@ -1543,16 +1504,13 @@ HRESULT DirectX::GetMetadataFromDDSFile(const wchar_t* szFile,
 	if(!inFile)
 		return E_FAIL;
 #endif
-
 	uint32_t convFlags = 0;
 	return DecodeDDSHeader(header, headerLen, flags, metadata, convFlags);
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Load a DDS file in memory
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::LoadFromDDSMemory(const void* pSource,
+//
+_Use_decl_annotations_ HRESULT DirectX::LoadFromDDSMemory(const void* pSource,
     size_t size,
     DDS_FLAGS flags,
     TexMetadata* metadata,

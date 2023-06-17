@@ -28,7 +28,7 @@ UnicodeString & UnicodeString::trim()
 		return *this;
 	}
 
-	UChar * array = getArrayStart();
+	char16_t * array = getArrayStart();
 	UChar32 c;
 	int32_t oldLength = this->length();
 	int32_t i = oldLength, length;

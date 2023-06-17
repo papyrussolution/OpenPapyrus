@@ -251,7 +251,7 @@ U_NAMESPACE_END
  * @param listfmt
  *            The UListFormatter object specifying the list conventions.
  * @param strings
- *            An array of pointers to UChar strings; the array length is
+ *            An array of pointers to char16_t strings; the array length is
  *            specified by stringCount. Must be non-NULL if stringCount > 0.
  * @param stringLengths
  *            An array of string lengths corresponding to the strings[]
@@ -279,8 +279,8 @@ U_NAMESPACE_END
  *            total buffer size needed (e.g. for illegal arguments).
  * @stable ICU 55
  */
-U_CAPI int32_t U_EXPORT2 ulistfmt_format(const UListFormatter* listfmt, const UChar* const strings[], const int32_t *    stringLengths,
-    int32_t stringCount, UChar*             result, int32_t resultCapacity, UErrorCode*        status);
+U_CAPI int32_t U_EXPORT2 ulistfmt_format(const UListFormatter* listfmt, const char16_t* const strings[], const int32_t *    stringLengths,
+    int32_t stringCount, char16_t*             result, int32_t resultCapacity, UErrorCode*        status);
 
 /**
  * Formats a list of strings to a UFormattedList, which exposes more
@@ -289,7 +289,7 @@ U_CAPI int32_t U_EXPORT2 ulistfmt_format(const UListFormatter* listfmt, const UC
  * @param listfmt
  *            The UListFormatter object specifying the list conventions.
  * @param strings
- *            An array of pointers to UChar strings; the array length is
+ *            An array of pointers to char16_t strings; the array length is
  *            specified by stringCount. Must be non-NULL if stringCount > 0.
  * @param stringLengths
  *            An array of string lengths corresponding to the strings[]
@@ -308,7 +308,7 @@ U_CAPI int32_t U_EXPORT2 ulistfmt_format(const UListFormatter* listfmt, const UC
  *            Error code set if an error occurred during formatting.
  * @stable ICU 64
  */
-U_CAPI void U_EXPORT2 ulistfmt_formatStringsToResult(const UListFormatter* listfmt, const UChar* const strings[],
+U_CAPI void U_EXPORT2 ulistfmt_formatStringsToResult(const UListFormatter* listfmt, const char16_t* const strings[],
     const int32_t *    stringLengths, int32_t stringCount, UFormattedList*    uresult, UErrorCode*        status);
 
 #endif /* #if !UCONFIG_NO_FORMATTING */

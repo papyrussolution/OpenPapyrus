@@ -161,7 +161,7 @@
  *       const char * uloc_getAvailable(int32_t index);
  *       int32_t uloc_countAvailable();
  *       int32_t
- *       uloc_getDisplayName(const char * localeID, const char * inLocaleID, UChar * result, int32_t maxResultSize, UErrorCode * err);
+ *       uloc_getDisplayName(const char * localeID, const char * inLocaleID, char16_t * result, int32_t maxResultSize, UErrorCode * err);
  *
  * \endcode
  * </pre>
@@ -480,7 +480,7 @@ U_CAPI uint32_t U_EXPORT2 uloc_getLCID(const char * localeID);
  *                 code will be truncated.
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 uloc_getDisplayLanguage(const char * locale, const char * displayLocale, UChar * language, int32_t languageCapacity, UErrorCode * status);
+U_CAPI int32_t U_EXPORT2 uloc_getDisplayLanguage(const char * locale, const char * displayLocale, char16_t * language, int32_t languageCapacity, UErrorCode * status);
 /**
  * Gets the script name suitable for display for the specified locale.
  *
@@ -503,7 +503,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayLanguage(const char * locale, const char
  *                 script code will be truncated.
  * @stable ICU 2.8
  */
-U_CAPI int32_t U_EXPORT2 uloc_getDisplayScript(const char * locale, const char * displayLocale, UChar * script, int32_t scriptCapacity, UErrorCode * status);
+U_CAPI int32_t U_EXPORT2 uloc_getDisplayScript(const char * locale, const char * displayLocale, char16_t * script, int32_t scriptCapacity, UErrorCode * status);
 /**
  * Gets the country name suitable for display for the specified locale.
  * Warning: this is for the region part of a valid locale ID; it cannot just be
@@ -529,7 +529,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayScript(const char * locale, const char *
  *                 country code will be truncated.
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 uloc_getDisplayCountry(const char * locale, const char * displayLocale, UChar * country, int32_t countryCapacity, UErrorCode * status);
+U_CAPI int32_t U_EXPORT2 uloc_getDisplayCountry(const char * locale, const char * displayLocale, char16_t * country, int32_t countryCapacity, UErrorCode * status);
 /**
  * Gets the variant name suitable for display for the specified locale.
  *
@@ -552,7 +552,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayCountry(const char * locale, const char 
  *                 variant code will be truncated.
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 uloc_getDisplayVariant(const char * locale, const char * displayLocale, UChar * variant, int32_t variantCapacity, UErrorCode * status);
+U_CAPI int32_t U_EXPORT2 uloc_getDisplayVariant(const char * locale, const char * displayLocale, char16_t * variant, int32_t variantCapacity, UErrorCode * status);
 /**
  * Gets the keyword name suitable for display for the specified locale. E.g:
  * for the locale string de_DE\@collation=PHONEBOOK, this API gets the display
@@ -563,7 +563,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayVariant(const char * locale, const char 
  *    const char * keyword =NULL;
  *    int32_t keywordLen = 0;
  *    int32_t keywordCount = 0;
- *    UChar displayKeyword[256];
+ *    char16_t displayKeyword[256];
  *    int32_t displayKeywordLen = 0;
  *    UEnumeration* keywordEnum = uloc_openKeywords("de_DE@collation=PHONEBOOK;calendar=TRADITIONAL", &status);
  *    for(keywordCount = uenum_count(keywordEnum, &status); keywordCount > 0 ; keywordCount--){
@@ -597,7 +597,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayVariant(const char * locale, const char 
  */
 U_CAPI int32_t U_EXPORT2 uloc_getDisplayKeyword(const char * keyword,
     const char * displayLocale,
-    UChar * dest,
+    char16_t * dest,
     int32_t destCapacity,
     UErrorCode * status);
 /**
@@ -626,7 +626,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayKeyword(const char * keyword,
 U_CAPI int32_t U_EXPORT2 uloc_getDisplayKeywordValue(const char * locale,
     const char * keyword,
     const char * displayLocale,
-    UChar * dest,
+    char16_t * dest,
     int32_t destCapacity,
     UErrorCode * status);
 /**
@@ -647,7 +647,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayKeywordValue(const char * locale,
  */
 U_CAPI int32_t U_EXPORT2 uloc_getDisplayName(const char * localeID,
     const char * inLocaleID,
-    UChar * result,
+    char16_t * result,
     int32_t maxResultSize,
     UErrorCode * err);
 

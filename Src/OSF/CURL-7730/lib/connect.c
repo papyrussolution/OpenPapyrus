@@ -397,7 +397,7 @@ static CURLcode bindlocal(struct connectdata * conn,
 						   Curl_printable_address. The latter returns only numeric scope
 						   IDs and the former returns none at all.  So the scope ID, if
 						   present, is known to be numeric */
-						si6->sin6_scope_id = atoi(scope_ptr);
+						si6->sin6_scope_id = satoi(scope_ptr);
 #endif
 				}
 				sizeof_sa = sizeof(struct sockaddr_in6);

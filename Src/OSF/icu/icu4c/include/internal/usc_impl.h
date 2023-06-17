@@ -29,7 +29,7 @@
  * Here is an example of how to iterate over script runs:
  * <pre>
  * \code
- * void printScriptRuns(const UChar *text, int32_t length)
+ * void printScriptRuns(const char16_t *text, int32_t length)
  * {
  *     UErrorCode error = U_ZERO_ERROR;
  *     UScriptRun *scriptRun = uscript_openRun(text, testLength, &error);
@@ -66,7 +66,7 @@ typedef struct UScriptRun UScriptRun;
  * @return the address of <code>UScriptRun</code> object which will iterate over the text,
  *         or <code>NULL</code> if the operation failed.
  */
-U_CAPI UScriptRun * U_EXPORT2 uscript_openRun(const UChar *src, int32_t length, UErrorCode *pErrorCode);
+U_CAPI UScriptRun * U_EXPORT2 uscript_openRun(const char16_t *src, int32_t length, UErrorCode *pErrorCode);
 /**
  * Frees the given <code>UScriptRun</code> object and any storage associated with it.
  * On return, scriptRun no longer points to a valid <code>UScriptRun</code> object.
@@ -96,7 +96,7 @@ U_CAPI void U_EXPORT2 uscript_resetRun(UScriptRun *scriptRun);
  *        indicates a failure on entry, the function will immediately return.
  *        On exit the value will indicate the success of the operation.
  */
-U_CAPI void U_EXPORT2 uscript_setRunText(UScriptRun *scriptRun, const UChar *src, int32_t length, UErrorCode *pErrorCode);
+U_CAPI void U_EXPORT2 uscript_setRunText(UScriptRun *scriptRun, const char16_t *src, int32_t length, UErrorCode *pErrorCode);
 /**
  * Advance the <code>UScriptRun</code> object to the next script run, return the start and limit
  * offsets, and the script of the run.

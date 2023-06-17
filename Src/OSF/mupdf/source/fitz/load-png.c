@@ -315,19 +315,16 @@ static void png_read_icc(fz_context * ctx, struct info * info, const uchar * p, 
 	fz_stream * mstm = NULL, * zstm = NULL;
 	fz_colorspace * cs = NULL;
 	fz_buffer * buf = NULL;
-	size_t m = fz_mini(80, size);
-	size_t n = fz_strnlen((const char *)p, m);
+	size_t m = smin(80U, size);
+	size_t n = sstrnlen(p, m);
 	if(n + 2 > m) {
 		fz_warn(ctx, "invalid ICC profile name");
 		return;
 	}
-
 	fz_var(mstm);
 	fz_var(zstm);
 	fz_var(buf);
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		mstm = fz_open_memory(ctx, p + n + 2, size - n - 2);
 		zstm = fz_open_flated(ctx, mstm, 15);
 		buf = fz_read_all(ctx, zstm, 0);
@@ -349,10 +346,8 @@ static void png_read_icc(fz_context * ctx, struct info * info, const uchar * p, 
 static void png_read_idat(fz_context * ctx, struct info * info, const uchar * p, uint size, z_stream * stm)
 {
 	int code;
-
 	stm->next_in = (Byte *)p;
 	stm->avail_in = size;
-
 	code = inflate(stm, Z_SYNC_FLUSH);
 	if(code != Z_OK && code != Z_STREAM_END)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "zlib error: %s", stm->msg);
@@ -598,25 +593,15 @@ fz_pixmap * fz_load_png(fz_context * ctx, const uchar * p, size_t total)
 	return image;
 }
 
-void fz_load_png_info(fz_context * ctx,
-    const uchar * p,
-    size_t total,
-    int * wp,
-    int * hp,
-    int * xresp,
-    int * yresp,
-    fz_colorspace ** cspacep)
+void fz_load_png_info(fz_context * ctx, const uchar * p, size_t total, int * wp, int * hp, int * xresp, int * yresp, fz_colorspace ** cspacep)
 {
 	struct info png;
-
 	fz_try(ctx)
 	png_read_image(ctx, &png, p, total, 1);
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_drop_colorspace(ctx, png.cs);
 		fz_rethrow(ctx);
 	}
-
 	*cspacep = png.cs;
 	*wp = png.width;
 	*hp = png.height;

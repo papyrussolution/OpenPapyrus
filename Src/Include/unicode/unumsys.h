@@ -168,7 +168,7 @@ unumsys_getRadix(const UNumberingSystem *unumsys);
  * @stable ICU 52
  */
 U_CAPI int32_t U_EXPORT2
-unumsys_getDescription(const UNumberingSystem *unumsys, UChar *result,
+unumsys_getDescription(const UNumberingSystem *unumsys, char16_t *result,
                        int32_t resultLength, UErrorCode *status);
 
 #endif /* #if !UCONFIG_NO_FORMATTING */

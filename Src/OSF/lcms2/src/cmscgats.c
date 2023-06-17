@@ -1311,35 +1311,28 @@ static void WriteHeader(cmsIT8 * it8, SAVESTREAM* fp)
 
 			AddAvailableProperty(it8, p->Keyword, WRITE_UNCOOKED);
 		}
-
 		WriteStr(fp, p->Keyword);
 		if(p->Value) {
 			switch(p->WriteAs) {
 				case WRITE_UNCOOKED:
 				    Writef(fp, "\t%s", p->Value);
 				    break;
-
 				case WRITE_STRINGIFY:
 				    Writef(fp, "\t\"%s\"", p->Value);
 				    break;
-
 				case WRITE_HEXADECIMAL:
-				    Writef(fp, "\t0x%X", atoi(p->Value));
+				    Writef(fp, "\t0x%X", satoi(p->Value));
 				    break;
-
 				case WRITE_BINARY:
-				    Writef(fp, "\t0x%B", atoi(p->Value));
+				    Writef(fp, "\t0x%B", satoi(p->Value));
 				    break;
-
 				case WRITE_PAIR:
 				    Writef(fp, "\t\"%s,%s\"", p->Subkey, p->Value);
 				    break;
-
 				default: SynError(it8, "Unknown write mode %d", p->WriteAs);
 				    return;
 			}
 		}
-
 		WriteStr(fp, "\n");
 	}
 }
@@ -1351,7 +1344,7 @@ static void WriteDataFormat(SAVESTREAM* fp, cmsIT8 * it8)
 	if(t->DataFormat) {
 		WriteStr(fp, "BEGIN_DATA_FORMAT\n");
 		WriteStr(fp, " ");
-		const int nSamples = atoi(cmsIT8GetProperty(it8, "NUMBER_OF_FIELDS"));
+		const int nSamples = satoi(cmsIT8GetProperty(it8, "NUMBER_OF_FIELDS"));
 		for(int i = 0; i < nSamples; i++) {
 			WriteStr(fp, t->DataFormat[i]);
 			WriteStr(fp, ((i == (nSamples-1)) ? "\n" : "\t"));

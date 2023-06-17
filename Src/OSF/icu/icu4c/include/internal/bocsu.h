@@ -146,7 +146,7 @@ U_NAMESPACE_END
 #endif
 
 U_CFUNC UChar32
-u_writeIdenticalLevelRun(UChar32 prev, const UChar *s, int32_t length, icu::ByteSink &sink);
+u_writeIdenticalLevelRun(UChar32 prev, const char16_t *s, int32_t length, icu::ByteSink &sink);
 
 #endif /* #if !UCONFIG_NO_COLLATION */
 

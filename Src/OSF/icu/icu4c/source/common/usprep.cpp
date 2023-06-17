@@ -387,7 +387,7 @@ U_CAPI void U_EXPORT2 usprep_close(UStringPrepProfile* profile) {
 	umtx_unlock(&usprepMutex);
 }
 
-U_CFUNC void uprv_syntaxError(const UChar * rules,
+U_CFUNC void uprv_syntaxError(const char16_t * rules,
     int32_t pos,
     int32_t rulesLen,
     UParseError* parseError) {
@@ -458,10 +458,10 @@ static inline UStringPrepType getValues(uint16 trieWord, int16& value, bool& isI
 	return type;
 }
 
-// TODO: change to writing to UnicodeString not UChar *
+// TODO: change to writing to UnicodeString not char16_t *
 static int32_t usprep_map(const UStringPrepProfile* profile,
-    const UChar * src, int32_t srcLength,
-    UChar * dest, int32_t destCapacity,
+    const char16_t * src, int32_t srcLength,
+    char16_t * dest, int32_t destCapacity,
     int32_t options,
     UParseError* parseError,
     UErrorCode * status) {
@@ -536,7 +536,7 @@ static int32_t usprep_map(const UStringPrepProfile* profile,
 		//copy the code point into destination
 		if(ch <= 0xFFFF) {
 			if(destIndex < destCapacity) {
-				dest[destIndex] = (UChar)ch;
+				dest[destIndex] = (char16_t)ch;
 			}
 			destIndex++;
 		}
@@ -591,8 +591,8 @@ static int32_t usprep_map(const UStringPrepProfile* profile,
           RandALCat character MUST be the last character of the string.
  */
 U_CAPI int32_t U_EXPORT2 usprep_prepare(const UStringPrepProfile* profile,
-    const UChar * src, int32_t srcLength,
-    UChar * dest, int32_t destCapacity,
+    const char16_t * src, int32_t srcLength,
+    char16_t * dest, int32_t destCapacity,
     int32_t options,
     UParseError* parseError,
     UErrorCode * status) {
@@ -615,7 +615,7 @@ U_CAPI int32_t U_EXPORT2 usprep_prepare(const UStringPrepProfile* profile,
 	}
 	// map
 	UnicodeString s1;
-	UChar * b1 = s1.getBuffer(srcLength);
+	char16_t * b1 = s1.getBuffer(srcLength);
 	if(b1==NULL) {
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return 0;
@@ -660,7 +660,7 @@ U_CAPI int32_t U_EXPORT2 usprep_prepare(const UStringPrepProfile* profile,
 	}
 
 	// Prohibit and checkBiDi in one pass
-	const UChar * b2 = s2.getBuffer();
+	const char16_t * b2 = s2.getBuffer();
 	int32_t b2Len = s2.length();
 	UCharDirection direction = U_CHAR_DIRECTION_COUNT, firstCharDir = U_CHAR_DIRECTION_COUNT;
 	bool leftToRight = FALSE, rightToLeft = FALSE;

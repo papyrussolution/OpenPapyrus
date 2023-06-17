@@ -61,12 +61,12 @@ typedef struct UCollationElements UCollationElements;
  * <pre>
  * .  void CollationElementIterator_Example()
  * .  {
- * .      UChar *s;
+ * .      char16_t *s;
  * .      t_int32 order, primaryOrder;
  * .      UCollationElements *c;
  * .      UCollatorOld *coll;
  * .      UErrorCode success = U_ZERO_ERROR;
- * .      str=(UChar *)malloc(sizeof(UChar) * (strlen("This is a test")+1));
+ * .      str=(char16_t *)malloc(sizeof(char16_t) * (strlen("This is a test")+1));
  * .      u_uastrcpy(str, "This is a test");
  * .      coll = ucol_open(NULL, &success);
  * .      c = ucol_openElements(coll, str, u_strlen(str), &status);
@@ -113,7 +113,7 @@ typedef struct UCollationElements UCollationElements;
  * @return a struct containing collation element information
  * @stable ICU 2.0
  */
-U_CAPI UCollationElements* U_EXPORT2 ucol_openElements(const UCollator * coll, const UChar * text, int32_t textLength, UErrorCode * status);
+U_CAPI UCollationElements* U_EXPORT2 ucol_openElements(const UCollator * coll, const char16_t * text, int32_t textLength, UErrorCode * status);
 /**
  * get a hash code for a key... Not very useful!
  * @param key    the given key.
@@ -193,7 +193,7 @@ U_CAPI int32_t U_EXPORT2 ucol_getMaxExpansion(const UCollationElements * elems, 
  * @see ucol_getText
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 ucol_setText(UCollationElements * elems, const UChar * text, int32_t textLength, UErrorCode * status);
+U_CAPI void U_EXPORT2 ucol_setText(UCollationElements * elems, const char16_t * text, int32_t textLength, UErrorCode * status);
 /**
  * Get the offset of the current source character.
  * This is an offset into the text of the character containing the current

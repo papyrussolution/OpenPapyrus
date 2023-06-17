@@ -496,8 +496,9 @@ public class StyloQInterchange {
 						StyloQDatabase.SecStoragePacket svc_pack = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, svcIdent);
 						String svc_name = (svc_pack != null) ? svc_pack.GetSvcName(null) : null;
 						for(int i = 0; i < evnt_list.size(); i++) {
-							final SvcNotification item = evnt_list.get(i);
+							SvcNotification item = evnt_list.get(i);
 							if(item != null) {
+								item.SvcID = svc_pack.Rec.ID; // @v11.7.6 @fix
 								long id = db.StoreNotification_new(item, false);
 								if(id > 0 && SLib.GetLen(svc_name) > 0) {
 									NotificationCompat.Builder builder = new NotificationCompat.Builder(appCtx, StyloQApp.NotificationChannelIdent)

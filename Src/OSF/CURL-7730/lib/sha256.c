@@ -214,14 +214,11 @@ static void SHA256_Update(SHA256_CTX * ctx,
 static void SHA256_Final(uchar * digest, SHA256_CTX * ctx)
 {
 	ulong length = 0;
-
 	CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
 	if(length == SHA256_DIGEST_LENGTH)
 		CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
-
 	if(ctx->hHash)
 		CryptDestroyHash(ctx->hHash);
-
 	if(ctx->hCryptProv)
 		CryptReleaseContext(ctx->hCryptProv, 0);
 }
@@ -327,10 +324,8 @@ static int sha256_compress(struct sha256_state * md, uchar * buf)
 		W[i] = WPA_GET_BE32(buf + (4 * i));
 	/* fill W[16..63] */
 	for(i = 16; i < 64; i++) {
-		W[i] = Gamma1(W[i - 2]) + W[i - 7] + Gamma0(W[i - 15]) +
-		    W[i - 16];
+		W[i] = Gamma1(W[i - 2]) + W[i - 7] + Gamma0(W[i - 15]) + W[i - 16];
 	}
-
 	/* Compress */
 #define RND(a, b, c, d, e, f, g, h, i)                                  \
 	ulong t0 = h + Sigma1(e) + Ch(e, f, g) + K[i] + W[i]; \

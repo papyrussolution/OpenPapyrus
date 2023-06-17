@@ -58,7 +58,7 @@ static inline void uprv_arrayCopy(const int32_t* src, int32_t srcStart, int32_t*
 	uprv_memcpy(dst+dstStart, src+srcStart, (size_t)count * sizeof(*src));
 }
 
-static inline void uprv_arrayCopy(const UChar * src, int32_t srcStart, UChar * dst, int32_t dstStart, int32_t count)
+static inline void uprv_arrayCopy(const char16_t * src, int32_t srcStart, char16_t * dst, int32_t dstStart, int32_t count)
 {
 	uprv_memcpy(dst+dstStart, src+srcStart, (size_t)count * sizeof(*src));
 }

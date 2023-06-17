@@ -3,7 +3,7 @@
 #include <slib.h>
 #include "gl-app.h"
 
-static char * find_string_location(char * s, char * e, float w, float x)
+static const char * find_string_location(const char * s, const char * e, float w, float x)
 {
 	int c;
 	while(s < e) {
@@ -17,7 +17,7 @@ static char * find_string_location(char * s, char * e, float w, float x)
 	return e;
 }
 
-static char * find_input_location(struct line * lines, int n, float left, float top, float x, float y)
+static const char * find_input_location(struct line * lines, int n, float left, float top, float x, float y)
 {
 	int i = 0;
 	if(y > top) i = (y - top) / ui.lineheight;
@@ -355,7 +355,7 @@ int ui_input(struct input * input, int width, int height)
 	n = ui_break_lines(input->text, lines, nelem(lines), area.x1-area.x0-2, NULL);
 
 	if(height > 1)
-		ui_scrollbar(area.x1, area.y0, area.x1+ui.lineheight, area.y1, &input->scroll, 1, fz_maxi(0, n-height)+1);
+		ui_scrollbar(area.x1, area.y0, area.x1+ui.lineheight, area.y1, &input->scroll, 1, smax(0, n-height)+1);
 	else
 		input->scroll = 0;
 
@@ -369,13 +369,13 @@ int ui_input(struct input * input, int width, int height)
 		if(!ui.active || ui.active == input)
 			ui.cursor = GLUT_CURSOR_TEXT;
 		if(!ui.active && ui.down) {
-			input->p = find_input_location(lines, n, ax, ay-sy, ui.x, ui.y);
+			input->p = const_cast<char *>(find_input_location(lines, n, ax, ay-sy, ui.x, ui.y)); // @badcast
 			ui.active = input;
 		}
 	}
 
 	if(ui.active == input) {
-		input->q = find_input_location(lines, n, ax, ay-sy, ui.x, ui.y);
+		input->q = const_cast<char *>(find_input_location(lines, n, ax, ay-sy, ui.x, ui.y)); // @badcast
 		ui.focus = input;
 	}
 
@@ -383,7 +383,8 @@ int ui_input(struct input * input, int width, int height)
 	q = input->p > input->q ? input->p : input->q;
 
 	for(i = input->scroll; i < n && i < input->scroll+height; ++i) {
-		char * a = lines[i].a, * b = lines[i].b;
+		const char * a = lines[i].a;
+		const char * b = lines[i].b;
 		if(ui.focus == input) {
 			if(p >= a && p <= b && q >= a && q <= b) {
 				float px = ax + ui_measure_string_part(a, p);

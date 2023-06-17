@@ -314,7 +314,7 @@ typedef struct UFormattedValue UFormattedValue;
  * @return A NUL-terminated char16 string owned by the UFormattedValue.
  * @stable ICU 64
  */
-U_CAPI const UChar* U_EXPORT2 ufmtval_getString(const UFormattedValue* ufmtval, int32_t* pLength, UErrorCode* ec);
+U_CAPI const char16_t* U_EXPORT2 ufmtval_getString(const UFormattedValue* ufmtval, int32_t* pLength, UErrorCode* ec);
 
 /**
  * Iterates over field positions in the UFormattedValue. This lets you determine the position

@@ -32,10 +32,10 @@
 		XML_MODULE_LOCAL = 2    /* local binding */
 	};
 
-	XMLPUBFUN xmlModule * XMLCALL xmlModuleOpen(const char * filename, int options);
-	XMLPUBFUN int XMLCALL xmlModuleSymbol(xmlModule * module, const char * name, void ** result);
-	XMLPUBFUN int XMLCALL xmlModuleClose(xmlModule * module);
-	XMLPUBFUN int XMLCALL xmlModuleFree(xmlModule * module);
+	XMLPUBFUN xmlModule * xmlModuleOpen(const char * filename, int options);
+	XMLPUBFUN int xmlModuleSymbol(xmlModule * module, const char * name, void ** result);
+	XMLPUBFUN int xmlModuleClose(xmlModule * module);
+	XMLPUBFUN int xmlModuleFree(xmlModule * module);
 
 	#ifdef __cplusplus
 	}

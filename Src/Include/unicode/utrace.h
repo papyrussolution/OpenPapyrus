@@ -376,7 +376,7 @@ U_CAPI void U_EXPORT2 utrace_getFunctions(const void ** context,
  * Type characters:
  * - c A char character in the default codepage.
  * - s A NUL-terminated char * string in the default codepage.
- * - S A UChar * string.  Requires two params, (ptr, length).  Length=-1 for nul term.
+ * - S A char16_t * string.  Requires two params, (ptr, length).  Length=-1 for nul term.
  * - b A byte (8-bit integer).
  * - h A 16-bit integer.  Also a 16 bit Unicode code unit.
  * - d A 32-bit integer.  Also a 20 bit Unicode code point value.
@@ -393,7 +393,7 @@ U_CAPI void U_EXPORT2 utrace_getFunctions(const void ** context,
  * and an int32_t value for the length of the vector.
  * Length==-1 means zero or NUL termination.  Works for vectors of all types.
  *
- * Note:  %vS is a vector of (UChar *) strings.  The strings must
+ * Note:  %vS is a vector of (char16_t *) strings.  The strings must
  *        be nul terminated as there is no way to provide a
  *        separate length parameter for each string.  The length
  *        parameter (required for all vectors) is the number of

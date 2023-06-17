@@ -24,7 +24,7 @@
 #define LOWERCASE_Z 0x007A
 #define UPPERCASE_Z 0x005A
 
-int ufmt_digitvalue(UChar c)
+int ufmt_digitvalue(char16_t c)
 {
 	if(((c>=DIGIT_0)&&(c<=DIGIT_9)) || ((c>=LOWERCASE_A)&&(c<=LOWERCASE_Z)) || ((c>=UPPERCASE_A)&&(c<=UPPERCASE_Z))) {
 		return c - DIGIT_0 - (c >= 0x0041 ? (c >= 0x0061 ? 39 : 7) : 0);
@@ -34,7 +34,7 @@ int ufmt_digitvalue(UChar c)
 	}
 }
 
-bool ufmt_isdigit(UChar c, int32_t radix)
+bool ufmt_isdigit(char16_t c, int32_t radix)
 {
 	int digitVal = ufmt_digitvalue(c);
 	return (bool)(digitVal < radix && digitVal >= 0);
@@ -43,15 +43,15 @@ bool ufmt_isdigit(UChar c, int32_t radix)
 #define TO_UC_DIGIT(a) a <= 9 ? (DIGIT_0 + a) : (0x0037 + a)
 #define TO_LC_DIGIT(a) a <= 9 ? (DIGIT_0 + a) : (0x0057 + a)
 
-void ufmt_64tou(UChar * buffer, int32_t * len, uint64_t value, uint8 radix, bool uselower, int32_t minDigits)
+void ufmt_64tou(char16_t * buffer, int32_t * len, uint64_t value, uint8 radix, bool uselower, int32_t minDigits)
 {
 	int32_t length = 0;
 	uint32_t digit;
-	UChar * left, * right, temp;
+	char16_t * left, * right, temp;
 	do {
 		digit = (uint32_t)(value % radix);
 		value = value / radix;
-		buffer[length++] = (UChar)(uselower ? TO_LC_DIGIT(digit) : TO_UC_DIGIT(digit));
+		buffer[length++] = (char16_t)(uselower ? TO_LC_DIGIT(digit) : TO_UC_DIGIT(digit));
 	} while(value);
 	/* pad with zeroes to make it minDigits long */
 	if(minDigits != -1 && length < minDigits) {
@@ -70,7 +70,7 @@ void ufmt_64tou(UChar * buffer, int32_t * len, uint64_t value, uint8 radix, bool
 	*len = length;
 }
 
-void ufmt_ptou(UChar * buffer, int32_t * len, void * value, bool uselower)
+void ufmt_ptou(char16_t * buffer, int32_t * len, void * value, bool uselower)
 {
 	int32_t i;
 	int32_t length = 0;
@@ -97,10 +97,10 @@ void ufmt_ptou(UChar * buffer, int32_t * len, void * value, bool uselower)
 	*len = length;
 }
 
-int64_t ufmt_uto64(const UChar * buffer, int32_t * len, int8 radix)
+int64_t ufmt_uto64(const char16_t * buffer, int32_t * len, int8 radix)
 {
 	/* initialize parameters */
-	const UChar * limit     = buffer + *len;
+	const char16_t * limit     = buffer + *len;
 	int32_t count     = 0;
 	uint64_t result    = 0;
 	/* iterate through buffer */
@@ -116,7 +116,7 @@ int64_t ufmt_uto64(const UChar * buffer, int32_t * len, int8 radix)
 }
 
 #define NIBBLE_PER_BYTE 2
-void * ufmt_utop(const UChar * buffer, int32_t * len)
+void * ufmt_utop(const char16_t * buffer, int32_t * len)
 {
 	int32_t count, resultIdx, incVal, offset;
 	/* This union allows the pointer to be written as an array. */
@@ -166,9 +166,9 @@ void * ufmt_utop(const UChar * buffer, int32_t * len)
 	return result.ptr;
 }
 
-UChar * ufmt_defaultCPToUnicode(const char * s, int32_t sSize, UChar * target, int32_t tSize)
+char16_t * ufmt_defaultCPToUnicode(const char * s, int32_t sSize, char16_t * target, int32_t tSize)
 {
-	UChar * alias;
+	char16_t * alias;
 	UErrorCode status = U_ZERO_ERROR;
 	UConverter * defConverter = u_getDefaultConverter(&status);
 	if(U_FAILURE(status) || defConverter == 0)

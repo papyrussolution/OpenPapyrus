@@ -232,7 +232,6 @@ static int parse_options(int argc, char * argv[], jbig2dec_params_t * params)
 		option = getopt_long(argc, argv, "Vh?qv:do:t:eM:", long_options, &option_idx);
 		if(option == -1)
 			break;
-
 		switch(option) {
 			case 0: /* unknown long option */
 			    if(!params->verbose)
@@ -243,7 +242,7 @@ static int parse_options(int argc, char * argv[], jbig2dec_params_t * params)
 			    break;
 			case 'v':
 			    if(optarg)
-				    params->verbose = atoi(optarg);
+				    params->verbose = satoi(optarg);
 			    else
 				    params->verbose = 2;
 			    break;

@@ -136,7 +136,7 @@ struct fz_stext_block
 struct fz_stext_line
 {
 	int wmode; /* 0 for horizontal, 1 for vertical */
-	fz_point dir; /* normalized direction of baseline */
+	SPoint2F dir; /* normalized direction of baseline */
 	fz_rect bbox;
 	fz_stext_char *first_char, *last_char;
 	fz_stext_line *prev, *next;
@@ -150,7 +150,7 @@ struct fz_stext_char
 {
 	int c;
 	int color; /* sRGB hex color */
-	fz_point origin;
+	SPoint2F origin;
 	fz_quad quad;
 	float size;
 	fz_font *font;
@@ -214,7 +214,7 @@ int fz_search_stext_page(fz_context *ctx, fz_stext_page *text, const char *needl
 	Return a list of quads to highlight lines inside the selection
 	points.
 */
-int fz_highlight_selection(fz_context *ctx, fz_stext_page *page, fz_point a, fz_point b, fz_quad *quads, int max_quads);
+int fz_highlight_selection(fz_context *ctx, fz_stext_page *page, SPoint2F a, SPoint2F b, fz_quad *quads, int max_quads);
 
 enum
 {
@@ -223,7 +223,7 @@ enum
 	FZ_SELECT_LINES,
 };
 
-fz_quad fz_snap_selection(fz_context *ctx, fz_stext_page *page, fz_point *ap, fz_point *bp, int mode);
+fz_quad fz_snap_selection(fz_context *ctx, fz_stext_page *page, SPoint2F *ap, SPoint2F *bp, int mode);
 
 /**
 	Return a newly allocated UTF-8 string with the text for a given
@@ -232,7 +232,7 @@ fz_quad fz_snap_selection(fz_context *ctx, fz_stext_page *page, fz_point *ap, fz
 	crlf: If true, write "\r\n" style line endings (otherwise "\n"
 	only).
 */
-char *fz_copy_selection(fz_context *ctx, fz_stext_page *page, fz_point a, fz_point b, int crlf);
+char *fz_copy_selection(fz_context *ctx, fz_stext_page *page, SPoint2F a, SPoint2F b, int crlf);
 
 /**
 	Return a newly allocated UTF-8 string with the text for a given

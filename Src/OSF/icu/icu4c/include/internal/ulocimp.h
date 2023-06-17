@@ -21,7 +21,7 @@ U_CAPI UEnumeration* U_EXPORT2 uloc_openKeywordList(const char * keywordList, in
  * Look up a resource bundle table item with fallback on the table level.
  * This is accessible so it can be called by C++ code.
  */
-U_CAPI const UChar * U_EXPORT2 uloc_getTableStringWithFallback(const char * path, const char * locale, const char * tableKey, const char * subTableKey, const char * itemKey, int32_t * pLength, UErrorCode * pErrorCode);
+U_CAPI const char16_t * U_EXPORT2 uloc_getTableStringWithFallback(const char * path, const char * locale, const char * tableKey, const char * subTableKey, const char * itemKey, int32_t * pLength, UErrorCode * pErrorCode);
 /*returns true if a is an ID separator false otherwise*/
 #define _isIDSeparator(a) (a == '_' || a == '-')
 

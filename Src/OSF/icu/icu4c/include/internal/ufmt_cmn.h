@@ -26,8 +26,8 @@
 #include "unicode/utf16.h"
 
 #define UFMT_DEFAULT_BUFFER_SIZE 128
-#define MAX_UCHAR_BUFFER_SIZE(buffer) ((int32_t)(sizeof(buffer)/(U16_MAX_LENGTH*sizeof(UChar))))
-#define MAX_UCHAR_BUFFER_NEEDED(strLen) ((strLen+1)*U16_MAX_LENGTH*sizeof(UChar))
+#define MAX_UCHAR_BUFFER_SIZE(buffer) ((int32_t)(sizeof(buffer)/(U16_MAX_LENGTH*sizeof(char16_t))))
+#define MAX_UCHAR_BUFFER_NEEDED(strLen) ((strLen+1)*U16_MAX_LENGTH*sizeof(char16_t))
 
 /** 
  * Enum representing the possible argument types for uprintf/uscanf
@@ -42,8 +42,8 @@ typedef enum ufmt_type_info {
     ufmt_pointer,    /* void * */
     ufmt_float,      /* float */
     ufmt_double,     /* double */
-    ufmt_uchar,      /* int, cast to UChar */
-    ufmt_ustring     /* UChar * */
+    ufmt_uchar,      /* int, cast to char16_t */
+    ufmt_ustring     /* char16_t * */
     /*ufmt_wchar,*/      /* wchar_t */
     /*ufmt_wstring,*/    /* wchar_t * */
     /*ufmt_date,*/       /* Date */
@@ -54,10 +54,10 @@ typedef enum ufmt_type_info {
  * Union representing a uprintf/uscanf argument
  */
 typedef union ufmt_args {
-    int64_t int64Value; /* int, UChar */
+    int64_t int64Value; /* int, char16_t */
     float   floatValue; /* float */
     double  doubleValue; /* double */
-    void   *ptrValue; /* any pointer - void *, char *, wchar_t *, UChar * */
+    void   *ptrValue; /* any pointer - void *, char *, wchar_t *, char16_t * */
     /*wchar_t wcharValue;*/    /* wchar_t */    /* TODO: Should wchar_t be used? */
     /*UDate dateValue;*/     /* Date */
 } ufmt_args;
@@ -71,25 +71,25 @@ typedef union ufmt_args {
 #define ufmt_min(a,b) ((a) < (b) ? (a) : (b))
 
 /**
- * Convert a UChar in hex radix to an integer value.
- * @param c The UChar to convert.
+ * Convert a char16_t in hex radix to an integer value.
+ * @param c The char16_t to convert.
  * @return The integer value of <TT>c</TT>.
  */
 int
-ufmt_digitvalue(UChar c);
+ufmt_digitvalue(char16_t c);
 
 /**
- * Determine if a UChar is a digit for a specified radix.
- * @param c The UChar to check.
+ * Determine if a char16_t is a digit for a specified radix.
+ * @param c The char16_t to check.
  * @param radix The desired radix.
  * @return true if <TT>c</TT> is a digit in <TT>radix</TT>, false otherwise.
  */
 bool
-ufmt_isdigit(UChar     c,
+ufmt_isdigit(char16_t     c,
          int32_t radix);
 
 /**
- * Convert an int64_t to a UChar * in a specified radix
+ * Convert an int64_t to a char16_t * in a specified radix
  * @param buffer The target buffer
  * @param len On input, the size of <TT>buffer</TT>.  On output,
  * the number of UChars written to <TT>buffer</TT>.
@@ -100,7 +100,7 @@ ufmt_isdigit(UChar     c,
  * which will be padded with zeroes. -1 means do not pad.
  */
 void 
-ufmt_64tou(UChar *buffer, 
+ufmt_64tou(char16_t *buffer, 
       int32_t *len,
       uint64_t     value, 
       uint8     radix,
@@ -113,13 +113,13 @@ ufmt_64tou(UChar *buffer,
  * Pointers can be at 32-128 bits in size.
  */
 void 
-ufmt_ptou(UChar    *buffer, 
+ufmt_ptou(char16_t    *buffer, 
           int32_t *len,
           void   *value, 
           bool     uselower);
 
 /**
- * Convert a UChar * in a specified radix to an int64_t.
+ * Convert a char16_t * in a specified radix to an int64_t.
  * @param buffer The target buffer
  * @param len On input, the size of <TT>buffer</TT>.  On output,
  * the number of UChars read from <TT>buffer</TT>.
@@ -127,12 +127,12 @@ ufmt_ptou(UChar    *buffer,
  * @return The numeric value.
  */
 int64_t
-ufmt_uto64(const UChar *buffer, 
+ufmt_uto64(const char16_t *buffer, 
       int32_t *len,
       int8     radix);
 
 /**
- * Convert a UChar * in a specified radix to a pointer,
+ * Convert a char16_t * in a specified radix to a pointer,
  * @param buffer The target buffer
  * @param len On input, the size of <TT>buffer</TT>.  On output,
  * the number of UChars read from <TT>buffer</TT>.
@@ -140,7 +140,7 @@ ufmt_uto64(const UChar *buffer,
  * @return The pointer value.
  */
 void *
-ufmt_utop(const UChar *buffer,
+ufmt_utop(const char16_t *buffer,
       int32_t *len);
 
 /**
@@ -152,9 +152,9 @@ ufmt_utop(const UChar *buffer,
  * @return A pointer to a newly allocated converted version of s, or 0 
  * on error.
  */
-UChar *
+char16_t *
 ufmt_defaultCPToUnicode(const char *s, int32_t sSize,
-                        UChar *target, int32_t tSize);
+                        char16_t *target, int32_t tSize);
 
 
 

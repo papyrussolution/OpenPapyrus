@@ -128,7 +128,7 @@ uint sleep(uint delay)
 #ifndef HAVE_STRNLEN
 size_t strnlen(const char * str, size_t n)
 {
-	const char * stop = (char *)memchr(str, '\0', n);
+	const char * stop = (char *)smemchr(str, '\0', n);
 	return stop ? stop - str : n;
 }
 #endif

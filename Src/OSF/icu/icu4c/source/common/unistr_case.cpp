@@ -18,10 +18,10 @@ U_NAMESPACE_BEGIN
 //
 // Read-only implementation
 //
-int8 UnicodeString::doCaseCompare(int32_t start, int32_t length, const UChar * srcChars, int32_t srcStart, int32_t srcLength, uint32_t options) const
+int8 UnicodeString::doCaseCompare(int32_t start, int32_t length, const char16_t * srcChars, int32_t srcStart, int32_t srcLength, uint32_t options) const
 {
 	// compare illegal string values
-	// treat const UChar *srcChars==NULL as an empty string
+	// treat const char16_t *srcChars==NULL as an empty string
 	if(isBogus()) {
 		return -1;
 	}
@@ -31,7 +31,7 @@ int8 UnicodeString::doCaseCompare(int32_t start, int32_t length, const UChar * s
 		srcStart = srcLength = 0;
 	}
 	// get the correct pointer
-	const UChar * chars = getArrayStart();
+	const char16_t * chars = getArrayStart();
 
 	chars += start;
 	if(srcStart!=0) {
@@ -66,8 +66,8 @@ UnicodeString & UnicodeString::caseMap(int32_t caseLocale, uint32_t options, UCA
 		// nothing to do
 		return *this;
 	}
-	UChar oldBuffer[2 * US_STACKBUF_SIZE];
-	UChar * oldArray;
+	char16_t oldBuffer[2 * US_STACKBUF_SIZE];
+	char16_t * oldArray;
 	int32_t oldLength = length();
 	int32_t newLength;
 	bool writable = isBufferWritable();
@@ -82,7 +82,7 @@ UnicodeString & UnicodeString::caseMap(int32_t caseLocale, uint32_t options, UCA
 	if(writable ? oldLength <= SIZEOFARRAYi(oldBuffer) : oldLength < US_STACKBUF_SIZE) {
 		// Short string: Copy the contents into a temporary buffer and
 		// case-map back into the current array, or into the stack buffer.
-		UChar * buffer = getArrayStart();
+		char16_t * buffer = getArrayStart();
 		int32_t capacity;
 		oldArray = oldBuffer;
 		u_memcpy(oldBuffer, buffer, oldLength);
@@ -126,7 +126,7 @@ UnicodeString & UnicodeString::caseMap(int32_t caseLocale, uint32_t options, UCA
 		// and often does not change its length.
 		oldArray = getArrayStart();
 		Edits edits;
-		UChar replacementChars[200];
+		char16_t replacementChars[200];
 #if !UCONFIG_NO_BREAK_ITERATION
 		if(iter != nullptr) {
 			oldString.setTo(FALSE, oldArray, oldLength);

@@ -43,7 +43,7 @@
  * Unlocalized date-time pattern characters. For example: 'y', 'd', etc. All
  * locales use the same these unlocalized pattern characters.
  */
-static const UChar gPatternChars[] = {
+static const char16_t gPatternChars[] = {
 	// if UDAT_HAS_PATTERN_CHAR_FOR_TIME_SEPARATOR:
 	//   GyMdkHmsSEDFwWahKzYeugAZvcLQqVUOXxrbB:
 	// else:
@@ -64,7 +64,7 @@ static const UChar gPatternChars[] = {
 // files.  They aren't designed for actual use, just for backup.
 
 // These are the month names and abbreviations of last resort.
-static const UChar gLastResortMonthNames[13][3] =
+static const char16_t gLastResortMonthNames[13][3] =
 {
 	{0x0030, 0x0031, 0x0000}, /* "01" */
 	{0x0030, 0x0032, 0x0000}, /* "02" */
@@ -82,7 +82,7 @@ static const UChar gLastResortMonthNames[13][3] =
 };
 
 // These are the weekday names and abbreviations of last resort.
-static const UChar gLastResortDayNames[8][2] =
+static const char16_t gLastResortDayNames[8][2] =
 {
 	{0x0030, 0x0000}, /* "0" */
 	{0x0031, 0x0000}, /* "1" */
@@ -95,7 +95,7 @@ static const UChar gLastResortDayNames[8][2] =
 };
 
 // These are the quarter names and abbreviations of last resort.
-static const UChar gLastResortQuarters[4][2] =
+static const char16_t gLastResortQuarters[4][2] =
 {
 	{0x0031, 0x0000}, /* "1" */
 	{0x0032, 0x0000}, /* "2" */
@@ -104,13 +104,13 @@ static const UChar gLastResortQuarters[4][2] =
 };
 
 // These are the am/pm and BC/AD markers of last resort.
-static const UChar gLastResortAmPmMarkers[2][3] =
+static const char16_t gLastResortAmPmMarkers[2][3] =
 {
 	{0x0041, 0x004D, 0x0000}, /* "AM" */
 	{0x0050, 0x004D, 0x0000} /* "PM" */
 };
 
-static const UChar gLastResortEras[2][3] =
+static const char16_t gLastResortEras[2][3] =
 {
 	{0x0042, 0x0043, 0x0000}, /* "BC" */
 	{0x0041, 0x0044, 0x0000} /* "AD" */
@@ -1274,8 +1274,8 @@ const char16_t * U_EXPORT2 DateFormatSymbols::getPatternUChars(void)
 	return gPatternChars;
 }
 
-UDateFormatField U_EXPORT2 DateFormatSymbols::getPatternCharIndex(UChar c) {
-	const UChar * p = u_strchr(gPatternChars, c);
+UDateFormatField U_EXPORT2 DateFormatSymbols::getPatternCharIndex(char16_t c) {
+	const char16_t * p = u_strchr(gPatternChars, c);
 	if(!p) {
 		return UDAT_FIELD_COUNT;
 	}
@@ -1320,7 +1320,7 @@ bool U_EXPORT2 DateFormatSymbols::isNumericField(UDateFormatField f, int32_t cou
 	return ((kNumericFieldsAlways & flag) != 0 || ((kNumericFieldsForCount12 & flag) != 0 && count < 3));
 }
 
-bool U_EXPORT2 DateFormatSymbols::isNumericPatternChar(UChar c, int32_t count) {
+bool U_EXPORT2 DateFormatSymbols::isNumericPatternChar(char16_t c, int32_t count) {
 	return isNumericField(getPatternCharIndex(c), count);
 }
 
@@ -1343,35 +1343,35 @@ void DateFormatSymbols::setLocalPatternChars(const UnicodeString & newLocalPatte
 
 namespace {
 // Constants declarations
-static const UChar kCalendarAliasPrefixUChar[] = {
+static const char16_t kCalendarAliasPrefixUChar[] = {
 	SOLIDUS, CAP_L, CAP_O, CAP_C, CAP_A, CAP_L, CAP_E, SOLIDUS,
 	LOW_C, LOW_A, LOW_L, LOW_E, LOW_N, LOW_D, LOW_A, LOW_R, SOLIDUS
 };
-static const UChar kGregorianTagUChar[] = {
+static const char16_t kGregorianTagUChar[] = {
 	LOW_G, LOW_R, LOW_E, LOW_G, LOW_O, LOW_R, LOW_I, LOW_A, LOW_N
 };
-static const UChar kVariantTagUChar[] = {
+static const char16_t kVariantTagUChar[] = {
 	PERCENT, LOW_V, LOW_A, LOW_R, LOW_I, LOW_A, LOW_N, LOW_T
 };
-static const UChar kLeapTagUChar[] = {
+static const char16_t kLeapTagUChar[] = {
 	LOW_L, LOW_E, LOW_A, LOW_P
 };
-static const UChar kCyclicNameSetsTagUChar[] = {
+static const char16_t kCyclicNameSetsTagUChar[] = {
 	LOW_C, LOW_Y, LOW_C, LOW_L, LOW_I, LOW_C, CAP_N, LOW_A, LOW_M, LOW_E, CAP_S, LOW_E, LOW_T, LOW_S
 };
-static const UChar kYearsTagUChar[] = {
+static const char16_t kYearsTagUChar[] = {
 	SOLIDUS, LOW_Y, LOW_E, LOW_A, LOW_R, LOW_S
 };
-static const UChar kZodiacsUChar[] = {
+static const char16_t kZodiacsUChar[] = {
 	SOLIDUS, LOW_Z, LOW_O, LOW_D, LOW_I, LOW_A, LOW_C, LOW_S
 };
-static const UChar kDayPartsTagUChar[] = {
+static const char16_t kDayPartsTagUChar[] = {
 	SOLIDUS, LOW_D, LOW_A, LOW_Y, CAP_P, LOW_A, LOW_R, LOW_T, LOW_S
 };
-static const UChar kFormatTagUChar[] = {
+static const char16_t kFormatTagUChar[] = {
 	SOLIDUS, LOW_F, LOW_O, LOW_R, LOW_M, LOW_A, LOW_T
 };
-static const UChar kAbbrTagUChar[] = {
+static const char16_t kAbbrTagUChar[] = {
 	SOLIDUS, LOW_A, LOW_B, LOW_B, LOW_R, LOW_E, LOW_V, LOW_I, LOW_A, LOW_T, LOW_E, LOW_D
 };
 
@@ -1608,7 +1608,7 @@ struct CalendarDataSink : public ResourceSink {
 				}
 				U_ASSERT(stringMap != NULL);
 				int32_t valueStringSize;
-				const UChar * valueString = value.getString(valueStringSize, errorCode);
+				const char16_t * valueString = value.getString(valueStringSize, errorCode);
 				if(U_FAILURE(errorCode)) {
 					return;
 				}
@@ -1719,7 +1719,7 @@ struct CalendarDataSink : public ResourceSink {
 
 		if(value.getType() == URES_ALIAS) {
 			int32_t aliasPathSize;
-			const UChar * aliasPathUChar = value.getAliasString(aliasPathSize, errorCode);
+			const char16_t * aliasPathUChar = value.getAliasString(aliasPathSize, errorCode);
 			if(U_FAILURE(errorCode)) {
 				return NONE;
 			}
@@ -1778,7 +1778,7 @@ CalendarDataSink::~CalendarDataSink() {
 
 static void initField(UnicodeString ** field,
     int32_t& length,
-    const UChar * data,
+    const char16_t * data,
     LastResortSize numStr,
     LastResortSize strLen,
     UErrorCode & status) {
@@ -2388,31 +2388,31 @@ void DateFormatSymbols::initializeData(const Locale & locale, const char * type,
 			// in most locales.
 			status = U_USING_FALLBACK_WARNING;
 			//TODO(fabalbon): make sure we are storing las resort data for all fields in here.
-			initField(&fEras, fErasCount, (const UChar *)gLastResortEras, kEraNum, kEraLen, status);
-			initField(&fEraNames, fEraNamesCount, (const UChar *)gLastResortEras, kEraNum, kEraLen, status);
-			initField(&fNarrowEras, fNarrowErasCount, (const UChar *)gLastResortEras, kEraNum, kEraLen, status);
-			initField(&fMonths, fMonthsCount, (const UChar *)gLastResortMonthNames, kMonthNum, kMonthLen,  status);
-			initField(&fShortMonths, fShortMonthsCount, (const UChar *)gLastResortMonthNames, kMonthNum, kMonthLen, status);
-			initField(&fNarrowMonths, fNarrowMonthsCount, (const UChar *)gLastResortMonthNames, kMonthNum, kMonthLen, status);
-			initField(&fStandaloneMonths, fStandaloneMonthsCount, (const UChar *)gLastResortMonthNames, kMonthNum, kMonthLen, status);
-			initField(&fStandaloneShortMonths, fStandaloneShortMonthsCount, (const UChar *)gLastResortMonthNames, kMonthNum, kMonthLen, status);
-			initField(&fStandaloneNarrowMonths, fStandaloneNarrowMonthsCount, (const UChar *)gLastResortMonthNames, kMonthNum, kMonthLen, status);
-			initField(&fWeekdays, fWeekdaysCount, (const UChar *)gLastResortDayNames, kDayNum, kDayLen, status);
-			initField(&fShortWeekdays, fShortWeekdaysCount, (const UChar *)gLastResortDayNames, kDayNum, kDayLen, status);
-			initField(&fShorterWeekdays, fShorterWeekdaysCount, (const UChar *)gLastResortDayNames, kDayNum, kDayLen, status);
-			initField(&fNarrowWeekdays, fNarrowWeekdaysCount, (const UChar *)gLastResortDayNames, kDayNum, kDayLen, status);
-			initField(&fStandaloneWeekdays, fStandaloneWeekdaysCount, (const UChar *)gLastResortDayNames, kDayNum, kDayLen, status);
-			initField(&fStandaloneShortWeekdays, fStandaloneShortWeekdaysCount, (const UChar *)gLastResortDayNames, kDayNum, kDayLen, status);
-			initField(&fStandaloneShorterWeekdays, fStandaloneShorterWeekdaysCount, (const UChar *)gLastResortDayNames, kDayNum, kDayLen, status);
-			initField(&fStandaloneNarrowWeekdays, fStandaloneNarrowWeekdaysCount, (const UChar *)gLastResortDayNames, kDayNum, kDayLen, status);
-			initField(&fAmPms, fAmPmsCount, (const UChar *)gLastResortAmPmMarkers, kAmPmNum, kAmPmLen, status);
-			initField(&fNarrowAmPms, fNarrowAmPmsCount, (const UChar *)gLastResortAmPmMarkers, kAmPmNum, kAmPmLen, status);
-			initField(&fQuarters, fQuartersCount, (const UChar *)gLastResortQuarters, kQuarterNum, kQuarterLen, status);
-			initField(&fShortQuarters, fShortQuartersCount, (const UChar *)gLastResortQuarters, kQuarterNum, kQuarterLen, status);
-			initField(&fNarrowQuarters, fNarrowQuartersCount, (const UChar *)gLastResortQuarters, kQuarterNum, kQuarterLen, status);
-			initField(&fStandaloneQuarters, fStandaloneQuartersCount, (const UChar *)gLastResortQuarters, kQuarterNum, kQuarterLen, status);
-			initField(&fStandaloneShortQuarters, fStandaloneShortQuartersCount, (const UChar *)gLastResortQuarters, kQuarterNum, kQuarterLen, status);
-			initField(&fStandaloneNarrowQuarters, fStandaloneNarrowQuartersCount, (const UChar *)gLastResortQuarters, kQuarterNum, kQuarterLen, status);
+			initField(&fEras, fErasCount, (const char16_t *)gLastResortEras, kEraNum, kEraLen, status);
+			initField(&fEraNames, fEraNamesCount, (const char16_t *)gLastResortEras, kEraNum, kEraLen, status);
+			initField(&fNarrowEras, fNarrowErasCount, (const char16_t *)gLastResortEras, kEraNum, kEraLen, status);
+			initField(&fMonths, fMonthsCount, (const char16_t *)gLastResortMonthNames, kMonthNum, kMonthLen,  status);
+			initField(&fShortMonths, fShortMonthsCount, (const char16_t *)gLastResortMonthNames, kMonthNum, kMonthLen, status);
+			initField(&fNarrowMonths, fNarrowMonthsCount, (const char16_t *)gLastResortMonthNames, kMonthNum, kMonthLen, status);
+			initField(&fStandaloneMonths, fStandaloneMonthsCount, (const char16_t *)gLastResortMonthNames, kMonthNum, kMonthLen, status);
+			initField(&fStandaloneShortMonths, fStandaloneShortMonthsCount, (const char16_t *)gLastResortMonthNames, kMonthNum, kMonthLen, status);
+			initField(&fStandaloneNarrowMonths, fStandaloneNarrowMonthsCount, (const char16_t *)gLastResortMonthNames, kMonthNum, kMonthLen, status);
+			initField(&fWeekdays, fWeekdaysCount, (const char16_t *)gLastResortDayNames, kDayNum, kDayLen, status);
+			initField(&fShortWeekdays, fShortWeekdaysCount, (const char16_t *)gLastResortDayNames, kDayNum, kDayLen, status);
+			initField(&fShorterWeekdays, fShorterWeekdaysCount, (const char16_t *)gLastResortDayNames, kDayNum, kDayLen, status);
+			initField(&fNarrowWeekdays, fNarrowWeekdaysCount, (const char16_t *)gLastResortDayNames, kDayNum, kDayLen, status);
+			initField(&fStandaloneWeekdays, fStandaloneWeekdaysCount, (const char16_t *)gLastResortDayNames, kDayNum, kDayLen, status);
+			initField(&fStandaloneShortWeekdays, fStandaloneShortWeekdaysCount, (const char16_t *)gLastResortDayNames, kDayNum, kDayLen, status);
+			initField(&fStandaloneShorterWeekdays, fStandaloneShorterWeekdaysCount, (const char16_t *)gLastResortDayNames, kDayNum, kDayLen, status);
+			initField(&fStandaloneNarrowWeekdays, fStandaloneNarrowWeekdaysCount, (const char16_t *)gLastResortDayNames, kDayNum, kDayLen, status);
+			initField(&fAmPms, fAmPmsCount, (const char16_t *)gLastResortAmPmMarkers, kAmPmNum, kAmPmLen, status);
+			initField(&fNarrowAmPms, fNarrowAmPmsCount, (const char16_t *)gLastResortAmPmMarkers, kAmPmNum, kAmPmLen, status);
+			initField(&fQuarters, fQuartersCount, (const char16_t *)gLastResortQuarters, kQuarterNum, kQuarterLen, status);
+			initField(&fShortQuarters, fShortQuartersCount, (const char16_t *)gLastResortQuarters, kQuarterNum, kQuarterLen, status);
+			initField(&fNarrowQuarters, fNarrowQuartersCount, (const char16_t *)gLastResortQuarters, kQuarterNum, kQuarterLen, status);
+			initField(&fStandaloneQuarters, fStandaloneQuartersCount, (const char16_t *)gLastResortQuarters, kQuarterNum, kQuarterLen, status);
+			initField(&fStandaloneShortQuarters, fStandaloneShortQuartersCount, (const char16_t *)gLastResortQuarters, kQuarterNum, kQuarterLen, status);
+			initField(&fStandaloneNarrowQuarters, fStandaloneNarrowQuartersCount, (const char16_t *)gLastResortQuarters, kQuarterNum, kQuarterLen, status);
 			fLocalPatternChars.setTo(TRUE, gPatternChars, PATTERN_CHARS_LEN);
 		}
 	}

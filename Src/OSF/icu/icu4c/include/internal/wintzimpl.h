@@ -31,7 +31,7 @@ U_CDECL_END
  * needed to get the Windows time zone information without using static tables.
  */
 U_CAPI bool U_EXPORT2
-uprv_getWindowsTimeZoneInfo(TIME_ZONE_INFORMATION *zoneInfo, const UChar *icuid, int32_t length);
+uprv_getWindowsTimeZoneInfo(TIME_ZONE_INFORMATION *zoneInfo, const char16_t *icuid, int32_t length);
 
 
 #endif /* U_PLATFORM_USES_ONLY_WIN32_API */

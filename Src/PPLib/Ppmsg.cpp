@@ -131,7 +131,7 @@ int FASTCALL PPExpandString(SString & rS, int ctransf)
 	return _PPStrStore ? _PPStrStore->ExpandString(rS, ctransf) : 0;
 }
 
-int FASTCALL PPLoadString(const char * pSignature, SString & rBuf)
+static FORCEINLINE int Implement_PPLoadString(const char * pSignature, bool utf8, SString & rBuf)
 {
 	//
 	// Эта функция @threadsafe поскольку StrStore2::GetString является const-функцией
@@ -144,16 +144,26 @@ int FASTCALL PPLoadString(const char * pSignature, SString & rBuf)
 		PROFILE_START
 		ok = _PPStrStore ? _PPStrStore->GetString(pSignature, rBuf) : 0;
 		PROFILE_END
-		rBuf.Transf(CTRANSF_UTF8_TO_INNER);
+		if(!utf8)
+			rBuf.Transf(CTRANSF_UTF8_TO_INNER);
 		if(!ok)
 			PPSetErrorSLib();
 	}
 	return ok;
 }
 
+int FASTCALL PPLoadString(const char * pSignature, SString & rBuf) { return Implement_PPLoadString(pSignature, false, rBuf); }
+int FASTCALL PPLoadStringUtf8(const char * pSignature, SString & rBuf) { return Implement_PPLoadString(pSignature, true, rBuf); }
+
 SString & FASTCALL PPLoadStringS(const char * pSignature, SString & rBuf)
 {
-	PPLoadString(pSignature, rBuf);
+	Implement_PPLoadString(pSignature, false, rBuf);
+	return rBuf;
+}
+
+SString & FASTCALL PPLoadStringUtf8S(const char * pSignature, SString & rBuf)
+{
+	Implement_PPLoadString(pSignature, true, rBuf);
 	return rBuf;
 }
 

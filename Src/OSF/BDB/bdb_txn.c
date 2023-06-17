@@ -2990,8 +2990,7 @@ static int __txn_stat(ENV * env, DB_TXN_STAT ** statp, uint32 flags)
 		if(td->status == TXN_PREPARED)
 			memcpy(stats->st_txnarray[ndx].gid, td->gid, sizeof(td->gid));
 		if(td->name != INVALID_ROFF) {
-			strncpy(stats->st_txnarray[ndx].name, (const char *)R_ADDR(&mgr->reginfo, td->name), sizeof(stats->st_txnarray[ndx].name)-1);
-			stats->st_txnarray[ndx].name[sizeof(stats->st_txnarray[ndx].name)-1] = '\0';
+			strnzcpy(stats->st_txnarray[ndx].name, (const char *)R_ADDR(&mgr->reginfo, td->name), sizeof(stats->st_txnarray[ndx].name));
 		}
 		else
 			stats->st_txnarray[ndx].name[0] = '\0';

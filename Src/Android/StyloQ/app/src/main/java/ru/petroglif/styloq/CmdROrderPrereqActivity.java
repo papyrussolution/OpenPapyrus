@@ -202,18 +202,6 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			return result;
 		}
 	}
-	int FindClientItemIndexByID(int id)
-	{
-		int result = -1;
-		if(CPM.CliListData != null && id > 0) {
-			for(int i = 0; result < 0 && i < CPM.CliListData.size(); i++) {
-				final int iter_id = CPM.CliListData.get(i).JsItem.optInt("id", 0);
-				if(iter_id == id)
-					result = i;
-			}
-		}
-		return result;
-	}
 	private void CreateTabList(boolean force)
 	{
 		final int tab_layout_rcid = R.id.TABLAYOUT_ORDERPREREQ;
@@ -1403,7 +1391,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 													((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
 													SetupRecyclerListView(fv, R.id.orderPrereqClientsListView, R.layout.li_orderprereq_client);
 													if(selected_search_oid.Type == SLib.PPOBJ_PERSON) {
-														SLib.RequestRecyclerListViewPosition((RecyclerView) lv, FindClientItemIndexByID(selected_search_oid.Id));
+														SLib.RequestRecyclerListViewPosition((RecyclerView) lv, CPM.FindClientItemIndexByID(selected_search_oid.Id));
 														CPM.SearchResult_ResetSelectedItemIndex();
 													}
 													else if(selected_search_oid.Type == SLib.PPOBJ_LOCATION) {
@@ -1472,7 +1460,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 												GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, _idx, -1);
 												break;
 											case SLib.PPOBJ_PERSON:
-												_idx = FindClientItemIndexByID(sr_oid.Id);
+												_idx = CPM.FindClientItemIndexByID(sr_oid.Id);
 												GotoTab(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView, _idx, -1);
 												break;
 											case SLib.PPOBJ_LOCATION:
@@ -1480,7 +1468,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 												if(cli_js_obj != null) {
 													int cli_id = cli_js_obj.optInt("id", 0);
 													if(cli_id > 0) {
-														_idx = FindClientItemIndexByID(cli_id);
+														_idx = CPM.FindClientItemIndexByID(cli_id);
 														int _dlvr_loc_idx = CPM.FindDlvrLocEntryIndexInCliEntry(cli_js_obj, sr_oid.Id);
 														GotoTab(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView, _idx, _dlvr_loc_idx);
 													}
@@ -1844,7 +1832,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										//cd.H.ClientID > 0 &&
 										JSONObject cli_js_obj = CPM.FindClientEntry(cd.H.ClientID);
 										if(cli_js_obj != null) {
-											int _idx = FindClientItemIndexByID(cd.H.ClientID);
+											int _idx = CPM.FindClientItemIndexByID(cd.H.ClientID);
 											int _dlvr_loc_idx = (cd.H.DlvrLocID > 0) ? CPM.FindDlvrLocEntryIndexInCliEntry(cli_js_obj, cd.H.DlvrLocID) : 0;
 											GotoTab(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView, _idx, _dlvr_loc_idx);
 										}

@@ -286,10 +286,7 @@ HRESULT EstimateAlphaScaleForCoverage(const Image& srcImage,
 }
 }
 
-_Use_decl_annotations_
-bool DirectX::Internal::CalculateMipLevels(size_t width,
-    size_t height,
-    size_t& mipLevels) noexcept
+_Use_decl_annotations_ bool DirectX::Internal::CalculateMipLevels(size_t width, size_t height, size_t& mipLevels) noexcept
 {
 	if(mipLevels > 1) {
 		const size_t maxMips = CountMips(width, height);
@@ -305,11 +302,7 @@ bool DirectX::Internal::CalculateMipLevels(size_t width,
 	return true;
 }
 
-_Use_decl_annotations_
-bool DirectX::Internal::CalculateMipLevels3D(size_t width,
-    size_t height,
-    size_t depth,
-    size_t& mipLevels) noexcept
+_Use_decl_annotations_ bool DirectX::Internal::CalculateMipLevels3D(size_t width, size_t height, size_t depth, size_t& mipLevels) noexcept
 {
 	if(mipLevels > 1) {
 		const size_t maxMips = CountMips3D(width, height, depth);
@@ -327,8 +320,7 @@ bool DirectX::Internal::CalculateMipLevels3D(size_t width,
 
 #ifdef _WIN32
 //--- Resizing color and alpha channels separately using WIC ---
-_Use_decl_annotations_
-HRESULT DirectX::Internal::ResizeSeparateColorAndAlpha(IWICImagingFactory* pWIC,
+_Use_decl_annotations_ HRESULT DirectX::Internal::ResizeSeparateColorAndAlpha(IWICImagingFactory* pWIC,
     bool iswic2,
     IWICBitmap* original,
     size_t newWidth,
@@ -511,8 +503,7 @@ HRESULT DirectX::Internal::ResizeSeparateColorAndAlpha(IWICImagingFactory* pWIC,
 
 #endif // WIN32
 
-namespace
-{
+namespace {
 #ifdef _WIN32
 //--- determine when to use WIC vs. non-WIC paths ---
 bool UseWICFiltering(_In_ DXGI_FORMAT format, _In_ TEX_FILTER_FLAGS filter) noexcept
@@ -521,17 +512,14 @@ bool UseWICFiltering(_In_ DXGI_FORMAT format, _In_ TEX_FILTER_FLAGS filter) noex
 		// Explicit flag indicates use of non-WIC code paths
 		return false;
 	}
-
 	if(filter & TEX_FILTER_FORCE_WIC) {
 		// Explicit flag to use WIC code paths, skips all the case checks below
 		return true;
 	}
-
 	if(IsSRGB(format) || (filter & TEX_FILTER_SRGB)) {
 		// Use non-WIC code paths for sRGB correct filtering
 		return false;
 	}
-
     #if (defined(_XBOX_ONE) && defined(_TITLE)) || defined(_GAMING_XBOX)
 	if(format == DXGI_FORMAT_R16G16B16A16_FLOAT
 	    || format == DXGI_FORMAT_R16_FLOAT) {
@@ -1290,14 +1278,11 @@ HRESULT Generate2DMipsTriangleFilter(size_t levels, TEX_FILTER_FLAGS filter, con
 				const size_t v = yFrom->to[j].u;
 				assert(v < nheight);
 				TriangleRow* rowAcc = &rowActive[v];
-
 				++rowAcc->remaining;
-
 				if(rowAcc->scanline) {
-					memset(rowAcc->scanline.get(), 0, sizeof(XMVECTOR) * nwidth);
+					memzero(rowAcc->scanline.get(), sizeof(XMVECTOR) * nwidth);
 				}
 			}
-
 			yFrom = reinterpret_cast<FilterFrom*>(reinterpret_cast<uint8_t*>(yFrom) + yFrom->sizeInBytes);
 		}
 
@@ -1323,20 +1308,15 @@ HRESULT Generate2DMipsTriangleFilter(size_t levels, TEX_FILTER_FLAGS filter, con
 							return E_OUTOFMEMORY;
 						rowAcc->scanline.swap(nscanline);
 					}
-
-					memset(rowAcc->scanline.get(), 0, sizeof(XMVECTOR) * nwidth);
+					memzero(rowAcc->scanline.get(), sizeof(XMVECTOR) * nwidth);
 				}
 			}
-
 			// Load source scanline
 			if((pSrc + rowPitch) > pEndSrc)
 				return E_FAIL;
-
 			if(!LoadScanlineLinear(row, width, pSrc, rowPitch, src->format, filter))
 				return E_FAIL;
-
 			pSrc += rowPitch;
-
 			// Process row
 			size_t x = 0;
 			for(FilterFrom* xFrom = tfX->from; xFrom < xFromEnd; ++x) {
@@ -1487,17 +1467,13 @@ HRESULT Generate3DMipsPointFilter(size_t depth, size_t levels, const ScratchImag
 	auto scanline = make_AlignedArrayXMVECTOR(uint64_t(width) * 2);
 	if(!scanline)
 		return E_OUTOFMEMORY;
-
 	XMVECTOR* target = scanline.get();
-
 	XMVECTOR* row = target + width;
-
 	// Resize base image to each target mip level
 	for(size_t level = 1; level < levels; ++level) {
 	#ifdef _DEBUG
 		memset(row, 0xCD, sizeof(XMVECTOR)*width);
 	#endif
-
 		if(depth > 1) {
 			// 3D point filter
 			const size_t ndepth = depth >> 1;
@@ -2347,17 +2323,13 @@ HRESULT Generate3DMipsTriangleFilter(size_t depth, size_t levels, TEX_FILTER_FLA
 				const size_t w = zFrom->to[j].u;
 				assert(w < ndepth);
 				TriangleRow* sliceAcc = &sliceActive[w];
-
 				++sliceAcc->remaining;
-
 				if(sliceAcc->scanline) {
-					memset(sliceAcc->scanline.get(), 0, sizeof(XMVECTOR) * nwidth * nheight);
+					memzero(sliceAcc->scanline.get(), sizeof(XMVECTOR) * nwidth * nheight);
 				}
 			}
-
 			zFrom = reinterpret_cast<FilterFrom*>(reinterpret_cast<uint8_t*>(zFrom) + zFrom->sizeInBytes);
 		}
-
 		// Filter image
 		size_t z = 0;
 		for(FilterFrom* zFrom = tfZ->from; zFrom < zFromEnd; ++z) {
@@ -2366,7 +2338,6 @@ HRESULT Generate3DMipsTriangleFilter(size_t depth, size_t levels, TEX_FILTER_FLA
 				const size_t w = zFrom->to[j].u;
 				assert(w < ndepth);
 				TriangleRow* sliceAcc = &sliceActive[w];
-
 				if(!sliceAcc->scanline) {
 					if(sliceFree) {
 						// Steal and reuse scanline from 'free slice' list
@@ -2381,11 +2352,9 @@ HRESULT Generate3DMipsTriangleFilter(size_t depth, size_t levels, TEX_FILTER_FLA
 							return E_OUTOFMEMORY;
 						sliceAcc->scanline.swap(nscanline);
 					}
-
-					memset(sliceAcc->scanline.get(), 0, sizeof(XMVECTOR) * nwidth * nheight);
+					memzero(sliceAcc->scanline.get(), sizeof(XMVECTOR) * nwidth * nheight);
 				}
 			}
-
 			assert(z < depth);
 			const Image* src = mipChain.GetImage(level - 1, 0, z);
 			if(!src)
@@ -2509,16 +2478,12 @@ HRESULT Generate3DMipsTriangleFilter(size_t depth, size_t levels, TEX_FILTER_FLA
 	return S_OK;
 }
 }
-
-//=====================================================================================
+//
 // Entry-points
-//=====================================================================================
-
-//-------------------------------------------------------------------------------------
+//
 // Generate mipmap chain
-//-------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::GenerateMipMaps(const Image& baseImage,
+//
+_Use_decl_annotations_ HRESULT DirectX::GenerateMipMaps(const Image& baseImage,
     TEX_FILTER_FLAGS filter,
     size_t levels,
     ScratchImage& mipChain,
@@ -2697,8 +2662,7 @@ HRESULT DirectX::GenerateMipMaps(const Image& baseImage,
 	}
 }
 
-_Use_decl_annotations_
-HRESULT DirectX::GenerateMipMaps(const Image* srcImages,
+_Use_decl_annotations_ HRESULT DirectX::GenerateMipMaps(const Image* srcImages,
     size_t nimages,
     const TexMetadata& metadata,
     TEX_FILTER_FLAGS filter,
@@ -3004,8 +2968,7 @@ _Use_decl_annotations_ HRESULT DirectX::GenerateMipMaps3D(const Image* baseImage
 	}
 }
 
-_Use_decl_annotations_
-HRESULT DirectX::GenerateMipMaps3D(const Image* srcImages,
+_Use_decl_annotations_ HRESULT DirectX::GenerateMipMaps3D(const Image* srcImages,
     size_t nimages,
     const TexMetadata& metadata,
     TEX_FILTER_FLAGS filter,
@@ -3097,8 +3060,7 @@ HRESULT DirectX::GenerateMipMaps3D(const Image* srcImages,
 	}
 }
 
-_Use_decl_annotations_
-HRESULT DirectX::ScaleMipMapsAlphaForCoverage(const Image* srcImages, size_t nimages, const TexMetadata& metadata, size_t item,
+_Use_decl_annotations_ HRESULT DirectX::ScaleMipMapsAlphaForCoverage(const Image* srcImages, size_t nimages, const TexMetadata& metadata, size_t item,
     float alphaReference, ScratchImage& mipChain) noexcept
 {
 	if(!srcImages || !nimages || !IsValid(metadata.format) || nimages > metadata.mipLevels || !mipChain.GetImages())

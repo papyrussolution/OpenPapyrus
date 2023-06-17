@@ -433,6 +433,7 @@ class StyloQGoodsInfoParam;
 class StyloQIncomingListParam;
 class StyloQDocumentPrereqParam;
 class StyloQPersonEventParam;
+class PPObjTech;
 
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef int32 PPID; // @v11.6.8 long-->int32
@@ -4454,6 +4455,10 @@ public:
 	PPQuotArray(const PPQuotArray & s);
 	PPQuotArray & FASTCALL operator = (const PPQuotArray &);
 	//
+	// Descr: Формирует сортированный уникальный список видок котировок, представленных в this
+	//
+	int    GetQuotKindIdList(PPIDArray & rIdList) const;
+	//
 	// Descr: Устанавливает значение котировки в соответствии с идентифицирующим блоком rQi.
 	// Returns:
 	//   >0 - номер позиции, в которой было изменено значение либо номер позиции, по которой новое
@@ -5904,6 +5909,8 @@ private:
 #define PPSCMD_WSCTL_GETQUOTLIST     10127 // @v11.7.1  WSCTL Получить список котировок для рабочей станции
 #define PPSCMD_WSCTL_GETACCOUNTSTATE 10128 // @v11.7.1  WSCTL Получить информацию об аккаунте клиента
 #define PPSCMD_WSCTL_AUTH            10129 // @v11.7.1  WSCTL Авторизация клиента
+#define PPSCMD_WSCTL_BEGIN_SESS      10130 // @v11.7.6  WSCTL Запуск рабочего сеанса
+#define PPSCMD_WSCTL_END_SESS        10131 // @v11.7.6  WSCTL Завершение рабочего сеанса
 
 #define PPSCMD_TEST                  11000 // Сеанс тестирования //
 //
@@ -8421,7 +8428,7 @@ public:
 	int    Enum(const SString & rLine, uint * pPos, int * pFldID, SString & rBuf);
 private:
 	int    Excise(SString & rLine, int fldID);
-	SRegExp2 Re;
+	const SRegExp2 Re;
 };
 //
 // Descr: Извлекает из пула-хранилища строк rLine строку с идентификатором fldID и присваивает
@@ -25059,13 +25066,20 @@ struct QuotKindFilt {
 
 struct PPQuotKind2 { // @flat @persistent @store(Reference2Tbl+)
 	PPQuotKind2();
-	int    GetTimeRange(TimeRange & rRange) const;
+	//
+	// Descr: Извлекает из структуры диапазон времени действия вида котировки с одновременной проверкой
+	//   его валидности.
+	// Returns:
+	//   true - диапазон времени действия не пустой и валидный. Присвоен по ссылке rRange.
+	//   false - диапазон времени действия пустой или инвалидный. Значение по ссылке rRange обнуляется (TimeRange::Z)
+	//
+	bool   GetTimeRange(TimeRange & rRange) const;
 	void   SetTimeRange(const TimeRange & rRange);
 	int    GetAmtRange(RealRange * pRange) const;
 	int    SetAmtRange(const RealRange * pRange);
 	int    GetRestrText(SString & rBuf) const;
-	int    HasWeekDayRestriction() const;
-	int    CheckWeekDay(LDATE dt) const;
+	bool   HasWeekDayRestriction() const;
+	bool   CheckWeekDay(LDATE dt) const;
 
 	PPID   Tag;            // Const=PPOBJ_QUOTKIND
 	PPID   ID;             // @id
@@ -25079,13 +25093,12 @@ struct PPQuotKind2 { // @flat @persistent @store(Reference2Tbl+)
 	IntRange AmtRestr;     // Диапазон суммы покупки, при которой действует этот вид котировки
 	double Discount;       // Скидка
 	DateRange Period;      // Период действия розничной котировки
-	int16  BeginTm;        // Время начала действия розничной котировки
-	int16  EndTm;          // Время окончания действия розничной котировки
+	int16  BeginTm;        // Время начала действия розничной котировки. byte 0 - hours, byte 1 - minuts
+	int16  EndTm;          // Время окончания действия розничной котировки. byte 0 - hours, byte 1 - minuts
 	int16  Rank;           // Уровень приоритета котировки при показе в диалоге
 		// редактирования или в тех случаях, когда все котировки не могут быть использованы
 		// в виду ограничения на количество видов (например, при загрузке в StyloPalm).
-		// Чем выше значение, тем выше вероятность использования этого вида котировки
-		// по сравнению с другими.
+		// Чем выше значение, тем выше вероятность использования этого вида котировки по сравнению с другими.
 	uint8  DaysOfWeek;     // Дни недели действия розничной котировки (0x01 - Пн, ... , 0x40 - Вс)
 	int8   UsingWSCard;    // Совместное использование с дисконтными картами (uwscXXX)
 	long   Flags;          // Флаги (QUOTKF_XXX)
@@ -27948,7 +27961,7 @@ private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int   Print(const void *);
-	int    IsTempTblNeeded() const;
+	bool   IsTempTblNeeded() const;
 	void   MakeTempRec(int order, const SalaryTbl::Rec * pRec, TempSalaryTbl::Rec * pTempRec);
 	int    UpdateTempRec(PPID id);
 	int    TempRecToViewItem(const TempSalaryTbl::Rec * pTempRec, SalaryViewItem * pItem);
@@ -28493,7 +28506,7 @@ private:
 	virtual int   Print(const void *);
 	int    InitPersonAttribIteration();
 	int    InitPersonIteration();
-	int    IsTempTblNeeded(); // non-const because calls PsnObj.GetConfig
+	bool   IsTempTblNeeded(); // non-const because calls PsnObj.GetConfig
 	int    CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnAttrViewItem * pItem);
 	int    AddTempRec(PPID personID, UintHashTable * pUsedLocList, int use_ta);
 	int    EditTempRec(PPID, int use_ta);
@@ -28827,7 +28840,7 @@ private:
 	virtual int Print(const void *);
 	virtual int HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 	virtual int SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
-	int    IsTempTblNeeded() const;
+	bool   IsTempTblNeeded() const;
 	int    RefreshTempTable(LDATETIME since);
 	int    EditObj(const PPObjID * pObjID);
 	int	   ViewBillHistory(PPID histID, LDATETIME evDtm);
@@ -28899,7 +28912,7 @@ private:
 	//virtual int Print(const void *);
 	//virtual int HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 	//virtual int SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
-	int    IsTempTblNeeded() const;
+	bool   IsTempTblNeeded() const;
 
 	static int DynFuncObjNameFromList;
 
@@ -31133,6 +31146,9 @@ private:
 //   Применяется в PPViewGoodsStruc и для отображения иерархии структур.
 //
 struct GoodsStrucProcessingBlock {
+	enum {
+		intfMultAssociatedTech = 0x0001 // Со структурой связано более одной ассоциированных технологий
+	};
 	struct ItemEntry {
 		PPID   GStrucID;
 		PPID   GoodsID;
@@ -31148,9 +31164,13 @@ struct GoodsStrucProcessingBlock {
 		PPID   GStrucID;
 		PPID   PrmrGoodsID;
 		long   Flags;
+		long   InternalFlags; // @v11.7.6 intfXXX Транзиентные флаги элемента, не связанные с persistent-флагами Flags
 		PPID   ParentStrucID;
 		PPID   GiftQuotKindID;
 		PPID   VariedPropObjType;
+		PPID   SingleAssociatedTechID; // @v11.7.6 Единственная ассоциированная со структурой технология. 
+			// Если ассоциированных технологий больше одной, то устанавливается флаг InterlanFlags{intfMultAssociatedTech}
+			// и в это поле заносится первая попавшаяся технология //
 		uint   NameP;
 		uint   SymbP;
 		DateRange Period;
@@ -31160,14 +31180,17 @@ struct GoodsStrucProcessingBlock {
 	};
 	GoodsStrucProcessingBlock();
 	GoodsStrucProcessingBlock(const GoodsStrucProcessingBlock & rS);
+	~GoodsStrucProcessingBlock();
 	enum {
 		addifCheckExistance = 0x0001,
 		addifRecursive      = 0x0002,
-		addifMainTreeOnly   = 0x0004 
+		addifMainTreeOnly   = 0x0004,
+		addifInitTech       = 0x0008  // @v11.7.6 Инициализировать информацию об ассоциированных технологиях // 
 	};
 	int    AddItem(PPID goodsID, PPID strucID, PPID filtScndGroupID, PPID filtScndID, uint flags/*bool checkExistance, bool recursive*/);
 	PPObjGoodsStruc GSObj;
 	PPObjGoods GObj;
+	PPObjTech * P_TecObj; // @v11.7.6
 	TSVector <StrucEntry> StrucList;
 	TSArray  <ItemEntry> ItemList; // must be SArray (not SVector), because it'll be handed to AryBrowserDef
 	SStrGroup StrPool; // Пул строковых полей, на который ссылаются поля в StrucEntry и ItemEntry
@@ -31758,7 +31781,7 @@ private:
 	virtual int  Detail(const void *, PPViewBrowser *);
 	int    CreateTempTable(IterOrder ord, TempOrderTbl ** ppTbl);
 	PPViewGoods::IterOrder GetIterOrder() const;
-	int    IsTempTblNeeded(); // not const function
+	bool   IsTempTblNeeded(); // not const function
 	void   MakeTempRec(const Goods2Tbl::Rec *, TempOrderTbl::Rec *);
 	int    InitGroupNamesList();
 	void   RemoveTempAltGroup();
@@ -31822,11 +31845,12 @@ public:
 	enum {
 		fShowComplDecompl   = 0x0001, // Показывать структуры комплектации/декомплектации
 		fShowPartitial      = 0x0002, // Показывать частичные структуры
-		fShowSubst  = 0x0004, // Показывать подстановочные структуры
-		fShowGift   = 0x0008, // Показывать подарочные структуры
+		fShowSubst          = 0x0004, // Показывать подстановочные структуры
+		fShowGift           = 0x0008, // Показывать подарочные структуры
 		fShowComplex        = 0x0010, // Показывать комплексные структуры
-		fShowUnrefs = 0x0020, // @v10.0.10 Показывать структуры, на которые не ссылается ни один товар
-		fSkipByPassiveOwner = 0x0040  // @v10.3.2 Не показывать структуры, все товары-владельцы которых пассивные
+		fShowUnrefs         = 0x0020, // @v10.0.10 Показывать структуры, на которые не ссылается ни один товар
+		fSkipByPassiveOwner = 0x0040, // @v10.3.2 Не показывать структуры, все товары-владельцы которых пассивные
+		fShowTech           = 0x0080, // @v11.7.6 Показывать связанные технологии
 	};
 	char   ReserveStart[32]; // @anchor
 	PPID   PrmrGoodsGrpID;
@@ -37349,7 +37373,7 @@ struct PPTechPacket {
 class PPObjTech : public PPObject {
 public:
 	static int   GenerateCode(int kind, SString & rBuf, int use_ta = 1);
-	static int   SetupCombo(TDialog *, uint ctlID, PPID id, long flags, PPID prcID, PPID goodsID);
+	static int   SetupCombo(TDialog *, uint ctlID, PPID id, long olwFlags, PPID prcID, PPID goodsID);
 	explicit PPObjTech(void * extraPtr = 0);
 	~PPObjTech();
 	virtual int Search(PPID, void *);
@@ -37372,15 +37396,21 @@ public:
 	int    GetListByPrc(PPID prcID, PPIDArray * pList);
 	int    GetListByPrcGoods(PPID prcID, PPID goodsID, PPIDArray * pList);
 	int    GetListByGoods(PPID goodsID, PPIDArray * pList);
+	int    GetListByGoodsStruc(PPID goodsStrucID, PPIDArray * pList); // @v11.7.6
 	int    GetToolingCondition(PPID id, SString & rFormula);
 	int    SelectTooling(PPID prcID, PPID goodsID, PPID prevGoodsID, TSVector <TechTbl::Rec> * pList); // @v9.8.4 TSArray-->TSVect
 	int    CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, int use_ta);
 	int    SearchAutoForGoodsCreation(PPID prcID, PPID * pGoodsGrpID);
 	int    ChangeOrderN(PPID techID, int sow, int use_ta);
+	int    IsChildOf(PPID techID, PPID parentID);
 	//
 	// Descr: Возвращает список технологий, прямым родителем для которых является технология techID.
 	//
 	int    GetChildList(PPID techID, PPIDArray & rList);
+	//
+	// Descr: Возвращает список технологий, которые унаследованы от родителя techID и являются терминальными (то есть, не имеют дочерних технологий)
+	//
+	int    GetTerminalChildList(PPID techID, PPIDArray & rList);
 	int    GetNextSibling(PPID parentID, PPID siblingID, TechTbl::Rec * pNextRec);
 private:
 	virtual const char * GetNamePtr();
@@ -37392,6 +37422,7 @@ private:
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 	int    Helper_AddItemToList(StrAssocArray * pList, PPID techID, PPID parentID, const char * pCode, LongArray & rRecurList);
+	int    Helper_GetTerminalChildList(PPID techID, PPIDArray & rList, LongArray & rRecurList);
 	int    AddItemsToList(StrAssocArray *, PPIDArray * pIdList, PPIDArray * pGoodsIdList, long extraParam, PPID goodsID = 0);
 		// @<<PPObjTech::MakeList_
 	int    SearchAuto(PPID prcID, PPID goodsID, PPID * pTechID);
@@ -38207,7 +38238,9 @@ struct TSessionFilt : public PPBaseFilt {
 		fManufPlan     = 0x0004, // Показывать сессии производственных планов @#{fManufPlan^(fSuperSessOnly|fCurrent)}
 		fSubSess       = 0x0008  // Если флаг установлен и SuperSessID != 0, то показываются субсессии для сессии SuperSessID.
 	};
-	char   ReserveStart[18]; // @anchor
+	char   ReserveStart[12]; // @anchor // @v11.7.6 [18]-->[12]
+	PPID   GoodsGroupID;   // @v11.7.6 Товарная группа, ограничивающая выборку документов по содержимому
+	int16  Reserve2;     // @v11.7.6 @alignment
 	int16  Ft_WritedOff; // @v11.0.6
 	PPID   QuotKindID;   // Вид котировки, испольуземый для извлечения цен
 	PPID   UhttStoreID;  // ->Ref(PPOBJ_UHTTSTORE) Специальный критерий для передачи на онлайновый ресурс списка сессий
@@ -38291,7 +38324,7 @@ private:
 	virtual int  Detail(const void * pHdr, PPViewBrowser * pBrw);
 	virtual void ViewTotal();
 	virtual int  Print(const void *);
-	int    IsTempTblNeeded() const;
+	bool   IsTempTblNeeded() const;
 	void   MakeTempRec(const TSessionTbl::Rec * pSrcRec, TempOrderTbl::Rec * pDestRec);
 	int    WriteOff(PPID sessID);
 	int    Recover();
@@ -38323,7 +38356,7 @@ private:
 	PPUhttStorePacket * P_UhttsPack;
 	IterBlock  Ib;
 	ObjIdListFilt PrcList;
-
+	ObjIdListFilt TechList; // @v11.7.6
 	StrAssocArray ExtSfTitleList;
 };
 //
@@ -38495,7 +38528,7 @@ private:
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *);
 	virtual int  Print(const void *);
 	virtual void ViewTotal();
-	int    IsTempTblNeeded();
+	bool   IsTempTblNeeded();
 	int    CreateIterQuery();
 	int    TranslateBrwHdr(const void *, BrwHdr *);
 	int    AddItemExt(PPID tsesID, PPViewBrowser *);
@@ -39731,7 +39764,7 @@ private:
 	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int   HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
-	int    IsTempTblNeeded() const;
+	bool   IsTempTblNeeded() const;
 	int    CreateTempTable(IterOrder ord, int * pIsOrdTbl);
 	int    UpdateTempTable(PPID id);
 	//
@@ -40433,7 +40466,7 @@ private:
 	virtual void ViewTotal();
 	virtual int  Print(const void *);
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
-	int    IsTempTblNeeded() const;
+	bool   IsTempTblNeeded() const;
 	int    CreateTempTable();
 	int    PutAllToBasket();
 	int    MovLotOps(PPID lotID);
@@ -44079,7 +44112,7 @@ private:
 	virtual int  Print(const void *);
 	virtual int  SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	SString & GetCtColumnTitle(int ct, SString & rBuf);
-	int    IsTempTblNeeded() const;
+	bool   IsTempTblNeeded() const;
 	int    DoProcessLines() const;
 	void   PreprocessCheckRec(const CCheckTbl::Rec * pRec, CCheckTbl::Rec & rResultRec, CCheckExtTbl::Rec & rExtRec);
 	int    ProcessCheckRec(const CCheckTbl::Rec * pRec, BExtInsert * pBei);
@@ -45115,7 +45148,7 @@ private:
 	virtual void * GetEditExtraParam();
 	virtual void ViewTotal();
 	int    CheckForFilt(const SCardTbl::Rec * pRec, PreprocessScRecBlock * pBlk);
-	int    IsTempTblNeeded() const;
+	bool   IsTempTblNeeded() const;
 	int    CreateTempTable();
 	int    CreateOrderTable(long ord, TempOrderTbl ** ppTbl);
 	int    UpdateTempTable(PPIDArray * pIdList);
@@ -49221,7 +49254,7 @@ private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void ViewTotal();
-	int    IsTempTblNeeded();
+	bool   IsTempTblNeeded();
 	int    CheckForFilt(TransportFilt * pFilt, PPID transpID, const PPTransportPacket * pRec);
 	void   MakeTempRec(const PPTransportPacket * pTranspPack, TempTransportTbl::Rec * pTempRec);
 	int    UpdateTempTable(PPID transpID, PPViewBrowser * pBrw);
@@ -54758,12 +54791,13 @@ public:
 	// Descr: Устанавливает возможность выбора группы процессоров в комбо-боксе процессора.
 	//   По умолчанию ВКЛЮЧЕНО.
 	//
-	void   enableSelUpLevel(int enbl);
+	void   enablePrcSelUpLevel(bool enbl);
+	void   enableTechSelUpLevel(bool enbl); // @v11.7.6
 	//
-	// Descr: Утсанавливает возможность создания нового процессора в списке
+	// Descr: Устанавливает возможность создания нового процессора в списке
 	//   комбо-бокса процессора.
 	//
-	void   enablePrcInsert(int enbl);
+	void   enablePrcInsert(bool enbl);
 	int    getGoodsID(TDialog *, PPID * pGoodsID);
 private:
 	virtual void   handleEvent(TDialog *, TEvent &);
@@ -54772,9 +54806,11 @@ private:
 	void   setupGoodsName(TDialog *);
 	void   setupCreateGoodsButton(TDialog *);
 	void   selTechByGoods(TDialog *);
+	long   GetTechComboOlwFlags() const; // @v11.7.6
 	enum {
-		fEnableSelUpLevel = 0x0001,
-		fEnablePrcInsert  = 0x0002
+		fEnablePrcSelUpLevel  = 0x0001,
+		fEnablePrcInsert      = 0x0002,
+		fEnableTechSelUpLevel = 0x0004, // @v11.7.6
 	};
 	const  uint CtlselPrc;
 	const  uint CtlselTech;
@@ -57300,7 +57336,9 @@ SString & STDCALL PPLoadStringS(int group, int code, SString & s); // @cs
 //
 int    STDCALL  PPLoadStringUtf8(int group, int code, SString & s); // @cs
 int    FASTCALL PPLoadString(const char * pSignature, SString & s);
+int    FASTCALL PPLoadStringUtf8(const char * pSignature, SString & s); // @v11.7.6
 SString & FASTCALL PPLoadStringS(const char * pSignature, SString & s);
+SString & FASTCALL PPLoadStringUtf8S(const char * pSignature, SString & s); // @v11.7.6
 int    FASTCALL PPLoadStringDescription(const char * pSignature, SString & rBuf);
 //
 // Descr: Возвращает хэш-таблицу символов, ассоциированную с группой group

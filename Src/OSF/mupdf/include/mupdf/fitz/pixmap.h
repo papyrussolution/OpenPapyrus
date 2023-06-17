@@ -410,6 +410,6 @@ enum {
  * the corner points of the returned bitmap, which will have the given
  * width/height.
  */
-fz_pixmap * fz_warp_pixmap(fz_context *ctx, fz_pixmap *src, const fz_point points[4], int width, int height);
+fz_pixmap * fz_warp_pixmap(fz_context *ctx, fz_pixmap *src, const SPoint2F points[4], int width, int height);
 
 #endif

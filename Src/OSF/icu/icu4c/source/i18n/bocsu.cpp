@@ -87,7 +87,7 @@ static uint8 * u_writeDiff(int32_t diff, uint8 * p)
  * Note that the identical-level run in a sort key is generated from
  * NFD text - there are never Hangul characters included.
  */
-U_CFUNC UChar32 u_writeIdenticalLevelRun(UChar32 prev, const UChar * s, int32_t length, icu::ByteSink &sink) 
+U_CFUNC UChar32 u_writeIdenticalLevelRun(UChar32 prev, const char16_t * s, int32_t length, icu::ByteSink &sink) 
 {
 	char scratch[64];
 	int32_t capacity;

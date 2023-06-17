@@ -93,21 +93,21 @@ U_CAPI void U_EXPORT2 ucnv_cbFromUWriteBytes(UConverterFromUnicodeArgs * args, c
 U_CAPI void U_EXPORT2 ucnv_cbFromUWriteSub(UConverterFromUnicodeArgs * args, int32_t offsetIndex, UErrorCode * err);
 /**
  * ONLY used by fromU callback functions.
- * This function will write out the error character(s) to the target UChar buffer.
+ * This function will write out the error character(s) to the target char16_t buffer.
  *
  * @param args callback fromUnicode arguments
- * @param source pointer to pointer to first UChar to write [on exit: 1 after last UChar processed]
- * @param sourceLimit pointer after last UChar to write
+ * @param source pointer to pointer to first char16_t to write [on exit: 1 after last char16_t processed]
+ * @param sourceLimit pointer after last char16_t to write
  * @param offsetIndex the relative offset index from callback which will be set
  * @param err error status <TT>U_BUFFER_OVERFLOW</TT>
  * @see ucnv_cbToUWriteSub
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 ucnv_cbFromUWriteUChars(UConverterFromUnicodeArgs * args, const UChar ** source, const UChar * sourceLimit, int32_t offsetIndex, UErrorCode * err);
+U_CAPI void U_EXPORT2 ucnv_cbFromUWriteUChars(UConverterFromUnicodeArgs * args, const char16_t ** source, const char16_t * sourceLimit, int32_t offsetIndex, UErrorCode * err);
 /**
  * ONLY used by ToU callback functions.
  *  This function will write out the specified characters to the target
- * UChar buffer.
+ * char16_t buffer.
  *
  * @param args callback toUnicode arguments
  * @param source source string to write
@@ -117,7 +117,7 @@ U_CAPI void U_EXPORT2 ucnv_cbFromUWriteUChars(UConverterFromUnicodeArgs * args, 
  * @see ucnv_cbToUWriteSub
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 ucnv_cbToUWriteUChars(UConverterToUnicodeArgs * args, const UChar * source, int32_t length, int32_t offsetIndex, UErrorCode * err);
+U_CAPI void U_EXPORT2 ucnv_cbToUWriteUChars(UConverterToUnicodeArgs * args, const char16_t * source, int32_t length, int32_t offsetIndex, UErrorCode * err);
 /**
  * ONLY used by ToU  callback functions.
  * This function will write out the Unicode substitution character (U+FFFD).

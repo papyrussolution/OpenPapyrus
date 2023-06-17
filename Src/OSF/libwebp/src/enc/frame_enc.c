@@ -869,7 +869,7 @@ int VP8EncTokenLoop(VP8Encoder* const enc)
 		if(stats.do_size_search) {
 			uint64_t size = FinalizeTokenProbas(&enc->proba_);
 			size += VP8EstimateTokenSize(&enc->tokens_,
-				(const uint8*)proba->coeffs_);
+				(const uint8 *)proba->coeffs_);
 			size = (size + size_p0 + 1024) >> 11; // -> size in bytes
 			size += HEADER_SIZE_ESTIMATE;
 			stats.value = (double)size;
@@ -904,7 +904,7 @@ int VP8EncTokenLoop(VP8Encoder* const enc)
 			FinalizeTokenProbas(&enc->proba_);
 		}
 		ok = VP8EmitTokens(&enc->tokens_, enc->parts_ + 0,
-			(const uint8*)proba->coeffs_, 1);
+			(const uint8 *)proba->coeffs_, 1);
 	}
 	ok = ok && WebPReportProgress(enc->pic_, enc->percent_ + 20, &enc->percent_);
 	return PostLoopFinalize(&it, ok);

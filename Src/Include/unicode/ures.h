@@ -153,7 +153,7 @@ U_CAPI UResourceBundle *  U_EXPORT2 ures_open(const char * packageName, const ch
  */
 U_CAPI UResourceBundle * U_EXPORT2 ures_openDirect(const char * packageName, const char * locale, UErrorCode * status);
 /**
- * Same as ures_open() but takes a const UChar *path.
+ * Same as ures_open() but takes a const char16_t *path.
  * This path will be converted to char * using the default converter,
  * then ures_open() is called.
  *
@@ -170,7 +170,7 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_openDirect(const char * packageName, con
  * @see ures_open
  * @stable ICU 2.0
  */
-U_CAPI UResourceBundle * U_EXPORT2 ures_openU(const UChar * packageName, const char * locale, UErrorCode * status);
+U_CAPI UResourceBundle * U_EXPORT2 ures_openU(const char16_t * packageName, const char * locale, UErrorCode * status);
 
 #ifndef U_HIDE_DEPRECATED_API
 /**
@@ -306,14 +306,14 @@ U_CAPI void U_EXPORT2 ures_openFillIn(UResourceBundle * r, const char * packageN
  *                Always check the value of status. Don't count on returning NULL.
  *                could be a non-failing error
  *                e.g.: <TT>U_USING_FALLBACK_WARNING</TT>,<TT>U_USING_DEFAULT_WARNING </TT>
- * @return a pointer to a zero-terminated UChar array which lives in a memory mapped/DLL file.
+ * @return a pointer to a zero-terminated char16_t array which lives in a memory mapped/DLL file.
  * @see ures_getBinary
  * @see ures_getIntVector
  * @see ures_getInt
  * @see ures_getUInt
  * @stable ICU 2.0
  */
-U_CAPI const UChar * U_EXPORT2 ures_getString(const UResourceBundle * resourceBundle, int32_t* len, UErrorCode * status);
+U_CAPI const char16_t * U_EXPORT2 ures_getString(const UResourceBundle * resourceBundle, int32_t* len, UErrorCode * status);
 /**
  * Returns a UTF-8 string from a string resource.
  * The UTF-8 string may be returnable directly as a pointer, or
@@ -502,10 +502,10 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_getNextResource(UResourceBundle * resour
  * @param key               fill in for key associated with this string. NULL if no key
  * @param status            fills in the outgoing error code. If an error occurred, we may return NULL, but don't
  *       count on it. Check status instead!
- * @return a pointer to a zero-terminated UChar array which lives in a memory mapped/DLL file.
+ * @return a pointer to a zero-terminated char16_t array which lives in a memory mapped/DLL file.
  * @stable ICU 2.0
  */
-U_CAPI const UChar * U_EXPORT2 ures_getNextString(UResourceBundle * resourceBundle, int32_t* len, const char ** key, UErrorCode * status);
+U_CAPI const char16_t * U_EXPORT2 ures_getNextString(UResourceBundle * resourceBundle, int32_t* len, const char ** key, UErrorCode * status);
 /**
  * Returns the resource in a given resource at the specified index. Features a fill-in parameter.
  *
@@ -527,10 +527,10 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_getByIndex(const UResourceBundle * resou
  * @param len               fill in length of the string
  * @param status            fills in the outgoing error code. If an error occurred, we may return NULL, but don't
  *       count on it. Check status instead!
- * @return                  a pointer to a zero-terminated UChar array which lives in a memory mapped/DLL file.
+ * @return                  a pointer to a zero-terminated char16_t array which lives in a memory mapped/DLL file.
  * @stable ICU 2.0
  */
-U_CAPI const UChar * U_EXPORT2 ures_getStringByIndex(const UResourceBundle * resourceBundle, int32_t indexS, int32_t* len, UErrorCode * status);
+U_CAPI const char16_t * U_EXPORT2 ures_getStringByIndex(const UResourceBundle * resourceBundle, int32_t indexS, int32_t* len, UErrorCode * status);
 /**
  * Returns a UTF-8 string from a resource at the specified index.
  * The UTF-8 string may be returnable directly as a pointer, or
@@ -602,10 +602,10 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_getByKey(const UResourceBundle * resourc
  * @param len               fill in length of the string
  * @param status            fills in the outgoing error code. If an error occurred, we may return NULL, but don't
  *       count on it. Check status instead!
- * @return                  a pointer to a zero-terminated UChar array which lives in a memory mapped/DLL file.
+ * @return                  a pointer to a zero-terminated char16_t array which lives in a memory mapped/DLL file.
  * @stable ICU 2.0
  */
-U_CAPI const UChar * U_EXPORT2 ures_getStringByKey(const UResourceBundle * resB, const char * key, int32_t* len, UErrorCode * status);
+U_CAPI const char16_t * U_EXPORT2 ures_getStringByKey(const UResourceBundle * resB, const char * key, int32_t* len, UErrorCode * status);
 /**
  * Returns a UTF-8 string from a resource and a key.
  * This function works only with table resources.
@@ -677,7 +677,7 @@ inline UnicodeString ures_getUnicodeString(const UResourceBundle * resB, UErrorC
 {
 	UnicodeString result;
 	int32_t len = 0;
-	const UChar * r = ures_getString(resB, &len, status);
+	const char16_t * r = ures_getString(resB, &len, status);
 	if(U_SUCCESS(*status)) {
 		result.setTo(true, r, len);
 	}
@@ -703,7 +703,7 @@ inline UnicodeString ures_getNextUnicodeString(UResourceBundle * resB, const cha
 {
 	UnicodeString result;
 	int32_t len = 0;
-	const UChar * r = ures_getNextString(resB, &len, key, status);
+	const char16_t * r = ures_getNextString(resB, &len, key, status);
 	if(U_SUCCESS(*status)) {
 		result.setTo(true, r, len);
 	}
@@ -726,7 +726,7 @@ inline UnicodeString ures_getUnicodeStringByIndex(const UResourceBundle * resB, 
 {
 	UnicodeString result;
 	int32_t len = 0;
-	const UChar * r = ures_getStringByIndex(resB, indexS, &len, status);
+	const char16_t * r = ures_getStringByIndex(resB, indexS, &len, status);
 	if(U_SUCCESS(*status)) {
 		result.setTo(true, r, len);
 	}
@@ -750,7 +750,7 @@ inline UnicodeString ures_getUnicodeStringByKey(const UResourceBundle * resB, co
 {
 	UnicodeString result;
 	int32_t len = 0;
-	const UChar * r = ures_getStringByKey(resB, key, &len, status);
+	const char16_t * r = ures_getStringByKey(resB, key, &len, status);
 	if(U_SUCCESS(*status)) {
 		result.setTo(true, r, len);
 	}

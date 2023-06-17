@@ -480,7 +480,7 @@ static void layout_flow(fz_context * ctx, fz_html_box * box, fz_html_box * top, 
 				xs = max_w / node->w;
 			if(max_h > 0 && node->h > max_h)
 				ys = max_h / node->h;
-			s = fz_min(xs, ys);
+			s = smin(xs, ys);
 			node->w = node->w * s;
 			node->h = node->h * s;
 		}
@@ -732,7 +732,7 @@ static float layout_block(fz_context * ctx, fz_html_box * box, float em, float t
 	}
 	else {
 		box->b -= vertical;
-		vertical = fz_max(margin[B], vertical);
+		vertical = smax(margin[B], vertical);
 		margin[B] = vertical;
 	}
 
@@ -807,7 +807,7 @@ void fz_layout_html(fz_context * ctx, fz_html * html, float w, float h, float em
 	html->layout_h = h;
 	html->layout_em = em;
 #ifndef NDEBUG
-	if(fz_atoi(getenv("FZ_DEBUG_HTML")))
+	if(satoi(getenv("FZ_DEBUG_HTML")))
 		fz_debug_html(ctx, html->root);
 #endif
 }

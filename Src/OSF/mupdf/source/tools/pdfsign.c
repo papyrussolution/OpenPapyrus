@@ -243,12 +243,11 @@ int pdfsign_main(int argc, const char * argv[])
 		if(pdf_needs_password(ctx, doc))
 			if(!pdf_authenticate_password(ctx, doc, password))
 				fz_warn(ctx, "cannot authenticate password: %s", infile);
-
 		if(argc - fz_optind <= 0 || list)
 			process_acro_form(ctx, doc);
 		else {
 			while(argc - fz_optind) {
-				pdf_obj * field = pdf_new_indirect(ctx, doc, fz_atoi(argv[fz_optind]), 0);
+				pdf_obj * field = pdf_new_indirect(ctx, doc, satoi(argv[fz_optind]), 0);
 				process_field(ctx, doc, field);
 				pdf_drop_obj(ctx, field);
 				fz_optind++;

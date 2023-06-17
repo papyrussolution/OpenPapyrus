@@ -1979,8 +1979,7 @@ pdf_obj * pdf_dict_getp_inheritable(fz_context * ctx, pdf_obj * node, const char
 	pdf_obj * marked = NULL;
 	fz_var(node);
 	fz_var(marked);
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		do {
 			val = pdf_dict_getp(ctx, node, path);
 			if(val)
@@ -1989,8 +1988,7 @@ pdf_obj * pdf_dict_getp_inheritable(fz_context * ctx, pdf_obj * node, const char
 				fz_throw(ctx, FZ_ERROR_GENERIC, "cycle in tree (parents)");
 			marked = node;
 			node = pdf_dict_get(ctx, node, PDF_NAME(Parent));
-		}
-		while(node);
+		} while(node);
 	}
 	fz_always(ctx)
 	{

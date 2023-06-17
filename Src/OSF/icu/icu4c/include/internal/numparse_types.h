@@ -66,7 +66,7 @@ public:
 		if(U_FAILURE(status)) {
 			return;
 		}
-		uprv_memcpy(fBuffer.getAlias(), text.getBuffer(), sizeof(UChar) * text.length());
+		uprv_memcpy(fBuffer.getAlias(), text.getBuffer(), sizeof(char16_t) * text.length());
 		fBuffer[text.length()] = 0;
 	}
 	inline UnicodeString toAliasedUnicodeString() const { return UnicodeString(true, fBuffer.getAlias(), -1); }
@@ -76,7 +76,7 @@ public:
 		return toAliasedUnicodeString() == other.toAliasedUnicodeString();
 	}
 private:
-	MaybeStackArray<UChar, stackCapacity> fBuffer;
+	MaybeStackArray<char16_t, stackCapacity> fBuffer;
 };
 /**
  * Struct-like class to hold the results of a parsing routine.
@@ -112,7 +112,7 @@ public:
 	/**
 	 * The currency that got consumed.
 	 */
-	UChar currencyCode[4];
+	char16_t currencyCode[4];
 	ParsedNumber();
 	ParsedNumber(const ParsedNumber& other) = default;
 	ParsedNumber& operator =(const ParsedNumber& other) = default;

@@ -316,9 +316,9 @@ PPBaseFilt * PPViewSCard::CreateFilt(const void * extraPtr) const
 	return p_filt;
 }
 
-int PPViewSCard::IsTempTblNeeded() const
+bool PPViewSCard::IsTempTblNeeded() const
 {
-	return BIN(!Filt.TrnovrPeriod.IsZero() || Filt.EmployerID || Filt.Number.NotEmpty() ||
+	return (!Filt.TrnovrPeriod.IsZero() || Filt.EmployerID || Filt.Number.NotEmpty() ||
 		(Filt.Flags & (SCardFilt::fSinceLastPDisUpdating|SCardFilt::fShowOwnerAddrDetail)) ||
 		(Filt.P_SjF && !Filt.P_SjF->IsEmpty()) || (Filt.P_ExludeOwnerF && !Filt.P_ExludeOwnerF->IsEmpty()) ||
 		SeriesList.GetCount() > 1);

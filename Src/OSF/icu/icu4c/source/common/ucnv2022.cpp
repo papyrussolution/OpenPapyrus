@@ -1265,7 +1265,7 @@ static void U_CALLCONV T_UConverter_toUnicode_ISO_2022_OFFSETS_LOGIC(UConverterT
     UErrorCode * err) {
 	const char * mySourceLimit, * realSourceLimit;
 	const char * sourceStart;
-	const UChar * myTargetStart;
+	const char16_t * myTargetStart;
 	UConverter * saveThis;
 	UConverterDataISO2022* myData;
 	int8 length;
@@ -1684,8 +1684,8 @@ static void U_CALLCONV UConverter_fromUnicode_ISO_2022_JP_OFFSETS_LOGIC(UConvert
 	ISO2022State * pFromU2022State;
 	uint8 * target = (uint8 *)args->target;
 	const uint8 * targetLimit = (const uint8 *)args->targetLimit;
-	const UChar * source = args->source;
-	const UChar * sourceLimit = args->sourceLimit;
+	const char16_t * source = args->source;
+	const char16_t * sourceLimit = args->sourceLimit;
 	int32_t* offsets = args->offsets;
 	UChar32 sourceChar;
 	char buffer[8];
@@ -1719,7 +1719,7 @@ getTrail:
 					/*look ahead to find the trail surrogate*/
 					if(source < sourceLimit) {
 						/* test the following code unit */
-						UChar trail = (UChar) *source;
+						char16_t trail = (char16_t) *source;
 						if(U16_IS_TRAIL(trail)) {
 							source++;
 							sourceChar = U16_GET_SUPPLEMENTARY(sourceChar, trail);
@@ -2111,7 +2111,7 @@ static void U_CALLCONV UConverter_toUnicode_ISO_2022_JP_OFFSETS_LOGIC(UConverter
     UErrorCode * err) {
 	char tempBuf[2];
 	const char * mySource = (char *)args->source;
-	UChar * myTarget = args->target;
+	char16_t * myTarget = args->target;
 	const char * mySourceLimit = args->sourceLimit;
 	uint32_t targetUniChar = 0x0000;
 	uint32_t mySourceChar = 0x0000;
@@ -2329,19 +2329,19 @@ getTrailByte:
 					args->offsets[myTarget -
 					args->target] = (int32_t)(mySource - args->source - (mySourceChar <= 0xff ? 1 : 2));
 				}
-				*(myTarget++) = (UChar)targetUniChar;
+				*(myTarget++) = (char16_t)targetUniChar;
 			}
 			else if(targetUniChar > missingCharMarker) {
 				/* disassemble the surrogate pair and write to output*/
 				targetUniChar -= 0x0010000;
-				*myTarget = (UChar)(0xd800+(UChar)(targetUniChar>>10));
+				*myTarget = (char16_t)(0xd800+(char16_t)(targetUniChar>>10));
 				if(args->offsets) {
 					args->offsets[myTarget -
 					args->target] = (int32_t)(mySource - args->source - (mySourceChar <= 0xff ? 1 : 2));
 				}
 				++myTarget;
 				if(myTarget< args->targetLimit) {
-					*myTarget = (UChar)(0xdc00+(UChar)(targetUniChar&0x3ff));
+					*myTarget = (char16_t)(0xdc00+(char16_t)(targetUniChar&0x3ff));
 					if(args->offsets) {
 						args->offsets[myTarget -
 						args->target] = (int32_t)(mySource - args->source - (mySourceChar <= 0xff ? 1 : 2));
@@ -2350,7 +2350,7 @@ getTrailByte:
 				}
 				else {
 					args->converter->UCharErrorBuffer[args->converter->UCharErrorBufferLength++] =
-					    (UChar)(0xdc00+(UChar)(targetUniChar&0x3ff));
+					    (char16_t)(0xdc00+(char16_t)(targetUniChar&0x3ff));
 				}
 			}
 			else {
@@ -2401,8 +2401,8 @@ static void U_CALLCONV UConverter_fromUnicode_ISO_2022_KR_OFFSETS_LOGIC_IBM(UCon
 }
 
 static void U_CALLCONV UConverter_fromUnicode_ISO_2022_KR_OFFSETS_LOGIC(UConverterFromUnicodeArgs * args, UErrorCode * err) {
-	const UChar * source = args->source;
-	const UChar * sourceLimit = args->sourceLimit;
+	const char16_t * source = args->source;
+	const char16_t * sourceLimit = args->sourceLimit;
 	unsigned char * target = (unsigned char *)args->target;
 	unsigned char * targetLimit = (unsigned char *)args->targetLimit;
 	int32_t* offsets = args->offsets;
@@ -2528,7 +2528,7 @@ getTrail:
 						/*look ahead to find the trail surrogate*/
 						if(source <  sourceLimit) {
 							/* test the following code unit */
-							UChar trail = (UChar) *source;
+							char16_t trail = (char16_t) *source;
 							if(U16_IS_TRAIL(trail)) {
 								source++;
 								sourceChar = U16_GET_SUPPLEMENTARY(sourceChar, trail);
@@ -2680,7 +2680,7 @@ static void U_CALLCONV UConverter_toUnicode_ISO_2022_KR_OFFSETS_LOGIC_IBM(UConve
 			if(args->offsets != NULL && sourceStart != args->source) {
 				/* update offsets to base them on the actual start of the input */
 				int32_t * offsets = args->offsets;
-				UChar * target = args->target;
+				char16_t * target = args->target;
 				int32_t delta = (int32_t)(args->source - sourceStart);
 				while(target < subArgs.target) {
 					if(*offsets >= 0) {
@@ -2727,10 +2727,10 @@ static void U_CALLCONV UConverter_toUnicode_ISO_2022_KR_OFFSETS_LOGIC(UConverter
     UErrorCode * err) {
 	char tempBuf[2];
 	const char * mySource = (char *)args->source;
-	UChar * myTarget = args->target;
+	char16_t * myTarget = args->target;
 	const char * mySourceLimit = args->sourceLimit;
 	UChar32 targetUniChar = 0x0000;
-	UChar mySourceChar = 0x0000;
+	char16_t mySourceChar = 0x0000;
 	UConverterDataISO2022* myData;
 	UConverterSharedData* sharedData;
 	bool useFallback;
@@ -2831,7 +2831,7 @@ getTrailByte:
 						++mySource;
 						/* add another bit so that the code below writes 2 bytes in case of
 						   error */
-						mySourceChar = static_cast<UChar>(0x10000 | (mySourceChar << 8) | trailByte);
+						mySourceChar = static_cast<char16_t>(0x10000 | (mySourceChar << 8) | trailByte);
 					}
 				}
 				else {
@@ -2851,7 +2851,7 @@ getTrailByte:
 					args->offsets[myTarget -
 					args->target] = (int32_t)(mySource - args->source - (mySourceChar <= 0xff ? 1 : 2));
 				}
-				*(myTarget++) = (UChar)targetUniChar;
+				*(myTarget++) = (char16_t)targetUniChar;
 			}
 			else {
 				/* Call the callback function*/
@@ -2980,8 +2980,8 @@ static void U_CALLCONV UConverter_fromUnicode_ISO_2022_CN_OFFSETS_LOGIC(UConvert
 	ISO2022State * pFromU2022State;
 	uint8 * target = (uint8 *)args->target;
 	const uint8 * targetLimit = (const uint8 *)args->targetLimit;
-	const UChar * source = args->source;
-	const UChar * sourceLimit = args->sourceLimit;
+	const char16_t * source = args->source;
+	const char16_t * sourceLimit = args->sourceLimit;
 	int32_t* offsets = args->offsets;
 	UChar32 sourceChar;
 	char buffer[8];
@@ -3012,7 +3012,7 @@ getTrail:
 					/*look ahead to find the trail surrogate*/
 					if(source < sourceLimit) {
 						/* test the following code unit */
-						UChar trail = (UChar) *source;
+						char16_t trail = (char16_t) *source;
 						if(U16_IS_TRAIL(trail)) {
 							source++;
 							sourceChar = U16_GET_SUPPLEMENTARY(sourceChar, trail);
@@ -3346,7 +3346,7 @@ static void U_CALLCONV UConverter_toUnicode_ISO_2022_CN_OFFSETS_LOGIC(UConverter
     UErrorCode * err) {
 	char tempBuf[3];
 	const char * mySource = (char *)args->source;
-	UChar * myTarget = args->target;
+	char16_t * myTarget = args->target;
 	const char * mySourceLimit = args->sourceLimit;
 	uint32_t targetUniChar = 0x0000;
 	uint32_t mySourceChar = 0x0000;
@@ -3503,7 +3503,7 @@ getTrailByte:
 				    }
 				    else {
 					    if(mySourceChar <= 0x7f) {
-						    targetUniChar = (UChar)mySourceChar;
+						    targetUniChar = (char16_t)mySourceChar;
 					    }
 				    }
 				    break;
@@ -3513,19 +3513,19 @@ getTrailByte:
 					args->offsets[myTarget -
 					args->target] = (int32_t)(mySource - args->source - (mySourceChar <= 0xff ? 1 : 2));
 				}
-				*(myTarget++) = (UChar)targetUniChar;
+				*(myTarget++) = (char16_t)targetUniChar;
 			}
 			else if(targetUniChar > missingCharMarker) {
 				/* disassemble the surrogate pair and write to output*/
 				targetUniChar -= 0x0010000;
-				*myTarget = (UChar)(0xd800+(UChar)(targetUniChar>>10));
+				*myTarget = (char16_t)(0xd800+(char16_t)(targetUniChar>>10));
 				if(args->offsets) {
 					args->offsets[myTarget -
 					args->target] = (int32_t)(mySource - args->source - (mySourceChar <= 0xff ? 1 : 2));
 				}
 				++myTarget;
 				if(myTarget< args->targetLimit) {
-					*myTarget = (UChar)(0xdc00+(UChar)(targetUniChar&0x3ff));
+					*myTarget = (char16_t)(0xdc00+(char16_t)(targetUniChar&0x3ff));
 					if(args->offsets) {
 						args->offsets[myTarget -
 						args->target] = (int32_t)(mySource - args->source - (mySourceChar <= 0xff ? 1 : 2));
@@ -3534,7 +3534,7 @@ getTrailByte:
 				}
 				else {
 					args->converter->UCharErrorBuffer[args->converter->UCharErrorBufferLength++] =
-					    (UChar)(0xdc00+(UChar)(targetUniChar&0x3ff));
+					    (char16_t)(0xdc00+(char16_t)(targetUniChar&0x3ff));
 				}
 			}
 			else {
@@ -3896,7 +3896,7 @@ static const UConverterStaticData _ISO2022StaticData = {
 	UCNV_IBM,
 	UCNV_ISO_2022,
 	1,
-	3, /* max 3 bytes per UChar from UTF-8 (4 bytes from surrogate _pair_) */
+	3, /* max 3 bytes per char16_t from UTF-8 (4 bytes from surrogate _pair_) */
 	{ 0x1a, 0, 0, 0 },
 	1,
 	FALSE,
@@ -3941,7 +3941,7 @@ static const UConverterStaticData _ISO2022JPStaticData = {
 	UCNV_IBM,
 	UCNV_ISO_2022,
 	1,
-	6, /* max 6 bytes per UChar: 4-byte escape sequence + DBCS */
+	6, /* max 6 bytes per char16_t: 4-byte escape sequence + DBCS */
 	{ 0x1a, 0, 0, 0 },
 	1,
 	FALSE,
@@ -3990,7 +3990,7 @@ static const UConverterStaticData _ISO2022KRStaticData = {
 	UCNV_IBM,
 	UCNV_ISO_2022,
 	1,
-	8, /* max 8 bytes per UChar */
+	8, /* max 8 bytes per char16_t */
 	{ 0x1a, 0, 0, 0 },
 	1,
 	FALSE,
@@ -4038,7 +4038,7 @@ static const UConverterStaticData _ISO2022CNStaticData = {
 	UCNV_IBM,
 	UCNV_ISO_2022,
 	1,
-	8, /* max 8 bytes per UChar: 4-byte CNS designator + 2 bytes for SS2/SS3 + DBCS */
+	8, /* max 8 bytes per char16_t: 4-byte CNS designator + 2 bytes for SS2/SS3 + DBCS */
 	{ 0x1a, 0, 0, 0 },
 	1,
 	FALSE,

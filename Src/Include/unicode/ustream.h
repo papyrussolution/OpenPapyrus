@@ -62,7 +62,7 @@ U_NAMESPACE_END
 
 #endif
 
-/* No operator for UChar because it can conflict with wchar_t  */
+/* No operator for char16_t because it can conflict with wchar_t  */
 
 #endif /* U_SHOW_CPLUSPLUS_API */
 

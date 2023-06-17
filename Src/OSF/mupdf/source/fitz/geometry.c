@@ -3,8 +3,8 @@
 #include "mupdf/fitz.h"
 #pragma hdrstop
 
-#define MAX4(a, b, c, d) fz_max(fz_max(a, b), fz_max(c, d))
-#define MIN4(a, b, c, d) fz_min(fz_min(a, b), fz_min(c, d))
+#define MAX4(a, b, c, d) smax(smax(a, b), smax(c, d))
+#define MIN4(a, b, c, d) smin(smin(a, b), smin(c, d))
 
 /*	A useful macro to add with overflow detection and clamping.
 
@@ -278,7 +278,7 @@ float fz_matrix_max_expansion(fz_matrix m)
 	return max;
 }
 
-fz_point fz_transform_point(fz_point p, fz_matrix m)
+SPoint2F fz_transform_point(SPoint2F p, fz_matrix m)
 {
 	float x = p.x;
 	p.x = x * m.a + p.y * m.c + m.e;
@@ -286,15 +286,15 @@ fz_point fz_transform_point(fz_point p, fz_matrix m)
 	return p;
 }
 
-fz_point fz_transform_point_xy(float x, float y, fz_matrix m)
+SPoint2F fz_transform_point_xy(float x, float y, fz_matrix m)
 {
-	fz_point p;
+	SPoint2F p;
 	p.x = x * m.a + y * m.c + m.e;
 	p.y = x * m.b + y * m.d + m.f;
 	return p;
 }
 
-fz_point fz_transform_vector(fz_point p, fz_matrix m)
+SPoint2F fz_transform_vector(SPoint2F p, fz_matrix m)
 {
 	float x = p.x;
 	p.x = x * m.a + p.y * m.c;
@@ -302,7 +302,7 @@ fz_point fz_transform_vector(fz_point p, fz_matrix m)
 	return p;
 }
 
-fz_point fz_normalize_vector(fz_point p)
+SPoint2F fz_normalize_vector(SPoint2F p)
 {
 	float len = p.x * p.x + p.y * p.y;
 	if(len != 0) {
@@ -451,7 +451,7 @@ fz_irect fz_translate_irect(fz_irect a, int xoff, int yoff)
 
 fz_rect fz_transform_rect(fz_rect r, fz_matrix m)
 {
-	fz_point s, t, u, v;
+	SPoint2F s, t, u, v;
 	int invalid;
 
 	if(fz_is_infinite_rect(r))
@@ -542,7 +542,7 @@ fz_rect fz_expand_rect(fz_rect a, float expand)
 
 /* Adding a point to an invalid rectangle makes the zero area rectangle
  * that contains just that point. */
-fz_rect fz_include_point_in_rect(fz_rect r, fz_point p)
+fz_rect fz_include_point_in_rect(fz_rect r, SPoint2F p)
 {
 	if(fz_is_infinite_rect(r)) return r;
 	if(p.x < r.x0) r.x0 = p.x;
@@ -592,7 +592,7 @@ fz_quad fz_quad_from_rect(fz_rect r)
 	return q;
 }
 
-int fz_is_point_inside_rect(fz_point p, fz_rect r)
+int fz_is_point_inside_rect(SPoint2F p, fz_rect r)
 {
 	return (p.x >= r.x0 && p.x < r.x1 && p.y >= r.y0 && p.y < r.y1);
 }
@@ -602,7 +602,7 @@ int fz_is_point_inside_irect(int x, int y, fz_irect r)
 	return (x >= r.x0 && x < r.x1 && y >= r.y0 && y < r.y1);
 }
 
-static int fz_is_point_inside_triangle(fz_point p, fz_point a, fz_point b, fz_point c)
+static int fz_is_point_inside_triangle(SPoint2F p, SPoint2F a, SPoint2F b, SPoint2F c)
 {
 	float s, t, area;
 	s = a.y * c.x - a.x * c.y + (c.y - a.y) * p.x + (a.x - c.x) * p.y;
@@ -618,7 +618,7 @@ static int fz_is_point_inside_triangle(fz_point p, fz_point a, fz_point b, fz_po
 	       (s >= 0 && s + t <= area);
 }
 
-int fz_is_point_inside_quad(fz_point p, fz_quad q)
+int fz_is_point_inside_quad(SPoint2F p, fz_quad q)
 {
 	return
 		fz_is_point_inside_triangle(p, q.ul, q.ur, q.lr) ||

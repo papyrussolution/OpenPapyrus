@@ -96,7 +96,7 @@ U_CAPI void U_EXPORT2 u_flushDefaultConverter()
 	}
 }
 
-/* conversions between char * and UChar * ------------------------------------- */
+/* conversions between char * and char16_t * ------------------------------------- */
 
 /* maximum string length for u_uastrcpy() and u_austrcpy() implementations */
 #define MAX_STRLEN 0x0FFFFFFF
@@ -116,11 +116,11 @@ static int32_t u_astrnlen(const char * s1, int32_t n)
 	return len;
 }
 
-U_CAPI UChar * U_EXPORT2 u_uastrncpy(UChar * ucs1,
+U_CAPI char16_t * U_EXPORT2 u_uastrncpy(char16_t * ucs1,
     const char * s2,
     int32_t n)
 {
-	UChar * target = ucs1;
+	char16_t * target = ucs1;
 	UErrorCode err = U_ZERO_ERROR;
 	UConverter * cnv = u_getDefaultConverter(&err);
 	if(U_SUCCESS(err) && cnv != NULL) {
@@ -149,7 +149,7 @@ U_CAPI UChar * U_EXPORT2 u_uastrncpy(UChar * ucs1,
 	return ucs1;
 }
 
-U_CAPI UChar * U_EXPORT2 u_uastrcpy(UChar * ucs1,
+U_CAPI char16_t * U_EXPORT2 u_uastrcpy(char16_t * ucs1,
     const char * s2)
 {
 	UErrorCode err = U_ZERO_ERROR;
@@ -175,7 +175,7 @@ U_CAPI UChar * U_EXPORT2 u_uastrcpy(UChar * ucs1,
 /*
    returns the minimum of (the length of the null-terminated string) and n.
  */
-static int32_t u_ustrnlen(const UChar * ucs1, int32_t n)
+static int32_t u_ustrnlen(const char16_t * ucs1, int32_t n)
 {
 	int32_t len = 0;
 
@@ -187,23 +187,14 @@ static int32_t u_ustrnlen(const UChar * ucs1, int32_t n)
 	return len;
 }
 
-U_CAPI char * U_EXPORT2 u_austrncpy(char * s1,
-    const UChar * ucs2,
-    int32_t n)
+U_CAPI char * U_EXPORT2 u_austrncpy(char * s1, const char16_t * ucs2, int32_t n)
 {
 	char * target = s1;
 	UErrorCode err = U_ZERO_ERROR;
 	UConverter * cnv = u_getDefaultConverter(&err);
 	if(U_SUCCESS(err) && cnv != NULL) {
 		ucnv_reset(cnv);
-		ucnv_fromUnicode(cnv,
-		    &target,
-		    s1+n,
-		    &ucs2,
-		    ucs2+u_ustrnlen(ucs2, n),
-		    NULL,
-		    TRUE,
-		    &err);
+		ucnv_fromUnicode(cnv, &target, s1+n, &ucs2, ucs2+u_ustrnlen(ucs2, n), NULL, TRUE, &err);
 		ucnv_reset(cnv); /* be good citizens */
 		u_releaseDefaultConverter(cnv);
 		if(U_FAILURE(err) && (err != U_BUFFER_OVERFLOW_ERROR)) {
@@ -220,7 +211,7 @@ U_CAPI char * U_EXPORT2 u_austrncpy(char * s1,
 }
 
 U_CAPI char * U_EXPORT2 u_austrcpy(char * s1,
-    const UChar * ucs2)
+    const char16_t * ucs2)
 {
 	UErrorCode err = U_ZERO_ERROR;
 	UConverter * cnv = u_getDefaultConverter(&err);

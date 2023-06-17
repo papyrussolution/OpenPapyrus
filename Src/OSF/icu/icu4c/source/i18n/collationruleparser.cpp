@@ -19,7 +19,7 @@
 U_NAMESPACE_BEGIN
 
 namespace {
-	static const UChar BEFORE[] = { 0x5b, 0x62, 0x65, 0x66, 0x6f, 0x72, 0x65, 0 };  // "[before"
+	static const char16_t BEFORE[] = { 0x5b, 0x62, 0x65, 0x66, 0x6f, 0x72, 0x65, 0 };  // "[before"
 	const int32_t BEFORE_LENGTH = 7;
 }  // namespace
 
@@ -74,7 +74,7 @@ void CollationRuleParser::parse(const UnicodeString & ruleString, UErrorCode & e
 	rules = &ruleString;
 	ruleIndex = 0;
 	while(ruleIndex < rules->length()) {
-		UChar c = rules->charAt(ruleIndex);
+		char16_t c = rules->charAt(ruleIndex);
 		if(PatternProps::isWhiteSpace(c)) {
 			++ruleIndex;
 			continue;
@@ -166,7 +166,7 @@ int32_t CollationRuleParser::parseResetAndPosition(UErrorCode & errorCode)
 	}
 	int32_t i = skipWhiteSpace(ruleIndex + 1);
 	int32_t j;
-	UChar c;
+	char16_t c;
 	int32_t resetStrength;
 	if(rules->compare(i, BEFORE_LENGTH, BEFORE, 0, BEFORE_LENGTH) == 0 &&
 	    (j = i + BEFORE_LENGTH) < rules->length() &&
@@ -210,7 +210,7 @@ int32_t CollationRuleParser::parseRelationOperator(UErrorCode & errorCode) {
 	}
 	int32_t strength;
 	int32_t i = ruleIndex;
-	UChar c = rules->charAt(i++);
+	char16_t c = rules->charAt(i++);
 	switch(c) {
 		case 0x3c: // '<'
 		    if(i < rules->length() && rules->charAt(i) == 0x3c) { // <<
@@ -265,7 +265,7 @@ void CollationRuleParser::parseRelationStrings(int32_t strength, int32_t i, UErr
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-	UChar next = (i < rules->length()) ? rules->charAt(i) : 0;
+	char16_t next = (i < rules->length()) ? rules->charAt(i) : 0;
 	if(next == 0x7c) { // '|' separates the context prefix from the string.
 		prefix = str;
 		i = parseTailoringString(i + 1, str, errorCode);
@@ -387,7 +387,7 @@ int32_t CollationRuleParser::parseString(int32_t i, UnicodeString & raw, UErrorC
 			if(c == 0x27) { // apostrophe
 				if(i < rules->length() && rules->charAt(i) == 0x27) {
 					// Double apostrophe, encodes a single one.
-					raw.append((UChar)0x27);
+					raw.append((char16_t)0x27);
 					++i;
 					continue;
 				}
@@ -408,7 +408,7 @@ int32_t CollationRuleParser::parseString(int32_t i, UnicodeString & raw, UErrorC
 							break;
 						}
 					}
-					raw.append((UChar)c);
+					raw.append((char16_t)c);
 				}
 			}
 			else if(c == 0x5c) { // backslash
@@ -432,7 +432,7 @@ int32_t CollationRuleParser::parseString(int32_t i, UnicodeString & raw, UErrorC
 			break;
 		}
 		else {
-			raw.append((UChar)c);
+			raw.append((char16_t)c);
 		}
 	}
 	for(int32_t j = 0; j < raw.length();) {
@@ -469,7 +469,8 @@ static const char * const positions[] = {
 };
 }  // namespace
 
-int32_t CollationRuleParser::parseSpecialPosition(int32_t i, UnicodeString & str, UErrorCode & errorCode) {
+int32_t CollationRuleParser::parseSpecialPosition(int32_t i, UnicodeString & str, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
@@ -477,18 +478,18 @@ int32_t CollationRuleParser::parseSpecialPosition(int32_t i, UnicodeString & str
 	int32_t j = readWords(i + 1, raw);
 	if(j > i && rules->charAt(j) == 0x5d && !raw.isEmpty()) { // words end with ]
 		++j;
-		for(int32_t pos = 0; pos < SIZEOFARRAYi(positions); ++pos) {
+		for(uint pos = 0; pos < SIZEOFARRAY(positions); ++pos) {
 			if(raw == UnicodeString(positions[pos], -1, US_INV)) {
-				str.setTo((UChar)POS_LEAD).append((UChar)(POS_BASE + pos));
+				str.setTo((char16_t)POS_LEAD).append((char16_t)(POS_BASE + pos));
 				return j;
 			}
 		}
 		if(raw == UNICODE_STRING_SIMPLE("top")) {
-			str.setTo((UChar)POS_LEAD).append((UChar)(POS_BASE + LAST_REGULAR));
+			str.setTo((char16_t)POS_LEAD).append((char16_t)(POS_BASE + LAST_REGULAR));
 			return j;
 		}
 		if(raw == UNICODE_STRING_SIMPLE("variable top")) {
-			str.setTo((UChar)POS_LEAD).append((UChar)(POS_BASE + LAST_VARIABLE));
+			str.setTo((char16_t)POS_LEAD).append((char16_t)(POS_BASE + LAST_VARIABLE));
 			return j;
 		}
 	}
@@ -521,14 +522,14 @@ void CollationRuleParser::parseSetting(UErrorCode & errorCode) {
 			return;
 		}
 		UnicodeString v;
-		int32_t valueIndex = raw.lastIndexOf((UChar)0x20);
+		int32_t valueIndex = raw.lastIndexOf((char16_t)0x20);
 		if(valueIndex >= 0) {
 			v.setTo(raw, valueIndex + 1);
 			raw.truncate(valueIndex);
 		}
 		if(raw == UNICODE_STRING_SIMPLE("strength") && v.length() == 1) {
 			int32_t value = UCOL_DEFAULT;
-			UChar c = v.charAt(0);
+			char16_t c = v.charAt(0);
 			if(0x31 <= c && c <= 0x34) { // 1..4
 				value = UCOL_PRIMARY + (c - 0x31);
 			}
@@ -740,7 +741,7 @@ void CollationRuleParser::parseReordering(const UnicodeString & raw, UErrorCode 
 	CharString word;
 	while(i < raw.length()) {
 		++i; // skip the word-separating space
-		int32_t limit = raw.indexOf((UChar)0x20, i);
+		int32_t limit = raw.indexOf((char16_t)0x20, i);
 		if(limit < 0) {
 			limit = raw.length();
 		}
@@ -766,8 +767,9 @@ static const char * const gSpecialReorderCodes[] = {
 	"space", "punct", "symbol", "currency", "digit"
 };
 
-int32_t CollationRuleParser::getReorderCode(const char * word) {
-	for(int32_t i = 0; i < SIZEOFARRAYi(gSpecialReorderCodes); ++i) {
+int32_t CollationRuleParser::getReorderCode(const char * word) 
+{
+	for(uint i = 0; i < SIZEOFARRAY(gSpecialReorderCodes); ++i) {
 		if(uprv_stricmp(word, gSpecialReorderCodes[i]) == 0) {
 			return UCOL_REORDER_CODE_FIRST + i;
 		}
@@ -803,7 +805,7 @@ int32_t CollationRuleParser::parseUnicodeSet(int32_t i, UnicodeSet & set, UError
 			setParseError("unbalanced UnicodeSet pattern brackets", errorCode);
 			return j;
 		}
-		UChar c = rules->charAt(j++);
+		char16_t c = rules->charAt(j++);
 		if(c == 0x5b) { // '['
 			++level;
 		}
@@ -828,14 +830,14 @@ int32_t CollationRuleParser::parseUnicodeSet(int32_t i, UnicodeSet & set, UError
 }
 
 int32_t CollationRuleParser::readWords(int32_t i, UnicodeString & raw) const {
-	static const UChar sp = 0x20;
+	static const char16_t sp = 0x20;
 	raw.remove();
 	i = skipWhiteSpace(i);
 	for(;;) {
 		if(i >= rules->length()) {
 			return 0;
 		}
-		UChar c = rules->charAt(i);
+		char16_t c = rules->charAt(i);
 		if(isSyntaxChar(c) && c != 0x2d && c != 0x5f) { // syntax except -_
 			if(raw.isEmpty()) {
 				return i;
@@ -859,7 +861,7 @@ int32_t CollationRuleParser::readWords(int32_t i, UnicodeString & raw) const {
 int32_t CollationRuleParser::skipComment(int32_t i) const {
 	// skip to past the newline
 	while(i < rules->length()) {
-		UChar c = rules->charAt(i++);
+		char16_t c = rules->charAt(i++);
 		// LF or FF or CR or NEL or LS or PS
 		if(c == 0xa || c == 0xc || c == 0xd || c == 0x85 || c == 0x2028 || c == 0x2029) {
 			// Unicode Newline Guidelines: "A readline function should stop at NLF, LS, FF, or PS."

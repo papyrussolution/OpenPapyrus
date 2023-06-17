@@ -303,6 +303,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Midl>
       <TypeLibraryName>.\Debug/Alone.tlb</TypeLibraryName>
@@ -363,6 +364,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Midl>
       <TypeLibraryName>.\Debug/Alone.tlb</TypeLibraryName>
@@ -424,6 +426,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Midl>
       <TypeLibraryName>.\Debug/Alone.tlb</TypeLibraryName>
@@ -484,6 +487,7 @@
       <SubSystem>Console</SubSystem>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Midl>
       <TypeLibraryName>.\Debug/Alone.tlb</TypeLibraryName>
@@ -544,6 +548,7 @@
       <SubSystem>Console</SubSystem>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Midl>
       <TypeLibraryName>.\Debug/Alone.tlb</TypeLibraryName>
@@ -604,6 +609,7 @@
       <SubSystem>Console</SubSystem>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Midl>
       <TypeLibraryName>.\Debug/Alone.tlb</TypeLibraryName>
@@ -670,6 +676,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Midl>
       <TypeLibraryName>.\Release/Alone.tlb</TypeLibraryName>
@@ -737,6 +744,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Midl>
       <TypeLibraryName>.\Release/Alone.tlb</TypeLibraryName>
@@ -805,6 +813,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Midl>
       <TypeLibraryName>.\Release/Alone.tlb</TypeLibraryName>
@@ -872,6 +881,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Midl>
       <TypeLibraryName>.\Release/Alone.tlb</TypeLibraryName>
@@ -939,6 +949,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Midl>
       <TypeLibraryName>.\Release/Alone.tlb</TypeLibraryName>
@@ -1006,6 +1017,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <LinkStatus>
       </LinkStatus>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Midl>
       <TypeLibraryName>.\Release/Alone.tlb</TypeLibraryName>

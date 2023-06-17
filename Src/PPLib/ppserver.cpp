@@ -1344,14 +1344,14 @@ public:
 		}
 		AuthBlock & Z()
 		{
-			//Phone.Z();
-			//Name.Z();
-			//ScCode.Z();
 			WsCtlUuid.Z();
 			LoginText.Z();
 			Pw.Z();
 			return *this;
 		}
+		//
+		// Descr: Возвращает true если входящие параметры инициализированы в достаточной степени для запуска исполнения команды
+		//
 		bool   IsEmpty() const
 		{
 			return LoginText.IsEmpty();//(Phone.NotEmpty() || Name.NotEmpty() || ScCode.NotEmpty());
@@ -1363,14 +1363,6 @@ public:
 				const SJson * p_c = pJs->FindChildByKey("login");
 				if(SJson::IsString(p_c))
 					LoginText = p_c->Text;
-				/*
-				p_c = pJs->FindChildByKey("nm");
-				if(SJson::IsString(p_c))
-					Name = p_c->Text;
-				p_c = pJs->FindChildByKey("sccode");
-				if(SJson::IsString(p_c))
-					ScCode = p_c->Text;
-				*/
 				p_c = pJs->FindChildByKey("pw");
 				if(SJson::IsString(p_c))
 					Pw = p_c->Text;
@@ -1390,25 +1382,155 @@ public:
 		PPID   SCardID;
 		PPID   PsnID;
 	};
-	WsCtlBlock() : PrcID(0)
+	struct StartSessBlock {
+		StartSessBlock() : SCardID(0), GoodsID(0), SessID(0), TechID(0), RetSCardID(0), RetGoodsID(0), ScOpDtm(ZERODATETIME), WrOffAmount(0.0)
+		{
+		}
+		//
+		// Descr: Возвращает true если входящие параметры инициализированы в достаточной степени для запуска исполнения команды
+		//
+		bool   IsEmpty() const
+		{
+			return (!SCardID || !GoodsID);
+		}
+		StartSessBlock & Z()
+		{
+			WsCtlUuid.Z();
+			SCardID = 0;
+			GoodsID = 0;
+			SessID = 0;
+			TechID = 0;
+			RetSCardID = 0;
+			RetGoodsID = 0;
+			ScOpDtm.Z();
+			WrOffAmount = 0.0;
+			SessTimeRange.Z();
+			return *this;
+		}
+		bool   FromJsonObj(const SJson * pJs)
+		{
+			Z();
+			if(pJs) {
+				const SJson * p_c = pJs->FindChildByKey("scardid");
+				if(SJson::IsNumber(p_c))
+					SCardID = p_c->Text.ToLong();
+				p_c = pJs->FindChildByKey("goodsid");
+				if(SJson::IsNumber(p_c))
+					GoodsID = p_c->Text.ToLong();
+				p_c = pJs->FindChildByKey("wsctluuid");
+				if(SJson::IsString(p_c)) {
+					WsCtlUuid.FromStr(p_c->Text);
+				}
+			}
+			return !IsEmpty();
+		}
+		S_GUID WsCtlUuid;
+		PPID   SCardID;
+		PPID   GoodsID;
+		//
+		// Results:
+		//
+		PPID   SessID;
+		PPID   TechID;
+		PPID   RetSCardID;
+		PPID   RetGoodsID;
+		LDATETIME ScOpDtm; // Время операции списания денег //
+		double WrOffAmount; // Списанная сумма //
+		STimeChunk SessTimeRange;
+	};
+	WsCtlBlock() : PrcID(0), ScSerID(0), PsnKindID(0)
 	{
+		ScObj.FetchConfig(&ScCfg);
+		if(ScCfg.DefCreditSerID) {
+			PPObjSCardSeries scs_obj;
+			PPSCardSeries scs_rec;
+			if(scs_obj.Fetch(ScCfg.DefCreditSerID, &scs_rec) > 0) {
+				ScSerID = ScCfg.DefCreditSerID;
+				PsnKindID = scs_rec.PersonKindID;
+			}
+		}
 	}
-	int    Init(const S_GUID & rUuid)
+	int    SearchPrcByWsCtlUuid(const S_GUID & rWsCtlUuid, PPID * pPrcID, SString * pPrcNameUtf8)
 	{
-		int    ok = 0;
-		Reference * p_ref = PPRef;
-		if(!!rUuid) {
+		int    ok = -1;
+		ASSIGN_PTR(pPrcID, 0);
+		CALLPTRMEMB(pPrcNameUtf8, Z());
+		if(!!rWsCtlUuid) {
+			Reference * p_ref = PPRef;
 			PPIDArray prc_list;
-			p_ref->Ot.SearchObjectsByGuid(PPOBJ_PROCESSOR, PPTAG_PRC_UUID, rUuid, &prc_list);
+			p_ref->Ot.SearchObjectsByGuid(PPOBJ_PROCESSOR, PPTAG_PRC_UUID, rWsCtlUuid, &prc_list);
 			THROW(prc_list.getCount() > 0); // @todo @err ...и надо что-то сделать со случаем, когда prc_list.getCount() > 1
 			{
 				const PPID prc_id = prc_list.get(0);
 				ProcessorTbl::Rec prc_rec;
 				THROW(TSesObj.PrcObj.Fetch(prc_id, &prc_rec) > 0);
-				PrcID = prc_list.get(0);
-				WsUUID = rUuid;
-				(PrcNameUtf8 = prc_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+				ASSIGN_PTR(pPrcID, prc_id);
+				//WsUUID = rUuid;
+				if(pPrcNameUtf8)
+					(*pPrcNameUtf8 = prc_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
 				ok = 1;
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+	int    Init(const S_GUID & rUuid)
+	{
+		int    ok = SearchPrcByWsCtlUuid(rUuid, &PrcID, &PrcNameUtf8);
+		if(ok > 0)
+			WsUUID = rUuid;
+		return ok;
+	}
+	int    StartSess(StartSessBlock & rBlk) // @construction
+	{
+		int    ok = 0;
+		const LDATETIME now_dtm = getcurdatetime_();
+		SCardTbl::Rec sc_rec;
+		Goods2Tbl::Rec goods_rec;
+		THROW(!rBlk.IsEmpty());
+		THROW(rBlk.WsCtlUuid);
+		THROW(ScSerID); // @todo @err (не удалось определить серию карт, с которыми ассоциированы аккаунты клиентов)
+		THROW(ScObj.Search(rBlk.SCardID, &sc_rec) > 0);
+		THROW(GObj.Search(rBlk.GoodsID, &goods_rec) > 0);
+		{
+			PPID   prc_id = 0;
+			PPID   tec_id = 0;
+			PPIDArray tec_id_list;
+			SString prc_name_utf8;
+			TechTbl::Rec tec_rec;
+			THROW(SearchPrcByWsCtlUuid(rBlk.WsCtlUuid, &prc_id, &prc_name_utf8) > 0);
+			TSesObj.TecObj.GetListByPrcGoods(prc_id, rBlk.GoodsID, &tec_id_list);
+			THROW(tec_id_list.getCount());
+			tec_id = tec_id_list.get(0);
+			THROW(TSesObj.TecObj.Fetch(tec_id, &tec_rec) > 0);
+			{
+				TSessionPacket pack;
+				ProcessorTbl::Rec inh_prc_rec;
+				TSesObj.InitPacket(&pack, TSESK_SESSION, prc_id, 0, TSESST_INPROCESS);
+				pack.Rec.TechID = tec_id;
+				pack.Rec.StDt = now_dtm.d;
+				pack.Rec.StTm = now_dtm.t;
+				pack.Rec.PlannedQtty = (tec_rec.InitQtty > 0.0f) ? tec_rec.InitQtty : 1.0;
+				if(tec_rec.Capacity > 0.0 && pack.Rec.PlannedQtty > 0.0) {
+					long duration = R0i(pack.Rec.PlannedQtty / tec_rec.Capacity);
+					if(duration > 0) {
+						pack.Rec.PlannedTiming = duration;
+						LDATETIME finish_dtm;
+						(finish_dtm = now_dtm).addsec(duration);
+						pack.Rec.FinDt = finish_dtm.d;
+						pack.Rec.FinTm = finish_dtm.t;
+					}
+				}
+				THROW(TSesObj.GetPrc(prc_id, &inh_prc_rec, 1, 1) > 0);
+				if(inh_prc_rec.WrOffOpID) {
+					PPOprKind op_rec;
+					if(GetOpData(inh_prc_rec.WrOffOpID, &op_rec) > 0 && op_rec.AccSheetID && sc_rec.PersonID) {
+						PPID   ar_id = 0;
+						if(ArObj.P_Tbl->PersonToArticle(sc_rec.PersonID, op_rec.AccSheetID, &ar_id) > 0) {
+							pack.Rec.ArID = ar_id;
+						}
+					}
+				}
 			}
 		}
 		CATCHZOK
@@ -1417,23 +1539,11 @@ public:
 	int    Auth(AuthBlock & rBlk)
 	{
 		int    ok = 0;
-		PPID   scs_id = 0;
-		PPID   psn_kind_id = 0;
 		SString temp_buf;
 		SCardTbl::Rec sc_rec;
 		PersonTbl::Rec psn_rec;
-		PPSCardConfig sc_cfg;
 		THROW(!rBlk.IsEmpty()); // @todo @err (не определены параметры для авторизации)
-		ScObj.FetchConfig(&sc_cfg);
-		if(sc_cfg.DefCreditSerID) {
-			PPObjSCardSeries scs_obj;
-			PPSCardSeries scs_rec;
-			if(scs_obj.Fetch(sc_cfg.DefCreditSerID, &scs_rec) > 0) {
-				scs_id = sc_cfg.DefCreditSerID;
-				psn_kind_id = scs_rec.PersonKindID;
-			}
-		}
-		THROW(scs_id); // @todo @err (не удалось определить серию карт, с которыми ассоциированы аккаунты клиентов)
+		THROW(ScSerID); // @todo @err (не удалось определить серию карт, с которыми ассоциированы аккаунты клиентов)
 		assert(rBlk.LoginText.NotEmpty()); // Вызов rBlk.IsEmpty() выше должен гарантировать этот инвариант
 		{
 			bool    text_identification_done = false;
@@ -1451,7 +1561,7 @@ public:
 					bool   mult_psn_id_by_phone = false;
 					for(uint i = 0; i < oid_list_by_phone.getCount(); i++) {
 						const PPObjID oid = oid_list_by_phone.at(i);
-						if(oid.Obj == PPOBJ_SCARD && ScObj.Fetch(oid.Id, &sc_rec) > 0 && sc_rec.SeriesID == scs_id) {
+						if(oid.Obj == PPOBJ_SCARD && ScObj.Fetch(oid.Id, &sc_rec) > 0 && sc_rec.SeriesID == ScSerID) {
 							if(!single_sc_id) {
 								if(!mult_sc_id_by_phone)
 									single_sc_id = oid.Id;
@@ -1482,7 +1592,7 @@ public:
 					else if(single_psn_id) {
 						PPIDArray potential_sc_list;
 						THROW(PsnObj.Search(single_psn_id, &psn_rec) > 0); // @todo @err // Выше мы проверили single_psn_id на "невисячесть"
-						ScObj.P_Tbl->GetListByPerson(single_psn_id, scs_id, &potential_sc_list);
+						ScObj.P_Tbl->GetListByPerson(single_psn_id, ScSerID, &potential_sc_list);
 						THROW(potential_sc_list.getCount()); // @todo @err
 						rBlk.SCardID = potential_sc_list.get(0);
 						rBlk.PsnID = single_psn_id;
@@ -1492,24 +1602,23 @@ public:
 				}
 			}
 			if(!text_identification_done) {
-				if(ScObj.SearchCode(scs_id, rBlk.LoginText, &sc_rec) > 0) {
-					if(sc_rec.SeriesID == scs_id) {
-						THROW(sc_rec.PersonID && PsnObj.Search(sc_rec.PersonID, &psn_rec) > 0); // @todo @err
-						rBlk.SCardID = sc_rec.ID;
-						rBlk.PsnID = sc_rec.PersonID;
-						text_identification_done = true;
-					}
+				if(ScObj.SearchCode(ScSerID, rBlk.LoginText, &sc_rec) > 0) {
+					THROW(sc_rec.SeriesID == ScSerID); // @todo @err
+					THROW(sc_rec.PersonID && PsnObj.Search(sc_rec.PersonID, &psn_rec) > 0); // @todo @err
+					rBlk.SCardID = sc_rec.ID;
+					rBlk.PsnID = sc_rec.PersonID;
+					text_identification_done = true;
 				}
 			}
 			if(!text_identification_done) {
 				PPIDArray kind_list;
 				PPIDArray potential_sc_list;
-				THROW(psn_kind_id); // @todo @err (не удалось определить вид персоналий-клиентов для идентификации по имени)
-				kind_list.add(psn_kind_id);
+				THROW_PP(PsnKindID, PPERR_WSCTL_ACCPSNKINDUNDEF); // не удалось определить вид персоналий-клиентов для идентификации по имени
+				kind_list.add(PsnKindID);
 				(temp_buf = rBlk.LoginText).Transf(CTRANSF_UTF8_TO_INNER); // Строки в rBlk в кодировке utf-8
-				THROW(PsnObj.SearchFirstByName(temp_buf, &kind_list, 0, &psn_rec) > 0);
-				ScObj.P_Tbl->GetListByPerson(psn_rec.ID, scs_id, &potential_sc_list);
-				THROW(potential_sc_list.getCount()); // @todo @err
+				THROW_PP(PsnObj.SearchFirstByName(temp_buf, &kind_list, 0, &psn_rec) > 0, PPERR_WSCTL_UNABLERECOGNLOGIN);
+				ScObj.P_Tbl->GetListByPerson(psn_rec.ID, ScSerID, &potential_sc_list);
+				THROW_PP(potential_sc_list.getCount(), PPERR_WSCTL_NAMENOTLINKEDWITHSC);
 				rBlk.SCardID = potential_sc_list.get(0);
 				rBlk.PsnID = psn_rec.ID;
 				text_identification_done = true;
@@ -1536,9 +1645,14 @@ public:
 	PPObjGoods GObj;
 	PPObjPerson PsnObj;
 	PPObjSCard ScObj;
+	PPObjArticle ArObj;
 	S_GUID WsUUID; // UUID управляемой рабочей станции
 	PPID   PrcID;  // Ид процессора, соответствующего рабочей станции
 	SString PrcNameUtf8;
+private:
+	PPSCardConfig ScCfg;
+	PPID   ScSerID; // Серия карт (из конфигурации)
+	PPID   PsnKindID; // Вид персоналий, связанный с серией карт ScSerID
 };
 //
 // Descr: Блок, отвечающий за взаимодействие сервеной сессии с клиентом, работающий с кассовым узлом
@@ -3562,37 +3676,55 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 						if(goods_id_list.getCount()) {
 							PPObjQuotKind qk_obj;
 							PPQuotKind2 qk_rec;
+							PPIDArray raw_qk_id_list;
 							PPIDArray qk_id_list;
 							SJson * p_js_goods_list = 0;
 							SJson * p_js_qk_list = 0;
-							for(uint i = 0; i < goods_id_list.getCount(); i++) {
-								const PPID goods_id = goods_id_list.get(i);
-								if(P_WsCtlBlk->GObj.Fetch(goods_id, &goods_rec) > 0) {
-									PPQuotArray qlist;
-									P_WsCtlBlk->GObj.GetQuotList(goods_id, prc_rec.LocID, qlist);
-									if(qlist.getCount()) {
-										SJson * p_js_quot_list = 0;
-										for(uint qi = 0; qi < qlist.getCount(); qi++) {
-											const PPQuot & r_q = qlist.at(qi);
-											if(qk_obj.Fetch(r_q.Kind, &qk_rec) > 0) {
-												SJson * p_js_quot = SJson::CreateObj();
-												p_js_quot->InsertInt("id", qk_rec.ID);
-												p_js_quot->InsertDouble("val", r_q.Quot, MKSFMTD(0, 2, NMBF_NOTRAILZ));
-												SETIFZQ(p_js_quot_list, SJson::CreateArr());
-												p_js_quot_list->InsertChild(p_js_quot);
-												qk_id_list.add(qk_rec.ID);
+
+							StrAssocArray qk_sa_list;
+							QuotKindFilt qk_filt;
+							qk_filt.MaxItems = -1;
+							qk_filt.Flags |= (QuotKindFilt::fIgnoreRights|QuotKindFilt::fAddBase|QuotKindFilt::fSortByRankName);
+							qk_obj.MakeList(&qk_filt, &qk_sa_list);
+							{
+								for(uint i = 0; i < qk_sa_list.getCount(); i++) {
+									raw_qk_id_list.add(qk_sa_list.at_WithoutParent(i).Id);
+								}
+								qk_obj.ArrangeList(getcurdatetime_(), raw_qk_id_list, RTLPF_USEQUOTWTIME);
+							}
+							{
+								PPIDArray qk_list_intersection;
+								for(uint i = 0; i < goods_id_list.getCount(); i++) {
+									const PPID goods_id = goods_id_list.get(i);
+									if(P_WsCtlBlk->GObj.Fetch(goods_id, &goods_rec) > 0) {
+										PPQuotArray qlist;
+										P_WsCtlBlk->GObj.GetQuotList(goods_id, prc_rec.LocID, qlist);
+										qlist.GetQuotKindIdList(qk_list_intersection);
+										qk_list_intersection.intersect(&raw_qk_id_list, 0);
+										if(qk_list_intersection.getCount()) {
+											SJson * p_js_quot_list = 0;
+											for(uint qi = 0; qi < qlist.getCount(); qi++) {
+												const PPQuot & r_q = qlist.at(qi);
+												if(qk_list_intersection.lsearch(r_q.Kind) && qk_obj.Fetch(r_q.Kind, &qk_rec) > 0) {
+													SJson * p_js_quot = SJson::CreateObj();
+													p_js_quot->InsertInt("id", qk_rec.ID);
+													p_js_quot->InsertDouble("val", r_q.Quot, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+													SETIFZQ(p_js_quot_list, SJson::CreateArr());
+													p_js_quot_list->InsertChild(p_js_quot);
+													qk_id_list.add(qk_rec.ID);
+												}
 											}
-										}
-										if(p_js_quot_list) {
-											SJson * p_js_ware = SJson::CreateObj();
-											p_js_ware->InsertInt("id", goods_rec.ID);
-											p_js_ware->InsertString("nm", (temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
-											p_js_ware->Insert("quot_list", p_js_quot_list);
-											p_js_quot_list = 0;
-											{
-												SETIFZQ(p_js_goods_list, SJson::CreateArr());
-												p_js_goods_list->InsertChild(p_js_ware);
-												p_js_ware = 0;
+											if(p_js_quot_list) {
+												SJson * p_js_ware = SJson::CreateObj();
+												p_js_ware->InsertInt("id", goods_rec.ID);
+												p_js_ware->InsertString("nm", (temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+												p_js_ware->Insert("quot_list", p_js_quot_list);
+												p_js_quot_list = 0;
+												{
+													SETIFZQ(p_js_goods_list, SJson::CreateArr());
+													p_js_goods_list->InsertChild(p_js_ware);
+													p_js_ware = 0;
+												}
 											}
 										}
 									}
@@ -3600,13 +3732,22 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 							}
 							if(p_js_goods_list) {
 								if(qk_id_list.getCount()) {
-									qk_id_list.sortAndUndup();
+									qk_obj.ArrangeList(getcurdatetime_(), qk_id_list, RTLPF_USEQUOTWTIME);
 									for(uint qki = 0; qki < qk_id_list.getCount(); qki++) {
 										const PPID qk_id = qk_id_list.get(qki);
 										if(qk_obj.Fetch(qk_id, &qk_rec) > 0) {
 											SJson * p_js_qk = SJson::CreateObj();
 											p_js_qk->InsertInt("id", qk_rec.ID);
 											p_js_qk->InsertString("nm", (temp_buf = qk_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+											p_js_qk->InsertInt("rank", qk_rec.Rank);
+											if(qk_rec.DaysOfWeek) {
+												p_js_qk->InsertInt("daysofweek", qk_rec.DaysOfWeek);
+											}
+											if(qk_rec.BeginTm || qk_rec.EndTm) {
+												p_js_qk->InsertString("begintm", temp_buf.Z().Cat(PTR8C(&qk_rec.BeginTm)[0]).Colon().Cat(PTR8C(&qk_rec.BeginTm)[1]));
+												if(qk_rec.EndTm)
+													p_js_qk->InsertString("endtm", temp_buf.Z().Cat(PTR8C(&qk_rec.EndTm)[0]).Colon().Cat(PTR8C(&qk_rec.EndTm)[1]));
+											}
 											{
 												SETIFZQ(p_js_qk_list, SJson::CreateArr());
 												p_js_qk_list->InsertChild(p_js_qk);
@@ -3632,29 +3773,34 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 		case PPSCMD_WSCTL_AUTH: // @v11.7.1  WSCTL Авторизация клиента
 			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
 			{
-				SString raw_auth_text;
-				if(pEv->ReadLine(raw_auth_text)) {
-					raw_auth_text.Chomp().Strip();
-
-					STempBuffer bin_buf(raw_auth_text.Len()*3);
+				SString raw_text;
+				THROW(pEv->ReadLine(raw_text));
+				{
+					WsCtlBlock::AuthBlock _blk;
+					raw_text.Chomp().Strip();
+					STempBuffer bin_buf(raw_text.Len()*3);
 					size_t actual_len = 0;
-					if(raw_auth_text.DecodeMime64(bin_buf, bin_buf.GetSize(), &actual_len)) {
+					THROW_SL(raw_text.DecodeMime64(bin_buf, bin_buf.GetSize(), &actual_len));
+					{
 						SETIFZQ(P_WsCtlBlk, new WsCtlBlock());
 						temp_buf.Z().CatN(bin_buf.cptr(), actual_len);
 						SJson * p_js_param = SJson::Parse(temp_buf);
-						if(p_js_param) {
-							WsCtlBlock::AuthBlock auth_blk;
-							if(auth_blk.FromJsonObj(p_js_param)) {
-								if(P_WsCtlBlk->Auth(auth_blk)) {
-									SJson js_reply(SJson::tOBJECT);
-									js_reply.InsertInt("scardid", auth_blk.SCardID);
-									js_reply.InsertInt("personid", auth_blk.PsnID);
-									js_reply.ToStr(temp_buf);
-									rReply.SetString(temp_buf);
-									ok = cmdretOK;
-								}
-							}
+						THROW_SL(p_js_param);
+						if(_blk.FromJsonObj(p_js_param)) {
 							ZDELETE(p_js_param);
+							THROW(P_WsCtlBlk->Auth(_blk));
+							{
+								SJson js_reply(SJson::tOBJECT);
+								js_reply.InsertInt("scardid", _blk.SCardID);
+								js_reply.InsertInt("personid", _blk.PsnID);
+								js_reply.ToStr(temp_buf);
+								rReply.SetString(temp_buf);
+								ok = cmdretOK;
+							}
+						}
+						else {
+							ZDELETE(p_js_param);
+							ok = cmdretError;
 						}
 					}
 				}
@@ -3694,6 +3840,53 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 					; // @todo @err
 				}
 			}
+			break;
+		case PPSCMD_WSCTL_BEGIN_SESS: // @v11.7.6  WSCTL Запуск рабочего сеанса
+			/*
+				{
+					scardid : id
+					wsctluuid : ""
+				}
+				RETURNS:
+				{
+					sessid : id
+				}
+			*/
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
+			{
+				SString raw_text;
+				if(pEv->ReadLine(raw_text)) {
+					raw_text.Chomp().Strip();
+					STempBuffer bin_buf(raw_text.Len()*3);
+					size_t actual_len = 0;
+					if(raw_text.DecodeMime64(bin_buf, bin_buf.GetSize(), &actual_len)) {
+						SETIFZQ(P_WsCtlBlk, new WsCtlBlock());
+						temp_buf.Z().CatN(bin_buf.cptr(), actual_len);
+						SJson * p_js_param = SJson::Parse(temp_buf);
+						if(p_js_param) {
+							WsCtlBlock::StartSessBlock _blk;
+							if(_blk.FromJsonObj(p_js_param)) {
+								if(P_WsCtlBlk->StartSess(_blk)) {
+									SJson js_reply(SJson::tOBJECT);
+									//js_reply.InsertInt("scardid", auth_blk.SCardID);
+									//js_reply.InsertInt("personid", auth_blk.PsnID);
+									js_reply.ToStr(temp_buf);
+									rReply.SetString(temp_buf);
+									ok = cmdretOK;
+								}
+							}
+							ZDELETE(p_js_param);
+						}
+					}
+				}
+			}
+			break;
+		case PPSCMD_WSCTL_END_SESS: // @v11.7.6  WSCTL Завершение рабочего сеанса
+			/*
+				{
+					sessid : id
+				}
+			*/
 			break;
 		/*
 		case PPSCMD_GETTSESSPLACESTATUS:
@@ -4878,7 +5071,6 @@ int run_server()
 			PPJobServer * p_job_srv = new PPJobServer;
 			p_job_srv->Start();
 		}
-// @v10.1.8 #if defined(_PPSERVER) // {
 		if(do_run_nginx) {
 			class NginxServer : public PPThread {
 			public:
@@ -4893,7 +5085,6 @@ int run_server()
 			NginxServer * p_ngx_srv = new NginxServer;
 			p_ngx_srv->Start();
 		}
-// @v10.1.8 #endif // } _PPSERVER
 		RunStyloQMqbServer(); // @v11.2.12 Запуск (если нужно) сервера обработки mqb-запросов StyloQ
 		{
 			class PPServer : public TcpServer {

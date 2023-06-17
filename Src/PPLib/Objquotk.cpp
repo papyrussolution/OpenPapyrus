@@ -11,8 +11,8 @@ PPQuotKind2::PPQuotKind2()
 	THISZERO();
 }
 
-int PPQuotKind2::HasWeekDayRestriction() const { return BIN(DaysOfWeek && ((DaysOfWeek & 0x7f) != 0x7f)); }
-int PPQuotKind2::CheckWeekDay(LDATE dt) const { return (!DaysOfWeek || !dt || (DaysOfWeek & (1 << (dayofweek(&dt, 1)-1)))); }
+bool PPQuotKind2::HasWeekDayRestriction() const { return (DaysOfWeek && ((DaysOfWeek & 0x7f) != 0x7f)); }
+bool PPQuotKind2::CheckWeekDay(LDATE dt) const { return (!DaysOfWeek || !dt || (DaysOfWeek & (1 << (dayofweek(&dt, 1)-1)))); }
 
 void PPQuotKind2::SetTimeRange(const TimeRange & rRange)
 {
@@ -28,10 +28,9 @@ void PPQuotKind2::SetTimeRange(const TimeRange & rRange)
 	}
 }
 
-int PPQuotKind2::GetTimeRange(TimeRange & rRange) const
+bool PPQuotKind2::GetTimeRange(TimeRange & rRange) const
 {
-	rRange.low = ZEROTIME;
-	rRange.upp = ZEROTIME;
+	rRange.Z();
 	if(BeginTm) {
 		int    h = PTR8C(&BeginTm)[0];
 		int    m = PTR8C(&BeginTm)[1];
@@ -46,7 +45,7 @@ int PPQuotKind2::GetTimeRange(TimeRange & rRange) const
 	}
 	if(rRange.upp == 0 && rRange.low)
 		rRange.upp = MAXDAYTIMESEC;
-	return (rRange.low || rRange.upp) ? 1 : -1;
+	return (rRange.low || rRange.upp);
 }
 
 int PPQuotKind2::GetAmtRange(RealRange * pRange) const
@@ -85,7 +84,7 @@ int PPQuotKind2::GetRestrText(SString & rBuf) const
 		rBuf.Cat(Period, 1);
 	}
 	TimeRange tr;
-	if(GetTimeRange(tr) > 0) {
+	if(GetTimeRange(tr)) {
 		rBuf.CatDivIfNotEmpty(';', 2);
 		if(tr.low)
 			rBuf.Cat(tr.low, TIMF_HM);
@@ -396,7 +395,7 @@ int PPObjQuotKind::ArrangeList(const LDATETIME & rDtm, PPIDArray & rQkList, long
 				int    suited = 1;
 				TimeRange tmr;
 				int    trcr = 0;
-				if(rDtm.t && qk_rec.GetTimeRange(tmr) > 0 && !(flags & RTLPF_USEQUOTWTIME && (trcr = tmr.Check(rDtm.t)) != 0))
+				if(rDtm.t && qk_rec.GetTimeRange(tmr) && !(flags & RTLPF_USEQUOTWTIME && (trcr = tmr.Check(rDtm.t)) != 0))
 					suited = 0;
 				else if(rDtm.d && !qk_rec.Period.IsZero()) {
 					if(!qk_rec.Period.CheckDate(rDtm.d))
@@ -445,7 +444,7 @@ int PPObjQuotKind::Helper_GetRtlList(const LDATETIME & rDtm, PPIDArray * pList, 
 					if(rDtm.d && !qkr.Period.CheckDate(rDtm.d))
 						suited = 0;
 				}
-				if(qkr.GetTimeRange(tmr) > 0) {
+				if(qkr.GetTimeRange(tmr)) {
 					is_tm = 1;
 					int    trcr = 0;
 					if(rDtm.t && !(flags & RTLPF_USEQUOTWTIME && (trcr = tmr.Check(rDtm.t)) != 0))
@@ -490,14 +489,12 @@ int PPObjQuotKind::GetRetailQuotList(LDATETIME dtm, PPIDArray * pList, long flag
 				if(Fetch(tm_list.get(i), &qk_rec) > 0) {
 					TimeRange tmr;
 					int    trcr = 0;
-					// @v10.0.01 {
 					if(flags & RTLPF_IGNCONDQUOTS) {
-						if(qk_rec.GetTimeRange(tmr) > 0 || !qk_rec.Period.IsZero() || qk_rec.HasWeekDayRestriction())
+						if(qk_rec.GetTimeRange(tmr) || !qk_rec.Period.IsZero() || qk_rec.HasWeekDayRestriction())
 							suited = 0;
 					}
 					else {
-					// } @v10.0.01
-						if(qk_rec.GetTimeRange(tmr) > 0 && dtm.t && !(flags & RTLPF_USEQUOTWTIME && (trcr = tmr.Check(dtm.t)) != 0))
+						if(qk_rec.GetTimeRange(tmr) && dtm.t && !(flags & RTLPF_USEQUOTWTIME && (trcr = tmr.Check(dtm.t)) != 0))
 							suited = 0;
 						else if(dtm.d) {
 							if(!qk_rec.Period.IsZero() && !qk_rec.Period.CheckDate(dtm.d))

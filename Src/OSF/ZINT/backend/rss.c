@@ -1448,7 +1448,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 		int group_val;
 		group[0] = source[2];
 		group[1] = '\0';
-		group_val = atoi(group);
+		group_val = satoi(group);
 		mask = 0x08;
 		for(j = 0; j < 4; j++) {
 			strcat(binary_string, (group_val & mask) ? "1" : "0");
@@ -1459,7 +1459,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 			group[1] = source[(i * 3) + 1];
 			group[2] = source[(i * 3) + 2];
 			group[3] = '\0';
-			group_val = atoi(group);
+			group_val = satoi(group);
 			mask = 0x200;
 			for(j = 0; j < 10; j++) {
 				strcat(binary_string, (group_val & mask) ? "1" : "0");
@@ -1477,7 +1477,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 			group[1] = source[(i * 3) + 1];
 			group[2] = source[(i * 3) + 2];
 			group[3] = '\0';
-			group_val = atoi(group);
+			group_val = satoi(group);
 			mask = 0x200;
 			for(j = 0; j < 10; j++) {
 				strcat(binary_string, (group_val & mask) ? "1" : "0");
@@ -1488,7 +1488,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 			weight_str[i] = source[20 + i];
 		}
 		weight_str[6] = '\0';
-		group_val = atoi(weight_str);
+		group_val = satoi(weight_str);
 		mask = 0x4000;
 		for(j = 0; j < 15; j++) {
 			strcat(binary_string, (group_val & mask) ? "1" : "0");
@@ -1506,7 +1506,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 			group[1] = source[(i * 3) + 1];
 			group[2] = source[(i * 3) + 2];
 			group[3] = '\0';
-			group_val = atoi(group);
+			group_val = satoi(group);
 			mask = 0x200;
 			for(j = 0; j < 10; j++) {
 				strcat(binary_string, (group_val & mask) ? "1" : "0");
@@ -1517,8 +1517,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 			weight_str[i] = source[20 + i];
 		}
 		weight_str[6] = '\0';
-		group_val = atoi(weight_str);
-
+		group_val = satoi(weight_str);
 		if(source[19] == '3') {
 			group_val = group_val + 10000;
 		}
@@ -1542,7 +1541,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 			group[1] = source[(i * 3) + 1];
 			group[2] = source[(i * 3) + 2];
 			group[3] = '\0';
-			group_val = atoi(group);
+			group_val = satoi(group);
 			mask = 0x200;
 			for(j = 0; j < 10; j++) {
 				strcat(binary_string, (group_val & mask) ? "1" : "0");
@@ -1554,7 +1553,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 			weight_str[i+1] = source[21 + i];
 		}
 		weight_str[6] = '\0';
-		group_val = atoi(weight_str);
+		group_val = satoi(weight_str);
 		mask = 0x80000;
 		for(j = 0; j < 20; j++) {
 			strcat(binary_string, (group_val & mask) ? "1" : "0");
@@ -1565,15 +1564,13 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 			date_str[0] = source[28];
 			date_str[1] = source[29];
 			date_str[2] = '\0';
-			group_val = atoi(date_str) * 384;
-
+			group_val = satoi(date_str) * 384;
 			date_str[0] = source[30];
 			date_str[1] = source[31];
-			group_val += (atoi(date_str) - 1) * 32;
-
+			group_val += (satoi(date_str) - 1) * 32;
 			date_str[0] = source[32];
 			date_str[1] = source[33];
-			group_val += atoi(date_str);
+			group_val += satoi(date_str);
 		}
 		else {
 			group_val = 38400;
@@ -1593,7 +1590,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 			group[1] = source[(i * 3) + 1];
 			group[2] = source[(i * 3) + 2];
 			group[3] = '\0';
-			group_val = atoi(group);
+			group_val = satoi(group);
 			mask = 0x200;
 			for(j = 0; j < 10; j++) {
 				strcat(binary_string, (group_val & mask) ? "1" : "0");
@@ -1610,14 +1607,14 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 	if(encoding_method == 6) {
 		// Encoding method "01101" - variable measure item and price with ISO 4217 Currency Code 
 		char group[4];
-		int group_val;
+		int  group_val;
 		char currency_str[5];
 		for(i = 1; i < 5; i++) {
 			group[0] = source[(i * 3)];
 			group[1] = source[(i * 3) + 1];
 			group[2] = source[(i * 3) + 2];
 			group[3] = '\0';
-			group_val = atoi(group);
+			group_val = satoi(group);
 			mask = 0x200;
 			for(j = 0; j < 10; j++) {
 				strcat(binary_string, (group_val & mask) ? "1" : "0");
@@ -1634,7 +1631,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 			currency_str[i] = source[20 + i];
 		}
 		currency_str[3] = '\0';
-		group_val = atoi(currency_str);
+		group_val = satoi(currency_str);
 		mask = 0x200;
 		for(j = 0; j < 10; j++) {
 			strcat(binary_string, (group_val & mask) ? "1" : "0");

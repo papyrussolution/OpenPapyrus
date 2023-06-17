@@ -1292,7 +1292,7 @@ template <typename utf_t> static inline void hb_buffer_add_utf(hb_buffer_t * buf
  **/
 void hb_buffer_add_utf8(hb_buffer_t * buffer, const char * text, int text_length, uint item_offset, int item_length)
 {
-	hb_buffer_add_utf<hb_utf8_t> (buffer, (const uint8*)text, text_length, item_offset, item_length);
+	hb_buffer_add_utf<hb_utf8_t> (buffer, (const uint8 *)text, text_length, item_offset, item_length);
 }
 
 /**

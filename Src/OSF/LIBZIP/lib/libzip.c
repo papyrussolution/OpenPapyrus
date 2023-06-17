@@ -5434,7 +5434,7 @@ static uchar * _zip_memmem(const uchar * big, size_t biglen, const uchar * littl
 	if((biglen < littlelen) || (littlelen == 0))
 		return NULL;
 	p = big-1;
-	while((p = (const uchar *)memchr(p+1, little[0], (size_t)(big-(p+1))+(size_t)(biglen-littlelen)+1)) != NULL) {
+	while((p = (const uchar *)smemchr(p+1, little[0], (size_t)(big-(p+1))+(size_t)(biglen-littlelen)+1)) != NULL) {
 		if(memcmp(p+1, little+1, littlelen-1)==0)
 			return (uchar *)p;
 	}

@@ -165,8 +165,8 @@ static const uint32_t invariantChars[4] = {
 #error U_CHARSET_FAMILY is not valid
 #endif
 
-U_CAPI void U_EXPORT2 u_charsToUChars(const char * cs, UChar * us, int32_t length) {
-	UChar u;
+U_CAPI void U_EXPORT2 u_charsToUChars(const char * cs, char16_t * us, int32_t length) {
+	char16_t u;
 	uint8 c;
 
 	/*
@@ -176,15 +176,15 @@ U_CAPI void U_EXPORT2 u_charsToUChars(const char * cs, UChar * us, int32_t lengt
 	 */
 	while(length > 0) {
 		c = (uint8)(*cs++);
-		u = (UChar)CHAR_TO_UCHAR(c);
+		u = (char16_t)CHAR_TO_UCHAR(c);
 		U_ASSERT((u!=0 || c==0)); /* only invariant chars converted? */
 		*us++ = u;
 		--length;
 	}
 }
 
-U_CAPI void U_EXPORT2 u_UCharsToChars(const UChar * us, char * cs, int32_t length) {
-	UChar u;
+U_CAPI void U_EXPORT2 u_UCharsToChars(const char16_t * us, char * cs, int32_t length) {
+	char16_t u;
 
 	while(length > 0) {
 		u = *us++;
@@ -241,8 +241,8 @@ U_CAPI bool U_EXPORT2 uprv_isInvariantString(const char * s, int32_t length) {
 	return TRUE;
 }
 
-U_CAPI bool U_EXPORT2 uprv_isInvariantUString(const UChar * s, int32_t length) {
-	UChar c;
+U_CAPI bool U_EXPORT2 uprv_isInvariantUString(const char16_t * s, int32_t length) {
+	char16_t c;
 
 	for(;;) {
 		if(length<0) {
@@ -431,7 +431,7 @@ U_CFUNC bool uprv_isEbcdicAtSign(char c)
 }
 
 /* compare invariant strings; variant characters compare less than others and unlike each other */
-U_CFUNC int32_t uprv_compareInvAscii(const UDataSwapper * ds, const char * outString, int32_t outLength, const UChar * localString, int32_t localLength) 
+U_CFUNC int32_t uprv_compareInvAscii(const UDataSwapper * ds, const char * outString, int32_t outLength, const char16_t * localString, int32_t localLength) 
 {
 	(void)ds;
 	int32_t minLength;
@@ -467,7 +467,7 @@ U_CFUNC int32_t uprv_compareInvAscii(const UDataSwapper * ds, const char * outSt
 	return outLength-localLength; // strings start with same prefix, compare lengths 
 }
 
-U_CFUNC int32_t uprv_compareInvEbcdic(const UDataSwapper * ds, const char * outString, int32_t outLength, const UChar * localString, int32_t localLength) 
+U_CFUNC int32_t uprv_compareInvEbcdic(const UDataSwapper * ds, const char * outString, int32_t outLength, const char16_t * localString, int32_t localLength) 
 {
 	(void)ds;
 	int32_t minLength;

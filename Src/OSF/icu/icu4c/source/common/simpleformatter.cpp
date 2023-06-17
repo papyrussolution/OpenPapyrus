@@ -21,11 +21,11 @@ namespace {
  */
 const int32_t ARG_NUM_LIMIT = 0x100;
 /**
- * Initial and maximum char/UChar value set for a text segment.
+ * Initial and maximum char/char16_t value set for a text segment.
  * Segment length char values are from ARG_NUM_LIMIT+1 to this value here.
  * Normally 0xffff, but can be as small as ARG_NUM_LIMIT+1 for testing.
  */
-const UChar SEGMENT_LENGTH_PLACEHOLDER_CHAR = 0xffff;
+const char16_t SEGMENT_LENGTH_PLACEHOLDER_CHAR = 0xffff;
 /**
  * Maximum length of a text segment. Longer segments are split into shorter ones.
  */
@@ -65,15 +65,15 @@ bool SimpleFormatter::applyPatternMinMaxArguments(const UnicodeString & pattern,
 	// Parse consistent with MessagePattern, but
 	// - support only simple numbered arguments
 	// - build a simple binary structure into the result string
-	const UChar * patternBuffer = pattern.getBuffer();
+	const char16_t * patternBuffer = pattern.getBuffer();
 	int32_t patternLength = pattern.length();
 	// Reserve the first char for the number of arguments.
-	compiledPattern.setTo((UChar)0);
+	compiledPattern.setTo((char16_t)0);
 	int32_t textLength = 0;
 	int32_t maxArg = -1;
 	bool inQuote = FALSE;
 	for(int32_t i = 0; i < patternLength;) {
-		UChar c = patternBuffer[i++];
+		char16_t c = patternBuffer[i++];
 		if(c == APOS) {
 			if(i < patternLength && (c = patternBuffer[i]) == APOS) {
 				// double apostrophe, skip the second one
@@ -97,7 +97,7 @@ bool SimpleFormatter::applyPatternMinMaxArguments(const UnicodeString & pattern,
 		else if(!inQuote && c == OPEN_BRACE) {
 			if(textLength > 0) {
 				compiledPattern.setCharAt(compiledPattern.length() - textLength - 1,
-				    (UChar)(ARG_NUM_LIMIT + textLength));
+				    (char16_t)(ARG_NUM_LIMIT + textLength));
 				textLength = 0;
 			}
 			int32_t argNumber;
@@ -129,7 +129,7 @@ bool SimpleFormatter::applyPatternMinMaxArguments(const UnicodeString & pattern,
 			if(argNumber > maxArg) {
 				maxArg = argNumber;
 			}
-			compiledPattern.append((UChar)argNumber);
+			compiledPattern.append((char16_t)argNumber);
 			continue;
 		} // else: c is part of literal text
 		// Append c and track the literal-text segment length.
@@ -144,14 +144,14 @@ bool SimpleFormatter::applyPatternMinMaxArguments(const UnicodeString & pattern,
 	}
 	if(textLength > 0) {
 		compiledPattern.setCharAt(compiledPattern.length() - textLength - 1,
-		    (UChar)(ARG_NUM_LIMIT + textLength));
+		    (char16_t)(ARG_NUM_LIMIT + textLength));
 	}
 	int32_t argCount = maxArg + 1;
 	if(argCount < min || max < argCount) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return FALSE;
 	}
-	compiledPattern.setCharAt(0, (UChar)argCount);
+	compiledPattern.setCharAt(0, (char16_t)argCount);
 	return TRUE;
 }
 
@@ -202,7 +202,7 @@ UnicodeString & SimpleFormatter::formatAndReplace(const UnicodeString * const * 
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return result;
 	}
-	const UChar * cp = compiledPattern.getBuffer();
+	const char16_t * cp = compiledPattern.getBuffer();
 	int32_t cpLength = compiledPattern.length();
 	if(valuesLength < getArgumentLimit(cp, cpLength)) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
@@ -242,7 +242,7 @@ UnicodeString & SimpleFormatter::formatAndReplace(const UnicodeString * const * 
 		   offsets, offsetsLength, errorCode);
 }
 
-UnicodeString SimpleFormatter::getTextWithNoArguments(const UChar * compiledPattern,
+UnicodeString SimpleFormatter::getTextWithNoArguments(const char16_t * compiledPattern,
     int32_t compiledPatternLength,
     int32_t* offsets,
     int32_t offsetsLength) {
@@ -268,7 +268,7 @@ UnicodeString SimpleFormatter::getTextWithNoArguments(const UChar * compiledPatt
 	return sb;
 }
 
-UnicodeString & SimpleFormatter::format(const UChar * compiledPattern, int32_t compiledPatternLength,
+UnicodeString & SimpleFormatter::format(const char16_t * compiledPattern, int32_t compiledPatternLength,
     const UnicodeString * const * values,
     UnicodeString & result, const UnicodeString * resultCopy, bool forbidResultAsValue,
     int32_t * offsets, int32_t offsetsLength,

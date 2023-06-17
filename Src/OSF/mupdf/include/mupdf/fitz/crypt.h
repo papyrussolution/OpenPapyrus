@@ -156,10 +156,9 @@ void fz_sha384_final(fz_sha384 *state, uchar digest[64]);
 	Structure definition is public to enable stack
 	based allocation. Do not access the members directly.
 */
-typedef struct
-{
-	unsigned x;
-	unsigned y;
+typedef struct {
+	uint   x;
+	uint   y;
 	uchar state[256];
 } fz_arc4;
 

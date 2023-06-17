@@ -42,14 +42,15 @@ CurrencyUnit::CurrencyUnit(ConstChar16Ptr _isoCode, UErrorCode & ec)
 		isoCode[3] = 0;
 	}
 	if(useDefault) {
-		uprv_memcpy(isoCode, kDefaultCurrency, sizeof(UChar) * 4);
+		uprv_memcpy(isoCode, kDefaultCurrency, sizeof(char16_t) * 4);
 	}
 	char simpleIsoCode[4];
 	u_UCharsToChars(isoCode, simpleIsoCode, 4);
 	initCurrency(simpleIsoCode);
 }
 
-CurrencyUnit::CurrencyUnit(StringPiece _isoCode, UErrorCode & ec) {
+CurrencyUnit::CurrencyUnit(StringPiece _isoCode, UErrorCode & ec) 
+{
 	// Note: unlike the old constructor, reject empty arguments with an error.
 	char isoCodeBuffer[4];
 	const char * isoCodeToUse;

@@ -141,7 +141,7 @@ U_CAPI USet* U_EXPORT2 ulocdata_getExemplarSet(ULocaleData * uld, USet * fillIn,
  * @return int32_t      The total buffer size needed; if greater than resultLength, the output was truncated.
  * @stable ICU 3.4
  */
-U_CAPI int32_t U_EXPORT2 ulocdata_getDelimiter(ULocaleData * uld, ULocaleDataDelimiterType type, UChar * result, int32_t resultLength, UErrorCode * status);
+U_CAPI int32_t U_EXPORT2 ulocdata_getDelimiter(ULocaleData * uld, ULocaleDataDelimiterType type, char16_t * result, int32_t resultLength, UErrorCode * status);
 /**
  * Enumeration for representing the measurement systems.
  * @stable ICU 2.8
@@ -204,7 +204,7 @@ U_CAPI void U_EXPORT2 ulocdata_getCLDRVersion(UVersionInfo versionArray, UErrorC
  *
  * @stable ICU 4.2
  */
-U_CAPI int32_t U_EXPORT2 ulocdata_getLocaleDisplayPattern(ULocaleData * uld, UChar * pattern, int32_t patternCapacity, UErrorCode * status);
+U_CAPI int32_t U_EXPORT2 ulocdata_getLocaleDisplayPattern(ULocaleData * uld, char16_t * pattern, int32_t patternCapacity, UErrorCode * status);
 /**
  * Returns locale separator associated with a locale.
  *
@@ -218,5 +218,5 @@ U_CAPI int32_t U_EXPORT2 ulocdata_getLocaleDisplayPattern(ULocaleData * uld, UCh
  *
  * @stable ICU 4.2
  */
-U_CAPI int32_t U_EXPORT2 ulocdata_getLocaleSeparator(ULocaleData * uld, UChar * separator, int32_t separatorCapacity, UErrorCode * status);
+U_CAPI int32_t U_EXPORT2 ulocdata_getLocaleSeparator(ULocaleData * uld, char16_t * separator, int32_t separatorCapacity, UErrorCode * status);
 #endif

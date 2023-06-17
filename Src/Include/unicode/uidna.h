@@ -236,8 +236,8 @@ typedef struct UIDNAInfo {
  */
 U_CAPI int32_t U_EXPORT2
 uidna_labelToASCII(const UIDNA *idna,
-                   const UChar *label, int32_t length,
-                   UChar *dest, int32_t capacity,
+                   const char16_t *label, int32_t length,
+                   char16_t *dest, int32_t capacity,
                    UIDNAInfo *pInfo, UErrorCode *pErrorCode);
 
 /**
@@ -263,8 +263,8 @@ uidna_labelToASCII(const UIDNA *idna,
  */
 U_CAPI int32_t U_EXPORT2
 uidna_labelToUnicode(const UIDNA *idna,
-                     const UChar *label, int32_t length,
-                     UChar *dest, int32_t capacity,
+                     const char16_t *label, int32_t length,
+                     char16_t *dest, int32_t capacity,
                      UIDNAInfo *pInfo, UErrorCode *pErrorCode);
 
 /**
@@ -292,8 +292,8 @@ uidna_labelToUnicode(const UIDNA *idna,
  */
 U_CAPI int32_t U_EXPORT2
 uidna_nameToASCII(const UIDNA *idna,
-                  const UChar *name, int32_t length,
-                  UChar *dest, int32_t capacity,
+                  const char16_t *name, int32_t length,
+                  char16_t *dest, int32_t capacity,
                   UIDNAInfo *pInfo, UErrorCode *pErrorCode);
 
 /**
@@ -319,8 +319,8 @@ uidna_nameToASCII(const UIDNA *idna,
  */
 U_CAPI int32_t U_EXPORT2
 uidna_nameToUnicode(const UIDNA *idna,
-                    const UChar *name, int32_t length,
-                    UChar *dest, int32_t capacity,
+                    const char16_t *name, int32_t length,
+                    char16_t *dest, int32_t capacity,
                     UIDNAInfo *pInfo, UErrorCode *pErrorCode);
 
 /* UTF-8 versions of the processing methods --------------------------------- */
@@ -545,9 +545,9 @@ enum {
  * ToUnicode(ToUnicode(ToUnicode...(ToUnicode(string)))) == ToUnicode(string) 
  * ToASCII(ToASCII(ToASCII...(ToASCII(string))) == ToASCII(string).
  *
- * @param src               Input UChar array containing label in Unicode.
+ * @param src               Input char16_t array containing label in Unicode.
  * @param srcLength         Number of UChars in src, or -1 if NUL-terminated.
- * @param dest              Output UChar array with ASCII (ACE encoded) label.
+ * @param dest              Output char16_t array with ASCII (ACE encoded) label.
  * @param destCapacity      Size of dest.
  * @param options           A bit set of options:
  *
@@ -577,8 +577,8 @@ enum {
  * @deprecated ICU 55 Use UTS #46 instead via uidna_openUTS46() or class IDNA.
  */
 U_DEPRECATED int32_t U_EXPORT2
-uidna_toASCII(const UChar * src, int32_t srcLength, 
-              UChar * dest, int32_t destCapacity,
+uidna_toASCII(const char16_t * src, int32_t srcLength, 
+              char16_t * dest, int32_t destCapacity,
               int32_t options,
               UParseError* parseError,
               UErrorCode * status);
@@ -590,9 +590,9 @@ uidna_toASCII(const UChar * src, int32_t srcLength,
  * Unicode names. A label is an individual part of a domain name. Labels are usually
  * separated by dots; for e.g. "www.example.com" is composed of 3 labels "www","example", and "com".
  *
- * @param src               Input UChar array containing ASCII (ACE encoded) label.
+ * @param src               Input char16_t array containing ASCII (ACE encoded) label.
  * @param srcLength         Number of UChars in src, or -1 if NUL-terminated.
- * @param dest Output       Converted UChar array containing Unicode equivalent of label.
+ * @param dest Output       Converted char16_t array containing Unicode equivalent of label.
  * @param destCapacity      Size of dest.
  * @param options           A bit set of options:
  *
@@ -625,8 +625,8 @@ uidna_toASCII(const UChar * src, int32_t srcLength,
  * @deprecated ICU 55 Use UTS #46 instead via uidna_openUTS46() or class IDNA.
  */
 U_DEPRECATED int32_t U_EXPORT2
-uidna_toUnicode(const UChar * src, int32_t srcLength,
-                UChar * dest, int32_t destCapacity,
+uidna_toUnicode(const char16_t * src, int32_t srcLength,
+                char16_t * dest, int32_t destCapacity,
                 int32_t options,
                 UParseError* parseError,
                 UErrorCode * status);
@@ -644,9 +644,9 @@ uidna_toUnicode(const UChar * src, int32_t srcLength,
  * and then convert. This function does not offer that level of granularity. The options once  
  * set will apply to all labels in the domain name
  *
- * @param src               Input UChar array containing IDN in Unicode.
+ * @param src               Input char16_t array containing IDN in Unicode.
  * @param srcLength         Number of UChars in src, or -1 if NUL-terminated.
- * @param dest              Output UChar array with ASCII (ACE encoded) IDN.
+ * @param dest              Output char16_t array with ASCII (ACE encoded) IDN.
  * @param destCapacity      Size of dest.
  * @param options           A bit set of options:
  *
@@ -676,8 +676,8 @@ uidna_toUnicode(const UChar * src, int32_t srcLength,
  * @deprecated ICU 55 Use UTS #46 instead via uidna_openUTS46() or class IDNA.
  */
 U_DEPRECATED int32_t U_EXPORT2
-uidna_IDNToASCII(  const UChar * src, int32_t srcLength,
-                   UChar * dest, int32_t destCapacity,
+uidna_IDNToASCII(  const char16_t * src, int32_t srcLength,
+                   char16_t * dest, int32_t destCapacity,
                    int32_t options,
                    UParseError* parseError,
                    UErrorCode * status);
@@ -691,9 +691,9 @@ uidna_IDNToASCII(  const UChar * src, int32_t srcLength,
  * and then convert. This function does not offer that level of granularity. The options once  
  * set will apply to all labels in the domain name
  *
- * @param src               Input UChar array containing IDN in ASCII (ACE encoded) form.
+ * @param src               Input char16_t array containing IDN in ASCII (ACE encoded) form.
  * @param srcLength         Number of UChars in src, or -1 if NUL-terminated.
- * @param dest Output       UChar array containing Unicode equivalent of source IDN.
+ * @param dest Output       char16_t array containing Unicode equivalent of source IDN.
  * @param destCapacity      Size of dest.
  * @param options           A bit set of options:
  *
@@ -723,8 +723,8 @@ uidna_IDNToASCII(  const UChar * src, int32_t srcLength,
  * @deprecated ICU 55 Use UTS #46 instead via uidna_openUTS46() or class IDNA.
  */
 U_DEPRECATED int32_t U_EXPORT2
-uidna_IDNToUnicode(  const UChar * src, int32_t srcLength,
-                     UChar * dest, int32_t destCapacity,
+uidna_IDNToUnicode(  const char16_t * src, int32_t srcLength,
+                     char16_t * dest, int32_t destCapacity,
                      int32_t options,
                      UParseError* parseError,
                      UErrorCode * status);
@@ -764,8 +764,8 @@ uidna_IDNToUnicode(  const UChar * src, int32_t srcLength,
  * @deprecated ICU 55 Use UTS #46 instead via uidna_openUTS46() or class IDNA.
  */
 U_DEPRECATED int32_t U_EXPORT2
-uidna_compare(  const UChar *s1, int32_t length1,
-                const UChar *s2, int32_t length2,
+uidna_compare(  const char16_t *s1, int32_t length1,
+                const char16_t *s2, int32_t length2,
                 int32_t options,
                 UErrorCode * status);
 

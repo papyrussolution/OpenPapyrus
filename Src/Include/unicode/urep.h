@@ -53,7 +53,7 @@ typedef void * UReplaceable;
 typedef struct UReplaceableCallbacks {
 
     /**
-     * Function pointer that returns the number of UChar code units in
+     * Function pointer that returns the number of char16_t code units in
      * this text.
      *
      * @param rep A pointer to "this" UReplaceable object.
@@ -63,17 +63,17 @@ typedef struct UReplaceableCallbacks {
     int32_t (*length)(const UReplaceable* rep);
 
     /**
-     * Function pointer that returns a UChar code units at the given
+     * Function pointer that returns a char16_t code units at the given
      * offset into this text; 0 <= offset < n, where n is the value
      * returned by (*length)(rep).  See unistr.h for a description of
      * charAt() vs. char32At().
      *
      * @param rep A pointer to "this" UReplaceable object.
-     * @param offset The index at which to fetch the UChar (code unit).
-     * @return The UChar (code unit) at offset, or U+FFFF if the offset is out of bounds.
+     * @param offset The index at which to fetch the char16_t (code unit).
+     * @return The char16_t (code unit) at offset, or U+FFFF if the offset is out of bounds.
      * @stable ICU 2.0
      */
-    UChar   (*charAt)(const UReplaceable* rep,
+    char16_t   (*charAt)(const UReplaceable* rep,
                       int32_t offset);
 
     /**
@@ -108,7 +108,7 @@ typedef struct UReplaceableCallbacks {
     void   (*replace)(UReplaceable* rep,
                        int32_t start,
                        int32_t limit,
-                       const UChar * text,
+                       const char16_t * text,
                        int32_t textLength);
     
     /**
@@ -127,7 +127,7 @@ typedef struct UReplaceableCallbacks {
     void   (*extract)(UReplaceable* rep,
                        int32_t start,
                        int32_t limit,
-                       UChar * dst);
+                       char16_t * dst);
 
     /**
      * Function pointer that copies text between start and limit in

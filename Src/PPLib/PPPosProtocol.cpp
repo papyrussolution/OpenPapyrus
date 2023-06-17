@@ -988,7 +988,7 @@ PPPosProtocol::PosNodeBlock::PosNodeBlock() : ObjectBlock(), CodeP(0), CodeI(0)
 PPPosProtocol::QuotKindBlock::QuotKindBlock() : ObjectBlock(), CodeP(0), Rank(0), Reserve(0)
 {
     Period.Z();
-	TimeRestriction.SetZero();
+	TimeRestriction.Z();
 	AmountRestriction.Z();
 }
 
@@ -1921,7 +1921,7 @@ int PPPosProtocol::WriteQuotKindInfo(WriteBlock & rB, const char * pScopeXmlTag,
 		w_s.PutInner("name", CorrectAndEncText(rInfo.Name));
 		w_s.PutInnerSkipEmpty("code", CorrectAndEncText(rInfo.Symb));
 		w_s.PutInner("rank", temp_buf.Z().Cat(rInfo.Rank));
-		if(!rInfo.Period.IsZero() || rInfo.HasWeekDayRestriction() || rInfo.GetTimeRange(tr) > 0 || !rInfo.AmtRestr.IsZero()) {
+		if(!rInfo.Period.IsZero() || rInfo.HasWeekDayRestriction() || rInfo.GetTimeRange(tr) || !rInfo.AmtRestr.IsZero()) {
 			SXml::WNode w_r(rB.P_Xw, "restriction");
 			if(!rInfo.Period.IsZero()) {
 				w_r.PutInner("period", EncText(temp_buf.Z().Cat(rInfo.Period, 0)));
@@ -1933,7 +1933,7 @@ int PPPosProtocol::WriteQuotKindInfo(WriteBlock & rB, const char * pScopeXmlTag,
 				}
 				w_r.PutInner("weekday", EncText(temp_buf));
 			}
-			if(rInfo.GetTimeRange(tr) > 0) {
+			if(rInfo.GetTimeRange(tr)) {
 				SXml::WNode w_t(rB.P_Xw, "timerange");
 				w_t.PutInner("low", temp_buf.Z().Cat(tr.low, TIMF_HMS));
 				w_t.PutInner("upp", temp_buf.Z().Cat(tr.upp, TIMF_HMS));

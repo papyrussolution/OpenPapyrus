@@ -63,7 +63,7 @@ static void cmyk_to_gray(fz_context * ctx, fz_color_converter * cc, const float 
 	float c = cmyk[0] * 0.3f;
 	float m = cmyk[1] * 0.59f;
 	float y = cmyk[2] * 0.11f;
-	gray[0] = 1 - fz_min(c + m + y + cmyk[3], 1);
+	gray[0] = 1 - smin(c + m + y + cmyk[3], 1.0f);
 }
 
 static void rgb_to_cmyk(fz_context * ctx, fz_color_converter * cc, const float * rgb, float * cmyk)
@@ -72,7 +72,7 @@ static void rgb_to_cmyk(fz_context * ctx, fz_color_converter * cc, const float *
 	c = 1 - rgb[0];
 	m = 1 - rgb[1];
 	y = 1 - rgb[2];
-	k = fz_min(c, fz_min(m, y));
+	k = smin(c, smin(m, y));
 	cmyk[0] = c - k;
 	cmyk[1] = m - k;
 	cmyk[2] = y - k;
@@ -81,11 +81,10 @@ static void rgb_to_cmyk(fz_context * ctx, fz_color_converter * cc, const float *
 
 static void bgr_to_cmyk(fz_context * ctx, fz_color_converter * cc, const float * bgr, float * cmyk)
 {
-	float c, m, y, k;
-	c = 1 - bgr[2];
-	m = 1 - bgr[1];
-	y = 1 - bgr[0];
-	k = fz_min(c, fz_min(m, y));
+	float c = 1.0f - bgr[2];
+	float m = 1.0f - bgr[1];
+	float y = 1.0f - bgr[0];
+	float k = smin(c, smin(m, y));
 	cmyk[0] = c - k;
 	cmyk[1] = m - k;
 	cmyk[2] = y - k;
@@ -94,16 +93,16 @@ static void bgr_to_cmyk(fz_context * ctx, fz_color_converter * cc, const float *
 
 static void cmyk_to_rgb(fz_context * ctx, fz_color_converter * cc, const float * cmyk, float * rgb)
 {
-	rgb[0] = 1 - fz_min(1, cmyk[0] + cmyk[3]);
-	rgb[1] = 1 - fz_min(1, cmyk[1] + cmyk[3]);
-	rgb[2] = 1 - fz_min(1, cmyk[2] + cmyk[3]);
+	rgb[0] = 1.0f - smin(1.0f, cmyk[0] + cmyk[3]);
+	rgb[1] = 1.0f - smin(1.0f, cmyk[1] + cmyk[3]);
+	rgb[2] = 1.0f - smin(1.0f, cmyk[2] + cmyk[3]);
 }
 
 static void cmyk_to_bgr(fz_context * ctx, fz_color_converter * cc, const float * cmyk, float * bgr)
 {
-	bgr[0] = 1 - fz_min(cmyk[2] + cmyk[3], 1);
-	bgr[1] = 1 - fz_min(cmyk[1] + cmyk[3], 1);
-	bgr[2] = 1 - fz_min(cmyk[0] + cmyk[3], 1);
+	bgr[0] = 1.0f - smin(cmyk[2] + cmyk[3], 1.0f);
+	bgr[1] = 1.0f - smin(cmyk[1] + cmyk[3], 1.0f);
+	bgr[2] = 1.0f - smin(cmyk[0] + cmyk[3], 1.0f);
 }
 
 static inline float fung(float x)
@@ -639,7 +638,7 @@ static void fast_rgb_to_cmyk(fz_context * ctx, const fz_pixmap * src, fz_pixmap 
 			c = 255 - r;
 			m = 255 - g;
 			y = 255 - b;
-			k = fz_mini(c, fz_mini(m, y));
+			k = smin(c, smin(m, y));
 			c = c - k;
 			m = m - k;
 			y = y - k;
@@ -718,7 +717,7 @@ static void fast_bgr_to_cmyk(fz_context * ctx, const fz_pixmap * src, fz_pixmap 
 			c = 255 - r;
 			m = 255 - g;
 			y = 255 - b;
-			k = fz_mini(c, fz_mini(m, y));
+			k = smin(c, smin(m, y));
 			c = c - k;
 			m = m - k;
 			y = y - k;
@@ -796,7 +795,7 @@ static void fast_cmyk_to_gray(fz_context * ctx, const fz_pixmap * src, fz_pixmap
 				k = fz_div255(k, a);
 			}
 
-			g = 255 - fz_mini(c + m + y + k, 255);
+			g = 255 - smin(c + m + y + k, 255);
 
 			if(da) {
 				*d++ = fz_mul255(g, a);
@@ -865,9 +864,9 @@ static void fast_cmyk_to_rgb(fz_context * ctx, const fz_pixmap * src, fz_pixmap 
 				k = fz_div255(k, a);
 			}
 
-			r = 255 - fz_mini(c + k, 255);
-			g = 255 - fz_mini(m + k, 255);
-			b = 255 - fz_mini(y + k, 255);
+			r = 255 - smin(c + k, 255);
+			g = 255 - smin(m + k, 255);
+			b = 255 - smin(y + k, 255);
 
 			if(da) {
 				*d++ = fz_mul255(r, a);
@@ -940,9 +939,9 @@ static void fast_cmyk_to_bgr(fz_context * ctx, const fz_pixmap * src, fz_pixmap 
 				k = fz_div255(k, a);
 			}
 
-			r = 255 - fz_mini(c + k, 255);
-			g = 255 - fz_mini(m + k, 255);
-			b = 255 - fz_mini(y + k, 255);
+			r = 255 - smin(c + k, 255);
+			g = 255 - smin(m + k, 255);
+			b = 255 - smin(y + k, 255);
 
 			if(da) {
 				*d++ = fz_mul255(b, a);

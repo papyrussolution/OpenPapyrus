@@ -890,7 +890,7 @@ void ui_scrollbar(int x0, int y0, int x1, int y1, int * value, int page_size, in
 	float top;
 
 	int total_h = y1 - y0;
-	int thumb_h = fz_maxi(x1 - x0, total_h * page_size / max);
+	int thumb_h = smax(x1 - x0, total_h * page_size / max);
 	int avail_h = total_h - thumb_h;
 
 	max -= page_size;
@@ -1053,13 +1053,11 @@ void ui_list_end(struct list * list)
 	ui_tree_end(list);
 }
 
-void ui_label_with_scrollbar(char * text, int width, int height, int * scroll)
+void ui_label_with_scrollbar(const char * text, int width, int height, int * scroll)
 {
 	struct line lines[500];
-	fz_irect area;
 	int n;
-
-	area = ui_pack(width, height);
+	fz_irect area = ui_pack(width, height);
 	n = ui_break_lines(text, lines, nelem(lines), area.x1-area.x0 - 16, NULL);
 	if(n > (area.y1-area.y0) / ui.lineheight) {
 		if(ui_mouse_inside(area))

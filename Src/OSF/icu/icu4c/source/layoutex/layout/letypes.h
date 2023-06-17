@@ -208,7 +208,7 @@ typedef le_uint32 LEGlyphID;
  *
  * @deprecated ICU 54. See {@link icu::LayoutEngine}
  */
-typedef UChar LEUnicode16;
+typedef char16_t LEUnicode16;
 
 /**
  * Used to represent 32-bit Unicode code points.
@@ -223,7 +223,7 @@ typedef UChar32 LEUnicode32;
  *
  * @deprecated ICU 54. See {@link icu::LayoutEngine}
  */
-typedef UChar LEUnicode;
+typedef char16_t LEUnicode;
 #endif  /* U_HIDE_DEPRECATED_API */
 
 /**

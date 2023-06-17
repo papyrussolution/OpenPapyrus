@@ -288,20 +288,20 @@
 //
 // Type declarations 
 //
-#ifndef OF /* function prototypes */
-	#ifdef STDC
-		#define OF(args)  args
-	#else
-		#define OF(args)  ()
-	#endif
-#endif
-#ifndef Z_ARG /* function prototypes for stdarg */
-	#if defined(STDC) || defined(Z_HAVE_STDARG_H)
-		#define Z_ARG(args)  args
-	#else
-		#define Z_ARG(args)  ()
-	#endif
-#endif
+//#ifndef OF /* function prototypes */
+	//#ifdef STDC
+		//#define OF(args)  args
+	//#else
+		//#define OF(args)  ()
+	//#endif
+//#endif
+//#ifndef Z_ARG /* function prototypes for stdarg */
+	//#if defined(STDC) || defined(Z_HAVE_STDARG_H)
+		//#define Z_ARG(args)  args
+	//#else
+		//#define Z_ARG(args)  ()
+	//#endif
+//#endif
 #if defined(WINDOWS) || defined(WIN32)
 	// If building or using zlib as a DLL, define ZLIB_DLL.
 	// This is not mandatory, but it offers a little performance increase.
@@ -318,7 +318,7 @@
 	// If building or using zlib with the WINAPI/WINAPIV calling convention, define ZLIB_WINAPI.
 	// Caution: the standard ZLIB1.DLL is NOT compiled using ZLIB_WINAPI.
 	//
-	#ifdef ZLIB_WINAPI
+	//#ifdef ZLIB_WINAPI
 		// @v11.3.4 #include <windows.h>
 		// No need for _export, use ZLIB.DEF instead. 
 		// For complete Windows compatibility, use WINAPI, not __stdcall. 
@@ -328,7 +328,7 @@
 		//#else
 			//#define ZEXPORTVA FAR CDECL
 		//#endif
-	#endif
+	//#endif
 #endif
 //#if defined (__BEOS__)
 	//#ifdef ZLIB_DLL
@@ -447,15 +447,15 @@ typedef uLong uLongf;
 #ifndef z_off_t
 	#define z_off_t long
 #endif
-#if !defined(_WIN32) && defined(Z_LARGE64)
-	#define z_off64_t off64_t
-#else
-	#if defined(_WIN32) && !defined(__GNUC__) && !defined(Z_SOLO)
-		#define z_off64_t __int64
-	#else
-		#define z_off64_t z_off_t
-	#endif
-#endif
+//#if !defined(_WIN32) && defined(Z_LARGE64)
+	//#define z_off64_t__Removed off64_t
+//#else
+	//#if defined(_WIN32) && !defined(__GNUC__) && !defined(Z_SOLO)
+		//#define z_off64_t__Removed __int64
+	//#else
+		//#define z_off64_t__Removed z_off_t
+	//#endif
+//#endif
 // MVS linker does not support external names larger than 8 bytes 
 #if defined(__MVS__)
 	#pragma map(deflateInit_,"DEIN")
@@ -2090,9 +2090,9 @@ ZEXTERN int inflateBackInit_(z_streamp strm, int windowBits, uchar * window, con
 // only be used by the gzgetc() macro.  You have been warned.
 // 
 struct gzFile_s {
-	unsigned have;
+	uint   have;
 	uchar * next;
-	z_off64_t pos;
+	int64  pos;
 };
 
 ZEXTERN int gzgetc_(gzFile file); /* backward compatibility */
@@ -2110,12 +2110,12 @@ ZEXTERN int gzgetc_(gzFile file); /* backward compatibility */
 // without large file support, _LFS64_LARGEFILE must also be true
 // 
 #ifdef Z_LARGE64
-	ZEXTERN gzFile gzopen64 OF((const char *, const char *));
-	ZEXTERN z_off64_t gzseek64 OF((gzFile, z_off64_t, int));
-	ZEXTERN z_off64_t gztell64 OF((gzFile));
-	ZEXTERN z_off64_t gzoffset64 OF((gzFile));
-	ZEXTERN uLong adler32_combine64 OF((uLong, uLong, z_off64_t));
-	ZEXTERN uLong crc32_combine64 OF((uLong, uLong, z_off64_t));
+	ZEXTERN gzFile gzopen64(const char *, const char *);
+	ZEXTERN int64 gzseek64(gzFile, int64, int);
+	ZEXTERN int64 gztell64(gzFile);
+	ZEXTERN int64 gzoffset64(gzFile);
+	ZEXTERN uLong adler32_combine64(uLong, uLong, int64);
+	ZEXTERN uLong crc32_combine64(uLong, uLong, int64);
 #endif
 #if !defined(ZLIB_INTERNAL) && defined(Z_WANT64)
 	#ifdef Z_PREFIX_SET
@@ -2168,7 +2168,7 @@ ZEXTERN int deflateResetKeep(z_streamp);
 #endif
 #if defined(STDC) || defined(Z_HAVE_STDARG_H)
 	#ifndef Z_SOLO
-		ZEXTERN int gzvprintf Z_ARG((gzFile file, const char * format, va_list va));
+		ZEXTERN int gzvprintf(gzFile file, const char * format, va_list va);
 	#endif
 #endif
 
@@ -2326,8 +2326,8 @@ ZEXTERN int deflateResetKeep(z_streamp);
 	#endif
 	// provide prototypes for these when building zlib without LFS 
 	#if !defined(_WIN32) &&	(!defined(_LARGEFILE64_SOURCE) || _LFS64_LARGEFILE-0 == 0)
-		ZEXTERN uLong adler32_combine64 OF((uLong, uLong, z_off_t));
-		ZEXTERN uLong crc32_combine64 OF((uLong, uLong, z_off_t));
+		ZEXTERN uLong adler32_combine64(uLong, uLong, z_off_t);
+		ZEXTERN uLong crc32_combine64(uLong, uLong, z_off_t);
 	#endif
 	//
 	// common defaults 
@@ -2375,7 +2375,7 @@ ZEXTERN int deflateResetKeep(z_streamp);
 	//
 	#ifdef ZLIB_DEBUG
 		extern int ZLIB_INTERNAL z_verbose;
-		extern void ZLIB_INTERNAL z_error OF((char * m));
+		extern void ZLIB_INTERNAL z_error(char * m);
 		#define Assert(cond, msg) {if(!(cond)) z_error(msg); }
 		#define Trace(x) {if(z_verbose>=0) fprintf x; }
 		#define Tracev(x) {if(z_verbose>0) fprintf x; }

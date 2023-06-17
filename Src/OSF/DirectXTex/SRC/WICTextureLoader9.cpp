@@ -55,79 +55,63 @@
 using namespace DirectX;
 using Microsoft::WRL::ComPtr;
 
-namespace
-{
-//-------------------------------------------------------------------------------------
+namespace {
+//
 // WIC Pixel Format Translation Data
-//-------------------------------------------------------------------------------------
+//
 struct WICTranslate {
-	const GUID&         wic;
+	const GUID & wic;
 	D3DFORMAT format;
 };
 
 constexpr WICTranslate g_WICFormats[] =
 {
 	{ GUID_WICPixelFormat128bppRGBAFloat,       D3DFMT_A32B32G32R32F },
-
 	{ GUID_WICPixelFormat64bppRGBAHalf,         D3DFMT_A16B16G16R16F },
 	{ GUID_WICPixelFormat64bppRGBA,             D3DFMT_A16B16G16R16 },
-
 	{ GUID_WICPixelFormat32bppBGRA,             D3DFMT_A8R8G8B8 },
-
 	{ GUID_WICPixelFormat32bppRGBA1010102,      D3DFMT_A2B10G10R10 },
-
 	{ GUID_WICPixelFormat16bppBGRA5551,         D3DFMT_A1R5G5B5 },
 	{ GUID_WICPixelFormat16bppBGR555,           D3DFMT_X1R5G5B5 },
 	{ GUID_WICPixelFormat16bppBGR565,           D3DFMT_R5G6B5 },
-
 	{ GUID_WICPixelFormat32bppGrayFloat,        D3DFMT_R32F },
 	{ GUID_WICPixelFormat16bppGrayHalf,         D3DFMT_R16F },
 	{ GUID_WICPixelFormat16bppGray,             D3DFMT_L16 },
 	{ GUID_WICPixelFormat8bppGray,              D3DFMT_L8 },
-
 	{ GUID_WICPixelFormat8bppAlpha,             D3DFMT_A8 },
 };
-
-//-------------------------------------------------------------------------------------
+//
 // WIC Pixel Format nearest conversion table
-//-------------------------------------------------------------------------------------
+//
 struct WICConvert {
 	const GUID& source;
 	const GUID& target;
 };
 
-constexpr WICConvert g_WICConvert[] =
-{
+constexpr WICConvert g_WICConvert[] = {
 	// Note target GUID in this conversion table must be one of those directly supported formats (above).
 
 	{ GUID_WICPixelFormatBlackWhite,            GUID_WICPixelFormat8bppGray }, // D3DFMT_L8
-
 	{ GUID_WICPixelFormat1bppIndexed,           GUID_WICPixelFormat32bppBGRA }, // D3DFMT_A8R8G8B8
 	{ GUID_WICPixelFormat2bppIndexed,           GUID_WICPixelFormat32bppBGRA }, // D3DFMT_A8R8G8B8
 	{ GUID_WICPixelFormat4bppIndexed,           GUID_WICPixelFormat32bppBGRA }, // D3DFMT_A8R8G8B8
 	{ GUID_WICPixelFormat8bppIndexed,           GUID_WICPixelFormat32bppBGRA }, // D3DFMT_A8R8G8B8
-
 	{ GUID_WICPixelFormat2bppGray,              GUID_WICPixelFormat8bppGray }, // D3DFMT_L8
 	{ GUID_WICPixelFormat4bppGray,              GUID_WICPixelFormat8bppGray }, // D3DFMT_L8
-
 	{ GUID_WICPixelFormat16bppGrayFixedPoint,   GUID_WICPixelFormat16bppGrayHalf }, // D3DFMT_R16F
 	{ GUID_WICPixelFormat32bppGrayFixedPoint,   GUID_WICPixelFormat32bppGrayFloat }, // D3DFMT_R32F
-
 	{ GUID_WICPixelFormat32bppBGR101010,        GUID_WICPixelFormat32bppRGBA1010102 }, // D3DFMT_A2B10G10R10
-
 	{ GUID_WICPixelFormat24bppBGR,              GUID_WICPixelFormat32bppBGRA }, // D3DFMT_A8R8G8B8
 	{ GUID_WICPixelFormat24bppRGB,              GUID_WICPixelFormat32bppBGRA }, // D3DFMT_A8R8G8B8
 	{ GUID_WICPixelFormat32bppBGR,              GUID_WICPixelFormat32bppBGRA }, // D3DFMT_A8R8G8B8
 	{ GUID_WICPixelFormat32bppRGBA,             GUID_WICPixelFormat32bppBGRA }, // D3DFMT_A8R8G8B8
 	{ GUID_WICPixelFormat32bppPBGRA,            GUID_WICPixelFormat32bppBGRA }, // D3DFMT_A8R8G8B8
 	{ GUID_WICPixelFormat32bppPRGBA,            GUID_WICPixelFormat32bppBGRA }, // D3DFMT_A8R8G8B8
-
 	{ GUID_WICPixelFormat48bppRGB,              GUID_WICPixelFormat64bppRGBA }, // D3DFMT_A16B16G16R16
 	{ GUID_WICPixelFormat48bppBGR,              GUID_WICPixelFormat64bppRGBA }, // D3DFMT_A16B16G16R16
 	{ GUID_WICPixelFormat64bppBGRA,             GUID_WICPixelFormat64bppRGBA }, // D3DFMT_A16B16G16R16
 	{ GUID_WICPixelFormat64bppPRGBA,            GUID_WICPixelFormat64bppRGBA }, // D3DFMT_A16B16G16R16
 	{ GUID_WICPixelFormat64bppPBGRA,            GUID_WICPixelFormat64bppRGBA }, // D3DFMT_A16B16G16R16
-
 	{ GUID_WICPixelFormat48bppRGBFixedPoint,    GUID_WICPixelFormat64bppRGBAHalf }, // D3DFMT_A16B16G16R16F
 	{ GUID_WICPixelFormat48bppBGRFixedPoint,    GUID_WICPixelFormat64bppRGBAHalf }, // D3DFMT_A16B16G16R16F
 	{ GUID_WICPixelFormat64bppRGBAFixedPoint,   GUID_WICPixelFormat64bppRGBAHalf }, // D3DFMT_A16B16G16R16F
@@ -135,29 +119,24 @@ constexpr WICConvert g_WICConvert[] =
 	{ GUID_WICPixelFormat64bppRGBFixedPoint,    GUID_WICPixelFormat64bppRGBAHalf }, // D3DFMT_A16B16G16R16F
 	{ GUID_WICPixelFormat64bppRGBHalf,          GUID_WICPixelFormat64bppRGBAHalf }, // D3DFMT_A16B16G16R16F
 	{ GUID_WICPixelFormat48bppRGBHalf,          GUID_WICPixelFormat64bppRGBAHalf }, // D3DFMT_A16B16G16R16F
-
 	{ GUID_WICPixelFormat128bppPRGBAFloat,      GUID_WICPixelFormat128bppRGBAFloat }, // D3DFMT_A32B32G32R32F
 	{ GUID_WICPixelFormat128bppRGBFloat,        GUID_WICPixelFormat128bppRGBAFloat }, // D3DFMT_A32B32G32R32F
 	{ GUID_WICPixelFormat128bppRGBAFixedPoint,  GUID_WICPixelFormat128bppRGBAFloat }, // D3DFMT_A32B32G32R32F
 	{ GUID_WICPixelFormat128bppRGBFixedPoint,   GUID_WICPixelFormat128bppRGBAFloat }, // D3DFMT_A32B32G32R32F
 	{ GUID_WICPixelFormat32bppRGBE,             GUID_WICPixelFormat128bppRGBAFloat }, // D3DFMT_A32B32G32R32F
-
 	{ GUID_WICPixelFormat32bppCMYK,             GUID_WICPixelFormat32bppBGRA }, // D3DFMT_A8R8G8B8
 	{ GUID_WICPixelFormat64bppCMYK,             GUID_WICPixelFormat64bppRGBA }, // D3DFMT_A16B16G16R16
 	{ GUID_WICPixelFormat40bppCMYKAlpha,        GUID_WICPixelFormat32bppBGRA }, // D3DFMT_A8R8G8B8
 	{ GUID_WICPixelFormat80bppCMYKAlpha,        GUID_WICPixelFormat64bppRGBA }, // D3DFMT_A16B16G16R16
-
     #if (_WIN32_WINNT >= _WIN32_WINNT_WIN8) || defined(_WIN7_PLATFORM_UPDATE)
-	{ GUID_WICPixelFormat32bppRGB,              GUID_WICPixelFormat32bppBGRA }, // D3DFMT_A8R8G8B8
-	{ GUID_WICPixelFormat64bppRGB,              GUID_WICPixelFormat64bppRGBA }, // D3DFMT_A16B16G16R16
-	{ GUID_WICPixelFormat64bppPRGBAHalf,        GUID_WICPixelFormat64bppRGBAHalf }, // D3DFMT_A16B16G16R16F
-	{ GUID_WICPixelFormat96bppRGBFloat,         GUID_WICPixelFormat128bppRGBAFloat }, // D3DFMT_A32B32G32R32F
+		{ GUID_WICPixelFormat32bppRGB,              GUID_WICPixelFormat32bppBGRA }, // D3DFMT_A8R8G8B8
+		{ GUID_WICPixelFormat64bppRGB,              GUID_WICPixelFormat64bppRGBA }, // D3DFMT_A16B16G16R16
+		{ GUID_WICPixelFormat64bppPRGBAHalf,        GUID_WICPixelFormat64bppRGBAHalf }, // D3DFMT_A16B16G16R16F
+		{ GUID_WICPixelFormat96bppRGBFloat,         GUID_WICPixelFormat128bppRGBAFloat }, // D3DFMT_A32B32G32R32F
     #endif
-
 	// We don't support n-channel formats
 };
 
-//--------------------------------------------------------------------------------------
 BOOL WINAPI InitializeWICFactory(PINIT_ONCE, PVOID, PVOID* ifactory) noexcept
 {
     #if (_WIN32_WINNT >= _WIN32_WINNT_WIN8) || defined(_WIN7_PLATFORM_UPDATE)
@@ -487,22 +466,17 @@ HRESULT CreateTextureFromWIC(_In_ LPDIRECT3DDEVICE9 device,
 		if(FAILED(hr))
 			return hr;
 	}
-
 	if(pool == D3DPOOL_DEFAULT) {
 		hr = device->UpdateTexture(pStagingTexture.Get(), pTexture.Get());
 		if(FAILED(hr))
 			return hr;
 	}
-
 	*texture = pTexture.Detach();
-
 	return S_OK;
 }
 } // anonymous namespace
 
-//--------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::CreateWICTextureFromMemory(LPDIRECT3DDEVICE9 d3dDevice,
+_Use_decl_annotations_ HRESULT DirectX::CreateWICTextureFromMemory(LPDIRECT3DDEVICE9 d3dDevice,
     const uint8_t* wicData,
     size_t wicDataSize,
     LPDIRECT3DTEXTURE9* texture,
@@ -512,8 +486,7 @@ HRESULT DirectX::CreateWICTextureFromMemory(LPDIRECT3DDEVICE9 d3dDevice,
 	return CreateWICTextureFromMemoryEx(d3dDevice, wicData, wicDataSize, maxsize, 0u, D3DPOOL_DEFAULT, loadFlags, texture);
 }
 
-_Use_decl_annotations_
-HRESULT DirectX::CreateWICTextureFromMemoryEx(LPDIRECT3DDEVICE9 d3dDevice,
+_Use_decl_annotations_ HRESULT DirectX::CreateWICTextureFromMemoryEx(LPDIRECT3DDEVICE9 d3dDevice,
     const uint8_t* wicData,
     size_t wicDataSize,
     _In_ size_t maxsize,
@@ -556,9 +529,7 @@ HRESULT DirectX::CreateWICTextureFromMemoryEx(LPDIRECT3DDEVICE9 d3dDevice,
 	return CreateTextureFromWIC(d3dDevice, frame.Get(), maxsize, usage, pool, loadFlags, texture);
 }
 
-//--------------------------------------------------------------------------------------
-_Use_decl_annotations_
-HRESULT DirectX::CreateWICTextureFromFile(LPDIRECT3DDEVICE9 d3dDevice,
+_Use_decl_annotations_ HRESULT DirectX::CreateWICTextureFromFile(LPDIRECT3DDEVICE9 d3dDevice,
     const wchar_t* fileName,
     LPDIRECT3DTEXTURE9* texture,
     size_t maxsize,
@@ -581,11 +552,9 @@ _Use_decl_annotations_ HRESULT DirectX::CreateWICTextureFromFileEx(LPDIRECT3DDEV
 	HRESULT hr = pWIC->CreateDecoderFromFilename(fileName, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, decoder.GetAddressOf());
 	if(FAILED(hr))
 		return hr;
-
 	ComPtr<IWICBitmapFrameDecode> frame;
 	hr = decoder->GetFrame(0, frame.GetAddressOf());
 	if(FAILED(hr))
 		return hr;
-
 	return CreateTextureFromWIC(d3dDevice, frame.Get(), maxsize, usage, pool, loadFlags, texture);
 }

@@ -607,14 +607,14 @@ U_CAPI void * U_EXPORT2 uhash_removeElement(UHashtable * hash, const UHashElemen
    uhash_tokp(void * p);*/
 
 /********************************************************************
-* UChar * and char * Support Functions
+* char16_t * and char * Support Functions
 ********************************************************************/
 
 /**
- * Generate a hash code for a null-terminated UChar * string.  If the
+ * Generate a hash code for a null-terminated char16_t * string.  If the
  * string is not null-terminated do not use this function.  Use
  * together with uhash_compareUChars.
- * @param key The string (const UChar *) to hash.
+ * @param key The string (const char16_t *) to hash.
  * @return A hash code for the key.
  */
 U_CAPI int32_t U_EXPORT2 uhash_hashUChars(const UHashTok key);
@@ -638,7 +638,7 @@ U_CAPI int32_t U_EXPORT2 uhash_hashChars(const UHashTok key);
 U_CAPI int32_t U_EXPORT2 uhash_hashIChars(const UHashTok key);
 
 /**
- * Comparator for null-terminated UChar * strings.  Use together with
+ * Comparator for null-terminated char16_t * strings.  Use together with
  * uhash_hashUChars.
  * @param key1 The string for comparison
  * @param key2 The string for comparison

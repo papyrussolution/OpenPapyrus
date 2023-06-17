@@ -379,7 +379,7 @@ int pdf_annot_ink_list_stroke_count(fz_context *ctx, pdf_annot *annot, int i);
 	Get vertex k from stroke i of the ink list for an annoation, in
 	doc space.
 */
-fz_point pdf_annot_ink_list_stroke_vertex(fz_context *ctx, pdf_annot *annot, int i, int k);
+SPoint2F pdf_annot_ink_list_stroke_vertex(fz_context *ctx, pdf_annot *annot, int i, int k);
 
 /*
 	Set the flags for an annotation.
@@ -454,7 +454,7 @@ void pdf_add_annot_quad_point(fz_context *ctx, pdf_annot *annot, fz_quad quad);
 	The vertexes for all the strokes are packed into a single
 	array, pointed to by v.
 */
-void pdf_set_annot_ink_list(fz_context *ctx, pdf_annot *annot, int n, const int *count, const fz_point *v);
+void pdf_set_annot_ink_list(fz_context *ctx, pdf_annot *annot, int n, const int *count, const SPoint2F *v);
 
 /*
 	Clear the ink list for an annotation.
@@ -471,13 +471,13 @@ void pdf_add_annot_ink_list_stroke(fz_context *ctx, pdf_annot *annot);
 	Add a new vertex to the last stroke in the ink list for an
 	annotation.
 */
-void pdf_add_annot_ink_list_stroke_vertex(fz_context *ctx, pdf_annot *annot, fz_point p);
+void pdf_add_annot_ink_list_stroke_vertex(fz_context *ctx, pdf_annot *annot, SPoint2F p);
 
 /*
 	Add a new stroke to the ink list for an annotation, and
 	populate it with the n points from stroke[].
 */
-void pdf_add_annot_ink_list(fz_context *ctx, pdf_annot *annot, int n, fz_point stroke[]);
+void pdf_add_annot_ink_list(fz_context *ctx, pdf_annot *annot, int n, SPoint2F stroke[]);
 
 /*
 
@@ -495,16 +495,16 @@ void pdf_set_annot_line_ending_styles(fz_context *ctx, pdf_annot *annot, enum pd
 const char *pdf_annot_icon_name(fz_context *ctx, pdf_annot *annot);
 int pdf_annot_is_open(fz_context *ctx, pdf_annot *annot);
 
-void pdf_annot_line(fz_context *ctx, pdf_annot *annot, fz_point *a, fz_point *b);
-void pdf_set_annot_line(fz_context *ctx, pdf_annot *annot, fz_point a, fz_point b);
+void pdf_annot_line(fz_context *ctx, pdf_annot *annot, SPoint2F *a, SPoint2F *b);
+void pdf_set_annot_line(fz_context *ctx, pdf_annot *annot, SPoint2F a, SPoint2F b);
 
 int pdf_annot_vertex_count(fz_context *ctx, pdf_annot *annot);
-fz_point pdf_annot_vertex(fz_context *ctx, pdf_annot *annot, int i);
+SPoint2F pdf_annot_vertex(fz_context *ctx, pdf_annot *annot, int i);
 
-void pdf_set_annot_vertices(fz_context *ctx, pdf_annot *annot, int n, const fz_point *v);
+void pdf_set_annot_vertices(fz_context *ctx, pdf_annot *annot, int n, const SPoint2F *v);
 void pdf_clear_annot_vertices(fz_context *ctx, pdf_annot *annot);
-void pdf_add_annot_vertex(fz_context *ctx, pdf_annot *annot, fz_point p);
-void pdf_set_annot_vertex(fz_context *ctx, pdf_annot *annot, int i, fz_point p);
+void pdf_add_annot_vertex(fz_context *ctx, pdf_annot *annot, SPoint2F p);
+void pdf_set_annot_vertex(fz_context *ctx, pdf_annot *annot, int i, SPoint2F p);
 
 const char *pdf_annot_contents(fz_context *ctx, pdf_annot *annot);
 void pdf_set_annot_contents(fz_context *ctx, pdf_annot *annot, const char *text);

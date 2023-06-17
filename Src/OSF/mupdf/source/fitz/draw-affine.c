@@ -236,8 +236,7 @@ static inline void template_affine_alpha_N_near_fb0(byte * _RESTRICT dp, int da,
 		if(gp)
 			gp++;
 		u += fa;
-	}
-	while(--w);
+	} while(--w);
 }
 
 static inline void template_affine_alpha_N_near(byte * _RESTRICT dp, int da, const byte * _RESTRICT sp,
@@ -276,24 +275,10 @@ static inline void template_affine_alpha_N_near(byte * _RESTRICT dp, int da, con
 	} while(--w);
 }
 
-static inline void template_affine_alpha_N_near_op(byte * _RESTRICT dp,
-    int da,
-    const byte * _RESTRICT sp,
-    int sw,
-    int sh,
-    int ss,
-    int sa,
-    int u,
-    int v,
-    int fa,
-    int fb,
-    int w,
-    int dn1,
-    int sn1,
-    int alpha,
-    byte * _RESTRICT hp,
-    byte * _RESTRICT gp,
-    const fz_overprint * _RESTRICT eop)
+static inline void template_affine_alpha_N_near_op(byte * _RESTRICT dp, int da,
+    const byte * _RESTRICT sp, int sw, int sh, int ss, int sa, int u, int v,
+    int fa, int fb, int w, int dn1, int sn1, int alpha, byte * _RESTRICT hp,
+    byte * _RESTRICT gp, const fz_overprint * _RESTRICT eop)
 {
 	int k;
 	do {
@@ -326,25 +311,12 @@ static inline void template_affine_alpha_N_near_op(byte * _RESTRICT dp,
 			gp++;
 		u += fa;
 		v += fb;
-	}
-	while(--w);
+	} while(--w);
 }
 
-static inline void template_affine_alpha_g2rgb_near_fa0(byte * _RESTRICT dp,
-    int da,
-    const byte * _RESTRICT sp,
-    int sw,
-    int sh,
-    int ss,
-    int sa,
-    int u,
-    int v,
-    int fa,
-    int fb,
-    int w,
-    int alpha,
-    byte * _RESTRICT hp,
-    byte * _RESTRICT gp)
+static inline void template_affine_alpha_g2rgb_near_fa0(byte * _RESTRICT dp, int da, const byte * _RESTRICT sp,
+    int sw, int sh, int ss, int sa, int u, int v, int fa, int fb, int w, int alpha,
+    byte * _RESTRICT hp, byte * _RESTRICT gp)
 {
 	int ui = u >> PREC;
 	if(ui < 0 || ui >= sw)
@@ -376,25 +348,12 @@ static inline void template_affine_alpha_g2rgb_near_fa0(byte * _RESTRICT dp,
 		if(gp)
 			gp++;
 		v += fb;
-	}
-	while(--w);
+	} while(--w);
 }
 
-static inline void template_affine_alpha_g2rgb_near_fb0(byte * _RESTRICT dp,
-    int da,
-    const byte * _RESTRICT sp,
-    int sw,
-    int sh,
-    int ss,
-    int sa,
-    int u,
-    int v,
-    int fa,
-    int fb,
-    int w,
-    int alpha,
-    byte * _RESTRICT hp,
-    byte * _RESTRICT gp)
+static inline void template_affine_alpha_g2rgb_near_fb0(byte * _RESTRICT dp, int da, const byte * _RESTRICT sp,
+    int sw, int sh, int ss, int sa, int u, int v, int fa, int fb, int w, int alpha,
+    byte * _RESTRICT hp, byte * _RESTRICT gp)
 {
 	int vi = v >> PREC;
 	if(vi < 0 || vi >= sh)
@@ -426,25 +385,12 @@ static inline void template_affine_alpha_g2rgb_near_fb0(byte * _RESTRICT dp,
 		if(gp)
 			gp++;
 		u += fa;
-	}
-	while(--w);
+	} while(--w);
 }
 
-static inline void template_affine_alpha_g2rgb_near(byte * _RESTRICT dp,
-    int da,
-    const byte * _RESTRICT sp,
-    int sw,
-    int sh,
-    int ss,
-    int sa,
-    int u,
-    int v,
-    int fa,
-    int fb,
-    int w,
-    int alpha,
-    byte * _RESTRICT hp,
-    byte * _RESTRICT gp)
+static inline void template_affine_alpha_g2rgb_near(byte * _RESTRICT dp, int da, const byte * _RESTRICT sp,
+    int sw, int sh, int ss, int sa, int u, int v, int fa, int fb, int w, int alpha,
+    byte * _RESTRICT hp, byte * _RESTRICT gp)
 {
 	do {
 		int ui = u >> PREC;
@@ -474,8 +420,7 @@ static inline void template_affine_alpha_g2rgb_near(byte * _RESTRICT dp,
 			gp++;
 		u += fa;
 		v += fb;
-	}
-	while(--w);
+	} while(--w);
 }
 
 /* Blend premultiplied source image over destination */

@@ -1050,6 +1050,48 @@ int SString::IsLatin() const
 	return ok;
 }
 
+int SString::GetQStr(size_t * pPos, uint flags, SString & rBuf) const
+{
+	rBuf.Z();
+	bool started = false;
+	bool finished = false;
+	size_t pos = DEREFPTRORZ(pPos);
+	for(; pos < Len(); pos++) {
+		const char c = C(pos);
+		if(c == '\"') {
+			if(!started) {
+				started = true;
+			}
+			else {
+				finished = true;
+				pos++; // мы должны вернуть следующую за последним считанным символом позицию
+				break;
+			}
+		}
+		else if(started) {
+			if(c == '\\') {
+				if((pos+1) < Len()) {
+					const char c2 = C(pos+1);
+					switch(c2) {
+						case 'n': rBuf.CatChar('\n'); break;
+						case 'r': rBuf.CatChar('\r'); break;
+						case 't': rBuf.CatChar('\t'); break;
+						case 'b': rBuf.CatChar('\b'); break;
+						case '\"': rBuf.CatChar('\"'); break;
+						default: rBuf.CatChar(c2); break;
+					}
+				}
+				pos++;
+			}
+			else {
+				rBuf.CatChar(c);
+			}
+		}
+	}
+	ASSIGN_PTR(pPos, pos);
+	return started ? (finished ? 1 : -1) : 0;
+}
+
 int SString::GetWord(size_t * pPos, SString & rBuf) const
 {
 	size_t pos = DEREFPTRORZ(pPos);
@@ -3066,6 +3108,46 @@ template <typename T> inline T atoi_positive_unchecked(char const* p, char const
 	return result;
 }
 */
+//
+// @v11.7.6
+// Нашел быстрые функции перевода 8 или 16 десятичных цифр в целое число.
+// Требуется тестирование и профилирование
+//
+#ifdef __SSE4_1__
+	// covert 8 digits into int https://arxiv.org/pdf/1902.08318.pdf, Fig.7
+	static uint32 _texttodec_8digits_simd(const char * p) 
+	{
+		__m128i ascii0 = _mm_set1_epi8('0');
+		__m128i mul_1_10 = _mm_setr_epi8(10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1);
+		__m128i mul_1_100 = _mm_setr_epi16(100, 1, 100, 1, 100, 1, 100, 1);
+		__m128i mul_1_10000 = _mm_setr_epi16(10000, 1, 10000, 1, 10000, 1, 10000, 1);
+		// we should've used _mm_loadu_si64 here, but seems _mm_loadu_si128 is faster
+		__m128i in = _mm_sub_epi8(_mm_loadu_si128((__m128i*)p), ascii0);
+		__m128i t1 = _mm_maddubs_epi16(in, mul_1_10);
+		__m128i t2 = _mm_madd_epi16(t1, mul_1_100);
+		__m128i t3 = _mm_packus_epi32(t2, t2);
+		__m128i t4 = _mm_madd_epi16(t3, mul_1_10000);
+		return _mm_cvtsi128_si32(t4);
+	}
+
+	// covert 16 digits into int64
+	static uint64 _texttodec_16digits_simd(const char * p) 
+	{
+		__m128i ascii0 = _mm_set1_epi8('0');
+		__m128i mul_1_10 = _mm_setr_epi8(10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1);
+		__m128i mul_1_100 = _mm_setr_epi16(100, 1, 100, 1, 100, 1, 100, 1);
+		__m128i mul_1_10000 = _mm_setr_epi16(10000, 1, 10000, 1, 10000, 1, 10000, 1);
+		__m128i in = _mm_sub_epi8(_mm_loadu_si128((__m128i*)p), ascii0);
+		__m128i t1 = _mm_maddubs_epi16(in, mul_1_10);
+		__m128i t2 = _mm_madd_epi16(t1, mul_1_100);
+		__m128i t3 = _mm_packus_epi32(t2, t2);
+		__m128i t4 = _mm_madd_epi16(t3, mul_1_10000);
+		// the above code is exactly the same as simdtoi
+		uint64 t5 = _mm_cvtsi128_si64(t4);
+		return (t5 >> 32) + (t5 & 0xffffffff) * 100000000LL;
+	}
+#endif
+
 uint32 FASTCALL _texttodec32(const wchar_t * pT, uint len)
 {
 	uint32 result;

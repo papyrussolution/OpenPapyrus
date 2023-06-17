@@ -568,7 +568,7 @@ uint32_t RuleBasedCollator::getVariableTop(UErrorCode & /*errorCode*/) const {
 	return settings->variableTop;
 }
 
-uint32_t RuleBasedCollator::setVariableTop(const UChar * varTop, int32_t len, UErrorCode & errorCode) {
+uint32_t RuleBasedCollator::setVariableTop(const char16_t * varTop, int32_t len, UErrorCode & errorCode) {
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
@@ -740,8 +740,8 @@ UCollationResult RuleBasedCollator::compare(const UnicodeString & left, const Un
 		   right.getBuffer(), rightLength, errorCode);
 }
 
-UCollationResult RuleBasedCollator::compare(const UChar * left, int32_t leftLength,
-    const UChar * right, int32_t rightLength,
+UCollationResult RuleBasedCollator::compare(const char16_t * left, int32_t leftLength,
+    const char16_t * right, int32_t rightLength,
     UErrorCode & errorCode) const {
 	if(U_FAILURE(errorCode)) {
 		return UCOL_EQUAL;
@@ -863,15 +863,15 @@ protected:
 	 */
 	virtual UChar32 nextRawCodePoint() = 0;
 private:
-	const UChar * decomp;
-	UChar buffer[4];
+	const char16_t * decomp;
+	char16_t buffer[4];
 	int32_t index;
 	int32_t length;
 };
 
 class UTF16NFDIterator : public NFDIterator {
 public:
-	UTF16NFDIterator(const UChar * text, const UChar * textLimit) : s(text), limit(textLimit) {
+	UTF16NFDIterator(const char16_t * text, const char16_t * textLimit) : s(text), limit(textLimit) {
 	}
 
 protected:
@@ -884,7 +884,7 @@ protected:
 			s = NULL;
 			return U_SENTINEL;
 		}
-		UChar trail;
+		char16_t trail;
 		if(U16_IS_LEAD(c) && s != limit && U16_IS_TRAIL(trail = *s)) {
 			++s;
 			c = U16_GET_SUPPLEMENTARY(c, trail);
@@ -892,16 +892,16 @@ protected:
 		return c;
 	}
 
-	const UChar * s;
-	const UChar * limit;
+	const char16_t * s;
+	const char16_t * limit;
 };
 
 class FCDUTF16NFDIterator : public UTF16NFDIterator {
 public:
-	FCDUTF16NFDIterator(const Normalizer2Impl &nfcImpl, const UChar * text, const UChar * textLimit)
+	FCDUTF16NFDIterator(const Normalizer2Impl &nfcImpl, const char16_t * text, const char16_t * textLimit)
 		: UTF16NFDIterator(NULL, NULL) {
 		UErrorCode errorCode = U_ZERO_ERROR;
-		const UChar * spanLimit = nfcImpl.makeFCD(text, textLimit, NULL, errorCode);
+		const char16_t * spanLimit = nfcImpl.makeFCD(text, textLimit, NULL, errorCode);
 		if(U_FAILURE(errorCode)) {
 			return;
 		}
@@ -1037,8 +1037,8 @@ UCollationResult compareNFDIter(const Normalizer2Impl &nfcImpl,
 }
 }  // namespace
 
-UCollationResult RuleBasedCollator::doCompare(const UChar * left, int32_t leftLength,
-    const UChar * right, int32_t rightLength,
+UCollationResult RuleBasedCollator::doCompare(const char16_t * left, int32_t leftLength,
+    const char16_t * right, int32_t rightLength,
     UErrorCode & errorCode) const {
 	// U_FAILURE(errorCode) checked by caller.
 	if(left == right && leftLength == rightLength) {
@@ -1046,13 +1046,13 @@ UCollationResult RuleBasedCollator::doCompare(const UChar * left, int32_t leftLe
 	}
 
 	// Identical-prefix test.
-	const UChar * leftLimit;
-	const UChar * rightLimit;
+	const char16_t * leftLimit;
+	const char16_t * rightLimit;
 	int32_t equalPrefixLength = 0;
 	if(leftLength < 0) {
 		leftLimit = NULL;
 		rightLimit = NULL;
-		UChar c;
+		char16_t c;
 		while((c = left[equalPrefixLength]) == right[equalPrefixLength]) {
 			if(!c) {
 				return UCOL_EQUAL;
@@ -1382,7 +1382,7 @@ CollationKey &RuleBasedCollator::getCollationKey(const UnicodeString & s, Collat
 	return getCollationKey(s.getBuffer(), s.length(), key, errorCode);
 }
 
-CollationKey &RuleBasedCollator::getCollationKey(const UChar * s, int32_t length, CollationKey& key,
+CollationKey &RuleBasedCollator::getCollationKey(const char16_t * s, int32_t length, CollationKey& key,
     UErrorCode & errorCode) const {
 	if(U_FAILURE(errorCode)) {
 		return key.setToBogus();
@@ -1411,7 +1411,7 @@ int32_t RuleBasedCollator::getSortKey(const UnicodeString & s,
 	return getSortKey(s.getBuffer(), s.length(), dest, capacity);
 }
 
-int32_t RuleBasedCollator::getSortKey(const UChar * s, int32_t length,
+int32_t RuleBasedCollator::getSortKey(const char16_t * s, int32_t length,
     uint8 * dest, int32_t capacity) const {
 	if((s == NULL && length != 0) || capacity < 0 || (dest == NULL && capacity > 0)) {
 		return 0;
@@ -1428,12 +1428,12 @@ int32_t RuleBasedCollator::getSortKey(const UChar * s, int32_t length,
 	return U_SUCCESS(errorCode) ? sink.NumberOfBytesAppended() : 0;
 }
 
-void RuleBasedCollator::writeSortKey(const UChar * s, int32_t length,
+void RuleBasedCollator::writeSortKey(const char16_t * s, int32_t length,
     SortKeyByteSink &sink, UErrorCode & errorCode) const {
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-	const UChar * limit = (length >= 0) ? s + length : NULL;
+	const char16_t * limit = (length >= 0) ? s + length : NULL;
 	bool numeric = settings->isNumeric();
 	CollationKeys::LevelCallback callback;
 	if(settings->dontCheckFCD()) {
@@ -1455,10 +1455,10 @@ void RuleBasedCollator::writeSortKey(const UChar * s, int32_t length,
 	sink.Append(&terminator, 1);
 }
 
-void RuleBasedCollator::writeIdenticalLevel(const UChar * s, const UChar * limit,
+void RuleBasedCollator::writeIdenticalLevel(const char16_t * s, const char16_t * limit,
     SortKeyByteSink &sink, UErrorCode & errorCode) const {
 	// NFD quick check
-	const UChar * nfdQCYesLimit = data->nfcImpl.decompose(s, limit, NULL, errorCode);
+	const char16_t * nfdQCYesLimit = data->nfcImpl.decompose(s, limit, NULL, errorCode);
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
@@ -1590,9 +1590,9 @@ int32_t RuleBasedCollator::internalNextSortKeyPart(UCharIterator * iter, uint32_
 			if(c < 0) {
 				break;
 			}
-			s.append((UChar)c);
+			s.append((char16_t)c);
 		}
-		const UChar * sArray = s.getBuffer();
+		const char16_t * sArray = s.getBuffer();
 		writeIdenticalLevel(sArray, sArray + s.length(), sink, errorCode);
 		if(U_FAILURE(errorCode)) {
 			return 0;
@@ -1620,8 +1620,8 @@ void RuleBasedCollator::internalGetCEs(const UnicodeString & str, UVector64 &ces
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-	const UChar * s = str.getBuffer();
-	const UChar * limit = s + str.length();
+	const char16_t * s = str.getBuffer();
+	const char16_t * limit = s + str.length();
 	bool numeric = settings->isNumeric();
 	if(settings->dontCheckFCD()) {
 		UTF16CollationIterator iter(data, numeric, s, s, limit);

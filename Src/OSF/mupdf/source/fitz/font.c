@@ -1128,7 +1128,7 @@ static int move_to(const FT_Vector * p, void * cc_)
 	struct closure * cc = (struct closure *)cc_;
 	fz_context * ctx = cc->ctx;
 	fz_path * path = cc->path;
-	fz_point pt = fz_transform_point_xy(p->x, p->y, cc->trm);
+	SPoint2F pt = fz_transform_point_xy(p->x, p->y, cc->trm);
 	fz_moveto(ctx, path, pt.x, pt.y);
 	return 0;
 }
@@ -1138,7 +1138,7 @@ static int line_to(const FT_Vector * p, void * cc_)
 	struct closure * cc = (struct closure *)cc_;
 	fz_context * ctx = cc->ctx;
 	fz_path * path = cc->path;
-	fz_point pt = fz_transform_point_xy(p->x, p->y, cc->trm);
+	SPoint2F pt = fz_transform_point_xy(p->x, p->y, cc->trm);
 	fz_lineto(ctx, path, pt.x, pt.y);
 	return 0;
 }
@@ -1148,8 +1148,8 @@ static int conic_to(const FT_Vector * c, const FT_Vector * p, void * cc_)
 	struct closure * cc = (struct closure *)cc_;
 	fz_context * ctx = cc->ctx;
 	fz_path * path = cc->path;
-	fz_point ct = fz_transform_point_xy(c->x, c->y, cc->trm);
-	fz_point pt = fz_transform_point_xy(p->x, p->y, cc->trm);
+	SPoint2F ct = fz_transform_point_xy(c->x, c->y, cc->trm);
+	SPoint2F pt = fz_transform_point_xy(p->x, p->y, cc->trm);
 	fz_quadto(ctx, path, ct.x, ct.y, pt.x, pt.y);
 	return 0;
 }
@@ -1159,9 +1159,9 @@ static int cubic_to(const FT_Vector * c1, const FT_Vector * c2, const FT_Vector 
 	struct closure * cc = (struct closure *)cc_;
 	fz_context * ctx = cc->ctx;
 	fz_path * path = cc->path;
-	fz_point c1t = fz_transform_point_xy(c1->x, c1->y, cc->trm);
-	fz_point c2t = fz_transform_point_xy(c2->x, c2->y, cc->trm);
-	fz_point pt = fz_transform_point_xy(p->x, p->y, cc->trm);
+	SPoint2F c1t = fz_transform_point_xy(c1->x, c1->y, cc->trm);
+	SPoint2F c2t = fz_transform_point_xy(c2->x, c2->y, cc->trm);
+	SPoint2F pt = fz_transform_point_xy(p->x, p->y, cc->trm);
 	fz_curveto(ctx, path, c1t.x, c1t.y, c2t.x, c2t.y, pt.x, pt.y);
 	return 0;
 }
