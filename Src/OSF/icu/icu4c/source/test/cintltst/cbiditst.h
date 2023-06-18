@@ -58,7 +58,7 @@ extern "C" {
 extern const char * const
 dirPropNames[U_CHAR_DIRECTION_COUNT];
 
-extern UChar
+extern char16_t
 charFromDirProp[U_CHAR_DIRECTION_COUNT];
 
 typedef struct {

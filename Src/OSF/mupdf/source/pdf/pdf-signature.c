@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 
 enum {
 	PDF_SIGFLAGS_SIGSEXIST = 1,
@@ -361,14 +361,14 @@ char * pdf_signature_format_designated_name(fz_context * ctx, pdf_pkcs7_designat
 	parts[7] = name->email;
 	parts[9] = name->c;
 
-	for(i = 0; i < (int)nelem(parts); i++)
+	for(i = 0; i < SIZEOFARRAYi(parts); i++)
 		if(parts[i])
 			len += strlen(parts[i]);
 
 	s = (char *)fz_malloc(ctx, len);
 	s[0] = '\0';
 
-	for(i = 0; i < (int)nelem(parts); i++)
+	for(i = 0; i < SIZEOFARRAYi(parts); i++)
 		if(parts[i])
 			fz_strlcat(s, parts[i], len);
 

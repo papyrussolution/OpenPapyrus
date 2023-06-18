@@ -128,7 +128,7 @@ public:
 	}
 
 	virtual bool is(const UnicodeString & sourceString) const override;
-	int   getType(UChar c) const;
+	int   getType(char16_t c) const;
 };
 
 bool LegalJamo::is(const UnicodeString & sourceString) const {
@@ -161,7 +161,7 @@ bool LegalJamo::is(const UnicodeString & sourceString) const {
 	return TRUE;
 }
 
-int LegalJamo::getType(UChar c) const {
+int LegalJamo::getType(char16_t c) const {
 	if(0x1100 <= c && c <= 0x1112)
 		return 0;
 	else if(0x1161 <= c && c  <= 0x1175)
@@ -183,9 +183,9 @@ public:
 
 	virtual bool is(const UnicodeString & sourceString) const override;
 
-	static bool isVowel(UChar c);
+	static bool isVowel(char16_t c);
 
-	static bool isRho(UChar c);
+	static bool isRho(char16_t c);
 };
 
 bool LegalGreek::is(const UnicodeString & sourceString) const {
@@ -201,7 +201,7 @@ bool LegalGreek::is(const UnicodeString & sourceString) const {
 		//    return FALSE;
 		// }
 		for(int32_t i = 0; i < decomp.length(); ++i) {
-			UChar c = decomp.charAt(i);
+			char16_t c = decomp.charAt(i);
 			// exclude all the accents
 			if(c == 0x0313 || c == 0x0314 || c == 0x0300 || c == 0x0302
 			 || c == 0x0342 || c == 0x0345
@@ -220,7 +220,7 @@ bool LegalGreek::is(const UnicodeString & sourceString) const {
 	int32_t breathingCount = 0;
 	int32_t letterCount = 0;
 	for(int32_t i = 0; i < decomp.length(); ++i) {
-		UChar c = decomp.charAt(i);
+		char16_t c = decomp.charAt(i);
 		if(u_isalpha(c)) {
 			++letterCount;
 			if(noLetterYet) {
@@ -241,7 +241,7 @@ bool LegalGreek::is(const UnicodeString & sourceString) const {
 	return breathingCount == 0;
 }
 
-bool LegalGreek::isVowel(UChar c) {
+bool LegalGreek::isVowel(char16_t c) {
 	switch(c) {
 		case 0x03B1:
 		case 0x03B5:
@@ -262,7 +262,7 @@ bool LegalGreek::isVowel(UChar c) {
 	return FALSE;
 }
 
-bool LegalGreek::isRho(UChar c) {
+bool LegalGreek::isRho(char16_t c) {
 	switch(c) {
 		case 0x03C1:
 		case 0x03A1:
@@ -538,7 +538,7 @@ void RTTest::test(const UnicodeString & sourceRangeVal,
 bool RTTest::checkIrrelevants(Transliterator * t,
     const UnicodeString & irrelevants) {
 	for(int i = 0; i < irrelevants.length(); ++i) {
-		UChar c = irrelevants.charAt(i);
+		char16_t c = irrelevants.charAt(i);
 		UnicodeString srcStr(c);
 		UnicodeString targ = srcStr;
 		t->transliterate(targ);
@@ -1219,8 +1219,8 @@ bool LegalHebrew::is(const UnicodeString & sourceString) const {
 	if(sourceString.length() == 0) return TRUE;
 	// don't worry about surrogates.
 	for(int i = 0; i < sourceString.length(); ++i) {
-		UChar ch = sourceString.charAt(i);
-		UChar next = i+1 == sourceString.length() ? 0x0000 : sourceString.charAt(i);
+		char16_t ch = sourceString.charAt(i);
+		char16_t next = i+1 == sourceString.length() ? 0x0000 : sourceString.charAt(i);
 		if(FINAL.contains(ch)) {
 			if(LETTER.contains(next)) return FALSE;
 		}

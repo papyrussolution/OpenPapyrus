@@ -3,8 +3,7 @@
 
 #include "mupdf/pdf/cmap.h"
 
-enum
-{
+enum {
 	PDF_FD_FIXED_PITCH = 1 << 0,
 	PDF_FD_SERIF = 1 << 1,
 	PDF_FD_SYMBOLIC = 1 << 2,

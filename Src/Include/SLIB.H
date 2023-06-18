@@ -3988,11 +3988,13 @@ private:
 class SString {
 public:
 	DECL_INVARIANT_C();
-	SString();
+	FORCEINLINE SString() : L(0), Size(0), P_Buf(0)
+	{
+	}
 	explicit SString(size_t initSize);
-	explicit SString(const char *);
-	SString(const char * pS, size_t len);
-	SString(const SString &);
+	explicit SString(const char * pS) : L(0), Size(0), P_Buf(0) { CopyFrom(pS); }
+	SString(const char * pS, size_t len) : L(0), Size(0), P_Buf(0) { CopyFromN(pS, len); }
+	SString(const SString & rS) : L(0), Size(0), P_Buf(0) { CopyFrom(rS); }
 	~SString();
 	void   Destroy();
 	SString & FASTCALL operator = (const SString & rS);
@@ -4137,7 +4139,6 @@ public:
 	//   0  - не удалось сосканировать ни одного символа.
 	//
 	int    GetWord(size_t * pPos, SString & rBuf) const;
-	int    GetQStr(size_t * pPos, uint flags, SString & rBuf) const;
 	//
 	// Descr: Разбивает строку this на отдельные фрагменты, разделенные одним из символов,
 	//   перечисленных в строке pDelimChrSet. Результирующие фрагменты заносятся в
@@ -4573,7 +4574,26 @@ private:
 	size_t Size;  // Размер распределенного буфера
 	char * P_Buf; // Буфер, в котором хранится строка. @#if(P_Buf) then P_Buf[Len] == 0
 };
+//
+// Descr: Флаги функций ReadQuotedString и WriteQuotedString
+//
+#define QSF_ESCAPE           0x0001 // Специальные символы экранируются обратным слэшем. В функции WriteQuotedString этот флаг имеет приоритет перед QSF_DBLQ если установлены оба!
+#define QSF_DBLQ             0x0002 // Кавычки экранируются дублированием символа кавычек (""-->")
+#define QSF_SKIPUNTILQ       0x0004 // ReadQuotedString: пропускает считываемые символы до тех пор, пока не встретит первую кавычку. Если флаг не установлен,
+	// то ожидает первым символом входящего буфера кавычку иначе сразу возвращает 0.
+#define QSF_APPEND           0x0008 // Если флаг установлен, то обе функции в прологе не очищают буфер-приемник 
 
+//
+// Descr: считывает из входящего буфера pInBuf длиной inBufLen. 
+//
+int ReadQuotedString(const char * pInBuf, size_t inBufLen, uint flags, size_t * pEndPos, SString & rBuf);
+//
+// Descr: записывает в строку rBuf символы из входящего буфера pInBuf длиной inBufLen, обрамив всю строку в двойные кавычки.
+//
+int WriteQuotedString(const char * pInBuf, size_t inBufLen, uint flags, SString & rBuf);
+//
+//
+//
 int slvprintf(SString & rBuf, const char * pFormat, va_list va);
 int slvsprintf_s(char * pBuf, size_t bufSize, const char * pFormat, va_list va);
 int CDECL slprintf(SString & rBuf, const char * pFormat, ...);
@@ -12377,6 +12397,7 @@ public:
 	static constexpr double E        = 2.71828182845904523536;
 	static constexpr double LnPi     = 1.14472988584940017414342735135; // ln(pi)
 	static constexpr double Ln2      = 0.69314718055994530941723212146; // ln(2)
+	static constexpr float  Ln2_f    = 0.69314718f; // ln(2) @v11.7.6 I'm not sure that it is an accurate value (borrowed from mupdf/fitz)!
 	static constexpr double Epsilon  = 2.2204460492503131E-16;          // smallest such that 1.0+DBL_EPSILON != 1.0
 	static constexpr double Root4Epsilon = 1.2207031250000000E-04;
 	static constexpr double Root5Epsilon = 7.4009597974140505E-04;
@@ -12391,7 +12412,8 @@ public:
 	static constexpr double Min_f_double = static_cast<double>(Min_f);  // @v11.7.4 min normalized positive value as a double value
 	static constexpr double Max_f_double = static_cast<double>(Max_f);  // @v11.7.4 max float value as a double value
 	static constexpr double Euler    = 0.57721566490153286060651209008; // Euler constant
-	static constexpr double Sqrt2    = 1.41421356237309504880168872421; // sqrt(2)
+	static constexpr double Sqrt2    = 1.41421356237309504880168872421; // sqrt(2.0)
+	static constexpr float  Sqrt2_f  = 1.41421356f; // sqrtf(2.0f) @v11.7.6 I'm not sure that it is an accurate value (borrowed from mupdf/fitz)!
 	static constexpr double SqrtPi   = 1.77245385090551602729816748334; // sqrt(pi)
 	static constexpr double Sqrt1_2  = 0.707106781186547524400844362104849039; // sqrt(0.5)
 	static constexpr double MaxU31   = 2147483648.0;  // @v11.7.3

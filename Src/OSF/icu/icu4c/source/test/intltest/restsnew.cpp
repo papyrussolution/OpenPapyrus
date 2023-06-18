@@ -43,7 +43,7 @@ void NewResourceBundleTest::runIndexedTest(int32_t index, bool exec, const char 
 
 //***************************************************************************************
 
-static const UChar kErrorUChars[] = { 0x45, 0x52, 0x52, 0x4f, 0x52, 0 };
+static const char16_t kErrorUChars[] = { 0x45, 0x52, 0x52, 0x4f, 0x52, 0 };
 static const int32_t kErrorLength = 5;
 static const int32_t kERROR_COUNT = -1234567;
 
@@ -1000,9 +1000,9 @@ void NewResourceBundleTest::TestNewTypes() {
 	int32_t i = 0;
 	int32_t intResult = 0;
 	uint32_t uintResult = 0;
-	UChar expected[] = { 'a', 'b', 'c', '\0', 'd', 'e', 'f' };
+	char16_t expected[] = { 'a', 'b', 'c', '\0', 'd', 'e', 'f' };
 	const char * expect = "tab:\t cr:\r ff:\f newline:\n backslash:\\\\ quote=\\\' doubleQuote=\\\" singlequoutes=''";
-	UChar uExpect[200];
+	char16_t uExpect[200];
 
 	testdatapath = loadTestData(status);
 

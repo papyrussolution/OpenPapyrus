@@ -1164,7 +1164,7 @@ void fz_drop_stroke_state(fz_context * ctx, const fz_stroke_state * strokec)
 fz_stroke_state * fz_new_stroke_state_with_dash_len(fz_context * ctx, int len)
 {
 	fz_stroke_state * state;
-	len -= nelem(state->dash_list);
+	len -= SIZEOFARRAY(state->dash_list);
 	if(len < 0)
 		len = 0;
 	state = (fz_stroke_state *)Memento_label(fz_malloc(ctx, sizeof(*state) + sizeof(state->dash_list[0]) * len), "fz_stroke_state");
@@ -1177,7 +1177,7 @@ fz_stroke_state * fz_new_stroke_state_with_dash_len(fz_context * ctx, int len)
 	state->miterlimit = 10;
 	state->dash_phase = 0;
 	state->dash_len = 0;
-	memzero(state->dash_list, sizeof(state->dash_list[0]) * (len + nelem(state->dash_list)));
+	memzero(state->dash_list, sizeof(state->dash_list[0]) * (len + SIZEOFARRAY(state->dash_list)));
 	return state;
 }
 
@@ -1189,7 +1189,7 @@ fz_stroke_state * fz_new_stroke_state(fz_context * ctx)
 fz_stroke_state * fz_clone_stroke_state(fz_context * ctx, fz_stroke_state * stroke)
 {
 	fz_stroke_state * clone = fz_new_stroke_state_with_dash_len(ctx, stroke->dash_len);
-	int extra = stroke->dash_len - nelem(stroke->dash_list);
+	int extra = stroke->dash_len - SIZEOFARRAY(stroke->dash_list);
 	int size = sizeof(*stroke) + sizeof(stroke->dash_list[0]) * extra;
 	memcpy(clone, stroke, size);
 	clone->refs = 1;
@@ -1205,11 +1205,11 @@ fz_stroke_state * fz_unshare_stroke_state_with_dash_len(fz_context * ctx, fz_str
 	single = (shared->refs == 1);
 	fz_unlock(ctx, FZ_LOCK_ALLOC);
 
-	shlen = shared->dash_len - nelem(shared->dash_list);
+	shlen = shared->dash_len - SIZEOFARRAY(shared->dash_list);
 	if(shlen < 0)
 		shlen = 0;
 	shsize = sizeof(*shared) + sizeof(shared->dash_list[0]) * shlen;
-	len -= nelem(shared->dash_list);
+	len -= SIZEOFARRAY(shared->dash_list);
 	if(len < 0)
 		len = 0;
 	if(single && shlen >= len)

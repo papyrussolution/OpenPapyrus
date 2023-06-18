@@ -26,7 +26,7 @@
 #endif
 
 #if !U_HIDE_OBSOLETE_UTF_OLD_H
-static void printUChars(const UChar * uchars) {
+static void printUChars(const char16_t * uchars) {
 	int16_t i = 0;
 	for(i = 0; i<u_strlen(uchars); i++) {
 		printf("%x ", *(uchars+i));
@@ -68,7 +68,7 @@ static void TestCodeUnitValues()
 
 	int16_t i;
 	for(i = 0; i<SIZEOFARRAYi(codeunit); i++) {
-		UChar c = codeunit[i];
+		char16_t c = codeunit[i];
 		log_verbose("Testing code unit value of %x\n", c);
 		if(i<4) {
 			if(
@@ -142,7 +142,7 @@ static void TestCharLength()
 
 static void TestGetChar()
 {
-	static UChar input[] = {
+	static char16_t input[] = {
 		/*  code unit,*/
 		0xdc00,
 		0x20ac,
@@ -222,7 +222,7 @@ static void TestGetChar()
 }
 
 static void TestNextPrevChar() {
-	static UChar input[] = {0x0061, 0xd800, 0xdc00, 0xdbff, 0xdfff, 0x0062, 0xd841, 0xd7ff, 0xd841, 0xdc41, 0xdc00, 0x0000};
+	static char16_t input[] = {0x0061, 0xd800, 0xdc00, 0xdbff, 0xdfff, 0x0062, 0xd841, 0xd7ff, 0xd841, 0xdc41, 0xdc00, 0x0000};
 	static UChar32 result[] = {
 		/*next_unsafe    next_safe_ns  next_safe_s       prev_unsafe   prev_safe_ns     prev_safe_s*/
 		0x0061,        0x0061,       0x0061,           0x0000,       0x0000,          0x0000,
@@ -404,7 +404,7 @@ static void TestNextPrevChar() {
 
 /* keep this in sync with utf8tst.c's TestNulTerminated() */
 static void TestNulTerminated() {
-	static const UChar input[] = {
+	static const char16_t input[] = {
 		/*  0 */ 0x61,
 		/*  1 */ 0xd801, 0xdc01,
 		/*  3 */ 0xdc01,
@@ -486,7 +486,7 @@ static void TestNulTerminated() {
 }
 
 static void TestFwdBack() {
-	static UChar input[] = {0x0061, 0xd800, 0xdc00, 0xdbff, 0xdfff, 0x0062, 0xd841, 0xd7ff, 0xd841, 0xdc41, 0xdc00, 0x0000};
+	static char16_t input[] = {0x0061, 0xd800, 0xdc00, 0xdbff, 0xdfff, 0x0062, 0xd841, 0xd7ff, 0xd841, 0xdc41, 0xdc00, 0x0000};
 	static uint16_t fwd_unsafe[] = {1, 3, 5, 6,  8, 10, 11, 12};
 	static uint16_t fwd_safe[] = {1, 3, 5, 6, 7, 8, 10, 11, 12};
 	static uint16_t back_unsafe[] = {11, 9, 8, 7, 6, 5, 3, 1, 0};
@@ -651,7 +651,7 @@ static void TestFwdBack() {
 }
 
 static void TestSetChar() {
-	static UChar input[] = {0x0061, 0xd800, 0xdc00, 0xdbff, 0xdfff, 0x0062, 0xd841, 0xd7ff, 0xd841, 0xdc41, 0xdc00, 0x0000};
+	static char16_t input[] = {0x0061, 0xd800, 0xdc00, 0xdbff, 0xdfff, 0x0062, 0xd841, 0xd7ff, 0xd841, 0xdc41, 0xdc00, 0x0000};
 	static uint16_t start_unsafe[] = {0, 1, 1, 3, 3, 5, 6, 7, 8, 8, 9, 11};
 	static uint16_t start_safe[]  = {0, 1, 1, 3, 3, 5, 6, 7, 8, 8, 10, 11};
 	static uint16_t limit_unsafe[] = {0, 1, 3, 3, 5, 5, 6, 8, 8, 10, 10, 11};
@@ -729,7 +729,7 @@ static void TestSetChar() {
 
 static void TestAppendChar() {
 #if !U_HIDE_OBSOLETE_UTF_OLD_H
-	static UChar s[5] = {0x0061, 0x0062, 0x0063, 0x0064, 0x0000};
+	static char16_t s[5] = {0x0061, 0x0062, 0x0063, 0x0064, 0x0000};
 	static uint32_t test[] = {
 		/*append-position(unsafe),  CHAR to be appended  */
 		0,                        0x20441,
@@ -764,7 +764,7 @@ static void TestAppendChar() {
 		4
 	};
 
-	static UChar result[][5] = {
+	static char16_t result[][5] = {
 		/*unsafe*/
 		{0xd841, 0xdc41, 0x0063, 0x0064, 0x0000},
 		{0x0061, 0x0062, 0x0028, 0x0064, 0x0000},
@@ -782,7 +782,7 @@ static void TestAppendChar() {
 		{0x0061, 0x0062, 0xd801, 0xdc02, 0x0000},
 	};
 	uint16_t i, count = 0;
-	UChar * str = (UChar *)SAlloc::M(sizeof(UChar) * (u_strlen(s)+1));
+	char16_t * str = (char16_t *)SAlloc::M(sizeof(char16_t) * (u_strlen(s)+1));
 	uint16_t offset;
 	for(i = 0; i<SIZEOFARRAYi(test); i = (uint16_t)(i+2)) {
 		if(count<5) {
@@ -838,7 +838,7 @@ static void TestAppend() {
 		0x234567, 0x7fffffff, -1, -1000,
 		0, 0x400
 	};
-	static const UChar expectUnsafe[] = {
+	static const char16_t expectUnsafe[] = {
 		0x61, 0xdf, 0x901, 0x3040,
 		0xac00, 0xd800, 0xdbff, 0xdcde,
 		0xdffd, 0xe000, 0xffff, 0xd800, 0xdc00,
@@ -854,7 +854,7 @@ static void TestAppend() {
 		0, 0x400
 	};
 
-	UChar buffer[100];
+	char16_t buffer[100];
 	UChar32 c;
 	int32_t i, length;
 	bool isError, expectIsError, wrongIsError;
@@ -895,11 +895,11 @@ static void TestSurrogate() {
 	static UChar32 s[] = {0x10000, 0x10ffff, 0x50000, 0x100000, 0x1abcd};
 	int i = 0;
 	while(i < 5) {
-		UChar first  = U16_LEAD(s[i]);
-		UChar second = U16_TRAIL(s[i]);
+		char16_t first  = U16_LEAD(s[i]);
+		char16_t second = U16_TRAIL(s[i]);
 		/* algorithm from the Unicode consortium */
-		UChar firstresult  = (UChar)(((s[i] - 0x10000) / 0x400) + 0xD800);
-		UChar secondresult = (UChar)(((s[i] - 0x10000) % 0x400) + 0xDC00);
+		char16_t firstresult  = (char16_t)(((s[i] - 0x10000) / 0x400) + 0xD800);
+		char16_t secondresult = (char16_t)(((s[i] - 0x10000) % 0x400) + 0xDC00);
 
 		if(
 #if !U_HIDE_OBSOLETE_UTF_OLD_H

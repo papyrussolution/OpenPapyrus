@@ -379,7 +379,7 @@ int BN_GF2m_mod(BIGNUM * r, const BIGNUM * a, const BIGNUM * p)
 	bn_check_top(a);
 	bn_check_top(p);
 	ret = BN_GF2m_poly2arr(p, arr, SIZEOFARRAY(arr));
-	if(!ret || ret > (int)SIZEOFARRAY(arr)) {
+	if(!ret || ret > SIZEOFARRAYi(arr)) {
 		ERR_raise(ERR_LIB_BN, BN_R_INVALID_LENGTH);
 		return 0;
 	}

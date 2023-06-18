@@ -244,7 +244,7 @@ public:
 // Appendable is abstract; we define a subclass to verify that there is no "poor man's RTTI".
 class DummyAppendable : public Appendable {
 public:
-	virtual bool appendCodeUnit(UChar /*c*/) override {
+	virtual bool appendCodeUnit(char16_t /*c*/) override {
 		return TRUE;
 	}
 };
@@ -297,7 +297,7 @@ void UObjectTest::testIDs()
 
 	TESTCLASSID_FACTORY(MeasureUnit, MeasureUnit::createMeter(status));
 	TESTCLASSID_FACTORY(TimeUnit, TimeUnit::createInstance(TimeUnit::UTIMEUNIT_YEAR, status));
-	static const UChar SMALL_STR[] = u"QQQ";
+	static const char16_t SMALL_STR[] = u"QQQ";
 	TESTCLASSID_CTOR(CurrencyAmount, (1.0, SMALL_STR, status));
 	TESTCLASSID_CTOR(CurrencyUnit, (SMALL_STR, status));
 
@@ -496,7 +496,7 @@ void UObjectTest::TestMFCCompatibility() {
 #if U_HAVE_DEBUG_LOCATION_NEW
 	/* Make sure that it compiles with MFC's debuggable new usage. */
 	UnicodeString * str = new(__FILE__, __LINE__) UnicodeString();
-	str->append((UChar)0x0040); // Is it usable?
+	str->append((char16_t)0x0040); // Is it usable?
 	if(str->charAt(0) != 0x0040) {
 		errln("debug new doesn't work.");
 	}

@@ -375,18 +375,14 @@ static void fz_add_vert_rect(fz_context * ctx, sctx * s, float x0, float y0, flo
 	fz_add_line(ctx, s, x0, y1, x1, y1, 1);
 }
 
-static void fz_add_arc(fz_context * ctx, sctx * s,
-    float xc, float yc,
-    float x0, float y0,
-    float x1, float y1,
-    int rev)
+static void fz_add_arc(fz_context * ctx, sctx * s, float xc, float yc, float x0, float y0, float x1, float y1, int rev)
 {
 	float th0, th1, r;
 	float theta;
 	float ox, oy, nx, ny;
 	int n, i;
 	r = fabsf(s->linewidth);
-	theta = 2 * FZ_SQRT2 * sqrtf(s->flatness / r);
+	theta = 2 * SMathConst::Sqrt2_f * sqrtf(s->flatness / r);
 	th0 = atan2f(y0, x0);
 	th1 = atan2f(y1, x1);
 	if(r > 0) {
@@ -606,7 +602,7 @@ static void fz_add_line_cap(fz_context * ctx, sctx * s, float ax, float ay, floa
 		case FZ_LINECAP_ROUND:
 	    {
 		    int i;
-		    int n = ceilf(SMathConst::Pi_f / (2.0f * FZ_SQRT2 * sqrtf(flatness / linewidth)));
+		    int n = ceilf(SMathConst::Pi_f / (2.0f * SMathConst::Sqrt2_f * sqrtf(flatness / linewidth)));
 		    float ox = bx - dlx;
 		    float oy = by - dly;
 		    for(i = 1; i < n; i++) {
@@ -640,7 +636,6 @@ static void fz_add_line_cap(fz_context * ctx, sctx * s, float ax, float ay, floa
 		    fz_add_line(ctx, s, bx + mx, by + my, bx + dlx, by + dly, rev);
 		    break;
 	    }
-
 		default:
 		    assert("Invalid line cap" == NULL);
 	}
@@ -650,7 +645,7 @@ static void fz_add_line_dot(fz_context * ctx, sctx * s, float ax, float ay)
 {
 	float flatness = s->flatness;
 	float linewidth = s->linewidth;
-	int n = ceilf(SMathConst::Pi_f / (FZ_SQRT2 * sqrtf(flatness / linewidth)));
+	int n = ceilf(SMathConst::Pi_f / (SMathConst::Sqrt2_f * sqrtf(flatness / linewidth)));
 	float ox = ax - linewidth;
 	float oy = ay;
 	int i;

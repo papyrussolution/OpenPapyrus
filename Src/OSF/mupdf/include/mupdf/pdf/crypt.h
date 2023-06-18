@@ -1,8 +1,7 @@
 #ifndef MUPDF_PDF_CRYPT_H
 #define MUPDF_PDF_CRYPT_H
 
-enum
-{
+enum {
 	PDF_ENCRYPT_KEEP,
 	PDF_ENCRYPT_NONE,
 	PDF_ENCRYPT_RC4_40,

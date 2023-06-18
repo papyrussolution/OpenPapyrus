@@ -150,7 +150,7 @@ fz_jmp_buf * fz_push_try(fz_context * ctx)
 	 * of entering the try block. We assume that we always have room for
 	 * 1 extra level on the stack here - i.e. we throw the error on us
 	 * starting to use the last level. */
-	if(ctx->error.top + 2 >= ctx->error.stack + nelem(ctx->error.stack)) {
+	if(ctx->error.top + 2 >= ctx->error.stack + SIZEOFARRAY(ctx->error.stack)) {
 		fz_strlcpy(ctx->error.message, "exception stack overflow!", sizeof ctx->error.message);
 
 		fz_flush_warnings(ctx);

@@ -247,16 +247,16 @@
     <ClCompile Include="..\SLib\smemchr.cpp" />
     <ClCompile Include="..\OSF\AVX-Memmove\memset.c" />
     <ClCompile Include="..\SLib\vslocate.c" />
-    <ClCompile Include="..\SLib\SAIS\src\libsais.c">
-      <Filter>SAIS</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\SAIS\src\libsais16.c">
-      <Filter>SAIS</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\SAIS\src\libsais64.c">
-      <Filter>SAIS</Filter>
-    </ClCompile>
     <ClCompile Include="..\SLib\BZIP3\src\libbz3.c" />
+    <ClCompile Include="..\SLib\SAIS\libsais.c">
+      <Filter>SAIS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\SAIS\libsais16.c">
+      <Filter>SAIS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\SAIS\libsais64.c">
+      <Filter>SAIS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -379,13 +379,7 @@
     <ClInclude Include="..\Include\gif_lib.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\SLib\SAIS\include\libsais.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SLib\SAIS\include\libsais16.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SLib\SAIS\include\libsais64.h">
+    <ClInclude Include="..\Include\libsais.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

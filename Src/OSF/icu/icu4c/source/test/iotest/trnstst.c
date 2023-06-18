@@ -94,8 +94,8 @@ static void TestTranslitFileOut()
 	UErrorCode err = U_ZERO_ERROR;
 	UTransliterator * a = NULL, * b = NULL, * c = NULL;
 	FILE * infile;
-	UChar compare[] = { 0xfeff, 0x03a3, 0x03c4, 0x03b5, 0x03c6, 0x1f00, 0x03bd, 0x03bf, 0x03c2, 0x043C, 0x0000 };
-	UChar ubuf[256];
+	char16_t compare[] = { 0xfeff, 0x03a3, 0x03c4, 0x03b5, 0x03c6, 0x1f00, 0x03bd, 0x03bf, 0x03c2, 0x043C, 0x0000 };
+	char16_t ubuf[256];
 	int len;
 	log_verbose("opening a transliterator and UFILE for testing\n");
 	f = u_fopen(STANDARD_TEST_FILE, "w", "en_US_POSIX", "utf-16");
@@ -145,7 +145,7 @@ static void TestTranslitFileOut()
 		log_err("Couldn't reopen test file\n");
 		return;
 	}
-	len = (int)fread(ubuf, sizeof(UChar), u_strlen(compare), infile);
+	len = (int)fread(ubuf, sizeof(char16_t), u_strlen(compare), infile);
 	log_verbose("Read %d UChars\n", len);
 	if(len != u_strlen(compare)) {
 		log_err("Wanted %d UChars from file, got %d\n", u_strlen(compare), len);
@@ -175,8 +175,8 @@ static void TestTranslitStringOut()
 	UFILE * f;
 	UErrorCode err = U_ZERO_ERROR;
 	UTransliterator * a = NULL, * b = NULL, * c = NULL;
-	UChar compare[] = { 0x03a3, 0x03c4, 0x03b5, 0x03c6, 0x1f00, 0x03bd, 0x03bf, 0x03c2, 0x043C, 0x0000 };
-	UChar ubuf[256];
+	char16_t compare[] = { 0x03a3, 0x03c4, 0x03b5, 0x03c6, 0x1f00, 0x03bd, 0x03bf, 0x03c2, 0x043C, 0x0000 };
+	char16_t ubuf[256];
 
 	log_verbose("opening a transliterator and UFILE for testing\n");
 

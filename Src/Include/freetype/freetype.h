@@ -1479,13 +1479,10 @@ typedef struct FT_Size_InternalRec_*  FT_Size_Internal;
  *   ```
  *     font_format = FT_Get_Font_Format( face );
  *
- *     if( !strcmp( font_format, "TrueType" ) &&
- *    do_native_bytecode_hinting         )
+ *     if(!strcmp( font_format, "TrueType" ) && do_native_bytecode_hinting)
  *     {
- * ascender  = ROUND( FT_MulFix( face->ascender,
- *                               size_metrics->y_scale ));
- * descender = ROUND( FT_MulFix( face->descender,
- *                               size_metrics->y_scale ));
+ * ascender  = ROUND( FT_MulFix( face->ascender, size_metrics->y_scale ));
+ * descender = ROUND( FT_MulFix( face->descender, size_metrics->y_scale ));
  *     }
  *     else
  *     {

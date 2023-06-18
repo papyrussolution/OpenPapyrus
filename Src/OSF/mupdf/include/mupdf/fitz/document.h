@@ -13,8 +13,7 @@ typedef intptr_t fz_bookmark;
 	broken into many chapters) this can make navigation much faster
 	as only the required chapter needs to be decoded at a time.
 */
-typedef struct
-{
+typedef struct {
 	int chapter;
 	int page;
 } fz_location;
@@ -28,8 +27,7 @@ static inline fz_location fz_make_location(int chapter, int page)
 	return loc;
 }
 
-enum
-{
+enum {
 	/* 6in at 4:3 */
 	FZ_LAYOUT_KINDLE_W = 260,
 	FZ_LAYOUT_KINDLE_H = 346,
@@ -71,8 +69,7 @@ enum
 	FZ_DEFAULT_LAYOUT_EM = FZ_LAYOUT_A5_EM,
 };
 
-typedef enum
-{
+typedef enum {
 	FZ_PERMISSION_PRINT = 'p',
 	FZ_PERMISSION_COPY = 'c',
 	FZ_PERMISSION_EDIT = 'e',
@@ -749,8 +746,7 @@ fz_link *fz_create_link(fz_context *ctx, fz_page *page, fz_rect bbox, const char
 	Structure definition is public so other classes can
 	derive from it. Do not access the members directly.
 */
-struct fz_page
-{
+struct fz_page {
 	int refs;
 	int chapter; /* chapter number */
 	int number; /* page number in chapter */
@@ -776,8 +772,7 @@ struct fz_page
 	directly, though implementations will need initialize
 	functions directly.
 */
-struct fz_document
-{
+struct fz_document {
 	int refs;
 	fz_document_drop_fn *drop_document;
 	fz_document_needs_password_fn *needs_password;

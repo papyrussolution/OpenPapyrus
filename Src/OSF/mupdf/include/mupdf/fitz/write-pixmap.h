@@ -3,8 +3,7 @@
 /**
 	PCL output
 */
-typedef struct
-{
+typedef struct {
 	/* Features of a particular printer */
 	int features;
 	const char *odd_page_init;
@@ -100,11 +99,9 @@ void fz_save_pixmap_as_pcl(fz_context *ctx, fz_pixmap *pixmap, char *filename, i
 /**
 	PCLm output
 */
-typedef struct
-{
+typedef struct {
 	int compress;
 	int strip_height;
-
 	/* Updated as we move through the job */
 	int page_count;
 } fz_pclm_options;
@@ -138,12 +135,10 @@ void fz_save_pixmap_as_pclm(fz_context *ctx, fz_pixmap *pixmap, char *filename, 
 /**
 	PDFOCR output
 */
-typedef struct
-{
+typedef struct {
 	int compress;
 	int strip_height;
 	char language[256];
-
 	/* Updated as we move through the job */
 	int page_count;
 } fz_pdfocr_options;
@@ -325,8 +320,7 @@ void fz_write_pixmap_as_psd(fz_context *ctx, fz_output *out, const fz_pixmap *pi
 */
 fz_band_writer *fz_new_psd_band_writer(fz_context *ctx, fz_output *out);
 
-typedef struct
-{
+typedef struct {
 	/* These are not interpreted as CStrings by the writing code,
 	 * but are rather copied directly out. */
 	char media_class[64];

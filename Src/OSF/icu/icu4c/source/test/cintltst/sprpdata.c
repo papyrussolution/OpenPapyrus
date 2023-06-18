@@ -196,8 +196,8 @@ static void compareMapping(UStringPrepProfile* data, uint32_t codepoint, uint32_
 				}
 			}
 			else {
-				UChar lead  = U16_LEAD(mapping[i]);
-				UChar trail = U16_TRAIL(mapping[i]);
+				char16_t lead  = U16_LEAD(mapping[i]);
+				char16_t trail = U16_TRAIL(mapping[i]);
 				if(mappingData[idx+i] != lead ||
 				    mappingData[idx+i+1] != trail) {
 					log_err("Did not get the expected result. Expected: 0x%04X 0x%04X  Got: 0x%04X 0x%04X\n",
@@ -226,7 +226,7 @@ static void compareFlagsForRange(UStringPrepProfile* data,
 	UTrie trie = data->sprepTrie;
 /*
     // supplementary code point
-    UChar __lead16=U16_LEAD(0x2323E);
+    char16_t __lead16=U16_LEAD(0x2323E);
     int32_t __offset;
 
     // get data for lead surrogate

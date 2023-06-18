@@ -1262,7 +1262,7 @@ static const SIGALG_LOOKUP * tls1_get_legacy_sigalg(const SSL * s, int idx)
 			idx = s->cert->key - s->cert->pkeys;
 		}
 	}
-	if(idx < 0 || idx >= (int)SIZEOFARRAY(tls_default_sigalg))
+	if(idx < 0 || idx >= SIZEOFARRAYi(tls_default_sigalg))
 		return NULL;
 	if(SSL_USE_SIGALGS(s) || idx != SSL_PKEY_RSA) {
 		const SIGALG_LOOKUP * lu = tls1_lookup_sigalg(s, tls_default_sigalg[idx]);

@@ -41,7 +41,7 @@ const char * patternStrings[UPC_LIMIT] = {
 	"^note\\s*(.*)"
 };
 
-U_CFUNC int32_t removeText(UChar * source, int32_t srcLen, UnicodeString patString, uint32_t options, UnicodeString replaceText, UErrorCode * status) 
+U_CFUNC int32_t removeText(char16_t * source, int32_t srcLen, UnicodeString patString, uint32_t options, UnicodeString replaceText, UErrorCode * status) 
 {
 	if(status == NULL || U_FAILURE(*status)) {
 		return 0;
@@ -55,7 +55,7 @@ U_CFUNC int32_t removeText(UChar * source, int32_t srcLen, UnicodeString patStri
 	return dest.extract(source, srcLen, *status);
 }
 
-U_CFUNC int32_t trim(UChar * src, int32_t srcLen, UErrorCode * status) 
+U_CFUNC int32_t trim(char16_t * src, int32_t srcLen, UErrorCode * status) 
 {
 	srcLen = removeText(src, srcLen, UnicodeString("^[ \\r\\n]+ "), 0, UnicodeString(), status); // remove leading new lines
 	srcLen = removeText(src, srcLen, UnicodeString("^\\s+"), 0, UnicodeString(), status); // remove leading spaces
@@ -63,7 +63,7 @@ U_CFUNC int32_t trim(UChar * src, int32_t srcLen, UErrorCode * status)
 	return srcLen;
 }
 
-U_CFUNC int32_t removeCmtText(UChar * source, int32_t srcLen, UErrorCode * status) 
+U_CFUNC int32_t removeCmtText(char16_t * source, int32_t srcLen, UErrorCode * status) 
 {
 	srcLen = trim(source, srcLen, status);
 	UnicodeString patString("^\\s*?\\*\\s*?"); // remove pattern like " * " at the beginning of the line
@@ -72,8 +72,8 @@ U_CFUNC int32_t removeCmtText(UChar * source, int32_t srcLen, UErrorCode * statu
 	                                                                                              // lines;
 }
 
-U_CFUNC int32_t getText(const UChar * source, int32_t srcLen,
-    UChar ** dest, int32_t destCapacity,
+U_CFUNC int32_t getText(const char16_t * source, int32_t srcLen,
+    char16_t ** dest, int32_t destCapacity,
     UnicodeString patternString,
     UErrorCode * status) {
 	if(status == NULL || U_FAILURE(*status)) {
@@ -106,8 +106,8 @@ U_CFUNC int32_t getText(const UChar * source, int32_t srcLen,
 
 #define AT_SIGN  0x0040
 
-U_CFUNC int32_t getDescription(const UChar * source, int32_t srcLen,
-    UChar ** dest, int32_t destCapacity,
+U_CFUNC int32_t getDescription(const char16_t * source, int32_t srcLen,
+    char16_t ** dest, int32_t destCapacity,
     UErrorCode * status) {
 	if(status == NULL || U_FAILURE(*status)) {
 		return 0;
@@ -122,14 +122,14 @@ U_CFUNC int32_t getDescription(const UChar * source, int32_t srcLen,
 	}
 	pattern->split(src, stringArray, MAX_SPLIT_STRINGS, *status);
 
-	if(stringArray[0].indexOf((UChar)AT_SIGN)==-1) {
+	if(stringArray[0].indexOf((char16_t)AT_SIGN)==-1) {
 		int32_t destLen =  stringArray[0].extract(*dest, destCapacity, *status);
 		return trim(*dest, destLen, status);
 	}
 	return 0;
 }
 
-U_CFUNC int32_t getCount(const UChar * source, int32_t srcLen,
+U_CFUNC int32_t getCount(const char16_t * source, int32_t srcLen,
     UParseCommentsOption option, UErrorCode * status) {
 	if(status == NULL || U_FAILURE(*status)) {
 		return 0;
@@ -163,8 +163,8 @@ U_CFUNC int32_t getCount(const UChar * source, int32_t srcLen,
 	return count;
 }
 
-U_CFUNC int32_t getAt(const UChar * source, int32_t srcLen,
-    UChar ** dest, int32_t destCapacity,
+U_CFUNC int32_t getAt(const char16_t * source, int32_t srcLen,
+    char16_t ** dest, int32_t destCapacity,
     int32_t index,
     UParseCommentsOption option,
     UErrorCode * status) {
@@ -200,8 +200,8 @@ U_CFUNC int32_t getAt(const UChar * source, int32_t srcLen,
 	return 0;
 }
 
-U_CFUNC int32_t getTranslate(const UChar * source, int32_t srcLen,
-    UChar ** dest, int32_t destCapacity,
+U_CFUNC int32_t getTranslate(const char16_t * source, int32_t srcLen,
+    char16_t ** dest, int32_t destCapacity,
     UErrorCode * status) {
 	UnicodeString notePatternString("^translate\\s*?(.*)");
 
@@ -209,8 +209,8 @@ U_CFUNC int32_t getTranslate(const UChar * source, int32_t srcLen,
 	return trim(*dest, destLen, status);
 }
 
-U_CFUNC int32_t getNote(const UChar * source, int32_t srcLen,
-    UChar ** dest, int32_t destCapacity,
+U_CFUNC int32_t getNote(const char16_t * source, int32_t srcLen,
+    char16_t ** dest, int32_t destCapacity,
     UErrorCode * status) {
 	UnicodeString notePatternString("^note\\s*?(.*)");
 	int32_t destLen =  getText(source, srcLen, dest, destCapacity, notePatternString, status);

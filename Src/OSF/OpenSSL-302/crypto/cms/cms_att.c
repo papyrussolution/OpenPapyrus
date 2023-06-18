@@ -239,7 +239,7 @@ int ossl_cms_si_check_attributes(const CMS_SignerInfo * si)
 	int i;
 	int have_signed_attrs = (CMS_signed_get_attr_count(si) > 0);
 	int have_unsigned_attrs = (CMS_unsigned_get_attr_count(si) > 0);
-	for(i = 0; i < (int)SIZEOFARRAY(cms_attribute_properties); ++i) {
+	for(i = 0; i < SIZEOFARRAYi(cms_attribute_properties); ++i) {
 		int nid = cms_attribute_properties[i].nid;
 		int flags = cms_attribute_properties[i].flags;
 		if(!cms_check_attribute(nid, flags, CMS_ATTR_F_SIGNED,

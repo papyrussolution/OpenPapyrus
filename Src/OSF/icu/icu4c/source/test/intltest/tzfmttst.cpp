@@ -42,11 +42,11 @@ static const char * PATTERNS[] = {
 	"VVVV"
 };
 
-static const UChar ETC_UNKNOWN[] = {0x45, 0x74, 0x63, 0x2F, 0x55, 0x6E, 0x6B, 0x6E, 0x6F, 0x77, 0x6E, 0};
+static const char16_t ETC_UNKNOWN[] = {0x45, 0x74, 0x63, 0x2F, 0x55, 0x6E, 0x6B, 0x6E, 0x6F, 0x77, 0x6E, 0};
 
-static const UChar ETC_SLASH[] = { 0x45, 0x74, 0x63, 0x2F, 0 }; // "Etc/"
-static const UChar SYSTEMV_SLASH[] = { 0x53, 0x79, 0x73, 0x74, 0x65, 0x6D, 0x56, 0x2F, 0 }; // "SystemV/
-static const UChar RIYADH8[] = { 0x52, 0x69, 0x79, 0x61, 0x64, 0x68, 0x38, 0 }; // "Riyadh8"
+static const char16_t ETC_SLASH[] = { 0x45, 0x74, 0x63, 0x2F, 0 }; // "Etc/"
+static const char16_t SYSTEMV_SLASH[] = { 0x53, 0x79, 0x73, 0x74, 0x65, 0x6D, 0x56, 0x2F, 0 }; // "SystemV/
+static const char16_t RIYADH8[] = { 0x52, 0x69, 0x79, 0x61, 0x64, 0x68, 0x38, 0 }; // "Riyadh8"
 
 static bool contains(const char ** list, const char * str) {
 	for(int32_t i = 0; list[i]; i++) {
@@ -270,7 +270,7 @@ void TimeZoneFormatTest::TestTimeZoneRoundTrip() {
 							// Canonical ID did not match - check the rules
 							if(!((BasicTimeZone*)&outtz)->hasEquivalentTransitions((BasicTimeZone&)*tz, low,
 							    high, TRUE, status)) {
-								if(canonical.indexOf((UChar)0x27 /*'/'*/) == -1) {
+								if(canonical.indexOf((char16_t)0x27 /*'/'*/) == -1) {
 									// Exceptional cases, such as CET, EET, MET and
 									// WET
 									logln((UnicodeString)"Canonical round trip failed (as expected); tz=" + *tzid
@@ -585,7 +585,7 @@ void TimeZoneFormatTest::RunTimeRoundTripTests(int32_t threadNumber) {
 				// Some zones do not have short ID assigned, such as Asia/Riyadh87.
 				// The time roundtrip will fail for such zones with pattern "V" (short zone ID).
 				// This is expected behavior.
-				const UChar * shortZoneID = ZoneMeta::getShortID(*tzid);
+				const char16_t * shortZoneID = ZoneMeta::getShortID(*tzid);
 				if(shortZoneID == NULL) {
 					continue;
 				}
@@ -594,7 +594,7 @@ void TimeZoneFormatTest::RunTimeRoundTripTests(int32_t threadNumber) {
 				// Some zones are not associated with any region, such as Etc/GMT+8.
 				// The time roundtrip will fail for such zone with pattern "VVV" (exemplar location).
 				// This is expected behavior.
-				if(tzid->indexOf((UChar)0x2F) < 0 || tzid->indexOf(ETC_SLASH, -1, 0) >= 0 || tzid->indexOf(SYSTEMV_SLASH, -1, 0) >= 0 || tzid->indexOf(RIYADH8, -1, 0) >= 0) {
+				if(tzid->indexOf((char16_t)0x2F) < 0 || tzid->indexOf(ETC_SLASH, -1, 0) >= 0 || tzid->indexOf(SYSTEMV_SLASH, -1, 0) >= 0 || tzid->indexOf(RIYADH8, -1, 0) >= 0) {
 					continue;
 				}
 			}

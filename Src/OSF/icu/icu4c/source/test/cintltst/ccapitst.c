@@ -223,18 +223,18 @@ static void TestConvert()
 	int32_t len = 0;
 	int32_t x = 0;
 	FILE * ucs_file_in         =   NULL;
-	UChar BOM = 0x0000;
-	UChar myUChar = 0x0000;
+	char16_t BOM = 0x0000;
+	char16_t myUChar = 0x0000;
 	char * mytarget; /*    [MAX_FILE_LEN] */
 	char * mytarget_1;
 	char * mytarget_use;
-	UChar * consumedUni =   NULL;
+	char16_t * consumedUni =   NULL;
 	char * consumed =   NULL;
 	char * output_cp_buffer; /*    [MAX_FILE_LEN] */
-	UChar * ucs_file_buffer; /*    [MAX_FILE_LEN] */
-	UChar * ucs_file_buffer_use;
-	UChar * my_ucs_file_buffer; /*    [MAX_FILE_LEN] */
-	UChar * my_ucs_file_buffer_1;
+	char16_t * ucs_file_buffer; /*    [MAX_FILE_LEN] */
+	char16_t * ucs_file_buffer_use;
+	char16_t * my_ucs_file_buffer; /*    [MAX_FILE_LEN] */
+	char16_t * my_ucs_file_buffer_1;
 	int8_t ii = 0;
 	uint16_t codepage_index = 0;
 	int32_t cp = 0;
@@ -245,17 +245,17 @@ static void TestConvert()
 	const void   * MIA1Context, * MIA1Context2, * MIA2Context, * MIA2Context2;
 	UConverter * someConverters[5];
 	UConverter * myConverter = 0;
-	UChar * displayname = 0;
+	char16_t * displayname = 0;
 	const char * locale;
-	UChar * uchar1 = 0;
-	UChar * uchar2 = 0;
-	UChar * uchar3 = 0;
+	char16_t * uchar1 = 0;
+	char16_t * uchar2 = 0;
+	char16_t * uchar3 = 0;
 	int32_t targetcapacity2;
 	int32_t targetcapacity;
 	int32_t targetsize;
 	int32_t disnamelen;
-	const UChar * tmp_ucs_buf;
-	const UChar * tmp_consumedUni = NULL;
+	const char16_t * tmp_ucs_buf;
+	const char16_t * tmp_consumedUni = NULL;
 	const char * tmp_mytarget_use;
 	const char * tmp_consumed;
 
@@ -278,8 +278,8 @@ static void TestConvert()
 	/* Allocate memory */
 	mytarget = (char *)SAlloc::M(MAX_FILE_LEN * sizeof(mytarget[0]));
 	output_cp_buffer = (char *)SAlloc::M(MAX_FILE_LEN * sizeof(output_cp_buffer[0]));
-	ucs_file_buffer = (UChar *)SAlloc::M(MAX_FILE_LEN * sizeof(ucs_file_buffer[0]));
-	my_ucs_file_buffer = (UChar *)SAlloc::M(MAX_FILE_LEN * sizeof(my_ucs_file_buffer[0]));
+	ucs_file_buffer = (char16_t *)SAlloc::M(MAX_FILE_LEN * sizeof(ucs_file_buffer[0]));
+	my_ucs_file_buffer = (char16_t *)SAlloc::M(MAX_FILE_LEN * sizeof(my_ucs_file_buffer[0]));
 	ucs_file_buffer_use = ucs_file_buffer;
 	mytarget_1 = mytarget;
 	mytarget_use        = mytarget;
@@ -288,11 +288,11 @@ static void TestConvert()
 	ucnv_flushCache();
 	/*Testing ucnv_openU()*/
 	{
-		UChar converterName[] = { 0x0069, 0x0062, 0x006d, 0x002d, 0x0039, 0x0034, 0x0033, 0x0000}; /*ibm-943*/
-		UChar firstSortedName[] = { 0x0021, 0x0000}; /* ! */
-		UChar lastSortedName[] = { 0x007E, 0x0000}; /* ~ */
+		char16_t converterName[] = { 0x0069, 0x0062, 0x006d, 0x002d, 0x0039, 0x0034, 0x0033, 0x0000}; /*ibm-943*/
+		char16_t firstSortedName[] = { 0x0021, 0x0000}; /* ! */
+		char16_t lastSortedName[] = { 0x007E, 0x0000}; /* ~ */
 		const char * illegalNameChars = { "ibm-943 ibm-943 ibm-943 ibm-943 ibm-943 ibm-943 ibm-943 ibm-943 ibm-943 ibm-943"};
-		UChar illegalName[100];
+		char16_t illegalName[100];
 		UConverter * converter = NULL;
 		err = U_ZERO_ERROR;
 		converter = ucnv_openU(converterName, &err);
@@ -365,7 +365,7 @@ static void TestConvert()
 			for(i = 0; i<targetCapacity; i++) {
 				if(target[i] != expectedTarget[i]) {
 					log_err("FAIL: ucnv_convert(ibm-1363->ibm-1364) failed.at index \n i=%d,  Expected: %lx Got: %lx\n",
-					    i, (UChar)expectedTarget[i], (uint8_t)target[i]);
+					    i, (char16_t)expectedTarget[i], (uint8_t)target[i]);
 				}
 			}
 
@@ -600,7 +600,7 @@ static void TestConvert()
 		disnamelen = ucnv_getDisplayName(myConverter, locale, displayname, len, &err);
 		if(err==U_BUFFER_OVERFLOW_ERROR) {
 			err = U_ZERO_ERROR;
-			displayname = (UChar *)SAlloc::M((disnamelen+1) * sizeof(UChar));
+			displayname = (char16_t *)SAlloc::M((disnamelen+1) * sizeof(char16_t));
 			ucnv_getDisplayName(myConverter, locale, displayname, disnamelen+1, &err);
 			if(U_FAILURE(err)) {
 				log_err("getDisplayName failed. The error is  %s\n", myErrorName(err));
@@ -723,7 +723,7 @@ static void TestConvert()
 		/*Reads the BOM*/
 		{
 			// Note: gcc produces a compile warning if the return value from fread() is ignored.
-			size_t numRead = fread(&BOM, sizeof(UChar), 1, ucs_file_in);
+			size_t numRead = fread(&BOM, sizeof(char16_t), 1, ucs_file_in);
 			(void)numRead;
 		}
 		if(BOM!=0xFEFF && BOM!=0xFFFE) {
@@ -732,19 +732,19 @@ static void TestConvert()
 			break;
 		}
 		/*Reads in the file*/
-		while(!feof(ucs_file_in)&&(i += (int32_t)fread(ucs_file_buffer+i, sizeof(UChar), 1, ucs_file_in))) {
+		while(!feof(ucs_file_in)&&(i += (int32_t)fread(ucs_file_buffer+i, sizeof(char16_t), 1, ucs_file_in))) {
 			myUChar = ucs_file_buffer[i-1];
-			ucs_file_buffer[i-1] = (UChar)((BOM==0xFEFF) ? myUChar : ((myUChar >> 8) | (myUChar << 8))); // adjust if BIG_ENDIAN
+			ucs_file_buffer[i-1] = (char16_t)((BOM==0xFEFF) ? myUChar : ((myUChar >> 8) | (myUChar << 8))); // adjust if BIG_ENDIAN
 		}
 		myUChar = ucs_file_buffer[i-1];
-		ucs_file_buffer[i-1] = (UChar)((BOM==0xFEFF) ? myUChar : ((myUChar >> 8) | (myUChar << 8))); // adjust if BIG_ENDIAN Corner Case
+		ucs_file_buffer[i-1] = (char16_t)((BOM==0xFEFF) ? myUChar : ((myUChar >> 8) | (myUChar << 8))); // adjust if BIG_ENDIAN Corner Case
 		/*testing ucnv_fromUChars() and ucnv_toUChars() */
 		/*uchar1---fromUChar--->output_cp_buffer --toUChar--->uchar2*/
-		uchar1 = (UChar *)SAlloc::M(sizeof(UChar) * (i+1));
+		uchar1 = (char16_t *)SAlloc::M(sizeof(char16_t) * (i+1));
 		u_uastrcpy(uchar1, "");
 		u_strncpy(uchar1, ucs_file_buffer, i);
 		uchar1[i] = 0;
-		uchar3 = (UChar *)SAlloc::M(sizeof(UChar)*(i+1));
+		uchar3 = (char16_t *)SAlloc::M(sizeof(char16_t)*(i+1));
 		u_uastrcpy(uchar3, "");
 		u_strncpy(uchar3, ucs_file_buffer, i);
 		uchar3[i] = 0;
@@ -766,7 +766,7 @@ static void TestConvert()
 		/*if there is an buffer overflow then trap the values and pass them and make the actual call*/
 		if(err==U_BUFFER_OVERFLOW_ERROR) {
 			err = U_ZERO_ERROR;
-			uchar2 = (UChar *)SAlloc::M((targetsize+1) * sizeof(UChar));
+			uchar2 = (char16_t *)SAlloc::M((targetsize+1) * sizeof(char16_t));
 			targetsize = ucnv_toUChars(myConverter, uchar2, targetsize+1, output_cp_buffer, (int32_t)strlen(output_cp_buffer), &err);
 			if(U_FAILURE(err))
 				log_err("ucnv_toUChars() FAILED %s\n", myErrorName(err));
@@ -829,7 +829,7 @@ static void TestConvert()
 		log_verbose("Testing ucnv_fromUnicode().....\n");
 		tmp_ucs_buf = ucs_file_buffer_use;
 		ucnv_fromUnicode(myConverter, &mytarget_1, mytarget + MAX_FILE_LEN, &tmp_ucs_buf, ucs_file_buffer_use+i, NULL, TRUE, &err);
-		consumedUni = (UChar *)tmp_consumedUni;
+		consumedUni = (char16_t *)tmp_consumedUni;
 		(void)consumedUni; /* Suppress set but not used warning. */
 		if(U_FAILURE(err)) {
 			log_err("FAILURE! %s\n", myErrorName(err));
@@ -1163,7 +1163,7 @@ static TSCCContext * TSCC_clone(TSCCContext * ctx)
 #if !UCONFIG_NO_LEGACY_CONVERSION
 static void TSCC_fromU(const void * context,
     UConverterFromUnicodeArgs * fromUArgs,
-    const UChar * codeUnits,
+    const char16_t * codeUnits,
     int32_t length,
     UChar32 codePoint,
     UConverterCallbackReason reason,
@@ -1486,15 +1486,15 @@ static void TestConvertSafeClone()
 	char * pCharBuffer;
 	const char * pConstCharBuffer;
 	const char * charBufferLimit = charBuffer + SIZEOFARRAYi(charBuffer);
-	UChar uniBuffer[] = {0x0058, 0x0059, 0x005A}; /* "XYZ" */
-	UChar uniCharBuffer[20];
+	char16_t uniBuffer[] = {0x0058, 0x0059, 0x005A}; /* "XYZ" */
+	char16_t uniCharBuffer[20];
 	char charSourceBuffer[] = { 0x1b, 0x24, 0x42 };
 	const char * pCharSource = charSourceBuffer;
 	const char * pCharSourceLimit = charSourceBuffer + sizeof(charSourceBuffer);
-	UChar * pUCharTarget = uniCharBuffer;
-	UChar * pUCharTargetLimit = uniCharBuffer + SIZEOFARRAYi(uniCharBuffer);
-	const UChar * pUniBuffer;
-	const UChar * uniBufferLimit = uniBuffer + SIZEOFARRAYi(uniBuffer);
+	char16_t * pUCharTarget = uniCharBuffer;
+	char16_t * pUCharTargetLimit = uniCharBuffer + SIZEOFARRAYi(uniCharBuffer);
+	const char16_t * pUniBuffer;
+	const char16_t * uniBufferLimit = uniBuffer + SIZEOFARRAYi(uniBuffer);
 	int32_t idx, j;
 
 	err = U_ZERO_ERROR;
@@ -1891,9 +1891,9 @@ static void convertExStreaming(UConverter * srcCnv, UConverter * targetCnv,
     const char * src, int32_t srcLength, const char * expectTarget, int32_t expectTargetLength,
     int32_t chunkSize, const char * testName, UErrorCode expectCode) 
 {
-	UChar pivotBuffer[CHUNK_SIZE];
-	UChar * pivotSource, * pivotTarget;
-	const UChar * pivotLimit;
+	char16_t pivotBuffer[CHUNK_SIZE];
+	char16_t * pivotSource, * pivotTarget;
+	const char16_t * pivotLimit;
 	char targetBuffer[CHUNK_SIZE];
 	char * target;
 	const char * srcLimit, * finalSrcLimit, * targetLimit;
@@ -1997,8 +1997,8 @@ static void TestConvertEx()
 	const char * src;
 	char * target;
 
-	UChar pivotBuffer[100];
-	UChar * pivotSource, * pivotTarget;
+	char16_t pivotBuffer[100];
+	char16_t * pivotSource, * pivotTarget;
 
 	UConverter * cnv1, * cnv2;
 	UErrorCode errorCode;
@@ -2155,9 +2155,9 @@ static const char * const badUTF8[] = {
 static bool getTestChar(UConverter * cnv, const char * converterName, char charUTF8[4], int32_t * pCharUTF8Length,
     char char0[ARG_CHAR_ARR_SIZE], int32_t * pChar0Length, char char1[ARG_CHAR_ARR_SIZE], int32_t * pChar1Length) 
 {
-	UChar utf16[U16_MAX_LENGTH];
+	char16_t utf16[U16_MAX_LENGTH];
 	int32_t utf16Length;
-	const UChar * utf16Source;
+	const char16_t * utf16Source;
 	char * target;
 	USet * set;
 	UChar32 c;
@@ -2239,8 +2239,8 @@ static void testFromTruncatedUTF8(UConverter * utf8Cnv, UConverter * cnv, const 
 	const char * source;
 	char * target;
 
-	UChar pivotBuffer[8];
-	UChar * pivotSource, * pivotTarget;
+	char16_t pivotBuffer[8];
+	char16_t * pivotSource, * pivotTarget;
 
 	UErrorCode errorCode;
 	int32_t i;
@@ -2395,8 +2395,8 @@ static void TestConvertExFromUTF8_C5F0()
 	const char * src;
 	char * target;
 
-	UChar pivotBuffer[128];
-	UChar * pivotSource, * pivotTarget;
+	char16_t pivotBuffer[128];
+	char16_t * pivotSource, * pivotTarget;
 
 	errorCode = U_ZERO_ERROR;
 	utf8Cnv = ucnv_open("UTF-8", &errorCode);
@@ -2661,7 +2661,7 @@ static void TestJ1968() {
 	char myConvName[] = "My really really really really really really really really really really really"
 	    " really really really really really really really really really really really"
 	    " really really really really really really really really long converter name";
-	UChar myConvNameU[sizeof(myConvName)];
+	char16_t myConvNameU[sizeof(myConvName)];
 
 	u_charsToUChars(myConvName, myConvNameU, sizeof(myConvName));
 
@@ -2745,17 +2745,17 @@ static void testSwap(const char * name, bool swap) {
 	 * tested conversions, to make sure that the ucnvmbcs.c code that modifies the
 	 * tables copies the entire tables.
 	 */
-	static const UChar text[] = {
+	static const char16_t text[] = {
 		0x61, 0xd, 0x62, 0xa, 0x4e00, 0x3000, 0xfffd, 0xa, 0x20, 0x85, 0xff5e, 0x7a
 	};
 
-	UChar uNormal[32], uSwapped[32];
+	char16_t uNormal[32], uSwapped[32];
 	char normal[32], swapped[32];
-	const UChar * pcu;
-	UChar * pu;
+	const char16_t * pcu;
+	char16_t * pu;
 	char * pc;
 	int32_t i, normalLength, swappedLength;
-	UChar u;
+	char16_t u;
 	char c;
 
 	const char * swappedName;
@@ -2907,9 +2907,9 @@ static void TestEBCDICSwapLFNL() {
 static void TestFromUCountPending() {
 #if !UCONFIG_NO_LEGACY_CONVERSION
 	UErrorCode status = U_ZERO_ERROR;
-/*       const UChar expectedUnicode[] = { 0x20ac, 0x0005, 0x0006, 0x000b, 0xdbc4, 0xde34, 0xd84d, 0xdc56, 0xfffd}; */
+/*       const char16_t expectedUnicode[] = { 0x20ac, 0x0005, 0x0006, 0x000b, 0xdbc4, 0xde34, 0xd84d, 0xdc56, 0xfffd}; */
 	static const struct {
-		UChar input[6];
+		char16_t input[6];
 		int32_t len;
 		int32_t exp;
 	} fromUnicodeTests[] = {
@@ -2928,8 +2928,8 @@ static void TestFromUCountPending() {
 		char tgt[10];
 		char * target = tgt;
 		char * targetLimit = target + 10;
-		const UChar * source = fromUnicodeTests[i].input;
-		const UChar * sourceLimit = source + fromUnicodeTests[i].len;
+		const char16_t * source = fromUnicodeTests[i].input;
+		const char16_t * sourceLimit = source + fromUnicodeTests[i].len;
 		int32_t len = 0;
 		ucnv_reset(cnv);
 		ucnv_fromUnicode(cnv, &target, targetLimit, &source, sourceLimit, NULL, FALSE, &status);
@@ -2957,14 +2957,14 @@ static void TestFromUCountPending() {
 		   \U00101234\U00050005\U00060006 -> z (<U101234>+<U50005>+<U60006> \x07+\x00+\x01\x02\x0f+\x09 |0)
 		   \U00060007 -> unassigned
 		 */
-		static const UChar head[] = {0xDBC4, 0xDE34, 0xD900, 0xDC05, 0x0000}; /* \U00101234\U00050005 */
-		static const UChar middle[] = {0xD940, 0x0000}; /* first half of \U00060006 or \U00060007 */
-		static const UChar tail[] = {0xDC07, 0x0000}; /* second half of \U00060007 */
+		static const char16_t head[] = {0xDBC4, 0xDE34, 0xD900, 0xDC05, 0x0000}; /* \U00101234\U00050005 */
+		static const char16_t middle[] = {0xD940, 0x0000}; /* first half of \U00060006 or \U00060007 */
+		static const char16_t tail[] = {0xDC07, 0x0000}; /* second half of \U00060007 */
 		char tgt[10];
 		char * target = tgt;
 		char * targetLimit = target + 2; /* expect overflow from converting \U00101234\U00050005 */
-		const UChar * source = head;
-		const UChar * sourceLimit = source + u_strlen(head);
+		const char16_t * source = head;
+		const char16_t * sourceLimit = source + u_strlen(head);
 		int32_t len = 0;
 		ucnv_reset(cnv);
 		ucnv_fromUnicode(cnv, &target, targetLimit, &source, sourceLimit, NULL, FALSE, &status);
@@ -3030,9 +3030,9 @@ static void TestToUCountPending() {
 	}
 	ucnv_setToUCallBack(cnv, UCNV_TO_U_CALLBACK_STOP, NULL, oldToUAction, NULL, &status);
 	for(i = 0; i<SIZEOFARRAYi(toUnicodeTests); ++i) {
-		UChar tgt[20];
-		UChar * target = tgt;
-		UChar * targetLimit = target + 20;
+		char16_t tgt[20];
+		char16_t * target = tgt;
+		char16_t * targetLimit = target + 20;
 		const char * source = toUnicodeTests[i].input;
 		const char * sourceLimit = source + toUnicodeTests[i].len;
 		int32_t len = 0;
@@ -3066,11 +3066,11 @@ static void TestToUCountPending() {
 		   0x01, 0x02, 0x03, 0x0b  -> y (<U000b>     \x01\x02\x03\x0b |0)
 		   0x01, 0x02, 0x03, 0x0d  -> z (<U34567>    \x01\x02\x03\x0d |3)
 		   0x01, 0x02, 0x03, 0x0a + 0x01, 0x02, 0x03, 0x0b + 0x01 + many more -> z (see test4 "many bytes, and
-		      bytes per UChar")
+		      bytes per char16_t")
 		 */
-		UChar tgt[10];
-		UChar * target = tgt;
-		UChar * targetLimit = target + 1; /* expect overflow from converting */
+		char16_t tgt[10];
+		char16_t * target = tgt;
+		char16_t * targetLimit = target + 1; /* expect overflow from converting */
 		const char * source = head;
 		const char * sourceLimit = source + strlen(head);
 		int32_t len = 0;
@@ -3220,10 +3220,10 @@ static void TestCompareNames() {
 }
 
 static void TestSubstString() {
-	static const UChar surrogate[1] = { 0xd900 };
+	static const char16_t surrogate[1] = { 0xd900 };
 	char buffer[16];
 
-	static const UChar sub[5] = { 0x61, 0x62, 0x63, 0x64, 0x65 };
+	static const char16_t sub[5] = { 0x61, 0x62, 0x63, 0x64, 0x65 };
 	static const char subChars[5] = { 0x61, 0x62, 0x63, 0x64, 0x65 };
 	UConverter * cnv;
 	UErrorCode errorCode;
@@ -3318,8 +3318,8 @@ static void InvalidArguments() {
 	char charBuffer[2] = {1, 1};
 	char ucharAsCharBuffer[2] = {2, 2};
 	char * charsPtr = charBuffer;
-	UChar * ucharsPtr = (UChar *)ucharAsCharBuffer;
-	UChar * ucharsBadPtr = (UChar *)(ucharAsCharBuffer + 1);
+	char16_t * ucharsPtr = (char16_t *)ucharAsCharBuffer;
+	char16_t * ucharsBadPtr = (char16_t *)(ucharAsCharBuffer + 1);
 
 	errorCode = U_ZERO_ERROR;
 	cnv = ucnv_open("UTF-8", &errorCode);
@@ -3329,25 +3329,25 @@ static void InvalidArguments() {
 	}
 
 	errorCode = U_ZERO_ERROR;
-	/* This one should fail because an incomplete UChar is being passed in */
-	ucnv_fromUnicode(cnv, &charsPtr, charsPtr, (const UChar **)&ucharsPtr, ucharsBadPtr, NULL, TRUE, &errorCode);
+	/* This one should fail because an incomplete char16_t is being passed in */
+	ucnv_fromUnicode(cnv, &charsPtr, charsPtr, (const char16_t **)&ucharsPtr, ucharsBadPtr, NULL, TRUE, &errorCode);
 	if(errorCode != U_ILLEGAL_ARGUMENT_ERROR) {
-		log_err("ucnv_fromUnicode() failed to return U_ILLEGAL_ARGUMENT_ERROR for incomplete UChar * buffer - %s\n",
+		log_err("ucnv_fromUnicode() failed to return U_ILLEGAL_ARGUMENT_ERROR for incomplete char16_t * buffer - %s\n",
 		    u_errorName(errorCode));
 	}
 
 	errorCode = U_ZERO_ERROR;
 	/* This one should fail because ucharsBadPtr is > than ucharsPtr */
-	ucnv_fromUnicode(cnv, &charsPtr, charsPtr, (const UChar **)&ucharsBadPtr, ucharsPtr, NULL, TRUE, &errorCode);
+	ucnv_fromUnicode(cnv, &charsPtr, charsPtr, (const char16_t **)&ucharsBadPtr, ucharsPtr, NULL, TRUE, &errorCode);
 	if(errorCode != U_ILLEGAL_ARGUMENT_ERROR) {
 		log_err("ucnv_fromUnicode() failed to return U_ILLEGAL_ARGUMENT_ERROR for bad limit pointer - %s\n",
 		    u_errorName(errorCode));
 	}
 	errorCode = U_ZERO_ERROR;
-	/* This one should fail because an incomplete UChar is being passed in */
+	/* This one should fail because an incomplete char16_t is being passed in */
 	ucnv_toUnicode(cnv, &ucharsPtr, ucharsBadPtr, (const char **)&charsPtr, charsPtr, NULL, TRUE, &errorCode);
 	if(errorCode != U_ILLEGAL_ARGUMENT_ERROR) {
-		log_err("ucnv_toUnicode() failed to return U_ILLEGAL_ARGUMENT_ERROR for incomplete UChar * buffer - %s\n",
+		log_err("ucnv_toUnicode() failed to return U_ILLEGAL_ARGUMENT_ERROR for incomplete char16_t * buffer - %s\n",
 		    u_errorName(errorCode));
 	}
 	errorCode = U_ZERO_ERROR;
@@ -3386,7 +3386,7 @@ static void TestGetName() {
 
 static void TestUTFBOM() 
 {
-	static const UChar a16[] = { 0x61 };
+	static const char16_t a16[] = { 0x61 };
 	static const char * const names[] = { "UTF-16", "UTF-16,version=1", "UTF-16BE", "UnicodeBig", "UTF-16LE", "UnicodeLittle" };
 	static const uint8_t expected[][5] = {
 #if U_IS_BIG_ENDIAN

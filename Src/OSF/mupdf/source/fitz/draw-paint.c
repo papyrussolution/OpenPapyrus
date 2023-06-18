@@ -313,13 +313,7 @@ static inline void template_solid_color_N_sa(byte * _RESTRICT dp, int n, int w, 
 	while(--w);
 }
 
-static inline void template_solid_color_N_sa_op(byte * _RESTRICT dp,
-    int n,
-    int w,
-    const byte * _RESTRICT color,
-    int da,
-    int sa,
-    const fz_overprint * _RESTRICT eop)
+static inline void template_solid_color_N_sa_op(byte * _RESTRICT dp, int n, int w, const byte * _RESTRICT color, int da, int sa, const fz_overprint * _RESTRICT eop)
 {
 	int k;
 	int n1 = n - da;
@@ -366,13 +360,7 @@ static inline void template_solid_color_N_general(byte * _RESTRICT dp, int n, in
 	}
 }
 
-static inline void template_solid_color_N_general_op(byte * _RESTRICT dp,
-    int n,
-    int w,
-    const byte * _RESTRICT color,
-    int da,
-    int sa,
-    const fz_overprint * _RESTRICT eop)
+static inline void template_solid_color_N_general_op(byte * _RESTRICT dp, int n, int w, const byte * _RESTRICT color, int da, int sa, const fz_overprint * _RESTRICT eop)
 {
 	int k;
 	int n1 = n - da;
@@ -392,8 +380,7 @@ static inline void template_solid_color_N_general_op(byte * _RESTRICT dp,
 			if(da)
 				dp[n1] = 255;
 			dp += n;
-		}
-		while(--w);
+		} while(--w);
 	}
 	else {
 		do {
@@ -403,8 +390,7 @@ static inline void template_solid_color_N_general_op(byte * _RESTRICT dp,
 			if(da)
 				dp[k] = FZ_BLEND(255, dp[k], sa);
 			dp += n;
-		}
-		while(--w);
+		} while(--w);
 	}
 }
 
@@ -425,34 +411,19 @@ static inline void template_solid_color_0_da(byte * _RESTRICT dp, int w, int sa)
 }
 
 #if FZ_PLOTTERS_G
-static void paint_solid_color_1_alpha(byte * _RESTRICT dp,
-    int n,
-    int w,
-    const byte * _RESTRICT color,
-    int da,
-    const fz_overprint * _RESTRICT eop)
+static void paint_solid_color_1_alpha(byte * _RESTRICT dp, int n, int w, const byte * _RESTRICT color, int da, const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_solid_color_N_sa(dp, 1, w, color, 0, FZ_EXPAND(color[1]));
 }
 
-static void paint_solid_color_1(byte * _RESTRICT dp,
-    int n,
-    int w,
-    const byte * _RESTRICT color,
-    int da,
-    const fz_overprint * _RESTRICT eop)
+static void paint_solid_color_1(byte * _RESTRICT dp, int n, int w, const byte * _RESTRICT color, int da, const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_solid_color_N_256(dp, 1, w, color, 0);
 }
 
-static void paint_solid_color_1_da(byte * _RESTRICT dp,
-    int n,
-    int w,
-    const byte * _RESTRICT color,
-    int da,
-    const fz_overprint * _RESTRICT eop)
+static void paint_solid_color_1_da(byte * _RESTRICT dp, int n, int w, const byte * _RESTRICT color, int da, const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_solid_color_1_da(dp, 2, w, color, 1);
@@ -460,46 +431,26 @@ static void paint_solid_color_1_da(byte * _RESTRICT dp,
 
 #endif /* FZ_PLOTTERS_G */
 
-static void paint_solid_color_0_da(byte * _RESTRICT dp,
-    int n,
-    int w,
-    const byte * _RESTRICT color,
-    int da,
-    const fz_overprint * _RESTRICT eop)
+static void paint_solid_color_0_da(byte * _RESTRICT dp, int n, int w, const byte * _RESTRICT color, int da, const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_solid_color_0_da(dp, w, 256);
 }
 
 #if FZ_PLOTTERS_RGB
-static void paint_solid_color_3_alpha(byte * _RESTRICT dp,
-    int n,
-    int w,
-    const byte * _RESTRICT color,
-    int da,
-    const fz_overprint * _RESTRICT eop)
+static void paint_solid_color_3_alpha(byte * _RESTRICT dp, int n, int w, const byte * _RESTRICT color, int da, const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_solid_color_N_sa(dp, 3, w, color, 0, FZ_EXPAND(color[3]));
 }
 
-static void paint_solid_color_3(byte * _RESTRICT dp,
-    int n,
-    int w,
-    const byte * _RESTRICT color,
-    int da,
-    const fz_overprint * _RESTRICT eop)
+static void paint_solid_color_3(byte * _RESTRICT dp, int n, int w, const byte * _RESTRICT color, int da, const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_solid_color_N_256(dp, 3, w, color, 0);
 }
 
-static void paint_solid_color_3_da(byte * _RESTRICT dp,
-    int n,
-    int w,
-    const byte * _RESTRICT color,
-    int da,
-    const fz_overprint * _RESTRICT eop)
+static void paint_solid_color_3_da(byte * _RESTRICT dp, int n, int w, const byte * _RESTRICT color, int da, const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_solid_color_3_da(dp, 4, w, color, 1);
@@ -508,34 +459,19 @@ static void paint_solid_color_3_da(byte * _RESTRICT dp,
 #endif /* FZ_PLOTTERS_RGB */
 
 #if FZ_PLOTTERS_CMYK
-static void paint_solid_color_4_alpha(byte * _RESTRICT dp,
-    int n,
-    int w,
-    const byte * _RESTRICT color,
-    int da,
-    const fz_overprint * _RESTRICT eop)
+static void paint_solid_color_4_alpha(byte * _RESTRICT dp, int n, int w, const byte * _RESTRICT color, int da, const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_solid_color_N_sa(dp, 4, w, color, 0, FZ_EXPAND(color[4]));
 }
 
-static void paint_solid_color_4(byte * _RESTRICT dp,
-    int n,
-    int w,
-    const byte * _RESTRICT color,
-    int da,
-    const fz_overprint * _RESTRICT eop)
+static void paint_solid_color_4(byte * _RESTRICT dp, int n, int w, const byte * _RESTRICT color, int da, const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_solid_color_N_256(dp, 4, w, color, 0);
 }
 
-static void paint_solid_color_4_da(byte * _RESTRICT dp,
-    int n,
-    int w,
-    const byte * _RESTRICT color,
-    int da,
-    const fz_overprint * _RESTRICT eop)
+static void paint_solid_color_4_da(byte * _RESTRICT dp, int n, int w, const byte * _RESTRICT color, int da, const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_solid_color_4_da(dp, 5, w, color, 1);
@@ -544,23 +480,13 @@ static void paint_solid_color_4_da(byte * _RESTRICT dp,
 #endif /* FZ_PLOTTERS_CMYK */
 
 #if FZ_PLOTTERS_N
-static void paint_solid_color_N_alpha(byte * _RESTRICT dp,
-    int n,
-    int w,
-    const byte * _RESTRICT color,
-    int da,
-    const fz_overprint * _RESTRICT eop)
+static void paint_solid_color_N_alpha(byte * _RESTRICT dp, int n, int w, const byte * _RESTRICT color, int da, const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_solid_color_N_sa(dp, n, w, color, 0, FZ_EXPAND(color[n]));
 }
 
-static void paint_solid_color_N(byte * _RESTRICT dp,
-    int n,
-    int w,
-    const byte * _RESTRICT color,
-    int da,
-    const fz_overprint * _RESTRICT eop)
+static void paint_solid_color_N(byte * _RESTRICT dp, int n, int w, const byte * _RESTRICT color, int da, const fz_overprint * _RESTRICT eop)
 {
 	TRACK_FN();
 	template_solid_color_N_256(dp, n, w, color, 0);
@@ -2836,48 +2762,32 @@ intermediate_run:
 #endif /* FZ_PLOTTERS_CMYK */
 
 #if FZ_PLOTTERS_N
-#define ALPHA
-#include "paint-glyph.h"
-
-#define DA
-#include "paint-glyph.h"
-
-#define DA
-#define ALPHA
-#include "paint-glyph.h"
-
-#include "paint-glyph.h"
+	#define ALPHA
+	#include "paint-glyph.h"
+	#define DA
+	#include "paint-glyph.h"
+	#define DA
+	#define ALPHA
+	#include "paint-glyph.h"
+	#include "paint-glyph.h"
 #endif /* FZ_PLOTTERS_N */
-
 #if FZ_ENABLE_SPOT_RENDERING
-#define ALPHA
-#define EOP
-#include "paint-glyph.h"
-
-#define DA
-#define EOP
-#include "paint-glyph.h"
-
-#define DA
-#define ALPHA
-#define EOP
-#include "paint-glyph.h"
-
-#define EOP
-#include "paint-glyph.h"
+	#define ALPHA
+	#define EOP
+	#include "paint-glyph.h"
+	#define DA
+	#define EOP
+	#include "paint-glyph.h"
+	#define DA
+	#define ALPHA
+	#define EOP
+	#include "paint-glyph.h"
+	#define EOP
+	#include "paint-glyph.h"
 #endif /* FZ_ENABLE_SPOT_RENDERING */
 
-static inline void fz_paint_glyph_alpha(const uchar * _RESTRICT colorbv,
-    int n,
-    int span,
-    uchar * _RESTRICT dp,
-    int da,
-    const fz_glyph * glyph,
-    int w,
-    int h,
-    int skip_x,
-    int skip_y,
-    const fz_overprint * _RESTRICT eop)
+static inline void fz_paint_glyph_alpha(const uchar * _RESTRICT colorbv, int n, int span, uchar * _RESTRICT dp, int da, const fz_glyph * glyph,
+    int w, int h, int skip_x, int skip_y, const fz_overprint * _RESTRICT eop)
 {
 #if FZ_ENABLE_SPOT_RENDERING
 	if(fz_overprint_required(eop)) {
@@ -2931,17 +2841,8 @@ fallback:           {}
 	}
 }
 
-static inline void fz_paint_glyph_solid(const uchar * _RESTRICT colorbv,
-    int n,
-    int span,
-    uchar * _RESTRICT dp,
-    int da,
-    const fz_glyph * _RESTRICT glyph,
-    int w,
-    int h,
-    int skip_x,
-    int skip_y,
-    const fz_overprint * _RESTRICT eop)
+static inline void fz_paint_glyph_solid(const uchar * _RESTRICT colorbv, int n, int span, uchar * _RESTRICT dp, int da,
+    const fz_glyph * _RESTRICT glyph, int w, int h, int skip_x, int skip_y, const fz_overprint * _RESTRICT eop)
 {
 #if FZ_ENABLE_SPOT_RENDERING
 	if(fz_overprint_required(eop)) {
@@ -2995,15 +2896,8 @@ fallback:           {}
 	}
 }
 
-void fz_paint_glyph(const uchar * _RESTRICT colorbv,
-    fz_pixmap * _RESTRICT dst,
-    uchar * _RESTRICT dp,
-    const fz_glyph * _RESTRICT glyph,
-    int w,
-    int h,
-    int skip_x,
-    int skip_y,
-    const fz_overprint * _RESTRICT eop)
+void fz_paint_glyph(const uchar * _RESTRICT colorbv, fz_pixmap * _RESTRICT dst, uchar * _RESTRICT dp, const fz_glyph * _RESTRICT glyph,
+    int w, int h, int skip_x, int skip_y, const fz_overprint * _RESTRICT eop)
 {
 	int n = dst->n - dst->alpha;
 	if(dst->colorspace) {

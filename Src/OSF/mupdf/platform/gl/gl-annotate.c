@@ -138,7 +138,7 @@ static void save_pdf_options(void)
 
 		ui_spacer();
 		ui_label("Encryption:");
-		choice = ui_select("Encryption", cryptalgo, cryptalgo_names, nelem(cryptalgo_names));
+		choice = ui_select("Encryption", cryptalgo, cryptalgo_names, SIZEOFARRAY(cryptalgo_names));
 		if(choice != -1)
 			save_opts.do_encrypt = choice;
 	}
@@ -147,10 +147,10 @@ static void save_pdf_options(void)
 		ui_spacer();
 		ui_label("User password:");
 		if(ui_input(&upwinput, 32, 1) >= UI_INPUT_EDIT)
-			fz_strlcpy(save_opts.upwd_utf8, upwinput.text, nelem(save_opts.upwd_utf8));
+			fz_strlcpy(save_opts.upwd_utf8, upwinput.text, SIZEOFARRAY(save_opts.upwd_utf8));
 		ui_label("Owner password:");
 		if(ui_input(&opwinput, 32, 1) >= UI_INPUT_EDIT)
-			fz_strlcpy(save_opts.opwd_utf8, opwinput.text, nelem(save_opts.opwd_utf8));
+			fz_strlcpy(save_opts.opwd_utf8, opwinput.text, SIZEOFARRAY(save_opts.opwd_utf8));
 	}
 }
 
@@ -571,7 +571,7 @@ static const char * name_from_hex(unsigned int hex)
 {
 	static char buf[10];
 	int i;
-	for(i = 0; i < (int)nelem(color_names); ++i)
+	for(i = 0; i < SIZEOFARRAYi(color_names); ++i)
 		if(color_values[i] == hex)
 			return color_names[i];
 	fz_snprintf(buf, sizeof buf, "#%06x", hex & 0xffffff);
@@ -586,7 +586,7 @@ static void do_annotate_color(const char * label,
 	int hex, choice, n;
 	get_color(ctx, selected_annot, &n, color);
 	ui_label("%s:", label);
-	choice = ui_select(label, name_from_hex(hex_from_color(n, color)), color_names, nelem(color_names));
+	choice = ui_select(label, name_from_hex(hex_from_color(n, color)), color_names, SIZEOFARRAY(color_names));
 	if(choice != -1) {
 		hex = color_values[choice];
 		if(hex == 0) {
@@ -893,7 +893,7 @@ void do_annotate_panel(void)
 
 			q = pdf_annot_quadding(ctx, selected_annot);
 			ui_label("Text Alignment:");
-			choice = ui_select("Q", quadding_names[q], quadding_names, nelem(quadding_names));
+			choice = ui_select("Q", quadding_names[q], quadding_names, SIZEOFARRAY(quadding_names));
 			if(choice != -1) {
 				trace_action("annot.setQuadding(%d);\n", choice);
 				pdf_set_annot_quadding(ctx, selected_annot, choice);
@@ -901,7 +901,7 @@ void do_annotate_panel(void)
 
 			text_lang = fz_string_from_text_language(lang_buf, pdf_annot_language(ctx, selected_annot));
 			ui_label("Text Language:");
-			lang_choice = ui_select("DA/Lang", text_lang, lang_names, nelem(lang_names));
+			lang_choice = ui_select("DA/Lang", text_lang, lang_names, SIZEOFARRAY(lang_names));
 			if(lang_choice != -1) {
 				text_lang = lang_names[lang_choice];
 				trace_action("annot.setLanguage(%q);\n", text_lang);
@@ -911,14 +911,14 @@ void do_annotate_panel(void)
 			pdf_annot_default_appearance(ctx, selected_annot, &text_font, &text_size_f, text_color);
 			text_size = text_size_f;
 			ui_label("Text Font:");
-			font_choice = ui_select("DA/Font", text_font, font_names, nelem(font_names));
+			font_choice = ui_select("DA/Font", text_font, font_names, SIZEOFARRAY(font_names));
 			ui_label("Text Size: %d", text_size);
 			size_changed = ui_slider(&text_size, 8, 36, 256);
 			ui_label("Text Color:");
 			color_choice = ui_select("DA/Color",
 				name_from_hex(hex_from_color(3, text_color)),
 				color_names+1,
-				nelem(color_names)-1);
+				SIZEOFARRAY(color_names)-1);
 			if(font_choice != -1 || color_choice != -1 || size_changed) {
 				if(font_choice != -1)
 					text_font = font_names[font_choice];
@@ -941,10 +941,10 @@ void do_annotate_panel(void)
 			pdf_annot_line_ending_styles(ctx, selected_annot, &s, &e);
 
 			ui_label("Line Start:");
-			s_choice = ui_select("LE0", line_ending_styles[s], line_ending_styles, nelem(line_ending_styles));
+			s_choice = ui_select("LE0", line_ending_styles[s], line_ending_styles, SIZEOFARRAY(line_ending_styles));
 
 			ui_label("Line End:");
-			e_choice = ui_select("LE1", line_ending_styles[e], line_ending_styles, nelem(line_ending_styles));
+			e_choice = ui_select("LE1", line_ending_styles[e], line_ending_styles, SIZEOFARRAY(line_ending_styles));
 			if(s_choice != -1 || e_choice != -1) {
 				if(s_choice != -1) s = (pdf_line_ending)s_choice;
 				if(e_choice != -1) e = (pdf_line_ending)e_choice;
@@ -961,28 +961,28 @@ void do_annotate_panel(void)
 				default:
 				    break;
 				case PDF_ANNOT_TEXT:
-				    choice = ui_select("Icon", name, text_icons, nelem(text_icons));
+				    choice = ui_select("Icon", name, text_icons, SIZEOFARRAY(text_icons));
 				    if(choice != -1) {
 					    trace_action("annot.setIcon(%q)\n", text_icons[choice]);
 					    pdf_set_annot_icon_name(ctx, selected_annot, text_icons[choice]);
 				    }
 				    break;
 				case PDF_ANNOT_FILE_ATTACHMENT:
-				    choice = ui_select("Icon", name, file_attachment_icons, nelem(file_attachment_icons));
+				    choice = ui_select("Icon", name, file_attachment_icons, SIZEOFARRAY(file_attachment_icons));
 				    if(choice != -1) {
 					    trace_action("annot.setIcon(%q)\n", file_attachment_icons[choice]);
 					    pdf_set_annot_icon_name(ctx, selected_annot, file_attachment_icons[choice]);
 				    }
 				    break;
 				case PDF_ANNOT_SOUND:
-				    choice = ui_select("Icon", name, sound_icons, nelem(sound_icons));
+				    choice = ui_select("Icon", name, sound_icons, SIZEOFARRAY(sound_icons));
 				    if(choice != -1) {
 					    trace_action("annot.setIcon(%q)\n", sound_icons[choice]);
 					    pdf_set_annot_icon_name(ctx, selected_annot, sound_icons[choice]);
 				    }
 				    break;
 				case PDF_ANNOT_STAMP:
-				    choice = ui_select("Icon", name, stamp_icons, nelem(stamp_icons));
+				    choice = ui_select("Icon", name, stamp_icons, SIZEOFARRAY(stamp_icons));
 				    if(choice != -1) {
 					    trace_action("annot.setIcon(%q)\n", stamp_icons[choice]);
 					    pdf_set_annot_icon_name(ctx, selected_annot, stamp_icons[choice]);
@@ -1154,7 +1154,7 @@ static int mark_search_step(int cancel)
 		return -1;
 	}
 
-	count = fz_search_page_number(ctx, (fz_document*)pdf, rds_state.i-1, search_needle, quads, nelem(quads));
+	count = fz_search_page_number(ctx, (fz_document*)pdf, rds_state.i-1, search_needle, quads, SIZEOFARRAY(quads));
 	if(count > 0) {
 		pdf_page * page = pdf_load_page(ctx, pdf, rds_state.i-1);
 		trace_action("page = doc.loadPage(%d);\n", rds_state.i-1);
@@ -1222,7 +1222,7 @@ void do_redact_panel(void)
 
 	ui_label("When Redacting:");
 	ui_checkbox("Draw black boxes", &redact_opts.black_boxes);
-	im_choice = ui_select("Redact/IM", im_redact_names[redact_opts.image_method], im_redact_names, nelem(im_redact_names));
+	im_choice = ui_select("Redact/IM", im_redact_names[redact_opts.image_method], im_redact_names, SIZEOFARRAY(im_redact_names));
 	if(im_choice != -1)
 		redact_opts.image_method = im_choice;
 
@@ -1565,7 +1565,7 @@ static void do_edit_ink(fz_irect canvas_area)
 	}
 
 	if(ui.active == selected_annot && drawing) {
-		if(n < (int)nelem(p) && (ui.x != last_x || ui.y != last_y)) {
+		if(n < SIZEOFARRAYi(p) && (ui.x != last_x || ui.y != last_y)) {
 			p[n].x = fz_clamp(ui.x, view_page_area.x0, view_page_area.x1);
 			p[n].y = fz_clamp(ui.y, view_page_area.y0, view_page_area.y1);
 			++n;
@@ -1640,7 +1640,7 @@ static void do_edit_quad_points(void)
 			hits[0] = fz_quad_from_rect(rect);
 		}
 		else {
-			n = fz_highlight_selection(ctx, page_text, page_a, page_b, hits, nelem(hits));
+			n = fz_highlight_selection(ctx, page_text, page_a, page_b, hits, SIZEOFARRAY(hits));
 		}
 
 		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO); /* invert destination color */

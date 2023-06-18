@@ -17,7 +17,7 @@
 #include <slib-internal.h>
 #pragma hdrstop
 #include "..\slib\bzip3\include\libbz3.h"
-#include "..\slib\sais\include\libsais.h"
+#include "libsais.h"
 #include "..\slib\bzip3\include\libbz3-common.h"
 
 int DummyProc_bzip3() { return 1; } // @forcelink

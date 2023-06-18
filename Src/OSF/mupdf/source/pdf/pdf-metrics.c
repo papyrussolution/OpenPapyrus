@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 
 void pdf_set_font_wmode(fz_context * ctx, pdf_font_desc * font, int wmode)
 {

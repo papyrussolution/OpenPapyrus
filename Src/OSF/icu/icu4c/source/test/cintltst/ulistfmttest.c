@@ -28,12 +28,12 @@ void addUListFmtTest(TestNode** root)
 	TESTCASE(TestUListOpenStyled);
 }
 
-static const UChar str0[] = { 0x41, 0 }; /* "A" */
-static const UChar str1[] = { 0x42, 0x62, 0 }; /* "Bb" */
-static const UChar str2[] = { 0x43, 0x63, 0x63, 0 }; /* "Ccc" */
-static const UChar str3[] = { 0x44, 0x64, 0x64, 0x64, 0 }; /* "Dddd" */
-static const UChar str4[] = { 0x45, 0x65, 0x65, 0x65, 0x65, 0 }; /* "Eeeee" */
-static const UChar * strings[] =            { str0, str1, str2, str3, str4 };
+static const char16_t str0[] = { 0x41, 0 }; /* "A" */
+static const char16_t str1[] = { 0x42, 0x62, 0 }; /* "Bb" */
+static const char16_t str2[] = { 0x43, 0x63, 0x63, 0 }; /* "Ccc" */
+static const char16_t str3[] = { 0x44, 0x64, 0x64, 0x64, 0 }; /* "Dddd" */
+static const char16_t str4[] = { 0x45, 0x65, 0x65, 0x65, 0x65, 0 }; /* "Eeeee" */
+static const char16_t * strings[] =            { str0, str1, str2, str3, str4 };
 static const int32_t stringLengths[]  =    {    1,    2,    3,    4,    5 };
 static const int32_t stringLengthsNeg[] = {   -1,   -1,   -1,   -1,   -1 };
 
@@ -70,7 +70,7 @@ static void TestUListFmt() {
 			log_data_err("ERROR: ulistfmt_open fails for locale %s, status %s\n", lftep->locale, u_errorName(status));
 		}
 		else {
-			UChar ubufActual[kUBufMax];
+			char16_t ubufActual[kUBufMax];
 			int32_t ulenActual = ulistfmt_format(listfmt,
 				strings,
 				stringLengths,
@@ -85,7 +85,7 @@ static void TestUListFmt() {
 				    u_errorName(status));
 			}
 			else {
-				UChar ubufExpected[kUBufMax];
+				char16_t ubufExpected[kUBufMax];
 				int32_t ulenExpected = u_unescape(lftep->expectedResult, ubufExpected, kUBufMax);
 				if(ulenActual != ulenExpected || u_strncmp(ubufActual, ubufExpected, ulenExpected) != 0) {
 					log_err(
@@ -106,7 +106,7 @@ static void TestUListFmt() {
 				    u_errorName(status));
 			}
 			else {
-				UChar ubufExpected[kUBufMax];
+				char16_t ubufExpected[kUBufMax];
 				int32_t ulenExpected = u_unescape(lftep->expectedResult, ubufExpected, kUBufMax);
 				if(ulenActual != ulenExpected || u_strncmp(ubufActual, ubufExpected, ulenExpected) != 0) {
 					log_err(
@@ -127,7 +127,7 @@ static void TestUListFmt() {
 				    u_errorName(status));
 			}
 			else {
-				UChar ubufExpected[kUBufMax];
+				char16_t ubufExpected[kUBufMax];
 				int32_t ulenExpected = u_unescape(lftep->expectedResult, ubufExpected, kUBufMax);
 				if(ulenActual != ulenExpected || u_strncmp(ubufActual, ubufExpected, ulenExpected) != 0) {
 					log_err(
@@ -174,8 +174,8 @@ static void TestUListFmtToValue()
 	assertSuccess("Opening", &ec);
 	{
 		const char * message = "Field position test 1";
-		const UChar * expectedString = u"hello, wonderful, and world";
-		const UChar * inputs[] = { u"hello", u"wonderful", u"world" };
+		const char16_t * expectedString = u"hello, wonderful, and world";
+		const char16_t * inputs[] = { u"hello", u"wonderful", u"world" };
 		ulistfmt_formatStringsToResult(fmt, inputs, NULL, SIZEOFARRAYi(inputs), fl, &ec);
 		assertSuccess("Formatting", &ec);
 		static const UFieldPositionWithCategory expectedFieldPositions[] = {
@@ -198,8 +198,8 @@ static void TestUListFmtToValue()
 	}
 	{
 		const char * message = "Field position test 1";
-		const UChar * expectedString = u"A, B, C, D, E, F, and G";
-		const UChar * inputs[] = { u"A", u"B", u"C", u"D", u"E", u"F", u"G" };
+		const char16_t * expectedString = u"A, B, C, D, E, F, and G";
+		const char16_t * inputs[] = { u"A", u"B", u"C", u"D", u"E", u"F", u"G" };
 		ulistfmt_formatStringsToResult(fmt, inputs, NULL, SIZEOFARRAYi(inputs), fl, &ec);
 		assertSuccess("Formatting", &ec);
 		static const UFieldPositionWithCategory expectedFieldPositions[] = {
@@ -245,8 +245,8 @@ static void TestUListOpenStyled()
 	assertSuccess("Opening", &ec);
 	{
 		const char * message = "openStyled test 1";
-		const UChar * expectedString = u"A, B, or C";
-		const UChar * inputs[] = { u"A", u"B", u"C", };
+		const char16_t * expectedString = u"A, B, or C";
+		const char16_t * inputs[] = { u"A", u"B", u"C", };
 		ulistfmt_formatStringsToResult(fmt, inputs, NULL, SIZEOFARRAYi(inputs), fl, &ec);
 		assertSuccess("Formatting", &ec);
 		static const UFieldPositionWithCategory expectedFieldPositions[] = {

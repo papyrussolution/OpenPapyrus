@@ -22,7 +22,6 @@
 	header.
  */
 typedef struct fz_storable fz_storable;
-
 /**
 	Function type for a function to drop a storable object.
 
@@ -30,7 +29,6 @@ typedef struct fz_storable fz_storable;
 	their drop_fn pointers.
 */
 typedef void (fz_store_drop_fn)(fz_context *, fz_storable *);
-
 /**
 	Any storable object should include an fz_storable structure
 	at the start (by convention at least) of their structure.
@@ -46,8 +44,7 @@ struct fz_storable {
 	storable object should include an fz_key_storable structure
 	at the start (by convention at least) of their structure.
 */
-typedef struct
-{
+typedef struct {
 	fz_storable storable;
 	short store_key_refs;
 } fz_key_storable;
@@ -172,32 +169,26 @@ void fz_drop_key_storable_key(fz_context *, const fz_key_storable *);
 	fz_defer_reap_end to bracket a region in which many may be
 	triggered.
 */
-typedef struct
-{
+typedef struct {
 	fz_store_drop_fn *drop;
-	union
-	{
-		struct
-		{
+	union {
+		struct {
 			const void *ptr;
 			int i;
 		} pi; /* 8 or 12 bytes */
-		struct
-		{
+		struct {
 			const void *ptr;
 			int i;
 			fz_irect r;
 		} pir; /* 24 or 28 bytes */
-		struct
-		{
+		struct {
 			int id;
 			char has_shape;
 			char has_group_alpha;
 			float m[4];
 			void *ptr;
 		} im; /* 24 or 28 bytes */
-		struct
-		{
+		struct {
 			uchar src_md5[16];
 			uchar dst_md5[16];
 			uint ri:2;
@@ -217,8 +208,7 @@ typedef struct
 	fz_store_type. This contains the pointers to functions to
 	make hashes, manipulate keys, and check for needing reaping.
 */
-typedef struct
-{
+typedef struct {
 	const char *name;
 	int (*make_hash_key)(fz_context *ctx, fz_store_hash *hash, void *key);
 	void *(*keep_key)(fz_context *ctx, void *key);

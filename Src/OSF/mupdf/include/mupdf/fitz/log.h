@@ -1,9 +1,8 @@
 #ifndef MUPDF_FITZ_LOG_H
 #define MUPDF_FITZ_LOG_H
 
-#include "mupdf/fitz/context.h"
-#include "mupdf/fitz/output.h"
-
+//#include "mupdf/fitz/context.h"
+//#include "mupdf/fitz/output.h"
 /**
 	The functions in this file offer simple logging abilities.
 

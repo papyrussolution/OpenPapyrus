@@ -29,8 +29,8 @@ static void TestFileFromICU(UFILE * myFile, const char * description)
 	float myFloat = -1234.0;
 	int32_t newValuePtr[1];
 	double newDoubleValuePtr[1];
-	UChar myUString[256];
-	UChar uStringBuf[256];
+	char16_t myUString[256];
+	char16_t uStringBuf[256];
 	char myString[256] = "";
 	char testBuf[256] = "";
 	void * origPtr, * ptr;
@@ -83,7 +83,7 @@ static void TestFileFromICU(UFILE * myFile, const char * description)
 	u_fprintf(myFile, "Uppercase float %%G: %G\n", myFloat);
 	u_fprintf(myFile, "Pointer %%p: %p\n", origPtr);
 	u_fprintf(myFile, "Char %%c: %c\n", 'A');
-	u_fprintf(myFile, "UChar %%C: %C\n", (UChar)0x0041); /*'A'*/
+	u_fprintf(myFile, "char16_t %%C: %C\n", (char16_t)0x0041); /*'A'*/
 	u_fprintf(myFile, "String %%s: %s\n", "My-String");
 	u_fprintf(myFile, "NULL String %%s: %s\n", NULL);
 	u_fprintf(myFile, "Unicode String %%S: %S\n", myStringOrig);
@@ -132,7 +132,7 @@ static void TestFileFromICU(UFILE * myFile, const char * description)
 	}
 	u_fungetc(myUString[0], myFile);
 	myUString[0] = u_fgetc(myFile);
-	myUString[1] = (UChar)u_fgetcx(myFile); /* Mix getc and getcx and see what happens. */
+	myUString[1] = (char16_t)u_fgetcx(myFile); /* Mix getc and getcx and see what happens. */
 	myUString[2] = u_fgetc(myFile);
 	if(myUString[0] != 0x53 /* S */ && myUString[1] != 0x69 /* i */ && myUString[2] != 0x6E /* n */) {
 		log_err("u_fgetcx returned \\u%04X\\u%04X\\u%04X. Expected 'Sin'.", myString[0], myString[1], myString[2]);
@@ -207,8 +207,8 @@ static void TestFileFromICU(UFILE * myFile, const char * description)
 	if(*myString != 'A') {
 		log_err("%%c Got: %c, Expected: A\n", *myString);
 	}
-	u_fscanf(myFile, "UChar %%C: %C\n", myUString);
-	if(*myUString != (UChar)0x0041) { /*'A'*/
+	u_fscanf(myFile, "char16_t %%C: %C\n", myUString);
+	if(*myUString != (char16_t)0x0041) { /*'A'*/
 		log_err("%%C Got: %C, Expected: A\n", *myUString);
 	}
 	u_fscanf(myFile, "String %%s: %s\n", myString);
@@ -319,7 +319,7 @@ static void TestFileFromICU(UFILE * myFile, const char * description)
 enum { kUFilenameBufLen = 296 };
 
 static void TestFile() {
-	UChar ufilename[kUFilenameBufLen + 1]; // +1 for guaranteed 0 termination
+	char16_t ufilename[kUFilenameBufLen + 1]; // +1 for guaranteed 0 termination
 	ufilename[kUFilenameBufLen] = 0; // ensure 0 termination
 
 	log_verbose("Testing u_fopen with STANDARD_TEST_FILE\n");
@@ -357,7 +357,7 @@ static void TestFadopt()
 
 static void StdinBuffering() {
 #if 0
-	UChar buff[255];
+	char16_t buff[255];
 	int32_t num = 0;
 	UFILE * uStdIn = NULL;
 	UFILE * uStdOut = NULL;
@@ -429,8 +429,8 @@ static void TestCodepageAndLocale() {
 
 static void TestfgetsBuffers() 
 {
-	UChar buffer[2048];
-	UChar expectedBuffer[2048];
+	char16_t buffer[2048];
+	char16_t expectedBuffer[2048];
 	static const char testStr[] = "This is a test string that tests u_fgets. It makes sure that we don't try to read too much!";
 	UFILE * myFile = u_fopen(STANDARD_TEST_FILE, "w", NULL, "UTF-16");
 	int32_t expectedSize = (int32_t)strlen(testStr);
@@ -561,7 +561,7 @@ static void TestfgetsBuffers()
 }
 
 static void TestFileReadBuffering() {
-	UChar buffer[1024];
+	char16_t buffer[1024];
 	UFILE * myFile = u_fopen(STANDARD_TEST_FILE, "w", NULL, "UTF-16");
 	int32_t how_many;
 	int32_t repetitions;
@@ -582,8 +582,8 @@ static void TestFileReadBuffering() {
 }
 
 static void TestfgetsLineCount() {
-	UChar buffer[2048];
-	UChar expectedBuffer[2048];
+	char16_t buffer[2048];
+	char16_t expectedBuffer[2048];
 	char charBuffer[2048];
 	static const char testStr[] = "This is a test string that tests u_fgets. It makes sure that we don't try to read too much!";
 	UFILE * myFile = NULL;
@@ -611,7 +611,7 @@ static void TestfgetsLineCount() {
 
 	for(;;) {
 		char * returnedCharBuffer;
-		UChar * returnedUCharBuffer;
+		char16_t * returnedUCharBuffer;
 
 		u_memset(buffer, 0xBEEF, SIZEOFARRAYi(buffer));
 		returnedCharBuffer = fgets(charBuffer, SIZEOFARRAYi(charBuffer), stdFile);
@@ -642,8 +642,8 @@ static void TestfgetsLineCount() {
 }
 
 static void TestfgetsNewLineHandling() {
-	UChar buffer[256];
-	static const UChar testUStr[][16] = {
+	char16_t buffer[256];
+	static const char16_t testUStr[][16] = {
 		{0x000D, 0},
 		{0x000D, 0x000A, 0},
 		{0x000D, 0},
@@ -690,7 +690,7 @@ static void TestfgetsNewLineHandling() {
 	myFile = u_fopen(STANDARD_TEST_FILE, "rb", NULL, "UTF-8");
 
 	for(lineIdx = 0; lineIdx < SIZEOFARRAYi(testUStr); lineIdx++) {
-		UChar * returnedUCharBuffer;
+		char16_t * returnedUCharBuffer;
 
 		u_memset(buffer, 0xBEEF, SIZEOFARRAYi(buffer));
 		returnedUCharBuffer = u_fgets(buffer, SIZEOFARRAYi(buffer), myFile);
@@ -716,10 +716,10 @@ static void TestfgetsNewLineHandling() {
 }
 
 static void TestLineCount(const char * prefixLine, const char * line, int32_t numRepititions) {
-	UChar buffer[64];
-	UChar expectedBuffer[64];
+	char16_t buffer[64];
+	char16_t expectedBuffer[64];
 	int32_t lineLen = (int32_t)strlen(line);
-	UChar * returnedUCharBuffer;
+	char16_t * returnedUCharBuffer;
 	int32_t repetitions;
 	UFILE * myFile = NULL;
 	FILE * stdFile = fopen(STANDARD_TEST_FILE, "wb");
@@ -782,8 +782,8 @@ static void TestfgetsNewLineCount() {
 }
 
 static void TestFgetsLineBuffering() {
-	UChar buffer[2003]; /* Use a non-power of 2 or 10 */
-	UChar * returnedUCharBuffer;
+	char16_t buffer[2003]; /* Use a non-power of 2 or 10 */
+	char16_t * returnedUCharBuffer;
 	int32_t repetitions;
 	UFILE * myFile = NULL;
 	FILE * stdFile = fopen(STANDARD_TEST_FILE, "wb");
@@ -822,9 +822,9 @@ static void TestFgetsLineBuffering() {
 
 static void TestCodepage() {
 	UFILE * myFile = NULL;
-	static const UChar strABAccentA[] = { 0x0041, 0x0042, 0x00C1, 0x0043, 0};
-	static const UChar strBadConversion[] = { 0x0041, 0x0042, 0xfffd, 0x0043, 0};
-	UChar testBuf[SIZEOFARRAYi(strABAccentA)*2]; /* *2 to see if too much was  */
+	static const char16_t strABAccentA[] = { 0x0041, 0x0042, 0x00C1, 0x0043, 0};
+	static const char16_t strBadConversion[] = { 0x0041, 0x0042, 0xfffd, 0x0043, 0};
+	char16_t testBuf[SIZEOFARRAYi(strABAccentA)*2]; /* *2 to see if too much was  */
 	char convName[UCNV_MAX_CONVERTER_NAME_LENGTH];
 	int32_t retVal;
 	UErrorCode status = U_ZERO_ERROR;
@@ -907,7 +907,7 @@ static void TestCodepageFlush() {
 #if UCONFIG_NO_LEGACY_CONVERSION || UCONFIG_NO_FORMATTING
 	log_verbose("Skipping, legacy conversion or formatting is disabled.");
 #else
-	UChar utf16String[] = { 0x39, 0x39, 0x39, 0x20, 0x65E0, 0x6CD6, 0x5728, 0x0000 };
+	char16_t utf16String[] = { 0x39, 0x39, 0x39, 0x20, 0x65E0, 0x6CD6, 0x5728, 0x0000 };
 	uint8_t inBuf[200];
 	size_t inLen = 0;
 	const char * enc = "IBM-1388"; /* GBK EBCDIC stateful */
@@ -975,7 +975,7 @@ static void TestFilePrintCompatibility() {
 	FILE * myCFile;
 	int32_t num;
 	char cVal;
-	static const UChar emptyStr[] = {0};
+	static const char16_t emptyStr[] = {0};
 	char readBuf[512] = "";
 	char testBuf[512] = "";
 	int32_t n = 0;
@@ -1139,9 +1139,9 @@ static void TestFilePrintCompatibility() {
 
 #if !UCONFIG_NO_FORMATTING
 static void TestFprintfFormat() {
-	static const UChar abcUChars[] = {0x61, 0x62, 0x63, 0};
+	static const char16_t abcUChars[] = {0x61, 0x62, 0x63, 0};
 	static const char abcChars[] = "abc";
-	UChar uBuffer[256];
+	char16_t uBuffer[256];
 	char buffer[256];
 	char compBuffer[256];
 	int32_t uNumPrinted;
@@ -1159,8 +1159,8 @@ static void TestFprintfFormat() {
 	TestFPrintFormat("%8c", (char)'e', "%8c", (char)'e');
 	TestFPrintFormat("%-8c", (char)'e', "%-8c", (char)'e');
 
-	TestFPrintFormat("%8C", (UChar)0x65, "%8c", (char)'e');
-	TestFPrintFormat("%-8C", (UChar)0x65, "%-8c", (char)'e');
+	TestFPrintFormat("%8C", (char16_t)0x65, "%8c", (char)'e');
+	TestFPrintFormat("%-8C", (char16_t)0x65, "%-8c", (char)'e');
 
 	TestFPrintFormat("%f", 1.23456789, "%f", 1.23456789);
 	TestFPrintFormat("%f", 12345.6789, "%f", 12345.6789);
@@ -1281,9 +1281,9 @@ static void TestFprintfFormat() {
 #undef TestFPrintFormat
 
 #if !UCONFIG_NO_FORMATTING
-static void TestFScanSetFormat(const char * format, const UChar * uValue, const char * cValue, bool expectedToPass) {
+static void TestFScanSetFormat(const char * format, const char16_t * uValue, const char * cValue, bool expectedToPass) {
 	UFILE * myFile;
-	UChar uBuffer[256];
+	char16_t uBuffer[256];
 	char buffer[256];
 	char compBuffer[256];
 	int32_t uNumScanned;
@@ -1329,7 +1329,7 @@ static void TestFScanSetFormat(const char * format, const UChar * uValue, const 
 
 #if !UCONFIG_NO_FORMATTING
 static void TestFScanset() {
-	static const UChar abcUChars[] = {0x61, 0x62, 0x63, 0x63, 0x64, 0x65, 0x66, 0x67, 0};
+	static const char16_t abcUChars[] = {0x61, 0x62, 0x63, 0x63, 0x64, 0x65, 0x66, 0x67, 0};
 	static const char abcChars[] = "abccdefg";
 
 	TestFScanSetFormat("%[bc]S", abcUChars, abcChars, TRUE);
@@ -1376,10 +1376,10 @@ static void TestFScanset() {
 
 #endif
 #if !UCONFIG_NO_FORMATTING
-static void TestBadFScanfFormat(const char * format, const UChar * uValue, const char * cValue) {
+static void TestBadFScanfFormat(const char * format, const char16_t * uValue, const char * cValue) {
 	(void)cValue; // suppress compiler warnings about unused variable
 	UFILE * myFile;
-	UChar uBuffer[256];
+	char16_t uBuffer[256];
 	int32_t uNumScanned;
 
 	myFile = u_fopen(STANDARD_TEST_FILE, "w", NULL, NULL);
@@ -1404,7 +1404,7 @@ static void TestBadFScanfFormat(const char * format, const UChar * uValue, const
 #endif
 #if !UCONFIG_NO_FORMATTING
 static void TestBadScanfFormat() {
-	static const UChar abcUChars[] = {0x61, 0x62, 0x63, 0x63, 0x64, 0x65, 0x66, 0x67, 0};
+	static const char16_t abcUChars[] = {0x61, 0x62, 0x63, 0x63, 0x64, 0x65, 0x66, 0x67, 0};
 	static const char abcChars[] = "abccdefg";
 
 	TestBadFScanfFormat("%[]  ", abcUChars, abcChars);
@@ -1413,8 +1413,8 @@ static void TestBadScanfFormat() {
 #endif
 #if !UCONFIG_NO_FORMATTING
 static void Test_u_vfprintf(const char * expectedResult, const char * format, ...) {
-	UChar uBuffer[256];
-	UChar uBuffer2[256];
+	char16_t uBuffer[256];
+	char16_t uBuffer2[256];
 	va_list ap;
 	int32_t count;
 	UFILE * myFile;
@@ -1480,10 +1480,10 @@ static void TestUnicodeFormat()
 {
 #if !UCONFIG_NO_FORMATTING
 	/* Make sure that invariant conversion doesn't happen on the _u formats. */
-	UChar myUString[256];
+	char16_t myUString[256];
 	UFILE * myFile;
-	static const UChar TEST_STR[] = { 0x03BC, 0x0025, 0x0024, 0};
-	static const UChar PERCENT_S[] = { 0x03BC, 0x0025, 0x0053, 0};
+	static const char16_t TEST_STR[] = { 0x03BC, 0x0025, 0x0024, 0};
+	static const char16_t PERCENT_S[] = { 0x03BC, 0x0025, 0x0053, 0};
 
 	u_memset(myUString, 0x2a, SIZEOFARRAYi(myUString));
 
@@ -1509,15 +1509,15 @@ static void TestUnicodeFormat()
 }
 
 static void TestFileWriteRetval(const char * a_pszEncoding) {
-	UChar * buffer;
+	char16_t * buffer;
 	UFILE * myFile;
 	int32_t count;
 	int32_t expected = 10000; /* test with large data to test internal buffer looping */
-	UChar testChar = 0xBEEF;
+	char16_t testChar = 0xBEEF;
 	if(!*a_pszEncoding || 0 == strcmp(a_pszEncoding, "ASCII")) {
 		testChar = 0x65; /* 'A' - otherwise read test will fail */
 	}
-	buffer = (UChar *)SAlloc::M(expected * sizeof(UChar));
+	buffer = (char16_t *)SAlloc::M(expected * sizeof(char16_t));
 	if(!buffer) {
 		log_err("Out of memory\n");
 		return;
@@ -1546,7 +1546,7 @@ static void TestFileWriteRetval(const char * a_pszEncoding) {
 		return;
 	}
 	for(count = 0; count < expected; ++count) {
-		UChar gotChar = u_fgetc(myFile);
+		char16_t gotChar = u_fgetc(myFile);
 		if(gotChar != testChar) {
 			log_err("u_fgetc returned unexpected character U+%04X expected U+%04X\n", gotChar, testChar);
 			u_fclose(myFile);

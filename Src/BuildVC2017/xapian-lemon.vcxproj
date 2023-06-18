@@ -111,6 +111,7 @@
       <OutputFile>$(ProjectDir)..\..\tools\xapian-lemon$(TargetExt)</OutputFile>
       <ProgramDatabaseFile>$(ProjectDir)..\..\tools\xapian-snowball.pdb</ProgramDatabaseFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -139,6 +140,7 @@
       <OutputFile>$(ProjectDir)..\..\tools\xapian-lemon$(TargetExt)</OutputFile>
       <ProgramDatabaseFile>$(ProjectDir)..\..\tools\xapian-snowball.pdb</ProgramDatabaseFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -168,6 +170,7 @@
       <OutputFile>$(ProjectDir)..\..\tools\xapian-lemon$(TargetExt)</OutputFile>
       <ProgramDatabaseFile>$(ProjectDir)..\..\tools\xapian-snowball.pdb</ProgramDatabaseFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -197,6 +200,7 @@
       <OutputFile>$(ProjectDir)..\..\tools\xapian-lemon$(TargetExt)</OutputFile>
       <ProgramDatabaseFile>$(ProjectDir)..\..\tools\xapian-snowball.pdb</ProgramDatabaseFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

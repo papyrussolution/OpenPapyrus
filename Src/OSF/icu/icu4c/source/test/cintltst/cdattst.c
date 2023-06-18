@@ -72,11 +72,11 @@ static void TestDateFormat()
 	UDateFormat * any;
 	UDateFormat * copy;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar * result = NULL;
+	char16_t * result = NULL;
 	const UCalendar * cal;
 	const UNumberFormat * numformat1, * numformat2;
 	UNumberFormat * adoptNF;
-	UChar temp[50];
+	char16_t temp[50];
 	int32_t numlocales;
 	UDate d1;
 	int i;
@@ -171,7 +171,7 @@ static void TestDateFormat()
 			SAlloc::F(result);
 			result = NULL;
 		}
-		result = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+		result = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 		udat_format(def, d, result, resultlength, NULL, &status);
 	}
 	if(U_FAILURE(status) || !result) {
@@ -212,7 +212,7 @@ static void TestDateFormat()
 	u_uastrcpy(temp, "10 lug 1996, 16:05:28");
 
 	{
-		UChar * fmtted;
+		char16_t * fmtted;
 		char g[100];
 		char x[100];
 
@@ -278,7 +278,7 @@ static void TestDateFormat()
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultlengthneeded + 1;
-		result = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+		result = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 		udat_toPattern(def1, FALSE, result, resultlength, &status);
 	}
 	if(U_FAILURE(status)) {
@@ -393,18 +393,18 @@ static void TestDateFormat()
    while the calls to udat_format are after midnight or span midnight.
  */
 static const UDate dayInterval = 24.0*60.0*60.0*1000.0;
-static const UChar trdfZone[] = { 0x0055, 0x0053, 0x002F, 0x0050, 0x0061, 0x0063, 0x0069, 0x0066, 0x0069, 0x0063, 0 }; /*
+static const char16_t trdfZone[] = { 0x0055, 0x0053, 0x002F, 0x0050, 0x0061, 0x0063, 0x0069, 0x0066, 0x0069, 0x0063, 0 }; /*
                                                                                                                           US/Pacific
      */
 static const char trdfLocale[] = "en_US";
-static const UChar minutesPatn[] = { 0x006D, 0x006D, 0 }; /* "mm" */
-static const UChar monthLongPatn[] = { 0x004D, 0x004D, 0x004D, 0x004D, 0 }; /* "MMMM" */
-static const UChar monthMediumPatn[] = { 0x004D, 0x004D, 0x004D, 0 }; /* "MMM" */
-static const UChar monthShortPatn[] = { 0x004D, 0 }; /* "M" */
+static const char16_t minutesPatn[] = { 0x006D, 0x006D, 0 }; /* "mm" */
+static const char16_t monthLongPatn[] = { 0x004D, 0x004D, 0x004D, 0x004D, 0 }; /* "MMMM" */
+static const char16_t monthMediumPatn[] = { 0x004D, 0x004D, 0x004D, 0 }; /* "MMM" */
+static const char16_t monthShortPatn[] = { 0x004D, 0 }; /* "M" */
 static const UDateFormatStyle dateStylesList[] = { UDAT_FULL, UDAT_LONG, UDAT_MEDIUM, UDAT_SHORT, UDAT_NONE };
-static const UChar * monthPatnsList[] = { monthLongPatn, monthLongPatn, monthMediumPatn, monthShortPatn, NULL };
-static const UChar newTimePatn[] = { 0x0048, 0x0048, 0x002C, 0x006D, 0x006D, 0 }; /* "HH,mm" */
-static const UChar minutesStr[] = { 0x0034, 0x0039, 0 }; /* "49", minutes string to search for in output */
+static const char16_t * monthPatnsList[] = { monthLongPatn, monthLongPatn, monthMediumPatn, monthShortPatn, NULL };
+static const char16_t newTimePatn[] = { 0x0048, 0x0048, 0x002C, 0x006D, 0x006D, 0 }; /* "HH,mm" */
+static const char16_t minutesStr[] = { 0x0034, 0x0039, 0 }; /* "49", minutes string to search for in output */
 enum { kDateOrTimeOutMax = 96, kDateAndTimeOutMax = 192 };
 
 static const UDate minutesTolerance = 2 * 60.0 * 1000.0;
@@ -414,7 +414,7 @@ static void TestRelativeDateFormat()
 {
 	UDate today = 0.0;
 	const UDateFormatStyle * stylePtr;
-	const UChar ** monthPtnPtr;
+	const char16_t ** monthPtnPtr;
 	UErrorCode status = U_ZERO_ERROR;
 	UCalendar * ucal = ucal_open(trdfZone, -1, trdfLocale, UCAL_GREGORIAN, &status);
 	if(U_SUCCESS(status)) {
@@ -437,10 +437,10 @@ static void TestRelativeDateFormat()
 		UDateFormat* fmtTime;
 		int32_t dayOffset, limit;
 		UFieldPosition fp;
-		UChar strDateTime[kDateAndTimeOutMax];
-		UChar strDate[kDateOrTimeOutMax];
-		UChar strTime[kDateOrTimeOutMax];
-		UChar * strPtr;
+		char16_t strDateTime[kDateAndTimeOutMax];
+		char16_t strDate[kDateOrTimeOutMax];
+		char16_t strTime[kDateOrTimeOutMax];
+		char16_t * strPtr;
 		int32_t dtpatLen;
 
 		fmtRelDateTime = udat_open(UDAT_SHORT, (UDateFormatStyle)(*stylePtr | UDAT_RELATIVE), trdfLocale, trdfZone, -1, NULL, 0, &status);
@@ -616,11 +616,11 @@ static void TestSymbols()
 {
 	UDateFormat * def, * fr, * zhChiCal, * esMX;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar * value = NULL;
-	UChar * result = NULL;
+	char16_t * value = NULL;
+	char16_t * result = NULL;
 	int32_t resultlength;
 	int32_t resultlengthout;
-	UChar * pattern;
+	char16_t * pattern;
 
 	/*creating a dateformat with french locale */
 	log_verbose("\ncreating a date format with french locale\n");
@@ -676,7 +676,7 @@ static void TestSymbols()
 
 	/*testing getSymbols*/
 	log_verbose("\nTesting getSymbols\n");
-	pattern = (UChar *)SAlloc::M(sizeof(UChar) * 10);
+	pattern = (char16_t *)SAlloc::M(sizeof(char16_t) * 10);
 	u_uastrcpy(pattern, "jeudi");
 	resultlength = 0;
 	resultlengthout = udat_getSymbols(fr, UDAT_WEEKDAYS, 5, NULL, resultlength, &status);
@@ -687,7 +687,7 @@ static void TestSymbols()
 			SAlloc::F(result);
 			result = NULL;
 		}
-		result = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+		result = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 		udat_getSymbols(fr, UDAT_WEEKDAYS, 5, result, resultlength, &status);
 	}
 	if(U_FAILURE(status)) {
@@ -744,7 +744,7 @@ static void TestSymbols()
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultlengthout + 1;
-		pattern = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+		pattern = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 		udat_toPattern(fr, FALSE, pattern, resultlength, &status);
 	}
 	if(U_FAILURE(status)) {
@@ -762,7 +762,7 @@ static void TestSymbols()
 			SAlloc::F(result);
 			result = NULL;
 		}
-		result = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+		result = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 		udat_toPattern(fr, FALSE, result, resultlength, &status);
 	}
 	if(U_FAILURE(status)) {
@@ -785,7 +785,7 @@ static void TestSymbols()
 			SAlloc::F(result);
 			result = NULL;
 		}
-		result = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+		result = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 		udat_getSymbols(fr, UDAT_MONTHS, 11, result, resultlength, &status);
 	}
 	if(U_FAILURE(status))
@@ -804,7 +804,7 @@ static void TestSymbols()
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultlengthout+1;
-		value = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+		value = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 		udat_getSymbols(def, UDAT_MONTHS, 11, value, resultlength, &status);
 	}
 	if(U_FAILURE(status))
@@ -871,15 +871,15 @@ static void TestSymbols()
 static void TestDateFormatCalendar() {
 	UDateFormat * date = 0, * time = 0, * full = 0;
 	UCalendar * cal = 0;
-	UChar buf[256];
+	char16_t buf[256];
 	char cbuf[256];
 	int32_t pos;
 	UDate when;
 	UErrorCode ec = U_ZERO_ERROR;
-	UChar buf1[256];
+	char16_t buf1[256];
 	int32_t len1;
 	const char * expected;
-	UChar uExpected[32];
+	char16_t uExpected[32];
 
 	ctest_setTimeZone(NULL, &ec);
 
@@ -1091,20 +1091,20 @@ static int getCurrentYear() {
 /* N.B.:  use idx instead of index to avoid 'shadow' warnings in strict mode. */
 static void VerifygetSymbols(UDateFormat* datfor, UDateFormatSymbolType type, int32_t idx, const char * expected)
 {
-	UChar * pattern = NULL;
+	char16_t * pattern = NULL;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar * result = NULL;
+	char16_t * result = NULL;
 	int32_t resultlength, resultlengthout;
 	int32_t patternSize = (int32_t)strlen(expected) + 1;
 
-	pattern = (UChar *)SAlloc::M(sizeof(UChar) * patternSize);
+	pattern = (char16_t *)SAlloc::M(sizeof(char16_t) * patternSize);
 	u_unescape(expected, pattern, patternSize);
 	resultlength = 0;
 	resultlengthout = udat_getSymbols(datfor, type, idx, NULL, resultlength, &status);
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultlengthout+1;
-		result = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+		result = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 		udat_getSymbols(datfor, type, idx, result, resultlength, &status);
 	}
 	if(U_FAILURE(status)) {
@@ -1123,13 +1123,13 @@ static void VerifygetSymbols(UDateFormat* datfor, UDateFormatSymbolType type, in
 
 static void VerifysetSymbols(UDateFormat* datfor, UDateFormatSymbolType type, int32_t idx, const char * expected)
 {
-	UChar * result = NULL;
-	UChar * value = NULL;
+	char16_t * result = NULL;
+	char16_t * value = NULL;
 	int32_t resultlength, resultlengthout;
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t valueLen, valueSize = (int32_t)strlen(expected) + 1;
 
-	value = (UChar *)SAlloc::M(sizeof(UChar) * valueSize);
+	value = (char16_t *)SAlloc::M(sizeof(char16_t) * valueSize);
 	valueLen = u_unescape(expected, value, valueSize);
 	udat_setSymbols(datfor, type, idx, value, valueLen, &status);
 	if(U_FAILURE(status)) {
@@ -1142,7 +1142,7 @@ static void VerifysetSymbols(UDateFormat* datfor, UDateFormatSymbolType type, in
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultlengthout+1;
-		result = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+		result = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 		udat_getSymbols(datfor, type, idx, result, resultlength, &status);
 	}
 	if(U_FAILURE(status)) {
@@ -1164,8 +1164,8 @@ static void VerifysetSymbols(UDateFormat* datfor, UDateFormatSymbolType type, in
 
 static void VerifygetsetSymbols(UDateFormat* from, UDateFormat* to, UDateFormatSymbolType type, int32_t idx)
 {
-	UChar * result = NULL;
-	UChar * value = NULL;
+	char16_t * result = NULL;
+	char16_t * value = NULL;
 	int32_t resultlength, resultlengthout;
 	UErrorCode status = U_ZERO_ERROR;
 
@@ -1174,7 +1174,7 @@ static void VerifygetsetSymbols(UDateFormat* from, UDateFormat* to, UDateFormatS
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultlengthout+1;
-		result = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+		result = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 		udat_getSymbols(from, type, idx, result, resultlength, &status);
 	}
 	if(U_FAILURE(status)) {
@@ -1194,7 +1194,7 @@ static void VerifygetsetSymbols(UDateFormat* from, UDateFormat* to, UDateFormatS
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultlengthout+1;
-		value = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+		value = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 		udat_getSymbols(to, type, idx, value, resultlength, &status);
 	}
 	if(U_FAILURE(status)) {
@@ -1210,9 +1210,9 @@ static void VerifygetsetSymbols(UDateFormat* from, UDateFormat* to, UDateFormatS
 	SAlloc::F(result);
 }
 
-static UChar * myNumformat(const UNumberFormat * numfor, double d)
+static char16_t * myNumformat(const UNumberFormat * numfor, double d)
 {
-	UChar * result2 = NULL;
+	char16_t * result2 = NULL;
 	int32_t resultlength, resultlengthneeded;
 	UErrorCode status = U_ZERO_ERROR;
 	resultlength = 0;
@@ -1220,8 +1220,8 @@ static UChar * myNumformat(const UNumberFormat * numfor, double d)
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultlengthneeded+1;
-		/*result2=(UChar *)SAlloc::M(sizeof(UChar) * resultlength);*/ /* this leaks */
-		result2 = (UChar *)ctst_malloc(sizeof(UChar) * resultlength); /*this won't*/
+		/*result2=(char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);*/ /* this leaks */
+		result2 = (char16_t *)ctst_malloc(sizeof(char16_t) * resultlength); /*this won't*/
 		unum_formatDouble(numfor, d, result2, resultlength, NULL, &status);
 	}
 	if(U_FAILURE(status)) {
@@ -1242,7 +1242,7 @@ static UChar * myNumformat(const UNumberFormat * numfor, double d)
  *
  * Test a single date to see whether udat_format handles it properly.
  */
-static bool _aux1ExtremeDates(UDateFormat* fmt, UDate date, UChar * buf, int32_t buflen, char * cbuf, UErrorCode * ec) 
+static bool _aux1ExtremeDates(UDateFormat* fmt, UDate date, char16_t * buf, int32_t buflen, char * cbuf, UErrorCode * ec) 
 {
 	int32_t len = udat_format(fmt, date, buf, buflen, 0, ec);
 	if(!assertSuccess("udat_format", ec)) return FALSE;
@@ -1262,7 +1262,7 @@ static bool _aux1ExtremeDates(UDateFormat* fmt, UDate date, UChar * buf, int32_t
  * Recursively test between 'small' and 'large', up to the depth
  * limit specified by EXTREME_DATES_DEPTH.
  */
-static bool _aux2ExtremeDates(UDateFormat* fmt, UDate small__, UDate large, UChar * buf, int32_t buflen, char * cbuf, int32_t count, UErrorCode * ec) 
+static bool _aux2ExtremeDates(UDateFormat* fmt, UDate small__, UDate large, char16_t * buf, int32_t buflen, char * cbuf, int32_t count, UErrorCode * ec) 
 {
 	// Logarithmic midpoint; see below 
 	UDate mid = (UDate)exp((log(small__) + log(large)) / 2);
@@ -1291,7 +1291,7 @@ static void TestExtremeDates()
 {
 	UDateFormat * fmt;
 	UErrorCode ec;
-	UChar buf[256];
+	char16_t buf[256];
 	char cbuf[256];
 	const double small__ = 1000; /* 1 sec */
 	const double large = 1e+30; /* well beyond usable UDate range */
@@ -1331,7 +1331,7 @@ static void TestAllLocales()
 
 static void TestRelativeCrash() 
 {
-	static const UChar tzName[] = { 0x0055, 0x0053, 0x002F, 0x0050, 0x0061, 0x0063, 0x0069, 0x0066, 0x0069, 0x0063, 0 };
+	static const char16_t tzName[] = { 0x0055, 0x0053, 0x002F, 0x0050, 0x0061, 0x0063, 0x0069, 0x0066, 0x0069, 0x0063, 0 };
 	static const UDate aDate = -631152000000.0;
 	UErrorCode status = U_ZERO_ERROR;
 	UErrorCode expectStatus = U_ILLEGAL_ARGUMENT_ERROR;
@@ -1416,7 +1416,7 @@ static void TestRelativeCrash()
 			}
 		}
 		{
-			UChar erabuf[32];
+			char16_t erabuf[32];
 			UErrorCode subStatus = U_ZERO_ERROR;
 			what = "udat_getSymbols";
 			log_verbose("Trying %s on a relative date..\n", what);
@@ -1430,7 +1430,7 @@ static void TestRelativeCrash()
 		}
 		{
 			UErrorCode subStatus = U_ZERO_ERROR;
-			UChar symbolValue = 0x0041;
+			char16_t symbolValue = 0x0041;
 			what = "udat_setSymbols";
 			log_verbose("Trying %s on a relative date..\n", what);
 			udat_setSymbols(icudf, UDAT_ERAS, 0, &symbolValue, 1, &subStatus); /* bogus values */
@@ -1468,23 +1468,23 @@ static void TestRelativeCrash()
 	}
 }
 
-static const UChar skeleton_yMMMM[] = { 0x79, 0x4D, 0x4D, 0x4D, 0x4D, 0 }; /* "yMMMM"; fr maps to "MMMM y", cs maps to
+static const char16_t skeleton_yMMMM[] = { 0x79, 0x4D, 0x4D, 0x4D, 0x4D, 0 }; /* "yMMMM"; fr maps to "MMMM y", cs maps to
                                                                               "LLLL y" */
-static const UChar july2008_frDefault[] = { 0x6A, 0x75, 0x69, 0x6C, 0x6C, 0x65, 0x74, 0x20, 0x32, 0x30, 0x30, 0x38, 0 }; /*
+static const char16_t july2008_frDefault[] = { 0x6A, 0x75, 0x69, 0x6C, 0x6C, 0x65, 0x74, 0x20, 0x32, 0x30, 0x30, 0x38, 0 }; /*
                                                                                                                             "juillet
                                                                                                                             2008"
        */
-static const UChar july2008_frTitle[] = { 0x4A, 0x75, 0x69, 0x6C, 0x6C, 0x65, 0x74, 0x20, 0x32, 0x30, 0x30, 0x38, 0 };  /*
+static const char16_t july2008_frTitle[] = { 0x4A, 0x75, 0x69, 0x6C, 0x6C, 0x65, 0x74, 0x20, 0x32, 0x30, 0x30, 0x38, 0 };  /*
                                                                                                                            "Juillet
                                                                                                                            2008"
                                                                                                                            sentence-begin,
                                                                                                                            standalone
       */
-static const UChar july2008_csDefault[] = { 0x10D, 0x65, 0x72, 0x76, 0x65, 0x6E, 0x65, 0x63, 0x20, 0x32, 0x30, 0x30, 0x38, 0 }; /*
+static const char16_t july2008_csDefault[] = { 0x10D, 0x65, 0x72, 0x76, 0x65, 0x6E, 0x65, 0x63, 0x20, 0x32, 0x30, 0x30, 0x38, 0 }; /*
                                                                                                                                    "c(hacek)ervenec
                                                                                                                                    2008"
      */
-static const UChar july2008_csTitle[] = { 0x10C, 0x65, 0x72, 0x76, 0x65, 0x6E, 0x65, 0x63, 0x20, 0x32, 0x30, 0x30, 0x38, 0 }; /*
+static const char16_t july2008_csTitle[] = { 0x10C, 0x65, 0x72, 0x76, 0x65, 0x6E, 0x65, 0x63, 0x20, 0x32, 0x30, 0x30, 0x38, 0 }; /*
                                                                                                                                  "C(hacek)ervenec
                                                                                                                                  2008"
                                                                                                                                  sentence-begin,
@@ -1493,9 +1493,9 @@ static const UChar july2008_csTitle[] = { 0x10C, 0x65, 0x72, 0x76, 0x65, 0x6E, 0
 
 typedef struct {
 	const char * locale;
-	const UChar * skeleton;
+	const char16_t * skeleton;
 	UDisplayContext capitalizationContext;
-	const UChar * expectedFormat;
+	const char16_t * expectedFormat;
 } TestContextItem;
 
 static const TestContextItem textContextItems[] = {
@@ -1516,25 +1516,25 @@ static const TestContextItem textContextItems[] = {
 	{ NULL, NULL, (UDisplayContext)0, NULL }
 };
 
-static const UChar today_enDefault[] = { 0x74, 0x6F, 0x64, 0x61, 0x79, 0 }; /* "today" */
-static const UChar today_enTitle[] = { 0x54, 0x6F, 0x64, 0x61, 0x79, 0 };  /* "Today" sentence-begin, uiListOrMenu,
+static const char16_t today_enDefault[] = { 0x74, 0x6F, 0x64, 0x61, 0x79, 0 }; /* "today" */
+static const char16_t today_enTitle[] = { 0x54, 0x6F, 0x64, 0x61, 0x79, 0 };  /* "Today" sentence-begin, uiListOrMenu,
                                                                               standalone */
-static const UChar yesterday_enDefault[] = { 0x79, 0x65, 0x73, 0x74, 0x65, 0x72, 0x64, 0x61, 0x79, 0 }; /* "yesterday"
+static const char16_t yesterday_enDefault[] = { 0x79, 0x65, 0x73, 0x74, 0x65, 0x72, 0x64, 0x61, 0x79, 0 }; /* "yesterday"
         */
-static const UChar yesterday_enTitle[] = { 0x59, 0x65, 0x73, 0x74, 0x65, 0x72, 0x64, 0x61, 0x79, 0 };  /* "Yesterday"
+static const char16_t yesterday_enTitle[] = { 0x59, 0x65, 0x73, 0x74, 0x65, 0x72, 0x64, 0x61, 0x79, 0 };  /* "Yesterday"
                                                                                                           sentence-begin,
                                                                                                           uiListOrMenu,
                                                                                                           standalone */
-static const UChar today_nbDefault[] = { 0x69, 0x20, 0x64, 0x61, 0x67, 0 }; /* "i dag" */
-static const UChar today_nbTitle[] = { 0x49, 0x20, 0x64, 0x61, 0x67, 0 };  /* "I dag" sentence-begin, standalone */
-static const UChar yesterday_nbDefault[] = { 0x69, 0x20, 0x67, 0xE5, 0x72, 0 };
-static const UChar yesterday_nbTitle[] = { 0x49, 0x20, 0x67, 0xE5, 0x72, 0 };
+static const char16_t today_nbDefault[] = { 0x69, 0x20, 0x64, 0x61, 0x67, 0 }; /* "i dag" */
+static const char16_t today_nbTitle[] = { 0x49, 0x20, 0x64, 0x61, 0x67, 0 };  /* "I dag" sentence-begin, standalone */
+static const char16_t yesterday_nbDefault[] = { 0x69, 0x20, 0x67, 0xE5, 0x72, 0 };
+static const char16_t yesterday_nbTitle[] = { 0x49, 0x20, 0x67, 0xE5, 0x72, 0 };
 
 typedef struct {
 	const char * locale;
 	UDisplayContext capitalizationContext;
-	const UChar * expectedFormatToday;
-	const UChar * expectedFormatYesterday;
+	const char16_t * expectedFormatToday;
+	const char16_t * expectedFormatYesterday;
 } TestRelativeContextItem;
 
 static const TestRelativeContextItem textContextRelativeItems[] = {
@@ -1555,7 +1555,7 @@ static const TestRelativeContextItem textContextRelativeItems[] = {
 	{ NULL, (UDisplayContext)0, NULL, NULL }
 };
 
-static const UChar zoneGMT[] = { 0x47, 0x4D, 0x54, 0 }; /* "GMT" */
+static const char16_t zoneGMT[] = { 0x47, 0x4D, 0x54, 0 }; /* "GMT" */
 static const UDate july022008 = 1215000000000.0;
 enum { kUbufMax = 64, kBbufMax = 3*kUbufMax };
 
@@ -1566,7 +1566,7 @@ static void TestContext() {
 		UErrorCode status = U_ZERO_ERROR;
 		UDateTimePatternGenerator* udtpg = udatpg_open(textContextItemPtr->locale, &status);
 		if(U_SUCCESS(status)) {
-			UChar ubuf[kUbufMax];
+			char16_t ubuf[kUbufMax];
 			int32_t len = udatpg_getBestPattern(udtpg, textContextItemPtr->skeleton, -1, ubuf, kUbufMax, &status);
 			if(U_SUCCESS(status)) {
 				UDateFormat* udfmt = udat_open(UDAT_PATTERN,
@@ -1653,7 +1653,7 @@ static void TestContext() {
 				udat_setContext(udfmt, textRelContextItemPtr->capitalizationContext, &status);
 				if(U_SUCCESS(status)) {
 					UDate yesterday, today = ucal_getNow();
-					UChar ubuf[kUbufMax];
+					char16_t ubuf[kUbufMax];
 					char bbuf1[kBbufMax];
 					char bbuf2[kBbufMax];
 					int32_t len = udat_format(udfmt, today, ubuf, kUbufMax, NULL, &status);
@@ -1729,9 +1729,9 @@ static const char * overrideNumberFormat[][2] = {
 
 static void TestOverrideNumberFormat() {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar pattern[50];
-	UChar expected[50];
-	UChar fields[50];
+	char16_t pattern[50];
+	char16_t expected[50];
+	char16_t fields[50];
 	char bbuf1[kBbufMax];
 	char bbuf2[kBbufMax];
 	const char * localeString = "zh@numbers=hanidays";
@@ -1776,7 +1776,7 @@ static void TestOverrideNumberFormat() {
 
 	for(i = 0; i<SIZEOFARRAYi(overrideNumberFormat); i++) {
 		status = U_ZERO_ERROR;
-		UChar ubuf[kUbufMax];
+		char16_t ubuf[kUbufMax];
 		UDateFormat* fmt2;
 		UNumberFormat * overrideFmt2;
 
@@ -1878,7 +1878,7 @@ static void TestParseErrorReturnValue() {
 static const char localeForFields[] = "en_US";
 /* zoneGMT[]defined above */
 static const UDate date2015Feb25 = 1424841000000.0; /* Wednesday, February 25, 2015 at 5:10:00 AM GMT */
-static const UChar patNoFields[] = { 0x0027, 0x0078, 0x0078, 0x0078, 0x0027, 0 }; /* "'xxx'" */
+static const char16_t patNoFields[] = { 0x0027, 0x0078, 0x0078, 0x0078, 0x0027, 0 }; /* "'xxx'" */
 
 typedef struct {
 	int32_t field;
@@ -1923,7 +1923,7 @@ static void TestFormatForFields()
 		}
 		else {
 			int32_t ulen, field, beginPos, endPos;
-			UChar ubuf[kUBufFieldsLen];
+			char16_t ubuf[kUBufFieldsLen];
 			const FieldsData * fptr;
 
 			status = U_ZERO_ERROR;
@@ -2023,7 +2023,7 @@ static void TestForceGannenNumbering()
 	UErrorCode status;
 	const char * locID = "ja_JP@calendar=japanese";
 	UDate refDate = 600336000000.0; // 1989 Jan 9 Monday = Heisei 1
-	const UChar * testSkeleton = u"yMMMd";
+	const char16_t * testSkeleton = u"yMMMd";
 	// Test Gannen year forcing
 	status = U_ZERO_ERROR;
 	UDateTimePatternGenerator* dtpgen = udatpg_open(locID, &status);
@@ -2031,7 +2031,7 @@ static void TestForceGannenNumbering()
 		log_data_err("Fail in udatpg_open locale %s: %s", locID, u_errorName(status));
 	}
 	else {
-		UChar pattern[kUbufMax];
+		char16_t pattern[kUbufMax];
 		int32_t patlen = udatpg_getBestPattern(dtpgen, testSkeleton, -1, pattern, kUbufMax, &status);
 		if(U_FAILURE(status)) {
 			log_data_err("Fail in udatpg_getBestPattern locale %s: %s", locID, u_errorName(status));
@@ -2042,7 +2042,7 @@ static void TestForceGannenNumbering()
 				log_data_err("Fail in udat_open locale %s: %s", locID, u_errorName(status));
 			}
 			else {
-				UChar testString[kUbufMax];
+				char16_t testString[kUbufMax];
 				int32_t testStrLen = udat_format(testFmt, refDate, testString, kUbufMax, NULL, &status);
 				if(U_FAILURE(status)) {
 					log_err("Fail in udat_format locale %s: %s", locID, u_errorName(status));
@@ -2060,7 +2060,7 @@ static void TestForceGannenNumbering()
 }
 
 typedef struct {
-	UChar patternChar;           // for future use
+	char16_t patternChar;           // for future use
 	UDateFormatField dateField;
 	UCalendarDateFields calField;
 } PatternCharToFieldsItem;
@@ -2075,12 +2075,12 @@ static const PatternCharToFieldsItem patCharToFieldsItems[] = {
 	{ u'B', UDAT_FLEXIBLE_DAY_PERIOD_FIELD, UCAL_FIELD_COUNT },
 	{ u'$', UDAT_FIELD_COUNT,               UCAL_FIELD_COUNT },
 	{ 0xFFFF, (UDateFormatField)-1,         UCAL_FIELD_COUNT },// patternChar ignored here
-	{ (UChar)0, (UDateFormatField)0, (UCalendarDateFields)0 } // terminator
+	{ (char16_t)0, (UDateFormatField)0, (UCalendarDateFields)0 } // terminator
 };
 
 static void TestMapDateToCalFields() 
 {
-	for(const PatternCharToFieldsItem * itemPtr = patCharToFieldsItems; itemPtr->patternChar!=(UChar)0; itemPtr++) {
+	for(const PatternCharToFieldsItem * itemPtr = patCharToFieldsItems; itemPtr->patternChar!=(char16_t)0; itemPtr++) {
 		UCalendarDateFields calField = udat_toCalendarDateField(itemPtr->dateField);
 		if(calField != itemPtr->calField) {
 			log_err("for pattern char 0x%04X, dateField %d, expect calField %d and got %d\n", itemPtr->patternChar, itemPtr->dateField, itemPtr->calField, calField);
@@ -2091,7 +2091,7 @@ static void TestMapDateToCalFields()
 static void TestNarrowQuarters() 
 {
 	// Test for rdar://79238094
-	const UChar * testCases[] = {
+	const char16_t * testCases[] = {
 		u"en_US", u"QQQQ y",  u"1st quarter 1970",
 		u"en_US", u"QQQ y",   u"Q1 1970",
 		u"en_US", u"QQQQQ y", u"1 1970",
@@ -2106,14 +2106,14 @@ static void TestNarrowQuarters()
 		u"es_MX", u"qqqqq",   u"1T",
 	};
 	UErrorCode err = U_ZERO_ERROR;
-	UChar result[100];
+	char16_t result[100];
 	UDate parsedDate = 0;
 	UDate expectedFormatParsedDate = 0;
 	UDate expectedStandaloneParsedDate = 0;
 	for(int32_t i = 0; i < SIZEOFARRAYi(testCases); i += 3) {
-		const UChar * localeID = testCases[i];
-		const UChar * pattern = testCases[i + 1];
-		const UChar * expectedResult = testCases[i + 2];
+		const char16_t * localeID = testCases[i];
+		const char16_t * pattern = testCases[i + 1];
+		const char16_t * expectedResult = testCases[i + 2];
 		err = U_ZERO_ERROR;
 		UDateFormat* df = udat_open(UDAT_PATTERN, UDAT_PATTERN, austrdup(localeID), u"UTC", 0, pattern, -1, &err);
 		udat_format(df, 0, result, 100, NULL, &err);

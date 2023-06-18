@@ -731,7 +731,7 @@ void ui_label(const char * fmt, ...)
 	va_end(ap);
 
 	avail = ui_available_width();
-	n = ui_break_lines(buf, lines, nelem(lines), avail, &used);
+	n = ui_break_lines(buf, lines, SIZEOFARRAY(lines), avail, &used);
 	area = ui_pack(used, n * ui.lineheight);
 	glColorHex(UI_COLOR_TEXT_FG);
 	ui_draw_lines(area.x0, area.y0, lines, n);
@@ -1058,7 +1058,7 @@ void ui_label_with_scrollbar(const char * text, int width, int height, int * scr
 	struct line lines[500];
 	int n;
 	fz_irect area = ui_pack(width, height);
-	n = ui_break_lines(text, lines, nelem(lines), area.x1-area.x0 - 16, NULL);
+	n = ui_break_lines(text, lines, SIZEOFARRAY(lines), area.x1-area.x0 - 16, NULL);
 	if(n > (area.y1-area.y0) / ui.lineheight) {
 		if(ui_mouse_inside(area))
 			*scroll -= ui.scroll_y * ui.lineheight * 3;

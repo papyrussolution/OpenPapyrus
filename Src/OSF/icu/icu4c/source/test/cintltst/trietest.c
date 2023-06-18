@@ -135,15 +135,15 @@ static bool U_CALLCONV _testEnumRange(const void * context, UChar32 start, UChar
 static void testTrieIteration(const char * testName,
     const UTrie * trie,
     const CheckRange checkRanges[], int32_t countCheckRanges) {
-	UChar s[100];
+	char16_t s[100];
 	uint32_t values[30];
 
-	const UChar * p, * limit;
+	const char16_t * p, * limit;
 
 	uint32_t value;
 	UChar32 c;
 	int32_t i, length, countValues;
-	UChar c2;
+	char16_t c2;
 
 	/* write a string */
 	length = countValues = 0;

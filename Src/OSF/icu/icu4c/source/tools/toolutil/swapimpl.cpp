@@ -250,7 +250,7 @@ static int32_t U_CALLCONV uprops_swap(const UDataSwapper * ds,
 
 		/*
 		 * swap the UChars
-		 * U  const UChar uchars[2*(i3-i2)];
+		 * U  const char16_t uchars[2*(i3-i2)];
 		 */
 		ds->swapArray16(ds,
 		    inData32+dataIndexes[UPROPS_EXCEPTIONS_TOP_INDEX],
@@ -984,7 +984,7 @@ U_CAPI int32_t U_EXPORT2 udata_swap(const UDataSwapper * ds,
 
 	{
 		/* convert the data format from ASCII to Unicode to the system charset */
-		UChar u[4] = {
+		char16_t u[4] = {
 			pInfo->dataFormat[0], pInfo->dataFormat[1],
 			pInfo->dataFormat[2], pInfo->dataFormat[3]
 		};

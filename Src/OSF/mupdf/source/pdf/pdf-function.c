@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 
 #define DIV_BY_ZERO(a, b, min, max) (((a) < 0) ^ ((b) < 0) ? (min) : (max))
 
@@ -132,7 +132,7 @@ static void ps_init_stack(ps_stack * st)
 
 static inline int ps_overflow(ps_stack * st, int n)
 {
-	return n < 0 || st->sp + n >= (int)nelem(st->stack);
+	return n < 0 || st->sp + n >= SIZEOFARRAYi(st->stack);
 }
 
 static inline int ps_underflow(ps_stack * st, int n)
@@ -751,7 +751,7 @@ static void parse_code(fz_context * ctx, pdf_function * func, fz_stream * stream
 			case PDF_TOK_KEYWORD:
 			    cmp = -1;
 			    a = -1;
-			    b = nelem(ps_op_names);
+			    b = SIZEOFARRAY(ps_op_names);
 			    while(b - a > 1) {
 				    mid = (a + b) / 2;
 				    cmp = strcmp(buf->scratch, ps_op_names[mid]);

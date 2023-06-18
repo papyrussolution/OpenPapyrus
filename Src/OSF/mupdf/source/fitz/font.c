@@ -334,11 +334,11 @@ void fz_drop_font_context(fz_context * ctx)
 	if(ctx) {
 		if(fz_drop_imp(ctx, ctx->font, &ctx->font->ctx_refs)) {
 			int i;
-			for(i = 0; i < (int)nelem(ctx->font->base14); ++i)
+			for(i = 0; i < SIZEOFARRAYi(ctx->font->base14); ++i)
 				fz_drop_font(ctx, ctx->font->base14[i]);
-			for(i = 0; i < (int)nelem(ctx->font->cjk); ++i)
+			for(i = 0; i < SIZEOFARRAYi(ctx->font->cjk); ++i)
 				fz_drop_font(ctx, ctx->font->cjk[i]);
-			for(i = 0; i < (int)nelem(ctx->font->fallback); ++i) {
+			for(i = 0; i < SIZEOFARRAYi(ctx->font->fallback); ++i) {
 				fz_drop_font(ctx, ctx->font->fallback[i].serif);
 				fz_drop_font(ctx, ctx->font->fallback[i].sans);
 			}
@@ -407,7 +407,7 @@ fz_font * fz_load_fallback_font(fz_context * ctx, int script, int language, int 
 	int index;
 	int subfont;
 	int size;
-	if(script < 0 || script >= (int)nelem(ctx->font->fallback))
+	if(script < 0 || script >= SIZEOFARRAYi(ctx->font->fallback))
 		return NULL;
 	/* TODO: bold and italic */
 	index = script;
@@ -715,7 +715,7 @@ fz_font * fz_new_cjk_font(fz_context * ctx, int ordering)
 	const uchar * data;
 	int size, index;
 	fz_font * font;
-	if(ordering >= 0 && ordering < (int)nelem(ctx->font->cjk)) {
+	if(ordering >= 0 && ordering < SIZEOFARRAYi(ctx->font->cjk)) {
 		if(ctx->font->cjk[ordering])
 			return fz_keep_font(ctx, ctx->font->cjk[ordering]);
 		data = fz_lookup_cjk_font(ctx, ordering, &size, &index);

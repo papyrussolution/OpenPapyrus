@@ -43,9 +43,9 @@ static const char * const txt_testResultStrings[] = {
 };
 
 const int32_t cnt_testCases = 5;
-static UChar * testCasePatterns[5];
+static char16_t * testCasePatterns[5];
 
-static UChar * testResultStrings[5];
+static char16_t * testResultStrings[5];
 
 static bool strings_initialized = FALSE;
 
@@ -58,12 +58,12 @@ static void InitStrings(void)
 
 	for(i = 0; i < cnt_testCases; i++) {
 		uint32_t strSize = (uint32_t)strlen(txt_testCasePatterns[i]) + 1;
-		testCasePatterns[i] = (UChar *)SAlloc::M(sizeof(UChar) * strSize);
+		testCasePatterns[i] = (char16_t *)SAlloc::M(sizeof(char16_t) * strSize);
 		u_uastrncpy(testCasePatterns[i], txt_testCasePatterns[i], strSize);
 	}
 	for(i = 0; i < cnt_testCases; i++) {
 		uint32_t strSize = (uint32_t)strlen(txt_testResultStrings[i]) + 1;
-		testResultStrings[i] = (UChar *)SAlloc::M(sizeof(UChar) * strSize);
+		testResultStrings[i] = (char16_t *)SAlloc::M(sizeof(char16_t) * strSize);
 		u_uastrncpy(testResultStrings[i], txt_testResultStrings[i], strSize);
 	}
 
@@ -103,18 +103,18 @@ static bool returnsNullForType(int firstParam, ...) {
 /* Test u_formatMessage() with various test patterns() */
 static void MessageFormatTest(void)
 {
-	UChar * str;
-	UChar * result;
+	char16_t * str;
+	char16_t * result;
 	int32_t resultLengthOut, resultlength, i, patternlength;
 	UErrorCode status = U_ZERO_ERROR;
 	UDate d1 = 1000000000.0;
 
 	ctest_setTimeZone(NULL, &status);
 
-	str = (UChar *)SAlloc::M(sizeof(UChar) * 7);
+	str = (char16_t *)SAlloc::M(sizeof(char16_t) * 7);
 	u_uastrncpy(str, "MyDisk", 7);
 	resultlength = 1;
-	result = (UChar *)SAlloc::M(sizeof(UChar) * 1);
+	result = (char16_t *)SAlloc::M(sizeof(char16_t) * 1);
 	log_verbose("Testing u_formatMessage()\n");
 	InitStrings();
 	for(i = 0; i < cnt_testCases; i++) {
@@ -125,7 +125,7 @@ static void MessageFormatTest(void)
 		if(status== U_BUFFER_OVERFLOW_ERROR) {
 			status = U_ZERO_ERROR;
 			resultlength = resultLengthOut+1;
-			result = (UChar *)SAlloc::R(result, sizeof(UChar) * resultlength);
+			result = (char16_t *)SAlloc::R(result, sizeof(char16_t) * resultlength);
 			u_formatMessage("en_US", testCasePatterns[i], patternlength, result, resultlength,
 			    &status, 1, 3456.00, d1);
 		}
@@ -157,7 +157,7 @@ static void MessageFormatTest(void)
 			if(status== U_BUFFER_OVERFLOW_ERROR) {
 				status = U_ZERO_ERROR;
 				resultlength = resultLengthOut+1;
-				result = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+				result = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 				u_formatMessage("en_US", testCasePatterns[i], patternlength, result, resultlength,
 				    &status, 1, 3456.00, d1);
 			}
@@ -208,7 +208,7 @@ static void MessageFormatTest(void)
 			resultLength = umsg_format(formatter, result, resultLength, &ec, 1, 3456.00, d1);
 			if(ec==U_BUFFER_OVERFLOW_ERROR) {
 				ec = U_ZERO_ERROR;
-				result = (UChar *)SAlloc::M(U_SIZEOF_UCHAR*resultLength+2);
+				result = (char16_t *)SAlloc::M(U_SIZEOF_UCHAR*resultLength+2);
 				resultLength =  umsg_format(formatter, result, resultLength+2, &ec, 1, 3456.00, d1);
 				if(U_FAILURE(ec)) {
 					log_err("ERROR: failure in message format on testcase %d:  %s\n", i, u_errorName(status));
@@ -284,28 +284,28 @@ static void MessageFormatTest(void)
 /*test u_formatMessage() with sample patterns */
 static void TestSampleMessageFormat(void)
 {
-	UChar * str;
-	UChar * result;
-	UChar pattern[100], expected[100];
+	char16_t * str;
+	char16_t * result;
+	char16_t pattern[100], expected[100];
 	int32_t resultLengthOut, resultlength;
 	UDate d = 837039928046.0;
 	UErrorCode status = U_ZERO_ERROR;
 
 	ctest_setTimeZone(NULL, &status);
 
-	str = (UChar *)SAlloc::M(sizeof(UChar) * 15);
+	str = (char16_t *)SAlloc::M(sizeof(char16_t) * 15);
 	u_uastrcpy(str, "abc");
 
 	u_uastrcpy(pattern, "There are {0} files on {1,date}");
 	u_uastrcpy(expected, "There are abc files on Jul 10, 1996");
-	result = (UChar *)SAlloc::M(sizeof(UChar) * 1);
+	result = (char16_t *)SAlloc::M(sizeof(char16_t) * 1);
 	log_verbose("\nTesting a sample for Message format test#1\n");
 	resultlength = 1;
 	resultLengthOut = u_formatMessage("en_US", pattern, u_strlen(pattern), result, resultlength, &status, str, d);
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultLengthOut+1;
-		result = (UChar *)SAlloc::R(result, sizeof(UChar) * resultlength);
+		result = (char16_t *)SAlloc::R(result, sizeof(char16_t) * resultlength);
 		u_formatMessage("en_US", pattern, u_strlen(pattern), result, resultlength, &status, str, d);
 	}
 	if(U_FAILURE(status)) {
@@ -334,7 +334,7 @@ static void TestSampleMessageFormat(void)
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultLengthOut+1;
-		result = (UChar *)SAlloc::R(result, sizeof(UChar) * (resultlength+1));
+		result = (char16_t *)SAlloc::R(result, sizeof(char16_t) * (resultlength+1));
 		u_formatMessage("en_US", pattern, u_strlen(pattern), result, resultlength, &status, str, 23);
 	}
 	if(U_FAILURE(status)) {
@@ -356,7 +356,7 @@ static void TestSampleMessageFormat(void)
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultLengthOut+1;
-		result = (UChar *)SAlloc::R(result, sizeof(UChar) * resultlength);
+		result = (char16_t *)SAlloc::R(result, sizeof(char16_t) * resultlength);
 		u_formatMessage("en_US", pattern, u_strlen(pattern), result, resultlength, &status, str, 500.00);
 	}
 	if(U_FAILURE(status)) {
@@ -378,16 +378,16 @@ static void TestSampleMessageFormat(void)
 /* Test umsg_format() and umsg_parse() , format and parse sequence and round trip */
 static void TestNewFormatAndParseAPI(void)
 {
-	UChar * result = NULL, tzID[4], str[25];
-	UChar pattern[100];
-	UChar expected[100];
+	char16_t * result = NULL, tzID[4], str[25];
+	char16_t pattern[100];
+	char16_t expected[100];
 	int32_t resultLengthOut, resultlength;
 	UCalendar * cal;
 	UDate d1, d;
 	UDateFormat * def1 = NULL;
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t value = 0;
-	UChar ret[30];
+	char16_t ret[30];
 	UParseError parseError;
 	UMessageFormat* fmt = NULL;
 	int32_t count = 0;
@@ -419,13 +419,13 @@ static void TestNewFormatAndParseAPI(void)
 		log_data_err("error in umsg_open  : %s (Are you missing data?)\n", u_errorName(status));
 		goto cleanup;
 	}
-	result = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+	result = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 
 	resultLengthOut = umsg_format(fmt, result, resultlength, &status, d1, str, 7);
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultLengthOut+1;
-		result = (UChar *)SAlloc::R(result, sizeof(UChar) * resultlength);
+		result = (char16_t *)SAlloc::R(result, sizeof(char16_t) * resultlength);
 		u_formatMessageWithError("en_US", pattern, u_strlen(pattern), result, resultlength, &parseError, &status, d1, str, 7);
 	}
 	if(U_FAILURE(status)) {
@@ -475,26 +475,26 @@ cleanup:
 /* Test u_formatMessageWithError() and u_parseMessageWithError() , format and parse sequence and round trip */
 static void TestSampleFormatAndParseWithError(void)
 {
-	UChar * result, * tzID, * str;
-	UChar pattern[100];
+	char16_t * result, * tzID, * str;
+	char16_t pattern[100];
 
-	UChar expected[100];
+	char16_t expected[100];
 	int32_t resultLengthOut, resultlength;
 	UCalendar * cal;
 	UDate d1, d;
 	UDateFormat * def1 = NULL;
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t value = 0;
-	UChar ret[30];
+	char16_t ret[30];
 	UParseError parseError;
 
 	ctest_setTimeZone(NULL, &status);
 
 	log_verbose("Testing format and parse with parse error\n");
 
-	str = (UChar *)SAlloc::M(sizeof(UChar) * 25);
+	str = (char16_t *)SAlloc::M(sizeof(char16_t) * 25);
 	u_uastrcpy(str, "disturbance in force");
-	tzID = (UChar *)SAlloc::M(sizeof(UChar) * 4);
+	tzID = (char16_t *)SAlloc::M(sizeof(char16_t) * 4);
 	u_uastrcpy(tzID, "PST");
 	cal = ucal_open(tzID, u_strlen(tzID), "en_US", UCAL_TRADITIONAL, &status);
 	if(U_FAILURE(status)) {
@@ -510,7 +510,7 @@ static void TestSampleFormatAndParseWithError(void)
 	u_uastrcpy(pattern, "On {0, date, long}, there was a {1} on planet {2,number,integer}");
 	u_uastrcpy(expected, "On March 18, 1999, there was a disturbance in force on planet 7");
 	resultlength = 1;
-	result = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+	result = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 	resultLengthOut = u_formatMessageWithError("en_US",
 		pattern,
 		u_strlen(pattern),
@@ -524,7 +524,7 @@ static void TestSampleFormatAndParseWithError(void)
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultLengthOut+1;
-		result = (UChar *)SAlloc::R(result, sizeof(UChar) * resultlength);
+		result = (char16_t *)SAlloc::R(result, sizeof(char16_t) * resultlength);
 		u_formatMessageWithError("en_US", pattern, u_strlen(pattern), result, resultlength, &parseError, &status, d1, str, 7);
 	}
 	if(U_FAILURE(status)) {
@@ -580,24 +580,24 @@ cleanup:
 /* Test u_formatMessage() and u_parseMessage() , format and parse sequence and round trip */
 static void TestSampleFormatAndParse(void)
 {
-	UChar * result, * tzID, * str;
-	UChar pattern[100];
-	UChar expected[100];
+	char16_t * result, * tzID, * str;
+	char16_t pattern[100];
+	char16_t expected[100];
 	int32_t resultLengthOut, resultlength;
 	UCalendar * cal;
 	UDate d1, d;
 	UDateFormat * def1;
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t value = 0;
-	UChar ret[30];
+	char16_t ret[30];
 
 	ctest_setTimeZone(NULL, &status);
 
 	log_verbose("Testing format and parse\n");
 
-	str = (UChar *)SAlloc::M(sizeof(UChar) * 25);
+	str = (char16_t *)SAlloc::M(sizeof(char16_t) * 25);
 	u_uastrcpy(str, "disturbance in force");
-	tzID = (UChar *)SAlloc::M(sizeof(UChar) * 4);
+	tzID = (char16_t *)SAlloc::M(sizeof(char16_t) * 4);
 	u_uastrcpy(tzID, "PST");
 	cal = ucal_open(tzID, u_strlen(tzID), "en_US", UCAL_TRADITIONAL, &status);
 	if(U_FAILURE(status)) {
@@ -614,12 +614,12 @@ static void TestSampleFormatAndParse(void)
 	u_uastrcpy(pattern, "On {0, date, long}, there was a {1} on planet {2,number,integer}");
 	u_uastrcpy(expected, "On March 18, 1999, there was a disturbance in force on planet 7");
 	resultlength = 1;
-	result = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+	result = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 	resultLengthOut = u_formatMessage("en_US", pattern, u_strlen(pattern), result, resultlength, &status, d1, str, 7);
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultLengthOut+1;
-		result = (UChar *)SAlloc::R(result, sizeof(UChar) * resultlength);
+		result = (char16_t *)SAlloc::R(result, sizeof(char16_t) * resultlength);
 		u_formatMessage("en_US", pattern, u_strlen(pattern), result, resultlength, &status, d1, str, 7);
 	}
 	if(U_FAILURE(status)) {
@@ -673,17 +673,17 @@ static void TestSampleFormatAndParse(void)
 /* Test message format with a Select option */
 static void TestMsgFormatSelect(void)
 {
-	UChar * str;
-	UChar * str1;
+	char16_t * str;
+	char16_t * str1;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar * result;
-	UChar pattern[100];
-	UChar expected[100];
+	char16_t * result;
+	char16_t pattern[100];
+	char16_t expected[100];
 	int32_t resultlength, resultLengthOut;
 
-	str = (UChar *)SAlloc::M(sizeof(UChar) * 25);
+	str = (char16_t *)SAlloc::M(sizeof(char16_t) * 25);
 	u_uastrcpy(str, "Kirti");
-	str1 = (UChar *)SAlloc::M(sizeof(UChar) * 25);
+	str1 = (char16_t *)SAlloc::M(sizeof(char16_t) * 25);
 	u_uastrcpy(str1, "female");
 	log_verbose("Testing message format with Select test #1\n:");
 	u_uastrcpy(pattern, "{0} est {1, select, female {all\\u00E9e} other {all\\u00E9}} \\u00E0 Paris.");
@@ -693,7 +693,7 @@ static void TestMsgFormatSelect(void)
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultLengthOut+1;
-		result = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+		result = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 		u_formatMessage("fr", pattern, u_strlen(pattern), result, resultlength, &status, str, str1);
 		if(u_strcmp(result, expected)==0)
 			log_verbose("PASS: MessagFormat successful on Select test#1\n");
@@ -710,9 +710,9 @@ static void TestMsgFormatSelect(void)
 	SAlloc::F(str1);
 
 	/*Test a nested pattern*/
-	str = (UChar *)SAlloc::M(sizeof(UChar) * 25);
+	str = (char16_t *)SAlloc::M(sizeof(char16_t) * 25);
 	u_uastrcpy(str, "Noname");
-	str1 = (UChar *)SAlloc::M(sizeof(UChar) * 25);
+	str1 = (char16_t *)SAlloc::M(sizeof(char16_t) * 25);
 	u_uastrcpy(str1, "other");
 	log_verbose("Testing message format with Select test #2\n:");
 	u_uastrcpy(pattern, "{0} est {1, select, female {{2,number,integer} all\\u00E9e} other {all\\u00E9}} \\u00E0 Paris.");
@@ -722,7 +722,7 @@ static void TestMsgFormatSelect(void)
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultLengthOut+1;
-		result = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+		result = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 		u_formatMessage("fr", pattern, u_strlen(pattern), result, resultlength, &status, str, str1, 6);
 		if(u_strcmp(result, expected)==0)
 			log_verbose("PASS: MessagFormat successful on Select test#2\n");
@@ -742,14 +742,14 @@ static void TestMsgFormatSelect(void)
 /* test message format with a choice option */
 static void TestMsgFormatChoice(void)
 {
-	UChar * str;
+	char16_t * str;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar * result;
-	UChar pattern[100];
-	UChar expected[100];
+	char16_t * result;
+	char16_t pattern[100];
+	char16_t expected[100];
 	int32_t resultlength, resultLengthOut;
 
-	str = (UChar *)SAlloc::M(sizeof(UChar) * 25);
+	str = (char16_t *)SAlloc::M(sizeof(char16_t) * 25);
 	u_uastrcpy(str, "MyDisk");
 	log_verbose("Testing message format with choice test #6\n:");
 	/*
@@ -766,7 +766,7 @@ static void TestMsgFormatChoice(void)
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultLengthOut+1;
-		result = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+		result = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 		u_formatMessage("en_US", pattern, u_strlen(pattern), result, resultlength, &status, 100., str);
 		if(u_strcmp(result, expected)==0)
 			log_verbose("PASS: MessagFormat successful on test#6\n");
@@ -787,7 +787,7 @@ static void TestMsgFormatChoice(void)
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultLengthOut+1;
-		result = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+		result = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 		u_formatMessage("en_US", pattern, u_strlen(pattern), result, resultlength, &status, 0., str);
 
 		if(u_strcmp(result, expected)==0)
@@ -809,7 +809,7 @@ static void TestMsgFormatChoice(void)
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultLengthOut+1;
-		result = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+		result = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 		u_formatMessage("en_US", pattern, u_strlen(pattern), result, resultlength, &status, 1., str);
 
 		if(u_strcmp(result, expected)==0)
@@ -831,12 +831,12 @@ static void TestMsgFormatChoice(void)
 /*test u_parseMessage() with various test patterns */
 static void TestParseMessage(void)
 {
-	UChar pattern[100];
-	UChar source[100];
+	char16_t pattern[100];
+	char16_t source[100];
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t value;
-	UChar str[10];
-	UChar res[10];
+	char16_t str[10];
+	char16_t res[10];
 
 	log_verbose("\nTesting a sample for parse Message test#9\n");
 
@@ -869,8 +869,8 @@ static void TestParseMessage(void)
 		log_err("FAIL: Error in parseMessage on test#10 \n");
 }
 
-static int32_t CallFormatMessage(const char * locale, UChar * testCasePattern, int32_t patternLength,
-    UChar * result, int32_t resultLength, UErrorCode * status, ...)
+static int32_t CallFormatMessage(const char * locale, char16_t * testCasePattern, int32_t patternLength,
+    char16_t * result, int32_t resultLength, UErrorCode * status, ...)
 {
 	int32_t len = 0;
 	va_list ap;
@@ -883,18 +883,18 @@ static int32_t CallFormatMessage(const char * locale, UChar * testCasePattern, i
 /* Test u_vformatMessage() with various test patterns. */
 static void TestMessageFormatWithValist(void)
 {
-	UChar * str;
-	UChar * result;
+	char16_t * str;
+	char16_t * result;
 	int32_t resultLengthOut, resultlength, i, patternlength;
 	UErrorCode status = U_ZERO_ERROR;
 	UDate d1 = 1000000000.0;
 
 	ctest_setTimeZone(NULL, &status);
 
-	str = (UChar *)SAlloc::M(sizeof(UChar) * 7);
+	str = (char16_t *)SAlloc::M(sizeof(char16_t) * 7);
 	u_uastrcpy(str, "MyDisk");
 	resultlength = 1;
-	result = (UChar *)SAlloc::M(sizeof(UChar) * 1);
+	result = (char16_t *)SAlloc::M(sizeof(char16_t) * 1);
 	log_verbose("Testing u_formatMessage90\n");
 	InitStrings();
 	for(i = 0; i < cnt_testCases; i++) {
@@ -905,7 +905,7 @@ static void TestMessageFormatWithValist(void)
 		if(status== U_BUFFER_OVERFLOW_ERROR) {
 			status = U_ZERO_ERROR;
 			resultlength = resultLengthOut+1;
-			result = (UChar *)SAlloc::R(result, sizeof(UChar) * resultlength);
+			result = (char16_t *)SAlloc::R(result, sizeof(char16_t) * resultlength);
 			CallFormatMessage("en_US", testCasePatterns[i], patternlength, result, resultlength,
 			    &status, 1, 3456.00, d1);
 		}
@@ -929,8 +929,8 @@ static void TestMessageFormatWithValist(void)
 	ctest_resetTimeZone();
 }
 
-static void CallParseMessage(const char * locale, UChar * pattern, int32_t patternLength,
-    UChar * source, int32_t sourceLength, UErrorCode * status, ...)
+static void CallParseMessage(const char * locale, char16_t * pattern, int32_t patternLength,
+    char16_t * source, int32_t sourceLength, UErrorCode * status, ...)
 {
 	va_list ap;
 	va_start(ap, status);
@@ -941,12 +941,12 @@ static void CallParseMessage(const char * locale, UChar * pattern, int32_t patte
 /*test u_vparseMessage() with various test patterns */
 static void TestParseMessageWithValist(void)
 {
-	UChar pattern[100];
-	UChar source[100];
+	char16_t pattern[100];
+	char16_t source[100];
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t value;
-	UChar str[10];
-	UChar res[10];
+	char16_t str[10];
+	char16_t res[10];
 
 	log_verbose("\nTesting a sample for parse Message test#9\n");
 
@@ -983,9 +983,9 @@ static void TestParseMessageWithValist(void)
  * Regression test for ICU4C Jitterbug 904
  */
 static void TestJ904() {
-	UChar pattern[256];
-	UChar result[256];
-	UChar string[16];
+	char16_t pattern[256];
+	char16_t result[256];
+	char16_t string[16];
 	char cresult[256];
 	int32_t length;
 	UErrorCode status = U_ZERO_ERROR;
@@ -1028,8 +1028,8 @@ static void OpenMessageFormatTest(void)
 	UMessageFormat * f1;
 	UMessageFormat * f2;
 	UMessageFormat * f3;
-	UChar pattern[256];
-	UChar result[256];
+	char16_t pattern[256];
+	char16_t result[256];
 	char cresult[256];
 	UParseError parseError;
 	const char * locale = "hi_IN";
@@ -1098,10 +1098,10 @@ static void MessageLength(void)
 	UErrorCode status = U_ZERO_ERROR;
 	const char patChars[] = {"123{0}456{0}"};
 	const char expectedChars[] = {"123abc"};
-	UChar pattern[sizeof(patChars)];
-	UChar arg[] = {0x61, 0x62, 0x63, 0};
-	UChar result[128] = {0};
-	UChar expected[sizeof(expectedChars)];
+	char16_t pattern[sizeof(patChars)];
+	char16_t arg[] = {0x61, 0x62, 0x63, 0};
+	char16_t result[128] = {0};
+	char16_t expected[sizeof(expectedChars)];
 
 	u_uastrncpy(pattern, patChars, SIZEOFARRAYi(pattern));
 	u_uastrncpy(expected, expectedChars, SIZEOFARRAYi(expected));
@@ -1118,10 +1118,10 @@ static void MessageLength(void)
 static void TestMessageWithUnusedArgNumber() {
 	UErrorCode errorCode = U_ZERO_ERROR;
 	U_STRING_DECL(pattern, "abc {1} def", 11);
-	UChar x[2] = { 0x78, 0 }; // "x"
-	UChar y[2] = { 0x79, 0 }; // "y"
+	char16_t x[2] = { 0x78, 0 }; // "x"
+	char16_t y[2] = { 0x79, 0 }; // "y"
 	U_STRING_DECL(expected, "abc y def", 9);
-	UChar result[20];
+	char16_t result[20];
 	int32_t length;
 	U_STRING_INIT(pattern, "abc {1} def", 11);
 	U_STRING_INIT(expected, "abc y def", 9);

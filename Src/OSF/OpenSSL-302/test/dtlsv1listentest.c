@@ -334,7 +334,7 @@ err:
 int setup_tests()
 {
 #ifndef OPENSSL_NO_SOCK
-	ADD_ALL_TESTS(dtls_listen_test, (int)SIZEOFARRAY(testpackets));
+	ADD_ALL_TESTS(dtls_listen_test, SIZEOFARRAYi(testpackets));
 #endif
 	return 1;
 }

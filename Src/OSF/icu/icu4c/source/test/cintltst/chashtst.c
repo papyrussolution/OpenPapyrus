@@ -189,14 +189,14 @@ static void TestOtherAPI() {
 	UHashtable * hash;
 
 	/* Use the correct type when cast to void * */
-	static const UChar one[4] = {0x006F, 0x006E, 0x0065, 0}; /* L"one" */
-	static const UChar one2[4]  = {0x006F, 0x006E, 0x0065, 0}; /* Get around compiler optimizations */
-	static const UChar two[4] = {0x0074, 0x0077, 0x006F, 0}; /* L"two" */
-	static const UChar two2[4]  = {0x0074, 0x0077, 0x006F, 0}; /* L"two" */
-	static const UChar three[6] = {0x0074, 0x0068, 0x0072, 0x0065, 0x0065, 0}; /* L"three" */
-	static const UChar four[6]  = {0x0066, 0x006F, 0x0075, 0x0072, 0}; /* L"four" */
-	static const UChar five[6]  = {0x0066, 0x0069, 0x0076, 0x0065, 0}; /* L"five" */
-	static const UChar five2[6] = {0x0066, 0x0069, 0x0076, 0x0065, 0}; /* L"five" */
+	static const char16_t one[4] = {0x006F, 0x006E, 0x0065, 0}; /* L"one" */
+	static const char16_t one2[4]  = {0x006F, 0x006E, 0x0065, 0}; /* Get around compiler optimizations */
+	static const char16_t two[4] = {0x0074, 0x0077, 0x006F, 0}; /* L"two" */
+	static const char16_t two2[4]  = {0x0074, 0x0077, 0x006F, 0}; /* L"two" */
+	static const char16_t three[6] = {0x0074, 0x0068, 0x0072, 0x0065, 0x0065, 0}; /* L"three" */
+	static const char16_t four[6]  = {0x0066, 0x006F, 0x0075, 0x0072, 0}; /* L"four" */
+	static const char16_t five[6]  = {0x0066, 0x0069, 0x0076, 0x0065, 0}; /* L"five" */
+	static const char16_t five2[6] = {0x0066, 0x0069, 0x0076, 0x0065, 0}; /* L"five" */
 
 	hash = uhash_open(uhash_hashUChars, uhash_compareUChars, NULL,  &status);
 	if(U_FAILURE(status)) {

@@ -49,7 +49,7 @@ static UBreakIterator * EN_CHARACTERBREAKER_;
 static void open(UErrorCode * status)
 {
 	if(TOCLOSE_) {
-		UChar rules[1024];
+		char16_t rules[1024];
 		int32_t rulelength = 0;
 		*status = U_ZERO_ERROR;
 
@@ -127,9 +127,9 @@ static void TestEnd(void)
 }
 
 /**
- * output UChar strings for printing.
+ * output char16_t strings for printing.
  */
-static char * toCharString(const UChar * unichars)
+static char * toCharString(const char16_t * unichars)
 {
 	static char result[1024];
 	char * temp   = result;
@@ -137,7 +137,7 @@ static char * toCharString(const UChar * unichars)
 	int length = u_strlen(unichars);
 
 	for(; count < length; count++) {
-		UChar ch = unichars[count];
+		char16_t ch = unichars[count];
 		if(ch >= 0x20 && ch <= 0x7e) {
 			*temp++ = (char)ch;
 		}
@@ -197,8 +197,8 @@ static void TestOpenClose(void)
 {
 	UErrorCode status = U_ZERO_ERROR;
 	UStringSearch  * result;
-	const UChar pattern[] = {0x61, 0x62, 0x63, 0x64, 0x65, 0x66};
-	const UChar text[] = {0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67};
+	const char16_t pattern[] = {0x61, 0x62, 0x63, 0x64, 0x65, 0x66};
+	const char16_t text[] = {0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67};
 #if !UCONFIG_NO_BREAK_ITERATION
 	UBreakIterator * breakiter = ubrk_open(UBRK_WORD, "en_US",
 		text, 6, &status);
@@ -298,8 +298,8 @@ static void TestOpenClose(void)
 static void TestInitialization(void)
 {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar pattern[512];
-	const UChar text[] = u"abcdef";
+	char16_t pattern[512];
+	const char16_t text[] = u"abcdef";
 	int32_t i = 0;
 	UStringSearch  * result;
 
@@ -331,7 +331,7 @@ static void TestInitialization(void)
 	usearch_close(result);
 
 	/* testing that a pattern with all ignoreables doesn't fail initialization with an error */
-	UChar patternIgnoreables[] = u"\u200b"; // Zero Width Space
+	char16_t patternIgnoreables[] = u"\u200b"; // Zero Width Space
 	result = usearch_openFromCollator(patternIgnoreables, 1, text, 3, EN_US_, NULL, &status);
 	if(U_FAILURE(status)) {
 		log_err("Error opening search %s\n", u_errorName(status));
@@ -348,7 +348,7 @@ static bool assertEqualWithUStringSearch(UStringSearch * strsrch,
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t matchindex  = search.offset[count];
 	int32_t textlength;
-	UChar matchtext[128];
+	char16_t matchtext[128];
 	int32_t matchlength;
 	int32_t nextStart;
 	bool isOverlap;
@@ -384,7 +384,7 @@ static bool assertEqualWithUStringSearch(UStringSearch * strsrch,
 		    matchlength || U_FAILURE(status) ||
 		    memcmp(matchtext,
 		    usearch_getText(strsrch, &textlength) + matchindex,
-		    matchlength * sizeof(UChar)) != 0) {
+		    matchlength * sizeof(char16_t)) != 0) {
 			log_err("Error getting next matched text\n");
 		}
 
@@ -425,7 +425,7 @@ static bool assertEqualWithUStringSearch(UStringSearch * strsrch,
 		    matchlength || U_FAILURE(status) ||
 		    memcmp(matchtext,
 		    usearch_getText(strsrch, &textlength) + matchindex,
-		    matchlength * sizeof(UChar)) != 0) {
+		    matchlength * sizeof(char16_t)) != 0) {
 			log_err("Error getting previous matched text\n");
 		}
 
@@ -550,8 +550,8 @@ static bool assertEqualWithUStringSearch(UStringSearch * strsrch,
 static bool assertEqual(const SearchData search)
 {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar pattern[32];
-	UChar text[128];
+	char16_t pattern[32];
+	char16_t text[128];
 	UCollator      * collator = getCollator(search.collator);
 	UBreakIterator * breaker  = getBreakIterator(search.breaker);
 	UStringSearch  * strsrch;
@@ -581,8 +581,8 @@ static bool assertEqual(const SearchData search)
 static bool assertCanonicalEqual(const SearchData search)
 {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar pattern[32];
-	UChar text[128];
+	char16_t pattern[32];
+	char16_t text[128];
 	UCollator      * collator = getCollator(search.collator);
 	UBreakIterator * breaker  = getBreakIterator(search.breaker);
 	UStringSearch  * strsrch;
@@ -622,8 +622,8 @@ static bool assertEqualWithAttribute(const SearchData search,
     USearchAttributeValue overlap)
 {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar pattern[32];
-	UChar text[128];
+	char16_t pattern[32];
+	char16_t text[128];
 	UCollator      * collator = getCollator(search.collator);
 	UBreakIterator * breaker  = getBreakIterator(search.breaker);
 	UStringSearch  * strsrch;
@@ -730,8 +730,8 @@ static void TestStrength(void)
 static void TestBreakIterator() {
 	UErrorCode status = U_ZERO_ERROR;
 	UStringSearch  * strsrch;
-	UChar text[128];
-	UChar pattern[32];
+	char16_t text[128];
+	char16_t pattern[32];
 	int count = 0;
 
 	CHECK_BREAK("x");
@@ -884,8 +884,8 @@ static void TestOverlap(void)
 
 	count = 0;
 	while(count < 1) {
-		UChar pattern[32];
-		UChar text[128];
+		char16_t pattern[32];
+		char16_t text[128];
 		const SearchData     * search   = &(OVERLAP[count]);
 		UCollator      * collator = getCollator(search->collator);
 		UStringSearch  * strsrch;
@@ -933,11 +933,11 @@ static void TestOverlap(void)
 static void TestCollator(void)
 {
 	/* test collator that thinks "o" and "p" are the same thing */
-	UChar rules[32];
+	char16_t rules[32];
 	UCollator     * tailored = NULL;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar pattern[32];
-	UChar text[128];
+	char16_t pattern[32];
+	char16_t text[128];
 	UStringSearch * strsrch;
 
 	text[0] = 0x41;
@@ -1020,10 +1020,10 @@ ENDTESTCOLLATOR:
 static void TestPattern(void)
 {
 	UStringSearch * strsrch;
-	UChar pattern[32];
-	UChar bigpattern[512];
-	UChar text[128];
-	const UChar * temp;
+	char16_t pattern[32];
+	char16_t bigpattern[512];
+	char16_t text[128];
+	const char16_t * temp;
 	int32_t templength;
 	UErrorCode status = U_ZERO_ERROR;
 
@@ -1124,9 +1124,9 @@ ENDTESTPATTERN:
 static void TestText(void)
 {
 	UStringSearch * strsrch;
-	UChar pattern[32];
-	UChar text[128];
-	const UChar * temp;
+	char16_t pattern[32];
+	char16_t text[128];
+	const char16_t * temp;
 	int32_t templength;
 	UErrorCode status = U_ZERO_ERROR;
 
@@ -1220,12 +1220,12 @@ static void TestCompositeBoundaries(void)
 static void TestGetSetOffset(void)
 {
 	int searchDataIndex   = 0;
-	UChar pattern[32];
-	UChar text[128];
+	char16_t pattern[32];
+	char16_t text[128];
 	UErrorCode status = U_ZERO_ERROR;
 	UStringSearch * strsrch;
-	memzero(pattern, 32*sizeof(UChar));
-	memzero(text, 128*sizeof(UChar));
+	memzero(pattern, 32*sizeof(char16_t));
+	memzero(text, 128*sizeof(char16_t));
 	open(&status);
 	if(U_FAILURE(status)) {
 		log_err_status(status, "Unable to open static collators %s\n", u_errorName(status));
@@ -1321,11 +1321,11 @@ static void TestGetSetOffset(void)
 static void TestGetSetAttribute(void)
 {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar pattern[32];
-	UChar text[128];
+	char16_t pattern[32];
+	char16_t text[128];
 	UStringSearch  * strsrch;
-	memzero(pattern, 32*sizeof(UChar));
-	memzero(text, 128*sizeof(UChar));
+	memzero(pattern, 32*sizeof(char16_t));
+	memzero(text, 128*sizeof(char16_t));
 	open(&status);
 	if(U_FAILURE(status)) {
 		log_err_status(status, "Unable to open static collators %s\n", u_errorName(status));
@@ -1406,13 +1406,13 @@ static void TestGetMatch(void)
 {
 	int count = 0;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar text[128];
-	UChar pattern[32];
+	char16_t text[128];
+	char16_t pattern[32];
 	SearchData search      = MATCH[0];
 	int32_t matchindex  = search.offset[count];
 	UStringSearch * strsrch;
 	int32_t textlength;
-	UChar matchtext[128];
+	char16_t matchtext[128];
 
 	open(&status);
 	if(U_FAILURE(status)) {
@@ -1470,7 +1470,7 @@ static void TestGetMatch(void)
 		}
 		status = U_ZERO_ERROR;
 		if(usearch_getMatchedText(strsrch, matchtext, 128, &status) != matchlength || U_FAILURE(status) ||
-		    memcmp(matchtext, usearch_getText(strsrch, &textlength) + matchindex, matchlength * sizeof(UChar)) != 0 || matchtext[matchlength] != 0) {
+		    memcmp(matchtext, usearch_getText(strsrch, &textlength) + matchindex, matchlength * sizeof(char16_t)) != 0 || matchtext[matchlength] != 0) {
 			log_err("Error getting matched text\n");
 		}
 		matchindex = search.offset[count];
@@ -1503,8 +1503,8 @@ static void TestSetMatch(void)
 		SearchData search = MATCH[count];
 		int size   = 0;
 		int offsetIndex = 0;
-		UChar text[128];
-		UChar pattern[32];
+		char16_t text[128];
+		char16_t pattern[32];
 		UStringSearch * strsrch;
 		status = U_ZERO_ERROR;
 		if(usearch_first(NULL, &status) != USEARCH_DONE ||
@@ -1563,9 +1563,9 @@ static void TestSetMatch(void)
 static void TestReset(void)
 {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar text[] = {0x66, 0x69, 0x73, 0x68, 0x20,
+	char16_t text[] = {0x66, 0x69, 0x73, 0x68, 0x20,
 			0x66, 0x69, 0x73, 0x68};
-	UChar pattern[] = {0x73};
+	char16_t pattern[] = {0x73};
 	UStringSearch * strsrch;
 
 	open(&status);
@@ -1629,16 +1629,16 @@ static void TestSupplementary(void)
 
 static void TestContraction(void)
 {
-	UChar rules[128];
-	UChar pattern[128];
-	UChar text[128];
+	char16_t rules[128];
+	char16_t pattern[128];
+	char16_t text[128];
 	UCollator     * collator;
 	UErrorCode status = U_ZERO_ERROR;
 	int count = 0;
 	UStringSearch * strsrch;
-	memzero(rules, 128*sizeof(UChar));
-	memzero(pattern, 128*sizeof(UChar));
-	memzero(text, 128*sizeof(UChar));
+	memzero(rules, 128*sizeof(char16_t));
+	memzero(pattern, 128*sizeof(char16_t));
+	memzero(text, 128*sizeof(char16_t));
 	u_unescape(CONTRACTIONRULE, rules, 128);
 	collator = ucol_openRules(rules, u_strlen(rules), UCOL_ON,
 		UCOL_TERTIARY, NULL, &status);
@@ -1672,16 +1672,16 @@ static void TestContraction(void)
 
 static void TestIgnorable(void)
 {
-	UChar rules[128];
-	UChar pattern[128];
-	UChar text[128];
+	char16_t rules[128];
+	char16_t pattern[128];
+	char16_t text[128];
 	UCollator     * collator;
 	UErrorCode status = U_ZERO_ERROR;
 	UStringSearch * strsrch;
 	uint32_t count = 0;
-	memzero(rules, 128*sizeof(UChar));
-	memzero(pattern, 128*sizeof(UChar));
-	memzero(text, 128*sizeof(UChar));
+	memzero(rules, 128*sizeof(char16_t));
+	memzero(pattern, 128*sizeof(char16_t));
+	memzero(text, 128*sizeof(char16_t));
 	u_unescape(IGNORABLERULE, rules, 128);
 	collator = ucol_openRules(rules, u_strlen(rules), UCOL_ON,
 		IGNORABLE[count].strength, NULL, &status);
@@ -1715,15 +1715,15 @@ static void TestIgnorable(void)
 
 static void TestDiacriticMatch(void)
 {
-	UChar pattern[128];
-	UChar text[128];
+	char16_t pattern[128];
+	char16_t text[128];
 	UErrorCode status = U_ZERO_ERROR;
 	UStringSearch * strsrch = NULL;
 	UCollator * coll = NULL;
 	uint32_t count = 0;
 	SearchData search;
-	memzero(pattern, 128*sizeof(UChar));
-	memzero(text, 128*sizeof(UChar));
+	memzero(pattern, 128*sizeof(char16_t));
+	memzero(text, 128*sizeof(char16_t));
 	strsrch = usearch_open(pattern, 1, text, 1, uloc_getDefault(), NULL, &status);
 	if(U_FAILURE(status)) {
 		log_err_status(status, "Error opening string search %s\n", u_errorName(status));
@@ -1836,8 +1836,8 @@ static void TestBreakIteratorCanonical() {
 	}
 	while(count < 4) {
 		/* 0-3 test are fixed */
-		UChar pattern[32];
-		UChar text[128];
+		char16_t pattern[32];
+		char16_t text[128];
 		const SearchData     * search   = &(BREAKITERATORCANONICAL[count]);
 		UCollator      * collator = getCollator(search->collator);
 		UBreakIterator * breaker  = getBreakIterator(search->breaker);
@@ -1955,8 +1955,8 @@ static void TestOverlapCanonical(void)
 
 	count = 0;
 	while(count < 1) {
-		UChar pattern[32];
-		UChar text[128];
+		char16_t pattern[32];
+		char16_t text[128];
 		const SearchData     * search   = &(OVERLAPCANONICAL[count]);
 		UCollator      * collator = getCollator(search->collator);
 		UStringSearch  * strsrch;
@@ -2006,11 +2006,11 @@ static void TestOverlapCanonical(void)
 static void TestCollatorCanonical(void)
 {
 	/* test collator that thinks "o" and "p" are the same thing */
-	UChar rules[32];
+	char16_t rules[32];
 	UCollator     * tailored = NULL;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar pattern[32];
-	UChar text[128];
+	char16_t pattern[32];
+	char16_t text[128];
 	UStringSearch * strsrch;
 
 	open(&status);
@@ -2080,9 +2080,9 @@ ENDTESTCOLLATOR:
 static void TestPatternCanonical(void)
 {
 	UStringSearch * strsrch;
-	UChar pattern[32];
-	UChar text[128];
-	const UChar * temp;
+	char16_t pattern[32];
+	char16_t text[128];
+	const char16_t * temp;
 	int32_t templength;
 	UErrorCode status = U_ZERO_ERROR;
 
@@ -2155,9 +2155,9 @@ ENDTESTPATTERN:
 static void TestTextCanonical(void)
 {
 	UStringSearch * strsrch;
-	UChar pattern[32];
-	UChar text[128];
-	const UChar * temp;
+	char16_t pattern[32];
+	char16_t text[128];
+	const char16_t * temp;
 	int32_t templength;
 	UErrorCode status = U_ZERO_ERROR;
 
@@ -2242,13 +2242,13 @@ static void TestCompositeBoundariesCanonical(void)
 static void TestGetSetOffsetCanonical(void)
 {
 	int searchDataIndex   = 0;
-	UChar pattern[32];
-	UChar text[128];
+	char16_t pattern[32];
+	char16_t text[128];
 	UErrorCode status = U_ZERO_ERROR;
 	UStringSearch * strsrch;
 	UCollator     * collator;
-	memzero(pattern, 32*sizeof(UChar));
-	memzero(text, 128*sizeof(UChar));
+	memzero(pattern, 32*sizeof(char16_t));
+	memzero(text, 128*sizeof(char16_t));
 	open(&status);
 	if(U_FAILURE(status)) {
 		log_err_status(status, "Unable to open static collators %s\n", u_errorName(status));
@@ -2355,16 +2355,16 @@ static void TestSupplementaryCanonical(void)
 
 static void TestContractionCanonical(void)
 {
-	UChar rules[128];
-	UChar pattern[128];
-	UChar text[128];
+	char16_t rules[128];
+	char16_t pattern[128];
+	char16_t text[128];
 	UCollator     * collator = NULL;
 	UErrorCode status = U_ZERO_ERROR;
 	int count = 0;
 	UStringSearch * strsrch = NULL;
-	memzero(rules, 128*sizeof(UChar));
-	memzero(pattern, 128*sizeof(UChar));
-	memzero(text, 128*sizeof(UChar));
+	memzero(rules, 128*sizeof(char16_t));
+	memzero(pattern, 128*sizeof(char16_t));
+	memzero(text, 128*sizeof(char16_t));
 	u_unescape(CONTRACTIONRULE, rules, 128);
 	collator = ucol_openRules(rules, u_strlen(rules), UCOL_ON, UCOL_TERTIARY, NULL, &status);
 	if(status == U_FILE_ACCESS_ERROR) {
@@ -2403,10 +2403,10 @@ static void TestNumeric()
 	UCollator     * coll = NULL;
 	UStringSearch * strsrch = NULL;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar pattern[128];
-	UChar text[128];
-	memzero(pattern, 128*sizeof(UChar));
-	memzero(text, 128*sizeof(UChar));
+	char16_t pattern[128];
+	char16_t text[128];
+	memzero(pattern, 128*sizeof(char16_t));
+	memzero(text, 128*sizeof(char16_t));
 	coll = ucol_open("", &status);
 	if(U_FAILURE(status)) {
 		log_data_err("Could not open UCA. Is your data around?\n");
@@ -2430,7 +2430,7 @@ static void TestForwardBackward() {
 	UErrorCode status = U_ZERO_ERROR;
 	UCollator * coll = NULL;
 	UStringSearch * search = NULL;
-	UChar usrcstr[32], value[4];
+	char16_t usrcstr[32], value[4];
 	int32_t pos = -1;
 	int32_t expectedPos = 9;
 
@@ -2493,16 +2493,16 @@ static void TestSearchForNull() {
 	int expectedLen;
 	int expectedNum;
 	int count = 0;
-	const UChar zerodigit = 0x0030; /* 0 */
-	const UChar nulldigit = 0x0000; /* null */
+	const char16_t zerodigit = 0x0030; /* 0 */
+	const char16_t nulldigit = 0x0000; /* null */
 
-	/* static const UChar var[(length)+1]=U_DECLARE_UTF16(cs) */
+	/* static const char16_t var[(length)+1]=U_DECLARE_UTF16(cs) */
 #define PATTERN_LEN 4
 #define TEXT_LEN 10
 
 	U_STRING_DECL(_pattern, "IS 0", PATTERN_LEN);
 	U_STRING_DECL(_text, "_0IS 0 OK?", TEXT_LEN);
-	UChar pattern[PATTERN_LEN + 1], text[TEXT_LEN + 1];
+	char16_t pattern[PATTERN_LEN + 1], text[TEXT_LEN + 1];
 
 	U_STRING_INIT(_pattern, "IS 0", PATTERN_LEN);
 	U_STRING_INIT(_text, "_0IS 0 OK?", TEXT_LEN);
@@ -2579,8 +2579,8 @@ static void TestStrengthIdentical(void)
 	UErrorCode ec = U_ZERO_ERROR;
 	UStringSearch * search;
 
-	UChar pattern[] = {0x05E9, 0x0591, 0x05E9};
-	UChar text[] = {0x05E9, 0x0592, 0x05E9};
+	char16_t pattern[] = {0x05E9, 0x0591, 0x05E9};
+	char16_t text[] = {0x05E9, 0x0592, 0x05E9};
 	int32_t pLen = SIZEOFARRAYi(pattern);
 	int32_t tLen = SIZEOFARRAYi(text);
 	int32_t expectedPos = 0;
@@ -2634,12 +2634,12 @@ static void TestStrengthIdentical(void)
  */
 
 typedef struct {
-	const UChar * pattern;
+	const char16_t * pattern;
 	const int32_t * offsets;
 	int32_t offsetsLen;
 } PatternAndOffsets;
 
-static const UChar scKoText[] = {
+static const char16_t scKoText[] = {
 	0x0020,
 /*01*/ 0xAC00, 0x0020,                         /* simple LV Hangul */
 /*03*/ 0xAC01, 0x0020,                         /* simple LVT Hangul */
@@ -2656,12 +2656,12 @@ static const UChar scKoText[] = {
 	0
 };
 
-static const UChar scKoPat0[] = { 0xAC01, 0 };
-static const UChar scKoPat1[] = { 0x1100, 0x1161, 0x11A8, 0 }; /* 0xAC01 as conjoining jamo */
-static const UChar scKoPat2[] = { 0xAC0F, 0 };
-static const UChar scKoPat3[] = { 0x1100, 0x1161, 0x1105, 0x1112, 0 }; /* 0xAC0F as basic conjoining jamo */
-static const UChar scKoPat4[] = { 0xAFFF, 0 };
-static const UChar scKoPat5[] = { 0x1101, 0x1170, 0x11B6, 0 }; /* 0xAFFF as conjoining jamo */
+static const char16_t scKoPat0[] = { 0xAC01, 0 };
+static const char16_t scKoPat1[] = { 0x1100, 0x1161, 0x11A8, 0 }; /* 0xAC01 as conjoining jamo */
+static const char16_t scKoPat2[] = { 0xAC0F, 0 };
+static const char16_t scKoPat3[] = { 0x1100, 0x1161, 0x1105, 0x1112, 0 }; /* 0xAC0F as basic conjoining jamo */
+static const char16_t scKoPat4[] = { 0xAFFF, 0 };
+static const char16_t scKoPat5[] = { 0x1101, 0x1170, 0x11B6, 0 }; /* 0xAFFF as conjoining jamo */
 
 static const int32_t scKoSrchOff01[] = { 3,  9, 13 };
 static const int32_t scKoSrchOff23[] = { 5, 21, 25 };
@@ -2694,7 +2694,7 @@ static const PatternAndOffsets scKoStndPatternsOffsets[] = {
 
 typedef struct {
 	const char * locale;
-	const UChar * text;
+	const char16_t * text;
 	const PatternAndOffsets * patternsAndOffsets;
 } TUSCItem;
 
@@ -2705,7 +2705,7 @@ static const TUSCItem tuscItems[] = {
 	{ NULL,                    NULL,     NULL                    }
 };
 
-static const UChar dummyPat[] = { 0x0061, 0 };
+static const char16_t dummyPat[] = { 0x0061, 0 };
 
 static void TestUsingSearchCollator(void)
 {
@@ -2817,7 +2817,7 @@ static void TestUsingSearchCollator(void)
 	}
 }
 
-static void TestPCEBuffer_with(const UChar * search, uint32_t searchLen, const UChar * source, uint32_t sourceLen) {
+static void TestPCEBuffer_with(const char16_t * search, uint32_t searchLen, const char16_t * source, uint32_t sourceLen) {
 	UErrorCode icuStatus = U_ZERO_ERROR;
 	UCollator * coll;
 	const char * locale;
@@ -2891,13 +2891,13 @@ exit:
 static void TestUInt16Overflow() 
 {
 	const int32_t uint16_overflow = UINT16_MAX + 1;
-	UChar * pattern = (UChar *)uprv_malloc(uint16_overflow * sizeof(UChar));
+	char16_t * pattern = (char16_t *)uprv_malloc(uint16_overflow * sizeof(char16_t));
 	if(pattern == NULL) {
 		log_err("Err: uprv_malloc returned NULL\n");
 		return;
 	}
 	u_memset(pattern, 'A', uint16_overflow);
-	UChar text[] = { 'B' };
+	char16_t text[] = { 'B' };
 	UErrorCode errorCode = U_ZERO_ERROR;
 	UStringSearch* usearch = usearch_open(pattern, uint16_overflow, text, 1, "en-US", NULL, &errorCode);
 	if(U_SUCCESS(errorCode)) {
@@ -2920,11 +2920,11 @@ static void TestUInt16Overflow()
 
 static void TestPCEBuffer_100df() 
 {
-	UChar search[] =
+	char16_t search[] =
 	{ 0x0020, 0x0020, 0x00df, 0x0020, 0x0041, 0x00df, 0x0020, 0x0061, 0x00df, 0x0020, 0x00c5, 0x00df, 0x0020, 0x212b, 0x00df, 0x0020,
 	  0x0041, 0x030a, 0x00df, 0x0020, 0x00e5, 0x00df, 0x0020, 0x0061, 0x02da, 0x00df, 0x0020, 0x0061, 0x030a, 0x00df, 0x0020,
 	  0xd8fa, 0xdeae, 0x00df, 0x0020, 0x2027, 0x00df }; /* 38 cp, 9 of them unpaired surrogates */
-	UChar source[] =
+	char16_t source[] =
 	{ 0x0020, 0x0020, 0x00df, 0x0020, 0x0041, 0x00df, 0x0020, 0x0061, 0x00df, 0x0020, 0x00c5, 0x00df, 0x0020, 0x212b, 0x00df, 0x0020,
 	  0x0041, 0x030a, 0x00df, 0x0020, 0x00e5, 0x00df, 0x0020, 0x0061, 0x02da, 0x00df, 0x0020, 0x0061, 0x030a, 0x00df, 0x0020,
 	  0xd8fa, 0xdeae, 0x00df, 0x0020, 0x2027, 0x00df };
@@ -2935,11 +2935,11 @@ static void TestPCEBuffer_100df()
 
 static void TestPCEBuffer_2surr() 
 {
-	UChar search[] =
+	char16_t search[] =
 	{ 0x0020, 0x0020, 0xdfff, 0x0020, 0x0041, 0xdfff, 0x0020, 0x0061, 0xdfff, 0x0020, 0x00c5, 0xdfff, 0x0020, 0x212b, 0xdfff, 0x0020,
 	  0x0041, 0x030a, 0xdfff, 0x0020, 0x00e5, 0xdfff, 0x0020, 0x0061, 0x02da, 0xdfff, 0x0020, 0x0061, 0x030a, 0xdfff, 0x0020,
 	  0xd8fa, 0xdeae, 0xdfff, 0x0020, 0x2027, 0xdfff }; /* 38 cp, 9 of them unpaired surrogates */
-	UChar source[] =
+	char16_t source[] =
 	{ 0x0020, 0x0020, 0xdfff, 0x0020, 0x0041, 0xdfff, 0x0020, 0x0061, 0xdfff, 0x0020, 0x00c5, 0xdfff, 0x0020, 0x212b, 0xdfff, 0x0020,
 	  0x0041, 0x030a, 0xdfff, 0x0020, 0x00e5, 0xdfff, 0x0020, 0x0061, 0x02da, 0xdfff, 0x0020, 0x0061, 0x030a, 0xdfff, 0x0020,
 	  0xd8fa, 0xdeae, 0xdfff, 0x0020, 0x2027, 0xdfff };
@@ -2950,8 +2950,8 @@ static void TestPCEBuffer_2surr()
 
 static void TestMatchFollowedByIgnorables() {
 	/* test case for ticket#8482 */
-	UChar search[] = { 0x00c9 };
-	UChar source[] = { 0x00c9, 0x0000, 0x0041 };
+	char16_t search[] = { 0x00c9 };
+	char16_t source[] = { 0x00c9, 0x0000, 0x0041 };
 	int32_t searchLen;
 	int32_t sourceLen;
 	UErrorCode icuStatus = U_ZERO_ERROR;

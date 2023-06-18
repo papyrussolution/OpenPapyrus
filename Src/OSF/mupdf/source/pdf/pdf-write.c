@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 #include <zlib.h>
 /* #define DEBUG_LINEARIZATION */
 /* #define DEBUG_HEAP_SORT */
@@ -2799,8 +2799,8 @@ static void initialise_write_state(fz_context * ctx, pdf_document * doc, const p
 	opts->main_xref_offset = INT_MIN;
 
 	opts->permissions = in_opts->permissions;
-	memcpy(opts->opwd_utf8, in_opts->opwd_utf8, nelem(opts->opwd_utf8));
-	memcpy(opts->upwd_utf8, in_opts->upwd_utf8, nelem(opts->upwd_utf8));
+	memcpy(opts->opwd_utf8, in_opts->opwd_utf8, SIZEOFARRAY(opts->opwd_utf8));
+	memcpy(opts->upwd_utf8, in_opts->upwd_utf8, SIZEOFARRAY(opts->upwd_utf8));
 
 	/* We deliberately make these arrays long enough to cope with
 	 * 1 to n access rather than 0..n-1, and add space for 2 new
@@ -2919,9 +2919,9 @@ pdf_write_options * pdf_parse_write_options(fz_context * ctx, pdf_write_options 
 			opts->do_encrypt = PDF_ENCRYPT_AES_256;
 	}
 	if(fz_has_option(ctx, args, "owner-password", &val))
-		fz_copy_option(ctx, val, opts->opwd_utf8, nelem(opts->opwd_utf8));
+		fz_copy_option(ctx, val, opts->opwd_utf8, SIZEOFARRAY(opts->opwd_utf8));
 	if(fz_has_option(ctx, args, "user-password", &val))
-		fz_copy_option(ctx, val, opts->upwd_utf8, nelem(opts->upwd_utf8));
+		fz_copy_option(ctx, val, opts->upwd_utf8, SIZEOFARRAY(opts->upwd_utf8));
 	if(fz_has_option(ctx, args, "permissions", &val))
 		opts->permissions = satoi(val);
 	else
@@ -2980,11 +2980,11 @@ static pdf_obj * new_identity(fz_context * ctx, pdf_document * doc)
 	uchar rnd[32];
 	pdf_obj * id;
 
-	fz_memrnd(ctx, rnd, nelem(rnd));
+	fz_memrnd(ctx, rnd, SIZEOFARRAY(rnd));
 
 	id = pdf_dict_put_array(ctx, pdf_trailer(ctx, doc), PDF_NAME(ID), 2);
-	pdf_array_push_drop(ctx, id, pdf_new_string(ctx, (char *)rnd + 0, nelem(rnd) / 2));
-	pdf_array_push_drop(ctx, id, pdf_new_string(ctx, (char *)rnd + 16, nelem(rnd) / 2));
+	pdf_array_push_drop(ctx, id, pdf_new_string(ctx, (char *)rnd + 0, SIZEOFARRAY(rnd) / 2));
+	pdf_array_push_drop(ctx, id, pdf_new_string(ctx, (char *)rnd + 16, SIZEOFARRAY(rnd) / 2));
 
 	return id;
 }

@@ -125,16 +125,16 @@ static fz_colorspace * extract_icc_profile(fz_context * ctx, jpeg_saved_marker_p
 			for(marker = init_marker; marker != NULL; marker = marker->next) {
 				if(marker->marker != JPEG_APP0 + 2)
 					continue;
-				if(marker->data_length < nelem(idseq) + 2)
+				if(marker->data_length < SIZEOFARRAY(idseq) + 2)
 					continue;
-				if(memcmp(marker->data, idseq, nelem(idseq)))
+				if(memcmp(marker->data, idseq, SIZEOFARRAY(idseq)))
 					continue;
-				if(marker->data[nelem(idseq)] != part)
+				if(marker->data[SIZEOFARRAY(idseq)] != part)
 					continue;
 
 				if(parts == MAX_ICC_PARTS)
-					parts = marker->data[nelem(idseq) + 1];
-				else if(marker->data[nelem(idseq) + 1] != parts)
+					parts = marker->data[SIZEOFARRAY(idseq) + 1];
+				else if(marker->data[SIZEOFARRAY(idseq) + 1] != parts)
 					fz_warn(ctx, "inconsistent number of icc profile chunks in jpeg");
 				if(part > parts) {
 					fz_warn(ctx, "skipping out of range icc profile chunk in jpeg");

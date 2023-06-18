@@ -29,7 +29,7 @@ static EVP_PKEY * d2i_PrivateKey_decoder(int keytype, EVP_PKEY ** a, const uchar
 			return NULL;
 	}
 
-	for(i = 0; i < (int)SIZEOFARRAY(input_structures); ++i) {
+	for(i = 0; i < SIZEOFARRAYi(input_structures); ++i) {
 		const uchar * p = *pp;
 
 		if(a != NULL && (bak_a = *a) != NULL)

@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 
 /* Maximum number of errors before aborting */
 #define MAX_SYNTAX_ERRORS 100
@@ -839,7 +839,7 @@ static void pdf_process_stream(fz_context * ctx, pdf_processor * proc, pdf_csi *
 						    break;
 
 						case PDF_TOK_INT:
-						    if(csi->top < (int)nelem(csi->stack)) {
+						    if(csi->top < SIZEOFARRAYi(csi->stack)) {
 							    csi->stack[csi->top] = buf->i;
 							    csi->top++;
 						    }
@@ -848,7 +848,7 @@ static void pdf_process_stream(fz_context * ctx, pdf_processor * proc, pdf_csi *
 						    break;
 
 						case PDF_TOK_REAL:
-						    if(csi->top < (int)nelem(csi->stack)) {
+						    if(csi->top < SIZEOFARRAYi(csi->stack)) {
 							    csi->stack[csi->top] = buf->f;
 							    csi->top++;
 						    }

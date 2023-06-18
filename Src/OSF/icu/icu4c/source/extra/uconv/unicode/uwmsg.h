@@ -26,6 +26,6 @@ U_CFUNC UResourceBundle *u_wmsg_setPath(const char *path, UErrorCode *err);
 U_CFUNC int u_wmsg(FILE *fp, const char *tag, ... );
 
 /* format an error message */
-U_CFUNC const UChar * u_wmsg_errorName(UErrorCode err);
+U_CFUNC const char16_t * u_wmsg_errorName(UErrorCode err);
 
 #endif

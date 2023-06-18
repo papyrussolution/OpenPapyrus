@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 
 #define IS_NUMBER \
 	'+' : case '-': case '.': case '0': case '1': case '2': case '3': \
@@ -322,58 +322,40 @@ static int lex_string(fz_context * ctx, fz_stream * f, pdf_lexbuf * lb)
 			    break;
 			case '\\':
 			    c = lex_byte(ctx, f);
-			    switch(c)
-			    {
-				    case EOF:
-					return PDF_TOK_ERROR;
-				    case 'n':
-					*s++ = '\n';
-					break;
-				    case 'r':
-					*s++ = '\r';
-					break;
-				    case 't':
-					*s++ = '\t';
-					break;
-				    case 'b':
-					*s++ = '\b';
-					break;
-				    case 'f':
-					*s++ = '\f';
-					break;
-				    case '(':
-					*s++ = '(';
-					break;
-				    case ')':
-					*s++ = ')';
-					break;
-				    case '\\':
-					*s++ = '\\';
-					break;
+			    switch(c) {
+				    case EOF: return PDF_TOK_ERROR;
+				    case 'n': *s++ = '\n'; break;
+				    case 'r': *s++ = '\r'; break;
+				    case 't': *s++ = '\t'; break;
+				    case 'b': *s++ = '\b'; break;
+				    case 'f': *s++ = '\f'; break;
+				    case '(': *s++ = '('; break;
+				    case ')': *s++ = ')'; break;
+				    case '\\': *s++ = '\\'; break;
 				    case RANGE_0_7:
-					oct = c - '0';
-					c = lex_byte(ctx, f);
-					if(c >= '0' && c <= '7') {
-						oct = oct * 8 + (c - '0');
+						oct = c - '0';
 						c = lex_byte(ctx, f);
-						if(c >= '0' && c <= '7')
+						if(c >= '0' && c <= '7') {
 							oct = oct * 8 + (c - '0');
+							c = lex_byte(ctx, f);
+							if(c >= '0' && c <= '7')
+								oct = oct * 8 + (c - '0');
+							else if(c != EOF)
+								fz_unread_byte(ctx, f);
+						}
 						else if(c != EOF)
 							fz_unread_byte(ctx, f);
-					}
-					else if(c != EOF)
-						fz_unread_byte(ctx, f);
-					*s++ = oct;
-					break;
+						*s++ = oct;
+						break;
 				    case '\n':
-					break;
+						break;
 				    case '\r':
-					c = lex_byte(ctx, f);
-					if((c != '\n') && (c != EOF))
-						fz_unread_byte(ctx, f);
-					break;
+						c = lex_byte(ctx, f);
+						if((c != '\n') && (c != EOF))
+							fz_unread_byte(ctx, f);
+						break;
 				    default:
-					*s++ = c;
+						*s++ = c;
 			    }
 			    break;
 			default:
@@ -392,7 +374,6 @@ static int lex_hex_string(fz_context * ctx, fz_stream * f, pdf_lexbuf * lb)
 	char * e = s + lb->size;
 	int a = 0, x = 0;
 	int c;
-
 	while(1) {
 		if(s == e) {
 			s += pdf_lexbuf_grow(ctx, lb);
@@ -432,8 +413,7 @@ end:
 
 static pdf_token pdf_token_from_keyword(char * key)
 {
-	switch(*key)
-	{
+	switch(*key) {
 		case 'R':
 		    if(sstreq(key, "R")) return PDF_TOK_R;
 		    break;
@@ -462,7 +442,6 @@ static pdf_token pdf_token_from_keyword(char * key)
 		    if(sstreq(key, "xref")) return PDF_TOK_XREF;
 		    break;
 	}
-
 	while(*key) {
 		if(!fz_isprint(*key))
 			return PDF_TOK_ERROR;

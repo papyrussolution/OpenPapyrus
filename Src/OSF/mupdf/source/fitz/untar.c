@@ -74,20 +74,20 @@ static void ensure_tar_entries(fz_context * ctx, fz_tar_archive * tar)
 
 	while(1) {
 		offset = fz_tell(ctx, file);
-		n = fz_read(ctx, file, record, nelem(record));
+		n = fz_read(ctx, file, record, SIZEOFARRAY(record));
 		if(!n)
 			break;
-		if(n < nelem(record))
+		if(n < SIZEOFARRAY(record))
 			fz_throw(ctx, FZ_ERROR_GENERIC, "premature end of data in tar record");
 
-		if(is_zeroed(ctx, record, nelem(record)))
+		if(is_zeroed(ctx, record, SIZEOFARRAY(record)))
 			continue;
 
-		memcpy(name, record + 0, nelem(name) - 1);
-		name[nelem(name) - 1] = '\0';
+		memcpy(name, record + 0, SIZEOFARRAY(name) - 1);
+		name[SIZEOFARRAY(name) - 1] = '\0';
 
-		memcpy(octsize, record + 124, nelem(octsize) - 1);
-		octsize[nelem(octsize) - 1] = '\0';
+		memcpy(octsize, record + 124, SIZEOFARRAY(octsize) - 1);
+		octsize[SIZEOFARRAY(octsize) - 1] = '\0';
 
 		size = otoi(octsize);
 		if(size > INT_MAX)
@@ -208,14 +208,14 @@ int fz_is_tar_archive(fz_context * ctx, fz_stream * file)
 	size_t n;
 
 	fz_seek(ctx, file, 257, 0);
-	n = fz_read(ctx, file, data, nelem(data));
-	if(n != nelem(data))
+	n = fz_read(ctx, file, data, SIZEOFARRAY(data));
+	if(n != SIZEOFARRAY(data))
 		return 0;
-	if(!memcmp(data, gnusignature, nelem(gnusignature)))
+	if(!memcmp(data, gnusignature, SIZEOFARRAY(gnusignature)))
 		return 1;
-	if(!memcmp(data, paxsignature, nelem(paxsignature)))
+	if(!memcmp(data, paxsignature, SIZEOFARRAY(paxsignature)))
 		return 1;
-	if(!memcmp(data, v7signature, nelem(v7signature)))
+	if(!memcmp(data, v7signature, SIZEOFARRAY(v7signature)))
 		return 1;
 
 	return 0;

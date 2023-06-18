@@ -23,8 +23,7 @@
 	down: The outline items immediate children in the hierarchy.
 	May be NULL if no children exist.
 */
-typedef struct fz_outline
-{
+typedef struct fz_outline {
 	int refs;
 	char *title;
 	char *uri;

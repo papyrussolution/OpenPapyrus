@@ -26,14 +26,14 @@
 
 /* Internal Functions used*/
 
-void reportCResult( const UChar source[], const UChar target[], 
+void reportCResult( const char16_t source[], const char16_t target[], 
                          uint8_t *sourceKey, uint8_t *targetKey,
                          UCollationResult compareResult,
                          UCollationResult keyResult,
                          UCollationResult incResult,
                          UCollationResult expectedResult );
 
-UChar * appendCompareResult(UCollationResult result, UChar * target);
+char16_t * appendCompareResult(UCollationResult result, char16_t * target);
 
 void addCollAPITest(TestNode**);
 void addCurrencyCollTest(TestNode**);

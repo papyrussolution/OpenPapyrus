@@ -47,7 +47,7 @@ static void TestExampleCode() {
 
 	// Get the result string:
 	int32_t len;
-	const UChar * str = ufmtval_getString(unumrf_resultAsValue(uresult, &ec), &len, &ec);
+	const char16_t * str = ufmtval_getString(unumrf_resultAsValue(uresult, &ec), &len, &ec);
 	assertSuccessCheck("There should not be a failure in the example code", &ec, TRUE);
 	assertUEquals("Should produce expected string result", u"$3 – $5", str);
 	int32_t resultLength = str != NULL ? u_strlen(str) : 0;
@@ -117,7 +117,7 @@ static void TestGetDecimalNumbers() {
 	UFormattedNumberRange* uresult = unumrf_openResult(&ec);
 	assertSuccess("Should create result without error", &ec);
 	unumrf_formatDoubleRange(uformatter, 3.0, 5.0, uresult, &ec);
-	const UChar * str = ufmtval_getString(unumrf_resultAsValue(uresult, &ec), NULL, &ec);
+	const char16_t * str = ufmtval_getString(unumrf_resultAsValue(uresult, &ec), NULL, &ec);
 	assertSuccessCheck("Formatting should succeed", &ec, TRUE);
 	assertUEquals("Should produce expected string result", u"$3.00 \u2013 $5.00", str);
 	char buffer[CAPACITY];

@@ -284,13 +284,15 @@ public:
 		}
 		uint   Cmd;
 		struct Param {
-			Param() : SCardID(0)
+			Param() : SCardID(0), GoodsID(0), TechID(0)
 			{
 				AuthTextUtf8[0] = 0;
 				AuthPwUtf8[0] = 0;
 			}
 			S_GUID Uuid;
 			PPID   SCardID; // 
+			PPID   GoodsID;
+			PPID   TechID;
 			char   AuthTextUtf8[128];
 			char   AuthPwUtf8[128];
 		};
@@ -401,6 +403,10 @@ public:
 		PPID   QkID;
 		double Value;
 	};
+	struct TechEntry {
+		PPID   ID;
+		char   CodeUtf8[48];
+	};
 	struct GoodsEntry {
 		GoodsEntry() : ID(0)
 		{
@@ -412,11 +418,13 @@ public:
 		{
 			ID = rS.ID;
 			NameUtf8 = rS.NameUtf8;
+			TechList = rS.TechList;
 			QuotList = rS.QuotList;
 			return *this;
 		}
 		PPID   ID;
 		SString NameUtf8;
+		TSVector <TechEntry> TechList;
 		TSVector <QuotEntry> QuotList;
 	};
 	//
@@ -523,35 +531,27 @@ public:
 		DPrices & Z();
 		const  GoodsEntry * GetGoodsEntryByID(PPID goodsID) const;
 		int    FromJsonObject(const SJson * pJsObj);
-		bool   GetGoodsPrice(PPID goodsID, double * pPrice) const
-		{
-			bool   ok = false;
-			double price = 0.0;
-			const GoodsEntry * p_goods_entry = GetGoodsEntryByID(goodsID);
-			if(p_goods_entry) {
-				const uint gqlc_ = p_goods_entry->QuotList.getCount();
-				if(gqlc_) {
-					for(uint i = 0; !ok && i < QkList.getCount(); i++) {
-						const PPID qk_id = QkList.at(i)->ID;
-						for(uint j = 0; !ok && j < gqlc_; j++) {
-							const QuotEntry & r_qe = p_goods_entry->QuotList.at(j);
-							if(r_qe.QkID == qk_id && r_qe.Value > 0.0) {
-								price = r_qe.Value;
-								ok = true;
-							}
-						}
-					}
-				}
-			}
-			ASSIGN_PTR(pPrice, price);
-			return ok;
-		}
+		bool   GetGoodsPrice(PPID goodsID, double * pPrice) const;
 
 		TSCollection <QuotKindEntry> QkList; // Сервер передает ранжированный список. То есть, значения надо брать исходя из того, что первое приоритетнее следюущего.
 		TSCollection <GoodsEntry> GoodsList;
 	};
 	class DTSess : public DServerError {
 	public:
+		DTSess() : TSessID(0), GoodsID(0), TechID(0)
+		{
+		}
+		int    FromJsonObject(const SJson * pJsObj)
+		{
+			int    ok = 0;
+			if(pJsObj) {
+			}
+			return ok;
+		}
+		PPID   TSessID;
+		PPID   GoodsID;
+		PPID   TechID;
+		STimeChunk TmChunk;
 	};
 	struct JobSrvParam {
 		JobSrvParam() : Port(0), Timeout(0)
@@ -880,6 +880,30 @@ const WsCtl_ImGuiSceneBlock::GoodsEntry * WsCtl_ImGuiSceneBlock::DPrices::GetGoo
 	}
 	return p_result;
 }
+
+bool WsCtl_ImGuiSceneBlock::DPrices::GetGoodsPrice(PPID goodsID, double * pPrice) const
+{
+	bool   ok = false;
+	double price = 0.0;
+	const GoodsEntry * p_goods_entry = GetGoodsEntryByID(goodsID);
+	if(p_goods_entry) {
+		const uint gqlc_ = p_goods_entry->QuotList.getCount();
+		if(gqlc_) {
+			for(uint i = 0; !ok && i < QkList.getCount(); i++) {
+				const PPID qk_id = QkList.at(i)->ID;
+				for(uint j = 0; !ok && j < gqlc_; j++) {
+					const QuotEntry & r_qe = p_goods_entry->QuotList.at(j);
+					if(r_qe.QkID == qk_id && r_qe.Value > 0.0) {
+						price = r_qe.Value;
+						ok = true;
+					}
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pPrice, price);
+	return ok;
+}
 		
 int WsCtl_ImGuiSceneBlock::DPrices::FromJsonObject(const SJson * pJsObj)
 {
@@ -956,6 +980,31 @@ int WsCtl_ImGuiSceneBlock::DPrices::FromJsonObject(const SJson * pJsObj)
 									}
 									else if(p_g_cur->Text.IsEqiAscii("nm")) {
 										(p_entry->NameUtf8 = p_g_cur->P_Child->Text).Unescape();
+									}
+									else if(p_g_cur->Text.IsEqiAscii("tech_list")) {
+										if(SJson::IsArray(p_g_cur->P_Child)) {
+											for(const SJson * p_tec_cur = p_g_cur->P_Child; p_tec_cur; p_tec_cur = p_tec_cur->P_Next) {
+												if(SJson::IsObject(p_tec_cur->P_Child)) {
+													for(const SJson * p_t_cur = p_tec_cur->P_Child; p_t_cur; p_t_cur = p_t_cur->P_Next) {
+														if(p_t_cur->IsObject()) {
+															TechEntry t_entry;
+															for(const SJson * p_gt_obj = p_t_cur->P_Child; p_gt_obj; p_gt_obj = p_gt_obj->P_Next) {
+																if(p_gt_obj->Text.IsEqiAscii("id")) {
+																	t_entry.ID = p_gt_obj->P_Child->Text.ToLong();
+																}
+																else if(p_gt_obj->Text.IsEqiAscii("cod")) {
+																	SString & r_temp_buf = SLS.AcquireRvlStr();
+																	STRNSCPY(t_entry.CodeUtf8, (r_temp_buf = p_gt_obj->P_Child->Text).Unescape());
+																}
+															}
+															if(t_entry.ID) {
+																p_entry->TechList.insert(&t_entry);
+															}
+														}
+													}
+												}
+											}
+										}
 									}
 									else if(p_g_cur->Text.IsEqiAscii("quot_list")) {
 										if(SJson::IsArray(p_g_cur->P_Child)) {
@@ -1367,6 +1416,44 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				P_St->D_Prices.SetData(st_data);
 			}
 			break;
+		case PPSCMD_WSCTL_BEGIN_SESS:
+			if(P_St) {
+				DTSess st_data;
+				SJson js_param(SJson::tOBJECT);
+				js_param.InsertInt("scardid", rReq.P.SCardID);
+				temp_buf.Z().Cat(rReq.P.Uuid, S_GUID::fmtIDL);
+				js_param.InsertString("wsctluuid", temp_buf.Escape());
+				js_param.InsertInt("goodsid", rReq.P.GoodsID);
+				if(rReq.P.TechID) {
+					js_param.InsertInt("techid", rReq.P.TechID);
+				}
+				PPJobSrvCmd cmd;
+				cmd.StartWriting(PPSCMD_WSCTL_BEGIN_SESS);
+				{
+					js_param.ToStr(temp_buf);
+					SString mime_buf;
+					mime_buf.EncodeMime64(temp_buf.ucptr(), temp_buf.Len());
+					cmd.Write(mime_buf.ucptr(), mime_buf.Len()+1);
+				}
+				cmd.FinishWriting();
+				if(rCli.Exec(cmd, reply)) {
+					SString reply_buf;
+					reply.StartReading(&reply_buf);
+					if(reply.CheckRepError()) {
+						SJson * p_js = SJson::Parse(reply_buf);
+						if(st_data.FromJsonObject(p_js)) {
+							;
+						}
+						else
+							st_data.SetupByLastError();
+						ZDELETE(p_js);
+					}
+					else
+						st_data.SetupByLastError();
+				}
+				P_St->D_TSess.SetData(st_data);
+			}
+			break;
 	}
 }
 //
@@ -1698,11 +1785,11 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						}
 					}
 					{
-						ImGuiWindowByLayout wbl(p_tl, loidSessionSelection, "##SESSIONSELECTION", view_flags);
-						if(wbl.IsValid()) {
-							{
-								DPrices st_data_prices;
-								St.D_Prices.GetData(st_data_prices);
+						DPrices st_data_prices;
+						St.D_Prices.GetData(st_data_prices);
+						{
+							ImGuiWindowByLayout wbl(p_tl, loidSessionSelection, "##SESSIONSELECTION", view_flags);
+							if(wbl.IsValid()) {
 								if(st_data_prices.GoodsList.getCount()) {
 									const PPID selected_tec_goods_id = St.GetSelectedTecGoodsID();
 									//PPID   new_selected_tec_goods_id = 0;
@@ -1734,18 +1821,31 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								}
 							}
 						}
-					}
-					{
-						//loidSessionButtonGroup
-						ImGuiWindowByLayout wbl(p_tl, loidSessionButtonGroup, "##SESSIONBUTTONGROUP", view_flags);
-						if(wbl.IsValid()) {
-							PPID  sel_goods_id = St.GetSelectedTecGoodsID();
-							if(sel_goods_id) {
-								ImGui::Button("Start Session...");
+						{
+							//loidSessionButtonGroup
+							ImGuiWindowByLayout wbl(p_tl, loidSessionButtonGroup, "##SESSIONBUTTONGROUP", view_flags);
+							if(wbl.IsValid()) {
+								PPID  sel_goods_id = St.GetSelectedTecGoodsID();
+								const GoodsEntry * p_goods_entry = st_data_prices.GetGoodsEntryByID(sel_goods_id);
+								if(p_goods_entry) {
+									if(ImGui::Button("Start Session...")) {
+										WsCtl_ImGuiSceneBlock::DPrc prc_data;
+										St.D_Prc.GetData(prc_data); 
+										if(!!prc_data.PrcUuid) {
+											WsCtlReqQueue::Req req(PPSCMD_WSCTL_BEGIN_SESS);
+											req.P.SCardID = st_data_acc.SCardID;
+											req.P.Uuid = prc_data.PrcUuid;
+											req.P.GoodsID = sel_goods_id;
+											if(p_goods_entry->TechList.getCount()) {
+												req.P.TechID = p_goods_entry->TechList.at(0).ID;
+											}
+											P_CmdQ->Push(req);
+										}
+									}
+								}
 							}
 						}
 					}
-
 					{
 						ImGuiWindowByLayout wbl(p_tl, loidBottomCtrlGroup, "##BOTTOMCTRLGROUP", view_flags);
 						if(wbl.IsValid()) {

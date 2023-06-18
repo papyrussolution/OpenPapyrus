@@ -195,7 +195,7 @@ static inline int sgilog16val(fz_context * ctx, uint16_t v)
 	if(!Le)
 		Y = 0;
 	else {
-		Y = expf(FZ_LN2/256 * (Le + .5f) - FZ_LN2*64);
+		Y = expf(SMathConst::Ln2_f/256.0f * (Le + 0.5f) - SMathConst::Ln2_f*64.0f);
 		if(v & 0x8000)
 			Y = -Y;
 	}
@@ -344,7 +344,6 @@ static inline int sgilog24val(fz_context * ctx, fz_stream * chain, uint8 * rgb)
 	int luv, p;
 	float u, v, s, x, y, X, Y, Z;
 	float r, g, b;
-
 	b0 = fz_read_byte(ctx, chain);
 	if(b0 < 0)
 		return b0;
@@ -354,12 +353,10 @@ static inline int sgilog24val(fz_context * ctx, fz_stream * chain, uint8 * rgb)
 	b2 = fz_read_byte(ctx, chain);
 	if(b2 < 0)
 		return b2;
-
 	luv = (b0<<16) | (b1<<8) | b2;
-
 	/* decode luminance */
 	p = (luv>>14) & 0x3ff;
-	Y = (p == 0 ? 0 : expf(FZ_LN2/64*(p+.5f) - FZ_LN2*12));
+	Y = (p == 0 ? 0 : expf(SMathConst::Ln2_f/64.0f * (p + 0.5f) - SMathConst::Ln2_f*12.0f));
 	if(Y <= 0) {
 		X = Y = Z = 0;
 	}
@@ -465,7 +462,7 @@ static inline void sgilog32val(fz_context * ctx, uint32_t p, uint8 * rgb)
 	}
 	else {
 		int Le = (p>>16) & 0x7fff;
-		Y = !Le ? 0 : expf(FZ_LN2/256*(Le+.5f) - FZ_LN2*64);
+		Y = !Le ? 0 : expf(SMathConst::Ln2_f/256.0f * (Le + 0.5f) - SMathConst::Ln2_f*64.0f);
 		/* decode color */
 		u = (1.f/UVSCALE) * ((p>>8 & 0xff) + .5f);
 		v = (1.f/UVSCALE) * ((p & 0xff) + .5f);

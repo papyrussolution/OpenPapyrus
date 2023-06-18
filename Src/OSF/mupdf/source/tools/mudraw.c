@@ -1353,7 +1353,7 @@ static void drawrange(fz_context * ctx, fz_document * doc, const char * range)
 
 static int parse_colorspace(const char * name)
 {
-	for(int i = 0; i < (int)nelem(cs_name_table); i++) {
+	for(int i = 0; i < SIZEOFARRAYi(cs_name_table); i++) {
 		if(!strcmp(name, cs_name_table[i].name))
 			return cs_name_table[i].colorspace;
 	}
@@ -1875,7 +1875,7 @@ int mudraw_main(int argc, const char * argv[])
 		output_format = OUT_PNG;
 		if(format) {
 			int i;
-			for(i = 0; i < (int)nelem(suffix_table); i++) {
+			for(i = 0; i < SIZEOFARRAYi(suffix_table); i++) {
 				if(!strcmp(format, suffix_table[i].suffix+1)) {
 					output_format = suffix_table[i].format;
 					if(spots == SPOTS_FULL && suffix_table[i].spots == 0) {
@@ -1885,14 +1885,14 @@ int mudraw_main(int argc, const char * argv[])
 					break;
 				}
 			}
-			if(i == (int)nelem(suffix_table)) {
+			if(i == SIZEOFARRAYi(suffix_table)) {
 				slfprintf_stderr("Unknown output format '%s'\n", format);
 				exit(1);
 			}
 		}
 		else if(output) {
 			const char * suffix = output;
-			for(int i = 0; i < (int)nelem(suffix_table); i++) {
+			for(int i = 0; i < SIZEOFARRAYi(suffix_table); i++) {
 				const char * s = strstr(suffix, suffix_table[i].suffix);
 				if(s) {
 					suffix = s+strlen(suffix_table[i].suffix);
@@ -1916,16 +1916,16 @@ int mudraw_main(int argc, const char * argv[])
 			}
 		}
 		{
-			for(int i = 0; i < (int)nelem(format_cs_table); i++) {
+			for(int i = 0; i < SIZEOFARRAYi(format_cs_table); i++) {
 				if(format_cs_table[i].format == output_format) {
 					int j;
 					if(out_cs == CS_UNSET)
 						out_cs = format_cs_table[i].default_cs;
-					for(j = 0; j < (int)nelem(format_cs_table[i].permitted_cs); j++) {
+					for(j = 0; j < SIZEOFARRAYi(format_cs_table[i].permitted_cs); j++) {
 						if(format_cs_table[i].permitted_cs[j] == out_cs)
 							break;
 					}
-					if(j == (int)nelem(format_cs_table[i].permitted_cs)) {
+					if(j == SIZEOFARRAYi(format_cs_table[i].permitted_cs)) {
 						slfprintf_stderr("Unsupported colorspace for this format\n");
 						exit(1);
 					}
@@ -1981,9 +1981,9 @@ int mudraw_main(int argc, const char * argv[])
 
 			/* Check to make sure this icc profile is ok with the output format */
 			okay = 0;
-			for(i = 0; i < (int)nelem(format_cs_table); i++) {
+			for(i = 0; i < SIZEOFARRAYi(format_cs_table); i++) {
 				if(format_cs_table[i].format == output_format) {
-					for(j = 0; j < (int)nelem(format_cs_table[i].permitted_cs); j++) {
+					for(j = 0; j < SIZEOFARRAYi(format_cs_table[i].permitted_cs); j++) {
 						switch(format_cs_table[i].permitted_cs[j])
 						{
 							case CS_MONO:

@@ -34,9 +34,9 @@
 
     /*internal functions*/
     
-/*    static void assertEqual(const UChar * result,  const UChar * expected, int32_t index);
+/*    static void assertEqual(const char16_t * result,  const char16_t * expected, int32_t index);
 */
-    static void assertEqual(const UChar * result,  const char * expected, int32_t index);
+    static void assertEqual(const char16_t * result,  const char * expected, int32_t index);
 
 
     

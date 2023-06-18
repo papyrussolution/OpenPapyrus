@@ -467,7 +467,7 @@ U_CAPI int32_t paramCldrVersion(const USystemParams * /* param */, char * target
 #if !UCONFIG_NO_FORMATTING
 U_CAPI int32_t paramTimezoneDefault(const USystemParams * /* param */, char * target, int32_t targetCapacity, UErrorCode * status) {
 	if(U_FAILURE(*status)) return 0;
-	UChar buf[100];
+	char16_t buf[100];
 	char buf2[100];
 	int32_t len;
 
@@ -598,7 +598,7 @@ class KnownIssues {
 public:
 	KnownIssues();
 	~KnownIssues();
-	void add(const char * ticket, const char * where, const UChar * msg, bool * firstForTicket, bool * firstForWhere);
+	void add(const char * ticket, const char * where, const char16_t * msg, bool * firstForTicket, bool * firstForWhere);
 	void add(const char * ticket, const char * where, const char * msg, bool * firstForTicket, bool * firstForWhere);
 	bool print();
 private:
@@ -634,7 +634,7 @@ static std::string mapTicketId(const char * ticketStr) {
 	return ticket;
 }
 
-void KnownIssues::add(const char * ticketStr, const char * where, const UChar * msg, bool * firstForTicket, bool * firstForWhere)
+void KnownIssues::add(const char * ticketStr, const char * where, const char16_t * msg, bool * firstForTicket, bool * firstForWhere)
 {
 	const std::string ticket = mapTicketId(ticketStr);
 	if(fTable.find(ticket) == fTable.end()) {
@@ -718,7 +718,7 @@ bool KnownIssues::print()
 	return TRUE;
 }
 
-U_CAPI void * udbg_knownIssue_openU(void * ptr, const char * ticket, char * where, const UChar * msg, bool * firstForTicket,
+U_CAPI void * udbg_knownIssue_openU(void * ptr, const char * ticket, char * where, const char16_t * msg, bool * firstForTicket,
     bool * firstForWhere) {
 	KnownIssues * t = static_cast<KnownIssues*>(ptr);
 	if(t==NULL) {

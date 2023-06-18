@@ -9,8 +9,7 @@
 	details and subject to change. Where possible, accessor
 	functions should be used in preference.
 */
-typedef struct
-{
+typedef struct {
 	int refs;
 	int w, h, stride, n;
 	int xres, yres;

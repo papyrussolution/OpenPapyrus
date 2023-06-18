@@ -39,7 +39,7 @@ struct OrderAndOffset {
 typedef struct OrderAndOffset OrderAndOffset;
 
 /* tests comparison of custom collation with different strengths */
-void doTest(UCollator*, const UChar * source, const UChar * target, UCollationResult result);
+void doTest(UCollator*, const char16_t * source, const char16_t * target, UCollationResult result);
 /* verify that iterating forward and backwards over the string yields same CEs */
 void backAndForth(UCollationElements * iter);
 /* gets an array of CEs for a string in UCollationElements iterator. */

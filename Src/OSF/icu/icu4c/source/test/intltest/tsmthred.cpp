@@ -137,10 +137,10 @@ private:
 };
 
 void TestArabicShapeThreads::doTailTest() {
-	static const UChar src[] = { 0x0020, 0x0633, 0 };
-	static const UChar dst_old[] = { 0xFEB1, 0x200B, 0 };
-	static const UChar dst_new[] = { 0xFEB1, 0xFE73, 0 };
-	UChar dst[3] = { 0x0000, 0x0000, 0 };
+	static const char16_t src[] = { 0x0020, 0x0633, 0 };
+	static const char16_t dst_old[] = { 0xFEB1, 0x200B, 0 };
+	static const char16_t dst_new[] = { 0xFEB1, 0xFE73, 0 };
+	char16_t dst[3] = { 0x0000, 0x0000, 0 };
 	int32_t length;
 	UErrorCode status;
 
@@ -295,8 +295,8 @@ const ThreadSafeFormatSharedData * gSharedData = NULL;
 
 ThreadSafeFormatSharedData::ThreadSafeFormatSharedData(UErrorCode & status) {
 	fFormat.adoptInstead(NumberFormat::createCurrencyInstance(Locale::getUS(), status));
-	static const UChar * kYDD = u"YDD";
-	static const UChar * kBBD = u"BBD";
+	static const char16_t * kYDD = u"YDD";
+	static const char16_t * kBBD = u"BBD";
 	fYDDThing.adoptObject(new CurrencyAmount(123.456, kYDD, status));
 	fBBDThing.adoptObject(new CurrencyAmount(987.654, kBBD, status));
 	if(U_FAILURE(status)) {
@@ -331,7 +331,7 @@ ThreadSafeFormat::ThreadSafeFormat(UErrorCode & status) {
 	fFormat.adoptInstead(NumberFormat::createCurrencyInstance(Locale::getUS(), status));
 }
 
-static const UChar * kUSD = u"USD";
+static const char16_t * kUSD = u"USD";
 
 bool ThreadSafeFormat::doStuff(int32_t offset, UnicodeString & appendErr, UErrorCode & status) const {
 	bool okay = TRUE;
@@ -646,7 +646,7 @@ void MultithreadTest::TestThreadedIntl()
 #define kCollatorThreadPatience kCollatorThreadThreads*30
 
 struct Line {
-	UChar buff[25];
+	char16_t buff[25];
 	int32_t buflen;
 };
 
@@ -797,7 +797,7 @@ void MultithreadTest::TestCollators()
 	memset(lines.getAlias(), 0, sizeof(Line)*200000);
 	int32_t lineNum = 0;
 
-	UChar bufferU[1024];
+	char16_t bufferU[1024];
 	uint32_t first = 0;
 
 	while(fgets(buffer, 1024, testFile) != NULL) {

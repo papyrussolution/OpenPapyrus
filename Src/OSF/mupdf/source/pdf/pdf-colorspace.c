@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 
 /* ICCBased */
 static fz_colorspace * load_icc_based(fz_context * ctx, pdf_obj * dict, int allow_alt)

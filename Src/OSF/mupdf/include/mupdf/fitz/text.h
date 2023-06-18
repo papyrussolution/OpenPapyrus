@@ -12,8 +12,7 @@
 	with indexes into the glyph array.
 */
 
-typedef struct
-{
+typedef struct {
 	float x, y;
 	int gid; /* -1 for one gid to many ucs mappings */
 	int ucs; /* -1 for one ucs to many gid mappings */
@@ -22,8 +21,7 @@ typedef struct
 #define FZ_LANG_TAG2(c1,c2) ((c1-'a'+1) + ((c2-'a'+1)*27))
 #define FZ_LANG_TAG3(c1,c2,c3) ((c1-'a'+1) + ((c2-'a'+1)*27) + ((c3-'a'+1)*27*27))
 
-typedef enum
-{
+typedef enum {
 	FZ_LANG_UNSET = 0,
 	FZ_LANG_ur = FZ_LANG_TAG2('u','r'),
 	FZ_LANG_urd = FZ_LANG_TAG3('u','r','d'),
@@ -34,8 +32,7 @@ typedef enum
 	FZ_LANG_zh_Hant = FZ_LANG_TAG3('z','h','t'),
 } fz_text_language;
 
-typedef struct fz_text_span
-{
+typedef struct fz_text_span {
 	fz_font *font;
 	fz_matrix trm;
 	unsigned wmode : 1;		/* 0 horizontal, 1 vertical */
@@ -47,8 +44,7 @@ typedef struct fz_text_span
 	struct fz_text_span *next;
 } fz_text_span;
 
-typedef struct
-{
+typedef struct {
 	int refs;
 	fz_text_span *head, *tail;
 } fz_text;

@@ -214,7 +214,7 @@ int  main(int argc, char ** argv)
 		exit(status);
 	}
 	//
-	// Convert the rules to UChar.
+	// Convert the rules to char16_t.
 	//  Preflight first to determine required buffer size.
 	//
 	uint32_t destCap = ucnv_toUChars(conv, NULL/*dest*/, 0/*destCapacity*/, ruleSourceC, ruleFileSize, &status);
@@ -223,7 +223,7 @@ int  main(int argc, char ** argv)
 		exit(status);
 	}
 	status = U_ZERO_ERROR;
-	UChar * ruleSourceU = new UChar[destCap+1];
+	char16_t * ruleSourceU = new char16_t[destCap+1];
 	ucnv_toUChars(conv, ruleSourceU/*dest*/, destCap+1, ruleSourceC, ruleFileSize, &status);
 	if(U_FAILURE(status)) {
 		slfprintf_stderr("ucnv_toUChars: ICU Error \"%s\"\n", u_errorName(status));

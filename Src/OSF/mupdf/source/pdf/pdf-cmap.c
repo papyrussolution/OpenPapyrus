@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 
 #undef CHECK_SPLAY
 #undef DUMP_SPLAY
@@ -68,7 +68,7 @@ void pdf_set_cmap_wmode(fz_context * ctx, pdf_cmap * cmap, int wmode)
 
 void pdf_add_codespace(fz_context * ctx, pdf_cmap * cmap, uint low, uint high, size_t n)
 {
-	if(cmap->codespace_len + 1 == nelem(cmap->codespace)) {
+	if(cmap->codespace_len + 1 == SIZEOFARRAY(cmap->codespace)) {
 		fz_warn(ctx, "assert: too many code space ranges");
 		return;
 	}

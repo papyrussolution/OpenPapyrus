@@ -10,67 +10,62 @@
 /**
         Include the standard libc headers.
  */
-#include <stddef.h> /* needed for size_t */
-#include <stdarg.h> /* needed for va_list vararg functions */
-#include <setjmp.h> /* needed for the try/catch macros */
-#include <stdio.h> /* useful for debug printfs */
-#if defined(_MSC_VER) && (_MSC_VER < 1700) /* MSVC older than VS2012 */
-typedef signed char int8_t;
-typedef short int int16_t;
-typedef int int32_t;
-typedef __int64 int64_t;
-typedef uchar uint8;
-typedef unsigned short int uint16_t;
-typedef uint uint32_t;
-typedef unsigned __int64 uint64_t;
-	#ifndef INT64_MAX
-		#define INT64_MAX 9223372036854775807i64
-	#endif
-#else
-	#include <stdint.h> /* needed for int64_t */
-#endif
+//#include <stddef.h> /* needed for size_t */
+//#include <stdarg.h> /* needed for va_list vararg functions */
+//#include <setjmp.h> /* needed for the try/catch macros */
+//#include <stdio.h> /* useful for debug printfs */
+//#if defined(_MSC_VER) && (_MSC_VER < 1700) /* MSVC older than VS2012 */
+//typedef signed char int8_t;
+//typedef short int int16_t;
+//typedef int int32_t;
+//typedef __int64 int64_t;
+//typedef uchar uint8;
+//typedef unsigned short int uint16_t;
+//typedef uint uint32_t;
+//typedef unsigned __int64 uint64_t;
+	//#ifndef INT64_MAX
+		//#define INT64_MAX 9223372036854775807i64
+	//#endif
+//#else
+	//#include <stdint.h> /* needed for int64_t */
+//#endif
 #include "mupdf/memento.h"
 #include "mupdf/fitz/track-usage.h"
 
-#define nelem(x) (sizeof(x)/sizeof((x)[0]))
+// @sobolev (replaced with SIZEOFARRAY) #define nelem_Removed(x) (sizeof(x)/sizeof((x)[0]))
 
 // @sobolev #define FZ_PI 3.14159265f
 #define FZ_RADIAN 57.2957795f
 #define FZ_DEGREE 0.017453292f
-#define FZ_SQRT2 1.41421356f
-#define FZ_LN2 0.69314718f
-
+// @sobolev (replaced with SMathConst::Sqrt2_f) #define FZ_SQRT2_Removed 1.41421356f
+// @sobolev (replaced with SMathConst::Ln2_f)   #define FZ_LN2_Removed 0.69314718f
 /**
         Spot architectures where we have optimisations.
  */
-
 #if defined(__arm__) || defined(__thumb__)
-#ifndef ARCH_ARM
-#define ARCH_ARM
+	#ifndef ARCH_ARM
+		#define ARCH_ARM
+	#endif
 #endif
-#endif
-
 /**
         Some differences in libc can be smoothed over
  */
-
 #ifndef __STRICT_ANSI__
-#if defined(__APPLE__)
+	#if defined(__APPLE__)
+		#ifndef HAVE_SIGSETJMP
+			#define HAVE_SIGSETJMP 1
+		#endif
+	#elif defined(__unix)
+		#ifndef __EMSCRIPTEN__
+			#ifndef HAVE_SIGSETJMP
+				#define HAVE_SIGSETJMP 1
+			#endif
+		#endif
+	#endif
+#endif
 #ifndef HAVE_SIGSETJMP
-#define HAVE_SIGSETJMP 1
+	#define HAVE_SIGSETJMP 0
 #endif
-#elif defined(__unix)
-#ifndef __EMSCRIPTEN__
-#ifndef HAVE_SIGSETJMP
-#define HAVE_SIGSETJMP 1
-#endif
-#endif
-#endif
-#endif
-#ifndef HAVE_SIGSETJMP
-#define HAVE_SIGSETJMP 0
-#endif
-
 /**
         Where possible (i.e. on platforms on which they are provided),
         use sigsetjmp/siglongjmp in preference to setjmp/longjmp. We
@@ -113,11 +108,9 @@ static __inline int signbit(double x)
 		double d;
 		__int64 i;
 	} u;
-
 	u.d = x;
 	return (int)(u.i>>63);
 }
-
 #endif
 
 #pragma warning( disable: 4244 ) /* conversion from X to Y, possible loss of data */

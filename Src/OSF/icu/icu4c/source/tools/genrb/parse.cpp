@@ -94,7 +94,7 @@ const char * tokenNames[TOK_TOKEN_COUNT] =
 };
 
 /* Just to store "TRUE" */
-//static const UChar trueValue[] = {0x0054, 0x0052, 0x0055, 0x0045, 0x0000};
+//static const char16_t trueValue[] = {0x0054, 0x0052, 0x0055, 0x0045, 0x0000};
 
 typedef struct {
 	struct Lookahead lookahead[MAX_LOOKAHEAD + 1];
@@ -303,9 +303,9 @@ static struct SResource * parseUCARules(ParseState* state,
 	UCHARBUF * ucbuf = NULL;
 	UChar32 c     = 0;
 	const char * cp  = NULL;
-	UChar * pTarget     = NULL;
-	UChar * target      = NULL;
-	UChar * targetLimit = NULL;
+	char16_t * pTarget     = NULL;
+	char16_t * target      = NULL;
+	char16_t * targetLimit = NULL;
 	int32_t size = 0;
 
 	expect(state, TOK_STRING, &tokenValue, NULL, &line, status);
@@ -351,7 +351,7 @@ static struct SResource * parseUCARules(ParseState* state,
 	 * is not known in UTF-8 byte stream
 	 */
 	size        = ucbuf_size(ucbuf) + 1;
-	pTarget     = (UChar *)uprv_malloc(U_SIZEOF_UCHAR * size);
+	pTarget     = (char16_t *)uprv_malloc(U_SIZEOF_UCHAR * size);
 	memzero(pTarget, size*U_SIZEOF_UCHAR);
 	target      = pTarget;
 	targetLimit = pTarget+size;
@@ -399,7 +399,7 @@ static struct SResource * parseUCARules(ParseState* state,
 			continue;
 		}
 
-		/* Append UChar * after dissembling if c > 0xffff*/
+		/* Append char16_t * after dissembling if c > 0xffff*/
 		if(c != (UChar32)U_EOF) {
 			U_APPEND_CHAR32_ONLY(c, target);
 		}
@@ -435,8 +435,8 @@ static struct SResource * parseTransliterator(ParseState* state,
 	uint32_t line;
 	UCHARBUF * ucbuf = NULL;
 	const char * cp  = NULL;
-	UChar * pTarget     = NULL;
-	const UChar * pSource     = NULL;
+	char16_t * pTarget     = NULL;
+	const char16_t * pSource     = NULL;
 	int32_t size = 0;
 
 	expect(state, TOK_STRING, &tokenValue, NULL, &line, status);
@@ -478,7 +478,7 @@ static struct SResource * parseTransliterator(ParseState* state,
 	 * is not known in UTF-8 byte stream
 	 */
 	pSource = ucbuf_getBuffer(ucbuf, &size, status);
-	pTarget     = (UChar *)uprv_malloc(U_SIZEOF_UCHAR * (size + 1));
+	pTarget     = (char16_t *)uprv_malloc(U_SIZEOF_UCHAR * (size + 1));
 	memzero(pTarget, size*U_SIZEOF_UCHAR);
 #if !UCONFIG_NO_TRANSLITERATION
 	size = utrans_stripRules(pSource, size, pTarget, status);
@@ -748,7 +748,7 @@ void GenrbImporter::getRules(const char * localeID, const char * collationType,
 
 // Quick-and-dirty escaping function.
 // Assumes that we are on an ASCII-based platform.
-static void escape(const UChar * s, char * buffer) {
+static void escape(const char16_t * s, char * buffer) {
 	int32_t length = u_strlen(s);
 	int32_t i = 0;
 	for(;;) {
@@ -1528,12 +1528,12 @@ static struct SResource * parseInclude(ParseState* state, char * tag, uint32_t s
 	int32_t len = 0;
 	char * filename;
 	uint32_t line;
-	UChar * pTarget     = NULL;
+	char16_t * pTarget     = NULL;
 
 	UCHARBUF * ucbuf;
 	char * fullname = NULL;
 	const char * cp = NULL;
-	const UChar * uBuffer = NULL;
+	const char16_t * uBuffer = NULL;
 
 	int32_t stringLength;
 	filename = getInvariantString(state, &line, NULL, stringLength, status);
@@ -1639,7 +1639,7 @@ typedef enum EResourceType {
 
 static struct {
 	const char * nameChars; /* only used for debugging */
-	const UChar * nameUChars;
+	const char16_t * nameUChars;
 	ParseResourceFunction * parseFunction;
 } gResourceTypes[] = {
 	{"Unknown", NULL, NULL},

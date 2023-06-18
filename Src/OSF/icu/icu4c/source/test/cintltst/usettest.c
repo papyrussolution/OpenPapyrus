@@ -46,7 +46,7 @@ void addUSetTest(TestNode** root) {
 
 static void Testj2269() {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar a[4] = { 0x61, 0x62, 0x63, 0 };
+	char16_t a[4] = { 0x61, 0x62, 0x63, 0 };
 	USet * s = uset_open(1, 0);
 	uset_addString(s, a, 3);
 	a[0] = 0x63; a[1] = 0x63;
@@ -54,19 +54,19 @@ static void Testj2269() {
 	uset_close(s);
 }
 
-static const UChar PAT[] = {91, 97, 45, 99, 123, 97, 98, 125, 93, 0}; /* "[a-c{ab}]" */
+static const char16_t PAT[] = {91, 97, 45, 99, 123, 97, 98, 125, 93, 0}; /* "[a-c{ab}]" */
 static const int32_t PAT_LEN = SIZEOFARRAYi(PAT) - 1;
 
-static const UChar PAT_lb[] = {0x6C, 0x62, 0}; /* "lb" */
+static const char16_t PAT_lb[] = {0x6C, 0x62, 0}; /* "lb" */
 static const int32_t PAT_lb_LEN = SIZEOFARRAYi(PAT_lb) - 1;
 
-static const UChar VAL_SP[] = {0x53, 0x50, 0}; /* "SP" */
+static const char16_t VAL_SP[] = {0x53, 0x50, 0}; /* "SP" */
 static const int32_t VAL_SP_LEN = SIZEOFARRAYi(VAL_SP) - 1;
 
-static const UChar STR_bc[] = {98, 99, 0}; /* "bc" */
+static const char16_t STR_bc[] = {98, 99, 0}; /* "bc" */
 static const int32_t STR_bc_LEN = SIZEOFARRAYi(STR_bc) - 1;
 
-static const UChar STR_ab[] = {97, 98, 0}; /* "ab" */
+static const char16_t STR_ab[] = {97, 98, 0}; /* "ab" */
 static const int32_t STR_ab_LEN = SIZEOFARRAYi(STR_ab) - 1;
 
 /**
@@ -284,7 +284,7 @@ static void expect(const USet* set, const char * inList, const char * outList, U
 static void expectContainment(const USet* set, const char * list, bool isIn) 
 {
 	const char * p = list;
-	UChar ustr[4096];
+	char16_t ustr[4096];
 	char * pat;
 	UErrorCode ec;
 	int32_t rangeStart = -1, rangeEnd = -1, length;
@@ -380,9 +380,9 @@ static void expectContainment(const USet* set, const char * list, bool isIn)
 
 /* This only works for invariant BMP chars */
 static char oneUCharToChar(UChar32 c) {
-	UChar ubuf[1];
+	char16_t ubuf[1];
 	char buf[1];
-	ubuf[0] = (UChar)c;
+	ubuf[0] = (char16_t)c;
 	u_UCharsToChars(ubuf, buf, 1);
 	return buf[0];
 }
@@ -390,7 +390,7 @@ static char oneUCharToChar(UChar32 c) {
 static void expectItems(const USet* set,
     const char * items) {
 	const char * p = items;
-	UChar ustr[4096], itemStr[4096];
+	char16_t ustr[4096], itemStr[4096];
 	char buf[4096];
 	char * pat;
 	UErrorCode ec;
@@ -562,7 +562,7 @@ static void TestNonInvariantPattern() {
 	/* The critical part of this test is that the following pattern
 	   must contain a non-invariant character. */
 	static const char * pattern = "[:ccc!=0:]";
-	UChar buf[256];
+	char16_t buf[256];
 	int32_t len = u_unescape(pattern, buf, 256);
 	/* This test 'fails' by having an assertion failure within the
 	   following call.  It passes by running to completion with no
@@ -641,7 +641,7 @@ static void TestFreezable() {
 }
 
 static void TestSpan() {
-	static const UChar s16[2] = { 0xe01, 0x3000 };
+	static const char16_t s16[2] = { 0xe01, 0x3000 };
 	static const char * s8 = "\xE0\xB8\x81\xE3\x80\x80";
 
 	USet * idSet = openIDSet();

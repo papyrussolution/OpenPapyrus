@@ -312,7 +312,7 @@ static size_t xml_parse_entity(int * c, const char * a)
 		return 6;
 	}
 	/* We should only be doing this for XHTML, but it shouldn't be a problem. */
-	for(i = 0; i < nelem(html_entities); ++i) {
+	for(i = 0; i < SIZEOFARRAY(html_entities); ++i) {
 		size_t n = strlen(html_entities[i].name);
 		if(!strncmp(a+1, html_entities[i].name, n) && a[n+1] == ';') {
 			*c = html_entities[i].c;

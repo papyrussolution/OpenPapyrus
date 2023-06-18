@@ -25,8 +25,7 @@ typedef struct fz_pixmap fz_pixmap;
 
 /* Color handling parameters: rendering intent, overprint, etc. */
 
-enum
-{
+enum {
 	/* Same order as needed by lcms */
 	FZ_RI_PERCEPTUAL,
 	FZ_RI_RELATIVE_COLORIMETRIC,
@@ -34,8 +33,7 @@ enum
 	FZ_RI_ABSOLUTE_COLORIMETRIC,
 };
 
-typedef struct
-{
+typedef struct {
 	uint8 ri;	/* rendering intent */
 	uint8 bp;	/* black point compensation */
 	uint8 op;	/* overprinting */
@@ -273,8 +271,7 @@ void fz_convert_color(fz_context *ctx, fz_colorspace *ss, const float *sv, fz_co
 /**
 	Structure to hold default colorspaces.
 */
-typedef struct
-{
+typedef struct {
 	int refs;
 	fz_colorspace *gray;
 	fz_colorspace *rgb;

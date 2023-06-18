@@ -272,10 +272,10 @@ static void testTrieGetters(const char * testName,
 static void testTrieUTF16(const char * testName,
     const UTrie2 * trie, UTrie2ValueBits valueBits,
     const CheckRange checkRanges[], int32_t countCheckRanges) {
-	UChar s[200];
+	char16_t s[200];
 	uint32_t values[100];
 
-	const UChar * p, * limit;
+	const char16_t * p, * limit;
 
 	uint32_t value;
 	UChar32 prevCP, c, c2;
@@ -1280,7 +1280,7 @@ static void testTrie2FromTrie1(const char * testName, const SetRange setRanges[]
 {
 	uint32_t memory1_16[3000], memory1_32[3000];
 	int32_t length16, length32;
-	UChar lead;
+	char16_t lead;
 	char name[40];
 	UNewTrie * newTrie1_32;
 	UTrie trie1_16, trie1_32;

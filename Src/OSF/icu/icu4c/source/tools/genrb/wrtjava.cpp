@@ -96,7 +96,7 @@ static void write_tabs(FileStream* os) {
 static const char * enc = "";
 static UConverter * conv = NULL;
 
-static int32_t uCharsToChars(char * target, int32_t targetLen, const UChar * source, int32_t sourceLen, UErrorCode * status) {
+static int32_t uCharsToChars(char * target, int32_t targetLen, const char16_t * source, int32_t sourceLen, UErrorCode * status) {
 	int i = 0, j = 0;
 	char str[30] = {'\0'};
 	while(i<sourceLen) {
@@ -227,7 +227,7 @@ static int32_t getColumnCount(int32_t len) {
 	return columnCount;
 }
 
-static void str_write_java(const UChar * src, int32_t srcLen, bool printEndLine, UErrorCode * status) 
+static void str_write_java(const char16_t * src, int32_t srcLen, bool printEndLine, UErrorCode * status) 
 {
 	uint32_t length = srcLen*8;
 	uint32_t bufLen = 0;

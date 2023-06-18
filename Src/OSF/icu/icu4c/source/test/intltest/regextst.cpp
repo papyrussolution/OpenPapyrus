@@ -142,7 +142,7 @@ const char * RegexTest::extractToAssertBuf(const UnicodeString & message)
 			if(ASSERT_BUF[0]==0) {
 				ASSERT_BUF[0] = 0;
 				for(int32_t i = 0; i<buf.length(); i++) {
-					UChar ch = buf[i];
+					char16_t ch = buf[i];
 					sprintf(ASSERT_BUF+strlen(ASSERT_BUF), "\\u%02x", ch);
 				}
 			}
@@ -1071,7 +1071,7 @@ void RegexTest::API_Match()
 		REGEX_CHECK_STATUS;
 	}
 	//
-	// Compilation error on reset with UChar *
+	// Compilation error on reset with char16_t *
 	//   These were a hazard that people were stumbling over with runtime errors.
 	//   Changed them to compiler errors by adding private methods that more closely
 	//   matched the incorrect use of the functions.
@@ -1079,7 +1079,7 @@ void RegexTest::API_Match()
 #if 0
 	{
 		UErrorCode status = U_ZERO_ERROR;
-		UChar ucharString[20];
+		char16_t ucharString[20];
 		RegexMatcher m(".", 0, status);
 		m.reset(ucharString); // should not compile.
 
@@ -3216,7 +3216,7 @@ void RegexTest::Extended() {
 	}
 
 	int32_t len;
-	UChar * testData = ReadAndConvertFile(srcPath, len, "utf-8", status);
+	char16_t * testData = ReadAndConvertFile(srcPath, len, "utf-8", status);
 	if(U_FAILURE(status)) {
 		return; /* something went wrong, error already output */
 	}
@@ -3418,26 +3418,26 @@ void RegexTest::regex_find(const UnicodeString & pattern,
 	//  Compile the caller's pattern
 	//
 	uint32_t bflags = 0;
-	if(flags.indexOf((UChar)0x69) >= 0) { // 'i' flag
+	if(flags.indexOf((char16_t)0x69) >= 0) { // 'i' flag
 		bflags |= UREGEX_CASE_INSENSITIVE;
 	}
-	if(flags.indexOf((UChar)0x78) >= 0) { // 'x' flag
+	if(flags.indexOf((char16_t)0x78) >= 0) { // 'x' flag
 		bflags |= UREGEX_COMMENTS;
 	}
-	if(flags.indexOf((UChar)0x73) >= 0) { // 's' flag
+	if(flags.indexOf((char16_t)0x73) >= 0) { // 's' flag
 		bflags |= UREGEX_DOTALL;
 	}
-	if(flags.indexOf((UChar)0x6d) >= 0) { // 'm' flag
+	if(flags.indexOf((char16_t)0x6d) >= 0) { // 'm' flag
 		bflags |= UREGEX_MULTILINE;
 	}
 
-	if(flags.indexOf((UChar)0x65) >= 0) { // 'e' flag
+	if(flags.indexOf((char16_t)0x65) >= 0) { // 'e' flag
 		bflags |= UREGEX_ERROR_ON_UNKNOWN_ESCAPES;
 	}
-	if(flags.indexOf((UChar)0x44) >= 0) { // 'D' flag
+	if(flags.indexOf((char16_t)0x44) >= 0) { // 'D' flag
 		bflags |= UREGEX_UNIX_LINES;
 	}
-	if(flags.indexOf((UChar)0x51) >= 0) { // 'Q' flag
+	if(flags.indexOf((char16_t)0x51) >= 0) { // 'Q' flag
 		bflags |= UREGEX_LITERAL;
 	}
 
@@ -3446,13 +3446,13 @@ void RegexTest::regex_find(const UnicodeString & pattern,
 	#if UCONFIG_NO_BREAK_ITERATION==1
 		// 'v' test flag means that the test pattern should not compile if ICU was configured
 		//     to not include break iteration.  RBBI is needed for Unicode word boundaries.
-		if(flags.indexOf((UChar)0x76) >= 0 /*'v'*/ && status == U_UNSUPPORTED_ERROR) {
+		if(flags.indexOf((char16_t)0x76) >= 0 /*'v'*/ && status == U_UNSUPPORTED_ERROR) {
 			goto cleanupAndReturn;
 		}
 	#endif
-		if(flags.indexOf((UChar)0x45) >= 0) { //  flags contain 'E'
+		if(flags.indexOf((char16_t)0x45) >= 0) { //  flags contain 'E'
 			// Expected pattern compilation error.
-			if(flags.indexOf((UChar)0x64) >= 0) { // flags contain 'd'
+			if(flags.indexOf((char16_t)0x64) >= 0) { // flags contain 'd'
 				logln("Pattern Compile returns \"%s\"", u_errorName(status));
 			}
 			goto cleanupAndReturn;
@@ -3480,13 +3480,13 @@ void RegexTest::regex_find(const UnicodeString & pattern,
 #if UCONFIG_NO_BREAK_ITERATION==1
 			// 'v' test flag means that the test pattern should not compile if ICU was configured
 			//     to not include break iteration.  RBBI is needed for Unicode word boundaries.
-			if(flags.indexOf((UChar)0x76) >= 0 /*'v'*/ && status == U_UNSUPPORTED_ERROR) {
+			if(flags.indexOf((char16_t)0x76) >= 0 /*'v'*/ && status == U_UNSUPPORTED_ERROR) {
 				goto cleanupAndReturn;
 			}
 #endif
-			if(flags.indexOf((UChar)0x45) >= 0) { //  flags contain 'E'
+			if(flags.indexOf((char16_t)0x45) >= 0) { //  flags contain 'E'
 				// Expected pattern compilation error.
-				if(flags.indexOf((UChar)0x64) >= 0) { // flags contain 'd'
+				if(flags.indexOf((char16_t)0x64) >= 0) { // flags contain 'd'
 					logln("Pattern Compile returns \"%s\" (UTF8)", u_errorName(status));
 				}
 				goto cleanupAndReturn;
@@ -3506,11 +3506,11 @@ void RegexTest::regex_find(const UnicodeString & pattern,
 		status = U_ZERO_ERROR;
 	}
 
-	if(flags.indexOf((UChar)0x64) >= 0) { // 'd' flag
+	if(flags.indexOf((char16_t)0x64) >= 0) { // 'd' flag
 		callerPattern->dumpPattern();
 	}
 
-	if(flags.indexOf((UChar)0x45) >= 0) { // 'E' flag
+	if(flags.indexOf((char16_t)0x45) >= 0) { // 'E' flag
 		errln("%s, Line %d: Expected, but did not get, a pattern compilation error.", srcPath, line);
 		goto cleanupAndReturn;
 	}
@@ -3520,7 +3520,7 @@ void RegexTest::regex_find(const UnicodeString & pattern,
 	//
 	numFinds = 1;
 	for(i = 2; i<=9; i++) {
-		if(flags.indexOf((UChar)(0x30 + i)) >= 0) { // digit flag
+		if(flags.indexOf((char16_t)(0x30 + i)) >= 0) { // digit flag
 			if(numFinds != 1) {
 				errln("Line %d: more than one digit flag.  Scanning %d.", line, i);
 				goto cleanupAndReturn;
@@ -3530,10 +3530,10 @@ void RegexTest::regex_find(const UnicodeString & pattern,
 	}
 
 	// 'M' flag.  Use matches() instead of find()
-	if(flags.indexOf((UChar)0x4d) >= 0) {
+	if(flags.indexOf((char16_t)0x4d) >= 0) {
 		useMatchesFunc = TRUE;
 	}
-	if(flags.indexOf((UChar)0x4c) >= 0) {
+	if(flags.indexOf((char16_t)0x4c) >= 0) {
 		useLookingAtFunc = TRUE;
 	}
 
@@ -3592,7 +3592,7 @@ void RegexTest::regex_find(const UnicodeString & pattern,
 	//
 	matcher = callerPattern->matcher(deTaggedInput, status);
 	REGEX_CHECK_STATUS_L(line);
-	if(flags.indexOf((UChar)0x74) >= 0) { //  't' trace flag
+	if(flags.indexOf((char16_t)0x74) >= 0) { //  't' trace flag
 		matcher->setTrace(TRUE);
 	}
 
@@ -3620,7 +3620,7 @@ void RegexTest::regex_find(const UnicodeString & pattern,
 	//  Generate native indices for UTF8 versions of region and capture group info
 	//
 	if(UTF8Matcher != NULL) {
-		if(flags.indexOf((UChar)0x74) >= 0) { //  't' trace flag
+		if(flags.indexOf((char16_t)0x74) >= 0) { //  't' trace flag
 			UTF8Matcher->setTrace(TRUE);
 		}
 		if(regionStart>=0) (void)utextOffsetToNative(&inputText, regionStart, regionStartUTF8);
@@ -3671,13 +3671,13 @@ void RegexTest::regex_find(const UnicodeString & pattern,
 			REGEX_CHECK_STATUS_L(line);
 		}
 	}
-	if(flags.indexOf((UChar)0x61) >= 0) { //  'a' anchoring bounds flag
+	if(flags.indexOf((char16_t)0x61) >= 0) { //  'a' anchoring bounds flag
 		matcher->useAnchoringBounds(FALSE);
 		if(UTF8Matcher != NULL) {
 			UTF8Matcher->useAnchoringBounds(FALSE);
 		}
 	}
-	if(flags.indexOf((UChar)0x62) >= 0) { //  'b' transparent bounds flag
+	if(flags.indexOf((char16_t)0x62) >= 0) { //  'b' transparent bounds flag
 		matcher->useTransparentBounds(TRUE);
 		if(UTF8Matcher != NULL) {
 			UTF8Matcher->useTransparentBounds(TRUE);
@@ -3744,7 +3744,7 @@ void RegexTest::regex_find(const UnicodeString & pattern,
 		failed = TRUE;
 	}
 
-	if(flags.indexOf((UChar)0x47 /*G*/) >= 0) {
+	if(flags.indexOf((char16_t)0x47 /*G*/) >= 0) {
 		// Only check for match / no match.  Don't check capture groups.
 		goto cleanupAndReturn;
 	}
@@ -3794,45 +3794,45 @@ void RegexTest::regex_find(const UnicodeString & pattern,
 		failed = TRUE;
 	}
 
-	if((flags.indexOf((UChar)0x59) >= 0) && //  'Y' flag:  RequireEnd() == false
+	if((flags.indexOf((char16_t)0x59) >= 0) && //  'Y' flag:  RequireEnd() == false
 	    matcher->requireEnd() == TRUE) {
 		errln("Error at line %d: requireEnd() returned TRUE.  Expected FALSE", line);
 		failed = TRUE;
 	}
-	else if(UTF8Matcher != NULL && (flags.indexOf((UChar)0x59) >= 0) &&  //  'Y' flag:  RequireEnd() == false
+	else if(UTF8Matcher != NULL && (flags.indexOf((char16_t)0x59) >= 0) &&  //  'Y' flag:  RequireEnd() == false
 	    UTF8Matcher->requireEnd() == TRUE) {
 		errln("Error at line %d: requireEnd() returned TRUE.  Expected FALSE (UTF8)", line);
 		failed = TRUE;
 	}
 
-	if((flags.indexOf((UChar)0x79) >= 0) && //  'y' flag:  RequireEnd() == true
+	if((flags.indexOf((char16_t)0x79) >= 0) && //  'y' flag:  RequireEnd() == true
 	    matcher->requireEnd() == FALSE) {
 		errln("Error at line %d: requireEnd() returned FALSE.  Expected TRUE", line);
 		failed = TRUE;
 	}
-	else if(UTF8Matcher != NULL && (flags.indexOf((UChar)0x79) >= 0) &&  //  'Y' flag:  RequireEnd() == false
+	else if(UTF8Matcher != NULL && (flags.indexOf((char16_t)0x79) >= 0) &&  //  'Y' flag:  RequireEnd() == false
 	    UTF8Matcher->requireEnd() == FALSE) {
 		errln("Error at line %d: requireEnd() returned FALSE.  Expected TRUE (UTF8)", line);
 		failed = TRUE;
 	}
 
-	if((flags.indexOf((UChar)0x5A) >= 0) && //  'Z' flag:  hitEnd() == false
+	if((flags.indexOf((char16_t)0x5A) >= 0) && //  'Z' flag:  hitEnd() == false
 	    matcher->hitEnd() == TRUE) {
 		errln("Error at line %d: hitEnd() returned TRUE.  Expected FALSE", line);
 		failed = TRUE;
 	}
-	else if(UTF8Matcher != NULL && (flags.indexOf((UChar)0x5A) >= 0) &&  //  'Z' flag:  hitEnd() == false
+	else if(UTF8Matcher != NULL && (flags.indexOf((char16_t)0x5A) >= 0) &&  //  'Z' flag:  hitEnd() == false
 	    UTF8Matcher->hitEnd() == TRUE) {
 		errln("Error at line %d: hitEnd() returned TRUE.  Expected FALSE (UTF8)", line);
 		failed = TRUE;
 	}
 
-	if((flags.indexOf((UChar)0x7A) >= 0) && //  'z' flag:  hitEnd() == true
+	if((flags.indexOf((char16_t)0x7A) >= 0) && //  'z' flag:  hitEnd() == true
 	    matcher->hitEnd() == FALSE) {
 		errln("Error at line %d: hitEnd() returned FALSE.  Expected TRUE", line);
 		failed = TRUE;
 	}
-	else if(UTF8Matcher != NULL && (flags.indexOf((UChar)0x7A) >= 0) &&  //  'z' flag:  hitEnd() == true
+	else if(UTF8Matcher != NULL && (flags.indexOf((char16_t)0x7A) >= 0) &&  //  'z' flag:  hitEnd() == true
 	    UTF8Matcher->hitEnd() == FALSE) {
 		errln("Error at line %d: hitEnd() returned FALSE.  Expected TRUE (UTF8)", line);
 		failed = TRUE;
@@ -3974,7 +3974,7 @@ void RegexTest::PerlTests()
 	}
 
 	int32_t len;
-	UChar * testData = ReadAndConvertFile(srcPath, len, "iso-8859-1", status);
+	char16_t * testData = ReadAndConvertFile(srcPath, len, "iso-8859-1", status);
 	if(U_FAILURE(status)) {
 		return; /* something went wrong, error already output */
 	}
@@ -4065,11 +4065,11 @@ void RegexTest::PerlTests()
 			return;
 		}
 		int32_t flags = 0;
-		const UChar UChar_c = 0x63; // Char constants for the flag letters.
-		const UChar UChar_i = 0x69; //   (Damn the lack of Unicode support in C)
-		const UChar UChar_m = 0x6d;
-		const UChar UChar_x = 0x78;
-		const UChar UChar_y = 0x79;
+		const char16_t UChar_c = 0x63; // Char constants for the flag letters.
+		const char16_t UChar_i = 0x69; //   (Damn the lack of Unicode support in C)
+		const char16_t UChar_m = 0x6d;
+		const char16_t UChar_x = 0x78;
+		const char16_t UChar_y = 0x79;
 		if(flagStr.indexOf(UChar_i) != -1) {
 			flags |= UREGEX_CASE_INSENSITIVE;
 		}
@@ -4243,7 +4243,7 @@ void RegexTest::PerlTests()
 				if(perlExpr.length() > 1) {
 					perlExpr.remove(0, 1); // Remove the '\', but only if not last char.
 				}
-				UChar c = perlExpr.charAt(0);
+				char16_t c = perlExpr.charAt(0);
 				switch(c) {
 					case 'n':   c = '\n'; break;
 					    // add any other escape sequences that show up in the test expected results.
@@ -4330,7 +4330,7 @@ void RegexTest::PerlTestsUTF8()
 	}
 
 	int32_t len;
-	UChar * testData = ReadAndConvertFile(srcPath, len, "iso-8859-1", status);
+	char16_t * testData = ReadAndConvertFile(srcPath, len, "iso-8859-1", status);
 	if(U_FAILURE(status)) {
 		return; /* something went wrong, error already output */
 	}
@@ -4421,11 +4421,11 @@ void RegexTest::PerlTestsUTF8()
 			return;
 		}
 		int32_t flags = 0;
-		const UChar UChar_c = 0x63; // Char constants for the flag letters.
-		const UChar UChar_i = 0x69; //   (Damn the lack of Unicode support in C)
-		const UChar UChar_m = 0x6d;
-		const UChar UChar_x = 0x78;
-		const UChar UChar_y = 0x79;
+		const char16_t UChar_c = 0x63; // Char constants for the flag letters.
+		const char16_t UChar_i = 0x69; //   (Damn the lack of Unicode support in C)
+		const char16_t UChar_m = 0x6d;
+		const char16_t UChar_x = 0x78;
+		const char16_t UChar_y = 0x79;
 		if(flagStr.indexOf(UChar_i) != -1) {
 			flags |= UREGEX_CASE_INSENSITIVE;
 		}
@@ -4619,7 +4619,7 @@ void RegexTest::PerlTestsUTF8()
 				if(perlExpr.length() > 1) {
 					perlExpr.remove(0, 1); // Remove the '\', but only if not last char.
 				}
-				UChar c = perlExpr.charAt(0);
+				char16_t c = perlExpr.charAt(0);
 				switch(c) {
 					case 'n':   c = '\n'; break;
 					    // add any other escape sequences that show up in the test expected results.
@@ -4941,7 +4941,7 @@ void RegexTest::PreAllocatedUTextCAPI()
 	{
 		UText text1 = UTEXT_INITIALIZER;
 		UText text2 = UTEXT_INITIALIZER;
-		UChar text2Chars[20];
+		char16_t text2Chars[20];
 		UText  * resultText;
 
 		status = U_ZERO_ERROR;
@@ -4969,7 +4969,7 @@ void RegexTest::PreAllocatedUTextCAPI()
 		utext_setNativeIndex(&text1, 0);
 		REGEX_ASSERT(testUTextEqual(resultText, &text1));
 
-		/* Then set a UChar * */
+		/* Then set a char16_t * */
 		uregex_setText(re, text2Chars, 7, &status);
 		resultText = uregex_getUText(re, &bufferText, &status);
 		REGEX_CHECK_STATUS;
@@ -4987,7 +4987,7 @@ void RegexTest::PreAllocatedUTextCAPI()
 	 *  group()
 	 */
 	{
-		UChar text1[80];
+		char16_t text1[80];
 		UText   * actual;
 		bool result;
 		int64_t length = 0;
@@ -5034,8 +5034,8 @@ void RegexTest::PreAllocatedUTextCAPI()
 	 *  replaceFirst()
 	 */
 	{
-		UChar text1[80];
-		UChar text2[80];
+		char16_t text1[80];
+		char16_t text2[80];
 		UText replText = UTEXT_INITIALIZER;
 		UText   * result;
 		status = U_ZERO_ERROR;
@@ -5084,8 +5084,8 @@ void RegexTest::PreAllocatedUTextCAPI()
 	 *  replaceAll()
 	 */
 	{
-		UChar text1[80];
-		UChar text2[80];
+		char16_t text1[80];
+		char16_t text2[80];
 		UText replText = UTEXT_INITIALIZER;
 		UText   * result;
 
@@ -5260,7 +5260,7 @@ void RegexTest::NamedCapture()
 	uregex_setText(re, text.getBuffer(), text.length(), &status);
 	REGEX_CHECK_STATUS;
 
-	UChar resultBuf[100];
+	char16_t resultBuf[100];
 	int32_t resultLength;
 	UnicodeString repl;
 
@@ -5536,7 +5536,7 @@ void RegexTest::Bug10459() {
 	//   was causing a segfault. Only for Regular Expressions created from UText.
 	//   It should set an U_REGEX_INVALID_STATE.
 
-	UChar buf[100];
+	char16_t buf[100];
 	int32_t len = uregex_group(icu_re, 0, buf, SIZEOFARRAYi(buf), &status);
 	REGEX_ASSERT(status == U_REGEX_INVALID_STATE);
 	REGEX_ASSERT(len == 0);
@@ -5601,7 +5601,7 @@ void RegexTest::TestCase11049(const char * pattern, const char * data, bool expe
 	LocalPointer<RegexPattern> compiledPat(RegexPattern::compile(patternString, 0, status));
 
 	UnicodeString dataString = UnicodeString(data).unescape();
-	UChar * exactBuffer = new UChar[dataString.length()];
+	char16_t * exactBuffer = new char16_t[dataString.length()];
 	dataString.extract(exactBuffer, dataString.length(), status);
 	UText * ut = utext_openUChars(NULL, exactBuffer, dataString.length(), &status);
 
@@ -5691,7 +5691,7 @@ void RegexTest::TestBug11480() {
 	uregex_setText(re, text.getBuffer(), text.length(), &status);
 	REGEX_CHECK_STATUS;
 	REGEX_ASSERT(uregex_lookingAt(re, 0, &status));
-	UChar buf[10] = {(UChar)13, (UChar)13, (UChar)13, (UChar)13};
+	char16_t buf[10] = {(char16_t)13, (char16_t)13, (char16_t)13, (char16_t)13};
 	int32_t length = uregex_group(re, 2, buf+1, SIZEOFARRAYi(buf)-1, &status);
 	REGEX_ASSERT(length == 0);
 	REGEX_ASSERT(buf[0] == 13);
@@ -5765,14 +5765,14 @@ void RegexTest::TestBug12884() {
 //            The failure is seen when running this test with Clang's Address Sanitizer.
 
 void RegexTest::TestBug13631() {
-	const UChar * pats[] = { u"(?<!^)",
+	const char16_t * pats[] = { u"(?<!^)",
 				 u"(?<=^)",
 				 nullptr};
-	for(const UChar ** pat = pats; *pat; ++pat) {
+	for(const char16_t ** pat = pats; *pat; ++pat) {
 		UErrorCode status = U_ZERO_ERROR;
 		UnicodeString upat(*pat);
 		RegexMatcher matcher(upat, 0, status);
-		const UChar s = u'a';
+		const char16_t s = u'a';
 		UText * ut = utext_openUChars(nullptr, &s, 1, &status);
 		REGEX_CHECK_STATUS;
 		matcher.reset(ut);

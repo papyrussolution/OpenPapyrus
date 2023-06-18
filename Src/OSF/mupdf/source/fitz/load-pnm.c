@@ -131,20 +131,17 @@ static const uchar * pnm_read_number(fz_context * ctx, const uchar * p, const uc
 		fz_throw(ctx, FZ_ERROR_GENERIC, "cannot parse number in pnm image");
 	if(*p < '0' || *p > '9')
 		fz_throw(ctx, FZ_ERROR_GENERIC, "expected numeric field in pnm image");
-
 	while(p < e && *p >= '0' && *p <= '9') {
 		if(number)
 			*number = *number * 10 + *p - '0';
 		p++;
 	}
-
 	return p;
 }
 
 static const uchar * pnm_read_tupletype(fz_context * ctx, const uchar * p, const uchar * e, int * tupletype)
 {
-	const struct { int len; const char * str; int type; } tupletypes[] =
-	{
+	const struct { int len; const char * str; int type; } tupletypes[] = {
 		{13, "BLACKANDWHITE", PAM_BW},
 		{19, "BLACKANDWHITE_ALPHA", PAM_BWA},
 		{9, "GRAYSCALE", PAM_GRAY},
@@ -162,8 +159,7 @@ static const uchar * pnm_read_tupletype(fz_context * ctx, const uchar * p, const
 	while(!iswhiteeol(*p))
 		p++;
 	len = p - s;
-
-	for(i = 0; i < (int)nelem(tupletypes); i++)
+	for(i = 0; i < SIZEOFARRAYi(tupletypes); i++)
 		if(len == tupletypes[i].len && !strncmp((char *)s, tupletypes[i].str, len)) {
 			*tupletype = tupletypes[i].type;
 			return p;
@@ -194,7 +190,7 @@ static const uchar * pnm_read_token(fz_context * ctx, const uchar * p, const uch
 		p++;
 	len = p - s;
 
-	for(i = 0; i < (int)nelem(tokens); i++)
+	for(i = 0; i < SIZEOFARRAYi(tokens); i++)
 		if(len == tokens[i].len && !strncmp((char *)s, tokens[i].str, len)) {
 			*token = tokens[i].type;
 			return p;

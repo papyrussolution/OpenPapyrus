@@ -431,7 +431,7 @@ static const ICU_COMMON_Data_Header gEmptyHeader = {
 #endif
 
 		U_CHARSET_FAMILY,
-		sizeof(UChar),
+		sizeof(char16_t),
 		0,       /* reserved      */
 		{        /* data format identifier */
 			0x43, 0x6d, 0x6e, 0x44
@@ -810,7 +810,7 @@ static void TestUDataGetInfo() {
 
 		U_IS_BIG_ENDIAN,
 		U_CHARSET_FAMILY,
-		sizeof(UChar),
+		sizeof(char16_t),
 		0,
 
 		{0x54, 0x65, 0x73, 0x74}, /* dataFormat="Test" */
@@ -931,7 +931,7 @@ static void TestErrorConditions()
 
 		U_IS_BIG_ENDIAN,
 		U_CHARSET_FAMILY,
-		sizeof(UChar),
+		sizeof(char16_t),
 		0,
 
 		{0x54, 0x65, 0x73, 0x74}, /* dataFormat="Test" */
@@ -1068,8 +1068,8 @@ static void TestAppData()
 	UResourceBundle * tmp = NULL;
 	UResourceBundle * tmp2 = NULL;
 
-	const UChar * appString;
-	const UChar * icuString;
+	const char16_t * appString;
+	const char16_t * icuString;
 
 	int32_t len;
 
@@ -1249,7 +1249,7 @@ static const struct {
 
 	 U_IS_BIG_ENDIAN,
 	 U_CHARSET_FAMILY,
-	 sizeof(UChar),
+	 sizeof(char16_t),
 	 0,
 
 	 {0x31, 0x31, 0x31, 0x31}, /* dataFormat="1111" */
@@ -1259,7 +1259,7 @@ static const struct {
 };
 #endif
 
-static const UChar gOffsetTOCGarbage[] = { /* "I have been very naughty!" */
+static const char16_t gOffsetTOCGarbage[] = { /* "I have been very naughty!" */
 	0x49, 0x20, 0x68, 0x61, 0x76, 0x65, 0x20, 0x62, 0x65, 0x65, 0x6E,
 	0x20, 0x76, 0x65, 0x72, 0x79, 0x20, 0x6E, 0x61, 0x75, 0x67, 0x68, 0x74, 0x79, 0x21
 };
@@ -1284,7 +1284,7 @@ static const struct {
 		0,              /* reserved    */
 		U_IS_BIG_ENDIAN,
 		U_CHARSET_FAMILY,
-		sizeof(UChar),
+		sizeof(char16_t),
 		0,       /* reserved      */
 		{        /* data format identifier */
 			0x54, 0x6f, 0x43, 0x50

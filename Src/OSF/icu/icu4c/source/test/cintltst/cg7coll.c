@@ -57,7 +57,7 @@ const char * locales[8] = {
 	"ja_JP"
 };
 
-const static UChar testCases[][MAX_TOKEN_LEN] = {
+const static char16_t testCases[][MAX_TOKEN_LEN] = {
 	{  0x0062 /*'b'*/, 0x006c /*'l'*/, 0x0061 /*'a'*/, 0x0062 /*'c'*/, 0x006b /*'k'*/,
 	   0x0062 /*'b'*/, 0x0069 /*'i'*/, 0x0072 /*'r'*/, 0x0064 /*'d'*/, 0x0073 /*'s'*/, 0x0000}, /* 9 */
 	{ 0x0050 /*'P'*/, 0x0061 /*'a'*/, 0x0074 /*'t'*/, 0x0000},                     /* 1 */
@@ -149,7 +149,7 @@ static void TestG7Locales()
 {
 	UCollator * myCollation;
 	UErrorCode status = U_ZERO_ERROR;
-	const UChar * defRules;
+	const char16_t * defRules;
 	int32_t i, rlen, j, n;
 	log_verbose("Testing  ucol_openRules for all the locales\n");
 	for(i = 0; i < SIZEOFARRAYi(locales); i++) {
@@ -207,7 +207,7 @@ static void TestDemo1()
 	int32_t j, n;
 	static const char rules[] = "& Z < p, P";
 	int32_t len = (int32_t)strlen(rules);
-	UChar temp[sizeof(rules)];
+	char16_t temp[sizeof(rules)];
 	UErrorCode status = U_ZERO_ERROR;
 	u_uastrcpy(temp, rules);
 
@@ -235,7 +235,7 @@ static void TestDemo2()
 	int32_t j, n;
 	static const char rules[] = "& C < ch , cH, Ch, CH";
 	int32_t len = (int32_t)strlen(rules);
-	UChar temp[sizeof(rules)];
+	char16_t temp[sizeof(rules)];
 	UErrorCode status = U_ZERO_ERROR;
 	u_uastrcpy(temp, rules);
 
@@ -261,7 +261,7 @@ static void TestDemo3()
 	int32_t j, n;
 	static const char rules[] = "& Question'-'mark ; '?' & Hash'-'mark ; '#' & Ampersand ; '&'";
 	int32_t len = (int32_t)strlen(rules);
-	UChar temp[sizeof(rules)];
+	char16_t temp[sizeof(rules)];
 	UErrorCode status = U_ZERO_ERROR;
 	u_uastrcpy(temp, rules);
 
@@ -289,7 +289,7 @@ static void TestDemo4()
 	int32_t j, n;
 	static const char rules[] = " & aa ; a'-' & ee ; e'-' & ii ; i'-' & oo ; o'-' & uu ; u'-' ";
 	int32_t len = (int32_t)strlen(rules);
-	UChar temp[sizeof(rules)];
+	char16_t temp[sizeof(rules)];
 	UErrorCode status = U_ZERO_ERROR;
 	u_uastrcpy(temp, rules);
 	log_verbose("Demo Test 4 : Create a new table collation with rules \" & aa ; a'-' & ee ; e'-' & ii ; i'-' & oo ; o'-' & uu ; u'-' \"\n");

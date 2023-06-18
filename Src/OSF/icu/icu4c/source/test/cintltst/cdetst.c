@@ -29,7 +29,7 @@
 #include "callcoll.h"
 
 static UCollator * myCollation;
-const static UChar testSourceCases[][MAX_TOKEN_LEN] =
+const static char16_t testSourceCases[][MAX_TOKEN_LEN] =
 {
 	{0x0047 /*'G'*/, 0x0072 /*'r'*/, 0x00F6, 0x00DF, 0x0065 /*'e'*/, 0x0000},
 	{0x0061 /*'a'*/, 0x0062 /*'b'*/, 0x0063 /*'c'*/, 0x0000},
@@ -45,7 +45,7 @@ const static UChar testSourceCases[][MAX_TOKEN_LEN] =
 	{0x0053 /*'S'*/, 0x0074 /*'t'*/, 0x0072 /*'r'*/, 0x0061 /*'a'*/, 0x00DF, 0x0065 /*'e'*/, 0x0000}
 };
 
-const static UChar testTargetCases[][MAX_TOKEN_LEN] =
+const static char16_t testTargetCases[][MAX_TOKEN_LEN] =
 {
 	{0x0047 /*'G'*/, 0x0072 /*'r'*/, 0x006f /*'o'*/, 0x0073 /*'s'*/, 0x0073 /*'s'*/, 0x0069 /*'i'*/, 0x0073 /*'s'*/, 0x0074 /*'t'*/,
 	 0x0000},

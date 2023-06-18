@@ -42,12 +42,12 @@
     /**
   * test subroutine
      **/
-    void aux917(UDateFormat *fmt, UChar * str );
+    void aux917(UDateFormat *fmt, char16_t * str );
 
     /**
   * test subroutine used by the testing functions
      **/
-    UChar * myFormatit(UDateFormat* datdef, UDate d1);
+    char16_t * myFormatit(UDateFormat* datdef, UDate d1);
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
 

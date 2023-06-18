@@ -48,8 +48,8 @@ void opt_check_usage(void)
 	char ** argv = opt_rest();
 	int n;
 	int arg_count = opt_num_rest();
-	if(arg_count > (int)SIZEOFARRAY(used))
-		n = (int)SIZEOFARRAY(used);
+	if(arg_count > SIZEOFARRAYi(used))
+		n = SIZEOFARRAYi(used);
 	else
 		n = arg_count;
 	for(i = 0; i < n; i++) {

@@ -47,27 +47,27 @@ static void TestEBCDIC_STATEFUL_Sub(int32_t inputsize, int32_t outputsize);
 /* Following will return FALSE *only* on a mismatch. They will return TRUE on any other error OR success, because
  * the error would have been emitted to log_err separately. */
 
-bool testConvertFromUnicode(const UChar *source, int sourceLen,  const uint8_t *expect, int expectLen, 
+bool testConvertFromUnicode(const char16_t *source, int sourceLen,  const uint8_t *expect, int expectLen, 
                 const char *codepage, UConverterFromUCallback callback, const int32_t *expectOffsets,
                 const char *mySubChar, int8_t len);
 
 
-bool testConvertToUnicode( const uint8_t *source, int sourcelen, const UChar *expect, int expectlen, 
+bool testConvertToUnicode( const uint8_t *source, int sourcelen, const char16_t *expect, int expectlen, 
                const char *codepage, UConverterToUCallback callback, const int32_t *expectOffsets,
                const char *mySubChar, int8_t len);
 
-bool testConvertFromUnicodeWithContext(const UChar *source, int sourceLen,  const uint8_t *expect, int expectLen, 
+bool testConvertFromUnicodeWithContext(const char16_t *source, int sourceLen,  const uint8_t *expect, int expectLen, 
                 const char *codepage, UConverterFromUCallback callback , const int32_t *expectOffsets, 
                 const char *mySubChar, int8_t len, const void * context, UErrorCode expectedError);
 
-bool testConvertToUnicodeWithContext( const uint8_t *source, int sourcelen, const UChar *expect, int expectlen, 
+bool testConvertToUnicodeWithContext( const uint8_t *source, int sourcelen, const char16_t *expect, int expectlen, 
                const char *codepage, UConverterToUCallback callback, const int32_t *expectOffsets,
                const char *mySubChar, int8_t len, const void * context, UErrorCode expectedError);
 
 static void printSeq(const uint8_t* a, int len);
-static void printUSeq(const UChar * a, int len);
+static void printUSeq(const char16_t * a, int len);
 static void printSeqErr(const uint8_t* a, int len);
-static void printUSeqErr(const UChar * a, int len);
+static void printUSeqErr(const char16_t * a, int len);
 static void setNuConvTestName(const char *codepage, const char *direction);
 
 

@@ -2510,13 +2510,11 @@ int cmp_main(int argc, char ** argv)
 	ENGINE * engine = NULL;
 	OSSL_CMP_CTX * srv_cmp_ctx = NULL;
 	int ret = 0; /* default: failure */
-
 	prog = opt_appname(argv[0]);
 	if(argc <= 1) {
 		opt_help(cmp_options);
 		goto err;
 	}
-
 	/*
 	 * handle options -config, -section, and -verbosity upfront
 	 * to take effect for other options
@@ -2525,12 +2523,9 @@ int cmp_main(int argc, char ** argv)
 		if(*argv[i] == '-') {
 			if(!strcmp(argv[i] + 1, cmp_options[OPT_CONFIG - OPT_HELP].name))
 				opt_config = argv[++i];
-			else if(!strcmp(argv[i] + 1,
-			    cmp_options[OPT_SECTION - OPT_HELP].name))
+			else if(!strcmp(argv[i] + 1, cmp_options[OPT_SECTION - OPT_HELP].name))
 				opt_section = argv[++i];
-			else if(strcmp(argv[i] + 1,
-			    cmp_options[OPT_VERBOSITY - OPT_HELP].name) == 0
-			    && !set_verbosity(atoi(argv[++i])))
+			else if(strcmp(argv[i] + 1, cmp_options[OPT_VERBOSITY - OPT_HELP].name) == 0 && !set_verbosity(atoi(argv[++i])))
 				goto err;
 		}
 	}

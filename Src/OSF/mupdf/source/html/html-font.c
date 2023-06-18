@@ -103,7 +103,7 @@ void fz_drop_html_font_set(fz_context * ctx, fz_html_font_set * set)
 		font = next;
 	}
 
-	for(i = 0; i < (int)nelem(set->fonts); ++i)
+	for(i = 0; i < SIZEOFARRAYi(set->fonts); ++i)
 		fz_drop_font(ctx, set->fonts[i]);
 
 	fz_free(ctx, set);

@@ -23,7 +23,7 @@
 
 #define MAX_TOKEN_LEN 16
 
-typedef UCollationResult tst_strcoll (void * collator, const int object, const UChar * source, const int sLen, const UChar * target, const int tLen);
+typedef UCollationResult tst_strcoll (void * collator, const int object, const char16_t * source, const int sLen, const char16_t * target, const int tLen);
 
 const static char cnt1[][10] = { "AA", "AC", "AZ", "AQ", "AB", "ABZ", "ABQ", "Z", "ABC", "Q", "B" };
 const static char cnt2[][10] = { "DA", "DAD", "DAZ", "MAR", "Z", "DAVIS", "MARK", "DAV", "DAVI" };
@@ -31,9 +31,9 @@ const static char cnt2[][10] = { "DA", "DAD", "DAZ", "MAR", "Z", "DAVIS", "MARK"
 static void IncompleteCntTest(void)
 {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar temp[90];
-	UChar t1[90];
-	UChar t2[90];
+	char16_t temp[90];
+	char16_t t1[90];
+	char16_t t2[90];
 	UCollator * coll =  NULL;
 	uint32_t i = 0, j = 0;
 	uint32_t size = 0;
@@ -126,8 +126,8 @@ const static char nonignorable[][20] = {
 
 static void BlackBirdTest() {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar t1[90];
-	UChar t2[90];
+	char16_t t1[90];
+	char16_t t2[90];
 
 	uint32_t i = 0, j = 0;
 	uint32_t size = 0;
@@ -174,7 +174,7 @@ static void BlackBirdTest() {
 	ucol_close(coll);
 }
 
-const static UChar testSourceCases[][MAX_TOKEN_LEN] = {
+const static char16_t testSourceCases[][MAX_TOKEN_LEN] = {
 	{0x0041 /*'A'*/, 0x0300, 0x0301, 0x0000},
 	{0x0041 /*'A'*/, 0x0300, 0x0316, 0x0000},
 	{0x0041 /*'A'*/, 0x0300, 0x0000},
@@ -183,7 +183,7 @@ const static UChar testSourceCases[][MAX_TOKEN_LEN] = {
 	{0x00C0, 0x0316, 0x0000}
 };
 
-const static UChar testTargetCases[][MAX_TOKEN_LEN] = {
+const static char16_t testTargetCases[][MAX_TOKEN_LEN] = {
 	{0x0041 /*'A'*/, 0x0301, 0x0300, 0x0000},
 	{0x0041 /*'A'*/, 0x0316, 0x0300, 0x0000},
 	{0x00C0, 0},
@@ -272,7 +272,7 @@ static const char * caseLevelC[] = {
 static void PrintMarkDavis(void)
 {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar m[256];
+	char16_t m[256];
 	uint8_t sortkey[256];
 	UCollator * coll = ucol_open("en_US", &status);
 	uint32_t h, i, j, k, sortkeysize;
@@ -369,8 +369,8 @@ const static char chTest[][20] = {
 };
 
 static void TestChMove() {
-	UChar t1[256] = {0};
-	UChar t2[256] = {0};
+	char16_t t1[256] = {0};
+	char16_t t2[256] = {0};
 
 	uint32_t i = 0, j = 0;
 	uint32_t size = 0;
@@ -430,8 +430,8 @@ static void TestImplicitTailoring() {
 	}
 
 /*
-   UChar t1[256] = {0};
-   UChar t2[256] = {0};
+   char16_t t1[256] = {0};
+   char16_t t2[256] = {0};
 
    const char *rule = "&\\u4e00 < a <<< A < b <<< B";
 
@@ -462,8 +462,8 @@ static void TestImplicitTailoring() {
 }
 
 static void TestFCDProblem() {
-	UChar t1[256] = {0};
-	UChar t2[256] = {0};
+	char16_t t1[256] = {0};
+	char16_t t2[256] = {0};
 
 	const char * s1 = "\\u0430\\u0306\\u0325";
 	const char * s2 = "\\u04D1\\u0325";
@@ -489,13 +489,13 @@ static void TestFCDProblem() {
 #define NORM_BUFFER_TEST_LEN 18
 typedef struct {
 	UChar32 u;
-	UChar NFC[NORM_BUFFER_TEST_LEN];
-	UChar NFD[NORM_BUFFER_TEST_LEN];
+	char16_t NFC[NORM_BUFFER_TEST_LEN];
+	char16_t NFD[NORM_BUFFER_TEST_LEN];
 } tester;
 
 static void TestComposeDecompose() {
 	/* [[:NFD_Inert=false:][:NFC_Inert=false:]] */
-	static const UChar UNICODESET_STR[] = {
+	static const char16_t UNICODESET_STR[] = {
 		0x5B, 0x5B, 0x3A, 0x4E, 0x46, 0x44, 0x5F, 0x49, 0x6E, 0x65, 0x72, 0x74, 0x3D, 0x66, 0x61,
 		0x6C, 0x73, 0x65, 0x3A, 0x5D, 0x5B, 0x3A, 0x4E, 0x46, 0x43, 0x5F, 0x49, 0x6E, 0x65, 0x72,
 		0x74, 0x3D, 0x66, 0x61, 0x6C, 0x73, 0x65, 0x3A, 0x5D, 0x5D, 0
@@ -511,7 +511,7 @@ static void TestComposeDecompose() {
 	uint32_t noCases = 0;
 	UCollator * coll = NULL;
 	UChar32 u = 0;
-	UChar comp[NORM_BUFFER_TEST_LEN];
+	char16_t comp[NORM_BUFFER_TEST_LEN];
 	uint32_t len = 0;
 	UCollationElements * iter;
 	USet * charsToTest = uset_openPattern(UNICODESET_STR, -1, &status);
@@ -540,10 +540,10 @@ static void TestComposeDecompose() {
 		U16_APPEND_UNSAFE(comp, len, ch);
 		nfcSize = unorm_normalize(comp, len, UNORM_NFC, 0, t[noCases]->NFC, NORM_BUFFER_TEST_LEN, &status);
 		nfdSize = unorm_normalize(comp, len, UNORM_NFD, 0, t[noCases]->NFD, NORM_BUFFER_TEST_LEN, &status);
-		if(nfcSize != nfdSize || (memcmp(t[noCases]->NFC, t[noCases]->NFD, nfcSize * sizeof(UChar)) != 0)
-		 || (len != nfdSize || (memcmp(comp, t[noCases]->NFD, nfdSize * sizeof(UChar)) != 0))) {
+		if(nfcSize != nfdSize || (memcmp(t[noCases]->NFC, t[noCases]->NFD, nfcSize * sizeof(char16_t)) != 0)
+		 || (len != nfdSize || (memcmp(comp, t[noCases]->NFD, nfdSize * sizeof(char16_t)) != 0))) {
 			t[noCases]->u = ch;
-			if(len != nfdSize || (memcmp(comp, t[noCases]->NFD, nfdSize * sizeof(UChar)) != 0)) {
+			if(len != nfdSize || (memcmp(comp, t[noCases]->NFD, nfdSize * sizeof(char16_t)) != 0)) {
 				u_strncpy(t[noCases]->NFC, comp, len);
 				t[noCases]->NFC[len] = 0;
 			}
@@ -587,7 +587,7 @@ static void TestComposeDecompose() {
 		locName = uloc_getAvailable(i);
 		if(hasCollationElements(locName)) {
 			char cName[256];
-			UChar name[256];
+			char16_t name[256];
 			int32_t nameSize = uloc_getDisplayName(locName, NULL, name, sizeof(cName), &status);
 
 			for(j = 0; j<nameSize; j++) {
@@ -624,7 +624,7 @@ static void TestComposeDecompose() {
 
 static void TestEmptyRule() {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar rulez[] = { 0 };
+	char16_t rulez[] = { 0 };
 	UCollator * coll = ucol_openRules(rulez, 0, UCOL_OFF, UCOL_TERTIARY, NULL, &status);
 
 	ucol_close(coll);
@@ -632,8 +632,8 @@ static void TestEmptyRule() {
 
 static void TestUCARules() {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar b[256];
-	UChar * rules = b;
+	char16_t b[256];
+	char16_t * rules = b;
 	uint32_t ruleLen = 0;
 	UCollator * UCAfromRules = NULL;
 	UCollator * coll = ucol_open("", &status);
@@ -649,7 +649,7 @@ static void TestUCARules() {
 
 	log_verbose("TestUCARules\n");
 	if(ruleLen > 256) {
-		rules = (UChar *)SAlloc::M((ruleLen+1)*sizeof(UChar));
+		rules = (char16_t *)SAlloc::M((ruleLen+1)*sizeof(char16_t));
 		ruleLen = ucol_getRulesEx(coll, UCOL_FULL_RULES, rules, ruleLen);
 	}
 	log_verbose("Rules length is %d\n", ruleLen);
@@ -759,11 +759,11 @@ static void TestJ815()
 
 static void TestCase(void)
 {
-	const static UChar gRules[MAX_TOKEN_LEN] =
+	const static char16_t gRules[MAX_TOKEN_LEN] =
 	    /*" & 0 < 1,\u2461<a,A"*/
 	{ 0x0026, 0x0030, 0x003C, 0x0031, 0x002C, 0x2460, 0x003C, 0x0061, 0x002C, 0x0041, 0x0000 };
 
-	const static UChar testCase[][MAX_TOKEN_LEN] =
+	const static char16_t testCase[][MAX_TOKEN_LEN] =
 	{
 		/*0*/ {0x0031 /*'1'*/, 0x0061 /*'a'*/, 0x0000},
 		/*1*/ {0x0031 /*'1'*/, 0x0041 /*'A'*/, 0x0000},
@@ -881,11 +881,11 @@ static void TestCase(void)
 }
 
 static void TestIncrementalNormalize() {
-	/*UChar baseA     =0x61;*/
-	UChar baseA     = 0x41;
-/*    UChar baseB     = 0x42;*/
-	static const UChar ccMix[] = {0x316, 0x321, 0x300};
-	/*UChar ccMix[] = {0x61, 0x61, 0x61};*/
+	/*char16_t baseA     =0x61;*/
+	char16_t baseA     = 0x41;
+/*    char16_t baseB     = 0x42;*/
+	static const char16_t ccMix[] = {0x316, 0x321, 0x300};
+	/*char16_t ccMix[] = {0x61, 0x61, 0x61};*/
 	/*
 	    0x316 is combining grave accent below, cc=220
 	    0x321 is combining palatalized hook below, cc=202
@@ -910,8 +910,8 @@ static void TestIncrementalNormalize() {
 	{
 		/* Test 1.  Run very long unnormalized strings, to force overflow of*/
 		/*          most buffers along the way.*/
-		UChar strA[MAXSLEN+1];
-		UChar strB[MAXSLEN+1];
+		char16_t strA[MAXSLEN+1];
+		char16_t strB[MAXSLEN+1];
 
 		coll = ucol_open("en_US", &status);
 		if(status == U_FILE_ACCESS_ERROR) {
@@ -951,8 +951,8 @@ static void TestIncrementalNormalize() {
 	/*         of the string.  Checks a couple of edge cases.*/
 
 	{
-		static const UChar strA[] = {0x41, 0x41, 0x300, 0x316, 0};
-		static const UChar strB[] = {0x41, 0xc0, 0x316, 0};
+		static const char16_t strA[] = {0x41, 0x41, 0x300, 0x316, 0};
+		static const char16_t strB[] = {0x41, 0xc0, 0x316, 0};
 		ucol_setStrength(coll, UCOL_TERTIARY);
 		doTest(coll, strA, strB, UCOL_EQUAL);
 	}
@@ -964,9 +964,9 @@ static void TestIncrementalNormalize() {
 		 * test below used a code point from Desseret, which sorts differently
 		 * than d800 dc00
 		 */
-		/*UChar strA[] = {0x41, 0x41, 0x300, 0x316, 0xD801, 0xDC00, 0};*/
-		static const UChar strA[] = {0x41, 0x41, 0x300, 0x316, 0xD800, 0xDC01, 0};
-		static const UChar strB[] = {0x41, 0xc0, 0x316, 0xD800, 0xDC00, 0};
+		/*char16_t strA[] = {0x41, 0x41, 0x300, 0x316, 0xD801, 0xDC00, 0};*/
+		static const char16_t strA[] = {0x41, 0x41, 0x300, 0x316, 0xD800, 0xDC01, 0};
+		static const char16_t strB[] = {0x41, 0xc0, 0x316, 0xD800, 0xDC00, 0};
 		ucol_setStrength(coll, UCOL_TERTIARY);
 		doTest(coll, strA, strB, UCOL_GREATER);
 	}
@@ -974,8 +974,8 @@ static void TestIncrementalNormalize() {
 	/*  Test 4:  Embedded nulls do not terminate a string when length is specified.*/
 
 	{
-		static const UChar strA[] = {0x41, 0x00, 0x42, 0x00};
-		static const UChar strB[] = {0x41, 0x00, 0x00, 0x00};
+		static const char16_t strA[] = {0x41, 0x00, 0x42, 0x00};
+		static const char16_t strB[] = {0x41, 0x00, 0x00, 0x00};
 		char sortKeyA[50];
 		char sortKeyAz[50];
 		char sortKeyB[50];
@@ -1035,8 +1035,8 @@ static void TestIncrementalNormalize() {
 	/*  Test 5:  Null characters in non-normal source strings.*/
 
 	{
-		static const UChar strA[] = {0x41, 0x41, 0x300, 0x316, 0x00, 0x42, 0x00};
-		static const UChar strB[] = {0x41, 0x41, 0x300, 0x316, 0x00, 0x00, 0x00};
+		static const char16_t strA[] = {0x41, 0x41, 0x300, 0x316, 0x00, 0x42, 0x00};
+		static const char16_t strB[] = {0x41, 0x41, 0x300, 0x316, 0x00, 0x00, 0x00};
 		char sortKeyA[50];
 		char sortKeyAz[50];
 		char sortKeyB[50];
@@ -1094,8 +1094,8 @@ static void TestIncrementalNormalize() {
 	/*  Test 6:  Null character as base of a non-normal combining sequence.*/
 
 	{
-		static const UChar strA[] = {0x41, 0x0, 0x300, 0x316, 0x41, 0x302, 0x00};
-		static const UChar strB[] = {0x41, 0x0, 0x302, 0x316, 0x41, 0x300, 0x00};
+		static const char16_t strA[] = {0x41, 0x0, 0x300, 0x316, 0x41, 0x302, 0x00};
+		static const char16_t strB[] = {0x41, 0x0, 0x302, 0x316, 0x41, 0x300, 0x00};
 
 		result = ucol_strcoll(coll, strA, 5, strB, 5);
 		if(result != UCOL_LESS) {
@@ -1123,7 +1123,7 @@ static void TestGetCaseBit() {
 	};
 
 	uint32_t i, blen = 0;
-	UChar b[256] = {0};
+	char16_t b[256] = {0};
 	UErrorCode status = U_ZERO_ERROR;
 	UCollator * UCA = ucol_open("", &status);
 	uint8_t res = 0;
@@ -1158,7 +1158,7 @@ static void TestHangulTailoring() {
 	    "<<< \\u6A9F <<< \\u73C8 <<< \\u7B33 <<< \\u801E <<< \\u8238 <<< \\u846D <<< \\u8B0C";
 
 	UErrorCode status = U_ZERO_ERROR;
-	UChar rlz[2048] = { 0 };
+	char16_t rlz[2048] = { 0 };
 	uint32_t rlen = u_unescape(rules, rlz, 2048);
 
 	UCollator * coll = ucol_openRules(rlz, rlen, UCOL_DEFAULT, UCOL_DEFAULT, NULL, &status);
@@ -1198,8 +1198,8 @@ enum {
 };
 
 static void TestCompressOverlap() {
-	UChar secstr[150];
-	UChar tertstr[150];
+	char16_t secstr[150];
+	char16_t tertstr[150];
 	UErrorCode status = U_ZERO_ERROR;
 	UCollator * coll;
 	uint8_t result[500];
@@ -1327,12 +1327,12 @@ static void TestContraction() {
 		"&A = A\\u0306/\\u0306",
 		"&c = ch / h"
 	};
-	const static UChar testdata[][2] = {
+	const static char16_t testdata[][2] = {
 		{0x0041 /* 'A' */, 0x0042 /* 'B' */},
 		{0x0041 /* 'A' */, 0x0306 /* combining breve */},
 		{0x0063 /* 'c' */, 0x0068 /* 'h' */}
 	};
-	const static UChar testdata2[][2] = {
+	const static char16_t testdata2[][2] = {
 		{0x0063 /* 'c' */, 0x0067 /* 'g' */},
 		{0x0063 /* 'c' */, 0x0068 /* 'h' */},
 		{0x0063 /* 'c' */, 0x006C /* 'l' */}
@@ -1358,7 +1358,7 @@ static void TestContraction() {
 
 	UErrorCode status = U_ZERO_ERROR;
 	UCollator * coll;
-	UChar rule[256] = {0};
+	char16_t rule[256] = {0};
 	uint32_t rlen     = 0;
 	int i;
 
@@ -1427,7 +1427,7 @@ static void TestContraction() {
 		    * coll2;
 		UCollationElements * iter1,
 		    * iter2;
-		UChar ch = 0x0042 /* 'B' */;
+		char16_t ch = 0x0042 /* 'B' */;
 		uint32_t ce;
 		rlen = u_unescape(testrules3[i], rule, 32);
 		coll1 = ucol_openRules(rule, rlen, UCOL_ON, UCOL_TERTIARY, NULL, &status);
@@ -1491,7 +1491,7 @@ static void TestExpansion() {
 #endif
 		"&J << K / B << M"
 	};
-	const static UChar testdata[][3] = {
+	const static char16_t testdata[][3] = {
 		{0x004A /*'J'*/, 0x0041 /*'A'*/, 0},
 		{0x004D /*'M'*/, 0x0041 /*'A'*/, 0},
 		{0x004B /*'K'*/, 0x0041 /*'A'*/, 0},
@@ -1502,7 +1502,7 @@ static void TestExpansion() {
 
 	UErrorCode status = U_ZERO_ERROR;
 	UCollator * coll;
-	UChar rule[256] = {0};
+	char16_t rule[256] = {0};
 	uint32_t rlen     = 0;
 	int i;
 
@@ -1618,7 +1618,7 @@ static void TestBocsuCoverage()
 {
 	UErrorCode status = U_ZERO_ERROR;
 	const char * testString = "\\u0041\\u0441\\u4441\\U00044441\\u4441\\u0441\\u0041";
-	UChar test[256] = {0};
+	char16_t test[256] = {0};
 	uint32_t tlen     = u_unescape(testString, test, 32);
 	uint8_t key[256] = {0};
 	uint32_t klen         = 0;
@@ -1643,12 +1643,12 @@ static void TestVariableTopSetting()
 	uint32_t varTopOriginal = 0, varTop1, varTop2;
 	UCollator * coll = ucol_open("", &status);
 	if(U_SUCCESS(status)) {
-		static const UChar nul = 0;
-		static const UChar space = 0x20;
-		static const UChar dot = 0x2e; /* punctuation */
-		static const UChar degree = 0xb0; /* symbol */
-		static const UChar dollar = 0x24; /* currency symbol */
-		static const UChar zero = 0x30; /* digit */
+		static const char16_t nul = 0;
+		static const char16_t space = 0x20;
+		static const char16_t dot = 0x2e; /* punctuation */
+		static const char16_t degree = 0xb0; /* symbol */
+		static const char16_t dollar = 0x24; /* currency symbol */
+		static const char16_t zero = 0x30; /* digit */
 
 		varTopOriginal = ucol_getVariableTop(coll, &status);
 		log_verbose("ucol_getVariableTop(root) -> %08x\n", varTopOriginal);
@@ -1708,7 +1708,7 @@ static void TestVariableTopSetting()
 
 		log_verbose("Testing setting variable top to contractions\n");
 		{
-			UChar first[4] = { 0 };
+			char16_t first[4] = { 0 };
 			first[0] = 0x0040;
 			first[1] = 0x0050;
 			first[2] = 0x0000;
@@ -1753,12 +1753,12 @@ static void TestMaxVariable() {
 	UColReorderCode oldMax, max;
 	UCollator * coll;
 
-	static const UChar nul = 0;
-	static const UChar space = 0x20;
-	static const UChar dot = 0x2e; /* punctuation */
-	static const UChar degree = 0xb0; /* symbol */
-	static const UChar dollar = 0x24; /* currency symbol */
-	static const UChar zero = 0x30; /* digit */
+	static const char16_t nul = 0;
+	static const char16_t space = 0x20;
+	static const char16_t dot = 0x2e; /* punctuation */
+	static const char16_t degree = 0xb0; /* symbol */
+	static const char16_t dollar = 0x24; /* currency symbol */
+	static const char16_t zero = 0x30; /* digit */
 
 	coll = ucol_open("", &status);
 	if(U_FAILURE(status)) {
@@ -2207,7 +2207,7 @@ static void TestBeforePrefixFailure() {
 		uint32_t i = 0;
 		UCollationElements * it = NULL;
 		uint32_t CE;
-		UChar string[256];
+		char16_t string[256];
 		uint32_t uStringLen;
 		UCollator * coll = NULL;
 
@@ -2249,7 +2249,7 @@ static void TestPrefixCompose() {
 		/*uint32_t i = 0;*/
 		/*UCollationElements *it = NULL;*/
 /*    uint32_t CE;*/
-		UChar string[256];
+		char16_t string[256];
 		uint32_t uStringLen;
 		UCollator * coll = NULL;
 
@@ -2477,7 +2477,7 @@ static void Alexis() {
 #define CMSCOLL_ALEXIS2_BUFFER_SIZE 256
 static void Alexis2() {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar U16Source[CMSCOLL_ALEXIS2_BUFFER_SIZE], U16Target[CMSCOLL_ALEXIS2_BUFFER_SIZE];
+	char16_t U16Source[CMSCOLL_ALEXIS2_BUFFER_SIZE], U16Target[CMSCOLL_ALEXIS2_BUFFER_SIZE];
 	char U16BESource[CMSCOLL_ALEXIS2_BUFFER_SIZE], U16BETarget[CMSCOLL_ALEXIS2_BUFFER_SIZE];
 	char U8Source[CMSCOLL_ALEXIS2_BUFFER_SIZE], U8Target[CMSCOLL_ALEXIS2_BUFFER_SIZE];
 	int32_t U16LenS = 0, U16LenT = 0, U16BELenS = 0, U16BELenT = 0, U8LenS = 0, U8LenT = 0;
@@ -2568,7 +2568,7 @@ static void TestHebrewUCA() {
 	};
 
 	char utf8String[3][256];
-	UChar utf16String[3][256];
+	char16_t utf16String[3][256];
 
 	int32_t i = 0, j = 0;
 	int32_t sizeUTF8[3];
@@ -2614,7 +2614,7 @@ static void TestPartialSortKeyTermination() {
 
 	UCharIterator iter;
 
-	UChar currCase[256];
+	char16_t currCase[256];
 	int32_t length = 0;
 	int32_t pKeyLen = 0;
 
@@ -2647,7 +2647,7 @@ static void TestSettings() {
 
 	int32_t i = 0, j = 0;
 
-	UChar source[256], target[256];
+	char16_t source[256], target[256];
 	int32_t sLen = 0, tLen = 0;
 
 	UCollator * collateObject = NULL;
@@ -2669,7 +2669,7 @@ static void TestSettings() {
 static int32_t TestEqualsForCollator(const char * locName, UCollator * source, UCollator * target) {
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t errorNo = 0;
-	const UChar * sourceRules = NULL;
+	const char16_t * sourceRules = NULL;
 	int32_t sourceRulesLen = 0;
 	UParseError parseError;
 	UColAttributeValue french = UCOL_OFF;
@@ -2752,7 +2752,7 @@ static void TestEquals() {
 	   };
 	 */
 
-	UChar sourceRules[1024], targetRules[1024];
+	char16_t sourceRules[1024], targetRules[1024];
 	int32_t sourceRulesSize = 0, targetRulesSize = 0;
 	int32_t rulesSize = SIZEOFARRAYi(rules);
 
@@ -2808,9 +2808,9 @@ static void TestEquals() {
 }
 
 static void TestJ2726() {
-	UChar a[2] = { 0x61, 0x00 }; /*"a"*/
-	UChar aSpace[3] = { 0x61, 0x20, 0x00 }; /*"a "*/
-	UChar spaceA[3] = { 0x20, 0x61, 0x00 }; /*" a"*/
+	char16_t a[2] = { 0x61, 0x00 }; /*"a"*/
+	char16_t aSpace[3] = { 0x61, 0x20, 0x00 }; /*"a "*/
+	char16_t spaceA[3] = { 0x20, 0x61, 0x00 }; /*" a"*/
 	UErrorCode status = U_ZERO_ERROR;
 	UCollator * coll = ucol_open("en", &status);
 	ucol_setAttribute(coll, UCOL_ALTERNATE_HANDLING, UCOL_SHIFTED, &status);
@@ -2825,7 +2825,7 @@ static void TestJ2726() {
 }
 
 static void NullRule() {
-	UChar r[3] = {0};
+	char16_t r[3] = {0};
 	UErrorCode status = U_ZERO_ERROR;
 	UCollator * coll = ucol_openRules(r, 1, UCOL_DEFAULT, UCOL_DEFAULT, NULL, &status);
 	if(U_SUCCESS(status)) {
@@ -3057,8 +3057,8 @@ static void TestTibetanConformance(void)
 
 	UErrorCode status = U_ZERO_ERROR;
 	UCollator * coll = ucol_open("", &status);
-	UChar source[100];
-	UChar target[100];
+	char16_t source[100];
+	char16_t target[100];
 	int result;
 	ucol_setAttribute(coll, UCOL_NORMALIZATION_MODE, UCOL_ON, &status);
 	if(U_SUCCESS(status)) {
@@ -3296,7 +3296,7 @@ static void TestBeforeTightening() {
 	int32_t i = 0;
 
 	UErrorCode status = U_ZERO_ERROR;
-	UChar rlz[RULE_BUFFER_LEN] = { 0 };
+	char16_t rlz[RULE_BUFFER_LEN] = { 0 };
 	uint32_t rlen = 0;
 
 	UCollator * coll = NULL;
@@ -3425,9 +3425,9 @@ static void TestMoreBefore() {
 static void TestTailorNULL() {
 	const static char * rule = "&a <<< '\\u0000'";
 	UErrorCode status = U_ZERO_ERROR;
-	UChar rlz[RULE_BUFFER_LEN] = { 0 };
+	char16_t rlz[RULE_BUFFER_LEN] = { 0 };
 	uint32_t rlen = 0;
-	UChar a = 1, null = 0;
+	char16_t a = 1, null = 0;
 	UCollationResult res = UCOL_EQUAL;
 
 	UCollator * coll = NULL;
@@ -3479,7 +3479,7 @@ static void TestJ4960(void)
 static void TestJ5223(void)
 {
 	static const char * test = "this is a test string";
-	UChar ustr[256];
+	char16_t ustr[256];
 	int32_t ustr_length = u_unescape(test, ustr, 256);
 	unsigned char sortkey[256];
 	int32_t sortkey_length;
@@ -3552,8 +3552,8 @@ static void TestVI5913(void)
 	UCollator * coll = NULL;
 	uint8_t resColl[100], expColl[100];
 	int32_t rLen, tLen, ruleLen, sLen, kLen;
-	UChar rule[256] = {0x26, 0x62, 0x3c, 0x1FF3, 0}; /* &b<0x1FF3-omega with Ypogegrammeni*/
-	UChar rule2[256] = {0x26, 0x7a, 0x3c, 0x0161, 0}; /* &z<s with caron*/
+	char16_t rule[256] = {0x26, 0x62, 0x3c, 0x1FF3, 0}; /* &b<0x1FF3-omega with Ypogegrammeni*/
+	char16_t rule2[256] = {0x26, 0x7a, 0x3c, 0x0161, 0}; /* &z<s with caron*/
 	/*
 	 * Note: Just tailoring &z<ae^ does not work as expected:
 	 * The UCA spec requires for discontiguous contractions that they
@@ -3562,12 +3562,12 @@ static void TestVI5913(void)
 	 * discontiguous contractions for ae^, for example with an intervening underdot.
 	 * Only then do we get the expected tail closure with a\u1EC7, a\u1EB9\u0302, etc.
 	 */
-	UChar rule3[256] = {
+	char16_t rule3[256] = {
 		0x26, 0x78, 0x3c, 0x61, 0x65, /* &x<ae */
 		0x26, 0x7a, 0x3c, 0x0061, 0x00ea, /* &z<a+e with circumflex.*/
 		0
 	};
-	static const UChar tData[][20] = {
+	static const char16_t tData[][20] = {
 		{0x1EAC, 0},
 		{0x0041, 0x0323, 0x0302, 0},
 		{0x1EA0, 0x0302, 0},
@@ -3577,7 +3577,7 @@ static void TestVI5913(void)
 		{0x1EB7, 0},
 		{0x1EA1, 0x0306, 0},
 	};
-	static const UChar tailorData[][20] = {
+	static const char16_t tailorData[][20] = {
 		{0x1FA2, 0}, /* Omega with 3 combining marks */
 		{0x03C9, 0x0313, 0x0300, 0x0345, 0},
 		{0x1FF3, 0x0313, 0x0300, 0},
@@ -3585,12 +3585,12 @@ static void TestVI5913(void)
 		{0x1F62, 0x0345, 0},
 		{0x1FA0, 0x0300, 0},
 	};
-	static const UChar tailorData2[][20] = {
+	static const char16_t tailorData2[][20] = {
 		{0x1E63, 0x030C, 0}, /* s with dot below + caron */
 		{0x0073, 0x0323, 0x030C, 0},
 		{0x0073, 0x030C, 0x0323, 0},
 	};
-	static const UChar tailorData3[][20] = {
+	static const char16_t tailorData3[][20] = {
 		{0x007a, 0}, /*  z */
 		{0x0061, 0x0065, 0}, /*  a + e */
 		{0x0061, 0x00ea, 0}, /* a + e with circumflex */
@@ -3738,14 +3738,14 @@ static void TestTailor6179(void)
 	uint8_t resColl[100];
 	int32_t rLen, tLen, ruleLen;
 	/* &[last primary ignorable]<< a  &[first primary ignorable]<<b */
-	static const UChar rule1[] = {
+	static const char16_t rule1[] = {
 		0x26, 0x5B, 0x6C, 0x61, 0x73, 0x74, 0x20, 0x70, 0x72, 0x69, 0x6D, 0x61, 0x72, 0x79,
 		0x20, 0x69, 0x67, 0x6E, 0x6F, 0x72, 0x61, 0x62, 0x6C, 0x65, 0x5D, 0x3C, 0x3C, 0x20, 0x61, 0x20,
 		0x26, 0x5B, 0x66, 0x69, 0x72, 0x73, 0x74, 0x20, 0x70, 0x72, 0x69, 0x6D, 0x61, 0x72, 0x79, 0x20,
 		0x69, 0x67, 0x6E, 0x6F, 0x72, 0x61, 0x62, 0x6C, 0x65, 0x5D, 0x3C, 0x3C, 0x62, 0x20, 0
 	};
 	/* &[last secondary ignorable]<<< a &[first secondary ignorable]<<<b */
-	static const UChar rule2[] = {
+	static const char16_t rule2[] = {
 		0x26, 0x5B, 0x6C, 0x61, 0x73, 0x74, 0x20, 0x73, 0x65, 0x63, 0x6F, 0x6E, 0x64, 0x61,
 		0x72, 0x79, 0x20, 0x69, 0x67, 0x6E, 0x6F, 0x72, 0x61, 0x62, 0x6C, 0x65, 0x5D, 0x3C, 0x3C, 0x3C,
 		0x61, 0x20, 0x26, 0x5B, 0x66, 0x69, 0x72, 0x73, 0x74, 0x20, 0x73, 0x65, 0x63, 0x6F, 0x6E,
@@ -3753,12 +3753,12 @@ static void TestTailor6179(void)
 		0x3C, 0x3C, 0x20, 0x62, 0
 	};
 
-	static const UChar tData1[][4] = {
+	static const char16_t tData1[][4] = {
 		{0x61, 0},
 		{0x62, 0},
 		{ 0xFDD0, 0x009E, 0}
 	};
-	static const UChar tData2[][4] = {
+	static const char16_t tData2[][4] = {
 		{0x61, 0},
 		{0x62, 0},
 		{ 0xFDD0, 0x009E, 0}
@@ -3844,11 +3844,11 @@ static void TestUCAPrecontext(void)
 	UCollator * coll = NULL;
 	uint8_t resColl[100], prevColl[100];
 	int32_t rLen, tLen, ruleLen;
-	UChar rule1[256] = {0x26, 0xb7, 0x3c, 0x61, 0}; /* & middle-dot < a */
-	UChar rule2[256] = {0x26, 0x4C, 0xb7, 0x3c, 0x3c, 0x61, 0};
+	char16_t rule1[256] = {0x26, 0xb7, 0x3c, 0x61, 0}; /* & middle-dot < a */
+	char16_t rule2[256] = {0x26, 0x4C, 0xb7, 0x3c, 0x3c, 0x61, 0};
 	/* & l middle-dot << a  a is an expansion. */
 
-	UChar tData1[][20] = {
+	char16_t tData1[][20] = {
 		{ 0xb7, 0}, /* standalone middle dot(0xb7) */
 		{ 0x387, 0}, /* standalone middle dot(0x387) */
 		{ 0x61, 0}, /* a */
@@ -3956,7 +3956,7 @@ static void TestUCAPrecontext(void)
 static void TestOutOfBuffer5468(void)
 {
 	static const char * test = "\\u4e00";
-	UChar ustr[256];
+	char16_t ustr[256];
 	int32_t ustr_length = u_unescape(test, ustr, 256);
 	unsigned char shortKeyBuf[1];
 	int32_t sortkey_length;
@@ -3989,7 +3989,7 @@ static void TestSortKeyConsistency(void)
 {
 	UErrorCode icuRC = U_ZERO_ERROR;
 	UCollator* ucol;
-	UChar data[] = { 0xFFFD, 0x0006, 0x0006, 0x0006, 0xFFFD};
+	char16_t data[] = { 0xFFFD, 0x0006, 0x0006, 0x0006, 0xFFFD};
 
 	uint8_t bufFull[TSKC_DATA_SIZE][TSKC_BUF_SIZE];
 	uint8_t bufPart[TSKC_DATA_SIZE][TSKC_BUF_SIZE];
@@ -4047,7 +4047,7 @@ static void TestCroatianSortKey() {
 	UCollator * ucol;
 	UCharIterator iter;
 
-	static const UChar text[] = { 0x0044, 0xD81A };
+	static const char16_t text[] = { 0x0044, 0xD81A };
 
 	size_t length = SIZEOFARRAYi(text);
 
@@ -4085,8 +4085,8 @@ static void TestHiragana() {
 	UErrorCode status = U_ZERO_ERROR;
 	UCollator* ucol;
 	UCollationResult strcollresult;
-	UChar data1[] = { 0x3058, 0x30B8 }; /* Hiragana and Katakana letter Zi */
-	UChar data2[] = { 0x3057, 0x3099, 0x30B7, 0x3099 };
+	char16_t data1[] = { 0x3058, 0x30B8 }; /* Hiragana and Katakana letter Zi */
+	char16_t data2[] = { 0x3057, 0x3099, 0x30B7, 0x3099 };
 	int32_t data1Len = SIZEOFARRAYi(data1);
 	int32_t data2Len = SIZEOFARRAYi(data2);
 	int32_t i, j;
@@ -4155,8 +4155,8 @@ static void TestHiragana() {
 
 /* Convenient struct for running collation tests */
 typedef struct {
-	const UChar source[MAX_TOKEN_LEN]; /* String on left */
-	const UChar target[MAX_TOKEN_LEN]; /* String on right */
+	const char16_t source[MAX_TOKEN_LEN]; /* String on left */
+	const char16_t target[MAX_TOKEN_LEN]; /* String on right */
 	UCollationResult result; /* -1, 0 or +1, depending on collation */
 } OneTestCase;
 
@@ -4170,7 +4170,7 @@ typedef struct {
 static void doTestOneTestCase(const OneTestCase testcases[], int n_testcases, const char * str_rules[], int n_rules)
 {
 	int rule_no, testcase_no;
-	UChar rule[500];
+	char16_t rule[500];
 	int32_t length = 0;
 	UErrorCode status = U_ZERO_ERROR;
 	UParseError parse_error;
@@ -4454,7 +4454,7 @@ static void TestInvalidListsAndRanges(void)
 		"&a<*k-b",
 	};
 
-	UChar rule[500];
+	char16_t rule[500];
 	UErrorCode status = U_ZERO_ERROR;
 	UParseError parse_error;
 	int n_rules = SIZEOFARRAYi(invalidRules);
@@ -4487,7 +4487,7 @@ static void TestBeforeRuleWithScriptReordering(void)
 	UErrorCode status = U_ZERO_ERROR;
 	UCollator * myCollation;
 	char srules[500] = "&[before 1]\\u03b1 < \\u0e01";
-	UChar rules[500];
+	char16_t rules[500];
 	uint32_t rulesLength = 0;
 	int32_t reorderCodes[1] = {USCRIPT_GREEK};
 	UCollationResult collResult;
@@ -4497,13 +4497,13 @@ static void TestBeforeRuleWithScriptReordering(void)
 	uint8_t beforeKey[256];
 	uint32_t beforeKeyLength;
 
-	UChar base[] = { 0x03b1 }; /* base */
+	char16_t base[] = { 0x03b1 }; /* base */
 	int32_t baseLen = SIZEOFARRAYi(base);
 
-	UChar before[] = { 0x0e01 }; /* ko kai */
+	char16_t before[] = { 0x0e01 }; /* ko kai */
 	int32_t beforeLen = SIZEOFARRAYi(before);
 
-	/*UChar *data[] = { before, base };
+	/*char16_t *data[] = { before, base };
 	   genericRulesStarter(srules, data, 2);*/
 
 	log_verbose("Testing the &[before 1] rule with [reorder grek]\n");
@@ -4575,7 +4575,7 @@ static void TestNonLeadBytesDuringCollationReordering(void)
 	uint32_t baseKeyLength;
 	uint8_t reorderKey[256];
 	uint32_t reorderKeyLength;
-	UChar testString[] = { 0x03b1, 0x03b2, 0x03b3 };
+	char16_t testString[] = { 0x03b1, 0x03b2, 0x03b3 };
 	uint32_t i;
 	log_verbose("Testing non-lead bytes in a sort key with and without reordering\n");
 	/* build collator tertiary */
@@ -4649,8 +4649,8 @@ static void TestReorderingAPI(void)
 	UCollationResult collResult;
 	int32_t retrievedReorderCodesLength;
 	int32_t retrievedReorderCodes[10];
-	UChar greekString[] = { 0x03b1 };
-	UChar punctuationString[] = { 0x203e };
+	char16_t greekString[] = { 0x03b1 };
+	char16_t punctuationString[] = { 0x203e };
 	int loopIndex;
 
 	log_verbose("Testing non-lead bytes in a sort key with and without reordering\n");
@@ -4771,16 +4771,16 @@ static void TestReorderingAPIWithRuleCreatedCollator(void)
 {
 	UErrorCode status = U_ZERO_ERROR;
 	UCollator * myCollation;
-	UChar rules[90];
+	char16_t rules[90];
 	static const int32_t rulesReorderCodes[2] = {USCRIPT_HAN, USCRIPT_GREEK};
 	static const int32_t reorderCodes[3] = {USCRIPT_GREEK, USCRIPT_HAN, UCOL_REORDER_CODE_PUNCTUATION};
 	static const int32_t onlyDefault[1] = {UCOL_REORDER_CODE_DEFAULT};
 	UCollationResult collResult;
 	int32_t retrievedReorderCodesLength;
 	int32_t retrievedReorderCodes[10];
-	static const UChar greekString[] = { 0x03b1 };
-	static const UChar punctuationString[] = { 0x203e };
-	static const UChar hanString[] = { 0x65E5, 0x672C };
+	static const char16_t greekString[] = { 0x03b1 };
+	static const char16_t punctuationString[] = { 0x203e };
+	static const char16_t hanString[] = { 0x65E5, 0x672C };
 	int loopIndex;
 
 	log_verbose("Testing non-lead bytes in a sort key with and without reordering\n");
@@ -5310,10 +5310,10 @@ static void TestReorderWithNumericCollation(void)
 	int32_t reorderCodes[] =
 	{UCOL_REORDER_CODE_SPACE, UCOL_REORDER_CODE_PUNCTUATION, UCOL_REORDER_CODE_SYMBOL, UCOL_REORDER_CODE_DIGIT, USCRIPT_GREEK,
 	     USCRIPT_LATIN, USCRIPT_HEBREW, UCOL_REORDER_CODE_OTHERS};
-	/* UChar fortyS[] = { 0x0034, 0x0030, 0x0053 };
-	   UChar fortyThreeP[] = { 0x0034, 0x0033, 0x0050 }; */
-	UChar fortyS[] = { 0x0053 };
-	UChar fortyThreeP[] = { 0x0050 };
+	/* char16_t fortyS[] = { 0x0034, 0x0030, 0x0053 };
+	   char16_t fortyThreeP[] = { 0x0034, 0x0033, 0x0050 }; */
+	char16_t fortyS[] = { 0x0053 };
+	char16_t fortyThreeP[] = { 0x0050 };
 	uint8_t fortyS_sortKey[128];
 	int32_t fortyS_sortKey_Length;
 	uint8_t fortyThreeP_sortKey[128];
@@ -5534,20 +5534,20 @@ static void TestImport(void)
 	UCollator* importviescoll;
 	UParseError error;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar * virules;
+	char16_t * virules;
 	int32_t viruleslength;
-	UChar * esrules;
+	char16_t * esrules;
 	int32_t esruleslength;
-	UChar * viesrules;
+	char16_t * viesrules;
 	int32_t viesruleslength;
 	char srules[500] = "[import vi][import es]";
-	UChar rules[500];
+	char16_t rules[500];
 	uint32_t length = 0;
 	int32_t itemCount;
 	int32_t i, k;
 	UChar32 start;
 	UChar32 end;
-	UChar str[500];
+	char16_t str[500];
 	int32_t strLength;
 
 	uint8_t sk1[500];
@@ -5563,15 +5563,15 @@ static void TestImport(void)
 		return;
 	}
 
-	virules = (UChar *)ucol_getRules(vicoll, &viruleslength);
+	virules = (char16_t *)ucol_getRules(vicoll, &viruleslength);
 	if(viruleslength == 0) {
 		log_data_err("missing vi tailoring rule string\n");
 		ucol_close(vicoll);
 		return;
 	}
 	escoll = ucol_open("es", &status);
-	esrules = (UChar *)ucol_getRules(escoll, &esruleslength);
-	viesrules = (UChar *)uprv_malloc((viruleslength+esruleslength+1)*sizeof(UChar *));
+	esrules = (char16_t *)ucol_getRules(escoll, &esruleslength);
+	viesrules = (char16_t *)uprv_malloc((viruleslength+esruleslength+1)*sizeof(char16_t *));
 	viesrules[0] = 0;
 	u_strcat(viesrules, virules);
 	u_strcat(viesrules, esrules);
@@ -5640,20 +5640,20 @@ static void TestImportWithType(void)
 	UCollator* importvidecoll;
 	UParseError error;
 	UErrorCode status = U_ZERO_ERROR;
-	const UChar * virules;
+	const char16_t * virules;
 	int32_t viruleslength;
-	const UChar * derules;
+	const char16_t * derules;
 	int32_t deruleslength;
-	UChar * viderules;
+	char16_t * viderules;
 	int32_t videruleslength;
 	const char srules[500] = "[import vi][import de-u-co-phonebk]";
-	UChar rules[500];
+	char16_t rules[500];
 	uint32_t length = 0;
 	int32_t itemCount;
 	int32_t i, k;
 	UChar32 start;
 	UChar32 end;
-	UChar str[500];
+	char16_t str[500];
 	int32_t strLength;
 
 	uint8_t sk1[500];
@@ -5681,7 +5681,7 @@ static void TestImportWithType(void)
 	}
 
 	derules = ucol_getRules(decoll, &deruleslength);
-	viderules = (UChar *)uprv_malloc((viruleslength+deruleslength+1)*sizeof(UChar *));
+	viderules = (char16_t *)uprv_malloc((viruleslength+deruleslength+1)*sizeof(char16_t *));
 	viderules[0] = 0;
 	u_strcat(viderules, virules);
 	u_strcat(viderules, derules);
@@ -5743,7 +5743,7 @@ static void TestImportWithType(void)
 
 /* 'IV INTERNATIONAL SCIENTIFIC - PRACTICAL CONFERENCE "GEOPOLITICS, GEOECONOMICS AND INTERNATIONAL RELATIONS PROBLEMS"
    22-23 June 2010, St. Petersburg, Russia' */
-static const UChar longUpperStr1[] = { /* 155 chars */
+static const char16_t longUpperStr1[] = { /* 155 chars */
 	0x49, 0x56, 0x20, 0x49, 0x4E, 0x54, 0x45, 0x52, 0x4E, 0x41, 0x54, 0x49, 0x4F, 0x4E, 0x41, 0x4C,
 	0x20, 0x53, 0x43, 0x49, 0x45, 0x4E, 0x54, 0x49, 0x46, 0x49, 0x43, 0x20, 0x2D, 0x20, 0x50, 0x52,
 	0x41, 0x43, 0x54, 0x49, 0x43, 0x41, 0x4C, 0x20, 0x43, 0x4F, 0x4E, 0x46, 0x45, 0x52, 0x45, 0x4E,
@@ -5757,7 +5757,7 @@ static const UChar longUpperStr1[] = { /* 155 chars */
 };
 
 /* 'BACEDIFOGUHAJEKILOMUNAPE ' with diacritics on vowels, repeated 5 times */
-static const UChar longUpperStr2[] = { /* 125 chars, > 128 collation elements */
+static const char16_t longUpperStr2[] = { /* 125 chars, > 128 collation elements */
 	0x42, 0xC1, 0x43, 0xC9, 0x44, 0xCD, 0x46, 0xD3, 0x47, 0xDA, 0x48, 0xC0, 0x4A, 0xC8, 0x4B, 0xCC, 0x4C, 0xD2, 0x4D, 0xD9, 0x4E, 0xC2,
 	0x50, 0xCA, 0x20,
 	0x42, 0xC1, 0x43, 0xC9, 0x44, 0xCD, 0x46, 0xD3, 0x47, 0xDA, 0x48, 0xC0, 0x4A, 0xC8, 0x4B, 0xCC, 0x4C, 0xD2, 0x4D, 0xD9, 0x4E, 0xC2,
@@ -5771,7 +5771,7 @@ static const UChar longUpperStr2[] = { /* 125 chars, > 128 collation elements */
 };
 
 /* 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ' repeated 12 times */
-static const UChar longUpperStr3[] = { /* 324 chars */
+static const char16_t longUpperStr3[] = { /* 324 chars */
 	0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56,
 	0x57, 0x58, 0x59, 0x5A, 0x20,
 	0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56,
@@ -5799,7 +5799,7 @@ static const UChar longUpperStr3[] = { /* 324 chars */
 };
 
 typedef struct {
-	const UChar * longUpperStrPtr;
+	const char16_t * longUpperStrPtr;
 	int32_t longUpperStrLen;
 } LongUpperStrItem;
 
@@ -5856,7 +5856,7 @@ static void TestCaseLevelBufferOverflow(void)
 }
 
 /* Test for #10595 */
-static const UChar testJapaneseName[] = {0x4F50, 0x3005, 0x6728, 0x002C, 0x6B66, 0}; /* Sa sa Ki, Takeshi */
+static const char16_t testJapaneseName[] = {0x4F50, 0x3005, 0x6728, 0x002C, 0x6B66, 0}; /* Sa sa Ki, Takeshi */
 #define KEY_PART_SIZE 16
 
 static void TestNextSortKeyPartJaIdentical(void)

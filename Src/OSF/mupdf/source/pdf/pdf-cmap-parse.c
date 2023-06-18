@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 /*
  * CMap parser
  */
@@ -138,7 +138,7 @@ static void pdf_parse_bf_range_array(fz_context * ctx, pdf_cmap * cmap, fz_strea
 
 		if(buf->len / 2) {
 			size_t i;
-			size_t len = fz_minz(buf->len / 2, nelem(dst));
+			size_t len = fz_minz(buf->len / 2, SIZEOFARRAY(dst));
 			for(i = 0; i < len; i++)
 				dst[i] = pdf_code_from_string(&buf->scratch[i * 2], 2);
 
@@ -187,7 +187,7 @@ static void pdf_parse_bf_range(fz_context * ctx, pdf_cmap * cmap, fz_stream * fi
 				size_t i;
 
 				if(buf->len / 2) {
-					size_t len = fz_minz(buf->len / 2, nelem(dststr));
+					size_t len = fz_minz(buf->len / 2, SIZEOFARRAY(dststr));
 					for(i = 0; i < len; i++)
 						dststr[i] = pdf_code_from_string(&buf->scratch[i * 2], 2);
 
@@ -234,7 +234,7 @@ static void pdf_parse_bf_char(fz_context * ctx, pdf_cmap * cmap, fz_stream * fil
 
 		if(buf->len / 2) {
 			size_t i;
-			size_t len = fz_minz(buf->len / 2, nelem(dst));
+			size_t len = fz_minz(buf->len / 2, SIZEOFARRAY(dst));
 			for(i = 0; i < len; i++)
 				dst[i] = pdf_code_from_string(&buf->scratch[i * 2], 2);
 			pdf_map_one_to_many(ctx, cmap, src, dst, i);

@@ -258,9 +258,9 @@ static void list_drives(void)
 	const char * user = getenv("USER");
 	int i;
 
-	ui_list_begin(&drive_list, nelem(common_dirs), 0, nelem(common_dirs) * ui.lineheight + 4);
+	ui_list_begin(&drive_list, SIZEOFARRAY(common_dirs), 0, SIZEOFARRAY(common_dirs) * ui.lineheight + 4);
 
-	for(i = 0; i < (int)nelem(common_dirs); ++i)
+	for(i = 0; i < SIZEOFARRAYi(common_dirs); ++i)
 		if(has_dir(home, user, i, dir, vis))
 			if(ui_list_item(&drive_list, common_dirs[i].name, vis, 0))
 				load_dir(dir);

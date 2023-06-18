@@ -240,9 +240,9 @@ static bool doTestUCharNames(const char * name, const char * standard, const cha
 	log_verbose("\n%s %s\n", name, standard);
 	while(repeatTimes-- > 0) {
 		for(idx = 0; idx < enumCount; idx++) {
-			UChar testName[256];
+			char16_t testName[256];
 			int32_t len;
-			const UChar * enumName = uenum_unext(myEnum, &len, &err);
+			const char16_t * enumName = uenum_unext(myEnum, &len, &err);
 			u_uastrncpy(testName, expected[idx], SIZEOFARRAYi(testName));
 			if(u_strcmp(enumName, testName) != 0 || U_FAILURE(err)
 			 || len != (int32_t)strlen(expected[idx])) {

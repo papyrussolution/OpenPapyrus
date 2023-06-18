@@ -1383,7 +1383,7 @@ public:
 		PPID   PsnID;
 	};
 	struct StartSessBlock {
-		StartSessBlock() : SCardID(0), GoodsID(0), SessID(0), TechID(0), RetSCardID(0), RetGoodsID(0), ScOpDtm(ZERODATETIME), WrOffAmount(0.0)
+		StartSessBlock() : SCardID(0), GoodsID(0), TSessID(0), TechID(0), RetSCardID(0), RetGoodsID(0), ScOpDtm(ZERODATETIME), WrOffAmount(0.0)
 		{
 		}
 		//
@@ -1398,7 +1398,7 @@ public:
 			WsCtlUuid.Z();
 			SCardID = 0;
 			GoodsID = 0;
-			SessID = 0;
+			TSessID = 0;
 			TechID = 0;
 			RetSCardID = 0;
 			RetGoodsID = 0;
@@ -1417,6 +1417,9 @@ public:
 				p_c = pJs->FindChildByKey("goodsid");
 				if(SJson::IsNumber(p_c))
 					GoodsID = p_c->Text.ToLong();
+				p_c = pJs->FindChildByKey("techid");
+				if(SJson::IsNumber(p_c))
+					TechID = p_c->Text.ToLong();
 				p_c = pJs->FindChildByKey("wsctluuid");
 				if(SJson::IsString(p_c)) {
 					WsCtlUuid.FromStr(p_c->Text);
@@ -1430,7 +1433,7 @@ public:
 		//
 		// Results:
 		//
-		PPID   SessID;
+		PPID   TSessID;
 		PPID   TechID;
 		PPID   RetSCardID;
 		PPID   RetGoodsID;
@@ -1485,12 +1488,15 @@ public:
 	{
 		int    ok = 0;
 		const LDATETIME now_dtm = getcurdatetime_();
+		PPID   tses_id = 0;
+		double screst = 0.0; // Остаток на счете клиента на момент начала сессии
 		SCardTbl::Rec sc_rec;
 		Goods2Tbl::Rec goods_rec;
 		THROW(!rBlk.IsEmpty());
 		THROW(rBlk.WsCtlUuid);
 		THROW(ScSerID); // @todo @err (не удалось определить серию карт, с которыми ассоциированы аккаунты клиентов)
 		THROW(ScObj.Search(rBlk.SCardID, &sc_rec) > 0);
+		THROW(ScObj.P_Tbl->GetRest(rBlk.SCardID, ZERODATE, &screst));
 		THROW(GObj.Search(rBlk.GoodsID, &goods_rec) > 0);
 		{
 			PPID   prc_id = 0;
@@ -1530,6 +1536,27 @@ public:
 							pack.Rec.ArID = ar_id;
 						}
 					}
+				}
+				//
+				THROW(TSesObj.PutPacket(&tses_id, &pack, 1));
+				{
+					/*
+						PPID   TSessID;
+						PPID   TechID;
+						PPID   RetSCardID;
+						PPID   RetGoodsID;
+						LDATETIME ScOpDtm; // Время операции списания денег //
+						double WrOffAmount; // Списанная сумма //
+						STimeChunk SessTimeRange;
+					*/
+					rBlk.TSessID = tses_id;
+					rBlk.TechID = pack.Rec.TechID;
+					rBlk.RetSCardID = rBlk.SCardID;
+					rBlk.RetGoodsID = rBlk.GoodsID;
+					// @todo rBlk.ScOpDtm
+					// @todo rBlk.WrOffAmount
+					rBlk.SessTimeRange.Start.Set(pack.Rec.StDt, pack.Rec.StTm);
+					rBlk.SessTimeRange.Finish.Set(pack.Rec.FinDt, pack.Rec.FinTm);
 				}
 			}
 		}
@@ -3666,13 +3693,26 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 						PPObjTSession & r_tses_obj = P_WsCtlBlk->TSesObj;
 						PPObjProcessor & r_prc_obj = r_tses_obj.PrcObj;
 						PPObjTech & r_tec_obj = r_tses_obj.TecObj;
+						TechTbl::Rec tec_rec;
 						PPIDArray tec_id_list;
 						PPIDArray goods_id_list;
 						Goods2Tbl::Rec goods_rec;
+						LAssocArray goods_to_tec_list; // key: goodsid, val: tecid
 						SJson js_reply(SJson::tOBJECT);
 						THROW(r_prc_obj.GetRecWithInheritance(prc_id, &prc_rec, 1) > 0); // @todo @err
-						r_tec_obj.GetGoodsListByPrc(prc_id, &goods_id_list);
+						//r_tec_obj.GetGoodsListByPrc(prc_id, &goods_id_list);
 						r_tec_obj.GetListByPrc(prc_id, &tec_id_list);
+						{
+							tec_id_list.sortAndUndup();
+							for(uint tidx = 0; tidx < tec_id_list.getCount(); tidx++) {
+								const PPID tec_id = tec_id_list.get(tidx);
+								if(r_tec_obj.Fetch(tec_id, &tec_rec) > 0 && tec_rec.GoodsID && P_WsCtlBlk->GObj.Fetch(tec_rec.GoodsID, &goods_rec) > 0) {
+									goods_to_tec_list.Add(goods_rec.ID, tec_id);
+									goods_id_list.add(goods_rec.ID);
+								}
+							}
+							goods_id_list.sortAndUndup();
+						}
 						if(goods_id_list.getCount()) {
 							PPObjQuotKind qk_obj;
 							PPQuotKind2 qk_rec;
@@ -3694,6 +3734,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 							}
 							{
 								PPIDArray qk_list_intersection;
+								PPIDArray local_tec_id_list;
 								for(uint i = 0; i < goods_id_list.getCount(); i++) {
 									const PPID goods_id = goods_id_list.get(i);
 									if(P_WsCtlBlk->GObj.Fetch(goods_id, &goods_rec) > 0) {
@@ -3718,6 +3759,26 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 												SJson * p_js_ware = SJson::CreateObj();
 												p_js_ware->InsertInt("id", goods_rec.ID);
 												p_js_ware->InsertString("nm", (temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+												{
+													local_tec_id_list.Z();
+													goods_to_tec_list.GetListByKey(goods_id, local_tec_id_list);
+													assert(local_tec_id_list.getCount()); // Не может быть, чтобы не было ни одной технологии: мы товары получали собственно из технологий!
+													if(local_tec_id_list.getCount()) {
+														SJson * p_js_teclist = SJson::CreateArr();
+														for(uint ltidx = 0; ltidx < local_tec_id_list.getCount(); ltidx++) {
+															const PPID local_tec_id = local_tec_id_list.get(ltidx);
+															if(r_tec_obj.Fetch(local_tec_id, &tec_rec) > 0) {
+																SJson * p_js_tec = SJson::CreateObj();
+																p_js_tec->InsertInt("id", local_tec_id);
+																p_js_tec->InsertString("cod", (temp_buf = tec_rec.Code).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+																p_js_teclist->InsertChild(p_js_tec);
+																p_js_tec = 0;
+															}
+														}
+														p_js_ware->Insert("tech_list", p_js_teclist);
+														p_js_teclist = 0;
+													}
+												}
 												p_js_ware->Insert("quot_list", p_js_quot_list);
 												p_js_quot_list = 0;
 												{
@@ -3868,8 +3929,6 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 							if(_blk.FromJsonObj(p_js_param)) {
 								if(P_WsCtlBlk->StartSess(_blk)) {
 									SJson js_reply(SJson::tOBJECT);
-									//js_reply.InsertInt("scardid", auth_blk.SCardID);
-									//js_reply.InsertInt("personid", auth_blk.PsnID);
 									js_reply.ToStr(temp_buf);
 									rReply.SetString(temp_buf);
 									ok = cmdretOK;

@@ -30,7 +30,7 @@
  * If index>=0, calls ures_getStringByIndex().
  * If key!=NULL, calls ures_getStringByKey().
  */
-extern const UChar *
+extern const char16_t *
 tres_getString(const UResourceBundle *resB,
                int32_t index, const char *key,
                int32_t *length,

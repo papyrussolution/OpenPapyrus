@@ -13,8 +13,7 @@
 */
 typedef struct fz_device fz_device;
 
-enum
-{
+enum {
 	/* Flags */
 	FZ_DEVFLAG_MASK = 1,
 	FZ_DEVFLAG_COLOR = 2,
@@ -83,64 +82,51 @@ const char *fz_blendmode_name(int blendmode);
 	Devices can keep track of containers (clips/masks/groups/tiles)
 	as they go to save callers having to do it.
 */
-typedef struct
-{
+typedef struct {
 	fz_rect scissor;
 	int type;
 	int user;
 } fz_device_container_stack;
 
-enum
-{
+enum {
 	fz_device_container_stack_is_clip,
 	fz_device_container_stack_is_mask,
 	fz_device_container_stack_is_group,
 	fz_device_container_stack_is_tile,
 };
 
-struct fz_device
-{
+struct fz_device {
 	int refs;
 	int hints;
 	int flags;
-
 	void (*close_device)(fz_context *, fz_device *);
 	void (*drop_device)(fz_context *, fz_device *);
-
 	void (*fill_path)(fz_context *, fz_device *, const fz_path *, int even_odd, fz_matrix, fz_colorspace *, const float *color, float alpha, fz_color_params );
 	void (*stroke_path)(fz_context *, fz_device *, const fz_path *, const fz_stroke_state *, fz_matrix, fz_colorspace *, const float *color, float alpha, fz_color_params );
 	void (*clip_path)(fz_context *, fz_device *, const fz_path *, int even_odd, fz_matrix, fz_rect scissor);
 	void (*clip_stroke_path)(fz_context *, fz_device *, const fz_path *, const fz_stroke_state *, fz_matrix, fz_rect scissor);
-
 	void (*fill_text)(fz_context *, fz_device *, const fz_text *, fz_matrix, fz_colorspace *, const float *color, float alpha, fz_color_params );
 	void (*stroke_text)(fz_context *, fz_device *, const fz_text *, const fz_stroke_state *, fz_matrix, fz_colorspace *, const float *color, float alpha, fz_color_params );
 	void (*clip_text)(fz_context *, fz_device *, const fz_text *, fz_matrix, fz_rect scissor);
 	void (*clip_stroke_text)(fz_context *, fz_device *, const fz_text *, const fz_stroke_state *, fz_matrix, fz_rect scissor);
 	void (*ignore_text)(fz_context *, fz_device *, const fz_text *, fz_matrix );
-
 	void (*fill_shade)(fz_context *, fz_device *, fz_shade *shd, fz_matrix ctm, float alpha, fz_color_params color_params);
 	void (*fill_image)(fz_context *, fz_device *, fz_image *img, fz_matrix ctm, float alpha, fz_color_params color_params);
 	void (*fill_image_mask)(fz_context *, fz_device *, fz_image *img, fz_matrix ctm, fz_colorspace *, const float *color, float alpha, fz_color_params color_params);
 	void (*clip_image_mask)(fz_context *, fz_device *, fz_image *img, fz_matrix ctm, fz_rect scissor);
-
 	void (*pop_clip)(fz_context *, fz_device *);
-
 	void (*begin_mask)(fz_context *, fz_device *, fz_rect area, int luminosity, fz_colorspace *, const float *bc, fz_color_params );
 	void (*end_mask)(fz_context *, fz_device *);
 	void (*begin_group)(fz_context *, fz_device *, fz_rect area, fz_colorspace *cs, int isolated, int knockout, int blendmode, float alpha);
 	void (*end_group)(fz_context *, fz_device *);
-
 	int (*begin_tile)(fz_context *, fz_device *, fz_rect area, fz_rect view, float xstep, float ystep, fz_matrix ctm, int id);
 	void (*end_tile)(fz_context *, fz_device *);
-
 	void (*render_flags)(fz_context *, fz_device *, int set, int clear);
 	void (*set_default_colorspaces)(fz_context *, fz_device *, fz_default_colorspaces *);
-
 	void (*begin_layer)(fz_context *, fz_device *, const char *layer_name);
 	void (*end_layer)(fz_context *, fz_device *);
 
 	fz_rect d1_rect;
-
 	int container_len;
 	int container_cap;
 	fz_device_container_stack *container;
@@ -183,9 +169,7 @@ void fz_end_layer(fz_context *ctx, fz_device *dev);
 	typedef struct { fz_device base;  ...extras...} foo_device;
 */
 fz_device *fz_new_device_of_size(fz_context *ctx, int size);
-#define fz_new_derived_device(CTX, TYPE) \
-	((TYPE *)Memento_label(fz_new_device_of_size(ctx,sizeof(TYPE)),#TYPE))
-
+#define fz_new_derived_device(CTX, TYPE) ((TYPE *)Memento_label(fz_new_device_of_size(ctx,sizeof(TYPE)),#TYPE))
 /**
 	Signal the end of input, and flush any buffered output.
 	This is NOT called implicitly on fz_drop_device. This
@@ -276,8 +260,7 @@ enum
 	incomplete: Initially should be set to 0. Will be set to
 	non-zero if a TRYLATER error is thrown during rendering.
 */
-typedef struct
-{
+typedef struct {
 	int abort;
 	int progress;
 	size_t progress_max; /* (size_t)-1 for unknown */
@@ -410,15 +393,12 @@ fz_device *fz_new_draw_device_with_proof(fz_context *ctx, fz_matrix transform, f
 	space defined by pixmap.
 */
 fz_device *fz_new_draw_device_with_bbox_proof(fz_context *ctx, fz_matrix transform, fz_pixmap *dest, const fz_irect *clip, fz_colorspace *cs);
-
 fz_device *fz_new_draw_device_type3(fz_context *ctx, fz_matrix transform, fz_pixmap *dest);
-
 /**
 	struct fz_draw_options: Options for creating a pixmap and draw
 	device.
 */
-typedef struct
-{
+typedef struct {
 	int rotate;
 	int x_resolution;
 	int y_resolution;

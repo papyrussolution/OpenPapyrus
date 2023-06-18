@@ -21,8 +21,8 @@ static void TestString()
 	float myFloat = -1234.0;
 	int32_t newValuePtr[1];
 	double newDoubleValuePtr[1];
-	UChar myUString[512];
-	UChar uStringBuf[512];
+	char16_t myUString[512];
+	char16_t uStringBuf[512];
 	char myString[512] = "";
 	int32_t retVal;
 	void * origPtr, * ptr;
@@ -142,9 +142,9 @@ static void TestString()
 		log_err("%%c Got: %c, Expected: A\n", *myString);
 	}
 
-	u_sprintf(uStringBuf, "UChar %%C: %C", (UChar)0x0041); /*'A'*/
-	u_sscanf(uStringBuf, "UChar %%C: %C", myUString);
-	if(*myUString != (UChar)0x0041) { /*'A'*/
+	u_sprintf(uStringBuf, "char16_t %%C: %C", (char16_t)0x0041); /*'A'*/
+	u_sscanf(uStringBuf, "char16_t %%C: %C", myUString);
+	if(*myUString != (char16_t)0x0041) { /*'A'*/
 		log_err("%%C Got: %C, Expected: A\n", *myUString);
 	}
 
@@ -247,8 +247,8 @@ static void TestString()
 
 static void TestLocalizedString() {
 #if !UCONFIG_NO_FORMATTING
-	UChar testStr[256];
-	UChar uBuffer[256];
+	char16_t testStr[256];
+	char16_t uBuffer[256];
 	char cBuffer[256];
 	int32_t numResult = -1;
 	const char * locale;
@@ -329,7 +329,7 @@ static void TestLocalizedString() {
 static void TestSnprintf() 
 {
 #if !UCONFIG_NO_FORMATTING
-	UChar testStr[256];
+	char16_t testStr[256];
 	char cTestResult[256];
 	int32_t size;
 	Test_u_snprintf(0, "%d", 123, 3, "xxxxxxxxxxxxxx");
@@ -376,11 +376,11 @@ static void TestSnprintf()
 
 static void TestSprintfFormat() {
 #if !UCONFIG_NO_FORMATTING
-	static const UChar abcUChars[] = {0x61, 0x62, 0x63, 0};
+	static const char16_t abcUChars[] = {0x61, 0x62, 0x63, 0};
 	static const char abcChars[] = "abc";
 	const char * reorderFormat = "%2$d==>%1$-10.10s %6$lld %4$-10.10s %3$#x((%5$d"; /* reordering test*/
 	const char * reorderResult = "99==>truncateif 1311768467463790322 1234567890 0xf1b93((10";
-	UChar uBuffer[256];
+	char16_t uBuffer[256];
 	char buffer[256];
 	char compBuffer[256];
 	int32_t uNumPrinted;
@@ -397,8 +397,8 @@ static void TestSprintfFormat() {
 	TestSPrintFormat("%8c", (char)'e', "%8c", (char)'e');
 	TestSPrintFormat("%-8c", (char)'e', "%-8c", (char)'e');
 
-	TestSPrintFormat("%8C", (UChar)0x65, "%8c", (char)'e');
-	TestSPrintFormat("%-8C", (UChar)0x65, "%-8c", (char)'e');
+	TestSPrintFormat("%8C", (char16_t)0x65, "%8c", (char)'e');
+	TestSPrintFormat("%-8C", (char16_t)0x65, "%-8c", (char)'e');
 
 	TestSPrintFormat("%f", 1.23456789, "%f", 1.23456789);
 	TestSPrintFormat("%f", 12345.6789, "%f", 12345.6789);
@@ -505,8 +505,8 @@ static void TestSprintfFormat() {
 
 static void TestStringCompatibility() {
 #if !UCONFIG_NO_FORMATTING
-	UChar myUString[256];
-	UChar uStringBuf[256];
+	char16_t myUString[256];
+	char16_t uStringBuf[256];
 	char myString[256] = "";
 	char testBuf[256] = "";
 	int32_t num;
@@ -590,7 +590,7 @@ static void TestStringCompatibility() {
 
 	for(num = 0; num < 0x80; num++) {
 		testBuf[0] = (char)0xFF;
-		uStringBuf[0] = (UChar)0xfffe;
+		uStringBuf[0] = (char16_t)0xfffe;
 		sprintf(testBuf, "%c", (char)num);
 		u_sprintf(uStringBuf, "%c", num);
 		u_austrncpy(myString, uStringBuf, SIZEOFARRAYi(myString));
@@ -601,9 +601,9 @@ static void TestStringCompatibility() {
 #endif
 }
 
-static void TestSScanSetFormat(const char * format, const UChar * uValue, const char * cValue, bool expectedToPass) {
+static void TestSScanSetFormat(const char * format, const char16_t * uValue, const char * cValue, bool expectedToPass) {
 #if !UCONFIG_NO_FORMATTING
-	UChar uBuffer[256];
+	char16_t uBuffer[256];
 	char buffer[256];
 	char compBuffer[256];
 	int32_t uNumScanned;
@@ -639,7 +639,7 @@ static void TestSScanSetFormat(const char * format, const UChar * uValue, const 
 
 static void TestSScanset() {
 #if !UCONFIG_NO_FORMATTING
-	static const UChar abcUChars[] = {0x61, 0x62, 0x63, 0x63, 0x64, 0x65, 0x66, 0x67, 0};
+	static const char16_t abcUChars[] = {0x61, 0x62, 0x63, 0x63, 0x64, 0x65, 0x66, 0x67, 0};
 	static const char abcChars[] = "abccdefg";
 
 	TestSScanSetFormat("%[bc]S", abcUChars, abcChars, TRUE);
@@ -685,10 +685,10 @@ static void TestSScanset() {
 #endif
 }
 
-static void TestBadSScanfFormat(const char * format, const UChar * uValue, const char * cValue) {
+static void TestBadSScanfFormat(const char * format, const char16_t * uValue, const char * cValue) {
 #if !UCONFIG_NO_FORMATTING
 	(void)cValue; // suppress compiler warnings about unused variable
-	UChar uBuffer[256];
+	char16_t uBuffer[256];
 	int32_t uNumScanned;
 
 	/* Reinitialize the buffer to verify null termination works. */
@@ -704,7 +704,7 @@ static void TestBadSScanfFormat(const char * format, const UChar * uValue, const
 
 static void TestBadScanfFormat() {
 #if !UCONFIG_NO_FORMATTING
-	static const UChar abcUChars[] = {0x61, 0x62, 0x63, 0x63, 0x64, 0x65, 0x66, 0x67, 0};
+	static const char16_t abcUChars[] = {0x61, 0x62, 0x63, 0x63, 0x64, 0x65, 0x66, 0x67, 0};
 	static const char abcChars[] = "abccdefg";
 
 	TestBadSScanfFormat("%[]  ", abcUChars, abcChars);
@@ -713,8 +713,8 @@ static void TestBadScanfFormat() {
 
 static void Test_u_vfprintf(const char * expectedResult, const char * format, ...) {
 #if !UCONFIG_NO_FORMATTING
-	UChar uBuffer[256];
-	UChar uBuffer2[256];
+	char16_t uBuffer[256];
+	char16_t uBuffer2[256];
 	va_list ap;
 	int32_t count;
 
@@ -746,9 +746,9 @@ static void TestVargs() {
 
 static void TestCount() {
 #if !UCONFIG_NO_FORMATTING
-	static const UChar x15[] = { 0x78, 0x31, 0x35, 0 };
-	UChar testStr[16];
-	UChar character;
+	static const char16_t x15[] = { 0x78, 0x31, 0x35, 0 };
+	char16_t testStr[16];
+	char16_t character;
 	int16_t i16 = -1;
 	int32_t i32 = -1, actual_count, actual_result;
 	int64_t i64 = -1;

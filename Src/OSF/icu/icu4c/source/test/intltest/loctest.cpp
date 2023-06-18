@@ -1200,7 +1200,7 @@ void LocaleTest::TestThaiCurrencyFormat()
  */
 void LocaleTest::TestEuroSupport()
 {
-	UChar euro = 0x20ac;
+	char16_t euro = 0x20ac;
 	const UnicodeString EURO_CURRENCY(&euro, 1, 1); // Look for this UnicodeString in formatted Euro currency
 	const char * localeArr[] = {
 		"ca_ES",
@@ -1261,8 +1261,8 @@ void LocaleTest::TestEuroSupport()
 		delete nf;
 	}
 
-	UnicodeString dollarStr("USD", ""), euroStr("EUR", ""), genericStr((UChar)0x00a4), resultStr;
-	UChar tmp[4];
+	UnicodeString dollarStr("USD", ""), euroStr("EUR", ""), genericStr((char16_t)0x00a4), resultStr;
+	char16_t tmp[4];
 	status = U_ZERO_ERROR;
 
 	ucurr_forLocale("en_US", tmp, 4, &status);
@@ -1378,8 +1378,8 @@ void LocaleTest::Test4139940()
 	df_full.format(mydate, str, pos);
 	// Make sure that o circumflex (\u00F4) is NOT there, and
 	// o double acute (\u0151) IS.
-	UChar ocf = 0x00f4;
-	UChar oda = 0x0151;
+	char16_t ocf = 0x00f4;
+	char16_t oda = 0x0151;
 	if(str.indexOf(oda) < 0 || str.indexOf(ocf) >= 0) {
 		/* If the default locale is "th" this test will fail because of the buddhist calendar. */
 		if(strcmp(Locale::getDefault().getLanguage(), "th") != 0) {
@@ -5053,7 +5053,7 @@ void LocaleTest::TestCurrencyByDate(void)
 #if !UCONFIG_NO_FORMATTING
 	UErrorCode status = U_ZERO_ERROR;
 	UDate date = uprv_getUTCtime();
-	UChar TMP[4] = {0, 0, 0, 0};
+	char16_t TMP[4] = {0, 0, 0, 0};
 	int32_t index = 0;
 	int32_t resLen = 0;
 	UnicodeString tempStr, resultStr;
@@ -5328,10 +5328,10 @@ void LocaleTest::TestCurrencyByDate(void)
 	status = U_ZERO_ERROR; // reset
 	date = uprv_getUTCtime();
 
-	UChar USD[4];
+	char16_t USD[4];
 	ucurr_forLocaleAndDate("en_US", date, 1, USD, 4, &status);
 
-	UChar YEN[4];
+	char16_t YEN[4];
 	ucurr_forLocaleAndDate("ja_JP", date, 1, YEN, 4, &status);
 
 	ucurr_forLocaleAndDate("en_US", date, 1, TMP, 4, &status);

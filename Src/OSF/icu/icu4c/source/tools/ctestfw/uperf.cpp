@@ -194,14 +194,14 @@ ULine* UPerfTest::getLines(UErrorCode & status) {
 	lines     = new ULine[MAXLINES];
 	int maxLines = MAXLINES;
 	numLines = 0;
-	const UChar * line = NULL;
+	const char16_t * line = NULL;
 	int32_t len = 0;
 	for(;;) {
 		line = ucbuf_readline(ucharBuf, &len, &status);
 		if(line == NULL || U_FAILURE(status)) {
 			break;
 		}
-		lines[numLines].name  = new UChar[len];
+		lines[numLines].name  = new char16_t[len];
 		lines[numLines].len   = len;
 		memcpy(lines[numLines].name, line, len * U_SIZEOF_UCHAR);
 
@@ -225,12 +225,12 @@ ULine* UPerfTest::getLines(UErrorCode & status) {
 	return lines;
 }
 
-const UChar * UPerfTest::getBuffer(int32_t& len, UErrorCode & status) {
+const char16_t * UPerfTest::getBuffer(int32_t& len, UErrorCode & status) {
 	if(U_FAILURE(status)) {
 		return NULL;
 	}
 	len = ucbuf_size(ucharBuf);
-	buffer =  (UChar *)uprv_malloc(U_SIZEOF_UCHAR * (len+1));
+	buffer =  (char16_t *)uprv_malloc(U_SIZEOF_UCHAR * (len+1));
 	u_strncpy(buffer, ucbuf_getBuffer(ucharBuf, &bufferLen, &status), len);
 	buffer[len] = 0;
 	len = bufferLen;

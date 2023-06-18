@@ -233,7 +233,7 @@ static const char * bundleEnd   = "</xliff>\n";
 void res_write_xml(struct SResource * res, const char * id, const char * language, bool isTopLevel, UErrorCode * status);
 
 static char * convertAndEscape(char ** pDest, int32_t destCap, int32_t* destLength,
-    const UChar * src, int32_t srcLen, UErrorCode * status) {
+    const char16_t * src, int32_t srcLen, UErrorCode * status) {
 	int32_t srcIndex = 0;
 	char * dest = NULL;
 	char * temp = NULL;
@@ -393,7 +393,7 @@ static void trim(char ** src, int32_t * len) {
 	*len = i+1;
 }
 
-static void print(UChar * src, int32_t srcLen, const char * tagStart, const char * tagEnd,  UErrorCode * status) {
+static void print(char16_t * src, int32_t srcLen, const char * tagStart, const char * tagEnd,  UErrorCode * status) {
 	int32_t bufCapacity   = srcLen*4;
 	char * buf       = NULL;
 	int32_t bufLen = 0;
@@ -423,7 +423,7 @@ static void printNoteElements(const UString * src, UErrorCode * status) {
 #if UCONFIG_NO_REGULAR_EXPRESSIONS==0 /* donot compile when no RegularExpressions are available */
 
 	int32_t capacity = 0;
-	UChar * note = NULL;
+	char16_t * note = NULL;
 	int32_t noteLen = 0;
 	int32_t count = 0, i;
 
@@ -432,7 +432,7 @@ static void printNoteElements(const UString * src, UErrorCode * status) {
 	}
 
 	capacity = src->fLength;
-	note  = (UChar*)uprv_malloc(U_SIZEOF_UCHAR * capacity);
+	note  = (char16_t*)uprv_malloc(U_SIZEOF_UCHAR * capacity);
 
 	count = getCount(src->fChars, src->fLength, UPC_NOTE, status);
 	if(U_FAILURE(*status)) {
@@ -489,8 +489,8 @@ static void printComments(struct UString * src, const char * resName, bool print
 	int32_t capacity = src->fLength + 1;
 	char * buf = NULL;
 	int32_t bufLen = 0;
-	UChar * desc  = (UChar*)uprv_malloc(U_SIZEOF_UCHAR * capacity);
-	UChar * trans = (UChar*)uprv_malloc(U_SIZEOF_UCHAR * capacity);
+	char16_t * desc  = (char16_t*)uprv_malloc(U_SIZEOF_UCHAR * capacity);
+	char16_t * trans = (char16_t*)uprv_malloc(U_SIZEOF_UCHAR * capacity);
 
 	int32_t descLen = 0, transLen = 0;
 	if(desc==NULL || trans==NULL) {

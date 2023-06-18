@@ -259,10 +259,16 @@
     <ClCompile Include="..\SLib\smemchr.cpp" />
     <ClCompile Include="..\OSF\AVX-Memmove\memset.c" />
     <ClCompile Include="..\SLib\vslocate.c" />
-    <ClCompile Include="..\SLib\SAIS\src\libsais.c">
+    <ClCompile Include="..\SLib\BZIP3\src\libbz3.c" />
+    <ClCompile Include="..\SLib\SAIS\libsais.c">
       <Filter>SAIS</Filter>
     </ClCompile>
-    <ClCompile Include="..\SLib\BZIP3\src\libbz3.c" />
+    <ClCompile Include="..\SLib\SAIS\libsais16.c">
+      <Filter>SAIS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\SAIS\libsais64.c">
+      <Filter>SAIS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">

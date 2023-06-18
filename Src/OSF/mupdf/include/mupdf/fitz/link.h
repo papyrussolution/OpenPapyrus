@@ -19,8 +19,7 @@
 
 	next: A pointer to the next link on the same page.
 */
-typedef struct fz_link
-{
+typedef struct fz_link {
 	int refs;
 	struct fz_link *next;
 	fz_rect rect;

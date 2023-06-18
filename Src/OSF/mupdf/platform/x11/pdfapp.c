@@ -102,7 +102,7 @@ static const int zoomlist[] = {
 static int zoom_in(int oldres)
 {
 	int i;
-	for(i = 0; i < (int)nelem(zoomlist) - 1; ++i)
+	for(i = 0; i < SIZEOFARRAYi(zoomlist) - 1; ++i)
 		if(zoomlist[i] <= oldres && zoomlist[i+1] > oldres)
 			return zoomlist[i+1];
 	return zoomlist[i];
@@ -111,7 +111,7 @@ static int zoom_in(int oldres)
 static int zoom_out(int oldres)
 {
 	int i;
-	for(i = 0; i < (int)nelem(zoomlist) - 1; ++i)
+	for(i = 0; i < SIZEOFARRAYi(zoomlist) - 1; ++i)
 		if(zoomlist[i] < oldres && zoomlist[i+1] >= oldres)
 			return zoomlist[i];
 	return zoomlist[0];
@@ -1040,7 +1040,7 @@ static void pdfapp_search_in_direction(pdfapp_t * app, enum panning * panto, int
 			app->pageno = page;
 			pdfapp_showpage(app, 1, 0, 0, 0, 1);
 		}
-		app->hit_count = fz_search_stext_page(app->ctx, app->page_text, app->search, app->hit_bbox, nelem(app->hit_bbox));
+		app->hit_count = fz_search_stext_page(app->ctx, app->page_text, app->search, app->hit_bbox, SIZEOFARRAY(app->hit_bbox));
 		if(app->hit_count > 0) {
 			*panto = dir == 1 ? PAN_TO_TOP : PAN_TO_BOTTOM;
 			app->searchpage = app->pageno;
@@ -1342,7 +1342,7 @@ void pdfapp_onkey(pdfapp_t * app, int c, int modifiers)
 		case 'm':
 		    if(app->numberlen > 0) {
 			    int idx = atoi(app->number);
-			    if(idx >= 0 && idx < (int)nelem(app->marks))
+			    if(idx >= 0 && idx < SIZEOFARRAYi(app->marks))
 				    app->marks[idx] = app->pageno;
 		    }
 		    else {
@@ -1356,7 +1356,7 @@ void pdfapp_onkey(pdfapp_t * app, int c, int modifiers)
 		case 't':
 		    if(app->numberlen > 0) {
 			    int idx = atoi(app->number);
-			    if(idx >= 0 && idx < (int)nelem(app->marks))
+			    if(idx >= 0 && idx < SIZEOFARRAYi(app->marks))
 				    if(app->marks[idx] > 0)
 					    app->pageno = app->marks[idx];
 		    }

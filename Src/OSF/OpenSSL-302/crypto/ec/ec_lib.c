@@ -1307,7 +1307,7 @@ int EC_GROUP_get_basis_type(const EC_GROUP * group)
 
 	/* Find the last non-zero element of group->poly[] */
 	for(i = 0;
-	    i < (int)SIZEOFARRAY(group->poly) && group->poly[i] != 0;
+	    i < SIZEOFARRAYi(group->poly) && group->poly[i] != 0;
 	    i++)
 		continue;
 

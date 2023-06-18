@@ -140,9 +140,9 @@ void TestEuroRegression()
 
 bool isEuroAware(UConverter * myConv)
 {
-	static const UChar euroString[2] = { 0x20AC, 0x0000 };
+	static const char16_t euroString[2] = { 0x20AC, 0x0000 };
 	char target[20];
-	UChar euroBack[2];
+	char16_t euroBack[2];
 	int32_t targetSize, euroBackSize;
 	UErrorCode err = U_ZERO_ERROR;
 	/*const char * myName =   ucnv_getName(myConv, &err);*/

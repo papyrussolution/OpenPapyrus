@@ -28,9 +28,9 @@ static bool opt_truncate = FALSE;
 
 static const char * getEncodingName(const char * encoding);
 static void reportError(const char * pname, UErrorCode * status, const char * when);
-static UChar * quotedString(const UChar * string);
+static char16_t * quotedString(const char16_t * string);
 static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t indent, const char * pname, UErrorCode * status);
-static void printString(UFILE * out, const UChar * str, int32_t len);
+static void printString(UFILE * out, const char16_t * str, int32_t len);
 static void printCString(UFILE * out, const char * str, int32_t len);
 static void printIndent(UFILE * out, int32_t indent);
 static void printHex(UFILE * out, uint8_t what);
@@ -131,31 +131,23 @@ extern int main(int argc, char * argv[]) {
 	if(options[7].doesOccur) {
 		inputDir = options[7].value; /* we'll use users resources */
 	}
-
 	if(options[8].doesOccur) {
 		prbom = 1;
 	}
-
 	if(options[9].doesOccur) {
 		u_setDataDirectory(options[9].value);
 	}
-
 	if(options[11].doesOccur) {
 		suppressAliases = TRUE;
 	}
-
 	fflush(stderr); // use ustderr now.
 	ustderr = u_finit(stderr, NULL, NULL);
-
 	for(i = 1; i < argc; ++i) {
-		static const UChar sp[] = { 0x0020 }; /* " " */
-
+		static const char16_t sp[] = { 0x0020 }; /* " " */
 		arg = getLongPathname(argv[i]);
-
 		if(verbose) {
 			u_fprintf(ustderr, "processing bundle \"%s\"\n", argv[i]);
 		}
-
 		icu::CharString locale;
 		UErrorCode status = U_ZERO_ERROR;
 		{
@@ -292,12 +284,12 @@ extern int main(int argc, char * argv[]) {
 	return 0;
 }
 
-static UChar * quotedString(const UChar * string) 
+static char16_t * quotedString(const char16_t * string) 
 {
 	int len = u_strlen(string);
 	int alen = len;
-	const UChar * sp;
-	UChar * newstr, * np;
+	const char16_t * sp;
+	char16_t * newstr, * np;
 	for(sp = string; *sp; ++sp) {
 		switch(*sp) {
 			case '\n':
@@ -307,7 +299,7 @@ static UChar * quotedString(const UChar * string)
 		}
 	}
 
-	newstr = (UChar *)uprv_malloc((1 + alen) * U_SIZEOF_UCHAR);
+	newstr = (char16_t *)uprv_malloc((1 + alen) * U_SIZEOF_UCHAR);
 	for(sp = string, np = newstr; *sp; ++sp) {
 		switch(*sp) {
 			case '\n':
@@ -327,7 +319,7 @@ static UChar * quotedString(const UChar * string)
 	return newstr;
 }
 
-static void printString(UFILE * out, const UChar * str, int32_t len) 
+static void printString(UFILE * out, const char16_t * str, int32_t len) 
 {
 	u_file_write(str, len, out);
 }
@@ -351,7 +343,7 @@ static void printIndent(UFILE * out, int32_t indent)
 static void printHex(UFILE * out, uint8_t what) 
 {
 	static const char map[] = "0123456789ABCDEF";
-	UChar hex[2];
+	char16_t hex[2];
 	hex[0] = map[what >> 4];
 	hex[1] = map[what & 0xf];
 	printString(out, hex, 2);
@@ -359,10 +351,10 @@ static void printHex(UFILE * out, uint8_t what)
 
 static void printOutAlias(UFILE * out, UResourceBundle * parent, Resource r, const char * key, int32_t indent, const char * pname, UErrorCode * status) 
 {
-	static const UChar cr[] = { 0xA }; // LF
+	static const char16_t cr[] = { 0xA }; // LF
 	int32_t len = 0;
-	const UChar * thestr = res_getAlias(&(parent->getResData()), r, &len);
-	UChar * string = quotedString(thestr);
+	const char16_t * thestr = res_getAlias(&(parent->getResData()), r, &len);
+	char16_t * string = quotedString(thestr);
 	if(opt_truncate && len > truncsize) {
 		char msg[128];
 		printIndent(out, indent);
@@ -371,8 +363,8 @@ static void printOutAlias(UFILE * out, UResourceBundle * parent, Resource r, con
 		len = truncsize;
 	}
 	if(U_SUCCESS(*status)) {
-		static const UChar openStr[] = { 0x003A, 0x0061, 0x006C, 0x0069, 0x0061, 0x0073, 0x0020, 0x007B, 0x0020, 0x0022 }; // ":alias { \"" 
-		static const UChar closeStr[] = { 0x0022, 0x0020, 0x007D, 0x0020 }; /* "\" } " */
+		static const char16_t openStr[] = { 0x003A, 0x0061, 0x006C, 0x0069, 0x0061, 0x0073, 0x0020, 0x007B, 0x0020, 0x0022 }; // ":alias { \"" 
+		static const char16_t closeStr[] = { 0x0022, 0x0020, 0x007D, 0x0020 }; /* "\" } " */
 		printIndent(out, indent);
 		if(key) {
 			printCString(out, key, -1);
@@ -393,7 +385,7 @@ static void printOutAlias(UFILE * out, UResourceBundle * parent, Resource r, con
 
 static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t indent, const char * pname, UErrorCode * status)
 {
-	static const UChar cr[] = { 0xA }; // LF
+	static const char16_t cr[] = { 0xA }; // LF
 /*    int32_t noOfElements = ures_getSize(resource);*/
 	int32_t i = 0;
 	const char * key = ures_getKey(resource);
@@ -401,8 +393,8 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 		case URES_STRING:
 	    {
 		    int32_t len = 0;
-		    const UChar * thestr = ures_getString(resource, &len, status);
-		    UChar * string = quotedString(thestr);
+		    const char16_t * thestr = ures_getString(resource, &len, status);
+		    char16_t * string = quotedString(thestr);
 		    /* TODO: String truncation */
 		    if(opt_truncate && len > truncsize) {
 			    char msg[128];
@@ -413,16 +405,16 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 		    }
 		    printIndent(out, indent);
 		    if(key) {
-			    static const UChar openStr[] = { 0x0020, 0x007B, 0x0020, 0x0022 }; /* " { \"" */
-			    static const UChar closeStr[] = { 0x0022, 0x0020, 0x007D }; /* "\" }" */
+			    static const char16_t openStr[] = { 0x0020, 0x007B, 0x0020, 0x0022 }; /* " { \"" */
+			    static const char16_t closeStr[] = { 0x0022, 0x0020, 0x007D }; /* "\" }" */
 			    printCString(out, key, (int32_t)strlen(key));
 			    printString(out, openStr, SIZEOFARRAYi(openStr));
 			    printString(out, string, len);
 			    printString(out, closeStr, SIZEOFARRAYi(closeStr));
 		    }
 		    else {
-			    static const UChar openStr[] = { 0x0022 }; /* "\"" */
-			    static const UChar closeStr[] = { 0x0022, 0x002C }; /* "\"," */
+			    static const char16_t openStr[] = { 0x0022 }; /* "\"" */
+			    static const char16_t closeStr[] = { 0x0022, 0x002C }; /* "\"," */
 			    printString(out, openStr, SIZEOFARRAYi(openStr));
 			    printString(out, string, (int32_t)(u_strlen(string)));
 			    printString(out, closeStr, SIZEOFARRAYi(closeStr));
@@ -436,9 +428,9 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 	    break;
 		case URES_INT:
 	    {
-		    static const UChar openStr[] = { 0x003A, 0x0069, 0x006E, 0x0074, 0x0020, 0x007B, 0x0020 }; /* ":int { " */
-		    static const UChar closeStr[] = { 0x0020, 0x007D }; /* " }" */
-		    UChar num[20];
+		    static const char16_t openStr[] = { 0x003A, 0x0069, 0x006E, 0x0074, 0x0020, 0x007B, 0x0020 }; /* ":int { " */
+		    static const char16_t closeStr[] = { 0x0020, 0x007D }; /* " }" */
+		    char16_t num[20];
 		    printIndent(out, indent);
 		    if(key) {
 			    printCString(out, key, -1);
@@ -467,13 +459,13 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 			    len = truncsize;
 		    }
 		    if(U_SUCCESS(*status)) {
-			    static const UChar openStr[] =
+			    static const char16_t openStr[] =
 			    { 0x003A, 0x0062, 0x0069, 0x006E, 0x0061, 0x0072, 0x0079, 0x0020, 0x007B, 0x0020 };                    /*
 				                                                                                                      ":binary
 				                                                                                                      {
 				                                                                                                      "
 				   */
-			    static const UChar closeStr[] = { 0x0020, 0x007D, 0x0020 }; /* " } " */
+			    static const char16_t closeStr[] = { 0x0020, 0x007D, 0x0020 }; /* " } " */
 			    printIndent(out, indent);
 			    if(key) {
 				    printCString(out, key, -1);
@@ -498,15 +490,15 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 		    int32_t len = 0;
 		    const int32_t * data = ures_getIntVector(resource, &len, status);
 		    if(U_SUCCESS(*status)) {
-			    static const UChar openStr[] =
+			    static const char16_t openStr[] =
 			    { 0x003A, 0x0069, 0x006E, 0x0074, 0x0076, 0x0065, 0x0063, 0x0074, 0x006F, 0x0072, 0x0020, 0x007B,
 				      0x0020 };                                                                                                            /*
 				                                                                                                                              ":intvector
 				                                                                                                                              {
 				                                                                                                                              "
 				         */
-			    static const UChar closeStr[] = { 0x0020, 0x007D, 0x0020 }; /* " } " */
-			    UChar num[20];
+			    static const char16_t closeStr[] = { 0x0020, 0x007D, 0x0020 }; /* " } " */
+			    char16_t num[20];
 
 			    printIndent(out, indent);
 			    if(key) {
@@ -538,8 +530,8 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 		case URES_TABLE:
 		case URES_ARRAY:
 	    {
-		    static const UChar openStr[] = { 0x007B }; /* "{" */
-		    static const UChar closeStr[] = { 0x007D, '\n' }; /* "}\n" */
+		    static const char16_t openStr[] = { 0x007B }; /* "{" */
+		    static const char16_t closeStr[] = { 0x007D, '\n' }; /* "}\n" */
 
 		    UResourceBundle * t = NULL;
 		    ures_resetIterator(resource);

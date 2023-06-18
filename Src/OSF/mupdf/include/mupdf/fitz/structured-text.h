@@ -3,23 +3,20 @@
 /**
 	Simple text layout (for use with annotation editing primarily).
 */
-typedef struct fz_layout_char
-{
+typedef struct fz_layout_char {
 	float x, w;
 	const char *p; /* location in source text of character */
 	struct fz_layout_char *next;
 } fz_layout_char;
 
-typedef struct fz_layout_line
-{
+typedef struct fz_layout_line {
 	float x, y, h;
 	const char *p; /* location in source text of start of line */
 	fz_layout_char *text;
 	struct fz_layout_line *next;
 } fz_layout_line;
 
-typedef struct
-{
+typedef struct {
 	fz_pool *pool;
 	fz_matrix matrix;
 	fz_matrix inv_matrix;
@@ -32,7 +29,6 @@ typedef struct
 	matrices, and initialise linked pointers.
 */
 fz_layout_block *fz_new_layout(fz_context *ctx);
-
 /**
 	Drop layout block. Free the pool, and linked blocks.
 
@@ -88,8 +84,7 @@ typedef struct fz_stext_block fz_stext_block;
 	will not be merged. Each line will thus be a span of text with the same
 	font, colour, and size.
 */
-enum
-{
+enum {
 	FZ_STEXT_PRESERVE_LIGATURES = 1,
 	FZ_STEXT_PRESERVE_WHITESPACE = 2,
 	FZ_STEXT_PRESERVE_IMAGES = 4,
@@ -102,15 +97,13 @@ enum
 	A text page is a list of blocks, together with an overall
 	bounding box.
 */
-typedef struct
-{
+typedef struct {
 	fz_pool *pool;
 	fz_rect mediabox;
 	fz_stext_block *first_block, *last_block;
 } fz_stext_page;
 
-enum
-{
+enum {
 	FZ_STEXT_BLOCK_TEXT = 0,
 	FZ_STEXT_BLOCK_IMAGE = 1
 };
@@ -119,8 +112,7 @@ enum
 	A text block is a list of lines of text (typically a paragraph),
 	or an image.
 */
-struct fz_stext_block
-{
+struct fz_stext_block {
 	int type;
 	fz_rect bbox;
 	union {
@@ -246,8 +238,7 @@ char *fz_copy_rectangle(fz_context *ctx, fz_stext_page *page, fz_rect area, int 
 /**
 	Options for creating a pixmap and draw device.
 */
-typedef struct
-{
+typedef struct {
 	int flags;
 } fz_stext_options;
 

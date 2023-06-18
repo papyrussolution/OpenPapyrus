@@ -16,13 +16,13 @@
 #define BUF_SIZE 128
 
 /* Print a ustring to the specified FILE * in the default codepage */
-static void uprint(const UChar * s, int32_t sourceLen, FILE * f, UErrorCode * status)
+static void uprint(const char16_t * s, int32_t sourceLen, FILE * f, UErrorCode * status)
 {
 	/* converter */
 	UConverter * converter;
 	char buf [BUF_SIZE];
-	const UChar * mySource;
-	const UChar * mySourceEnd;
+	const char16_t * mySource;
+	const char16_t * mySourceEnd;
 	char * myTarget;
 	int32_t arraySize;
 	if(s == 0) 
@@ -81,13 +81,13 @@ U_CFUNC UResourceBundle * u_wmsg_setPath(const char * path, UErrorCode * err)
 /* Format a message and print it's output to fp */
 U_CFUNC int u_wmsg(FILE * fp, const char * tag, ...)
 {
-	const UChar * msg;
+	const char16_t * msg;
 	int32_t msgLen;
 	UErrorCode err = U_ZERO_ERROR;
 #if !UCONFIG_NO_FORMATTING
 	va_list ap;
 #endif
-	UChar result[4096];
+	char16_t result[4096];
 	int32_t resultLength = SIZEOFARRAYi(result);
 	if(gBundle == NULL) {
 #if 0
@@ -135,18 +135,18 @@ U_CFUNC int u_wmsg(FILE * fp, const char * tag, ...)
 }
 
 // these will break if the # of messages change. simply add or remove 0's .. 
-static UChar ** gInfoMessages = NULL;
-static UChar ** gErrMessages = NULL;
+static char16_t ** gInfoMessages = NULL;
+static char16_t ** gErrMessages = NULL;
 
-static const UChar * fetchErrorName(UErrorCode err)
+static const char16_t * fetchErrorName(UErrorCode err)
 {
 	if(!gInfoMessages) {
-		gInfoMessages = (UChar**)SAlloc::M((U_ERROR_WARNING_LIMIT-U_ERROR_WARNING_START)*sizeof(UChar *));
-		memzero(gInfoMessages, (U_ERROR_WARNING_LIMIT-U_ERROR_WARNING_START)*sizeof(UChar *));
+		gInfoMessages = (char16_t**)SAlloc::M((U_ERROR_WARNING_LIMIT-U_ERROR_WARNING_START)*sizeof(char16_t *));
+		memzero(gInfoMessages, (U_ERROR_WARNING_LIMIT-U_ERROR_WARNING_START)*sizeof(char16_t *));
 	}
 	if(!gErrMessages) {
-		gErrMessages = (UChar**)SAlloc::M(U_ERROR_LIMIT*sizeof(UChar *));
-		memzero(gErrMessages, U_ERROR_LIMIT*sizeof(UChar *));
+		gErrMessages = (char16_t**)SAlloc::M(U_ERROR_LIMIT*sizeof(char16_t *));
+		memzero(gErrMessages, U_ERROR_LIMIT*sizeof(char16_t *));
 	}
 	if(err>=0)
 		return gErrMessages[err];
@@ -154,13 +154,13 @@ static const UChar * fetchErrorName(UErrorCode err)
 		return gInfoMessages[err-U_ERROR_WARNING_START];
 }
 
-U_CFUNC const UChar * u_wmsg_errorName(UErrorCode err)
+U_CFUNC const char16_t * u_wmsg_errorName(UErrorCode err)
 {
 	int32_t msgLen;
 	UErrorCode subErr = U_ZERO_ERROR;
 	const char * textMsg = NULL;
 	/* try the cache */
-	UChar * msg = (UChar *)fetchErrorName(err);
+	char16_t * msg = (char16_t *)fetchErrorName(err);
 	if(msg) {
 		return msg;
 	}
@@ -170,7 +170,7 @@ U_CFUNC const UChar * u_wmsg_errorName(UErrorCode err)
 	else {
 		const char * errname = u_errorName(err);
 		if(errname) {
-			msg = (UChar *)ures_getStringByKey(gBundle, errname, &msgLen, &subErr);
+			msg = (char16_t *)ures_getStringByKey(gBundle, errname, &msgLen, &subErr);
 			if(U_FAILURE(subErr)) {
 				msg = NULL;
 			}
@@ -183,7 +183,7 @@ U_CFUNC const UChar * u_wmsg_errorName(UErrorCode err)
 			sprintf(error, "UNDOCUMENTED ICU ERROR %d", err);
 			textMsg = error;
 		}
-		msg = (UChar *)SAlloc::M((strlen(textMsg)+1)*sizeof(msg[0]));
+		msg = (char16_t *)SAlloc::M((strlen(textMsg)+1)*sizeof(msg[0]));
 		u_charsToUChars(textMsg, msg, (int32_t)(strlen(textMsg)+1));
 	}
 	if(err>=0)

@@ -43,14 +43,14 @@ U_CFUNC void ustr_initChars(struct UString * s, const char * source, int32_t len
 		if(U_FAILURE(*status)) return;
 	}
 	for(; i < length; i++) {
-		UChar charToAppend;
+		char16_t charToAppend;
 		u_charsToUChars(source+i, &charToAppend, 1);
 		ustr_ucat(s, charToAppend, status);
 		/*
 		 #if U_CHARSET_FAMILY==U_ASCII_FAMILY
-		   ustr_ucat(s, (UChar)(uint8_t)(source[i]), status);
+		   ustr_ucat(s, (char16_t)(uint8_t)(source[i]), status);
 		 #elif U_CHARSET_FAMILY==U_EBCDIC_FAMILY
-		   ustr_ucat(s, (UChar)asciiFromEbcdic[(uint8_t)(*cs++)], status);
+		   ustr_ucat(s, (char16_t)asciiFromEbcdic[(uint8_t)(*cs++)], status);
 		 #else
 		 #   error U_CHARSET_FAMILY is not valid
 		 #endif
@@ -126,13 +126,13 @@ U_CFUNC void ustr_ncat(struct UString * dst,
 	}
 
 	uprv_memcpy(dst->fChars + dst->fLength, src->fChars,
-	    sizeof(UChar) * n);
+	    sizeof(char16_t) * n);
 	dst->fLength += src->fLength;
 	dst->fChars[dst->fLength] = 0x0000;
 }
 
 U_CFUNC void ustr_ucat(struct UString * dst,
-    UChar c,
+    char16_t c,
     UErrorCode * status)
 {
 	if(U_FAILURE(*status))
@@ -145,7 +145,7 @@ U_CFUNC void ustr_ucat(struct UString * dst,
 	}
 
 	uprv_memcpy(dst->fChars + dst->fLength, &c,
-	    sizeof(UChar) * 1);
+	    sizeof(char16_t) * 1);
 	dst->fLength += 1;
 	dst->fChars[dst->fLength] = 0x0000;
 }
@@ -160,12 +160,12 @@ U_CFUNC void ustr_u32cat(struct UString * dst, UChar32 c, UErrorCode * status) {
 		ustr_ucat(dst, U16_TRAIL(c), status);
 	}
 	else {
-		ustr_ucat(dst, (UChar)c, status);
+		ustr_ucat(dst, (char16_t)c, status);
 	}
 }
 
 U_CFUNC void ustr_uscat(struct UString * dst,
-    const UChar * src, int len,
+    const char16_t * src, int len,
     UErrorCode * status)
 {
 	if(U_FAILURE(*status))
@@ -178,7 +178,7 @@ U_CFUNC void ustr_uscat(struct UString * dst,
 	}
 
 	uprv_memcpy(dst->fChars + dst->fLength, src,
-	    sizeof(UChar) * len);
+	    sizeof(char16_t) * len);
 	dst->fLength += len;
 	dst->fChars[dst->fLength] = 0x0000;
 }
@@ -192,7 +192,7 @@ static void ustr_resize(struct UString * s,
 		return;
 
 	/* +1 for trailing 0x0000 */
-	s->fChars = (UChar*)uprv_realloc(s->fChars, sizeof(UChar) * (len + 1));
+	s->fChars = (char16_t*)uprv_realloc(s->fChars, sizeof(char16_t) * (len + 1));
 	if(s->fChars == 0) {
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		s->fLength = s->fCapacity = 0;

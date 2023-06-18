@@ -197,8 +197,8 @@ void addUnicodeTest(TestNode** root)
 /*==================================================== */
 static void TestUpperLower()
 {
-	const UChar upper[] = {0x41, 0x42, 0x00b2, 0x01c4, 0x01c6, 0x01c9, 0x01c8, 0x01c9, 0x000c, 0x0000};
-	const UChar lower[] = {0x61, 0x62, 0x00b2, 0x01c6, 0x01c6, 0x01c9, 0x01c9, 0x01c9, 0x000c, 0x0000};
+	const char16_t upper[] = {0x41, 0x42, 0x00b2, 0x01c4, 0x01c6, 0x01c9, 0x01c8, 0x01c9, 0x000c, 0x0000};
+	const char16_t lower[] = {0x61, 0x62, 0x00b2, 0x01c6, 0x01c6, 0x01c9, 0x01c9, 0x01c9, 0x000c, 0x0000};
 	U_STRING_DECL(upperTest, "abcdefg123hij.?:klmno", 21);
 	U_STRING_DECL(lowerTest, "ABCDEFG123HIJ.?:KLMNO", 21);
 	int32_t i;
@@ -251,7 +251,7 @@ static void TestUpperLower()
 
 	log_verbose("testing u_istitle\n");
 	{
-		static const UChar expected[] = {
+		static const char16_t expected[] = {
 			0x1F88,
 			0x1F89,
 			0x1F8A,
@@ -427,7 +427,7 @@ static bool compareUSets(const USet * a, const USet * b,
 /* test isLetter(u_isapha()) and isDigit(u_isdigit()) */
 static void TestLetterNumber()
 {
-	UChar i = 0x0000;
+	char16_t i = 0x0000;
 
 	log_verbose("Testing for isalpha\n");
 	for(i = 0x0041; i < 0x005B; i++) {
@@ -531,7 +531,7 @@ static void TestMisc()
 	static const UChar32 sampleDefined[] = {0x523E, 0x4f88, 0xfffd};
 	static const UChar32 sampleBase[] = {0x0061, 0x0031, 0x03d2};
 	static const UChar32 sampleNonBase[] = {0x002B, 0x0020, 0x203B};
-/*    static const UChar sampleChars[] = {0x000a, 0x0045, 0x4e00, 0xDC00, 0xFFE8, 0xFFF0};*/
+/*    static const char16_t sampleChars[] = {0x000a, 0x0045, 0x4e00, 0xDC00, 0xFFE8, 0xFFF0};*/
 	static const UChar32 sampleDigits[] = {0x0030, 0x0662, 0x0F23, 0x0ED5};
 	static const UChar32 sampleNonDigits[] = {0x0010, 0x0041, 0x0122, 0x68FE};
 	static const UChar32 sampleWhiteSpaces[] = {0x2008, 0x2009, 0x200a, 0x001c, 0x000c};
@@ -928,7 +928,7 @@ static void U_CALLCONV unicodeDataLineFn(void * context,
 	int32_t i;
 	int8_t type;
 	int32_t dt;
-	UChar dm[32], s[32];
+	char16_t dm[32], s[32];
 	int32_t dmLength, length;
 
 #if !UCONFIG_NO_NORMALIZATION
@@ -1303,10 +1303,10 @@ static void TestUnicodeData()
 	}
 #endif
 
-	if(ublock_getCode((UChar)0x0041) != UBLOCK_BASIC_LATIN || u_getIntPropertyValue(0x41, UCHAR_BLOCK)!=(int32_t)UBLOCK_BASIC_LATIN) {
+	if(ublock_getCode((char16_t)0x0041) != UBLOCK_BASIC_LATIN || u_getIntPropertyValue(0x41, UCHAR_BLOCK)!=(int32_t)UBLOCK_BASIC_LATIN) {
 		log_err("ublock_getCode(U+0041) property failed! Expected : %i Got: %i \n",
 		    UBLOCK_BASIC_LATIN,
-		    ublock_getCode((UChar)0x0041));
+		    ublock_getCode((char16_t)0x0041));
 	}
 
 	errorCode = U_ZERO_ERROR;
@@ -1371,12 +1371,12 @@ static void TestUnicodeData()
 }
 
 static void TestCodeUnit() {
-	const UChar codeunit[] = {0x0000, 0xe065, 0x20ac, 0xd7ff, 0xd800, 0xd841, 0xd905, 0xdbff, 0xdc00, 0xdc02, 0xddee, 0xdfff, 0};
+	const char16_t codeunit[] = {0x0000, 0xe065, 0x20ac, 0xd7ff, 0xd800, 0xd841, 0xd905, 0xdbff, 0xdc00, 0xdc02, 0xddee, 0xdfff, 0};
 
 	int32_t i;
 
 	for(i = 0; i<SIZEOFARRAYi(codeunit); i++) {
-		UChar c = codeunit[i];
+		char16_t c = codeunit[i];
 		if(i<4) {
 			if(!(U16_IS_SINGLE(c)) || (U16_IS_LEAD(c)) || (U16_IS_TRAIL(c)) ||
 			    U16_IS_SURROGATE(c) || U_IS_SURROGATE(c)) {
@@ -1733,8 +1733,8 @@ static bool enumExtCharNamesFn(void * context,
  * it directly access the ebcdic translation tables.
  * TODO: If we get this method in putil.c, then delete it from here.
  */
-static UChar u_charToUChar(char c) {
-	UChar uc;
+static char16_t u_charToUChar(char c) {
+	char16_t uc;
 	u_charsToUChars(&c, &uc, 1);
 	return uc;
 }
@@ -1873,7 +1873,7 @@ static void TestCharNames() {
 		char buf[BUFSIZE];
 		int32_t maxLength;
 		UChar32 cp;
-		UChar pat[BUFSIZE], dumbPat[BUFSIZE];
+		char16_t pat[BUFSIZE], dumbPat[BUFSIZE];
 		int32_t l1, l2;
 		bool map[256];
 		bool ok;
@@ -2184,7 +2184,7 @@ static void TestUScriptRunAPI()
 	static const int32_t nTestEntries = SIZEOFARRAYi(testDataEntries);
 	int32_t testEntry;
 	for(testEntry = 0; testEntry < nTestEntries; testEntry += 1) {
-		UChar testString[1024];
+		char16_t testString[1024];
 		int32_t runStarts[256];
 		int32_t nTestRuns = testDataEntries[testEntry].nRuns;
 		const RunTestData * testData = testDataEntries[testEntry].testData;
@@ -3360,9 +3360,9 @@ enum {
 
 static void testFold(UChar32 c, int which,
     UChar32 simple, UChar32 turkic,
-    const UChar * full, int32_t fullLength,
-    const UChar * turkicFull, int32_t turkicFullLength) {
-	UChar s[2], t[32];
+    const char16_t * full, int32_t fullLength,
+    const char16_t * turkicFull, int32_t turkicFullLength) {
+	char16_t s[2], t[32];
 	UChar32 c2;
 	int32_t length, length2;
 
@@ -3394,7 +3394,7 @@ static void testFold(UChar32 c, int which,
 
 /* test that c case-folds to itself */
 static void testFoldToSelf(UChar32 c, int which) {
-	UChar s[2];
+	char16_t s[2];
 	int32_t length;
 
 	length = 0;
@@ -3405,7 +3405,7 @@ static void testFoldToSelf(UChar32 c, int which) {
 struct CaseFoldingData {
 	USet * notSeen;
 	UChar32 prev, prevSimple;
-	UChar prevFull[32];
+	char16_t prevFull[32];
 	int32_t prevFullLength;
 	int which;
 };
@@ -3419,7 +3419,7 @@ static void U_CALLCONV caseFoldingLineFn(void * context,
 
 	CaseFoldingData * pData = (CaseFoldingData*)context;
 	char * end;
-	UChar full[32];
+	char16_t full[32];
 	UChar32 c, prev, simple;
 	int32_t count;
 	int which;
@@ -3469,7 +3469,7 @@ static void U_CALLCONV caseFoldingLineFn(void * context,
 		 * If a turkic folding was not mentioned, then it should fold the same
 		 * as the regular simple case folding.
 		 */
-		UChar prevString[2];
+		char16_t prevString[2];
 		int32_t length;
 
 		length = 0;

@@ -61,7 +61,7 @@ static const PluralRulesTestItem testItems[] = {
 	{ NULL,   0, NULL,    NULL }
 };
 
-static const UChar twoDecimalPat[] = { 0x23, 0x30, 0x2E, 0x30, 0x30, 0 }; /* "#0.00" */
+static const char16_t twoDecimalPat[] = { 0x23, 0x30, 0x2E, 0x30, 0x30, 0 }; /* "#0.00" */
 
 enum {
 	kKeywordBufLen = 32
@@ -76,8 +76,8 @@ static void TestPluralRules()
 		UPluralRules* uplrules = uplrules_open(testItemPtr->locale, &status);
 		if(U_SUCCESS(status)) {
 			UNumberFormat * unumfmt;
-			UChar keyword[kKeywordBufLen];
-			UChar keywordExpected[kKeywordBufLen];
+			char16_t keyword[kKeywordBufLen];
+			char16_t keywordExpected[kKeywordBufLen];
 			int32_t keywdLen = uplrules_select(uplrules, testItemPtr->number, keyword, kKeywordBufLen, &status);
 			if(keywdLen >= kKeywordBufLen) {
 				keyword[kKeywordBufLen-1] = 0;
@@ -140,7 +140,7 @@ static void TestPluralRules()
 
 static void TestOrdinalRules() {
 	U_STRING_DECL(two, "two", 3);
-	UChar keyword[8];
+	char16_t keyword[8];
 	int32_t length;
 	UErrorCode errorCode = U_ZERO_ERROR;
 	UPluralRules* upr = uplrules_openForType("en", UPLURAL_TYPE_ORDINAL, &errorCode);
@@ -301,7 +301,7 @@ static void TestFormatted()
 	if(!assertSuccess("format", &ec)) {
 		goto cleanup;
 	}
-	UChar buffer[40];
+	char16_t buffer[40];
 	uplrules_selectFormatted(uplrules, uresult, buffer, 40, &ec);
 	if(!assertSuccess("select", &ec)) {
 		goto cleanup;
@@ -339,7 +339,7 @@ static void TestSelectRange()
 		goto cleanup;
 	}
 	{
-		UChar buffer[40];
+		char16_t buffer[40];
 		int32_t len = uplrules_selectForRange(uplrules, uresult, buffer, 40, &ec);
 		if(!assertSuccess("select", &ec)) {
 			goto cleanup;

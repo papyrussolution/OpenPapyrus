@@ -21,7 +21,7 @@
 #include "uenumimp.h"
 
 static char quikBuf[256];
-static char * quikU2C(const UChar * str, int32_t len) {
+static char * quikU2C(const char16_t * str, int32_t len) {
 	u_UCharsToChars(str, quikBuf, len);
 	quikBuf[len] = 0;
 	return quikBuf;
@@ -38,7 +38,7 @@ struct chArrayContext {
 	int32_t currIndex;
 	int32_t maxIndex;
 	char * currChar;
-	UChar * currUChar;
+	char16_t * currUChar;
 	char ** array;
 };
 
@@ -59,14 +59,14 @@ static int32_t U_CALLCONV chArrayCount(UEnumeration * en, UErrorCode * status) {
 	return cont->maxIndex;
 }
 
-static const UChar * U_CALLCONV chArrayUNext(UEnumeration * en, int32_t * resultLength, UErrorCode * status) {
+static const char16_t * U_CALLCONV chArrayUNext(UEnumeration * en, int32_t * resultLength, UErrorCode * status) {
 	(void)status; // suppress compiler warnings about unused variable
 	if(cont->currIndex >= cont->maxIndex) {
 		return NULL;
 	}
 
 	if(cont->currUChar == NULL) {
-		cont->currUChar = (UChar *)SAlloc::M(1024*sizeof(UChar));
+		cont->currUChar = (char16_t *)SAlloc::M(1024*sizeof(char16_t));
 	}
 
 	cont->currChar = (cont->array)[cont->currIndex];
@@ -130,20 +130,20 @@ static const UEnumeration emptyPartialEnumerator = {
 };
 
 /********************************************************************/
-static const UChar _first[] = {102, 105, 114, 115, 116, 0}; /* "first"  */
-static const UChar _second[] = {115, 101, 99, 111, 110, 100, 0}; /* "second" */
-static const UChar _third[] = {116, 104, 105, 114, 100, 0}; /* "third"  */
-static const UChar _fourth[] = {102, 111, 117, 114, 116, 104, 0}; /* "fourth" */
+static const char16_t _first[] = {102, 105, 114, 115, 116, 0}; /* "first"  */
+static const char16_t _second[] = {115, 101, 99, 111, 110, 100, 0}; /* "second" */
+static const char16_t _third[] = {116, 104, 105, 114, 100, 0}; /* "third"  */
+static const char16_t _fourth[] = {102, 111, 117, 114, 116, 104, 0}; /* "fourth" */
 
-static const UChar * test2[] = {
+static const char16_t * test2[] = {
 	_first, _second, _third, _fourth
 };
 
 struct uchArrayContext {
 	int32_t currIndex;
 	int32_t maxIndex;
-	UChar * currUChar;
-	UChar ** array;
+	char16_t * currUChar;
+	char16_t ** array;
 };
 
 typedef struct uchArrayContext uchArrayContext;
@@ -159,7 +159,7 @@ static int32_t U_CALLCONV uchArrayCount(UEnumeration * en, UErrorCode * status) 
 	return ucont->maxIndex;
 }
 
-static const UChar * U_CALLCONV uchArrayUNext(UEnumeration * en, int32_t * resultLength, UErrorCode * status) {
+static const char16_t * U_CALLCONV uchArrayUNext(UEnumeration * en, int32_t * resultLength, UErrorCode * status) {
 	(void)status; // suppress compiler warnings about unused variable
 	if(ucont->currIndex >= ucont->maxIndex) {
 		return NULL;
@@ -207,13 +207,13 @@ static void EnumerationTest()
 	int32_t len = 0;
 	UEnumeration * en = getchArrayEnum(test1, SIZEOFARRAYi(test1));
 	const char * string = NULL;
-	const UChar * uString = NULL;
+	const char16_t * uString = NULL;
 	while((string = uenum_next(en, &len, &status))) {
 		log_verbose("read \"%s\", length %i\n", string, len);
 	}
 	uenum_reset(en, &status);
 	while((uString = uenum_unext(en, &len, &status))) {
-		log_verbose("read \"%s\" (UChar), length %i\n", quikU2C(uString, len), len);
+		log_verbose("read \"%s\" (char16_t), length %i\n", quikU2C(uString, len), len);
 	}
 	uenum_close(en);
 }
@@ -263,10 +263,10 @@ static void EmptyEnumerationTest()
 	uenum_close(emptyEnum);
 }
 
-static UEnumeration * getuchArrayEnum(const UChar ** source, int32_t size) {
+static UEnumeration * getuchArrayEnum(const char16_t ** source, int32_t size) {
 	UEnumeration * en = (UEnumeration*)SAlloc::M(sizeof(UEnumeration));
 	memcpy(en, &uchEnum, sizeof(UEnumeration));
-	ucont->array = (UChar**)source;
+	ucont->array = (char16_t**)source;
 	ucont->maxIndex = size;
 	return en;
 }
@@ -276,9 +276,9 @@ static void DefaultNextTest() {
 	int32_t len = 0;
 	UEnumeration * en = getuchArrayEnum(test2, SIZEOFARRAYi(test2));
 	const char * string = NULL;
-	const UChar * uString = NULL;
+	const char16_t * uString = NULL;
 	while((uString = uenum_unext(en, &len, &status))) {
-		log_verbose("read \"%s\" (UChar), length %i\n", quikU2C(uString, len), len);
+		log_verbose("read \"%s\" (char16_t), length %i\n", quikU2C(uString, len), len);
 	}
 	if(U_FAILURE(status)) {
 		log_err("FAIL: uenum_unext => %s\n", u_errorName(status));
@@ -297,12 +297,12 @@ static void DefaultNextTest() {
 static void verifyEnumeration(int line,
     UEnumeration * u,
     const char * const * compareToChar,
-    const UChar * const * compareToUChar,
+    const char16_t * const * compareToUChar,
     int32_t expect_count) {
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t got_count, i, len;
 	const char * c;
-	UChar buf[1024];
+	char16_t buf[1024];
 
 	log_verbose("%s:%d: verifying enumeration..\n", __FILE__, line);
 
@@ -362,7 +362,7 @@ static void verifyEnumeration(int line,
 	}
 
 	for(i = 0; i<got_count; i++) {
-		const UChar * ustr = uenum_unext(u, &len, &status);
+		const char16_t * ustr = uenum_unext(u, &len, &status);
 		if(U_FAILURE(status)) {
 			log_err("%s:%d: FAIL: could not iterate to unext after %d: %s\n", __FILE__, line, i, u_errorName(status));
 			return;
@@ -450,8 +450,8 @@ static void TestCharStringsEnumeration(void)  {
 static void TestUCharStringsEnumeration(void)  {
 	UErrorCode status = U_ZERO_ERROR;
 	/* //! [uenum_openUCharStringsEnumeration] */
-	static const UChar nko_1[] = {0x07c1, 0}, nko_2[] = {0x07c2, 0}, nko_3[] = {0x07c3, 0}, nko_4[] = {0x07c4, 0};
-	static const UChar * ustrings[] = {  nko_1, nko_2, nko_3, nko_4  };
+	static const char16_t nko_1[] = {0x07c1, 0}, nko_2[] = {0x07c2, 0}, nko_3[] = {0x07c3, 0}, nko_4[] = {0x07c4, 0};
+	static const char16_t * ustrings[] = {  nko_1, nko_2, nko_3, nko_4  };
 	UEnumeration * u = uenum_openUCharStringsEnumeration(ustrings, 4, &status);
 	/* //! [uenum_openUCharStringsEnumeration] */
 	if(U_FAILURE(status)) {

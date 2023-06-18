@@ -5,7 +5,6 @@
 // tree. An additional intellectual property rights grant can be found
 // in the file PATENTS. All contributing project authors may
 // be found in the AUTHORS file in the root of the source tree.
-// -----------------------------------------------------------------------------
 //
 // SSE41 version of YUV to RGB upsampling functions.
 //
@@ -89,10 +88,7 @@
 }
 
 // Turn the macro into a function for reducing code-size when non-critical
-static void Upsample32Pixels_SSE41(const uint8 r1[], const uint8 r2[],
-    uint8* const out) {
-	UPSAMPLE_32PIXELS(r1, r2, out);
-}
+static void Upsample32Pixels_SSE41(const uint8 r1[], const uint8 r2[], uint8* const out) { UPSAMPLE_32PIXELS(r1, r2, out); }
 
 #define UPSAMPLE_LAST_BLOCK(tb, bb, num_pixels, out) {                         \
 		uint8 r1[17], r2[17];                                                      \
@@ -159,8 +155,7 @@ static void Upsample32Pixels_SSE41(const uint8 r1[], const uint8 r2[],
 			    tmp_bottom_dst, 0);                                                   \
 			memcpy(top_dst + pos * (XSTEP), tmp_top_dst, (len - pos) * (XSTEP));       \
 			if(bottom_y) {                                                    \
-				memcpy(bottom_dst + pos * (XSTEP), tmp_bottom_dst,                       \
-				    (len - pos) * (XSTEP));                                           \
+				memcpy(bottom_dst + pos * (XSTEP), tmp_bottom_dst, (len - pos) * (XSTEP)); \
 			}                                                                          \
 		}                                                                            \
 	}

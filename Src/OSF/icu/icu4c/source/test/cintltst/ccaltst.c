@@ -65,16 +65,16 @@ void addCalTest(TestNode** root)
 }
 
 /* "GMT" */
-static const UChar fgGMTID [] = { 0x0047, 0x004d, 0x0054, 0x0000 };
+static const char16_t fgGMTID [] = { 0x0047, 0x004d, 0x0054, 0x0000 };
 
 /* "PST" */
-static const UChar PST[] = {0x50, 0x53, 0x54, 0x00}; /* "PST" */
+static const char16_t PST[] = {0x50, 0x53, 0x54, 0x00}; /* "PST" */
 
-static const UChar EUROPE_PARIS[] = {0x45, 0x75, 0x72, 0x6F, 0x70, 0x65, 0x2F, 0x50, 0x61, 0x72, 0x69, 0x73, 0x00}; /*
+static const char16_t EUROPE_PARIS[] = {0x45, 0x75, 0x72, 0x6F, 0x70, 0x65, 0x2F, 0x50, 0x61, 0x72, 0x69, 0x73, 0x00}; /*
                                                                                                                        "Europe/Paris"
   */
 
-static const UChar AMERICA_LOS_ANGELES[] = {0x41, 0x6D, 0x65, 0x72, 0x69, 0x63, 0x61, 0x2F,
+static const char16_t AMERICA_LOS_ANGELES[] = {0x41, 0x6D, 0x65, 0x72, 0x69, 0x63, 0x61, 0x2F,
 					    0x4C, 0x6F, 0x73, 0x5F, 0x41, 0x6E, 0x67, 0x65, 0x6C, 0x65, 0x73, 0x00}; /*
                                                                                                                         America/Los_Angeles
    */
@@ -108,19 +108,19 @@ static void TestCalendar()
 	UCalendar * caldef = 0, * caldef2 = 0, * calfr = 0, * calit = 0, * calfrclone = 0;
 	UEnumeration* uenum = NULL;
 	int32_t count, count2, i, j;
-	UChar tzID[4];
-	UChar * tzdname = 0;
+	char16_t tzID[4];
+	char16_t * tzdname = 0;
 	UErrorCode status = U_ZERO_ERROR;
 	UDate now;
 	UDateFormat * datdef = 0;
-	UChar * result = 0;
+	char16_t * result = 0;
 	int32_t resultlength, resultlengthneeded;
 	char tempMsgBuf[1024]; // u_austrcpy() of some formatted dates & times.
 	char tempMsgBuf2[256]; // u_austrcpy() of some formatted dates & times.
-	UChar zone1[64], zone2[64];
+	char16_t zone1[64], zone2[64];
 	const char * tzver = 0;
 	int32_t tzverLen = 0;
-	UChar canonicalID[64];
+	char16_t canonicalID[64];
 	bool isSystemID = FALSE;
 	const UCalGetTypeTest * ucalGetTypeTestPtr;
 
@@ -400,7 +400,7 @@ static void TestCalendar()
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultlengthneeded+1;
-		result = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+		result = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 		ucal_getTimeZoneDisplayName(caldef, UCAL_DST, "en_US", result, resultlength, &status);
 	}
 	if(U_FAILURE(status)) {
@@ -413,7 +413,7 @@ static void TestCalendar()
 
 #define expectPDT "Pacific Daylight Time"
 
-	tzdname = (UChar *)SAlloc::M(sizeof(UChar) * (sizeof(expectPDT)+1));
+	tzdname = (char16_t *)SAlloc::M(sizeof(char16_t) * (sizeof(expectPDT)+1));
 	u_uastrcpy(tzdname, expectPDT);
 	if(u_strcmp(tzdname, result)==0) {
 		log_verbose("PASS: got the correct time zone display name %s\n", u_austrcpy(tempMsgBuf, result));
@@ -538,17 +538,17 @@ static void TestCalendar()
 static void TestGetSetDateAPI()
 {
 	UCalendar * caldef = 0, * caldef2 = 0, * caldef3 = 0;
-	UChar tzID[4];
+	char16_t tzID[4];
 	UDate d1;
 	int32_t hour;
 	int32_t zoneOffset;
 	UDateFormat * datdef = 0;
 	UErrorCode status = U_ZERO_ERROR;
 	UDate d2 = 837039928046.0;
-	UChar temp[30];
+	char16_t temp[30];
 	double testMillis;
 	int32_t dateBit;
-	UChar id[4];
+	char16_t id[4];
 	int32_t idLen;
 
 	log_verbose("\nOpening the calendars()\n");
@@ -807,7 +807,7 @@ static void TestGetSetDateAPI()
 static void TestFieldGetSet()
 {
 	UCalendar * cal = 0;
-	UChar tzID[4];
+	char16_t tzID[4];
 	UDateFormat * datdef = 0;
 	UDate d1 = 0;
 	UErrorCode status = U_ZERO_ERROR;
@@ -970,7 +970,7 @@ static void TestAddRollExtensive()
 	const TransitionItem * itemPtr;
 	UCalendar * cal = 0;
 	int32_t i, limit;
-	UChar tzID[32];
+	char16_t tzID[32];
 	UCalendarDateFields e;
 	int32_t y, m, d, hr, min, sec, ms;
 	int32_t maxlimit = 40;
@@ -1192,7 +1192,7 @@ static void TestGetLimits()
 {
 	UCalendar * cal = 0;
 	int32_t min, max, gr_min, le_max, ac_min, ac_max, val;
-	UChar tzID[4];
+	char16_t tzID[4];
 	UErrorCode status = U_ZERO_ERROR;
 
 	u_uastrcpy(tzID, "PST");
@@ -1284,7 +1284,7 @@ static void TestDOWProgression()
 	UDate date1;
 	int32_t delta = 24;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar tzID[4];
+	char16_t tzID[4];
 	char tempMsgBuf[256];
 	u_strcpy(tzID, fgGMTID);
 	/*open the calendar used */
@@ -1368,7 +1368,7 @@ static void testZones(int32_t yr, int32_t mo, int32_t dt, int32_t hr, int32_t mn
 	double temp;
 	UDateFormat * datfor = 0;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar tzID[4];
+	char16_t tzID[4];
 	char tempMsgBuf[256];
 
 	u_strcpy(tzID, fgGMTID);
@@ -1578,7 +1578,7 @@ static void verify2(const char * msg, UCalendar* c, UDateFormat* dat, int32_t ye
 }
 
 void TestGregorianChange() {
-	static const UChar utc[] = { 0x45, 0x74, 0x63, 0x2f, 0x47, 0x4d, 0x54, 0 }; /* "Etc/GMT" */
+	static const char16_t utc[] = { 0x45, 0x74, 0x63, 0x2f, 0x47, 0x4d, 0x54, 0 }; /* "Etc/GMT" */
 	const int32_t dayMillis = 86400 * INT64_C(1000); /* 1 day = 86400 seconds */
 	UCalendar * cal;
 	UDate date;
@@ -1813,7 +1813,7 @@ static const TestDaysOfWeekList testDays[] = {
 	{ "hi@rg=USZZZZ",    daysOfWeek_en_US, SIZEOFARRAYi(daysOfWeek_en_US) },
 };
 
-static const UChar logDateFormat[] = { 0x0045, 0x0045, 0x0045, 0x0020, 0x004D, 0x004D, 0x004D, 0x0020, 0x0064, 0x0064, 0x0020, 0x0079,
+static const char16_t logDateFormat[] = { 0x0045, 0x0045, 0x0045, 0x0020, 0x004D, 0x004D, 0x004D, 0x0020, 0x0064, 0x0064, 0x0020, 0x0079,
 				       0x0079, 0x0079, 0x0079, 0x0020, 0x0047, 0x0020, 0x0048, 0x0048, 0x003A, 0x006D, 0x006D, 0x003A,
 				       0x0073, 0x0073, 0x002E, 0x0053, 0x0053, 0x0053, 0 }; /* "EEE MMM dd yyyy G
                                                                                                HH:mm:ss.SSS" */
@@ -1851,7 +1851,7 @@ static void TestWeekend() {
 				dateToTest = ucal_getMillis(cal, &status) + weekendDatesPtr->millisecOffset;
 				isWeekend = ucal_isWeekend(cal, dateToTest, &status);
 				if(U_SUCCESS(fmtStatus)) {
-					UChar fmtDate[kFormattedDateMax];
+					char16_t fmtDate[kFormattedDateMax];
 					(void)udat_format(fmt, dateToTest, fmtDate, kFormattedDateMax, NULL, &fmtStatus);
 					if(U_SUCCESS(fmtStatus)) {
 						u_austrncpy(fmtDateBytes, fmtDate, kFormattedDateMax);
@@ -1939,7 +1939,7 @@ static void TestWeekend() {
  */
 
 typedef struct {
-	const UChar * timezone;
+	const char16_t * timezone;
 	const char * locale;
 	UDate start;
 	UDate target;
@@ -1953,8 +1953,8 @@ typedef struct {
 	int32_t sDiff;   /* 0x7FFFFFFF indicates overflow error expected */
 } TFDItem;
 
-static const UChar tzUSPacific[] = { 0x55, 0x53, 0x2F, 0x50, 0x61, 0x63, 0x69, 0x66, 0x69, 0x63, 0 }; /* "US/Pacific" */
-static const UChar tzGMT[] = { 0x47, 0x4D, 0x54, 0 }; /* "GMT" */
+static const char16_t tzUSPacific[] = { 0x55, 0x53, 0x2F, 0x50, 0x61, 0x63, 0x69, 0x66, 0x69, 0x63, 0 }; /* "US/Pacific" */
+static const char16_t tzGMT[] = { 0x47, 0x4D, 0x54, 0 }; /* "GMT" */
 
 static const TFDItem tfdItems[] = {
 	/* timezone    locale          start              target           progress yDf  MDf    dDf     HDf       mDf
@@ -2352,7 +2352,7 @@ void TestFieldDifference() {
 
 void TestAmbiguousWallTime() {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar tzID[32];
+	char16_t tzID[32];
 	UCalendar* ucal;
 	UDate t, expected;
 
@@ -2484,7 +2484,7 @@ static const EraTestItem eraTestItems[] = {
 	{ NULL, FALSE }
 };
 
-static const UChar zoneGMT[] = { 0x47, 0x4D, 0x54, 0 };
+static const char16_t zoneGMT[] = { 0x47, 0x4D, 0x54, 0 };
 
 void TestAddRollEra0AndEraBounds() {
 	const EraTestItem * eraTestItemPtr;
@@ -2751,7 +2751,7 @@ void TestAddRollEra0AndEraBounds() {
 
 typedef struct {
 	const char * descrip; /* test description */
-	const UChar * zoneName; /* pointer to zero-terminated zone name */
+	const char16_t * zoneName; /* pointer to zero-terminated zone name */
 	int32_t year; /* starting point for test is gregorian calendar noon on day specified by y,M,d here */
 	int32_t month;
 	int32_t day;
@@ -2761,16 +2761,16 @@ typedef struct {
 } TZTransitionItem;
 
 /* have zoneGMT above */
-static const UChar zoneUSPacific[] = { 0x55, 0x53, 0x2F, 0x50, 0x61, 0x63, 0x69, 0x66, 0x69, 0x63, 0 }; /* "US/Pacific"
+static const char16_t zoneUSPacific[] = { 0x55, 0x53, 0x2F, 0x50, 0x61, 0x63, 0x69, 0x66, 0x69, 0x63, 0 }; /* "US/Pacific"
         */
-static const UChar zoneCairo[] = { 0x41, 0x66, 0x72, 0x69, 0x63, 0x61, 0x2F, 0x43, 0x61, 0x69, 0x72, 0x6F, 0 }; /*
+static const char16_t zoneCairo[] = { 0x41, 0x66, 0x72, 0x69, 0x63, 0x61, 0x2F, 0x43, 0x61, 0x69, 0x72, 0x6F, 0 }; /*
                                                                                                                        "Africa/Cairo",
                                                                                                                        DST
                                                                                                                        cancelled
                                                                                                                        since
                                                                                                                        2011
   */
-static const UChar zoneIceland[] =
+static const char16_t zoneIceland[] =
 { 0x41, 0x74, 0x6C, 0x61, 0x6E, 0x74, 0x69, 0x63, 0x2F, 0x52, 0x65, 0x79, 0x6B, 0x6A, 0x61, 0x76, 0x69, 0x6B, 0 };                    /*
                                                                                                                                          "Atlantic/Reykjavik",
                                                                                                                                          always
@@ -2871,25 +2871,25 @@ void TestGetTZTransition() {
 	}
 }
 
-static const UChar winEastern[] = /* Eastern Standard Time */
+static const char16_t winEastern[] = /* Eastern Standard Time */
 {0x45, 0x61, 0x73, 0x74, 0x65, 0x72, 0x6E, 0x20, 0x53, 0x74, 0x61, 0x6E, 0x64, 0x61, 0x72, 0x64, 0x20, 0x54, 0x69, 0x6D, 0x65, 0x00};
 
-static const UChar tzNewYork[] = /* America/New_York */
+static const char16_t tzNewYork[] = /* America/New_York */
 {0x41, 0x6D, 0x65, 0x72, 0x69, 0x63, 0x61, 0x2F, 0x4E, 0x65, 0x77, 0x5F, 0x59, 0x6F, 0x72, 0x6B, 0x00};
-static const UChar tzTronto[] = /* America/Toronto */
+static const char16_t tzTronto[] = /* America/Toronto */
 {0x41, 0x6D, 0x65, 0x72, 0x69, 0x63, 0x61, 0x2F, 0x54, 0x6F, 0x72, 0x6F, 0x6E, 0x74, 0x6F, 0x00};
 
-static const UChar sBogus[] = /* Bogus */
+static const char16_t sBogus[] = /* Bogus */
 {0x42, 0x6F, 0x67, 0x75, 0x73, 0x00};
 
 #ifndef U_DEBUG
-static const UChar sBogusWithVariantCharacters[] = /* Bogus with Variant characters: Hèℓℓô Wôřℓδ */
+static const char16_t sBogusWithVariantCharacters[] = /* Bogus with Variant characters: Hèℓℓô Wôřℓδ */
 {0x48, 0xE8, 0x2113, 0x2113, 0xF4, 0x20, 0x57, 0xF4, 0x159, 0x2113, 0x3B4, 0x00};
 #endif
 
 void TestGetWindowsTimeZoneID() {
 	UErrorCode status;
-	UChar winID[64];
+	char16_t winID[64];
 	int32_t len;
 	{
 		status = U_ZERO_ERROR;
@@ -2926,7 +2926,7 @@ void TestGetWindowsTimeZoneID() {
 void TestGetTimeZoneIDByWindowsID() 
 {
 	UErrorCode status;
-	UChar tzID[64];
+	char16_t tzID[64];
 	int32_t len;
 	{
 		status = U_ZERO_ERROR;
@@ -3055,7 +3055,7 @@ void TestUcalOpenBufferRead() {
  */
 void TestGetTimeZoneOffsetFromLocal() 
 {
-	static const UChar utc[] = u"Etc/GMT";
+	static const char16_t utc[] = u"Etc/GMT";
 	const int32_t HOUR = 60*60*1000;
 	const int32_t MINUTE = 60*1000;
 	const int32_t DATES[][6] = {

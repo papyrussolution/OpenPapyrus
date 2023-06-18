@@ -178,10 +178,10 @@ static void AssertAllPartsEqual(const char * messagePrefix,
 
 static void checkFormattedValueString(const char * message,
     const UFormattedValue* fv,
-    const UChar * expectedString,
+    const char16_t * expectedString,
     UErrorCode * ec) {
 	int32_t length;
-	const UChar * actualString = ufmtval_getString(fv, &length, ec);
+	const char16_t * actualString = ufmtval_getString(fv, &length, ec);
 	if(U_FAILURE(*ec)) {
 		assertIntEquals(message, 0, length);
 		return;
@@ -196,7 +196,7 @@ static void checkFormattedValueString(const char * message,
 // Declared in cformtst.h
 void checkFormattedValue(const char * message,
     const UFormattedValue* fv,
-    const UChar * expectedString,
+    const char16_t * expectedString,
     UFieldCategory expectedCategory,
     const UFieldPosition* expectedFieldPositions,
     int32_t expectedFieldPositionsLength) {
@@ -230,7 +230,7 @@ void checkFormattedValue(const char * message,
 
 void checkMixedFormattedValue(const char * message,
     const UFormattedValue* fv,
-    const UChar * expectedString,
+    const char16_t * expectedString,
     const UFieldPositionWithCategory* expectedFieldPositions,
     int32_t length) {
 	(void)length; // suppress compiler warnings about unused variable

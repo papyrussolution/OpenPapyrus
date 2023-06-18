@@ -20,7 +20,7 @@ const char * const dirPropNames[U_CHAR_DIRECTION_COUNT] = {
 	"FSI", "LRI", "RLI", "PDI" /* new in Unicode 6.3/ICU 52 */
 };
 
-UChar charFromDirProp[U_CHAR_DIRECTION_COUNT] = {
+char16_t charFromDirProp[U_CHAR_DIRECTION_COUNT] = {
 	/* L     R      EN    ES    ET    AN     CS    B    S    WS    ON */
 	0x61, 0x5d0, 0x30, 0x2f, 0x25, 0x660, 0x2c, 0xa, 0x9, 0x20, 0x26,
 	/* LRE     LRO     AL     RLE     RLO     PDF     NSM    BN */

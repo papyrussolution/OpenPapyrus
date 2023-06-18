@@ -530,9 +530,7 @@ static ngx_int_t ngx_conf_read_token(ngx_conf_t * cf)
 				if(word->data == NULL) {
 					return NGX_ERROR;
 				}
-				for(dst = word->data, src = start, len = 0;
-				    src < b->pos - 1;
-				    len++) {
+				for(dst = word->data, src = start, len = 0; src < b->pos - 1; len++) {
 					if(*src == '\\') {
 						switch(src[1]) {
 							case '"':

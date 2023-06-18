@@ -38,12 +38,12 @@ int32_t nfs4_prepare(const char * src, int32_t srcLength,
     NFS4ProfileState state,
     UParseError* parseError,
     UErrorCode *  status) {
-	UChar b1Stack[NFS4_MAX_BUFFER_SIZE],
+	char16_t b1Stack[NFS4_MAX_BUFFER_SIZE],
 	    b2Stack[NFS4_MAX_BUFFER_SIZE];
 	char b3Stack[NFS4_MAX_BUFFER_SIZE];
 
 	/* initialize pointers to stack buffers */
-	UChar * b1 = b1Stack, * b2 = b2Stack;
+	char16_t * b1 = b1Stack, * b2 = b2Stack;
 	char  * b3 = b3Stack;
 	int32_t b1Len = 0, b2Len = 0, b3Len = 0,
 	    b1Capacity = NFS4_MAX_BUFFER_SIZE,
@@ -70,7 +70,7 @@ int32_t nfs4_prepare(const char * src, int32_t srcLength,
 		/* reset the status */
 		*status = U_ZERO_ERROR;
 
-		b1 = (UChar *)SAlloc::M(b1Len * U_SIZEOF_UCHAR);
+		b1 = (char16_t *)SAlloc::M(b1Len * U_SIZEOF_UCHAR);
 		if(b1==NULL) {
 			*status = U_MEMORY_ALLOCATION_ERROR;
 			goto CLEANUP;
@@ -86,7 +86,7 @@ int32_t nfs4_prepare(const char * src, int32_t srcLength,
 	b2Len = usprep_prepare(profile, b1, b1Len, b2, b2Capacity, USPREP_DEFAULT, parseError, status);
 	if(*status == U_BUFFER_OVERFLOW_ERROR) {
 		*status = U_ZERO_ERROR;
-		b2 = (UChar *)SAlloc::M(b2Len * U_SIZEOF_UCHAR);
+		b2 = (char16_t *)SAlloc::M(b2Len * U_SIZEOF_UCHAR);
 		if(b2== NULL) {
 			*status = U_MEMORY_ALLOCATION_ERROR;
 			goto CLEANUP;

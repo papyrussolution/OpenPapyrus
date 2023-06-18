@@ -164,7 +164,7 @@ static int walk_string(string_walker * walker)
 			hb_buffer_guess_segment_properties(walker->hb_buf);
 
 			if(walker->small_caps)
-				hb_shape((hb_font_t *)hb->shaper_handle, walker->hb_buf, small_caps_feature, nelem(small_caps_feature));
+				hb_shape((hb_font_t *)hb->shaper_handle, walker->hb_buf, small_caps_feature, SIZEOFARRAY(small_caps_feature));
 			else
 				hb_shape((hb_font_t *)hb->shaper_handle, walker->hb_buf, NULL, 0);
 			Memento_stopLeaking();

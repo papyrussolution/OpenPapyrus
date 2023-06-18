@@ -84,28 +84,28 @@ void addUSpoofTest(TestNode** root)
 /*
  *  Identifiers for verifying that spoof checking is minimally alive and working.
  */
-const UChar goodLatin[] = {(UChar)0x75, (UChar)0x7a, 0}; /* "uz", all ASCII    */
+const char16_t goodLatin[] = {(char16_t)0x75, (char16_t)0x7a, 0}; /* "uz", all ASCII    */
                                                             /*   (not confusable) */
-const UChar scMixed[]  = {(UChar)0x73, (UChar)0x0441, 0};   /* "sc", with Cyrillic 'c'     */
+const char16_t scMixed[]  = {(char16_t)0x73, (char16_t)0x0441, 0};   /* "sc", with Cyrillic 'c'     */
                                                             /*   (mixed script, confusable */
 
-const UChar scLatin[]  = {(UChar)0x73,  (UChar)0x63, 0}; /* "sc", plain ascii.        */
-const UChar goodCyrl[] = {(UChar)0x438, (UChar)0x43B, 0};   /* Plain lower case Cyrillic letters,
+const char16_t scLatin[]  = {(char16_t)0x73,  (char16_t)0x63, 0}; /* "sc", plain ascii.        */
+const char16_t goodCyrl[] = {(char16_t)0x438, (char16_t)0x43B, 0};   /* Plain lower case Cyrillic letters,
                                                                no latin confusables         */
 
-const UChar goodGreek[] = {(UChar)0x3c0, (UChar)0x3c6, 0};   /* Plain lower case Greek letters */
+const char16_t goodGreek[] = {(char16_t)0x3c0, (char16_t)0x3c6, 0};   /* Plain lower case Greek letters */
 
-const UChar lll_Latin_a[] = {(UChar)0x6c, (UChar)0x49, (UChar)0x31, 0};   /* lI1, all ASCII */
+const char16_t lll_Latin_a[] = {(char16_t)0x6c, (char16_t)0x49, (char16_t)0x31, 0};   /* lI1, all ASCII */
 
 /*  Full-width I, Small Roman Numeral fifty, Latin Cap Letter IOTA*/
-const UChar lll_Latin_b[] = {(UChar)0xff29, (UChar)0x217c, (UChar)0x196, 0};
+const char16_t lll_Latin_b[] = {(char16_t)0xff29, (char16_t)0x217c, (char16_t)0x196, 0};
 
-const UChar lll_Cyrl[] = {(UChar)0x0406, (UChar)0x04C0, (UChar)0x31, 0};
+const char16_t lll_Cyrl[] = {(char16_t)0x0406, (char16_t)0x04C0, (char16_t)0x31, 0};
 
 /* The skeleton transform for all of these 'lll' lookalikes is all lower case l. */
-const UChar lll_Skel[] = {(UChar)0x6c, (UChar)0x6c, (UChar)0x6c, 0};
+const char16_t lll_Skel[] = {(char16_t)0x6c, (char16_t)0x6c, (char16_t)0x6c, 0};
 
-const UChar han_Hiragana[] = {(UChar)0x3086, (UChar)0x308A, (UChar)0x0020, (UChar)0x77F3, (UChar)0x7530, 0};
+const char16_t han_Hiragana[] = {(char16_t)0x3086, (char16_t)0x308A, (char16_t)0x0020, (char16_t)0x77F3, (char16_t)0x7530, 0};
 
 /* Provide better code coverage */
 const char goodLatinUTF8[] = {0x75, 0x77, 0};
@@ -467,11 +467,11 @@ static void TestUSpoofCAPI() {
 	USpoofCheckResult* checkResult = uspoof_openCheckResult(&status);
 	TEST_ASSERT_SUCCESS(status);
 
-	const UChar * tests[] = { goodLatin, scMixed, scLatin,
+	const char16_t * tests[] = { goodLatin, scMixed, scLatin,
 				  goodCyrl, goodGreek, lll_Latin_a, lll_Latin_b, han_Hiragana };
 
 	for(int32_t i = 0; i<SIZEOFARRAYi(tests); i++) {
-		const UChar * str = tests[i];
+		const char16_t * str = tests[i];
 
 		// Basic test
 		result1 = uspoof_check(sc, str, -1, NULL, &status);
@@ -560,7 +560,7 @@ static void TestUSpoofCAPI() {
 	 */
 
 	TEST_SETUP
-	UChar dest[100];
+	char16_t dest[100];
 	int32_t skelLength;
 
 	skelLength = uspoof_getSkeleton(sc, USPOOF_ANY_CASE, lll_Latin_a, -1, dest, SIZEOFARRAYi(dest), &status);

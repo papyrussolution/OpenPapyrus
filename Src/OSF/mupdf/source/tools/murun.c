@@ -694,8 +694,8 @@ static fz_stroke_state ffi_tostroke(js_State * J, int idx)
 	}
 	if(js_hasproperty(J, idx, "dashes")) {
 		int i, n = js_getlength(J, -1);
-		if(n > (int)nelem(stroke.dash_list))
-			n = nelem(stroke.dash_list);
+		if(n > SIZEOFARRAYi(stroke.dash_list))
+			n = SIZEOFARRAY(stroke.dash_list);
 		stroke.dash_len = n;
 		for(i = 0; i < n; ++i) {
 			js_getindex(J, -1, i);
@@ -2742,7 +2742,7 @@ static void ffi_Page_search(js_State * J)
 	int i, n = 0;
 
 	fz_try(ctx)
-	n = fz_search_page(ctx, page, needle, hits, nelem(hits));
+	n = fz_search_page(ctx, page, needle, hits, SIZEOFARRAY(hits));
 	fz_catch(ctx)
 	rethrow(J);
 
@@ -3554,7 +3554,7 @@ static void ffi_DisplayList_search(js_State * J)
 	int i, n = 0;
 
 	fz_try(ctx)
-	n = fz_search_display_list(ctx, list, needle, hits, nelem(hits));
+	n = fz_search_display_list(ctx, list, needle, hits, SIZEOFARRAY(hits));
 	fz_catch(ctx)
 	rethrow(J);
 
@@ -3639,7 +3639,7 @@ static void ffi_StructuredText_search(js_State * J)
 	int i, n = 0;
 
 	fz_try(ctx)
-	n = fz_search_stext_page(ctx, text, needle, hits, nelem(hits));
+	n = fz_search_stext_page(ctx, text, needle, hits, SIZEOFARRAY(hits));
 	fz_catch(ctx)
 	rethrow(J);
 
@@ -3660,7 +3660,7 @@ static void ffi_StructuredText_highlight(js_State * J)
 	int i, n = 0;
 
 	fz_try(ctx)
-	n = fz_highlight_selection(ctx, text, a, b, hits, nelem(hits));
+	n = fz_highlight_selection(ctx, text, a, b, hits, SIZEOFARRAY(hits));
 	fz_catch(ctx)
 	rethrow(J);
 

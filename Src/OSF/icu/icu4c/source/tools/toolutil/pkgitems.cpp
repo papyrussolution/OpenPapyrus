@@ -208,13 +208,13 @@ static void checkParent(const char * itemName, CheckDependency check, void * con
 
 // get dependencies from resource bundles ---------------------------------- ***
 
-static const UChar SLASH = 0x2f;
+static const char16_t SLASH = 0x2f;
 
 /*
  * Check for the alias from the string or alias resource res.
  */
 static void checkAlias(const char * itemName,
-    Resource res, const UChar * alias, int32_t length, bool useResSuffix,
+    Resource res, const char16_t * alias, int32_t length, bool useResSuffix,
     CheckDependency check, void * context, UErrorCode * pErrorCode) {
 	int32_t i;
 
@@ -301,14 +301,14 @@ static void ures_enumDependencies(const char * itemName,
 		    }
 		    int32_t length;
 		    // No tracing: build tool
-		    const UChar * alias = res_getStringNoTrace(pResData, res, &length);
+		    const char16_t * alias = res_getStringNoTrace(pResData, res, &length);
 		    checkAlias(itemName, res, alias, length, useResSuffix, check, context, pErrorCode);
 	    }
 	    break;
 		case URES_ALIAS:
 	    {
 		    int32_t length;
-		    const UChar * alias = res_getAlias(pResData, res, &length);
+		    const char16_t * alias = res_getAlias(pResData, res, &length);
 		    checkAlias(itemName, res, alias, length, TRUE, check, context, pErrorCode);
 	    }
 	    break;

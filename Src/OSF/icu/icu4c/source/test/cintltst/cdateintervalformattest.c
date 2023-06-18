@@ -105,8 +105,8 @@ static void TestDateIntervalFormat()
 	for(testItemPtr = testItems; testItemPtr->locale != NULL; ++testItemPtr) {
 		UDateIntervalFormat* udtitvfmt;
 		int32_t tzidLen;
-		UChar skelBuf[kSkelBufLen];
-		UChar tzidBuf[kTZIDBufLen];
+		char16_t skelBuf[kSkelBufLen];
+		char16_t tzidBuf[kTZIDBufLen];
 		const char * tzidForLog = (testItemPtr->tzid) ? testItemPtr->tzid : "NULL";
 
 		status = U_ZERO_ERROR;
@@ -120,8 +120,8 @@ static void TestDateIntervalFormat()
 		}
 		udtitvfmt = udtitvfmt_open(testItemPtr->locale, skelBuf, -1, tzidBuf, tzidLen, &status);
 		if(U_SUCCESS(status)) {
-			UChar result[kFormatBufLen];
-			UChar resultExpected[kFormatBufLen];
+			char16_t result[kFormatBufLen];
+			char16_t resultExpected[kFormatBufLen];
 
 			udtitvfmt_setContext(udtitvfmt, testItemPtr->context, &status);
 			if(U_FAILURE(status)) {
@@ -187,7 +187,7 @@ static void TestDateIntervalFormat()
  ********************************************************************
  */
 
-static UChar zoneGMT[] = { 0x47, 0x4D, 0x54, 0 }; // GMT
+static char16_t zoneGMT[] = { 0x47, 0x4D, 0x54, 0 }; // GMT
 static const UDate startTime = 1416474000000.0; // 2014 Nov 20 09:00 GMT
 
 static const double deltas[] = {
@@ -345,7 +345,7 @@ static void TestFPos_SkelWithSeconds()
 	const LocaleAndSkeletonItem * locSkelItemPtr;
 	for(locSkelItemPtr = locSkelItems; locSkelItemPtr->locale != NULL; locSkelItemPtr++) {
 		UDateIntervalFormat* udifmt;
-		UChar ubuf[kSizeUBuf];
+		char16_t ubuf[kSizeUBuf];
 		int32_t ulen, uelen;
 		UErrorCode status = U_ZERO_ERROR;
 		ulen = u_unescape(locSkelItemPtr->skeleton, ubuf, kSizeUBuf);
@@ -359,7 +359,7 @@ static void TestFPos_SkelWithSeconds()
 			const ExpectPosAndFormat * expectedPtr = locSkelItemPtr->expected;
 			for(; *deltasPtr >= 0.0; deltasPtr++, expectedPtr++) {
 				UFieldPosition fpos = { locSkelItemPtr->fieldToCheck, 0, 0 };
-				UChar uebuf[kSizeUBuf];
+				char16_t uebuf[kSizeUBuf];
 				char bbuf[kSizeBBuf];
 				char bebuf[kSizeBBuf];
 				status = U_ZERO_ERROR;
@@ -391,7 +391,7 @@ static void TestFormatToResult()
 	assertSuccess("Opening", &ec);
 	{
 		const char * message = "Field position test 1";
-		const UChar * expectedString = u"27. September 2010, 15:00 – 2. März 2011, 18:30";
+		const char16_t * expectedString = u"27. September 2010, 15:00 – 2. März 2011, 18:30";
 		udtitvfmt_formatToResult(fmt, Date201009270800, Date201103021030, fdi, &ec);
 		assertSuccess("Formatting", &ec);
 		static const UFieldPositionWithCategory expectedFieldPositions[] = {
@@ -413,7 +413,7 @@ static void TestFormatToResult()
 	}
 	{
 		const char * message = "Field position test 2";
-		const UChar * expectedString = u"27. September 2010, 15:00–22:00 Uhr";
+		const char16_t * expectedString = u"27. September 2010, 15:00–22:00 Uhr";
 		udtitvfmt_formatToResult(fmt, Date201009270800, Date201009270800 + 7*_HOUR, fdi, &ec);
 		assertSuccess("Formatting", &ec);
 		static const UFieldPositionWithCategory expectedFieldPositions[] = {
@@ -452,7 +452,7 @@ static void TestFormatCalendarToResult() {
 
 	{
 		const char * message = "Field position test 1";
-		const UChar * expectedString = u"27. September 2010, 15:00 – 2. März 2011, 18:30";
+		const char16_t * expectedString = u"27. September 2010, 15:00 – 2. März 2011, 18:30";
 		udtitvfmt_formatCalendarToResult(fmt, ucal1, ucal2, fdi, &ec);
 		assertSuccess("Formatting", &ec);
 		static const UFieldPositionWithCategory expectedFieldPositions[] = {
@@ -479,7 +479,7 @@ static void TestFormatCalendarToResult() {
 	}
 	{
 		const char * message = "Field position test 2";
-		const UChar * expectedString = u"27. September 2010, 15:00–22:00 Uhr";
+		const char16_t * expectedString = u"27. September 2010, 15:00–22:00 Uhr";
 		udtitvfmt_formatCalendarToResult(fmt, ucal1, ucal3, fdi, &ec);
 		assertSuccess("Formatting", &ec);
 		static const UFieldPositionWithCategory expectedFieldPositions[] = {
@@ -509,7 +509,7 @@ static void TestFormatCalendarToResult() {
 		ucal_setMillis(ucal5, Date158210160000, &ec);
 		//                                        1         2         3         4
 		//                              012345678901234567890123456789012345678901234567890
-		const UChar * expectedString = u"4. Oktober 1582, 00:00 – 16. Oktober 1582, 00:00";
+		const char16_t * expectedString = u"4. Oktober 1582, 00:00 – 16. Oktober 1582, 00:00";
 		udtitvfmt_formatCalendarToResult(fmt, ucal4, ucal5, fdi, &ec);
 		assertSuccess("Formatting", &ec);
 		static const UFieldPositionWithCategory expectedFieldPositions[] = {
@@ -544,7 +544,7 @@ static void TestFormatCalendarToResult() {
 		const char * message = "Field position test 4";
 		//                                        1         2         3         4
 		//                              012345678901234567890123456789012345678901234567890
-		const UChar * expectedString = u"14. Oktober 1582, 00:00 – 16. Oktober 1582, 00:00";
+		const char16_t * expectedString = u"14. Oktober 1582, 00:00 – 16. Oktober 1582, 00:00";
 		udtitvfmt_formatCalendarToResult(fmt, ucal4, ucal5, fdi, &ec);
 		assertSuccess("Formatting", &ec);
 		static const UFieldPositionWithCategory expectedFieldPositions[] = {

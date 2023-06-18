@@ -38,7 +38,7 @@ CollationIteratorTest::~CollationIteratorTest()
 void CollationIteratorTest::TestUnicodeChar()
 {
 	CollationElementIterator * iter;
-	UChar codepoint;
+	char16_t codepoint;
 	UnicodeString source;
 
 	for(codepoint = 1; codepoint < 0xFFFE;) {
@@ -331,7 +331,7 @@ void CollationIteratorTest::TestMaxExpansion(/* char * par */)
 	UErrorCode status = U_ZERO_ERROR;
 	UnicodeString rule("&a < ab < c/aba < d < z < ch");
 	RuleBasedCollator  * coll   = new RuleBasedCollator(rule, status);
-	UChar ch     = 0;
+	char16_t ch     = 0;
 	UnicodeString str(ch);
 
 	CollationElementIterator * iter   = coll->createCollationElementIterator(str);

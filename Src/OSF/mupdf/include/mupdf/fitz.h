@@ -12,29 +12,25 @@
 #include "mupdf/fitz/version.h"
 #include "mupdf/fitz/config.h"
 #include "mupdf/fitz/system.h"
+#include "mupdf/fitz/geometry.h"
 #include "mupdf/fitz/context.h"
+#include "mupdf/fitz/buffer.h"
+#include "mupdf/fitz/string-util.h"
+#include "mupdf/fitz/stream.h"
 #include "mupdf/fitz/output.h"
 #include "mupdf/fitz/log.h"
-
 #include "mupdf/fitz/crypt.h"
 #include "mupdf/fitz/getopt.h"
-#include "mupdf/fitz/geometry.h"
 #include "mupdf/fitz/hash.h"
 #include "mupdf/fitz/pool.h"
-#include "mupdf/fitz/string-util.h"
 #include "mupdf/fitz/tree.h"
 #include "mupdf/fitz/bidi.h"
 #include "mupdf/fitz/xml.h"
-
-/* I/O */
-#include "mupdf/fitz/buffer.h"
-#include "mupdf/fitz/stream.h"
 #include "mupdf/fitz/compress.h"
 #include "mupdf/fitz/store.h"
 #include "mupdf/fitz/filter.h"
 #include "mupdf/fitz/compressed-buffer.h"
 #include "mupdf/fitz/archive.h"
-
 /* Resources */
 #include "mupdf/fitz/color.h"
 #include "mupdf/fitz/separation.h"
@@ -64,7 +60,25 @@
 #include "mupdf/fitz/band-writer.h"
 #include "mupdf/fitz/write-pixmap.h"
 #include "mupdf/fitz/output-svg.h"
-
+//
+//#include "mupdf/pdf.h"
+#include "mupdf/pdf/object.h"
+#include "mupdf/pdf/document.h"
+#include "mupdf/pdf/parse.h"
+#include "mupdf/pdf/xref.h"
+#include "mupdf/pdf/crypt.h"
+#include "mupdf/pdf/cmap.h"
+#include "mupdf/pdf/font.h"
+#include "mupdf/pdf/resource.h"
+#include "mupdf/pdf/interpret.h"
+#include "mupdf/pdf/page.h"
+#include "mupdf/pdf/annot.h"
+#include "mupdf/pdf/form.h"
+#include "mupdf/pdf/event.h"
+#include "mupdf/pdf/javascript.h"
+#include "mupdf/pdf/output-pdf.h"
+#include "mupdf/pdf/clean.h"
+//
 #ifdef __cplusplus
 // @sobolev }
 #endif

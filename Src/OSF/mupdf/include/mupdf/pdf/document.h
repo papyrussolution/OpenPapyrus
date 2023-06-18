@@ -9,14 +9,12 @@ typedef struct pdf_annot pdf_annot;
 typedef struct pdf_annot pdf_widget;
 typedef struct pdf_js pdf_js;
 
-enum
-{
+enum {
 	PDF_LEXBUF_SMALL = 256,
 	PDF_LEXBUF_LARGE = 65536
 };
 
-typedef struct
-{
+typedef struct {
 	size_t size;
 	size_t base_size;
 	size_t len;
@@ -26,8 +24,7 @@ typedef struct
 	char buffer[PDF_LEXBUF_SMALL];
 } pdf_lexbuf;
 
-typedef struct
-{
+typedef struct {
 	pdf_lexbuf base;
 	char buffer[PDF_LEXBUF_LARGE - PDF_LEXBUF_SMALL];
 } pdf_lexbuf_large;
@@ -37,13 +34,11 @@ typedef struct
 	is visible to the app.
 */
 typedef struct pdf_doc_event pdf_doc_event;
-
 /*
 	the type of function via which the app receives
 	document events.
 */
 typedef void (pdf_doc_event_cb)(fz_context *ctx, pdf_document *doc, pdf_doc_event *event, void *data);
-
 /*
 	Open a PDF document.
 
@@ -111,10 +106,8 @@ int pdf_needs_password(fz_context *ctx, pdf_document *doc);
 		bit 2 set => owner password authenticated
 */
 int pdf_authenticate_password(fz_context *ctx, pdf_document *doc, const char *pw);
-
 int pdf_has_permission(fz_context *ctx, pdf_document *doc, fz_permission p);
 int pdf_lookup_metadata(fz_context *ctx, pdf_document *doc, const char *key, char *ptr, int size);
-
 fz_outline *pdf_load_outline(fz_context *ctx, pdf_document *doc);
 
 /*
@@ -123,12 +116,10 @@ fz_outline *pdf_load_outline(fz_context *ctx, pdf_document *doc);
 	doc: The document in question.
 */
 int pdf_count_layer_configs(fz_context *ctx, pdf_document *doc);
-
 void pdf_invalidate_xfa(fz_context *ctx, pdf_document *doc);
 
 
-typedef struct
-{
+typedef struct {
 	const char *name;
 	const char *creator;
 } pdf_layer_config;
@@ -203,15 +194,13 @@ void pdf_deselect_layer_config_ui(fz_context *ctx, pdf_document *doc, int ui);
 */
 void pdf_toggle_layer_config_ui(fz_context *ctx, pdf_document *doc, int ui);
 
-typedef enum
-{
+typedef enum {
 	PDF_LAYER_UI_LABEL = 0,
 	PDF_LAYER_UI_CHECKBOX = 1,
 	PDF_LAYER_UI_RADIOBOX = 2
 } pdf_layer_config_ui_type;
 
-typedef struct
-{
+typedef struct {
 	const char *text;
 	int depth;
 	pdf_layer_config_ui_type type;
@@ -252,8 +241,7 @@ int pdf_was_repaired(fz_context *ctx, pdf_document *doc);
 typedef struct pdf_pkcs7_signer pdf_pkcs7_signer;
 
 /* Unsaved signature fields */
-typedef struct pdf_unsaved_sig
-{
+typedef struct pdf_unsaved_sig {
 	pdf_obj *field;
 	size_t byte_range_start;
 	size_t byte_range_end;
@@ -263,38 +251,31 @@ typedef struct pdf_unsaved_sig
 	struct pdf_unsaved_sig *next;
 } pdf_unsaved_sig;
 
-typedef struct
-{
+typedef struct {
 	int page;
 	int object;
 } pdf_rev_page_map;
 
-typedef struct
-{
+typedef struct {
 	int number; /* Page object number */
 	int64_t offset; /* Offset of page object */
 	int64_t index; /* Index into shared hint_shared_ref */
 } pdf_hint_page;
 
-typedef struct
-{
+typedef struct {
 	int number; /* Object number of first object */
 	int64_t offset; /* Offset of first object */
 } pdf_hint_shared;
 
-struct pdf_document
-{
+struct pdf_document {
 	fz_document super;
-
 	fz_stream *file;
-
 	int version;
 	int64_t startxref;
 	int64_t file_size;
 	pdf_crypt *crypt;
 	pdf_ocg_descriptor *ocg;
 	fz_colorspace *oi;
-
 	int max_xref_len;
 	int num_xref_sections;
 	int saved_num_xref_sections;
@@ -537,8 +518,7 @@ void pdf_set_document_language(fz_context *ctx, pdf_document *doc, fz_text_langu
 	to control aspects of the writing process. This structure may grow
 	in the future, and should be zero-filled to allow forwards compatibility.
 */
-typedef struct
-{
+typedef struct {
 	int do_incremental; /* Write just the changed objects. */
 	int do_pretty; /* Pretty-print dictionaries and arrays. */
 	int do_ascii; /* ASCII hex encode binary streams. */

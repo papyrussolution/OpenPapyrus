@@ -57,10 +57,10 @@ static void TestAPI() {
 	{
 		UText utLoc = UTEXT_INITIALIZER;
 		const char * cString = "\x61\x62\x63\x64";
-		UChar uString[]  = {0x41, 0x42, 0x43, 0};
+		char16_t uString[]  = {0x41, 0x42, 0x43, 0};
 		UText          * uta;
 		UText          * utb;
-		UChar c;
+		char16_t c;
 
 		uta = utext_openUChars(NULL, uString, -1, &status);
 		TEST_SUCCESS(status);
@@ -79,7 +79,7 @@ static void TestAPI() {
 
 	/* utext_clone()  */
 	{
-		UChar uString[]  = {0x41, 0x42, 0x43, 0};
+		char16_t uString[]  = {0x41, 0x42, 0x43, 0};
 		int64_t len;
 		UText   * uta;
 		UText   * utb;
@@ -99,7 +99,7 @@ static void TestAPI() {
 
 	/* basic access functions  */
 	{
-		UChar uString[]  = {0x41, 0x42, 0x43, 0};
+		char16_t uString[]  = {0x41, 0x42, 0x43, 0};
 		UText     * uta;
 		UChar32 c;
 		int64_t len;
@@ -199,13 +199,13 @@ static void TestAPI() {
 		 * extract
 		 */
 		UText     * uta;
-		UChar uString[]  = {0x41, 0x42, 0x43, 0};
-		UChar buf[100];
+		char16_t uString[]  = {0x41, 0x42, 0x43, 0};
+		char16_t buf[100];
 		int32_t i;
 		/* Test pinning of input bounds */
-		UChar uString2[]  = {0x41, 0x42, 0x43, 0x44, 0x45,
+		char16_t uString2[]  = {0x41, 0x42, 0x43, 0x44, 0x45,
 				     0x46, 0x47, 0x48, 0x49, 0x4A, 0};
-		UChar * uString2Ptr = uString2 + 5;
+		char16_t * uString2Ptr = uString2 + 5;
 
 		status = U_ZERO_ERROR;
 		uta = utext_openUChars(NULL, uString, -1, &status);
@@ -247,7 +247,7 @@ static void TestAPI() {
 		 *    can easily do is check that errors returned.
 		 */
 		UText     * uta;
-		UChar uString[]  = {0x41, 0x42, 0x43, 0};
+		char16_t uString[]  = {0x41, 0x42, 0x43, 0};
 		bool b;
 
 		status = U_ZERO_ERROR;

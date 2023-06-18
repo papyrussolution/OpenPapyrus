@@ -2,9 +2,9 @@
 #define MUPDF_PDF_H
 
 #include "mupdf/fitz.h"
-#ifdef __cplusplus
+//#ifdef __cplusplus
 // @sobolev extern "C" {
-#endif
+//#endif
 	#include "mupdf/pdf/object.h"
 	#include "mupdf/pdf/document.h"
 	#include "mupdf/pdf/parse.h"
@@ -21,8 +21,8 @@
 	#include "mupdf/pdf/javascript.h"
 	#include "mupdf/pdf/output-pdf.h"
 	#include "mupdf/pdf/clean.h"
-#ifdef __cplusplus
+//#ifdef __cplusplus
 // @sobolev }
-#endif
+//#endif
 
 #endif

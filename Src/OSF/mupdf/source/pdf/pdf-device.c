@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_ADVANCES_H

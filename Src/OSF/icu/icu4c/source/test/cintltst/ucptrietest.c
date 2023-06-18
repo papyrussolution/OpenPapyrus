@@ -404,10 +404,10 @@ static void testBuilderGetters(const char * testName, const UMutableCPTrie * mut
 static void testTrieUTF16(const char * testName,
     const UCPTrie * trie, UCPTrieValueWidth valueWidth,
     const CheckRange checkRanges[], int32_t countCheckRanges) {
-	UChar s[30000];
+	char16_t s[30000];
 	uint32_t values[16000];
 
-	const UChar * p, * limit;
+	const char16_t * p, * limit;
 
 	uint32_t errorValue = ucptrie_get(trie, -1);
 	uint32_t value, expected;

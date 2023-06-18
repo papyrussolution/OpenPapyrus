@@ -52,7 +52,7 @@ static void printSeq(const unsigned char * a, int len)
 	log_verbose("}\n");
 }
 
-static void printUSeq(const UChar * a, int len)
+static void printUSeq(const char16_t * a, int len)
 {
 	int i = 0;
 	log_verbose("{U+");
@@ -70,7 +70,7 @@ static void printSeqErr(const unsigned char * a, int len)
 	slfprintf_stderr("}\n");
 }
 
-static void printUSeqErr(const UChar * a, int len)
+static void printUSeqErr(const char16_t * a, int len)
 {
 	int i = 0;
 	slfprintf_stderr("{U+");
@@ -121,22 +121,22 @@ static void setNuConvTestName(const char * codepage, const char * direction)
 	    (int)gOutBufferSize);
 }
 
-static bool testConvertFromUnicode(const UChar * source, int sourceLen,  const uint8_t * expect, int expectLen,
+static bool testConvertFromUnicode(const char16_t * source, int sourceLen,  const uint8_t * expect, int expectLen,
     const char * codepage, bool fallback, const int32_t * expectOffsets)
 {
 	UErrorCode status = U_ZERO_ERROR;
 	UConverter * conv = 0;
 	char junkout[NEW_MAX_BUFFER]; /* FIX */
 	int32_t junokout[NEW_MAX_BUFFER]; /* FIX */
-	const UChar * src;
+	const char16_t * src;
 	char * end;
 	char * targ;
 	int32_t * offs;
 	int i;
 	int32_t realBufferSize;
 	char * realBufferEnd;
-	const UChar * realSourceEnd;
-	const UChar * sourceLimit;
+	const char16_t * realSourceEnd;
+	const char16_t * sourceLimit;
 	bool checkOffsets = TRUE;
 	bool doFlush;
 	bool action = FALSE;
@@ -272,28 +272,28 @@ static bool testConvertFromUnicode(const UChar * source, int sourceLen,  const u
 	}
 }
 
-static bool testConvertToUnicode(const uint8_t * source, int sourcelen, const UChar * expect, int expectlen,
+static bool testConvertToUnicode(const uint8_t * source, int sourcelen, const char16_t * expect, int expectlen,
     const char * codepage, bool fallback, const int32_t * expectOffsets)
 {
 	UErrorCode status = U_ZERO_ERROR;
 	UConverter * conv = 0;
-	UChar junkout[NEW_MAX_BUFFER]; /* FIX */
+	char16_t junkout[NEW_MAX_BUFFER]; /* FIX */
 	int32_t junokout[NEW_MAX_BUFFER]; /* FIX */
 	const char * src;
 	const char * realSourceEnd;
 	const char * srcLimit;
-	UChar * targ;
-	UChar * end;
+	char16_t * targ;
+	char16_t * end;
 	int32_t * offs;
 	int i;
 	bool checkOffsets = TRUE;
 	char junk[9999];
 	char offset_str[9999];
-	UChar * p;
+	char16_t * p;
 	bool action;
 
 	int32_t realBufferSize;
-	UChar * realBufferEnd;
+	char16_t * realBufferEnd;
 
 	for(i = 0; i<NEW_MAX_BUFFER; i++)
 		junkout[i] = 0xFFFE;
@@ -415,12 +415,12 @@ static bool testConvertToUnicode(const uint8_t * source, int sourcelen, const UC
 
 static void TestConvertFallBackWithBufferSizes(int32_t outsize, int32_t insize)
 {
-	static const UChar SBCSText[] =
+	static const char16_t SBCSText[] =
 	{ 0x0021, 0xFF01, 0x0022, 0xFF02, 0x0023, 0xFF03, 0x003A, 0xFF1A, 0x003B, 0xFF1B, 0x003C, 0xFF1C };
 	/* 21, ?, 22, ?, 23, ?, 3a, ?, 3b, ?, 3c, ? SBCS*/
 	static const uint8_t expectedNative[] =
 	{  0x21, 0x21, 0x22, 0x22, 0x23, 0x23, 0x3a, 0x3a, 0x3b, 0x3b, 0x3c, 0x3c};
-	static const UChar retrievedSBCSText[] =
+	static const char16_t retrievedSBCSText[] =
 	{ 0x0021, 0x0021, 0x0022, 0x0022, 0x0023, 0x0023, 0x003A, 0x003A, 0x003B, 0x003B, 0x003C, 0x003C };
 	static const int32_t toNativeOffs    [] =
 	{  0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b};
@@ -428,29 +428,29 @@ static void TestConvertFallBackWithBufferSizes(int32_t outsize, int32_t insize)
 	{  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
 	/* 1363 isn't DBCS, but it has the DBCS section */
-	static const UChar DBCSText[] =
+	static const char16_t DBCSText[] =
 	{ 0x00a1, 0x00ad, 0x2010, 0x00b7, 0x30fb};
 	static const uint8_t expectedIBM1363_DBCS[] =
 	{  0xa2, 0xae, 0xa1, 0xa9, 0xa1, 0xa9, 0xa1, 0xa4, 0xa1, 0xa4};
-	static const UChar retrievedDBCSText[] =
+	static const char16_t retrievedDBCSText[] =
 	{ 0x00a1, 0x2010, 0x2010, 0x30fb, 0x30fb };
 	static const int32_t toIBM1363Offs_DBCS[] =
 	{  0x00, 0x00, 0x01, 0x01, 0x02, 0x02,  0x03, 0x03, 0x04, 0x04};
 	static const int32_t fromIBM1363offs_DBCS[]  =
 	{  0, 2, 4, 6, 8};
 
-	static const UChar MBCSText[] =
+	static const char16_t MBCSText[] =
 	{ 0x0001, 0x263a, 0x2013, 0x2014, 0x263b, 0x0002};
 	static const uint8_t expectedIBM950[] =
 	{  0x01, 0x01, 0xa1, 0x56, 0xa1, 0x56, 0x02, 0x02};
-	static const UChar retrievedMBCSText[] =
+	static const char16_t retrievedMBCSText[] =
 	{ 0x0001, 0x0001, 0x2014, 0x2014, 0x0002, 0x0002};
 	static const int32_t toIBM950Offs    [] =
 	{  0x00, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x05};
 	static const int32_t fromIBM950offs []  =
 	{  0, 1, 2, 4, 6, 7};
 
-	static const UChar MBCSText1363[] =
+	static const char16_t MBCSText1363[] =
 	{ 0x0005,
 	  0xffe8,
 	  0x0007,
@@ -470,7 +470,7 @@ static void TestConvertFallBackWithBufferSizes(int32_t outsize, int32_t insize)
 	   0xa1, 0xe0,
 	   0xa1, 0xa4,
 	   0xf5, 0xe2};
-	static const UChar retrievedMBCSText1363[] =
+	static const char16_t retrievedMBCSText1363[] =
 	{ 0x0005, 0x0005, 0x0007, 0x0007, 0x001a,  0x30fb, 0x25a1, 0x30fb, 0x9a36};
 	static const int32_t toIBM1363Offs    [] =
 	{  0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x05, 0x06, 0x06, 0x07, 0x07, 0x08, 0x08};
@@ -536,10 +536,10 @@ static void TestConvertFallBackWithBufferSizes(int32_t outsize, int32_t insize)
 			0xf4, 0x87, 0xa4, 0x4a, 0xf4, 0x88, 0xa4, 0x4b,
 			0xf9, 0x92, 0xdc, 0xb0,
 		};
-		UChar expectedUnicodeText[] = { 0x5165, 0x5165, 0x516b, 0x516b, 0x9ef9, 0x9ef9};
+		char16_t expectedUnicodeText[] = { 0x5165, 0x5165, 0x516b, 0x516b, 0x9ef9, 0x9ef9};
 		int32_t fromIBM950inputOffs []  =   {  0, 2, 4, 6, 8, 10};
 		/* for testing reverse fallback behavior */
-		UChar expectedFallbackFalse[] = { 0x5165, 0x5165, 0x516b, 0x516b, 0x9ef9, 0x9ef9};
+		char16_t expectedFallbackFalse[] = { 0x5165, 0x5165, 0x516b, 0x516b, 0x9ef9, 0x9ef9};
 
 		if(!testConvertToUnicode(IBM950input, sizeof(IBM950input),
 		    expectedUnicodeText, SIZEOFARRAYi(expectedUnicodeText), "ibm-950", TRUE, fromIBM950inputOffs))
@@ -555,10 +555,10 @@ static void TestConvertFallBackWithBufferSizes(int32_t outsize, int32_t insize)
 			0xA8, 0xC7, 0xC8, 0xDE,
 			0xA8, 0xCD, 0x8E, 0xA2, 0xA2, 0xEA,
 		};
-		UChar expectedUnicodeText[] = { 0x5C6E, 0x5C6E, 0x81FC, 0x81FC, 0x8278, 0x8278};
+		char16_t expectedUnicodeText[] = { 0x5C6E, 0x5C6E, 0x81FC, 0x81FC, 0x8278, 0x8278};
 		int32_t from_euc_tw_offs []  =   {  0, 2, 6, 8, 10, 12};
 		/* for testing reverse fallback behavior */
-		UChar expectedFallbackFalse[] = { 0x5C6E, 0x5C6E, 0x81FC, 0x81FC, 0x8278, 0x8278};
+		char16_t expectedFallbackFalse[] = { 0x5C6E, 0x5C6E, 0x81FC, 0x81FC, 0x8278, 0x8278};
 
 		if(!testConvertToUnicode(euc_tw_input, sizeof(euc_tw_input),
 		    expectedUnicodeText, SIZEOFARRAYi(expectedUnicodeText), "euc-tw", TRUE, from_euc_tw_offs))
@@ -570,7 +570,7 @@ static void TestConvertFallBackWithBufferSizes(int32_t outsize, int32_t insize)
 	}
 	log_verbose("fromUnicode to euc-tw with fallback data euc-tw\n");
 	{
-		UChar inputText[] = { 0x0001, 0x008e, 0x203e, 0x2223, 0xff5c, 0x5296,
+		char16_t inputText[] = { 0x0001, 0x008e, 0x203e, 0x2223, 0xff5c, 0x5296,
 				      0x5C6E, 0x5C6E, 0x81FC, 0x81FC, 0x8278, 0x8278, 0xEDEC};
 		const uint8_t expected_euc_tw[] =   {
 			0x01, 0x1a, 0xa2, 0xa3,
@@ -602,12 +602,12 @@ static void TestConvertFallBackWithBufferSizes(int32_t outsize, int32_t insize)
 	   which is test file for MBCS conversion with single-byte codepage data.*/
 	{
 		/* MBCS with single byte codepage data test1.ucm*/
-		const UChar unicodeInput[] = { 0x20ac, 0x0005, 0x0006, 0xdbc4, 0xde34, 0xdbba, 0xdfcd, 0x0003};
+		const char16_t unicodeInput[] = { 0x20ac, 0x0005, 0x0006, 0xdbc4, 0xde34, 0xdbba, 0xdfcd, 0x0003};
 		const uint8_t expectedtest1[] = { 0x00, 0x05, 0xff, 0x07, 0x08, 0xff, };
 		int32_t totest1Offs[]        = { 0, 1, 2, 3, 5, 7};
 
 		const uint8_t test1input[] = { 0x00, 0x05, 0x06, 0x07, 0x08, 0x09};
-		const UChar expectedUnicode[] = { 0x20ac, 0x0005, 0x0006, 0xdbc4, 0xde34, 0xfffd, 0xfffd, 0xfffe};
+		const char16_t expectedUnicode[] = { 0x20ac, 0x0005, 0x0006, 0xdbc4, 0xde34, 0xfffd, 0xfffd, 0xfffe};
 		int32_t fromtest1Offs[] = { 0, 1, 2, 3, 3, 4, 5};
 
 		/*from Unicode*/
@@ -625,14 +625,14 @@ static void TestConvertFallBackWithBufferSizes(int32_t outsize, int32_t insize)
 	   which is test file for MBCS conversion with three-byte codepage data.*/
 	{
 		/* MBCS with three byte codepage data test3.ucm*/
-		const UChar unicodeInput[] =
+		const char16_t unicodeInput[] =
 		{ 0x20ac, 0x0005, 0x0006, 0xdbc4, 0xde34, 0xdbba, 0xdfcd, 0x000b, 0xd84d, 0xdc56, 0x000e, 0x0003, };
 		const uint8_t expectedtest3[] = { 0x00, 0x05, 0xff, 0x07, 0xff, 0x01, 0x02, 0x0b,  0x01, 0x02, 0x0a,  0xff, 0xff, };
 		int32_t totest3Offs[]        = { 0, 1, 2, 3, 5, 7, 7, 7, 8, 8, 8, 10,  11};
 
 		const uint8_t test3input[] = { 0x00, 0x05, 0x06, 0x01, 0x02, 0x0b,  0x07,  0x01, 0x02, 0x0a,
 					       0x01, 0x02, 0x0e, 0x01, 0x02, 0x0d, 0x03, 0x01, 0x02, 0x0f, };
-		const UChar expectedUnicode[] = { 0x20ac, 0x0005, 0x0006, 0x000b, 0xdbc4, 0xde34, 0xd84d, 0xdc56,
+		const char16_t expectedUnicode[] = { 0x20ac, 0x0005, 0x0006, 0x000b, 0xdbc4, 0xde34, 0xd84d, 0xdc56,
 						  0x000e, 0xd891, 0xdd67, 0xfffd, 0xfffd };
 		int32_t fromtest3Offs[] = { 0, 1, 2, 3, 6, 6, 7, 7, 10, 13, 13, 16, 17};
 
@@ -651,7 +651,7 @@ static void TestConvertFallBackWithBufferSizes(int32_t outsize, int32_t insize)
 	   which is test file for MBCS conversion with four-byte codepage data.*/
 	{
 		/* MBCS with three byte codepage data test4.ucm*/
-		const UChar unicodeInput[] =
+		const char16_t unicodeInput[] =
 		{ 0x20ac, 0x0005, 0x0006, 0x000b, 0xdbc4, 0xde34, 0xdbba, 0xdfcd,
 		  0xd84d, 0xdc56, 0x000e, 0xd891, 0xdd67, 0x000f};
 		const uint8_t expectedtest4[] =
@@ -663,7 +663,7 @@ static void TestConvertFallBackWithBufferSizes(int32_t outsize, int32_t insize)
 		const uint8_t test4input[] =
 		{ 0x00, 0x05, 0x06, 0x01, 0x02, 0x03, 0x0b,  0x07,  0x08,
 		  0x01, 0x02, 0x03, 0x0a, 0x01, 0x02, 0x03, 0x0e, 0x01, 0x02, 0x03, 0x0d, 0x03, 0x01, 0x02, 0x03, 0x0c, };
-		const UChar expectedUnicode[] =
+		const char16_t expectedUnicode[] =
 		{ 0x20ac, 0x0005, 0x0006, 0x000b, 0xdbc4, 0xde34, 0xdbba, 0xdfcd,
 		  0xd84d, 0xdc56, 0x000e, 0xd891, 0xdd67, 0x1a, 0xfffd};
 		int32_t fromtest4Offs[] =
@@ -681,12 +681,12 @@ static void TestConvertFallBackWithBufferSizes(int32_t outsize, int32_t insize)
 	}
 	/* Test for jitterbug 509 EBCDIC_STATEFUL Converters*/
 	{
-		const UChar unicodeInput[] = {0x00AF,         0x2013,     0x2223,    0x004C,    0x5F5D,         0xFF5E };
+		const char16_t unicodeInput[] = {0x00AF,         0x2013,     0x2223,    0x004C,    0x5F5D,         0xFF5E };
 		const uint8_t expectedtest1[] =
 		{0x0E, 0x42, 0xA1, 0x44, 0x4A,  0x42, 0x4F, 0x0F, 0xD3, 0x0E, 0x65, 0x60, 0x43, 0xA1, 0x0f };
 		int32_t totest1Offs[]        = {0,   0,   0,    1,   1,     2,   2,    3,   3,    4,   4,   4,    5,   5,   5 };
 		const uint8_t test1input[] = {0x0E, 0x42, 0xA1, 0x44, 0x4A,  0x42, 0x4F, 0x0F, 0xD3, 0x0E, 0x65, 0x60, 0x43, 0xA1 };
-		const UChar expectedUnicode[] = {0x203e,         0x2014,     0xff5c,    0x004c,    0x5f5e,         0x223c };
+		const char16_t expectedUnicode[] = {0x203e,         0x2014,     0xff5c,    0x004c,    0x5f5e,         0x223c };
 		int32_t fromtest1Offs[] = {1,              3,          5,         8,         10,             12 };
 		/*from Unicode*/
 		if(!testConvertFromUnicode(unicodeInput, SIZEOFARRAYi(unicodeInput),

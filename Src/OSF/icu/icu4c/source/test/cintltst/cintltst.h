@@ -41,28 +41,28 @@ U_CFUNC const char * ctest_dataOutDir();
 U_CFUNC const char * ctest_dataSrcDir();
 
 /**
- * Convert a char string into a UChar string, with unescaping
+ * Convert a char string into a char16_t string, with unescaping
  * The result buffer has been malloc()'ed (not ctst_malloc) and needs to be SAlloc::F()'ed by the caller.
  */
-U_CFUNC UChar * CharsToUChars(const char * chars);
+U_CFUNC char16_t * CharsToUChars(const char * chars);
 
 /**
- * Convert a const UChar * into a char *
+ * Convert a const char16_t * into a char *
  * Result is allocated with ctst_malloc and will be freed at the end of the test.
  * @param unichars UChars (null terminated) to be converted
  * @return new char * to the unichars in host format
  */
 
-U_CFUNC char * austrdup(const UChar * unichars);
+U_CFUNC char * austrdup(const char16_t * unichars);
 
 /**
- * Convert a const UChar * into an escaped char *
+ * Convert a const char16_t * into an escaped char *
  * Result is allocated with ctst_malloc and will be freed at the end of the test.
  * @param unichars UChars to be converted
  * @param length length of chars
  * @return new char * to the unichars in host format
  */
-U_CFUNC char * aescstrdup(const UChar * unichars, int32_t length);
+U_CFUNC char * aescstrdup(const char16_t * unichars, int32_t length);
 
 /**
  * Special memory allocation function for test use. At the end of cintltst,
@@ -139,7 +139,7 @@ U_CFUNC bool assertEquals(const char * msg, const char * expectedString, const c
  * Assert that the actualString equals the expectedString, and return
  * TRUE if it does.
  */
-U_CFUNC bool assertUEquals(const char * msg, const UChar * expectedString, const UChar * actualString);
+U_CFUNC bool assertUEquals(const char * msg, const char16_t * expectedString, const char16_t * actualString);
 /**
  * Assert that two 64-bit integers are equal, returning TRUE if they are.
  */

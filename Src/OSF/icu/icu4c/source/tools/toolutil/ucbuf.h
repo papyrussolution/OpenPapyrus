@@ -41,7 +41,7 @@ typedef struct UCHARBUF UCHARBUF;
 typedef struct ULine ULine;
 
 struct  ULine {
-    UChar *name;
+    char16_t * name;
     int32_t len;
 };
 
@@ -107,7 +107,7 @@ ucbuf_getcx32(UCHARBUF* buf,UErrorCode * err);
  *        Error: U_TRUNCATED_CHAR_FOUND
  * @return Pointer to the internal buffer, NULL if EOF
  */
-U_CAPI const UChar * U_EXPORT2
+U_CAPI const char16_t * U_EXPORT2
 ucbuf_readline(UCHARBUF* buf,int32_t* len, UErrorCode * err);
 
 
@@ -128,9 +128,9 @@ ucbuf_rewind(UCHARBUF* buf,UErrorCode * err);
  * @param err is a pointer to a valid <code>UErrorCode</code> value. If this value
  *        indicates a failure on entry, the function will immediately return.
  *        On exit the value will indicate the success of the operation.
- * @return Pointer to internal UChar buffer
+ * @return Pointer to internal char16_t buffer
  */
-U_CAPI const UChar * U_EXPORT2
+U_CAPI const char16_t * U_EXPORT2
 ucbuf_getBuffer(UCHARBUF* buf,int32_t* len,UErrorCode * err);
 
 /**

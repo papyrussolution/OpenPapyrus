@@ -114,7 +114,7 @@ U_CAPI int32_t U_EXPORT2 udbg_enumByString(UDebugEnumType type, const UnicodeStr
 U_CAPI int32_t udbg_stoi(const UnicodeString & s)
 {
 	char ch[256];
-	const UChar * u = toUCharPtr(s.getBuffer());
+	const char16_t * u = toUCharPtr(s.getBuffer());
 	int32_t len = s.length();
 	u_UCharsToChars(u, ch, len);
 	ch[len] = 0; /* include terminating \0 */
@@ -124,7 +124,7 @@ U_CAPI int32_t udbg_stoi(const UnicodeString & s)
 U_CAPI double udbg_stod(const UnicodeString & s)
 {
 	char ch[256];
-	const UChar * u = toUCharPtr(s.getBuffer());
+	const char16_t * u = toUCharPtr(s.getBuffer());
 	int32_t len = s.length();
 	u_UCharsToChars(u, ch, len);
 	ch[len] = 0; /* include terminating \0 */
@@ -135,7 +135,7 @@ U_CAPI UnicodeString * udbg_escape(const UnicodeString & src, UnicodeString * ds
 {
 	dst->remove();
 	for(int32_t i = 0; i < src.length(); ++i) {
-		UChar c = src[i];
+		char16_t c = src[i];
 		if(ICU_Utility::isUnprintable(c)) {
 			*dst += UnicodeString("[");
 			ICU_Utility::escapeUnprintable(*dst, c);

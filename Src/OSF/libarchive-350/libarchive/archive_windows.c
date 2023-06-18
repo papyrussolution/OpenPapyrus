@@ -768,7 +768,7 @@ void __la_dosmaperr(ulong e)
 		errno = 0;
 		return;
 	}
-	for(i = 0; i < (int)SIZEOFARRAY(doserrors); i++) {
+	for(i = 0; i < SIZEOFARRAYi(doserrors); i++) {
 		if(doserrors[i].winerr == e) {
 			errno = doserrors[i].doserr;
 			return;

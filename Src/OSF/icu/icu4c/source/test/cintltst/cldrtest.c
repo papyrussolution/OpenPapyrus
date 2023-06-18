@@ -21,7 +21,7 @@ static USet* createFlattenSet(USet * origSet, UErrorCode * status)
 	int32_t origItemCount = 0;
 	int32_t idx, graphmeSize;
 	UChar32 start, end;
-	UChar graphme[64];
+	char16_t graphme[64];
 	if(U_FAILURE(*status)) {
 		log_err("createFlattenSet called with %s\n", u_errorName(*status));
 		return NULL;
@@ -136,8 +136,8 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 				 */
 				for(idx = 0; idx < minSize; idx++) {
 					int32_t rootStrLen, localeStrLen;
-					const UChar * rootStr = ures_getStringByIndex(subRootBundle, idx, &rootStrLen, &errorCode);
-					const UChar * localeStr = ures_getStringByIndex(subBundle, idx, &localeStrLen, &errorCode);
+					const char16_t * rootStr = ures_getStringByIndex(subRootBundle, idx, &rootStrLen, &errorCode);
+					const char16_t * localeStr = ures_getStringByIndex(subBundle, idx, &localeStrLen, &errorCode);
 					if(rootStr && localeStr && U_SUCCESS(errorCode)) {
 						if(u_strcmp(rootStr, localeStr) != 0) {
 							sameArray = FALSE;
@@ -174,39 +174,39 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 							continue;
 						}
 					}
-					if(localeStr[0] == (UChar)0x20) {
+					if(localeStr[0] == (char16_t)0x20) {
 						log_err("key \"%s\" at index %d in \"%s\" starts with a space in locale \"%s\"\n", subBundleKey, idx, ures_getKey(currentBundle), locale);
 					}
-					else if((localeStr[localeStrLen - 1] == (UChar)0x20) && (strcmp(subBundleKey, "separator") != 0)) {
+					else if((localeStr[localeStrLen - 1] == (char16_t)0x20) && (strcmp(subBundleKey, "separator") != 0)) {
 						log_err("key \"%s\" at index %d in \"%s\" ends with a space in locale \"%s\"\n", subBundleKey, idx, ures_getKey(currentBundle), locale);
 					}
 					else if(subBundleKey != NULL && strcmp(subBundleKey, "DateTimePatterns") == 0) {
 						int32_t quoted = 0;
-						const UChar * localeStrItr = localeStr;
+						const char16_t * localeStrItr = localeStr;
 						while(*localeStrItr) {
-							if(*localeStrItr == (UChar)0x27 /* ' */) {
+							if(*localeStrItr == (char16_t)0x27 /* ' */) {
 								quoted++;
 							}
 							else if((quoted % 2) == 0) {
 								/* Search for unquoted characters */
-								if(4 <= idx && idx <= 7 && (*localeStrItr == (UChar)0x6B /* k */
-								 || *localeStrItr == (UChar)0x48 /* H */
-								 || *localeStrItr == (UChar)0x6D /* m */
-								 || *localeStrItr == (UChar)0x73 /* s */
-								 || *localeStrItr == (UChar)0x53 /* S */
-								 || *localeStrItr == (UChar)0x61 /* a */
-								 || *localeStrItr == (UChar)0x68 /* h */
-								 || *localeStrItr == (UChar)0x7A /* z */)) {
+								if(4 <= idx && idx <= 7 && (*localeStrItr == (char16_t)0x6B /* k */
+								 || *localeStrItr == (char16_t)0x48 /* H */
+								 || *localeStrItr == (char16_t)0x6D /* m */
+								 || *localeStrItr == (char16_t)0x73 /* s */
+								 || *localeStrItr == (char16_t)0x53 /* S */
+								 || *localeStrItr == (char16_t)0x61 /* a */
+								 || *localeStrItr == (char16_t)0x68 /* h */
+								 || *localeStrItr == (char16_t)0x7A /* z */)) {
 									log_err("key \"%s\" at index %d has time pattern chars in date for locale \"%s\"\n", subBundleKey, idx, locale);
 								}
-								else if(0 <= idx && idx <= 3 && (*localeStrItr == (UChar)0x47 /* G */ || 
-									*localeStrItr == (UChar)0x79 /* y */ || *localeStrItr == (UChar)0x4D /* M */
-								 || *localeStrItr == (UChar)0x64 /* d */
-								 || *localeStrItr == (UChar)0x45 /* E */
-								 || *localeStrItr == (UChar)0x44 /* D */
-								 || *localeStrItr == (UChar)0x46 /* F */
-								 || *localeStrItr == (UChar)0x77 /* w */
-								 || *localeStrItr == (UChar)0x57 /* W */)) {
+								else if(0 <= idx && idx <= 3 && (*localeStrItr == (char16_t)0x47 /* G */ || 
+									*localeStrItr == (char16_t)0x79 /* y */ || *localeStrItr == (char16_t)0x4D /* M */
+								 || *localeStrItr == (char16_t)0x64 /* d */
+								 || *localeStrItr == (char16_t)0x45 /* E */
+								 || *localeStrItr == (char16_t)0x44 /* D */
+								 || *localeStrItr == (char16_t)0x46 /* F */
+								 || *localeStrItr == (char16_t)0x77 /* w */
+								 || *localeStrItr == (char16_t)0x57 /* W */)) {
 									log_err("key \"%s\" at index %d has date pattern chars in time for locale \"%s\"\n", subBundleKey, idx, locale);
 								}
 							}
@@ -227,15 +227,15 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 		}
 		else if(ures_getType(subBundle) == URES_STRING) {
 			int32_t len = 0;
-			const UChar * string = ures_getString(subBundle, &len, &errorCode);
+			const char16_t * string = ures_getString(subBundle, &len, &errorCode);
 			if(U_FAILURE(errorCode) || string == NULL) {
 				log_err("Can't open a string with key \"%s\" in \"%s\" for locale \"%s\"\n", subBundleKey, ures_getKey(currentBundle), locale);
 			}
-			else if(string[0] == (UChar)0x20) {
+			else if(string[0] == (char16_t)0x20) {
 				log_err("key \"%s\" in \"%s\" starts with a space in locale \"%s\"\n", subBundleKey, ures_getKey(currentBundle), locale);
 				/* localeDisplayPattern/separator can end with a space */
 			}
-			else if(string[len - 1] == (UChar)0x20 && (strcmp(subBundleKey, "separator"))) {
+			else if(string[len - 1] == (char16_t)0x20 && (strcmp(subBundleKey, "separator"))) {
 				log_err("key \"%s\" in \"%s\" ends with a space in locale \"%s\"\n", subBundleKey, ures_getKey(currentBundle), locale);
 			}
 			else if(strcmp(subBundleKey, "localPatternChars") == 0) {
@@ -273,7 +273,7 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 			/* The ures_* API does not do fallback of sub-resource bundles, So we can't do this now. */
 #if 0
 			else if(strcmp(locale, "root") != 0 && errorCode == U_ZERO_ERROR) {
-				const UChar * rootString = ures_getString(subRootBundle, &len, &errorCode);
+				const char16_t * rootString = ures_getString(subRootBundle, &len, &errorCode);
 				if(U_FAILURE(errorCode) || rootString == NULL) {
 					log_err("Can't open a string with key \"%s\" in \"%s\" in root\n", ures_getKey(subRootBundle), ures_getKey(currentBundle));
 					continue;
@@ -411,7 +411,7 @@ static void TestLocaleStructure() {
 			ures_close(currentLocale);
 			continue;
 		}
-		const UChar * version = ures_getStringByKey(currentLocale, "Version", NULL, &errorCode);
+		const char16_t * version = ures_getStringByKey(currentLocale, "Version", NULL, &errorCode);
 		if(U_FAILURE(errorCode)) {
 			log_err("No version information is available for locale %s, and it should be!\n", currLoc);
 		}
@@ -445,8 +445,8 @@ static void compareArrays(const char * keyName, UResourceBundle * fromArray, con
 		log_err("Arrays are different size from \"%s\" to \"%s\"\n", fromLocale, toLocale);
 	}
 	for(idx = start; idx <= end; idx++) {
-		const UChar * fromBundleStr = ures_getStringByIndex(fromArray, idx, NULL, &errorCode);
-		const UChar * toBundleStr = ures_getStringByIndex(toArray, idx, NULL, &errorCode);
+		const char16_t * fromBundleStr = ures_getStringByIndex(fromArray, idx, NULL, &errorCode);
+		const char16_t * toBundleStr = ures_getStringByIndex(toArray, idx, NULL, &errorCode);
 		if(fromBundleStr && toBundleStr && u_strcmp(fromBundleStr, toBundleStr) != 0) {
 			log_err("Difference for %s at index %d from %s= \"%s\" to %s= \"%s\"\n",
 			    keyName,
@@ -578,7 +578,7 @@ static void TestConsistentCountryInfo() {
 	}
 }
 
-static int32_t findStringSetMismatch(const char * currLoc, const UChar * string, int32_t langSize, USet * mergedExemplarSet, bool ignoreNumbers, UChar32* badCharPtr) 
+static int32_t findStringSetMismatch(const char * currLoc, const char16_t * string, int32_t langSize, USet * mergedExemplarSet, bool ignoreNumbers, UChar32* badCharPtr) 
 {
 	UErrorCode errorCode = U_ZERO_ERROR;
 	USet * exemplarSet;
@@ -617,7 +617,7 @@ static int32_t findStringSetMismatch(const char * currLoc, const UChar * string,
 }
 
 /* include non-invariant chars */
-static int32_t myUCharsToChars(const UChar * us, char * cs, int32_t len) 
+static int32_t myUCharsToChars(const char16_t * us, char * cs, int32_t len) 
 {
 	int32_t i = 0;
 	for(; i< len; i++) {
@@ -636,7 +636,7 @@ static void findSetMatch(UScriptCode * scriptCodes, int32_t scriptsLen, USet * e
 	USet * scripts[10] = {0};
 	char pattern[256] = { '[', ':', 0x000 };
 	int32_t patternLen;
-	UChar uPattern[256] = {0};
+	char16_t uPattern[256] = {0};
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t i;
 
@@ -667,7 +667,7 @@ static void findSetMatch(UScriptCode * scriptCodes, int32_t scriptsLen, USet * e
 		for(i = 0; i < count; i++) {
 			UChar32 start = 0;
 			UChar32 end = 0;
-			UChar * str = NULL;
+			char16_t * str = NULL;
 			int32_t strCapacity = uset_getItem(exemplarSet, i, &start, &end, str, strCapacity, &status);
 			if(U_SUCCESS(status)) {
 				int32_t j;
@@ -680,7 +680,7 @@ static void findSetMatch(UScriptCode * scriptCodes, int32_t scriptsLen, USet * e
 					}
 					if(existsInScript == FALSE) {
 						for(j = 0; j < scriptsLen; j++) {
-							UChar toPattern[500] = {'\0'};
+							char16_t toPattern[500] = {'\0'};
 							char pat[500] = {'\0'};
 							int32_t len = uset_toPattern(scripts[j], toPattern, 500, TRUE, &status);
 							len = myUCharsToChars(toPattern, pat, len);
@@ -695,7 +695,7 @@ static void findSetMatch(UScriptCode * scriptCodes, int32_t scriptsLen, USet * e
 				else {
 					strCapacity++; /* increment for NUL termination */
 					// allocate the str and call the api again
-					str = (UChar *)SAlloc::M(U_SIZEOF_UCHAR * strCapacity);
+					str = (char16_t *)SAlloc::M(U_SIZEOF_UCHAR * strCapacity);
 					strCapacity =  uset_getItem(exemplarSet, i, &start, &end, str, strCapacity, &status);
 					// iterate over the scripts and figure out if the string contained is actually in the script set
 					for(j = 0; j < scriptsLen; j++) {
@@ -790,7 +790,7 @@ static void VerifyTranslation(void)
 		// currLoc);
 		//}
 		else {
-			UChar langBuffer[128];
+			char16_t langBuffer[128];
 			int32_t langSize;
 			int32_t strIdx;
 			UChar32 badChar;
@@ -830,7 +830,7 @@ static void VerifyTranslation(void)
 					end = 0;
 				}
 				for(idx = 0; idx < end; idx++) {
-					const UChar * fromBundleStr = ures_getStringByIndex(resArray, idx, &langSize, &errorCode);
+					const char16_t * fromBundleStr = ures_getStringByIndex(resArray, idx, &langSize, &errorCode);
 					if(U_FAILURE(errorCode)) {
 						log_err("error ures_getStringByIndex(%d) returned %s\n", idx, u_errorName(errorCode));
 						continue;
@@ -860,7 +860,7 @@ static void VerifyTranslation(void)
 					end = 0;
 				}
 				for(idx = 0; idx < end; idx++) {
-					const UChar * fromBundleStr = ures_getStringByIndex(resArray, idx, &langSize, &errorCode);
+					const char16_t * fromBundleStr = ures_getStringByIndex(resArray, idx, &langSize, &errorCode);
 					if(U_FAILURE(errorCode)) {
 						log_err("error ures_getStringByIndex(%d) returned %s\n", idx, u_errorName(errorCode));
 						continue;
@@ -996,7 +996,7 @@ static void TestExemplarSet() {
 	USet* codeSets[MAX_SCRIPTS_PER_LOCALE];
 	int32_t codeLen;
 	char cbuf[32]; /* 9 should be enough */
-	UChar ubuf[64]; /* adjust as needed */
+	char16_t ubuf[64]; /* adjust as needed */
 	bool existsInScript;
 	int32_t itemCount;
 	int32_t strLen;
@@ -1113,16 +1113,16 @@ enum { kUBufMax = 32 };
 
 static void TestLocaleDisplayPattern() {
 	UErrorCode status;
-	UChar pattern[kUBufMax] = {0, };
-	UChar separator[kUBufMax] = {0, };
+	char16_t pattern[kUBufMax] = {0, };
+	char16_t separator[kUBufMax] = {0, };
 	ULocaleData * uld;
-	static const UChar enExpectPat[] = { 0x007B, 0x0030, 0x007D, 0x0020, 0x0028, 0x007B, 0x0031, 0x007D, 0x0029, 0 }; /*
+	static const char16_t enExpectPat[] = { 0x007B, 0x0030, 0x007D, 0x0020, 0x0028, 0x007B, 0x0031, 0x007D, 0x0029, 0 }; /*
 	                                                                                                                     "{0}
 	                                                                                                                     ({1})"
 	         */
-	static const UChar enExpectSep[] = { 0x002C, 0x0020, 0 }; /* ", " */
-	static const UChar zhExpectPat[] = { 0x007B, 0x0030, 0x007D, 0xFF08, 0x007B, 0x0031, 0x007D, 0xFF09, 0 };
-	static const UChar zhExpectSep[] = { 0xFF0C, 0 };
+	static const char16_t enExpectSep[] = { 0x002C, 0x0020, 0 }; /* ", " */
+	static const char16_t zhExpectPat[] = { 0x007B, 0x0030, 0x007D, 0xFF08, 0x007B, 0x0031, 0x007D, 0xFF09, 0 };
+	static const char16_t zhExpectSep[] = { 0xFF0C, 0 };
 
 	status = U_ZERO_ERROR;
 	uld = ulocdata_open("en", &status);
@@ -1192,7 +1192,7 @@ static void TestCoverage() {
 	}
 
 	for(i = 0; i < ULOCDATA_DELIMITER_COUNT; i++) {
-		UChar result[32] = {0, };
+		char16_t result[32] = {0, };
 		status = U_ZERO_ERROR;
 		ulocdata_getDelimiter(uld, types[i], result, 32, &status);
 		if(U_FAILURE(status)) {
@@ -1207,8 +1207,8 @@ static void TestCoverage() {
 
 typedef struct {
 	const char * locale;
-	const UChar * quoteStart;
-	const UChar * quoteEnd;
+	const char16_t * quoteStart;
+	const char16_t * quoteEnd;
 } TestDelimitersItem;
 
 static const TestDelimitersItem testDelimsItems[] = {
@@ -1230,7 +1230,7 @@ static void TestDelimiters() {
 			log_data_err("ulocdata_open for locale %s fails: %s\n", itemPtr->locale, u_errorName(status));
 		}
 		else {
-			UChar quoteStart[kUDelimMax], quoteEnd[kUDelimMax];
+			char16_t quoteStart[kUDelimMax], quoteEnd[kUDelimMax];
 			(void)ulocdata_getDelimiter(uld, ULOCDATA_QUOTATION_START, quoteStart, kUDelimMax, &status);
 			(void)ulocdata_getDelimiter(uld, ULOCDATA_QUOTATION_END,   quoteEnd,   kUDelimMax, &status);
 			if(U_FAILURE(status)) {
@@ -1339,7 +1339,7 @@ static void TestAvailableIsoCodes(void)
 	UDate date1978 = (UDate)260172000000.0; /* year 1978 */
 	UDate date1981 = (UDate)346896000000.0; /* year 1981 */
 	UDate date1992 = (UDate)693792000000.0; /* year 1992 */
-	UChar * isoCode = (UChar *)SAlloc::M(sizeof(UChar) * (strlen(usdCode) + 1));
+	char16_t * isoCode = (char16_t *)SAlloc::M(sizeof(char16_t) * (strlen(usdCode) + 1));
 	/* testing available codes with no time ranges */
 	u_charsToUChars(eurCode, isoCode, (int32_t)strlen(usdCode) + 1);
 	if(ucurr_isAvailable(isoCode, U_DATE_MIN, U_DATE_MAX, &errorCode) == FALSE) {

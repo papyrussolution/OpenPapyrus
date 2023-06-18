@@ -188,9 +188,9 @@ bool hasCollationElements(const char * locName) {
 }
 
 static UCollationResult compareUsingPartials(UCollator * coll,
-    const UChar source[],
+    const char16_t source[],
     int32_t sLen,
-    const UChar target[],
+    const char16_t target[],
     int32_t tLen,
     int32_t pieceSize,
     UErrorCode * status) {
@@ -233,7 +233,7 @@ static UCollationResult compareUsingPartials(UCollator * coll,
 	}
 }
 
-static void doTestVariant(UCollator* myCollation, const UChar source[], const UChar target[], UCollationResult result)
+static void doTestVariant(UCollator* myCollation, const char16_t source[], const char16_t target[], UCollationResult result)
 {
 	int32_t sortklen1, sortklen2, sortklenmax, sortklenmin;
 	int temp = 0, gSortklen1 = 0, gSortklen2 = 0;
@@ -448,7 +448,7 @@ static void doTestVariant(UCollator* myCollation, const UChar source[], const UC
 	SAlloc::F(sortKey2a);
 }
 
-void doTest(UCollator* myCollation, const UChar source[], const UChar target[], UCollationResult result)
+void doTest(UCollator* myCollation, const char16_t source[], const char16_t target[], UCollationResult result)
 {
 	if(myCollation) {
 		doTestVariant(myCollation, source, target, result);
@@ -565,8 +565,8 @@ bail:
 
 void genericOrderingTestWithResult(UCollator * coll, const char * const s[], uint32_t size, UCollationResult result) 
 {
-	UChar t1[2048] = {0};
-	UChar t2[2048] = {0};
+	char16_t t1[2048] = {0};
+	char16_t t2[2048] = {0};
 	UCollationElements * iter;
 	UErrorCode status = U_ZERO_ERROR;
 	uint32_t i = 0, j = 0;
@@ -643,7 +643,7 @@ void genericRulesStarterWithOptionsAndResult(const char * rules,
     uint32_t attsize,
     UCollationResult result) {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar rlz[RULE_BUFFER_LEN] = { 0 };
+	char16_t rlz[RULE_BUFFER_LEN] = { 0 };
 	uint32_t rlen = u_unescape(rules, rlz, RULE_BUFFER_LEN);
 	uint32_t i;
 	UCollator * coll = ucol_openRules(rlz, rlen, UCOL_DEFAULT, UCOL_DEFAULT, NULL, &status);
@@ -696,7 +696,7 @@ void genericLocaleStarterWithOptions(const char * locale,
 
 void genericRulesStarterWithResult(const char * rules, const char * const s[], uint32_t size, UCollationResult result) {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar rlz[RULE_BUFFER_LEN] = { 0 };
+	char16_t rlz[RULE_BUFFER_LEN] = { 0 };
 	uint32_t rlen = u_unescape(rules, rlz, RULE_BUFFER_LEN);
 	UCollator * coll = NULL;
 	coll = ucol_openRules(rlz, rlen, UCOL_DEFAULT, UCOL_DEFAULT, NULL, &status);
@@ -724,7 +724,7 @@ static void TestTertiary()
 	UCollator * myCollation;
 	UErrorCode status = U_ZERO_ERROR;
 	static const char str[] = "& C < ch, cH, Ch, CH & Five, 5 & Four, 4 & one, 1 & Ampersand; '&' & Two, 2 ";
-	UChar rules[sizeof(str)];
+	char16_t rules[sizeof(str)];
 	len = (int32_t)strlen(str);
 	u_uastrcpy(rules, str);
 
@@ -748,7 +748,7 @@ static void TestPrimary()
 	UCollator * myCollation;
 	UErrorCode status = U_ZERO_ERROR;
 	static const char str[] = "& C < ch, cH, Ch, CH & Five, 5 & Four, 4 & one, 1 & Ampersand; '&' & Two, 2 ";
-	UChar rules[sizeof(str)];
+	char16_t rules[sizeof(str)];
 	len = (int32_t)strlen(str);
 	u_uastrcpy(rules, str);
 
@@ -773,7 +773,7 @@ static void TestSecondary()
 	UCollator * myCollation;
 	UErrorCode status = U_ZERO_ERROR;
 	static const char str[] = "& C < ch, cH, Ch, CH & Five, 5 & Four, 4 & one, 1 & Ampersand; '&' & Two, 2 ";
-	UChar rules[sizeof(str)];
+	char16_t rules[sizeof(str)];
 	len = (int32_t)strlen(str);
 	u_uastrcpy(rules, str);
 
@@ -797,7 +797,7 @@ static void TestIdentical()
 	UCollator * myCollation;
 	UErrorCode status = U_ZERO_ERROR;
 	static const char str[] = "& C < ch, cH, Ch, CH & Five, 5 & Four, 4 & one, 1 & Ampersand; '&' & Two, 2 ";
-	UChar rules[sizeof(str)];
+	char16_t rules[sizeof(str)];
 	len = (int32_t)strlen(str);
 	u_uastrcpy(rules, str);
 
@@ -820,7 +820,7 @@ static void TestExtra()
 	UCollator * myCollation;
 	UErrorCode status = U_ZERO_ERROR;
 	static const char str[] = "& C < ch, cH, Ch, CH & Five, 5 & Four, 4 & one, 1 & Ampersand; '&' & Two, 2 ";
-	UChar rules[sizeof(str)];
+	char16_t rules[sizeof(str)];
 	len = (int32_t)strlen(str);
 	u_uastrcpy(rules, str);
 
@@ -842,8 +842,8 @@ static void TestExtra()
 static void TestJB581(void)
 {
 	int32_t bufferLen   = 0;
-	UChar source      [100];
-	UChar target      [100];
+	char16_t source      [100];
+	char16_t target      [100];
 	UCollationResult result     = UCOL_EQUAL;
 	uint8_t sourceKeyArray  [100];
 	uint8_t targetKeyArray  [100];
@@ -889,7 +889,7 @@ static void TestJB1401(void)
 {
 	UCollator     * myCollator = 0;
 	UErrorCode status = U_ZERO_ERROR;
-	static UChar NFD_UnsafeStartChars[] = {
+	static char16_t NFD_UnsafeStartChars[] = {
 		0x0f73,  /* Tibetan Vowel Sign II */
 		0x0f75,  /* Tibetan Vowel Sign UU */
 		0x0f81,  /* Tibetan Vowel Sign Reversed II */
@@ -909,10 +909,10 @@ static void TestJB1401(void)
 	}
 
 	for(i = 0;; i++) {
-		UChar c;
-		UChar X[4];
-		UChar Y[20];
-		UChar Z[20];
+		char16_t c;
+		char16_t X[4];
+		char16_t Y[20];
+		char16_t Z[20];
 
 		/*  Get the next funny character to be tested, and set up the
 		 *  three test strings X, Y, Z, consisting of an A-grave + test char,
@@ -990,12 +990,12 @@ static void TestVariableTop(void)
 	 */
 	static const char str[]          = "&z = [variable top]";
 	int len          = strlen(str);
-	UChar rules[sizeof(str)];
+	char16_t rules[sizeof(str)];
 	UCollator * myCollation;
 	UCollator * enCollation;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar source[1];
-	UChar ch;
+	char16_t source[1];
+	char16_t ch;
 	uint8_t result[20];
 	uint8_t expected[20];
 	u_uastrcpy(rules, str);
@@ -1053,11 +1053,11 @@ static void TestSurrogates(void)
 {
 	static const char str[]          = "&z<'\\uD800\\uDC00'<'\\uD800\\uDC0A\\u0308'<A";
 	int len          = (int)strlen(str);
-	UChar rules[sizeof(str)];
+	char16_t rules[sizeof(str)];
 	UCollator * myCollation;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar source[][4] = {{'z', 0, 0}, {0xD800, 0xDC00, 0}, {0xD800, 0xDC0A, 0x0308, 0}, {0xD800, 0xDC02}};
-	UChar target[][4] = {{0xD800, 0xDC00, 0}, {0xD800, 0xDC0A, 0x0308, 0}, {'A', 0, 0}, {0xD800, 0xDC03}};
+	char16_t source[][4] = {{'z', 0, 0}, {0xD800, 0xDC00, 0}, {0xD800, 0xDC0A, 0x0308, 0}, {0xD800, 0xDC02}};
+	char16_t target[][4] = {{0xD800, 0xDC00, 0}, {0xD800, 0xDC0A, 0x0308, 0}, {'A', 0, 0}, {0xD800, 0xDC03}};
 	int count        = 0;
 	uint8_t enresult[20], myresult[20];
 	int enlen, mylen;
@@ -1122,9 +1122,9 @@ static void TestInvalidRules()
 		", & Ch[variable"
 	};
 	for(int i = 0; i<MAX_ERROR_STATES; i++) {
-		UChar rules[1000] = { '\0' };
-		UChar preContextExp[1000]  = { '\0' };
-		UChar postContextExp[1000] = { '\0' };
+		char16_t rules[1000] = { '\0' };
+		char16_t preContextExp[1000]  = { '\0' };
+		char16_t postContextExp[1000] = { '\0' };
 		UParseError parseError;
 		UErrorCode status = U_ZERO_ERROR;
 		UCollator* coll = 0;
@@ -1148,7 +1148,7 @@ static void TestInvalidRules()
 
 static void TestJitterbug1098() 
 {
-	UChar rule[1000];
+	char16_t rule[1000];
 	UCollator* c1 = NULL;
 	UErrorCode status = U_ZERO_ERROR;
 	UParseError parseError;
@@ -1168,14 +1168,14 @@ static void TestJitterbug1098()
 		UCOL_LESS,
 		UCOL_LESS,
 	};
-	const UChar input[][2] = {
+	const char16_t input[][2] = {
 		{0x0027, 0x005c},
 		{0x0027, 0x005c},
 		{0x0022, 0x005c},
 		{0x0022, 0x0027},
 	};
-	UChar X[2] = {0};
-	UChar Y[2] = {0};
+	char16_t X[2] = {0};
+	char16_t Y[2] = {0};
 	u_memset(parseError.preContext, 0x0000, U_PARSE_CONTEXT_LEN);
 	u_memset(parseError.postContext, 0x0000, U_PARSE_CONTEXT_LEN);
 	for(; rules[i]!=0; i++) {

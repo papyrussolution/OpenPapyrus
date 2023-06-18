@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
- * COPYRIGHT: 
- * Copyright (c) 1997-2003, International Business Machines Corporation and
- * others. All Rights Reserved.
- ********************************************************************/
-
+// Copyright (c) 1997-2003, International Business Machines Corporation and others. All Rights Reserved.
+//
 #ifndef COLLATION_TEST_DATA
 #define COLLATION_TEST_DATA
 
@@ -13,7 +9,7 @@
 
 #define COUNT_TEST_CASES 13
 
-const UChar testSourceCases[][16] = {
+const char16_t testSourceCases[][16] = {
     {0x61, 0x62, 0x27, 0x63, 0},
     {0x63, 0x6f, 0x2d, 0x6f, 0x70, 0},
     {0x61, 0x62, 0},
@@ -53,7 +49,7 @@ const UChar testSourceCases[][16] = {
     {0x70, 0x00EA,0x30}                                    /* 37     */
 };
 
-const UChar testTargetCases[][16] = {
+const char16_t testTargetCases[][16] = {
     {0x61, 0x62, 0x63, 0x27, 0},
     {0x43, 0x4f, 0x4f, 0x50, 0},
     {0x61, 0x62, 0x63, 0},
@@ -71,13 +67,13 @@ const UChar testTargetCases[][16] = {
     {0x61, 0x62, 0x63, 0},
     {0x61, 0x43, 0x48, 0x63, 0},
     {0x61, 0x43, 0x48, 0x63, 0},  /*  simple test */
-    {0x70, (UChar)0x00E9, 0x63, 0x68, 0x00E9, 0},
+    {0x70, (char16_t)0x00E9, 0x63, 0x68, 0x00E9, 0},
     {0x61, 0x62, 0x63, 0},
     {0x61, 0x42, 0x43, 0},                                  /*  20 */
     {0x61, 0x62, 0x63, 0x68, 0},
     {0x61, 0x62, 0x64, 0},
-    {(UChar)0x00E4, 0x62, 0x63, 0},
-    {0x61, (UChar)0x00C6, 0x63, 0},
+    {(char16_t)0x00E4, 0x62, 0x63, 0},
+    {0x61, (char16_t)0x00C6, 0x63, 0},
     {0x61, 0x43, 0x48, 0x63, 0},  /*  primary test */
     {0x62, 0x6c, 0x61, 0x63, 0x6b, 0x2d, 0x62, 0x69, 0x72, 0x64, 0},
     {0x34, 0},
@@ -90,10 +86,10 @@ const UChar testTargetCases[][16] = {
     {0x61, 0x43, 0x48, 0x63, 0},                                /*  34 */
     {0x61, 0x63, 0x65, 0x30},
     {0x31, 0x30},
-    {0x70, (UChar)0x00EB,0x30}                                    /* 37 */
+    {0x70, (char16_t)0x00EB,0x30}                                    /* 37 */
 };
 
-const UChar testCases[][4] =
+const char16_t testCases[][4] =
 {
     {0x61, 0},
     {0x41, 0},
@@ -103,8 +99,8 @@ const UChar testCases[][4] =
     {0x61, 0x45, 0},
     {0x41, 0x65, 0},
     {0x41, 0x45, 0},
-    {(UChar)0x00e6, 0},
-    {(UChar)0x00c6, 0},
+    {(char16_t)0x00e6, 0},
+    {(char16_t)0x00c6, 0},
     {0x62, 0},
     {0x63, 0},
     {0x7a, 0}

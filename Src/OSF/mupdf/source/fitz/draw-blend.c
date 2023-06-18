@@ -105,7 +105,7 @@ static const char * fz_blendmode_names[] = {
 
 int fz_lookup_blendmode(const char * name)
 {
-	for(int i = 0; i < (int)nelem(fz_blendmode_names); i++)
+	for(int i = 0; i < SIZEOFARRAYi(fz_blendmode_names); i++)
 		if(sstreq(name, fz_blendmode_names[i]))
 			return i;
 	return FZ_BLEND_NORMAL;
@@ -113,7 +113,7 @@ int fz_lookup_blendmode(const char * name)
 
 const char * fz_blendmode_name(int blendmode)
 {
-	return (blendmode >= 0 && blendmode < (int)nelem(fz_blendmode_names)) ? fz_blendmode_names[blendmode] : "Normal";
+	return (blendmode >= 0 && blendmode < SIZEOFARRAYi(fz_blendmode_names)) ? fz_blendmode_names[blendmode] : "Normal";
 }
 
 /* Separable blend modes */

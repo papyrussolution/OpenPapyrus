@@ -11,8 +11,7 @@
 	details and are subject to change. Users should use the accessor
 	functions in preference.
 */
-typedef struct
-{
+typedef struct {
 	int refs;
 	uchar *data;
 	size_t cap, len;

@@ -30,7 +30,7 @@
 #include "unicode/ustring.h"
 
 static UCollator * myCollation;
-const static UChar testSourceCases[][MAX_TOKEN_LEN] =
+const static char16_t testSourceCases[][MAX_TOKEN_LEN] =
 {
 	{0x0061 /*'a'*/, 0x0062 /*'b'*/, 0x0063 /*'c'*/, 0x0000},
 	{0x0043 /*'C'*/, 0x004f /*'O'*/, 0x0054 /*'T'*/, 0x0045 /*'E'*/, 0x0000},
@@ -46,7 +46,7 @@ const static UChar testSourceCases[][MAX_TOKEN_LEN] =
 	{0x0101, 0x0000}
 };
 
-const static UChar testTargetCases[][MAX_TOKEN_LEN] =
+const static char16_t testTargetCases[][MAX_TOKEN_LEN] =
 {
 	{0x0041 /*'A'*/, 0x0042 /*'B'*/, 0x0043 /*'C'*/, 0x0000},
 	{0x0063 /*'c'*/, 0x00f4, 0x0074 /*'t'*/, 0x0065 /*'e'*/, 0x0000},
@@ -80,7 +80,7 @@ const static UCollationResult results[] =
 
 /* 0x0300 is grave, 0x0301 is acute*/
 /* the order of elements in this array must be different than the order in CollationEnglishTest*/
-const static UChar testAcute[][MAX_TOKEN_LEN] =
+const static char16_t testAcute[][MAX_TOKEN_LEN] =
 {
 /*00*/ {0x0065 /*'e'*/, 0x0065 /*'e'*/,  0x0000},
 /*01*/ {0x0065 /*'e'*/, 0x0301, 0x0065 /*'e'*/,  0x0000},
@@ -109,7 +109,7 @@ const static UChar testAcute[][MAX_TOKEN_LEN] =
 /*18*/ {0x0065 /*'e'*/, 0x0301, 0x0300, 0x0065 /*'e'*/, 0x0301, 0x0300, 0x0000}
 };
 
-const static UChar testBugs[][MAX_TOKEN_LEN] =
+const static char16_t testBugs[][MAX_TOKEN_LEN] =
 {
 	{0x0061 /*'a'*/, 0x000},
 	{0x0041 /*'A'*/, 0x000},
@@ -208,7 +208,7 @@ static void TestGetSortKey() {
 	/* This is meant to test a buffer reallocation crash while using
 	   French secondary sorting with a large buffer.
 	   The fact that Japanese characters are used is irrelevant. */
-	static const UChar pucUTF16[] = {
+	static const char16_t pucUTF16[] = {
 		0x3049, 0x30b9, 0x3088, 0xfffd, 0xfffd, 0x308f, 0xfffd, 0x3042,
 		0xfffd, 0xfffd, 0x305e, 0xfffd, 0x30b6, 0x30bb, 0x305b, 0x30b1,
 		0x3050, 0x30af, 0x304e, 0x30bd, 0xfffd, 0x30c6, 0xfffd, 0xfffd,
@@ -301,7 +301,7 @@ static void TestGetSortKey() {
 		log_data_err("error opening collator -> %s. (Are you missing data?)\n", u_errorName(status));
 		return;
 	}
-	lenActualSortKey = ucol_getSortKey(pCollator, (const UChar*)pucUTF16, SIZEOFARRAYi(pucUTF16), pucSortKey, LENSORTKEY);
+	lenActualSortKey = ucol_getSortKey(pCollator, (const char16_t*)pucUTF16, SIZEOFARRAYi(pucUTF16), pucSortKey, LENSORTKEY);
 	if(lenActualSortKey > LENSORTKEY) {
 		log_err("sort key too big for original buffer. Got: %d Expected: %d\n", lenActualSortKey, LENSORTKEY);
 		return;

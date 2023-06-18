@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 
 typedef struct {
 	pdf_doc_event base;
@@ -12,10 +12,8 @@ typedef struct {
 pdf_alert_event * pdf_access_alert_event(fz_context * ctx, pdf_doc_event * event)
 {
 	pdf_alert_event * alert = NULL;
-
 	if(event->type == PDF_DOCUMENT_EVENT_ALERT)
 		alert = &((pdf_alert_event_internal*)event)->alert;
-
 	return alert;
 }
 

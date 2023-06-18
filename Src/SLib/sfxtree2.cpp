@@ -4,7 +4,7 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include "..\slib\sais\include\libsais.h"
+#include "libsais.h"
 #include "..\OSF\zstd\lib\include\divsufsort.h"
 
 int DummyProc_sfxtree() { return 1; } // @forcelink

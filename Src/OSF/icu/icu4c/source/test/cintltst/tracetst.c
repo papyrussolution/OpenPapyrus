@@ -263,7 +263,7 @@ static void TestTraceAPI()
 	 * trace data formatter operation.
 	 */
 	{
-		UChar s1[] = {0x41fe, 0x42, 0x43, 00};
+		char16_t s1[] = {0x41fe, 0x42, 0x43, 00};
 		const char * a1[] = {"s1", "s2", "s3"};
 		void  * ptr;
 		test_format("hello, world", 50, 0, "hello, world", __LINE__);

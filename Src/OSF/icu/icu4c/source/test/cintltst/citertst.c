@@ -30,7 +30,7 @@
 #include "ucol_imp.h"
 #include "uparse.h"
 
-extern uint8_t ucol_uprv_getCaseBits(const UChar *, uint32_t, UErrorCode *);
+extern uint8_t ucol_uprv_getCaseBits(const char16_t *, uint32_t, UErrorCode *);
 
 void addCollIterTest(TestNode** root)
 {
@@ -55,8 +55,8 @@ static const char * LOCALES[] = {"en_AU", "en_BE", "en_CA"};
 
 static void TestBug672() {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar pattern[20];
-	UChar text[50];
+	char16_t pattern[20];
+	char16_t text[50];
 	int i;
 	int result[3][3];
 
@@ -126,8 +126,8 @@ static void TestBug672() {
     normalization code. */
 static void TestBug672Normalize() {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar pattern[20];
-	UChar text[50];
+	char16_t pattern[20];
+	char16_t text[50];
 	int i;
 	int result[3][3];
 
@@ -202,13 +202,13 @@ static void TestBug672Normalize() {
  */
 static void TestUnicodeChar()
 {
-	UChar source[0x100];
+	char16_t source[0x100];
 	UCollator * en_us;
 	UCollationElements * iter;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar codepoint;
+	char16_t codepoint;
 
-	UChar * test;
+	char16_t * test;
 	en_us = ucol_open("en_US", &status);
 	if(U_FAILURE(status)) {
 		log_err_status(status, "ERROR: in creation of collation data using ucol_open()\n %s\n",
@@ -263,13 +263,13 @@ static void TestUnicodeChar()
  */
 static void TestNormalizedUnicodeChar()
 {
-	UChar source[0x100];
+	char16_t source[0x100];
 	UCollator * th_th;
 	UCollationElements * iter;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar codepoint;
+	char16_t codepoint;
 
-	UChar * test;
+	char16_t * test;
 	/* thai should have normalization on */
 	th_th = ucol_open("th_TH", &status);
 	if(U_FAILURE(status)) {
@@ -329,7 +329,7 @@ static void TestNormalization()
 	const char               * str    =
 	    "&a < \\u0300\\u0315 < A\\u0300\\u0315 < \\u0316\\u0315B < \\u0316\\u0300\\u0315";
 	UCollator          * coll;
-	UChar rule[50];
+	char16_t rule[50];
 	int rulelen = u_unescape(str, rule, 50);
 	int count = 0;
 	const char                * testdata[] =
@@ -341,7 +341,7 @@ static void TestNormalization()
 	 "A\\u0316\\u0300\\u0315B", "A\\u0315\\u0300\\u0316B",
 	 "\\u0316\\u0315\\u0300", "A\\u0316\\u0315\\u0300B"};
 	int32_t srclen;
-	UChar source[10];
+	char16_t source[10];
 	UCollationElements * iter;
 
 	coll = ucol_openRules(rule, rulelen, UCOL_ON, UCOL_TERTIARY, NULL, &status);
@@ -397,13 +397,13 @@ static void TestNormalization()
 static void TestPrevious()
 {
 	UCollator * coll = NULL;
-	UChar rule[50];
-	UChar * source;
+	char16_t rule[50];
+	char16_t * source;
 	UCollator * c1, * c2, * c3;
 	UCollationElements * iter;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar test1[50];
-	UChar test2[50];
+	char16_t test1[50];
+	char16_t test2[50];
 
 	u_uastrcpy(test1, "What subset of all possible test cases?");
 	u_uastrcpy(test2, "has the highest probability of detecting");
@@ -433,7 +433,7 @@ static void TestPrevious()
 		    myErrorName(status));
 		return;
 	}
-	source = (UChar *)SAlloc::M(sizeof(UChar) * 20);
+	source = (char16_t *)SAlloc::M(sizeof(char16_t) * 20);
 	u_uastrcpy(source, "abchdcba");
 	iter = ucol_openElements(c1, source, u_strlen(source), &status);
 	if(U_FAILURE(status)) {
@@ -540,8 +540,8 @@ static void TestOffset()
 	OrderAndOffset * orders;
 	int32_t orderLength = 0;
 	int count = 0;
-	UChar test1[50];
-	UChar test2[50];
+	char16_t test1[50];
+	char16_t test2[50];
 
 	u_uastrcpy(test1, "What subset of all possible test cases?");
 	u_uastrcpy(test2, "has the highest probability of detecting");
@@ -679,8 +679,8 @@ static void TestSetText()
 	UErrorCode status = U_ZERO_ERROR;
 	UCollator * en_us = NULL;
 	UCollationElements * iter1, * iter2;
-	UChar test1[50];
-	UChar test2[50];
+	char16_t test1[50];
+	char16_t test2[50];
 
 	u_uastrcpy(test1, "What subset of all possible test cases?");
 	u_uastrcpy(test2, "has the highest probability of detecting");
@@ -745,16 +745,16 @@ static void TestMaxExpansion()
 {
 	UErrorCode status = U_ZERO_ERROR;
 	UCollator          * coll; /*= ucol_open("en_US", &status);*/
-	UChar ch     = 0;
+	char16_t ch     = 0;
 	UChar32 unassigned = 0xEFFFD;
-	UChar supplementary[2];
+	char16_t supplementary[2];
 	uint32_t stringOffset = 0;
 	bool isError = FALSE;
 	uint32_t sorder = 0;
 	UCollationElements * iter; /*= ucol_openElements(coll, &ch, 1, &status);*/
 	uint32_t temporder = 0;
 
-	UChar rule[256];
+	char16_t rule[256];
 	u_uastrcpy(rule, "&a < ab < c/aba < d < z < ch");
 	coll = ucol_openRules(rule, u_strlen(rule), UCOL_DEFAULT,
 		UCOL_DEFAULT_STRENGTH, NULL, &status);
@@ -906,8 +906,8 @@ static void TestSmallBuffer()
 	OrderAndOffset     * testorders,
 	    * orders;
 
-	UChar teststr[500];
-	UChar str[] = {0x300, 0x31A, 0};
+	char16_t teststr[500];
+	char16_t str[] = {0x300, 0x31A, 0};
 	/*
 	   creating a long string of decomposable characters,
 	   since by default the writable buffer is of size 256
@@ -973,7 +973,7 @@ static void TestSmallBuffer()
 static void TestDiscontiguos() {
 	const char               * rulestr    =
 	    "&z < AB < X\\u0300 < ABC < X\\u0300\\u0315";
-	UChar rule[50];
+	char16_t rule[50];
 	int rulelen = u_unescape(rulestr, rule, 50);
 	const char               * src[] = {
 		"ADB", "ADBC", "A\\u0315B", "A\\u0315BC",
@@ -1023,10 +1023,10 @@ static void TestDiscontiguos() {
 	}
 
 	while(count < size) {
-		UChar str[20];
-		UChar tstr[20];
+		char16_t str[20];
+		char16_t tstr[20];
 		int strLen = u_unescape(src[count], str, 20);
-		UChar * s;
+		char16_t * s;
 
 		ucol_setText(iter, str, strLen, &status);
 		if(U_FAILURE(status)) {
@@ -1041,7 +1041,7 @@ static void TestDiscontiguos() {
 
 		for(;;) {
 			int32_t ce;
-			UChar    * e = u_strchr(s, 0x20);
+			char16_t    * e = u_strchr(s, 0x20);
 			if(e == 0) {
 				e = u_strchr(s, 0);
 			}
@@ -1088,7 +1088,7 @@ static void TestDiscontiguos() {
  * For example, the DUCET's artificial secondary CE in the ae-ligature
  * may map to two 32-bit iterator CEs (as it did until ICU 52).
  */
-static const UChar tsceText[] = {   /* Nothing in here should be ignorable */
+static const char16_t tsceText[] = {   /* Nothing in here should be ignorable */
 	0x0020, 0xAC00,             /* simple LV Hangul */
 	0x0020, 0xAC01,             /* simple LVT Hangul */
 	0x0020, 0xAC0F,             /* LVTT, last jamo expands for search */

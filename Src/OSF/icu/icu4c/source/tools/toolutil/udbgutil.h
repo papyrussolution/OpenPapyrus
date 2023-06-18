@@ -114,7 +114,7 @@ U_CAPI void udbg_writeIcuInfo(FILE * f);
  * @param ptr pointer to 'table'. Opaque.
  * @return new or existing ptr
  */
-U_CAPI void * udbg_knownIssue_openU(void * ptr, const char * ticket, char * where, const UChar * msg, bool * firstForTicket,
+U_CAPI void * udbg_knownIssue_openU(void * ptr, const char * ticket, char * where, const char16_t * msg, bool * firstForTicket,
     bool * firstForWhere);
 
 /**

@@ -133,6 +133,7 @@
       <ProgramDataBaseFile>../osf/protobuf-3.19.1/__build__/Debug/protoc.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
       <OutputFile>..\..\TOOLS\$(TargetName)$(TargetExt)</OutputFile>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -186,6 +187,7 @@
       <ProgramDataBaseFile>../osf/protobuf-3.19.1/__build__/Debug/protoc.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
       <OutputFile>..\..\TOOLS\$(TargetName)$(TargetExt)</OutputFile>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -239,6 +241,7 @@
       <ProgramDataBaseFile>../osf/protobuf-3.19.1/__build__/Release/protoc.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
       <OutputFile>..\..\TOOLS\$(TargetName)$(TargetExt)</OutputFile>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -292,6 +295,7 @@
       <ProgramDataBaseFile>../osf/protobuf-3.19.1/__build__/Release/protoc.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
       <OutputFile>..\..\TOOLS\$(TargetName)$(TargetExt)</OutputFile>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>

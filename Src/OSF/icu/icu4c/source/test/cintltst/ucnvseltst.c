@@ -419,7 +419,7 @@ static void TestSelector()
 			text_reset(&text);
 			for(;;) {
 				bool * manual_rt, * manual_fb;
-				static UChar utf16[10000];
+				static char16_t utf16[10000];
 				char * s;
 				int32_t length8, length16;
 

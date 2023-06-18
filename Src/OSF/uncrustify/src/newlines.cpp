@@ -4007,37 +4007,28 @@ void newlines_cleanup_braces(bool first)
 		else if(pc->Is(CT_CASE)) {
 			// Note: 'default' also maps to CT_CASE
 			log_rule_B("nl_before_case");
-
 			if(options::nl_before_case()) {
 				newline_case(pc);
 			}
 		}
 		else if(pc->Is(CT_THROW)) {
 			Chunk * prev = pc->GetPrev();
-
-			if(prev->Is(CT_PAREN_CLOSE)
-			    || prev->Is(CT_FPAREN_CLOSE)) { // Issue #1122
+			if(prev->Is(CT_PAREN_CLOSE) || prev->Is(CT_FPAREN_CLOSE)) { // Issue #1122
 				log_rule_B("nl_before_throw");
 				newline_iarf(pc->GetPrevNcNnlNi(), options::nl_before_throw()); // Issue #2279
 			}
 		}
-		else if(pc->Is(CT_QUALIFIER)
-		    && !strcmp(pc->Text(), "throws")) {
+		else if(pc->Is(CT_QUALIFIER) && !strcmp(pc->Text(), "throws")) {
 			Chunk * prev = pc->GetPrev();
-
-			if(prev->Is(CT_PAREN_CLOSE)
-			    || prev->Is(CT_FPAREN_CLOSE)) { // Issue #1122
+			if(prev->Is(CT_PAREN_CLOSE) || prev->Is(CT_FPAREN_CLOSE)) { // Issue #1122
 				log_rule_B("nl_before_throw");
 				newline_iarf(pc->GetPrevNcNnlNi(), options::nl_before_throw()); // Issue #2279
 			}
 		}
 		else if(pc->Is(CT_CASE_COLON)) {
 			Chunk * next = pc->GetNextNnl();
-
 			log_rule_B("nl_case_colon_brace");
-
-			if(next->Is(CT_BRACE_OPEN)
-			    && options::nl_case_colon_brace() != IARF_IGNORE) {
+			if(next->Is(CT_BRACE_OPEN) && options::nl_case_colon_brace() != IARF_IGNORE) {
 				newline_iarf(pc, options::nl_case_colon_brace());
 			}
 			else if(options::nl_after_case()) {

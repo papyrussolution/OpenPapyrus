@@ -33,7 +33,7 @@ U_CFUNC void
 addStreamTests(TestNode** root);
 
 U_CDECL_BEGIN
-extern const UChar NEW_LINE[];
+extern const char16_t NEW_LINE[];
 extern const char C_NEW_LINE[];
 extern const char *STANDARD_TEST_FILE;
 extern const char *MEDIUMNAME_TEST_FILE;

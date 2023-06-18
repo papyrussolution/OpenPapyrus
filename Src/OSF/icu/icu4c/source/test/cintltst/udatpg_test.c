@@ -19,7 +19,7 @@
  *   Calls each C API function and exercises code paths in the wrapper,
  *   but the full functionality is tested in the C++ intltest.
  *
- *   One item to note: C API functions which return a const UChar *
+ *   One item to note: C API functions which return a const char16_t *
  *   should return a NUL-terminated string.
  *   (The C++ implementation needs to use getTerminatedBuffer()
  *   on UnicodeString objects which end up being returned this way.)
@@ -56,31 +56,31 @@ void addDateTimePatternGeneratorTest(TestNode** root) {
 }
 
 /*
- * Pipe symbol '|'. We pass only the first UChar without NUL-termination.
- * The second UChar is just to verify that the API does not pick that up.
+ * Pipe symbol '|'. We pass only the first char16_t without NUL-termination.
+ * The second char16_t is just to verify that the API does not pick that up.
  */
-static const UChar pipeString[] = { 0x7c, 0x0a };
+static const char16_t pipeString[] = { 0x7c, 0x0a };
 
-static const UChar testSkeleton1[] = { 0x48, 0x48, 0x6d, 0x6d, 0 }; /* HHmm */
-static const UChar expectingBestPattern[] = { 0x48, 0x2e, 0x6d, 0x6d, 0 }; /* H.mm */
-static const UChar testPattern[] = { 0x48, 0x48, 0x3a, 0x6d, 0x6d, 0 }; /* HH:mm */
-static const UChar expectingSkeleton[] = { 0x48, 0x48, 0x6d, 0x6d, 0 }; /* HHmm */
-static const UChar expectingBaseSkeleton[] = { 0x48, 0x6d, 0 }; /* HHmm */
-static const UChar redundantPattern[] = { 0x79, 0x79, 0x4d, 0x4d, 0x4d, 0 }; /* yyMMM */
-static const UChar testFormat[] = {0x7B, 0x31, 0x7D, 0x20, 0x7B, 0x30, 0x7D, 0};  /* {1} {0} */
-static const UChar appendItemName[] = {0x68, 0x72, 0};  /* hr */
-static const UChar testPattern2[] = { 0x48, 0x48, 0x3a, 0x6d, 0x6d, 0x20, 0x76, 0 }; /* HH:mm v */
-static const UChar replacedStr[] = { 0x76, 0x76, 0x76, 0x76, 0 }; /* vvvv */
+static const char16_t testSkeleton1[] = { 0x48, 0x48, 0x6d, 0x6d, 0 }; /* HHmm */
+static const char16_t expectingBestPattern[] = { 0x48, 0x2e, 0x6d, 0x6d, 0 }; /* H.mm */
+static const char16_t testPattern[] = { 0x48, 0x48, 0x3a, 0x6d, 0x6d, 0 }; /* HH:mm */
+static const char16_t expectingSkeleton[] = { 0x48, 0x48, 0x6d, 0x6d, 0 }; /* HHmm */
+static const char16_t expectingBaseSkeleton[] = { 0x48, 0x6d, 0 }; /* HHmm */
+static const char16_t redundantPattern[] = { 0x79, 0x79, 0x4d, 0x4d, 0x4d, 0 }; /* yyMMM */
+static const char16_t testFormat[] = {0x7B, 0x31, 0x7D, 0x20, 0x7B, 0x30, 0x7D, 0};  /* {1} {0} */
+static const char16_t appendItemName[] = {0x68, 0x72, 0};  /* hr */
+static const char16_t testPattern2[] = { 0x48, 0x48, 0x3a, 0x6d, 0x6d, 0x20, 0x76, 0 }; /* HH:mm v */
+static const char16_t replacedStr[] = { 0x76, 0x76, 0x76, 0x76, 0 }; /* vvvv */
 /* results for getBaseSkeletons() - {Hmv}, {yMMM} */
-static const UChar resultBaseSkeletons[2][10] = {{0x48, 0x6d, 0x76, 0}, {0x79, 0x4d, 0x4d, 0x4d, 0 } };
-static const UChar sampleFormatted[] = {0x31, 0x30, 0x20, 0x6A, 0x75, 0x69, 0x6C, 0x2E, 0}; /* 10 juil. */
-static const UChar skeleton[] = {0x4d, 0x4d, 0x4d, 0x64, 0};  /* MMMd */
-static const UChar timeZoneGMT[] = { 0x0047, 0x004d, 0x0054, 0x0000 };  /* "GMT" */
+static const char16_t resultBaseSkeletons[2][10] = {{0x48, 0x6d, 0x76, 0}, {0x79, 0x4d, 0x4d, 0x4d, 0 } };
+static const char16_t sampleFormatted[] = {0x31, 0x30, 0x20, 0x6A, 0x75, 0x69, 0x6C, 0x2E, 0}; /* 10 juil. */
+static const char16_t skeleton[] = {0x4d, 0x4d, 0x4d, 0x64, 0};  /* MMMd */
+static const char16_t timeZoneGMT[] = { 0x0047, 0x004d, 0x0054, 0x0000 };  /* "GMT" */
 
 static void TestOpenClose() {
 	UErrorCode errorCode = U_ZERO_ERROR;
 	UDateTimePatternGenerator * dtpg, * dtpg2;
-	const UChar * s;
+	const char16_t * s;
 	int32_t length;
 
 	/* Open a DateTimePatternGenerator for the default locale. */
@@ -121,7 +121,7 @@ static void TestOpenClose() {
 
 typedef struct {
 	UDateTimePatternField field;
-	UChar name[12];
+	char16_t name[12];
 } AppendItemNameData;
 
 static const AppendItemNameData appendItemNameData[] = { /* for Finnish */
@@ -137,11 +137,11 @@ static void TestUsage() {
 	UErrorCode errorCode = U_ZERO_ERROR;
 	UDateTimePatternGenerator * dtpg;
 	const AppendItemNameData * appItemNameDataPtr;
-	UChar bestPattern[20];
-	UChar result[20];
+	char16_t bestPattern[20];
+	char16_t result[20];
 	int32_t length;
-	UChar * s;
-	const UChar * r;
+	char16_t * s;
+	const char16_t * r;
 
 	dtpg = udatpg_open("fi", &errorCode);
 	if(U_FAILURE(errorCode)) {
@@ -216,7 +216,7 @@ static void TestUsage() {
 
 	for(appItemNameDataPtr = appendItemNameData; appItemNameDataPtr->field <  UDATPG_FIELD_COUNT; appItemNameDataPtr++) {
 		int32_t nameLength;
-		const UChar * namePtr = udatpg_getAppendItemName(dtpg, appItemNameDataPtr->field, &nameLength);
+		const char16_t * namePtr = udatpg_getAppendItemName(dtpg, appItemNameDataPtr->field, &nameLength);
 		if(namePtr == NULL || u_strncmp(appItemNameDataPtr->name, namePtr, nameLength) != 0) {
 			log_err("udatpg_getAppendItemName returns invalid name for field %d\n", (int)appItemNameDataPtr->field);
 		}
@@ -247,14 +247,14 @@ static void TestBuilder() {
 	UDateTimePatternGenerator * dtpg;
 	UDateTimePatternConflict conflict;
 	UEnumeration * en;
-	UChar result[20];
+	char16_t result[20];
 	int32_t length, pLength;
-	const UChar * s, * p;
-	const UChar * ptrResult[2];
+	const char16_t * s, * p;
+	const char16_t * ptrResult[2];
 	int32_t count = 0;
 	UDateTimePatternGenerator * generator;
 	int32_t formattedCapacity, resultLen, patternCapacity;
-	UChar pattern[40], formatted[40];
+	char16_t pattern[40], formatted[40];
 	UDateFormat * formatter;
 	UDate sampleDate = 837039928046.0;
 	static const char locale[] = "fr";
@@ -380,22 +380,22 @@ static void TestBuilder() {
 
 typedef struct DTPtnGenOptionsData {
 	const char * locale;
-	const UChar * skel;
+	const char16_t * skel;
 	UDateTimePatternMatchOptions options;
-	const UChar * expectedPattern;
+	const char16_t * expectedPattern;
 } DTPtnGenOptionsData;
 enum { kTestOptionsPatLenMax = 32 };
 
-static const UChar skel_Hmm[] = { 0x0048, 0x006D, 0x006D, 0 };
-static const UChar skel_HHmm[] = { 0x0048, 0x0048, 0x006D, 0x006D, 0 };
-static const UChar skel_hhmm[] = { 0x0068, 0x0068, 0x006D, 0x006D, 0 };
-static const UChar patn_hcmm_a[]  = { 0x0068, 0x003A, 0x006D, 0x006D, 0x0020, 0x0061, 0 }; /* h:mm a */
-static const UChar patn_HHcmm[] = { 0x0048, 0x0048, 0x003A, 0x006D, 0x006D, 0 }; /* HH:mm */
-static const UChar patn_hhcmm_a[] = { 0x0068, 0x0068, 0x003A, 0x006D, 0x006D, 0x0020, 0x0061, 0 }; /* hh:mm a */
-static const UChar patn_HHpmm[] = { 0x0048, 0x0048, 0x002E, 0x006D, 0x006D, 0 }; /* HH.mm */
-static const UChar patn_hpmm_a[]  = { 0x0068, 0x002E, 0x006D, 0x006D, 0x0020, 0x0061, 0 }; /* h.mm a */
-static const UChar patn_Hpmm[] = { 0x0048, 0x002E, 0x006D, 0x006D, 0 }; /* H.mm */
-static const UChar patn_hhpmm_a[] = { 0x0068, 0x0068, 0x002E, 0x006D, 0x006D, 0x0020, 0x0061, 0 }; /* hh.mm a */
+static const char16_t skel_Hmm[] = { 0x0048, 0x006D, 0x006D, 0 };
+static const char16_t skel_HHmm[] = { 0x0048, 0x0048, 0x006D, 0x006D, 0 };
+static const char16_t skel_hhmm[] = { 0x0068, 0x0068, 0x006D, 0x006D, 0 };
+static const char16_t patn_hcmm_a[]  = { 0x0068, 0x003A, 0x006D, 0x006D, 0x0020, 0x0061, 0 }; /* h:mm a */
+static const char16_t patn_HHcmm[] = { 0x0048, 0x0048, 0x003A, 0x006D, 0x006D, 0 }; /* HH:mm */
+static const char16_t patn_hhcmm_a[] = { 0x0068, 0x0068, 0x003A, 0x006D, 0x006D, 0x0020, 0x0061, 0 }; /* hh:mm a */
+static const char16_t patn_HHpmm[] = { 0x0048, 0x0048, 0x002E, 0x006D, 0x006D, 0 }; /* HH.mm */
+static const char16_t patn_hpmm_a[]  = { 0x0068, 0x002E, 0x006D, 0x006D, 0x0020, 0x0061, 0 }; /* h.mm a */
+static const char16_t patn_Hpmm[] = { 0x0048, 0x002E, 0x006D, 0x006D, 0 }; /* H.mm */
+static const char16_t patn_hhpmm_a[] = { 0x0068, 0x0068, 0x002E, 0x006D, 0x006D, 0x0020, 0x0061, 0 }; /* hh.mm a */
 
 static void TestOptions() {
 	const DTPtnGenOptionsData testData[] = {
@@ -421,7 +421,7 @@ static void TestOptions() {
 		UErrorCode status = U_ZERO_ERROR;
 		UDateTimePatternGenerator * dtpgen = udatpg_open(testDataPtr->locale, &status);
 		if(U_SUCCESS(status)) {
-			UChar pattern[kTestOptionsPatLenMax];
+			char16_t pattern[kTestOptionsPatLenMax];
 			int32_t patLen = udatpg_getBestPatternWithOptions(dtpgen, testDataPtr->skel, -1,
 				testDataPtr->options, pattern,
 				kTestOptionsPatLenMax, &status);
@@ -484,8 +484,8 @@ static void TestGetFieldDisplayNames() {
 			    myErrorName(status));
 		}
 		else {
-			UChar expName[kFieldDisplayNameMax];
-			UChar getName[kFieldDisplayNameMax];
+			char16_t expName[kFieldDisplayNameMax];
+			char16_t getName[kFieldDisplayNameMax];
 			u_unescape(testDataPtr->expected, expName, kFieldDisplayNameMax);
 
 			int32_t getLen = udatpg_getFieldDisplayName(dtpgen, testDataPtr->field, testDataPtr->width,
@@ -617,7 +617,7 @@ static void TestEras() {
 		const char * locale = localeIDs[i];
 		UDateTimePatternGenerator* dtpg = udatpg_open(locale, &err);
 		if(U_SUCCESS(err)) {
-			UChar pattern[200];
+			char16_t pattern[200];
 			udatpg_getBestPattern(dtpg, u"y", 1, pattern, 200, &err);
 			if(u_strchr(pattern, u'G') == NULL) {
 				log_err("missing era field for locale %s\n", locale);

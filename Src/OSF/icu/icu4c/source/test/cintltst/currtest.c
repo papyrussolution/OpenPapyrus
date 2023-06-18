@@ -173,8 +173,8 @@ static void TestEnumListCount() {
 static void TestFractionDigitOverride() {
 	UErrorCode status = U_ZERO_ERROR;
 	UNumberFormat * fmt = unum_open(UNUM_CURRENCY, NULL, 0, "hu_HU", NULL, &status);
-	UChar buffer[256];
-	UChar expectedBuf[256];
+	char16_t buffer[256];
+	char16_t expectedBuf[256];
 	const char expectedFirst[] = "123,46\\u00A0Ft"; /* changed to use 2 fraction digits */
 	const char expectedSecond[] = "123,46\\u00A0Ft";
 	const char expectedThird[] = "123,456\\u00A0Ft";
@@ -210,10 +210,10 @@ static void TestPrefixSuffix() {
 	UErrorCode status;
 	double result1 = 0.0, result2 = 0.0;
 	UNumberFormat * parser;
-	UChar buffer[4];
-	static const UChar TEST_NUMBER[] = {0x0024, 0x0031, 0x0032, 0x002E, 0x0030, 0x0030, 0}; /* $12.00 */
-	static const UChar NEG_PREFIX[] = {0x005B, 0}; /* "[" */
-	static const UChar NEG_SUFFIX[] = {0x005D, 0}; /* "]" */
+	char16_t buffer[4];
+	static const char16_t TEST_NUMBER[] = {0x0024, 0x0031, 0x0032, 0x002E, 0x0030, 0x0030, 0}; /* $12.00 */
+	static const char16_t NEG_PREFIX[] = {0x005B, 0}; /* "[" */
+	static const char16_t NEG_SUFFIX[] = {0x005D, 0}; /* "]" */
 
 	status = U_ZERO_ERROR;
 	parser = unum_open(UNUM_CURRENCY, NULL, -1, "en_US", NULL, &status);
@@ -259,7 +259,7 @@ static const NumCodeTestEntry NUMCODE_TESTDATA[] = {
 };
 
 static void TestNumericCode() {
-	UChar code[8]; // at least one longer than the longest alphaCode
+	char16_t code[8]; // at least one longer than the longest alphaCode
 	int32_t i;
 	int32_t numCode;
 

@@ -63,7 +63,7 @@
  *  indexes[_SPREP_INDEX_MAPPING_DATA_SIZE]          -- The size of the mappingTable in bytes
  *  indexes[_SPREP_NORM_CORRECTNS_LAST_UNI_VERSION]  -- The index of Unicode version of last entry in
  *NormalizationCorrections.txt
- *  indexes[_SPREP_ONE_UCHAR_MAPPING_INDEX_START]    -- The starting index of 1 UChar  mapping index in the mapping
+ *  indexes[_SPREP_ONE_UCHAR_MAPPING_INDEX_START]    -- The starting index of 1 char16_t  mapping index in the mapping
  *table
  *  indexes[_SPREP_TWO_UCHARS_MAPPING_INDEX_START]   -- The starting index of 2 UChars mapping index in the mapping
  *table
@@ -204,7 +204,7 @@ extern void init() {
 static UHashtable * hashTable = NULL;
 
 typedef struct ValueStruct {
-	UChar * mapping;
+	char16_t * mapping;
 	int16_t length;
 	UStringPrepType type;
 } ValueStruct;
@@ -317,7 +317,7 @@ static void storeMappingData()
 					mappingData[currentIndex++] = (uint16_t)mappingLength;
 				}
 				// copy the contents to mappindData array 
-				u_memmove(reinterpret_cast<UChar *>(mappingData+currentIndex), value->mapping, value->length);
+				u_memmove(reinterpret_cast<char16_t *>(mappingData+currentIndex), value->mapping, value->length);
 				currentIndex += value->length;
 				if(currentIndex > mappingDataCapacity) {
 					// If this happens there is a bug in the computation of the mapping data size in storeMapping() 
@@ -345,7 +345,7 @@ static void storeMappingData()
 
 /*extern*/void storeMapping(uint32_t codepoint, uint32_t* mapping, int32_t length, UStringPrepType type, UErrorCode * status) 
 {
-	UChar * map = NULL;
+	char16_t * map = NULL;
 	int16_t adjustedLen = 0, i, j;
 	uint16_t trieWord = 0;
 	ValueStruct * value = NULL;
@@ -426,7 +426,7 @@ static void storeMappingData()
 		 */
 	}
 
-	map = (UChar *)uprv_calloc(adjustedLen + 1, U_SIZEOF_UCHAR);
+	map = (char16_t *)uprv_calloc(adjustedLen + 1, U_SIZEOF_UCHAR);
 
 	for(i = 0, j = 0; i<length; i++) {
 		U16_APPEND_UNSAFE(map, j, mapping[i]);

@@ -142,7 +142,7 @@ static uint32_t CnvExtWrite(NewConverter * cnvData, const UConverterStaticData *
 
 	if(top&3) {
 		/* add padding */
-		*((UChar *)utm_alloc(extData->fromUTableUChars)) = 0;
+		*((char16_t *)utm_alloc(extData->fromUTableUChars)) = 0;
 		*((uint32_t*)utm_alloc(extData->fromUTableValues)) = 0;
 		++length;
 		top += 2;
@@ -306,7 +306,7 @@ static int32_t reduceToUMappings(UCMTable * table) {
 static uint32_t getToUnicodeValue(CnvExtData * extData, UCMTable * table, UCMapping * m) 
 {
 	UChar32 * u32;
-	UChar * u;
+	char16_t * u;
 	uint32_t value;
 	int32_t u16Length, ratio;
 	UErrorCode errorCode;
@@ -327,7 +327,7 @@ static uint32_t getToUnicodeValue(CnvExtData * extData, UCMTable * table, UCMapp
 		}
 		/* allocate it and put its length and index into the value */
 		value = (((uint32_t)u16Length+UCNV_EXT_TO_U_LENGTH_OFFSET)<<UCNV_EXT_TO_U_LENGTH_SHIFT)|((uint32_t)utm_countItems(extData->toUUChars));
-		u = static_cast<UChar *>(utm_allocN(extData->toUUChars, u16Length));
+		u = static_cast<char16_t *>(utm_allocN(extData->toUUChars, u16Length));
 		/* write the result 16-bit string */
 		errorCode = U_ZERO_ERROR;
 		u_strFromUTF32(u, u16Length, NULL, u32, m->uLen, &errorCode);
@@ -584,12 +584,12 @@ static int32_t prepareFromUMappings(UCMTable * table) {
 			if(m->uLen>1) {
 				/* recode all but the first code point to 16-bit Unicode */
 				UChar32 * u32;
-				UChar * u;
+				char16_t * u;
 				UChar32 c;
 				int32_t q, r;
 
 				u32 = UCM_GET_CODE_POINTS(table, m);
-				u = (UChar *)u32; /* destructive in-place recoding */
+				u = (char16_t *)u32; /* destructive in-place recoding */
 				for(r = 2, q = 1; q<m->uLen; ++q) {
 					c = u32[q];
 					U16_APPEND_UNSAFE(u, r, c);
@@ -688,10 +688,10 @@ static bool generateFromUTable(CnvExtData * extData, UCMTable * table,
 	int32_t * map;
 	int32_t i, j, uniqueCount, count, subStart, subLimit;
 
-	UChar * uchars;
+	char16_t * uchars;
 	UChar32 low, high, prev;
 
-	UChar * sectionUChars;
+	char16_t * sectionUChars;
 	uint32_t * sectionValues;
 
 	mappings = table->mappings;
@@ -699,14 +699,14 @@ static bool generateFromUTable(CnvExtData * extData, UCMTable * table,
 
 	/* step 1: examine the input units; set low, high, uniqueCount */
 	m = mappings+map[start];
-	uchars = (UChar *)UCM_GET_CODE_POINTS(table, m);
+	uchars = (char16_t *)UCM_GET_CODE_POINTS(table, m);
 	low = uchars[unitIndex];
 	uniqueCount = 1;
 
 	prev = high = low;
 	for(i = start+1; i<limit; ++i) {
 		m = mappings+map[i];
-		uchars = (UChar *)UCM_GET_CODE_POINTS(table, m);
+		uchars = (char16_t *)UCM_GET_CODE_POINTS(table, m);
 		high = uchars[unitIndex];
 
 		if(high!=prev) {
@@ -720,11 +720,11 @@ static bool generateFromUTable(CnvExtData * extData, UCMTable * table,
 	count = uniqueCount;
 
 	/* allocate the section: 1 entry for the header + count for the items */
-	sectionUChars = (UChar *)utm_allocN(extData->fromUTableUChars, 1+count);
+	sectionUChars = (char16_t *)utm_allocN(extData->fromUTableUChars, 1+count);
 	sectionValues = (uint32_t*)utm_allocN(extData->fromUTableValues, 1+count);
 
 	/* write the section header */
-	*sectionUChars++ = (UChar)count;
+	*sectionUChars++ = (char16_t)count;
 	*sectionValues++ = defaultValue;
 
 	/* step 3: write temporary section table with subsection starts */
@@ -732,7 +732,7 @@ static bool generateFromUTable(CnvExtData * extData, UCMTable * table,
 	j = 0; /* section table index */
 	for(i = start; i<limit; ++i) {
 		m = mappings+map[i];
-		uchars = (UChar *)UCM_GET_CODE_POINTS(table, m);
+		uchars = (char16_t *)UCM_GET_CODE_POINTS(table, m);
 		high = uchars[unitIndex];
 
 		if(high!=prev) {
@@ -740,7 +740,7 @@ static bool generateFromUTable(CnvExtData * extData, UCMTable * table,
 			prev = high;
 
 			/* write the entry with the subsection start */
-			sectionUChars[j] = (UChar)high;
+			sectionUChars[j] = (char16_t)high;
 			sectionValues[j] = (uint32_t)i;
 			++j;
 		}

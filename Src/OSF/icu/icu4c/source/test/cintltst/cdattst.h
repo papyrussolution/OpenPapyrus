@@ -51,7 +51,7 @@
     /**
   * test subroutine used by the testing functions
      **/
-    static UChar * myNumformat(const UNumberFormat * numfor, double d);
+    static char16_t * myNumformat(const UNumberFormat * numfor, double d);
     static int getCurrentYear();
 
     /**

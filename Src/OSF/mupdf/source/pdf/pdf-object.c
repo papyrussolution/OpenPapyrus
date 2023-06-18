@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 
 #define PDF_MAKE_NAME(STRING, NAME) STRING,
 static const char * PDF_NAME_LIST[] = {
@@ -133,7 +133,7 @@ pdf_obj * pdf_new_name(fz_context * ctx, const char * str)
 {
 	pdf_obj_name * obj;
 	int l = 3; /* skip dummy slots */
-	int r = nelem(PDF_NAME_LIST) - 1;
+	int r = SIZEOFARRAY(PDF_NAME_LIST) - 1;
 	while(l <= r) {
 		int m = (l + r) >> 1;
 		int c = strcmp(str, PDF_NAME_LIST[m]);
@@ -769,7 +769,7 @@ pdf_obj * pdf_new_date(fz_context * ctx, pdf_document * doc, int64_t time)
 #else
 	struct tm * tm = gmtime(&secs);
 #endif
-	if(time < 0 || !tm || !strftime(s, nelem(s), "D:%Y%m%d%H%M%SZ", tm))
+	if(time < 0 || !tm || !strftime(s, SIZEOFARRAY(s), "D:%Y%m%d%H%M%SZ", tm))
 		return NULL;
 	return pdf_new_string(ctx, s, strlen(s));
 }

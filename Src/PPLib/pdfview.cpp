@@ -7,7 +7,7 @@
 #include <pp.h>
 #pragma hdrstop
 #include <mupdf/fitz.h>
-#include <mupdf/pdf.h>
+//#include <mupdf/pdf.h>
 
 class PdfView : public TWindowBase {
 public:

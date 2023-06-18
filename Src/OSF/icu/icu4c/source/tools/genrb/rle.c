@@ -251,7 +251,7 @@ int32_t rleStringToUCharArray(uint16_t* src, int32_t srcLen, uint16_t* target, i
 	}
 	/* the source is null terminated */
 	if(srcLen == -1) {
-		srcLen = u_strlen(reinterpret_cast<const UChar *>(src));
+		srcLen = u_strlen(reinterpret_cast<const char16_t *>(src));
 	}
 	if(srcLen <= 2) {
 		return 2;
@@ -308,7 +308,7 @@ int32_t rleStringToByteArray(uint16_t* src, int32_t srcLen, uint8_t* target, int
 	}
 	/* the source is null terminated */
 	if(srcLen == -1) {
-		srcLen = u_strlen(reinterpret_cast<const UChar *>(src));
+		srcLen = u_strlen(reinterpret_cast<const char16_t *>(src));
 	}
 	if(srcLen <= 2) {
 		return 2;

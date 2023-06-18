@@ -2254,7 +2254,7 @@ void NumberFormatterApiTest::runUnitInflectionsTestCases(UnlocalizedNumberFormat
 		}
 		;
 		UnicodeString skelString = UnicodeString("unit/") + UnicodeString(t.unitIdentifier) + UnicodeString(u" ") + skeleton;
-		const UChar * skel;
+		const char16_t * skel;
 		if(t.unitDisplayCase == nullptr || t.unitDisplayCase[0] == 0) {
 			unf = unf.unit(mu).unitDisplayCase("");
 			skel = skelString.getTerminatedBuffer();
@@ -2277,7 +2277,7 @@ void NumberFormatterApiTest::unitInflections() {
 	IcuTestErrorCode status(*this, "unitInflections");
 
 	UnlocalizedNumberFormatter unf;
-	const UChar * skeleton;
+	const char16_t * skeleton;
 	{
 		// Simple inflected form test - test case based on the example in CLDR's
 		// grammaticalFeatures.xml

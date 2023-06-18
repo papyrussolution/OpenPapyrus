@@ -134,7 +134,7 @@ public:
 	void setCaller(UPerfTest* callingTest); // for internal use only
 	void setPath(char * path); // for internal use only
 	ULine* getLines(UErrorCode & status);
-	const UChar * getBuffer(int32_t& len, UErrorCode & status);
+	const char16_t * getBuffer(int32_t& len, UErrorCode & status);
 protected:
 	UPerfTest(int32_t argc, const char * argv[], UErrorCode & status);
 	UPerfTest(int32_t argc, const char * argv[], UOption addOptions[], int32_t addOptionsCount, const char * addUsage, UErrorCode & status);
@@ -156,7 +156,7 @@ protected:
 	ULine*       lines;
 	int32_t numLines;
 	bool line_mode;
-	UChar * buffer;
+	char16_t * buffer;
 	int32_t bufferLen;
 	bool verbose;
 	bool bulk_mode;

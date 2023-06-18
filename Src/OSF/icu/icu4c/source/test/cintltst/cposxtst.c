@@ -51,7 +51,7 @@ void TestMessageCatalog()
 		"4", "20", "Sincerely,", "U_ZERO_ERROR",
 		NULL
 	};
-	const UChar FAIL[] = {0x46, 0x41, 0x49, 0x4C, 0x00}; /* "FAIL" */
+	const char16_t FAIL[] = {0x46, 0x41, 0x49, 0x4C, 0x00}; /* "FAIL" */
 	int32_t i;
 	const char * path = loadTestData(&ec);
 	if(U_FAILURE(ec)) {
@@ -66,11 +66,11 @@ void TestMessageCatalog()
 	for(i = 0; DATA[i]!=NULL; i += 4) {
 		int32_t set_num = T_CString_stringToInteger(DATA[i], 10);
 		int32_t msg_num = T_CString_stringToInteger(DATA[i+1], 10);
-		UChar exp[128];
+		char16_t exp[128];
 		int32_t len = -1;
 		const char * err;
 		char str[128];
-		const UChar * ustr;
+		const char16_t * ustr;
 		u_uastrcpy(exp, DATA[i+2]);
 		ec = U_ZERO_ERROR;
 		ustr = u_catgets(catd, set_num, msg_num, FAIL, &len, &ec);

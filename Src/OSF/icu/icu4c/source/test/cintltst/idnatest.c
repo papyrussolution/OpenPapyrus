@@ -38,13 +38,13 @@ static void TestUTS46();
 void addIDNATest(TestNode** root);
 
 typedef int32_t
-(U_EXPORT2 *TestFunc)(const UChar * src, int32_t srcLength,
-    UChar * dest, int32_t destCapacity,
+(U_EXPORT2 *TestFunc)(const char16_t * src, int32_t srcLength,
+    char16_t * dest, int32_t destCapacity,
     int32_t options, UParseError * parseError,
     UErrorCode * status);
 typedef int32_t
-(U_EXPORT2 *CompareFunc)(const UChar * s1, int32_t s1Len,
-    const UChar * s2, int32_t s2Len,
+(U_EXPORT2 *CompareFunc)(const char16_t * s1, int32_t s1Len,
+    const char16_t * s2, int32_t s2Len,
     int32_t options,
     UErrorCode * status);
 
@@ -62,22 +62,22 @@ void addIDNATest(TestNode** root)
 	addTest(root, &TestUTS46,        "idna/TestUTS46");
 }
 
-static void testAPI(const UChar * src, const UChar * expected, const char * testName,
+static void testAPI(const char16_t * src, const char16_t * expected, const char * testName,
     bool useSTD3ASCIIRules, UErrorCode expectedStatus,
     bool doCompare, bool testUnassigned,  TestFunc func) {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar destStack[MAX_DEST_SIZE];
+	char16_t destStack[MAX_DEST_SIZE];
 	int32_t destLen = 0;
-	UChar * dest = NULL;
+	char16_t * dest = NULL;
 	int32_t expectedLen = (expected != NULL) ? u_strlen(expected) : 0;
 	int32_t options = (useSTD3ASCIIRules == TRUE) ? UIDNA_USE_STD3_RULES : UIDNA_DEFAULT;
 	UParseError parseError;
 	int32_t tSrcLen = 0;
-	UChar * tSrc = NULL;
+	char16_t * tSrc = NULL;
 
 	if(src != NULL) {
 		tSrcLen = u_strlen(src);
-		tSrc  = (UChar *)SAlloc::M(U_SIZEOF_UCHAR * tSrcLen);
+		tSrc  = (char16_t *)SAlloc::M(U_SIZEOF_UCHAR * tSrcLen);
 		memcpy(tSrc, src, tSrcLen * U_SIZEOF_UCHAR);
 	}
 
@@ -245,7 +245,7 @@ static void testAPI(const UChar * src, const UChar * expected, const char * test
 	SAlloc::F(tSrc);
 }
 
-static const UChar unicodeIn[][41] = {
+static const char16_t unicodeIn[][41] = {
 	{
 		0x0644, 0x064A, 0x0647, 0x0645, 0x0627, 0x0628, 0x062A, 0x0643, 0x0644,
 		0x0645, 0x0648, 0x0634, 0x0639, 0x0631, 0x0628, 0x064A, 0x061F, 0x0000
@@ -445,7 +445,7 @@ static const char * const domainNames[] = {
 
 static void TestToASCII() {
 	int32_t i;
-	UChar buf[MAX_DEST_SIZE];
+	char16_t buf[MAX_DEST_SIZE];
 	const char * testName = "uidna_toASCII";
 	TestFunc func = uidna_toASCII;
 	for(i = 0; i< SIZEOFARRAYi(unicodeIn); i++) {
@@ -456,7 +456,7 @@ static void TestToASCII() {
 
 static void TestToUnicode() {
 	int32_t i;
-	UChar buf[MAX_DEST_SIZE];
+	char16_t buf[MAX_DEST_SIZE];
 	const char * testName = "uidna_toUnicode";
 	TestFunc func = uidna_toUnicode;
 	for(i = 0; i< SIZEOFARRAYi(asciiIn); i++) {
@@ -467,8 +467,8 @@ static void TestToUnicode() {
 
 static void TestIDNToUnicode() {
 	int32_t i;
-	UChar buf[MAX_DEST_SIZE];
-	UChar expected[MAX_DEST_SIZE];
+	char16_t buf[MAX_DEST_SIZE];
+	char16_t expected[MAX_DEST_SIZE];
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t bufLen = 0;
 	UParseError parseError;
@@ -494,8 +494,8 @@ static void TestIDNToUnicode() {
 
 static void TestIDNToASCII() {
 	int32_t i;
-	UChar buf[MAX_DEST_SIZE];
-	UChar expected[MAX_DEST_SIZE];
+	char16_t buf[MAX_DEST_SIZE];
+	char16_t expected[MAX_DEST_SIZE];
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t bufLen = 0;
 	UParseError parseError;
@@ -520,8 +520,8 @@ static void TestIDNToASCII() {
 	}
 }
 
-static void testCompareWithSrc(const UChar * s1, int32_t s1Len,
-    const UChar * s2, int32_t s2Len,
+static void testCompareWithSrc(const char16_t * s1, int32_t s1Len,
+    const char16_t * s2, int32_t s2Len,
     const char * testName, CompareFunc func,
     bool isEqual) {
 	UErrorCode status = U_ZERO_ERROR;
@@ -571,10 +571,10 @@ static void TestCompare() {
 	const char * testName = "uidna_compare";
 	CompareFunc func = uidna_compare;
 
-	UChar www[] = {0x0057, 0x0057, 0x0057, 0x002E, 0x0000};
-	UChar com[] = {0x002E, 0x0043, 0x004F, 0x004D, 0x0000};
-	UChar buf[MAX_DEST_SIZE] = {0x0057, 0x0057, 0x0057, 0x002E, 0x0000};
-	UChar source[MAX_DEST_SIZE] = {0},
+	char16_t www[] = {0x0057, 0x0057, 0x0057, 0x002E, 0x0000};
+	char16_t com[] = {0x002E, 0x0043, 0x004F, 0x004D, 0x0000};
+	char16_t buf[MAX_DEST_SIZE] = {0x0057, 0x0057, 0x0057, 0x002E, 0x0000};
+	char16_t source[MAX_DEST_SIZE] = {0},
 	    uni0[MAX_DEST_SIZE] = {0},
 	    uni1[MAX_DEST_SIZE] = {0},
 	    ascii0[MAX_DEST_SIZE] = {0},
@@ -601,7 +601,7 @@ static void TestCompare() {
 	u_strcat(source, www);
 
 	for(i = 0; i< SIZEOFARRAYi(unicodeIn); i++) {
-		UChar * src;
+		char16_t * src;
 		int32_t srcLen;
 
 		memset(buf+4, 0, (MAX_DEST_SIZE-4) * U_SIZEOF_UCHAR);
@@ -642,23 +642,23 @@ static void TestCompare() {
 }
 
 static void TestJB4490() {
-	static const UChar data[][50] = {
+	static const char16_t data[][50] = {
 		{0x00F5, 0x00dE, 0x00dF, 0x00dD, 0x0000},
 		{0xFB00, 0xFB01}
 	};
-	UChar output1[40] = {0};
-	UChar output2[40] = {0};
+	char16_t output1[40] = {0};
+	char16_t output2[40] = {0};
 	int32_t i;
 	for(i = 0; i< SIZEOFARRAYi(data); i++) {
-		const UChar * src1 = data[i];
+		const char16_t * src1 = data[i];
 		int32_t src1Len = u_strlen(src1);
-		UChar * dest1 = output1;
+		char16_t * dest1 = output1;
 		int32_t dest1Len = 40;
 		UErrorCode status = U_ZERO_ERROR;
 		UParseError ps;
-		UChar * src2 = NULL;
+		char16_t * src2 = NULL;
 		int32_t src2Len = 0;
-		UChar * dest2 = output2;
+		char16_t * dest2 = output2;
 		int32_t dest2Len = 40;
 		dest1Len = uidna_toASCII(src1, src1Len, dest1, dest1Len, UIDNA_DEFAULT, &ps, &status);
 		if(U_FAILURE(status)) {
@@ -674,16 +674,16 @@ static void TestJB4490() {
 }
 
 static void TestJB4475() {
-	static const UChar input[][10] = {
+	static const char16_t input[][10] = {
 		{0x0054, 0x0045, 0x0053, 0x0054, 0x0000}, /* TEST */
 		{0x0074, 0x0065, 0x0073, 0x0074, 0x0000} /* test */
 	};
 	int i;
-	UChar output[40] = {0};
+	char16_t output[40] = {0};
 	for(i = 0; i< SIZEOFARRAYi(input); i++) {
-		const UChar * src = input[i];
+		const char16_t * src = input[i];
 		int32_t srcLen = u_strlen(src);
-		UChar * dest = output;
+		char16_t * dest = output;
 		int32_t destLen = 40;
 		UErrorCode status = U_ZERO_ERROR;
 		UParseError ps;
@@ -703,11 +703,11 @@ static void TestLength() {
 	{
 		static const char * cl =
 		    "my_very_very_very_very_very_very_very_very_very_very_very_very_very_long_and_incredibly_uncreative_domain_label";
-		UChar ul[128] = {'\0'};
-		UChar dest[256] = {'\0'};
+		char16_t ul[128] = {'\0'};
+		char16_t dest[256] = {'\0'};
 		/* this unicode string is longer than MAX_LABEL_BUFFER_SIZE and produces an
 		   IDNA prepared string (including xn--)that is exactly 63 bytes long */
-		UChar ul1[] = { 0xC138, 0xACC4, 0xC758, 0xBAA8, 0xB4E0, 0xC0AC, 0xB78C, 0xB4E4, 0xC774,
+		char16_t ul1[] = { 0xC138, 0xACC4, 0xC758, 0xBAA8, 0xB4E0, 0xC0AC, 0xB78C, 0xB4E4, 0xC774,
 				0xD55C, 0xAD6D, 0xC5B4, 0xB97C, 0xC774, 0x00AD, 0x034F, 0x1806, 0x180B,
 				0x180C, 0x180D, 0x200B, 0x200C, 0x200D, 0x2060, 0xFE00, 0xFE01, 0xFE02,
 				0xFE03, 0xFE04, 0xFE05, 0xFE06, 0xFE07, 0xFE08, 0xFE09, 0xFE0A, 0xFE0B,
@@ -775,8 +775,8 @@ static void TestLength() {
 	{
 		static const char * cl =
 		    "my_very_very_long_and_incredibly_uncreative_domain_label.my_very_very_long_and_incredibly_uncreative_domain_label.my_very_very_long_and_incredibly_uncreative_domain_label.my_very_very_long_and_incredibly_uncreative_domain_label.my_very_very_long_and_incredibly_uncreative_domain_label.my_very_very_long_and_incredibly_uncreative_domain_label.ibm.com";
-		UChar ul[400] = {'\0'};
-		UChar dest[400] = {'\0'};
+		char16_t ul[400] = {'\0'};
+		char16_t dest[400] = {'\0'};
 		int32_t destLen = SIZEOFARRAYi(dest);
 		UErrorCode status = U_ZERO_ERROR;
 		UParseError ps;
@@ -826,9 +826,9 @@ static void TestLength() {
 
 static void TestJB5273() {
 	static const char INVALID_DOMAIN_NAME[] = "xn--m\\u00FCller.de";
-	UChar invalid_idn[25] = {'\0'};
+	char16_t invalid_idn[25] = {'\0'};
 	int32_t len = u_unescape(INVALID_DOMAIN_NAME, invalid_idn, (int32_t)strlen(INVALID_DOMAIN_NAME));
-	UChar output[50] = {'\0'};
+	char16_t output[50] = {'\0'};
 	UErrorCode status = U_ZERO_ERROR;
 	UParseError prsError;
 	int32_t outLen = uidna_toUnicode(invalid_idn, len, output, 50, UIDNA_DEFAULT, &prsError, &status);
@@ -859,16 +859,16 @@ static void TestJB5273() {
  * Just an API test: Functionality is tested via C++ intltest.
  */
 static void TestUTS46() {
-	static const UChar fA_sharps16[] = { 0x66, 0x41, 0xdf, 0 };
+	static const char16_t fA_sharps16[] = { 0x66, 0x41, 0xdf, 0 };
 	static const char fA_sharps8[] = { 0x66, 0x41, (char)0xc3, (char)0x9f, 0 };
-	static const UChar fa_sharps16[] = { 0x66, 0x61, 0xdf, 0 };
+	static const char16_t fa_sharps16[] = { 0x66, 0x61, 0xdf, 0 };
 	static const char fa_sharps8[] = { 0x66, 0x61, (char)0xc3, (char)0x9f, 0 };
-	static const UChar fass16[] = { 0x66, 0x61, 0x73, 0x73, 0 };
+	static const char16_t fass16[] = { 0x66, 0x61, 0x73, 0x73, 0 };
 	static const char fass8[] = { 0x66, 0x61, 0x73, 0x73, 0 };
-	static const UChar fA_BEL[] = { 0x66, 0x41, 7, 0 };
-	static const UChar fa_FFFD[] = { 0x66, 0x61, 0xfffd, 0 };
+	static const char16_t fA_BEL[] = { 0x66, 0x41, 7, 0 };
+	static const char16_t fa_FFFD[] = { 0x66, 0x61, 0xfffd, 0 };
 
-	UChar dest16[10];
+	char16_t dest16[10];
 	char dest8[10];
 	int32_t length;
 

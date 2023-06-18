@@ -3,9 +3,7 @@
 /**
  * The shading code uses gouraud shaded triangle meshes.
  */
-
-enum
-{
+enum {
 	FZ_FUNCTION_BASED = 1,
 	FZ_LINEAR = 2,
 	FZ_RADIAL = 3,
@@ -19,13 +17,10 @@ enum
 	Structure is public to allow derived classes. Do not
 	access the members directly.
 */
-typedef struct
-{
+typedef struct {
 	fz_storable storable;
-
 	fz_rect bbox;		/* can be fz_infinite_rect */
 	fz_colorspace *colorspace;
-
 	fz_matrix matrix;	/* matrix from pattern dict */
 	int use_background;	/* background color for fills but not 'sh' */
 	float background[FZ_MAX_COLORS];
@@ -39,15 +34,12 @@ typedef struct
 	float function[256][FZ_MAX_COLORS + 1];
 
 	int type; /* function, linear, radial, mesh */
-	union
-	{
-		struct
-		{
+	union {
+		struct {
 			int extend[2];
 			float coords[2][3]; /* (x,y,r) twice */
 		} l_or_r;
-		struct
-		{
+		struct {
 			int vprow;
 			int bpflag;
 			int bpcoord;
@@ -57,8 +49,7 @@ typedef struct
 			float c0[FZ_MAX_COLORS];
 			float c1[FZ_MAX_COLORS];
 		} m;
-		struct
-		{
+		struct {
 			fz_matrix matrix;
 			int xdivs;
 			int ydivs;
@@ -123,8 +114,7 @@ void fz_paint_shade(fz_context *ctx, fz_shade *shade, fz_colorspace *override_cs
 /**
  *	Handy routine for processing mesh based shades
  */
-typedef struct
-{
+typedef struct {
 	SPoint2F p;
 	float c[FZ_MAX_COLORS];
 } fz_vertex;

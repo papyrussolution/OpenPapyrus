@@ -25,7 +25,7 @@
 #define U_APPEND_CHAR32(c,target,len) UPRV_BLOCK_MACRO_BEGIN {  \
     if(c <= 0xffff)                                            \
     {                                                           \
-        *(target)++ = (UChar) c;                                \
+        *(target)++ = (char16_t) c;                                \
         len=1;                                                  \
     }                                                           \
     else                                                        \
@@ -40,7 +40,7 @@
 #define U_APPEND_CHAR32_ONLY(c,target) UPRV_BLOCK_MACRO_BEGIN { \
     if(c <= 0xffff)                                            \
     {                                                           \
-        *(target)++ = (UChar) c;                                \
+        *(target)++ = (char16_t) c;                                \
     }                                                           \
     else                                                        \
     {                                                           \
@@ -52,7 +52,7 @@
 
 /* A C representation of a string "object" (to avoid realloc all the time) */
 struct UString {
-  UChar *fChars;
+  char16_t *fChars;
   int32_t fLength;
   int32_t fCapacity;
 };
@@ -75,7 +75,7 @@ U_CFUNC void ustr_cat(struct UString *dst, const struct UString *src,
 U_CFUNC void ustr_ncat(struct UString *dst, const struct UString *src,
                        int32_t n, UErrorCode *status);
 
-U_CFUNC void ustr_ucat(struct UString *dst, UChar c, UErrorCode *status);
+U_CFUNC void ustr_ucat(struct UString *dst, char16_t c, UErrorCode *status);
 U_CFUNC void ustr_u32cat(struct UString *dst, UChar32 c, UErrorCode *status);
-U_CFUNC void ustr_uscat(struct UString *dst, const UChar * src,int len,UErrorCode *status);
+U_CFUNC void ustr_uscat(struct UString *dst, const char16_t * src,int len,UErrorCode *status);
 #endif

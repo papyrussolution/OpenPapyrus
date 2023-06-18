@@ -224,7 +224,7 @@ void Decomposer::rangeHandler(UChar32 start, UChar32 end, Norm &norm)
 	}
 	const UnicodeString & m = *norm.mapping;
 	UnicodeString * decomposed = nullptr;
-	const UChar * s = toUCharPtr(m.getBuffer());
+	const char16_t * s = toUCharPtr(m.getBuffer());
 	int32_t length = m.length();
 	int32_t prev, i = 0;
 	UChar32 c;
@@ -263,7 +263,7 @@ void Decomposer::rangeHandler(UChar32 start, UChar32 end, Norm &norm)
 			decomposed->append(*cNorm.mapping);
 		}
 		else if(Hangul::isHangul(c)) {
-			UChar buffer[3];
+			char16_t buffer[3];
 			int32_t hangulLength = Hangul::decompose(c, buffer);
 			if(norm.mappingType==Norm::ROUND_TRIP && prev!=0) {
 				slfprintf_stderr("gennorm2 error: U+%04lX's round-trip mapping's non-starter U+%04lX decomposes, not possible in Unicode normalization\n", (long)start, (long)c);

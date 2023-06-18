@@ -108,21 +108,21 @@ void StringCaseTest::runIndexedTest(int32_t index, bool exec, const char *&name,
 
 void StringCaseTest::TestCaseConversion()
 {
-	static const UChar uppercaseGreek[] =
+	static const char16_t uppercaseGreek[] =
 	{ 0x399, 0x395, 0x3a3, 0x3a5, 0x3a3, 0x20, 0x03a7, 0x3a1, 0x399, 0x3a3, 0x3a4,
 	  0x39f, 0x3a3, 0 };
 	// "IESUS CHRISTOS"
 
-	static const UChar lowercaseGreek[] =
+	static const char16_t lowercaseGreek[] =
 	{ 0x3b9, 0x3b5, 0x3c3, 0x3c5, 0x3c2, 0x20, 0x03c7, 0x3c1, 0x3b9, 0x3c3, 0x3c4,
 	  0x3bf, 0x3c2, 0 };
 	// "iesus christos"
 
-	static const UChar lowercaseTurkish[] =
+	static const char16_t lowercaseTurkish[] =
 	{ 0x69, 0x73, 0x74, 0x61, 0x6e, 0x62, 0x75, 0x6c, 0x2c, 0x20, 0x6e, 0x6f, 0x74, 0x20, 0x63, 0x6f,
 	  0x6e, 0x73, 0x74, 0x61, 0x6e, 0x74, 0x0131, 0x6e, 0x6f, 0x70, 0x6c, 0x65, 0x21, 0 };
 
-	static const UChar uppercaseTurkish[] =
+	static const char16_t uppercaseTurkish[] =
 	{ 0x54, 0x4f, 0x50, 0x4b, 0x41, 0x50, 0x49, 0x20, 0x50, 0x41, 0x4c, 0x41, 0x43, 0x45, 0x2c, 0x20,
 	  0x0130, 0x53, 0x54, 0x41, 0x4e, 0x42, 0x55, 0x4c, 0 };
 
@@ -183,7 +183,7 @@ void StringCaseTest::TestCaseConversion()
 
 	// more string case mapping tests with the new implementation
 	{
-		static const UChar
+		static const char16_t
 
 		    beforeLower[] = { 0x61, 0x42, 0x49,  0x3a3, 0xdf, 0x3a3, 0x2f, 0xd93f, 0xdfff },
 		    lowerRoot[] =   { 0x61, 0x62, 0x69,  0x3c3, 0xdf, 0x3c2, 0x2f, 0xd93f, 0xdfff },
@@ -468,7 +468,7 @@ void StringCaseTest::TestCasingImpl(const UnicodeString & input,
 	// UTF-8
 	char utf8In[100], utf8Out[100];
 	int32_t utf8InLength, utf8OutLength, resultLength;
-	UChar * buffer;
+	char16_t * buffer;
 
 	IcuTestErrorCode errorCode(*this, "TestCasingImpl");
 	LocalUCaseMapPointer csm(ucasemap_open(localeID, options, errorCode));
@@ -568,7 +568,7 @@ void StringCaseTest::TestCasing() {
 					else if(type==-2) {
 						// Open a trivial break iterator that only delivers { 0, length }
 						// or even just { 0 } as boundaries.
-						static const UChar rules[] = { 0x2e, 0x2a, 0x3b }; // ".*;"
+						static const char16_t rules[] = { 0x2e, 0x2a, 0x3b }; // ".*;"
 						UParseError parseError;
 						iter.adoptInstead(ubrk_openRules(rules, SIZEOFARRAYi(rules), NULL, 0, &parseError,
 						    &status));
@@ -578,13 +578,13 @@ void StringCaseTest::TestCasing() {
 				options = 0;
 				if(whichCase==TEST_TITLE || whichCase==TEST_FOLD) {
 					optionsString = myCase->getString("Options", status);
-					if(optionsString.indexOf((UChar)0x54)>=0) { // T
+					if(optionsString.indexOf((char16_t)0x54)>=0) { // T
 						options |= U_FOLD_CASE_EXCLUDE_SPECIAL_I;
 					}
-					if(optionsString.indexOf((UChar)0x4c)>=0) { // L
+					if(optionsString.indexOf((char16_t)0x4c)>=0) { // L
 						options |= U_TITLECASE_NO_LOWERCASE;
 					}
-					if(optionsString.indexOf((UChar)0x41)>=0) { // A
+					if(optionsString.indexOf((char16_t)0x41)>=0) { // A
 						options |= U_TITLECASE_NO_BREAK_ADJUSTMENT;
 					}
 				}
@@ -724,7 +724,7 @@ void StringCaseTest::assertGreekUpper(const char16_t * s, const char16_t * expec
 	};
 	for(int32_t i = 0; i < SIZEOFARRAYi(capacities); ++i) {
 		int32_t cap = capacities[i];
-		UChar * dest16 = result16.getBuffer(expected16.length() + 1);
+		char16_t * dest16 = result16.getBuffer(expected16.length() + 1);
 		u_memset(dest16, 0x55AA, result16.getCapacity());
 		UErrorCode errorCode = U_ZERO_ERROR;
 		length = u_strToUpper(dest16, cap, s16.getBuffer(), s16.length(), "el", &errorCode);
@@ -855,7 +855,7 @@ void StringCaseTest::TestLongUpper()
 	int32_t length = 0x40000004; // more than 1G UChars
 	UnicodeString s(length, (UChar32)0x390, length);
 	UnicodeString result;
-	UChar * dest = result.getBuffer(length + 1);
+	char16_t * dest = result.getBuffer(length + 1);
 	if(s.isBogus() || dest == NULL) {
 		logln("Out of memory, unable to run this test on this machine.");
 		return;
@@ -1258,7 +1258,7 @@ void StringCaseTest::TestMergeEdits() {
 
 void StringCaseTest::TestCaseMapWithEdits() {
 	IcuTestErrorCode errorCode(*this, "TestCaseMapWithEdits");
-	UChar dest[20];
+	char16_t dest[20];
 	Edits edits;
 
 	int32_t length = CaseMap::toLower("tr", U_OMIT_UNCHANGED_TEXT,
@@ -1430,7 +1430,7 @@ void StringCaseTest::TestCaseMapToString() {
 	// It is a bit of a misnomer until we have CaseMap API that writes to
 	// a UnicodeString, at which point we should change this code here.
 	IcuTestErrorCode errorCode(*this, "TestCaseMapToString");
-	UChar dest[20];
+	char16_t dest[20];
 
 	// Omit unchanged text.
 	int32_t length = CaseMap::toLower("tr", U_OMIT_UNCHANGED_TEXT,
@@ -1532,7 +1532,7 @@ void StringCaseTest::TestLongUnicodeString() {
 	// Code coverage for UnicodeString case mapping code handling
 	// long strings or many changes in a string.
 	UnicodeString s(TRUE,
-	    (const UChar*)
+	    (const char16_t*)
 	    u"aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeeF"
 	    u"aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeeF"
 	    u"aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeeF"
@@ -1540,7 +1540,7 @@ void StringCaseTest::TestLongUnicodeString() {
 	    u"aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeeF"
 	    u"aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeeF", 6 * 51);
 	UnicodeString expected(TRUE,
-	    (const UChar*)
+	    (const char16_t*)
 	    u"AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDDEEEEEEEEEEF"
 	    u"AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDDEEEEEEEEEEF"
 	    u"AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDDEEEEEEEEEEF"

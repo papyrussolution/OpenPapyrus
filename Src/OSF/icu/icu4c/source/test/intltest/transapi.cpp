@@ -515,16 +515,16 @@ void TransliteratorAPITest::TestKeyboardTransliterator1() {
 	s = "";
 	status = U_ZERO_ERROR;
 	index.contextStart = index.contextLimit = index.start = index.limit = 0;
-	logln("Testing transliterate(Replaceable, int32_t, UChar, UErrorCode)");
+	logln("Testing transliterate(Replaceable, int32_t, char16_t, UErrorCode)");
 	for(i = 10; i<SIZEOFARRAYi(Data); i = i+2) {
 		UnicodeString log;
 		if(Data[i+0] != "") {
 			log = s + " + " + Data[i+0] + " -> ";
-			UChar c = Data[i+0].charAt(0);
+			char16_t c = Data[i+0].charAt(0);
 			t->transliterate(s, index, c, status);
 			if(U_FAILURE(status)) {
 				errln(
-					"FAIL: " + t->getID()+ ".transliterate(Replaceable, int32_t[], UChar, UErrorCode)-->" +
+					"FAIL: " + t->getID()+ ".transliterate(Replaceable, int32_t[], char16_t, UErrorCode)-->" +
 					(UnicodeString)u_errorName(status));
 				continue;
 			}
@@ -882,13 +882,13 @@ void TransliteratorAPITest::displayOutput(const UnicodeString & got,
 	got.extractBetween(index.limit, index.contextLimit, d);
 	got.extractBetween(index.contextLimit, got.length(), e);
 	log.append(a).
-	append((UChar)0x7b /*{*/).
+	append((char16_t)0x7b /*{*/).
 	append(b).
-	append((UChar)0x7c /*|*/).
+	append((char16_t)0x7c /*|*/).
 	append(c).
-	append((UChar)0x7c).
+	append((char16_t)0x7c).
 	append(d).
-	append((UChar)0x7d /*}*/).
+	append((char16_t)0x7d /*}*/).
 	append(e);
 	if(got == expected)
 		logln("OK:" + prettify(log));

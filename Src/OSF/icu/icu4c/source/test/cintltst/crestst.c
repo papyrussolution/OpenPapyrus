@@ -33,7 +33,7 @@ static void TestTable32();
 static void TestFileStream();
 /*****************************************************************************/
 
-const UChar kERROR[] = { 0x0045 /*E*/, 0x0052 /*'R'*/, 0x0052 /*'R'*/,
+const char16_t kERROR[] = { 0x0045 /*E*/, 0x0052 /*'R'*/, 0x0052 /*'R'*/,
 			 0x004F /*'O'*/, 0x0052 /*'R'*/, 0x0000 /*'\0'*/};
 
 /*****************************************************************************/
@@ -116,7 +116,7 @@ void TestAliasConflict() {
 	UErrorCode status = U_ZERO_ERROR;
 	UResourceBundle * he = NULL;
 	UResourceBundle * iw = NULL;
-	const UChar * result = NULL;
+	const char16_t * result = NULL;
 	int32_t resultLen;
 
 	he = ures_open(NULL, "he", &status);
@@ -160,9 +160,9 @@ void TestResourceBundles()
 void TestConstruction1()
 {
 	UResourceBundle * test1 = 0, * test2 = 0;
-	const UChar * result1, * result2;
+	const char16_t * result1, * result2;
 	int32_t resultLen;
-	UChar temp[7];
+	char16_t temp[7];
 
 	UErrorCode err = U_ZERO_ERROR;
 	const char * testdatapath;
@@ -248,9 +248,9 @@ bool testTag(const char * frag,
 	char tag[99];
 	char action[256];
 	UErrorCode status = U_ZERO_ERROR, expected_resource_status = U_ZERO_ERROR;
-	UChar * base = NULL;
-	UChar * expected_string = NULL;
-	const UChar * string = NULL;
+	char16_t * base = NULL;
+	char16_t * expected_string = NULL;
+	const char16_t * string = NULL;
 	char item_tag[10];
 	int32_t i, j;
 	int32_t actual_bundle;
@@ -325,7 +325,7 @@ bool testTag(const char * frag,
 					base = NULL;
 				}
 
-				base = (UChar *)SAlloc::M(sizeof(UChar)*(strlen(NAME[j]) + 1));
+				base = (char16_t *)SAlloc::M(sizeof(char16_t)*(strlen(NAME[j]) + 1));
 				u_uastrcpy(base, NAME[j]);
 
 				break;
@@ -335,7 +335,7 @@ bool testTag(const char * frag,
 					SAlloc::F(base);
 					base = NULL;
 				}
-				base = (UChar *)SAlloc::M(sizeof(UChar) * 1);
+				base = (char16_t *)SAlloc::M(sizeof(char16_t) * 1);
 				*base = 0x0000;
 			}
 		}
@@ -366,11 +366,11 @@ bool testTag(const char * frag,
 		CONFIRM_ErrorCode(status, expected_resource_status);
 
 		if(U_SUCCESS(status)) {
-			expected_string = (UChar *)SAlloc::M(sizeof(UChar)*(u_strlen(base) + 3));
+			expected_string = (char16_t *)SAlloc::M(sizeof(char16_t)*(u_strlen(base) + 3));
 			u_strcpy(expected_string, base);
 		}
 		else {
-			expected_string = (UChar *)SAlloc::M(sizeof(UChar)*(u_strlen(kERROR) + 1));
+			expected_string = (char16_t *)SAlloc::M(sizeof(char16_t)*(u_strlen(kERROR) + 1));
 			u_strcpy(expected_string, kERROR);
 		}
 
@@ -403,7 +403,7 @@ static void TestFallback()
 	UErrorCode status = U_ZERO_ERROR;
 	UResourceBundle * fr_FR = NULL;
 	UResourceBundle * subResource = NULL;
-	const UChar * junk; /* ignored */
+	const char16_t * junk; /* ignored */
 	int32_t resultLen;
 
 	log_verbose("Opening fr_FR..");
@@ -638,7 +638,7 @@ static void TestTable32() {
 
 	/* ### TODO UResourceBundle staticItem={ 0 }; - need to know the size */
 	UResourceBundle * res, * item;
-	const UChar * s;
+	const char16_t * s;
 	const char * key;
 	UErrorCode errorCode;
 	int32_t i, j, number, parsedNumber, length, count;

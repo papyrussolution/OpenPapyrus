@@ -49,9 +49,9 @@ void addDateForRgrTest(TestNode** root)
 void Test4029195()
 {
 	int32_t resultlength, resultlengthneeded;
-	UChar  * fmdt, * todayS, * rt;
-	UChar * pat = NULL;
-	UChar * temp;
+	char16_t  * fmdt, * todayS, * rt;
+	char16_t * pat = NULL;
+	char16_t * temp;
 	UDate today, d1;
 	UDateFormat * df;
 	int32_t parsepos;
@@ -71,7 +71,7 @@ void Test4029195()
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultlengthneeded + 1;
-		pat = (UChar *)SAlloc::M(sizeof(UChar) * resultlength);
+		pat = (char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);
 		udat_toPattern(df, TRUE, pat, resultlength, &status);
 	}
 
@@ -86,7 +86,7 @@ void Test4029195()
 		return;
 	}
 
-	temp = (UChar *)SAlloc::M(sizeof(UChar) * 10);
+	temp = (char16_t *)SAlloc::M(sizeof(char16_t) * 10);
 	u_uastrcpy(temp, "M yyyy dd");
 	udat_applyPattern(df, TRUE, temp, u_strlen(temp));
 
@@ -125,9 +125,9 @@ void Test4056591()
 	UCalendar * cal;
 	UDateFormat * def;
 	UDate start, exp, got;
-	UChar s[10];
-	UChar * gotdate, * expdate;
-	UChar pat[10];
+	char16_t s[10];
+	char16_t * gotdate, * expdate;
+	char16_t pat[10];
 	UDate d[4];
 	UErrorCode status = U_ZERO_ERROR;
 	const char * strings[] = {
@@ -197,10 +197,10 @@ void Test4056591()
 void Test4059917()
 {
 	UDateFormat* def;
-	UChar * myDate;
+	char16_t * myDate;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar pattern[11];
-	UChar tzID[4];
+	char16_t pattern[11];
+	char16_t tzID[4];
 
 	log_verbose("Testing apply pattern and to pattern regressively\n");
 	u_uastrcpy(tzID, "PST");
@@ -212,7 +212,7 @@ void Test4059917()
 		    myErrorName(status));
 		return;
 	}
-	myDate = (UChar *)SAlloc::M(sizeof(UChar) * 11);
+	myDate = (char16_t *)SAlloc::M(sizeof(char16_t) * 11);
 	u_uastrcpy(myDate, "1970/01/12");
 
 	aux917(def, myDate);
@@ -230,12 +230,12 @@ void Test4059917()
 	SAlloc::F(myDate);
 }
 
-void aux917(UDateFormat * fmt, UChar * str)
+void aux917(UDateFormat * fmt, char16_t * str)
 {
 	int32_t resultlength, resultlengthneeded;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar * formatted = NULL;
-	UChar * pat = NULL;
+	char16_t * formatted = NULL;
+	char16_t * pat = NULL;
 	UDate d1 = 1000000000.0;
 
 	resultlength = 0;
@@ -243,7 +243,7 @@ void aux917(UDateFormat * fmt, UChar * str)
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultlengthneeded + 1;
-		pat = (UChar *)SAlloc::M(sizeof(UChar) * (resultlength));
+		pat = (char16_t *)SAlloc::M(sizeof(char16_t) * (resultlength));
 		udat_toPattern(fmt, TRUE, pat, resultlength, &status);
 	}
 	if(U_FAILURE(status)) {
@@ -269,8 +269,8 @@ void Test4060212()
 	UDateFormat * formatter, * fmt;
 	UErrorCode status = U_ZERO_ERROR;
 	UDate myDate;
-	UChar * myString;
-	UChar dateString[30], pattern[20], tzID[4];
+	char16_t * myString;
+	char16_t dateString[30], pattern[20], tzID[4];
 	u_uastrcpy(dateString, "1995-040.05:01:29 -8");
 	u_uastrcpy(pattern, "yyyy-DDD.hh:mm:ss z");
 
@@ -314,7 +314,7 @@ void Test4061287()
 	UDateFormat * df;
 	UErrorCode status = U_ZERO_ERROR;
 	UDate myDate;
-	UChar pattern[21], dateString[11];
+	char16_t pattern[21], dateString[11];
 
 	u_uastrcpy(dateString, "35/13/1971");
 	u_uastrcpy(pattern, "dd/mm/yyyy");
@@ -360,11 +360,11 @@ void Test4073003()
 {
 	int32_t pos, i;
 	UDate d, dd;
-	UChar * datestr;
-	UChar temp[15];
+	char16_t * datestr;
+	char16_t temp[15];
 	UErrorCode status = U_ZERO_ERROR;
 	UDateFormat * fmt;
-	UChar * result, * result2;
+	char16_t * result, * result2;
 	const char * tests [] = {
 		"12/25/61",
 		"12/25/1961",
@@ -383,7 +383,7 @@ void Test4073003()
 
 	for(i = 0; i < 4; i += 2) {
 		status = U_ZERO_ERROR;
-		datestr = (UChar *)SAlloc::M(sizeof(UChar) * (strlen(tests[i])+1));
+		datestr = (char16_t *)SAlloc::M(sizeof(char16_t) * (strlen(tests[i])+1));
 		u_uastrcpy(datestr, tests[i]);
 
 		pos = 0;
@@ -393,7 +393,7 @@ void Test4073003()
 		}
 
 		SAlloc::F(datestr);
-		datestr = (UChar *)SAlloc::M(sizeof(UChar) * (strlen(tests[i+1])+1));
+		datestr = (char16_t *)SAlloc::M(sizeof(char16_t) * (strlen(tests[i+1])+1));
 		u_uastrcpy(datestr, tests[i+1]);
 
 		pos = 0;
@@ -429,8 +429,8 @@ void Test4162071()
 	UDate x;
 	UErrorCode status = U_ZERO_ERROR;
 	UDateFormat * df;
-	UChar datestr[30];
-	UChar format[50];
+	char16_t datestr[30];
+	char16_t format[50];
 	u_uastrcpy(datestr, "Thu, 30-Jul-1999 11:51:14 GMT");
 	u_uastrcpy(format, "EEE', 'dd-MMM-yyyy HH:mm:ss z"); /*  RFC 822/1123 */
 	status = U_ZERO_ERROR;
@@ -456,10 +456,10 @@ void Test4162071()
 void Test714(void)
 {
 	UDate d = 978103543000.0;
-	UChar temp[20];
+	char16_t temp[20];
 	UErrorCode status = U_ZERO_ERROR;
 	UDateFormat * fmt;
-	UChar * result;
+	char16_t * result;
 	const char * expect =  "7:25:43 AM";
 	ctest_setTimeZone(NULL, &status);
 	fmt = udat_open(UDAT_MEDIUM, UDAT_NONE, "en_US_CA", NULL, -1, NULL, 0, &status);
@@ -485,159 +485,159 @@ void Test714(void)
 
 enum { DATE_TEXT_MAX_CHARS = 64 };
 
-static const UChar zonePST[] = { 0x50, 0x53, 0x54, 0 }; /* "PST" */
+static const char16_t zonePST[] = { 0x50, 0x53, 0x54, 0 }; /* "PST" */
 static const UDate july022008 = 1215000001979.0; /* 02 July 2008 5:00:01.979 AM PDT (near ICU 4.0 release date :-) */
 static const double dayMillisec = 8.64e+07;
 
-static const UChar dMyGGGPattern[] = { 0x64, 0x64, 0x20, 0x4D, 0x4D, 0x4D, 0x20, 0x79, 0x79, 0x79, 0x79, 0x20, 0x47, 0x47, 0x47, 0 };           /*
+static const char16_t dMyGGGPattern[] = { 0x64, 0x64, 0x20, 0x4D, 0x4D, 0x4D, 0x20, 0x79, 0x79, 0x79, 0x79, 0x20, 0x47, 0x47, 0x47, 0 };           /*
                                                                                                                                                    "dd
                                                                                                                                                    MMM
                                                                                                                                                    yyyy
                                                                                                                                                    GGG"
    */
-static const UChar dMyGGGGGPattern[] =
+static const char16_t dMyGGGGGPattern[] =
 { 0x64, 0x64, 0x20, 0x4D, 0x4D, 0x4D, 0x20, 0x79, 0x79, 0x79, 0x79, 0x20, 0x47, 0x47, 0x47, 0x47, 0x47, 0 };                       /*
                                                                                                                                       "dd
                                                                                                                                       MMM
                                                                                                                                       yyyy
                                                                                                                                       GGGGG"
         */
-static const UChar dMyGGGText[] = { 0x30, 0x32, 0x20, 0x4A, 0x75, 0x6C, 0x20, 0x32, 0x30, 0x30, 0x38, 0x20, 0x41, 0x44, 0 };                /*
+static const char16_t dMyGGGText[] = { 0x30, 0x32, 0x20, 0x4A, 0x75, 0x6C, 0x20, 0x32, 0x30, 0x30, 0x38, 0x20, 0x41, 0x44, 0 };                /*
                                                                                                                                                "02
                                                                                                                                                Jul
                                                                                                                                                2008
                                                                                                                                                AD"
         */
-static const UChar dMyGGGGGText[] = { 0x30, 0x32, 0x20, 0x4A, 0x75, 0x6C, 0x20, 0x32, 0x30, 0x30, 0x38, 0x20, 0x41, 0 };                     /*
+static const char16_t dMyGGGGGText[] = { 0x30, 0x32, 0x20, 0x4A, 0x75, 0x6C, 0x20, 0x32, 0x30, 0x30, 0x38, 0x20, 0x41, 0 };                     /*
                                                                                                                                                 "02
                                                                                                                                                 Jul
                                                                                                                                                 2008
                                                                                                                                                 A"
          */
-static const UChar edMyPattern[] = { 0x65, 0x20, 0x64, 0x64, 0x20, 0x4D, 0x4D, 0x4D, 0x20, 0x79, 0x79, 0x79, 0x79, 0 };                     /*
+static const char16_t edMyPattern[] = { 0x65, 0x20, 0x64, 0x64, 0x20, 0x4D, 0x4D, 0x4D, 0x20, 0x79, 0x79, 0x79, 0x79, 0 };                     /*
                                                                                                                                                "e
                                                                                                                                                dd
                                                                                                                                                MMM
                                                                                                                                                yyyy"
         */
-static const UChar eedMyPattern[] = { 0x65, 0x65, 0x20, 0x64, 0x64, 0x20, 0x4D, 0x4D, 0x4D, 0x20, 0x79, 0x79, 0x79, 0x79, 0 };                /*
+static const char16_t eedMyPattern[] = { 0x65, 0x65, 0x20, 0x64, 0x64, 0x20, 0x4D, 0x4D, 0x4D, 0x20, 0x79, 0x79, 0x79, 0x79, 0 };                /*
                                                                                                                                                  "ee
                                                                                                                                                  dd
                                                                                                                                                  MMM
                                                                                                                                                  yyyy"
  */
-static const UChar cdMyPattern[] = { 0x63, 0x20, 0x64, 0x64, 0x20, 0x4D, 0x4D, 0x4D, 0x20, 0x79, 0x79, 0x79, 0x79, 0 };                     /*
+static const char16_t cdMyPattern[] = { 0x63, 0x20, 0x64, 0x64, 0x20, 0x4D, 0x4D, 0x4D, 0x20, 0x79, 0x79, 0x79, 0x79, 0 };                     /*
                                                                                                                                                "c
                                                                                                                                                dd
                                                                                                                                                MMM
                                                                                                                                                yyyy"
         */
-static const UChar ccdMyPattern[] = { 0x63, 0x63, 0x20, 0x64, 0x64, 0x20, 0x4D, 0x4D, 0x4D, 0x20, 0x79, 0x79, 0x79, 0x79, 0 };                /*
+static const char16_t ccdMyPattern[] = { 0x63, 0x63, 0x20, 0x64, 0x64, 0x20, 0x4D, 0x4D, 0x4D, 0x20, 0x79, 0x79, 0x79, 0x79, 0 };                /*
                                                                                                                                                  "cc
                                                                                                                                                  dd
                                                                                                                                                  MMM
                                                                                                                                                  yyyy"
  */
-static const UChar edMyText[]        = { 0x34, 0x20, 0x30, 0x32, 0x20, 0x4A, 0x75, 0x6C, 0x20, 0x32, 0x30, 0x30, 0x38, 0 };                     /*
+static const char16_t edMyText[]        = { 0x34, 0x20, 0x30, 0x32, 0x20, 0x4A, 0x75, 0x6C, 0x20, 0x32, 0x30, 0x30, 0x38, 0 };                     /*
                                                                                                                                                    "4
                                                                                                                                                    02
                                                                                                                                                    Jul
                                                                                                                                                    2008"
    */
-static const UChar eedMyText[] = { 0x30, 0x34, 0x20, 0x30, 0x32, 0x20, 0x4A, 0x75, 0x6C, 0x20, 0x32, 0x30, 0x30, 0x38, 0 };                /*
+static const char16_t eedMyText[] = { 0x30, 0x34, 0x20, 0x30, 0x32, 0x20, 0x4A, 0x75, 0x6C, 0x20, 0x32, 0x30, 0x30, 0x38, 0 };                /*
                                                                                                                                               "04
                                                                                                                                               02
                                                                                                                                               Jul
                                                                                                                                               2008"
        */
-static const UChar eeedMyPattern[] = { 0x65, 0x65, 0x65, 0x20, 0x64, 0x64, 0x20, 0x4D, 0x4D, 0x4D, 0x20, 0x79, 0x79, 0x79, 0x79, 0 };           /*
+static const char16_t eeedMyPattern[] = { 0x65, 0x65, 0x65, 0x20, 0x64, 0x64, 0x20, 0x4D, 0x4D, 0x4D, 0x20, 0x79, 0x79, 0x79, 0x79, 0 };           /*
                                                                                                                                                    "eee
                                                                                                                                                    dd
                                                                                                                                                    MMM
                                                                                                                                                    yyyy"
    */
-static const UChar EEEdMyPattern[] = { 0x45, 0x45, 0x45, 0x20, 0x64, 0x64, 0x20, 0x4D, 0x4D, 0x4D, 0x20, 0x79, 0x79, 0x79, 0x79, 0 };           /*
+static const char16_t EEEdMyPattern[] = { 0x45, 0x45, 0x45, 0x20, 0x64, 0x64, 0x20, 0x4D, 0x4D, 0x4D, 0x20, 0x79, 0x79, 0x79, 0x79, 0 };           /*
                                                                                                                                                    "EEE
                                                                                                                                                    dd
                                                                                                                                                    MMM
                                                                                                                                                    yyyy"
    */
-static const UChar EEdMyPattern[] = { 0x45, 0x45, 0x20, 0x64, 0x64, 0x20, 0x4D, 0x4D, 0x4D, 0x20, 0x79, 0x79, 0x79, 0x79, 0 };                /*
+static const char16_t EEdMyPattern[] = { 0x45, 0x45, 0x20, 0x64, 0x64, 0x20, 0x4D, 0x4D, 0x4D, 0x20, 0x79, 0x79, 0x79, 0x79, 0 };                /*
                                                                                                                                                  "EE
                                                                                                                                                  dd
                                                                                                                                                  MMM
                                                                                                                                                  yyyy"
  */
-static const UChar eeedMyText[] = { 0x57, 0x65, 0x64, 0x20, 0x30, 0x32, 0x20, 0x4A, 0x75, 0x6C, 0x20, 0x32, 0x30, 0x30, 0x38, 0 };           /*
+static const char16_t eeedMyText[] = { 0x57, 0x65, 0x64, 0x20, 0x30, 0x32, 0x20, 0x4A, 0x75, 0x6C, 0x20, 0x32, 0x30, 0x30, 0x38, 0 };           /*
                                                                                                                                                 "Wed
                                                                                                                                                 02
                                                                                                                                                 Jul
                                                                                                                                                 2008"
          */
-static const UChar eeeedMyPattern[]  =
+static const char16_t eeeedMyPattern[]  =
 { 0x65, 0x65, 0x65, 0x65, 0x20, 0x64, 0x64, 0x20, 0x4D, 0x4D, 0x4D, 0x20, 0x79, 0x79, 0x79, 0x79, 0 };                             /*
                                                                                                                                       "eeee
                                                                                                                                       dd
                                                                                                                                       MMM
                                                                                                                                       yyyy"
         */
-static const UChar eeeedMyText[] =
+static const char16_t eeeedMyText[] =
 { 0x57, 0x65, 0x64, 0x6E, 0x65, 0x73, 0x64, 0x61, 0x79, 0x20, 0x30, 0x32, 0x20, 0x4A, 0x75, 0x6C, 0x20, 0x32, 0x30, 0x30, 0x38, 0 };               /*
                                                                                                                                                       "Wednesday
                                                                                                                                                       02
                                                                                                                                                       Jul
                                                                                                                                                       2008"
       */
-static const UChar eeeeedMyPattern[] =
+static const char16_t eeeeedMyPattern[] =
 { 0x65, 0x65, 0x65, 0x65, 0x65, 0x20, 0x64, 0x64, 0x20, 0x4D, 0x4D, 0x4D, 0x20, 0x79, 0x79, 0x79, 0x79, 0 };                       /*
                                                                                                                                       "eeeee
                                                                                                                                       dd
                                                                                                                                       MMM
                                                                                                                                       yyyy"
         */
-static const UChar eeeeedMyText[] = { 0x57, 0x20, 0x30, 0x32, 0x20, 0x4A, 0x75, 0x6C, 0x20, 0x32, 0x30, 0x30, 0x38, 0 };                     /*
+static const char16_t eeeeedMyText[] = { 0x57, 0x20, 0x30, 0x32, 0x20, 0x4A, 0x75, 0x6C, 0x20, 0x32, 0x30, 0x30, 0x38, 0 };                     /*
                                                                                                                                                 "W
                                                                                                                                                 02
                                                                                                                                                 Jul
                                                                                                                                                 2008"
          */
-static const UChar ewYPattern[] = { 0x65, 0x20, 0x77, 0x77, 0x20, 0x59, 0x59, 0x59, 0x59, 0 };                                         /*
+static const char16_t ewYPattern[] = { 0x65, 0x20, 0x77, 0x77, 0x20, 0x59, 0x59, 0x59, 0x59, 0 };                                         /*
                                                                                                                                           "e
                                                                                                                                           ww
                                                                                                                                           YYYY"
    */
-static const UChar cwYPattern[] = { 0x63, 0x20, 0x77, 0x77, 0x20, 0x59, 0x59, 0x59, 0x59, 0 };                                         /*
+static const char16_t cwYPattern[] = { 0x63, 0x20, 0x77, 0x77, 0x20, 0x59, 0x59, 0x59, 0x59, 0 };                                         /*
                                                                                                                                           "c
                                                                                                                                           ww
                                                                                                                                           YYYY"
    */
-static const UChar ewYText[]         = { 0x34, 0x20, 0x32, 0x37, 0x20, 0x32, 0x30, 0x30, 0x38, 0 };                                         /*
+static const char16_t ewYText[]         = { 0x34, 0x20, 0x32, 0x37, 0x20, 0x32, 0x30, 0x30, 0x38, 0 };                                         /*
                                                                                                                                                "4
                                                                                                                                                27
                                                                                                                                                2008"
         */
-static const UChar HHmmssPattern[] = { 0x48, 0x48, 0x3A, 0x6D, 0x6D, 0x3A, 0x73, 0x73, 0 };                                              /*
+static const char16_t HHmmssPattern[] = { 0x48, 0x48, 0x3A, 0x6D, 0x6D, 0x3A, 0x73, 0x73, 0 };                                              /*
                                                                                                                                             "HH:mm:ss"
      */
-static const UChar HHmmssText[] = { 0x30, 0x35, 0x3A, 0x30, 0x30, 0x3A, 0x30, 0x31, 0 };                                              /*
+static const char16_t HHmmssText[] = { 0x30, 0x35, 0x3A, 0x30, 0x30, 0x3A, 0x30, 0x31, 0 };                                              /*
                                                                                                                                          "05:00:01"
   */
-static const UChar ssSPattern[] = { 0x73, 0x73, 0x2E, 0x53, 0 };                                                                  /*
+static const char16_t ssSPattern[] = { 0x73, 0x73, 0x2E, 0x53, 0 };                                                                  /*
                                                                                                                                      "ss.S"
        */
-static const UChar ssSText[]         = { 0x30, 0x31, 0x2E, 0x39, 0 };                                                                  /*
+static const char16_t ssSText[]         = { 0x30, 0x31, 0x2E, 0x39, 0 };                                                                  /*
                                                                                                                                           "01.9"
    */
-static const UChar ssSSPattern[] = { 0x73, 0x73, 0x2E, 0x53, 0x53, 0 };                                                             /*
+static const char16_t ssSSPattern[] = { 0x73, 0x73, 0x2E, 0x53, 0x53, 0 };                                                             /*
                                                                                                                                        "ss.SS"
          */
-static const UChar ssSSText[]        = { 0x30, 0x31, 0x2E, 0x39, 0x37, 0 };                                                             /*
+static const char16_t ssSSText[]        = { 0x30, 0x31, 0x2E, 0x39, 0x37, 0 };                                                             /*
                                                                                                                                            "01.97"
     */
 
 typedef struct {
-	const UChar * pattern;
-	const UChar * text;
+	const char16_t * pattern;
+	const char16_t * text;
 	const char * label;
 } DatePatternAndText;
 static const DatePatternAndText datePatternsAndText[] = {
@@ -668,7 +668,7 @@ void Test_GEec(void)
 	if(U_SUCCESS(status)) {
 		const DatePatternAndText * patTextPtr;
 		for(patTextPtr = datePatternsAndText; patTextPtr->pattern != NULL; ++patTextPtr) {
-			UChar dmyGnText[DATE_TEXT_MAX_CHARS];
+			char16_t dmyGnText[DATE_TEXT_MAX_CHARS];
 			char byteText[3*DATE_TEXT_MAX_CHARS];
 			int32_t dmyGnTextLen;
 			UDate dateResult;
@@ -681,7 +681,7 @@ void Test_GEec(void)
 				status = U_ZERO_ERROR;
 			}
 			else if(u_strcmp(dmyGnText, patTextPtr->text) != 0) {
-				log_err("FAIL: udat_format with %s: wrong UChar[] result %s\n", patTextPtr->label,
+				log_err("FAIL: udat_format with %s: wrong char16_t[] result %s\n", patTextPtr->label,
 				    u_austrcpy(byteText, dmyGnText));
 			}
 
@@ -705,17 +705,17 @@ void Test_GEec(void)
 
 /*INTERNAL FUNCTION USED */
 
-UChar * myFormatit(UDateFormat* datdef, UDate d1)
+char16_t * myFormatit(UDateFormat* datdef, UDate d1)
 {
-	UChar * result1 = NULL;
+	char16_t * result1 = NULL;
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t resultlength = 0;
 	int32_t resultlengthneeded = udat_format(datdef, d1, NULL, resultlength, NULL, &status);
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultlengthneeded+1;
-		/*result1=(UChar *)SAlloc::M(sizeof(UChar) * resultlength);*/ /*this leaks*/
-		result1 = (UChar *)ctst_malloc(sizeof(UChar) * resultlength); /*this won't*/
+		/*result1=(char16_t *)SAlloc::M(sizeof(char16_t) * resultlength);*/ /*this leaks*/
+		result1 = (char16_t *)ctst_malloc(sizeof(char16_t) * resultlength); /*this won't*/
 		udat_format(datdef, d1, result1, resultlength, NULL, &status);
 	}
 	if(U_FAILURE(status)) {

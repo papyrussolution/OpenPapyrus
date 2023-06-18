@@ -342,7 +342,7 @@ int SGetTimeFromRemoteServer(const char * pServerName, LDATETIME * pDtm)
 				SStringU tm_serv_name; // @v10.8.2 
 				// @v10.8.2 WCHAR  tm_serv[MAXPATH];
 				// @v10.8.2 memzero(tm_serv, sizeof(tm_serv));
-				// @v10.8.2 MultiByteToWideChar(1251, 0, pServerName, (int)sn_len, tm_serv, (int)SIZEOFARRAY(tm_serv));
+				// @v10.8.2 MultiByteToWideChar(1251, 0, pServerName, (int)sn_len, tm_serv, SIZEOFARRAYi(tm_serv));
 				tm_serv_name.CopyFromMb_OUTER(pServerName, sn_len); // @v10.8.2
 				int    oserr = proc_NetRemoteTOD(tm_serv_name, reinterpret_cast<LPBYTE *>(&p_server_dtm));
 				if(oserr == NERR_Success && p_server_dtm) {

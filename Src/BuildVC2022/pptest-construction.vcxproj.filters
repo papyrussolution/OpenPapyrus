@@ -16,5 +16,6 @@
     <ClCompile Include="..\PPTEST\UNIT\test-onig.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-sarc.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-etc.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-string.cpp" />
   </ItemGroup>
 </Project>

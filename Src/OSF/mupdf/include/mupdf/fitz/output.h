@@ -1,12 +1,11 @@
 #ifndef MUPDF_FITZ_OUTPUT_H
 #define MUPDF_FITZ_OUTPUT_H
 
-#include "mupdf/fitz/system.h"
-#include "mupdf/fitz/context.h"
-#include "mupdf/fitz/buffer.h"
-#include "mupdf/fitz/string-util.h"
-#include "mupdf/fitz/stream.h"
-
+//#include "mupdf/fitz/system.h"
+//#include "mupdf/fitz/context.h"
+//#include "mupdf/fitz/buffer.h"
+//#include "mupdf/fitz/string-util.h"
+//#include "mupdf/fitz/stream.h"
 /**
 	Generic output streams - generalise between outputting to a
 	file, a buffer, etc.
@@ -77,8 +76,7 @@ typedef fz_stream *(fz_stream_from_output_fn)(fz_context *ctx, void *state);
 */
 typedef void (fz_truncate_fn)(fz_context *ctx, void *state);
 
-typedef struct
-{
+typedef struct {
 	void *state;
 	fz_output_write_fn *write;
 	fz_output_seek_fn *seek;

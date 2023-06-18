@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 
 static void pdf_filter_xobject(fz_context * ctx, pdf_document * doc, pdf_obj * xobj, pdf_obj * page_res, pdf_filter_options * filter);
 

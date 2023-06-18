@@ -83,7 +83,7 @@ static const UChar32 src32[] = {
 	0xFF43, 0xFF44, 0xFF45, 0xFF46, 0xFF47, 0xFF48, 0xFF49, 0xFF4A, 0x000D, 0x000A, 0x0000
 };
 
-static const UChar src16[] = {
+static const char16_t src16[] = {
 	0x00A8, 0x3003, 0x3005, 0x2015, 0xFF5E, 0x2016, 0x2026, 0x2018, 0x000D, 0x000A,
 	0x2019, 0x201C, 0x201D, 0x3014, 0x3015, 0x3008, 0x3009, 0x300A, 0x000D, 0x000A,
 	0x300B, 0x300C, 0x300D, 0x300E, 0x300F, 0x3016, 0x3017, 0x3010, 0x000D, 0x000A,
@@ -188,7 +188,7 @@ static void Test_strToUTF32_surrogates() {
 	int32_t numSubstitutions;
 	int i;
 
-	static const UChar surr16[] = { 0x41, 0xd900, 0x61, 0xdc00, 0x5a, 0xd900, 0xdc00, 0x7a, 0 };
+	static const char16_t surr16[] = { 0x41, 0xd900, 0x61, 0xdc00, 0x5a, 0xd900, 0xdc00, 0x7a, 0 };
 	static const UChar32 expected[] = { 0x5a, 0x50000, 0x7a, 0 };
 	static const UChar32 expected_FFFD[] = { 0x41, 0xfffd, 0x61, 0xfffd, 0x5a, 0x50000, 0x7a, 0 };
 	static const UChar32 expected_12345[] = { 0x41, 0x12345, 0x61, 0x12345, 0x5a, 0x50000, 0x7a, 0 };
@@ -297,7 +297,7 @@ static void Test_strToUTF32_surrogates() {
 static void Test_strFromUTF32() 
 {
 	UErrorCode err = U_ZERO_ERROR;
-	UChar uTarget[400];
+	char16_t uTarget[400];
 	int i = 0;
 	/* first with length */
 	int32_t uDestLen = -2;
@@ -354,14 +354,14 @@ static void Test_strFromUTF32()
 static void Test_strFromUTF32_surrogates() 
 {
 	UErrorCode err = U_ZERO_ERROR;
-	UChar uTarget[400];
+	char16_t uTarget[400];
 	int32_t uDestLen;
 	int32_t numSubstitutions;
 	int i;
 	static const UChar32 surr32[] = { 0x41, 0xd900, 0x61, 0xdc00, -1, 0x110000, 0x5a, 0x50000, 0x7a, 0 };
-	static const UChar expected[] = { 0x5a, 0xd900, 0xdc00, 0x7a, 0 };
-	static const UChar expected_FFFD[] = { 0x41, 0xfffd, 0x61, 0xfffd, 0xfffd, 0xfffd, 0x5a, 0xd900, 0xdc00, 0x7a, 0 };
-	static const UChar expected_12345[] = { 0x41, 0xd808, 0xdf45, 0x61, 0xd808, 0xdf45, 0xd808, 0xdf45, 0xd808, 0xdf45, 0x5a, 0xd900, 0xdc00, 0x7a, 0 };
+	static const char16_t expected[] = { 0x5a, 0xd900, 0xdc00, 0x7a, 0 };
+	static const char16_t expected_FFFD[] = { 0x41, 0xfffd, 0x61, 0xfffd, 0xfffd, 0xfffd, 0x5a, 0xd900, 0xdc00, 0x7a, 0 };
+	static const char16_t expected_12345[] = { 0x41, 0xd808, 0xdf45, 0x61, 0xd808, 0xdf45, 0xd808, 0xdf45, 0xd808, 0xdf45, 0x5a, 0xd900, 0xdc00, 0x7a, 0 };
 	int32_t len32 = SIZEOFARRAYi(surr32);
 	for(i = 0; i < 6; ++i) {
 		err = U_ZERO_ERROR;
@@ -444,14 +444,14 @@ static void Test_strFromUTF32_surrogates()
 static void Test_UChar_UTF8_API() 
 {
 	UErrorCode err = U_ZERO_ERROR;
-	UChar uTemp[1];
+	char16_t uTemp[1];
 	char u8Temp[1];
-	UChar * uTarget = uTemp;
+	char16_t * uTarget = uTemp;
 	const char * u8Src;
 	int32_t u8SrcLen = 0;
 	int32_t uTargetLength = 0;
 	int32_t uDestLen = 0;
-	const UChar * uSrc = src16;
+	const char16_t * uSrc = src16;
 	int32_t uSrcLen   = sizeof(src16)/2;
 	char * u8Target = u8Temp;
 	int32_t u8TargetLength = 0;
@@ -504,7 +504,7 @@ static void Test_UChar_UTF8_API()
 		u_strFromUTF8(uTarget, uTargetLength, &uDestLen, u8Src, u8SrcLen, &err);
 		if(err == U_BUFFER_OVERFLOW_ERROR && uTemp[0] == 0x1234) {
 			err = U_ZERO_ERROR;
-			uTarget = (UChar *)SAlloc::M(sizeof(UChar) * (uDestLen+1));
+			uTarget = (char16_t *)SAlloc::M(sizeof(char16_t) * (uDestLen+1));
 			uTargetLength =  uDestLen;
 
 			uTarget[uTargetLength] = 0xfff0;
@@ -579,7 +579,7 @@ static void Test_UChar_UTF8_API()
 		u_strFromUTF8(NULL, uTargetLength, &uDestLen, u8Src, u8SrcLen, &err);
 		if(err == U_BUFFER_OVERFLOW_ERROR) {
 			err = U_ZERO_ERROR;
-			uTarget = (UChar *)SAlloc::M(sizeof(UChar) * (uDestLen+1));
+			uTarget = (char16_t *)SAlloc::M(sizeof(char16_t) * (uDestLen+1));
 			uTargetLength =  uDestLen;
 
 			u_strFromUTF8(uTarget, uTargetLength, &uDestLen, u8Src, u8SrcLen, &err);
@@ -612,7 +612,7 @@ static void Test_UChar_UTF8_API()
 	/* test UTF-8 with single surrogates - illegal in Unicode 3.2 */
 	// Since ICU 60, each surrogate byte sequence is treated as 3 single-byte errors.
 	{
-		static const UChar
+		static const char16_t
 		    withLead16[] = { 0x1800, 0xd89a, 0x0061 },
 		    withTrail16[] = { 0x1800, 0xdcba, 0x0061, 0 },
 		    withTrail16SubFFFD[] = { 0x1800, 0xfffd, 0xfffd, 0xfffd, 0x0061, 0 }, /* sub==U+FFFD */
@@ -624,7 +624,7 @@ static void Test_UChar_UTF8_API()
 		    withTrail8[] = { 0xe1, 0xa0, 0x80, 0xed, 0xb2, 0xba, 0x61, 0 },
 		    withTrail8Sub1A[] = { 0xe1, 0xa0, 0x80, 0x1a, 0x61, 0 }, /* sub==U+001A */
 		    withTrail8SubFFFD[] = { 0xe1, 0xa0, 0x80, 0xef, 0xbf, 0xbd, 0x61, 0 }; /* sub==U+FFFD */
-		UChar out16[10];
+		char16_t out16[10];
 		char out8[10];
 
 		if(
@@ -735,7 +735,7 @@ static void Test_UChar_UTF8_API()
 			log_err("error: u_strFromUTF8WithSub(no subs) failed\n");
 		}
 
-		/* to UTF-8 with length (just first UChar which is valid) */
+		/* to UTF-8 with length (just first char16_t which is valid) */
 		err = U_ZERO_ERROR;
 		numSubstitutions = -1;
 		out8[0] = (char)0xf5;
@@ -767,7 +767,7 @@ static void Test_UChar_UTF8_API()
 			log_err("error: u_strFromUTF8WithSub(no subchar) failed\n");
 		}
 
-		/* to UTF-8 with length (just first UChar which is valid) */
+		/* to UTF-8 with length (just first char16_t which is valid) */
 		err = U_ZERO_ERROR;
 		numSubstitutions = -1;
 		out8[0] = (char)0xf5;
@@ -788,7 +788,7 @@ static void Test_UChar_UTF8_API()
 		 * See ticket #10371.
 		 */
 		static const char src[1] = { (char)0xf8 };
-		UChar out16[10];
+		char16_t out16[10];
 		err = U_ZERO_ERROR;
 		u_strFromUTF8(out16, SIZEOFARRAYi(out16), NULL, src, 1, &err);
 		if(err!=U_INVALID_CHAR_FOUND) {
@@ -798,8 +798,8 @@ static void Test_UChar_UTF8_API()
 }
 
 /* compare if two strings are equal, but match 0xfffd in the second string with anything in the first */
-static bool equalAnyFFFD(const UChar * s, const UChar * t, int32_t length) {
-	UChar c1, c2;
+static bool equalAnyFFFD(const char16_t * s, const char16_t * t, int32_t length) {
+	char16_t c1, c2;
 
 	while(length>0) {
 		c1 = *s++;
@@ -818,12 +818,12 @@ static void Test_FromUTF8() {
 	 * Test case from icu-support list 20071130 "u_strFromUTF8() returns U_INVALID_CHAR_FOUND(10)"
 	 */
 	static const uint8_t bytes[] = { 0xe0, 0xa5, 0x9c, 0 };
-	UChar dest[64];
-	UChar * destPointer;
+	char16_t dest[64];
+	char16_t * destPointer;
 	int32_t destLength;
 	UErrorCode errorCode;
 
-	/* 3 bytes input, one UChar output (U+095C) */
+	/* 3 bytes input, one char16_t output (U+095C) */
 	errorCode = U_ZERO_ERROR;
 	destLength = -99;
 	destPointer = u_strFromUTF8(NULL, 0, &destLength, (const char *)bytes, 3, &errorCode);
@@ -841,7 +841,7 @@ static void Test_FromUTF8() {
 		    (long)destLength, u_errorName(errorCode));
 	}
 
-	/* NUL-terminated 3 bytes input, one UChar output (U+095C) */
+	/* NUL-terminated 3 bytes input, one char16_t output (U+095C) */
 	errorCode = U_ZERO_ERROR;
 	destLength = -99;
 	destPointer = u_strFromUTF8(NULL, 0, &destLength, (const char *)bytes, -1, &errorCode);
@@ -850,7 +850,7 @@ static void Test_FromUTF8() {
 		    (long)destLength, u_errorName(errorCode));
 	}
 
-	/* 3 bytes input, one UChar output (U+095C), transform not just preflight */
+	/* 3 bytes input, one char16_t output (U+095C), transform not just preflight */
 	errorCode = U_ZERO_ERROR;
 	dest[0] = dest[1] = 99;
 	destLength = -99;
@@ -895,7 +895,7 @@ static void Test_FromUTF8Lenient() {
 	};
 
 	/* Multiple output strings, each NUL-terminated. 0xfffd matches anything. */
-	static const UChar uchars[] = {
+	static const char16_t uchars[] = {
 		0x61, 0xdf, 0x800,  0xd840, 0xdc00,
 		0x62, 0xe0, 0x801,  0xd840, 0xdc01,  0,
 
@@ -916,9 +916,9 @@ static void Test_FromUTF8Lenient() {
 		0
 	};
 
-	UChar dest[64];
+	char16_t dest[64];
 	const char * pb;
-	const UChar * pu, * pDest;
+	const char16_t * pu, * pDest;
 	int32_t srcLength, destLength0, destLength;
 	int number;
 	UErrorCode errorCode;
@@ -1094,13 +1094,13 @@ static void Test_UChar_WCHART_API()
 {
 #if(defined(U_WCHAR_IS_UTF16) || defined(U_WCHAR_IS_UTF32)) || (!UCONFIG_NO_CONVERSION && !UCONFIG_NO_LEGACY_CONVERSION)
 	UErrorCode err = U_ZERO_ERROR;
-	const UChar * uSrc = (const UChar *)src16j;
+	const char16_t * uSrc = (const char16_t *)src16j;
 	int32_t uSrcLen = sizeof(src16j)/2;
 	wchar_t* wDest = NULL;
 	int32_t wDestLen = 0;
 	int32_t reqLen = 0;
 	bool failed = FALSE;
-	UChar * uDest = NULL;
+	char16_t * uDest = NULL;
 	int32_t uDestLen = 0;
 	int i = 0;
 	{
@@ -1140,7 +1140,7 @@ static void Test_UChar_WCHART_API()
 
 		if(err == U_BUFFER_OVERFLOW_ERROR) {
 			err = U_ZERO_ERROR;
-			uDest = (UChar *)SAlloc::M(sizeof(UChar) * (reqLen+1));
+			uDest = (char16_t *)SAlloc::M(sizeof(char16_t) * (reqLen+1));
 			uDestLen = reqLen + 1;
 			u_strFromWCS(uDest, uDestLen, &reqLen, wDest, reqLen, &err);
 		}
@@ -1169,7 +1169,7 @@ static void Test_UChar_WCHART_API()
 		SAlloc::F(uDest);
 
 		/* test with embedded nulls */
-		uSrc = (UChar *)src16WithNulls;
+		uSrc = (char16_t *)src16WithNulls;
 		uSrcLen = sizeof(src16WithNulls)/2;
 		wDestLen = 0;
 		uDestLen = 0;
@@ -1190,7 +1190,7 @@ static void Test_UChar_WCHART_API()
 
 		if(err == U_BUFFER_OVERFLOW_ERROR) {
 			err = U_ZERO_ERROR;
-			uDest = (UChar *)SAlloc::M(sizeof(UChar) * (reqLen+1));
+			uDest = (char16_t *)SAlloc::M(sizeof(char16_t) * (reqLen+1));
 			uDestLen = reqLen + 1;
 			u_strFromWCS(uDest, uDestLen, &reqLen, wDest, reqLen, &err);
 		}
@@ -1218,7 +1218,7 @@ static void Test_UChar_WCHART_API()
 		SAlloc::F(uDest);
 	}
 	{
-		uSrc = (UChar *)src16j;
+		uSrc = (char16_t *)src16j;
 		uSrcLen = sizeof(src16j)/2;
 		wDestLen = 0;
 		uDestLen = 0;
@@ -1240,7 +1240,7 @@ static void Test_UChar_WCHART_API()
 
 		if(err == U_BUFFER_OVERFLOW_ERROR) {
 			err = U_ZERO_ERROR;
-			uDest = (UChar *)SAlloc::M(sizeof(UChar) * (reqLen+1));
+			uDest = (char16_t *)SAlloc::M(sizeof(char16_t) * (reqLen+1));
 			uDestLen = reqLen + 1;
 			u_strFromWCS(uDest, uDestLen, &reqLen, wDest, -1, &err);
 		}
@@ -1318,15 +1318,15 @@ static void Test_widestrs()
 {
 #if(defined(U_WCHAR_IS_UTF16) || defined(U_WCHAR_IS_UTF32)) || (!UCONFIG_NO_CONVERSION && !UCONFIG_NO_LEGACY_CONVERSION)
 	wchar_t ws[100];
-	UChar rts[100];
+	char16_t rts[100];
 	int32_t wcap = SIZEOFARRAYi(ws);
 	int32_t wl;
 	int32_t rtcap = SIZEOFARRAYi(rts);
 	int32_t rtl;
 	wchar_t * wcs;
-	UChar * cp;
+	char16_t * cp;
 	const char * errname;
-	UChar ustr[] = {'h', 'e', 'l', 'l', 'o', 0};
+	char16_t ustr[] = {'h', 'e', 'l', 'l', 'o', 0};
 	int32_t ul = SIZEOFARRAYi(ustr) -1;
 	char astr[100];
 
@@ -1364,13 +1364,13 @@ static void Test_WCHART_LongString() {
 	const char * testdatapath = loadTestData(&status);
 	UResourceBundle * theBundle = ures_open(testdatapath, "testtypes", &status);
 	int32_t strLen = 0;
-	const UChar * str = ures_getStringByKey(theBundle, "testinclude", &strLen, &status);
-	const UChar * uSrc = str;
+	const char16_t * str = ures_getStringByKey(theBundle, "testinclude", &strLen, &status);
+	const char16_t * uSrc = str;
 	int32_t uSrcLen = strLen;
 	int32_t wDestLen = 0, reqLen = 0, i = 0;
 	int32_t uDestLen = 0;
 	wchar_t* wDest = NULL;
-	UChar * uDest = NULL;
+	char16_t * uDest = NULL;
 	bool failed = FALSE;
 
 	log_verbose("Loaded string of %d UChars\n", uSrcLen);
@@ -1406,7 +1406,7 @@ static void Test_WCHART_LongString() {
 	u_strFromWCS(uDest, uDestLen, &reqLen, wDest, -1, &status);
 	if(status == U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
-		uDest = (UChar *)SAlloc::M(sizeof(UChar) * (reqLen+1));
+		uDest = (char16_t *)SAlloc::M(sizeof(char16_t) * (reqLen+1));
 		u_memset(uDest, 0xFFFF, reqLen+1);
 		uDestLen = reqLen + 1;
 		u_strFromWCS(uDest, uDestLen, &reqLen, wDest, -1, &status);
@@ -1451,7 +1451,7 @@ static void Test_WCHART_LongString() {
 }
 
 static void Test_strToJavaModifiedUTF8() {
-	static const UChar src[] = {
+	static const char16_t src[] = {
 		0x61, 0x62, 0x63, 0xe1, 0xe2, 0xe3,
 		0xe01, 0xe02, 0xe03, 0xe001, 0xe002, 0xe003,
 		0xd800, 0xdc00, 0xdc00, 0xd800, 0,
@@ -1466,13 +1466,13 @@ static void Test_strToJavaModifiedUTF8() {
 		0xed, 0xaf, 0xbf, 0xed, 0xbf, 0xbf,
 		0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0xc3, 0xad, 0xe0, 0xb8, 0x8e, 0x6f
 	};
-	static const UChar shortSrc[] = {
+	static const char16_t shortSrc[] = {
 		0xe01, 0xe1, 0x61
 	};
 	static const uint8_t shortExpected[] = {
 		0xe0, 0xb8, 0x81, 0xc3, 0xa1, 0x61
 	};
-	static const UChar asciiNul[] = {
+	static const char16_t asciiNul[] = {
 		0x61, 0x62, 0x63, 0
 	};
 	static const uint8_t asciiNulExpected[] = {
@@ -1638,7 +1638,7 @@ static void Test_strFromJavaModifiedUTF8()
 		0xe0, 0x81, 0xac, 0xe0, 0x83, 0xad, /* non-shortest forms are allowed */
 		0xe0, 0xb8, 0x8e, 0x6f
 	};
-	static const UChar expected[] = {
+	static const char16_t expected[] = {
 		0x61, 0x62, 0x63, 0xe1, 0xe2, 0xe3,
 		0xe01, 0xe02, 0xe03, 0xe001, 0xe002, 0xe003,
 		0xd800, 0xdc00, 0xdc00, 0xd800, 0,
@@ -1649,18 +1649,18 @@ static void Test_strFromJavaModifiedUTF8()
 		0xe0e, 0x6f
 	};
 	static const uint8_t shortSrc[] = { 0xe0, 0xb8, 0x81, 0xc3, 0xa1, 0x61 };
-	static const UChar shortExpected[] = { 0xe01, 0xe1, 0x61 };
+	static const char16_t shortExpected[] = { 0xe01, 0xe1, 0x61 };
 	static const uint8_t asciiNul[] = { 0x61, 0x62, 0x63, 0 };
-	static const UChar asciiNulExpected[] = { 0x61, 0x62, 0x63 };
+	static const char16_t asciiNulExpected[] = { 0x61, 0x62, 0x63 };
 	static const uint8_t invalid[] = { 0x81, 0xc0, 0xe0, 0xb8, 0xf0, 0x90, 0x80, 0x80 };
-	static const UChar invalidExpectedFFFD[] = { 0xfffd, 0xfffd, 0xfffd, 0xfffd };
-	static const UChar invalidExpected50000[] = { 0xd900, 0xdc00, 0xd900, 0xdc00, 0xd900, 0xdc00, 0xd900, 0xdc00 };
-	UChar dest[200];
+	static const char16_t invalidExpectedFFFD[] = { 0xfffd, 0xfffd, 0xfffd, 0xfffd };
+	static const char16_t invalidExpected50000[] = { 0xd900, 0xdc00, 0xd900, 0xdc00, 0xd900, 0xdc00, 0xd900, 0xdc00 };
+	char16_t dest[200];
 	int32_t numSubstitutions;
 	int32_t expectedTerminatedLength = (int32_t)(u_strchr(expected, 0)-expected);
 	UErrorCode errorCode = U_ZERO_ERROR;
 	int32_t length = numSubstitutions = -5;
-	UChar * p = u_strFromJavaModifiedUTF8WithSub(dest, (int32_t)sizeof(dest), &length, (const char *)src, SIZEOFARRAYi(src), 0xfffd, &numSubstitutions, &errorCode);
+	char16_t * p = u_strFromJavaModifiedUTF8WithSub(dest, (int32_t)sizeof(dest), &length, (const char *)src, SIZEOFARRAYi(src), 0xfffd, &numSubstitutions, &errorCode);
 	if(U_FAILURE(errorCode) || p!=dest || length!=SIZEOFARRAYi(expected) || 0!=memcmp(dest, expected, length) || dest[length]!=0 ||
 	    numSubstitutions!=SIZEOFARRAYi(invalidExpectedFFFD)) {
 		log_err("u_strFromJavaModifiedUTF8WithSub(normal) failed - %s\n", u_errorName(errorCode));
@@ -1858,7 +1858,7 @@ static void Test_strFromJavaModifiedUTF8()
 static void TestNullEmptySource() 
 {
 	char dest8[4] = { 3, 3, 3, 3 };
-	UChar dest16[4] = { 3, 3, 3, 3 };
+	char16_t dest16[4] = { 3, 3, 3, 3 };
 	UChar32 dest32[4] = { 3, 3, 3, 3 };
 #if(defined(U_WCHAR_IS_UTF16) || defined(U_WCHAR_IS_UTF32)) || (!UCONFIG_NO_CONVERSION && !UCONFIG_NO_LEGACY_CONVERSION)
 	wchar_t destW[4] = { 3, 3, 3, 3 };

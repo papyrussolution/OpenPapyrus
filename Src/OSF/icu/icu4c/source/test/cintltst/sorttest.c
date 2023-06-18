@@ -93,7 +93,7 @@ static void SortTest()
 #define BASE_CHAR 0x200
 
 typedef struct Line {
-	UChar s[STR_LEN];
+	char16_t s[STR_LEN];
 	int32_t recordNumber;
 } Line;
 
@@ -124,7 +124,7 @@ static void StableSortTest() {
 	UErrorCode errorCode = U_ZERO_ERROR;
 	UCollator * coll;
 	Line * lines, * p;
-	UChar s[STR_LEN];
+	char16_t s[STR_LEN];
 	int32_t i, j;
 
 	coll = ucol_open("root", &errorCode);
@@ -141,7 +141,7 @@ static void StableSortTest() {
 	}
 	j = 0;
 	for(i = 0; i<NUM_LINES; ++i) {
-		UChar c;
+		char16_t c;
 		u_memcpy(p->s, s, STR_LEN);
 		p->recordNumber = i;
 		/* Modify the string for the next line. */

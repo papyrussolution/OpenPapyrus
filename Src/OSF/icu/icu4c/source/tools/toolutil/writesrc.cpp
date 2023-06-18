@@ -421,7 +421,7 @@ U_CAPI void U_EXPORT2 usrc_writeArrayOfMostlyInvChars(FILE * f, const char * pre
 	}
 }
 
-U_CAPI void U_EXPORT2 usrc_writeStringAsASCII(FILE * f, const UChar * ptr, int32_t length, UTargetSyntax) 
+U_CAPI void U_EXPORT2 usrc_writeStringAsASCII(FILE * f, const char16_t * ptr, int32_t length, UTargetSyntax) 
 {
 	// For now, assume all UTargetSyntax values are valid here.
 	fprintf(f, "\"");

@@ -124,8 +124,8 @@ static enum ETokenType getStringToken(UCHARBUF* buf,
     UErrorCode * status) {
 	bool lastStringWasQuoted;
 	UChar32 c;
-	UChar target[3] = { '\0' };
-	UChar    * pTarget   = target;
+	char16_t target[3] = { '\0' };
+	char16_t    * pTarget   = target;
 	int len = 0;
 	bool isFollowingCharEscaped = FALSE;
 	bool isNLUnescaped = FALSE;

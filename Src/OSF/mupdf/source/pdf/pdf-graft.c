@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 
 struct pdf_graft_map {
 	int refs;
@@ -214,7 +214,7 @@ void pdf_graft_mapped_page(fz_context * ctx, pdf_graft_map * map, int page_to, p
 
 		pdf_dict_put(ctx, page_dict, PDF_NAME(Type), PDF_NAME(Page));
 
-		for(i = 0; i < (int)nelem(copy_list); i++) {
+		for(i = 0; i < SIZEOFARRAYi(copy_list); i++) {
 			obj = pdf_dict_get_inheritable(ctx, page_ref, copy_list[i]);
 			if(obj != NULL)
 				pdf_dict_put_drop(ctx, page_dict, copy_list[i], pdf_graft_mapped_object(ctx, map, obj));

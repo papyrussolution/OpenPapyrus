@@ -162,7 +162,7 @@ void LocaleDisplayNamesTest::TestPrivateUse() {
 void LocaleDisplayNamesTest::TestUldnOpen() {
 	UErrorCode status = U_ZERO_ERROR;
 	const int32_t kMaxResultSize = 150; // long enough
-	UChar result[150];
+	char16_t result[150];
 	ULocaleDisplayNames * ldn = uldn_open(Locale::getGermany().getName(), ULDN_STANDARD_NAMES, &status);
 	int32_t len = uldn_localeDisplayName(ldn, "de_DE", result, kMaxResultSize, &status);
 	uldn_close(ldn);
@@ -184,7 +184,7 @@ void LocaleDisplayNamesTest::TestUldnOpen() {
 void LocaleDisplayNamesTest::TestUldnOpenDialect() {
 	UErrorCode status = U_ZERO_ERROR;
 	const int32_t kMaxResultSize = 150; // long enough
-	UChar result[150];
+	char16_t result[150];
 	ULocaleDisplayNames * ldn = uldn_open(Locale::getUS().getName(), ULDN_DIALECT_NAMES, &status);
 	int32_t len = uldn_localeDisplayName(ldn, "en_GB", result, kMaxResultSize, &status);
 	uldn_close(ldn);
@@ -197,7 +197,7 @@ void LocaleDisplayNamesTest::TestUldnOpenDialect() {
 void LocaleDisplayNamesTest::TestUldnWithGarbage() {
 	UErrorCode status = U_ZERO_ERROR;
 	const int32_t kMaxResultSize = 150; // long enough
-	UChar result[150];
+	char16_t result[150];
 	ULocaleDisplayNames * ldn = uldn_open(Locale::getUS().getName(), ULDN_DIALECT_NAMES, &status);
 	int32_t len = uldn_localeDisplayName(ldn, "english (United States) [w", result, kMaxResultSize, &status);
 	uldn_close(ldn);
@@ -207,7 +207,7 @@ void LocaleDisplayNamesTest::TestUldnWithGarbage() {
 void LocaleDisplayNamesTest::TestUldnWithKeywordsAndEverything() {
 	UErrorCode status = U_ZERO_ERROR;
 	const int32_t kMaxResultSize = 150; // long enough
-	UChar result[150];
+	char16_t result[150];
 	const char * locname = "en_Hant_US_VALLEY@calendar=gregorian;collation=phonebook";
 	const char * target = "English (Traditional, United States, VALLEY, "
 	    "Gregorian Calendar, Phonebook Sort Order)";
@@ -223,7 +223,7 @@ void LocaleDisplayNamesTest::TestUldnWithKeywordsAndEverything() {
 void LocaleDisplayNamesTest::TestUldnComponents() {
 	UErrorCode status = U_ZERO_ERROR;
 	const int32_t kMaxResultSize = 150; // long enough
-	UChar result[150];
+	char16_t result[150];
 
 	ULocaleDisplayNames * ldn = uldn_open(Locale::getGermany().getName(), ULDN_STANDARD_NAMES, &status);
 	test_assert(U_SUCCESS(status));
@@ -286,7 +286,7 @@ typedef struct {
 	UDisplayContext capitalization;
 	UDisplayContext displayLength;
 	const char * localeToBeNamed;
-	const UChar * result;
+	const char16_t * result;
 } LocNameDispContextItem;
 
 static char en[] = "en";
@@ -294,25 +294,25 @@ static char en_cabud[] = "en@calendar=buddhist";
 static char en_GB[] = "en_GB";
 static char uz_Latn[] = "uz_Latn";
 
-static UChar daFor_en[] = {0x65, 0x6E, 0x67, 0x65, 0x6C, 0x73, 0x6B, 0}; //"engelsk"
-static UChar daFor_en_cabud[] =
+static char16_t daFor_en[] = {0x65, 0x6E, 0x67, 0x65, 0x6C, 0x73, 0x6B, 0}; //"engelsk"
+static char16_t daFor_en_cabud[] =
 {0x65, 0x6E, 0x67, 0x65, 0x6C, 0x73, 0x6B, 0x20, 0x28, 0x62, 0x75, 0x64, 0x64, 0x68, 0x69, 0x73, 0x74, 0x69, 0x73, 0x6B, 0x20,
  0x6B, 0x61, 0x6C, 0x65, 0x6E, 0x64, 0x65, 0x72, 0x29, 0};                        //"engelsk (buddhistisk kalender)"
-static UChar daFor_en_GB[] =
+static char16_t daFor_en_GB[] =
 {0x65, 0x6E, 0x67, 0x65, 0x6C, 0x73, 0x6B, 0x20, 0x28, 0x53, 0x74, 0x6F, 0x72, 0x62, 0x72, 0x69, 0x74, 0x61, 0x6E, 0x6E, 0x69, 0x65,
  0x6E, 0x29, 0};                                                                                                                                          //"engelsk
                                                                                                                                                           // (Storbritannien)"
-static UChar daFor_en_GB_D[]  = {0x62, 0x72, 0x69, 0x74, 0x69, 0x73, 0x6B, 0x20, 0x65, 0x6E, 0x67, 0x65, 0x6C, 0x73, 0x6B, 0}; //"britisk
+static char16_t daFor_en_GB_D[]  = {0x62, 0x72, 0x69, 0x74, 0x69, 0x73, 0x6B, 0x20, 0x65, 0x6E, 0x67, 0x65, 0x6C, 0x73, 0x6B, 0}; //"britisk
                                                                                                                                // engelsk"
-static UChar esFor_en[] = {0x69, 0x6E, 0x67, 0x6C, 0xE9, 0x73, 0}; //"ingles" with acute on the e
-static UChar esFor_en_GB[] =
+static char16_t esFor_en[] = {0x69, 0x6E, 0x67, 0x6C, 0xE9, 0x73, 0}; //"ingles" with acute on the e
+static char16_t esFor_en_GB[] =
 {0x69, 0x6E, 0x67, 0x6C, 0xE9, 0x73, 0x20, 0x28, 0x52, 0x65, 0x69, 0x6E, 0x6F, 0x20, 0x55, 0x6E, 0x69, 0x64, 0x6F, 0x29, 0};          //"ingles
                                                                                                                                       // (Reino
                                                                                                                                       // Unido)"
                                                                                                                                       // ...
-static UChar esFor_en_GB_S[]  = {0x69, 0x6E, 0x67, 0x6C, 0xE9, 0x73, 0x20, 0x28, 0x52, 0x55, 0x29, 0}; //"ingles (RU)"
+static char16_t esFor_en_GB_S[]  = {0x69, 0x6E, 0x67, 0x6C, 0xE9, 0x73, 0x20, 0x28, 0x52, 0x55, 0x29, 0}; //"ingles (RU)"
                                                                                                        // ...
-static UChar esFor_en_GB_D[]  = {0x69, 0x6E, 0x67, 0x6C, 0xE9, 0x73, 0x20, 0x62, 0x72, 0x69, 0x74, 0xE1, 0x6E, 0x69, 0x63, 0x6F, 0}; //"ingles
+static char16_t esFor_en_GB_D[]  = {0x69, 0x6E, 0x67, 0x6C, 0xE9, 0x73, 0x20, 0x62, 0x72, 0x69, 0x74, 0xE1, 0x6E, 0x69, 0x63, 0x6F, 0}; //"ingles
                                                                                                                                      // britanico"
                                                                                                                                      // with
                                                                                                                                      // acute
@@ -320,30 +320,30 @@ static UChar esFor_en_GB_D[]  = {0x69, 0x6E, 0x67, 0x6C, 0xE9, 0x73, 0x20, 0x62,
                                                                                                                                      // the
                                                                                                                                      // e,
                                                                                                                                      // a
-static UChar ruFor_uz_Latn[]  =
+static char16_t ruFor_uz_Latn[]  =
 {0x0443, 0x0437, 0x0431, 0x0435, 0x043A, 0x0441, 0x043A, 0x0438, 0x0439, 0x20, 0x28, 0x043B, 0x0430, 0x0442, 0x0438, 0x043D, 0x0438,
  0x0446, 0x0430, 0x29, 0};                                                                                                                                                 // all
                                                                                                                                                                            // lowercase
 #if !UCONFIG_NO_BREAK_ITERATION
-static UChar daFor_en_T[] = {0x45, 0x6E, 0x67, 0x65, 0x6C, 0x73, 0x6B, 0}; //"Engelsk"
-static UChar daFor_en_cabudT[] =
+static char16_t daFor_en_T[] = {0x45, 0x6E, 0x67, 0x65, 0x6C, 0x73, 0x6B, 0}; //"Engelsk"
+static char16_t daFor_en_cabudT[] =
 {0x45, 0x6E, 0x67, 0x65, 0x6C, 0x73, 0x6B, 0x20, 0x28, 0x62, 0x75, 0x64, 0x64, 0x68, 0x69, 0x73, 0x74, 0x69, 0x73, 0x6B, 0x20,
  0x6B, 0x61, 0x6C, 0x65, 0x6E, 0x64, 0x65, 0x72, 0x29, 0};                        //"Engelsk (buddhistisk kalender)"
-static UChar daFor_en_GB_T[]  =
+static char16_t daFor_en_GB_T[]  =
 {0x45, 0x6E, 0x67, 0x65, 0x6C, 0x73, 0x6B, 0x20, 0x28, 0x53, 0x74, 0x6F, 0x72, 0x62, 0x72, 0x69, 0x74, 0x61, 0x6E, 0x6E, 0x69, 0x65,
  0x6E, 0x29, 0};                                                                                                                                             //"Engelsk
                                                                                                                                                              // (Storbritannien)"
-static UChar daFor_en_GB_DT[] = {0x42, 0x72, 0x69, 0x74, 0x69, 0x73, 0x6B, 0x20, 0x65, 0x6E, 0x67, 0x65, 0x6C, 0x73, 0x6B, 0}; //"Britisk
+static char16_t daFor_en_GB_DT[] = {0x42, 0x72, 0x69, 0x74, 0x69, 0x73, 0x6B, 0x20, 0x65, 0x6E, 0x67, 0x65, 0x6C, 0x73, 0x6B, 0}; //"Britisk
                                                                                                                                // engelsk"
-static UChar esFor_en_T[] = {0x49, 0x6E, 0x67, 0x6C, 0xE9, 0x73, 0}; //"Ingles" with acute on the e
-static UChar esFor_en_GB_T[]  =
+static char16_t esFor_en_T[] = {0x49, 0x6E, 0x67, 0x6C, 0xE9, 0x73, 0}; //"Ingles" with acute on the e
+static char16_t esFor_en_GB_T[]  =
 {0x49, 0x6E, 0x67, 0x6C, 0xE9, 0x73, 0x20, 0x28, 0x52, 0x65, 0x69, 0x6E, 0x6F, 0x20, 0x55, 0x6E, 0x69, 0x64, 0x6F, 0x29, 0};             //"Ingles
                                                                                                                                          // (Reino
                                                                                                                                          // Unido)"
                                                                                                                                          // ...
-static UChar esFor_en_GB_ST[] = {0x49, 0x6E, 0x67, 0x6C, 0xE9, 0x73, 0x20, 0x28, 0x52, 0x55, 0x29, 0}; //"Ingles (RU)"
+static char16_t esFor_en_GB_ST[] = {0x49, 0x6E, 0x67, 0x6C, 0xE9, 0x73, 0x20, 0x28, 0x52, 0x55, 0x29, 0}; //"Ingles (RU)"
                                                                                                        // ...
-static UChar esFor_en_GB_DT[] = {0x49, 0x6E, 0x67, 0x6C, 0xE9, 0x73, 0x20, 0x62, 0x72, 0x69, 0x74, 0xE1, 0x6E, 0x69, 0x63, 0x6F, 0}; //"Ingles
+static char16_t esFor_en_GB_DT[] = {0x49, 0x6E, 0x67, 0x6C, 0xE9, 0x73, 0x20, 0x62, 0x72, 0x69, 0x74, 0xE1, 0x6E, 0x69, 0x63, 0x6F, 0}; //"Ingles
                                                                                                                                      // britanico"
                                                                                                                                      // with
                                                                                                                                      // acute
@@ -351,7 +351,7 @@ static UChar esFor_en_GB_DT[] = {0x49, 0x6E, 0x67, 0x6C, 0xE9, 0x73, 0x20, 0x62,
                                                                                                                                      // the
                                                                                                                                      // e,
                                                                                                                                      // a
-static UChar ruFor_uz_Latn_T[] =
+static char16_t ruFor_uz_Latn_T[] =
 {0x0423, 0x0437, 0x0431, 0x0435, 0x043A, 0x0441, 0x043A, 0x0438, 0x0439, 0x20, 0x28, 0x043B, 0x0430, 0x0442, 0x0438, 0x043D, 0x0438,
  0x0446, 0x0430, 0x29, 0};                                                                                                                                                 // first
                                                                                                                                                                            // char
@@ -439,7 +439,7 @@ void LocaleDisplayNamesTest::TestUldnDisplayContext() {
 				errln("FAIL: uldn_getContext retrieved incorrect dialectHandling, capitalization, or displayLength");
 			}
 			else {
-				UChar nameBuf[ULOC_FULLNAME_CAPACITY];
+				char16_t nameBuf[ULOC_FULLNAME_CAPACITY];
 				int32_t len = uldn_localeDisplayName(uldn,
 					ctxtItemPtr->localeToBeNamed,
 					nameBuf,
@@ -481,7 +481,7 @@ void LocaleDisplayNamesTest::TestRootEtc() {
 void LocaleDisplayNamesTest::TestNumericRegionID() {
 	UErrorCode err = U_ZERO_ERROR;
 	ULocaleDisplayNames* ldn = uldn_open("es_MX", ULDN_STANDARD_NAMES, &err);
-	UChar displayName[200];
+	char16_t displayName[200];
 	uldn_regionDisplayName(ldn, "019", displayName, 200, &err);
 	test_assert(U_SUCCESS(err));
 	test_assert_equal(UnicodeString(u"América"), UnicodeString(displayName));

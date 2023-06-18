@@ -777,12 +777,12 @@ void IntlTestDateTimePatternGeneratorAPI::testAPI(/*char *par*/)
 		dataerrln("ERROR: Could not create DateTimePatternGenerator (Locale::getFrench()) - exiting");
 		return;
 	}
-	UChar newChar;
+	char16_t newChar;
 	for(i = 0; i<10; ++i) {
 		UnicodeString randomSkeleton;
 		int32_t len = rand() % 20;
 		for(int32_t j = 0; j<len; ++j) {
-			while((newChar = (UChar)(rand()%0x7f))>=(UChar)0x20) {
+			while((newChar = (char16_t)(rand()%0x7f))>=(char16_t)0x20) {
 				randomSkeleton += newChar;
 			}
 		}
@@ -1120,7 +1120,7 @@ void IntlTestDateTimePatternGeneratorAPI::testAllFieldPatterns(/*char *par*/)
 						int32_t patIndx, patLen = pattern.length();
 						bool inQuoted = FALSE;
 						for(patIndx = 0; patIndx < patLen; patIndx++) {
-							UChar c = pattern.charAt(patIndx);
+							char16_t c = pattern.charAt(patIndx);
 							if(c == 0x27) {
 								inQuoted = !inQuoted;
 							}
@@ -1330,7 +1330,7 @@ void IntlTestDateTimePatternGeneratorAPI::testGetFieldDisplayNames() {
 			dataerrln("FAIL: DateTimePatternGenerator::createInstance failed for locale %s", testDataPtr->locale);
 		}
 		else {
-			UChar expName[kFieldDisplayNameMax+1];
+			char16_t expName[kFieldDisplayNameMax+1];
 			u_unescape(testDataPtr->expected, expName, kFieldDisplayNameMax);
 			expName[kFieldDisplayNameMax] = 0; // ensure 0 termination
 			UnicodeString getName = dtpg->getFieldDisplayName(testDataPtr->field, testDataPtr->width);
@@ -1343,7 +1343,7 @@ void IntlTestDateTimePatternGeneratorAPI::testGetFieldDisplayNames() {
 	}
 }
 
-static const UChar timeCycleChars[] = { (UChar)0x0048, (UChar)0x0068, (UChar)0x004B, (UChar)0x006B, (UChar)0 };
+static const char16_t timeCycleChars[] = { (char16_t)0x0048, (char16_t)0x0068, (char16_t)0x004B, (char16_t)0x006B, (char16_t)0 };
 
 void IntlTestDateTimePatternGeneratorAPI::testJjMapping() {
 	UErrorCode status = U_ZERO_ERROR;
@@ -1423,8 +1423,8 @@ void IntlTestDateTimePatternGeneratorAPI::testJjMapping() {
 			errln("FAIL: DateTimePatternGenerator::staticGetSkeleton locale %s: %s", localeID, u_errorName(status));
 			continue;
 		}
-		const UChar * charPtr = timeCycleChars;
-		for(; *charPtr != (UChar)0; charPtr++) {
+		const char16_t * charPtr = timeCycleChars;
+		for(; *charPtr != (char16_t)0; charPtr++) {
 			if(jPatSkeleton.indexOf(*charPtr) >= 0) {
 				if(shortPatSkeleton.indexOf(*charPtr) < 0) {
 					char jcBuf[2], spBuf[32], jpBuf[32];
@@ -1563,7 +1563,7 @@ void IntlTestDateTimePatternGeneratorAPI::test_jConsistencyOddLocales() { // ICU
 		"xz-ZX", // unknown language with unknown country
 		"ars", "wuu" // aliased locales
 	};
-	static const UChar * skeleton = u"jm";
+	static const char16_t * skeleton = u"jm";
 	for(const char * localeID: localeIDs) {
 		UErrorCode status = U_ZERO_ERROR;
 		Locale locale(localeID);
@@ -1607,7 +1607,7 @@ void IntlTestDateTimePatternGeneratorAPI::testBestPattern() {
 	const struct TestCase {
 		const char * localeID;
 		const char * skeleton;
-		const UChar * expectedPattern;
+		const char16_t * expectedPattern;
 	} testCases[] = {
 		// ICU-21650: (See the "week day" section of
 		// https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table

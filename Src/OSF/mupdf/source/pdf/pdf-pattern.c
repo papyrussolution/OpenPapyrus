@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 
 pdf_pattern * pdf_keep_pattern(fz_context * ctx, pdf_pattern * pat)
 {

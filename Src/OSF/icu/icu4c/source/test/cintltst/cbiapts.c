@@ -79,22 +79,22 @@ void addBrkIterAPITest(TestNode** root)
 #define CLONETEST_ITERATOR_COUNT 2
 
 /*
- *   Utility function for converting char * to UChar * strings, to
+ *   Utility function for converting char * to char16_t * strings, to
  *     simplify the test code.   Converted strings are put in heap allocated
  *     storage.   A hook (probably a local in the caller's code) allows all
  *     strings converted with that hook to be freed with a single call.
  */
 typedef struct StringStruct {
 	struct StringStruct   * link;
-	UChar str[1];
+	char16_t str[1];
 } StringStruct;
 
-static UChar * toUChar(const char * src, void ** freeHook) {
+static char16_t * toUChar(const char * src, void ** freeHook) {
 	/* Structure of the memory that we allocate on the heap */
 
 	int32_t numUChars;
 	int32_t destSize;
-	UChar stackBuf[2000 + sizeof(void *)/sizeof(UChar)];
+	char16_t stackBuf[2000 + sizeof(void *)/sizeof(char16_t)];
 	StringStruct  * dest;
 	UConverter * cnv;
 
@@ -114,7 +114,7 @@ static UChar * toUChar(const char * src, void ** freeHook) {
 		src, -1,
 		&status);
 
-	destSize = (numUChars+1) * sizeof(UChar) + sizeof(struct StringStruct);
+	destSize = (numUChars+1) * sizeof(char16_t) + sizeof(struct StringStruct);
 	dest = (StringStruct*)SAlloc::M(destSize);
 	if(dest) {
 		if(status == U_BUFFER_OVERFLOW_ERROR || status == U_STRING_NOT_TERMINATED_WARNING) {
@@ -158,7 +158,7 @@ static void TestBreakIteratorCAPI()
 	int32_t i;
 	int32_t count = 0;
 
-	UChar text[50];
+	char16_t text[50];
 
 	/* Note:  the adjacent "" are concatenating strings, not adding a \" to the
 	   string, which is probably what whoever wrote this intended.  Don't fix,
@@ -333,8 +333,8 @@ static void TestBreakIteratorCAPI()
 
 	/* Test setText and setUText */
 	{
-		UChar s1[] = {0x41, 0x42, 0x20, 0};
-		UChar s2[] = {0x41, 0x42, 0x43, 0x44, 0x45, 0};
+		char16_t s1[] = {0x41, 0x42, 0x20, 0};
+		char16_t s2[] = {0x41, 0x42, 0x43, 0x44, 0x45, 0};
 		UText * ut = NULL;
 		UBreakIterator * bb;
 		int j;
@@ -366,7 +366,7 @@ static void TestBreakIteratorCAPI()
 
 static void TestBreakIteratorSafeClone(void)
 {
-	UChar text[51]; /* Keep this odd to test for 64-bit memory alignment */
+	char16_t text[51]; /* Keep this odd to test for 64-bit memory alignment */
 	                /*  NOTE:  This doesn't reliably force misalignment of following items. */
 	uint8_t buffer [CLONETEST_ITERATOR_COUNT] [U_BRK_SAFECLONE_BUFFERSIZE];
 	int32_t bufferSize = U_BRK_SAFECLONE_BUFFERSIZE;
@@ -498,7 +498,7 @@ static void TestBreakIteratorSafeClone(void)
 
 static void TestBreakIteratorClone(void)
 {
-	const UChar text[] = u"He's from Africa. Mr. Livingston, I presume? Yeah";
+	const char16_t text[] = u"He's from Africa. Mr. Livingston, I presume? Yeah";
 	UBreakIterator * someIterators [CLONETEST_ITERATOR_COUNT];
 	UBreakIterator * brk;
 	UErrorCode status = U_ZERO_ERROR;
@@ -584,7 +584,7 @@ static UBreakIterator * testOpenRules(char * rules)
 	void   * strCleanUp   = NULL;
 	UParseError parseErr;
 	UBreakIterator * bi;
-	UChar * ruleSourceU = toUChar(rules, &strCleanUp);
+	char16_t * ruleSourceU = toUChar(rules, &strCleanUp);
 	bi = ubrk_openRules(ruleSourceU,  -1/*  The rules  */, NULL,  -1/*  The text to be iterated over. */, &parseErr, &status);
 	if(U_FAILURE(status)) {
 		log_data_err("FAIL: ubrk_openRules: ICU Error \"%s\" (Are you missing data?)\n", u_errorName(status));
@@ -615,7 +615,7 @@ static void TestBreakIteratorRules()
 	int i;
 	UBreakIterator * bi = testOpenRules(rules);
 	if(bi) {
-		UChar * uData = toUChar(data, &freeHook);
+		char16_t * uData = toUChar(data, &freeHook);
 		ubrk_setText(bi,  uData, -1, &status);
 		pos = ubrk_first(bi);
 		for(i = 0; i < (int)sizeof(breaks); i++) {
@@ -691,7 +691,7 @@ static void TestBreakIteratorRuleError()
 	char rules[]  = "           #  This is a rule comment on line 1\n"
 	    "[:L:];     # this rule is OK.\n"
 	    "abcdefg);  # Error, mismatched parens\n";
-	UChar * uRules;
+	char16_t * uRules;
 	void   * freeHook = NULL;
 	UErrorCode status = U_ZERO_ERROR;
 	UParseError parseErr;
@@ -721,10 +721,10 @@ static void TestBreakIteratorRuleError()
  */
 static void TestBreakIteratorStatusVec() {
     #define RULE_STRING_LENGTH 200
-	UChar rules[RULE_STRING_LENGTH];
+	char16_t rules[RULE_STRING_LENGTH];
 
     #define TEST_STRING_LENGTH 25
-	UChar testString[TEST_STRING_LENGTH];
+	char16_t testString[TEST_STRING_LENGTH];
 	UBreakIterator * bi        = NULL;
 	int32_t pos       = 0;
 	int32_t vals[10];
@@ -820,7 +820,7 @@ static void TestBreakIteratorUText() {
  */
 
 /* Thai/Lao grapheme break tailoring */
-static const UChar thTest[] = { 0x0020, 0x0E40, 0x0E01, 0x0020,
+static const char16_t thTest[] = { 0x0020, 0x0E40, 0x0E01, 0x0020,
 				0x0E01, 0x0E30, 0x0020, 0x0E01, 0x0E33, 0x0020, 0 };
 /*in Unicode 6.1 en should behave just like th for this*/
 /*static const int32_t thTestOffs_enFwd[] = {  1,      3,  4,      6,  7,      9, 10 };*/
@@ -829,7 +829,7 @@ static const int32_t thTestOffs_thFwd[] = {  1,  2,  3,  4,  5,  6,  7,      9, 
 static const int32_t thTestOffs_thRev[] = {  9,      7,  6,  5,  4,  3,  2,  1,  0 };
 
 /* Hebrew line break tailoring, for cldrbug 3028 */
-static const UChar heTest[] = { 0x0020, 0x002D, 0x0031, 0x0032, 0x0020,
+static const char16_t heTest[] = { 0x0020, 0x002D, 0x0031, 0x0032, 0x0020,
 				0x0061, 0x002D, 0x006B, 0x0020,
 				0x0061, 0x0300, 0x2010, 0x006B, 0x0020,
 				0x05DE, 0x05D4, 0x002D, 0x0069, 0x0020,
@@ -842,7 +842,7 @@ static const int32_t heTestOffs_heRev[] = {     19,     14, 12,  9,  7,  5,  1, 
 
 /* Finnish line break tailoring, for cldrbug 3029.
  * As of ICU 63, Finnish tailoring moved to root, Finnish and English should be the same. */
-static const UChar fiTest[] = { /* 00 */ 0x0020, 0x002D, 0x0031, 0x0032, 0x0020,
+static const char16_t fiTest[] = { /* 00 */ 0x0020, 0x002D, 0x0031, 0x0032, 0x0020,
 	                                 /* 05 */ 0x0061, 0x002D, 0x006B, 0x0020,
 	                                 /* 09 */ 0x0061, 0x0300, 0x2010, 0x006B, 0x0020,
 	                                 /* 14 */ 0x0061, 0x0020, 0x002D, 0x006B, 0x0020,
@@ -855,7 +855,7 @@ static const int32_t fiTestOffs_enRev[] =  {     22, 19,     16, 14, 12,  9,  7,
 static const int32_t fiTestOffs_fiRev[] =  {     22, 19,     16, 14, 12,  9,  7,  5,  1,  0 };
 
 /* Khmer dictionary-based work break, for ICU ticket #8329 */
-static const UChar kmTest[] = { /* 00 */ 0x179F, 0x17BC, 0x1798, 0x1785, 0x17C6, 0x178E, 0x17B6, 0x1799, 0x1796, 0x17C1,
+static const char16_t kmTest[] = { /* 00 */ 0x179F, 0x17BC, 0x1798, 0x1785, 0x17C6, 0x178E, 0x17B6, 0x1799, 0x1796, 0x17C1,
 	                                 /* 10 */ 0x179B, 0x1794, 0x1793, 0x17D2, 0x178F, 0x17B7, 0x1785, 0x178A, 0x17BE, 0x1798,
 	                                 /* 20 */ 0x17D2, 0x1794, 0x17B8, 0x17A2, 0x1792, 0x17B7, 0x179F, 0x17D2, 0x178B, 0x17B6,
 	                                 /* 30 */ 0x1793, 0x17A2, 0x179A, 0x1796, 0x17D2, 0x179A, 0x17C7, 0x1782, 0x17BB, 0x178E,
@@ -869,7 +869,7 @@ static const int32_t kmTestOffs_kmRev[] =  { 43,  40,   /*33,*/ 31, 23, 17, 11, 
 typedef struct {
 	const char * locale;
 	UBreakIteratorType type;
-	const UChar * test;
+	const char16_t * test;
 	const int32_t * offsFwd;
 	const int32_t * offsRev;
 	int32_t numOffsets;
@@ -948,8 +948,8 @@ static void TestBreakIteratorRefresh() {
 	 *    runs a ubrk_next() repeatedly, moving the text in the middle of the sequence.
 	 *    The right set of boundaries should still be found.
 	 */
-	UChar testStr[]  = {0x20, 0x41, 0x20, 0x42, 0x20, 0x43, 0x20, 0x44, 0x0}; /* = " A B C D"  */
-	UChar movedStr[] = {0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,  0};
+	char16_t testStr[]  = {0x20, 0x41, 0x20, 0x42, 0x20, 0x43, 0x20, 0x44, 0x0}; /* = " A B C D"  */
+	char16_t movedStr[] = {0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,  0};
 	UErrorCode status = U_ZERO_ERROR;
 	UBreakIterator * bi;
 	UText ut1 = UTEXT_INITIALIZER;
@@ -1001,7 +1001,7 @@ static void TestBug11665() {
 	// tests have the ability to reset ICU, which is needed to get the bug
 	// to manifest itself.
 
-	static UChar japaneseText[] = {0x30A2, 0x30EC, 0x30EB, 0x30AE, 0x30FC, 0x6027, 0x7D50, 0x819C, 0x708E};
+	static char16_t japaneseText[] = {0x30A2, 0x30EC, 0x30EB, 0x30AE, 0x30FC, 0x6027, 0x7D50, 0x819C, 0x708E};
 	int32_t boundaries[10] = {0};
 	UBreakIterator * bi = NULL;
 	int32_t brk;
@@ -1097,7 +1097,7 @@ static void TestBreakIteratorSuppressions() {
 	const TestBISuppressionsItem * itemPtr;
 
 	for(itemPtr = testBISuppressionsItems; itemPtr->locale != NULL; itemPtr++) {
-		UChar textU[kTextULenMax];
+		char16_t textU[kTextULenMax];
 		int32_t textULen = u_unescape(itemPtr->text, textU, kTextULenMax);
 		UErrorCode status = U_ZERO_ERROR;
 		UBreakIterator * bi = ubrk_open(UBRK_SENTENCE, itemPtr->locale, textU, textULen, &status);

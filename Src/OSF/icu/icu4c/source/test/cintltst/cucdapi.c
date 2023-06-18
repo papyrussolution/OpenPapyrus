@@ -662,7 +662,7 @@ void TestGetScriptExtensions() {
 void TestScriptMetadataAPI() {
 	/* API & code coverage. More testing in intltest/ucdtest.cpp. */
 	UErrorCode errorCode = U_ZERO_ERROR;
-	UChar sample[8];
+	char16_t sample[8];
 
 	if(uscript_getSampleString(USCRIPT_LATIN, sample, SIZEOFARRAYi(sample), &errorCode)!=1 ||
 	    U_FAILURE(errorCode) ||

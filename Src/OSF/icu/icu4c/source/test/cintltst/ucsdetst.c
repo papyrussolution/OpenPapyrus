@@ -42,12 +42,12 @@ void addUCsdetTest(TestNode** root)
 #endif
 }
 
-static int32_t preflight(const UChar * src, int32_t length, UConverter * cnv)
+static int32_t preflight(const char16_t * src, int32_t length, UConverter * cnv)
 {
 	UErrorCode status;
 	char buffer[1024];
 	char * dest, * destLimit = buffer + sizeof(buffer);
-	const UChar * srcLimit = src + length;
+	const char16_t * srcLimit = src + length;
 	int32_t result = 0;
 
 	do {
@@ -60,12 +60,12 @@ static int32_t preflight(const UChar * src, int32_t length, UConverter * cnv)
 	return result;
 }
 
-static char * extractBytes(const UChar * src, int32_t length, const char * codepage, int32_t * byteLength)
+static char * extractBytes(const char16_t * src, int32_t length, const char * codepage, int32_t * byteLength)
 {
 	UErrorCode status = U_ZERO_ERROR;
 	UConverter * cnv = ucnv_open(codepage, &status);
 	int32_t byteCount = preflight(src, length, cnv);
-	const UChar * srcLimit = src + length;
+	const char16_t * srcLimit = src + length;
 	char * bytes = NEW_ARRAY(char, byteCount + 1);
 	char * dest = bytes, * destLimit = bytes + byteCount + 1;
 
@@ -115,11 +115,11 @@ static void TestUTF8(void)
 	    "\\u0391\\u0392\\u0393\\u0394\\u0395"
 	    "Sure would be nice if our source could contain Unicode directly!";
 	int32_t byteLength = 0, sLength = 0, dLength = 0;
-	UChar s[sizeof(ss)];
+	char16_t s[sizeof(ss)];
 	char * bytes;
 	UCharsetDetector * csd = ucsdet_open(&status);
 	const UCharsetMatch * match;
-	UChar detected[sizeof(ss)];
+	char16_t detected[sizeof(ss)];
 
 	sLength = u_unescape(ss, s, sizeof(ss));
 	bytes = extractBytes(s, sLength, "UTF-8", &byteLength);
@@ -154,7 +154,7 @@ static void TestUTF16(void)
 {
 	UErrorCode status = U_ZERO_ERROR;
 	/* Notice the BOM on the start of this string */
-	static const UChar chars[] = {
+	static const char16_t chars[] = {
 		0xFEFF, 0x0623, 0x0648, 0x0631, 0x0648, 0x0628, 0x0627, 0x002C,
 		0x0020, 0x0628, 0x0631, 0x0645, 0x062c, 0x064a, 0x0627, 0x062a,
 		0x0020, 0x0627, 0x0644, 0x062d, 0x0627, 0x0633, 0x0648, 0x0628,
@@ -222,8 +222,8 @@ static void TestC1Bytes(void)
 	static const char ssWindows[] =
 	    "This is another small sample of some English text. Just enough to be sure that it detects correctly. It also includes some \\u201CC1\\u201D bytes.";
 	int32_t sISOLength = 0, sWindowsLength = 0;
-	UChar sISO[sizeof(ssISO)];
-	UChar sWindows[sizeof(ssWindows)];
+	char16_t sISO[sizeof(ssISO)];
+	char16_t sWindows[sizeof(ssWindows)];
 	int32_t lISO = 0, lWindows = 0;
 	char * bISO;
 	char * bWindows;
@@ -278,7 +278,7 @@ static void TestInputFilter(void)
 	static const char ss[] =
 	    "<a> <lot> <of> <English> <inside> <the> <markup> Un tr\\u00E8s petit peu de Fran\\u00E7ais. <to> <confuse> <the> <detector>";
 	int32_t sLength = 0;
-	UChar s[sizeof(ss)];
+	char16_t s[sizeof(ss)];
 	int32_t byteLength = 0;
 	char * bytes;
 	UCharsetDetector * csd = ucsdet_open(&status);
@@ -444,7 +444,7 @@ static void TestIBM424(void)
 {
 	UErrorCode status = U_ZERO_ERROR;
 
-	static const UChar chars[] = {
+	static const char16_t chars[] = {
 		0x05D4, 0x05E4, 0x05E8, 0x05E7, 0x05DC, 0x05D9, 0x05D8, 0x0020, 0x05D4, 0x05E6, 0x05D1, 0x05D0, 0x05D9, 0x0020, 0x05D4,
 		0x05E8,
 		0x05D0, 0x05E9, 0x05D9, 0x002C, 0x0020, 0x05EA, 0x05EA, 0x0020, 0x05D0, 0x05DC, 0x05D5, 0x05E3, 0x0020, 0x05D0, 0x05D1,
@@ -480,7 +480,7 @@ static void TestIBM424(void)
 		0x05EA, 0x05DE, 0x05DC, 0x05D9, 0x05DC, 0x0020, 0x05D4, 0x05E2, 0x05D3, 0x05D5, 0x05D9, 0x05D5, 0x05EA, 0x0000
 	};
 
-	static const UChar chars_reverse[] = {
+	static const char16_t chars_reverse[] = {
 		0x05EA, 0x05D5, 0x05D9, 0x05D5, 0x05D3, 0x05E2, 0x05D4, 0x0020, 0x05DC, 0x05D9, 0x05DC, 0x05DE, 0x05EA,
 		0x05D1, 0x0020, 0x05DF, 0x05D9, 0x05D9, 0x05E2, 0x05E9, 0x0020, 0x05E8, 0x05D7, 0x05D0, 0x05DC, 0x0020, 0x05D5, 0x05EA,
 		0x05D8,
@@ -553,7 +553,7 @@ bail:
 static void TestIBM420(void)
 {
 	UErrorCode status = U_ZERO_ERROR;
-	static const UChar chars[] = {
+	static const char16_t chars[] = {
 		0x0648, 0x064F, 0x0636, 0x0639, 0x062A, 0x0020, 0x0648, 0x0646, 0x064F, 0x0641, 0x0630, 0x062A, 0x0020, 0x0628, 0x0631,
 		0x0627,
 		0x0645, 0x062C, 0x0020, 0x062A, 0x0623, 0x0645, 0x064A, 0x0646, 0x0020, 0x0639, 0x062F, 0x064A, 0x062F, 0x0629, 0x0020,
@@ -582,7 +582,7 @@ static void TestIBM420(void)
 		0x002E,
 		0x0000
 	};
-	static const UChar chars_reverse[] = {
+	static const char16_t chars_reverse[] = {
 		0x002E, 0x0629, 0x064A, 0x0639, 0x0627, 0x0645, 0x062A, 0x062C, 0x0627, 0x0644, 0x0627, 0x0648, 0x0020, 0x0629, 0x064A,
 		0x062F,
 		0x0627, 0x0635, 0x062A, 0x0642, 0x0627, 0x0644, 0x0627, 0x0020, 0x0631, 0x0637, 0x0627, 0x062E, 0x0645, 0x0644, 0x0627,

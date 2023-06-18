@@ -1805,7 +1805,7 @@ void TimeZoneRuleTest::TestVTimeZoneParse()
 	status = U_ZERO_ERROR;
 	// Create VTimeZone for Asia/Tokyo
 	UnicodeString asiaTokyoID("Asia/Tokyo");
-	static const UChar asiaTokyo[] = {
+	static const char16_t asiaTokyo[] = {
 		/* "BEGIN:VTIMEZONE\x0D\x0A" */
 		0x42, 0x45, 0x47, 0x49, 0x4E, 0x3A, 0x56, 0x54, 0x49, 0x4D, 0x45, 0x5A, 0x4F, 0x4E, 0x45, 0x0D, 0x0A,
 		/* "TZID:Asia\x0D\x0A" */
@@ -1854,7 +1854,7 @@ void TimeZoneRuleTest::TestVTimeZoneParse()
 	delete tokyo;
 
 	// Create VTimeZone from VTIMEZONE data
-	static const UChar fooData[] = {
+	static const char16_t fooData[] = {
 		/* "BEGIN:VCALENDAR\x0D\x0A" */
 		0x42, 0x45, 0x47, 0x49, 0x4E, 0x3A, 0x56, 0x43, 0x41, 0x4C, 0x45, 0x4E, 0x44, 0x41, 0x52, 0x0D, 0x0A,
 		/* "BEGIN:VTIMEZONE\x0D\x0A" */
@@ -1921,7 +1921,7 @@ void TimeZoneRuleTest::TestVTimeZoneParse()
 
 void TimeZoneRuleTest::TestT6216() {
 	// Test case in #6216
-	static const UChar tokyoTZ[] = {
+	static const char16_t tokyoTZ[] = {
 		/* "BEGIN:VCALENDAR\r\n" */
 		0x42, 0x45, 0x47, 0x49, 0x4e, 0x3a, 0x56, 0x43, 0x41, 0x4c, 0x45, 0x4e, 0x44, 0x41, 0x52, 0x0d, 0x0a,
 		/* "VERSION:2.0\r\n" */
@@ -1957,7 +1957,7 @@ void TimeZoneRuleTest::TestT6216() {
 		0
 	};
 	// Single final rule, overlapping with another
-	static const UChar finalOverlap[] = {
+	static const char16_t finalOverlap[] = {
 		/* "BEGIN:VCALENDAR\r\n" */
 		0x42, 0x45, 0x47, 0x49, 0x4e, 0x3a, 0x56, 0x43, 0x41, 0x4c, 0x45, 0x4e, 0x44, 0x41, 0x52, 0x0d, 0x0a,
 		/* "BEGIN:VTIMEZONE\r\n" */
@@ -2006,7 +2006,7 @@ void TimeZoneRuleTest::TestT6216() {
 		0
 	};
 	// Single final rule, no overlapping with another
-	static const UChar finalNonOverlap[] = {
+	static const char16_t finalNonOverlap[] = {
 		/* "BEGIN:VCALENDAR\r\n" */
 		0x42, 0x45, 0x47, 0x49, 0x4e, 0x3a, 0x56, 0x43, 0x41, 0x4c, 0x45, 0x4e, 0x44, 0x41, 0x52, 0x0d, 0x0a,
 		/* "BEGIN:VTIMEZONE\r\n" */
@@ -2185,7 +2185,7 @@ void TimeZoneRuleTest::TestVTimeZoneWrapper() {
 #if 0
 	// local variables
 	bool b;
-	UChar * data = NULL;
+	char16_t * data = NULL;
 	int32_t length = 0;
 	int32_t i;
 	UDate result;
@@ -2193,7 +2193,7 @@ void TimeZoneRuleTest::TestVTimeZoneWrapper() {
 	UErrorCode status;
 
 	const char * name = "Test Initial";
-	UChar uname[20];
+	char16_t uname[20];
 
 	UClassID cid1;
 	UClassID cid2;
@@ -2256,9 +2256,9 @@ void TimeZoneRuleTest::TestVTimeZoneWrapper() {
 	cid2 = ztrans_getDynamicClassID(zt2);
 
 	// test vzone
-	v1 = vzone_openID((UChar *)"America/Chicago", sizeof("America/Chicago"));
+	v1 = vzone_openID((char16_t *)"America/Chicago", sizeof("America/Chicago"));
 	v2 = vzone_clone(v1);
-	//v2 = vzone_openData(const UChar * vtzdata, int32_t vtzdataLength, UErrorCode & status);
+	//v2 = vzone_openData(const char16_t * vtzdata, int32_t vtzdataLength, UErrorCode & status);
 
 	// test equality
 	b = vzone_equals(v1, v2);

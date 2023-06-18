@@ -82,14 +82,14 @@ void CollationRegressionTest::Test4051866(/* char * par */)
 
 	rules += "&n < o ";
 	rules += "& oe ,o";
-	rules += (UChar)0x3080;
+	rules += (char16_t)0x3080;
 	rules += "& oe ,";
-	rules += (UChar)0x1530;
+	rules += (char16_t)0x1530;
 	rules += " ,O";
 	rules += "& OE ,O";
-	rules += (UChar)0x3080;
+	rules += (char16_t)0x3080;
 	rules += "& OE ,";
-	rules += (UChar)0x1520;
+	rules += (char16_t)0x1520;
 	rules += "< p ,P";
 
 	// Build a collator containing expanding characters
@@ -130,7 +130,7 @@ void CollationRegressionTest::Test4053636(/* char * par */)
 //
 void CollationRegressionTest::Test4054238(/* char * par */)
 {
-	const UChar chars3[] =
+	const char16_t chars3[] =
 	{0x61, 0x00FC, 0x62, 0x65, 0x63, 0x6b, 0x20, 0x47, 0x72, 0x00F6, 0x00DF, 0x65, 0x20, 0x4c, 0x00FC, 0x62, 0x63, 0x6b, 0};
 	const UnicodeString test3(chars3);
 	RuleBasedCollator * c = en_us->clone();
@@ -165,7 +165,7 @@ void CollationRegressionTest::Test4054734(/* char * par */)
 	    };
 	 */
 
-	static const UChar decomp[][CollationRegressionTest::MAX_TOKEN_LEN] =
+	static const char16_t decomp[][CollationRegressionTest::MAX_TOKEN_LEN] =
 	{
 		{0x0001, 0}, {0x3c, 0}, {0x0002, 0},
 		{0x0001, 0}, {0x3d, 0}, {0x0001, 0},
@@ -196,7 +196,7 @@ void CollationRegressionTest::Test4054736(/* char * par */)
 	c->setStrength(Collator::SECONDARY);
 	c->setAttribute(UCOL_NORMALIZATION_MODE, UCOL_ON, status);
 
-	static const UChar tests[][CollationRegressionTest::MAX_TOKEN_LEN] =
+	static const char16_t tests[][CollationRegressionTest::MAX_TOKEN_LEN] =
 	{
 		{0xFB4F, 0}, {0x3d, 0}, {0x05D0, 0x05DC} // Alef-Lamed vs. Alef, Lamed
 	};
@@ -285,9 +285,9 @@ void CollationRegressionTest::Test4060154(/* char * par */)
 
 	rules += "&f < g, G < h, H < i, I < j, J";
 	rules +=  " & H < ";
-	rules += (UChar)0x0131;
+	rules += (char16_t)0x0131;
 	rules += ", ";
-	rules += (UChar)0x0130;
+	rules += (char16_t)0x0130;
 	rules += ", i, I";
 
 	RuleBasedCollator * c = NULL;
@@ -313,7 +313,7 @@ void CollationRegressionTest::Test4060154(/* char * par */)
 	   };
 	 */
 
-	static const UChar tertiary[][CollationRegressionTest::MAX_TOKEN_LEN] =
+	static const char16_t tertiary[][CollationRegressionTest::MAX_TOKEN_LEN] =
 	{
 		{0x41, 0}, {0x3c, 0}, {0x42, 0},
 		{0x48, 0}, {0x3c, 0}, {0x0131, 0},
@@ -332,7 +332,7 @@ void CollationRegressionTest::Test4060154(/* char * par */)
 	    "\u0131",   "=",    "\u0130",
 	   };
 	 */
-	static const UChar secondary[][CollationRegressionTest::MAX_TOKEN_LEN] =
+	static const char16_t secondary[][CollationRegressionTest::MAX_TOKEN_LEN] =
 	{
 		{0x48, 0}, {0x3c, 0}, {0x49, 0},
 		{0x0131, 0}, {0x3d, 0}, {0x0130, 0}
@@ -369,7 +369,7 @@ void CollationRegressionTest::Test4062418(/* char * par */)
             "p\u00eache",    "<",    "p\u00e9ch\u00e9",    // Comparing accents from end, p\u00e9ch\u00e9 is greater
     };
  */
-	static const UChar tests[][CollationRegressionTest::MAX_TOKEN_LEN] =
+	static const char16_t tests[][CollationRegressionTest::MAX_TOKEN_LEN] =
 	{
 		{0x70, 0x00EA, 0x63, 0x68, 0x65, 0}, {0x3c, 0}, {0x70, 0x00E9, 0x63, 0x68, 0x00E9, 0}
 	};
@@ -398,8 +398,8 @@ void CollationRegressionTest::Test4065540(/* char * par */)
 //
 void CollationRegressionTest::Test4066189(/* char * par */)
 {
-	static const UChar chars1[] = {0x1EB1, 0};
-	static const UChar chars2[] = {0x61, 0x0306, 0x0300, 0};
+	static const char16_t chars1[] = {0x1EB1, 0};
+	static const char16_t chars2[] = {0x61, 0x0306, 0x0300, 0};
 	const UnicodeString test1(chars1);
 	const UnicodeString test2(chars2);
 	UErrorCode status = U_ZERO_ERROR;
@@ -455,7 +455,7 @@ void CollationRegressionTest::Test4066696(/* char * par */)
 
  */
 
-	static const UChar tests[][CollationRegressionTest::MAX_TOKEN_LEN] =
+	static const char16_t tests[][CollationRegressionTest::MAX_TOKEN_LEN] =
 	{
 		{0x00E0, 0}, {0x3e, 0}, {0x01FA, 0}
 	};
@@ -473,8 +473,8 @@ void CollationRegressionTest::Test4076676(/* char * par */)
 {
 	// These combining characters are all in the same class, so they should not
 	// be reordered, and they should compare as unequal.
-	static const UChar s1[] = {0x41, 0x0301, 0x0302, 0x0300, 0};
-	static const UChar s2[] = {0x41, 0x0302, 0x0300, 0x0301, 0};
+	static const char16_t s1[] = {0x41, 0x0301, 0x0302, 0x0300, 0};
+	static const char16_t s2[] = {0x41, 0x0302, 0x0300, 0x0301, 0};
 
 	RuleBasedCollator * c = en_us->clone();
 	c->setStrength(Collator::TERTIARY);
@@ -547,8 +547,8 @@ void CollationRegressionTest::Test4081866(/* char * par */)
 {
 	// These combining characters are all in different classes,
 	// so they should be reordered and the strings should compare as equal.
-	static const UChar s1[] = {0x41, 0x0300, 0x0316, 0x0327, 0x0315, 0};
-	static const UChar s2[] = {0x41, 0x0327, 0x0316, 0x0315, 0x0300, 0};
+	static const char16_t s1[] = {0x41, 0x0300, 0x0316, 0x0327, 0x0315, 0};
+	static const char16_t s2[] = {0x41, 0x0327, 0x0316, 0x0315, 0x0300, 0};
 
 	UErrorCode status = U_ZERO_ERROR;
 	RuleBasedCollator * c = en_us->clone();
@@ -586,7 +586,7 @@ void CollationRegressionTest::Test4087241(/* char * par */)
 
 	c->setStrength(Collator::SECONDARY);
 
-	static const UChar tests[][CollationRegressionTest::MAX_TOKEN_LEN] =
+	static const char16_t tests[][CollationRegressionTest::MAX_TOKEN_LEN] =
 	{
 		{0x7a, 0}, {0x3c, 0}, {0x00E6, 0}, // z        < ae
 		{0x61, 0x0308, 0}, {0x3c, 0}, {0x61, 0x030A, 0}, // a-umlaut < a-ring
@@ -607,7 +607,7 @@ void CollationRegressionTest::Test4087243(/* char * par */)
 	RuleBasedCollator * c = en_us->clone();
 	c->setStrength(Collator::TERTIARY);
 
-	static const UChar tests[][CollationRegressionTest::MAX_TOKEN_LEN] =
+	static const char16_t tests[][CollationRegressionTest::MAX_TOKEN_LEN] =
 	{
 		{0x31, 0x32, 0x33, 0}, {0x3d, 0}, {0x31, 0x32, 0x33, 0x0001, 0} // 1 2 3  =  1 2 3 ctrl-A
 	};
@@ -639,7 +639,7 @@ void CollationRegressionTest::Test4092260(/* char * par */)
 	// These now have tertiary differences in UCA
 	c->setAttribute(UCOL_STRENGTH, UCOL_SECONDARY, status);
 
-	static const UChar tests[][CollationRegressionTest::MAX_TOKEN_LEN] =
+	static const char16_t tests[][CollationRegressionTest::MAX_TOKEN_LEN] =
 	{
 		{0x00B5, 0}, {0x3d, 0}, {0x03BC, 0}
 	};
@@ -666,7 +666,7 @@ void CollationRegressionTest::Test4095316(/* char * par */)
 	//c->setStrength(Collator::TERTIARY);
 	c->setAttribute(UCOL_STRENGTH, UCOL_SECONDARY, status);
 
-	static const UChar tests[][CollationRegressionTest::MAX_TOKEN_LEN] =
+	static const char16_t tests[][CollationRegressionTest::MAX_TOKEN_LEN] =
 	{
 		{0x03D4, 0}, {0x3d, 0}, {0x03AB, 0}
 	};
@@ -713,7 +713,7 @@ void CollationRegressionTest::Test4103436(/* char * par */)
 	RuleBasedCollator * c = en_us->clone();
 	c->setStrength(Collator::TERTIARY);
 
-	static const UChar tests[][CollationRegressionTest::MAX_TOKEN_LEN] =
+	static const char16_t tests[][CollationRegressionTest::MAX_TOKEN_LEN] =
 	{
 		{0x66, 0x69, 0x6c, 0x65, 0}, {0x3c, 0}, {0x66, 0x69, 0x6c, 0x65, 0x20, 0x61, 0x63, 0x63, 0x65, 0x73, 0x73, 0},
 		{0x66, 0x69, 0x6c, 0x65, 0}, {0x3c, 0}, {0x66, 0x69, 0x6c, 0x65, 0x61, 0x63, 0x63, 0x65, 0x73, 0x73, 0}
@@ -739,7 +739,7 @@ void CollationRegressionTest::Test4114076(/* char * par */)
 	// into Jamo, but Jamo characters should not be decomposed into
 	// conjoining Jamo
 	//
-	static const UChar test1[][CollationRegressionTest::MAX_TOKEN_LEN] =
+	static const char16_t test1[][CollationRegressionTest::MAX_TOKEN_LEN] =
 	{
 		{0xd4db, 0}, {0x3d, 0}, {0x1111, 0x1171, 0x11b6, 0}
 	};
@@ -756,7 +756,7 @@ void CollationRegressionTest::Test4114076(/* char * par */)
 //obsolete-    // With Full decomposition, it should go all the way down to
 //obsolete-    // conjoining Jamo characters.
 //obsolete-    //
-//obsolete-    static const UChar test2[][CollationRegressionTest::MAX_TOKEN_LEN] =
+//obsolete-    static const char16_t test2[][CollationRegressionTest::MAX_TOKEN_LEN] =
 //obsolete-    {
 //obsolete-        {0xd4db, 0}, {0x3d, 0}, {0x1111, 0x116e, 0x1175, 0x11af, 0x11c2, 0}
 //obsolete-    };
@@ -784,7 +784,7 @@ void CollationRegressionTest::Test4124632(/* char * par */)
 		return;
 	}
 
-	static const UChar test[] = {0x41, 0x0308, 0x62, 0x63, 0};
+	static const char16_t test[] = {0x41, 0x0308, 0x62, 0x63, 0};
 	CollationKey key;
 
 	coll->getCollationKey(test, key, status);
@@ -815,7 +815,7 @@ void CollationRegressionTest::Test4132736(/* char * par */)
 		return;
 	}
 
-	static const UChar test1[][CollationRegressionTest::MAX_TOKEN_LEN] =
+	static const char16_t test1[][CollationRegressionTest::MAX_TOKEN_LEN] =
 	{
 		{0x65, 0x0300, 0x65, 0x0301, 0}, {0x3c, 0}, {0x65, 0x0301, 0x65, 0x0300, 0},
 		{0x65, 0x0300, 0x0301, 0}, {0x3c, 0}, {0x65, 0x0301, 0x0300, 0}
@@ -832,7 +832,7 @@ void CollationRegressionTest::Test4132736(/* char * par */)
 //
 void CollationRegressionTest::Test4133509(/* char * par */)
 {
-	static const UChar test1[][CollationRegressionTest::MAX_TOKEN_LEN] =
+	static const char16_t test1[][CollationRegressionTest::MAX_TOKEN_LEN] =
 	{
 		{0x45, 0x78, 0x63, 0x65, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0}, {0x3c, 0},
 		{0x45, 0x78, 0x63, 0x65, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x6e, 0x49, 0x6e, 0x69, 0x74, 0x69, 0x61, 0x6c, 0x69, 0x7a,
@@ -859,7 +859,7 @@ void CollationRegressionTest::Test4114077(/* char * par */)
 	RuleBasedCollator * c = en_us->clone();
 	c->setStrength(Collator::TERTIARY);
 
-	static const UChar test1[][CollationRegressionTest::MAX_TOKEN_LEN] =
+	static const char16_t test1[][CollationRegressionTest::MAX_TOKEN_LEN] =
 	{
 		{0x00C0, 0}, {0x3d, 0}, {0x41, 0x0300, 0}, // Should be equivalent
 		{0x70, 0x00ea, 0x63, 0x68, 0x65, 0}, {0x3e, 0}, {0x70, 0x00e9, 0x63, 0x68, 0x00e9, 0},
@@ -872,7 +872,7 @@ void CollationRegressionTest::Test4114077(/* char * par */)
 	c->setAttribute(UCOL_NORMALIZATION_MODE, UCOL_OFF, status);
 	compareArray(*c, test1, SIZEOFARRAYi(test1));
 
-	static const UChar test2[][CollationRegressionTest::MAX_TOKEN_LEN] =
+	static const char16_t test2[][CollationRegressionTest::MAX_TOKEN_LEN] =
 	{
 		{0x41, 0x0300, 0x0316, 0}, {0x3d, 0}, {0x41, 0x0316, 0x0300, 0} // Reordering --> equal
 	};
@@ -1056,7 +1056,7 @@ void CollationRegressionTest::Test4179216() {
 //
 // nextSortKeyPart incorrect for EO_S1 collation
 static int32_t calcKeyIncremental(UCollator * coll,
-    const UChar * text,
+    const char16_t * text,
     int32_t len,
     uint8_t * keyBuf,
     int32_t /*keyBufLen*/,
@@ -1086,7 +1086,7 @@ void CollationRegressionTest::TestT7189()
 	UErrorCode status = U_ZERO_ERROR;
 	UCollator * coll;
 	uint32_t i;
-	static const UChar text1[][CollationRegressionTest::MAX_TOKEN_LEN] = {
+	static const char16_t text1[][CollationRegressionTest::MAX_TOKEN_LEN] = {
 		// "Achter De Hoven"
 		{ 0x41, 0x63, 0x68, 0x74, 0x65, 0x72, 0x20, 0x44, 0x65, 0x20, 0x48, 0x6F, 0x76, 0x65, 0x6E, 0x00 },
 		// "ABC"
@@ -1094,7 +1094,7 @@ void CollationRegressionTest::TestT7189()
 		// "HELLO world!"
 		{ 0x48, 0x45, 0x4C, 0x4C, 0x4F, 0x20, 0x77, 0x6F, 0x72, 0x6C, 0x64, 0x21, 0x00 }
 	};
-	static const UChar text2[][CollationRegressionTest::MAX_TOKEN_LEN] = {
+	static const char16_t text2[][CollationRegressionTest::MAX_TOKEN_LEN] = {
 		// "Achter de Hoven"
 		{ 0x41, 0x63, 0x68, 0x74, 0x65, 0x72, 0x20, 0x64, 0x65, 0x20, 0x48, 0x6F, 0x76, 0x65, 0x6E, 0x00 },
 		// "abc"
@@ -1168,18 +1168,18 @@ void CollationRegressionTest::TestCaseFirstCompression() {
 void CollationRegressionTest::caseFirstCompressionSub(Collator * col, UnicodeString opt) {
 	const int32_t maxLength = 50;
 
-	UChar str1[maxLength];
-	UChar str2[maxLength];
+	char16_t str1[maxLength];
+	char16_t str2[maxLength];
 
 	CollationKey key1, key2;
 
 	for(int32_t len = 1; len <= maxLength; len++) {
 		int32_t i = 0;
 		for(; i < len - 1; i++) {
-			str1[i] = str2[i] = (UChar)0x61; // 'a'
+			str1[i] = str2[i] = (char16_t)0x61; // 'a'
 		}
-		str1[i] = (UChar)0x41; // 'A'
-		str2[i] = (UChar)0x61; // 'a'
+		str1[i] = (char16_t)0x41; // 'A'
+		str2[i] = (char16_t)0x61; // 'a'
 
 		UErrorCode status = U_ZERO_ERROR;
 		col->getCollationKey(str1, len, key1, status);
@@ -1204,7 +1204,7 @@ void CollationRegressionTest::TestTrailingComment() {
 	// Check that the rule parser handles a comment without terminating end-of-line.
 	IcuTestErrorCode errorCode(*this, "TestTrailingComment");
 	RuleBasedCollator coll(UNICODE_STRING_SIMPLE("&c<b#comment1\n<a#comment2"), errorCode);
-	UnicodeString a((UChar)0x61), b((UChar)0x62), c((UChar)0x63);
+	UnicodeString a((char16_t)0x61), b((char16_t)0x62), c((char16_t)0x63);
 	assertTrue("c<b", coll.compare(c, b) < 0);
 	assertTrue("b<a", coll.compare(b, a) < 0);
 }
@@ -1230,7 +1230,7 @@ void CollationRegressionTest::TestBeforeWithTooStrongAfter() {
 }
 
 void CollationRegressionTest::compareArray(Collator &c,
-    const UChar tests[][CollationRegressionTest::MAX_TOKEN_LEN],
+    const char16_t tests[][CollationRegressionTest::MAX_TOKEN_LEN],
     int32_t testCount)
 {
 	int32_t i;

@@ -104,7 +104,7 @@ static char * itoa1(int32_t i, char * buf)
 }
 
 static const int32_t kERROR_COUNT = -1234567;
-static const UChar kERROR[] = { 0x0045 /*E*/, 0x0052 /*'R'*/, 0x0052 /*'R'*/,
+static const char16_t kERROR[] = { 0x0045 /*E*/, 0x0052 /*'R'*/, 0x0052 /*'R'*/,
 				0x004F /*'O'*/, 0x0052 /*'R'*/, 0x0000 /*'\0'*/};
 
 /*****************************************************************************/
@@ -191,7 +191,7 @@ param[] =
 
 static int32_t bundles_count = SIZEOFARRAYi(param);
 
-/*static void printUChars(UChar *);*/
+/*static void printUChars(char16_t *);*/
 static void TestDecodedBundle();
 static void TestGetKeywordValues();
 static void TestGetFunctionalEquivalent();
@@ -355,7 +355,7 @@ static void TestAliasConflict() {
 	UResourceBundle * he = NULL;
 	UResourceBundle * iw = NULL;
 	UResourceBundle * norway = NULL;
-	const UChar * result = NULL;
+	const char16_t * result = NULL;
 	int32_t resultLen;
 	uint32_t size = 0;
 	uint32_t i = 0;
@@ -395,9 +395,9 @@ static void TestDecodedBundle() {
 
 	UResourceBundle * resB;
 
-	const UChar * srcFromRes;
+	const char16_t * srcFromRes;
 	int32_t len;
-	static const UChar uSrc[] = {
+	static const char16_t uSrc[] = {
 		0x0009, 0x092F, 0x0941, 0x0928, 0x0947, 0x0938, 0x094D, 0x0915, 0x094B, 0x0020, 0x002E, 0x0915, 0x0947, 0x0020, 0x002E,
 		0x090F,
 		0x0915, 0x0020, 0x002E, 0x0905, 0x0927, 0x094D, 0x092F, 0x092F, 0x0928, 0x0020, 0x002E, 0x0915, 0x0947, 0x0020, 0x0905,
@@ -514,11 +514,11 @@ static void TestNewTypes() {
 	int32_t i = 0;
 	int32_t intResult = 0;
 	uint32_t uintResult = 0;
-	const UChar * empty = NULL;
-	const UChar * zeroString;
-	UChar expected[] = { 'a', 'b', 'c', '\0', 'd', 'e', 'f' };
+	const char16_t * empty = NULL;
+	const char16_t * zeroString;
+	char16_t expected[] = { 'a', 'b', 'c', '\0', 'd', 'e', 'f' };
 	const char * expect = "tab:\t cr:\r ff:\f newline:\n backslash:\\\\ quote=\\\' doubleQuote=\\\" singlequoutes=''";
-	UChar uExpect[200];
+	char16_t uExpect[200];
 
 	testdatapath = loadTestData(&status);
 
@@ -632,7 +632,7 @@ static void TestNewTypes() {
 
 	/* this tests if escapes are preserved or not */
 	{
-		const UChar * str = tres_getString(theBundle, -1, "testescape", &len, &status);
+		const char16_t * str = tres_getString(theBundle, -1, "testescape", &len, &status);
 		CONFIRM_ErrorCode(status, U_ZERO_ERROR);
 		if(U_SUCCESS(status)) {
 			u_charsToUChars(expect, uExpect, (int32_t)strlen(expect)+1);
@@ -646,8 +646,8 @@ static void TestNewTypes() {
 	{
 		char pattern[2048] = "";
 		int32_t patternLen;
-		UChar * expectedEscaped;
-		const UChar * got;
+		char16_t * expectedEscaped;
+		const char16_t * got;
 		int32_t expectedLen;
 
 		/* This strcpy fixes compiler warnings about long strings */
@@ -671,7 +671,7 @@ static void TestNewTypes() {
 		    );
 
 		patternLen = (int32_t)strlen(pattern);
-		expectedEscaped = (UChar *)SAlloc::M(U_SIZEOF_UCHAR * patternLen);
+		expectedEscaped = (char16_t *)SAlloc::M(U_SIZEOF_UCHAR * patternLen);
 		got = tres_getString(theBundle, -1, "test_unescaping", &len, &status);
 		expectedLen = u_unescape(pattern, expectedEscaped, patternLen);
 		if(got==NULL || u_strncmp(expectedEscaped, got, expectedLen)!=0 || expectedLen != len) {
@@ -689,7 +689,7 @@ static void TestNewTypes() {
 	}
 	/* test for jitterbug#1435 */
 	{
-		const UChar * str = tres_getString(theBundle, -1, "test_underscores", &len, &status);
+		const char16_t * str = tres_getString(theBundle, -1, "test_underscores", &len, &status);
 		expect = "test message ....";
 		u_charsToUChars(expect, uExpect, (int32_t)strlen(expect)+1);
 		CONFIRM_ErrorCode(status, U_ZERO_ERROR);
@@ -701,9 +701,9 @@ static void TestNewTypes() {
 #if !UCONFIG_NO_COLLATION
 	{
 		UResourceBundle * resB = NULL;
-		const UChar * str  = NULL;
+		const char16_t * str  = NULL;
 		int32_t strLength = 0;
-		const UChar my[] = {0x0026, 0x0027, 0x0075, 0x0027, 0x0020, 0x003d, 0x0020, 0x0027, 0xff55, 0x0027, 0x0000}; /*
+		const char16_t my[] = {0x0026, 0x0027, 0x0075, 0x0027, 0x0020, 0x003d, 0x0020, 0x0027, 0xff55, 0x0027, 0x0000}; /*
 		                                                                                                                &'\u0075'
 		                                                                                                                =
 		                                                                                                                '\uFF55'
@@ -736,7 +736,7 @@ static void TestNewTypes() {
 		status = U_ZERO_ERROR;
 		{
 			int32_t strLen = 0;
-			const UChar * str = tres_getString(theBundle, -1, "testincludeUTF", &strLen, &status);
+			const char16_t * str = tres_getString(theBundle, -1, "testincludeUTF", &strLen, &status);
 			strcpy(path, "riwords.txt");
 			path[strlen("riwords.txt")] = 0;
 			if(U_FAILURE(status)) {
@@ -748,7 +748,7 @@ static void TestNewTypes() {
 				UCHARBUF* ucbuf = ucbuf_open(testDataFileName, &cp, FALSE, FALSE, &status);
 				len = 0;
 				if(U_SUCCESS(status)) {
-					const UChar * buffer = ucbuf_getBuffer(ucbuf, &len, &status);
+					const char16_t * buffer = ucbuf_getBuffer(ucbuf, &len, &status);
 					if(U_SUCCESS(status)) {
 						/* verify the contents */
 						if(strLen != len) {
@@ -780,7 +780,7 @@ static void TestNewTypes() {
 		status = U_ZERO_ERROR;
 		{
 			int32_t strLen = 0;
-			const UChar * str = tres_getString(theBundle, -1, "testinclude", &strLen, &status);
+			const char16_t * str = tres_getString(theBundle, -1, "testinclude", &strLen, &status);
 			strcpy(path, "translit_rules.txt");
 			path[strlen("translit_rules.txt")] = 0;
 
@@ -793,7 +793,7 @@ static void TestNewTypes() {
 				UCHARBUF* ucbuf = ucbuf_open(testDataFileName, &cp, FALSE, FALSE, &status);
 				len = 0;
 				if(U_SUCCESS(status)) {
-					const UChar * buffer = ucbuf_getBuffer(ucbuf, &len, &status);
+					const char16_t * buffer = ucbuf_getBuffer(ucbuf, &len, &status);
 					if(U_SUCCESS(status)) {
 						/* verify the contents */
 						if(strLen != len) {
@@ -833,7 +833,7 @@ static void TestEmptyTypes() {
 	const uint8_t * binResult = NULL;
 	int32_t len = 0;
 	int32_t intResult = 0;
-	const UChar * zeroString;
+	const char16_t * zeroString;
 	const int32_t * zeroIntVect = NULL;
 
 	strcpy(action, "Construction of testtypes bundle");
@@ -1050,11 +1050,11 @@ static void TestAPI() {
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t len = 0;
 	const char * key = NULL;
-	const UChar * value = NULL;
+	const char16_t * value = NULL;
 	const char * testdatapath;
-	UChar * utestdatapath = NULL;
+	char16_t * utestdatapath = NULL;
 	char convOutput[256];
-	UChar largeBuffer[1025];
+	char16_t largeBuffer[1025];
 	UResourceBundle * teRes = NULL;
 	UResourceBundle * teFillin = NULL;
 	UResourceBundle * teFillin2 = NULL;
@@ -1067,14 +1067,14 @@ static void TestAPI() {
 		return;
 	}
 	len = (int32_t)strlen(testdatapath);
-	utestdatapath = (UChar *)SAlloc::M((len+10)*sizeof(UChar));
+	utestdatapath = (char16_t *)SAlloc::M((len+10)*sizeof(char16_t));
 
 	u_charsToUChars(testdatapath, utestdatapath, (int32_t)strlen(testdatapath)+1);
 #if(U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR) && U_FILE_SEP_CHAR == '\\'
 	{
 		/* Convert all backslashes to forward slashes so that we can make sure that ures_openU
 		   can handle invariant characters. */
-		UChar * backslash;
+		char16_t * backslash;
 		while((backslash = u_strchr(utestdatapath, 0x005C))) {
 			*backslash = 0x002F;
 		}
@@ -1117,10 +1117,10 @@ static void TestAPI() {
 	/*Test ures_getNextString() */
 	teFillin = ures_getByKey(teRes, "tagged_array_in_te_te_IN", teFillin, &status);
 	key = ures_getKey(teFillin);
-	value = (UChar *)ures_getNextString(teFillin, &len, &key, &status);
+	value = (char16_t *)ures_getNextString(teFillin, &len, &key, &status);
 	(void)value; /* Suppress set but not used warning. */
 	ures_resetIterator(NULL);
-	value = (UChar *)ures_getNextString(teFillin, &len, &key, &status);
+	value = (char16_t *)ures_getNextString(teFillin, &len, &key, &status);
 	if(status !=U_INDEX_OUTOFBOUNDS_ERROR) {
 		log_err("ERROR: calling getNextString where index out of bounds should return U_INDEX_OUTOFBOUNDS_ERROR, Got : %s\n",
 		    myErrorName(status));
@@ -1214,9 +1214,9 @@ static void TestAPI() {
 static void TestErrorConditions() {
 	UErrorCode status = U_ZERO_ERROR;
 	const char * key = NULL;
-	const UChar * value = NULL;
+	const char16_t * value = NULL;
 	const char * testdatapath;
-	UChar * utestdatapath;
+	char16_t * utestdatapath;
 	int32_t len = 0;
 	UResourceBundle * teRes = NULL;
 	UResourceBundle * coll = NULL;
@@ -1232,7 +1232,7 @@ static void TestErrorConditions() {
 		return;
 	}
 	len = (int32_t)strlen(testdatapath);
-	utestdatapath = (UChar *)SAlloc::M(sizeof(UChar) *(len+10));
+	utestdatapath = (char16_t *)SAlloc::M(sizeof(char16_t) *(len+10));
 	u_uastrcpy(utestdatapath, testdatapath);
 
 	/*Test ures_openU with status != U_ZERO_ERROR*/
@@ -1383,13 +1383,13 @@ static void TestErrorConditions() {
 	teFillin = ures_getByKey(teRes, "tagged_array_in_te_te_IN", teFillin, &status);
 	key = ures_getKey(teFillin);
 	status = U_ILLEGAL_ARGUMENT_ERROR;
-	value = (UChar *)ures_getNextString(teFillin, &len, &key, &status);
+	value = (char16_t *)ures_getNextString(teFillin, &len, &key, &status);
 	if(value) {
 		log_err("ERROR: ures_getNextString() with errorCode != U_ZERO_ERROR is supposed to fail\n");
 	}
 	/*Test ures_getNextString with UResourceBundle = NULL*/
 	status = U_ZERO_ERROR;
-	value = (UChar *)ures_getNextString(NULL, &len, &key, &status);
+	value = (char16_t *)ures_getNextString(NULL, &len, &key, &status);
 	if(value != NULL || status != U_ILLEGAL_ARGUMENT_ERROR) {
 		log_err(
 			"ERROR: ures_getNextString() with UResourceBundle=NULL is supposed to fail\n Expected: U_ILLEGAL_ARGUMENT_ERROR, Got: %s\n",
@@ -1418,13 +1418,13 @@ static void TestErrorConditions() {
 	status = U_ZERO_ERROR;
 	teFillin = ures_getByKey(teRes, "array_only_in_te", teFillin, &status);
 	status = U_ILLEGAL_ARGUMENT_ERROR;
-	value = (UChar *)ures_getStringByIndex(teFillin, 0, &len, &status);
+	value = (char16_t *)ures_getStringByIndex(teFillin, 0, &len, &status);
 	if(value) {
 		log_err("ERROR: ures_getSringByIndex() with errorCode != U_ZERO_ERROR is supposed to fail\n");
 	}
 	/*Test ures_getStringByIndex with UResourceBundle = NULL */
 	status = U_ZERO_ERROR;
-	value = (UChar *)ures_getStringByIndex(NULL, 0, &len, &status);
+	value = (char16_t *)ures_getStringByIndex(NULL, 0, &len, &status);
 	if(value != NULL || status != U_ILLEGAL_ARGUMENT_ERROR) {
 		log_err(
 			"ERROR: ures_getStringByIndex() with UResourceBundle=NULL is supposed to fail\n Expected: U_ILLEGAL_ARGUMENT_ERROR, Got: %s\n",
@@ -1432,7 +1432,7 @@ static void TestErrorConditions() {
 	}
 	/*Test ures_getStringByIndex with UResourceBundle = NULL */
 	status = U_ZERO_ERROR;
-	value = (UChar *)ures_getStringByIndex(teFillin, 9999, &len, &status);
+	value = (char16_t *)ures_getStringByIndex(teFillin, 9999, &len, &status);
 	if(value != NULL || status != U_MISSING_RESOURCE_ERROR) {
 		log_err(
 			"ERROR: ures_getStringByIndex() with index that is too big is supposed to fail\n Expected: U_MISSING_RESOURCE_ERROR, Got: %s\n",
@@ -1504,7 +1504,7 @@ static void TestGetVersionColl() {
 	int i = 0;
 	const char * locName = "root";
 	int32_t locLen;
-	const UChar * rules = NULL;
+	const char16_t * rules = NULL;
 	int32_t len = 0;
 
 	/* test NUL termination of UCARules */
@@ -1599,7 +1599,7 @@ static void TestConstruction1()
 	}
 
 	UResourceBundle * test1 = 0, * test2 = 0, * empty = 0;
-	const UChar * result1, * result2;
+	const char16_t * result1, * result2;
 	UErrorCode status = U_ZERO_ERROR;
 	UErrorCode err = U_ZERO_ERROR;
 	const char * locale = "te_IN";
@@ -1692,9 +1692,9 @@ static bool testTag(const char * frag,
 	char tag[99];
 	char action[256];
 	UErrorCode expected_status, status = U_ZERO_ERROR, expected_resource_status = U_ZERO_ERROR;
-	UChar * base = NULL;
-	UChar * expected_string = NULL;
-	const UChar * string = NULL;
+	char16_t * base = NULL;
+	char16_t * expected_string = NULL;
+	const char16_t * string = NULL;
 	char buf[5];
 	char item_tag[10];
 	int32_t i, j, row, col, len;
@@ -1772,7 +1772,7 @@ static bool testTag(const char * frag,
 					SAlloc::F(base);
 					base = NULL;
 				}
-				base = (UChar *)SAlloc::M(sizeof(UChar)*(strlen(NAME[j]) + 1));
+				base = (char16_t *)SAlloc::M(sizeof(char16_t)*(strlen(NAME[j]) + 1));
 				u_uastrcpy(base, NAME[j]);
 
 				break;
@@ -1782,7 +1782,7 @@ static bool testTag(const char * frag,
 					SAlloc::F(base);
 					base = NULL;
 				}
-				base = (UChar *)SAlloc::M(sizeof(UChar) * 1);
+				base = (char16_t *)SAlloc::M(sizeof(char16_t) * 1);
 				*base = 0x0000;
 			}
 		}
@@ -1802,12 +1802,12 @@ static bool testTag(const char * frag,
 
 		string = tres_getString(theBundle, -1, tag, &len, &status);
 		if(U_SUCCESS(status)) {
-			expected_string = (UChar *)SAlloc::M(sizeof(UChar)*(u_strlen(base) + 4));
+			expected_string = (char16_t *)SAlloc::M(sizeof(char16_t)*(u_strlen(base) + 4));
 			u_strcpy(expected_string, base);
 			CONFIRM_INT_EQ(len, u_strlen(expected_string));
 		}
 		else {
-			expected_string = (UChar *)SAlloc::M(sizeof(UChar)*(u_strlen(kERROR) + 1));
+			expected_string = (char16_t *)SAlloc::M(sizeof(char16_t)*(u_strlen(kERROR) + 1));
 			u_strcpy(expected_string, kERROR);
 			string = kERROR;
 		}
@@ -1839,7 +1839,7 @@ static bool testTag(const char * frag,
 			count = ures_getSize(array);
 			CONFIRM_INT_GE(count, 1);
 			for(j = 0; j<count; ++j) {
-				UChar element[3];
+				char16_t element[3];
 				u_strcpy(expected_string, base);
 				u_uastrcpy(element, itoa1(j, buf));
 				u_strcat(expected_string, element);
@@ -1872,10 +1872,10 @@ static bool testTag(const char * frag,
 			string = kERROR;
 			array = ures_getByKey(theBundle, tag, array, &status);
 			if(!U_FAILURE(status)) {
-				UChar * t = NULL;
-				t = (UChar *)ures_getStringByIndex(array, idx, &len, &status);
+				char16_t * t = NULL;
+				t = (char16_t *)ures_getStringByIndex(array, idx, &len, &status);
 				if(!U_FAILURE(status)) {
-					UChar element[3];
+					char16_t element[3];
 					string = t;
 					u_strcpy(expected_string, base);
 					u_uastrcpy(element, itoa1(idx, buf));
@@ -1922,7 +1922,7 @@ static bool testTag(const char * frag,
 					CONFIRM_INT_GE(column_count, 1);
 
 					for(col = 0; j<column_count; ++j) {
-						UChar element[3];
+						char16_t element[3];
 						u_strcpy(expected_string, base);
 						u_uastrcpy(element, itoa1(row, buf));
 						u_strcat(expected_string, element);
@@ -1930,7 +1930,7 @@ static bool testTag(const char * frag,
 						u_strcat(expected_string, element);
 						arrayItem1 = ures_getNextResource(tableRow, arrayItem1, &status);
 						if(U_SUCCESS(status)) {
-							const UChar * stringValue = tres_getString(arrayItem1, -1, NULL, &len, &status);
+							const char16_t * stringValue = tres_getString(arrayItem1, -1, NULL, &len, &status);
 							CONFIRM_EQ(stringValue, expected_string);
 						}
 					}
@@ -1957,8 +1957,8 @@ static bool testTag(const char * frag,
 				UResourceBundle * tableRow = NULL;
 				tableRow = ures_getByIndex(array2d, row, tableRow, &status);
 				if(U_SUCCESS(status)) {
-					UChar * t = NULL;
-					t = (UChar *)ures_getStringByIndex(tableRow, col, &len, &status);
+					char16_t * t = NULL;
+					t = (char16_t *)ures_getStringByIndex(tableRow, col, &len, &status);
 					if(U_SUCCESS(status)) {
 						string = t;
 					}
@@ -1970,7 +1970,7 @@ static bool testTag(const char * frag,
 			CONFIRM_ErrorCode(status, expected_status);
 
 			if(U_SUCCESS(status)) {
-				UChar element[3];
+				char16_t element[3];
 				u_strcpy(expected_string, base);
 				u_uastrcpy(element, itoa1(row, buf));
 				u_strcat(expected_string, element);
@@ -2006,10 +2006,10 @@ static bool testTag(const char * frag,
 			for(idx = 0; idx <tag_count; idx++) {
 				UResourceBundle * tagelement = NULL;
 				const char * key = NULL;
-				UChar * value = NULL;
+				char16_t * value = NULL;
 				tagelement = ures_getByIndex(tags, idx, tagelement, &status);
 				key = ures_getKey(tagelement);
-				value = (UChar *)ures_getNextString(tagelement, &len, &key, &status);
+				value = (char16_t *)ures_getNextString(tagelement, &len, &key, &status);
 				log_verbose("tag = %s, value = %s\n", key, u_austrcpy(verboseOutput, value));
 				if(strncmp(key, "tag", 3) == 0 && u_strncmp(value, base, u_strlen(base)) == 0) {
 					record_pass();
@@ -2034,7 +2034,7 @@ static bool testTag(const char * frag,
 			tags = ures_getByKey(theBundle, tag, tags, &status);
 			if(U_SUCCESS(status)) {
 				UResourceBundle * tagelement = NULL;
-				UChar * t = NULL;
+				char16_t * t = NULL;
 				tagelement = ures_getByKey(tags, item_tag, tagelement, &status);
 				if(!U_FAILURE(status)) {
 					UResType elementType = ures_getType(tagelement);
@@ -2045,7 +2045,7 @@ static bool testTag(const char * frag,
 					else {
 						record_fail();
 					}
-					t = (UChar *)tres_getString(tagelement, -1, NULL, &len, &status);
+					t = (char16_t *)tres_getString(tagelement, -1, NULL, &len, &status);
 					if(!U_FAILURE(status)) {
 						string = t;
 					}
@@ -2055,7 +2055,7 @@ static bool testTag(const char * frag,
 				}
 				else {
 					if(status != U_MISSING_RESOURCE_ERROR) {
-						UChar element[3];
+						char16_t element[3];
 						u_strcpy(expected_string, base);
 						u_uastrcpy(element, itoa1(idx, buf));
 						u_strcat(expected_string, element);
@@ -2148,7 +2148,7 @@ static void TestFallback()
 	UErrorCode status = U_ZERO_ERROR;
 	UResourceBundle * fr_FR = NULL;
 	UResourceBundle * subResource = NULL;
-	const UChar * junk; /* ignored */
+	const char16_t * junk; /* ignored */
 	int32_t resultLen;
 
 	log_verbose("Opening fr_FR..");
@@ -2195,8 +2195,8 @@ static void TestFallback()
 		UErrorCode err = U_ZERO_ERROR;
 		UResourceBundle * myResB = ures_open(NULL, "no_NO_NY", &err);
 		UResourceBundle * resLocID = ures_getByKey(myResB, "Version", NULL, &err);
-		const UChar * version = NULL;
-		static const UChar versionStr[] = u"40"; // 40 in nn_NO or in a parent bundle/root
+		const char16_t * version = NULL;
+		static const char16_t versionStr[] = u"40"; // 40 in nn_NO or in a parent bundle/root
 		if(U_FAILURE(err)) {
 			log_data_err("Expected success when trying to test no_NO_NY aliased to nn_NO for Version err=%s\n", u_errorName(err));
 			return;
@@ -2222,7 +2222,7 @@ static void TestFallback()
 	}
 }
 
-/* static void printUChars(UChar * uchars) {
+/* static void printUChars(char16_t * uchars) {
    /    int16_t i=0;
    /    for(i=0; i<u_strlen(uchars); i++) {
    /        log_err("%04X ", *(uchars+i));
@@ -2234,7 +2234,7 @@ static void TestResourceLevelAliasing() {
 	UResourceBundle * aliasB = NULL, * tb = NULL;
 	UResourceBundle * en = NULL, * uk = NULL, * testtypes = NULL;
 	const char * testdatapath = NULL;
-	const UChar * string = NULL, * sequence = NULL;
+	const char16_t * string = NULL, * sequence = NULL;
 	/*const uint8_t *binary = NULL, *binSequence = NULL;*/
 	int32_t strLen = 0, seqLen = 0; /*, binLen = 0, binSeqLen = 0;*/
 	char buffer[100];
@@ -2354,8 +2354,8 @@ static void TestResourceLevelAliasing() {
 			"PDT",
 			"Los Angeles",
 		};
-		UChar uBuffer[256];
-		const UChar * result;
+		char16_t uBuffer[256];
+		const char16_t * result;
 		int32_t uBufferLen = 0, resultLen = 0;
 		int32_t i = 0;
 		const char * key = NULL;
@@ -2637,9 +2637,7 @@ static void TestGetKeywordValues() {
 #endif
 	foundStandard = FALSE;
 	kwVals = ures_getKeywordValues("ICUDATA", "calendar", &status);
-
 	log_verbose("Testing getting calendar keyword values:\n");
-
 	while((kw = uenum_next(kwVals, NULL, &status))) {
 		log_verbose("  %s\n", kw);
 		if(!strcmp(kw, "japanese")) {
@@ -2785,9 +2783,9 @@ static void TestXPath() {
 	UErrorCode status = U_ZERO_ERROR;
 	UResourceBundle * rb = NULL, * alias = NULL;
 	int32_t len = 0;
-	const UChar * result = NULL;
-	const UChar expResult[] = { 0x0063, 0x006F, 0x0072, 0x0072, 0x0065, 0x0063, 0x0074, 0x0000 }; /* "correct" */
-	/*const UChar expResult[] = { 0x0074, 0x0065, 0x0069, 0x006E, 0x0064, 0x0065, 0x0073, 0x0074, 0x0000 };
+	const char16_t * result = NULL;
+	const char16_t expResult[] = { 0x0063, 0x006F, 0x0072, 0x0072, 0x0065, 0x0063, 0x0074, 0x0000 }; /* "correct" */
+	/*const char16_t expResult[] = { 0x0074, 0x0065, 0x0069, 0x006E, 0x0064, 0x0065, 0x0073, 0x0074, 0x0000 };
 	   *//*teindest*/
 
 	const char * testdatapath = loadTestData(&status);
@@ -2848,8 +2846,8 @@ static void TestCLDRStyleAliases() {
 	UResourceBundle * rb = NULL, * alias = NULL, * a = NULL;
 	int32_t i, len;
 	char resource[256];
-	const UChar * result = NULL;
-	UChar expected[256];
+	const char16_t * result = NULL;
+	char16_t expected[256];
 	const char * expects[7] = { "", "a41", "a12", "a03", "ar4" };
 	const char * testdatapath = loadTestData(&status);
 	if(U_FAILURE(status)) {
@@ -2935,11 +2933,11 @@ static void TestFallbackCodes() {
  * Replace most ures_getStringXYZ() with this function which wraps the
  * desired call and also calls the UTF-8 variant and checks that it works.
  */
-extern const UChar * tres_getString(const UResourceBundle * resB, int32_t idx, const char * key, int32_t * length, UErrorCode * status) 
+extern const char16_t * tres_getString(const UResourceBundle * resB, int32_t idx, const char * key, int32_t * length, UErrorCode * status) 
 {
 	char buffer8[16];
 	char * p8;
-	const UChar * s16;
+	const char16_t * s16;
 	const char * s8;
 	UChar32 c16, c8;
 	int32_t length16, length8, i16, i8;

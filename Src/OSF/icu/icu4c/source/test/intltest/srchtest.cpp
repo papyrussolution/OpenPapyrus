@@ -64,7 +64,7 @@ StringSearchTest::StringSearchTest()
 
 	UnicodeString rules;
 	rules.setTo(((RuleBasedCollator*)m_de_)->getRules());
-	UChar extrarules[128];
+	char16_t extrarules[128];
 	u_unescape(EXTRACOLLATIONRULE, extrarules, 128);
 	rules.append(extrarules, u_strlen(extrarules));
 	delete m_de_;
@@ -220,7 +220,7 @@ char * StringSearchTest::toCharString(const UnicodeString & text)
 	int length = text.length();
 
 	for(; count < length; count++) {
-		UChar ch = text[count];
+		char16_t ch = text[count];
 		if(ch >= 0x20 && ch <= 0x7e) {
 			result[index++] = (char)ch;
 		}
@@ -463,7 +463,7 @@ bool StringSearchTest::assertEqual(const SearchData * search)
 	Collator      * collator = getCollator(search->collator);
 	BreakIterator * breaker  = getBreakIterator(search->breaker);
 	StringSearch  * strsrch, * strsrch2;
-	UChar temp[128];
+	char16_t temp[128];
 
 #if UCONFIG_NO_BREAK_ITERATION
 	if(search->breaker) {
@@ -519,7 +519,7 @@ bool StringSearchTest::assertCanonicalEqual(const SearchData * search)
 	Collator      * collator = getCollator(search->collator);
 	BreakIterator * breaker  = getBreakIterator(search->breaker);
 	StringSearch  * strsrch;
-	UChar temp[128];
+	char16_t temp[128];
 	bool result = TRUE;
 
 #if UCONFIG_NO_BREAK_ITERATION
@@ -572,7 +572,7 @@ bool StringSearchTest::assertEqualWithAttribute(const SearchData * search,
 	Collator      * collator = getCollator(search->collator);
 	BreakIterator * breaker  = getBreakIterator(search->breaker);
 	StringSearch  * strsrch;
-	UChar temp[128];
+	char16_t temp[128];
 
 #if UCONFIG_NO_BREAK_ITERATION
 	if(search->breaker) {
@@ -863,7 +863,7 @@ void StringSearchTest::TestStrength()
 
 void StringSearchTest::TestBreakIterator()
 {
-	UChar temp[128];
+	char16_t temp[128];
 	u_unescape(BREAKITERATOREXACT[0].text, temp, 128);
 	UnicodeString text;
 	text.setTo(temp, u_strlen(temp));
@@ -996,7 +996,7 @@ void StringSearchTest::TestOverlap()
 	count = 0;
 	while(count < 1) {
 		const SearchData * search = &(OVERLAP[count]);
-		UChar temp[128];
+		char16_t temp[128];
 		u_unescape(search->text, temp, 128);
 		UnicodeString text;
 		text.setTo(temp, u_strlen(temp));
@@ -1040,7 +1040,7 @@ void StringSearchTest::TestOverlap()
 void StringSearchTest::TestCollator()
 {
 	// test collator that thinks "o" and "p" are the same thing
-	UChar temp[128];
+	char16_t temp[128];
 	u_unescape(COLLATOR[0].text, temp, 128);
 	UnicodeString text;
 	text.setTo(temp, u_strlen(temp));
@@ -1103,7 +1103,7 @@ void StringSearchTest::TestCollator()
 
 void StringSearchTest::TestPattern()
 {
-	UChar temp[512];
+	char16_t temp[512];
 	int templength;
 	u_unescape(PATTERN_[0].text, temp, 512);
 	UnicodeString text;
@@ -1195,7 +1195,7 @@ void StringSearchTest::TestPattern()
 
 void StringSearchTest::TestText()
 {
-	UChar temp[128];
+	char16_t temp[128];
 	u_unescape(TEXT[0].text, temp, 128);
 	UnicodeString text;
 	text.setTo(temp, u_strlen(temp));
@@ -1284,7 +1284,7 @@ void StringSearchTest::TestGetSetOffset()
 	while(BASIC[index].text != NULL) {
 		UErrorCode status = U_ZERO_ERROR;
 		SearchData search      = BASIC[index++];
-		UChar temp[128];
+		char16_t temp[128];
 
 		u_unescape(search.text, temp, 128);
 		text.setTo(temp, u_strlen(temp));
@@ -1405,7 +1405,7 @@ void StringSearchTest::TestGetSetAttribute()
 
 void StringSearchTest::TestGetMatch()
 {
-	UChar temp[128];
+	char16_t temp[128];
 	SearchData search = MATCH[0];
 	u_unescape(search.text, temp, 128);
 	UnicodeString text;
@@ -1469,7 +1469,7 @@ void StringSearchTest::TestSetMatch()
 	int count = 0;
 	while(MATCH[count].text != NULL) {
 		SearchData search = MATCH[count];
-		UChar temp[128];
+		char16_t temp[128];
 		UErrorCode status = U_ZERO_ERROR;
 		u_unescape(search.text, temp, 128);
 		UnicodeString text;
@@ -1583,7 +1583,7 @@ void StringSearchTest::TestSupplementary()
 
 void StringSearchTest::TestContraction()
 {
-	UChar temp[128];
+	char16_t temp[128];
 	UErrorCode status = U_ZERO_ERROR;
 
 	u_unescape(CONTRACTIONRULE, temp, 128);
@@ -1621,7 +1621,7 @@ void StringSearchTest::TestContraction()
 
 void StringSearchTest::TestIgnorable()
 {
-	UChar temp[128];
+	char16_t temp[128];
 	u_unescape(IGNORABLERULE, temp, 128);
 	UnicodeString rules;
 	rules.setTo(temp, u_strlen(temp));
@@ -1662,7 +1662,7 @@ void StringSearchTest::TestIgnorable()
 
 void StringSearchTest::TestDiacriticMatch()
 {
-	UChar temp[128];
+	char16_t temp[128];
 	UErrorCode status = U_ZERO_ERROR;
 	int count  = 0;
 	RuleBasedCollator* coll = NULL;
@@ -1741,7 +1741,7 @@ void StringSearchTest::TestBreakIteratorCanonical()
 
 	while(count < 4) {
 		// special purposes for tests numbers 0-3
-		UChar temp[128];
+		char16_t temp[128];
 		const SearchData     * search   = &(BREAKITERATORCANONICAL[count]);
 
 		u_unescape(search->text, temp, 128);
@@ -1846,7 +1846,7 @@ void StringSearchTest::TestOverlapCanonical()
 
 	count = 0;
 	while(count < 1) {
-		UChar temp[128];
+		char16_t temp[128];
 		const SearchData * search = &(OVERLAPCANONICAL[count]);
 		UErrorCode status = U_ZERO_ERROR;
 
@@ -1889,7 +1889,7 @@ void StringSearchTest::TestOverlapCanonical()
 void StringSearchTest::TestCollatorCanonical()
 {
 	/* test collator that thinks "o" and "p" are the same thing */
-	UChar temp[128];
+	char16_t temp[128];
 	u_unescape(COLLATORCANONICAL[0].text, temp, 128);
 	UnicodeString text;
 	text.setTo(temp, u_strlen(temp));
@@ -1950,7 +1950,7 @@ void StringSearchTest::TestCollatorCanonical()
 
 void StringSearchTest::TestPatternCanonical()
 {
-	UChar temp[128];
+	char16_t temp[128];
 	u_unescape(PATTERNCANONICAL[0].text, temp, 128);
 	UnicodeString text;
 	text.setTo(temp, u_strlen(temp));
@@ -2011,7 +2011,7 @@ ENDTESTPATTERN:
 
 void StringSearchTest::TestTextCanonical()
 {
-	UChar temp[128];
+	char16_t temp[128];
 	u_unescape(TEXTCANONICAL[0].text, temp, 128);
 	UnicodeString text;
 	text.setTo(temp, u_strlen(temp));
@@ -2102,7 +2102,7 @@ void StringSearchTest::TestGetSetOffsetCanonical()
 		errln("Error expecting set offset error");
 	}
 	int index   = 0;
-	UChar temp[128];
+	char16_t temp[128];
 	while(BASICCANONICAL[index].text != NULL) {
 		SearchData search      = BASICCANONICAL[index++];
 		if(BASICCANONICAL[index].text == NULL) {
@@ -2178,7 +2178,7 @@ void StringSearchTest::TestSupplementaryCanonical()
 
 void StringSearchTest::TestContractionCanonical()
 {
-	UChar temp[128];
+	char16_t temp[128];
 
 	u_unescape(CONTRACTIONRULE, temp, 128);
 	UnicodeString rules;

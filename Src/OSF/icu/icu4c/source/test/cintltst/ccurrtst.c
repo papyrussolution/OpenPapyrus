@@ -32,7 +32,7 @@ void addCurrencyCollTest(TestNode** root)
 void currTest()
 {
 	/* All the currency symbols, in UCA order*/
-	static const UChar currency[][2] =
+	static const char16_t currency[][2] =
 	{
 		{ 0x00A4, 0x0000}, /*00A4; L; [14 36, 03, 03]    # [082B.0020.0002] # CURRENCY SIGN*/
 		{ 0x00A2, 0x0000}, /*00A2; L; [14 38, 03, 03]    # [082C.0020.0002] # CENT SIGN*/
@@ -68,7 +68,7 @@ void currTest()
 
 #if 0
 	/* All the currency symbols, in collation order*/
-	static const UChar currency[][2] =
+	static const char16_t currency[][2] =
 	{
 		{ 0x00a4, 0x0000}, /* generic currency*/
 		{ 0x0e3f, 0x0000}, /* baht*/
@@ -91,7 +91,7 @@ void currTest()
 	};
 #endif
 
-	UChar source[2], target[2];
+	char16_t source[2], target[2];
 	int32_t i, j, sortklen;
 	int res;
 	UCollator * c;

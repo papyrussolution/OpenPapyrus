@@ -22,16 +22,16 @@
 
 static void TestConverterFallBack();
 static void TestConvertFallBackWithBufferSizes(int32_t outsize, int32_t insize );
-static bool testConvertFromUnicode(const UChar *source, int sourceLen,  const uint8_t *expect, int expectLen, 
+static bool testConvertFromUnicode(const char16_t *source, int sourceLen,  const uint8_t *expect, int expectLen, 
                 const char *codepage, bool fallback, const int32_t *expectOffsets);
-static bool testConvertToUnicode( const uint8_t *source, int sourcelen, const UChar *expect, int expectlen, 
+static bool testConvertToUnicode( const uint8_t *source, int sourcelen, const char16_t *expect, int expectlen, 
                const char *codepage, bool fallback, const int32_t *expectOffsets);
 
 
 static void printSeq(const unsigned char * a, int len);
-static void printUSeq(const UChar * a, int len);
+static void printUSeq(const char16_t * a, int len);
 static void printSeqErr(const unsigned char * a, int len);
-static void printUSeqErr(const UChar * a, int len);
+static void printUSeqErr(const char16_t * a, int len);
 static void setNuConvTestName(const char *codepage, const char *direction);
 
 

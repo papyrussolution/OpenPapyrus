@@ -407,7 +407,7 @@ static const uchar * gif_read_ae(fz_context * ctx, struct info * info, const uch
 		fz_throw(ctx, FZ_ERROR_GENERIC, "out of range application extension block size in gif image");
 
 	ignored = 0;
-	for(i = 0; i < (int)nelem(ignorable); i++)
+	for(i = 0; i < SIZEOFARRAYi(ignorable); i++)
 		ignored |= memcmp(&p[3], ignorable[i], 8 + 3);
 	if(!ignored) {
 		char extension[9];

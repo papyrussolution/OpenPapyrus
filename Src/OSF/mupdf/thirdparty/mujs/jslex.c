@@ -457,12 +457,9 @@ static int lexescape(js_State * J)
 static int lexstring(js_State * J)
 {
 	const char * s;
-
 	int q = J->lexchar;
 	jsY_next(J);
-
 	textinit(J);
-
 	while(J->lexchar != q) {
 		if(J->lexchar == EOF || J->lexchar == '\n')
 			jsY_error(J, "string not terminated");
@@ -476,9 +473,7 @@ static int lexstring(js_State * J)
 		}
 	}
 	jsY_expect(J, q);
-
 	s = textend(J);
-
 	J->text = js_intern(J, s);
 	return TK_STRING;
 }

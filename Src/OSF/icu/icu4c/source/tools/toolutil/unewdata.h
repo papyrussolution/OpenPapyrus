@@ -96,9 +96,9 @@ udata_writePadding(UNewDataMemory *pData, int32_t length);
 U_CAPI void U_EXPORT2
 udata_writeString(UNewDataMemory *pData, const char *s, int32_t length);
 
-/** @memo Write a <code>UChar *</code> string of Unicode character code units to the file. */
+/** @memo Write a <code>char16_t *</code> string of Unicode character code units to the file. */
 U_CAPI void U_EXPORT2
-udata_writeUString(UNewDataMemory *pData, const UChar *s, int32_t length);
+udata_writeUString(UNewDataMemory *pData, const char16_t *s, int32_t length);
 
 
 /*

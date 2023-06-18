@@ -166,7 +166,7 @@ static const char * const rawData2[LOCALE_INFO_SIZE][LOCALE_SIZE] = {
 	}
 };
 
-static UChar *** dataTable = 0;
+static char16_t *** dataTable = 0;
 enum {
 	ENGLISH = 0,
 	FRENCH = 1,
@@ -550,12 +550,12 @@ static void TestPrefixes() {
 static void TestSimpleResourceInfo() {
 	int32_t i;
 	char * testLocale = 0;
-	UChar * expected = 0;
+	char16_t * expected = 0;
 
 	const char * temp;
 	char temp2[20];
 	testLocale = (char *)SAlloc::M(sizeof(char) * 1);
-	expected = (UChar *)SAlloc::M(sizeof(UChar) * 1);
+	expected = (char16_t *)SAlloc::M(sizeof(char16_t) * 1);
 
 	setUpDataTable();
 	log_verbose("Testing getISO3Language and getISO3Country\n");
@@ -565,13 +565,13 @@ static void TestSimpleResourceInfo() {
 
 		log_verbose("Testing   %s ......\n", testLocale);
 		temp = uloc_getISO3Language(testLocale);
-		expected = (UChar *)SAlloc::R(expected, sizeof(UChar) * (strlen(temp) + 1));
+		expected = (char16_t *)SAlloc::R(expected, sizeof(char16_t) * (strlen(temp) + 1));
 		u_uastrcpy(expected, temp);
 		if(0 != u_strcmp(expected, dataTable[LANG3][i])) {
 			log_err("  ISO-3 language code mismatch:  %s versus  %s\n",  austrdup(expected), austrdup(dataTable[LANG3][i]));
 		}
 		temp = uloc_getISO3Country(testLocale);
-		expected = (UChar *)SAlloc::R(expected, sizeof(UChar) * (strlen(temp) + 1));
+		expected = (char16_t *)SAlloc::R(expected, sizeof(char16_t) * (strlen(temp) + 1));
 		u_uastrcpy(expected, temp);
 		if(0 != u_strcmp(expected, dataTable[CTRY3][i])) {
 			log_err("  ISO-3 Country code mismatch:  %s versus  %s\n",  austrdup(expected), austrdup(dataTable[CTRY3][i]));
@@ -586,13 +586,13 @@ static void TestSimpleResourceInfo() {
 	cleanUpDataTable();
 }
 
-/* if len < 0, we convert until we hit UChar 0x0000, which is not output. will add trailing null
+/* if len < 0, we convert until we hit char16_t 0x0000, which is not output. will add trailing null
 * if there's room but won't be included in result.  result < 0 indicates an error.
 * Returns the number of chars written (not those that would be written if there's enough room.*/
-static int32_t UCharsToEscapedAscii(const UChar * utext, int32_t len, char * resultChars, int32_t buflen) {
+static int32_t UCharsToEscapedAscii(const char16_t * utext, int32_t len, char * resultChars, int32_t buflen) {
 	static const struct {
 		char escapedChar;
-		UChar sourceVal;
+		char16_t sourceVal;
 	} ESCAPE_MAP[] = {
 		/*a*/ {'a', 0x07},
 		/*b*/ {'b', 0x08},
@@ -613,7 +613,7 @@ static int32_t UCharsToEscapedAscii(const UChar * utext, int32_t len, char * res
 	const int32_t limit = len<0 ? buflen : len; /* buflen is long enough to hit the buffer limit */
 	const int32_t escapeLimit1 = buflen-2;
 	const int32_t escapeLimit2 = buflen-6;
-	UChar uc;
+	char16_t uc;
 
 	if(utext==NULL || resultChars==NULL || buflen<0) {
 		return -1;
@@ -670,7 +670,7 @@ static int32_t UCharsToEscapedAscii(const UChar * utext, int32_t len, char * res
  */
 static void TestDisplayNames()
 {
-	UChar buffer[100];
+	char16_t buffer[100];
 	UErrorCode errorCode = U_ZERO_ERROR;
 	int32_t length;
 	log_verbose("Testing getDisplayName for different locales\n");
@@ -733,7 +733,7 @@ static void TestDisplayNames()
 						 "espagnol (calendrier=calendrier japonais, ordre de tri=ordre traditionnel)",
 						 "espanyol (calendari=calendari japon\\u00e8s, ordenaci\\u00f3=ordre tradicional)",
 						 "\\u0399\\u03c3\\u03c0\\u03b1\\u03bd\\u03b9\\u03ba\\u03ac (\\u0397\\u03bc\\u03b5\\u03c1\\u03bf\\u03bb\\u03cc\\u03b3\\u03b9\\u03bf=\\u0399\\u03b1\\u03c0\\u03c9\\u03bd\\u03b9\\u03ba\\u03cc \\u03b7\\u03bc\\u03b5\\u03c1\\u03bf\\u03bb\\u03cc\\u03b3\\u03b9\\u03bf, \\u03a3\\u03b5\\u03b9\\u03c1\\u03ac \\u03c4\\u03b1\\u03be\\u03b9\\u03bd\\u03cc\\u03bc\\u03b7\\u03c3\\u03b7\\u03c2=\\u03a0\\u03b1\\u03c1\\u03b1\\u03b4\\u03bf\\u03c3\\u03b9\\u03b1\\u03ba\\u03ae \\u03c3\\u03b5\\u03b9\\u03c1\\u03ac \\u03c4\\u03b1\\u03be\\u03b9\\u03bd\\u03cc\\u03bc\\u03b7\\u03c3\\u03b7\\u03c2)" };
-		UChar * expectBuffer;
+		char16_t * expectBuffer;
 
 		for(i = 0; i<SIZEOFARRAYi(testL); i++) {
 			errorCode = U_ZERO_ERROR;
@@ -769,7 +769,7 @@ static void TestDisplayNames()
 		    "\\u30a2\\u30bc\\u30eb\\u30d0\\u30a4\\u30b8\\u30e3\\u30f3\\u8a9e "
 		    "(\\u30ad\\u30ea\\u30eb\\u6587\\u5b57)";
 		UErrorCode ec = U_ZERO_ERROR;
-		UChar result[256];
+		char16_t result[256];
 		int32_t len;
 		int32_t preflightLen = uloc_getDisplayName(locale, displayLocale, NULL, 0, &ec);
 		/* inconvenient semantics when preflighting, this condition is expected... */
@@ -782,7 +782,7 @@ static void TestDisplayNames()
 			    locale, displayLocale, u_errorName(ec));
 		}
 		else {
-			UChar * expected = CharsToUChars(expectedChars);
+			char16_t * expected = CharsToUChars(expectedChars);
 			int32_t expectedLen = u_strlen(expected);
 
 			if(len!=expectedLen) {
@@ -843,10 +843,10 @@ static void TestGetDisplayScriptPreFlighting21160()
 	const char * inlocale = "de";
 
 	UErrorCode ec = U_ZERO_ERROR;
-	UChar * result = NULL;
+	char16_t * result = NULL;
 	int32_t length = uloc_getDisplayScript(locale, inlocale, NULL, 0, &ec) + 1;
 	ec = U_ZERO_ERROR;
-	result = (UChar *)SAlloc::M(sizeof(UChar) * length);
+	result = (char16_t *)SAlloc::M(sizeof(char16_t) * length);
 	length = uloc_getDisplayScript(locale, inlocale, result, length, &ec);
 	if(U_FAILURE(ec)) {
 		log_err("uloc_getDisplayScript length %d returned error %s", length, u_errorName(ec));
@@ -912,7 +912,7 @@ static void TestGetAvailableLocalesByType()
 	uenum = uloc_openAvailableByType(ULOC_AVAILABLE_WITH_LEGACY_ALIASES, &status);
 	found_he = FALSE;
 	found_iw = FALSE;
-	const UChar * uloc; // test the UChar conversion
+	const char16_t * uloc; // test the char16_t conversion
 	int32_t count = 0;
 	while((uloc = uenum_unext(uenum, NULL, &status))) {
 		if(u_strcmp(u"iw", uloc) == 0) {
@@ -979,7 +979,7 @@ static void TestDataDirectory()
 
 /*=========================================================== */
 
-static UChar _NUL = 0;
+static char16_t _NUL = 0;
 
 static void doTestDisplayNames(const char * displayLocale, int32_t compareIndex)
 {
@@ -989,17 +989,17 @@ static void doTestDisplayNames(const char * displayLocale, int32_t compareIndex)
 
 	const char * testLocale;
 
-	UChar  * testLang  = 0;
-	UChar  * testScript  = 0;
-	UChar  * testCtry = 0;
-	UChar  * testVar = 0;
-	UChar  * testName = 0;
+	char16_t  * testLang  = 0;
+	char16_t  * testScript  = 0;
+	char16_t  * testCtry = 0;
+	char16_t  * testVar = 0;
+	char16_t  * testName = 0;
 
-	UChar * expectedLang = 0;
-	UChar * expectedScript = 0;
-	UChar * expectedCtry = 0;
-	UChar * expectedVar = 0;
-	UChar * expectedName = 0;
+	char16_t * expectedLang = 0;
+	char16_t * expectedScript = 0;
+	char16_t * expectedCtry = 0;
+	char16_t * expectedVar = 0;
+	char16_t * expectedName = 0;
 
 	setUpDataTable();
 
@@ -1012,7 +1012,7 @@ static void doTestDisplayNames(const char * displayLocale, int32_t compareIndex)
 		maxresultsize = uloc_getDisplayLanguage(testLocale, displayLocale, NULL, maxresultsize, &status);
 		if(status==U_BUFFER_OVERFLOW_ERROR) {
 			status = U_ZERO_ERROR;
-			testLang = (UChar *)SAlloc::M(sizeof(UChar) * (maxresultsize+1));
+			testLang = (char16_t *)SAlloc::M(sizeof(char16_t) * (maxresultsize+1));
 			uloc_getDisplayLanguage(testLocale, displayLocale, testLang, maxresultsize + 1, &status);
 		}
 		else {
@@ -1026,7 +1026,7 @@ static void doTestDisplayNames(const char * displayLocale, int32_t compareIndex)
 		maxresultsize = uloc_getDisplayScript(testLocale, displayLocale, NULL, maxresultsize, &status);
 		if(status==U_BUFFER_OVERFLOW_ERROR) {
 			status = U_ZERO_ERROR;
-			testScript = (UChar *)SAlloc::M(sizeof(UChar) * (maxresultsize+1));
+			testScript = (char16_t *)SAlloc::M(sizeof(char16_t) * (maxresultsize+1));
 			uloc_getDisplayScript(testLocale, displayLocale, testScript, maxresultsize + 1, &status);
 		}
 		else {
@@ -1040,7 +1040,7 @@ static void doTestDisplayNames(const char * displayLocale, int32_t compareIndex)
 		maxresultsize = uloc_getDisplayCountry(testLocale, displayLocale, NULL, maxresultsize, &status);
 		if(status==U_BUFFER_OVERFLOW_ERROR) {
 			status = U_ZERO_ERROR;
-			testCtry = (UChar *)SAlloc::M(sizeof(UChar) * (maxresultsize+1));
+			testCtry = (char16_t *)SAlloc::M(sizeof(char16_t) * (maxresultsize+1));
 			uloc_getDisplayCountry(testLocale, displayLocale, testCtry, maxresultsize + 1, &status);
 		}
 		else {
@@ -1054,7 +1054,7 @@ static void doTestDisplayNames(const char * displayLocale, int32_t compareIndex)
 		maxresultsize = uloc_getDisplayVariant(testLocale, displayLocale, NULL, maxresultsize, &status);
 		if(status==U_BUFFER_OVERFLOW_ERROR) {
 			status = U_ZERO_ERROR;
-			testVar = (UChar *)SAlloc::M(sizeof(UChar) * (maxresultsize+1));
+			testVar = (char16_t *)SAlloc::M(sizeof(char16_t) * (maxresultsize+1));
 			uloc_getDisplayVariant(testLocale, displayLocale, testVar, maxresultsize + 1, &status);
 		}
 		else {
@@ -1068,7 +1068,7 @@ static void doTestDisplayNames(const char * displayLocale, int32_t compareIndex)
 		maxresultsize = uloc_getDisplayName(testLocale, displayLocale, NULL, maxresultsize, &status);
 		if(status==U_BUFFER_OVERFLOW_ERROR) {
 			status = U_ZERO_ERROR;
-			testName = (UChar *)SAlloc::M(sizeof(UChar) * (maxresultsize+1));
+			testName = (char16_t *)SAlloc::M(sizeof(char16_t) * (maxresultsize+1));
 			uloc_getDisplayName(testLocale, displayLocale, testName, maxresultsize + 1, &status);
 		}
 		else {
@@ -1173,9 +1173,9 @@ static void TestDisplayNameBrackets()
 	for(; itemPtr->displayLocale != NULL; itemPtr++) {
 		ULocaleDisplayNames * uldn;
 		UErrorCode status;
-		UChar expectRegionName[kDisplayNameBracketsMax];
-		UChar expectLocaleName[kDisplayNameBracketsMax];
-		UChar getName[kDisplayNameBracketsMax];
+		char16_t expectRegionName[kDisplayNameBracketsMax];
+		char16_t expectLocaleName[kDisplayNameBracketsMax];
+		char16_t getName[kDisplayNameBracketsMax];
 		int32_t ulen;
 
 		(void)u_unescape(itemPtr->regionName, expectRegionName, kDisplayNameBracketsMax);
@@ -1242,7 +1242,7 @@ static void TestIllegalArgumentWhenNoDataWithNoSubstitute()
 {
 #if !UCONFIG_NO_FORMATTING
 	UErrorCode status = U_ZERO_ERROR;
-	UChar getName[kDisplayNameBracketsMax];
+	char16_t getName[kDisplayNameBracketsMax];
 	UDisplayContext contexts[] = {
 		UDISPCTX_NO_SUBSTITUTE,
 	};
@@ -1354,7 +1354,6 @@ static void TestISOFunctions()
 			log_err("FAIL Language diff at offset %d, \"%s\" != \"%s\"\n", count, test, key);
 		}
 #endif
-
 		if(!strcmp(test, "in"))
 			log_err("FAIL getISOLanguages() has obsolete language code %s\n", test);
 		if(!strcmp(test, "iw"))
@@ -1366,13 +1365,10 @@ static void TestISOFunctions()
 		if(!strcmp(test, "sh"))
 			log_err("FAIL getISOLanguages() has obsolete language code %s\n", test);
 	}
-
 	expect -= skipped; /* Ignore the skipped resources from structLocale */
-
 	if(count!=expect) {
 		log_err("There is an error in getISOLanguages, got %d, expected %d (as per structLocale)\n", count, expect);
 	}
-
 	subRes = ures_getByKey(res, "Countries", subRes, &status);
 	log_verbose("Testing ISO Countries");
 	skipped = 0;
@@ -1436,9 +1432,9 @@ static void TestISOFunctions()
 static void setUpDataTable()
 {
 	int32_t i, j;
-	dataTable = (UChar***)(SAlloc::C(sizeof(UChar **), LOCALE_INFO_SIZE));
+	dataTable = (char16_t***)(SAlloc::C(sizeof(char16_t **), LOCALE_INFO_SIZE));
 	for(i = 0; i < LOCALE_INFO_SIZE; i++) {
-		dataTable[i] = (UChar**)(SAlloc::C(sizeof(UChar *), LOCALE_SIZE));
+		dataTable[i] = (char16_t**)(SAlloc::C(sizeof(char16_t *), LOCALE_SIZE));
 		for(j = 0; j < LOCALE_SIZE; j++) {
 			dataTable[i][j] = CharsToUChars(rawData2[i][j]);
 		}
@@ -1502,8 +1498,8 @@ static void TestSimpleDisplayNames()
 	int32_t i;
 	int32_t localeIndex = 0;
 	for(i = 0; i < 7; i++) {
-		UChar * testLang = 0;
-		UChar * expectedLang = 0;
+		char16_t * testLang = 0;
+		char16_t * expectedLang = 0;
 		int size = 0;
 
 		if(i == 6) {
@@ -1513,10 +1509,10 @@ static void TestSimpleDisplayNames()
 		size = uloc_getDisplayLanguage(languageCodes[i], inLocale[localeIndex], NULL, size, &status);
 		if(status==U_BUFFER_OVERFLOW_ERROR) {
 			status = U_ZERO_ERROR;
-			testLang = (UChar *)SAlloc::M(sizeof(UChar) * (size + 1));
+			testLang = (char16_t *)SAlloc::M(sizeof(char16_t) * (size + 1));
 			uloc_getDisplayLanguage(languageCodes[i], inLocale[localeIndex], testLang, size + 1, &status);
 		}
-		expectedLang = (UChar *)SAlloc::M(sizeof(UChar) * (strlen(languageNames[i])+1));
+		expectedLang = (char16_t *)SAlloc::M(sizeof(char16_t) * (strlen(languageNames[i])+1));
 		u_uastrcpy(expectedLang, languageNames[i]);
 		if(u_strcmp(testLang, expectedLang) != 0)
 			log_data_err("Got wrong display name for %s : Expected \"%s\", got \"%s\".\n",
@@ -1571,15 +1567,15 @@ static void TestVariantParsing()
 	static const char * bogusVariant2 = "fr_FR_foo_";
 	static const char * bogusVariant3 = "fr_FR__foo_";
 
-	UChar displayVar[100];
-	UChar displayName[100];
+	char16_t displayVar[100];
+	char16_t displayName[100];
 	UErrorCode status = U_ZERO_ERROR;
-	UChar * got = 0;
+	char16_t * got = 0;
 	int32_t size = 0;
 	size = uloc_getDisplayVariant(en_US_custom, "en_US", NULL, size, &status);
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
-		got = (UChar *)SAlloc::R(got, sizeof(UChar) * (size+1));
+		got = (char16_t *)SAlloc::R(got, sizeof(char16_t) * (size+1));
 		uloc_getDisplayVariant(en_US_custom, "en_US", got, size + 1, &status);
 	}
 	else {
@@ -1593,7 +1589,7 @@ static void TestVariantParsing()
 	size = uloc_getDisplayName(en_US_custom, "en_US", NULL, size, &status);
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
-		got = (UChar *)SAlloc::R(got, sizeof(UChar) * (size+1));
+		got = (char16_t *)SAlloc::R(got, sizeof(char16_t) * (size+1));
 		uloc_getDisplayName(en_US_custom, "en_US", got, size + 1, &status);
 	}
 	else {
@@ -1614,7 +1610,7 @@ static void TestVariantParsing()
 	size = uloc_getDisplayVariant(shortVariant, NULL, NULL, size, &status);
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
-		got = (UChar *)SAlloc::R(got, sizeof(UChar) * (size+1));
+		got = (char16_t *)SAlloc::R(got, sizeof(char16_t) * (size+1));
 		uloc_getDisplayVariant(shortVariant, NULL, got, size + 1, &status);
 	}
 	else {
@@ -1628,7 +1624,7 @@ static void TestVariantParsing()
 	size = uloc_getDisplayVariant(bogusVariant, NULL, NULL, size, &status);
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
-		got = (UChar *)SAlloc::R(got, sizeof(UChar) * (size+1));
+		got = (char16_t *)SAlloc::R(got, sizeof(char16_t) * (size+1));
 		uloc_getDisplayVariant(bogusVariant, NULL, got, size + 1, &status);
 	}
 	else {
@@ -1642,7 +1638,7 @@ static void TestVariantParsing()
 	size = uloc_getDisplayVariant(bogusVariant2, NULL, NULL, size, &status);
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
-		got = (UChar *)SAlloc::R(got, sizeof(UChar) * (size+1));
+		got = (char16_t *)SAlloc::R(got, sizeof(char16_t) * (size+1));
 		uloc_getDisplayVariant(bogusVariant2, NULL, got, size + 1, &status);
 	}
 	else {
@@ -1656,7 +1652,7 @@ static void TestVariantParsing()
 	size = uloc_getDisplayVariant(bogusVariant3, NULL, NULL, size, &status);
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
-		got = (UChar *)SAlloc::R(got, sizeof(UChar) * (size+1));
+		got = (char16_t *)SAlloc::R(got, sizeof(char16_t) * (size+1));
 		uloc_getDisplayVariant(bogusVariant3, NULL, got, size + 1, &status);
 	}
 	else {
@@ -2554,7 +2550,7 @@ static void TestDisplayKeywords(void)
 	static const struct {
 		const char * localeID;
 		const char * displayLocale;
-		UChar displayKeyword[200];
+		char16_t displayKeyword[200];
 	} testCases[] = {
 		{   "ca_ES@currency=ESP",         "de_AT",
 		    {0x0057, 0x00e4, 0x0068, 0x0072, 0x0075, 0x006e, 0x0067, 0x0000}, },
@@ -2568,7 +2564,7 @@ static void TestDisplayKeywords(void)
 		const char * keyword = NULL;
 		int32_t keywordLen = 0;
 		int32_t keywordCount = 0;
-		UChar * displayKeyword = NULL;
+		char16_t * displayKeyword = NULL;
 		int32_t displayKeywordLen = 0;
 		UEnumeration* keywordEnum = uloc_openKeywords(testCases[i].localeID, &status);
 		for(keywordCount = uenum_count(keywordEnum, &status); keywordCount > 0; keywordCount--) {
@@ -2588,7 +2584,7 @@ static void TestDisplayKeywords(void)
 			if(status==U_BUFFER_OVERFLOW_ERROR) {
 				status = U_ZERO_ERROR;
 				displayKeywordLen++; /* for null termination */
-				displayKeyword = (UChar *)SAlloc::M(displayKeywordLen * U_SIZEOF_UCHAR);
+				displayKeyword = (char16_t *)SAlloc::M(displayKeywordLen * U_SIZEOF_UCHAR);
 				displayKeywordLen = uloc_getDisplayKeyword(keyword,
 					testCases[i].displayLocale,
 					displayKeyword,
@@ -2639,7 +2635,7 @@ static void TestDisplayKeywordValues() {
 	static const struct {
 		const char * localeID;
 		const char * displayLocale;
-		UChar displayKeywordValue[500];
+		char16_t displayKeywordValue[500];
 	} testCases[] = {
 		{   "ca_ES@currency=ESP",         "de_AT",
 		    {0x0053, 0x0070, 0x0061, 0x006e, 0x0069, 0x0073, 0x0063, 0x0068, 0x0065, 0x0020, 0x0050, 0x0065, 0x0073, 0x0065, 0x0074,
@@ -2674,7 +2670,7 @@ static void TestDisplayKeywordValues() {
 		const char * keyword = NULL;
 		int32_t keywordLen = 0;
 		int32_t keywordCount = 0;
-		UChar * displayKeywordValue = NULL;
+		char16_t * displayKeywordValue = NULL;
 		int32_t displayKeywordValueLen = 0;
 		UEnumeration* keywordEnum = uloc_openKeywords(testCases[i].localeID, &status);
 		for(keywordCount = uenum_count(keywordEnum, &status); keywordCount > 0; keywordCount--) {
@@ -2698,7 +2694,7 @@ static void TestDisplayKeywordValues() {
 			if(status==U_BUFFER_OVERFLOW_ERROR) {
 				status = U_ZERO_ERROR;
 				displayKeywordValueLen++; /* for null termination */
-				displayKeywordValue = (UChar *)SAlloc::M(displayKeywordValueLen * U_SIZEOF_UCHAR);
+				displayKeywordValue = (char16_t *)SAlloc::M(displayKeywordValueLen * U_SIZEOF_UCHAR);
 				displayKeywordValueLen = uloc_getDisplayKeywordValue(testCases[i].localeID,
 					keyword,
 					testCases[i].displayLocale,
@@ -2751,7 +2747,7 @@ static void TestDisplayKeywordValues() {
 		int32_t keywordCount = 0;
 		const char * localeID = "es@collation=phonebook;calendar=buddhist;currency=DEM";
 		const char * displayLocale = "de";
-		static const UChar expected[][50] = {
+		static const char16_t expected[][50] = {
 			{0x0042, 0x0075, 0x0064, 0x0064, 0x0068, 0x0069, 0x0073, 0x0074, 0x0069, 0x0073, 0x0063, 0x0068, 0x0065, 0x0072,
 			 0x0020, 0x004b, 0x0061, 0x006c, 0x0065, 0x006e, 0x0064, 0x0065, 0x0072, 0x0000},
 
@@ -2763,7 +2759,7 @@ static void TestDisplayKeywordValues() {
 		UEnumeration* keywordEnum = uloc_openKeywords(localeID, &status);
 
 		for(keywordCount = 0; keywordCount < uenum_count(keywordEnum, &status); keywordCount++) {
-			UChar * displayKeywordValue = NULL;
+			char16_t * displayKeywordValue = NULL;
 			int32_t displayKeywordValueLen = 0;
 			if(U_FAILURE(status)) {
 				log_err("uloc_getKeywords failed for locale id: %s in display locale: % with error : %s \n",
@@ -2785,7 +2781,7 @@ static void TestDisplayKeywordValues() {
 			if(status==U_BUFFER_OVERFLOW_ERROR) {
 				status = U_ZERO_ERROR;
 				displayKeywordValueLen++; /* for null termination */
-				displayKeywordValue = (UChar *)SAlloc::M(displayKeywordValueLen * U_SIZEOF_UCHAR);
+				displayKeywordValue = (char16_t *)SAlloc::M(displayKeywordValueLen * U_SIZEOF_UCHAR);
 				displayKeywordValueLen = uloc_getDisplayKeywordValue(localeID,
 					keyword,
 					displayLocale,
@@ -2834,7 +2830,7 @@ static void TestDisplayKeywordValues() {
 		UErrorCode status = U_ZERO_ERROR;
 		const char * localeID = "es";
 		const char * displayLocale = "de";
-		UChar * displayKeywordValue = NULL;
+		char16_t * displayKeywordValue = NULL;
 		int32_t displayKeywordValueLen = 0;
 
 		/* fetch the displayKeywordValue */
@@ -2880,7 +2876,7 @@ static void TestGetBaseName() {
 
 static void TestTrailingNull() {
 	const char * localeId = "zh_Hans";
-	UChar buffer[128]; /* sufficient for this test */
+	char16_t buffer[128]; /* sufficient for this test */
 	int32_t len;
 	UErrorCode status = U_ZERO_ERROR;
 	int i;
@@ -2901,7 +2897,7 @@ static void TestTrailingNull() {
 
 /* Jitterbug 4115 */
 static void TestDisplayNameWarning() {
-	UChar name[256];
+	char16_t name[256];
 	int32_t size;
 	UErrorCode status = U_ZERO_ERROR;
 
@@ -2952,7 +2948,7 @@ static void TestGetLocale()
 {
 	UErrorCode ec = U_ZERO_ERROR;
 	UParseError pe;
-	UChar EMPTY[1] = {0};
+	char16_t EMPTY[1] = {0};
 	/* === udat === */
 #if !UCONFIG_NO_FORMATTING
 	{
@@ -3110,7 +3106,7 @@ static void TestEnglishExemplarCharacters() {
 	UErrorCode status = U_ZERO_ERROR;
 	int i;
 	USet * exSet = NULL;
-	UChar testChars[] = {
+	char16_t testChars[] = {
 		0x61, /* standard */
 		0xE1, /* auxiliary */
 		0x41, /* index */
@@ -3559,7 +3555,7 @@ static void  TestULocale() {
 	for(i = 0; i<SIZEOFARRAYi(LOCALE_ALIAS); i++) {
 		const char * oldLoc = LOCALE_ALIAS[i][0];
 		const char * newLoc = LOCALE_ALIAS[i][1];
-		UChar name1[256], name2[256];
+		char16_t name1[256], name2[256];
 		char names1[256], names2[256];
 		int32_t capacity = 256;
 
@@ -3635,10 +3631,10 @@ static void TestUResourceBundle() {
 }
 
 static void TestDisplayName() {
-	UChar oldCountry[256] = {'\0'};
-	UChar newCountry[256] = {'\0'};
-	UChar oldLang[256] = {'\0'};
-	UChar newLang[256] = {'\0'};
+	char16_t oldCountry[256] = {'\0'};
+	char16_t newCountry[256] = {'\0'};
+	char16_t oldLang[256] = {'\0'};
+	char16_t newLang[256] = {'\0'};
 	char country[256] = {'\0'};
 	char language[256] = {'\0'};
 	int32_t capacity = 256;
@@ -6874,9 +6870,9 @@ static void TestToLegacyType(void)
 	}
 }
 
-static void test_unicode_define(const char * namech, char ch, const char * nameu, UChar uch)
+static void test_unicode_define(const char * namech, char ch, const char * nameu, char16_t uch)
 {
-	UChar asUch[1];
+	char16_t asUch[1];
 	asUch[0] = 0;
 	log_verbose("Testing whether %s[\\x%02x,'%c'] == %s[U+%04X]\n",
 	    namech, ch, (int)ch, nameu, (int)uch);
@@ -6899,9 +6895,9 @@ static void checkTerminating(const char * locale, const char * inLocale)
 		log_err("uloc_getDisplayName(%s, %s) preflight failed",
 		    locale, inLocale);
 	}
-	UChar buff[256];
-	const UChar sentinel1 = 0x6C38; // 永- a Han unicode as sentinel.
-	const UChar sentinel2 = 0x92D2; // 鋒- a Han unicode as sentinel.
+	char16_t buff[256];
+	const char16_t sentinel1 = 0x6C38; // 永- a Han unicode as sentinel.
+	const char16_t sentinel2 = 0x92D2; // 鋒- a Han unicode as sentinel.
 
 	// 1. Test when we set the maxResultSize to preflight_length + 1.
 	// Set sentinel1 in the buff[preflight_length-1] to check it will be
@@ -7033,7 +7029,7 @@ static void Test21157CorrectTerminating() {
 	checkTerminating("zh-u-co-pinyin", "fr");
 }
 
-#define TEST_UNICODE_DEFINE(x, y) test_unicode_define(#x, (char)(x), #y, (UChar)(y))
+#define TEST_UNICODE_DEFINE(x, y) test_unicode_define(#x, (char)(x), #y, (char16_t)(y))
 
 static void TestUnicodeDefines() {
 	TEST_UNICODE_DEFINE(ULOC_KEYWORD_SEPARATOR, ULOC_KEYWORD_SEPARATOR_UNICODE);
@@ -7066,7 +7062,7 @@ enum { kUBufDispNameMax = 128, kBBufDispNameMax = 256 };
 static void TestBadLocaleIDs() {
 	const BadLocaleItem* itemPtr;
 	for(itemPtr = badLocaleItems; itemPtr->badLocaleID != NULL; itemPtr++) {
-		UChar ubufExpect[kUBufDispNameMax], ubufGet[kUBufDispNameMax];
+		char16_t ubufExpect[kUBufDispNameMax], ubufGet[kUBufDispNameMax];
 		UErrorCode status = U_ZERO_ERROR;
 		int32_t ulenExpect = u_unescape(itemPtr->expectedName, ubufExpect, kUBufDispNameMax);
 		int32_t ulenGet = uloc_getDisplayName(itemPtr->badLocaleID, itemPtr->displayLocale, ubufGet, kUBufDispNameMax, &status);
@@ -7127,7 +7123,7 @@ typedef enum UldnNameType {
 typedef struct {
 	const char * localeToName; // NULL to terminate a list of these
 	UldnNameType nameType;
-	const UChar * expectResult;
+	const char16_t * expectResult;
 } UldnItem;
 
 typedef struct {
@@ -7236,7 +7232,7 @@ static void TestUldnNameVariants() {
 		const UldnItem * itemPtr = uloPtr->testItems;
 		int32_t itemCount = uloPtr->countItems;
 		for(; itemCount-- > 0; itemPtr++) {
-			UChar uget[kUNameBuf];
+			char16_t uget[kUNameBuf];
 			int32_t ulenget, ulenexp;
 			const char * typeString;
 			status = U_ZERO_ERROR;
@@ -7317,7 +7313,7 @@ static void TestUldnNameVariants() {
 
 static void TestUsingDefaultWarning() 
 {
-	UChar buff[256];
+	char16_t buff[256];
 	char errorOutputBuff[256];
 	UErrorCode status = U_ZERO_ERROR;
 	const char * language = "jJj";

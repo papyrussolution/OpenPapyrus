@@ -17,8 +17,7 @@ enum {
 	FZ_TRANSITION_FADE
 };
 
-typedef struct
-{
+typedef struct {
 	int type;
 	float duration; /* Effect duration (seconds) */
 

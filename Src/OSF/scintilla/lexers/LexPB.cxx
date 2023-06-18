@@ -256,38 +256,36 @@ static void FoldPBDoc(Sci_PositionU startPos, Sci_Position length, int, WordList
 				case 'S':
 				case 's':
 			    {
-				    switch(chNext)
-				    {
+				    switch(chNext) {
 					    case 'U':
 					    case 'u':
-					{
-						if(MatchUpperCase(styler, i, "SUB")) {
-							styler.SetLevel(lineCurrent, (SC_FOLDLEVELBASE << 16) | SC_FOLDLEVELHEADERFLAG);
-							levelNext = SC_FOLDLEVELBASE+1;
-						}
-						break;
-					}
+							{
+								if(MatchUpperCase(styler, i, "SUB")) {
+									styler.SetLevel(lineCurrent, (SC_FOLDLEVELBASE << 16) | SC_FOLDLEVELHEADERFLAG);
+									levelNext = SC_FOLDLEVELBASE+1;
+								}
+								break;
+							}
 					    case 'T':
 					    case 't':
-					{
-						if(MatchUpperCase(styler, i, "STATIC FUNCTION")) {
-							styler.SetLevel(lineCurrent, (SC_FOLDLEVELBASE << 16) | SC_FOLDLEVELHEADERFLAG);
-							levelNext = SC_FOLDLEVELBASE+1;
-						}
-						else if(MatchUpperCase(styler, i, "STATIC SUB")) {
-							styler.SetLevel(lineCurrent, (SC_FOLDLEVELBASE << 16) | SC_FOLDLEVELHEADERFLAG);
-							levelNext = SC_FOLDLEVELBASE+1;
-						}
-						break;
-					}
+							{
+								if(MatchUpperCase(styler, i, "STATIC FUNCTION")) {
+									styler.SetLevel(lineCurrent, (SC_FOLDLEVELBASE << 16) | SC_FOLDLEVELHEADERFLAG);
+									levelNext = SC_FOLDLEVELBASE+1;
+								}
+								else if(MatchUpperCase(styler, i, "STATIC SUB")) {
+									styler.SetLevel(lineCurrent, (SC_FOLDLEVELBASE << 16) | SC_FOLDLEVELHEADERFLAG);
+									levelNext = SC_FOLDLEVELBASE+1;
+								}
+								break;
+							}
 				    }
 				    break;
 			    }
 				case 'C':
 				case 'c':
 			    {
-				    switch(chNext)
-				    {
+				    switch(chNext) {
 					    case 'A':
 					    case 'a':
 					{

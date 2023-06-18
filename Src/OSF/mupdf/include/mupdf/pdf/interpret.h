@@ -11,11 +11,9 @@ void *pdf_new_processor(fz_context *ctx, int size);
 void pdf_close_processor(fz_context *ctx, pdf_processor *proc);
 void pdf_drop_processor(fz_context *ctx, pdf_processor *proc);
 
-struct pdf_processor
-{
+struct pdf_processor {
 	void (*close_processor)(fz_context *ctx, pdf_processor *proc);
 	void (*drop_processor)(fz_context *ctx, pdf_processor *proc);
-
 	/* general graphics state */
 	void (*op_w)(fz_context *ctx, pdf_processor *proc, float linewidth);
 	void (*op_j)(fz_context *ctx, pdf_processor *proc, int linejoin);
@@ -139,8 +137,7 @@ struct pdf_processor
 	int hidden;
 };
 
-typedef struct
-{
+typedef struct {
 	/* input */
 	pdf_document *doc;
 	pdf_obj *rdb;
@@ -217,8 +214,7 @@ pdf_processor *pdf_new_output_processor(fz_context *ctx, fz_output *out, int ahx
 
 	ascii: If true, escape all binary data in the output.
 */
-typedef struct
-{
+typedef struct {
 	void *opaque;
 	fz_image *(*image_filter)(fz_context *ctx, void *opaque, fz_matrix ctm, const char *name, fz_image *image);
 	int (*text_filter)(fz_context *ctx, void *opaque, int *ucsbuf, int ucslen, fz_matrix trm, fz_matrix ctm, fz_rect bbox);
@@ -278,8 +274,7 @@ void pdf_process_annot(fz_context *ctx, pdf_processor *proc, pdf_document *doc, 
 void pdf_process_glyph(fz_context *ctx, pdf_processor *proc, pdf_document *doc, pdf_obj *resources, fz_buffer *contents);
 
 /* Text handling helper functions */
-typedef struct
-{
+typedef struct {
 	float char_space;
 	float word_space;
 	float scale;
@@ -290,8 +285,7 @@ typedef struct
 	float rise;
 } pdf_text_state;
 
-typedef struct
-{
+typedef struct {
 	fz_text *text;
 	fz_rect text_bbox;
 	fz_matrix tlm;

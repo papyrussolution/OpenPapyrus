@@ -428,17 +428,17 @@ bool ctest_resetICU()
 	}
 }
 
-UChar * CharsToUChars(const char * str) 
+char16_t * CharsToUChars(const char * str) 
 {
 	/* Might be faster to just use strlen() as the preflight len - liu */
 	int32_t len = u_unescape(str, 0, 0); /* preflight */
 	/* Do NOT use malloc() - we are supposed to be acting like user code! */
-	UChar * buf = (UChar *)SAlloc::M(sizeof(UChar) * (len + 1));
+	char16_t * buf = (char16_t *)SAlloc::M(sizeof(char16_t) * (len + 1));
 	u_unescape(str, buf, len + 1);
 	return buf;
 }
 
-char * austrdup(const UChar * unichars)
+char * austrdup(const char16_t * unichars)
 {
 	int length = u_strlen(unichars);
 	/*newString = (char *)malloc  ( sizeof( char ) * 4 * ( length + 1 ));*/ /* this leaks for now */
@@ -449,7 +449,7 @@ char * austrdup(const UChar * unichars)
 	return newString;
 }
 
-char * aescstrdup(const UChar * unichars, int32_t length) 
+char * aescstrdup(const char16_t * unichars, int32_t length) 
 {
 	char * newString, * targetLimit, * target;
 	UConverterFromUCallback cb;
@@ -472,7 +472,7 @@ char * aescstrdup(const UChar * unichars, int32_t length)
 	target = newString;
 	targetLimit = newString+sizeof(char) * 8 * (length +1);
 	ucnv_setFromUCallBack(conv, UCNV_FROM_U_CALLBACK_ESCAPE, UCNV_ESCAPE_C, &cb, &p, &errorCode);
-	ucnv_fromUnicode(conv, &target, targetLimit, &unichars, (UChar *)(unichars+length), NULL, TRUE, &errorCode);
+	ucnv_fromUnicode(conv, &target, targetLimit, &unichars, (char16_t *)(unichars+length), NULL, TRUE, &errorCode);
 	ucnv_close(conv);
 	*target = '\0';
 	return newString;
@@ -544,7 +544,7 @@ const char * loadSourceTestData(UErrorCode * err)
 }
 
 #define CTEST_MAX_TIMEZONE_SIZE 256
-static UChar gOriginalTimeZone[CTEST_MAX_TIMEZONE_SIZE] = {0};
+static char16_t gOriginalTimeZone[CTEST_MAX_TIMEZONE_SIZE] = {0};
 
 /**
  * Call this once to get a consistent timezone. Use ctest_resetTimeZone to set it back to the original value.
@@ -554,7 +554,7 @@ static UChar gOriginalTimeZone[CTEST_MAX_TIMEZONE_SIZE] = {0};
 U_CFUNC void ctest_setTimeZone(const char * optionalTimeZone, UErrorCode * status) 
 {
 #if !UCONFIG_NO_FORMATTING
-	UChar zoneID[CTEST_MAX_TIMEZONE_SIZE];
+	char16_t zoneID[CTEST_MAX_TIMEZONE_SIZE];
 	SETIFZ(optionalTimeZone, "America/Los_Angeles");
 	if(gOriginalTimeZone[0]) {
 		log_data_err("*** Error: time zone saved twice. New value will be %s (Are you missing data?)\n", optionalTimeZone);
@@ -674,7 +674,7 @@ U_CFUNC bool assertEquals(const char * message, const char * expected, const cha
 	return TRUE;
 }
 
-U_CFUNC bool assertUEquals(const char * message, const UChar * expected, const UChar * actual) 
+U_CFUNC bool assertUEquals(const char * message, const char16_t * expected, const char16_t * actual) 
 {
 	SETIFZ(expected, u"(null)");
 	SETIFZ(actual, u"(null)");
@@ -683,7 +683,7 @@ U_CFUNC bool assertUEquals(const char * message, const UChar * expected, const U
 			log_err("FAIL: %s; got \"%s\"; expected \"%s\"\n", message, austrdup(actual), austrdup(expected));
 			return FALSE;
 		}
-		UChar curr = expected[i];
+		char16_t curr = expected[i];
 		U_ASSERT(curr == actual[i]);
 		if(curr == 0) {
 			break;

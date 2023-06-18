@@ -170,8 +170,8 @@ static void TestPUtilAPI() {
 	{
 		const char * dataDirectory;
 		int32_t dataDirectoryLen;
-		UChar * udataDir = 0;
-		UChar temp[100];
+		char16_t * udataDir = 0;
+		char16_t temp[100];
 		char * charvalue = 0;
 		log_verbose("Testing chars to UChars\n");
 
@@ -181,7 +181,7 @@ static void TestPUtilAPI() {
 
 		dataDirectory = "directory1"; /*no backslashes*/
 		dataDirectoryLen = (int32_t)strlen(dataDirectory);
-		udataDir = (UChar *)SAlloc::M(sizeof(UChar) * (dataDirectoryLen + 1));
+		udataDir = (char16_t *)SAlloc::M(sizeof(char16_t) * (dataDirectoryLen + 1));
 		u_charsToUChars(dataDirectory, udataDir, (dataDirectoryLen + 1));
 		u_uastrcpy(temp, dataDirectory);
 
@@ -234,7 +234,7 @@ static void TestVersion(void)
 	UVersionInfo versionArray = {0x01, 0x00, 0x02, 0x02};
 	UVersionInfo versionArray2 = {0x01, 0x00, 0x02, 0x02};
 	char versionString[17]; /* xxx.xxx.xxx.xxx\0 */
-	UChar versionUString[] = { 0x0031, 0x002E, 0x0030, 0x002E,
+	char16_t versionUString[] = { 0x0031, 0x002E, 0x0030, 0x002E,
 				   0x0032, 0x002E, 0x0038, 0x0000 }; /* 1.0.2.8 */
 	UVersionInfo version;
 	UErrorCode status = U_ZERO_ERROR;
@@ -599,7 +599,7 @@ static void toolutil_findBasename(void)
 		const char * expect = STRNULL(testCases[i].expectResult);
 		log_verbose("Test case [%d/%d]: %s\n", i, count-1, input);
 		result = STRNULL(findBasename(testCases[i].inBuf));
-		if(result==expect||!strcmp(result, expect)) {
+		if(result==expect || !strcmp(result, expect)) {
 			log_verbose(" -> %s PASS\n", result);
 		}
 		else {
@@ -693,19 +693,14 @@ static void toolutil_findDirname(void)
 		const char * expect = STRNULL(testCases[i].expectResult);
 		UErrorCode status = U_ZERO_ERROR;
 		memset(toolutil_testBuf, 0x55, TOOLUTIL_TESTBUF_SIZE);
-
 		log_verbose("Test case [%d/%d]: %s\n", i, count-1, input);
 		result = STRNULL(findDirname(testCases[i].inBuf, toolutil_testBuf, testCases[i].outBufLen, &status));
 		log_verbose(" -> %s, \n", u_errorName(status));
 		if(status != testCases[i].expectStatus) {
 			log_verbose("FAIL: Test case [%d/%d]: %s got error code %s but expected %s\n",
-			    i,
-			    count-1,
-			    input,
-			    u_errorName(status),
-			    u_errorName(testCases[i].expectStatus));
+			    i, count-1, input, u_errorName(status), u_errorName(testCases[i].expectStatus));
 		}
-		if(result==expect||!strcmp(result, expect)) {
+		if(result==expect || !strcmp(result, expect)) {
 			log_verbose(" = -> %s \n", result);
 		}
 		else {
@@ -714,7 +709,8 @@ static void toolutil_findDirname(void)
 	}
 }
 
-static void addToolUtilTests(TestNode** root) {
+static void addToolUtilTests(TestNode** root) 
+{
 	addTest(root, &toolutil_findBasename,       "putiltst/toolutil/findBasename");
 	addTest(root, &toolutil_findDirname,       "putiltst/toolutil/findDirname");
 	addTest(root, &TestSignedRightShiftIsArithmetic, "putiltst/toolutil/TestSignedRightShiftIsArithmetic");

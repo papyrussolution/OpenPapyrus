@@ -1455,9 +1455,9 @@
       </PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="..\SLib\mimalloc\segment-cache.c" />
-    <ClCompile Include="..\SLib\SAIS\src\libsais.c" />
-    <ClCompile Include="..\SLib\SAIS\src\libsais16.c" />
-    <ClCompile Include="..\SLib\SAIS\src\libsais64.c" />
+    <ClCompile Include="..\SLib\SAIS\libsais.c" />
+    <ClCompile Include="..\SLib\SAIS\libsais16.c" />
+    <ClCompile Include="..\SLib\SAIS\libsais64.c" />
     <ClCompile Include="..\SLib\sdrecord.cpp" />
     <ClCompile Include="..\SLib\sfilestorage.cpp" />
     <ClCompile Include="..\SLib\smemchr.cpp" />
@@ -4014,6 +4014,7 @@
     <ClInclude Include="..\Include\getopt.h" />
     <ClInclude Include="..\Include\gif_lib.h" />
     <ClInclude Include="..\Include\json.h" />
+    <ClInclude Include="..\Include\libsais.h" />
     <ClInclude Include="..\Include\SLCONFIG.H" />
     <ClInclude Include="..\Include\slib-internal.h" />
     <ClInclude Include="..\Include\Slib.h" />
@@ -4043,9 +4044,6 @@
     <ClInclude Include="..\SLib\mimalloc\mimalloc-override.h" />
     <ClInclude Include="..\SLib\mimalloc\mimalloc-types.h" />
     <ClInclude Include="..\SLib\mimalloc\mimalloc.h" />
-    <ClInclude Include="..\SLib\SAIS\include\libsais.h" />
-    <ClInclude Include="..\SLib\SAIS\include\libsais16.h" />
-    <ClInclude Include="..\SLib\SAIS\include\libsais64.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\OSF\ASMLIB\cachesize64.asm">

@@ -115,7 +115,7 @@ static const int zoom_list[] = {
 static int zoom_in(int oldres)
 {
 	int i;
-	for(i = 0; i < (int)nelem(zoom_list) - 1; ++i)
+	for(i = 0; i < SIZEOFARRAYi(zoom_list) - 1; ++i)
 		if(zoom_list[i] <= oldres && zoom_list[i+1] > oldres)
 			return zoom_list[i+1];
 	return zoom_list[i];
@@ -124,7 +124,7 @@ static int zoom_in(int oldres)
 static int zoom_out(int oldres)
 {
 	int i;
-	for(i = 0; i < (int)nelem(zoom_list) - 1; ++i)
+	for(i = 0; i < SIZEOFARRAYi(zoom_list) - 1; ++i)
 		if(zoom_list[i] < oldres && zoom_list[i+1] >= oldres)
 			return zoom_list[i];
 	return zoom_list[0];
@@ -151,7 +151,7 @@ static const char * paper_size_name(int w, int h)
 }
 
 #define MINRES (zoom_list[0])
-#define MAXRES (zoom_list[nelem(zoom_list)-1])
+#define MAXRES (zoom_list[SIZEOFARRAY(zoom_list)-1])
 #define DEFRES 96
 
 static const char * password = "";
@@ -380,7 +380,7 @@ static void save_history(void)
 		js_setproperty(J, -2, "future");
 
 		js_newarray(J);
-		for(i = 0; i < (int)nelem(marks); ++i) {
+		for(i = 0; i < SIZEOFARRAYi(marks); ++i) {
 			push_location(J, marks[i].loc);
 			js_setindex(J, -2, i);
 		}
@@ -935,8 +935,8 @@ static void push_history(void)
 {
 	if(history_count > 0 && eqloc(history[history_count-1].loc, currentpage))
 		return;
-	if(history_count + 1 >= (int)nelem(history)) {
-		memmove(history, history + 1, sizeof *history * (nelem(history) - 1));
+	if(history_count + 1 >= SIZEOFARRAYi(history)) {
+		memmove(history, history + 1, sizeof *history * (SIZEOFARRAY(history) - 1));
 		history[history_count] = save_mark();
 	}
 	else {
@@ -946,8 +946,8 @@ static void push_history(void)
 
 static void push_future(void)
 {
-	if(future_count + 1 >= (int)nelem(future)) {
-		memmove(future, future + 1, sizeof *future * (nelem(future) - 1));
+	if(future_count + 1 >= SIZEOFARRAYi(future)) {
+		memmove(future, future + 1, sizeof *future * (SIZEOFARRAY(future) - 1));
 		future[future_count] = save_mark();
 	}
 	else {
@@ -1172,7 +1172,7 @@ static void do_page_selection(void)
 			hits[0] = fz_quad_from_rect(rect);
 		}
 		else {
-			n = fz_highlight_selection(ctx, page_text, page_a, page_b, hits, nelem(hits));
+			n = fz_highlight_selection(ctx, page_text, page_a, page_b, hits, SIZEOFARRAY(hits));
 		}
 
 		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO); /* invert destination color */
@@ -1564,7 +1564,7 @@ static void do_app(void)
 			case 'm':
 			    if(number == 0)
 				    push_history();
-			    else if(number > 0 && number < (int)nelem(marks))
+			    else if(number > 0 && number < SIZEOFARRAYi(marks))
 				    marks[number] = save_mark();
 			    break;
 			case 't':
@@ -1572,7 +1572,7 @@ static void do_app(void)
 				    if(history_count > 0)
 					    pop_history();
 			    }
-			    else if(number > 0 && number < (int)nelem(marks)) {
+			    else if(number > 0 && number < SIZEOFARRAYi(marks)) {
 				    struct mark mark = marks[number];
 				    restore_mark(mark);
 				    jump_to_location(mark.loc);
@@ -1956,7 +1956,7 @@ void do_main(void)
 			search_hit_count = fz_search_chapter_page_number(ctx, doc,
 				search_page.chapter, search_page.page,
 				search_needle,
-				search_hit_quads, nelem(search_hit_quads));
+				search_hit_quads, SIZEOFARRAY(search_hit_quads));
 			trace_action("hits = doc.loadPage(%d).search(%q);\n",
 			    fz_page_number_from_location(ctx, doc, search_page),
 			    search_needle);

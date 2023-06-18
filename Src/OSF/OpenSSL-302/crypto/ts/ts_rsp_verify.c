@@ -360,7 +360,7 @@ static int ts_check_status_info(TS_RESP * response)
 	if(info->failure_info) {
 		int i;
 		int first = 1;
-		for(i = 0; i < (int)SIZEOFARRAY(ts_failure_info); ++i) {
+		for(i = 0; i < SIZEOFARRAYi(ts_failure_info); ++i) {
 			if(ASN1_BIT_STRING_get_bit(info->failure_info,
 			    ts_failure_info[i].code)) {
 				if(!first)

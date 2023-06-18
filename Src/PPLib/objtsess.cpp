@@ -420,19 +420,19 @@ private:
 //
 //
 //
-TSessionPacket::TSessionPacket() : ObjTagContainerHelper(TagL, PPOBJ_TSESSION, PPTAG_TSESS_UUID), Flags(0)
+TSessionPacket::TSessionPacket() : ObjTagContainerHelper(TagL, PPOBJ_TSESSION, PPTAG_TSESS_UUID), Flags(0), OuterTimingPrice(0.0)
 {
-	// @v11.4.0 destroy();
 }
 
 TSessionPacket::TSessionPacket(const TSessionPacket & rS) : ObjTagContainerHelper(TagL, PPOBJ_TSESSION, PPTAG_TSESS_UUID), 
-	Flags(rS.Flags), Rec(rS.Rec), CiList(rS.CiList), Lines(rS.Lines), TagL(rS.TagL), Ext(rS.Ext)
+	Flags(rS.Flags), OuterTimingPrice(rS.OuterTimingPrice), Rec(rS.Rec), CiList(rS.CiList), Lines(rS.Lines), TagL(rS.TagL), Ext(rS.Ext)
 {
 }
 
 TSessionPacket & FASTCALL TSessionPacket::operator = (const TSessionPacket & rS)
 {
 	Flags = rS.Flags;
+	OuterTimingPrice = rS.OuterTimingPrice; // @v11.7.6
 	Rec = rS.Rec;
 	CiList = rS.CiList;
 	Lines = rS.Lines;
@@ -441,22 +441,26 @@ TSessionPacket & FASTCALL TSessionPacket::operator = (const TSessionPacket & rS)
 	return *this;
 }
 
-void TSessionPacket::destroy()
+TSessionPacket & TSessionPacket::Z()
 {
 	Flags = 0;
+	OuterTimingPrice = 0.0;
 	MEMSZERO(Rec);
 	CiList.Init(PPCheckInPersonItem::kTSession, 0);
 	Lines.clear();
 	TagL.Destroy();
 	Ext.Z();
 	// SMemo.Z(); // @v11.0.4
+	return *this;
 }
 //
 //
 //
 /*static*/int PPObjTSession::EditConfig()
 {
-	int    ok = -1, valid_data = 0, is_new = 0;
+	int    ok = -1;
+	int    valid_data = 0;
+	int    is_new = 0;
 	PPTSessConfig cfg;
 	TSessCfgDialog * p_dlg = new TSessCfgDialog;
 	THROW(CheckCfgRights(PPCFGOBJ_TECHSESS, PPR_READ, 0));
@@ -1646,6 +1650,30 @@ int PPObjTSession::CalcPlannedTiming(PPID techID, double qtty, int useRounding, 
 	return ok;
 }
 
+int PPObjTSession::IsTimingSess(const TSessionTbl::Rec * pRec, long * pTiming, double * pQtty)
+{
+	int    ok = -1;
+	long   timing = 0;
+	double qtty = 0.0;
+	TechTbl::Rec tec_rec;
+	if(pRec && GetTech(pRec->TechID, &tec_rec, 1) > 0) {
+		double unit_ratio = 1.0;
+		if(IsTimingTech(&tec_rec, &unit_ratio) > 0) {
+			STimeChunk chunk, result_chunk;
+			chunk.Start.Set(pRec->StDt, pRec->StTm);
+			chunk.Finish.Set(pRec->FinDt, pRec->FinTm);
+			if(AdjustTiming(*pRec, chunk, result_chunk, &timing) > 0)
+				qtty = PPRound((double)timing / unit_ratio, tec_rec.Rounding, +1);
+			else
+				qtty = PPRound((double)GetContinuation(pRec) / unit_ratio, tec_rec.Rounding, +1);
+			ok = 1;
+		}
+	}
+	ASSIGN_PTR(pTiming, timing);
+	ASSIGN_PTR(pQtty, qtty);
+	return ok;
+}
+
 int PPObjTSession::CalcPlannedQtty(const TSessionTbl::Rec * pPack, long forceTiming, double * pQtty)
 {
 	int    ok = -1;
@@ -1653,6 +1681,12 @@ int PPObjTSession::CalcPlannedQtty(const TSessionTbl::Rec * pPack, long forceTim
 	TechTbl::Rec tec_rec;
 	if(GetTech(pPack->TechID, &tec_rec, 1) > 0) {
 		long   timing = 0;
+		// @v11.7.6 {
+		if(IsTimingSess(pPack, &timing, &qtty) > 0) {
+			ok = 1;
+		}
+		// @v11.7.6 {
+		/* @v11.7.6
 		double unit_ratio = 1.0;
 		if(IsTimingTech(&tec_rec, &unit_ratio) > 0) {
 			STimeChunk chunk, result_chunk;
@@ -1663,7 +1697,7 @@ int PPObjTSession::CalcPlannedQtty(const TSessionTbl::Rec * pPack, long forceTim
 			else
 				qtty = PPRound((double)GetContinuation(pPack) / unit_ratio, tec_rec.Rounding, +1);
 			ok = 1;
-		}
+		}*/
 		else if(tec_rec.Capacity > 0.0) {
 			timing = (forceTiming >= 0) ? forceTiming : GetContinuation(pPack);
 			if(tec_rec.Flags & TECF_ABSCAPACITYTIME)
@@ -2335,6 +2369,7 @@ int PPObjTSession::PutTimingLine(const TSessionTbl::Rec * pPack)
 		Goods2Tbl::Rec goods_rec;
 		double unit_ratio = 1.0;
 		if(GObj.Fetch(tec_rec.GoodsID, &goods_rec) > 0) {
+			long   timing = 0;
 			double qtty = 0.0;
 			int    main_item_sign = -1; // @v10.7.10
 			//
@@ -2351,8 +2386,13 @@ int PPObjTSession::PutTimingLine(const TSessionTbl::Rec * pPack)
 			// else if(tec_rec.Flags & TECF_AUTOMAIN) {
 			// }
 			//
+			// @v11.7.6 {
+			if(IsTimingSess(pPack, &timing, &qtty) > 0) {
+				;
+			}
+			// } @v11.7.6 
+			/* @v11.7.6
 			if(IsTimingTech(&tec_rec, &unit_ratio) > 0) {
-				long   timing = 0;
 				STimeChunk chunk, result_chunk;
 				chunk.Start.Set(pPack->StDt, pPack->StTm);
 				chunk.Finish.Set(pPack->FinDt, pPack->FinTm);
@@ -2360,7 +2400,7 @@ int PPObjTSession::PutTimingLine(const TSessionTbl::Rec * pPack)
 					qtty = PPRound(static_cast<double>(timing) / unit_ratio, tec_rec.Rounding, +1);
 				else
 					qtty = PPRound(static_cast<double>(GetContinuation(pPack)) / unit_ratio, tec_rec.Rounding, +1);
-			}
+			}*/
 			else if(tec_rec.Flags & TECF_AUTOMAIN) {
 				qtty = PPRound(pPack->PlannedQtty, tec_rec.Rounding, 0);
 				main_item_sign = tec_rec.Sign;
@@ -2441,7 +2481,7 @@ int PPObjTSession::GetPacket(PPID id, TSessionPacket * pPack, long options)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
-	pPack->destroy();
+	pPack->Z();
 	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
 		const int  r = Search(id, &pPack->Rec);
 		if(r > 0) {
@@ -2878,6 +2918,33 @@ int PPObjTSession::EvaluateLineQuantity(PPID sessID, PPID techID, const TSessLin
 	return ok;
 }
 
+int PPObjTSession::GetGoodsPrice(PPID goodsID, PPID locID, PPID scardID, PPObjTSession::WrOffAttrib * pWrOffAttr, double outerPrice, double * pPrice, double * pDiscount)
+{
+	int    ok = -1;
+	double price = 0.0;
+	double discount = 0.0;
+	const PPID agent_ar_id = pWrOffAttr ? pWrOffAttr->AgentID : 0;
+	RetailExtrItem rpi;
+	RetailPriceExtractor rpe(locID, 0, agent_ar_id, ZERODATETIME, (outerPrice > 0.0) ? RTLPF_USEOUTERPRICE : 0);
+	if(outerPrice > 0.0) {
+		rpi.OuterPrice = outerPrice;
+	}
+	rpe.GetPrice(goodsID, 0, 0.0, &rpi);
+	price = rpi.Price;
+	if(price > 0.0) {
+		if(scardID) {
+			SCardTbl::Rec sc_rec;
+			if(SearchObject(PPOBJ_SCARD, scardID, &sc_rec) > 0) {
+				discount = (price * fdiv100r(fdiv100i(sc_rec.PDis)));
+			}
+		}
+		ok = 1;
+	}
+	ASSIGN_PTR(pPrice, price);
+	ASSIGN_PTR(pDiscount, discount);
+	return ok;
+}
+
 int PPObjTSession::SetupLineGoods(TSessLineTbl::Rec * pRec, PPID goodsID, const char * pSerial, long)
 {
 	int    ok = -1;
@@ -2924,6 +2991,9 @@ int PPObjTSession::SetupLineGoods(TSessLineTbl::Rec * pRec, PPID goodsID, const 
 		SETFLAG(pRec->Flags, TSESLF_INDEPPHQTTY, GObj.CheckFlag(goodsID, GF_USEINDEPWT));
 		if(GetConfig().Flags & PPTSessConfig::fUsePricing && GetPrc(tses_rec.PrcID, &prc_rec, 1) > 0) {
 			PPObjTSession::WrOffAttrib attrib;
+			PPObjTSession::WrOffAttrib * p_attrib = (GetWrOffAttrib(&tses_rec, &attrib) > 0) ? &attrib : 0; // @v11.7.6
+			GetGoodsPrice(goodsID, prc_rec.LocID, tses_rec.SCardID, p_attrib, 0.0/*outerPrice*/, &pRec->Price, &pRec->Discount); // @v11.7.6
+			/* @v11.7.6
 			const PPID agent_ar_id = (GetWrOffAttrib(&tses_rec, &attrib) > 0) ? attrib.AgentID : 0;
 			RetailExtrItem rpi;
 			RetailPriceExtractor rpe(prc_rec.LocID, 0, agent_ar_id, ZERODATETIME, 0);
@@ -2932,6 +3002,7 @@ int PPObjTSession::SetupLineGoods(TSessLineTbl::Rec * pRec, PPID goodsID, const 
 			SCardTbl::Rec sc_rec;
 			if(SearchObject(PPOBJ_SCARD, tses_rec.SCardID, &sc_rec) > 0)
 				pRec->Discount = (pRec->Price * fdiv100r(fdiv100i(sc_rec.PDis)));
+			*/
 		}
 		if(!isempty(pSerial)) // @v11.0.7 if(pSerial)-->if(!isempty(pSerial))
 			STRNSCPY(pRec->Serial, pSerial);
@@ -5163,14 +5234,15 @@ struct UhttTSessionBlock {
 	UhttTSessionBlock() : LinePos(0), CipPos(0), PlacePos(0), TagPos(0), State(stFetch)
 	{
 	}
-	void Clear()
+	UhttTSessionBlock & Z()
 	{
-		Pack.destroy();
+		Pack.Z();
 		LinePos = 0;
 		CipPos = 0;
 		PlacePos = 0;
 		TagPos = 0;
 		State = stFetch;
+		return *this;
 	}
 	PPObjTSession TSesObj;
 	PPObjTag TagObj;
@@ -5358,8 +5430,7 @@ int PPALDD_UhttTSession::Set(long iterId, int commit)
 	int    ok = 1;
 	UhttTSessionBlock & r_blk = *static_cast<UhttTSessionBlock *>(Extra[0].Ptr);
 	if(r_blk.State != UhttTSessionBlock::stSet) {
-		r_blk.Clear();
-		r_blk.State = UhttTSessionBlock::stSet;
+		r_blk.Z().State = UhttTSessionBlock::stSet;
 	}
 	if(commit == 0) {
 		LDATETIME dtm;
@@ -5477,7 +5548,7 @@ int PPALDD_UhttTSession::Set(long iterId, int commit)
 	}
 	CATCHZOK
 	if(commit || !ok)
-		r_blk.Clear();
+		r_blk.Z();
 	return ok;
 }
 //

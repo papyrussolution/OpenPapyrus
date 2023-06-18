@@ -315,7 +315,7 @@ static inline int32_t getChunkLimit(const UnicodeString & prev, const UnicodeStr
 	// all of these characters are on the BMP
 	// do not include FF or VT in case they are part of a paragraph
 	// (important for bidi contexts)
-	static const UChar paraEnds[] = { 0xd, 0xa, 0x85, 0x2028, 0x2029 };
+	static const char16_t paraEnds[] = { 0xd, 0xa, 0x85, 0x2028, 0x2029 };
 	enum {
 		iCR, 
 		iLF, 
@@ -333,8 +333,8 @@ static inline int32_t getChunkLimit(const UnicodeString & prev, const UnicodeStr
 		else
 			return -1; // wait for actual further contents to arrive
 	}
-	const UChar * u = s.getBuffer(), * limit = u + s.length();
-	UChar c;
+	const char16_t * u = s.getBuffer(), * limit = u + s.length();
+	char16_t c;
 	while(u < limit) {
 		c = *u++;
 		if(((c < uSP) && (c == uCR || c == uLF)) || (c == uNL) || ((c & uLS) == uLS)) {
@@ -359,10 +359,10 @@ enum {
 	CNV_ADDS_FEFF // automatically adds/detects the U+FEFF signature character
 };
 
-static inline UChar nibbleToHex(uint8_t n) 
+static inline char16_t nibbleToHex(uint8_t n) 
 {
 	n &= 0xf;
-	return (n <= 9) ? (UChar)(0x30 + n) : (UChar)((0x61 - 10) + n);
+	return (n <= 9) ? (char16_t)(0x30 + n) : (char16_t)((0x61 - 10) + n);
 }
 
 // check the converter's Unicode signature properties;
@@ -385,9 +385,9 @@ static int32_t cnvSigType(UConverter * cnv)
 	uset_close(set);
 	if(result == CNV_WITH_FEFF) {
 		// test if the output charset emits a signature anyway
-		const UChar a[1] = { 0x61 }; // "a"
+		const char16_t a[1] = { 0x61 }; // "a"
 		char buffer[20];
-		const UChar * in = a;
+		const char16_t * in = a;
 		char * out = buffer;
 		err = U_ZERO_ERROR;
 		ucnv_fromUnicode(cnv, &out, buffer + sizeof(buffer), &in, a + 1, NULL, true, &err);
@@ -447,9 +447,9 @@ bool ConvertFile::convertFile(const char * pname, const char * fromcpage, UConve
 	char * bufp;
 	uint32_t infoffset = 0; // Where we are in the file, for error reporting
 	uint32_t outfoffset = 0; 
-	const UChar * unibuf;
-	const UChar * unibufbp;
-	UChar * unibufp;
+	const char16_t * unibuf;
+	const char16_t * unibufbp;
+	char16_t * unibufp;
 	size_t rd, wr;
 #if !UCONFIG_NO_TRANSLITERATION
 	Transliterator * t = 0; // Transliterator acting on Unicode data.
@@ -511,7 +511,7 @@ bool ConvertFile::convertFile(const char * pname, const char * fromcpage, UConve
 			str.append((UChar32)0);
 			initMsg(pname);
 			if(parse.line >= 0) {
-				UChar linebuf[20], offsetbuf[20];
+				char16_t linebuf[20], offsetbuf[20];
 				uprv_itou(linebuf, 20, parse.line, 10, 0);
 				uprv_itou(offsetbuf, 20, parse.offset, 10, 0);
 				u_wmsg(stderr, "cantCreateTranslitParseErr", str.getTerminatedBuffer(), u_wmsg_errorName(err), linebuf, offsetbuf);
@@ -623,7 +623,7 @@ bool ConvertFile::convertFile(const char * pname, const char * fromcpage, UConve
 				UnicodeString str;
 				for(i = 0; i < errorLength; ++i) {
 					if(i > 0) {
-						str.append((UChar)uSP);
+						str.append((char16_t)uSP);
 					}
 					str.append(nibbleToHex((uint8_t)errorBytes[i] >> 4));
 					str.append(nibbleToHex((uint8_t)errorBytes[i]));
@@ -642,7 +642,7 @@ bool ConvertFile::convertFile(const char * pname, const char * fromcpage, UConve
 			if(sig < 0) {
 				if(u.charAt(0) == uSig) {
 					u.remove(0, 1);
-					// account for the removed UChar and offset
+					// account for the removed char16_t and offset
 					--ulen;
 					if(useOffsets) {
 						// remove an offset from fromoffsets[] as well
@@ -695,14 +695,14 @@ bool ConvertFile::convertFile(const char * pname, const char * fromcpage, UConve
 			// and possible/necessary
 			if(sig > 0) {
 				if(u.charAt(0) != uSig && cnvSigType(convto) == CNV_WITH_FEFF) {
-					u.insert(0, (UChar)uSig);
+					u.insert(0, (char16_t)uSig);
 					if(useOffsets) {
 						// insert a pseudo-offset into fromoffsets[] as well
 						// to keep the array parallel with the UChars
 						memmove(fromoffsets + 1, fromoffsets, ulen * 4);
 						fromoffsets[0] = -1;
 					}
-					// account for the additional UChar and offset
+					// account for the additional char16_t and offset
 					++ulen;
 				}
 				sig = 0;
@@ -727,7 +727,7 @@ bool ConvertFile::convertFile(const char * pname, const char * fromcpage, UConve
 					err = U_ZERO_ERROR;
 				}
 				else if(U_FAILURE(err)) {
-					UChar errorUChars[4];
+					char16_t errorUChars[4];
 					const char * errtag;
 					char pos[32];
 					UChar32 c;
@@ -779,7 +779,7 @@ bool ConvertFile::convertFile(const char * pname, const char * fromcpage, UConve
 					UnicodeString str;
 					for(i = 0; i < errorLength;) {
 						if(i > 0) {
-							str.append((UChar)uSP);
+							str.append((char16_t)uSP);
 						}
 						U16_NEXT(errorUChars, i, errorLength, c);
 						if(c >= 0x100000) {
@@ -834,7 +834,7 @@ normal_exit:
 
 static void usage(const char * pname, int ecode) 
 {
-	const UChar * msg;
+	const char16_t * msg;
 	int32_t msgLen;
 	UErrorCode err = U_ZERO_ERROR;
 	FILE * fp = ecode ? stderr : stdout;

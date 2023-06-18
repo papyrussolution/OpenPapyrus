@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 
 pdf_annot * pdf_keep_annot(fz_context * ctx, pdf_annot * annot)
 {

@@ -52,12 +52,12 @@ void addUTransTest(TestNode** root)
  *------------------------------------------------------------------*/
 
 typedef struct XReplaceable {
-	UChar * text; /* MUST BE null-terminated */
+	char16_t * text; /* MUST BE null-terminated */
 } XReplaceable;
 
 static void InitXReplaceable(XReplaceable* rep, const char * cstring) 
 {
-	rep->text = (UChar *)SAlloc::M(sizeof(UChar) * (strlen(cstring)+1));
+	rep->text = (char16_t *)SAlloc::M(sizeof(char16_t) * (strlen(cstring)+1));
 	u_uastrcpy(rep->text, cstring);
 }
 
@@ -76,7 +76,7 @@ static int32_t Xlength(const UReplaceable* rep) {
 }
 
 /* UReplaceableCallbacks callback */
-static UChar XcharAt(const UReplaceable* rep, int32_t offset) {
+static char16_t XcharAt(const UReplaceable* rep, int32_t offset) {
 	const XReplaceable* x = (const XReplaceable*)rep;
 	return x->text[offset];
 }
@@ -89,10 +89,10 @@ static UChar32 Xchar32At(const UReplaceable* rep, int32_t offset) {
 
 /* UReplaceableCallbacks callback */
 static void Xreplace(UReplaceable* rep, int32_t start, int32_t limit,
-    const UChar * text, int32_t textLength) {
+    const char16_t * text, int32_t textLength) {
 	XReplaceable* x = (XReplaceable*)rep;
 	int32_t newLen = Xlength(rep) + limit - start + textLength;
-	UChar * newText = (UChar *)SAlloc::M(sizeof(UChar) * (newLen+1));
+	char16_t * newText = (char16_t *)SAlloc::M(sizeof(char16_t) * (newLen+1));
 	u_strncpy(newText, x->text, start);
 	u_strncpy(newText + start, text, textLength);
 	u_strcpy(newText + start + textLength, x->text + limit);
@@ -104,7 +104,7 @@ static void Xreplace(UReplaceable* rep, int32_t start, int32_t limit,
 static void Xcopy(UReplaceable* rep, int32_t start, int32_t limit, int32_t dest) {
 	XReplaceable* x = (XReplaceable*)rep;
 	int32_t newLen = Xlength(rep) + limit - start;
-	UChar * newText = (UChar *)SAlloc::M(sizeof(UChar) * (newLen+1));
+	char16_t * newText = (char16_t *)SAlloc::M(sizeof(char16_t) * (newLen+1));
 	u_strncpy(newText, x->text, dest);
 	u_strncpy(newText + dest, x->text + start, limit - start);
 	u_strcpy(newText + dest + limit - start, x->text + dest);
@@ -113,7 +113,7 @@ static void Xcopy(UReplaceable* rep, int32_t start, int32_t limit, int32_t dest)
 }
 
 /* UReplaceableCallbacks callback */
-static void Xextract(UReplaceable* rep, int32_t start, int32_t limit, UChar * dst) {
+static void Xextract(UReplaceable* rep, int32_t start, int32_t limit, char16_t * dst) {
 	XReplaceable* x = (XReplaceable*)rep;
 	int32_t len = limit - start;
 	u_strncpy(dst, x->text, len);
@@ -180,7 +180,7 @@ static void TestAPI() {
 static void TestUnicodeIDs() {
 	UEnumeration * uenum;
 	UTransliterator * utrans;
-	const UChar * id, * id2;
+	const char16_t * id, * id2;
 	int32_t idLength, id2Length, count, count2;
 
 	UErrorCode errorCode;
@@ -348,7 +348,7 @@ static void TestRegisterUnregister() {
 	UTransliterator* t1 = NULL;
 	UTransliterator* rules = NULL, * rules2;
 	UTransliterator* inverse1 = NULL;
-	UChar rule[] = { 0x0061, 0x003c, 0x003e, 0x0063}; /*a<>b*/
+	char16_t rule[] = { 0x0061, 0x003c, 0x003e, 0x0063}; /*a<>b*/
 
 	U_STRING_DECL(ID, "TestA-TestB", 11);
 	U_STRING_INIT(ID, "TestA-TestB", 11);
@@ -408,7 +408,7 @@ static void TestRegisterUnregister() {
 	}
 	utrans_close(t1);
 
-	/* now with utrans_unregisterID(const UChar *) */
+	/* now with utrans_unregisterID(const char16_t *) */
 	status = U_ZERO_ERROR;
 	utrans_register(rules2, &status);
 	if(U_FAILURE(status)) {
@@ -493,9 +493,9 @@ static void TestSimpleRules() {
 
 static void TestFilter() {
 	UErrorCode status = U_ZERO_ERROR;
-	UChar filt[128];
-	UChar buf[128];
-	UChar exp[128];
+	char16_t filt[128];
+	char16_t buf[128];
+	char16_t exp[128];
 	char * cbuf;
 	int32_t limit;
 	const char * DATA[] = {
@@ -583,7 +583,7 @@ static void TestExtractBetween() {
 
 /* A simple transform with a small filter & source set: rules 50-100 chars unescaped, 100-200 chars escaped,
    filter & source set 4-20 chars */
-static const UChar transSimpleID[] = { 0x79, 0x6F, 0x2D, 0x79, 0x6F, 0x5F, 0x42, 0x4A, 0 }; /* "yo-yo_BJ" */
+static const char16_t transSimpleID[] = { 0x79, 0x6F, 0x2D, 0x79, 0x6F, 0x5F, 0x42, 0x4A, 0 }; /* "yo-yo_BJ" */
 static const char * transSimpleCName = "yo-yo_BJ";
 
 enum { kUBufMax = 256 };
@@ -593,7 +593,7 @@ static void TestGetRulesAndSourceSet() {
 	UTransliterator * utrans = utrans_openU(transSimpleID, -1, UTRANS_FORWARD, NULL, 0, NULL, &status);
 	if(U_SUCCESS(status)) {
 		USet* uset;
-		UChar ubuf[kUBufMax];
+		char16_t ubuf[kUBufMax];
 		int32_t ulen;
 
 		status = U_ZERO_ERROR;
@@ -681,7 +681,7 @@ static void TestDataVariantsCompounds() {
 	const TransIDSourceTarg* itemsPtr;
 	for(itemsPtr = dataVarCompItems; itemsPtr->transID != NULL; itemsPtr++) {
 		UErrorCode status = U_ZERO_ERROR;
-		UChar utrid[kUBufMax];
+		char16_t utrid[kUBufMax];
 		int32_t utridlen = u_unescape(itemsPtr->transID, utrid, kUBufMax);
 		UTransliterator* utrans = utrans_openU(utrid, utridlen, UTRANS_FORWARD, NULL, 0, NULL, &status);
 		if(U_FAILURE(status)) {
@@ -690,7 +690,7 @@ static void TestDataVariantsCompounds() {
 			    u_errorName(status));
 			continue;
 		}
-		UChar text[kUBufMax];
+		char16_t text[kUBufMax];
 		int32_t textLen =  u_unescape(itemsPtr->sourceText, text, kUBufMax);
 		int32_t textLim = textLen;
 		utrans_transUChars(utrans, text, &textLen, kUBufMax, 0, &textLim, &status);
@@ -698,7 +698,7 @@ static void TestDataVariantsCompounds() {
 			log_err("FAIL: utrans_transUChars(%s) failed, error=%s\n", itemsPtr->transID, u_errorName(status));
 		}
 		else {
-			UChar expect[kUBufMax];
+			char16_t expect[kUBufMax];
 			int32_t expectLen =  u_unescape(itemsPtr->targetText, expect, kUBufMax);
 			if(textLen != expectLen || u_strncmp(text, expect, textLen) != 0) {
 				char btext[kBBufMax], bexpect[kBBufMax];
@@ -721,7 +721,7 @@ static void _expectRules(const char * crules,
 	 * make all buffers way too big */
 	enum { CAP = 256 };
 
-	UChar rules[CAP];
+	char16_t rules[CAP];
 	UTransliterator * trans;
 	UErrorCode status = U_ZERO_ERROR;
 	UParseError parseErr;
@@ -749,10 +749,10 @@ static void _expect(const UTransliterator* trans,
 	 * make all buffers way too big */
 	enum { CAP = 256 };
 
-	UChar from[CAP];
-	UChar to[CAP];
-	UChar buf[CAP];
-	const UChar * ID;
+	char16_t from[CAP];
+	char16_t to[CAP];
+	char16_t buf[CAP];
+	const char16_t * ID;
 	int32_t IDLength;
 	const char * id;
 

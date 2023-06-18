@@ -42,7 +42,7 @@ void addUNumberFormatterTest(TestNode** root)
 static void TestSkeletonFormatToString() 
 {
 	UErrorCode ec = U_ZERO_ERROR;
-	UChar buffer[CAPACITY];
+	char16_t buffer[CAPACITY];
 	UFormattedNumber* result = NULL;
 	// setup:
 	UNumberFormatter* f = unumf_openForSkeletonAndLocale(u"precision-integer currency/USD sign-accounting", -1, "en", &ec);
@@ -163,7 +163,7 @@ static void TestExampleCode()
 	UErrorCode ec = U_ZERO_ERROR;
 	UNumberFormatter* uformatter = unumf_openForSkeletonAndLocale(u"precision-integer", -1, "en", &ec);
 	UFormattedNumber* uresult = unumf_openResult(&ec);
-	UChar * buffer = NULL;
+	char16_t * buffer = NULL;
 	assertSuccessCheck("There should not be a failure in the example code", &ec, TRUE);
 	// Format a double:
 	unumf_formatDouble(uformatter, 5142.3, uresult, &ec);
@@ -172,7 +172,7 @@ static void TestExampleCode()
 		int32_t len = unumf_resultToString(uresult, NULL, 0, &ec);
 		assertTrue("No buffer yet", ec == U_BUFFER_OVERFLOW_ERROR);
 		ec = U_ZERO_ERROR;
-		buffer = (UChar *)uprv_malloc((len+1)*sizeof(UChar));
+		buffer = (char16_t *)uprv_malloc((len+1)*sizeof(char16_t));
 		unumf_resultToString(uresult, buffer, len+1, &ec);
 		assertSuccess("There should not be a failure in the example code", &ec);
 		assertUEquals("Should produce expected string result", u"5,142", buffer);
@@ -236,7 +236,7 @@ static void TestToDecimalNumber()
 	UFormattedNumber* uresult = unumf_openResult(&ec);
 	assertSuccess("Should create result without error", &ec);
 	unumf_formatDouble(uformatter, 3.0, uresult, &ec);
-	const UChar * str = ufmtval_getString(unumf_resultAsValue(uresult, &ec), NULL, &ec);
+	const char16_t * str = ufmtval_getString(unumf_resultAsValue(uresult, &ec), NULL, &ec);
 	assertSuccessCheck("Formatting should succeed", &ec, TRUE);
 	assertUEquals("Should produce expected string result", u"$3.00", str);
 	char buffer[CAPACITY];
@@ -296,7 +296,7 @@ static void TestPerUnitInArabic() {
 	};
 #define BUFFER_LEN 256
 	char buffer[BUFFER_LEN];
-	UChar ubuffer[BUFFER_LEN];
+	char16_t ubuffer[BUFFER_LEN];
 	const char * locale = "ar";
 	UErrorCode status = U_ZERO_ERROR;
 	UFormattedNumber* formatted = unumf_openResult(&status);
@@ -349,7 +349,7 @@ static void Test21674_State()
 	{
 		typedef struct TestCase {
 			double num;
-			const UChar * expected;
+			const char16_t * expected;
 		} TestCase;
 		TestCase cases[] = { { 1.975, u"2" }, { 1.97, u"1.95" }, { 1.975, u"2" }, };
 		for(int8 i = 0; i < 3; i++) {
@@ -362,7 +362,7 @@ static void Test21674_State()
 				goto cleanup;
 			}
 			int32_t length;
-			const UChar * str = ufmtval_getString(formattedValue, &length, &status);
+			const char16_t * str = ufmtval_getString(formattedValue, &length, &status);
 			if(!assertSuccess("ufmtval_getString", &status)) {
 				goto cleanup;
 			}

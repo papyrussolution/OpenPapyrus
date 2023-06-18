@@ -266,9 +266,9 @@ conformanceTestCases[] = {
 static int32_t unescapeData(const char * src, int32_t srcLen, char * dest, int32_t destCapacity, UErrorCode * status) 
 {
 	(void)srcLen; // suppress compiler warnings about unused variable
-	UChar b1Stack[MAX_BUFFER_SIZE];
+	char16_t b1Stack[MAX_BUFFER_SIZE];
 	int32_t b1Capacity = MAX_BUFFER_SIZE, destLen    = 0;
-	UChar * b1 = b1Stack;
+	char16_t * b1 = b1Stack;
 	int32_t b1Len = u_unescape(src, b1, b1Capacity);
 	u_strToUTF8(dest, destCapacity, &destLen, b1, b1Len, status);
 	return destLen;
@@ -578,7 +578,7 @@ static void TestBEAMWarning() {
 	UStringPrepProfile* profile = NULL;
 	/* get the test data path */
 	const char * testdatapath = NULL;
-	UChar src = 0x0000;
+	char16_t src = 0x0000;
 	testdatapath = loadTestData(&status);
 	if(U_FAILURE(status)) {
 		log_data_err("Could not load testdata.dat, status = %s\n", u_errorName(status));
@@ -746,9 +746,9 @@ static void TestStringPrepProfiles()
 {
 	UErrorCode status = U_ZERO_ERROR;
 	const char * profileName = NULL;
-	UChar src[SPREP_PROFILE_TEST_MAX_LENGTH];
-	UChar expected[SPREP_PROFILE_TEST_MAX_LENGTH];
-	UChar result[SPREP_PROFILE_TEST_MAX_LENGTH];
+	char16_t src[SPREP_PROFILE_TEST_MAX_LENGTH];
+	char16_t expected[SPREP_PROFILE_TEST_MAX_LENGTH];
+	char16_t result[SPREP_PROFILE_TEST_MAX_LENGTH];
 	int32_t srcLength, resultLength, expectedLength;
 	int32_t i, testNum = 0;
 	UStringPrepProfile * sprep = NULL;

@@ -133,8 +133,8 @@ static void TestNormCases(UNormalizationMode mode, const char * const cases[][3]
 {
 	int32_t x, neededLen, length2;
 	int32_t expIndex = (mode==UNORM_NFC || mode==UNORM_NFKC) ? 2 : 1;
-	UChar * source = NULL;
-	UChar result[16];
+	char16_t * source = NULL;
+	char16_t result[16];
 	log_verbose("Testing unorm_normalize(%s)\n", modeStrings[mode]);
 	for(x = 0; x < lengthOfCases; x++) {
 		UErrorCode status = U_ZERO_ERROR, status2 = U_ZERO_ERROR;
@@ -175,20 +175,20 @@ void TestCanonDecompCompose() { TestNormCases(UNORM_NFC, canonTests, SIZEOFARRAY
 void TestCompatDecompCompose() { TestNormCases(UNORM_NFKC, compatTests, SIZEOFARRAYi(compatTests)); }
 void TestFCD() { TestNormCases(UNORM_FCD, fcdTests, SIZEOFARRAYi(fcdTests)); }
 
-static void assertEqual(const UChar * result, const char * expected, int32_t index)
+static void assertEqual(const char16_t * result, const char * expected, int32_t index)
 {
-	UChar * expectedUni = CharsToUChars(expected);
+	char16_t * expectedUni = CharsToUChars(expected);
 	if(u_strcmp(result, expectedUni)!=0) {
 		log_err("ERROR in decomposition at index = %d. EXPECTED: %s , GOT: %s\n", index, expected, austrdup(result));
 	}
 	SAlloc::F(expectedUni);
 }
 
-static void TestNull_check(UChar * src, int32_t srcLen, UChar * exp, int32_t expLen, UNormalizationMode mode, const char * name)
+static void TestNull_check(char16_t * src, int32_t srcLen, char16_t * exp, int32_t expLen, UNormalizationMode mode, const char * name)
 {
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t len, i;
-	UChar result[50];
+	char16_t result[50];
 	status = U_ZERO_ERROR;
 	for(i = 0; i<50; i++) {
 		result[i] = 0xFFFD;
@@ -220,14 +220,14 @@ static void TestNull_check(UChar * src, int32_t srcLen, UChar * exp, int32_t exp
 
 void TestNull()
 {
-	UChar source_comp[] = { 0x0061, 0x0000, 0x0044, 0x0307 };
+	char16_t source_comp[] = { 0x0061, 0x0000, 0x0044, 0x0307 };
 	int32_t source_comp_len = 4;
-	UChar expect_comp[] = { 0x0061, 0x0000, 0x1e0a };
+	char16_t expect_comp[] = { 0x0061, 0x0000, 0x1e0a };
 	int32_t expect_comp_len = 3;
 
-	UChar source_dcmp[] = { 0x1e0A, 0x0000, 0x0929 };
+	char16_t source_dcmp[] = { 0x1e0A, 0x0000, 0x0929 };
 	int32_t source_dcmp_len = 3;
-	UChar expect_dcmp[] = { 0x0044, 0x0307, 0x0000, 0x0928, 0x093C };
+	char16_t expect_dcmp[] = { 0x0044, 0x0307, 0x0000, 0x0928, 0x093C };
 	int32_t expect_dcmp_len = 5;
 
 	TestNull_check(source_comp,
@@ -254,13 +254,13 @@ void TestNull()
 
 static void TestQuickCheckResultNO()
 {
-	const UChar CPNFD[] = {0x00C5, 0x0407, 0x1E00, 0x1F57, 0x220C,
+	const char16_t CPNFD[] = {0x00C5, 0x0407, 0x1E00, 0x1F57, 0x220C,
 			       0x30AE, 0xAC00, 0xD7A3, 0xFB36, 0xFB4E};
-	const UChar CPNFC[] = {0x0340, 0x0F93, 0x1F77, 0x1FBB, 0x1FEB,
+	const char16_t CPNFC[] = {0x0340, 0x0F93, 0x1F77, 0x1FBB, 0x1FEB,
 			       0x2000, 0x232A, 0xF900, 0xFA1E, 0xFB4E};
-	const UChar CPNFKD[] = {0x00A0, 0x02E4, 0x1FDB, 0x24EA, 0x32FE,
+	const char16_t CPNFKD[] = {0x00A0, 0x02E4, 0x1FDB, 0x24EA, 0x32FE,
 				0xAC00, 0xFB4E, 0xFA10, 0xFF3F, 0xFA2D};
-	const UChar CPNFKC[] = {0x00A0, 0x017F, 0x2000, 0x24EA, 0x32FE,
+	const char16_t CPNFKC[] = {0x00A0, 0x017F, 0x2000, 0x24EA, 0x32FE,
 				0x33FE, 0xFB4E, 0xFA10, 0xFF3F, 0xFA2D};
 
 	const int SIZE = 10;
@@ -294,14 +294,14 @@ static void TestQuickCheckResultNO()
 
 static void TestQuickCheckResultYES()
 {
-	const UChar CPNFD[] = {0x00C6, 0x017F, 0x0F74, 0x1000, 0x1E9A, 0x2261, 0x3075, 0x4000, 0x5000, 0xF000};
-	const UChar CPNFC[] = {0x0400, 0x0540, 0x0901, 0x1000, 0x1500, 0x1E9A, 0x3000, 0x4000, 0x5000, 0xF000};
-	const UChar CPNFKD[] = {0x00AB, 0x02A0, 0x1000, 0x1027, 0x2FFB, 0x3FFF, 0x4FFF, 0xA000, 0xF000, 0xFA27};
-	const UChar CPNFKC[] = {0x00B0, 0x0100, 0x0200, 0x0A02, 0x1000, 0x2010, 0x3030, 0x4000, 0xA000, 0xFA0E};
+	const char16_t CPNFD[] = {0x00C6, 0x017F, 0x0F74, 0x1000, 0x1E9A, 0x2261, 0x3075, 0x4000, 0x5000, 0xF000};
+	const char16_t CPNFC[] = {0x0400, 0x0540, 0x0901, 0x1000, 0x1500, 0x1E9A, 0x3000, 0x4000, 0x5000, 0xF000};
+	const char16_t CPNFKD[] = {0x00AB, 0x02A0, 0x1000, 0x1027, 0x2FFB, 0x3FFF, 0x4FFF, 0xA000, 0xF000, 0xFA27};
+	const char16_t CPNFKC[] = {0x00B0, 0x0100, 0x0200, 0x0A02, 0x1000, 0x2010, 0x3030, 0x4000, 0xA000, 0xFA0E};
 	const int SIZE = 10;
 	int count = 0;
 	UErrorCode error = U_ZERO_ERROR;
-	UChar cp = 0;
+	char16_t cp = 0;
 	while(cp < 0xA0) {
 		if(unorm_quickCheck(&cp, 1, UNORM_NFD, &error) != UNORM_YES) {
 			log_data_err("ERROR in NFD quick check at U+%04x - (Are you missing data?)\n", cp);
@@ -350,9 +350,9 @@ static void TestQuickCheckResultYES()
 
 static void TestQuickCheckResultMAYBE()
 {
-	const UChar CPNFC[] = {0x0306, 0x0654, 0x0BBE, 0x102E, 0x1161,
+	const char16_t CPNFC[] = {0x0306, 0x0654, 0x0BBE, 0x102E, 0x1161,
 			       0x116A, 0x1173, 0x1175, 0x3099, 0x309A};
-	const UChar CPNFKC[] = {0x0300, 0x0654, 0x0655, 0x09D7, 0x0B3E,
+	const char16_t CPNFKC[] = {0x0300, 0x0654, 0x0655, 0x09D7, 0x0B3E,
 				0x0DCF, 0xDDF, 0x102E, 0x11A8, 0x3099};
 
 	const int SIZE = 10;
@@ -378,8 +378,8 @@ static void TestQuickCheckResultMAYBE()
 static void TestQuickCheckStringResult()
 {
 	int count;
-	UChar * d = NULL;
-	UChar * c = NULL;
+	char16_t * d = NULL;
+	char16_t * c = NULL;
 	UErrorCode error = U_ZERO_ERROR;
 
 	for(count = 0; count < SIZEOFARRAYi(canonTests); count++) {
@@ -439,13 +439,13 @@ void TestQuickCheck()
  * Here we pick some specific cases and test the C API.
  */
 static void TestIsNormalized() {
-	static const UChar notNFC[][8] = {      /* strings that are not in NFC */
+	static const char16_t notNFC[][8] = {      /* strings that are not in NFC */
 		{ 0x62, 0x61, 0x300, 0x63, 0 }, /* 0061 0300 compose */
 		{ 0xfb1d, 0 }, /* excluded from composition */
 		{ 0x0627, 0x0653, 0 }, /* 0627 0653 compose */
 		{ 0x3071, 0x306f, 0x309a, 0x3073, 0 } /* 306F 309A compose */
 	};
-	static const UChar notNFKC[][8] = {     /* strings that are not in NFKC */
+	static const char16_t notNFKC[][8] = {     /* strings that are not in NFKC */
 		{ 0x1100, 0x1161, 0 }, /* Jamo compose */
 		{ 0x1100, 0x314f, 0 }, /* compatibility Jamo compose */
 		{ 0x03b1, 0x1f00, 0x0345, 0x03b3, 0 } /* 1F00 0345 compose */
@@ -510,15 +510,15 @@ static void TestIsNormalized() {
 void TestCheckFCD()
 {
 	UErrorCode status = U_ZERO_ERROR;
-	static const UChar FAST_[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A};
-	static const UChar FALSE_[] = {0x0001, 0x0002, 0x02EA, 0x03EB, 0x0300, 0x0301, 0x02B9, 0x0314, 0x0315, 0x0316};
-	static const UChar TRUE_[] = {0x0030, 0x0040, 0x0440, 0x056D, 0x064F, 0x06E7, 0x0050, 0x0730, 0x09EE, 0x1E10};
-	static const UChar datastr[][5] = { {0x0061, 0x030A, 0x1E05, 0x0302, 0},
+	static const char16_t FAST_[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A};
+	static const char16_t FALSE_[] = {0x0001, 0x0002, 0x02EA, 0x03EB, 0x0300, 0x0301, 0x02B9, 0x0314, 0x0315, 0x0316};
+	static const char16_t TRUE_[] = {0x0030, 0x0040, 0x0440, 0x056D, 0x064F, 0x06E7, 0x0050, 0x0730, 0x09EE, 0x1E10};
+	static const char16_t datastr[][5] = { {0x0061, 0x030A, 0x1E05, 0x0302, 0},
 	  {0x0061, 0x030A, 0x00E2, 0x0323, 0},
 	  {0x0061, 0x0323, 0x00E2, 0x0323, 0},
 	  {0x0061, 0x0323, 0x1E05, 0x0302, 0} };
 	static const bool result[] = {UNORM_YES, UNORM_NO, UNORM_NO, UNORM_YES};
-	static const UChar datachar[] = {0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a,
+	static const char16_t datachar[] = {0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a,
 		0xe0, 0xe1, 0xe2, 0xe3, 0xe4, 0xe5, 0xe6, 0xe7, 0xe8, 0xe9, 0xea, 0x0300, 0x0301, 0x0302, 0x0303, 0x0304, 0x0305, 0x0306,
 		0x0307, 0x0308, 0x0309, 0x030a, 0x0320, 0x0321, 0x0322, 0x0323, 0x0324, 0x0325, 0x0326,
 		0x0327, 0x0328, 0x0329, 0x032a, 0x1e00, 0x1e01, 0x1e02, 0x1e03, 0x1e04, 0x1e05, 0x1e06, 0x1e07, 0x1e08, 0x1e09, 0x1e0a
@@ -554,9 +554,9 @@ void TestCheckFCD()
 	for(count = 0; count < 50; count++) {
 		int size = 0;
 		UNormalizationCheckResult testresult = UNORM_YES;
-		UChar data[20];
-		UChar norm[100];
-		UChar nfd[100];
+		char16_t data[20];
+		char16_t norm[100];
+		char16_t nfd[100];
 		int normsize = 0;
 		int nfdsize = 0;
 
@@ -598,8 +598,8 @@ void TestCheckFCD()
 }
 
 static void TestAPI() {
-	static const UChar in[] = { 0x68, 0xe4 };
-	UChar out[20] = { 0xffff, 0xffff, 0xffff, 0xffff };
+	static const char16_t in[] = { 0x68, 0xe4 };
+	char16_t out[20] = { 0xffff, 0xffff, 0xffff, 0xffff };
 	UErrorCode errorCode;
 	int32_t length;
 
@@ -659,7 +659,7 @@ enum {
 };
 
 static void TestNormCoverage() {
-	UChar input[1000], expect[1000], output[1000];
+	char16_t input[1000], expect[1000], output[1000];
 	UErrorCode errorCode;
 	int32_t i, length, inLength, expectLength, hangulPrefixLength, preflightLength;
 
@@ -865,7 +865,7 @@ static void TestNormCoverage() {
 /* API test for unorm_concatenate() - for real test strings see intltest/tstnorm.cpp */
 static void TestConcatenate() {
 	/* "re + 'sume'" */
-	static const UChar
+	static const char16_t
 	    left[] = {
 		0x72, 0x65, 0
 	},
@@ -876,7 +876,7 @@ static void TestConcatenate() {
 		0x72, 0xe9, 0x73, 0x75, 0x6d, 0xe9, 0
 	};
 
-	UChar buffer[100];
+	char16_t buffer[100];
 	UErrorCode errorCode;
 	int32_t length;
 
@@ -939,12 +939,12 @@ static const char * const _modeString[UNORM_MODE_COUNT] = {
 	"0", "NONE", "NFD", "NFKD", "NFC", "NFKC", "FCD"
 };
 
-static void _testIter(const UChar * src, int32_t srcLength,
+static void _testIter(const char16_t * src, int32_t srcLength,
     UCharIterator * iter, UNormalizationMode mode, bool forward,
-    const UChar * out, int32_t outLength,
+    const char16_t * out, int32_t outLength,
     const int32_t * srcIndexes, int32_t srcIndexesLength) {
-	UChar buffer[4];
-	const UChar * expect, * outLimit, * in;
+	char16_t buffer[4];
+	const char16_t * expect, * outLimit, * in;
 	int32_t length, i, expectLength, expectIndex, prevIndex, index, inLength;
 	UErrorCode errorCode;
 	bool neededToNormalize, expectNeeded;
@@ -1056,12 +1056,12 @@ static void _testIter(const UChar * src, int32_t srcLength,
 
 static void TestNextPrevious() 
 {
-	static const UChar src[] = { /* input string */ 0xa0, 0xe4, 0x63, 0x302, 0x327, 0xac00, 0x3133 };
-	static const UChar nfd[] = { /* + separates expected output pieces */ 0xa0, _PLUS, 0x61, 0x308, _PLUS, 0x63, 0x327, 0x302, _PLUS, 0x1100, 0x1161, _PLUS, 0x3133 };
-	static const UChar nfkd[] = { 0x20, _PLUS, 0x61, 0x308, _PLUS, 0x63, 0x327, 0x302, _PLUS, 0x1100, 0x1161, _PLUS, 0x11aa };
-	static const UChar nfc[] = { 0xa0, _PLUS, 0xe4, _PLUS, 0xe7, 0x302, _PLUS, 0xac00, _PLUS, 0x3133 };
-	static const UChar nfkc[] = { 0x20, _PLUS, 0xe4, _PLUS, 0xe7, 0x302, _PLUS, 0xac03 };
-	static const UChar fcd[] = { 0xa0, _PLUS, 0xe4, _PLUS, 0x63, 0x327, 0x302, _PLUS, 0xac00, _PLUS, 0x3133 };
+	static const char16_t src[] = { /* input string */ 0xa0, 0xe4, 0x63, 0x302, 0x327, 0xac00, 0x3133 };
+	static const char16_t nfd[] = { /* + separates expected output pieces */ 0xa0, _PLUS, 0x61, 0x308, _PLUS, 0x63, 0x327, 0x302, _PLUS, 0x1100, 0x1161, _PLUS, 0x3133 };
+	static const char16_t nfkd[] = { 0x20, _PLUS, 0x61, 0x308, _PLUS, 0x63, 0x327, 0x302, _PLUS, 0x1100, 0x1161, _PLUS, 0x11aa };
+	static const char16_t nfc[] = { 0xa0, _PLUS, 0xe4, _PLUS, 0xe7, 0x302, _PLUS, 0xac00, _PLUS, 0x3133 };
+	static const char16_t nfkc[] = { 0x20, _PLUS, 0xe4, _PLUS, 0xe7, 0x302, _PLUS, 0xac03 };
+	static const char16_t fcd[] = { 0xa0, _PLUS, 0xe4, _PLUS, 0x63, 0x327, 0x302, _PLUS, 0xac00, _PLUS, 0x3133 };
 	/* expected iterator indexes in the source string for each iteration piece */
 	static const int32_t nfdIndexes[] = { 0, 1, 2, 5, 6, 7 };
 	static const int32_t nfkdIndexes[] = { 0, 1, 2, 5, 6, 7 };
@@ -1069,7 +1069,7 @@ static void TestNextPrevious()
 	static const int32_t nfkcIndexes[] = { 0, 1, 2, 5, 7 };
 	static const int32_t fcdIndexes[] = { 0, 1, 2, 5, 6, 7 };
 	UCharIterator iter;
-	UChar buffer[4];
+	char16_t buffer[4];
 	int32_t length;
 	// @sobolev bool neededToNormalize;
 	int8 neededToNormalize; // @sobolev значение намеренно коверкается в величину, отличную от {true||false} перед вызовом функций для проверки результатов
@@ -1177,7 +1177,7 @@ static void TestFCNFKCClosure()
 {
 	static const struct {
 		UChar32 c;
-		const UChar s[6];
+		const char16_t s[6];
 	} tests[] = {
 		{ 0x00C4, { 0 } },
 		{ 0x00E4, { 0 } },
@@ -1194,7 +1194,7 @@ static void TestFCNFKCClosure()
 		{ 0x0061, { 0 } }
 	};
 
-	UChar buffer[8];
+	char16_t buffer[8];
 	UErrorCode errorCode;
 	int32_t i, length;
 
@@ -1223,7 +1223,7 @@ static void TestFCNFKCClosure()
 static void TestQuickCheckPerCP() {
 	UErrorCode errorCode;
 	UChar32 c, lead, trail;
-	UChar s[U16_MAX_LENGTH], nfd[16];
+	char16_t s[U16_MAX_LENGTH], nfd[16];
 	int32_t length, lccc1, lccc2, tccc1, tccc2;
 	int32_t qc1, qc2;
 
@@ -1318,8 +1318,8 @@ static void TestComposition() {
 	static const struct {
 		UNormalizationMode mode;
 		uint32_t options;
-		UChar input[12];
-		UChar expect[12];
+		char16_t input[12];
+		char16_t expect[12];
 	} cases[] = {
 		/*
 		 * special cases for UAX #15 bug
@@ -1335,7 +1335,7 @@ static void TestComposition() {
 		/* TODO: add test cases for UNORM_FCC here (j2151) */
 	};
 
-	UChar output[16];
+	char16_t output[16];
 	UErrorCode errorCode;
 	int32_t i, length;
 
@@ -1356,7 +1356,7 @@ static void TestComposition() {
 }
 
 static void TestGetDecomposition() {
-	UChar decomp[32];
+	char16_t decomp[32];
 	int32_t length;
 
 	UErrorCode errorCode = U_ZERO_ERROR;
@@ -1398,7 +1398,7 @@ static void TestGetDecomposition() {
 }
 
 static void TestGetRawDecomposition() {
-	UChar decomp[32];
+	char16_t decomp[32];
 	int32_t length;
 
 	UErrorCode errorCode = U_ZERO_ERROR;
@@ -1462,10 +1462,10 @@ static void TestGetRawDecomposition() {
 }
 
 static void TestAppendRestoreMiddle() {
-	UChar a[20] = { 0x61, 0x62, 0x63, 0x41, 0x327, 0 }; /* last chars are 'A' and 'cedilla' NFC */
-	static const UChar b[] = { 0x30A, 0x64, 0x65, 0x66, 0 }; /* first char is 'ring above' NFC */
+	char16_t a[20] = { 0x61, 0x62, 0x63, 0x41, 0x327, 0 }; /* last chars are 'A' and 'cedilla' NFC */
+	static const char16_t b[] = { 0x30A, 0x64, 0x65, 0x66, 0 }; /* first char is 'ring above' NFC */
 	/* NFC: C5 is 'A with ring above' */
-	static const UChar expected[] = { 0x61, 0x62, 0x63, 0xC5, 0x327, 0x64, 0x65, 0x66 };
+	static const char16_t expected[] = { 0x61, 0x62, 0x63, 0xC5, 0x327, 0x64, 0x65, 0x66 };
 	int32_t length;
 	UErrorCode errorCode = U_ZERO_ERROR;
 	const UNormalizer2 * n2 = unorm2_getNFCInstance(&errorCode);
@@ -1498,11 +1498,11 @@ static void TestAppendRestoreMiddle() {
 }
 
 static void TestGetEasyToUseInstance() {
-	static const UChar in[] = {
+	static const char16_t in[] = {
 		0xA0, /* -> <noBreak> 0020 */
 		0xC7, 0x301 /* = 1E08 = 0043 0327 0301 */
 	};
-	UChar out[32];
+	char16_t out[32];
 	int32_t length;
 
 	UErrorCode errorCode = U_ZERO_ERROR;

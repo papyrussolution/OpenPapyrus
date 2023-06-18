@@ -3,8 +3,7 @@
 
 typedef struct fz_jbig2_globals fz_jbig2_globals;
 
-typedef struct
-{
+typedef struct {
 	int64_t offset;
 	size_t length;
 } fz_range;

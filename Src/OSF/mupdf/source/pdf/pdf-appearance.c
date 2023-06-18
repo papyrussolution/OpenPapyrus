@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 #include "mupdf/ucdn.h"
 #include "annotation-icons.h"
 
@@ -21,8 +21,7 @@ static int pdf_write_stroke_color_appearance(fz_context * ctx, pdf_annot * annot
 	float color[4];
 	int n;
 	pdf_annot_color(ctx, annot, &n, color);
-	switch(n)
-	{
+	switch(n) {
 		default: return 0;
 		case 1: fz_append_printf(ctx, buf, "%g G\n", color[0]); break;
 		case 3: fz_append_printf(ctx, buf, "%g %g %g RG\n", color[0], color[1], color[2]); break;

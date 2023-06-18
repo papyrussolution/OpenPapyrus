@@ -98,7 +98,7 @@ void xps_begin_opacity(fz_context * ctx, xps_document * doc, fz_matrix ctm, fz_r
 		opacity_mask_tag = NULL;
 	}
 
-	if(doc->opacity_top + 1 < (int)nelem(doc->opacity)) {
+	if(doc->opacity_top + 1 < SIZEOFARRAYi(doc->opacity)) {
 		doc->opacity[doc->opacity_top + 1] = doc->opacity[doc->opacity_top] * opacity;
 		doc->opacity_top++;
 	}

@@ -142,7 +142,7 @@ static UnicodeString & getWindowsFormat(int32_t lcid, bool currency, UnicodeStri
 	    newLength = _vscwprintf(fmt, args);
 	    va_end(args);
 
-	    nBuffer = NEW_ARRAY(UChar, newLength + 1);
+	    nBuffer = NEW_ARRAY(char16_t, newLength + 1);
 
 	    va_start(args, fmt);
 	    result = _vsnwprintf(nBuffer, newLength + 1, fmt, args);
@@ -196,7 +196,7 @@ static UnicodeString & getWindowsFormat(int32_t lcid, bool currency, UnicodeStri
 		}
 	}
 
-	appendTo.append((const UChar*)buffer, (int32_t)wcslen(buffer));
+	appendTo.append((const char16_t*)buffer, (int32_t)wcslen(buffer));
 
 	if(buffer != stackBuffer) {
 		DELETE_ARRAY(buffer);

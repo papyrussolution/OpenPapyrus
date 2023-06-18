@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 
 fz_display_list * pdf_new_display_list_from_annot(fz_context * ctx, pdf_annot * annot)
 {

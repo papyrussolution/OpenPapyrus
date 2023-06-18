@@ -692,7 +692,7 @@ public:
 		   specific but useful anyway for the general case. It's been broken
 		   before, and in fact was broken even for a basic 0, 2, 1 test case
 		   when this test was first added.... */
-		for(i = 0; i < (int)SIZEOFARRAY(TestData_BadDTLS_tests); i++) {
+		for(i = 0; i < SIZEOFARRAYi(TestData_BadDTLS_tests); i++) {
 			uint64_t recv_buf[2];
 			if(!TEST_true(send_record(rbio, SSL3_RT_APPLICATION_DATA, TestData_BadDTLS_tests[i].seq, &TestData_BadDTLS_tests[i].seq, sizeof(uint64_t)))) {
 				TEST_error("Failed to send data seq #0x%x%08x (%d)\n", (uint)(TestData_BadDTLS_tests[i].seq >> 32), (uint)TestData_BadDTLS_tests[i].seq, i);
@@ -4692,7 +4692,7 @@ public:
 	{
 		uint a = TestData_ConstantTime_test_values[i];
 		int ret = 1;
-		for(int j = 0; j < (int)SIZEOFARRAY(TestData_ConstantTime_test_values); ++j) {
+		for(int j = 0; j < SIZEOFARRAYi(TestData_ConstantTime_test_values); ++j) {
 			uint b = TestData_ConstantTime_test_values[j];
 			if(!test_select(a, b) || !test_binary_op(&constant_time_lt, "ct_lt", a, b, a < b)
 				|| !test_binary_op(&constant_time_lt, "constant_time_lt", b, a, b < a)
@@ -4708,7 +4708,7 @@ public:
 	{
 		uint a = TestData_ConstantTime_test_values_8[i];
 		int ret = 1;
-		for(int j = 0; j < (int)SIZEOFARRAY(TestData_ConstantTime_test_values_8); ++j) {
+		for(int j = 0; j < SIZEOFARRAYi(TestData_ConstantTime_test_values_8); ++j) {
 			uint b = TestData_ConstantTime_test_values_8[j];
 			if(!test_binary_op_8(&constant_time_lt_8, "constant_time_lt_8", a, b, a < b)
 				|| !test_binary_op_8(&constant_time_lt_8, "constant_time_lt_8", b, a, b < a)
@@ -4724,7 +4724,7 @@ public:
 	{
 		size_t a = TestData_ConstantTime_test_values_s[i];
 		int ret = 1;
-		for(int j = 0; j < (int)SIZEOFARRAY(TestData_ConstantTime_test_values_s); ++j) {
+		for(int j = 0; j < SIZEOFARRAYi(TestData_ConstantTime_test_values_s); ++j) {
 			size_t b = TestData_ConstantTime_test_values_s[j];
 			if(!test_select_s(a, b) || !test_eq_s(a, b)
 				|| !test_binary_op_s(&constant_time_lt_s, "constant_time_lt_s", a, b, a < b)
@@ -4774,7 +4774,7 @@ public:
 	{
 		uint64_t g = TestData_ConstantTime_test_values_64[i];
 		int ret = 1;
-		for(int j = i + 1; j < (int)SIZEOFARRAY(TestData_ConstantTime_test_values_64); j++) {
+		for(int j = i + 1; j < SIZEOFARRAYi(TestData_ConstantTime_test_values_64); j++) {
 			uint64_t h = TestData_ConstantTime_test_values_64[j];
 			if(!test_binary_op_64(&constant_time_lt_64, "constant_time_lt_64", g, h, g < h) || !test_select_64(g, h)) {
 				TEST_info("test_64values failed i=%d j=%d", i, j);
@@ -12371,7 +12371,7 @@ int setup_tests()
 		ADD_TEST(TestInnerBlock_Rsa_Sp800_56b::test_check_public_key);
 		ADD_TEST(TestInnerBlock_Rsa_Sp800_56b::test_invalid_keypair);
 		ADD_TEST(TestInnerBlock_Rsa_Sp800_56b::test_pq_diff);
-		ADD_ALL_TESTS(TestInnerBlock_Rsa_Sp800_56b::test_sp80056b_keygen, (int)SIZEOFARRAY(TestData_Rsa_Sp800_56b_keygen_size));
+		ADD_ALL_TESTS(TestInnerBlock_Rsa_Sp800_56b::test_sp80056b_keygen, SIZEOFARRAYi(TestData_Rsa_Sp800_56b_keygen_size));
 	}
 	{
 		#ifdef OPENSSL_NO_SM2
@@ -12538,7 +12538,7 @@ int setup_tests()
 		if(!TEST_ptr(TestData_BnInternal_ctx = BN_CTX_new()))
 			return 0;
 		ADD_TEST(TestInnerBlock_BnInternal::test_is_prime_enhanced);
-		ADD_ALL_TESTS(TestInnerBlock_BnInternal::test_is_composite_enhanced, (int)SIZEOFARRAY(TestData_BnInternal_composites));
+		ADD_ALL_TESTS(TestInnerBlock_BnInternal::test_is_composite_enhanced, SIZEOFARRAYi(TestData_BnInternal_composites));
 		ADD_TEST(TestInnerBlock_BnInternal::test_bn_small_factors);
 	}
 	{
@@ -12923,7 +12923,7 @@ int setup_tests()
 			ADD_TEST(TestInnerBlock_BN::test_dec2bn);
 			ADD_TEST(TestInnerBlock_BN::test_hex2bn);
 			ADD_TEST(TestInnerBlock_BN::test_asc2bn);
-			ADD_ALL_TESTS(TestInnerBlock_BN::test_mpi, (int)SIZEOFARRAY(TestData_BN_kMPITests));
+			ADD_ALL_TESTS(TestInnerBlock_BN::test_mpi, SIZEOFARRAYi(TestData_BN_kMPITests));
 			ADD_TEST(TestInnerBlock_BN::test_negzero);
 			ADD_TEST(TestInnerBlock_BN::test_badmod);
 			ADD_TEST(TestInnerBlock_BN::test_expmodzero);
@@ -12943,11 +12943,11 @@ int setup_tests()
 			ADD_TEST(TestInnerBlock_BN::test_gf2m_modsqrt);
 			ADD_TEST(TestInnerBlock_BN::test_gf2m_modsolvequad);
 	#endif
-			ADD_ALL_TESTS(TestInnerBlock_BN::test_is_prime, (int)SIZEOFARRAY(TestData_BN_primes));
-			ADD_ALL_TESTS(TestInnerBlock_BN::test_not_prime, (int)SIZEOFARRAY(TestData_BN_not_primes));
+			ADD_ALL_TESTS(TestInnerBlock_BN::test_is_prime, SIZEOFARRAYi(TestData_BN_primes));
+			ADD_ALL_TESTS(TestInnerBlock_BN::test_not_prime, SIZEOFARRAYi(TestData_BN_not_primes));
 			ADD_TEST(TestInnerBlock_BN::test_gcd_prime);
-			ADD_ALL_TESTS(TestInnerBlock_BN::test_mod_exp, (int)SIZEOFARRAY(TestData_BN_ModExpTests));
-			ADD_ALL_TESTS(TestInnerBlock_BN::test_mod_exp_consttime, (int)SIZEOFARRAY(TestData_BN_ModExpTests));
+			ADD_ALL_TESTS(TestInnerBlock_BN::test_mod_exp, SIZEOFARRAYi(TestData_BN_ModExpTests));
+			ADD_ALL_TESTS(TestInnerBlock_BN::test_mod_exp_consttime, SIZEOFARRAYi(TestData_BN_ModExpTests));
 			ADD_TEST(TestInnerBlock_BN::test_mod_exp2_mont);
 			if(stochastic)
 				ADD_TEST(TestInnerBlock_BN::test_rand_range);
@@ -15608,7 +15608,7 @@ int setup_tests()
 					const rfc5114_td * td = NULL;
 					BIGNUM * priv_key = NULL, * pub_key = NULL;
 					const BIGNUM * pub_key_tmp;
-					for(i = 0; i < (int)SIZEOFARRAY(rfctd); i++) {
+					for(i = 0; i < SIZEOFARRAYi(rfctd); i++) {
 						td = rfctd + i;
 						/* Set up DH structures setting key components */
 						if(!TEST_ptr(dhA = td->get_param()) || !TEST_ptr(dhB = td->get_param()))

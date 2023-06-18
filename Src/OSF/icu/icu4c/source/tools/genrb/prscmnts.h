@@ -34,30 +34,30 @@ enum UParseCommentsOption {
 typedef enum UParseCommentsOption UParseCommentsOption;
 
 U_CFUNC int32_t 
-getNote(const UChar * source, int32_t srcLen,
-        UChar ** dest, int32_t destCapacity,
+getNote(const char16_t * source, int32_t srcLen,
+        char16_t ** dest, int32_t destCapacity,
         UErrorCode * status);
 U_CFUNC int32_t 
-removeCmtText(UChar * source, int32_t srcLen, UErrorCode * status);
+removeCmtText(char16_t * source, int32_t srcLen, UErrorCode * status);
 
 U_CFUNC int32_t
-getDescription( const UChar * source, int32_t srcLen,
-                UChar ** dest, int32_t destCapacity,
+getDescription( const char16_t * source, int32_t srcLen,
+                char16_t ** dest, int32_t destCapacity,
                 UErrorCode * status);
 U_CFUNC int32_t
-getTranslate( const UChar * source, int32_t srcLen,
-              UChar ** dest, int32_t destCapacity,
+getTranslate( const char16_t * source, int32_t srcLen,
+              char16_t ** dest, int32_t destCapacity,
               UErrorCode * status);
 
 U_CFUNC int32_t
-getAt(const UChar * source, int32_t srcLen,
-        UChar ** dest, int32_t destCapacity,
+getAt(const char16_t * source, int32_t srcLen,
+        char16_t ** dest, int32_t destCapacity,
         int32_t index,
         UParseCommentsOption option,
         UErrorCode * status);
 
 U_CFUNC int32_t
-getCount(const UChar * source, int32_t srcLen, 
+getCount(const char16_t * source, int32_t srcLen, 
          UParseCommentsOption option, UErrorCode *status);
 
 #endif /* UCONFIG_NO_REGULAR_EXPRESSIONS */

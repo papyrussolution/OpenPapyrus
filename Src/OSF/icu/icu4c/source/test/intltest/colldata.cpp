@@ -197,7 +197,7 @@ void StringList::add(const UnicodeString * string, UErrorCode & status)
 	strings[listSize++].append(*string);
 }
 
-void StringList::add(const UChar * chars, int32_t count, UErrorCode & status)
+void StringList::add(const char16_t * chars, int32_t count, UErrorCode & status)
 {
 	const UnicodeString string(chars, count);
 
@@ -343,7 +343,7 @@ CollData::CollData(UCollator * collator, UErrorCode & status)
 	itemCount = uset_getItemCount(charsToTest);
 	for(int32_t item = 0; item < itemCount; item += 1) {
 		UChar32 start = 0, end = 0;
-		UChar buffer[16];
+		char16_t buffer[16];
 		int32_t len = uset_getItem(charsToTest, item, &start, &end,
 			buffer, 16, &status);
 
@@ -413,7 +413,7 @@ bail:
 	// and there are also more Jamo T at U+D7CB..U+D7FB.
 	// Maybe use [:HST=T:] and look for the end of the last range?
 	// Maybe use script boundary mappings instead of this code??
-	UChar jamoRanges[] = {Hangul::JAMO_L_BASE, Hangul::JAMO_V_BASE, Hangul::JAMO_T_BASE + 1, 0x11FF};
+	char16_t jamoRanges[] = {Hangul::JAMO_L_BASE, Hangul::JAMO_V_BASE, Hangul::JAMO_T_BASE + 1, 0x11FF};
 	UnicodeString jamoString(FALSE, jamoRanges, SIZEOFARRAYi(jamoRanges));
 	CEList hanList(coll, hanString, status);
 	CEList jamoList(coll, jamoString, status);

@@ -423,7 +423,7 @@ static void TestRelDateFmt()
 		}
 
 		for(iOffset = 0; iOffset < kNumOffsets; iOffset++) {
-			UChar ubufget[kUBufMax];
+			char16_t ubufget[kUBufMax];
 			int32_t ulenget;
 
 			if(itemPtr->unit >= UDAT_REL_UNIT_SUNDAY && offsets[iOffset] != -1.0 && offsets[iOffset] != 0.0 &&
@@ -445,7 +445,7 @@ static void TestRelDateFmt()
 					myErrorName(status));
 			}
 			else {
-				UChar ubufexp[kUBufMax];
+				char16_t ubufexp[kUBufMax];
 				int32_t ulenexp = u_unescape(itemPtr->expectedResults[iOffset*2], ubufexp, kUBufMax);
 				if(ulenget != ulenexp || u_strncmp(ubufget, ubufexp, ulenexp) != 0) {
 					char bbufget[kBBufMax];
@@ -481,7 +481,7 @@ static void TestRelDateFmt()
 					myErrorName(status));
 			}
 			else {
-				UChar ubufexp[kUBufMax];
+				char16_t ubufexp[kUBufMax];
 				int32_t ulenexp = u_unescape(itemPtr->expectedResults[iOffset*2 + 1], ubufexp, kUBufMax);
 				if(ulenget != ulenexp || u_strncmp(ubufget, ubufexp, ulenexp) != 0) {
 					char bbufget[kBBufMax];
@@ -560,10 +560,10 @@ static void TestNumericField()
 					myErrorName(status));
 			}
 			else {
-				UChar ubufexp[kUBufMax];
+				char16_t ubufexp[kUBufMax];
 				int32_t ulenexp = u_unescape(itemPtr->expectedResults[iOffset*2], ubufexp, kUBufMax);
 				int32_t ulenget;
-				const UChar * ubufget = ufmtval_getString(ureldatefmt_resultAsValue(fv, &status), &ulenget, &status);
+				const char16_t * ubufget = ufmtval_getString(ureldatefmt_resultAsValue(fv, &status), &ulenget, &status);
 				assertUEquals("String content", ubufexp, ubufget);
 				assertIntEquals("String length", ulenexp, ulenget);
 
@@ -627,10 +627,10 @@ static void TestNumericField()
 					myErrorName(status));
 			}
 			else {
-				UChar ubufexp[kUBufMax];
+				char16_t ubufexp[kUBufMax];
 				int32_t ulenexp = u_unescape(itemPtr->expectedResults[iOffset*2 + 1], ubufexp, kUBufMax);
 				int32_t ulenget;
-				const UChar * ubufget = ufmtval_getString(ureldatefmt_resultAsValue(fv, &status), &ulenget, &status);
+				const char16_t * ubufget = ufmtval_getString(ureldatefmt_resultAsValue(fv, &status), &ulenget, &status);
 				assertUEquals("String content", ubufexp, ubufget);
 				assertIntEquals("String length", ulenexp, ulenget);
 
@@ -701,9 +701,9 @@ static void TestCombineDateTime()
 	for(itemPtr = combTestItems; itemPtr->locale != NULL; itemPtr++) {
 		URelativeDateTimeFormatter * reldatefmt = NULL;
 		UErrorCode status = U_ZERO_ERROR;
-		UChar ubufreldate[kUBufMax];
-		UChar ubuftime[kUBufMax];
-		UChar ubufget[kUBufMax];
+		char16_t ubufreldate[kUBufMax];
+		char16_t ubuftime[kUBufMax];
+		char16_t ubufget[kUBufMax];
 		int32_t ulenreldate, ulentime, ulenget;
 		reldatefmt = ureldatefmt_open(itemPtr->locale, NULL, itemPtr->width, itemPtr->capContext, &status);
 		if(U_FAILURE(status)) {
@@ -719,7 +719,7 @@ static void TestCombineDateTime()
 			    itemPtr->locale, (int)itemPtr->width, (int)itemPtr->capContext, myErrorName(status));
 		}
 		else {
-			UChar ubufexp[kUBufMax];
+			char16_t ubufexp[kUBufMax];
 			int32_t ulenexp = u_unescape(itemPtr->expectedResult, ubufexp, kUBufMax);
 			if(ulenget != ulenexp || u_strncmp(ubufget, ubufexp, ulenexp) != 0) {
 				char bbufget[kBBufMax];
@@ -736,7 +736,7 @@ static void TestCombineDateTime()
 				itemPtr->locale, (int)itemPtr->width, (int)itemPtr->capContext, myErrorName(status));
 		}
 		else {
-			UChar ubufexp[kUBufMax];
+			char16_t ubufexp[kUBufMax];
 			int32_t ulenexp = u_unescape(itemPtr->expectedResult, ubufexp, kUBufMax);
 			if(ulenget != ulenexp) {
 				log_err("ERROR: ureldatefmt_combineDateAndTime() preflight for locale %s, width %d, capContext %d;\n      expected len %d, get len %d\n",

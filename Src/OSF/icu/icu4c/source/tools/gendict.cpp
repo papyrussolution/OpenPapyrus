@@ -203,18 +203,18 @@ public:
 };
 #endif
 
-static const UChar LINEFEED_CHARACTER = 0x000A;
-static const UChar CARRIAGE_RETURN_CHARACTER = 0x000D;
+static const char16_t LINEFEED_CHARACTER = 0x000A;
+static const char16_t CARRIAGE_RETURN_CHARACTER = 0x000D;
 
 static bool readLine(UCHARBUF * f, UnicodeString & fileLine, IcuToolErrorCode &errorCode) 
 {
 	int32_t lineLength;
-	const UChar * line = ucbuf_readline(f, &lineLength, errorCode);
+	const char16_t * line = ucbuf_readline(f, &lineLength, errorCode);
 	if(line == NULL || errorCode.isFailure()) {
 		return FALSE;
 	}
 	// Strip trailing CR/LF, comments, and spaces.
-	const UChar * comment = u_memchr(line, 0x23, lineLength); // '#'
+	const char16_t * comment = u_memchr(line, 0x23, lineLength); // '#'
 	if(comment != NULL) {
 		lineLength = (int32_t)(comment - line);
 	}
@@ -454,7 +454,7 @@ int main(int argc, char ** argv)
 		}
 	}
 	else {
-		UCharsTrie::Iterator it((const UChar *)outData, outDataSize, status);
+		UCharsTrie::Iterator it((const char16_t *)outData, outDataSize, status);
 		while(it.hasNext()) {
 			it.next(status);
 			const UnicodeString s = it.getString();

@@ -405,19 +405,19 @@ static void add_shorthand_border(fz_css_match * match, fz_css_value * value, int
 			if(L) add_property(match, PRO_BORDER_LEFT_COLOR, value, spec);
 		}
 		else if(value->type == CSS_KEYWORD) {
-			if(keyword_in_list(value->data, border_width_kw, nelem(border_width_kw))) {
+			if(keyword_in_list(value->data, border_width_kw, SIZEOFARRAY(border_width_kw))) {
 				if(T) add_property(match, PRO_BORDER_TOP_WIDTH, value, spec);
 				if(R) add_property(match, PRO_BORDER_RIGHT_WIDTH, value, spec);
 				if(B) add_property(match, PRO_BORDER_BOTTOM_WIDTH, value, spec);
 				if(L) add_property(match, PRO_BORDER_LEFT_WIDTH, value, spec);
 			}
-			else if(keyword_in_list(value->data, border_style_kw, nelem(border_style_kw))) {
+			else if(keyword_in_list(value->data, border_style_kw, SIZEOFARRAY(border_style_kw))) {
 				if(T) add_property(match, PRO_BORDER_TOP_STYLE, value, spec);
 				if(R) add_property(match, PRO_BORDER_RIGHT_STYLE, value, spec);
 				if(B) add_property(match, PRO_BORDER_BOTTOM_STYLE, value, spec);
 				if(L) add_property(match, PRO_BORDER_LEFT_STYLE, value, spec);
 			}
-			else if(keyword_in_list(value->data, color_kw, nelem(color_kw))) {
+			else if(keyword_in_list(value->data, color_kw, SIZEOFARRAY(color_kw))) {
 				if(T) add_property(match, PRO_BORDER_TOP_COLOR, value, spec);
 				if(R) add_property(match, PRO_BORDER_RIGHT_COLOR, value, spec);
 				if(B) add_property(match, PRO_BORDER_BOTTOM_COLOR, value, spec);
@@ -438,10 +438,10 @@ static void add_shorthand_list_style(fz_css_match * match, fz_css_value * value,
 {
 	while(value) {
 		if(value->type == CSS_KEYWORD) {
-			if(keyword_in_list(value->data, list_style_type_kw, nelem(list_style_type_kw))) {
+			if(keyword_in_list(value->data, list_style_type_kw, SIZEOFARRAY(list_style_type_kw))) {
 				add_property(match, PRO_LIST_STYLE_TYPE, value, spec);
 			}
-			else if(keyword_in_list(value->data, list_style_position_kw, nelem(list_style_position_kw))) {
+			else if(keyword_in_list(value->data, list_style_position_kw, SIZEOFARRAY(list_style_position_kw))) {
 				add_property(match, PRO_LIST_STYLE_POSITION, value, spec);
 			}
 		}

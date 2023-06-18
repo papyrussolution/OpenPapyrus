@@ -101,7 +101,7 @@ u_parseCodePoints(const char *s,
 
 /**
  * Parse a list of code points like 0061 0308 0300
- * into a UChar * string.
+ * into a char16_t * string.
  * s must end with either ';' or NUL.
  *
  * Set the first code point in *pFirst.
@@ -116,7 +116,7 @@ u_parseCodePoints(const char *s,
  */
 U_CAPI int32_t U_EXPORT2
 u_parseString(const char *s,
-              UChar *dest, int32_t destCapacity,
+              char16_t *dest, int32_t destCapacity,
               uint32_t *pFirst,
               UErrorCode *pErrorCode);
 

@@ -37659,7 +37659,7 @@ public:
 	TSessionPacket();
 	TSessionPacket(const TSessionPacket & rS);
 	TSessionPacket & FASTCALL operator = (const TSessionPacket & rS);
-	void   destroy();
+	TSessionPacket & Z();
 
 	enum {
 		fLinesInited = 0x0001 // Пакет содержит валидный список строк Lines. Как правило, управление строками
@@ -37675,6 +37675,8 @@ public:
 	PPProcessorPacket::ExtBlock Ext; // Некоторые параметры процессора могут быть переопределены в этом блоке.
 		// Кроме того, здесь же хранится подробное описание сессии.
 	//SString SMemo; // @v11.0.4 (replacement of TSessionTbl::Rec::Memo)
+	double OuterTimingPrice; // @v11.7.6 @transient Цена временной сессии, передаваемая из внешнего источника.
+		// Используется для форсированной установки цены в автомитически формируемых временных строках.
 };
 //
 //
@@ -37685,6 +37687,12 @@ public:
 		PPID   SuperSessID;
 		PPID   PrcID;
 		int    Kind; // TSESK_XXX (0 - any sessions, 1 - super sessions only, 2 - plans, 3 - idle)
+	};
+	struct WrOffAttrib {
+		PPID   ArID;
+		PPID   Ar2ID;
+		PPID   AgentID;
+		PPID   SCardID;
 	};
 	static int  FASTCALL ReadConfig(PPTSessConfig *);
 	static int  FASTCALL WriteConfig(PPTSessConfig *, int use_ta); // @vmiller
@@ -37753,6 +37761,7 @@ public:
 	//     измерения, соответствующая товару).
 	//
 	int    IsTimingTech(const TechTbl::Rec * pTechRec, double * pBaseRatio);
+	int    IsTimingSess(const TSessionTbl::Rec * pRec, long * pTiming, double * pQtty); // @v11.7.6
 	int    CheckPossibilityToInsertLine(const TSessionTbl::Rec & rSessRec);
 	int    AdjustTiming(const TSessionTbl::Rec & rSessRec, const STimeChunk & rChunk, STimeChunk & rResult, long * pTiming);
 	int    GetPrc(PPID prcID, ProcessorTbl::Rec *, int withInheritance, int useCache = 0);
@@ -37907,6 +37916,10 @@ public:
 	//
 	int    InductSuperSess(TSessionTbl::Rec * pRec);
 	//
+	// Descr: Вспомогательная функция определяющая цену товара goodsID, применяемую для строки сессии.
+	//
+	int    GetGoodsPrice(PPID goodsID, PPID locID, PPID scardID, PPObjTSession::WrOffAttrib * pWrOffAttr, double outerPrice, double * pPrice, double * pDiscount);
+	//
 	// Descr: инициализирует поле GoodsID строки техн сессии.
 	//   Пытается определить знак операции и, если операция выхода, то
 	//   присваивает строке уникальный серийный номер.
@@ -38035,13 +38048,6 @@ public:
 	//   0  - ошибка
 	//
 	int    SetupDiscount(PPID sessID, int pct, double discount, int use_ta);
-
-	struct WrOffAttrib {
-		PPID   ArID;
-		PPID   Ar2ID;
-		PPID   AgentID;
-		PPID   SCardID;
-	};
 	int    GetWrOffAttrib(const TSessionTbl::Rec * pRec, WrOffAttrib * pAttr);
 	//
 	// Descr: Вызывает кассовую панель, которая автоматически создаст пакет

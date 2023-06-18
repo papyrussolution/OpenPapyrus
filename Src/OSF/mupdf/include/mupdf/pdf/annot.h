@@ -1,8 +1,7 @@
 #ifndef MUPDF_PDF_ANNOT_H
 #define MUPDF_PDF_ANNOT_H
 
-enum pdf_annot_type
-{
+enum pdf_annot_type {
 	PDF_ANNOT_TEXT,
 	PDF_ANNOT_LINK,
 	PDF_ANNOT_FREE_TEXT,

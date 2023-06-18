@@ -2401,7 +2401,7 @@ int32 DL6ICLS_PPViewTSession::GetTotal(PPYVIEWTOTAL total)
 int PPObjTSession::ConvertPacket(const UhttTSessionPacket * pSrc, long flags, TSessionPacket & rDest)
 {
 	int    ok = 1;
-	rDest.destroy();
+	rDest.Z();
 	if(pSrc) {
 		uint   i;
 		PPObjTag tag_obj;

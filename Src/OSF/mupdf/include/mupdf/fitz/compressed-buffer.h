@@ -4,8 +4,7 @@
 	Compression parameters used for buffers of compressed data;
 	typically for the source data for images.
 */
-typedef struct
-{
+typedef struct {
 	int type;
 	union {
 		struct {
@@ -28,16 +27,13 @@ typedef struct
 			int black_is_1;
 			int damaged_rows_before_error;
 		} fax;
-		struct
-		{
+		struct {
 			int columns;
 			int colors;
 			int predictor;
 			int bpc;
-		}
-		flate;
-		struct
-		{
+		} flate;
+		struct {
 			int columns;
 			int colors;
 			int predictor;
@@ -51,8 +47,7 @@ typedef struct
 	Buffers of compressed data; typically for the source data
 	for images.
 */
-typedef struct
-{
+typedef struct {
 	fz_compression_params params;
 	fz_buffer *buffer;
 } fz_compressed_buffer;

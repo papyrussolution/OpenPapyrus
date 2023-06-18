@@ -66,7 +66,7 @@ static const UDataInfo dataInfo = {
 
 	U_IS_BIG_ENDIAN,
 	U_CHARSET_FAMILY,
-	sizeof(UChar),
+	sizeof(char16_t),
 	0,
 
 	{0x43, 0x76, 0x41, 0x6c}, /* dataFormat="CvAl" */

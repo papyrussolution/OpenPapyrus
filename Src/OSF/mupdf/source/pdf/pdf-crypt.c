@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 
 enum {
 	PDF_CRYPT_NONE,
@@ -1093,13 +1093,13 @@ static void pdf_compute_user_password_r6(fz_context * ctx,
 	fz_aes aes;
 
 	/* Step a) - Generate random salts. */
-	fz_memrnd(ctx, validationsalt, nelem(validationsalt));
-	fz_memrnd(ctx, keysalt, nelem(keysalt));
+	fz_memrnd(ctx, validationsalt, SIZEOFARRAY(validationsalt));
+	fz_memrnd(ctx, keysalt, SIZEOFARRAY(keysalt));
 
 	/* Step a) - Compute 32 byte hash given password and validation salt. */
 	pdf_compute_hardened_hash_r6(ctx, password, pwlen, validationsalt, NULL, outputpw);
-	memcpy(outputpw + 32, validationsalt, nelem(validationsalt));
-	memcpy(outputpw + 40, keysalt, nelem(keysalt));
+	memcpy(outputpw + 32, validationsalt, SIZEOFARRAY(validationsalt));
+	memcpy(outputpw + 40, keysalt, SIZEOFARRAY(keysalt));
 	/* Step b) - Compute 32 byte hash given password and user salt. */
 	pdf_compute_hardened_hash_r6(ctx, password, pwlen, keysalt, NULL, hash);
 	/* Step b) - Use hash as AES-key when encrypting the file encryption key. */
@@ -1119,12 +1119,12 @@ static void pdf_compute_owner_password_r6(fz_context * ctx, pdf_crypt * crypt, u
 	uchar iv[16];
 	fz_aes aes;
 	/* Step a) - Generate random salts. */
-	fz_memrnd(ctx, validationsalt, nelem(validationsalt));
-	fz_memrnd(ctx, keysalt, nelem(keysalt));
+	fz_memrnd(ctx, validationsalt, SIZEOFARRAY(validationsalt));
+	fz_memrnd(ctx, keysalt, SIZEOFARRAY(keysalt));
 	/* Step a) - Compute 32 byte hash given owner password, validation salt and user password. */
 	pdf_compute_hardened_hash_r6(ctx, password, pwlen, validationsalt, crypt->u, outputpw);
-	memcpy(outputpw + 32, validationsalt, nelem(validationsalt));
-	memcpy(outputpw + 40, keysalt, nelem(keysalt));
+	memcpy(outputpw + 32, validationsalt, SIZEOFARRAY(validationsalt));
+	memcpy(outputpw + 40, keysalt, SIZEOFARRAY(keysalt));
 	/* Step b) - Compute 32 byte hash given owner password, user salt and user password. */
 	pdf_compute_hardened_hash_r6(ctx, password, pwlen, keysalt, crypt->u, hash);
 	/* Step b) - Use hash as AES-key when encrypting the file encryption key. */
@@ -1208,7 +1208,7 @@ pdf_crypt * pdf_new_encrypt(fz_context * ctx, const char * opwd_utf8, const char
 	}
 	else if(crypt->r == 6) {
 		/* 7.6.4.4.1 states that the file encryption key are 256 random bits. */
-		fz_memrnd(ctx, crypt->key, nelem(crypt->key));
+		fz_memrnd(ctx, crypt->key, SIZEOFARRAY(crypt->key));
 		pdf_compute_user_password_r6(ctx, crypt, upwd, upwdlen, crypt->u, crypt->ue);
 		pdf_compute_owner_password_r6(ctx, crypt, opwd, opwdlen, crypt->o, crypt->oe);
 		pdf_compute_permissions_r6(ctx, crypt, crypt->perms);

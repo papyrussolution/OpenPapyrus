@@ -188,14 +188,12 @@ int ImportPo_construction(const char * pFileName, PoBlock & rBlk)
 			state = stateMsgId;
 			last_msgid_buf.Z();
 			last_msgstr_buf.Z();
-			size_t _p = pfxlen_msgid;
-			line_buf.GetQStr(&_p, 0, last_msgid_buf);
+			ReadQuotedString(line_buf.cptr()+pfxlen_msgid, line_buf.Len()-pfxlen_msgid, QSF_ESCAPE|QSF_SKIPUNTILQ, 0, last_msgid_buf);
 		}
 		else if(line_buf.HasPrefixIAscii(p_pfx_msgstr)) {
 			if(state == stateMsgId) {
 				state = stateMsgStr;
-				size_t _p = pfxlen_msgstr;
-				line_buf.GetQStr(&_p, 0, last_msgstr_buf);
+				ReadQuotedString(line_buf.cptr()+pfxlen_msgstr, line_buf.Len()-pfxlen_msgstr, QSF_ESCAPE|QSF_SKIPUNTILQ, 0, last_msgid_buf);
 			}
 			else {
 				// @error
@@ -204,7 +202,7 @@ int ImportPo_construction(const char * pFileName, PoBlock & rBlk)
 		else if(line_buf.C(0) == '\"') {
 			SString * p_dest_buf = (state == stateMsgId) ? &last_msgid_buf : ((state == stateMsgStr) ? &last_msgstr_buf : 0);
 			if(p_dest_buf) {
-				const int gqsr = line_buf.GetQStr(0, 0, temp_buf);
+				const int gqsr = ReadQuotedString(line_buf.cptr(), line_buf.Len(), QSF_ESCAPE|QSF_SKIPUNTILQ, 0, temp_buf);
 				if(gqsr > 0)
 					p_dest_buf->Cat(temp_buf);
 			}

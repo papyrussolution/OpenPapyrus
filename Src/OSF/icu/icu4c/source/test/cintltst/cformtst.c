@@ -70,9 +70,9 @@ void addFormatTest(TestNode** root)
 
 /*Internal functions used*/
 
-UChar * myDateFormat(UDateFormat* dat, UDate d1)
+char16_t * myDateFormat(UDateFormat* dat, UDate d1)
 {
-	UChar * result1 = NULL;
+	char16_t * result1 = NULL;
 	int32_t resultlength, resultlengthneeded;
 	UErrorCode status = U_ZERO_ERROR;
 
@@ -81,7 +81,7 @@ UChar * myDateFormat(UDateFormat* dat, UDate d1)
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
 		resultlength = resultlengthneeded+1;
-		result1 = (UChar *)ctst_malloc(sizeof(UChar) * resultlength);
+		result1 = (char16_t *)ctst_malloc(sizeof(char16_t) * resultlength);
 		udat_format(dat, d1, result1, resultlength, NULL, &status);
 	}
 	if(U_FAILURE(status)) {

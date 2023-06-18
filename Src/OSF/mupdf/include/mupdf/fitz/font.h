@@ -38,13 +38,11 @@ const char *fz_glyph_name_from_unicode_sc(int unicode);
 	An abstract font handle.
 */
 typedef struct fz_font fz_font;
-
 /**
 	Fonts come in two variants:
 	Regular fonts are handled by FreeType.
 	Type 3 fonts have callbacks to the interpreter.
 */
-
 /**
 	Retrieve the FT_Face handle
 	for the font.
@@ -75,15 +73,13 @@ enum { FZ_ADOBE_CNS, FZ_ADOBE_GB, FZ_ADOBE_JAPAN, FZ_ADOBE_KOREA };
 	Every fz_font carries a set of flags
 	within it, in a fz_font_flags_t structure.
 */
-typedef struct
-{
+typedef struct {
 	uint is_mono : 1;
 	uint is_serif : 1;
 	uint is_bold : 1;
 	uint is_italic : 1;
 	uint ft_substitute : 1; /* use substitute metrics */
 	uint ft_stretch : 1; /* stretch to match PDF metrics */
-
 	uint fake_bold : 1; /* synthesize bold */
 	uint fake_italic : 1; /* synthesize italic */
 	uint has_opentype : 1; /* has opentype shaping tables */
@@ -110,8 +106,7 @@ fz_font_flags_t *fz_font_flags(fz_font *font);
 	first required and the destructor is called when the fz_font is
 	destroyed.
 */
-typedef struct
-{
+typedef struct {
 	void *shaper_handle;
 	void (*destroy)(fz_context *ctx, void *); /* Destructor for shape_handle */
 } fz_shaper_data_t;

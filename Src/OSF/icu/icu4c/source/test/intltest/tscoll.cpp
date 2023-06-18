@@ -87,9 +87,9 @@ void IntlTestCollator::runIndexedTest(int32_t index, bool exec, const char *& na
 }
 
 UCollationResult IntlTestCollator::compareUsingPartials(UCollator * coll,
-    const UChar source[],
+    const char16_t source[],
     int32_t sLen,
-    const UChar target[],
+    const char16_t target[],
     int32_t tLen,
     int32_t pieceSize,
     UErrorCode & status) {
@@ -151,8 +151,8 @@ void IntlTestCollator::doTestVariant(Collator* col,
 	UColAttributeValue norm = ucol_getAttribute(myCollation, UCOL_NORMALIZATION_MODE, &status);
 
 	int32_t sLen = source.length(), tLen = target.length();
-	const UChar * src = source.getBuffer();
-	const UChar * trg = target.getBuffer();
+	const char16_t * src = source.getBuffer();
+	const char16_t * trg = target.getBuffer();
 	UCollationResult compareResultIter = (UCollationResult)result;
 
 	{
@@ -254,7 +254,7 @@ void IntlTestCollator::doTestVariant(Collator* col,
  */
 }
 
-void IntlTestCollator::doTest(Collator* col, const UChar * source, const UChar * target, Collator::EComparisonResult result) {
+void IntlTestCollator::doTest(Collator* col, const char16_t * source, const char16_t * target, Collator::EComparisonResult result) {
 	doTest(col, UnicodeString(source), UnicodeString(target), result);
 }
 

@@ -1268,15 +1268,12 @@ int SCardCore::GetRest(PPID id, LDATE dt, double * pRest)
 	k0.SCardID = id;
 	k0.Dt = NZOR(dt, MAXDATE);
 	k0.Tm = MAXTIME;
-	// @v8.6.8 double rest = (ScOp.search(0, &k0, spLe) && k0.SCardID == id) ? ScOp.data.Rest : 0.0;
-	// @v8.6.8 {
 	if(ScOp.search(0, &k0, spLe) && ScOp.data.SCardID == id) do {
 		if(!(ScOp.data.Flags & SCARDOPF_FREEZING)) {
 			rest = ScOp.data.Rest;
 			break;
 		}
 	} while(ScOp.search(0, &k0, spPrev) && ScOp.data.SCardID == id);
-	// } @v8.6.8
 	ASSIGN_PTR(pRest, rest);
 	return ok;
 }

@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 
 static void pdf_run_glyph_func(fz_context * ctx, void * doc, void * rdb, fz_buffer * contents,
     fz_device * dev, fz_matrix ctm, void * gstate, fz_default_colorspaces * default_cs)
@@ -89,7 +89,7 @@ pdf_font_desc * pdf_load_type3_font(fz_context * ctx, pdf_document * doc, pdf_ob
 					item = pdf_array_get(ctx, diff, i);
 					if(pdf_is_int(ctx, item))
 						k = pdf_to_int(ctx, item);
-					if(pdf_is_name(ctx, item) && k >= 0 && k < (int)nelem(estrings))
+					if(pdf_is_name(ctx, item) && k >= 0 && k < SIZEOFARRAYi(estrings))
 						estrings[k++] = pdf_to_name(ctx, item);
 				}
 			}

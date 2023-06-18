@@ -1504,22 +1504,21 @@ int main(int argc, char ** argv)
 	output_cs = suffix_table[0].cs;
 	if(format) {
 		int i;
-
-		for(i = 0; i < (int)nelem(suffix_table); i++) {
+		for(i = 0; i < SIZEOFARRAYi(suffix_table); i++) {
 			if(!strcmp(format, suffix_table[i].suffix+1)) {
 				output_format = suffix_table[i].format;
 				output_cs = suffix_table[i].cs;
 				break;
 			}
 		}
-		if(i == (int)nelem(suffix_table)) {
+		if(i == SIZEOFARRAYi(suffix_table)) {
 			slfprintf_stderr("Unknown output format '%s'\n", format);
 			exit(1);
 		}
 	}
 	else if(output) {
 		char * suffix = output;
-		for(int i = 0; i < (int)nelem(suffix_table); i++) {
+		for(int i = 0; i < SIZEOFARRAYi(suffix_table); i++) {
 			char * s = strstr(suffix, suffix_table[i].suffix);
 			if(s) {
 				suffix = s+1;

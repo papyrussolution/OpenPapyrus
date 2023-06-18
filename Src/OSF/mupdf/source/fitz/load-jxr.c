@@ -281,12 +281,12 @@ static void jxr_read_image(fz_context * ctx, const uchar * data, int size, struc
 
 		info->format = jxrc_image_pixelformat(container, 0);
 
-		for(i = 0; i < nelem(pixelformats); i++)
+		for(i = 0; i < SIZEOFARRAY(pixelformats); i++)
 			if(pixelformats[i].format == info->format) {
 				info->comps = pixelformats[i].comps;
 				break;
 			}
-		if(i == nelem(pixelformats))
+		if(i == SIZEOFARRAY(pixelformats))
 			fz_throw(ctx, FZ_ERROR_GENERIC, "unsupported pixel format: %u", info->format);
 
 		if(info->comps == 1)

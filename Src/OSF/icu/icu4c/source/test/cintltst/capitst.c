@@ -174,7 +174,7 @@ static void doAssert(int condition, const char * message)
 
 #define UTF8_BUF_SIZE 128
 
-static void doStrcoll(const UCollator* coll, const UChar * src, int32_t srcLen, const UChar * tgt, int32_t tgtLen,
+static void doStrcoll(const UCollator* coll, const char16_t * src, int32_t srcLen, const char16_t * tgt, int32_t tgtLen,
     UCollationResult expected, const char * message) {
 	UErrorCode err = U_ZERO_ERROR;
 	char srcU8[UTF8_BUF_SIZE], tgtU8[UTF8_BUF_SIZE];
@@ -221,7 +221,7 @@ void TestGetDefaultRules() {
 	UResourceBundle * binColl = NULL;
 	uint8_t * binResult = NULL;
 
-	const UChar * defaultRulesArray = ucol_getDefaultRulesArray(&size);
+	const char16_t * defaultRulesArray = ucol_getDefaultRulesArray(&size);
 	log_verbose("Test the function ucol_getDefaultRulesArray()\n");
 
 	coll = ucol_openRules(defaultRulesArray, size, UCOL_ON, UCOL_PRIMARY, &status);
@@ -267,10 +267,10 @@ void TestGetDefaultRules() {
 void TestProperty()
 {
 	UCollator * col, * ruled;
-	const UChar * rules;
-	UChar * disName;
+	const char16_t * rules;
+	char16_t * disName;
 	int32_t len = 0;
-	UChar source[12], target[12];
+	char16_t source[12], target[12];
 	int32_t tempLength;
 	UErrorCode status = U_ZERO_ERROR;
 	/*
@@ -359,7 +359,7 @@ void TestProperty()
 	len = ucol_getDisplayName("en_US", "de_DE", NULL, 0,  &status);
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
-		disName = (UChar *)SAlloc::M(sizeof(UChar) * (len+1));
+		disName = (char16_t *)SAlloc::M(sizeof(char16_t) * (len+1));
 		ucol_getDisplayName("en_US", "de_DE", disName, len+1,  &status);
 		log_verbose("the display name for default collation in german: %s\n", austrdup(disName));
 		SAlloc::F(disName);
@@ -382,13 +382,13 @@ void TestProperty()
 		log_data_err("missing da_DK tailoring rule string\n");
 	}
 	else {
-		UChar aa[2] = { 0x61, 0x61 };
+		char16_t aa[2] = { 0x61, 0x61 };
 		doAssert(u_strFindFirst(rules, tempLength, aa, 2) != NULL,
 		    "da_DK rules do not contain 'aa'");
 	}
 	log_verbose("getRules tests end.\n");
 	{
-		UChar * buffer = (UChar *)SAlloc::M(200000*sizeof(UChar));
+		char16_t * buffer = (char16_t *)SAlloc::M(200000*sizeof(char16_t));
 		int32_t bufLen = 200000;
 		buffer[0] = '\0';
 		log_verbose("ucol_getRulesEx() testing ...\n");
@@ -429,7 +429,7 @@ void TestProperty()
 	len = ucol_getDisplayName("fr_FR", "en_US", NULL, 0,  &status);
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
-		disName = (UChar *)SAlloc::M(sizeof(UChar) * (len+1));
+		disName = (char16_t *)SAlloc::M(sizeof(char16_t) * (len+1));
 		ucol_getDisplayName("fr_FR", "en_US", disName, len+1,  &status);
 		log_verbose("the display name for french collation in english: %s\n", austrdup(disName));
 		SAlloc::F(disName);
@@ -446,10 +446,10 @@ void TestRuleBasedColl()
 {
 	UCollator * col1, * col2, * col3, * col4;
 	UCollationElements * iter1, * iter2;
-	UChar ruleset1[60];
-	UChar ruleset2[50];
-	UChar teststr[10];
-	const UChar * rule1, * rule2, * rule3, * rule4;
+	char16_t ruleset1[60];
+	char16_t ruleset2[50];
+	char16_t teststr[10];
+	const char16_t * rule1, * rule2, * rule3, * rule4;
 	int32_t tempLength;
 	UErrorCode status = U_ZERO_ERROR;
 	u_uastrcpy(ruleset1, "&9 < a, A < b, B < c, C; ch, cH, Ch, CH < d, D, e, E");
@@ -557,8 +557,8 @@ void TestCompare()
 {
 	UErrorCode status = U_ZERO_ERROR;
 	UCollator * col;
-	UChar * test1;
-	UChar * test2;
+	char16_t * test1;
+	char16_t * test2;
 
 	log_verbose("The compare tests begin : \n");
 	status = U_ZERO_ERROR;
@@ -567,8 +567,8 @@ void TestCompare()
 		log_err_status(status, "ucal_open() collation creation failed.: %s\n", myErrorName(status));
 		return;
 	}
-	test1 = (UChar *)SAlloc::M(sizeof(UChar) * 6);
-	test2 = (UChar *)SAlloc::M(sizeof(UChar) * 6);
+	test1 = (char16_t *)SAlloc::M(sizeof(char16_t) * 6);
+	test2 = (char16_t *)SAlloc::M(sizeof(char16_t) * 6);
 	u_uastrcpy(test1, "Abcda");
 	u_uastrcpy(test2, "abcda");
 
@@ -639,10 +639,10 @@ void TestDecomposition() {
 #define CLONETEST_COLLATOR_COUNT 4
 
 void TestSafeClone() {
-	UChar test1[6];
-	UChar test2[6];
-	static const UChar umlautUStr[] = {0x00DC, 0};
-	static const UChar oeStr[] = {0x0055, 0x0045, 0};
+	char16_t test1[6];
+	char16_t test2[6];
+	static const char16_t umlautUStr[] = {0x00DC, 0};
+	static const char16_t oeStr[] = {0x0055, 0x0045, 0};
 	UCollator * someCollators [CLONETEST_COLLATOR_COUNT];
 	UCollator * someClonedCollators [CLONETEST_COLLATOR_COUNT];
 	UCollator * col;
@@ -651,7 +651,7 @@ void TestSafeClone() {
 	uint8_t buffer [CLONETEST_COLLATOR_COUNT] [U_COL_SAFECLONE_BUFFERSIZE];
 	int32_t bufferSize = U_COL_SAFECLONE_BUFFERSIZE;
 	const char sampleRuleChars[] = "&Z < CH";
-	UChar sampleRule[sizeof(sampleRuleChars)];
+	char16_t sampleRule[sizeof(sampleRuleChars)];
 
 	u_uastrcpy(test1, "abCda");
 	u_uastrcpy(test2, "abcda");
@@ -822,7 +822,7 @@ void TestCloneBinary() {
 		log_err("ucol_openBinary failed. Error: %s\n", u_errorName(err));
 	}
 	else {
-		UChar t[] = {0x41, 0x42, 0x43, 0}; /* ABC */
+		char16_t t[] = {0x41, 0x42, 0x43, 0}; /* ABC */
 		uint8_t * k1, * k2;
 		int l1, l2;
 		l1 = ucol_getSortKey(col, t, -1, NULL, 0);
@@ -845,10 +845,10 @@ void TestCloneBinary() {
 static void TestBengaliSortKey(void)
 {
 	const char * curLoc = "bn";
-	UChar str1[] = { 0x09BE, 0 };
-	UChar str2[] = { 0x0B70, 0 };
+	char16_t str1[] = { 0x09BE, 0 };
+	char16_t str2[] = { 0x0B70, 0 };
 	UCollator * c2 = NULL;
-	const UChar * rules;
+	const char16_t * rules;
 	int32_t rulesLength = -1;
 	uint8_t * sortKey1;
 	int32_t sortKeyLen1 = 0;
@@ -861,7 +861,7 @@ static void TestBengaliSortKey(void)
 	uint32_t sortKeyStrLen2 = SIZEOFARRAYi(sortKeyStr2);
 	UCollationResult result;
 
-	static UChar preRules[41] =
+	static char16_t preRules[41] =
 	{ 0x26, 0x9fa, 0x3c, 0x98c, 0x3c, 0x9e1, 0x3c, 0x98f, 0x3c, 0x990, 0x3c, 0x993, 0x3c, 0x994, 0x3c, 0x9bc, 0x3c, 0x982, 0x3c,
 	      0x983, 0x3c, 0x981, 0x3c, 0x9b0, 0x3c, 0x9b8, 0x3c, 0x9b9, 0x3c, 0x9bd, 0x3c, 0x9be, 0x3c, 0x9bf, 0x3c, 0x9c8, 0x3c,
 	      0x9cb, 0x3d, 0x9cb, 0};
@@ -913,12 +913,12 @@ void TestOpenVsOpenRules() {
 	int32_t numLocales = uloc_countAvailable();
 	int32_t sizeOfStdSet;
 	uint32_t adder;
-	UChar str[41]; /* create an array of UChar of size maximum strSize + 1 */
+	char16_t str[41]; /* create an array of char16_t of size maximum strSize + 1 */
 	USet * stdSet;
 	char * curLoc;
 	UCollator * c1;
 	UCollator * c2;
-	const UChar * rules;
+	const char16_t * rules;
 	int32_t rulesLength;
 	int32_t sortKeyLen1, sortKeyLen2;
 	uint8_t * sortKey1 = NULL, * sortKey2 = NULL;
@@ -1055,7 +1055,7 @@ void TestSortKey()
 	uint8_t * sortk1 = NULL, * sortk2 = NULL, * sortk3 = NULL, * sortkEmpty = NULL;
 	int32_t sortklen, osortklen;
 	UCollator * col;
-	UChar * test1, * test2, * test3;
+	char16_t * test1, * test2, * test3;
 	UErrorCode status = U_ZERO_ERROR;
 	char toStringBuffer[256], * resultP;
 	uint32_t toStringLen = SIZEOFARRAYi(toStringBuffer);
@@ -1089,13 +1089,13 @@ void TestSortKey()
 	/* Need to use identical strength */
 	ucol_setAttribute(col, UCOL_STRENGTH, UCOL_IDENTICAL, &status);
 
-	test1 = (UChar *)SAlloc::M(sizeof(UChar) * 6);
-	test2 = (UChar *)SAlloc::M(sizeof(UChar) * 6);
-	test3 = (UChar *)SAlloc::M(sizeof(UChar) * 6);
+	test1 = (char16_t *)SAlloc::M(sizeof(char16_t) * 6);
+	test2 = (char16_t *)SAlloc::M(sizeof(char16_t) * 6);
+	test3 = (char16_t *)SAlloc::M(sizeof(char16_t) * 6);
 
-	memset(test1, 0xFE, sizeof(UChar)*6);
-	memset(test2, 0xFE, sizeof(UChar)*6);
-	memset(test3, 0xFE, sizeof(UChar)*6);
+	memset(test1, 0xFE, sizeof(char16_t)*6);
+	memset(test2, 0xFE, sizeof(char16_t)*6);
+	memset(test3, 0xFE, sizeof(char16_t)*6);
 
 	u_uastrcpy(test1, "Abcda");
 	u_uastrcpy(test2, "abcda");
@@ -1192,7 +1192,7 @@ void TestHashCode()
 	uint8_t * sortk1, * sortk2, * sortk3;
 	int32_t sortk1len, sortk2len, sortk3len;
 	UCollator * col;
-	UChar * test1, * test2, * test3;
+	char16_t * test1, * test2, * test3;
 	UErrorCode status = U_ZERO_ERROR;
 	log_verbose("testing getHashCode begins...\n");
 	col = ucol_open("en_US", &status);
@@ -1200,9 +1200,9 @@ void TestHashCode()
 		log_err_status(status, "ERROR: Default collation creation failed.: %s\n", myErrorName(status));
 		return;
 	}
-	test1 = (UChar *)SAlloc::M(sizeof(UChar) * 6);
-	test2 = (UChar *)SAlloc::M(sizeof(UChar) * 6);
-	test3 = (UChar *)SAlloc::M(sizeof(UChar) * 6);
+	test1 = (char16_t *)SAlloc::M(sizeof(char16_t) * 6);
+	test2 = (char16_t *)SAlloc::M(sizeof(char16_t) * 6);
+	test3 = (char16_t *)SAlloc::M(sizeof(char16_t) * 6);
 	u_uastrcpy(test1, "Abcda");
 	u_uastrcpy(test2, "abcda");
 	u_uastrcpy(test3, "abcda");
@@ -1243,7 +1243,7 @@ void TestElemIter()
 {
 	int32_t offset;
 	int32_t order1, order2, order3;
-	UChar * testString1, * testString2;
+	char16_t * testString1, * testString2;
 	UCollator * col;
 	UCollationElements * iterator1, * iterator2, * iterator3;
 	UErrorCode status = U_ZERO_ERROR;
@@ -1255,8 +1255,8 @@ void TestElemIter()
 		return;
 	}
 
-	testString1 = (UChar *)SAlloc::M(sizeof(UChar) * 150);
-	testString2 = (UChar *)SAlloc::M(sizeof(UChar) * 150);
+	testString1 = (char16_t *)SAlloc::M(sizeof(char16_t) * 150);
+	testString2 = (char16_t *)SAlloc::M(sizeof(char16_t) * 150);
 	u_uastrcpy(testString1, "XFILE What subset of all possible test cases has the highest probability of detecting the most errors?");
 	u_uastrcpy(testString2, "Xf_ile What subset of all possible test cases has the lowest probability of detecting the least errors?");
 
@@ -1379,7 +1379,7 @@ void TestElemIter()
 void TestGetLocale() {
 	UErrorCode status = U_ZERO_ERROR;
 	const char * rules = "&a<x<y<z";
-	UChar rlz[256] = {0};
+	char16_t rlz[256] = {0};
 	uint32_t rlzLen = u_unescape(rules, rlz, 256);
 
 	UCollator * coll = NULL;
@@ -1519,7 +1519,7 @@ void TestBounds() {
 	UCollator * coll = ucol_open("sh", &status);
 
 	uint8_t sortkey[512], lower[512], upper[512];
-	UChar buffer[512];
+	char16_t buffer[512];
 
 	static const char * const test[] = {
 		"John Smith",
@@ -1663,7 +1663,7 @@ void TestBounds() {
 	}
 }
 
-static void doOverrunTest(UCollator * coll, const UChar * uString, int32_t strLen) {
+static void doOverrunTest(UCollator * coll, const char16_t * uString, int32_t strLen) {
 	int32_t skLen = 0, skLen2 = 0;
 	uint8_t sortKey[256];
 	int32_t i, j;
@@ -1693,7 +1693,7 @@ static void doOverrunTest(UCollator * coll, const UChar * uString, int32_t strLe
 void TestSortKeyBufferOverrun() {
 	UErrorCode status = U_ZERO_ERROR;
 	const char * cString = "A very Merry liTTle-lamB..";
-	UChar uString[256];
+	char16_t uString[256];
 	int32_t strLen = 0;
 	UCollator * coll = ucol_open("root", &status);
 	strLen = u_unescape(cString, uString, 256);
@@ -1838,7 +1838,7 @@ void TestGetTailoredSet() {
 	UParseError pError;
 
 	UCollator * coll = NULL;
-	UChar buff[1024];
+	char16_t buff[1024];
 	int32_t buffLen = 0;
 	USet * set = NULL;
 
@@ -1899,7 +1899,7 @@ void TestMergeSortKeys() {
 		uint32_t * sortKeysLen = (uint32_t*)SAlloc::M(casesSize*sizeof(uint32_t));
 		uint8_t prefixKey[256], suffixKey[256];
 		uint32_t prefixKeyLen = 0, suffixKeyLen = 0, i = 0;
-		UChar buffer[256];
+		char16_t buffer[256];
 		uint32_t unescapedLen = 0, l1 = 0, l2 = 0;
 		UColAttributeValue strength;
 
@@ -1957,7 +1957,7 @@ void TestMergeSortKeys() {
 			}
 		}
 		{
-			UChar empty = 0;
+			char16_t empty = 0;
 			uint8_t emptyKey[20], abcKey[50], mergedKey[100];
 			int32_t emptyKeyLen = 0, abcKeyLen = 0, mergedKeyLen = 0;
 
@@ -2097,7 +2097,7 @@ static void TestShortString(void)
 }
 
 static void doSetsTest(const char * locale, const USet * ref, USet * set, const char * inSet, const char * outSet, UErrorCode * status) {
-	UChar buffer[65536];
+	char16_t buffer[65536];
 	int32_t bufLen;
 
 	uset_clear(set);
@@ -2189,7 +2189,7 @@ static void TestGetContractionsAndUnsafes(void)
 	USet * exp = uset_open(0, 0);
 	USet * set  = uset_open(0, 0);
 	int32_t setBufferLen = 65536;
-	UChar buffer[65536];
+	char16_t buffer[65536];
 	int32_t setLen = 0;
 
 	for(i = 0; i < SIZEOFARRAYi(tests); i++) {
@@ -2270,7 +2270,7 @@ static void TestOpenBinary(void)
 	                                                                                               dje */
 #endif
 
-	UChar uRules[256];
+	char16_t uRules[256];
 	int32_t uRulesLen = u_unescape(rule, uRules, 256);
 
 	UCollator * coll = ucol_openRules(uRules, uRulesLen, UCOL_DEFAULT, UCOL_DEFAULT, NULL, &status);
@@ -2443,9 +2443,9 @@ static void TestStrcollNull()
 {
 	UErrorCode status = U_ZERO_ERROR;
 	UCollator * coll;
-	const UChar u16asc[] = {0x0049, 0x0042, 0x004D, 0};
+	const char16_t u16asc[] = {0x0049, 0x0042, 0x004D, 0};
 	const int32_t u16ascLen = 3;
-	const UChar u16han[] = {0x5c71, 0x5ddd, 0};
+	const char16_t u16han[] = {0x5c71, 0x5ddd, 0};
 	const int32_t u16hanLen = 2;
 	const char * u8asc = "\x49\x42\x4D";
 	const int32_t u8ascLen = 3;
@@ -2456,7 +2456,7 @@ static void TestStrcollNull()
 		log_err_status(status, "Default Collator creation failed.: %s\n", myErrorName(status));
 		return;
 	}
-	/* UChar API */
+	/* char16_t API */
 	if(ucol_strcoll(coll, NULL, 0, NULL, 0) != 0) {
 		log_err("ERROR : ucol_strcoll NULL/0 and NULL/0");
 	}

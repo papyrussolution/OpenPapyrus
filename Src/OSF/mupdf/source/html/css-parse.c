@@ -141,7 +141,7 @@ static int isnmchar(int c) { return c == '\\' || c == '_' || (c >= 'a' && c <= '
 
 static void css_push_char(struct lexbuf * buf, int c)
 {
-	if(buf->string_len + 1 >= (int)nelem(buf->string))
+	if(buf->string_len + 1 >= SIZEOFARRAYi(buf->string))
 		fz_css_error(buf, "token too long");
 	buf->string[buf->string_len++] = c;
 }
@@ -872,7 +872,7 @@ const char * fz_css_property_name(int key)
 {
 	const char * name = "unknown";
 	size_t i;
-	for(i = 0; i < nelem(css_property_list); ++i)
+	for(i = 0; i < SIZEOFARRAY(css_property_list); ++i)
 		if(*css_property_list[i].name && css_property_list[i].key == key)
 			name = css_property_list[i].name;
 	return name;

@@ -46,14 +46,14 @@ void TestTwoDigitYearDSTParse()
 {
 	UDateFormat * fullFmt, * fmt;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar * pattern;
+	char16_t * pattern;
 	UDate d;
-	UChar * s;
+	char16_t * s;
 	int32_t pos;
 
 	ctest_setTimeZone(NULL, &status);
 
-	pattern = (UChar *)SAlloc::M(sizeof(UChar) * (strlen("EEE MMM dd HH:mm:ss.SSS zzz yyyy G")+1 ));
+	pattern = (char16_t *)SAlloc::M(sizeof(char16_t) * (strlen("EEE MMM dd HH:mm:ss.SSS zzz yyyy G")+1 ));
 	u_uastrcpy(pattern, "EEE MMM dd HH:mm:ss.SSS zzz yyyy G");
 	fullFmt = udat_open(UDAT_PATTERN, UDAT_PATTERN, "en_US", NULL, 0, pattern, u_strlen(pattern), &status);
 	if(U_FAILURE(status)) {
@@ -66,7 +66,7 @@ void TestTwoDigitYearDSTParse()
 		u_uastrcpy(pattern, "dd-MMM-yy h:mm:ss 'o''clock' a z");
 		fmt = udat_open(UDAT_PATTERN, UDAT_PATTERN, "en_US", NULL, 0, pattern, u_strlen(pattern), &status);
 
-		s = (UChar *)SAlloc::M(sizeof(UChar) * (strlen("03-Apr-04 2:20:47 o'clock AM PST")+1));
+		s = (char16_t *)SAlloc::M(sizeof(char16_t) * (strlen("03-Apr-04 2:20:47 o'clock AM PST")+1));
 		u_uastrcpy(s, "03-Apr-04 2:20:47 o'clock AM PST");
 		pos = 0;
 		d = udat_parse(fmt, s, u_strlen(s), &pos, &status);
@@ -109,8 +109,8 @@ void TestPartialParse994()
 	int32_t pos;
 	UDateFormat * f;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar * s;
-	UChar * fmtChars;
+	char16_t * s;
+	char16_t * fmtChars;
 	UDate d, null;
 	null = 0;
 
@@ -122,7 +122,7 @@ void TestPartialParse994()
 		log_data_err("FAIL: ErrorCode received during test: %s (Are you missing data?)\n", myErrorName(status));
 		return;
 	}
-	s = (UChar *)SAlloc::M(sizeof(UChar) * (strlen("01/01/1997 10:11:42 AM")+1));
+	s = (char16_t *)SAlloc::M(sizeof(char16_t) * (strlen("01/01/1997 10:11:42 AM")+1));
 	u_uastrcpy(s, "01/01/1997 10:11:42 AM");
 	pos = 0;
 	d = udat_parse(f, s, u_strlen(s), &pos, &status);
@@ -149,15 +149,15 @@ void TestPartialParse994()
 
 void tryPat994(UDateFormat* format, const char * pattern, const char * s, UDate expected)
 {
-	UChar * f;
-	UChar * str, * pat;
+	char16_t * f;
+	char16_t * str, * pat;
 	UDate date;
 	UDate null = 0;
 	int32_t pos;
 	UErrorCode status = U_ZERO_ERROR;
-	str = (UChar *)SAlloc::M(sizeof(UChar) * (strlen(s) + 1));
+	str = (char16_t *)SAlloc::M(sizeof(char16_t) * (strlen(s) + 1));
 	u_uastrcpy(str, s);
-	pat = (UChar *)SAlloc::M(sizeof(UChar) * (strlen(pattern) + 1));
+	pat = (char16_t *)SAlloc::M(sizeof(char16_t) * (strlen(pattern) + 1));
 	u_uastrcpy(pat, pattern);
 	log_verbose("Pattern : %s ;  String : %s\n", austrdup(pat), austrdup(str));
 	udat_applyPattern(format, FALSE, pat, u_strlen(pat));
@@ -188,11 +188,11 @@ void tryPat994(UDateFormat* format, const char * pattern, const char * s, UDate 
 void TestRunTogetherPattern985()
 {
 	int32_t pos;
-	UChar * pattern = NULL, * now = NULL, * then = NULL;
+	char16_t * pattern = NULL, * now = NULL, * then = NULL;
 	UDateFormat * format;
 	UDate date1, date2;
 	UErrorCode status = U_ZERO_ERROR;
-	pattern = (UChar *)SAlloc::M(sizeof(UChar) * (strlen("yyyyMMddHHmmssSSS")+1));
+	pattern = (char16_t *)SAlloc::M(sizeof(char16_t) * (strlen("yyyyMMddHHmmssSSS")+1));
 	u_uastrcpy(pattern, "yyyyMMddHHmmssSSS");
 	format = udat_open(UDAT_PATTERN, UDAT_PATTERN, NULL, NULL, 0, pattern, u_strlen(pattern), &status);
 	if(U_FAILURE(status)) {
@@ -221,13 +221,13 @@ void TestRunTogetherPattern985()
 void TestCzechMonths459()
 {
 	int32_t lneed, pos;
-	UChar * pattern = NULL, * tzID = NULL;
-	UChar * juneStr, * julyStr;
+	char16_t * pattern = NULL, * tzID = NULL;
+	char16_t * juneStr, * julyStr;
 	UDateFormat * fmt;
 	UCalendar * cal;
 	UDate june, july, d;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar * date;
+	char16_t * date;
 
 	ctest_setTimeZone(NULL, &status);
 	fmt = udat_open(UDAT_FULL, UDAT_FULL, "cs", NULL, 0, NULL, 0, &status);
@@ -240,13 +240,13 @@ void TestCzechMonths459()
 	lneed = udat_toPattern(fmt, TRUE, NULL, lneed, &status);
 	if(status==U_BUFFER_OVERFLOW_ERROR) {
 		status = U_ZERO_ERROR;
-		pattern = (UChar *)SAlloc::M(sizeof(UChar) * (lneed+1));
+		pattern = (char16_t *)SAlloc::M(sizeof(char16_t) * (lneed+1));
 		udat_toPattern(fmt, TRUE, pattern, lneed+1, &status);
 	}
 	if(U_FAILURE(status)) {
 		log_err("Error in extracting the pattern\n");
 	}
-	tzID = (UChar *)SAlloc::M(sizeof(UChar) * 4);
+	tzID = (char16_t *)SAlloc::M(sizeof(char16_t) * 4);
 	u_uastrcpy(tzID, "GMT");
 	cal = ucal_open(tzID, u_strlen(tzID), "cs", UCAL_GREGORIAN, &status);
 	if(U_FAILURE(status)) {
@@ -269,8 +269,8 @@ void TestCzechMonths459()
 	date = myDateFormat(fmt, d);
 
 	if(U_SUCCESS(status)) {
-		UChar * out1 = myDateFormat(fmt, june);
-		UChar * out2 = myDateFormat(fmt, d);
+		char16_t * out1 = myDateFormat(fmt, june);
+		char16_t * out2 = myDateFormat(fmt, d);
 		if(u_strcmp(out1, out2) !=0)
 			log_err("Error in handling the czech month june\n");
 		else
@@ -302,16 +302,16 @@ void TestQuotePattern161()
 	UDateFormat * format = NULL;
 	UCalendar * cal = NULL;
 	UDate currentTime_1;
-	UChar * pattern = NULL;
-	UChar * tzID = NULL;
-	UChar * exp = NULL;
-	UChar * dateString;
+	char16_t * pattern = NULL;
+	char16_t * tzID = NULL;
+	char16_t * exp = NULL;
+	char16_t * dateString;
 	UErrorCode status = U_ZERO_ERROR;
 	const char * expStr = "04/13/1999 at 10:42:28 AM ";
 
 	ctest_setTimeZone(NULL, &status);
 
-	pattern = (UChar *)SAlloc::M(sizeof(UChar) * (strlen("MM/dd/yyyy 'at' hh:mm:ss a zzz")+1));
+	pattern = (char16_t *)SAlloc::M(sizeof(char16_t) * (strlen("MM/dd/yyyy 'at' hh:mm:ss a zzz")+1));
 	u_uastrcpy(pattern, "MM/dd/yyyy 'at' hh:mm:ss a zzz");
 
 	/* this is supposed to open default date format, but later on it treats it like it is "en_US"
@@ -322,7 +322,7 @@ void TestQuotePattern161()
 		log_data_err("error in udat_open: %s - (Are you missing data?)\n", myErrorName(status));
 	}
 	else {
-		tzID = (UChar *)SAlloc::M(sizeof(UChar) * 4);
+		tzID = (char16_t *)SAlloc::M(sizeof(char16_t) * 4);
 		u_uastrcpy(tzID, "PST");
 		/* this is supposed to open default date format, but later on it treats it like it is "en_US"
 		   - very bad if you try to run the tests on machine where default locale is NOT "en_US" */
@@ -336,7 +336,7 @@ void TestQuotePattern161()
 		currentTime_1 = ucal_getMillis(cal, &status);
 
 		dateString = myDateFormat(format, currentTime_1);
-		exp = (UChar *)SAlloc::M(sizeof(UChar) * (strlen(expStr) + 1));
+		exp = (char16_t *)SAlloc::M(sizeof(char16_t) * (strlen(expStr) + 1));
 		u_uastrcpy(exp, expStr);
 
 		log_verbose("%s\n", austrdup(dateString));

@@ -49,12 +49,12 @@
  *         're" is the compiled, ready-to-go  regular expression.
  */
 #define TEST_SETUP(pattern, testString, flags) UPRV_BLOCK_MACRO_BEGIN { \
-		UChar * srcString = NULL;  \
+		char16_t * srcString = NULL;  \
 		status = U_ZERO_ERROR; \
 		re = uregex_openC(pattern, flags, NULL, &status);  \
 		TEST_ASSERT_SUCCESS(status);   \
 		int32_t testStringLen = (int32_t)strlen(testString); \
-		srcString = (UChar *)SAlloc::M( (testStringLen + 2) * sizeof(UChar)); \
+		srcString = (char16_t *)SAlloc::M( (testStringLen + 2) * sizeof(char16_t)); \
 		u_uastrncpy(srcString, testString, testStringLen + 1); \
 		uregex_setText(re, srcString, -1, &status); \
 		TEST_ASSERT_SUCCESS(status);  \
@@ -71,7 +71,7 @@
 /**
  * @param expected utf-8 array of bytes to be expected
  */
-static void test_assert_string(const char * expected, const UChar * actual, bool nulTerm, const char * file, int line) {
+static void test_assert_string(const char * expected, const char16_t * actual, bool nulTerm, const char * file, int line) {
 	char buf_inside_macro[120];
 	int32_t len = (int32_t)strlen(expected);
 	bool success;
@@ -199,8 +199,8 @@ static bool U_EXPORT2 U_CALLCONV TestCallbackFn(const void * context, int32_t st
 static void TestRegexCAPI() {
 	UErrorCode status = U_ZERO_ERROR;
 	URegularExpression  * re;
-	UChar pat[200];
-	UChar               * minus1;
+	char16_t pat[200];
+	char16_t               * minus1;
 
 	memset(&minus1, -1, sizeof(minus1));
 
@@ -250,7 +250,7 @@ static void TestRegexCAPI() {
 
 	/* openC   open from a C string */
 	{
-		const UChar * p;
+		const char16_t * p;
 		int32_t len;
 		status = U_ZERO_ERROR;
 		re = uregex_openC("abc*", 0, 0, &status);
@@ -277,8 +277,8 @@ static void TestRegexCAPI() {
 		URegularExpression * clone1;
 		URegularExpression * clone2;
 		URegularExpression * clone3;
-		UChar testString1[30];
-		UChar testString2[30];
+		char16_t testString1[30];
+		char16_t testString2[30];
 		bool result;
 
 		status = U_ZERO_ERROR;
@@ -328,7 +328,7 @@ static void TestRegexCAPI() {
 	 *  pattern()
 	 */
 	{
-		const UChar  * resultPat;
+		const char16_t  * resultPat;
 		int32_t resultLen;
 		u_uastrncpy(pat, "hello", SIZEOFARRAYi(pat));
 		status = U_ZERO_ERROR;
@@ -390,8 +390,8 @@ static void TestRegexCAPI() {
 	 *  setText() and lookingAt()
 	 */
 	{
-		UChar text1[50];
-		UChar text2[50];
+		char16_t text1[50];
+		char16_t text2[50];
 		bool result;
 
 		u_uastrncpy(text1, "abcccd",  SIZEOFARRAYi(text1));
@@ -443,9 +443,9 @@ static void TestRegexCAPI() {
 	 *  getText()
 	 */
 	{
-		UChar text1[50];
-		UChar text2[50];
-		const UChar * result;
+		char16_t text1[50];
+		char16_t text2[50];
+		const char16_t * result;
 		int32_t textLength;
 
 		u_uastrncpy(text1, "abcccd",  SIZEOFARRAYi(text1));
@@ -480,10 +480,10 @@ static void TestRegexCAPI() {
 	 *  matches()
 	 */
 	{
-		UChar text1[50];
+		char16_t text1[50];
 		bool result;
 		int len;
-		UChar nullString[] = {0, 0, 0};
+		char16_t nullString[] = {0, 0, 0};
 
 		u_uastrncpy(text1, "abcccde",  SIZEOFARRAYi(text1));
 		status = U_ZERO_ERROR;
@@ -533,7 +533,7 @@ static void TestRegexCAPI() {
 	 *  find(), findNext, start, end, reset
 	 */
 	{
-		UChar text1[50];
+		char16_t text1[50];
 		bool result;
 		u_uastrncpy(text1, "012rx5rx890rxrx...",  SIZEOFARRAYi(text1));
 		status = U_ZERO_ERROR;
@@ -612,8 +612,8 @@ static void TestRegexCAPI() {
 	 *  group()
 	 */
 	{
-		UChar text1[80];
-		UChar buf[80];
+		char16_t text1[80];
+		char16_t buf[80];
 		bool result;
 		int32_t resultSz;
 		u_uastrncpy(text1, "noise abc interior def, and this is off the end",  SIZEOFARRAYi(text1));
@@ -657,7 +657,7 @@ static void TestRegexCAPI() {
 		resultSz = uregex_group(re, 0, buf, 5, &status);
 		TEST_ASSERT(status == U_BUFFER_OVERFLOW_ERROR);
 		TEST_ASSERT_STRING("abc i", buf, FALSE);
-		TEST_ASSERT(buf[5] == (UChar)0xffff);
+		TEST_ASSERT(buf[5] == (char16_t)0xffff);
 		TEST_ASSERT(resultSz == (int32_t)strlen("abc interior def"));
 
 		/* Output string just fits buffer, no NUL term. */
@@ -666,7 +666,7 @@ static void TestRegexCAPI() {
 		TEST_ASSERT(status == U_STRING_NOT_TERMINATED_WARNING);
 		TEST_ASSERT_STRING("abc interior def", buf, FALSE);
 		TEST_ASSERT(resultSz == (int32_t)strlen("abc interior def"));
-		TEST_ASSERT(buf[strlen("abc interior def")] == (UChar)0xffff);
+		TEST_ASSERT(buf[strlen("abc interior def")] == (char16_t)0xffff);
 
 		uregex_close(re);
 	}
@@ -677,7 +677,7 @@ static void TestRegexCAPI() {
 
 	/* SetRegion(), getRegion() do something  */
 	TEST_SETUP(".*", "0123456789ABCDEF", 0);
-	UChar resultString[40];
+	char16_t resultString[40];
 	TEST_ASSERT(uregex_regionStart(re, &status) == 0);
 	TEST_ASSERT(uregex_regionEnd(re, &status) == 16);
 	uregex_setRegion(re, 3, 6, &status);
@@ -802,10 +802,10 @@ static void TestRegexCAPI() {
 	 *  replaceFirst()
 	 */
 	{
-		UChar text1[80];
-		UChar text2[80];
-		UChar replText[80];
-		UChar buf[80];
+		char16_t text1[80];
+		char16_t text2[80];
+		char16_t replText[80];
+		char16_t buf[80];
 		int32_t resultSz;
 		u_uastrncpy(text1, "Replace xaax x1x x...x.",  SIZEOFARRAYi(text1));
 		u_uastrncpy(text2, "No match here.",  SIZEOFARRAYi(text2));
@@ -838,7 +838,7 @@ static void TestRegexCAPI() {
 		TEST_ASSERT(status == U_STRING_NOT_TERMINATED_WARNING);
 		TEST_ASSERT_STRING("Replace <aa> x1x x...x.", buf, FALSE);
 		TEST_ASSERT(resultSz == (int32_t)strlen("Replace xaax x1x x...x."));
-		TEST_ASSERT(buf[resultSz] == (UChar)0xffff);
+		TEST_ASSERT(buf[resultSz] == (char16_t)0xffff);
 
 		/* Do the replaceFirst again, without first resetting anything.
 		 *  Should give the same results.
@@ -849,7 +849,7 @@ static void TestRegexCAPI() {
 		TEST_ASSERT(status == U_STRING_NOT_TERMINATED_WARNING);
 		TEST_ASSERT_STRING("Replace <aa> x1x x...x.", buf, FALSE);
 		TEST_ASSERT(resultSz == (int32_t)strlen("Replace xaax x1x x...x."));
-		TEST_ASSERT(buf[resultSz] == (UChar)0xffff);
+		TEST_ASSERT(buf[resultSz] == (char16_t)0xffff);
 
 		/* NULL buffer, zero buffer length */
 		status = U_ZERO_ERROR;
@@ -864,7 +864,7 @@ static void TestRegexCAPI() {
 		TEST_ASSERT(status == U_BUFFER_OVERFLOW_ERROR);
 		TEST_ASSERT_STRING("Replace <aa> x1x x...x", buf, FALSE);
 		TEST_ASSERT(resultSz == (int32_t)strlen("Replace xaax x1x x...x."));
-		TEST_ASSERT(buf[resultSz] == (UChar)0xffff);
+		TEST_ASSERT(buf[resultSz] == (char16_t)0xffff);
 
 		uregex_close(re);
 	}
@@ -873,14 +873,14 @@ static void TestRegexCAPI() {
 	 *  replaceAll()
 	 */
 	{
-		UChar text1[80]; /*  "Replace xaax x1x x...x." */
-		UChar text2[80]; /*  "No match Here"  */
-		UChar replText[80];  /*  "<$1>"  */
-		UChar replText2[80]; /*  "<<$1>>"         */
+		char16_t text1[80]; /*  "Replace xaax x1x x...x." */
+		char16_t text2[80]; /*  "No match Here"  */
+		char16_t replText[80];  /*  "<$1>"  */
+		char16_t replText2[80]; /*  "<<$1>>"         */
 		const char * pattern = "x(.*?)x";
 		const char * expectedResult = "Replace <aa> <1> <...>.";
 		const char * expectedResult2 = "Replace <<aa>> <<1>> <<...>>.";
-		UChar buf[80];
+		char16_t buf[80];
 		int32_t resultSize;
 		int32_t expectedResultSize;
 		int32_t expectedResultSize2;
@@ -920,7 +920,7 @@ static void TestRegexCAPI() {
 		TEST_ASSERT(status == U_STRING_NOT_TERMINATED_WARNING);
 		TEST_ASSERT_STRING(expectedResult, buf, FALSE);
 		TEST_ASSERT(resultSize == expectedResultSize);
-		TEST_ASSERT(buf[resultSize] == (UChar)0xffff);
+		TEST_ASSERT(buf[resultSize] == (char16_t)0xffff);
 
 		/* Do the replaceFirst again, without first resetting anything.
 		 *  Should give the same results.
@@ -931,7 +931,7 @@ static void TestRegexCAPI() {
 		TEST_ASSERT(status == U_STRING_NOT_TERMINATED_WARNING);
 		TEST_ASSERT_STRING("Replace <aa> <1> <...>.", buf, FALSE);
 		TEST_ASSERT(resultSize == (int32_t)strlen("Replace <aa> <1> <...>."));
-		TEST_ASSERT(buf[resultSize] == (UChar)0xffff);
+		TEST_ASSERT(buf[resultSize] == (char16_t)0xffff);
 
 		/* NULL buffer, zero buffer length */
 		status = U_ZERO_ERROR;
@@ -951,7 +951,7 @@ static void TestRegexCAPI() {
 			expected[i] = 0;
 			TEST_ASSERT_STRING(expected, buf, FALSE);
 			TEST_ASSERT(resultSize == expectedResultSize);
-			TEST_ASSERT(buf[i] == (UChar)0xffff);
+			TEST_ASSERT(buf[i] == (char16_t)0xffff);
 		}
 
 		/* Buffer too small.  Same as previous test, except this time the replacement
@@ -968,7 +968,7 @@ static void TestRegexCAPI() {
 			expected[i] = 0;
 			TEST_ASSERT_STRING(expected, buf, FALSE);
 			TEST_ASSERT(resultSize == expectedResultSize2);
-			TEST_ASSERT(buf[i] == (UChar)0xffff);
+			TEST_ASSERT(buf[i] == (char16_t)0xffff);
 		}
 
 		uregex_close(re);
@@ -978,10 +978,10 @@ static void TestRegexCAPI() {
 	 *  appendReplacement()
 	 */
 	{
-		UChar text[100];
-		UChar repl[100];
-		UChar buf[100];
-		UChar * bufPtr;
+		char16_t text[100];
+		char16_t repl[100];
+		char16_t buf[100];
+		char16_t * bufPtr;
 		int32_t bufCap;
 
 		status = U_ZERO_ERROR;
@@ -1031,10 +1031,10 @@ static void TestRegexCAPI() {
 	 *  split()
 	 */
 	{
-		UChar textToSplit[80];
-		UChar text2[80];
-		UChar buf[200];
-		UChar    * fields[10];
+		char16_t textToSplit[80];
+		char16_t text2[80];
+		char16_t buf[200];
+		char16_t    * fields[10];
 		int32_t numFields;
 		int32_t requiredCapacity;
 		int32_t spaceNeeded;
@@ -1094,7 +1094,7 @@ static void TestRegexCAPI() {
 				TEST_ASSERT(numFields == 2);
 				TEST_ASSERT_STRING("first ",  fields[0], TRUE);
 				TEST_ASSERT_STRING(" second:  third", fields[1], TRUE);
-				TEST_ASSERT(!memcmp(&fields[2], &minus1, sizeof(UChar *)));
+				TEST_ASSERT(!memcmp(&fields[2], &minus1, sizeof(char16_t *)));
 
 				spaceNeeded = u_strlen(textToSplit) -
 				    (numFields - 1)  +/* Field delimiters do not appear in output */
@@ -1134,9 +1134,9 @@ static void TestRegexCAPI() {
 	/* Split(), part 2.  Patterns with capture groups.  The capture group text
 	 *                   comes out as additional fields.  */
 	{
-		UChar textToSplit[80];
-		UChar buf[200];
-		UChar    * fields[10];
+		char16_t textToSplit[80];
+		char16_t buf[200];
+		char16_t    * fields[10];
 		int32_t numFields;
 		int32_t requiredCapacity;
 		int32_t spaceNeeded;
@@ -1184,7 +1184,7 @@ static void TestRegexCAPI() {
 			TEST_ASSERT(numFields == 2);
 			TEST_ASSERT_STRING("first ",  fields[0], TRUE);
 			TEST_ASSERT_STRING(" second<tag-b>  third", fields[1], TRUE);
-			TEST_ASSERT(!memcmp(&fields[2], &minus1, sizeof(UChar *)));
+			TEST_ASSERT(!memcmp(&fields[2], &minus1, sizeof(char16_t *)));
 
 			spaceNeeded = (int32_t)strlen("first . second<tag-b>  third."); /* "." at NUL positions */
 			TEST_ASSERT(spaceNeeded == requiredCapacity);
@@ -1203,7 +1203,7 @@ static void TestRegexCAPI() {
 			TEST_ASSERT_STRING("first ",  fields[0], TRUE);
 			TEST_ASSERT_STRING("tag-a",   fields[1], TRUE);
 			TEST_ASSERT_STRING(" second<tag-b>  third", fields[2], TRUE);
-			TEST_ASSERT(!memcmp(&fields[3], &minus1, sizeof(UChar *)));
+			TEST_ASSERT(!memcmp(&fields[3], &minus1, sizeof(char16_t *)));
 
 			spaceNeeded = (int32_t)strlen("first .tag-a. second<tag-b>  third."); /* "." at NUL positions */
 			TEST_ASSERT(spaceNeeded == requiredCapacity);
@@ -1224,7 +1224,7 @@ static void TestRegexCAPI() {
 			TEST_ASSERT_STRING(" second", fields[2], TRUE);
 			TEST_ASSERT_STRING("tag-b",   fields[3], TRUE);
 			TEST_ASSERT_STRING("  third", fields[4], TRUE);
-			TEST_ASSERT(!memcmp(&fields[5], &minus1, sizeof(UChar *)));
+			TEST_ASSERT(!memcmp(&fields[5], &minus1, sizeof(char16_t *)));
 
 			spaceNeeded = (int32_t)strlen("first .tag-a. second.tag-b.  third."); /* "." at NUL positions */
 			TEST_ASSERT(spaceNeeded == requiredCapacity);
@@ -1253,7 +1253,7 @@ static void TestRegexCAPI() {
 				TEST_ASSERT_STRING("",        fields[4], TRUE);
 				TEST_ASSERT(fields[5] == NULL);
 				TEST_ASSERT(fields[8] == NULL);
-				TEST_ASSERT(!memcmp(&fields[9], &minus1, sizeof(UChar *)));
+				TEST_ASSERT(!memcmp(&fields[9], &minus1, sizeof(char16_t *)));
 				spaceNeeded = (int32_t)strlen("first .tag-a. second.tag-b.."); /* "." at NUL positions
 				   */
 				TEST_ASSERT(spaceNeeded == requiredCapacity);
@@ -1330,9 +1330,9 @@ static void TestBug4315()
 {
 	UErrorCode theICUError = U_ZERO_ERROR;
 	URegularExpression * theRegEx;
-	UChar * textBuff;
-	UChar theString[100];
-	UChar * destFields[24];
+	char16_t * textBuff;
+	char16_t theString[100];
+	char16_t * destFields[24];
 	int32_t neededLength1;
 	int32_t neededLength2;
 	int32_t wordCount = 0;
@@ -1353,7 +1353,7 @@ static void TestBug4315()
 	TEST_ASSERT(wordCount==3);
 	if(theICUError == U_BUFFER_OVERFLOW_ERROR) {
 		theICUError = U_ZERO_ERROR;
-		textBuff = (UChar *)SAlloc::M(sizeof(UChar) * (neededLength1 + 1));
+		textBuff = (char16_t *)SAlloc::M(sizeof(char16_t) * (neededLength1 + 1));
 		wordCount = uregex_split(theRegEx, textBuff, neededLength1+1, &neededLength2, destFields, destFieldsSize, &theICUError);
 		TEST_ASSERT(wordCount==3);
 		TEST_ASSERT_SUCCESS(theICUError);
@@ -1373,7 +1373,7 @@ static void TestUTextAPI()
 	UErrorCode status = U_ZERO_ERROR;
 	URegularExpression  * re;
 	UText patternText = UTEXT_INITIALIZER;
-	UChar pat[200];
+	char16_t pat[200];
 	const char patternTextUTF8[5] = { 0x61, 0x62, 0x63, 0x2a, 0x00 };
 	/* Mimimalist open/close */
 	utext_openUTF8(&patternText, patternTextUTF8, -1, &status);
@@ -1406,8 +1406,8 @@ static void TestUTextAPI()
 		URegularExpression * clone1;
 		URegularExpression * clone2;
 		URegularExpression * clone3;
-		UChar testString1[30];
-		UChar testString2[30];
+		char16_t testString1[30];
+		char16_t testString2[30];
 		bool result;
 		status = U_ZERO_ERROR;
 		re = uregex_openUText(&patternText, 0, 0, &status);
@@ -1455,7 +1455,7 @@ static void TestUTextAPI()
 	 *  pattern() and patternText()
 	 */
 	{
-		const UChar  * resultPat;
+		const char16_t  * resultPat;
 		int32_t resultLen;
 		UText        * resultText;
 		const char str_hello[] = { 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x00 }; /* hello */
@@ -1544,9 +1544,9 @@ static void TestUTextAPI()
 	{
 		UText text1 = UTEXT_INITIALIZER;
 		UText text2 = UTEXT_INITIALIZER;
-		UChar text2Chars[20];
+		char16_t text2Chars[20];
 		UText  * resultText;
-		const UChar * result;
+		const char16_t * result;
 		int32_t textLength;
 		const char str_abcccd[] = { 0x62, 0x63, 0x64, 0x64, 0x64, 0x65, 0x00 }; /* abcccd */
 		const char str_abcccxd[] = { 0x62, 0x63, 0x64, 0x64, 0x64, 0x79, 0x65, 0x00 }; /* abcccxd */
@@ -1581,7 +1581,7 @@ static void TestUTextAPI()
 		TEST_ASSERT(testUTextEqual(resultText, &text1));
 		utext_close(resultText);
 
-		/* Then set a UChar * */
+		/* Then set a char16_t * */
 		uregex_setText(re, text2Chars, 7, &status);
 		resultText = uregex_getUText(re, NULL, &status);
 		TEST_ASSERT_SUCCESS(status);
@@ -1646,7 +1646,7 @@ static void TestUTextAPI()
 	 *  find(), findNext, start, end, reset
 	 */
 	{
-		UChar text1[50];
+		char16_t text1[50];
 		bool result;
 		u_uastrncpy(text1, "012rx5rx890rxrx...",  SIZEOFARRAYi(text1));
 		status = U_ZERO_ERROR;
@@ -1704,11 +1704,11 @@ static void TestUTextAPI()
 	 *  groupUText()
 	 */
 	{
-		UChar text1[80];
+		char16_t text1[80];
 		UText   * actual;
 		bool result;
 		int64_t groupLen = 0;
-		UChar groupBuf[20];
+		char16_t groupBuf[20];
 
 		u_uastrncpy(text1, "noise abc interior def, and this is off the end",  SIZEOFARRAYi(text1));
 
@@ -1757,8 +1757,8 @@ static void TestUTextAPI()
 	 *  replaceFirst()
 	 */
 	{
-		UChar text1[80];
-		UChar text2[80];
+		char16_t text1[80];
+		char16_t text2[80];
 		UText replText = UTEXT_INITIALIZER;
 		UText   * result;
 		const char str_Replxxx[] =
@@ -1810,8 +1810,8 @@ static void TestUTextAPI()
 	 *  replaceAll()
 	 */
 	{
-		UChar text1[80];
-		UChar text2[80];
+		char16_t text1[80];
+		char16_t text2[80];
 		UText replText = UTEXT_INITIALIZER;
 		UText   * result;
 		const char str_1[] = { 0x3c, 0x24, 0x31, 0x3e, 0x00 }; /* <$1> */
@@ -1847,10 +1847,10 @@ static void TestUTextAPI()
 	 *  appendReplacement()
 	 */
 	{
-		UChar text[100];
-		UChar repl[100];
-		UChar buf[100];
-		UChar * bufPtr;
+		char16_t text[100];
+		char16_t repl[100];
+		char16_t buf[100];
+		char16_t * bufPtr;
 		int32_t bufCap;
 
 		status = U_ZERO_ERROR;
@@ -1891,8 +1891,8 @@ static void TestUTextAPI()
 	 *  splitUText()
 	 */
 	{
-		UChar textToSplit[80];
-		UChar text2[80];
+		char16_t textToSplit[80];
+		char16_t text2[80];
 		UText    * fields[10];
 		int32_t numFields;
 		int32_t i;
@@ -1958,7 +1958,7 @@ static void TestUTextAPI()
 	/* splitUText(), part 2.  Patterns with capture groups.  The capture group text
 	 *                   comes out as additional fields.  */
 	{
-		UChar textToSplit[80];
+		char16_t textToSplit[80];
 		UText    * fields[10];
 		int32_t numFields;
 		int32_t i;
@@ -2121,8 +2121,8 @@ static void TestRefreshInput() {
 	 *    runs a find() loop, moving the text after the first match.
 	 *    The right number of matches should still be found.
 	 */
-	UChar testStr[]  = {0x41, 0x20, 0x42, 0x20, 0x43, 0x0}; /* = "A B C"  */
-	UChar movedStr[] = {   0,    0,    0,    0,    0,   0};
+	char16_t testStr[]  = {0x41, 0x20, 0x42, 0x20, 0x43, 0x0}; /* = "A B C"  */
+	char16_t movedStr[] = {   0,    0,    0,    0,    0,   0};
 	UErrorCode status = U_ZERO_ERROR;
 	URegularExpression * re;
 	UText ut1 = UTEXT_INITIALIZER;
@@ -2200,7 +2200,7 @@ static void TestBug10815() {
 	 */
 	URegularExpression * re;
 	UErrorCode status = U_ZERO_ERROR;
-	UChar text[100];
+	char16_t text[100];
 
 	// findNext() with a find progress callback function.
 

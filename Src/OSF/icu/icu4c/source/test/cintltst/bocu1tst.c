@@ -693,11 +693,11 @@ static uint8_t * writeDiff(int32_t diff, uint8_t * p) {
  * Does not check for overflows, but otherwise useful function.
  *
  * @param s input UTF-16 string
- * @param length number of UChar code units in s
+ * @param length number of char16_t code units in s
  * @param p pointer to output byte array
  * @return number of bytes output
  */
-static int32_t writeString(const UChar * s, int32_t length, uint8_t * p) {
+static int32_t writeString(const char16_t * s, int32_t length, uint8_t * p) {
 	uint8_t * p0;
 	int32_t c, prev, i;
 
@@ -718,9 +718,9 @@ static int32_t writeString(const UChar * s, int32_t length, uint8_t * p) {
  * @param p pointer to input BOCU-1 bytes
  * @param length number of input bytes
  * @param s point to output UTF-16 string array
- * @return number of UChar code units output
+ * @return number of char16_t code units output
  */
-static int32_t readString(const uint8_t * p, int32_t length, UChar * s) {
+static int32_t readString(const uint8_t * p, int32_t length, char16_t * s) {
 	Bocu1Rx rx = { 0, 0, 0 };
 	int32_t c, i, sLength;
 
@@ -860,11 +860,11 @@ static void TestBOCU1RefDiff() {
 static const int32_t DEFAULT_BUFFER_SIZE = 30000;
 
 /* test one string with the ICU and the reference BOCU-1 implementations */
-static void roundtripBOCU1(UConverter * bocu1, int32_t number, const UChar * text, int32_t length) 
+static void roundtripBOCU1(UConverter * bocu1, int32_t number, const char16_t * text, int32_t length) 
 {
 	int32_t roundtripRefLength, roundtripICULength;
-	UChar * roundtripRef = (UChar *)SAlloc::M(DEFAULT_BUFFER_SIZE * sizeof(UChar));
-	UChar * roundtripICU = (UChar *)SAlloc::M(DEFAULT_BUFFER_SIZE * sizeof(UChar));
+	char16_t * roundtripRef = (char16_t *)SAlloc::M(DEFAULT_BUFFER_SIZE * sizeof(char16_t));
+	char16_t * roundtripICU = (char16_t *)SAlloc::M(DEFAULT_BUFFER_SIZE * sizeof(char16_t));
 	char * bocu1Ref = (char *)SAlloc::M(DEFAULT_BUFFER_SIZE);
 	char * bocu1ICU = (char *)SAlloc::M(DEFAULT_BUFFER_SIZE);
 	/* Unicode -> BOCU-1 */
@@ -904,24 +904,24 @@ cleanup:
 	SAlloc::F(bocu1ICU);
 }
 
-static const UChar feff[] = { 0xfeff };
-static const UChar ascii[] = { 0x61, 0x62, 0x20, 0x63, 0x61 };
-static const UChar crlf[] = { 0xd, 0xa, 0x20 };
-static const UChar nul[] = { 0 };
-static const UChar latin[] = { 0xdf, 0xe6 };
-static const UChar devanagari[] = { 0x930, 0x20, 0x918, 0x909 };
-static const UChar hiragana[] = { 0x3086, 0x304d, 0x20, 0x3053, 0x4000 };
-static const UChar unihan[] = { 0x4e00, 0x7777, 0x20, 0x9fa5, 0x4e00 };
-static const UChar hangul[] = { 0xac00, 0xbcde, 0x20, 0xd7a3 };
-static const UChar surrogates[] = { 0xdc00, 0xd800 }; /* single surrogates, unmatched! */
-static const UChar plane1[] = { 0xd800, 0xdc00 };
-static const UChar plane2[] = { 0xd845, 0xdddd };
-static const UChar plane15[] = { 0xdbbb, 0xddee, 0x20 };
-static const UChar plane16[] = { 0xdbff, 0xdfff };
-static const UChar c0[] = { 1, 0xe40, 0x20, 9 };
+static const char16_t feff[] = { 0xfeff };
+static const char16_t ascii[] = { 0x61, 0x62, 0x20, 0x63, 0x61 };
+static const char16_t crlf[] = { 0xd, 0xa, 0x20 };
+static const char16_t nul[] = { 0 };
+static const char16_t latin[] = { 0xdf, 0xe6 };
+static const char16_t devanagari[] = { 0x930, 0x20, 0x918, 0x909 };
+static const char16_t hiragana[] = { 0x3086, 0x304d, 0x20, 0x3053, 0x4000 };
+static const char16_t unihan[] = { 0x4e00, 0x7777, 0x20, 0x9fa5, 0x4e00 };
+static const char16_t hangul[] = { 0xac00, 0xbcde, 0x20, 0xd7a3 };
+static const char16_t surrogates[] = { 0xdc00, 0xd800 }; /* single surrogates, unmatched! */
+static const char16_t plane1[] = { 0xd800, 0xdc00 };
+static const char16_t plane2[] = { 0xd845, 0xdddd };
+static const char16_t plane15[] = { 0xdbbb, 0xddee, 0x20 };
+static const char16_t plane16[] = { 0xdbff, 0xdfff };
+static const char16_t c0[] = { 1, 0xe40, 0x20, 9 };
 
 static const struct {
-	const UChar * s;
+	const char16_t * s;
 	int32_t length;
 } strings[] = {
 	{ feff,         SIZEOFARRAYi(feff) },
@@ -949,7 +949,7 @@ static const struct {
  */
 static void TestBOCU1() 
 {
-	UChar * text;
+	char16_t * text;
 	int32_t i, length;
 	UErrorCode errorCode = U_ZERO_ERROR;
 	UConverter * bocu1 = ucnv_open("BOCU-1", &errorCode);
@@ -957,7 +957,7 @@ static void TestBOCU1()
 		log_data_err("error: unable to open BOCU-1 converter: %s\n", u_errorName(errorCode));
 		return;
 	}
-	text = (UChar *)SAlloc::M(DEFAULT_BUFFER_SIZE * sizeof(UChar));
+	text = (char16_t *)SAlloc::M(DEFAULT_BUFFER_SIZE * sizeof(char16_t));
 	/* text 1: each of strings[] once */
 	length = 0;
 	for(i = 0; i<SIZEOFARRAYi(strings); ++i) {

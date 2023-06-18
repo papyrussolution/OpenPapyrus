@@ -34,7 +34,7 @@ static bool noKnownIssues = FALSE; // if TRUE, don't emit known issues
 //string-concatenation operator (moved from findword test by rtg)
 
 // [LIU] Just to get things working
-UnicodeString UCharToUnicodeString(UChar c)
+UnicodeString UCharToUnicodeString(char16_t c)
 {
 	return UnicodeString(c);
 }
@@ -188,9 +188,9 @@ UnicodeString _toString(const Formattable& f) {
  * + char * ambiguous. - liu
  */
 UnicodeString toString(const Formattable& f) {
-	UnicodeString s((UChar)91 /*[*/);
+	UnicodeString s((char16_t)91 /*[*/);
 	s.append(_toString(f));
-	s.append((UChar)0x5d /*]*/);
+	s.append((char16_t)0x5d /*]*/);
 	return s;
 }
 
@@ -254,7 +254,7 @@ UnicodeString &IntlTest::appendHex(uint32_t number,
     int32_t digits,
     UnicodeString & target)
 {
-	static const UChar digitString[] = {
+	static const char16_t digitString[] = {
 		0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39,
 		0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0
 	}; /* "0123456789ABCDEF" */
@@ -361,7 +361,7 @@ UnicodeString IntlTest::prettify(const UnicodeString & source, bool parseBacksla
 				// Delete a backslash.
 				int32_t backslashCount = 0;
 				for(int32_t j = target.length()-1; j>=0; --j) {
-					if(target.charAt(j) == (UChar)92) {
+					if(target.charAt(j) == (char16_t)92) {
 						++backslashCount;
 					}
 					else {
@@ -1097,7 +1097,7 @@ void IntlTest::LL_message(UnicodeString message, bool newline)
 
 	// string that starts with a LineFeed character and continues
 	// with spaces according to the current indentation
-	static const UChar indentUChars[] = {
+	static const char16_t indentUChars[] = {
 		'\n',
 		32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
 		32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
@@ -1123,7 +1123,7 @@ void IntlTest::LL_message(UnicodeString message, bool newline)
 	}
 
 	// replace each LineFeed by the indentation string
-	message.findAndReplace(UnicodeString((UChar)'\n'), indent);
+	message.findAndReplace(UnicodeString((char16_t)'\n'), indent);
 
 	// stream out the message
 	length = message.extract(0, message.length(), buffer, sizeof(buffer));
@@ -1787,19 +1787,19 @@ uint32_t IntlTest::icu_rand::getSeed() {
 	return (uint32_t)fLast;
 }
 
-static inline UChar toHex(int32_t i) {
-	return (UChar)(i + (i < 10 ? 0x30 : (0x41 - 10)));
+static inline char16_t toHex(int32_t i) {
+	return (char16_t)(i + (i < 10 ? 0x30 : (0x41 - 10)));
 }
 
 static UnicodeString & escape(const UnicodeString & s, UnicodeString & result) {
 	for(int32_t i = 0; i<s.length(); ++i) {
-		UChar c = s[i];
-		if(c <= (UChar)0x7F) {
+		char16_t c = s[i];
+		if(c <= (char16_t)0x7F) {
 			result += c;
 		}
 		else {
-			result += (UChar)0x5c;
-			result += (UChar)0x75;
+			result += (char16_t)0x5c;
+			result += (char16_t)0x75;
 			result += toHex((c >> 12) & 0xF);
 			result += toHex((c >>  8) & 0xF);
 			result += toHex((c >>  4) & 0xF);
@@ -2235,7 +2235,7 @@ const char * IntlTest::getProperty(const char * prop)
 //-------------------------------------------------------------------------------
 //
 //    ReadAndConvertFile   Read a text data file, convert it to UChars, and
-//    return the data in one big UChar * buffer, which the caller must delete.
+//    return the data in one big char16_t * buffer, which the caller must delete.
 //
 //    parameters:
 //          fileName:   the name of the file, with no directory part.  The test data directory
@@ -2246,15 +2246,15 @@ const char * IntlTest::getProperty(const char * prop)
 //                      Pass NULL for the system default encoding.
 //          status
 //    returns:
-//                      The file data, converted to UChar.
+//                      The file data, converted to char16_t.
 //                      The caller must delete this when done with
 //                           delete [] theBuffer;
 //
 //
 //--------------------------------------------------------------------------------
-UChar * IntlTest::ReadAndConvertFile(const char * fileName, int &ulen, const char * encoding, UErrorCode & status) 
+char16_t * IntlTest::ReadAndConvertFile(const char * fileName, int &ulen, const char * encoding, UErrorCode & status) 
 {
-	UChar * retPtr  = NULL;
+	char16_t * retPtr  = NULL;
 	char * fileBuf = NULL;
 	UConverter * conv     = NULL;
 	FILE * f       = NULL;
@@ -2306,14 +2306,14 @@ UChar * IntlTest::ReadAndConvertFile(const char * fileName, int &ulen, const cha
 			goto cleanUpAndReturn;
 		}
 		//
-		// Convert the rules to UChar.
+		// Convert the rules to char16_t.
 		//  Preflight first to determine required buffer size.
 		//
 		ulen = ucnv_toUChars(conv, NULL/*dest*/, 0/*destCapacity*/, fileBufC, fileSize, &status);
 		if(status == U_BUFFER_OVERFLOW_ERROR) {
 			// Buffer Overflow is expected from the preflight operation.
 			status = U_ZERO_ERROR;
-			retPtr = new UChar[ulen+1];
+			retPtr = new char16_t[ulen+1];
 			ucnv_toUChars(conv, retPtr/*dest*/, ulen+1, fileBufC, fileSize, &status);
 		}
 	}

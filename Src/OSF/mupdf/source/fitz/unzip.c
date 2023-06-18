@@ -389,10 +389,10 @@ int fz_is_zip_archive(fz_context * ctx, fz_stream * file)
 	size_t n;
 
 	fz_seek(ctx, file, 0, 0);
-	n = fz_read(ctx, file, data, nelem(data));
-	if(n != nelem(signature))
+	n = fz_read(ctx, file, data, SIZEOFARRAY(data));
+	if(n != SIZEOFARRAY(signature))
 		return 0;
-	if(memcmp(data, signature, nelem(signature)))
+	if(memcmp(data, signature, SIZEOFARRAY(signature)))
 		return 0;
 
 	return 1;

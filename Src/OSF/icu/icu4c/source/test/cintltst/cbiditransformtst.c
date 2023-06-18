@@ -32,8 +32,8 @@
 #define     STR_CAPACITY        100
 
 #define     NUM_LETTERS         5       /* Used for arrays hereafter */
-static const UChar unshapedLetters[NUM_LETTERS + 1] = {0x0630, 0, 0x0631, 0, 0x0632, 2};
-static const UChar shapedLetters  [NUM_LETTERS + 1] = {0xfeab, 0, 0xfead, 0, 0xfeaf, 1};
+static const char16_t unshapedLetters[NUM_LETTERS + 1] = {0x0630, 0, 0x0631, 0, 0x0632, 2};
+static const char16_t shapedLetters  [NUM_LETTERS + 1] = {0xfeab, 0, 0xfead, 0, 0xfeaf, 1};
 
 typedef struct {
 	UBiDiLevel inLevel;
@@ -46,23 +46,23 @@ typedef struct {
 	const char * pMessage;
 } UBidiTestCases;
 
-UChar src[STR_CAPACITY] = { 0 };
-UChar dest[STR_CAPACITY] = { 0 };
-UChar expected[STR_CAPACITY] = { 0 };
-UChar temp[STR_CAPACITY * 2] = { 0 };
+char16_t src[STR_CAPACITY] = { 0 };
+char16_t dest[STR_CAPACITY] = { 0 };
+char16_t expected[STR_CAPACITY] = { 0 };
+char16_t temp[STR_CAPACITY * 2] = { 0 };
 char pseudo[STR_CAPACITY] = { 0 };
 
 void addBidiTransformTest(TestNode ** root);
 static void testAutoDirection();
 static void testAllTransformOptions();
-static char * pseudoScript(const UChar * str);
-static void shapeDigits(UChar * str, UChar srcZero, UChar destZero);
-static void shapeLetters(UChar * str, const UChar * from, const UChar * to);
-static void logResultsForDir(const UChar * srcText, const UChar * destTxt, const UChar * expectedTxt, UBiDiLevel inLevel, UBiDiLevel outLevel);
-static void verifyResultsForAllOpt(const UBidiTestCases * pTest, const UChar * srcTxt, const UChar * destTxt, const char * expectedChars, uint32_t digits, uint32_t letters);
+static char * pseudoScript(const char16_t * str);
+static void shapeDigits(char16_t * str, char16_t srcZero, char16_t destZero);
+static void shapeLetters(char16_t * str, const char16_t * from, const char16_t * to);
+static void logResultsForDir(const char16_t * srcText, const char16_t * destTxt, const char16_t * expectedTxt, UBiDiLevel inLevel, UBiDiLevel outLevel);
+static void verifyResultsForAllOpt(const UBidiTestCases * pTest, const char16_t * srcTxt, const char16_t * destTxt, const char * expectedChars, uint32_t digits, uint32_t letters);
 
 #if 0
-static void substituteByPseudoChar(const UChar * src, char * dest, const UChar baseReal, const char basePseudo, const char max);
+static void substituteByPseudoChar(const char16_t * src, char * dest, const char16_t baseReal, const char basePseudo, const char max);
 
 /* TODO: This code assumes the codepage is ASCII based. */
 
@@ -74,7 +74,7 @@ static void substituteByPseudoChar(const UChar * src, char * dest, const UChar b
  * EN: 0-4
  * AN: 5-9
  */
-static void substituteByPseudoChar(const UChar * src, char * dest, const UChar baseReal, const char basePseudo, const char max) 
+static void substituteByPseudoChar(const char16_t * src, char * dest, const char16_t baseReal, const char basePseudo, const char max) 
 {
 	*dest = basePseudo + (*src - baseReal); /* (range math won't work on EBCDIC) */
 	if(*dest > max) {
@@ -82,7 +82,7 @@ static void substituteByPseudoChar(const UChar * src, char * dest, const UChar b
 	}
 }
 
-static char * pseudoScript(const UChar * str) 
+static char * pseudoScript(const char16_t * str) 
 {
 	char * p = pseudo;
 	if(str) {
@@ -113,13 +113,13 @@ static char * pseudoScript(const UChar * str)
 }
 
 #else
-static char * pseudoScript(const UChar * str) {
+static char * pseudoScript(const char16_t * str) {
 	return aescstrdup(str, -1);
 }
 
 #endif
 
-static void logResultsForDir(const UChar * srcTxt, const UChar * destTxt, const UChar * expectedTxt,
+static void logResultsForDir(const char16_t * srcTxt, const char16_t * destTxt, const char16_t * expectedTxt,
     UBiDiLevel inLevel, UBiDiLevel outLevel)
 {
 	if(u_strcmp(expectedTxt, destTxt)) {
@@ -186,7 +186,7 @@ static void testAutoDirection(void)
 	ubiditransform_close(pTransform);
 }
 
-static void shapeDigits(UChar * str, UChar srcZero, UChar destZero)
+static void shapeDigits(char16_t * str, char16_t srcZero, char16_t destZero)
 {
 	UChar32 c = 0;
 	uint32_t i = 0;
@@ -201,7 +201,7 @@ static void shapeDigits(UChar * str, UChar srcZero, UChar destZero)
 	}
 }
 
-static void shapeLetters(UChar * str, const UChar * from, const UChar * to)
+static void shapeLetters(char16_t * str, const char16_t * from, const char16_t * to)
 {
 	uint32_t i = 0, j, length = u_strlen(expected), index;
 	UChar32 c = 0;
@@ -217,8 +217,8 @@ static void shapeLetters(UChar * str, const UChar * from, const UChar * to)
 	}
 }
 
-static void verifyResultsForAllOpt(const UBidiTestCases * pTest, const UChar * srcTxt,
-    const UChar * destTxt, const char * expectedChars, uint32_t digits, uint32_t letters)
+static void verifyResultsForAllOpt(const UBidiTestCases * pTest, const char16_t * srcTxt,
+    const char16_t * destTxt, const char * expectedChars, uint32_t digits, uint32_t letters)
 {
 	u_unescape(expectedChars, expected, STR_CAPACITY);
 	switch(digits) {

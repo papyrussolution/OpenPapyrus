@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 
 pdf_cmap * pdf_load_embedded_cmap(fz_context * ctx, pdf_document * doc, pdf_obj * stmobj)
 {
@@ -238,7 +238,7 @@ static pdf_cmap * table[] = {
 
 pdf_cmap * pdf_load_builtin_cmap(fz_context * ctx, const char * name)
 {
-	int r = nelem(table)-1;
+	int r = SIZEOFARRAY(table)-1;
 	int l = 0;
 	while(l <= r) {
 		int m = (l + r) >> 1;

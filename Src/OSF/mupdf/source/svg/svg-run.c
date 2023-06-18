@@ -515,7 +515,7 @@ static fz_path * svg_parse_path_data(fz_context * ctx, svg_document * doc, const
 
 			if(svg_is_digit(*str)) {
 				str = svg_lex_number(&number, str);
-				if(nargs == nelem(args))
+				if(nargs == SIZEOFARRAY(args))
 					fz_throw(ctx, FZ_ERROR_GENERIC, "stack overflow in path data");
 				args[nargs++] = number;
 			}
@@ -971,7 +971,7 @@ static void svg_parse_common(fz_context * ctx, svg_document * doc, fz_xml * node
 	}
 	else {
 		stroke->start_cap = (fz_linecap)svg_parse_enum_from_style(ctx, doc, style_att, "stroke-linecap",
-			nelem(linecap_table), linecap_table, FZ_LINECAP_BUTT);
+			SIZEOFARRAY(linecap_table), linecap_table, FZ_LINECAP_BUTT);
 	}
 
 	stroke->dash_cap = stroke->start_cap;
@@ -986,7 +986,7 @@ static void svg_parse_common(fz_context * ctx, svg_document * doc, fz_xml * node
 	}
 	else {
 		stroke->linejoin = (fz_linejoin)svg_parse_enum_from_style(ctx, doc, style_att, "stroke-linejoin",
-			nelem(linejoin_table), linejoin_table, FZ_LINEJOIN_MITER);
+			SIZEOFARRAY(linejoin_table), linejoin_table, FZ_LINEJOIN_MITER);
 	}
 	if(stroke_miterlimit_att) {
 		if(sstreq(stroke_miterlimit_att, "inherit"))
@@ -1023,7 +1023,7 @@ static void svg_parse_font_attributes(fz_context * ctx, svg_document * doc, fz_x
 			"normal", "100", "200", "300", "400", "bold", "bolder", "500", "600", "700", "800", "900"
 		};
 		state->is_bold = svg_parse_enum_from_style(ctx, doc, style_att, "font-weight",
-			nelem(is_bold_table), is_bold_table, state->is_bold ? 5 : 0) >= 5;
+			SIZEOFARRAY(is_bold_table), is_bold_table, state->is_bold ? 5 : 0) >= 5;
 	}
 
 	if(font_style_att) {
@@ -1036,7 +1036,7 @@ static void svg_parse_font_attributes(fz_context * ctx, svg_document * doc, fz_x
 			"normal", "italic", "oblique"
 		};
 		state->is_italic = svg_parse_enum_from_style(ctx, doc, style_att, "font-style",
-			nelem(is_italic_table), is_italic_table, state->is_italic) >= 1;
+			SIZEOFARRAY(is_italic_table), is_italic_table, state->is_italic) >= 1;
 	}
 
 	if(text_anchor_att) {
@@ -1049,7 +1049,7 @@ static void svg_parse_font_attributes(fz_context * ctx, svg_document * doc, fz_x
 			"start", "middle", "end"
 		};
 		state->text_anchor = svg_parse_enum_from_style(ctx, doc, style_att, "text-anchor",
-			nelem(text_anchor_table), text_anchor_table, state->text_anchor);
+			SIZEOFARRAY(text_anchor_table), text_anchor_table, state->text_anchor);
 	}
 }
 

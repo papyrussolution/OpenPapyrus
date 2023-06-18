@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 
 static fz_outline * pdf_load_outline_imp(fz_context * ctx, pdf_document * doc, pdf_obj * dict)
 {

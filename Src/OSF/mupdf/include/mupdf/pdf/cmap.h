@@ -27,8 +27,7 @@ typedef struct pdf_cmap {
 	int wmode;
 
 	int codespace_len;
-	struct
-	{
+	struct {
 		int n;
 		uint low;
 		uint high;

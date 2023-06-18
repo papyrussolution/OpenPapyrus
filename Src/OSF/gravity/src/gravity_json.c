@@ -528,10 +528,8 @@ json_value * json_parse_ex(json_settings * settings, const json_char * json, siz
 						    if((uch_ & 0xF800) == 0xD800) {
 							    json_uchar uchar2;
 							    if(end - state.ptr < 6 || (*++state.ptr) != '\\' || (*++state.ptr) != 'u' ||
-								(uc_b1 = hex_value(*++state.ptr)) == 0xFF ||
-								(uc_b2 = hex_value(*++state.ptr)) == 0xFF ||
-								(uc_b3 = hex_value(*++state.ptr)) == 0xFF ||
-								(uc_b4 = hex_value(*++state.ptr)) == 0xFF) {
+									(uc_b1 = hex_value(*++state.ptr)) == 0xFF || (uc_b2 = hex_value(*++state.ptr)) == 0xFF ||
+									(uc_b3 = hex_value(*++state.ptr)) == 0xFF || (uc_b4 = hex_value(*++state.ptr)) == 0xFF) {
 								    sprintf(error, "Invalid character value `%c` (at %d:%d)", b, line_and_col);
 									goto e_failed;
 							    }

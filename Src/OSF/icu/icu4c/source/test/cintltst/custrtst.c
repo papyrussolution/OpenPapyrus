@@ -54,7 +54,7 @@ void addUStringTest(TestNode** root)
 
 /* test data for TestStringFunctions ---------------------------------------- */
 
-UChar *** dataTable = NULL;
+char16_t *** dataTable = NULL;
 
 static const char * raw[3][4] = {
 	/* First String */
@@ -70,11 +70,11 @@ static void setUpDataTable()
 {
 	int32_t i, j;
 	if(dataTable == NULL) {
-		dataTable = (UChar***)SAlloc::C(sizeof(UChar **), 3);
+		dataTable = (char16_t***)SAlloc::C(sizeof(char16_t **), 3);
 		for(i = 0; i < 3; i++) {
-			dataTable[i] = (UChar**)SAlloc::C(sizeof(UChar *), 4);
+			dataTable[i] = (char16_t**)SAlloc::C(sizeof(char16_t *), 4);
 			for(j = 0; j < 4; j++) {
-				dataTable[i][j] = (UChar *)SAlloc::M(sizeof(UChar)*(strlen(raw[i][j])+1));
+				dataTable[i][j] = (char16_t *)SAlloc::M(sizeof(char16_t)*(strlen(raw[i][j])+1));
 				u_uastrcpy(dataTable[i][j], raw[i][j]);
 			}
 		}
@@ -101,8 +101,8 @@ static void cleanUpDataTable()
 static void TestStringFunctions()
 {
 	int32_t i, j, k;
-	UChar temp[512];
-	UChar nullTemp[512];
+	char16_t temp[512];
+	char16_t nullTemp[512];
 	char test[512];
 	char tempOut[512];
 
@@ -152,7 +152,7 @@ static void TestStringFunctions()
 
 	log_verbose("Testing u_memmove()\n");
 	for(i = 0; i < 7; i++) {
-		temp[i] = (UChar)i;
+		temp[i] = (char16_t)i;
 	}
 	u_memmove(temp + 1, temp, 7);
 	if(temp[0] != 0) {
@@ -247,8 +247,8 @@ static void TestStringFunctions()
 	log_verbose("Testing u_strchr() and u_memchr()\n");
 
 	for(i = 2, j = 0; j<4; j++) {
-		UChar saveVal = dataTable[i][j][0];
-		UChar * findPtr = u_strchr(dataTable[i][j], 0x005F);
+		char16_t saveVal = dataTable[i][j][0];
+		char16_t * findPtr = u_strchr(dataTable[i][j], 0x005F);
 		int32_t dataSize = (int32_t)(u_strlen(dataTable[i][j]) + 1);
 
 		log_verbose("%s ", u_austrcpy(tempOut, findPtr));
@@ -307,7 +307,7 @@ static void TestStringFunctions()
 	 * Jitterbug 1542
 	 */
 	{
-		static const UChar s[] = {
+		static const char16_t s[] = {
 			/*   0       1       2       3       4       5       6       7       8  9 */
 			0x0061, 0xd841, 0xdc02, 0xd841, 0x0062, 0xdc02, 0xd841, 0xdc02, 0x0063, 0
 		};
@@ -329,11 +329,11 @@ static void TestStringFunctions()
 	{
 		const char tokString[] = "  ,  1 2 3  AHHHHH! 5.5 6 7    ,        8\n";
 		const char * tokens[] = {",", "1", "2", "3", "AHHHHH!", "5.5", "6", "7", "8\n"};
-		UChar delimBuf[sizeof(test)];
-		UChar currTokenBuf[sizeof(tokString)];
-		UChar * state;
+		char16_t delimBuf[sizeof(test)];
+		char16_t currTokenBuf[sizeof(tokString)];
+		char16_t * state;
 		uint32_t currToken = 0;
-		UChar * ptr;
+		char16_t * ptr;
 
 		u_uastrcpy(temp, tokString);
 		u_uastrcpy(delimBuf, " ");
@@ -397,7 +397,7 @@ static void TestStringFunctions()
 	/* test u_strcmpCodePointOrder() */
 	{
 		/* these strings are in ascending order */
-		static const UChar strings[][4] = {
+		static const char16_t strings[][4] = {
 			{ 0x61, 0 }, /* U+0061 */
 			{ 0x20ac, 0xd801, 0 }, /* U+20ac U+d801 */
 			{ 0x20ac, 0xd800, 0xdc00, 0 }, /* U+20ac U+10000 */
@@ -464,17 +464,17 @@ static void TestStringFunctions()
 
 static void TestStringSearching()
 {
-	const UChar testString[] = {0x0061, 0x0062, 0x0063, 0x0064, 0x0064, 0x0061, 0};
-	const UChar testSurrogateString[] =
+	const char16_t testString[] = {0x0061, 0x0062, 0x0063, 0x0064, 0x0064, 0x0061, 0};
+	const char16_t testSurrogateString[] =
 	{0xdbff, 0x0061, 0x0062, 0xdbff, 0xdfff, 0x0063, 0x0064, 0x0064, 0xdbff, 0xdfff, 0xdb00, 0xdf00, 0x0061, 0};
-	const UChar surrMatchSet1[] = {0xdbff, 0xdfff, 0};
-	const UChar surrMatchSet2[] = {0x0061, 0x0062, 0xdbff, 0xdfff, 0};
-	const UChar surrMatchSet3[] = {0xdb00, 0xdf00, 0xdbff, 0xdfff, 0};
-	const UChar surrMatchSet4[] = {0x0000};
-	const UChar surrMatchSetBad[] = {0xdbff, 0x0061, 0};
-	const UChar surrMatchSetBad2[] = {0x0061, 0xdbff, 0};
-	const UChar surrMatchSetBad3[] = {0xdbff, 0x0061, 0x0062, 0xdbff, 0xdfff, 0}; /* has partial surrogate */
-	const UChar
+	const char16_t surrMatchSet1[] = {0xdbff, 0xdfff, 0};
+	const char16_t surrMatchSet2[] = {0x0061, 0x0062, 0xdbff, 0xdfff, 0};
+	const char16_t surrMatchSet3[] = {0xdb00, 0xdf00, 0xdbff, 0xdfff, 0};
+	const char16_t surrMatchSet4[] = {0x0000};
+	const char16_t surrMatchSetBad[] = {0xdbff, 0x0061, 0};
+	const char16_t surrMatchSetBad2[] = {0x0061, 0xdbff, 0};
+	const char16_t surrMatchSetBad3[] = {0xdbff, 0x0061, 0x0062, 0xdbff, 0xdfff, 0}; /* has partial surrogate */
+	const char16_t
 	    empty[] = { 0 },
 	    a[] = { 0x61, 0 },
 	    ab[] = { 0x61, 0x62, 0 },
@@ -673,7 +673,7 @@ static void TestStringSearching()
  * There are some new functions, too - just test them all.
  */
 static void TestSurrogateSearching() {
-	static const UChar s[] = {
+	static const char16_t s[] = {
 		/* 0       1       2     3       4     5       6     7       8       9    10 11 */
 		0x61, 0xd801, 0xdc02, 0x61, 0xdc02, 0x61, 0xd801, 0x61, 0xd801, 0xdc02, 0x61, 0
 	}, sub_a[] = {
@@ -695,10 +695,10 @@ static void TestSurrogateSearching() {
 	}, sub_aba[] = {
 		0x61, 0x62, 0x61, 0
 	};
-	static const UChar a = 0x61, b = 0x62, lead = 0xd801, trail = 0xdc02, nul = 0;
+	static const char16_t a = 0x61, b = 0x62, lead = 0xd801, trail = 0xdc02, nul = 0;
 	static const UChar32 supp = 0x10402, supp2 = 0x10403, ill = 0x123456;
 
-	const UChar * first, * last;
+	const char16_t * first, * last;
 
 	/* search for NUL code point: find end of string */
 	first = s+u_strlen(s);
@@ -864,7 +864,7 @@ static void TestSurrogateSearching() {
 		log_err("error: one of the u_str[chr etc](U+10402) does not find the correct place\n");
 	}
 
-	/* do not find U+10402 in a single UChar */
+	/* do not find U+10402 in a single char16_t */
 	if(
 		NULL!=u_memchr32(s+1, supp, 1) ||
 		NULL!=u_strFindFirst(s+1, 1, sub_supp, -1) ||
@@ -876,7 +876,7 @@ static void TestSurrogateSearching() {
 		NULL!=u_strFindLast(s+2, 1, sub_supp, -1) ||
 		NULL!=u_strFindLast(s+2, 1, sub_supp, 2)
 		) {
-		log_err("error: one of the u_str[chr etc](U+10402) incorrectly finds a supplementary c.p. in a single UChar\n");
+		log_err("error: one of the u_str[chr etc](U+10402) incorrectly finds a supplementary c.p. in a single char16_t\n");
 	}
 
 	/* do not find U+10403 in s[1..10[ */
@@ -953,7 +953,7 @@ static void TestSurrogateSearching() {
 	 * surrogate and the last char is the leading surragte.
 	 */
 	{
-		static const UChar s[] = { 0x0020, 0xD9C1 };
+		static const char16_t s[] = { 0x0020, 0xD9C1 };
 		if(u_strFindFirst(s, 2, s, 2) != s) {
 			log_err("error: ending with a partial supplementary code point should match\n");
 		}
@@ -962,10 +962,10 @@ static void TestSurrogateSearching() {
 
 static void TestStringCopy()
 {
-	UChar temp[40];
-	UChar * result = 0;
-	UChar subString[5];
-	UChar uchars[] = {0x61, 0x62, 0x63, 0x00};
+	char16_t temp[40];
+	char16_t * result = 0;
+	char16_t subString[5];
+	char16_t uchars[] = {0x61, 0x62, 0x63, 0x00};
 	char charOut[40];
 	char chars[] = "abc"; /* needs default codepage */
 
@@ -1020,7 +1020,7 @@ static void TestStringCopy()
 	temp[5] = 0xd841;
 	temp[6] = 0xdc02;
 	temp[7] = 0;
-	result = u_strchr(temp, (UChar)0x62);
+	result = u_strchr(temp, (char16_t)0x62);
 	if(result != temp+1) {
 		log_err("There is an error in u_strchr() Expected match at position 1 Got %ld (pointer 0x%lx)\n", result-temp, result);
 	}
@@ -1079,12 +1079,12 @@ static void TestStringCopy()
 /* test u_unescape() and u_unescapeAt() ------------------------------------- */
 
 static void TestUnescape() {
-	static UChar buffer[200];
+	static char16_t buffer[200];
 
 	static const char * input =
 	    "Sch\\u00f6nes Auto: \\u20ac 11240.\\fPrivates Zeichen: \\U00102345\\e\\cC\\n \\x1b\\x{263a}";
 
-	static const UChar expect[] = {
+	static const char16_t expect[] = {
 		0x53, 0x63, 0x68, 0xf6, 0x6e, 0x65, 0x73, 0x20, 0x41, 0x75, 0x74, 0x6f, 0x3a, 0x20,
 		0x20ac, 0x20, 0x31, 0x31, 0x32, 0x34, 0x30, 0x2e, 0x0c,
 		0x50, 0x72, 0x69, 0x76, 0x61, 0x74, 0x65, 0x73, 0x20,
@@ -1111,7 +1111,7 @@ static void TestUnescapeRepeatedSurrogateLead20725()
 	const int32_t repeat = 20000;
 	const int32_t srclen = repeat * 6 + 1;
 	char * src = (char *)SAlloc::M(srclen);
-	UChar * dest = (UChar *)SAlloc::M(sizeof(UChar) * (repeat + 1));
+	char16_t * dest = (char16_t *)SAlloc::M(sizeof(char16_t) * (repeat + 1));
 	if(src == NULL || dest == NULL) {
 		log_err("memory allocation error");
 	}
@@ -1130,12 +1130,12 @@ static void TestUnescapeRepeatedSurrogateLead20725()
 	SAlloc::F(src);
 	// A few simple test cases to make sure that the code recovers properly
 	u_unescape("\\ud841\\x5A", dest, repeat);
-	const UChar expected1[] = {0xd841, 'Z', 0};
+	const char16_t expected1[] = {0xd841, 'Z', 0};
 	if(u_strcmp(dest, expected1)!=0) {
 		log_err("u_unescape() should return u\"\\ud841Z\" but got %s", dest);
 	}
 	u_unescape("\\ud841\\U00050005", dest, repeat);
-	const UChar expected2[] = {0xd841, 0xd900, 0xdc05, 0};
+	const char16_t expected2[] = {0xd841, 0xd900, 0xdc05, 0};
 	if(u_strcmp(dest, expected2)!=0) {
 		log_err("u_unescape() should return u\"\\ud841\\ud900\\udc05\" "
 		    "but got %s", dest);
@@ -1144,7 +1144,7 @@ static void TestUnescapeRepeatedSurrogateLead20725()
 	// \\xXX is ill-formed. The documentation states:
 	// If an escape sequence is ill-formed, this method returns an empty string.
 	u_unescape("\\ud841\\xXX", dest, repeat);
-	const UChar expected3[] = { 0 };
+	const char16_t expected3[] = { 0 };
 	if(u_strcmp(dest, expected3)!=0) {
 		log_err("u_unescape() should return empty string");
 	}
@@ -1154,14 +1154,14 @@ static void TestUnescapeRepeatedSurrogateLead20725()
 /* test code point counting functions --------------------------------------- */
 
 // reference implementation of u_strHasMoreChar32Than() 
-static /*int32_t*/bool _refStrHasMoreChar32Than(const UChar * s, int32_t length, int32_t number) 
+static /*int32_t*/bool _refStrHasMoreChar32Than(const char16_t * s, int32_t length, int32_t number) 
 {
 	int32_t count = u_countChar32(s, length);
 	return (count > number);
 }
 
 /* compare the real function against the reference */
-static void _testStrHasMoreChar32Than(const UChar * s, int32_t i, int32_t length, int32_t number) 
+static void _testStrHasMoreChar32Than(const char16_t * s, int32_t i, int32_t length, int32_t number) 
 {
 	if(u_strHasMoreChar32Than(s, length, number)!=_refStrHasMoreChar32Than(s, length, number)) {
 		log_err("u_strHasMoreChar32Than(s+%d, %d, %d)=%hd is wrong\n",
@@ -1170,14 +1170,14 @@ static void _testStrHasMoreChar32Than(const UChar * s, int32_t i, int32_t length
 }
 
 static void TestCountChar32() {
-	static const UChar string[] = {
+	static const char16_t string[] = {
 		0x61, 0x62, 0xd800, 0xdc00,
 		0xd801, 0xdc01, 0x63, 0xd802,
 		0x64, 0xdc03, 0x65, 0x66,
 		0xd804, 0xdc04, 0xd805, 0xdc05,
 		0x67
 	};
-	UChar buffer[100];
+	char16_t buffer[100];
 	int32_t i, length, number;
 
 	/* test u_strHasMoreChar32Than() with length>=0 */
@@ -1475,7 +1475,7 @@ static void testIteratorState(UCharIterator * iter1, UCharIterator * iter2, cons
 }
 
 static void TestUCharIterator() {
-	static const UChar text[] = {
+	static const char16_t text[] = {
 		0x61, 0x62, 0x63, 0xd801, 0xdffd, 0x78, 0x79, 0x7a, 0
 	};
 	char bytes[40];
@@ -1533,7 +1533,7 @@ static void TestUCharIterator() {
 		return;
 	}
 
-	/* terminate with a _pair_ of 0 bytes - a UChar NUL in UTF-16BE (length is known to be ok) */
+	/* terminate with a _pair_ of 0 bytes - a char16_t NUL in UTF-16BE (length is known to be ok) */
 	bytes[length] = bytes[length+1] = 0;
 
 	uiter_setString(&iter1, text, -1);

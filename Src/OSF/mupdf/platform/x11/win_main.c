@@ -289,7 +289,7 @@ static INT_PTR CALLBACK dlogpassproc(HWND hwnd, UINT message, WPARAM wParam, LPA
 		    switch(wParam) {
 			    case 1:
 					pd_okay = 1;
-					GetDlgItemTextW(hwnd, 3, pd_passwordw, nelem(pd_passwordw));
+					GetDlgItemTextW(hwnd, 3, pd_passwordw, SIZEOFARRAY(pd_passwordw));
 					EndDialog(hwnd, 1);
 					WideCharToMultiByte(CP_UTF8, 0, pd_passwordw, -1, pd_password, sizeof pd_password, NULL, NULL);
 					return TRUE;
@@ -473,9 +473,8 @@ static INT_PTR CALLBACK dloginfoproc(HWND hwnd, UINT message, WPARAM wParam, LPA
 		    SetDlgItemTextA(hwnd, 0x13, buf);
 
 #define SETUTF8(ID, STRING) \
-	if(fz_lookup_metadata(ctx, doc, "info:" STRING, buf, sizeof buf) >= 0) \
-	{ \
-		MultiByteToWideChar(CP_UTF8, 0, buf, -1, bufx, nelem(bufx)); \
+	if(fz_lookup_metadata(ctx, doc, "info:" STRING, buf, sizeof buf) >= 0) { \
+		MultiByteToWideChar(CP_UTF8, 0, buf, -1, bufx, SIZEOFARRAY(bufx)); \
 		SetDlgItemTextW(hwnd, ID, bufx); \
 	}
 
@@ -1117,7 +1116,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		strcpy(filename, argv[fz_optind++]);
 	}
 	else {
-		if(!winfilename(wbuf, nelem(wbuf)))
+		if(!winfilename(wbuf, SIZEOFARRAY(wbuf)))
 			exit(0);
 		code = WideCharToMultiByte(CP_UTF8, 0, wbuf, -1, filename, sizeof filename, NULL, NULL);
 		if(code == 0)

@@ -33,7 +33,7 @@ static void doTest(UBiDi * pBiDi, int testNumber, const BiDiTestData * test, int
 static void _testReordering(UBiDi * pBiDi, int testNumber);
 static void testInverse();
 static void _testManyInverseBidi(UBiDi * pBiDi, UBiDiLevel direction);
-static void _testInverseBidi(UBiDi * pBiDi, const UChar * src, int32_t srcLength, UBiDiLevel direction, UErrorCode * pErrorCode);
+static void _testInverseBidi(UBiDi * pBiDi, const char16_t * src, int32_t srcLength, UBiDiLevel direction, UErrorCode * pErrorCode);
 static void _testWriteReverse();
 static void _testManyAddedPoints();
 static void _testMisc();
@@ -44,7 +44,7 @@ static void doLOGICALArabicDeShapingTest();
 static void doArabicShapingTestForBug5421();
 static void doArabicShapingTestForBug8703();
 static void doArabicShapingTestForBug9024();
-static void _testPresentationForms(const UChar * in);
+static void _testPresentationForms(const char16_t * in);
 static void doArabicShapingTestForNewCharacters();
 static void testReorder();
 static void testReorderArabicMathSymbols();
@@ -62,7 +62,7 @@ static void testStreaming();
 static void testClassOverride();
 static const char * inverseBasic(UBiDi * pBiDi, const char * src, int32_t srcLen, uint32_t option, UBiDiLevel level, char * result);
 static bool assertRoundTrip(UBiDi * pBiDi, int32_t tc, int32_t outIndex, const char * srcChars, const char * destChars,
-    const UChar * dest, int32_t destLen, int mode, int option, UBiDiLevel level);
+    const char16_t * dest, int32_t destLen, int mode, int option, UBiDiLevel level);
 static bool checkResultLength(UBiDi * pBiDi, const char * srcChars,
     const char * destChars, int32_t destLen, const char * mode, const char * option, UBiDiLevel level);
 static bool checkMaps(UBiDi * pBiDi, int32_t stringIndex, const char * src,
@@ -72,8 +72,8 @@ static bool checkMaps(UBiDi * pBiDi, int32_t stringIndex, const char * src,
 
 static const char * levelString = "...............................................................";
 static void initCharFromDirProps();
-static UChar * getStringFromDirProps(const uint8_t * dirProps, int32_t length, UChar * buffer);
-static void printUnicode(const UChar * s, int32_t length, const UBiDiLevel * levels);
+static char16_t * getStringFromDirProps(const uint8_t * dirProps, int32_t length, char16_t * buffer);
+static void printUnicode(const char16_t * s, int32_t length, const UBiDiLevel * levels);
 
 /* regression tests ---------------------------------------------------------*/
 
@@ -150,7 +150,7 @@ static void testBidi() {
 
 static void doTests(UBiDi * pBiDi, UBiDi * pLine, bool countRunsFirst) 
 {
-	UChar string[MAXLEN];
+	char16_t string[MAXLEN];
 	int32_t lineStart;
 	UBiDiLevel paraLevel;
 	for(int testNumber = 0; testNumber < bidiTestCount; ++testNumber) {
@@ -189,7 +189,7 @@ static const char columns[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklm
 
 #define TABLE_SIZE  256
 static bool tablesInitialized = FALSE;
-static UChar pseudoToUChar[TABLE_SIZE];
+static char16_t pseudoToUChar[TABLE_SIZE];
 static uint8_t UCharToPseudo[TABLE_SIZE]; /* used for Unicode chars < 0x0100 */
 static uint8_t UCharToPseud2[TABLE_SIZE]; /* used for Unicode chars >=0x0100 */
 
@@ -222,7 +222,7 @@ static void buildPseudoTables(void)
  */
 {
 	int i;
-	UChar uchar;
+	char16_t uchar;
 	uint8_t c;
 	/* initialize all tables to unknown */
 	for(i = 0; i < TABLE_SIZE; i++) {
@@ -307,9 +307,9 @@ static void buildPseudoTables(void)
 
 /*----------------------------------------------------------------------*/
 
-static int pseudoToU16(const int length, const char * input, UChar * output)
-/*  This function converts a pseudo-Bidi string into a UChar string.
-    It returns the length of the UChar string.
+static int pseudoToU16(const int length, const char * input, char16_t * output)
+/*  This function converts a pseudo-Bidi string into a char16_t string.
+    It returns the length of the char16_t string.
  */
 {
 	int i;
@@ -324,13 +324,13 @@ static int pseudoToU16(const int length, const char * input, UChar * output)
 
 /*----------------------------------------------------------------------*/
 
-static int u16ToPseudo(const int length, const UChar * input, char * output)
-/*  This function converts a UChar string into a pseudo-Bidi string.
+static int u16ToPseudo(const int length, const char16_t * input, char * output)
+/*  This function converts a char16_t string into a pseudo-Bidi string.
     It returns the length of the pseudo-Bidi string.
  */
 {
 	int i;
-	UChar uchar;
+	char16_t uchar;
 	if(!tablesInitialized) {
 		buildPseudoTables();
 	}
@@ -694,8 +694,8 @@ static void testReorder() {
 	for(i = 0; i<SIZEOFARRAYi(logicalOrder); i++) {
 		int32_t srcSize = (int32_t)strlen(logicalOrder[i]);
 		int32_t destSize = srcSize*2;
-		UChar src[MAXLEN];
-		UChar dest[MAXLEN];
+		char16_t src[MAXLEN];
+		char16_t dest[MAXLEN];
 		char chars[MAXLEN];
 		log_verbose("Testing L2V #1 for case %d\n", i);
 		pseudoToU16(srcSize, logicalOrder[i], src);
@@ -733,8 +733,8 @@ static void testReorder() {
 	for(i = 0; i<SIZEOFARRAYi(logicalOrder); i++) {
 		int32_t srcSize = (int32_t)strlen(logicalOrder[i]);
 		int32_t destSize = srcSize*2;
-		UChar src[MAXLEN];
-		UChar dest[MAXLEN];
+		char16_t src[MAXLEN];
+		char16_t dest[MAXLEN];
 		char chars[MAXLEN];
 		log_verbose("Testing L2V #2 for case %d\n", i);
 		pseudoToU16(srcSize, logicalOrder[i], src);
@@ -771,8 +771,8 @@ static void testReorder() {
 	for(i = 0; i<SIZEOFARRAYi(logicalOrder); i++) {
 		int32_t srcSize = (int32_t)strlen(logicalOrder[i]);
 		int32_t destSize = srcSize*2;
-		UChar src[MAXLEN];
-		UChar dest[MAXLEN];
+		char16_t src[MAXLEN];
+		char16_t dest[MAXLEN];
 		char chars[MAXLEN];
 		log_verbose("Testing V2L #3 for case %d\n", i);
 		pseudoToU16(srcSize, logicalOrder[i], src);
@@ -809,8 +809,8 @@ static void testReorder() {
 	for(i = 0; i<SIZEOFARRAYi(logicalOrder); i++) {
 		int32_t srcSize = (int32_t)strlen(logicalOrder[i]);
 		int32_t destSize = srcSize*2;
-		UChar src[MAXLEN];
-		UChar dest[MAXLEN];
+		char16_t src[MAXLEN];
+		char16_t dest[MAXLEN];
 		char chars[MAXLEN];
 		UBiDiLevel levels[UBIDI_MAX_EXPLICIT_LEVEL] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 		log_verbose("Testing V2L #4 for case %d\n", i);
@@ -849,8 +849,8 @@ static void testReorder() {
 	for(i = 0; i<SIZEOFARRAYi(logicalOrder); i++) {
 		int32_t srcSize = (int32_t)strlen(logicalOrder[i]);
 		int32_t destSize = srcSize*2;
-		UChar src[MAXLEN];
-		UChar dest[MAXLEN];
+		char16_t src[MAXLEN];
+		char16_t dest[MAXLEN];
 		char chars[MAXLEN];
 		UBiDiLevel levels[UBIDI_MAX_EXPLICIT_LEVEL] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 		log_verbose("Testing V2L #5 for case %d\n", i);
@@ -883,7 +883,7 @@ static void testReorder() {
 }
 
 static void testReorderArabicMathSymbols() {
-	static const UChar logicalOrder[][MAXLEN] = {
+	static const char16_t logicalOrder[][MAXLEN] = {
 		/* Arabic mathematical Symbols 0x1EE00 - 0x1EE1B */
 		{0xD83B, 0xDE00, 0xD83B, 0xDE01, 0xD83B, 0xDE02, 0xD83B, 0xDE03, 0x20,
 		 0xD83B, 0xDE24, 0xD83B, 0xDE05, 0xD83B, 0xDE06, 0x20,
@@ -925,7 +925,7 @@ static void testReorderArabicMathSymbols() {
 		 0xD83B, 0xDE51, 0xD83B, 0xDE52, 0xD83B, 0xDE54, 0xD83B, 0xDE57, 0x20,
 		 0xD83B, 0xDE59, 0xD83B, 0xDE5B, 0xD83B, 0xDE5D, 0xD83B, 0xDE5F}
 	};
-	static const UChar visualOrder[][MAXLEN] = {
+	static const char16_t visualOrder[][MAXLEN] = {
 		/* Arabic mathematical Symbols 0x1EE00 - 0x1EE1B */
 		{0xD83B, 0xDE1B, 0xD83B, 0xDE1A, 0xD83B, 0xDE19, 0x20,
 		 0xD83B, 0xDE18, 0xD83B, 0xDE17, 0xD83B, 0xDE16, 0x20,
@@ -977,7 +977,7 @@ static void testReorderArabicMathSymbols() {
 	for(i = 0; i<SIZEOFARRAYi(logicalOrder); i++) {
 		int32_t srcSize = u_strlen(logicalOrder[i]);
 		int32_t destSize = srcSize*2;
-		UChar dest[MAXLEN];
+		char16_t dest[MAXLEN];
 		log_verbose("Testing L2V #1 for case %d\n", i);
 		ec = U_ZERO_ERROR;
 		ubidi_setPara(bidi, logicalOrder[i], srcSize, UBIDI_DEFAULT_LTR, NULL, &ec);
@@ -1280,7 +1280,7 @@ static void testGetBaseDirection() {
 	int i;
 
 /* Test Data */
-	static const UChar
+	static const char16_t
 /*Mixed Start with L*/
 	    stringMixedEnglishFirst[] = { 0x61, 0x627, 0x32, 0x6f3, 0x61, 0x34, 0 },
 /*Mixed Start with AL*/
@@ -1301,8 +1301,8 @@ static void testGetBaseDirection() {
 	    stringEmpty[] = {0},
 /*Surrogate Char.*/
 	    stringSurrogateChar[] = {0xD800, 0xDC00, 0},
-/*Invalid UChar */
-	    stringInvalidUchar[] = {static_cast<UChar>(-1)},
+/*Invalid char16_t */
+	    stringInvalidUchar[] = {static_cast<char16_t>(-1)},
 /*All weak L (English Digits)*/
 	    stringAllEnglishDigits[] = {0x31, 0x32, 0x33, 0},
 /*All weak AL (Arabic Digits)*/
@@ -1313,7 +1313,7 @@ static void testGetBaseDirection() {
 	    stringLastR[] = {0x31, 0x32, 0x33, 0x05F1, 0};
 
 	static const struct {
-		const UChar * s;
+		const char16_t * s;
 		int32_t length;
 	} testCases[] = {
 		STRING_TEST_CASE(stringMixedEnglishFirst),
@@ -1394,7 +1394,7 @@ static void testGetBaseDirection() {
 static void doMisc() {
 /* Miscellaneous tests to exercize less popular code paths */
 	UBiDi * bidi, * bidiLine;
-	UChar src[MAXLEN], dest[MAXLEN];
+	char16_t src[MAXLEN], dest[MAXLEN];
 	int32_t srcLen, destLen, runCount, i;
 	UBiDiLevel level;
 	UBiDiDirection dir;
@@ -1534,7 +1534,7 @@ static void doMisc() {
 	ubidi_setPara(bidi, src, srcLen, UBIDI_LTR, NULL, &errorCode);
 	destLen = ubidi_writeReordered(bidi, dest, MAXLEN,
 		UBIDI_REMOVE_BIDI_CONTROLS | UBIDI_DO_MIRRORING, &errorCode);
-	if(destLen != 3 || memcmp(dest, src, 3 * sizeof(UChar))) {
+	if(destLen != 3 || memcmp(dest, src, 3 * sizeof(char16_t))) {
 		log_err("\nWrong result #1, should be 'abc', got '%s'\n", aescstrdup(dest, destLen));
 	}
 	RETURN_IF_BAD_ERRCODE("#11#");
@@ -1551,14 +1551,14 @@ static void doMisc() {
 	srcLen = u_unescape("   ", src, MAXLEN);
 	ubidi_setPara(bidi, src, srcLen, UBIDI_DEFAULT_RTL, NULL, &errorCode);
 	destLen = ubidi_writeReordered(bidi, dest, MAXLEN, 0, &errorCode);
-	if(destLen != 3 || memcmp(dest, src, destLen * sizeof(UChar))) {
+	if(destLen != 3 || memcmp(dest, src, destLen * sizeof(char16_t))) {
 		log_err("\nWrong result #3, should be '   ', got '%s'\n", aescstrdup(dest, destLen));
 	}
 	RETURN_IF_BAD_ERRCODE("#13#");
 	srcLen = u_unescape("abc", src, MAXLEN);
 	ubidi_setPara(bidi, src, srcLen, UBIDI_DEFAULT_RTL, NULL, &errorCode);
 	destLen = ubidi_writeReordered(bidi, dest, MAXLEN, 0, &errorCode);
-	if(destLen != 3 || memcmp(dest, src, destLen * sizeof(UChar))) {
+	if(destLen != 3 || memcmp(dest, src, destLen * sizeof(char16_t))) {
 		log_err("\nWrong result #4, should be 'abc', got '%s'\n", aescstrdup(dest, destLen));
 	}
 	RETURN_IF_BAD_ERRCODE("#14#");
@@ -1566,7 +1566,7 @@ static void doMisc() {
 	ubidi_setPara(bidi, src, srcLen, UBIDI_DEFAULT_RTL, NULL, &errorCode);
 	destLen = ubidi_writeReordered(bidi, dest, MAXLEN, 0, &errorCode);
 	srcLen = u_unescape("\\u05d1\\u05d0", src, MAXLEN);
-	if(destLen != 2 || memcmp(dest, src, destLen * sizeof(UChar))) {
+	if(destLen != 2 || memcmp(dest, src, destLen * sizeof(char16_t))) {
 		log_err("\nWrong result #5, should be '%s', got '%s'\n", aescstrdup(src, srcLen), aescstrdup(dest, destLen));
 	}
 	RETURN_IF_BAD_ERRCODE("#15#");
@@ -1574,7 +1574,7 @@ static void doMisc() {
 	ubidi_setPara(bidi, src, srcLen, UBIDI_DEFAULT_RTL, NULL, &errorCode);
 	destLen = ubidi_writeReordered(bidi, dest, MAXLEN, 0, &errorCode);
 	srcLen = u_unescape("\\u05d1\\u05d0 abc", src, MAXLEN);
-	if(destLen != 6 || memcmp(dest, src, destLen * sizeof(UChar))) {
+	if(destLen != 6 || memcmp(dest, src, destLen * sizeof(char16_t))) {
 		log_err("\nWrong result #6, should be '%s', got '%s'\n", aescstrdup(src, srcLen), aescstrdup(dest, destLen));
 	}
 	RETURN_IF_BAD_ERRCODE("#16#");
@@ -1582,7 +1582,7 @@ static void doMisc() {
 	ubidi_setPara(bidi, src, srcLen, UBIDI_DEFAULT_RTL, NULL, &errorCode);
 	destLen = ubidi_writeReordered(bidi, dest, MAXLEN, 0, &errorCode);
 	srcLen = u_unescape("\\u200fabc \\u05d1\\u05d0", src, MAXLEN);
-	if(destLen != 7 || memcmp(dest, src, destLen * sizeof(UChar))) {
+	if(destLen != 7 || memcmp(dest, src, destLen * sizeof(char16_t))) {
 		log_err("\nWrong result #7, should be '%s', got '%s'\n", aescstrdup(src, srcLen), aescstrdup(dest, destLen));
 	}
 	RETURN_IF_BAD_ERRCODE("#17#");
@@ -1590,7 +1590,7 @@ static void doMisc() {
 	ubidi_setPara(bidi, src, srcLen, UBIDI_DEFAULT_RTL, NULL, &errorCode);
 	destLen = ubidi_writeReordered(bidi, dest, MAXLEN, 0, &errorCode);
 	srcLen = u_unescape("\\u200f=-. abc \\u05d1\\u05d0", src, MAXLEN);
-	if(destLen != 11 || memcmp(dest, src, destLen * sizeof(UChar))) {
+	if(destLen != 11 || memcmp(dest, src, destLen * sizeof(char16_t))) {
 		log_err("\nWrong result #8, should be '%s', got '%s'\n", aescstrdup(src, srcLen), aescstrdup(dest, destLen));
 	}
 	RETURN_IF_BAD_ERRCODE("#18#");
@@ -1603,7 +1603,7 @@ static void doMisc() {
 	srcLen = u_unescape("\n\r   \n\rabc\n\\u05d1\\u05d0\r\\u05d3\\u05d2 abc\n\r"
 		"\\u200fabc \\u05d5\\u05d4\n\\u200f=-. abc \\u05d7\\u05d6\r\n"
 		"\\u200f=-. abc \\u05d9\\u05d8 *-", src, MAXLEN);
-	if(destLen != 57 || memcmp(dest, src, destLen * sizeof(UChar))) {
+	if(destLen != 57 || memcmp(dest, src, destLen * sizeof(char16_t))) {
 		log_err("\nWrong result #9, should be '%s', got '%s'\n", aescstrdup(src, srcLen), aescstrdup(dest, destLen));
 	}
 	RETURN_IF_BAD_ERRCODE("#19#");
@@ -1611,7 +1611,7 @@ static void doMisc() {
 	ubidi_setPara(bidi, src, srcLen, UBIDI_LTR, NULL, &errorCode);
 	destLen = ubidi_writeReordered(bidi, dest, MAXLEN, 0, &errorCode);
 	srcLen = u_unescape("\\u05D0\\u200e \t", src, MAXLEN);
-	if(destLen != 4 || memcmp(dest, src, destLen * sizeof(UChar))) {
+	if(destLen != 4 || memcmp(dest, src, destLen * sizeof(char16_t))) {
 		log_err("\nWrong result #10, should be '%s', got '%s'\n", aescstrdup(src, srcLen), aescstrdup(dest, destLen));
 	}
 	RETURN_IF_BAD_ERRCODE("#20#");
@@ -1619,7 +1619,7 @@ static void doMisc() {
 	ubidi_setPara(bidi, src, srcLen, UBIDI_LTR, NULL, &errorCode);
 	destLen = ubidi_writeReordered(bidi, dest, MAXLEN, 0, &errorCode);
 	srcLen = u_unescape("\\u05d0 \\u200e123\\u200e \t\\u05d2 123 \\u05d1", src, MAXLEN);
-	if(destLen != 16 || memcmp(dest, src, destLen * sizeof(UChar))) {
+	if(destLen != 16 || memcmp(dest, src, destLen * sizeof(char16_t))) {
 		log_err("\nWrong result #11, should be '%s', got '%s'\n", aescstrdup(src, srcLen), aescstrdup(dest, destLen));
 	}
 	RETURN_IF_BAD_ERRCODE("#21#");
@@ -1627,7 +1627,7 @@ static void doMisc() {
 	ubidi_setPara(bidi, src, srcLen, UBIDI_LTR, NULL, &errorCode);
 	destLen = ubidi_writeReordered(bidi, dest, MAXLEN, 0, &errorCode);
 	srcLen = u_unescape("\\u05d0 \\u200e123 \\u200e\\u0660\\u0661 ab", src, MAXLEN);
-	if(destLen != 13 || memcmp(dest, src, destLen * sizeof(UChar))) {
+	if(destLen != 13 || memcmp(dest, src, destLen * sizeof(char16_t))) {
 		log_err("\nWrong result #12, should be '%s', got '%s'\n", aescstrdup(src, srcLen), aescstrdup(dest, destLen));
 	}
 	RETURN_IF_BAD_ERRCODE("#22#");
@@ -1635,7 +1635,7 @@ static void doMisc() {
 	ubidi_setPara(bidi, src, srcLen, UBIDI_RTL, NULL, &errorCode);
 	destLen = ubidi_writeReordered(bidi, dest, MAXLEN, 0, &errorCode);
 	srcLen = u_unescape("\\u200f\t ab", src, MAXLEN);
-	if(destLen != 5 || memcmp(dest, src, destLen * sizeof(UChar))) {
+	if(destLen != 5 || memcmp(dest, src, destLen * sizeof(char16_t))) {
 		log_err("\nWrong result #13, should be '%s', got '%s'\n", aescstrdup(src, srcLen), aescstrdup(dest, destLen));
 	}
 	RETURN_IF_BAD_ERRCODE("#23#");
@@ -1668,7 +1668,7 @@ static void testFailureRecovery()
 {
 	UErrorCode errorCode;
 	UBiDi * bidi, * bidiLine;
-	UChar src[MAXLEN];
+	char16_t src[MAXLEN];
 	int32_t srcLen;
 	UBiDiLevel level;
 	UBiDiReorderingMode rm;
@@ -1786,7 +1786,7 @@ static void testMultipleParagraphs() {
 	static const char * const text2 = "\\u05d0 1-2\\u001c\\u0630 1-2\\u001c1-2";
 	static const UBiDiLevel levels2[] = {1, 1, 2, 2, 2, 0, 1, 1, 2, 1, 2, 0, 2, 2, 2};
 	static UBiDiLevel myLevels[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	static const UChar multiparaTestString[] = {
+	static const char16_t multiparaTestString[] = {
 		0x5de, 0x5e0, 0x5e1, 0x5d4, 0x20,  0x5e1, 0x5e4, 0x5da,
 		0x20,  0xa,   0xa,   0x41,  0x72,  0x74,  0x69,  0x73,
 		0x74,  0x3a,  0x20,  0x5de, 0x5e0, 0x5e1, 0x5d4, 0x20,
@@ -1809,7 +1809,7 @@ static void testMultipleParagraphs() {
 	UBiDiLevel gotLevel;
 	const UBiDiLevel* gotLevels;
 	bool orderParagraphsLTR;
-	UChar src[MAXLEN], dest[MAXLEN];
+	char16_t src[MAXLEN], dest[MAXLEN];
 	UErrorCode errorCode = U_ZERO_ERROR;
 	UBiDi* pBidi = ubidi_open();
 	UBiDi* pLine;
@@ -2019,9 +2019,9 @@ static void testMultipleParagraphs() {
 	srcSize = 5;
 	ubidi_orderParagraphsLTR(pBidi, TRUE);
 	for(i = 0x001c; i<=0x0020; i += (0x0020-0x001c)) {
-		src[4] = (UChar)i; /* with and without terminating B */
+		src[4] = (char16_t)i; /* with and without terminating B */
 		for(j = 0x0041; j<=0x05d0; j += (0x05d0-0x0041)) {
-			src[0] = (UChar)j; /* leading 'A' or Alef */
+			src[0] = (char16_t)j; /* leading 'A' or Alef */
 			for(gotLevel = 4; gotLevel<=5; gotLevel++) {
 				/* test even and odd paraLevel */
 				ubidi_setPara(pBidi, src, srcSize, gotLevel, NULL, &errorCode);
@@ -2046,7 +2046,7 @@ static void testMultipleParagraphs() {
 	ubidi_setPara(pBidi, src, srcLen, UBIDI_DEFAULT_LTR, NULL, &errorCode);
 	destLen = ubidi_writeReordered(pBidi, dest, MAXLEN, 0, &errorCode);
 	srcLen = u_unescape("\\u05d1\\u05d2 abc\n", src, MAXLEN);
-	if(memcmp(src, dest, destLen * sizeof(UChar))) {
+	if(memcmp(src, dest, destLen * sizeof(char16_t))) {
 		log_err("\nInvalid output #0, should be '%s', got '%s'\n",
 		    aescstrdup(src, srcLen), aescstrdup(dest, destLen));
 	}
@@ -2054,7 +2054,7 @@ static void testMultipleParagraphs() {
 	ubidi_setPara(pBidi, src, srcLen, UBIDI_DEFAULT_LTR, NULL, &errorCode);
 	destLen = ubidi_writeReordered(pBidi, dest, MAXLEN, 0, &errorCode);
 	srcLen = u_unescape("\\u05d1\\u05d2 abc", src, MAXLEN);
-	if(memcmp(src, dest, destLen * sizeof(UChar))) {
+	if(memcmp(src, dest, destLen * sizeof(char16_t))) {
 		log_err("\nInvalid output #1, should be '%s', got '%s'\n",
 		    aescstrdup(src, srcLen), aescstrdup(dest, destLen));
 	}
@@ -2066,7 +2066,7 @@ static void testMultipleParagraphs() {
 	ubidi_setPara(pBidi, src, srcLen, UBIDI_LTR, myLevels, &errorCode);
 	destLen = ubidi_writeReordered(pBidi, dest, MAXLEN, 0, &errorCode);
 	srcLen = u_unescape("ab\\u05d2\\u05d1\\n123\\u05d4\\u05d3", src, MAXLEN);
-	if(memcmp(src, dest, destLen * sizeof(UChar))) {
+	if(memcmp(src, dest, destLen * sizeof(char16_t))) {
 		log_err("\nInvalid output #2, should be '%s', got '%s'\n",
 		    aescstrdup(src, srcLen), aescstrdup(dest, destLen));
 	}
@@ -2113,7 +2113,7 @@ static int countRoundtrips = 0, countNonRoundtrips = 0;
 #define STRING_TEST_CASE(s) { (s), SIZEOFARRAYi(s) }
 
 static void testInverse() {
-	static const UChar
+	static const char16_t
 	    string0[] = { 0x6c, 0x61, 0x28, 0x74, 0x69, 0x6e, 0x20, 0x5d0, 0x5d1, 0x29, 0x5d2, 0x5d3 },
 	    string1[] = { 0x6c, 0x61, 0x74, 0x20, 0x5d0, 0x5d1, 0x5d2, 0x20, 0x31, 0x32, 0x33 },
 	    string2[] = { 0x6c, 0x61, 0x74, 0x20, 0x5d0, 0x28, 0x5d1, 0x5d2, 0x20, 0x31, 0x29, 0x32, 0x33 },
@@ -2121,7 +2121,7 @@ static void testInverse() {
 	    string4[] = { 0x61, 0x62, 0x20, 0x61, 0x62, 0x20, 0x661, 0x662 };
 
 	static const struct {
-		const UChar * s;
+		const char16_t * s;
 		int32_t length;
 	} testCases[] = {
 		STRING_TEST_CASE(string0),
@@ -2174,7 +2174,7 @@ static void testInverse() {
 
 #define COUNT_REPEAT_SEGMENTS 6
 
-static const UChar repeatSegments[COUNT_REPEAT_SEGMENTS][2] = {
+static const char16_t repeatSegments[COUNT_REPEAT_SEGMENTS][2] = {
 	{ 0x61, 0x62 }, /* L */
 	{ 0x5d0, 0x5d1 }, /* R */
 	{ 0x627, 0x628 }, /* AL */
@@ -2184,7 +2184,7 @@ static const UChar repeatSegments[COUNT_REPEAT_SEGMENTS][2] = {
 };
 
 static void _testManyInverseBidi(UBiDi * pBiDi, UBiDiLevel direction) {
-	UChar text[8] = { 0, 0, 0x20, 0, 0, 0x20, 0, 0 };
+	char16_t text[8] = { 0, 0, 0x20, 0, 0, 0x20, 0, 0 };
 	int i, j, k;
 	UErrorCode errorCode;
 
@@ -2208,9 +2208,9 @@ static void _testManyInverseBidi(UBiDi * pBiDi, UBiDiLevel direction) {
 	}
 }
 
-static void _testInverseBidi(UBiDi * pBiDi, const UChar * src, int32_t srcLength,
+static void _testInverseBidi(UBiDi * pBiDi, const char16_t * src, int32_t srcLength,
     UBiDiLevel direction, UErrorCode * pErrorCode) {
-	UChar visualLTR[MAXLEN], logicalDest[MAXLEN], visualDest[MAXLEN];
+	char16_t visualLTR[MAXLEN], logicalDest[MAXLEN], visualDest[MAXLEN];
 	int32_t ltrLength, logicalLength, visualLength;
 
 	if(direction==0) {
@@ -2290,10 +2290,10 @@ static void _testInverseBidi(UBiDi * pBiDi, const UChar * src, int32_t srcLength
 static void _testWriteReverse() 
 {
 	/* U+064e and U+0650 are combining marks (Mn) */
-	static const UChar forward[] = { 0x200f, 0x627, 0x64e, 0x650, 0x20, 0x28, 0x31, 0x29 };
-	static const UChar reverseKeepCombining[] = { 0x29, 0x31, 0x28, 0x20, 0x627, 0x64e, 0x650, 0x200f };
-	static const UChar reverseRemoveControlsKeepCombiningDoMirror[] = { 0x28, 0x31, 0x29, 0x20, 0x627, 0x64e, 0x650 };
-	UChar reverse[10];
+	static const char16_t forward[] = { 0x200f, 0x627, 0x64e, 0x650, 0x20, 0x28, 0x31, 0x29 };
+	static const char16_t reverseKeepCombining[] = { 0x29, 0x31, 0x28, 0x20, 0x627, 0x64e, 0x650, 0x200f };
+	static const char16_t reverseRemoveControlsKeepCombiningDoMirror[] = { 0x28, 0x31, 0x29, 0x20, 0x627, 0x64e, 0x650 };
+	char16_t reverse[10];
 	int32_t length;
 	/* test ubidi_writeReverse() with "interesting" options */
 	UErrorCode errorCode = U_ZERO_ERROR;
@@ -2317,7 +2317,7 @@ static void _testManyAddedPoints()
 {
 	UErrorCode errorCode = U_ZERO_ERROR;
 	UBiDi * bidi = ubidi_open();
-	UChar text[90], dest[MAXLEN], expected[120];
+	char16_t text[90], dest[MAXLEN], expected[120];
 	int destLen, i;
 	for(i = 0; i < SIZEOFARRAYi(text); i += 3) {
 		text[i] = 0x0061; /* 'a' */
@@ -2334,7 +2334,7 @@ static void _testManyAddedPoints()
 		expected[i+2] = 0x200e;
 		expected[i+3] = 0x0033; /* '3' */
 	}
-	if(memcmp(dest, expected, destLen * sizeof(UChar))) {
+	if(memcmp(dest, expected, destLen * sizeof(char16_t))) {
 		log_err("\nInvalid output with many added points, expected '%s', got '%s'\n", aescstrdup(expected, SIZEOFARRAYi(expected)), aescstrdup(dest, destLen));
 	}
 	ubidi_close(bidi);
@@ -2344,7 +2344,7 @@ static void _testMisc()
 {
 	UErrorCode errorCode = U_ZERO_ERROR;
 	UBiDi * bidi = ubidi_open();
-	UChar src[3], dest[MAXLEN], expected[5];
+	char16_t src[3], dest[MAXLEN], expected[5];
 	int destLen;
 	ubidi_setInverse(bidi, TRUE);
 	src[0] = src[1] = src[2] = 0x0020;
@@ -2353,7 +2353,7 @@ static void _testMisc()
 		UBIDI_OUTPUT_REVERSE | UBIDI_INSERT_LRM_FOR_NUMERIC,
 		&errorCode);
 	u_unescape("\\u200f   \\u200f", expected, 5);
-	if(memcmp(dest, expected, destLen * sizeof(UChar))) {
+	if(memcmp(dest, expected, destLen * sizeof(char16_t))) {
 		log_err("\nInvalid output with RLM at both sides, "
 		    "expected '%s', got '%s'\n",
 		    aescstrdup(expected, SIZEOFARRAYi(expected)),
@@ -2365,7 +2365,7 @@ static void _testMisc()
 /* arabic shaping ----------------------------------------------------------- */
 
 static void doArabicShapingTest() {
-	static const UChar
+	static const char16_t
 	    source[] = {
 		0x31, /* en:1 */
 		0x627, /* arabic:alef */
@@ -2389,7 +2389,7 @@ static void doArabicShapingTest() {
 	}, lamalef[] = {
 		0xfefb, 0
 	};
-	UChar dest[8];
+	char16_t dest[8];
 	int32_t length;
 	/* test number shaping */
 	/* european->arabic */
@@ -2542,7 +2542,7 @@ static void doArabicShapingTest() {
 
 	errorCode = U_ZERO_ERROR;
 	length = u_shapeArabic(source, SIZEOFARRAYi(source),
-		(UChar *)(source+2), SIZEOFARRAYi(dest),           /* overlap source and destination */
+		(char16_t *)(source+2), SIZEOFARRAYi(dest),           /* overlap source and destination */
 		U_SHAPE_DIGITS_EN2AN|U_SHAPE_DIGIT_TYPE_AN,
 		&errorCode);
 	if(errorCode!=U_ILLEGAL_ARGUMENT_ERROR) {
@@ -2563,7 +2563,7 @@ static void doArabicShapingTest() {
 }
 
 static void doLamAlefSpecialVLTRArabicShapingTest() {
-	static const UChar
+	static const char16_t
 	    source[] = {
 /*a*/ 0x20, 0x646, 0x622, 0x644, 0x627, 0x20,
 /*b*/ 0x646, 0x623, 0x64E, 0x644, 0x627, 0x20,
@@ -2609,7 +2609,7 @@ static void doLamAlefSpecialVLTRArabicShapingTest() {
 		0x20, 0xfee5, 0x654, 0xfef5, 0xfe8d, 0x20, 0xfefc, 0xfecb
 	};
 
-	UChar dest[38];
+	char16_t dest[38];
 	int32_t length;
 	UErrorCode errorCode = U_ZERO_ERROR;
 	length = u_shapeArabic(source, SIZEOFARRAYi(source),
@@ -2713,7 +2713,7 @@ static void doLamAlefSpecialVLTRArabicShapingTest() {
 }
 
 static void doTashkeelSpecialVLTRArabicShapingTest() {
-	static const UChar
+	static const char16_t
 	    source[] = {
 		0x64A, 0x628, 0x631, 0x639, 0x20,
 		0x64A, 0x628, 0x651, 0x631, 0x64E, 0x639, 0x20,
@@ -2734,7 +2734,7 @@ static void doTashkeelSpecialVLTRArabicShapingTest() {
 		0xfe8f, 0x655, 0xfeae, 0x655, 0xfecb, 0x20
 	};
 
-	UChar dest[43];
+	char16_t dest[43];
 	int32_t length;
 	UErrorCode errorCode = U_ZERO_ERROR;
 	length = u_shapeArabic(source, SIZEOFARRAYi(source),
@@ -2762,7 +2762,7 @@ static void doTashkeelSpecialVLTRArabicShapingTest() {
 }
 
 static void doLOGICALArabicDeShapingTest() {
-	static const UChar
+	static const char16_t
 	    source[] = {
 		0x0020, 0x0020, 0x0020, 0xFE8D, 0xFEF5, 0x0020, 0xFEE5, 0x0020, 0xFE8D, 0xFEF7, 0x0020,
 		0xFED7, 0xFEFC, 0x0020, 0xFEE1, 0x0020, 0xFE8D, 0xFEDF, 0xFECC, 0xFEAE, 0xFE91, 0xFEF4,
@@ -2785,7 +2785,7 @@ static void doLOGICALArabicDeShapingTest() {
 		0x644, 0x62d, 0x631, 0x629, 0x20, 0x20, 0x20, 0x20
 	};
 
-	UChar dest[36];
+	char16_t dest[36];
 	int32_t length;
 	UErrorCode errorCode = U_ZERO_ERROR;
 	length = u_shapeArabic(source, SIZEOFARRAYi(source),
@@ -2836,10 +2836,10 @@ static void doLOGICALArabicDeShapingTest() {
 }
 
 static void doTailTest() {
-	static const UChar src[] = { 0x0020, 0x0633, 0 };
-	static const UChar dst_old[] = { 0xFEB1, 0x200B, 0 };
-	static const UChar dst_new[] = { 0xFEB1, 0xFE73, 0 };
-	UChar dst[3] = { 0x0000, 0x0000, 0 };
+	static const char16_t src[] = { 0x0020, 0x0633, 0 };
+	static const char16_t dst_old[] = { 0xFEB1, 0x200B, 0 };
+	static const char16_t dst_new[] = { 0xFEB1, 0xFE73, 0 };
+	char16_t dst[3] = { 0x0000, 0x0000, 0 };
 	int32_t length;
 	UErrorCode status;
 	log_verbose("SRC: U+%04X U+%04X\n", src[0], src[1]);
@@ -2883,7 +2883,7 @@ static void doTailTest() {
 }
 
 static void doArabicShapingTestForBug5421() {
-	static const UChar
+	static const char16_t
 	    persian_letters_source[] = {
 		0x0020, 0x0698, 0x067E, 0x0686, 0x06AF, 0x0020
 	}, persian_letters[] = {
@@ -2903,7 +2903,7 @@ static void doArabicShapingTestForBug5421() {
 	}, untouched_presentation_r[] = {
 		0x0020, 0xfe90, 0xfe8D, 0x0020
 	};
-	UChar dest[38];
+	char16_t dest[38];
 	int32_t length;
 	UErrorCode errorCode = U_ZERO_ERROR;
 	length = u_shapeArabic(persian_letters_source, SIZEOFARRAYi(persian_letters_source),
@@ -2956,7 +2956,7 @@ static void doArabicShapingTestForBug5421() {
 }
 
 static void doArabicShapingTestForBug8703() {
-	static const UChar
+	static const char16_t
 	    letters_source1[] = {
 		0x0634, 0x0651, 0x0645, 0x0652, 0x0633
 	}, letters_source2[] = {
@@ -2990,7 +2990,7 @@ static void doArabicShapingTestForBug8703() {
 	}, letters_dest8[] = {
 		0xFEB2, 0x0640, 0xFEE4, 0xFE7D, 0xFEB7
 	};
-	UChar dest[20];
+	char16_t dest[20];
 	int32_t length;
 	UErrorCode errorCode = U_ZERO_ERROR;
 	length = u_shapeArabic(letters_source1, SIZEOFARRAYi(letters_source1),
@@ -3081,7 +3081,7 @@ static void doArabicShapingTestForBug8703() {
 }
 
 static void doArabicShapingTestForBug9024() {
-	static const UChar
+	static const char16_t
 	    letters_source1[] = { /* Arabic mathematical Symbols 0x1EE00 - 0x1EE1B */
 		0xD83B, 0xDE00, 0xD83B, 0xDE01, 0xD83B, 0xDE02, 0xD83B, 0xDE03, 0x20,
 		0xD83B, 0xDE24, 0xD83B, 0xDE05, 0xD83B, 0xDE06, 0x20,
@@ -3168,7 +3168,7 @@ static void doArabicShapingTestForBug9024() {
 		0xD83B, 0xDE21, 0xFEB1, 0xD83B, 0xDE62, 0xFEE9
 	};
 
-	UChar dest[MAXLEN];
+	char16_t dest[MAXLEN];
 	int32_t length;
 	UErrorCode errorCode = U_ZERO_ERROR;
 	length = u_shapeArabic(letters_source1, SIZEOFARRAYi(letters_source1),
@@ -3236,14 +3236,14 @@ static void doArabicShapingTestForBug9024() {
 	}
 }
 
-static void _testPresentationForms(const UChar * in) 
+static void _testPresentationForms(const char16_t * in) 
 {
 	enum Forms { GENERIC, ISOLATED, FINAL, INITIAL, MEDIAL };
 	/* This character is used to check whether the in-character is rewritten correctly
 	   and whether the surrounding characters are shaped correctly as well. */
-	UChar otherChar[] = {0x0628, 0xfe8f, 0xfe90, 0xfe91, 0xfe92};
-	UChar src[3];
-	UChar dst[3];
+	char16_t otherChar[] = {0x0628, 0xfe8f, 0xfe90, 0xfe91, 0xfe92};
+	char16_t src[3];
+	char16_t dst[3];
 	UErrorCode errorCode;
 	int32_t length;
 	/* Testing isolated shaping */
@@ -3396,7 +3396,7 @@ static void _testPresentationForms(const UChar * in)
 }
 
 static void doArabicShapingTestForNewCharacters() {
-	static const UChar letterForms[][5] = {
+	static const char16_t letterForms[][5] = {
 		{ 0x0679, 0xFB66, 0xFB67, 0xFB68, 0xFB69 }, /* TTEH */
 		{ 0x067A, 0xFB5E, 0xFB5F, 0xFB60, 0xFB61 }, /* TTEHEH */
 		{ 0x067B, 0xFB52, 0xFB53, 0xFB54, 0xFB55 }, /* BEEH */
@@ -3499,7 +3499,7 @@ static void initCharFromDirProps()
 }
 
 /* return a string with characters according to the desired directional properties */
-static UChar * getStringFromDirProps(const uint8_t * dirProps, int32_t length, UChar * buffer) 
+static char16_t * getStringFromDirProps(const uint8_t * dirProps, int32_t length, char16_t * buffer) 
 {
 	initCharFromDirProps();
 	/* this part would have to be modified for UTF-x */
@@ -3510,7 +3510,7 @@ static UChar * getStringFromDirProps(const uint8_t * dirProps, int32_t length, U
 	return buffer;
 }
 
-static void printUnicode(const UChar * s, int32_t length, const UBiDiLevel * levels) 
+static void printUnicode(const char16_t * s, int32_t length, const UBiDiLevel * levels) 
 {
 	log_verbose("{ ");
 	for(int32_t i = 0; i<length; ++i) {
@@ -3855,7 +3855,7 @@ static const char outIndices[TC_COUNT][MODES_COUNT - 1][OPTIONS_COUNT]
 };
 
 static bool assertRoundTrip(UBiDi * pBiDi, int32_t tc, int32_t outIndex, const char * srcChars,
-    const char * destChars, const UChar * dest, int32_t destLen,
+    const char * destChars, const char16_t * dest, int32_t destLen,
     int mode, int option, UBiDiLevel level) {
 	static const char roundtrip[TC_COUNT][MODES_COUNT][OPTIONS_COUNT]
 	[LEVELS_COUNT] = {
@@ -3955,7 +3955,7 @@ static bool assertRoundTrip(UBiDi * pBiDi, int32_t tc, int32_t outIndex, const c
     #define SET_ROUND_TRIP_MODE(mode) ubidi_setReorderingMode(pBiDi, mode); desc = #mode; break;
 
 	UErrorCode rc = U_ZERO_ERROR;
-	UChar dest2[MAXLEN];
+	char16_t dest2[MAXLEN];
 	int32_t destLen2;
 	const char * desc;
 	char destChars2[MAXLEN];
@@ -4082,7 +4082,7 @@ static void testReorderRunsOnly() {
 	};
 	UBiDi * pBiDi = getBiDiObject();
 	UBiDi * pL2VBiDi = getBiDiObject();
-	UChar src[MAXLEN], dest[MAXLEN], visual1[MAXLEN], visual2[MAXLEN];
+	char16_t src[MAXLEN], dest[MAXLEN], visual1[MAXLEN], visual2[MAXLEN];
 	char destChars[MAXLEN], vis1Chars[MAXLEN], vis2Chars[MAXLEN];
 	int32_t srcLen, destLen, vis1Len, vis2Len, option, i, j, nCases, paras;
 	UErrorCode rc = U_ZERO_ERROR;
@@ -4159,7 +4159,7 @@ static void testReorderRunsOnly() {
 }
 
 static void testReorderingMode() {
-	UChar src[MAXLEN], dest[MAXLEN];
+	char16_t src[MAXLEN], dest[MAXLEN];
 	char destChars[MAXLEN];
 	UBiDi * pBiDi = NULL, * pBiDi2 = NULL, * pBiDi3 = NULL;
 	UErrorCode rc;
@@ -4270,7 +4270,7 @@ static const char * inverseBasic(UBiDi * pBiDi, const char * srcChars, int32_t s
 {
 	UErrorCode rc = U_ZERO_ERROR;
 	int32_t destLen;
-	UChar src[MAXLEN], dest2[MAXLEN];
+	char16_t src[MAXLEN], dest2[MAXLEN];
 	if(pBiDi == NULL || srcChars == NULL) {
 		return NULL;
 	}
@@ -4319,9 +4319,9 @@ static void testStreaming() {
 		    10, { 2, 2 }, {{ 6, 4 }, { 6, 4 }},
 		    {"6, 4", "6, 4"}}
 	};
-	UChar src[MAXLEN];
+	char16_t src[MAXLEN];
 	UBiDi * pBiDi = NULL;
-	UChar * pSrc;
+	char16_t * pSrc;
 	UErrorCode rc = U_ZERO_ERROR;
 	int32_t srcLen, processedLen, chunk, len, nPortions;
 	int i, j, levelIndex;
@@ -4439,7 +4439,7 @@ static void testClassOverride()
 {
 	static const char * const textSrc  = "JIH.>12->a \\u05D0\\u05D1 6 ABC78";
 	static const char * const textResult = "12<.HIJ->a 78CBA 6 \\u05D1\\u05D0";
-	UChar src[MAXLEN], dest[MAXLEN];
+	char16_t src[MAXLEN], dest[MAXLEN];
 	UErrorCode rc = U_ZERO_ERROR;
 	UBiDi * pBiDi = NULL;
 	UBiDiClassCallback* oldFn = NULL;
@@ -4699,7 +4699,7 @@ static const contextCase contextData[] = {
 
 static void testContext() 
 {
-	UChar prologue[MAXLEN], epilogue[MAXLEN], src[MAXLEN], dest[MAXLEN];
+	char16_t prologue[MAXLEN], epilogue[MAXLEN], src[MAXLEN], dest[MAXLEN];
 	char destChars[MAXLEN];
 	UBiDi * pBiDi = NULL;
 	UErrorCode rc;
@@ -4780,7 +4780,7 @@ static void testBracketOverflow() {
 	static const char * TEXT = "(((((((((((((((((((((((((((((((((((((((((a)(A)))))))))))))))))))))))))))))))))))))))))";
 	UErrorCode status = U_ZERO_ERROR;
 	UBiDi* bidi;
-	UChar src[100];
+	char16_t src[100];
 	int32_t len;
 
 	bidi = ubidi_open();
@@ -4796,7 +4796,7 @@ static void testBracketOverflow() {
 
 static void TestExplicitLevel0() {
 	// The following used to fail with an error, see ICU ticket #12922.
-	static const UChar text[2] = { 0x202d, 0x05d0 };
+	static const char16_t text[2] = { 0x202d, 0x05d0 };
 	static UBiDiLevel embeddings[2] = { 0, 0 };
 	UErrorCode errorCode = U_ZERO_ERROR;
 	UBiDi * bidi = ubidi_open();

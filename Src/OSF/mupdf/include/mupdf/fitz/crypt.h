@@ -7,8 +7,7 @@
 	Structure definition is public to enable stack
 	based allocation. Do not access the members directly.
 */
-typedef struct
-{
+typedef struct {
 	uint state[4];
 	uint count[2];
 	uchar buffer[64];
@@ -45,8 +44,7 @@ void fz_md5_final(fz_md5 *state, uchar digest[16]);
 	Structure definition is public to enable stack
 	based allocation. Do not access the members directly.
 */
-typedef struct
-{
+typedef struct {
 	uint state[8];
 	uint count[2];
 	union {
@@ -86,8 +84,7 @@ void fz_sha256_final(fz_sha256 *state, uchar digest[32]);
 	Structure definition is public to enable stack
 	based allocation. Do not access the members directly.
 */
-typedef struct
-{
+typedef struct {
 	uint64_t state[8];
 	uint count[2];
 	union {
@@ -191,8 +188,7 @@ void fz_arc4_final(fz_arc4 *state);
 	Structure definitions are public to enable stack
 	based allocation. Do not access the members directly.
 */
-typedef struct
-{
+typedef struct {
 	int nr; /* number of rounds */
 	uint32_t *rk; /* AES round keys */
 	uint32_t buf[68]; /* unaligned data */

@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include "mupdf/pdf.h"
+//#include "mupdf/pdf.h"
 
 int pdf_obj_num_is_stream(fz_context * ctx, pdf_document * doc, int num)
 {

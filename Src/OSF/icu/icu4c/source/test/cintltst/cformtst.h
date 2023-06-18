@@ -29,7 +29,7 @@
 
 
 /* Internal function used by all the test format files */
-UChar * myDateFormat(UDateFormat *dat, UDate d); 
+char16_t * myDateFormat(UDateFormat *dat, UDate d); 
 
 
 typedef struct UFieldPositionWithCategory {
@@ -43,7 +43,7 @@ typedef struct UFieldPositionWithCategory {
 void checkFormattedValue(
     const char * message,
     const UFormattedValue* fv,
-    const UChar * expectedString,
+    const char16_t * expectedString,
     UFieldCategory expectedCategory,
     const UFieldPosition* expectedFieldPositions,
     int32_t expectedFieldPositionsLength);
@@ -51,7 +51,7 @@ void checkFormattedValue(
 void checkMixedFormattedValue(
     const char * message,
     const UFormattedValue* fv,
-    const UChar * expectedString,
+    const char16_t * expectedString,
     const UFieldPositionWithCategory* expectedFieldPositions,
     int32_t length);
 
