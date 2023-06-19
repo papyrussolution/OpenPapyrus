@@ -63,9 +63,13 @@ int ReadQuotedString(const char * pInBuf, size_t inBufLen, uint flags, size_t * 
 	bool started = false;
 	bool finished = false;
 	size_t pos = 0;
+	if(!inBufLen && flags & QSF_INBUFZTERM)
+		inBufLen = sstrlen(pInBuf);
 	for(; pos < inBufLen; pos++) {
 		const char c = pInBuf[pos];
-		if(c == '\"') {
+		if(c == 0)
+			break;
+		else if(c == '\"') {
 			if(!started) {
 				started = true;
 			}
@@ -120,6 +124,8 @@ int WriteQuotedString(const char * pInBuf, size_t inBufLen, uint flags, SString 
 	if(!(flags & QSF_APPEND))
 		rBuf.Z();
 	rBuf.CatChar('\"');
+	if(!inBufLen && flags & QSF_INBUFZTERM)
+		inBufLen = sstrlen(pInBuf);
 	if(pInBuf) {
 		for(size_t pos = 0; pos < inBufLen; pos++) {
 			const char c = pInBuf[pos];
@@ -335,10 +341,8 @@ bool FASTCALL SStrScan::Is(const char * pS) const
 	return (len && strnicmp((P_Buf+Offs), pS, len) == 0);
 }
 
-int FASTCALL SStrScan::Is(char c) const
-{
-	return BIN(P_Buf[Offs] == c);
-}
+bool FASTCALL SStrScan::Is(char c) const { return BIN(P_Buf[Offs] == c); }
+bool FASTCALL SStrScan::IsTagBrace() const { return (P_Buf[Offs] == '<'); }
 
 int SStrScan::IsLegalUtf8() const
 {
@@ -375,11 +379,6 @@ int FASTCALL SStrScan::GetUtf8(SString & rBuf)
 	return n;
 }
 
-bool FASTCALL SStrScan::IsTagBrace() const
-{
-	return (P_Buf[Offs] == '<');
-}
-
 SStrScan & SStrScan::Z()
 {
 	Offs = 0;
@@ -402,8 +401,20 @@ SString & FASTCALL SStrScan::Get(SString & rBuf) const
 
 int SStrScan::GetQuotedString(SFileFormat format, SString & rBuf)
 {
-	rBuf.Z();
 	int    ok = 0;
+	// @v11.7.7 {
+	size_t end_pos = 0;
+	uint   qsf = QSF_INBUFZTERM;
+	if(format == SFileFormat::Csv)
+		qsf |= QSF_DBLQ;
+	int    rqsr = ::ReadQuotedString(P_Buf+Offs, 0, QSF_INBUFZTERM, &end_pos, rBuf);
+	if(rqsr > 0) {
+		Offs += end_pos;
+		ok = 1;
+	}
+	// } @v11.7.7 
+	/* @v11.7.7
+	rBuf.Z(); 
 	size_t _ofs = Offs;
 	char   c = P_Buf[_ofs];
 	if(c == '\"') {
@@ -431,6 +442,7 @@ int SStrScan::GetQuotedString(SFileFormat format, SString & rBuf)
 				break;
 		} while(true);
 	}
+	*/
 	return ok;
 }
 

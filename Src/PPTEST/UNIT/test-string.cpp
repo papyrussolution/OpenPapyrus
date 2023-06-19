@@ -730,17 +730,29 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			SString revert_buf;
 			size_t end_pos = 0;
 			{
+				const int result_ReadQuotedString = ReadQuotedString("abc", sstrlen("abc"), 0, &end_pos, str);
+				SLTEST_CHECK_EQ(0, result_ReadQuotedString);
+				SLTEST_CHECK_EQ(end_pos, 0U);
+			}
+			{
+				const int result_ReadQuotedString = ReadQuotedString("\"abc", sstrlen("\"abc"), 0, &end_pos, str);
+				SLTEST_CHECK_LT(result_ReadQuotedString, 0);
+				SLTEST_CHECK_EQ(end_pos, sstrlen("\"abc"));
+			}
+			{
 				str.Z();
 				const char * p_text = "\"abc def\"";
 				{
-					ReadQuotedString(p_text, sstrlen(p_text), 0, &end_pos, str);
+					const int result_ReadQuotedString = ReadQuotedString(p_text, sstrlen(p_text), 0, &end_pos, str);
+					SLTEST_CHECK_LT(0, result_ReadQuotedString);
 					SLTEST_CHECK_EQ(str, "abc def");
 					SLTEST_CHECK_EQ(end_pos, sstrlen(p_text));
 					WriteQuotedString(str, str.Len(), 0, revert_buf);
 					SLTEST_CHECK_EQ(revert_buf, p_text);
 				}
 				{
-					ReadQuotedString(p_text, sstrlen(p_text), QSF_APPEND, &end_pos, str);
+					const int result_ReadQuotedString = ReadQuotedString(p_text, sstrlen(p_text), QSF_APPEND, &end_pos, str);
+					SLTEST_CHECK_LT(0, result_ReadQuotedString);
 					SLTEST_CHECK_EQ(str, "abc def""abc def");
 					SLTEST_CHECK_EQ(end_pos, sstrlen(p_text));
 				}
@@ -763,6 +775,16 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					SLTEST_CHECK_EQ(end_pos, sstrlen(p_text));
 					WriteQuotedString(str, str.Len(), QSF_ESCAPE, revert_buf);
 					SLTEST_CHECK_EQ(revert_buf, p_text);
+				}
+			}
+			{
+				const char * p_text = "   \"abc \\\" \\t def\""; // 3 spaces in front of string
+				{
+					ReadQuotedString(p_text, sstrlen(p_text), QSF_SKIPUNTILQ|QSF_ESCAPE, &end_pos, str);
+					SLTEST_CHECK_EQ(str, "abc \" \t def");
+					SLTEST_CHECK_EQ(end_pos, sstrlen(p_text));
+					WriteQuotedString(str, str.Len(), QSF_ESCAPE, revert_buf);
+					SLTEST_CHECK_EQ(revert_buf, p_text+3);
 				}
 			}
 		}

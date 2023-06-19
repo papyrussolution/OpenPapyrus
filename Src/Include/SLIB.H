@@ -4582,7 +4582,8 @@ private:
 #define QSF_SKIPUNTILQ       0x0004 // ReadQuotedString: пропускает считываемые символы до тех пор, пока не встретит первую кавычку. Если флаг не установлен,
 	// то ожидает первым символом входящего буфера кавычку иначе сразу возвращает 0.
 #define QSF_APPEND           0x0008 // Если флаг установлен, то обе функции в прологе не очищают буфер-приемник 
-
+#define QSF_INBUFZTERM       0x0010 // Входящий буфер следует считывать до терминального нуля. 
+	// Если ARG(inBufLen) != 0, то в этом случае считается не заданным.
 //
 // Descr: считывает из входящего буфера pInBuf длиной inBufLen. 
 //
@@ -11358,7 +11359,7 @@ struct SStrScan : public SRegExpSet {
 	//
 	// Descr: Проверяет, является ли следующим символом c.
 	//
-	int    FASTCALL Is(char c) const;
+	bool   FASTCALL Is(char c) const;
 	bool   IsDigits();
 	bool   IsDotPrefixedNumber();
 	//
