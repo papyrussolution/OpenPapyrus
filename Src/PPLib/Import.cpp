@@ -5086,6 +5086,275 @@ int FiasImporter::Run(const FiasImporter::Param & rP)
 //
 //
 //
+/*static*/IMPL_CMPMEMBFUNC(PoBlock, PoBlock_Entry_Sort_Internal, i1, i2)
+{
+	const Entry * p_e1 = static_cast<const Entry *>(i1);
+	const Entry * p_e2 = static_cast<const Entry *>(i2);
+	RET_CMPCASCADE3(p_e1, p_e2, MsgId, Lang, TextP);
+}
+
+/*static*/IMPL_CMPMEMBFUNC(PoBlock, PoBlock_Entry_Srch_Internal, i1, i2)
+{
+	const Entry * p_e1 = static_cast<const Entry *>(i1);
+	const Entry * p_e2 = static_cast<const Entry *>(i2);
+	RET_CMPCASCADE2(p_e1, p_e2, MsgId, Lang);
+}
+
+/*static*/IMPL_CMPMEMBFUNC(PoBlock, PoBlock_Entry_Sort, i1, i2)
+{
+	int    s = 0;
+	const PoBlock * p_this = static_cast<const PoBlock *>(pExtraData);
+	if(p_this) {
+		const Entry * p_e1 = static_cast<const Entry *>(i1);
+		const Entry * p_e2 = static_cast<const Entry *>(i2);
+		if(p_e1->MsgId == p_e2->MsgId) {
+			if(p_e1->Lang == p_e2->Lang) {
+				if(p_e1->TextP == p_e2->TextP) {
+					s = 0;
+				}
+				else {
+					SString & r_buf1 = SLS.AcquireRvlStr();
+					SString & r_buf2 = SLS.AcquireRvlStr();
+					p_this->GetS(p_e1->TextP, r_buf1);
+					p_this->GetS(p_e2->TextP, r_buf2);
+					s = r_buf1.Cmp(r_buf2, 0);
+				}
+			}
+			else {
+				s = CMPSIGN(p_e1->Lang, p_e2->Lang);
+			}
+		}
+		else {
+			SString & r_buf1 = SLS.AcquireRvlStr();
+			SString & r_buf2 = SLS.AcquireRvlStr();
+			p_this->MsgIdHash.GetByAssoc(p_e1->MsgId, r_buf1);
+			p_this->MsgIdHash.GetByAssoc(p_e2->MsgId, r_buf2);
+			s = r_buf1.Cmp(r_buf2, 0);
+		}
+	}
+	return s;
+}
+
+PoBlock::PoBlock(uint flags) : Flags(flags), MsgIdHash(SMEGABYTE(20), 0/*don't use assoc at startup*/), LastMsgId(0),
+	Order(0)
+{
+}
+	
+int  PoBlock::Add(uint lang, const char * pMsgId, const char * pText)
+{
+	int    ok = 1;
+	if(!isempty(pMsgId) && !isempty(pText)) {
+		Entry new_entry(lang);
+		{
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			r_temp_buf = pMsgId;
+			if(Flags & fMsgIdToLow)
+				r_temp_buf.Utf8ToLower();
+			if(!MsgIdHash.Search(r_temp_buf, &new_entry.MsgId, 0)) {
+				new_entry.MsgId = ++LastMsgId;
+				THROW_SL(MsgIdHash.Add(r_temp_buf, new_entry.MsgId));
+			}
+		}
+		{
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			r_temp_buf = pText;
+			if(Flags & fMsgTxtToLow)
+				r_temp_buf.Utf8ToLower();
+			THROW_SL(SStrGroup::AddS(r_temp_buf, &new_entry.TextP));
+		}
+		THROW_SL(L.insert(&new_entry));
+	}
+	CATCHZOK
+	return ok;
+}
+
+SJson * PoBlock::ExportToJson() const
+{
+	SJson * p_result = SJson::CreateObj();
+	if(Ident.NotEmpty()) {
+		p_result->InsertString("ident", Ident);
+	}
+	{
+		SJson * p_js_list = SJson::CreateArr();
+		SString temp_buf;
+		for(uint i = 0; i < L.getCount(); i++) {
+			const Entry & r_entry = L.at(i);
+			SJson * p_js_entry = SJson::CreateObj();
+			MsgIdHash.GetByAssoc(r_entry.MsgId, temp_buf);
+			p_js_entry->InsertString("id", temp_buf.Escape());
+			GetLinguaCode(r_entry.Lang, temp_buf);
+			p_js_entry->InsertString("lng", temp_buf.Escape());
+			GetS(r_entry.TextP, temp_buf);
+			p_js_entry->InsertString("str", temp_buf.Escape());
+			p_js_list->InsertChild(p_js_entry);
+			p_js_entry = 0;
+		}
+		p_result->Insert("list", p_js_list);
+		p_js_list = 0;
+	}
+	return p_result;
+}
+
+void PoBlock::Sort()
+{
+	L.sort2(PTR_CMPFUNC(PoBlock_Entry_Sort), this);
+	Order = 1;
+}
+
+void PoBlock::SortInternal()
+{
+	L.sort2(PTR_CMPFUNC(PoBlock_Entry_Sort_Internal), this);
+	Order = 2;
+}
+
+void PoBlock::Finish()
+{
+	MsgIdHash.BuildAssoc();
+	SortInternal();
+}
+
+int PoBlock::Import(const char * pFileName)
+{
+	int    ok = 1;
+	enum {
+		stateNothing = 0,
+		stateEmptyLine,
+		stateMsgId,
+		stateMsgStr
+	};
+	int    state = stateNothing;
+	uint   lang = 0;
+	constexpr const char * p_pfx_msgid = "msgid";
+	constexpr const char * p_pfx_msgstr = "msgstr";
+	const size_t pfxlen_msgid = strlen(p_pfx_msgid);
+	const size_t pfxlen_msgstr = strlen(p_pfx_msgstr);
+	SString temp_buf;
+	SString line_buf;
+	SString last_msgid_buf;
+	SString last_msgstr_buf;
+	SPathStruc ps(pFileName);
+	{
+		int _fn_lang = RecognizeLinguaSymb(ps.Nam, 1);
+		if(_fn_lang)
+			lang = _fn_lang;
+	}
+	SFile  f_in(pFileName, SFile::mRead);
+	THROW_SL(f_in.IsValid());
+	while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+		if(line_buf.IsEmpty()) {
+			if(state == stateMsgStr) {
+				if(last_msgid_buf.IsEmpty() && last_msgstr_buf.NotEmpty()) {
+					// metadata
+					uint _p = 0;
+					const char * p_pattern = "Language:";
+					if(last_msgstr_buf.Search(p_pattern, 0, 1, &_p)) {
+						const size_t pat_len = strlen(p_pattern);
+						const char * p = last_msgstr_buf.cptr() + _p + pat_len;
+						while(*p == ' ' || *p == '\t')
+							p++;
+						temp_buf.Z();
+						while(isasciialpha(*p)) {
+							temp_buf.CatChar(*p);
+							p++;
+						}
+						int _meta_lang = RecognizeLinguaSymb(temp_buf, 1);
+						if(lang == 0)
+							lang = _meta_lang;
+						else if(lang != _meta_lang) {
+							; // плохо - язык в мета-данных не совпадает с языком в наименовании файла
+						}
+						//
+						THROW(lang);
+					}
+				}
+				else if(last_msgid_buf.NotEmpty() && last_msgstr_buf.NotEmpty()) {
+					THROW(Add(lang, last_msgid_buf, last_msgstr_buf));
+				}
+			}
+			state = stateEmptyLine;
+		}
+		else if(line_buf.C(0) == '#') {
+			; // skip comment
+		}
+		else if(line_buf.HasPrefixIAscii(p_pfx_msgid)) {
+			state = stateMsgId;
+			last_msgid_buf.Z();
+			last_msgstr_buf.Z();
+			ReadQuotedString(line_buf.cptr()+pfxlen_msgid, line_buf.Len()-pfxlen_msgid, QSF_ESCAPE|QSF_SKIPUNTILQ, 0, last_msgid_buf);
+		}
+		else if(line_buf.HasPrefixIAscii(p_pfx_msgstr)) {
+			if(state == stateMsgId) {
+				state = stateMsgStr;
+				ReadQuotedString(line_buf.cptr()+pfxlen_msgstr, line_buf.Len()-pfxlen_msgstr, QSF_ESCAPE|QSF_SKIPUNTILQ, 0, last_msgstr_buf);
+			}
+			else {
+				// @error
+			}
+		}
+		else if(line_buf.C(0) == '\"') {
+			SString * p_dest_buf = (state == stateMsgId) ? &last_msgid_buf : ((state == stateMsgStr) ? &last_msgstr_buf : 0);
+			if(p_dest_buf) {
+				const int gqsr = ReadQuotedString(line_buf.cptr(), line_buf.Len(), QSF_ESCAPE|QSF_SKIPUNTILQ, 0, temp_buf);
+				if(gqsr > 0)
+					p_dest_buf->Cat(temp_buf);
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PoBlock::GetLangList(LongArray & rList) const
+{
+	int    ok = 0;
+	rList.Z();
+	if(L.getCount()) {
+		for(uint i = 0; i < L.getCount(); i++) {
+			rList.addnz(L.at(i).Lang);
+		}
+		rList.sortAndUndup();
+		if(rList.getCount())
+			ok = 1;
+	}
+	return ok;
+}
+
+int PoBlock::Search(const char * pMsgId, uint lang, SString & rMsgText) const
+{
+	int    ok = 0;
+	rMsgText.Z();
+	if(!isempty(pMsgId)) {
+		SString & r_pattern = SLS.AcquireRvlStr();
+		r_pattern = pMsgId;
+		if(Flags & fMsgIdToLow)
+			r_pattern.Utf8ToLower();
+		uint _id = 0;
+		if(MsgIdHash.Search(r_pattern, &_id, 0)) {
+			Entry key;
+			key.MsgId = _id;
+			key.Lang = lang;
+			key.TextP = 0;
+			uint idx = 0;
+			bool   found = false;
+			if(Order == 2) {
+				found = L.bsearch(&key, &idx, PTR_CMPFUNC(PoBlock_Entry_Srch_Internal));
+			}
+			else {
+				found = L.lsearch(&key, &idx, PTR_CMPFUNC(PoBlock_Entry_Srch_Internal));
+			}
+			if(found) {
+				const Entry & r_entry = L.at(idx);
+				if(GetS(r_entry.TextP, rMsgText)) {
+					ok = 1;
+				}
+			}
+		}
+	}
+	return ok;
+}
+//
+//
+//
 PrcssrOsm::StatBlock::StatBlock()
 {
 	Clear();

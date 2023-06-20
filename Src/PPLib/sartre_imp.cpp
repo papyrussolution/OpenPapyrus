@@ -3669,6 +3669,7 @@ int PrcssrSartre::Run()
 		}
 		// @v10.9.5 {
 		if(P.Flags & P.fImport_UED_Llcc) {
+			UED_Import_Scripts(); // @v11.7.6
 			UED_ImportIcuNames(); // @v11.6.4
 			UED_Import_Atoms(); // @v11.5.11
 			UED_Import_PackageTypes(); // @v11.4.3
@@ -5922,22 +5923,21 @@ int PrcssrSartre::UED_ImportIcuNames()
 	return ok;
 }
 
-class UED_Atom_Block : public SStrGroup {
-public:
-	struct Entry {
-		uint64 ID;
-		uint   AtomicNumber;
-		uint   NameP;
-		uint   SymbP;
-	};
-	UED_Atom_Block()
-	{
-	}
-	TSVector <Entry> L;
-};
-
 int PrcssrSartre::UED_Import_Atoms()
 {
+	class UED_Atom_Block : public SStrGroup {
+	public:
+		struct Entry {
+			uint64 ID;
+			uint   AtomicNumber;
+			uint   NameP;
+			uint   SymbP;
+		};
+		UED_Atom_Block()
+		{
+		}
+		TSVector <Entry> L;
+	};
 	/*
 	{
     "elements": [{
@@ -6061,111 +6061,171 @@ int PrcssrSartre::UED_Import_Atoms()
 	delete p_js;
 	return ok;
 }
-//
-// @v11.2.9 @construction Модуль разбора и обработки po-файлов (для массового анализа вариантов перевода на основе opensource-репозиториев)
-//
-class PoBlock : SStrGroup {
-public:
-	PoBlock() : MsgIdHash(SMEGABYTE(20)), LastMsgId(0)
-	{
-	}
-	int    Add(uint lang, const char * pMsgId, const char * pText)
-	{
-		int    ok = 1;
-		if(!isempty(pMsgId) && !isempty(pText)) {
-			Entry new_entry(lang);
-			if(!MsgIdHash.Search(pMsgId, &new_entry.MsgId, 0)) {
-				new_entry.MsgId = ++LastMsgId;
-				THROW_SL(MsgIdHash.Add(pMsgId, new_entry.MsgId));
-			}
-			THROW_SL(SStrGroup::AddS(pText, &new_entry.TextP));
-			THROW_SL(L.insert(&new_entry));
-		}
-		CATCHZOK
-		return ok;
-	}
-private:
-	struct Entry {
-		explicit Entry(uint lang = 0) : MsgId(0), Lang(lang), TextP(0)
+/*
+{
+	iso-15924 scripts 
+	//
+  "15924": [
+    {
+      "alpha_4": "Adlm",
+      "name": "Adlam",
+      "numeric": "166"
+    },
+    {
+      "alpha_4": "Afak",
+      "name": "Afaka",
+      "numeric": "439"
+    },
+    {
+      "alpha_4": "Aghb",
+      "name": "Caucasian Albanian",
+      "numeric": "239"
+    }
+  ]
+ }
+*/
+int PrcssrSartre::UED_Import_Scripts() // @v11.7.7
+{
+	class UED_Script_Block : public SStrGroup {
+	public:
+		struct Entry {
+			uint64 ID;
+			uint   Numeric;
+			uint   NameP;
+			uint   SymbP;
+		};
+		UED_Script_Block()
 		{
 		}
-		uint   MsgId;
-		uint   Lang;
-		uint   TextP;
+		TSVector <Entry> L;
 	};
-	uint   LastMsgId;
-	SString Ident; // 
-	TSVector <Entry> L;
-	SymbHashTable MsgIdHash;
-};
-
-int ImportPo(const char * pFileName, PoBlock & rBlk)
-{
-	int    ok = 1;
-	enum {
-		stateNothing = 0,
-		stateEmptyLine,
-		stateMsgId,
-		stateMsgStr
-	};
-	int    state = stateNothing;
-	uint   lang = 0;
-	SString line_buf;
-	SString last_msgid_buf;
-	SString last_msgstr_buf;
-	SFile  f_in(pFileName, SFile::mRead);
-	THROW_SL(f_in.IsValid());
-	while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-		if(line_buf.IsEmpty()) {
-			if(state == stateMsgStr) {
-				if(last_msgid_buf.IsEmpty() && last_msgstr_buf.NotEmpty()) {
-					// metadata
-				}
-				else if(last_msgid_buf.NotEmpty() && last_msgstr_buf.NotEmpty()) {
-					THROW(rBlk.Add(lang, last_msgid_buf, last_msgstr_buf));
-				}
-			}
-			state = stateEmptyLine;
-		}
-		else if(line_buf.C(0) == '#') {
-			; // skip comment
-		}
-		else if(line_buf.HasPrefixIAscii("msgid")) {
-			state = stateMsgId;
-			last_msgid_buf.Z();
-			last_msgstr_buf.Z();
-		}
-		else if(line_buf.HasPrefixIAscii("msgstr")) {
-			if(state == stateMsgId) {
-				state = stateMsgStr;
-			}
-			else {
-				// @error
-			}
-		}
-		else if(line_buf.C(0) == '\"') {
-			const uint len = line_buf.Len();
-			SString * p_dest_buf = (state == stateMsgId) ? &last_msgid_buf : ((state == stateMsgStr) ? &last_msgstr_buf : 0);
-			if(p_dest_buf) {
-				for(uint i = 1; i < len; i++) {
-					const char c = line_buf.C(i);
-					const char c2 = ((i+1) < len) ? line_buf.C(i+1) : 0;
-					if(c == '\\' && c2 == '\"') {
-						p_dest_buf->CatChar(c2);
-						i++;
+	int    ok = -1;
+	const  char * p_base_path = "/Papyrus/Src/Rsrc/Data/iso-codes";
+	const  uint64 meta = 0x0000000100000035ULL;
+	SJson * p_js = 0;
+	SString temp_buf;
+	SString file_name;
+	(file_name = p_base_path).SetLastSlash().Cat("data").SetLastSlash().Cat("iso_15924.json");
+	SFile f_in(file_name, SFile::mRead);
+	STempBuffer raw_buf(SMEGABYTE(8));
+	size_t actual_size = 0;
+	if(f_in.ReadAll(raw_buf, 0, &actual_size)) {
+		UED_Script_Block blk;
+		SString in_buf;
+		in_buf.CatN(raw_buf, actual_size);
+		p_js = SJson::Parse(in_buf);
+		if(p_js && p_js->IsObject()) {
+			SString name;
+			SString symb;
+			int   num;
+			for(const SJson * p_itm = p_js->P_Child; p_itm; p_itm = p_itm->P_Next) {
+				if(p_itm->Text.IsEqiAscii("15924") && SJson::IsArray(p_itm->P_Child)) {
+					for(const SJson * p_js_elem = p_itm->P_Child->P_Child; p_js_elem; p_js_elem = p_js_elem->P_Next) {
+						if(SJson::IsObject(p_js_elem)) {
+							symb.Z();
+							name.Z();
+							num = 0;
+							for(const SJson * p_js_f = p_js_elem->P_Child; p_js_f; p_js_f = p_js_f->P_Next) {
+								//"alpha_4": "Adlm",
+								//"name": "Adlam",
+								//"numeric": "166"
+								if(p_js_f->P_Child) {
+									if(p_js_f->Text.IsEqiAscii("alpha_4")) {
+										symb = p_js_f->P_Child->Text;
+									}
+									else if(p_js_f->Text.IsEqiAscii("name")) {
+										name = p_js_f->P_Child->Text;
+									}
+									else if(p_js_f->Text.IsEqiAscii("numeric")) {
+										num = p_js_f->P_Child->Text.ToLong();
+									}
+								}
+								if(num > 0 && name.NotEmpty() && symb.NotEmpty()) {
+									UED_Script_Block::Entry new_entry;
+									MEMSZERO(new_entry);
+									new_entry.ID = UED::MakeCanonical(num, meta);
+									new_entry.Numeric = num;
+									name.Utf8ToLower();
+									symb.Utf8ToLower();
+									blk.AddS(name, &new_entry.NameP);
+									blk.AddS(symb, &new_entry.SymbP);
+									blk.L.insert(&new_entry);									
+								}
+							}
+						}
 					}
-					if(c == '\\' && c2 == 'n') {
-						p_dest_buf->CatChar('\n');
-						i++;
-					}
-					else if(c == '\"')
-						break;
-					else
-						p_dest_buf->CatChar(c);
 				}
+			}
+			if(blk.L.getCount()) {
+				PoBlock poblk(PoBlock::fMsgIdToLow|PoBlock::fMsgTxtToLow);
+				{
+					// iso_15924
+					(file_name = p_base_path).SetLastDSlash().Cat("iso_15924").SetLastDSlash();
+					SString path_buf;
+					(temp_buf = file_name).Cat("*.po");
+					SDirEntry de;
+					for(SDirec sd(temp_buf); sd.Next(&de) > 0;) {
+						if(!de.IsSelf() && !de.IsUpFolder() && (de.IsFolder() || de.IsFile())) {
+							de.GetNameA(file_name, temp_buf);
+							SPathStruc::NormalizePath(temp_buf, SPathStruc::npfCompensateDotDot, path_buf);
+							poblk.Import(path_buf);
+						}
+					}
+					poblk.Finish();
+				}
+				SString line_buf;
+				(file_name = p_base_path).SetLastSlash().Cat("script.ued.txt"); // utf-8
+				SFile f_out(file_name, SFile::mWrite);
+				{
+					for(uint i = 0; i < blk.L.getCount(); i++) {
+						const UED_Script_Block::Entry & r_entry = blk.L.at(i);
+						assert(r_entry.NameP && r_entry.SymbP);
+						assert(r_entry.ID != 0);
+						assert(UED::BelongToMeta(r_entry.ID, meta));
+						blk.GetS(r_entry.SymbP, symb);
+						line_buf.Z().CatHex(r_entry.ID).Space().CatQStr(symb);
+						f_out.WriteLine(line_buf.CR());
+					}
+				}
+				f_out.WriteBlancLine();
+				{
+					// en
+					for(uint i = 0; i < blk.L.getCount(); i++) {
+						const UED_Script_Block::Entry & r_entry = blk.L.at(i);
+						assert(r_entry.NameP && r_entry.SymbP);
+						assert(r_entry.ID != 0);
+						assert(UED::BelongToMeta(r_entry.ID, meta));
+						blk.GetS(r_entry.NameP, name);
+						if(name.NotEmptyS()) {
+							line_buf.Z().CatHex(r_entry.ID).Space().Cat("en").Space().CatQStr(name);
+							f_out.WriteLine(line_buf.CR());
+						}
+					}
+					{
+						SString lang_code;
+						LongArray lang_list;
+						poblk.GetLangList(lang_list);
+						for(uint lidx = 0; lidx < lang_list.getCount(); lidx++) {
+							const uint lang = static_cast<uint>(lang_list.get(lidx));
+							if(lang != slangEN && GetLinguaCode(lang, lang_code)) {
+								for(uint i = 0; i < blk.L.getCount(); i++) {
+									const UED_Script_Block::Entry & r_entry = blk.L.at(i);
+									blk.GetS(r_entry.NameP, name);
+									if(name.NotEmptyS()) {
+										if(poblk.Search(name, lang, temp_buf)) {
+											line_buf.Z().CatHex(r_entry.ID).Space().Cat(lang_code).Space().CatQStr(temp_buf);
+											f_out.WriteLine(line_buf.CR());
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				f_out.WriteBlancLine();
 			}
 		}
 	}
-	CATCHZOK
+	ZDELETE(p_js);
 	return ok;
 }

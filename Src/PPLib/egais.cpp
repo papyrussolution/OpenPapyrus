@@ -6747,7 +6747,9 @@ int PPEgaisProcessor::MakeOutputFileName(const Reply * pReply, const SString & r
 	int    ok = 1;
 	SString temp_buf;
 	InetUrl _up(pReply->Url);
-	_up.GetComponent(InetUrl::cPath, 0, temp_buf);
+	if(_up.GetProtocol() != InetUrl::protFile) { // @v11.7.7
+		_up.GetComponent(InetUrl::cPath, 0, temp_buf);
+	}
 	(rFileName = rTempPath).SetLastSlash().Cat(temp_buf);
 	SPathStruc ps(rFileName);
 	(temp_buf = ps.Nam).DotCat("xml");
@@ -7296,7 +7298,7 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 			}
 			if(ediop_list.bsearch(doc_type)) {
 				int    adr = 1; // AcceptDoc result
-				if(!(p_reply->Status & Reply::stOffline)) {
+				if(!(p_reply->Status & Reply::stOffline) || oneof3(doc_type, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2, PPEDIOP_EGAIS_REPLYRESTSSHOP)) {
 					THROW(MakeOutputFileName(p_reply, temp_path, temp_buf));
 					adr = AcceptDoc(*p_reply, temp_buf);
 				}

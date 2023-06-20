@@ -167,7 +167,7 @@ int SSystem::GetCpuInfo()
 	CpuCacheSizeL0 = DataCacheSize(0);
 	CpuCacheSizeL1 = DataCacheSize(1);
 	CpuCacheSizeL2 = DataCacheSize(2);
-	CpuBaseFreq = GetBaseCpuFreqHz(); // @v11.7.6
+	CpuBaseFreq = 0.0f/*GetBaseCpuFreqHz()*/; // @v11.7.6 // Похоже, на старых процессорах этот вызов генерирует исключение :(
 	return 1;
 }
 //

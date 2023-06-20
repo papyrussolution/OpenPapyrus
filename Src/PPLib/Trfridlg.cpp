@@ -35,7 +35,7 @@ private:
 	void   setupVatSum();
 	void   setupBaseQuot();
 	void   setupPriceLimit();
-	int    setupLot();
+	int    _SetupLot(bool dontSetupPriceByLot);
 	int    setupValuation();
 	void   SetupSerialWarn();
 	void   SetupInheritedSerial();
@@ -1529,7 +1529,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 				}
 			}
 		}
-		THROW(setupLot());
+		THROW(_SetupLot(false/*dontSetupPriceByLot*/));
 		setCtrlData(CTL_LOT_DISCOUNT, &Item.Discount);
 	} while(dir != 2 && Item.LotID && Rest <= 0.0);
 	calcOrderRest();
@@ -1904,7 +1904,7 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 	setCtrlData(CTL_LOT_NOVAT, &v);
 	AddClusterAssoc(CTL_LOT_FIXEDMODIFCOST, 0, PPTFR_FIXMODIFCOST);
 	SetClusterData(CTL_LOT_FIXEDMODIFCOST, Item.Flags);
-	THROW(setupLot());
+	THROW(_SetupLot(true/*dontSetupPriceByLot*/));
 	setCtrlData(CTL_LOT_DISCOUNT, &Item.Discount);
 	calcOrderRest();
 	setupRest();
@@ -2477,7 +2477,7 @@ void TrfrItemDialog::setQuotSign()
 	setStaticText(CTL_LOT_QUOTSIGN, text);
 }
 
-int TrfrItemDialog::setupLot()
+int TrfrItemDialog::_SetupLot(bool dontSetupPriceByLot)
 {
 	int    ok = 1;
 	uint   fl = 0;
@@ -2492,16 +2492,14 @@ int TrfrItemDialog::setupLot()
 	}
 	if(Item.LotID && !(Item.Flags & PPTFR_AUTOCOMPL)) {
 		ReceiptTbl::Rec lot_rec;
+		double adj_intr_price = 0.0;
 		if(Item.Cost  != 0.0)
 			fl |= TISL_IGNCOST;
-		if(Item.Price != 0.0)
+		if(Item.Price != 0.0 || dontSetupPriceByLot) // @v11.7.7
 			fl |= TISL_IGNPRICE;
-		else {
-			double adj_intr_price = 0.0;
-			if(P_BObj->AdjustIntrPrice(P_Pack, Item.GoodsID, &adj_intr_price) > 0) {
-				Item.Price = adj_intr_price;
-				fl |= TISL_ADJPRICE;
-			}
+		else if(P_BObj->AdjustIntrPrice(P_Pack, Item.GoodsID, &adj_intr_price) > 0) {
+			Item.Price = adj_intr_price;
+			fl |= TISL_ADJPRICE;
 		}
 		if(Item.Flags & PPTFR_RECEIPT) {
 			fl |= (TISL_IGNQCERT|TISL_IGNEXPIRY);
@@ -3171,7 +3169,7 @@ void TrfrItemDialog::selectLot()
 				Item.Expiry = ZERODATE;
 				if(P_Pack->OpTypeID == PPOPT_GOODSREVAL)
 					Item.RevalCost = Item.Discount = 0.0;
-				THROW(setupLot());
+				THROW(_SetupLot(false/*dontSetupPriceByLot*/));
 				setupRest();
 			}
 		}

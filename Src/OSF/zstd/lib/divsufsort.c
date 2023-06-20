@@ -1697,9 +1697,7 @@ static int sort_typeBstar(const uchar * T, int * SA, int * bucket_A, int * bucke
 				t = i - BUCKET_B(c0, c1);
 				BUCKET_B(c0, c1) = i; /* end point */
 				// Move all type B* suffixes to the correct position
-				for(i = t, j = BUCKET_BSTAR(c0, c1);
-				    j <= k;
-				    --i, --k) {
+				for(i = t, j = BUCKET_BSTAR(c0, c1); j <= k; --i, --k) {
 					SA[i] = SA[k];
 				}
 			}

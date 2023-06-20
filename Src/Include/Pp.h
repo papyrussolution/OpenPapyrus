@@ -53003,6 +53003,52 @@ private:
 	PPInternetAccount Account;
 };
 //
+// Descr: Модуль разбора и обработки po-файлов 
+//
+class PoBlock : SStrGroup {
+public:
+	enum {
+		fMsgIdToLow  = 0x0001,
+		fMsgTxtToLow = 0x0002
+	};
+	explicit PoBlock(uint flags);
+	int    Import(const char * pFileName);
+	int    GetLangList(LongArray & rList) const;
+	int    Search(const char * pMsgId, uint lang, SString & rMsgText) const;
+	SJson * ExportToJson() const;
+	//
+	// Descr: Следует вызвать после завершения вставки данных. Функция выполяет 
+	//   всякие индексирующие операции. В целом, можно и без этого, но все будет медленно.
+	//
+	void   Finish();
+	//
+	// Descr: Сортирует внутренний массив в порядке {msgid; lang; msgtext}
+	//   При этом lang сравнивается как целочисленное значение (не как текстовое представление).
+	//
+	void   Sort();
+private:
+	struct Entry {
+		explicit Entry(uint lang = 0) : MsgId(0), Lang(lang), TextP(0)
+		{
+		}
+		uint   MsgId;
+		uint   Lang;
+		uint   TextP;
+	};
+	static DECL_CMPFUNC(PoBlock_Entry_Sort);
+	static DECL_CMPFUNC(PoBlock_Entry_Sort_Internal);
+	static DECL_CMPFUNC(PoBlock_Entry_Srch_Internal);
+	int    Add(uint lang, const char * pMsgId, const char * pText);
+	void   SortInternal();
+
+	uint   Flags;
+	uint   Order; // 0 - undef, 1 - user, 2 - internal (for binary search)
+	uint   LastMsgId;
+	SString Ident; // 
+	TSVector <Entry> L;
+	SymbHashTable MsgIdHash;
+};
+//
 //
 //
 class PPOsm : public SStrGroup {
@@ -53459,6 +53505,7 @@ private:
 	int    UED_Import_PackageTypes();
 	int    UED_Import_Atoms();
 	int    UED_ImportIcuNames();
+	int    UED_Import_Scripts();
 
 	PrcssrSartreFilt P;
 };
