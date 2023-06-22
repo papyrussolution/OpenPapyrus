@@ -1383,7 +1383,7 @@ public:
 		PPID   PsnID;
 	};
 	struct StartSessBlock {
-		StartSessBlock() : SCardID(0), GoodsID(0), TSessID(0), TechID(0), RetSCardID(0), RetGoodsID(0), ScOpDtm(ZERODATETIME), WrOffAmount(0.0)
+		StartSessBlock() : SCardID(0), GoodsID(0), TSessID(0), TechID(0), Amount(0.0), RetTechID(0), RetSCardID(0), RetGoodsID(0), ScOpDtm(ZERODATETIME), WrOffAmount(0.0)
 		{
 		}
 		//
@@ -1400,6 +1400,8 @@ public:
 			GoodsID = 0;
 			TSessID = 0;
 			TechID = 0;
+			Amount = 0.0;
+			RetTechID = 0;
 			RetSCardID = 0;
 			RetGoodsID = 0;
 			ScOpDtm.Z();
@@ -1420,6 +1422,9 @@ public:
 				p_c = pJs->FindChildByKey("techid");
 				if(SJson::IsNumber(p_c))
 					TechID = p_c->Text.ToLong();
+				p_c = pJs->FindChildByKey("amt");
+				if(SJson::IsNumber(p_c))
+					Amount = p_c->Text.ToReal();
 				p_c = pJs->FindChildByKey("wsctluuid");
 				if(SJson::IsString(p_c)) {
 					WsCtlUuid.FromStr(p_c->Text);
@@ -1430,11 +1435,13 @@ public:
 		S_GUID WsCtlUuid;
 		PPID   SCardID;
 		PPID   GoodsID;
+		PPID   TechID;
+		double Amount;
 		//
 		// Results:
 		//
 		PPID   TSessID;
-		PPID   TechID;
+		PPID   RetTechID;
 		PPID   RetSCardID;
 		PPID   RetGoodsID;
 		LDATETIME ScOpDtm; // Время операции списания денег //
@@ -1484,10 +1491,65 @@ public:
 			WsUUID = rUuid;
 		return ok;
 	}
+	//
+	// Descr: Возвращает ранжированный список видов котировок, которые могут быть применены для установки цен для технологических сессий.
+	//
+	int    GetRawQuotKindList(PPIDArray & rList) 
+	{
+		rList.Z();
+		int    ok = 1;
+		StrAssocArray qk_sa_list;
+		QuotKindFilt qk_filt;
+		qk_filt.MaxItems = -1;
+		qk_filt.Flags |= (QuotKindFilt::fIgnoreRights|QuotKindFilt::fAddBase|QuotKindFilt::fSortByRankName);
+		QkObj.MakeList(&qk_filt, &qk_sa_list);
+		{
+			for(uint i = 0; i < qk_sa_list.getCount(); i++) {
+				rList.add(qk_sa_list.at_WithoutParent(i).Id);
+			}
+			QkObj.ArrangeList(getcurdatetime_(), rList, RTLPF_USEQUOTWTIME);
+		}
+		return ok;
+	}
+	int    GetQuotList(PPID goodsID, PPID locID, const PPIDArray & rRawQkList, PPQuotArray & rQList)
+	{
+		rQList.clear();
+		int    ok = -1;
+		Goods2Tbl::Rec goods_rec;
+		if(GObj.Fetch(goodsID, &goods_rec) > 0) {
+			PPQuotKind qk_rec;
+			PPIDArray qk_list_intersection;
+			GObj.GetQuotList(goodsID, locID, rQList);
+			rQList.GetQuotKindIdList(qk_list_intersection);
+			qk_list_intersection.intersect(&rRawQkList, 0);
+			if(qk_list_intersection.getCount()) {
+				uint i = rQList.getCount();
+				assert(i);
+				if(i) {
+					do {
+						const PPQuot & r_q = rQList.at(--i);
+						if(qk_list_intersection.lsearch(r_q.Kind)) {
+							const int qkfr = QkObj.Fetch(r_q.Kind, &qk_rec);
+							assert(qkfr > 0);
+							if(qkfr <= 0) {
+								rQList.atFree(i);
+							}
+						}
+						else {
+							rQList.atFree(i);
+						}
+					} while(i);
+					if(rQList.getCount())
+						ok = 1;
+				}
+			}
+		}
+		return ok;
+	}
 	int    StartSess(StartSessBlock & rBlk) // @construction
 	{
 		int    ok = 0;
-		const LDATETIME now_dtm = getcurdatetime_();
+		const  LDATETIME now_dtm = getcurdatetime_();
 		PPID   tses_id = 0;
 		double screst = 0.0; // Остаток на счете клиента на момент начала сессии
 		SCardTbl::Rec sc_rec;
@@ -1501,18 +1563,45 @@ public:
 		{
 			PPID   prc_id = 0;
 			PPID   tec_id = 0;
+			double amount_to_wroff = 0.0;
 			PPIDArray tec_id_list;
 			SString prc_name_utf8;
+			ProcessorTbl::Rec prc_rec;
 			TechTbl::Rec tec_rec;
 			THROW(SearchPrcByWsCtlUuid(rBlk.WsCtlUuid, &prc_id, &prc_name_utf8) > 0);
+			THROW(TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0);
 			TSesObj.TecObj.GetListByPrcGoods(prc_id, rBlk.GoodsID, &tec_id_list);
 			THROW(tec_id_list.getCount());
 			tec_id = tec_id_list.get(0);
 			THROW(TSesObj.TecObj.Fetch(tec_id, &tec_rec) > 0);
 			{
+				double price = 0.0;
+				PPIDArray raw_qk_id_list;
+				PPQuotArray qlist;
+				GetRawQuotKindList(raw_qk_id_list);
+				if(GetQuotList(rBlk.GoodsID, prc_rec.LocID, raw_qk_id_list, qlist) > 0) {
+					assert(qlist.getCount());
+					price = qlist.at(0).Quot;
+				}
+				if(price > 0.0) {
+					if(rBlk.Amount > 0) {
+						if(feqeps(rBlk.Amount, price, 1.0E-6)) {
+							amount_to_wroff = price; // ok
+						}
+						else {
+							; // @todo @err
+						}
+					}
+				}
+				else {
+					; // @todo @err
+				}
+			}
+			{
 				TSessionPacket pack;
 				ProcessorTbl::Rec inh_prc_rec;
 				TSesObj.InitPacket(&pack, TSESK_SESSION, prc_id, 0, TSESST_INPROCESS);
+				pack.OuterTimingPrice = amount_to_wroff;
 				pack.Rec.TechID = tec_id;
 				pack.Rec.StDt = now_dtm.d;
 				pack.Rec.StTm = now_dtm.t;
@@ -1538,7 +1627,20 @@ public:
 					}
 				}
 				//
-				THROW(TSesObj.PutPacket(&tses_id, &pack, 1));
+				{
+					PPTransaction tra(1);
+					THROW(tra);
+					THROW(TSesObj.PutPacket(&tses_id, &pack, 0));
+					if(amount_to_wroff > 0.0) {
+						SCardCore::OpBlock op;
+						op.LinkOi.Set(PPOBJ_TSESSION, tses_id);
+						op.SCardID = rBlk.SCardID;
+						op.Amount = -amount_to_wroff;
+						op.Dtm = getcurdatetime_();
+						THROW(ScObj.P_Tbl->PutOpBlk(op, 0, 0));
+					}
+					THROW(tra.Commit());
+				}
 				{
 					/*
 						PPID   TSessID;
@@ -1669,6 +1771,7 @@ public:
 		return ok;
 	}
 	PPObjTSession TSesObj;
+	PPObjQuotKind QkObj;
 	PPObjGoods GObj;
 	PPObjPerson PsnObj;
 	PPObjSCard ScObj;
@@ -3720,74 +3823,51 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 							PPIDArray qk_id_list;
 							SJson * p_js_goods_list = 0;
 							SJson * p_js_qk_list = 0;
-
-							StrAssocArray qk_sa_list;
-							QuotKindFilt qk_filt;
-							qk_filt.MaxItems = -1;
-							qk_filt.Flags |= (QuotKindFilt::fIgnoreRights|QuotKindFilt::fAddBase|QuotKindFilt::fSortByRankName);
-							qk_obj.MakeList(&qk_filt, &qk_sa_list);
-							{
-								for(uint i = 0; i < qk_sa_list.getCount(); i++) {
-									raw_qk_id_list.add(qk_sa_list.at_WithoutParent(i).Id);
-								}
-								qk_obj.ArrangeList(getcurdatetime_(), raw_qk_id_list, RTLPF_USEQUOTWTIME);
-							}
-							{
-								PPIDArray qk_list_intersection;
-								PPIDArray local_tec_id_list;
-								for(uint i = 0; i < goods_id_list.getCount(); i++) {
-									const PPID goods_id = goods_id_list.get(i);
-									if(P_WsCtlBlk->GObj.Fetch(goods_id, &goods_rec) > 0) {
-										PPQuotArray qlist;
-										P_WsCtlBlk->GObj.GetQuotList(goods_id, prc_rec.LocID, qlist);
-										qlist.GetQuotKindIdList(qk_list_intersection);
-										qk_list_intersection.intersect(&raw_qk_id_list, 0);
-										if(qk_list_intersection.getCount()) {
-											SJson * p_js_quot_list = 0;
-											for(uint qi = 0; qi < qlist.getCount(); qi++) {
-												const PPQuot & r_q = qlist.at(qi);
-												if(qk_list_intersection.lsearch(r_q.Kind) && qk_obj.Fetch(r_q.Kind, &qk_rec) > 0) {
-													SJson * p_js_quot = SJson::CreateObj();
-													p_js_quot->InsertInt("id", qk_rec.ID);
-													p_js_quot->InsertDouble("val", r_q.Quot, MKSFMTD(0, 2, NMBF_NOTRAILZ));
-													SETIFZQ(p_js_quot_list, SJson::CreateArr());
-													p_js_quot_list->InsertChild(p_js_quot);
-													qk_id_list.add(qk_rec.ID);
+							PPIDArray local_tec_id_list;
+							PPQuotArray qlist;
+							P_WsCtlBlk->GetRawQuotKindList(raw_qk_id_list);
+							for(uint i = 0; i < goods_id_list.getCount(); i++) {
+								const PPID goods_id = goods_id_list.get(i);
+								if(P_WsCtlBlk->GetQuotList(goods_id, prc_rec.LocID, raw_qk_id_list, qlist) > 0) {
+									assert(qlist.getCount());
+									SJson * p_js_ware = SJson::CreateObj();
+									SJson * p_js_quot_list = SJson::CreateArr();
+									for(uint qi = 0; qi < qlist.getCount(); qi++) {
+										const PPQuot & r_q = qlist.at(qi);
+										SJson * p_js_quot = SJson::CreateObj();
+										p_js_quot->InsertInt("id", qk_rec.ID);
+										p_js_quot->InsertDouble("val", r_q.Quot, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+										p_js_quot_list->InsertChild(p_js_quot);
+										qk_id_list.add(qk_rec.ID);
+									}
+									p_js_ware->InsertInt("id", goods_rec.ID);
+									p_js_ware->InsertString("nm", (temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+									{
+										local_tec_id_list.Z();
+										goods_to_tec_list.GetListByKey(goods_id, local_tec_id_list);
+										assert(local_tec_id_list.getCount()); // Не может быть, чтобы не было ни одной технологии: мы товары получали собственно из технологий!
+										if(local_tec_id_list.getCount()) {
+											SJson * p_js_teclist = SJson::CreateArr();
+											for(uint ltidx = 0; ltidx < local_tec_id_list.getCount(); ltidx++) {
+												const PPID local_tec_id = local_tec_id_list.get(ltidx);
+												if(r_tec_obj.Fetch(local_tec_id, &tec_rec) > 0) {
+													SJson * p_js_tec = SJson::CreateObj();
+													p_js_tec->InsertInt("id", local_tec_id);
+													p_js_tec->InsertString("cod", (temp_buf = tec_rec.Code).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+													p_js_teclist->InsertChild(p_js_tec);
+													p_js_tec = 0;
 												}
 											}
-											if(p_js_quot_list) {
-												SJson * p_js_ware = SJson::CreateObj();
-												p_js_ware->InsertInt("id", goods_rec.ID);
-												p_js_ware->InsertString("nm", (temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
-												{
-													local_tec_id_list.Z();
-													goods_to_tec_list.GetListByKey(goods_id, local_tec_id_list);
-													assert(local_tec_id_list.getCount()); // Не может быть, чтобы не было ни одной технологии: мы товары получали собственно из технологий!
-													if(local_tec_id_list.getCount()) {
-														SJson * p_js_teclist = SJson::CreateArr();
-														for(uint ltidx = 0; ltidx < local_tec_id_list.getCount(); ltidx++) {
-															const PPID local_tec_id = local_tec_id_list.get(ltidx);
-															if(r_tec_obj.Fetch(local_tec_id, &tec_rec) > 0) {
-																SJson * p_js_tec = SJson::CreateObj();
-																p_js_tec->InsertInt("id", local_tec_id);
-																p_js_tec->InsertString("cod", (temp_buf = tec_rec.Code).Transf(CTRANSF_INNER_TO_UTF8).Escape());
-																p_js_teclist->InsertChild(p_js_tec);
-																p_js_tec = 0;
-															}
-														}
-														p_js_ware->Insert("tech_list", p_js_teclist);
-														p_js_teclist = 0;
-													}
-												}
-												p_js_ware->Insert("quot_list", p_js_quot_list);
-												p_js_quot_list = 0;
-												{
-													SETIFZQ(p_js_goods_list, SJson::CreateArr());
-													p_js_goods_list->InsertChild(p_js_ware);
-													p_js_ware = 0;
-												}
-											}
+											p_js_ware->Insert("tech_list", p_js_teclist);
+											p_js_teclist = 0;
 										}
+									}
+									p_js_ware->Insert("quot_list", p_js_quot_list);
+									p_js_quot_list = 0;
+									{
+										SETIFZQ(p_js_goods_list, SJson::CreateArr());
+										p_js_goods_list->InsertChild(p_js_ware);
+										p_js_ware = 0;
 									}
 								}
 							}

@@ -407,7 +407,7 @@ int SStrScan::GetQuotedString(SFileFormat format, SString & rBuf)
 	uint   qsf = QSF_INBUFZTERM;
 	if(format == SFileFormat::Csv)
 		qsf |= QSF_DBLQ;
-	int    rqsr = ::ReadQuotedString(P_Buf+Offs, 0, QSF_INBUFZTERM, &end_pos, rBuf);
+	int    rqsr = ::ReadQuotedString(P_Buf+Offs, 0, qsf, &end_pos, rBuf);
 	if(rqsr > 0) {
 		Offs += end_pos;
 		ok = 1;

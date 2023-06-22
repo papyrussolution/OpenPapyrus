@@ -5139,6 +5139,52 @@ PoBlock::PoBlock(uint flags) : Flags(flags), MsgIdHash(SMEGABYTE(20), 0/*don't u
 	Order(0)
 {
 }
+
+int PoBlock::RegisterSource(const char * pSrcIdent, uint * pSrcId)
+{
+	int    ok = -1;
+	uint   src_id = 0;
+	if(!isempty(pSrcIdent)) {
+		SString temp_buf;
+		temp_buf.Cat("/S/").Cat(pSrcIdent);
+		if(!MsgIdHash.Search(temp_buf, &src_id, 0)) {
+			src_id = ++LastMsgId;
+			THROW_SL(MsgIdHash.Add(temp_buf, src_id));
+			ok = 1;
+		}
+		else
+			ok = 2;
+	}
+	ASSIGN_PTR(pSrcId, src_id);
+	CATCHZOK
+	return ok;
+}
+
+int PoBlock::SearchSourceIdent(const char * pSrcIdent, uint * pSrcId) const
+{
+	int    ok = 0;
+	uint   src_id = 0;
+	if(!isempty(pSrcIdent)) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		r_temp_buf.Cat("/S/").Cat(pSrcIdent);
+		if(MsgIdHash.Search(r_temp_buf, &src_id, 0)) {
+			ok = 1;
+		}
+	}
+	ASSIGN_PTR(pSrcId, src_id);
+	return ok;
+}
+
+int PoBlock::SearchSourceId(uint srcId, SString * pSrcIdent) const
+{
+	int    ok = 0;
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	if(MsgIdHash.GetByAssoc(srcId, r_temp_buf)) {
+		ok = 1;
+	}
+	ASSIGN_PTR(pSrcIdent, r_temp_buf);
+	return ok;
+}
 	
 int  PoBlock::Add(uint lang, const char * pMsgId, const char * pText)
 {
@@ -5213,7 +5259,7 @@ void PoBlock::Finish()
 	SortInternal();
 }
 
-int PoBlock::Import(const char * pFileName)
+int PoBlock::Import(const char * pFileName, const char * pSrcIdent, uint * pSrcId)
 {
 	int    ok = 1;
 	enum {
@@ -5223,6 +5269,7 @@ int PoBlock::Import(const char * pFileName)
 		stateMsgStr
 	};
 	int    state = stateNothing;
+	uint   src_id = 0;
 	uint   lang = 0;
 	constexpr const char * p_pfx_msgid = "msgid";
 	constexpr const char * p_pfx_msgstr = "msgstr";

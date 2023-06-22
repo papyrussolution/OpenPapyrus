@@ -453,7 +453,7 @@ private:
 		DivisionalQuantity,               // @v11.6.6
 		Numerator,                        // @v11.6.6 
 		Denominator,                      // @v11.6.6
-		FNCloseCheckEx                    // @v11.7.2
+		FNCloseCheckEx,                   // @v11.7.2
 	};
 	//
 	// Descr: Методы вывода штрихкодов
@@ -2811,10 +2811,30 @@ void SCS_SHTRIHFRF::SetErrorMessage()
 					}
 					//
 					ResCode = RESCODE_NO_ERROR;
+					/*if(ExtMethodsFlags & extmethfFNCheckItemBarcode2) {
+						THROW(ConnectFR());
+						//
+						const uint code_len = sstrlen(pCode);
+						temp_buf.Z();
+						for(uint cidx = 0; cidx < code_len; cidx < code_len) {
+							temp_buf.CatHex(static_cast<uint8>(pCode[cidx]));
+						}
+						THROW(SetFR(BarcodeHex, temp_buf));
+						THROW(ExecFR(FNCheckItemBarcode2));
+					}
+					else*/
 					if(ExtMethodsFlags & extmethfFNCheckItemBarcode) {
 						THROW(ConnectFR());
 						//
-						THROW(SetFR(BarCode, pCode));
+						//THROW(SetFR(BarCode, pCode));
+						{
+							const uint code_len = sstrlen(pCode);
+							temp_buf.Z();
+							for(uint cidx = 0; cidx < code_len; cidx < code_len) {
+								temp_buf.CatHex(static_cast<uint8>(pCode[cidx]));
+							}
+							THROW(SetFR(BarcodeHex, temp_buf));
+						}
 						THROW(SetFR(ItemStatus, 1L));
 						THROW(SetFR(CheckItemMode, 0L));
 						THROW(SetFR(TLVDataHex, ""));

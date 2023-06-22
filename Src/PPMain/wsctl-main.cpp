@@ -284,7 +284,7 @@ public:
 		}
 		uint   Cmd;
 		struct Param {
-			Param() : SCardID(0), GoodsID(0), TechID(0)
+			Param() : SCardID(0), GoodsID(0), TechID(0), Amount(0.0)
 			{
 				AuthTextUtf8[0] = 0;
 				AuthPwUtf8[0] = 0;
@@ -293,6 +293,7 @@ public:
 			PPID   SCardID; // 
 			PPID   GoodsID;
 			PPID   TechID;
+			double Amount;
 			char   AuthTextUtf8[128];
 			char   AuthPwUtf8[128];
 		};
@@ -1427,6 +1428,9 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				if(rReq.P.TechID) {
 					js_param.InsertInt("techid", rReq.P.TechID);
 				}
+				if(rReq.P.Amount > 0.0) {
+					js_param.InsertDouble("amt", rReq.P.Amount, MKSFMTD(0, 2, 0));
+				}
 				PPJobSrvCmd cmd;
 				cmd.StartWriting(PPSCMD_WSCTL_BEGIN_SESS);
 				{
@@ -1838,6 +1842,12 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 											req.P.GoodsID = sel_goods_id;
 											if(p_goods_entry->TechList.getCount()) {
 												req.P.TechID = p_goods_entry->TechList.at(0).ID;
+											}
+											{
+												double price = 0.0;
+												if(st_data_prices.GetGoodsPrice(sel_goods_id, &price) && price > 0.0) {
+													req.P.Amount = price * 1.0;
+												}
 											}
 											P_CmdQ->Push(req);
 										}

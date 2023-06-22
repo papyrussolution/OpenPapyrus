@@ -3,6 +3,7 @@
 //
 package ru.petroglif.styloq;
 
+import static java.lang.Math.abs;
 import static ru.petroglif.styloq.JobServerProtocol.PPSCMD_SQ_SESSION;
 import static ru.petroglif.styloq.SLib.PPOBJ_STYLOQBINDERY;
 import static ru.petroglif.styloq.SLib.THROW;
@@ -10,6 +11,7 @@ import static ru.petroglif.styloq.SLib.THROW;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.net.Uri;
+import android.service.notification.StatusBarNotification;
 
 import androidx.core.app.NotificationCompat;
 
@@ -501,14 +503,28 @@ public class StyloQInterchange {
 								item.SvcID = svc_pack.Rec.ID; // @v11.7.6 @fix
 								long id = db.StoreNotification_new(item, false);
 								if(id > 0 && SLib.GetLen(svc_name) > 0) {
-									NotificationCompat.Builder builder = new NotificationCompat.Builder(appCtx, StyloQApp.NotificationChannelIdent)
-											.setSmallIcon(R.mipmap.ic_launcher)
-											.setContentTitle(svc_name)
-											.setContentText(item.Message);
-									Notification notification = builder.build();
 									NotificationManager mgr = (NotificationManager)appCtx.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
 									if(mgr != null) {
-										mgr.notify((int)id, notification);
+										boolean found = false;
+										StatusBarNotification[] nl = mgr.getActiveNotifications();
+										if(nl != null) {
+											for(int nidx = 0; !found && nidx < nl.length; nidx++) {
+												StatusBarNotification ni = nl[nidx];
+												if(ni != null) {
+													int ni_id = ni.getId();
+													if(ni_id == (int)abs(id))
+														found = true;
+												}
+											}
+										}
+										if(!found) {
+											NotificationCompat.Builder builder = new NotificationCompat.Builder(appCtx, StyloQApp.NotificationChannelIdent)
+													.setSmallIcon(R.mipmap.ic_launcher)
+													.setContentTitle(svc_name)
+													.setContentText(item.Message);
+											Notification notification = builder.build();
+											mgr.notify((int) id, notification);
+										}
 									}
 								}
 							}

@@ -5589,6 +5589,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 					// @v11.7.2 if(!v3markMode) {
 						SString ref_a; // @v11.7.3 Справка А из отчета об остатках
 						SString ref_b; // @v11.7.3 Справка Б из отчета об остатках
+						SString lot_ref_b; // @v11.7.7 Справка Б из лота (для обора только тех лотов, которые соответствуют строке остатка)
 						for(uint i = 0; i < pCurrentRestPack->GetTCount(); i++) {
 							const PPTransferItem & r_ti = pCurrentRestPack->ConstTI(i);
 							if(r_ti.Quantity_ > 0.0 && pCurrentRestPack->LTagL.GetTagStr(i, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code) > 0) {
@@ -5618,12 +5619,14 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 									for(uint j = 0; j < lot_id_list.getCount(); j++) {
 										const PPID lot_id = lot_id_list.get(j);
 										if(P_BObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id) {
-											double _rest = 0.0;
-											P_BObj->trfr->GetRest(lot_id, _cur_date, MAXLONG, &_rest, 0);
-											current_lot_rest += _rest;
-											//
-											_last_cost = lot_rec.Cost; // @v11.7.4
-											_last_price = lot_rec.Price; // @v11.7.4
+											if(p_ref->Ot.GetTagStr(PPOBJ_LOT, lot_id, PPTAG_LOT_FSRARINFB, lot_ref_b) && lot_ref_b.IsEqiAscii(ref_b)) { // @v11.7.7
+												double _rest = 0.0;
+												P_BObj->trfr->GetRest(lot_id, _cur_date, MAXLONG, &_rest, 0);
+												current_lot_rest += _rest;
+												//
+												_last_cost = lot_rec.Cost; // @v11.7.4
+												_last_price = lot_rec.Price; // @v11.7.4
+											}
 										}
 									}
 									const double wroff_qtty = (r_ti.Quantity_ - current_lot_rest);
@@ -6313,7 +6316,7 @@ int PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const DateRan
         {
 			period.SetDate(rest_dtm.d);
         	for(DateIter di(&period); !do_skip && P_BObj->P_Tbl->EnumByOpr(op_id, &di, &bill_rec) > 0;) {
-				if(!p_code_suffix || (temp_buf = bill_rec.Code).CmpSuffix(p_code_suffix, 0) == 0) { // @v10.1.0
+				if(bill_rec.LocID == loc_id && (!p_code_suffix || (temp_buf = bill_rec.Code).CmpSuffix(p_code_suffix, 0) == 0)) { // @v10.1.0 // @v11.7.7 (bill_rec.LocID == loc_id &&)
 					LDATETIME ts;
 					if(PPRef->Ot.GetTag(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_CREATEDTM, &tag_item) > 0) {
 						if(tag_item.GetTimestamp(&ts) > 0 && diffdatetimesec(ts, rest_dtm) >= 0)
@@ -7292,13 +7295,23 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 			ss_url_tok.clear();
 			temp_buf.Tokenize("/", ss_url_tok);
 			ss_url_tok.reverse();
+			{
+				//ReplyRests_v2
+				int debug_mark = 0;
+				if(temp_buf.Search("ReplyRests_v2", 0, 1, 0)) {
+					debug_mark = 1;
+				}
+				else if(temp_buf.Search("ReplyRestsShop_v2", 0, 1, 0)) {
+					debug_mark = 2;
+				}
+			}
 			for(uint sp = 0; !doc_type && ss_url_tok.get(&sp, temp_buf);) {
 				if(temp_buf.NotEmptyS())
 					doc_type = PPEgaisProcessor::RecognizeDocTypeTag(temp_buf);
 			}
 			if(ediop_list.bsearch(doc_type)) {
 				int    adr = 1; // AcceptDoc result
-				if(!(p_reply->Status & Reply::stOffline) || oneof3(doc_type, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2, PPEDIOP_EGAIS_REPLYRESTSSHOP)) {
+				if(!(p_reply->Status & Reply::stOffline)) {
 					THROW(MakeOutputFileName(p_reply, temp_path, temp_buf));
 					adr = AcceptDoc(*p_reply, temp_buf);
 				}

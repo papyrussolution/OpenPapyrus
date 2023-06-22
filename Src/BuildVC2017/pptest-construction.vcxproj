@@ -212,6 +212,7 @@
     <ClCompile Include="..\PPTEST\UNIT\test-onig.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-sarc.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-string.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-time.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="papyrus-lib.vcxproj">

@@ -2845,7 +2845,17 @@ struct LDATETIME {
 	// Descr: Прибавляет к времени n сотых долей секунды с переносом.
 	//
 	LDATETIME & FASTCALL addhs(long n);
+	//
+	// Descr: Прибавляет к времени this nsec секунд.
+	// Returns: *this
+	//
 	LDATETIME & FASTCALL addsec(long nsec);
+	//
+	// Descr: Прибавляет к времени this nsec секунд и возвращает результат на стеке.
+	// Note: В отличии от addsec эта функция константная.
+	// Returns: *this
+	//
+	LDATETIME FASTCALL plussec(long nsec) const;
 
 	LDATE  d;
 	LTIME  t;
@@ -3081,6 +3091,30 @@ private:
 	uint32 Delay;
 	LDATETIME  Last;
 };
+//
+//
+//
+struct SUniTime_Inner { // @internal
+	static const int Undef_TimeZone;
+	static int ValidateTimeZone(int tz);
+	SUniTime_Inner();
+	int    FASTCALL Cmp(const SUniTime_Inner & rS) const;
+
+	int    Y;
+	int    M;
+	int    D;
+	int    Hr;
+	int    Mn;
+	int    Sc;
+	int    MSc;  // milliseconds
+	int    Weekday;
+	int    TimeZone;
+};
+
+int    DateToDaysSinceChristmas(int y, int m, int d);
+int    DaysSinceChristmasToDate(int g, int * pYear, int * pMon, int * pDay);
+void   FASTCALL __EpochTimeToTimeFields(uint64 epochTime, SUniTime_Inner * pTimeFields);
+int    FASTCALL __TimeFieldsToEpochTime(const SUniTime_Inner * pTimeFields, uint64 * pEpochTime);
 //
 // Descr: Универсальное представление времени, обеспечивающее хранение любых временных
 //   отметок с (почти) любой точностью.
@@ -10026,7 +10060,7 @@ public:
 		cpuarchARM     = 0x04000000,
 	};
 	enum CpuFeature {
-		cpuftr_NONE        = 0,
+		cpuftr_NONE        = 0x00000000,
 		cpuftr_CPU_MASK    = 0x1f000000,
 		cpuftr_X86         = 0x01000000,
 		cpuftr_ARM         = 0x04000000,
@@ -10036,6 +10070,8 @@ public:
 		// For example, SSE3 is determined by the fist bit in the ECX
 		// register for a CPUID call with EAX=1, so we get:
 		//   cpuftr_X86 | (1 << 16) | (2 << 8) | (0) = 0x01010200
+		//
+		// @v11.7.7 @sobolev if(eax == 0x8000000X) then (0x80 | (eax & 0x7f))
 		//
 		// We should have information for inputs of EAX=0-7 w/ ECX=0.
 		//
@@ -10103,47 +10139,48 @@ public:
 		cpuftr_X86_HYPERVISOR = 0x0101021f,
 
 		cpuftr_X86_FSGSBASE   = 0x01070100,
-		cpuftr_X86_TSC_ADJ = 0x01070101,
-		cpuftr_X86_SGX     = 0x01070102,
-		cpuftr_X86_BMI1    = 0x01070103,
-		cpuftr_X86_HLE     = 0x01070104,
-		cpuftr_X86_AVX2    = 0x01070105,
-		cpuftr_X86_SMEP    = 0x01070107,
-		cpuftr_X86_BMI2    = 0x01070108,
-		cpuftr_X86_ERMS    = 0x01070109,
-		cpuftr_X86_INVPCID = 0x0107010a,
-		cpuftr_X86_RTM     = 0x0107010b,
-		cpuftr_X86_PQM     = 0x0107010c,
-		cpuftr_X86_MPX     = 0x0107010e,
-		cpuftr_X86_PQE     = 0x0107010f,
-		cpuftr_X86_AVX512F = 0x01070110,
-		cpuftr_X86_AVX512DQ = 0x01070111,
-		cpuftr_X86_RDSEED   = 0x01070112,
-		cpuftr_X86_ADX      = 0x01070113,
-		cpuftr_X86_SMAP     = 0x01070114,
-		cpuftr_X86_AVX512IFMA  = 0x01070115,
-		cpuftr_X86_PCOMMIT     = 0x01070116,
-		cpuftr_X86_CLFLUSHOPT  = 0x01070117,
-		cpuftr_X86_CLWB        = 0x01070118,
-		cpuftr_X86_INTEL_PT    = 0x01070119,
-		cpuftr_X86_AVX512PF    = 0x0107011a,
-		cpuftr_X86_AVX512ER    = 0x0107011b,
-		cpuftr_X86_AVX512CD    = 0x0107011c,
-		cpuftr_X86_SHA     = 0x0107011d,
-		cpuftr_X86_AVX512BW    = 0x0107011e,
-		cpuftr_X86_AVX512VL    = 0x0107011f,
+		cpuftr_X86_TSC_ADJ    = 0x01070101,
+		cpuftr_X86_SGX        = 0x01070102,
+		cpuftr_X86_BMI1       = 0x01070103,
+		cpuftr_X86_HLE        = 0x01070104,
+		cpuftr_X86_AVX2       = 0x01070105,
+		cpuftr_X86_SMEP       = 0x01070107,
+		cpuftr_X86_BMI2       = 0x01070108,
+		cpuftr_X86_ERMS       = 0x01070109,
+		cpuftr_X86_INVPCID    = 0x0107010a,
+		cpuftr_X86_RTM        = 0x0107010b,
+		cpuftr_X86_PQM        = 0x0107010c,
+		cpuftr_X86_MPX        = 0x0107010e,
+		cpuftr_X86_PQE          = 0x0107010f,
+		cpuftr_X86_AVX512F      = 0x01070110,
+		cpuftr_X86_AVX512DQ     = 0x01070111,
+		cpuftr_X86_RDSEED       = 0x01070112,
+		cpuftr_X86_ADX          = 0x01070113,
+		cpuftr_X86_SMAP            = 0x01070114,
+		cpuftr_X86_AVX512IFMA      = 0x01070115,
+		cpuftr_X86_PCOMMIT         = 0x01070116,
+		cpuftr_X86_CLFLUSHOPT      = 0x01070117,
+		cpuftr_X86_CLWB            = 0x01070118,
+		cpuftr_X86_INTEL_PT        = 0x01070119,
+		cpuftr_X86_AVX512PF        = 0x0107011a,
+		cpuftr_X86_AVX512ER        = 0x0107011b,
+		cpuftr_X86_AVX512CD        = 0x0107011c,
+		cpuftr_X86_SHA             = 0x0107011d,
+		cpuftr_X86_AVX512BW        = 0x0107011e,
+		cpuftr_X86_AVX512VL        = 0x0107011f,
 
-		cpuftr_X86_PREFETCHWT1 = 0x01070200,
-		cpuftr_X86_AVX512VBMI  = 0x01070201,
-		cpuftr_X86_UMIP    = 0x01070202,
-		cpuftr_X86_PKU     = 0x01070203,
-		cpuftr_X86_OSPKE   = 0x01070204,
+		cpuftr_X86_PREFETCHWT1     = 0x01070200,
+		cpuftr_X86_AVX512VBMI      = 0x01070201,
+		cpuftr_X86_UMIP            = 0x01070202,
+		cpuftr_X86_PKU             = 0x01070203,
+		cpuftr_X86_OSPKE           = 0x01070204,
 		cpuftr_X86_AVX512VPOPCNTDQ = 0x0107020e,
-		cpuftr_X86_RDPID   = 0x01070215,
-		cpuftr_X86_SGX_LC  = 0x0107021e,
+		cpuftr_X86_RDPID           = 0x01070215,
+		cpuftr_X86_SGX_LC          = 0x0107021e,
+		cpuftr_X86_RDTSCP          = 0x0181031b, // @v11.7.7 @sobolev (rdtscp: 27 bit of EDX(03))!
 
-		cpuftr_X86_AVX512_4VNNIW = 0x01070302,
-		cpuftr_X86_AVX512_4FMAPS = 0x01070303,
+		cpuftr_X86_AVX512_4VNNIW   = 0x01070302,
+		cpuftr_X86_AVX512_4FMAPS   = 0x01070303,
 
 		cpuftr_ARM_SWP     = cpuftr_ARM | 1,
 		cpuftr_ARM_HALF    = cpuftr_ARM | 2,

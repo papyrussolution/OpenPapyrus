@@ -3,6 +3,7 @@
 //
 package ru.petroglif.styloq;
 
+import static java.lang.Math.abs;
 import static ru.petroglif.styloq.SLib.PPOBJ_STYLOQBINDERY;
 import static ru.petroglif.styloq.SLib.THROW;
 import static ru.petroglif.styloq.SLib.THROW_SL;
@@ -1652,7 +1653,7 @@ public class StyloQDatabase extends Database {
 				if(pack != null && (pack.Rec.Flags & SecStoragePacket.styloqfProcessed) == 0) {
 					pack.Rec.Flags |= SecStoragePacket.styloqfProcessed;
 					long result_id = PutNotificationEntry(id, pack, useTa);
-					if(result_id == id)
+					if(abs(result_id) == id)
 						result = true;
 				}
 			} catch(StyloQException exn) {
@@ -1945,12 +1946,12 @@ public class StyloQDatabase extends Database {
 							NotificationStoragePacket ex_pack = GetNotificationEntryByIdent(pack.Rec.Ident);
 							if(ex_pack != null) {
 								// Точно такое извещение уже есть в бд: мы ничего не меняем, просто
-								// возвращаем ид существующей записи.
+								// возвращаем ид существующей записи (с минусом).
 								// Извещения генерируются сервисом и могут приходить несколько
 								// одинаковых (уникальный идент формирует сервис).
 								// Дабы не перегружать базу данных просто ничего не будем делать
 								// если пришло точно такое же извещение.
-								result_id = ex_pack.Rec.ID;
+								result_id = -ex_pack.Rec.ID;
 							}
 							else {
 								result_id = tbl.Insert(pack.Rec);

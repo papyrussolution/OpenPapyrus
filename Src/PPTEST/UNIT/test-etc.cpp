@@ -22,7 +22,7 @@ SLTEST_R(ImportPo)
 		if(!de.IsSelf() && !de.IsUpFolder() && (de.IsFolder() || de.IsFile())) {
 			de.GetNameA(base_dir, temp_buf);
 			SPathStruc::NormalizePath(temp_buf, SPathStruc::npfCompensateDotDot, path_buf);
-			blk.Import(path_buf);
+			blk.Import(path_buf, 0, 0);
 		}
 	}
 	blk.Finish();

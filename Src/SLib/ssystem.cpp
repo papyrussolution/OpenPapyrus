@@ -226,6 +226,18 @@ static FORCEINLINE int64 get_usec()
 	return counter * 1000000 / perf_freq; // convert to usec
 }
 
+/* Способ определения наличия команды RDTSCP в CPU
+bool rdtscp_supported()
+{
+	unsigned a, b, c, d;
+	if(__get_cpuid(0x80000001, &a, &b, &c, &d) && (d & (1<<27))) {
+		return true; // RDTSCP is supported.
+	}
+	else {
+		return false; // RDTSCP is not supported.
+	}
+}*/
+
 static FORCEINLINE int64 get_tsc(uint * ppid)
 {
     uint tsc_aux_;

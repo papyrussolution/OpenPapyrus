@@ -676,6 +676,7 @@ private:
 	long   PayDateBase;    //
 	PPObjGoods GObj;
 	PPObjArticle ArObj;
+	PPObjSCard ScObj; // @v11.7.7
 	PPObjBill    * P_BObj;
 	PPBillPacket * P_Pack;
 	BillTbl::Rec Pattern;
@@ -2416,10 +2417,34 @@ void BillDialog::ReplyCntragntSelection(int force)
 			P_Pack->Rec.Object = 0;
 		PPError();
 	}
+	// @v11.7.7 {
+	bool do_reset_scard = false;
+	{
+		if(P_Pack->Rec.SCardID) {
+			SCardTbl::Rec sc_rec;
+			if(ScObj.Fetch(P_Pack->Rec.SCardID, &sc_rec) > 0) {
+				if(sc_rec.PersonID) {
+					if(sc_rec.PersonID != ObjectToPerson(P_Pack->Rec.Object))
+						do_reset_scard = true;
+				}
+			}
+			else
+				do_reset_scard = true;
+			if(do_reset_scard) {
+				P_Pack->Rec.SCardID = 0;
+				P_Pack->Ext.SCardID = 0;
+			}
+		}
+	}
+	// } @v11.7.7 
 	if(P_Pack->Rec.Object != client_id) {
 		setCtrlLong(CTLSEL_BILL_OBJECT, P_Pack->Rec.Object);
 		SetupInfoText(); // @v10.9.9
 	}
+	// @v11.7.7 {
+	else if(do_reset_scard)
+		SetupInfoText();
+	// } @v11.7.7 
 	setupParentOfContragent();
 	setupDebtText();
 	SetupAgreementButton();
@@ -2517,13 +2542,12 @@ void BillDialog::SetupInfoText()
 {
 	SString info_buf;
 	if(P_Pack->Rec.SCardID) {
-		PPObjSCard sc_obj;
 		SCardTbl::Rec sc_rec;
-		if(sc_obj.Fetch(P_Pack->Rec.SCardID, &sc_rec) > 0) { // @v10.9.9 Search-->Fetch
+		if(ScObj.Fetch(P_Pack->Rec.SCardID, &sc_rec) > 0) {
 			SString temp_buf;
-			if(sc_obj.IsCreditCard(sc_rec.ID) > 0) {
+			if(ScObj.IsCreditCard(sc_rec.ID) > 0) {
 				double rest = 0.0;
-				sc_obj.P_Tbl->GetRest(sc_rec.ID, P_Pack->Rec.Dt, &rest);
+				ScObj.P_Tbl->GetRest(sc_rec.ID, P_Pack->Rec.Dt, &rest);
 				info_buf.Cat(PPLoadStringS("crdcard", temp_buf)).CatDiv(':', 2).Cat(sc_rec.Code).CatDiv('.', 2);
 				info_buf.Cat(PPLoadStringS("rest", temp_buf)).CatDiv('=', 1).Cat(rest);
 			}

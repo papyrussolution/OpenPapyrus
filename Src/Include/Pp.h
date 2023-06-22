@@ -53012,9 +53012,13 @@ public:
 		fMsgTxtToLow = 0x0002
 	};
 	explicit PoBlock(uint flags);
-	int    Import(const char * pFileName);
+	int    Import(const char * pFileName, const char * pSrcIdent, uint * pSrcId);
 	int    GetLangList(LongArray & rList) const;
+	int    SearchSourceIdent(const char * pSrcIdent, uint * pSrcId) const;
+	int    SearchSourceId(uint srcId, SString * pSrcIdent) const;
 	int    Search(const char * pMsgId, uint lang, SString & rMsgText) const;
+	int    Search(const char * pSrcIdent, const char * pMsgId, uint lang, SString & rMsgText) const;
+	int    Search(uint srcId, const char * pMsgId, uint lang, SString & rMsgText) const;	
 	SJson * ExportToJson() const;
 	//
 	// Descr: Следует вызвать после завершения вставки данных. Функция выполяет 
@@ -53028,9 +53032,10 @@ public:
 	void   Sort();
 private:
 	struct Entry {
-		explicit Entry(uint lang = 0) : MsgId(0), Lang(lang), TextP(0)
+		explicit Entry(uint lang = 0) : SrcId(0), MsgId(0), Lang(lang), TextP(0)
 		{
 		}
+		uint   SrcId; // Ид источника данных (если контейнер не дифференцирует источники, то 0)
 		uint   MsgId;
 		uint   Lang;
 		uint   TextP;
@@ -53038,6 +53043,7 @@ private:
 	static DECL_CMPFUNC(PoBlock_Entry_Sort);
 	static DECL_CMPFUNC(PoBlock_Entry_Sort_Internal);
 	static DECL_CMPFUNC(PoBlock_Entry_Srch_Internal);
+	int    RegisterSource(const char * pSrcIdent, uint * pSrcId);
 	int    Add(uint lang, const char * pMsgId, const char * pText);
 	void   SortInternal();
 
@@ -53046,7 +53052,7 @@ private:
 	uint   LastMsgId;
 	SString Ident; // 
 	TSVector <Entry> L;
-	SymbHashTable MsgIdHash;
+	SymbHashTable MsgIdHash; // Здесь же храняться текстовые идентификаторы источников (с префиксом /S/)
 };
 //
 //

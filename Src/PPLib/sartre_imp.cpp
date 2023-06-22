@@ -6168,7 +6168,7 @@ int PrcssrSartre::UED_Import_Scripts() // @v11.7.7
 						if(!de.IsSelf() && !de.IsUpFolder() && (de.IsFolder() || de.IsFile())) {
 							de.GetNameA(file_name, temp_buf);
 							SPathStruc::NormalizePath(temp_buf, SPathStruc::npfCompensateDotDot, path_buf);
-							poblk.Import(path_buf);
+							poblk.Import(path_buf, 0, 0);
 						}
 					}
 					poblk.Finish();
