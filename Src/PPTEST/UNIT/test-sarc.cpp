@@ -12,8 +12,8 @@ SLTEST_R(SArchive)
 		SLS.QueryPath("testroot", temp_buf);
 		temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("Test_Directory.7z");
 		int r = arc.Open(temp_buf, SFile::mRead, 0);
-		THROW(SLTEST_CHECK_NZ(r));
-		SLTEST_CHECK_EQ(arc.GetEntriesCount(), 2263LL);
+		THROW(SLCHECK_NZ(r));
+		SLCHECK_EQ(arc.GetEntriesCount(), 2263LL);
 		{
 			SString out_path;
 			long   _cntr = 0;

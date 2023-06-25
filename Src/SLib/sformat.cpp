@@ -959,7 +959,7 @@ SLTEST_R(FormatInt)
 		for(int i = -10000000; i < 10000000; i++) {
 			FormatInt(i, result_buf);
 			itoa(i, proof_buf, 10);
-			SLTEST_CHECK_NZ(result_buf == proof_buf);
+			SLCHECK_NZ(result_buf == proof_buf);
 			assert(result_buf == proof_buf);
 		}
 	}
@@ -967,7 +967,7 @@ SLTEST_R(FormatInt)
 		for(uint i = 0; i < 20000000; i++) {
 			FormatUInt(i, result_buf);
 			ultoa(i, proof_buf, 10);
-			SLTEST_CHECK_NZ(result_buf == proof_buf);
+			SLCHECK_NZ(result_buf == proof_buf);
 			assert(result_buf == proof_buf);
 		}
 	}
@@ -975,7 +975,7 @@ SLTEST_R(FormatInt)
 		for(int64 i = -10000000; i < 10000000; i++) {
 			FormatInt64(i, result_buf);
 			_i64toa(i, proof_buf, 10);
-			SLTEST_CHECK_NZ(result_buf == proof_buf);
+			SLCHECK_NZ(result_buf == proof_buf);
 			assert(result_buf == proof_buf);
 		}
 	}
@@ -983,7 +983,7 @@ SLTEST_R(FormatInt)
 		for(uint64 i = 0; i < 20000000; i++) {
 			FormatUInt64(i, result_buf);
 			_ui64toa(i, proof_buf, 10);
-			SLTEST_CHECK_NZ(result_buf == proof_buf);
+			SLCHECK_NZ(result_buf == proof_buf);
 			assert(result_buf == proof_buf);
 		}
 	}

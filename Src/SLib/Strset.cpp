@@ -785,15 +785,15 @@ SLTEST_R(StringSet)
 				THROW(ss.add(string_list.at(i), &pos));
 				THROW(pos_list.add(static_cast<long>(pos)));
 			}
-			THROW(SLTEST_CHECK_EQ(string_list.getCount(), ss.getCount()));
-			THROW(SLTEST_CHECK_EQ(pos_list.getCount(), ss.getCount()));
-			SLTEST_CHECK_NZ(InnerBlock::Verify(ss, string_list, &pos_list));
+			THROW(SLCHECK_EQ(string_list.getCount(), ss.getCount()));
+			THROW(SLCHECK_EQ(pos_list.getCount(), ss.getCount()));
+			SLCHECK_NZ(InnerBlock::Verify(ss, string_list, &pos_list));
 			//
 			// Теперь сортируем string_list и ss и сравниваем без позиций (они стали инвалидными)
 			//
 			string_list.sort(PTR_CMPFUNC(PcharNoCase));
 			ss.sort();
-			SLTEST_CHECK_NZ(InnerBlock::Verify(ss, string_list, 0));
+			SLCHECK_NZ(InnerBlock::Verify(ss, string_list, 0));
 		}
 		{
 			// Теперь тестируем StringSet с непустым разделителем. Дополнительно вставляем пустые строки в string_list
@@ -809,37 +809,37 @@ SLTEST_R(StringSet)
 				THROW(ss.add(string_list.at(i), &pos));
 				THROW(pos_list.add(static_cast<long>(pos)));
 			}
-			THROW(SLTEST_CHECK_EQ(string_list.getCount(), ss.getCount()));
-			THROW(SLTEST_CHECK_EQ(pos_list.getCount(), ss.getCount()));
-			SLTEST_CHECK_NZ(InnerBlock::Verify(ss, string_list, &pos_list));
+			THROW(SLCHECK_EQ(string_list.getCount(), ss.getCount()));
+			THROW(SLCHECK_EQ(pos_list.getCount(), ss.getCount()));
+			SLCHECK_NZ(InnerBlock::Verify(ss, string_list, &pos_list));
 			//
 			// Теперь сортируем string_list и ss и сравниваем без позиций (они стали инвалидными)
 			//
 			string_list.sort(PTR_CMPFUNC(PcharNoCase));
 			ss.sort();
-			SLTEST_CHECK_NZ(InnerBlock::Verify(ss, string_list, 0));
+			SLCHECK_NZ(InnerBlock::Verify(ss, string_list, 0));
 			{
 				// Проверяем copy-constructor StringSet
 				StringSet ss2(ss);
-				SLTEST_CHECK_NZ(ss2.IsEq(ss));
-				SLTEST_CHECK_NZ(ss2 == ss);
-				SLTEST_CHECK_NZ(InnerBlock::Verify(ss2, string_list, 0));
+				SLCHECK_NZ(ss2.IsEq(ss));
+				SLCHECK_NZ(ss2 == ss);
+				SLCHECK_NZ(InnerBlock::Verify(ss2, string_list, 0));
 			}
 			{
 				// Проверяем operator = StringSet
 				StringSet ss2;
 				ss2 = ss;
-				SLTEST_CHECK_NZ(ss2.IsEq(ss));
-				SLTEST_CHECK_NZ(ss == ss2);
-				SLTEST_CHECK_NZ(InnerBlock::Verify(ss2, string_list, 0));
+				SLCHECK_NZ(ss2.IsEq(ss));
+				SLCHECK_NZ(ss == ss2);
+				SLCHECK_NZ(InnerBlock::Verify(ss2, string_list, 0));
 			}
 			{
 				// Проверяем StringSet::Copy
 				StringSet ss2;
 				ss2.copy(ss);
-				SLTEST_CHECK_NZ(ss.IsEq(ss2));
-				SLTEST_CHECK_NZ(ss2 == ss);
-				SLTEST_CHECK_NZ(InnerBlock::Verify(ss2, string_list, 0));
+				SLCHECK_NZ(ss.IsEq(ss2));
+				SLCHECK_NZ(ss2 == ss);
+				SLCHECK_NZ(InnerBlock::Verify(ss2, string_list, 0));
 			}
 		}
 		{
@@ -854,18 +854,18 @@ SLTEST_R(StringSet)
 				uint i = test_set_count;
 				do {
 					bool gbir = ss.getByIdx(--i, temp_buf);
-					SLTEST_CHECK_NZ(gbir);
-					SLTEST_CHECK_EQ(temp_buf.ToLong(), static_cast<long>(i));
+					SLCHECK_NZ(gbir);
+					SLCHECK_EQ(temp_buf.ToLong(), static_cast<long>(i));
 				} while(i);
 				{
 					bool gbir = ss.getByIdx(test_set_count, temp_buf);
-					SLTEST_CHECK_Z(gbir);
-					SLTEST_CHECK_NZ(temp_buf.IsEmpty());
+					SLCHECK_Z(gbir);
+					SLCHECK_NZ(temp_buf.IsEmpty());
 				}
 				{
 					bool gbir = ss.getByIdx(test_set_count+1, temp_buf);
-					SLTEST_CHECK_Z(gbir);
-					SLTEST_CHECK_NZ(temp_buf.IsEmpty());
+					SLCHECK_Z(gbir);
+					SLCHECK_NZ(temp_buf.IsEmpty());
 				}
 			}
 		}

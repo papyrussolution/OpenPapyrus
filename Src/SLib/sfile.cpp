@@ -3544,7 +3544,7 @@ SLTEST_R(SFile)
 		{
 			// Сначала создадим файл
 			SFile f_out(file_path, SFile::mWrite);
-			THROW(SLTEST_CHECK_NZ(f_out.IsValid()));
+			THROW(SLCHECK_NZ(f_out.IsValid()));
 			for(uint ssp = 0; original_line_collection.get(&ssp, temp_buf);) {
 				f_out.WriteLine(temp_buf.CR());
 			}
@@ -3555,13 +3555,13 @@ SLTEST_R(SFile)
 			StringSet ss;
 			SFile::ReadLineCsvContext ctx(';');
 			SFile f_in(file_path, SFile::mRead);
-			THROW(SLTEST_CHECK_NZ(f_in.IsValid()));
+			THROW(SLCHECK_NZ(f_in.IsValid()));
 			while(f_in.ReadLineCsv(ctx, ss)) {
 				line_count++;
 				field_count = ss.getCount();
-				SLTEST_CHECK_EQ(field_count, 4U);
+				SLCHECK_EQ(field_count, 4U);
 			}
-			SLTEST_CHECK_EQ(line_count, original_line_collection.getCount());
+			SLCHECK_EQ(line_count, original_line_collection.getCount());
 		}
 	}
 	//
@@ -3569,64 +3569,64 @@ SLTEST_R(SFile)
 	//
 	// Откроем файл на запись (IsOpenedForWriting должен вернуть 1)
 	//
-	THROW(SLTEST_CHECK_NZ(file.Open(file_name, SFile::mWrite)));
-	SLTEST_CHECK_NZ(SFile::IsOpenedForWriting(file_name));
-	SLTEST_CHECK_NZ(file.WriteLine("test"));
-	SLTEST_CHECK_NZ(file.Close());
+	THROW(SLCHECK_NZ(file.Open(file_name, SFile::mWrite)));
+	SLCHECK_NZ(SFile::IsOpenedForWriting(file_name));
+	SLCHECK_NZ(file.WriteLine("test"));
+	SLCHECK_NZ(file.Close());
 	//
 	// Откроем файл на чтение (IsOpenedForWriting должен вернуть 0)
 	//
-	THROW(SLTEST_CHECK_NZ(file.Open(file_name, SFile::mRead)));
-	SLTEST_CHECK_Z(SFile::IsOpenedForWriting(file_name));
-	SLTEST_CHECK_NZ(file.Close());
+	THROW(SLCHECK_NZ(file.Open(file_name, SFile::mRead)));
+	SLCHECK_Z(SFile::IsOpenedForWriting(file_name));
+	SLCHECK_NZ(file.Close());
 	//
 	{
-		SLTEST_CHECK_LT(SFile::WaitForWriteSharingRelease(file_name, 10000), 0);
-		THROW(SLTEST_CHECK_NZ(file.Open(file_name, SFile::mWrite)));
-		SLTEST_CHECK_Z(SFile::WaitForWriteSharingRelease(file_name, 1000));
-		SLTEST_CHECK_NZ(file.Close());
-		SLTEST_CHECK_LT(SFile::WaitForWriteSharingRelease(file_name, 1000), 0);
+		SLCHECK_LT(SFile::WaitForWriteSharingRelease(file_name, 10000), 0);
+		THROW(SLCHECK_NZ(file.Open(file_name, SFile::mWrite)));
+		SLCHECK_Z(SFile::WaitForWriteSharingRelease(file_name, 1000));
+		SLCHECK_NZ(file.Close());
+		SLCHECK_LT(SFile::WaitForWriteSharingRelease(file_name, 1000), 0);
 		//
 		// @todo Не проверенным остался случай реального ожидания закрытия файла
 		// поскольку для этого надо создавать отдельный асинхронный поток.
 		//
 	}
 	{
-		SLTEST_CHECK_NZ(SFile::WildcardMatch("*.*", "abc.txt"));
-		SLTEST_CHECK_NZ(SFile::WildcardMatch("*.txt", "abc.txt"));
-		SLTEST_CHECK_Z(SFile::WildcardMatch("*.txt", "abc.tx"));
-		SLTEST_CHECK_NZ(SFile::WildcardMatch("*xyz*.t?t", "12xyz.txt"));
-		SLTEST_CHECK_Z(SFile::WildcardMatch("*xyz*.t?t", "12xyz.txxt"));
-		SLTEST_CHECK_NZ(SFile::WildcardMatch("*xyz*.t?t", "12xyz-foo.txt"));
-		SLTEST_CHECK_NZ(SFile::WildcardMatch("??xyz*.t?t", "12xyz-foo.txt"));
-		SLTEST_CHECK_Z(SFile::WildcardMatch("??xyz*.t?t", "123xyz-foo.txt"));
-		SLTEST_CHECK_NZ(SFile::WildcardMatch("??xyz*.x*", "12xyz-foo.xml"));
-		SLTEST_CHECK_NZ(SFile::WildcardMatch("??xyz*.x*", "12xyz-foo.xls"));
-		SLTEST_CHECK_NZ(SFile::WildcardMatch("??xyz*.x*", "12xyz-foo.xlsm"));
+		SLCHECK_NZ(SFile::WildcardMatch("*.*", "abc.txt"));
+		SLCHECK_NZ(SFile::WildcardMatch("*.txt", "abc.txt"));
+		SLCHECK_Z(SFile::WildcardMatch("*.txt", "abc.tx"));
+		SLCHECK_NZ(SFile::WildcardMatch("*xyz*.t?t", "12xyz.txt"));
+		SLCHECK_Z(SFile::WildcardMatch("*xyz*.t?t", "12xyz.txxt"));
+		SLCHECK_NZ(SFile::WildcardMatch("*xyz*.t?t", "12xyz-foo.txt"));
+		SLCHECK_NZ(SFile::WildcardMatch("??xyz*.t?t", "12xyz-foo.txt"));
+		SLCHECK_Z(SFile::WildcardMatch("??xyz*.t?t", "123xyz-foo.txt"));
+		SLCHECK_NZ(SFile::WildcardMatch("??xyz*.x*", "12xyz-foo.xml"));
+		SLCHECK_NZ(SFile::WildcardMatch("??xyz*.x*", "12xyz-foo.xls"));
+		SLCHECK_NZ(SFile::WildcardMatch("??xyz*.x*", "12xyz-foo.xlsm"));
 	}
 	{
 		bool   debug_mark = false;
 		const SString root_path(GetSuiteEntry()->InPath);
-		THROW(SLTEST_CHECK_NZ(IsDirectory(root_path)));
+		THROW(SLCHECK_NZ(IsDirectory(root_path)));
 		{
 			// Тестирование функций распознавания типов файлов
 			SFileEntryPool fep;
 			SFileEntryPool::Entry fe;
 			STempBuffer file_buf(SMEGABYTE(1));
-			THROW(SLTEST_CHECK_NZ(file_buf.IsValid()));
+			THROW(SLCHECK_NZ(file_buf.IsValid()));
 			{
 				(file_path = root_path).SetLastSlash().Cat("harfbuzz\\test\\shaping\\data\\in-house\\fonts\\DFONT.dfont");
 				SFileFormat ff;
 				int fir = ff.Identify(file_path);
 				if(oneof3(fir, 2, 3, 4)) {
 					SFile f_in(file_path, SFile::mRead|SFile::mBinary);
-					if(SLTEST_CHECK_NZ(f_in.IsValid())) {
+					if(SLCHECK_NZ(f_in.IsValid())) {
 						size_t actual_size = 0;
-						SLTEST_CHECK_NZ(f_in.ReadAll(file_buf, SKILOBYTE(128), &actual_size));
+						SLCHECK_NZ(f_in.ReadAll(file_buf, SKILOBYTE(128), &actual_size));
 						{
 							SFileFormat ff2;
 							int fir2 = ff2.IdentifyBuffer(file_buf, actual_size);
-							SLTEST_CHECK_NZ(oneof2(fir2, 2, 4));
+							SLCHECK_NZ(oneof2(fir2, 2, 4));
 							if(!CurrentStatus)
 								debug_mark = true;
 						}
@@ -3639,13 +3639,13 @@ SLTEST_R(SFile)
 				int fir = ff.Identify(file_path);
 				if(oneof3(fir, 2, 3, 4)) {
 					SFile f_in(file_path, SFile::mRead|SFile::mBinary);
-					if(SLTEST_CHECK_NZ(f_in.IsValid())) {
+					if(SLCHECK_NZ(f_in.IsValid())) {
 						size_t actual_size = 0;
-						SLTEST_CHECK_NZ(f_in.ReadAll(file_buf, SKILOBYTE(128), &actual_size));
+						SLCHECK_NZ(f_in.ReadAll(file_buf, SKILOBYTE(128), &actual_size));
 						{
 							SFileFormat ff2;
 							int fir2 = ff2.IdentifyBuffer(file_buf, actual_size);
-							SLTEST_CHECK_NZ(oneof2(fir2, 2, 4));
+							SLCHECK_NZ(oneof2(fir2, 2, 4));
 							if(!CurrentStatus)
 								debug_mark = true;
 						}
@@ -3659,13 +3659,13 @@ SLTEST_R(SFile)
 				int fir = ff.Identify(file_path);
 				if(oneof3(fir, 2, 3, 4)) {
 					SFile f_in(file_path, SFile::mRead|SFile::mBinary);
-					if(SLTEST_CHECK_NZ(f_in.IsValid())) {
+					if(SLCHECK_NZ(f_in.IsValid())) {
 						size_t actual_size = 0;
-						SLTEST_CHECK_NZ(f_in.ReadAll(file_buf, SKILOBYTE(128), &actual_size));
+						SLCHECK_NZ(f_in.ReadAll(file_buf, SKILOBYTE(128), &actual_size));
 						{
 							SFileFormat ff2;
 							int fir2 = ff2.IdentifyBuffer(file_buf, actual_size);
-							SLTEST_CHECK_NZ(oneof2(fir2, 2, 4));
+							SLCHECK_NZ(oneof2(fir2, 2, 4));
 							if(!CurrentStatus)
 								debug_mark = true;
 						}
@@ -3679,13 +3679,13 @@ SLTEST_R(SFile)
 					int fir = ff.Identify(file_path);
 					if(oneof3(fir, 2, 3, 4)) {
 						SFile f_in(file_path, SFile::mRead|SFile::mBinary);
-						if(SLTEST_CHECK_NZ(f_in.IsValid())) {
+						if(SLCHECK_NZ(f_in.IsValid())) {
 							size_t actual_size = 0;
-							SLTEST_CHECK_NZ(f_in.ReadAll(file_buf, SKILOBYTE(128), &actual_size));
+							SLCHECK_NZ(f_in.ReadAll(file_buf, SKILOBYTE(128), &actual_size));
 							{
 								SFileFormat ff2;
 								int fir2 = ff2.IdentifyBuffer(file_buf, actual_size);
-								SLTEST_CHECK_NZ(oneof2(fir2, 2, 4));
+								SLCHECK_NZ(oneof2(fir2, 2, 4));
 								if(!CurrentStatus)
 									debug_mark = true;
 							}
@@ -3706,17 +3706,17 @@ SLTEST_R(SFile)
 					uint32 crc2 = 0;
 					{
 						SFile f1(file_path, SFile::mRead|SFile::mBinary);
-						THROW(SLTEST_CHECK_NZ(f1.IsValid()));
-						THROW(SLTEST_CHECK_NZ(f1.CalcCRC(0, &crc1)));
+						THROW(SLCHECK_NZ(f1.IsValid()));
+						THROW(SLCHECK_NZ(f1.CalcCRC(0, &crc1)));
 					}
 					{
 						SFile f2(file_path, SFile::mRead|SFile::mBinary);
-						THROW(SLTEST_CHECK_NZ(f2.IsValid()));
-						THROW(SLTEST_CHECK_NZ(f2.CalcHash(0, SHASHF_CRC32, bc_hash)));
-						SLTEST_CHECK_EQ(bc_hash.Len(), sizeof(crc2));
+						THROW(SLCHECK_NZ(f2.IsValid()));
+						THROW(SLCHECK_NZ(f2.CalcHash(0, SHASHF_CRC32, bc_hash)));
+						SLCHECK_EQ(bc_hash.Len(), sizeof(crc2));
 						crc2 = *static_cast<const uint32 *>(bc_hash.PtrC());
 					}
-					SLTEST_CHECK_EQ(crc1, crc2);
+					SLCHECK_EQ(crc1, crc2);
 					if(!CurrentStatus)
 						debug_mark = true;
 				}

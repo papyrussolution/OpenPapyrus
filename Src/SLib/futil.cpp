@@ -805,13 +805,13 @@ SLTEST_R(Directory)
 	{
 		const char * p_path_to_normalize = "D:\\Papyrus\\Src\\BuildVC2017\\..\\..\\ppy\\bin\\..\\..\\src\\pptest\\out\\lmdb-test";
 		SPathStruc::NormalizePath(p_path_to_normalize, SPathStruc::npfCompensateDotDot, temp_buf);
-		SLTEST_CHECK_EQ(temp_buf, "d:\\papyrus\\src\\pptest\\out\\lmdb-test");
+		SLCHECK_EQ(temp_buf, "d:\\papyrus\\src\\pptest\\out\\lmdb-test");
 		SPathStruc::NormalizePath(p_path_to_normalize, SPathStruc::npfCompensateDotDot|SPathStruc::npfKeepCase, temp_buf);
-		SLTEST_CHECK_EQ(temp_buf, "D:\\Papyrus\\src\\pptest\\out\\lmdb-test");
+		SLCHECK_EQ(temp_buf, "D:\\Papyrus\\src\\pptest\\out\\lmdb-test");
 		SPathStruc::NormalizePath(p_path_to_normalize, SPathStruc::npfSlash, temp_buf);
-		SLTEST_CHECK_EQ(temp_buf, "d:/papyrus/src/buildvc2017/../../ppy/bin/../../src/pptest/out/lmdb-test");
+		SLCHECK_EQ(temp_buf, "d:/papyrus/src/buildvc2017/../../ppy/bin/../../src/pptest/out/lmdb-test");
 		SPathStruc::NormalizePath(p_path_to_normalize, SPathStruc::npfCompensateDotDot|SPathStruc::npfUpper, temp_buf);
-		SLTEST_CHECK_EQ(temp_buf, "D:\\PAPYRUS\\SRC\\PPTEST\\OUT\\LMDB-TEST");
+		SLCHECK_EQ(temp_buf, "D:\\PAPYRUS\\SRC\\PPTEST\\OUT\\LMDB-TEST");
 	}
 	// } @v11.3.1 
 	{
@@ -826,10 +826,10 @@ SLTEST_R(Directory)
 		}
 	}
 	(path = GetSuiteEntry()->InPath).SetLastSlash().Cat(test_dir);
-	THROW(SLTEST_CHECK_NZ(pathValid(path, 1)));
+	THROW(SLCHECK_NZ(pathValid(path, 1)));
 	(path = GetSuiteEntry()->InPath).SetLastSlash().Cat(test_dir).SetLastSlash().Cat(test_dir_with_files);
 	test_dir_with_files = path;
-	THROW(SLTEST_CHECK_NZ(pathValid(test_dir_with_files, 1)));
+	THROW(SLCHECK_NZ(pathValid(test_dir_with_files, 1)));
 	{
 		int64  sz = 0;
 		SDirEntry de;
@@ -838,31 +838,31 @@ SLTEST_R(Directory)
 			if(!de.IsFolder()) {
 				sz += de.Size;
 				de.GetNameA(test_dir_with_files, temp_buf);
-				THROW(SLTEST_CHECK_Z(::access(temp_buf, 0)));
-				THROW(SLTEST_CHECK_NZ(Win_IsFileExists(temp_buf)));
+				THROW(SLCHECK_Z(::access(temp_buf, 0)));
+				THROW(SLCHECK_NZ(Win_IsFileExists(temp_buf)));
 				file_list.insert(newStr(temp_buf));
 			}
 		}
-		THROW(SLTEST_CHECK_EQ(file_list.getCount(), files_count));
-		THROW(SLTEST_CHECK_EQ((long)sz, (long)files_size));
+		THROW(SLCHECK_EQ(file_list.getCount(), files_count));
+		THROW(SLCHECK_EQ((long)sz, (long)files_size));
 		// @v11.6.5 {
 		{
 			// "D:\Papyrus\Src\PPTEST\DATA\Test Directory\TDR\Тестовый каталог в кодировке cp1251\"
 			// Проверяем наличие каталога с именем русскими буквами (он есть). Проверка и в кодировках utf8 и 1251 (ANSI)
 			(path = GetSuiteEntry()->InPath).SetLastSlash().Cat(test_dir).SetLastSlash().Cat("TDR\\Тестовый каталог в кодировке cp1251");
-			SLTEST_CHECK_NZ(fileExists(path));
+			SLCHECK_NZ(fileExists(path));
 			path.Transf(CTRANSF_UTF8_TO_OUTER);
-			SLTEST_CHECK_NZ(fileExists(path));
+			SLCHECK_NZ(fileExists(path));
 			// Проверяем наличие файла с именем русскими буквами (он есть). Проверка и в кодировках utf8 и 1251 (ANSI)
 			(path = GetSuiteEntry()->InPath).SetLastSlash().Cat(test_dir).SetLastSlash().Cat("TDR\\Тестовый каталог в кодировке cp1251\\тестовый файл в кодировке 1251.txt");
-			SLTEST_CHECK_NZ(fileExists(path));
+			SLCHECK_NZ(fileExists(path));
 			path.Transf(CTRANSF_UTF8_TO_OUTER);
-			SLTEST_CHECK_NZ(fileExists(path));
+			SLCHECK_NZ(fileExists(path));
 			// Вставляем дефисы вместо пробелов - такого файла нет!
 			(path = GetSuiteEntry()->InPath).SetLastSlash().Cat(test_dir).SetLastSlash().Cat("TDR\\Тестовый каталог в кодировке cp1251\\тестовый-файл-в-кодировке-1251.txt");
-			SLTEST_CHECK_Z(fileExists(path));
+			SLCHECK_Z(fileExists(path));
 			path.Transf(CTRANSF_UTF8_TO_OUTER);
-			SLTEST_CHECK_Z(fileExists(path));
+			SLCHECK_Z(fileExists(path));
 		}
 		// } @v11.6.5
 		//
@@ -884,19 +884,19 @@ SLTEST_R(Directory)
 		(temp_buf = out_path).SetLastSlash().Cat("тестовый файл с не ansi-символами.txt"); // source-file in utf-8!
 		{
 			SFile f_out(temp_buf, SFile::mWrite|SFile::mBinary);
-			THROW(SLTEST_CHECK_NZ(f_out.IsValid()));
+			THROW(SLCHECK_NZ(f_out.IsValid()));
 			{
 				uint8 bin_buf[256];
 				for(uint i = 0; i < test_file_size/sizeof(bin_buf); i++) {
 					SObfuscateBuffer(bin_buf, sizeof(bin_buf));
-					THROW(SLTEST_CHECK_NZ(f_out.Write(bin_buf, sizeof(bin_buf))));
+					THROW(SLCHECK_NZ(f_out.Write(bin_buf, sizeof(bin_buf))));
 				}
 			}
 		}
 		{
 			SFileUtil::Stat stat;
-			THROW(SLTEST_CHECK_NZ(SFileUtil::GetStat(temp_buf, &stat)));
-			SLTEST_CHECK_EQ(stat.Size, test_file_size);
+			THROW(SLCHECK_NZ(SFileUtil::GetStat(temp_buf, &stat)));
+			SLCHECK_EQ(stat.Size, test_file_size);
 		}
 	}
 	CATCHZOK

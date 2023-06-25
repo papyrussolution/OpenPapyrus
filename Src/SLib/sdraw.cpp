@@ -3998,7 +3998,7 @@ SLTEST_R(lcms2)
 	(testbed_path = GetInputPath()).SetLastSlash().Cat("lcms2");
 	(temp_buf = "lcms2").CatChar('-').Cat("test").CatChar('-').Cat(getcurdate_(), DATF_YMD|DATF_NODIV|DATF_CENTURY).Cat(getcurtime_(), TIMF_HMS|TIMF_NODIV).Dot().Cat("out");
 	const char * p_out_file_name = MakeOutputFilePath(temp_buf);
-	SLTEST_CHECK_Z(Test_LCMS2(testbed_path, p_out_file_name, true));	
+	SLCHECK_Z(Test_LCMS2(testbed_path, p_out_file_name, true));	
 #else
 	;
 #endif
@@ -4011,7 +4011,7 @@ SLTEST_R(SDraw)
 	SString temp_buf;
 	SImageBuffer img_buf;
 	SString input_file_name(MakeInputFilePath("test24.png"));
-	THROW(SLTEST_CHECK_NZ(img_buf.Load(input_file_name)));
+	THROW(SLCHECK_NZ(img_buf.Load(input_file_name)));
 	{
 		SPathStruc ps(input_file_name);
 		ps.Ext = "webp";
@@ -4019,26 +4019,26 @@ SLTEST_R(SDraw)
 		SImageBuffer::StoreParam sp(SFileFormat::Webp);
 		SFile out_file(MakeOutputFilePath(temp_buf), SFile::mWrite|SFile::mBinary);
 		THROW(out_file.IsValid());
-		THROW(SLTEST_CHECK_NZ(img_buf.Store(sp, out_file)));
+		THROW(SLCHECK_NZ(img_buf.Store(sp, out_file)));
 	}
 	{
 		SBuffer buf;
 		SFile out_file(buf, SFile::mWrite);
 		SImageBuffer::StoreParam sp(SFileFormat::Png);
-		THROW(SLTEST_CHECK_NZ(img_buf.Store(sp, out_file)));
+		THROW(SLCHECK_NZ(img_buf.Store(sp, out_file)));
 		{
 			SImageBuffer img_buf2;
 			SBuffer * p_buf = out_file;
-			THROW(SLTEST_CHECK_NZ(p_buf));
-			THROW(SLTEST_CHECK_NZ(img_buf2.Load(SFileFormat::Png, *p_buf)));
-			THROW(SLTEST_CHECK_NZ(img_buf2.IsEq(img_buf)));
+			THROW(SLCHECK_NZ(p_buf));
+			THROW(SLCHECK_NZ(img_buf2.Load(SFileFormat::Png, *p_buf)));
+			THROW(SLCHECK_NZ(img_buf2.IsEq(img_buf)));
 		}
 		{
-			THROW(SLTEST_CHECK_NZ(img_buf.Load(MakeInputFilePath("test10.jpg"))));
+			THROW(SLCHECK_NZ(img_buf.Load(MakeInputFilePath("test10.jpg"))));
 			SImageBuffer::StoreParam sp_jpeg(SFileFormat::Jpeg);
 			sp_jpeg.Quality = 50;
 			SFile out_file_jpeg(MakeInputFilePath("test10-out.jpg"), SFile::mWrite|SFile::mBinary);
-			THROW(SLTEST_CHECK_NZ(img_buf.Store(sp_jpeg, out_file_jpeg)))
+			THROW(SLCHECK_NZ(img_buf.Store(sp_jpeg, out_file_jpeg)))
 		}
 	}
 	CATCHZOK

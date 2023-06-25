@@ -2963,7 +2963,7 @@ int PPViewSCardOp::Recover()
 				const FaultItem & r_item = *static_cast<const FaultItem *>(fault_list.at(i));
 				if(r_item.FaultKind ==  faultkindAbsCcRetroLink) {
 					if(i == 0 || r_item.CCheckID != static_cast<const FaultItem *>(fault_list.at(i-1))->CCheckID) {
-						THROW(SCObj.P_Tbl->RemoveOpByCheck(r_item.CCheckID, 0));
+						THROW(SCObj.P_Tbl->RemoveOpByLinkObj(PPOBJ_CCHECK, r_item.CCheckID, 0));
 						{
 							CCheckPacket cc_pack;
 							THROW(r_cc.LoadPacket(r_item.CCheckID, 0, &cc_pack) > 0);

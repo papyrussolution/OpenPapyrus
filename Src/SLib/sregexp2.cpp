@@ -299,7 +299,7 @@ SLTEST_R(SRegExp)
 				const long right_count = temp_buf.ToLong();
 				long   count = 0;
 				SRegExp2 re;
-				THROW(SLTEST_CHECK_NZ(re.Compile(re_buf, cp1251, SRegExp2::syntaxDefault, 0)));
+				THROW(SLCHECK_NZ(re.Compile(re_buf, cp1251, SRegExp2::syntaxDefault, 0)));
 				{
 					const char * p = text_buf;
 					out_line.Z().Cat(re_buf).CatDiv(':', 2).Cat(text_buf);
@@ -317,7 +317,7 @@ SLTEST_R(SRegExp)
 					}
 					out_line.CatDiv(':', 2).Cat(count).CR();
 					out_file.WriteLine(out_line);
-					THROW(SLTEST_CHECK_EQ(count, right_count));
+					THROW(SLCHECK_EQ(count, right_count));
 				}
 			}
 		}

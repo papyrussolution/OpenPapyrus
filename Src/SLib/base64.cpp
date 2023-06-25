@@ -461,14 +461,14 @@ SLTEST_R(Base32)
 	SBinaryChunk bc2;
 	uint   iteridx = 0;
 	Base32_Encode(0, 13, temp_buf);
-	THROW(SLTEST_CHECK_NZ(temp_buf.IsEmpty()));
+	THROW(SLCHECK_NZ(temp_buf.IsEmpty()));
 	/*for(size_t i = 0; i < SIZEOFARRAY(p_test_pair); i++) {
 		const TestPair & r_pair = p_test_pair[i];
-		THROW(SLTEST_CHECK_NZ(ZBase32_Encode(reinterpret_cast<const uint8 *>(r_pair.P_Src), sstrlen(r_pair.P_Src), temp_buf)));
-		THROW(SLTEST_CHECK_EQ(temp_buf, r_pair.P_Dest));
+		THROW(SLCHECK_NZ(ZBase32_Encode(reinterpret_cast<const uint8 *>(r_pair.P_Src), sstrlen(r_pair.P_Src), temp_buf)));
+		THROW(SLCHECK_EQ(temp_buf, r_pair.P_Dest));
 		//
-		THROW(SLTEST_CHECK_NZ(ZBase32_Decode(temp_buf, bc1)));
-		THROW(SLTEST_CHECK_NZ(bc1.IsEq(reinterpret_cast<const uint8 *>(r_pair.P_Src), sstrlen(r_pair.P_Src))));
+		THROW(SLCHECK_NZ(ZBase32_Decode(temp_buf, bc1)));
+		THROW(SLCHECK_NZ(bc1.IsEq(reinterpret_cast<const uint8 *>(r_pair.P_Src), sstrlen(r_pair.P_Src))));
 	}*/
 	{
 		bc1.Z();
@@ -481,13 +481,13 @@ SLTEST_R(Base32)
 			bc1.Z().Cat(&iteridx, 4);
 			Base32_Encode(static_cast<const uint8 *>(bc1.PtrC()), bc1.Len(), temp_buf);
 			Base32_Decode(temp_buf.ucptr(), bc2);
-			THROW(SLTEST_CHECK_NZ(bc1.IsEq(bc2)));
+			THROW(SLCHECK_NZ(bc1.IsEq(bc2)));
 		}
 		for(iteridx = 0; iteridx < 1000000; iteridx++) {
 			bc1.Z().Cat(&iteridx, 4);
 			Base32_Encode(static_cast<const uint8 *>(bc1.PtrC()), bc1.Len(), temp_buf);
 			Base32_Decode(temp_buf.ucptr(), bc2);
-			THROW(SLTEST_CHECK_NZ(bc1.IsEq(bc2)));
+			THROW(SLCHECK_NZ(bc1.IsEq(bc2)));
 		}
 	}
 	{
@@ -495,7 +495,7 @@ SLTEST_R(Base32)
 			bc1.Randomize(SLS.GetTLA().Rg.GetUniformInt(SKILOBYTE(64)));
 			Base32_Encode(static_cast<const uint8 *>(bc1.PtrC()), bc1.Len(), temp_buf);
 			Base32_Decode(temp_buf.ucptr(), bc2);
-			THROW(SLTEST_CHECK_NZ(bc1.IsEq(bc2)));
+			THROW(SLCHECK_NZ(bc1.IsEq(bc2)));
 		}
 	}
 	CATCHZOK

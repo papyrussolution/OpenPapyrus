@@ -697,12 +697,12 @@ SLTEST_R(LMDB)
 		Lmdb_CreateTestDirectory(db_path);
 		int count;
 		int * values = Lmdb_AllocateTestVector(count);
-		THROW(SLTEST_CHECK_Z(mdb_env_create(&env)));
-		THROW(SLTEST_CHECK_Z(mdb_env_set_maxreaders(env, 1)));
-		THROW(SLTEST_CHECK_Z(mdb_env_set_mapsize(env, 10485760)));
-		THROW(SLTEST_CHECK_Z(mdb_env_open(env, /*"./testdb"*/db_path, MDB_FIXEDMAP /*|MDB_NOSYNC*/, 0664)));
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
-		THROW(SLTEST_CHECK_Z(mdb_dbi_open(txn, NULL, 0, &dbi)));
+		THROW(SLCHECK_Z(mdb_env_create(&env)));
+		THROW(SLCHECK_Z(mdb_env_set_maxreaders(env, 1)));
+		THROW(SLCHECK_Z(mdb_env_set_mapsize(env, 10485760)));
+		THROW(SLCHECK_Z(mdb_env_open(env, /*"./testdb"*/db_path, MDB_FIXEDMAP /*|MDB_NOSYNC*/, 0664)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
+		THROW(SLCHECK_Z(mdb_dbi_open(txn, NULL, 0, &dbi)));
 		key.mv_size = sizeof(int);
 		key.mv_data = sval;
 		printf("Adding %d values\n", count);
@@ -713,7 +713,7 @@ SLTEST_R(LMDB)
 			data.mv_data = sval;
 			//if(RES(MDB_KEYEXIST, mdb_put(txn, dbi, &key, &data, MDB_NOOVERWRITE))) {
 			rc = mdb_put(txn, dbi, &key, &data, MDB_NOOVERWRITE);
-			THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
+			THROW(SLCHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
 			if(rc == MDB_KEYEXIST) {
 				j++;
 				data.mv_size = sizeof(sval);
@@ -722,14 +722,14 @@ SLTEST_R(LMDB)
 		}
 		if(j) 
 			printf("%d duplicates skipped\n", j);
-		THROW(SLTEST_CHECK_Z(mdb_txn_commit(txn)));
-		THROW(SLTEST_CHECK_Z(mdb_env_stat(env, &mst)));
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
-		THROW(SLTEST_CHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
+		THROW(SLCHECK_Z(mdb_txn_commit(txn)));
+		THROW(SLCHECK_Z(mdb_env_stat(env, &mst)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
+		THROW(SLCHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %p %.*s, data: %p %.*s\n", key.mv_data,  (int)key.mv_size,  (char *)key.mv_data, data.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
+		THROW(SLCHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		j = 0;
@@ -737,76 +737,76 @@ SLTEST_R(LMDB)
 		for(i = count - 1; i > -1; i -= Lmdb_Random(5)) {
 			j++;
 			txn = NULL;
-			THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
+			THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
 			sprintf(sval, "%03x ", values[i]);
 			//if(RES(MDB_NOTFOUND, mdb_del(txn, dbi, &key, NULL))) {
 			rc = mdb_del(txn, dbi, &key, NULL);
-			THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_NOTFOUND, 0)));
+			THROW(SLCHECK_NZ(oneof2(rc, MDB_NOTFOUND, 0)));
 			if(rc == MDB_NOTFOUND) {
 				j--;
 				mdb_txn_abort(txn);
 			}
 			else {
-				THROW(SLTEST_CHECK_Z(mdb_txn_commit(txn)));
+				THROW(SLCHECK_Z(mdb_txn_commit(txn)));
 			}
 		}
 		SAlloc::F(values);
 		printf("Deleted %d values\n", j);
-		THROW(SLTEST_CHECK_Z(mdb_env_stat(env, &mst)));
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
-		THROW(SLTEST_CHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
+		THROW(SLCHECK_Z(mdb_env_stat(env, &mst)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
+		THROW(SLCHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
 		printf("Cursor next\n");
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
+		THROW(SLCHECK_EQ(rc, MDB_NOTFOUND));
 		printf("Cursor last\n");
-		THROW(SLTEST_CHECK_Z(mdb_cursor_get(cursor, &key, &data, MDB_LAST)));
+		THROW(SLCHECK_Z(mdb_cursor_get(cursor, &key, &data, MDB_LAST)));
 		printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		printf("Cursor prev\n");
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_PREV)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
+		THROW(SLCHECK_EQ(rc, MDB_NOTFOUND));
 		printf("Cursor last/prev\n");
-		THROW(SLTEST_CHECK_Z(mdb_cursor_get(cursor, &key, &data, MDB_LAST)));
+		THROW(SLCHECK_Z(mdb_cursor_get(cursor, &key, &data, MDB_LAST)));
 		printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
-		THROW(SLTEST_CHECK_Z(mdb_cursor_get(cursor, &key, &data, MDB_PREV)));
+		THROW(SLCHECK_Z(mdb_cursor_get(cursor, &key, &data, MDB_PREV)));
 		printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		printf("Deleting with cursor\n");
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
-		THROW(SLTEST_CHECK_Z(mdb_cursor_open(txn, dbi, &cur2)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
+		THROW(SLCHECK_Z(mdb_cursor_open(txn, dbi, &cur2)));
 		for(i = 0; i<50; i++) {
 			//if(RES(MDB_NOTFOUND, mdb_cursor_get(cur2, &key, &data, MDB_NEXT))) {
 			rc = mdb_cursor_get(cur2, &key, &data, MDB_NEXT);
-			THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_NOTFOUND, 0)));
+			THROW(SLCHECK_NZ(oneof2(rc, MDB_NOTFOUND, 0)));
 			if(rc == MDB_NOTFOUND) {
 				break;
 			}
 			printf("key: %p %.*s, data: %p %.*s\n", key.mv_data,  (int)key.mv_size,  (char *)key.mv_data, data.mv_data, (int)data.mv_size, (char *)data.mv_data);
-			THROW(SLTEST_CHECK_Z(mdb_del(txn, dbi, &key, NULL)));
+			THROW(SLCHECK_Z(mdb_del(txn, dbi, &key, NULL)));
 		}
 		printf("Restarting cursor in txn\n");
 		for(op = MDB_FIRST, i = 0; i<=32; op = MDB_NEXT, i++) {
 			//if(RES(MDB_NOTFOUND, mdb_cursor_get(cur2, &key, &data, op))) {
 			rc = mdb_cursor_get(cur2, &key, &data, op);
-			THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_NOTFOUND, 0)));
+			THROW(SLCHECK_NZ(oneof2(rc, MDB_NOTFOUND, 0)));
 			if(rc == MDB_NOTFOUND) {
 				break;
 			}
 			printf("key: %p %.*s, data: %p %.*s\n", key.mv_data,  (int)key.mv_size,  (char *)key.mv_data, data.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
 		mdb_cursor_close(cur2);
-		THROW(SLTEST_CHECK_Z(mdb_txn_commit(txn)));
+		THROW(SLCHECK_Z(mdb_txn_commit(txn)));
 		printf("Restarting cursor outside txn\n");
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
-		THROW(SLTEST_CHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
+		THROW(SLCHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
 		for(op = MDB_FIRST, i = 0; i<=32; op = MDB_NEXT, i++) {
 			//if(RES(MDB_NOTFOUND, mdb_cursor_get(cursor, &key, &data, op))) {
 			rc = mdb_cursor_get(cursor, &key, &data, op);
-			THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_NOTFOUND, 0)));
+			THROW(SLCHECK_NZ(oneof2(rc, MDB_NOTFOUND, 0)));
 			if(rc == MDB_NOTFOUND) {
 				break;
 			}
@@ -827,13 +827,13 @@ SLTEST_R(LMDB)
 		Lmdb_CreateTestDirectory(db_path);
 		int count;
 		int * values = Lmdb_AllocateTestVector(count);
-		THROW(SLTEST_CHECK_Z(mdb_env_create(&env)));
-		THROW(SLTEST_CHECK_Z(mdb_env_set_maxreaders(env, 1)));
-		THROW(SLTEST_CHECK_Z(mdb_env_set_mapsize(env, 10485760)));
-		THROW(SLTEST_CHECK_Z(mdb_env_set_maxdbs(env, 4)));
-		THROW(SLTEST_CHECK_Z(mdb_env_open(env, /*"./testdb"*/db_path, MDB_FIXEDMAP|MDB_NOSYNC, 0664)));
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
-		THROW(SLTEST_CHECK_Z(mdb_dbi_open(txn, "id1", MDB_CREATE, &dbi)));
+		THROW(SLCHECK_Z(mdb_env_create(&env)));
+		THROW(SLCHECK_Z(mdb_env_set_maxreaders(env, 1)));
+		THROW(SLCHECK_Z(mdb_env_set_mapsize(env, 10485760)));
+		THROW(SLCHECK_Z(mdb_env_set_maxdbs(env, 4)));
+		THROW(SLCHECK_Z(mdb_env_open(env, /*"./testdb"*/db_path, MDB_FIXEDMAP|MDB_NOSYNC, 0664)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
+		THROW(SLCHECK_Z(mdb_dbi_open(txn, "id1", MDB_CREATE, &dbi)));
 		key.mv_size = sizeof(int);
 		key.mv_data = sval;
 		printf("Adding %d values\n", count);
@@ -843,21 +843,21 @@ SLTEST_R(LMDB)
 			data.mv_data = sval;
 			//if(RES(MDB_KEYEXIST, mdb_put(txn, dbi, &key, &data, MDB_NOOVERWRITE))) {
 			rc = mdb_put(txn, dbi, &key, &data, MDB_NOOVERWRITE);
-			THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
+			THROW(SLCHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
 			if(rc == MDB_KEYEXIST) {
 				j++;
 			}
 		}
 		if(j) 
 			printf("%d duplicates skipped\n", j);
-		THROW(SLTEST_CHECK_Z(mdb_txn_commit(txn)));
-		THROW(SLTEST_CHECK_Z(mdb_env_stat(env, &mst)));
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
-		THROW(SLTEST_CHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
+		THROW(SLCHECK_Z(mdb_txn_commit(txn)));
+		THROW(SLCHECK_Z(mdb_env_stat(env, &mst)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
+		THROW(SLCHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %p %.*s, data: %p %.*s\n", key.mv_data,  (int)key.mv_size,  (char *)key.mv_data, data.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
+		THROW(SLCHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		j = 0;
@@ -865,34 +865,34 @@ SLTEST_R(LMDB)
 		for(i = count - 1; i > -1; i -= Lmdb_Random(5)) {
 			j++;
 			txn = NULL;
-			THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
+			THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
 			sprintf(sval, "%03x ", values[i]);
 			//if(RES(MDB_NOTFOUND, mdb_del(txn, dbi, &key, NULL))) {
 			rc = mdb_del(txn, dbi, &key, NULL);
-			THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_NOTFOUND, 0)));
+			THROW(SLCHECK_NZ(oneof2(rc, MDB_NOTFOUND, 0)));
 			if(rc == MDB_NOTFOUND) {
 				j--;
 				mdb_txn_abort(txn);
 			}
 			else {
-				THROW(SLTEST_CHECK_Z(mdb_txn_commit(txn)));
+				THROW(SLCHECK_Z(mdb_txn_commit(txn)));
 			}
 		}
 		SAlloc::F(values);
 		printf("Deleted %d values\n", j);
-		THROW(SLTEST_CHECK_Z(mdb_env_stat(env, &mst)));
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
-		THROW(SLTEST_CHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
+		THROW(SLCHECK_Z(mdb_env_stat(env, &mst)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
+		THROW(SLCHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
 		printf("Cursor next\n");
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
+		THROW(SLCHECK_EQ(rc, MDB_NOTFOUND));
 		printf("Cursor prev\n");
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_PREV)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
+		THROW(SLCHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		mdb_dbi_close(env, dbi);
@@ -911,12 +911,12 @@ SLTEST_R(LMDB)
 		memzero(sval, sizeof(sval));
 		int count;
 		int * values = Lmdb_AllocateTestVector(count);
-		THROW(SLTEST_CHECK_Z(mdb_env_create(&env)));
-		THROW(SLTEST_CHECK_Z(mdb_env_set_mapsize(env, 10485760)));
-		THROW(SLTEST_CHECK_Z(mdb_env_set_maxdbs(env, 4)))
-		THROW(SLTEST_CHECK_Z(mdb_env_open(env, /*"./testdb"*/db_path, MDB_FIXEDMAP|MDB_NOSYNC, 0664)));
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
-		THROW(SLTEST_CHECK_Z(mdb_dbi_open(txn, "id2", MDB_CREATE|MDB_DUPSORT, &dbi)));
+		THROW(SLCHECK_Z(mdb_env_create(&env)));
+		THROW(SLCHECK_Z(mdb_env_set_mapsize(env, 10485760)));
+		THROW(SLCHECK_Z(mdb_env_set_maxdbs(env, 4)))
+		THROW(SLCHECK_Z(mdb_env_open(env, /*"./testdb"*/db_path, MDB_FIXEDMAP|MDB_NOSYNC, 0664)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
+		THROW(SLCHECK_Z(mdb_dbi_open(txn, "id2", MDB_CREATE|MDB_DUPSORT, &dbi)));
 		key.mv_size = sizeof(int);
 		key.mv_data = kval;
 		data.mv_size = sizeof(sval);
@@ -928,28 +928,28 @@ SLTEST_R(LMDB)
 			sprintf(sval, "%03x %d foo bar", values[i], values[i]);
 			//if(RES(MDB_KEYEXIST, mdb_put(txn, dbi, &key, &data, MDB_NODUPDATA))) {
 			rc = mdb_put(txn, dbi, &key, &data, MDB_NODUPDATA);
-			THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
+			THROW(SLCHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
 			if(rc == MDB_KEYEXIST) {
 				j++;
 			}
 		}
 		if(j) 
 			printf("%d duplicates skipped\n", j);
-		THROW(SLTEST_CHECK_Z(mdb_txn_commit(txn)));
-		THROW(SLTEST_CHECK_Z(mdb_env_stat(env, &mst)));
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
-		THROW(SLTEST_CHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
+		THROW(SLCHECK_Z(mdb_txn_commit(txn)));
+		THROW(SLCHECK_Z(mdb_env_stat(env, &mst)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
+		THROW(SLCHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %p %.*s, data: %p %.*s\n", key.mv_data,  (int)key.mv_size,  (char *)key.mv_data, data.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
+		THROW(SLCHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		j = 0;
 		for(i = count - 1; i > -1; i -= Lmdb_Random(5)) {
 			j++;
 			txn = NULL;
-			THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
+			THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
 			sprintf(kval, "%03x", values[i & ~0x0f]);
 			sprintf(sval, "%03x %d foo bar", values[i], values[i]);
 			key.mv_size = sizeof(int);
@@ -958,30 +958,30 @@ SLTEST_R(LMDB)
 			data.mv_data = sval;
 			//if(RES(MDB_NOTFOUND, mdb_del(txn, dbi, &key, &data))) {
 			rc = mdb_del(txn, dbi, &key, &data);
-			THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_NOTFOUND, 0)));
+			THROW(SLCHECK_NZ(oneof2(rc, MDB_NOTFOUND, 0)));
 			if(rc == MDB_NOTFOUND) {
 				j--;
 				mdb_txn_abort(txn);
 			}
 			else {
-				THROW(SLTEST_CHECK_Z(mdb_txn_commit(txn)));
+				THROW(SLCHECK_Z(mdb_txn_commit(txn)));
 			}
 		}
 		SAlloc::F(values);
 		printf("Deleted %d values\n", j);
-		THROW(SLTEST_CHECK_Z(mdb_env_stat(env, &mst)));
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
-		THROW(SLTEST_CHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
+		THROW(SLCHECK_Z(mdb_env_stat(env, &mst)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
+		THROW(SLCHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
 		printf("Cursor next\n");
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
+		THROW(SLCHECK_EQ(rc, MDB_NOTFOUND));
 		printf("Cursor prev\n");
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_PREV)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
+		THROW(SLCHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		mdb_dbi_close(env, dbi);
@@ -1005,12 +1005,12 @@ SLTEST_R(LMDB)
 		for(i = 0; i < count; i++) {
 			values[i] = i*5;
 		}
-		THROW(SLTEST_CHECK_Z(mdb_env_create(&env)));
-		THROW(SLTEST_CHECK_Z(mdb_env_set_mapsize(env, 10485760)));
-		THROW(SLTEST_CHECK_Z(mdb_env_set_maxdbs(env, 4)));
-		THROW(SLTEST_CHECK_Z(mdb_env_open(env, /*"./testdb"*/db_path, MDB_FIXEDMAP|MDB_NOSYNC, 0664)));
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
-		THROW(SLTEST_CHECK_Z(mdb_dbi_open(txn, "id4", MDB_CREATE|MDB_DUPSORT|MDB_DUPFIXED, &dbi)));
+		THROW(SLCHECK_Z(mdb_env_create(&env)));
+		THROW(SLCHECK_Z(mdb_env_set_mapsize(env, 10485760)));
+		THROW(SLCHECK_Z(mdb_env_set_maxdbs(env, 4)));
+		THROW(SLCHECK_Z(mdb_env_open(env, /*"./testdb"*/db_path, MDB_FIXEDMAP|MDB_NOSYNC, 0664)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
+		THROW(SLCHECK_Z(mdb_dbi_open(txn, "id4", MDB_CREATE|MDB_DUPSORT|MDB_DUPFIXED, &dbi)));
 		key.mv_size = sizeof(int);
 		key.mv_data = kval;
 		data.mv_size = sizeof(sval);
@@ -1021,22 +1021,22 @@ SLTEST_R(LMDB)
 			sprintf(sval, "%07x", values[i]);
 			//if(RES(MDB_KEYEXIST, mdb_put(txn, dbi, &key, &data, MDB_NODUPDATA))) {
 			rc = mdb_put(txn, dbi, &key, &data, MDB_NODUPDATA);
-			THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
+			THROW(SLCHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
 			if(rc == MDB_KEYEXIST) {
 				j++;
 			}
 		}
 		if(j) 
 			printf("%d duplicates skipped\n", j);
-		THROW(SLTEST_CHECK_Z(mdb_txn_commit(txn)));
-		THROW(SLTEST_CHECK_Z(mdb_env_stat(env, &mst)));
+		THROW(SLCHECK_Z(mdb_txn_commit(txn)));
+		THROW(SLCHECK_Z(mdb_env_stat(env, &mst)));
 		// there should be one full page of dups now.
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
-		THROW(SLTEST_CHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
+		THROW(SLCHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %p %.*s, data: %p %.*s\n", key.mv_data,  (int)key.mv_size,  (char *)key.mv_data, data.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
+		THROW(SLCHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		/* test all 3 branches of split code:
@@ -1049,43 +1049,43 @@ SLTEST_R(LMDB)
 		data.mv_size = sizeof(sval);
 		data.mv_data = sval;
 		sprintf(sval, "%07x", values[3]+1);
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
 		{
 			//RES(MDB_KEYEXIST, mdb_put(txn, dbi, &key, &data, MDB_NODUPDATA));
 			rc = mdb_put(txn, dbi, &key, &data, MDB_NODUPDATA);
-			THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
+			THROW(SLCHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
 		}
 		mdb_txn_abort(txn);
 		sprintf(sval, "%07x", values[255]+1);
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
 		{
 			//RES(MDB_KEYEXIST, mdb_put(txn, dbi, &key, &data, MDB_NODUPDATA));
 			rc = mdb_put(txn, dbi, &key, &data, MDB_NODUPDATA);
-			THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
+			THROW(SLCHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
 		}
 		mdb_txn_abort(txn);
 		sprintf(sval, "%07x", values[500]+1);
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
 		{
 			//RES(MDB_KEYEXIST, mdb_put(txn, dbi, &key, &data, MDB_NODUPDATA));
 			rc = mdb_put(txn, dbi, &key, &data, MDB_NODUPDATA);
-			THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
+			THROW(SLCHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
 		}
-		THROW(SLTEST_CHECK_Z(mdb_txn_commit(txn)));
+		THROW(SLCHECK_Z(mdb_txn_commit(txn)));
 		// Try MDB_NEXT_MULTIPLE 
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
-		THROW(SLTEST_CHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
+		THROW(SLCHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT_MULTIPLE)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
+		THROW(SLCHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		j = 0;
 		for(i = count - 1; i > -1; i -= Lmdb_Random(3)) {
 			j++;
 			txn = NULL;
-			THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
+			THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
 			sprintf(sval, "%07x", values[i]);
 			key.mv_size = sizeof(int);
 			key.mv_data = kval;
@@ -1093,30 +1093,30 @@ SLTEST_R(LMDB)
 			data.mv_data = sval;
 			//if(RES(MDB_NOTFOUND, mdb_del(txn, dbi, &key, &data))) {
 			rc = mdb_del(txn, dbi, &key, &data);
-			THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_NOTFOUND, 0)));
+			THROW(SLCHECK_NZ(oneof2(rc, MDB_NOTFOUND, 0)));
 			if(rc == MDB_NOTFOUND) {
 				j--;
 				mdb_txn_abort(txn);
 			}
 			else {
-				THROW(SLTEST_CHECK_Z(mdb_txn_commit(txn)));
+				THROW(SLCHECK_Z(mdb_txn_commit(txn)));
 			}
 		}
 		SAlloc::F(values);
 		printf("Deleted %d values\n", j);
-		THROW(SLTEST_CHECK_Z(mdb_env_stat(env, &mst)));
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
-		THROW(SLTEST_CHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
+		THROW(SLCHECK_Z(mdb_env_stat(env, &mst)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
+		THROW(SLCHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
 		printf("Cursor next\n");
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
+		THROW(SLCHECK_EQ(rc, MDB_NOTFOUND));
 		printf("Cursor prev\n");
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_PREV)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
+		THROW(SLCHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		mdb_dbi_close(env, dbi);
@@ -1137,13 +1137,13 @@ SLTEST_R(LMDB)
 		memzero(sval, sizeof(sval));
 		int   count;
 		int * values = Lmdb_AllocateTestVector(count);
-		THROW(SLTEST_CHECK_Z(mdb_env_create(&env)));
-		THROW(SLTEST_CHECK_Z(mdb_env_set_mapsize(env, 10485760)));
-		THROW(SLTEST_CHECK_Z(mdb_env_set_maxdbs(env, 4)));
-		THROW(SLTEST_CHECK_Z(mdb_env_open(env, /*"./testdb"*/db_path, MDB_FIXEDMAP|MDB_NOSYNC, 0664)));
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
-		THROW(SLTEST_CHECK_Z(mdb_dbi_open(txn, "id2", MDB_CREATE|MDB_DUPSORT, &dbi)));
-		THROW(SLTEST_CHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
+		THROW(SLCHECK_Z(mdb_env_create(&env)));
+		THROW(SLCHECK_Z(mdb_env_set_mapsize(env, 10485760)));
+		THROW(SLCHECK_Z(mdb_env_set_maxdbs(env, 4)));
+		THROW(SLCHECK_Z(mdb_env_open(env, /*"./testdb"*/db_path, MDB_FIXEDMAP|MDB_NOSYNC, 0664)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
+		THROW(SLCHECK_Z(mdb_dbi_open(txn, "id2", MDB_CREATE|MDB_DUPSORT, &dbi)));
+		THROW(SLCHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
 		key.mv_size = sizeof(int);
 		key.mv_data = kval;
 		data.mv_size = sizeof(sval);
@@ -1155,7 +1155,7 @@ SLTEST_R(LMDB)
 			sprintf(sval, "%03x %d foo bar", values[i], values[i]);
 			//if(RES(MDB_KEYEXIST, mdb_cursor_put(cursor, &key, &data, MDB_NODUPDATA))) {
 			rc = mdb_cursor_put(cursor, &key, &data, MDB_NODUPDATA);
-			THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
+			THROW(SLCHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
 			if(rc == MDB_KEYEXIST) {
 				j++;
 			}
@@ -1163,21 +1163,21 @@ SLTEST_R(LMDB)
 		if(j) 
 			printf("%d duplicates skipped\n", j);
 		mdb_cursor_close(cursor);
-		THROW(SLTEST_CHECK_Z(mdb_txn_commit(txn)));
-		THROW(SLTEST_CHECK_Z(mdb_env_stat(env, &mst)));
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
-		THROW(SLTEST_CHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
+		THROW(SLCHECK_Z(mdb_txn_commit(txn)));
+		THROW(SLCHECK_Z(mdb_env_stat(env, &mst)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
+		THROW(SLCHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %p %.*s, data: %p %.*s\n", key.mv_data,  (int)key.mv_size,  (char *)key.mv_data, data.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
+		THROW(SLCHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		j = 0;
 		for(i = count - 1; i > -1; i -= Lmdb_Random(5)) {
 			j++;
 			txn = NULL;
-			THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
+			THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
 			sprintf(kval, "%03x", values[i & ~0x0f]);
 			sprintf(sval, "%03x %d foo bar", values[i], values[i]);
 			key.mv_size = sizeof(int);
@@ -1186,30 +1186,30 @@ SLTEST_R(LMDB)
 			data.mv_data = sval;
 			//if(RES(MDB_NOTFOUND, mdb_del(txn, dbi, &key, &data))) {
 			rc = mdb_del(txn, dbi, &key, &data);
-			THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_NOTFOUND, 0)));
+			THROW(SLCHECK_NZ(oneof2(rc, MDB_NOTFOUND, 0)));
 			if(rc == MDB_NOTFOUND) {
 				j--;
 				mdb_txn_abort(txn);
 			}
 			else {
-				THROW(SLTEST_CHECK_Z(mdb_txn_commit(txn)));
+				THROW(SLCHECK_Z(mdb_txn_commit(txn)));
 			}
 		}
 		SAlloc::F(values);
 		printf("Deleted %d values\n", j);
-		THROW(SLTEST_CHECK_Z(mdb_env_stat(env, &mst)));
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
-		THROW(SLTEST_CHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
+		THROW(SLCHECK_Z(mdb_env_stat(env, &mst)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
+		THROW(SLCHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
 		printf("Cursor next\n");
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
+		THROW(SLCHECK_EQ(rc, MDB_NOTFOUND));
 		printf("Cursor prev\n");
 		while((rc = mdb_cursor_get(cursor, &key, &data, MDB_PREV)) == 0) {
 			printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		}
-		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
+		THROW(SLCHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_abort(txn);
 		mdb_dbi_close(env, dbi);
@@ -1234,14 +1234,14 @@ SLTEST_R(LMDB)
 		char * sval;
 		Lmdb_CreateTestDirectory(db_path);
 		srand((uint)time(NULL));
-		THROW(SLTEST_CHECK_Z(mdb_env_create(&env)));
-		THROW(SLTEST_CHECK_Z(mdb_env_set_mapsize(env, 10485760)));
-		THROW(SLTEST_CHECK_Z(mdb_env_set_maxdbs(env, 4)));
-		THROW(SLTEST_CHECK_Z(mdb_env_open(env, /*"./testdb"*/db_path, MDB_FIXEDMAP|MDB_NOSYNC, 0664)));
-		THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
-		THROW(SLTEST_CHECK_Z(mdb_dbi_open(txn, "id6", MDB_CREATE|MDB_INTEGERKEY, &dbi)));
-		THROW(SLTEST_CHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
-		THROW(SLTEST_CHECK_Z(mdb_stat(txn, dbi, &mst)));
+		THROW(SLCHECK_Z(mdb_env_create(&env)));
+		THROW(SLCHECK_Z(mdb_env_set_mapsize(env, 10485760)));
+		THROW(SLCHECK_Z(mdb_env_set_maxdbs(env, 4)));
+		THROW(SLCHECK_Z(mdb_env_open(env, /*"./testdb"*/db_path, MDB_FIXEDMAP|MDB_NOSYNC, 0664)));
+		THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
+		THROW(SLCHECK_Z(mdb_dbi_open(txn, "id6", MDB_CREATE|MDB_INTEGERKEY, &dbi)));
+		THROW(SLCHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
+		THROW(SLCHECK_Z(mdb_stat(txn, dbi, &mst)));
 		sval = (char *)SAlloc::C(1, mst.ms_psize / 4);
 		key.mv_size = sizeof(long);
 		key.mv_data = &kval;
@@ -1255,7 +1255,7 @@ SLTEST_R(LMDB)
 			{
 				//RES(MDB_KEYEXIST, mdb_cursor_put(cursor, &key, &data, MDB_NOOVERWRITE));
 				rc = mdb_cursor_put(cursor, &key, &data, MDB_NOOVERWRITE);
-				THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
+				THROW(SLCHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
 			}
 		}
 		printf("Adding 12 more values, should yield 3 splits\n");
@@ -1266,7 +1266,7 @@ SLTEST_R(LMDB)
 			{
 				//RES(MDB_KEYEXIST, mdb_cursor_put(cursor, &key, &data, MDB_NOOVERWRITE));
 				rc = mdb_cursor_put(cursor, &key, &data, MDB_NOOVERWRITE);
-				THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
+				THROW(SLCHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
 			}
 		}
 		printf("Adding 12 more values, should yield 3 splits\n");
@@ -1277,14 +1277,14 @@ SLTEST_R(LMDB)
 			{
 				//RES(MDB_KEYEXIST, mdb_cursor_put(cursor, &key, &data, MDB_NOOVERWRITE));
 				rc = mdb_cursor_put(cursor, &key, &data, MDB_NOOVERWRITE);
-				THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
+				THROW(SLCHECK_NZ(oneof2(rc, MDB_KEYEXIST, 0)));
 			}
 		}
-		THROW(SLTEST_CHECK_Z(mdb_cursor_get(cursor, &key, &data, MDB_FIRST)));
+		THROW(SLCHECK_Z(mdb_cursor_get(cursor, &key, &data, MDB_FIRST)));
 		do {
 			printf("key: %p %s, data: %p %.*s\n", key.mv_data,  mdb_dkey(&key, dkbuf), data.mv_data, (int)data.mv_size, (char *)data.mv_data);
 		} while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0);
-		THROW(SLTEST_CHECK_EQ(rc, MDB_NOTFOUND));
+		THROW(SLCHECK_EQ(rc, MDB_NOTFOUND));
 		mdb_cursor_close(cursor);
 		mdb_txn_commit(txn);
 		#if 0
@@ -1293,7 +1293,7 @@ SLTEST_R(LMDB)
 			for(i = count - 1; i > -1; i -= Lmdb_Random(5)) {
 				j++;
 				txn = NULL;
-				THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
+				THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, 0, &txn)));
 				sprintf(kval, "%03x", values[i & ~0x0f]);
 				sprintf(sval, "%03x %d foo bar", values[i], values[i]);
 				key.mv_size = sizeof(int);
@@ -1302,30 +1302,30 @@ SLTEST_R(LMDB)
 				data.mv_data = sval;
 				//if(RES(MDB_NOTFOUND, mdb_del(txn, dbi, &key, &data))) {
 				rc = mdb_del(txn, dbi, &key, &data);
-				THROW(SLTEST_CHECK_NZ(oneof2(rc, MDB_NOTFOUND, 0)));
+				THROW(SLCHECK_NZ(oneof2(rc, MDB_NOTFOUND, 0)));
 				if(rc == MDB_NOTFOUND) {
 					j--;
 					mdb_txn_abort(txn);
 				}
 				else {
-					THROW(SLTEST_CHECK_Z(mdb_txn_commit(txn)));
+					THROW(SLCHECK_Z(mdb_txn_commit(txn)));
 				}
 			}
 			SAlloc::F(values);
 			printf("Deleted %d values\n", j);
-			THROW(SLTEST_CHECK_Z(mdb_env_stat(env, &mst)));
-			THROW(SLTEST_CHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
-			THROW(SLTEST_CHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
+			THROW(SLCHECK_Z(mdb_env_stat(env, &mst)));
+			THROW(SLCHECK_Z(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn)));
+			THROW(SLCHECK_Z(mdb_cursor_open(txn, dbi, &cursor)));
 			printf("Cursor next\n");
 			while((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
 				printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 			}
-			THROW(SLTEST_CHECK_EQ((long)rc, MDB_NOTFOUND));
+			THROW(SLCHECK_EQ((long)rc, MDB_NOTFOUND));
 			printf("Cursor prev\n");
 			while((rc = mdb_cursor_get(cursor, &key, &data, MDB_PREV)) == 0) {
 				printf("key: %.*s, data: %.*s\n", (int)key.mv_size,  (char *)key.mv_data, (int)data.mv_size, (char *)data.mv_data);
 			}
-			THROW(SLTEST_CHECK_EQ((long)rc, MDB_NOTFOUND));
+			THROW(SLCHECK_EQ((long)rc, MDB_NOTFOUND));
 			mdb_cursor_close(cursor);
 			mdb_txn_abort(txn);
 			mdb_dbi_close(env, dbi);

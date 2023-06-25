@@ -2142,22 +2142,22 @@ SLTEST_R(SMathGamma)
 		{
 			LssLin lss;
 			lss.Solve_Simple(norris_n, norris_x, norris_y);
-			SLTEST_CHECK_EQ_TOL(lss.A, expected_c0, 1e-10);
-			SLTEST_CHECK_EQ_TOL(lss.B, expected_c1, 1e-10);
-			SLTEST_CHECK_EQ_TOL(lss.Cov00, expected_cov00, 1e-10);
-			SLTEST_CHECK_EQ_TOL(lss.Cov01, expected_cov01, 1e-10);
-			SLTEST_CHECK_EQ_TOL(lss.Cov11, expected_cov11, 1e-10);
-			SLTEST_CHECK_EQ_TOL(lss.SumSq, expected_sumsq, 1e-10);
+			SLCHECK_EQ_TOL(lss.A, expected_c0, 1e-10);
+			SLCHECK_EQ_TOL(lss.B, expected_c1, 1e-10);
+			SLCHECK_EQ_TOL(lss.Cov00, expected_cov00, 1e-10);
+			SLCHECK_EQ_TOL(lss.Cov01, expected_cov01, 1e-10);
+			SLCHECK_EQ_TOL(lss.Cov11, expected_cov11, 1e-10);
+			SLCHECK_EQ_TOL(lss.SumSq, expected_sumsq, 1e-10);
 		}
 		/*{
 			LssLin lss;
 			lss.Solve_SSE(norris_n, norris_x, norris_y);
-			SLTEST_CHECK_EQ_TOL(lss.A, expected_c0, 1e-10);
-			SLTEST_CHECK_EQ_TOL(lss.B, expected_c1, 1e-10);
-			SLTEST_CHECK_EQ_TOL(lss.Cov00, expected_cov00, 1e-10);
-			SLTEST_CHECK_EQ_TOL(lss.Cov01, expected_cov01, 1e-10);
-			SLTEST_CHECK_EQ_TOL(lss.Cov11, expected_cov11, 1e-10);
-			SLTEST_CHECK_EQ_TOL(lss.SumSq, expected_sumsq, 1e-10);
+			SLCHECK_EQ_TOL(lss.A, expected_c0, 1e-10);
+			SLCHECK_EQ_TOL(lss.B, expected_c1, 1e-10);
+			SLCHECK_EQ_TOL(lss.Cov00, expected_cov00, 1e-10);
+			SLCHECK_EQ_TOL(lss.Cov01, expected_cov01, 1e-10);
+			SLCHECK_EQ_TOL(lss.Cov11, expected_cov11, 1e-10);
+			SLCHECK_EQ_TOL(lss.SumSq, expected_sumsq, 1e-10);
 		}*/
 		{
 			LVect nv_x;
@@ -2166,12 +2166,12 @@ SLTEST_R(SMathGamma)
 			nv_y.init(norris_n, norris_y);
 			LssLin lss;
 			lss.Solve(nv_x, nv_y);
-			SLTEST_CHECK_EQ_TOL(lss.A, expected_c0, 1e-10);
-			SLTEST_CHECK_EQ_TOL(lss.B, expected_c1, 1e-10);
-			SLTEST_CHECK_EQ_TOL(lss.Cov00, expected_cov00, 1e-10);
-			SLTEST_CHECK_EQ_TOL(lss.Cov01, expected_cov01, 1e-10);
-			SLTEST_CHECK_EQ_TOL(lss.Cov11, expected_cov11, 1e-10);
-			SLTEST_CHECK_EQ_TOL(lss.SumSq, expected_sumsq, 1e-10);
+			SLCHECK_EQ_TOL(lss.A, expected_c0, 1e-10);
+			SLCHECK_EQ_TOL(lss.B, expected_c1, 1e-10);
+			SLCHECK_EQ_TOL(lss.Cov00, expected_cov00, 1e-10);
+			SLCHECK_EQ_TOL(lss.Cov01, expected_cov01, 1e-10);
+			SLCHECK_EQ_TOL(lss.Cov11, expected_cov11, 1e-10);
+			SLCHECK_EQ_TOL(lss.SumSq, expected_sumsq, 1e-10);
 		}
 	}
 	TEST_SF(flngamma, (-0.1, &r),       2.368961332728788655,  TEST_TOL0, GSL_SUCCESS);

@@ -164,8 +164,8 @@ xmlParserInputBuffer * __xmlParserInputBufferCreateFilename(const char *URI, xml
 	// Couple of APIs to get the output without digging into the buffers 
 	XMLPUBFUN const xmlChar * xmlOutputBufferGetContent(xmlOutputBuffer * out);
 	XMLPUBFUN size_t xmlOutputBufferGetSize(xmlOutputBuffer * out);
-	XMLPUBFUN int STDCALL xmlOutputBufferWrite(xmlOutputBuffer * out, int len, const char *buf);
-	XMLPUBFUN int FASTCALL xmlOutputBufferWriteString(xmlOutputBuffer * out, const char *str);
+	XMLPUBFUN int STDCALL xmlOutputBufferWrite(xmlOutputBuffer * out, int len, const char * buf);
+	XMLPUBFUN int FASTCALL xmlOutputBufferWriteString(xmlOutputBuffer * out, const char * str);
 	XMLPUBFUN int xmlOutputBufferWriteEscape(xmlOutputBuffer * out, const xmlChar *str, xmlCharEncodingOutputFunc escaping);
 	XMLPUBFUN int xmlOutputBufferFlush(xmlOutputBuffer * out);
 	XMLPUBFUN int FASTCALL xmlOutputBufferClose(xmlOutputBuffer * out);

@@ -224,8 +224,8 @@ SLTEST_R(SWmi)
 	}
 	else {
 		SWmi wmi;
-		THROW(SLTEST_CHECK_NZ(wmi.Connect(server, user, pw)));
-		THROW(SLTEST_CHECK_NZ(wmi.Method_CreateProcess(cmdline)));
+		THROW(SLCHECK_NZ(wmi.Connect(server, user, pw)));
+		THROW(SLCHECK_NZ(wmi.Method_CreateProcess(cmdline)));
 	}
 	CATCH
 		CurrentStatus = ok = 0;

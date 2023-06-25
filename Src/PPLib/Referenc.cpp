@@ -3002,7 +3002,7 @@ SLTEST_R(Reference_EnumItems)
 					}
 				}
 			}
-		THROW(SLTEST_CHECK_EQ((long)temp_list.getCount(), (long)obj_type_list.getCount()));
+		THROW(SLCHECK_EQ((long)temp_list.getCount(), (long)obj_type_list.getCount()));
 		obj_type_list = temp_list;
 	}
 	if(!pBenchmark || sstreqi_ascii(pBenchmark, "EnumItems")) {
@@ -3012,7 +3012,7 @@ SLTEST_R(Reference_EnumItems)
 		for(uint i = 0; i < obj_type_list.getCount(); i++) {
 			ReferenceTbl::Rec rec;
 			for(PPID id = 0; p_tbl->EnumItems(obj_type_list.get(i), &id, &rec) > 0;) {
-				THROW(SLTEST_CHECK_NZ(item_list1.insert(&rec)));
+				THROW(SLCHECK_NZ(item_list1.insert(&rec)));
 			}
 		}
 	}
@@ -3022,16 +3022,16 @@ SLTEST_R(Reference_EnumItems)
 		//
 		for(uint i = 0; i < obj_type_list.getCount(); i++) {
 			ReferenceTbl::Rec rec;
-			THROW(SLTEST_CHECK_NZ(p_tbl->InitEnum(obj_type_list.get(i), 0, &hdl_enum)));
+			THROW(SLCHECK_NZ(p_tbl->InitEnum(obj_type_list.get(i), 0, &hdl_enum)));
 			for(PPID id = 0; p_tbl->NextEnum(hdl_enum, &rec) > 0;) {
-				THROW(SLTEST_CHECK_NZ(item_list2.insert(&rec)));
+				THROW(SLCHECK_NZ(item_list2.insert(&rec)));
 			}
 			p_tbl->DestroyIter(hdl_enum);
 			hdl_enum = -1;
 		}
 	}
 	if(!pBenchmark) {
-		THROW(SLTEST_CHECK_NZ(item_list1.IsEq(item_list2)));
+		THROW(SLCHECK_NZ(item_list1.IsEq(item_list2)));
 	}
 	CATCH
 		ok = CurrentStatus = 0;

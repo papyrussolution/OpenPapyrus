@@ -88,6 +88,7 @@
     <ClInclude Include="..\OSF\abseil\absl\base\internal\unaligned_access.h" />
     <ClInclude Include="..\osf\abseil\absl\base\internal\unscaledcycleclock.h" />
     <ClInclude Include="..\osf\abseil\absl\base\log_severity.h" />
+    <ClInclude Include="..\OSF\abseil\absl\base\optimization.h" />
     <ClInclude Include="..\osf\abseil\absl\container\internal\hashtablez_sampler.h" />
     <ClInclude Include="..\OSF\abseil\absl\container\internal\layout.h" />
     <ClInclude Include="..\osf\abseil\absl\container\internal\raw_hash_set.h" />

@@ -17,6 +17,14 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|Win32">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|x64">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -38,6 +46,13 @@
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -45,6 +60,13 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
@@ -64,11 +86,19 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="_props\liblegacy-static.props" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="_props\liblegacy-static.props" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="_props\liblegacy-static.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="_props\liblegacy-static.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="_props\liblegacy-static.props" />
   </ImportGroup>
@@ -81,11 +111,19 @@
     <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
     <OutDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\openssl-302\$(ProjectName)\</IntDir>
   </PropertyGroup>
@@ -119,6 +157,27 @@
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <SDLCheck />
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+    <Link />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <SDLCheck>
+      </SDLCheck>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>false</FunctionLevelLinking>
@@ -167,28 +226,54 @@
     </ClCompile>
     <Link />
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <SDLCheck>
+      </SDLCheck>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+    <Link />
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\bn_asm.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\rsaz_exp.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\osf\OpenSSL-302\crypto\bn\rsaz_exp_x2.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\osf\OpenSSL-302\crypto\cpuid.c" />
     <ClCompile Include="..\osf\OpenSSL-302\crypto\ctype.c" />
     <ClCompile Include="..\osf\OpenSSL-302\crypto\des\des_enc.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\osf\OpenSSL-302\crypto\des\fcrypt_b.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\osf\OpenSSL-302\crypto\md5\md5_dgst.c" />
     <ClCompile Include="..\osf\OpenSSL-302\crypto\md5\md5_one.c" />
@@ -196,8 +281,10 @@
     <ClCompile Include="..\OSF\OpenSSL-302\crypto\openssl-crypto-pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\osf\OpenSSL-302\providers\common\provider_util.c" />
     <ClCompile Include="..\osf\OpenSSL-302\providers\implementations\ciphers\cipher_blowfish.c" />
@@ -233,25 +320,31 @@
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir $(OutDir)_work 2&gt;nul
-mkdir $(OutDir)_work\static 2&gt;nul
-..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
 ..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir $(OutDir)_work 2&gt;nul
-mkdir $(OutDir)_work\static 2&gt;nul
-..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
 ..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
       </Message>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86_64cpuid.pl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\legacy 2&gt;nul
 set ASM=ml64
@@ -260,127 +353,163 @@ $(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /
 mkdir $(OutDir)_work\legacy 2&gt;nul
 set ASM=ml64
 $(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /c /Cp /Cx /nologo /Zi /Fo$(IntDir)%(Filename).obj $(OutDir)_work\legacy\%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">mkdir $(OutDir)_work 2&gt;nul
+mkdir $(OutDir)_work\legacy 2&gt;nul
+set ASM=ml64
+$(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /c /Cp /Cx /nologo /Zi /Fo$(IntDir)%(Filename).obj $(OutDir)_work\legacy\%(Filename).asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\bn-586.pl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir $(OutDir)_work 2&gt;nul
-mkdir $(OutDir)_work\static 2&gt;nul
-..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
 ..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir $(OutDir)_work 2&gt;nul
-mkdir $(OutDir)_work\static 2&gt;nul
-..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
 ..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
       </Message>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\co-586.pl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir $(OutDir)_work 2&gt;nul
-mkdir $(OutDir)_work\static 2&gt;nul
-..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
 ..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir $(OutDir)_work 2&gt;nul
-mkdir $(OutDir)_work\static 2&gt;nul
-..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
 ..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
       </Message>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86-gf2m.pl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir $(OutDir)_work 2&gt;nul
-mkdir $(OutDir)_work\static 2&gt;nul
-..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
 ..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir $(OutDir)_work 2&gt;nul
-mkdir $(OutDir)_work\static 2&gt;nul
-..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
 ..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
       </Message>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86-mont.pl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir $(OutDir)_work 2&gt;nul
-mkdir $(OutDir)_work\static 2&gt;nul
-..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
 ..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir $(OutDir)_work 2&gt;nul
-mkdir $(OutDir)_work\static 2&gt;nul
-..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
 ..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
       </Message>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\crypt586.pl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir $(OutDir)_work 2&gt;nul
-mkdir $(OutDir)_work\static 2&gt;nul
-..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
 ..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir $(OutDir)_work 2&gt;nul
-mkdir $(OutDir)_work\static 2&gt;nul
-..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
 ..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
       </Message>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\des-586.pl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir $(OutDir)_work 2&gt;nul
-mkdir $(OutDir)_work\static 2&gt;nul
-..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
 ..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir $(OutDir)_work 2&gt;nul
-mkdir $(OutDir)_work\static 2&gt;nul
-..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
 ..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
       </Message>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rsaz-avx2.pl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\legacy 2&gt;nul
 set ASM=ml64
@@ -389,13 +518,19 @@ $(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /
 mkdir $(OutDir)_work\legacy 2&gt;nul
 set ASM=ml64
 $(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /c /Cp /Cx /nologo /Zi /Fo$(IntDir)%(Filename).obj $(OutDir)_work\legacy\%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">mkdir $(OutDir)_work 2&gt;nul
+mkdir $(OutDir)_work\legacy 2&gt;nul
+set ASM=ml64
+$(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /c /Cp /Cx /nologo /Zi /Fo$(IntDir)%(Filename).obj $(OutDir)_work\legacy\%(Filename).asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rsaz-avx512.pl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\legacy 2&gt;nul
 set ASM=ml64
@@ -404,13 +539,19 @@ $(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /
 mkdir $(OutDir)_work\legacy 2&gt;nul
 set ASM=ml64
 $(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /c /Cp /Cx /nologo /Zi /Fo$(IntDir)%(Filename).obj $(OutDir)_work\legacy\%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">mkdir $(OutDir)_work 2&gt;nul
+mkdir $(OutDir)_work\legacy 2&gt;nul
+set ASM=ml64
+$(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /c /Cp /Cx /nologo /Zi /Fo$(IntDir)%(Filename).obj $(OutDir)_work\legacy\%(Filename).asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rsaz-x86_64.pl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\legacy 2&gt;nul
 set ASM=ml64
@@ -419,13 +560,19 @@ $(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /
 mkdir $(OutDir)_work\legacy 2&gt;nul
 set ASM=ml64
 $(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /c /Cp /Cx /nologo /Zi /Fo$(IntDir)%(Filename).obj $(OutDir)_work\legacy\%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">mkdir $(OutDir)_work 2&gt;nul
+mkdir $(OutDir)_work\legacy 2&gt;nul
+set ASM=ml64
+$(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /c /Cp /Cx /nologo /Zi /Fo$(IntDir)%(Filename).obj $(OutDir)_work\legacy\%(Filename).asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86_64-gf2m.pl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\legacy 2&gt;nul
 set ASM=ml64
@@ -434,13 +581,19 @@ $(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /
 mkdir $(OutDir)_work\legacy 2&gt;nul
 set ASM=ml64
 $(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /c /Cp /Cx /nologo /Zi /Fo$(IntDir)%(Filename).obj $(OutDir)_work\legacy\%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">mkdir $(OutDir)_work 2&gt;nul
+mkdir $(OutDir)_work\legacy 2&gt;nul
+set ASM=ml64
+$(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /c /Cp /Cx /nologo /Zi /Fo$(IntDir)%(Filename).obj $(OutDir)_work\legacy\%(Filename).asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86_64-mont.pl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\legacy 2&gt;nul
 set ASM=ml64
@@ -449,13 +602,19 @@ $(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /
 mkdir $(OutDir)_work\legacy 2&gt;nul
 set ASM=ml64
 $(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /c /Cp /Cx /nologo /Zi /Fo$(IntDir)%(Filename).obj $(OutDir)_work\legacy\%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">mkdir $(OutDir)_work 2&gt;nul
+mkdir $(OutDir)_work\legacy 2&gt;nul
+set ASM=ml64
+$(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /c /Cp /Cx /nologo /Zi /Fo$(IntDir)%(Filename).obj $(OutDir)_work\legacy\%(Filename).asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86_64-mont5.pl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\legacy 2&gt;nul
 set ASM=ml64
@@ -464,13 +623,19 @@ $(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /
 mkdir $(OutDir)_work\legacy 2&gt;nul
 set ASM=ml64
 $(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /c /Cp /Cx /nologo /Zi /Fo$(IntDir)%(Filename).obj $(OutDir)_work\legacy\%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">mkdir $(OutDir)_work 2&gt;nul
+mkdir $(OutDir)_work\legacy 2&gt;nul
+set ASM=ml64
+$(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /c /Cp /Cx /nologo /Zi /Fo$(IntDir)%(Filename).obj $(OutDir)_work\legacy\%(Filename).asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\md5-x86_64.pl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mkdir $(OutDir)_work 2&gt;nul
 mkdir $(OutDir)_work\legacy 2&gt;nul
 set ASM=ml64
@@ -479,26 +644,36 @@ $(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /
 mkdir $(OutDir)_work\legacy 2&gt;nul
 set ASM=ml64
 $(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /c /Cp /Cx /nologo /Zi /Fo$(IntDir)%(Filename).obj $(OutDir)_work\legacy\%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">mkdir $(OutDir)_work 2&gt;nul
+mkdir $(OutDir)_work\legacy 2&gt;nul
+set ASM=ml64
+$(PERL) %(FullPath) masm $(OutDir)_work\legacy\%(Filename).asm &amp;&amp; ml64 /c /Cp /Cx /nologo /Zi /Fo$(IntDir)%(Filename).obj $(OutDir)_work\legacy\%(Filename).asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)_work\legacy\%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\md5-586.pl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir $(OutDir)_work 2&gt;nul
-mkdir $(OutDir)_work\static 2&gt;nul
-..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
 ..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir $(OutDir)_work 2&gt;nul
-mkdir $(OutDir)_work\static 2&gt;nul
-..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
+..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\tools\perl\perl %(FullPath) win32n $(PERLASM_FLAGS_X86) ../osf/OpenSSL-302/crypto/generated/%(Filename).asm
+timeout /t 1 /nobreak
 ..\..\tools\nasm -f win32 -o $(IntDir)%(Filename).obj ..\osf\OpenSSL-302\crypto\generated\%(Filename).asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;$(IntDir)%(Filename).obj</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
       </Message>
     </CustomBuild>
   </ItemGroup>

@@ -994,7 +994,6 @@ int FASTCALL xmlTextWriterEndElement(xmlTextWriter * writer)
 	xmlListPopFront(writer->nodes);
 	return sum;
 }
-
 /**
  * xmlTextWriterFullEndElement:
  * @writer:  the xmlTextWriterPtr

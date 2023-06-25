@@ -1262,7 +1262,7 @@ int CPosProcessor::GetCheckInfo(CCheckPacket * pPack)
 	if(pPack->Rec.SCardID) {
 		SCardOpTbl::Rec scop_rec;
 		const PPID prepay_cc_id = NZOR(pPack->Ext.LinkCheckID, ((pPack->Rec.Flags & CCHKF_ORDER) ? pPack->Rec.ID : 0));
-		if(prepay_cc_id && ScObj.P_Tbl->SearchOpByCheck(prepay_cc_id, &scop_rec) > 0 && scop_rec.Amount > 0.0)
+		if(prepay_cc_id && ScObj.P_Tbl->SearchOpByLinkObj(PPOBJ_CCHECK, prepay_cc_id, &scop_rec) > 0 && scop_rec.Amount > 0.0)
 			pPack->_OrdPrepay = scop_rec.Amount;
 	}
 	CATCHZOK

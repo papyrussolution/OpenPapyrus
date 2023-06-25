@@ -2049,27 +2049,27 @@ SLTEST_R(SBuffer)
 			long   lval;
 			double rval;
 			{
-				SLTEST_CHECK_Z(sbuf.GetAvailableSize());
-				SLTEST_CHECK_Z(sbuf.GetBuf());
-				SLTEST_CHECK_Z(sbuf.GetWrOffs());
-				SLTEST_CHECK_Z(sbuf.GetRdOffs());
+				SLCHECK_Z(sbuf.GetAvailableSize());
+				SLCHECK_Z(sbuf.GetBuf());
+				SLCHECK_Z(sbuf.GetWrOffs());
+				SLCHECK_Z(sbuf.GetRdOffs());
 			}
 			{
 				sbuf.Write(1L);
 				sbuf.Write(17.0);
-				SLTEST_CHECK_EQ(sbuf.GetWrOffs(), sizeof(1L)+sizeof(17.0));
-				SLTEST_CHECK_Z(sbuf.GetRdOffs());
-				SLTEST_CHECK_NZ(sbuf.Read(lval));
-				SLTEST_CHECK_NZ(sbuf.Read(rval));
-				SLTEST_CHECK_EQ(lval, 1L);
-				SLTEST_CHECK_EQ(rval, 17.0);
-				SLTEST_CHECK_EQ(sbuf.GetRdOffs(), sizeof(lval)+sizeof(rval));
+				SLCHECK_EQ(sbuf.GetWrOffs(), sizeof(1L)+sizeof(17.0));
+				SLCHECK_Z(sbuf.GetRdOffs());
+				SLCHECK_NZ(sbuf.Read(lval));
+				SLCHECK_NZ(sbuf.Read(rval));
+				SLCHECK_EQ(lval, 1L);
+				SLCHECK_EQ(rval, 17.0);
+				SLCHECK_EQ(sbuf.GetRdOffs(), sizeof(lval)+sizeof(rval));
 			}
 			{
 				sbuf.Z(); // Сбрасываем буфер - все должно быть теперь по-нулям (указатель на буфер - нет: не нулевой)
-				SLTEST_CHECK_Z(sbuf.GetAvailableSize());
-				SLTEST_CHECK_Z(sbuf.GetWrOffs());
-				SLTEST_CHECK_Z(sbuf.GetRdOffs());
+				SLCHECK_Z(sbuf.GetAvailableSize());
+				SLCHECK_Z(sbuf.GetWrOffs());
+				SLCHECK_Z(sbuf.GetRdOffs());
 			}
 			{
 				const char * p_terminated_string = "Некоторая строка у которой есть терминатор";
@@ -2081,12 +2081,12 @@ SLTEST_R(SBuffer)
 					sbuf.Z();
 					sbuf.Write(temp_buf.cptr(), temp_buf.Len());
 					sbuf.ReadTermStr(p_term, temp_buf);
-					SLTEST_CHECK_EQ(sbuf.GetRdOffs(), sstrlen(p_terminated_string)+sstrlen(p_term));
-					SLTEST_CHECK_EQ(sbuf.GetAvailableSize(), sstrlen(p_terminated_string_part2));
-					SLTEST_CHECK_EQ(sbuf.GetAvailableSize(), sbuf.GetAvailableSize());
-					SLTEST_CHECK_Z(temp_buf.CmpSuffix(p_term, 0));
+					SLCHECK_EQ(sbuf.GetRdOffs(), sstrlen(p_terminated_string)+sstrlen(p_term));
+					SLCHECK_EQ(sbuf.GetAvailableSize(), sstrlen(p_terminated_string_part2));
+					SLCHECK_EQ(sbuf.GetAvailableSize(), sbuf.GetAvailableSize());
+					SLCHECK_Z(temp_buf.CmpSuffix(p_term, 0));
 					temp_buf.Trim(temp_buf.Len()-strlen(p_term));
-					SLTEST_CHECK_EQ(temp_buf, p_terminated_string);
+					SLCHECK_EQ(temp_buf, p_terminated_string);
 				}
 			}
 		}
@@ -2115,21 +2115,21 @@ SLTEST_R(SBuffer)
 							SBinarySet::DeflateStrategy ds(512);
 							for(uint i = 0; i < SIZEOFARRAY(p_text_chunks); i++) {
 								const char * p_text = p_text_chunks[i];
-								SLTEST_CHECK_NZ(set.Put(i+1, p_text, sstrlen(p_text)));
+								SLCHECK_NZ(set.Put(i+1, p_text, sstrlen(p_text)));
 							}
-							SLTEST_CHECK_NZ(set.Put(SIZEOFARRAY(p_text_chunks)+1, js_text, js_text.Len(), &ds));
+							SLCHECK_NZ(set.Put(SIZEOFARRAY(p_text_chunks)+1, js_text, js_text.Len(), &ds));
 						}
 						{
 							SBinaryChunk chunk;
 							for(uint i = 0; i < SIZEOFARRAY(p_text_chunks); i++) {
-								SLTEST_CHECK_NZ(set.Get(i+1, &chunk));
-								SLTEST_CHECK_NZ(chunk.Len());
+								SLCHECK_NZ(set.Get(i+1, &chunk));
+								SLCHECK_NZ(chunk.Len());
 								temp_buf.Z().CatN(static_cast<const char *>(chunk.PtrC()), chunk.Len());
-								SLTEST_CHECK_EQ(temp_buf, p_text_chunks[i]);
+								SLCHECK_EQ(temp_buf, p_text_chunks[i]);
 							}
-							SLTEST_CHECK_NZ(set.Get(SIZEOFARRAY(p_text_chunks)+1, &chunk));
+							SLCHECK_NZ(set.Get(SIZEOFARRAY(p_text_chunks)+1, &chunk));
 							temp_buf.Z().CatN(static_cast<const char *>(chunk.PtrC()), chunk.Len());
-							SLTEST_CHECK_EQ(temp_buf, js_text);
+							SLCHECK_EQ(temp_buf, js_text);
 						}
 						ZDELETE(p_js); // @v11.3.11 @fix
 					}
@@ -2223,7 +2223,7 @@ SLTEST_R(SBuffer)
 			p_thr_rdr->Start();
 			objs_to_wait[objs_to_wait_count++] = *p_thr_rdr;
 			WaitForMultipleObjects(objs_to_wait_count, objs_to_wait, TRUE, INFINITE);
-			SLTEST_CHECK_LT(0, SFile::Compare(in_file_name, out_file_name, 0));
+			SLCHECK_LT(0, SFile::Compare(in_file_name, out_file_name, 0));
 			pipe.Reset();
 		}
 	}

@@ -1735,9 +1735,9 @@ SLTEST_R(PPExprParser)
 			row.Get(0, left = 0);
 			row.Get(1, right = 0);
 			if(left.NotEmptyS() || right.NotEmptyS()) {
-				SLTEST_CHECK_NZ(PPExprParser::CalcExpression(left, &v_left, 0, 0));
-				SLTEST_CHECK_NZ(PPExprParser::CalcExpression(right, &v_right, 0, 0));
-				SLTEST_CHECK_EQ_TOL(v_left, v_right, tolerance);
+				SLCHECK_NZ(PPExprParser::CalcExpression(left, &v_left, 0, 0));
+				SLCHECK_NZ(PPExprParser::CalcExpression(right, &v_right, 0, 0));
+				SLCHECK_EQ_TOL(v_left, v_right, tolerance);
 			}
 		}
 	}

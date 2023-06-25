@@ -1165,7 +1165,7 @@ int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOn
 	int    ok = -1;
 	SString fmt_buf;
 	SString msg_buf;
-	const LDATETIME curdtm = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	pPlan->freeAll();
 	int    r = Mngr.LoadPool2(0, pPool, true); 
 	if(r > 0) { //@erik v10.7.4
@@ -1178,19 +1178,19 @@ int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOn
 					MEMSZERO(si);
 					if(GetLastStat(job.ID, 0, &si, 0) > 0) {
 						dtm = si.LastRunningTime;
-						while(job.Dtr.Next_(dtm, &dtm) > 0 && dtm.d <= curdtm.d)
-							if(dtm.d == curdtm.d) {
+						while(job.Dtr.Next_(dtm, &dtm) > 0 && dtm.d <= now_dtm.d)
+							if(dtm.d == now_dtm.d) {
 								if(!job.ScheduleBeforeTime || dtm.t < job.ScheduleBeforeTime)
 									pPlan->Add(dtm.t.totalsec(), job.ID, 0);
 							}
 					}
 					else {
 						if(job.Dtr.Prd == PRD_DAY && job.Dtr.Dtl.D.QuantSec > 0)
-							dtm.d = plusdate(curdtm.d, -1);
+							dtm.d = plusdate(now_dtm.d, -1);
 						else
-							encodedate(1, 1, curdtm.d.year()-1, &dtm.d);
-						while(job.Dtr.Next_(dtm, &dtm) > 0 && dtm.d <= curdtm.d)
-							if(cmp(dtm, curdtm) > 0) {
+							encodedate(1, 1, now_dtm.d.year()-1, &dtm.d);
+						while(job.Dtr.Next_(dtm, &dtm) > 0 && dtm.d <= now_dtm.d)
+							if(cmp(dtm, now_dtm) > 0) {
 								if(!job.ScheduleBeforeTime || dtm.t < job.ScheduleBeforeTime)
 									pPlan->Add(dtm.t.totalsec(), job.ID, 0);
 							}
@@ -1206,7 +1206,7 @@ int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOn
 		{
 			SString dt_buf;
 			PPLoadText(PPTXT_JOBPLANARRANGED, fmt_buf);
-			dt_buf.Cat(curdtm.d);
+			dt_buf.Cat(now_dtm.d);
 			msg_buf.Printf(fmt_buf, dt_buf.cptr(), pPlan->getCount());
 			PPLogMessage(PPFILNAM_SERVER_LOG, msg_buf, LOGMSGF_TIME);
 		}
@@ -1218,7 +1218,7 @@ int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOn
 		if(!r)
 			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_LASTERR);
 	}
-	ASSIGN_PTR(pPlanDate, curdtm.d);
+	ASSIGN_PTR(pPlanDate, now_dtm.d);
 	return ok;
 }
 
@@ -1548,7 +1548,7 @@ public:
 	}
 	int    StartSess(StartSessBlock & rBlk) // @construction
 	{
-		int    ok = 0;
+		int    ok = 1;
 		const  LDATETIME now_dtm = getcurdatetime_();
 		PPID   tses_id = 0;
 		double screst = 0.0; // Остаток на счете клиента на момент начала сессии
@@ -1597,6 +1597,9 @@ public:
 					; // @todo @err
 				}
 			}
+			if(amount_to_wroff > 0.0) {
+				THROW_PP_S(amount_to_wroff <= screst, PPERR_SCARDRESTNOTENOUGH, sc_rec.Code);
+			}
 			{
 				TSessionPacket pack;
 				ProcessorTbl::Rec inh_prc_rec;
@@ -1616,6 +1619,7 @@ public:
 						pack.Rec.FinTm = finish_dtm.t;
 					}
 				}
+				THROW(TSesObj.CheckSessionTime(pack.Rec));
 				THROW(TSesObj.GetPrc(prc_id, &inh_prc_rec, 1, 1) > 0);
 				if(inh_prc_rec.WrOffOpID) {
 					PPOprKind op_rec;
@@ -1626,11 +1630,11 @@ public:
 						}
 					}
 				}
-				//
 				{
 					PPTransaction tra(1);
 					THROW(tra);
 					THROW(TSesObj.PutPacket(&tses_id, &pack, 0));
+					pack.GetTimeRange(rBlk.SessTimeRange);
 					if(amount_to_wroff > 0.0) {
 						SCardCore::OpBlock op;
 						op.LinkOi.Set(PPOBJ_TSESSION, tses_id);
@@ -1638,6 +1642,9 @@ public:
 						op.Amount = -amount_to_wroff;
 						op.Dtm = getcurdatetime_();
 						THROW(ScObj.P_Tbl->PutOpBlk(op, 0, 0));
+						rBlk.RetSCardID = op.SCardID;
+						rBlk.ScOpDtm = op.Dtm;
+						rBlk.WrOffAmount = op.Amount;
 					}
 					THROW(tra.Commit());
 				}
@@ -1652,7 +1659,7 @@ public:
 						STimeChunk SessTimeRange;
 					*/
 					rBlk.TSessID = tses_id;
-					rBlk.TechID = pack.Rec.TechID;
+					rBlk.RetTechID = pack.Rec.TechID;
 					rBlk.RetSCardID = rBlk.SCardID;
 					rBlk.RetGoodsID = rBlk.GoodsID;
 					// @todo rBlk.ScOpDtm
@@ -2703,10 +2710,10 @@ PPWorkerSession::CmdRet PPWorkerSession::TransmitFile(int verb, int contentType 
 			Base32_Encode(reinterpret_cast<const uint8 *>(&hash), sizeof(hash), temp_buf);
 			temp_buf.CopyTo(blk.Name, sizeof(blk.Name));
 			//THROW(SFileUtil::GetStat(_file_name, &fs));
-			const LDATETIME now = getcurdatetime_();
-			blk.CrtTime = now;
-			blk.AccsTime = now;
-			blk.ModTime = now;
+			const LDATETIME now_dtm = getcurdatetime_();
+			blk.CrtTime = now_dtm;
+			blk.AccsTime = now_dtm;
+			blk.ModTime = now_dtm;
 			blk.Size = p_inbuf->Size;
 			//ff.Identify(_file_name);
 			blk.Format = ff;
@@ -3828,19 +3835,19 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 							P_WsCtlBlk->GetRawQuotKindList(raw_qk_id_list);
 							for(uint i = 0; i < goods_id_list.getCount(); i++) {
 								const PPID goods_id = goods_id_list.get(i);
-								if(P_WsCtlBlk->GetQuotList(goods_id, prc_rec.LocID, raw_qk_id_list, qlist) > 0) {
+								if(P_WsCtlBlk->GObj.Fetch(goods_id, &goods_rec) > 0 && P_WsCtlBlk->GetQuotList(goods_id, prc_rec.LocID, raw_qk_id_list, qlist) > 0) {
 									assert(qlist.getCount());
 									SJson * p_js_ware = SJson::CreateObj();
 									SJson * p_js_quot_list = SJson::CreateArr();
 									for(uint qi = 0; qi < qlist.getCount(); qi++) {
 										const PPQuot & r_q = qlist.at(qi);
 										SJson * p_js_quot = SJson::CreateObj();
-										p_js_quot->InsertInt("id", qk_rec.ID);
+										p_js_quot->InsertInt("id", r_q.Kind);
 										p_js_quot->InsertDouble("val", r_q.Quot, MKSFMTD(0, 2, NMBF_NOTRAILZ));
 										p_js_quot_list->InsertChild(p_js_quot);
-										qk_id_list.add(qk_rec.ID);
+										qk_id_list.add(r_q.Kind);
 									}
-									p_js_ware->InsertInt("id", goods_rec.ID);
+									p_js_ware->InsertInt("id", goods_id);
 									p_js_ware->InsertString("nm", (temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
 									{
 										local_tec_id_list.Z();
@@ -3982,6 +3989,43 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				}
 			}
 			break;
+		case PPSCMD_WSCTL_TSESS: // @v11.7.7
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
+			{
+				PPID   prc_id = 0;
+				if(pEv->GetAvailableSize() >= sizeof(prc_id)) {
+					const LDATETIME now_dtm = getcurdatetime_();
+					PPID   tsess_id = 0;
+					TSessionTbl::Rec tsess_rec;
+					ProcessorTbl::Rec prc_rec;
+					TechTbl::Rec tech_rec;
+					pEv->Read(&prc_id, sizeof(prc_id));
+					SETIFZQ(P_WsCtlBlk, new WsCtlBlock());
+					int    r = P_WsCtlBlk->TSesObj.IsProcessorBusy(prc_id, 0, TSESK_SESSION, now_dtm, 1/*1sec*/, &tsess_id);
+					THROW(r);
+					{
+						SJson js_reply(SJson::tOBJECT);
+						if(r > 0 && P_WsCtlBlk->TSesObj.Search(tsess_id, &tsess_rec) > 0) {
+							STimeChunk tsess_tm_range;
+							js_reply.InsertInt("tsessid", tsess_id);
+							if(P_WsCtlBlk->TSesObj.GetTech(tsess_rec.TechID, &tech_rec) > 0) {
+								js_reply.InsertInt("techid", tech_rec.ID);
+								js_reply.InsertInt("goodsid", tech_rec.GoodsID);
+							}
+							PPObjTSession::GetTimeRange(tsess_rec, tsess_tm_range);
+							js_reply.InsertString("tm_start", temp_buf.Z().Cat(tsess_tm_range.Start, DATF_ISO8601CENT, 0));
+							js_reply.InsertString("tm_finish", temp_buf.Z().Cat(tsess_tm_range.Finish, DATF_ISO8601CENT, 0));
+						}
+						else {
+							js_reply.InsertInt("tsessid", 0);
+						}
+						js_reply.ToStr(temp_buf);
+						rReply.SetString(temp_buf);
+					}
+					ok = cmdretOK;
+				}
+			}
+			break;
 		case PPSCMD_WSCTL_BEGIN_SESS: // @v11.7.6  WSCTL Запуск рабочего сеанса
 			/*
 				{
@@ -3998,25 +4042,36 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				SString raw_text;
 				if(pEv->ReadLine(raw_text)) {
 					raw_text.Chomp().Strip();
+					WsCtlBlock::StartSessBlock _blk;
 					STempBuffer bin_buf(raw_text.Len()*3);
 					size_t actual_len = 0;
-					if(raw_text.DecodeMime64(bin_buf, bin_buf.GetSize(), &actual_len)) {
-						SETIFZQ(P_WsCtlBlk, new WsCtlBlock());
-						temp_buf.Z().CatN(bin_buf.cptr(), actual_len);
-						SJson * p_js_param = SJson::Parse(temp_buf);
-						if(p_js_param) {
-							WsCtlBlock::StartSessBlock _blk;
-							if(_blk.FromJsonObj(p_js_param)) {
-								if(P_WsCtlBlk->StartSess(_blk)) {
-									SJson js_reply(SJson::tOBJECT);
-									js_reply.ToStr(temp_buf);
-									rReply.SetString(temp_buf);
-									ok = cmdretOK;
-								}
-							}
-							ZDELETE(p_js_param);
-						}
+					THROW_SL(raw_text.DecodeMime64(bin_buf, bin_buf.GetSize(), &actual_len));
+					SETIFZQ(P_WsCtlBlk, new WsCtlBlock());
+					temp_buf.Z().CatN(bin_buf.cptr(), actual_len);
+					SJson * p_js_param = SJson::Parse(temp_buf);
+					THROW_SL(p_js_param);
+					if(!_blk.FromJsonObj(p_js_param)) {
+						ZDELETE(p_js_param);
+						CALLEXCEPT();
 					}
+					else {
+						ZDELETE(p_js_param);
+					}
+					THROW(P_WsCtlBlk->StartSess(_blk));
+					{
+						SJson js_reply(SJson::tOBJECT);
+						js_reply.InsertInt("tsessid", _blk.TSessID);
+						js_reply.InsertInt("techid", _blk.RetTechID);
+						js_reply.InsertInt("goodsid", _blk.RetGoodsID);
+						js_reply.InsertString("tm_start", temp_buf.Z().Cat(_blk.SessTimeRange.Start, DATF_ISO8601CENT, 0));
+						js_reply.InsertString("tm_finish", temp_buf.Z().Cat(_blk.SessTimeRange.Finish, DATF_ISO8601CENT, 0));
+						js_reply.InsertInt("scardid", _blk.RetSCardID);
+						js_reply.InsertDouble("wroffamt", _blk.WrOffAmount, MKSFMTD(0, 2, 0));
+						js_reply.InsertString("tm_scop", temp_buf.Z().Cat(_blk.ScOpDtm, DATF_ISO8601CENT, 0));
+						js_reply.ToStr(temp_buf);
+						rReply.SetString(temp_buf);
+					}
+					ok = cmdretOK;
 				}
 			}
 			break;
@@ -5313,14 +5368,14 @@ int run_client()
 				}
 				// } @v7.3.2 @debug
 				else if(sstreqi_ascii(cmd, "connect")) {
-					const char * p_msg = 0;
+					msg_buf.Z();
 					if(cli.GetState() & PPJobSrvClient::stConnected)
-						p_msg = "Allready connected\n";
+						msg_buf = "Allready connected";
 					else if(cli.Connect(0, 0))
-						p_msg = "Connection OK\n";
+						msg_buf = "Connection OK";
 					else
-						p_msg = "Connection failed\n";
-					printf(p_msg);
+						msg_buf = "Connection failed";
+					printf(msg_buf.CR().cptr());
 				}
 				else if(cli.GetState() & PPJobSrvClient::stConnected) {
 					const bool is_quit = (strnicmp(cmd, "quit", 4) == 0);

@@ -430,7 +430,7 @@ SLTEST_R(CreatePapyrusLic)
 	SString temp_buf;
 	SFile in_file(MakeInputFilePath("shortstrings"), SFile::mRead);
 	SString line_buf;
-	THROW(SLTEST_CHECK_NZ(in_file.IsValid()));
+	THROW(SLCHECK_NZ(in_file.IsValid()));
 	while(in_file.ReadLine(line_buf, SFile::rlfChomp) > 0) {
 		PPLicData data;
 		PPCreateLicParam param;

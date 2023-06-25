@@ -22,92 +22,91 @@
  */
 const xmlChar * htmlGetMetaEncoding(htmlDocPtr doc) 
 {
-	htmlNodePtr cur;
+	const xmlChar * encoding = 0;
 	const xmlChar * content;
-	const xmlChar * encoding;
-	if(!doc)
-		return NULL;
-	cur = doc->children;
-	/*
-	 * Search the html
-	 */
-	while(cur) {
-		if((cur->type == XML_ELEMENT_NODE) && cur->name) {
-			if(sstreq(cur->name, "html"))
-				break;
-			if(sstreq(cur->name, "head"))
-				goto found_head;
-			if(sstreq(cur->name, "meta"))
-				goto found_meta;
+	if(doc) {
+		htmlNodePtr cur = doc->children;
+		// 
+		// Search the html
+		// 
+		while(cur) {
+			if((cur->type == XML_ELEMENT_NODE) && cur->name) {
+				if(sstreq(cur->name, "html"))
+					break;
+				if(sstreq(cur->name, "head"))
+					goto found_head;
+				if(sstreq(cur->name, "meta"))
+					goto found_meta;
+			}
+			cur = cur->next;
 		}
-		cur = cur->next;
-	}
-	if(!cur)
-		return NULL;
-	cur = cur->children;
-	/*
-	 * Search the head
-	 */
-	while(cur) {
-		if((cur->type == XML_ELEMENT_NODE) && cur->name) {
-			if(sstreq(cur->name, "head"))
-				break;
-			if(sstreq(cur->name, "meta"))
-				goto found_meta;
+		if(!cur)
+			return NULL;
+		cur = cur->children;
+		// 
+		// Search the head
+		// 
+		while(cur) {
+			if((cur->type == XML_ELEMENT_NODE) && cur->name) {
+				if(sstreq(cur->name, "head"))
+					break;
+				if(sstreq(cur->name, "meta"))
+					goto found_meta;
+			}
+			cur = cur->next;
 		}
-		cur = cur->next;
-	}
-	if(!cur)
-		return NULL;
+		if(!cur)
+			return NULL;
 found_head:
-	cur = cur->children;
-	/*
-	 * Search the meta elements
-	 */
+		cur = cur->children;
+		//
+		// Search the meta elements
+		//
 found_meta:
-	while(cur) {
-		if((cur->type == XML_ELEMENT_NODE) && cur->name) {
-			if(sstreq(cur->name, "meta")) {
-				xmlAttr * attr = cur->properties;
-				int http = 0;
-				const xmlChar * value;
-				content = NULL;
-				while(attr) {
-					if(attr->children && (attr->children->type == XML_TEXT_NODE) && (attr->children->next == NULL)) {
-						value = attr->children->content;
-						if(sstreqi_ascii(attr->name, reinterpret_cast<const xmlChar *>("http-equiv")) && sstreqi_ascii(value, reinterpret_cast<const xmlChar *>("Content-Type")))
-							http = 1;
-						else if(value && sstreqi_ascii(attr->name, reinterpret_cast<const xmlChar *>("content")))
-							content = value;
-						if(http && content)
-							goto found_content;
+		while(cur) {
+			if((cur->type == XML_ELEMENT_NODE) && cur->name) {
+				if(sstreq(cur->name, "meta")) {
+					xmlAttr * attr = cur->properties;
+					int http = 0;
+					const xmlChar * value;
+					content = NULL;
+					while(attr) {
+						if(attr->children && (attr->children->type == XML_TEXT_NODE) && (attr->children->next == NULL)) {
+							value = attr->children->content;
+							if(sstreqi_ascii(attr->name, reinterpret_cast<const xmlChar *>("http-equiv")) && sstreqi_ascii(value, reinterpret_cast<const xmlChar *>("Content-Type")))
+								http = 1;
+							else if(value && sstreqi_ascii(attr->name, reinterpret_cast<const xmlChar *>("content")))
+								content = value;
+							if(http && content)
+								goto found_content;
+						}
+						attr = attr->next;
 					}
-					attr = attr->next;
 				}
 			}
+			cur = cur->next;
 		}
-		cur = cur->next;
-	}
-	return NULL;
+		return NULL;
 found_content:
-	encoding = xmlStrstr(content, reinterpret_cast<const xmlChar *>("charset="));
-	SETIFZ(encoding, xmlStrstr(content, reinterpret_cast<const xmlChar *>("Charset=")));
-	SETIFZ(encoding, xmlStrstr(content, reinterpret_cast<const xmlChar *>("CHARSET=")));
-	if(encoding) {
-		encoding += 8;
+		encoding = xmlStrstr(content, reinterpret_cast<const xmlChar *>("charset="));
+		SETIFZ(encoding, xmlStrstr(content, reinterpret_cast<const xmlChar *>("Charset=")));
+		SETIFZ(encoding, xmlStrstr(content, reinterpret_cast<const xmlChar *>("CHARSET=")));
+		if(encoding) {
+			encoding += 8;
+		}
+		else {
+			encoding = xmlStrstr(content, reinterpret_cast<const xmlChar *>("charset ="));
+			SETIFZ(encoding, xmlStrstr(content, reinterpret_cast<const xmlChar *>("Charset =")));
+			SETIFZ(encoding, xmlStrstr(content, reinterpret_cast<const xmlChar *>("CHARSET =")));
+			if(encoding)
+				encoding += 9;
+		}
+		if(encoding) {
+			while(oneof2(*encoding, ' ', '\t')) 
+				encoding++;
+		}
 	}
-	else {
-		encoding = xmlStrstr(content, reinterpret_cast<const xmlChar *>("charset ="));
-		SETIFZ(encoding, xmlStrstr(content, reinterpret_cast<const xmlChar *>("Charset =")));
-		SETIFZ(encoding, xmlStrstr(content, reinterpret_cast<const xmlChar *>("CHARSET =")));
-		if(encoding)
-			encoding += 9;
-	}
-	if(encoding) {
-		while(oneof2(*encoding, ' ', '\t')) 
-			encoding++;
-	}
-	return (encoding);
+	return encoding;
 }
 /**
  * htmlSetMetaEncoding:
@@ -175,10 +174,9 @@ found_head:
 		goto create;
 	cur = cur->children;
 found_meta:
-	/*
-	 * Search and update all the remaining the meta elements carrying
-	 * encoding informations
-	 */
+	// 
+	// Search and update all the remaining the meta elements carrying encoding informations
+	// 
 	while(cur) {
 		if((cur->type == XML_ELEMENT_NODE) && cur->name) {
 			if(sstreqi_ascii(cur->name, reinterpret_cast<const xmlChar *>("meta"))) {
@@ -211,9 +209,9 @@ found_meta:
 create:
 	if(!meta) {
 		if(encoding && head) {
-			/*
-			 * Create a new Meta element with the right attributes
-			 */
+			// 
+			// Create a new Meta element with the right attributes
+			// 
 			meta = xmlNewDocNode(doc, NULL, reinterpret_cast<const xmlChar *>("meta"), 0);
 			if(head->children == NULL)
 				xmlAddChild(head, meta);
@@ -224,12 +222,12 @@ create:
 		}
 	}
 	else {
-		/* remove the meta tag if NULL is passed */
+		// remove the meta tag if NULL is passed 
 		if(encoding == NULL) {
 			xmlUnlinkNode(meta);
 			xmlFreeNode(meta);
 		}
-		/* change the document only if there is a real encoding change */
+		// change the document only if there is a real encoding change
 		else if(xmlStrcasestr(content, encoding) == NULL) {
 			xmlSetProp(meta, reinterpret_cast<const xmlChar *>("content"), BAD_CAST newcontent);
 		}
@@ -256,7 +254,7 @@ static const char * htmlBooleanAttrs[] =
  */
 int htmlIsBooleanAttr(const xmlChar * name)
 {
-	for(int i = 0; htmlBooleanAttrs[i]; i++) {
+	for(size_t i = 0; htmlBooleanAttrs[i]; i++) {
 		if(sstreqi_ascii((const xmlChar *)htmlBooleanAttrs[i], name))
 			return 1;
 	}
@@ -277,10 +275,7 @@ xmlOutputBuffer * xmlAllocOutputBufferInternal(xmlCharEncodingHandler * encoder)
  *
  * Handle an out of memory condition
  */
-static void htmlSaveErrMemory(const char * extra)
-{
-	__xmlSimpleError(XML_FROM_OUTPUT, XML_ERR_NO_MEMORY, NULL, NULL, extra);
-}
+static void htmlSaveErrMemory(const char * extra) { __xmlSimpleError(XML_FROM_OUTPUT, XML_ERR_NO_MEMORY, NULL, NULL, extra); }
 /**
  * htmlSaveErr:
  * @code:  the error number
@@ -798,9 +793,9 @@ void htmlDocContentDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * cur, const c
 {
 	xmlInitParser();
 	if(buf && cur) {
-		/*
-		* force to output the stuff as HTML, especially for entities
-		*/
+		// 
+		// force to output the stuff as HTML, especially for entities
+		// 
 		int type = cur->type;
 		cur->type = XML_HTML_DOCUMENT_NODE;
 		if(cur->intSubset)
@@ -823,13 +818,9 @@ void htmlDocContentDumpOutput(xmlOutputBuffer * buf, xmlDoc * cur, const char * 
 {
 	htmlDocContentDumpFormatOutput(buf, cur, encoding, 1);
 }
-
-/************************************************************************
-*									*
-*		Saving functions front-ends				*
-*									*
-************************************************************************/
-
+//
+// Saving functions front-ends
+//
 /**
  * htmlDocDump:
  * @f:  the FILE*

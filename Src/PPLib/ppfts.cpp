@@ -1295,13 +1295,13 @@ SLTEST_R(PPFtsInterface)
 			SString name_ru;
 			{
 				PPFtsInterface w(true, 0/*default*/);
-				THROW(SLTEST_CHECK_NZ(w.IsWriter()));
-				THROW(SLTEST_CHECK_NZ(w));
+				THROW(SLCHECK_NZ(w.IsWriter()));
+				THROW(SLCHECK_NZ(w));
 				{
 					PPFtsInterface::TransactionHandle tra(w);
 					StringSet ss;
 					line_no = 0;
-					THROW(SLTEST_CHECK_NZ(tra));
+					THROW(SLCHECK_NZ(tra));
 					while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 						line_no++;
 						if(line_buf.NotEmpty()) {
@@ -1318,15 +1318,15 @@ SLTEST_R(PPFtsInterface)
 								ss.Z();
 								ss.add(name_en);
 								ss.add(name_ru);
-								THROW(SLTEST_CHECK_NZ(tra.PutEntity(ent, ss, 0)));
+								THROW(SLCHECK_NZ(tra.PutEntity(ent, ss, 0)));
 								if((line_no % 5000) == 0) {
 									PPFtsInterface r(false, 0/*default*/);
-									THROW(SLTEST_CHECK_Z(r));
+									THROW(SLCHECK_Z(r));
 								}
 							}
 						}
 					}
-					THROW(SLTEST_CHECK_NZ(tra.Commit()));
+					THROW(SLCHECK_NZ(tra.Commit()));
 				}
 			}
 			// Нужно тестирование ReadWrite-блокировки с таймаутом

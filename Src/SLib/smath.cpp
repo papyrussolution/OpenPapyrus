@@ -2254,8 +2254,8 @@ int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 				ulong n = 0;
 				ulong d = 0;
 				RationalBestApproximation(r_param.num, r_param.den, r_param.max_num, r_param.max_den, &n, &d);
-				SLTEST_CHECK_EQ(n, r_param.exp_num);
-				SLTEST_CHECK_EQ(d, r_param.exp_den);
+				SLCHECK_EQ(n, r_param.exp_num);
+				SLCHECK_EQ(d, r_param.exp_den);
 			}
 		}
 		{
@@ -2270,12 +2270,12 @@ int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 						double numerator = -1.0;
 						double denominator = -1.0;
 						int r = fsplitintofractions(value, fragmentation, 1E-5, &intpart, &numerator, &denominator);
-						SLTEST_CHECK_NZ(r);
-						SLTEST_CHECK_EQ(intpart, fint(fabs(value)));
-						SLTEST_CHECK_EQ(denominator, static_cast<double>(fragmentation));
-						SLTEST_CHECK_EQ(numerator, static_cast<double>(j));
+						SLCHECK_NZ(r);
+						SLCHECK_EQ(intpart, fint(fabs(value)));
+						SLCHECK_EQ(denominator, static_cast<double>(fragmentation));
+						SLCHECK_EQ(numerator, static_cast<double>(j));
 						// Проверка нулевых указателей в качестве результирующих параметров
-						SLTEST_CHECK_NZ(fsplitintofractions(value, fragmentation, 1E-5, 0, 0, 0));
+						SLCHECK_NZ(fsplitintofractions(value, fragmentation, 1E-5, 0, 0, 0));
 					}
 				}
 			}
@@ -2283,14 +2283,14 @@ int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 				double intpart = -1.0;
 				double numerator = -1.0;
 				double denominator = -1.0;
-				SLTEST_CHECK_Z(fsplitintofractions(1.1, 0, 1E-5, &intpart, &numerator, &denominator));
-				SLTEST_CHECK_EQ(intpart, 1.0);
-				SLTEST_CHECK_EQ(denominator, 0.0);
-				SLTEST_CHECK_EQ(numerator, 0.0);
-				SLTEST_CHECK_Z(fsplitintofractions(-0.2, 10000000, 1E-5, &intpart, &numerator, &denominator));
-				SLTEST_CHECK_EQ(intpart, 0.0);
-				SLTEST_CHECK_EQ(denominator, 0.0);
-				SLTEST_CHECK_EQ(numerator, 0.0);
+				SLCHECK_Z(fsplitintofractions(1.1, 0, 1E-5, &intpart, &numerator, &denominator));
+				SLCHECK_EQ(intpart, 1.0);
+				SLCHECK_EQ(denominator, 0.0);
+				SLCHECK_EQ(numerator, 0.0);
+				SLCHECK_Z(fsplitintofractions(-0.2, 10000000, 1E-5, &intpart, &numerator, &denominator));
+				SLCHECK_EQ(intpart, 0.0);
+				SLCHECK_EQ(denominator, 0.0);
+				SLCHECK_EQ(numerator, 0.0);
 			}
 		}
 		{
@@ -2298,7 +2298,7 @@ int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 			// fpow10i
 			//
 			for(int i = -9; i < +9; i++) {
-				SLTEST_CHECK_EQ(fpow10i(i), pow(10.0, i));
+				SLCHECK_EQ(fpow10i(i), pow(10.0, i));
 			}
 		}
 		{
@@ -2384,7 +2384,7 @@ int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 				{311, 1, 2000},
 			};
 			for(const Pow10i_TestEntry & r_entry : pow10i_test_entries) {
-				SLTEST_CHECK_EQ(fpow10i(r_entry.power), ldexp(r_entry.significand, r_entry.radix));
+				SLCHECK_EQ(fpow10i(r_entry.power), ldexp(r_entry.significand, r_entry.radix));
 				/*
 				EXPECT_EQ(Pow10(test_case.power), std::ldexp(test_case.significand, test_case.radix))
 					<< absl::StrFormat("Failure for Pow10(%d): %a vs %a", test_case.power,
@@ -2420,16 +2420,16 @@ int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 			uint i;
 			int  j;
 			for(i = 0; i < sizeof(a) / sizeof(a[0]); i++) {
-				SLTEST_CHECK_EQ(round   (a[i].T, a[i].R), a[i].E0);
-				SLTEST_CHECK_EQ(roundnev(a[i].T, a[i].R), a[i].E1);
+				SLCHECK_EQ(round   (a[i].T, a[i].R), a[i].E0);
+				SLCHECK_EQ(roundnev(a[i].T, a[i].R), a[i].E1);
 			}
 			for(j = -11; j < +13; j++) {
 				double p_ = fpow10i(j);
 				for(i = 0; i < sizeof(a) / sizeof(a[0]); i++) {
 					if(a[i].R == 0) { // Для ненулевого начального округления возникает мелкая ошибка
 						double v = a[i].T / p_;
-						SLTEST_CHECK_EQ(round(v, j),    a[i].E0 / p_);
-						SLTEST_CHECK_EQ(roundnev(v, j), a[i].E1 / p_);
+						SLCHECK_EQ(round(v, j),    a[i].E0 / p_);
+						SLCHECK_EQ(roundnev(v, j), a[i].E1 / p_);
 					}
 				}
 			}
@@ -2442,9 +2442,9 @@ int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 						if(i % 2)
 							b = _chgsign(b);
 						v = round(b, j);
-						SLTEST_CHECK_LT(fabs(v - b), fpow10i(-j)/2.0);
+						SLCHECK_LT(fabs(v - b), fpow10i(-j)/2.0);
 						r = fabs(b * fpow10i(j));
-						SLTEST_CHECK_CRANGE(fabs(v), floor(r)/fpow10i(j), ceil(r)/fpow10i(j));
+						SLCHECK_CRANGE(fabs(v), floor(r)/fpow10i(j), ceil(r)/fpow10i(j));
 					}
 				}
 				delete p_rng;
@@ -2459,7 +2459,7 @@ int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 				const int isp = Helper_IsPrime(i, 1);
 				int is_tabbed_prime = 0;
 				if(i && i < SIZEOFARRAY(FirstPrimeNumbers)) {
-					SLTEST_CHECK_LT((long)FirstPrimeNumbers[i-1], (long)FirstPrimeNumbers[i]);
+					SLCHECK_LT((long)FirstPrimeNumbers[i-1], (long)FirstPrimeNumbers[i]);
 				}
 				for(uint j = 0; !is_tabbed_prime && j < SIZEOFARRAY(FirstPrimeNumbers); j++) {
 					const ushort tv = FirstPrimeNumbers[j];
@@ -2468,8 +2468,8 @@ int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 					else if(tv > i)
 						break;
 				}
-				SLTEST_CHECK_EQ(is_tabbed_prime, isp);
-				SLTEST_CHECK_EQ(Helper_IsPrime(i, 0), isp);
+				SLCHECK_EQ(is_tabbed_prime, isp);
+				SLCHECK_EQ(Helper_IsPrime(i, 0), isp);
 			}
 			{
 				struct TestSValue {
@@ -2501,9 +2501,9 @@ int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 					memzero(buffer, sizeof(buffer));
 					value = _test_row[i].V;
 					sz = sshrinkuint64(value, buffer);
-					SLTEST_CHECK_NZ(ismemzero(buffer+sz, sizeof(buffer)-sz));
-					SLTEST_CHECK_EQ(sz, _test_row[i].S);
-					SLTEST_CHECK_EQ(sexpanduint64(buffer, sz), value);
+					SLCHECK_NZ(ismemzero(buffer+sz, sizeof(buffer)-sz));
+					SLCHECK_EQ(sz, _test_row[i].S);
+					SLCHECK_EQ(sexpanduint64(buffer, sz), value);
 				}
 			}
 		}
@@ -2513,7 +2513,7 @@ int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 	SLTEST_R(fpow10i)
 	{
 		for(int i = -9; i < +9; i++) {
-			SLTEST_CHECK_EQ(fpow10i(i), pow(10.0, i));
+			SLCHECK_EQ(fpow10i(i), pow(10.0, i));
 		}
 		return CurrentStatus;
 	}
@@ -2544,16 +2544,16 @@ int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 		uint i;
 		int  j;
 		for(i = 0; i < sizeof(a) / sizeof(a[0]); i++) {
-			SLTEST_CHECK_EQ(round   (a[i].T, a[i].R), a[i].E0);
-			SLTEST_CHECK_EQ(roundnev(a[i].T, a[i].R), a[i].E1);
+			SLCHECK_EQ(round   (a[i].T, a[i].R), a[i].E0);
+			SLCHECK_EQ(roundnev(a[i].T, a[i].R), a[i].E1);
 		}
 		for(j = -11; j < +13; j++) {
 			double p_ = fpow10i(j);
 			for(i = 0; i < sizeof(a) / sizeof(a[0]); i++) {
 				if(a[i].R == 0) { // Для ненулевого начального округления возникает мелкая ошибка
 					double v = a[i].T / p_;
-					SLTEST_CHECK_EQ(round(v, j),    a[i].E0 / p_);
-					SLTEST_CHECK_EQ(roundnev(v, j), a[i].E1 / p_);
+					SLCHECK_EQ(round(v, j),    a[i].E0 / p_);
+					SLCHECK_EQ(roundnev(v, j), a[i].E1 / p_);
 				}
 			}
 		}
@@ -2566,9 +2566,9 @@ int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 					if(i % 2)
 						b = _chgsign(b);
 					v = round(b, j);
-					SLTEST_CHECK_LT(fabs(v - b), fpow10i(-j)/2.0);
+					SLCHECK_LT(fabs(v - b), fpow10i(-j)/2.0);
 					r = fabs(b * fpow10i(j));
-					SLTEST_CHECK_CRANGE(fabs(v), floor(r)/fpow10i(j), ceil(r)/fpow10i(j));
+					SLCHECK_CRANGE(fabs(v), floor(r)/fpow10i(j), ceil(r)/fpow10i(j));
 				}
 			}
 			delete p_rng;
@@ -2583,7 +2583,7 @@ int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 			const long isp = Helper_IsPrime(i, 1);
 			long is_tabbed_prime = 0;
 			if(i && i < SIZEOFARRAY(FirstPrimeNumbers)) {
-				SLTEST_CHECK_LT((long)FirstPrimeNumbers[i-1], (long)FirstPrimeNumbers[i]);
+				SLCHECK_LT((long)FirstPrimeNumbers[i-1], (long)FirstPrimeNumbers[i]);
 			}
 			for(uint j = 0; !is_tabbed_prime && j < SIZEOFARRAY(FirstPrimeNumbers); j++) {
 				const ushort tv = FirstPrimeNumbers[j];
@@ -2592,8 +2592,8 @@ int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 				else if(tv > i)
 					break;
 			}
-			SLTEST_CHECK_EQ(is_tabbed_prime, isp);
-			SLTEST_CHECK_EQ(Helper_IsPrime(i, 0), isp);
+			SLCHECK_EQ(is_tabbed_prime, isp);
+			SLCHECK_EQ(Helper_IsPrime(i, 0), isp);
 		}
 		{
 			struct TestSValue {
@@ -2625,9 +2625,9 @@ int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 				memzero(buffer, sizeof(buffer));
 				value = _test_row[i].V;
 				sz = sshrinkuint64(value, buffer);
-				SLTEST_CHECK_NZ(ismemzero(buffer+sz, sizeof(buffer)-sz));
-				SLTEST_CHECK_EQ(sz, _test_row[i].S);
-				SLTEST_CHECK_EQ(sexpanduint64(buffer, sz), value);
+				SLCHECK_NZ(ismemzero(buffer+sz, sizeof(buffer)-sz));
+				SLCHECK_EQ(sz, _test_row[i].S);
+				SLCHECK_EQ(sexpanduint64(buffer, sz), value);
 			}
 		}
 		return CurrentStatus;

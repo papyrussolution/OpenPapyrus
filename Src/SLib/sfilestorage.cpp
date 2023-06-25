@@ -399,8 +399,8 @@ SLTEST_R(SFileStorage)
 	SFileStorage fs(storage_base_path);
 	STempBuffer buff(rng_big_max);
 	STempBuffer small_buff(SKILOBYTE(32));
-	THROW(SLTEST_CHECK_NZ(buff.IsValid()));
-	THROW(SLTEST_CHECK_NZ(small_buff.IsValid()));
+	THROW(SLCHECK_NZ(buff.IsValid()));
+	THROW(SLCHECK_NZ(small_buff.IsValid()));
 	{
 		for(uint i = 0; i < target_item_count; i++) {
 			const S_GUID uuid(SCtrGenerate_);
@@ -414,34 +414,34 @@ SLTEST_R(SFileStorage)
 				ulong current_wr_size = 0;
 				ulong small_buff_offs = 0;
 				ulong flashed_size = 0;
-				THROW(SLTEST_CHECK_Z(small_buff.GetSize() % sizeof(ulong)));
+				THROW(SLCHECK_Z(small_buff.GetSize() % sizeof(ulong)));
 				hw = fs.Write_Start(_name);
-				THROW(SLTEST_CHECK_NZ(hw));
+				THROW(SLCHECK_NZ(hw));
 				while(current_wr_size < file_size) {
 					const ulong value = srg.GetUniformInt(rng_gen_max);
 					const ulong sz_to_write = MIN(sizeof(value), (file_size-current_wr_size));
-					THROW(SLTEST_CHECK_NZ((small_buff_offs+sz_to_write) <= small_buff.GetSize()));
+					THROW(SLCHECK_NZ((small_buff_offs+sz_to_write) <= small_buff.GetSize()));
 					memcpy(small_buff+small_buff_offs, &value, sz_to_write);
 					current_wr_size += sz_to_write;
 					small_buff_offs += sz_to_write;
 					if(small_buff_offs == small_buff.GetSize()) {
 						const ulong sz_to_flash = MIN(small_buff_offs, (file_size-flashed_size));
-						THROW(SLTEST_CHECK_NZ(sz_to_flash == small_buff_offs || (current_wr_size >= file_size)));
-						THROW(SLTEST_CHECK_NZ(fs.Write(hw, small_buff, sz_to_flash)));
+						THROW(SLCHECK_NZ(sz_to_flash == small_buff_offs || (current_wr_size >= file_size)));
+						THROW(SLCHECK_NZ(fs.Write(hw, small_buff, sz_to_flash)));
 						flashed_size += sz_to_flash;
 						small_buff_offs = 0;
 					}
 				}
 				if(file_size > flashed_size) {
-					THROW(SLTEST_CHECK_LE((file_size - flashed_size), small_buff_offs));
-					THROW(SLTEST_CHECK_NZ(fs.Write(hw, small_buff, (file_size - flashed_size))));
+					THROW(SLCHECK_LE((file_size - flashed_size), small_buff_offs));
+					THROW(SLCHECK_NZ(fs.Write(hw, small_buff, (file_size - flashed_size))));
 					flashed_size += small_buff_offs;
 					small_buff_offs = 0;				
 				}
 				{
 					uint64 written_size = 0;
-					THROW(SLTEST_CHECK_NZ(fs.Write_End(hw, &written_size)));
-					THROW(SLTEST_CHECK_EQ(written_size, static_cast<uint64>(flashed_size)));
+					THROW(SLCHECK_NZ(fs.Write_End(hw, &written_size)));
+					THROW(SLCHECK_EQ(written_size, static_cast<uint64>(flashed_size)));
 				}
 			}
 			else {
@@ -451,13 +451,13 @@ SLTEST_R(SFileStorage)
 					memcpy(buff+current_wr_size, &value, sizeof(value));
 					current_wr_size += sizeof(value);
 				}
-				THROW(SLTEST_CHECK_NZ(fs.PutFile(_name, buff, file_size))); // file_size - not current_wr_size
+				THROW(SLCHECK_NZ(fs.PutFile(_name, buff, file_size))); // file_size - not current_wr_size
 			}
-			THROW(SLTEST_CHECK_NZ(uuid_list.insert(&uuid)));
+			THROW(SLCHECK_NZ(uuid_list.insert(&uuid)));
 		}
 	}
 	{
-		THROW(SLTEST_CHECK_EQ(uuid_list.getCount(), target_item_count));
+		THROW(SLCHECK_EQ(uuid_list.getCount(), target_item_count));
 		uuid_list.shuffle();
 		for(uint i = 0; i < target_item_count; i++) {
 			const S_GUID uuid = uuid_list.at(i);
@@ -469,8 +469,8 @@ SLTEST_R(SFileStorage)
 			//
 			int64 fsize = 0;
 			hr = fs.GetFile(_name, &fsize);
-			THROW(SLTEST_CHECK_NZ(hr));
-			THROW(SLTEST_CHECK_EQ(fsize, static_cast<int64>(file_size)));
+			THROW(SLCHECK_NZ(hr));
+			THROW(SLCHECK_EQ(fsize, static_cast<int64>(file_size)));
 			if(is_big_file) {
 				size_t read_size = 0;
 				uint   vidx = 0;
@@ -480,40 +480,40 @@ SLTEST_R(SFileStorage)
 					const ulong size_to_read = MIN((file_size - read_size), small_buff.GetSize());
 					size_t actual_size = 0;
 					ulong  small_buf_read_size = 0;
-					THROW(SLTEST_CHECK_NZ(fs.Read(hr, small_buff, size_to_read, &actual_size)));
-					THROW(SLTEST_CHECK_EQ(static_cast<ulong>(actual_size), size_to_read));
-					THROW(SLTEST_CHECK_LE(static_cast<ulong>(actual_size), static_cast<ulong>(small_buff.GetSize())));
+					THROW(SLCHECK_NZ(fs.Read(hr, small_buff, size_to_read, &actual_size)));
+					THROW(SLCHECK_EQ(static_cast<ulong>(actual_size), size_to_read));
+					THROW(SLCHECK_LE(static_cast<ulong>(actual_size), static_cast<ulong>(small_buff.GetSize())));
 					while(small_buf_read_size < actual_size) {
 						const ulong value = srg.GetUniformInt(rng_gen_max);
 						const ulong size_to_check = MIN(sizeof(value), (actual_size - small_buf_read_size));
 						if(size_to_check == sizeof(value)) {
-							THROW(SLTEST_CHECK_EQ(*reinterpret_cast<const ulong *>(small_buff+small_buf_read_size), value));
+							THROW(SLCHECK_EQ(*reinterpret_cast<const ulong *>(small_buff+small_buf_read_size), value));
 						}
 						else {
-							THROW(SLTEST_CHECK_LT(size_to_check, static_cast<ulong>(sizeof(value))));
-							THROW(SLTEST_CHECK_Z(memcmp(small_buff+small_buf_read_size, &value, size_to_check)));
+							THROW(SLCHECK_LT(size_to_check, static_cast<ulong>(sizeof(value))));
+							THROW(SLCHECK_Z(memcmp(small_buff+small_buf_read_size, &value, size_to_check)));
 						}
 						small_buf_read_size += size_to_check;
 						read_size += size_to_check;
 						vidx++;
 					}
 				}
-				THROW(SLTEST_CHECK_EQ(read_size, file_size));
+				THROW(SLCHECK_EQ(read_size, file_size));
 			}
 			else {
 				size_t actual_size = 0;
 				size_t read_size = 0;
-				THROW(SLTEST_CHECK_NZ(fs.Read(hr, buff, buff.GetSize(), &actual_size)));
-				THROW(SLTEST_CHECK_EQ(actual_size, file_size));
+				THROW(SLCHECK_NZ(fs.Read(hr, buff, buff.GetSize(), &actual_size)));
+				THROW(SLCHECK_EQ(actual_size, file_size));
 				for(uint vidx = 0; vidx < actual_size / sizeof(ulong); vidx++) {
 					const ulong value = srg.GetUniformInt(rng_gen_max);
-					THROW(SLTEST_CHECK_EQ(*reinterpret_cast<const ulong *>(buff+read_size), value));
+					THROW(SLCHECK_EQ(*reinterpret_cast<const ulong *>(buff+read_size), value));
 					read_size += sizeof(ulong);
 				}
 				if(read_size < file_size) {
-					THROW(SLTEST_CHECK_LT((file_size-read_size), sizeof(ulong)));
+					THROW(SLCHECK_LT((file_size-read_size), sizeof(ulong)));
 					const ulong value = srg.GetUniformInt(rng_gen_max);
-					THROW(SLTEST_CHECK_Z(memcmp(buff+read_size, &value, (file_size-read_size))));
+					THROW(SLCHECK_Z(memcmp(buff+read_size, &value, (file_size-read_size))));
 				}
 			}
 			fs.CloseFile(hr);

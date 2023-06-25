@@ -1,5 +1,5 @@
 // SCARD.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2006, 2007, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2006, 2007, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // @Kernel
 //
@@ -781,11 +781,6 @@ int SCardCore::SearchOpByLinkObj(PPID objType, PPID objID, SCardOpTbl::Rec * pRe
 		return PPDbSearchError();
 }
 
-int SCardCore::SearchOpByCheck(PPID checkID, SCardOpTbl::Rec * pRec)
-{
-	return SearchOpByLinkObj(PPOBJ_CCHECK, checkID, pRec);
-}
-
 int SCardCore::GetLastOpByCard(PPID cardID, LDATE dt, SCardOpTbl::Rec * pRec)
 {
 	SCardOpTbl::Key0 k0;
@@ -1133,7 +1128,7 @@ int SCardCore::RemoveOp(PPID cardID, LDATE dt, LTIME tm, int use_ta)
 int SCardCore::RemoveOpAll(PPID cardID, int use_ta)
 {
 	int    ok = 1;
-	DateTimeArray list; // @v9.8.4 TSArray-->TSVector
+	DateTimeArray list;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1164,7 +1159,7 @@ int SCardCore::RemoveOpAll(PPID cardID, int use_ta)
 	return ok;
 }
 
-int SCardCore::RemoveOpByCheck(PPID checkID, int use_ta)
+int SCardCore::RemoveOpByLinkObj(PPID objType, PPID objID, int use_ta)
 {
 	int    ok = 1;
 	double rest = 0.0;
@@ -1172,9 +1167,9 @@ int SCardCore::RemoveOpByCheck(PPID checkID, int use_ta)
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		while(SearchOpByCheck(checkID, &scop_rec) > 0) {
-			LDATETIME op_dtm; // @v10.2.3
-			op_dtm.Set(scop_rec.Dt, scop_rec.Tm); // @v10.2.3
+		while(SearchOpByLinkObj(objType, objID, &scop_rec) > 0) {
+			LDATETIME op_dtm;
+			op_dtm.Set(scop_rec.Dt, scop_rec.Tm);
 			THROW_DB(ScOp.deleteRec());
 			THROW(RecalcForwardRests(scop_rec.SCardID, scop_rec.Dt, scop_rec.Tm, &rest, 0));
 			THROW(UpdateRest_(scop_rec.SCardID, &op_dtm, rest, 0, 0));

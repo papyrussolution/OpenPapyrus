@@ -5292,7 +5292,7 @@ int PoBlock::Import(const char * pFileName, const char * pSrcIdent, uint * pSrcI
 			if(state == stateMsgStr) {
 				if(last_msgid_buf.IsEmpty() && last_msgstr_buf.NotEmpty()) {
 					// metadata
-					uint _p = 0;
+					size_t _p = 0;
 					const char * p_pattern = "Language:";
 					if(last_msgstr_buf.Search(p_pattern, 0, 1, &_p)) {
 						const size_t pat_len = strlen(p_pattern);
@@ -6185,7 +6185,7 @@ int PrcssrOsm::ProcessWaySizes()
 				{
 					size_t dbsz = 0;
 					const void * p_dbptr = key_buf.GetPtr(&dbsz);
-					way_id = sexpanduint64(p_dbptr, dbsz);
+					way_id = sexpanduint64(p_dbptr, static_cast<uint>(dbsz));
 				}
 				if(way_buf.Get(way_id, &way)) {
 					p_db->P_GnT->GetWayNodes(way, way_node_list);

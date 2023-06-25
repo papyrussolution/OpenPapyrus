@@ -26,61 +26,61 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 				// Check each file 
 				if(sstreq(ent->d_name, ".")) { // Directory itself
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(ent->d_type, DT_DIR);
+					rCase.SLCHECK_EQ(ent->d_type, DT_DIR);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(ent->d_namlen, 1U);
+					rCase.SLCHECK_EQ(ent->d_namlen, static_cast<size_t>(1U));
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(ent), 1U);
+					rCase.SLCHECK_EQ(_D_EXACT_NAMLEN(ent), static_cast<size_t>(1U));
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(1, _D_ALLOC_NAMLEN(ent));
+					rCase.SLCHECK_LT(1, _D_ALLOC_NAMLEN(ent));
 	#endif
 					found += 1;
 				}
 				else if(sstreq(ent->d_name, "..")) { // Parent directory
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(ent->d_type, DT_DIR);
+					rCase.SLCHECK_EQ(ent->d_type, DT_DIR);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(ent->d_namlen, 2U);
+					rCase.SLCHECK_EQ(ent->d_namlen, static_cast<size_t>(2U));
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(ent), 2U);
+					rCase.SLCHECK_EQ(_D_EXACT_NAMLEN(ent), static_cast<size_t>(2U));
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(2, _D_ALLOC_NAMLEN(ent));
+					rCase.SLCHECK_LT(2, _D_ALLOC_NAMLEN(ent));
 	#endif
 					found += 2;
 				}
 				else if(sstreq(ent->d_name, "file")) { // Regular file 
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(ent->d_type, DT_REG);
+					rCase.SLCHECK_EQ(ent->d_type, DT_REG);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(ent->d_namlen, 4U);
+					rCase.SLCHECK_EQ(ent->d_namlen, static_cast<size_t>(4U));
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(ent), 4U);
+					rCase.SLCHECK_EQ(_D_EXACT_NAMLEN(ent), static_cast<size_t>(4U));
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(4, _D_ALLOC_NAMLEN(ent));
+					rCase.SLCHECK_LT(4, _D_ALLOC_NAMLEN(ent));
 	#endif
 					found += 4;
 				}
 				else if(sstreq(ent->d_name, "dir")) { // Just a directory
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(ent->d_type, DT_DIR);
+					rCase.SLCHECK_EQ(ent->d_type, DT_DIR);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(ent->d_namlen, 3U);
+					rCase.SLCHECK_EQ(ent->d_namlen, static_cast<size_t>(3U));
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(ent), 3U);
+					rCase.SLCHECK_EQ(_D_EXACT_NAMLEN(ent), static_cast<size_t>(3U));
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(3, _D_ALLOC_NAMLEN(ent));
+					rCase.SLCHECK_LT(3, _D_ALLOC_NAMLEN(ent));
 	#endif
 					found += 8;
 				}
@@ -89,34 +89,34 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 					abort();
 				}
 			}
-			rCase.SLTEST_CHECK_EQ(found, 0xf); // Make sure that all files were found
+			rCase.SLCHECK_EQ(found, 0xf); // Make sure that all files were found
 			closedir(dir);
 		}
 	}
 	// Function opendir() fails if directory doesn't exist 
 	{
 		DIR * dir = opendir((dir_buf = pBaseDir).SetLastDSlash().Cat("invalid")); /* Open directory */
-		rCase.SLTEST_CHECK_Z(dir);
-		rCase.SLTEST_CHECK_EQ(errno, ENOENT);
+		rCase.SLCHECK_Z(dir);
+		rCase.SLCHECK_EQ(errno, ENOENT);
 	}
 	// Function opendir() fails if pathname is really a file
 	{
 		DIR * dir = opendir((dir_buf = pBaseDir).SetLastDSlash().Cat("1/file")); /* Open directory */
-		rCase.SLTEST_CHECK_Z(dir);
-		rCase.SLTEST_CHECK_EQ(errno, ENOTDIR);
+		rCase.SLCHECK_Z(dir);
+		rCase.SLCHECK_EQ(errno, ENOTDIR);
 	}
 	// Function opendir() fails if pathname is a zero-length string 
 	{
 		DIR * dir = opendir(""); /* Open directory */
-		rCase.SLTEST_CHECK_Z(dir);
-		rCase.SLTEST_CHECK_EQ(errno, ENOENT);
+		rCase.SLCHECK_Z(dir);
+		rCase.SLCHECK_EQ(errno, ENOENT);
 	}
 	// Rewind of directory stream 
 	{
 		struct dirent * ent;
 		int found = 0;
 		DIR * dir = opendir((dir_buf = pBaseDir).SetLastDSlash().Cat("1")); /* Open directory */
-		rCase.SLTEST_CHECK_NZ(dir);
+		rCase.SLCHECK_NZ(dir);
 		/* Read entries */
 		while((ent = readdir(dir)) != NULL) {
 			// Check each file 
@@ -136,7 +136,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 				rCase.SetInfo(temp_buf.Z().Cat("Unexpected file").Space().Cat(ent->d_name), 0);
 			}
 		}
-		rCase.SLTEST_CHECK_EQ(found, 0xf); // Make sure that all files were found
+		rCase.SLCHECK_EQ(found, 0xf); // Make sure that all files were found
 		rewinddir(dir); // Rewind stream and read entries again 
 		found = 0;
 		// Read entries
@@ -158,7 +158,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 				rCase.SetInfo(temp_buf.Z().Cat("Unexpected file").Space().Cat(ent->d_name), 0);
 			}
 		}
-		rCase.SLTEST_CHECK_EQ(found, 0xf); // Make sure that all files were found
+		rCase.SLCHECK_EQ(found, 0xf); // Make sure that all files were found
 		closedir(dir);
 	}
 	/* Rewind with intervening change of working directory */
@@ -167,7 +167,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 		int found = 0;
 		int errorcode;
 		DIR * dir = opendir((dir_buf = pBaseDir).SetLastDSlash().Cat("1")); /* Open directory */
-		rCase.SLTEST_CHECK_NZ(dir);
+		rCase.SLCHECK_NZ(dir);
 		/* Read entries */
 		while((ent = readdir(dir)) != NULL) {
 			/* Check each file */
@@ -187,10 +187,10 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 				rCase.SetInfo(temp_buf.Z().Cat("Unexpected file").Space().Cat(ent->d_name), 0);
 			}
 		}
-		rCase.SLTEST_CHECK_EQ(found, 0xf); // Make sure that all files were found
+		rCase.SLCHECK_EQ(found, 0xf); // Make sure that all files were found
 		/* Change working directory */
 		errorcode = chdir((dir_buf = pBaseDir).RmvLastSlash());
-		rCase.SLTEST_CHECK_Z(errorcode);
+		rCase.SLCHECK_Z(errorcode);
 		rewinddir(dir); // Rewind stream and read entries again 
 		found = 0;
 		/* Read entries */
@@ -212,10 +212,10 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 				rCase.SetInfo(temp_buf.Z().Cat("Unexpected file").Space().Cat(ent->d_name), 0);
 			}
 		}
-		rCase.SLTEST_CHECK_EQ(found, 0xf); // Make sure that all files were found
+		rCase.SLCHECK_EQ(found, 0xf); // Make sure that all files were found
 		/* Restore working directory */
 		errorcode = chdir("..");
-		rCase.SLTEST_CHECK_Z(errorcode);
+		rCase.SLCHECK_Z(errorcode);
 		closedir(dir);
 	}
 	/* Long file name */
@@ -239,32 +239,32 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 				else if(sstreqi_ascii(ent->d_name, "file.txt")) {
 					/* Regular 8+3 filename */
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(ent->d_type, DT_REG);
+					rCase.SLCHECK_EQ(ent->d_type, DT_REG);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(ent->d_namlen, 8U);
+					rCase.SLCHECK_EQ(ent->d_namlen, static_cast<size_t>(8U));
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(ent), 8U);
+					rCase.SLCHECK_EQ(_D_EXACT_NAMLEN(ent), static_cast<size_t>(8U));
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(8, _D_ALLOC_NAMLEN(ent));
+					rCase.SLCHECK_LT(8, _D_ALLOC_NAMLEN(ent));
 	#endif
 					found += 4;
 				}
 				else if(sstreqi_ascii(ent->d_name, "Testfile-1.2.3.dat")) {
 					/* Long file name with multiple dots */
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(ent->d_type, DT_REG);
+					rCase.SLCHECK_EQ(ent->d_type, DT_REG);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(ent->d_namlen, 18U);
+					rCase.SLCHECK_EQ(ent->d_namlen, static_cast<size_t>(18U));
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(ent), 18U);
+					rCase.SLCHECK_EQ(_D_EXACT_NAMLEN(ent), static_cast<size_t>(18U));
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(18, _D_ALLOC_NAMLEN(ent));
+					rCase.SLCHECK_LT(18, _D_ALLOC_NAMLEN(ent));
 	#endif
 					found += 8;
 				}
@@ -272,7 +272,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 					rCase.SetInfo(temp_buf.Z().Cat("Unexpected file").Space().Cat(ent->d_name), 0);
 				}
 			}
-			rCase.SLTEST_CHECK_EQ(found, 0xf); // Make sure that all files were found
+			rCase.SLCHECK_EQ(found, 0xf); // Make sure that all files were found
 			closedir(dir);
 		}
 	}
@@ -291,71 +291,71 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 			/* Read entries to table */
 			while(readdir_r(dir, &ent[n], &entry) == /*OK*/ 0 && entry != 0) {
 				n++;
-				rCase.SLTEST_CHECK_LE(n, 4U);
+				rCase.SLCHECK_LE(n, static_cast<size_t>(4U));
 			}
 			/* Make sure that we got all the files from directory */
-			rCase.SLTEST_CHECK_EQ(n, 4U);
+			rCase.SLCHECK_EQ(n, static_cast<size_t>(4U));
 			/* Check entries in memory */
 			for(i = 0; i < 4; i++) {
 				entry = &ent[i];
 				/* Check each file */
 				if(sstreq(entry->d_name, ".")) { // Directory itself
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(entry->d_type, DT_DIR);
+					rCase.SLCHECK_EQ(entry->d_type, DT_DIR);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 1U);
+					rCase.SLCHECK_EQ(entry->d_namlen, static_cast<size_t>(1U));
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 1U);
+					rCase.SLCHECK_EQ(_D_EXACT_NAMLEN(entry), static_cast<size_t>(1U));
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(1, _D_ALLOC_NAMLEN(entry));
+					rCase.SLCHECK_LT(1, _D_ALLOC_NAMLEN(entry));
 	#endif
 					found += 1;
 				}
 				else if(sstreq(entry->d_name, "..")) { // Parent directory
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(entry->d_type, DT_DIR);
+					rCase.SLCHECK_EQ(entry->d_type, DT_DIR);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 2U);
+					rCase.SLCHECK_EQ(entry->d_namlen, static_cast<size_t>(2U));
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 2U);
+					rCase.SLCHECK_EQ(_D_EXACT_NAMLEN(entry), static_cast<size_t>(2U));
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(2, _D_ALLOC_NAMLEN(entry));
+					rCase.SLCHECK_LT(2, _D_ALLOC_NAMLEN(entry));
 	#endif
 					found += 2;
 				}
 				else if(sstreq(entry->d_name, "file")) { /* Regular file */
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(entry->d_type, DT_REG);
+					rCase.SLCHECK_EQ(entry->d_type, DT_REG);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 4U);
+					rCase.SLCHECK_EQ(entry->d_namlen, static_cast<size_t>(4U));
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 4U);
+					rCase.SLCHECK_EQ(_D_EXACT_NAMLEN(entry), static_cast<size_t>(4U));
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(4, _D_ALLOC_NAMLEN(entry));
+					rCase.SLCHECK_LT(4, _D_ALLOC_NAMLEN(entry));
 	#endif
 					found += 4;
 				}
 				else if(sstreq(entry->d_name, "dir")) { /* Just a directory */
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(entry->d_type, DT_DIR);
+					rCase.SLCHECK_EQ(entry->d_type, DT_DIR);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 3U);
+					rCase.SLCHECK_EQ(entry->d_namlen, static_cast<size_t>(3U));
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 3U);
+					rCase.SLCHECK_EQ(_D_EXACT_NAMLEN(entry), static_cast<size_t>(3U));
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(3, _D_ALLOC_NAMLEN(entry));
+					rCase.SLCHECK_LT(3, _D_ALLOC_NAMLEN(entry));
 	#endif
 					found += 8;
 				}
@@ -363,7 +363,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 					rCase.SetInfo(temp_buf.Z().Cat("Unexpected file").Space().Cat(entry->d_name), 0);
 				}
 			}
-			rCase.SLTEST_CHECK_EQ(found, 0xf); // Make sure that all files were found
+			rCase.SLCHECK_EQ(found, 0xf); // Make sure that all files were found
 			closedir(dir);
 		}
 	}
@@ -386,70 +386,70 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 			// Read entries to table 
 			while(_wreaddir_r(dir, &ent[n], &entry) == /*OK*/ 0 && entry != 0) {
 				n++;
-				rCase.SLTEST_CHECK_LE(n, 4U);
+				rCase.SLCHECK_LE(n, static_cast<size_t>(4U));
 			}
-			rCase.SLTEST_CHECK_EQ(n, 4U); // Make sure that we got all the files from directory 
+			rCase.SLCHECK_EQ(n, static_cast<size_t>(4U)); // Make sure that we got all the files from directory 
 			// Check entries in memory 
 			for(i = 0; i < 4; i++) {
 				entry = &ent[i];
 				// Check each file 
 				if(wcscmp(entry->d_name, L".") == 0) { // Directory itself
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(entry->d_type, DT_DIR);
+					rCase.SLCHECK_EQ(entry->d_type, DT_DIR);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 1U);
+					rCase.SLCHECK_EQ(entry->d_namlen, static_cast<size_t>(1U));
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 1U);
+					rCase.SLCHECK_EQ(_D_EXACT_NAMLEN(entry), static_cast<size_t>(1U));
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(1, _D_ALLOC_NAMLEN(entry));
+					rCase.SLCHECK_LT(1, _D_ALLOC_NAMLEN(entry));
 	#endif
 					found += 1;
 				}
 				else if(wcscmp(entry->d_name, L"..") == 0) { // Parent directory
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(entry->d_type, DT_DIR);
+					rCase.SLCHECK_EQ(entry->d_type, DT_DIR);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 2U);
+					rCase.SLCHECK_EQ(entry->d_namlen, static_cast<size_t>(2U));
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 2U);
+					rCase.SLCHECK_EQ(_D_EXACT_NAMLEN(entry), static_cast<size_t>(2U));
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(2, _D_ALLOC_NAMLEN(entry));
+					rCase.SLCHECK_LT(2, _D_ALLOC_NAMLEN(entry));
 	#endif
 					found += 2;
 				}
 				else if(wcscmp(entry->d_name, L"file") == 0) { /* Regular file */
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(entry->d_type, DT_REG);
+					rCase.SLCHECK_EQ(entry->d_type, DT_REG);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 4U);
+					rCase.SLCHECK_EQ(entry->d_namlen, static_cast<size_t>(4U));
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 4U);
+					rCase.SLCHECK_EQ(_D_EXACT_NAMLEN(entry), static_cast<size_t>(4U));
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(4, _D_ALLOC_NAMLEN(entry));
+					rCase.SLCHECK_LT(4, _D_ALLOC_NAMLEN(entry));
 	#endif
 					found += 4;
 				}
 				else if(wcscmp(entry->d_name, L"dir") == 0) { // Just a directory 
 	#ifdef _DIRENT_HAVE_D_TYPE
-					rCase.SLTEST_CHECK_EQ(entry->d_type, DT_DIR);
+					rCase.SLCHECK_EQ(entry->d_type, DT_DIR);
 	#endif
 	#ifdef _DIRENT_HAVE_D_NAMLEN
-					rCase.SLTEST_CHECK_EQ(entry->d_namlen, 3U);
+					rCase.SLCHECK_EQ(entry->d_namlen, static_cast<size_t>(3U));
 	#endif
 	#ifdef _D_EXACT_NAMLEN
-					rCase.SLTEST_CHECK_EQ(_D_EXACT_NAMLEN(entry), 3U);
+					rCase.SLCHECK_EQ(_D_EXACT_NAMLEN(entry), static_cast<size_t>(3U));
 	#endif
 	#ifdef _D_ALLOC_NAMLEN
-					rCase.SLTEST_CHECK_LT(3, _D_ALLOC_NAMLEN(entry));
+					rCase.SLCHECK_LT(3, _D_ALLOC_NAMLEN(entry));
 	#endif
 					found += 8;
 				}
@@ -457,7 +457,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 					rCase.SetInfo(temp_buf.Z().Cat("Unexpected file"), 0);
 				}
 			}
-			rCase.SLTEST_CHECK_EQ(found, 0xf); // Make sure that all files were found
+			rCase.SLCHECK_EQ(found, 0xf); // Make sure that all files were found
 			_wclosedir(dir);
 		}
 	}
@@ -482,8 +482,8 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 	{
 		(dir_buf = pBaseDir).SetLastDSlash().Cat("3");
 		n = scandir(dir_buf, &files, only_readme, alphasort); /* Read directory entries */
-		rCase.SLTEST_CHECK_EQ(n, 1);
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[0]->d_name, "README.txt")); // Make sure that the filter works
+		rCase.SLCHECK_EQ(n, 1);
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[0]->d_name, "README.txt")); // Make sure that the filter works
 		// Release file names 
 		for(i = 0; i < n; i++) {
 			SAlloc::F(files[i]);
@@ -495,21 +495,21 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 		/* Read directory entries in alphabetic order */
 		(dir_buf = pBaseDir).SetLastDSlash().Cat("3");
 		n = scandir(dir_buf, &files, NULL, alphasort);
-		rCase.SLTEST_CHECK_EQ(n, 13);
+		rCase.SLCHECK_EQ(n, 13);
 		// Make sure that we got all the names in the proper order 
-		rCase.SLTEST_CHECK_NZ(sstreq(files[0]->d_name, "."));
-		rCase.SLTEST_CHECK_NZ(sstreq(files[1]->d_name, ".."));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[2]->d_name, "3zero.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[3]->d_name, "666.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[4]->d_name, "Qwerty-my-aunt.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[5]->d_name, "README.txt"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[6]->d_name, "aaa.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[7]->d_name, "dirent.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[8]->d_name, "empty.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[9]->d_name, "sane-1.12.0.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[10]->d_name, "sane-1.2.30.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[11]->d_name, "sane-1.2.4.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[12]->d_name, "zebra.dat"));
+		rCase.SLCHECK_NZ(sstreq(files[0]->d_name, "."));
+		rCase.SLCHECK_NZ(sstreq(files[1]->d_name, ".."));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[2]->d_name, "3zero.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[3]->d_name, "666.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[4]->d_name, "Qwerty-my-aunt.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[5]->d_name, "README.txt"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[6]->d_name, "aaa.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[7]->d_name, "dirent.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[8]->d_name, "empty.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[9]->d_name, "sane-1.12.0.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[10]->d_name, "sane-1.2.30.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[11]->d_name, "sane-1.2.4.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[12]->d_name, "zebra.dat"));
 		// Release file names 
 		for(i = 0; i < n; i++) {
 			SAlloc::F(files[i]);
@@ -520,19 +520,19 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 	{
 		(dir_buf = pBaseDir).SetLastDSlash().Cat("3");
 		n = scandir(dir_buf, &files, no_directories, reverse_alpha); /* Read directory entries in alphabetic order */
-		rCase.SLTEST_CHECK_EQ(n, 11);
+		rCase.SLCHECK_EQ(n, 11);
 		// Make sure that we got file names in the reverse order
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[0]->d_name, "zebra.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[1]->d_name, "sane-1.2.4.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[2]->d_name, "sane-1.2.30.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[3]->d_name, "sane-1.12.0.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[4]->d_name, "empty.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[5]->d_name, "dirent.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[6]->d_name, "aaa.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[7]->d_name, "README.txt"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[8]->d_name, "Qwerty-my-aunt.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[9]->d_name, "666.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[10]->d_name, "3zero.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[0]->d_name, "zebra.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[1]->d_name, "sane-1.2.4.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[2]->d_name, "sane-1.2.30.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[3]->d_name, "sane-1.12.0.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[4]->d_name, "empty.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[5]->d_name, "dirent.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[6]->d_name, "aaa.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[7]->d_name, "README.txt"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[8]->d_name, "Qwerty-my-aunt.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[9]->d_name, "666.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[10]->d_name, "3zero.dat"));
 		// Release file names 
 		for(i = 0; i < n; i++) {
 			SAlloc::F(files[i]);
@@ -544,39 +544,39 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 		files = NULL;
 		(dir_buf = pBaseDir).SetLastDSlash().Cat("invalid");
 		n = scandir(dir_buf, &files, NULL, alphasort);
-		rCase.SLTEST_CHECK_EQ(n, -1);
-		rCase.SLTEST_CHECK_Z(files);
-		rCase.SLTEST_CHECK_EQ(errno, ENOENT);
+		rCase.SLCHECK_EQ(n, -1);
+		rCase.SLCHECK_Z(files);
+		rCase.SLCHECK_EQ(errno, ENOENT);
 	}
 	// Trying to open file as a directory produces ENOTDIR error 
 	{
 		files = NULL;
 		(dir_buf = pBaseDir).SetLastDSlash().Cat("3/666.dat");
 		n = scandir(dir_buf, &files, NULL, alphasort);
-		rCase.SLTEST_CHECK_EQ(n, -1);
-		rCase.SLTEST_CHECK_Z(files);
-		rCase.SLTEST_CHECK_EQ(errno, ENOTDIR);
+		rCase.SLCHECK_EQ(n, -1);
+		rCase.SLCHECK_Z(files);
+		rCase.SLCHECK_EQ(errno, ENOTDIR);
 	}
 	// Sort files using versionsort()
 	{
 		files = NULL;
 		(dir_buf = pBaseDir).SetLastDSlash().Cat("3");
 		n = scandir(dir_buf, &files, no_directories, versionsort);
-		rCase.SLTEST_CHECK_EQ(n, 11);
+		rCase.SLCHECK_EQ(n, 11);
 		//
 		// Make sure that we got all the file names in the proper order: 1.2.4 < 1.2.30 < 1.12.0
 		//
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[0]->d_name, "3zero.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[1]->d_name, "666.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[2]->d_name, "Qwerty-my-aunt.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[3]->d_name, "README.txt"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[4]->d_name, "aaa.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[5]->d_name, "dirent.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[6]->d_name, "empty.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[7]->d_name, "sane-1.2.4.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[8]->d_name, "sane-1.2.30.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[9]->d_name, "sane-1.12.0.dat"));
-		rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[10]->d_name, "zebra.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[0]->d_name, "3zero.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[1]->d_name, "666.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[2]->d_name, "Qwerty-my-aunt.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[3]->d_name, "README.txt"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[4]->d_name, "aaa.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[5]->d_name, "dirent.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[6]->d_name, "empty.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[7]->d_name, "sane-1.2.4.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[8]->d_name, "sane-1.2.30.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[9]->d_name, "sane-1.12.0.dat"));
+		rCase.SLCHECK_NZ(sstreqi_ascii(files[10]->d_name, "zebra.dat"));
 		// Release file names 
 		for(i = 0; i < n; i++) {
 			SAlloc::F(files[i]);
@@ -591,7 +591,7 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 		// Copy name of temporary directory to variable dirname
 #ifdef WIN32
 		i = GetTempPathA(PATH_MAX, dirname);
-		rCase.SLTEST_CHECK_LT(0, i);
+		rCase.SLCHECK_LT(0, i);
 #else
 		strcpy(dirname, "/tmp/");
 		i = strlen(dirname);
@@ -600,22 +600,22 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 		for(int j = 0; j < 10; j++) {
 			char c = "abcdefghijklmnopqrstuvwxyz"[rand() % 26]; /* Generate random character */
 			// Append character to dirname 
-			rCase.SLTEST_CHECK_LT(i, PATH_MAX);
+			rCase.SLCHECK_LT(i, PATH_MAX);
 			dirname[i++] = c;
 		}
 		/* Terminate directory name */
-		rCase.SLTEST_CHECK_LT(i, PATH_MAX);
+		rCase.SLCHECK_LT(i, PATH_MAX);
 		dirname[i] = '\0';
 		/* Create directory */
 #ifdef WIN32
 		ok = CreateDirectoryA(dirname, NULL);
-		rCase.SLTEST_CHECK_NZ(ok);
+		rCase.SLCHECK_NZ(ok);
 #else
 		ok = mkdir(dirname, 0700);
-		rCase.SLTEST_CHECK_Z(ok); /*success*/
+		rCase.SLCHECK_Z(ok); /*success*/
 #endif
 		/* Create one thousand files */
-		rCase.SLTEST_CHECK_LT((i + 5), PATH_MAX);
+		rCase.SLCHECK_LT((i + 5), PATH_MAX);
 		for(int j = 0; j < 1000; j++) {
 			FILE * fp;
 			/* Construct file name */
@@ -627,13 +627,13 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 			dirname[i+5] = '\0';
 			/* Create file */
 			fp = fopen(dirname, "w");
-			rCase.SLTEST_CHECK_NZ(fp);
+			rCase.SLCHECK_NZ(fp);
 			fclose(fp);
 		}
 		dirname[i] = '\0'; /* Cut out the file name part */
 		/* Scan directory */
 		n = scandir(dirname, &files, no_directories, alphasort);
-		rCase.SLTEST_CHECK_EQ(n, 1000);
+		rCase.SLCHECK_EQ(n, 1000);
 		// Make sure that all 1000 files are read back 
 		for(int j = 0; j < n; j++) {
 			char match[100];
@@ -644,7 +644,7 @@ static int T_ScanDir(STestCase & rCase, const char * pBaseDir)
 			match[3] = '0' + (j % 10);
 			match[4] = '\0';
 			// Make sure that file name matches that on the disk
-			rCase.SLTEST_CHECK_NZ(sstreqi_ascii(files[j]->d_name, match));
+			rCase.SLCHECK_NZ(sstreqi_ascii(files[j]->d_name, match));
 		}
 		// Release file names
 		for(int j = 0; j < n; j++) {
@@ -672,130 +672,130 @@ static int reverse_alpha(const struct dirent ** a, const struct dirent ** b) { r
 static int T_Strverscmp(STestCase & rCase)
 {
 	/* Strings without digits are compared as in strcmp() */
-	rCase.SLTEST_CHECK_NZ(strverscmp("", "") == 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("abc", "abc") == 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("a", "b") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("b", "a") > 0);
+	rCase.SLCHECK_NZ(strverscmp("", "") == 0);
+	rCase.SLCHECK_NZ(strverscmp("abc", "abc") == 0);
+	rCase.SLCHECK_NZ(strverscmp("a", "b") < 0);
+	rCase.SLCHECK_NZ(strverscmp("b", "a") > 0);
 	/* Shorter string is smaller, other things being equal */
-	rCase.SLTEST_CHECK_NZ(strverscmp("a", "aa") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("aa", "a") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("abcdef", "abcdefg") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("abcdefg", "abcdef") > 0);
+	rCase.SLCHECK_NZ(strverscmp("a", "aa") < 0);
+	rCase.SLCHECK_NZ(strverscmp("aa", "a") > 0);
+	rCase.SLCHECK_NZ(strverscmp("abcdef", "abcdefg") < 0);
+	rCase.SLCHECK_NZ(strverscmp("abcdefg", "abcdef") > 0);
 	/* Integers with equal length are compared as in strcmp() */
-	rCase.SLTEST_CHECK_NZ(strverscmp("0", "0") == 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("000", "000") == 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1", "2") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("2", "1") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("001", "100") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("100", "001") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("2020-07-01", "2020-07-02") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("2020-07-02", "2020-07-01") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("jan999", "jan999") == 0);
+	rCase.SLCHECK_NZ(strverscmp("0", "0") == 0);
+	rCase.SLCHECK_NZ(strverscmp("000", "000") == 0);
+	rCase.SLCHECK_NZ(strverscmp("1", "2") < 0);
+	rCase.SLCHECK_NZ(strverscmp("2", "1") > 0);
+	rCase.SLCHECK_NZ(strverscmp("001", "100") < 0);
+	rCase.SLCHECK_NZ(strverscmp("100", "001") > 0);
+	rCase.SLCHECK_NZ(strverscmp("2020-07-01", "2020-07-02") < 0);
+	rCase.SLCHECK_NZ(strverscmp("2020-07-02", "2020-07-01") > 0);
+	rCase.SLCHECK_NZ(strverscmp("jan999", "jan999") == 0);
 	/* Integers of different length are compared as numbers */
-	rCase.SLTEST_CHECK_NZ(strverscmp("jan9", "jan10") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("jan10", "jan9") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("999", "1000") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1000", "999") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("t12-1000", "t12-9999") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("t12-9999", "t12-1000") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1000", "10001") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("10001", "1000") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1000!", "10001") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("10001", "1000!") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1000Z", "10001") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("10001", "1000Z") > 0);
+	rCase.SLCHECK_NZ(strverscmp("jan9", "jan10") < 0);
+	rCase.SLCHECK_NZ(strverscmp("jan10", "jan9") > 0);
+	rCase.SLCHECK_NZ(strverscmp("999", "1000") < 0);
+	rCase.SLCHECK_NZ(strverscmp("1000", "999") > 0);
+	rCase.SLCHECK_NZ(strverscmp("t12-1000", "t12-9999") < 0);
+	rCase.SLCHECK_NZ(strverscmp("t12-9999", "t12-1000") > 0);
+	rCase.SLCHECK_NZ(strverscmp("1000", "10001") < 0);
+	rCase.SLCHECK_NZ(strverscmp("10001", "1000") > 0);
+	rCase.SLCHECK_NZ(strverscmp("1000!", "10001") < 0);
+	rCase.SLCHECK_NZ(strverscmp("10001", "1000!") > 0);
+	rCase.SLCHECK_NZ(strverscmp("1000Z", "10001") < 0);
+	rCase.SLCHECK_NZ(strverscmp("10001", "1000Z") > 0);
 	/* If numbers starts with zero, then longer number is smaller */
-	rCase.SLTEST_CHECK_NZ(strverscmp("00", "0") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("0", "00") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("a000", "a00") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("a00", "a000") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("0000", "000") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("000", "0000") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("0000", "000!") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("000!", "0000") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("0000", "000Z") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("000Z", "0000") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("0000", "000Z") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("000Z", "0000") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1.01", "1.0") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1.0", "1.01") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1.01", "1.0!") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1.0!", "1.01") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1.01", "1.0~") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1.0~", "1.01") > 0);
+	rCase.SLCHECK_NZ(strverscmp("00", "0") < 0);
+	rCase.SLCHECK_NZ(strverscmp("0", "00") > 0);
+	rCase.SLCHECK_NZ(strverscmp("a000", "a00") < 0);
+	rCase.SLCHECK_NZ(strverscmp("a00", "a000") > 0);
+	rCase.SLCHECK_NZ(strverscmp("0000", "000") < 0);
+	rCase.SLCHECK_NZ(strverscmp("000", "0000") > 0);
+	rCase.SLCHECK_NZ(strverscmp("0000", "000!") < 0);
+	rCase.SLCHECK_NZ(strverscmp("000!", "0000") > 0);
+	rCase.SLCHECK_NZ(strverscmp("0000", "000Z") < 0);
+	rCase.SLCHECK_NZ(strverscmp("000Z", "0000") > 0);
+	rCase.SLCHECK_NZ(strverscmp("0000", "000Z") < 0);
+	rCase.SLCHECK_NZ(strverscmp("000Z", "0000") > 0);
+	rCase.SLCHECK_NZ(strverscmp("1.01", "1.0") < 0);
+	rCase.SLCHECK_NZ(strverscmp("1.0", "1.01") > 0);
+	rCase.SLCHECK_NZ(strverscmp("1.01", "1.0!") < 0);
+	rCase.SLCHECK_NZ(strverscmp("1.0!", "1.01") > 0);
+	rCase.SLCHECK_NZ(strverscmp("1.01", "1.0~") < 0);
+	rCase.SLCHECK_NZ(strverscmp("1.0~", "1.01") > 0);
 	/* Number having more leading zeros is considered smaller */
-	rCase.SLTEST_CHECK_NZ(strverscmp("item-0001", "item-001") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("item-001", "item-0001") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("item-001", "item-01") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("item-01", "item-001") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp(".0001000", ".001") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp(".001", ".0001000") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp(".0001000", ".01") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp(".01", ".0001000") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp(".0001000", ".1") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp(".1", ".0001000") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1.0002", "1.0010000") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1.0010000", "1.0002") > 0);
+	rCase.SLCHECK_NZ(strverscmp("item-0001", "item-001") < 0);
+	rCase.SLCHECK_NZ(strverscmp("item-001", "item-0001") > 0);
+	rCase.SLCHECK_NZ(strverscmp("item-001", "item-01") < 0);
+	rCase.SLCHECK_NZ(strverscmp("item-01", "item-001") > 0);
+	rCase.SLCHECK_NZ(strverscmp(".0001000", ".001") < 0);
+	rCase.SLCHECK_NZ(strverscmp(".001", ".0001000") > 0);
+	rCase.SLCHECK_NZ(strverscmp(".0001000", ".01") < 0);
+	rCase.SLCHECK_NZ(strverscmp(".01", ".0001000") > 0);
+	rCase.SLCHECK_NZ(strverscmp(".0001000", ".1") < 0);
+	rCase.SLCHECK_NZ(strverscmp(".1", ".0001000") > 0);
+	rCase.SLCHECK_NZ(strverscmp("1.0002", "1.0010000") < 0);
+	rCase.SLCHECK_NZ(strverscmp("1.0010000", "1.0002") > 0);
 	/* Number starting with zero is smaller than any number */
-	rCase.SLTEST_CHECK_NZ(strverscmp("item-009", "item-1") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("item-1", "item-009") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("item-099", "item-2") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("item-2", "item-099") > 0);
+	rCase.SLCHECK_NZ(strverscmp("item-009", "item-1") < 0);
+	rCase.SLCHECK_NZ(strverscmp("item-1", "item-009") > 0);
+	rCase.SLCHECK_NZ(strverscmp("item-099", "item-2") < 0);
+	rCase.SLCHECK_NZ(strverscmp("item-2", "item-099") > 0);
 	/* Number vs alphabetical comparison */
-	rCase.SLTEST_CHECK_NZ(strverscmp("1.001", "1.00!") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1.00!", "1.001") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1.001", "1.00x") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1.00x", "1.001") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1", "x") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("x", "1") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1", "!") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("!", "1") < 0);
+	rCase.SLCHECK_NZ(strverscmp("1.001", "1.00!") < 0);
+	rCase.SLCHECK_NZ(strverscmp("1.00!", "1.001") > 0);
+	rCase.SLCHECK_NZ(strverscmp("1.001", "1.00x") < 0);
+	rCase.SLCHECK_NZ(strverscmp("1.00x", "1.001") > 0);
+	rCase.SLCHECK_NZ(strverscmp("1", "x") < 0);
+	rCase.SLCHECK_NZ(strverscmp("x", "1") > 0);
+	rCase.SLCHECK_NZ(strverscmp("1", "!") > 0);
+	rCase.SLCHECK_NZ(strverscmp("!", "1") < 0);
 	/* Handling the end of string */
-	rCase.SLTEST_CHECK_NZ(strverscmp("01", "011") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("011", "01") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("0100", "01000") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("01000", "0100") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1", "1!") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1!", "1") > 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1", "1z") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1z", "1") > 0);
+	rCase.SLCHECK_NZ(strverscmp("01", "011") < 0);
+	rCase.SLCHECK_NZ(strverscmp("011", "01") > 0);
+	rCase.SLCHECK_NZ(strverscmp("0100", "01000") < 0);
+	rCase.SLCHECK_NZ(strverscmp("01000", "0100") > 0);
+	rCase.SLCHECK_NZ(strverscmp("1", "1!") < 0);
+	rCase.SLCHECK_NZ(strverscmp("1!", "1") > 0);
+	rCase.SLCHECK_NZ(strverscmp("1", "1z") < 0);
+	rCase.SLCHECK_NZ(strverscmp("1z", "1") > 0);
 	/* Ordering 000 < 00 < 01 < 010 < 09 < 0 < 1 < 9 < 10 */
-	rCase.SLTEST_CHECK_NZ(strverscmp("000", "00") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("000", "01") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("000", "010") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("000", "09") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("000", "0") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("000", "1") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("000", "9") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("000", "10") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("00", "01") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("00", "010") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("00", "09") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("00", "0") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("00", "1") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("00", "9") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("00", "10") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("01", "010") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("01", "09") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("01", "0") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("01", "1") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("01", "9") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("01", "10") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("010", "09") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("010", "0") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("010", "1") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("010", "9") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("010", "10") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("09", "0") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("09", "1") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("09", "9") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("09", "10") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("0", "1") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("0", "9") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("0", "10") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1", "9") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("1", "10") < 0);
-	rCase.SLTEST_CHECK_NZ(strverscmp("9", "10") < 0);
+	rCase.SLCHECK_NZ(strverscmp("000", "00") < 0);
+	rCase.SLCHECK_NZ(strverscmp("000", "01") < 0);
+	rCase.SLCHECK_NZ(strverscmp("000", "010") < 0);
+	rCase.SLCHECK_NZ(strverscmp("000", "09") < 0);
+	rCase.SLCHECK_NZ(strverscmp("000", "0") < 0);
+	rCase.SLCHECK_NZ(strverscmp("000", "1") < 0);
+	rCase.SLCHECK_NZ(strverscmp("000", "9") < 0);
+	rCase.SLCHECK_NZ(strverscmp("000", "10") < 0);
+	rCase.SLCHECK_NZ(strverscmp("00", "01") < 0);
+	rCase.SLCHECK_NZ(strverscmp("00", "010") < 0);
+	rCase.SLCHECK_NZ(strverscmp("00", "09") < 0);
+	rCase.SLCHECK_NZ(strverscmp("00", "0") < 0);
+	rCase.SLCHECK_NZ(strverscmp("00", "1") < 0);
+	rCase.SLCHECK_NZ(strverscmp("00", "9") < 0);
+	rCase.SLCHECK_NZ(strverscmp("00", "10") < 0);
+	rCase.SLCHECK_NZ(strverscmp("01", "010") < 0);
+	rCase.SLCHECK_NZ(strverscmp("01", "09") < 0);
+	rCase.SLCHECK_NZ(strverscmp("01", "0") < 0);
+	rCase.SLCHECK_NZ(strverscmp("01", "1") < 0);
+	rCase.SLCHECK_NZ(strverscmp("01", "9") < 0);
+	rCase.SLCHECK_NZ(strverscmp("01", "10") < 0);
+	rCase.SLCHECK_NZ(strverscmp("010", "09") < 0);
+	rCase.SLCHECK_NZ(strverscmp("010", "0") < 0);
+	rCase.SLCHECK_NZ(strverscmp("010", "1") < 0);
+	rCase.SLCHECK_NZ(strverscmp("010", "9") < 0);
+	rCase.SLCHECK_NZ(strverscmp("010", "10") < 0);
+	rCase.SLCHECK_NZ(strverscmp("09", "0") < 0);
+	rCase.SLCHECK_NZ(strverscmp("09", "1") < 0);
+	rCase.SLCHECK_NZ(strverscmp("09", "9") < 0);
+	rCase.SLCHECK_NZ(strverscmp("09", "10") < 0);
+	rCase.SLCHECK_NZ(strverscmp("0", "1") < 0);
+	rCase.SLCHECK_NZ(strverscmp("0", "9") < 0);
+	rCase.SLCHECK_NZ(strverscmp("0", "10") < 0);
+	rCase.SLCHECK_NZ(strverscmp("1", "9") < 0);
+	rCase.SLCHECK_NZ(strverscmp("1", "10") < 0);
+	rCase.SLCHECK_NZ(strverscmp("9", "10") < 0);
 	/* Compare speed */
 	{
 #define LENGTH 100
@@ -821,7 +821,7 @@ static int T_Strverscmp(STestCase & rCase)
 			diff1 = strverscmp(a, b);
 			diff2 = strverscmp(b, a);
 			/* Must give identical result in both directions */
-			rCase.SLTEST_CHECK_NZ((diff1 < 0 && diff2 > 0) || (diff1 == 0 && diff2 == 0) || (diff1 > 0 && diff2 < 0));
+			rCase.SLCHECK_NZ((diff1 < 0 && diff2 > 0) || (diff1 == 0 && diff2 == 0) || (diff1 > 0 && diff2 < 0));
 		}
 	}
 	return rCase.GetCurrentStatus();

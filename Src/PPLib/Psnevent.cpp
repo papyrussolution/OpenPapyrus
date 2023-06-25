@@ -172,9 +172,6 @@ PPPsnEventPacket::OnTurnBlock & PPPsnEventPacket::OnTurnBlock::Z()
 //
 PPPsnEventPacket::PPPsnEventPacket()
 {
-	// @v10.6.4 MEMSZERO(Rec);
-	// @v10.6.4 MEMSZERO(Reg);
-	// @v10.8.8 @ctr Otb.Z();
 }
 
 void PPPsnEventPacket::Destroy()
@@ -967,7 +964,7 @@ int PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKind * p
 					{
 						PPObjID oi(PPOBJ_PERSONEVENT, pPack->Rec.ID);
 						if(oneof2(action, PPACN_OBJUPD, PPACN_OBJRMV)) {
-							TSVector <SCardCore::OpBlock> ex_link_op_list; // @v9.8.4 TSArray-->TSVector
+							TSVector <SCardCore::OpBlock> ex_link_op_list;
 							THROW(P_ScObj->P_Tbl->GetOpByLinkObj(oi, ex_link_op_list));
 							for(uint i = 0; i < ex_link_op_list.getCount(); i++) {
 								SCardCore::OpBlock & r_ob = ex_link_op_list.at(i);

@@ -2569,16 +2569,16 @@ SLTEST_R(PPSlipFormatLexer)
 	SString in_file_name(MakeInputFilePath("slip.fmt"));
 	PPSlipFormat fmt;
 	SFile f_out(MakeOutputFilePath("slip.lex"), SFile::mWrite);
-	THROW(SLTEST_CHECK_NZ(f_out.IsValid()));
+	THROW(SLCHECK_NZ(f_out.IsValid()));
 	{
 		SFile f_in(in_file_name, SFile::mRead);
-		THROW(SLTEST_CHECK_NZ(f_in.IsValid()));
+		THROW(SLCHECK_NZ(f_in.IsValid()));
 		do {
-			THROW(SLTEST_CHECK_NZ(token = fmt.NextToken(f_in, result)));
+			THROW(SLCHECK_NZ(token = fmt.NextToken(f_in, result)));
 			f_out.WriteLine(out_buf.Z().Cat(token).Space().Cat(result).CR());
 		} while(token != PPSlipFormat::tokEOF);
 	}
-	THROW(SLTEST_CHECK_NZ(fmt.Parse(in_file_name, "Form10")));
+	THROW(SLCHECK_NZ(fmt.Parse(in_file_name, "Form10")));
 	//
 	// Print PPSlipFormat
 	//
@@ -2622,7 +2622,7 @@ SLTEST_R(PPSlipFormatLexer)
 	//
 	{
 		StrAssocArray list;
-		SLTEST_CHECK_NZ(fmt.GetFormList(in_file_name, &list, 0));
+		SLCHECK_NZ(fmt.GetFormList(in_file_name, &list, 0));
 		result.Z().CR();
 		for(uint i = 0; i < list.getCount(); i++) {
 			result.Cat(list.Get(i).Txt).CR();
@@ -2657,10 +2657,10 @@ SLTEST_R(PPSlipFormatOutput)
 	SFile f_out;
 
 	SString line_buf;
-	THROW(SLTEST_CHECK_NZ(f_out.Open(MakeOutputFilePath("slip-output.lex"), SFile::mWrite)));
-	THROW(SLTEST_CHECK_NZ(fmt.Parse(MakeInputFilePath("slip.fmt"), "Form1")));
+	THROW(SLCHECK_NZ(f_out.Open(MakeOutputFilePath("slip-output.lex"), SFile::mWrite)));
+	THROW(SLCHECK_NZ(fmt.Parse(MakeInputFilePath("slip.fmt"), "Form1")));
 	cc_filt.Flags |= CCheckFilt::fDontCount;
-	THROW(SLTEST_CHECK_NZ(cc_view.Init_(&cc_filt)));
+	THROW(SLCHECK_NZ(cc_view.Init_(&cc_filt)));
 	for(cc_view.InitIteration(CCheckFilt::ordByDef); c < c_max && cc_view.NextIteration(&cc_item) > 0;) {
 		CCheckPacket pack;
 		cc_view.GetPacket(cc_item.ID, &pack);

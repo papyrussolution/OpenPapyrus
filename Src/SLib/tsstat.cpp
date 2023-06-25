@@ -1951,12 +1951,12 @@ SLTEST_R(STimeSeries)
 		uint   vecidx_realvol = 0;
 		uint   vecidx_spread = 0;
 		//THROW(ts.AddValueVec("open", T_DOUBLE, 0, &vecidx_open));
-		THROW(SLTEST_CHECK_NZ(ts.AddValueVec("open", T_INT32, 5, &vecidx_open)));
+		THROW(SLCHECK_NZ(ts.AddValueVec("open", T_INT32, 5, &vecidx_open)));
 		//THROW(ts.AddValueVec("close", T_DOUBLE, 0, &vecidx_close));
-		THROW(SLTEST_CHECK_NZ(ts.AddValueVec("close", T_INT32, 5, &vecidx_close)));
-		THROW(SLTEST_CHECK_NZ(ts.AddValueVec("tick_volume", T_INT32, 0, &vecidx_ticvol)));
-		THROW(SLTEST_CHECK_NZ(ts.AddValueVec("real_volume", T_INT32, 0, &vecidx_realvol)));
-		THROW(SLTEST_CHECK_NZ(ts.AddValueVec("spread", T_INT32, 0, &vecidx_spread)));
+		THROW(SLCHECK_NZ(ts.AddValueVec("close", T_INT32, 5, &vecidx_close)));
+		THROW(SLCHECK_NZ(ts.AddValueVec("tick_volume", T_INT32, 0, &vecidx_ticvol)));
+		THROW(SLCHECK_NZ(ts.AddValueVec("real_volume", T_INT32, 0, &vecidx_realvol)));
+		THROW(SLCHECK_NZ(ts.AddValueVec("spread", T_INT32, 0, &vecidx_spread)));
 		{
 			uint8 sign[8];
 			size_t actual_size = 0;
@@ -1992,12 +1992,12 @@ SLTEST_R(STimeSeries)
 					SUniTime ut;
 					ut.Set(dtm, SUniTime::indMin);
 					uint   item_idx = 0;
-					THROW(SLTEST_CHECK_NZ(ts.AddItem(ut, &item_idx)));
-					THROW(SLTEST_CHECK_NZ(ts.SetValue(item_idx, vecidx_open, open)));
-					THROW(SLTEST_CHECK_NZ(ts.SetValue(item_idx, vecidx_close, close)));
-					THROW(SLTEST_CHECK_NZ(ts.SetValue(item_idx, vecidx_ticvol, tick_vol)));
-					THROW(SLTEST_CHECK_NZ(ts.SetValue(item_idx, vecidx_realvol, real_vol)));
-					THROW(SLTEST_CHECK_NZ(ts.SetValue(item_idx, vecidx_spread, spread)));
+					THROW(SLCHECK_NZ(ts.AddItem(ut, &item_idx)));
+					THROW(SLCHECK_NZ(ts.SetValue(item_idx, vecidx_open, open)));
+					THROW(SLCHECK_NZ(ts.SetValue(item_idx, vecidx_close, close)));
+					THROW(SLCHECK_NZ(ts.SetValue(item_idx, vecidx_ticvol, tick_vol)));
+					THROW(SLCHECK_NZ(ts.SetValue(item_idx, vecidx_realvol, real_vol)));
+					THROW(SLCHECK_NZ(ts.SetValue(item_idx, vecidx_spread, spread)));
 				}
 			}
 		}
@@ -2008,38 +2008,38 @@ SLTEST_R(STimeSeries)
 			SBuffer cbuf; // compress buf
 			SBuffer dbuf; // decompress buf
 			SSerializeContext sctx;
-			THROW(SLTEST_CHECK_NZ(ts.Serialize(+1, sbuf, &sctx)));
+			THROW(SLCHECK_NZ(ts.Serialize(+1, sbuf, &sctx)));
 			{
 				{
 					SCompressor c(SCompressor::tZLib);
-					THROW(SLTEST_CHECK_NZ(c.CompressBlock(sbuf.GetBuf(sbuf.GetRdOffs()), sbuf.GetAvailableSize(), cbuf, 0, 0)));
+					THROW(SLCHECK_NZ(c.CompressBlock(sbuf.GetBuf(sbuf.GetRdOffs()), sbuf.GetAvailableSize(), cbuf, 0, 0)));
 				}
 				{
 					SCompressor c(SCompressor::tZLib);
-					THROW(SLTEST_CHECK_NZ(c.DecompressBlock(cbuf.GetBuf(cbuf.GetRdOffs()), cbuf.GetAvailableSize(), dbuf)));
+					THROW(SLCHECK_NZ(c.DecompressBlock(cbuf.GetBuf(cbuf.GetRdOffs()), cbuf.GetAvailableSize(), dbuf)));
 				}
-				SLTEST_CHECK_EQ(sbuf.GetAvailableSize(), dbuf.GetAvailableSize());
-				SLTEST_CHECK_Z(memcmp(sbuf.GetBuf(sbuf.GetRdOffs()), dbuf.GetBuf(dbuf.GetRdOffs()), sbuf.GetAvailableSize()));
-				THROW(SLTEST_CHECK_NZ(dts.Serialize(-1, dbuf, &sctx)));
+				SLCHECK_EQ(sbuf.GetAvailableSize(), dbuf.GetAvailableSize());
+				SLCHECK_Z(memcmp(sbuf.GetBuf(sbuf.GetRdOffs()), dbuf.GetBuf(dbuf.GetRdOffs()), sbuf.GetAvailableSize()));
+				THROW(SLCHECK_NZ(dts.Serialize(-1, dbuf, &sctx)));
 			}
 			{
 				SFile f_out(test_file_name, SFile::mWrite);
-				THROW(SLTEST_CHECK_NZ(f_out.IsValid()));
+				THROW(SLCHECK_NZ(f_out.IsValid()));
 				for(uint i = 0; i < dts.GetCount(); i++) {
 					SUniTime ut;
 					dts.GetTime(i, &ut);
 					ut.Get(dtm);
-					THROW(SLTEST_CHECK_NZ(dts.GetValue(i, vecidx_open, &open)));
-					THROW(SLTEST_CHECK_NZ(dts.GetValue(i, vecidx_close, &close)));
-					THROW(SLTEST_CHECK_NZ(dts.GetValue(i, vecidx_ticvol, &tick_vol)));
-					THROW(SLTEST_CHECK_NZ(dts.GetValue(i, vecidx_realvol, &real_vol)));
-					THROW(SLTEST_CHECK_NZ(dts.GetValue(i, vecidx_spread, &spread)));
+					THROW(SLCHECK_NZ(dts.GetValue(i, vecidx_open, &open)));
+					THROW(SLCHECK_NZ(dts.GetValue(i, vecidx_close, &close)));
+					THROW(SLCHECK_NZ(dts.GetValue(i, vecidx_ticvol, &tick_vol)));
+					THROW(SLCHECK_NZ(dts.GetValue(i, vecidx_realvol, &real_vol)));
+					THROW(SLCHECK_NZ(dts.GetValue(i, vecidx_spread, &spread)));
 					line_buf.Z().Cat(dtm.d, DATF_ANSI|DATF_CENTURY).Comma().Cat(dtm.t, TIMF_HM).Comma().
 						Cat(open, MKSFMTD(0, 5, 0)).Comma().Cat(close, MKSFMTD(0, 5, 0)).Comma().Cat(tick_vol).Comma().Cat(real_vol).Comma().Cat(spread).CR();
-					THROW(SLTEST_CHECK_NZ(f_out.WriteLine(line_buf)));
+					THROW(SLCHECK_NZ(f_out.WriteLine(line_buf)));
 				}
 				f_out.Close();
-				SLTEST_CHECK_LT(0, SFile::Compare(src_file_name, test_file_name, 0));
+				SLCHECK_LT(0, SFile::Compare(src_file_name, test_file_name, 0));
 			}
 		}
 	}

@@ -1725,7 +1725,7 @@ SLTEST_FIXTURE(SuffixArray, TestFixtureSuffixArray)
 	// benchmark=sais;divsufsort
 	int    bm = -1;
 	if(pBenchmark == 0) {
-		THROW(SLTEST_CHECK_NZ(F.Init(MakeInputFilePath("shakespeare.txt"))));
+		THROW(SLCHECK_NZ(F.Init(MakeInputFilePath("shakespeare.txt"))));
 		bm = 0;
 	}
 	else if(sstreqi_ascii(pBenchmark, "sais"))
@@ -1742,39 +1742,39 @@ SLTEST_FIXTURE(SuffixArray, TestFixtureSuffixArray)
 	//size_t size = ftell(fp);
 	//fseek(fp, 0, SEEK_SET);
 	
-	//THROW(SLTEST_CHECK_NZ(f_inp.IsValid()));
-	//THROW(SLTEST_CHECK_NZ(in_buf.IsValid()));
-	//THROW(SLTEST_CHECK_NZ(f_inp.ReadAll(in_buf, 0, &in_buf_size)));
+	//THROW(SLCHECK_NZ(f_inp.IsValid()));
+	//THROW(SLCHECK_NZ(in_buf.IsValid()));
+	//THROW(SLCHECK_NZ(f_inp.ReadAll(in_buf, 0, &in_buf_size)));
 	//assert(in_buf.GetSize() >= in_buf_size);
 	if(bm == 0) {
 		//sfxarray_sais = new int32[in_buf_size];
-		THROW(SLTEST_CHECK_Z(libsais(F.InBuf.ucptr(), (int32_t *)F.SfxArray_Sais, F.InBufSize, 0, 0/*freq*/)));
+		THROW(SLCHECK_Z(libsais(F.InBuf.ucptr(), (int32_t *)F.SfxArray_Sais, F.InBufSize, 0, 0/*freq*/)));
 		//sfxarray_divsufsort = new int32[in_buf_size];
-		THROW(SLTEST_CHECK_Z(divsufsort(F.InBuf.ucptr(), (int *)F.SfxArray_DivSufSort, F.InBufSize, 0)));
-		THROW(SLTEST_CHECK_Z(memcmp(F.SfxArray_Sais, F.SfxArray_DivSufSort, F.InBufSize * sizeof(int32))));
+		THROW(SLCHECK_Z(divsufsort(F.InBuf.ucptr(), (int *)F.SfxArray_DivSufSort, F.InBufSize, 0)));
+		THROW(SLCHECK_Z(memcmp(F.SfxArray_Sais, F.SfxArray_DivSufSort, F.InBufSize * sizeof(int32))));
 		{
 			const char * p_pattern = "trophies";
 			LongArray pos_list_fallback;
 			LongArray pos_list;
 			SaIndex saidx(F.InBuf, F.InBufSize);
 			saidx.Text.Utf8ToLower();
-			THROW(SLTEST_CHECK_NZ(saidx.Build()));
+			THROW(SLCHECK_NZ(saidx.Build()));
 			uint cf = saidx.Search_fallback(p_pattern, &pos_list_fallback);
 			uint c = saidx.Search(p_pattern, &pos_list);
 			pos_list_fallback.sort();
 			pos_list.sort();
-			SLTEST_CHECK_LE(0U, cf);
-			SLTEST_CHECK_EQ(cf, c);
-			SLTEST_CHECK_NZ(pos_list.IsEq(&pos_list_fallback));
+			SLCHECK_LE(0U, cf);
+			SLCHECK_EQ(cf, c);
+			SLCHECK_NZ(pos_list.IsEq(&pos_list_fallback));
 		}
 	}
 	else if(bm == 1) {
 		memzero(F.SfxArray_Sais, F.InBufSize * sizeof(int));
-		THROW(SLTEST_CHECK_Z(libsais(F.InBuf.ucptr(), (int32_t *)F.SfxArray_Sais, F.InBufSize, 0, 0/*freq*/)));
+		THROW(SLCHECK_Z(libsais(F.InBuf.ucptr(), (int32_t *)F.SfxArray_Sais, F.InBufSize, 0, 0/*freq*/)));
 	}
 	else if(bm == 2) {
 		memzero(F.SfxArray_DivSufSort, F.InBufSize);
-		THROW(SLTEST_CHECK_Z(divsufsort(F.InBuf.ucptr(), (int *)F.SfxArray_DivSufSort, F.InBufSize, 0)));
+		THROW(SLCHECK_Z(divsufsort(F.InBuf.ucptr(), (int *)F.SfxArray_DivSufSort, F.InBufSize, 0)));
 	}
 	CATCH
 		CurrentStatus = 0;

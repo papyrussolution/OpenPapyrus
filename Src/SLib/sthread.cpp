@@ -946,7 +946,7 @@ SLTEST_R(Evnt)
 	SString evnt_name_start("TestEvnt_Start");
 	SString evnt_name_finish("TestEvnt_Finish");
 	Evnt ev_start(evnt_name_start, Evnt::modeCreate);
-	SLTEST_CHECK_NZ((HANDLE)ev_start);
+	SLCHECK_NZ((HANDLE)ev_start);
 	{
 		int    ok = 1;
 		for(uint i = 1; i <= 10; i++) {
@@ -962,11 +962,11 @@ SLTEST_R(Evnt)
 			SDelay(500);
 			{
 				Evnt ev_finish(evnt_name_finish, Evnt::modeOpen);
-				SLTEST_CHECK_NZ((HANDLE)ev_finish);
+				SLCHECK_NZ((HANDLE)ev_finish);
 #ifndef NDEBUG
 				assert(signal_var == 0);
 #else
-				SLTEST_CHECK_NZ(signal_var == 0);
+				SLCHECK_NZ(signal_var == 0);
 #endif
 				ev_start.Signal();
 				SDelay(10);
@@ -975,9 +975,9 @@ SLTEST_R(Evnt)
 				assert(ev_finish.Wait(-1) > 0);
 				assert(signal_var == -(int)tid);
 #else
-				SLTEST_CHECK_NZ(signal_var == tid);
-				SLTEST_CHECK_NZ(ev_finish.Wait(-1) > 0);
-				SLTEST_CHECK_NZ(signal_var == -(int)tid);
+				SLCHECK_NZ(signal_var == tid);
+				SLCHECK_NZ(ev_finish.Wait(-1) > 0);
+				SLCHECK_NZ(signal_var == -(int)tid);
 #endif
 			}
 			WaitForSingleObject((HANDLE)*p_thread, INFINITE);

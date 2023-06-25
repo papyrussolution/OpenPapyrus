@@ -11622,9 +11622,9 @@ SLTEST_R(Mercapp)
 			GazpromNeft::ReplyBlock rb;
 			temp_buf.Z().CatN(in_buf.cptr(), actual_size);
 			r = GazpromNeft::ParseReply(temp_buf, rb);
-			SLTEST_CHECK_EQ(r, 1);
-			SLTEST_CHECK_EQ(0, rb.Status);
-			SLTEST_CHECK_EQ(rb.SsErrMsg.getCount(), 0U);
+			SLCHECK_EQ(r, 1);
+			SLCHECK_EQ(0, rb.Status);
+			SLCHECK_EQ(rb.SsErrMsg.getCount(), 0U);
 		}
 	}
 	{
@@ -11635,9 +11635,9 @@ SLTEST_R(Mercapp)
 			GazpromNeft::ReplyBlock rb;
 			temp_buf.Z().CatN(in_buf.cptr(), actual_size);
 			r = GazpromNeft::ParseReply(temp_buf, rb);
-			SLTEST_CHECK_EQ(r, -1);
-			SLTEST_CHECK_LT(0, rb.Status);
-			SLTEST_CHECK_EQ(rb.SsErrMsg.getCount(), 1U);
+			SLCHECK_EQ(r, -1);
+			SLCHECK_LT(0, rb.Status);
+			SLCHECK_EQ(rb.SsErrMsg.getCount(), 1U);
 		}
 	}
 	{
@@ -11648,8 +11648,8 @@ SLTEST_R(Mercapp)
 			GazpromNeft::ReplyBlock rb;
 			temp_buf.Z().CatN(in_buf.cptr(), actual_size);
 			r = GazpromNeft::ParseReply(temp_buf, rb);
-			SLTEST_CHECK_EQ(r, -1);
-			SLTEST_CHECK_EQ(rb.SsErrMsg.getCount(), 1U);
+			SLCHECK_EQ(r, -1);
+			SLCHECK_EQ(rb.SsErrMsg.getCount(), 1U);
 		}
 	}
 	CATCHZOK

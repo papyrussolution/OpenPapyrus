@@ -13,7 +13,6 @@
 #include <d3d11.h>
 #include <..\OSF\DirectXTex\SRC\DirectXTex.h>
 #include <..\OSF\DirectXTex\SRC\WICTextureLoader11.h>
-
 /*
 	Style tokens:
 
@@ -539,19 +538,67 @@ public:
 	};
 	class DTSess : public DServerError {
 	public:
-		DTSess() : TSessID(0), GoodsID(0), TechID(0)
+		DTSess() : TSessID(0), GoodsID(0), TechID(0), SCardID(0), WrOffAmount(0.0)
 		{
+		}
+		DTSess & Z()
+		{
+			TSessID = 0;
+			GoodsID = 0;
+			TechID = 0;
+			SCardID = 0;
+			WrOffAmount = 0.0;
+			TmChunk.Z();
+			TmScOp.Z();
+			return *this;
 		}
 		int    FromJsonObject(const SJson * pJsObj)
 		{
 			int    ok = 0;
-			if(pJsObj) {
+			Z();
+			if(SJson::IsObject(pJsObj)) {
+				bool is_there_tsess_id = false;
+				for(const SJson * p_cur = pJsObj->P_Child; p_cur; p_cur = p_cur->P_Next) {
+					if(p_cur->P_Child) {
+						if(p_cur->Text.IsEqiAscii("tsessid")) {
+							TSessID = p_cur->P_Child->Text.ToLong();
+							is_there_tsess_id = true;
+						}
+						else if(p_cur->Text.IsEqiAscii("techid")) {
+							TechID = p_cur->P_Child->Text.ToLong();
+						}
+						else if(p_cur->Text.IsEqiAscii("goodsid")) {
+							GoodsID = p_cur->P_Child->Text.ToLong();
+						}
+						else if(p_cur->Text.IsEqiAscii("tm_start")) {
+							strtodatetime(p_cur->P_Child->Text, &TmChunk.Start, DATF_ISO8601CENT, TIMF_HMS);
+						}
+						else if(p_cur->Text.IsEqiAscii("tm_finish")) {
+							strtodatetime(p_cur->P_Child->Text, &TmChunk.Finish, DATF_ISO8601CENT, TIMF_HMS);
+						}
+						else if(p_cur->Text.IsEqiAscii("scardid")) {
+							SCardID = p_cur->P_Child->Text.ToLong();
+						}
+						else if(p_cur->Text.IsEqiAscii("wroffamt")) {
+							WrOffAmount = p_cur->P_Child->Text.ToReal();
+						}
+						else if(p_cur->Text.IsEqiAscii("tm_scop")) {
+							strtodatetime(p_cur->P_Child->Text, &TmScOp, DATF_ISO8601CENT, TIMF_HMS);
+						}
+					}
+				}
+				if(is_there_tsess_id) {
+					ok = 1;
+				}
 			}
 			return ok;
 		}
 		PPID   TSessID;
 		PPID   GoodsID;
 		PPID   TechID;
+		PPID   SCardID;
+		double WrOffAmount;
+		LDATETIME TmScOp;
 		STimeChunk TmChunk;
 	};
 	struct JobSrvParam {
@@ -730,6 +777,21 @@ private:
 	//
 	void   Render();
 	void   MakeLayout();
+	void   ErrorPopup(bool isErr)
+	{
+		if(isErr) {
+			const char * p_popup_title = "Error message";
+			ImGui::OpenPopup(p_popup_title);
+			if(ImGui::BeginPopup(p_popup_title)) {
+				ImGui::Text(LastSvrErr._Message);
+				if(ImGui::Button("Close")) {
+					LastSvrErr.Z(); // Сбрасываем информацию об ошибке
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
+		}
+	}
 	static int CbInput(ImGuiInputTextCallbackData * pInputData);
 	//
 	char   TestInput[128];
@@ -781,6 +843,7 @@ public:
 		{
 			St.SetupSyncUpdateTime(State::syncdataPrices, 30000);
 			St.SetupSyncUpdateTime(State::syncdataAccount, 29000);
+			St.SetupSyncUpdateTime(State::syncdataTSess, 15000);
 		}
 		return ok;
 	}
@@ -809,12 +872,10 @@ public:
 						}
 						break;
 					case State::syncdataPrices:
-						{
-							WsCtlReqQueue::Req req(PPSCMD_WSCTL_GETQUOTLIST);
-							P_CmdQ->Push(req);
-						}
+						P_CmdQ->Push(WsCtlReqQueue::Req(PPSCMD_WSCTL_GETQUOTLIST));
 						break;
 					case State::syncdataTSess:
+						P_CmdQ->Push(WsCtlReqQueue::Req(PPSCMD_WSCTL_TSESS));
 						break;
 					case State::syncdataJobSrvConnStatus:
 						break;
@@ -1417,6 +1478,35 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				P_St->D_Prices.SetData(st_data);
 			}
 			break;
+		case PPSCMD_WSCTL_TSESS:
+			if(P_St) {
+				DTSess st_data;
+				WsCtl_ImGuiSceneBlock::DPrc st_prc_data;
+				P_St->D_Prc.GetData(st_prc_data);
+				if(st_prc_data.PrcID) {
+					PPJobSrvCmd cmd;
+					cmd.StartWriting(PPSCMD_WSCTL_TSESS);
+					cmd.Write(&st_prc_data.PrcID, sizeof(st_prc_data.PrcID));
+					cmd.FinishWriting();
+					if(rCli.Exec(cmd, reply)) {
+						SString reply_buf;
+						reply.StartReading(&reply_buf);
+						if(reply.CheckRepError()) {
+							SJson * p_js = SJson::Parse(reply_buf);
+							if(st_data.FromJsonObject(p_js)) {
+								;
+							}
+							else
+								st_data.SetupByLastError();
+							ZDELETE(p_js);
+						}
+						else
+							st_data.SetupByLastError();
+					}
+					P_St->D_TSess.SetData(st_data);
+				}
+			}
+			break;
 		case PPSCMD_WSCTL_BEGIN_SESS:
 			if(P_St) {
 				DTSess st_data;
@@ -1450,6 +1540,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 						}
 						else
 							st_data.SetupByLastError();
+						P_St->D_TSess.SetData(st_data);
 						ZDELETE(p_js);
 					}
 					else
@@ -1579,6 +1670,24 @@ void WsCtl_ImGuiSceneBlock::MakeLayout()
 		//
 		// screenSession
 		//
+		SUiLayout * p_tl = new SUiLayout();
+		p_tl->SetLayoutBlock(SUiLayoutParam(DIREC_HORZ, 0, SUiLayoutParam::alignStretch));
+		p_tl->SetID(screenSession);
+		{
+			{
+				SUiLayoutParam alb(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+				alb.SetVArea(SUiLayoutParam::areaSideL);
+				alb.SetFixedSizeX(256).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f).SetMargin(1.0f);
+				p_tl->InsertItem(0, &alb, loidMenuBlock);
+			}
+			{
+				SUiLayoutParam alb_mg(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
+				alb_mg.SetVArea(SUiLayoutParam::areaSideL);
+				alb_mg.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f).SetMargin(1.0f);
+				SUiLayout * p_lo_main_group = p_tl->InsertItem(0, &alb_mg, loidMainGroup);
+			}
+		}
+		Cache_Layout.Put(p_tl, true);
 	}
 	{
 		//
@@ -1718,34 +1827,28 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						DAuth data_auth;
 						St.D_Auth.GetData(data_auth);
 						if(data_auth.SCardID && data_auth._Status == 0) {
-							SetScreen(screenAuthSelectSess);	
+							SetScreen(screenAuthSelectSess);
 						}
 						else {
-							bool is_err = false;
-							if(!data_auth.SCardID && data_auth._Status != 0) {
-								LastSvrErr = data_auth;
-								// Сбрасываем информацию об ошибке {
-								data_auth.DServerError::Z();
-								St.D_Auth.SetData(data_auth);
-								// }
-								if(LastSvrErr._Message.NotEmpty())
-									is_err = true;
-							}
-							else if(LastSvrErr._Status != 0) {
-								if(LastSvrErr._Message.NotEmpty())
-									is_err = true;
-							}
-							if(is_err) {
-								const char * p_popup_title = "Error message";
-								ImGui::OpenPopup(p_popup_title);
-								if(ImGui::BeginPopup(p_popup_title)) {
-									ImGui::Text(LastSvrErr._Message);
-									if(ImGui::Button("Close")) {
-										LastSvrErr.Z(); // Сбрасываем информацию об ошибке
-										ImGui::CloseCurrentPopup();
-									}
-									ImGui::EndPopup();
+							{
+								//
+								// Handle an error
+								//
+								bool is_err = false;
+								if(!data_auth.SCardID && data_auth._Status != 0) {
+									LastSvrErr = data_auth;
+									// Сбрасываем информацию об ошибке {
+									data_auth.DServerError::Z();
+									St.D_Auth.SetData(data_auth);
+									// }
+									if(LastSvrErr._Message.NotEmpty())
+										is_err = true;
 								}
+								else if(LastSvrErr._Status != 0) {
+									if(LastSvrErr._Message.NotEmpty())
+										is_err = true;
+								}
+								ErrorPopup(is_err);
 							}
 							ImGui::InputText(InputLabelPrefix("Текст для авторизации"), LoginText, sizeof(LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
 							ImGui::InputText(InputLabelPrefix("Пароль"), PwText, sizeof(PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
@@ -1761,7 +1864,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 					}
 				}
 			}
-			else if(_screen == screenAuthSelectSess) {
+			else if(_screen == screenSession) {
 				SUiLayout * p_tl = Cache_Layout.Get(reinterpret_cast<const char *>(&_screen), sizeof(_screen));
 				if(p_tl) {
 					p_tl->Evaluate(&evp);
@@ -1770,95 +1873,139 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						if(wbl.IsValid()) {
 						}
 					}
-					DAccount st_data_acc;
-					St.D_Acc.GetData(st_data_acc);
 					{
-						ImGuiWindowByLayout wbl(p_tl, loidPersonInfo, "##PERSONINFO", view_flags);
+						ImGuiWindowByLayout wbl(p_tl, loidMainGroup, "##MAINGROUP", view_flags);
 						if(wbl.IsValid()) {
-							if(st_data_acc.PersonName) {
-								ImGui::Text(st_data_acc.PersonName);
+						}
+					}
+				}
+			}
+			else if(_screen == screenAuthSelectSess) {
+				SUiLayout * p_tl = Cache_Layout.Get(reinterpret_cast<const char *>(&_screen), sizeof(_screen));
+				if(p_tl) {
+					DTSess st_data_tses;
+					St.D_TSess.GetData(st_data_tses);
+					if(st_data_tses.TSessID && st_data_tses._Status == 0) {
+						SetScreen(screenSession);
+					}
+					else {
+						{
+							//
+							// Handle an error
+							//
+							bool is_err = false;
+							if(!st_data_tses.TSessID && st_data_tses._Status != 0) {
+								LastSvrErr = st_data_tses;
+								// Сбрасываем информацию об ошибке {
+								st_data_tses.DServerError::Z();
+								St.D_TSess.SetData(st_data_tses);
+								// }
+								if(LastSvrErr._Message.NotEmpty())
+									is_err = true;
+							}
+							else if(LastSvrErr._Status != 0) {
+								if(LastSvrErr._Message.NotEmpty())
+									is_err = true;
+							}
+							ErrorPopup(is_err);
+						}
+						p_tl->Evaluate(&evp);
+						{
+							ImGuiWindowByLayout wbl(p_tl, loidMenuBlock, "##MENUBLOCK", view_flags);
+							if(wbl.IsValid()) {
 							}
 						}
-					}
-					{
-						ImGuiWindowByLayout wbl(p_tl, loidAccountInfo, "##ACCOUNTINFO", view_flags);
-						if(wbl.IsValid()) {
-							SString & r_text_buf = SLS.AcquireRvlStr();
-							ImGui::Text(PPLoadStringUtf8S("account", r_text_buf).CatDiv(':', 2).Cat(st_data_acc.SCardCode));
-							ImGui::Text(PPLoadStringUtf8S("rest", r_text_buf).CatDiv(':', 2).Cat(st_data_acc.ScRest, MKSFMTD(0, 2, 0)));
-						}
-					}
-					{
-						DPrices st_data_prices;
-						St.D_Prices.GetData(st_data_prices);
+						//
+						DAccount st_data_acc;
+						St.D_Acc.GetData(st_data_acc);
 						{
-							ImGuiWindowByLayout wbl(p_tl, loidSessionSelection, "##SESSIONSELECTION", view_flags);
+							ImGuiWindowByLayout wbl(p_tl, loidPersonInfo, "##PERSONINFO", view_flags);
 							if(wbl.IsValid()) {
-								if(st_data_prices.GoodsList.getCount()) {
-									const PPID selected_tec_goods_id = St.GetSelectedTecGoodsID();
-									//PPID   new_selected_tec_goods_id = 0;
-									if(ImGui::BeginTable("Prices", 1)) {
-										for(uint i = 0; i < st_data_prices.GoodsList.getCount(); i++) {
-											const GoodsEntry * p_entry = st_data_prices.GoodsList.at(i);
-											if(p_entry) {
-												double price = 0.0;
-												if(st_data_prices.GetGoodsPrice(p_entry->ID, &price)) {
-													//ImGui::RadioButton(
-													ImGui::TableNextColumn();
-													SString & r_temp_buf = SLS.AcquireRvlStr();
-													r_temp_buf.Cat(p_entry->NameUtf8).Space().CatChar('|').Space().Cat(price, MKSFMTD(0, 2, 0));
-													if(ImGui::/*RadioButton*/Selectable(r_temp_buf, (p_entry->ID == selected_tec_goods_id)))
-														St.SetSelectedTecGoodsID(p_entry->ID);
-														//new_selected_tec_goods_id = p_entry->ID;
-												}
-											}
-										}
-										ImGui::EndTable();
-									}
-								}
-								{
-									const PPID selected_tec_goods_id = St.GetSelectedTecGoodsID();
-									const GoodsEntry * p_ge = st_data_prices.GetGoodsEntryByID(selected_tec_goods_id);
-									SString & r_text_buf = SLS.AcquireRvlStr();
-									r_text_buf.Cat("Selected Tec Goods ID").CatDiv(':', 2).Cat(p_ge ? p_ge->NameUtf8 : "undefined");
-									ImGui::Text(r_text_buf);
+								if(st_data_acc.PersonName) {
+									ImGui::Text(st_data_acc.PersonName);
 								}
 							}
 						}
 						{
-							//loidSessionButtonGroup
-							ImGuiWindowByLayout wbl(p_tl, loidSessionButtonGroup, "##SESSIONBUTTONGROUP", view_flags);
+							ImGuiWindowByLayout wbl(p_tl, loidAccountInfo, "##ACCOUNTINFO", view_flags);
 							if(wbl.IsValid()) {
-								PPID  sel_goods_id = St.GetSelectedTecGoodsID();
-								const GoodsEntry * p_goods_entry = st_data_prices.GetGoodsEntryByID(sel_goods_id);
-								if(p_goods_entry) {
-									if(ImGui::Button("Start Session...")) {
-										WsCtl_ImGuiSceneBlock::DPrc prc_data;
-										St.D_Prc.GetData(prc_data); 
-										if(!!prc_data.PrcUuid) {
-											WsCtlReqQueue::Req req(PPSCMD_WSCTL_BEGIN_SESS);
-											req.P.SCardID = st_data_acc.SCardID;
-											req.P.Uuid = prc_data.PrcUuid;
-											req.P.GoodsID = sel_goods_id;
-											if(p_goods_entry->TechList.getCount()) {
-												req.P.TechID = p_goods_entry->TechList.at(0).ID;
-											}
-											{
-												double price = 0.0;
-												if(st_data_prices.GetGoodsPrice(sel_goods_id, &price) && price > 0.0) {
-													req.P.Amount = price * 1.0;
+								SString & r_text_buf = SLS.AcquireRvlStr();
+								ImGui::Text(PPLoadStringUtf8S("account", r_text_buf).CatDiv(':', 2).Cat(st_data_acc.SCardCode));
+								ImGui::Text(PPLoadStringUtf8S("rest", r_text_buf).CatDiv(':', 2).Cat(st_data_acc.ScRest, MKSFMTD(0, 2, 0)));
+							}
+						}
+						{
+							DPrices st_data_prices;
+							St.D_Prices.GetData(st_data_prices);
+							{
+								ImGuiWindowByLayout wbl(p_tl, loidSessionSelection, "##SESSIONSELECTION", view_flags);
+								if(wbl.IsValid()) {
+									if(st_data_prices.GoodsList.getCount()) {
+										const PPID selected_tec_goods_id = St.GetSelectedTecGoodsID();
+										//PPID   new_selected_tec_goods_id = 0;
+										if(ImGui::BeginTable("Prices", 1)) {
+											for(uint i = 0; i < st_data_prices.GoodsList.getCount(); i++) {
+												const GoodsEntry * p_entry = st_data_prices.GoodsList.at(i);
+												if(p_entry) {
+													double price = 0.0;
+													if(st_data_prices.GetGoodsPrice(p_entry->ID, &price)) {
+														//ImGui::RadioButton(
+														ImGui::TableNextColumn();
+														SString & r_temp_buf = SLS.AcquireRvlStr();
+														r_temp_buf.Cat(p_entry->NameUtf8).Space().CatChar('|').Space().Cat(price, MKSFMTD(0, 2, 0));
+														if(ImGui::/*RadioButton*/Selectable(r_temp_buf, (p_entry->ID == selected_tec_goods_id)))
+															St.SetSelectedTecGoodsID(p_entry->ID);
+															//new_selected_tec_goods_id = p_entry->ID;
+													}
 												}
 											}
-											P_CmdQ->Push(req);
+											ImGui::EndTable();
+										}
+									}
+									{
+										const PPID selected_tec_goods_id = St.GetSelectedTecGoodsID();
+										const GoodsEntry * p_ge = st_data_prices.GetGoodsEntryByID(selected_tec_goods_id);
+										SString & r_text_buf = SLS.AcquireRvlStr();
+										r_text_buf.Cat("Selected Tec Goods ID").CatDiv(':', 2).Cat(p_ge ? p_ge->NameUtf8 : "undefined");
+										ImGui::Text(r_text_buf);
+									}
+								}
+							}
+							{
+								//loidSessionButtonGroup
+								ImGuiWindowByLayout wbl(p_tl, loidSessionButtonGroup, "##SESSIONBUTTONGROUP", view_flags);
+								if(wbl.IsValid()) {
+									PPID  sel_goods_id = St.GetSelectedTecGoodsID();
+									const GoodsEntry * p_goods_entry = st_data_prices.GetGoodsEntryByID(sel_goods_id);
+									if(p_goods_entry) {
+										if(ImGui::Button("Start Session...")) {
+											WsCtl_ImGuiSceneBlock::DPrc prc_data;
+											St.D_Prc.GetData(prc_data); 
+											if(!!prc_data.PrcUuid) {
+												WsCtlReqQueue::Req req(PPSCMD_WSCTL_BEGIN_SESS);
+												req.P.SCardID = st_data_acc.SCardID;
+												req.P.Uuid = prc_data.PrcUuid;
+												req.P.GoodsID = sel_goods_id;
+												if(p_goods_entry->TechList.getCount()) {
+													req.P.TechID = p_goods_entry->TechList.at(0).ID;
+												}
+												{
+													double price = 0.0;
+													if(st_data_prices.GetGoodsPrice(sel_goods_id, &price) && price > 0.0) {
+														req.P.Amount = price * 1.0;
+													}
+												}
+												P_CmdQ->Push(req);
+											}
 										}
 									}
 								}
 							}
 						}
-					}
-					{
-						ImGuiWindowByLayout wbl(p_tl, loidBottomCtrlGroup, "##BOTTOMCTRLGROUP", view_flags);
-						if(wbl.IsValid()) {
+						{
+							ImGuiWindowByLayout wbl(p_tl, loidBottomCtrlGroup, "##BOTTOMCTRLGROUP", view_flags);
+							if(wbl.IsValid()) {
+							}
 						}
 					}
 				}
@@ -1872,14 +2019,18 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 					{
 						ImGuiWindowByLayout wbl(p_tl, loidMenuBlock, "##MENUBLOCK", view_flags);
 						if(wbl.IsValid()) {
+							FRect rect_frame = p_tl->GetFrameAdjustedToParent();
+							ImVec2 button_size;
+							button_size.x = rect_frame.Width() - 2.0f;
+							button_size.y = 0.0f;
 							ImGui::Text("X");
-							if(ImGui::Button("Login...")) {
+							if(ImGui::Button("Login...", button_size)) {
 								SetScreen(screenLogin);
 							}
-							if(ImGui::Button("Select session...")) {
+							if(ImGui::Button("Select session...", button_size)) {
 								SetScreen(screenAuthSelectSess);
 							}
-							if(ImGui::Button("Start...")) {
+							if(ImGui::Button("Start...", button_size)) {
 								;
 							}
 						}
@@ -1897,6 +2048,12 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							}
 							else {
 								//ImGui::SetKeyboardFocusHere();
+								DTSess data_sess;
+								St.D_TSess.GetData(data_sess);
+								if(data_sess.TSessID) {
+									SString & r_temp_buf = SLS.AcquireRvlStr();
+									ImGui::Text(r_temp_buf.Z().Cat("Processor is buisy till").Space().Cat(data_sess.TmChunk.Finish, DATF_DMY, TIMF_HM));
+								}
 								ImGui::InputText(InputLabelPrefix("Текст для авторизации"), LoginText, sizeof(LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
 								ImGui::InputText(InputLabelPrefix("Пароль"), PwText, sizeof(PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
 								if(!isempty(LoginText)) {

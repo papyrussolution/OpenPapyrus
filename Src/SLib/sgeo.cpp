@@ -2175,7 +2175,7 @@ SLTEST_R(SGeo)
 	{
 		StringSet ss;
 		SFile f_in(in_file_name, SFile::mRead);
-		THROW(SLTEST_CHECK_NZ(f_in.IsValid()));
+		THROW(SLCHECK_NZ(f_in.IsValid()));
 		while(f_in.ReadLine(line_buf, SFile::rlfChomp)) {
 			line_no++;
 			volatile int  _test_result = 0; // @debug
@@ -2198,7 +2198,7 @@ SLTEST_R(SGeo)
 					case 10: rec.S12 = temp_buf.ToReal(); break;
 				}
             }
-			SLTEST_CHECK_EQ(fld_count, 10U);
+			SLCHECK_EQ(fld_count, 10U);
             if(fld_count == 10) {
 				{
 					GeodTestRecord test_rec;
@@ -2207,30 +2207,30 @@ SLTEST_R(SGeo)
 					test_rec.ArcDistance = sg.Direct(rec.P1, rec.Azi1, 0, rec.GeodDistance, &test_rec.P2, &test_rec.Azi2, &test_rec.GeodDistance, &test_rec.M12, &_m12, &_m21, &test_rec.S12);
 					//test_rec.P1 = rec.P1;
 					//test_rec.Azi1 = rec.Azi1;
-					//SLTEST_CHECK_NZ(test_rec.IsEq(rec));
+					//SLCHECK_NZ(test_rec.IsEq(rec));
 
-					//SLTEST_CHECK_NZ(test_rec.P1 == rec.P1);
-					SLTEST_CHECK_NZ(test_rec.P2 == rec.P2);
-					//SLTEST_CHECK_EQ_TOL(test_rec.Azi1, rec.Azi1, 1E-1);
-					SLTEST_CHECK_EQ_TOL(test_rec.Azi2, rec.Azi2, 1E-1);
-					SLTEST_CHECK_EQ_TOL(test_rec.GeodDistance, rec.GeodDistance, 1E-4);
-					SLTEST_CHECK_EQ_TOL(test_rec.ArcDistance, rec.ArcDistance, 1E-7);
-					SLTEST_CHECK_EQ_TOL(test_rec.M12, rec.M12, 1E-4);
-					// SLTEST_CHECK_EQ_TOL(test_rec.S12, rec.S12, 10);
+					//SLCHECK_NZ(test_rec.P1 == rec.P1);
+					SLCHECK_NZ(test_rec.P2 == rec.P2);
+					//SLCHECK_EQ_TOL(test_rec.Azi1, rec.Azi1, 1E-1);
+					SLCHECK_EQ_TOL(test_rec.Azi2, rec.Azi2, 1E-1);
+					SLCHECK_EQ_TOL(test_rec.GeodDistance, rec.GeodDistance, 1E-4);
+					SLCHECK_EQ_TOL(test_rec.ArcDistance, rec.ArcDistance, 1E-7);
+					SLCHECK_EQ_TOL(test_rec.M12, rec.M12, 1E-4);
+					// SLCHECK_EQ_TOL(test_rec.S12, rec.S12, 10);
 
 					test_rec.ArcDistance = sg.Direct(rec.P1, rec.Azi1, sg.GEOD_ARCMODE, rec.ArcDistance, &test_rec.P2, &test_rec.Azi2, &test_rec.GeodDistance, &test_rec.M12, &_m12, &_m21, &test_rec.S12);
 					//test_rec.P1 = rec.P1;
 					//test_rec.Azi1 = rec.Azi1;
-					//SLTEST_CHECK_NZ(test_rec.IsEq(rec));
+					//SLCHECK_NZ(test_rec.IsEq(rec));
 
-					//SLTEST_CHECK_NZ(test_rec.P1 == rec.P1);
-					SLTEST_CHECK_NZ(test_rec.P2 == rec.P2);
-					//SLTEST_CHECK_EQ_TOL(test_rec.Azi1, rec.Azi1, 1E-1);
-					SLTEST_CHECK_EQ_TOL(test_rec.Azi2, rec.Azi2, 1E-1);
-					SLTEST_CHECK_EQ_TOL(test_rec.GeodDistance, rec.GeodDistance, 1E-4);
-					SLTEST_CHECK_EQ_TOL(test_rec.ArcDistance, rec.ArcDistance, 1E-7);
-					SLTEST_CHECK_EQ_TOL(test_rec.M12, rec.M12, 1E-4);
-					// SLTEST_CHECK_EQ_TOL(test_rec.S12, rec.S12, 10);
+					//SLCHECK_NZ(test_rec.P1 == rec.P1);
+					SLCHECK_NZ(test_rec.P2 == rec.P2);
+					//SLCHECK_EQ_TOL(test_rec.Azi1, rec.Azi1, 1E-1);
+					SLCHECK_EQ_TOL(test_rec.Azi2, rec.Azi2, 1E-1);
+					SLCHECK_EQ_TOL(test_rec.GeodDistance, rec.GeodDistance, 1E-4);
+					SLCHECK_EQ_TOL(test_rec.ArcDistance, rec.ArcDistance, 1E-7);
+					SLCHECK_EQ_TOL(test_rec.M12, rec.M12, 1E-4);
+					// SLCHECK_EQ_TOL(test_rec.S12, rec.S12, 10);
 				}
 				{
 					GeodTestRecord test_rec;
@@ -2239,16 +2239,16 @@ SLTEST_R(SGeo)
 					test_rec.ArcDistance = sg.Inverse(rec.P1, rec.P2, &test_rec.GeodDistance, &test_rec.Azi1, &test_rec.Azi2, &test_rec.M12, &_m12, &_m21, &test_rec.S12);
 					//test_rec.P1 = rec.P1;
 					//test_rec.P2 = rec.P2;
-					//SLTEST_CHECK_NZ(test_rec.IsEq(rec));
+					//SLCHECK_NZ(test_rec.IsEq(rec));
 
-					//SLTEST_CHECK_NZ(test_rec.P1 == rec.P1);
-					//SLTEST_CHECK_NZ(test_rec.P2 == rec.P2);
-					SLTEST_CHECK_EQ_TOL(test_rec.Azi1, rec.Azi1, 1E-1);
-					SLTEST_CHECK_EQ_TOL(test_rec.Azi2, rec.Azi2, 1E-1);
-					SLTEST_CHECK_EQ_TOL(test_rec.GeodDistance, rec.GeodDistance, 1E-4);
-					SLTEST_CHECK_EQ_TOL(test_rec.ArcDistance, rec.ArcDistance, 1E-7);
-					SLTEST_CHECK_EQ_TOL(test_rec.M12, rec.M12, 1E-4);
-					// SLTEST_CHECK_EQ_TOL(test_rec.S12, rec.S12, 10);
+					//SLCHECK_NZ(test_rec.P1 == rec.P1);
+					//SLCHECK_NZ(test_rec.P2 == rec.P2);
+					SLCHECK_EQ_TOL(test_rec.Azi1, rec.Azi1, 1E-1);
+					SLCHECK_EQ_TOL(test_rec.Azi2, rec.Azi2, 1E-1);
+					SLCHECK_EQ_TOL(test_rec.GeodDistance, rec.GeodDistance, 1E-4);
+					SLCHECK_EQ_TOL(test_rec.ArcDistance, rec.ArcDistance, 1E-7);
+					SLCHECK_EQ_TOL(test_rec.M12, rec.M12, 1E-4);
+					// SLCHECK_EQ_TOL(test_rec.S12, rec.S12, 10);
 				}
             }
 		}

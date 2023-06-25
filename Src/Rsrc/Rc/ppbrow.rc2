@@ -1452,7 +1452,7 @@ browser GOODSSTRUC2 north(100), 3, 1, "@{view_goodsstruc} {%s}", OWNER|GRID, 0
 		TRANSMIT        : kbCtrlH,   PPDV_SYNC01,       "@{dotransmit}\tCtrl-H"      // @v10.0.09
 		DORECOVER       : kbCtrlR,   PPDV_REPAIR02,     "Проверка структур\tCtrl-R"  // @v10.0.09
 		TOTAL           : kbF9,      PPDV_SIGMA02,      "@{totals}\tF9"
-		TREEVIEW        : kbCtrlT,   PPDV_TREEVIEW,     "@{doviewtree}\tCtrl-E"
+		TREEVIEW        : kbCtrlE,   PPDV_TREEVIEW,     "@{doviewtree}\tCtrl-E"
 		NEXTPROBLEM     : kbCtrlZ,   PPDV_NOICON,       "@{problemnext}\tCtrl-Z"
 		PREVPROBLEM     : kbCtrlA,   PPDV_NOICON,       "@{problemprev}\tCtrl-A"
 	}

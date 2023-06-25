@@ -20,15 +20,15 @@ SLTEST_R(Onig)
 	SLS.GetLogPath(out_file_name);
 	out_file_name.SetLastSlash().Cat("onig-test.log");
 	FILE * f_onig_out = fopen(out_file_name, "w");
-	SLTEST_CHECK_Z(OnigTestSyntax_main(f_onig_out));
-	SLTEST_CHECK_Z(OnigTestOptions_main(f_onig_out));
-	SLTEST_CHECK_Z(OnigTestRegSet_main(f_onig_out));
-	SLTEST_CHECK_Z(OnigTestU_main(f_onig_out));
-	SLTEST_CHECK_Z(OnigTestP_main(f_onig_out));
-	SLTEST_CHECK_Z(OnigTestC_main(f_onig_out));
-	SLTEST_CHECK_Z(OnigTestC_Windows_main(f_onig_out));
-	SLTEST_CHECK_Z(OnigTestUtf8_main(f_onig_out)); // !
-	SLTEST_CHECK_Z(OnigTestBack_main(f_onig_out)); // !
+	SLCHECK_Z(OnigTestSyntax_main(f_onig_out));
+	SLCHECK_Z(OnigTestOptions_main(f_onig_out));
+	SLCHECK_Z(OnigTestRegSet_main(f_onig_out));
+	SLCHECK_Z(OnigTestU_main(f_onig_out));
+	SLCHECK_Z(OnigTestP_main(f_onig_out));
+	SLCHECK_Z(OnigTestC_main(f_onig_out));
+	SLCHECK_Z(OnigTestC_Windows_main(f_onig_out));
+	SLCHECK_Z(OnigTestUtf8_main(f_onig_out)); // !
+	SLCHECK_Z(OnigTestBack_main(f_onig_out)); // !
 	SFile::ZClose(&f_onig_out);
 	return CurrentStatus;
 }

@@ -83,7 +83,7 @@
 #define NOSERVICE
 #define NOHELP
 #pragma warning(pop)
-#include <Windows.h>
+// @sobolev #include <Windows.h>
 #ifdef __MINGW32__
 	#include <unknwn.h>
 #endif

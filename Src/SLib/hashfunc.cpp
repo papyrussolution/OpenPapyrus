@@ -4553,12 +4553,12 @@ static int Helper_Test_Crypto_Vec(STestCase & rCase, const SString & rInFileName
 			const size_t pattern_size = p_item->Out.GetLen();
 			const void * p_pattern_buf = p_item->Out.GetBufC();
 			size_t total_size = 0;
-			rCase.SLTEST_CHECK_NZ(cs.SetupKey(key, p_key_buf, key_size));
+			rCase.SLCHECK_NZ(cs.SetupKey(key, p_key_buf, key_size));
 			size_t actual_size = 0;
-			rCase.SLTEST_CHECK_NZ(cs.Encrypt_(&key, p_src_buf, src_size, result_buf.vptr(total_size), result_buf.GetSize()-total_size, &actual_size));
+			rCase.SLCHECK_NZ(cs.Encrypt_(&key, p_src_buf, src_size, result_buf.vptr(total_size), result_buf.GetSize()-total_size, &actual_size));
 			total_size += actual_size;
-			rCase.SLTEST_CHECK_LE(static_cast<ulong>(pattern_size), static_cast<ulong>(total_size));
-			rCase.SLTEST_CHECK_Z(memcmp(result_buf.vptr(), p_pattern_buf, pattern_size));
+			rCase.SLCHECK_LE(static_cast<ulong>(pattern_size), static_cast<ulong>(total_size));
+			rCase.SLCHECK_Z(memcmp(result_buf.vptr(), p_pattern_buf, pattern_size));
 		}
 		{
 			const char * p_password = "test_crypto_password";
@@ -4576,23 +4576,23 @@ static int Helper_Test_Crypto_Vec(STestCase & rCase, const SString & rInFileName
 			SObfuscateBuffer(pattern_buf.vptr(), pattern_buf.GetSize());
 			{
 				SlCrypto cs(alg, kbl, algmod);
-				rCase.SLTEST_CHECK_NZ(cs.SetupKey(key, p_password));
+				rCase.SLCHECK_NZ(cs.SetupKey(key, p_password));
 				work_offs = 0;
 				actual_size = 0;
-				rCase.SLTEST_CHECK_NZ(cs.Encrypt_(&key, pattern_buf.vptr(total_encr_size), pattern_work_size, result_buf.vptr(work_offs), result_buf.GetSize()-work_offs, &actual_size));
+				rCase.SLCHECK_NZ(cs.Encrypt_(&key, pattern_buf.vptr(total_encr_size), pattern_work_size, result_buf.vptr(work_offs), result_buf.GetSize()-work_offs, &actual_size));
 				work_offs += actual_size;
 				total_encr_size += actual_size; // @v11.1.12 @fix pattern_work_size-->actual_size
 			}
 			{
 				SlCrypto cs(alg, kbl, algmod);
-				rCase.SLTEST_CHECK_NZ(cs.SetupKey(key, p_password));
+				rCase.SLCHECK_NZ(cs.SetupKey(key, p_password));
 				work_offs = 0;
 				actual_size = 0;
-				rCase.SLTEST_CHECK_NZ(cs.Decrypt_(&key, result_buf.vptr(total_decr_size), total_encr_size, dest_buf.vptr(work_offs), dest_buf.GetSize()-work_offs, &actual_size));
+				rCase.SLCHECK_NZ(cs.Decrypt_(&key, result_buf.vptr(total_decr_size), total_encr_size, dest_buf.vptr(work_offs), dest_buf.GetSize()-work_offs, &actual_size));
 				work_offs += actual_size;
 				total_decr_size += total_encr_size;
 			}
-			rCase.SLTEST_CHECK_Z(memcmp(dest_buf.vcptr(), pattern_buf.vcptr(), pattern_work_size));
+			rCase.SLCHECK_Z(memcmp(dest_buf.vcptr(), pattern_buf.vcptr(), pattern_work_size));
 		}
 	}
 	return ok;
@@ -4612,7 +4612,7 @@ template <typename T> void TestSlHashFunc(STestCase & rTc, T (STDCALL * hashFunc
 		const void * p_src_buf = p_item->In.GetBufC();
 		const uint8 * p_pattern_buf = static_cast<const uint8 *>(p_item->Out.GetBufC());
 		const T s1 = hashFunc(0, p_src_buf, src_size);
-		rTc.SLTEST_CHECK_Z(memcmp(&s1, p_pattern_buf, sizeof(s1)));
+		rTc.SLCHECK_Z(memcmp(&s1, p_pattern_buf, sizeof(s1)));
 		if(src_size > 10) {
 			SlHash::State st;
 			size_t total_sz = 0;
@@ -4622,8 +4622,8 @@ template <typename T> void TestSlHashFunc(STestCase & rTc, T (STDCALL * hashFunc
 				total_sz += ps;
 			}
 			T s2 = hashFunc(&st, 0, 0); // finalize
-			rTc.SLTEST_CHECK_Z(memcmp(&s2, p_pattern_buf, sizeof(s2)));
-			rTc.SLTEST_CHECK_Z(memcmp(&s1, &s2, sizeof(s2)));
+			rTc.SLCHECK_Z(memcmp(&s2, p_pattern_buf, sizeof(s2)));
+			rTc.SLCHECK_Z(memcmp(&s1, &s2, sizeof(s2)));
 		}
 	}
 }
@@ -4655,7 +4655,7 @@ SLTEST_R(BDT)
 				const size_t src_size = p_item->In.GetLen();
 				const uint32 pattern_value = PTR32C(p_item->Out.GetBufC())[0] & 0x00ffffff;
 				const void * p_src_buf = p_item->In.GetBufC();
-				SLTEST_CHECK_EQ(SlHash::CRC24(0, p_src_buf, src_size), pattern_value);
+				SLCHECK_EQ(SlHash::CRC24(0, p_src_buf, src_size), pattern_value);
 				if(src_size > 10) {
 					SlHash::State st;
 					size_t total_sz = 0;
@@ -4664,7 +4664,7 @@ SLTEST_R(BDT)
 						total_sz += ps;
 					}
 					SlHash::CRC24(&st, 0, 0); // finalize
-					SLTEST_CHECK_EQ(st.GetResult32(), pattern_value);
+					SLCHECK_EQ(st.GetResult32(), pattern_value);
 				}
 			}
 		}
@@ -4681,7 +4681,7 @@ SLTEST_R(BDT)
 				//PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
 				//PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
 				uint32 pattern_value = sbswap32(PTR32C(p_item->Out.GetBufC())[0]);
-				SLTEST_CHECK_EQ(SlHash::CRC32(0, p_src_buf, src_size), pattern_value);
+				SLCHECK_EQ(SlHash::CRC32(0, p_src_buf, src_size), pattern_value);
 				if(src_size > 10) {
 					SlHash::State st;
 					size_t total_sz = 0;
@@ -4690,7 +4690,7 @@ SLTEST_R(BDT)
 						total_sz += ps;
 					}
 					SlHash::CRC32(&st, 0, 0); // finalize
-					SLTEST_CHECK_EQ(st.GetResult32(), pattern_value);
+					SLCHECK_EQ(st.GetResult32(), pattern_value);
 				}
 			}
 		}
@@ -4707,7 +4707,7 @@ SLTEST_R(BDT)
 				//PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
 				//PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
 				uint32 pattern_value = sbswap32(PTR32C(p_item->Out.GetBufC())[0]);
-				SLTEST_CHECK_EQ(SlHash::Adler32(0, p_src_buf, src_size), pattern_value);
+				SLCHECK_EQ(SlHash::Adler32(0, p_src_buf, src_size), pattern_value);
 				if(src_size > 10) {
 					SlHash::State st;
 					size_t total_sz = 0;
@@ -4716,7 +4716,7 @@ SLTEST_R(BDT)
 						total_sz += ps;
 					}
 					SlHash::Adler32(&st, 0, 0); // finalize
-					SLTEST_CHECK_EQ(st.GetResult32(), pattern_value);
+					SLCHECK_EQ(st.GetResult32(), pattern_value);
 				}
 			}
 		}
@@ -4742,7 +4742,7 @@ SLTEST_R(BDT)
 				const uint8 * p_pattern_buf = static_cast<const uint8 *>(p_item->Out.GetBufC());
 				{
 					binary128 md5 = SlHash::Md5(0, p_src_buf, src_size);
-					SLTEST_CHECK_Z(memcmp(&md5, p_pattern_buf, sizeof(md5)));
+					SLCHECK_Z(memcmp(&md5, p_pattern_buf, sizeof(md5)));
 				}
 				if(src_size > 10) {
 					SlHash::State st;
@@ -4753,7 +4753,7 @@ SLTEST_R(BDT)
 						total_sz += ps;
 					}
 					binary128 md5 = SlHash::Md5(&st, 0, 0); // finalize
-					SLTEST_CHECK_Z(memcmp(&md5, p_pattern_buf, sizeof(md5)));
+					SLCHECK_Z(memcmp(&md5, p_pattern_buf, sizeof(md5)));
 				}
 			}
 		}*/
@@ -4769,7 +4769,7 @@ SLTEST_R(BDT)
 				const uint8 * p_pattern_buf = static_cast<const uint8 *>(p_item->Out.GetBufC());
 				{
 					binary160 s1 = SlHash::Sha1(0, p_src_buf, src_size);
-					SLTEST_CHECK_Z(memcmp(&s1, p_pattern_buf, 20));
+					SLCHECK_Z(memcmp(&s1, p_pattern_buf, 20));
 				}
 				if(src_size > 10) {
 					SlHash::State st;
@@ -4780,7 +4780,7 @@ SLTEST_R(BDT)
 						total_sz += ps;
 					}
 					binary160 s1 = SlHash::Sha1(&st, 0, 0); // finalize
-					SLTEST_CHECK_Z(memcmp(&s1, p_pattern_buf, 20));
+					SLCHECK_Z(memcmp(&s1, p_pattern_buf, 20));
 				}
 			}
 		}*/
@@ -4815,9 +4815,9 @@ SLTEST_R(BDT)
 				{
 					//char hex_outp[256];
 					//InnerBlock::digest_to_hex(reinterpret_cast<const uint8 *>(&s1), hex_outp);
-					//SLTEST_CHECK_NZ(sstreq(jbig2dec_test_results[i], hex_outp));
+					//SLCHECK_NZ(sstreq(jbig2dec_test_results[i], hex_outp));
 				}
-				SLTEST_CHECK_NZ(hex.IsEq(jbig2dec_test_results[i]));
+				SLCHECK_NZ(hex.IsEq(jbig2dec_test_results[i]));
 			}
 		}
 		{
@@ -4835,7 +4835,7 @@ SLTEST_R(BDT)
 					__lzma_sha256_init(&lzmas);
 					__lzma_sha256_update(PTR8C(bc.PtrC()), bc.Len(), &lzmas);
 					__lzma_sha256_finish(&lzmas);
-					SLTEST_CHECK_Z(memcmp(&h1, &lzmas.buffer, sizeof(h1)));
+					SLCHECK_Z(memcmp(&h1, &lzmas.buffer, sizeof(h1)));
 				}
 			}
 		}
@@ -4849,7 +4849,7 @@ SLTEST_R(BDT)
 				const void * p_src_buf = p_item->In.GetBufC();
 				const uint8 * p_pattern_buf = static_cast<const uint8 *>(p_item->Out.GetBufC());
 				const binary256 s1 = SlHash::Sha256(0, p_src_buf, src_size);
-				SLTEST_CHECK_Z(memcmp(&s1, p_pattern_buf, sizeof(s1)));
+				SLCHECK_Z(memcmp(&s1, p_pattern_buf, sizeof(s1)));
 				if(src_size > 10) {
 					SlHash::State st;
 					size_t total_sz = 0;
@@ -4859,8 +4859,8 @@ SLTEST_R(BDT)
 						total_sz += ps;
 					}
 					binary256 s2 = SlHash::Sha256(&st, 0, 0); // finalize
-					SLTEST_CHECK_Z(memcmp(&s2, p_pattern_buf, sizeof(s2)));
-					SLTEST_CHECK_Z(memcmp(&s1, &s2, sizeof(s2)));
+					SLCHECK_Z(memcmp(&s2, p_pattern_buf, sizeof(s2)));
+					SLCHECK_Z(memcmp(&s1, &s2, sizeof(s2)));
 				}
 			}
 		}*/
@@ -4874,7 +4874,7 @@ SLTEST_R(BDT)
 				const void * p_src_buf = p_item->In.GetBufC();
 				const uint8 * p_pattern_buf = static_cast<const uint8 *>(p_item->Out.GetBufC());
 				const binary512 s1 = SlHash::Sha512(0, p_src_buf, src_size);
-				SLTEST_CHECK_Z(memcmp(&s1, p_pattern_buf, sizeof(s1)));
+				SLCHECK_Z(memcmp(&s1, p_pattern_buf, sizeof(s1)));
 				if(src_size > 10) {
 					SlHash::State st;
 					size_t total_sz = 0;
@@ -4884,8 +4884,8 @@ SLTEST_R(BDT)
 						total_sz += ps;
 					}
 					binary512 s2 = SlHash::Sha512(&st, 0, 0); // finalize
-					SLTEST_CHECK_Z(memcmp(&s2, p_pattern_buf, sizeof(s2)));
-					SLTEST_CHECK_Z(memcmp(&s1, &s2, sizeof(s2)));
+					SLCHECK_Z(memcmp(&s2, p_pattern_buf, sizeof(s2)));
+					SLCHECK_Z(memcmp(&s1, &s2, sizeof(s2)));
 				}
 			}
 		}*/
@@ -4894,13 +4894,13 @@ SLTEST_R(BDT)
 		// CRC32
 		SString in_file_name(MakeInputFilePath("crc32.vec"));
 		TSCollection <BdtTestItem> data_set;
-		THROW(SLTEST_CHECK_NZ(ReadBdtTestData(in_file_name, "CRC32", data_set)));
+		THROW(SLCHECK_NZ(ReadBdtTestData(in_file_name, "CRC32", data_set)));
 		{
 			SBdtFunct fu(SBdtFunct::Crc32);
 			for(uint i = 0; i < data_set.getCount(); i++) {
 				BdtTestItem * p_item = data_set.at(i);
 				if(p_item) {
-					SLTEST_CHECK_EQ(p_item->Out.GetLen(), sizeof(uint32));
+					SLCHECK_EQ(p_item->Out.GetLen(), sizeof(uint32));
 					uint32 pattern_value = PTR32(p_item->Out.GetBuf())[0];
 					PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
 					PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
@@ -4910,13 +4910,13 @@ SLTEST_R(BDT)
 						uint32 result;
 						size_t out_offs = 0;
 						size_t _o;
-						THROW(SLTEST_CHECK_NZ(fu.Init()));
-						THROW(SLTEST_CHECK_NZ(fu.Update(p_item->In.GetBuf(), p_item->In.GetLen(), &result, sizeof(result), &_o)));
+						THROW(SLCHECK_NZ(fu.Init()));
+						THROW(SLCHECK_NZ(fu.Update(p_item->In.GetBuf(), p_item->In.GetLen(), &result, sizeof(result), &_o)));
 						out_offs += _o;
-						THROW(SLTEST_CHECK_NZ(fu.Finish(&result, sizeof(result), &_o)));
+						THROW(SLCHECK_NZ(fu.Finish(&result, sizeof(result), &_o)));
 						out_offs += _o;
-						THROW(SLTEST_CHECK_EQ(out_offs, sizeof(result)));
-						SLTEST_CHECK_Z(memcmp(&result, &pattern_value, p_item->Out.GetLen()));
+						THROW(SLCHECK_EQ(out_offs, sizeof(result)));
+						SLCHECK_Z(memcmp(&result, &pattern_value, p_item->Out.GetLen()));
 					}
 					{
 						//
@@ -4924,7 +4924,7 @@ SLTEST_R(BDT)
 						//
 						SCRC32 cc;
 						uint32 result = cc.Calc(0, (const uint8 *)p_item->In.GetBuf(), p_item->In.GetLen());
-						SLTEST_CHECK_Z(memcmp(&result, &pattern_value, sizeof(result)));
+						SLCHECK_Z(memcmp(&result, &pattern_value, sizeof(result)));
 					}
 #ifdef TEST_ZLIB_IMPLEMENTATION
 					{
@@ -4932,7 +4932,7 @@ SLTEST_R(BDT)
 						// Проверка реализации zlib
 						//
 						uint32 result = crc32_z(0, (const uint8 *)p_item->In.GetBuf(), p_item->In.GetLen());
-						SLTEST_CHECK_Z(memcmp(&result, &pattern_value, sizeof(result)));
+						SLCHECK_Z(memcmp(&result, &pattern_value, sizeof(result)));
 					}
 #endif
 				}
@@ -4943,13 +4943,13 @@ SLTEST_R(BDT)
 		// ADLER32
 		SString in_file_name(MakeInputFilePath("adler32.vec"));
 		TSCollection <BdtTestItem> data_set;
-		THROW(SLTEST_CHECK_NZ(ReadBdtTestData(in_file_name, "Adler32", data_set)));
+		THROW(SLCHECK_NZ(ReadBdtTestData(in_file_name, "Adler32", data_set)));
 		{
 			SBdtFunct fu(SBdtFunct::Adler32);
 			for(uint i = 0; i < data_set.getCount(); i++) {
 				BdtTestItem * p_item = data_set.at(i);
 				if(p_item) {
-					SLTEST_CHECK_EQ(p_item->Out.GetLen(), sizeof(uint32));
+					SLCHECK_EQ(p_item->Out.GetLen(), sizeof(uint32));
 					uint32 pattern_value = PTR32(p_item->Out.GetBuf())[0];
 					PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
 					PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
@@ -4959,13 +4959,13 @@ SLTEST_R(BDT)
 						uint32 result;
 						size_t out_offs = 0;
 						size_t _o;
-						THROW(SLTEST_CHECK_NZ(fu.Init()));
-						THROW(SLTEST_CHECK_NZ(fu.Update(p_item->In.GetBuf(), p_item->In.GetLen(), &result, sizeof(result), &_o)));
+						THROW(SLCHECK_NZ(fu.Init()));
+						THROW(SLCHECK_NZ(fu.Update(p_item->In.GetBuf(), p_item->In.GetLen(), &result, sizeof(result), &_o)));
 						out_offs += _o;
-						THROW(SLTEST_CHECK_NZ(fu.Finish(&result, sizeof(result), &_o)));
+						THROW(SLCHECK_NZ(fu.Finish(&result, sizeof(result), &_o)));
 						out_offs += _o;
-						THROW(SLTEST_CHECK_EQ(out_offs, sizeof(result)));
-						SLTEST_CHECK_Z(memcmp(&result, &pattern_value, p_item->Out.GetLen()));
+						THROW(SLCHECK_EQ(out_offs, sizeof(result)));
+						SLCHECK_Z(memcmp(&result, &pattern_value, p_item->Out.GetLen()));
 					}
 #ifdef TEST_ZLIB_IMPLEMENTATION
 					{
@@ -4974,7 +4974,7 @@ SLTEST_R(BDT)
 						//
 						uint32 result = adler32_z(0, 0, 0);
 						result = adler32_z(result, (const uint8 *)p_item->In.GetBuf(), p_item->In.GetLen());
-						SLTEST_CHECK_Z(memcmp(&result, &pattern_value, sizeof(result)));
+						SLCHECK_Z(memcmp(&result, &pattern_value, sizeof(result)));
 					}
 #endif
 				}
@@ -4986,15 +4986,15 @@ SLTEST_R(BDT)
 		// IDEA
 		SString in_file_name = MakeInputFilePath("idea.vec");
 		TSCollection <BdtTestItem> data_set;
-		THROW(SLTEST_CHECK_NZ(ReadBdtTestData(in_file_name, "IDEA", data_set)));
+		THROW(SLCHECK_NZ(ReadBdtTestData(in_file_name, "IDEA", data_set)));
 		{
 			SBdtFunct fu_direct(SBdtFunct::IdeaCrypt);
 			SBdtFunct fu_inverse(SBdtFunct::IdeaDecrypt);
 			for(uint i = 0; i < data_set.getCount(); i++) {
 				BdtTestItem * p_item = data_set.at(i);
 				if(p_item && (p_item->Flags & p_item->fIn) && (p_item->Flags & p_item->fOut) && (p_item->Flags & p_item->fKey)) {
-					THROW(SLTEST_CHECK_EQ(p_item->Key.GetLen(), 16));
-					THROW(SLTEST_CHECK_EQ(p_item->In.GetLen(), p_item->Out.GetLen()));
+					THROW(SLCHECK_EQ(p_item->Key.GetLen(), 16));
+					THROW(SLCHECK_EQ(p_item->In.GetLen(), p_item->Out.GetLen()));
 					//
 					{
 						STempBuffer result(MAX(p_item->Out.GetLen(), 1024)+16);
@@ -5002,34 +5002,34 @@ SLTEST_R(BDT)
 						size_t out_offs = 0;
 						size_t _o;
 						size_t crypt_size = 0;
-						THROW(SLTEST_CHECK_NZ(result.IsValid()));
-						THROW(SLTEST_CHECK_NZ(result_decrypt.IsValid()));
+						THROW(SLCHECK_NZ(result.IsValid()));
+						THROW(SLCHECK_NZ(result_decrypt.IsValid()));
 						memzero(result, result.GetSize());
-						THROW(SLTEST_CHECK_NZ(fu_direct.SetParam(SBdtFunct::paramKey, p_item->Key.GetBuf(), p_item->Key.GetLen())));
-						THROW(SLTEST_CHECK_NZ(fu_direct.Init()));
-						THROW(SLTEST_CHECK_NZ(fu_direct.Update(p_item->In.GetBuf(), p_item->In.GetLen(), result, result.GetSize(), &_o)));
+						THROW(SLCHECK_NZ(fu_direct.SetParam(SBdtFunct::paramKey, p_item->Key.GetBuf(), p_item->Key.GetLen())));
+						THROW(SLCHECK_NZ(fu_direct.Init()));
+						THROW(SLCHECK_NZ(fu_direct.Update(p_item->In.GetBuf(), p_item->In.GetLen(), result, result.GetSize(), &_o)));
 						out_offs += _o;
-						THROW(SLTEST_CHECK_NZ(fu_direct.Finish(result+out_offs, result.GetSize()-out_offs, &_o)));
+						THROW(SLCHECK_NZ(fu_direct.Finish(result+out_offs, result.GetSize()-out_offs, &_o)));
 						out_offs += _o;
 						crypt_size = out_offs;
-						//THROW(SLTEST_CHECK_EQ(out_offs, p_item->In.GetLen()));
+						//THROW(SLCHECK_EQ(out_offs, p_item->In.GetLen()));
 						{
 							int   lr = 0;
-							SLTEST_CHECK_Z(lr = memcmp(result, p_item->Out.GetBuf(), p_item->Out.GetLen()));
-							SLTEST_CHECK_Z(lr);
+							SLCHECK_Z(lr = memcmp(result, p_item->Out.GetBuf(), p_item->Out.GetLen()));
+							SLCHECK_Z(lr);
 						}
 						//
 						out_offs = 0;
 						memzero(result_decrypt, result.GetSize());
-						THROW(SLTEST_CHECK_NZ(fu_inverse.SetParam(SBdtFunct::paramKey, p_item->Key.GetBuf(), p_item->Key.GetLen())));
-						THROW(SLTEST_CHECK_NZ(fu_inverse.Init()));
-						THROW(SLTEST_CHECK_NZ(fu_inverse.Update(result, crypt_size, result_decrypt, result_decrypt.GetSize(), &_o)));
+						THROW(SLCHECK_NZ(fu_inverse.SetParam(SBdtFunct::paramKey, p_item->Key.GetBuf(), p_item->Key.GetLen())));
+						THROW(SLCHECK_NZ(fu_inverse.Init()));
+						THROW(SLCHECK_NZ(fu_inverse.Update(result, crypt_size, result_decrypt, result_decrypt.GetSize(), &_o)));
 						out_offs += _o;
 						// Для финализации здесь надо подложить последний блок
-						THROW(SLTEST_CHECK_NZ(fu_inverse.Finish(result_decrypt+out_offs-_o, _o, &_o)));
+						THROW(SLCHECK_NZ(fu_inverse.Finish(result_decrypt+out_offs-_o, _o, &_o)));
 						out_offs += _o;
-						//THROW(SLTEST_CHECK_EQ(out_offs, p_item->In.GetLen()));
-						SLTEST_CHECK_Z(memcmp(result_decrypt, p_item->In.GetBuf(), p_item->In.GetLen()));
+						//THROW(SLCHECK_EQ(out_offs, p_item->In.GetLen()));
+						SLCHECK_Z(memcmp(result_decrypt, p_item->In.GetBuf(), p_item->In.GetLen()));
 					}
 				}
 			}
@@ -5046,20 +5046,20 @@ SLTEST_R(CalcCheckDigit)
 	SString in_file_name(MakeInputFilePath("CalcCheckDigit.txt"));
 	SString line_buf, left, right;
 	SFile f_inp;
-	THROW(SLTEST_CHECK_NZ(f_inp.Open(in_file_name, SFile::mRead)));
+	THROW(SLCHECK_NZ(f_inp.Open(in_file_name, SFile::mRead)));
 	while(f_inp.ReadLine(line_buf, SFile::rlfChomp)) {
 		if(line_buf.Divide(':', left, right) > 0) {
 			right.Strip();
 			if(left.IsEqiAscii("upc") || left.IsEqiAscii("ean")) {
-				SLTEST_CHECK_NZ(isdec(SCalcCheckDigit(SCHKDIGALG_BARCODE, right, right.Len()-1)));
-				SLTEST_CHECK_EQ(SCalcCheckDigit(SCHKDIGALG_BARCODE|SCHKDIGALG_TEST, right, right.Len()), 1);
+				SLCHECK_NZ(isdec(SCalcCheckDigit(SCHKDIGALG_BARCODE, right, right.Len()-1)));
+				SLCHECK_EQ(SCalcCheckDigit(SCHKDIGALG_BARCODE|SCHKDIGALG_TEST, right, right.Len()), 1);
 			}
 			else if(left.IsEqiAscii("inn")) {
-				SLTEST_CHECK_EQ(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, right, right.Len()), 1);
+				SLCHECK_EQ(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, right, right.Len()), 1);
 			}
 			else if(left.IsEqiAscii("luhn")) {
-				SLTEST_CHECK_NZ(isdec(SCalcCheckDigit(SCHKDIGALG_LUHN, right, right.Len()-1)));
-				SLTEST_CHECK_EQ(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, right, right.Len()), 1);
+				SLCHECK_NZ(isdec(SCalcCheckDigit(SCHKDIGALG_LUHN, right, right.Len()-1)));
+				SLCHECK_EQ(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, right, right.Len()), 1);
 			}
 		}
 	}
@@ -5112,44 +5112,44 @@ public:
 	{
 		XXH32_state_t state;
 		//BMK_checkResult32(XXH32(sequence, len, seed), Nresult);
-		R_Case.SLTEST_CHECK_EQ(XXH32(sequence, len, seed), Nresult);
+		R_Case.SLCHECK_EQ(XXH32(sequence, len, seed), Nresult);
 		XXH32_reset(&state, seed);
 		XXH32_update(&state, sequence, len);
 		//BMK_checkResult32(XXH32_digest(&state), Nresult);
-		R_Case.SLTEST_CHECK_EQ(XXH32_digest(&state), Nresult);
+		R_Case.SLCHECK_EQ(XXH32_digest(&state), Nresult);
 		XXH32_reset(&state, seed);
 		for(size_t pos = 0; pos < len; pos++)
 			XXH32_update(&state, ((const char *)sequence)+pos, 1);
 		//BMK_checkResult32(XXH32_digest(&state), Nresult);
-		R_Case.SLTEST_CHECK_EQ(XXH32_digest(&state), Nresult);
+		R_Case.SLCHECK_EQ(XXH32_digest(&state), Nresult);
 	}
 	void BMK_testXXH64(const void * data, size_t len, uint64 seed, uint64 Nresult)
 	{
 		XXH64_state_t state;
 		//BMK_checkResult64(XXH64(data, len, seed), Nresult);
-		R_Case.SLTEST_CHECK_EQ(XXH64(data, len, seed), Nresult);
+		R_Case.SLCHECK_EQ(XXH64(data, len, seed), Nresult);
 		XXH64_reset(&state, seed);
 		XXH64_update(&state, data, len);
 		//BMK_checkResult64(XXH64_digest(&state), Nresult);
-		R_Case.SLTEST_CHECK_EQ(XXH64(data, len, seed), Nresult);
+		R_Case.SLCHECK_EQ(XXH64(data, len, seed), Nresult);
 		XXH64_reset(&state, seed);
 		for(size_t pos = 0; pos < len; pos++)
 			XXH64_update(&state, ((const char *)data)+pos, 1);
 		//BMK_checkResult64(XXH64_digest(&state), Nresult);
-		R_Case.SLTEST_CHECK_EQ(XXH64_digest(&state), Nresult);
+		R_Case.SLCHECK_EQ(XXH64_digest(&state), Nresult);
 	}
 	void BMK_testXXH3(const void * data, size_t len, uint64 seed, uint64 Nresult)
 	{
 		{   
 			uint64 const Dresult = XXH3_64bits_withSeed(data, len, seed);
 			//BMK_checkResult64(Dresult, Nresult);
-			R_Case.SLTEST_CHECK_EQ(Dresult, Nresult);
+			R_Case.SLCHECK_EQ(Dresult, Nresult);
 		}
 		// check that the no-seed variant produces same result as seed==0 
 		if(seed == 0) {
 			uint64 const Dresult = XXH3_64bits(data, len);
 			//BMK_checkResult64(Dresult, Nresult);
-			R_Case.SLTEST_CHECK_EQ(Dresult, Nresult);
+			R_Case.SLCHECK_EQ(Dresult, Nresult);
 		}
 		// streaming API test 
 		{   
@@ -5158,14 +5158,14 @@ public:
 			XXH3_64bits_reset_withSeed(&state, seed);
 			XXH3_64bits_update(&state, data, len);
 			//BMK_checkResult64(XXH3_64bits_digest(&state), Nresult);
-			R_Case.SLTEST_CHECK_EQ(XXH3_64bits_digest(&state), Nresult);
+			R_Case.SLCHECK_EQ(XXH3_64bits_digest(&state), Nresult);
 			if(len > 3) {
 				// 2 ingestions 
 				XXH3_64bits_reset_withSeed(&state, seed);
 				XXH3_64bits_update(&state, data, 3);
 				XXH3_64bits_update(&state, (const char *)data+3, len-3);
 				//BMK_checkResult64(XXH3_64bits_digest(&state), Nresult);
-				R_Case.SLTEST_CHECK_EQ(XXH3_64bits_digest(&state), Nresult);
+				R_Case.SLCHECK_EQ(XXH3_64bits_digest(&state), Nresult);
 			}
 			// byte by byte ingestion 
 			{   
@@ -5173,7 +5173,7 @@ public:
 				for(size_t pos = 0; pos < len; pos++)
 					XXH3_64bits_update(&state, ((const char *)data)+pos, 1);
 				//BMK_checkResult64(XXH3_64bits_digest(&state), Nresult);
-				R_Case.SLTEST_CHECK_EQ(XXH3_64bits_digest(&state), Nresult);
+				R_Case.SLCHECK_EQ(XXH3_64bits_digest(&state), Nresult);
 			}   
 		}
 	}
@@ -5182,7 +5182,7 @@ public:
 		{   
 			uint64 const Dresult = XXH3_64bits_withSecret(data, len, secret, secretSize);
 			//BMK_checkResult64(Dresult, Nresult);
-			R_Case.SLTEST_CHECK_EQ(Dresult, Nresult);
+			R_Case.SLCHECK_EQ(Dresult, Nresult);
 		}
 		// streaming API test 
 		{   
@@ -5190,14 +5190,14 @@ public:
 			XXH3_64bits_reset_withSecret(&state, secret, secretSize);
 			XXH3_64bits_update(&state, data, len);
 			//BMK_checkResult64(XXH3_64bits_digest(&state), Nresult);
-			R_Case.SLTEST_CHECK_EQ(XXH3_64bits_digest(&state), Nresult);
+			R_Case.SLCHECK_EQ(XXH3_64bits_digest(&state), Nresult);
 			// byte by byte ingestion 
 			{   
 				XXH3_64bits_reset_withSecret(&state, secret, secretSize);
 				for(size_t pos = 0; pos<len; pos++)
 					XXH3_64bits_update(&state, ((const char *)data)+pos, 1);
 				//BMK_checkResult64(XXH3_64bits_digest(&state), Nresult);
-				R_Case.SLTEST_CHECK_EQ(XXH3_64bits_digest(&state), Nresult);
+				R_Case.SLCHECK_EQ(XXH3_64bits_digest(&state), Nresult);
 			}   
 		}
 	}
@@ -5206,19 +5206,19 @@ public:
 		{   
 			XXH128_hash_t const Dresult = XXH3_128bits_withSeed(data, len, seed);
 			//BMK_checkResult128(Dresult, Nresult);
-			R_Case.SLTEST_CHECK_EQMEM(&Dresult, &Nresult, 16);
+			R_Case.SLCHECK_EQMEM(&Dresult, &Nresult, 16);
 		}
 		// check that XXH128() is identical to XXH3_128bits_withSeed() 
 		{   
 			XXH128_hash_t const Dresult2 = XXH128(data, len, seed);
 			//BMK_checkResult128(Dresult2, Nresult);
-			R_Case.SLTEST_CHECK_EQMEM(&Dresult2, &Nresult, 16);
+			R_Case.SLCHECK_EQMEM(&Dresult2, &Nresult, 16);
 		}
 		// check that the no-seed variant produces same result as seed==0 
 		if(seed == 0) {
 			XXH128_hash_t const Dresult = XXH3_128bits(data, len);
 			//BMK_checkResult128(Dresult, Nresult);
-			R_Case.SLTEST_CHECK_EQMEM(&Dresult, &Nresult, 16);
+			R_Case.SLCHECK_EQMEM(&Dresult, &Nresult, 16);
 		}
 		// streaming API test 
 		{   
@@ -5229,7 +5229,7 @@ public:
 			//BMK_checkResult128(XXH3_128bits_digest(&state), Nresult);
 			{
 				XXH128_hash_t digest128 = XXH3_128bits_digest(&state);
-				R_Case.SLTEST_CHECK_EQMEM(&digest128, &Nresult, 16);
+				R_Case.SLCHECK_EQMEM(&digest128, &Nresult, 16);
 			}
 			if(len > 3) {
 				// 2 ingestions 
@@ -5239,7 +5239,7 @@ public:
 				//BMK_checkResult128(XXH3_128bits_digest(&state), Nresult);
 				{
 					XXH128_hash_t digest128 = XXH3_128bits_digest(&state);
-					R_Case.SLTEST_CHECK_EQMEM(&digest128, &Nresult, 16);
+					R_Case.SLCHECK_EQMEM(&digest128, &Nresult, 16);
 				}
 			}
 			// byte by byte ingestion 
@@ -5250,7 +5250,7 @@ public:
 				//BMK_checkResult128(XXH3_128bits_digest(&state), Nresult);
 				{
 					XXH128_hash_t digest128 = XXH3_128bits_digest(&state);
-					R_Case.SLTEST_CHECK_EQMEM(&digest128, &Nresult, 16);
+					R_Case.SLCHECK_EQMEM(&digest128, &Nresult, 16);
 				}
 			}   
 		}
@@ -5567,12 +5567,12 @@ SLTEST_R(HashFunction)
 							tail_size -= additive_chunk;
 						}
 						val_additive = _c.Calc(val_additive, ((const uint8 *)(const char *)bin_buf)+real_bin_size-tail_size, tail_size);
-						SLTEST_CHECK_EQ(val_additive, val);
+						SLCHECK_EQ(val_additive, val);
 					}
 					THROW(bin_buf.Alloc(NZOR(val_buf.Len(), 1) * 2));
 					THROW(val_buf.DecodeHex(1, bin_buf, bin_buf.GetSize(), &real_bin_size));
-					THROW(SLTEST_CHECK_EQ(real_bin_size, 4U));
-					SLTEST_CHECK_EQ(*reinterpret_cast<const ulong *>(bin_buf.cptr()), val);
+					THROW(SLCHECK_EQ(real_bin_size, 4U));
+					SLCHECK_EQ(*reinterpret_cast<const ulong *>(bin_buf.cptr()), val);
 				}
 			}
 		}
@@ -5581,27 +5581,27 @@ SLTEST_R(HashFunction)
 	const size_t key_size = sstrlen(p_key);
 	uint32 h;
 	//SString msg;
-	SLTEST_CHECK_EQ(h = SlHash::RS(p_key, key_size), 4097835502U);
+	SLCHECK_EQ(h = SlHash::RS(p_key, key_size), 4097835502U);
 	//SetInfo(msg.Z().CatEq("RSHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::JS(p_key, key_size), 1651003062U);
+	SLCHECK_EQ(h = SlHash::JS(p_key, key_size), 1651003062U);
 	//SetInfo(msg.Z().CatEq("JSHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::PJW(p_key, key_size), 126631744U);
+	SLCHECK_EQ(h = SlHash::PJW(p_key, key_size), 126631744U);
 	//SetInfo(msg.Z().CatEq("PJWHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::ELF(p_key, key_size), 126631744U);
+	SLCHECK_EQ(h = SlHash::ELF(p_key, key_size), 126631744U);
 	//SetInfo(msg.Z().CatEq("ELFHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::BKDR(p_key, key_size), 3153586616U);
+	SLCHECK_EQ(h = SlHash::BKDR(p_key, key_size), 3153586616U);
 	//SetInfo(msg.Z().CatEq("BKDRHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::SDBM(p_key, key_size), 3449571336U);
+	SLCHECK_EQ(h = SlHash::SDBM(p_key, key_size), 3449571336U);
 	//SetInfo(msg.Z().CatEq("SDBMHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::DJB(p_key, key_size), 729241521U);
+	SLCHECK_EQ(h = SlHash::DJB(p_key, key_size), 729241521U);
 	//SetInfo(msg.Z().CatEq("DJBHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::DEK(p_key, key_size), 2923964919U);
+	SLCHECK_EQ(h = SlHash::DEK(p_key, key_size), 2923964919U);
 	//SetInfo(msg.Z().CatEq("DEKHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::BP(p_key, key_size), 1726880944U);
+	SLCHECK_EQ(h = SlHash::BP(p_key, key_size), 1726880944U);
 	//SetInfo(msg.Z().CatEq("BPHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::FNV(p_key, key_size), 3243095106U);
+	SLCHECK_EQ(h = SlHash::FNV(p_key, key_size), 3243095106U);
 	//SetInfo(msg.Z().CatEq("FNVHash", h), -1);
-	SLTEST_CHECK_EQ(h = SlHash::AP(p_key, key_size), 882643939U);
+	SLCHECK_EQ(h = SlHash::AP(p_key, key_size), 882643939U);
 	//SetInfo(msg.Z().CatEq("APHash", h), -1);
 	{
 		XXHashTest xxhash_test(*this);
@@ -5658,13 +5658,13 @@ SLTEST_R(HashFunction)
 		// check that BobJencHash_Little2 and BobJencHash_Little produce the same results
 		//
 		i = 47; j = 0;
-		SLTEST_CHECK_EQ((BobJencHash_Little2(q, sizeof(q), &i, &j), i), BobJencHash_Little(q, sizeof(q), 47));
+		SLCHECK_EQ((BobJencHash_Little2(q, sizeof(q), &i, &j), i), BobJencHash_Little(q, sizeof(q), 47));
 		//
 		// check that hashword2 and BobJencHash_Word produce the same results
 		//
 		len = 0xdeadbeef;
 		i = 47, j = 0;
-		SLTEST_CHECK_EQ((BobJencHash_Word2(&len, 1, &i, &j), i), BobJencHash_Word(&len, 1, 47));
+		SLCHECK_EQ((BobJencHash_Word2(&len, 1, &i, &j), i), BobJencHash_Word(&len, 1, 47));
 		//
 		// check BobJencHash_Little doesn't read before or after the ends of the string
 		//
@@ -5679,8 +5679,8 @@ SLTEST_R(HashFunction)
 				ref = BobJencHash_Little(b, len, (uint32)1);
 				*(b+i) = (uint8)~0;
 				*(b-1) = (uint8)~0;
-				SLTEST_CHECK_EQ(BobJencHash_Little(b, len, (uint32)1), ref);
-				SLTEST_CHECK_EQ(BobJencHash_Little(b, len, (uint32)1), ref);
+				SLCHECK_EQ(BobJencHash_Little(b, len, (uint32)1), ref);
+				SLCHECK_EQ(BobJencHash_Little(b, len, (uint32)1), ref);
 			}
 		}
 		{
@@ -5703,7 +5703,7 @@ SLTEST_R(HashFunction)
 			//
 			for(i = 0; i < cnt; i++) {
 				for(j = i+1; j < cnt; j++) {
-					SLTEST_CHECK_NZ(hash_list[i] - hash_list[j]);
+					SLCHECK_NZ(hash_list[i] - hash_list[j]);
 				}
 			}
 		}
@@ -5714,50 +5714,50 @@ SLTEST_R(HashFunction)
 			const char * p_data = "The procedure mandelbrot determines whether a point [x, y] in the complex domain is part of the famous Mandelbrot set by determining whether it leaves a certain radius after a given number of iterations";
 			size_t len = sstrlen(p_data);
 			len = (len >> 2) << 2; // Усекаем размер до кратного 4.
-			SLTEST_CHECK_EQ(BobJencHash_Little(p_data, len, 0xdeadbeef), BobJencHash_Word((uint32 *)p_data, len / 4, 0xdeadbeef));
+			SLCHECK_EQ(BobJencHash_Little(p_data, len, 0xdeadbeef), BobJencHash_Word((uint32 *)p_data, len / 4, 0xdeadbeef));
 		}
 		{
 			uint32 b = 0;
 			uint32 c = 0;
 			BobJencHash_Little2("", 0, &c, &b);
-			SLTEST_CHECK_EQ(c, 0xdeadbeefU);
-			SLTEST_CHECK_EQ(b, 0xdeadbeefU);
+			SLCHECK_EQ(c, 0xdeadbeefU);
+			SLCHECK_EQ(b, 0xdeadbeefU);
 			b = 0xdeadbeef;
 			c = 0;
 			BobJencHash_Little2("", 0, &c, &b);
-			SLTEST_CHECK_EQ(c, 0xbd5b7ddeU);
-			SLTEST_CHECK_EQ(b, 0xdeadbeefU);
+			SLCHECK_EQ(c, 0xbd5b7ddeU);
+			SLCHECK_EQ(b, 0xdeadbeefU);
 			b = 0xdeadbeef;
 			c = 0xdeadbeef;
 			BobJencHash_Little2("", 0, &c, &b);
-			SLTEST_CHECK_EQ(c, 0x9c093ccdU);
-			SLTEST_CHECK_EQ(b, 0xbd5b7ddeU);
+			SLCHECK_EQ(c, 0x9c093ccdU);
+			SLCHECK_EQ(b, 0xbd5b7ddeU);
 			b = 0;
 			c = 0;
 			BobJencHash_Little2("Four score and seven years ago", 30, &c, &b);
-			SLTEST_CHECK_EQ(c, 0x17770551U);
-			SLTEST_CHECK_EQ(b, 0xce7226e6U);
+			SLCHECK_EQ(c, 0x17770551U);
+			SLCHECK_EQ(b, 0xce7226e6U);
 			b = 1;
 			c = 0;
 			BobJencHash_Little2("Four score and seven years ago", 30, &c, &b);
-			SLTEST_CHECK_EQ(c, 0xe3607caeU);
-			SLTEST_CHECK_EQ(b, 0xbd371de4U);
+			SLCHECK_EQ(c, 0xe3607caeU);
+			SLCHECK_EQ(b, 0xbd371de4U);
 			b = 0;
 			c = 1;
 			BobJencHash_Little2("Four score and seven years ago", 30, &c, &b);
-			SLTEST_CHECK_EQ(c, 0xcd628161U);
-			SLTEST_CHECK_EQ(b, 0x6cbea4b3U);
-			SLTEST_CHECK_EQ(BobJencHash_Little("Four score and seven years ago", 30, 0), 0x17770551U);
-			SLTEST_CHECK_EQ(BobJencHash_Little("Four score and seven years ago", 30, 1), 0xcd628161U);
+			SLCHECK_EQ(c, 0xcd628161U);
+			SLCHECK_EQ(b, 0x6cbea4b3U);
+			SLCHECK_EQ(BobJencHash_Little("Four score and seven years ago", 30, 0), 0x17770551U);
+			SLCHECK_EQ(BobJencHash_Little("Four score and seven years ago", 30, 1), 0xcd628161U);
 		}
 	}
 	{
 		const char * p_data = "Hello, world!";
-		SLTEST_CHECK_EQ(SlEqualityTest_ngx_murmur_hash2(reinterpret_cast<const uchar *>(p_data), sstrlen(p_data)), SlHash::Murmur2_32(p_data, sstrlen(p_data), 0));
+		SLCHECK_EQ(SlEqualityTest_ngx_murmur_hash2(reinterpret_cast<const uchar *>(p_data), sstrlen(p_data)), SlHash::Murmur2_32(p_data, sstrlen(p_data), 0));
 		p_data = "xxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-		SLTEST_CHECK_EQ(SlEqualityTest_ngx_murmur_hash2(reinterpret_cast<const uchar *>(p_data), sstrlen(p_data)), SlHash::Murmur2_32(p_data, sstrlen(p_data), 0));
+		SLCHECK_EQ(SlEqualityTest_ngx_murmur_hash2(reinterpret_cast<const uchar *>(p_data), sstrlen(p_data)), SlHash::Murmur2_32(p_data, sstrlen(p_data), 0));
 		p_data = "";
-		SLTEST_CHECK_EQ(SlEqualityTest_ngx_murmur_hash2(reinterpret_cast<const uchar *>(p_data), sstrlen(p_data)), SlHash::Murmur2_32(p_data, sstrlen(p_data), 0));
+		SLCHECK_EQ(SlEqualityTest_ngx_murmur_hash2(reinterpret_cast<const uchar *>(p_data), sstrlen(p_data)), SlHash::Murmur2_32(p_data, sstrlen(p_data), 0));
 	}
 	{
 		//
@@ -5765,67 +5765,67 @@ SLTEST_R(HashFunction)
 		//
 		const char * p_data = "Hello, world!";
 		uint32 rh;
-		SLTEST_CHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 1234U)), 0xfaf6cdb3U);
-		SLTEST_CHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 1234), rh);
+		SLCHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 1234U)), 0xfaf6cdb3U);
+		SLCHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 1234), rh);
 
-		SLTEST_CHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 4321U)), 0xbf505788U);
-		SLTEST_CHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 4321), rh);
+		SLCHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 4321U)), 0xbf505788U);
+		SLCHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 4321), rh);
 		p_data = "xxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-		SLTEST_CHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 1234U)), 0x8905ac28U);
-		SLTEST_CHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 1234), rh);
+		SLCHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 1234U)), 0x8905ac28U);
+		SLCHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 1234), rh);
 		p_data = "";
-		SLTEST_CHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 1234U)), 0x0f2cc00bU);
-		SLTEST_CHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 1234), rh);
+		SLCHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 1234U)), 0x0f2cc00bU);
+		SLCHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 1234), rh);
 		//
 		//uint32 h128[4];
 		binary128 _h128;
 		p_data = "Hello, world!";
 		_h128 = SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 123);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0x61c9129eU);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x5a1aacd7U);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0xa4162162U);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x9e37c886U);
+		SLCHECK_EQ(PTR32C(_h128.D)[0], 0x61c9129eU);
+		SLCHECK_EQ(PTR32C(_h128.D)[1], 0x5a1aacd7U);
+		SLCHECK_EQ(PTR32C(_h128.D)[2], 0xa4162162U);
+		SLCHECK_EQ(PTR32C(_h128.D)[3], 0x9e37c886U);
 		_h128 = SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 321);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0xd5fbdcb3U);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0xc26c4193U);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0x045880c5U);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0xa7170f0fU);
+		SLCHECK_EQ(PTR32C(_h128.D)[0], 0xd5fbdcb3U);
+		SLCHECK_EQ(PTR32C(_h128.D)[1], 0xc26c4193U);
+		SLCHECK_EQ(PTR32C(_h128.D)[2], 0x045880c5U);
+		SLCHECK_EQ(PTR32C(_h128.D)[3], 0xa7170f0fU);
 		p_data = "xxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 		_h128 = SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 123);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0x5e40bab2U);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x78825a16U);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0x4cf929d3U);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x1fec6047U);
+		SLCHECK_EQ(PTR32C(_h128.D)[0], 0x5e40bab2U);
+		SLCHECK_EQ(PTR32C(_h128.D)[1], 0x78825a16U);
+		SLCHECK_EQ(PTR32C(_h128.D)[2], 0x4cf929d3U);
+		SLCHECK_EQ(PTR32C(_h128.D)[3], 0x1fec6047U);
 		p_data = "";
 		_h128 = SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 123);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0xfedc5245U);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x26f3e799U);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0x26f3e799U);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x26f3e799U);
+		SLCHECK_EQ(PTR32C(_h128.D)[0], 0xfedc5245U);
+		SLCHECK_EQ(PTR32C(_h128.D)[1], 0x26f3e799U);
+		SLCHECK_EQ(PTR32C(_h128.D)[2], 0x26f3e799U);
+		SLCHECK_EQ(PTR32C(_h128.D)[3], 0x26f3e799U);
 
 		p_data = "Hello, world!";
 		_h128 = SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 123);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0x8743acadU);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x421c8c73U);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0xd373c3f5U);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0xf19732fdU);
+		SLCHECK_EQ(PTR32C(_h128.D)[0], 0x8743acadU);
+		SLCHECK_EQ(PTR32C(_h128.D)[1], 0x421c8c73U);
+		SLCHECK_EQ(PTR32C(_h128.D)[2], 0xd373c3f5U);
+		SLCHECK_EQ(PTR32C(_h128.D)[3], 0xf19732fdU);
 		_h128 = SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 321);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0xf86d4004U);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0xca47f42bU);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0xb9546c79U);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x79200aeeU);
+		SLCHECK_EQ(PTR32C(_h128.D)[0], 0xf86d4004U);
+		SLCHECK_EQ(PTR32C(_h128.D)[1], 0xca47f42bU);
+		SLCHECK_EQ(PTR32C(_h128.D)[2], 0xb9546c79U);
+		SLCHECK_EQ(PTR32C(_h128.D)[3], 0x79200aeeU);
 		p_data = "xxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 		_h128 = SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 123);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0xbecf7e04U);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0xdbcf7463U);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0x7751664eU);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0xf66e73e0U);
+		SLCHECK_EQ(PTR32C(_h128.D)[0], 0xbecf7e04U);
+		SLCHECK_EQ(PTR32C(_h128.D)[1], 0xdbcf7463U);
+		SLCHECK_EQ(PTR32C(_h128.D)[2], 0x7751664eU);
+		SLCHECK_EQ(PTR32C(_h128.D)[3], 0xf66e73e0U);
 		p_data = "";
 		_h128 = SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 123);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0x4cd95970U);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x81679d1aU);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0xbd92f878U);
-		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x4bace33dU);
+		SLCHECK_EQ(PTR32C(_h128.D)[0], 0x4cd95970U);
+		SLCHECK_EQ(PTR32C(_h128.D)[1], 0x81679d1aU);
+		SLCHECK_EQ(PTR32C(_h128.D)[2], 0xbd92f878U);
+		SLCHECK_EQ(PTR32C(_h128.D)[3], 0x4bace33dU);
 	}
 	CATCH
 		CurrentStatus = 0;

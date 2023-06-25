@@ -59,14 +59,10 @@ SString & FASTCALL DocNalogRu_Base::Helper_GetToken(long tokId)
 	return r_tok_buf;
 }
 
-const SString & FASTCALL DocNalogRu_Base::GetToken_Ansi(long tokId)
-	{ return Helper_GetToken(tokId).Transf(CTRANSF_INNER_TO_OUTER); }
-const  SString & FASTCALL DocNalogRu_Base::GetToken_Ansi_Pe0(long n)
-	{ return Helper_GetToken(PPHSC_RU_PE0).Transf(CTRANSF_INNER_TO_OUTER).CatLongZ(n, 11); }
-const  SString & FASTCALL DocNalogRu_Base::GetToken_Ansi_Pe1(long n)
-	{ return Helper_GetToken(PPHSC_RU_PE1).Transf(CTRANSF_INNER_TO_OUTER).CatLongZ(n, 11); }
-const SString & FASTCALL DocNalogRu_Base::GetToken_Utf8(long tokId)
-	{ return Helper_GetToken(tokId).Transf(CTRANSF_INNER_TO_UTF8); }
+const SString & FASTCALL DocNalogRu_Base::GetToken_Ansi(long tokId) { return Helper_GetToken(tokId).Transf(CTRANSF_INNER_TO_OUTER); }
+const SString & FASTCALL DocNalogRu_Base::GetToken_Ansi_Pe0(long n) { return Helper_GetToken(PPHSC_RU_PE0).Transf(CTRANSF_INNER_TO_OUTER).CatLongZ(n, 11); }
+const SString & FASTCALL DocNalogRu_Base::GetToken_Ansi_Pe1(long n) { return Helper_GetToken(PPHSC_RU_PE1).Transf(CTRANSF_INNER_TO_OUTER).CatLongZ(n, 11); }
+const SString & FASTCALL DocNalogRu_Base::GetToken_Utf8(long tokId) { return Helper_GetToken(tokId).Transf(CTRANSF_INNER_TO_UTF8); }
 
 class DocNalogRu_Reader : public DocNalogRu_Base {
 public:
@@ -2164,7 +2160,7 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 {
 	int    ok = 1;
 	long   count = 0;
-	const  LDATE cdate = getcurdate_();
+	const  LDATE now_date = getcurdate_();
 	PPID   ar_id_by_code2 = 0;
 	SString def_inn;
 	SString temp_buf;
@@ -2173,7 +2169,6 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 	SString barcode_buf; // @v11.4.5
 	StringSet barcode_list; // @v11.4.5
 	StrAssocArray articles;
-	//PPObjTag tag_obj;
 	SdRecord dyn_rec;
 	SdbField dyn_fld, inner_fld;
 	THROW_INVARG(pImpExp);
@@ -2197,34 +2192,18 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 		PPID   id = 0;
 		Sdr_BRow brow_;
 		BarcodeTbl::Rec bcrec;
-		// @v10.7.9 @ctr MEMSZERO(brow_);
-		// @v10.7.9 @ctr MEMSZERO(bcrec);
 		if(pFnFldList) {
 			AssignFnFieldToRecord(*pFnFldList, 0, &brow_);
 		}
 		THROW(pImpExp->ReadRecord(&brow_, sizeof(brow_), &dyn_rec));
-		// @v10.9.4 {
-		(temp_buf = brow_.BillCode).Transf(CTRANSF_OUTER_TO_INNER);
-		STRNSCPY(brow_.BillCode, temp_buf);
-		(temp_buf = brow_.BillID).Transf(CTRANSF_OUTER_TO_INNER);
-		STRNSCPY(brow_.BillID, temp_buf);
-		// } @v10.9.4
+		(temp_buf = brow_.BillCode).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(brow_.BillCode, sizeof(brow_.BillCode));
+		(temp_buf = brow_.BillID).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(brow_.BillID, sizeof(brow_.BillID));
 		const uint barcode_count = SplitBarcodeList(brow_.Barcode, barcode_buf, barcode_list); // @v11.4.5
 		STRNSCPY(brow_.Barcode, barcode_buf);
-		(temp_buf = brow_.GoodsName).Transf(CTRANSF_OUTER_TO_INNER);
-		STRNSCPY(brow_.GoodsName, temp_buf);
-		// @v10.5.0 {
-		(temp_buf = brow_.GoodsGroup).Transf(CTRANSF_OUTER_TO_INNER);
-		STRNSCPY(brow_.GoodsGroup, temp_buf);
-		// } @v10.5.0
-		// @v10.5.3 {
-		(temp_buf = brow_.BrandName).Transf(CTRANSF_OUTER_TO_INNER);
-		STRNSCPY(brow_.BrandName, temp_buf);
-		// } @v10.5.3
-		// @v11.4.4 {
-		(temp_buf = brow_.ArCode).Transf(CTRANSF_OUTER_TO_INNER);
-		STRNSCPY(brow_.ArCode, temp_buf);
-		// } @v11.4.4
+		(temp_buf = brow_.GoodsName).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(brow_.GoodsName, sizeof(brow_.GoodsName));
+		(temp_buf = brow_.GoodsGroup).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(brow_.GoodsGroup, sizeof(brow_.GoodsGroup)); // @v10.5.0
+		(temp_buf = brow_.BrandName).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(brow_.BrandName, sizeof(brow_.BrandName)); // @v10.5.3
+		(temp_buf = brow_.ArCode).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(brow_.ArCode, sizeof(brow_.ArCode)); // @v11.4.4
 		if(mode == 1/*linkByLastInsBill*/)
 			STRNSCPY(brow_.BillID, Bills.at(Bills.getCount() - 1).ID);
 		else if(mode == 2) {
@@ -2233,7 +2212,7 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 			SETIFZ(brow_.BillDate, brow_.InvcDate);
 			SETIFZ(brow_.BillDate, brow_.DueDate);
 			SETIFZ(brow_.BillDate, brow_.PaymDate);
-			SETIFZ(brow_.BillDate, cdate);
+			SETIFZ(brow_.BillDate, now_date);
 			if(!Period.CheckDate(brow_.BillDate))
 				continue;
 		}
@@ -2245,11 +2224,9 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 			(file_name = sp.Nam).Dot().Cat(sp.Ext);
 			PPLoadText(PPTXT_BROWLINKNOTFOUND, temp_buf);
 			if(brow_.Barcode[0]) {
-				PPLoadString("barcode", goods_info);
-				goods_info.Space().Cat(brow_.Barcode).Space();
+				PPLoadStringS("barcode", goods_info).Space().Cat(brow_.Barcode).Space();
 			}
-			PPLoadString("ware", word);
-			goods_info.Cat(word).Space().Cat(brow_.GoodsName);
+			goods_info.Cat(PPLoadStringS("ware", word)).Space().Cat(brow_.GoodsName);
 			msg.Printf(temp_buf, file_name.cptr(), goods_info.cptr());
 			Logger.Log(msg);
 		}
@@ -2266,7 +2243,6 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 				else if(CConfig.Flags & CCFLG_USEARGOODSCODE && (brow_.Barcode[0] || brow_.ArCode[0])) {
 					PPID   ar_id = 0;
 					ArticleTbl::Rec ar_rec;
-					// @v10.7.9 @ctr MEMSZERO(code_rec);
 					if(brow_.CntragID && ArObj.Fetch(brow_.CntragID, &ar_rec) > 0) {
 						ar_id = brow_.CntragID;
 					}
@@ -2276,9 +2252,12 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 							inn = def_inn;
 						if(articles.SearchByText(inn, 0, &pos) > 0)
 							ar_id = articles.Get(pos).Id;
-						else if(ResolveINN(inn, (p_bill ? p_bill->DlvrAddrID : 0), (p_bill ? p_bill->DlvrAddrCode : 0),
-							bill_ident, AccSheetID, &ar_id, 0) > 0 && ar_id > 0) {
-							THROW_SL(articles.Add(ar_id, inn, 0));
+						else {
+							const PPID local_dlvr_loc_id = p_bill ? p_bill->DlvrAddrID : brow_.DlvrAddrID; // @v11.7.7 (: 0)-->(: brow_.DlvrAddrID)
+							const char * p_local_dlvr_loc_code = p_bill ? p_bill->DlvrAddrCode : brow_.DlvrAddrCode; // @v11.7.7 (: 0)-->(: brow_.DlvrAddrCode)
+							if(ResolveINN(inn, local_dlvr_loc_id, p_local_dlvr_loc_code, bill_ident, AccSheetID, &ar_id, 0) > 0 && ar_id > 0) {
+								THROW_SL(articles.Add(ar_id, inn, 0));
+							}
 						}
 					}
 					if(ar_id > 0) {
@@ -4489,10 +4468,17 @@ int PPBillImporter::Run()
 	SString file_name;
 	SString temp_buf;
 	SString msg_buf;
+	PPOprKind op_rec;
 	LineIdSeq = 0;
 	PPWaitStart();
 	Period.Actualize(ZERODATE);
 	ToRemoveFiles.clear();
+	// @v11.7.7 {
+	if(!AccSheetID) {
+		if(GetOpData(OpID, &op_rec) > 0)
+			AccSheetID = op_rec.AccSheetID;
+	}
+	// } @v11.7.7 
 	if(Flags & PPBillImporter::fUhttImport) {
 		THROW(RunUhttImport());
 	}
@@ -4546,7 +4532,6 @@ int PPBillImporter::Run()
 	else if(BillParam.PredefFormat == piefCokeOrder) { // @v11.3.8
 		xmlParserCtxt * p_ctx = 0;
 		StringSet ss_files;
-		PPOprKind op_rec;
 		PPID   suppl_ar_id = 0;
 		THROW_PP_S(BillParam.ImpOpID, PPERR_UNDEFBILLIMPOP, BillParam.Name);
 		THROW(GetOpData(BillParam.ImpOpID, &op_rec) > 0);
@@ -4597,7 +4582,6 @@ int PPBillImporter::Run()
 	else if(oneof4(BillParam.PredefFormat, piefNalogR, piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR, piefNalogR_ON_NKORSCHFDOPPR)) { 
 		DocNalogRu_Reader reader;
 		StringSet ss_files;
-		PPOprKind op_rec;
 		TSCollection <DocNalogRu_Reader::DocumentInfo> doc_list;
 		const PPGoodsConfig & r_gcfg = GObj.GetConfig();
 		THROW_PP_S(BillParam.ImpOpID, PPERR_UNDEFBILLIMPOP, CfgNameBill);

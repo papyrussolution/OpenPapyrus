@@ -4137,7 +4137,7 @@ SLTEST_R(ScURL_Mail_SMTP)
 		SString output_path;
 		SMailMessage msg;
 		Test_MakeEmailMessage(msg);
-		THROW(SLTEST_CHECK_NZ(curl.SmtpSend(url, ScURL::mfDontVerifySslPeer, msg)));
+		THROW(SLCHECK_NZ(curl.SmtpSend(url, ScURL::mfDontVerifySslPeer, msg)));
 	}
 	CATCH
 		CurrentStatus = 0;
@@ -4170,8 +4170,8 @@ SLTEST_R(ScURL_Mail)
 		{
 			//uint msg_count = 0;
 			//uint64 msg_size = 0;
-			//THROW(SLTEST_CHECK_NZ(curl.Pop3Stat(url, ScURL::mfDontVerifySslPeer, &msg_count, &msg_size)));
-			THROW(SLTEST_CHECK_NZ(curl.Pop3List(url, ScURL::mfDontVerifySslPeer, mail_list)));
+			//THROW(SLCHECK_NZ(curl.Pop3Stat(url, ScURL::mfDontVerifySslPeer, &msg_count, &msg_size)));
+			THROW(SLCHECK_NZ(curl.Pop3List(url, ScURL::mfDontVerifySslPeer, mail_list)));
 		}
 		{
 			SUniformFileTransmParam uftp;
@@ -4183,7 +4183,7 @@ SLTEST_R(ScURL_Mail)
 			url.Composite(0, temp_buf);
 			uftp.SrcPath = temp_buf;
 			//uftp.Format = SFileFormat::Jpeg;
-			THROW(SLTEST_CHECK_NZ(uftp.Run(0, 0)));
+			THROW(SLCHECK_NZ(uftp.Run(0, 0)));
 			temp_buf = uftp.Reply;
 		}
 		{
@@ -4202,7 +4202,7 @@ SLTEST_R(ScURL_Mail)
 		{
 			for(uint i = 0; i < mail_list.getCount(); i++) {
 				SMailMessage msg;
-				//THROW(SLTEST_CHECK_NZ(curl.Pop3Get(url, ScURL::mfDontVerifySslPeer, mail_list.at(i).Key, msg)));
+				//THROW(SLCHECK_NZ(curl.Pop3Get(url, ScURL::mfDontVerifySslPeer, mail_list.at(i).Key, msg)));
 				if(curl.Pop3Get(url, ScURL::mfDontVerifySslPeer, mail_list.at(i).Key, msg, 0, 0)) {
 					output_path = MakeOutputFilePath(temp_buf.Z().Cat(i).DotCat("output"));
 					msg.DebugOutput(temp_buf.Z());
@@ -4252,7 +4252,7 @@ SLTEST_R(ScURL_Ftp)
 			uftp.DestPath = "http://posttestserver.com/post.php";
 			uftp.SrcPath = MakeInputFilePath("test11.jpg");
 			uftp.Format = SFileFormat::Jpeg;
-			THROW(SLTEST_CHECK_NZ(uftp.Run(0, 0)));
+			THROW(SLCHECK_NZ(uftp.Run(0, 0)));
 			temp_buf = uftp.Reply;
 		}
 		{
@@ -4260,7 +4260,7 @@ SLTEST_R(ScURL_Ftp)
 			uftp.DestPath = "https://posttestserver.com/post.php";
 			uftp.SrcPath = MakeInputFilePath("test10.jpg");
 			uftp.Format = SFileFormat::Jpeg;
-			THROW(SLTEST_CHECK_NZ(uftp.Run(0, 0)));
+			THROW(SLCHECK_NZ(uftp.Run(0, 0)));
 			temp_buf = uftp.Reply;
 		}
 	}
@@ -4269,51 +4269,51 @@ SLTEST_R(ScURL_Ftp)
 			SUniformFileTransmParam uftp;
 			uftp.DestPath = MakeOutputFilePath("remote-image.png");
 			uftp.SrcPath = "https://www.nasa.gov/sites/default/files/thumbnails/image/pia21775.png";
-			THROW(SLTEST_CHECK_NZ(uftp.Run(0, 0)));
+			THROW(SLCHECK_NZ(uftp.Run(0, 0)));
 		}
 	}
 	{
 		ScURL curl;
-		THROW(SLTEST_CHECK_NZ(curl.FtpList(url, ScURL::mfVerbose, pool)));
+		THROW(SLCHECK_NZ(curl.FtpList(url, ScURL::mfVerbose, pool)));
 	}
 	{
 		ScURL curl;
 		url.SetComponent(InetUrl::cPath, "test/");
-		THROW(SLTEST_CHECK_NZ(curl.FtpChangeDir(url, ScURL::mfVerbose)));
+		THROW(SLCHECK_NZ(curl.FtpChangeDir(url, ScURL::mfVerbose)));
 	}
 	{
 		ScURL curl;
 		url.SetComponent(InetUrl::cPath, "test/abc/");
-		THROW(SLTEST_CHECK_NZ(curl.FtpCreateDir(url, ScURL::mfVerbose)));
+		THROW(SLCHECK_NZ(curl.FtpCreateDir(url, ScURL::mfVerbose)));
 	}
 	{
 		ScURL curl;
 		url.SetComponent(InetUrl::cPath, "test/abc");
-		THROW(SLTEST_CHECK_NZ(curl.FtpDeleteDir(url, ScURL::mfVerbose)));
+		THROW(SLCHECK_NZ(curl.FtpDeleteDir(url, ScURL::mfVerbose)));
 	}
 	{
 		ScURL curl;
 		url.SetComponent(InetUrl::cPath, "test/subdir01/subdir02/");
-		THROW(SLTEST_CHECK_NZ(curl.FtpChangeDir(url, ScURL::mfVerbose)));
+		THROW(SLCHECK_NZ(curl.FtpChangeDir(url, ScURL::mfVerbose)));
 	}
 	{
 		ScURL curl;
-		THROW(SLTEST_CHECK_NZ(curl.FtpPut(url, ScURL::mfVerbose, 0, MakeInputFilePath("binfile"), 0)));
+		THROW(SLCHECK_NZ(curl.FtpPut(url, ScURL::mfVerbose, 0, MakeInputFilePath("binfile"), 0)));
 	}
 	{
 		ScURL curl;
 		url.GetComponent(InetUrl::cPath, 0, temp_buf);
 		temp_buf.SetLastDSlash().Cat("binfile");
 		url.SetComponent(InetUrl::cPath, temp_buf);
-		THROW(SLTEST_CHECK_NZ(curl.FtpGet(url, 0, MakeOutputFilePath("binfile-from-ftp"), 0, 0)));
-		//THROW(SLTEST_CHECK_NZ(curl.FtpDelete(url, 0)));
+		THROW(SLCHECK_NZ(curl.FtpGet(url, 0, MakeOutputFilePath("binfile-from-ftp"), 0, 0)));
+		//THROW(SLCHECK_NZ(curl.FtpDelete(url, 0)));
 	}
 	{
 		ScURL curl;
 		//url.GetComponent(InetUrl::cPath, temp_buf);
 		//temp_buf.SetLastDSlash().Cat("binfile");
 		//url.SetComponent(InetUrl::cPath, temp_buf);
-		THROW(SLTEST_CHECK_NZ(curl.FtpDelete(url, 0)));
+		THROW(SLCHECK_NZ(curl.FtpDelete(url, 0)));
 	}
 	CATCH
 		CurrentStatus = 0;
@@ -4330,8 +4330,8 @@ SLTEST_R(Uri)
 	InetUrl url(0);
 	SString out_buf, temp_buf;
 	SString line_buf;
-	THROW(SLTEST_CHECK_NZ(f_in.IsValid()));
-	THROW(SLTEST_CHECK_NZ(f_out.IsValid()));
+	THROW(SLCHECK_NZ(f_in.IsValid()));
+	THROW(SLCHECK_NZ(f_out.IsValid()));
 	while(f_in.ReadLine(line_buf)) {
 		line_buf.Chomp().Strip();
 		out_buf = line_buf;

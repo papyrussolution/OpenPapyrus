@@ -232,6 +232,7 @@
 #endif
 #ifndef RC_INVOKED
 	#include <sl-packing-reset.h>
+	#include <sl-packing-set01.h> // @v11.7.7
 #endif
 //#if _MSC_VER >= 1910
 #if CXX_HAS_STATIC_ASSERT
@@ -17789,6 +17790,7 @@ public:
 	int    _check_le(int a, int b, const char * pA, const char * pB);
 	int    _check_le(long a, long b, const char * pA, const char * pB);
 	int    _check_le(uint a, uint b, const char * pA, const char * pB);
+	int    _check_le(uint64 a, uint64 b, const char * pA, const char * pB);
 	int    _check_le(ulong a, ulong b, const char * pA, const char * pB);
 	int    _check_le(double a, double b, const char * pA, const char * pB);
 	int    _check_lt(int a, int b, const char * pA, const char * pB);
@@ -17923,15 +17925,16 @@ private:
 
 extern "C" typedef STestCase * (*FN_SLTEST_FACTORY)(STestSuite * pSuite);
 
-#define SLTEST_CHECK_NZ(v)                _check_nz(!!(v), #v)
-#define SLTEST_CHECK_Z(v)                 _check_z(!!(v), #v)
-#define SLTEST_CHECK_EQ(a, b)             _check_eq((a), (b), #a, #b)
-#define SLTEST_CHECK_EQMEM(a, b, sz)      _check_eq((a), (b), (sz), #a, #b)
-#define SLTEST_CHECK_EQ_TOL(a, b, tol)    _check_eq_tolerance((a), (b), (tol), #a, #b)
-#define SLTEST_CHECK_LT(a, b)             _check_lt((a), (b), #a, #b)
-#define SLTEST_CHECK_LE(a, b)             _check_le((a), (b), #a, #b)
-#define SLTEST_CHECK_CRANGE(a, low, upp)  _check_range((a), (low), (upp), #a, #low, #upp)
-#define SLTEST_CHECK_MEM(ptr, size, pattern) _check_mem((ptr), (size), (pattern), #ptr)
+// @v11.7.7 SLTEST_CHECK_XXX-->SLCHECK_XXX
+#define SLCHECK_NZ(v)                _check_nz(!!(v), #v)
+#define SLCHECK_Z(v)                 _check_z(!!(v), #v)
+#define SLCHECK_EQ(a, b)             _check_eq((a), (b), #a, #b)
+#define SLCHECK_EQMEM(a, b, sz)      _check_eq((a), (b), (sz), #a, #b)
+#define SLCHECK_EQ_TOL(a, b, tol)    _check_eq_tolerance((a), (b), (tol), #a, #b)
+#define SLCHECK_LT(a, b)             _check_lt((a), (b), #a, #b)
+#define SLCHECK_LE(a, b)             _check_le((a), (b), #a, #b)
+#define SLCHECK_CRANGE(a, low, upp)  _check_range((a), (low), (upp), #a, #low, #upp)
+#define SLCHECK_MEM(ptr, size, pattern) _check_mem((ptr), (size), (pattern), #ptr)
 
 #define SLTEST_CLS(s)     SLTC_##s
 #define SLTEST_FACTORY(s) SLTCF_##s
@@ -17953,4 +17956,7 @@ extern "C" typedef STestCase * (*FN_SLTEST_FACTORY)(STestSuite * pSuite);
 	int SLTEST_CLS(test)::Run(const char * pBenchmark)
 
 #endif /* RC_INVOKED */
+#ifndef RC_INVOKED
+	#include <sl-packing-reset.h> // @v11.7.7
+#endif
 #endif /* __SLIB_H */

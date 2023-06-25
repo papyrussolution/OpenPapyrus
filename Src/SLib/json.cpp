@@ -2916,7 +2916,7 @@ SLTEST_R(JSON)
 				while(f_in.Read(rd_buf, rd_buf.GetSize(), &actual_size) && actual_size) {
 					json_buf.CatN(rd_buf, actual_size);
 				}
-				SLTEST_CHECK_NZ(JsonToXmlDOM(json_buf, xml_buf));
+				SLCHECK_NZ(JsonToXmlDOM(json_buf, xml_buf));
 				{
 					SPathStruc ps(in_file_name);
 					ps.Nam.CatChar('-').Cat("result");

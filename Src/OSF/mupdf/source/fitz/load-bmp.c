@@ -97,11 +97,9 @@ struct info {
 	uint32_t intent;
 	uint32_t profileoffset;
 	uint32_t profilesize;
-
 	int topdown;
 	uint rshift, gshift, bshift, ashift;
 	uint rbits, gbits, bbits, abits;
-
 	uchar * samples;
 	fz_colorspace * cs;
 };
@@ -152,42 +150,31 @@ struct info {
 
 #define palette_entry_size(info) ((info)->version == 12 ? 3 : 4)
 
-static const uchar * bmp_read_file_header(fz_context * ctx,
-    struct info * info,
-    const uchar * begin,
-    const uchar * end,
-    const uchar * p)
+static const uchar * bmp_read_file_header(fz_context * ctx, struct info * info, const uchar * begin, const uchar * end, const uchar * p)
 {
 	if(end - p < 14)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "premature end in file header in bmp image");
-
 	if(!is_bitmap(p))
 		fz_throw(ctx, FZ_ERROR_GENERIC, "invalid signature %02x%02x in bmp image", p[0], p[1]);
-
 	info->type[0] = read8(p + 0);
 	info->type[1] = read8(p + 1);
 	/* read32(p+2) == file or header size */
 	/* read16(p+6) == hotspot x for icons/cursors */
 	/* read16(p+8) == hotspot y for icons/cursors */
 	info->bitmapoffset = read32(p + 10);
-
 	return p + 14;
 }
 
 static uchar * bmp_decompress_huffman1d(fz_context * ctx, struct info * info, const uchar * p, const uchar ** end)
 {
-	fz_stream * encstm, * decstm;
+	fz_stream * decstm;
 	fz_buffer * buf;
 	uchar * decoded;
 	size_t size;
-
-	encstm = fz_open_memory(ctx, p, *end - p);
-
+	fz_stream * encstm = fz_open_memory(ctx, p, *end - p);
 	fz_var(decstm);
 	fz_var(buf);
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		decstm = fz_open_faxd(ctx, encstm,
 			0, /* 1 dimensional encoding */
 			0, /* end of line not required */
@@ -216,22 +203,16 @@ static uchar * bmp_decompress_huffman1d(fz_context * ctx, struct info * info, co
 
 static uchar * bmp_decompress_rle24(fz_context * ctx, struct info * info, const uchar * p, const uchar ** end)
 {
-	const uchar * sp;
-	uchar * dp, * ep, * decompressed;
+	uchar * decompressed;
 	uint32_t width = info->width;
 	uint32_t height = info->height;
-	uint32_t stride;
-	uint32_t x, y;
 	int i;
-
-	stride = (width*3 + 3) / 4 * 4;
-
-	sp = p;
-	dp = decompressed = (uchar*)fz_calloc(ctx, height, stride);
-	ep = dp + height * stride;
-	x = 0;
-	y = 0;
-
+	uint32_t stride = (width*3 + 3) / 4 * 4;
+	const uchar * sp = p;
+	uchar * dp = decompressed = (uchar*)fz_calloc(ctx, height, stride);
+	uchar * ep = dp + height * stride;
+	uint32_t x = 0;
+	uint32_t y = 0;
 	while(sp + 2 <= *end) {
 		if(sp[0] == 0 && sp[1] == 0) { /* end of line */
 			sp += 2;
@@ -281,9 +262,8 @@ static uchar * bmp_decompress_rle24(fz_context * ctx, struct info * info, const 
 			sp += sn + pad;
 		}
 		else { /* encoded */
-			int dn, sn;
-			dn = sp[0];
-			sn = 3;
+			int dn = sp[0];
+			int sn = 3;
 			sp++;
 			if(sn > *end - sp) {
 				fz_warn(ctx, "premature end of pixel data in encoded code in bmp image");
@@ -501,11 +481,7 @@ static uchar * bmp_decompress_rle4(fz_context * ctx, struct info * info, const u
 	return decompressed;
 }
 
-static fz_pixmap * bmp_read_bitmap(fz_context * ctx,
-    struct info * info,
-    const uchar * begin,
-    const uchar * end,
-    const uchar * p)
+static fz_pixmap * bmp_read_bitmap(fz_context * ctx, struct info * info, const uchar * begin, const uchar * end, const uchar * p)
 {
 	const uint mults[] = { 0, 8191, 2730, 1170, 546, 264, 130, 64 };
 	fz_pixmap * pix;
@@ -586,13 +562,10 @@ static fz_pixmap * bmp_read_bitmap(fz_context * ctx,
 	gtrunc = info->gbits < 8 ? 5 : (info->gbits - 8);
 	btrunc = info->bbits < 8 ? 5 : (info->bbits - 8);
 	atrunc = info->abits < 8 ? 5 : (info->abits - 8);
-
 	for(y = 0; y < height; y++) {
 		const uchar * sp = ssp + y * sstride;
 		uchar * dp = ddp + y * dstride;
-
-		switch(bitcount)
-		{
+		switch(bitcount) {
 			case 32:
 			    for(x = 0; x < width; x++) {
 				    uint sample = (sp[3] << 24) | (sp[2] << 16) | (sp[1] << 8) | sp[0];
@@ -656,8 +629,7 @@ static fz_pixmap * bmp_read_bitmap(fz_context * ctx,
 			case 2:
 			    for(x = 0; x < width; x++) {
 				    int idx;
-				    switch(x & 3)
-				    {
+				    switch(x & 3) {
 					    case 0: idx = (sp[0] >> 6) & 0x03; break;
 					    case 1: idx = (sp[0] >> 4) & 0x03; break;
 					    case 2: idx = (sp[0] >> 2) & 0x03; break;
@@ -672,8 +644,7 @@ static fz_pixmap * bmp_read_bitmap(fz_context * ctx,
 			case 1:
 			    for(x = 0; x < width; x++) {
 				    int idx;
-				    switch(x & 7)
-				    {
+				    switch(x & 7) {
 					    case 0: idx = (sp[0] >> 7) & 0x01; break;
 					    case 1: idx = (sp[0] >> 6) & 0x01; break;
 					    case 2: idx = (sp[0] >> 5) & 0x01; break;
@@ -802,13 +773,10 @@ static int bmp_palette_is_gray(fz_context * ctx, struct info * info, int readcol
 static void bmp_load_default_palette(fz_context * ctx, struct info * info, int readcolors)
 {
 	int i;
-
 	fz_warn(ctx, "color table too short; loading default palette");
-
 	if(info->bitcount == 8) {
 		if(!bmp_palette_is_gray(ctx, info, readcolors))
-			memcpy(&info->palette[readcolors * 3], &web_palette[readcolors * 3],
-			    sizeof(web_palette) - readcolors * 3);
+			memcpy(&info->palette[readcolors * 3], &web_palette[readcolors * 3], sizeof(web_palette) - readcolors * 3);
 		else
 			for(i = readcolors; i < 256; i++) {
 				info->palette[3 * i + 0] = i;
@@ -818,8 +786,7 @@ static void bmp_load_default_palette(fz_context * ctx, struct info * info, int r
 	}
 	else if(info->bitcount == 4) {
 		if(!bmp_palette_is_gray(ctx, info, readcolors))
-			memcpy(&info->palette[readcolors * 3], &vga_palette[readcolors * 3],
-			    sizeof(vga_palette) - readcolors * 3);
+			memcpy(&info->palette[readcolors * 3], &vga_palette[readcolors * 3], sizeof(vga_palette) - readcolors * 3);
 		else
 			for(i = readcolors; i < 16; i++) {
 				info->palette[3 * i + 0] = (i << 4) | i;
@@ -841,7 +808,7 @@ static const uchar * bmp_read_palette(fz_context * ctx, struct info * info, cons
 	int expected = smin(info->colors, 1U << info->bitcount);
 	if(expected == 0)
 		expected = 1 << info->bitcount;
-	present = smin(expected, (bitmap - p) / entry_size);
+	present = smin(expected, static_cast<int>((bitmap - p) / entry_size));
 	for(i = 0; i < present; i++) {
 		/* ignore alpha channel even if present */
 		info->palette[3 * i + 0] = read8(p + i * entry_size + 2);
@@ -854,11 +821,7 @@ static const uchar * bmp_read_palette(fz_context * ctx, struct info * info, cons
 	return p + present * entry_size;
 }
 
-static const uchar * bmp_read_info_header(fz_context * ctx,
-    struct info * info,
-    const uchar * begin,
-    const uchar * end,
-    const uchar * p)
+static const uchar * bmp_read_info_header(fz_context * ctx, struct info * info, const uchar * begin, const uchar * end, const uchar * p)
 {
 	uint32_t size;
 	if(end - p < 4)
@@ -1094,19 +1057,10 @@ fz_pixmap * fz_load_bmp(fz_context * ctx, const uchar * p, size_t total)
 	return image;
 }
 
-void fz_load_bmp_info(fz_context * ctx,
-    const uchar * p,
-    size_t total,
-    int * wp,
-    int * hp,
-    int * xresp,
-    int * yresp,
-    fz_colorspace ** cspacep)
+void fz_load_bmp_info(fz_context * ctx, const uchar * p, size_t total, int * wp, int * hp, int * xresp, int * yresp, fz_colorspace ** cspacep)
 {
 	struct info info;
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		bmp_read_image(ctx, &info, p, p + total, p, 1);
 		*cspacep = fz_keep_colorspace(ctx, info.cs);
 		*wp = info.width;
@@ -1132,7 +1086,6 @@ fz_pixmap * fz_load_bmp_subimage(fz_context * ctx, const uchar * buf, size_t len
 
 	do {
 		p = begin + nextoffset;
-
 		if(is_bitmap_array(p)) {
 			/* read16(p+0) == type */
 			/* read32(p+2) == size of this header in bytes */

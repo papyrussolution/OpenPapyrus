@@ -14,9 +14,9 @@
 #define ABSL_CONTAINER_INTERNAL_CONTAINER_H_
 
 //#include <cassert>
-//#include <type_traits>
-//#include "absl/meta/type_traits.h"
-//#include "absl/types/optional.h"
+#include <type_traits>
+#include "absl/meta/type_traits.h"
+#include "absl/types/optional.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

@@ -2223,15 +2223,15 @@ SLTEST_R(ObjWorld)
 		const  char * p_city_name1 = "Акрополь Великий";
 		const  char * p_city_name2 = "АКРОПОЛЬ ВЕЛИКИЙ";
 		PPTransaction tra(1);
-		THROW(SLTEST_CHECK_NZ(tra));
+		THROW(SLCHECK_NZ(tra));
 		//
 		// Проверка функции AddSimple.
 		//
-		THROW(SLTEST_CHECK_NZ(r = w_obj.AddSimple(&city_id1, WORLDOBJ_CITY, (temp_buf = p_city_name1).Transf(CTRANSF_UTF8_TO_INNER), 0, 0)));
-		THROW(SLTEST_CHECK_NZ(r = w_obj.AddSimple(&city_id2, WORLDOBJ_CITY, (temp_buf = p_city_name2).Transf(CTRANSF_UTF8_TO_INNER), 0, 0)));
-		THROW(SLTEST_CHECK_EQ(city_id1, city_id2));
-		THROW(SLTEST_CHECK_NZ(w_obj.PutPacket(&city_id1, 0, 0)));
-		THROW(SLTEST_CHECK_NZ(tra.Commit()));
+		THROW(SLCHECK_NZ(r = w_obj.AddSimple(&city_id1, WORLDOBJ_CITY, (temp_buf = p_city_name1).Transf(CTRANSF_UTF8_TO_INNER), 0, 0)));
+		THROW(SLCHECK_NZ(r = w_obj.AddSimple(&city_id2, WORLDOBJ_CITY, (temp_buf = p_city_name2).Transf(CTRANSF_UTF8_TO_INNER), 0, 0)));
+		THROW(SLCHECK_EQ(city_id1, city_id2));
+		THROW(SLCHECK_NZ(w_obj.PutPacket(&city_id1, 0, 0)));
+		THROW(SLCHECK_NZ(tra.Commit()));
 	}
 	CATCH
 		ok = 0;

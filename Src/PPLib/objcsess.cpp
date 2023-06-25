@@ -1821,7 +1821,7 @@ int CTableOrder::GetCheck(const CCheckTbl::Rec * pCcRec, const CCheckExtTbl::Rec
 			}
 			if(pCcRec->SCardID) {
 				SCardOpTbl::Rec scop_rec;
-				if(P_ScObj->P_Tbl->SearchOpByCheck(pCcRec->ID, &scop_rec) > 0) {
+				if(P_ScObj->P_Tbl->SearchOpByLinkObj(PPOBJ_CCHECK, pCcRec->ID, &scop_rec) > 0) {
 					if(scop_rec.Amount > 0.0) {
 						pPack->PrepayAmount = scop_rec.Amount;
 					}

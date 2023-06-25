@@ -903,9 +903,9 @@ SLTEST_R(bzip3)
 		//f_inp.CalcSize(&fsize);
 		//size_t size = ftell(fp);
 		//fseek(fp, 0, SEEK_SET);
-		THROW(SLTEST_CHECK_NZ(f_inp.IsValid()));
-		THROW(SLTEST_CHECK_NZ(in_buf.IsValid()));
-		THROW(SLTEST_CHECK_NZ(f_inp.ReadAll(in_buf, 0, &in_buf_size)));
+		THROW(SLCHECK_NZ(f_inp.IsValid()));
+		THROW(SLCHECK_NZ(in_buf.IsValid()));
+		THROW(SLCHECK_NZ(f_inp.ReadAll(in_buf, 0, &in_buf_size)));
 		assert(in_buf.GetSize() >= in_buf_size);
 		{
 			//uint8 * buffer = (uint8 *)SAlloc::M(size);
@@ -915,16 +915,16 @@ SLTEST_R(bzip3)
 			size_t out_size = bz3_bound(in_buf_size);
 			STempBuffer out_buf(out_size);
 			//uint8 * outbuf = (uint8 *)SAlloc::M(out_size);
-			THROW(SLTEST_CHECK_NZ(out_buf.IsValid()));
-			THROW(SLTEST_CHECK_EQ(bz3_compress(SMEGABYTE(1), in_buf.ucptr(), static_cast<uint8 *>(out_buf.vptr()), in_buf_size, &out_size), BZ3_OK));
+			THROW(SLCHECK_NZ(out_buf.IsValid()));
+			THROW(SLCHECK_EQ(bz3_compress(SMEGABYTE(1), in_buf.ucptr(), static_cast<uint8 *>(out_buf.vptr()), in_buf_size, &out_size), BZ3_OK));
 			//printf("%d => %d\n", size, out_size);
 			{
 				// Decompress the file.
 				size_t inflated_size = in_buf_size * 2;
 				STempBuffer inflate_buf(inflated_size);
-				THROW(SLTEST_CHECK_NZ(inflate_buf.IsValid()));
-				THROW(SLTEST_CHECK_EQ(bz3_decompress(out_buf.ucptr(), static_cast<uint8 *>(inflate_buf.vptr()), out_size, &inflated_size), BZ3_OK));
-				THROW(SLTEST_CHECK_EQ(inflated_size, in_buf_size));
+				THROW(SLCHECK_NZ(inflate_buf.IsValid()));
+				THROW(SLCHECK_EQ(bz3_decompress(out_buf.ucptr(), static_cast<uint8 *>(inflate_buf.vptr()), out_size, &inflated_size), BZ3_OK));
+				THROW(SLCHECK_EQ(inflated_size, in_buf_size));
 				{
 					bool debug_mark = false;
 					for(uint i = 0; i < inflated_size; i++) {
@@ -933,7 +933,7 @@ SLTEST_R(bzip3)
 						}
 					}
 				}
-				THROW(SLTEST_CHECK_Z(memcmp(inflate_buf.vcptr(), in_buf.vcptr(), in_buf_size)));
+				THROW(SLCHECK_Z(memcmp(inflate_buf.vcptr(), in_buf.vcptr(), in_buf_size)));
 				//printf("%d => %d\n", out_size, size);
 				//SAlloc::F(buffer);
 				//SAlloc::F(outbuf);

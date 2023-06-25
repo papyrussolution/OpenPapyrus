@@ -2927,7 +2927,7 @@ int CCheckCore::RemovePacket(PPID id, int use_ta)
 			THROW_DB(deleteFrom(P_LnExt, 0, P_LnExt->CheckID == id));
 		}
 		THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), static_cast<const wchar_t *>(0), 0));
-		THROW(Cards.RemoveOpByCheck(id, 0));
+		THROW(Cards.RemoveOpByLinkObj(PPOBJ_CCHECK, id, 0));
 		if(SearchByID_ForUpdate(this, PPOBJ_CCHECK, id, 0) > 0) {
 			if(data.Flags & CCHKF_JUNK)
 				do_remove_tags = 1;

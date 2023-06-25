@@ -651,9 +651,9 @@ SLTEST_FIXTURE(MEMMOVO, SlTestFixtureMEMMOVO)
 						//
 						//memmovo(F.P_Bytes+dest, F.P_Bytes+src, s);
 						A_memmove(F.P_Bytes+dest, F.P_Bytes+src, s);
-						THROW(SLTEST_CHECK_Z(memcmp(F.P_Bytes+dest, F.P_Pattern+src, s)));
-						THROW(SLTEST_CHECK_Z(memcmp(F.P_Bytes, F.P_Pattern, dest)));
-						THROW(SLTEST_CHECK_Z(memcmp(F.P_Bytes+dest+s, F.P_Pattern+dest+s, BYTES_SIZE-dest-s)));
+						THROW(SLCHECK_Z(memcmp(F.P_Bytes+dest, F.P_Pattern+src, s)));
+						THROW(SLCHECK_Z(memcmp(F.P_Bytes, F.P_Pattern, dest)));
+						THROW(SLCHECK_Z(memcmp(F.P_Bytes+dest+s, F.P_Pattern+dest+s, BYTES_SIZE-dest-s)));
 						//
 						// Стандартная процедура копирования для восстановления эквивалентности P_Bytes и P_Pattern
 						// Закладываемся на то, что memmove работает правильно.
@@ -694,9 +694,9 @@ SLTEST_FIXTURE(MEMMOVO, SlTestFixtureMEMMOVO)
 						// Она должна обнулить заданный участок памяти не задев сопредельные участки.
 						//
 						A_memset(F.P_Bytes+dest, 0, s);
-						THROW(SLTEST_CHECK_NZ(ismemzero(F.P_Bytes+dest, s)));
-						THROW(SLTEST_CHECK_Z(memcmp(F.P_Bytes, F.P_Pattern, dest)));
-						THROW(SLTEST_CHECK_Z(memcmp(F.P_Bytes+dest+s, F.P_Pattern+dest+s, BYTES_SIZE-dest-s)));
+						THROW(SLCHECK_NZ(ismemzero(F.P_Bytes+dest, s)));
+						THROW(SLCHECK_Z(memcmp(F.P_Bytes, F.P_Pattern, dest)));
+						THROW(SLCHECK_Z(memcmp(F.P_Bytes+dest+s, F.P_Pattern+dest+s, BYTES_SIZE-dest-s)));
 						//
 						// Возвращаем назад содержимое F.P_Bytes[dest..s-1]
 						//
@@ -825,9 +825,9 @@ SLTEST_R(memset)
 	if(bm == 0) {
 		const size_t buffer_size = SKILOBYTE(32);
 		STempBuffer buffer(buffer_size);
-		SLTEST_CHECK_NZ(Test_memset_helper(memset, static_cast<uint8 *>(buffer.vptr()), buffer_size));
-		SLTEST_CHECK_NZ(Test_memset_helper(A_memset, static_cast<uint8 *>(buffer.vptr()), buffer_size));
-		SLTEST_CHECK_NZ(Test_memset_helper(AVX_memset, static_cast<uint8 *>(buffer.vptr()), buffer_size));
+		SLCHECK_NZ(Test_memset_helper(memset, static_cast<uint8 *>(buffer.vptr()), buffer_size));
+		SLCHECK_NZ(Test_memset_helper(A_memset, static_cast<uint8 *>(buffer.vptr()), buffer_size));
+		SLCHECK_NZ(Test_memset_helper(AVX_memset, static_cast<uint8 *>(buffer.vptr()), buffer_size));
 	}
 	else {
 		const size_t buffer_size = SKILOBYTE(64);

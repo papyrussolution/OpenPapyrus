@@ -3864,8 +3864,8 @@ SLTEST_R(PrcssrTestDb)
 	(param.WordsFileName = GetSuiteEntry()->InPath).SetLastSlash().Cat("dictwords.txt");
 	(param.LogFileName = GetSuiteEntry()->OutPath).SetLastSlash().Cat("dbtest.log");
 	param.OutPath = GetSuiteEntry()->OutPath;
-	THROW(SLTEST_CHECK_NZ(prcssr.Init(&param)));
-	THROW(SLTEST_CHECK_NZ(prcssr.Run()));
+	THROW(SLCHECK_NZ(prcssr.Init(&param)));
+	THROW(SLCHECK_NZ(prcssr.Run()));
 	CATCH
 		CurrentStatus = ok = 0;
 	ENDCATCH
@@ -3905,8 +3905,8 @@ SLTEST_R(TestDbSerialization)
 		SSerializeContext ctx;
 		SBuffer srlz_buf, state_buf;
 		ctx.Init(SSerializeContext::fSeparateDataStruct, getcurdate_());
-		THROW(SLTEST_CHECK_NZ(raw_file.IsValid()));
-		THROW(SLTEST_CHECK_NZ(srlz_file.IsValid()));
+		THROW(SLCHECK_NZ(raw_file.IsValid()));
+		THROW(SLCHECK_NZ(srlz_file.IsValid()));
 		for(i = 0; i < 100000; i++) {
 			ulong rn = SLS.GetTLA().Rg.Get();
 			int sp;
@@ -3924,9 +3924,9 @@ SLTEST_R(TestDbSerialization)
 							//
 							// Проверка работоспособности функции BNFieldList::IsEqualRecords
 							//
-							THROW(SLTEST_CHECK_NZ(bill_tbl.GetFields().IsEqualRecords(&bill_rec, &bill_tbl.data)));
-							THROW(SLTEST_CHECK_NZ(ctx.Serialize(bill_tbl.GetTableName(), &bill_tbl.GetFieldsNonConst(), &bill_tbl.data, srlz_buf)));
-							THROW(SLTEST_CHECK_NZ(raw_file.Write(&bill_tbl.data, sizeof(bill_tbl.data))));
+							THROW(SLCHECK_NZ(bill_tbl.GetFields().IsEqualRecords(&bill_rec, &bill_tbl.data)));
+							THROW(SLCHECK_NZ(ctx.Serialize(bill_tbl.GetTableName(), &bill_tbl.GetFieldsNonConst(), &bill_tbl.data, srlz_buf)));
+							THROW(SLCHECK_NZ(raw_file.Write(&bill_tbl.data, sizeof(bill_tbl.data))));
 							serial_list.add(s);
 							id_list.add(bill_rec.ID);
 							bill_first = 0;
@@ -3942,9 +3942,9 @@ SLTEST_R(TestDbSerialization)
 							//
 							// Проверка работоспособности функции BNFieldList::IsEqualRecords
 							//
-							THROW(SLTEST_CHECK_NZ(lot_tbl.GetFields().IsEqualRecords(&lot_rec, &lot_tbl.data)));
-							THROW(SLTEST_CHECK_NZ(ctx.Serialize(lot_tbl.GetTableName(), &lot_tbl.GetFieldsNonConst(), &lot_tbl.data, srlz_buf)));
-							THROW(SLTEST_CHECK_NZ(raw_file.Write(&lot_tbl.data, sizeof(lot_tbl.data))));
+							THROW(SLCHECK_NZ(lot_tbl.GetFields().IsEqualRecords(&lot_rec, &lot_tbl.data)));
+							THROW(SLCHECK_NZ(ctx.Serialize(lot_tbl.GetTableName(), &lot_tbl.GetFieldsNonConst(), &lot_tbl.data, srlz_buf)));
+							THROW(SLCHECK_NZ(raw_file.Write(&lot_tbl.data, sizeof(lot_tbl.data))));
 							serial_list.add(s);
 							id_list.add(lot_rec.ID);
 							lot_first = 0;
@@ -3960,14 +3960,14 @@ SLTEST_R(TestDbSerialization)
 							//
 							// Проверка работоспособности функции BNFieldList::IsEqualRecords
 							//
-							THROW(SLTEST_CHECK_NZ(cc_tbl.GetFields().IsEqualRecords(&cc_rec, &cc_tbl.data)));
-							THROW(SLTEST_CHECK_NZ(ctx.Serialize(cc_tbl.GetTableName(), &cc_tbl.GetFieldsNonConst(), &cc_tbl.data, srlz_buf)));
-							THROW(SLTEST_CHECK_NZ(raw_file.Write(&cc_tbl.data, sizeof(cc_tbl.data))));
+							THROW(SLCHECK_NZ(cc_tbl.GetFields().IsEqualRecords(&cc_rec, &cc_tbl.data)));
+							THROW(SLCHECK_NZ(ctx.Serialize(cc_tbl.GetTableName(), &cc_tbl.GetFieldsNonConst(), &cc_tbl.data, srlz_buf)));
+							THROW(SLCHECK_NZ(raw_file.Write(&cc_tbl.data, sizeof(cc_tbl.data))));
 							{
 								CCheckLineTbl::Rec ccl_rec;
 								for(int rbc = 0; cc_tbl.EnumLines(cc_rec.ID, &rbc, &ccl_rec) > 0;) {
-									THROW(SLTEST_CHECK_NZ(ctx.Serialize(cc_tbl.Lines.GetTableName(), &cc_tbl.Lines.GetFieldsNonConst(), &ccl_rec, srlz_buf)));
-									THROW(SLTEST_CHECK_NZ(raw_file.Write(&ccl_rec, sizeof(ccl_rec))));
+									THROW(SLCHECK_NZ(ctx.Serialize(cc_tbl.Lines.GetTableName(), &cc_tbl.Lines.GetFieldsNonConst(), &ccl_rec, srlz_buf)));
+									THROW(SLCHECK_NZ(raw_file.Write(&ccl_rec, sizeof(ccl_rec))));
 								}
 							}
 							serial_list.add(s);
@@ -3985,9 +3985,9 @@ SLTEST_R(TestDbSerialization)
 							//
 							// Проверка работоспособности функции BNFieldList::IsEqualRecords
 							//
-							THROW(SLTEST_CHECK_NZ(todo_tbl.GetFields().IsEqualRecords(&todo_rec, &todo_tbl.data)));
-							THROW(SLTEST_CHECK_NZ(ctx.Serialize(todo_tbl.GetTableName(), &todo_tbl.GetFieldsNonConst(), &todo_tbl.data, srlz_buf)));
-							THROW(SLTEST_CHECK_NZ(raw_file.Write(&todo_tbl.data, sizeof(todo_tbl.data))));
+							THROW(SLCHECK_NZ(todo_tbl.GetFields().IsEqualRecords(&todo_rec, &todo_tbl.data)));
+							THROW(SLCHECK_NZ(ctx.Serialize(todo_tbl.GetTableName(), &todo_tbl.GetFieldsNonConst(), &todo_tbl.data, srlz_buf)));
+							THROW(SLCHECK_NZ(raw_file.Write(&todo_tbl.data, sizeof(todo_tbl.data))));
 							serial_list.add(s);
 							id_list.add(todo_rec.ID);
 							todo_first = 0;
@@ -3996,14 +3996,14 @@ SLTEST_R(TestDbSerialization)
 					break;
 			}
 		}
-		THROW(SLTEST_CHECK_NZ(ctx.SerializeStateOfContext(+1, state_buf)));
-		THROW(SLTEST_CHECK_NZ(srlz_file.Write(state_buf)));
-		THROW(SLTEST_CHECK_NZ(srlz_file.Write(srlz_buf)));
+		THROW(SLCHECK_NZ(ctx.SerializeStateOfContext(+1, state_buf)));
+		THROW(SLCHECK_NZ(srlz_file.Write(state_buf)));
+		THROW(SLCHECK_NZ(srlz_file.Write(srlz_buf)));
 	}
 	//
 	// Страховочная проверка
 	//
-	THROW(SLTEST_CHECK_EQ(serial_list.getCount(), id_list.getCount()));
+	THROW(SLCHECK_EQ(serial_list.getCount(), id_list.getCount()));
 	//
 	// Восстановление данных
 	//
@@ -4011,9 +4011,9 @@ SLTEST_R(TestDbSerialization)
 		SFile srlz_file(srlz_file_name, SFile::mRead|SFile::mBinary);
 		SSerializeContext ctx;
 		SBuffer srlz_buf, state_buf;
-		THROW(SLTEST_CHECK_NZ(srlz_file.Read(state_buf)));
-		THROW(SLTEST_CHECK_NZ(srlz_file.Read(srlz_buf)));
-		THROW(SLTEST_CHECK_NZ(ctx.SerializeStateOfContext(-1, state_buf)));
+		THROW(SLCHECK_NZ(srlz_file.Read(state_buf)));
+		THROW(SLCHECK_NZ(srlz_file.Read(srlz_buf)));
+		THROW(SLCHECK_NZ(ctx.SerializeStateOfContext(-1, state_buf)));
 		for(i = 0; i < serial_list.getCount(); i++) {
 			const int s = serial_list.get(i);
 			PPID id = id_list.get(i);
@@ -4021,30 +4021,30 @@ SLTEST_R(TestDbSerialization)
 				case 0: // bill
 					{
 						BillTbl::Rec bill_rec;
-						SLTEST_CHECK_NZ(bill_tbl.search(0, &id, spEq));
-						THROW(SLTEST_CHECK_NZ(ctx.Unserialize(bill_tbl.GetTableName(), &bill_tbl.GetFields(), &bill_rec, srlz_buf)));
-						THROW(SLTEST_CHECK_NZ(bill_tbl.GetFields().IsEqualRecords(&bill_rec, &bill_tbl.data)));
+						SLCHECK_NZ(bill_tbl.search(0, &id, spEq));
+						THROW(SLCHECK_NZ(ctx.Unserialize(bill_tbl.GetTableName(), &bill_tbl.GetFields(), &bill_rec, srlz_buf)));
+						THROW(SLCHECK_NZ(bill_tbl.GetFields().IsEqualRecords(&bill_rec, &bill_tbl.data)));
 					}
 					break;
 				case 1: // receipt
 					{
 						ReceiptTbl::Rec lot_rec;
-						SLTEST_CHECK_NZ(lot_tbl.search(0, &id, spEq));
-						THROW(SLTEST_CHECK_NZ(ctx.Unserialize(lot_tbl.GetTableName(), &lot_tbl.GetFields(), &lot_rec, srlz_buf)));
-						THROW(SLTEST_CHECK_NZ(lot_tbl.GetFields().IsEqualRecords(&lot_rec, &lot_tbl.data)));
+						SLCHECK_NZ(lot_tbl.search(0, &id, spEq));
+						THROW(SLCHECK_NZ(ctx.Unserialize(lot_tbl.GetTableName(), &lot_tbl.GetFields(), &lot_rec, srlz_buf)));
+						THROW(SLCHECK_NZ(lot_tbl.GetFields().IsEqualRecords(&lot_rec, &lot_tbl.data)));
 					}
 					break;
 				case 2: // ccheck
 					{
 						CCheckTbl::Rec cc_rec;
-						SLTEST_CHECK_NZ(cc_tbl.search(0, &id, spEq));
-						THROW(SLTEST_CHECK_NZ(ctx.Unserialize(cc_tbl.GetTableName(), &cc_tbl.GetFields(), &cc_rec, srlz_buf)));
-						THROW(SLTEST_CHECK_NZ(cc_tbl.GetFields().IsEqualRecords(&cc_rec, &cc_tbl.data)));
+						SLCHECK_NZ(cc_tbl.search(0, &id, spEq));
+						THROW(SLCHECK_NZ(ctx.Unserialize(cc_tbl.GetTableName(), &cc_tbl.GetFields(), &cc_rec, srlz_buf)));
+						THROW(SLCHECK_NZ(cc_tbl.GetFields().IsEqualRecords(&cc_rec, &cc_tbl.data)));
 						{
 							CCheckLineTbl::Rec ccl_rec, ccl_rec2;
 							for(int rbc = 0; cc_tbl.EnumLines(cc_rec.ID, &rbc, &ccl_rec) > 0;) {
-								THROW(SLTEST_CHECK_NZ(ctx.Unserialize(cc_tbl.Lines.GetTableName(), &cc_tbl.Lines.GetFields(), &ccl_rec2, srlz_buf)));
-								THROW(SLTEST_CHECK_NZ(cc_tbl.Lines.GetFields().IsEqualRecords(&ccl_rec, &ccl_rec2)));
+								THROW(SLCHECK_NZ(ctx.Unserialize(cc_tbl.Lines.GetTableName(), &cc_tbl.Lines.GetFields(), &ccl_rec2, srlz_buf)));
+								THROW(SLCHECK_NZ(cc_tbl.Lines.GetFields().IsEqualRecords(&ccl_rec, &ccl_rec2)));
 							}
 						}
 					}
@@ -4052,9 +4052,9 @@ SLTEST_R(TestDbSerialization)
 				case 3: // prjtask
 					{
 						PrjTaskTbl::Rec todo_rec;
-						SLTEST_CHECK_NZ(todo_tbl.search(0, &id, spEq));
-						THROW(SLTEST_CHECK_NZ(ctx.Unserialize(todo_tbl.GetTableName(), &todo_tbl.GetFields(), &todo_rec, srlz_buf)));
-						THROW(SLTEST_CHECK_NZ(todo_tbl.GetFields().IsEqualRecords(&todo_rec, &todo_tbl.data)));
+						SLCHECK_NZ(todo_tbl.search(0, &id, spEq));
+						THROW(SLCHECK_NZ(ctx.Unserialize(todo_tbl.GetTableName(), &todo_tbl.GetFields(), &todo_rec, srlz_buf)));
+						THROW(SLCHECK_NZ(todo_tbl.GetFields().IsEqualRecords(&todo_rec, &todo_tbl.data)));
 					}
 					break;
 			}

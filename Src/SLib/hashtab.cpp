@@ -1383,38 +1383,38 @@ SLTEST_R(HASHTAB)
 
 			(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("email-list.txt");
 			SFile inf(in_buf, SFile::mRead);
-			THROW(SLTEST_CHECK_NZ(inf.IsValid()));
+			THROW(SLCHECK_NZ(inf.IsValid()));
 			while(inf.ReadLine(line_buf, SFile::rlfChomp)) {
 				char * p_str = newStr(line_buf);
-				THROW(SLTEST_CHECK_NZ(ptr_collection.insert(p_str)));
+				THROW(SLCHECK_NZ(ptr_collection.insert(p_str)));
 				//
 				// Нечетные позиции вставляем в кэш, четные - нет
 				//
 				if(_count % 2) {
-					THROW(SLTEST_CHECK_NZ(ht.Add(p_str, _count+1, 0)));
+					THROW(SLCHECK_NZ(ht.Add(p_str, _count+1, 0)));
 				}
 				else {
 					//
 				}
 				_count++;
 			}
-			THROW(SLTEST_CHECK_EQ(ptr_collection.getCount(), _count));
+			THROW(SLCHECK_EQ(ptr_collection.getCount(), _count));
 			for(uint i = 0; i < test_iter_count; i++) {
 				uint idx = SLS.GetTLA().Rg.GetUniformInt(_count);
-				THROW(SLTEST_CHECK_LT((long)idx, (long)_count));
+				THROW(SLCHECK_LT((long)idx, (long)_count));
 				char * p_str = ptr_collection.at(idx);
 				{
 					uint val = 0;
 					uint pos = 0;
 					if(idx % 2) {
-						SLTEST_CHECK_NZ(ht.Search(p_str, &val, &pos));
+						SLCHECK_NZ(ht.Search(p_str, &val, &pos));
 						void * ptr = ht.Get(pos);
-						SLTEST_CHECK_NZ(ptr);
-						SLTEST_CHECK_EQ(ptr, (const void *)p_str);
-						SLTEST_CHECK_EQ(val, idx+1);
+						SLCHECK_NZ(ptr);
+						SLCHECK_EQ(ptr, (const void *)p_str);
+						SLCHECK_EQ(val, idx+1);
 					}
 					else {
-						SLTEST_CHECK_Z(ht.Search(p_str, &val, &pos));
+						SLCHECK_Z(ht.Search(p_str, &val, &pos));
 					}
 				}
 			}
@@ -1433,28 +1433,28 @@ SLTEST_R(HASHTAB)
 
 			(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("email-list.txt");
 			SFile inf(in_buf, SFile::mRead);
-			THROW(SLTEST_CHECK_NZ(inf.IsValid()));
+			THROW(SLCHECK_NZ(inf.IsValid()));
 			while(inf.ReadLine(line_buf, SFile::rlfChomp)) {
 				char * p_str = newStr(line_buf);
-				THROW(SLTEST_CHECK_NZ(ptr_collection.insert(p_str)));
+				THROW(SLCHECK_NZ(ptr_collection.insert(p_str)));
 				_count++;
 			}
-			THROW(SLTEST_CHECK_EQ(ptr_collection.getCount(), _count));
+			THROW(SLCHECK_EQ(ptr_collection.getCount(), _count));
 			{
 				for(long key = 1; key < ptr_collection.getCountI(); key++) {
-					SLTEST_CHECK_Z(tsht.Get(key, 0));
-					SLTEST_CHECK_NZ(tsht.Put(key, ptr_collection.at(key-1)));
+					SLCHECK_Z(tsht.Get(key, 0));
+					SLCHECK_NZ(tsht.Put(key, ptr_collection.at(key-1)));
 				}
 			}
 			{
 				for(long key = 1; key < ptr_collection.getCountI(); key++) {
-					SLTEST_CHECK_EQ(tsht.Put(key, ptr_collection.at(key-1)), 1);
+					SLCHECK_EQ(tsht.Put(key, ptr_collection.at(key-1)), 1);
 				}
 			}
 			{
 				for(long key = 1; key < ptr_collection.getCountI(); key++) {
-					SLTEST_CHECK_NZ(tsht.Get(key, &line_buf));
-					SLTEST_CHECK_EQ(line_buf, ptr_collection.at(key-1));
+					SLCHECK_NZ(tsht.Get(key, &line_buf));
+					SLCHECK_EQ(line_buf, ptr_collection.at(key-1));
 				}
 			}
 		}

@@ -546,6 +546,9 @@
     <ClInclude Include="..\OSF\abseil\absl\numeric\internal\representation.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\base\optimization.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\osf\abseil\absl\types\bad_any_cast.cc" />

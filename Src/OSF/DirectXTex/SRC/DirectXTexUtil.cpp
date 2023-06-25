@@ -198,7 +198,6 @@ _Use_decl_annotations_ bool DirectX::Internal::DXGIToWIC(DXGI_FORMAT format, GUI
 TEX_FILTER_FLAGS DirectX::Internal::CheckWICColorSpace(_In_ const GUID& sourceGUID, _In_ const GUID& targetGUID) noexcept
 {
 	TEX_FILTER_FLAGS srgb = TEX_FILTER_DEFAULT;
-
 	for(size_t i = 0; i < std::size(g_WICFormats); ++i) {
 		if(memcmp(&g_WICFormats[i].wic, &sourceGUID, sizeof(GUID)) == 0) {
 			if(g_WICFormats[i].srgb)

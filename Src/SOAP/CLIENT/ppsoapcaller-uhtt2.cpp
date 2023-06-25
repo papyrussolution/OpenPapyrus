@@ -1,5 +1,5 @@
 // PPSOAPCALLER-UHTT.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2023
 //
 #include <ppsoapclient.h>
 #include "uhtt2\uhttSoapWSInterfaceImplServiceSoapBindingProxy.h"
@@ -401,8 +401,8 @@ static UhttGoodsPacket * UhttGoodsOuterToInner(const ns1__goods * pOuter)
 	if(pOuter && p_result) {
 		SString temp_buf;
 		p_result->ID = pOuter->ID;
-		p_result->BrandID = pOuter->BrandID; // @v8.2.10
-		p_result->ManufID = pOuter->ManufactorID; // @v8.3.5
+		p_result->BrandID = pOuter->BrandID;
+		p_result->ManufID = pOuter->ManufactorID;
 		(temp_buf = pOuter->Name).Transf(CTRANSF_UTF8_TO_INNER).CopyTo(p_result->Name, sizeof(p_result->Name));
 		(temp_buf = pOuter->SingleBarcode).Transf(CTRANSF_UTF8_TO_INNER).CopyTo(p_result->SingleBarcode, sizeof(p_result->SingleBarcode));
 		p_result->Package = pOuter->Package;
@@ -1475,10 +1475,10 @@ static int Implement_GetWorkbookPacket(const ns1__workbook * pSp, UhttWorkbookIt
 		(rP.Symb = pSp->Symb).Transf(CTRANSF_UTF8_TO_INNER);
 		rP.Dtm.Date = pSp->Dt;
 		rP.Dtm.Time = pSp->Tm;
-		rP.ModifDtm.Date = pSp->ModifDt; // @v9.3.8
-		rP.ModifDtm.Time = pSp->ModifTm; // @v9.3.8
-		rP.ContentModifDtm.Date = pSp->ContentModifDt; // @v9.3.7
-		rP.ContentModifDtm.Time = pSp->ContentModifTm; // @v9.3.7
+		rP.ModifDtm.Date = pSp->ModifDt;
+		rP.ModifDtm.Time = pSp->ModifTm;
+		rP.ContentModifDtm.Date = pSp->ContentModifDt;
+		rP.ContentModifDtm.Time = pSp->ContentModifTm;
 		(rP.Version = pSp->Version).Transf(CTRANSF_UTF8_TO_INNER);
 		(rP.Descr = pSp->Descr).Transf(CTRANSF_UTF8_TO_INNER);
 		if(pSp->Tags) {
@@ -1654,8 +1654,8 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateWorkbookItem(PPSoapClien
 	instance.KeywordDilute = rPack.KeywordDilute;
 	instance.Dt = GetDynamicParamString(rPack.Dtm.Date, arg_str_pool);
 	instance.Tm = GetDynamicParamString(rPack.Dtm.Time, arg_str_pool);
-	instance.ModifDt = GetDynamicParamString(rPack.ModifDtm.Date, arg_str_pool); // @v9.3.8
-	instance.ModifTm = GetDynamicParamString(rPack.ModifDtm.Time, arg_str_pool); // @v9.3.8
+	instance.ModifDt = GetDynamicParamString(rPack.ModifDtm.Date, arg_str_pool);
+	instance.ModifTm = GetDynamicParamString(rPack.ModifDtm.Time, arg_str_pool);
 	instance.Version = GetDynamicParamString(rPack.Version, arg_str_pool);
 	instance.Descr = GetDynamicParamString(rPack.Descr, arg_str_pool);
 	instance.ContentModifDt = GetDynamicParamString(rPack.ContentModifDtm.Date, arg_str_pool);
@@ -1935,7 +1935,7 @@ static UhttTSessionPacket * UhttTSessionOuterToInner(const ns1__tSession * pOute
 			p_result->StTime.T = pOuter->StTime;
 			p_result->FinTime.T = pOuter->FinTime;
 			(p_result->Memo = pOuter->Memo).Transf(CTRANSF_UTF8_TO_INNER);
-			(p_result->Detail = pOuter->Detail).Transf(CTRANSF_UTF8_TO_INNER); // @v8.8.0
+			(p_result->Detail = pOuter->Detail).Transf(CTRANSF_UTF8_TO_INNER);
 			{
 				if(pOuter->Tags) {
 					for(int j = 0; j < pOuter->__sizeTags; j++) {

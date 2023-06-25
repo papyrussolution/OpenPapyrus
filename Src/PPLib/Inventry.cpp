@@ -1858,7 +1858,7 @@ int TestGenerateInventory()
 
 SLTEST_R(GenerateInventory)
 {
-	SLTEST_CHECK_NZ(TestGenerateInventory());
+	SLCHECK_NZ(TestGenerateInventory());
 	return CurrentStatus;
 }
 

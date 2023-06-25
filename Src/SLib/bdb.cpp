@@ -1659,11 +1659,11 @@ SLTEST_R(BerkeleyDB)
 	(home_dir = GetSuiteEntry()->OutPath).SetLastSlash().Cat("BDB");
 	(test_file = GetSuiteEntry()->InPath).SetLastSlash().Cat("city-enru-pair.csv");
 	::RemoveDir(home_dir);
-	THROW(SLTEST_CHECK_NZ(createDir(home_dir)));
+	THROW(SLCHECK_NZ(createDir(home_dir)));
 	{
 		SFile f_in(test_file, SFile::mRead);
 		SString line_buf, en_buf, ru_buf, test_buf;
-		THROW(SLTEST_CHECK_NZ(f_in.IsValid()));
+		THROW(SLCHECK_NZ(f_in.IsValid()));
 		{
 			/*
 			BDbDatabase::Config bdb_cfg;
@@ -1673,19 +1673,19 @@ SLTEST_R(BerkeleyDB)
 			bdb_cfg.LogFileSize = 256 * 1024 * 1024;
 			*/
 			BDbDatabase bdb(home_dir);
-			THROW(SLTEST_CHECK_NZ(bdb));
+			THROW(SLCHECK_NZ(bdb));
 			{
 				const  uint  test_ta_count = 20;
 				uint   count = 0;
 				BDbTable::Buffer key_buf, val_buf;
 				BDbTable tbl(BDbTable::ConfigHash("city-enru-pair", 0, /*1024*/0, 0), &bdb);
-				THROW(SLTEST_CHECK_NZ(tbl));
+				THROW(SLCHECK_NZ(tbl));
 				{
 					//
 					// Тест транзактивной вставки нескольких записей
 					//
 					StrAssocArray test_list;
-					THROW(SLTEST_CHECK_NZ(bdb.StartTransaction()));
+					THROW(SLCHECK_NZ(bdb.StartTransaction()));
 					while(f_in.ReadLine(line_buf, SFile::rlfChomp) && count < test_ta_count) {
 						count++;
 						test_list.Add(count, line_buf);
@@ -1693,36 +1693,36 @@ SLTEST_R(BerkeleyDB)
 
 						key_buf = en_buf;
 						val_buf = ru_buf;
-						THROW(SLTEST_CHECK_NZ(tbl.InsertRec(key_buf, val_buf)));
+						THROW(SLCHECK_NZ(tbl.InsertRec(key_buf, val_buf)));
 					}
-					THROW(SLTEST_CHECK_NZ(bdb.CommitWork()));
+					THROW(SLCHECK_NZ(bdb.CommitWork()));
 					for(i = 0; i < test_list.getCount(); i++) {
 						line_buf = test_list.Get(i).Txt;
 						line_buf.Divide(';', en_buf, ru_buf);
 						key_buf = en_buf;
-						THROW(SLTEST_CHECK_NZ(tbl.Search(key_buf, val_buf)));
+						THROW(SLCHECK_NZ(tbl.Search(key_buf, val_buf)));
 						val_buf.Get(test_buf);
-						THROW(SLTEST_CHECK_Z(test_buf.Cmp(ru_buf, 0)));
+						THROW(SLCHECK_Z(test_buf.Cmp(ru_buf, 0)));
 					}
 					{
 						//
 						// Тест транзактивного удаления вставленных записей
 						//
-						THROW(SLTEST_CHECK_NZ(bdb.StartTransaction()));
+						THROW(SLCHECK_NZ(bdb.StartTransaction()));
 						for(i = 0; i < test_list.getCount(); i++) {
 							line_buf = test_list.Get(i).Txt;
 							line_buf.Divide(';', en_buf, ru_buf);
 							key_buf = en_buf;
-							THROW(SLTEST_CHECK_NZ(tbl.Search(key_buf, val_buf)));
-							THROW(SLTEST_CHECK_NZ(tbl.DeleteRec(key_buf)));
+							THROW(SLCHECK_NZ(tbl.Search(key_buf, val_buf)));
+							THROW(SLCHECK_NZ(tbl.DeleteRec(key_buf)));
 						}
-						THROW(SLTEST_CHECK_NZ(bdb.CommitWork()));
+						THROW(SLCHECK_NZ(bdb.CommitWork()));
 						for(i = 0; i < test_list.getCount(); i++) {
 							line_buf = test_list.Get(i).Txt;
 							line_buf.Divide(';', en_buf, ru_buf);
 							key_buf = en_buf;
-							THROW(SLTEST_CHECK_Z(tbl.Search(key_buf, val_buf)));
-							THROW(SLTEST_CHECK_EQ(BtrError, BE_KEYNFOUND));
+							THROW(SLCHECK_Z(tbl.Search(key_buf, val_buf)));
+							THROW(SLCHECK_EQ(BtrError, BE_KEYNFOUND));
 						}
 					}
 				}
@@ -1731,7 +1731,7 @@ SLTEST_R(BerkeleyDB)
 					// Тест отмены транзакции во время вставки записей
 					//
 					StrAssocArray test_list;
-					THROW(SLTEST_CHECK_NZ(bdb.StartTransaction()));
+					THROW(SLCHECK_NZ(bdb.StartTransaction()));
 					while(f_in.ReadLine(line_buf, SFile::rlfChomp) && count < 2*test_ta_count) {
 						count++;
 						test_list.Add(count, line_buf);
@@ -1739,15 +1739,15 @@ SLTEST_R(BerkeleyDB)
 
 						key_buf = en_buf;
 						val_buf = ru_buf;
-						THROW(SLTEST_CHECK_NZ(tbl.InsertRec(key_buf, val_buf)));
+						THROW(SLCHECK_NZ(tbl.InsertRec(key_buf, val_buf)));
 						//
 						// До отмены транзакции мы должны видеть вставленные записи
 						//
-						THROW(SLTEST_CHECK_NZ(tbl.Search(key_buf, val_buf)));
+						THROW(SLCHECK_NZ(tbl.Search(key_buf, val_buf)));
 						val_buf.Get(test_buf);
-						THROW(SLTEST_CHECK_Z(test_buf.Cmp(ru_buf, 0)));
+						THROW(SLCHECK_Z(test_buf.Cmp(ru_buf, 0)));
 					}
-					THROW(SLTEST_CHECK_NZ(bdb.RollbackWork()));
+					THROW(SLCHECK_NZ(bdb.RollbackWork()));
 					//
 					// Ни одной записи из добавленных записей не должно быть в базе данных
 					//
@@ -1755,8 +1755,8 @@ SLTEST_R(BerkeleyDB)
 						line_buf = test_list.Get(i).Txt;
 						line_buf.Divide(';', en_buf, ru_buf);
 						key_buf = en_buf;
-						THROW(SLTEST_CHECK_Z(tbl.Search(key_buf, val_buf)));
-						THROW(SLTEST_CHECK_EQ(BtrError, BE_KEYNFOUND));
+						THROW(SLCHECK_Z(tbl.Search(key_buf, val_buf)));
+						THROW(SLCHECK_EQ(BtrError, BE_KEYNFOUND));
 					}
 				}
 				{
@@ -1766,7 +1766,7 @@ SLTEST_R(BerkeleyDB)
 					StrAssocArray test_list;
 					count = 0;
 					f_in.Seek(0, SEEK_SET);
-					THROW(SLTEST_CHECK_NZ(bdb.StartTransaction()));
+					THROW(SLCHECK_NZ(bdb.StartTransaction()));
 					while(f_in.ReadLine(line_buf, SFile::rlfChomp)) {
 						count++;
 						test_list.Add(count, line_buf);
@@ -1774,16 +1774,16 @@ SLTEST_R(BerkeleyDB)
 
 						key_buf = en_buf;
 						val_buf = ru_buf;
-						THROW(SLTEST_CHECK_NZ(tbl.InsertRec(key_buf, val_buf)));
+						THROW(SLCHECK_NZ(tbl.InsertRec(key_buf, val_buf)));
 					}
-					THROW(SLTEST_CHECK_NZ(bdb.CommitWork()));
+					THROW(SLCHECK_NZ(bdb.CommitWork()));
 					for(i = 0; i < test_list.getCount(); i++) {
 						line_buf = test_list.Get(i).Txt;
 						line_buf.Divide(';', en_buf, ru_buf);
 						key_buf = en_buf;
-						THROW(SLTEST_CHECK_NZ(tbl.Search(key_buf, val_buf)));
+						THROW(SLCHECK_NZ(tbl.Search(key_buf, val_buf)));
 						val_buf.Get(test_buf);
-						THROW(SLTEST_CHECK_Z(test_buf.Cmp(ru_buf, 0)));
+						THROW(SLCHECK_Z(test_buf.Cmp(ru_buf, 0)));
 					}
 				}
 			}

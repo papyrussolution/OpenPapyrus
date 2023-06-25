@@ -1,5 +1,5 @@
 // PPBUILD.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -277,7 +277,7 @@ int	PrcssrBuild::EditParam(Param * pParam)
 				temp_buf.Z();
 				if(p_config_entry) {
 					StrAssocArray msvs_ver_list;
-					PrcssrBuild::FindMsvs(p_config_entry->PrefMsvsVerMajor, msvs_ver_list, &temp_buf);
+					PrcssrBuild::FindMsvs2(p_config_entry->PrefMsvsVerMajor, msvs_ver_list, &temp_buf);
 					setCtrlString(CTL_SELFBUILD_CMPLRPATH, temp_buf);
 				}
 				setCtrlString(CTL_SELFBUILD_CMPLRPATH, temp_buf);
@@ -328,6 +328,76 @@ del %PPYSRC%\build\log\build.failed
 echo status > %PPYSRC%\build\log\%BUILD_STATUS%
 
 #endif // } 0
+
+static long ParseVisualStudioVersion(const SString & rVerText)
+{
+	long    result = 0;
+	SString temp_buf;
+	StringSet ss;
+	rVerText.Tokenize(".", ss);
+	if(ss.getCount() >= 3) {
+		uint    tokn = 0;
+		long    major = 0;
+		long    minor = 0;
+		for(uint ssp = 0; ss.get(&ssp, temp_buf); tokn++) {
+			if(tokn == 0)
+				major = temp_buf.ToLong();
+			else if(tokn == 1)
+				minor = temp_buf.ToLong();
+		}
+		if(major > 0 && minor > 0) {
+			result = (major << 16) | (minor & 0xffff);
+		}
+	}
+	return result;
+}
+
+/*static*/int PrcssrBuild::FindMsvs2(int prefMsvsVerMajor, StrAssocArray & rList, SString * pPrefPath) // @construction
+{
+	/*
+instId: 30d540f4 instTime: 2020-12-25T10:22:33 dispName: Visual Studio Enterprise 2019 descr: Комплексное масштабируемое решение для команд любого размера. name: VisualStudio/16.11.25+33423.256 ver: 16.11.33423.256 path: d:\MSVS2019
+instId: 88b42a1d instTime: 2022-01-10T08:14:43 dispName: Visual Studio Enterprise 2022 descr: Комплексное масштабируемое решение для команд любого размера. name: VisualStudio/17.5.3+33516.290 ver: 17.5.33516.290 path: D:\MSVS2022
+instId: b3de6ff5 instTime: 2018-02-20T11:10:36 dispName: Visual Studio Enterprise 2017 descr: Решение DevOps от Майкрософт для координации и обеспечения эффективности команд любого размера name: VisualStudio/15.9.53+33423.255 ver: 15.9.33423.255 path: d:\MSVS2017
+instId: d1c0a2bd instTime: 2020-05-10T12:26:05 dispName: Visual Studio Build Tools 2017 descr: Visual Studio Build Tools позволяет осуществлять сборку собственных и управляемых приложений на базе MSBuild без использования среды Visual Studio IDE. Существуют разные варианты установки компиляторов и библиотек Visual C++, ATL, MFC и поддержки C++/CLI. name: VisualStudio/15.9.30+28307.1321 ver: 15.9.28307.1321 path: C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools
+	// \Common7\IDE\
+	*/
+	int    ok = -1;
+	SString temp_buf;
+	SString get_vs_inst_msg;
+	TSCollection <VisualStudioInstallationLocator::Entry> vs_entry_list;
+	if(VisualStudioInstallationLocator::Locate(vs_entry_list, &get_vs_inst_msg)) {
+		for(uint i = 0; i < vs_entry_list.getCount(); i++) {
+			const VisualStudioInstallationLocator::Entry * p_entry = vs_entry_list.at(i);
+			long msvs_ver = p_entry ? ParseVisualStudioVersion(p_entry->Version) : 0;
+			if(msvs_ver && !p_entry->DisplayName.Search("Build Tools", 0, 1, 0)) {
+				temp_buf = p_entry->Path;
+				if(IsDirectory(temp_buf) && IsDirectory(temp_buf.SetLastSlash().Cat("Common7")) &&
+					IsDirectory(temp_buf.SetLastSlash().Cat("IDE"))) {
+					rList.Add(msvs_ver, temp_buf);
+					ok = 1;
+				}
+			}
+		}
+		if(ok > 0 && pPrefPath) {
+			for(uint i = 0; pPrefPath->IsEmpty() && i < rList.getCount(); i++) {
+				StrAssocArray::Item item = rList.Get(i);
+				const int msvs_ver_major = (item.Id >> 16);
+				const int msvs_ver_minor = (item.Id & 0xffff);
+				if(prefMsvsVerMajor) {
+					if(msvs_ver_major == prefMsvsVerMajor) {
+						(*pPrefPath = item.Txt).SetLastSlash().Cat("devenv").DotCat("exe");
+						ok = 2;
+					}
+				}
+				else if(msvs_ver_major == 7 && msvs_ver_minor == 1) {
+					(*pPrefPath = item.Txt).SetLastSlash().Cat("devenv").DotCat("exe");
+					ok = 2;
+				}
+			}
+		}
+	}
+	return ok;
+}
 
 /*static*/int PrcssrBuild::FindMsvs(int prefMsvsVerMajor, StrAssocArray & rList, SString * pPrefPath)
 {
@@ -441,7 +511,7 @@ int PrcssrBuild::Helper_Compile(const Param::ConfigEntry * pCfgEntry, int supple
 	StringSet result_file_list(";");
 	const char * p_prc_cur_dir = pCfgEntry->SlnPath.NotEmpty() ? pCfgEntry->SlnPath.cptr() : static_cast<const char *>(0);
 	rLogger.Log((msg_buf = "Current dir for child processes").CatDiv(':', 2).Cat(p_prc_cur_dir));
-	THROW(FindMsvs(pCfgEntry->PrefMsvsVerMajor, msvs_ver_list, &msvs_path));
+	THROW(FindMsvs2(pCfgEntry->PrefMsvsVerMajor, msvs_ver_list, &msvs_path));
 	PPLoadText(PPTXT_BUILD_COMPILERNAME_VS71, temp_buf);
 	THROW_PP_S(msvs_path.NotEmpty() && fileExists(msvs_path), PPERR_BUILD_COMPILERNFOUND, temp_buf);
 	for(uint j = 0; j < SIZEOFARRAY(sln_list); j++) {

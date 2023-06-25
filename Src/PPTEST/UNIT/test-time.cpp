@@ -58,23 +58,23 @@ SLTEST_R(LDATE)
 		//
 		datetimefmt(test_val, DATF_DMY, TIMF_HMS, cvt_buf, sizeof(cvt_buf));
 		strtodatetime(cvt_buf, &cvt_val, DATF_DMY, TIMF_HMS);
-		SLTEST_CHECK_EQ(test_val, cvt_val);
+		SLCHECK_EQ(test_val, cvt_val);
 		//
 		{
 			SUniTime_Inner uti;
 			__time64_t tt = test_val.GetTimeT();
 			const struct tm * p_tm = _gmtime64(&tt);
 			__EpochTimeToTimeFields(tt, &uti);
-			SLTEST_CHECK_EQ((long)p_tm->tm_year, (long)(uti.Y-1900));
-			SLTEST_CHECK_EQ((long)p_tm->tm_mon+1, (long)uti.M);
-			SLTEST_CHECK_EQ((long)p_tm->tm_mday, (long)uti.D);
-			SLTEST_CHECK_EQ((long)p_tm->tm_hour, (long)uti.Hr);
-			SLTEST_CHECK_EQ((long)p_tm->tm_min, (long)uti.Mn);
-			SLTEST_CHECK_EQ((long)p_tm->tm_sec, (long)uti.Sc);
-			SLTEST_CHECK_EQ((long)p_tm->tm_wday, (long)uti.Weekday);
+			SLCHECK_EQ((long)p_tm->tm_year, (long)(uti.Y-1900));
+			SLCHECK_EQ((long)p_tm->tm_mon+1, (long)uti.M);
+			SLCHECK_EQ((long)p_tm->tm_mday, (long)uti.D);
+			SLCHECK_EQ((long)p_tm->tm_hour, (long)uti.Hr);
+			SLCHECK_EQ((long)p_tm->tm_min, (long)uti.Mn);
+			SLCHECK_EQ((long)p_tm->tm_sec, (long)uti.Sc);
+			SLCHECK_EQ((long)p_tm->tm_wday, (long)uti.Weekday);
 			uint64 epoch_tm = 0;
 			__TimeFieldsToEpochTime(&uti, &epoch_tm);
-			SLTEST_CHECK_EQ(epoch_tm, (uint64)tt);
+			SLCHECK_EQ(epoch_tm, (uint64)tt);
 		}
 	}
 	{
@@ -88,11 +88,11 @@ SLTEST_R(LDATE)
 			//
 			datefmt(&test_val, DATF_DMY, cvt_buf);
 			strtodate(cvt_buf,  DATF_DMY, &cvt_val);
-			SLTEST_CHECK_EQ(test_val, cvt_val);
+			SLCHECK_EQ(test_val, cvt_val);
 			//
 			test_val = test_val.getactual(rel);
 			strtodate(r_item.Out, DATF_DMY, &pattern_val);
-			SLTEST_CHECK_EQ(test_val, pattern_val);
+			SLCHECK_EQ(test_val, pattern_val);
 		}
 	}
 	{
@@ -101,108 +101,108 @@ SLTEST_R(LDATE)
 			int y = 2008, m = 12, d = 30;
 			int dc = DateToDaysSinceChristmas(y, m, d);
 			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLTEST_CHECK_EQ((long)y2, (long)y);
-			SLTEST_CHECK_EQ((long)m2, (long)m);
-			SLTEST_CHECK_EQ((long)d2, (long)d);
+			SLCHECK_EQ((long)y2, (long)y);
+			SLCHECK_EQ((long)m2, (long)m);
+			SLCHECK_EQ((long)d2, (long)d);
 		}
 		{
 			int y = 2008, m = 12, d = 31;
 			int dc = DateToDaysSinceChristmas(y, m, d);
 			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLTEST_CHECK_EQ((long)y2, (long)y);
-			SLTEST_CHECK_EQ((long)m2, (long)m);
-			SLTEST_CHECK_EQ((long)d2, (long)d);
+			SLCHECK_EQ((long)y2, (long)y);
+			SLCHECK_EQ((long)m2, (long)m);
+			SLCHECK_EQ((long)d2, (long)d);
 		}
 		{
 			int y = 1600, m = 12, d = 30;
 			int dc = DateToDaysSinceChristmas(y, m, d);
 			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLTEST_CHECK_EQ((long)y2, (long)y);
-			SLTEST_CHECK_EQ((long)m2, (long)m);
-			SLTEST_CHECK_EQ((long)d2, (long)d);
+			SLCHECK_EQ((long)y2, (long)y);
+			SLCHECK_EQ((long)m2, (long)m);
+			SLCHECK_EQ((long)d2, (long)d);
 		}
 		{
 			int y = 1600, m = 12, d = 31;
 			int dc = DateToDaysSinceChristmas(y, m, d);
 			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLTEST_CHECK_EQ((long)y2, (long)y);
-			SLTEST_CHECK_EQ((long)m2, (long)m);
-			SLTEST_CHECK_EQ((long)d2, (long)d);
+			SLCHECK_EQ((long)y2, (long)y);
+			SLCHECK_EQ((long)m2, (long)m);
+			SLCHECK_EQ((long)d2, (long)d);
 		}
 		{
 			int y = 2001, m = 1, d = 1;
 			int dc = DateToDaysSinceChristmas(y, m, d);
 			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLTEST_CHECK_EQ((long)y2, (long)y);
-			SLTEST_CHECK_EQ((long)m2, (long)m);
-			SLTEST_CHECK_EQ((long)d2, (long)d);
+			SLCHECK_EQ((long)y2, (long)y);
+			SLCHECK_EQ((long)m2, (long)m);
+			SLCHECK_EQ((long)d2, (long)d);
 		}
 		{
 			int y = 2004, m = 2, d = 29;
 			int dc = DateToDaysSinceChristmas(y, m, d);
 			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLTEST_CHECK_EQ((long)y2, (long)y);
-			SLTEST_CHECK_EQ((long)m2, (long)m);
-			SLTEST_CHECK_EQ((long)d2, (long)d);
+			SLCHECK_EQ((long)y2, (long)y);
+			SLCHECK_EQ((long)m2, (long)m);
+			SLCHECK_EQ((long)d2, (long)d);
 		}
 		{
 			int y = 1991, m = 3, d = 1;
 			int dc = DateToDaysSinceChristmas(y, m, d);
 			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLTEST_CHECK_EQ((long)y2, (long)y);
-			SLTEST_CHECK_EQ((long)m2, (long)m);
-			SLTEST_CHECK_EQ((long)d2, (long)d);
+			SLCHECK_EQ((long)y2, (long)y);
+			SLCHECK_EQ((long)m2, (long)m);
+			SLCHECK_EQ((long)d2, (long)d);
 		}
 		{
 			int y = 1879, m = 12, d = 31;
 			int dc = DateToDaysSinceChristmas(y, m, d);
 			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLTEST_CHECK_EQ((long)y2, (long)y);
-			SLTEST_CHECK_EQ((long)m2, (long)m);
-			SLTEST_CHECK_EQ((long)d2, (long)d);
+			SLCHECK_EQ((long)y2, (long)y);
+			SLCHECK_EQ((long)m2, (long)m);
+			SLCHECK_EQ((long)d2, (long)d);
 		}
 		{
 			int y = 1, m = 1, d = 1;
 			int dc = DateToDaysSinceChristmas(y, m, d);
 			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLTEST_CHECK_EQ((long)y2, (long)y);
-			SLTEST_CHECK_EQ((long)m2, (long)m);
-			SLTEST_CHECK_EQ((long)d2, (long)d);
+			SLCHECK_EQ((long)y2, (long)y);
+			SLCHECK_EQ((long)m2, (long)m);
+			SLCHECK_EQ((long)d2, (long)d);
 		}
 		{
 			int y = 1582, m = 10, d = 15;
 			int dc = DateToDaysSinceChristmas(y, m, d);
 			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLTEST_CHECK_EQ((long)y2, (long)y);
-			SLTEST_CHECK_EQ((long)m2, (long)m);
-			SLTEST_CHECK_EQ((long)d2, (long)d);
+			SLCHECK_EQ((long)y2, (long)y);
+			SLCHECK_EQ((long)m2, (long)m);
+			SLCHECK_EQ((long)d2, (long)d);
 		}
 		{
 			// /*719527*/719162 days were between March 1, 1 BC and March 1, 1970,
 			int dc1 = DateToDaysSinceChristmas(1, 3, 1);
 			int dc2 = DateToDaysSinceChristmas(1970, 3, 1);
-			SLTEST_CHECK_EQ((dc2-dc1), /*719527*/719162);
+			SLCHECK_EQ((dc2-dc1), /*719527*/719162);
 			DaysSinceChristmasToDate(dc1, &y2, &m2, &d2);
-			SLTEST_CHECK_EQ((long)y2, (long)1);
-			SLTEST_CHECK_EQ((long)m2, (long)3);
-			SLTEST_CHECK_EQ((long)d2, (long)1);
+			SLCHECK_EQ((long)y2, (long)1);
+			SLCHECK_EQ((long)m2, (long)3);
+			SLCHECK_EQ((long)d2, (long)1);
 			DaysSinceChristmasToDate(dc2, &y2, &m2, &d2);
-			SLTEST_CHECK_EQ((long)y2, (long)1970);
-			SLTEST_CHECK_EQ((long)m2, (long)3);
-			SLTEST_CHECK_EQ((long)d2, (long)1);
+			SLCHECK_EQ((long)y2, (long)1970);
+			SLCHECK_EQ((long)m2, (long)3);
+			SLCHECK_EQ((long)d2, (long)1);
 		}
 		{
 			int dc1 = DateToDaysSinceChristmas(1996, 12, 31);
 			int dc2 = DateToDaysSinceChristmas(1997, 1, 1);
-			SLTEST_CHECK_EQ((dc2-dc1), 1);
+			SLCHECK_EQ((dc2-dc1), 1);
 			DaysSinceChristmasToDate(dc1, &y2, &m2, &d2);
-			SLTEST_CHECK_EQ((long)y2, (long)1996);
-			SLTEST_CHECK_EQ((long)m2, (long)12);
-			SLTEST_CHECK_EQ((long)d2, (long)31);
+			SLCHECK_EQ((long)y2, (long)1996);
+			SLCHECK_EQ((long)m2, (long)12);
+			SLCHECK_EQ((long)d2, (long)31);
 			DaysSinceChristmasToDate(dc2, &y2, &m2, &d2);
-			SLTEST_CHECK_EQ((long)y2, (long)1997);
-			SLTEST_CHECK_EQ((long)m2, (long)1);
-			SLTEST_CHECK_EQ((long)d2, (long)1);
+			SLCHECK_EQ((long)y2, (long)1997);
+			SLCHECK_EQ((long)m2, (long)1);
+			SLCHECK_EQ((long)d2, (long)1);
 		}
 	}
 	{
@@ -210,8 +210,8 @@ SLTEST_R(LDATE)
 		const  LDATE rel = encodedate(15, 10, 1582);
 		for(i = 1; i < 200000; i++) {
 			LDATE test = plusdate(rel, i);
-			SLTEST_CHECK_EQ((long)diffdate(test, rel), (long)i);
-			SLTEST_CHECK_EQ((long)diffdate(rel, test), -(long)i);
+			SLCHECK_EQ((long)diffdate(test, rel), (long)i);
+			SLCHECK_EQ((long)diffdate(rel, test), -(long)i);
 		}
 	}
 	{
@@ -229,43 +229,43 @@ SLTEST_R(LDATE)
 				long fmt = MONF_SHORT;
 				getMonthText(i, fmt, txt_mon);
 				SGetMonthText(i, fmt, mon_buf);
-				SLTEST_CHECK_EQ(mon_buf, txt_mon);
+				SLCHECK_EQ(mon_buf, txt_mon);
 			}
 			{
 				long fmt = MONF_CASENOM;
 				getMonthText(i, fmt, txt_mon);
 				SGetMonthText(i, fmt, mon_buf);
-				SLTEST_CHECK_EQ(mon_buf, txt_mon);
+				SLCHECK_EQ(mon_buf, txt_mon);
 			}
 			{
 				long fmt = MONF_CASEGEN;
 				getMonthText(i, fmt, txt_mon);
 				SGetMonthText(i, fmt, mon_buf);
-				SLTEST_CHECK_EQ(mon_buf, txt_mon);
+				SLCHECK_EQ(mon_buf, txt_mon);
 			}
 			{
 				long fmt = MONF_CASENOM|MONF_OEM;
 				getMonthText(i, fmt, txt_mon);
 				SGetMonthText(i, fmt, mon_buf);
-				SLTEST_CHECK_EQ(mon_buf, txt_mon);
+				SLCHECK_EQ(mon_buf, txt_mon);
 			}
 #endif // } 0 @v10.4.5
 		}
 	}
 	{
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 1), 0L);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 2), 0L);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 3), 0L);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 4), 0L);
+		SLCHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 1), 0L);
+		SLCHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 2), 0L);
+		SLCHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 3), 0L);
+		SLCHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 4), 0L);
 
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 10, 17), encodetime(10, 1, 10, 17), 1), 2L);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 7, 10, 17), encodetime(12, 1, 10, 17), 2), 6L);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 21, 17), encodetime(12, 1, 10, 17), 3), 11L);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 10, 27), encodetime(12, 1, 10, 17), 4), 100L);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 10, 17), encodetime(12, 1, 10, 27), 4), -100L);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 10, 27), 4), 1000L);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 10, 27), encodetime(12, 1, 11, 27), 4), -1000L);
-		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 2, 11,  7), encodetime(12, 1, 10, 17), 4), 60900L);
+		SLCHECK_EQ(DiffTime(encodetime(12, 1, 10, 17), encodetime(10, 1, 10, 17), 1), 2L);
+		SLCHECK_EQ(DiffTime(encodetime(12, 7, 10, 17), encodetime(12, 1, 10, 17), 2), 6L);
+		SLCHECK_EQ(DiffTime(encodetime(12, 1, 21, 17), encodetime(12, 1, 10, 17), 3), 11L);
+		SLCHECK_EQ(DiffTime(encodetime(12, 1, 10, 27), encodetime(12, 1, 10, 17), 4), 100L);
+		SLCHECK_EQ(DiffTime(encodetime(12, 1, 10, 17), encodetime(12, 1, 10, 27), 4), -100L);
+		SLCHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 10, 27), 4), 1000L);
+		SLCHECK_EQ(DiffTime(encodetime(12, 1, 10, 27), encodetime(12, 1, 11, 27), 4), -1000L);
+		SLCHECK_EQ(DiffTime(encodetime(12, 2, 11,  7), encodetime(12, 1, 10, 17), 4), 60900L);
 	}
 	{
 		SString temp_buf;
@@ -273,16 +273,16 @@ SLTEST_R(LDATE)
 		const long datf = DATF_DMY|DATF_CENTURY;
 		const long timf = TIMF_HMS;
 		strtodatetime("31/12/2008 01:17:02", &dtm, datf, timf);
-		SLTEST_CHECK_EQ(temp_buf.Z().Cat(dtm.addsec(0), datf, timf), "31/12/2008 01:17:02");
-		SLTEST_CHECK_EQ(temp_buf.Z().Cat(dtm.addsec(1), datf, timf), "31/12/2008 01:17:03");
-		SLTEST_CHECK_EQ(temp_buf.Z().Cat(dtm.addsec(60), datf, timf), "31/12/2008 01:18:03");
-		SLTEST_CHECK_EQ(temp_buf.Z().Cat(dtm.addsec(3600), datf, timf), "31/12/2008 02:18:03");
-		SLTEST_CHECK_EQ(temp_buf.Z().Cat(dtm.addsec(24*3600), datf, timf), "01/01/2009 02:18:03");
-		SLTEST_CHECK_EQ(temp_buf.Z().Cat(dtm.addsec(-1), datf, timf), "01/01/2009 02:18:02");
-		SLTEST_CHECK_EQ(temp_buf.Z().Cat(dtm.addsec(-60), datf, timf), "01/01/2009 02:17:02");
-		SLTEST_CHECK_EQ(temp_buf.Z().Cat(dtm.addsec(-3600), datf, timf), "01/01/2009 01:17:02");
-		SLTEST_CHECK_EQ(temp_buf.Z().Cat(dtm.addsec(-24*3600), datf, timf), "31/12/2008 01:17:02");
-		SLTEST_CHECK_EQ(temp_buf.Z().Cat(dtm.addsec(0), datf, timf), "31/12/2008 01:17:02");
+		SLCHECK_EQ(temp_buf.Z().Cat(dtm.addsec(0), datf, timf), "31/12/2008 01:17:02");
+		SLCHECK_EQ(temp_buf.Z().Cat(dtm.addsec(1), datf, timf), "31/12/2008 01:17:03");
+		SLCHECK_EQ(temp_buf.Z().Cat(dtm.addsec(60), datf, timf), "31/12/2008 01:18:03");
+		SLCHECK_EQ(temp_buf.Z().Cat(dtm.addsec(3600), datf, timf), "31/12/2008 02:18:03");
+		SLCHECK_EQ(temp_buf.Z().Cat(dtm.addsec(24*3600), datf, timf), "01/01/2009 02:18:03");
+		SLCHECK_EQ(temp_buf.Z().Cat(dtm.addsec(-1), datf, timf), "01/01/2009 02:18:02");
+		SLCHECK_EQ(temp_buf.Z().Cat(dtm.addsec(-60), datf, timf), "01/01/2009 02:17:02");
+		SLCHECK_EQ(temp_buf.Z().Cat(dtm.addsec(-3600), datf, timf), "01/01/2009 01:17:02");
+		SLCHECK_EQ(temp_buf.Z().Cat(dtm.addsec(-24*3600), datf, timf), "31/12/2008 01:17:02");
+		SLCHECK_EQ(temp_buf.Z().Cat(dtm.addsec(0), datf, timf), "31/12/2008 01:17:02");
 	}
 	return CurrentStatus;
 }

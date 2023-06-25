@@ -4774,7 +4774,7 @@ void PPALDD_DebtorStat::Destroy() { DESTROY_PPVIEW_ALDD(DebtorStat); }
 			double prob = (GammaIncompleteP(K, x/eta) - GammaIncompleteP(K, (x-1)/eta));
 			sum += prob;
 		}
-		SLTEST_CHECK_EQ(sum, 1.0);
+		SLCHECK_EQ(sum, 1.0);
 		return 1;
 	}
 #endif

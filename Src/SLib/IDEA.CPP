@@ -906,8 +906,8 @@ void S_MD5::Transform(uint32 buf[4], uint32 in_data[16])
 		STempBuffer input(2048);
 		STempBuffer output(2048);
 
-		THROW(SLTEST_CHECK_NZ(file_obj.Open(in_file_name, 0)));
-		THROW(SLTEST_CHECK_NZ(file_obj.LoadTab("MD5", tab_obj)));
+		THROW(SLCHECK_NZ(file_obj.Open(in_file_name, 0)));
+		THROW(SLCHECK_NZ(file_obj.LoadTab("MD5", tab_obj)));
 		num_of_rows = tab_obj.GetCount() - 1;
 		for (int k = 0; k < (int)num_of_rows; k++) {
 			input[0] = 0;
@@ -915,13 +915,13 @@ void S_MD5::Transform(uint32 buf[4], uint32 in_data[16])
 			memset(md_buf, 0, 16);
 			in_buf = 0;
 			out_buf = 0;
-			THROW(SLTEST_CHECK_NZ(tab_obj.GetRow(k, row_obj)));
+			THROW(SLCHECK_NZ(tab_obj.GetRow(k, row_obj)));
 			num_of_col = row_obj.GetCount();
 			//Может быть и 3 колонки
 			if(num_of_col == 2) {
-				THROW(SLTEST_CHECK_NZ(row_obj.Get(0, in_buf)));
-				THROW(SLTEST_CHECK_NZ(row_obj.Get(1, out_buf)));
-				THROW(SLTEST_CHECK_EQ(out_buf.Len() % 2, 0U));
+				THROW(SLCHECK_NZ(row_obj.Get(0, in_buf)));
+				THROW(SLCHECK_NZ(row_obj.Get(1, out_buf)));
+				THROW(SLCHECK_EQ(out_buf.Len() % 2, 0U));
 				for(j = 0; j < (int)(out_buf.Len()/2); j++) {
 					if(j < (int)output.GetSize()) {
 						output[j] = hextobyte(((const char *)out_buf)+j*2);
@@ -931,7 +931,7 @@ void S_MD5::Transform(uint32 buf[4], uint32 in_data[16])
 					}
 				}
 				output[j] = 0;
-				THROW(SLTEST_CHECK_EQ(in_buf.Len() % 2, 0U));
+				THROW(SLCHECK_EQ(in_buf.Len() % 2, 0U));
 				for(j = 0; j < (int)(in_buf.Len()/2); j++) {
 					if(j < (int)input.GetSize()) {
 						input[j] = hextobyte(((const char *)in_buf)+j*2);
@@ -942,7 +942,7 @@ void S_MD5::Transform(uint32 buf[4], uint32 in_data[16])
 				}
 				length = j;
 				md_obj.Calc((uchar *)(const char *)input, length, md_buf);
-				THROW(SLTEST_CHECK_Z(strcmpi((const char *)output, (const char *)md_buf)));
+				THROW(SLCHECK_Z(strcmpi((const char *)output, (const char *)md_buf)));
 			}
 		}
 		tab_obj.Z();

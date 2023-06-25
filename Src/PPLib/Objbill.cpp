@@ -9322,6 +9322,7 @@ int PPObjBill::__TurnPacket(PPBillPacket * pPack, PPIDArray * pList, int skipEmp
                         p_text += fld_len;
 					}
 					if(sym) {
+						field_value.Transf(CTRANSF_OUTER_TO_INNER); // @v11.7.7
 						rResultList.Add(sym | modif, ext_id, field_value);
 						result_file_template.CatChar('*');
 					}
@@ -10158,28 +10159,28 @@ SLTEST_R(PPBillGuid)
 	if(EnumArg(&argp, temp_buf)) {
 		op_symb = temp_buf;
 	}
-	THROW(SLTEST_CHECK_LT(0, GetOpBySymb(op_symb, &op_rec)));
+	THROW(SLCHECK_LT(0, GetOpBySymb(op_symb, &op_rec)));
 	{
 		const uint   max_count = 50;
 		PPTransaction tra(1);
-		THROW(SLTEST_CHECK_NZ(tra));
+		THROW(SLCHECK_NZ(tra));
 		for(SEnum en = BillObj->P_Tbl->EnumByOp(op_rec.ID, 0, 0); g_list.getCount() < max_count && en.Next(&bill_rec) > 0;) {
 			BillGuidAssocItem g_item;
 			g_item.BillID = bill_rec.ID;
 			g_item.Uuid.Generate();
-			THROW(SLTEST_CHECK_NZ(BillObj->PutGuid(g_item.BillID, &g_item.Uuid, 0)));
+			THROW(SLCHECK_NZ(BillObj->PutGuid(g_item.BillID, &g_item.Uuid, 0)));
 			g_list.insert(&g_item);
 		}
-		THROW(SLTEST_CHECK_NZ(tra.Commit()));
+		THROW(SLCHECK_NZ(tra.Commit()));
 	}
 	{
 		g_list.shuffle();
 		for(uint i = 0; i < g_list.getCount(); i++) {
 			const BillGuidAssocItem & r_item = g_list.at(i);
 			S_GUID uuid;
-			SLTEST_CHECK_LT(0, (r = BillObj->GetGuid(r_item.BillID, &uuid)));
+			SLCHECK_LT(0, (r = BillObj->GetGuid(r_item.BillID, &uuid)));
 			if(r > 0) {
-				SLTEST_CHECK_NZ(uuid == r_item.Uuid);
+				SLCHECK_NZ(uuid == r_item.Uuid);
 			}
 		}
 	}
@@ -10187,9 +10188,9 @@ SLTEST_R(PPBillGuid)
 		g_list.shuffle();
 		for(uint i = 0; i < g_list.getCount(); i++) {
 			const BillGuidAssocItem & r_item = g_list.at(i);
-			SLTEST_CHECK_NZ(BillObj->SearchByGuid(r_item.Uuid, &bill_rec) == 1);
+			SLCHECK_NZ(BillObj->SearchByGuid(r_item.Uuid, &bill_rec) == 1);
 			if(!r) {
-				SLTEST_CHECK_EQ(r_item.BillID, bill_rec.ID);
+				SLCHECK_EQ(r_item.BillID, bill_rec.ID);
 			}
 		}
 	}

@@ -453,6 +453,8 @@ TSessionPacket & TSessionPacket::Z()
 	// SMemo.Z(); // @v11.0.4
 	return *this;
 }
+
+int TSessionPacket::GetTimeRange(STimeChunk & rRange) const { return PPObjTSession::GetTimeRange(Rec, rRange); }
 //
 //
 //
@@ -510,6 +512,14 @@ static SIntToSymbTabEntry TSessStatusSymbList[] = {
 	else
 		kind = TSESK_SESSION;
 	return kind;
+}
+
+/*static*/int PPObjTSession::GetTimeRange(const TSessionTbl::Rec & rRec, STimeChunk & rRange)
+{
+	LDATETIME dtm_start;
+	LDATETIME dtm_finish;
+	rRange.Init(dtm_start.Set(rRec.StDt, rRec.StTm), dtm_finish.Set(rRec.FinDt, rRec.FinTm));
+	return 1; // @todo Возвращаемое значение должно зависить от консистентности rRange
 }
 
 /*static*/long PPObjTSession::GetContinuation(const TSessionTbl::Rec * pRec)
@@ -2528,6 +2538,7 @@ int PPObjTSession::PutPacket(PPID * pID, TSessionPacket * pPack, int use_ta)
 				// @v11.0.4 THROW(RemoveObjV(*pID, 0, 0, 0));
 				THROW(PutExtention(*pID, 0, 0));
 				THROW(SetTagList(*pID, 0, 0)); // @v11.0.4
+				THROW(ScObj.P_Tbl->RemoveOpByLinkObj(PPOBJ_TSESSION, *pID, 0)); // @v11.7.7
 				THROW(RemoveSync(*pID)); // @v11.0.4
 				old_pack.LinkFiles.Init(Obj);
 				old_pack.LinkFiles.Save(*pID, 0L);

@@ -649,21 +649,21 @@ SLTEST_R(FileSort)
 			temp_test_list.add(static_cast<long>(rn));
 			line_buf.Cat(rn).CR();
 			if(line_buf.Len() > (1024*1024)) {
-				THROW(SLTEST_CHECK_NZ(f_test.WriteLine(line_buf)));
+				THROW(SLCHECK_NZ(f_test.WriteLine(line_buf)));
 				src_file_size += line_buf.Len();
 				line_buf.Z();
 			}
 			if(temp_test_list.getCount() >= 1024) {
-                THROW(SLTEST_CHECK_NZ(test_list.add(&temp_test_list)));
+                THROW(SLCHECK_NZ(test_list.add(&temp_test_list)));
                 temp_test_list.clear();
 			}
 		}
 		if(line_buf.NotEmpty()) {
-			THROW(SLTEST_CHECK_NZ(f_test.WriteLine(line_buf)));
+			THROW(SLCHECK_NZ(f_test.WriteLine(line_buf)));
 			src_file_size += line_buf.Len();
 			line_buf.Z();
 		}
-		THROW(SLTEST_CHECK_NZ(test_list.add(&temp_test_list)));
+		THROW(SLCHECK_NZ(test_list.add(&temp_test_list)));
 		test_list.sort();
 	}
 	{
@@ -677,17 +677,17 @@ SLTEST_R(FileSort)
 			ps.Nam.CatChar('-').Cat("sorted");
 			ps.Merge(dest_file_name);
 		}
-		THROW(SLTEST_CHECK_NZ(SFile::Sort(test_file_name, dest_file_name, PTR_CMPFUNC(STRINT64_test), &sp)));
+		THROW(SLCHECK_NZ(SFile::Sort(test_file_name, dest_file_name, PTR_CMPFUNC(STRINT64_test), &sp)));
 		{
             SFile f_result(dest_file_name, SFile::mRead|SFile::mNoStd|SFile::mBinary|SFile::mBuffRd);
             uint   test_count = 0;
             while(f_result.ReadLine(line_buf, SFile::rlfChomp)) {
 				const long value = line_buf.ToLong();
-				THROW(SLTEST_CHECK_LT(test_count, test_list.getCount()));
-				THROW(SLTEST_CHECK_EQ(value, test_list.get(test_count)));
+				THROW(SLCHECK_LT(test_count, test_list.getCount()));
+				THROW(SLCHECK_EQ(value, test_list.get(test_count)));
 				test_count++;
             }
-			THROW(SLTEST_CHECK_EQ(test_count, test_list.getCount()));
+			THROW(SLCHECK_EQ(test_count, test_list.getCount()));
 		}
 	}
 	CATCHZOK

@@ -3381,14 +3381,14 @@ SLTEST_R(TulipIndicators)
 		for(uint fni = 0; fni < SIZEOFARRAY(p_filenames); fni++) {
 			(file_name = path_buf).Cat(p_filenames[fni]);
 			SetInfo(temp_buf.Z().CatEq("testfile", file_name).CR());
-			if(SLTEST_CHECK_NZ(fileExists(file_name))) {
+			if(SLCHECK_NZ(fileExists(file_name))) {
 				//Implement_Test(temp_buf);
 				//static int Implement_Test(const char * pFileName)
 				SFile f_in(file_name, SFile::mRead);
 				const double * pp_inputs[32];
 				double * pp_outputs[32];
 				int   rtsr = 0;
-				if(SLTEST_CHECK_NZ(f_in.IsValid())) {
+				if(SLCHECK_NZ(f_in.IsValid())) {
 					while((rtsr = InnerBlock::ReadTestSet(f_in, func_ident, arg_list, data_vec_list)) != 0) {
 						if(rtsr > 0) {
 							temp_buf.Z().CatEq("indicator", func_ident);
@@ -3399,11 +3399,11 @@ SLTEST_R(TulipIndicators)
 							}
 							SetInfo(temp_buf.CR());
 							const ti_indicator_info * p_ii = ti_find_indicator(func_ident);
-							if(SLTEST_CHECK_NZ(p_ii)) {
+							if(SLCHECK_NZ(p_ii)) {
 								assert(p_ii->inputs <= SIZEOFARRAY(pp_inputs));
 								assert(p_ii->outputs <= SIZEOFARRAY(pp_outputs));
-								if(SLTEST_CHECK_EQ((p_ii->inputs + p_ii->outputs), data_vec_list.getCountI())) {
-									if(SLTEST_CHECK_EQ(p_ii->options, arg_list.getCountI())) {
+								if(SLCHECK_EQ((p_ii->inputs + p_ii->outputs), data_vec_list.getCountI())) {
+									if(SLCHECK_EQ(p_ii->options, arg_list.getCountI())) {
 										uint  vec_size = 0;
 										bool  not_eq_vec_sizes = false;
 										for(int i = 0; !not_eq_vec_sizes && i < /*data_vec_list.getCount()*/p_ii->inputs; i++) {
@@ -3412,7 +3412,7 @@ SLTEST_R(TulipIndicators)
 											else if(vec_size != data_vec_list.at(i)->getCount())
 												not_eq_vec_sizes = true;
 										}
-										if(SLTEST_CHECK_Z(not_eq_vec_sizes)) {
+										if(SLCHECK_Z(not_eq_vec_sizes)) {
 											const int sr = p_ii->start(static_cast<const double *>(arg_list.dataPtr()));
 											// sr - разница между длиной входящего и исходящего векторов.
 											// typedef int (*ti_indicator_function)(int size, double const * const * inputs, double const * options, double * const * outputs);
@@ -3453,7 +3453,7 @@ SLTEST_R(TulipIndicators)
 															for(uint j = 0; j < /*p_outp->getCount()*/out_vec_size; j++) {
 																const double outp_pattern = p_outp->at(j);
 																const double outp_real = p_real_outp->at(j);
-																SLTEST_CHECK_EQ_TOL(outp_pattern, outp_real, 0.001);
+																SLCHECK_EQ_TOL(outp_pattern, outp_real, 0.001);
 															}
 														}
 													}

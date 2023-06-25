@@ -525,59 +525,59 @@ SLTEST_R(STab)
 	SString in_file_name(MakeInputFilePath("pptabtest.tab"));
 	SString copy_file_name;
 	(copy_file_name = in_file_name).Cat("-copy");
-	THROW(SLTEST_CHECK_NZ(copyFileByName(in_file_name, copy_file_name)));
-	THROW(SLTEST_CHECK_NZ(tab_file.Open(in_file_name, 0)));
-	THROW(SLTEST_CHECK_NZ(out_file.Open(copy_file_name, 1)));
-	THROW(SLTEST_CHECK_NZ(tab_file.GetTabList(&tab_list)));
+	THROW(SLCHECK_NZ(copyFileByName(in_file_name, copy_file_name)));
+	THROW(SLCHECK_NZ(tab_file.Open(in_file_name, 0)));
+	THROW(SLCHECK_NZ(out_file.Open(copy_file_name, 1)));
+	THROW(SLCHECK_NZ(tab_file.GetTabList(&tab_list)));
 	for(i = 0; tab_list.get(&i, tab_name);) {
 		uint   pos = 0;
-		THROW(SLTEST_CHECK_NZ(tab_file.LoadTab(tab_name, tab.Z())));
+		THROW(SLCHECK_NZ(tab_file.LoadTab(tab_name, tab.Z())));
 		for(uint j = 0; j < SIZEOFARRAY(p_tab_list); j++) {
 			if(tab_name.CmpNC(p_tab_list[j]) == 0) {
 				exist_tab_flags |= (1 << j);
 			}
 		}
 		if(tab_name.IsEqiAscii("colors")) {
-			THROW(SLTEST_CHECK_NZ(tab.Find(1, "Coral", &(pos = 0))));
-			THROW(SLTEST_CHECK_NZ(tab.Find(1, "Darkslateblue", &(pos = 0))));
+			THROW(SLCHECK_NZ(tab.Find(1, "Coral", &(pos = 0))));
+			THROW(SLCHECK_NZ(tab.Find(1, "Darkslateblue", &(pos = 0))));
 			//
-			THROW(SLTEST_CHECK_NZ(tab.Find(0, 0x009932ccL, &(pos = 0))));
-			THROW(SLTEST_CHECK_NZ(tab.GetRow(pos, tab_row)));
-			THROW(SLTEST_CHECK_NZ(tab_row.Get(1, temp_buf)));
-			THROW(SLTEST_CHECK_NZ(temp_buf.IsEqiAscii("Darkorchid")));
+			THROW(SLCHECK_NZ(tab.Find(0, 0x009932ccL, &(pos = 0))));
+			THROW(SLCHECK_NZ(tab.GetRow(pos, tab_row)));
+			THROW(SLCHECK_NZ(tab_row.Get(1, temp_buf)));
+			THROW(SLCHECK_NZ(temp_buf.IsEqiAscii("Darkorchid")));
 			//
-			THROW(SLTEST_CHECK_NZ(tab.Find(0, 0x009acd32L, &(pos = 0))));
-			THROW(SLTEST_CHECK_NZ(tab.GetRow(pos, tab_row)));
-			THROW(SLTEST_CHECK_NZ(tab_row.Get(1, temp_buf)));
-			THROW(SLTEST_CHECK_NZ(temp_buf.IsEqiAscii("Yellowgreen")));
+			THROW(SLCHECK_NZ(tab.Find(0, 0x009acd32L, &(pos = 0))));
+			THROW(SLCHECK_NZ(tab.GetRow(pos, tab_row)));
+			THROW(SLCHECK_NZ(tab_row.Get(1, temp_buf)));
+			THROW(SLCHECK_NZ(temp_buf.IsEqiAscii("Yellowgreen")));
 			//
 		}
 		else if(tab_name.IsEqiAscii("MathConst")) {
 			double val;
-			THROW(SLTEST_CHECK_NZ(tab.Find(0, "SMathConst::Pi", &(pos = 0))));
-			THROW(SLTEST_CHECK_NZ(tab.GetRow(pos, tab_row)));
-			THROW(SLTEST_CHECK_NZ(tab_row.Get(1, val)));
-			THROW(SLTEST_CHECK_EQ(val, SMathConst::Pi));
+			THROW(SLCHECK_NZ(tab.Find(0, "SMathConst::Pi", &(pos = 0))));
+			THROW(SLCHECK_NZ(tab.GetRow(pos, tab_row)));
+			THROW(SLCHECK_NZ(tab_row.Get(1, val)));
+			THROW(SLCHECK_EQ(val, SMathConst::Pi));
 			//
-			THROW(SLTEST_CHECK_NZ(tab.Find(0, "SMathConst::SqrtMin", &(pos = 0))));
-			THROW(SLTEST_CHECK_NZ(tab.GetRow(pos, tab_row)));
-			THROW(SLTEST_CHECK_NZ(tab_row.Get(1, val)));
-			THROW(SLTEST_CHECK_EQ(val, SMathConst::SqrtMin));
+			THROW(SLCHECK_NZ(tab.Find(0, "SMathConst::SqrtMin", &(pos = 0))));
+			THROW(SLCHECK_NZ(tab.GetRow(pos, tab_row)));
+			THROW(SLCHECK_NZ(tab_row.Get(1, val)));
+			THROW(SLCHECK_EQ(val, SMathConst::SqrtMin));
 			//
-			THROW(SLTEST_CHECK_NZ(tab.Find(0, "SMathConst::SqrtMax", &(pos = 0))));
-			THROW(SLTEST_CHECK_NZ(tab.GetRow(pos, tab_row)));
-			THROW(SLTEST_CHECK_NZ(tab_row.Get(1, val)));
-			THROW(SLTEST_CHECK_EQ(val, SMathConst::SqrtMax));
+			THROW(SLCHECK_NZ(tab.Find(0, "SMathConst::SqrtMax", &(pos = 0))));
+			THROW(SLCHECK_NZ(tab.GetRow(pos, tab_row)));
+			THROW(SLCHECK_NZ(tab_row.Get(1, val)));
+			THROW(SLCHECK_EQ(val, SMathConst::SqrtMax));
 			//
 		}
 	}
-	THROW(SLTEST_CHECK_EQ(exist_tab_flags, expected_exist_tab_flags));
+	THROW(SLCHECK_EQ(exist_tab_flags, expected_exist_tab_flags));
 	//
 	// Переписываем все таблицы в файл out_file
 	//
 	for(i = 0; tab_list.get(&i, tab_name);) {
-		THROW(SLTEST_CHECK_NZ(tab_file.LoadTab(tab_name, tab.Z())));
-		THROW(SLTEST_CHECK_NZ(out_file.WriteTab(tab_name, &tab)));
+		THROW(SLCHECK_NZ(tab_file.LoadTab(tab_name, tab.Z())));
+		THROW(SLCHECK_NZ(out_file.WriteTab(tab_name, &tab)));
 	}
 	{
 		//
@@ -586,16 +586,16 @@ SLTEST_R(STab)
 		//
 		SString copy_file_name2;
 		StringSet tab_list2;
-		THROW(SLTEST_CHECK_NZ(out_file.GetTabList(&tab_list2)));
-		THROW(SLTEST_CHECK_EQ(tab_list.getCount(), tab_list2.getCount()));
+		THROW(SLCHECK_NZ(out_file.GetTabList(&tab_list2)));
+		THROW(SLCHECK_EQ(tab_list.getCount(), tab_list2.getCount()));
 		for(i = 0; tab_list2.get(&i, tab_name);) {
-			THROW(SLTEST_CHECK_NZ(out_file.LoadTab(tab_name, tab.Z())));
-			THROW(SLTEST_CHECK_NZ(out_file.WriteTab(tab_name, 0))); // удаляем таблицу
-			THROW(SLTEST_CHECK_NZ(out_file.WriteTab(tab_name, &tab))); // вставляем таблицу
+			THROW(SLCHECK_NZ(out_file.LoadTab(tab_name, tab.Z())));
+			THROW(SLCHECK_NZ(out_file.WriteTab(tab_name, 0))); // удаляем таблицу
+			THROW(SLCHECK_NZ(out_file.WriteTab(tab_name, &tab))); // вставляем таблицу
 		}
 		for(i = 0; tab_list2.get(&i, tab_name);) {
-			THROW(SLTEST_CHECK_NZ(out_file.LoadTab(tab_name, tab.Z())));
-			THROW(SLTEST_CHECK_NZ(out_file.WriteTab(tab_name, &tab))); // изменяем таблицу
+			THROW(SLCHECK_NZ(out_file.LoadTab(tab_name, tab.Z())));
+			THROW(SLCHECK_NZ(out_file.WriteTab(tab_name, &tab))); // изменяем таблицу
 		}
 		{
 			//
@@ -604,16 +604,16 @@ SLTEST_R(STab)
 			//
 			(copy_file_name2 = in_file_name).Cat("-copy2");
 			STabFile out_file2(copy_file_name2, 1);
-			THROW(SLTEST_CHECK_NZ(out_file2.IsValid()));
+			THROW(SLCHECK_NZ(out_file2.IsValid()));
 			tab_list2.clear();
-			THROW(SLTEST_CHECK_NZ(out_file.GetTabList(&tab_list2)));
+			THROW(SLCHECK_NZ(out_file.GetTabList(&tab_list2)));
 			for(i = 0; tab_list2.get(&i, tab_name);) {
-				THROW(SLTEST_CHECK_NZ(out_file.LoadTab(tab_name, tab.Z())));
-				THROW(SLTEST_CHECK_NZ(out_file2.WriteTab(tab_name, &tab)));
+				THROW(SLCHECK_NZ(out_file.LoadTab(tab_name, tab.Z())));
+				THROW(SLCHECK_NZ(out_file2.WriteTab(tab_name, &tab)));
 			}
 		}
 		out_file.Close();
-		//THROW(SLTEST_CHECK_NZ(SFile::Compare(copy_file_name, copy_file_name2, 0)));
+		//THROW(SLCHECK_NZ(SFile::Compare(copy_file_name, copy_file_name2, 0)));
 	}
 	CATCH
 		CurrentStatus = 0;

@@ -253,56 +253,56 @@ SLTEST_R(BitArray)
 		pattern.add(s);
 		if(s) {
 			count_set++;
-			THROW(SLTEST_CHECK_NZ(list.get(i)));
+			THROW(SLCHECK_NZ(list.get(i)));
 		}
 		else {
 			count_reset++;
-			THROW(SLTEST_CHECK_Z(list.get(i)));
+			THROW(SLCHECK_Z(list.get(i)));
 		}
 	}
-	THROW(SLTEST_CHECK_EQ(total, list.getCount()));
-	THROW(SLTEST_CHECK_EQ(total, pattern.getCount()));
-	THROW(SLTEST_CHECK_EQ(total, count_set + count_reset));
+	THROW(SLCHECK_EQ(total, list.getCount()));
+	THROW(SLCHECK_EQ(total, pattern.getCount()));
+	THROW(SLCHECK_EQ(total, count_set + count_reset));
 	for(i = 0; i < total; i++) {
-		THROW(SLTEST_CHECK_EQ(list[i], (int)pattern.get(i)));
+		THROW(SLCHECK_EQ(list[i], (int)pattern.get(i)));
 	}
-	THROW(SLTEST_CHECK_EQ(count_set,   list.getCountVal(1)));
-	THROW(SLTEST_CHECK_EQ(count_reset, list.getCountVal(0)));
+	THROW(SLCHECK_EQ(count_set,   list.getCountVal(1)));
+	THROW(SLCHECK_EQ(count_reset, list.getCountVal(0)));
 	//
 	// Тестирование добавления битов в случайном порядке
 	//
 	for(i = 0; i < total; i++) {
 		int    s = p_rng->Get() % 2;
 		uint   pos = p_rng->Get() % list.getCount();
-		THROW(SLTEST_CHECK_NZ(list.atInsert(pos, s)));
-		THROW(SLTEST_CHECK_NZ(pattern.atInsert(pos, (void *)&s)));
+		THROW(SLCHECK_NZ(list.atInsert(pos, s)));
+		THROW(SLCHECK_NZ(pattern.atInsert(pos, (void *)&s)));
 		if(s) {
 			count_set++;
-			THROW(SLTEST_CHECK_NZ(list.get(pos)));
+			THROW(SLCHECK_NZ(list.get(pos)));
 		}
 		else {
 			count_reset++;
-			THROW(SLTEST_CHECK_Z(list.get(pos)));
+			THROW(SLCHECK_Z(list.get(pos)));
 		}
 	}
 	total *= 2;
-	THROW(SLTEST_CHECK_EQ(total, list.getCount()));
-	THROW(SLTEST_CHECK_EQ(total, pattern.getCount()));
-	THROW(SLTEST_CHECK_EQ(total, count_set + count_reset));
+	THROW(SLCHECK_EQ(total, list.getCount()));
+	THROW(SLCHECK_EQ(total, pattern.getCount()));
+	THROW(SLCHECK_EQ(total, count_set + count_reset));
 	for(i = 0; i < total; i++) {
-		THROW(SLTEST_CHECK_EQ(list[i], (int)pattern.get(i)));
+		THROW(SLCHECK_EQ(list[i], (int)pattern.get(i)));
 	}
-	THROW(SLTEST_CHECK_EQ(count_set,   list.getCountVal(1)));
-	THROW(SLTEST_CHECK_EQ(count_reset, list.getCountVal(0)));
+	THROW(SLCHECK_EQ(count_set,   list.getCountVal(1)));
+	THROW(SLCHECK_EQ(count_reset, list.getCountVal(0)));
 	//
 	// Тестирование удаления битов в случайном порядке
 	//
 	for(i = 0; i < total; i++) {
 		uint   pos = p_rng->Get() % list.getCount();
 		int    s = list.get(pos);
-		THROW(SLTEST_CHECK_EQ(s, (int)pattern.get(pos)));
-		THROW(SLTEST_CHECK_NZ(list.atFree(pos)));
-		THROW(SLTEST_CHECK_NZ(pattern.atFree(pos)));
+		THROW(SLCHECK_EQ(s, (int)pattern.get(pos)));
+		THROW(SLCHECK_NZ(list.atFree(pos)));
+		THROW(SLCHECK_NZ(pattern.atFree(pos)));
 		if(s) {
 			count_set--;
 		}
@@ -311,14 +311,14 @@ SLTEST_R(BitArray)
 		}
 	}
 	total = 0;
-	THROW(SLTEST_CHECK_EQ(total, list.getCount()));
-	THROW(SLTEST_CHECK_EQ(total, pattern.getCount()));
-	THROW(SLTEST_CHECK_EQ(total, count_set + count_reset));
+	THROW(SLCHECK_EQ(total, list.getCount()));
+	THROW(SLCHECK_EQ(total, pattern.getCount()));
+	THROW(SLCHECK_EQ(total, count_set + count_reset));
 	for(i = 0; i < total; i++) {
-		THROW(SLTEST_CHECK_EQ(list[i], (int)pattern.get(i)));
+		THROW(SLCHECK_EQ(list[i], (int)pattern.get(i)));
 	}
-	THROW(SLTEST_CHECK_EQ(count_set,   list.getCountVal(1)));
-	THROW(SLTEST_CHECK_EQ(count_reset, list.getCountVal(0)));
+	THROW(SLCHECK_EQ(count_set,   list.getCountVal(1)));
+	THROW(SLCHECK_EQ(count_reset, list.getCountVal(0)));
 	//
 	// Тестирование массированного добавления битов в конец списка (порциями случайного размера)
 	//
@@ -332,46 +332,46 @@ SLTEST_R(BitArray)
 			pattern.add(s);
 			if(s) {
 				count_set++;
-				THROW(SLTEST_CHECK_NZ(list.get(c+j)));
+				THROW(SLCHECK_NZ(list.get(c+j)));
 			}
 			else {
 				count_reset++;
-				THROW(SLTEST_CHECK_Z(list.get(c+j)));
+				THROW(SLCHECK_Z(list.get(c+j)));
 			}
 		}
 		cc += n;
 	}
 	total = cc;
-	THROW(SLTEST_CHECK_EQ(total, list.getCount()));
-	THROW(SLTEST_CHECK_EQ(total, pattern.getCount()));
-	THROW(SLTEST_CHECK_EQ(total, count_set + count_reset));
+	THROW(SLCHECK_EQ(total, list.getCount()));
+	THROW(SLCHECK_EQ(total, pattern.getCount()));
+	THROW(SLCHECK_EQ(total, count_set + count_reset));
 	for(i = 0; i < total; i++) {
-		THROW(SLTEST_CHECK_EQ(list[i], (int)pattern.get(i)));
+		THROW(SLCHECK_EQ(list[i], (int)pattern.get(i)));
 	}
-	THROW(SLTEST_CHECK_EQ(count_set,   list.getCountVal(1)));
-	THROW(SLTEST_CHECK_EQ(count_reset, list.getCountVal(0)));
+	THROW(SLCHECK_EQ(count_set,   list.getCountVal(1)));
+	THROW(SLCHECK_EQ(count_reset, list.getCountVal(0)));
 	//
 	// Тест функций bitscanforward и bitscanreverse
 	//
 	{
 		uint32 idx;
-		SLTEST_CHECK_Z(bitscanforward(&idx, 0));
-		SLTEST_CHECK_EQ(idx, 0U);
-		SLTEST_CHECK_NZ(bitscanforward(&idx, 0x01));
-		SLTEST_CHECK_EQ(idx, 0U);
-		SLTEST_CHECK_NZ(bitscanforward(&idx, 0x10));
-		SLTEST_CHECK_EQ(idx, 4U);
-		SLTEST_CHECK_NZ(bitscanforward(&idx, 0x80000800));
-		SLTEST_CHECK_EQ(idx, 11U);
+		SLCHECK_Z(bitscanforward(&idx, 0));
+		SLCHECK_EQ(idx, 0U);
+		SLCHECK_NZ(bitscanforward(&idx, 0x01));
+		SLCHECK_EQ(idx, 0U);
+		SLCHECK_NZ(bitscanforward(&idx, 0x10));
+		SLCHECK_EQ(idx, 4U);
+		SLCHECK_NZ(bitscanforward(&idx, 0x80000800));
+		SLCHECK_EQ(idx, 11U);
 
-		SLTEST_CHECK_Z(bitscanreverse(&idx, 0));
-		SLTEST_CHECK_EQ(idx, 0U);
-		SLTEST_CHECK_NZ(bitscanreverse(&idx, 0x01));
-		SLTEST_CHECK_EQ(idx, 0U);
-		SLTEST_CHECK_NZ(bitscanreverse(&idx, 0x10));
-		SLTEST_CHECK_EQ(idx, 4U);
-		SLTEST_CHECK_NZ(bitscanreverse(&idx, 0x80000800));
-		SLTEST_CHECK_EQ(idx, 31U);
+		SLCHECK_Z(bitscanreverse(&idx, 0));
+		SLCHECK_EQ(idx, 0U);
+		SLCHECK_NZ(bitscanreverse(&idx, 0x01));
+		SLCHECK_EQ(idx, 0U);
+		SLCHECK_NZ(bitscanreverse(&idx, 0x10));
+		SLCHECK_EQ(idx, 4U);
+		SLCHECK_NZ(bitscanreverse(&idx, 0x80000800));
+		SLCHECK_EQ(idx, 31U);
 	}
 	CATCHZOK
 	delete p_rng;

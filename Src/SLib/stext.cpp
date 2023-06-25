@@ -3511,11 +3511,11 @@ SLTEST_R(memchr)
 		bm = 3;
 	SString test_data_path(MakeInputFilePath("sherlock-holmes-huge.txt"));
 	Test_memchr_Block blk('A', test_data_path);
-	THROW(SLTEST_CHECK_NZ(blk.IsValid()));
+	THROW(SLCHECK_NZ(blk.IsValid()));
 	if(bm == 0) {
-		SLTEST_CHECK_NZ(Test_memchr(blk, memchr));
-		SLTEST_CHECK_NZ(Test_memchr(blk, fast_memchr));
-		SLTEST_CHECK_NZ(Test_memchr(blk, /*fast_memchr_sse2*/smemchr));
+		SLCHECK_NZ(Test_memchr(blk, memchr));
+		SLCHECK_NZ(Test_memchr(blk, fast_memchr));
+		SLCHECK_NZ(Test_memchr(blk, /*fast_memchr_sse2*/smemchr));
 	}
 	else if(bm == 1) {
 		Profile_memchr(blk, memchr);
@@ -3565,8 +3565,8 @@ SLTEST_R(strstr)
 	const char * p_haystack = "abcDEFabcababc";
 	const char * p_needle = "abc";
 	const size_t pos_list[] = {0, 6, 11};
-	SLTEST_CHECK_NZ(Test_strstr(p_haystack, p_needle, pos_list, SIZEOFARRAY(pos_list), strstr));
-	SLTEST_CHECK_NZ(Test_strstr(p_haystack, p_needle, pos_list, SIZEOFARRAY(pos_list), byteshift_strstr));
+	SLCHECK_NZ(Test_strstr(p_haystack, p_needle, pos_list, SIZEOFARRAY(pos_list), strstr));
+	SLCHECK_NZ(Test_strstr(p_haystack, p_needle, pos_list, SIZEOFARRAY(pos_list), byteshift_strstr));
 	return CurrentStatus;	
 }
 
@@ -3615,8 +3615,8 @@ SLTEST_R(STextEncodingStat)
 					}
 					tes_icu.Finish();
 					ps.Split(in_file_name);
-					SLTEST_CHECK_NZ(tes_icu.CheckFlag(STextEncodingStat::fUCharDetWorked));
-					SLTEST_CHECK_Z(ps.Nam.CmpNC(tes_icu.GetCpName()));
+					SLCHECK_NZ(tes_icu.CheckFlag(STextEncodingStat::fUCharDetWorked));
+					SLCHECK_Z(ps.Nam.CmpNC(tes_icu.GetCpName()));
 					temp_buf.Z().Cat(in_file_name).Tab().Cat(tes_icu.GetCpName()).CR();
 					f_out.WriteLine(temp_buf);
 				}
@@ -3638,8 +3638,8 @@ SLTEST_R(STextEncodingStat)
 					}
 					tes_.Finish();
 					ps.Split(in_file_name);
-					SLTEST_CHECK_NZ(tes_.CheckFlag(STextEncodingStat::fUCharDetWorked));
-					SLTEST_CHECK_Z(ps.Nam.CmpNC(tes_.GetCpName()));
+					SLCHECK_NZ(tes_.CheckFlag(STextEncodingStat::fUCharDetWorked));
+					SLCHECK_Z(ps.Nam.CmpNC(tes_.GetCpName()));
 					temp_buf.Z().Cat(in_file_name).Tab().Cat(tes_.GetCpName()).CR();
 					f_out.WriteLine(temp_buf);
 				}

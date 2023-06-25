@@ -1163,7 +1163,7 @@ static void TestRng(STestCase * pCase, SRng::Algorithm alg, uint level, ulong se
 	p_rng->Set(seed);
 	for(uint i = 0; i < n; i++)
 		result = p_rng->Get();
-	pCase->SLTEST_CHECK_EQ(result, expectation);
+	pCase->SLCHECK_EQ(result, expectation);
 	delete p_rng;
 }
 
@@ -1181,7 +1181,7 @@ static void TestRngFloat(STestCase * pCase, SRng::Algorithm alg, uint level)
 	for(uint i = 0; i < N2; i++) {
 		k = p_ri->Get();
 		u = p_rf->Get();
-		pCase->SLTEST_CHECK_EQ((c * k), u);
+		pCase->SLCHECK_EQ((c * k), u);
 	}
 	delete p_ri;
 	delete p_rf;
@@ -1200,8 +1200,8 @@ static void TestRngMax(STestCase * pCase, SRng * pRng, ulong * kmax, ulong ran_m
 	*kmax = _max;
 	actual_uncovered = ran_max - _max;
 	expect_uncovered = static_cast<double>(ran_max) / static_cast<double>(N2);
-	pCase->SLTEST_CHECK_LE(_max, ran_max);
-	pCase->SLTEST_CHECK_LE(static_cast<double>(actual_uncovered), 7 * expect_uncovered);
+	pCase->SLCHECK_LE(_max, ran_max);
+	pCase->SLCHECK_LE(static_cast<double>(actual_uncovered), 7 * expect_uncovered);
 }
 
 static void TestRngMin(STestCase * pCase, SRng * pRng, ulong * kmin, ulong ran_min, ulong ran_max)
@@ -1217,8 +1217,8 @@ static void TestRngMin(STestCase * pCase, SRng * pRng, ulong * kmin, ulong ran_m
 	*kmin = _min;
 	actual_uncovered = _min - ran_min;
 	expect_uncovered = (double)ran_max / (double)N2;
-	pCase->SLTEST_CHECK_LE(ran_min, _min);
-	pCase->SLTEST_CHECK_LE((double)actual_uncovered, 7 * expect_uncovered);
+	pCase->SLCHECK_LE(ran_min, _min);
+	pCase->SLCHECK_LE((double)actual_uncovered, 7 * expect_uncovered);
 }
 
 static void TestRngSum(STestCase * pCase, SRng * pRng, double * sigma)
@@ -1230,7 +1230,7 @@ static void TestRngSum(STestCase * pCase, SRng * pRng, double * sigma)
 	/* expect the average to have a variance of 1/(12 n) */
 	*sigma = sum * sqrt(12.0 * N2);
 	/* more than 3 sigma is an error (increased to 3.1 to avoid false alarms) */
-	pCase->SLTEST_CHECK_CRANGE(fabs(*sigma), 0.003, 3.1);
+	pCase->SLCHECK_CRANGE(fabs(*sigma), 0.003, 3.1);
 }
 
 static void TestRngBin(STestCase * pCase, SRng * pRng, double * sigma)
@@ -1253,13 +1253,13 @@ static void TestRngBin(STestCase * pCase, SRng * pRng, double * sigma)
 	}
 	*sigma = sqrt(chisq/BINS) ;
 	/* more than 3 sigma is an error */
-	pCase->SLTEST_CHECK_CRANGE(fabs(*sigma), 0.003, 3);
+	pCase->SLCHECK_CRANGE(fabs(*sigma), 0.003, 3);
 	for(i = BINS; i < BINS+EXTRA; i++) {
 		//
 		// GetUniformInt не должен выходить за пределы определенных для него границ (BINS)
 		//
 		long count_i =count[i];
-		pCase->SLTEST_CHECK_EQ(count_i, 0L);
+		pCase->SLCHECK_EQ(count_i, 0L);
 	}
 }
 
@@ -1456,10 +1456,10 @@ SLTEST_R(RandomNumberGenerator)
         for(size_t i = prefix_size; i < sizeof(test_buffer) - suffix_size - prefix_size; i++) {
 			obf_rng.ObfuscateBuffer(test_buffer + prefix_size, i - prefix_size);
 			for(size_t p = 0; p < prefix_size; p++) {
-				SLTEST_CHECK_EQ(test_buffer[p], fix_byte);
+				SLCHECK_EQ(test_buffer[p], fix_byte);
 			}
 			for(size_t e = i; e < sizeof(test_buffer); e++) {
-				SLTEST_CHECK_EQ(test_buffer[e], fix_byte);
+				SLCHECK_EQ(test_buffer[e], fix_byte);
 			}
         }
 	}
@@ -1481,7 +1481,7 @@ SLTEST_R(RandomNumberGenerator)
 						true_result_count++;
 				}
 				double result_prob = static_cast<double>(true_result_count) / static_cast<double>(tc);
-				SLTEST_CHECK_EQ_TOL(result_prob, prob, 0.001);
+				SLCHECK_EQ_TOL(result_prob, prob, 0.001);
 			}
 		}
 	}

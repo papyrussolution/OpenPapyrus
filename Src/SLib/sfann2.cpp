@@ -5226,24 +5226,24 @@ static int AssertWeights(STestCase * pTc, const Fann * pNet, float min, float ma
             max_weight = connections.at(i).Weight;
         total_weight += connections.at(i).Weight;
     }
-    pTc->SLTEST_CHECK_EQ_TOL(min, min_weight, 0.05f);
-    pTc->SLTEST_CHECK_EQ_TOL(max, max_weight, 0.05f);
-    pTc->SLTEST_CHECK_EQ_TOL(avg, total_weight / (float)conn_count, 0.5f);
+    pTc->SLCHECK_EQ_TOL(min, min_weight, 0.05f);
+    pTc->SLCHECK_EQ_TOL(max, max_weight, 0.05f);
+    pTc->SLCHECK_EQ_TOL(avg, total_weight / (float)conn_count, 0.5f);
 	return pTc->GetCurrentStatus();
 }
 
 static int AssertCreate(STestCase * pTc, Fann * pNet, uint numLayers, const uint * pLayers, uint neurons, uint connections)
 {
 	LongArray layers;
-    pTc->SLTEST_CHECK_EQ(numLayers, pNet->GetNumLayers());
+    pTc->SLCHECK_EQ(numLayers, pNet->GetNumLayers());
     pNet->GetLayerArray(layers);
-    pTc->SLTEST_CHECK_EQ(layers.get(0), (long)pNet->GetNumInput());
-    pTc->SLTEST_CHECK_EQ(layers.get(numLayers-1), (long)pNet->GetNumOutput());
+    pTc->SLCHECK_EQ(layers.get(0), (long)pNet->GetNumInput());
+    pTc->SLCHECK_EQ(layers.get(numLayers-1), (long)pNet->GetNumOutput());
     for(uint i = 0; i < numLayers; i++) {
-        pTc->SLTEST_CHECK_EQ(pLayers[i], (uint)layers.get(i));
+        pTc->SLCHECK_EQ(pLayers[i], (uint)layers.get(i));
     }
-    pTc->SLTEST_CHECK_EQ(neurons, pNet->GetTotalNeurons());
-    pTc->SLTEST_CHECK_EQ(connections, pNet->GetTotalConnections());
+    pTc->SLCHECK_EQ(neurons, pNet->GetTotalNeurons());
+    pTc->SLCHECK_EQ(connections, pNet->GetTotalConnections());
     AssertWeights(pTc, pNet, -0.09f, 0.09f, 0.0f);
 	return pTc->GetCurrentStatus();
 }
@@ -5253,7 +5253,7 @@ static int AssertCreateAndCopy(STestCase * pTc, Fann * pNet, uint numLayers, con
     AssertCreate(pTc, pNet, numLayers, pLayers, neurons, connections);
     Fann * p_copy = fann_copy(pNet);
     AssertCreate(pTc, p_copy, numLayers, pLayers, neurons, connections);
-	pTc->SLTEST_CHECK_NZ(p_copy->IsEq(*pNet, 0));
+	pTc->SLCHECK_NZ(p_copy->IsEq(*pNet, 0));
     fann_destroy(p_copy);
 	return pTc->GetCurrentStatus();
 }
@@ -5294,7 +5294,7 @@ SLTEST_R(FANN2)
 		const uint p_layer_dim[] = { 2, 3, 4, 5 };
 		Fann * p_ann = fann_create_shortcut(4, 2, 3, 4, 5);
 		AssertCreateAndCopy(this, p_ann, 4, p_layer_dim, 15, 83);
-		SLTEST_CHECK_EQ((long)p_ann->GetNetworkType(), (long)Fann::FANN_NETTYPE_SHORTCUT);
+		SLCHECK_EQ((long)p_ann->GetNetworkType(), (long)Fann::FANN_NETTYPE_SHORTCUT);
 		fann_destroy(p_ann);
 	}
 	/*
@@ -5342,24 +5342,24 @@ SLTEST_R(FANN2)
 			Fann * p_ann = fann_create_standard(3, c_in, 3, c_out);
 			Fann::TrainData train_data(*p_ann, c_d);
 			for(uint i = 0; i < c_d; i++) {
-				SLTEST_CHECK_NZ(train_data.SetInputSeries(i, XorInput + i * c_in));
-				SLTEST_CHECK_NZ(train_data.SetOutputSeries(i, XorOutput + i * c_out));
+				SLCHECK_NZ(train_data.SetInputSeries(i, XorInput + i * c_in));
+				SLCHECK_NZ(train_data.SetOutputSeries(i, XorOutput + i * c_out));
 			}
 			p_ann->TrainOnData(&train_data, 100, 100, 0.001f);
-			SLTEST_CHECK_LT(p_ann->GetMSE(), 0.001f);
-			SLTEST_CHECK_LT(p_ann->TestData(&train_data), 0.001f);
+			SLCHECK_LT(p_ann->GetMSE(), 0.001f);
+			SLCHECK_LT(p_ann->TestData(&train_data), 0.001f);
 			{
 				SBuffer sbuf;
 				int    r = 0;
 				{
 					SSerializeContext sctx;
-					SLTEST_CHECK_NZ(r = p_ann->Serialize(+1, sbuf, &sctx));
+					SLCHECK_NZ(r = p_ann->Serialize(+1, sbuf, &sctx));
 				}
 				if(r) {
 					SSerializeContext sctx;
 					Fann new_ann(sbuf, &sctx);
-					SLTEST_CHECK_NZ(new_ann.IsValid());
-					SLTEST_CHECK_NZ(new_ann.IsEq(*p_ann, 0));
+					SLCHECK_NZ(new_ann.IsValid());
+					SLCHECK_NZ(new_ann.IsEq(*p_ann, 0));
 				}
 			}
 			fann_destroy(p_ann);
@@ -5371,30 +5371,30 @@ SLTEST_R(FANN2)
 			layers.clear();
 			layers.addzlist(2, 3, 1, 0);
 			Fann ann(Fann::FANN_NETTYPE_LAYER, 1.0f, layers);
-			SLTEST_CHECK_NZ(ann.IsValid());
+			SLCHECK_NZ(ann.IsValid());
 			for(int i = 0; i < 100000; i++) {
 				ann.Train(XorInput + 0 * c_in, XorOutput + 0 * c_out);
 				ann.Train(XorInput + 1 * c_in, XorOutput + 1 * c_out);
 				ann.Train(XorInput + 2 * c_in, XorOutput + 2 * c_out);
 				ann.Train(XorInput + 3 * c_in, XorOutput + 3 * c_out);
 			}
-			SLTEST_CHECK_LT(ann.GetMSE(), 0.01f);
-			SLTEST_CHECK_EQ(ann.Run(XorInput + 0 * c_in)[0], XorOutput[0 * c_out]);
-			SLTEST_CHECK_EQ(ann.Run(XorInput + 1 * c_in)[0], XorOutput[1 * c_out]);
-			SLTEST_CHECK_EQ(ann.Run(XorInput + 2 * c_in)[0], XorOutput[2 * c_out]);
-			SLTEST_CHECK_EQ(ann.Run(XorInput + 3 * c_in)[0], XorOutput[3 * c_out]);
+			SLCHECK_LT(ann.GetMSE(), 0.01f);
+			SLCHECK_EQ(ann.Run(XorInput + 0 * c_in)[0], XorOutput[0 * c_out]);
+			SLCHECK_EQ(ann.Run(XorInput + 1 * c_in)[0], XorOutput[1 * c_out]);
+			SLCHECK_EQ(ann.Run(XorInput + 2 * c_in)[0], XorOutput[2 * c_out]);
+			SLCHECK_EQ(ann.Run(XorInput + 3 * c_in)[0], XorOutput[3 * c_out]);
 			{
 				SBuffer sbuf;
 				int    r = 0;
 				{
 					SSerializeContext sctx;
-					SLTEST_CHECK_NZ(r = ann.Serialize(+1, sbuf, &sctx));
+					SLCHECK_NZ(r = ann.Serialize(+1, sbuf, &sctx));
 				}
 				if(r) {
 					SSerializeContext sctx;
 					Fann new_ann(sbuf, &sctx);
-					SLTEST_CHECK_NZ(new_ann.IsValid());
-					SLTEST_CHECK_NZ(new_ann.IsEq(ann, 0));
+					SLCHECK_NZ(new_ann.IsValid());
+					SLCHECK_NZ(new_ann.IsEq(ann, 0));
 				}
 			}
 			/*
@@ -5423,8 +5423,8 @@ SLTEST_R(FANN2)
 					int    trr_ = 0;
 					int    tsr_ = 0;
 					int    dor_ = 0;
-					SLTEST_CHECK_NZ(trr_ = train_data.Read(input_file_name, 0));
-					SLTEST_CHECK_NZ(tsr_ = test_data.Read(test_input_file_name, 0));
+					SLCHECK_NZ(trr_ = train_data.Read(input_file_name, 0));
+					SLCHECK_NZ(tsr_ = test_data.Read(test_input_file_name, 0));
 					if(trr_ && tsr_) {
 						layers.clear();
 						layers.addzlist(train_data.GetInputCount(), /*train_data.GetInputCount() * 10*/30, train_data.GetOutputCount(), 0);
@@ -5432,10 +5432,10 @@ SLTEST_R(FANN2)
 						dop.Layers = layers;
 						dop.Flags |= (dop.fDetectActivationFunc|dop.fDetectTrainAlg);
 						dop.P_TrainData = &train_data;
-						SLTEST_CHECK_NZ(dor_ = Fann::DetectOptimal(dop));
+						SLCHECK_NZ(dor_ = Fann::DetectOptimal(dop));
 						{
 							Fann ann(Fann::FANN_NETTYPE_LAYER, 1.0f, layers);
-							SLTEST_CHECK_NZ(ann.IsValid());
+							SLCHECK_NZ(ann.IsValid());
 							if(dop.ResultFlags & dop.rfTrainAlgDetected && dop.BestTrainAlg >= 0)
 								ann.SetTrainingAlgorithm((Fann::TrainAlg)dop.BestTrainAlg);
 							if(dop.ResultFlags & dop.rfHiddActFuncDetected && dop.BestHiddActF >= 0)

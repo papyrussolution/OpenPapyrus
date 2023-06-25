@@ -196,7 +196,7 @@ private:
 	uint64_t hi_;
 	uint64_t lo_;
 #else  // byte order
-#error "Unsupported byte order: must be little-endian or big-endian."
+	#error "Unsupported byte order: must be little-endian or big-endian."
 #endif  // byte order
 };
 

@@ -5911,6 +5911,7 @@ private:
 #define PPSCMD_WSCTL_AUTH            10129 // @v11.7.1  WSCTL Авторизация клиента
 #define PPSCMD_WSCTL_BEGIN_SESS      10130 // @v11.7.6  WSCTL Запуск рабочего сеанса
 #define PPSCMD_WSCTL_END_SESS        10131 // @v11.7.6  WSCTL Завершение рабочего сеанса
+#define PPSCMD_WSCTL_TSESS           10132 // @v11.7.7  WSCTL Возвращает статус текущей сессии процессора
 
 #define PPSCMD_TEST                  11000 // Сеанс тестирования //
 //
@@ -14689,7 +14690,6 @@ public:
 	int    GetListByText(int textFldId, const char * pKey, PPIDArray * pList);
 	int    AutoFill(const PPSCardSerPacket & rScsPack, const char * pPattern, int use_ta);
 	int    SearchOp(PPID cardID, LDATE, LTIME, SCardOpTbl::Rec * pRec);
-	int    SearchOpByCheck(PPID checkID, SCardOpTbl::Rec * pRec);
 	int    SearchOpByLinkObj(PPID objType, PPID objID, SCardOpTbl::Rec * pRec);
 	//
 	// Descr: Находит последнюю операцию по карте cardID на дату, предшествующую dt.
@@ -14708,7 +14708,7 @@ public:
 	int    GetOpByLinkObj(PPObjID oid, TSVector <OpBlock> & rList);
 	int    GetFreezingOpList(PPID cardID, TSVector <OpBlock> & rList);
 	int    RemoveOp(PPID cardID, LDATE, LTIME, int use_ta);
-	int    RemoveOpByCheck(PPID checkID, int use_ta);
+	int    RemoveOpByLinkObj(PPID objType, PPID objID, int use_ta);
 	int    RemoveOpAll(PPID cardID, int use_ta);
 	int    RecalcForwardRests(PPID cardID, LDATE, LTIME, double * pRest, int use_ta);
 	int    RecalcRests(PPID cardID, double * pRest, int use_ta);
@@ -37660,6 +37660,7 @@ public:
 	TSessionPacket(const TSessionPacket & rS);
 	TSessionPacket & FASTCALL operator = (const TSessionPacket & rS);
 	TSessionPacket & Z();
+	int    GetTimeRange(STimeChunk & rRange) const;
 
 	enum {
 		fLinesInited = 0x0001 // Пакет содержит валидный список строк Lines. Как правило, управление строками
@@ -37706,6 +37707,7 @@ public:
 	//   Если superSessAsSimple, то для суперсессий возвращет TSESK_SESSION
 	//
 	static int    FASTCALL GetSessionKind(const TSessionTbl::Rec & rRec, int superSessAsSimple = 1);
+	static int    GetTimeRange(const TSessionTbl::Rec & rRec, STimeChunk & rRange);
 	static void * FASTCALL MakeExtraParam(PPID superSessID, PPID prcID, int kind);
 	static int    ConvertExtraParam(void * extraPtr, SelFilt * pFilt);
 	//
@@ -58234,6 +58236,7 @@ public:
 	};
 
 	static int FindMsvs(int prefMajor, StrAssocArray & rList, SString * pPrefPath);
+	static int FindMsvs2(int prefMajor, StrAssocArray & rList, SString * pPrefPath);
 	int	   InitParam(Param *);
 	int	   EditParam(Param *);
 	int	   Init(const Param *);

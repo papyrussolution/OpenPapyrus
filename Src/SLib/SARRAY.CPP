@@ -5172,19 +5172,19 @@ SLTEST_FIXTURE(SArray, TestFixtureSArray)
 	// Четверть элементов вставляем в конец списка (самая простая и быстрая операция)
 	//
 	for(i = cs3; i < cc3; i++) {
-		SLTEST_CHECK_NZ(p_list->insert(&F.Sa[i]));
+		SLCHECK_NZ(p_list->insert(&F.Sa[i]));
 	}
 	//
 	// Четверть элементов вставляем в начало списка (при этом предшествующая четверть будет постепенно сдвигаться)
 	//
 	for(i = cs1; i < cc1; i++) {
-		SLTEST_CHECK_NZ(p_list->atInsert(i, &F.Sa[i]));
+		SLCHECK_NZ(p_list->atInsert(i, &F.Sa[i]));
 	}
 	//
 	// Оставшуюся половину вставляем в середину списка (опять заставляет массив сдвигать хвостовые члены)
 	//
 	for(i = cs2; i < cc2; i++) {
-		SLTEST_CHECK_NZ(p_list->atInsert(i, &F.Sa[i]));
+		SLCHECK_NZ(p_list->atInsert(i, &F.Sa[i]));
 	}
 	//
 	// Тестируем функцию incPointerSafe
@@ -5193,17 +5193,17 @@ SLTEST_FIXTURE(SArray, TestFixtureSArray)
 		p_list->setPointer(0);
 		for(int _inc = -3; _inc < (int)p_list->getCount() + 7; _inc++) {
 			const uint prev_ptr = p_list->getPointer();
-			SLTEST_CHECK_EQ(p_list->incPointerSafe(_inc), prev_ptr);
-			SLTEST_CHECK_CRANGE(p_list->getPointer(), 0UL, p_list->getCount()-1);
+			SLCHECK_EQ(p_list->incPointerSafe(_inc), prev_ptr);
+			SLCHECK_CRANGE(p_list->getPointer(), 0UL, p_list->getCount()-1);
 		}
-		SLTEST_CHECK_EQ(p_list->getPointer(), p_list->getCount()-1);
+		SLCHECK_EQ(p_list->getPointer(), p_list->getCount()-1);
 	}
 	//
 	// Теперь сравниваем элементы list с элементами F.Sa. Они должны быть в том же порядки и равны
 	//
-	if(SLTEST_CHECK_EQ((ulong)p_list->getCount(), (ulong)F.GetSaCount())) {
+	if(SLCHECK_EQ((ulong)p_list->getCount(), (ulong)F.GetSaCount())) {
 		for(i = 0; i < F.GetSaCount(); i++) {
-			SLTEST_CHECK_EQ(*(long *)p_list->at(i), F.Sa[i]);
+			SLCHECK_EQ(*(long *)p_list->at(i), F.Sa[i]);
 		}
 		long p;
 		//
@@ -5218,21 +5218,21 @@ SLTEST_FIXTURE(SArray, TestFixtureSArray)
 					++ls_ss;
 			for(i = 0; p_list->lsearch(&p, &i, CMPF_LONG); i++)
 				++ls_sl;
-			SLTEST_CHECK_EQ(ls_ss, ls_sl);
+			SLCHECK_EQ(ls_ss, ls_sl);
 		}
 		//
 		// Реверс списка
 		//
 		p_list->reverse(0, p_list->getCount());
 		for(i = 0; i < F.GetSaCount(); i++) {
-			SLTEST_CHECK_EQ(*static_cast<const long *>(p_list->at(i)), F.Sa[F.GetSaCount()-i-1]);
+			SLCHECK_EQ(*static_cast<const long *>(p_list->at(i)), F.Sa[F.GetSaCount()-i-1]);
 		}
 		//
 		// Сортируем список p_list и тестируем правильность сортировки
 		//
 		p_list->sort(CMPF_LONG);
 		for(i = 0; i < p_list->getCount()-1; i++) {
-			SLTEST_CHECK_LE(*static_cast<const long *>(p_list->at(i)), *static_cast<const long *>(p_list->at(i+1)));
+			SLCHECK_LE(*static_cast<const long *>(p_list->at(i)), *static_cast<const long *>(p_list->at(i+1)));
 		}
 		//
 		// Перемешиваем элементы массива случайным образом
@@ -5247,14 +5247,14 @@ SLTEST_FIXTURE(SArray, TestFixtureSArray)
 				if(*(long *)p_list->at(i) > *(long *)p_list->at(i+1))
 					sorted = 0;
 			}
-			SLTEST_CHECK_EQ(sorted, 0);
+			SLCHECK_EQ(sorted, 0);
 		}
 		//
 		// Теперь сортируем список p_list методом sort2 и тестируем правильность сортировки
 		//
 		p_list->sort2(CMPF_LONG);
 		for(i = 0; i < p_list->getCount()-1; i++) {
-			SLTEST_CHECK_LE(*(long *)p_list->at(i), *(long *)p_list->at(i+1));
+			SLCHECK_LE(*(long *)p_list->at(i), *(long *)p_list->at(i+1));
 		}
 		//
 		// Тестируем бинарный поиск (алгоритм аналогичен тесту последовательного поиска)
@@ -5274,7 +5274,7 @@ SLTEST_FIXTURE(SArray, TestFixtureSArray)
 				while(i < p_list->getCount() && *(long *)p_list->at(++i) == p)
 					++bs_sl;
 			}
-			SLTEST_CHECK_EQ(bs_ss, bs_sl);
+			SLCHECK_EQ(bs_ss, bs_sl);
 		}
 	}
 	// @todo Тест удаления элементов из массива
@@ -5300,19 +5300,19 @@ SLTEST_FIXTURE(SVector, TestFixtureSArray)
 	// Четверть элементов вставляем в конец списка (самая простая и быстрая операция)
 	//
 	for(i = cs3; i < cc3; i++) {
-		SLTEST_CHECK_NZ(p_list->insert(&F.Sa[i]));
+		SLCHECK_NZ(p_list->insert(&F.Sa[i]));
 	}
 	//
 	// Четверть элементов вставляем в начало списка (при этом предшествующая четверть будет постепенно сдвигаться)
 	//
 	for(i = cs1; i < cc1; i++) {
-		SLTEST_CHECK_NZ(p_list->atInsert(i, &F.Sa[i]));
+		SLCHECK_NZ(p_list->atInsert(i, &F.Sa[i]));
 	}
 	//
 	// Оставшуюся половину вставляем в середину списка (опять заставляет массив сдвигать хвостовые члены)
 	//
 	for(i = cs2; i < cc2; i++) {
-		SLTEST_CHECK_NZ(p_list->atInsert(i, &F.Sa[i]));
+		SLCHECK_NZ(p_list->atInsert(i, &F.Sa[i]));
 	}
 	//
 	// Тестируем функцию incPointerSafe
@@ -5321,17 +5321,17 @@ SLTEST_FIXTURE(SVector, TestFixtureSArray)
 		p_list->setPointer(0);
 		for(int _inc = -3; _inc < (int)p_list->getCount() + 7; _inc++) {
 			const uint prev_ptr = p_list->getPointer();
-			SLTEST_CHECK_EQ(p_list->incPointerSafe(_inc), prev_ptr);
-			SLTEST_CHECK_CRANGE(p_list->getPointer(), 0UL, p_list->getCount()-1);
+			SLCHECK_EQ(p_list->incPointerSafe(_inc), prev_ptr);
+			SLCHECK_CRANGE(p_list->getPointer(), 0UL, p_list->getCount()-1);
 		}
-		SLTEST_CHECK_EQ(p_list->getPointer(), p_list->getCount()-1);
+		SLCHECK_EQ(p_list->getPointer(), p_list->getCount()-1);
 	}
 	//
 	// Теперь сравниваем элементы list с элементами F.Sa. Они должны быть в том же порядки и равны
 	//
-	if(SLTEST_CHECK_EQ((ulong)p_list->getCount(), (ulong)F.GetSaCount())) {
+	if(SLCHECK_EQ((ulong)p_list->getCount(), (ulong)F.GetSaCount())) {
 		for(i = 0; i < F.GetSaCount(); i++) {
-			SLTEST_CHECK_EQ(*(long *)p_list->at(i), F.Sa[i]);
+			SLCHECK_EQ(*(long *)p_list->at(i), F.Sa[i]);
 		}
 		long p;
 		//
@@ -5346,21 +5346,21 @@ SLTEST_FIXTURE(SVector, TestFixtureSArray)
 					++ls_ss;
 			for(i = 0; p_list->lsearch(&p, &i, CMPF_LONG); i++)
 				++ls_sl;
-			SLTEST_CHECK_EQ(ls_ss, ls_sl);
+			SLCHECK_EQ(ls_ss, ls_sl);
 		}
 		//
 		// Реверс списка
 		//
 		p_list->reverse(0, p_list->getCount());
 		for(i = 0; i < F.GetSaCount(); i++) {
-			SLTEST_CHECK_EQ(*(long *)p_list->at(i), F.Sa[F.GetSaCount()-i-1]);
+			SLCHECK_EQ(*(long *)p_list->at(i), F.Sa[F.GetSaCount()-i-1]);
 		}
 		//
 		// Сортируем список p_list и тестируем правильность сортировки
 		//
 		p_list->sort(CMPF_LONG);
 		for(i = 0; i < p_list->getCount()-1; i++) {
-			SLTEST_CHECK_LE(*(long *)p_list->at(i), *(long *)p_list->at(i+1));
+			SLCHECK_LE(*(long *)p_list->at(i), *(long *)p_list->at(i+1));
 		}
 		//
 		// Перемешиваем элементы массива случайным образом
@@ -5375,14 +5375,14 @@ SLTEST_FIXTURE(SVector, TestFixtureSArray)
 				if(*(long *)p_list->at(i) > *(long *)p_list->at(i+1))
 					sorted = false;
 			}
-			SLTEST_CHECK_Z(sorted);
+			SLCHECK_Z(sorted);
 		}
 		//
 		// Теперь сортируем список p_list методом sort2 и тестируем правильность сортировки
 		//
 		p_list->sort2(CMPF_LONG);
 		for(i = 0; i < p_list->getCount()-1; i++) {
-			SLTEST_CHECK_LE(*(long *)p_list->at(i), *(long *)p_list->at(i+1));
+			SLCHECK_LE(*(long *)p_list->at(i), *(long *)p_list->at(i+1));
 		}
 		//
 		// Тестируем бинарный поиск (алгоритм аналогичен тесту последовательного поиска)
@@ -5402,7 +5402,7 @@ SLTEST_FIXTURE(SVector, TestFixtureSArray)
 				while(i < p_list->getCount() && *(long *)p_list->at(++i) == p)
 					++bs_sl;
 			}
-			SLTEST_CHECK_EQ(bs_ss, bs_sl);
+			SLCHECK_EQ(bs_ss, bs_sl);
 		}
 	}
 	// @todo Тест удаления элементов из массива
@@ -5418,114 +5418,114 @@ SLTEST_FIXTURE(SVector, TestFixtureSArray)
 		uint pos = 0;
 		{
 			key = 1;
-			SLTEST_CHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 0U);
+			SLCHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 0U);
 		}
 		{
 			key = 2;
-			SLTEST_CHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 2U);
+			SLCHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 2U);
 		}
 		{
 			key = 3;
-			SLTEST_CHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 4U);
+			SLCHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 4U);
 		}
 		{
 			key = 4;
-			SLTEST_CHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 6U);
+			SLCHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 6U);
 		}
 		{
 			key = 5;
-			SLTEST_CHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 8U);
+			SLCHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 8U);
 		}
 		{
 			key = 6;
-			SLTEST_CHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 10U);
+			SLCHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 10U);
 		}
 		{
 			key = 7;
-			SLTEST_CHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 12U);
+			SLCHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 12U);
 		}
 		{
 			key = 8;
-			SLTEST_CHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 14U);
+			SLCHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 14U);
 		}
 		{
 			key = 9;
-			SLTEST_CHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 16U);
+			SLCHECK_NZ(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 16U);
 		}
 		{
 			key = 19; // нет такого элемента
-			SLTEST_CHECK_Z(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_Z(vec.bsearch(&key, &pos, PTR_CMPFUNC(long)));
 		}
 		//
 		{
 			key = 1;
-			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 0U);
+			SLCHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 0U);
 		}
 		{
 			key = 2;
-			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 2U);
+			SLCHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 2U);
 		}
 		{
 			key = 3;
-			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 4U);
+			SLCHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 4U);
 		}
 		{
 			key = 4;
-			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 6U);
+			SLCHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 6U);
 		}
 		{
 			key = 5;
-			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 8U);
+			SLCHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 8U);
 		}
 		{
 			key = 6;
-			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 10U);
+			SLCHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 10U);
 		}
 		{
 			key = 7;
-			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 12U);
+			SLCHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 12U);
 		}
 		{
 			key = 8;
-			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 14U);
+			SLCHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 14U);
 		}
 		{
 			key = 9;
-			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 16U);
+			SLCHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 16U);
 		}
 		{
 			key = 10; // Такого элемента нет в списке - bsearchGe должна найти следующий (11)
-			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 18U);
-			SLTEST_CHECK_LE(key, vec.at(pos));
+			SLCHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 18U);
+			SLCHECK_LE(key, vec.at(pos));
 		}
 		{
 			key = -1; // Такого элемента нет в списке - bsearchGe должна найти следующий (1)
-			SLTEST_CHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
-			SLTEST_CHECK_EQ(pos, 0U);
-			SLTEST_CHECK_LE(key, vec.at(pos));
+			SLCHECK_NZ(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_EQ(pos, 0U);
+			SLCHECK_LE(key, vec.at(pos));
 		}
 		{
 			key = 19; // нет такого элемента
-			SLTEST_CHECK_Z(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
+			SLCHECK_Z(vec.bsearchGe(&key, &pos, PTR_CMPFUNC(long)));
 		}
 	}
 	// } @v11.7.0 
@@ -5552,12 +5552,12 @@ SLTEST_R(TSHashCollection)
 	SLS.QueryPath("testroot", in_file_path);
 	in_file_path.SetLastSlash().Cat("data").SetLastSlash().Cat("city-enru-pair.csv");
 	SFile f_in(in_file_path, SFile::mRead);
-	THROW(SLTEST_CHECK_NZ(f_in.IsValid()));
+	THROW(SLCHECK_NZ(f_in.IsValid()));
 	{
 		while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 			if(line_buf.Divide(';', left, right) > 0 && left.NotEmptyS()) {
 				Sample_HashTableEntry * p_new_entry = city_list.CreateNewItem();
-				THROW(SLTEST_CHECK_NZ(p_new_entry));
+				THROW(SLCHECK_NZ(p_new_entry));
 				p_new_entry->CityEn = left;
 				p_new_entry->CityRu = right.Strip();
 			}
@@ -5567,16 +5567,16 @@ SLTEST_R(TSHashCollection)
 		for(uint i = 0; i < city_list.getCount(); i++) {
 			Sample_HashTableEntry * p_hash_entry = new Sample_HashTableEntry(*city_list.at(i));
 			int hash_table_put_result = city_hash_table.Put(p_hash_entry, false);
-			THROW(SLTEST_CHECK_EQ(hash_table_put_result, 1));
+			THROW(SLCHECK_EQ(hash_table_put_result, 1));
 		}
 	}
 	{
 		for(uint i = 0; i < city_list.getCount(); i++) {
 			const Sample_HashTableEntry * p_entry = city_list.at(i);
 			const Sample_HashTableEntry * p_hash_entry = city_hash_table.Get(p_entry->CityEn, p_entry->CityEn.Len());
-			THROW(SLTEST_CHECK_NZ(p_hash_entry));
-			THROW(SLTEST_CHECK_EQ(p_hash_entry->CityEn, p_entry->CityEn));
-			THROW(SLTEST_CHECK_EQ(p_hash_entry->CityRu, p_entry->CityRu));
+			THROW(SLCHECK_NZ(p_hash_entry));
+			THROW(SLCHECK_EQ(p_hash_entry->CityEn, p_entry->CityEn));
+			THROW(SLCHECK_EQ(p_hash_entry->CityRu, p_entry->CityRu));
 		}
 	}
 	CATCH

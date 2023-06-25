@@ -2208,7 +2208,7 @@ SLTEST_R(DL200_Account)
 		ci.ToStr(temp_buf2, sizeof(temp_buf2));
 		out_buf.Z().Cat(strings[i]).Tab().Cat(temp_buf).Tab().Cat(temp_buf2).CR();
 		out.WriteLine(out_buf);
-		SLTEST_CHECK_Z(stricmp(temp_buf, temp_buf2));
+		SLCHECK_Z(stricmp(temp_buf, temp_buf2));
 	}
 	for(i = 0; i < sizeof(p_test_score) / sizeof(p_test_score[0]); i++) {
 		DL2_CI ci;
@@ -2223,7 +2223,7 @@ SLTEST_R(DL200_Account)
 		ci.ToStr(temp_buf2, sizeof(temp_buf2));
 		out_buf.Z().Cat(strings[i]).Tab().Cat(temp_buf).Tab().Cat(temp_buf2).CR();
 		out.WriteLine(out_buf);
-		SLTEST_CHECK_Z(stricmp(temp_buf, temp_buf2));
+		SLCHECK_Z(stricmp(temp_buf, temp_buf2));
 	}
 	/*
 	CATCH
