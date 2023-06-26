@@ -1,0 +1,1282 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{3ADBFB42-5AC1-3BEB-A689-5C4C6C4DAC3B}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>flatbuffers-generated_code</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\flatbuffers\include;..\OSF\flatbuffers\grpc;..\OSF\flatbuffers\tests;..\OSF\flatbuffers\samples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\flatbuffers\include;..\OSF\flatbuffers\grpc;..\OSF\flatbuffers\tests;..\OSF\flatbuffers\samples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\flatbuffers\include;..\OSF\flatbuffers\grpc;..\OSF\flatbuffers\tests;..\OSF\flatbuffers\samples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\flatbuffers\include;..\OSF\flatbuffers\grpc;..\OSF\flatbuffers\tests;..\OSF\flatbuffers\samples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\flatbuffers\CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule D:/Papyrus/Src/OSF/flatbuffers/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule D:/Papyrus/Src/OSF/flatbuffers/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+D:\TOOLS\CMake\bin\cmake.exe -SD:/Papyrus/Src/OSF/flatbuffers -BD:/Papyrus/Src/OSF/flatbuffers/__build__ --check-stamp-file D:/Papyrus/Src/OSF/flatbuffers/__build__/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+D:\TOOLS\CMake\bin\cmake.exe -SD:/Papyrus/Src/OSF/flatbuffers -BD:/Papyrus/Src/OSF/flatbuffers/__build__ --check-stamp-file D:/Papyrus/Src/OSF/flatbuffers/__build__/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\CMake\BuildFlatBuffers.cmake;..\OSF\flatbuffers\CMake\Version.cmake;..\OSF\flatbuffers\CMake\flatbuffers-config-version.cmake.in;..\OSF\flatbuffers\CMake\flatbuffers.pc.in;..\OSF\flatbuffers\__build__\CMakeFiles\3.26.3\CMakeCXXCompiler.cmake;..\OSF\flatbuffers\__build__\CMakeFiles\3.26.3\CMakeRCCompiler.cmake;..\OSF\flatbuffers\__build__\CMakeFiles\3.26.3\CMakeSystem.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeCXXInformation.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeCommonLanguageInclude.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeGenericSystem.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeInitializeConfigs.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeLanguageInformation.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeRCInformation.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeSystemSpecificInformation.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeSystemSpecificInitialize.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CheckCXXSymbolExists.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CheckSymbolExists.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Compiler\CMakeCommonCompilerMacros.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Compiler\MSVC-CXX.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Compiler\MSVC.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\GNUInstallDirs.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Platform\Windows-MSVC-CXX.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Platform\Windows-MSVC.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Platform\Windows.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Platform\WindowsPaths.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\CMake\BuildFlatBuffers.cmake;..\OSF\flatbuffers\CMake\Version.cmake;..\OSF\flatbuffers\CMake\flatbuffers-config-version.cmake.in;..\OSF\flatbuffers\CMake\flatbuffers.pc.in;..\OSF\flatbuffers\__build__\CMakeFiles\3.26.3\CMakeCXXCompiler.cmake;..\OSF\flatbuffers\__build__\CMakeFiles\3.26.3\CMakeRCCompiler.cmake;..\OSF\flatbuffers\__build__\CMakeFiles\3.26.3\CMakeSystem.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeCXXInformation.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeCommonLanguageInclude.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeGenericSystem.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeInitializeConfigs.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeLanguageInformation.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeRCInformation.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeSystemSpecificInformation.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeSystemSpecificInitialize.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CheckCXXSymbolExists.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CheckSymbolExists.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Compiler\CMakeCommonCompilerMacros.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Compiler\MSVC-CXX.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Compiler\MSVC.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\GNUInstallDirs.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Platform\Windows-MSVC-CXX.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Platform\Windows-MSVC.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Platform\Windows.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Platform\WindowsPaths.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\__build__\CMakeFiles\generate.stamp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\__build__\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule D:/Papyrus/Src/OSF/flatbuffers/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule D:/Papyrus/Src/OSF/flatbuffers/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+D:\TOOLS\CMake\bin\cmake.exe -SD:/Papyrus/Src/OSF/flatbuffers -BD:/Papyrus/Src/OSF/flatbuffers/__build__ --check-stamp-file D:/Papyrus/Src/OSF/flatbuffers/__build__/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+D:\TOOLS\CMake\bin\cmake.exe -SD:/Papyrus/Src/OSF/flatbuffers -BD:/Papyrus/Src/OSF/flatbuffers/__build__ --check-stamp-file D:/Papyrus/Src/OSF/flatbuffers/__build__/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\CMake\BuildFlatBuffers.cmake;..\OSF\flatbuffers\CMake\Version.cmake;..\OSF\flatbuffers\CMake\flatbuffers-config-version.cmake.in;..\OSF\flatbuffers\CMake\flatbuffers.pc.in;..\OSF\flatbuffers\__build__\CMakeFiles\3.26.3\CMakeCXXCompiler.cmake;..\OSF\flatbuffers\__build__\CMakeFiles\3.26.3\CMakeRCCompiler.cmake;..\OSF\flatbuffers\__build__\CMakeFiles\3.26.3\CMakeSystem.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeCXXInformation.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeCommonLanguageInclude.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeGenericSystem.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeInitializeConfigs.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeLanguageInformation.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeRCInformation.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeSystemSpecificInformation.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeSystemSpecificInitialize.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CheckCXXSymbolExists.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CheckSymbolExists.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Compiler\CMakeCommonCompilerMacros.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Compiler\MSVC-CXX.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Compiler\MSVC.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\GNUInstallDirs.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Platform\Windows-MSVC-CXX.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Platform\Windows-MSVC.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Platform\Windows.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Platform\WindowsPaths.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\CMake\BuildFlatBuffers.cmake;..\OSF\flatbuffers\CMake\Version.cmake;..\OSF\flatbuffers\CMake\flatbuffers-config-version.cmake.in;..\OSF\flatbuffers\CMake\flatbuffers.pc.in;..\OSF\flatbuffers\__build__\CMakeFiles\3.26.3\CMakeCXXCompiler.cmake;..\OSF\flatbuffers\__build__\CMakeFiles\3.26.3\CMakeRCCompiler.cmake;..\OSF\flatbuffers\__build__\CMakeFiles\3.26.3\CMakeSystem.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeCXXInformation.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeCommonLanguageInclude.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeGenericSystem.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeInitializeConfigs.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeLanguageInformation.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeRCInformation.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeSystemSpecificInformation.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CMakeSystemSpecificInitialize.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CheckCXXSymbolExists.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\CheckSymbolExists.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Compiler\CMakeCommonCompilerMacros.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Compiler\MSVC-CXX.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Compiler\MSVC.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\GNUInstallDirs.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Platform\Windows-MSVC-CXX.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Platform\Windows-MSVC.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Platform\Windows.cmake;D:\TOOLS\CMake\share\cmake-3.26\Modules\Platform\WindowsPaths.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\__build__\CMakeFiles\generate.stamp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\__build__\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\alignment_test.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\arrays_test.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\dictionary_lookup.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\included_test.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\includer_test.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\keyword_test.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\monster_extra.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\monster_test.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\more_defaults.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\MutatingBool.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\nan_inf_test.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\native_inline_table_test.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\native_type_test.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\nested_union_test.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\optional_scalars.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\private_annotation_test.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\required_strings.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\type_field_collsion.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\union_value_collision.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\vector_has_test.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\namespace_test\namespace_test1.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\namespace_test\namespace_test2.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\flatbuffers\tests\key_field\key_field_sample.fbs">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o ..\OSF\flatbuffers\GENERATED %(FullPath)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\flatc.exe --cpp --gen-mutable --gen-object-api --reflect-names --cpp-ptr-type flatbuffers::unique_ptr --no-includes --gen-compare -I ../OSF/flatbuffers/tests/include_test -o tests %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\OSF\flatbuffers\GENERATED\%(Filename).h</Outputs>
+    </CustomBuild>
+    <None Include="..\OSF\flatbuffers\__build__\CMakeFiles\generated_code">
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="flatc.vcxproj">
+      <Project>{43C366A5-1370-36C5-BAA1-92339A540E1C}</Project>
+      <Name>flatc</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

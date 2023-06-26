@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\flatbuffers\CMakeLists.txt" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\alignment_test.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\arrays_test.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\dictionary_lookup.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\included_test.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\includer_test.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\keyword_test.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\monster_extra.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\monster_test.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\more_defaults.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\MutatingBool.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\nan_inf_test.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\native_inline_table_test.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\native_type_test.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\nested_union_test.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\optional_scalars.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\private_annotation_test.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\required_strings.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\type_field_collsion.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\union_value_collision.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\vector_has_test.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\namespace_test\namespace_test1.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\namespace_test\namespace_test2.fbs" />
+    <CustomBuild Include="..\OSF\flatbuffers\tests\key_field\key_field_sample.fbs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\OSF\flatbuffers\__build__\CMakeFiles\generated_code" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="flatbuffers-files">
+      <UniqueIdentifier>{830808c8-5b88-4904-b48b-7406b840b0b6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -12,10 +12,184 @@
     <Filter Include="DirectXTex-Shaders">
       <UniqueIdentifier>{fc31fb0c-b64b-42f7-855f-923a53da428e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="OpenSSL-ASM">
+      <UniqueIdentifier>{3a0c5fa8-b0de-4b1c-b25a-e646a6549d0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenSSL-ASM\x64">
+      <UniqueIdentifier>{3e581d19-55c6-47c0-b641-cb71198e52e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenSSL-ASM\x86">
+      <UniqueIdentifier>{1941ab9b-d2fb-4af9-a5a3-53d55e0d18db}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\OSF\DirectXTex\SRC\Shaders\CompileShaders.cmd">
       <Filter>DirectXTex-Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\bn-586.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\co-586.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\crypt586.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\des-586.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\md5-586.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\x86cpuid.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\x86-gf2m.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\x86-mont.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\md5-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\aes-586.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\aesni-x86.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\bf-586.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\chacha-x86.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\cmll-x86.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\engines\asm\e_padlock-x86.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\ecp_nistz256-x86.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\ghash-x86.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\poly1305-x86.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\rc4-586.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\rmd-586.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\sha1-586.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\sha256-586.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\sha512-586.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\vpaes-x86.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\wp-mmx.pl">
+      <Filter>OpenSSL-ASM\x86</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\x25519-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\aesni-gcm-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\aesni-mb-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\aesni-sha1-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\aesni-sha256-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\aesni-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\aes-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\bsaes-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\chacha-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\cmll-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\engines\asm\e_padlock-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\ecp_nistz256-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\ghash-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\keccak1600-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\poly1305-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\rc4-md5-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\rc4-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\sha1-mb-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\sha1-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\sha256-mb-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\sha512-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\vpaes-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\wp-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\rsaz-avx2.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\rsaz-avx512.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\rsaz-x86_64.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\x86_64cpuid.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\x86_64-gf2m.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\x86_64-mont.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\x86_64-mont5.pl">
+      <Filter>OpenSSL-ASM\x64</Filter>
     </CustomBuild>
   </ItemGroup>
 </Project>

@@ -1,5 +1,5 @@
 % DEVELOP.TEX
-% Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2019, 2020
+% Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2019, 2020, 2023
 % Part of project Papyrus
 % Разработка программной системы: принципы и реализация %
 %
@@ -78,6 +78,9 @@ Visual Studio версий 7.10 (Visual Studio 2003), и 15.0 (Visual Studio 2017).
 	
 	Официально, с 2021 года поддержка Windows XP и Windows Server 2003 прекращается (хотя,
 	дистрибутивы по-прежнему содержат упомянутые модули).
+	
+	Начиная с начала 2023 года сборка средствами Visual Studio 7.10 прекращена. Так же полностью
+	остановлена поддержка Windows XP  и Windows Server 2003.
 }
 
 \subsection{Опции компиляции и компоновки}
@@ -111,9 +114,13 @@ Visual Studio версий 7.10 (Visual Studio 2003), и 15.0 (Visual Studio 2017).
 		\tiny{\textdollar(ProjectDir)../../\_\_TEMP\_\_/VC70/\textdollar(ConfigurationName)/\textdollar(ProjectName)/}
 	\item[Visual Studio 2017]
 		\tiny{\textdollar(ProjectDir)../../\_\_TEMP\_\_/VC2017/\textdollar(PlatformShortName)/\textdollar(Configuration)/\textdollar(ProjectName)/}
+	\item[Visual Studio 2019]
+		\tiny{\textdollar(ProjectDir)../../\_\_TEMP\_\_/VC2019/\textdollar(PlatformShortName)/\textdollar(Configuration)/\textdollar(ProjectName)/}
+	\item[Visual Studio 2022]
+		\tiny{\textdollar(ProjectDir)../../\_\_TEMP\_\_/VC2022/\textdollar(PlatformShortName)/\textdollar(Configuration)/\textdollar(ProjectName)/}
 \end{description}
 
-Обратите внимание, в шаблоне путей для Visual Studio 2017 включены дополнительные подкаталоги
+Обратите внимание, в шаблоне путей для Visual Studio 2017, 2019, 2022 включены дополнительные подкаталоги
 для символа платформы.
 
 Такие шаблоны применяются ко всем проектам решения.
@@ -161,6 +168,10 @@ Visual Studio версий 7.10 (Visual Studio 2003), и 15.0 (Visual Studio 2017).
 Практически все проекты сборки используют предкомпиляцию заголовков. В роли инициирующего файла обычно
 выступает файл с именем aaa-pch.c(cpp) где aaa - краткая аббревиатура проекта. Например pp-pch.cpp для 
 проекта Papyrus, slib-pch.cpp для проекта SLib, openssl-ssl-pch.cpp для одного из проектов openssl и так далее.
+
+\subsubsection{Conformance mode}
+Для большинства проектов решения эта опция включена. К сожалению, не все модули удается скомпилировать с этой опцией,
+но мы стремимся к тому, чтоб сборка в \quad{Conformance mode} была повсеместной.
 
 \section{Сторонние компоненты}
 
@@ -251,8 +262,7 @@ Visual Studio версий 7.10 (Visual Studio 2003), и 15.0 (Visual Studio 2017).
 	Используется значительным числом компонентов системы.
 	
 	\item[libssh2]
-	
-	
+		
 	\item[nginx] Версия 1.13.4. 
 	
 	Нетипичный вариант интеграции. Nginx - нисколько не библиотека и не предназначен для использования 
@@ -271,7 +281,51 @@ Visual Studio версий 7.10 (Visual Studio 2003), и 15.0 (Visual Studio 2017).
 	\item[sqlite] Версия 3.34.00. В отличии от большинства иных заимствованных проектов, эта библиотека
 	пока не подвергалась рефакторингу.
 	\item[mariadb-connector-c] 
+	\item[abseil] Библиотека c++ общего назначения от google.
+	\item[googletest]
+	\item[icu]
+	\item[imgui]
+	\item[libphonenumber]
+	\item[lz4]
+	\item[zstd]
+	\item[xapian]
+	\item[protobuf]	
 \end{description}
+
+\chapter{Сборка проекта}
+
+Если рассматривать процесс сборки \qu{с нуля}, то он состоит из следующих шагов:
+\begin{itemize}
+	\item Импортировать исходные коды из репозитория в головной каталог PAPYRUS (на любом дисковом устройстве)
+	\item Установить последнюю версию Papyrus в подкаталог PAPYRUS/PPY
+	\item Открыть решение Visual Studio papyrus.sln в подкаталоге PAPYRUS/SRC/BUILDVC2017 или 
+	PAPYRUS/SRC/BUILDVC2019 или PAPYRUS/SRC/BUILDVC2022
+	для Visual Studio 2017 или Visual Studio 2019 или Visual Studio 2022 соответственно
+	\item Запустить полную сборку решения.
+\end{itemize}
+
+К сожалению, в деталях существует значительное число сложностей. Я попытаюсь часть из них рассмотреть в этой главе.
+
+\section{Репозитории исходных кодов}
+
+Существует 2 параллельные версии Papyrus: 
+\begin{itemize}
+\item собственно, проприетарная система Papyrus, исходные коды которой находятся в
+приватном репозитории subversion (http://uhtt.ru:1911/svn/papyrus). 
+
+Доступ к этому репозиторию вы можете получить
+только лишь в случае, если являетесь сотрудником, вовлеченным в процесс разработки системы.
+
+\item OpenPapyrus, которая является почти полной репликой проприетарной версии системы с очень небольшими
+модификациями, касающимися ключей шифрования. Репозиторий OpenPapyrus находится по адресу 
+https://github.com/papyrussolution/OpenPapyrus.git.
+
+Доступ к этому репозиторию открыт для всех желающих изучить коды системы или включиться в совместную разработку.
+\end{itemize}
+
+\section{Инструменты сборки}
+Кроме компилятора и линковщика для сборки используется значительно число иных инструментов как собственной разработки, так
+и сторонних.
 
 \chapter{Code style}
 

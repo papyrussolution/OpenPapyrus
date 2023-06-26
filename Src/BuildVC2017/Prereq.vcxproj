@@ -43,37 +43,870 @@ CompileShaders.cmd</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../OSF/DirectXTex/SRC/Shaders/Compiled/BC6HEncode_EncodeBlockCS.inc</Outputs>
     </CustomBuild>
   </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\bn-586.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\co-586.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\crypt586.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\des-586.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\md5-586.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\x86-gf2m.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\x86-mont.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\x86cpuid.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\md5-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\rsaz-avx2.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\rsaz-avx512.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\rsaz-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\x86_64-gf2m.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\x86_64-mont.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\x86_64-mont5.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\x86_64cpuid.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\aes-586.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\aesni-x86.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\bf-586.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\chacha-x86.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\cmll-x86.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\ecp_nistz256-x86.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\ghash-x86.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\poly1305-x86.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\rc4-586.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\rmd-586.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\sha1-586.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\sha256-586.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\sha512-586.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\vpaes-x86.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\wp-mmx.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\engines\asm\e_padlock-x86.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) win32n -DZLIB -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_WINSOCK_DEPRECATED_NO_WARNINGS -DOPENSSL_BUILDING_OPENSSL -DOPENSSL_SYS_WIN32 -DOPENSSL_PIC -DOPENSSL_CPUID_OBJ -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM -DVPAES_ASM -DWHIRLPOOL_ASM -DCMLL_ASM -DDES_ASM -DGHASH_ASM -DECP_NISTZ256_ASM -DPOLY1305_ASM -DOPENSSL_USE_APPLINK ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x86 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\aes-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\aesni-gcm-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\aesni-mb-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\aesni-sha1-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\aesni-sha256-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\aesni-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\bsaes-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\chacha-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\cmll-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\ecp_nistz256-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\ghash-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\keccak1600-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\poly1305-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\rc4-md5-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\rc4-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\sha1-mb-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\sha1-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\sha256-mb-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\sha512-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\vpaes-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\wp-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\x25519-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\OpenSSL-302\engines\asm\e_padlock-x86_64.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{528E73DD-56B8-48F4-8C1F-78119DF9097A}</ProjectGuid>
     <RootNamespace>Prereq</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
+    <ConfigurationType>Utility</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>Utility</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
+    <ConfigurationType>Utility</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>Utility</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -94,7 +927,26 @@ CompileShaders.cmd</Command>
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -109,6 +961,9 @@ CompileShaders.cmd</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <CustomBuild>
+      <LinkObjects>false</LinkObjects>
+    </CustomBuild>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -120,6 +975,9 @@ CompileShaders.cmd</Command>
     <Link>
       <SubSystem>Console</SubSystem>
     </Link>
+    <CustomBuild>
+      <LinkObjects>false</LinkObjects>
+    </CustomBuild>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -131,6 +989,9 @@ CompileShaders.cmd</Command>
     <Link>
       <SubSystem>Console</SubSystem>
     </Link>
+    <CustomBuild>
+      <LinkObjects>false</LinkObjects>
+    </CustomBuild>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -146,6 +1007,9 @@ CompileShaders.cmd</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <CustomBuild>
+      <LinkObjects>false</LinkObjects>
+    </CustomBuild>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

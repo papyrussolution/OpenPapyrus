@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\OSF\flatbuffers\src\annotated_binary_text_gen.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\bfbs_gen_lua.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\bfbs_gen_nim.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\binary_annotator.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\code_generators.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\grpc\src\compiler\cpp_generator.cc" />
+    <ClCompile Include="..\OSF\flatbuffers\src\file_binary_writer.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\file_name_saving_file_manager.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\file_writer.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\flatc.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\flatc_main.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\grpc\src\compiler\go_generator.cc" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_binary.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_cpp.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_csharp.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_dart.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_fbs.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_go.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_grpc.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_java.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_json_schema.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_kotlin.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_lobster.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_lua.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_php.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_python.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_rust.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_swift.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_text.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_ts.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_parser.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\grpc\src\compiler\java_generator.cc" />
+    <ClCompile Include="..\OSF\flatbuffers\grpc\src\compiler\python_generator.cc" />
+    <ClCompile Include="..\OSF\flatbuffers\src\reflection.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\grpc\src\compiler\swift_generator.cc" />
+    <ClCompile Include="..\OSF\flatbuffers\grpc\src\compiler\ts_generator.cc" />
+    <ClCompile Include="..\OSF\flatbuffers\src\util.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\flatbuffers-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\allocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\array.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\buffer_ref.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\default_allocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\detached_buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\code_generator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\file_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\flatbuffer_builder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\flatbuffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\flexbuffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\flex_flat_util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\hash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\idl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\minireflect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\reflection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\reflection_generated.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\registry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\stl_emulation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\string.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\struct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\table.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\vector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\vector_downward.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\verifier.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\src\idl_namer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\src\namer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\src\bfbs_gen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\src\bfbs_gen_lua.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\src\bfbs_gen_nim.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\src\bfbs_namer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\code_generators.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\src\binary_annotator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\src\annotated_binary_text_gen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\grpc\src\compiler\schema_interface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\grpc\src\compiler\cpp_generator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\grpc\src\compiler\go_generator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\grpc\src\compiler\java_generator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\grpc\src\compiler\python_generator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\grpc\src\compiler\swift_generator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\grpc\src\compiler\ts_generator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{7DC536E3-8911-3F73-BE42-6E27102529A2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

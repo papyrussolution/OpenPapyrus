@@ -14,28 +14,24 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\crypto;..\osf\OpenSSL-302\crypto\include;..\osf\OpenSSL-302\crypto\modes;..\osf\OpenSSL-302\crypto\ec\curve448;..\osf\OpenSSL-302\crypto\ec\curve448\arch_32;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\providers\implementations\include;$(ZLIB_INC_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ZLIB;L_ENDIAN;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;OPENSSL_BUILDING_OPENSSL;OPENSSL_SYS_WIN32;OPENSSL_PIC;OPENSSL_CPUID_OBJ;OPENSSL_BN_ASM_PART_WORDS;OPENSSL_IA32_SSE2;OPENSSL_BN_ASM_MONT;OPENSSL_BN_ASM_GF2m;RC4_ASM;SHA1_ASM;SHA256_ASM;SHA512_ASM;MD5_ASM;RMD160_ASM;AES_ASM;VPAES_ASM;WHIRLPOOL_ASM;CMLL_ASM;DES_ASM;GHASH_ASM;ECP_NISTZ256_ASM;POLY1305_ASM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <OmitDefaultLibName>true</OmitDefaultLibName>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\crypto;..\osf\OpenSSL-302\crypto\include;..\osf\OpenSSL-302\crypto\modes;..\osf\OpenSSL-302\crypto\ec\curve448;..\osf\OpenSSL-302\crypto\ec\curve448\arch_32;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\providers\implementations\include;$(ZLIB_INC_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ZLIB;L_ENDIAN;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;OPENSSL_BUILDING_OPENSSL;OPENSSL_SYS_WIN32;OPENSSL_PIC;OPENSSL_CPUID_OBJ;OPENSSL_BN_ASM_PART_WORDS;OPENSSL_IA32_SSE2;OPENSSL_BN_ASM_MONT;OPENSSL_BN_ASM_GF2m;RC4_ASM;SHA1_ASM;SHA256_ASM;SHA512_ASM;MD5_ASM;RMD160_ASM;AES_ASM;VPAES_ASM;WHIRLPOOL_ASM;CMLL_ASM;DES_ASM;GHASH_ASM;ECP_NISTZ256_ASM;POLY1305_ASM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <OmitDefaultLibName>true</OmitDefaultLibName>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\crypto;..\osf\OpenSSL-302\crypto\include;..\osf\OpenSSL-302\crypto\modes;..\osf\OpenSSL-302\crypto\ec\curve448;..\osf\OpenSSL-302\crypto\ec\curve448\arch_32;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\providers\implementations\include;$(ZLIB_INC_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ZLIB;L_ENDIAN;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;OPENSSL_BUILDING_OPENSSL;OPENSSL_SYS_WIN32;OPENSSL_PIC;OPENSSL_CPUID_OBJ;OPENSSL_IA32_SSE2;OPENSSL_BN_ASM_MONT;OPENSSL_BN_ASM_MONT5;OPENSSL_BN_ASM_GF2m;RC4_ASM;SHA1_ASM;SHA256_ASM;SHA512_ASM;MD5_ASM;AES_ASM;BSAES_ASM;VPAES_ASM;WHIRLPOOL_ASM;CMLL_ASM;GHASH_ASM;ECP_NISTZ256_ASM;POLY1305_ASM;KECCAK1600_ASM;X25519_ASM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <OmitDefaultLibName>true</OmitDefaultLibName>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\osf\OpenSSL-302;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302\crypto;..\osf\OpenSSL-302\crypto\include;..\osf\OpenSSL-302\crypto\modes;..\osf\OpenSSL-302\crypto\ec\curve448;..\osf\OpenSSL-302\crypto\ec\curve448\arch_32;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\providers\implementations\include;$(ZLIB_INC_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ZLIB;L_ENDIAN;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;OPENSSL_BUILDING_OPENSSL;OPENSSL_SYS_WIN32;OPENSSL_PIC;OPENSSL_CPUID_OBJ;OPENSSL_IA32_SSE2;OPENSSL_BN_ASM_MONT;OPENSSL_BN_ASM_MONT5;OPENSSL_BN_ASM_GF2m;RC4_ASM;SHA1_ASM;SHA256_ASM;SHA512_ASM;MD5_ASM;AES_ASM;BSAES_ASM;VPAES_ASM;WHIRLPOOL_ASM;CMLL_ASM;GHASH_ASM;ECP_NISTZ256_ASM;POLY1305_ASM;KECCAK1600_ASM;X25519_ASM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <OmitDefaultLibName>true</OmitDefaultLibName>
     </ClCompile>
   </ItemDefinitionGroup>

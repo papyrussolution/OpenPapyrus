@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\OSF\flatbuffers\tests\alignment_test.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\code_generators.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\tests\evolution_test.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\tests\flexbuffers_test.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\tests\fuzz_test.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_fbs.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_gen_text.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\idl_parser.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\tests\json_test.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\tests\key_field_test.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\tests\monster_test.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\tests\native_type_test_impl.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\tests\optional_scalars_test.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\tests\parser_test.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\tests\proto_test.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\reflection.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\tests\reflection_test.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\tests\test.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\tests\test_assert.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\tests\test_builder.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\util.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\tests\util_test.cpp" />
+    <ClCompile Include="..\OSF\flatbuffers\src\flatbuffers-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\allocator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\array.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\base.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\buffer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\buffer_ref.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\default_allocator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\detached_buffer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\code_generator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\file_manager.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\flatbuffer_builder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\flatbuffers.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\flexbuffers.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\flex_flat_util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\hash.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\idl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\minireflect.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\reflection.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\reflection_generated.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\registry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\stl_emulation.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\string.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\struct.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\table.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\vector.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\vector_downward.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\verifier.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\tests\test_assert.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\tests\test_builder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\tests\native_type_test_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\tests\alignment_test.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\include\flatbuffers\code_generators.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\tests\monster_test_generated.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\tests\namespace_test\namespace_test1_generated.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\tests\namespace_test\namespace_test2_generated.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\tests\union_vector\union_vector_generated.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\tests\native_type_test_generated.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\tests\monster_extra_generated.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\tests\monster_test_bfbs_generated.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\tests\optional_scalars_generated.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\tests\native_inline_table_test_generated.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\flatbuffers\tests\key_field\key_field_sample_generated.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{7DC536E3-8911-3F73-BE42-6E27102529A2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -833,169 +833,79 @@
     <ClCompile Include="..\OSF\OpenSSL-302\crypto\rc5\rc5ofb64.c" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\aesni-gcm-x86_64.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\aesni-gcm-x86_64.asm">
       <Filter>asm\x64</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\aesni-mb-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\aesni-sha1-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\aesni-sha256-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\aesni-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\aes-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\bsaes-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\cmll-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\ecp_nistz256-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\ghash-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\aes-586.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\aes-586.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\aesni-x86.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\aesni-x86.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\bf-586.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\bf-586.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\bn-586.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\bn-586.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\cmll-x86.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\chacha-x86.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\co-586.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\cmll-x86.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\crypt586.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\co-586.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\des-586.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\crypt586.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\ghash-x86.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\des-586.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\md5-586.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\e_padlock-x86.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\md5-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rc4-md5-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rc4-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rsaz-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\sha1-mb-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\sha1-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\sha256-mb-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\sha512-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rc4-586.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\ecp_nistz256-x86.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rmd-586.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\ghash-x86.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\sha1-586.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\md5-586.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\sha256-586.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\poly1305-x86.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\sha512-586.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\rc4-586.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\vpaes-x86.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\rmd-586.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\vpaes-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86_64cpuid.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86_64-gf2m.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86_64-mont.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86_64-mont5.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86-gf2m.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\sha1-586.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x86-mont.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\sha256-586.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\wp-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\wp-mmx.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\sha512-586.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rsaz-avx2.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\rsaz-avx512.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\chacha-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\chacha-x86.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\vpaes-x86.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\ecp_nistz256-x86.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\wp-mmx.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\poly1305-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\poly1305-x86.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\x86cpuid.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\keccak1600-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\crypto\__ASM__\x25519-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\engines\asm\e_padlock-x86_64.pl">
-      <Filter>asm\x64</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\osf\OpenSSL-302\engines\asm\e_padlock-x86.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\x86-gf2m.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\x86cpuid.pl">
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\generated\x86-mont.asm">
       <Filter>asm\x86</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -1523,6 +1433,96 @@
     </None>
     <None Include="..\OSF\OpenSSL-302\include\crypto\dso_conf.h.in">
       <Filter>Header</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\aesni-mb-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\aesni-sha1-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\aesni-sha256-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\aesni-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\aes-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\bsaes-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\chacha-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\cmll-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\e_padlock-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\ecp_nistz256-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\ghash-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\keccak1600-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\md5-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\poly1305-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\rc4-md5-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\rc4-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\rsaz-avx2.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\rsaz-avx512.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\rsaz-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\sha1-mb-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\sha1-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\sha256-mb-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\sha512-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\vpaes-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\wp-x86_64.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\x86_64cpuid.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\x86_64-gf2m.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\x86_64-mont.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\x86_64-mont5.asm">
+      <Filter>asm\x64</Filter>
+    </None>
+    <None Include="..\OSF\OpenSSL-302\crypto\generated\x25519-x86_64.asm">
+      <Filter>asm\x64</Filter>
     </None>
   </ItemGroup>
 </Project>
