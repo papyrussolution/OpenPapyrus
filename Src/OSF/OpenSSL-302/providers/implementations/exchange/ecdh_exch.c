@@ -234,24 +234,18 @@ int ecdh_set_ctx_params(void * vpecdhctx, const OSSL_PARAM params[])
 		else
 			return 0;
 	}
-
 	p = OSSL_PARAM_locate_const(params, OSSL_EXCHANGE_PARAM_KDF_DIGEST);
 	if(p) {
 		char mdprops[80] = { '\0' }; /* should be big enough */
-
 		str = name;
 		if(!OSSL_PARAM_get_utf8_string(p, &str, sizeof(name)))
 			return 0;
-
 		str = mdprops;
-		p = OSSL_PARAM_locate_const(params,
-			OSSL_EXCHANGE_PARAM_KDF_DIGEST_PROPS);
-
+		p = OSSL_PARAM_locate_const(params, OSSL_EXCHANGE_PARAM_KDF_DIGEST_PROPS);
 		if(p) {
 			if(!OSSL_PARAM_get_utf8_string(p, &str, sizeof(mdprops)))
 				return 0;
 		}
-
 		EVP_MD_free(pectx->kdf_md);
 		pectx->kdf_md = EVP_MD_fetch(pectx->libctx, name, mdprops);
 		if(!ossl_digest_is_allowed(pectx->libctx, pectx->kdf_md)) {
@@ -261,11 +255,9 @@ int ecdh_set_ctx_params(void * vpecdhctx, const OSSL_PARAM params[])
 		if(pectx->kdf_md == NULL)
 			return 0;
 	}
-
 	p = OSSL_PARAM_locate_const(params, OSSL_EXCHANGE_PARAM_KDF_OUTLEN);
 	if(p) {
 		size_t outlen;
-
 		if(!OSSL_PARAM_get_size_t(p, &outlen))
 			return 0;
 		pectx->kdf_outlen = outlen;

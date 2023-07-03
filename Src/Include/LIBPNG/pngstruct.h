@@ -114,11 +114,11 @@ typedef struct png_colorspace {
 #ifdef PNG_COLORSPACE_SUPPORTED
 	png_xy end_points_xy; /* End points as chromaticities */
 	png_XYZ end_points_XYZ; /* End points as CIE XYZ colorant values */
-	png_uint_16 rendering_intent; /* Rendering intent of a profile */
+	uint16 rendering_intent; /* Rendering intent of a profile */
 #endif
 
 	/* Flags are always defined to simplify the code. */
-	png_uint_16 flags; /* As defined below */
+	uint16 flags; /* As defined below */
 } png_colorspace, * _RESTRICT png_colorspacerp;
 
 typedef const png_colorspace * _RESTRICT png_const_colorspacerp;
@@ -216,12 +216,12 @@ struct png_struct_def {
 	uint32 idat_size; /* current IDAT size for read */
 	uint32 crc; /* current chunk CRC value */
 	png_colorp palette; /* palette from the input file */
-	png_uint_16 num_palette; /* number of color entries in palette */
+	uint16 num_palette; /* number of color entries in palette */
 // Added at libpng-1.5.10
 #ifdef PNG_CHECK_FOR_INVALID_INDEX_SUPPORTED
 	int num_palette_max; /* maximum palette index found in IDAT */
 #endif
-	png_uint_16 num_trans; /* number of transparency values */
+	uint16 num_trans; /* number of transparency values */
 	uint8 compression; /* file compression type (always 0) */
 	uint8 filter; /* file filter type (always 0) */
 	uint8 interlaced; /* PNG_INTERLACE_NONE, PNG_INTERLACE_ADAM7 */
@@ -242,7 +242,7 @@ struct png_struct_def {
 	uint8 zstream_start; /* at start of an input zlib stream */
 #endif /* Zlib >= 1.2.4 */
 #if defined(PNG_READ_FILLER_SUPPORTED) || defined(PNG_WRITE_FILLER_SUPPORTED)
-	png_uint_16 filler; /* filler bytes for pixel expansion */
+	uint16 filler; /* filler bytes for pixel expansion */
 #endif
 #if defined(PNG_bKGD_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED) || \
 	defined(PNG_READ_ALPHA_MODE_SUPPORTED)
@@ -303,9 +303,9 @@ struct png_struct_def {
 /* For the Borland special 64K segment handler */
 	png_bytepp offset_table_ptr;
 	png_bytep offset_table;
-	png_uint_16 offset_table_number;
-	png_uint_16 offset_table_count;
-	png_uint_16 offset_table_count_free;
+	uint16 offset_table_number;
+	uint16 offset_table_count;
+	uint16 offset_table_count_free;
 #endif
 #ifdef PNG_READ_QUANTIZE_SUPPORTED
 	png_bytep palette_lookup; /* lookup table for quantizing */
@@ -344,8 +344,8 @@ struct png_struct_def {
 	/* Added in libpng 1.5.5 to record setting of coefficients: */
 	uint8 rgb_to_gray_coefficients_set;
 	/* These were changed from uint8 in libpng-1.0.6 */
-	png_uint_16 rgb_to_gray_red_coeff;
-	png_uint_16 rgb_to_gray_green_coeff;
+	uint16 rgb_to_gray_red_coeff;
+	uint16 rgb_to_gray_green_coeff;
 	/* deleted in 1.5.5: rgb_to_gray_blue_coeff; */
 #endif
 	//

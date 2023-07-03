@@ -157,7 +157,7 @@ struct hb_serialize_context_t {
 		DEBUG_MSG_LEVEL(SERIALIZE, this->start, 0, +1,
 		    "start [%p..%p] (%lu bytes)",
 		    this->start, this->end,
-		    (unsigned long)(this->end - this->start));
+		    (ulong)(this->end - this->start));
 
 		assert(!current);
 		return push<Type> ();

@@ -5762,6 +5762,7 @@ int PrcssrSartre::UED_ImportIcuNames()
 	UResourceBundle * p_urb_greg = 0;
 	UResourceBundle * p_urb_weekdays = 0;
 	UResourceBundle * p_urb_monthnames = 0;
+	UResourceBundle * p_urb_unit = 0; // @v11.7.8
 	UResourceBundle * p_urb_wd_f = 0;
 	UResourceBundle * p_urb_wd_w = 0;
 	UED_IcuCalendar_Block blk;
@@ -5770,10 +5771,41 @@ int PrcssrSartre::UED_ImportIcuNames()
 	StringSet lang_symb_list;
 	SString lang_symb;
 	GetLinguaSymbList(lang_symb_list);
+	{
+		//"units"
+		UErrorCode icu_errcode = U_ZERO_ERROR;
+		//p_urb_root = ures_open("icudt70|-unit", "RU", &icu_errcode);
+		p_urb_root = ures_openNoDefault(NULL, "ru", &icu_errcode);
+		//LocalUResourceBundlePointer unitsBundle(ures_open(U_ICUDATA_UNIT, localeId, &status));
+		if(p_urb_root) {
+			int32_t index = 0;
+			UResourceBundle * p_bi = 0;
+			for(index = 0; index < ures_getSize(p_urb_root); index++) {
+				p_bi = ures_getByIndex(p_urb_root, index, 0, &icu_errcode);
+			}
+			p_urb_unit = ures_getByKey(p_urb_root, "units", NULL, &icu_errcode);
+			if(p_urb_unit) {
+				UResourceBundle * p_urb_accl = ures_getByKey(p_urb_cal, "acceleration", NULL, &icu_errcode);
+			}
+		}
+	}
 	for(uint lssp = 0; lang_symb_list.get(&lssp, lang_symb);) {
 		const int lingua_id = RecognizeLinguaSymb(lang_symb, 1);
 		assert(lingua_id);
 		if(lingua_id && lingua_id != slangMeta) {
+			// @v11.7.8 @construction {
+			{
+				//"units"
+				UErrorCode icu_errcode = U_ZERO_ERROR;
+				p_urb_root = ures_openNoDefault(NULL, lang_symb, &icu_errcode);
+				if(p_urb_root) {
+					p_urb_unit = ures_getByKey(p_urb_root, "units", NULL, &icu_errcode);
+					if(p_urb_unit) {
+						UResourceBundle * p_urb_accl = ures_getByKey(p_urb_cal, "acceleration", NULL, &icu_errcode);
+					}
+				}
+			}
+			// } @v11.7.8 @construction
 			{
 				//"monthNames"
 				UErrorCode icu_errcode = U_ZERO_ERROR;
@@ -6173,6 +6205,7 @@ int PrcssrSartre::UED_Import_Scripts() // @v11.7.7
 					}
 					poblk.Finish();
 				}
+				blk.L.sort(PTR_CMPFUNC(int64));
 				SString line_buf;
 				(file_name = p_base_path).SetLastSlash().Cat("script.ued.txt"); // utf-8
 				SFile f_out(file_name, SFile::mWrite);

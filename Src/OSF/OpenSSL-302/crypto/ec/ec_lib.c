@@ -1676,8 +1676,7 @@ EC_GROUP * EC_GROUP_new_from_params(const OSSL_PARAM params[],
 		 * if it was specified
 		 */
 		ptmp = OSSL_PARAM_locate_const(params, OSSL_PKEY_PARAM_EC_ENCODING);
-		if(ptmp != NULL
-		    && !ossl_ec_encoding_param2id(ptmp, &encoding_flag)) {
+		if(ptmp != NULL && !ossl_ec_encoding_param2id(ptmp, &encoding_flag)) {
 			ERR_raise(ERR_LIB_EC, EC_R_INVALID_ENCODING);
 			goto err;
 		}

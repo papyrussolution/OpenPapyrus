@@ -1407,6 +1407,29 @@ int PPObjGoods::TranslateGoodsUnitToBase(const Goods2Tbl::Rec & rGoodsRec, PPID 
 	return ok;
 }
 
+int PPObjGoods::GetQttyRounding(PPID goodsID, double * pRounding)
+{
+	int    ok = -1;
+	double rounding = 0.0;
+	Goods2Tbl::Rec goods_rec;
+	if(Fetch(goodsID, &goods_rec) > 0) {
+		GoodsStockExt gse;
+		PPUnit2 urec;
+		if(GetStockExt(goods_rec.ID, &gse, 1) > 0 && gse.MinShippmQtty > 0.0 && gse.GseFlags & gse.fMultMinShipm) {
+			rounding = gse.MinShippmQtty;
+			ok = 1;
+		}
+		else if(goods_rec.UnitID && FetchUnit(goods_rec.UnitID, &urec) > 0 && urec.Rounding_ > 0.0) {
+			rounding = urec.Rounding_;
+			ok = 2;
+		}
+	}
+	else
+		ok = 0;
+	ASSIGN_PTR(pRounding, rounding);
+	return ok;
+}
+
 int PPObjGoods::FetchTax(PPID goodsID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx)
 {
 	Goods2Tbl::Rec grec;

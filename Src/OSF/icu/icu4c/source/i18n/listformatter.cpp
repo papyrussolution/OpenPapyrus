@@ -312,7 +312,8 @@ void ListFormatter::initializeHash(UErrorCode & errorCode) {
 	ucln_i18n_registerCleanup(UCLN_I18N_LIST_FORMATTER, uprv_listformatter_cleanup);
 }
 
-const ListFormatInternal* ListFormatter::getListFormatInternal(const Locale & locale, const char * style, UErrorCode & errorCode) {
+const ListFormatInternal* ListFormatter::getListFormatInternal(const Locale & locale, const char * style, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return nullptr;
 	}
@@ -338,7 +339,6 @@ const ListFormatInternal* ListFormatter::getListFormatInternal(const Locale & lo
 	if(U_FAILURE(errorCode)) {
 		return nullptr;
 	}
-
 	{
 		Mutex m(&listFormatterMutex);
 		ListFormatInternal* temp = static_cast<ListFormatInternal*>(listPatternHash->get(key));
@@ -356,47 +356,33 @@ const ListFormatInternal* ListFormatter::getListFormatInternal(const Locale & lo
 	return result;
 }
 
-static const char * typeWidthToStyleString(UListFormatterType type, UListFormatterWidth width) {
+static const char * typeWidthToStyleString(UListFormatterType type, UListFormatterWidth width) 
+{
 	switch(type) {
 		case ULISTFMT_TYPE_AND:
 		    switch(width) {
-			    case ULISTFMT_WIDTH_WIDE:
-				return "standard";
-			    case ULISTFMT_WIDTH_SHORT:
-				return "standard-short";
-			    case ULISTFMT_WIDTH_NARROW:
-				return "standard-narrow";
-			    default:
-				return nullptr;
+			    case ULISTFMT_WIDTH_WIDE: return "standard";
+			    case ULISTFMT_WIDTH_SHORT: return "standard-short";
+			    case ULISTFMT_WIDTH_NARROW: return "standard-narrow";
+			    default: return nullptr;
 		    }
 		    break;
-
 		case ULISTFMT_TYPE_OR:
 		    switch(width) {
-			    case ULISTFMT_WIDTH_WIDE:
-				return "or";
-			    case ULISTFMT_WIDTH_SHORT:
-				return "or-short";
-			    case ULISTFMT_WIDTH_NARROW:
-				return "or-narrow";
-			    default:
-				return nullptr;
+			    case ULISTFMT_WIDTH_WIDE: return "or";
+			    case ULISTFMT_WIDTH_SHORT: return "or-short";
+			    case ULISTFMT_WIDTH_NARROW: return "or-narrow";
+			    default: return nullptr;
 		    }
 		    break;
-
 		case ULISTFMT_TYPE_UNITS:
 		    switch(width) {
-			    case ULISTFMT_WIDTH_WIDE:
-				return "unit";
-			    case ULISTFMT_WIDTH_SHORT:
-				return "unit-short";
-			    case ULISTFMT_WIDTH_NARROW:
-				return "unit-narrow";
-			    default:
-				return nullptr;
+			    case ULISTFMT_WIDTH_WIDE: return "unit";
+			    case ULISTFMT_WIDTH_SHORT: return "unit-short";
+			    case ULISTFMT_WIDTH_NARROW: return "unit-narrow";
+			    default: return nullptr;
 		    }
 	}
-
 	return nullptr;
 }
 

@@ -20,7 +20,7 @@ __FBSDID("$FreeBSD$");
 #endif
 // @sobolev #ifdef HAVE_LZ4_H
 #if defined(HAVE_LIBLZ4) // @sobolev
-	#include <lz4.h>
+	#include <..\slib\lz4\lz4.h>
 	#include <xxhash.h> // @sobolev
 #endif
 #include "archive_read_private.h"

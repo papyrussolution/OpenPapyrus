@@ -1131,6 +1131,13 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="..\SLib\bzip2\blocksort.c" />
+    <ClCompile Include="..\SLib\bzip2\bzlib.c" />
+    <ClCompile Include="..\SLib\bzip2\compress.c" />
+    <ClCompile Include="..\SLib\bzip2\crctable.c" />
+    <ClCompile Include="..\SLib\bzip2\decompress.c" />
+    <ClCompile Include="..\SLib\bzip2\huffman.c" />
+    <ClCompile Include="..\SLib\bzip2\randtable.c" />
     <ClCompile Include="..\SLib\BZIP3\src\libbz3.c" />
     <ClCompile Include="..\SLib\Dbbackup.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
@@ -1455,6 +1462,110 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="..\SLib\libpng\png.c" />
+    <ClCompile Include="..\SLib\libpng\pngerror.c" />
+    <ClCompile Include="..\SLib\libpng\pngget.c" />
+    <ClCompile Include="..\SLib\libpng\pngmem.c" />
+    <ClCompile Include="..\SLib\libpng\pngpread.c" />
+    <ClCompile Include="..\SLib\libpng\pngread.c" />
+    <ClCompile Include="..\SLib\libpng\pngrio.c" />
+    <ClCompile Include="..\SLib\libpng\pngrtran.c" />
+    <ClCompile Include="..\SLib\libpng\pngrutil.c" />
+    <ClCompile Include="..\SLib\libpng\pngset.c" />
+    <ClCompile Include="..\SLib\libpng\pngtest.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libpng\pngtrans.c" />
+    <ClCompile Include="..\SLib\libpng\pngwio.c" />
+    <ClCompile Include="..\SLib\libpng\pngwrite.c" />
+    <ClCompile Include="..\SLib\libpng\pngwtran.c" />
+    <ClCompile Include="..\SLib\libpng\pngwutil.c" />
+    <ClCompile Include="..\SLib\libtiff\mkg3states.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_aux.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_close.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_codec.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_color.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_compress.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_dir.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_dirinfo.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_dirread.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_dirwrite.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_dumpmode.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_error.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_extension.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_fax3.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_fax3sm.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_flush.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_getimage.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_jbig.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_jpeg.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_jpeg_12.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_luv.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_lzma.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_lzw.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_next.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_ojpeg.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_open.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_packbits.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_pixarlog.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_predict.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_print.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_read.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_strip.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_swab.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_thunder.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_tile.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_unix.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_warning.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_win32.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_write.c" />
+    <ClCompile Include="..\SLib\libtiff\tif_zip.c" />
+    <ClCompile Include="..\SLib\lz4\lz4.c" />
+    <ClCompile Include="..\SLib\lz4\lz4frame.c" />
+    <ClCompile Include="..\SLib\lz4\lz4hc.c" />
     <ClCompile Include="..\SLib\mimalloc\segment-cache.c" />
     <ClCompile Include="..\SLib\SAIS\libsais.c" />
     <ClCompile Include="..\SLib\SAIS\libsais16.c" />
@@ -3929,6 +4040,13 @@
     <ClInclude Include="..\Include\getopt.h" />
     <ClInclude Include="..\Include\gif_lib.h" />
     <ClInclude Include="..\Include\json.h" />
+    <ClInclude Include="..\Include\LIBPNG\png.h" />
+    <ClInclude Include="..\Include\LIBPNG\pngconf.h" />
+    <ClInclude Include="..\Include\LIBPNG\pngdebug.h" />
+    <ClInclude Include="..\Include\LIBPNG\pnginfo.h" />
+    <ClInclude Include="..\Include\LIBPNG\pnglibconf.h" />
+    <ClInclude Include="..\Include\LIBPNG\pngpriv.h" />
+    <ClInclude Include="..\Include\LIBPNG\pngstruct.h" />
     <ClInclude Include="..\Include\libsais.h" />
     <ClInclude Include="..\Include\SLCONFIG.H" />
     <ClInclude Include="..\Include\slib-internal.h" />
@@ -3944,14 +4062,29 @@
     <ClInclude Include="..\Include\xxh3.h" />
     <ClInclude Include="..\Include\xxhash.h" />
     <ClInclude Include="..\Include\zlib.h" />
+    <ClInclude Include="..\SLib\bzip2\bzlib.h" />
+    <ClInclude Include="..\SLib\bzip2\bzlib_private.h" />
     <ClInclude Include="..\SLib\gumbo\gumbo-internal.h" />
     <ClInclude Include="..\SLib\gumbo\gumbo.h" />
     <ClInclude Include="..\SLib\gumbo\tag_enum.h" />
     <ClInclude Include="..\SLib\gumbo\tag_gperf.h" />
     <ClInclude Include="..\SLib\gumbo\tag_sizes.h" />
     <ClInclude Include="..\SLib\gumbo\tag_strings.h" />
+    <ClInclude Include="..\SLib\libtiff\t4.h" />
+    <ClInclude Include="..\SLib\libtiff\tiff.h" />
+    <ClInclude Include="..\SLib\libtiff\tiffio.h" />
+    <ClInclude Include="..\SLib\libtiff\tiffio.hxx" />
+    <ClInclude Include="..\SLib\libtiff\tiffiop.h" />
+    <ClInclude Include="..\SLib\libtiff\tif_dir.h" />
+    <ClInclude Include="..\SLib\libtiff\tif_fax3.h" />
+    <ClInclude Include="..\SLib\libtiff\tif_predict.h" />
+    <ClInclude Include="..\SLib\libtiff\uvcode.h" />
     <ClInclude Include="..\SLib\LMDB\lmdb.h" />
     <ClInclude Include="..\SLib\LMDB\midl.h" />
+    <ClInclude Include="..\SLib\lz4\lz4.h" />
+    <ClInclude Include="..\SLib\lz4\lz4frame.h" />
+    <ClInclude Include="..\SLib\lz4\lz4frame_static.h" />
+    <ClInclude Include="..\SLib\lz4\lz4hc.h" />
     <ClInclude Include="..\SLib\mimalloc\bitmap.h" />
     <ClInclude Include="..\SLib\mimalloc\mimalloc-atomic.h" />
     <ClInclude Include="..\SLib\mimalloc\mimalloc-internal.h" />
@@ -5969,9 +6102,6 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="bzip2.vcxproj">
-      <Project>{bd776450-1675-4703-bfd3-2517b5a45da8}</Project>
-    </ProjectReference>
     <ProjectReference Include="cairo-1.16.0.vcxproj">
       <Project>{530693b1-8b95-4993-8bcf-c0d0e225f4df}</Project>
     </ProjectReference>
@@ -5993,17 +6123,11 @@
     <ProjectReference Include="liblzma.vcxproj">
       <Project>{c241e0ad-81ff-4a43-9b39-f3712e9c0d4e}</Project>
     </ProjectReference>
-    <ProjectReference Include="libpng.vcxproj">
-      <Project>{04aa636d-9d3e-4e79-9c2e-b8d0470719da}</Project>
-    </ProjectReference>
     <ProjectReference Include="libxml.vcxproj">
       <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>
     </ProjectReference>
     <ProjectReference Include="libzip.vcxproj">
       <Project>{1ee9ab8f-f42f-481e-963f-5854bfdb8ec1}</Project>
-    </ProjectReference>
-    <ProjectReference Include="lz4.vcxproj">
-      <Project>{6b7325a2-a019-4fc4-9585-1dba4cadefeb}</Project>
     </ProjectReference>
     <ProjectReference Include="onig.vcxproj">
       <Project>{d115c575-b8ee-3bd7-8046-688a4d145686}</Project>

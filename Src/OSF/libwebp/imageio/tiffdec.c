@@ -20,7 +20,7 @@
 //#include <string.h>
 #ifdef WEBP_HAVE_TIFF
 //#include <tiffio.h>
-#include <..\osf\tiff\libtiff\tiffio.h>
+#include <..\slib\libtiff\tiffio.h>
 #include "webp/encode.h"
 #include "./imageio_util.h"
 #include "./metadata.h"
@@ -36,19 +36,15 @@ static const struct {
 
 // Returns true on success. The caller must use MetadataFree() on 'metadata' in
 // all cases.
-static int ExtractMetadataFromTIFF(TIFF* const tif, Metadata* const metadata) {
+static int ExtractMetadataFromTIFF(TIFF* const tif, Metadata* const metadata) 
+{
 	int i;
 	toff_t exif_ifd_offset;
-
 	for(i = 0; kTIFFMetadataMap[i].tag != 0; ++i) {
-		MetadataPayload* const payload =
-		    (MetadataPayload*)((uint8*)metadata +
-		    kTIFFMetadataMap[i].storage_offset);
+		MetadataPayload* const payload = (MetadataPayload*)((uint8*)metadata + kTIFFMetadataMap[i].storage_offset);
 		void* tag_data;
 		uint32_t tag_data_len;
-
-		if(TIFFGetField(tif, kTIFFMetadataMap[i].tag, &tag_data_len, &tag_data) &&
-		    !MetadataCopy((const char*)tag_data, tag_data_len, payload)) {
+		if(TIFFGetField(tif, kTIFFMetadataMap[i].tag, &tag_data_len, &tag_data) && !MetadataCopy((const char*)tag_data, tag_data_len, payload)) {
 			return 0;
 		}
 	}

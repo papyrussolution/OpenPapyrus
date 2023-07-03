@@ -4558,6 +4558,11 @@ int ShortPersonDialog::AcceptSCard(uint * pSel)
 				sc_pack.Rec.SeriesID = SCardSerID;
 				temp_buf.CopyTo(sc_pack.Rec.Code, sizeof(sc_pack.Rec.Code));
 			}
+			// @v11.7.8 {
+			else {
+				THROW(ScObj.GetPacket(sc_pack.Rec.ID, &sc_pack) > 0);
+			}
+			// } @v11.7.8 
 			sc_pack.Rec.Expiry = getCtrlDate(CTL_PERSON_SCEXPIRY);
 			// @v10.2.9 sc_pack.Rec.PDis = (long)(getCtrlReal(CTL_PERSON_SCDIS) * 100L);
 			sc_pack.Rec.PDis = fmul100i(getCtrlReal(CTL_PERSON_SCDIS)); // @v10.2.9

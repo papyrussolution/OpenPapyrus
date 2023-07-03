@@ -979,9 +979,6 @@
     <None Include="..\OSF\SnipEx\Assets\YellowHilighterCursor.cur" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="libxml.vcxproj">
-      <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>
-    </ProjectReference>
     <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
     </ProjectReference>

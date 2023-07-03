@@ -85,15 +85,10 @@ U_CAPI UConverter * U_EXPORT2 ucnv_openU(const char16_t * name, UErrorCode * err
  */
 static int32_t ucnv_copyPlatformString(char * platformString, UConverterPlatform pltfrm)
 {
-	switch(pltfrm)
-	{
-		case UCNV_IBM:
-		    strcpy(platformString, "ibm-");
-		    return 4;
-		case UCNV_UNKNOWN:
-		    break;
+	switch(pltfrm) {
+		case UCNV_IBM: strcpy(platformString, "ibm-"); return 4;
+		case UCNV_UNKNOWN: break;
 	}
-
 	/* default to empty string */
 	*platformString = 0;
 	return 0;
@@ -101,20 +96,15 @@ static int32_t ucnv_copyPlatformString(char * platformString, UConverterPlatform
 
 /*Assumes a $platform-#codepage.$CONVERTER_FILE_EXTENSION scheme and calls
  * through createConverter*/
-U_CAPI UConverter * U_EXPORT2 ucnv_openCCSID(int32_t codepage,
-    UConverterPlatform platform,
-    UErrorCode * err)
+U_CAPI UConverter * U_EXPORT2 ucnv_openCCSID(int32_t codepage, UConverterPlatform platform, UErrorCode * err)
 {
 	char myName[UCNV_MAX_CONVERTER_NAME_LENGTH];
 	int32_t myNameLen;
-
 	if(!err || U_FAILURE(*err))
 		return NULL;
-
 	/* ucnv_copyPlatformString could return "ibm-" or "cp" */
 	myNameLen = ucnv_copyPlatformString(myName, platform);
 	T_CString_integerToString(myName + myNameLen, codepage, 10);
-
 	return ucnv_createConverter(NULL, myName, err);
 }
 

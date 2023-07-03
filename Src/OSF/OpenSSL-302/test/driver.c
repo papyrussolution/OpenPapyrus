@@ -134,34 +134,24 @@ static int check_single_test_params(char * name, char * testname, char * itname)
 		if(i >= num_tests)
 			single_test = atoi(name);
 	}
-
 	/* if only iteration is specified, assume we want the first test */
 	if(single_test == -1 && single_iter != -1)
 		single_test = 1;
-
 	if(single_test != -1) {
 		if(single_test < 1 || single_test > num_tests) {
-			test_printf_stderr("Invalid -%s value "
-			    "(Value must be a valid test name OR a value between %d..%d)\n",
+			test_printf_stderr("Invalid -%s value (Value must be a valid test name OR a value between %d..%d)\n",
 			    testname, 1, num_tests);
 			return 0;
 		}
 	}
 	if(single_iter != -1) {
 		if(all_tests[single_test - 1].num == -1) {
-			test_printf_stderr("-%s option is not valid for test %d:%s\n",
-			    itname,
-			    single_test,
-			    all_tests[single_test - 1].test_case_name);
+			test_printf_stderr("-%s option is not valid for test %d:%s\n", itname, single_test, all_tests[single_test - 1].test_case_name);
 			return 0;
 		}
-		else if(single_iter < 1
-		    || single_iter > all_tests[single_test - 1].num) {
-			test_printf_stderr("Invalid -%s value for test %d:%s\t"
-			    "(Value must be in the range %d..%d)\n",
-			    itname, single_test,
-			    all_tests[single_test - 1].test_case_name,
-			    1, all_tests[single_test - 1].num);
+		else if(single_iter < 1 || single_iter > all_tests[single_test - 1].num) {
+			test_printf_stderr("Invalid -%s value for test %d:%s\t(Value must be in the range %d..%d)\n",
+			    itname, single_test, all_tests[single_test - 1].test_case_name, 1, all_tests[single_test - 1].num);
 			return 0;
 		}
 	}
@@ -241,14 +231,11 @@ void set_test_title(const char * title)
 	test_title = title == NULL ? NULL : strdup(title);
 }
 
-PRINTF_FORMAT(2, 3) static void test_verdict(int verdict,
-    const char * description, ...)
+PRINTF_FORMAT(2, 3) static void test_verdict(int verdict, const char * description, ...)
 {
 	va_list ap;
-
 	test_flush_stdout();
 	test_flush_stderr();
-
 	if(verdict == 0 && seed != 0)
 		test_printf_tapout("# OPENSSL_TEST_RAND_ORDER=%d\n", seed);
 	test_printf_tapout("%s ", verdict != 0 ? "ok" : "not ok");
@@ -265,11 +252,11 @@ int run_tests(const char * test_prog_name)
 {
 	int num_failed = 0;
 	int verdict = 1;
-	int ii, i, jj, j, jstep;
+	int ii, jj, j, jstep;
 	int test_case_count = 0;
 	int subtest_case_count = 0;
 	int permute[SIZEOFARRAY(all_tests)];
-	i = process_shared_options();
+	int i = process_shared_options();
 	if(i == 0)
 		return EXIT_SUCCESS;
 	if(i == -1)
@@ -302,13 +289,10 @@ int run_tests(const char * test_prog_name)
 		}
 		else if(show_list) {
 			if(all_tests[i].num != -1) {
-				test_printf_tapout("%d - %s (%d..%d)\n", ii + 1,
-				    all_tests[i].test_case_name, 1,
-				    all_tests[i].num);
+				test_printf_tapout("%d - %s (%d..%d)\n", ii + 1, all_tests[i].test_case_name, 1, all_tests[i].num);
 			}
 			else {
-				test_printf_tapout("%d - %s\n", ii + 1,
-				    all_tests[i].test_case_name);
+				test_printf_tapout("%d - %s\n", ii + 1, all_tests[i].test_case_name);
 			}
 			test_flush_tapout();
 		}
@@ -323,7 +307,6 @@ int run_tests(const char * test_prog_name)
 		}
 		else {
 			int num_failed_inner = 0;
-
 			verdict = TEST_SKIP_CODE;
 			set_test_title(all_tests[i].test_case_name);
 			if(all_tests[i].subtest) {
@@ -336,18 +319,16 @@ int run_tests(const char * test_prog_name)
 					test_flush_tapout();
 				}
 			}
-
 			j = -1;
 			if(rand_order == 0 || all_tests[i].num < 3)
 				jstep = 1;
-			else
-				do
+			else {
+				do {
 					jstep = test_random() % all_tests[i].num;
-				while(jstep == 0 || gcd(all_tests[i].num, jstep) != 1);
-
+				} while(jstep == 0 || gcd(all_tests[i].num, jstep) != 1);
+			}
 			for(jj = 0; jj < all_tests[i].num; jj++) {
 				int v;
-
 				j = (j + jstep) % all_tests[i].num;
 				if(single_iter != -1 && ((jj + 1) != single_iter))
 					continue;
@@ -360,19 +341,13 @@ int run_tests(const char * test_prog_name)
 				else if(v != TEST_SKIP_CODE && verdict != 0) {
 					verdict = 1;
 				}
-
 				finalize(v != 0);
-
 				if(all_tests[i].subtest)
-					test_verdict(v, "%d - iteration %d",
-					    subtest_case_count + 1, j + 1);
+					test_verdict(v, "%d - iteration %d", subtest_case_count + 1, j + 1);
 				else
-					test_verdict(v, "%d - %s - iteration %d",
-					    test_case_count + subtest_case_count + 1,
-					    test_title, j + 1);
+					test_verdict(v, "%d - %s - iteration %d", test_case_count + subtest_case_count + 1, test_title, j + 1);
 				subtest_case_count++;
 			}
-
 			if(all_tests[i].subtest) {
 				level -= 4;
 				test_adjust_streams_tap_level(level);

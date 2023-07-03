@@ -188,8 +188,8 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 			}
 		}
 		rCase.SLCHECK_EQ(found, 0xf); // Make sure that all files were found
-		/* Change working directory */
-		errorcode = chdir((dir_buf = pBaseDir).RmvLastSlash());
+		// Change working directory
+		errorcode = _chdir((dir_buf = pBaseDir).RmvLastSlash());
 		rCase.SLCHECK_Z(errorcode);
 		rewinddir(dir); // Rewind stream and read entries again 
 		found = 0;
@@ -214,7 +214,7 @@ static int T_Dirent(STestCase & rCase, const char * pBaseDir)
 		}
 		rCase.SLCHECK_EQ(found, 0xf); // Make sure that all files were found
 		/* Restore working directory */
-		errorcode = chdir("..");
+		errorcode = _chdir("..");
 		rCase.SLCHECK_Z(errorcode);
 		closedir(dir);
 	}

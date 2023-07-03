@@ -11745,7 +11745,7 @@ private:
 		}
 		else {
 			rRunBlk.Z();
-			ok = 1;
+			// @v11.7.8 ok = 1;
 			for(uint i = 0; i < Entries.getCount(); i++) {
 				const LaunchEntry * p_le = Entries.at(i);
 				if(p_le) {
@@ -11768,6 +11768,7 @@ private:
 							}
 						}
 						rRunBlk.EntryList.insert(p_new_entry);
+						ok = 1; // @v11.7.8
 					}
 					else {
 						// Инициализация MQB exchange

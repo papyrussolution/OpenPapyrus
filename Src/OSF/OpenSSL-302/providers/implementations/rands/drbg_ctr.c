@@ -648,28 +648,21 @@ static int drbg_ctr_set_ctx_params(void * vctx, const OSSL_PARAM params[])
 	char * ecb;
 	const char * propquery = NULL;
 	int i, cipher_init = 0;
-
-	if((p = OSSL_PARAM_locate_const(params, OSSL_DRBG_PARAM_USE_DF)) != NULL
-	    && OSSL_PARAM_get_int(p, &i)) {
+	if((p = OSSL_PARAM_locate_const(params, OSSL_DRBG_PARAM_USE_DF)) != NULL && OSSL_PARAM_get_int(p, &i)) {
 		/* FIPS errors out in the drbg_ctr_init() call later */
 		ctr->use_df = i != 0;
 		cipher_init = 1;
 	}
-
-	if((p = OSSL_PARAM_locate_const(params,
-	    OSSL_DRBG_PARAM_PROPERTIES)) != NULL) {
+	if((p = OSSL_PARAM_locate_const(params, OSSL_DRBG_PARAM_PROPERTIES)) != NULL) {
 		if(p->data_type != OSSL_PARAM_UTF8_STRING)
 			return 0;
 		propquery = (const char *)p->data;
 	}
-
 	if((p = OSSL_PARAM_locate_const(params, OSSL_DRBG_PARAM_CIPHER)) != NULL) {
 		const char * base = (const char *)p->data;
 		size_t ctr_str_len = sizeof("CTR") - 1;
 		size_t ecb_str_len = sizeof("ECB") - 1;
-
-		if(p->data_type != OSSL_PARAM_UTF8_STRING
-		    || p->data_size < ctr_str_len)
+		if(p->data_type != OSSL_PARAM_UTF8_STRING || p->data_size < ctr_str_len)
 			return 0;
 		if(strcasecmp("CTR", base + p->data_size - ctr_str_len) != 0) {
 			ERR_raise(ERR_LIB_PROV, PROV_R_REQUIRE_CTR_MODE_CIPHER);
@@ -691,15 +684,12 @@ static int drbg_ctr_set_ctx_params(void * vctx, const OSSL_PARAM params[])
 		}
 		cipher_init = 1;
 	}
-
 	if(cipher_init && !drbg_ctr_init(ctx))
 		return 0;
-
 	return ossl_drbg_set_ctx_params(ctx, params);
 }
 
-static const OSSL_PARAM * drbg_ctr_settable_ctx_params(ossl_unused void * vctx,
-    ossl_unused void * provctx)
+static const OSSL_PARAM * drbg_ctr_settable_ctx_params(ossl_unused void * vctx, ossl_unused void * provctx)
 {
 	static const OSSL_PARAM known_settable_ctx_params[] = {
 		OSSL_PARAM_utf8_string(OSSL_DRBG_PARAM_PROPERTIES, NULL, 0),

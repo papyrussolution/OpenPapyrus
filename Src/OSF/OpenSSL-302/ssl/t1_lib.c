@@ -636,7 +636,7 @@ int tls1_set_groups(uint16_t ** pext, size_t * pextlen, int * groups, size_t ngr
 		unsigned long idmask;
 		uint16_t id;
 		id = tls1_nid2group_id(groups[i]);
-		if((id & 0x00FF) >= (sizeof(unsigned long) * 8))
+		if((id & 0x00FF) >= (sizeof(ulong) * 8))
 			goto err;
 		idmask = 1L << (id & 0x00FF);
 		dup_list = (id < 0x100) ? &dup_list_egrp : &dup_list_dhgrp;

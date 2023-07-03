@@ -171,34 +171,24 @@ int EVP_PKEY_generate(EVP_PKEY_CTX * ctx, EVP_PKEY ** ppkey)
 		 * It's ok if keydata is NULL here.  The backend is expected to deal
 		 * with that as it sees fit.
 		 */
-		ret = evp_keymgmt_gen_set_template(ctx->keymgmt,
-			ctx->op.keymgmt.genctx, keydata);
+		ret = evp_keymgmt_gen_set_template(ctx->keymgmt, ctx->op.keymgmt.genctx, keydata);
 	}
-
 	/*
 	 * the returned value from evp_keymgmt_util_gen() is cached in *ppkey,
 	 * so we do not need to save it, just check it.
 	 */
-	ret = ret
-	    && (evp_keymgmt_util_gen(*ppkey, ctx->keymgmt, ctx->op.keymgmt.genctx,
-	    ossl_callback_to_pkey_gencb, ctx)
-	    != NULL);
-
+	ret = ret && (evp_keymgmt_util_gen(*ppkey, ctx->keymgmt, ctx->op.keymgmt.genctx, ossl_callback_to_pkey_gencb, ctx) != NULL);
 	ctx->keygen_info = NULL;
-
 #ifndef FIPS_MODULE
 	/* In case |*ppkey| was originally a legacy key */
 	if(ret)
 		evp_pkey_free_legacy(*ppkey);
 #endif
-
 	/*
 	 * Because we still have legacy keys
 	 */
 	(*ppkey)->type = ctx->legacy_keytype;
-
 	goto end;
-
 legacy:
 #ifdef FIPS_MODULE
 	goto not_supported;

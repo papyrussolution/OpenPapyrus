@@ -83,13 +83,10 @@ static int check_sign_bytes(const uchar * p, size_t n, unsigned char s)
  * Handle different length integers and signed and unsigned integers.
  * Both integers are in native byte ordering.
  */
-static int copy_integer(uchar * dest, size_t dest_len,
-    const uchar * src, size_t src_len,
-    unsigned char pad, int signed_int)
+static int copy_integer(uchar * dest, size_t dest_len, const uchar * src, size_t src_len, unsigned char pad, int signed_int)
 {
 	size_t n;
 	DECLARE_IS_ENDIAN;
-
 	if(IS_BIG_ENDIAN) {
 		if(src_len < dest_len) {
 			n = dest_len - src_len;

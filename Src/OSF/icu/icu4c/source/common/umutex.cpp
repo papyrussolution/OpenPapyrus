@@ -1,24 +1,14 @@
+// umutex.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *
- *   Copyright (C) 1997-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *
- * File umutex.cpp
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   04/02/97    aliu        Creation.
- *   04/07/99    srl         updated
- *   05/13/99    stephen     Changed to umutex (from cmutex).
- *   11/22/99    aliu        Make non-global mutex autoinitialize [j151]
- ******************************************************************************
- */
+// Copyright (C) 1997-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 04/02/97    aliu        Creation.
+// 04/07/99    srl         updated
+// 05/13/99    stephen     Changed to umutex (from cmutex).
+// 11/22/99    aliu        Make non-global mutex autoinitialize [j151]
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "ucln_cmn.h"
@@ -30,13 +20,9 @@ U_NAMESPACE_BEGIN
 // See issue ICU-20185.
 #error U_USER_MUTEX_CPP not supported
 #endif
-
-/*************************************************************************************************
-*
-*  ICU Mutex wrappers.
-*
-*************************************************************************************************/
-
+// 
+// ICU Mutex wrappers.
+// 
 namespace {
 std::mutex * initMutex;
 std::condition_variable * initCondition;

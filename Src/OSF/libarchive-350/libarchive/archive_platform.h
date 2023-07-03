@@ -187,7 +187,7 @@
 	#include <libxml\xmlwriter.h>
 #endif
 #ifdef HAVE_BZLIB_H
-	#include <..\osf\BZIP2\bzlib.h>
+	#include <..\slib\bzip2\bzlib.h>
 #endif
 #ifdef HAVE_LZMA_H
 	#include <..\osf\liblzma\api\lzma.h>

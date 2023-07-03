@@ -903,9 +903,6 @@
     <ProjectReference Include="cairo-1.16.0.vcxproj">
       <Project>{530693b1-8b95-4993-8bcf-c0d0e225f4df}</Project>
     </ProjectReference>
-    <ProjectReference Include="libpng.vcxproj">
-      <Project>{04aa636d-9d3e-4e79-9c2e-b8d0470719da}</Project>
-    </ProjectReference>
     <ProjectReference Include="lualib.vcxproj">
       <Project>{86b30cd8-8c99-4cff-804e-16eb5891a1d8}</Project>
     </ProjectReference>

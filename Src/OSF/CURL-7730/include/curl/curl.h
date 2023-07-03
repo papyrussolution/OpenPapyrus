@@ -683,19 +683,19 @@ typedef enum {
  * CURLAUTH_ANYSAFE      - All fine types except Basic
  */
 
-#define CURLAUTH_NONE         ((unsigned long)0)
-#define CURLAUTH_BASIC        (((unsigned long)1)<<0)
-#define CURLAUTH_DIGEST       (((unsigned long)1)<<1)
-#define CURLAUTH_NEGOTIATE    (((unsigned long)1)<<2)
+#define CURLAUTH_NONE         ((ulong)0)
+#define CURLAUTH_BASIC        (((ulong)1)<<0)
+#define CURLAUTH_DIGEST       (((ulong)1)<<1)
+#define CURLAUTH_NEGOTIATE    (((ulong)1)<<2)
 /* Deprecated since the advent of CURLAUTH_NEGOTIATE */
 #define CURLAUTH_GSSNEGOTIATE CURLAUTH_NEGOTIATE
 /* Used for CURLOPT_SOCKS5_AUTH to stay terminologically correct */
 #define CURLAUTH_GSSAPI CURLAUTH_NEGOTIATE
-#define CURLAUTH_NTLM         (((unsigned long)1)<<3)
-#define CURLAUTH_DIGEST_IE    (((unsigned long)1)<<4)
-#define CURLAUTH_NTLM_WB      (((unsigned long)1)<<5)
-#define CURLAUTH_BEARER       (((unsigned long)1)<<6)
-#define CURLAUTH_ONLY         (((unsigned long)1)<<31)
+#define CURLAUTH_NTLM         (((ulong)1)<<3)
+#define CURLAUTH_DIGEST_IE    (((ulong)1)<<4)
+#define CURLAUTH_NTLM_WB      (((ulong)1)<<5)
+#define CURLAUTH_BEARER       (((ulong)1)<<6)
+#define CURLAUTH_ONLY         (((ulong)1)<<31)
 #define CURLAUTH_ANY          (~CURLAUTH_DIGEST_IE)
 #define CURLAUTH_ANYSAFE      (~(CURLAUTH_BASIC|CURLAUTH_DIGEST_IE))
 

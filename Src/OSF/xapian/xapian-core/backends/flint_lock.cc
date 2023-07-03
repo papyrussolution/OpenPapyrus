@@ -369,7 +369,7 @@ no_ofd_support:
 
 		// Make sure we don't block unmount of partition holding the current
 		// directory.
-		if(chdir("/") < 0) {
+		if(_chdir("/") < 0) {
 			// We can't usefully do anything in response to an error, so just
 			// ignore it - the worst harm it can do is make it impossible to
 			// unmount a partition.

@@ -144,7 +144,7 @@ int WebPWritePNG(const char* out_file_name, int use_stdout, const WebPDecBuffer*
 }
 
 #elif defined(WEBP_HAVE_PNG)    // !HAVE_WINCODEC_H
-static void PNGAPI PNGErrorFunction(png_structp png, png_const_charp unused) 
+static void PNGAPI PNGErrorFunction(png_structp png, const char *  unused) 
 {
 	(void)unused; // remove variable-unused warning
 	longjmp(png_jmpbuf(png), 1);

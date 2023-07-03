@@ -1,5 +1,5 @@
 // WINREG.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -284,6 +284,33 @@ int WinRegKey::GetString(const char * pParam, SString & rBuf)
 		else
 			ok = SLS.SetOsError(pParam);
 	}
+	return ok;
+}
+
+int WinRegKey::GetBinary(const char * pParam, SBuffer & rBuf)
+{
+	rBuf.Z();
+	int    ok = 1;
+	size_t rec_size = 0;
+	THROW(!!Key);
+	if(GetRecSize(pParam, &rec_size) > 0) {
+		if(rec_size > 0) {
+			STempBuffer tbuf(rec_size);
+			THROW(tbuf.IsValid());
+			DWORD type = 0;
+			DWORD size = (DWORD)rec_size;
+			LONG  r = RegQueryValueEx(Key, SUcSwitch(pParam), 0, &type, reinterpret_cast<LPBYTE>(tbuf.vptr()), &size);
+			if(r == ERROR_SUCCESS) {
+				rBuf.Write(tbuf.cptr(), size);
+			}
+			else 
+				ok = SLS.SetOsError(pParam);
+			//return oneof2(r, ERROR_SUCCESS, ERROR_MORE_DATA) ? 1 : SLS.SetOsError(pParam);
+		}
+	}
+	else
+		ok = -1;
+	CATCHZOK
 	return ok;
 }
 

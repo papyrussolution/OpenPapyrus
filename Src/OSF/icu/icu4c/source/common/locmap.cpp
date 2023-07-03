@@ -14,7 +14,7 @@
  *
  * Methods of interest:
  *   unsigned long convertToLCID(const char *);
- *   const char * convertToPosix(unsigned long);
+ *   const char * convertToPosix(ulong);
  *
  * Kathleen Wilson, 4/30/96
  *

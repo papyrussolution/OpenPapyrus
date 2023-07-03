@@ -69,15 +69,10 @@ static int cipher_hw_rc4_hmac_md5_cipher(PROV_CIPHER_CTX * bctx,
 		/* cipher has to "fall behind" */
 		if(rc4_off > md5_off)
 			md5_off += MD5_CBLOCK;
-
-		if(plen > md5_off
-		    && (blocks = (plen - md5_off) / MD5_CBLOCK)
-		    && (OPENSSL_ia32cap_P[0] & (1 << 20)) == 0) {
+		if(plen > md5_off && (blocks = (plen - md5_off) / MD5_CBLOCK) && (OPENSSL_ia32cap_P[0] & (1 << 20)) == 0) {
 			MD5_Update(&ctx->md, in, md5_off);
 			RC4(ks, rc4_off, in, out);
-
-			rc4_md5_enc(ks, in + rc4_off, out + rc4_off,
-			    &ctx->md, in + md5_off, blocks);
+			rc4_md5_enc(ks, in + rc4_off, out + rc4_off, &ctx->md, in + md5_off, blocks);
 			blocks *= MD5_CBLOCK;
 			rc4_off += blocks;
 			md5_off += blocks;

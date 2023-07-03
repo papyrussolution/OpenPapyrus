@@ -19,10 +19,10 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_util.c 201098 2009-12-28 02:58:1
 #include <wincrypt.h>
 #endif
 #ifdef HAVE_BZLIB_H
-	#include <..\osf\bzip2\bzlib.h>
+	#include <..\slib\bzip2\bzlib.h>
 #endif
 #ifdef HAVE_LZ4_H
-	#include <lz4.h>
+	#include <..\slib\lz4\lz4.h>
 #endif
 #include "archive_random_private.h"
 

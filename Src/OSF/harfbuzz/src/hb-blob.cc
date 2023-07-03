@@ -285,17 +285,17 @@ bool hb_blob_t::try_make_writable_inplace_unix()
 		DEBUG_MSG_FUNC(BLOB, this, "failed to get pagesize: %s", strerror(errno));
 		return false;
 	}
-	DEBUG_MSG_FUNC(BLOB, this, "pagesize is %lu", (unsigned long)pagesize);
+	DEBUG_MSG_FUNC(BLOB, this, "pagesize is %lu", (ulong)pagesize);
 	mask = ~(pagesize-1);
 	addr = (const char *)(((uintptr_t)this->data) & mask);
 	length = (const char *)(((uintptr_t)this->data + this->length + pagesize-1) & mask)  - addr;
-	DEBUG_MSG_FUNC(BLOB, this, "calling mprotect on [%p..%p] (%lu bytes)", addr, addr+length, (unsigned long)length);
+	DEBUG_MSG_FUNC(BLOB, this, "calling mprotect on [%p..%p] (%lu bytes)", addr, addr+length, (ulong)length);
 	if(-1 == mprotect((void *)addr, length, PROT_READ | PROT_WRITE)) {
 		DEBUG_MSG_FUNC(BLOB, this, "mprotect failed: %s", strerror(errno));
 		return false;
 	}
 	this->mode = HB_MEMORY_MODE_WRITABLE;
-	DEBUG_MSG_FUNC(BLOB, this, "successfully made [%p..%p] (%lu bytes) writable\n", addr, addr+length, (unsigned long)length);
+	DEBUG_MSG_FUNC(BLOB, this, "successfully made [%p..%p] (%lu bytes) writable\n", addr, addr+length, (ulong)length);
 	return true;
 #else
 	return false;
@@ -398,7 +398,7 @@ static int _open_resource_fork(const char * file_name, hb_mapped_file_t * file)
 	if(fd != -1) {
 		struct stat st;
 		if(fstat(fd, &st) != -1)
-			file->length = (unsigned long)st.st_size;
+			file->length = (ulong)st.st_size;
 		else {
 			close(fd);
 			fd = -1;
@@ -429,7 +429,7 @@ hb_blob_t * hb_blob_create_from_file(const char * file_name)
 	struct stat st;
 	if(UNLIKELY(fstat(fd, &st) == -1)) 
 		goto fail;
-	file->length = (unsigned long)st.st_size;
+	file->length = (ulong)st.st_size;
 #ifdef _PATH_RSRCFORKSPEC
 	if(UNLIKELY(file->length == 0)) {
 		int rfd = _open_resource_fork(file_name, file);

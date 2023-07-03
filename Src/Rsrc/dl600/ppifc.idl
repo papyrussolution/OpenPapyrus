@@ -983,7 +983,7 @@ library PapyrusInterfaceLib {
 		HRESULT __stdcall CreateUtil([out,retval] IPapyrusUtil ** pRet);
 		HRESULT __stdcall CreateSpecClass(PpySpecClassIdent clsType, [out,retval] IUnknown ** pRet);
 		HRESULT __stdcall GetStatusInfo([out] SPpySessionInfo * pInfo, [out,retval] long * pRet);
-		HRESULT __stdcall LoginDialog([out] PPYHWND pParent, [in,out] BSTR * pDbName, [in,out] BSTR * pUserName, [in,out] BSTR * pPassword, [in] long editOnly, [out,retval] long * pRet);
+		HRESULT __stdcall LoginDialog([in] PPYHWND pParent, [in,out] BSTR * pDbName, [in,out] BSTR * pUserName, [in,out] BSTR * pPassword, [in] long editOnly, [out,retval] long * pRet);
 	};
 
 	typedef [v1_enum] enum _PpyVSubstGrpGoods {

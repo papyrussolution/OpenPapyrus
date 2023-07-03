@@ -5619,7 +5619,16 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 									for(uint j = 0; j < lot_id_list.getCount(); j++) {
 										const PPID lot_id = lot_id_list.get(j);
 										if(P_BObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id) {
-											if(p_ref->Ot.GetTagStr(PPOBJ_LOT, lot_id, PPTAG_LOT_FSRARINFB, lot_ref_b) && lot_ref_b.IsEqiAscii(ref_b)) { // @v11.7.7
+											// @v11.7.8 {
+											bool do_reckon_lot_rest = false;
+											if(v3markMode) {
+												do_reckon_lot_rest = (p_ref->Ot.GetTagStr(PPOBJ_LOT, lot_id, PPTAG_LOT_FSRARINFB, lot_ref_b) && lot_ref_b.IsEqiAscii(ref_b));
+											}
+											else {
+												do_reckon_lot_rest = true;
+											}
+											// } @v11.7.8 
+											if(do_reckon_lot_rest) { // @v11.7.7
 												double _rest = 0.0;
 												P_BObj->trfr->GetRest(lot_id, _cur_date, MAXLONG, &_rest, 0);
 												current_lot_rest += _rest;

@@ -514,11 +514,9 @@ void TimeUnitFormat::checkConsistency(UTimeUnitFormatStyle style, const char * k
 // using patterns of plural count "other",
 // then, "other" is the searchPluralCount.
 void TimeUnitFormat::searchInLocaleChain(UTimeUnitFormatStyle style, const char * key, const char * localeName,
-    TimeUnit::UTimeUnitFields srcTimeUnitField,
-    const UnicodeString & srcPluralCount,
-    const char * searchPluralCount,
-    Hashtable* countToPatterns,
-    UErrorCode & err) {
+    TimeUnit::UTimeUnitFields srcTimeUnitField, const UnicodeString & srcPluralCount,
+    const char * searchPluralCount, Hashtable* countToPatterns, UErrorCode & err) 
+{
 	if(U_FAILURE(err)) {
 		return;
 	}
@@ -527,8 +525,7 @@ void TimeUnitFormat::searchInLocaleChain(UTimeUnitFormatStyle style, const char 
 	strcpy(parentLocale, localeName);
 	int32_t locNameLen;
 	U_ASSERT(countToPatterns != NULL);
-	while((locNameLen = uloc_getParent(parentLocale, parentLocale,
-	    ULOC_FULLNAME_CAPACITY, &status)) >= 0) {
+	while((locNameLen = uloc_getParent(parentLocale, parentLocale, ULOC_FULLNAME_CAPACITY, &status)) >= 0) {
 		// look for pattern for srcPluralCount in locale tree
 		LocalUResourceBundlePointer rb(ures_open(U_ICUDATA_UNIT, parentLocale, &status));
 		LocalUResourceBundlePointer unitsRes(ures_getByKey(rb.getAlias(), key, NULL, &status));
@@ -546,8 +543,7 @@ void TimeUnitFormat::searchInLocaleChain(UTimeUnitFormatStyle style, const char 
 			}
 			MessageFormat** formatters = (MessageFormat**)countToPatterns->get(srcPluralCount);
 			if(formatters == NULL) {
-				LocalMemory<MessageFormat *> localFormatters(
-					(MessageFormat**)uprv_malloc(UTMUTFMT_FORMAT_STYLE_COUNT*sizeof(MessageFormat*)));
+				LocalMemory<MessageFormat *> localFormatters((MessageFormat**)uprv_malloc(UTMUTFMT_FORMAT_STYLE_COUNT*sizeof(MessageFormat*)));
 				formatters = localFormatters.getAlias();
 				localFormatters[UTMUTFMT_FULL_STYLE] = NULL;
 				localFormatters[UTMUTFMT_ABBREVIATED_STYLE] = NULL;

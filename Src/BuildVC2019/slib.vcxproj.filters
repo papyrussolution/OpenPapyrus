@@ -257,6 +257,204 @@
     <ClCompile Include="..\SLib\SAIS\libsais64.c">
       <Filter>SAIS</Filter>
     </ClCompile>
+    <ClCompile Include="..\SLib\libpng\png.c">
+      <Filter>libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libpng\pngerror.c">
+      <Filter>libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libpng\pngget.c">
+      <Filter>libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libpng\pngmem.c">
+      <Filter>libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libpng\pngpread.c">
+      <Filter>libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libpng\pngread.c">
+      <Filter>libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libpng\pngrio.c">
+      <Filter>libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libpng\pngrtran.c">
+      <Filter>libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libpng\pngrutil.c">
+      <Filter>libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libpng\pngset.c">
+      <Filter>libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libpng\pngtest.c">
+      <Filter>libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libpng\pngtrans.c">
+      <Filter>libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libpng\pngwio.c">
+      <Filter>libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libpng\pngwrite.c">
+      <Filter>libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libpng\pngwtran.c">
+      <Filter>libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libpng\pngwutil.c">
+      <Filter>libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\mkg3states.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_aux.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_close.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_codec.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_color.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_compress.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_dir.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_dirinfo.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_dirread.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_dirwrite.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_dumpmode.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_error.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_extension.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_fax3.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_fax3sm.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_flush.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_getimage.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_jbig.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_jpeg.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_jpeg_12.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_luv.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_lzma.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_lzw.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_next.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_ojpeg.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_open.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_packbits.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_pixarlog.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_predict.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_print.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_read.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_strip.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_swab.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_thunder.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_tile.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_unix.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_warning.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_win32.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_write.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libtiff\tif_zip.c">
+      <Filter>libtiff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\bzip2\blocksort.c">
+      <Filter>bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\bzip2\bzlib.c">
+      <Filter>bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\bzip2\compress.c">
+      <Filter>bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\bzip2\crctable.c">
+      <Filter>bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\bzip2\decompress.c">
+      <Filter>bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\bzip2\huffman.c">
+      <Filter>bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\bzip2\randtable.c">
+      <Filter>bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\lz4\lz4.c">
+      <Filter>lz4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\lz4\lz4frame.c">
+      <Filter>lz4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\lz4\lz4hc.c">
+      <Filter>lz4</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -380,6 +578,72 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\libsais.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\bzip2\bzlib.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\bzip2\bzlib_private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\lz4\lz4.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\lz4\lz4frame.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\lz4\lz4frame_static.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\lz4\lz4hc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\libtiff\t4.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\libtiff\tif_dir.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\libtiff\tif_fax3.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\libtiff\tif_predict.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\libtiff\tiff.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\libtiff\tiffio.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\libtiff\tiffio.hxx">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\libtiff\tiffiop.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\libtiff\uvcode.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\LIBPNG\png.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\LIBPNG\pngconf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\LIBPNG\pngdebug.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\LIBPNG\pnginfo.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\LIBPNG\pnglibconf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\LIBPNG\pngpriv.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\LIBPNG\pngstruct.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
@@ -613,6 +877,18 @@
     </Filter>
     <Filter Include="MASM">
       <UniqueIdentifier>{6ee6fff8-d8c7-4caf-96ae-698c1f0443a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libpng">
+      <UniqueIdentifier>{c560dc83-7120-4027-92ca-bf32984990e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libtiff">
+      <UniqueIdentifier>{b52182bd-940e-41bb-924a-2ec0accf11fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="bzip2">
+      <UniqueIdentifier>{a7a792f5-6634-44d5-b85c-4991cfd02f21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lz4">
+      <UniqueIdentifier>{39607738-c4a7-45ac-a0e8-02a5e0e343d1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

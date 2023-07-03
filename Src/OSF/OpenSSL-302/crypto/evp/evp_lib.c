@@ -372,30 +372,17 @@ int evp_cipher_cache_constants(EVP_CIPHER * cipher)
 			cipher->flags |= EVP_CIPH_FLAG_CUSTOM_CIPHER;
 		if(randkey)
 			cipher->flags |= EVP_CIPH_RAND_KEY;
-		if(OSSL_PARAM_locate_const(EVP_CIPHER_gettable_ctx_params(cipher),
-		    OSSL_CIPHER_PARAM_ALGORITHM_ID_PARAMS))
+		if(OSSL_PARAM_locate_const(EVP_CIPHER_gettable_ctx_params(cipher), OSSL_CIPHER_PARAM_ALGORITHM_ID_PARAMS))
 			cipher->flags |= EVP_CIPH_FLAG_CUSTOM_ASN1;
 	}
 	return ok;
 }
 
-int EVP_CIPHER_get_block_size(const EVP_CIPHER * cipher)
-{
-	return cipher->block_size;
-}
+int EVP_CIPHER_get_block_size(const EVP_CIPHER * cipher) { return cipher->block_size; }
+int EVP_CIPHER_CTX_get_block_size(const EVP_CIPHER_CTX * ctx) { return EVP_CIPHER_get_block_size(ctx->cipher); }
+int EVP_CIPHER_impl_ctx_size(const EVP_CIPHER * e) { return e->ctx_size; }
 
-int EVP_CIPHER_CTX_get_block_size(const EVP_CIPHER_CTX * ctx)
-{
-	return EVP_CIPHER_get_block_size(ctx->cipher);
-}
-
-int EVP_CIPHER_impl_ctx_size(const EVP_CIPHER * e)
-{
-	return e->ctx_size;
-}
-
-int EVP_Cipher(EVP_CIPHER_CTX * ctx, uchar * out,
-    const uchar * in, unsigned int inl)
+int EVP_Cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, unsigned int inl)
 {
 	if(ctx->cipher->prov != NULL) {
 		/*

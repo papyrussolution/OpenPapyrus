@@ -137,7 +137,6 @@ public:
 	    MaybeStackVector<UnitPreferenceMetadata> * outMetadata)
 		: preferences(outPrefs), metadata(outMetadata) {
 	}
-
 	/**
 	 * Method for use by `ures_getAllItemsWithFallback`. Adds the unit
 	 * preferences info that are found in `value` to the output vector.
@@ -150,7 +149,8 @@ public:
 	 * @param status The standard ICU error code output parameter. Note: if an
 	 * error is returned, outPrefs and outMetadata may be inconsistent.
 	 */
-	void put(const char * key, ResourceValue &value, bool /*noFallback*/, UErrorCode & status) override {
+	void put(const char * key, ResourceValue &value, bool /*noFallback*/, UErrorCode & status) override 
+	{
 		if(U_FAILURE(status)) {
 			return;
 		}
@@ -393,23 +393,25 @@ int32_t UnitPreferenceMetadata::compareTo(const UnitPreferenceMetadata &other, b
 }
 
 // TODO: this may be unnecessary. Fold into ConversionRates class? Or move to anonymous namespace?
-void U_I18N_API getAllConversionRates(MaybeStackVector<ConversionRateInfo> &result, UErrorCode & status) {
+void U_I18N_API getAllConversionRates(MaybeStackVector<ConversionRateInfo> &result, UErrorCode & status) 
+{
 	LocalUResourceBundlePointer unitsBundle(ures_openDirect(NULL, "units", &status));
 	ConversionRateDataSink sink(&result);
 	ures_getAllItemsWithFallback(unitsBundle.getAlias(), "convertUnits", sink, status);
 }
 
-const ConversionRateInfo * ConversionRates::extractConversionInfo(StringPiece source,
-    UErrorCode & status) const {
+const ConversionRateInfo * ConversionRates::extractConversionInfo(StringPiece source, UErrorCode & status) const 
+{
 	for(size_t i = 0, n = conversionInfo_.length(); i < n; ++i) {
-		if(conversionInfo_[i]->sourceUnit.toStringPiece() == source) return conversionInfo_[i];
+		if(conversionInfo_[i]->sourceUnit.toStringPiece() == source) 
+			return conversionInfo_[i];
 	}
-
 	status = U_INTERNAL_PROGRAM_ERROR;
 	return nullptr;
 }
 
-U_I18N_API UnitPreferences::UnitPreferences(UErrorCode & status) {
+U_I18N_API UnitPreferences::UnitPreferences(UErrorCode & status) 
+{
 	LocalUResourceBundlePointer unitsBundle(ures_openDirect(NULL, "units", &status));
 	UnitPreferencesSink sink(&unitPrefs_, &metadata_);
 	ures_getAllItemsWithFallback(unitsBundle.getAlias(), "unitPreferenceData", sink, status);
@@ -419,10 +421,9 @@ U_I18N_API UnitPreferences::UnitPreferences(UErrorCode & status) {
 //
 // TODO: consider replacing `UnitPreference **&outPreferences` with slice class
 // of some kind.
-void U_I18N_API UnitPreferences::getPreferencesFor(StringPiece category, StringPiece usage,
-    StringPiece region,
-    const UnitPreference * const *&outPreferences,
-    int32_t &preferenceCount, UErrorCode & status) const {
+void U_I18N_API UnitPreferences::getPreferencesFor(StringPiece category, StringPiece usage, StringPiece region,
+    const UnitPreference * const *&outPreferences, int32_t &preferenceCount, UErrorCode & status) const 
+{
 	int32_t idx = getPreferenceMetadataIndex(&metadata_, category, usage, region, status);
 	if(U_FAILURE(status)) {
 		outPreferences = nullptr;

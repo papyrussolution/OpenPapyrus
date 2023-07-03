@@ -219,7 +219,6 @@ static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv, int last
 			/* Maximum memory in Kb (or Mb with 'm'). */
 			long lval;
 			char ch = 'x';
-
 			if(++argn >= argc) /* advance to next argument */
 				usage();
 			if(sscanf(argv[argn], "%ld%c", &lval, &ch) < 1)
@@ -357,7 +356,6 @@ static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv, int last
 				usage();
 #endif
 	}
-
 	return argn; /* return index of next arg (file name) */
 }
 /*

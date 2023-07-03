@@ -615,6 +615,7 @@ public:
 	static constexpr const char * WrParam_BillMultiplePrintCfg2 = "BillMultiplePrintCfg2"; // @v11.2.0
 	static constexpr const char * WrParam_StyloQLoclMachineUuid = "StyloQLoclMachineUuid"; // @v11.2.3
 	static constexpr const char * WrParam_WsCtl_MachineUUID = "MachineUUID"; // @v11.7.2 
+	static constexpr const char * WrParam_WsCtl_Config = "Config"; // @v11.7.8
 };
 
 // @v11.7.3 (все константы стали static constexpr) extern const PPConstParam _PPConst;
@@ -5912,6 +5913,7 @@ private:
 #define PPSCMD_WSCTL_BEGIN_SESS      10130 // @v11.7.6  WSCTL Запуск рабочего сеанса
 #define PPSCMD_WSCTL_END_SESS        10131 // @v11.7.6  WSCTL Завершение рабочего сеанса
 #define PPSCMD_WSCTL_TSESS           10132 // @v11.7.7  WSCTL Возвращает статус текущей сессии процессора
+#define PPSCMD_WSCTL_LOGOUT          10133 // @v11.7.7  WSCTL Выход из сеанса (без завершения текущей рабочей сессии)
 
 #define PPSCMD_TEST                  11000 // Сеанс тестирования //
 //
@@ -8366,9 +8368,9 @@ int    IsAccBelongToList(const Acct *, int side, const char * pList);
 //
 PPID   FASTCALL ObjectToPerson(PPID articleID, PPID * pAccSheetID = 0);
 //
-// Descr: производит простую операцию вычисления цены реализации по заданным цене
-//   поступления, проценту наценки и параметрам округления. Опция force_dir указывает
-//   в какую сторону необходимо округлять результат. Если force_dir < 0, то округляетс
+// Descr: производит простую операцию вычисления цены реализации по заданным цене //
+//   поступления, проценту наценки и параметрам округления. Опция force_dir указывает //
+//   в какую сторону необходимо округлять результат. Если force_dir < 0, то округляется //
 //   до нижнего значения, если force_dir > 0, то до верхнего. 0 - до ближайшего.
 //
 // @v10.9.11 double CalcSelling(double cost, double pc, double prec, int force_dir);
@@ -30225,6 +30227,19 @@ public:
 	//   0  - ошибка
 	//
 	int    TranslateGoodsUnitToBase(const Goods2Tbl::Rec & rGoodsRec, PPID baseUnitID, double * pRate);
+	//
+	// Descr: Высокоуровневая функция, извлекающая округление количество товара по следующему правилу:
+	//   -- если в GoodsStockExt::MinShippmQtty больше нуля и флаги GoodsStockExt::GseFlags содержат
+	//     бит GoodsStockExt::fMultMinShipm, то считаем, что определяет округление вверх.
+	//   -- в противном случае, если торговая единица измерения товара (Goods2Tbl::Rec::UnitID) 
+	//     имеет PPUnit2::Rounding_ > 0.0, тогда эта величина признается кратностью округления.
+	// Returns:
+	//   1 - валидное значение округления извлечено из товара (GoodsStockExt::MinShippmQtty)
+	//   2 - валидное значение округления извлечено из единицы измерения (PPUnit2::Rounding_)
+	//  <0 - не удается определить параметр округления количества товара
+	//   0 - ошибка (какой-то внутренний сбой: инвалидный ид товара, с базой данных что-то не так etc)
+	//
+	int    GetQttyRounding(PPID goodsID, double * pRounding);
 	int    GetStockExt(PPID, GoodsStockExt * pExt, int useCache = 0);
 	//
 	// Descr: If(withOrWithout == 1 /with/): добавляет к цене поступления pCost

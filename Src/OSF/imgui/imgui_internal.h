@@ -296,8 +296,8 @@ namespace ImStb {
 // - Helper: ImGuiTextIndex
 //
 // Helpers: Hashing
-ImGuiID       ImHashData(const void* data, size_t data_size, ImGuiID seed = 0);
-ImGuiID       ImHashStr(const char* data, size_t data_size = 0, ImGuiID seed = 0);
+ImGuiID ImHashData(const void* data, size_t data_size, ImGuiID seed = 0);
+ImGuiID ImHashStr(const char* data, size_t data_size = 0, ImGuiID seed = 0);
 
 // Helpers: Sorting
 #ifndef ImQsort
@@ -712,39 +712,60 @@ template <int CHUNKS> struct ImSpanAllocator {
 // Basic keyed storage for contiguous instances, slow/amortized insertion, O(1) indexable, O(Log N) queries by ID over a dense/hot buffer,
 // Honor constructor/destructor. Add/remove invalidate all pointers. Indexes have the same lifetime as the associated object.
 typedef int ImPoolIdx;
-template <typename T>
-struct ImPool {
-	ImVector<T>     Buf;    // Contiguous data
-	ImGuiStorage Map;       // ID->Index
-	ImPoolIdx FreeIdx;      // Next free idx to use
-	ImPoolIdx AliveCount;   // Number of active/alive items (for display purpose)
+template <typename T> struct ImPool {
+	ImVector <T> Buf;     // Contiguous data
+	ImGuiStorage Map;     // ID->Index
+	ImPoolIdx FreeIdx;    // Next free idx to use
+	ImPoolIdx AliveCount; // Number of active/alive items (for display purpose)
 
-	ImPool()    {
-		FreeIdx = AliveCount = 0;
+	ImPool() : FreeIdx(0), AliveCount(0)
+	{
 	}
-	~ImPool()   {
+	~ImPool()   
+	{
 		Clear();
 	}
-	T * GetByKey(ImGuiID key)               { int idx = Map.GetInt(key, -1); return (idx != -1) ? &Buf[idx] : NULL; }
-	T * GetByIndex(ImPoolIdx n)             { return &Buf[n]; }
-	ImPoolIdx GetIndex(const T* p) const { assert(p >= Buf.Data && p < Buf.Data + Buf.Size); return (ImPoolIdx)(p - Buf.Data); }
-	T * GetOrAddByKey(ImGuiID key)          { int* p_idx = Map.GetIntRef(key, -1); if(*p_idx != -1)  return &Buf[*p_idx]; *p_idx = FreeIdx; return Add(); }
+	T * GetByKey(ImGuiID key)
+	{ 
+		int idx = Map.GetInt(key, -1); 
+		return (idx != -1) ? &Buf[idx] : NULL; 
+	}
+	T * GetByIndex(ImPoolIdx n) { return &Buf[n]; }
+	ImPoolIdx GetIndex(const T* p) const 
+	{ 
+		assert(p >= Buf.Data && p < Buf.Data + Buf.Size); 
+		return (ImPoolIdx)(p - Buf.Data); 
+	}
+	T * GetOrAddByKey(ImGuiID key)          
+	{ 
+		int* p_idx = Map.GetIntRef(key, -1); 
+		if(*p_idx != -1)  
+			return &Buf[*p_idx]; 
+		*p_idx = FreeIdx; 
+		return Add(); 
+	}
 	bool Contains(const T* p) const { return (p >= Buf.Data && p < Buf.Data + Buf.Size); }
 	void Clear()
 	{
 		for(int n = 0; n < Map.Data.Size; n ++) {
-			int idx = Map.Data[n].val_i; if(idx != -1)  Buf[idx].~T();
+			int idx = Map.Data[n].val_i; 
+			if(idx != -1)  
+				Buf[idx].~T();
 		}
 		Map.Clear(); Buf.clear(); FreeIdx = AliveCount = 0;
 	}
 	T * Add()
 	{
 		int idx = FreeIdx; if(idx == Buf.Size) {
-			Buf.resize(Buf.Size + 1); FreeIdx ++;
+			Buf.resize(Buf.Size + 1); 
+			FreeIdx++;
 		}
 		else {
 			FreeIdx = *(int*)&Buf[idx];
-		} IM_PLACEMENT_NEW(&Buf[idx])T(); AliveCount ++; return &Buf[idx];
+		} 
+		IM_PLACEMENT_NEW(&Buf[idx])T(); 
+		AliveCount++; 
+		return &Buf[idx];
 	}
 	void Remove(ImGuiID key, const T* p)     { Remove(key, GetIndex(p)); }
 	void Remove(ImGuiID key, ImPoolIdx idx)  { Buf[idx].~T(); *(int*)&Buf[idx] = FreeIdx; FreeIdx = idx; Map.SetInt(key, -1); AliveCount --; }
@@ -1145,25 +1166,27 @@ struct ImGuiInputTextDeactivatedState {
 // Internal state of the currently focused/edited text input box
 // For a given item ID, access with ImGui::GetInputTextState()
 struct ImGuiInputTextState {
-	ImGuiContext*           Ctx;                // parent UI context (needs to be set explicitly by parent).
-	ImGuiID ID;                                 // widget id owning the text state
-	int CurLenW, CurLenA;                       // we need to maintain our buffer length in both UTF-8 and wchar format. UTF-8 length is valid even if TextA is not.
-	ImVector<ImWchar>       TextW;              // edit buffer, we need to persist but can't guarantee the persistence of the user-provided buffer. so we copy into own buffer.
-	ImVector<char>          TextA;              // temporary UTF8 buffer for callbacks and other operations. this is not updated in every code-path! size=capacity.
-	ImVector<char>          InitialTextA;       // backup of end-user buffer at the time of focus (in UTF-8, unaltered)
-	bool TextAIsValid;                          // temporary UTF8 buffer is not initially valid before we make the widget active (until then we pull the data from user argument)
-	int BufCapacityA;                           // end-user buffer capacity
-	float ScrollX;                              // horizontal scrolling/offset
-	ImStb::STB_TexteditState Stb;               // state for stb_textedit.h
-	float CursorAnim;                           // timer for cursor blink, reset on every user action so the cursor reappears immediately
-	bool CursorFollow;                          // set when we want scrolling to follow the current cursor position (not always!)
-	bool SelectedAllMouseLock;                  // after a double-click to select all, we ignore further mouse drags to update selection
-	bool Edited;                                // edited this frame
-	ImGuiInputTextFlags Flags;                  // copy of InputText() flags. may be used to check if e.g. ImGuiInputTextFlags_Password is set.
+	ImGuiContext * Ctx;            // parent UI context (needs to be set explicitly by parent).
+	ImGuiID ID;                    // widget id owning the text state
+	int   CurLenW;                 //  
+	int   CurLenA;                 // we need to maintain our buffer length in both UTF-8 and wchar format. UTF-8 length is valid even if TextA is not.
+	int   BufCapacityA;            // end-user buffer capacity
+	float ScrollX;                 // horizontal scrolling/offset
+	ImStb::STB_TexteditState Stb;  // state for stb_textedit.h
+	float CursorAnim;              // timer for cursor blink, reset on every user action so the cursor reappears immediately
+	bool  TextAIsValid;            // temporary UTF8 buffer is not initially valid before we make the widget active (until then we pull the data from user argument)
+	bool  CursorFollow;            // set when we want scrolling to follow the current cursor position (not always!)
+	bool  SelectedAllMouseLock;    // after a double-click to select all, we ignore further mouse drags to update selection
+	bool  Edited;                  // edited this frame
+	ImGuiInputTextFlags Flags;     // copy of InputText() flags. may be used to check if e.g. ImGuiInputTextFlags_Password is set.
+	ImVector<ImWchar> TextW;       // @anchor edit buffer, we need to persist but can't guarantee the persistence of the user-provided buffer. so we copy into own buffer.
+	ImVector<char> TextA;          // temporary UTF8 buffer for callbacks and other operations. this is not updated in every code-path! size=capacity.
+	ImVector<char> InitialTextA;   // backup of end-user buffer at the time of focus (in UTF-8, unaltered)
 
 	ImGuiInputTextState()
 	{
-		THISZERO();
+		// @sobolev THISZERO();
+		memzero(this, offsetof(ImGuiInputTextState, TextW)); // @sobolev 
 	}
 	void   ClearText()
 	{ 
@@ -2062,14 +2085,14 @@ struct ImGuiContext {
 	// Tables
 	ImGuiTable * CurrentTable;
 	int    TablesTempDataStacked;                              // Temporary table data size (because we leave previous instances undestructed, we generally don't use TablesTempData.Size)
-	ImVector<ImGuiTableTempData>    TablesTempData;         // Temporary table data (buffers reused/shared across instances, support nesting)
-	ImPool<ImGuiTable>              Tables;                 // Persistent table data
-	ImVector<float>                 TablesLastTimeActive;   // Last used timestamp of each tables (SOA, for efficient GC)
-	ImVector<ImDrawChannel>         DrawChannelsTempMergeBuffer;
+	ImVector<ImGuiTableTempData> TablesTempData;         // Temporary table data (buffers reused/shared across instances, support nesting)
+	ImPool<ImGuiTable> Tables;                 // Persistent table data
+	ImVector<float>    TablesLastTimeActive;   // Last used timestamp of each tables (SOA, for efficient GC)
+	ImVector<ImDrawChannel> DrawChannelsTempMergeBuffer;
 	// Tab bars
-	ImGuiTabBar*                    CurrentTabBar;
-	ImPool<ImGuiTabBar>             TabBars;
-	ImVector<ImGuiPtrOrIndex>       CurrentTabBarStack;
+	ImGuiTabBar * CurrentTabBar;
+	ImPool<ImGuiTabBar> TabBars;
+	ImVector<ImGuiPtrOrIndex> CurrentTabBarStack;
 	ImVector<ImGuiShrinkWidthItem>  ShrinkWidthBuffer;
 	// Hover Delay system
 	ImGuiID HoverDelayId;
@@ -3309,14 +3332,20 @@ int DataTypeCompare(ImGuiDataType data_type, const void* arg_1, const void* arg_
 bool DataTypeClamp(ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max);
 
 // InputText
-bool InputTextEx(const char* label, const char* hint, char* buf, int buf_size, const ImVec2 & size_arg, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback = NULL,
-void* user_data = NULL);
+bool InputTextEx(const char* label, const char* hint, char* buf, int buf_size, const ImVec2 & size_arg, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
 void InputTextDeactivateHook(ImGuiID id);
 bool TempInputText(const ImRect& bb, ImGuiID id, const char* label, char* buf, int buf_size, ImGuiInputTextFlags flags);
 bool TempInputScalar(const ImRect& bb, ImGuiID id, const char* label, ImGuiDataType data_type, void* p_data, const char* format, const void* p_clamp_min = NULL, const void* p_clamp_max = NULL);
-inline bool TempInputIsActive(ImGuiID id)       { ImGuiContext & g = *GImGui; return (g.ActiveId == id && g.TempInputId == id); }
-inline ImGuiInputTextState* GetInputTextState(ImGuiID id)   { ImGuiContext & g = *GImGui; return (id != 0 && g.InputTextState.ID == id) ? &g.InputTextState : NULL; }     // Get input text state if active
-
+inline bool TempInputIsActive(ImGuiID id) 
+{ 
+	ImGuiContext & g = *GImGui; 
+	return (g.ActiveId == id && g.TempInputId == id); 
+}
+inline ImGuiInputTextState* GetInputTextState(ImGuiID id) // Get input text state if active
+{ 
+	ImGuiContext & g = *GImGui; 
+	return (id != 0 && g.InputTextState.ID == id) ? &g.InputTextState : NULL; 
+}
 // Color
 void ColorTooltip(const char* text, const float* col, ImGuiColorEditFlags flags);
 void ColorEditOptionsPopup(const float* col, ImGuiColorEditFlags flags);

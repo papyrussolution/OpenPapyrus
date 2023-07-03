@@ -1041,6 +1041,7 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		//   файл.
 		//
 		int    UniformFileTransm(in string srcUrl, in string destUrl, in long flags, in IFileFormat iff, in string accsName, in string accsPassw);
+		//int    UniformFileTransmW(in wstring srcUrl, in wstring destUrl, in long flags, in IFileFormat iff, in wstring accsName, in wstring accsPassw); // @v11.7.8
 		//
 		// Descr: Переводит строку в дату в соответствии с форматом, заданным параметром fmt.
 		//   Если fmt == datfDefault, то пытается распознать дату по содержимому строки (без гарантии успеха).
@@ -1586,9 +1587,9 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		// ARG(userName IN|OUT): имя пользователя //
 		// ARG(password IN|OUT): пароль, соответствующий имени userName.
 		// Returns:
-		//   > 0 - редактирование парамтеров выполнено успешно (авторизация успешно выполнена, если параметр editOnly имеет значение 0)
+		//   > 0 - редактирование параметров выполнено успешно (авторизация успешно выполнена, если параметр editOnly имеет значение 0)
 		//   0  - ошибка
-		long LoginDialog(out PPYHWND pParent, inout string * pDbName, inout string * pUserName, inout string * pPassword, in int editOnly);
+		long LoginDialog(in PPYHWND pParent, inout string * pDbName, inout string * pUserName, inout string * pPassword, in int editOnly);
 	}
 	//
 	// Descr: Значения параметра подстановки товара

@@ -434,10 +434,8 @@ static int rsa_set_ctx_params(void * vprsactx, const OSSL_PARAM params[])
 	if(p) {
 		if(!OSSL_PARAM_get_utf8_string(p, &str, sizeof(mdname)))
 			return 0;
-
 		str = mdprops;
-		p = OSSL_PARAM_locate_const(params,
-			OSSL_ASYM_CIPHER_PARAM_MGF1_DIGEST_PROPS);
+		p = OSSL_PARAM_locate_const(params, OSSL_ASYM_CIPHER_PARAM_MGF1_DIGEST_PROPS);
 		if(p) {
 			if(!OSSL_PARAM_get_utf8_string(p, &str, sizeof(mdprops)))
 				return 0;

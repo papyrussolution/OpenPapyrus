@@ -1409,7 +1409,9 @@ int PPViewBill::Helper_CheckIDForFilt(uint flags, PPID id, const BillTbl::Rec * 
 			assert(memo_pattern.NotEmpty());
 			SString memo;
 			P_BObj->P_Tbl->GetItemMemo(id, memo);
-			if(!memo.NotEmptyS() || !ExtStrSrch(memo, memo_pattern, 0))
+			if(!memo.NotEmptyS())
+				return 0;
+			else if(!ExtStrSrch(memo, memo_pattern, 0))
 				return 0;
 		}
 		else

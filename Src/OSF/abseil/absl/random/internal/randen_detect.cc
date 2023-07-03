@@ -64,7 +64,7 @@ static uint32_t GetAuxval(uint32_t hwcap_type) {
 
 static uint32_t GetAuxval(uint32_t hwcap_type) {
 	// NOLINTNEXTLINE(runtime/int)
-	typedef unsigned long (* getauxval_func_t)(unsigned long);
+	typedef unsigned long (* getauxval_func_t)(ulong);
 
 	dlerror(); // Cleaning error state before calling dlopen.
 	void* libc_handle = dlopen("libc.so", RTLD_NOW);

@@ -229,7 +229,8 @@ int mkdir(const char* path, int /*_mode*/)
 #endif  // not SUPPORT_LONGPATHS
 }
 
-int access(const char* path, int mode) {
+int access(const char* path, int mode) 
+{
 #ifdef SUPPORT_LONGPATHS
 	wstring wpath;
 	if(!as_windows_path(path, &wpath)) {
@@ -242,7 +243,7 @@ int access(const char* path, int mode) {
 #endif
 }
 
-int chdir(const char* path) 
+int chdir(const char * path) 
 {
 #ifdef SUPPORT_LONGPATHS
 	wstring wpath;
@@ -256,7 +257,8 @@ int chdir(const char* path)
 #endif
 }
 
-int stat(const char* path, struct _stat* buffer) {
+int stat(const char* path, struct _stat* buffer) 
+{
 #ifdef SUPPORT_LONGPATHS
 	wstring wpath;
 	if(!as_windows_path(path, &wpath)) {

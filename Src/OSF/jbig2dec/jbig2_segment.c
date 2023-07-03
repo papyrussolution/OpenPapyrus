@@ -113,20 +113,20 @@ void jbig2_free_segment(Jbig2Ctx * ctx, Jbig2Segment * segment)
 		   brittle special casing */
 		switch(segment->flags & 63) {
 			case 0:        /* symbol dictionary */
-				if(segment->result != NULL)
+				if(segment->result)
 					jbig2_sd_release(ctx, (Jbig2SymbolDict*)segment->result);
 				break;
 			case 4:        /* intermediate text region */
 			case 40:       /* intermediate refinement region */
-				if(segment->result != NULL)
+				if(segment->result)
 					jbig2_image_release(ctx, (Jbig2Image*)segment->result);
 				break;
 			case 16:       /* pattern dictionary */
-				if(segment->result != NULL)
+				if(segment->result)
 					jbig2_hd_release(ctx, (Jbig2PatternDict*)segment->result);
 				break;
 			case 53:       /* user-supplied huffman table */
-				if(segment->result != NULL)
+				if(segment->result)
 					jbig2_table_free(ctx, (Jbig2HuffmanParams*)segment->result);
 				break;
 			default:

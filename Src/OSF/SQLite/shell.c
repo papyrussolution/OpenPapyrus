@@ -18754,7 +18754,7 @@ static int do_meta_command(char * zLine, ShellState * p){
 			rc = !SetCurrentDirectoryW(z);
 			sqlite3_free(z);
 #else
-			rc = chdir(azArg[1]);
+			rc = _chdir(azArg[1]);
 #endif
 			if(rc) {
 				utf8_printf(stderr, "Cannot change to directory \"%s\"\n", azArg[1]);

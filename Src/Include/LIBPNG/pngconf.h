@@ -435,39 +435,39 @@
  * The checks below use constants from limits.h, as defined by the ISOC90
  * standard.
  */
-#if CHAR_BIT == 8 && UCHAR_MAX == 255
-	typedef uchar png_byte_Removed;
-#else
-	#error "libpng requires 8-bit bytes"
-#endif
-#if INT_MIN == -32768 && INT_MAX == 32767
-	typedef int png_int_16;
-#elif SHRT_MIN == -32768 && SHRT_MAX == 32767
-	typedef short png_int_16;
-#else
-	#error "libpng requires a signed 16-bit type"
-#endif
-#if UINT_MAX == 65535
-	typedef unsigned int png_uint_16;
-#elif USHRT_MAX == 65535
-	typedef unsigned short png_uint_16;
-#else
-	#error "libpng requires an unsigned 16-bit type"
-#endif
-#if INT_MIN < -2147483646 && INT_MAX > 2147483646
-	typedef int png_int_32;
-#elif LONG_MIN < -2147483646 && LONG_MAX > 2147483646
-	typedef long int png_int_32;
-#else
-	#error "libpng requires a signed 32-bit (or more) type"
-#endif
-#if UINT_MAX > 4294967294
-	typedef unsigned int png_uint_32_Removed;
-#elif ULONG_MAX > 4294967294
-	typedef unsigned long png_uint_32_Removed;
-#else
-	#error "libpng requires an unsigned 32-bit (or more) type"
-#endif
+//#if CHAR_BIT == 8 && UCHAR_MAX == 255
+	//typedef uchar png_byte_Removed;
+//#else
+	//#error "libpng requires 8-bit bytes"
+//#endif
+//#if INT_MIN == -32768 && INT_MAX == 32767
+	//typedef int png_int_16;
+//#elif SHRT_MIN == -32768 && SHRT_MAX == 32767
+	//typedef short png_int_16;
+//#else
+	//#error "libpng requires a signed 16-bit type"
+//#endif
+//#if UINT_MAX == 65535
+	// @sobolev typedef unsigned int png_uint_16_Removed;
+//#elif USHRT_MAX == 65535
+	// @sobolev typedef unsigned short png_uint_16_Removed;
+//#else
+	//#error "libpng requires an unsigned 16-bit type"
+//#endif
+//#if INT_MIN < -2147483646 && INT_MAX > 2147483646
+	//typedef int png_int_32_Removed;
+//#elif LONG_MIN < -2147483646 && LONG_MAX > 2147483646
+	//typedef long int png_int_32_Removed;
+//#else
+	//#error "libpng requires a signed 32-bit (or more) type"
+//#endif
+//#if UINT_MAX > 4294967294
+	//typedef unsigned int png_uint_32_Removed;
+//#elif ULONG_MAX > 4294967294
+	//typedef unsigned long png_uint_32_Removed;
+//#else
+	//#error "libpng requires an unsigned 32-bit (or more) type"
+//#endif
 
 /* Prior to 1.6.0 it was possible to disable the use of size_t, 1.6.0, however,
  * requires an ISOC90 compiler and relies on consistent behavior of sizeof.
@@ -521,21 +521,21 @@ typedef size_t png_alloc_size_t;
 /* Typedef for floating-point numbers that are converted to fixed-point with a
  * multiple of 100,000, e.g., gamma
  */
-typedef png_int_32 png_fixed_point;
+typedef int32_t png_fixed_point;
 
 /* Add typedefs for pointers */
 typedef void * png_voidp_Removed;
 typedef const void * png_const_voidp_Removed;
-typedef uint8   * png_bytep;
+typedef uint8 * png_bytep;
 typedef const uint8   * png_const_bytep;
-typedef uint32 * png_uint_32p;
+// @sobolev typedef uint32 * png_uint_32p_Removed;
 typedef const uint32 * png_const_uint_32p;
-typedef png_int_32 * png_int_32p;
-typedef const png_int_32 * png_const_int_32p;
-typedef png_uint_16 * png_uint_16p;
-typedef const png_uint_16 * png_const_uint_16p;
-typedef png_int_16 * png_int_16p;
-typedef const png_int_16 * png_const_int_16p;
+typedef int32_t * png_int_32p;
+typedef const int32_t * png_const_int_32p;
+typedef uint16 * png_uint_16p;
+typedef const uint16 * png_const_uint_16p;
+typedef int16 * png_int_16p;
+typedef const int16 * png_const_int_16p;
 typedef char  * png_charp_Removed;
 //typedef const char * png_const_charp_Removed;
 typedef png_fixed_point  * png_fixed_point_p;
@@ -554,9 +554,9 @@ typedef const size_t * png_const_size_tp;
 /* Pointers to pointers; i.e. arrays */
 typedef uint8  ** png_bytepp;
 typedef uint32  ** png_uint_32pp;
-typedef png_int_32 ** png_int_32pp;
-typedef png_uint_16 ** png_uint_16pp;
-typedef png_int_16 ** png_int_16pp;
+typedef int32_t ** png_int_32pp;
+typedef uint16 ** png_uint_16pp;
+typedef int16 ** png_int_16pp;
 typedef const char ** png_const_charpp_Removed;
 typedef char ** png_charpp;
 typedef png_fixed_point ** png_fixed_point_pp;

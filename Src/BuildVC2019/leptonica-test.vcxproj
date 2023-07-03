@@ -215,9 +215,6 @@
     <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
     </ProjectReference>
-    <ProjectReference Include="tiff.vcxproj">
-      <Project>{be973138-3d24-4e02-a136-d1592bc5e1f3}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -3080,7 +3080,7 @@ static unsigned long ssl_session_hash(const SSL_SESSION * a)
 		memcpy(tmp_storage, a->session_id, a->session_id_length);
 		session_id = tmp_storage;
 	}
-	l = (unsigned long)((unsigned long)session_id[0]) | ((unsigned long)session_id[1] << 8L) | ((unsigned long)session_id[2] << 16L) | ((unsigned long)session_id[3] << 24L);
+	l = (ulong)((ulong)session_id[0]) | ((ulong)session_id[1] << 8L) | ((ulong)session_id[2] << 16L) | ((ulong)session_id[3] << 24L);
 	return l;
 }
 
@@ -3645,7 +3645,7 @@ void ssl_update_cache(SSL * s, int mode)
 		else
 			stat = &s->session_ctx->stats.sess_accept_good;
 		if((ssl_tsan_load(s->session_ctx, stat) & 0xff) == 0xff)
-			SSL_CTX_flush_sessions(s->session_ctx, (unsigned long)time(NULL));
+			SSL_CTX_flush_sessions(s->session_ctx, (ulong)time(NULL));
 	}
 }
 

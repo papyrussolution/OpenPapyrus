@@ -1,8 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/**
-	Copyright (C) 2006-2012, International Business Machines Corporation and others. All Rights Reserved.
-*/
+// Copyright (C) 2006-2012, International Business Machines Corporation and others. All Rights Reserved.
+//
 #ifndef BRKENG_H
 #define BRKENG_H
 
@@ -209,27 +208,21 @@ public:
  */
 class ICULanguageBreakFactory : public LanguageBreakFactory {
 private:
-
 	/**
 	 * The stack of break engines created by this factory
 	 * @internal
 	 */
-
 	UStack    * fEngines;
-
 public:
-
 	/**
 	 * <p>Standard constructor.</p>
 	 *
 	 */
 	ICULanguageBreakFactory(UErrorCode & status);
-
 	/**
 	 * <p>Virtual destructor.</p>
 	 */
 	virtual ~ICULanguageBreakFactory();
-
 	/**
 	 * <p>Find and return a LanguageBreakEngine that can find the desired
 	 * kind of break for the set of characters to which the supplied
@@ -241,7 +234,6 @@ public:
 	 * @return A LanguageBreakEngine with the desired characteristics, or 0.
 	 */
 	virtual const LanguageBreakEngine * getEngineFor(UChar32 c) override;
-
 protected:
 	/**
 	 * <p>Create a LanguageBreakEngine for the set of characters to which

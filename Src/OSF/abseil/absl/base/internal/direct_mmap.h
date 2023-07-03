@@ -113,7 +113,7 @@ inline void* DirectMmap(void* start, size_t length, int prot, int flags, int fd,
 		MMAP_SYSCALL_ARG(fd), static_cast<uint64_t>(offset)));
 #undef MMAP_SYSCALL_ARG
 #else  // Remaining 64-bit aritectures.
-	static_assert(sizeof(unsigned long) == 8, "Platform is not 64-bit");
+	static_assert(sizeof(ulong) == 8, "Platform is not 64-bit");
 	return reinterpret_cast<void*>(
 		syscall(SYS_mmap, start, length, prot, flags, fd, offset));
 #endif

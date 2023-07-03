@@ -255,7 +255,7 @@ template <typename T> static inline HB_CONST_FUNC uint hb_popcount(T v)
 #if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
 	if(sizeof(T) <= sizeof(uint))
 		return __builtin_popcount(v);
-	if(sizeof(T) <= sizeof(unsigned long))
+	if(sizeof(T) <= sizeof(ulong))
 		return __builtin_popcountl(v);
 	if(sizeof(T) <= sizeof(unsigned long long))
 		return __builtin_popcountll(v);
@@ -286,8 +286,8 @@ template <typename T> static inline HB_CONST_FUNC uint hb_bit_storage(T v)
 #if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
 	if(sizeof(T) <= sizeof(uint))
 		return sizeof(uint) * 8 - __builtin_clz(v);
-	if(sizeof(T) <= sizeof(unsigned long))
-		return sizeof(unsigned long) * 8 - __builtin_clzl(v);
+	if(sizeof(T) <= sizeof(ulong))
+		return sizeof(ulong) * 8 - __builtin_clzl(v);
 	if(sizeof(T) <= sizeof(unsigned long long))
 		return sizeof(unsigned long long) * 8 - __builtin_clzll(v);
 #endif
@@ -346,7 +346,7 @@ template <typename T> static inline HB_CONST_FUNC uint hb_ctz(T v)
 #if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
 	if(sizeof(T) <= sizeof(uint))
 		return __builtin_ctz(v);
-	if(sizeof(T) <= sizeof(unsigned long))
+	if(sizeof(T) <= sizeof(ulong))
 		return __builtin_ctzl(v);
 	if(sizeof(T) <= sizeof(unsigned long long))
 		return __builtin_ctzll(v);

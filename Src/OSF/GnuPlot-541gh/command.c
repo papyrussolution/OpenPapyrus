@@ -830,7 +830,7 @@ static int changedir(const char * path)
 #elif defined(__EMX__) && defined(OS2)
 	return _chdir2(path);
 #else
-	return chdir(path);
+	return _chdir(path);
 #endif
 }
 //

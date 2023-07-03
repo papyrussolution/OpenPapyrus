@@ -6954,7 +6954,7 @@ void amqp_set_initialize_ssl_library(boolint do_initialize)
 
 static /*unsigned long*/pthread_t ssl_threadid_callback() 
 {
-	return /*(unsigned long)*/pthread_self();
+	return /*(ulong)*/pthread_self();
 }
 
 static void ssl_locking_callback(int mode, int n, AMQP_UNUSED const char * file, AMQP_UNUSED int line) 

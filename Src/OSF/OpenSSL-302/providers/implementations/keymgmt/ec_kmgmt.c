@@ -659,24 +659,17 @@ static int common_get_params(void * key, OSSL_PARAM params[], int sm2)
 			goto err;
 	}
 
-	if((p = OSSL_PARAM_locate(params,
-	    OSSL_PKEY_PARAM_EC_DECODED_FROM_EXPLICIT_PARAMS))
-	    != NULL) {
+	if((p = OSSL_PARAM_locate(params, OSSL_PKEY_PARAM_EC_DECODED_FROM_EXPLICIT_PARAMS)) != NULL) {
 		int explicitparams = EC_KEY_decoded_from_explicit_params(eck);
-
-		if(explicitparams < 0
-		    || !OSSL_PARAM_set_int(p, explicitparams))
+		if(explicitparams < 0 || !OSSL_PARAM_set_int(p, explicitparams))
 			goto err;
 	}
-
 	if(!sm2) {
-		if((p = OSSL_PARAM_locate(params, OSSL_PKEY_PARAM_DEFAULT_DIGEST)) != NULL
-		    && !OSSL_PARAM_set_utf8_string(p, EC_DEFAULT_MD))
+		if((p = OSSL_PARAM_locate(params, OSSL_PKEY_PARAM_DEFAULT_DIGEST)) != NULL && !OSSL_PARAM_set_utf8_string(p, EC_DEFAULT_MD))
 			goto err;
 	}
 	else {
-		if((p = OSSL_PARAM_locate(params, OSSL_PKEY_PARAM_DEFAULT_DIGEST)) != NULL
-		    && !OSSL_PARAM_set_utf8_string(p, SM2_DEFAULT_MD))
+		if((p = OSSL_PARAM_locate(params, OSSL_PKEY_PARAM_DEFAULT_DIGEST)) != NULL && !OSSL_PARAM_set_utf8_string(p, SM2_DEFAULT_MD))
 			goto err;
 	}
 	/* SM2 doesn't support this PARAM */

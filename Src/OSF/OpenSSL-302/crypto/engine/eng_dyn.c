@@ -368,9 +368,7 @@ static int int_load(dynamic_data_ctx * ctx)
 {
 	int num, loop;
 	/* Unless told not to, try a direct load */
-	if((ctx->dir_load != 2) && (DSO_load(ctx->dynamic_dso,
-	    ctx->DYNAMIC_LIBNAME, NULL,
-	    0)) != NULL)
+	if((ctx->dir_load != 2) && (DSO_load(ctx->dynamic_dso, ctx->DYNAMIC_LIBNAME, NULL, 0)) != NULL)
 		return 1;
 	/* If we're not allowed to use 'dirs' or we have none, fail */
 	if(!ctx->dir_load || (num = sk_OPENSSL_STRING_num(ctx->dirs)) < 1)
@@ -394,7 +392,6 @@ static int dynamic_load(ENGINE * e, dynamic_data_ctx * ctx)
 {
 	ENGINE cpy;
 	dynamic_fns fns;
-
 	if(ctx->dynamic_dso == NULL)
 		ctx->dynamic_dso = DSO_new();
 	if(ctx->dynamic_dso == NULL)
@@ -402,10 +399,8 @@ static int dynamic_load(ENGINE * e, dynamic_data_ctx * ctx)
 	if(!ctx->DYNAMIC_LIBNAME) {
 		if(!ctx->engine_id)
 			return 0;
-		DSO_ctrl(ctx->dynamic_dso, DSO_CTRL_SET_FLAGS,
-		    DSO_FLAG_NAME_TRANSLATION_EXT_ONLY, NULL);
-		ctx->DYNAMIC_LIBNAME =
-		    DSO_convert_filename(ctx->dynamic_dso, ctx->engine_id);
+		DSO_ctrl(ctx->dynamic_dso, DSO_CTRL_SET_FLAGS, DSO_FLAG_NAME_TRANSLATION_EXT_ONLY, NULL);
+		ctx->DYNAMIC_LIBNAME = DSO_convert_filename(ctx->dynamic_dso, ctx->engine_id);
 	}
 	if(!int_load(ctx)) {
 		ERR_raise(ERR_LIB_ENGINE, ENGINE_R_DSO_NOT_FOUND);
@@ -414,10 +409,7 @@ static int dynamic_load(ENGINE * e, dynamic_data_ctx * ctx)
 		return 0;
 	}
 	/* We have to find a bind function otherwise it'll always end badly */
-	if(!
-	    (ctx->bind_engine =
-	    (dynamic_bind_engine)DSO_bind_func(ctx->dynamic_dso,
-	    ctx->DYNAMIC_F2))) {
+	if(!(ctx->bind_engine = (dynamic_bind_engine)DSO_bind_func(ctx->dynamic_dso, ctx->DYNAMIC_F2))) {
 		ctx->bind_engine = NULL;
 		DSO_free(ctx->dynamic_dso);
 		ctx->dynamic_dso = NULL;

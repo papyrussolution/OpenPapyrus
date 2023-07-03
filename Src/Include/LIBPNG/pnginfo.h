@@ -60,8 +60,8 @@ struct png_info_def
    uint32 valid; /* valid chunk data (see PNG_INFO_ below) */
    size_t rowbytes; /* bytes needed to hold an untransformed row */
    png_colorp palette; /* array of color values (valid & PNG_INFO_PLTE) */
-   png_uint_16 num_palette; /* number of color entries in "palette" (PLTE) */
-   png_uint_16 num_trans; /* number of transparent palette color (tRNS) */
+   uint16 num_palette; /* number of color entries in "palette" (PLTE) */
+   uint16 num_trans; /* number of transparent palette color (tRNS) */
    uint8 bit_depth; /* 1, 2, 4, 8, or 16 bits/channel (from IHDR) */
    uint8 color_type; /* see PNG_COLOR_TYPE_ below (from IHDR) */
    /* The following three should have been named *_method not *_type */
@@ -170,8 +170,8 @@ defined(PNG_READ_BACKGROUND_SUPPORTED)
     * application-specific co-ordinate space.  See the PNG_OFFSET_ defines
     * below for the unit types.  Valid if(valid & PNG_INFO_oFFs) non-zero.
     */
-   png_int_32 x_offset; /* x offset on page */
-   png_int_32 y_offset; /* y offset on page */
+   int32_t x_offset; /* x offset on page */
+   int32_t y_offset; /* y offset on page */
    uint8 offset_unit_type; /* offset units type */
 #endif
 
@@ -208,8 +208,8 @@ defined(PNG_READ_BACKGROUND_SUPPORTED)
     * Data values are valid if(valid & PNG_INFO_pCAL) non-zero.
     */
    char * pcal_purpose; /* pCAL chunk description string */
-   png_int_32 pcal_X0; /* minimum value */
-   png_int_32 pcal_X1; /* maximum value */
+   int32_t pcal_X0; /* minimum value */
+   int32_t pcal_X1; /* maximum value */
    char * pcal_units; /* Latin-1 string giving physical units */
    png_charpp pcal_params; /* ASCII strings containing parameter values */
    uint8 pcal_type; /* equation type (see PNG_EQUATION_ below) */

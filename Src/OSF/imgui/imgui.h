@@ -1773,22 +1773,25 @@ template <typename T> struct ImVector {
 	T * Data;
 	// Provide standard typedefs but we don't use them ourselves.
 	typedef T value_type;
-	typedef value_type*         iterator;
-	typedef const value_type*   const_iterator;
+	typedef value_type * iterator;
+	typedef const value_type * const_iterator;
 
 	// Constructors, destructor
-	inline ImVector()
+	inline ImVector() : Size(0), Capacity(0), Data(0)
 	{
-		Size = Capacity = 0; 
-		Data = NULL;
 	}
-	inline ImVector(const ImVector<T>& src) 
+	inline ImVector(const ImVector<T> & src) : Size(0), Capacity(0), Data(0)
 	{
-		Size = Capacity = 0; 
-		Data = NULL; 
 		operator=(src);
 	}
-	inline ImVector<T>& operator=(const ImVector<T>& src)   { clear(); resize(src.Size); if(src.Data)  memcpy(Data, src.Data, (size_t)Size * sizeof(T)); return *this; }
+	inline ImVector<T>& operator=(const ImVector<T>& src)
+	{ 
+		clear(); 
+		resize(src.Size); 
+		if(src.Data)  
+			memcpy(Data, src.Data, (size_t)Size * sizeof(T)); 
+		return *this; 
+	}
 	inline ~ImVector()
 	{
 		if(Data)  

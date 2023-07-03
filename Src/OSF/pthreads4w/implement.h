@@ -181,7 +181,7 @@ struct __ptw32_thread_t_ {
 /*
  * Special value to mark attribute objects as valid.
  */
-#define  __PTW32_ATTR_VALID ((unsigned long)0xC4C0FFEE)
+#define  __PTW32_ATTR_VALID ((ulong)0xC4C0FFEE)
 
 struct pthread_attr_t_ {
 	unsigned long valid;

@@ -84,7 +84,7 @@ BOOL WINAPI InitializeWICFactory(PINIT_ONCE, PVOID, PVOID * ifactory) noexcept
 		g_WIC2 = true;
 		return TRUE;
 	}
-	else{
+	else {
 		g_WIC2 = false;
 
 		hr = CoCreateInstance(
@@ -152,7 +152,7 @@ _Use_decl_annotations_ bool DirectX::Internal::DXGIToWIC(DXGI_FORMAT format, GUI
 			    // when using the WIC scaler
 			    memcpy(&guid, &GUID_WICPixelFormat32bppBGRA, sizeof(GUID));
 		    }
-		    else{
+		    else {
 			    memcpy(&guid, &GUID_WICPixelFormat32bppRGBA, sizeof(GUID));
 		    }
 		    return true;
@@ -845,7 +845,7 @@ _Use_decl_annotations_ HRESULT DirectX::ComputePitch(DXGI_FORMAT fmt, size_t wid
 				    pitch = std::max<uint64_t>(1u, uint64_t(nbw) * 8u);
 				    slice = std::max<uint64_t>(1u, pitch * uint64_t(nbh));
 			    }
-			    else{
+			    else {
 				    const uint64_t nbw = std::max<uint64_t>(1u, (uint64_t(width) + 3u) / 4u);
 				    const uint64_t nbh = std::max<uint64_t>(1u, (uint64_t(height) + 3u) / 4u);
 				    pitch = nbw * 8u;
@@ -877,7 +877,7 @@ _Use_decl_annotations_ HRESULT DirectX::ComputePitch(DXGI_FORMAT fmt, size_t wid
 				    pitch = std::max<uint64_t>(1u, uint64_t(nbw) * 16u);
 				    slice = std::max<uint64_t>(1u, pitch * uint64_t(nbh));
 			    }
-			    else{
+			    else {
 				    const uint64_t nbw = std::max<uint64_t>(1u, (uint64_t(width) + 3u) / 4u);
 				    const uint64_t nbh = std::max<uint64_t>(1u, (uint64_t(height) + 3u) / 4u);
 				    pitch = nbw * 16u;
@@ -997,14 +997,14 @@ _Use_decl_annotations_ HRESULT DirectX::ComputePitch(DXGI_FORMAT fmt, size_t wid
 					    pitch = ((uint64_t(width) * bpp + 127u) / 128u) * 16u;
 					    slice = pitch * uint64_t(height);
 				    }
-				    else{ // DWORD alignment
+				    else { // DWORD alignment
 					    // Special computation for some incorrectly created DDS files based on
 					    // legacy DirectDraw assumptions about pitch alignment
 					    pitch = ((uint64_t(width) * bpp + 31u) / 32u) * sizeof(uint32_t);
 					    slice = pitch * uint64_t(height);
 				    }
 			    }
-			    else{
+			    else {
 				    // Default byte alignment
 				    pitch = (uint64_t(width) * bpp + 7u) / 8u;
 				    slice = pitch * uint64_t(height);
@@ -1297,7 +1297,7 @@ _Use_decl_annotations_ size_t TexMetadata::ComputeIndex(size_t mip, size_t item,
 			    // No support for arrays of volumes
 			    return size_t(-1);
 		    }
-		    else{
+		    else {
 			    size_t index = 0;
 			    size_t d = depth;
 			    for(size_t level = 0; level < mip; ++level) {

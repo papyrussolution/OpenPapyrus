@@ -270,8 +270,8 @@ static ossl_unused ossl_inline int ERR_COMMON_ERROR(unsigned long errcode)
  * ERR_PACK ignores |func|, that parameter is just legacy from pre-3.0 OpenSSL.
  */
 #define ERR_PACK(lib, func, reason)                                      \
-	( (((unsigned long)(lib)    & ERR_LIB_MASK   ) << ERR_LIB_OFFSET) | \
-	(((unsigned long)(reason) & ERR_REASON_MASK)) )
+	( (((ulong)(lib)    & ERR_LIB_MASK   ) << ERR_LIB_OFFSET) | \
+	(((ulong)(reason) & ERR_REASON_MASK)) )
 
 #ifndef OPENSSL_NO_DEPRECATED_3_0
 #define SYS_F_FOPEN             0

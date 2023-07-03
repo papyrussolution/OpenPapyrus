@@ -963,34 +963,6 @@ struct Strg_ProcessorExt { // @persistent
 	// ExtString
 };
 
-#if 0 // @v8.7.0 {
-int PPObjProcessor::PutExtention(PPID id, PPProcessorPacket::ExtBlock * pExt, int use_ta)
-{
-	int    ok = 1;
-	Strg_ProcessorExt * p_strg = 0;
-	size_t sz = 0;
-	if(pExt && !pExt->IsEmpty()) {
-		SString stub_extsting;
-		const size_t ext_str_len = stub_extsting.NotEmpty() ? (stub_extsting.Len() + 1) : 0;
-		sz = sizeof(Strg_ProcessorExt) + ext_str_len;
-		THROW_MEM(p_strg = (Strg_ProcessorExt *)SAlloc::M(sz));
-		memzero(p_strg, sz);
-		p_strg->Ver = DS.GetVersion();
-		p_strg->CheckInTime = pExt->CheckInTime;
-		p_strg->CheckOutTime = pExt->CheckOutTime;
-		p_strg->TimeFlags = pExt->TimeFlags;
-		p_strg->InitSessStatus = pExt->InitSessStatus;
-		p_strg->ExtStrLen = ext_str_len;
-		if(ext_str_len) {
-			memcpy((p_strg+1), (const char *)stub_extsting, ext_str_len);
-		}
-	}
-	THROW(PPRef->PutProp(PPOBJ_PROCESSOR, id, PRCPRP_EXT, p_strg, sz, use_ta));
-	CATCHZOK
-	return ok;
-}
-#endif // } @v8.7.0
-
 int PPObjProcessor::PutExtention(PPID id, PPProcessorPacket::ExtBlock * pExt, int use_ta)
 {
 	int    ok = 1;
@@ -1495,7 +1467,6 @@ int ProcessorDialog::setupParent()
 			else
 				setLabelText(CTL_PRC_LINKOBJ, 0);
 			disableCtrl(CTLSEL_PRC_LINKOBJ, !grp_rec.LinkObjType);
-			// @v9.3.2 disableCtrl(CTL_PRC_NAME, BIN(grp_rec.LinkObjType));
 			if(prev_link_obj_type != grp_rec.LinkObjType)
 				setCtrlLong(CTLSEL_PRC_LINKOBJ, 0);
 		}
@@ -1684,7 +1655,7 @@ int ProcessorDialog::getDTS(PPProcessorPacket * pData)
 	THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
 	getCtrlData(CTL_PRC_SYMB, Data.Rec.Code);
 	getCtrlData(CTLSEL_PRC_PARENT, &Data.Rec.ParentID);
-	THROW_PP_S(!Data.Rec.ParentID || Data.Rec.ParentID != Data.Rec.ID, PPERR_PROCESSORSELFPAR, Data.Rec.Name); // @v7.7.7
+	THROW_PP_S(!Data.Rec.ParentID || Data.Rec.ParentID != Data.Rec.ID, PPERR_PROCESSORSELFPAR, Data.Rec.Name);
 	getCtrlData(sel = CTLSEL_PRC_LOC, &Data.Rec.LocID);
 	THROW_PP(Data.Rec.LocID, PPERR_LOCNEEDED);
 	getCtrlData(CTLSEL_PRC_WROFFOP, &Data.Rec.WrOffOpID);
@@ -1699,9 +1670,9 @@ int ProcessorDialog::getDTS(PPProcessorPacket * pData)
 		GetClusterData(CTL_PRC_PANE_FLAGS, &Data.Rec.Flags);
 		GetClusterData(CTL_PRC_FLAGS,      &Data.Rec.Flags);
 		getCtrlData(CTL_PRC_LABELCOUNT, &Data.Rec.LabelCount);
-		getCtrlData(CTL_PRC_CIPMAX, &Data.Rec.CipMax); // @v7.7.2
+		getCtrlData(CTL_PRC_CIPMAX, &Data.Rec.CipMax);
 		sel = CTL_PRC_LINKOBJ;
-		THROW_PP(!Data.Rec.LinkObjType || Data.Rec.LinkObjID, PPERR_LINKOBJNEEDED);
+		THROW_PP(oneof2(Data.Rec.LinkObjType, 0, PPOBJ_WSCTL) || Data.Rec.LinkObjID, PPERR_LINKOBJNEEDED);
 	}
 	else {
 		long   wr_off_dt_sel = 0;

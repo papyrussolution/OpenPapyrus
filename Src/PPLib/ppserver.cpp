@@ -1469,7 +1469,8 @@ public:
 			Reference * p_ref = PPRef;
 			PPIDArray prc_list;
 			p_ref->Ot.SearchObjectsByGuid(PPOBJ_PROCESSOR, PPTAG_PRC_UUID, rWsCtlUuid, &prc_list);
-			THROW(prc_list.getCount() > 0); // @todo @err ...и надо что-то сделать со случаем, когда prc_list.getCount() > 1
+			THROW_PP_S(prc_list.getCount(), PPERR_WSCTL_PRCBYUUIDNFOUND, SLS.AcquireRvlStr().Cat(rWsCtlUuid, S_GUID::fmtIDL));
+			THROW_PP_S(prc_list.getCount() == 1, PPERR_WSCTL_DUPPRCUUID, SLS.AcquireRvlStr().Cat(rWsCtlUuid, S_GUID::fmtIDL));
 			{
 				const PPID prc_id = prc_list.get(0);
 				ProcessorTbl::Rec prc_rec;
@@ -1606,6 +1607,7 @@ public:
 				TSesObj.InitPacket(&pack, TSESK_SESSION, prc_id, 0, TSESST_INPROCESS);
 				pack.OuterTimingPrice = amount_to_wroff;
 				pack.Rec.TechID = tec_id;
+				pack.Rec.SCardID = rBlk.SCardID; 
 				pack.Rec.StDt = now_dtm.d;
 				pack.Rec.StTm = now_dtm.t;
 				pack.Rec.PlannedQtty = (tec_rec.InitQtty > 0.0f) ? tec_rec.InitQtty : 1.0;
@@ -1767,10 +1769,10 @@ public:
 			sc_pack.GetExtStrData(PPSCardPacket::extssPassword, pw_buf);
 			if(rBlk.Pw.NotEmpty()) {
 				(temp_buf = rBlk.Pw).Transf(CTRANSF_UTF8_TO_INNER);
-				THROW(temp_buf == pw_buf); // @todo @err (неверный пароль)
+				THROW_PP(temp_buf == pw_buf, PPERR_INVUSERORPASSW);
 			}
 			else {
-				THROW(pw_buf.IsEmpty()); // @todo @err (неверный пароль)
+				THROW_PP(pw_buf.IsEmpty(), PPERR_INVUSERORPASSW);
 			}
 			ok = 1;
 		}
@@ -2961,6 +2963,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 	CmdRet ok = cmdretOK;
 	int    disable_err_reply = 0;
 	int    r = 0;
+	SJson * p_js_param = 0;
 	SString reply_buf, temp_buf, name, db_symb;
 	THROW(rReply.StartWriting());
 	switch(pEv->GetH().Type) {
@@ -3921,6 +3924,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 		case PPSCMD_WSCTL_AUTH: // @v11.7.1  WSCTL Авторизация клиента
 			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
 			{
+				const LDATETIME now_dtm = getcurdatetime_();
 				SString raw_text;
 				THROW(pEv->ReadLine(raw_text));
 				{
@@ -3929,26 +3933,88 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 					STempBuffer bin_buf(raw_text.Len()*3);
 					size_t actual_len = 0;
 					THROW_SL(raw_text.DecodeMime64(bin_buf, bin_buf.GetSize(), &actual_len));
+					SETIFZQ(P_WsCtlBlk, new WsCtlBlock());
+					temp_buf.Z().CatN(bin_buf.cptr(), actual_len);
+					THROW_SL(p_js_param = SJson::Parse(temp_buf));
+					THROW(_blk.FromJsonObj(p_js_param));
 					{
-						SETIFZQ(P_WsCtlBlk, new WsCtlBlock());
-						temp_buf.Z().CatN(bin_buf.cptr(), actual_len);
-						SJson * p_js_param = SJson::Parse(temp_buf);
-						THROW_SL(p_js_param);
-						if(_blk.FromJsonObj(p_js_param)) {
-							ZDELETE(p_js_param);
-							THROW(P_WsCtlBlk->Auth(_blk));
-							{
-								SJson js_reply(SJson::tOBJECT);
-								js_reply.InsertInt("scardid", _blk.SCardID);
-								js_reply.InsertInt("personid", _blk.PsnID);
-								js_reply.ToStr(temp_buf);
-								rReply.SetString(temp_buf);
-								ok = cmdretOK;
-							}
+						PPID   prc_id = 0;
+						PPID   tsess_id = 0;
+						TSessionTbl::Rec tsess_rec;
+						ProcessorTbl::Rec prc_rec;
+						THROW_PP(_blk.WsCtlUuid, PPERR_WSCTL_PROT_UNDEFMCHNUUID);
+						THROW(P_WsCtlBlk->SearchPrcByWsCtlUuid(_blk.WsCtlUuid, &prc_id, 0) > 0);
+						THROW(P_WsCtlBlk->TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0);
+						THROW(P_WsCtlBlk->Auth(_blk));
+						const int is_prc_busy_r = P_WsCtlBlk->TSesObj.IsProcessorBusy(prc_id, 0, TSESK_SESSION, now_dtm, 1/*1sec*/, &tsess_id);
+						THROW(is_prc_busy_r);
+						if(is_prc_busy_r > 0) {
+							THROW(P_WsCtlBlk->TSesObj.Search(tsess_id, &tsess_rec) > 0);
+							THROW_PP(tsess_rec.SCardID == _blk.SCardID, PPERR_WSCTL_PRCISBUSYBYANOTHEACC);
 						}
-						else {
-							ZDELETE(p_js_param);
-							ok = cmdretError;
+						{
+							SJson js_reply(SJson::tOBJECT);
+							js_reply.InsertInt("scardid", _blk.SCardID);
+							js_reply.InsertInt("personid", _blk.PsnID);
+							if(is_prc_busy_r > 0) {
+								STimeChunk tsess_tm_range;
+								TechTbl::Rec tech_rec;
+								assert(tsess_rec.SCardID == _blk.SCardID);
+								SJson * p_js_tsess = SJson::CreateObj();
+								p_js_tsess->InsertInt("tsessid", tsess_id);
+								if(P_WsCtlBlk->TSesObj.GetTech(tsess_rec.TechID, &tech_rec) > 0) {
+									p_js_tsess->InsertInt("techid", tech_rec.ID);
+									p_js_tsess->InsertInt("goodsid", tech_rec.GoodsID);
+								}
+								if(tsess_rec.SCardID) {
+									js_reply.InsertInt("scardid", tsess_rec.SCardID);
+								}
+								PPObjTSession::GetTimeRange(tsess_rec, tsess_tm_range);
+								p_js_tsess->InsertString("tm_start", temp_buf.Z().Cat(tsess_tm_range.Start, DATF_ISO8601CENT, 0));
+								p_js_tsess->InsertString("tm_finish", temp_buf.Z().Cat(tsess_tm_range.Finish, DATF_ISO8601CENT, 0));
+								js_reply.Insert("tsess", p_js_tsess);
+								p_js_tsess = 0;
+							}
+							js_reply.ToStr(temp_buf);
+							rReply.SetString(temp_buf);
+							ok = cmdretOK;
+						}
+					}
+				}
+			}
+			break;
+		case PPSCMD_WSCTL_LOGOUT: // @v11.7.7 WSCTL Выход из сеанса без завершения активной сессии (если таковая запущена)
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
+			{
+				SString raw_text;
+				THROW(pEv->ReadLine(raw_text));				
+				raw_text.Chomp().Strip();
+				{
+					STempBuffer bin_buf(raw_text.Len()*3);
+					size_t actual_len = 0;
+					THROW_SL(raw_text.DecodeMime64(bin_buf, bin_buf.GetSize(), &actual_len));
+					SETIFZQ(P_WsCtlBlk, new WsCtlBlock());
+					temp_buf.Z().CatN(bin_buf.cptr(), actual_len);
+					THROW_SL(p_js_param = SJson::Parse(temp_buf));
+					{
+						S_GUID ws_ctl_uuid;
+						PPID   scard_id = 0;
+						const SJson * p_c = 0;
+						p_c = p_js_param->FindChildByKey("wsctluuid");
+						if(SJson::IsString(p_c)) {
+							ws_ctl_uuid.FromStr(p_c->Text);
+						}
+						p_c = p_js_param->FindChildByKey("scardid");
+						if(SJson::IsNumber(p_c)) {
+							scard_id = p_c->Text.ToLong();
+						}
+						THROW_PP(!!ws_ctl_uuid && scard_id, PPERR_WSCTL_INVPARAM_LOGOUT);
+						{
+							SJson js_reply(SJson::tOBJECT);
+							js_reply.InsertString("wsctluuid", temp_buf.Z().Cat(ws_ctl_uuid, S_GUID::fmtIDL));
+							js_reply.ToStr(temp_buf);
+							rReply.SetString(temp_buf);
+							ok = cmdretOK;
 						}
 					}
 				}
@@ -3992,37 +4058,85 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 		case PPSCMD_WSCTL_TSESS: // @v11.7.7
 			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
 			{
-				PPID   prc_id = 0;
-				if(pEv->GetAvailableSize() >= sizeof(prc_id)) {
-					const LDATETIME now_dtm = getcurdatetime_();
-					PPID   tsess_id = 0;
-					TSessionTbl::Rec tsess_rec;
-					ProcessorTbl::Rec prc_rec;
-					TechTbl::Rec tech_rec;
-					pEv->Read(&prc_id, sizeof(prc_id));
+				SString raw_text;
+				if(pEv->ReadLine(raw_text)) {
+					raw_text.Chomp().Strip();
+					WsCtlBlock::StartSessBlock _blk;
+					STempBuffer bin_buf(raw_text.Len()*3);
+					size_t actual_len = 0;
+					THROW_SL(raw_text.DecodeMime64(bin_buf, bin_buf.GetSize(), &actual_len));
 					SETIFZQ(P_WsCtlBlk, new WsCtlBlock());
-					int    r = P_WsCtlBlk->TSesObj.IsProcessorBusy(prc_id, 0, TSESK_SESSION, now_dtm, 1/*1sec*/, &tsess_id);
-					THROW(r);
+					temp_buf.Z().CatN(bin_buf.cptr(), actual_len);
+					THROW_SL(p_js_param = SJson::Parse(temp_buf));
+					//
 					{
-						SJson js_reply(SJson::tOBJECT);
-						if(r > 0 && P_WsCtlBlk->TSesObj.Search(tsess_id, &tsess_rec) > 0) {
-							STimeChunk tsess_tm_range;
-							js_reply.InsertInt("tsessid", tsess_id);
-							if(P_WsCtlBlk->TSesObj.GetTech(tsess_rec.TechID, &tech_rec) > 0) {
-								js_reply.InsertInt("techid", tech_rec.ID);
-								js_reply.InsertInt("goodsid", tech_rec.GoodsID);
+						S_GUID ws_ctl_uuid;
+						PPID   param_prc_id = 0;
+						PPID   prc_id = 0;
+						PPID   tsess_id = 0;
+						//PPID   scard_id = 0;
+						const SJson * p_c = 0;
+						p_c = p_js_param->FindChildByKey("wsctluuid");
+						if(SJson::IsString(p_c)) {
+							ws_ctl_uuid.FromStr(p_c->Text);
+						}
+						p_c = p_js_param->FindChildByKey("prcid");
+						if(SJson::IsNumber(p_c)) {
+							param_prc_id = p_c->Text.ToLong();
+						}
+						p_c = p_js_param->FindChildByKey("tsessid");
+						if(SJson::IsNumber(p_c)) {
+							tsess_id = p_c->Text.ToLong();
+						}
+						THROW_PP(!!ws_ctl_uuid, PPERR_WSCTL_INVPARAM_LOGOUT);
+						{
+							const LDATETIME now_dtm = getcurdatetime_();
+							PPID   actual_tsess_id = 0;
+							TSessionTbl::Rec tsess_rec;
+							ProcessorTbl::Rec prc_rec;
+							TechTbl::Rec tech_rec;
+							SETIFZQ(P_WsCtlBlk, new WsCtlBlock());
+							THROW(P_WsCtlBlk->SearchPrcByWsCtlUuid(ws_ctl_uuid, &prc_id, 0) > 0);
+							THROW(P_WsCtlBlk->TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0);
+							int    r = P_WsCtlBlk->TSesObj.IsProcessorBusy(prc_id, 0, TSESK_SESSION, now_dtm, 1/*1sec*/, &actual_tsess_id);
+							THROW(r);
+							{
+								SJson js_reply(SJson::tOBJECT);
+								if(r > 0 && P_WsCtlBlk->TSesObj.Search(actual_tsess_id, &tsess_rec) > 0) {
+									STimeChunk tsess_tm_range;
+									js_reply.InsertInt("tsessid", tsess_rec.ID);
+									if(P_WsCtlBlk->TSesObj.GetTech(tsess_rec.TechID, &tech_rec) > 0) {
+										js_reply.InsertInt("techid", tech_rec.ID);
+										js_reply.InsertInt("goodsid", tech_rec.GoodsID);
+									}
+									if(tsess_rec.SCardID) {
+										js_reply.InsertInt("scardid", tsess_rec.SCardID);
+									}
+									PPObjTSession::GetTimeRange(tsess_rec, tsess_tm_range);
+									js_reply.InsertString("tm_start", temp_buf.Z().Cat(tsess_tm_range.Start, DATF_ISO8601CENT, 0));
+									js_reply.InsertString("tm_finish", temp_buf.Z().Cat(tsess_tm_range.Finish, DATF_ISO8601CENT, 0));
+								}
+								else {
+									if(tsess_id) {
+										// Если с параметрами нам передали ид сессии и она уже завершилась, то ее необходимо закрыть.
+										if(P_WsCtlBlk->TSesObj.Search(tsess_id, &tsess_rec) > 0 && tsess_rec.Status == TSESST_INPROCESS) {
+											// Номинальное время завершения не меняем поскольку запрос мог прийти позже 
+											// установленного времени!
+											//tsess_rec.FinDt = now_dtm.d;
+											//tsess_rec.FinTm = now_dtm.t;
+											tsess_rec.Status = TSESST_CLOSED;
+											THROW(P_WsCtlBlk->TSesObj.PutRec(&tsess_id, &tsess_rec, 1));
+										}
+									}
+									js_reply.InsertInt("tsessid", 0);
+								}
+								js_reply.ToStr(temp_buf);
+								rReply.SetString(temp_buf);
 							}
-							PPObjTSession::GetTimeRange(tsess_rec, tsess_tm_range);
-							js_reply.InsertString("tm_start", temp_buf.Z().Cat(tsess_tm_range.Start, DATF_ISO8601CENT, 0));
-							js_reply.InsertString("tm_finish", temp_buf.Z().Cat(tsess_tm_range.Finish, DATF_ISO8601CENT, 0));
+							ok = cmdretOK;
 						}
-						else {
-							js_reply.InsertInt("tsessid", 0);
-						}
-						js_reply.ToStr(temp_buf);
-						rReply.SetString(temp_buf);
 					}
-					ok = cmdretOK;
+
 				}
 			}
 			break;
@@ -4048,15 +4162,8 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 					THROW_SL(raw_text.DecodeMime64(bin_buf, bin_buf.GetSize(), &actual_len));
 					SETIFZQ(P_WsCtlBlk, new WsCtlBlock());
 					temp_buf.Z().CatN(bin_buf.cptr(), actual_len);
-					SJson * p_js_param = SJson::Parse(temp_buf);
-					THROW_SL(p_js_param);
-					if(!_blk.FromJsonObj(p_js_param)) {
-						ZDELETE(p_js_param);
-						CALLEXCEPT();
-					}
-					else {
-						ZDELETE(p_js_param);
-					}
+					THROW_SL(p_js_param = SJson::Parse(temp_buf));
+					THROW(_blk.FromJsonObj(p_js_param));
 					THROW(P_WsCtlBlk->StartSess(_blk));
 					{
 						SJson js_reply(SJson::tOBJECT);
@@ -4079,8 +4186,68 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			/*
 				{
 					sessid : id
+					wsctluuid : guid
 				}
 			*/
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
+			{
+				const LDATETIME now_dtm = getcurdatetime_();
+				SString raw_text;
+				if(pEv->ReadLine(raw_text)) {
+					raw_text.Chomp().Strip();
+					STempBuffer bin_buf(raw_text.Len()*3);
+					size_t actual_len = 0;
+					THROW_SL(raw_text.DecodeMime64(bin_buf, bin_buf.GetSize(), &actual_len));
+					SETIFZQ(P_WsCtlBlk, new WsCtlBlock());
+					temp_buf.Z().CatN(bin_buf.cptr(), actual_len);
+					THROW_SL(p_js_param = SJson::Parse(temp_buf));
+					{
+						S_GUID ws_ctl_uuid;
+						PPID   scard_id = 0;
+						PPID   tsess_id = 0;
+						const SJson * p_c = 0;
+						p_c = p_js_param->FindChildByKey("wsctluuid");
+						if(SJson::IsString(p_c)) {
+							ws_ctl_uuid.FromStr(p_c->Text);
+						}
+						p_c = p_js_param->FindChildByKey("scardid");
+						if(SJson::IsNumber(p_c)) {
+							scard_id = p_c->Text.ToLong();
+						}
+						p_c = p_js_param->FindChildByKey("tsessid");
+						if(SJson::IsNumber(p_c)) {
+							tsess_id = p_c->Text.ToLong();
+						}
+						THROW_PP(!!ws_ctl_uuid && scard_id && tsess_id, PPERR_WSCTL_INVPARAM_ENDSESS);
+						{
+							PPID   prc_id = 0;
+							PPID   actual_tsess_id = 0;
+							ProcessorTbl::Rec prc_rec;
+							TSessionTbl::Rec tsess_rec;
+							THROW(P_WsCtlBlk->SearchPrcByWsCtlUuid(ws_ctl_uuid, &prc_id, 0) > 0);
+							THROW(P_WsCtlBlk->TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0);
+							const int is_prc_busy_r = P_WsCtlBlk->TSesObj.IsProcessorBusy(prc_id, 0, TSESK_SESSION, now_dtm, 1/*1sec*/, &actual_tsess_id);
+							THROW(is_prc_busy_r);
+							THROW(is_prc_busy_r > 0); // @todo @err
+							THROW(actual_tsess_id == tsess_id); // @todo @err
+							THROW(P_WsCtlBlk->TSesObj.Search(tsess_id, &tsess_rec) > 0);
+							THROW_PP(tsess_rec.SCardID == scard_id, PPERR_WSCTL_PRCISBUSYBYANOTHEACC);
+							THROW(tsess_rec.Status == TSESST_INPROCESS); // @todo @err
+							tsess_rec.FinDt = now_dtm.d;
+							tsess_rec.FinTm = now_dtm.t;
+							tsess_rec.Status = TSESST_CLOSED;
+							THROW(P_WsCtlBlk->TSesObj.PutRec(&tsess_id, &tsess_rec, 1));
+							{
+								SJson js_reply(SJson::tOBJECT);
+								js_reply.InsertString("wsctluuid", temp_buf.Z().Cat(ws_ctl_uuid, S_GUID::fmtIDL));
+								js_reply.ToStr(temp_buf);
+								rReply.SetString(temp_buf);
+								ok = cmdretOK;
+							}
+						}
+					}
+				}
+			}
 			break;
 		/*
 		case PPSCMD_GETTSESSPLACESTATUS:
@@ -4112,6 +4279,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 	ENDCATCH
 	if(ok != cmdretResume)
 		rReply.FinishWriting();
+	delete p_js_param;
 	return ok;
 }
 //

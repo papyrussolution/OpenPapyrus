@@ -33,7 +33,7 @@
 	#include "png.h"
 #endif
 #if HAVE_LIBTIFF
-	#include "tiffio.h"
+	#include "..\slib\libtiff\tiffio.h"
 #endif
 #if HAVE_LIBZ
 	#include "zlib.h"

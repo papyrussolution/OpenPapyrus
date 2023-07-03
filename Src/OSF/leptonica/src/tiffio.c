@@ -98,8 +98,8 @@
 #if  HAVE_LIBTIFF   /* defined in environ.h */
 /* --------------------------------------------*/
 
-#include "tiff.h"
-#include "tiffio.h"
+#include "..\slib\libtiff\tiff.h"
+#include "..\slib\libtiff\tiffio.h"
 
 static const int32 DefaultResolution = 300;  /* ppi */
 static const int32 ManyPagesInTiffFile = 3000;   /* warn if big */

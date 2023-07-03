@@ -1670,7 +1670,7 @@
 #define EDIPARTYQ_SUPPLIER                    7
 #define EDIPARTYQ_WAREHOUSEKEEPER             8
 #define EDIPARTYQ_CONSIGNOR                   9
-#define EDIPARTYQ_CONSIGNER                   EDIPARTYQ_CONSIGNOR // @synonim
+#define EDIPARTYQ_CONSIGNER                   EDIPARTYQ_CONSIGNOR // @synonym
 #define EDIPARTYQ_CONSIGNEE                  10
 #define EDIPARTYQ_SELLER                     11
 #define EDIPARTYQ_PAYEE                      12
@@ -5504,7 +5504,7 @@
 	#define CTL_SELBBSMPL_LOC            (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SELBBSMPL_LOC         (5 + WINDOWS_ID_BIAS)
 	#define CTL_SELBBSMPL_FLAGS          (6 + WINDOWS_ID_BIAS)
-	#define CTL_SELBBSMPL_SAMECODE       (6 + WINDOWS_ID_BIAS) // @obsolete synonim of CTL_SELBBSMPL_FLAGS
+	#define CTL_SELBBSMPL_SAMECODE       (6 + WINDOWS_ID_BIAS) // @obsolete synonym of CTL_SELBBSMPL_FLAGS
 	#define CTL_SELBBSMPL_QK             (7 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SELBBSMPL_QK          (8 + WINDOWS_ID_BIAS)
 	#define CTL_SELBBSMPL_DT             (9 + WINDOWS_ID_BIAS)

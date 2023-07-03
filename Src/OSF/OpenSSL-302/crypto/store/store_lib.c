@@ -36,26 +36,19 @@ static int loader_set_params(OSSL_STORE_LOADER * loader, OSSL_STORE_LOADER_CTX *
 	}
 	if(propq) {
 		OSSL_PARAM propp[2];
-		if(OSSL_PARAM_locate_const(params,
-		    OSSL_STORE_PARAM_PROPERTIES) != NULL)
+		if(OSSL_PARAM_locate_const(params, OSSL_STORE_PARAM_PROPERTIES) != NULL)
 			/* use the propq from params */
 			return 1;
-
-		propp[0] = OSSL_PARAM_construct_utf8_string(OSSL_STORE_PARAM_PROPERTIES,
-			(char*)propq, 0);
+		propp[0] = OSSL_PARAM_construct_utf8_string(OSSL_STORE_PARAM_PROPERTIES, (char*)propq, 0);
 		propp[1] = OSSL_PARAM_construct_end();
-
 		if(!loader->p_set_ctx_params(loader_ctx, propp))
 			return 0;
 	}
 	return 1;
 }
 
-OSSL_STORE_CTX * OSSL_STORE_open_ex(const char * uri, OSSL_LIB_CTX * libctx, const char * propq,
-    const UI_METHOD * ui_method, void * ui_data,
-    const OSSL_PARAM params[],
-    OSSL_STORE_post_process_info_fn post_process,
-    void * post_process_data)
+OSSL_STORE_CTX * OSSL_STORE_open_ex(const char * uri, OSSL_LIB_CTX * libctx, const char * propq, const UI_METHOD * ui_method, void * ui_data,
+    const OSSL_PARAM params[], OSSL_STORE_post_process_info_fn post_process, void * post_process_data)
 {
 	const OSSL_STORE_LOADER * loader = NULL;
 	OSSL_STORE_LOADER * fetched_loader = NULL;
@@ -66,14 +59,12 @@ OSSL_STORE_CTX * OSSL_STORE_open_ex(const char * uri, OSSL_LIB_CTX * libctx, con
 	char scheme_copy[256], * p, * schemes[2], * scheme = NULL;
 	size_t schemes_n = 0;
 	size_t i;
-
 	/*
 	 * Put the file scheme first.  If the uri does represent an existing file,
 	 * possible device name and all, then it should be loaded.  Only a failed
 	 * attempt at loading a local file should have us try something else.
 	 */
 	schemes[schemes_n++] = "file";
-
 	/*
 	 * Now, check if we have something that looks like a scheme, and add it
 	 * as a second scheme.  However, also check if there's an authority start

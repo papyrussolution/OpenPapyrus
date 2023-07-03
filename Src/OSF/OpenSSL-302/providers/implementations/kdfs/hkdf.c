@@ -243,23 +243,15 @@ static int kdf_hkdf_set_ctx_params(void * vctx, const OSSL_PARAM params[])
 	KDF_HKDF * ctx = (KDF_HKDF *)vctx;
 	if(!params)
 		return 1;
-
 	if(!hkdf_common_set_ctx_params(ctx, params))
 		return 0;
-
 	/* The info fields concatenate, so process them all */
 	if((p = OSSL_PARAM_locate_const(params, OSSL_KDF_PARAM_INFO)) != NULL) {
 		ctx->info_len = 0;
-		for(; p != NULL; p = OSSL_PARAM_locate_const(p + 1,
-		    OSSL_KDF_PARAM_INFO)) {
+		for(; p != NULL; p = OSSL_PARAM_locate_const(p + 1, OSSL_KDF_PARAM_INFO)) {
 			const void * q = ctx->info + ctx->info_len;
 			size_t sz = 0;
-
-			if(p->data_size != 0
-			    && p->data != NULL
-			    && !OSSL_PARAM_get_octet_string(p, (void**)&q,
-			    HKDF_MAXBUF - ctx->info_len,
-			    &sz))
+			if(p->data_size != 0 && p->data != NULL && !OSSL_PARAM_get_octet_string(p, (void**)&q, HKDF_MAXBUF - ctx->info_len, &sz))
 				return 0;
 			ctx->info_len += sz;
 		}
@@ -267,8 +259,7 @@ static int kdf_hkdf_set_ctx_params(void * vctx, const OSSL_PARAM params[])
 	return 1;
 }
 
-static const OSSL_PARAM * kdf_hkdf_settable_ctx_params(ossl_unused void * ctx,
-    ossl_unused void * provctx)
+static const OSSL_PARAM * kdf_hkdf_settable_ctx_params(ossl_unused void * ctx, ossl_unused void * provctx)
 {
 	static const OSSL_PARAM known_settable_ctx_params[] = {
 		HKDF_COMMON_SETTABLES,
@@ -282,10 +273,8 @@ static int kdf_hkdf_get_ctx_params(void * vctx, OSSL_PARAM params[])
 {
 	KDF_HKDF * ctx = (KDF_HKDF*)vctx;
 	OSSL_PARAM * p;
-
 	if((p = OSSL_PARAM_locate(params, OSSL_KDF_PARAM_SIZE)) != NULL) {
 		size_t sz = kdf_hkdf_size(ctx);
-
 		if(sz == 0)
 			return 0;
 		return OSSL_PARAM_set_size_t(p, sz);
@@ -293,8 +282,7 @@ static int kdf_hkdf_get_ctx_params(void * vctx, OSSL_PARAM params[])
 	return -2;
 }
 
-static const OSSL_PARAM * kdf_hkdf_gettable_ctx_params(ossl_unused void * ctx,
-    ossl_unused void * provctx)
+static const OSSL_PARAM * kdf_hkdf_gettable_ctx_params(ossl_unused void * ctx, ossl_unused void * provctx)
 {
 	static const OSSL_PARAM known_gettable_ctx_params[] = {
 		OSSL_PARAM_size_t(OSSL_KDF_PARAM_SIZE, NULL),
@@ -308,11 +296,9 @@ const OSSL_DISPATCH ossl_kdf_hkdf_functions[] = {
 	{ OSSL_FUNC_KDF_FREECTX, (void (*)(void))kdf_hkdf_free },
 	{ OSSL_FUNC_KDF_RESET, (void (*)(void))kdf_hkdf_reset },
 	{ OSSL_FUNC_KDF_DERIVE, (void (*)(void))kdf_hkdf_derive },
-	{ OSSL_FUNC_KDF_SETTABLE_CTX_PARAMS,
-	  (void (*)(void))kdf_hkdf_settable_ctx_params },
+	{ OSSL_FUNC_KDF_SETTABLE_CTX_PARAMS, (void (*)(void))kdf_hkdf_settable_ctx_params },
 	{ OSSL_FUNC_KDF_SET_CTX_PARAMS, (void (*)(void))kdf_hkdf_set_ctx_params },
-	{ OSSL_FUNC_KDF_GETTABLE_CTX_PARAMS,
-	  (void (*)(void))kdf_hkdf_gettable_ctx_params },
+	{ OSSL_FUNC_KDF_GETTABLE_CTX_PARAMS, (void (*)(void))kdf_hkdf_gettable_ctx_params },
 	{ OSSL_FUNC_KDF_GET_CTX_PARAMS, (void (*)(void))kdf_hkdf_get_ctx_params },
 	{ 0, NULL }
 };
@@ -342,26 +328,19 @@ const OSSL_DISPATCH ossl_kdf_hkdf_functions[] = {
  *   2.3.  Step 2: Expand
  *     HKDF-Expand(PRK, info, L) -> OKM
  */
-static int HKDF(OSSL_LIB_CTX * libctx, const EVP_MD * evp_md,
-    const unsigned char * salt, size_t salt_len,
-    const unsigned char * ikm, size_t ikm_len,
-    const unsigned char * info, size_t info_len,
-    unsigned char * okm, size_t okm_len)
+static int HKDF(OSSL_LIB_CTX * libctx, const EVP_MD * evp_md, const unsigned char * salt, size_t salt_len,
+    const unsigned char * ikm, size_t ikm_len, const unsigned char * info, size_t info_len, unsigned char * okm, size_t okm_len)
 {
 	unsigned char prk[EVP_MAX_MD_SIZE];
-	int ret, sz;
+	int ret;
 	size_t prk_len;
-
-	sz = EVP_MD_get_size(evp_md);
+	int sz = EVP_MD_get_size(evp_md);
 	if(sz < 0)
 		return 0;
 	prk_len = (size_t)sz;
-
 	/* Step 1: HKDF-Extract(salt, IKM) -> PRK */
-	if(!HKDF_Extract(libctx, evp_md,
-	    salt, salt_len, ikm, ikm_len, prk, prk_len))
+	if(!HKDF_Extract(libctx, evp_md, salt, salt_len, ikm, ikm_len, prk, prk_len))
 		return 0;
-
 	/* Step 2: HKDF-Expand(PRK, info, L) -> OKM */
 	ret = HKDF_Expand(evp_md, prk, prk_len, info, info_len, okm, okm_len);
 	OPENSSL_cleanse(prk, sizeof(prk));

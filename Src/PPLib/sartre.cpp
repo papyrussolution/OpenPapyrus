@@ -1494,7 +1494,9 @@ int SrUedContainer::ReplaceSurrogateLocaleIds(const SymbHashTable & rT, PPLogger
 			{
 				uint64 locale_id = SearchBaseSymb(locale_buf, LinguaLocusMeta);
 				if(!locale_id) {
-					ok = PPSetError(PPERR_UED_SYMBFORMETANOTFOUND, temp_buf.Z().Cat(locale_buf).Space().Cat("->").Space().CatHex(LinguaLocusMeta));
+					ok = PPSetError(PPERR_UED_SYMBFORMETANOTFOUND, 
+						temp_buf.Z().Cat("line").CatDiv(':', 2).Cat(r_e.LineNo).Space().
+						Cat(locale_buf).Space().Cat("->").Space().CatHex(LinguaLocusMeta));
 					if(pLogger)
 						pLogger->LogLastError();
 					else
@@ -1503,7 +1505,9 @@ int SrUedContainer::ReplaceSurrogateLocaleIds(const SymbHashTable & rT, PPLogger
 				else {
 					const bool btm_result = UED::BelongToMeta(locale_id, LinguaLocusMeta);
 					if(!btm_result) {
-						ok = PPSetError(PPERR_UED_VALUENOTBELONGTOMETA, temp_buf.Z().CatHex(locale_id).Space().Cat("->").Space().CatHex(LinguaLocusMeta));
+						ok = PPSetError(PPERR_UED_VALUENOTBELONGTOMETA, 
+							temp_buf.Z().Cat("line").CatDiv(':', 2).Cat(r_e.LineNo).Space().
+							CatHex(locale_id).Space().Cat("->").Space().CatHex(LinguaLocusMeta));
 						if(pLogger)
 							pLogger->LogLastError();
 						else
@@ -1522,6 +1526,7 @@ int SrUedContainer::ReplaceSurrogateLocaleIds(const SymbHashTable & rT, PPLogger
 int SrUedContainer::ReadSource(const char * pFileName, PPLogger * pLogger)
 {
 	int    ok = 1;
+	uint   line_no = 0;
 	SString line_buf;
 	SString temp_buf;
 	SString lang_buf;
@@ -1534,6 +1539,9 @@ int SrUedContainer::ReadSource(const char * pFileName, PPLogger * pLogger)
 	SFile f_in(pFileName, SFile::mRead);
 	THROW(f_in.IsValid());
 	while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+		line_no++;
+		while(line_buf.C(0) == '\t')
+			line_buf.ShiftLeft();
 		if(line_buf.HasPrefix("//")) {
 			; // comment
 		}
@@ -1619,6 +1627,7 @@ int SrUedContainer::ReadSource(const char * pFileName, PPLogger * pLogger)
 								}
 							}
 							BaseEntry new_entry;
+							new_entry.LineNo = line_no; // @v11.7.8
 							new_entry.Id = id;
 							uint   symb_hash_id = 0;
 							if(!Ht.Search(text_buf, &symb_hash_id, 0)) {
@@ -1632,6 +1641,7 @@ int SrUedContainer::ReadSource(const char * pFileName, PPLogger * pLogger)
 						else if(ssc == 3) {
 							if(lang_id) {
 								TextEntry new_entry;
+								new_entry.LineNo = line_no; // @v11.7.8
 								new_entry.Id = id;
 								new_entry.Locale = lang_id;
 								AddS(text_buf, &new_entry.TextP);

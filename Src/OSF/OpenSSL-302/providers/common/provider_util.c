@@ -35,10 +35,10 @@ void ossl_prov_cipher_reset(PROV_CIPHER * pc)
 
 int ossl_prov_cipher_copy(PROV_CIPHER * dst, const PROV_CIPHER * src)
 {
-	if(src->alloc_cipher != NULL && !EVP_CIPHER_up_ref(src->alloc_cipher))
+	if(src->alloc_cipher && !EVP_CIPHER_up_ref(src->alloc_cipher))
 		return 0;
 #if !defined(FIPS_MODULE) && !defined(OPENSSL_NO_ENGINE)
-	if(src->engine != NULL && !ENGINE_init(src->engine)) {
+	if(src->engine && !ENGINE_init(src->engine)) {
 		EVP_CIPHER_free(src->alloc_cipher);
 		return 0;
 	}
@@ -87,25 +87,19 @@ static int load_common(const OSSL_PARAM params[], const char ** propquery, ENGIN
 	return 1;
 }
 
-int ossl_prov_cipher_load_from_params(PROV_CIPHER * pc,
-    const OSSL_PARAM params[],
-    OSSL_LIB_CTX * ctx)
+int ossl_prov_cipher_load_from_params(PROV_CIPHER * pc, const OSSL_PARAM params[], OSSL_LIB_CTX * ctx)
 {
 	const OSSL_PARAM * p;
 	const char * propquery;
-
 	if(!params)
 		return 1;
-
 	if(!load_common(params, &propquery, &pc->engine))
 		return 0;
-
 	p = OSSL_PARAM_locate_const(params, OSSL_ALG_PARAM_CIPHER);
 	if(!p)
 		return 1;
 	if(p->data_type != OSSL_PARAM_UTF8_STRING)
 		return 0;
-
 	EVP_CIPHER_free(pc->alloc_cipher);
 	ERR_set_mark();
 	pc->cipher = pc->alloc_cipher = EVP_CIPHER_fetch(ctx, (const char *)p->data, propquery);
@@ -118,22 +112,15 @@ int ossl_prov_cipher_load_from_params(PROV_CIPHER * pc,
 			pc->cipher = cipher;
 	}
 #endif
-	if(pc->cipher != NULL)
+	if(pc->cipher)
 		ERR_pop_to_mark();
 	else
 		ERR_clear_last_mark();
 	return pc->cipher != NULL;
 }
 
-const EVP_CIPHER * ossl_prov_cipher_cipher(const PROV_CIPHER * pc)
-{
-	return pc->cipher;
-}
-
-ENGINE * ossl_prov_cipher_engine(const PROV_CIPHER * pc)
-{
-	return pc->engine;
-}
+const EVP_CIPHER * ossl_prov_cipher_cipher(const PROV_CIPHER * pc) { return pc->cipher; }
+ENGINE * ossl_prov_cipher_engine(const PROV_CIPHER * pc) { return pc->engine; }
 
 void ossl_prov_digest_reset(PROV_DIGEST * pd)
 {
@@ -200,40 +187,24 @@ int ossl_prov_digest_load_from_params(PROV_DIGEST * pd, const OSSL_PARAM params[
 	return pd->md != NULL;
 }
 
-const EVP_MD * ossl_prov_digest_md(const PROV_DIGEST * pd)
-{
-	return pd->md;
-}
+const EVP_MD * ossl_prov_digest_md(const PROV_DIGEST * pd) { return pd->md; }
+ENGINE * ossl_prov_digest_engine(const PROV_DIGEST * pd) { return pd->engine; }
 
-ENGINE * ossl_prov_digest_engine(const PROV_DIGEST * pd)
-{
-	return pd->engine;
-}
-
-int ossl_prov_set_macctx(EVP_MAC_CTX * macctx,
-    const OSSL_PARAM params[],
-    const char * ciphername,
-    const char * mdname,
-    const char * engine,
-    const char * properties,
-    const unsigned char * key,
-    size_t keylen)
+int ossl_prov_set_macctx(EVP_MAC_CTX * macctx, const OSSL_PARAM params[], const char * ciphername, const char * mdname,
+    const char * engine, const char * properties, const unsigned char * key, size_t keylen)
 {
 	const OSSL_PARAM * p;
 	OSSL_PARAM mac_params[6], * mp = mac_params;
-
 	if(params) {
 		if(mdname == NULL) {
-			if((p = OSSL_PARAM_locate_const(params,
-			    OSSL_ALG_PARAM_DIGEST)) != NULL) {
+			if((p = OSSL_PARAM_locate_const(params, OSSL_ALG_PARAM_DIGEST)) != NULL) {
 				if(p->data_type != OSSL_PARAM_UTF8_STRING)
 					return 0;
 				mdname = (const char *)p->data;
 			}
 		}
 		if(ciphername == NULL) {
-			if((p = OSSL_PARAM_locate_const(params,
-			    OSSL_ALG_PARAM_CIPHER)) != NULL) {
+			if((p = OSSL_PARAM_locate_const(params, OSSL_ALG_PARAM_CIPHER)) != NULL) {
 				if(p->data_type != OSSL_PARAM_UTF8_STRING)
 					return 0;
 				ciphername = (const char *)p->data;
@@ -279,17 +250,14 @@ int ossl_prov_macctx_load_from_params(EVP_MAC_CTX ** macctx,
 			return 0;
 		macname = (const char *)p->data;
 	}
-	if((p = OSSL_PARAM_locate_const(params,
-	    OSSL_ALG_PARAM_PROPERTIES)) != NULL) {
+	if((p = OSSL_PARAM_locate_const(params, OSSL_ALG_PARAM_PROPERTIES)) != NULL) {
 		if(p->data_type != OSSL_PARAM_UTF8_STRING)
 			return 0;
 		properties = (const char *)p->data;
 	}
-
 	/* If we got a new mac name, we make a new EVP_MAC_CTX */
-	if(macname != NULL) {
+	if(macname) {
 		EVP_MAC * mac = EVP_MAC_fetch(libctx, macname, properties);
-
 		EVP_MAC_CTX_free(*macctx);
 		*macctx = mac == NULL ? NULL : EVP_MAC_CTX_new(mac);
 		/* The context holds on to the MAC */

@@ -16,7 +16,7 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_util.c 201098 2009-12-28 02:58:14Z kientzle $");
 #ifdef HAVE_LZ4_H
-	#include <lz4.h>
+	#include <..\slib\lz4\lz4.h>
 #endif
 #ifdef HAVE_ZSTD_H
 	#include <..\osf\zstd\lib\include\zstd.h>

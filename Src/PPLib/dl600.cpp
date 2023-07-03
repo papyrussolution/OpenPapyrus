@@ -6,7 +6,7 @@
 //
 //
 //
-DlFunc::DlFunc() : ArgNamList("/&"), ArgList(sizeof(DlFunc::Arg)), TypID(0), Flags(0), Pad(0), ImplID(0)
+DlFunc::DlFunc() : ArgNamList("/&"), ArgList(sizeof(DlFunc::Arg)), TypID(0), Flags(0), ImplID(0)
 {
 	ArgNamList.add("$"); // zero index - undefined name
 }
@@ -59,7 +59,7 @@ void DlFunc::AddArg(uint typeId, const char * pName, uint argFlags)
 	arg.TypID = typeId;
 	arg.Flags = (uint16)argFlags;
 	arg.NamePos = 0;
-	if(pName && pName[0])
+	if(!isempty(pName))
 		ArgNamList.add(pName, &arg.NamePos);
 	ArgList.insert(&arg);
 }

@@ -835,9 +835,6 @@
     <ResourceCompile Include="..\OSF\mupdf\platform\x11\win_res.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="bzip2.vcxproj">
-      <Project>{bd776450-1675-4703-bfd3-2517b5a45da8}</Project>
-    </ProjectReference>
     <ProjectReference Include="freetype.vcxproj">
       <Project>{d7c20ac1-2566-446f-b49a-598fe7a67094}</Project>
     </ProjectReference>
@@ -855,9 +852,6 @@
     </ProjectReference>
     <ProjectReference Include="libjpeg.vcxproj">
       <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
-    </ProjectReference>
-    <ProjectReference Include="libpng.vcxproj">
-      <Project>{04aa636d-9d3e-4e79-9c2e-b8d0470719da}</Project>
     </ProjectReference>
     <ProjectReference Include="libresources.vcxproj">
       <Project>{52dcab29-c8ee-4422-954c-29afa6b33e22}</Project>

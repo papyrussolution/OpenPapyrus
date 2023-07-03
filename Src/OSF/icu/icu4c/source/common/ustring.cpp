@@ -65,7 +65,6 @@ U_CAPI char16_t * U_EXPORT2 u_strFindFirst(const char16_t * s, int32_t length, c
 			/* the substring consists of a single, non-surrogate BMP code point */
 			return u_strchr(s, cs);
 		}
-
 		while((c = *s++)!=0) {
 			if(c==cs) {
 				/* found first substring char16_t, compare rest */
@@ -183,18 +182,19 @@ U_CAPI char16_t * U_EXPORT2 u_strFindFirst(const char16_t * s, int32_t length, c
 	return NULL;
 }
 
-U_CAPI char16_t * U_EXPORT2 u_strstr(const char16_t * s, const char16_t * substring) {
+U_CAPI char16_t * U_EXPORT2 u_strstr(const char16_t * s, const char16_t * substring) 
+{
 	return u_strFindFirst(s, -1, substring, -1);
 }
 
-U_CAPI char16_t * U_EXPORT2 u_strchr(const char16_t * s, char16_t c) {
+U_CAPI char16_t * U_EXPORT2 u_strchr(const char16_t * s, char16_t c) 
+{
 	if(U16_IS_SURROGATE(c)) {
 		/* make sure to not find half of a surrogate pair */
 		return u_strFindFirst(s, -1, &c, 1);
 	}
 	else {
 		char16_t cs;
-
 		/* trivial search for a BMP code point */
 		for(;;) {
 			if((cs = *s)==c) {

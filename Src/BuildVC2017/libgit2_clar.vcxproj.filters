@@ -1,24 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\osf\libgit2-1.1.1\tests\main.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clar_libgit2.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clar_libgit2_trace.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clar_libgit2_timer.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clar.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\osf\libgit2-1.1.1\tests\precompiled.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\apply_helpers.c">
       <Filter>tests\apply</Filter>
     </ClCompile>
@@ -1237,6 +1219,12 @@
     <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\worktree_helpers.c">
       <Filter>tests\worktree</Filter>
     </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clar.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clar_libgit2.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clar_libgit2_timer.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clar_libgit2_trace.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\main.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\precompiled.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\osf\libgit2-1.1.1\tests\apply\apply_helpers.h">
@@ -1358,9 +1346,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{06A2C3BE-53E3-3F34-A2B9-05DCA34201B3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="tests">
       <UniqueIdentifier>{5BBA7411-E886-354B-9792-A38F6F318D92}</UniqueIdentifier>
     </Filter>

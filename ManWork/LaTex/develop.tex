@@ -1335,6 +1335,17 @@ Agner Fog (www.agner.org).
 	};	
 \end{lstlisting}
 
+\subsection{Функция smemchr}
+
+\begin{lstlisting}
+	const void * smemchr(const void * pHaystack, int n, size_t len);
+\end{lstlisting}
+
+Функция smemchr следует использовать вместо memchr. Единственным обоснованием этого
+является то, что smemchr значительно быстрее нежели memchr.
+
+Тестирование и бенчмаркинг функции реализованы в тестовом кейсе SLTEST\_R(memchr).
+
 \section{Функции для работы со строками}
 
 В этой секции мы обсудим ряд часто используемых функций для манипуляции с z-строками (то есть,
@@ -1346,15 +1357,6 @@ Agner Fog (www.agner.org).
 \begin{lstlisting}
 	char   str[64];
 	str[0] = 0;
-\end{lstlisting}
-
-В случае, если участок памяти выделенный по указатель на z-строку гарантированно больше или равен
-4 байтам, мы используем небольшую модификацию, которая номинально работает быстрее (фактически, разницу
-никто не заметит).
-
-\begin{lstlisting}
-	char   str[64];
-	PTR32(str)[0] = 0;
 \end{lstlisting}
 
 \subsection{Определение длины строки}
@@ -1404,7 +1406,7 @@ size\_t. Это сделано из-за того что во многих случаях требуется получить именно 
 
 \subsection{Копирование строк}
 
-\subsubsection{sstrcpy}
+\subsection{sstrcpy}
 Несмотря на то, что очевидным решением для копирования одной z-строки в другую является
 стандартная функция strcpy, мы чаще всего применяем собственную реализации sstrcpy().
 
@@ -1415,7 +1417,7 @@ size\_t. Это сделано из-за того что во многих случаях требуется получить именно 
 Вместе с вышесказанным следует отметить, что sstrcpy сильно уступает стандартной strcpy по
 быстродействию из-за того, что компилятор превосходно оптимизирует вызовы strcpy.
 
-\subsubsection{strnzcpy}
+\subsection{strnzcpy}
 
 \begin{lstlisting}
 	char * FASTCALL strnzcpy(char * pDest, const char * pSrc, size_t maxlen);
@@ -1435,8 +1437,60 @@ size\_t. Это сделано из-за того что во многих случаях требуется получить именно 
 Вариант strnzcpy(char *, const SString \&, size\_t) реализован ради унификации в случае,
 если источником данных является экземпляр основного высокоуровневого класса представления строк SString.
 
-\subsubsection{Сравнение строк}
+\subsection{Точное сравнение строк}
 
+\begin{lstlisting}
+	bool   FASTCALL sstreq(const char * pS1, const char * pS2);
+	bool   FASTCALL sstreq(const uchar * pS1, const uchar * pS2);
+	bool   FASTCALL sstreq(const uchar * pS1, const char * pS2);
+	bool   FASTCALL sstreq(const wchar_t * pS1, const wchar_t * pS2);	
+	bool   STDCALL  sstrneq(const char * pS1, const char * pS2, uint len);
+	bool   STDCALL  sstrneq(const uchar * pS1, const uchar * pS2, uint len);
+\end{lstlisting}
+
+Функции с сигнатурой sstreq сравнивают две строки на равенство. 
+Они используются для замены часто применяемой конструкции, в которой
+результат вызова strcmp сравнивается с нулем. 
+
+То есть:
+\begin{lstlisting}
+	// Вместо
+	if(strcmp(s1, s2) == 0) {
+	}
+
+	// Следует использовать 
+	if(sstreq(s1, s2)) {
+	}
+\end{lstlisting}
+
+Кроме сокращения кода функции sstreq применимы к аргументам типа
+const unsigned char *, const wchar\_t * и к смешанной паре (const char *, const unsigned char *).
+
+Функции с сигнатурой sstrneq применяются в случае, если необходимо проверить
+равенство префиксов двух строк заданной длины.
+
+\subsection{Cравнение строк без учета регистра символов}
+
+\begin{lstlisting}
+	bool   FASTCALL sstreqi_ascii(const char * pS1, const char * pS2);
+	bool   FASTCALL sstreqi_ascii(const uchar * pS1, const uchar * pS2);
+	bool   FASTCALL sstreqi_ascii(const wchar_t * pS1, const wchar_t * pS2);
+	bool   FASTCALL sstreqi_ascii(const wchar_t * pS1, const char * pS2);	
+	bool   STDCALL  sstreqni_ascii(const char * pS1, const char * pS2, size_t maxlen);	
+\end{lstlisting}
+
+Функции с сигнатурой sstreqi\_ascii применяются для проверки эквивалентности двух
+строк с игнорированием разницы в регистрах символов, но только для ascii-символов (до 0x7f включительно).
+
+Самый частый паттерн использования этих функций - сравнение некоторой переменной
+строки с константным строковым литералом. Поскольку по коду обычно видно что
+литерал ограничен только ascii-символами.
+
+Например:
+\begin{lstlisting}
+	if(sstreqi_ascii(s, "Some string with a Mixed Case")) {
+	}
+\end{lstlisting}
 
 \chapter{Базовые типы данных}
 
@@ -1640,6 +1694,27 @@ size\_t. Это сделано из-за того что во многих случаях требуется получить именно 
 написанных на разных языках программирования может оказаться существенным
 выбор типов данных. 
 
+\section{\qu{Плоские} байтовые отрезки фиксированной длины}
+
+Для операций с бинарными отрезками фиксированной длины, которые не
+должны трактоваться как целочисленные переменным, используется 
+шаблонизированный тип
+
+\begin{lstlisting}
+	template <size_t BYTESIZE> class TSBinary;
+\end{lstlisting}
+
+Самое очевидное применение таких отрезков: результаты работы хэш-функций.
+Собственно, в рамках нашей работы, они пока только для этого и используются.
+
+Несколько предопределенных типов в парадигме TSBinary: 
+\begin{lstlisting}
+	typedef TSBinary <16> binary128;
+	typedef TSBinary <20> binary160;
+	typedef TSBinary <32> binary256;
+	typedef TSBinary <64> binary512;
+\end{lstlisting}
+
 \section{Типы для представления нецелых чисел}
 
 \subsection{Классификация}
@@ -1819,7 +1894,7 @@ size\_t. Это сделано из-за того что во многих случаях требуется получить именно 
 	\item[SPoint3F] 3-х мерная точка с представлением каждой из ортогональных координат
 	в формате float.	
 	\item[TRect] 2-х мерный прямоугольник, представленный границами в виде левого верхнего
-	и правого нижнего углов. В качестве координат углом использует SPoint2S.
+	и правого нижнего углов. В качестве координат углов использует SPoint2S.
 	
 	Иногда, кроме прямого назначения, используется для представления полей и отступов по
 	четырем направлениям.

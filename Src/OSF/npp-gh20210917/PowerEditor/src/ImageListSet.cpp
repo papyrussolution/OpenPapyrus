@@ -111,7 +111,7 @@ void ToolBarIcons::reInit(int size)
 		if(i._hIcon_DM) {
 			hIcon = i._hIcon_DM;
 		}
-		else{
+		else {
 			ICONINFO iconinfoSrc;
 			GetIconInfo(i._hIcon, &iconinfoSrc);
 			HDC dcScreen = ::GetDC(NULL);
@@ -120,7 +120,7 @@ void ToolBarIcons::reInit(int size)
 			if(!nbByteBmp) {
 				hIcon = i._hIcon;
 			}
-			else{
+			else {
 				BITMAPINFOHEADER bi = { 0 };
 				bi.biSize = sizeof(BITMAPINFOHEADER);
 				bi.biWidth = bmp.bmWidth;

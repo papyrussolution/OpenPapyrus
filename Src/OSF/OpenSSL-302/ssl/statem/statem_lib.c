@@ -1277,7 +1277,7 @@ int tls_get_message_body(SSL * s, size_t * len)
 	int i;
 	if(s->s3.tmp.message_type == SSL3_MT_CHANGE_CIPHER_SPEC) {
 		/* We've already read everything in */
-		*len = (unsigned long)s->init_num;
+		*len = (ulong)s->init_num;
 		return 1;
 	}
 	p = (uchar *)s->init_msg;

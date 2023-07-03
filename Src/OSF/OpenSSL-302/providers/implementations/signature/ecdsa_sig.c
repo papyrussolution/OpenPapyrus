@@ -460,38 +460,29 @@ static int ecdsa_set_ctx_params(void * vctx, const OSSL_PARAM params[])
 		return 0;
 	if(!params)
 		return 1;
-
 #if !defined(OPENSSL_NO_ACVP_TESTS)
 	p = OSSL_PARAM_locate_const(params, OSSL_SIGNATURE_PARAM_KAT);
 	if(p && !OSSL_PARAM_get_uint(p, &ctx->kattest))
 		return 0;
 #endif
-
 	p = OSSL_PARAM_locate_const(params, OSSL_SIGNATURE_PARAM_DIGEST);
 	if(p) {
 		char mdname[OSSL_MAX_NAME_SIZE] = "", * pmdname = mdname;
 		char mdprops[OSSL_MAX_PROPQUERY_SIZE] = "", * pmdprops = mdprops;
-		const OSSL_PARAM * propsp =
-		    OSSL_PARAM_locate_const(params,
-			OSSL_SIGNATURE_PARAM_PROPERTIES);
-
+		const OSSL_PARAM * propsp = OSSL_PARAM_locate_const(params, OSSL_SIGNATURE_PARAM_PROPERTIES);
 		if(!OSSL_PARAM_get_utf8_string(p, &pmdname, sizeof(mdname)))
 			return 0;
-		if(propsp != NULL
-		    && !OSSL_PARAM_get_utf8_string(propsp, &pmdprops, sizeof(mdprops)))
+		if(propsp != NULL && !OSSL_PARAM_get_utf8_string(propsp, &pmdprops, sizeof(mdprops)))
 			return 0;
 		if(!ecdsa_setup_md(ctx, mdname, mdprops))
 			return 0;
 	}
-
 	p = OSSL_PARAM_locate_const(params, OSSL_SIGNATURE_PARAM_DIGEST_SIZE);
 	if(p) {
-		if(!OSSL_PARAM_get_size_t(p, &mdsize)
-		    || (!ctx->flag_allow_md && mdsize != ctx->mdsize))
+		if(!OSSL_PARAM_get_size_t(p, &mdsize) || (!ctx->flag_allow_md && mdsize != ctx->mdsize))
 			return 0;
 		ctx->mdsize = mdsize;
 	}
-
 	return 1;
 }
 

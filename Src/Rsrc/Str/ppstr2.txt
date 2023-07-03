@@ -2300,6 +2300,12 @@ PPERR_INVALIDCCDATE2MAXIDINDEX      "Ошибка в индексе ccdate2maxid
 PPERR_WSCTL_UNABLERECOGNLOGIN       "Не удалось идентифицировать строку авторизации ни как телефон, ни как номер аккаунта, ни как имя владельца"
 PPERR_WSCTL_NAMENOTLINKEDWITHSC     "Имя владельца аккаунта, введенное для авторизации, не сопоставлено ни с одним из аккаунтов"
 PPERR_WSCTL_ACCPSNKINDUNDEF         "Не удалось определить вид персоналий-клиентов для идентификации аккаунта по имени"
+PPERR_WSCTL_PRCBYUUIDNFOUND         "Процессор, соответствующий компьютеру по заданному UUID (%s) не найден"
+PPERR_WSCTL_DUPPRCUUID              "Существует более одного процессора с заданным UUID (%s)"
+PPERR_WSCTL_PROT_UNDEFMCHNUUID      "В параметрах команды не задан идентификатор компьютера"
+PPERR_WSCTL_PRCISBUSYBYANOTHEACC    "В настоящее время процессор занят другим аккаунтом"
+PPERR_WSCTL_INVPARAM_LOGOUT         "Недопустимые параметры в команде WSCTL_LOGOUT"
+PPERR_WSCTL_INVPARAM_ENDSESS        "Недопустимые параметры в команде WSCTL_END_SESS"
 // LastError
 
 [102] // confirmation

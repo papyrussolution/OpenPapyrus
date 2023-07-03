@@ -175,21 +175,15 @@ static bool getString(const UResourceBundle * resource,
 }
 
 static UnicodeString loadNumericDateFormatterPattern(const UResourceBundle * resource,
-    const char * pattern,
-    UErrorCode & status) {
+    const char * pattern, UErrorCode & status) 
+{
 	UnicodeString result;
 	if(U_FAILURE(status)) {
 		return result;
 	}
 	CharString chs;
-	chs.append("durationUnits", status)
-	.append("/", status).append(pattern, status);
-	LocalUResourceBundlePointer patternBundle(
-		ures_getByKeyWithFallback(
-			resource,
-			chs.data(),
-			NULL,
-			&status));
+	chs.append("durationUnits", status).append("/", status).append(pattern, status);
+	LocalUResourceBundlePointer patternBundle(ures_getByKeyWithFallback(resource, chs.data(), NULL, &status));
 	if(U_FAILURE(status)) {
 		return result;
 	}
@@ -206,8 +200,8 @@ static UnicodeString loadNumericDateFormatterPattern(const UResourceBundle * res
 	return result;
 }
 
-static NumericDateFormatters * loadNumericDateFormatters(const UResourceBundle * resource,
-    UErrorCode & status) {
+static NumericDateFormatters * loadNumericDateFormatters(const UResourceBundle * resource, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return NULL;
 	}
@@ -233,8 +227,7 @@ template <> U_I18N_API const MeasureFormatCacheData * LocaleCacheKey<MeasureForm
 	if(U_FAILURE(status)) {
 		return NULL;
 	}
-	result->adoptNumericDateFormatters(loadNumericDateFormatters(
-		    unitsBundle.getAlias(), status));
+	result->adoptNumericDateFormatters(loadNumericDateFormatters(unitsBundle.getAlias(), status));
 	if(U_FAILURE(status)) {
 		return NULL;
 	}

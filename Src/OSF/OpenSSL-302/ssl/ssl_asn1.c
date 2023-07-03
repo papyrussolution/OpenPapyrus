@@ -281,8 +281,8 @@ SSL_SESSION * d2i_SSL_SESSION(SSL_SESSION ** a, const uchar ** pp,
 		goto err;
 	}
 
-	id = 0x03000000L | ((unsigned long)as->cipher->data[0] << 8L)
-	    | (unsigned long)as->cipher->data[1];
+	id = 0x03000000L | ((ulong)as->cipher->data[0] << 8L)
+	    | (ulong)as->cipher->data[1];
 
 	ret->cipher_id = id;
 	ret->cipher = ssl3_get_cipher_by_id(id);
@@ -331,7 +331,7 @@ SSL_SESSION * d2i_SSL_SESSION(SSL_SESSION ** a, const uchar ** pp,
 		goto err;
 #endif
 
-	ret->ext.tick_lifetime_hint = (unsigned long)as->tlsext_tick_lifetime_hint;
+	ret->ext.tick_lifetime_hint = (ulong)as->tlsext_tick_lifetime_hint;
 	ret->ext.tick_age_add = as->tlsext_tick_age_add;
 	OPENSSL_free(ret->ext.tick);
 	if(as->tlsext_tick != NULL) {

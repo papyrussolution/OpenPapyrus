@@ -60,7 +60,6 @@ void ColorizeBibTeX(Sci_PositionU start_pos, Sci_Position length, int /*init_sty
 	for(; going; sc.Forward()) {
 		if(!sc.More())
 			going = false;         // we need to go one behind the end of text
-
 		if(in_comment) {
 			if(sc.atLineEnd) {
 				sc.SetState(SCE_BIBTEX_DEFAULT);
@@ -143,8 +142,7 @@ void ColorizeBibTeX(Sci_PositionU start_pos, Sci_Position length, int /*init_sty
 								++skipped;         // Remember it
 							else if(sc.ch == '}')
 								--skipped;
-							else if(skipped == 1 && sc.ch == ch && ch == '"')          // Don't ignore cases
-									                                           // like {"o}
+							else if(skipped == 1 && sc.ch == ch && ch == '"') // Don't ignore cases like {"o}
 								skipped = 0;
 						}
 

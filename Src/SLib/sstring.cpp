@@ -341,7 +341,7 @@ bool FASTCALL SStrScan::Is(const char * pS) const
 	return (len && strnicmp((P_Buf+Offs), pS, len) == 0);
 }
 
-bool FASTCALL SStrScan::Is(char c) const { return BIN(P_Buf[Offs] == c); }
+bool FASTCALL SStrScan::Is(char c) const { return (P_Buf[Offs] == c); }
 bool FASTCALL SStrScan::IsTagBrace() const { return (P_Buf[Offs] == '<'); }
 
 int SStrScan::IsLegalUtf8() const

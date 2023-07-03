@@ -27,12 +27,10 @@ void test_open_streams(void)
 #endif
 	tap_out = BIO_push(BIO_new(BIO_f_prefix()), tap_out);
 	tap_err = BIO_push(BIO_new(BIO_f_prefix()), tap_err);
-
 	bio_out = BIO_push(BIO_new(BIO_f_prefix()), tap_out);
 	bio_err = BIO_push(BIO_new(BIO_f_prefix()), tap_err);
 	BIO_set_prefix(bio_out, "# ");
 	BIO_set_prefix(bio_err, "# ");
-
 	OPENSSL_assert(bio_out != NULL);
 	OPENSSL_assert(bio_err != NULL);
 }
@@ -51,47 +49,15 @@ void test_close_streams(void)
 	 */
 	BIO_free(bio_out);
 	BIO_free(bio_err);
-
 	BIO_free_all(tap_out);
 	BIO_free_all(tap_err);
 }
 
-int test_vprintf_stdout(const char * fmt, va_list ap)
-{
-	return BIO_vprintf(bio_out, fmt, ap);
-}
-
-int test_vprintf_stderr(const char * fmt, va_list ap)
-{
-	return BIO_vprintf(bio_err, fmt, ap);
-}
-
-int test_flush_stdout(void)
-{
-	return BIO_flush(bio_out);
-}
-
-int test_flush_stderr(void)
-{
-	return BIO_flush(bio_err);
-}
-
-int test_vprintf_tapout(const char * fmt, va_list ap)
-{
-	return BIO_vprintf(tap_out, fmt, ap);
-}
-
-int test_vprintf_taperr(const char * fmt, va_list ap)
-{
-	return BIO_vprintf(tap_err, fmt, ap);
-}
-
-int test_flush_tapout(void)
-{
-	return BIO_flush(tap_out);
-}
-
-int test_flush_taperr(void)
-{
-	return BIO_flush(tap_err);
-}
+int test_vprintf_stdout(const char * fmt, va_list ap) { return BIO_vprintf(bio_out, fmt, ap); }
+int test_vprintf_stderr(const char * fmt, va_list ap) { return BIO_vprintf(bio_err, fmt, ap); }
+int test_flush_stdout(void) { return BIO_flush(bio_out); }
+int test_flush_stderr(void) { return BIO_flush(bio_err); }
+int test_vprintf_tapout(const char * fmt, va_list ap) { return BIO_vprintf(tap_out, fmt, ap); }
+int test_vprintf_taperr(const char * fmt, va_list ap) { return BIO_vprintf(tap_err, fmt, ap); }
+int test_flush_tapout(void) { return BIO_flush(tap_out); }
+int test_flush_taperr(void) { return BIO_flush(tap_err); }

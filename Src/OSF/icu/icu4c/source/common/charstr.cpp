@@ -102,7 +102,8 @@ CharString &CharString::append(char c, UErrorCode & errorCode) {
 	return *this;
 }
 
-CharString &CharString::append(const char * s, int32_t sLength, UErrorCode & errorCode) {
+CharString & CharString::append(const char * s, int32_t sLength, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return *this;
 	}
@@ -124,9 +125,7 @@ CharString &CharString::append(const char * s, int32_t sLength, UErrorCode & err
 				buffer[len += sLength] = 0;
 			}
 		}
-		else if(buffer.getAlias()<=s && s<(buffer.getAlias()+len) &&
-		    sLength>=(buffer.getCapacity()-len)
-		    ) {
+		else if(buffer.getAlias()<=s && s<(buffer.getAlias()+len) && sLength>=(buffer.getCapacity()-len)) {
 			// (Part of) this string is appended to itself which requires reallocation,
 			// so we have to make a copy of the substring and append that.
 			return append(CharString(s, sLength, errorCode), errorCode);

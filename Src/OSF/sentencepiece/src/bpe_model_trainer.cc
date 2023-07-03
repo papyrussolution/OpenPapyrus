@@ -127,15 +127,18 @@ void Trainer::AddNewPair(int sid, int left, int right)
 	}
 }
 
-void Trainer::ResetFreq(int sid, int left, int right, const Symbol * best) {
-	if(left == -1 || right == -1) return;
+void Trainer::ResetFreq(int sid, int left, int right, const Symbol * best) 
+{
+	if(left == -1 || right == -1) 
+		return;
 	auto * symbol = GetPairSymbol(symbols_[sid][left], symbols_[sid][right]);
 	if(symbol != nullptr && symbol != best) {
 		symbol->freq = 0;
 	}
 }
 
-void Trainer::UpdateActiveSymbols() {
+void Trainer::UpdateActiveSymbols() 
+{
 	std::vector<Symbol *> symbols;
 	for(auto &it : symbols_cache_) {
 		Symbol * symbol = it.second;

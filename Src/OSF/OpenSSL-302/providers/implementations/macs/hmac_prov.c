@@ -296,13 +296,10 @@ static int hmac_set_ctx_params(void * vmacctx, const OSSL_PARAM params[])
 			return 0;
 		memcpy(macctx->key, p->data, p->data_size);
 		macctx->keylen = p->data_size;
-		if(!HMAC_Init_ex(macctx->ctx, p->data, p->data_size,
-		    ossl_prov_digest_md(&macctx->digest),
-		    NULL /* ENGINE */))
+		if(!HMAC_Init_ex(macctx->ctx, p->data, p->data_size, ossl_prov_digest_md(&macctx->digest), NULL /* ENGINE */))
 			return 0;
 	}
-	if((p = OSSL_PARAM_locate_const(params,
-	    OSSL_MAC_PARAM_TLS_DATA_SIZE)) != NULL) {
+	if((p = OSSL_PARAM_locate_const(params, OSSL_MAC_PARAM_TLS_DATA_SIZE)) != NULL) {
 		if(!OSSL_PARAM_get_size_t(p, &macctx->tls_data_size))
 			return 0;
 	}

@@ -673,9 +673,6 @@
     <ProjectReference Include="liblzma.vcxproj">
       <Project>{c241e0ad-81ff-4a43-9b39-f3712e9c0d4e}</Project>
     </ProjectReference>
-    <ProjectReference Include="libxml.vcxproj">
-      <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>
-    </ProjectReference>
     <ProjectReference Include="pcre.vcxproj">
       <Project>{d4b6d08a-d79e-428e-85ea-f9929c6aa367}</Project>
     </ProjectReference>

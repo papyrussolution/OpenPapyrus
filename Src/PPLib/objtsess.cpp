@@ -1629,11 +1629,18 @@ int PPObjTSession::RoundTiming(PPID techID, long * pTiming)
 	int    ok = -1;
 	long   timing = *pTiming;
 	TechTbl::Rec tec_rec;
-	if(GetTech(techID, &tec_rec, 1) > 0 && timing && tec_rec.GoodsID && tec_rec.Rounding) {
+	if(GetTech(techID, &tec_rec, 1) > 0 && timing && tec_rec.GoodsID) {
 		double unit_ratio = 1.0;
 		if(IsTimingTech(&tec_rec, &unit_ratio) > 0) {
-			double c = PPRound((double)timing / unit_ratio, tec_rec.Rounding, +1);
-			timing = static_cast<long>(c * unit_ratio);
+			double rounding = tec_rec.Rounding;
+			if(rounding <= 0.0) {
+				int gqrr = GObj.GetQttyRounding(tec_rec.GoodsID, &rounding);
+				assert(gqrr > 0 || rounding == 0.0);
+			}
+			if(rounding > 0.0) {
+				double c = PPRound((double)timing / unit_ratio, rounding, +1);
+				timing = static_cast<long>(c * unit_ratio);
+			}
 		}
 	}
 	ASSIGN_PTR(pTiming, timing);
@@ -1670,12 +1677,18 @@ int PPObjTSession::IsTimingSess(const TSessionTbl::Rec * pRec, long * pTiming, d
 		double unit_ratio = 1.0;
 		if(IsTimingTech(&tec_rec, &unit_ratio) > 0) {
 			STimeChunk chunk, result_chunk;
-			chunk.Start.Set(pRec->StDt, pRec->StTm);
-			chunk.Finish.Set(pRec->FinDt, pRec->FinTm);
+			PPObjTSession::GetTimeRange(*pRec, chunk);
+			// @v11.7.8 {
+			double rounding = tec_rec.Rounding;
+			if(rounding <= 0.0) {
+				int gqrr = GObj.GetQttyRounding(tec_rec.GoodsID, &rounding);
+				assert(gqrr > 0 || rounding == 0.0);
+			}
+			// } @v11.7.8 
 			if(AdjustTiming(*pRec, chunk, result_chunk, &timing) > 0)
-				qtty = PPRound((double)timing / unit_ratio, tec_rec.Rounding, +1);
+				qtty = PPRound((double)timing / unit_ratio, rounding, +1);
 			else
-				qtty = PPRound((double)GetContinuation(pRec) / unit_ratio, tec_rec.Rounding, +1);
+				qtty = PPRound((double)GetContinuation(pRec) / unit_ratio, rounding, +1);
 			ok = 1;
 		}
 	}

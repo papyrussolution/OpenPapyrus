@@ -75,6 +75,8 @@ FORCEINLINE ImVec4 __ColorBlendOverlay(const ImVec4 & rS, const ImVec4 & rD, flo
 }
 
 static const ImVec4 MainBackgroundColor(SColor(0x1E, 0x22, 0x28));
+static const ImVec2 ButtonSize_Std(64.0f, 24.0f);
+static const ImVec2 ButtonSize_Double(128.0f, 24.0f);
 
 class ImGuiObjStack {
 public:
@@ -283,7 +285,7 @@ public:
 		}
 		uint   Cmd;
 		struct Param {
-			Param() : SCardID(0), GoodsID(0), TechID(0), Amount(0.0)
+			Param() : SCardID(0), GoodsID(0), TechID(0), TSessID(0), Amount(0.0)
 			{
 				AuthTextUtf8[0] = 0;
 				AuthPwUtf8[0] = 0;
@@ -292,6 +294,7 @@ public:
 			PPID   SCardID; // 
 			PPID   GoodsID;
 			PPID   TechID;
+			PPID   TSessID;
 			double Amount;
 			char   AuthTextUtf8[128];
 			char   AuthPwUtf8[128];
@@ -367,7 +370,248 @@ public:
 	PPID   PrcID; // Идентификатор процессора на сервере. Инициируется ответом от сервера.
 	SString PrcName; // Наименование процессора на сервере. Инициируется ответом от сервера.
 };
+//
+// 
+// 
+class WsCtl_Config {
+public:
+	WsCtl_Config() : Port(0), Timeout(0)
+	{
+	}
+	WsCtl_Config & Z()
+	{
+		Server.Z();
+		Port = 0;
+		Timeout = 0;
+		DbSymb.Z();
+		User.Z();
+		Password.Z();
+		return *this;
+	}
+	//
+	// Descr: Считывает конфигурацию из win-реестра
+	//
+	int    Read()
+	{
+		int    ok = 1;
+		SJson * p_js = 0;
+		SSecretTagPool pool;
+		{
+			SBuffer sbuf;
+			WinRegKey reg_key(HKEY_LOCAL_MACHINE, PPConst::WrKey_WsCtl, 1);
+			int    r = reg_key.GetBinary(PPConst::WrParam_WsCtl_Config, sbuf);
+			THROW_SL(r);
+			if(r > 0) {
+				SString temp_buf;
+				SSecretTagPool pool;
+				THROW_SL(pool.Serialize(-1, sbuf, 0));
+				p_js = pool.GetJson(SSecretTagPool::tagRawData);
+				THROW(FromJsonObj(p_js));
+			}
+			else
+				ok = -1;
+		}
+		CATCHZOK
+		delete p_js;
+		return ok;
+	}
+	//
+	// Descr: Записывает конфигурацию в win-реестр
+	//
+	int    Write()
+	{
+		int    ok = 1;
+		SString temp_buf;
+		SSecretTagPool pool;
+		SBuffer sbuf;
+		SJson * p_js = ToJsonObj();
+		THROW(p_js);
+		p_js->ToStr(temp_buf);
+		THROW_SL(pool.Put(SSecretTagPool::tagRawData, temp_buf, temp_buf.Len(), 0));
+		THROW_SL(pool.Serialize(+1, sbuf, 0));
+		{
+			WinRegKey reg_key(HKEY_LOCAL_MACHINE, PPConst::WrKey_WsCtl, 0);
+			THROW_SL(reg_key.PutBinary(PPConst::WrParam_WsCtl_Config, sbuf.GetBufC(), sbuf.GetAvailableSize()));
+			ok = 1;
+		}
+		CATCHZOK
+		delete p_js;
+		return ok;
+	}
+	SJson * ToJsonObj() const
+	{
+		SJson * p_result = SJson::CreateObj();
+		SString temp_buf;
+		p_result->InsertStringNe("server", (temp_buf = Server).Escape());
+		if(Port > 0) {
+			p_result->InsertInt("port", Port);
+		}
+		if(Timeout > 0) {
+			p_result->InsertInt("timeout", Timeout);
+		}
+		p_result->InsertStringNe("dbsymb", (temp_buf = DbSymb).Escape());
+		p_result->InsertStringNe("user", (temp_buf = User).Escape());
+		p_result->InsertStringNe("password", (temp_buf = Password).Escape());
+		return p_result;
+	}
+	int    FromJsonObj(const SJson * pJsObj)
+	{
+		int    ok = 0;
+		if(SJson::IsObject(pJsObj)) {
+			Z();
+			const SJson * p_c = pJsObj->FindChildByKey("server");
+			if(SJson::IsString(p_c))
+				(Server = p_c->Text).Unescape();
+			p_c = pJsObj->FindChildByKey("port");
+			if(SJson::IsNumber(p_c))
+				Port = p_c->Text.ToLong();
+			p_c = pJsObj->FindChildByKey("timeout");
+			if(SJson::IsNumber(p_c))
+				Timeout = p_c->Text.ToLong();
+			p_c = pJsObj->FindChildByKey("dbsymb");
+			if(SJson::IsString(p_c))
+				(DbSymb = p_c->Text).Unescape();
+			p_c = pJsObj->FindChildByKey("user");
+			if(SJson::IsString(p_c))
+				(User = p_c->Text).Unescape();
+			p_c = pJsObj->FindChildByKey("password");
+			if(SJson::IsString(p_c))
+				(Password = p_c->Text).Unescape();
+			ok = 1;
+		}
+		return ok;
+	}
+	SString Server;
+	int    Port;
+	int    Timeout;
+	//
+	SString DbSymb;
+	SString User;
+	SString Password;
 
+	/*struct JobSrvParam {
+		JobSrvParam() : Port(0), Timeout(0)
+		{
+		}
+		SString Addr;
+		int    Port;
+		int    Timeout;
+		//
+		SString DbSymb;   // @debug Это поле необходимо будет инкапуслировать во что-то секретное и решить как инициировать
+		SString User;     // @debug Это поле необходимо будет инкапуслировать во что-то секретное и решить как инициировать
+		SString Password; // @debug Это поле необходимо будет инкапуслировать во что-то секретное и решить как инициировать
+	};*/
+};
+//
+// 
+// 
+class ImDialogState {
+protected:
+	ImDialogState(void * pCtx) : Launched(false), P_Ctx(pCtx)
+	{
+	}
+	virtual ~ImDialogState()
+	{
+	}
+	//
+	// Returns:
+	//   >0 - user pressed [ok]
+	//   <0 - user pressed [cancel] or [close]
+	//    0 - continue
+	//
+	virtual int Build()
+	{
+		return -1;
+	}
+	virtual bool CommitData()
+	{
+		return true;
+	}
+	bool   Launched;
+	uint8  Reserve[3]; // @alignment
+	void * P_Ctx;
+};
+
+static SString & InputLabelPrefix(const char * pLabel)
+{
+	float width = ImGui::CalcItemWidth();
+	float x = ImGui::GetCursorPosX();
+	ImGui::Text(pLabel); 
+	//ImGui::SameLine(); 
+	//ImGui::SetCursorPosX(x + width * 0.5f + ImGui::GetStyle().ItemInnerSpacing.x);
+	// @v11.7.8 ImGui::SetNextItemWidth(-1);
+	return SLS.AcquireRvlStr().CatCharN('#', 2).Cat(pLabel);
+}
+
+class ImDialog_WsCtlConfig : public ImDialogState {
+public:
+	ImDialog_WsCtlConfig(WsCtl_Config * pCtx) : ImDialogState(pCtx)
+	{
+		if(pCtx) {
+			Data = *pCtx;
+		}
+		STRNSCPY(SubstTxt_Server, Data.Server);
+		STRNSCPY(SubstTxt_DbSymb, Data.DbSymb);
+		STRNSCPY(SubstTxt_User, Data.User);
+		STRNSCPY(SubstTxt_Password, Data.Password);
+	}
+	~ImDialog_WsCtlConfig()
+	{
+		memzero(SubstTxt_Server, sizeof(SubstTxt_Server));
+		memzero(SubstTxt_DbSymb, sizeof(SubstTxt_DbSymb));
+		memzero(SubstTxt_User, sizeof(SubstTxt_User));
+		memzero(SubstTxt_Password, sizeof(SubstTxt_Password));
+	}
+	virtual int Build()
+	{
+		int    result = 0;
+		const char * p_popup_title = "Config";
+		ImGui::OpenPopup(p_popup_title);
+		if(ImGui::BeginPopup(p_popup_title)) {
+			ImGui::InputText(InputLabelPrefix("server"), SubstTxt_Server, sizeof(SubstTxt_Server));
+			ImGui::InputInt(InputLabelPrefix("port"), &Data.Port);
+			ImGui::InputText(InputLabelPrefix("dbsymb"), SubstTxt_DbSymb, sizeof(SubstTxt_DbSymb));
+			ImGui::InputText(InputLabelPrefix("user"), SubstTxt_User, sizeof(SubstTxt_User));
+			ImGui::InputText(InputLabelPrefix("password"), SubstTxt_Password, sizeof(SubstTxt_Password));
+			ImGui::NewLine();
+			if(ImGui::Button("ok", ButtonSize_Std)) {
+				ImGui::CloseCurrentPopup();
+				result = 1;
+			}
+			ImGui::SameLine();
+			if(ImGui::Button("cancel", ButtonSize_Std)) {
+				ImGui::CloseCurrentPopup();
+				result = -1;
+			}
+			ImGui::EndPopup();
+		}
+		return result;
+	}
+	virtual bool CommitData()
+	{
+		bool   ok = true;
+		if(P_Ctx) {
+			Data.Server = SubstTxt_Server;
+			Data.DbSymb = SubstTxt_DbSymb;
+			Data.User = SubstTxt_User;
+			Data.Password = SubstTxt_Password;
+			*static_cast<WsCtl_Config *>(P_Ctx) = Data;
+		}
+		else
+			ok = false;
+		return ok;
+	}
+private:
+	WsCtl_Config Data;
+	char   SubstTxt_Server[128];
+	char   SubstTxt_DbSymb[128];
+	char   SubstTxt_User[128];
+	char   SubstTxt_Password[128];
+	//char   SubstTxt_
+};
+//
+//
+//
 class WsCtl_ImGuiSceneBlock {
 public:
 	//
@@ -472,9 +716,10 @@ public:
 	//
 	class DConnectionStatus : public DServerError {
 	public:	
-		DConnectionStatus() : S(0)
+		DConnectionStatus() : S(0), DtmActual(ZERODATETIME)
 		{
 		}
+		LDATETIME DtmActual; // Момент последней актуализации данных
 		int    S;
 	};
 	//
@@ -482,9 +727,10 @@ public:
 	//
 	class DPrc : public DServerError {
 	public:
-		DPrc() : PrcID(0), CurrentTSessID(0), ReservedTSessID(0)
+		DPrc() : PrcID(0), CurrentTSessID(0), ReservedTSessID(0), DtmActual(ZERODATETIME)
 		{
 		}
+		LDATETIME DtmActual; // Момент последней актуализации данных
 		S_GUID PrcUuid;
 		PPID   PrcID;
 		PPID   CurrentTSessID;  // Текущая сессия процессора
@@ -493,9 +739,20 @@ public:
 	};
 	class DAccount : public DServerError {
 	public:
-		DAccount() : SCardID(0), PersonID(0), ScRest(0.0)
+		DAccount() : SCardID(0), PersonID(0), ScRest(0.0), DtmActual(ZERODATETIME)
 		{
 		}
+		DAccount & Z()
+		{
+			DServerError::Z();
+			SCardID = 0;
+			PersonID = 0;
+			ScRest = 0.0;
+			SCardCode.Z();
+			PersonName.Z();
+			return *this;
+		}
+		LDATETIME DtmActual; // Момент последней актуализации данных
 		PPID   SCardID;
 		PPID   PersonID;
 		double ScRest;
@@ -504,11 +761,13 @@ public:
 	};
 	class DAuth : public DServerError {
 	public:
-		DAuth() : State(0), SCardID(0), PersonID(0)
+		DAuth() : State(0), SCardID(0), PersonID(0), DtmActual(ZERODATETIME)
 		{
 		}
 		DAuth & Z()
 		{
+			DServerError::Z();
+			DtmActual.Z();
 			State = 0;
 			SCardID = 0;
 			PersonID = 0;
@@ -518,6 +777,7 @@ public:
 		enum {
 			stWaitOn = 0x0001 // Объект находится в состоянии ожидания результата авторизации
 		};
+		LDATETIME DtmActual; // Момент последней актуализации данных
 		PPID   SCardID;
 		PPID   PersonID;
 		uint   State;
@@ -533,16 +793,19 @@ public:
 		int    FromJsonObject(const SJson * pJsObj);
 		bool   GetGoodsPrice(PPID goodsID, double * pPrice) const;
 
+		LDATETIME DtmActual; // Момент последней актуализации данных
 		TSCollection <QuotKindEntry> QkList; // Сервер передает ранжированный список. То есть, значения надо брать исходя из того, что первое приоритетнее следюущего.
 		TSCollection <GoodsEntry> GoodsList;
 	};
 	class DTSess : public DServerError {
 	public:
-		DTSess() : TSessID(0), GoodsID(0), TechID(0), SCardID(0), WrOffAmount(0.0)
+		DTSess() : TSessID(0), GoodsID(0), TechID(0), SCardID(0), WrOffAmount(0.0), DtmActual(ZERODATETIME)
 		{
 		}
 		DTSess & Z()
 		{
+			DServerError::Z();
+			DtmActual.Z();
 			TSessID = 0;
 			GoodsID = 0;
 			TechID = 0;
@@ -593,6 +856,7 @@ public:
 			}
 			return ok;
 		}
+		LDATETIME DtmActual; // Момент последней актуализации данных
 		PPID   TSessID;
 		PPID   GoodsID;
 		PPID   TechID;
@@ -600,18 +864,6 @@ public:
 		double WrOffAmount;
 		LDATETIME TmScOp;
 		STimeChunk TmChunk;
-	};
-	struct JobSrvParam {
-		JobSrvParam() : Port(0), Timeout(0)
-		{
-		}
-		SString Addr;
-		int    Port;
-		int    Timeout;
-		//
-		SString DbSymb;   // @debug Это поле необходимо будет инкапуслировать во что-то секретное и решить как инициировать
-		SString User;     // @debug Это поле необходимо будет инкапуслировать во что-то секретное и решить как инициировать
-		SString Password; // @debug Это поле необходимо будет инкапуслировать во что-то секретное и решить как инициировать
 	};
 	//
 	// Descr: Структура, описывающая текущее состояние системы.
@@ -629,6 +881,7 @@ public:
 			syncdataTSess,            // DTSess
 			syncdataJobSrvConnStatus, // int статус соединения с сервером
 			syncdataAuth,             // DAuth
+			syncdataAutonomousTSess,  // DTSess Поддержка актуальности автономных данных о текущей сессии
 		};
 		//
 		// Descr: Элемент состояния, который получен от сервера.
@@ -686,6 +939,12 @@ public:
 		int    SetupSyncUpdateTime(int syncDataId, uint msecToUpdate);
 		int    CheckSyncUpdateTimers(LongArray & rList) const;
 		int    SetSyncUpdateTimerLastReqTime(int syncDataId);
+		const  DTSess & GetAutonomousTSessEntry() const { return AutonomousTSessEntry; }
+		void   UpdateAutonomousTSessEntry()
+		{
+			if(AutonomousTSessEntry.TSessID) {
+			}
+		}
 	private:
 		class SyncUpdateTimer {
 		public:
@@ -698,6 +957,8 @@ public:
 		};
 		TSVector <SyncUpdateTimer> SutList;
 		PPID   SelectedTecGoodsID; // Выбранные товар для техсессии
+		DTSess AutonomousTSessEntry; // На случай, если связь с сервером будет потеряна во время рабочей сессии,
+			// это поле обязано поддерживать информацию о сеансе для своевременной остановки и прочих рабочих функций.
 	};
 	int GetScreen() const { return Screen; }
 	int SetScreen(int scr)
@@ -722,7 +983,7 @@ private:
 	//
 	class WsCtl_CliSession : public PPThread {
 	public:
-		WsCtl_CliSession(const JobSrvParam & rJsP, WsCtl_ImGuiSceneBlock::State * pSt, WsCtlReqQueue * pQ);
+		WsCtl_CliSession(const WsCtl_Config & rJsP, WsCtl_ImGuiSceneBlock::State * pSt, WsCtlReqQueue * pQ);
 		virtual void Run();
 	private:
 		virtual void Startup();
@@ -732,7 +993,7 @@ private:
 		// наш поток будет вносить изменения в это состояние (защита блокировками подразумевается).
 		WsCtl_ImGuiSceneBlock::State * P_St; // @notowned
 		WsCtlReqQueue * P_Queue; // @notowned
-		JobSrvParam JsP;
+		WsCtl_Config JsP;
 	};
 	bool   ShowDemoWindow; // @sobolev true-->false
 	bool   ShowAnotherWindow;
@@ -741,7 +1002,7 @@ private:
 	//SUiLayout Lo01; // = new SUiLayout(SUiLayoutParam(DIREC_VERT, 0, SUiLayoutParam::alignStretch));
 	TSHashCollection <SUiLayout> Cache_Layout;
 	TSHashCollection <SCachedFileEntity> Cache_Texture;
-	JobSrvParam JsP;
+	WsCtl_Config JsP;
 	State  St;
 	LongArray SyncReqList; // @fastreuse Список объектов состояния, для которых необходимо запросить обновление у сервера (по таймеру)
 	WsCtlReqQueue * P_CmdQ; // Очередь команд для сервера. Указатель передается в совместное владение потоку обработки команд
@@ -773,6 +1034,8 @@ private:
 		loidSessionSelection,
 		loidSessionButtonGroup,
 		loidBottomCtrlGroup,
+		loidSessionInfo,
+		loidSessionProgramGallery,
 	};
 	//
 	void   Render();
@@ -784,7 +1047,7 @@ private:
 			ImGui::OpenPopup(p_popup_title);
 			if(ImGui::BeginPopup(p_popup_title)) {
 				ImGui::Text(LastSvrErr._Message);
-				if(ImGui::Button("Close")) {
+				if(ImGui::Button("Close", ButtonSize_Std)) {
 					LastSvrErr.Z(); // Сбрасываем информацию об ошибке
 					ImGui::CloseCurrentPopup();
 				}
@@ -798,12 +1061,14 @@ private:
 	char   LoginText[256];
 	char   PwText[128];
 	DServerError LastSvrErr;
+	ImDialog_WsCtlConfig * P_Dlg_Cfg;
 public:
 	WsCtl_ImGuiSceneBlock() : ShowDemoWindow(false), ShowAnotherWindow(false), Screen(screenUndef),
 		//ClearColor(0.45f, 0.55f, 0.60f, 1.00f), 
 		ClearColor(SColor(0x1E, 0x22, 0x28)),
 		P_CmdQ(new WsCtlReqQueue),
-		Cache_Layout(512), Cache_Texture(1024)
+		Cache_Layout(512), Cache_Texture(1024),
+		P_Dlg_Cfg(0)
 	{
 		TestInput[0] = 0;
 		LoginText[0] = 0;
@@ -823,13 +1088,14 @@ public:
 			JsP.Port = InetUrl::GetDefProtocolPort(InetUrl::prot_p_PapyrusServer);//DEFAULT_SERVER_PORT;
 		if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_CLIENTSOCKETTIMEOUT, &JsP.Timeout) <= 0 || JsP.Timeout <= 0)
 			JsP.Timeout = -1;
-		ini_file.Get(PPINISECT_SERVER, PPINIPARAM_SERVER_NAME, JsP.Addr);
+		ini_file.Get(PPINISECT_SERVER, PPINIPARAM_SERVER_NAME, JsP.Server);
 		St.SidBlk.GetOwnUuid();
-		if(JsP.Addr.NotEmpty()) {
+		JsP.Read();
+		if(JsP.Server.NotEmpty()) {
 			//
-			JsP.DbSymb = "wsctl"; // @debug
-			JsP.User = "master"; // @debug
-			JsP.Password = "";   // @debug 
+			JsP.DbSymb.SetIfEmpty("wsctl");
+			JsP.User.SetIfEmpty("master");
+			JsP.Password.SetIfEmpty("");
 			//
 			WsCtl_CliSession * p_sess = new WsCtl_CliSession(JsP, &St, P_CmdQ);
 			p_sess->Start(1);
@@ -844,6 +1110,7 @@ public:
 			St.SetupSyncUpdateTime(State::syncdataPrices, 30000);
 			St.SetupSyncUpdateTime(State::syncdataAccount, 29000);
 			St.SetupSyncUpdateTime(State::syncdataTSess, 15000);
+			St.SetupSyncUpdateTime(State::syncdataAutonomousTSess, 2000);
 		}
 		return ok;
 	}
@@ -874,6 +1141,11 @@ public:
 					case State::syncdataPrices:
 						P_CmdQ->Push(WsCtlReqQueue::Req(PPSCMD_WSCTL_GETQUOTLIST));
 						break;
+					case State::syncdataAutonomousTSess:
+						{
+							
+						}
+						break;
 					case State::syncdataTSess:
 						P_CmdQ->Push(WsCtlReqQueue::Req(PPSCMD_WSCTL_TSESS));
 						break;
@@ -887,22 +1159,12 @@ public:
 			assert(SyncReqList.getCount() == 0);
 		}
 	}
-	static SString & InputLabelPrefix(const char * pLabel)
-	{
-		float width = ImGui::CalcItemWidth();
-		float x = ImGui::GetCursorPosX();
-		ImGui::Text(pLabel); 
-		//ImGui::SameLine(); 
-		//ImGui::SetCursorPosX(x + width * 0.5f + ImGui::GetStyle().ItemInnerSpacing.x);
-		ImGui::SetNextItemWidth(-1);
-		return SLS.AcquireRvlStr().CatCharN('#', 2).Cat(pLabel);
-	}
 	void BuildScene();
 };
 //
 //
 //
-WsCtl_ImGuiSceneBlock::DPrices::DPrices()
+WsCtl_ImGuiSceneBlock::DPrices::DPrices() : DtmActual(ZERODATETIME)
 {
 }
 		
@@ -919,6 +1181,7 @@ WsCtl_ImGuiSceneBlock::DPrices & FASTCALL WsCtl_ImGuiSceneBlock::DPrices::operat
 WsCtl_ImGuiSceneBlock::DPrices & FASTCALL WsCtl_ImGuiSceneBlock::DPrices::Copy(const DPrices & rS)
 {
 	DServerError::Copy(rS);
+	DtmActual = rS.DtmActual;
 	TSCollection_Copy(QkList, rS.QkList);
 	TSCollection_Copy(GoodsList, rS.GoodsList);
 	return *this;
@@ -927,6 +1190,7 @@ WsCtl_ImGuiSceneBlock::DPrices & FASTCALL WsCtl_ImGuiSceneBlock::DPrices::Copy(c
 WsCtl_ImGuiSceneBlock::DPrices & WsCtl_ImGuiSceneBlock::DPrices::Z()
 {
 	DServerError::Z();
+	DtmActual.Z();
 	QkList.clear();
 	GoodsList.clear();
 	return *this;
@@ -1171,7 +1435,7 @@ int WsCtl_ImGuiSceneBlock::DPrices::FromJsonObject(const SJson * pJsObj)
 //
 //
 //
-WsCtl_ImGuiSceneBlock::WsCtl_CliSession::WsCtl_CliSession(const JobSrvParam & rJsP, WsCtl_ImGuiSceneBlock::State * pSt, WsCtlReqQueue * pQ) : 
+WsCtl_ImGuiSceneBlock::WsCtl_CliSession::WsCtl_CliSession(const WsCtl_Config & rJsP, WsCtl_ImGuiSceneBlock::State * pSt, WsCtlReqQueue * pQ) : 
 	PPThread(PPThread::kWsCtl, 0, 0), JsP(rJsP), P_St(pSt), P_Queue(pQ)
 {
 	InitStartupSignal();
@@ -1233,7 +1497,7 @@ WsCtl_ImGuiSceneBlock::WsCtl_CliSession::WsCtl_CliSession(const JobSrvParam & rJ
 			if(single_ev_count) {
 				if(!(cli.GetState() & PPJobSrvClient::stConnected)) {
 					DConnectionStatus srv_conn_status;
-					srv_conn_status.S = cli.Connect(JsP.Addr, JsP.Port);
+					srv_conn_status.S = cli.Connect(JsP.Server, JsP.Port);
 					if(!srv_conn_status.S)
 						srv_conn_status.SetupByLastError();
 					P_St->D_ConnStatus.SetData(srv_conn_status);
@@ -1262,7 +1526,7 @@ WsCtl_ImGuiSceneBlock::WsCtl_CliSession::WsCtl_CliSession(const JobSrvParam & rJ
 int WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Connect(PPJobSrvClient & rCli)
 {
 	int    ok = 1;
-	THROW(rCli.Connect(JsP.Addr, JsP.Port));
+	THROW(rCli.Connect(JsP.Server, JsP.Port));
 	if(JsP.DbSymb.NotEmpty() && JsP.User.NotEmpty()) {
 		THROW(rCli.Login(JsP.DbSymb, JsP.User, JsP.Password));
 	}
@@ -1288,6 +1552,95 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				else
 					st_data.SetupByLastError();
 				P_St->D_Test.SetData(st_data);
+			}
+			break;
+		case PPSCMD_WSCTL_END_SESS:
+			if(P_St) {
+				WsCtl_ImGuiSceneBlock::DPrc st_prc;
+				WsCtl_ImGuiSceneBlock::DAccount st_acc;
+				WsCtl_ImGuiSceneBlock::DAuth st_auth;
+				WsCtl_ImGuiSceneBlock::DTSess st_tsess;
+				P_St->D_Prc.GetData(st_prc);
+				if(!!st_prc.PrcUuid && rReq.P.TSessID && rReq.P.SCardID) {
+					PPJobSrvCmd cmd;
+					cmd.StartWriting(PPSCMD_WSCTL_END_SESS);
+					{
+						SJson js_param(SJson::tOBJECT);
+						js_param.InsertString("wsctluuid", temp_buf.Z().Cat(st_prc.PrcUuid, S_GUID::fmtIDL));
+						js_param.InsertInt("scardid", rReq.P.SCardID);
+						js_param.InsertInt("tsessid", rReq.P.TSessID);
+						js_param.ToStr(temp_buf);
+						SString mime_buf;
+						mime_buf.EncodeMime64(temp_buf.ucptr(), temp_buf.Len());
+						cmd.Write(mime_buf.ucptr(), mime_buf.Len()+1);
+					}
+					cmd.FinishWriting();
+					if(rCli.Exec(cmd, reply)) {
+						SString reply_buf;
+						reply.StartReading(&reply_buf);
+						if(reply.CheckRepError()) {
+							st_tsess.Z();							
+						}
+						else
+							st_tsess.SetupByLastError();
+					}
+					else
+						st_tsess.SetupByLastError();
+					st_tsess.DtmActual = getcurdatetime_();
+					P_St->D_TSess.SetData(st_tsess);
+				}
+			}
+			break;
+		case PPSCMD_WSCTL_LOGOUT:
+			if(P_St) {
+				WsCtl_ImGuiSceneBlock::DPrc st_prc;
+				WsCtl_ImGuiSceneBlock::DAccount st_acc;
+				WsCtl_ImGuiSceneBlock::DAuth st_auth;
+				WsCtl_ImGuiSceneBlock::DTSess st_tsess;
+				P_St->D_Prc.GetData(st_prc);
+				P_St->D_Acc.GetData(st_acc);
+				if(!!st_prc.PrcUuid && st_acc.SCardID) {
+					PPJobSrvCmd cmd;
+					cmd.StartWriting(PPSCMD_WSCTL_LOGOUT);
+					{
+						SJson js_param(SJson::tOBJECT);
+						js_param.InsertString("wsctluuid", temp_buf.Z().Cat(st_prc.PrcUuid, S_GUID::fmtIDL));
+						js_param.InsertInt("scardid", st_acc.SCardID);
+						js_param.ToStr(temp_buf);
+						SString mime_buf;
+						mime_buf.EncodeMime64(temp_buf.ucptr(), temp_buf.Len());
+						cmd.Write(mime_buf.ucptr(), mime_buf.Len()+1);
+					}
+					cmd.FinishWriting();
+					if(rCli.Exec(cmd, reply)) {
+						SString reply_buf;
+						reply.StartReading(&reply_buf);
+						if(reply.CheckRepError()) {
+							st_acc.Z();
+							st_auth.Z();
+							st_tsess.Z();
+						}
+						else {
+							st_acc.Z();
+							st_auth.Z();
+							st_tsess.Z();
+							st_acc.SetupByLastError();
+						}
+					}
+					else {
+						st_acc.Z();
+						st_auth.Z();
+						st_tsess.Z();
+						st_acc.SetupByLastError();
+					}
+					const LDATETIME now_dtm = getcurdatetime_();
+					st_acc.DtmActual = now_dtm;
+					P_St->D_Acc.SetData(st_acc);
+					st_auth.DtmActual = now_dtm;
+					P_St->D_Auth.SetData(st_auth);
+					st_tsess.DtmActual = now_dtm;
+					P_St->D_TSess.SetData(st_tsess);
+				}
 			}
 			break;
 		case PPSCMD_WSCTL_AUTH:
@@ -1318,6 +1671,8 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 						SJson * p_js_obj = SJson::Parse(reply_buf);
 						const SJson * p_c = 0;
 						if(p_js_obj) {
+							DTSess st_tsess_data;
+							bool is_tsess_data_valid = false;
 							p_c = p_js_obj->FindChildByKey("scardid");
 							if(SJson::IsNumber(p_c)) {
 								st_data.SCardID = p_c->Text.ToLong();
@@ -1326,8 +1681,19 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 							if(SJson::IsNumber(p_c)) {
 								st_data.PersonID = p_c->Text.ToLong();
 							}
+							p_c = p_js_obj->FindChildByKey("tsess");
+							if(SJson::IsObject(p_c)) {
+								if(st_tsess_data.FromJsonObject(p_c)) {
+									is_tsess_data_valid = false;
+								}
+
+							}
 							st_data.State = 0;
 							P_St->D_Auth.SetData(st_data);
+							if(is_tsess_data_valid) {
+								st_tsess_data.DtmActual = getcurdatetime_();
+								P_St->D_TSess.SetData(st_tsess_data);
+							}
 							data_settled = true; 
 							{
 								// Сразу отправляем запрос на получение сведений об аккаунте
@@ -1348,8 +1714,10 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				}
 				else
 					st_data.SetupByLastError();
-				if(!data_settled)
+				if(!data_settled) {
+					st_data.DtmActual = getcurdatetime_();
 					P_St->D_Auth.SetData(st_data);
+				}
 			}
 			break;
 		case PPSCMD_WSCTL_GETACCOUNTSTATE:
@@ -1400,6 +1768,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				}
 				else
 					st_data.SetupByLastError();
+				st_data.DtmActual = getcurdatetime_();
 				P_St->D_Acc.SetData(st_data);
 			}
 			break;
@@ -1441,6 +1810,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				}
 				else
 					st_data.SetupByLastError();
+				st_data.DtmActual = getcurdatetime_();
 				P_St->D_Prc.SetData(st_data);
 			}
 			break;
@@ -1475,6 +1845,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 					st_data._Status = -1;
 					st_data._Message = "Processor is undefined";
 				}
+				st_data.DtmActual = getcurdatetime_();
 				P_St->D_Prices.SetData(st_data);
 			}
 			break;
@@ -1483,10 +1854,21 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				DTSess st_data;
 				WsCtl_ImGuiSceneBlock::DPrc st_prc_data;
 				P_St->D_Prc.GetData(st_prc_data);
+				P_St->D_TSess.GetData(st_data);
 				if(st_prc_data.PrcID) {
 					PPJobSrvCmd cmd;
+
+					SJson js_param(SJson::tOBJECT);
+					js_param.InsertString("wsctluuid", temp_buf.Z().Cat(st_prc_data.PrcUuid, S_GUID::fmtIDL).Escape());
+					js_param.InsertInt("prcid", st_prc_data.PrcID);
+					js_param.InsertInt("tsessid", st_data.TSessID);
 					cmd.StartWriting(PPSCMD_WSCTL_TSESS);
-					cmd.Write(&st_prc_data.PrcID, sizeof(st_prc_data.PrcID));
+					{
+						js_param.ToStr(temp_buf);
+						SString mime_buf;
+						mime_buf.EncodeMime64(temp_buf.ucptr(), temp_buf.Len());
+						cmd.Write(mime_buf.ucptr(), mime_buf.Len()+1);
+					}
 					cmd.FinishWriting();
 					if(rCli.Exec(cmd, reply)) {
 						SString reply_buf;
@@ -1503,6 +1885,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 						else
 							st_data.SetupByLastError();
 					}
+					st_data.DtmActual = getcurdatetime_();
 					P_St->D_TSess.SetData(st_data);
 				}
 			}
@@ -1546,6 +1929,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 					else
 						st_data.SetupByLastError();
 				}
+				st_data.DtmActual = getcurdatetime_();
 				P_St->D_TSess.SetData(st_data);
 			}
 			break;
@@ -1681,10 +2065,20 @@ void WsCtl_ImGuiSceneBlock::MakeLayout()
 				p_tl->InsertItem(0, &alb, loidMenuBlock);
 			}
 			{
-				SUiLayoutParam alb_mg(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
+				SUiLayoutParam alb_mg(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
 				alb_mg.SetVArea(SUiLayoutParam::areaSideL);
 				alb_mg.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f).SetMargin(1.0f);
 				SUiLayout * p_lo_main_group = p_tl->InsertItem(0, &alb_mg, loidMainGroup);
+				{
+					SUiLayoutParam alb01(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
+					alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetFixedSizeY(128.0f);
+					p_lo_main_group->InsertItem(0, &alb01, loidSessionInfo);
+				}
+				{
+					SUiLayoutParam alb01(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
+					alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+					p_lo_main_group->InsertItem(0, &alb01, loidSessionProgramGallery);
+				}
 			}
 		}
 		Cache_Layout.Put(p_tl, true);
@@ -1853,7 +2247,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							ImGui::InputText(InputLabelPrefix("Текст для авторизации"), LoginText, sizeof(LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
 							ImGui::InputText(InputLabelPrefix("Пароль"), PwText, sizeof(PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
 							if(!isempty(LoginText)) {
-								if(ImGui::Button("Login") || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
+								if(ImGui::Button("Login", ButtonSize_Std) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
 									WsCtlReqQueue::Req req(PPSCMD_WSCTL_AUTH);
 									STRNSCPY(req.P.AuthTextUtf8, LoginText);
 									STRNSCPY(req.P.AuthPwUtf8, PwText);
@@ -1867,15 +2261,50 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 			else if(_screen == screenSession) {
 				SUiLayout * p_tl = Cache_Layout.Get(reinterpret_cast<const char *>(&_screen), sizeof(_screen));
 				if(p_tl) {
-					p_tl->Evaluate(&evp);
-					{
-						ImGuiWindowByLayout wbl(p_tl, loidMenuBlock, "##MENUBLOCK", view_flags);
-						if(wbl.IsValid()) {
-						}
+					DAccount st_data_acc;
+					DTSess st_data_tses;
+					St.D_Acc.GetData(st_data_acc);
+					St.D_TSess.GetData(st_data_tses);
+					if(st_data_acc.SCardID == 0) {
+						SetScreen(screenConstruction); // @todo Здесь надо перейти на како-то вменяемый экран, а не на отладочную панель!
 					}
-					{
-						ImGuiWindowByLayout wbl(p_tl, loidMainGroup, "##MAINGROUP", view_flags);
-						if(wbl.IsValid()) {
+					else if(st_data_tses.TSessID == 0) {
+						SetScreen(screenAuthSelectSess);
+					}
+					else {
+						p_tl->Evaluate(&evp);
+						{
+							ImGuiWindowByLayout wbl(p_tl, loidMenuBlock, "##MENUBLOCK", view_flags);
+							if(wbl.IsValid()) {
+							}
+						}
+						{
+							ImGuiWindowByLayout wbl(p_tl, loidSessionInfo, "##SESSIONINFO", view_flags);
+							if(wbl.IsValid()) {
+								SString & r_text_buf = SLS.AcquireRvlStr();
+								r_text_buf.Cat(st_data_acc.SCardCode).CatDiv('-', 1).Cat(st_data_acc.PersonName);
+								ImGui::Text(r_text_buf);
+								ImGui::SameLine();
+								r_text_buf.Z().Cat(st_data_tses.TmChunk.Start, DATF_DMY, TIMF_HM).Dot().Dot().Cat(st_data_tses.TmChunk.Finish, DATF_DMY, TIMF_HM);
+								ImGui::Text(r_text_buf);
+								ImGui::SameLine();
+								if(ImGui::Button("Logout", ButtonSize_Double)) {
+									WsCtlReqQueue::Req req(PPSCMD_WSCTL_LOGOUT);
+									P_CmdQ->Push(req);
+								}
+								ImGui::SameLine();
+								if(ImGui::Button("End Session", ButtonSize_Double)) {
+									WsCtlReqQueue::Req req(PPSCMD_WSCTL_END_SESS);
+									req.P.TSessID = st_data_tses.TSessID;
+									req.P.SCardID = st_data_tses.SCardID;
+									P_CmdQ->Push(req);
+								}
+							}
+						}
+						{
+							ImGuiWindowByLayout wbl(p_tl, loidSessionProgramGallery, "##PROGRAMGALLERY", view_flags);
+							if(wbl.IsValid()) {
+							}
 						}
 					}
 				}
@@ -1978,7 +2407,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 									PPID  sel_goods_id = St.GetSelectedTecGoodsID();
 									const GoodsEntry * p_goods_entry = st_data_prices.GetGoodsEntryByID(sel_goods_id);
 									if(p_goods_entry) {
-										if(ImGui::Button("Start Session...")) {
+										if(ImGui::Button("Start Session...", ButtonSize_Double)) {
 											WsCtl_ImGuiSceneBlock::DPrc prc_data;
 											St.D_Prc.GetData(prc_data); 
 											if(!!prc_data.PrcUuid) {
@@ -2033,11 +2462,27 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							if(ImGui::Button("Start...", button_size)) {
 								;
 							}
+							if(ImGui::Button("Config...", button_size)) {
+								SETIFZQ(P_Dlg_Cfg, new ImDialog_WsCtlConfig(&JsP));
+							}
 						}
 					}
 					{
 						ImGuiWindowByLayout wbl(p_tl, loidCtl01, "##CTL-01", view_flags);
 						if(wbl.IsValid()) {
+							{
+								if(P_Dlg_Cfg) {
+									int r = P_Dlg_Cfg->Build();
+									if(r != 0) {
+										if(r > 0) {
+											if(P_Dlg_Cfg->CommitData()) {
+												JsP.Write();
+											}
+										}
+										ZDELETE(P_Dlg_Cfg);
+									}
+								}
+							}
 							DAccount data_acc;
 							St.D_Acc.GetData(data_acc);
 							if(data_acc.SCardID) {
@@ -2057,7 +2502,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								ImGui::InputText(InputLabelPrefix("Текст для авторизации"), LoginText, sizeof(LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
 								ImGui::InputText(InputLabelPrefix("Пароль"), PwText, sizeof(PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
 								if(!isempty(LoginText)) {
-									if(ImGui::Button("Login")) {
+									if(ImGui::Button("Login", ButtonSize_Std)) {
 										WsCtlReqQueue::Req req(PPSCMD_WSCTL_AUTH);
 										STRNSCPY(req.P.AuthTextUtf8, LoginText);
 										STRNSCPY(req.P.AuthPwUtf8, PwText);
@@ -2074,7 +2519,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						ImGuiWindowByLayout wbl(p_tl, loidCtl02, "##CTL-02", view_flags);
 						if(wbl.IsValid()) {
 							//ImGui::Text("CTL-02");
-							ImGui::Text(SLS.AcquireRvlStr().Cat("Сервер").CatDiv(':', 2).Cat(JsP.Addr).CatChar(':').Cat(JsP.Port));
+							ImGui::Text(SLS.AcquireRvlStr().Cat("Сервер").CatDiv(':', 2).Cat(JsP.Server).CatChar(':').Cat(JsP.Port));
 							{
 								DConnectionStatus conn_status;
 								St.D_ConnStatus.GetData(conn_status);

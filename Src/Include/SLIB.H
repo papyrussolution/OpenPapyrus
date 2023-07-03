@@ -7,6 +7,11 @@
 //
 #ifndef __SLIB_H
 #define __SLIB_H
+//
+// Макросы, которые должны предшествовать включению slib.h для управления особенностями компиляции:
+// SLIB_INCLUDE_CPPSTDLIBS - определить (просто #define без значения), если требуется включить библиотеки std cpp
+// SLIB_INCLUDE_WINHTTP    - определить (просто #define без значения), если требуется включить библиотеки winhttp.h вместо wininet.h
+//
 #define SLIBINCLUDED
 // Специальное определение, необходимое на начальной фазе сборки openssl 3.0. Для этого сделан отдельный проект SLIB, в котором SLIB_OSSL_VER_30 определен.
 #define SLIB_OSSL_VER_30 // @v11.6.2 turned-on
@@ -132,7 +137,11 @@
 	#include <windows.h>
 	// @v11.7.0 {
 	#ifndef RC_INVOKED
-		#include <wininet.h> 
+		#ifdef SLIB_INCLUDE_WINHTTP
+			#include <winhttp.h> 
+		#else
+			#include <wininet.h> 
+		#endif
 		#include <iphlpapi.h>
 		// @v11.7.3 {
 		#if _MSC_VER >= 1600
@@ -2307,7 +2316,7 @@ enum SCodepage {
 	cp20833 = 20833, // x-EBCDIC-KoreanExtended	IBM EBCDIC Korean Extended
 	cp20838 = 20838, // IBM-Thai	IBM EBCDIC Thai
 	cp20866 = 20866, // koi8-r	Russian (KOI8-R); Cyrillic (KOI8-R)
-	cpKOI8R = 20866, // synonim
+	cpKOI8R = 20866, // synonym
 	cp20871 = 20871, // IBM871	IBM EBCDIC Icelandic
 	cp20880 = 20880, // IBM880	IBM EBCDIC Cyrillic Russian
 	cp20905 = 20905, // IBM905	IBM EBCDIC Turkish
@@ -2330,21 +2339,21 @@ enum SCodepage {
 	cp28603 = 28603, // iso-8859-13	ISO 8859-13 Estonian
 	cp28605 = 28605, // iso-8859-15	ISO 8859-15 Latin 9
 
-	cpISO_8859_01 = cp28591, // synonim
-	cpISO_8859_02 = cp28592, // synonim
-	cpISO_8859_03 = cp28593, // synonim
-	cpISO_8859_04 = cp28594, // synonim
-	cpISO_8859_05 = cp28595, // synonim
-	cpISO_8859_06 = cp28596, // synonim
-	cpISO_8859_07 = cp28597, // synonim
-	cpISO_8859_08 = cp28598, // synonim
-	cpISO_8859_09 = cp28599, // synonim
+	cpISO_8859_01 = cp28591, // synonym
+	cpISO_8859_02 = cp28592, // synonym
+	cpISO_8859_03 = cp28593, // synonym
+	cpISO_8859_04 = cp28594, // synonym
+	cpISO_8859_05 = cp28595, // synonym
+	cpISO_8859_06 = cp28596, // synonym
+	cpISO_8859_07 = cp28597, // synonym
+	cpISO_8859_08 = cp28598, // synonym
+	cpISO_8859_09 = cp28599, // synonym
 	cpISO_8859_10 = 885910,
 	cpISO_8859_11 = 885911,
 	cpISO_8859_12 = 885912,
-	cpISO_8859_13 = cp28603, // synonim
+	cpISO_8859_13 = cp28603, // synonym
 	cpISO_8859_14 = 885914,
-	cpISO_8859_15 = cp28605, // synonim
+	cpISO_8859_15 = cp28605, // synonym
 	cpISO_8859_16 = 885916,
 
 	cp29001 = 29001, // x-Europa	Europa 3
@@ -6582,8 +6591,8 @@ public:
 	int    Ensure(size_t size);
 	//
 	// Descr: Реализует сериализацию объекта в буфер rBuf.
-	// Note: Эта функция по спецификации отличается от большинства аналогичных в других классах -
-	//   если указатель pSCtx == 0, то в зависимости от dir она пишет в буфер rBuf или читает из него
+	// Note: Эта функция по спецификации отличается от большинства аналогичных в других классах тем, что
+	//   допускает pSCtx == 0. Если указатель pSCtx == 0, то в зависимости от dir она пишет в буфер rBuf или читает из него
 	//   данные в сыром виде. При чтении проверяются инварианты.
 	//   В случае pSCtx == 0 чтение осуществляется начиная с текущей позиции чтения rBuf.
 	//
@@ -15044,6 +15053,7 @@ public:
 	int    GetString(const char * pParam, SString & rBuf);
 	int    GetBinary(const char * pParam, void * pBuf, size_t bufLen);
 	int    GetRecSize(const char * pParam, size_t * pRecSize);
+	int    GetBinary(const char * pParam, SBuffer & rBuf);
 	int    EnumValues(uint * pIdx, SString * pParam, WinRegValue * pVal);
 	int    EnumKeys(uint * pIdx, SString & rKey);
 	int    PutDWord(const char * pParam, uint32 val);

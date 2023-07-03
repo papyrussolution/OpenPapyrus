@@ -605,7 +605,6 @@ static int dh_gen_set_params(void * genctx, const OSSL_PARAM params[])
 	p = OSSL_PARAM_locate_const(params, OSSL_PKEY_PARAM_DH_GENERATOR);
 	if(p && !OSSL_PARAM_get_int(p, &gctx->generator))
 		return 0;
-
 	/* Parameters that are not allowed for DH */
 	if(OSSL_PARAM_locate_const(params, OSSL_PKEY_PARAM_FFC_GINDEX) != NULL
 	    || OSSL_PARAM_locate_const(params, OSSL_PKEY_PARAM_FFC_PCOUNTER) != NULL
@@ -613,8 +612,7 @@ static int dh_gen_set_params(void * genctx, const OSSL_PARAM params[])
 	    || OSSL_PARAM_locate_const(params, OSSL_PKEY_PARAM_FFC_SEED) != NULL
 	    || OSSL_PARAM_locate_const(params, OSSL_PKEY_PARAM_FFC_QBITS) != NULL
 	    || OSSL_PARAM_locate_const(params, OSSL_PKEY_PARAM_FFC_DIGEST) != NULL
-	    || OSSL_PARAM_locate_const(params,
-	    OSSL_PKEY_PARAM_FFC_DIGEST_PROPS) != NULL) {
+	    || OSSL_PARAM_locate_const(params, OSSL_PKEY_PARAM_FFC_DIGEST_PROPS) != NULL) {
 		ERR_raise(ERR_LIB_PROV, ERR_R_PASSED_INVALID_ARGUMENT);
 		return 0;
 	}

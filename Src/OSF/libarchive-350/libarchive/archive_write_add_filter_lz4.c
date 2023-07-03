@@ -14,11 +14,11 @@
 __FBSDID("$FreeBSD$");
 
 #ifdef HAVE_LZ4_H
-	#include <lz4.h>
+	#include <..\slib\lz4\lz4.h>
 	#include <xxhash.h> // @sobolev
 #endif
 #ifdef HAVE_LZ4HC_H
-	#include <lz4hc.h>
+	#include <..\slib\lz4\lz4hc.h>
 #endif
 #include "archive_xxhash.h"
 

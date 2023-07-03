@@ -1224,11 +1224,13 @@ public:
 	struct BaseEntry {
 		uint64 Id;
 		uint32 SymbHashId;
+		uint32 LineNo; // @v11.7.8 Номер строки исходного файла, с которой начинается определение.
 	};
 	struct TextEntry {
 		uint64 Id;
 		uint32 Locale;
 		uint32 TextP;
+		uint32 LineNo; // @v11.7.8 Номер строки исходного файла, с которой начинается определение.
 	};
 	TSVector <BaseEntry> BL;
 	TSVector <TextEntry> TL;

@@ -23,7 +23,7 @@
 #ifndef PNGPRIV_H
 #define PNGPRIV_H
 
-#include <slib.h>
+//#include <slib.h>
 
 /* Feature Test Macros.  The following are defined here to ensure that correctly
  * implemented libraries reveal the APIs libpng needs to build and hide those
@@ -39,11 +39,11 @@
  */
 #define _POSIX_SOURCE 1 /* Just the POSIX 1003.1 and C89 APIs */
 
-#ifndef PNG_VERSION_INFO_ONLY
+//#ifndef PNG_VERSION_INFO_ONLY
 	// Standard library headers not required by png.h: 
-	#include <stdlib.h>
-	#include <string.h>
-#endif
+	//#include <stdlib.h>
+	//#include <string.h>
+//#endif
 
 #define PNGLIB_BUILD /*libpng is being built, not used*/
 
@@ -846,13 +846,13 @@ typedef const png_uint_16p * png_const_uint_16pp;
 /* Added to libpng-1.5.7: sRGB conversion tables */
 #if defined(PNG_SIMPLIFIED_READ_SUPPORTED) || defined(PNG_SIMPLIFIED_WRITE_SUPPORTED)
 #ifdef PNG_SIMPLIFIED_READ_SUPPORTED
-PNG_INTERNAL_DATA(const png_uint_16, png_sRGB_table, [256]);
+PNG_INTERNAL_DATA(const uint16, png_sRGB_table, [256]);
 /* Convert from an sRGB encoded value 0..255 to a 16-bit linear value,
  * 0..65535.  This table gives the closest 16-bit answers (no errors).
  */
 #endif
 
-PNG_INTERNAL_DATA(const png_uint_16, png_sRGB_base, [512]);
+PNG_INTERNAL_DATA(const uint16, png_sRGB_base, [512]);
 PNG_INTERNAL_DATA(const uint8, png_sRGB_delta, [512]);
 
 #define PNG_sRGB_FROM_LINEAR(linear) ((uint8)(0xff & ((png_sRGB_base[(linear)>>15] + ((((linear) & 0x7fff)*png_sRGB_delta[(linear)>>15])>>12)) >> 8)))
@@ -1024,10 +1024,10 @@ void png_write_iTXt(png_structrp png_ptr, int compression, const char * key, con
 int png_set_text_2(png_const_structrp png_ptr, png_inforp info_ptr, png_const_textp text_ptr, int num_text);
 #endif
 #ifdef PNG_WRITE_oFFs_SUPPORTED
-void png_write_oFFs(png_structrp png_ptr, png_int_32 x_offset, png_int_32 y_offset, int unit_type);
+void png_write_oFFs(png_structrp png_ptr, int32_t x_offset, int32_t y_offset, int unit_type);
 #endif
 #ifdef PNG_WRITE_pCAL_SUPPORTED
-void png_write_pCAL(png_structrp png_ptr, char * purpose, png_int_32 X0, png_int_32 X1, int type, int nparams, const char * units, png_charpp params);
+void png_write_pCAL(png_structrp png_ptr, char * purpose, int32_t X0, int32_t X1, int type, int nparams, const char * units, png_charpp params);
 #endif
 #ifdef PNG_WRITE_pHYs_SUPPORTED
 void png_write_pHYs(png_structrp png_ptr, uint32 x_pixels_per_unit, uint32 y_pixels_per_unit, int unit_type);
@@ -1404,7 +1404,7 @@ extern size_t FASTCALL png_safecat(char * buffer, size_t bufsize, size_t pos, co
 	PNG_INTERNAL_FUNCTION(void, png_warning_parameter_unsigned, (png_warning_parameters p, int number, int format, png_alloc_size_t value), PNG_EMPTY);
 	// Use png_alloc_size_t because it is an unsigned type as big as any we
 	// need to output.  Use the following for a signed value.
-	PNG_INTERNAL_FUNCTION(void, png_warning_parameter_signed, (png_warning_parameters p, int number, int format, png_int_32 value), PNG_EMPTY);
+	PNG_INTERNAL_FUNCTION(void, png_warning_parameter_signed, (png_warning_parameters p, int number, int format, int32_t value), PNG_EMPTY);
 	PNG_INTERNAL_FUNCTION(void, png_formatted_warning, (png_const_structrp png_ptr, png_warning_parameters p, const char * message), PNG_EMPTY);
 	// 'message' follows the X/Open approach of using @1, @2 to insert
 	// parameters previously supplied using the above functions.  Errors in
@@ -1577,11 +1577,11 @@ PNG_INTERNAL_FUNCTION(int, png_check_fp_string, (const char * string, size_t siz
 	 * for overflow, true (1) if no overflow, in which case *res
 	 * holds the result.
 	 */
-	int STDCALL png_muldiv(png_fixed_point_p res, png_fixed_point a, png_int_32 multiplied_by, png_int_32 divided_by);
+	int STDCALL png_muldiv(png_fixed_point_p res, png_fixed_point a, int32_t multiplied_by, int32_t divided_by);
 #endif
 #if defined(PNG_READ_GAMMA_SUPPORTED) || defined(PNG_INCH_CONVERSIONS_SUPPORTED)
 	// Same deal, but issue a warning on overflow and return 0
-	png_fixed_point png_muldiv_warn(png_const_structrp png_ptr, png_fixed_point a, png_int_32 multiplied_by, png_int_32 divided_by);
+	png_fixed_point png_muldiv_warn(png_const_structrp png_ptr, png_fixed_point a, int32_t multiplied_by, int32_t divided_by);
 #endif
 #ifdef PNG_GAMMA_SUPPORTED
 /* Calculate a reciprocal - used for gamma values.  This returns
@@ -1608,8 +1608,8 @@ int png_gamma_significant(png_fixed_point gamma_value);
 	 * While the input is an 'unsigned' value it must actually be the
 	 * correct bit value - 0..255 or 0..65535 as required.
 	 */
-	png_uint_16 png_gamma_correct(png_structrp png_ptr, uint value, png_fixed_point gamma_value);
-	png_uint_16 png_gamma_16bit_correct(uint value, png_fixed_point gamma_value);
+	uint16 png_gamma_correct(png_structrp png_ptr, uint value, png_fixed_point gamma_value);
+	uint16 png_gamma_16bit_correct(uint value, png_fixed_point gamma_value);
 	uint8 png_gamma_8bit_correct(uint value, png_fixed_point gamma_value);
 	void png_destroy_gamma_table(png_structrp png_ptr);
 	void png_build_gamma_table(png_structrp png_ptr, int bit_depth);

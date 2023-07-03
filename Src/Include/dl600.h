@@ -1,5 +1,5 @@
 // DL600.H
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2015, 2016б 2017, 2018, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2015, 2016б 2017, 2018, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #ifndef __DL600_H
@@ -128,7 +128,7 @@ struct DlFunc {
 	struct Arg {
 		DLSYMBID TypID;
 		uint   NamePos;
-		uint16 Flags;
+		uint   Flags;   // @v11.7.8 uint16-->uint
 	};
 	static bool FASTCALL GetOpName(uint opID, SString & rName); // Compile-time
 	DlFunc();
@@ -150,8 +150,7 @@ struct DlFunc {
 	};
 	SString Name;
 	DLSYMBID TypID;
-	uint16 Flags;          // DlFunc::fXXX
-	uint16 Pad;            // @alignment
+	uint   Flags;          // DlFunc::fXXX // @v11.7.8 uint16-->uint
 	union {
 		uint   ImplID;
 		DlFuncImpl Impl;
@@ -615,7 +614,7 @@ struct CtmToken {
 	float  GetFloat(uint * pCastFlags) const;
 	int    GetInt(uint * pCastFlags) const;
 
-	uint16 Code;
+	uint32 Code; // @v11.7.8 uint16-->uint32
 	union {
 		char   C;
 		uchar  CU;

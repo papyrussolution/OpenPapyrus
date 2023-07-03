@@ -50,9 +50,7 @@ double CMSEXPORT _cmsVEC3dot(const cmsVEC3* u, const cmsVEC3* v)
 // Euclidean length
 double CMSEXPORT _cmsVEC3length(const cmsVEC3* a)
 {
-	return sqrt(a->n[VX] * a->n[VX] +
-		   a->n[VY] * a->n[VY] +
-		   a->n[VZ] * a->n[VZ]);
+	return sqrt(a->n[VX] * a->n[VX] + a->n[VY] * a->n[VY] + a->n[VZ] * a->n[VZ]);
 }
 
 // Euclidean distance
@@ -61,7 +59,6 @@ double CMSEXPORT _cmsVEC3distance(const cmsVEC3* a, const cmsVEC3* b)
 	double d1 = a->n[VX] - b->n[VX];
 	double d2 = a->n[VY] - b->n[VY];
 	double d3 = a->n[VZ] - b->n[VZ];
-
 	return sqrt(d1*d1 + d2*d2 + d3*d3);
 }
 
@@ -81,10 +78,9 @@ static boolint CloseEnough(double a, double b)
 boolint CMSEXPORT _cmsMAT3isIdentity(const cmsMAT3* a)
 {
 	cmsMAT3 Identity;
-	int i, j;
 	_cmsMAT3identity(&Identity);
-	for(i = 0; i < 3; i++)
-		for(j = 0; j < 3; j++)
+	for(int i = 0; i < 3; i++)
+		for(int j = 0; j < 3; j++)
 			if(!CloseEnough(a->v[i].n[j], Identity.v[i].n[j])) return FALSE;
 	return TRUE;
 }
@@ -92,29 +88,22 @@ boolint CMSEXPORT _cmsMAT3isIdentity(const cmsMAT3* a)
 // Multiply two matrices
 void CMSEXPORT _cmsMAT3per(cmsMAT3* r, const cmsMAT3* a, const cmsMAT3* b)
 {
-#define ROWCOL(i, j) \
-	a->v[i].n[0]*b->v[0].n[j] + a->v[i].n[1]*b->v[1].n[j] + a->v[i].n[2]*b->v[2].n[j]
-
+#define ROWCOL(i, j) a->v[i].n[0]*b->v[0].n[j] + a->v[i].n[1]*b->v[1].n[j] + a->v[i].n[2]*b->v[2].n[j]
 	_cmsVEC3init(&r->v[0], ROWCOL(0, 0), ROWCOL(0, 1), ROWCOL(0, 2));
 	_cmsVEC3init(&r->v[1], ROWCOL(1, 0), ROWCOL(1, 1), ROWCOL(1, 2));
 	_cmsVEC3init(&r->v[2], ROWCOL(2, 0), ROWCOL(2, 1), ROWCOL(2, 2));
-
 #undef ROWCOL //(i, j)
 }
 
 // Inverse of a matrix b = a^(-1)
 boolint CMSEXPORT _cmsMAT3inverse(const cmsMAT3* a, cmsMAT3* b)
 {
-	double det, c0, c1, c2;
-
-	c0 =  a->v[1].n[1]*a->v[2].n[2] - a->v[1].n[2]*a->v[2].n[1];
-	c1 = -a->v[1].n[0]*a->v[2].n[2] + a->v[1].n[2]*a->v[2].n[0];
-	c2 =  a->v[1].n[0]*a->v[2].n[1] - a->v[1].n[1]*a->v[2].n[0];
-
-	det = a->v[0].n[0]*c0 + a->v[0].n[1]*c1 + a->v[0].n[2]*c2;
-
-	if(fabs(det) < MATRIX_DET_TOLERANCE) return FALSE; // singular matrix; can't invert
-
+	double c0 =  a->v[1].n[1]*a->v[2].n[2] - a->v[1].n[2]*a->v[2].n[1];
+	double c1 = -a->v[1].n[0]*a->v[2].n[2] + a->v[1].n[2]*a->v[2].n[0];
+	double c2 =  a->v[1].n[0]*a->v[2].n[1] - a->v[1].n[1]*a->v[2].n[0];
+	double det = a->v[0].n[0]*c0 + a->v[0].n[1]*c1 + a->v[0].n[2]*c2;
+	if(fabs(det) < MATRIX_DET_TOLERANCE) 
+		return FALSE; // singular matrix; can't invert
 	b->v[0].n[0] = c0/det;
 	b->v[0].n[1] = (a->v[0].n[2]*a->v[2].n[1] - a->v[0].n[1]*a->v[2].n[2])/det;
 	b->v[0].n[2] = (a->v[0].n[1]*a->v[1].n[2] - a->v[0].n[2]*a->v[1].n[1])/det;
@@ -124,7 +113,6 @@ boolint CMSEXPORT _cmsMAT3inverse(const cmsMAT3* a, cmsMAT3* b)
 	b->v[2].n[0] = c2/det;
 	b->v[2].n[1] = (a->v[0].n[1]*a->v[2].n[0] - a->v[0].n[0]*a->v[2].n[1])/det;
 	b->v[2].n[2] = (a->v[0].n[0]*a->v[1].n[1] - a->v[0].n[1]*a->v[1].n[0])/det;
-
 	return TRUE;
 }
 
@@ -132,11 +120,9 @@ boolint CMSEXPORT _cmsMAT3inverse(const cmsMAT3* a, cmsMAT3* b)
 boolint CMSEXPORT _cmsMAT3solve(cmsVEC3* x, cmsMAT3* a, cmsVEC3* b)
 {
 	cmsMAT3 m, a_1;
-
 	memmove(&m, a, sizeof(cmsMAT3));
-
-	if(!_cmsMAT3inverse(&m, &a_1)) return FALSE; // Singular matrix
-
+	if(!_cmsMAT3inverse(&m, &a_1)) 
+		return FALSE; // Singular matrix
 	_cmsMAT3eval(x, &a_1, b);
 	return TRUE;
 }

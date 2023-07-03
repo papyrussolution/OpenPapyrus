@@ -460,9 +460,7 @@ static int sskdf_set_ctx_params(void * vctx, const OSSL_PARAM params[])
 	if((p = OSSL_PARAM_locate_const(params, OSSL_KDF_PARAM_SALT)) != NULL)
 		if(!sskdf_set_buffer(&ctx->salt, &ctx->salt_len, p))
 			return 0;
-
-	if((p = OSSL_PARAM_locate_const(params, OSSL_KDF_PARAM_MAC_SIZE))
-	    != NULL) {
+	if((p = OSSL_PARAM_locate_const(params, OSSL_KDF_PARAM_MAC_SIZE)) != NULL) {
 		if(!OSSL_PARAM_get_size_t(p, &sz) || sz == 0)
 			return 0;
 		ctx->out_len = sz;

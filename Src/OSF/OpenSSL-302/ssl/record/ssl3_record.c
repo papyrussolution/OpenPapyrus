@@ -555,29 +555,22 @@ int ssl3_get_record(SSL * s)
 		goto end;
 	}
 	OSSL_TRACE_BEGIN(TLS) {
-		BIO_printf(trc_out, "dec %lu\n", (unsigned long)rr[0].length);
+		BIO_printf(trc_out, "dec %lu\n", (ulong)rr[0].length);
 		BIO_dump_indent(trc_out, rr[0].data, rr[0].length, 4);
 	} OSSL_TRACE_END(TLS);
-
 	/* r->length is now the compressed data plus mac */
-	if((sess != NULL)
-	    && (s->enc_read_ctx != NULL)
-	    && (!SSL_READ_ETM(s) && EVP_MD_CTX_get0_md(s->read_hash) != NULL)) {
+	if((sess != NULL) && (s->enc_read_ctx != NULL) && (!SSL_READ_ETM(s) && EVP_MD_CTX_get0_md(s->read_hash) != NULL)) {
 		/* s->read_hash != NULL => mac_size != -1 */
-
 		for(j = 0; j < num_recs; j++) {
 			SSL_MAC_BUF * thismb = &macbufs[j];
 			thisrr = &rr[j];
-
 			i = s->method->ssl3_enc->mac(s, thisrr, md, 0 /* not send */);
-			if(i == 0 || thismb == NULL || thismb->mac == NULL
-			    || CRYPTO_memcmp(md, thismb->mac, (size_t)mac_size) != 0)
+			if(i == 0 || thismb == NULL || thismb->mac == NULL || CRYPTO_memcmp(md, thismb->mac, (size_t)mac_size) != 0)
 				enc_err = 0;
 			if(thisrr->length > SSL3_RT_MAX_COMPRESSED_LENGTH + mac_size)
 				enc_err = 0;
 		}
 	}
-
 	if(enc_err == 0) {
 		if(ossl_statem_in_error(s)) {
 			/* We already called SSLfatal() */
@@ -599,62 +592,43 @@ skip_decryption:
 
 	for(j = 0; j < num_recs; j++) {
 		thisrr = &rr[j];
-
 		/* thisrr->length is now just compressed */
 		if(s->expand != NULL) {
 			if(thisrr->length > SSL3_RT_MAX_COMPRESSED_LENGTH) {
-				SSLfatal(s, SSL_AD_RECORD_OVERFLOW,
-				    SSL_R_COMPRESSED_LENGTH_TOO_LONG);
+				SSLfatal(s, SSL_AD_RECORD_OVERFLOW, SSL_R_COMPRESSED_LENGTH_TOO_LONG);
 				goto end;
 			}
 			if(!ssl3_do_uncompress(s, thisrr)) {
-				SSLfatal(s, SSL_AD_DECOMPRESSION_FAILURE,
-				    SSL_R_BAD_DECOMPRESSION);
+				SSLfatal(s, SSL_AD_DECOMPRESSION_FAILURE, SSL_R_BAD_DECOMPRESSION);
 				goto end;
 			}
 		}
-
-		if(SSL_IS_TLS13(s)
-		    && s->enc_read_ctx != NULL
-		    && thisrr->type != SSL3_RT_ALERT) {
+		if(SSL_IS_TLS13(s) && s->enc_read_ctx != NULL && thisrr->type != SSL3_RT_ALERT) {
 			size_t end;
-
-			if(thisrr->length == 0
-			    || thisrr->type != SSL3_RT_APPLICATION_DATA) {
+			if(thisrr->length == 0 || thisrr->type != SSL3_RT_APPLICATION_DATA) {
 				SSLfatal(s, SSL_AD_UNEXPECTED_MESSAGE, SSL_R_BAD_RECORD_TYPE);
 				goto end;
 			}
-
 			/* Strip trailing padding */
-			for(end = thisrr->length - 1; end > 0 && thisrr->data[end] == 0;
-			    end--)
+			for(end = thisrr->length - 1; end > 0 && thisrr->data[end] == 0; end--)
 				continue;
-
 			thisrr->length = end;
 			thisrr->type = thisrr->data[end];
-			if(thisrr->type != SSL3_RT_APPLICATION_DATA
-			    && thisrr->type != SSL3_RT_ALERT
-			    && thisrr->type != SSL3_RT_HANDSHAKE) {
+			if(thisrr->type != SSL3_RT_APPLICATION_DATA && thisrr->type != SSL3_RT_ALERT && thisrr->type != SSL3_RT_HANDSHAKE) {
 				SSLfatal(s, SSL_AD_UNEXPECTED_MESSAGE, SSL_R_BAD_RECORD_TYPE);
 				goto end;
 			}
 			if(s->msg_callback)
-				s->msg_callback(0, s->version, SSL3_RT_INNER_CONTENT_TYPE,
-				    &thisrr->data[end], 1, s, s->msg_callback_arg);
+				s->msg_callback(0, s->version, SSL3_RT_INNER_CONTENT_TYPE, &thisrr->data[end], 1, s, s->msg_callback_arg);
 		}
-
 		/*
 		 * TLSv1.3 alert and handshake records are required to be non-zero in
 		 * length.
 		 */
-		if(SSL_IS_TLS13(s)
-		    && (thisrr->type == SSL3_RT_HANDSHAKE
-		    || thisrr->type == SSL3_RT_ALERT)
-		    && thisrr->length == 0) {
+		if(SSL_IS_TLS13(s) && (thisrr->type == SSL3_RT_HANDSHAKE || thisrr->type == SSL3_RT_ALERT) && thisrr->length == 0) {
 			SSLfatal(s, SSL_AD_UNEXPECTED_MESSAGE, SSL_R_BAD_LENGTH);
 			goto end;
 		}
-
 		/*
 		 * Usually thisrr->length is the length of a single record, but when
 		 * KTLS handles the decryption, thisrr->length may be larger than

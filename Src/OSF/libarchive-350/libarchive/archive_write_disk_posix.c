@@ -1818,7 +1818,6 @@ static void edit_deep_directories(struct archive_write_disk * a)
 	__archive_ensure_cloexec_flag(a->restore_pwd);
 	if(a->restore_pwd < 0)
 		return;
-
 	/* As long as the path is too long... */
 	while(strlen(tail) >= PATH_MAX) {
 		/* Locate a dir prefix shorter than PATH_MAX. */
@@ -1831,7 +1830,7 @@ static void edit_deep_directories(struct archive_write_disk * a)
 		/* Create the intermediate dir and chdir to it. */
 		*tail = '\0'; /* Terminate dir portion */
 		ret = create_dir(a, a->name);
-		if(ret == ARCHIVE_OK && chdir(a->name) != 0)
+		if(ret == ARCHIVE_OK && _chdir(a->name) != 0)
 			ret = ARCHIVE_FAILED;
 		*tail = '/'; /* Restore the / we removed. */
 		if(ret != ARCHIVE_OK)
@@ -2574,7 +2573,7 @@ static int check_symlinks_fsobj(char * path, int * a_eno, archive_string * a_est
 					chdir_fd = fd;
 				}
 #else
-				r = chdir(head);
+				r = _chdir(head);
 #endif
 				if(r) {
 					tail[0] = c;
@@ -2683,7 +2682,7 @@ static int check_symlinks_fsobj(char * path, int * a_eno, archive_string * a_est
 						chdir_fd = fd;
 					}
 #else
-					r = chdir(head);
+					r = _chdir(head);
 #endif
 					if(r) {
 						tail[0] = c;
@@ -2733,8 +2732,7 @@ static int check_symlinks_fsobj(char * path, int * a_eno, archive_string * a_est
 	if(chdir_fd >= 0) {
 		r = fchdir(chdir_fd);
 		if(r) {
-			fsobj_error(a_eno, a_estr, errno,
-			    "chdir() failure", "");
+			fsobj_error(a_eno, a_estr, errno, "chdir() failure", "");
 		}
 		close(chdir_fd);
 		chdir_fd = -1;

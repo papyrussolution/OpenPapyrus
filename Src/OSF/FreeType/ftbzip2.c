@@ -38,12 +38,10 @@
 
 #define BZ_NO_STDIO /* Do not need FILE */
 // @sobolev #include <bzlib.h>
-#include <..\osf\bzip2\bzlib.h> // @sobolev 
-
-/***************************************************************************/
-/*****           B Z I P 2   M E M O R Y   M A N A G E M E N T         *****/
-/***************************************************************************/
-
+#include <..\slib\bzip2\bzlib.h> // @sobolev 
+//
+// B Z I P 2   M E M O R Y   M A N A G E M E N T
+//
 /* it is better to use FreeType memory routines instead of raw 'malloc/free' */
 
 typedef void *(* alloc_func)(void *, int, int);

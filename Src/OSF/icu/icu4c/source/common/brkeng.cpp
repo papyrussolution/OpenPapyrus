@@ -52,7 +52,8 @@ int32_t UnhandledEngine::findBreaks(UText * text,
 	return 0;
 }
 
-void UnhandledEngine::handleCharacter(UChar32 c) {
+void UnhandledEngine::handleCharacter(UChar32 c) 
+{
 	if(fHandled == nullptr) {
 		fHandled = new UnicodeSet();
 		if(fHandled == nullptr) {
@@ -66,30 +67,19 @@ void UnhandledEngine::handleCharacter(UChar32 c) {
 		fHandled->applyIntPropertyValue(UCHAR_SCRIPT, script, status);
 	}
 }
-
-/*
- ******************************************************************
- */
-
-ICULanguageBreakFactory::ICULanguageBreakFactory(UErrorCode & /*status*/) 
+//
+ICULanguageBreakFactory::ICULanguageBreakFactory(UErrorCode & /*status*/) : fEngines(0)
 {
-	fEngines = 0;
 }
 
 ICULanguageBreakFactory::~ICULanguageBreakFactory() 
 {
-	if(fEngines != 0) {
-		delete fEngines;
-	}
+	delete fEngines;
 }
 
 U_NAMESPACE_END
 U_CDECL_BEGIN
-static void U_CALLCONV _deleteEngine(void * obj) 
-{
-	delete (const icu::LanguageBreakEngine*)obj;
-}
-
+	static void U_CALLCONV _deleteEngine(void * obj) { delete (const icu::LanguageBreakEngine*)obj; }
 U_CDECL_END
 U_NAMESPACE_BEGIN
 
@@ -151,29 +141,17 @@ const LanguageBreakEngine * ICULanguageBreakFactory::loadEngineFor(UChar32 c)
 		DictionaryMatcher * m = loadDictionaryMatcherFor(code);
 		if(m != NULL) {
 			switch(code) {
-				case USCRIPT_THAI:
-				    engine = new ThaiBreakEngine(m, status);
-				    break;
-				case USCRIPT_LAO:
-				    engine = new LaoBreakEngine(m, status);
-				    break;
-				case USCRIPT_MYANMAR:
-				    engine = new BurmeseBreakEngine(m, status);
-				    break;
-				case USCRIPT_KHMER:
-				    engine = new KhmerBreakEngine(m, status);
-				    break;
+				case USCRIPT_THAI: engine = new ThaiBreakEngine(m, status); break;
+				case USCRIPT_LAO: engine = new LaoBreakEngine(m, status); break;
+				case USCRIPT_MYANMAR: engine = new BurmeseBreakEngine(m, status); break;
+				case USCRIPT_KHMER: engine = new KhmerBreakEngine(m, status); break;
 #if !UCONFIG_NO_NORMALIZATION
 				// CJK not available w/o normalization
-				case USCRIPT_HANGUL:
-				    engine = new CjkBreakEngine(m, kKorean, status);
-				    break;
+				case USCRIPT_HANGUL: engine = new CjkBreakEngine(m, kKorean, status); break;
 				// use same BreakEngine and dictionary for both Chinese and Japanese
 				case USCRIPT_HIRAGANA:
 				case USCRIPT_KATAKANA:
-				case USCRIPT_HAN:
-				    engine = new CjkBreakEngine(m, kChineseJapanese, status);
-				    break;
+				case USCRIPT_HAN: engine = new CjkBreakEngine(m, kChineseJapanese, status); break;
 #if 0
 				// TODO: Have to get some characters with script=common handled
 				// by CjkBreakEngine (e.g. U+309B). Simply subjecting
@@ -218,7 +196,7 @@ DictionaryMatcher * ICULanguageBreakFactory::loadDictionaryMatcherFor(UScriptCod
 	CharString dictnbuf;
 	CharString ext;
 	const char16_t * extStart = u_memrchr(dictfname, 0x002e, dictnlength); // last dot
-	if(extStart != NULL) {
+	if(extStart) {
 		int32_t len = (int32_t)(extStart - dictfname);
 		ext.appendInvariantChars(UnicodeString(FALSE, extStart + 1, dictnlength - len - 1), status);
 		dictnlength = len;

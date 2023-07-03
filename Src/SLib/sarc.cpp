@@ -4,10 +4,10 @@
 #include <slib-internal.h>
 #pragma hdrstop
 #include <..\osf\libzip\lib\zip.h>
-#include <..\osf\lz4\lz4frame.h>
-#include <..\osf\lz4\lz4.h>
+#include <..\slib\lz4\lz4frame.h>
+#include <..\slib\lz4\lz4.h>
 #include <zlib.h>
-#include <..\osf\bzip2\bzlib.h>
+#include <..\slib\bzip2\bzlib.h>
 #include <..\osf\libarchive-350\libarchive\archive.h> // @v10.4.4
 #include <..\osf\libarchive-350\libarchive\archive_entry.h> // @v11.6.9
 //

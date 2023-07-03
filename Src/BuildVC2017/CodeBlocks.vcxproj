@@ -480,9 +480,6 @@
     <ProjectReference Include="liblzma.vcxproj">
       <Project>{c241e0ad-81ff-4a43-9b39-f3712e9c0d4e}</Project>
     </ProjectReference>
-    <ProjectReference Include="libpng.vcxproj">
-      <Project>{04aa636d-9d3e-4e79-9c2e-b8d0470719da}</Project>
-    </ProjectReference>
     <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
     </ProjectReference>
