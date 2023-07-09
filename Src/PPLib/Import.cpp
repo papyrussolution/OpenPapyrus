@@ -4207,7 +4207,7 @@ int ImportCompGS()
 // Import FIAS
 //
 //xmlParserCtxt * xmlCreateFileParserCtxt(const char * pFileName); // @prototype
-extern "C" xmlParserCtxt * xmlCreateURLParserCtxt(const char * filename, int options);
+/*extern "C"*/xmlParserCtxt * xmlCreateURLParserCtxt(const char * filename, int options);
 void FASTCALL xmlDetectSAX2(xmlParserCtxt * ctxt); // @prototype
 
 FiasImporter::Param::Param() : Flags(0)

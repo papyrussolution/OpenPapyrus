@@ -12,9 +12,9 @@
 #ifdef LIBXML_REGEXP_ENABLED
 #ifdef LIBXML_AUTOMATA_ENABLED
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 /**
  * xmlAutomataPtr:
  *
@@ -52,11 +52,9 @@ XMLPUBFUN int xmlAutomataNewCounter(xmlAutomata * am, int min, int max);
 XMLPUBFUN xmlRegexp * xmlAutomataCompile(xmlAutomata * am);
 XMLPUBFUN int xmlAutomataIsDeterminist(xmlAutomata * am);
 
-#ifdef __cplusplus
-}
-#endif
-
+//#ifdef __cplusplus
+//}
+//#endif
 #endif /* LIBXML_AUTOMATA_ENABLED */
 #endif /* LIBXML_REGEXP_ENABLED */
-
 #endif /* __XML_AUTOMATA_H__ */

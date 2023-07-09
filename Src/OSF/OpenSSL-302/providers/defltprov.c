@@ -19,11 +19,8 @@
 #include "prov/names.h"
 #include "prov/provider_util.h"
 #include "prov/seeding.h"
-//#include "internal/nelem.h"
-
 /*
- * Forward declarations to ensure that interface functions are correctly
- * defined.
+ * Forward declarations to ensure that interface functions are correctly defined.
  */
 static OSSL_FUNC_provider_gettable_params_fn deflt_gettable_params;
 static OSSL_FUNC_provider_get_params_fn deflt_get_params;

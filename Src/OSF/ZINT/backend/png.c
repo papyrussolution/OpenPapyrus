@@ -24,7 +24,7 @@
 #include <zlib.h>
 //#include <setjmp.h>
 
-#define SSET    "0123456789ABCDEF"
+// @sobolev #define SSET    "0123456789ABCDEF"
 
 struct mainprog_info_type {
 	long width;

@@ -30,9 +30,9 @@
 
 struct xmlBuffer;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 /*
  * xmlCharEncoding:
  *
@@ -175,11 +175,10 @@ XMLPUBFUN int xmlCharEncCloseFunc(xmlCharEncodingHandler *handler);
  * Export a few useful functions
  */
 #ifdef LIBXML_OUTPUT_ENABLED 
-	XMLPUBFUN int UTF8Toisolat1			(uchar *out, int *outlen, const uchar *in, int *inlen);
+	XMLPUBFUN int UTF8Toisolat1(uchar *out, int *outlen, const uchar *in, int *inlen);
 #endif
-XMLPUBFUN int isolat1ToUTF8			(uchar *out, int *outlen, const uchar *in, int *inlen);
-#ifdef __cplusplus
-}
-#endif
-
+XMLPUBFUN int isolat1ToUTF8(uchar *out, int *outlen, const uchar *in, int *inlen);
+//#ifdef __cplusplus
+//}
+//#endif
 #endif /* __XML_CHAR_ENCODING_H__ */

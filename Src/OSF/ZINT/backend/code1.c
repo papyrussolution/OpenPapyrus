@@ -18,8 +18,6 @@
  */
 #include "common.h"
 #pragma hdrstop
-//#include "large.h"
-//#include "code1.h"
 
 static const int8 c40_shift[] = { // @sobolev int-->int8
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,

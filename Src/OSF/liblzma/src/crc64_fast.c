@@ -11,8 +11,6 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "check-internal.h"
-//#include "crc_macros.h"
 
 #ifdef SL_BIGENDIAN
 	#define A1(x) ((x) >> 56)

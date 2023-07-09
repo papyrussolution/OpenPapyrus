@@ -370,7 +370,7 @@ static int __rep_print_all(ENV*env, uint32 flags)
 	REGINFO * infop = env->reginfo;
 	REGENV * renv = (REGENV *)infop->primary;
 	ENV_ENTER(env, ip);
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "DB_REP handle information:");
 	if(db_rep->rep_db == NULL)
 		STAT_ISSET("Bookkeeping database", db_rep->rep_db);
@@ -378,7 +378,7 @@ static int __rep_print_all(ENV*env, uint32 flags)
 		__db_stat_print(db_rep->rep_db, ip, flags);
 	__db_prflags(env, NULL, db_rep->flags, dbrep_fn, NULL, "\tFlags");
 
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "REP handle information:");
 	__mutex_print_debug_single(env, "Replication region mutex", rep->mtx_region, flags);
 	__mutex_print_debug_single(env, "Bookkeeping database mutex", rep->mtx_clientdb, flags);
@@ -414,7 +414,7 @@ static int __rep_print_all(ENV*env, uint32 flags)
 	__db_prflags(env, NULL, rep->elect_flags, rep_efn, NULL, "\tElect Flags");
 	__db_prflags(env, NULL, rep->lockout_flags, rep_lfn, NULL, "\tLockout Flags");
 	__db_prflags(env, NULL, rep->flags, rep_fn, NULL, "\tFlags");
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "LOG replication information:");
 	MUTEX_LOCK(env, rep->mtx_clientdb);
 	dblp = env->lg_handle;

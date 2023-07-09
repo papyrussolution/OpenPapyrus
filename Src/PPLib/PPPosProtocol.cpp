@@ -3381,7 +3381,7 @@ int PPPosProtocol::Characters(const char * pS, size_t len)
 	return 1;
 }
 
-extern "C" xmlParserCtxt * xmlCreateURLParserCtxt(const char * filename, int options);
+/*extern "C"*/xmlParserCtxt * xmlCreateURLParserCtxt(const char * filename, int options);
 void FASTCALL xmlDetectSAX2(xmlParserCtxt * ctxt); // @prototype
 
 PPPosProtocol::ReadBlock::ReadBlock() : P_SaxCtx(0), State(0), Phase(phUnkn), P_ShT(PPGetStringHash(PPSTR_HASHTOKEN)), SrcFileDtm(ZERODATETIME)

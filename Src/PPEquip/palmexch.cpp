@@ -9,7 +9,7 @@
 #include <StyloConduit.h>
 #include <commctrl.H>
 // @v11.2.1 #include <condres.h>
-#include <ucl/ucl.h>
+// @v11.7.8 #include <ucl/ucl.h>
 
 int ForceExportObsoleteData = 0; // @declared(StyloConduit.h)
 
@@ -636,6 +636,7 @@ int SyncTable::PurgeAll()
 	return ok;
 }
 
+#if 0 // @v11.7.8 {
 static int AddCompressedRec(SyncTable * pTbl, uint32 ver, size_t bufSize, uint8 * pInBuf, size_t dataLen, uint8 * pOutBuf, FILE * fOut, FILE * fOut2)
 {
 	uint   compressed_size = bufSize;
@@ -658,6 +659,7 @@ static int AddCompressedRec(SyncTable * pTbl, uint32 ver, size_t bufSize, uint8 
 	// } @debug
 	return 1;
 }
+#endif // } 0 @v11.7.8
 
 /*static*/int SyncTable::ReceivePalmCompressedFile(PROGRESSFN pFn, SpiiExchgContext * pCtx)
 {
@@ -701,6 +703,7 @@ static int AddCompressedRec(SyncTable * pTbl, uint32 ver, size_t bufSize, uint8 
 	return ok;
 }
 
+#if 0 // @v11.7.8 {
 /*static*/int SyncTable::TransmitCompressedFile(PROGRESSFN pFn, SpiiExchgContext * pCtx)
 {
 	const size_t InitBlockSize = 24*1024;
@@ -886,6 +889,7 @@ static int AddCompressedRec(SyncTable * pTbl, uint32 ver, size_t bufSize, uint8 
 	SFile::ZClose(&f);
 	return ok;
 }
+#endif // } 0 @v11.7.8
 //
 //
 //

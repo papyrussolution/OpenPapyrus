@@ -172,9 +172,7 @@
 #define _WIN32_WINNT 0x0500
 #endif
 
-//#include <windows.h>
-
-  typedef CRITICAL_SECTION cairo_mutex_impl_t;
+typedef CRITICAL_SECTION cairo_mutex_impl_t;
 
 #define CAIRO_MUTEX_IMPL_WIN32 1
 #define CAIRO_MUTEX_IMPL_LOCK(mutex) EnterCriticalSection (&(mutex))

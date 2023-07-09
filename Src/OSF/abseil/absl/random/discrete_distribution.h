@@ -6,14 +6,6 @@
 #ifndef ABSL_RANDOM_DISCRETE_DISTRIBUTION_H_
 #define ABSL_RANDOM_DISCRETE_DISTRIBUTION_H_
 
-//#include <cassert>
-//#include <cmath>
-//#include <istream>
-//#include <limits>
-//#include <numeric>
-//#include <type_traits>
-//#include <utility>
-//#include <vector>
 #include "absl/random/bernoulli_distribution.h"
 #include "absl/random/internal/iostream_state_saver.h"
 #include "absl/random/uniform_int_distribution.h"

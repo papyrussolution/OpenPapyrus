@@ -10,14 +10,12 @@
 #define __XML_SCHEMA_H__
 
 #include <libxml/xmlversion.h>
-
 #ifdef LIBXML_SCHEMAS_ENABLED
-
 #include <libxml/tree.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 /**
  * This error codes are obsolete; not used any more.
  */
@@ -157,9 +155,9 @@ XMLPUBFUN xmlSchemaSAXPlugPtr xmlSchemaSAXPlug(xmlSchemaValidCtxt * ctxt, xmlSAX
 XMLPUBFUN int xmlSchemaSAXUnplug(xmlSchemaSAXPlugPtr plug);
 XMLPUBFUN void xmlSchemaValidateSetLocator(xmlSchemaValidCtxt * vctxt, xmlSchemaValidityLocatorFunc f, void * ctxt);
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 
 #endif /* LIBXML_SCHEMAS_ENABLED */
 #endif /* __XML_SCHEMA_H__ */

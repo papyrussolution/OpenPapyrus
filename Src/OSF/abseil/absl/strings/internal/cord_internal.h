@@ -7,11 +7,6 @@
 #ifndef ABSL_STRINGS_INTERNAL_CORD_INTERNAL_H_
 #define ABSL_STRINGS_INTERNAL_CORD_INTERNAL_H_
 
-//#include <atomic>
-//#include <cassert>
-//#include <cstddef>
-//#include <cstdint>
-//#include <type_traits>
 #include "absl/base/config.h"
 #include "absl/base/internal/endian.h"
 #include "absl/base/internal/invoke.h"

@@ -20,7 +20,7 @@ int snprintf(char * s, size_t n, const char * fmt, ...)
 #endif
 #endif
 
-static const char * fz_hex_digits = "0123456789abcdef";
+// @sobolev static const char * fz_hex_digits = "0123456789abcdef";
 
 struct fmtbuf {
 	fz_context * ctx;
@@ -98,7 +98,7 @@ static void fmtuint32(struct fmtbuf * out, uint a, int s, int z, int w, int base
 	if(!a)
 		buf[i++] = '0';
 	while(a) {
-		buf[i++] = fz_hex_digits[a % base];
+		buf[i++] = SlConst::P_HxDigL[a % base];
 		a /= base;
 	}
 	if(s) {
@@ -120,7 +120,7 @@ static void fmtuint64(struct fmtbuf * out, uint64_t a, int s, int z, int w, int 
 	if(!a)
 		buf[i++] = '0';
 	while(a) {
-		buf[i++] = fz_hex_digits[a % base];
+		buf[i++] = SlConst::P_HxDigL[a % base];
 		a /= base;
 	}
 	if(s) {
@@ -182,8 +182,8 @@ static void fmtquote(struct fmtbuf * out, const char * s, int sq, int eq, int ve
 			    if(c < 32) {
 				    fmtputc(out, '\\');
 				    fmtputc(out, 'x');
-				    fmtputc(out, "0123456789ABCDEF"[(c>>4)&15]);
-				    fmtputc(out, "0123456789ABCDEF"[(c)&15]);
+				    fmtputc(out, SlConst::P_HxDigU[(c>>4)&15]);
+				    fmtputc(out, SlConst::P_HxDigU[(c)&15]);
 			    }
 			    else if(c > 127) {
 				    if(verbatim) {
@@ -193,10 +193,10 @@ static void fmtquote(struct fmtbuf * out, const char * s, int sq, int eq, int ve
 				    else {
 					    fmtputc(out, '\\');
 					    fmtputc(out, 'u');
-					    fmtputc(out, "0123456789ABCDEF"[(c>>12)&15]);
-					    fmtputc(out, "0123456789ABCDEF"[(c>>8)&15]);
-					    fmtputc(out, "0123456789ABCDEF"[(c>>4)&15]);
-					    fmtputc(out, "0123456789ABCDEF"[(c)&15]);
+					    fmtputc(out, SlConst::P_HxDigU[(c>>12)&15]);
+					    fmtputc(out, SlConst::P_HxDigU[(c>>8)&15]);
+					    fmtputc(out, SlConst::P_HxDigU[(c>>4)&15]);
+					    fmtputc(out, SlConst::P_HxDigU[(c)&15]);
 				    }
 			    }
 			    else {
@@ -233,8 +233,8 @@ static void fmtquote_pdf(struct fmtbuf * out, const char * s, int sq, int eq)
 				    }
 				    else {
 					    fmtputc(out, 'x');
-					    fmtputc(out, "0123456789ABCDEF"[(c>>4)&15]);
-					    fmtputc(out, "0123456789ABCDEF"[(c)&15]);
+					    fmtputc(out, SlConst::P_HxDigU[(c>>4)&15]);
+					    fmtputc(out, SlConst::P_HxDigU[(c)&15]);
 				    }
 			    }
 			    else {
@@ -261,8 +261,8 @@ static void fmtname(struct fmtbuf * out, const char * s)
 	while((c = *s++) != 0) {
 		if(c <= 32 || c == '/' || c == '#') {
 			fmtputc(out, '#');
-			fmtputc(out, "0123456789ABCDEF"[(c>>4)&15]);
-			fmtputc(out, "0123456789ABCDEF"[(c)&15]);
+			fmtputc(out, SlConst::P_HxDigU[(c>>4)&15]);
+			fmtputc(out, SlConst::P_HxDigU[(c)&15]);
 		}
 		else {
 			fmtputc(out, c);

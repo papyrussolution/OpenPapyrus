@@ -6,6 +6,7 @@
 //
 #pragma once
 
+#define SLIB_INCLUDE_CPPSTDLIBS
 #include <slib.h>
 
 // Off by default warnings
@@ -119,16 +120,6 @@
 	#include <wsl/wrladapter.h>
 	#include <directx/d3d12.h>
 #endif
-
-#include <algorithm>
-#include <cassert>
-#include <cstdlib>
-#include <ctime>
-#include <cstring>
-#include <iterator>
-#include <memory>
-#include <new>
-#include <tuple>
 #ifndef _WIN32
 	#include <fstream>
 	#include <filesystem>

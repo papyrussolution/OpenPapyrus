@@ -10,7 +10,7 @@
 #pragma hdrstop
 #include "bn_local.h"
 
-static const char Hex[] = "0123456789ABCDEF";
+// @sobolev static const char Hex[] = "0123456789ABCDEF";
 
 #ifndef OPENSSL_NO_STDIO
 int BN_print_fp(FILE * fp, const BIGNUM * a)
@@ -24,7 +24,6 @@ int BN_print_fp(FILE * fp, const BIGNUM * a)
 	BIO_free(b);
 	return ret;
 }
-
 #endif
 
 int BN_print(BIO * bp, const BIGNUM * a)
@@ -40,7 +39,7 @@ int BN_print(BIO * bp, const BIGNUM * a)
 			/* strip leading zeros */
 			v = (int)((a->d[i] >> j) & 0x0f);
 			if(z || v != 0) {
-				if(BIO_write(bp, &Hex[v], 1) != 1)
+				if(BIO_write(bp, &SlConst::P_HxDigU[v], 1) != 1)
 					goto end;
 				z = 1;
 			}

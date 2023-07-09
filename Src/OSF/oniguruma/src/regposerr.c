@@ -10,7 +10,6 @@
 #define ONIGURUMA_EXPORT
 #endif
 
-//#include "config.h"
 #include "onigposix.h"
 
 #undef regex_t

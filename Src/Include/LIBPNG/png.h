@@ -376,17 +376,14 @@
  */
 
 #ifdef PNG_USER_PRIVATEBUILD /* From pnglibconf.h */
-#define PNG_LIBPNG_BUILD_TYPE \
-	(PNG_LIBPNG_BUILD_BASE_TYPE | PNG_LIBPNG_BUILD_PRIVATE)
+    #define PNG_LIBPNG_BUILD_TYPE (PNG_LIBPNG_BUILD_BASE_TYPE | PNG_LIBPNG_BUILD_PRIVATE)
 #else
-#ifdef PNG_LIBPNG_SPECIALBUILD
-#define PNG_LIBPNG_BUILD_TYPE \
-	(PNG_LIBPNG_BUILD_BASE_TYPE | PNG_LIBPNG_BUILD_SPECIAL)
-#else
-#define PNG_LIBPNG_BUILD_TYPE (PNG_LIBPNG_BUILD_BASE_TYPE)
+    #ifdef PNG_LIBPNG_SPECIALBUILD
+        #define PNG_LIBPNG_BUILD_TYPE (PNG_LIBPNG_BUILD_BASE_TYPE | PNG_LIBPNG_BUILD_SPECIAL)
+    #else
+        #define PNG_LIBPNG_BUILD_TYPE (PNG_LIBPNG_BUILD_BASE_TYPE)
+    #endif
 #endif
-#endif
-
 #ifndef PNG_VERSION_INFO_ONLY
 
 /* Inhibit C++ name-mangling for libpng functions but not for system calls. */
@@ -1273,12 +1270,8 @@ PNG_EXPORT(46, void, png_set_invert_mono, (png_structrp png_ptr));
  * read.  Doing so will result in unexpected behavior and possible warnings or
  * errors if the PNG file contains a bKGD chunk.
  */
-PNG_FP_EXPORT(47, void, png_set_background, (png_structrp png_ptr,
-    png_const_color_16p background_color, int background_gamma_code,
-    int need_expand, double background_gamma))
-PNG_FIXED_EXPORT(215, void, png_set_background_fixed, (png_structrp png_ptr,
-    png_const_color_16p background_color, int background_gamma_code,
-    int need_expand, png_fixed_point background_gamma))
+PNG_FP_EXPORT(47, void, png_set_background, (png_structrp png_ptr, png_const_color_16p background_color, int background_gamma_code, int need_expand, double background_gamma))
+PNG_FIXED_EXPORT(215, void, png_set_background_fixed, (png_structrp png_ptr, png_const_color_16p background_color, int background_gamma_code, int need_expand, png_fixed_point background_gamma))
 #endif
 #ifdef PNG_READ_BACKGROUND_SUPPORTED
 #define PNG_BACKGROUND_GAMMA_UNKNOWN 0
@@ -1288,30 +1281,24 @@ PNG_FIXED_EXPORT(215, void, png_set_background_fixed, (png_structrp png_ptr,
 #endif
 
 #ifdef PNG_READ_SCALE_16_TO_8_SUPPORTED
-/* Scale a 16-bit depth file down to 8-bit, accurately. */
-PNG_EXPORT(229, void, png_set_scale_16, (png_structrp png_ptr));
+    /* Scale a 16-bit depth file down to 8-bit, accurately. */
+    PNG_EXPORT(229, void, png_set_scale_16, (png_structrp png_ptr));
 #endif
 
 #ifdef PNG_READ_STRIP_16_TO_8_SUPPORTED
-#define PNG_READ_16_TO_8_SUPPORTED /* Name prior to 1.5.4 */
-/* Strip the second byte of information from a 16-bit depth file. */
-PNG_EXPORT(48, void, png_set_strip_16, (png_structrp png_ptr));
+    #define PNG_READ_16_TO_8_SUPPORTED /* Name prior to 1.5.4 */
+    /* Strip the second byte of information from a 16-bit depth file. */
+    PNG_EXPORT(48, void, png_set_strip_16, (png_structrp png_ptr));
 #endif
-
 #ifdef PNG_READ_QUANTIZE_SUPPORTED
-/* Turn on quantizing, and reduce the palette to the number of colors
- * available.
- */
-PNG_EXPORT(49, void, png_set_quantize,
-    (png_structrp png_ptr, png_colorp palette, int num_palette, int maximum_colors, png_const_uint_16p histogram, int full_quantize));
+    /* Turn on quantizing, and reduce the palette to the number of colors available. */
+    PNG_EXPORT(49, void, png_set_quantize, (png_structrp png_ptr, png_colorp palette, int num_palette, int maximum_colors, png_const_uint_16p histogram, int full_quantize));
 #endif
-
 #ifdef PNG_READ_GAMMA_SUPPORTED
 /* The threshold on gamma processing is configurable but hard-wired into the
  * library.  The following is the floating point variant.
  */
 #define PNG_GAMMA_THRESHOLD (PNG_GAMMA_THRESHOLD_FIXED*.00001)
-
 /* Handle gamma correction. Screen_gamma=(display_exponent).
  * NOTE: this API simply sets the screen and file gamma values. It will
  * therefore override the value for gamma in a PNG file if it is called after
@@ -1338,55 +1325,43 @@ PNG_EXPORT(53, void, png_start_read_image, (png_structrp png_ptr));
 /* Optional call to update the users info structure */
 PNG_EXPORT(54, void, png_read_update_info, (png_structrp png_ptr, png_inforp info_ptr));
 #ifdef PNG_SEQUENTIAL_READ_SUPPORTED
-/* Read one or more rows of image data. */
-PNG_EXPORT(55, void, png_read_rows, (png_structrp png_ptr, png_bytepp row, png_bytepp display_row, uint32 num_rows));
+    /* Read one or more rows of image data. */
+    PNG_EXPORT(55, void, png_read_rows, (png_structrp png_ptr, png_bytepp row, png_bytepp display_row, uint32 num_rows));
 #endif
 #ifdef PNG_SEQUENTIAL_READ_SUPPORTED
-/* Read a row of data. */
-PNG_EXPORT(56, void, png_read_row, (png_structrp png_ptr, png_bytep row, png_bytep display_row));
+    /* Read a row of data. */
+    PNG_EXPORT(56, void, png_read_row, (png_structrp png_ptr, png_bytep row, png_bytep display_row));
 #endif
 #ifdef PNG_SEQUENTIAL_READ_SUPPORTED
-/* Read the whole image into memory at once. */
-PNG_EXPORT(57, void, png_read_image, (png_structrp png_ptr, png_bytepp image));
+    /* Read the whole image into memory at once. */
+    PNG_EXPORT(57, void, png_read_image, (png_structrp png_ptr, png_bytepp image));
 #endif
 /* Write a row of image data */
 PNG_EXPORT(58, void, png_write_row, (png_structrp png_ptr, png_const_bytep row));
-
 /* Write a few rows of image data: (*row) is not written; however, the type
  * is declared as writeable to maintain compatibility with previous versions
  * of libpng and to allow the 'display_row' array from read_rows to be passed
  * unchanged to write_rows.
  */
-PNG_EXPORT(59, void, png_write_rows, (png_structrp png_ptr, png_bytepp row,
-    uint32 num_rows));
-
+PNG_EXPORT(59, void, png_write_rows, (png_structrp png_ptr, png_bytepp row, uint32 num_rows));
 /* Write the image data */
 PNG_EXPORT(60, void, png_write_image, (png_structrp png_ptr, png_bytepp image));
-
 /* Write the end of the PNG file. */
-PNG_EXPORT(61, void, png_write_end, (png_structrp png_ptr,
-    png_inforp info_ptr));
-
+PNG_EXPORT(61, void, png_write_end, (png_structrp png_ptr, png_inforp info_ptr));
 #ifdef PNG_SEQUENTIAL_READ_SUPPORTED
 /* Read the end of the PNG file. */
 PNG_EXPORT(62, void, png_read_end, (png_structrp png_ptr, png_inforp info_ptr));
 #endif
-
 /* Free any memory associated with the png_info_struct */
-PNG_EXPORT(63, void, png_destroy_info_struct, (png_const_structrp png_ptr,
-    png_infopp info_ptr_ptr));
+PNG_EXPORT(63, void, png_destroy_info_struct, (png_const_structrp png_ptr, png_infopp info_ptr_ptr));
 
 /* Free any memory associated with the png_struct and the png_info_structs */
-PNG_EXPORT(64, void, png_destroy_read_struct, (png_structpp png_ptr_ptr,
-    png_infopp info_ptr_ptr, png_infopp end_info_ptr_ptr));
+PNG_EXPORT(64, void, png_destroy_read_struct, (png_structpp png_ptr_ptr, png_infopp info_ptr_ptr, png_infopp end_info_ptr_ptr));
 
 /* Free any memory associated with the png_struct and the png_info_structs */
-PNG_EXPORT(65, void, png_destroy_write_struct, (png_structpp png_ptr_ptr,
-    png_infopp info_ptr_ptr));
-
+PNG_EXPORT(65, void, png_destroy_write_struct, (png_structpp png_ptr_ptr, png_infopp info_ptr_ptr));
 /* Set the libpng method of handling chunk CRC errors */
-PNG_EXPORT(66, void, png_set_crc_action, (png_structrp png_ptr, int crit_action,
-    int ancil_action));
+PNG_EXPORT(66, void, png_set_crc_action, (png_structrp png_ptr, int crit_action, int ancil_action));
 
 /* Values for png_set_crc_action() say how to handle CRC errors in
  * ancillary and critical chunks, and whether to use the data contained

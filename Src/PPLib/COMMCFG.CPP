@@ -1,5 +1,5 @@
 // COMMCFG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2021, 2023
 // @codepage UTF-8
 //
 // Диалог редактирования общих параметров настройки
@@ -8,62 +8,60 @@
 #pragma hdrstop
 
 class CommCfgDialog : public TDialog {
+	DECL_DIALOG_DATA(PPCommConfig);
 public:
 	CommCfgDialog() : TDialog(DLG_COMMCFG)
 	{
 	}
-	void   setDTS(const PPCommConfig *);
-	int    getDTS(PPCommConfig *);
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
+		setCtrlData(CTL_COMMCFG_SUPPLACC,   &Data.SupplAcct);
+		setCtrlData(CTL_COMMCFG_SELLACC,    &Data.SellAcct);
+		setCtrlData(CTL_COMMCFG_CASHACC,    &Data.CashAcct);
+		setCtrlData(CTL_COMMCFG_IMPRESTACC, &Data.ImprestAcct);
+		setCtrlData(CTL_COMMCFG_ASSETACC,   &Data.AssetAcct);
+		AddClusterAssocDef(CTL_COMMCFG_INCM,  0, INCM_DEFAULT);
+		AddClusterAssoc(CTL_COMMCFG_INCM,  1, INCM_BYSHIPMENT);
+		AddClusterAssoc(CTL_COMMCFG_INCM,  2, INCM_BYPAYMENT);
+		SetClusterData(CTL_COMMCFG_INCM, Data.IncomeCalcMethod);
+		AddClusterAssoc(CTL_COMMCFG_FLAGS, 0, CCFLG_PRICEWOEXCISE);
+		AddClusterAssoc(CTL_COMMCFG_FLAGS, 1, CCFLG_TGGLEXCSNPRICE);
+		AddClusterAssoc(CTL_COMMCFG_FLAGS, 2, CCFLG_SETWLONLINK);
+		AddClusterAssoc(CTL_COMMCFG_FLAGS, 3, CCFLG_COSTWOVATBYDEF);
+		AddClusterAssoc(CTL_COMMCFG_FLAGS, 4, CCFLG_COSTWOVATBYSUM);
+		SetClusterData(CTL_COMMCFG_FLAGS, Data.Flags);
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		THROW(getAcc(sel = CTL_COMMCFG_SUPPLACC, &Data.SupplAcct));
+		THROW(getAcc(sel = CTL_COMMCFG_SELLACC, &Data.SellAcct));
+		THROW(getAcc(sel = CTL_COMMCFG_CASHACC, &Data.CashAcct));
+		THROW(getAcc(sel = CTL_COMMCFG_IMPRESTACC, &Data.ImprestAcct));
+		THROW(getAcc(sel = CTL_COMMCFG_ASSETACC, &Data.AssetAcct));
+		GetClusterData(CTL_COMMCFG_FLAGS, &Data.Flags);
+		GetClusterData(CTL_COMMCFG_INCM,  &Data.IncomeCalcMethod);
+		Data.Reserve2 = 0;
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	int    editSysParams();
 	int    getAcc(uint ctl, Acct *);
-	PPCommConfig cfg;
 	PPObjAccount AccObj;
 };
-
-void CommCfgDialog::setDTS(const PPCommConfig * pData)
-{
-	RVALUEPTR(cfg, pData);
-	setCtrlData(CTL_COMMCFG_SUPPLACC,   &cfg.SupplAcct);
-	setCtrlData(CTL_COMMCFG_SELLACC,    &cfg.SellAcct);
-	setCtrlData(CTL_COMMCFG_CASHACC,    &cfg.CashAcct);
-	setCtrlData(CTL_COMMCFG_IMPRESTACC, &cfg.ImprestAcct);
-	setCtrlData(CTL_COMMCFG_ASSETACC,   &cfg.AssetAcct);
-	AddClusterAssocDef(CTL_COMMCFG_INCM,  0, INCM_DEFAULT);
-	AddClusterAssoc(CTL_COMMCFG_INCM,  1, INCM_BYSHIPMENT);
-	AddClusterAssoc(CTL_COMMCFG_INCM,  2, INCM_BYPAYMENT);
-	SetClusterData(CTL_COMMCFG_INCM, cfg.IncomeCalcMethod);
-	AddClusterAssoc(CTL_COMMCFG_FLAGS, 0, CCFLG_PRICEWOEXCISE);
-	AddClusterAssoc(CTL_COMMCFG_FLAGS, 1, CCFLG_TGGLEXCSNPRICE);
-	AddClusterAssoc(CTL_COMMCFG_FLAGS, 2, CCFLG_SETWLONLINK);
-	AddClusterAssoc(CTL_COMMCFG_FLAGS, 3, CCFLG_COSTWOVATBYDEF);
-	AddClusterAssoc(CTL_COMMCFG_FLAGS, 4, CCFLG_COSTWOVATBYSUM);
-	SetClusterData(CTL_COMMCFG_FLAGS, cfg.Flags);
-}
 
 int CommCfgDialog::getAcc(uint ctl, Acct * pAcc)
 {
 	getCtrlData(ctl, pAcc);
 	pAcc->ar = 0;
 	return BIN((!pAcc->ac && !pAcc->sb) || AccObj.SearchNum(pAcc->ac, pAcc->sb, 0L/*@curID*/) > 0);
-}
-
-int CommCfgDialog::getDTS(PPCommConfig * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	THROW(getAcc(sel = CTL_COMMCFG_SUPPLACC, &cfg.SupplAcct));
-	THROW(getAcc(sel = CTL_COMMCFG_SELLACC, &cfg.SellAcct));
-	THROW(getAcc(sel = CTL_COMMCFG_CASHACC, &cfg.CashAcct));
-	THROW(getAcc(sel = CTL_COMMCFG_IMPRESTACC, &cfg.ImprestAcct));
-	THROW(getAcc(sel = CTL_COMMCFG_ASSETACC, &cfg.AssetAcct));
-	GetClusterData(CTL_COMMCFG_FLAGS, &cfg.Flags);
-	GetClusterData(CTL_COMMCFG_INCM,  &cfg.IncomeCalcMethod);
-	cfg.Reserve2 = 0;
-	ASSIGN_PTR(pData, cfg);
-	CATCHZOKPPERRBYDLG
-	return ok;
 }
 
 int CommCfgDialog::editSysParams()
@@ -117,8 +115,8 @@ int CommCfgDialog::editSysParams()
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 2, CCFLG2_SYNCLOT);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 3, CCFLG2_USECCHECKEXTPAYM);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 4, CCFLG2_USEOMTPAYMAMT);
-			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 5, CCFLG2_USESARTREDB); // @v9.7.11
-			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 6, CCFLG2_USELOTXCODE); // @v9.8.11
+			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 5, CCFLG2_USESARTREDB);
+			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 6, CCFLG2_USELOTXCODE);
 			SetClusterData(CTL_CCFGSYS_FLAGS2, Data.Flags2);
 			// @v10.5.3 {
 			{
@@ -189,7 +187,7 @@ int CommCfgDialog::editSysParams()
 		}
 		PPCommConfig Data;
 	};
-	DIALOG_PROC_BODY(SysParamsDialog, &cfg);
+	DIALOG_PROC_BODY(SysParamsDialog, &Data);
 }
 
 IMPL_HANDLE_EVENT(CommCfgDialog)
@@ -201,13 +199,13 @@ IMPL_HANDLE_EVENT(CommCfgDialog)
 				{
 					TDialog * dlg = new TDialog(DLG_MAINORG);
 					if(CheckDialogPtrErr(&dlg)) {
-						SetupPPObjCombo(dlg, CTLSEL_MAINORG_DEF,      PPOBJ_PERSON, cfg.MainOrgID,          OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_MAIN));
-						SetupPPObjCombo(dlg, CTLSEL_MAINORG_DIRECTOR, PPOBJ_PERSON, cfg.MainOrgDirector_,   OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPL));
-						SetupPPObjCombo(dlg, CTLSEL_MAINORG_ACCTNT,   PPOBJ_PERSON, cfg.MainOrgAccountant_, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPL));
+						SetupPPObjCombo(dlg, CTLSEL_MAINORG_DEF,      PPOBJ_PERSON, Data.MainOrgID,          OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_MAIN));
+						SetupPPObjCombo(dlg, CTLSEL_MAINORG_DIRECTOR, PPOBJ_PERSON, Data.MainOrgDirector_,   OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPL));
+						SetupPPObjCombo(dlg, CTLSEL_MAINORG_ACCTNT,   PPOBJ_PERSON, Data.MainOrgAccountant_, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPL));
 						if(ExecView(dlg) == cmOK) {
-							dlg->getCtrlData(CTLSEL_MAINORG_DEF,      &cfg.MainOrgID);
-							dlg->getCtrlData(CTLSEL_MAINORG_DIRECTOR, &cfg.MainOrgDirector_);
-							dlg->getCtrlData(CTLSEL_MAINORG_ACCTNT,   &cfg.MainOrgAccountant_);
+							dlg->getCtrlData(CTLSEL_MAINORG_DEF,      &Data.MainOrgID);
+							dlg->getCtrlData(CTLSEL_MAINORG_DIRECTOR, &Data.MainOrgDirector_);
+							dlg->getCtrlData(CTLSEL_MAINORG_ACCTNT,   &Data.MainOrgAccountant_);
 						}
 					}
 					delete dlg;
@@ -217,36 +215,35 @@ IMPL_HANDLE_EVENT(CommCfgDialog)
 				{
 					TDialog * dlg = new TDialog(DLG_CCFGOP);
 					if(CheckDialogPtrErr(&dlg)) {
-						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_SUPPLSH,    PPOBJ_ACCSHEET,  cfg.SupplAccSheet, OLW_CANINSERT);
-						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_SELLSH,     PPOBJ_ACCSHEET,  cfg.SellAccSheet,  OLW_CANINSERT);
-						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_RCPTOP,     PPOBJ_OPRKIND,   cfg.ReceiptOp,     OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSRECEIPT));
-						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_RETAILOP,   PPOBJ_OPRKIND,   cfg.RetailOp,      OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSEXPEND));
-						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_RETAILRET,  PPOBJ_OPRKIND,   cfg.RetailRetOp,   OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSRETURN));
-						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_INTRRCPT,   PPOBJ_OPRKIND,   cfg.IntrReceiptOp, OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSRECEIPT));
-						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_ACOP,       PPOBJ_OPRKIND,   cfg.AutoComplOp,   OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSMODIF));
-						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_DRAFTRCPT,  PPOBJ_OPRKIND,   cfg.DraftRcptOp,   OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_DRAFTRECEIPT));
-						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_DYNGTYPESA, PPOBJ_GOODSTYPE, cfg.DynGoodsTypeForSupplAgent, OLW_CANINSERT);
-						// @v9.7.0 dlg->setCtrlData(CTL_CCFGOP_PREPAYGOODS, cfg.PrepayInvoiceGoodsCode);
-						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_PREPAYWARE, PPOBJ_GOODS, cfg.PrepayInvoiceGoodsID, OLW_CANINSERT|OLW_LOADDEFONOPEN, 0); // @v9.7.0
+						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_SUPPLSH,    PPOBJ_ACCSHEET,  Data.SupplAccSheet, OLW_CANINSERT);
+						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_SELLSH,     PPOBJ_ACCSHEET,  Data.SellAccSheet,  OLW_CANINSERT);
+						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_RCPTOP,     PPOBJ_OPRKIND,   Data.ReceiptOp,     OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSRECEIPT));
+						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_RETAILOP,   PPOBJ_OPRKIND,   Data.RetailOp,      OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSEXPEND));
+						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_RETAILRET,  PPOBJ_OPRKIND,   Data.RetailRetOp,   OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSRETURN));
+						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_INTRRCPT,   PPOBJ_OPRKIND,   Data.IntrReceiptOp, OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSRECEIPT));
+						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_ACOP,       PPOBJ_OPRKIND,   Data.AutoComplOp,   OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSMODIF));
+						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_DRAFTRCPT,  PPOBJ_OPRKIND,   Data.DraftRcptOp,   OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_DRAFTRECEIPT));
+						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_DYNGTYPESA, PPOBJ_GOODSTYPE, Data.DynGoodsTypeForSupplAgent, OLW_CANINSERT);
+						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_PREPAYWARE, PPOBJ_GOODS, Data.PrepayInvoiceGoodsID, OLW_CANINSERT|OLW_LOADDEFONOPEN, 0);
 						dlg->AddClusterAssoc(CTL_CCFGOP_FLAGS, 0, CCFLG_USENOUPDRESTOPFLAG);
 						dlg->AddClusterAssoc(CTL_CCFGOP_FLAGS, 1, CCFLG_DISABLEACCTURN);
 						dlg->AddClusterAssoc(CTL_CCFGOP_FLAGS, 2, CCFLG_IGNOREORDERSDEBT);
-						dlg->AddClusterAssoc(CTL_CCFGOP_FLAGS, 3, CCFLG_NOADJPRWROFFDRAFT); // @v9.3.4
-						dlg->AddClusterAssoc(CTL_CCFGOP_FLAGS, 4, CCFLG_DONTUNDOOPCNTRONESC); // @v9.5.1
-						dlg->SetClusterData(CTL_CCFGOP_FLAGS, cfg.Flags);
+						dlg->AddClusterAssoc(CTL_CCFGOP_FLAGS, 3, CCFLG_NOADJPRWROFFDRAFT);
+						dlg->AddClusterAssoc(CTL_CCFGOP_FLAGS, 4, CCFLG_DONTUNDOOPCNTRONESC);
+						dlg->AddClusterAssoc(CTL_CCFGOP_FLAGS, 5, CCFLG_CHECKUNIQBILLCODE); // @v11.7.8
+						dlg->SetClusterData(CTL_CCFGOP_FLAGS, Data.Flags);
 						if(ExecView(dlg) == cmOK) {
-							dlg->getCtrlData(CTLSEL_CCFGOP_SUPPLSH,   &cfg.SupplAccSheet);
-							dlg->getCtrlData(CTLSEL_CCFGOP_SELLSH,    &cfg.SellAccSheet);
-							dlg->getCtrlData(CTLSEL_CCFGOP_RCPTOP,    &cfg.ReceiptOp);
-							dlg->getCtrlData(CTLSEL_CCFGOP_RETAILOP,  &cfg.RetailOp);
-							dlg->getCtrlData(CTLSEL_CCFGOP_RETAILRET, &cfg.RetailRetOp);
-							dlg->getCtrlData(CTLSEL_CCFGOP_INTRRCPT,  &cfg.IntrReceiptOp);
-							dlg->getCtrlData(CTLSEL_CCFGOP_ACOP,      &cfg.AutoComplOp);
-							dlg->getCtrlData(CTLSEL_CCFGOP_DRAFTRCPT, &cfg.DraftRcptOp);
-							dlg->getCtrlData(CTLSEL_CCFGOP_DYNGTYPESA, &cfg.DynGoodsTypeForSupplAgent);
-							// @v9.7.0 dlg->getCtrlData(CTL_CCFGOP_PREPAYGOODS,  cfg.PrepayInvoiceGoodsCode);
-							dlg->getCtrlData(CTLSEL_CCFGOP_PREPAYWARE, &cfg.PrepayInvoiceGoodsID); // @v9.7.0
-							dlg->GetClusterData(CTL_CCFGOP_FLAGS, &cfg.Flags);
+							dlg->getCtrlData(CTLSEL_CCFGOP_SUPPLSH,   &Data.SupplAccSheet);
+							dlg->getCtrlData(CTLSEL_CCFGOP_SELLSH,    &Data.SellAccSheet);
+							dlg->getCtrlData(CTLSEL_CCFGOP_RCPTOP,    &Data.ReceiptOp);
+							dlg->getCtrlData(CTLSEL_CCFGOP_RETAILOP,  &Data.RetailOp);
+							dlg->getCtrlData(CTLSEL_CCFGOP_RETAILRET, &Data.RetailRetOp);
+							dlg->getCtrlData(CTLSEL_CCFGOP_INTRRCPT,  &Data.IntrReceiptOp);
+							dlg->getCtrlData(CTLSEL_CCFGOP_ACOP,      &Data.AutoComplOp);
+							dlg->getCtrlData(CTLSEL_CCFGOP_DRAFTRCPT, &Data.DraftRcptOp);
+							dlg->getCtrlData(CTLSEL_CCFGOP_DYNGTYPESA, &Data.DynGoodsTypeForSupplAgent);
+							dlg->getCtrlData(CTLSEL_CCFGOP_PREPAYWARE, &Data.PrepayInvoiceGoodsID);
+							dlg->GetClusterData(CTL_CCFGOP_FLAGS, &Data.Flags);
 						}
 					}
 					delete dlg;

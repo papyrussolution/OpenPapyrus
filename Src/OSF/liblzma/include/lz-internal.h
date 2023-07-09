@@ -223,7 +223,6 @@ extern void   lzma_mf_bt4_skip(lzma_mf * dict, uint32 amount);
 	extern const uint32 lzma_lz_hash_table[256];
 	#define hash_table lzma_lz_hash_table
 #else
-	//#include "check-internal.h"
 	#define hash_table lzma_crc32_table[0]
 #endif
 

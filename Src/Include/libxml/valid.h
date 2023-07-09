@@ -13,9 +13,9 @@
 #include <libxml/list.h>
 #include <libxml/xmlautomata.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 // 
 // Validation state added for non-determinist content model.
 // 
@@ -237,7 +237,7 @@ XMLPUBFUN xmlElement * FASTCALL xmlGetDtdElementDesc(xmlDtd * dtd, const xmlChar
 		XMLPUBFUN int xmlValidatePopElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem, const xmlChar * qname);
 	#endif
 #endif
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 #endif /* __XML_VALID_H__ */

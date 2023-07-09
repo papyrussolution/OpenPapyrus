@@ -512,7 +512,7 @@ static u_char * ngx_stream_log_variable(ngx_stream_session_t * s, u_char * buf, 
 static uintptr_t ngx_stream_log_escape(u_char * dst, u_char * src, size_t size)
 {
 	ngx_uint_t n;
-	static u_char hex[] = "0123456789ABCDEF";
+	// @sobolev static u_char hex[] = "0123456789ABCDEF";
 	static uint32_t escape[] = {
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
 
@@ -546,8 +546,8 @@ static uintptr_t ngx_stream_log_escape(u_char * dst, u_char * src, size_t size)
 		if(escape[*src >> 5] & (1U << (*src & 0x1f))) {
 			*dst++ = '\\';
 			*dst++ = 'x';
-			*dst++ = hex[*src >> 4];
-			*dst++ = hex[*src & 0xf];
+			*dst++ = SlConst::P_HxDigU[*src >> 4];
+			*dst++ = SlConst::P_HxDigU[*src & 0xf];
 			src++;
 		}
 		else {

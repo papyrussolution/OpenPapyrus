@@ -1205,12 +1205,12 @@ public:
 	SrUedContainer();
 	~SrUedContainer();
 	int    ReadSource(const char * pFileName, PPLogger * pLogger);
-	int    WriteSource(const char * pFileName, SBinaryChunk * pHash);
+	int    WriteSource(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash);
 	//
 	// Descr: Верифицирует UED-файл версии ver и находящийся в каталоге pPath 
 	//   на предмет наличия и соответствия хэша, хранящегося в отдельном файле в том же каталоге.
 	//
-	int    Verify(const char * pPath, long ver);
+	int    Verify(const char * pPath, long ver, SBinaryChunk * pHash);
 	//
 	// Descr: Верифицирует this-контейнер на непротиворечивость и, если указан контейнер
 	//   предыдущей версии (pPrevC != 0), то проверяет инварианты.

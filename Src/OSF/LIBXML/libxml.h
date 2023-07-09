@@ -42,7 +42,108 @@
 		// copy to config.h own "preset" configuration file.
 		// As result ifdef HAVE_CONFIG_H is omited here.
 		// 
-		#include "config.h"
+		//#include "libxml-config.h"
+		#define HAVE_CTYPE_H
+		#define HAVE_STDARG_H
+		#define HAVE_MALLOC_H
+		#define HAVE_ERRNO_H
+		#define HAVE_ZLIB_H  1 // @v11.3.12 (HAVE_ZLIB_H)-->(HAVE_ZLIB_H 1) for compatibility with libarchive
+		#if defined(_WIN32_WCE)
+			#undef HAVE_ERRNO_H
+			#include <windows.h>
+			#include "wincecompat.h"
+		#else
+			#define HAVE_SYS_STAT_H
+			#define HAVE__STAT
+			#define HAVE_STAT
+			#define HAVE_STDLIB_H
+			#define HAVE_TIME_H
+			#define HAVE_FCNTL_H
+			#include <direct.h>
+		#endif
+		#ifndef ICONV_CONST
+			#define ICONV_CONST const
+		#endif
+		#ifdef NEED_SOCKETS
+			#include <wsockcompat.h>
+		#endif
+		// 
+		// Windows platforms may define except 
+		// 
+		#undef except
+
+		#define HAVE_ISINF
+		#define HAVE_ISNAN
+		#if defined(_MSC_VER) || defined(__BORLANDC__)
+			//
+			// MS C-runtime has functions which can be used in order to determine if
+			// a given floating-point variable contains NaN, (+-)INF. These are 
+			// preferred, because floating-point technology is considered propriatary
+			// by MS and we can assume that their functions know more about their oddities than we do. 
+			// 
+			// Bjorn Reese figured a quite nice construct for isinf() using the _fpclass function. 
+			#ifndef isinf
+				#define isinf(d) ((_fpclass(d) == _FPCLASS_PINF) ? 1 : ((_fpclass(d) == _FPCLASS_NINF) ? -1 : 0))
+			#endif
+			/* _isnan(x) returns nonzero if(x == NaN) and zero otherwise. */
+			#ifndef isnan
+				#define isnan(d) (_isnan(d))
+			#endif
+		#else
+			#ifndef isinf
+				static int isinf(double d) 
+				{
+					int    expon = 0;
+					double val = frexp(d, &expon);
+					if(expon == 1025) {
+						if(val == 0.5)
+							return 1;
+						else if(val == -0.5)
+							return -1;
+						else
+							return 0;
+					} 
+					else
+						return 0;
+				}
+			#endif
+			#ifndef isnan
+				static int isnan(double d) 
+				{
+					int    expon = 0;
+					double val = frexp(d, &expon);
+					if(expon == 1025) {
+						if(val == 0.5)
+							return 0;
+						else if(val == -0.5)
+							return 0;
+						else
+							return 1;
+					} 
+					else
+						return 0;
+				}
+			#endif
+		#endif
+		#if defined(_MSC_VER)
+			#define mkdir(p,m) _mkdir(p)
+			#define snprintf _snprintf
+			#if _MSC_VER < 1500
+				#define vsnprintf(b,c,f,a) _vsnprintf(b,c,f,a)
+			#endif
+		#elif defined(__MINGW32__)
+			#define mkdir(p,m) _mkdir(p)
+		#endif
+		//
+		// Threading API to use should be specified here for compatibility reasons.
+		// This is however best specified on the compiler's command-line. 
+		//
+		#if defined(LIBXML_THREAD_ENABLED)
+			#if !defined(HAVE_PTHREAD_H) && !defined(HAVE_WIN32_THREADS) && !defined(_WIN32_WCE)
+				#define HAVE_WIN32_THREADS
+			#endif
+		#endif
+		//
 	#endif
 #endif
 #if defined(__Lynx__)
@@ -113,9 +214,9 @@ int xmlNop(void);
 	#ifdef HAVE_UNISTD_H
 		#include <unistd.h>
 	#endif
-	#ifdef __cplusplus
-	extern "C" {
-	#endif
+	//#ifdef __cplusplus
+	//extern "C" {
+	//#endif
 	/*
 	 * xmlChar handling
 	 */
@@ -245,15 +346,15 @@ int xmlNop(void);
 	XMLPUBFUN void xmlHashScan3(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3, xmlHashScanner f, void *data);
 	XMLPUBFUN void xmlHashScanFull(xmlHashTable * table, xmlHashScannerFull f, void *data);
 	XMLPUBFUN void xmlHashScanFull3(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3, xmlHashScannerFull f, void *data);
-	#ifdef __cplusplus
-	}
-	#endif
+	//#ifdef __cplusplus
+	//}
+	//#endif
 	//
 	//#include <libxml/xmlregexp.h>
 	#ifdef LIBXML_REGEXP_ENABLED
-		#ifdef __cplusplus
-		extern "C" {
-		#endif
+		//#ifdef __cplusplus
+		//extern "C" {
+		//#endif
 		// 
 		// Descr: A libxml regular expression, they can actually be far more complex
 		//   thank the POSIX regex expressions.
@@ -347,14 +448,14 @@ int xmlNop(void);
 			XMLPUBFUN int xmlExpSubsume(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, xmlExpNodePtr sub);
 			XMLPUBFUN void xmlExpDump(xmlBuffer * buf, xmlExpNodePtr expr);
 		#endif // LIBXML_EXPR_ENABLED 
-		#ifdef __cplusplus
-		}
-		#endif
+		//#ifdef __cplusplus
+		//}
+		//#endif
 	#endif // LIBXML_REGEXP_ENABLED 
 	//
-	#ifdef __cplusplus
-	extern "C" {
-	#endif
+	//#ifdef __cplusplus
+	//extern "C" {
+	//#endif
 	// 
 	// The different valid entity types.
 	// 
@@ -920,15 +1021,15 @@ int xmlNop(void);
 		XMLPUBFUN xlinkType xlinkIsLink(xmlDoc * doc, xmlNode * pNode);
 	#endif
 
-	#ifdef __cplusplus
-	}
-	#endif
+	//#ifdef __cplusplus
+	//}
+	//#endif
 	//
 	//#include <libxml/SAX.h>
 	#ifdef LIBXML_LEGACY_ENABLED
-		#ifdef __cplusplus
-		extern "C" {
-		#endif
+		//#ifdef __cplusplus
+		//extern "C" {
+		//#endif
 			XMLPUBFUN const xmlChar * getPublicId(void *ctx);
 			XMLPUBFUN const xmlChar * getSystemId(void *ctx);
 			XMLPUBFUN void setDocumentLocator(void *ctx, xmlSAXLocator * loc);
@@ -972,14 +1073,14 @@ int xmlNop(void);
 					XMLPUBFUN void initdocbDefaultSAXHandler(xmlSAXHandlerV1 *hdlr);
 				#endif
 			#endif /* LIBXML_SAX1_ENABLED */
-		#ifdef __cplusplus
-		}
-		#endif
+		//#ifdef __cplusplus
+		//}
+		//#endif
 	#endif /* LIBXML_LEGACY_ENABLED */
 	//#include <libxml/SAX2.h>
-	#ifdef __cplusplus
-	extern "C" {
-	#endif
+	//#ifdef __cplusplus
+	//extern "C" {
+	//#endif
 		XMLPUBFUN const xmlChar * xmlSAX2GetPublicId(void * ctx);
 		XMLPUBFUN const xmlChar * xmlSAX2GetSystemId(void * ctx);
 		XMLPUBFUN void xmlSAX2SetDocumentLocator(void * ctx, xmlSAXLocator * loc);
@@ -1027,15 +1128,15 @@ int xmlNop(void);
 			XMLPUBFUN void docbDefaultSAXHandlerInit();
 		#endif
 		XMLPUBFUN void xmlDefaultSAXHandlerInit();
-	#ifdef __cplusplus
-	}
-	#endif
+	//#ifdef __cplusplus
+	//}
+	//#endif
 #endif // } IN_LIBXML
 	//#include <libxml/xpath.h>
 	#if defined(LIBXML_XPATH_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED)
-		#ifdef __cplusplus
-		extern "C" {
-		#endif
+		//#ifdef __cplusplus
+		//extern "C" {
+		//#endif
 	#endif
 	#ifdef LIBXML_XPATH_ENABLED
 		struct xmlXPathContext;
@@ -1417,15 +1518,15 @@ int xmlNop(void);
 		XMLPUBFUN void xmlXPathInit();
 		// @v10.9.11 XMLPUBFUN int xmlXPathIsNaN_Removed(double val);
 		XMLPUBFUN int FASTCALL xmlXPathIsInf(double val);
-		#ifdef __cplusplus
-		}
-		#endif
+		//#ifdef __cplusplus
+		//}
+		//#endif
 	#endif
 	//#include <libxml/xpointer.h>
 	#ifdef LIBXML_XPTR_ENABLED
-		#ifdef __cplusplus
-		extern "C" {
-		#endif
+		//#ifdef __cplusplus
+		//extern "C" {
+		//#endif
 		// 
 		// A Location Set
 		// 
@@ -1460,16 +1561,16 @@ int xmlNop(void);
 		XMLPUBFUN void xmlXPtrRangeToFunction(xmlXPathParserContext * ctxt, int nargs);
 		XMLPUBFUN xmlNode * xmlXPtrBuildNodeList(xmlXPathObject * obj);
 		XMLPUBFUN void xmlXPtrEvalRangePredicate(xmlXPathParserContext * ctxt);
-		#ifdef __cplusplus
-		}
-		#endif
+		//#ifdef __cplusplus
+		//}
+		//#endif
 	#endif
 
 	//#include <libxml/xpathInternals.h>
 	#ifdef LIBXML_XPATH_ENABLED
-		#ifdef __cplusplus
-		extern "C" {
-		#endif
+		//#ifdef __cplusplus
+		//extern "C" {
+		//#endif
 		// 
 		// Helpers
 		// 
@@ -1812,17 +1913,17 @@ int xmlNop(void);
 		XMLPUBFUN void xmlXPathBooleanFunction(xmlXPathParserContext * ctxt, int nargs);
 		XMLPUBFUN void FASTCALL xmlXPathNodeSetFreeNs(xmlNs * ns); // Really internal functions
 
-		#ifdef __cplusplus
-		}
-		#endif
+		//#ifdef __cplusplus
+		//}
+		//#endif
 	#endif
 #ifdef IN_LIBXML
 	//#include <libxml/c14n.h>
 	#ifdef LIBXML_C14N_ENABLED
 		#ifdef LIBXML_OUTPUT_ENABLED
-			#ifdef __cplusplus
-			extern "C" {
-			#endif /* __cplusplus */
+			//#ifdef __cplusplus
+			//extern "C" {
+			//#endif /* __cplusplus */
 			/*
 			 * XML Canonicazation http://www.w3.org/TR/xml-c14n
 			 * Exclusive XML Canonicazation http://www.w3.org/TR/xml-exc-c14n
@@ -1874,16 +1975,16 @@ int xmlNop(void);
 			XMLPUBFUN int xmlC14NExecute(xmlDoc * doc, xmlC14NIsVisibleCallback is_visible_callback, void * user_data, 
 				int mode/* a xmlC14NMode */, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlOutputBuffer * buf);
 
-			#ifdef __cplusplus
-			}
-			#endif /* __cplusplus */
+			//#ifdef __cplusplus
+			//}
+			//#endif /* __cplusplus */
 		#endif /* LIBXML_OUTPUT_ENABLED */
 	#endif
 	//#include <libxml/pattern.h>
 	#ifdef LIBXML_PATTERN_ENABLED
-		#ifdef __cplusplus
-		extern "C" {
-		#endif
+		//#ifdef __cplusplus
+		//extern "C" {
+		//#endif
 		//
 		// Descr: A compiled (XPath based) pattern to select nodes
 		//
@@ -1919,15 +2020,15 @@ int xmlNop(void);
 		XMLPUBFUN int xmlStreamPushAttr(xmlStreamCtxtPtr stream, const xmlChar *name, const xmlChar *ns);
 		XMLPUBFUN int xmlStreamPop(xmlStreamCtxtPtr stream);
 		XMLPUBFUN int xmlStreamWantsAnyNode	(xmlStreamCtxtPtr stream);
-		#ifdef __cplusplus
-		}
-		#endif
+		//#ifdef __cplusplus
+		//}
+		//#endif
 	#endif /* LIBXML_PATTERN_ENABLED */
 	//#include <libxml/schematron.h>
 	#ifdef LIBXML_SCHEMATRON_ENABLED
-		#ifdef __cplusplus
-		extern "C" {
-		#endif
+		//#ifdef __cplusplus
+		//extern "C" {
+		//#endif
 
 		enum xmlSchematronValidOptions {
 			XML_SCHEMATRON_OUT_QUIET = 1 << 0,	/* quiet no report */
@@ -1993,15 +2094,15 @@ int xmlNop(void);
 		XMLPUBFUN void xmlSchematronFreeValidCtxt(xmlSchematronValidCtxt * ctxt);
 		XMLPUBFUN int xmlSchematronValidateDoc(xmlSchematronValidCtxt * ctxt, xmlDoc * instance);
 
-		#ifdef __cplusplus
-		}
-		#endif
+		//#ifdef __cplusplus
+		//}
+		//#endif
 	#endif
 	//#include <libxml/debugXML.h>
 	#ifdef LIBXML_DEBUG_ENABLED
-		#ifdef __cplusplus
-		extern "C" {
-		#endif
+		//#ifdef __cplusplus
+		//extern "C" {
+		//#endif
 		/*
 		 * The standard Dump routines.
 		 */
@@ -2089,14 +2190,14 @@ int xmlNop(void);
 			 */
 			// @v10.9.0 XMLPUBFUN void xmlShell(xmlDoc * doc, char * filename, xmlShellReadlineFunc input, FILE * output);
 		#endif
-		#ifdef __cplusplus
-		}
-		#endif
+		//#ifdef __cplusplus
+		//}
+		//#endif
 	#endif
 	//#include <libxml/chvalid.h>
-	#ifdef __cplusplus
-	extern "C" {
-	#endif
+	//#ifdef __cplusplus
+	//extern "C" {
+	//#endif
 	// 
 	// Descr: Define our typedefs and structures
 	// 
@@ -2216,14 +2317,14 @@ int xmlNop(void);
 	XMLPUBFUN int xmlIsExtender(uint ch);
 	XMLPUBFUN int xmlIsIdeographic(uint ch);
 	XMLPUBFUN int xmlIsPubidChar(uint ch);
-	#ifdef __cplusplus
-	}
-	#endif
+	//#ifdef __cplusplus
+	//}
+	//#endif
 	//#include <libxml/xmlunicode.h>
 	#ifdef LIBXML_UNICODE_ENABLED
-		#ifdef __cplusplus
-		extern "C" {
-		#endif
+		//#ifdef __cplusplus
+		//extern "C" {
+		//#endif
 		XMLPUBFUN int xmlUCSIsAegeanNumbers(int code);
 		XMLPUBFUN int xmlUCSIsAlphabeticPresentationForms(int code);
 		XMLPUBFUN int xmlUCSIsArabic(int code);
@@ -2390,17 +2491,17 @@ int xmlNop(void);
 		XMLPUBFUN int xmlUCSIsCatZp(int code);
 		XMLPUBFUN int xmlUCSIsCatZs(int code);
 		XMLPUBFUN int xmlUCSIsCat(int code, const char *cat);
-		#ifdef __cplusplus
-		}
-		#endif
+		//#ifdef __cplusplus
+		//}
+		//#endif
 	#endif
 	// @v10.6.0 #include <libxml/HTMLparser.h>
 	// @v10.6.0 #include <libxml/HTMLtree.h>
 	#include <libxml/HTMLparser.h> // @v11.0.0
 	#include <libxml/HTMLtree.h> // @v11.0.0
-	#ifdef __cplusplus
-	extern "C" {
-	#endif
+	//#ifdef __cplusplus
+	//extern "C" {
+	//#endif
 	// 
 	// The dictionnary.
 	// 
@@ -2603,9 +2704,9 @@ int xmlNop(void);
 		void xmlBufDumpEntityDecl(xmlBufPtr buf, xmlEntity * ent);
 		xmlChar *xmlEncodeAttributeEntities(xmlDoc * doc, const xmlChar *input);
 	#endif
-	#ifdef __cplusplus
-	}
-	#endif
+	//#ifdef __cplusplus
+	//}
+	//#endif
 	// } save.h
 	// } @sobolev
 	//#ifdef LIBXML_XINCLUDE_ENABLED
@@ -2621,12 +2722,10 @@ int xmlNop(void);
 	// 
 	#ifndef __XML_XINCLUDE_H__
 		#define __XML_XINCLUDE_H__
-		//#include <libxml/xmlversion.h>
-		//#include <libxml/tree.h>
 		#ifdef LIBXML_XINCLUDE_ENABLED
-			#ifdef __cplusplus
-			extern "C" {
-			#endif
+			//#ifdef __cplusplus
+			//extern "C" {
+			//#endif
 
 			#define XINCLUDE_NS (const xmlChar *)"http://www.w3.org/2003/XInclude"
 			#define XINCLUDE_OLD_NS (const xmlChar *)"http://www.w3.org/2001/XInclude"
@@ -2657,9 +2756,9 @@ int xmlNop(void);
 			XMLPUBFUN int xmlXIncludeSetFlags(xmlXIncludeCtxtPtr ctxt, int flags);
 			XMLPUBFUN void FASTCALL xmlXIncludeFreeContext(xmlXIncludeCtxtPtr ctxt);
 			XMLPUBFUN int xmlXIncludeProcessNode(xmlXIncludeCtxtPtr ctxt, xmlNode * tree);
-			#ifdef __cplusplus
-			}
-			#endif
+			//#ifdef __cplusplus
+			//}
+			//#endif
 		#endif
 	#endif
 	//

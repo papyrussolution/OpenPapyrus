@@ -37,8 +37,6 @@
 #ifndef ABSL_STRINGS_ASCII_H_
 #define ABSL_STRINGS_ASCII_H_
 
-//#include <algorithm>
-//#include <string>
 #include "absl/base/attributes.h"
 #include "absl/base/config.h"
 #include "absl/strings/string_view.h"

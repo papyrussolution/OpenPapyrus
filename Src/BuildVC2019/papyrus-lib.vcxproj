@@ -1718,9 +1718,6 @@
     <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
     </ProjectReference>
-    <ProjectReference Include="ucl.vcxproj">
-      <Project>{f4087f62-03d8-4649-84d3-7212f505e38e}</Project>
-    </ProjectReference>
     <ProjectReference Include="xapian-core.vcxproj">
       <Project>{025e0edd-f5d6-449e-b63e-3ff2490269f1}</Project>
     </ProjectReference>

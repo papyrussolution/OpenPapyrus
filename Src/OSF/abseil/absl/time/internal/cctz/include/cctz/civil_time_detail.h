@@ -9,10 +9,6 @@
 #ifndef ABSL_TIME_INTERNAL_CCTZ_CIVIL_TIME_DETAIL_H_
 #define ABSL_TIME_INTERNAL_CCTZ_CIVIL_TIME_DETAIL_H_
 
-//#include <cstdint>
-//#include <limits>
-//#include <ostream>
-//#include <type_traits>
 #include "absl/base/config.h"
 
 // Disable constexpr support unless we are in C++14 mode.

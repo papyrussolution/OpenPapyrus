@@ -12,9 +12,9 @@
 #include <libxml/xmlversion.h>
 
 #ifdef LIBXML_MODULES_ENABLED
-	#ifdef __cplusplus
-	extern "C" {
-	#endif
+	//#ifdef __cplusplus
+	//extern "C" {
+	//#endif
 	/**
 	 * xmlModulePtr:
 	 *
@@ -37,8 +37,8 @@
 	XMLPUBFUN int xmlModuleClose(xmlModule * module);
 	XMLPUBFUN int xmlModuleFree(xmlModule * module);
 
-	#ifdef __cplusplus
-	}
-	#endif
+	//#ifdef __cplusplus
+	//}
+	//#endif
 #endif
 #endif /*__XML_MODULE_H__ */

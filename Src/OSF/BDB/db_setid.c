@@ -62,7 +62,7 @@ int __env_fileid_reset(ENV * env, DB_THREAD_INFO * ip, const char * name, int en
 	 * which the copy was made.
 	 */
 	if((ret = __os_open(env, real_name, 0, 0, 0, &fhp)) != 0) {
-		__db_err(env, ret, "%s", real_name);
+		__db_err_simple_text(env, ret, real_name);
 		goto err;
 	}
 	if((ret = __os_read(env, fhp, mbuf, sizeof(mbuf), &n)) != 0)

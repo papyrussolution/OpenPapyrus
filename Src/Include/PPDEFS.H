@@ -6992,6 +6992,8 @@
 	#define CTL_TSESSFILT_ORDER          (22 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TSESSFILT_ORDER       (23 + WINDOWS_ID_BIAS)
 	#define CTL_TSESSFILT_WROFF          (24 + WINDOWS_ID_BIAS)
+	#define CTL_TSESSFILT_GDSGRP         (25 + WINDOWS_ID_BIAS) // @v11.7.8
+	#define CTLSEL_TSESSFILT_GDSGRP      (26 + WINDOWS_ID_BIAS) // @v11.7.8
 #define DLG_RMVTSESS              676 // Удаление техн сессии
 	#define CTL_RMVTSESS_WHAT            (1 + WINDOWS_ID_BIAS)
 #define DLG_GSCOPY                677 // Выбор структуры товара для копирования //

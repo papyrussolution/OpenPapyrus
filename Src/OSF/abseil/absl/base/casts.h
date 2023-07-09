@@ -9,10 +9,6 @@
 #ifndef ABSL_BASE_CASTS_H_
 #define ABSL_BASE_CASTS_H_
 
-//#include <cstring>
-//#include <memory>
-//#include <type_traits>
-//#include <utility>
 #include "absl/base/internal/identity.h"
 #include "absl/base/macros.h"
 #include "absl/meta/type_traits.h"

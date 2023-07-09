@@ -1362,6 +1362,8 @@ public:
 	static constexpr uint32 MagicMurmurC1 = 0xcc9e2d51U; // @v11.4.0 0xcc9e2d51 // Magic number C1 for 32-bit hashing from Murmur3
 	static constexpr uint32 MagicMurmurC2 = 0x1b873593U; // @v11.4.0 0x1b873593 // Magic number C2 for 32-bit hashing from Murmur3
 	static constexpr long   OneBillion = 1000000000L; // @v11.7.6
+	static constexpr const char * P_HxDigL = "0123456789abcdef";
+	static constexpr const char * P_HxDigU = "0123456789ABCDEF";
 };
 
 // @v11.7.4 extern const SlConstParam _SlConst_Removed;
@@ -14266,7 +14268,38 @@ COLORREF FASTCALL DarkenColor(COLORREF col, float factor);
 #define MULTALPHA(a,c) (uint8)(((((a)*(c))+0x80)+((((a)*(c))+0x80)>>8))>>8)
 #define PREMULTIPLY_ALPHA_ARGB32(c) { uint32 a = (((c)&0xff000000)>>24); \
 	(c) = (a==0xff) ? (c) : (a ? (((a<<24)|(MULTALPHA(a, (((c)&0x00ff0000)>>16))<<16)|(MULTALPHA(a, (((c)&0x0000ff00)>>8))<<8)|(MULTALPHA(a, (((c)&0x000000ff)))))) : 0); }
-
+//
+// Descr: Представление цвета в формате RGBA где каждый компонент кодируется float-числом в диапазоне [0.0f..1.0f]
+//
+class SColorF {
+	SColorF() : R(0.0f), G(0.0f), B(0.0f), Alpha(0.0f)
+	{
+	}
+	SColorF(const SColorBase & rS) : R(rS.RedF()), G(rS.GreenF()), B(rS.BlueF()), Alpha(rS.AlphaF())
+	{
+	}
+	SColorF & Normalize()
+	{
+		R = sclamp(R, 0.0f, 1.0f);
+		G = sclamp(G, 0.0f, 1.0f);
+		B = sclamp(B, 0.0f, 1.0f);
+		Alpha = sclamp(Alpha, 0.0f, 1.0f);
+		return *this;
+	}
+	operator SColorBase () const
+	{
+		SColorBase cb;
+		cb.R = static_cast<uint8>(255.0f * sclamp(R, 0.0f, 1.0f));
+		cb.G = static_cast<uint8>(255.0f * sclamp(G, 0.0f, 1.0f));
+		cb.B = static_cast<uint8>(255.0f * sclamp(B, 0.0f, 1.0f));
+		cb.Alpha = static_cast<uint8>(255.0f * sclamp(Alpha, 0.0f, 1.0f));
+		return cb;
+	}
+	float R;
+	float G;
+	float B;
+	float Alpha;
+};
 //
 // Descr: Реализует механизм сериализации данных.
 //   Использует виртуальный метод DataType::Serialize()

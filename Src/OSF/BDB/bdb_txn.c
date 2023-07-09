@@ -3120,11 +3120,11 @@ static int __txn_print_all(ENV*env, uint32 flags)
 	DB_TXNREGION * region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	TXN_SYSTEM_LOCK(env);
 	__db_print_reginfo(env, &mgr->reginfo, "Transaction", flags);
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "DB_TXNMGR handle information:");
 	__mutex_print_debug_single(env, "DB_TXNMGR mutex", mgr->mutex, flags);
 	__db_dl(env, "Number of transactions discarded", (ulong)mgr->n_discards);
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "DB_TXNREGION handle information:");
 	__mutex_print_debug_single(env, "DB_TXNREGION region mutex", region->mtx_region, flags);
 	STAT_ULONG("Maximum number of active txns", region->maxtxns);
@@ -3134,7 +3134,7 @@ static int __txn_print_all(ENV*env, uint32 flags)
 	STAT_LSN("Last checkpoint LSN", &region->last_ckp);
 	__db_msg(env, "%.24s\tLast checkpoint timestamp", region->time_ckp == 0 ? "0" : __os_ctime(&region->time_ckp, time_buf));
 	__db_prflags(env, NULL, region->flags, fn, NULL, "\tFlags");
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	TXN_SYSTEM_UNLOCK(env);
 	return 0;
 }

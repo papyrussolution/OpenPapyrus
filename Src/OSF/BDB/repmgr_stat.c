@@ -113,7 +113,7 @@ static int __repmgr_print_sites(ENV * env)
 		return ret;
 	if(!count)
 		return 0;
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "DB_REPMGR site information:");
 	DB_MSGBUF_INIT(&mb);
 	for(i = 0; i < count; ++i) {

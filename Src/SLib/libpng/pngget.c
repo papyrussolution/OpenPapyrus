@@ -266,31 +266,24 @@ static png_fixed_point png_fixed_inches_from_microns(png_const_structrp png_ptr,
 	return png_muldiv_warn(png_ptr, microns, 500, 127);
 }
 
-png_fixed_point PNGAPI png_get_x_offset_inches_fixed(png_const_structrp png_ptr,
-    png_const_inforp info_ptr)
+png_fixed_point PNGAPI png_get_x_offset_inches_fixed(png_const_structrp png_ptr, png_const_inforp info_ptr)
 {
-	return png_fixed_inches_from_microns(png_ptr,
-	    png_get_x_offset_microns(png_ptr, info_ptr));
+	return png_fixed_inches_from_microns(png_ptr, png_get_x_offset_microns(png_ptr, info_ptr));
 }
 
 #endif
 
 #ifdef PNG_FIXED_POINT_SUPPORTED
-png_fixed_point PNGAPI png_get_y_offset_inches_fixed(png_const_structrp png_ptr,
-    png_const_inforp info_ptr)
+png_fixed_point PNGAPI png_get_y_offset_inches_fixed(png_const_structrp png_ptr, png_const_inforp info_ptr)
 {
-	return png_fixed_inches_from_microns(png_ptr,
-	    png_get_y_offset_microns(png_ptr, info_ptr));
+	return png_fixed_inches_from_microns(png_ptr, png_get_y_offset_microns(png_ptr, info_ptr));
 }
-
 #endif
 
 #ifdef PNG_FLOATING_POINT_SUPPORTED
 float PNGAPI png_get_x_offset_inches(png_const_structrp png_ptr, png_const_inforp info_ptr)
 {
-	/* To avoid the overflow do the conversion directly in floating
-	 * point.
-	 */
+	// To avoid the overflow do the conversion directly in floating point
 	return (float)(png_get_x_offset_microns(png_ptr, info_ptr) * .00003937);
 }
 
@@ -299,17 +292,14 @@ float PNGAPI png_get_x_offset_inches(png_const_structrp png_ptr, png_const_infor
 #ifdef PNG_FLOATING_POINT_SUPPORTED
 float PNGAPI png_get_y_offset_inches(png_const_structrp png_ptr, png_const_inforp info_ptr)
 {
-	/* To avoid the overflow do the conversion directly in floating
-	 * point.
-	 */
+	// To avoid the overflow do the conversion directly in floating point
 	return (float)(png_get_y_offset_microns(png_ptr, info_ptr) * .00003937);
 }
 
 #endif
 
 #ifdef PNG_pHYs_SUPPORTED
-uint32 PNGAPI png_get_pHYs_dpi(png_const_structrp png_ptr, png_const_inforp info_ptr,
-    uint32 * res_x, uint32 * res_y, int * unit_type)
+uint32 PNGAPI png_get_pHYs_dpi(png_const_structrp png_ptr, png_const_inforp info_ptr, uint32 * res_x, uint32 * res_y, int * unit_type)
 {
 	uint32 retval = 0;
 	if(png_ptr && info_ptr && (info_ptr->valid & PNG_INFO_pHYs) != 0) {
@@ -345,21 +335,14 @@ uint32 PNGAPI png_get_pHYs_dpi(png_const_structrp png_ptr, png_const_inforp info
 
 uint8 PNGAPI png_get_channels(png_const_structrp png_ptr, png_const_inforp info_ptr)
 {
-	if(png_ptr && info_ptr)
-		return (info_ptr->channels);
-
-	return 0;
+	return (png_ptr && info_ptr) ? (info_ptr->channels) : 0;
 }
 
 #ifdef PNG_READ_SUPPORTED
-png_const_bytep PNGAPI png_get_signature(png_const_structrp png_ptr, png_const_inforp info_ptr)
-{
-	if(png_ptr && info_ptr)
-		return (info_ptr->signature);
-
-	return NULL;
-}
-
+	png_const_bytep PNGAPI png_get_signature(png_const_structrp png_ptr, png_const_inforp info_ptr)
+	{
+		return (png_ptr && info_ptr) ? (info_ptr->signature) : NULL;
+	}
 #endif
 
 #ifdef PNG_bKGD_SUPPORTED
@@ -382,8 +365,7 @@ uint32 PNGAPI png_get_bKGD(png_const_structrp png_ptr, png_inforp info_ptr, png_
  */
 #ifdef PNG_FLOATING_POINT_SUPPORTED
 uint32 PNGAPI png_get_cHRM(png_const_structrp png_ptr, png_const_inforp info_ptr,
-    double * white_x, double * white_y, double * red_x, double * red_y,
-    double * green_x, double * green_y, double * blue_x, double * blue_y)
+    double * white_x, double * white_y, double * red_x, double * red_y, double * green_x, double * green_y, double * blue_x, double * blue_y)
 {
 	/* Quiet API change: this code used to only return the end points if a cHRM
 	 * chunk was present, but the end points can also come from iCCP or sRGB
@@ -593,9 +575,7 @@ uint32 PNGAPI png_get_hIST(png_const_structrp png_ptr, png_inforp info_ptr, png_
 #endif
 
 uint32 PNGAPI png_get_IHDR(png_const_structrp png_ptr, png_const_inforp info_ptr,
-    uint32 * width, uint32 * height, int * bit_depth,
-    int * color_type, int * interlace_type, int * compression_type,
-    int * filter_type)
+    uint32 * width, uint32 * height, int * bit_depth, int * color_type, int * interlace_type, int * compression_type, int * filter_type)
 {
 	png_debug1(1, "in %s retrieval function", "IHDR");
 	if(png_ptr == NULL || info_ptr == NULL)
@@ -641,7 +621,7 @@ uint32 PNGAPI png_get_oFFs(png_const_structrp png_ptr, png_const_inforp info_ptr
 
 #ifdef PNG_pCAL_SUPPORTED
 uint32 PNGAPI png_get_pCAL(png_const_structrp png_ptr, png_inforp info_ptr,
-    char * * purpose, int32_t * X0, int32_t * X1, int * type, int * nparams, char * * units, png_charpp * params)
+    char ** purpose, int32_t * X0, int32_t * X1, int * type, int * nparams, char * * units, png_charpp * params)
 {
 	png_debug1(1, "in %s retrieval function", "pCAL");
 	if(png_ptr && info_ptr && (info_ptr->valid & PNG_INFO_pCAL) != 0 && purpose && X0 && X1 && type && nparams && units && params) {

@@ -102,7 +102,7 @@ bool Curl_tls_keylog_write_line(const char * line)
 
 bool Curl_tls_keylog_write(const char * label, const uchar client_random[CLIENT_RANDOM_SIZE], const uchar * secret, size_t secretlen)
 {
-	const char * hex = "0123456789ABCDEF";
+	// @sobolev const char * hex = "0123456789ABCDEF";
 	size_t pos, i;
 	char line[KEYLOG_LABEL_MAXLEN + 1 + 2 * CLIENT_RANDOM_SIZE + 1 + 2 * SECRET_MAXLEN + 1 + 1];
 	if(!keylog_file_fp) {
@@ -117,19 +117,18 @@ bool Curl_tls_keylog_write(const char * label, const uchar client_random[CLIENT_
 	line[pos++] = ' ';
 	/* Client Random */
 	for(i = 0; i < CLIENT_RANDOM_SIZE; i++) {
-		line[pos++] = hex[client_random[i] >> 4];
-		line[pos++] = hex[client_random[i] & 0xF];
+		line[pos++] = SlConst::P_HxDigU[client_random[i] >> 4];
+		line[pos++] = SlConst::P_HxDigU[client_random[i] & 0xF];
 	}
 	line[pos++] = ' ';
 	/* Secret */
 	for(i = 0; i < secretlen; i++) {
-		line[pos++] = hex[secret[i] >> 4];
-		line[pos++] = hex[secret[i] & 0xF];
+		line[pos++] = SlConst::P_HxDigU[secret[i] >> 4];
+		line[pos++] = SlConst::P_HxDigU[secret[i] & 0xF];
 	}
 	line[pos++] = '\n';
 	line[pos] = '\0';
-	/* Using fputs here instead of fprintf since libcurl's fprintf replacement
-	   may not be thread-safe. */
+	// Using fputs here instead of fprintf since libcurl's fprintf replacement may not be thread-safe.
 	fputs(line, keylog_file_fp);
 	return true;
 }

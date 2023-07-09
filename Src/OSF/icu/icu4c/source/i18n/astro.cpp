@@ -181,12 +181,12 @@ const double CalendarAstronomer::SYNODIC_MONTH  = 29.530588853;
 // Assorted private data used for conversions
 //
 // My own copies of these so compilers are more likely to optimize them away
-const double CalendarAstronomer::PI = 3.14159265358979323846;
+// @sobolev (replaced with SMathConst::Pi) const double CalendarAstronomer::PI = 3.14159265358979323846;
 
-#define CalendarAstronomer_PI2  (CalendarAstronomer::PI*2.0)
-#define RAD_HOUR  ( 12 / CalendarAstronomer::PI )     // radians -> hours
-#define DEG_RAD ( CalendarAstronomer::PI / 180 )      // degrees -> radians
-#define RAD_DEG  ( 180 / CalendarAstronomer::PI )     // radians -> degrees
+#define CalendarAstronomer_PI2  (SMathConst::Pi * 2.0)
+#define RAD_HOUR  ( 12 / SMathConst::Pi)     // radians -> hours
+#define DEG_RAD (SMathConst::Pi / 180.0)      // degrees -> radians
+#define RAD_DEG  (180.0 / SMathConst::Pi)     // radians -> degrees
 
 /***
  * Given 'value', add or subtract 'range' until 0 <= 'value' < range.
@@ -198,11 +198,11 @@ inline static double normalize(double value, double range) { return value - rang
  * For positive angles this is just (angle % 2pi), but the Java
  * mod operator doesn't work that way for negative numbers....
  */
-inline static double norm2PI(double angle) { return normalize(angle, CalendarAstronomer::PI * 2.0); }
+inline static double norm2PI(double angle) { return normalize(angle, SMathConst::Pi * 2.0); }
 /**
  * Normalize an angle into the range -PI - PI
  */
-inline static double normPI(double angle) { return normalize(angle + CalendarAstronomer::PI, CalendarAstronomer::PI * 2.0) - CalendarAstronomer::PI; }
+inline static double normPI(double angle) { return normalize(angle + SMathConst::Pi, SMathConst::Pi * 2.0) - SMathConst::Pi; }
 //
 // Constructors
 //
@@ -461,7 +461,7 @@ CalendarAstronomer::Horizon& CalendarAstronomer::eclipticToHorizon(CalendarAstro
 {
 	Equatorial equatorial;
 	eclipticToEquatorial(equatorial, eclipLong);
-	double H = getLocalSidereal()*CalendarAstronomer::PI/12 - equatorial.ascension; // Hour-angle
+	double H = getLocalSidereal()*SMathConst::Pi/12 - equatorial.ascension; // Hour-angle
 	double sinH = ::sin(H);
 	double cosH = cos(H);
 	double sinD = ::sin(equatorial.declination);
@@ -478,15 +478,15 @@ CalendarAstronomer::Horizon& CalendarAstronomer::eclipticToHorizon(CalendarAstro
 //
 //
 // Parameters of the Sun's orbit as of the epoch Jan 0.0 1990
-// Angles are in radians (after multiplying by CalendarAstronomer::PI/180)
+// Angles are in radians (after multiplying by SMathConst::Pi/180)
 //
 #define JD_EPOCH  2447891.5 // Julian day of epoch
 
-#define SUN_ETA_G    (279.403303 * CalendarAstronomer::PI/180) // Ecliptic longitude at epoch
-#define SUN_OMEGA_G  (282.768422 * CalendarAstronomer::PI/180) // Ecliptic longitude of perigee
+#define SUN_ETA_G    (279.403303 * SMathConst::Pi/180.0) // Ecliptic longitude at epoch
+#define SUN_OMEGA_G  (282.768422 * SMathConst::Pi/180.0) // Ecliptic longitude of perigee
 #define SUN_E         0.016713          // Eccentricity of orbit
 //double sunR0        1.495585e8        // Semi-major axis in KM
-//double sunTheta0    (0.533128 * CalendarAstronomer::PI/180) // Angular diameter at R0
+//double sunTheta0    (0.533128 * SMathConst::Pi/180) // Angular diameter at R0
 
 // The following three methods, which compute the sun parameters
 // given above for an arbitrary epoch (whatever time the object is
@@ -635,7 +635,7 @@ CalendarAstronomer::Equatorial& CalendarAstronomer::getSunPosition(CalendarAstro
  * @internal
  * @deprecated ICU 2.4. This class may be removed or modified.
  */
-double CalendarAstronomer::SUMMER_SOLSTICE() { return (CalendarAstronomer::PI/2); }
+double CalendarAstronomer::SUMMER_SOLSTICE() { return (SMathConst::Pi/2.0); }
 /**
  * Constant representing the autumnal equinox.
  * For use with {@link #getSunTime getSunTime}.
@@ -644,7 +644,7 @@ double CalendarAstronomer::SUMMER_SOLSTICE() { return (CalendarAstronomer::PI/2)
  * @deprecated ICU 2.4. This class may be removed or modified.
  */
 /*double CalendarAstronomer::AUTUMN_EQUINOX() {
-   return  (CalendarAstronomer::PI);
+   return  (SMathConst::Pi);
    }*/
 
 /**
@@ -654,7 +654,7 @@ double CalendarAstronomer::SUMMER_SOLSTICE() { return (CalendarAstronomer::PI/2)
  * @internal
  * @deprecated ICU 2.4. This class may be removed or modified.
  */
-double CalendarAstronomer::WINTER_SOLSTICE() { return ((CalendarAstronomer::PI*3)/2); }
+double CalendarAstronomer::WINTER_SOLSTICE() { return ((SMathConst::Pi*3.0)/2.0); }
 
 CalendarAstronomer::AngleFunc::~AngleFunc() 
 {
@@ -994,16 +994,15 @@ UDate CalendarAstronomer::getSunRiseSet(bool rise)
 //
 // The Moon
 //
-#define moonL0  (318.351648 * CalendarAstronomer::PI/180 )   // Mean long. at epoch
-#define moonP0 ( 36.340410 * CalendarAstronomer::PI/180 )   // Mean long. of perigee
-#define moonN0 ( 318.510107 * CalendarAstronomer::PI/180 )   // Mean long. of node
-#define moonI  (   5.145366 * CalendarAstronomer::PI/180 )   // Inclination of orbit
+#define moonL0  (318.351648 * SMathConst::PiDiv180)   // Mean long. at epoch
+#define moonP0 ( 36.340410 * SMathConst::PiDiv180)   // Mean long. of perigee
+#define moonN0 ( 318.510107 * SMathConst::PiDiv180)   // Mean long. of node
+#define moonI  (   5.145366 * SMathConst::PiDiv180)   // Inclination of orbit
 #define moonE  (   0.054900 )            // Eccentricity of orbit
-
 // These aren't used right now
 #define moonA  (   3.84401e5 )           // semi-major axis (km)
-#define moonT0 (   0.5181 * CalendarAstronomer::PI/180 )     // Angular size at distance A
-#define moonPi (   0.9507 * CalendarAstronomer::PI/180 )     // Parallax at distance A
+#define moonT0 (   0.5181 * SMathConst::PiDiv180) // Angular size at distance A
+#define moonPi (   0.9507 * SMathConst::PiDiv180) // Parallax at distance A
 
 /**
  * The position of the moon at the time set on this
@@ -1030,17 +1029,17 @@ const CalendarAstronomer::Equatorial& CalendarAstronomer::getMoonPosition()
 
 		// Calculate the mean longitude and anomaly of the moon, based on
 		// a circular orbit.  Similar to the corresponding solar calculation.
-		double meanLongitude = norm2PI(13.1763966*PI/180*day + moonL0);
-		meanAnomalyMoon = norm2PI(meanLongitude - 0.1114041*PI/180 * day - moonP0);
+		double meanLongitude = norm2PI(13.1763966*SMathConst::Pi/180*day + moonL0);
+		meanAnomalyMoon = norm2PI(meanLongitude - 0.1114041*SMathConst::Pi/180 * day - moonP0);
 		//
 		// Calculate the following corrections:
 		//  Evection:   the sun's gravity affects the moon's eccentricity
 		//  Annual Eqn: variation in the effect due to earth-sun distance
 		//  A3:         correction factor (for ???)
 		//
-		double evection = 1.2739*PI/180 * ::sin(2 * (meanLongitude - sunLongitude) - meanAnomalyMoon);
-		double annual   = 0.1858*PI/180 * ::sin(meanAnomalySun);
-		double a3       = 0.3700*PI/180 * ::sin(meanAnomalySun);
+		double evection = 1.2739 * SMathConst::PiDiv180 * ::sin(2 * (meanLongitude - sunLongitude) - meanAnomalyMoon);
+		double annual   = 0.1858 * SMathConst::PiDiv180 * ::sin(meanAnomalySun);
+		double a3       = 0.3700 * SMathConst::PiDiv180 * ::sin(meanAnomalySun);
 		meanAnomalyMoon += evection - annual - a3;
 		//
 		// More correction factors:
@@ -1049,21 +1048,17 @@ const CalendarAstronomer::Equatorial& CalendarAstronomer::getMoonPosition()
 		//
 		// TODO: Skip the equation of the center correction and solve Kepler's eqn?
 		//
-		double center = 6.2886*PI/180 * ::sin(meanAnomalyMoon);
-		double a4 =     0.2140*PI/180 * ::sin(2 * meanAnomalyMoon);
-
+		double center = 6.2886 * SMathConst::PiDiv180 * ::sin(meanAnomalyMoon);
+		double a4 =     0.2140 * SMathConst::PiDiv180 * ::sin(2 * meanAnomalyMoon);
 		// Now find the moon's corrected longitude
 		moonLongitude = meanLongitude + evection + center - annual + a4;
-
 		//
 		// And finally, find the variation, caused by the fact that the sun's
 		// gravitational pull on the moon varies depending on which side of
 		// the earth the moon is on
 		//
-		double variation = 0.6583*CalendarAstronomer::PI/180 * ::sin(2*(moonLongitude - sunLongitude));
-
+		double variation = 0.6583 * SMathConst::PiDiv180 * ::sin(2*(moonLongitude - sunLongitude));
 		moonLongitude += variation;
-
 		//
 		// What we've calculated so far is the moon's longitude in the plane
 		// of its own orbit.  Now map to the ecliptic to get the latitude
@@ -1071,16 +1066,12 @@ const CalendarAstronomer::Equatorial& CalendarAstronomer::getMoonPosition()
 		// node, the position on the ecliptic where it is crossed by the moon's
 		// orbit as it crosses from the southern to the northern hemisphere.
 		//
-		double nodeLongitude = norm2PI(moonN0 - 0.0529539*PI/180 * day);
-
-		nodeLongitude -= 0.16*PI/180 * ::sin(meanAnomalySun);
-
+		double nodeLongitude = norm2PI(moonN0 - 0.0529539 * SMathConst::PiDiv180 * day);
+		nodeLongitude -= 0.16 * SMathConst::PiDiv180 * ::sin(meanAnomalySun);
 		double y = ::sin(moonLongitude - nodeLongitude);
 		double x = cos(moonLongitude - nodeLongitude);
-
 		moonEclipLong = ::atan2(y*cos(moonI), x) + nodeLongitude;
 		double moonEclipLat = ::asin(y * ::sin(moonI));
-
 		eclipticToEquatorial(moonPosition, moonEclipLong, moonEclipLat);
 		moonPositionSet = TRUE;
 	}
@@ -1148,7 +1139,7 @@ const CalendarAstronomer::MoonAge CalendarAstronomer::NEW_MOON() {
  * @deprecated ICU 2.4. This class may be removed or modified.
  */
 /*const CalendarAstronomer::MoonAge CalendarAstronomer::FIRST_QUARTER() {
-   return CalendarAstronomer::MoonAge(CalendarAstronomer::PI/2);
+   return CalendarAstronomer::MoonAge(SMathConst::Pi/2);
    }*/
 
 /**
@@ -1157,7 +1148,7 @@ const CalendarAstronomer::MoonAge CalendarAstronomer::NEW_MOON() {
  * @internal
  * @deprecated ICU 2.4. This class may be removed or modified.
  */
-const CalendarAstronomer::MoonAge CalendarAstronomer::FULL_MOON() { return CalendarAstronomer::MoonAge(CalendarAstronomer::PI); }
+const CalendarAstronomer::MoonAge CalendarAstronomer::FULL_MOON() { return CalendarAstronomer::MoonAge(SMathConst::Pi); }
 /**
  * Constant representing the moon's last quarter.
  * For use with {@link #getMoonTime getMoonTime}
@@ -1174,7 +1165,7 @@ MoonTimeAngleFunc::~MoonTimeAngleFunc() {
 }
 
 /*const CalendarAstronomer::MoonAge CalendarAstronomer::LAST_QUARTER() {
-   return CalendarAstronomer::MoonAge((CalendarAstronomer::PI*3)/2);
+   return CalendarAstronomer::MoonAge((SMathConst::Pi*3)/2);
    }*/
 
 /**

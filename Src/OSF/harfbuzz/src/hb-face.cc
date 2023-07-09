@@ -97,9 +97,11 @@ static hb_face_for_data_closure_t * _hb_face_for_data_closure_create(hb_blob_t *
 
 static void _hb_face_for_data_closure_destroy(void * data)
 {
-	hb_face_for_data_closure_t * closure = (hb_face_for_data_closure_t*)data;
-	hb_blob_destroy(closure->blob);
-	SAlloc::F(closure);
+	if(data) {
+		hb_face_for_data_closure_t * closure = (hb_face_for_data_closure_t*)data;
+		hb_blob_destroy(closure->blob);
+		SAlloc::F(closure);
+	}
 }
 
 static hb_blob_t * _hb_face_for_data_reference_table(hb_face_t * face CXX_UNUSED_PARAM, hb_tag_t tag, void * user_data)

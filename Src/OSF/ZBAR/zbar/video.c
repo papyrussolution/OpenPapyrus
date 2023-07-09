@@ -23,7 +23,6 @@
 
 #include <zbar.h>
 #pragma hdrstop
-//#include "error.h"
 
 #ifdef HAVE_LIBJPEG
 extern struct jpeg_decompress_struct * _zbar_jpeg_decomp_create(void);

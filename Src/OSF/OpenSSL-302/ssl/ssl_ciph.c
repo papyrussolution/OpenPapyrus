@@ -16,7 +16,6 @@
 #include <openssl/crypto.h>
 #include <openssl/conf.h>
 #include <openssl/trace.h>
-//#include "internal/nelem.h"
 #include "internal/thread_once.h"
 #include "internal/cryptlib.h"
 

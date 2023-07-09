@@ -11,13 +11,13 @@ struct ahx {
 
 static void ahx_write(fz_context * ctx, void * opaque, const void * data, size_t n)
 {
-	static const char tohex[] /*16*/  = "0123456789ABCDEF";
+	// @sobolev static const char tohex[] /*16*/  = "0123456789ABCDEF";
 	struct ahx * state = (struct ahx *)opaque;
 	const uchar * p = (const uchar*)data;
 	while(n-- > 0) {
 		int c = *p++;
-		fz_write_byte(ctx, state->chain, tohex[(c>>4) & 15]);
-		fz_write_byte(ctx, state->chain, tohex[(c) & 15]);
+		fz_write_byte(ctx, state->chain, SlConst::P_HxDigU[(c>>4) & 15]);
+		fz_write_byte(ctx, state->chain, SlConst::P_HxDigU[(c) & 15]);
 		state->column += 2;
 		if(state->column == 64) {
 			fz_write_byte(ctx, state->chain, '\n');

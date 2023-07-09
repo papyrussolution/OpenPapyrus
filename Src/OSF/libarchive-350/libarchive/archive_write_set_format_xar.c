@@ -800,12 +800,12 @@ static int xmlwrite_sum(struct archive_write * a, xmlTextWriterPtr writer, const
 		algname = getalgname(sum->alg);
 		algsize = getalgsize(sum->alg);
 		if(algname) {
-			const char * hex = "0123456789abcdef";
+			// @sobolev const char * hex = "0123456789abcdef";
 			p = buff;
 			s = sum->val;
 			for(i = 0; i < algsize; i++) {
-				*p++ = hex[(*s >> 4)];
-				*p++ = hex[(*s & 0x0f)];
+				*p++ = SlConst::P_HxDigL[(*s >> 4)];
+				*p++ = SlConst::P_HxDigL[(*s & 0x0f)];
 				s++;
 			}
 			*p = '\0';

@@ -60,7 +60,7 @@ int __db_file_multi_write(ENV * env, const char * path)
 			goto err;
 	}
 	else
-		__db_err(env, ret, "%s", path);
+		__db_err_simple_text(env, ret, path);
 err:
 	if(fhp)
 		__os_closehandle(env, fhp);

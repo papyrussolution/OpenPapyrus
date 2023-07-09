@@ -129,9 +129,9 @@
 	#define LIBXML_DLL_IMPORT XMLPUBVAR
 #endif
 //
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 //
 // use those to be sure nothing nasty will happen if your library and includes mismatch
 //
@@ -317,7 +317,7 @@ extern "C" {
 	#define LIBXML_ATTR_FORMAT(fmt,args) // Macro used to indicate to GCC the parameter are printf like
 #endif /* __GNUC__ */
 
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
+//#ifdef __cplusplus
+//}
+//#endif /* __cplusplus */
 #endif

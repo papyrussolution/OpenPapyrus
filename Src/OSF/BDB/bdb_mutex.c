@@ -778,7 +778,7 @@ static int __mutex_print_all(ENV * env, uint32 flags)
 	mtxmgr = env->mutex_handle;
 	mtxregion = (DB_MUTEXREGION *)mtxmgr->reginfo.primary;
 	__db_print_reginfo(env, &mtxmgr->reginfo, "Mutex", flags);
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "DB_MUTEXREGION structure:");
 	__mutex_print_debug_single(env, "DB_MUTEXREGION region mutex", mtxregion->mtx_region, flags);
 	STAT_ULONG("Size of the aligned mutex", mtxregion->mutex_size);
@@ -790,7 +790,7 @@ static int __mutex_print_all(ENV * env, uint32 flags)
 	 * control allocating mutexes.  That's OK, it just means we display or
 	 * clear statistics while mutexes are moving.
 	 */
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "mutex\twait/nowait, pct wait, holder, flags");
 	size = 0;
 	if(F_ISSET(env, ENV_PRIVATE)) {

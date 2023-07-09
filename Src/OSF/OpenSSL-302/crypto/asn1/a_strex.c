@@ -220,18 +220,17 @@ static int do_buf(uchar * buf, int buflen, int type, unsigned short flags, char 
 
 /* This function hex dumps a buffer of characters */
 
-static int do_hex_dump(char_io * io_ch, void * arg, uchar * buf,
-    int buflen)
+static int do_hex_dump(char_io * io_ch, void * arg, uchar * buf, int buflen)
 {
-	static const char hexdig[] = "0123456789ABCDEF";
+	// @sobolev static const char hexdig[] = "0123456789ABCDEF";
 	uchar * p, * q;
 	char hextmp[2];
 	if(arg) {
 		p = buf;
 		q = buf + buflen;
 		while(p != q) {
-			hextmp[0] = hexdig[*p >> 4];
-			hextmp[1] = hexdig[*p & 0xf];
+			hextmp[0] = SlConst::P_HxDigU[*p >> 4];
+			hextmp[1] = SlConst::P_HxDigU[*p & 0xf];
 			if(!io_ch(arg, hextmp, 2))
 				return -1;
 			p++;

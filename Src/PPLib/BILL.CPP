@@ -1160,6 +1160,23 @@ int BillCore::EnumByDate(DateIter * pDI, BillTbl::Rec * pRec)
 	return ok;
 }
 
+int BillCore::SearchByCode(const char * pCode, PPID opID, LDATE dt, BillTbl::Rec * pRec)
+{
+	int    ok = -1;
+	if(!isempty(pCode)) {
+		BillTbl::Key7 k7;
+		MEMSZERO(k7);
+		STRNSCPY(k7.Code, pCode);
+		if(search(7, &k7, spGe) && stricmp866(data.Code, pCode) == 0) do {
+			if((!opID || data.OpID == opID) && (!dt || data.Dt == dt)) {
+				copyBufTo(pRec);
+				ok = 1;
+			}
+		} while(ok < 0 && search(7, &k7, spNext) && stricmp866(data.Code, pCode) == 0);
+	}
+	return ok;
+}
+
 int BillCore::SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID, BillTbl::Rec * pRec)
 {
 	int    ok = -1;

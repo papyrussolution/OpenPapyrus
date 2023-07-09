@@ -110,7 +110,7 @@
 #ifdef PI
 	#undef PI
 #endif
-#define PI 3.14159265358979323846
+// @sobolev (replaced with SMathConst::Pi) #define PI 3.14159265358979323846
 #define SQRT_TWO 1.41421356237309504880168872420969809
 
 /* Because of a historical screwup in naming, the C language "gamma" function
@@ -506,7 +506,7 @@ lgsing:
 			p += 1.0;
 			z = p - q;
 		}
-		z = q * sin(PI * z);
+		z = q * sin(SMathConst::Pi * z);
 		if(z == 0.0)
 			goto lgsing;
 		/* z = log(PI) - log( z ) - w;*/
@@ -2065,10 +2065,10 @@ static double inverse_error_func(double y)
 		}
 	}
 	// Three steps of Newton-Raphson correction to full accuracy. OK - four 
-	x = x - (erf(x) - y) / (2.0 / sqrt(PI) * gp_exp(-x * x));
-	x = x - (erf(x) - y) / (2.0 / sqrt(PI) * gp_exp(-x * x));
-	x = x - (erf(x) - y) / (2.0 / sqrt(PI) * gp_exp(-x * x));
-	x = x - (erf(x) - y) / (2.0 / sqrt(PI) * gp_exp(-x * x));
+	x = x - (erf(x) - y) / (2.0 / sqrt(SMathConst::Pi) * gp_exp(-x * x));
+	x = x - (erf(x) - y) / (2.0 / sqrt(SMathConst::Pi) * gp_exp(-x * x));
+	x = x - (erf(x) - y) / (2.0 / sqrt(SMathConst::Pi) * gp_exp(-x * x));
+	x = x - (erf(x) - y) / (2.0 / sqrt(SMathConst::Pi) * gp_exp(-x * x));
 	return (x);
 }
 // 
@@ -3141,7 +3141,7 @@ int airy(double x, double * ai, double * aip, double * bi, double * bip)
 		zz = z * z;
 		uf = 1.0 + zz * polevl(zz, AFN, 8) / p1evl(zz, AFD, 9);
 		ug = z * polevl(zz, AGN, 10) / p1evl(zz, AGD, 10);
-		theta = zeta + 0.25 * PI;
+		theta = zeta + 0.25 * SMathConst::Pi;
 		f = sin(theta);
 		g = cos(theta);
 		*ai = k * (f * uf - g * ug);

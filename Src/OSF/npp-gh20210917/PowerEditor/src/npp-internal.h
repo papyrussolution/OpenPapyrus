@@ -4604,7 +4604,6 @@ private:
 	void setAvailable(int id);
 };
 //
-//#include "GoToLineDlg.h"
 class GoToLineDlg : public StaticDialog {
 public:
 	GoToLineDlg() = default;

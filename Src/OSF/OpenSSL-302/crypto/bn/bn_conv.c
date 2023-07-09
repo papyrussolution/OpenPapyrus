@@ -12,7 +12,7 @@
 #include "crypto/ctype.h"
 #include "bn_local.h"
 
-static const char Hex[] = "0123456789ABCDEF";
+// @sobolev static const char Hex[] = "0123456789ABCDEF";
 
 /* Must 'OPENSSL_free' the returned data */
 char * BN_bn2hex(const BIGNUM * a)
@@ -36,8 +36,8 @@ char * BN_bn2hex(const BIGNUM * a)
 			/* strip leading zeros */
 			v = (int)((a->d[i] >> j) & 0xff);
 			if(z || v != 0) {
-				*p++ = Hex[v >> 4];
-				*p++ = Hex[v & 0x0f];
+				*p++ = SlConst::P_HxDigU[v >> 4];
+				*p++ = SlConst::P_HxDigU[v & 0x0f];
 				z = 1;
 			}
 		}

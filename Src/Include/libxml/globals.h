@@ -19,9 +19,9 @@
 #include <libxml/xmlmemory.h>
 #include <libxml/encoding.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 XMLPUBFUN void xmlInitGlobals();
 XMLPUBFUN void xmlCleanupGlobals();
@@ -398,8 +398,7 @@ XMLPUBFUN xmlOutputBufferCreateFilenameFunc * __xmlOutputBufferCreateFilenameVal
 	XMLPUBVAR xmlOutputBufferCreateFilenameFunc xmlOutputBufferCreateFilenameValue;
 #endif
 
-#ifdef __cplusplus
-}
-#endif
-
+//#ifdef __cplusplus
+//}
+//#endif
 #endif /* __XML_GLOBALS_H */

@@ -415,7 +415,7 @@ int __rep_write_egen(ENV*env, REP * rep, uint32 egen)
 		return ret;
 	if((ret = __os_open(env, p, 0, DB_OSO_CREATE|DB_OSO_TRUNC, DB_MODE_600, &fhp)) == 0) {
 		if((ret = __os_write(env, fhp, &egen, sizeof(uint32), &cnt)) != 0 || ((ret = __os_fsync(env, fhp)) != 0))
-			__db_err(env, ret, "%s", p);
+			__db_err_simple_text(env, ret, p);
 		__os_closehandle(env, fhp);
 	}
 	__os_free(env, p);
@@ -483,7 +483,7 @@ int __rep_write_gen(ENV*env, REP * rep, uint32 gen)
 		return ret;
 	if((ret = __os_open(env, p, 0, DB_OSO_CREATE|DB_OSO_TRUNC, DB_MODE_600, &fhp)) == 0) {
 		if((ret = __os_write(env, fhp, &gen, sizeof(uint32), &cnt)) != 0 || ((ret = __os_fsync(env, fhp)) != 0))
-			__db_err(env, ret, "%s", p);
+			__db_err_simple_text(env, ret, p);
 		__os_closehandle(env, fhp);
 	}
 	__os_free(env, p);

@@ -67,17 +67,17 @@ static int32_t getCodesFromLocale(const char * locale, UScriptCode * scripts, in
 	if(U_FAILURE(internalErrorCode) || internalErrorCode == U_STRING_NOT_TERMINATED_WARNING) {
 		return 0;
 	}
-	if(0 == strcmp(lang, "ja")) {
+	if(sstreq(lang, "ja")) {
 		return setCodes(JAPANESE, SIZEOFARRAYi(JAPANESE), scripts, capacity, err);
 	}
-	if(0 == strcmp(lang, "ko")) {
+	if(sstreq(lang, "ko")) {
 		return setCodes(KOREAN, SIZEOFARRAYi(KOREAN), scripts, capacity, err);
 	}
 	scriptLength = uloc_getScript(locale, script, SIZEOFARRAYi(script), &internalErrorCode);
 	if(U_FAILURE(internalErrorCode) || internalErrorCode == U_STRING_NOT_TERMINATED_WARNING) {
 		return 0;
 	}
-	if(0 == strcmp(lang, "zh") && 0 == strcmp(script, "Hant")) {
+	if(sstreq(lang, "zh") && sstreq(script, "Hant")) {
 		return setCodes(HAN_BOPO, SIZEOFARRAYi(HAN_BOPO), scripts, capacity, err);
 	}
 	// Explicit script code.

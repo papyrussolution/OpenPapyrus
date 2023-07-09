@@ -19707,10 +19707,7 @@ static int do_meta_command(char * zLine, ShellState * p){
 			}
 			else {
 				utf8_printf(stdout, "%s;\n", zSql);
-				raw_printf(stdout,
-				    "WARNING: writing to an imposter table will corrupt the \"%s\" %s!\n",
-				    azArg[1], isWO ? "table" : "index"
-				    );
+				raw_printf(stdout, "WARNING: writing to an imposter table will corrupt the \"%s\" %s!\n", azArg[1], isWO ? "table" : "index");
 			}
 		}
 		else {

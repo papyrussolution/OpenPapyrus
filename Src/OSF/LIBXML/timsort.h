@@ -33,12 +33,6 @@
 		#define MK_UINT64(x) x ## ULL
 	#endif
 #endif
-//#ifndef MAX
-	//#define MAX(x, y) (((x) > (y) ? (x) : (y)))
-//#endif
-//#ifndef MIN
-	//#define MIN(x, y) (((x) < (y) ? (x) : (y)))
-//#endif
 
 int compute_minrun(uint64_t);
 

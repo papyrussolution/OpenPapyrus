@@ -29,7 +29,7 @@ static int __env_lsn_reset(ENV * env, DB_THREAD_INFO * ip, const char * name, in
 	 * for writing in this case.
 	 */
 	if((ret = __db_open(dbp, ip, NULL, name, NULL, DB_UNKNOWN, DB_RDWRMASTER, 0, PGNO_BASE_MD)) != 0) {
-		__db_err(env, ret, "%s", name);
+		__db_err_simple_text(env, ret, name);
 		goto err;
 	}
 	ret = __db_lsn_reset(dbp->mpf, ip);

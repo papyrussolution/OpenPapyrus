@@ -2932,9 +2932,10 @@ int PPBillPacket::CreateBlankBySample(PPID sampleBillID, int use_ta)
 	return ok;
 }
 
-int PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontInitCode, int use_ta /* = 1 */)
+int PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontInitCode, int use_ta /*=1*/)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	const PPConfig & r_cfg = LConfig;
 	PPOprKind op_rec;
 	destroy();
@@ -2965,8 +2966,47 @@ int PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontI
 			}
 		}
 		if(op_counter_id) {
+			//
+			// @v11.7.8 Введена проверка на дублирование сформированного кода документа.
+			//
+			const bool check_dup_code = LOGIC(CConfig.Flags & CCFLG_CHECKUNIQBILLCODE);
 			PPObjOpCounter opc_obj;
-			THROW(opc_obj.GetCode(op_counter_id, &Counter, Rec.Code, sizeof(Rec.Code), NZOR(locID, r_cfg.Location), use_ta));
+			const PPID loc_id = NZOR(locID, r_cfg.Location);
+			if(check_dup_code) {
+				PPObjBill * p_bobj = BillObj;
+				//
+				// Так как код документа формируется по заданному человеком шаблону, то
+				// не исключена возможность того, что при каждой новой итерации счетчика
+				// номер будет оставаться один и тот же. Для защиты от этого будем сохранять
+				// предыдущий сгенерированный код и, если следующая итерация сгенерирует
+				// такой же код, то остановим цикл.
+				// Другой потенциальной причиной зацикливания может быть сбой в базе данных.
+				//
+				SString prev_code;
+				PPTransaction tra(use_ta);
+				THROW(tra);
+				for(bool done = false; !done;) {
+					THROW(opc_obj.GetCode(op_counter_id, &Counter, Rec.Code, sizeof(Rec.Code), loc_id, 0));
+					if(prev_code == Rec.Code) {
+						done = true; // We are in the potentially infinite loop: exit!
+					}
+					else {
+						prev_code = Rec.Code;
+						BillTbl::Rec dup_bill_rec;
+						const int sbcr = p_bobj ? p_bobj->P_Tbl->SearchByCode(Rec.Code, opID, ZERODATE, &dup_bill_rec) : -1;
+						THROW(sbcr);
+						if(sbcr > 0) {
+							; // continue loop. @todo @logmessage
+						}
+						else
+							done = true;
+					}
+				}
+				THROW(tra.Commit());
+			}
+			else {
+				THROW(opc_obj.GetCode(op_counter_id, &Counter, Rec.Code, sizeof(Rec.Code), loc_id, use_ta));
+			}
 		}
 	}
 	else // Теневой документ

@@ -24,9 +24,9 @@ struct xmlSAXLocator;
 struct xmlSAXHandler;
 struct xmlEntity;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 // 
 // BASE_BUFFER_SIZE:
 // 
@@ -286,12 +286,12 @@ typedef enum {
 	XML_ELEMENT_TYPE_ELEMENT
 } xmlElementTypeVal;
 
-#ifdef __cplusplus
-}
-#endif
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 /**
  * xmlElement:
  *
@@ -778,9 +778,9 @@ XMLPUBFUN xmlNode * xmlFirstElementChild(xmlNode * parent);
 XMLPUBFUN xmlNode * xmlLastElementChild(xmlNode * parent);
 XMLPUBFUN xmlNode * xmlPreviousElementSibling(xmlNode * pNode);
 #endif
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 #ifndef __XML_PARSER_H__
 	#include <libxml/xmlmemory.h>
 #endif

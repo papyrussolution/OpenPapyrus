@@ -281,6 +281,11 @@ void __db_err(const ENV * env, int error, const char * fmt, ...)
 	 */
 	DB_REAL_ERR(dbenv, error, DB_ERROR_SET, 0, fmt);
 }
+
+void __db_err_simple_text(const ENV * env, int error, const char * pText)
+{
+	__db_err(env, error, "%s", pText);
+}
 /*
  * __db_errx --
  *	Standard error routine.
@@ -383,6 +388,7 @@ void __db_msg(const ENV * env, const char * fmt, ...)
 	DB_REAL_MSG(dbenv, fmt);
 }
 
+void __db_msg_db_line(const ENV * env) { __db_msg(env, "%s", DB_GLOBAL(db_line))/**/; }
 /*
  * __db_repmsg --
  *	Replication system message routine.

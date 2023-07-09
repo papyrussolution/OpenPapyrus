@@ -323,7 +323,7 @@ ImDrawListSharedData::ImDrawListSharedData()
 {
 	THISZERO();
 	for(int i = 0; i < SIZEOFARRAYi(ArcFastVtx); i++) {
-		const float a = ((float)i * 2 * IM_PI) / (float)SIZEOFARRAYi(ArcFastVtx);
+		const float a = ((float)i * 2 * SMathConst::Pi_f) / (float)SIZEOFARRAYi(ArcFastVtx);
 		ArcFastVtx[i] = ImVec2(ImCos(a), ImSin(a));
 	}
 	ArcFastRadiusCutoff = IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_R(IM_DRAWLIST_ARCFAST_SAMPLE_MAX, CircleSegmentMaxError);
@@ -1103,13 +1103,13 @@ void ImDrawList::PathArcTo(const ImVec2 & center, float radius, float a_min, flo
 		const bool a_is_reverse = a_max < a_min;
 		// We are going to use precomputed values for mid samples.
 		// Determine first and last sample in lookup table that belong to the arc.
-		const float a_min_sample_f = IM_DRAWLIST_ARCFAST_SAMPLE_MAX * a_min / (IM_PI * 2.0f);
-		const float a_max_sample_f = IM_DRAWLIST_ARCFAST_SAMPLE_MAX * a_max / (IM_PI * 2.0f);
+		const float a_min_sample_f = IM_DRAWLIST_ARCFAST_SAMPLE_MAX * a_min / (SMathConst::Pi_f * 2.0f);
+		const float a_max_sample_f = IM_DRAWLIST_ARCFAST_SAMPLE_MAX * a_max / (SMathConst::Pi_f * 2.0f);
 		const int a_min_sample = a_is_reverse ? (int)ImFloorSigned(a_min_sample_f) : (int)ImCeil(a_min_sample_f);
 		const int a_max_sample = a_is_reverse ? (int)ImCeil(a_max_sample_f) : (int)ImFloorSigned(a_max_sample_f);
 		const int a_mid_samples = a_is_reverse ? smax(a_min_sample - a_max_sample, 0) : smax(a_max_sample - a_min_sample, 0);
-		const float a_min_segment_angle = a_min_sample * IM_PI * 2.0f / IM_DRAWLIST_ARCFAST_SAMPLE_MAX;
-		const float a_max_segment_angle = a_max_sample * IM_PI * 2.0f / IM_DRAWLIST_ARCFAST_SAMPLE_MAX;
+		const float a_min_segment_angle = a_min_sample * SMathConst::Pi_f * 2.0f / IM_DRAWLIST_ARCFAST_SAMPLE_MAX;
+		const float a_max_segment_angle = a_max_sample * SMathConst::Pi_f * 2.0f / IM_DRAWLIST_ARCFAST_SAMPLE_MAX;
 		const bool a_emit_start = ImAbs(a_min_segment_angle - a_min) >= 1e-5f;
 		const bool a_emit_end = ImAbs(a_max - a_max_segment_angle) >= 1e-5f;
 		_Path.reserve(_Path.Size + (a_mid_samples + 1 + (a_emit_start ? 1 : 0) + (a_emit_end ? 1 : 0)));
@@ -1123,7 +1123,7 @@ void ImDrawList::PathArcTo(const ImVec2 & center, float radius, float a_min, flo
 	else {
 		const float arc_length = ImAbs(a_max - a_min);
 		const int circle_segment_count = _CalcCircleAutoSegmentCount(radius);
-		const int arc_segment_count = smax((int)ImCeil(circle_segment_count * arc_length / (IM_PI * 2.0f)), (int)(2.0f * IM_PI / arc_length));
+		const int arc_segment_count = smax((int)ImCeil(circle_segment_count * arc_length / (SMathConst::Pi_f * 2.0f)), (int)(2.0f * SMathConst::Pi_f / arc_length));
 		_PathArcToN(center, radius, a_min, a_max, arc_segment_count);
 	}
 }
@@ -1386,7 +1386,7 @@ void ImDrawList::AddCircle(const ImVec2 & center, float radius, ImU32 col, int n
 		num_segments = sclamp(num_segments, 3, IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX);
 
 		// Because we are filling a closed shape we remove 1 from the count of segments/points
-		const float a_max = (IM_PI * 2.0f) * ((float)num_segments - 1.0f) / (float)num_segments;
+		const float a_max = (SMathConst::Pi_f * 2.0f) * ((float)num_segments - 1.0f) / (float)num_segments;
 		PathArcTo(center, radius - 0.5f, 0.0f, a_max, num_segments - 1);
 	}
 
@@ -1408,7 +1408,7 @@ void ImDrawList::AddCircleFilled(const ImVec2 & center, float radius, ImU32 col,
 		num_segments = sclamp(num_segments, 3, IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX);
 
 		// Because we are filling a closed shape we remove 1 from the count of segments/points
-		const float a_max = (IM_PI * 2.0f) * ((float)num_segments - 1.0f) / (float)num_segments;
+		const float a_max = (SMathConst::Pi_f * 2.0f) * ((float)num_segments - 1.0f) / (float)num_segments;
 		PathArcTo(center, radius, 0.0f, a_max, num_segments - 1);
 	}
 
@@ -1422,7 +1422,7 @@ void ImDrawList::AddNgon(const ImVec2 & center, float radius, ImU32 col, int num
 		return;
 
 	// Because we are filling a closed shape we remove 1 from the count of segments/points
-	const float a_max = (IM_PI * 2.0f) * ((float)num_segments - 1.0f) / (float)num_segments;
+	const float a_max = (SMathConst::Pi_f * 2.0f) * ((float)num_segments - 1.0f) / (float)num_segments;
 	PathArcTo(center, radius - 0.5f, 0.0f, a_max, num_segments - 1);
 	PathStroke(col, ImDrawFlags_Closed, thickness);
 }
@@ -1433,7 +1433,7 @@ void ImDrawList::AddNgonFilled(const ImVec2 & center, float radius, ImU32 col, i
 	if((col & IM_COL32_A_MASK) == 0 || num_segments <= 2)
 		return;
 	// Because we are filling a closed shape we remove 1 from the count of segments/points
-	const float a_max = (IM_PI * 2.0f) * ((float)num_segments - 1.0f) / (float)num_segments;
+	const float a_max = (SMathConst::Pi_f * 2.0f) * ((float)num_segments - 1.0f) / (float)num_segments;
 	PathArcTo(center, radius, 0.0f, a_max, num_segments - 1);
 	PathFillConvex(col);
 }
@@ -1964,7 +1964,7 @@ ImFont* ImFontAtlas::AddFontDefault(const ImFontConfig* font_cfg_template)
 	return font;
 }
 
-ImFont* ImFontAtlas::AddFontFromFileTTF(const char* filename, float size_pixels, const ImFontConfig* font_cfg_template, const ImWchar* glyph_ranges)
+ImFont * ImFontAtlas::AddFontFromFileTTF(const char* filename, float size_pixels, const ImFontConfig * font_cfg_template, const ImWchar * glyph_ranges)
 {
 	assert(!Locked && "Cannot modify a locked ImFontAtlas between NewFrame() and EndFrame/Render()!");
 	size_t data_size = 0;
@@ -3623,7 +3623,7 @@ void ImGui::RenderArrowPointingAt(ImDrawList* draw_list, ImVec2 pos, ImVec2 half
 
 static inline float ImAcos01(float x)
 {
-	if(x <= 0.0f)  return IM_PI * 0.5f;
+	if(x <= 0.0f)  return SMathConst::Pi_f * 0.5f;
 	if(x >= 1.0f)  return 0.0f;
 	return ImAcos(x);
 	//return (-0.69813170079773212f * x * x - 0.87266462599716477f) * x + 1.5707963267948966f; // Cheap approximation, may be enough for what we do.
@@ -3646,7 +3646,7 @@ void ImGui::RenderRectFilledRangeH(ImDrawList* draw_list, const ImRect& rect, Im
 	const float inv_rounding = 1.0f / rounding;
 	const float arc0_b = ImAcos01(1.0f - (p0.x - rect.Min.x) * inv_rounding);
 	const float arc0_e = ImAcos01(1.0f - (p1.x - rect.Min.x) * inv_rounding);
-	const float half_pi = IM_PI * 0.5f; // We will == compare to this because we know this is the exact value ImAcos01 can return.
+	const float half_pi = SMathConst::Pi_f * 0.5f; // We will == compare to this because we know this is the exact value ImAcos01 can return.
 	const float x0 = smax(p0.x, rect.Min.x + rounding);
 	if(arc0_b == arc0_e) {
 		draw_list->PathLineTo(ImVec2(x0, p1.y));
@@ -3657,8 +3657,8 @@ void ImGui::RenderRectFilledRangeH(ImDrawList* draw_list, const ImRect& rect, Im
 		draw_list->PathArcToFast(ImVec2(x0, p0.y + rounding), rounding, 6, 9); // TR
 	}
 	else {
-		draw_list->PathArcTo(ImVec2(x0, p1.y - rounding), rounding, IM_PI - arc0_e, IM_PI - arc0_b, 3); // BL
-		draw_list->PathArcTo(ImVec2(x0, p0.y + rounding), rounding, IM_PI + arc0_b, IM_PI + arc0_e, 3); // TR
+		draw_list->PathArcTo(ImVec2(x0, p1.y - rounding), rounding, SMathConst::Pi_f - arc0_e, SMathConst::Pi_f - arc0_b, 3); // BL
+		draw_list->PathArcTo(ImVec2(x0, p0.y + rounding), rounding, SMathConst::Pi_f + arc0_b, SMathConst::Pi_f + arc0_e, 3); // TR
 	}
 	if(p1.x > rect.Min.x + rounding) {
 		const float arc1_b = ImAcos01(1.0f - (rect.Max.x - p1.x) * inv_rounding);

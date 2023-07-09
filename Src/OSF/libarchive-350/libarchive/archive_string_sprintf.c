@@ -32,10 +32,10 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_string_sprintf.c 189435 2009-03-
  */
 static void append_uint(archive_string * as, uintmax_t d, unsigned base)
 {
-	static const char digits[] = "0123456789abcdef";
+	// @sobolev static const char digits[] = "0123456789abcdef";
 	if(d >= base)
 		append_uint(as, d/base, base);
-	archive_strappend_char(as, digits[d % base]);
+	archive_strappend_char(as, SlConst::P_HxDigL[d % base]);
 }
 
 static void append_int(archive_string * as, intmax_t d, unsigned base)

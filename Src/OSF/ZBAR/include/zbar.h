@@ -2154,8 +2154,6 @@ char FASTCALL release_lock(zbar_decoder_t * dcode, zbar_symbol_type_t req);
 char FASTCALL size_buf(zbar_decoder_t * dcode, uint len);
 extern const char * _zbar_decoder_buf_dump(uchar * buf, uint buflen);
 //
-//#include "error.h"
-
 extern int _zbar_verbosity;
 
 // FIXME don't we need varargs hacks here? 

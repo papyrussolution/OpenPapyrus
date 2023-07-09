@@ -14,7 +14,6 @@
 #include <openssl/evp.h>
 #include <openssl/core.h>
 #include "prov/securitycheck.h"
-//#include "internal/nelem.h"
 /*
  * Internal library code deals with NIDs, so we need to translate from a name.
  * We do so using EVP_MD_is_a(), and therefore need a name to NID map.

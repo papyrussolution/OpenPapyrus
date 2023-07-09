@@ -1304,7 +1304,7 @@ int __os_attach(ENV * env, REGINFO * infop, REGION * rp)
 	 * properly ordered, our caller has already taken care of that.
 	 */
 	if((ret = __os_open(env, infop->name, 0, DB_OSO_REGION|(F_ISSET(infop, REGION_CREATE_OK) ? DB_OSO_CREATE : 0), env->db_mode, &infop->fhp)) != 0) {
-		__db_err(env, ret, "%s", infop->name);
+		__db_err_simple_text(env, ret, infop->name);
 		return ret;
 	}
 	is_sparse = 0;

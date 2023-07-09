@@ -1122,10 +1122,9 @@ static bool hb_ot_tags_from_complex_language(const char * lang_str, const char *
 		*count = 1;
 		return true;
 	}
-	switch(lang_str[0])
-	{
+	switch(lang_str[0]) {
 		case 'a':
-		    if(0 == strcmp(&lang_str[1], "rt-lojban")) {
+		    if(sstreq(&lang_str[1], "rt-lojban")) {
 			    /* Lojban */
 			    tags[0] = HB_TAG('J', 'B', 'O', ' '); /* Lojban */
 			    *count = 1;
@@ -1640,7 +1639,7 @@ static bool hb_ot_tags_from_complex_language(const char * lang_str, const char *
 		    }
 		    break;
 		case 'i':
-		    if(0 == strcmp(&lang_str[1], "-navajo")) {
+		    if(sstreq(&lang_str[1], "-navajo")) {
 			    /* Navajo */
 			    uint i;
 			    hb_tag_t possible_tags[] = {
@@ -1652,13 +1651,13 @@ static bool hb_ot_tags_from_complex_language(const char * lang_str, const char *
 			    *count = i;
 			    return true;
 		    }
-		    if(0 == strcmp(&lang_str[1], "-hak")) {
+		    if(sstreq(&lang_str[1], "-hak")) {
 			    /* Hakka */
 			    tags[0] = HB_TAG('Z', 'H', 'S', ' '); /* Chinese Simplified */
 			    *count = 1;
 			    return true;
 		    }
-		    if(0 == strcmp(&lang_str[1], "-lux")) {
+		    if(sstreq(&lang_str[1], "-lux")) {
 			    /* Luxembourgish */
 			    tags[0] = HB_TAG('L', 'T', 'Z', ' '); /* Luxembourgish */
 			    *count = 1;
@@ -1759,20 +1758,19 @@ static bool hb_ot_tags_from_complex_language(const char * lang_str, const char *
 			    *count = 1;
 			    return true;
 		    }
-		    if(0 == strncmp(&lang_str[1], "an-", 3)
-			&& subtag_matches(lang_str, limit, "-tw")) {
+		    if(0 == strncmp(&lang_str[1], "an-", 3) && subtag_matches(lang_str, limit, "-tw")) {
 			    /* Min Nan Chinese; Taiwan, Province of China */
 			    tags[0] = HB_TAG('Z', 'H', 'T', ' '); /* Chinese Traditional */
 			    *count = 1;
 			    return true;
 		    }
-		    if(0 == strcmp(&lang_str[1], "o-bok")) {
+		    if(sstreq(&lang_str[1], "o-bok")) {
 			    /* Norwegian Bokmal */
 			    tags[0] = HB_TAG('N', 'O', 'R', ' '); /* Norwegian */
 			    *count = 1;
 			    return true;
 		    }
-		    if(0 == strcmp(&lang_str[1], "o-nyn")) {
+		    if(sstreq(&lang_str[1], "o-nyn")) {
 			    /* Norwegian Nynorsk */
 			    tags[0] = HB_TAG('N', 'Y', 'N', ' '); /* Norwegian Nynorsk (Nynorsk, Norwegian) */
 			    *count = 1;
@@ -1856,7 +1854,7 @@ static bool hb_ot_tags_from_complex_language(const char * lang_str, const char *
 			    *count = 1;
 			    return true;
 		    }
-		    if(0 == strcmp(&lang_str[1], "h-min-nan")) {
+		    if(sstreq(&lang_str[1], "h-min-nan")) {
 			    /* Minnan, Hokkien, Amoy, Taiwanese, Southern Min, Southern Fujian, Hoklo, Southern Fukien,
 			       Ho-lo */
 			    tags[0] = HB_TAG('Z', 'H', 'S', ' '); /* Chinese Simplified */
@@ -1875,14 +1873,13 @@ static bool hb_ot_tags_from_complex_language(const char * lang_str, const char *
 			    *count = 1;
 			    return true;
 		    }
-		    if(0 == strcmp(&lang_str[1], "h-min")) {
+		    if(sstreq(&lang_str[1], "h-min")) {
 			    /* Min, Fuzhou, Hokkien, Amoy, or Taiwanese */
 			    tags[0] = HB_TAG('Z', 'H', 'S', ' '); /* Chinese Simplified */
 			    *count = 1;
 			    return true;
 		    }
-		    if(0 == strncmp(&lang_str[1], "h-", 2)
-			&& subtag_matches(lang_str, limit, "-hk")) {
+		    if(0 == strncmp(&lang_str[1], "h-", 2) && subtag_matches(lang_str, limit, "-hk")) {
 			    /* Chinese; Hong Kong */
 			    tags[0] = HB_TAG('Z', 'H', 'H', ' '); /* Chinese, Hong Kong SAR */
 			    *count = 1;

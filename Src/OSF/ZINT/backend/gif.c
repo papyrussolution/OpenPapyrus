@@ -20,7 +20,7 @@
 #include "common.h"
 #pragma hdrstop
 
-#define SSET    "0123456789ABCDEF"
+// @sobolev #define SSET    "0123456789ABCDEF"
 
 /* Index of transparent color, -1 for no transparent color
  * This might be set into a variable if transparency is activated as an option

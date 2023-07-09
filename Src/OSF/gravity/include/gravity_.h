@@ -3186,7 +3186,6 @@ const char * gravity_env_name();
 	#define GRAVITY_ENV_FREE()                  gravity_env_free()
 	#define GRAVITY_ENV_NAME()                  gravity_env_name()
 	#define GRAVITY_ISENV_CLASS(_c)             gravity_isenv_class(_c)
-	//#include "gravity_opt_env.h"
 #else
 	#define GRAVITY_ENV_REGISTER(_vm)
 	#define GRAVITY_ENV_FREE()

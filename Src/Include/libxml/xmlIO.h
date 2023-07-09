@@ -13,9 +13,9 @@ struct xmlParserCtxt;
 struct xmlCharEncodingHandler;
 struct xmlParserInput;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 /*
  * Those are the functions and datatypes for the parser input I/O structures.
  */
@@ -215,9 +215,7 @@ XMLPUBFUN int xmlFileClose(void * context);
 	XMLPUBFUN int xmlIOFTPRead(void * context, char * buffer, int len);
 	XMLPUBFUN int xmlIOFTPClose(void * context);
 #endif
-
-#ifdef __cplusplus
-}
-#endif
-
+//#ifdef __cplusplus
+//}
+//#endif
 #endif /* __XML_IO_H__ */

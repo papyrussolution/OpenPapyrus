@@ -2672,7 +2672,7 @@ int __memp_fopen(DB_MPOOLFILE * dbmfp, MPOOLFILE * mfp, const char * path, const
 			goto err;
 		/* Figure out the file's size. */
 		if((ret = __os_ioinfo(env, rpath, dbmfp->fhp, &mbytes, &bytes, NULL)) != 0) {
-			__db_err(env, ret, "%s", rpath);
+			__db_err_simple_text(env, ret, rpath);
 			goto err;
 		}
 		/*
@@ -3105,7 +3105,7 @@ int FASTCALL __memp_fclose(DB_MPOOLFILE * dbmfp, uint32 flags)
 	}
 	/* Discard any mmap information. */
 	if(dbmfp->addr && (ret = __os_unmapfile(env, dbmfp->addr, dbmfp->len)) != 0)
-		__db_err(env, ret, "%s", __memp_fn(dbmfp));
+		__db_err_simple_text(env, ret, __memp_fn(dbmfp));
 	/*
 	 * Close the file and discard the descriptor structure; temporary
 	 * files may not yet have been created.
@@ -5376,7 +5376,7 @@ static int __memp_print_stats(ENV * env, uint32 flags)
 
 	for(tfsp = fsp; fsp && *tfsp; ++tfsp) {
 		if(LF_ISSET(DB_STAT_ALL))
-			__db_msg(env, "%s", DB_GLOBAL(db_line));
+			__db_msg_db_line(env);
 		__db_msg(env, "Pool File: %s", (*tfsp)->file_name);
 		__db_dl(env, "Page size", (ulong)(*tfsp)->st_pagesize);
 		__db_dl(env, "Requested pages mapped into the process' address space", (ulong)(*tfsp)->st_map);
@@ -5409,17 +5409,17 @@ static int __memp_print_all(ENV * env, uint32 flags)
 	int ret = 0;
 	MPOOL_SYSTEM_LOCK(env);
 	__db_print_reginfo(env, dbmp->reginfo, "Mpool", flags);
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "MPOOL structure:");
 	__mutex_print_debug_single(env, "MPOOL region mutex", mp->mtx_region, flags);
 	STAT_LSN("Maximum checkpoint LSN", &mp->lsn);
 	STAT_ULONG("Hash table entries", mp->htab_buckets);
 	STAT_ULONG("Hash table mutexes", mp->htab_mutexes);
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "DB_MPOOL handle information:");
 	__mutex_print_debug_single(env, "DB_MPOOL handle mutex", dbmp->mutex, flags);
 	STAT_ULONG("Underlying cache regions", mp->nreg);
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "DB_MPOOLFILE structures:");
 	for(cnt = 0, dbmfp = TAILQ_FIRST(&dbmp->dbmfq); dbmfp; dbmfp = TAILQ_NEXT(dbmfp, q), ++cnt) {
 		__db_msg(env, "File #%lu: %s: per-process, %s", (ulong)cnt+1, __memp_fn(dbmfp), F_ISSET(dbmfp, MP_READONLY) ? "readonly" : "read/write");
@@ -5437,7 +5437,7 @@ static int __memp_print_all(ENV * env, uint32 flags)
 		__db_prflags(env, NULL, dbmfp->flags, cfn, NULL, "\tFlags");
 		__db_print_fh(env, "File handle", dbmfp->fhp, flags);
 	}
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "MPOOLFILE structures:");
 	cnt = 0;
 	ret = __memp_walk_files(env, mp, __memp_print_files, fmap, &cnt, flags);
@@ -5450,7 +5450,7 @@ static int __memp_print_all(ENV * env, uint32 flags)
 		fmap[FMAP_ENTRIES] = INVALID_ROFF;
 	/* Dump the individual caches. */
 	for(i = 0; i < mp->nreg; ++i) {
-		__db_msg(env, "%s", DB_GLOBAL(db_line));
+		__db_msg_db_line(env);
 		__db_msg(env, "Cache #%d:", i+1);
 		if(i > 0)
 			__env_alloc_print(&dbmp->reginfo[i], flags);

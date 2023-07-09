@@ -5,7 +5,23 @@
 	#include "config.h"
 #endif
 #define HAVE_LIBPNG // @v11.6.6
-#include "os_types.h"
+//#include "os_types.h"
+	#if defined(HAVE_CONFIG_H)
+		#include "config_types.h"
+	#elif defined(_WIN32)
+		#include "config_win32.h"
+	#elif defined (STD_INT_USE_SYS_TYPES_H)
+		#include <sys/types.h>
+	#elif defined (STD_INT_USE_INTTYPES_H)
+		#include <inttypes.h>
+	#elif defined (STD_INT_USE_SYS_INTTYPES_H)
+		#include <sys/inttypes.h>
+	#elif defined (STD_INT_USE_SYS_INT_TYPES_H)
+		#include <sys/int_types.h>
+	#else
+		#include <stdint.h>
+	#endif
+//
 #include "jbig2.h"
 #include "jbig2_priv.h"
 #include "jbig2_arith.h"

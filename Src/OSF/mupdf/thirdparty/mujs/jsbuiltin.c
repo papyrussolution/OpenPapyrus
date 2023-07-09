@@ -102,7 +102,7 @@ static void jsB_isFinite(js_State * J)
 static void Encode(js_State * J, const char * str, const char * unescaped)
 {
 	js_Buffer * sb = NULL;
-	static const char * HEX = "0123456789ABCDEF";
+	// @sobolev static const char * HEX = "0123456789ABCDEF";
 	if(js_try(J)) {
 		js_free(J, sb);
 		js_throw(J);
@@ -113,8 +113,8 @@ static void Encode(js_State * J, const char * str, const char * unescaped)
 			js_putc(J, &sb, c);
 		else {
 			js_putc(J, &sb, '%');
-			js_putc(J, &sb, HEX[(c >> 4) & 0xf]);
-			js_putc(J, &sb, HEX[c & 0xf]);
+			js_putc(J, &sb, SlConst::P_HxDigU[(c >> 4) & 0xf]);
+			js_putc(J, &sb, SlConst::P_HxDigU[c & 0xf]);
 		}
 	}
 	js_putc(J, &sb, 0);

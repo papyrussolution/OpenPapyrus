@@ -13,7 +13,6 @@
 #include <openssl/crypto.h>
 #include <openssl/trace.h>
 #include "internal/bio.h"
-//#include "internal/nelem.h"
 #include "internal/refcount.h"
 #include "crypto/cryptlib.h"
 #include "e_os.h"                /* strcasecmp for Windows */

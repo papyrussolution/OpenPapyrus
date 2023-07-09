@@ -39,7 +39,7 @@
  **/
 hb_bool_t hb_segment_properties_equal(const hb_segment_properties_t * a, const hb_segment_properties_t * b)
 {
-	return a->direction == b->direction && a->script    == b->script    &&
+	return a->direction == b->direction && a->script == b->script &&
 		a->language  == b->language  && a->reserved1 == b->reserved1 && a->reserved2 == b->reserved2;
 }
 /**

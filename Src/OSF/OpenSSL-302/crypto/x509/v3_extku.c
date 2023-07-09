@@ -82,7 +82,6 @@ static void * v2i_EXTENDED_KEY_USAGE(const X509V3_EXT_METHOD * method,
 		sk_ASN1_OBJECT_free(extku);
 		return NULL;
 	}
-
 	for(i = 0; i < num; i++) {
 		val = sk_CONF_VALUE_value(nval, i);
 		if(val->value)
@@ -91,8 +90,7 @@ static void * v2i_EXTENDED_KEY_USAGE(const X509V3_EXT_METHOD * method,
 			extval = val->name;
 		if((objtmp = OBJ_txt2obj(extval, 0)) == NULL) {
 			sk_ASN1_OBJECT_pop_free(extku, ASN1_OBJECT_free);
-			ERR_raise_data(ERR_LIB_X509V3, X509V3_R_INVALID_OBJECT_IDENTIFIER,
-			    "%s", extval);
+			ERR_raise_data(ERR_LIB_X509V3, X509V3_R_INVALID_OBJECT_IDENTIFIER, "%s", extval);
 			return NULL;
 		}
 		sk_ASN1_OBJECT_push(extku, objtmp); /* no failure as it was reserved */

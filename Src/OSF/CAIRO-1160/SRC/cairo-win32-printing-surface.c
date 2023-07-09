@@ -68,14 +68,9 @@
 #define CHECKPNGFORMAT 0x1018
 #endif
 
-#define PELS_72DPI  ((LONG)(72. / 0.0254))
+#define PELS_72DPI  ((LONG)(72.0 / 0.0254))
 
-static const char * _cairo_win32_printing_supported_mime_types[] =
-{
-	CAIRO_MIME_TYPE_JPEG,
-	CAIRO_MIME_TYPE_PNG,
-	NULL
-};
+static const char * _cairo_win32_printing_supported_mime_types[] = { CAIRO_MIME_TYPE_JPEG, CAIRO_MIME_TYPE_PNG, NULL };
 
 extern const cairo_surface_backend_t cairo_win32_printing_surface_backend;
 extern const cairo_paginated_surface_backend_t cairo_win32_surface_paginated_backend;

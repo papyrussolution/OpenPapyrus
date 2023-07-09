@@ -255,7 +255,7 @@ public:
 	//
 	// Assorted private data used for conversions
 	//
-	static const double PI; // My own copies of these so compilers are more likely to optimize them away
+	// @sobolev (replaced with SMathConst::Pi) static const double PI; // My own copies of these so compilers are more likely to optimize them away
 	/**
 	 * The average number of solar days from one new moon to the next.  This is the time
 	 * it takes for the moon to return the same ecliptic longitude as the sun.

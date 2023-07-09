@@ -26,8 +26,6 @@
 #define CAIRO_COGL_GRADIENT_PRIVATE_H
 
 #include "cairoint.h"
-//#include "cairo-pattern-private.h"
-
 #include <cogl/cogl2-experimental.h>
 
 #define CAIRO_COGL_LINEAR_GRADIENT_CACHE_SIZE (1024 * 1024)

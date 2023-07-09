@@ -8,14 +8,11 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-// @v10.9.3 #include <libxml/xmlsave.h>
-//#include <libxml/xmlversion.h>
-//#include <libxml/tree.h>
 
 #ifdef LIBXML_OUTPUT_ENABLED
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 // 
 // Descr: xmlSaveOption
 //   This is the set of XML save options that can be passed down
@@ -45,9 +42,9 @@ XMLPUBFUN int xmlSaveFlush(xmlSaveCtxt * ctxt);
 XMLPUBFUN int xmlSaveClose(xmlSaveCtxt * ctxt);
 XMLPUBFUN int xmlSaveSetEscape(xmlSaveCtxt * ctxt, xmlCharEncodingOutputFunc escape);
 XMLPUBFUN int xmlSaveSetAttrEscape(xmlSaveCtxt * ctxt, xmlCharEncodingOutputFunc escape);
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 #endif /* LIBXML_OUTPUT_ENABLED */
 //
 #define MAX_INDENT 60
@@ -2430,5 +2427,4 @@ int xmlSaveFormatFile(const char * filename, xmlDoc * cur, int format) { return 
 int xmlSaveFile(const char * filename, xmlDoc * cur) { return xmlSaveFormatFileEnc(filename, cur, NULL, 0); }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
-
 #define bottom_xmlsave

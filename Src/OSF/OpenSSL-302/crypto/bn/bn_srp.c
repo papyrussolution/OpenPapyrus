@@ -9,7 +9,6 @@
 #include <internal/openssl-crypto-internal.h>
 #pragma hdrstop
 #include "bn_local.h"
-//#include "internal/nelem.h"
 
 #ifndef OPENSSL_NO_SRP
 

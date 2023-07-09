@@ -187,7 +187,7 @@ uchar * OPENSSL_hexstr2buf(const char * str, long * buflen)
 
 static int buf2hexstr_sep(char * str, size_t str_n, size_t * strlength, const uchar * buf, size_t buflen, const char sep)
 {
-	static const char hexdig[] = "0123456789ABCDEF";
+	// @sobolev static const char hexdig[] = "0123456789ABCDEF";
 	const uchar * p;
 	char * q;
 	size_t i;
@@ -203,8 +203,8 @@ static int buf2hexstr_sep(char * str, size_t str_n, size_t * strlength, const uc
 	}
 	q = str;
 	for(i = 0, p = buf; i < buflen; i++, p++) {
-		*q++ = hexdig[(*p >> 4) & 0xf];
-		*q++ = hexdig[*p & 0xf];
+		*q++ = SlConst::P_HxDigU[(*p >> 4) & 0xf];
+		*q++ = SlConst::P_HxDigU[*p & 0xf];
 		if(has_sep)
 			*q++ = sep;
 	}

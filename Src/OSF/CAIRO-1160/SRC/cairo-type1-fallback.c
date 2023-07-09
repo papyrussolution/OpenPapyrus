@@ -429,7 +429,7 @@ static cairo_status_t cairo_type1_write_stream_encrypted(void * closure, const u
 {
 	const uchar * in, * end;
 	uint16 c, p;
-	static const char hex_digits[/*16*/] = "0123456789abcdef";
+	// @sobolev static const char hex_digits[/*16*/] = "0123456789abcdef";
 	char digits[3];
 	cairo_type1_font_t * font = (cairo_type1_font_t *)closure;
 	in = reinterpret_cast<const uchar *>(data);
@@ -439,8 +439,8 @@ static cairo_status_t cairo_type1_write_stream_encrypted(void * closure, const u
 		c = p ^ (font->eexec_key >> 8);
 		font->eexec_key = (c + font->eexec_key) * CAIRO_TYPE1_ENCRYPT_C1 + CAIRO_TYPE1_ENCRYPT_C2;
 		if(font->hex_encode) {
-			digits[0] = hex_digits[c >> 4];
-			digits[1] = hex_digits[c & 0x0f];
+			digits[0] = SlConst::P_HxDigL[c >> 4];
+			digits[1] = SlConst::P_HxDigL[c & 0x0f];
 			digits[2] = '\n';
 			font->hex_column += 2;
 			if(font->hex_column == 78) {

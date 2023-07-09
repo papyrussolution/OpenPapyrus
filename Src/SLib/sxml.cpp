@@ -449,7 +449,7 @@ SXmlSaxParser::~SXmlSaxParser()
 {
 }
 
-extern "C" xmlParserCtxt * xmlCreateURLParserCtxt(const char * filename, int options);
+/*extern "C"*/xmlParserCtxt * xmlCreateURLParserCtxt(const char * filename, int options);
 void FASTCALL xmlDetectSAX2(xmlParserCtxt * ctxt); // @prototype
 
 int SXmlSaxParser::ParseFile(const char * pFileName)

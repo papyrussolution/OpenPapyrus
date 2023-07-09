@@ -404,17 +404,14 @@ typedef struct {
 	float tx, ty;
 } char_callback_data_t;
 
-static void flush_word(fz_context * ctx,
-    char_callback_data_t * cb)
+static void flush_word(fz_context * ctx, char_callback_data_t * cb)
 {
 	float size = cb->word_bbox[3] - cb->word_bbox[1];
 	float scale;
 	int i, len = cb->word_len;
 	float x, y;
-
 	if(cb->word_len == 0 || size == 0)
 		return;
-
 	if(size != cb->cur_size) {
 		fz_append_printf(ctx, cb->buf, "/F0 %g Tf\n", size);
 		cb->cur_size = size;
@@ -424,43 +421,32 @@ static void flush_word(fz_context * ctx,
 		fz_append_printf(ctx, cb->buf, "%d Tz\n", (int)scale);
 		cb->cur_scale = scale;
 	}
-
 	x = cb->word_bbox[0];
 	y = cb->word_bbox[1];
 	fz_append_printf(ctx, cb->buf, "%g %g Td\n", x-cb->tx, y-cb->ty);
 	cb->tx = x;
 	cb->ty = y;
-
 	fz_append_printf(ctx, cb->buf, "<");
 	for(i = 0; i < len; i++)
 		fz_append_printf(ctx, cb->buf, "%04x", cb->word_chars[i]);
 	fz_append_printf(ctx, cb->buf, ">Tj\n");
-
 	cb->word_len = 0;
 }
 
-static void char_callback(fz_context * ctx, void * arg, int unicode,
-    const char * font_name,
-    const int * line_bbox, const int * word_bbox,
-    const int * char_bbox, int pointsize)
+static void char_callback(fz_context * ctx, void * arg, int unicode, const char * font_name,
+    const int * line_bbox, const int * word_bbox, const int * char_bbox, int pointsize)
 {
 	char_callback_data_t * cb = (char_callback_data_t*)arg;
 	pdfocr_band_writer * writer = cb->writer;
 	float bbox[4];
-
 	bbox[0] = word_bbox[0] * 72.0f / cb->writer->ocrbitmap->xres;
 	bbox[3] = (writer->ocrbitmap->h - 1 - word_bbox[1]) * 72.0f / cb->writer->ocrbitmap->yres;
 	bbox[2] = word_bbox[2] * 72.0f / cb->writer->ocrbitmap->yres;
 	bbox[1] = (writer->ocrbitmap->h - 1 - word_bbox[3]) * 72.0f / cb->writer->ocrbitmap->yres;
-
-	if(bbox[0] != cb->word_bbox[0] ||
-	    bbox[1] != cb->word_bbox[1] ||
-	    bbox[2] != cb->word_bbox[2] ||
-	    bbox[3] != cb->word_bbox[3]) {
+	if(bbox[0] != cb->word_bbox[0] || bbox[1] != cb->word_bbox[1] || bbox[2] != cb->word_bbox[2] || bbox[3] != cb->word_bbox[3]) {
 		flush_word(ctx, cb);
 		memcpy(cb->word_bbox, bbox, 4 * sizeof(float));
 	}
-
 	if(cb->word_max == cb->word_len) {
 		int newmax = cb->word_max * 2;
 		if(newmax == 0)
@@ -468,7 +454,6 @@ static void char_callback(fz_context * ctx, void * arg, int unicode,
 		cb->word_chars = fz_realloc_array(ctx, cb->word_chars, newmax, int);
 		cb->word_max = newmax;
 	}
-
 	cb->word_chars[cb->word_len++] = unicode;
 }
 
@@ -476,10 +461,8 @@ static int pdfocr_progress(fz_context * ctx, void * arg, int prog)
 {
 	char_callback_data_t * cb = (char_callback_data_t*)arg;
 	pdfocr_band_writer * writer = cb->writer;
-
 	if(writer->progress == NULL)
 		return 0;
-
 	return writer->progress(ctx, writer->progress_arg, prog);
 }
 
@@ -502,7 +485,6 @@ static void pdfocr_write_trailer(fz_context * ctx, fz_band_writer * writer_)
 	if(sh == 0)
 		sh = h;
 	strips = (h + sh-1)/sh;
-
 	/* Send the Page contents */
 	/* We need the length to this, so write to a buffer first */
 	fz_var(buf);

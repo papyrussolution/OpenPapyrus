@@ -7,20 +7,9 @@
 #include "jbig2dec-internal.h"
 #pragma hdrstop
 
-static void * jbig2_default_alloc(Jbig2Allocator * allocator, size_t size)
-{
-	return SAlloc::M(size);
-}
-
-static void jbig2_default_free(Jbig2Allocator * allocator, void * p)
-{
-	SAlloc::F(p);
-}
-
-static void * jbig2_default_realloc(Jbig2Allocator * allocator, void * p, size_t size)
-{
-	return SAlloc::R(p, size);
-}
+static void * jbig2_default_alloc(Jbig2Allocator * allocator, size_t size) { return SAlloc::M(size); }
+static void jbig2_default_free(Jbig2Allocator * allocator, void * p) { SAlloc::F(p); }
+static void * jbig2_default_realloc(Jbig2Allocator * allocator, void * p, size_t size) { return SAlloc::R(p, size); }
 
 static Jbig2Allocator jbig2_default_allocator = {
 	jbig2_default_alloc,
@@ -292,22 +281,22 @@ int jbig2_data_in(Jbig2Ctx * ctx, const uchar * data, size_t size)
 				    byte * desired_marker;
 				    byte * s = p = ctx->buf + ctx->buf_rd_ix;
 				    byte * e = ctx->buf + ctx->buf_wr_ix;
-				    if(e - p < 18)
+				    if((e - p) < 18)
 					    return 0; /* need more data */
 				    mmr = p[17] & 1;
 				    p += 18;
 				    desired_marker = mmr ? mmr_marker : arith_marker;
 				    /* look for two byte marker */
-				    if(e - p < 2)
+				    if((e - p) < 2)
 					    return 0; /* need more data */
 				    while(p[0] != desired_marker[0] || p[1] != desired_marker[1]) {
 					    p++;
-					    if(e - p < 2)
+					    if((e - p) < 2)
 						    return 0; /* need more data */
 				    }
 				    p += 2;
 				    /* the marker is followed by a four byte row count */
-				    if(e - p < 4)
+				    if((e - p) < 4)
 					    return 0; /* need more data */
 				    segment->rows = jbig2_get_uint32(p);
 				    p += 4;
@@ -343,16 +332,15 @@ Jbig2Allocator * jbig2_ctx_free(Jbig2Ctx * ctx)
 {
 	Jbig2Allocator * ca = 0;
 	if(ctx) {
-		uint32 i;
 		ca = ctx->allocator;
 		jbig2_free(ca, ctx->buf);
 		if(ctx->segments) {
-			for(i = 0; i < ctx->n_segments; i++)
+			for(uint32 i = 0; i < ctx->n_segments; i++)
 				jbig2_free_segment(ctx, ctx->segments[i]);
 			jbig2_free(ca, ctx->segments);
 		}
 		if(ctx->pages) {
-			for(i = 0; i <= ctx->current_page; i++)
+			for(uint32 i = 0; i <= ctx->current_page; i++)
 				if(ctx->pages[i].image)
 					jbig2_image_release(ctx, ctx->pages[i].image);
 			jbig2_free(ca, ctx->pages);

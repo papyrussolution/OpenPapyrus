@@ -37,7 +37,7 @@ static void debugdump(LIBSSH2_SESSION * session, const char * desc, const uchar 
 	uint width = 0x10;
 	char buffer[256]; /* Must be enough for width*4 + about 30 or so */
 	size_t used;
-	static const char * hex_chars = "0123456789ABCDEF";
+	// @sobolev static const char * hex_chars = "0123456789ABCDEF";
 	if(!(session->showmask & LIBSSH2_TRACE_TRANS)) {
 		return; /* not asked for, bail out */
 	}
@@ -51,8 +51,8 @@ static void debugdump(LIBSSH2_SESSION * session, const char * desc, const uchar 
 		/* hex not disabled, show it */
 		for(c = 0; c < width; c++) {
 			if(i + c < size) {
-				buffer[used++] = hex_chars[(ptr[i+c] >> 4) & 0xF];
-				buffer[used++] = hex_chars[ptr[i+c] & 0xF];
+				buffer[used++] = SlConst::P_HxDigU[(ptr[i+c] >> 4) & 0xF];
+				buffer[used++] = SlConst::P_HxDigU[ptr[i+c] & 0xF];
 			}
 			else {
 				buffer[used++] = ' ';

@@ -60,25 +60,25 @@ static int __env_stat_print(ENV * env, uint32 flags)
 	if(!LF_ISSET(DB_STAT_SUBSYSTEM))
 		return 0;
 	if(LOGGING_ON(env)) {
-		__db_msg(env, "%s", DB_GLOBAL(db_line));
+		__db_msg_db_line(env);
 		if((ret = __log_stat_print(env, flags)) != 0)
 			return ret;
-		__db_msg(env, "%s", DB_GLOBAL(db_line));
+		__db_msg_db_line(env);
 		if((ret = __dbreg_stat_print(env, flags)) != 0)
 			return ret;
 	}
 	if(LOCKING_ON(env)) {
-		__db_msg(env, "%s", DB_GLOBAL(db_line));
+		__db_msg_db_line(env);
 		if((ret = __lock_stat_print(env, flags)) != 0)
 			return ret;
 	}
 	if(MPOOL_ON(env)) {
-		__db_msg(env, "%s", DB_GLOBAL(db_line));
+		__db_msg_db_line(env);
 		if((ret = __memp_stat_print(env, flags)) != 0)
 			return ret;
 	}
 	if(REP_ON(env)) {
-		__db_msg(env, "%s", DB_GLOBAL(db_line));
+		__db_msg_db_line(env);
 		if((ret = __rep_stat_print(env, flags)) != 0)
 			return ret;
  #ifdef HAVE_REPLICATION_THREADS
@@ -87,7 +87,7 @@ static int __env_stat_print(ENV * env, uint32 flags)
  #endif
 	}
 	if(TXN_ON(env)) {
-		__db_msg(env, "%s", DB_GLOBAL(db_line));
+		__db_msg_db_line(env);
 		if((ret = __txn_stat_print(env, flags)) != 0)
 			return ret;
 	}
@@ -98,7 +98,7 @@ static int __env_stat_print(ENV * env, uint32 flags)
 	 * the context of the other subsystems first.
 	 */
 	if(MUTEX_ON(env)) {
-		__db_msg(env, "%s", DB_GLOBAL(db_line));
+		__db_msg_db_line(env);
 		if((ret = __mutex_stat_print(env, flags)) != 0)
 			return ret;
 	}
@@ -116,7 +116,7 @@ static int __env_print_stats(ENV * env, uint32 flags)
 	REGINFO * infop = env->reginfo;
 	REGENV * renv = (REGENV *)infop->primary;
 	if(LF_ISSET(DB_STAT_ALL)) {
-		__db_msg(env, "%s", DB_GLOBAL(db_line));
+		__db_msg_db_line(env);
 		__db_msg(env, "Default database environment information:");
 	}
 	STAT_HEX("Magic number", renv->magic);
@@ -196,7 +196,7 @@ static int __env_print_dbenv_all(ENV * env, uint32 flags)
 	char ** p;
 	DB_ENV * dbenv = env->dbenv;
 	DB_MSGBUF_INIT(&mb);
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	STAT_POINTER("ENV", dbenv->env);
 	__mutex_print_debug_single(env, "DB_ENV handle mutex", dbenv->mtx_db_env, flags);
 	STAT_ISSET("Errcall", dbenv->db_errcall);
@@ -323,7 +323,7 @@ static int __env_print_env_all(ENV * env, uint32 flags)
 	char time_buf[CTIME_BUFLEN];
 	REGINFO * infop = env->reginfo;
 	REGENV * renv = (REGENV *)infop->primary;
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	STAT_POINTER("DB_ENV", env->dbenv);
 	__mutex_print_debug_single(env, "ENV handle mutex", env->mtx_env, flags);
 	STAT_STRING("Home", env->db_home);
@@ -354,7 +354,7 @@ static int __env_print_env_all(ENV * env, uint32 flags)
 	STAT_LONG("Test copy", env->test_copy);
 	__db_prflags(env, NULL, env->flags, env_fn, NULL, "\tPrivate environment flags");
 	__db_print_reginfo(env, infop, "Primary", flags);
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "Per region database environment information:");
 	for(rp = (REGION *)R_ADDR(infop, renv->region_off), i = 0; i < renv->region_cnt; ++i, ++rp) {
 		if(rp->id == INVALID_REGION_ID)
@@ -402,7 +402,7 @@ static int __env_print_thread(ENV * env)
 	DB_HASHTAB * htab = env->thr_hashtab;
 	if(htab) {
 		DB_MPOOL * dbmp = env->mp_handle;
-		__db_msg(env, "%s", DB_GLOBAL(db_line));
+		__db_msg_db_line(env);
 		__db_msg(env, "Thread tracking information");
 		// Dump out the info we have on thread tracking.
 		infop = env->reginfo;
@@ -438,7 +438,7 @@ static int __env_print_fh(ENV * env)
 {
 	DB_FH * fhp;
 	if(TAILQ_FIRST(&env->fdlist)) {
-		__db_msg(env, "%s", DB_GLOBAL(db_line));
+		__db_msg_db_line(env);
 		__db_msg(env, "Environment file handle information");
 		MUTEX_LOCK(env, env->mtx_env);
 		TAILQ_FOREACH(fhp, &env->fdlist, q)
@@ -605,7 +605,7 @@ void __db_print_reginfo(ENV * env, REGINFO * infop, const char * s, uint32 flags
 		{ 0,                    NULL }
 	};
 
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "%s REGINFO information:",  s);
 	STAT_STRING("Region type", __reg_type(infop->type));
 	STAT_ULONG("Region ID", infop->id);

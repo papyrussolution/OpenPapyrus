@@ -162,7 +162,7 @@ int __qam_stat_print(DBC*dbc, uint32 flags)
 	if((ret = __qam_stat(dbc, &sp, LF_ISSET(DB_FAST_STAT))) != 0)
 		return ret;
 	if(LF_ISSET(DB_STAT_ALL)) {
-		__db_msg(env, "%s", DB_GLOBAL(db_line));
+		__db_msg_db_line(env);
 		__db_msg(env, "Default Queue database information:");
 	}
 	__db_msg(env, "%lx\tQueue magic number", (ulong)sp->qs_magic);

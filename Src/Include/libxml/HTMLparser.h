@@ -15,9 +15,9 @@
 
 #ifdef LIBXML_HTML_ENABLED
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 // 
 // Most of the back-end structures from XML and HTML are shared.
 // 
@@ -187,9 +187,8 @@ XMLPUBFUN htmlStatus htmlNodeStatus(const htmlNodePtr, int);
  */
 #define htmlRequiredAttrs(elt) (elt)->attrs_req
 
-#ifdef __cplusplus
-}
-#endif
-
+//#ifdef __cplusplus
+//}
+//#endif
 #endif /* LIBXML_HTML_ENABLED */
 #endif /* __HTML_PARSER_H__ */

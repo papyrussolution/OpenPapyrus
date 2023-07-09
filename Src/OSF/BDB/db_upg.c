@@ -101,7 +101,7 @@ int __db_upgrade(DB * dbp, const char * fname, uint32 flags)
 		return ret;
 	// Open the file
 	if((ret = __os_open(env, real_name, 0, 0, 0, &fhp)) != 0) {
-		__db_err(env, ret, "%s", real_name);
+		__db_err_simple_text(env, ret, real_name);
 		return ret;
 	}
 	// Initialize the feedback
@@ -368,7 +368,7 @@ int __db_lastpgno(DB * dbp, char * real_name, DB_FH * fhp, db_pgno_t * pgno_last
 	int ret;
 	ENV * env = dbp->env;
 	if((ret = __os_ioinfo(env, real_name, fhp, &mbytes, &bytes, NULL)) != 0) {
-		__db_err(env, ret, "%s", real_name);
+		__db_err_simple_text(env, ret, real_name);
 		return ret;
 	}
 	/* Page sizes have to be a power-of-two. */

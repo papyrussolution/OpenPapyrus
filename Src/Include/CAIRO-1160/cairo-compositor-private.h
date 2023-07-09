@@ -28,8 +28,6 @@
 #ifndef CAIRO_COMPOSITOR_PRIVATE_H
 #define CAIRO_COMPOSITOR_PRIVATE_H
 
-//#include "cairo-composite-rectangles-private.h"
-
 CAIRO_BEGIN_DECLS
 
 typedef struct {

@@ -11,7 +11,6 @@
 #include <stdarg.h>
 #include <fcntl.h>
 #include <pcre.h>
-//#include "config.h"
 #define HAVE_ZLIB_H
 #define HAVE_LZMA_H
 #define HAVE_PTHREAD_H

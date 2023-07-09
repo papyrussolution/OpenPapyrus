@@ -336,10 +336,6 @@
       <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="libpng.vcxproj">
-      <Project>{04aa636d-9d3e-4e79-9c2e-b8d0470719da}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
     <ProjectReference Include="libwebp-slib.vcxproj">
       <Project>{05255f31-2054-4df4-ad6d-5bc5da8ccccf}</Project>
     </ProjectReference>

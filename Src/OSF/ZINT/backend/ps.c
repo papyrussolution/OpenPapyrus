@@ -20,7 +20,7 @@
 #include "common.h"
 #pragma hdrstop
 
-#define SSET    "0123456789ABCDEF"
+// @sobolev #define SSET    "0123456789ABCDEF"
 
 int ps_plot(struct ZintSymbol * symbol)
 {
@@ -297,10 +297,8 @@ int ps_plot(struct ZintSymbol * symbol)
 			else {
 				fprintf(feps, "%.2f %.2f %.2f %.2f setcmykcolor\n", cyan_ink, magenta_ink, yellow_ink, black_ink);
 			}
-			fprintf(feps, "%.2f %.2f TB %.2f %.2f TR\n", symbol->border_width * scaler, textoffset * scaler, 0.0,
-			    (74.0 + xoffset + xoffset) * scaler);
-			fprintf(feps, "%.2f %.2f TB %.2f %.2f TR\n", symbol->border_width * scaler,
-			    (textoffset + 72.0 + symbol->border_width) * scaler, 0.0, (74.0 + xoffset + xoffset) * scaler);
+			fprintf(feps, "%.2f %.2f TB %.2f %.2f TR\n", symbol->border_width * scaler, textoffset * scaler, 0.0, (74.0 + xoffset + xoffset) * scaler);
+			fprintf(feps, "%.2f %.2f TB %.2f %.2f TR\n", symbol->border_width * scaler, (textoffset + 72.0 + symbol->border_width) * scaler, 0.0, (74.0 + xoffset + xoffset) * scaler);
 		}
 		if((symbol->output_options & BARCODE_BOX) != 0) {
 			/* side bars */
@@ -311,15 +309,10 @@ int ps_plot(struct ZintSymbol * symbol)
 			else {
 				fprintf(feps, "%.2f %.2f %.2f %.2f setcmykcolor\n", cyan_ink, magenta_ink, yellow_ink, black_ink);
 			}
-			fprintf(feps, "%.2f %.2f TB %.2f %.2f TR\n",
-			    (72.0 + (2 * symbol->border_width)) * scaler,
-			    textoffset * scaler,
-			    0.0,
-			    symbol->border_width * scaler);
+			fprintf(feps, "%.2f %.2f TB %.2f %.2f TR\n", (72.0 + (2 * symbol->border_width)) * scaler, textoffset * scaler, 0.0, symbol->border_width * scaler);
 			fprintf(feps, "%.2f %.2f TB %.2f %.2f TR\n", (72.0 + (2 * symbol->border_width)) * scaler, textoffset * scaler,
 			    (74.0 + xoffset + xoffset - symbol->border_width) * scaler, symbol->border_width * scaler);
 		}
-
 		fprintf(feps, "TE\n");
 		if((symbol->output_options & CMYK_COLOUR) == 0) {
 			fprintf(feps, "%.2f %.2f %.2f setrgbcolor\n", red_ink, green_ink, blue_ink);

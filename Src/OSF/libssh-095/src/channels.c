@@ -1539,7 +1539,7 @@ int ssh_channel_request_sftp(ssh_channel channel){
 
 static char * generate_cookie() 
 {
-	static const char * hex = "0123456789abcdef";
+	// @sobolev static const char * hex = "0123456789abcdef";
 	char s[36];
 	uchar rnd[16];
 	int i;
@@ -1548,8 +1548,8 @@ static char * generate_cookie()
 		return NULL;
 	}
 	for(i = 0; i < 16; i++) {
-		s[i*2] = hex[rnd[i] & 0x0f];
-		s[i*2+1] = hex[rnd[i] >> 4];
+		s[i*2] = SlConst::P_HxDigL[rnd[i] & 0x0f];
+		s[i*2+1] = SlConst::P_HxDigL[rnd[i] >> 4];
 	}
 	s[32] = '\0';
 	return sstrdup(s);

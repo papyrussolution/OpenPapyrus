@@ -318,8 +318,8 @@ static void fz_write_pdf_string(fz_context * ctx, fz_output * out, const uchar *
 		fz_write_byte(ctx, out, '<');
 		for(i = 0; i < len; ++i) {
 			uchar c = str[i];
-			fz_write_byte(ctx, out, "0123456789abcdef"[(c>>4)&15]);
-			fz_write_byte(ctx, out, "0123456789abcdef"[(c)&15]);
+			fz_write_byte(ctx, out, SlConst::P_HxDigL[(c>>4)&15]);
+			fz_write_byte(ctx, out, SlConst::P_HxDigL[(c)&15]);
 		}
 		fz_write_byte(ctx, out, '>');
 	}
@@ -606,8 +606,8 @@ static void pdf_out_BI(fz_context * ctx, pdf_processor * proc, fz_image * img, c
 		size_t z;
 		for(z = 0; z < len; ++z) {
 			int c = data[z];
-			fz_write_byte(ctx, out, "0123456789abcdef"[(c >> 4) & 0xf]);
-			fz_write_byte(ctx, out, "0123456789abcdef"[c & 0xf]);
+			fz_write_byte(ctx, out, SlConst::P_HxDigL[(c >> 4) & 0xf]);
+			fz_write_byte(ctx, out, SlConst::P_HxDigL[c & 0xf]);
 			if((z & 31) == 31)
 				fz_write_byte(ctx, out, '\n');
 		}

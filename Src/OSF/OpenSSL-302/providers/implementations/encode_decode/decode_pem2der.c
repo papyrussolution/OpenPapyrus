@@ -20,7 +20,6 @@
 #include <openssl/params.h>
 #include <openssl/pem.h>
 #include <openssl/proverr.h>
-//#include "internal/nelem.h"
 #include "prov/bio.h"
 #include "prov/implementations.h"
 #include "endecoder_local.h"

@@ -3109,13 +3109,11 @@ fz_draw_options * fz_parse_draw_options(fz_context * ctx, fz_draw_options * opts
 		opts->text = opts->graphics = parse_aa_opts(val);
 	if(fz_has_option(ctx, args, "text", &val))
 		opts->text = parse_aa_opts(val);
-
 	/* Sanity check values */
 	if(opts->x_resolution <= 0) opts->x_resolution = 96;
 	if(opts->y_resolution <= 0) opts->y_resolution = 96;
 	if(opts->width < 0) opts->width = 0;
 	if(opts->height < 0) opts->height = 0;
-
 	return opts;
 }
 

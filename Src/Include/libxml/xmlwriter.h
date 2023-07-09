@@ -16,9 +16,9 @@
 #include <libxml/globals.h>
 #include <libxml/xmlIO.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 struct xmlBuffer;
 struct xmlTextWriter;
@@ -191,10 +191,8 @@ XMLPUBFUN int xmlTextWriterSetQuoteChar(xmlTextWriter * writer, xmlChar quotecha
  */
 XMLPUBFUN int FASTCALL xmlTextWriterFlush(xmlTextWriter * writer);
 
-#ifdef __cplusplus
-}
-#endif
-
+//#ifdef __cplusplus
+//}
+//#endif
 #endif /* LIBXML_WRITER_ENABLED */
-
 #endif /* __XML_XMLWRITER_H__ */

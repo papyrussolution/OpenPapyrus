@@ -34,11 +34,8 @@ static void split_words(const string &text, vector <string> &words, char ws = ' 
 
 #endif
 
-ProgClient::ProgClient(const string &progname, const string &args,
-    double timeout_, bool writable, int flags)
-	: RemoteDatabase(run_program(progname, args, child),
-	    timeout_, get_progcontext(progname, args), writable,
-	    flags)
+ProgClient::ProgClient(const string &progname, const string &args, double timeout_, bool writable, int flags) : 
+	RemoteDatabase(run_program(progname, args, child), timeout_, get_progcontext(progname, args), writable, flags)
 {
 	LOGCALL_CTOR(DB, "ProgClient", progname | args | timeout_ | writable | flags);
 }
@@ -58,19 +55,15 @@ int ProgClient::run_program(const string &progname, const string &args,
     )
 {
 	LOGCALL_STATIC(DB, int, "ProgClient::run_program", progname | args | Literal("[&child]"));
-
 #if defined HAVE_SOCKETPAIR && defined HAVE_FORK
 	/* socketpair() returns two sockets.  We keep sv[0] and give
 	 * sv[1] to the child process.
 	 */
 	int sv[2];
-
 	if(socketpair(PF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, 0, sv) < 0) {
 		throw Xapian::NetworkError(string("socketpair failed"), get_progcontext(progname, args), errno);
 	}
-
 	child = fork();
-
 	if(child < 0) {
 		throw Xapian::NetworkError(string("fork failed"), get_progcontext(progname, args), errno);
 	}

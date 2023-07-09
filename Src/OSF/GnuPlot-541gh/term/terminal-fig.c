@@ -411,7 +411,7 @@ TERM_PUBLIC void FIG_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 	pThis->SetMax(FIG_width, FIG_height);
 	pThis->SetTic(FIG_HTIC, FIG_VTIC);
 	// Empirical guess at font metrics 
-	pThis->SetCharSize(static_cast<uint>(pThis->CV() * 0.6), static_cast<uint>(FIG_font_s * FIG_IRES/72. * 0.75));
+	pThis->SetCharSize(static_cast<uint>(pThis->CV() * 0.6), static_cast<uint>(FIG_font_s * FIG_IRES/72.0 * 0.75));
 	FIG_thickness = static_cast<int>(FIG_linewidth_factor);
 	if(parse_error)
 		pGp->IntErrorCurToken("unrecognized option");

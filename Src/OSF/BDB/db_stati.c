@@ -231,7 +231,7 @@ static int __db_print_all(DB * dbp, uint32 flags)
 	};
 	char time_buf[CTIME_BUFLEN];
 	ENV * env = dbp->env;
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "DB handle information:");
 	STAT_ULONG("Page size", dbp->pgsize);
 	STAT_ISSET("Append recno", dbp->db_append_recno);
@@ -280,7 +280,7 @@ static int __db_print_cursor(DB * dbp)
 	DBC * dbc;
 	int ret, t_ret;
 	ENV * env = dbp->env;
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "DB handle cursors:");
 	ret = 0;
 	MUTEX_LOCK(dbp->env, dbp->mutex);

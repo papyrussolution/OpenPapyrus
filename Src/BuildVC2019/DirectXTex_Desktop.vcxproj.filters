@@ -24,6 +24,9 @@
     <ClCompile Include="..\OSF\DirectXTex\SRC\WICTextureLoader9.cpp" />
     <ClCompile Include="..\OSF\DirectXTex\SRC\WICTextureLoader11.cpp" />
     <ClCompile Include="..\OSF\DirectXTex\SRC\WICTextureLoader12.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DDSTextureLoader9.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DDSTextureLoader11.cpp" />
+    <ClCompile Include="..\OSF\DirectXTex\SRC\DDSTextureLoader12.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\DirectXTex\SRC\BC.h">

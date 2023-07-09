@@ -112,7 +112,7 @@ int __ham_stat_print(DBC * dbc, uint32 flags)
 	if((ret = __ham_stat(dbc, &sp, LF_ISSET(DB_FAST_STAT))) != 0)
 		return ret;
 	if(LF_ISSET(DB_STAT_ALL)) {
-		__db_msg(env, "%s", DB_GLOBAL(db_line));
+		__db_msg_db_line(env);
 		__db_msg(env, "Default Hash database information:");
 	}
 	__db_msg(env, "%lx\tHash magic number", (ulong)sp->hash_magic);

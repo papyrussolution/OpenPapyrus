@@ -61,9 +61,6 @@
 	#define RESOLVER_ENOMEM  ENOMEM
 #endif
 #include "urldata.h"
-//#include "sendf.h"
-//#include "hostip.h"
-//#include "hash.h"
 #include "share.h"
 #include "strerror.h"
 #include "url.h"

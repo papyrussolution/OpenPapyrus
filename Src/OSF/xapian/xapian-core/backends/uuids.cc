@@ -99,8 +99,8 @@ string Uuid::to_string() const
 	result.reserve(STRING_SIZE);
 	for(uint i = 0; i != BINARY_SIZE; ++i) {
 		uchar ch = uuid_data[i];
-		result += "0123456789abcdef"[ch >> 4];
-		result += "0123456789abcdef"[ch & 0x0f];
+		result += SlConst::P_HxDigL[ch >> 4];
+		result += SlConst::P_HxDigL[ch & 0x0f];
 		if((UUID_GAP_MASK >> i) & 1)
 			result += '-';
 	}

@@ -687,7 +687,7 @@
  * arguments are unused by default but are there in case error
  * checking becomes a requirement.
  */
-#define png_float(png_ptr, fixed, s) (.00001 * (fixed))
+#define png_float(png_ptr, fixed, s) (0.00001 * (fixed))
 
 /* The fixed point conversion performs range checking and evaluates
  * its argument multiple times, so must be used with care.  The

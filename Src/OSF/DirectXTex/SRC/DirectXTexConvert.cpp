@@ -2313,77 +2313,57 @@ _Use_decl_annotations_ HRESULT DirectX::Internal::ConvertToR32G32B32A32(const Im
 _Use_decl_annotations_ HRESULT DirectX::Internal::ConvertFromR32G32B32A32(const Image& srcImage, const Image& destImage) noexcept
 {
 	assert(srcImage.format == DXGI_FORMAT_R32G32B32A32_FLOAT);
-
 	if(!srcImage.pixels || !destImage.pixels)
 		return E_POINTER;
-
 	if(srcImage.width != destImage.width || srcImage.height != destImage.height)
 		return E_FAIL;
-
 	const uint8_t * pSrc = srcImage.pixels;
 	uint8_t* pDest = destImage.pixels;
-
 	for(size_t h = 0; h < srcImage.height; ++h) {
 		if(!StoreScanline(pDest, destImage.rowPitch, destImage.format, reinterpret_cast<const XMVECTOR*>(pSrc), srcImage.width))
 			return E_FAIL;
-
 		pSrc += srcImage.rowPitch;
 		pDest += destImage.rowPitch;
 	}
-
 	return S_OK;
 }
 
-_Use_decl_annotations_ HRESULT DirectX::Internal::ConvertFromR32G32B32A32(const Image& srcImage,
-    DXGI_FORMAT format,
-    ScratchImage& image) noexcept
+_Use_decl_annotations_ HRESULT DirectX::Internal::ConvertFromR32G32B32A32(const Image& srcImage, DXGI_FORMAT format, ScratchImage& image) noexcept
 {
 	if(!srcImage.pixels)
 		return E_POINTER;
-
 	HRESULT hr = image.Initialize2D(format, srcImage.width, srcImage.height, 1, 1);
 	if(FAILED(hr))
 		return hr;
-
 	const Image * img = image.GetImage(0, 0, 0);
 	if(!img) {
 		image.Release();
 		return E_POINTER;
 	}
-
 	hr = ConvertFromR32G32B32A32(srcImage, *img);
 	if(FAILED(hr)) {
 		image.Release();
 		return hr;
 	}
-
 	return S_OK;
 }
 
 _Use_decl_annotations_ HRESULT DirectX::Internal::ConvertFromR32G32B32A32(const Image* srcImages,
-    size_t nimages,
-    const TexMetadata& metadata,
-    DXGI_FORMAT format,
-    ScratchImage& result) noexcept
+    size_t nimages, const TexMetadata& metadata, DXGI_FORMAT format, ScratchImage& result) noexcept
 {
 	if(!srcImages)
 		return E_POINTER;
-
 	result.Release();
-
 	assert(metadata.format == DXGI_FORMAT_R32G32B32A32_FLOAT);
-
 	TexMetadata mdata2 = metadata;
 	mdata2.format = format;
 	HRESULT hr = result.Initialize(mdata2);
 	if(FAILED(hr))
 		return hr;
-
 	if(nimages != result.GetImageCount()) {
 		result.Release();
 		return E_FAIL;
 	}
-
 	const Image* dest = result.GetImages();
 	if(!dest) {
 		result.Release();
@@ -2475,20 +2455,15 @@ _Use_decl_annotations_ HRESULT DirectX::Internal::ConvertToR16G16B16A16(const Im
 _Use_decl_annotations_ HRESULT DirectX::Internal::ConvertFromR16G16B16A16(const Image& srcImage, const Image& destImage) noexcept
 {
 	assert(srcImage.format == DXGI_FORMAT_R16G16B16A16_FLOAT);
-
 	if(!srcImage.pixels || !destImage.pixels)
 		return E_POINTER;
-
 	if(srcImage.width != destImage.width || srcImage.height != destImage.height)
 		return E_FAIL;
-
 	auto scanline = make_AlignedArrayXMVECTOR(srcImage.width);
 	if(!scanline)
 		return E_OUTOFMEMORY;
-
 	const uint8_t * pSrc = srcImage.pixels;
 	uint8_t* pDest = destImage.pixels;
-
 	for(size_t h = 0; h < srcImage.height; ++h) {
 		XMConvertHalfToFloatStream(
 			reinterpret_cast<float*>(scanline.get()), sizeof(float),
@@ -2501,7 +2476,6 @@ _Use_decl_annotations_ HRESULT DirectX::Internal::ConvertFromR16G16B16A16(const 
 		pSrc += srcImage.rowPitch;
 		pDest += destImage.rowPitch;
 	}
-
 	return S_OK;
 }
 

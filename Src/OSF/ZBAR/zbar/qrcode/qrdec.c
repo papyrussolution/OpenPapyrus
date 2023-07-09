@@ -5,15 +5,11 @@
    version.*/
 #include <zbar.h>
 #pragma hdrstop
-//#include "qrcode.h"
 #include "qrdec.h"
 #include "bch15_5.h"
 #include "rs.h"
 #include "isaac.h"
-//#include "util.h"
 #include "binarize.h"
-//#include "image.h"
-//#include "error.h"
 #include "svg.h"
 
 typedef int qr_line[3];

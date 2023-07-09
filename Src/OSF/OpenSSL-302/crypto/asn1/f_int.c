@@ -13,7 +13,7 @@
 int i2a_ASN1_INTEGER(BIO * bp, const ASN1_INTEGER * a)
 {
 	int i, n = 0;
-	static const char * h = "0123456789ABCDEF";
+	// @sobolev static const char * h = "0123456789ABCDEF";
 	char buf[2];
 	if(!a)
 		return 0;
@@ -34,8 +34,8 @@ int i2a_ASN1_INTEGER(BIO * bp, const ASN1_INTEGER * a)
 					goto err;
 				n += 2;
 			}
-			buf[0] = h[((uchar)a->data[i] >> 4) & 0x0f];
-			buf[1] = h[((uchar)a->data[i]) & 0x0f];
+			buf[0] = SlConst::P_HxDigU[((uchar)a->data[i] >> 4) & 0x0f];
+			buf[1] = SlConst::P_HxDigU[((uchar)a->data[i]) & 0x0f];
 			if(BIO_write(bp, buf, 2) != 2)
 				goto err;
 			n += 2;

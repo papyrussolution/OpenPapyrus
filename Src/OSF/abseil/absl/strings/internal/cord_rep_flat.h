@@ -7,10 +7,6 @@
 #ifndef ABSL_STRINGS_INTERNAL_CORD_REP_FLAT_H_
 #define ABSL_STRINGS_INTERNAL_CORD_REP_FLAT_H_
 
-//#include <cassert>
-//#include <cstddef>
-//#include <cstdint>
-//#include <memory>
 #include "absl/base/config.h"
 #include "absl/base/macros.h"
 #include "absl/strings/internal/cord_internal.h"

@@ -12,7 +12,6 @@
 #pragma hdrstop
 #include "ssl_local.h"
 #include <openssl/objects.h>
-//#include "internal/nelem.h"
 #include <openssl/md5.h>
 #include <openssl/dh.h>
 #include <openssl/rand.h>

@@ -11,8 +11,6 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "check-internal.h"
-//#include "crc_macros.h"
 //
 // If you make any changes, do some benchmarking! Seemingly unrelated
 // changes can very easily ruin the performance (and very probably is

@@ -11,20 +11,19 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-//#include "glass_cursor.h"
 
 using namespace Glass;
 
 #ifdef XAPIAN_DEBUG_LOG
 static string hex_display_encode(const string & input)
 {
-	const char * table = "0123456789abcdef";
+	// @sobolev const char * table = "0123456789abcdef";
 	string result;
 	for(string::const_iterator i = input.begin(); i != input.end(); ++i) {
 		uchar val = *i;
 		result += "\\x";
-		result += table[val / 16];
-		result += table[val % 16];
+		result += SlConst::P_HxDigL[val / 16];
+		result += SlConst::P_HxDigL[val % 16];
 	}
 	return result;
 }

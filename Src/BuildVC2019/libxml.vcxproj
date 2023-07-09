@@ -946,7 +946,6 @@
   <ItemGroup>
     <ClInclude Include="..\Include\libxml\HTMLparser.h" />
     <ClInclude Include="..\Include\libxml\HTMLtree.h" />
-    <ClInclude Include="..\OSF\LIBXML\config.h" />
     <ClInclude Include="..\include\libxml\encoding.h" />
     <ClInclude Include="..\include\libxml\globals.h" />
     <ClInclude Include="..\include\libxml\list.h" />

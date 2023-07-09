@@ -1644,8 +1644,8 @@ static char * url_encode(const char * in)
 			if(*s < 33 || *s > 126 || *s == '%' || *s == '=') {
 				/* URL encoding is '%' followed by two hex digits */
 				*d++ = '%';
-				*d++ = "0123456789ABCDEF"[0x0f & (*s >> 4)];
-				*d++ = "0123456789ABCDEF"[0x0f & *s];
+				*d++ = SlConst::P_HxDigU[0x0f & (*s >> 4)];
+				*d++ = SlConst::P_HxDigU[0x0f & *s];
 			}
 			else {
 				*d++ = *s;
@@ -1664,8 +1664,7 @@ static char * url_encode(const char * in)
  */
 static char * base64_encode(const char * s, size_t len)
 {
-	static const char digits[64] =
-	{ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
+	static const char digits[64] = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
 	  'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
 	  'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
 	  't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',

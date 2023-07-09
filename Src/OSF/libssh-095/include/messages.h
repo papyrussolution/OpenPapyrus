@@ -15,8 +15,6 @@
 #ifndef MESSAGES_H_
 #define MESSAGES_H_
 
-//#include "config.h"
-
 struct ssh_auth_request {
     char *username;
     int method;

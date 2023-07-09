@@ -63,8 +63,7 @@ typedef struct png_compression_buffer {
 	uint8 output[1]; /* actually zbuf_size */
 } png_compression_buffer, * png_compression_bufferp;
 
-#define PNG_COMPRESSION_BUFFER_SIZE(pp)	\
-	(offsetof(png_compression_buffer, output) + (pp)->zbuffer_size)
+#define PNG_COMPRESSION_BUFFER_SIZE(pp)	(offsetof(png_compression_buffer, output) + (pp)->zbuffer_size)
 #endif
 
 /* Colorspace support; structures used in png_struct, png_info and in internal

@@ -1,19 +1,11 @@
+// CHNSECAL.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- * Copyright (C) 2007-2014, International Business Machines Corporation
- * and others. All Rights Reserved.
- ******************************************************************************
- *
- * File CHNSECAL.CPP
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   9/18/2007  ajmacher         ported from java ChineseCalendar
- *****************************************************************************
- */
+// Copyright (C) 2007-2014, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 9/18/2007  ajmacher         ported from java ChineseCalendar
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "chnsecal.h"
@@ -564,7 +556,7 @@ int32_t ChineseCalendar::majorSolarTerm(int32_t days) const
 	UDate solarLongitude = gChineseCalendarAstro->getSunLongitude();
 	umtx_unlock(&astroLock);
 	// Compute (floor(solarLongitude / (pi/6)) + 2) % 12
-	int32_t term = ( ((int32_t)(6 * solarLongitude / CalendarAstronomer::PI)) + 2 ) % 12;
+	int32_t term = ( ((int32_t)(6 * solarLongitude / SMathConst::Pi)) + 2 ) % 12;
 	if(term < 1) {
 		term += 12;
 	}

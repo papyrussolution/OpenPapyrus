@@ -18,19 +18,19 @@
 
 /* VS 2012 and later have stdint.h */
 #if _MSC_VER >= 1700
-#include <stdint.h>
+	#include <stdint.h>
 #else
-typedef signed char int8_t;
-typedef short int int16_t;
-typedef int int32_t;
-typedef __int64 int64_t;
-typedef uchar uint8;
-typedef unsigned short int uint16_t;
-typedef unsigned int uint32;
-typedef unsigned __int64 uint64_t;
-#ifndef SIZE_MAX
-#define SIZE_MAX (~((size_t) 0))
-#endif
+	typedef signed char int8_t;
+	typedef short int int16_t;
+	typedef int int32_t;
+	typedef __int64 int64_t;
+	typedef uchar uint8;
+	typedef unsigned short int uint16_t;
+	typedef unsigned int uint32;
+	typedef unsigned __int64 uint64_t;
+	#ifndef SIZE_MAX
+		#define SIZE_MAX (~((size_t) 0))
+	#endif
 #endif
 
 /* VS 2008 and later have vsnprintf */
@@ -43,20 +43,16 @@ typedef unsigned __int64 uint64_t;
  * so cater for it being defined already.
  */
 #if !(defined(inline))
-#define inline __inline
+	#define inline __inline
 #endif
 #endif
-
 /* VS 2014 and later have (finally) snprintf */
 #if _MSC_VER >= 1900
-#define STDC99
+	#define STDC99
 #else
-#define snprintf _snprintf
+	#define snprintf _snprintf
 #endif
-
 #else /* _MSC_VER */
-
-/* Not VS -- it had best behave */
-#include <stdint.h>
-
+	/* Not VS -- it had best behave */
+	#include <stdint.h>
 #endif /* _MSC_VER */

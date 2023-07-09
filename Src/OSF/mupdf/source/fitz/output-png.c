@@ -177,38 +177,30 @@ static void png_write_header(fz_context * ctx, fz_band_writer * writer_, fz_colo
 	head[10] = 0; /* compression */
 	head[11] = 0; /* filter */
 	head[12] = 0; /* interlace */
-
 	fz_write_data(ctx, out, pngsig, 8);
 	putchunk(ctx, out, "IHDR", head, 13);
-
 	big32(head+0, writer->super.xres * 100/2.54f + 0.5f);
 	big32(head+4, writer->super.yres * 100/2.54f + 0.5f);
 	head[8] = 1; /* metre */
 	putchunk(ctx, out, "pHYs", head, 9);
-
 	png_write_icc(ctx, writer, cs);
 }
 
-static void png_write_band(fz_context * ctx, fz_band_writer * writer_, int stride, int band_start, int band_height,
-    const uchar * sp)
+static void png_write_band(fz_context * ctx, fz_band_writer * writer_, int stride, int band_start, int band_height, const uchar * sp)
 {
 	png_band_writer * writer = (png_band_writer*)(void *)writer_;
 	fz_output * out = writer->super.out;
 	uchar * dp;
 	int y, x, k, err, finalband;
 	int w, h, n;
-
 	if(!out)
 		return;
-
 	w = writer->super.w;
 	h = writer->super.h;
 	n = writer->super.n;
-
 	finalband = (band_start+band_height >= h);
 	if(finalband)
 		band_height = h - band_start;
-
 	if(writer->udata == NULL) {
 		writer->usize = ((uLong)w * n + 1) * band_height;
 		/* Sadly the bound returned by compressBound is just for a
@@ -226,7 +218,6 @@ static void png_write_band(fz_context * ctx, fz_band_writer * writer_, int strid
 		if(err != Z_OK)
 			fz_throw(ctx, FZ_ERROR_GENERIC, "compression error %d", err);
 	}
-
 	dp = writer->udata;
 	stride -= w*n;
 	if(writer->super.alpha) {
@@ -271,7 +262,6 @@ static void png_write_band(fz_context * ctx, fz_band_writer * writer_, int strid
 			sp += stride;
 		}
 	}
-
 	writer->stream.next_in = (Byte *)writer->udata;
 	writer->stream.avail_in = (uInt)(dp - writer->udata);
 	do {
@@ -304,25 +294,21 @@ static void png_write_trailer(fz_context * ctx, fz_band_writer * writer_)
 	fz_output * out = writer->super.out;
 	uchar block[1];
 	int err;
-
 	writer->stream_ended = 1;
 	err = deflateEnd(&writer->stream);
 	if(err != Z_OK)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "compression error %d", err);
-
 	putchunk(ctx, out, "IEND", block, 0);
 }
 
 static void png_drop_band_writer(fz_context * ctx, fz_band_writer * writer_)
 {
 	png_band_writer * writer = (png_band_writer*)(void *)writer_;
-
 	if(!writer->stream_ended) {
 		int err = deflateEnd(&writer->stream);
 		if(err != Z_OK)
 			fz_warn(ctx, "ignoring compression error %d", err);
 	}
-
 	fz_free(ctx, writer->cdata);
 	fz_free(ctx, writer->udata);
 }
@@ -330,12 +316,10 @@ static void png_drop_band_writer(fz_context * ctx, fz_band_writer * writer_)
 fz_band_writer * fz_new_png_band_writer(fz_context * ctx, fz_output * out)
 {
 	png_band_writer * writer = fz_new_band_writer(ctx, png_band_writer, out);
-
 	writer->super.header = png_write_header;
 	writer->super.band = png_write_band;
 	writer->super.trailer = png_write_trailer;
 	writer->super.drop = png_drop_band_writer;
-
 	return &writer->super;
 }
 
@@ -347,19 +331,15 @@ static fz_buffer * png_from_pixmap(fz_context * ctx, fz_pixmap * pix, fz_color_p
 	fz_buffer * buf = NULL;
 	fz_output * out = NULL;
 	fz_pixmap * pix2 = NULL;
-
 	fz_var(buf);
 	fz_var(out);
 	fz_var(pix2);
-
 	if(pix->w == 0 || pix->h == 0) {
 		if(drop)
 			fz_drop_pixmap(ctx, pix);
 		return NULL;
 	}
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		if(pix->colorspace && pix->colorspace != fz_device_gray(ctx) && pix->colorspace != fz_device_rgb(ctx)) {
 			pix2 = fz_convert_pixmap(ctx, pix, fz_device_rgb(ctx), NULL, NULL, color_params, 1);
 			if(drop)
@@ -371,13 +351,11 @@ static fz_buffer * png_from_pixmap(fz_context * ctx, fz_pixmap * pix, fz_color_p
 		fz_write_pixmap_as_png(ctx, out, pix);
 		fz_close_output(ctx, out);
 	}
-	fz_always(ctx)
-	{
+	fz_always(ctx) {
 		fz_drop_pixmap(ctx, drop ? pix : pix2);
 		fz_drop_output(ctx, out);
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_drop_buffer(ctx, buf);
 		fz_rethrow(ctx);
 	}

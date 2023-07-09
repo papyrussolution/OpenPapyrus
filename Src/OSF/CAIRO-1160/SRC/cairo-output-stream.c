@@ -203,7 +203,7 @@ void FASTCALL _cairo_output_stream_write(cairo_output_stream_t * stream, const v
 
 void _cairo_output_stream_write_hex_string(cairo_output_stream_t * stream, const uchar * data, size_t length)
 {
-	const char hex_chars[] = "0123456789abcdef";
+	// @sobolev const char hex_chars[] = "0123456789abcdef";
 	char buffer[2];
 	uint i, column;
 	if(stream->status == 0) {
@@ -212,8 +212,8 @@ void _cairo_output_stream_write_hex_string(cairo_output_stream_t * stream, const
 				_cairo_output_stream_write(stream, "\n", 1);
 				column = 0;
 			}
-			buffer[0] = hex_chars[(data[i] >> 4) & 0x0f];
-			buffer[1] = hex_chars[data[i] & 0x0f];
+			buffer[0] = SlConst::P_HxDigL[(data[i] >> 4) & 0x0f];
+			buffer[1] = SlConst::P_HxDigL[data[i] & 0x0f];
 			_cairo_output_stream_write(stream, buffer, 2);
 		}
 	}

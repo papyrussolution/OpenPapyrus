@@ -122,13 +122,13 @@ char * png_format_number(const char * start, char * end, int format, png_alloc_s
 	 * number zero.
 	 */
 	while(end > start && (number != 0 || count < mincount)) {
-		static const char digits[] = "0123456789ABCDEF";
+		// @sobolev static const char digits[] = "0123456789ABCDEF";
 		switch(format) {
 			case PNG_NUMBER_FORMAT_fixed:
 			    /* Needs five digits (the fraction) */
 			    mincount = 5;
 			    if(output != 0 || number % 10 != 0) {
-				    *--end = digits[number % 10];
+				    *--end = SlConst::P_HxDigU[number % 10];
 				    output = 1;
 			    }
 			    number /= 10;
@@ -138,7 +138,7 @@ char * png_format_number(const char * start, char * end, int format, png_alloc_s
 			    mincount = 2;
 			// @fallthrough
 			case PNG_NUMBER_FORMAT_u:
-			    *--end = digits[number % 10];
+			    *--end = SlConst::P_HxDigU[number % 10];
 			    number /= 10;
 			    break;
 			case PNG_NUMBER_FORMAT_02x:
@@ -146,7 +146,7 @@ char * png_format_number(const char * start, char * end, int format, png_alloc_s
 			    mincount = 2;
 			// @fallthrough
 			case PNG_NUMBER_FORMAT_x:
-			    *--end = digits[number & 0xf];
+			    *--end = SlConst::P_HxDigU[number & 0xf];
 			    number >>= 4;
 			    break;
 			default: /* an error */

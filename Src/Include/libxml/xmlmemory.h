@@ -32,9 +32,9 @@
  */
 #ifdef DEBUG_MEMORY_LOCATION
 #endif
-#ifdef __cplusplus
-	extern "C" {
-#endif
+//#ifdef __cplusplus
+	//extern "C" {
+//#endif
 /*
  * The XML memory wrapper support 4 basic overloadable functions.
  */
@@ -157,8 +157,8 @@ XMLPUBFUN char * xmlMemStrdupLoc(const char *str, const char *file, int line);
  */
 //#define xmlMemStrdup_Removed(str) xmlMemStrdupLoc((str), __FILE__, __LINE__)
 #endif /* DEBUG_MEMORY_LOCATION */
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
+//#ifdef __cplusplus
+//}
+//#endif /* __cplusplus */
 #endif  /* __DEBUG_MEMORY_ALLOC__ */
 

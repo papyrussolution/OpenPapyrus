@@ -466,29 +466,23 @@ void BillFiltDialog::viewOptions()
 	TDialog * dlg = new TDialog(DLG_BILLFLTVOPT);
 	if(CheckDialogPtrErr(&dlg)) {
 		long   flags = 0;
+		const LAssoc sftab[] = {
+			{ BillFilt::dliFreightIssueDate,   0x0001 },
+			{ BillFilt::dliFreightArrivalDate, 0x0002 },
+			{ BillFilt::dliDueDate,            0x0004 },
+			{ BillFilt::dliAgentName,          0x0008 },
+			{ BillFilt::dliAlcoLic,            0x0010 },
+			{ BillFilt::dliDlvrAddr,           0x0020 },
+			{ BillFilt::dliTSessLinkTo,        0x0040 }, // @v11.6.12
+		};
 		// PPViewDisplayExtList Dl
-		if(Data.Dl.GetItemByDataId(BillFilt::dliFreightIssueDate, 0))
-			flags |= 0x0001;
-		if(Data.Dl.GetItemByDataId(BillFilt::dliFreightArrivalDate, 0))
-			flags |= 0x0002;
-		if(Data.Dl.GetItemByDataId(BillFilt::dliDueDate, 0))
-			flags |= 0x0004;
-		if(Data.Dl.GetItemByDataId(BillFilt::dliAgentName, 0))
-			flags |= 0x0008;
-		if(Data.Dl.GetItemByDataId(BillFilt::dliAlcoLic, 0))
-			flags |= 0x0010;
-		if(Data.Dl.GetItemByDataId(BillFilt::dliDlvrAddr, 0))
-			flags |= 0x0020;
-		if(Data.Dl.GetItemByDataId(BillFilt::dliTSessLinkTo, 0)) // @v11.6.12
-			flags |= 0x0040;
+		uint i;
+		for(i = 0; i < SIZEOFARRAY(sftab); i++) {
+			if(Data.Dl.GetItemByDataId(sftab[i].Key, 0))
+				flags |= sftab[i].Val;
+			dlg->AddClusterAssoc(CTL_BILLFLTVOPT_FLAGS, i, sftab[i].Val);
+		}
 		const long preserve_flags = flags;
-		dlg->AddClusterAssoc(CTL_BILLFLTVOPT_FLAGS, 0, 0x01);
-		dlg->AddClusterAssoc(CTL_BILLFLTVOPT_FLAGS, 1, 0x02);
-		dlg->AddClusterAssoc(CTL_BILLFLTVOPT_FLAGS, 2, 0x04);
-		dlg->AddClusterAssoc(CTL_BILLFLTVOPT_FLAGS, 3, 0x08);
-		dlg->AddClusterAssoc(CTL_BILLFLTVOPT_FLAGS, 4, 0x10);
-		dlg->AddClusterAssoc(CTL_BILLFLTVOPT_FLAGS, 5, 0x20);
-		dlg->AddClusterAssoc(CTL_BILLFLTVOPT_FLAGS, 6, 0x40); // @v11.6.12
 		dlg->SetClusterData(CTL_BILLFLTVOPT_FLAGS, flags);
 		{
 			PrcssrAlcReport::Config arp_cfg;
@@ -498,36 +492,12 @@ void BillFiltDialog::viewOptions()
 		if(ExecView(dlg) == cmOK) {
 			flags = dlg->GetClusterData(CTL_BILLFLTVOPT_FLAGS);
 			if(flags != preserve_flags) {
-				if(flags & 0x0001)
-					Data.Dl.SetItem(BillFilt::dliFreightIssueDate, 0, 0);
-				else
-					Data.Dl.RemoveItem(BillFilt::dliFreightIssueDate);
-				if(flags & 0x0002)
-					Data.Dl.SetItem(BillFilt::dliFreightArrivalDate, 0, 0);
-				else
-					Data.Dl.RemoveItem(BillFilt::dliFreightArrivalDate);
-				if(flags & 0x0004)
-					Data.Dl.SetItem(BillFilt::dliDueDate, 0, 0);
-				else
-					Data.Dl.RemoveItem(BillFilt::dliDueDate);
-				if(flags & 0x0008)
-					Data.Dl.SetItem(BillFilt::dliAgentName, 0, 0);
-				else
-					Data.Dl.RemoveItem(BillFilt::dliAgentName);
-				if(flags & 0x0010)
-					Data.Dl.SetItem(BillFilt::dliAlcoLic, 0, 0);
-				else
-					Data.Dl.RemoveItem(BillFilt::dliAlcoLic);
-				if(flags & 0x0020)
-					Data.Dl.SetItem(BillFilt::dliDlvrAddr, 0, 0);
-				else
-					Data.Dl.RemoveItem(BillFilt::dliDlvrAddr);
-				// @v11.6.12 {
-				if(flags & 0x0040)
-					Data.Dl.SetItem(BillFilt::dliTSessLinkTo, 0, 0);
-				else
-					Data.Dl.RemoveItem(BillFilt::dliTSessLinkTo);
-				// } @v11.6.12 
+				for(i = 0; i < SIZEOFARRAY(sftab); i++) {
+					if(flags & sftab[i].Val)
+						Data.Dl.SetItem(sftab[i].Key, 0, 0);
+					else
+						Data.Dl.RemoveItem(sftab[i].Key);
+				}
 			}
 		}
 	}
@@ -1067,75 +1037,76 @@ int PPViewBill::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	int    ok = -1;
 	int    caption = -1;
-	TDialog * d = 0;
-	PPID   single_op_id = 0;
-	PPIDArray op_list;
 	uint   rez_id = DLG_BILLFLT;
-	const BrowseBillsType bbt = (pFilt) ? static_cast<const BillFilt *>(pFilt)->Bbt : bbtUndef;
-	BillFilt * p_filt = static_cast<BillFilt *>(pFilt);
-	if(oneof3(bbt, bbtOrderBills, bbtInventoryBills, bbtPoolBills)) {
-		uint f;
-		if(bbt == bbtOrderBills) {
-			f = BillFilt::fOrderOnly;
-			caption = 1;
-			rez_id = DLG_BILLFLT_ORDER;
+	if(pFilt) {
+		const BrowseBillsType bbt = static_cast<const BillFilt *>(pFilt)->Bbt;
+		BillFilt * p_filt = static_cast<BillFilt *>(pFilt);
+		switch(bbt) {
+			case bbtOrderBills:
+				p_filt->Flags |= BillFilt::fOrderOnly;
+				caption = 1;
+				rez_id = DLG_BILLFLT_ORDER;
+				break;
+			case bbtInventoryBills:
+				p_filt->Flags |= BillFilt::fInvOnly;
+				caption = 3;
+				rez_id = DLG_INVFLT;
+				break;
+			case bbtPoolBills:
+				p_filt->Flags |= BillFilt::fPoolOnly;
+				caption = 4;
+				break;
+			case bbtAccturnBills:
+				p_filt->Flags |= BillFilt::fAccturnOnly;
+				caption = 2;
+				break;
+			case bbtDraftBills:
+				p_filt->Flags |= BillFilt::fDraftOnly;
+				caption = 5;
+				rez_id = DLG_BILLFLT_DRAFT;
+				break;
+			case bbtWmsBills:
+				p_filt->Flags |= BillFilt::fWmsOnly;
+				caption = 6;
+				break;
+			default:
+				caption = 0;
+				break;
 		}
-		else if(bbt == bbtInventoryBills) {
-			f = BillFilt::fInvOnly;
-			caption = 3;
-			rez_id = DLG_INVFLT;
-		}
-		else if(bbt == bbtPoolBills) {
-			f = BillFilt::fPoolOnly;
-			caption = 4;
-		}
-		else
-			return -1;
-		p_filt->Flags |= f;
-	}
-	else if(bbt == bbtAccturnBills) {
-		p_filt->Flags |= BillFilt::fAccturnOnly;
-		caption = 2;
-	}
-	else if(bbt == bbtDraftBills) {
-		p_filt->Flags |= BillFilt::fDraftOnly;
-		caption = 5;
-		rez_id = DLG_BILLFLT_DRAFT;
-	}
-	else if(bbt == bbtWmsBills) {
-		p_filt->Flags |= BillFilt::fWmsOnly;
-		caption = 6;
-	}
-	else
-		caption = 0;
-	GetOpList(p_filt, &op_list, &single_op_id);
-	SString temp_buf;
-	if(op_list.getCount()) {
-		if(single_op_id)
-			p_filt->OpID = single_op_id;
-		if(caption >= 0)
-			PPGetSubStr(PPTXT_BILLFLTCAPTIONS, caption, temp_buf);
-		else
-			temp_buf.Z();
-		int r = BillFilterDialog(rez_id, p_filt, &d, temp_buf);
-		assert(!d->H() || ::IsWindow(d->H())); // @debug
-		ZDELETE(d);
-		if(r == cmOK)
-			ok = 1;
-		else if(!r)
-			ok = 0;
-	}
-	else {
-		int    bill_idx = -1;
-		if(bbt == bbtOrderBills)
-			bill_idx = PPNOTUNE_ORDER;
-		else if(bbt == bbtInventoryBills)
-			bill_idx = PPNOTUNE_INVENT;
-		else if(bbt == bbtDraftBills)
-			bill_idx = PPNOTUNE_DRAFT;
-		if(bill_idx >= 0) {
-			PPGetSubStr(PPTXT_NOTUNEANYOPS, bill_idx, temp_buf);
-			PPOutputMessage(temp_buf, mfInfo);
+		{
+			PPID   single_op_id = 0;
+			PPIDArray op_list;
+			GetOpList(p_filt, &op_list, &single_op_id);
+			SString temp_buf;
+			if(op_list.getCount()) {
+				TDialog * dlg = 0;
+				if(single_op_id)
+					p_filt->OpID = single_op_id;
+				if(caption >= 0)
+					PPGetSubStr(PPTXT_BILLFLTCAPTIONS, caption, temp_buf);
+				else
+					temp_buf.Z();
+				int r = BillFilterDialog(rez_id, p_filt, &dlg, temp_buf);
+				assert(!dlg->H() || ::IsWindow(dlg->H())); // @debug
+				ZDELETE(dlg);
+				if(r == cmOK)
+					ok = 1;
+				else if(!r)
+					ok = 0;
+			}
+			else {
+				int    bill_idx = -1;
+				if(bbt == bbtOrderBills)
+					bill_idx = PPNOTUNE_ORDER;
+				else if(bbt == bbtInventoryBills)
+					bill_idx = PPNOTUNE_INVENT;
+				else if(bbt == bbtDraftBills)
+					bill_idx = PPNOTUNE_DRAFT;
+				if(bill_idx >= 0) {
+					PPGetSubStr(PPTXT_NOTUNEANYOPS, bill_idx, temp_buf);
+					PPOutputMessage(temp_buf, mfInfo);
+				}
+			}
 		}
 	}
 	return ok;

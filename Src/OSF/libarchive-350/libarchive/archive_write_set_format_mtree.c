@@ -1500,10 +1500,10 @@ static void sum_final(struct mtree_writer * mtree, struct reg_info * reg)
 #if defined(ARCHIVE_HAS_MD5) || defined(ARCHIVE_HAS_RMD160) || defined(ARCHIVE_HAS_SHA1) || defined(ARCHIVE_HAS_SHA256) || defined(ARCHIVE_HAS_SHA384) || defined(ARCHIVE_HAS_SHA512)
 static void strappend_bin(archive_string * s, const uchar * bin, int n)
 {
-	static const char hex[] = "0123456789abcdef";
+	// @sobolev static const char hex[] = "0123456789abcdef";
 	for(int i = 0; i < n; i++) {
-		archive_strappend_char(s, hex[bin[i] >> 4]);
-		archive_strappend_char(s, hex[bin[i] & 0x0f]);
+		archive_strappend_char(s, SlConst::P_HxDigL[bin[i] >> 4]);
+		archive_strappend_char(s, SlConst::P_HxDigL[bin[i] & 0x0f]);
 	}
 }
 

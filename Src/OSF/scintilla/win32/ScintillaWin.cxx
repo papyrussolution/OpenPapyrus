@@ -27,14 +27,7 @@
 	#include <d2d1.h>
 	#include <dwrite.h>
 #endif
-#ifdef SCI_LEXER
-	//#include "SciLexer.h"
-#endif
-#ifdef SCI_LEXER
-	//#include "ExternalLexer.h"
-#endif
 #include "PlatWin.h"
-//#include "HanjaDic.h"
 
 #ifndef SPI_GETWHEELSCROLLLINES
 	#define SPI_GETWHEELSCROLLLINES   104

@@ -103,7 +103,7 @@ loop:
 		if((ret = __os_open(env, infop->name, 0, DB_OSO_CREATE|DB_OSO_EXCL|DB_OSO_REGION, env->db_mode, &env->lockfhp)) == 0)
 			goto creation;
 		if(ret != EEXIST) {
-			__db_err(env, ret, "%s", infop->name);
+			__db_err_simple_text(env, ret, infop->name);
 			goto err;
 		}
 	}
@@ -145,7 +145,7 @@ loop:
 	 * now, trying to make different versions of it work.)
 	 */
 	if((ret = __os_ioinfo(env, infop->name, env->lockfhp, &mbytes, &bytes, NULL)) != 0) {
-		__db_err(env, ret, "%s", infop->name);
+		__db_err_simple_text(env, ret, infop->name);
 		goto err;
 	}
 	/*
@@ -797,7 +797,7 @@ static void __env_remove_file(ENV * env)
 	}
 	/* Get the list of file names. */
 	if((ret = __os_dirlist(env, dir, 0, &names, &fcnt)) != 0)
-		__db_err(env, ret, "%s", dir);
+		__db_err_simple_text(env, ret, dir);
 	/* Restore the path, and free it. */
 	*p = saved_char;
 	__os_free(env, path);

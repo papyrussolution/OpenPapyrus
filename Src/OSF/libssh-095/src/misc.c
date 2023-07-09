@@ -330,7 +330,7 @@ char * ssh_hostport(const char * host, int port)
  */
 char * ssh_get_hexa(const uchar * what, size_t len) 
 {
-	const char h[] = "0123456789abcdef";
+	// @sobolev const char h[] = "0123456789abcdef";
 	char * hexa;
 	size_t i;
 	size_t hlen = len * 3;
@@ -342,8 +342,8 @@ char * ssh_get_hexa(const uchar * what, size_t len)
 		return NULL;
 	}
 	for(i = 0; i < len; i++) {
-		hexa[i * 3] = h[(what[i] >> 4) & 0xF];
-		hexa[i * 3 + 1] = h[what[i] & 0xF];
+		hexa[i * 3] = SlConst::P_HxDigL[(what[i] >> 4) & 0xF];
+		hexa[i * 3 + 1] = SlConst::P_HxDigL[what[i] & 0xF];
 		hexa[i * 3 + 2] = ':';
 	}
 	hexa[hlen - 1] = '\0';

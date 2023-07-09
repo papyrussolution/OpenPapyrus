@@ -2906,8 +2906,7 @@ out:
 					infof(data, "Please URL encode %% as %%25, see RFC 6874.\n");
 				ptr++;
 				/* Allow unreserved characters as defined in RFC 3986 */
-				while(*ptr && (ISALPHA(*ptr) || ISXDIGIT(*ptr) || (*ptr == '-') ||
-				    (*ptr == '.') || (*ptr == '_') || (*ptr == '~')))
+				while(*ptr && (ISALPHA(*ptr) || ISXDIGIT(*ptr) || (*ptr == '-') || (*ptr == '.') || (*ptr == '_') || (*ptr == '~')))
 					ptr++;
 			}
 			if(*ptr == ']')

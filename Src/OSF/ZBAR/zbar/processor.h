@@ -28,7 +28,6 @@
 #endif
 #include <unistd.h>
 #include <zbar.h>
-//#include "error.h"
 #include "thread.h"
 #include "event.h"
 

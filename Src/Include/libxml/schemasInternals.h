@@ -14,9 +14,9 @@
 
 #ifdef LIBXML_SCHEMAS_ENABLED
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 enum xmlSchemaValType {
     XML_SCHEMAS_UNKNOWN = 0,
@@ -503,9 +503,9 @@ struct _xmlSchema {
 XMLPUBFUN void xmlSchemaFreeType(xmlSchemaType * type);
 XMLPUBFUN void xmlSchemaFreeWildcard(xmlSchemaWildcardPtr wildcard);
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 
 #endif /* LIBXML_SCHEMAS_ENABLED */
 #endif /* __XML_SCHEMA_INTERNALS_H__ */

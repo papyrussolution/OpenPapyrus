@@ -143,8 +143,8 @@ static int inet_pton4(const char * src, uchar * dst)
  */
 static int inet_pton6(const char * src, uchar * dst)
 {
-	static const char xdigits_l[] = "0123456789abcdef",
-	    xdigits_u[] = "0123456789ABCDEF";
+	// @sobolev static const char xdigits_l[] = "0123456789abcdef";
+	// @sobolev static const char xdigits_u[] = "0123456789ABCDEF";
 	uchar tmp[IN6ADDRSZ], * tp, * endp, * colonp;
 	const char * curtok;
 	int ch, saw_xdigit;
@@ -161,11 +161,9 @@ static int inet_pton6(const char * src, uchar * dst)
 	val = 0;
 	while((ch = *src++) != '\0') {
 		const char * xdigits;
-		const char * pch;
-
-		pch = strchr((xdigits = xdigits_l), ch);
+		const char * pch = strchr((xdigits = SlConst::P_HxDigL), ch);
 		if(!pch)
-			pch = strchr((xdigits = xdigits_u), ch);
+			pch = strchr((xdigits = SlConst::P_HxDigU), ch);
 		if(pch != NULL) {
 			val <<= 4;
 			val |= (pch - xdigits);

@@ -62,7 +62,7 @@ typedef struct {
 	#define AC_SRC_ALPHA                0x01
 #endif
 
-#define PELS_72DPI  ((LONG)(72. / 0.0254))
+#define PELS_72DPI  ((LONG)(72.0 / 0.0254))
 
 /* the low-level interface */
 

@@ -17,11 +17,8 @@
 #include "prov/providercommon.h"
 #include "prov/implementations.h"
 #include "prov/provider_util.h"
-//#include "internal/nelem.h"
-
 /*
- * Forward declarations to ensure that interface functions are correctly
- * defined.
+ * Forward declarations to ensure that interface functions are correctly defined.
  */
 static OSSL_FUNC_provider_gettable_params_fn base_gettable_params;
 static OSSL_FUNC_provider_get_params_fn base_get_params;

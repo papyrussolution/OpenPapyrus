@@ -15,9 +15,9 @@
 	#include <libxml/schemasInternals.h>
 	#include <libxml/xmlschemas.h>
 
-	#ifdef __cplusplus
-	extern "C" {
-	#endif
+	//#ifdef __cplusplus
+	//extern "C" {
+	//#endif
 
 	enum xmlSchemaWhitespaceValueType {
 		XML_SCHEMA_WHITESPACE_UNKNOWN = 0,
@@ -61,8 +61,8 @@
 	XMLPUBFUN xmlSchemaVal * xmlSchemaCopyValue(xmlSchemaVal * val);
 	XMLPUBFUN xmlSchemaValType xmlSchemaGetValType(xmlSchemaVal * val);
 
-	#ifdef __cplusplus
-	}
-	#endif
+	//#ifdef __cplusplus
+	//}
+	//#endif
 #endif
 #endif

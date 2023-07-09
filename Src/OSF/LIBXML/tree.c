@@ -6135,21 +6135,21 @@ xmlChar * xmlBufferDetach(xmlBuffer * buf)
  */
 xmlBuffer * xmlBufferCreateStatic(void * mem, size_t size)
 {
-	xmlBuffer * ret;
-	if((mem == NULL) || (size == 0))
-		return 0;
-	ret = static_cast<xmlBuffer *>(SAlloc::M(sizeof(xmlBuffer)));
-	if(!ret) {
-		xmlTreeErrMemory("creating buffer");
-		return 0;
+	xmlBuffer * ret = 0;
+	if(mem && size) {
+		ret = static_cast<xmlBuffer *>(SAlloc::M(sizeof(xmlBuffer)));
+		if(!ret) {
+			xmlTreeErrMemory("creating buffer");
+		}
+		else {
+			ret->use = size;
+			ret->size = size;
+			ret->alloc = XML_BUFFER_ALLOC_IMMUTABLE;
+			ret->content = (xmlChar *)mem;
+		}
 	}
-	ret->use = size;
-	ret->size = size;
-	ret->alloc = XML_BUFFER_ALLOC_IMMUTABLE;
-	ret->content = (xmlChar *)mem;
 	return ret;
 }
-
 /**
  * xmlBufferSetAllocationScheme:
  * @buf:  the buffer to tune

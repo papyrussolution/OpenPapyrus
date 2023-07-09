@@ -12,9 +12,9 @@
 struct xmlParserInput;
 struct xmlNode;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 /**
  * xmlErrorLevel:
  *
@@ -885,7 +885,7 @@ XMLPUBFUN void __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorF
 	int int1, int col, const char *msg, ...) LIBXML_ATTR_FORMAT(16,17);
 XMLPUBFUN void FASTCALL __xmlSimpleError(int domain, int code, xmlNode * node, const char *msg, const char *extra);
 #endif
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 #endif /* __XML_ERROR_H__ */

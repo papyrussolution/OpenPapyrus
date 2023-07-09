@@ -154,8 +154,8 @@ template <class S> inline PrettyOStream<S> &operator<<(PrettyOStream<S> &ps, uch
 			ps.os << "\\0";
 		}
 		else {
-			ps.os << "0123456789abcdef"[ch >> 4];
-			ps.os << "0123456789abcdef"[ch & 0x0f];
+			ps.os << SlConst::P_HxDigL[ch >> 4];
+			ps.os << SlConst::P_HxDigL[ch & 0x0f];
 		}
 	}
 	else if(ch == '\\') {

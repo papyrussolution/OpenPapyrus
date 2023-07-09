@@ -359,7 +359,7 @@ int __log_find(DB_LOG*dblp, int find_first, uint32 * valp, logfile_validity * st
 	/* Get the list of file names. */
 retry:  
 	if((ret = __os_dirlist(env, dir, 0, &names, &fcnt)) != 0) {
-		__db_err(env, ret, "%s", dir);
+		__db_err_simple_text(env, ret, dir);
 		__os_free(env, p);
 		return ret;
 	}

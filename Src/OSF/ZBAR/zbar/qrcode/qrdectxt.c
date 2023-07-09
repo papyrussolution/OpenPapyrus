@@ -13,10 +13,6 @@
 #include <iconv.h>
 #include "qrcode.h"
 #include "qrdec.h"
-//#include "util.h"
-//#include "image.h"
-//#include "error.h"
-//#include "img_scanner.h"
 
 static int text_is_ascii(const uchar * _text, int _len)
 {

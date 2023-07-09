@@ -3365,11 +3365,10 @@ ulong STDCALL mysql_get_client_version(void)
 ulong STDCALL mysql_hex_string(char * to, const char * from, ulong len)
 {
 	char * start = to;
-	char hexdigits[] = "0123456789ABCDEF";
-
+	// @sobolev char hexdigits[] = "0123456789ABCDEF";
 	while(len--) {
-		*to++ = hexdigits[((uchar)*from) >> 4];
-		*to++ = hexdigits[((uchar)*from) & 0x0F];
+		*to++ = SlConst::P_HxDigU[((uchar)*from) >> 4];
+		*to++ = SlConst::P_HxDigU[((uchar)*from) & 0x0F];
 		from++;
 	}
 	*to = 0;
@@ -3378,8 +3377,7 @@ ulong STDCALL mysql_hex_string(char * to, const char * from, ulong len)
 
 bool STDCALL mariadb_connection(MYSQL * mysql)
 {
-	return (strstr(mysql->server_version, "MariaDB") ||
-	       strstr(mysql->server_version, "-maria-"));
+	return (strstr(mysql->server_version, "MariaDB") || strstr(mysql->server_version, "-maria-"));
 }
 
 const char * STDCALL mysql_get_server_name(MYSQL * mysql)

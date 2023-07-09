@@ -21967,10 +21967,7 @@ end_elem:
 	 */
 	if(inode->idcTable) {
 #ifdef DEBUG_IDC_NODE_TABLE
-		xmlSchemaDebugDumpIDCTable(stdout,
-		    inode->nsName,
-		    inode->localName,
-		    inode->idcTable);
+		xmlSchemaDebugDumpIDCTable(stdout, inode->nsName, inode->localName, inode->idcTable);
 #endif
 		if((vctxt->depth > 0) && (vctxt->hasKeyrefs || vctxt->createIDCNodeTables)) {
 			/*

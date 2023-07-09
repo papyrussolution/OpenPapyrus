@@ -7,7 +7,6 @@
 #include <absl/base/port.h>
 #include <absl/meta/type_traits.h>
 #include <absl/numeric/int128.h>
-//#include <absl/strings/internal/has_absl_stringify.h>
 #include <absl/strings/internal/str_format/extension.h>
 #include <absl/strings/string_view.h>
 

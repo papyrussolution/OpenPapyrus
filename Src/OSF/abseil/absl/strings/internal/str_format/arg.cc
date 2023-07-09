@@ -111,7 +111,7 @@ public:
 		char * p = storage_ + sizeof(storage_);
 		// kHexTable is only lowercase, so do it manually for uppercase.
 		do {
-			*--p = "0123456789ABCDEF"[static_cast<size_t>(v) & 15];
+			*--p = SlConst::P_HxDigU[static_cast<size_t>(v) & 15];
 			v >>= 4;
 		} while(v);
 		start_ = p;

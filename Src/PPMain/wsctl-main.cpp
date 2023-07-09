@@ -114,8 +114,10 @@ public:
 	}
 	void PushFont(ImFont * pFont)
 	{
-		ImGui::PushFont(pFont);
-		St.push(objFont);
+		if(pFont) {
+			ImGui::PushFont(pFont);
+			St.push(objFont);
+		}
 	}
 	void PushStyleColor(ImGuiCol idx, ImU32 col)
 	{
@@ -532,82 +534,37 @@ protected:
 	void * P_Ctx;
 };
 
-static SString & InputLabelPrefix(const char * pLabel)
-{
-	float width = ImGui::CalcItemWidth();
-	float x = ImGui::GetCursorPosX();
-	ImGui::Text(pLabel); 
-	//ImGui::SameLine(); 
-	//ImGui::SetCursorPosX(x + width * 0.5f + ImGui::GetStyle().ItemInnerSpacing.x);
-	// @v11.7.8 ImGui::SetNextItemWidth(-1);
-	return SLS.AcquireRvlStr().CatCharN('#', 2).Cat(pLabel);
-}
-
-class ImDialog_WsCtlConfig : public ImDialogState {
+class SImFontDescription {
 public:
-	ImDialog_WsCtlConfig(WsCtl_Config * pCtx) : ImDialogState(pCtx)
+	SImFontDescription(ImGuiIO & rIo, const char * pSymb, const char * pPath, float sizePx, const ImFontConfig * pFontCfg, const SColor * pClr) : P_Font(0), Symbol(pSymb)
 	{
-		if(pCtx) {
-			Data = *pCtx;
-		}
-		STRNSCPY(SubstTxt_Server, Data.Server);
-		STRNSCPY(SubstTxt_DbSymb, Data.DbSymb);
-		STRNSCPY(SubstTxt_User, Data.User);
-		STRNSCPY(SubstTxt_Password, Data.Password);
+		assert(Symbol.NotEmptyS());
+		Clr.Z();
+		static const ImWchar ranges[] = {
+			0x0020, 0x00FF, // Basic Latin + Latin Supplement
+			0x0400, 0x044F, // Cyrillic
+			0,
+		};
+		P_Font = rIo.Fonts->AddFontFromFileTTF(/*"/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf"*/pPath, sizePx, pFontCfg, ranges);
+		RVALUEPTR(Clr, pClr);
 	}
-	~ImDialog_WsCtlConfig()
+	operator ImFont * () { return P_Font; };
+	bool   IsValid() const { return (P_Font != 0); }
+	bool   HasColor() const { return !Clr.IsEmpty(); }
+	SColor GetColor() const { return Clr; }
+	//
+	// Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
+	//
+	const void * GetKey(uint * pKeyLen) const
 	{
-		memzero(SubstTxt_Server, sizeof(SubstTxt_Server));
-		memzero(SubstTxt_DbSymb, sizeof(SubstTxt_DbSymb));
-		memzero(SubstTxt_User, sizeof(SubstTxt_User));
-		memzero(SubstTxt_Password, sizeof(SubstTxt_Password));
-	}
-	virtual int Build()
-	{
-		int    result = 0;
-		const char * p_popup_title = "Config";
-		ImGui::OpenPopup(p_popup_title);
-		if(ImGui::BeginPopup(p_popup_title)) {
-			ImGui::InputText(InputLabelPrefix("server"), SubstTxt_Server, sizeof(SubstTxt_Server));
-			ImGui::InputInt(InputLabelPrefix("port"), &Data.Port);
-			ImGui::InputText(InputLabelPrefix("dbsymb"), SubstTxt_DbSymb, sizeof(SubstTxt_DbSymb));
-			ImGui::InputText(InputLabelPrefix("user"), SubstTxt_User, sizeof(SubstTxt_User));
-			ImGui::InputText(InputLabelPrefix("password"), SubstTxt_Password, sizeof(SubstTxt_Password));
-			ImGui::NewLine();
-			if(ImGui::Button("ok", ButtonSize_Std)) {
-				ImGui::CloseCurrentPopup();
-				result = 1;
-			}
-			ImGui::SameLine();
-			if(ImGui::Button("cancel", ButtonSize_Std)) {
-				ImGui::CloseCurrentPopup();
-				result = -1;
-			}
-			ImGui::EndPopup();
-		}
-		return result;
-	}
-	virtual bool CommitData()
-	{
-		bool   ok = true;
-		if(P_Ctx) {
-			Data.Server = SubstTxt_Server;
-			Data.DbSymb = SubstTxt_DbSymb;
-			Data.User = SubstTxt_User;
-			Data.Password = SubstTxt_Password;
-			*static_cast<WsCtl_Config *>(P_Ctx) = Data;
-		}
-		else
-			ok = false;
-		return ok;
+		ASSIGN_PTR(pKeyLen, Symbol.Len());
+		return Symbol.cptr();
 	}
 private:
-	WsCtl_Config Data;
-	char   SubstTxt_Server[128];
-	char   SubstTxt_DbSymb[128];
-	char   SubstTxt_User[128];
-	char   SubstTxt_Password[128];
-	//char   SubstTxt_
+	SString Symbol;
+	uint   State;
+	SColor Clr; // 
+	ImFont * P_Font;
 };
 //
 //
@@ -975,6 +932,116 @@ public:
 		}
 		return ok;
 	}
+	int CreateFontEntry(ImGuiIO & rIo, const char * pSymb, const char * pPath, float sizePx, const ImFontConfig * pFontCfg, const SColor * pClr)
+	{
+		static const ImWchar ranges[] = {
+			0x0020, 0x00FF, // Basic Latin + Latin Supplement
+			0x0400, 0x044F, // Cyrillic
+			0,
+		};
+		int    ok = 1;
+		SImFontDescription * p_fd = new SImFontDescription(rIo, pSymb, pPath, sizePx, pFontCfg, pClr);
+		if(p_fd) {
+			Cache_Font.Put(p_fd, true);
+		}
+		else
+			ok = 0;
+		return ok;
+	}
+	int PushFontEntry(ImGuiObjStack & rStk, const char * pSymb)
+	{
+		int    ok = 1;
+		SImFontDescription * p_fd = Cache_Font.Get(pSymb, sstrlen(pSymb));
+		if(p_fd && p_fd->IsValid()) {
+			rStk.PushFont(*p_fd);
+			if(p_fd->HasColor()) {
+				SColor clr = p_fd->GetColor();
+				rStk.PushStyleColor(ImGuiCol_Text, IM_COL32(clr.R, clr.G, clr.B, clr.Alpha));
+			}
+		}
+		else
+			ok = 0;
+		return ok;
+	}
+	SString & InputLabelPrefix(const char * pLabel)
+	{
+		float width = ImGui::CalcItemWidth();
+		float x = ImGui::GetCursorPosX();
+		ImGuiObjStack stk;
+		PushFontEntry(stk, "FontSecondary");
+		ImGui::Text(pLabel); 
+		//ImGui::SameLine(); 
+		//ImGui::SetCursorPosX(x + width * 0.5f + ImGui::GetStyle().ItemInnerSpacing.x);
+		// @v11.7.8 ImGui::SetNextItemWidth(-1);
+		return SLS.AcquireRvlStr().CatCharN('#', 2).Cat(pLabel);
+	}
+	class ImDialog_WsCtlConfig : public ImDialogState {
+	public:
+		ImDialog_WsCtlConfig(WsCtl_ImGuiSceneBlock & rBlk, WsCtl_Config * pCtx) : R_Blk(rBlk), ImDialogState(pCtx)
+		{
+			if(pCtx) {
+				Data = *pCtx;
+			}
+			STRNSCPY(SubstTxt_Server, Data.Server);
+			STRNSCPY(SubstTxt_DbSymb, Data.DbSymb);
+			STRNSCPY(SubstTxt_User, Data.User);
+			STRNSCPY(SubstTxt_Password, Data.Password);
+		}
+		~ImDialog_WsCtlConfig()
+		{
+			memzero(SubstTxt_Server, sizeof(SubstTxt_Server));
+			memzero(SubstTxt_DbSymb, sizeof(SubstTxt_DbSymb));
+			memzero(SubstTxt_User, sizeof(SubstTxt_User));
+			memzero(SubstTxt_Password, sizeof(SubstTxt_Password));
+		}
+		virtual int Build()
+		{
+			int    result = 0;
+			const char * p_popup_title = "Config";
+			ImGui::OpenPopup(p_popup_title);
+			if(ImGui::BeginPopup(p_popup_title)) {
+				ImGui::InputText(R_Blk.InputLabelPrefix("server"), SubstTxt_Server, sizeof(SubstTxt_Server));
+				ImGui::InputInt(R_Blk.InputLabelPrefix("port"), &Data.Port);
+				ImGui::InputText(R_Blk.InputLabelPrefix("dbsymb"), SubstTxt_DbSymb, sizeof(SubstTxt_DbSymb));
+				ImGui::InputText(R_Blk.InputLabelPrefix("user"), SubstTxt_User, sizeof(SubstTxt_User));
+				ImGui::InputText(R_Blk.InputLabelPrefix("password"), SubstTxt_Password, sizeof(SubstTxt_Password));
+				ImGui::NewLine();
+				if(ImGui::Button("ok", ButtonSize_Std)) {
+					ImGui::CloseCurrentPopup();
+					result = 1;
+				}
+				ImGui::SameLine();
+				if(ImGui::Button("cancel", ButtonSize_Std)) {
+					ImGui::CloseCurrentPopup();
+					result = -1;
+				}
+				ImGui::EndPopup();
+			}
+			return result;
+		}
+		virtual bool CommitData()
+		{
+			bool   ok = true;
+			if(P_Ctx) {
+				Data.Server = SubstTxt_Server;
+				Data.DbSymb = SubstTxt_DbSymb;
+				Data.User = SubstTxt_User;
+				Data.Password = SubstTxt_Password;
+				*static_cast<WsCtl_Config *>(P_Ctx) = Data;
+			}
+			else
+				ok = false;
+			return ok;
+		}
+	private:
+		WsCtl_ImGuiSceneBlock & R_Blk;
+		WsCtl_Config Data;
+		char   SubstTxt_Server[128];
+		char   SubstTxt_DbSymb[128];
+		char   SubstTxt_User[128];
+		char   SubstTxt_Password[128];
+		//char   SubstTxt_
+	};
 private:
 	//
 	// Descr: Поток, реализующий запросы к серверу.
@@ -1002,6 +1069,8 @@ private:
 	//SUiLayout Lo01; // = new SUiLayout(SUiLayoutParam(DIREC_VERT, 0, SUiLayoutParam::alignStretch));
 	TSHashCollection <SUiLayout> Cache_Layout;
 	TSHashCollection <SCachedFileEntity> Cache_Texture;
+	TSHashCollection <SImFontDescription> Cache_Font; // @v11.7.8
+	
 	WsCtl_Config JsP;
 	State  St;
 	LongArray SyncReqList; // @fastreuse Список объектов состояния, для которых необходимо запросить обновление у сервера (по таймеру)
@@ -1067,7 +1136,7 @@ public:
 		//ClearColor(0.45f, 0.55f, 0.60f, 1.00f), 
 		ClearColor(SColor(0x1E, 0x22, 0x28)),
 		P_CmdQ(new WsCtlReqQueue),
-		Cache_Layout(512), Cache_Texture(1024),
+		Cache_Layout(512), Cache_Texture(1024), Cache_Font(101),
 		P_Dlg_Cfg(0)
 	{
 		TestInput[0] = 0;
@@ -2463,7 +2532,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								;
 							}
 							if(ImGui::Button("Config...", button_size)) {
-								SETIFZQ(P_Dlg_Cfg, new ImDialog_WsCtlConfig(&JsP));
+								SETIFZQ(P_Dlg_Cfg, new ImDialog_WsCtlConfig(*this, &JsP));
 							}
 						}
 					}
@@ -2780,14 +2849,13 @@ int main(int, char**)
 		scene_blk.Init();
 		scene_blk.SetScreen(WsCtl_ImGuiSceneBlock::screenConstruction);
 		{
-			static const ImWchar ranges[] = {
-				0x0020, 0x00FF, // Basic Latin + Latin Supplement
-				0x0400, 0x044F, // Cyrillic
-				0,
-			};
 			///Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf
 			//C:/Windows/Fonts/Tahoma.ttf
-			ImFont * p_font = io.Fonts->AddFontFromFileTTF("/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 16.0f, nullptr, ranges);
+			ImFontConfig f;
+			SColor primary_font_color(SClrWhite);
+			SColor secondary_font_color(SClrSilver);
+			scene_blk.CreateFontEntry(io, "FontSecondary", "/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 14.0f, 0, &secondary_font_color);
+			scene_blk.CreateFontEntry(io, "FontPrimary", "/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 16.0f, 0, &primary_font_color);
 		}
 		{
 			const char * p_img_path = "/Papyrus/Src/PPTEST/DATA/test-gif.gif";

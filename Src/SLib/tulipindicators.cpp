@@ -20,11 +20,6 @@ int DummyProc_TulipIndicators() { return 1; } // @forcelink
 // This is used for the simple functions that take one input vectors and apply a unary
 // operator for a single output. (e.g. sqrt, sin)
 // 
-// Fallback 
-//#ifndef M_PI
-//	#define M_PI 3.14159265358979323846
-//#endif
-
 #define SIMPLE1(START, FUN, OP)	int START(double const * options) { return 0; } \
 	int FUN(int size, double const * const * inputs, double const * options, double * const * outputs) \
 	{ \

@@ -50,7 +50,6 @@
 #include "e_os.h" /* strcasecmp */
 #include <openssl/core_names.h>
 #include "prov/ciphercommon.h"
-//#include "internal/nelem.h"
 #include "cipher_cts.h"
 
 /* The value assigned to 0 is the default */

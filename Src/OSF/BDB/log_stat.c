@@ -176,14 +176,14 @@ static int __log_print_all(ENV * env, uint32 flags)
 	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	LOG_SYSTEM_LOCK(env);
 	__db_print_reginfo(env, &dblp->reginfo, "Log", flags);
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "DB_LOG handle information:");
 	__mutex_print_debug_single(env, "DB_LOG handle mutex", dblp->mtx_dbreg, flags);
 	STAT_ULONG("Log file name", dblp->lfname);
 	__db_print_fh(env, "Log file handle", dblp->lfhp, flags);
 	__db_prflags(env, NULL, dblp->flags, fn, NULL, "\tFlags");
 
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "LOG handle information:");
 	__mutex_print_debug_single(env, "LOG region mutex", lp->mtx_region, flags);
 	__mutex_print_debug_single(env, "File name list mutex", lp->mtx_filelist, flags);

@@ -295,7 +295,7 @@ static void compute_hinting_scales(cairo_t * cr, double * x_scale, double * x_sc
 
 #define SNAPXI(p)       (_cairo_round((p) * x_scale) * x_scale_inv)
 #define SNAPYI(p)       (_cairo_round((p) * y_scale) * y_scale_inv)
-#define FSZ(g)            ((g) / 72.) // This controls the global font size  // @sobolev F-->FSZ
+#define FSZ(g)            ((g) / 72.0) // This controls the global font size  // @sobolev F-->FSZ
 
 static void twin_hint_pen_and_margins(cairo_t * cr, double * penx, double * peny, double * marginl, double * marginr)
 {

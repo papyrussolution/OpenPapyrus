@@ -46,9 +46,6 @@
     <ClCompile Include="..\OSF\LIBXML\HTMLtree.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\OSF\LIBXML\config.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\LIBXML\libxml.h">
       <Filter>Header</Filter>
     </ClInclude>

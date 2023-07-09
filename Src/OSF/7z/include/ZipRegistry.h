@@ -3,8 +3,6 @@
 #ifndef __ZIP_REGISTRY_H
 #define __ZIP_REGISTRY_H
 
-//#include "ExtractMode.h"
-
 namespace NExtract {
 	struct CInfo {
 		void Save() const;

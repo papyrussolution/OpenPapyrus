@@ -3,9 +3,6 @@
 #include <7z-internal.h>
 #pragma hdrstop
 #include <7z-ifcs.h>
-//#include <Bench.h>
-//#include <BenchCon.h>
-//#include <ConsoleClose.h>
 
 struct CPrintBenchCallback : public IBenchPrintCallback {
 	void Print(const char * s);

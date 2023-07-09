@@ -36,7 +36,6 @@ static fz_rect img_bound_page(fz_context * ctx, fz_page * page_)
 	fz_image * image = page->image;
 	int xres, yres;
 	fz_rect bbox;
-
 	fz_image_resolution(image, &xres, &yres);
 	bbox.x0 = bbox.y0 = 0;
 	bbox.x1 = image->w * DPI / xres;
@@ -50,7 +49,6 @@ static void img_run_page(fz_context * ctx, fz_page * page_, fz_device * dev, fz_
 	fz_image * image = page->image;
 	int xres, yres;
 	float w, h;
-
 	fz_image_resolution(image, &xres, &yres);
 	w = image->w * DPI / xres;
 	h = image->h * DPI / yres;

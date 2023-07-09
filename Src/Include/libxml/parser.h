@@ -14,9 +14,9 @@ struct xmlValidCtxt;
 #include <libxml/encoding.h>
 #include <libxml/xmlIO.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 /**
  * XML_DEFAULT_VERSION:
  *
@@ -900,7 +900,7 @@ typedef enum {
 
 XMLPUBFUN int xmlHasFeature(xmlFeature feature);
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 #endif /* __XML_PARSER_H__ */

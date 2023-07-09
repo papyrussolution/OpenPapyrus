@@ -5421,10 +5421,10 @@ struct ImGuiResizeBorderDef {
 
 static const ImGuiResizeBorderDef resize_border_def[4] =
 {
-	{ ImVec2(+1, 0), ImVec2(0, 1), ImVec2(0, 0), IM_PI * 1.00f }, // Left
-	{ ImVec2(-1, 0), ImVec2(1, 0), ImVec2(1, 1), IM_PI * 0.00f }, // Right
-	{ ImVec2(0, +1), ImVec2(0, 0), ImVec2(1, 0), IM_PI * 1.50f }, // Up
-	{ ImVec2(0, -1), ImVec2(1, 1), ImVec2(0, 1), IM_PI * 0.50f } // Down
+	{ ImVec2(+1, 0), ImVec2(0, 1), ImVec2(0, 0), SMathConst::Pi_f * 1.00f }, // Left
+	{ ImVec2(-1, 0), ImVec2(1, 0), ImVec2(1, 1), SMathConst::Pi_f * 0.00f }, // Right
+	{ ImVec2(0, +1), ImVec2(0, 0), ImVec2(1, 0), SMathConst::Pi_f * 1.50f }, // Up
+	{ ImVec2(0, -1), ImVec2(1, 1), ImVec2(0, 1), SMathConst::Pi_f * 0.50f } // Down
 };
 
 static ImRect GetResizeBorderRect(ImGuiWindow * window, int border_n, float perp_padding, float thickness)
@@ -5622,9 +5622,9 @@ static void ImGui::RenderWindowOuterBorders(ImGuiWindow * window)
 		const ImGuiResizeBorderDef& def = resize_border_def[border_held];
 		ImRect border_r = GetResizeBorderRect(window, border_held, rounding, 0.0f);
 		window->DrawList->PathArcTo(ImLerp(border_r.Min, border_r.Max, def.SegmentN1) + ImVec2(0.5f, 0.5f) + def.InnerDir * rounding,
-		    rounding, def.OuterAngle - IM_PI * 0.25f, def.OuterAngle);
+		    rounding, def.OuterAngle - SMathConst::Pi_f * 0.25f, def.OuterAngle);
 		window->DrawList->PathArcTo(ImLerp(border_r.Min, border_r.Max, def.SegmentN2) + ImVec2(0.5f, 0.5f) + def.InnerDir * rounding,
-		    rounding, def.OuterAngle, def.OuterAngle + IM_PI * 0.25f);
+		    rounding, def.OuterAngle, def.OuterAngle + SMathConst::Pi_f * 0.25f);
 		window->DrawList->PathStroke(GetColorU32(ImGuiCol_SeparatorActive), 0, smax(2.0f, border_size)); // Thicker than usual
 	}
 	if(g.Style.FrameBorderSize > 0 && !(window->Flags & ImGuiWindowFlags_NoTitleBar)) {
@@ -6708,7 +6708,7 @@ void ImGui::FocusTopMostWindowUnderOne(ImGuiWindow* under_this_window, ImGuiWind
 }
 
 // Important: this alone doesn't alter current ImDrawList state. This is called by PushFont/PopFont only.
-void ImGui::SetCurrentFont(ImFont* font)
+void ImGui::SetCurrentFont(ImFont * font)
 {
 	ImGuiContext & g = *GImGui;
 	assert(font && font->IsLoaded()); // Font Atlas not created. Did you call io.Fonts->GetTexDataAsRGBA32 / GetTexDataAsAlpha8 ?
@@ -6723,13 +6723,13 @@ void ImGui::SetCurrentFont(ImFont* font)
 	g.DrawListSharedData.FontSize = g.FontSize;
 }
 
-void STDCALL ImGui::PushFont(ImFont* font)
+void STDCALL ImGui::PushFont(ImFont * pFont)
 {
 	ImGuiContext & g = *GImGui;
-	SETIFZQ(font, GetDefaultFont());
-	SetCurrentFont(font);
-	g.FontStack.push_back(font);
-	g.CurrentWindow->DrawList->PushTextureID(font->ContainerAtlas->TexID);
+	SETIFZQ(pFont, GetDefaultFont());
+	SetCurrentFont(pFont);
+	g.FontStack.push_back(pFont);
+	g.CurrentWindow->DrawList->PushTextureID(pFont->ContainerAtlas->TexID);
 }
 
 void STDCALL ImGui::PopFont()

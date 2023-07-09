@@ -2376,14 +2376,14 @@ ZEXTERN int deflateResetKeep(z_streamp);
 	#ifdef ZLIB_DEBUG
 		extern int ZLIB_INTERNAL z_verbose;
 		extern void ZLIB_INTERNAL z_error(char * m);
-		#define Assert(cond, msg) {if(!(cond)) z_error(msg); }
+		// @v11.7.8 #define Assert_Removed(cond, msg) {if(!(cond)) z_error(msg); }
 		#define Trace(x) {if(z_verbose>=0) fprintf x; }
 		#define Tracev(x) {if(z_verbose>0) fprintf x; }
 		#define Tracevv(x) {if(z_verbose>1) fprintf x; }
 		#define Tracec(c, x) {if(z_verbose>0 && (c)) fprintf x; }
 		#define Tracecv(c, x) {if(z_verbose>1 && (c)) fprintf x; }
 	#else
-		#define Assert(cond, msg)
+		// @v11.7.8 #define Assert_Removed(cond, msg)
 		#define Trace(x)
 		#define Tracev(x)
 		#define Tracevv(x)
@@ -2625,10 +2625,10 @@ ZEXTERN int deflateResetKeep(z_streamp);
 		} dl;
 	} ct_data;
 
-	#define Freq fc.freq
-	#define Code fc.code
-	#define Dad  dl.dad
-	#define Len  dl.len
+	#define DlFreq fc.freq // @v11.7.8 Freq->DlFreq
+	#define DlCode fc.code // @v11.7.8 Code->DlCode
+	#define DlDad  dl.dad // @v11.7.8 Dad->DlDad
+	#define DlLen  dl.len // @v11.7.8 Len->DlLen
 
 	typedef struct static_tree_desc_s static_tree_desc;
 
@@ -2753,8 +2753,8 @@ ZEXTERN int deflateResetKeep(z_streamp);
 		uInt matches; /* number of string matches in current block */
 		uInt insert; /* bytes at end of window left to insert */
 	#ifdef ZLIB_DEBUG
-		ulong compressed_len; /* total bit length of compressed file mod 2^32 */
-		ulong bits_sent; /* bit length of compressed data sent mod 2^32 */
+		ulong compressed_len; // total bit length of compressed file mod 2^32 
+		ulong bits_sent; // bit length of compressed data sent mod 2^32 
 	#endif
 		ushort bi_buf; // Output buffer. bits are inserted starting at the bottom (least significant bits).
 		int bi_valid;   // Number of valid bits in bi_buf.  All bits above the last valid bit are always zero.
@@ -2796,7 +2796,7 @@ ZEXTERN int deflateResetKeep(z_streamp);
 			{ uchar cc = (c);	\
 			  s->d_buf[s->last_lit] = 0; \
 			  s->l_buf[s->last_lit++] = cc;	\
-			  s->dyn_ltree[cc].Freq++; \
+			  s->dyn_ltree[cc].DlFreq++; \
 			  flush = (s->last_lit == s->lit_bufsize-1); \
 			}
 		#define _tr_tally_dist(s, distance, length, flush) \
@@ -2805,8 +2805,8 @@ ZEXTERN int deflateResetKeep(z_streamp);
 			  s->d_buf[s->last_lit] = dist;	\
 			  s->l_buf[s->last_lit++] = len; \
 			  dist--; \
-			  s->dyn_ltree[_length_code[len]+LITERALS+1].Freq++; \
-			  s->dyn_dtree[d_code(dist)].Freq++; \
+			  s->dyn_ltree[_length_code[len]+LITERALS+1].DlFreq++; \
+			  s->dyn_dtree[d_code(dist)].DlFreq++; \
 			  flush = (s->last_lit == s->lit_bufsize-1); \
 			}
 	#else

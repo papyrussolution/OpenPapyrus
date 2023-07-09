@@ -10,7 +10,6 @@
 #include <internal\openssl-lib-internal.h>
 #pragma hdrstop
 #include "ssl_local.h"
-//#include "internal/nelem.h"
 #include "internal/o_dir.h"
 #include <openssl/pem.h>
 #include <openssl/store.h>

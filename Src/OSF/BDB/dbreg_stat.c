@@ -35,7 +35,7 @@ void __dbreg_print_fname(ENV * env, FNAME * fnp)
 		{ DB_FNAME_RECOVER,     "DB_FNAME_RECOVER" },
 		{ 0,                    NULL }
 	};
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "DB handle FNAME contents:");
 	STAT_LONG("log ID", fnp->id);
 	STAT_ULONG("Meta pgno", fnp->meta_pgno);
@@ -84,7 +84,7 @@ static int __dbreg_print_all(ENV * env, uint32 flags)
 			__db_msg(env, " (%d %lx %lx)", del, P_TO_ULONG(dbp), (ulong)(dbp == NULL ? 0 : dbp->flags));
 	}
 	MUTEX_UNLOCK(env, lp->mtx_filelist);
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	__db_msg(env, "LOG region list of free IDs.");
 	if(lp->free_fid_stack == INVALID_ROFF)
 		__db_msg(env, "Free id stack is empty.");

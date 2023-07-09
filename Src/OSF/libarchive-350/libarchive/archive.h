@@ -26,12 +26,6 @@
  */
 /* Note: Compiler will complain if this does not match archive_entry.h! */
 #define ARCHIVE_VERSION_NUMBER 3005000
-
-//#include <sys/stat.h>
-//#include <stddef.h>  /* for wchar_t */
-//#include <stdio.h> /* For FILE * */
-//#include <time.h> /* For time_t */
-
 /*
  * Note: archive.h is for use outside of libarchive; the configuration
  * headers (config.h, archive_platform.h, etc.) are purely internal.

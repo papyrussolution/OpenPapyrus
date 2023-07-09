@@ -1,10 +1,9 @@
+//
 #include "jsi.h"
 #include "jsparse.h"
 #include "jscompile.h"
 #include "jsvalue.h"
-
 #include "utf.h"
-
 #include <assert.h>
 
 static const char * astname[] = {
@@ -255,7 +254,7 @@ static void pobject(int d, js_Ast * list)
 
 static void pstr(const char * s)
 {
-	static const char * HEX = "0123456789ABCDEF";
+	// @sobolev static const char * HEX = "0123456789ABCDEF";
 	Rune c;
 	pc(minify ? '\'' : '"');
 	while(*s) {
@@ -272,10 +271,10 @@ static void pstr(const char * s)
 			default:
 			    if(c < ' ' || c > 127) {
 				    ps("\\u");
-				    pc(HEX[(c>>12)&15]);
-				    pc(HEX[(c>>8)&15]);
-				    pc(HEX[(c>>4)&15]);
-				    pc(HEX[c&15]);
+				    pc(SlConst::P_HxDigU[(c>>12)&15]);
+				    pc(SlConst::P_HxDigU[(c>>8)&15]);
+				    pc(SlConst::P_HxDigU[(c>>4)&15]);
+				    pc(SlConst::P_HxDigU[c&15]);
 			    }
 			    else {
 				    pc(c); break;

@@ -2663,23 +2663,24 @@ int UnxTextRefCore::GetText(const TextRefIdent & rI, SString & rBuf)
 int UnxTextRefCore::Helper_Filter(PPID objType, int prop, const char * pPattern, const IntRange & rRange, const PPIDArray * pFiltIdList, PPIDArray & rResultIdList)
 {
 	int    ok = -1;
-	SStringU ubuf;
 	SString temp_buf;
 	UnxTextRefTbl::Key0 k0;
 	k0.ObjType = static_cast<int16>(objType);
 	k0.Prop = prop;
 	k0.ObjID = rRange.low;
 	BExtQuery q(this, 0);
-	q.selectAll().where(this->ObjType == objType && this->Prop == prop && this->ObjID >= rRange.low && this->ObjID <= rRange.upp);
+	q.select(this->ObjID, this->ObjType, this->Prop, this->Lang, this->Size, 0).
+		where(this->ObjType == objType && this->Prop == prop && this->ObjID >= rRange.low && this->ObjID <= rRange.upp);
 	for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 		if(!pFiltIdList || pFiltIdList->bsearch(data.ObjID)) {
 			if(!isempty(pPattern)) {
-				PostprocessRead(ubuf);
-				temp_buf.CopyUtf8FromUnicode(ubuf, ubuf.Len(), 1);
-				temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-				if(ExtStrSrch(temp_buf, pPattern, 0)) {
-					rResultIdList.add(data.ObjID);
-					ok = 1;
+				TextRefIdent tri(objType, data.ObjID, prop);
+				if(GetText(tri, temp_buf) > 0) {
+					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					if(ExtStrSrch(temp_buf, pPattern, 0)) {
+						rResultIdList.add(data.ObjID);
+						ok = 1;
+					}
 				}
 			}
 			else {

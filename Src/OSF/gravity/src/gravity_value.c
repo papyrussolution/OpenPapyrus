@@ -679,7 +679,7 @@ static void gravity_function_bytecode_serialize(gravity_function_t * f, GravityJ
 	for(uint32 k = 0, i = 0; i < ninst; ++i) {
 		uint32 value = f->U.Nf.bytecode[i];
 		for(int32 j = 2*sizeof(value)-1; j>=0; --j) {
-			uint8_t c = "0123456789ABCDEF"[((value >> (j*4)) & 0xF)];
+			uint8_t c = SlConst::P_HxDigU[((value >> (j*4)) & 0xF)];
 			hexchar[k++] = c;
 		}
 	}
@@ -694,7 +694,7 @@ static void gravity_function_bytecode_serialize(gravity_function_t * f, GravityJ
 	for(uint32 k = 0, i = 0; i < ninst; ++i) {
 		uint32 value = f->U.Nf.lineno[i];
 		for(int32 j = 2*sizeof(value)-1; j>=0; --j) {
-			uint8_t c = "0123456789ABCDEF"[((value >> (j*4)) & 0xF)];
+			uint8_t c = SlConst::P_HxDigU[((value >> (j*4)) & 0xF)];
 			hexchar[k++] = c;
 		}
 	}

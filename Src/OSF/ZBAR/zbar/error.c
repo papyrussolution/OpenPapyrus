@@ -23,7 +23,6 @@
 
 #include <zbar.h>
 #pragma hdrstop
-//#include "error.h"
 
 int _zbar_verbosity = 0;
 

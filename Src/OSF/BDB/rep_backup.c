@@ -1021,7 +1021,7 @@ static int __rep_remove_all(ENV * env, uint32 msg_version, DBT * rec)
 		   (ret = __os_write(env, fhp, &bufsz, sizeof(bufsz), &cnt)) != 0 ||
 		   (ret = __os_write(env, fhp, context.buf, bufsz, &cnt)) != 0 ||
 		   (ret = __os_fsync(env, fhp)) != 0) {
-			__db_err(env, ret, "%s", fname);
+			__db_err_simple_text(env, ret, fname);
 			goto out;
 		}
 	}
@@ -1055,7 +1055,7 @@ static int __rep_remove_all(ENV * env, uint32 msg_version, DBT * rec)
 		   (ret = __os_write(env, fhp, &rec->size, sizeof(rec->size), &cnt)) != 0 ||
 		   (ret = __os_write(env, fhp, rec->data, rec->size, &cnt)) != 0 ||
 		   (ret = __os_fsync(env, fhp)) != 0) {
-			__db_err(env, ret, "%s", fname);
+			__db_err_simple_text(env, ret, fname);
 			goto out;
 		}
 #ifdef HAVE_REPLICATION_THREADS

@@ -2599,7 +2599,7 @@ struct ImColor {
 	}
 	ImColor(int r, int g, int b, int a = 255) 
 	{
-		float sc = 1.0f / 255.0f; 
+		const float sc = 1.0f / 255.0f; 
 		Value.x = (float)r * sc; 
 		Value.y = (float)g * sc; 
 		Value.z = (float)b * sc; 
@@ -2607,8 +2607,11 @@ struct ImColor {
 	}
 	ImColor(ImU32 rgba) 
 	{
-		float sc = 1.0f / 255.0f; Value.x = (float)((rgba >> IM_COL32_R_SHIFT) & 0xFF) * sc; Value.y = (float)((rgba >> IM_COL32_G_SHIFT) & 0xFF) * sc;
-		Value.z = (float)((rgba >> IM_COL32_B_SHIFT) & 0xFF) * sc; Value.w = (float)((rgba >> IM_COL32_A_SHIFT) & 0xFF) * sc;
+		const float sc = 1.0f / 255.0f; 
+		Value.x = (float)((rgba >> IM_COL32_R_SHIFT) & 0xFF) * sc; 
+		Value.y = (float)((rgba >> IM_COL32_G_SHIFT) & 0xFF) * sc;
+		Value.z = (float)((rgba >> IM_COL32_B_SHIFT) & 0xFF) * sc; 
+		Value.w = (float)((rgba >> IM_COL32_A_SHIFT) & 0xFF) * sc;
 	}
 	inline operator ImU32() const { return ImGui::ColorConvertFloat4ToU32(Value); }
 	inline operator ImVec4() const { return Value; }
@@ -3058,10 +3061,10 @@ struct ImFontAtlas {
 	// Building in RGBA32 format is provided for convenience and compatibility, but note that unless you manually manipulate or copy color data into
 	// the texture (e.g. when using the AddCustomRect*** api), then the RGB pixels emitted will always be white (~75% of memory/bandwidth waste.
 	bool Build();                // Build pixels data. This is called automatically for you by the GetTexData*** functions.
-	void GetTexDataAsAlpha8(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel = NULL);           // 1 byte per-pixel
-	void GetTexDataAsRGBA32(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel = NULL);           // 4 bytes-per-pixel
+	void GetTexDataAsAlpha8(unsigned char ** out_pixels, int * out_width, int * out_height, int * out_bytes_per_pixel = NULL);           // 1 byte per-pixel
+	void GetTexDataAsRGBA32(unsigned char ** out_pixels, int * out_width, int * out_height, int * out_bytes_per_pixel = NULL);           // 4 bytes-per-pixel
 	bool IsBuilt() const { return Fonts.Size > 0 && TexReady; }         // Bit ambiguous: used to detect when user didn't build texture but effectively we should check TexID != 0 except that would be backend dependent...
-	void SetTexID(ImTextureID id)    { TexID = id; }
+	void SetTexID(ImTextureID id) { TexID = id; }
 	//
 	// Glyph Ranges
 	//
@@ -3089,7 +3092,7 @@ struct ImFontAtlas {
 	// - Note: this API may be redesigned later in order to support multi-monitor varying DPI settings.
 	int AddCustomRectRegular(int width, int height);
 	int AddCustomRectFontGlyph(ImFont* font, ImWchar id, int width, int height, float advance_x, const ImVec2 & offset = ImVec2(0, 0));
-	ImFontAtlasCustomRect*      GetCustomRectByIndex(int index) { assert(index >= 0); return &CustomRects[index]; }
+	ImFontAtlasCustomRect * GetCustomRectByIndex(int index) { assert(index >= 0); return &CustomRects[index]; }
 	// [Internal]
 	void CalcCustomRectUV(const ImFontAtlasCustomRect* rect, ImVec2* out_uv_min, ImVec2* out_uv_max) const;
 	bool GetMouseCursorTexData(ImGuiMouseCursor cursor, ImVec2* out_offset, ImVec2* out_size, ImVec2 out_uv_border[2], ImVec2 out_uv_fill[2]);
@@ -3103,26 +3106,26 @@ struct ImFontAtlas {
 
 	// [Internal]
 	// NB: Access texture data via GetTexData*() calls! Which will setup a default font for you.
-	bool TexReady;                              // Set when texture was built matching current font input
-	bool TexPixelsUseColors;                    // Tell whether our texture data is known to use colors (rather than just alpha channel), in order to help backend select a format.
+	bool TexReady;           // Set when texture was built matching current font input
+	bool TexPixelsUseColors; // Tell whether our texture data is known to use colors (rather than just alpha channel), in order to help backend select a format.
 	uchar * TexPixelsAlpha8; // 1 component per pixel, each component is unsigned 8-bit. Total size = TexWidth * TexHeight
 	uint  * TexPixelsRGBA32; // 4 component per pixel, each component is unsigned 8-bit. Total size = TexWidth * TexHeight * 4
-	int TexWidth;                               // Texture width calculated during Build().
-	int TexHeight;                              // Texture height calculated during Build().
-	ImVec2 TexUvScale;                          // = (1.0f/TexWidth, 1.0f/TexHeight)
-	ImVec2 TexUvWhitePixel;                     // Texture coordinates to a white pixel
-	ImVector<ImFont*>           Fonts;          // Hold all the fonts returned by AddFont*. Fonts[0] is the default font upon calling ImGui::NewFrame(), use ImGui::PushFont()/PopFont() to change the current font.
+	int TexWidth;            // Texture width calculated during Build().
+	int TexHeight;           // Texture height calculated during Build().
+	ImVec2 TexUvScale;       // = (1.0f/TexWidth, 1.0f/TexHeight)
+	ImVec2 TexUvWhitePixel;  // Texture coordinates to a white pixel
+	ImVector<ImFont*> Fonts; // Hold all the fonts returned by AddFont*. Fonts[0] is the default font upon calling ImGui::NewFrame(), use ImGui::PushFont()/PopFont() to change the current font.
 	ImVector<ImFontAtlasCustomRect> CustomRects; // Rectangles for packing custom texture data into the atlas.
 	ImVector<ImFontConfig>      ConfigData;     // Configuration data
 	ImVec4 TexUvLines[IM_DRAWLIST_TEX_LINES_WIDTH_MAX + 1];                   // UVs for baked anti-aliased lines
 
 	// [Internal] Font builder
-	const ImFontBuilderIO*      FontBuilderIO;  // Opaque interface to a font builder (default to stb_truetype, can be changed to use FreeType by defining IMGUI_ENABLE_FREETYPE).
+	const ImFontBuilderIO * FontBuilderIO;  // Opaque interface to a font builder (default to stb_truetype, can be changed to use FreeType by defining IMGUI_ENABLE_FREETYPE).
 	uint FontBuilderFlags;              // Shared flags (for all fonts) for custom font builder. THIS IS BUILD IMPLEMENTATION DEPENDENT. Per-font override is also available in ImFontConfig.
 
 	// [Internal] Packing data
-	int PackIdMouseCursors;                     // Custom texture rectangle ID for white pixel and mouse cursors
-	int PackIdLines;                            // Custom texture rectangle ID for baked anti-aliased lines
+	int PackIdMouseCursors; // Custom texture rectangle ID for white pixel and mouse cursors
+	int PackIdLines;        // Custom texture rectangle ID for baked anti-aliased lines
 
 	// [Obsolete]
 	//typedef ImFontAtlasCustomRect    CustomRect;         // OBSOLETED in 1.72+
@@ -3133,50 +3136,50 @@ struct ImFontAtlas {
 // ImFontAtlas automatically loads a default embedded font for you when you call GetTexDataAsAlpha8() or GetTexDataAsRGBA32().
 struct ImFont {
 	// Members: Hot ~20/24 bytes (for CalcTextSize)
-	ImVector<float>             IndexAdvanceX;  // 12-16 // out //            // Sparse. Glyphs->AdvanceX in a directly indexable way (cache-friendly for CalcTextSize functions which only this this info, and are often bottleneck in large UI).
+	ImVector <float> IndexAdvanceX;  // 12-16 // out //            // Sparse. Glyphs->AdvanceX in a directly indexable way (cache-friendly for CalcTextSize functions which only this this info, and are often bottleneck in large UI).
 	float FallbackAdvanceX;                     // 4     // out // = FallbackGlyph->AdvanceX
 	float FontSize;                             // 4     // in  //            // Height of characters/line, set during loading (don't change after loading)
-
 	// Members: Hot ~28/40 bytes (for CalcTextSize + render loop)
-	ImVector<ImWchar>           IndexLookup;    // 12-16 // out //            // Sparse. Index glyphs by Unicode code-point.
-	ImVector<ImFontGlyph>       Glyphs;         // 12-16 // out //            // All glyphs.
-	const ImFontGlyph*          FallbackGlyph;  // 4-8   // out // = FindGlyph(FontFallbackChar)
+	ImVector<ImWchar>     IndexLookup;    // 12-16 // out //            // Sparse. Index glyphs by Unicode code-point.
+	ImVector<ImFontGlyph> Glyphs;         // 12-16 // out //            // All glyphs.
+	const ImFontGlyph   * FallbackGlyph;  // 4-8   // out // = FindGlyph(FontFallbackChar)
 
 	// Members: Cold ~32/40 bytes
-	ImFontAtlas*                ContainerAtlas; // 4-8   // out //            // What we has been loaded into
-	const ImFontConfig*         ConfigData;     // 4-8   // in  //            // Pointer within ContainerAtlas->ConfigData
-	short ConfigDataCount;                      // 2     // in  // ~ 1        // Number of ImFontConfig involved in creating this font. Bigger than 1 when merging multiple font sources into one ImFont.
-	ImWchar FallbackChar;                       // 2     // out // = FFFD/'?' // Character used if a glyph isn't found.
-	ImWchar EllipsisChar;                       // 2     // out // = '...'/'.'// Character used for ellipsis rendering.
-	short EllipsisCharCount;                    // 1     // out // 1 or 3
-	float EllipsisWidth;                        // 4     // out               // Width
-	float EllipsisCharStep;                     // 4     // out               // Step between characters when EllipsisCount > 0
-	bool DirtyLookupTables;                     // 1     // out //
-	float Scale;                                // 4     // in  // = 1.f      // Base font scale, multiplied by the per-window font scale which you can adjust with SetWindowFontScale()
-	float Ascent, Descent;                      // 4+4   // out //            // Ascent: distance from top to bottom of e.g. 'A' [0..FontSize]
-	int MetricsTotalSurface;                    // 4     // out //            // Total surface in pixels to get an idea of the font rasterization/texture cost (not exact, we approximate the cost of padding between glyphs)
-	ImU8 Used4kPagesMap[(IM_UNICODE_CODEPOINT_MAX+1)/4096/8];                    // 2 bytes if ImWchar=ImWchar16, 34 bytes if ImWchar==ImWchar32. Store 1-bit for each block of 4K codepoints that has one active glyph. This is mainly used to facilitate iterations across all used codepoints.
+	ImFontAtlas * ContainerAtlas; // 4-8   // out //            // What we has been loaded into
+	const ImFontConfig * ConfigData;       // 4-8   // in  //            // Pointer within ContainerAtlas->ConfigData
+	short  ConfigDataCount;          // 2     // in  // ~ 1        // Number of ImFontConfig involved in creating this font. Bigger than 1 when merging multiple font sources into one ImFont.
+	short  EllipsisCharCount;        // 1     // out // 1 or 3
+	ImWchar FallbackChar;            // 2     // out // = FFFD/'?' // Character used if a glyph isn't found.
+	ImWchar EllipsisChar;            // 2     // out // = '...'/'.'// Character used for ellipsis rendering.
+	float EllipsisWidth;             // 4     // out // Width
+	float EllipsisCharStep;          // 4     // out // Step between characters when EllipsisCount > 0
+	bool  DirtyLookupTables;         // 1     // out //
+	uint8 Reserve[3];  // @alignment   
+	float Scale;                     // 4     // in  // = 1.f // Base font scale, multiplied by the per-window font scale which you can adjust with SetWindowFontScale()
+	float Ascent;                    // 4+4   // out //       // Ascent: distance from top to bottom of e.g. 'A' [0..FontSize] 
+	float Descent;                   //
+	int   MetricsTotalSurface;       // 4     // out //       // Total surface in pixels to get an idea of the font rasterization/texture cost (not exact, we approximate the cost of padding between glyphs)
+	ImU8  Used4kPagesMap[(IM_UNICODE_CODEPOINT_MAX+1)/4096/8];      // 2 bytes if ImWchar=ImWchar16, 34 bytes if ImWchar==ImWchar32. Store 1-bit for each block of 4K codepoints that has one active glyph. This is mainly used to facilitate iterations across all used codepoints.
 
 	// Methods
 	ImFont();
 	~ImFont();
-	const ImFontGlyph* FindGlyph(ImWchar c) const;
-	const ImFontGlyph* FindGlyphNoFallback(ImWchar c) const;
-	float GetCharAdvance(ImWchar c) const { return ((int)c < IndexAdvanceX.Size) ? IndexAdvanceX[(int)c] : FallbackAdvanceX; }
-	bool                        IsLoaded() const { return ContainerAtlas != NULL; }
-	const char*                 GetDebugName() const { return ConfigData ? ConfigData->Name : "<unknown>"; }
+	const  ImFontGlyph * FindGlyph(ImWchar c) const;
+	const  ImFontGlyph * FindGlyphNoFallback(ImWchar c) const;
+	float  GetCharAdvance(ImWchar c) const { return ((int)c < IndexAdvanceX.Size) ? IndexAdvanceX[(int)c] : FallbackAdvanceX; }
+	bool   IsLoaded() const { return ContainerAtlas != NULL; }
+	const  char * GetDebugName() const { return ConfigData ? ConfigData->Name : "<unknown>"; }
 
 	// 'max_width' stops rendering after a certain width (could be turned into a 2d size). FLT_MAX to disable.
 	// 'wrap_width' enable automatic word-wrapping across multiple lines to fit into given width. 0.0f to disable.
 	ImVec2 CalcTextSizeA(float size, float max_width, float wrap_width, const char* text_begin, const char* text_end = NULL, const char** remaining = NULL) const;        // utf8
-	const char*       CalcWordWrapPositionA(float scale, const char* text, const char* text_end, float wrap_width) const;
+	const char * CalcWordWrapPositionA(float scale, const char* text, const char* text_end, float wrap_width) const;
 	void RenderChar(ImDrawList* draw_list, float size, const ImVec2 & pos, ImU32 col, ImWchar c) const;
 	void RenderText(ImDrawList* draw_list, float size, const ImVec2 & pos, ImU32 col, const ImVec4 & clip_rect, const char* text_begin, const char* text_end,
-	float wrap_width = 0.0f, bool cpu_fine_clip = false) const;
-
+		float wrap_width = 0.0f, bool cpu_fine_clip = false) const;
 	// [Internal] Don't use!
-	void              BuildLookupTable();
-	void              ClearOutputData();
+	void BuildLookupTable();
+	void ClearOutputData();
 	void GrowIndex(int new_size);
 	void AddGlyph(const ImFontConfig* src_cfg, ImWchar c, float x0, float y0, float x1, float y1, float u0, float v0, float u1, float v1, float advance_x);
 	void AddRemapChar(ImWchar dst, ImWchar src, bool overwrite_dst = true);          // Makes 'dst' character/glyph points to 'src' character/glyph. Currently needs to be called AFTER fonts have been built.

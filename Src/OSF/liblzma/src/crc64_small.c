@@ -5,7 +5,6 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "check-internal.h"
 
 static uint64_t crc64_table[256];
 

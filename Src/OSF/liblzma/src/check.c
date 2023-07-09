@@ -5,7 +5,6 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "check-internal.h"
 
 bool lzma_check_is_supported(lzma_check type)
 {

@@ -202,7 +202,8 @@ struct TriangleRow {
 	TriangleRow* next;
 	ScopedAlignedArrayXMVECTOR scanline;
 
-	TriangleRow() noexcept : remaining(0), next(nullptr) {
+	TriangleRow() noexcept : remaining(0), next(nullptr) 
+	{
 	}
 };
 

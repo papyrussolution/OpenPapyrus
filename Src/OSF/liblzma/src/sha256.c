@@ -14,7 +14,6 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "check-internal.h"
 
 // Rotate a uint32_t. GCC can optimize this to a rotate instruction at least on x86.
 // (replaced with slrotr32) static inline uint32_t rotr_32(uint32_t num, unsigned amount) { return (num >> amount) | (num << (32 - amount)); }

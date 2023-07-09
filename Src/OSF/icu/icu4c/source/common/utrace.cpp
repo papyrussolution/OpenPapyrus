@@ -106,12 +106,12 @@ static void outputChar(char c, char * outBuf, int32_t * outIx, int32_t capacity,
 	}
 }
 
-static void outputHexBytes(int64_t val, int32_t charsToOutput,
-    char * outBuf, int32_t * outIx, int32_t capacity) {
-	static const char gHexChars[] = "0123456789abcdef";
+static void outputHexBytes(int64_t val, int32_t charsToOutput, char * outBuf, int32_t * outIx, int32_t capacity) 
+{
+	// @sobolev static const char gHexChars[] = "0123456789abcdef";
 	int32_t shiftCount;
 	for(shiftCount = (charsToOutput-1)*4; shiftCount >= 0; shiftCount -= 4) {
-		char c = gHexChars[(val >> shiftCount) & 0xf];
+		char c = SlConst::P_HxDigL[(val >> shiftCount) & 0xf];
 		outputChar(c, outBuf, outIx, capacity, 0);
 	}
 }

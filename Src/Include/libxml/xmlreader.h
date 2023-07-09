@@ -18,9 +18,9 @@
 	#include <libxml/xmlschemas.h>
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 //
 // Descr: How severe an error callback is when the per-reader error callback API is used.
 //
@@ -220,9 +220,9 @@ XMLPUBFUN void xmlTextReaderGetErrorHandler(xmlTextReader * reader, xmlTextReade
 
 #endif /* LIBXML_READER_ENABLED */
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 
 #endif /* __XML_XMLREADER_H__ */
 

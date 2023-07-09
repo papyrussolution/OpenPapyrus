@@ -392,8 +392,8 @@ static u_char * ngx_sprintf_num(u_char * buf, u_char * last, uint64_t ui64, u_ch
 	// we need temp[NGX_INT64_LEN] only, but icc issues the warning
 	size_t len;
 	uint32_t ui32;
-	static u_char hex[] = "0123456789abcdef";
-	static u_char HEX[] = "0123456789ABCDEF";
+	// @sobolev static u_char hex[] = "0123456789abcdef";
+	// @sobolev static u_char HEX[] = "0123456789ABCDEF";
 	p = temp + NGX_INT64_LEN;
 	if(hexadecimal == 0) {
 		if(ui64 <= (uint64_t)NGX_MAX_UINT32_VALUE) {
@@ -425,13 +425,13 @@ static u_char * ngx_sprintf_num(u_char * buf, u_char * last, uint64_t ui64, u_ch
 	else if(hexadecimal == 1) {
 		do {
 			/* the "(uint32_t)" cast disables the BCC's warning */
-			*--p = hex[(uint32_t)(ui64 & 0xf)];
+			*--p = SlConst::P_HxDigL[(uint32_t)(ui64 & 0xf)];
 		} while(ui64 >>= 4);
 	}
 	else { /* hexadecimal == 2 */
 		do {
 			/* the "(uint32_t)" cast disables the BCC's warning */
-			*--p = HEX[(uint32_t)(ui64 & 0xf)];
+			*--p = SlConst::P_HxDigU[(uint32_t)(ui64 & 0xf)];
 		} while(ui64 >>= 4);
 	}
 	/* zero or space padding */
@@ -833,10 +833,10 @@ ngx_int_t FASTCALL ngx_hextoi(const u_char * line, size_t n)
 
 u_char * ngx_hex_dump(u_char * dst, const u_char * src, size_t len)
 {
-	static u_char hex[] = "0123456789abcdef";
+	// @sobolev static u_char hex[] = "0123456789abcdef";
 	while(len--) {
-		*dst++ = hex[*src >> 4];
-		*dst++ = hex[*src++ & 0xf];
+		*dst++ = SlConst::P_HxDigL[*src >> 4];
+		*dst++ = SlConst::P_HxDigL[*src++ & 0xf];
 	}
 	return dst;
 }
@@ -1072,7 +1072,7 @@ uintptr_t FASTCALL ngx_escape_uri(u_char * dst, const u_char * src, size_t size,
 {
 	ngx_uint_t n;
 	uint32_t  * escape;
-	static u_char hex[] = "0123456789ABCDEF";
+	// @sobolev static u_char hex[] = "0123456789ABCDEF";
 	/* " ", "#", "%", "?", %00-%1F, %7F-%FF */
 	static uint32_t uri[] = {
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
@@ -1177,8 +1177,8 @@ uintptr_t FASTCALL ngx_escape_uri(u_char * dst, const u_char * src, size_t size,
 	while(size) {
 		if(escape[*src >> 5] & (1U << (*src & 0x1f))) {
 			*dst++ = '%';
-			*dst++ = hex[*src >> 4];
-			*dst++ = hex[*src & 0xf];
+			*dst++ = SlConst::P_HxDigU[*src >> 4];
+			*dst++ = SlConst::P_HxDigU[*src & 0xf];
 			src++;
 		}
 		else {

@@ -227,7 +227,7 @@ namespace ImStb {
 	#define IM_ASSERT_USER_ERROR(_EXP, _MSG) assert((_EXP) && _MSG)   // Recoverable User Error
 #endif
 // Misc Macros
-#define IM_PI                           3.14159265358979323846f
+// @sobolev (replaced with SMathConst::Pi_f) #define IM_PI                           3.14159265358979323846f
 #ifdef _WIN32
 	#define IM_NEWLINE  "\r\n"  // Play it nice with Windows users (Update: since 2018-05, Notepad finally appears to support Unix-style carriage returns!)
 #else
@@ -848,12 +848,12 @@ struct ImGuiTextIndex {
 #define IM_ROUNDUP_TO_EVEN(_V)                                  ((((_V)+1) / 2) * 2)
 #define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MIN                     4
 #define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX                     512
-#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(_RAD, _MAXERROR)    sclamp(IM_ROUNDUP_TO_EVEN((int)ImCeil(IM_PI / ImAcos(1 - smin((_MAXERROR), (_RAD)) / (_RAD)))), \
+#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(_RAD, _MAXERROR)    sclamp(IM_ROUNDUP_TO_EVEN((int)ImCeil(SMathConst::Pi_f / ImAcos(1 - smin((_MAXERROR), (_RAD)) / (_RAD)))), \
 	    IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MIN, IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX)
 
 // Raw equation from IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC rewritten for 'r' and 'error'.
-#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_R(_N, _MAXERROR)    ((_MAXERROR) / (1 - ImCos(IM_PI / smax((float)(_N), IM_PI))))
-#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_ERROR(_N, _RAD)     ((1 - ImCos(IM_PI / smax((float)(_N), IM_PI))) / (_RAD))
+#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_R(_N, _MAXERROR)    ((_MAXERROR) / (1 - ImCos(SMathConst::Pi_f / smax((float)(_N), SMathConst::Pi_f))))
+#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_ERROR(_N, _RAD)     ((1 - ImCos(SMathConst::Pi_f / smax((float)(_N), SMathConst::Pi_f))) / (_RAD))
 
 // ImDrawList: Lookup table size for adaptive arc drawing, cover full circle.
 #ifndef IM_DRAWLIST_ARCFAST_TABLE_SIZE

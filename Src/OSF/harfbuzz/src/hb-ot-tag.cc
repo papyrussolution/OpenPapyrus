@@ -370,10 +370,7 @@ hb_language_t hb_ot_tag_to_language(hb_tag_t tag)
 	{
 		char buf[20];
 		char * str = buf;
-		if(ISALPHA(tag >> 24)
-		    && ISALPHA((tag >> 16) & 0xFF)
-		    && ISALPHA((tag >> 8) & 0xFF)
-		    && (tag & 0xFF) == ' ') {
+		if(ISALPHA(tag >> 24) && ISALPHA((tag >> 16) & 0xFF) && ISALPHA((tag >> 8) & 0xFF) && (tag & 0xFF) == ' ') {
 			buf[0] = TOLOWER(tag >> 24);
 			buf[1] = TOLOWER((tag >> 16) & 0xFF);
 			buf[2] = TOLOWER((tag >> 8) & 0xFF);

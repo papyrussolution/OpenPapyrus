@@ -473,7 +473,7 @@ double IslamicCalendar::moonAge(UDate time, UErrorCode & status)
 	age = gIslamicCalendarAstro->getMoonAge();
 	umtx_unlock(&astroLock);
 	// Convert to degrees and normalize...
-	age = age * 180 / CalendarAstronomer::PI;
+	age = age * 180 / SMathConst::Pi;
 	if(age > 180) {
 		age = age - 360;
 	}

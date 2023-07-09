@@ -12,9 +12,9 @@
 
 #ifdef LIBXML_SCHEMAS_ENABLED
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 typedef struct _xmlRelaxNG xmlRelaxNG;
 typedef xmlRelaxNG * xmlRelaxNGPtr;
@@ -139,10 +139,8 @@ XMLPUBFUN int xmlRelaxNGValidatePushCData(xmlRelaxNGValidCtxtPtr ctxt, const xml
 XMLPUBFUN int xmlRelaxNGValidatePopElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem);
 XMLPUBFUN int xmlRelaxNGValidateFullElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem);
 
-#ifdef __cplusplus
-}
-#endif
-
+//#ifdef __cplusplus
+//}
+//#endif
 #endif /* LIBXML_SCHEMAS_ENABLED */
-
 #endif /* __XML_RELAX_NG__ */

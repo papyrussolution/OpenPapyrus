@@ -33,11 +33,6 @@
 #ifndef ABSL_RANDOM_DISTRIBUTIONS_H_
 #define ABSL_RANDOM_DISTRIBUTIONS_H_
 
-//#include <algorithm>
-//#include <cmath>
-//#include <limits>
-//#include <random>
-//#include <type_traits>
 #include "absl/base/internal/inline_variable.h"
 #include "absl/random/bernoulli_distribution.h"
 #include "absl/random/beta_distribution.h"

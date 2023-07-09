@@ -16,7 +16,6 @@
 // Each bucket should have an expected count of 10 or more for the chi square to
 // be meaningful.
 
-//#include <cassert>
 #include "absl/base/config.h"
 
 namespace absl {

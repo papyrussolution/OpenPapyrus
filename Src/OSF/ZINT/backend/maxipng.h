@@ -20,7 +20,7 @@
    at a resolution of 12 pixels per millimeter. hexagon[] is taken directly
    from ISO 16023 Annex J. bullseye[] was calculated by the Gimp */
 
-#define SSET	"0123456789ABCDEF"
+// @sobolev #define SSET "0123456789ABCDEF"
 
 static const int hexagon[120] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

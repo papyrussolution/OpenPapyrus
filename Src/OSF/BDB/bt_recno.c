@@ -869,7 +869,7 @@ static int __ram_source(DB * dbp)
 	 */
 	if((t->re_fp = fopen(t->re_source, "rb")) == NULL) {
 		ret = __os_get_errno();
-		__db_err(env, ret, "%s", t->re_source);
+		__db_err_simple_text(env, ret, t->re_source);
 		return ret;
 	}
 	t->re_eof = 0;
@@ -946,14 +946,14 @@ int __ram_writeback(DB * dbp)
 	if(t->re_fp) {
 		if(fclose(t->re_fp) != 0) {
 			ret = __os_get_errno();
-			__db_err(env, ret, "%s", t->re_source);
+			__db_err_simple_text(env, ret, t->re_source);
 			goto err;
 		}
 		t->re_fp = NULL;
 	}
 	if((fp = fopen(t->re_source, "wb")) == NULL) {
 		ret = __os_get_errno();
-		__db_err(env, ret, "%s", t->re_source);
+		__db_err_simple_text(env, ret, t->re_source);
 		goto err;
 	}
 	/*

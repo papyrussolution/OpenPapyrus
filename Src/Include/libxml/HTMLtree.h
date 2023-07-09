@@ -8,9 +8,9 @@
 #define __HTML_TREE_H__
 
 #ifdef LIBXML_HTML_ENABLED
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 // 
 // Macro. A text node in a HTML document is really implemented
 // the same way as a text node in an XML document.
@@ -58,9 +58,9 @@ XMLPUBFUN int htmlSetMetaEncoding(htmlDocPtr doc, const xmlChar * encoding);
 #endif /* LIBXML_OUTPUT_ENABLED */
 XMLPUBFUN int htmlIsBooleanAttr(const xmlChar * name);
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 #endif /* LIBXML_HTML_ENABLED */
 #endif /* __HTML_TREE_H__ */
 

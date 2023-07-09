@@ -15,20 +15,10 @@ ignores * root_ignores;
 
 /* TODO: build a huge-ass list of files we want to ignore by default (build cache stuff, pyc files, etc) */
 
-const char * evil_hardcoded_ignore_files[] = {
-	".",
-	"..",
-	NULL
-};
+const char * evil_hardcoded_ignore_files[] = { ".", "..", NULL };
 
 /* Warning: changing the first two strings will break skip_vcs_ignores. */
-const char * ignore_pattern_files[] = {
-	".ignore",
-	".gitignore",
-	".git/info/exclude",
-	".hgignore",
-	NULL
-};
+const char * ignore_pattern_files[] = { ".ignore", ".gitignore", ".git/info/exclude", ".hgignore", NULL };
 
 int is_empty(ignores * ig) 
 {

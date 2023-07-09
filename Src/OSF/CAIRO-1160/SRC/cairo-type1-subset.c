@@ -458,7 +458,7 @@ static int hex_to_int(int ch)
 static cairo_status_t FASTCALL cairo_type1_font_subset_write_encrypted(cairo_type1_font_subset_t * font, const char * data, uint length)
 {
 	int c, p;
-	static const char hex_digits[/*16*/] = "0123456789abcdef";
+	// @sobolev static const char hex_digits[/*16*/] = "0123456789abcdef";
 	char digits[3];
 	const uchar * in = reinterpret_cast<const uchar *>(data);
 	const uchar * end = reinterpret_cast<const uchar *>(data) + length;
@@ -466,10 +466,9 @@ static cairo_status_t FASTCALL cairo_type1_font_subset_write_encrypted(cairo_typ
 		p = *in++;
 		c = p ^ (font->eexec_key >> 8);
 		font->eexec_key = (c + font->eexec_key) * CAIRO_TYPE1_ENCRYPT_C1 + CAIRO_TYPE1_ENCRYPT_C2;
-
 		if(font->hex_encode) {
-			digits[0] = hex_digits[c >> 4];
-			digits[1] = hex_digits[c & 0x0f];
+			digits[0] = SlConst::P_HxDigL[c >> 4];
+			digits[1] = SlConst::P_HxDigL[c & 0x0f];
 			digits[2] = '\n';
 			font->hex_column += 2;
 

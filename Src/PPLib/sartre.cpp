@@ -1723,7 +1723,7 @@ int SrUedContainer::ReadSource(const char * pFileName, PPLogger * pLogger)
 	return result;
 }
 	
-int SrUedContainer::WriteSource(const char * pFileName, SBinaryChunk * pHash)
+int SrUedContainer::WriteSource(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash)
 {
 	int    ok = 1;
 	SString line_buf;
@@ -1763,18 +1763,25 @@ int SrUedContainer::WriteSource(const char * pFileName, SBinaryChunk * pHash)
 		}
 	}
 	{
-		SPathStruc ps(pFileName);
-		ps.Ext = "sha256";
-		ps.Merge(temp_buf);
 		SFile f_in(pFileName, SFile::mRead|SFile::mBinary);
-		SFile f_hash(temp_buf, SFile::mWrite);
 		SBinaryChunk bc_hash;
 		THROW_SL(f_in.IsValid());
-		THROW_SL(f_hash.IsValid());
 		THROW_SL(f_in.CalcHash(0, SHASHF_SHA256, bc_hash));
 		ASSIGN_PTR(pHash, bc_hash);
-		bc_hash.Hex(temp_buf);
-		f_hash.WriteLine(temp_buf);
+		if(pPrevHash && bc_hash == *pPrevHash) {
+			f_in.Close();
+			SFile::Remove(pFileName);
+			ok = -1;
+		}
+		else {
+			SPathStruc ps(pFileName);
+			ps.Ext = "sha256";
+			ps.Merge(temp_buf);
+			SFile f_hash(temp_buf, SFile::mWrite);
+			THROW_SL(f_hash.IsValid());
+			bc_hash.Hex(temp_buf);
+			f_hash.WriteLine(temp_buf);
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -1994,7 +2001,7 @@ int SrUedContainer::VerifyByPreviousVersion(const SrUedContainer * pPrevC, PPLog
 	return ok;
 }
 	
-int SrUedContainer::Verify(const char * pPath, long ver)
+int SrUedContainer::Verify(const char * pPath, long ver, SBinaryChunk * pHash)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2019,6 +2026,9 @@ int SrUedContainer::Verify(const char * pPath, long ver)
 			THROW_SL(f_hash.ReadLine(temp_buf));
 			THROW_SL(bc_hash_stored.FromHex(temp_buf.Chomp().Strip()));
 			THROW(bc_hash_stored == bc_hash_evaluated);
+			if(pHash) {
+				*pHash = bc_hash_stored;
+			}
 		}
 	}
 	CATCHZOK
@@ -2093,56 +2103,70 @@ static int Test_Ued_Ops()
 	return ok;
 }
 
-int ProcessUed()
+int ProcessUed(const char * pSrcFileName, bool forceUpdatePlDecl, PPLogger * pLogger)
 {
 	int    ok = 1;
-	const char * p_file_name = "\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt";
+	bool   unchanged = false; // Если хэш нового результатного файла не отличается от предыдущей версии, то true.
+	//const char * p_file_name = "\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt";
 	SString temp_buf;
 	SStringU temp_buf_u;
-	PPLogger logger;
+	//PPLogger logger;
 	//
 	Test_Ued_Ops();
 	//
 	SBinaryChunk new_hash;
+	SBinaryChunk prev_hash;
 	SrUedContainer uedc;
 	SrUedContainer uedc_prev;
 	SString last_file_name;
+	SString path;
 	long   new_version = 0;
-	SPathStruc ps(p_file_name);
-	ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
-	const long prev_version = SrUedContainer::SearchLastCanonicalFile(temp_buf.RmvLastSlash(), last_file_name);
+	SPathStruc ps(pSrcFileName);
+	ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, path);
+	path.RmvLastSlash();
+	const long prev_version = SrUedContainer::SearchLastCanonicalFile(path, last_file_name);
 	if(prev_version > 0) {
-		THROW(uedc_prev.ReadSource(last_file_name, &logger));
+		THROW(uedc_prev.ReadSource(last_file_name, pLogger));
+		THROW(uedc.Verify(path, prev_version, &prev_hash));
 		new_version = prev_version+1;
 	}
-	THROW(uedc.ReadSource(p_file_name, &logger));
+	THROW(uedc.ReadSource(pSrcFileName, pLogger));
 	if(prev_version > 0) {
-		THROW(uedc.VerifyByPreviousVersion(&uedc_prev, &logger));
+		THROW(uedc.VerifyByPreviousVersion(&uedc_prev, pLogger));
 	}
 	{
+		SString result_file_name;
 		SETIFZQ(new_version, 1);
 		SrUedContainer::MakeUedCanonicalName(ps.Nam, new_version);
 		ps.Ext = "dat";
-		ps.Merge(temp_buf);
-		THROW(uedc.WriteSource(temp_buf, &new_hash));
-		//
-		ps.Merge(SPathStruc::fDir|SPathStruc::fDrv, temp_buf);
-		THROW(uedc.Verify(temp_buf, new_version));
+		ps.Merge(result_file_name);
+		int wsr = uedc.WriteSource(result_file_name, (prev_version > 0) ? &prev_hash : 0, &new_hash);
+		THROW(wsr);
+		if(wsr > 0) {
+			ps.Merge(SPathStruc::fDir|SPathStruc::fDrv, temp_buf);
+			THROW(uedc.Verify(temp_buf, new_version, 0));
+		}
+		else {
+			new_version = prev_version;
+			unchanged = true;
+		}
 	}
-	{
-		SrUedContainer::MakeUedCanonicalName(ps.Nam, -1);
-		ps.Ext = "h";
-		ps.Merge(temp_buf);
-		THROW(uedc.GenerateSourceDecl_C(temp_buf, new_version, new_hash));
-	}
-	{
-		SrUedContainer::MakeUedCanonicalName(ps.Nam, -1);
-		ps.Ext = "java";
-		ps.Merge(temp_buf);
-		THROW(uedc.GenerateSourceDecl_Java(temp_buf, new_version, new_hash));
+	if(!unchanged || forceUpdatePlDecl) {
+		{
+			SrUedContainer::MakeUedCanonicalName(ps.Nam, -1);
+			ps.Ext = "h";
+			ps.Merge(temp_buf);
+			THROW(uedc.GenerateSourceDecl_C(temp_buf, new_version, new_hash));
+		}
+		{
+			SrUedContainer::MakeUedCanonicalName(ps.Nam, -1);
+			ps.Ext = "java";
+			ps.Merge(temp_buf);
+			THROW(uedc.GenerateSourceDecl_Java(temp_buf, new_version, new_hash));
+		}
 	}
 	CATCH
-		logger.LogLastError();
+		CALLPTRMEMB(pLogger, LogLastError());
 		ok = 0;
 	ENDCATCH
 	return ok;

@@ -22,7 +22,6 @@
 #include "common.h"
 #pragma hdrstop
 #include "gb2312.h"
-//#include "gridmtx.h"
 //
 // Definitions for Grid Matrix
 //

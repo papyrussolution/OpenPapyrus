@@ -845,9 +845,6 @@ cairo_status_t _cairo_fopen(const char * filename, const char * mode, FILE ** fi
 	#define _WIN32_WINNT 0x0500
 #endif
 
-//#include <windows.h>
-//#include <io.h>
-
 #if !_WIN32_WCE
 /* tmpfile() replacement for Windows.
  *

@@ -147,11 +147,107 @@ void * PPViewTSession::GetEditExtraParam()
 int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class TSessFiltDialog : public TDialog {
+		DECL_DIALOG_DATA(TSessionFilt);
 	public:
 		explicit TSessFiltDialog(uint dlgId) : TDialog(dlgId/*DLG_TSESSFILT*/)
 		{
  			SetupCalPeriod(CTLCAL_TSESSFILT_STPERIOD, CTL_TSESSFILT_STPERIOD);
 		 	SetupCalPeriod(CTLCAL_TSESSFILT_FNPERIOD, CTL_TSESSFILT_FNPERIOD);
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			RVALUEPTR(Data, pData);
+			int    ok = 1;
+			PrcTechCtrlGroup::Rec ptcg_rec;
+			//
+			ptcg_rec.PrcID = Data.PrcID;
+			if(Data.Flags & TSessionFilt::fManufPlan) {
+				PrcTechCtrlGroup * p_grp = new PrcTechCtrlGroup(CTLSEL_TSESSFILT_PRC, 0, 0, 0, 0, 0);
+				THROW_SL(p_grp);
+				p_grp->enableTechSelUpLevel(true); // @v11.7.6
+ 				addGroup(GRP_PRCTECH, p_grp);
+				if(Data.PrcID == 0)
+					ptcg_rec.PrcParentID = PRCEXDF_GROUP;
+ 				setGroupData(GRP_PRCTECH, &ptcg_rec);
+			}
+			else {
+				PrcTechCtrlGroup * p_grp = new PrcTechCtrlGroup(CTLSEL_TSESSFILT_PRC, CTLSEL_TSESSFILT_TECH,
+ 					CTL_TSESSFILT_ST_GOODS, CTLSEL_TSESSFILT_AR, CTLSEL_TSESSFILT_AR2, cmSelTechByGoods);
+				THROW_SL(p_grp);
+				p_grp->setIdleStatus(this, BIN(Data.Ft_Idle > 0));
+				p_grp->enableTechSelUpLevel(true); // @v11.7.6
+ 				addGroup(GRP_PRCTECH, p_grp);
+				ptcg_rec.TechID = Data.TechID;
+				ptcg_rec.ArID   = Data.ArID;
+				ptcg_rec.Ar2ID  = Data.Ar2ID;
+				ptcg_rec.IdleStatus = BIN(Data.Ft_Idle > 0);
+ 				setGroupData(GRP_PRCTECH, &ptcg_rec);
+			}
+			AddClusterAssocDef(CTL_TSESSFILT_STATUS, 0, (1 << TSESST_PLANNED));
+			AddClusterAssoc(CTL_TSESSFILT_STATUS, 1, (1 << TSESST_PENDING));
+			AddClusterAssoc(CTL_TSESSFILT_STATUS, 2, (1 << TSESST_INPROCESS));
+			AddClusterAssoc(CTL_TSESSFILT_STATUS, 3, (1 << TSESST_CLOSED));
+			AddClusterAssoc(CTL_TSESSFILT_STATUS, 4, (1 << TSESST_CANCELED));
+			SetClusterData(CTL_TSESSFILT_STATUS, Data.StatusFlags);
+			AddClusterAssoc(CTL_TSESSFILT_FLAGS, 0, TSessionFilt::fSuperSessOnly);
+			SetClusterData(CTL_TSESSFILT_FLAGS, Data.Flags);
+			AddClusterAssocDef(CTL_TSESSFILT_IDLE,  0,  0);
+			AddClusterAssoc(CTL_TSESSFILT_IDLE,  1, -1);
+			AddClusterAssoc(CTL_TSESSFILT_IDLE,  2,  1);
+			SetClusterData(CTL_TSESSFILT_IDLE, Data.Ft_Idle);
+			// @v11.0.6 {
+			AddClusterAssocDef(CTL_TSESSFILT_WROFF, 0,  0);
+			AddClusterAssocDef(CTL_TSESSFILT_WROFF, 1, -1);
+			AddClusterAssocDef(CTL_TSESSFILT_WROFF, 2,  1);
+			SetClusterData(CTL_TSESSFILT_WROFF, Data.Ft_WritedOff);
+			// } @v11.0.6 
+			SetPeriodInput(this, CTL_TSESSFILT_STPERIOD, &Data.StPeriod);
+			setCtrlData(CTL_TSESSFILT_STTIME, &Data.StTime);
+			SetPeriodInput(this, CTL_TSESSFILT_FNPERIOD, &Data.FnPeriod);
+			setCtrlData(CTL_TSESSFILT_FNTIME, &Data.FnTime);
+			SetupStringCombo(this, CTLSEL_TSESSFILT_ORDER, PPTXT_TSESSORDER, Data.Order);
+			SetupPPObjCombo(this, CTLSEL_TSESSFILT_GDSGRP, PPOBJ_GOODSGROUP, Data.GoodsGroupID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR); // @v11.7.8
+			//
+			CATCHZOK
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			if(Data.Flags & TSessionFilt::fManufPlan) {
+				getCtrlData(CTLSEL_TSESSFILT_PRC, &Data.PrcID);
+			}
+			else {
+				PrcTechCtrlGroup::Rec ptcg_rec;
+				getGroupData(GRP_PRCTECH, &ptcg_rec);
+				Data.PrcID  = ptcg_rec.PrcID;
+				Data.TechID = ptcg_rec.TechID;
+				Data.ArID   = ptcg_rec.ArID;
+				Data.Ar2ID  = ptcg_rec.Ar2ID;
+			}
+			long   temp_long = 0;
+			GetClusterData(CTL_TSESSFILT_STATUS, &Data.StatusFlags);
+			GetClusterData(CTL_TSESSFILT_FLAGS, &Data.Flags);
+			GetClusterData(CTL_TSESSFILT_IDLE, &temp_long);
+			Data.Ft_Idle = static_cast<int16>(temp_long);
+			// @v11.0.6 {
+			temp_long = 0;
+			GetClusterData(CTL_TSESSFILT_WROFF, &temp_long);
+			Data.Ft_WritedOff = static_cast<int16>(temp_long);
+			// } @v11.0.6 
+			GetPeriodInput(this, CTL_TSESSFILT_STPERIOD, &Data.StPeriod);
+			getCtrlData(CTL_TSESSFILT_STTIME, &Data.StTime);
+			if(!Data.StPeriod.low)
+				Data.StTime = ZEROTIME;
+			GetPeriodInput(this, CTL_TSESSFILT_FNPERIOD, &Data.FnPeriod);
+			getCtrlData(CTL_TSESSFILT_FNTIME, &Data.FnTime);
+			if(!Data.FnPeriod.upp)
+				Data.FnTime = ZEROTIME;
+			getCtrlData(CTLSEL_TSESSFILT_ORDER, &Data.Order);
+			getCtrlData(CTLSEL_TSESSFILT_GDSGRP, &Data.GoodsGroupID); // @v11.7.8
+			//
+			ASSIGN_PTR(pData, Data);
+			return ok;
 		}
 	private:
 		DECL_HANDLE_EVENT
@@ -169,88 +265,15 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	int    valid_data = 0;
 	uint   dlg_id = 0;
 	TSessFiltDialog * dlg = 0;
-	PrcTechCtrlGroup::Rec ptcg_rec;
 	TSessionFilt * p_filt = 0;
 	THROW(Filt.IsA(pBaseFilt));
 	p_filt = static_cast<TSessionFilt *>(pBaseFilt);
 	dlg_id = (p_filt->Flags & TSessionFilt::fManufPlan) ? DLG_TSESSPLANFILT : DLG_TSESSFILT;
 	THROW(CheckDialogPtr(&(dlg = new TSessFiltDialog(dlg_id))));
-	ptcg_rec.PrcID = p_filt->PrcID;
-	if(p_filt->Flags & TSessionFilt::fManufPlan) {
-		PrcTechCtrlGroup * p_grp = new PrcTechCtrlGroup(CTLSEL_TSESSFILT_PRC, 0, 0, 0, 0, 0);
-		THROW_SL(p_grp);
-		p_grp->enableTechSelUpLevel(true); // @v11.7.6
- 		dlg->addGroup(GRP_PRCTECH, p_grp);
-		if(p_filt->PrcID == 0)
-			ptcg_rec.PrcParentID = PRCEXDF_GROUP;
- 		dlg->setGroupData(GRP_PRCTECH, &ptcg_rec);
-	}
-	else {
-		PrcTechCtrlGroup * p_grp = new PrcTechCtrlGroup(CTLSEL_TSESSFILT_PRC, CTLSEL_TSESSFILT_TECH,
- 			CTL_TSESSFILT_ST_GOODS, CTLSEL_TSESSFILT_AR, CTLSEL_TSESSFILT_AR2, cmSelTechByGoods);
-		THROW_SL(p_grp);
-		p_grp->setIdleStatus(dlg, BIN(p_filt->Ft_Idle > 0));
-		p_grp->enableTechSelUpLevel(true); // @v11.7.6
- 		dlg->addGroup(GRP_PRCTECH, p_grp);
-		ptcg_rec.TechID = p_filt->TechID;
-		ptcg_rec.ArID   = p_filt->ArID;
-		ptcg_rec.Ar2ID  = p_filt->Ar2ID;
-		ptcg_rec.IdleStatus = BIN(p_filt->Ft_Idle > 0);
- 		dlg->setGroupData(GRP_PRCTECH, &ptcg_rec);
-	}
-	dlg->AddClusterAssocDef(CTL_TSESSFILT_STATUS, 0, (1 << TSESST_PLANNED));
-	dlg->AddClusterAssoc(CTL_TSESSFILT_STATUS, 1, (1 << TSESST_PENDING));
-	dlg->AddClusterAssoc(CTL_TSESSFILT_STATUS, 2, (1 << TSESST_INPROCESS));
-	dlg->AddClusterAssoc(CTL_TSESSFILT_STATUS, 3, (1 << TSESST_CLOSED));
-	dlg->AddClusterAssoc(CTL_TSESSFILT_STATUS, 4, (1 << TSESST_CANCELED));
-	dlg->SetClusterData(CTL_TSESSFILT_STATUS, p_filt->StatusFlags);
-	dlg->AddClusterAssoc(CTL_TSESSFILT_FLAGS, 0, TSessionFilt::fSuperSessOnly);
-	dlg->SetClusterData(CTL_TSESSFILT_FLAGS, p_filt->Flags);
-	dlg->AddClusterAssocDef(CTL_TSESSFILT_IDLE,  0,  0);
-	dlg->AddClusterAssoc(CTL_TSESSFILT_IDLE,  1, -1);
-	dlg->AddClusterAssoc(CTL_TSESSFILT_IDLE,  2,  1);
-	dlg->SetClusterData(CTL_TSESSFILT_IDLE, p_filt->Ft_Idle);
-	// @v11.0.6 {
-	dlg->AddClusterAssocDef(CTL_TSESSFILT_WROFF, 0,  0);
-	dlg->AddClusterAssocDef(CTL_TSESSFILT_WROFF, 1, -1);
-	dlg->AddClusterAssocDef(CTL_TSESSFILT_WROFF, 2,  1);
-	dlg->SetClusterData(CTL_TSESSFILT_WROFF, p_filt->Ft_WritedOff);
-	// } @v11.0.6 
-	SetPeriodInput(dlg, CTL_TSESSFILT_STPERIOD, &p_filt->StPeriod);
-	dlg->setCtrlData(CTL_TSESSFILT_STTIME, &p_filt->StTime);
-	SetPeriodInput(dlg, CTL_TSESSFILT_FNPERIOD, &p_filt->FnPeriod);
-	dlg->setCtrlData(CTL_TSESSFILT_FNTIME, &p_filt->FnTime);
-	SetupStringCombo(dlg, CTLSEL_TSESSFILT_ORDER, PPTXT_TSESSORDER, p_filt->Order);
+	//
+	dlg->setDTS(p_filt);
 	while(!valid_data && ExecView(dlg) == cmOK) {
-		if(p_filt->Flags & TSessionFilt::fManufPlan) {
-			dlg->getCtrlData(CTLSEL_TSESSFILT_PRC, &p_filt->PrcID);
-		}
-		else {
-			dlg->getGroupData(GRP_PRCTECH, &ptcg_rec);
-			p_filt->PrcID  = ptcg_rec.PrcID;
-			p_filt->TechID = ptcg_rec.TechID;
-			p_filt->ArID   = ptcg_rec.ArID;
-			p_filt->Ar2ID  = ptcg_rec.Ar2ID;
-		}
-		long   temp_long = 0;
-		dlg->GetClusterData(CTL_TSESSFILT_STATUS, &p_filt->StatusFlags);
-		dlg->GetClusterData(CTL_TSESSFILT_FLAGS, &p_filt->Flags);
-		dlg->GetClusterData(CTL_TSESSFILT_IDLE, &temp_long);
-		p_filt->Ft_Idle = static_cast<int16>(temp_long);
-		// @v11.0.6 {
-		temp_long = 0;
-		dlg->GetClusterData(CTL_TSESSFILT_WROFF, &temp_long);
-		p_filt->Ft_WritedOff = static_cast<int16>(temp_long);
-		// } @v11.0.6 
-		GetPeriodInput(dlg, CTL_TSESSFILT_STPERIOD, &p_filt->StPeriod);
-		dlg->getCtrlData(CTL_TSESSFILT_STTIME, &p_filt->StTime);
-		if(!p_filt->StPeriod.low)
-			p_filt->StTime = ZEROTIME;
-		GetPeriodInput(dlg, CTL_TSESSFILT_FNPERIOD, &p_filt->FnPeriod);
-		dlg->getCtrlData(CTL_TSESSFILT_FNTIME, &p_filt->FnTime);
-		if(!p_filt->FnPeriod.upp)
-			p_filt->FnTime = ZEROTIME;
-		dlg->getCtrlData(CTLSEL_TSESSFILT_ORDER, &p_filt->Order);
+		dlg->getDTS(p_filt);
 		ok = valid_data = 1;
 	}
 	CATCHZOKPPERR

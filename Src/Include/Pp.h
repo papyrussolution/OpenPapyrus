@@ -3,6 +3,7 @@
 // @codepage UTF-8
 //
 // Спасибо за проделанную работу (Thanks for the work you've done):
+//   Ефимову Сергею
 //   Насонову Вадиму (VADIM)
 //   Стародубу Антону (AHTOXA)
 //   Казакову Михаилу (Muxa)
@@ -5633,6 +5634,7 @@ struct AccTurnParam {
 #define CCFLG_GENLOTONUNLIMORDER   0x00200000L // Генерировать лоты на нелимитируемые заказы
 #define CCFLG_DEBUGTRFRERROR       0x00400000L // Проверять лоты и текущие товарные остатки после каждого проведения или изменения товарного документа
 #define CCFLG_USEARGOODSCODE       0x00800000L // Использовать товарные коды, привязанные к статьям
+#define CCFLG_CHECKUNIQBILLCODE    0x01000000L // @v11.7.8 Проверять уникальность номера при создании нового документа
 #define CCFLG_USECCHECKLINEEXT     0x02000000L // Использовать расширения строк чеков
 #define CCFLG_INDIVIDBILLEXTFILT   0x04000000L // Индивидуальная фильтрация по расширению документов
 	// Если флаг включен, то при фильтрации документов с помощью функции BillCore::GetBillListByExt
@@ -12449,6 +12451,17 @@ public:
 	int    CalcPayment(PPID billID, int byLinks, const DateRange *, PPID curID, double * pPaymentAmount);
 	int    CalcPaymentSieve(PPID id, PPID curID, const PPCycleArray * pSieve, RAssocArray * pList, double * pPaym);
 	int    GetCreditList(PPID id, PctChargeArray * pList);
+	//
+	// Descr: Ищет документ, имеющий код pCode. Если задан ненулевой аргумент opID, то ищет только документы с кодом pCode
+	//   и имеющие указанный вид операции. Если задан ненулевой аргумент dt, то дополнительно ограничивает поиск
+	//   соответствующей датой.
+	//   Если аргумент pCode пустой (pCode == 0 || pCode[0] == 0), то функция сразу возвращает -1.
+	// Returns:
+	//   >0 - найден документ, соответствующий критериям.
+	//   <0 - не найден документ, удовлетворяющий заданным критериям.
+	//    0 - ошибка
+	//
+	int    SearchByCode(const char * pCode, PPID opID, LDATE dt, BillTbl::Rec * pRec);
 	enum {
 		safDefault    = 0x0000,
 		safIgnoreOp   = 0x0001,

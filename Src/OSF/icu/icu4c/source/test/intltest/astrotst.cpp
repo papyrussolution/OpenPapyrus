@@ -132,19 +132,20 @@ void AstroTest::TestLunarPosition() {
 	ASSERT_OK(status);
 }
 
-void AstroTest::TestCoordinates() {
+void AstroTest::TestCoordinates() 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	initAstro(status);
 	ASSERT_OK(status);
-
 	CalendarAstronomer::Equatorial result;
-	astro->eclipticToEquatorial(result, 139.686111 * CalendarAstronomer::PI / 180.0, 4.875278* CalendarAstronomer::PI / 180.0);
+	astro->eclipticToEquatorial(result, 139.686111 * SMathConst::Pi / 180.0, 4.875278 * SMathConst::Pi / 180.0);
 	logln((UnicodeString)"result is " + result.toString() + (UnicodeString)";  " /* + result.toHmsString()*/);
 	closeAstro(status);
 	ASSERT_OK(status);
 }
 
-void AstroTest::TestCoverage() {
+void AstroTest::TestCoverage() 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	initAstro(status);
 	ASSERT_OK(status);
@@ -157,18 +158,14 @@ void AstroTest::TestCoverage() {
 	//Longitude:  118 degrees 22' West
 	double laLat = 34 + 5./60, laLong = 360 - (118 + 22./60);
 	CalendarAstronomer * myastro2 = new CalendarAstronomer(laLong, laLat);
-
-	double eclLat = laLat * CalendarAstronomer::PI / 360;
-	double eclLong = laLong * CalendarAstronomer::PI / 360;
-
+	double eclLat = laLat * SMathConst::Pi / 360;
+	double eclLong = laLong * SMathConst::Pi / 360;
 	CalendarAstronomer::Ecliptic ecl(eclLat, eclLong);
 	CalendarAstronomer::Equatorial eq;
 	CalendarAstronomer::Horizon hor;
-
 	logln("ecliptic: " + ecl.toString());
 	CalendarAstronomer * myastro3 = new CalendarAstronomer();
 	myastro3->setJulianDay((4713 + 2000) * 365.25);
-
 	CalendarAstronomer * astronomers[] = {
 		myastro, myastro2, myastro3, myastro2 // check cache
 	};
@@ -448,7 +445,7 @@ void AstroTest::TestMoonAge() {
 	{356.8493418421329, 356.8386760059673, 0.09625415252237701, 355.9986960782416, 3.5714026601303317, 124.26906744384183,
 	     59.80247650195558,
 	     357.54163205513123, 268.41779281511094, 4.82340276581624};
-	static const double precision = CalendarAstronomer::PI/32;
+	static const double precision = SMathConst::Pi/32;
 	for(int32_t i = 0; i < SIZEOFARRAYi(testcase); i++) {
 		gc->clear();
 		logln((UnicodeString)"CASE["+i+"]: Year "+(int32_t)testcase[i][0]+" Month "+(int32_t)testcase[i][1]+" Day "+
@@ -461,7 +458,7 @@ void AstroTest::TestMoonAge() {
 		    (int32_t)testcase[i][4],
 		    (int32_t)testcase[i][5]);
 		astro->setDate(gc->getTime(status));
-		double expectedAge = (angle[i]*CalendarAstronomer::PI)/180;
+		double expectedAge = (angle[i] * SMathConst::Pi)/180;
 		double got = astro->getMoonAge();
 		//logln(testString);
 		if(!(got>expectedAge-precision && got<expectedAge+precision)) {

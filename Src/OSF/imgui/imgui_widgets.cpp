@@ -2922,9 +2922,9 @@ bool ImGui::SliderAngle(const char* label, float* v_rad, float v_degrees_min, fl
 {
 	if(format == NULL)
 		format = "%.0f deg";
-	float v_deg = (*v_rad) * 360.0f / (2 * IM_PI);
+	float v_deg = (*v_rad) * 360.0f / (2 * SMathConst::Pi_f);
 	bool value_changed = SliderFloat(label, &v_deg, v_degrees_min, v_degrees_max, format, flags);
-	*v_rad = v_deg * (2 * IM_PI) / 360.0f;
+	*v_rad = v_deg * (2 * SMathConst::Pi_f) / 360.0f;
 	return value_changed;
 }
 
@@ -5054,13 +5054,13 @@ bool ImGui::ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags fl
 			float initial_dist2 = ImLengthSqr(initial_off);
 			if(initial_dist2 >= (wheel_r_inner - 1) * (wheel_r_inner - 1) && initial_dist2 <= (wheel_r_outer + 1) * (wheel_r_outer + 1)) {
 				// Interactive with Hue wheel
-				H = ImAtan2(current_off.y, current_off.x) / IM_PI * 0.5f;
+				H = ImAtan2(current_off.y, current_off.x) / SMathConst::Pi_f * 0.5f;
 				if(H < 0.0f)
 					H += 1.0f;
 				value_changed = value_changed_h = true;
 			}
-			float cos_hue_angle = ImCos(-H * 2.0f * IM_PI);
-			float sin_hue_angle = ImSin(-H * 2.0f * IM_PI);
+			float cos_hue_angle = ImCos(-H * 2.0f * SMathConst::Pi_f);
+			float sin_hue_angle = ImSin(-H * 2.0f * SMathConst::Pi_f);
 			if(ImTriangleContainsPoint(triangle_pa, triangle_pb, triangle_pc, ImRotate(initial_off, cos_hue_angle, sin_hue_angle))) {
 				// Interacting with SV triangle
 				ImVec2 current_off_unrotated = ImRotate(current_off, cos_hue_angle, sin_hue_angle);
@@ -5221,8 +5221,8 @@ bool ImGui::ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags fl
 		const float aeps = 0.5f / wheel_r_outer; // Half a pixel arc length in radians (2pi cancels out).
 		const int segment_per_arc = smax(4, (int)wheel_r_outer / 12);
 		for(int n = 0; n < 6; n++) {
-			const float a0 = (n)     /6.0f * 2.0f * IM_PI - aeps;
-			const float a1 = (n+1.0f)/6.0f * 2.0f * IM_PI + aeps;
+			const float a0 = (n)     /6.0f * 2.0f * SMathConst::Pi_f - aeps;
+			const float a1 = (n+1.0f)/6.0f * 2.0f * SMathConst::Pi_f + aeps;
 			const int vert_start_idx = draw_list->VtxBuffer.Size;
 			draw_list->PathArcTo(wheel_center, (wheel_r_inner + wheel_r_outer)*0.5f, a0, a1, segment_per_arc);
 			draw_list->PathStroke(col_white, 0, wheel_thickness);
@@ -5233,8 +5233,8 @@ bool ImGui::ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags fl
 			ShadeVertsLinearColorGradientKeepAlpha(draw_list, vert_start_idx, vert_end_idx, gradient_p0, gradient_p1, col_hues[n], col_hues[n + 1]);
 		}
 		// Render Cursor + preview on Hue Wheel
-		float cos_hue_angle = ImCos(H * 2.0f * IM_PI);
-		float sin_hue_angle = ImSin(H * 2.0f * IM_PI);
+		float cos_hue_angle = ImCos(H * 2.0f * SMathConst::Pi_f);
+		float sin_hue_angle = ImSin(H * 2.0f * SMathConst::Pi_f);
 		ImVec2 hue_cursor_pos(wheel_center.x + cos_hue_angle * (wheel_r_inner + wheel_r_outer) * 0.5f, wheel_center.y + sin_hue_angle * (wheel_r_inner + wheel_r_outer) * 0.5f);
 		float hue_cursor_rad = value_changed_h ? wheel_thickness * 0.65f : wheel_thickness * 0.55f;
 		int hue_cursor_segments = draw_list->_CalcCircleAutoSegmentCount(hue_cursor_rad); // Lock segment count so the +1 one matches others.

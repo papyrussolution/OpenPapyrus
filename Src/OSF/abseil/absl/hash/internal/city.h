@@ -37,9 +37,6 @@
 #ifndef ABSL_HASH_INTERNAL_CITY_H_
 #define ABSL_HASH_INTERNAL_CITY_H_
 
-//#include <stdint.h>
-//#include <stdlib.h>  // for size_t.
-//#include <utility>
 #include "absl/base/config.h"
 
 namespace absl {

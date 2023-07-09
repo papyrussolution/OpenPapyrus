@@ -59,7 +59,7 @@ int __db_dumptree(DB * dbp, DB_TXN * txn, char * op, char * name, db_pgno_t firs
 	else
 		fp = orig_fp = NULL;
 	__db_prdb(dbp, flags);
-	__db_msg(env, "%s", DB_GLOBAL(db_line));
+	__db_msg_db_line(env);
 	ret = __db_prtree(dbp, txn, flags, first, last);
 	if(fp) {
 		fclose(fp);
@@ -990,7 +990,7 @@ err:
  */
 int __db_prdbt(DBT * dbtp, int checkprint, const char * prefix, void * handle, int (*callback)__P((void *, const void *)), int is_recno, int is_heap)
 {
-	static const uchar hex[] = "0123456789abcdef";
+	// @sobolev static const uchar hex[] = "0123456789abcdef";
 	db_recno_t recno;
 	DB_HEAP_RID rid;
 	size_t len;
@@ -1017,8 +1017,8 @@ int __db_prdbt(DBT * dbtp, int checkprint, const char * prefix, void * handle, i
 		/* If we're printing data as hex, print keys as hex too. */
 		if(!checkprint) {
 			for(len = sstrlen(buf), p = (uint8 *)buf, hp = (uint8 *)hbuf; len-- > 0; ++p) {
-				*hp++ = hex[(uint8)(*p&0xf0)>>4];
-				*hp++ = hex[*p&0x0f];
+				*hp++ = SlConst::P_HxDigL[(uint8)(*p&0xf0)>>4];
+				*hp++ = SlConst::P_HxDigL[*p&0x0f];
 			}
 			*hp = '\0';
 			ret = callback(handle, hbuf);
@@ -1039,8 +1039,8 @@ int __db_prdbt(DBT * dbtp, int checkprint, const char * prefix, void * handle, i
 		/* If we're printing data as hex, print keys as hex too. */
 		if(!checkprint) {
 			for(len = sstrlen(buf), p = (uint8 *)buf, hp = (uint8 *)hbuf; len-- > 0; ++p) {
-				*hp++ = hex[(uint8)(*p&0xf0)>>4];
-				*hp++ = hex[*p&0x0f];
+				*hp++ = SlConst::P_HxDigL[(uint8)(*p&0xf0)>>4];
+				*hp++ = SlConst::P_HxDigL[*p&0x0f];
 			}
 			*hp = '\0';
 			ret = callback(handle, hbuf);
@@ -1060,14 +1060,14 @@ int __db_prdbt(DBT * dbtp, int checkprint, const char * prefix, void * handle, i
 					return ret;
 			}
 			else {
-				snprintf(buf, DBTBUFLEN, "\\%c%c", hex[(uint8)(*p&0xf0)>>4], hex[*p&0x0f]);
+				snprintf(buf, DBTBUFLEN, "\\%c%c", SlConst::P_HxDigL[(uint8)(*p&0xf0)>>4], SlConst::P_HxDigL[*p&0x0f]);
 				if((ret = callback(handle, buf)) != 0)
 					return ret;
 			}
 	}
 	else
 		for(len = dbtp->size, p = (uint8 *)dbtp->data; len--; ++p) {
-			snprintf(buf, DBTBUFLEN, "%c%c", hex[(uint8)(*p&0xf0)>>4], hex[*p&0x0f]);
+			snprintf(buf, DBTBUFLEN, "%c%c", SlConst::P_HxDigL[(uint8)(*p&0xf0)>>4], SlConst::P_HxDigL[*p&0x0f]);
 			if((ret = callback(handle, buf)) != 0)
 				return ret;
 		}

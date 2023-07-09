@@ -29,11 +29,6 @@
 #ifndef CAIRO_COMPILER_PRIVATE_H
 #define CAIRO_COMPILER_PRIVATE_H
 
-//#include "cairo.h"
-//#if HAVE_CONFIG_H
-	//#include "config.h"
-//#endif
-
 /* Size in bytes of buffer to use off the stack per functions.
  * Mostly used by text functions.  For larger allocations, they'll
  * malloc(). */

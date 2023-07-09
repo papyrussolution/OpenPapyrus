@@ -153,7 +153,7 @@ public:
 	};
 	int    Find(const char * pName, Stat *, int fromPalmCompressedFile = 0);
 	long   GetLastErr() { return P_Ctx ? P_Ctx->LastErr : 0; }
-	static int  TransmitCompressedFile(PROGRESSFN, SpiiExchgContext *);
+	// @v11.7.8 static int  TransmitCompressedFile(PROGRESSFN, SpiiExchgContext *);
 	static int  ReceivePalmCompressedFile(PROGRESSFN, SpiiExchgContext *);
 	int  DeleteTable(const char * pName);
 

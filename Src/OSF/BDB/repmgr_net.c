@@ -1357,7 +1357,7 @@ int __repmgr_listen(ENV*env)
 		goto out;
 	}
 	ret = net_errno;
-	__db_err(env, ret, "%s", why);
+	__db_err_simple_text(env, ret, why);
 clean:
 	if(s != INVALID_SOCKET)
 		closesocket(s);

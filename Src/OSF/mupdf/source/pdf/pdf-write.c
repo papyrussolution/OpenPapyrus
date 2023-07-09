@@ -1489,24 +1489,21 @@ static int isbinarystream(fz_context * ctx, const uchar * data, size_t len)
 
 static fz_buffer * hexbuf(fz_context * ctx, const uchar * p, size_t n)
 {
-	static const char hex[17] = "0123456789abcdef";
+	// @sobolev static const char hex[17] = "0123456789abcdef";
 	int x = 0;
 	size_t len = n * 2 + (n / 32) + 1;
 	uchar * data = (uchar *)Memento_label(fz_malloc(ctx, len), "hexbuf");
 	fz_buffer * buf = fz_new_buffer_from_data(ctx, data, len);
-
 	while(n--) {
-		*data++ = hex[*p >> 4];
-		*data++ = hex[*p & 15];
+		*data++ = SlConst::P_HxDigL[*p >> 4];
+		*data++ = SlConst::P_HxDigL[*p & 15];
 		if(++x == 32) {
 			*data++ = '\n';
 			x = 0;
 		}
 		p++;
 	}
-
 	*data++ = '>';
-
 	return buf;
 }
 

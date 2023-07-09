@@ -57,7 +57,7 @@ void DlFunc::AddArg(uint typeId, const char * pName, uint argFlags)
 {
 	Arg arg;
 	arg.TypID = typeId;
-	arg.Flags = (uint16)argFlags;
+	arg.Flags = argFlags;
 	arg.NamePos = 0;
 	if(!isempty(pName))
 		ArgNamList.add(pName, &arg.NamePos);

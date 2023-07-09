@@ -351,10 +351,7 @@ void xps_run_page(fz_context * ctx, fz_page * page_, fz_device * dev, fz_matrix 
 {
 	xps_page * page = (xps_page*)page_;
 	xps_document * doc = page->doc;
-	fz_matrix page_ctm;
-
-	page_ctm = fz_pre_scale(ctm, 72.0f / 96.0f, 72.0f / 96.0f);
-
+	fz_matrix page_ctm = fz_pre_scale(ctm, 72.0f / 96.0f, 72.0f / 96.0f);
 	doc->cookie = cookie;
 	doc->dev = dev;
 	xps_parse_fixed_page(ctx, doc, page_ctm, page);

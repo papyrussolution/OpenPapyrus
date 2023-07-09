@@ -18,7 +18,7 @@ static void reprnum(js_State * J, js_Buffer ** sb, double n)
 
 static void reprstr(js_State * J, js_Buffer ** sb, const char * s)
 {
-	static const char * HEX = "0123456789ABCDEF";
+	// @sobolev static const char * HEX = "0123456789ABCDEF";
 	int i, n;
 	Rune c;
 	js_putc(J, sb, '"');
@@ -36,8 +36,8 @@ static void reprstr(js_State * J, js_Buffer ** sb, const char * s)
 			    if(c < ' ') {
 				    js_putc(J, sb, '\\');
 				    js_putc(J, sb, 'x');
-				    js_putc(J, sb, HEX[(c>>4)&15]);
-				    js_putc(J, sb, HEX[c&15]);
+				    js_putc(J, sb, SlConst::P_HxDigU[(c>>4)&15]);
+				    js_putc(J, sb, SlConst::P_HxDigU[c&15]);
 			    }
 			    else if(c < 128) {
 				    js_putc(J, sb, c);
@@ -45,10 +45,10 @@ static void reprstr(js_State * J, js_Buffer ** sb, const char * s)
 			    else if(c < 0x10000) {
 				    js_putc(J, sb, '\\');
 				    js_putc(J, sb, 'u');
-				    js_putc(J, sb, HEX[(c>>12)&15]);
-				    js_putc(J, sb, HEX[(c>>8)&15]);
-				    js_putc(J, sb, HEX[(c>>4)&15]);
-				    js_putc(J, sb, HEX[c&15]);
+				    js_putc(J, sb, SlConst::P_HxDigU[(c>>12)&15]);
+				    js_putc(J, sb, SlConst::P_HxDigU[(c>>8)&15]);
+				    js_putc(J, sb, SlConst::P_HxDigU[(c>>4)&15]);
+				    js_putc(J, sb, SlConst::P_HxDigU[c&15]);
 			    }
 			    else {
 				    for(i = 0; i < n; ++i)

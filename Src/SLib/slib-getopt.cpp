@@ -113,8 +113,6 @@ extern int _getopt_long_only_r(int ___argc, char ** ___argv, const char * __shor
 // GNU application programs can use a third alternative mode in which
 // they can distinguish the relative order of options and other arguments.
 // 
-//#include "getopt_int.h"
-// 
 // For communication from `getopt' to the caller.
 // When `getopt' finds an option that takes an argument, the argument value is returned here.
 // Also, when `ordering' is RETURN_IN_ORDER, each non-option ARGV-element is returned here.

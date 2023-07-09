@@ -52,7 +52,7 @@ typedef struct ULanguageTag {
 #define LOCALE_KEY_TYPE_SEP '='
 
 #define ISALPHA(c) uprv_isASCIILetter(c)
-#define ISNUMERIC(c) ((c)>='0' && (c)<='9')
+// @sobolev (replaced with isdec) #define ISNUMERIC(c) ((c)>='0' && (c)<='9')
 
 static const char EMPTY[] = "";
 static const char LANG_UND[] = "und";
@@ -276,47 +276,27 @@ static const char DEPRECATEDREGIONS[][3] = {
 	"YD",       "YE",
 	"ZR",       "CD",
 };
-
 /*
- * -------------------------------------------------
- *
  * These ultag_ functions may be exposed as APIs later
- *
- * -------------------------------------------------
  */
-
 static ULanguageTag* ultag_parse(const char * tag, int32_t tagLen, int32_t* parsedLen, UErrorCode * status);
-
 static void ultag_close(ULanguageTag* langtag);
-
 static const char * ultag_getLanguage(const ULanguageTag* langtag);
-
 #if 0
-static const char * ultag_getJDKLanguage(const ULanguageTag* langtag);
+	static const char * ultag_getJDKLanguage(const ULanguageTag* langtag);
 #endif
-
 static const char * ultag_getExtlang(const ULanguageTag* langtag, int32_t idx);
-
 static int32_t ultag_getExtlangSize(const ULanguageTag* langtag);
-
 static const char * ultag_getScript(const ULanguageTag* langtag);
-
 static const char * ultag_getRegion(const ULanguageTag* langtag);
-
 static const char * ultag_getVariant(const ULanguageTag* langtag, int32_t idx);
-
 static int32_t ultag_getVariantsSize(const ULanguageTag* langtag);
-
 static const char * ultag_getExtensionKey(const ULanguageTag* langtag, int32_t idx);
-
 static const char * ultag_getExtensionValue(const ULanguageTag* langtag, int32_t idx);
-
 static int32_t ultag_getExtensionsSize(const ULanguageTag* langtag);
-
 static const char * ultag_getPrivateUse(const ULanguageTag* langtag);
-
 #if 0
-static const char * ultag_getLegacy(const ULanguageTag* langtag);
+	static const char * ultag_getLegacy(const ULanguageTag* langtag);
 #endif
 
 U_NAMESPACE_BEGIN
@@ -333,18 +313,12 @@ U_NAMESPACE_BEGIN
     U_DEFINE_LOCAL_OPEN_POINTER(LocalULanguageTagPointer, ULanguageTag, ultag_close);
 
 U_NAMESPACE_END
-
 /*
- * -------------------------------------------------
- *
  * Language subtag syntax validation functions
- *
- * -------------------------------------------------
  */
-
-static bool _isAlphaString(const char * s, int32_t len) {
-	int32_t i;
-	for(i = 0; i < len; i++) {
+static bool _isAlphaString(const char * s, int32_t len) 
+{
+	for(int32_t i = 0; i < len; i++) {
 		if(!ISALPHA(*(s + i))) {
 			return FALSE;
 		}
@@ -352,10 +326,10 @@ static bool _isAlphaString(const char * s, int32_t len) {
 	return TRUE;
 }
 
-static bool _isNumericString(const char * s, int32_t len) {
-	int32_t i;
-	for(i = 0; i < len; i++) {
-		if(!ISNUMERIC(*(s + i))) {
+static bool _isNumericString(const char * s, int32_t len) 
+{
+	for(int32_t i = 0; i < len; i++) {
+		if(!isdec(*(s + i))) {
 			return FALSE;
 		}
 	}
@@ -365,7 +339,7 @@ static bool _isNumericString(const char * s, int32_t len) {
 static bool _isAlphaNumericString(const char * s, int32_t len) 
 {
 	for(int32_t i = 0; i < len; i++) {
-		if(!ISALPHA(*(s + i)) && !ISNUMERIC(*(s + i))) {
+		if(!ISALPHA(*(s + i)) && !isdec(*(s + i))) {
 			return FALSE;
 		}
 	}
@@ -443,7 +417,8 @@ U_CFUNC bool ultag_isRegionSubtag(const char * s, int32_t len) {
 	return FALSE;
 }
 
-static bool _isVariantSubtag(const char * s, int32_t len) {
+static bool _isVariantSubtag(const char * s, int32_t len) 
+{
 	/*
 	 * variant       = 5*8alphanum         ; registered variants
 	 *               / (DIGIT 3alphanum)
@@ -454,20 +429,19 @@ static bool _isVariantSubtag(const char * s, int32_t len) {
 	if(_isAlphaNumericStringLimitedLength(s, len, 5, 8)) {
 		return TRUE;
 	}
-	if(len == 4 && ISNUMERIC(*s) && _isAlphaNumericString(s + 1, 3)) {
+	if(len == 4 && isdec(*s) && _isAlphaNumericString(s + 1, 3)) {
 		return TRUE;
 	}
 	return FALSE;
 }
 
-static bool _isSepListOf(bool (*test)(const char *, int32_t), const char * s, int32_t len) {
+static bool _isSepListOf(bool (*test)(const char *, int32_t), const char * s, int32_t len) 
+{
 	const char * p = s;
 	const char * pSubtag = NULL;
-
 	if(len < 0) {
 		len = (int32_t)strlen(s);
 	}
-
 	while((p - s) < len) {
 		if(*p == SEP) {
 			if(pSubtag == NULL) {
@@ -502,7 +476,8 @@ static bool _isPrivateuseVariantSubtag(const char * s, int32_t len) {
 	return _isAlphaNumericStringLimitedLength(s, len, 1, 8);
 }
 
-static bool _isExtensionSingleton(const char * s, int32_t len) {
+static bool _isExtensionSingleton(const char * s, int32_t len) 
+{
 	/*
 	 * extension     = singleton 1*("-" (2*8alphanum))
 	 *
@@ -515,13 +490,14 @@ static bool _isExtensionSingleton(const char * s, int32_t len) {
 	if(len < 0) {
 		len = (int32_t)strlen(s);
 	}
-	if(len == 1 && (ISALPHA(*s) || ISNUMERIC(*s)) && (uprv_tolower(*s) != PRIVATEUSE)) {
+	if(len == 1 && (ISALPHA(*s) || isdec(*s)) && (uprv_tolower(*s) != PRIVATEUSE)) {
 		return TRUE;
 	}
 	return FALSE;
 }
 
-static bool _isExtensionSubtag(const char * s, int32_t len) {
+static bool _isExtensionSubtag(const char * s, int32_t len) 
+{
 	/*
 	 * extension     = singleton 1*("-" (2*8alphanum))
 	 */
@@ -550,24 +526,27 @@ U_CFUNC bool ultag_isUnicodeLocaleAttribute(const char * s, int32_t len) {
 	return _isAlphaNumericStringLimitedLength(s, len, 3, 8);
 }
 
-U_CFUNC bool ultag_isUnicodeLocaleAttributes(const char * s, int32_t len) {
+U_CFUNC bool ultag_isUnicodeLocaleAttributes(const char * s, int32_t len) 
+{
 	return _isSepListOf(&ultag_isUnicodeLocaleAttribute, s, len);
 }
 
-U_CFUNC bool ultag_isUnicodeLocaleKey(const char * s, int32_t len) {
+U_CFUNC bool ultag_isUnicodeLocaleKey(const char * s, int32_t len) 
+{
 	/*
 	 * key = alphanum alpha ;
 	 */
 	if(len < 0) {
 		len = (int32_t)strlen(s);
 	}
-	if(len == 2 && (ISALPHA(*s) || ISNUMERIC(*s)) && ISALPHA(s[1])) {
+	if(len == 2 && (ISALPHA(*s) || isdec(*s)) && ISALPHA(s[1])) {
 		return TRUE;
 	}
 	return FALSE;
 }
 
-U_CFUNC bool _isUnicodeLocaleTypeSubtag(const char * s, int32_t len) {
+U_CFUNC bool _isUnicodeLocaleTypeSubtag(const char * s, int32_t len) 
+{
 	/*
 	 * alphanum{3,8}
 	 */
@@ -589,13 +568,14 @@ static bool _isTKey(const char * s, int32_t len)
 	if(len < 0) {
 		len = (int32_t)strlen(s);
 	}
-	if(len == 2 && ISALPHA(*s) && ISNUMERIC(*(s + 1))) {
+	if(len == 2 && ISALPHA(*s) && isdec(*(s + 1))) {
 		return TRUE;
 	}
 	return FALSE;
 }
 
-U_CAPI const char * U_EXPORT2 ultag_getTKeyStart(const char * localeID) {
+U_CAPI const char * U_EXPORT2 ultag_getTKeyStart(const char * localeID) 
+{
 	const char * result = localeID;
 	const char * sep;
 	while((sep = uprv_strchr(result, SEP)) != nullptr) {

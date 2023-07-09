@@ -13,7 +13,6 @@
 #include <spthread.h>
 #include <spt_extensions.h> /* timeval */
 #endif
-//#include "internal/nelem.h"
 #include "internal/cryptlib.h"
 #include "statem_local.h"
 #include "internal/cryptlib.h"

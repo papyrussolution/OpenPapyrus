@@ -172,8 +172,8 @@ svg_predefined_colors[] =
 
 static int unhex(int chr)
 {
-	const char * hextable = "0123456789abcdef";
-	return strchr(hextable, (chr|32)) - hextable;
+	// @sobolev const char * hextable = "0123456789abcdef";
+	return strchr(SlConst::P_HxDigL, (chr|32)) - SlConst::P_HxDigL;
 }
 
 static int ishex(int chr)

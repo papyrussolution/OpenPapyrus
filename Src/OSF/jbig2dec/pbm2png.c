@@ -18,15 +18,6 @@
  */
 #include "jbig2dec-internal.h"
 #pragma hdrstop
-#ifdef HAVE_CONFIG_H
-	#include "config_types.h"
-#elif _WIN32
-	#include "config_win32.h"
-#endif
-#ifdef HAVE_STDINT_H
-	#include <stdint.h>
-#endif
-
 #if 0 // {
 int main(int argc, char * argv[])
 {
@@ -50,7 +41,6 @@ int main(int argc, char * argv[])
 	if(code) {
 		slfprintf_stderr("error writing png file '%s' error %d\n", argv[2], code);
 	}
-
 	return (code);
 }
 #endif // } 0

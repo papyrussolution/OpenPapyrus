@@ -20,7 +20,7 @@
 #include "common.h"
 #pragma hdrstop
 
-#define SSET    "0123456789ABCDEF"
+// @sobolev #define SSET    "0123456789ABCDEF"
 static const char * PlessTable[16] = {
 	"13131313", "31131313", "13311313", "31311313", "13133113", "31133113",
 	"13313113", "31313113", "13131331", "31131331", "13311331", "31311331", "13133131",
@@ -44,7 +44,7 @@ int plessey(struct ZintSymbol * symbol, const uchar source[], int length)
 		error_number = ZINT_ERROR_TOO_LONG;
 	}
 	else {
-		error_number = is_sane(SSET, source, length);
+		error_number = is_sane(SlConst::P_HxDigU, source, length);
 		if(error_number == ZINT_ERROR_INVALID_DATA) {
 			// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C71)");
 			ZintMakeErrText_InvCharInData("C71", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
@@ -56,8 +56,8 @@ int plessey(struct ZintSymbol * symbol, const uchar source[], int length)
 			sstrcpy(dest, "31311331");
 			// Data area 
 			for(i = 0; i < length; i++) {
-				const uint check = posn(SSET, source[i]);
-				lookup(SSET, PlessTable, source[i], dest);
+				const uint check = posn(SlConst::P_HxDigU, source[i]);
+				lookup(SlConst::P_HxDigU, PlessTable, source[i], dest);
 				checkptr[4 * i] = check & 1;
 				checkptr[4 * i + 1] = (check >> 1) & 1;
 				checkptr[4 * i + 2] = (check >> 2) & 1;

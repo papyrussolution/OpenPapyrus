@@ -10,7 +10,7 @@
 #pragma hdrstop
 #include "ec_local.h"
 
-static const char * HEX_DIGITS = "0123456789ABCDEF";
+// @sobolev static const char * HEX_DIGITS = "0123456789ABCDEF";
 
 /* the return value must be freed (using OPENSSL_free()) */
 char * EC_POINT_point2hex(const EC_GROUP * group, const EC_POINT * point, point_conversion_form_t form, BN_CTX * ctx)
@@ -30,8 +30,8 @@ char * EC_POINT_point2hex(const EC_GROUP * group, const EC_POINT * point, point_
 	pbuf = buf;
 	for(i = buf_len; i > 0; i--) {
 		int v = (int)*(pbuf++);
-		*(p++) = HEX_DIGITS[v >> 4];
-		*(p++) = HEX_DIGITS[v & 0x0F];
+		*(p++) = SlConst::P_HxDigU[v >> 4];
+		*(p++) = SlConst::P_HxDigU[v & 0x0F];
 	}
 	*p = '\0';
 	OPENSSL_free(buf);

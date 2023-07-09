@@ -13,9 +13,6 @@
 #ifndef WEBP_ENC_BACKWARD_REFERENCES_ENC_H_
 #define WEBP_ENC_BACKWARD_REFERENCES_ENC_H_
 
-//#include <assert.h>
-//#include <stdlib.h>
-//#include "src/webp/types.h"
 #include "src/webp/encode.h"
 #include "src/webp/format_constants.h"
 //#ifdef __cplusplus

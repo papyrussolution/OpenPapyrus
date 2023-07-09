@@ -45,34 +45,26 @@ namespace protobuf {
 // string manipulation is all in relation to the protocol buffer and C++
 // languages, we always want to use the C locale.  So, we re-define these
 // exactly as we want them.
-inline bool isxdigit(char c) {
-	return ('0' <= c && c <= '9') ||
-	       ('a' <= c && c <= 'f') ||
-	       ('A' <= c && c <= 'F');
-}
-
-inline bool isprint(char c) {
-	return c >= 0x20 && c <= 0x7E;
-}
+inline bool isxdigit(char c) { return ('0' <= c && c <= '9') || ('a' <= c && c <= 'f') || ('A' <= c && c <= 'F'); }
+inline bool isprint(char c) { return c >= 0x20 && c <= 0x7E; }
 
 // ----------------------------------------------------------------------
 // ReplaceCharacters
 //    Replaces any occurrence of the character 'remove' (or the characters
 //    in 'remove') with the character 'replacewith'.
 // ----------------------------------------------------------------------
-void ReplaceCharacters(std::string * s, const char * remove, char replacewith) {
+void ReplaceCharacters(std::string * s, const char * remove, char replacewith) 
+{
 	const char * str_start = s->c_str();
 	const char * str = str_start;
-	for(str = strpbrk(str, remove);
-	    str != nullptr;
-	    str = strpbrk(str + 1, remove)) {
+	for(str = strpbrk(str, remove); str != nullptr; str = strpbrk(str + 1, remove)) {
 		(*s)[str - str_start] = replacewith;
 	}
 }
 
-void StripWhitespace(std::string * str) {
+void StripWhitespace(std::string * str) 
+{
 	int str_length = str->length();
-
 	// Strip off leading whitespace.
 	int first = 0;
 	while(first < str_length && ascii_isspace(str->at(first))) {
@@ -874,7 +866,8 @@ char * FastHexToBuffer(int i, char* buffer)
 	return p + 1;
 }
 
-char * InternalFastHexToBuffer(uint64 value, char* buffer, int num_byte) {
+char * InternalFastHexToBuffer(uint64 value, char* buffer, int num_byte) 
+{
 	static const char * hexdigits = "0123456789abcdef";
 	buffer[num_byte] = '\0';
 	for(int i = num_byte - 1; i >= 0; i--) {

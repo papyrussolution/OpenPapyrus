@@ -20,7 +20,7 @@
 #include "common.h"
 #pragma hdrstop
 
-#define SSET    "0123456789ABCDEF"
+// @sobolev #define SSET    "0123456789ABCDEF"
 //
 // PCX header structure 
 //

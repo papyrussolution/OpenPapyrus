@@ -546,7 +546,7 @@ creat2:
 	F_SET(dbp, DB_AM_CREATED);
 	if(0) {
 errmsg:         
-		__db_err(env, ret, "%s", name);
+		__db_err_simple_text(env, ret, name);
 
 err:            
 		CLOSE_HANDLE(dbp, fhp);
@@ -590,7 +590,7 @@ static int __fop_set_pgsize(DB * dbp, DB_FH * fhp, const char * name)
 	 */
 	int    ret = __os_ioinfo(env, name, fhp, NULL, NULL, &iopsize);
 	if(ret) {
-		__db_err(env, ret, "%s", name);
+		__db_err_simple_text(env, ret, name);
 	}
 	else {
 		SETMAX(iopsize, 512);
@@ -884,7 +884,7 @@ int __fop_read_meta(ENV * env, const char * name, uint8 * buf, size_t size, DB_F
 	ASSIGN_PTR(nbytesp, nr);
 	if(ret) {
 		if(!errok)
-			__db_err(env, ret, "%s", name);
+			__db_err_simple_text(env, ret, name);
 		goto err;
 	}
 	if(nr != size) {

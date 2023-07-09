@@ -277,7 +277,7 @@ static int __lock_print_all(ENV * env, uint32 flags)
 	LOCK_REGION_LOCK(env);
 	__db_print_reginfo(env, &lt->reginfo, "Lock", flags);
 	if(LF_ISSET(DB_STAT_ALL|DB_STAT_LOCK_PARAMS)) {
-		__db_msg(env, "%s", DB_GLOBAL(db_line));
+		__db_msg_db_line(env);
 		__db_msg(env, "Lock region parameters:");
 		__mutex_print_debug_single(env, "Lock region region mutex", lrp->mtx_region, flags);
 		STAT_ULONG("locker table size", lrp->locker_t_size);
@@ -297,7 +297,7 @@ static int __lock_print_all(ENV * env, uint32 flags)
 		}
 	}
 	if(LF_ISSET(DB_STAT_ALL|DB_STAT_LOCK_CONF)) {
-		__db_msg(env, "%s", DB_GLOBAL(db_line));
+		__db_msg_db_line(env);
 		__db_msg(env, "Lock conflict matrix:");
 		for(i = 0; i < lrp->stat.st_nmodes; i++) {
 			for(j = 0; j < lrp->stat.st_nmodes; j++)
@@ -307,7 +307,7 @@ static int __lock_print_all(ENV * env, uint32 flags)
 	}
 	LOCK_REGION_UNLOCK(env);
 	if(LF_ISSET(DB_STAT_ALL|DB_STAT_LOCK_LOCKERS)) {
-		__db_msg(env, "%s", DB_GLOBAL(db_line));
+		__db_msg_db_line(env);
 		__db_msg(env, "Locks grouped by lockers:");
 		__lock_print_header(env);
 		LOCK_LOCKERS(env, lrp);
@@ -317,7 +317,7 @@ static int __lock_print_all(ENV * env, uint32 flags)
 		UNLOCK_LOCKERS(env, lrp);
 	}
 	if(LF_ISSET(DB_STAT_ALL|DB_STAT_LOCK_OBJECTS)) {
-		__db_msg(env, "%s", DB_GLOBAL(db_line));
+		__db_msg_db_line(env);
 		__db_msg(env, "Locks grouped by object:");
 		__lock_print_header(env);
 		for(k = 0; k < lrp->object_t_size; k++) {

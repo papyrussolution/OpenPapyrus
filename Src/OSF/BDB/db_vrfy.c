@@ -314,7 +314,7 @@ done: err :
 		ret = DB_VERIFY_BAD;
 	/* Make sure there's a public complaint if we found corruption. */
 	if(ret)
-		__db_err(env, ret, "%s", name);
+		__db_err_simple_text(env, ret, name);
 	return ret;
 }
 /*

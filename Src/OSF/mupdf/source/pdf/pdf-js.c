@@ -399,11 +399,10 @@ static void console_println(js_State * J)
 
 static void util_printf_d(fz_context * ctx, fz_buffer * out, int ds, int sign, int pad, uint w, int base, int value)
 {
-	static const char * digits = "0123456789abcdef";
+	// @sobolev static const char * digits = "0123456789abcdef";
 	char buf[50];
 	uint a, i;
 	int m = 0;
-
 	if(value < 0) {
 		sign = '-';
 		a = -value;
@@ -414,7 +413,7 @@ static void util_printf_d(fz_context * ctx, fz_buffer * out, int ds, int sign, i
 
 	i = 0;
 	do {
-		buf[i++] = digits[a % base];
+		buf[i++] = SlConst::P_HxDigL[a % base];
 		a /= base;
 		if(a > 0 && ++m == 3) {
 			if(ds == 0) buf[i++] = ',';

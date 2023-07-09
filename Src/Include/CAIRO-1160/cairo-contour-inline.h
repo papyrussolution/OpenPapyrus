@@ -27,8 +27,6 @@
 #ifndef CAIRO_CONTOUR_INLINE_H
 #define CAIRO_CONTOUR_INLINE_H
 
-//#include "cairo-contour-private.h"
-
 CAIRO_BEGIN_DECLS
 
 static inline cairo_int_status_t _cairo_contour_add_point(cairo_contour_t * contour, const cairo_point_t * point)

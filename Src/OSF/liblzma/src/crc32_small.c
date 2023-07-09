@@ -5,7 +5,6 @@
 //
 #include "common.h"
 #pragma hdrstop
-//#include "check-internal.h"
 
 #if 0 // @sobolev {
 
