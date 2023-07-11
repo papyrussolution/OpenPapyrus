@@ -3,7 +3,11 @@
 //
 #ifndef __SLIB_INTERNAL_H
 #define __SLIB_INTERNAL_H
+	#define IN_LIBXML
+	#define LIBXML_STATIC
+	#define ZLIB_INTERNAL
 	#include <slib.h>
+	#include <..\slib\libxml\libxml.h> // @v11.7.9
 	#include <tv.h>
 	#include <snet.h> // @v11.7.0
 	#include <uri.h>  // @v11.7.0

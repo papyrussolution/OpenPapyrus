@@ -711,14 +711,15 @@ int PPObjTSession::EditRights(uint bufSize, ObjRights * pRt, EmbedDialog * pDlg)
 	return EditSpcRightFlags(DLG_RTTSES, 0, 0, bufSize, pRt, pDlg);
 }
 
-int PPObjTSession::CheckForFilt(const TSessionFilt * pFilt, PPID id, const TSessionTbl::Rec * pRec)
+int PPObjTSession::CheckForFilt(const TSessionFilt * pFilt, PPID id, const TSessionTbl::Rec * pRec, long flags/*= 0*/)
 {
 	TSessionTbl::Rec rec;
-	if(pRec == 0)
+	if(pRec == 0) {
 		if(Search(id, &rec) > 0)
 			pRec = &rec;
 		else
 			return 0;
+	}
 	if(!pFilt)
 		return 1;
 	if(pFilt->SuperSessID) {
@@ -756,18 +757,69 @@ int PPObjTSession::CheckForFilt(const TSessionFilt * pFilt, PPID id, const TSess
 				return 0;
 		}
 		if(!CheckFiltID(pFilt->PrcID, pRec->PrcID)) {
-			PPIDArray parent_list;
-			PrcObj.GetParentsList(pRec->PrcID, &parent_list);
-			if(!parent_list.lsearch(pFilt->PrcID))
-				return 0;
+			if(!(flags & cfffDraft)) { // @v11.7.9
+				PPIDArray parent_list;
+				PrcObj.GetParentsList(pRec->PrcID, &parent_list);
+				if(!parent_list.lsearch(pFilt->PrcID))
+					return 0;
+			}
 		}
 		if(!CheckFiltID(pFilt->TechID, pRec->TechID)) {
-			int cr = TecObj.IsChildOf(pRec->TechID, pFilt->TechID);
-			if(cr <= 0)
-				return 0;
+			if(!(flags & cfffDraft)) { // @v11.7.9
+				int cr = TecObj.IsChildOf(pRec->TechID, pFilt->TechID);
+				if(cr <= 0)
+					return 0;
+			}
 		}
 	}
 	return 1;
+}
+
+int PPObjTSession::GetListByGoodsInLines(const PPIDArray & rGoodsIdList, const PPIDArray * pDraftTSessIdList, PPIDArray & rList)
+{
+	rList.Z();
+	int    ok = -1;
+	if(rGoodsIdList.getCount()) {
+		TSessLineCore & r_t = P_Tbl->Lines;
+		const bool is_goods_list_sorted = rGoodsIdList.isSorted();
+		if(pDraftTSessIdList) {
+			if(pDraftTSessIdList->getCount()) {
+				assert(pDraftTSessIdList->isSorted());
+				PPID low_id = pDraftTSessIdList->get(0);
+				PPID upp_id = pDraftTSessIdList->get(pDraftTSessIdList->getCount()-1);
+				TSessLineTbl::Key1 k1;
+				MEMSZERO(k1);
+				k1.TSessID = low_id;
+				BExtQuery q(&r_t, 1);
+				q.selectAll().where(r_t.TSessID >= low_id && r_t.TSessID <= upp_id);
+				for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
+					if(pDraftTSessIdList->bsearch(r_t.data.TSessID)) {
+						const PPID goods_id = r_t.data.GoodsID;
+						if(is_goods_list_sorted ? rGoodsIdList.bsearch(goods_id) : rGoodsIdList.lsearch(goods_id)) {
+							rList.add(r_t.data.TSessID);
+						}
+					}
+				}
+			}
+			else {
+				; // @nothing-to-do
+			}
+		}
+		else {
+			for(uint i = 0; i < rGoodsIdList.getCount(); i++) {
+				const PPID goods_id = rGoodsIdList.get(i);
+				TSessLineTbl::Key2 k2;
+				MEMSZERO(k2);
+				k2.GoodsID = goods_id;
+				if(r_t.search(2, &k2, spGe) && r_t.data.GoodsID == goods_id) {
+					rList.add(r_t.data.TSessID);
+				}
+			}
+		}
+	}
+	rList.sortAndUndup();
+	ok = rList.getCount() ? 1 : -1;
+	return ok;
 }
 
 int PPObjTSession::GetTech(PPID tecID, TechTbl::Rec * pRec, int useCache)

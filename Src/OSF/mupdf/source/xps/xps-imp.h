@@ -19,26 +19,23 @@ char *xps_parse_point(fz_context *ctx, xps_document *doc, char *s_in, float *x, 
 
 typedef struct xps_part_s xps_part;
 
-struct xps_part_s
-{
-	char *name;
+struct xps_part_s {
+	char * name;
 	fz_buffer *data;
 };
 
-int xps_has_part(fz_context *ctx, xps_document *doc, char *partname);
-
+int xps_has_part(fz_context *ctx, xps_document *doc, const char *partname);
 /*
 	Read and interleave split parts from a ZIP file.
 */
-xps_part *xps_read_part(fz_context *ctx, xps_document *doc, char *partname);
+xps_part * xps_read_part(fz_context *ctx, xps_document *doc, const char * partname);
 void xps_drop_part(fz_context *ctx, xps_document *doc, xps_part *part);
 
 typedef struct xps_fixdoc_s xps_fixdoc;
 typedef struct xps_fixpage_s xps_fixpage;
 typedef struct xps_target_s xps_target;
 
-struct xps_fixdoc_s
-{
+struct xps_fixdoc_s {
 	char *name;
 	char *outline;
 	xps_fixdoc *next;

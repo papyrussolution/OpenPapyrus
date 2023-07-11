@@ -2601,13 +2601,14 @@ static inline void fz_paint_glyph_mask(int span, uchar * dp, int da, const fz_gl
 		uchar * ddp = dp;
 		int offset = ((const int*)(glyph->data))[skip_y++];
 		if(offset >= 0) {
+			int v = 0;
 			int eol = 0;
 			runp = &glyph->data[offset];
 			extend = 0;
 			ww = w;
 			skip_xx = skip_x;
 			while(skip_xx) {
-				int v = *runp++;
+				v = *runp++;
 				switch(v & 3) {
 					case 0: /* Extend */
 					    extend = v>>2;
@@ -2649,7 +2650,7 @@ static inline void fz_paint_glyph_mask(int span, uchar * dp, int da, const fz_gl
 				skip_xx -= len;
 			}
 			while(ww > 0) {
-				int v = *runp++;
+				v = *runp++;
 				switch(v & 3) {
 					case 0: /* Extend */
 					    extend = v>>2;

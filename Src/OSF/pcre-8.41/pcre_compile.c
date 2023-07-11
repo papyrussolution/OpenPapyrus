@@ -499,7 +499,7 @@ static const char error_texts[] =
    is much faster, and the resulting code is simpler (the compiler turns it
    into a subtraction and unsigned comparison). */
 
-#define IS_DIGIT(x) ((x) >= CHAR_0 && (x) <= CHAR_9)
+// @v11.7.9 (replaced with isdec()) #define IS_DIGIT_Removed(x) ((x) >= CHAR_0 && (x) <= CHAR_9)
 
 #ifndef EBCDIC
 // This is the "normal" case, for ASCII systems, and EBCDIC systems running in UTF-8 mode. 
@@ -859,11 +859,11 @@ static int expand_workspace(compile_data * cd)
  */
 static BOOL FASTCALL is_counted_repeat(const pcre_uchar * p)
 {
-	if(!IS_DIGIT(*p)) 
+	if(!isdec(*p)) 
 		return FALSE;
 	else {
 		p++;
-		while(IS_DIGIT(*p)) 
+		while(isdec(*p)) 
 			p++;
 		if(*p == CHAR_RIGHT_CURLY_BRACKET) 
 			return TRUE;
@@ -871,11 +871,11 @@ static BOOL FASTCALL is_counted_repeat(const pcre_uchar * p)
 			return FALSE;
 		else if(*p == CHAR_RIGHT_CURLY_BRACKET) 
 			return TRUE;
-		else if(!IS_DIGIT(*p)) 
+		else if(!isdec(*p)) 
 			return FALSE;
 		else {
 			p++;
-			while(IS_DIGIT(*p)) 
+			while(isdec(*p)) 
 				p++;
 			return (*p == CHAR_RIGHT_CURLY_BRACKET);
 		}
@@ -1023,7 +1023,7 @@ static int check_escape(const pcre_uchar ** ptrptr, uint32 * chptr, int * errorc
 			    if(ptr[1] == CHAR_LEFT_CURLY_BRACKET) {
 				    const pcre_uchar * p;
 				    for(p = ptr+2; *p != CHAR_NULL && *p != CHAR_RIGHT_CURLY_BRACKET; p++)
-					    if(*p != CHAR_MINUS && !IS_DIGIT(*p)) 
+					    if(*p != CHAR_MINUS && !isdec(*p)) 
 							break;
 				    if(*p != CHAR_NULL && *p != CHAR_RIGHT_CURLY_BRACKET) {
 					    escape = ESC_k;
@@ -1043,7 +1043,7 @@ static int check_escape(const pcre_uchar ** ptrptr, uint32 * chptr, int * errorc
 			    // The integer range is limited by the machine's int representation. 
 			    s = 0;
 			    overflow = FALSE;
-			    while(IS_DIGIT(ptr[1])) {
+			    while(isdec(ptr[1])) {
 				    if(s > INT_MAX / 10 - 1) { /* Integer overflow */
 					    overflow = TRUE;
 					    break;
@@ -1051,7 +1051,7 @@ static int check_escape(const pcre_uchar ** ptrptr, uint32 * chptr, int * errorc
 				    s = s * 10 + (int)(*(++ptr) - CHAR_0);
 			    }
 			    if(overflow) { /* Integer overflow */
-				    while(IS_DIGIT(ptr[1]))
+				    while(isdec(ptr[1]))
 					    ptr++;
 				    *errorcodeptr = ERR61;
 				    break;
@@ -1095,7 +1095,7 @@ static int check_escape(const pcre_uchar ** ptrptr, uint32 * chptr, int * errorc
 					// The integer range is limited by the machine's int representation. 
 				    s = (int)(c -CHAR_0);
 				    overflow = FALSE;
-				    while(IS_DIGIT(ptr[1])) {
+				    while(isdec(ptr[1])) {
 					    if(s > INT_MAX / 10 - 1) { /* Integer overflow */
 						    overflow = TRUE;
 						    break;
@@ -1103,7 +1103,7 @@ static int check_escape(const pcre_uchar ** ptrptr, uint32 * chptr, int * errorc
 					    s = s * 10 + (int)(*(++ptr) - CHAR_0);
 				    }
 				    if(overflow) { /* Integer overflow */
-					    while(IS_DIGIT(ptr[1]))
+					    while(isdec(ptr[1]))
 						    ptr++;
 					    *errorcodeptr = ERR61;
 					    break;
@@ -1453,7 +1453,7 @@ static const pcre_uchar * read_repeat_counts(const pcre_uchar * p, int * minp, i
 {
 	int min = 0;
 	int max = -1;
-	while(IS_DIGIT(*p)) {
+	while(isdec(*p)) {
 		min = min * 10 + (int)(*p++ - CHAR_0);
 		if(min > 65535) {
 			*errorcodeptr = ERR5;
@@ -1465,7 +1465,7 @@ static const pcre_uchar * read_repeat_counts(const pcre_uchar * p, int * minp, i
 	else {
 		if(*(++p) != CHAR_RIGHT_CURLY_BRACKET) {
 			max = 0;
-			while(IS_DIGIT(*p)) {
+			while(isdec(*p)) {
 				max = max * 10 + (int)(*p++ - CHAR_0);
 				if(max > 65535) {
 					*errorcodeptr = ERR5;
@@ -5578,7 +5578,7 @@ END_REPEAT:
 						// used to check for an assertion condition. That's all that is needed!
 						if(ptr[1] == CHAR_QUESTION_MARK && ptr[2] == CHAR_C) {
 							for(i = 3;; i++) 
-								if(!IS_DIGIT(ptr[i])) 
+								if(!isdec(ptr[i])) 
 									break;
 							if(ptr[i] == CHAR_RIGHT_PARENTHESIS)
 								tempptr += i + 1;
@@ -5626,14 +5626,14 @@ END_REPEAT:
 							terminator = CHAR_NULL;
 							if(*ptr == CHAR_MINUS || *ptr == CHAR_PLUS) 
 								refsign = *ptr++;
-							else if(IS_DIGIT(*ptr)) 
+							else if(isdec(*ptr)) 
 								refsign = 0;
 						}
 						/* Handle a number */
 						if(refsign >= 0) {
-							while(IS_DIGIT(*ptr)) {
+							while(isdec(*ptr)) {
 								if(recno > INT_MAX / 10 - 1) { /* Integer overflow */
-									while(IS_DIGIT(*ptr)) 
+									while(isdec(*ptr)) 
 										ptr++;
 									*errorcodeptr = ERR61;
 									goto FAILED;
@@ -5647,7 +5647,7 @@ END_REPEAT:
 						// it needs more memory. Unfortunately we cannot tell whether a name is a
 						// duplicate in the first pass, so we have to allow for more memory.
 						else {
-							if(IS_DIGIT(*ptr)) {
+							if(isdec(*ptr)) {
 								*errorcodeptr = ERR84;
 								goto FAILED;
 							}
@@ -5735,7 +5735,7 @@ END_REPEAT:
 						else if(*name == CHAR_R) {
 							recno = 0;
 							for(i = 1; i < namelen; i++) {
-								if(!IS_DIGIT(name[i])) {
+								if(!isdec(name[i])) {
 									*errorcodeptr = ERR15;
 									goto FAILED;
 								}
@@ -5819,7 +5819,7 @@ END_REPEAT:
 						{
 							int n = 0;
 							ptr++;
-							while(IS_DIGIT(*ptr))
+							while(isdec(*ptr))
 								n = n * 10 + *ptr++ - CHAR_0;
 							if(*ptr != CHAR_RIGHT_PARENTHESIS) {
 								*errorcodeptr = ERR39;
@@ -5857,7 +5857,7 @@ DEFINE_NAME:            /* Come here from (?< handling */
 						terminator = (*ptr == CHAR_LESS_THAN_SIGN) ?
 					    CHAR_GREATER_THAN_SIGN : CHAR_APOSTROPHE;
 						name = ++ptr;
-						if(IS_DIGIT(*ptr)) {
+						if(isdec(*ptr)) {
 							*errorcodeptr = ERR84; // Group name must start with non-digit
 							goto FAILED;
 						} 
@@ -5956,7 +5956,7 @@ DEFINE_NAME:            /* Come here from (?< handling */
 
 NAMED_REF_OR_RECURSE:
 						name = ++ptr;
-						if(IS_DIGIT(*ptr)) {
+						if(isdec(*ptr)) {
 							*errorcodeptr = ERR84; // Group name must start with non-digit
 							goto FAILED;
 						}
@@ -6131,20 +6131,20 @@ NAMED_REF_OR_RECURSE:
 HANDLE_NUMERICAL_RECURSION:
 							if((refsign = *ptr) == CHAR_PLUS) {
 								ptr++;
-								if(!IS_DIGIT(*ptr)) {
+								if(!isdec(*ptr)) {
 									*errorcodeptr = ERR63;
 									goto FAILED;
 								}
 							}
 							else if(refsign == CHAR_MINUS) {
-								if(!IS_DIGIT(ptr[1]))
+								if(!isdec(ptr[1]))
 									goto OTHER_CHAR_AFTER_QUERY;
 								ptr++;
 							}
 							recno = 0;
-							while(IS_DIGIT(*ptr)) {
+							while(isdec(*ptr)) {
 								if(recno > INT_MAX / 10 - 1) { /* Integer overflow */
-									while(IS_DIGIT(*ptr)) ptr++;
+									while(isdec(*ptr)) ptr++;
 									*errorcodeptr = ERR61;
 									goto FAILED;
 								}
@@ -6522,13 +6522,13 @@ NUMBERED_GROUP:
 					    reset_bracount = FALSE;
 						/* If it's not a signed or unsigned number, treat it as a name. */
 					    cf = ptr[1];
-					    if(cf != CHAR_PLUS && cf != CHAR_MINUS && !IS_DIGIT(cf)) {
+					    if(cf != CHAR_PLUS && cf != CHAR_MINUS && !isdec(cf)) {
 						    is_recurse = TRUE;
 						    goto NAMED_REF_OR_RECURSE;
 					    }
 						// Signed or unsigned number (cf = ptr[1]) is known to be plus or minus or a digit.
 					    p = ptr + 2;
-					    while(IS_DIGIT(*p)) p++;
+					    while(isdec(*p)) p++;
 					    if(*p != (pcre_uchar)terminator) {
 						    *errorcodeptr = ERR57;
 						    goto FAILED;

@@ -132,7 +132,7 @@ char * pdf_field_name(fz_context * ctx, pdf_obj * field);
 const char * pdf_field_value(fz_context * ctx, pdf_obj * field);
 void pdf_create_field_name(fz_context * ctx, pdf_document * doc, const char * prefix, char * buf, size_t len);
 
-char * pdf_field_border_style(fz_context * ctx, pdf_obj * field);
+const char * pdf_field_border_style(fz_context * ctx, pdf_obj * field);
 void pdf_field_set_border_style(fz_context * ctx, pdf_obj * field, const char * text);
 void pdf_field_set_button_caption(fz_context * ctx, pdf_obj * field, const char * text);
 void pdf_field_set_fill_color(fz_context * ctx, pdf_obj * field, pdf_obj * col);
@@ -218,15 +218,10 @@ struct pdf_pkcs7_verifier {
 
 int pdf_signature_is_signed(fz_context * ctx, pdf_document * doc, pdf_obj * field);
 void pdf_signature_set_value(fz_context * ctx, pdf_document * doc, pdf_obj * field, pdf_pkcs7_signer * signer, int64_t stime);
-
 int pdf_count_signatures(fz_context * ctx, pdf_document * doc);
+const char * pdf_signature_error_description(pdf_signature_error err);
 
-char * pdf_signature_error_description(pdf_signature_error err);
-
-pdf_pkcs7_designated_name * pdf_signature_get_signatory(fz_context * ctx,
-    pdf_pkcs7_verifier * verifier,
-    pdf_document * doc,
-    pdf_obj * signature);
+pdf_pkcs7_designated_name * pdf_signature_get_signatory(fz_context * ctx, pdf_pkcs7_verifier * verifier, pdf_document * doc, pdf_obj * signature);
 void pdf_signature_drop_designated_name(fz_context * ctx, pdf_pkcs7_designated_name * name);
 char * pdf_signature_format_designated_name(fz_context * ctx, pdf_pkcs7_designated_name * name);
 

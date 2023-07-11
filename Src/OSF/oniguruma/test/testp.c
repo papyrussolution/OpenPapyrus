@@ -9,7 +9,7 @@
 
 static OnigTestBlock OnigTB;
 
-static void xx(char * pattern, char * str, int from, int to, int mem, int not)
+static void xx(const char * pattern, const char * str, int from, int to, int mem, int _not)
 {
 	regex_t reg;
 	char buf[200];
@@ -27,13 +27,13 @@ static void xx(char * pattern, char * str, int from, int to, int mem, int not)
 		return;
 	}
 	if(r == REG_NOMATCH) {
-		if(not)
+		if(_not)
 			OnigTB.OutputOkN(pattern, str);
 		else
 			OnigTB.OutputFail(pattern, str);
 	}
 	else {
-		if(not)
+		if(_not)
 			OnigTB.OutputFailN(pattern, str);
 		else if(pmatch[mem].rm_so == from && pmatch[mem].rm_eo == to)
 			OnigTB.OutputOk(pattern, str);
@@ -45,9 +45,9 @@ static void xx(char * pattern, char * str, int from, int to, int mem, int not)
 	regfree(&reg);
 }
 
-static void x2(char * pattern, char * str, int from, int to) { xx(pattern, str, from, to, 0, 0); }
-static void x3(char * pattern, char * str, int from, int to, int mem) { xx(pattern, str, from, to, mem, 0); }
-static void n(char * pattern, char * str) { xx(pattern, str, 0, 0, 0, 1); }
+static void x2(const char * pattern, const char * str, int from, int to) { xx(pattern, str, from, to, 0, 0); }
+static void x3(const char * pattern, const char * str, int from, int to, int mem) { xx(pattern, str, from, to, mem, 0); }
+static void n(const char * pattern, const char * str) { xx(pattern, str, 0, 0, 0, 1); }
 
 extern int OnigTestP_main(FILE * fOut)
 {

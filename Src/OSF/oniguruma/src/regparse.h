@@ -185,9 +185,8 @@ typedef struct {
 	NodeType node_type;
 	int status;
 	struct _Node* parent;
-
 	int ctype;
-	int not;
+	int Not; // @sobolev not-->Not
 	int ascii_mode;
 } CtypeNode;
 

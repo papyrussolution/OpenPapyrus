@@ -262,24 +262,19 @@ static void xps_parse_metadata(fz_context * ctx, xps_document * doc, xps_part * 
 	fz_rethrow(ctx);
 }
 
-static void xps_read_and_process_metadata_part(fz_context * ctx, xps_document * doc, char * name, xps_fixdoc * fixdoc)
+static void xps_read_and_process_metadata_part(fz_context * ctx, xps_document * doc, const char * name, xps_fixdoc * fixdoc)
 {
 	xps_part * part;
-
 	if(!xps_has_part(ctx, doc, name))
 		return;
-
 	part = xps_read_part(ctx, doc, name);
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		xps_parse_metadata(ctx, doc, part, fixdoc);
 	}
-	fz_always(ctx)
-	{
+	fz_always(ctx) {
 		xps_drop_part(ctx, doc, part);
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_rethrow(ctx);
 	}
 }
@@ -287,23 +282,17 @@ static void xps_read_and_process_metadata_part(fz_context * ctx, xps_document * 
 void xps_read_page_list(fz_context * ctx, xps_document * doc)
 {
 	xps_fixdoc * fixdoc;
-
 	xps_read_and_process_metadata_part(ctx, doc, "/_rels/.rels", NULL);
-
 	if(!doc->start_part)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "cannot find fixed document sequence start part");
-
 	xps_read_and_process_metadata_part(ctx, doc, doc->start_part, NULL);
-
 	for(fixdoc = doc->first_fixdoc; fixdoc; fixdoc = fixdoc->next) {
 		char relbuf[1024];
-		fz_try(ctx)
-		{
+		fz_try(ctx) {
 			xps_rels_for_part(ctx, doc, relbuf, fixdoc->name, sizeof relbuf);
 			xps_read_and_process_metadata_part(ctx, doc, relbuf, fixdoc);
 		}
-		fz_catch(ctx)
-		{
+		fz_catch(ctx) {
 			fz_rethrow_if(ctx, FZ_ERROR_TRYLATER);
 			fz_warn(ctx, "cannot process FixedDocument rels part");
 		}

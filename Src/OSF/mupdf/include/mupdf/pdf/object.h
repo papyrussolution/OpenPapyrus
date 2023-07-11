@@ -76,7 +76,7 @@ float pdf_to_real(fz_context *ctx, pdf_obj *obj);
 const char *pdf_to_name(fz_context *ctx, pdf_obj *obj);
 const char *pdf_to_text_string(fz_context *ctx, pdf_obj *obj);
 const char *pdf_to_string(fz_context *ctx, pdf_obj *obj, size_t *sizep);
-char *pdf_to_str_buf(fz_context *ctx, pdf_obj *obj);
+const char * pdf_to_str_buf(fz_context *ctx, pdf_obj *obj);
 size_t pdf_to_str_len(fz_context *ctx, pdf_obj *obj);
 int pdf_to_num(fz_context *ctx, pdf_obj *obj);
 int pdf_to_gen(fz_context *ctx, pdf_obj *obj);

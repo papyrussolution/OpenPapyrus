@@ -15,7 +15,7 @@
 
 // Register this check class (by creating a static instance of it)
 namespace {
-CheckAssert instance;
+	CheckAssert instance;
 }
 
 void CheckAssert::assertWithSideEffects()
@@ -38,7 +38,8 @@ void CheckAssert::assertWithSideEffects()
 				continue;
 			}
 			const Scope* scope = f->functionScope;
-			if(!scope) continue;
+			if(!scope) 
+				continue;
 			for(const Token * tok2 = scope->bodyStart; tok2 != scope->bodyEnd; tok2 = tok2->next()) {
 				if(!tok2->isAssignmentOp() && tok2->tokType() != Token::eIncDecOp)
 					continue;
@@ -51,13 +52,15 @@ void CheckAssert::assertWithSideEffects()
 
 				bool noReturnInScope = true;
 				for(const Token * rt = scope->bodyStart; rt != scope->bodyEnd; rt = rt->next()) {
-					if(rt->str() != "return") continue; // find all return statements
+					if(rt->str() != "return") 
+						continue; // find all return statements
 					if(inSameScope(rt, tok2)) {
 						noReturnInScope = false;
 						break;
 					}
 				}
-				if(noReturnInScope) continue;
+				if(noReturnInScope) 
+					continue;
 				sideEffectInAssertError(tmp, f->name());
 				break;
 			}

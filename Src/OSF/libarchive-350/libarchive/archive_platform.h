@@ -183,7 +183,8 @@
 	#define	__LA_FALLTHROUGH_Removed
 #endif*/
 #if HAVE_LIBXML_XMLWRITER_H
-	#include <..\osf\libxml\libxml.h>
+	// @v11.7.9 #include <..\osf\libxml\libxml.h>
+	#include <..\slib\libxml\libxml.h> // @v11.7.9
 	#include <libxml\xmlwriter.h>
 #endif
 #ifdef HAVE_BZLIB_H

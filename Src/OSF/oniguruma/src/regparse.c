@@ -1912,13 +1912,13 @@ static Node* node_new_cclass(void)
 	return node;
 }
 
-static Node* node_new_ctype(int type, int not, OnigOptionType options)
+static Node* node_new_ctype(int type, int _not, OnigOptionType options)
 {
 	Node * node = node_new();
 	CHECK_NULL_RETURN(node);
 	NODE_SET_TYPE(node, NODE_CTYPE);
-	CTYPE_(node)->ctype   = type;
-	CTYPE_(node)->not     = not;
+	CTYPE_(node)->ctype = type;
+	CTYPE_(node)->Not   = _not;
 	CTYPE_(node)->ascii_mode = OPTON_IS_ASCII_MODE_CTYPE(type, options);
 	return node;
 }
@@ -3171,13 +3171,12 @@ static int new_code_range(BBuf** pbuf)
 	return 0;
 }
 
-static int add_code_range_to_buf(BBuf** pbuf, OnigCodePoint from, OnigCodePoint to)
+static int add_code_range_to_buf(BBuf ** pbuf, OnigCodePoint from, OnigCodePoint to)
 {
 	int r, inc_n, pos;
 	int low, high, bound, x;
 	OnigCodePoint n, * data;
 	BBuf* bbuf;
-
 	if(from > to) {
 		n = from; from = to; to = n;
 	}
@@ -3254,26 +3253,24 @@ static int add_code_range(BBuf** pbuf, ScanEnv* env, OnigCodePoint from, OnigCod
 		else
 			return ONIGERR_EMPTY_RANGE_IN_CHAR_CLASS;
 	}
-
 	return add_code_range_to_buf(pbuf, from, to);
 }
 
 static int not_code_range_buf(OnigEncoding enc, BBuf* bbuf, BBuf** pbuf)
 {
 	int r, i, n;
-	OnigCodePoint pre, from, * data, to = 0;
-
+	OnigCodePoint pre, from, to = 0;
+	OnigCodePoint * data;
 	*pbuf = (BBuf*)NULL;
 	if(IS_NULL(bbuf)) {
 set_all:
 		return SET_ALL_MULTI_BYTE_RANGE(enc, pbuf);
 	}
-
 	data = (OnigCodePoint*)(bbuf->p);
 	GET_CODE_POINT(n, data);
 	data++;
-	if(n <= 0) goto set_all;
-
+	if(n <= 0) 
+		goto set_all;
 	r = 0;
 	pre = MBCODE_START_POS(enc);
 	for(i = 0; i < n; i++) {
@@ -3850,7 +3847,7 @@ typedef struct {
 
 		struct {
 			int ctype;
-			int not;
+			int Not;
 		} prop;
 	} u;
 } PToken;
@@ -4487,44 +4484,44 @@ static int fetch_token_cc(PToken* tok, uchar ** src, uchar * end, ScanEnv* env, 
 			case 'w':
 			    tok->type = TK_CHAR_TYPE;
 			    tok->u.prop.ctype = ONIGENC_CTYPE_WORD;
-			    tok->u.prop.not   = 0;
+			    tok->u.prop.Not   = 0;
 			    break;
 			case 'W':
 			    tok->type = TK_CHAR_TYPE;
 			    tok->u.prop.ctype = ONIGENC_CTYPE_WORD;
-			    tok->u.prop.not   = 1;
+			    tok->u.prop.Not   = 1;
 			    break;
 			case 'd':
 			    tok->type = TK_CHAR_TYPE;
 			    tok->u.prop.ctype = ONIGENC_CTYPE_DIGIT;
-			    tok->u.prop.not   = 0;
+			    tok->u.prop.Not   = 0;
 			    break;
 			case 'D':
 			    tok->type = TK_CHAR_TYPE;
 			    tok->u.prop.ctype = ONIGENC_CTYPE_DIGIT;
-			    tok->u.prop.not   = 1;
+			    tok->u.prop.Not   = 1;
 			    break;
 			case 's':
 			    tok->type = TK_CHAR_TYPE;
 			    tok->u.prop.ctype = ONIGENC_CTYPE_SPACE;
-			    tok->u.prop.not   = 0;
+			    tok->u.prop.Not   = 0;
 			    break;
 			case 'S':
 			    tok->type = TK_CHAR_TYPE;
 			    tok->u.prop.ctype = ONIGENC_CTYPE_SPACE;
-			    tok->u.prop.not   = 1;
+			    tok->u.prop.Not   = 1;
 			    break;
 			case 'h':
 			    if(!IS_SYNTAX_OP2(syn, ONIG_SYN_OP2_ESC_H_XDIGIT)) break;
 			    tok->type = TK_CHAR_TYPE;
 			    tok->u.prop.ctype = ONIGENC_CTYPE_XDIGIT;
-			    tok->u.prop.not   = 0;
+			    tok->u.prop.Not   = 0;
 			    break;
 			case 'H':
 			    if(!IS_SYNTAX_OP2(syn, ONIG_SYN_OP2_ESC_H_XDIGIT)) break;
 			    tok->type = TK_CHAR_TYPE;
 			    tok->u.prop.ctype = ONIGENC_CTYPE_XDIGIT;
-			    tok->u.prop.not   = 1;
+			    tok->u.prop.Not   = 1;
 			    break;
 
 			case 'p':
@@ -4536,12 +4533,11 @@ static int fetch_token_cc(PToken* tok, uchar ** src, uchar * end, ScanEnv* env, 
 				IS_SYNTAX_OP2(syn, ONIG_SYN_OP2_ESC_P_BRACE_CHAR_PROPERTY)) {
 				    PINC;
 				    tok->type = TK_CHAR_PROPERTY;
-				    tok->u.prop.not = c == 'P';
-
+				    tok->u.prop.Not = c == 'P';
 				    if(!PEND && IS_SYNTAX_OP2(syn, ONIG_SYN_OP2_ESC_P_BRACE_CIRCUMFLEX_NOT)) {
 					    PFETCH(c2);
 					    if(c2 == '^') {
-						    tok->u.prop.not = tok->u.prop.not == 0;
+						    tok->u.prop.Not = tok->u.prop.Not == 0;
 					    }
 					    else
 						    PUNFETCH;
@@ -4817,14 +4813,14 @@ possessive_check:
 			    if(!IS_SYNTAX_OP(syn, ONIG_SYN_OP_ESC_W_WORD)) break;
 			    tok->type = TK_CHAR_TYPE;
 			    tok->u.prop.ctype = ONIGENC_CTYPE_WORD;
-			    tok->u.prop.not   = 0;
+			    tok->u.prop.Not   = 0;
 			    break;
 
 			case 'W':
 			    if(!IS_SYNTAX_OP(syn, ONIG_SYN_OP_ESC_W_WORD)) break;
 			    tok->type = TK_CHAR_TYPE;
 			    tok->u.prop.ctype = ONIGENC_CTYPE_WORD;
-			    tok->u.prop.not   = 1;
+			    tok->u.prop.Not   = 1;
 			    break;
 
 			case 'b':
@@ -4869,42 +4865,42 @@ possessive_check:
 			    if(!IS_SYNTAX_OP(syn, ONIG_SYN_OP_ESC_S_WHITE_SPACE)) break;
 			    tok->type = TK_CHAR_TYPE;
 			    tok->u.prop.ctype = ONIGENC_CTYPE_SPACE;
-			    tok->u.prop.not   = 0;
+			    tok->u.prop.Not   = 0;
 			    break;
 
 			case 'S':
 			    if(!IS_SYNTAX_OP(syn, ONIG_SYN_OP_ESC_S_WHITE_SPACE)) break;
 			    tok->type = TK_CHAR_TYPE;
 			    tok->u.prop.ctype = ONIGENC_CTYPE_SPACE;
-			    tok->u.prop.not   = 1;
+			    tok->u.prop.Not   = 1;
 			    break;
 
 			case 'd':
 			    if(!IS_SYNTAX_OP(syn, ONIG_SYN_OP_ESC_D_DIGIT)) break;
 			    tok->type = TK_CHAR_TYPE;
 			    tok->u.prop.ctype = ONIGENC_CTYPE_DIGIT;
-			    tok->u.prop.not   = 0;
+			    tok->u.prop.Not   = 0;
 			    break;
 
 			case 'D':
 			    if(!IS_SYNTAX_OP(syn, ONIG_SYN_OP_ESC_D_DIGIT)) break;
 			    tok->type = TK_CHAR_TYPE;
 			    tok->u.prop.ctype = ONIGENC_CTYPE_DIGIT;
-			    tok->u.prop.not   = 1;
+			    tok->u.prop.Not   = 1;
 			    break;
 
 			case 'h':
 			    if(!IS_SYNTAX_OP2(syn, ONIG_SYN_OP2_ESC_H_XDIGIT)) break;
 			    tok->type = TK_CHAR_TYPE;
 			    tok->u.prop.ctype = ONIGENC_CTYPE_XDIGIT;
-			    tok->u.prop.not   = 0;
+			    tok->u.prop.Not   = 0;
 			    break;
 
 			case 'H':
 			    if(!IS_SYNTAX_OP2(syn, ONIG_SYN_OP2_ESC_H_XDIGIT)) break;
 			    tok->type = TK_CHAR_TYPE;
 			    tok->u.prop.ctype = ONIGENC_CTYPE_XDIGIT;
-			    tok->u.prop.not   = 1;
+			    tok->u.prop.Not   = 1;
 			    break;
 
 			case 'K':
@@ -5216,11 +5212,11 @@ skip_backref:
 			    if(!PEND && PPEEK_IS('{') && IS_SYNTAX_OP2(syn, ONIG_SYN_OP2_ESC_P_BRACE_CHAR_PROPERTY)) {
 				    PINC;
 				    tok->type = TK_CHAR_PROPERTY;
-				    tok->u.prop.not = c == 'P';
+				    tok->u.prop.Not = c == 'P';
 				    if(!PEND && IS_SYNTAX_OP2(syn, ONIG_SYN_OP2_ESC_P_BRACE_CIRCUMFLEX_NOT)) {
 					    PFETCH(c);
 					    if(c == '^') {
-						    tok->u.prop.not = tok->u.prop.not == 0;
+						    tok->u.prop.Not = tok->u.prop.Not == 0;
 					    }
 					    else
 						    PUNFETCH;
@@ -5473,23 +5469,18 @@ out:
 	return tok->type;
 }
 
-static int add_ctype_to_cc_by_range(CClassNode* cc, int ctype ARG_UNUSED, int not,
-    OnigEncoding enc ARG_UNUSED, OnigCodePoint sb_out,
-    const OnigCodePoint mbr[])
+static int add_ctype_to_cc_by_range(CClassNode* cc, int ctype ARG_UNUSED, int _not, OnigEncoding enc ARG_UNUSED, OnigCodePoint sb_out, const OnigCodePoint mbr[])
 {
 	int i, r;
 	OnigCodePoint j;
-
 	int n = ONIGENC_CODE_RANGE_NUM(mbr);
-
-	if(not == 0) {
+	if(_not == 0) {
 		for(i = 0; i < n; i++) {
 			for(j  = ONIGENC_CODE_RANGE_FROM(mbr, i);
 			    j <= ONIGENC_CODE_RANGE_TO(mbr, i); j++) {
 				if(j >= sb_out) {
 					if(j > ONIGENC_CODE_RANGE_FROM(mbr, i)) {
-						r = add_code_range_to_buf(&(cc->mbuf), j,
-							ONIGENC_CODE_RANGE_TO(mbr, i));
+						r = add_code_range_to_buf(&(cc->mbuf), j, ONIGENC_CODE_RANGE_TO(mbr, i));
 						if(r) return r;
 						i++;
 					}
@@ -5502,9 +5493,7 @@ static int add_ctype_to_cc_by_range(CClassNode* cc, int ctype ARG_UNUSED, int no
 
 sb_end:
 		for(; i < n; i++) {
-			r = add_code_range_to_buf(&(cc->mbuf),
-				ONIGENC_CODE_RANGE_FROM(mbr, i),
-				ONIGENC_CODE_RANGE_TO(mbr, i));
+			r = add_code_range_to_buf(&(cc->mbuf), ONIGENC_CODE_RANGE_FROM(mbr, i), ONIGENC_CODE_RANGE_TO(mbr, i));
 			if(r) return r;
 		}
 	}
@@ -5545,17 +5534,15 @@ end:
 	return 0;
 }
 
-static int add_ctype_to_cc_by_range_limit(CClassNode* cc, int ctype ARG_UNUSED, int not, OnigEncoding enc ARG_UNUSED,
+static int add_ctype_to_cc_by_range_limit(CClassNode* cc, int ctype ARG_UNUSED, int _not, OnigEncoding enc ARG_UNUSED,
     OnigCodePoint sb_out, const OnigCodePoint mbr[], OnigCodePoint limit)
 {
 	int i, r;
 	OnigCodePoint j;
 	OnigCodePoint from;
 	OnigCodePoint to;
-
 	int n = ONIGENC_CODE_RANGE_NUM(mbr);
-
-	if(not == 0) {
+	if(_not == 0) {
 		for(i = 0; i < n; i++) {
 			for(j  = ONIGENC_CODE_RANGE_FROM(mbr, i);
 			    j <= ONIGENC_CODE_RANGE_TO(mbr, i); j++) {
@@ -5635,7 +5622,7 @@ end:
 	return 0;
 }
 
-static int add_ctype_to_cc(CClassNode* cc, int ctype, int not, ScanEnv* env)
+static int add_ctype_to_cc(CClassNode* cc, int ctype, int _not, ScanEnv* env)
 {
 	int c;
 	int is_single;
@@ -5647,9 +5634,9 @@ static int add_ctype_to_cc(CClassNode* cc, int ctype, int not, ScanEnv* env)
 	int r = ONIGENC_GET_CTYPE_CODE_RANGE(enc, ctype, &sb_out, &ranges);
 	if(!r) {
 		if(ascii_mode == 0)
-			r = add_ctype_to_cc_by_range(cc, ctype, not, env->enc, sb_out, ranges);
+			r = add_ctype_to_cc_by_range(cc, ctype, _not, env->enc, sb_out, ranges);
 		else
-			r = add_ctype_to_cc_by_range_limit(cc, ctype, not, env->enc, sb_out, ranges, ASCII_LIMIT);
+			r = add_ctype_to_cc_by_range_limit(cc, ctype, _not, env->enc, sb_out, ranges, ASCII_LIMIT);
 		return r;
 	}
 	else if(r != ONIG_NO_SUPPORT_CONFIG) {
@@ -5670,7 +5657,7 @@ static int add_ctype_to_cc(CClassNode* cc, int ctype, int not, ScanEnv* env)
 		case ONIGENC_CTYPE_XDIGIT:
 		case ONIGENC_CTYPE_ASCII:
 		case ONIGENC_CTYPE_ALNUM:
-		    if(not != 0) {
+		    if(_not != 0) {
 			    for(c = 0; c < (int)limit; c++) {
 				    if(is_single != 0 || ONIGENC_CODE_TO_MBCLEN(enc, c) == 1) {
 					    if(!ONIGENC_IS_CODE_CTYPE(enc, (OnigCodePoint)c, ctype))
@@ -5698,7 +5685,7 @@ static int add_ctype_to_cc(CClassNode* cc, int ctype, int not, ScanEnv* env)
 		case ONIGENC_CTYPE_GRAPH:
 		case ONIGENC_CTYPE_PRINT:
 		case ONIGENC_CTYPE_WORD:
-		    if(not != 0) {
+		    if(_not != 0) {
 			    for(c = 0; c < (int)limit; c++) {
 				    /* check invalid code point */
 				    if((is_single != 0 || ONIGENC_CODE_TO_MBCLEN(enc, c) == 1)
@@ -5755,18 +5742,16 @@ static int prs_posix_bracket(CClassNode* cc, uchar ** src, uchar * end, ScanEnv*
 	};
 
 	PosixBracketEntryType * pb;
-	int not, i, r;
+	int _not, i, r;
 	OnigCodePoint c;
 	OnigEncoding enc = env->enc;
 	uchar * p = *src;
-
 	if(PPEEK_IS('^')) {
 		PINC_S;
-		not = 1;
+		_not = 1;
 	}
 	else
-		not = 0;
-
+		_not = 0;
 	if(onigenc_strlen(enc, p, end) < POSIX_BRACKET_NAME_MIN_LEN + 3)
 		goto not_posix_bracket;
 
@@ -5776,15 +5761,15 @@ static int prs_posix_bracket(CClassNode* cc, uchar ** src, uchar * end, ScanEnv*
 			if(onigenc_with_ascii_strncmp(enc, p, end, (uchar *)":]", 2) != 0)
 				return ONIGERR_INVALID_POSIX_BRACKET_TYPE;
 
-			r = add_ctype_to_cc(cc, pb->ctype, not, env);
-			if(r) return r;
-
-			PINC_S; PINC_S;
+			r = add_ctype_to_cc(cc, pb->ctype, _not, env);
+			if(r) 
+				return r;
+			PINC_S; 
+			PINC_S;
 			*src = p;
 			return 0;
 		}
 	}
-
 not_posix_bracket:
 	c = 0;
 	i = 0;
@@ -5800,7 +5785,6 @@ not_posix_bracket:
 				return ONIGERR_INVALID_POSIX_BRACKET_TYPE;
 		}
 	}
-
 	return 1; /* 1: is not POSIX bracket, but no error. */
 }
 
@@ -5810,12 +5794,10 @@ static int fetch_char_property_to_ctype(uchar ** src, uchar * end, ScanEnv* env)
 	OnigCodePoint c;
 	OnigEncoding enc;
 	uchar * prev, * start, * p;
-
 	p = *src;
 	enc = env->enc;
 	r = ONIGERR_END_PATTERN_WITH_UNMATCHED_PARENTHESIS;
 	start = prev = p;
-
 	while(!PEND) {
 		prev = p;
 		PFETCH_S(c);
@@ -5840,19 +5822,19 @@ static int fetch_char_property_to_ctype(uchar ** src, uchar * end, ScanEnv* env)
 
 static int prs_char_property(Node ** np, PToken* tok, uchar ** src, uchar * end, ScanEnv* env)
 {
-	int r, ctype;
+	int r;
 	CClassNode* cc;
-
-	ctype = fetch_char_property_to_ctype(src, end, env);
-	if(ctype < 0) return ctype;
-
+	int ctype = fetch_char_property_to_ctype(src, end, env);
+	if(ctype < 0) 
+		return ctype;
 	*np = node_new_cclass();
 	CHECK_NULL_RETURN_MEMERR(*np);
 	cc = CCLASS_(*np);
 	r = add_ctype_to_cc(cc, ctype, FALSE, env);
-	if(r) return r;
-	if(tok->u.prop.not != 0) NCCLASS_SET_NOT(cc);
-
+	if(r) 
+		return r;
+	if(tok->u.prop.Not != 0) 
+		NCCLASS_SET_NOT(cc);
 	return 0;
 }
 
@@ -6122,14 +6104,14 @@ val_entry2:
 			    break;
 
 			case TK_CHAR_TYPE:
-			    r = add_ctype_to_cc(cc, tok->u.prop.ctype, tok->u.prop.not, env);
-			    if(r) goto err;
-
+			    r = add_ctype_to_cc(cc, tok->u.prop.ctype, tok->u.prop.Not, env);
+			    if(r) 
+					goto err;
 next_cprop:
 			    r = cc_cprop_next(cc, &curr_code, &curr_type, &state, env);
-			    if(r) goto err;
+			    if(r) 
+					goto err;
 			    break;
-
 			case TK_CHAR_PROPERTY:
 		    {
 			    int ctype = fetch_char_property_to_ctype(&p, end, env);
@@ -6137,8 +6119,9 @@ next_cprop:
 				    r = ctype;
 				    goto err;
 			    }
-			    r = add_ctype_to_cc(cc, ctype, tok->u.prop.not, env);
-			    if(r) goto err;
+			    r = add_ctype_to_cc(cc, ctype, tok->u.prop.Not, env);
+			    if(r) 
+					goto err;
 			    goto next_cprop;
 		    }
 		    break;
@@ -7809,7 +7792,7 @@ tk_crude_byte_end:
 	    {
 		    switch(tok->u.prop.ctype) {
 			    case ONIGENC_CTYPE_WORD:
-				*np = node_new_ctype(tok->u.prop.ctype, tok->u.prop.not, env->options);
+				*np = node_new_ctype(tok->u.prop.ctype, tok->u.prop.Not, env->options);
 				CHECK_NULL_RETURN_MEMERR(*np);
 				break;
 
@@ -7818,7 +7801,6 @@ tk_crude_byte_end:
 			    case ONIGENC_CTYPE_XDIGIT:
 			{
 				CClassNode* cc;
-
 				*np = node_new_cclass();
 				CHECK_NULL_RETURN_MEMERR(*np);
 				cc = CCLASS_(*np);
@@ -7828,7 +7810,8 @@ tk_crude_byte_end:
 					*np = NULL_NODE;
 					return r;
 				}
-				if(tok->u.prop.not != 0) NCCLASS_SET_NOT(cc);
+				if(tok->u.prop.Not != 0) 
+					NCCLASS_SET_NOT(cc);
 			}
 			break;
 			    default:

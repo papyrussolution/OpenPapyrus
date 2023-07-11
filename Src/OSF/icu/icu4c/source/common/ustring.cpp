@@ -1453,12 +1453,14 @@ U_CAPI char16_t U_EXPORT2 u_asciiToUpper(char16_t c) {
 	return c;
 }
 
-U_CAPI int32_t U_EXPORT2 u_terminateUChars(char16_t * dest, int32_t destCapacity, int32_t length, UErrorCode * pErrorCode) {
+U_CAPI int32_t U_EXPORT2 u_terminateUChars(char16_t * dest, int32_t destCapacity, int32_t length, UErrorCode * pErrorCode) 
+{
 	__TERMINATE_STRING(dest, destCapacity, length, pErrorCode);
 	return length;
 }
 
-U_CAPI int32_t U_EXPORT2 u_terminateChars(char * dest, int32_t destCapacity, int32_t length, UErrorCode * pErrorCode) {
+U_CAPI int32_t U_EXPORT2 u_terminateChars(char * dest, int32_t destCapacity, int32_t length, UErrorCode * pErrorCode) 
+{
 	__TERMINATE_STRING(dest, destCapacity, length, pErrorCode);
 	return length;
 }

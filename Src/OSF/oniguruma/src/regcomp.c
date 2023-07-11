@@ -2293,10 +2293,10 @@ static int FASTCALL compile_tree(Node * node, regex_t * reg, ScanEnv * env)
 					break;
 			    case ONIGENC_CTYPE_WORD:
 					if(CTYPE_(node)->ascii_mode == 0) {
-						op = CTYPE_(node)->not != 0 ? OP_NO_WORD : OP_WORD;
+						op = CTYPE_(node)->Not != 0 ? OP_NO_WORD : OP_WORD;
 					}
 					else {
-						op = CTYPE_(node)->not != 0 ? OP_NO_WORD_ASCII : OP_WORD_ASCII;
+						op = CTYPE_(node)->Not != 0 ? OP_NO_WORD_ASCII : OP_WORD_ASCII;
 					}
 					r = add_op(reg, op);
 					break;
@@ -2695,7 +2695,7 @@ retry:
 			    break;
 		    switch(ytype) {
 			    case NODE_CTYPE:
-				if(CTYPE_(y)->ctype == CTYPE_(x)->ctype && CTYPE_(y)->not   != CTYPE_(x)->not && CTYPE_(y)->ascii_mode == CTYPE_(x)->ascii_mode)
+				if(CTYPE_(y)->ctype == CTYPE_(x)->ctype && CTYPE_(y)->Not != CTYPE_(x)->Not && CTYPE_(y)->ascii_mode == CTYPE_(x)->ascii_mode)
 					return 1;
 				else
 					return 0;
@@ -2726,7 +2726,7 @@ swap:
 					    return 0;
 					    break;
 					case ONIGENC_CTYPE_WORD:
-					    if(CTYPE_(y)->not == 0) {
+					    if(CTYPE_(y)->Not == 0) {
 						    if(IS_NULL(xc->mbuf) && !IS_NCCLASS_NOT(xc)) {
 							    range = CTYPE_(y)->ascii_mode != 0 ? 128 : SINGLE_BYTE_SIZE;
 							    for(i = 0; i < range; i++) {
@@ -2802,15 +2802,15 @@ swap:
 					case ONIGENC_CTYPE_WORD:
 					    if(CTYPE_(y)->ascii_mode == 0) {
 						    if(ONIGENC_IS_MBC_WORD(reg->enc, xs->s, xs->end))
-							    return CTYPE_(y)->not;
+							    return CTYPE_(y)->Not;
 						    else
-							    return !(CTYPE_(y)->not);
+							    return !(CTYPE_(y)->Not);
 					    }
 					    else {
 						    if(ONIGENC_IS_MBC_WORD_ASCII(reg->enc, xs->s, xs->end))
-							    return CTYPE_(y)->not;
+							    return CTYPE_(y)->Not;
 						    else
-							    return !(CTYPE_(y)->not);
+							    return !(CTYPE_(y)->Not);
 					    }
 					    break;
 					default:
@@ -3007,18 +3007,18 @@ static int FASTCALL get_tree_tail_literal(Node * node, Node ** rnode, regex_t* r
 	return r;
 }
 
-static int FASTCALL check_called_node_in_look_behind(Node * node, int not)
+static int FASTCALL check_called_node_in_look_behind(Node * node, int _not)
 {
 	int r = 0;
 	switch(NODE_TYPE(node)) {
 		case NODE_LIST:
 		case NODE_ALT:
 		    do {
-			    r = check_called_node_in_look_behind(NODE_CAR(node), not);
+			    r = check_called_node_in_look_behind(NODE_CAR(node), _not);
 		    } while(r == 0 && IS_NOT_NULL(node = NODE_CDR(node)));
 		    break;
 		case NODE_QUANT:
-		    r = check_called_node_in_look_behind(NODE_BODY(node), not);
+		    r = check_called_node_in_look_behind(NODE_BODY(node), _not);
 		    break;
 		case NODE_BAG:
 			{
@@ -3028,19 +3028,19 @@ static int FASTCALL check_called_node_in_look_behind(Node * node, int not)
 						return 0;
 					else {
 						NODE_STATUS_ADD(node, MARK1);
-						r = check_called_node_in_look_behind(NODE_BODY(node), not);
+						r = check_called_node_in_look_behind(NODE_BODY(node), _not);
 						NODE_STATUS_REMOVE(node, MARK1);
 					}
 				}
 				else {
-					r = check_called_node_in_look_behind(NODE_BODY(node), not);
+					r = check_called_node_in_look_behind(NODE_BODY(node), _not);
 					if(r == 0 && en->type == BAG_IF_ELSE) {
 						if(IS_NOT_NULL(en->te.Then)) {
-							r = check_called_node_in_look_behind(en->te.Then, not);
+							r = check_called_node_in_look_behind(en->te.Then, _not);
 							if(r) break;
 						}
 						if(IS_NOT_NULL(en->te.Else)) {
-							r = check_called_node_in_look_behind(en->te.Else, not);
+							r = check_called_node_in_look_behind(en->te.Else, _not);
 						}
 					}
 				}
@@ -3048,7 +3048,7 @@ static int FASTCALL check_called_node_in_look_behind(Node * node, int not)
 			break;
 		case NODE_ANCHOR:
 		    if(IS_NOT_NULL(NODE_BODY(node)))
-			    r = check_called_node_in_look_behind(NODE_BODY(node), not);
+			    r = check_called_node_in_look_behind(NODE_BODY(node), _not);
 		    break;
 		case NODE_GIMMICK:
 		    if(NODE_IS_ABSENT_WITH_SIDE_EFFECTS(node) != 0)
@@ -3081,7 +3081,7 @@ static int FASTCALL check_called_node_in_look_behind(Node * node, int not)
 	| ANCR_NO_WORD_BOUNDARY | ANCR_WORD_BEGIN | ANCR_WORD_END \
 	| ANCR_TEXT_SEGMENT_BOUNDARY | ANCR_NO_TEXT_SEGMENT_BOUNDARY )
 
-static int FASTCALL check_node_in_look_behind(Node * node, int not, int* used)
+static int FASTCALL check_node_in_look_behind(Node * node, int _not, int* used)
 {
 	static uint bag_mask[2] = { ALLOWED_BAG_IN_LB, ALLOWED_BAG_IN_LB_NOT };
 	static uint anchor_mask[2] = { ALLOWED_ANCHOR_IN_LB, ALLOWED_ANCHOR_IN_LB_NOT };
@@ -3093,18 +3093,18 @@ static int FASTCALL check_node_in_look_behind(Node * node, int not, int* used)
 		case NODE_LIST:
 		case NODE_ALT:
 		    do {
-			    r = check_node_in_look_behind(NODE_CAR(node), not, used);
+			    r = check_node_in_look_behind(NODE_CAR(node), _not, used);
 		    } while(r == 0 && IS_NOT_NULL(node = NODE_CDR(node)));
 		    break;
 		case NODE_QUANT:
-		    r = check_node_in_look_behind(NODE_BODY(node), not, used);
+		    r = check_node_in_look_behind(NODE_BODY(node), _not, used);
 		    break;
 		case NODE_BAG:
 			{
 				BagNode* en = BAG_(node);
-				if(((1<<en->type) & bag_mask[not]) == 0)
+				if(((1<<en->type) & bag_mask[_not]) == 0)
 					return 1;
-				r = check_node_in_look_behind(NODE_BODY(node), not, used);
+				r = check_node_in_look_behind(NODE_BODY(node), _not, used);
 				if(r) 
 					break;
 				if(en->type == BAG_MEMORY) {
@@ -3113,29 +3113,29 @@ static int FASTCALL check_node_in_look_behind(Node * node, int not, int* used)
 				}
 				else if(en->type == BAG_IF_ELSE) {
 					if(IS_NOT_NULL(en->te.Then)) {
-						r = check_node_in_look_behind(en->te.Then, not, used);
+						r = check_node_in_look_behind(en->te.Then, _not, used);
 						if(r) 
 							break;
 					}
 					if(IS_NOT_NULL(en->te.Else)) {
-						r = check_node_in_look_behind(en->te.Else, not, used);
+						r = check_node_in_look_behind(en->te.Else, _not, used);
 					}
 				}
 			}
 			break;
 		case NODE_ANCHOR:
 		    type = (NodeType)ANCHOR_(node)->type;
-		    if((type & anchor_mask[not]) == 0)
+		    if((type & anchor_mask[_not]) == 0)
 			    return 1;
 		    if(IS_NOT_NULL(NODE_BODY(node)))
-			    r = check_node_in_look_behind(NODE_BODY(node), not, used);
+			    r = check_node_in_look_behind(NODE_BODY(node), _not, used);
 		    break;
 		case NODE_GIMMICK:
 		    if(NODE_IS_ABSENT_WITH_SIDE_EFFECTS(node) != 0)
 			    return 1;
 		    break;
 		case NODE_CALL:
-		    r = check_called_node_in_look_behind(NODE_BODY(node), not);
+		    r = check_called_node_in_look_behind(NODE_BODY(node), _not);
 		    break;
 
 		default:
@@ -4146,7 +4146,7 @@ static int tune_look_behind(Node * node, regex_t* reg, int state, ScanEnv* env)
 	Node * body;
 	AnchorNode * an = ANCHOR_(node);
 	int used = FALSE;
-	int r = check_node_in_look_behind(NODE_ANCHOR_BODY(an), an->type == ANCR_LOOK_BEHIND_NOT ? 1 : 0, &used);
+	int r = check_node_in_look_behind(NODE_ANCHOR_BODY(an), (an->type == ANCR_LOOK_BEHIND_NOT ? 1 : 0), &used);
 	if(r < 0) 
 		return r;
 	if(r > 0) 
@@ -4613,8 +4613,9 @@ __inline
 static int check_call_reference(CallNode* cn, ScanEnv* env, int state)
 {
 	MemEnv * mem_env = SCANENV_MEMENV(env);
+	int gnum = 0;
 	if(cn->by_number != 0) {
-		int gnum = cn->called_gnum;
+		gnum = cn->called_gnum;
 		if(env->num_named > 0 && IS_SYNTAX_BV(env->syntax, ONIG_SYN_CAPTURE_ONLY_NAMED_GROUP) && !OPTON_CAPTURE_GROUP(env->options)) {
 			return ONIGERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED;
 		}
@@ -5798,7 +5799,7 @@ static int FASTCALL optimize_nodes(Node * node, OptNode * opt, const OptEnv * en
 							break;
 						case ONIGENC_CTYPE_WORD:
 							range = CTYPE_(node)->ascii_mode != 0 ? 128 : SINGLE_BYTE_SIZE;
-							if(CTYPE_(node)->not != 0) {
+							if(CTYPE_(node)->Not != 0) {
 								for(i = 0; i < range; i++) {
 									if(!ONIGENC_IS_CODE_WORD(enc, i)) {
 										add_char_opt_map(&opt->map, (uchar)i, enc);

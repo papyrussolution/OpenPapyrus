@@ -2874,15 +2874,16 @@ static int check_unchanged_between(fz_context * ctx, pdf_document * doc, pdf_cha
 	fz_var(changed);
 	fz_try(ctx)
 	{
+		int n = 0;
 		if(pdf_is_dict(ctx, nobj)) {
-			int i, n = pdf_dict_len(ctx, nobj);
+			n = pdf_dict_len(ctx, nobj);
 			if(!pdf_is_dict(ctx, oobj) || n != pdf_dict_len(ctx, oobj)) {
 change_found:
 				changes->obj_changes[pdf_to_num(ctx, nobj)] |= FIELD_CHANGE_INVALID;
 				changed = 1;
 				break;
 			}
-			for(i = 0; i < n; i++) {
+			for(int i = 0; i < n; i++) {
 				pdf_obj * key = pdf_dict_get_key(ctx, nobj, i);
 				pdf_obj * nval = pdf_dict_get(ctx, nobj, key);
 				pdf_obj * oval = pdf_dict_get(ctx, oobj, key);
@@ -2890,13 +2891,15 @@ change_found:
 			}
 		}
 		else if(pdf_is_array(ctx, nobj)) {
-			int i, n = pdf_array_len(ctx, nobj);
+			n = pdf_array_len(ctx, nobj);
 			if(!pdf_is_array(ctx, oobj) || n != pdf_array_len(ctx, oobj))
 				goto change_found;
-			for(i = 0; i < n; i++) {
-				pdf_obj * nval = pdf_array_get(ctx, nobj, i);
-				pdf_obj * oval = pdf_array_get(ctx, oobj, i);
-				changed |= check_unchanged_between(ctx, doc, changes, nval, oval);
+			{
+				for(int i = 0; i < n; i++) {
+					pdf_obj * nval = pdf_array_get(ctx, nobj, i);
+					pdf_obj * oval = pdf_array_get(ctx, oobj, i);
+					changed |= check_unchanged_between(ctx, doc, changes, nval, oval);
+				}
 			}
 		}
 		else if(pdf_objcmp(ctx, nobj, oobj))

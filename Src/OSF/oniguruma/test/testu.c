@@ -11,7 +11,7 @@ static OnigTestBlock OnigTB;
 
 #define ulen(p) onigenc_str_bytelen_null(OnigTB.ENC, (uchar *)p)
 
-static void uconv(char * from, char * to, int len)
+static void uconv(const char * from, char * to, int len)
 {
 	char * q = to;
 	for(int i = 0; i < len; i += 2) {
@@ -38,7 +38,7 @@ static void uconv(char * from, char * to, int len)
 	*q = 0;
 }
 
-static void xx(char * pattern, char * str, int from, int to, int mem, int not)
+static void xx(const char * pattern, const char * str, int from, int to, int mem, int _not)
 {
 #ifdef __TRUSTINSOFT_ANALYZER__
 	if(nall++ % TIS_TEST_CHOOSE_MAX != TIS_TEST_CHOOSE_CURRENT) return;
@@ -64,13 +64,13 @@ static void xx(char * pattern, char * str, int from, int to, int mem, int not)
 		return;
 	}
 	if(r == REG_NOMATCH) {
-		if(not)
+		if(_not)
 			OnigTB.OutputOkN(cpat, cstr);
 		else
 			OnigTB.OutputFail(cpat, cstr);
 	}
 	else {
-		if(not)
+		if(_not)
 			OnigTB.OutputFailN(cpat, cstr);
 		else if(pmatch[mem].rm_so == from && pmatch[mem].rm_eo == to)
 			OnigTB.OutputOk(cpat, cstr);
@@ -100,13 +100,13 @@ static void xx(char * pattern, char * str, int from, int to, int mem, int not)
 		return;
 	}
 	if(r == ONIG_MISMATCH) {
-		if(not)
+		if(_not)
 			OnigTB.OutputOkN(cpat, cstr);
 		else
 			OnigTB.OutputFail(cpat, cstr);
 	}
 	else {
-		if(not)
+		if(_not)
 			OnigTB.OutputFailN(cpat, cstr);
 		else if(OnigTB.region->beg[mem] == from && OnigTB.region->end[mem] == to)
 			OnigTB.OutputOk(cpat, cstr);
@@ -119,9 +119,9 @@ static void xx(char * pattern, char * str, int from, int to, int mem, int not)
 #endif
 }
 
-static void x2(char * pattern, char * str, int from, int to) { xx(pattern, str, from, to, 0, 0); }
-static void x3(char * pattern, char * str, int from, int to, int mem) { xx(pattern, str, from, to, mem, 0); }
-static void n(char * pattern, char * str) { xx(pattern, str, 0, 0, 0, 1); }
+static void x2(const char * pattern, const char * str, int from, int to) { xx(pattern, str, from, to, 0, 0); }
+static void x3(const char * pattern, const char * str, int from, int to, int mem) { xx(pattern, str, from, to, mem, 0); }
+static void n(const char * pattern, const char * str) { xx(pattern, str, 0, 0, 0, 1); }
 
 int OnigTestU_main(FILE * fOut)
 {

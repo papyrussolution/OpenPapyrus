@@ -639,7 +639,7 @@ static void pdf_process_keyword(fz_context * ctx, pdf_processor * proc, pdf_csi 
 			    if(csi->string_len > 0)
 				    proc->op_Tj(ctx, proc, csi->string, csi->string_len);
 			    else
-				    proc->op_Tj(ctx, proc, pdf_to_str_buf(ctx, csi->obj), pdf_to_str_len(ctx, csi->obj));
+				    proc->op_Tj(ctx, proc, const_cast<char *>(pdf_to_str_buf(ctx, csi->obj)), pdf_to_str_len(ctx, csi->obj));
 		    }
 		    break;
 		case A('\''):
@@ -647,7 +647,7 @@ static void pdf_process_keyword(fz_context * ctx, pdf_processor * proc, pdf_csi 
 			    if(csi->string_len > 0)
 				    proc->op_squote(ctx, proc, csi->string, csi->string_len);
 			    else
-				    proc->op_squote(ctx, proc, pdf_to_str_buf(ctx, csi->obj), pdf_to_str_len(ctx, csi->obj));
+				    proc->op_squote(ctx, proc, const_cast<char *>(pdf_to_str_buf(ctx, csi->obj)), pdf_to_str_len(ctx, csi->obj));
 		    }
 		    break;
 		case A('"'):
@@ -655,7 +655,7 @@ static void pdf_process_keyword(fz_context * ctx, pdf_processor * proc, pdf_csi 
 			    if(csi->string_len > 0)
 				    proc->op_dquote(ctx, proc, s[0], s[1], csi->string, csi->string_len);
 			    else
-				    proc->op_dquote(ctx, proc, s[0], s[1], pdf_to_str_buf(ctx, csi->obj), pdf_to_str_len(ctx, csi->obj));
+				    proc->op_dquote(ctx, proc, s[0], s[1], const_cast<char *>(pdf_to_str_buf(ctx, csi->obj)), pdf_to_str_len(ctx, csi->obj));
 		    }
 		    break;
 

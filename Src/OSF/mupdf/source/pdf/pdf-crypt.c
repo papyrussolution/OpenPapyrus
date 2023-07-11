@@ -487,7 +487,7 @@ static void pdf_compute_user_password(fz_context * ctx, pdf_crypt * crypt, uchar
 	}
 
 	if(crypt->r == 3 || crypt->r == 4) {
-		uchar xor[32];
+		uchar _xor[32];
 		uchar digest[16];
 		fz_md5 md5;
 		fz_arc4 arc4;
@@ -501,8 +501,8 @@ static void pdf_compute_user_password(fz_context * ctx, pdf_crypt * crypt, uchar
 		fz_arc4_encrypt(&arc4, output, digest, 16);
 		for(x = 1; x <= 19; x++) {
 			for(i = 0; i < n; i++)
-				xor[i] = crypt->key[i] ^ x;
-			fz_arc4_init(&arc4, xor, n);
+				_xor[i] = crypt->key[i] ^ x;
+			fz_arc4_init(&arc4, _xor, n);
 			fz_arc4_encrypt(&arc4, output, output, 16);
 		}
 		memcpy(output + 16, padding, 16);
@@ -566,16 +566,14 @@ static int pdf_authenticate_owner_password(fz_context * ctx, pdf_crypt * crypt, 
 
 		return pdf_authenticate_user_password(ctx, crypt, userpass, 32);
 	}
-
 	if(crypt->r == 3 || crypt->r == 4) {
 		uchar pwbuf[32];
 		uchar key[16];
-		uchar xor[32];
+		uchar _xor[32];
 		uchar userpass[32];
 		int i, x;
 		fz_md5 md5;
 		fz_arc4 arc4;
-
 		if(pwlen > 32)
 			pwlen = 32;
 		memcpy(pwbuf, ownerpass, pwlen);
@@ -595,8 +593,8 @@ static int pdf_authenticate_owner_password(fz_context * ctx, pdf_crypt * crypt, 
 		memcpy(userpass, crypt->o, 32);
 		for(x = 0; x < 20; x++) {
 			for(i = 0; i < n; i++)
-				xor[i] = key[i] ^ (19 - x);
-			fz_arc4_init(&arc4, xor, n);
+				_xor[i] = key[i] ^ (19 - x);
+			fz_arc4_init(&arc4, _xor, n);
 			fz_arc4_encrypt(&arc4, userpass, userpass, 32);
 		}
 
@@ -757,17 +755,15 @@ static void pdf_compute_owner_password(fz_context * ctx, pdf_crypt * crypt, ucha
 
 	/* Step 7 - */
 	if(crypt->r >= 3) {
-		uchar xor[32];
+		uchar _xor[32];
 		int x;
-
 		for(x = 1; x <= 19; x++) {
 			for(i = 0; i < n; i++)
-				xor[i] = obuf[i] ^ x;
-			fz_arc4_init(&arc4, xor, n);
+				_xor[i] = obuf[i] ^ x;
+			fz_arc4_init(&arc4, _xor, n);
 			fz_arc4_encrypt(&arc4, digest, digest, 32);
 		}
 	}
-
 	/* Step 8 - the owner password is the first 16 bytes of the result */
 	memcpy(output, digest, 32);
 }
@@ -793,7 +789,7 @@ int pdf_crypt_revision(fz_context * ctx, pdf_crypt * crypt)
 	return 0;
 }
 
-char * pdf_crypt_method(fz_context * ctx, pdf_crypt * crypt)
+const char * pdf_crypt_method(fz_context * ctx, pdf_crypt * crypt)
 {
 	if(crypt) {
 		switch(crypt->strf.method) {

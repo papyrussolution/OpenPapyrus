@@ -862,7 +862,8 @@ static void do_mark_line_app(fz_context * ctx, fz_edgebuffer * eb, fixed sx, fix
 	fixed save_ey = ey;
 	int truncated;
 	cursor_t * _RESTRICT cr = &eb->cursor[rev];
-
+	int phase1_y_steps = 0;
+	int phase3_y_steps = 0;
 	if(cr->unset)
 		cr->y = sy, cr->left = sx, cr->right = sx, cr->unset = 0;
 
@@ -1013,11 +1014,9 @@ static void do_mark_line_app(fz_context * ctx, fz_edgebuffer * eb, fixed sx, fix
 		 * Phase 3 gets us from the last scanline boundary to ey. (We are guaranteed to have output the cursor
 		 *at least once before phase 3).
 		 */
-		int phase1_y_steps = (-sy) & (fixed_1 - 1);
-		int phase3_y_steps = ey & (fixed_1 - 1);
-
+		phase1_y_steps = (-sy) & (fixed_1 - 1);
+		phase3_y_steps = ey & (fixed_1 - 1);
 		cursor_up(eb, rev, sx);
-
 		if(sx == ex) {
 			/* Vertical line. (Rising) */
 
@@ -1055,9 +1054,9 @@ static void do_mark_line_app(fz_context * ctx, fz_edgebuffer * eb, fixed sx, fix
 		}
 		else if(sx < ex) {
 			/* Lines increasing in x. (Rightwards, rising) */
-			int phase1_x_steps, phase3_x_steps;
+			int phase1_x_steps;
+			int phase3_x_steps;
 			fixed x_steps = ex - sx;
-
 			/* Phase 1: */
 			cursor_left_merge(eb, rev, sx);
 			if(phase1_y_steps) {
@@ -1118,9 +1117,9 @@ static void do_mark_line_app(fz_context * ctx, fz_edgebuffer * eb, fixed sx, fix
 		}
 		else {
 			/* Lines decreasing in x. (Leftwards, rising) */
-			int phase1_x_steps, phase3_x_steps;
+			int phase1_x_steps;
+			int phase3_x_steps;
 			fixed x_steps = sx - ex;
-
 			/* Phase 1: */
 			cursor_right_merge(eb, rev, sx);
 			if(phase1_y_steps) {
@@ -1187,22 +1186,18 @@ static void do_mark_line_app(fz_context * ctx, fz_edgebuffer * eb, fixed sx, fix
 		 * Phase 2 gets us all the way to the last scanline boundary. This is guaranteed to cause an output.
 		 * Phase 3 gets us from the last scanline boundary to ey. We are guaranteed to have outputted by now.
 		 */
-		int phase1_y_steps = sy & (fixed_1 - 1);
-		int phase3_y_steps = (-ey) & (fixed_1 - 1);
-
+		phase1_y_steps = sy & (fixed_1 - 1);
+		phase3_y_steps = (-ey) & (fixed_1 - 1);
 		y_steps = -y_steps;
 		/* Cope with the awkward 0x80000000 case. */
 		if(y_steps < 0) {
-			int mx, my;
-			mx = sx + ((ex-sx)>>1);
-			my = sy + ((ey-sy)>>1);
+			int mx = sx + ((ex-sx)>>1);
+			int my = sy + ((ey-sy)>>1);
 			do_mark_line_app(ctx, eb, sx, sy, mx, my, rev);
 			do_mark_line_app(ctx, eb, mx, my, ex, ey, rev);
 			return;
 		}
-
 		cursor_down(eb, rev, sx);
-
 		if(sx == ex) {
 			/* Vertical line. (Falling) */
 
@@ -1349,7 +1344,6 @@ static void do_mark_line_app(fz_context * ctx, fz_edgebuffer * eb, fixed sx, fix
 					f += d, sx--;
 				cursor_left(eb, rev, sx);
 				y_steps--;
-
 				while(y_steps) {
 					cursor_always_inrange_step_left(eb, rev, -fixed_1, sx);
 					sx -= x_inc;
@@ -1360,7 +1354,6 @@ static void do_mark_line_app(fz_context * ctx, fz_edgebuffer * eb, fixed sx, fix
 					y_steps--;
 				}
 			}
-
 			/* Phase 3 */
 			if(phase3_y_steps > 0) {
 				cursor_step(eb, rev, -phase3_y_steps, sx);
@@ -1372,7 +1365,6 @@ endFalling:
 		if(truncated)
 			cursor_output(eb, rev, fixed2int(cr->y) - base_y);
 	}
-
 end:
 	if(truncated) {
 		cr->left = save_ex;

@@ -29,9 +29,7 @@ static pdf_js * unpack_arguments(js_State * J, ...)
 	if(js_isobject(J, 1)) {
 		int i = 1;
 		va_list args;
-
 		js_copy(J, 1);
-
 		va_start(args, J);
 		for(;;) {
 			const char * s = va_arg(args, const char *);
@@ -41,7 +39,6 @@ static pdf_js * unpack_arguments(js_State * J, ...)
 			js_replace(J, i++);
 		}
 		va_end(args);
-
 		js_pop(J, 1);
 	}
 	return (pdf_js *)js_getcontext(J);

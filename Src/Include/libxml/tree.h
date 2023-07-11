@@ -84,7 +84,7 @@ struct xmlBuf;
  * A pointer to a buffer structure, the actual structure internals are not
  * public
  */
-typedef xmlBuf * xmlBufPtr;
+//typedef xmlBuf * xmlBufPtr_Removed;
 /*
  * A few public routines for xmlBuf. As those are expected to be used
  * mostly internally the bulk of the routines are internal in buf.h
@@ -737,7 +737,7 @@ XMLPUBFUN int xmlDocDump(FILE * f, xmlDoc * cur);
 XMLPUBFUN void xmlElemDump(FILE * f, xmlDoc * doc, xmlNode * cur);
 XMLPUBFUN int xmlSaveFile(const char * filename, xmlDoc * cur);
 XMLPUBFUN int xmlSaveFormatFile(const char * filename, xmlDoc * cur, int format);
-XMLPUBFUN size_t xmlBufNodeDump(xmlBufPtr buf, xmlDoc * doc, xmlNode * cur, int level, int format);
+XMLPUBFUN size_t xmlBufNodeDump(xmlBuf * buf, xmlDoc * doc, xmlNode * cur, int level, int format);
 XMLPUBFUN int xmlNodeDump(xmlBuffer * buf, xmlDoc * doc, xmlNode * cur, int level, int format);
 XMLPUBFUN int xmlSaveFileTo(xmlOutputBuffer * buf, xmlDoc * cur, const char * encoding);
 XMLPUBFUN int xmlSaveFormatFileTo(xmlOutputBuffer * buf, xmlDoc * cur, const char * encoding, int format);

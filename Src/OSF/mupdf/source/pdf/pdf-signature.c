@@ -303,27 +303,18 @@ void pdf_drop_verifier(fz_context * ctx, pdf_pkcs7_verifier * verifier)
 		verifier->drop(ctx, verifier);
 }
 
-char * pdf_signature_error_description(pdf_signature_error err)
+const char * pdf_signature_error_description(pdf_signature_error err)
 {
-	switch(err)
-	{
-		case PDF_SIGNATURE_ERROR_OKAY:
-		    return "OK";
-		case PDF_SIGNATURE_ERROR_NO_SIGNATURES:
-		    return "No signatures.";
-		case PDF_SIGNATURE_ERROR_NO_CERTIFICATE:
-		    return "No certificate.";
-		case PDF_SIGNATURE_ERROR_DIGEST_FAILURE:
-		    return "Signature invalidated by change to document.";
-		case PDF_SIGNATURE_ERROR_SELF_SIGNED:
-		    return "Self-signed certificate.";
-		case PDF_SIGNATURE_ERROR_SELF_SIGNED_IN_CHAIN:
-		    return "Self-signed certificate in chain.";
-		case PDF_SIGNATURE_ERROR_NOT_TRUSTED:
-		    return "Certificate not trusted.";
+	switch(err) {
+		case PDF_SIGNATURE_ERROR_OKAY: return "OK";
+		case PDF_SIGNATURE_ERROR_NO_SIGNATURES: return "No signatures.";
+		case PDF_SIGNATURE_ERROR_NO_CERTIFICATE: return "No certificate.";
+		case PDF_SIGNATURE_ERROR_DIGEST_FAILURE: return "Signature invalidated by change to document.";
+		case PDF_SIGNATURE_ERROR_SELF_SIGNED: return "Self-signed certificate.";
+		case PDF_SIGNATURE_ERROR_SELF_SIGNED_IN_CHAIN: return "Self-signed certificate in chain.";
+		case PDF_SIGNATURE_ERROR_NOT_TRUSTED: return "Certificate not trusted.";
 		default:
-		case PDF_SIGNATURE_ERROR_UNKNOWN:
-		    return "Unknown error.";
+		case PDF_SIGNATURE_ERROR_UNKNOWN: return "Unknown error.";
 	}
 }
 

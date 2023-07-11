@@ -9392,7 +9392,7 @@ static int PThr4wTest_Benchtest1()
 
 	class InnerBlock {
 	public:
-		static void runTest(char * testNameString, int mType)
+		static void runTest(const char * testNameString, int mType)
 		{
 		#ifdef  __PTW32_MUTEX_TYPES
 			PTHR4W_TEST_ASSERT(pthread_mutexattr_settype(&ma, mType) == 0);
@@ -9545,7 +9545,7 @@ static int PThr4wTest_Benchtest2()
 			} while(running);
 			return NULL;
 		}
-		static void runTest(char * testNameString, int mType)
+		static void runTest(const char * testNameString, int mType)
 		{
 		#ifdef  __PTW32_MUTEX_TYPES
 			PTHR4W_TEST_ASSERT(pthread_mutexattr_settype(&ma, mType) == 0);
@@ -9713,7 +9713,7 @@ static int PThr4wTest_Benchtest3()
 			TESTSTART BenchTestBlock::old_mutex_trylock(&ox); TESTSTOP
 			return NULL;
 		}
-		static void runTest(char * testNameString, int mType)
+		static void runTest(const char * testNameString, int mType)
 		{
 			pthread_t t;
 		#ifdef  __PTW32_MUTEX_TYPES
@@ -9807,7 +9807,7 @@ static int PThr4wTest_Benchtest4()
 		static void oldRunTest(char * testNameString, int mType)
 		{
 		}
-		static void runTest(char * testNameString, int mType)
+		static void runTest(const char * testNameString, int mType)
 		{
 		#ifdef  __PTW32_MUTEX_TYPES
 			pthread_mutexattr_settype(&ma, mType);
@@ -9887,7 +9887,7 @@ static int PThr4wTest_Benchtest5()
 
 	class InnerBlock {
 	public:
-		static void reportTest(char * testNameString)
+		static void reportTest(const char * testNameString)
 		{
 			durationMilliSecs = GetDurationMilliSecs(currSysTimeStart, currSysTimeStop) - overHeadMilliSecs;
 			printf("%-45s %15ld %15.3f\n", testNameString, durationMilliSecs, (float)durationMilliSecs * 1E3 / ITERATIONS);

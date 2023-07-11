@@ -20,6 +20,8 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
+#if 0 // @v11.7.9 {
+
 #define MAGIC   0234
 
 CRegExp_Depricated::CRegExp_Depricated() : ErrCode(SLERR_RE_UNINIT), P_Program(0)
@@ -923,6 +925,8 @@ char * FASTCALL CRegExp_Depricated::regnext(char * p) const
 	}
 	return n;
 }
+
+#endif // } @v11.7.9
 //
 //
 //

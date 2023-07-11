@@ -291,7 +291,7 @@ const char * pdf_to_name(fz_context * ctx, pdf_obj * obj)
 	return "";
 }
 
-char * pdf_to_str_buf(fz_context * ctx, pdf_obj * obj)
+const char * pdf_to_str_buf(fz_context * ctx, pdf_obj * obj)
 {
 	RESOLVE(obj);
 	return OBJ_IS_STRING(obj) ? STRING(obj)->buf : "";
@@ -471,7 +471,7 @@ int STDCALL pdf_name_eq(fz_context * ctx, pdf_obj * a, pdf_obj * b)
 	return 0;
 }
 
-static char * pdf_objkindstr(pdf_obj * obj)
+static const char * pdf_objkindstr(pdf_obj * obj)
 {
 	if(obj == PDF_NULL)
 		return "null";
@@ -1579,7 +1579,7 @@ static inline void fmt_indent(fz_context * ctx, struct fmt * fmt)
 	}
 }
 
-static inline void fmt_puts(fz_context * ctx, struct fmt * fmt, char * s)
+static inline void fmt_puts(fz_context * ctx, struct fmt * fmt, const char * s)
 {
 	while(*s)
 		fmt_putc(ctx, fmt, *s++);

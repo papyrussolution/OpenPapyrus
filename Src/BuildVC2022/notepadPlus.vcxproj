@@ -1250,9 +1250,6 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
     <ProjectReference Include="libwebp-slib.vcxproj">
       <Project>{05255f31-2054-4df4-ad6d-5bc5da8ccccf}</Project>
     </ProjectReference>
-    <ProjectReference Include="libxml.vcxproj">
-      <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>
-    </ProjectReference>
     <ProjectReference Include="scintilla2.vcxproj">
       <Project>{6824fe2f-b7df-4338-8025-a1b145da91b6}</Project>
     </ProjectReference>

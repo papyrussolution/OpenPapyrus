@@ -630,7 +630,7 @@ static pdf_font_desc * pdf_load_simple_font(fz_context * ctx, pdf_document * doc
 		    !pdf_dict_get(ctx, dict, PDF_NAME(ToUnicode)) &&
 		    pdf_name_eq(ctx, pdf_dict_get(ctx, dict, PDF_NAME(Encoding)), PDF_NAME(WinAnsiEncoding)) &&
 		    pdf_dict_get_int(ctx, descriptor, PDF_NAME(Flags)) == 4) {
-			char * cp936fonts[] = {
+			const char * cp936fonts[] = {
 				"\xCB\xCE\xCC\xE5", "SimSun,Regular",
 				"\xBA\xDA\xCC\xE5", "SimHei,Regular",
 				"\xBF\xAC\xCC\xE5_GB2312", "SimKai,Regular",

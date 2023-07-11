@@ -85,6 +85,7 @@ static ZTHREAD vfw_capture_thread(void * arg)
 	zbar_video_t * vdo = (zbar_video_t *)arg;
 	video_state_t * state = vdo->state;
 	zbar_thread_t * thr = &state->thread;
+	int rc = 0;
 	state->hwnd = capCreateCaptureWindow(NULL, WS_POPUP, 0, 0, 1, 1, NULL, 0);
 	if(!state->hwnd)
 		goto done;
@@ -92,7 +93,6 @@ static ZTHREAD vfw_capture_thread(void * arg)
 	_zbar_thread_init(thr);
 	zprintf(4, "spawned vfw capture thread (thr=%04lx)\n", _zbar_thread_self());
 	MSG msg;
-	int rc = 0;
 	while(thr->started && rc >= 0 && rc <= 1) {
 		_zbar_mutex_unlock(&vdo->qlock);
 		rc = MsgWaitForMultipleObjects(1, &thr->notify, 0, INFINITE, QS_ALLINPUT);

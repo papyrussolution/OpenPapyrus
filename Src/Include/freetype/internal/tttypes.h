@@ -1370,16 +1370,11 @@ typedef struct  TT_FaceRec_ {
 	/* used to handle the HVAR, VVAR, and MVAR OpenType tables         */
 	void *      var;
 #endif
-
 	/* a typeless pointer to the PostScript Aux service */
 	void *      psaux;
-
-	/************************************************************************
-	 *
-	 * Optional TrueType/OpenType tables
-	 *
-	 */
-
+	// 
+	// Optional TrueType/OpenType tables
+	// 
 	/* grid-fitting and scaling table */
 	TT_GaspRec gasp; /* the `gasp' table */
 
@@ -1399,13 +1394,9 @@ typedef struct  TT_FaceRec_ {
 	FT_Color*             palette;
 	FT_Bool have_foreground_color;
 	FT_Color foreground_color;
-
-	/************************************************************************
-	 *
-	 * TrueType-specific fields (ignored by the CFF driver)
-	 *
-	 */
-
+	// 
+	// TrueType-specific fields (ignored by the CFF driver)
+	// 
 	/* the font program, if any */
 	FT_ULong font_program_size;
 	FT_Byte*              font_program;

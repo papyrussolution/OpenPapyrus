@@ -123,8 +123,7 @@ struct js_JumpList
 	js_JumpList *next;
 };
 
-struct js_Ast
-{
+struct js_Ast {
 	enum js_AstType type;
 	int line;
 	js_Ast *parent, *a, *b, *c, *d;

@@ -660,20 +660,24 @@ static gnode_t * parse_number_expression(gravity_parser_t * parser, gtoken_s tok
 	gliteral_t type;
 	int64_t n = 0;
 	double d = 0.0;
+	bool isfloat = false;
 	if(value[0] == '0') {
 		int c = toupper(value[1]);
 		if(c == 'B') {
-			type = decode_number_binary(token, &n); goto report_node;
+			type = decode_number_binary(token, &n); 
+			goto report_node;
 		}
 		else if(c == 'O') {
-			type = decode_number_octal(token, &n); goto report_node;
+			type = decode_number_octal(token, &n); 
+			goto report_node;
 		}
 		else if(c == 'X') {
-			type = decode_number_hex(token, &n, &d); goto report_node;
+			type = decode_number_hex(token, &n, &d); 
+			goto report_node;
 		}
 	}
 	// number is decimal (check if it is float)
-	bool isfloat = false;
+	isfloat = false;
 	for(uint32 i = 0; i < token.bytes; ++i) {
 		if(value[i] == '.') {
 			isfloat = true; 
@@ -684,20 +688,22 @@ static gnode_t * parse_number_expression(gravity_parser_t * parser, gtoken_s tok
 			break;
 		}
 	}
-	STATIC_TOKEN_CSTRING(str, MAX_NUMBER_LENGTH, len, buffer, token);
-	if(len >= MAX_NUMBER_LENGTH) {
-		REPORT_ERROR(token, "Malformed numeric expression.");
-		return NULL;
-	}
-	if(isfloat) {
-		d = strtod(str, NULL);
-		type = LITERAL_FLOAT;
-		DEBUG_PARSER("FLOAT: %.2f", d);
-	}
-	else {
-		n = (int64_t)strtoll(str, NULL, 0);
-		type = LITERAL_INT;
-		DEBUG_PARSER("INT: %lld", n);
+	{
+		STATIC_TOKEN_CSTRING(str, MAX_NUMBER_LENGTH, len, buffer, token);
+		if(len >= MAX_NUMBER_LENGTH) {
+			REPORT_ERROR(token, "Malformed numeric expression.");
+			return NULL;
+		}
+		if(isfloat) {
+			d = strtod(str, NULL);
+			type = LITERAL_FLOAT;
+			DEBUG_PARSER("FLOAT: %.2f", d);
+		}
+		else {
+			n = (int64_t)strtoll(str, NULL, 0);
+			type = LITERAL_INT;
+			DEBUG_PARSER("INT: %lld", n);
+		}
 	}
 report_node:
 	if(type == LITERAL_FLOAT) 
@@ -1263,14 +1269,16 @@ static gnode_t * parse_getter_setter(gravity_parser_t * parser)
 		else 
 			setter = f;
 	}
-	GravityArray <gnode_t *> * functions = gnode_array_create();
-	gnode_array_push(functions, (getter) ? getter : NULL); // getter is at index 0
-	gnode_array_push(functions, (setter) ? setter : NULL); // setter is at index 1
 	{
-		// read current token to extract node total length
-		gtoken_s end_token = gravity_lexer_token(lexer);
-		// a compound node is used to capture getter and setter
-		return gnode_block_stat_create(NODE_COMPOUND_STAT, token_block, functions, LAST_DECLARATION(), end_token.position + end_token.length - token_block.position);
+		GravityArray <gnode_t *> * functions = gnode_array_create();
+		gnode_array_push(functions, (getter) ? getter : NULL); // getter is at index 0
+		gnode_array_push(functions, (setter) ? setter : NULL); // setter is at index 1
+		{
+			// read current token to extract node total length
+			gtoken_s end_token = gravity_lexer_token(lexer);
+			// a compound node is used to capture getter and setter
+			return gnode_block_stat_create(NODE_COMPOUND_STAT, token_block, functions, LAST_DECLARATION(), end_token.position + end_token.length - token_block.position);
+		}
 	}
 parse_error:
 	return NULL;
@@ -2302,22 +2310,28 @@ static gnode_t * parse_macro_statement(gravity_parser_t * parser)
 	if(macroid == NULL) 
 		goto handle_error;
 	// check macro
-	builtin_macro macro_type = MACRO_UNKNOWN;
-	if(sstreq(macroid, "unittest")) macro_type = MACRO_UNITEST;
-	else if(sstreq(macroid, "include")) macro_type = MACRO_INCLUDE;
-	else if(sstreq(macroid, "push")) macro_type = MACRO_PUSH;
-	else if(sstreq(macroid, "pop")) macro_type = MACRO_POP;
-	mem_free(macroid);
 	{
-		gtoken_s token = gravity_lexer_token(lexer);
-		token.type = TOK_MACRO;
-		PARSER_CALL_CALLBACK(token);
-		switch(macro_type) {
-			case MACRO_UNITEST: return parse_unittest_macro(parser); break;
-			case MACRO_INCLUDE: return parse_include_macro(parser); break;
-			case MACRO_PUSH: break;
-			case MACRO_POP: break;
-			case MACRO_UNKNOWN: break;
+		builtin_macro macro_type = MACRO_UNKNOWN;
+		if(sstreq(macroid, "unittest")) 
+			macro_type = MACRO_UNITEST;
+		else if(sstreq(macroid, "include")) 
+			macro_type = MACRO_INCLUDE;
+		else if(sstreq(macroid, "push")) 
+			macro_type = MACRO_PUSH;
+		else if(sstreq(macroid, "pop")) 
+			macro_type = MACRO_POP;
+		mem_free(macroid);
+		{
+			gtoken_s token = gravity_lexer_token(lexer);
+			token.type = TOK_MACRO;
+			PARSER_CALL_CALLBACK(token);
+			switch(macro_type) {
+				case MACRO_UNITEST: return parse_unittest_macro(parser); break;
+				case MACRO_INCLUDE: return parse_include_macro(parser); break;
+				case MACRO_PUSH: break;
+				case MACRO_POP: break;
+				case MACRO_UNKNOWN: break;
+			}
 		}
 	}
 handle_error:

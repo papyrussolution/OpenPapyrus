@@ -2629,3 +2629,68 @@ int SUiLayout::Evaluate(const Param * pP)
 	}
 	return ok;
 }
+
+SJson * SUiLayout::ToJsonObj() const
+{
+	SJson * p_result = SJson::CreateObj();
+	SString temp_buf;
+	/*
+		obj_layout {
+		symb : string
+		flags : optionslist_layout
+		wd  : string
+		ht  : string
+		justifycontent : enum_layoutalingment
+		aligncontent   : enum_layoutalingment
+		alignitems     : enum_layoutalingment
+		alignself      : enum_layoutalingment
+		gravityx       : enum_side
+		gravityy       : enum_side
+		margin         : obj_margin
+		padding        : obj_margin
+		growfactor     : float
+		shrinkfactor   : float
+	} 
+	*/
+	const long margin_fmt = MKSFMTD(0, 3, NMBF_NOTRAILZ|NMBF_OMITEPS);
+	//p_result->InsertString("symb", "");
+	p_result->InsertString("id", "");
+	p_result->InsertString("flags", "");
+	p_result->InsertString("wd", "");
+	p_result->InsertString("ht", "");
+	p_result->InsertString("justifycontent", "");
+	p_result->InsertString("aligncontent", "");
+	p_result->InsertString("alignitems", "");
+	p_result->InsertString("alignself", "");
+	p_result->InsertString("gravityx", "");
+	p_result->InsertString("gravityy", "");
+	{
+		const FRect & r_m = ALB.Margin;
+		if(!r_m.IsEmpty()) {
+			temp_buf.Z().Cat(r_m.a.x, margin_fmt).CatDiv(',', 0).Cat(r_m.a.y, margin_fmt).CatDiv(',', 0).
+				Cat(r_m.b.x, margin_fmt).CatDiv(',', 0).Cat(r_m.b.y, margin_fmt);
+			p_result->InsertString("margin", temp_buf);
+		}
+	}
+	{
+		const FRect & r_m = ALB.Padding;
+		if(!r_m.IsEmpty()) {
+			temp_buf.Z().Cat(r_m.a.x, margin_fmt).CatDiv(',', 0).Cat(r_m.a.y, margin_fmt).CatDiv(',', 0).
+				Cat(r_m.b.x, margin_fmt).CatDiv(',', 0).Cat(r_m.b.y, margin_fmt);
+			p_result->InsertNumber("padding", temp_buf);
+		}
+	}
+	if(ALB.GrowFactor != 0.0f)
+		p_result->InsertNumber("growfactor", temp_buf.Z().Cat(ALB.GrowFactor, MKSFMTD(0, 3, NMBF_NOTRAILZ)));
+	if(ALB.ShrinkFactor != 0.0f)
+		p_result->InsertString("shrinkfactor", temp_buf.Z().Cat(ALB.ShrinkFactor, MKSFMTD(0, 3, NMBF_NOTRAILZ)));
+	return p_result;
+}
+
+int SUiLayout::FromJsonObj(const SJson * pJs)
+{
+	int    ok = 0;
+	if(pJs) {
+	}
+	return ok;
+}

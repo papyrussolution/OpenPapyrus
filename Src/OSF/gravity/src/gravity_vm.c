@@ -1814,63 +1814,68 @@ gravity_closure_t * gravity_vm_loadbuffer(gravity_vm * vm, const char * buffer, 
 	// @ctr marray_init(objects);
 	// start json parsing
 	json_value * json = json_parse(buffer, len);
+	uint32 n = 0;
 	if(!json) 
 		goto abort_load;
 	if(json->type != json_object) 
 		goto abort_load;
 	// disable GC while deserializing objects
 	gravity_gc_setenabled(vm, false);
-	// scan loop
-	gravity_closure_t * closure = NULL;
-	uint32 n = json->u.object.length;
-	for(uint32 i = 0; i < n; ++i) {
-		json_value * entry = json->u.object.values[i].value;
-		if(entry->u.object.length == 0) continue;
-		// each entry must be an object
-		if(entry->type != json_object) 
-			goto abort_load;
-		gravity_class_t * obj = gravity_object_deserialize(vm, entry);
-		if(!obj) 
-			goto abort_load;
-		// save object for further processing
-		objects.insert(obj);
-		// add a sanity check here: obj can be a function or a class, nothing else
-		// transform every function to a closure
-		if(obj->IsFunction()) {
-			gravity_function_t * f = (gravity_function_t *)obj;
-			const char * identifier = f->identifier;
-			gravity_closure_t * cl = gravity_closure_new(vm, f);
-			if(string_casencmp(identifier, INITMODULE_NAME, strlen(identifier)) == 0) {
-				closure = cl;
-			}
-			else {
-				gravity_vm_setvalue(vm, identifier, GravityValue::from_object(reinterpret_cast<gravity_class_t *>(cl)));
+	{
+		// scan loop
+		gravity_closure_t * closure = NULL;
+		n = json->u.object.length;
+		for(uint32 i = 0; i < n; ++i) {
+			json_value * entry = json->u.object.values[i].value;
+			if(entry->u.object.length == 0) 
+				continue;
+			// each entry must be an object
+			if(entry->type != json_object) 
+				goto abort_load;
+			gravity_class_t * obj = gravity_object_deserialize(vm, entry);
+			if(!obj) 
+				goto abort_load;
+			// save object for further processing
+			objects.insert(obj);
+			// add a sanity check here: obj can be a function or a class, nothing else
+			// transform every function to a closure
+			if(obj->IsFunction()) {
+				gravity_function_t * f = (gravity_function_t *)obj;
+				const char * identifier = f->identifier;
+				gravity_closure_t * cl = gravity_closure_new(vm, f);
+				if(string_casencmp(identifier, INITMODULE_NAME, strlen(identifier)) == 0) {
+					closure = cl;
+				}
+				else {
+					gravity_vm_setvalue(vm, identifier, GravityValue::from_object(reinterpret_cast<gravity_class_t *>(cl)));
+				}
 			}
 		}
-	}
-	json_value_free(json);
-	json = NULL;
-
-	// fix superclass(es)
-	const uint count = objects.getCount();
-	if(count) {
-		void * saved = vm->data;
-		// prepare stack to help resolve nested super classes
-		GravityArray <void *> stack;
-		// @ctr marray_init(stack);
-		vm->data = &stack;
-		// loop of each processed object
-		for(uint i = 0; i < count; ++i) {
-			gravity_class_t * obj = static_cast<gravity_class_t *>(objects.at(i));
-			if(!vm_set_superclass(vm, obj)) 
-				goto abort_super;
+		json_value_free(json);
+		json = NULL;
+		{
+			// fix superclass(es)
+			const uint count = objects.getCount();
+			if(count) {
+				void * saved = vm->data;
+				// prepare stack to help resolve nested super classes
+				GravityArray <void *> stack;
+				// @ctr marray_init(stack);
+				vm->data = &stack;
+				// loop of each processed object
+				for(uint i = 0; i < count; ++i) {
+					gravity_class_t * obj = static_cast<gravity_class_t *>(objects.at(i));
+					if(!vm_set_superclass(vm, obj)) 
+						goto abort_super;
+				}
+				stack.Z();
+				objects.Z();
+				vm->data = saved;
+			}
 		}
-		stack.Z();
-		objects.Z();
-		vm->data = saved;
+		gravity_gc_setenabled(vm, true);
+		return closure;
 	}
-	gravity_gc_setenabled(vm, true);
-	return closure;
 abort_load:
 	report_runtime_error(vm, GRAVITY_ERROR_RUNTIME, "%s", "Unable to parse JSON executable file.");
 abort_super:

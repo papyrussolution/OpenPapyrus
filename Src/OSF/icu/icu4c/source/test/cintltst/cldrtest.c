@@ -668,7 +668,7 @@ static void findSetMatch(UScriptCode * scriptCodes, int32_t scriptsLen, USet * e
 			UChar32 start = 0;
 			UChar32 end = 0;
 			char16_t * str = NULL;
-			int32_t strCapacity = uset_getItem(exemplarSet, i, &start, &end, str, strCapacity, &status);
+			int32_t strCapacity = uset_getItem(exemplarSet, i, &start, &end, str, /*strCapacity*/0, &status);
 			if(U_SUCCESS(status)) {
 				int32_t j;
 				if(strCapacity == 0) {

@@ -57,10 +57,10 @@ inline std::string::size_type common_prefix_length(const std::string &a, const s
 namespace Xapian {
 	namespace Internal {
 		const uchar HEX_MASK = 0x0f;
-		const uchar IS_UPPER = 0x10;
-		const uchar IS_ALPHA = 0x20;         // NB Same as ASCII "case bit".
-		const uchar IS_DIGIT = 0x40;
-		const uchar IS_SPACE = 0x80;
+		const uchar _isUpper = 0x10;
+		const uchar _isAlpha = 0x20;         // NB Same as ASCII "case bit".
+		const uchar _isDigit = 0x40;
+		const uchar _isSpace = 0x80;
 	}
 }
 
@@ -79,19 +79,19 @@ inline uchar C_tab_(char ch)
 	return C_tab[static_cast<uchar>(ch)];
 }
 
-inline bool C_isdigit(char ch) { return bool(C_tab_(ch) & Xapian::Internal::IS_DIGIT); }
+inline bool C_isdigit(char ch) { return bool(C_tab_(ch) & Xapian::Internal::_isDigit); }
 
 inline bool C_isxdigit(char ch) 
 {
-	// Include IS_DIGIT so '0' gives true.
-	return bool(C_tab_(ch) & (Xapian::Internal::HEX_MASK|Xapian::Internal::IS_DIGIT));
+	// Include _isDigit so '0' gives true.
+	return bool(C_tab_(ch) & (Xapian::Internal::HEX_MASK|Xapian::Internal::_isDigit));
 }
 
-inline bool C_isupper(char ch) { return bool(C_tab_(ch) & Xapian::Internal::IS_UPPER); }
-inline bool C_islower(char ch) { return (C_tab_(ch) & (Xapian::Internal::IS_ALPHA|Xapian::Internal::IS_UPPER)) == Xapian::Internal::IS_ALPHA; }
-inline bool C_isalpha(char ch) { return bool(C_tab_(ch) & Xapian::Internal::IS_ALPHA); }
-inline bool C_isalnum(char ch) { return bool(C_tab_(ch) & (Xapian::Internal::IS_ALPHA|Xapian::Internal::IS_DIGIT)); }
-inline bool C_isspace(char ch) { return bool(C_tab_(ch) & Xapian::Internal::IS_SPACE); }
+inline bool C_isupper(char ch) { return bool(C_tab_(ch) & Xapian::Internal::_isUpper); }
+inline bool C_islower(char ch) { return (C_tab_(ch) & (Xapian::Internal::_isAlpha|Xapian::Internal::_isUpper)) == Xapian::Internal::_isAlpha; }
+inline bool C_isalpha(char ch) { return bool(C_tab_(ch) & Xapian::Internal::_isAlpha); }
+inline bool C_isalnum(char ch) { return bool(C_tab_(ch) & (Xapian::Internal::_isAlpha|Xapian::Internal::_isDigit)); }
+inline bool C_isspace(char ch) { return bool(C_tab_(ch) & Xapian::Internal::_isSpace); }
 inline bool C_isnotdigit(char ch) { return !C_isdigit(ch); }
 inline bool C_isnotxdigit(char ch) { return !C_isxdigit(ch); }
 inline bool C_isnotupper(char ch) { return !C_isupper(ch); }
@@ -99,8 +99,8 @@ inline bool C_isnotlower(char ch) { return !C_islower(ch); }
 inline bool C_isnotalpha(char ch) { return !C_isalpha(ch); }
 inline bool C_isnotalnum(char ch) { return !C_isalnum(ch); }
 inline bool C_isnotspace(char ch) { return !C_isspace(ch); }
-inline char C_tolower(char ch) { return ch | (C_tab_(ch) & Xapian::Internal::IS_ALPHA); }
-inline char C_toupper(char ch) { return ch &~(C_tab_(ch) & Xapian::Internal::IS_ALPHA); }
+inline char C_tolower(char ch) { return ch | (C_tab_(ch) & Xapian::Internal::_isAlpha); }
+inline char C_toupper(char ch) { return ch &~(C_tab_(ch) & Xapian::Internal::_isAlpha); }
 inline int hex_digit(char ch) { return C_tab_(ch) & Xapian::Internal::HEX_MASK; }
 
 #endif // XAPIAN_INCLUDED_STRINGUTILS_H

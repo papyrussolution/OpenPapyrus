@@ -66,18 +66,16 @@ typedef struct {
 #define BIT_CTYPE_ASCII    (1<< ONIGENC_CTYPE_ASCII)
 
 #define CTYPE_TO_BIT(ctype)  (1<<(ctype))
-#define CTYPE_IS_WORD_GRAPH_PRINT(ctype) \
-	((ctype) == ONIGENC_CTYPE_WORD || (ctype) == ONIGENC_CTYPE_GRAPH || \
-	(ctype) == ONIGENC_CTYPE_PRINT)
+#define CTYPE_IS_WORD_GRAPH_PRINT(ctype) ((ctype) == ONIGENC_CTYPE_WORD || (ctype) == ONIGENC_CTYPE_GRAPH || (ctype) == ONIGENC_CTYPE_PRINT)
 
 typedef struct {
-	uchar    * name;
+	uchar * name;
 	int ctype;
 	short int len;
 } PosixBracketEntryType;
 
 struct PropertyNameCtype {
-	char * name;
+	const char * name;
 	int ctype;
 };
 

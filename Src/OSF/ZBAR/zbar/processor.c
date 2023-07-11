@@ -54,6 +54,7 @@ static inline int proc_open(zbar_processor_t * proc)
 int _zbar_process_image(zbar_processor_t * proc, zbar_image_t * img)
 {
 	uint32 force_fmt = proc->force_output;
+	int rc = 0;
 	if(img) {
 		if(proc->dumping) {
 			zbar_image_write(proc->window->image, "zbar");
@@ -114,7 +115,7 @@ int _zbar_process_image(zbar_processor_t * proc, zbar_image_t * img)
 		}
 	}
 	/* display to window if enabled */
-	int rc = 0;
+	rc = 0;
 	if(proc->window) {
 		if((rc = zbar_window_draw(proc->window, img)))
 			err_copy(proc, proc->window);
@@ -208,13 +209,13 @@ static ZTHREAD proc_input_thread(void * arg)
 {
 	zbar_processor_t * proc = static_cast<zbar_processor_t *>(arg);
 	zbar_thread_t * thread = &proc->input_thread;
+	int rc = 0;
 	if(proc->window && proc_open(proc))
 		goto done;
 	_zbar_mutex_lock(&proc->mutex);
 	thread->running = 1;
 	_zbar_event_trigger(&thread->activity);
 	zprintf(4, "spawned input thread\n");
-	int rc = 0;
 	while(thread->started && rc >= 0) {
 		_zbar_mutex_unlock(&proc->mutex);
 		rc = _zbar_processor_input_wait(proc, &thread->notify, -1);
@@ -223,7 +224,6 @@ static ZTHREAD proc_input_thread(void * arg)
 	_zbar_mutex_unlock(&proc->mutex);
 	_zbar_processor_close(proc);
 	_zbar_mutex_lock(&proc->mutex);
-
 done:
 	thread->running = 0;
 	_zbar_event_trigger(&thread->activity);
@@ -291,6 +291,8 @@ int zbar_processor_init(zbar_processor_t * proc, const char * dev, int enable_di
 		proc->window = NULL;
 	}
 	int rc = 0;
+	int input_threaded = 0;
+	int video_threaded = 0;
 	if(proc->video) {
 		zbar_video_destroy(proc->video);
 		proc->video = NULL;
@@ -320,13 +322,13 @@ int zbar_processor_init(zbar_processor_t * proc, const char * dev, int enable_di
 		}
 	}
 	/* spawn blocking video thread */
-	int video_threaded = (proc->threaded && proc->video && zbar_video_get_fd(proc->video) < 0);
+	video_threaded = (proc->threaded && proc->video && zbar_video_get_fd(proc->video) < 0);
 	if(video_threaded && _zbar_thread_start(&proc->video_thread, proc_video_thread, proc, &proc->mutex)) {
 		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_SYSTEM, __FUNCTION__, "spawning video thread");
 		goto done;
 	}
 	/* spawn input monitor thread */
-	int input_threaded = (proc->threaded && (proc->window || (proc->video && !video_threaded)));
+	input_threaded = (proc->threaded && (proc->window || (proc->video && !video_threaded)));
 	if(input_threaded && _zbar_thread_start(&proc->input_thread, proc_input_thread, proc, &proc->mutex)) {
 		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_SYSTEM, __FUNCTION__, "spawning input thread");
 		goto done;

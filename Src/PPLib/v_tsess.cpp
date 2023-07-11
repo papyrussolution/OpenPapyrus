@@ -322,6 +322,67 @@ bool PPViewTSession::IsTempTblNeeded() const
 	return (Filt.Order || (Filt.StPeriod.low && Filt.StTime) || (Filt.FnPeriod.upp && Filt.FnTime) || Filt.ArID || PrcList.GetCount() > 1);
 }
 
+int PPViewTSession::MakeDraftIdList(PPIDArray & rList)
+{
+	int    ok = 1;
+	rList.Z();
+	{
+		PPIDArray prc_id_list;
+		const PPID single_tec_id = TechList.GetSingle();
+		if(PrcList.GetCount())
+			prc_id_list = PrcList.Get();
+		else
+			prc_id_list.add(0L);
+		TSessionTbl * p_t = TSesObj.P_Tbl;
+		for(uint i = 0; i < prc_id_list.getCount(); i++) {
+			TSessionTbl::Rec rec;
+			union {;
+				TSessionTbl::Key2 k2; // prc
+				TSessionTbl::Key4 k4; // prc
+				TSessionTbl::Key5 k5; // tech
+			} k;
+			const  PPID prc_id = prc_id_list.get(i);
+			int    idx = 0;
+			DBQ * dbq = 0;
+			MEMSZERO(k);
+			if(prc_id) {
+				idx = 4;
+				k.k4.PrcID = prc_id;
+				k.k4.StDt = Filt.StPeriod.low;
+			}
+			else if(single_tec_id) {
+				idx = 5;
+				k.k5.TechID = single_tec_id;
+				k.k5.StDt = Filt.StPeriod.low;
+			}
+			else {
+				idx = 2;
+				k.k2.StDt = Filt.StPeriod.low;
+			}
+			dbq = ppcheckfiltid(dbq, p_t->PrcID, prc_id);
+			dbq = ppcheckfiltid(dbq, p_t->TechID, single_tec_id);
+			dbq = &(*dbq && daterange(p_t->StDt, &Filt.StPeriod));
+			dbq = &(*dbq && daterange(p_t->FinDt, &Filt.FnPeriod));
+			dbq = ppcheckfiltid(dbq, p_t->ArID, Filt.ArID);
+			dbq = ppcheckfiltid(dbq, p_t->Ar2ID, Filt.Ar2ID);
+
+			BExtQuery q(p_t, idx);
+			q.selectAll().where(*dbq);
+			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
+				//if(TSesObj.Search(p_t->data.ID, &rec) > 0 && TSesObj.CheckForFilt(&Filt, p_t->data.ID, &rec)) {
+				p_t->copyBufTo(&rec);
+				if(TSesObj.CheckForFilt(&Filt, rec.ID, &rec, PPObjTSession::cfffDraft)) {
+					rList.add(rec.ID);
+				}
+			}
+		}
+	}
+	rList.sortAndUndup();
+	ok = rList.getCount() ? 1 : -1;
+	CATCHZOK
+	return ok;
+}
+
 int PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
@@ -329,6 +390,7 @@ int PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 	{
 		PPObjProcessor prc_obj;
 		PPIDArray prc_list, local_prc_list;
+		IdList.Z(); // @v11.7.9
 		ZDELETE(P_TempTbl);
 		BExtQuery::ZDelete(&P_IterQuery);
 		State = 0;
@@ -419,65 +481,115 @@ int PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 			if(tec_list.getCount())
 				TechList.Set(&tec_list);
 		}
-		if(IsTempTblNeeded()) {
-			THROW(P_TempTbl = CreateTempOrderFile());
-			if(!(State & stEmpty)) {
-				PPIDArray prc_id_list;
-				const PPID single_tec_id = TechList.GetSingle();
-				if(PrcList.GetCount())
-					prc_id_list = PrcList.Get();
-				else
-					prc_id_list.add(0L);
-				BExtInsert bei(P_TempTbl);
-				TSessionTbl * p_t = TSesObj.P_Tbl;
-				PPTransaction tra(ppDbDependTransaction, 1);
-				THROW(tra);
-				for(uint i = 0; i < prc_id_list.getCount(); i++) {
-					TSessionTbl::Rec rec;
-					union {;
-						TSessionTbl::Key2 k2; // prc
-						TSessionTbl::Key4 k4; // prc
-						TSessionTbl::Key5 k5; // tech
-					} k;
-					const  PPID prc_id = prc_id_list.get(i);
-					int    idx = 0;
-					DBQ * dbq = 0;
-					MEMSZERO(k);
-					if(prc_id) {
-						idx = 4;
-						k.k4.PrcID = prc_id;
-						k.k4.StDt = Filt.StPeriod.low;
+		{
+			bool temp_tbl_is_done = false;
+			TSessionTbl::Rec rec;
+			// @v11.7.9 {
+			if(Filt.GoodsGroupID) {
+				PPIDArray goods_list;
+				PPIDArray draft_tsess_list;
+				PPIDArray tsess_by_goods_list;
+				GoodsIterator::GetListByGroup(Filt.GoodsGroupID, &goods_list);
+				THROW(P_TempTbl = CreateTempOrderFile());
+				if(goods_list.getCount()) {
+					goods_list.sortAndUndup();
+					MakeDraftIdList(draft_tsess_list);
+					TSesObj.GetListByGoodsInLines(goods_list, &draft_tsess_list, tsess_by_goods_list);
+					draft_tsess_list = tsess_by_goods_list;
+					if(draft_tsess_list.getCount()) {
+						uint i = draft_tsess_list.getCount();
+						if(i) {
+							BExtInsert bei(P_TempTbl);
+							PPTransaction tra(ppDbDependTransaction, 1);
+							THROW(tra);
+							do {
+								const PPID tsess_id = draft_tsess_list.get(--i);
+								if(TSesObj.Search(tsess_id, &rec) > 0) {
+									if(!TSesObj.CheckForFilt(&Filt, tsess_id, &rec)) {
+										draft_tsess_list.atFree(i);
+									}
+									else {
+										TempOrderTbl::Rec temp_rec;
+										MakeTempRec(&rec, &temp_rec);
+										THROW_DB(bei.insert(&temp_rec));
+									}
+								}
+							} while(i);
+							THROW_DB(bei.flash());
+							THROW(tra.Commit());
+						}
+						IdList.Set(&draft_tsess_list);
+						if(IdList.GetCount() == 0)
+							State |= stEmpty;
 					}
-					else if(single_tec_id) {
-						idx = 5;
-						k.k5.TechID = single_tec_id;
-						k.k5.StDt = Filt.StPeriod.low;
-					}
-					else {
-						idx = 2;
-						k.k2.StDt = Filt.StPeriod.low;
-					}
-					dbq = ppcheckfiltid(dbq, p_t->PrcID, prc_id);
-					dbq = ppcheckfiltid(dbq, p_t->TechID, single_tec_id);
-					dbq = &(*dbq && daterange(p_t->StDt, &Filt.StPeriod));
-					dbq = &(*dbq && daterange(p_t->FinDt, &Filt.FnPeriod));
-					dbq = ppcheckfiltid(dbq, p_t->ArID, Filt.ArID);
-					dbq = ppcheckfiltid(dbq, p_t->Ar2ID, Filt.Ar2ID);
+					else
+						State |= stEmpty;
+				}
+				else {
+					State |= stEmpty;
+				}
+				temp_tbl_is_done = true;
+			}
+			// } @v11.7.9 
+			if(!temp_tbl_is_done && IsTempTblNeeded()) {
+				THROW(P_TempTbl = CreateTempOrderFile());
+				if(!(State & stEmpty)) {
+					PPIDArray prc_id_list;
+					const PPID single_tec_id = TechList.GetSingle();
+					if(PrcList.GetCount())
+						prc_id_list = PrcList.Get();
+					else
+						prc_id_list.add(0L);
+					BExtInsert bei(P_TempTbl);
+					TSessionTbl * p_t = TSesObj.P_Tbl;
+					PPTransaction tra(ppDbDependTransaction, 1);
+					THROW(tra);
+					for(uint i = 0; i < prc_id_list.getCount(); i++) {
+						union {;
+							TSessionTbl::Key2 k2; // prc
+							TSessionTbl::Key4 k4; // prc
+							TSessionTbl::Key5 k5; // tech
+						} k;
+						const  PPID prc_id = prc_id_list.get(i);
+						int    idx = 0;
+						DBQ * dbq = 0;
+						MEMSZERO(k);
+						if(prc_id) {
+							idx = 4;
+							k.k4.PrcID = prc_id;
+							k.k4.StDt = Filt.StPeriod.low;
+						}
+						else if(single_tec_id) {
+							idx = 5;
+							k.k5.TechID = single_tec_id;
+							k.k5.StDt = Filt.StPeriod.low;
+						}
+						else {
+							idx = 2;
+							k.k2.StDt = Filt.StPeriod.low;
+						}
+						dbq = ppcheckfiltid(dbq, p_t->PrcID, prc_id);
+						dbq = ppcheckfiltid(dbq, p_t->TechID, single_tec_id);
+						dbq = &(*dbq && daterange(p_t->StDt, &Filt.StPeriod));
+						dbq = &(*dbq && daterange(p_t->FinDt, &Filt.FnPeriod));
+						dbq = ppcheckfiltid(dbq, p_t->ArID, Filt.ArID);
+						dbq = ppcheckfiltid(dbq, p_t->Ar2ID, Filt.Ar2ID);
 
-					BExtQuery q(p_t, idx);
-					q.selectAll().where(*dbq);
-					for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
-						//if(TSesObj.Search(p_t->data.ID, &rec) > 0 && TSesObj.CheckForFilt(&Filt, p_t->data.ID, &rec)) {
-						p_t->copyBufTo(&rec);
-						if(TSesObj.CheckForFilt(&Filt, rec.ID, &rec)) {
-							TempOrderTbl::Rec temp_rec;
-							MakeTempRec(&rec, &temp_rec);
-							THROW_DB(bei.insert(&temp_rec));
+						BExtQuery q(p_t, idx);
+						q.selectAll().where(*dbq);
+						for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
+							//if(TSesObj.Search(p_t->data.ID, &rec) > 0 && TSesObj.CheckForFilt(&Filt, p_t->data.ID, &rec)) {
+							p_t->copyBufTo(&rec);
+							if(TSesObj.CheckForFilt(&Filt, rec.ID, &rec)) {
+								TempOrderTbl::Rec temp_rec;
+								MakeTempRec(&rec, &temp_rec);
+								THROW_DB(bei.insert(&temp_rec));
+							}
 						}
 					}
+					THROW_DB(bei.flash());
+					THROW(tra.Commit());
 				}
-				THROW_DB(bei.flash());
-				THROW(tra.Commit());
 			}
 		}
 	}

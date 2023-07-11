@@ -140,6 +140,9 @@ void gravity_compiler_transfer(gravity_compiler_t * compiler, gravity_vm * vm)
 
 gravity_closure_t * gravity_compiler_run(gravity_compiler_t * compiler, const char * source, size_t len, uint32 fileid, bool is_static, bool add_debug) 
 {
+	bool b1 = false;
+	bool b2 = false;
+	gravity_function_t * f = 0;
 	if(!source || !len) 
 		return NULL;
 	// CHECK cleanup first
@@ -161,15 +164,15 @@ gravity_closure_t * gravity_compiler_run(gravity_compiler_t * compiler, const ch
 	gravity_parser_free(compiler->parser);
 	compiler->parser = NULL;
 	// STEP 2a: SEMANTIC CHECK (NON-LOCAL DECLARATIONS)
-	bool b1 = gravity_semacheck1(compiler->ast, compiler->P_Delegate);
+	b1 = gravity_semacheck1(compiler->ast, compiler->P_Delegate);
 	if(!b1) 
 		goto abort_compilation;
 	// STEP 2b: SEMANTIC CHECK (LOCAL DECLARATIONS)
-	bool b2 = gravity_semacheck2(compiler->ast, compiler->P_Delegate);
+	b2 = gravity_semacheck2(compiler->ast, compiler->P_Delegate);
 	if(!b2) 
 		goto abort_compilation;
 	// STEP 3: INTERMEDIATE CODE GENERATION (stack based VM)
-	gravity_function_t * f = gravity_codegen(compiler->ast, compiler->P_Delegate, compiler->vm, add_debug);
+	f = gravity_codegen(compiler->ast, compiler->P_Delegate, compiler->vm, add_debug);
 	if(!f) 
 		goto abort_compilation;
 	// STEP 4: CODE GENERATION (register based VM)

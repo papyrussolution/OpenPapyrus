@@ -293,8 +293,7 @@ x11_exit:
  *
  * This function will always be called with 'datalen' greater than zero.
  */
-int _libssh2_packet_add(LIBSSH2_SESSION * session, uchar * data,
-    size_t datalen, int macstate)
+int _libssh2_packet_add(LIBSSH2_SESSION * session, uchar * data, size_t datalen, int macstate)
 {
 	int rc = 0;
 	char * message = NULL;
@@ -303,6 +302,7 @@ int _libssh2_packet_add(LIBSSH2_SESSION * session, uchar * data,
 	size_t language_len = 0;
 	LIBSSH2_CHANNEL * channelp = NULL;
 	size_t data_head = 0;
+	uchar  want_reply = 0;
 	uchar msg = data[0];
 	switch(session->packAdd_state) {
 		case libssh2_NB_state_idle:
@@ -423,13 +423,14 @@ int _libssh2_packet_add(LIBSSH2_SESSION * session, uchar * data,
 			 */
 			case SSH_MSG_GLOBAL_REQUEST:
 			    if(datalen >= 5) {
-				    uchar want_reply = 0;
-				    uint32 len = _libssh2_ntohu32(data + 1);
-				    if(datalen >= (6 + len)) {
-					    want_reply = data[5 + len];
-					    _libssh2_debug(session, LIBSSH2_TRACE_CONN, "Received global request type %.*s (wr %X)",
-					    len, data + 5, want_reply);
-				    }
+				    want_reply = 0;
+					{
+						uint32 len = _libssh2_ntohu32(data + 1);
+						if(datalen >= (6 + len)) {
+							want_reply = data[5 + len];
+							_libssh2_debug(session, LIBSSH2_TRACE_CONN, "Received global request type %.*s (wr %X)", len, data + 5, want_reply);
+						}
+					}
 				    if(want_reply) {
 					    static const uchar packet = SSH_MSG_REQUEST_FAILURE;
 libssh2_packet_add_jump_point5:
@@ -557,44 +558,43 @@ libssh2_packet_add_jump_point1:
 
 			case SSH_MSG_CHANNEL_REQUEST:
 			    if(datalen >= 9) {
-				    uint32 channel = _libssh2_ntohu32(data + 1);
-				    uint32 len = _libssh2_ntohu32(data + 5);
-				    uchar want_reply = 1;
-				    if(len < (datalen - 10))
-					    want_reply = data[9 + len];
-				    _libssh2_debug(session, LIBSSH2_TRACE_CONN, "Channel %d received request type %.*s (wr %X)", channel, len, data + 9, want_reply);
-				    if(len == sizeof("exit-status") - 1 && !memcmp("exit-status", data + 9, sizeof("exit-status") - 1)) {
-					    /* we've got "exit-status" packet. Set the session value */
-					    if(datalen >= 20)
-						    channelp =
-						    _libssh2_channel_locate(session, channel);
+					want_reply = 1;
+					{
+						uint32 channel = _libssh2_ntohu32(data + 1);
+						uint32 len = _libssh2_ntohu32(data + 5);
+						if(len < (datalen - 10))
+							want_reply = data[9 + len];
+						_libssh2_debug(session, LIBSSH2_TRACE_CONN, "Channel %d received request type %.*s (wr %X)", channel, len, data + 9, want_reply);
+						if(len == sizeof("exit-status") - 1 && !memcmp("exit-status", data + 9, sizeof("exit-status") - 1)) {
+							/* we've got "exit-status" packet. Set the session value */
+							if(datalen >= 20)
+								channelp = _libssh2_channel_locate(session, channel);
 
-					    if(channelp) {
-						    channelp->exit_status =
-						    _libssh2_ntohu32(data + 9 + sizeof("exit-status"));
-						    _libssh2_debug(session, LIBSSH2_TRACE_CONN, "Exit status %lu received for channel %lu/%lu", channelp->exit_status, channelp->local.id, channelp->remote.id);
-					    }
-				    }
-				    else if(len == sizeof("exit-signal") - 1 && !memcmp("exit-signal", data + 9, sizeof("exit-signal") - 1)) {
-					    // command terminated due to signal 
-					    if(datalen >= 20)
-						    channelp = _libssh2_channel_locate(session, channel);
-					    if(channelp) {
-						    // set signal name (without SIG prefix) 
-						    uint32 namelen = _libssh2_ntohu32(data + 9 + sizeof("exit-signal"));
-						    channelp->exit_signal = (char *)LIBSSH2_ALLOC(session, namelen + 1);
-						    if(!channelp->exit_signal)
-							    rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "memory for signal name");
-						    else {
-							    memcpy(channelp->exit_signal,
-							    data + 13 + sizeof("exit_signal"), namelen);
-							    channelp->exit_signal[namelen] = '\0';
-							    /* TODO: save error message and language tag */
-							    _libssh2_debug(session, LIBSSH2_TRACE_CONN, "Exit signal %s received for channel %lu/%lu", channelp->exit_signal, channelp->local.id, channelp->remote.id);
-						    }
-					    }
-				    }
-
+							if(channelp) {
+								channelp->exit_status = _libssh2_ntohu32(data + 9 + sizeof("exit-status"));
+								_libssh2_debug(session, LIBSSH2_TRACE_CONN, "Exit status %lu received for channel %lu/%lu", channelp->exit_status, channelp->local.id, channelp->remote.id);
+							}
+						}
+						else if(len == sizeof("exit-signal") - 1 && !memcmp("exit-signal", data + 9, sizeof("exit-signal") - 1)) {
+							// command terminated due to signal 
+							if(datalen >= 20)
+								channelp = _libssh2_channel_locate(session, channel);
+							if(channelp) {
+								// set signal name (without SIG prefix) 
+								uint32 namelen = _libssh2_ntohu32(data + 9 + sizeof("exit-signal"));
+								channelp->exit_signal = (char *)LIBSSH2_ALLOC(session, namelen + 1);
+								if(!channelp->exit_signal)
+									rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "memory for signal name");
+								else {
+									memcpy(channelp->exit_signal,
+									data + 13 + sizeof("exit_signal"), namelen);
+									channelp->exit_signal[namelen] = '\0';
+									/* TODO: save error message and language tag */
+									_libssh2_debug(session, LIBSSH2_TRACE_CONN, "Exit signal %s received for channel %lu/%lu", channelp->exit_signal, channelp->local.id, channelp->remote.id);
+								}
+							}
+						}
+					}
 				    if(want_reply) {
 					    uchar packet[5];
 libssh2_packet_add_jump_point4:

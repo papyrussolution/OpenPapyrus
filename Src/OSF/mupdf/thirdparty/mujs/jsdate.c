@@ -350,7 +350,7 @@ static const char * fmttime(char * buf, double t, double tza)
 	return buf;
 }
 
-static char * fmtdatetime(char * buf, double t, double tza)
+static const char * fmtdatetime(char * buf, double t, double tza)
 {
 	char dbuf[20], tbuf[20];
 	if(!isfinite(t))

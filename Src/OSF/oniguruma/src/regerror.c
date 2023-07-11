@@ -11,7 +11,7 @@
 
 extern uchar * onig_error_code_to_format(int code)
 {
-	char * p;
+	const char * p;
 	switch(code) {
 		case ONIG_MISMATCH: p = "mismatch"; break;
 		case ONIG_NO_SUPPORT_CONFIG: p = "no support in this configuration"; break;

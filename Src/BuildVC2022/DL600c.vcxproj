@@ -277,23 +277,11 @@
     <ProjectReference Include="libjpeg.vcxproj">
       <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
     </ProjectReference>
-    <ProjectReference Include="libpng.vcxproj">
-      <Project>{04aa636d-9d3e-4e79-9c2e-b8d0470719da}</Project>
-    </ProjectReference>
     <ProjectReference Include="libwebp-slib.vcxproj">
       <Project>{05255f31-2054-4df4-ad6d-5bc5da8ccccf}</Project>
     </ProjectReference>
-    <ProjectReference Include="libxml.vcxproj">
-      <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>
-    </ProjectReference>
     <ProjectReference Include="onig.vcxproj">
       <Project>{d115c575-b8ee-3bd7-8046-688a4d145686}</Project>
-    </ProjectReference>
-    <ProjectReference Include="openssl-111-crypto.vcxproj">
-      <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
-    </ProjectReference>
-    <ProjectReference Include="openssl-111.vcxproj">
-      <Project>{0796c89c-07e1-4bda-bdae-f023aeb5366c}</Project>
     </ProjectReference>
     <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>

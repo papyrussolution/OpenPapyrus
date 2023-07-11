@@ -1233,18 +1233,15 @@ static void lpr_inherit_res(fz_context * ctx, pdf_obj * node, int depth, pdf_obj
 	}
 }
 
-static pdf_obj * lpr_inherit(fz_context * ctx, pdf_obj * node, char * text, int depth)
+static pdf_obj * lpr_inherit(fz_context * ctx, pdf_obj * node, const char * text, int depth)
 {
 	do {
 		pdf_obj * o = pdf_dict_gets(ctx, node, text);
-
 		if(o)
 			return pdf_resolve_indirect(ctx, o);
 		node = pdf_dict_get(ctx, node, PDF_NAME(Parent));
 		depth--;
-	}
-	while(depth >= 0 && node);
-
+	} while(depth >= 0 && node);
 	return NULL;
 }
 

@@ -11,7 +11,7 @@
 
 static OnigTestBlock OnigTB;
 
-static void xx(char * pattern, char * str, int from, int to, int mem, int not, int error_no)
+static void xx(const char * pattern, const char * str, int from, int to, int mem, int _not, int error_no)
 {
 #ifdef __TRUSTINSOFT_ANALYZER__
 	if(nall++ % TIS_TEST_CHOOSE_MAX != TIS_TEST_CHOOSE_CURRENT) return;
@@ -55,13 +55,13 @@ static void xx(char * pattern, char * str, int from, int to, int mem, int not, i
 		return;
 	}
 	if(r == ONIG_MISMATCH) {
-		if(not)
+		if(_not)
 			OnigTB.OutputOkN(pattern, str);
 		else
 			OnigTB.OutputFail(pattern, str);
 	}
 	else {
-		if(not)
+		if(_not)
 			OnigTB.OutputFailN(pattern, str);
 		else if(OnigTB.region->beg[mem] == from && OnigTB.region->end[mem] == to)
 			OnigTB.OutputOk(pattern, str);
@@ -73,10 +73,10 @@ static void xx(char * pattern, char * str, int from, int to, int mem, int not, i
 	onig_free(reg);
 }
 
-static void x2(char * pattern, char * str, int from, int to) { xx(pattern, str, from, to, 0, 0, 0); }
-static void x3(char * pattern, char * str, int from, int to, int mem) { xx(pattern, str, from, to, mem, 0, 0); }
-static void n(char * pattern, char * str) { xx(pattern, str, 0, 0, 0, 1, 0); }
-static void e(char * pattern, char * str, int error_no) { xx(pattern, str, 0, 0, 0, 0, error_no); }
+static void x2(const char * pattern, const char * str, int from, int to) { xx(pattern, str, from, to, 0, 0, 0); }
+static void x3(const char * pattern, const char * str, int from, int to, int mem) { xx(pattern, str, from, to, mem, 0, 0); }
+static void n(const char * pattern, const char * str) { xx(pattern, str, 0, 0, 0, 1, 0); }
+static void e(const char * pattern, const char * str, int error_no) { xx(pattern, str, 0, 0, 0, 0, error_no); }
 
 static int test_fixed_interval()
 {

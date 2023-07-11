@@ -877,13 +877,13 @@ XMLPUBFUN void xmlResetError(xmlError * err);
 XMLPUBFUN int xmlCopyError(xmlError * from, xmlError * to);
 
 #ifdef IN_LIBXML
-/*
- * Internal callback reporting routine
- */
-XMLPUBFUN void __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFunc channel, void * data, void *ctx,
-	void *node, int domain, int code, xmlErrorLevel level, const char *file, int line, const char *str1, const char *str2, const char *str3,
-	int int1, int col, const char *msg, ...) LIBXML_ATTR_FORMAT(16,17);
-XMLPUBFUN void FASTCALL __xmlSimpleError(int domain, int code, xmlNode * node, const char *msg, const char *extra);
+//
+// Internal callback reporting routine
+//
+    XMLPUBFUN void __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFunc channel, void * data, void *ctx,
+	    void *node, int domain, int code, xmlErrorLevel level, const char *file, int line, const char *str1, const char *str2, const char *str3,
+	    int int1, int col, const char *msg, ...) LIBXML_ATTR_FORMAT(16,17);
+    XMLPUBFUN void FASTCALL __xmlSimpleError(int domain, int code, xmlNode * node, const char *msg, const char *extra);
 #endif
 //#ifdef __cplusplus
 //}

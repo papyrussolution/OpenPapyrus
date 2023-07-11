@@ -11100,6 +11100,7 @@ private:
 	Error LastErr;
 };
 
+#if 0 // @v11.7.9 {
 class CRegExp_Depricated {
 public:
 	CRegExp_Depricated();
@@ -11163,6 +11164,7 @@ private:
 	const char ** PP_RegStart; // @*regtry Pointer to startp array.
 	const char ** PP_RegEnd;   // Ditto for endp.
 };
+#endif // } @v11.7.9
 //
 //
 //

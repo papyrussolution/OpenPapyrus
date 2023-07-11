@@ -455,6 +455,213 @@
     <ClCompile Include="..\SLib\lz4\lz4hc.c">
       <Filter>lz4</Filter>
     </ClCompile>
+    <ClCompile Include="..\SLib\libxml\buf.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\c14n.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\catalog.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\chvalid.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\debugXML.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\dict.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\encoding.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\entities.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\error.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\globals.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\hash.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\HTMLparser.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\HTMLtree.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\legacy.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\libxml-pch.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\list.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\nanoftp.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\nanohttp.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\parserInternals.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\pattern.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\relaxng.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\runsuite.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\runtest.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\runxmlconf.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\SAX.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\SAX2.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\schematron.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\testapi.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\testAutomata.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\testC14N.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\testchar.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\testdict.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\testdso.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\testHTML.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\testlimits.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\testModule.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\testReader.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\testrecurse.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\testRegexp.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\testRelax.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\testSAX.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\testSchemas.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\testThreads.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\testThreadsWin32.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\testURI.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\testXPath.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\threads.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\tree.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\valid.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xinclude.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xlink.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xmlcatalog.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xmlIO.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xmllint.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xmlmemory.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xmlmodule.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xmlreader.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xmlregexp.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xmlsave.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xmlschemas.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xmlschemastypes.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xmlstring.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xmlunicode.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xmlwriter.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xpath.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xpointer.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xzlib.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xmlparser.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\libxml\xmluri.c">
+      <Filter>libxml</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -889,6 +1096,9 @@
     </Filter>
     <Filter Include="lz4">
       <UniqueIdentifier>{39607738-c4a7-45ac-a0e8-02a5e0e343d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libxml">
+      <UniqueIdentifier>{4a985cbb-928c-4899-bf85-332c39185f6c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

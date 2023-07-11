@@ -55,8 +55,8 @@ UTIL_time_t g_displayClock = UTIL_TIME_INITIALIZER;
 #define LZ4_MAGICNUMBER 0x184D2204
 #if defined(ZSTD_LZ4COMPRESS) || defined(ZSTD_LZ4DECOMPRESS)
 	#define LZ4F_ENABLE_OBSOLETE_ENUMS
-	#include <..\osf\lz4\lz4frame.h>
-	#include <..\osf\lz4\lz4.h>
+	#include <..\SLib\lz4\lz4frame.h>
+	#include <..\SLib\lz4\lz4.h>
 #endif
 
 char const* FIO_zlibVersion(void)

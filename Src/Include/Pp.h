@@ -37761,7 +37761,7 @@ public:
 	//   0  - ошибка
 	//
 	static int  EditWrOffOrder(); // @<<(cmd)cmTSessWrOffOrder
-	PPObjTSession(void * extraPtr = 0);
+	explicit PPObjTSession(void * extraPtr = 0);
 	~PPObjTSession();
 	virtual int Search(PPID id, void *);
 	virtual int Edit(PPID * pID, void * extraPtr);
@@ -37776,7 +37776,20 @@ public:
 	//
 	int    GetPrevSession(const TSessionTbl::Rec & rSessRec, TSessionTbl::Rec * pPrevRec);
 	int    SearchByLinkBillID(PPID linkBillID, TSessionTbl::Rec * pRec);
-	int    CheckForFilt(const TSessionFilt * pFilt, PPID id, const TSessionTbl::Rec * pRec);
+	//
+	// Descr: Флаги функции CheckForFilt
+	//
+	enum {
+		cfffDraft = 0x0001 // Проверять только те критерии, время обработки которых не сильно влияют на скорость.
+	};
+
+	int    CheckForFilt(const TSessionFilt * pFilt, PPID id, const TSessionTbl::Rec * pRec, long flags = 0);
+	//
+	// Descr: Находит список идентификаторов сессий, строки которых содержат хотя бы один товар из
+	//   списка rGoodsIdList.
+	//   Если аргумент pDraftTSessIdList != 0, то анализируются только те сессии, которые входят в этот список.
+	//
+	int    GetListByGoodsInLines(const PPIDArray & rGoodsIdList, const PPIDArray * pDraftTSessIdList, PPIDArray & rList);
 	int    GetTech(PPID tecID, TechTbl::Rec *, int useCache = 0); // @>>PPObjTech::Search
 	int    GetTechByGoods(PPID goodsID, PPID prcID, TechTbl::Rec * pTechRec);
 	//
@@ -38362,6 +38375,12 @@ private:
 	virtual int  Print(const void *);
 	bool   IsTempTblNeeded() const;
 	void   MakeTempRec(const TSessionTbl::Rec * pSrcRec, TempOrderTbl::Rec * pDestRec);
+	//
+	// Descr: Формирует рамочный список идентификаторов сессий в соответствии с фильтром
+	//   Под термином "рамочный" подразумевается то, что список не учитывает всех критериев фильтрации,
+	//   но лишь те, которые можно применить для максимально быстрого построения списка.
+	//
+	int    MakeDraftIdList(PPIDArray & rList);
 	int    WriteOff(PPID sessID);
 	int    Recover();
 	int    PrintList(const void * pHdr);
@@ -38391,6 +38410,7 @@ private:
 		// фильтрации при повторном анализе той же выборки сессий.
 	PPUhttStorePacket * P_UhttsPack;
 	IterBlock  Ib;
+	ObjIdListFilt IdList;   // @v11.7.9 Список идентификаторов сессий, которые должны быть в выборке
 	ObjIdListFilt PrcList;
 	ObjIdListFilt TechList; // @v11.7.6
 	StrAssocArray ExtSfTitleList;

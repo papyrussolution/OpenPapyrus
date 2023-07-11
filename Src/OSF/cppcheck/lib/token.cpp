@@ -14,12 +14,8 @@
 const std::list<ValueFlow::Value> TokenImpl::mEmptyValueList;
 
 Token::Token(TokensFrontBack * tokensFrontBack) :
-	mTokensFrontBack(tokensFrontBack),
-	mNext(nullptr),
-	mPrevious(nullptr),
-	mLink(nullptr),
-	mTokType(eNone),
-	mFlags(0)
+	mTokensFrontBack(tokensFrontBack), mNext(nullptr), mPrevious(nullptr),
+	mLink(nullptr), mTokType(eNone), mFlags(0)
 {
 	mImpl = new TokenImpl();
 }
@@ -41,17 +37,7 @@ ConstTokenRange Token::until(const Token* t) const
 }
 
 static const std::unordered_set<std::string> controlFlowKeywords = {
-	"goto",
-	"do",
-	"if",
-	"else",
-	"for",
-	"while",
-	"switch",
-	"case",
-	"break",
-	"continue",
-	"return"
+	"goto", "do", "if", "else", "for", "while", "switch", "case", "break", "continue", "return"
 };
 
 void Token::update_property_info()
@@ -115,30 +101,18 @@ void Token::update_property_info()
 	else {
 		tokType(eNone);
 	}
-
 	update_property_char_string_literal();
 	update_property_isStandardType();
 }
 
-static const std::unordered_set<std::string> stdTypes = { "bool"
-							  , "_Bool"
-							  , "char"
-							  , "double"
-							  , "float"
-							  , "int"
-							  , "long"
-							  , "short"
-							  , "size_t"
-							  , "void"
-							  , "wchar_t"};
+static const std::unordered_set<std::string> stdTypes = { 
+	"bool", "_Bool", "char", "double", "float", "int", "long", "short", "size_t", "void", "wchar_t"};
 
 void Token::update_property_isStandardType()
 {
 	isStandardType(false);
-
 	if(mStr.size() < 3)
 		return;
-
 	if(stdTypes.find(mStr)!=stdTypes.end()) {
 		isStandardType(true);
 		tokType(eType);
@@ -149,7 +123,6 @@ void Token::update_property_char_string_literal()
 {
 	if(mTokType != Token::eString && mTokType != Token::eChar)
 		return;
-
 	isLong(((mTokType == Token::eString) && isPrefixStringCharLiteral(mStr, '"', "L")) ||
 	    ((mTokType == Token::eChar) && isPrefixStringCharLiteral(mStr, '\'', "L")));
 }
@@ -222,16 +195,13 @@ void Token::deletePrevious(nonneg int count)
 {
 	while(mPrevious && count > 0) {
 		Token * p = mPrevious;
-
 		// #8154 we are about to be unknown -> destroy the link to us
 		if(p->mLink && p->mLink->mLink == p)
 			p->mLink->link(nullptr);
-
 		mPrevious = p->previous();
 		delete p;
 		--count;
 	}
-
 	if(mPrevious)
 		mPrevious->next(this);
 	else if(mTokensFrontBack)
@@ -395,17 +365,8 @@ static int multiComparePercent(const Token * tok, const char*& haystack, nonneg 
 		    // Type (%type%)
 	    {
 		    haystack += 5;
-		    if(tok->isName() && tok->varId() == 0 && (tok->str() != "delete" || !tok->isKeyword())) // HACK:
-				                                                                            // this is
-				                                                                            // legacy
-				                                                                            // behaviour,
-				                                                                            // it should
-				                                                                            // return
-				                                                                            // false for
-				                                                                            // all
-				                                                                            // keywords,
-				                                                                            // except
-				                                                                            // types
+		    if(tok->isName() && tok->varId() == 0 && (tok->str() != "delete" || !tok->isKeyword())) // HACK: this is
+				// legacy behaviour, it should return false for all keywords, except types
 			    return 1;
 	    }
 	    break;
@@ -505,12 +466,10 @@ static int multiComparePercent(const Token * tok, const char*& haystack, nonneg 
 		    //unknown %cmd%, abort
 		    throw InternalError(tok, "Unexpected command");
 	}
-
 	if(*haystack == '|')
 		haystack += 1;
 	else
 		return -1;
-
 	return 0xFFFF;
 }
 
@@ -529,7 +488,6 @@ int Token::multiCompare(const Token * tok, const char * haystack, nonneg int var
 				// If needle is at the end, we have a match.
 				return 1;
 			}
-
 			needlePointer = needle;
 			++haystack;
 		}
@@ -544,14 +502,10 @@ int Token::multiCompare(const Token * tok, const char * haystack, nonneg int var
 				return 0;
 			break;
 		}
-		// If haystack and needle don't share the same character,
-		// find next '|' character.
-		else {
+		else { // If haystack and needle don't share the same character, find next '|' character.
 			needlePointer = needle;
-
 			do {
 				++haystack;
-
 				if(*haystack == ' ' || *haystack == '\0') {
 					return -1;
 				}
@@ -559,7 +513,6 @@ int Token::multiCompare(const Token * tok, const char * haystack, nonneg int var
 					break;
 				}
 			} while(true);
-
 			++haystack;
 		}
 	}
@@ -629,7 +582,6 @@ bool Token::Match(const Token * tok, const char pattern[], nonneg int varid)
 		// No token => Success!
 		if(*p == '\0')
 			break;
-
 		if(!tok) {
 			// If we have no tokens, pattern "!!else" should return true
 			if(p[0] == '!' && p[1] == '!' && p[2] != '\0') {
@@ -637,15 +589,12 @@ bool Token::Match(const Token * tok, const char pattern[], nonneg int varid)
 					++p;
 				continue;
 			}
-
 			return false;
 		}
-
 		// [.. => search for a one-character token..
 		if(p[0] == '[' && chrInFirstWord(p, ']')) {
 			if(tok->str().length() != 1)
 				return false;
-
 			const char * temp = p+1;
 			bool chrFound = false;
 			int count = 0;
@@ -653,31 +602,24 @@ bool Token::Match(const Token * tok, const char pattern[], nonneg int varid)
 				if(*temp == ']') {
 					++count;
 				}
-
 				else if(*temp == tok->str()[0]) {
 					chrFound = true;
 					break;
 				}
-
 				++temp;
 			}
-
 			if(count > 1 && tok->str()[0] == ']')
 				chrFound = true;
-
 			if(!chrFound)
 				return false;
-
 			p = temp;
 		}
-
 		// Parse "not" options. Token can be anything except the given one
 		else if(p[0] == '!' && p[1] == '!' && p[2] != '\0') {
 			p += 2;
 			if(firstWordEquals(p, tok->str().c_str()))
 				return false;
 		}
-
 		// Parse multi options, such as void|int|char (accept token which is one of these 3)
 		else {
 			const int res = multiCompare(tok, p, varid);
@@ -692,14 +634,11 @@ bool Token::Match(const Token * tok, const char pattern[], nonneg int varid)
 				return false;
 			}
 		}
-
 		// using strchr() for the other instances leads to a performance decrease
 		if(!(p = strchr(p, ' ')))
 			break;
-
 		tok = tok->next();
 	}
-
 	// The end of the pattern has been reached and nothing wrong has been found
 	return true;
 }
@@ -2134,9 +2073,7 @@ bool Token::addValue(const ValueFlow::Value &value)
 			v.varId = mImpl->mVarId;
 		mImpl->mValues = new std::list<ValueFlow::Value>(1, v);
 	}
-
 	removeContradictions(*mImpl->mValues);
-
 	return true;
 }
 
@@ -2448,7 +2385,7 @@ bool TokenImpl::getCppcheckAttribute(TokenImpl::CppcheckAttributes::Type type, M
 	return attr != nullptr;
 }
 
-Token* findTypeEnd(Token* tok)
+Token * findTypeEnd(Token * tok)
 {
 	while(Token::Match(tok, "%name%|.|::|*|&|&&|<|(|template|decltype|sizeof")) {
 		if(Token::Match(tok, "(|<"))
@@ -2460,9 +2397,7 @@ Token* findTypeEnd(Token* tok)
 	return tok;
 }
 
-const Token* findTypeEnd(const Token* tok) {
-	return findTypeEnd(const_cast<Token*>(tok));
-}
+const Token * findTypeEnd(const Token* tok) { return findTypeEnd(const_cast<Token*>(tok)); }
 
 Token* findLambdaEndScope(Token* tok)
 {

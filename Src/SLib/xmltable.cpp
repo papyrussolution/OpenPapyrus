@@ -1,10 +1,11 @@
 // XMLTABLE.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2020, 2021, 2022
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <..\osf\libxml\libxml.h>
+// @v11.7.9 #include <..\osf\libxml\libxml.h>
+#include <..\slib\libxml\libxml.h> // @v11.7.9
 
 const int __EnableEmptyRoot = 1;
 //

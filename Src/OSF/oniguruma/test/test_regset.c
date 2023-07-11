@@ -6,7 +6,7 @@
 
 static OnigTestBlock OnigTB;
 
-static int make_regset(int line_no, int n, char * pat[], OnigRegSet** rset, int error_no)
+static int make_regset(int line_no, int n, const char * pat[], OnigRegSet** rset, int error_no)
 {
 	int r;
 	int i;
@@ -59,7 +59,7 @@ static double get_sec(clock_t start, clock_t end)
 
 /* use clock(), because clock_gettime() doesn't exist in Windows and old Unix. */
 
-static int time_test(int repeat, int n, char * ps[], char * s, char * end, double* rt_set, double* rt_reg)
+static int time_test(int repeat, int n, const char ** ps, const char * s, const char * end, double * rt_set, double * rt_reg)
 {
 	int i;
 	int match_pos;
@@ -97,10 +97,10 @@ static int time_test(int repeat, int n, char * ps[], char * s, char * end, doubl
 	return 0;
 }
 
-static void fisher_yates_shuffle(int n, char * ps[], char * cps[])
+static void fisher_yates_shuffle(int n, const char ** ps, const char ** cps)
 {
 #define GET_RAND(n)  (rand()%(n+1))
-#define SWAP(a, b)    { char * tmp = a; a = b; b = tmp; }
+#define SWAP(a, b)    { const char * tmp = a; a = b; b = tmp; }
 	int i;
 	for(i = 0; i < n; i++)
 		cps[i] = ps[i];
@@ -110,7 +110,7 @@ static void fisher_yates_shuffle(int n, char * ps[], char * cps[])
 	}
 }
 
-static void time_compare(int n, char * ps[], char * s, char * end)
+static void time_compare(int n, const char * ps[], const char * s, const char * end)
 {
 	int r;
 	int i;
@@ -122,8 +122,8 @@ static void time_compare(int n, char * ps[], char * s, char * end)
 		repeat = 100 / n;
 		total_set = total_reg = 0.0;
 		for(i = 0; i < n; i++) {
-			fisher_yates_shuffle(n, ps, cps);
-			r = time_test(repeat, n, cps, s, end, &t_set, &t_reg);
+			fisher_yates_shuffle(n, ps, (const char **)cps);
+			r = time_test(repeat, n, (const char **)cps, s, end, &t_set, &t_reg);
 			if(r) {
 				SAlloc::F(cps);
 				return;
@@ -138,12 +138,12 @@ static void time_compare(int n, char * ps[], char * s, char * end)
 
 static OnigRegSetLead XX_LEAD = ONIG_REGSET_POSITION_LEAD;
 
-static void xx(int line_no, int n, char * ps[], char * s, int from, int to, int mem, int not, int error_no)
+static void xx(int line_no, int n, const char * ps[], const char * s, int from, int to, int mem, int _not, int error_no)
 {
 	int match_pos;
 	int match_index;
 	OnigRegSet* set;
-	char * end;
+	const char * end;
 	int r = make_regset(line_no, n, ps, &set, error_no);
 	if(r) 
 		return;
@@ -151,7 +151,7 @@ static void xx(int line_no, int n, char * ps[], char * s, int from, int to, int 
 	r = onig_regset_search(set, (uchar *)s, (uchar *)end, (uchar *)s, (uchar *)end, XX_LEAD, ONIG_OPTION_NONE, &match_pos);
 	if(r < 0) {
 		if(r == ONIG_MISMATCH) {
-			if(not) {
+			if(_not) {
 				slfprintf(OnigTB.out_file, "OK(N): %d\n", line_no);
 				OnigTB.nsucc++;
 			}
@@ -178,7 +178,7 @@ static void xx(int line_no, int n, char * ps[], char * s, int from, int to, int 
 		}
 	}
 	else {
-		if(not) {
+		if(_not) {
 			slfprintf(OnigTB.out_file, "FAIL(N): %d\n", line_no);
 			OnigTB.nfail++;
 		}
@@ -208,15 +208,15 @@ static void xx(int line_no, int n, char * ps[], char * s, int from, int to, int 
 	onig_regset_free(set);
 }
 
-static void x2(int line_no, int n, char * ps[], char * s, int from, int to) { xx(line_no, n, ps, s, from, to, 0, 0, 0); }
-static void x3(int line_no, int n, char * ps[], char * s, int from, int to, int mem) { xx(line_no, n, ps, s, from, to, mem, 0, 0); }
-static void n(int line_no, int n, char * ps[], char * s) { xx(line_no, n, ps, s, 0, 0, 0, 1, 0); }
+static void x2(int line_no, int n, const char * ps[], const char * s, int from, int to) { xx(line_no, n, ps, s, from, to, 0, 0, 0); }
+static void x3(int line_no, int n, const char * ps[], const char * s, int from, int to, int mem) { xx(line_no, n, ps, s, from, to, mem, 0, 0); }
+static void n(int line_no, int n, const char * ps[], const char * s) { xx(line_no, n, ps, s, 0, 0, 0, 1, 0); }
 
 #define ASIZE(a)              sizeof(a)/sizeof(a[0])
 #define X2(ps, s, from, to)      x2(__LINE__, ASIZE(ps), ps, s, from, to)
 #define X3(ps, s, from, to, mem)  x3(__LINE__, ASIZE(ps), ps, s, from, to, mem)
 #define N(ps, s)                n(__LINE__, ASIZE(ps), ps, s)
-#define NZERO(s)               n(__LINE__, 0, (char **)0, s)
+#define NZERO(s)               n(__LINE__, 0, (const char **)0, s)
 
 #ifndef _WIN32
 
@@ -249,20 +249,20 @@ static int get_all_content_of_file(char * path, char ** rs, char ** rend)
      (convert encoding to utf-8 with BOM and line terminator to be Unix-form)
  */
 
-static char * p1[] = { "abc", "(bca)", "(cab)" };
-static char * p2[] = { "小説", "9", "夏目漱石", };
-static char * p3[] = { "^いる。", "^校正", "^底本", "^　翌日", };
-static char * p4[] = { "《[^》]{5}》", "《[^》]{6}》", "《[^》]{7}》", "《[^》]{8}》", "《[^》]{9}》", "《[^》]{10}》", "《[^》]{11}》",
+static const char * p1[] = { "abc", "(bca)", "(cab)" };
+static const char * p2[] = { "小説", "9", "夏目漱石", };
+static const char * p3[] = { "^いる。", "^校正", "^底本", "^　翌日", };
+static const char * p4[] = { "《[^》]{5}》", "《[^》]{6}》", "《[^》]{7}》", "《[^》]{8}》", "《[^》]{9}》", "《[^》]{10}》", "《[^》]{11}》",
 	"《[^》]{12}》", "《[^》]{13}》", "《[^》]{14}》", "《[^》]{15}》", "《[^》]{16}》", "《[^》]{17}》", "《[^》]{18}》", "《[^》]{19}》", "《[^》]{20}》",
 };
 
-static char * p5[] = { "小室圭", "bbbbbb", "ドナルド・トランプ", "筑摩書房", "松原", "aaaaaaaaa", "bbbbbbbbb",
+static const char * p5[] = { "小室圭", "bbbbbb", "ドナルド・トランプ", "筑摩書房", "松原", "aaaaaaaaa", "bbbbbbbbb",
 	"ccccc", "ddddddddddd", "eee", "ffffffffffff", "gggggggggg", "hhhhhhhhhhhhhh", "iiiiiii",
 };
 
-static char * p6[] = { "^.{1000,}", "松原", "小室圭", "ドナルド・トランプ", "筑摩書房", };
-static char * p7[] = { "0+", "1+", "2+", "3+", "4+", "5+", "6+", "7+", "8+", "9+", };
-static char * p8[] = {"a", ".*"};
+static const char * p6[] = { "^.{1000,}", "松原", "小室圭", "ドナルド・トランプ", "筑摩書房", };
+static const char * p7[] = { "0+", "1+", "2+", "3+", "4+", "5+", "6+", "7+", "8+", "9+", };
+static const char * p8[] = {"a", ".*"};
 
 extern int OnigTestRegSet_main(FILE * fOut)
 {

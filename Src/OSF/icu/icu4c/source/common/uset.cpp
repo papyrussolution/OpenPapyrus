@@ -1,230 +1,124 @@
+// uset.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 2002-2011, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  uset.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2002mar07
- *   created by: Markus W. Scherer
- *
- *   There are functions to efficiently serialize a USet into an array of uint16
- *   and functions to use such a serialized form efficiently without
- *   instantiating a new USet.
- */
+// Copyright (C) 2002-2011, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2002mar07
+// created by: Markus W. Scherer
+// There are functions to efficiently serialize a USet into an array of uint16
+// and functions to use such a serialized form efficiently without instantiating a new USet.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
 U_NAMESPACE_USE
 
-U_CAPI USet* U_EXPORT2 uset_openEmpty() {
-	return (USet*)new UnicodeSet();
-}
+U_CAPI USet* U_EXPORT2 uset_openEmpty() { return (USet*)new UnicodeSet(); }
+U_CAPI USet* U_EXPORT2 uset_open(UChar32 start, UChar32 end) { return (USet*)new UnicodeSet(start, end); }
+U_CAPI void U_EXPORT2 uset_close(USet* set) { delete (UnicodeSet*)set; }
+U_CAPI USet * U_EXPORT2 uset_clone(const USet * set) { return (USet*)(((UnicodeSet*)set)->UnicodeSet::clone()); }
+U_CAPI bool U_EXPORT2 uset_isFrozen(const USet * set) { return ((UnicodeSet*)set)->UnicodeSet::isFrozen(); }
+U_CAPI void U_EXPORT2 uset_freeze(USet * set) { ((UnicodeSet*)set)->UnicodeSet::freeze(); }
+U_CAPI USet * U_EXPORT2 uset_cloneAsThawed(const USet * set) { return (USet*)(((UnicodeSet*)set)->UnicodeSet::cloneAsThawed()); }
+U_CAPI void U_EXPORT2 uset_set(USet* set, UChar32 start, UChar32 end) { ((UnicodeSet*)set)->UnicodeSet::set(start, end); }
+U_CAPI void U_EXPORT2 uset_addAll(USet* set, const USet * additionalSet) { ((UnicodeSet*)set)->UnicodeSet::addAll(*((const UnicodeSet*)additionalSet)); }
+U_CAPI void U_EXPORT2 uset_add(USet* set, UChar32 c) { ((UnicodeSet*)set)->UnicodeSet::add(c); }
+U_CAPI void U_EXPORT2 uset_addRange(USet* set, UChar32 start, UChar32 end) { ((UnicodeSet*)set)->UnicodeSet::add(start, end); }
 
-U_CAPI USet* U_EXPORT2 uset_open(UChar32 start, UChar32 end) {
-	return (USet*)new UnicodeSet(start, end);
-}
-
-U_CAPI void U_EXPORT2 uset_close(USet* set) {
-	delete (UnicodeSet*)set;
-}
-
-U_CAPI USet * U_EXPORT2 uset_clone(const USet * set) {
-	return (USet*)(((UnicodeSet*)set)->UnicodeSet::clone());
-}
-
-U_CAPI bool U_EXPORT2 uset_isFrozen(const USet * set) {
-	return ((UnicodeSet*)set)->UnicodeSet::isFrozen();
-}
-
-U_CAPI void U_EXPORT2 uset_freeze(USet * set) {
-	((UnicodeSet*)set)->UnicodeSet::freeze();
-}
-
-U_CAPI USet * U_EXPORT2 uset_cloneAsThawed(const USet * set) {
-	return (USet*)(((UnicodeSet*)set)->UnicodeSet::cloneAsThawed());
-}
-
-U_CAPI void U_EXPORT2 uset_set(USet* set,
-    UChar32 start, UChar32 end) {
-	((UnicodeSet*)set)->UnicodeSet::set(start, end);
-}
-
-U_CAPI void U_EXPORT2 uset_addAll(USet* set, const USet * additionalSet) {
-	((UnicodeSet*)set)->UnicodeSet::addAll(*((const UnicodeSet*)additionalSet));
-}
-
-U_CAPI void U_EXPORT2 uset_add(USet* set, UChar32 c) {
-	((UnicodeSet*)set)->UnicodeSet::add(c);
-}
-
-U_CAPI void U_EXPORT2 uset_addRange(USet* set, UChar32 start, UChar32 end) {
-	((UnicodeSet*)set)->UnicodeSet::add(start, end);
-}
-
-U_CAPI void U_EXPORT2 uset_addString(USet* set, const char16_t * str, int32_t strLen) {
+U_CAPI void U_EXPORT2 uset_addString(USet* set, const char16_t * str, int32_t strLen) 
+{
 	// UnicodeString handles -1 for strLen
 	UnicodeString s(strLen<0, str, strLen);
 	((UnicodeSet*)set)->UnicodeSet::add(s);
 }
 
-U_CAPI void U_EXPORT2 uset_addAllCodePoints(USet* set, const char16_t * str, int32_t strLen) {
+U_CAPI void U_EXPORT2 uset_addAllCodePoints(USet* set, const char16_t * str, int32_t strLen) 
+{
 	// UnicodeString handles -1 for strLen
 	UnicodeString s(str, strLen);
 	((UnicodeSet*)set)->UnicodeSet::addAll(s);
 }
 
-U_CAPI void U_EXPORT2 uset_remove(USet* set, UChar32 c) {
-	((UnicodeSet*)set)->UnicodeSet::remove(c);
-}
+U_CAPI void U_EXPORT2 uset_remove(USet* set, UChar32 c) { ((UnicodeSet*)set)->UnicodeSet::remove(c); }
+U_CAPI void U_EXPORT2 uset_removeRange(USet* set, UChar32 start, UChar32 end) { ((UnicodeSet*)set)->UnicodeSet::remove(start, end); }
 
-U_CAPI void U_EXPORT2 uset_removeRange(USet* set, UChar32 start, UChar32 end) {
-	((UnicodeSet*)set)->UnicodeSet::remove(start, end);
-}
-
-U_CAPI void U_EXPORT2 uset_removeString(USet* set, const char16_t * str, int32_t strLen) {
+U_CAPI void U_EXPORT2 uset_removeString(USet* set, const char16_t * str, int32_t strLen) 
+{
 	UnicodeString s(strLen==-1, str, strLen);
 	((UnicodeSet*)set)->UnicodeSet::remove(s);
 }
 
-U_CAPI void U_EXPORT2 uset_removeAllCodePoints(USet * set, const char16_t * str, int32_t length) {
+U_CAPI void U_EXPORT2 uset_removeAllCodePoints(USet * set, const char16_t * str, int32_t length) 
+{
 	UnicodeString s(length==-1, str, length);
 	((UnicodeSet*)set)->UnicodeSet::removeAll(s);
 }
 
-U_CAPI void U_EXPORT2 uset_removeAll(USet* set, const USet* remove) {
-	((UnicodeSet*)set)->UnicodeSet::removeAll(*(const UnicodeSet*)remove);
-}
+U_CAPI void U_EXPORT2 uset_removeAll(USet* set, const USet* remove) { ((UnicodeSet*)set)->UnicodeSet::removeAll(*(const UnicodeSet*)remove); }
+U_CAPI void U_EXPORT2 uset_retain(USet* set, UChar32 start, UChar32 end) { ((UnicodeSet*)set)->UnicodeSet::retain(start, end); }
 
-U_CAPI void U_EXPORT2 uset_retain(USet* set, UChar32 start, UChar32 end) {
-	((UnicodeSet*)set)->UnicodeSet::retain(start, end);
-}
-
-U_CAPI void U_EXPORT2 uset_retainString(USet * set, const char16_t * str, int32_t length) {
+U_CAPI void U_EXPORT2 uset_retainString(USet * set, const char16_t * str, int32_t length) 
+{
 	UnicodeString s(length==-1, str, length);
 	((UnicodeSet*)set)->UnicodeSet::retain(s);
 }
 
-U_CAPI void U_EXPORT2 uset_retainAllCodePoints(USet * set, const char16_t * str, int32_t length) {
+U_CAPI void U_EXPORT2 uset_retainAllCodePoints(USet * set, const char16_t * str, int32_t length) 
+{
 	UnicodeString s(length==-1, str, length);
 	((UnicodeSet*)set)->UnicodeSet::retainAll(s);
 }
 
-U_CAPI void U_EXPORT2 uset_retainAll(USet* set, const USet* retain) {
-	((UnicodeSet*)set)->UnicodeSet::retainAll(*(const UnicodeSet*)retain);
-}
+U_CAPI void U_EXPORT2 uset_retainAll(USet* set, const USet* retain) { ((UnicodeSet*)set)->UnicodeSet::retainAll(*(const UnicodeSet*)retain); }
+U_CAPI void U_EXPORT2 uset_compact(USet* set) { ((UnicodeSet*)set)->UnicodeSet::compact(); }
+U_CAPI void U_EXPORT2 uset_complement(USet* set) { ((UnicodeSet*)set)->UnicodeSet::complement(); }
+U_CAPI void U_EXPORT2 uset_complementRange(USet * set, UChar32 start, UChar32 end) { ((UnicodeSet*)set)->UnicodeSet::complement(start, end); }
 
-U_CAPI void U_EXPORT2 uset_compact(USet* set) {
-	((UnicodeSet*)set)->UnicodeSet::compact();
-}
-
-U_CAPI void U_EXPORT2 uset_complement(USet* set) {
-	((UnicodeSet*)set)->UnicodeSet::complement();
-}
-
-U_CAPI void U_EXPORT2 uset_complementRange(USet * set, UChar32 start, UChar32 end) {
-	((UnicodeSet*)set)->UnicodeSet::complement(start, end);
-}
-
-U_CAPI void U_EXPORT2 uset_complementString(USet * set, const char16_t * str, int32_t length) {
+U_CAPI void U_EXPORT2 uset_complementString(USet * set, const char16_t * str, int32_t length) 
+{
 	UnicodeString s(length==-1, str, length);
 	((UnicodeSet*)set)->UnicodeSet::complement(s);
 }
 
-U_CAPI void U_EXPORT2 uset_complementAllCodePoints(USet * set, const char16_t * str, int32_t length) {
+U_CAPI void U_EXPORT2 uset_complementAllCodePoints(USet * set, const char16_t * str, int32_t length) 
+{
 	UnicodeString s(length==-1, str, length);
 	((UnicodeSet*)set)->UnicodeSet::complementAll(s);
 }
 
-U_CAPI void U_EXPORT2 uset_complementAll(USet* set, const USet* complement) {
-	((UnicodeSet*)set)->UnicodeSet::complementAll(*(const UnicodeSet*)complement);
-}
+U_CAPI void U_EXPORT2 uset_complementAll(USet* set, const USet* complement) { ((UnicodeSet*)set)->UnicodeSet::complementAll(*(const UnicodeSet*)complement); }
+U_CAPI void U_EXPORT2 uset_clear(USet* set) { ((UnicodeSet*)set)->UnicodeSet::clear(); }
+U_CAPI void U_EXPORT2 uset_removeAllStrings(USet* set) { ((UnicodeSet*)set)->UnicodeSet::removeAllStrings(); }
+U_CAPI bool U_EXPORT2 uset_isEmpty(const USet* set) { return ((const UnicodeSet*)set)->UnicodeSet::isEmpty(); }
+U_CAPI bool U_EXPORT2 uset_hasStrings(const USet* set) { return ((const UnicodeSet*)set)->UnicodeSet::hasStrings(); }
+U_CAPI bool U_EXPORT2 uset_contains(const USet* set, UChar32 c) { return ((const UnicodeSet*)set)->UnicodeSet::contains(c); }
+U_CAPI bool U_EXPORT2 uset_containsRange(const USet* set, UChar32 start, UChar32 end) { return ((const UnicodeSet*)set)->UnicodeSet::contains(start, end); }
 
-U_CAPI void U_EXPORT2 uset_clear(USet* set) {
-	((UnicodeSet*)set)->UnicodeSet::clear();
-}
-
-U_CAPI void U_EXPORT2 uset_removeAllStrings(USet* set) {
-	((UnicodeSet*)set)->UnicodeSet::removeAllStrings();
-}
-
-U_CAPI bool U_EXPORT2 uset_isEmpty(const USet* set) {
-	return ((const UnicodeSet*)set)->UnicodeSet::isEmpty();
-}
-
-U_CAPI bool U_EXPORT2 uset_hasStrings(const USet* set) {
-	return ((const UnicodeSet*)set)->UnicodeSet::hasStrings();
-}
-
-U_CAPI bool U_EXPORT2 uset_contains(const USet* set, UChar32 c) {
-	return ((const UnicodeSet*)set)->UnicodeSet::contains(c);
-}
-
-U_CAPI bool U_EXPORT2 uset_containsRange(const USet* set, UChar32 start, UChar32 end) {
-	return ((const UnicodeSet*)set)->UnicodeSet::contains(start, end);
-}
-
-U_CAPI bool U_EXPORT2 uset_containsString(const USet* set, const char16_t * str, int32_t strLen) {
+U_CAPI bool U_EXPORT2 uset_containsString(const USet* set, const char16_t * str, int32_t strLen) 
+{
 	UnicodeString s(strLen==-1, str, strLen);
 	return ((const UnicodeSet*)set)->UnicodeSet::contains(s);
 }
 
-U_CAPI bool U_EXPORT2 uset_containsAll(const USet* set1, const USet* set2) {
-	return ((const UnicodeSet*)set1)->UnicodeSet::containsAll(*(const UnicodeSet*)set2);
-}
+U_CAPI bool U_EXPORT2 uset_containsAll(const USet* set1, const USet* set2) { return ((const UnicodeSet*)set1)->UnicodeSet::containsAll(*(const UnicodeSet*)set2); }
 
-U_CAPI bool U_EXPORT2 uset_containsAllCodePoints(const USet* set, const char16_t * str, int32_t strLen) {
+U_CAPI bool U_EXPORT2 uset_containsAllCodePoints(const USet* set, const char16_t * str, int32_t strLen) 
+{
 	// Create a string alias, since nothing is being added to the set.
 	UnicodeString s(strLen==-1, str, strLen);
 	return ((const UnicodeSet*)set)->UnicodeSet::containsAll(s);
 }
 
-U_CAPI bool U_EXPORT2 uset_containsNone(const USet* set1, const USet* set2) {
-	return ((const UnicodeSet*)set1)->UnicodeSet::containsNone(*(const UnicodeSet*)set2);
-}
-
-U_CAPI bool U_EXPORT2 uset_containsSome(const USet* set1, const USet* set2) {
-	return ((const UnicodeSet*)set1)->UnicodeSet::containsSome(*(const UnicodeSet*)set2);
-}
-
-U_CAPI int32_t U_EXPORT2 uset_span(const USet * set, const char16_t * s, int32_t length, USetSpanCondition spanCondition) {
-	return ((UnicodeSet*)set)->UnicodeSet::span(s, length, spanCondition);
-}
-
-U_CAPI int32_t U_EXPORT2 uset_spanBack(const USet * set, const char16_t * s, int32_t length, USetSpanCondition spanCondition) {
-	return ((UnicodeSet*)set)->UnicodeSet::spanBack(s, length, spanCondition);
-}
-
-U_CAPI int32_t U_EXPORT2 uset_spanUTF8(const USet * set, const char * s, int32_t length, USetSpanCondition spanCondition) {
-	return ((UnicodeSet*)set)->UnicodeSet::spanUTF8(s, length, spanCondition);
-}
-
-U_CAPI int32_t U_EXPORT2 uset_spanBackUTF8(const USet * set, const char * s, int32_t length, USetSpanCondition spanCondition) {
-	return ((UnicodeSet*)set)->UnicodeSet::spanBackUTF8(s, length, spanCondition);
-}
-
-U_CAPI bool U_EXPORT2 uset_equals(const USet* set1, const USet* set2) {
-	return *(const UnicodeSet*)set1 == *(const UnicodeSet*)set2;
-}
-
-U_CAPI int32_t U_EXPORT2 uset_indexOf(const USet* set, UChar32 c) {
-	return ((UnicodeSet*)set)->UnicodeSet::indexOf(c);
-}
-
-U_CAPI UChar32 U_EXPORT2 uset_charAt(const USet* set, int32_t index) {
-	return ((UnicodeSet*)set)->UnicodeSet::charAt(index);
-}
-
-U_CAPI int32_t U_EXPORT2 uset_size(const USet* set) {
-	return ((const UnicodeSet*)set)->UnicodeSet::size();
-}
+U_CAPI bool U_EXPORT2 uset_containsNone(const USet* set1, const USet* set2) { return ((const UnicodeSet*)set1)->UnicodeSet::containsNone(*(const UnicodeSet*)set2); }
+U_CAPI bool U_EXPORT2 uset_containsSome(const USet* set1, const USet* set2) { return ((const UnicodeSet*)set1)->UnicodeSet::containsSome(*(const UnicodeSet*)set2); }
+U_CAPI int32_t U_EXPORT2 uset_span(const USet * set, const char16_t * s, int32_t length, USetSpanCondition spanCondition) { return ((UnicodeSet*)set)->UnicodeSet::span(s, length, spanCondition); }
+U_CAPI int32_t U_EXPORT2 uset_spanBack(const USet * set, const char16_t * s, int32_t length, USetSpanCondition spanCondition) { return ((UnicodeSet*)set)->UnicodeSet::spanBack(s, length, spanCondition); }
+U_CAPI int32_t U_EXPORT2 uset_spanUTF8(const USet * set, const char * s, int32_t length, USetSpanCondition spanCondition) { return ((UnicodeSet*)set)->UnicodeSet::spanUTF8(s, length, spanCondition); }
+U_CAPI int32_t U_EXPORT2 uset_spanBackUTF8(const USet * set, const char * s, int32_t length, USetSpanCondition spanCondition) { return ((UnicodeSet*)set)->UnicodeSet::spanBackUTF8(s, length, spanCondition); }
+U_CAPI bool U_EXPORT2 uset_equals(const USet* set1, const USet* set2) { return *(const UnicodeSet*)set1 == *(const UnicodeSet*)set2; }
+U_CAPI int32_t U_EXPORT2 uset_indexOf(const USet* set, UChar32 c) { return ((UnicodeSet*)set)->UnicodeSet::indexOf(c); }
+U_CAPI UChar32 U_EXPORT2 uset_charAt(const USet* set, int32_t index) { return ((UnicodeSet*)set)->UnicodeSet::charAt(index); }
+U_CAPI int32_t U_EXPORT2 uset_size(const USet* set) { return ((const UnicodeSet*)set)->UnicodeSet::size(); }
 
 U_NAMESPACE_BEGIN
 /**
@@ -235,15 +129,8 @@ U_NAMESPACE_BEGIN
 class USetAccess /* not : public UObject because all methods are static */ {
 public:
 	/* Try to have the compiler inline these*/
-	inline static int32_t getStringCount(const UnicodeSet & set) {
-		return set.stringsSize();
-	}
-
-	inline static const UnicodeString * getString(const UnicodeSet & set,
-	    int32_t i) {
-		return set.getString(i);
-	}
-
+	inline static int32_t getStringCount(const UnicodeSet & set) { return set.stringsSize(); }
+	inline static const UnicodeString * getString(const UnicodeSet & set, int32_t i) { return set.getString(i); }
 private:
 	/* do not instantiate*/
 	USetAccess();
@@ -260,14 +147,13 @@ U_CAPI int32_t U_EXPORT2 uset_getItemCount(const USet* uset) {
 	return set.getRangeCount() + USetAccess::getStringCount(set);
 }
 
-U_CAPI int32_t U_EXPORT2 uset_getItem(const USet* uset, int32_t itemIndex,
-    UChar32* start, UChar32* end,
-    char16_t * str, int32_t strCapacity,
-    UErrorCode * ec) {
-	if(U_FAILURE(*ec)) return 0;
+U_CAPI int32_t U_EXPORT2 uset_getItem(const USet* uset, int32_t itemIndex, UChar32* start, UChar32* end,
+    char16_t * str, int32_t strCapacity, UErrorCode * ec) 
+{
+	if(U_FAILURE(*ec)) 
+		return 0;
 	const UnicodeSet & set = *(const UnicodeSet*)uset;
 	int32_t rangeCount;
-
 	if(itemIndex < 0) {
 		*ec = U_ILLEGAL_ARGUMENT_ERROR;
 		return -1;

@@ -118,12 +118,7 @@ void CheckClass::constructors()
 				if(var.isPrivate() && !var.isStatic() &&
 				    (!var.isClass() || (var.type() && var.type()->needInitialization == Type::NeedInitialization::True))) {
 					++needInit;
-					if(!var.isInit() && !var.hasDefault() && var.nameToken()->scope() == scope) // don't
-						                                                                    // warn
-						                                                                    // for
-						                                                                    // anonymous
-						                                                                    // union
-						                                                                    // members
+					if(!var.isInit() && !var.hasDefault() && var.nameToken()->scope() == scope) // don't warn for anonymous union members
 						uninitVars.emplace_back(&var);
 					else
 						++haveInit;
@@ -182,24 +177,17 @@ void CheckClass::constructors()
 
 				// check for C++11 initializer
 				if(var.hasDefault() && func.type != Function::eOperatorEqual && func.type != Function::eCopyConstructor) { // variable
-					                                                                                                   // still
-					                                                                                                   // needs
-					                                                                                                   // to
-					                                                                                                   // be
-					                                                                                                   // copied
+					// still needs to be copied
 					usage.init = true;
 					continue;
 				}
-
 				if(usage.assign || usage.init || var.isStatic())
 					continue;
-
 				if(var.valueType() && var.valueType()->pointer == 0 && var.type() &&
 				    var.type()->needInitialization == Type::NeedInitialization::False && var.type()->derivedFrom.empty())
 					continue;
 
-				if(var.isConst() && func.isOperator()) // We can't set const members in assignment
-					                               // operator
+				if(var.isConst() && func.isOperator()) // We can't set const members in assignment operator
 					continue;
 
 				// Check if this is a class constructor
@@ -272,24 +260,14 @@ void CheckClass::constructors()
 							// don't warn about user defined default constructor when there
 							// are other constructors
 							if(printInconclusive)
-								uninitVarError(func.token,
-								    func.access == AccessControl::Private,
-								    func.type,
-								    var.scope()->className,
-								    var.name(),
-								    derived,
-								    true);
+								uninitVarError(func.token, func.access == AccessControl::Private,
+								    func.type, var.scope()->className, var.name(), derived, true);
 						}
 						else if(missingCopy)
 							missingMemberCopyError(func.token, func.type, var.scope()->className, var.name());
 						else
-							uninitVarError(func.token,
-							    func.access == AccessControl::Private,
-							    func.type,
-							    var.scope()->className,
-							    var.name(),
-							    derived,
-							    false);
+							uninitVarError(func.token, func.access == AccessControl::Private,
+							    func.type, var.scope()->className, var.name(), derived, false);
 					}
 				}
 			}
@@ -301,12 +279,10 @@ void CheckClass::checkExplicitConstructors()
 {
 	if(!mSettings->severity.isEnabled(Severity::style))
 		return;
-
 	for(const Scope * scope : mSymbolDatabase->classAndStructScopes) {
 		// Do not perform check, if the class/struct has not any constructors
 		if(scope->numConstructors == 0)
 			continue;
-
 		// Is class abstract? Maybe this test is over-simplification, but it will suffice for simple cases,
 		// and it will avoid false positives.
 		bool isAbstractClass = false;
@@ -371,10 +347,8 @@ void CheckClass::copyconstructors()
 {
 	if(!mSettings->severity.isEnabled(Severity::warning))
 		return;
-
 	for(const Scope * scope : mSymbolDatabase->classAndStructScopes) {
 		std::map<int, const Token*> allocatedVars;
-
 		for(const Function &func : scope->functionList) {
 			if(func.type != Function::eConstructor || !func.functionScope)
 				continue;
@@ -528,7 +502,6 @@ static std::string noMemberErrorMessage(const Scope * scope, const char function
 		errmsg += type + " '$symbol' does not have a " + function +
 		    " which is recommended since it has dynamic memory/resource allocation(s).";
 	}
-
 	return errmsg;
 }
 
@@ -690,14 +663,11 @@ bool CheckClass::isBaseClassFunc(const Token * tok, const Scope * scope)
 	return false;
 }
 
-void CheckClass::initializeVarList(const Function &func,
-    std::list<const Function *> &callstack,
-    const Scope * scope,
-    std::vector<Usage> &usage)
+void CheckClass::initializeVarList(const Function &func, std::list<const Function *> &callstack,
+    const Scope * scope, std::vector<Usage> &usage)
 {
 	if(!func.functionScope)
 		return;
-
 	bool initList = func.isConstructor();
 	const Token * ftok = func.arg->link()->next();
 	int level = 0;
@@ -1160,7 +1130,6 @@ static bool checkFunctionUsage(const Function * privfunc, const Scope* scope)
 {
 	if(!scope)
 		return true; // Assume it is used, if scope is not seen
-
 	for(std::list<Function>::const_iterator func = scope->functionList.begin(); func != scope->functionList.end(); ++func) {
 		if(func->functionScope) {
 			if(Token::Match(func->tokenDef, "%name% (")) {
@@ -1176,13 +1145,11 @@ static bool checkFunctionUsage(const Function * privfunc, const Scope* scope)
 			    ftok = ftok->next()) {
 				if(ftok->function() == privfunc)
 					return true;
-				if(ftok->varId() == 0U && ftok->str() == privfunc->name()) // TODO: This condition
-					                                                   // should be redundant
+				if(ftok->varId() == 0U && ftok->str() == privfunc->name()) // TODO: This condition should be redundant
 					return true;
 			}
 		}
-		else if((func->type != Function::eCopyConstructor &&
-		    func->type != Function::eOperatorEqual) ||
+		else if((func->type != Function::eCopyConstructor && func->type != Function::eOperatorEqual) ||
 		    func->access != AccessControl::Private) // Assume it is used, if a function implementation isn't
 			                                    // seen, but empty private copy constructors and assignment
 			                                    // operators are OK

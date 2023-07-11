@@ -293,6 +293,7 @@ static inline zbar_symbol_type_t codabar_postprocess(zbar_decoder_t * dcode)
 zbar_symbol_type_t _zbar_decode_codabar(zbar_decoder_t * dcode)
 {
 	codabar_decoder_t * codabar = &dcode->codabar;
+	uint s = 0;
 	// update latest character width 
 	codabar->s7 -= get_width(dcode, 8);
 	codabar->s7 += get_width(dcode, 1);
@@ -317,8 +318,7 @@ zbar_symbol_type_t _zbar_decode_codabar(zbar_decoder_t * dcode)
 		if(codabar->character < NIBUF)
 			buf = codabar->buf;
 		else {
-			if(codabar->character >= BUFFER_MIN &&
-				size_buf(dcode, codabar->character + 1)) {
+			if(codabar->character >= BUFFER_MIN && size_buf(dcode, codabar->character + 1)) {
 				dbprintf(1, " [overflow]\n");
 				goto reset;
 			}
@@ -331,7 +331,7 @@ zbar_symbol_type_t _zbar_decode_codabar(zbar_decoder_t * dcode)
 			return ZBAR_PARTIAL;
 		}
 		else {
-			uint s = codabar->s7;
+			s = codabar->s7;
 			if(c & 0x10) {
 				uint qz = get_width(dcode, 0);
 				if(qz && qz * 2 < s) {

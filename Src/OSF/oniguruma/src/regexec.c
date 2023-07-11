@@ -5790,7 +5790,7 @@ static int onig_builtin_monitor(OnigCalloutArgs * args, void * user_data)
 extern int onig_setup_builtin_monitors_by_ascii_encoded_name(void * fp /* FILE* */)
 {
 	int id;
-	char * name;
+	const char * name;
 	OnigEncoding enc;
 	uint ts[4];
 	OnigValue opts[4];

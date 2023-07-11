@@ -110,7 +110,7 @@ enum {
 	PS_OP_SQRT, PS_OP_SUB, PS_OP_TRUE, PS_OP_TRUNCATE, PS_OP_XOR
 };
 
-static char * ps_op_names[] =
+static const char * ps_op_names[] =
 {
 	"abs", "add", "and", "atan", "bitshift", "ceiling", "copy",
 	"cos", "cvi", "cvr", "div", "dup", "eq", "exch", "exp",

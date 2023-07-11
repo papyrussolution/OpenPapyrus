@@ -784,6 +784,8 @@ public:
 		ASSIGN_PTR(pKeyLen, sizeof(ID));
 		return &ID;
 	}
+	SJson * ToJsonObj() const;
+	int   FromJsonObj(const SJson * pJs);
 	//
 	// Descr: Если экземпляр this имеет родителя, то обращается к родительскому
 	//   объекту для того, что бы тот удалил его.

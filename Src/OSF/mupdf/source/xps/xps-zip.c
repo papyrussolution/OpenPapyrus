@@ -91,7 +91,7 @@ xps_part * xps_read_part(fz_context * ctx, xps_document * doc, char * partname)
 	return xps_new_part(ctx, doc, partname, buf);
 }
 
-int xps_has_part(fz_context * ctx, xps_document * doc, char * name)
+int xps_has_part(fz_context * ctx, xps_document * doc, const char * name)
 {
 	char buf[2048];
 	if(name[0] == '/')

@@ -1859,10 +1859,6 @@
     <ProjectReference Include="libwebp-slib.vcxproj">
       <Project>{05255f31-2054-4df4-ad6d-5bc5da8ccccf}</Project>
     </ProjectReference>
-    <ProjectReference Include="libxml.vcxproj">
-      <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
     <ProjectReference Include="lualib.vcxproj">
       <Project>{86b30cd8-8c99-4cff-804e-16eb5891a1d8}</Project>
     </ProjectReference>

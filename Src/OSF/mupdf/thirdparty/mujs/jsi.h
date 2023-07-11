@@ -138,13 +138,10 @@ void js_rot2pop1(js_State *J);
 void js_rot3pop2(js_State *J);
 void js_dup1rot3(js_State *J);
 void js_dup1rot4(js_State *J);
-
 void js_RegExp_prototype_exec(js_State *J, js_Regexp *re, const char *text);
-
 void js_trap(js_State *J, int pc); /* dump stack and environment to stdout */
 
-struct js_StackTrace
-{
+struct js_StackTrace {
 	const char *name;
 	const char *file;
 	int line;
@@ -177,24 +174,19 @@ void js_putm(js_State *J, js_Buffer **sb, const char *s, const char *e);
 
 /* State struct */
 
-struct js_State
-{
+struct js_State {
 	void *actx;
 	void *uctx;
 	js_Alloc alloc;
 	js_Report report;
 	js_Panic panic;
-
 	js_StringNode *strings;
-
 	int default_strict;
 	int strict;
-
 	/* parser input source */
 	const char *filename;
 	const char *source;
 	int line;
-
 	/* lexer state */
 	struct { char *text; int len, cap; } lexbuf;
 	int lexline;

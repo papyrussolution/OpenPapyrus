@@ -2,8 +2,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.32126.315
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libxml", "libxml.vcxproj", "{82523A80-856A-4957-BCEA-1A5738139141}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libjpeg", "libjpeg.vcxproj", "{270B7CAE-41A6-43AE-A53D-D06DD9EE84E9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "freetype", "freetype.vcxproj", "{D7C20AC1-2566-446F-B49A-598FE7A67094}"
@@ -450,48 +448,6 @@ Global
 		Universe-HTT|x86 = Universe-HTT|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{82523A80-856A-4957-BCEA-1A5738139141}.Debug|ARM.ActiveCfg = Debug|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.Debug|ARM64.ActiveCfg = Debug|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.Debug|x64.ActiveCfg = Debug|x64
-		{82523A80-856A-4957-BCEA-1A5738139141}.Debug|x64.Build.0 = Debug|x64
-		{82523A80-856A-4957-BCEA-1A5738139141}.Debug|x86.ActiveCfg = Debug|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.Debug|x86.Build.0 = Debug|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.MtDllDebug|ARM.ActiveCfg = MtDllDebug|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.MtDllDebug|ARM64.ActiveCfg = MtDllDebug|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.MtDllDebug|x64.ActiveCfg = MtDllDebug|x64
-		{82523A80-856A-4957-BCEA-1A5738139141}.MtDllDebug|x64.Build.0 = MtDllDebug|x64
-		{82523A80-856A-4957-BCEA-1A5738139141}.MtDllDebug|x86.ActiveCfg = MtDllDebug|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.MtDllDebug|x86.Build.0 = MtDllDebug|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.MtDllRelease|ARM.ActiveCfg = MtDllRelease|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.MtDllRelease|ARM64.ActiveCfg = MtDllRelease|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.MtDllRelease|x64.ActiveCfg = MtDllRelease|x64
-		{82523A80-856A-4957-BCEA-1A5738139141}.MtDllRelease|x64.Build.0 = MtDllRelease|x64
-		{82523A80-856A-4957-BCEA-1A5738139141}.MtDllRelease|x86.ActiveCfg = MtDllRelease|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.MtDllRelease|x86.Build.0 = MtDllRelease|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.Release|ARM.ActiveCfg = Release|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.Release|ARM64.ActiveCfg = Release|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.Release|x64.ActiveCfg = Release|x64
-		{82523A80-856A-4957-BCEA-1A5738139141}.Release|x64.Build.0 = Release|x64
-		{82523A80-856A-4957-BCEA-1A5738139141}.Release|x86.ActiveCfg = Release|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.Release|x86.Build.0 = Release|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.ServerDebug|ARM.ActiveCfg = ServerDebug|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.ServerDebug|ARM64.ActiveCfg = ServerDebug|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.ServerDebug|x64.ActiveCfg = ServerDebug|x64
-		{82523A80-856A-4957-BCEA-1A5738139141}.ServerDebug|x64.Build.0 = ServerDebug|x64
-		{82523A80-856A-4957-BCEA-1A5738139141}.ServerDebug|x86.ActiveCfg = ServerDebug|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.ServerDebug|x86.Build.0 = ServerDebug|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.ServerRelease|ARM.ActiveCfg = ServerRelease|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.ServerRelease|ARM64.ActiveCfg = ServerRelease|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.ServerRelease|x64.ActiveCfg = ServerRelease|x64
-		{82523A80-856A-4957-BCEA-1A5738139141}.ServerRelease|x64.Build.0 = ServerRelease|x64
-		{82523A80-856A-4957-BCEA-1A5738139141}.ServerRelease|x86.ActiveCfg = ServerRelease|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.ServerRelease|x86.Build.0 = ServerRelease|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.Universe-HTT|ARM.ActiveCfg = Universe-HTT|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.Universe-HTT|ARM64.ActiveCfg = Universe-HTT|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.Universe-HTT|x64.ActiveCfg = Universe-HTT|x64
-		{82523A80-856A-4957-BCEA-1A5738139141}.Universe-HTT|x64.Build.0 = Universe-HTT|x64
-		{82523A80-856A-4957-BCEA-1A5738139141}.Universe-HTT|x86.ActiveCfg = Universe-HTT|Win32
-		{82523A80-856A-4957-BCEA-1A5738139141}.Universe-HTT|x86.Build.0 = Universe-HTT|Win32
 		{270B7CAE-41A6-43AE-A53D-D06DD9EE84E9}.Debug|ARM.ActiveCfg = Debug|Win32
 		{270B7CAE-41A6-43AE-A53D-D06DD9EE84E9}.Debug|ARM64.ActiveCfg = Debug|Win32
 		{270B7CAE-41A6-43AE-A53D-D06DD9EE84E9}.Debug|x64.ActiveCfg = Debug|x64

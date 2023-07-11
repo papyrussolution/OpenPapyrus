@@ -520,6 +520,13 @@
       <PrecompiledHeaderFile />
       <LanguageStandard>stdcpp17</LanguageStandard>
       <StructMemberAlignment>Default</StructMemberAlignment>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <GuardEHContMetadata>false</GuardEHContMetadata>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <OpenMPSupport>false</OpenMPSupport>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
@@ -591,6 +598,12 @@
       <PrecompiledHeaderFile />
       <LanguageStandard>stdcpp17</LanguageStandard>
       <StructMemberAlignment>Default</StructMemberAlignment>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <GuardEHContMetadata>false</GuardEHContMetadata>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <OpenMPSupport>false</OpenMPSupport>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
@@ -664,6 +677,13 @@
       <PrecompiledHeaderFile />
       <LanguageStandard>stdcpp17</LanguageStandard>
       <StructMemberAlignment>Default</StructMemberAlignment>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <GuardEHContMetadata>false</GuardEHContMetadata>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <OpenMPSupport>false</OpenMPSupport>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
@@ -741,6 +761,12 @@
       <PrecompiledHeaderFile />
       <LanguageStandard>stdcpp17</LanguageStandard>
       <StructMemberAlignment>Default</StructMemberAlignment>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <GuardEHContMetadata>false</GuardEHContMetadata>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <OpenMPSupport>false</OpenMPSupport>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">

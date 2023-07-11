@@ -579,11 +579,10 @@ int pdf_set_field_value(fz_context * ctx, pdf_document * doc, pdf_obj * field, c
 	return accepted;
 }
 
-char * pdf_field_border_style(fz_context * ctx, pdf_obj * field)
+const char * pdf_field_border_style(fz_context * ctx, pdf_obj * field)
 {
 	const char * bs = pdf_to_name(ctx, pdf_dict_getl(ctx, field, PDF_NAME(BS), PDF_NAME(S), NULL));
-	switch(*bs)
-	{
+	switch(*bs) {
 		case 'S': return "Solid";
 		case 'D': return "Dashed";
 		case 'B': return "Beveled";
@@ -1283,16 +1282,11 @@ size_t pdf_signature_contents(fz_context * ctx, pdf_document * doc, pdf_obj * si
 	pdf_obj * v_obj = pdf_load_unencrypted_object(ctx, doc, pdf_to_num(ctx, v_ref));
 	char * copy = NULL;
 	size_t len;
-
 	fz_var(copy);
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		pdf_obj * c = pdf_dict_get(ctx, v_obj, PDF_NAME(Contents));
-		char * s;
-
-		s = pdf_to_str_buf(ctx, c);
+		const char * s = pdf_to_str_buf(ctx, c);
 		len = pdf_to_str_len(ctx, c);
-
 		if(contents) {
 			copy = (char *)Memento_label(fz_malloc(ctx, len), "sig_contents");
 			memcpy(copy, s, len);
@@ -1300,12 +1294,10 @@ size_t pdf_signature_contents(fz_context * ctx, pdf_document * doc, pdf_obj * si
 	}
 	fz_always(ctx)
 	pdf_drop_obj(ctx, v_obj);
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_free(ctx, copy);
 		fz_rethrow(ctx);
 	}
-
 	if(contents)
 		*contents = copy;
 	return len;
@@ -1425,20 +1417,14 @@ static pdf_obj * get_locked_fields_from_xfa(fz_context * ctx, pdf_document * doc
 	char * n = name;
 	const char * use;
 	fz_xml * node;
-
 	if(!name)
 		return NULL;
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		node = get_xfa_resource(ctx, doc, "template");
-
 		do {
 			char c, * s, * e;
-			int idx = 0;
-			char * key;
-
-			idx = find_name_component(&n, &s, &e);
+			const char * key;
+			int idx = find_name_component(&n, &s, &e);
 			/* We want the idx'th occurrence of s..e */
 
 			/* Hacky */

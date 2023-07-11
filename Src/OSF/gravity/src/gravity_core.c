@@ -1510,7 +1510,8 @@ static bool range_loop(gravity_vm * vm, GravityValue * args, uint16 nargs, uint3
 		gravity_int_t n = range->to;
 		gravity_int_t i = range->from;
 		while(i <= n) {
-			if(!gravity_vm_runclosure(vm, closure, value, &GravityValue::from_int(i), 1)) 
+			GravityValue lv = GravityValue::from_int(i);
+			if(!gravity_vm_runclosure(vm, closure, value, &lv, 1)) 
 				return false;
 			++i;
 		}
@@ -1519,7 +1520,8 @@ static bool range_loop(gravity_vm * vm, GravityValue * args, uint16 nargs, uint3
 		gravity_int_t n = range->from;    // 5...1
 		gravity_int_t i = range->to;
 		while(n >= i) {
-			if(!gravity_vm_runclosure(vm, closure, value, &GravityValue::from_int(n), 1)) 
+			GravityValue lv = GravityValue::from_int(n);
+			if(!gravity_vm_runclosure(vm, closure, value, &lv, 1)) 
 				return false;
 			--n;
 		}
@@ -2008,12 +2010,13 @@ static bool int_loop(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 
 	if(!args[1].IsClosure()) 
 		return vm->ReturnError(rindex, "Argument must be a Closure.");
 	gravity_closure_t * closure = VALUE_AS_CLOSURE(args[1]); // closure to execute
-	GravityValue value = args[0];                       // self parameter
-	gravity_int_t n = value.n;                         // times to execute the loop
+	GravityValue value = args[0]; // self parameter
+	gravity_int_t n = value.n;    // times to execute the loop
 	gravity_int_t i = 0;
 	nanotime_t t1 = nanotime();
 	while(i < n) {
-		if(!gravity_vm_runclosure(vm, closure, value, &GravityValue::from_int(i), 1)) 
+		GravityValue lv = GravityValue::from_int(i);
+		if(!gravity_vm_runclosure(vm, closure, value, &lv, 1)) 
 			return false;
 		++i;
 	}

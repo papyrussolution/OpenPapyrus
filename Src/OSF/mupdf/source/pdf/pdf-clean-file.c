@@ -12,7 +12,7 @@ typedef struct {
 static int string_in_names_list(fz_context * ctx, pdf_obj * p, pdf_obj * names_list)
 {
 	int n = pdf_array_len(ctx, names_list);
-	char * str = pdf_to_str_buf(ctx, p);
+	const char * str = pdf_to_str_buf(ctx, p);
 	for(int i = 0; i < n; i += 2) {
 		if(sstreq(pdf_to_str_buf(ctx, pdf_array_get(ctx, names_list, i)), str))
 			return 1;
@@ -27,11 +27,8 @@ static int string_in_names_list(fz_context * ctx, pdf_obj * p, pdf_obj * names_l
 static void retainpage(fz_context * ctx, pdf_document * doc, pdf_obj * parent, pdf_obj * kids, int page)
 {
 	pdf_obj * pageref = pdf_lookup_page_obj(ctx, doc, page-1);
-
 	pdf_flatten_inheritable_page_items(ctx, pageref);
-
 	pdf_dict_put(ctx, pageref, PDF_NAME(Parent), parent);
-
 	/* Store page object in new kids array */
 	pdf_array_push(ctx, kids, pageref);
 }
@@ -40,7 +37,6 @@ static int dest_is_valid_page(fz_context * ctx, pdf_obj * obj, int * page_object
 {
 	int i;
 	int num = pdf_to_num(ctx, obj);
-
 	if(num == 0)
 		return 0;
 	for(i = 0; i < pagecount; i++) {

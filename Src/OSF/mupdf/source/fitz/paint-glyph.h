@@ -64,6 +64,7 @@ static inline void FUNCTION_NAME(NAME, N, NAME2, NAME3)(const uchar * _RESTRICT 
 		int skip_xx, ww, len, extend;
 		const uchar * runp;
 		uchar * ddp = dp;
+		int v = 0;
 		int offset = ((int*)(glyph->data))[skip_y++];
 		if(offset >= 0) {
 			int eol = 0;
@@ -72,7 +73,7 @@ static inline void FUNCTION_NAME(NAME, N, NAME2, NAME3)(const uchar * _RESTRICT 
 			ww = w;
 			skip_xx = skip_x;
 			while(skip_xx) {
-				int v = *runp++;
+				v = *runp++;
 				switch(v & 3) {
 					case 0: /* Extend */
 					    extend = v>>2;
@@ -114,7 +115,7 @@ static inline void FUNCTION_NAME(NAME, N, NAME2, NAME3)(const uchar * _RESTRICT 
 				skip_xx -= len;
 			}
 			while(ww > 0) {
-				int v = *runp++;
+				v = *runp++;
 				switch(v & 3) {
 					case 0: /* Extend */
 					    extend = v>>2;

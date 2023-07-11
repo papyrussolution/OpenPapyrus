@@ -53,9 +53,7 @@ static int findArgumentPos(const Token* tok, const Token* tokToFind)
 {
 	bool found = false;
 	int argn = findArgumentPosRecursive(tok, tokToFind, found, 0);
-	if(found)
-		return argn - 1;
-	return -1;
+	return found ? (argn - 1) : -1;
 }
 
 static int getArgumentPos(const Token* ftok, const Token* tokToFind)
@@ -150,17 +148,13 @@ bool astIsGenericChar(const Token* tok)
 bool astIsPrimitive(const Token* tok)
 {
 	const ValueType* vt = tok ? tok->valueType() : nullptr;
-	if(!vt)
-		return false;
-	return vt->isPrimitive();
+	return vt ? vt->isPrimitive() : false;
 }
 
 bool astIsIntegral(const Token * tok, bool unknown)
 {
 	const ValueType * vt = tok ? tok->valueType() : nullptr;
-	if(!vt)
-		return unknown;
-	return vt->isIntegral() && vt->pointer == 0U;
+	return vt ? (vt->isIntegral() && vt->pointer == 0U) : unknown;
 }
 
 bool astIsUnsigned(const Token* tok) { return tok && tok->valueType() && tok->valueType()->sign == ValueType::UNSIGNED; }
@@ -168,9 +162,7 @@ bool astIsUnsigned(const Token* tok) { return tok && tok->valueType() && tok->va
 bool astIsFloat(const Token * tok, bool unknown)
 {
 	const ValueType * vt = tok ? tok->valueType() : nullptr;
-	if(!vt)
-		return unknown;
-	return vt->type >= ValueType::Type::FLOAT && vt->pointer == 0U;
+	return vt ? (vt->type >= ValueType::Type::FLOAT && vt->pointer == 0U) : unknown;
 }
 
 bool astIsBool(const Token * tok)
@@ -231,7 +223,6 @@ const Token * astIsVariableComparison(const Token * tok, const std::string &comp
 {
 	if(!tok)
 		return nullptr;
-
 	const Token * ret = nullptr;
 	if(tok->isComparisonOp()) {
 		if(tok->astOperand1() && match(tok->astOperand1(), rhs)) {
