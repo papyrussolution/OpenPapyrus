@@ -20,11 +20,11 @@
  * the buffered coefficients.
  */
 #ifdef ENTROPY_OPT_SUPPORTED
-#define FULL_COEF_BUFFER_SUPPORTED
+	#define FULL_COEF_BUFFER_SUPPORTED
 #else
-#ifdef C_MULTISCAN_FILES_SUPPORTED
-#define FULL_COEF_BUFFER_SUPPORTED
-#endif
+	#ifdef C_MULTISCAN_FILES_SUPPORTED
+		#define FULL_COEF_BUFFER_SUPPORTED
+	#endif
 #endif
 
 /* Private buffer controller object */

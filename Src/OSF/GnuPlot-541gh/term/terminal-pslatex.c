@@ -97,7 +97,7 @@ static bool tex_color_synced = FALSE;
 
 // support for cairolatex 
 #ifdef HAVE_CAIROPDF
-	#define ISCAIROTERMINAL ((strcmp(term->name, "cairolatex") == 0))
+	#define ISCAIROTERMINAL ((strcmp(GPT.P_Term->name, "cairolatex") == 0))
 	//extern void cairotrm_set_color(GpTermEntry_Static * pThis, const t_colorspec * colorspec);
 	//TERM_PUBLIC void cairotrm_linetype(int lt);
 #else

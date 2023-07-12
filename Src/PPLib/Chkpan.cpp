@@ -3728,7 +3728,9 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 		rBlk.DisabledKinds |= (1 << cpmBank);
 	// } @v10.0.10
 	if(Flags & fSCardCredit && !(Flags & fSCardBonus) && CSt.GetID() && addpaym_r2 <= add_paym_epsilon) {
-		if(unified_paym_interface && (!feqeps(credit_charge, 0.0, add_paym_epsilon) || non_crd_amt >= rBlk.GetTotal())) // @v11.1.10 (credit_charge > 0.0)-->(feqeps(credit_charge, 0.0, add_paym_epsilon))
+		if(unified_paym_interface && ((credit_charge > 0.0) || non_crd_amt >= rBlk.GetTotal())) 
+			// @v11.1.10 (credit_charge > 0.0)-->(feqeps(credit_charge, 0.0, add_paym_epsilon))
+			// @v11.7.9 !feqeps(credit_charge, 0.0, add_paym_epsilon)-->(credit_charge > 0.0)
 			// @v11.5.11 (non_crd_amt >= rBlk.GetTotal())
 			if(Flags & fBankingPayment)
 				rBlk.Kind = cpmBank;

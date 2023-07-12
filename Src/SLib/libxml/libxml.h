@@ -43,22 +43,11 @@
 		// As result ifdef HAVE_CONFIG_H is omited here.
 		// 
 		//#include "libxml-config.h"
-		#define HAVE_CTYPE_H
-		#define HAVE_STDARG_H
-		#define HAVE_MALLOC_H
-		#define HAVE_ERRNO_H
-		#define HAVE_ZLIB_H  1 // @v11.3.12 (HAVE_ZLIB_H)-->(HAVE_ZLIB_H 1) for compatibility with libarchive
 		#if defined(_WIN32_WCE)
 			#undef HAVE_ERRNO_H
 			#include <windows.h>
 			#include "wincecompat.h"
 		#else
-			#define HAVE_SYS_STAT_H
-			#define HAVE__STAT
-			#define HAVE_STAT
-			#define HAVE_STDLIB_H
-			#define HAVE_TIME_H
-			#define HAVE_FCNTL_H
 			#include <direct.h>
 		#endif
 		#ifndef ICONV_CONST

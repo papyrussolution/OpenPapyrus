@@ -2890,8 +2890,8 @@ int CCheckCore::TurnCheck(CCheckPacket * pPack, int use_ta)
 			}
 		}
 		{
-			int    r = 0;
-			THROW(r = PutExt(&pPack->Rec, &pPack->Ext, 0));
+			const int r = PutExt(&pPack->Rec, &pPack->Ext, 0);
+			THROW(r);
 			if(r > 0)
 				ufp_factor += 1.0;
 		}

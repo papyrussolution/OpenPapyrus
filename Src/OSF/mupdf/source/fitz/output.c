@@ -4,9 +4,9 @@
 #pragma hdrstop
 
 #define _LARGEFILE_SOURCE
-#ifndef _FILE_OFFSET_BITS
-#define _FILE_OFFSET_BITS 64
-#endif
+//#ifndef _FILE_OFFSET_BITS
+	//#define _FILE_OFFSET_BITS 64
+//#endif
 
 #ifdef _WIN32
 	#include <io.h>

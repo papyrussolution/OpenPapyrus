@@ -32,9 +32,9 @@
 #ifndef _GNU_SOURCE
 	#define _GNU_SOURCE 1
 #endif
-#if defined(MDB_VL32) || defined(__WIN64__)
-	#define _FILE_OFFSET_BITS       64
-#endif
+//#if defined(MDB_VL32) || defined(__WIN64__)
+	//#define _FILE_OFFSET_BITS       64
+//#endif
 #ifdef _WIN32
 //#include <malloc.h>
 //#include <windows.h>

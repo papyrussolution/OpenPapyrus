@@ -509,9 +509,6 @@
     <ClCompile Include="..\SLib\libxml\legacy.c">
       <Filter>libxml</Filter>
     </ClCompile>
-    <ClCompile Include="..\SLib\libxml\libxml-pch.c">
-      <Filter>libxml</Filter>
-    </ClCompile>
     <ClCompile Include="..\SLib\libxml\list.c">
       <Filter>libxml</Filter>
     </ClCompile>

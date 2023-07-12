@@ -121,7 +121,7 @@ bad:
 
 float FASTCALL TIFFClampDoubleToFloat(double val)
 {
-	return sclamp(val, -SMathConst::Max_f_double, SMathConst::Max_f_double); // @sobolev @v11.7.4
+	return static_cast<float>(sclamp(val, -SMathConst::Max_f_double, SMathConst::Max_f_double)); // @sobolev @v11.7.4
 	/* (@sobolev @v11.7.4) if(val > FLT_MAX)
 		return FLT_MAX;
 	else if(val < -FLT_MAX)

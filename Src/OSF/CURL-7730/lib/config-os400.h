@@ -416,51 +416,21 @@
 /* Define this if you have struct sockaddr_storage */
 #define HAVE_STRUCT_SOCKADDR_STORAGE
 
-/* Define if you have the ANSI C header files. */
-#define STDC_HEADERS
-
-/* Define if you can safely include both <sys/time.h> and <time.h>. */
-#define TIME_WITH_SYS_TIME
-
-/* Define to enable alt-svc support (experimental) */
-#undef USE_ALTSVC
-
-/* Define to enable HTTP3 support (experimental, requires NGTCP2 or QUICHE) */
-#undef ENABLE_QUIC
-
-/* Version number of package */
-#undef VERSION
-
-/* Number of bits in a file offset, on hosts where this is settable. */
-#undef _FILE_OFFSET_BITS
-
-/* Define for large files, on AIX-style hosts. */
-#define _LARGE_FILES
-
-/* Define to empty if `const' does not conform to ANSI C. */
-#undef const
-
-/* type to use in place of in_addr_t if not defined */
-#define in_addr_t       unsigned long
-
-/* Define to `unsigned' if <sys/types.h> does not define. */
-#undef size_t
-
-/* Define if you have the ioctl function. */
-#define HAVE_IOCTL
-
-/* Define if you have a working ioctl FIONBIO function. */
-#define HAVE_IOCTL_FIONBIO
-
-/* Define if you have a working ioctl SIOCGIFADDR function. */
-#define HAVE_IOCTL_SIOCGIFADDR
-
-/* To disable LDAP */
-#undef CURL_DISABLE_LDAP
-
-/* Definition to make a library symbol externally visible. */
-#define CURL_EXTERN_SYMBOL
-
+#define STDC_HEADERS /* Define if you have the ANSI C header files. */
+#define TIME_WITH_SYS_TIME /* Define if you can safely include both <sys/time.h> and <time.h>. */
+#undef USE_ALTSVC /* Define to enable alt-svc support (experimental) */
+#undef ENABLE_QUIC /* Define to enable HTTP3 support (experimental, requires NGTCP2 or QUICHE) */
+#undef VERSION /* Version number of package */
+#undef _FILE_OFFSET_BITS /* Number of bits in a file offset, on hosts where this is settable. */
+#define _LARGE_FILES /* Define for large files, on AIX-style hosts. */
+#undef const /* Define to empty if `const' does not conform to ANSI C. */
+#define in_addr_t       unsigned long /* type to use in place of in_addr_t if not defined */
+#undef size_t /* Define to `unsigned' if <sys/types.h> does not define. */
+#define HAVE_IOCTL /* Define if you have the ioctl function. */
+#define HAVE_IOCTL_FIONBIO /* Define if you have a working ioctl FIONBIO function. */
+#define HAVE_IOCTL_SIOCGIFADDR /* Define if you have a working ioctl SIOCGIFADDR function. */
+#undef CURL_DISABLE_LDAP /* To disable LDAP */
+#define CURL_EXTERN_SYMBOL /* Definition to make a library symbol externally visible. */
 /* Define if you have the ldap_url_parse procedure. */
 /* #define HAVE_LDAP_URL_PARSE */    /* Disabled because of an IBM bug. */
 

@@ -12566,6 +12566,7 @@ int    Factorize(ulong val, UlongArray * pList);
 int    MutualReducePrimeMultiplicators(UlongArray & rA1, UlongArray & rA2, UlongArray * pReduceList);
 long   GetTranspositionNumber(const long list[], long count);
 int    GetNthTransposition(long list[], long count, long n);
+void   RationalBestApproximation(ulong givenNumerator, ulong givenDenominator, ulong maxNumerator, ulong maxDenominator, ulong * pBestNumerator, ulong * pBestDenominator);
 //
 // Descr: Базовые структуры для представления 128-битного целого числа для low-endian и big-endian
 // архитектур.

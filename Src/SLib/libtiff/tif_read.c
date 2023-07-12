@@ -112,7 +112,7 @@ static int TIFFReadAndRealloc(TIFF * tif, tmsize_t size, tmsize_t rawdata_offset
 static int TIFFFillStripPartial(TIFF * tif, int strip, tmsize_t read_ahead, int restart)
 {
 	static const char module[] = __FUNCTION__;
-	register TIFFDirectory * td = &tif->tif_dir;
+	TIFFDirectory * td = &tif->tif_dir;
 	tmsize_t unused_data;
 	uint64 read_offset;
 	tmsize_t to_read;

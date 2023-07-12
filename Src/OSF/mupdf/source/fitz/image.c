@@ -733,10 +733,8 @@ static fz_pixmap * pixmap_image_get_pixmap(fz_context * ctx, fz_image * image_, 
 static void update_ctm_for_subarea(fz_matrix * ctm, const fz_irect * subarea, int w, int h)
 {
 	fz_matrix m;
-
 	if(ctm == NULL || (subarea->x0 == 0 && subarea->y0 == 0 && subarea->x1 == w && subarea->y1 == h))
 		return;
-
 	m.a = (float)(subarea->x1 - subarea->x0) / w;
 	m.b = 0;
 	m.c = 0;
@@ -773,9 +771,8 @@ void fz_default_image_decode(void * arg, int w, int h, int l2factor, fz_irect * 
 
 static fz_pixmap * fz_find_image_tile(fz_context * ctx, fz_image * image, fz_image_key * key, fz_matrix * ctm)
 {
-	fz_pixmap * tile;
 	do {
-		tile = (fz_pixmap *)fz_find_item(ctx, fz_drop_pixmap_imp, key, &fz_image_store_type);
+		fz_pixmap * tile = (fz_pixmap *)fz_find_item(ctx, fz_drop_pixmap_imp, key, &fz_image_store_type);
 		if(tile) {
 			update_ctm_for_subarea(ctm, &key->rect, image->w, image->h);
 			return tile;
@@ -917,10 +914,8 @@ fz_pixmap * fz_get_pixmap_from_image(fz_context * ctx, fz_image * image, const f
 static size_t pixmap_image_get_size(fz_context * ctx, fz_image * image)
 {
 	fz_pixmap_image * im = (fz_pixmap_image*)image;
-
 	if(image == NULL)
 		return 0;
-
 	return sizeof(fz_pixmap_image) + fz_pixmap_size(ctx, im->tile);
 }
 
@@ -928,7 +923,6 @@ size_t fz_image_size(fz_context * ctx, fz_image * im)
 {
 	if(im == NULL)
 		return 0;
-
 	return im->get_size(ctx, im);
 }
 
@@ -1016,10 +1010,8 @@ fz_image * fz_new_image_of_size(fz_context * ctx, int w, int h, int bpc, fz_colo
 static size_t compressed_image_get_size(fz_context * ctx, fz_image * image)
 {
 	fz_compressed_image * im = (fz_compressed_image*)image;
-
 	if(image == NULL)
 		return 0;
-
 	return sizeof(fz_pixmap_image) + (im->buffer && im->buffer->buffer ? im->buffer->buffer->cap : 0);
 }
 
@@ -1046,7 +1038,6 @@ fz_image * fz_new_image_from_compressed_buffer(fz_context * ctx, int w, int h,
 		fz_drop_compressed_buffer(ctx, buffer);
 		fz_rethrow(ctx);
 	}
-
 	return &image->super;
 }
 
@@ -1118,48 +1109,26 @@ fz_image * fz_new_image_from_buffer(fz_context * ctx, fz_buffer * buffer)
 	fz_image * image = NULL;
 	int type;
 	int bpc;
-
 	if(len < 8)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "unknown image file format");
-
 	type = fz_recognize_image_format(ctx, buf);
 	bpc = 8;
-	switch(type)
-	{
-		case FZ_IMAGE_PNM:
-		    fz_load_pnm_info(ctx, buf, len, &w, &h, &xres, &yres, &cspace);
-		    break;
-		case FZ_IMAGE_JPX:
-		    fz_load_jpx_info(ctx, buf, len, &w, &h, &xres, &yres, &cspace);
-		    break;
-		case FZ_IMAGE_JPEG:
-		    fz_load_jpeg_info(ctx, buf, len, &w, &h, &xres, &yres, &cspace);
-		    break;
-		case FZ_IMAGE_PNG:
-		    fz_load_png_info(ctx, buf, len, &w, &h, &xres, &yres, &cspace);
-		    break;
-		case FZ_IMAGE_JXR:
-		    fz_load_jxr_info(ctx, buf, len, &w, &h, &xres, &yres, &cspace);
-		    break;
-		case FZ_IMAGE_TIFF:
-		    fz_load_tiff_info(ctx, buf, len, &w, &h, &xres, &yres, &cspace);
-		    break;
-		case FZ_IMAGE_GIF:
-		    fz_load_gif_info(ctx, buf, len, &w, &h, &xres, &yres, &cspace);
-		    break;
-		case FZ_IMAGE_BMP:
-		    fz_load_bmp_info(ctx, buf, len, &w, &h, &xres, &yres, &cspace);
-		    break;
-		case FZ_IMAGE_JBIG2:
-		    fz_load_jbig2_info(ctx, buf, len, &w, &h, &xres, &yres, &cspace);
+	switch(type) {
+		case FZ_IMAGE_PNM: fz_load_pnm_info(ctx, buf, len, &w, &h, &xres, &yres, &cspace); break;
+		case FZ_IMAGE_JPX: fz_load_jpx_info(ctx, buf, len, &w, &h, &xres, &yres, &cspace); break;
+		case FZ_IMAGE_JPEG: fz_load_jpeg_info(ctx, buf, len, &w, &h, &xres, &yres, &cspace); break;
+		case FZ_IMAGE_PNG: fz_load_png_info(ctx, buf, len, &w, &h, &xres, &yres, &cspace); break;
+		case FZ_IMAGE_JXR: fz_load_jxr_info(ctx, buf, len, &w, &h, &xres, &yres, &cspace); break;
+		case FZ_IMAGE_TIFF: fz_load_tiff_info(ctx, buf, len, &w, &h, &xres, &yres, &cspace); break;
+		case FZ_IMAGE_GIF: fz_load_gif_info(ctx, buf, len, &w, &h, &xres, &yres, &cspace); break;
+		case FZ_IMAGE_BMP: fz_load_bmp_info(ctx, buf, len, &w, &h, &xres, &yres, &cspace); break;
+		case FZ_IMAGE_JBIG2: 
+			fz_load_jbig2_info(ctx, buf, len, &w, &h, &xres, &yres, &cspace);
 		    bpc = 1;
 		    break;
-		default:
-		    fz_throw(ctx, FZ_ERROR_GENERIC, "unknown image file format");
+		default: fz_throw(ctx, FZ_ERROR_GENERIC, "unknown image file format");
 	}
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		bc = fz_malloc_struct(ctx, fz_compressed_buffer);
 		bc->buffer = fz_keep_buffer(ctx, buffer);
 		bc->params.type = type;
@@ -1171,23 +1140,19 @@ fz_image * fz_new_image_from_buffer(fz_context * ctx, fz_buffer * buffer)
 	fz_drop_colorspace(ctx, cspace);
 	fz_catch(ctx)
 	fz_rethrow(ctx);
-
 	return image;
 }
 
 fz_image * fz_new_image_from_file(fz_context * ctx, const char * path)
 {
-	fz_buffer * buffer;
 	fz_image * image = NULL;
-
-	buffer = fz_read_file(ctx, path);
+	fz_buffer * buffer = fz_read_file(ctx, path);
 	fz_try(ctx)
 	image = fz_new_image_from_buffer(ctx, buffer);
 	fz_always(ctx)
 	fz_drop_buffer(ctx, buffer);
 	fz_catch(ctx)
 	fz_rethrow(ctx);
-
 	return image;
 }
 

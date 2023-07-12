@@ -1594,7 +1594,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\SLib\libxml\libxml-pch.c" />
     <ClCompile Include="..\SLib\libxml\list.c" />
     <ClCompile Include="..\SLib\libxml\nanoftp.c" />
     <ClCompile Include="..\SLib\libxml\nanohttp.c" />

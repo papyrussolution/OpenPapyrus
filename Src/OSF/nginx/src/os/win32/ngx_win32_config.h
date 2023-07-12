@@ -34,8 +34,7 @@
 #include <shellapi.h>
 //#include <stddef.h>    /* offsetof() */
 #ifdef __MINGW64_VERSION_MAJOR
-	/* GCC MinGW-w64 supports _FILE_OFFSET_BITS */
-	#define _FILE_OFFSET_BITS 64
+	// #define _FILE_OFFSET_BITS 64 /* GCC MinGW-w64 supports _FILE_OFFSET_BITS */
 #elif defined __GNUC__
 	/* GCC MinGW's stdio.h includes sys/types.h */
 	#define _OFF_T_

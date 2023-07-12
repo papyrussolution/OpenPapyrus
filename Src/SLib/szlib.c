@@ -12,9 +12,9 @@
 	#ifndef _LARGEFILE_SOURCE
 		#define _LARGEFILE_SOURCE 1
 	#endif
-	#ifdef _FILE_OFFSET_BITS
-		#undef _FILE_OFFSET_BITS
-	#endif
+	//#ifdef _FILE_OFFSET_BITS
+		//#undef _FILE_OFFSET_BITS
+	//#endif
 #endif
 #ifdef HAVE_HIDDEN
 	#define ZLIB_INTERNAL __attribute__((visibility("hidden")))

@@ -5,32 +5,33 @@
 //#define DEBUG
 #define BITMAPDEBUG
 
-#define HAVE_STRING_H
-#define HAVE_MATH_H
-#define HAVE_LOCALE_H
-#define HAVE_MEMCPY
-#define HAVE_STDLIB_H
-#define HAVE_STRSTR
-#define HAVE_STRCHR
-#define HAVE_STPCPY
-#define HAVE_STRNLEN
-#define HAVE_WCHAR_H
-#define HAVE_STRERROR
-#define HAVE_VFPRINTF
-#define HAVE_TIME_T_IN_TIME_H
-#define HAVE_FDOPEN
-#define HAVE_SYS_STAT_H
-#define HAVE_LUA
+//#define HAVE_STRING_H
+//#define HAVE_MATH_H
+//#define HAVE_LOCALE_H
+//#define HAVE_MEMCPY
+//#define HAVE_STDLIB_H
+//#define HAVE_STRSTR
+//#define HAVE_STRCHR
+//#define HAVE_STPCPY
+//#define HAVE_STRNLEN
+//#define HAVE_WCHAR_H
+//#define HAVE_STRERROR
+//#define HAVE_VFPRINTF
+//#define HAVE_TIME_T_IN_TIME_H
+//#define HAVE_FDOPEN
+//#define HAVE_SYS_STAT_H
+//#define HAVE_LUA
+//#define HAVE_STDBOOL_H 1
+//#define HAVE__BOOL
+//#define HAVE_MEMSET
+
 //#define HAVE_WEBP // @v11.3.7
-//#define HAVE_CAIROPDF
-//#define HAVE_CAIROEPS
+//#define HAVE_CAIROPDF // @v11.7.9
+//#define HAVE_CAIROEPS // @v11.7.9
 //#define HAVE_AMOS
 //#define HAVE_COMPLEX_FUNCS
 #define HAVE_EXTERNAL_FUNCTIONS
 #define STDC_HEADERS
-#define HAVE_STDBOOL_H 1
-#define HAVE__BOOL
-#define HAVE_MEMSET
 #define USE_WINGDI
 #define USE_MOUSE
 #define USE_STATS

@@ -18,5 +18,6 @@
     <ClCompile Include="..\PPTEST\UNIT\test-etc.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-string.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-time.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-math.cpp" />
   </ItemGroup>
 </Project>

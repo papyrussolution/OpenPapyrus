@@ -1,6 +1,5 @@
 /*-
- * Copyright (c) 2003-2007 Tim Kientzle
- * All rights reserved.
+ * Copyright (c) 2003-2007 Tim Kientzle All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -41,7 +40,6 @@ static void append_uint(archive_string * as, uintmax_t d, unsigned base)
 static void append_int(archive_string * as, intmax_t d, unsigned base)
 {
 	uintmax_t ud;
-
 	if(d < 0) {
 		archive_strappend_char(as, '-');
 		ud = (d == INTMAX_MIN) ? (uintmax_t)(INTMAX_MAX)+1 : (uintmax_t)(-d);
@@ -54,18 +52,14 @@ static void append_int(archive_string * as, intmax_t d, unsigned base)
 void archive_string_sprintf(archive_string * as, const char * fmt, ...)
 {
 	va_list ap;
-
 	va_start(ap, fmt);
 	archive_string_vsprintf(as, fmt, ap);
 	va_end(ap);
 }
-
 /*
- * Like 'vsprintf', but ensures the target is big enough, resizing if
- * necessary.
+ * Like 'vsprintf', but ensures the target is big enough, resizing if necessary.
  */
-void archive_string_vsprintf(archive_string * as, const char * fmt,
-    va_list ap)
+void archive_string_vsprintf(archive_string * as, const char * fmt, va_list ap)
 {
 	char long_flag;
 	intmax_t s; /* Signed integer temp. */
@@ -94,7 +88,6 @@ void archive_string_vsprintf(archive_string * as, const char * fmt,
 			    p++;
 			    break;
 		}
-
 		switch(*p) {
 			case '%':
 			    archive_strappend_char(as, '%');

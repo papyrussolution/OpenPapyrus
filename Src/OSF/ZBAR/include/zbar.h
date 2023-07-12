@@ -89,9 +89,9 @@ void _zbar_refcnt_init();
 #define ENABLE_PDF417
 #define ENABLE_QRCODE
 
-#define HAVE_SYS_STAT_H
-#define HAVE_FCNTL_H
-#define HAVE_LIBJPEG
+//#define HAVE_SYS_STAT_H
+//#define HAVE_FCNTL_H
+//#define HAVE_LIBJPEG
 //
 // size of bar width history (implementation assumes power of two)
 //

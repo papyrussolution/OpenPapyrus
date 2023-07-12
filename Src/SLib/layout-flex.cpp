@@ -812,6 +812,17 @@ int SUiLayout::SetID(int id)
 	else
 		return 0;
 }
+
+const  SString & SUiLayout::GetSymb() const { return Symb; }
+
+int    SUiLayout::SetSymb(const char * pSymb)
+{
+	if(isempty(pSymb))
+		Symb.Z();
+	else
+		Symb = pSymb;
+	return 1;
+}
 //
 // Descr: Если идентификатора элемента (ID) нулевой, то инициализирует его так, чтобы он был уникальным
 //   в области определения контейнера верхнего уровня.
@@ -865,15 +876,8 @@ const SUiLayout * SUiLayout::FindByID(int id) const
 	return p_result;
 }
 
-/*static*/void * SUiLayout::GetManagedPtr(SUiLayout * pItem)
-{
-	return pItem ? pItem->managed_ptr : 0;
-}
-
-/*static*/void * SUiLayout::GetParentsManagedPtr(SUiLayout * pItem)
-{
-	return pItem ? GetManagedPtr(pItem->P_Parent) : 0;
-}
+/*static*/void * SUiLayout::GetManagedPtr(SUiLayout * pItem) { return pItem ? pItem->managed_ptr : 0; }
+/*static*/void * SUiLayout::GetParentsManagedPtr(SUiLayout * pItem) { return pItem ? GetManagedPtr(pItem->P_Parent) : 0; }
 
 /*static*/SUiLayout * SUiLayout::CreateComplexLayout(int type/*cmplxtXXX*/, uint flags/*clfXXX*/, float baseFixedMeasure, SUiLayout * pTopLevel)
 {
@@ -2654,16 +2658,41 @@ SJson * SUiLayout::ToJsonObj() const
 	*/
 	const long margin_fmt = MKSFMTD(0, 3, NMBF_NOTRAILZ|NMBF_OMITEPS);
 	//p_result->InsertString("symb", "");
-	p_result->InsertString("id", "");
+	p_result->InsertIntNz("id", ID);
+	p_result->InsertStringNe("symb", Symb);
 	p_result->InsertString("flags", "");
 	p_result->InsertString("wd", "");
 	p_result->InsertString("ht", "");
+	/*
+		if(justifyContent != alignAuto && oneof7(justifyContent, alignStretch, alignCenter, alignStart, alignEnd, alignSpaceBetween, alignSpaceAround, alignSpaceEvenly)) {
+			JustifyContent = justifyContent;
+		}
+		if(alignContent != alignAuto && oneof7(alignContent, alignStretch, alignCenter, alignStart, alignEnd, alignSpaceBetween, alignSpaceAround, alignSpaceEvenly)) {
+			AlignContent = alignContent;
+		} 
+	*/
 	p_result->InsertString("justifycontent", "");
 	p_result->InsertString("aligncontent", "");
 	p_result->InsertString("alignitems", "");
 	p_result->InsertString("alignself", "");
-	p_result->InsertString("gravityx", "");
-	p_result->InsertString("gravityy", "");
+	{
+		const char * p_gravity = 0;
+		switch(ALB.GravityX) {
+			case SIDE_LEFT: p_gravity = "left"; break;
+			case SIDE_RIGHT: p_gravity = "right"; break;
+			case SIDE_CENTER: p_gravity = "center"; break;
+		}
+		p_result->InsertStringNe("gravityx", p_gravity);
+	}
+	{
+		const char * p_gravity = 0;
+		switch(ALB.GravityY) {
+			case SIDE_TOP: p_gravity = "top"; break;
+			case SIDE_BOTTOM: p_gravity = "bottom"; break;
+			case SIDE_CENTER: p_gravity = "center"; break;
+		}
+		p_result->InsertString("gravityy", p_gravity);
+	}
 	{
 		const FRect & r_m = ALB.Margin;
 		if(!r_m.IsEmpty()) {

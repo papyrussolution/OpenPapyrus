@@ -1,11 +1,8 @@
-/*
- * xlink.c : implementation of the hyperlinks detection module
- *      This version supports both XML XLinks and HTML simple links
- *
- * See Copyright for the status of this software.
- *
- * daniel@veillard.com
- */
+// xlink.c : implementation of the hyperlinks detection module
+// This version supports both XML XLinks and HTML simple links
+// See Copyright for the status of this software.
+// daniel@veillard.com
+//
 #include <slib-internal.h>
 #pragma hdrstop
 #ifdef LIBXML_XPTR_ENABLED
@@ -19,46 +16,28 @@ static xlinkHandlerPtr xlinkDefaultHandler = NULL;
 static xlinkNodeDetectFunc xlinkDefaultDetect = NULL;
 /**
  * xlinkGetDefaultHandler:
- *
  * Get the default xlink handler.
- *
  * Returns the current xlinkHandlerPtr value.
  */
-xlinkHandlerPtr xlinkGetDefaultHandler() 
-{
-	return (xlinkDefaultHandler);
-}
+xlinkHandlerPtr xlinkGetDefaultHandler() { return (xlinkDefaultHandler); }
 /**
  * xlinkSetDefaultHandler:
  * @handler:  the new value for the xlink handler block
- *
  * Set the default xlink handlers
  */
-void xlinkSetDefaultHandler(xlinkHandlerPtr handler) 
-{
-	xlinkDefaultHandler = handler;
-}
+void xlinkSetDefaultHandler(xlinkHandlerPtr handler) { xlinkDefaultHandler = handler; }
 /**
  * xlinkGetDefaultDetect:
- *
  * Get the default xlink detection routine
- *
  * Returns the current function or NULL;
  */
-xlinkNodeDetectFunc xlinkGetDefaultDetect() 
-{
-	return (xlinkDefaultDetect);
-}
+xlinkNodeDetectFunc xlinkGetDefaultDetect() { return (xlinkDefaultDetect); }
 /**
  * xlinkSetDefaultDetect:
  * @func: pointer to the new detection routine.
- *
  * Set the default xlink detection routine
  */
-void xlinkSetDefaultDetect(xlinkNodeDetectFunc func) 
-{
-	xlinkDefaultDetect = func;
-}
+void xlinkSetDefaultDetect(xlinkNodeDetectFunc func) { xlinkDefaultDetect = func; }
 // 
 // The detection routines
 // 

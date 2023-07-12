@@ -46,7 +46,7 @@
 	#endif
 	#ifdef X11
 		#include "x11.trm"              /* X Window system */
-	#endif /* X11 */
+	#endif
 	#ifdef _WIN32
 		// @experimental #include "win.trm"              /* MS-Windows */
 	#endif
@@ -245,8 +245,9 @@
 #ifdef WXWIDGETS
 	#include "wxt.trm" /* WXWIDGETS */
 #endif
+#include <cairo.h> // @v11.7.9
 #ifdef HAVE_CAIROPDF
-	//#include "cairo.trm"
+	#include "cairo.trm"
 #endif
 #ifdef HAVE_WEBP
 	#include "webp.trm" // webp must come after cairo 

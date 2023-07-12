@@ -90,7 +90,7 @@ struct PangoAttrList;
 /* ========  enhanced text mode ======== */
 /* copies of internal variables */
 static char gp_cairo_enhanced_font[100] = "";
-static const char* gp_cairo_enhanced_get_fontname(plot_struct * plot);
+static const char* gp_cairo_enhanced_get_fontname(PlotCairoStruct * plot);
 static double gp_cairo_enhanced_fontsize = 0;
 static double gp_cairo_enhanced_base = 0;
 static bool gp_cairo_enhanced_widthflag = TRUE;
@@ -111,10 +111,10 @@ static PangoAttrList * gp_cairo_enhanced_save_AttrList = NULL;
 static char gp_cairo_underprinted_utf8[2048] = "";
 static PangoAttrList * gp_cairo_enhanced_underprinted_AttrList = NULL;
 /* converts text from symbol encoding to utf8 encoding */
-static char* gp_cairo_convert_symbol_to_unicode(plot_struct * plot, const char* string);
+static char* gp_cairo_convert_symbol_to_unicode(PlotCairoStruct * plot, const char* string);
 /* add standard attributes (fontsize,fontfamily, rise) to
  * the specified characters in a PangoAttrList */
- static void gp_cairo_add_attr(plot_struct * plot, PangoAttrList * AttrList, int start, int end);
+ static void gp_cairo_add_attr(PlotCairoStruct * plot, PangoAttrList * AttrList, int start, int end);
  #ifdef HAVE_PANGO
 	// add a blank character to the text string and an associated custom shape to the attribute list 
 	static void gp_cairo_add_shape(PangoRectangle rect, int position);
@@ -123,8 +123,8 @@ static char* gp_cairo_convert_symbol_to_unicode(plot_struct * plot, const char* 
 static int avg_vchar = 150; // Average character height as reported back through term->v_char 
 
 // set a cairo pattern or solid fill depending on parameters 
-static void gp_cairo_fill(plot_struct * plot, int fillstyle, int fillpar);
-static void gp_cairo_fill_pattern(plot_struct * plot, int fillstyle, int fillpar);
+static void gp_cairo_fill(PlotCairoStruct * plot, int fillstyle, int fillpar);
+static void gp_cairo_fill_pattern(PlotCairoStruct * plot, int fillstyle, int fillpar);
 
 // Boxed text support 
 static int bounding_box[4];
@@ -153,21 +153,15 @@ static rgb_color gp_cairo_colorlist[12] = {
 };
 
 /* correspondence between gnuplot linetypes and terminal colors */
-void gp_cairo_set_background(rgb_color background)
-{
-	gp_cairo_colorlist[0] = background;
-}
-
-rgb_color gp_cairo_linetype2color(int linetype)
-{
-	return (linetype <= LT_NODRAW) ? gp_cairo_colorlist[0] : gp_cairo_colorlist[linetype%9 +3];
-}
+void gp_cairo_set_background(rgb_color background) { gp_cairo_colorlist[0] = background; }
+rgb_color gp_cairo_linetype2color(int linetype) { return (linetype <= LT_NODRAW) ? gp_cairo_colorlist[0] : gp_cairo_colorlist[linetype%9 +3]; }
 //
 // initialize all fields of the plot structure 
 //
-void gp_cairo_initialize_plot(plot_struct * plot)
+void gp_cairo_initialize_plot(PlotCairoStruct * plot)
 {
-	plot->xscale = 1.0; plot->yscale = 1.0;
+	plot->xscale = 1.0; 
+	plot->yscale = 1.0;
 	plot->device_xmax = 1; plot->device_ymax = 1;
 	plot->xmax = 1; plot->ymax = 1;
 	plot->justify_mode = LEFT;
@@ -200,7 +194,7 @@ void gp_cairo_initialize_plot(plot_struct * plot)
 
 /* set the transformation matrix of the context, and other details */
 /* NOTE : depends on the setting of xscale and yscale */
-void gp_cairo_initialize_context(plot_struct * plot)
+void gp_cairo_initialize_context(PlotCairoStruct * plot)
 {
 	cairo_matrix_t matrix;
 	plot->oversampling_scale = plot->oversampling ? GP_CAIRO_SCALE : 1;
@@ -227,7 +221,7 @@ void gp_cairo_initialize_context(plot_struct * plot)
 	}
 }
 
-void gp_cairo_set_color(plot_struct * plot, rgb_color color, double alpha)
+void gp_cairo_set_color(PlotCairoStruct * plot, rgb_color color, double alpha)
 {
 	/*stroke any open path */
 	gp_cairo_stroke(plot);
@@ -238,7 +232,7 @@ void gp_cairo_set_color(plot_struct * plot, rgb_color color, double alpha)
 	plot->color.alpha = alpha;
 }
 
-void gp_cairo_set_linestyle(plot_struct * plot, int linestyle)
+void gp_cairo_set_linestyle(PlotCairoStruct * plot, int linestyle)
 {
 	/*stroke any open path */
 	gp_cairo_stroke(plot);
@@ -248,7 +242,7 @@ void gp_cairo_set_linestyle(plot_struct * plot, int linestyle)
 	plot->linestyle = linestyle;
 }
 
-void gp_cairo_set_linetype(plot_struct * plot, int linetype)
+void gp_cairo_set_linetype(PlotCairoStruct * plot, int linetype)
 {
 	/*stroke any open path */
 	gp_cairo_stroke(plot);
@@ -258,13 +252,13 @@ void gp_cairo_set_linetype(plot_struct * plot, int linetype)
 	plot->linetype = linetype;
 }
 
-void gp_cairo_set_pointsize(plot_struct * plot, double pointsize)
+void gp_cairo_set_pointsize(PlotCairoStruct * plot, double pointsize)
 {
 	FPRINTF((stderr, "set_pointsize %lf\n", pointsize));
 	plot->pointsize = pointsize;
 }
 
-void gp_cairo_set_justify(plot_struct * plot, JUSTIFY mode)
+void gp_cairo_set_justify(PlotCairoStruct * plot, JUSTIFY mode)
 {
 	FPRINTF((stderr, "set_justify\n"));
 	plot->justify_mode = mode;
@@ -272,7 +266,7 @@ void gp_cairo_set_justify(plot_struct * plot, JUSTIFY mode)
 
 #ifdef HAVE_PANGO // {
 
-void gp_cairo_set_font(plot_struct * plot, const char * name, float fontsize)
+void gp_cairo_set_font(PlotCairoStruct * plot, const char * name, float fontsize)
 {
 	char * c;
 	char * fname;
@@ -313,14 +307,14 @@ void gp_cairo_set_font(plot_struct * plot, const char * name, float fontsize)
 }
 
 /* work-around for "bold font gets stuck" bug */
-void gp_cairo_clear_bold_font(plot_struct * plot)
+void gp_cairo_clear_bold_font(PlotCairoStruct * plot)
 {
 	plot->fontweight = PANGO_WEIGHT_NORMAL;
 	plot->fontstyle = PANGO_STYLE_NORMAL;
 }
 #endif // } HAVE_PANGO 
 
-void gp_cairo_set_linewidth(plot_struct * plot, double linewidth)
+void gp_cairo_set_linewidth(PlotCairoStruct * plot, double linewidth)
 {
 	FPRINTF((stderr, "set_linewidth %lf\n", linewidth));
 	gp_cairo_stroke(plot); // stroke any open path 
@@ -332,7 +326,7 @@ void gp_cairo_set_linewidth(plot_struct * plot, double linewidth)
 	plot->linewidth = linewidth;
 }
 
-void gp_cairo_set_textangle(plot_struct * plot, double angle)
+void gp_cairo_set_textangle(PlotCairoStruct * plot, double angle)
 {
 	FPRINTF((stderr, "set_textangle %lf\n", angle));
 	plot->text_angle = angle;
@@ -359,7 +353,7 @@ void gp_cairo_set_textangle(plot_struct * plot, double angle)
  * The last solution is implemented if plot->polygons_saturate is set to TRUE
  * Otherwise the default (antialiasing but may have seams) is used.
  */
-void gp_cairo_draw_polygon(plot_struct * plot, int n, gpiPoint * corners)
+void gp_cairo_draw_polygon(PlotCairoStruct * plot, int n, gpiPoint * corners)
 {
 	// begin by stroking any open path 
 	gp_cairo_stroke(plot);
@@ -395,7 +389,7 @@ void gp_cairo_draw_polygon(plot_struct * plot, int n, gpiPoint * corners)
 	}
 }
 
-void gp_cairo_end_polygon(plot_struct * plot)
+void gp_cairo_end_polygon(PlotCairoStruct * plot)
 {
 	int i;
 	path_item * path;
@@ -482,7 +476,7 @@ void gp_cairo_end_polygon(plot_struct * plot)
 	cairo_paint(plot->cr);
 }
 
-void gp_cairo_set_dashtype(plot_struct * plot, int type, t_dashtype * custom_dash_type)
+void gp_cairo_set_dashtype(PlotCairoStruct * plot, int type, t_dashtype * custom_dash_type)
 {
 	static double dashpattern[4][8] = {
 		{5, 8, 5, 8, 5, 8, 5, 8}, /* Medium dash */
@@ -520,7 +514,7 @@ void gp_cairo_set_dashtype(plot_struct * plot, int type, t_dashtype * custom_das
 	}
 }
 
-void gp_cairo_stroke(plot_struct * plot)
+void gp_cairo_stroke(PlotCairoStruct * plot)
 {
 	int lt = plot->linetype;
 	double lw = plot->linewidth * plot->oversampling_scale;
@@ -555,7 +549,7 @@ void gp_cairo_stroke(plot_struct * plot)
 	plot->opened_path = FALSE;
 }
 
-void gp_cairo_move(plot_struct * plot, int x, int y)
+void gp_cairo_move(PlotCairoStruct * plot, int x, int y)
 {
 	// Dec 2014 - Do not let zero-length moves interrupt     
 	// the current line/polyline context, e.g. dash pattern. 
@@ -571,7 +565,7 @@ void gp_cairo_move(plot_struct * plot, int x, int y)
 	plot->orig_current_y = y;
 }
 
-void gp_cairo_vector(plot_struct * plot, int x, int y)
+void gp_cairo_vector(PlotCairoStruct * plot, int x, int y)
 {
 	double x1 = x, y1 = y;
 	double new_pos;
@@ -633,7 +627,7 @@ void gp_cairo_vector(plot_struct * plot, int x, int y)
 // gp_cairo_get_encoding() gives the encoding set via 'set enconding'
 // memory allocated for the string has to be freed 
 //
-static char * gp_cairo_convert(plot_struct * plot, const char* string)
+static char * gp_cairo_convert(PlotCairoStruct * plot, const char* string)
 {
 	size_t bytes_read;
 	GError * error = NULL;
@@ -713,7 +707,7 @@ void gp_cairo_set_resolution(int dpi)
 	pango_cairo_font_map_set_resolution(PANGO_CAIRO_FONT_MAP(pango_cairo_font_map_get_default()), dpi);
 }
 
-void gp_cairo_draw_text(plot_struct * plot, int x1, int y1, const char* string, int * width, int * height)
+void gp_cairo_draw_text(PlotCairoStruct * plot, int x1, int y1, const char* string, int * width, int * height)
 {
 	double x, y;
 	double arg;
@@ -841,7 +835,7 @@ void gp_cairo_draw_text(plot_struct * plot, int x1, int y1, const char* string, 
 }
 #endif // } HAVE_PANGO
 
-void gp_cairo_draw_point(plot_struct * plot, int x1, int y1, int style)
+void gp_cairo_draw_point(PlotCairoStruct * plot, int x1, int y1, int style)
 {
 	double x = x1;
 	double y = y1;
@@ -974,7 +968,7 @@ void gp_cairo_draw_point(plot_struct * plot, int x1, int y1, int style)
 	cairo_restore(plot->cr);
 }
 
-void gp_cairo_draw_fillbox(plot_struct * plot, int x, int y, int width, int height, int style)
+void gp_cairo_draw_fillbox(PlotCairoStruct * plot, int x, int y, int width, int height, int style)
 {
 	int fillpar = style >> 4;
 	int fillstyle = style & 0xf;
@@ -1003,7 +997,7 @@ void gp_cairo_draw_fillbox(plot_struct * plot, int x, int y, int width, int heig
  *	corner[2] and corner[3] = (x3,y3) and (x4,y4) define a clipping box in
  *	the primary plot into which all or part of the image will be rendered.
  */
-void gp_cairo_draw_image(plot_struct * plot, unsigned int * image, int x1, int y1, int x2, int y2,
+void gp_cairo_draw_image(PlotCairoStruct * plot, unsigned int * image, int x1, int y1, int x2, int y2,
     int x3, int y3, int x4, int y4, int M, int N)
 {
 	double scale_x, scale_y;
@@ -1051,7 +1045,7 @@ void gp_cairo_draw_image(plot_struct * plot, unsigned int * image, int x1, int y
 //
 // Enhanced text mode support
 //
-void gp_cairo_add_attr(plot_struct * plot, PangoAttrList * AttrList, int start, int end)
+void gp_cairo_add_attr(PlotCairoStruct * plot, PangoAttrList * AttrList, int start, int end)
 {
 	PangoAttribute * p_attr_rise, * p_attr_size, * p_attr_family;
 	PangoAttribute * p_attr_weight, * p_attr_style;
@@ -1095,7 +1089,7 @@ void gp_cairo_add_shape(PangoRectangle rect, int position)
 }
 
 /* gp_cairo_enhanced_flush() draws enhanced_text, which has been filled by _writec()*/
-void gp_cairo_enhanced_flush(plot_struct * plot)
+void gp_cairo_enhanced_flush(PlotCairoStruct * plot)
 {
 	PangoRectangle save_logical_rect;
 	PangoLayout * save_layout;
@@ -1360,7 +1354,7 @@ void gp_cairo_enhanced_flush(plot_struct * plot)
  *        (overprinted text is centered horizontally on underprinted text)
  *        3 means "save current position",
  *        4 means "restore saved position" */
-void gp_cairo_enhanced_open(plot_struct * plot, char* fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+void gp_cairo_enhanced_open(PlotCairoStruct * plot, char* fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	if(overprint == 3) {
 		gp_cairo_enhanced_save = TRUE;
@@ -1392,13 +1386,13 @@ void gp_cairo_enhanced_open(plot_struct * plot, char* fontname, double fontsize,
 	}
 }
 
-void gp_cairo_enhanced_writec(plot_struct * plot, int character)
+void gp_cairo_enhanced_writec(PlotCairoStruct * plot, int character)
 {
 	*gp_cairo_enhanced_char++ = character;
 	*gp_cairo_enhanced_char = '\0';
 }
 
-void gp_cairo_enhanced_init(plot_struct * plot, int len)
+void gp_cairo_enhanced_init(PlotCairoStruct * plot, int len)
 {
 	/* begin by stroking any open path */
 	gp_cairo_stroke(plot);
@@ -1413,7 +1407,7 @@ void gp_cairo_enhanced_init(plot_struct * plot, int len)
 	gp_cairo_enhanced_AttrList = pango_attr_list_new();
 }
 
-void gp_cairo_enhanced_finish(plot_struct * plot, int x, int y)
+void gp_cairo_enhanced_finish(PlotCairoStruct * plot, int x, int y)
 {
 	PangoRectangle ink_rect, logical_rect;
 	PangoLayout * layout;
@@ -1513,7 +1507,7 @@ void gp_cairo_enhanced_finish(plot_struct * plot, int x, int y)
 // obtain the right pattern or solid fill from fillstyle and fillpar.
 // Used to draw fillboxes and polygons 
 //
-void gp_cairo_fill(plot_struct * plot, int fillstyle, int fillpar)
+void gp_cairo_fill(PlotCairoStruct * plot, int fillstyle, int fillpar)
 {
 	double red = 0, green = 0, blue = 0, fact = 0;
 	switch(fillstyle) {
@@ -1566,7 +1560,7 @@ void gp_cairo_fill(plot_struct * plot, int fillstyle, int fillpar)
 	}
 }
 
-void gp_cairo_boxed_text(plot_struct * plot, int x, int y, int option)
+void gp_cairo_boxed_text(PlotCairoStruct * plot, int x, int y, int option)
 {
 	int dx, dy;
 	switch(option) {
@@ -1641,7 +1635,7 @@ void gp_cairo_boxed_text(plot_struct * plot, int x, int y, int option)
 #define PATTERN_SIZE 8
 
 /* return a pattern used for fillboxes and polygons */
-void gp_cairo_fill_pattern(plot_struct * plot, int fillstyle, int fillpar)
+void gp_cairo_fill_pattern(PlotCairoStruct * plot, int fillstyle, int fillpar)
 {
 	cairo_surface_t * pattern_surface;
 	cairo_t * pattern_cr;
@@ -1733,7 +1727,7 @@ void gp_cairo_fill_pattern(plot_struct * plot, int fillstyle, int fillpar)
 // Sets term vars v_char, h_char, v_tic, h_tic
 // Depends on plot->fontsize and fontname 
 //
-void gp_cairo_set_termvar(plot_struct * plot, unsigned int * v_char, unsigned int * h_char)
+void gp_cairo_set_termvar(PlotCairoStruct * plot, unsigned int * v_char, unsigned int * h_char)
 {
 	PangoLayout * layout;
 	PangoFontDescription * desc;
@@ -1779,7 +1773,7 @@ void gp_cairo_set_termvar(plot_struct * plot, unsigned int * v_char, unsigned in
 }
 #endif // } HAVE_PANGO 
 
-void gp_cairo_solid_background(plot_struct * plot)
+void gp_cairo_solid_background(PlotCairoStruct * plot)
 {
 	if(cairo_status(plot->cr)) {
 		fprintf(stderr, "Cairo is unhappy: %s\n", cairo_status_to_string(cairo_status(plot->cr)));
@@ -1789,7 +1783,7 @@ void gp_cairo_solid_background(plot_struct * plot)
 	cairo_paint(plot->cr);
 }
 
-void gp_cairo_clear_background(plot_struct * plot)
+void gp_cairo_clear_background(PlotCairoStruct * plot)
 {
 	if(cairo_status(plot->cr)) {
 		fprintf(stderr, "Cairo is unhappy: %s\n", cairo_status_to_string(cairo_status(plot->cr)));
@@ -1805,7 +1799,7 @@ void gp_cairo_clear_background(plot_struct * plot)
 
 /* in enhanced text mode, look if enhanced mode has set the font,
  * otherwise return the default */
-const char* gp_cairo_enhanced_get_fontname(plot_struct * plot)
+const char* gp_cairo_enhanced_get_fontname(PlotCairoStruct * plot)
 {
 	if(strlen(gp_cairo_enhanced_font)==0)
 		return plot->fontname;
@@ -1831,28 +1825,28 @@ const char * gp_cairo_default_font(void)
 
 #define OFFSET 0
 
-double device_x(plot_struct * plot, double x)
+double device_x(PlotCairoStruct * plot, double x)
 {
 	double scaled_x;
 	scaled_x = plot->xscale*x/plot->oversampling_scale;
 	return scaled_x + OFFSET;
 }
 
-double device_y(plot_struct * plot, double y)
+double device_y(PlotCairoStruct * plot, double y)
 {
 	double scaled_and_mirrored_y;
 	scaled_and_mirrored_y = (plot->ymax - y)*plot->yscale/plot->oversampling_scale;
 	return scaled_and_mirrored_y + OFFSET;
 }
 
-double gnuplot_x(plot_struct * plot, double x)
+double gnuplot_x(PlotCairoStruct * plot, double x)
 {
 	double scaled_x;
 	scaled_x = (x + OFFSET)/plot->xscale*plot->oversampling_scale;
 	return scaled_x;
 }
 
-double gnuplot_y(plot_struct * plot, double y)
+double gnuplot_y(PlotCairoStruct * plot, double y)
 {
 	double scaled_and_mirrored_y;
 	scaled_and_mirrored_y = plot->ymax +(-y + OFFSET)/plot->yscale*plot->oversampling_scale;
@@ -1862,7 +1856,7 @@ double gnuplot_y(plot_struct * plot, double y)
 /* return the charset as a string accepted by glib routines,
  * default to the locale charset,
  * the returned char* doesn't have to be freed. */
-const char* gp_cairo_get_encoding(plot_struct * plot)
+const char* gp_cairo_get_encoding(PlotCairoStruct * plot)
 {
 	const char * charset;
 	switch(plot->encoding) {
@@ -1890,7 +1884,7 @@ const char* gp_cairo_get_encoding(plot_struct * plot)
  * use the map provided by http://www.unicode.org/ to
  * translate character codes to their unicode counterparts.
  * The returned string has te be freed by the calling function. */
-char* gp_cairo_convert_symbol_to_unicode(plot_struct * plot, const char* string)
+char* gp_cairo_convert_symbol_to_unicode(PlotCairoStruct * plot, const char* string)
 {
 	char * string_utf8;
 	char * output;

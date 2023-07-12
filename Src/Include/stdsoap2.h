@@ -138,19 +138,19 @@
 		#define WITH_LEAN
 		#define HAVE_SSCANF
 	#elif defined(WIN32)
-		#define HAVE_SNPRINTF
-		#define HAVE_STRRCHR
-		#define HAVE_STRTOD
-		#define HAVE_SSCANF
-		#define HAVE_STRTOD_L
-		#define HAVE_SPRINTF_L
-		#define HAVE_STRTOL
-		#define HAVE_STRTOUL
-		#define HAVE_SYS_TIMEB_H
-		#define HAVE_FTIME
-		#define HAVE_GMTIME
-		#define HAVE_WCTOMB
-		#define HAVE_MBTOWC
+		//#define HAVE_SNPRINTF
+		//#define HAVE_STRRCHR
+		//#define HAVE_STRTOD
+		//#define HAVE_SSCANF
+		//#define HAVE_STRTOD_L
+		//#define HAVE_SPRINTF_L
+		//#define HAVE_STRTOL
+		//#define HAVE_STRTOUL
+		//#define HAVE_SYS_TIMEB_H
+		//#define HAVE_FTIME
+		//#define HAVE_GMTIME
+		//#define HAVE_WCTOMB
+		//#define HAVE_MBTOWC
 		#define SOAP_LONG_FORMAT "%I64d"
 		#define SOAP_ULONG_FORMAT "%I64u"
 	#elif defined(CYGWIN)

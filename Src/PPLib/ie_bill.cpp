@@ -7742,6 +7742,7 @@ int WriteBill_NalogRu2_UPD(const PPBillImpExpParam & rParam, const PPBillPacket 
 				PPID   buyer_psn_id = 0;
 				int    do_skip = 0;
 				int    is_intrexpend = 0;
+				RegisterTbl::Rec reg_rec;
 				SString consignor_gln; // @v11.7.4
 				SString consignee_gln; // @v11.7.4
 				{
@@ -7793,10 +7794,20 @@ int WriteBill_NalogRu2_UPD(const PPBillImpExpParam & rParam, const PPBillPacket 
 					}
 				}
 				// @v11.7.4 {
-				if(consignee_psn_id)
+				// @v11.7.9 {
+				if(consignee_loc_id && _blk.G.PsnObj.LocObj.GetRegister(consignee_loc_id, PPREGT_GLN, ZERODATE, true, &reg_rec) > 0)
+					consignee_gln = reg_rec.Num;
+				// } @v11.7.9 
+				if(consignee_gln.IsEmpty() && consignee_psn_id) {
 					_blk.G.PsnObj.GetRegNumber(consignee_psn_id, PPREGT_GLN, consignee_gln);
-				if(shipper_psn_id)
+				}
+				// @v11.7.9 {
+				if(shipper_loc_id && _blk.G.PsnObj.LocObj.GetRegister(shipper_loc_id, PPREGT_GLN, ZERODATE, true, &reg_rec) > 0)
+					consignor_gln = reg_rec.Num;
+				// } @v11.7.9 
+				if(consignor_gln.IsEmpty() && shipper_psn_id) {
 					_blk.G.PsnObj.GetRegNumber(shipper_psn_id, PPREGT_GLN, consignor_gln);
+				}
 				// } @v11.7.4 
 				_blk.G.WriteOrgInfo(_blk.GetToken(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, rBp.Rec.Dt, 0); // @v10.8.7 shipper_loc_id-->0
 				{

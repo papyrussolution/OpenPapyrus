@@ -37,46 +37,6 @@
 	/* #undef CHUNKY_STRIP_READ_SUPPORT */ /* enable partial strip reading for large strips (experimental) */
 	#define CXX_SUPPORT 1 /* Support C++ stream API (requires C++ compiler) */
 	/* #undef DEFER_STRILE_LOAD */ /* enable deferred strip/tile offset/size loading (experimental) */
-	#define HAVE_ASSERT_H 1 /* Define to 1 if you have the <assert.h> header file. */
-	/* #undef HAVE_DLFCN_H */ /* Define to 1 if you have the <dlfcn.h> header file. */
-	#define HAVE_FCNTL_H 1 /* Define to 1 if you have the <fcntl.h> header file. */
-	#define HAVE_FLOOR 1 /* Define to 1 if you have the `floor' function. */
-	/* #undef HAVE_GETOPT */ /* Define to 1 if you have the `getopt' function. */
-	/* #undef HAVE_GLUT_GLUT_H */ /* Define to 1 if you have the <GLUT/glut.h> header file. */
-	/* #undef HAVE_GL_GLUT_H */ /* Define to 1 if you have the <GL/glut.h> header file. */
-	/* #undef HAVE_GL_GLU_H */ /* Define to 1 if you have the <GL/glu.h> header file. */
-	/* #undef HAVE_GL_GL_H */ /* Define to 1 if you have the <GL/gl.h> header file. */
-	/* #undef HAVE_INTTYPES_H */ /* Define to 1 if you have the <inttypes.h> header file. */
-	#define HAVE_IO_H 1 /* Define to 1 if you have the <io.h> header file. */
-	/* #undef HAVE_ISASCII */ /* Define to 1 if you have the `isascii' function. */
-	/* #undef HAVE_JBG_NEWLEN */ /* Define to 1 if you have the `jbg_newlen' function. */
-	#define HAVE_LFIND 1 /* Define to 1 if you have the `lfind' function. */
-	#define HAVE_LIMITS_H 1 /* Define to 1 if you have the <limits.h> header file. */
-	#define HAVE_MALLOC_H 1 /* Define to 1 if you have the <malloc.h> header file. */
-	#define HAVE_MEMMOVE 1 /* Define to 1 if you have the `memmove' function. */
-	#define HAVE_MEMORY_H 1 /* Define to 1 if you have the <memory.h> header file. */
-	#define HAVE_MEMSET 1 /* Define to 1 if you have the `memset' function. */
-	/* #undef HAVE_MMAP */ /* Define to 1 if you have the `mmap' function. */
-	/* #undef HAVE_OPENGL_GLU_H */ /* Define to 1 if you have the <OpenGL/glu.h> header file. */
-	/* #undef HAVE_OPENGL_GL_H */ /* Define to 1 if you have the <OpenGL/gl.h> header file. */
-	#define HAVE_POW 1 /* Define to 1 if you have the `pow' function. */
-	#define HAVE_SEARCH_H 1 /* Define to 1 if you have the <search.h> header file. */
-	#define HAVE_SETMODE 1 /* Define to 1 if you have the `setmode' function. */
-	/* #undef HAVE_SNPRINTF */ /* Define to 1 if you have the `snprintf' function. */
-	#define HAVE_SQRT 1 /* Define to 1 if you have the `sqrt' function. */
-	/* #undef HAVE_STDINT_H */ /* Define to 1 if you have the <stdint.h> header file. */
-	/* #undef HAVE_STRCASECMP */ /* Define to 1 if you have the `strcasecmp' function. */
-	#define HAVE_STRCHR 1 /* Define to 1 if you have the `strchr' function. */
-	/* #undef HAVE_STRINGS_H */ /* Define to 1 if you have the <strings.h> header file. */
-	#define HAVE_STRING_H 1 /* Define to 1 if you have the <string.h> header file. */
-	#define HAVE_STRRCHR 1 /* Define to 1 if you have the `strrchr' function. */
-	#define HAVE_STRSTR 1 /* Define to 1 if you have the `strstr' function. */
-	#define HAVE_STRTOL 1 /* Define to 1 if you have the `strtol' function. */
-	#define HAVE_STRTOUL 1 /* Define to 1 if you have the `strtoul' function. */
-	/* #undef HAVE_STRTOULL */ /* Define to 1 if you have the `strtoull' function. */
-	/* #undef HAVE_SYS_TIME_H */ /* Define to 1 if you have the <sys/time.h> header file. */
-	#define HAVE_SYS_TYPES_H 1 /* Define to 1 if you have the <sys/types.h> header file. */
-	/* #undef HAVE_UNISTD_H */ /* Define to 1 if you have the <unistd.h> header file. */
 	/* #undef JPEG_DUAL_MODE_8_12 */ /* 8/12 bit libjpeg dual mode enabled */
 	#define OJPEG_SUPPORT 1 // @sobolev @v11.3.8
 	#define LIBJPEG_12_PATH  /* 12bit libjpeg primary include file with path */
@@ -122,7 +82,7 @@
 			#undef WORDS_BIGENDIAN
 		#endif
 	#endif
-	#define _FILE_OFFSET_BITS  /* Number of bits in a file offset, on hosts where this is settable. */
+	// #define _FILE_OFFSET_BITS  /* Number of bits in a file offset, on hosts where this is settable. */
 	// Define to `__inline__' or `__inline' if that's what the C compiler calls it, or to nothing if 'inline' is not supported under any name
 	//#ifndef __cplusplus
 		//#define inline __inline

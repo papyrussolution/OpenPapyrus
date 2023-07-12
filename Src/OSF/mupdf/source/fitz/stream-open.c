@@ -4,9 +4,9 @@
 #pragma hdrstop
 
 #define _LARGEFILE_SOURCE
-#ifndef _FILE_OFFSET_BITS
-#define _FILE_OFFSET_BITS 64
-#endif
+//#ifndef _FILE_OFFSET_BITS
+	//#define _FILE_OFFSET_BITS 64
+//#endif
 
 int fz_file_exists(fz_context * ctx, const char * path)
 {

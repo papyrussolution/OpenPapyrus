@@ -379,10 +379,7 @@ size_t Base32_Decode(const uchar * coded, SBinaryChunk & rResult)
 size_t base32_encoded_size(size_t count)
 {
 	size_t size = (count << 3); // multiply by 8 
-	if(size % 5 == 0)
-		return (size/5);
-	else
-		return (1+size/5);
+	return (size % 5 == 0) ? (size/5) : (1+size/5);
 }
 
 size_t base32_decoded_size(size_t count)

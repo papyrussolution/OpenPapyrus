@@ -194,54 +194,30 @@ static int cbz_lookup_metadata(fz_context * ctx, fz_document * doc_, const char 
 
 static fz_document * cbz_open_document_with_stream(fz_context * ctx, fz_stream * file)
 {
-	cbz_document * doc;
-
-	doc = fz_new_derived_document(ctx, cbz_document);
-
+	cbz_document * doc = fz_new_derived_document(ctx, cbz_document);
 	doc->super.drop_document = cbz_drop_document;
 	doc->super.count_pages = cbz_count_pages;
 	doc->super.load_page = cbz_load_page;
 	doc->super.lookup_metadata = cbz_lookup_metadata;
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		doc->arch = fz_open_archive_with_stream(ctx, file);
 		cbz_create_page_list(ctx, doc);
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_drop_document(ctx, (fz_document*)doc);
 		fz_rethrow(ctx);
 	}
 	return (fz_document*)doc;
 }
 
-static const char * cbz_extensions[] =
-{
-	"cbt",
-	"cbz",
-	"tar",
-	"zip",
-	NULL
+static const char * cbz_extensions[] = {
+	"cbt", "cbz", "tar", "zip", NULL
 };
 
-static const char * cbz_mimetypes[] =
-{
-	"application/vnd.comicbook+zip",
-	"application/x-cbt",
-	"application/x-cbz",
-	"application/x-tar",
-	"application/zip",
-	NULL
+static const char * cbz_mimetypes[] = {
+	"application/vnd.comicbook+zip", "application/x-cbt", "application/x-cbz", "application/x-tar", "application/zip", NULL
 };
 
-fz_document_handler cbz_document_handler =
-{
-	NULL,
-	NULL,
-	cbz_open_document_with_stream,
-	cbz_extensions,
-	cbz_mimetypes,
-	NULL,
-	NULL
+fz_document_handler cbz_document_handler = {
+	NULL, NULL, cbz_open_document_with_stream, cbz_extensions, cbz_mimetypes, NULL, NULL
 };

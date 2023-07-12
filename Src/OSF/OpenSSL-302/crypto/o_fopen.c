@@ -22,9 +22,9 @@
  * of 32-bit platforms which allow for sequential access of large files
  * without extra "magic" comprise *BSD, Darwin, IRIX...
  */
-#ifndef _FILE_OFFSET_BITS
-#define _FILE_OFFSET_BITS 64
-#endif
+//#ifndef _FILE_OFFSET_BITS
+	//#define _FILE_OFFSET_BITS 64
+//#endif
 #endif
 #include "e_os.h"
 #if !defined(OPENSSL_NO_STDIO)

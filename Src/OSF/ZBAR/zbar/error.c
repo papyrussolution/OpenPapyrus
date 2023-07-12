@@ -135,7 +135,7 @@ const char * _zbar_error_string(const void * container, int verbosity)
 	if(err->type == ZBAR_ERR_SYSTEM) {
 		static const char sysfmt[] = ": %s (%d)\n";
 		const char * syserr = strerror(err->errnum);
-		err->buf = SAlloc::R(err->buf, len + strlen(sysfmt) + strlen(syserr));
+		err->buf = (char *)SAlloc::R(err->buf, len + strlen(sysfmt) + strlen(syserr));
 		len += sprintf(err->buf + len, sysfmt, syserr, err->errnum);
 	}
 #endif

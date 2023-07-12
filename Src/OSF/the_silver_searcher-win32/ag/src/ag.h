@@ -11,10 +11,10 @@
 #include <stdarg.h>
 #include <fcntl.h>
 #include <pcre.h>
-#define HAVE_ZLIB_H
-#define HAVE_LZMA_H
-#define HAVE_PTHREAD_H
-#define HAVE_VASPRINTF
+// (slport.h) #define HAVE_ZLIB_H
+// (slport.h) #define HAVE_LZMA_H
+// (slport.h) #define HAVE_PTHREAD_H
+// (slport.h) #define HAVE_VASPRINTF
 //
 #ifdef HAVE_SYS_CPUSET_H
 	#include <sys/cpuset.h>

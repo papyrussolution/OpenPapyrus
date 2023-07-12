@@ -17,20 +17,18 @@
 //
 // Compiler Options
 //
-/* Unix Large Files support (>4GB) */
-#define _FILE_OFFSET_BITS 64
+// #define _FILE_OFFSET_BITS 64 /* Unix Large Files support (>4GB) */
 #if (defined(__sun__) && (!defined(__LP64__)))   /* Sun Solaris 32-bits requires specific definitions */
-#ifndef _LARGEFILE_SOURCE
-#define _LARGEFILE_SOURCE
-#endif
+	#ifndef _LARGEFILE_SOURCE
+		#define _LARGEFILE_SOURCE
+	#endif
 #elif !defined(__LP64__)                         /* No point defining Large file for 64 bit */
-#ifndef _LARGEFILE64_SOURCE
-#define _LARGEFILE64_SOURCE
+	#ifndef _LARGEFILE64_SOURCE
+		#define _LARGEFILE64_SOURCE
+	#endif
 #endif
-#endif
-
 #ifndef ZDICT_STATIC_LINKING_ONLY
-#define ZDICT_STATIC_LINKING_ONLY
+	#define ZDICT_STATIC_LINKING_ONLY
 #endif
 #define HUF_STATIC_LINKING_ONLY
 

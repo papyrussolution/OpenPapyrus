@@ -292,7 +292,7 @@ static ps_params_t cairo_epslatex_params(PSTERM_EPSLATEX); //= EPSLATEX_PARAMS_D
 
 char * cairo_enhanced_fontname = NULL;
 
-plot_struct plot;
+PlotCairoStruct plot;
 
 static struct gen_table cairotrm_opts[] = {
 	{"fontscale",   CAIROTRM_FONTSCALE},

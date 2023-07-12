@@ -8,6 +8,7 @@
  */
 #include <slib-internal.h>
 #pragma hdrstop
+#undef HAVE_PTHREAD_H // @v11.7.9
 #ifdef HAVE_PTHREAD_H
 	#include <pthread.h>
 #elif defined HAVE_WIN32_THREADS
@@ -168,7 +169,7 @@ void xmlFreeMutex(xmlMutex * pTok)
 	if(pTok) {
 #ifdef HAVE_PTHREAD_H
 		if(libxml_is_threaded != 0)
-			pthread_mutex_destroy(&tok->lock);
+			pthread_mutex_destroy(&pTok->lock);
 #elif defined HAVE_WIN32_THREADS
 		CloseHandle(pTok->mutex);
 #elif defined HAVE_BEOS_THREADS
@@ -804,7 +805,7 @@ void xmlCleanupThreads()
 static void xmlOnceInit()
 {
 #ifdef HAVE_PTHREAD_H
-	()pthread_key_create(&globalkey, xmlFreeGlobalState);
+	pthread_key_create(&globalkey, xmlFreeGlobalState);
 	mainthread = pthread_self();
 	__xmlInitializeDict();
 #elif defined(HAVE_WIN32_THREADS)

@@ -69,7 +69,6 @@
  *	  The utility program webpmux can be used to fix this by post-processing
  *	  the animation file.
  */
-
 #include "driver.h"
 
 #ifdef TERM_REGISTER
@@ -202,14 +201,12 @@ void WEBP_text()
 
 	if(!WebPValidateConfig(&wpconfig))
 		int_error(NO_CARET, "invalid webp configuration");
-
 	/* Initialize this frame */
 	WebPPictureInit(&picture);
 	picture.use_argb = 1;
 	picture.width = width;
 	picture.height = height;
 	WebPPictureAlloc(&picture);
-
 	/* Attach output stream */
 	picture.writer = (webp_params.animate) ? NULL : WEBP_writer;
 	picture.custom_ptr = NULL;
@@ -266,7 +263,6 @@ void WEBP_text()
 #endif
 	}
 }
-
 /*
  * _reset() called on exit, 'set term', or 'set output'.
  */
@@ -275,26 +271,19 @@ TERM_PUBLIC void WEBP_reset()
 	if(plot.cr)
 		cairo_destroy(plot.cr);
 	plot.cr = NULL;
-
 	if(webp_params.animate) {
 		int timestamp_ms = webp_params.frame * webp_params.delay;
 		WebPData webp_data;
-		int ierr;
-
-		ierr = WebPAnimEncoderAdd(wp_enc, NULL, timestamp_ms, NULL);
+		int ierr = WebPAnimEncoderAdd(wp_enc, NULL, timestamp_ms, NULL);
 		if(!ierr)
-			int_error(NO_CARET, "WebPAnimEncoderAdd failed: %s",
-			    WebPAnimEncoderGetError(wp_enc));
+			int_error(NO_CARET, "WebPAnimEncoderAdd failed: %s", WebPAnimEncoderGetError(wp_enc));
 		ierr = WebPAnimEncoderAssemble(wp_enc, &webp_data);
 		if(!ierr)
-			int_error(NO_CARET, "WebPAnimEncoderAssemble failed: %s",
-			    WebPAnimEncoderGetError(wp_enc));
+			int_error(NO_CARET, "WebPAnimEncoderAssemble failed: %s", WebPAnimEncoderGetError(wp_enc));
 		WebPAnimEncoderDelete(wp_enc);
 		wp_enc = NULL;
-
 		fprintf(stderr, "%d frames in animation\n", webp_params.frame);
 		webp_params.frame = 0;
-
 		ierr = fwrite(webp_data.bytes, webp_data.size, 1, GPT.P_GpOutFile);
 		if(ierr != 1)
 			int_error(NO_CARET, "Cannot write animation to file");
