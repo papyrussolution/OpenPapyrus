@@ -132,8 +132,8 @@ static BLAKE2_INLINE void store48(void * dst, uint64 w)
 	p[5] = (uint8)(w >> 40);
 }
 
-// @v11.4.0 (replaced with slrotr32) static BLAKE2_INLINE uint32 rotr32(const uint32 w, const unsigned c) { return ( w >> c ) | ( w << ( 32 - c ) ); }
-// @v11.4.0 (replaced with slrotr64) static BLAKE2_INLINE uint64 rotr64(const uint64 w, const unsigned c) { return ( w >> c ) | ( w << ( 64 - c ) ); }
+// @v11.4.0 (replaced with SBits::Rotr) static BLAKE2_INLINE uint32 rotr32(const uint32 w, const unsigned c) { return ( w >> c ) | ( w << ( 32 - c ) ); }
+// @v11.4.0 (replaced with SBits::Rotr) static BLAKE2_INLINE uint64 rotr64(const uint64 w, const unsigned c) { return ( w >> c ) | ( w << ( 64 - c ) ); }
 
 /* prevents compiler optimizing out memset() */
 static BLAKE2_INLINE void secure_zero_memory(void * v, size_t n)

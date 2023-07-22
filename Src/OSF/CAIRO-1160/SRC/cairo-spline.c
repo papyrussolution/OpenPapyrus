@@ -96,25 +96,17 @@ boolint _cairo_spline_init(cairo_spline_t * spline,
 		_cairo_slope_init(&spline->final_slope, &spline->knots.b, &spline->knots.d);
 	else
 		return FALSE; /* just treat this as a straight-line from a -> d */
-
 	/* XXX if the initial, final and vector are all equal, this is just a line */
-
 	return TRUE;
 }
 
-static cairo_status_t _cairo_spline_add_point(cairo_spline_t * spline,
-    const cairo_point_t * point,
-    const cairo_point_t * knot)
+static cairo_status_t _cairo_spline_add_point(cairo_spline_t * spline, const cairo_point_t * point, const cairo_point_t * knot)
 {
-	cairo_point_t * prev;
 	cairo_slope_t slope;
-
-	prev = &spline->last_point;
+	cairo_point_t * prev = &spline->last_point;
 	if(prev->x == point->x && prev->y == point->y)
 		return CAIRO_STATUS_SUCCESS;
-
 	_cairo_slope_init(&slope, point, knot);
-
 	spline->last_point = *point;
 	return spline->add_point_func(spline->closure, point, &slope);
 }
@@ -130,14 +122,12 @@ static void _de_casteljau(cairo_spline_knots_t * s1, cairo_spline_knots_t * s2)
 	cairo_point_t ab, bc, cd;
 	cairo_point_t abbc, bccd;
 	cairo_point_t final;
-
 	_lerp_half(&s1->a, &s1->b, &ab);
 	_lerp_half(&s1->b, &s1->c, &bc);
 	_lerp_half(&s1->c, &s1->d, &cd);
 	_lerp_half(&ab, &bc, &abbc);
 	_lerp_half(&bc, &cd, &bccd);
 	_lerp_half(&abbc, &bccd, &final);
-
 	s2->a = final;
 	s2->b = bccd;
 	s2->c = cd;

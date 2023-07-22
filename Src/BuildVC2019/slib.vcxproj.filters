@@ -28,7 +28,6 @@
     <ClCompile Include="..\SLib\lzari.cpp" />
     <ClCompile Include="..\Slib\macaddr.cpp" />
     <ClCompile Include="..\SLib\mailsess.cpp" />
-    <ClCompile Include="..\SLib\Makepath.c" />
     <ClCompile Include="..\SLib\Mkstring.cpp" />
     <ClCompile Include="..\SLib\Msgbox.cpp" />
     <ClCompile Include="..\SLib\punycode.cpp" />
@@ -673,9 +672,6 @@
     <ClInclude Include="..\Include\sxml.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\tv.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Tvdefs.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -848,6 +844,9 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\LIBPNG\pngstruct.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\slui.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

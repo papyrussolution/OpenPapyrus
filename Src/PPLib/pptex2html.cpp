@@ -1010,7 +1010,7 @@ int PPTex2HtmlPrcssr::ResolvePict(const char * pOrgSymb, const char * pName, uin
 					}
 				}
 				else {
-                    rel_path.CatChar('/').Cat("dispatcher").CatChar('/').Cat("workbook").CatChar('/').Cat("content").CatChar('?').CatEq("code", wb_rec.Symb);
+                    rel_path.Slash().Cat("dispatcher").Slash().Cat("workbook").Slash().Cat("content").CatChar('?').CatEq("code", wb_rec.Symb);
 				}
             }
 		}
@@ -1194,7 +1194,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 						if(flags & _thfFormula)
 							_thf |= _thfFormula;
 						THROW(Helper_Output(rOut, p_first_brc_arg, _thf, rEnvStack)); // @recursion
-						WriteText(rOut, line_buf.Z().Space().CatChar('/').Space());
+						WriteText(rOut, line_buf.Z().Space().Slash().Space());
 						if(p_first_brc_arg->P_Next) {
 							THROW(Helper_Output(rOut, p_first_brc_arg->P_Next, _thf, rEnvStack)); // @recursion
 						}
@@ -2081,7 +2081,7 @@ int PPVer2HtmlPrcssr::Debug_Output(const char * pOutputFileName)
 static SString & MakeHtmlImg(const char * pPath, const char * pName, SString & rBuf)
 {
 	SString img_file_name;
-	(img_file_name = pPath).SetLastSlash().RmvLastSlash().CatChar('/').Cat(pName);
+	(img_file_name = pPath).SetLastSlash().RmvLastSlash().Slash().Cat(pName);
 	return rBuf.Z().CatChar('<').Cat("img").Space().CatEqQ("src", img_file_name).CatChar('>');
 }
 

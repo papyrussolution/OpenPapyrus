@@ -1,5 +1,5 @@
 // DGACC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023
 // @codepage windows-1251
 // Диалоговая группа ввода счета и аналитической статьи
 //
@@ -188,7 +188,8 @@ void AcctCtrlGroup::processArtCombo(TDialog * dlg)
 int AcctCtrlGroup::processArtInput(TDialog * dlg)
 {
 	int    r;
-	long   ar, prev_ar = AcctId.ar;
+	long   ar;
+	const  long prev_ar = AcctId.ar;
 	char   b[32];
 	PTR32(b)[0] = 0;
 	dlg->getCtrlData(ctl_art, b);

@@ -1057,7 +1057,6 @@ public:
 					/* Skip empty contours */
 					if(UNLIKELY(point.is_end_point && !first_oncurve.has_data && !first_offcurve.has_data))
 						return;
-
 					bool is_on_curve = point.flag & Glyph::FLAG_ON_CURVE;
 					optional_point_t p(point.x, point.y);
 					if(!first_oncurve.has_data) {
@@ -1067,7 +1066,7 @@ public:
 						}
 						else {
 							if(first_offcurve.has_data) {
-								optional_point_t mid = first_offcurve.lerp(p, .5f);
+								optional_point_t mid = first_offcurve.lerp(p, 0.5f);
 								first_oncurve = mid;
 								last_offcurve = p;
 								draw_helper->move_to(font->em_scalef_x(mid.x), font->em_scalef_y(mid.y));
@@ -1079,18 +1078,14 @@ public:
 					else {
 						if(last_offcurve.has_data) {
 							if(is_on_curve) {
-								draw_helper->quadratic_to(font->em_scalef_x(last_offcurve.x),
-								    font->em_scalef_y(last_offcurve.y),
-								    font->em_scalef_x(p.x),
-								    font->em_scalef_y(p.y));
+								draw_helper->quadratic_to(font->em_scalef_x(last_offcurve.x), font->em_scalef_y(last_offcurve.y),
+								    font->em_scalef_x(p.x), font->em_scalef_y(p.y));
 								last_offcurve = optional_point_t();
 							}
 							else {
 								optional_point_t mid = last_offcurve.lerp(p, .5f);
-								draw_helper->quadratic_to(font->em_scalef_x(last_offcurve.x),
-								    font->em_scalef_y(last_offcurve.y),
-								    font->em_scalef_x(mid.x),
-								    font->em_scalef_y(mid.y));
+								draw_helper->quadratic_to(font->em_scalef_x(last_offcurve.x), font->em_scalef_y(last_offcurve.y),
+								    font->em_scalef_x(mid.x), font->em_scalef_y(mid.y));
 								last_offcurve = p;
 							}
 						}

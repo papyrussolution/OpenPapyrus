@@ -2785,7 +2785,7 @@ int PPViewCCheck::CreateGoodsCorrTbl()
 					THROW_SL(p_la_ary->Add(goods1, (long)p_goods_ary, 0, 1)); // @x64crit
 					ary_count++;
 				}
-				if(p_goods_ary->BSearch(goods2, 0, &goods2_pos)) {
+				if(p_goods_ary->BSearch(goods2, &goods2_pos)) {
 					ulong  corr = ++p_goods_ary->at(goods2_pos).Val;
 					max_corr = MAX(max_corr, corr);
 				}
@@ -2795,7 +2795,7 @@ int PPViewCCheck::CreateGoodsCorrTbl()
 				}
 				ins_count++;
 			}
-			if(goods_chk_ary.BSearch(p_gds_qtty1->Key, 0, &(goods_chk_pos = 0))) // Количество чеков в которых встречается ведомый товар, будем хранить в отдельном массиве
+			if(goods_chk_ary.BSearch(p_gds_qtty1->Key, &(goods_chk_pos = 0))) // Количество чеков в которых встречается ведомый товар, будем хранить в отдельном массиве
 				goods_chk_ary.at(goods_chk_pos).Val++;
 			else {
 				THROW_SL(goods_chk_ary.Add(p_gds_qtty1->Key, 1, 0, 1));

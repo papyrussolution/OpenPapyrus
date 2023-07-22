@@ -1457,13 +1457,9 @@ static int xmlUconvWrapper(uconv_t * cd, int toUnicode, uchar * out, int * outle
 }
 
 #endif /* LIBXML_ICU_ENABLED */
-
-/************************************************************************
-*									*
-*		The real API used by libxml for on-the-fly conversion	*
-*									*
-************************************************************************/
-
+//
+// The real API used by libxml for on-the-fly conversion
+//
 /**
  * xmlCharEncFirstLineInt:
  * @handler:	char enconding transformation data structure

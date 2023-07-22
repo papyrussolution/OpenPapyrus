@@ -235,7 +235,7 @@ void hb_buffer_t::clear_positions()
 	have_positions = true;
 	out_len = 0;
 	out_info = info;
-	hb_memset(pos, 0, sizeof(pos[0]) * len);
+	/*hb_memset*/memzero(pos, sizeof(pos[0]) * len);
 }
 
 void hb_buffer_t::swap_buffers()

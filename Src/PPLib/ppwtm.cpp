@@ -2523,22 +2523,30 @@ int PPWhatmanWindow::LocalMenu(int objIdx)
 					}
 					break;
 				case cmFileOpen: ok = FileOpen(); break;
-				case cmFileSave: ok = FileSave(); break;
+				case cmFileSave: ok = FileSave(0, 0); break;
 			}
 		}
 	}
 	else if(oneof2(St.Mode, modeEdit, modeView)) {
+		const TWhatmanObject * p_obj = (objIdx >= 0) ? W.GetObjectByIndexC(objIdx) : 0;
+		WhatmanObjectLayoutBase * p_layout_obj = W.GetObjectAsLayoutByIndex(objIdx);
 		TMenuPopup menu;
 		menu.Add("@fileopen", cmFileOpen);
 		if(St.Mode == modeEdit) {
 			menu.Add("@filesave", cmFileSave);
-			if(objIdx >= 0) {
+			if(p_obj) {
 				menu.AddSeparator();
 				menu.Add("@edit", cmaEdit);
 				menu.Add("@delete", cmaDelete);
 				menu.AddSeparator();
 				menu.Add("@bringtofront", cmBringToFront);
 				menu.Add("@sendtoback",   cmSendToBack);
+				// @v11.7.10 {
+				if(p_layout_obj) {
+					menu.AddSeparator();
+					menu.Add("Save as JSON", cmSaveAsJson);
+				}
+				// } @v11.7.10 
 			}
 			if(St.Mode == modeEdit) {
 				menu.AddSeparator();
@@ -2552,7 +2560,12 @@ int PPWhatmanWindow::LocalMenu(int objIdx)
 			int do_redraw = 0;
 			switch(LoWord(cmd)) {
 				case cmFileOpen: ok = FileOpen(); break;
-				case cmFileSave: ok = FileSave(); break;
+				case cmFileSave: ok = FileSave(0, 0); break;
+				case cmSaveAsJson: // @v11.7.10
+					if(p_layout_obj) {
+						ok = FileSave(fsfLayoutAsJson, p_layout_obj); 
+					}
+					break; 
 				case cmaEdit:
 					if(W.EditObject(objIdx) > 0)
 						do_redraw = 1;
@@ -3069,7 +3082,7 @@ int PPWhatmanWindow::DeleteTool(uint objIdx)
 	return ok;
 }
 
-int PPWhatmanWindow::FileSave()
+int PPWhatmanWindow::FileSave(uint flags, WhatmanObjectLayoutBase * pLayout)
 {
 	int    ok = -1;
 	SString path;
@@ -3086,12 +3099,40 @@ int PPWhatmanWindow::FileSave()
 		}
 	}
 	else if(oneof2(St.Mode, modeEdit, modeView)) {
-		TWhatmanToolArray::Param param;
-		if(PPOpenFile(PPTXT_FILPAT_WTM, path, ofilfNExist, 0) > 0) {
-			SPathStruc::ReplaceExt(path, "wtm", 0);
-			if(!W.Store(path)) {
-				PPSetErrorSLib();
-				ok = PPErrorZ();
+		// @v11.7.10 {
+		if(flags & fsfLayoutAsJson && pLayout) {
+			SUiLayout * p_lo = W.CreateLayout(pLayout);
+			if(p_lo) {
+				if(PPOpenFile(PPTXT_FILPAT_JSON, path, ofilfNExist, 0) > 0) {
+					SPathStruc::ReplaceExt(path, "json", 0);
+					SJson * p_js = p_lo->ToJsonObj();
+					if(p_js) {
+						SString temp_buf;
+						p_js->ToStr(temp_buf);
+						ZDELETE(p_js);
+						SFile f_out(path, SFile::mWrite);
+						if(f_out.IsValid()) {
+							SString formatted_buf;
+							if(SJson::FormatText(temp_buf, formatted_buf))
+								f_out.Write(formatted_buf.cptr(), formatted_buf.Len());
+							else
+								f_out.Write(temp_buf.cptr(), temp_buf.Len());
+						}
+					}
+				}
+				delete p_lo;
+			}
+		}
+		else 
+		// } @v11.7.10 
+		{
+			TWhatmanToolArray::Param param;
+			if(PPOpenFile(PPTXT_FILPAT_WTM, path, ofilfNExist, 0) > 0) {
+				SPathStruc::ReplaceExt(path, "wtm", 0);
+				if(!W.Store(path)) {
+					PPSetErrorSLib();
+					ok = PPErrorZ();
+				}
 			}
 		}
 	}

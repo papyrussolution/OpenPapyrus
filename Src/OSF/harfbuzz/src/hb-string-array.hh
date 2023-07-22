@@ -40,16 +40,14 @@ static const union HB_STRING_ARRAY_TYPE_NAME {
 	char str[HB_VAR_ARRAY];
 }
 
-HB_STRING_ARRAY_POOL_NAME =
-{
+HB_STRING_ARRAY_POOL_NAME = {
 	{
 #define _S(s) s,
 #include HB_STRING_ARRAY_LIST
 #undef _S
 	}
 };
-static const uint HB_STRING_ARRAY_OFFS_NAME[] =
-{
+static const uint HB_STRING_ARRAY_OFFS_NAME[] = {
 #define _S(s) offsetof(union HB_STRING_ARRAY_TYPE_NAME, st.HB_PASTE(str, __LINE__)),
 #include HB_STRING_ARRAY_LIST
 #undef _S

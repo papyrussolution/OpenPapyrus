@@ -936,36 +936,27 @@ public:
  * Binary-search arrays
  */
 
-	template <typename LenType = HBUINT16>
-	    struct BinSearchHeader {
-		operator uint32_t() const {
-			return len;
-		}
-
+	template <typename LenType = HBUINT16> struct BinSearchHeader {
+		operator uint32_t() const { return len; }
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
 			return_trace(c->check_struct(this));
 		}
-
 		BinSearchHeader& operator = (uint v)
 		{
 			len = v;
 			assert(len == v);
 			entrySelector = hb_max(1u, hb_bit_storage(v)) - 1;
 			searchRange = 16 * (1u << entrySelector);
-			rangeShift = v * 16 > searchRange
-			    ? 16 * v - searchRange
-			    : 0;
+			rangeShift = v * 16 > searchRange ? 16 * v - searchRange : 0;
 			return *this;
 		}
-
 protected:
 		LenType len;
 		LenType searchRange;
 		LenType entrySelector;
 		LenType rangeShift;
-
 public:
 		DEFINE_SIZE_STATIC(8);
 	};

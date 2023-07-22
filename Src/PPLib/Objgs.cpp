@@ -748,7 +748,7 @@ SString & PPGoodsStrucItem::GetEstimationString(SString & rBuf, long format) con
 	long   fmt = NZOR(format, MKSFMTD(0, 6, NMBF_NOTRAILZ));
 	rBuf.Cat(Median, fmt);
 	if(Denom != 0 && Denom != 1)
-		rBuf.CatChar('/').Cat(Denom, fmt);
+		rBuf.Slash().Cat(Denom, fmt);
 	return rBuf;*/
 }
 
@@ -798,7 +798,7 @@ int PPGoodsStrucItem::GetQttyAsPrice(double complPriceSum, double * pItemPrice) 
 	long   fmt = NZOR(format, MKSFMTD(0, 6, NMBF_NOTRAILZ));
 	rBuf.Z().Cat(median, fmt);
 	if(denom != 0.0 && denom != 1.0)
-		rBuf.CatChar('/').Cat(denom, fmt);
+		rBuf.Slash().Cat(denom, fmt);
 	return rBuf;
 }
 

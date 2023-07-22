@@ -405,11 +405,17 @@ void fz_append_pdf_string(fz_context * ctx, fz_buffer * buffer, const char * tex
 
 void fz_md5_buffer(fz_context * ctx, fz_buffer * buffer, uchar digest[16])
 {
+	// @sobolev {
+	binary128 hash = SlHash::Md5(0, buffer->data, buffer->len);
+	memcpy(digest, &hash, sizeof(digest));
+	// } @sobolev 
+	/* @sobolev
 	fz_md5 state;
 	fz_md5_init(&state);
 	if(buffer)
 		fz_md5_update(&state, buffer->data, buffer->len);
 	fz_md5_final(&state, digest);
+	*/
 }
 
 #ifdef TEST_BUFFER_WRITE
@@ -439,9 +445,7 @@ void fz_test_buffer_write(fz_context * ctx)
 				k = j;
 			fz_append_bits(ctx, copy, fz_read_bits(ctx, stm, k), k);
 			j -= k;
-		}
-		while(j);
-
+		} while(j);
 		if(memcmp(copy->data, master->data, TEST_LEN) != 0)
 			slfprintf_stderr("Copied buffer is different!\n");
 		fz_seek(stm, 0, 0);

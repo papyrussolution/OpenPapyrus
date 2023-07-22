@@ -453,7 +453,7 @@ int PPAccTurnTempl::ResolveAlias(int side, AcctID * pAcct, const ATSubstObjects 
 		int    found = 0;
 		for(uint i = 0; !found && i < p_atso_list->getCount(); i++) {
 			const PPID ar_id = p_atso_list->at(0).Aid.ar;
-			PPID   acc_id = 0;
+			long  acc_id = 0;
 			alias_subst.clear();
 			if(PPObjArticle::GetAliasSubst(ar_id, &alias_subst) > 0 && alias_subst.Search(pAcct->ac, &acc_id, 0)) {
 				pAcct->ac = acc_id;
@@ -1277,7 +1277,7 @@ IMPL_HANDLE_EVENT(SelAmtSymbDialog)
 				int    upd = 0;
 				long   i = 0;
 				P_List->getCurID(&i);
-				long   id = (i & ~0xff000000L);
+				PPID   id = (i & ~0xff000000L);
 				switch(i >> 24) {
 					case selSymbAmount:   upd = BIN(AtObj.Edit(&id, 0) == cmOK); break;
 					case selSymbFormula:  upd = BIN(FrmObj.Edit(&id, 0) == cmOK); break;
@@ -1296,7 +1296,7 @@ IMPL_HANDLE_EVENT(SelAmtSymbDialog)
 int SelAmtSymbDialog::MakeList(StrAssocArray * pList)
 {
 	int    ok = 1;
-	long   id;
+	PPID   id;
 	SString frm_name, frm_expr;
 	StringSet ss(SLBColumnDelim);
 	if(Options & selSymbAmount) {

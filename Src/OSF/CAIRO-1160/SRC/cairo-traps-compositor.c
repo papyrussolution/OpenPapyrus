@@ -386,40 +386,23 @@ skip:
 /* Handles compositing with a clip surface when we have to do the operation
  * in two pieces and combine them together.
  */
-static cairo_status_t clip_and_composite_combine(const cairo_traps_compositor_t * compositor,
-    const cairo_composite_rectangles_t* extents,
-    draw_func_t draw_func,
-    void * draw_closure,
-    cairo_operator_t op,
-    cairo_surface_t * src,
-    int src_x, int src_y)
+static cairo_status_t clip_and_composite_combine(const cairo_traps_compositor_t * compositor, const cairo_composite_rectangles_t* extents,
+    draw_func_t draw_func, void * draw_closure, cairo_operator_t op, cairo_surface_t * src, int src_x, int src_y)
 {
 	cairo_surface_t * dst = extents->surface;
 	cairo_surface_t * tmp, * clip;
 	cairo_status_t status;
-
 	TRACE_FUNCTION_SIMPLE();
-
-	tmp = _cairo_surface_create_scratch(dst, dst->content,
-		extents->bounded.width,
-		extents->bounded.height,
-		NULL);
+	tmp = _cairo_surface_create_scratch(dst, dst->content, extents->bounded.width, extents->bounded.height, NULL);
 	if(UNLIKELY(tmp->status))
 		return tmp->status;
-
 	status = compositor->acquire(tmp);
 	if(UNLIKELY(status)) {
 		cairo_surface_destroy(tmp);
 		return status;
 	}
-
-	compositor->composite(tmp,
-	    dst->is_clear ? CAIRO_OPERATOR_CLEAR : CAIRO_OPERATOR_SOURCE,
-	    dst, NULL,
-	    extents->bounded.x,      extents->bounded.y,
-	    0, 0,
-	    0, 0,
-	    extents->bounded.width,  extents->bounded.height);
+	compositor->composite(tmp, dst->is_clear ? CAIRO_OPERATOR_CLEAR : CAIRO_OPERATOR_SOURCE, dst, NULL,
+	    extents->bounded.x,      extents->bounded.y, 0, 0, 0, 0, extents->bounded.width,  extents->bounded.height);
 	status = draw_func(compositor, tmp, draw_closure, op, src, src_x, src_y,
 		extents->bounded.x, extents->bounded.y, &extents->bounded, NULL);
 	if(UNLIKELY(status))
@@ -427,75 +410,43 @@ static cairo_status_t clip_and_composite_combine(const cairo_traps_compositor_t 
 	clip = traps_get_clip_surface(compositor, extents, &extents->bounded);
 	if(UNLIKELY((status = clip->status)))
 		goto cleanup;
-
 	if(dst->is_clear) {
-		compositor->composite(dst, CAIRO_OPERATOR_SOURCE, tmp, clip,
-		    0, 0,
-		    0, 0,
-		    extents->bounded.x,      extents->bounded.y,
-		    extents->bounded.width,  extents->bounded.height);
+		compositor->composite(dst, CAIRO_OPERATOR_SOURCE, tmp, clip, 0, 0, 0, 0, extents->bounded.x, extents->bounded.y, extents->bounded.width,  extents->bounded.height);
 	}
 	else {
-		compositor->lerp(dst, tmp, clip,
-		    0, 0,
-		    0, 0,
-		    extents->bounded.x,     extents->bounded.y,
-		    extents->bounded.width, extents->bounded.height);
+		compositor->lerp(dst, tmp, clip, 0, 0, 0, 0, extents->bounded.x, extents->bounded.y, extents->bounded.width, extents->bounded.height);
 	}
 	cairo_surface_destroy(clip);
-
 cleanup:
 	compositor->release(tmp);
 	cairo_surface_destroy(tmp);
-
 	return status;
 }
 
 /* Handles compositing for %CAIRO_OPERATOR_SOURCE, which is special; it's
  * defined as (src IN mask IN clip) ADD (dst OUT (mask IN clip))
  */
-static cairo_status_t clip_and_composite_source(const cairo_traps_compositor_t * compositor,
-    cairo_surface_t * dst,
-    draw_func_t draw_func,
-    draw_func_t mask_func,
-    void * draw_closure,
-    cairo_surface_t * src,
-    int src_x,
-    int src_y,
-    const cairo_composite_rectangles_t * extents)
+static cairo_status_t clip_and_composite_source(const cairo_traps_compositor_t * compositor, cairo_surface_t * dst,
+    draw_func_t draw_func, draw_func_t mask_func, void * draw_closure, cairo_surface_t * src, int src_x, int src_y, const cairo_composite_rectangles_t * extents)
 {
 	cairo_surface_t * mask;
-
 	TRACE_FUNCTION_SIMPLE();
-
 	/* Create a surface that is mask IN clip */
-	mask = create_composite_mask(compositor, dst, draw_closure,
-		draw_func, mask_func,
-		extents);
+	mask = create_composite_mask(compositor, dst, draw_closure, draw_func, mask_func, extents);
 	if(UNLIKELY(mask->status))
 		return mask->status;
-
 	if(mask->is_clear)
 		goto skip;
-
 	if(dst->is_clear) {
-		compositor->composite(dst, CAIRO_OPERATOR_SOURCE, src, mask,
-		    extents->bounded.x + src_x, extents->bounded.y + src_y,
-		    0, 0,
-		    extents->bounded.x,      extents->bounded.y,
-		    extents->bounded.width,  extents->bounded.height);
+		compositor->composite(dst, CAIRO_OPERATOR_SOURCE, src, mask, extents->bounded.x + src_x, extents->bounded.y + src_y,
+		    0, 0, extents->bounded.x,      extents->bounded.y, extents->bounded.width,  extents->bounded.height);
 	}
 	else {
-		compositor->lerp(dst, src, mask,
-		    extents->bounded.x + src_x, extents->bounded.y + src_y,
-		    0, 0,
-		    extents->bounded.x,     extents->bounded.y,
-		    extents->bounded.width, extents->bounded.height);
+		compositor->lerp(dst, src, mask, extents->bounded.x + src_x, extents->bounded.y + src_y,
+		    0, 0, extents->bounded.x,     extents->bounded.y, extents->bounded.width, extents->bounded.height);
 	}
-
 skip:
 	cairo_surface_destroy(mask);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

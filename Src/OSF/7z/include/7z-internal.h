@@ -6001,7 +6001,7 @@ HRESULT SetProperties(IUnknown *unknown, const CObjectVector<CProperty> &propert
 UString GetNameOfProperty(PROPID propID, const wchar_t *name);
 //
 //#include <RotateDefs.h>
-/* @v11.4.0 (replaced with slrotl32) #ifdef _MSC_VER
+/* @v11.4.0 (replaced with SBits::Rotl) #ifdef _MSC_VER
 	// don't use _rotl with MINGW. It can insert slow call to function. 
 	// #if(_MSC_VER >= 1200)
 	#pragma intrinsic(_rotl)

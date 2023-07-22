@@ -845,11 +845,8 @@ static int pdf_compute_object_key(pdf_crypt * crypt, pdf_crypt_filter * cf, int 
 	if(cf->method == PDF_CRYPT_AESV2)
 		fz_md5_update(&md5, (uchar*)"sAlT", 4);
 	fz_md5_final(&md5, key);
-	if(key_len + 5 > 16)
-		return 16;
-	return key_len + 5;
+	return ((key_len + 5) > 16) ? 16 : (key_len + 5);
 }
-
 /*
  * PDF 1.7 algorithm 3.1 and ExtensionLevel 3 algorithm 3.1a
  *
@@ -857,7 +854,6 @@ static int pdf_compute_object_key(pdf_crypt * crypt, pdf_crypt_filter * cf, int 
  * Recurse through arrays and dictionaries, but do not follow
  * indirect references.
  */
-
 static int is_signature(fz_context * ctx, pdf_obj * obj)
 {
 	if(pdf_dict_get(ctx, obj, PDF_NAME(Type)) == PDF_NAME(Sig))
@@ -902,20 +898,17 @@ static void pdf_crypt_obj_imp(fz_context * ctx, pdf_crypt * crypt, pdf_obj * obj
 			}
 		}
 	}
-
 	else if(pdf_is_array(ctx, obj)) {
 		int n = pdf_array_len(ctx, obj);
 		for(i = 0; i < n; i++) {
 			pdf_crypt_obj_imp(ctx, crypt, pdf_array_get(ctx, obj, i), key, keylen);
 		}
 	}
-
 	else if(pdf_is_dict(ctx, obj)) {
 		int n = pdf_dict_len(ctx, obj);
 		for(i = 0; i < n; i++) {
 			if(pdf_dict_get_key(ctx, obj, i) == PDF_NAME(Contents) && is_signature(ctx, obj))
 				continue;
-
 			pdf_crypt_obj_imp(ctx, crypt, pdf_dict_get_val(ctx, obj, i), key, keylen);
 		}
 	}
@@ -924,13 +917,9 @@ static void pdf_crypt_obj_imp(fz_context * ctx, pdf_crypt * crypt, pdf_obj * obj
 void pdf_crypt_obj(fz_context * ctx, pdf_crypt * crypt, pdf_obj * obj, int num, int gen)
 {
 	uchar key[32];
-	int len;
-
-	len = pdf_compute_object_key(crypt, &crypt->strf, num, gen, key, 32);
-
+	int len = pdf_compute_object_key(crypt, &crypt->strf, num, gen, key, 32);
 	pdf_crypt_obj_imp(ctx, crypt, obj, key, len);
 }
-
 /*
  * PDF 1.7 algorithm 3.1 and ExtensionLevel 3 algorithm 3.1a
  *
@@ -939,16 +928,11 @@ void pdf_crypt_obj(fz_context * ctx, pdf_crypt * crypt, pdf_obj * obj, int num, 
 static fz_stream * pdf_open_crypt_imp(fz_context * ctx, fz_stream * chain, pdf_crypt * crypt, pdf_crypt_filter * stmf, int num, int gen)
 {
 	uchar key[32];
-	int len;
-
-	len = pdf_compute_object_key(crypt, stmf, num, gen, key, 32);
-
+	int len = pdf_compute_object_key(crypt, stmf, num, gen, key, 32);
 	if(stmf->method == PDF_CRYPT_RC4)
 		return fz_open_arc4(ctx, chain, key, len);
-
 	if(stmf->method == PDF_CRYPT_AESV2 || stmf->method == PDF_CRYPT_AESV3)
 		return fz_open_aesd(ctx, chain, key, len);
-
 	return fz_keep_stream(ctx, chain);
 }
 
@@ -970,43 +954,33 @@ fz_stream * pdf_open_crypt_with_filter(fz_context * ctx, fz_stream * chain, pdf_
 void pdf_print_crypt(fz_context * ctx, fz_output * out, pdf_crypt * crypt)
 {
 	int i;
-
 	fz_write_printf(ctx, out, "crypt {\n");
-
 	fz_write_printf(ctx, out, "\tv=%d length=%d\n", crypt->v, crypt->length);
 	fz_write_printf(ctx, out, "\tstmf method=%d length=%d\n", crypt->stmf.method, crypt->stmf.length);
 	fz_write_printf(ctx, out, "\tstrf method=%d length=%d\n", crypt->strf.method, crypt->strf.length);
 	fz_write_printf(ctx, out, "\tr=%d\n", crypt->r);
-
 	fz_write_printf(ctx, out, "\to=<");
 	for(i = 0; i < 32; i++)
 		fz_write_printf(ctx, out, "%02X", crypt->o[i]);
 	fz_write_printf(ctx, out, ">\n");
-
 	fz_write_printf(ctx, out, "\tu=<");
 	for(i = 0; i < 32; i++)
 		fz_write_printf(ctx, out, "%02X", crypt->u[i]);
 	fz_write_printf(ctx, out, ">\n");
-
 	fz_write_printf(ctx, out, "}\n");
 }
 
 void pdf_encrypt_data(fz_context * ctx, pdf_crypt * crypt, int num, int gen, void (*write_data)(fz_context * ctx,
-    void *,
-    const uchar *,
-    size_t), void * arg, const uchar * s, size_t n)
+    void *, const uchar *, size_t), void * arg, const uchar * s, size_t n)
 {
 	uchar buffer[256];
 	uchar key[32];
 	int keylen;
-
 	if(crypt == NULL) {
 		write_data(ctx, arg, s, n);
 		return;
 	}
-
 	keylen = pdf_compute_object_key(crypt, &crypt->strf, num, gen, key, 32);
-
 	if(crypt->strf.method == PDF_CRYPT_RC4) {
 		fz_arc4 arc4;
 		fz_arc4_init(&arc4, key, keylen);
@@ -1021,16 +995,13 @@ void pdf_encrypt_data(fz_context * ctx, pdf_crypt * crypt, int num, int gen, voi
 		}
 		return;
 	}
-
 	if(crypt->strf.method == PDF_CRYPT_AESV2 || crypt->strf.method == PDF_CRYPT_AESV3) {
 		size_t len = 0;
 		fz_aes aes;
 		uchar iv[16];
-
 		/* Empty strings can be represented by empty strings */
 		if(!n)
 			return;
-
 		if(fz_aes_setkey_enc(&aes, key, keylen * 8))
 			fz_throw(ctx, FZ_ERROR_GENERIC, "AES key init failed (keylen=%d)", keylen * 8);
 		fz_memrnd(ctx, iv, 16);
@@ -1054,44 +1025,35 @@ void pdf_encrypt_data(fz_context * ctx, pdf_crypt * crypt, int num, int gen, voi
 		}
 		return;
 	}
-
 	/* Should never happen, but... */
 	write_data(ctx, arg, s, n);
 }
 
 size_t pdf_encrypted_len(fz_context * ctx, pdf_crypt * crypt, int num, int gen, size_t len)
 {
-	if(crypt == NULL)
-		return len;
-
-	if(crypt->strf.method == PDF_CRYPT_AESV2 || crypt->strf.method == PDF_CRYPT_AESV3) {
-		len += 16; /* 16 for IV */
-		if((len & 15) == 0)
-			len += 16; /* Another 16 if our last block is full anyway */
-		len = (len + 15) & ~15; /* And pad to the block */
+	if(crypt) {
+		if(crypt->strf.method == PDF_CRYPT_AESV2 || crypt->strf.method == PDF_CRYPT_AESV3) {
+			len += 16; /* 16 for IV */
+			if((len & 15) == 0)
+				len += 16; /* Another 16 if our last block is full anyway */
+			len = (len + 15) & ~15; /* And pad to the block */
+		}
 	}
-
 	return len;
 }
 
 /* PDF 2.0 algorithm 8 */
-static void pdf_compute_user_password_r6(fz_context * ctx,
-    pdf_crypt * crypt,
-    uchar * password,
-    size_t pwlen,
-    uchar * outputpw,
-    uchar * outputencryption)
+static void pdf_compute_user_password_r6(fz_context * ctx, pdf_crypt * crypt, uchar * password,
+    size_t pwlen, uchar * outputpw, uchar * outputencryption)
 {
 	uchar validationsalt[8];
 	uchar keysalt[8];
 	uchar hash[32];
 	uchar iv[16];
 	fz_aes aes;
-
 	/* Step a) - Generate random salts. */
 	fz_memrnd(ctx, validationsalt, SIZEOFARRAY(validationsalt));
 	fz_memrnd(ctx, keysalt, SIZEOFARRAY(keysalt));
-
 	/* Step a) - Compute 32 byte hash given password and validation salt. */
 	pdf_compute_hardened_hash_r6(ctx, password, pwlen, validationsalt, NULL, outputpw);
 	memcpy(outputpw + 32, validationsalt, SIZEOFARRAY(validationsalt));

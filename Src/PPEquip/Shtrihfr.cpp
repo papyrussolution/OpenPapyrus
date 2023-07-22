@@ -2615,7 +2615,7 @@ void SCS_SHTRIHFRF::WriteLogFile(int id)
 	if(IsDebugMode) {
 		int     adv_mode = 0;
 		size_t  pos = 0;
-		char    mode_descr[MAXPATH];
+		char    mode_descr[MAX_PATH];
 		SString msg_fmt, msg;
 		SString err_msg = DS.GetConstTLA().AddedMsgString;
 		SString oper_name;
@@ -2756,12 +2756,12 @@ int SCS_SHTRIHFRF::AllowPrintOper(int id)
 
 void SCS_SHTRIHFRF::SetErrorMessage()
 {
-	char   err_buf[MAXPATH];
+	char   err_buf[MAX_PATH];
 	memzero(err_buf, sizeof(err_buf));
 	if((Flags & sfConnected) && ResCode != RESCODE_NO_ERROR && GetFR(ResultCodeDescription, err_buf, sizeof(err_buf)-1)) {
 		SString err_msg(err_buf);
 		if(ResCode == RESCODE_MODE_OFF && ExecFR(GetECRStatus) > 0) {
-			char    mode_descr[MAXPATH];
+			char    mode_descr[MAX_PATH];
 			memzero(mode_descr, sizeof(mode_descr));
 			if(GetFR(ECRModeDescription, mode_descr, sizeof(mode_descr)-1)) {
 				SString temp_buf;

@@ -485,7 +485,7 @@ int PPViewPerson::OpenClientDir(PPID PersonId)
 		}
 		if(ok) {
 			ok = 0;
-			TCHAR full_path_to_expl[MAXPATH];
+			TCHAR full_path_to_expl[MAX_PATH];
 			PTR32(full_path_to_expl)[0] = 0;
 			if(GetWindowsDirectory(full_path_to_expl, sizeof(full_path_to_expl))) {
 				SString final_path;

@@ -36,37 +36,14 @@ double fz_erand48(fz_context *ctx, uint16_t s[3])
 	Pseudo-random numbers using a linear congruential algorithm and 48-bit
 	integer arithmetic.
 */
-double fz_drand48(fz_context *ctx)
-{
-	return fz_erand48(ctx, ctx->seed48);
-}
+double fz_drand48(fz_context *ctx) { return fz_erand48(ctx, ctx->seed48); }
+int32_t fz_nrand48(fz_context *ctx, uint16_t s[3]) { return fz_rand48_step(s, ctx->seed48+3) >> 17; }
+int32_t fz_lrand48(fz_context *ctx) { return fz_nrand48(ctx, ctx->seed48); }
+int32_t fz_jrand48(fz_context *ctx, uint16_t s[3]) { return (int32_t)(fz_rand48_step(s, ctx->seed48+3) >> 16); }
+int32_t fz_mrand48(fz_context *ctx) { return fz_jrand48(ctx, ctx->seed48); }
+void fz_lcong48(fz_context *ctx, uint16_t p[7]) { memcpy(ctx->seed48, p, sizeof ctx->seed48); }
 
-int32_t fz_nrand48(fz_context *ctx, uint16_t s[3])
-{
-	return fz_rand48_step(s, ctx->seed48+3) >> 17;
-}
-
-int32_t fz_lrand48(fz_context *ctx)
-{
-	return fz_nrand48(ctx, ctx->seed48);
-}
-
-int32_t fz_jrand48(fz_context *ctx, uint16_t s[3])
-{
-	return (int32_t)(fz_rand48_step(s, ctx->seed48+3) >> 16);
-}
-
-int32_t fz_mrand48(fz_context *ctx)
-{
-	return fz_jrand48(ctx, ctx->seed48);
-}
-
-void fz_lcong48(fz_context *ctx, uint16_t p[7])
-{
-	memcpy(ctx->seed48, p, sizeof ctx->seed48);
-}
-
-uint16_t *fz_seed48(fz_context *ctx, uint16_t *s)
+uint16_t * fz_seed48(fz_context *ctx, uint16_t *s)
 {
 	static uint16_t p[3];
 	memcpy(p, ctx->seed48, sizeof p);
@@ -85,7 +62,7 @@ void fz_memrnd(fz_context *ctx, uchar *data, int len)
 #ifdef CLUSTER
 	memset(data, 0x55, len);
 #else
-	while (len-- > 0)
+	while(len-- > 0)
 		*data++ = (uchar)fz_lrand48(ctx);
 #endif
 }

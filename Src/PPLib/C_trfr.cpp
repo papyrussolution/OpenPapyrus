@@ -2992,7 +2992,7 @@ int PrcssrReceiptPacking::Run()
 			}
 			if((processed_count % 10) == 0) {
 				PPLoadText(PPTXT_LOTPACK_PROCESS, fmt_buf);
-				PPWaitMsg((msg_buf = fmt_buf).Space().Cat(processed_count).CatChar('/').Cat(free_id_count));
+				PPWaitMsg((msg_buf = fmt_buf).Space().Cat(processed_count).Slash().Cat(free_id_count));
 			}
 		}
 		THROW(p_tra->Commit());

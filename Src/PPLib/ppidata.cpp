@@ -121,7 +121,7 @@ protected:
 	//
 	int    GetToken(const char * pCurTag, char * pTagBuf, size_t bufLen);
 private:
-	char   FileName[MAXPATH];
+	char   FileName[MAX_PATH];
 	FILE * P_Stream;
 };
 
@@ -598,7 +598,7 @@ static SString & GetFileName(const char * pPath, SString & rFile)
 	SPathStruc ps(pPath);
 	ps.Merge(SPathStruc::fNam|SPathStruc::fExt, rFile); 
 	// } @v10.6.10
-	//@v10.6.10 char drv[MAXDRIVE], dir[MAXDIR], fname[MAXPATH], ext[MAXEXT];
+	//@v10.6.10 char drv[MAXDRIVE], dir[MAXDIR], fname[MAX_PATH], ext[MAXEXT];
 	//@v10.6.10 fnsplit(pPath, drv, dir, fname, ext);
 	//@v10.6.10 (rFile = fname).Cat(ext);
 	return rFile;

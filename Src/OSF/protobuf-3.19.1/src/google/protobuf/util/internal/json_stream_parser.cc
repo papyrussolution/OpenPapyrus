@@ -35,24 +35,14 @@ static const StringPiece kKeywordTrue = "true";
 static const StringPiece kKeywordFalse = "false";
 static const StringPiece kKeywordNull = "null";
 
-inline bool IsLetter(char c) {
-	return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || (c == '_') ||
-	       (c == '$');
-}
-
-inline bool IsAlphanumeric(char c) {
-	return IsLetter(c) || ('0' <= c && c <= '9');
-}
+inline bool IsLetter(char c) { return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || (c == '_') || (c == '$'); }
+inline bool IsAlphanumeric(char c) { return IsLetter(c) || ('0' <= c && c <= '9'); }
 
 // Indicates a character may not be part of an unquoted key.
-inline bool IsKeySeparator(char c) {
-	return (ascii_isspace(c) || c == '"' || c == '\'' || c == '{' ||
-	       c == '}' || c == '[' || c == ']' || c == ':' || c == ',');
-}
+inline bool IsKeySeparator(char c) { return (ascii_isspace(c) || c == '"' || c == '\'' || c == '{' || c == '}' || c == '[' || c == ']' || c == ':' || c == ','); }
 
-inline void ReplaceInvalidCodePoints(StringPiece str,
-    const std::string & replacement,
-    std::string* dst) {
+inline void ReplaceInvalidCodePoints(StringPiece str, const std::string & replacement, std::string* dst) 
+{
 	while(!str.empty()) {
 		int n_valid_bytes = internal::UTF8SpnStructurallyValid(str);
 		StringPiece valid_part = str.substr(0, n_valid_bytes);
@@ -183,8 +173,7 @@ util::Status JsonStreamParser::FinishParse() {
 	else {
 		p_ = json_ = leftover_;
 		if(!is_valid_utf8) {
-			return ReportFailure("Encountered non UTF-8 code points.",
-				   ParseErrorType::NON_UTF_8);
+			return ReportFailure("Encountered non UTF-8 code points.", ParseErrorType::NON_UTF_8);
 		}
 	}
 
@@ -196,23 +185,21 @@ util::Status JsonStreamParser::FinishParse() {
 		SkipWhitespace();
 		if(!p_.empty()) {
 			result =
-			    ReportFailure("Parsing terminated before end of input.",
-				ParseErrorType::PARSING_TERMINATED_BEFORE_END_OF_INPUT);
+			    ReportFailure("Parsing terminated before end of input.", ParseErrorType::PARSING_TERMINATED_BEFORE_END_OF_INPUT);
 		}
 	}
 	return result;
 }
 
-util::Status JsonStreamParser::ParseChunk(StringPiece chunk) {
+util::Status JsonStreamParser::ParseChunk(StringPiece chunk) 
+{
 	// Do not do any work if the chunk is empty.
 	if(chunk.empty()) return util::Status();
-
 	p_ = json_ = chunk;
-
 	finishing_ = false;
 	util::Status result = RunParser();
-	if(!result.ok()) return result;
-
+	if(!result.ok()) 
+		return result;
 	SkipWhitespace();
 	if(p_.empty()) {
 		// If we parsed everything we had, clear the leftover.
@@ -222,9 +209,7 @@ util::Status JsonStreamParser::ParseChunk(StringPiece chunk) {
 		// If we do not expect anything i.e. stack is empty, and we have non-empty
 		// string left to parse, we report an error.
 		if(stack_.empty()) {
-			return ReportFailure(
-				"Parsing terminated before end of input.",
-				ParseErrorType::PARSING_TERMINATED_BEFORE_END_OF_INPUT);
+			return ReportFailure("Parsing terminated before end of input.", ParseErrorType::PARSING_TERMINATED_BEFORE_END_OF_INPUT);
 		}
 		// If we expect future data i.e. stack is non-empty, and we have some
 		// unparsed data left, we save it for later parse.
@@ -331,13 +316,13 @@ util::Status JsonStreamParser::ParseValue(TokenType type) {
 		    if(allow_empty_null_ && IsEmptyNullAllowed(type)) {
 			    return ParseEmptyNull();
 		    }
-		    return ReportFailure("Unexpected token.",
-			       ParseErrorType::UNEXPECTED_TOKEN);
+		    return ReportFailure("Unexpected token.", ParseErrorType::UNEXPECTED_TOKEN);
 	    }
 	}
 }
 
-util::Status JsonStreamParser::ParseString() {
+util::Status JsonStreamParser::ParseString() 
+{
 	util::Status result = ParseStringHelper();
 	if(result.ok()) {
 		ow_->RenderString(key_, parsed_);
@@ -348,7 +333,8 @@ util::Status JsonStreamParser::ParseString() {
 	return result;
 }
 
-util::Status JsonStreamParser::ParseStringHelper() {
+util::Status JsonStreamParser::ParseStringHelper() 
+{
 	// If we haven't seen the start quote, grab it and remember it for later.
 	if(string_open_ == 0) {
 		string_open_ = *p_.data();
@@ -442,8 +428,7 @@ util::Status JsonStreamParser::ParseStringHelper() {
 	}
 	// End of string reached without a closing quote, report an error.
 	string_open_ = 0;
-	return ReportFailure("Closing quote expected in string.",
-		   ParseErrorType::EXPECTED_CLOSING_QUOTE);
+	return ReportFailure("Closing quote expected in string.", ParseErrorType::EXPECTED_CLOSING_QUOTE);
 }
 
 // Converts a unicode escaped character to a decimal value stored in a char32
@@ -453,67 +438,56 @@ util::Status JsonStreamParser::ParseStringHelper() {
 // There are some security exploits with UTF-8 that we should be careful of:
 //   - http://www.unicode.org/reports/tr36/#UTF-8_Exploit
 //   - http://sites/intl-eng/design-guide/core-application
-util::Status JsonStreamParser::ParseUnicodeEscape() {
+util::Status JsonStreamParser::ParseUnicodeEscape() 
+{
 	if(p_.length() < kUnicodeEscapedLength) {
 		if(!finishing_) {
 			return util::CancelledError("");
 		}
-		return ReportFailure("Illegal hex string.",
-			   ParseErrorType::ILLEGAL_HEX_STRING);
+		return ReportFailure("Illegal hex string.", ParseErrorType::ILLEGAL_HEX_STRING);
 	}
 	GOOGLE_DCHECK_EQ('\\', p_.data()[0]);
 	GOOGLE_DCHECK_EQ('u', p_.data()[1]);
 	uint32 code = 0;
 	for(int i = 2; i < kUnicodeEscapedLength; ++i) {
 		if(!isxdigit(p_.data()[i])) {
-			return ReportFailure("Invalid escape sequence.",
-				   ParseErrorType::INVALID_ESCAPE_SEQUENCE);
+			return ReportFailure("Invalid escape sequence.", ParseErrorType::INVALID_ESCAPE_SEQUENCE);
 		}
 		code = (code << 4) + hex_digit_to_int(p_.data()[i]);
 	}
-	if(code >= JsonEscaping::kMinHighSurrogate &&
-	    code <= JsonEscaping::kMaxHighSurrogate) {
+	if(code >= JsonEscaping::kMinHighSurrogate && code <= JsonEscaping::kMaxHighSurrogate) {
 		if(p_.length() < 2 * kUnicodeEscapedLength) {
 			if(!finishing_) {
 				return util::CancelledError("");
 			}
 			if(!coerce_to_utf8_) {
-				return ReportFailure("Missing low surrogate.",
-					   ParseErrorType::MISSING_LOW_SURROGATE);
+				return ReportFailure("Missing low surrogate.", ParseErrorType::MISSING_LOW_SURROGATE);
 			}
 		}
-		else if(p_.data()[kUnicodeEscapedLength] == '\\' &&
-		    p_.data()[kUnicodeEscapedLength + 1] == 'u') {
+		else if(p_.data()[kUnicodeEscapedLength] == '\\' && p_.data()[kUnicodeEscapedLength + 1] == 'u') {
 			uint32 low_code = 0;
-			for(int i = kUnicodeEscapedLength + 2; i < 2 * kUnicodeEscapedLength;
-			    ++i) {
+			for(int i = kUnicodeEscapedLength + 2; i < 2 * kUnicodeEscapedLength; ++i) {
 				if(!isxdigit(p_.data()[i])) {
-					return ReportFailure("Invalid escape sequence.",
-						   ParseErrorType::INVALID_ESCAPE_SEQUENCE);
+					return ReportFailure("Invalid escape sequence.", ParseErrorType::INVALID_ESCAPE_SEQUENCE);
 				}
 				low_code = (low_code << 4) + hex_digit_to_int(p_.data()[i]);
 			}
-			if(low_code >= JsonEscaping::kMinLowSurrogate &&
-			    low_code <= JsonEscaping::kMaxLowSurrogate) {
+			if(low_code >= JsonEscaping::kMinLowSurrogate && low_code <= JsonEscaping::kMaxLowSurrogate) {
 				// Convert UTF-16 surrogate pair to 21-bit Unicode codepoint.
-				code = (((code & 0x3FF) << 10) | (low_code & 0x3FF)) +
-				    JsonEscaping::kMinSupplementaryCodePoint;
+				code = (((code & 0x3FF) << 10) | (low_code & 0x3FF)) + JsonEscaping::kMinSupplementaryCodePoint;
 				// Advance past the first code unit escape.
 				p_.remove_prefix(kUnicodeEscapedLength);
 			}
 			else if(!coerce_to_utf8_) {
-				return ReportFailure("Invalid low surrogate.",
-					   ParseErrorType::INVALID_LOW_SURROGATE);
+				return ReportFailure("Invalid low surrogate.", ParseErrorType::INVALID_LOW_SURROGATE);
 			}
 		}
 		else if(!coerce_to_utf8_) {
-			return ReportFailure("Missing low surrogate.",
-				   ParseErrorType::MISSING_LOW_SURROGATE);
+			return ReportFailure("Missing low surrogate.", ParseErrorType::MISSING_LOW_SURROGATE);
 		}
 	}
 	if(!coerce_to_utf8_ && !IsValidCodePoint(code)) {
-		return ReportFailure("Invalid unicode code point.",
-			   ParseErrorType::INVALID_UNICODE);
+		return ReportFailure("Invalid unicode code point.", ParseErrorType::INVALID_UNICODE);
 	}
 	char buf[UTFmax];
 	int len = EncodeAsUTF8Char(code, buf);
@@ -523,7 +497,8 @@ util::Status JsonStreamParser::ParseUnicodeEscape() {
 	return util::Status();
 }
 
-util::Status JsonStreamParser::ParseNumber() {
+util::Status JsonStreamParser::ParseNumber() 
+{
 	NumberResult number;
 	util::Status result = ParseNumberHelper(&number);
 	if(result.ok()) {
@@ -532,43 +507,37 @@ util::Status JsonStreamParser::ParseNumber() {
 			    ow_->RenderDouble(key_, number.double_val);
 			    key_ = StringPiece();
 			    break;
-
 			case NumberResult::INT:
 			    ow_->RenderInt64(key_, number.int_val);
 			    key_ = StringPiece();
 			    break;
-
 			case NumberResult::UINT:
 			    ow_->RenderUint64(key_, number.uint_val);
 			    key_ = StringPiece();
 			    break;
-
 			default:
-			    return ReportFailure("Unable to parse number.",
-				       ParseErrorType::UNABLE_TO_PARSE_NUMBER);
+			    return ReportFailure("Unable to parse number.", ParseErrorType::UNABLE_TO_PARSE_NUMBER);
 		}
 	}
 	return result;
 }
 
-util::Status JsonStreamParser::ParseDoubleHelper(const std::string & number,
-    NumberResult* result) {
+util::Status JsonStreamParser::ParseDoubleHelper(const std::string & number, NumberResult* result) 
+{
 	if(!safe_strtod(number, &result->double_val)) {
-		return ReportFailure("Unable to parse number.",
-			   ParseErrorType::UNABLE_TO_PARSE_NUMBER);
+		return ReportFailure("Unable to parse number.", ParseErrorType::UNABLE_TO_PARSE_NUMBER);
 	}
 	if(!loose_float_number_conversion_ && !std::isfinite(result->double_val)) {
-		return ReportFailure("Number exceeds the range of double.",
-			   ParseErrorType::NUMBER_EXCEEDS_RANGE_DOUBLE);
+		return ReportFailure("Number exceeds the range of double.", ParseErrorType::NUMBER_EXCEEDS_RANGE_DOUBLE);
 	}
 	result->type = NumberResult::DOUBLE;
 	return util::Status();
 }
 
-util::Status JsonStreamParser::ParseNumberHelper(NumberResult* result) {
+util::Status JsonStreamParser::ParseNumberHelper(NumberResult* result) 
+{
 	const char* data = p_.data();
 	int length = p_.length();
-
 	// Look for the first non-numeric character, or the end of the string.
 	int index = 0;
 	bool floating = false;
@@ -606,14 +575,11 @@ util::Status JsonStreamParser::ParseNumberHelper(NumberResult* result) {
 		}
 		return status;
 	}
-
 	// Positive non-floating point number, parse as a uint64.
 	if(!negative) {
 		// Octal/Hex numbers are not valid JSON values.
 		if(number.length() >= 2 && number[0] == '0') {
-			return ReportFailure(
-				"Octal/hex numbers are not valid JSON values.",
-				ParseErrorType::OCTAL_OR_HEX_ARE_NOT_VALID_JSON_VALUES);
+			return ReportFailure("Octal/hex numbers are not valid JSON values.", ParseErrorType::OCTAL_OR_HEX_ARE_NOT_VALID_JSON_VALUES);
 		}
 		if(safe_strtou64(number, &result->uint_val)) {
 			result->type = NumberResult::UINT;
@@ -629,12 +595,9 @@ util::Status JsonStreamParser::ParseNumberHelper(NumberResult* result) {
 			return status;
 		}
 	}
-
 	// Octal/Hex numbers are not valid JSON values.
 	if(number.length() >= 3 && number[1] == '0') {
-		return ReportFailure(
-			"Octal/hex numbers are not valid JSON values.",
-			ParseErrorType::OCTAL_OR_HEX_ARE_NOT_VALID_JSON_VALUES);
+		return ReportFailure("Octal/hex numbers are not valid JSON values.", ParseErrorType::OCTAL_OR_HEX_ARE_NOT_VALID_JSON_VALUES);
 	}
 	// Negative non-floating point number, parse as an int64.
 	if(safe_strto64(number, &result->int_val)) {
@@ -685,16 +648,14 @@ util::Status JsonStreamParser::ParseObjectMid(TokenType type) {
 		return util::Status();
 	}
 	// Illegal token after key:value pair.
-	return ReportFailure("Expected , or } after key:value pair.",
-		   ParseErrorType::EXPECTED_COMMA_OR_BRACES);
+	return ReportFailure("Expected , or } after key:value pair.", ParseErrorType::EXPECTED_COMMA_OR_BRACES);
 }
 
-util::Status JsonStreamParser::ParseEntry(TokenType type) {
+util::Status JsonStreamParser::ParseEntry(TokenType type) 
+{
 	if(type == UNKNOWN) {
-		return ReportUnknown("Expected an object key or }.",
-			   ParseErrorType::EXPECTED_OBJECT_KEY_OR_BRACES);
+		return ReportUnknown("Expected an object key or }.", ParseErrorType::EXPECTED_OBJECT_KEY_OR_BRACES);
 	}
-
 	// Close the object and return. This allows for trailing commas.
 	if(type == END_OBJECT) {
 		ow_->EndObject();
@@ -702,7 +663,6 @@ util::Status JsonStreamParser::ParseEntry(TokenType type) {
 		--recursion_depth_;
 		return util::Status();
 	}
-
 	util::Status result;
 	if(type == BEGIN_STRING) {
 		// Key is a string (standard JSON), parse it and store the string.
@@ -728,14 +688,12 @@ util::Status JsonStreamParser::ParseEntry(TokenType type) {
 		result = ParseKey();
 		if(result.ok() && (key_ == kKeywordNull || key_ == kKeywordTrue ||
 		    key_ == kKeywordFalse)) {
-			result = ReportFailure("Expected an object key or }.",
-				ParseErrorType::EXPECTED_OBJECT_KEY_OR_BRACES);
+			result = ReportFailure("Expected an object key or }.", ParseErrorType::EXPECTED_OBJECT_KEY_OR_BRACES);
 		}
 	}
 	else {
 		// Unknown key type, report an error.
-		result = ReportFailure("Expected an object key or }.",
-			ParseErrorType::EXPECTED_OBJECT_KEY_OR_BRACES);
+		result = ReportFailure("Expected an object key or }.", ParseErrorType::EXPECTED_OBJECT_KEY_OR_BRACES);
 	}
 	// On success we next expect an entry mid ':' then an object mid ',' or '}'
 	if(result.ok()) {
@@ -745,21 +703,21 @@ util::Status JsonStreamParser::ParseEntry(TokenType type) {
 	return result;
 }
 
-util::Status JsonStreamParser::ParseEntryMid(TokenType type) {
+util::Status JsonStreamParser::ParseEntryMid(TokenType type) 
+{
 	if(type == UNKNOWN) {
-		return ReportUnknown("Expected : between key:value pair.",
-			   ParseErrorType::EXPECTED_COLON);
+		return ReportUnknown("Expected : between key:value pair.", ParseErrorType::EXPECTED_COLON);
 	}
 	if(type == ENTRY_SEPARATOR) {
 		Advance();
 		stack_.push(VALUE);
 		return util::Status();
 	}
-	return ReportFailure("Expected : between key:value pair.",
-		   ParseErrorType::EXPECTED_COLON);
+	return ReportFailure("Expected : between key:value pair.", ParseErrorType::EXPECTED_COLON);
 }
 
-util::Status JsonStreamParser::HandleBeginArray() {
+util::Status JsonStreamParser::HandleBeginArray() 
+{
 	GOOGLE_DCHECK_EQ('[', *p_.data());
 	Advance();
 	ow_->StartList(key_);
@@ -793,18 +751,16 @@ util::Status JsonStreamParser::ParseArrayValue(TokenType type) {
 	return result;
 }
 
-util::Status JsonStreamParser::ParseArrayMid(TokenType type) {
+util::Status JsonStreamParser::ParseArrayMid(TokenType type) 
+{
 	if(type == UNKNOWN) {
-		return ReportUnknown("Expected , or ] after array value.",
-			   ParseErrorType::EXPECTED_COMMA_OR_BRACKET);
+		return ReportUnknown("Expected , or ] after array value.", ParseErrorType::EXPECTED_COMMA_OR_BRACKET);
 	}
-
 	if(type == END_ARRAY) {
 		ow_->EndList();
 		Advance();
 		return util::Status();
 	}
-
 	// Found a comma, advance past it and expect an array value next.
 	if(type == VALUE_SEPARATOR) {
 		Advance();
@@ -812,8 +768,7 @@ util::Status JsonStreamParser::ParseArrayMid(TokenType type) {
 		return util::Status();
 	}
 	// Illegal token after array value.
-	return ReportFailure("Expected , or ] after array value.",
-		   ParseErrorType::EXPECTED_COMMA_OR_BRACKET);
+	return ReportFailure("Expected , or ] after array value.", ParseErrorType::EXPECTED_COMMA_OR_BRACKET);
 }
 
 util::Status JsonStreamParser::ParseTrue() {

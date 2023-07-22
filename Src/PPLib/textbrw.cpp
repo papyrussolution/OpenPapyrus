@@ -2066,7 +2066,7 @@ int STextBrowser::BraceHtmlTag()
 						CallFunc(SCI_INSERTTEXT, sel_range.low, reinterpret_cast<intptr_t>(text.cptr()));
 					}
 					else {
-						text.Z().CatChar('<').CatChar('/').Cat(tag).CatChar('>');
+						text.Z().CatChar('<').Slash().Cat(tag).CatChar('>');
 						CallFunc(SCI_INSERTTEXT, sel_range.upp, reinterpret_cast<intptr_t>(text.cptr()));
 						text.Z().CatChar('<').Cat(tag).CatChar('>');
 						CallFunc(SCI_INSERTTEXT, sel_range.low, reinterpret_cast<intptr_t>(text.cptr()));

@@ -37,7 +37,7 @@ int SCDBObjToDo::CreateImpTbl(const char * pFileName)
 int SCDBObjToDo::Init(const char * pExpPath, const char * pImpPath)
 {
 	int    ok = 1;
-	char   path[MAXPATH], fname[MAXPATH];
+	char   path[MAX_PATH], fname[MAX_PATH];
 	ZDELETE(P_ExpPath);
 	P_ExpPath = newStr(pExpPath);
 	ZDELETE(P_ImpPath);

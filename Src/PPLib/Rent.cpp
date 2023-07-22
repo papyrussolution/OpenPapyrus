@@ -239,7 +239,7 @@ int PPObjBill::AutoCharge(PPID billID, PPID opID, const PPRentCondition * pRc, c
 	for(i = 0; i < cycle_list.getCount(); i++) {
 		LDATE  charge_dt;
 		pRc->GetChargeDate(&cycle_list, i, &charge_dt);
-		if(pPeriod->CheckDate(charge_dt) && !charges.Search(charge_dt, 0, 0)) {
+		if(pPeriod->CheckDate(charge_dt) && !charges.Search(charge_dt, 0)) {
 			int    r = 0;
 			double amount = 0.0;
 			if(pRc->Flags & PPRentCondition::fPercent) {

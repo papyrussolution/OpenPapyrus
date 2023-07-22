@@ -231,7 +231,7 @@ int  Crosstab::AddTotalColumn(const DBField & rAggrFld, size_t extSize, const ch
 int Crosstab::DestroyTable()
 {
 	if(P_RTbl) {
-		char   tbl_name[64], file_name[MAXPATH];
+		char   tbl_name[64], file_name[MAX_PATH];
 		STRNSCPY(tbl_name, P_RTbl->GetTableName());
 		STRNSCPY(file_name, P_RTbl->GetName());
 		ZDELETE(P_RTbl);

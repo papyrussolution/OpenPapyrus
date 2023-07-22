@@ -3796,7 +3796,7 @@ ComDispInterface * ShtrihPrint::InitDriver()
 
 void ShtrihPrint::SetErrorMessage()
 {
-	char   err_buf[MAXPATH];
+	char   err_buf[MAX_PATH];
 	MEMSZERO(err_buf);
 	if(ResCode != RESCODE_NO_ERROR && P_DrvShtrih &&
 		P_DrvShtrih->GetProperty(ResultCodeDescription, err_buf, sizeof(err_buf) - 1) > 0) {

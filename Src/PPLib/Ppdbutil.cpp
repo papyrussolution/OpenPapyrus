@@ -1889,7 +1889,7 @@ static int UseCopyContinouos(PPIniFile * pIniFile, PPDbEntrySet2 * pDbes)
 				// @todo Определять локальность диска через IP
 			}
 			else {
-				(disk = ps.Drv).Colon().CatChar('\\');
+				(disk = ps.Drv).Colon().BSlash();
 				r = BIN(dbentry_id && GetDriveType(SUcSwitch(disk)) == DRIVE_FIXED); // @unicodeproblem
 			}
 		}
@@ -2828,7 +2828,7 @@ static int ProtectDatabase(DbLoginBlock * pDlb, int protect, char * pPw, char * 
 int PPLicUpdate()
 {
 	int    ok = -1;
-	char   path[MAXPATH];
+	char   path[MAX_PATH];
 	TDialog * dlg = 0;
 	PPLicData lic;
 	if(PPGetLicData(&lic)) {
@@ -2864,7 +2864,7 @@ int PPLicRegister()
 	int    ok = -1;
 	char   name[64];
 	char   regkey[32];
-	char   path[MAXPATH];
+	char   path[MAX_PATH];
 	TDialog * dlg = 0;
 	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_REGISTRATION)))) {
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_REGISTRAT_LICFILE, CTL_REGISTRATION_LICFILE, 1, 0, 0, FileBrowseCtrlGroup::fbcgfFile);

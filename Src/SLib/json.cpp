@@ -206,6 +206,11 @@ uint SJson::GetArrayCount() const
 	return result;
 }
 
+/*static*/bool FASTCALL SJson::FormatText(const char * pSrcJsText, SString & rBuf)
+{
+	return LOGIC(json_format_string(pSrcJsText, rBuf));
+}
+
 int FASTCALL SJson::ToStr(SStringU & rBuf) const
 {
 	rBuf.Z();
@@ -221,6 +226,7 @@ int FASTCALL SJson::ToStr(SString & rBuf) const
 {
 	//return json_tree_to_string(this, rBuf);
 	int    ok = 1;
+	SString temp_buf;
 	assert(this);
 	rBuf.Z();
 	const SJson * p_cursor = this;
@@ -816,7 +822,7 @@ void json_strip_white_spaces(char * text)
 						state = 1;
 						break;
 					case 1: // inside a JSON string
-						if(text[in - 1] != '\\')
+						if(text[in-1] != '\\')
 							state = 0;
 						break;
 					default:
@@ -849,11 +855,32 @@ int json_format_string(const char * pText, SString & rBuf)
 			case '\x0D': // JSON insignificant white spaces
 				pos++;
 				break;
+			// @v11.7.10 {
+			case '[':
+				indentation++;
+				rBuf.CatChar('[').CR();
+				line_no++;
+				if(indentation)
+					rBuf.Tab(indentation);
+				pos++;
+				break;
+			case ']':
+				THROW(indentation > 0);
+				indentation--;
+				rBuf.CR();
+				line_no++;
+				if(indentation)
+					rBuf.Tab(indentation);
+				rBuf.CatChar(']');
+				pos++;
+				break;
+			// } @v11.7.10 
 			case '{':
 				indentation++;
 				rBuf.CatChar('{').CR();
 				line_no++;
-				rBuf.Tab(indentation);
+				if(indentation)
+					rBuf.Tab(indentation);
 				pos++;
 				break;
 			case '}':
@@ -861,7 +888,8 @@ int json_format_string(const char * pText, SString & rBuf)
 				indentation--;
 				rBuf.CR();
 				line_no++;
-				rBuf.Tab(indentation);
+				if(indentation)
+					rBuf.Tab(indentation);
 				rBuf.CatChar('}');
 				pos++;
 				break;
@@ -872,7 +900,8 @@ int json_format_string(const char * pText, SString & rBuf)
 			case ',':
 				rBuf.Comma().CR();
 				line_no++;
-				rBuf.Tab(indentation);
+				if(indentation)
+					rBuf.Tab(indentation);
 				pos++;
 				break;
 			case '\"':	// open string
@@ -960,7 +989,7 @@ static int FASTCALL Lexer2(JsonParsingBlock * pBlk, const char * pBuffer)
 						return LEX_STRING;
 						break;
 					case '\\':
-						pBlk->Text.CatChar('\\');
+						pBlk->Text.BSlash();
 						pBlk->lex_state = 2; // inside a JSON string: start escape sequence
 						break;
 					default:
@@ -1312,7 +1341,7 @@ static int FASTCALL Lexer(const char * pBuffer, const char ** p, uint * state, S
 						return LEX_STRING;
 						break;
 					case '\\':
-						rText.CatChar('\\');
+						rText.BSlash();
 						*state = 2;	// inside a JSON string: start escape sequence
 						break;
 					default:

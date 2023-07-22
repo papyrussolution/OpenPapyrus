@@ -2103,7 +2103,7 @@ static int Test_Ued_Ops()
 	return ok;
 }
 
-int ProcessUed(const char * pSrcFileName, bool forceUpdatePlDecl, PPLogger * pLogger)
+int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pCPath, const char * pJavaPath, bool forceUpdatePlDecl, PPLogger * pLogger)
 {
 	int    ok = 1;
 	bool   unchanged = false; // Если хэш нового результатного файла не отличается от предыдущей версии, то true.
@@ -2120,49 +2120,75 @@ int ProcessUed(const char * pSrcFileName, bool forceUpdatePlDecl, PPLogger * pLo
 	SrUedContainer uedc_prev;
 	SString last_file_name;
 	SString path;
+	SString out_path;
+	SString c_path;
+	SString java_path;
 	long   new_version = 0;
-	SPathStruc ps(pSrcFileName);
-	ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, path);
-	path.RmvLastSlash();
-	const long prev_version = SrUedContainer::SearchLastCanonicalFile(path, last_file_name);
-	if(prev_version > 0) {
-		THROW(uedc_prev.ReadSource(last_file_name, pLogger));
-		THROW(uedc.Verify(path, prev_version, &prev_hash));
-		new_version = prev_version+1;
-	}
-	THROW(uedc.ReadSource(pSrcFileName, pLogger));
-	if(prev_version > 0) {
-		THROW(uedc.VerifyByPreviousVersion(&uedc_prev, pLogger));
-	}
+	THROW(!isempty(pSrcFileName)); // @todo @err
 	{
-		SString result_file_name;
-		SETIFZQ(new_version, 1);
-		SrUedContainer::MakeUedCanonicalName(ps.Nam, new_version);
-		ps.Ext = "dat";
-		ps.Merge(result_file_name);
-		int wsr = uedc.WriteSource(result_file_name, (prev_version > 0) ? &prev_hash : 0, &new_hash);
-		THROW(wsr);
-		if(wsr > 0) {
-			ps.Merge(SPathStruc::fDir|SPathStruc::fDrv, temp_buf);
-			THROW(uedc.Verify(temp_buf, new_version, 0));
+		SPathStruc ps(pSrcFileName);
+		SPathStruc ps_out;
+		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, path);
+		path.RmvLastSlash();
+		if(!isempty(pOutPath)) {
+			ps_out.Split(pOutPath);
+			ps_out.Merge(SPathStruc::fDrv|SPathStruc::fDir, out_path);
+			out_path.RmvLastSlash();
 		}
 		else {
-			new_version = prev_version;
-			unchanged = true;
+			ps_out = ps;
+			out_path = path;
 		}
-	}
-	if(!unchanged || forceUpdatePlDecl) {
-		{
-			SrUedContainer::MakeUedCanonicalName(ps.Nam, -1);
-			ps.Ext = "h";
-			ps.Merge(temp_buf);
-			THROW(uedc.GenerateSourceDecl_C(temp_buf, new_version, new_hash));
+		const long prev_version = SrUedContainer::SearchLastCanonicalFile(out_path, last_file_name);
+		if(prev_version > 0) {
+			THROW(uedc_prev.ReadSource(last_file_name, pLogger));
+			THROW(uedc.Verify(out_path, prev_version, &prev_hash));
+			new_version = prev_version+1;
+		}
+		THROW(uedc.ReadSource(pSrcFileName, pLogger));
+		if(prev_version > 0) {
+			THROW(uedc.VerifyByPreviousVersion(&uedc_prev, pLogger));
 		}
 		{
-			SrUedContainer::MakeUedCanonicalName(ps.Nam, -1);
-			ps.Ext = "java";
-			ps.Merge(temp_buf);
-			THROW(uedc.GenerateSourceDecl_Java(temp_buf, new_version, new_hash));
+			SString result_file_name;
+			SETIFZQ(new_version, 1);
+			SrUedContainer::MakeUedCanonicalName(ps_out.Nam, new_version);
+			ps_out.Ext = "dat";
+			ps_out.Merge(result_file_name);
+			int wsr = uedc.WriteSource(result_file_name, (prev_version > 0) ? &prev_hash : 0, &new_hash);
+			THROW(wsr);
+			if(wsr > 0) {
+				ps_out.Merge(SPathStruc::fDir|SPathStruc::fDrv, temp_buf);
+				THROW(uedc.Verify(temp_buf, new_version, 0));
+			}
+			else {
+				new_version = prev_version;
+				unchanged = true;
+			}
+		}
+		if(!unchanged || forceUpdatePlDecl) {
+			{
+				SPathStruc ps_src;
+				if(!isempty(pCPath))
+					ps_src.Split(pCPath);
+				else
+					ps_src = ps;
+				SrUedContainer::MakeUedCanonicalName(ps_src.Nam, -1);
+				ps_src.Ext = "h";
+				ps_src.Merge(temp_buf);
+				THROW(uedc.GenerateSourceDecl_C(temp_buf, new_version, new_hash));
+			}
+			{
+				SPathStruc ps_src;
+				if(!isempty(pJavaPath))
+					ps_src.Split(pJavaPath);
+				else
+					ps_src = ps;
+				SrUedContainer::MakeUedCanonicalName(ps_src.Nam, -1);
+				ps_src.Ext = "java";
+				ps_src.Merge(temp_buf);
+				THROW(uedc.GenerateSourceDecl_Java(temp_buf, new_version, new_hash));
+			}
 		}
 	}
 	CATCH

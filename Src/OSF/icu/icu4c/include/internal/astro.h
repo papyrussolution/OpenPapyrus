@@ -1,9 +1,8 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*	
-	Copyright (C) 1996-2008, International Business Machines Corporation and others. All Rights Reserved.
-	2003-nov-07   srl       Port from Java
-*/
+// Copyright (C) 1996-2008, International Business Machines Corporation and others. All Rights Reserved.
+// 2003-nov-07   srl       Port from Java
+//
 #ifndef ASTRO_H
 #define ASTRO_H
 
@@ -138,7 +137,7 @@ public:
 	 * @internal
 	 */
 	class U_I18N_API Equatorial : public UMemory {
-public:
+	public:
 		/**
 		 * Constructs an Equatorial coordinate object.
 		 * <p>
@@ -211,7 +210,7 @@ public:
 	 * @internal
 	 */
 	class U_I18N_API Horizon : public UMemory {
-public:
+	public:
 		/**
 		 * Constructs a Horizon coordinate object.
 		 * <p>
@@ -219,21 +218,20 @@ public:
 		 * @param azim The azimuth, measured in radians clockwise from north.
 		 * @internal
 		 */
-		Horizon(double alt = 0, double azim = 0)
-			: altitude(alt), azimuth(azim) {
+		Horizon(double alt = 0, double azim = 0) : altitude(alt), azimuth(azim) 
+		{
 		}
-
 		/**
 		 * Setter for Ecliptic Coordinate object
 		 * @param alt  The altitude, measured in radians above the horizon.
 		 * @param azim The azimuth, measured in radians clockwise from north.
 		 * @internal
 		 */
-		void set(double alt, double azim) {
+		void set(double alt, double azim) 
+		{
 			altitude = alt;
 			azimuth = azim;
 		}
-
 		/**
 		 * Return a string representation of this object, with the
 		 * angles measured in degrees.
@@ -277,14 +275,12 @@ public:
 	 * @internal
 	 */
 	CalendarAstronomer();
-
 	/**
 	 * Construct a new <code>CalendarAstronomer</code> object that is initialized to
 	 * the specified date and time.
 	 * @internal
 	 */
 	CalendarAstronomer(UDate d);
-
 	/**
 	 * Construct a new <code>CalendarAstronomer</code> object with the given
 	 * latitude and longitude.  The object's time is set to the current
@@ -320,7 +316,6 @@ public:
 	 * @internal
 	 */
 	void setTime(UDate aTime);
-
 	/**
 	 * Set the current date and time of this <code>CalendarAstronomer</code> object.  All
 	 * astronomical calculations are performed based on this time setting.
@@ -331,10 +326,7 @@ public:
 	 * @see #getTime
 	 * @internal
 	 */
-	void setDate(UDate aDate) {
-		setTime(aDate);
-	}
-
+	void setDate(UDate aDate) { setTime(aDate); }
 	/**
 	 * Set the current date and time of this <code>CalendarAstronomer</code> object.  All
 	 * astronomical calculations are performed based on this time setting.
@@ -370,7 +362,6 @@ public:
 	 * @internal
 	 */
 	double getJulianDay();
-
 	/**
 	 * Return this object's time expressed in julian centuries:
 	 * the number of centuries after 1/1/1900 AD, 12:00 GMT
@@ -379,13 +370,11 @@ public:
 	 * @internal
 	 */
 	double getJulianCentury();
-
 	/**
 	 * Returns the current Greenwich sidereal time, measured in hours
 	 * @internal
 	 */
 	double getGreenwichSidereal();
-
 private:
 	double getSiderealOffset();
 public:
@@ -394,7 +383,6 @@ public:
 	 * @internal
 	 */
 	double getLocalSidereal();
-
 	/**
 	 * Converts local sidereal time to Universal Time.
 	 *
@@ -406,7 +394,6 @@ public:
 	 */
 	//private:
 	double lstToUT(double lst);
-
 	/**
 	 *
 	 * Convert from ecliptic to equatorial coordinates.

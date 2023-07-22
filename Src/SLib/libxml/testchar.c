@@ -1,6 +1,5 @@
 /**
  * Test the UTF-8 decoding routines
- *
  * author: Daniel Veillard
  * copy: see Copyright for the status of this software.
  */

@@ -1,5 +1,5 @@
 // PREDICT.CPP
-// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023
 // @codepage UTF-8 // @v10.6.8
 //
 #include <pp.h>
@@ -761,7 +761,7 @@ int PrcssrPrediction::EditParam(Param * pParam)
 {
 	int    ok = 1;
 	if(!unlock) {
-		PPID   mutex_id = 0;
+		long   mutex_id = 0;
 		PPSyncItem sync_item;
 		int    r = DS.GetSync().CreateMutex_(LConfig.SessionID, PPOBJ_TSALESBUILD, 1L, &mutex_id, &sync_item);
 		if(r < 0)
@@ -776,9 +776,10 @@ int PrcssrPrediction::EditParam(Param * pParam)
 
 /*static*/int PrcssrPrediction::IsLocked()
 {
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r;
 	PPSync & r_sync = DS.GetSync();
-	PPID   mutex_id = 0;
+	long   mutex_id = 0;
 	PPSyncItem sync_item;
 	if((r = r_sync.CreateMutex_(LConfig.SessionID, PPOBJ_TSALESBUILD, 1L, &mutex_id, &sync_item)) > 0) {
 		r_sync.ReleaseMutex(PPOBJ_TSALESBUILD, 1L);

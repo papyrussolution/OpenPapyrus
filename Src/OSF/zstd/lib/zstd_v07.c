@@ -476,8 +476,7 @@ MEM_STATIC uint BITv07_highbit32(uint32 val)
 #elif defined(__GNUC__) && (__GNUC__ >= 3)   /* Use GCC Intrinsic */
 	return __builtin_clz(val) ^ 31;
 #else   /* Software version */
-	static const uint DeBruijnClz[32] =
-	{ 0, 9, 1, 10, 13, 21, 2, 29, 11, 14, 16, 18, 22, 25, 3, 30, 8, 12, 20, 28, 15, 17, 24, 7, 19, 27, 23, 6, 26, 5, 4, 31 };
+	static const uint DeBruijnClz[32] = { 0, 9, 1, 10, 13, 21, 2, 29, 11, 14, 16, 18, 22, 25, 3, 30, 8, 12, 20, 28, 15, 17, 24, 7, 19, 27, 23, 6, 26, 5, 4, 31 };
 	uint32 v = val;
 	v |= v >> 1;
 	v |= v >> 2;

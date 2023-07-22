@@ -76,15 +76,11 @@ typedef union LZ4_streamHC_u LZ4_streamHC_t; /* incomplete type (defined later) 
  *  These methods are API and ABI stable, they can be used in combination with a DLL.
  */
 LZ4LIB_API LZ4_streamHC_t* LZ4_createStreamHC(void);
-LZ4LIB_API int             LZ4_freeStreamHC(LZ4_streamHC_t* streamHCPtr);
-
+LZ4LIB_API int  LZ4_freeStreamHC(LZ4_streamHC_t* streamHCPtr);
 LZ4LIB_API void LZ4_resetStreamHC(LZ4_streamHC_t* streamHCPtr, int compressionLevel);
 LZ4LIB_API int  LZ4_loadDictHC(LZ4_streamHC_t* streamHCPtr, const char * dictionary, int dictSize);
-
-LZ4LIB_API int LZ4_compress_HC_continue(LZ4_streamHC_t* streamHCPtr, const char * src, char * dst, int srcSize, int maxDstSize);
-
-LZ4LIB_API int LZ4_saveDictHC(LZ4_streamHC_t* streamHCPtr, char * safeBuffer, int maxDictSize);
-
+LZ4LIB_API int  LZ4_compress_HC_continue(LZ4_streamHC_t* streamHCPtr, const char * src, char * dst, int srcSize, int maxDstSize);
+LZ4LIB_API int  LZ4_saveDictHC(LZ4_streamHC_t* streamHCPtr, char * safeBuffer, int maxDictSize);
 /*
    These functions compress data in successive blocks of any size, using previous blocks as dictionary.
    One key assumption is that previous blocks (up to 64 KB) remain read-accessible while compressing next blocks.

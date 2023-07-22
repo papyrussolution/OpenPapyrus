@@ -128,7 +128,7 @@ int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 			}
 			ClosePrinter(printer);
 			// Если номер com-порта не определен, то по умолчанию будет com1
-			name.Z().CatCharN('\\', 2).Dot().CatChar('\\').Cat("COM").Cat(port_no+1);
+			name.Z().CatCharN('\\', 2).Dot().BSlash().Cat("COM").Cat(port_no+1);
 			if(h_port != INVALID_HANDLE_VALUE) {
 				CloseHandle(h_port);
 				h_port = INVALID_HANDLE_VALUE;
@@ -553,7 +553,7 @@ int SCS_SYNCSYM::OpenBox()
 		if(!drawer_port.NotEmptyS())
 			drawer_port = "com1";
 		GetPort(drawer_port, &port_no);
-		name.Z().CatCharN('\\', 2).Dot().CatChar('\\').Cat(reinterpret_cast<const char *>(&s_com)).Cat(port_no+1);
+		name.Z().CatCharN('\\', 2).Dot().BSlash().Cat(reinterpret_cast<const char *>(&s_com)).Cat(port_no+1);
 		if(h_port != INVALID_HANDLE_VALUE) {
 			CloseHandle(h_port);
 			h_port = INVALID_HANDLE_VALUE;

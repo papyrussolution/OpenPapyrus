@@ -1,5 +1,5 @@
 // OBJBSKT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -191,7 +191,7 @@ PPObjGoodsBasket::Locking::~Locking()
 int PPObjGoodsBasket::Locking::Lock(PPID id)
 {
 	int    ok = -1;
-	PPID   mutex_id = 0;
+	long   mutex_id = 0;
 	if(id) {
 		if(L && id == ID)
 			ok = 1;
@@ -265,7 +265,7 @@ PPObjGoodsBasket::PPObjGoodsBasket(void * extraPtr) : PPObjReference(PPOBJ_GOODS
 /*static*/int PPObjGoodsBasket::IsLocked(PPID id)
 {
 	int    ok = 0;
-	PPID   mutex_id = 0;
+	long   mutex_id = 0;
 	if(DS.GetSync().CreateMutex_(LConfig.SessionID, PPOBJ_GOODSBASKET, id, &mutex_id, 0) > 0) {
 		DS.GetSync().ReleaseMutex(PPOBJ_GOODSBASKET, id);
 		ok = 0;

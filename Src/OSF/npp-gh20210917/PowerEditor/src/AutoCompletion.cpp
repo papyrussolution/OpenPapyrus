@@ -724,19 +724,15 @@ bool AutoCompletion::setLanguage(LangType language)
 	if(_curLang == language)
 		return true;
 	_curLang = language;
-
 	TCHAR path[MAX_PATH];
 	::GetModuleFileName(NULL, path, MAX_PATH);
 	PathRemoveFileSpec(path);
 	wcscat_s(path, TEXT("\\autoCompletion\\"));
 	wcscat_s(path, getApiFileName());
 	wcscat_s(path, TEXT(".xml"));
-
 	delete _pXmlFile;
-
 	_pXmlFile = new TiXmlDocument(path);
 	_funcCompletionActive = _pXmlFile->LoadFile();
-
 	TiXmlNode * pAutoNode = NULL;
 	if(_funcCompletionActive) {
 		_funcCompletionActive = false;  //safety

@@ -137,14 +137,14 @@ void FASTCALL TIFFYCbCrtoRGB(TIFFYCbCrToRGB * ycbcr, uint32 Y, int32 Cb, int32 C
 	int32 i;
 	// XXX: Only 8-bit YCbCr input supported for now 
 	Y = HICLAMP(Y, 255);
-	Cb = sclamp(Cb, 0L, 255L);
-	Cr = sclamp(Cr, 0L, 255L);
+	Cb = sclamp(Cb, (int32)0, (int32)255);
+	Cr = sclamp(Cr, (int32)0, (int32)255);
 	i = ycbcr->Y_tab[Y] + ycbcr->Cr_r_tab[Cr];
-	*r = sclamp(i, 0L, 255L);
+	*r = sclamp(i, (int32)0, (int32)255);
 	i = ycbcr->Y_tab[Y] + (int)((ycbcr->Cb_g_tab[Cb] + ycbcr->Cr_g_tab[Cr]) >> SHIFT);
-	*g = sclamp(i, 0L, 255L);
+	*g = sclamp(i, (int32)0, (int32)255);
 	i = ycbcr->Y_tab[Y] + ycbcr->Cb_b_tab[Cb];
-	*b = sclamp(i, 0L, 255L);
+	*b = sclamp(i, (int32)0, (int32)255);
 }
 
 // Clamp function for sanitization purposes. Normally clamping should not 

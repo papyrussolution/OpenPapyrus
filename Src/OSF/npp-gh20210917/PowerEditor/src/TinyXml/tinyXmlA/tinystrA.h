@@ -108,17 +108,12 @@ class TiXmlStringA
     bool operator == (const TiXmlStringA & compare) const;
     bool operator < (const TiXmlStringA & compare) const;
     bool operator > (const TiXmlStringA & compare) const;
-
     // Checks if a TiXmlStringA is empty
-    bool empty () const
-    {
-        return length () ? false : true;
-    }
-
+    bool empty () const { return length () ? false : true; }
     // Checks if a TiXmlStringA contains only whitespace (same rules as isspace)
 	// Not actually used in tinyxml. Conflicts with a C macro, "isblank",
 	// which is a problem. Commenting out. -lee
-//    bool isblank () const;
+    //    bool isblank () const;
 
     // single char extraction
     const char& at (unsigned index) const

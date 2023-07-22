@@ -2410,7 +2410,7 @@ int PPOpenFile(SString & rPath, const StringSet & rPatterns, long flags, HWND ow
 {
 	int    ok = -1;
 	OPENFILENAME sofn;
-	TCHAR  file_name[MAXPATH];
+	TCHAR  file_name[MAX_PATH];
 	SString  title_buf;
 	SString  dir, fname;
 	STempBuffer filter_buf(64);
@@ -7201,11 +7201,11 @@ int ExportDialogs(const char * pFileName)
                 // \ppypict{dlg-billstatus}{Диалог редактирования статуса документов}
                 PreprocessCtrlText(dlg_title_buf, ctl_text_processed);
                 (temp_buf = dlg_symb_body).ReplaceStr("_", "-", 0).ToLower();
-                line_buf.Z().CatChar('\\').Cat("ppypict").CatChar('{').Cat(temp_buf).CatChar('}');
+                line_buf.Z().BSlash().Cat("ppypict").CatChar('{').Cat(temp_buf).CatChar('}');
 				line_buf.CatChar('{').Cat(ctl_text_processed).CatChar('}').CR();
 				f_out_manual.WriteLine(line_buf);
 				// \begin{description}
-				line_buf.Z().CatChar('\\').Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
+				line_buf.Z().BSlash().Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
 				f_out_manual.WriteLine(line_buf);
 			}
 			if(EnumChildWindows(dlg->H(), GetChildWindowsList, reinterpret_cast<LPARAM>(&child_list))) {
@@ -7274,7 +7274,7 @@ int ExportDialogs(const char * pFileName)
 										{
 											// \item[\dlgcombo{Счетчик}]
 											PreprocessCtrlText(ctl_text, ctl_text_processed);
-											line_buf.Z().Tab().CatChar('\\').Cat("item").CatChar('[').CatChar('\\').Cat("dlgcombo").
+											line_buf.Z().Tab().BSlash().Cat("item").CatChar('[').BSlash().Cat("dlgcombo").
 												CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
 											f_out_manual.WriteLine(line_buf);
 										}
@@ -7299,7 +7299,7 @@ int ExportDialogs(const char * pFileName)
 										{
 											// \item[Наименование]
 											PreprocessCtrlText(ctl_text, ctl_text_processed);
-											line_buf.Z().Tab().CatChar('\\').Cat("item").CatBrackStr(ctl_text_processed).CR().CR();
+											line_buf.Z().Tab().BSlash().Cat("item").CatBrackStr(ctl_text_processed).CR().CR();
 											f_out_manual.WriteLine(line_buf);
 										}
 									}
@@ -7329,7 +7329,7 @@ int ExportDialogs(const char * pFileName)
 											{
 												// \item[\dlgradioc{Сортировать по}]
 												PreprocessCtrlText(ctl_text, ctl_text_processed);
-												line_buf.Z().Tab().CatChar('\\').Cat("item").CatChar('[').CatChar('\\').Cat("dlgradioc").
+												line_buf.Z().Tab().BSlash().Cat("item").CatChar('[').BSlash().Cat("dlgradioc").
 													CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
 												f_out_manual.WriteLine(line_buf);
 											}
@@ -7361,14 +7361,14 @@ int ExportDialogs(const char * pFileName)
 																if(p_clu->getKind() == RADIOBUTTONS) {
 																	// \item[\dlgradioc{Сортировать по}]
 																	PreprocessCtrlText(temp_buf, ctl_text_processed);
-																	line_buf.Z().Tab(2).CatChar('\\').Cat("item").CatChar('[').CatChar('\\').Cat("dlgradioi").
+																	line_buf.Z().Tab(2).BSlash().Cat("item").CatChar('[').BSlash().Cat("dlgradioi").
 																		CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
 																	f_out_manual.WriteLine(line_buf);
 																}
 																else if(p_clu->getKind() == CHECKBOXES) {
 																	// \dlgflag{Просмотр}
 																	PreprocessCtrlText(temp_buf, ctl_text_processed);
-																	line_buf.Z().Tab(2).CatChar('\\').Cat("dlgflag").CatChar('{').Cat(ctl_text_processed).CatChar('}').CR().CR();
+																	line_buf.Z().Tab(2).BSlash().Cat("dlgflag").CatChar('{').Cat(ctl_text_processed).CatChar('}').CR().CR();
 																	f_out_manual.WriteLine(line_buf);
 																}
 															}
@@ -7481,7 +7481,7 @@ int ExportDialogs(const char * pFileName)
 			f_out.WriteLine(line_buf);
 			{
 				// \end{description}
-				line_buf.Z().CatChar('\\').Cat("end").CatChar('{').Cat("description").CatChar('}').CR().CR();
+				line_buf.Z().BSlash().Cat("end").CatChar('{').Cat("description").CatChar('}').CR().CR();
 				f_out_manual.WriteLine(line_buf);
 				// %endtopic
                 line_buf.Z().Cat("%endtopic").CR().CR();
@@ -7590,11 +7590,11 @@ int ExportDialogs2(const char * pFileName)
                 // \ppypict{dlg-billstatus}{Диалог редактирования статуса документов}
                 PreprocessCtrlText(dlg_title_buf, ctl_text_processed);
                 (temp_buf = dlg_symb_body).ReplaceStr("_", "-", 0).ToLower();
-                line_buf.Z().CatChar('\\').Cat("ppypict").CatChar('{').Cat(temp_buf).CatChar('}');
+                line_buf.Z().BSlash().Cat("ppypict").CatChar('{').Cat(temp_buf).CatChar('}');
 				line_buf.CatChar('{').Cat(ctl_text_processed).CatChar('}').CR();
 				f_out_manual.WriteLine(line_buf);
 				// \begin{description}
-				line_buf.Z().CatChar('\\').Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
+				line_buf.Z().BSlash().Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
 				f_out_manual.WriteLine(line_buf);
 			}
 			if(EnumChildWindows(dlg->H(), GetChildWindowsList, reinterpret_cast<LPARAM>(&child_list))) {
@@ -7671,7 +7671,7 @@ int ExportDialogs2(const char * pFileName)
 										{
 											// \item[\dlgcombo{Счетчик}]
 											PreprocessCtrlText(ctl_text, ctl_text_processed);
-											line_buf.Z().Tab().CatChar('\\').Cat("item").CatChar('[').CatChar('\\').Cat("dlgcombo").
+											line_buf.Z().Tab().BSlash().Cat("item").CatChar('[').BSlash().Cat("dlgcombo").
 												CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
 											f_out_manual.WriteLine(line_buf);
 										}
@@ -7714,7 +7714,7 @@ int ExportDialogs2(const char * pFileName)
 										{
 											// \item[Наименование]
 											PreprocessCtrlText(ctl_text, ctl_text_processed);
-											line_buf.Z().Tab().CatChar('\\').Cat("item").CatBrackStr(ctl_text_processed).CR().CR();
+											line_buf.Z().Tab().BSlash().Cat("item").CatBrackStr(ctl_text_processed).CR().CR();
 											f_out_manual.WriteLine(line_buf);
 										}
 									}
@@ -7751,7 +7751,7 @@ int ExportDialogs2(const char * pFileName)
 											{
 												// \item[\dlgradioc{Сортировать по}]
 												PreprocessCtrlText(ctl_text, ctl_text_processed);
-												line_buf.Z().Tab().CatChar('\\').Cat("item").CatChar('[').CatChar('\\').Cat("dlgradioc").
+												line_buf.Z().Tab().BSlash().Cat("item").CatChar('[').BSlash().Cat("dlgradioc").
 													CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
 												f_out_manual.WriteLine(line_buf);
 											}
@@ -7800,14 +7800,14 @@ int ExportDialogs2(const char * pFileName)
 																if(p_clu->getKind() == RADIOBUTTONS) {
 																	// \item[\dlgradioc{Сортировать по}]
 																	PreprocessCtrlText(item_title_buf, ctl_text_processed);
-																	line_buf.Z().Tab(2).CatChar('\\').Cat("item").CatChar('[').CatChar('\\').Cat("dlgradioi").
+																	line_buf.Z().Tab(2).BSlash().Cat("item").CatChar('[').BSlash().Cat("dlgradioi").
 																		CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
 																	f_out_manual.WriteLine(line_buf);
 																}
 																else if(p_clu->getKind() == CHECKBOXES) {
 																	// \dlgflag{Просмотр}
 																	PreprocessCtrlText(item_title_buf, ctl_text_processed);
-																	line_buf.Z().Tab(2).CatChar('\\').Cat("dlgflag").CatChar('{').Cat(ctl_text_processed).CatChar('}').CR().CR();
+																	line_buf.Z().Tab(2).BSlash().Cat("dlgflag").CatChar('{').Cat(ctl_text_processed).CatChar('}').CR().CR();
 																	f_out_manual.WriteLine(line_buf);
 																}
 															}
@@ -7957,7 +7957,7 @@ int ExportDialogs2(const char * pFileName)
 			f_out.WriteLine(line_buf);
 			{
 				// \end{description}
-				line_buf.Z().CatChar('\\').Cat("end").CatChar('{').Cat("description").CatChar('}').CR().CR();
+				line_buf.Z().BSlash().Cat("end").CatChar('{').Cat("description").CatChar('}').CR().CR();
 				f_out_manual.WriteLine(line_buf);
 				// %endtopic
                 line_buf.Z().Cat("%endtopic").CR().CR();

@@ -88,14 +88,14 @@ int SelfbuildStaffForManual_UserProfileFuncList()
 	THROW_SL(doc_file.IsValid());
 	{
 		SString line_buf;
-		line_buf.Z().CatChar('\\').Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
+		line_buf.Z().BSlash().Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
 		doc_file.WriteLine(line_buf);
 		for(uint i = 0; i < SIZEOFARRAY(PPUserProfileFuncTab); i++) {
 			const PPUserProfileFuncEntry & r_entry = PPUserProfileFuncTab[i];
 			line_buf.Z();
 			PPLoadString(PPSTR_USRPROFILEFUNCNAM, r_entry.FuncId, temp_buf);
 			temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
-			line_buf.Tab().CatChar('\\').Cat("item").CatBrackStr(temp_buf).CR();
+			line_buf.Tab().BSlash().Cat("item").CatBrackStr(temp_buf).CR();
 			line_buf.CR();
 
 			PPLoadString("id", temp_buf);
@@ -105,7 +105,7 @@ int SelfbuildStaffForManual_UserProfileFuncList()
 			}
 			doc_file.WriteLine(line_buf);
 		}
-		line_buf.Z().CatChar('\\').Cat("end").CatChar('{').Cat("description").CatChar('}').CR();
+		line_buf.Z().BSlash().Cat("end").CatChar('{').Cat("description").CatChar('}').CR();
 		doc_file.WriteLine(line_buf);
 	}
 	CATCHZOK

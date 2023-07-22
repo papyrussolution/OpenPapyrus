@@ -587,7 +587,7 @@ int DbProvider::SetupProtectData(const char * pOldPw, const char * pNewPw)
 	FILE * f = 0;
 	uint16 buf[32];
 	char   cpw[16];
-	char   file_name[MAXPATH];
+	char   file_name[MAX_PATH];
 	char * p_temp = 0;
 	char   mode[6];
 	protectFileName(file_name, DataPath);
@@ -636,7 +636,7 @@ int DbProvider::GetProtectData()
 {
 	int    ok = 0;
 	uint16 buf[32];
-	char   file_name[MAXPATH];
+	char   file_name[MAX_PATH];
 	protectFileName(file_name, DataPath);
 	if(fileExists(file_name)) {
 		FILE * f = fopen(file_name, "rb");

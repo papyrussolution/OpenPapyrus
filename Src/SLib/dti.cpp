@@ -1,5 +1,5 @@
 // DTI.CPP
-// Copyright (c) V.Antonov 2004, 2005, 2008, 2010, 2015, 2017, 2018, 2020, 2021, 2022
+// Copyright (c) V.Antonov 2004, 2005, 2008, 2010, 2015, 2017, 2018, 2020, 2021, 2022, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -117,7 +117,7 @@ static int GetServerNameFromUncPath(const char * pUncPath, SString & rServerName
 			p += 2;
 			start = 1;
 		}
-		else if(oneof2(p[0], '\\', '/'))
+		else if(isdirslash(p[0]))
 			start = -1;
 		if(start > 0)
 			rServerName.CatChar(p[0]);

@@ -18,7 +18,7 @@ static int __db_fullpath(ENV*, const char *, const char *, int, int, char **);
 		 */                                                                                                                                       \
 		if((add) != NULL && (add)[0] != '\0') {                        \
 			/* If leading slash, start over. */                     \
-			if(__os_abspath(add)) {                                \
+			if(SPathStruc::IsWindowsPathPrefix(add)) { \
 				p = str;                                        \
 				slash = 0;                                      \
 			}                                                       \
@@ -100,7 +100,7 @@ int __db_appname(ENV * env, APPNAME appname, const char * file, const char ** di
 	 * Absolute path names are never modified.  If the file is an absolute
 	 * path, we're done.
 	 */
-	if(file && __os_abspath(file))
+	if(file && SPathStruc::IsWindowsPathPrefix(file))
 		return __os_strdup(env, file, namep);
 	/*
 	 * DB_APP_NONE:

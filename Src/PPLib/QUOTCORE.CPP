@@ -3120,7 +3120,7 @@ int Quotation2Core::RemoveAllForQuotKind(PPID quotKindID, int use_ta)
 		const uint c = rel_list.getCount();
 		for(uint i = 0; i < c; i++) {
 			const PPID rel_id = rel_list.get(i);
-			wait_msg_buf.Z().Cat(i+1).CatChar('/').Cat(c);
+			wait_msg_buf.Z().Cat(i+1).Slash().Cat(c);
 			THROW(RemoveAllForRel(rel_id, wait_msg_buf, 0));
 			//PPWaitPercent(i+1, c);
 		}
@@ -3347,7 +3347,7 @@ int Quotation2Core::Verify()
 				PPTransaction tra(1);
 				THROW(tra);
 				for(ulong u_rel_id = 0; absence_rel_tab.Enum(&u_rel_id) > 0;) {
-					msg_buf.Z().Cat(++i).CatChar('/').Cat(_c);
+					msg_buf.Z().Cat(++i).Slash().Cat(_c);
 					THROW(RemoveAllForRel((long)u_rel_id, 0, 0));
 				}
 				THROW(tra.Commit());

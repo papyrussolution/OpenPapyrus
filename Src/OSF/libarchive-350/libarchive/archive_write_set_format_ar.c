@@ -466,16 +466,14 @@ static int format_decimal(int64 v, char * p, int s)
 
 static const char * ar_basename(const char * path)
 {
-	const char * endp, * startp;
-
-	endp = path + strlen(path) - 1;
+	const char * startp;
+	const char * endp = path + strlen(path) - 1;
 	/*
 	 * For filename with trailing slash(es), we return
 	 * NULL indicating an error.
 	 */
 	if(*endp == '/')
 		return NULL;
-
 	/* Find the start of the base */
 	startp = endp;
 	while(startp > path && *(startp - 1) != '/')

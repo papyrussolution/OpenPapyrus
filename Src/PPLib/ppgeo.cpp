@@ -1678,7 +1678,7 @@ int PPViewGeoTracking::Export()
 			{
 				SString out_buf, temp_buf;
 				SString schema_loc;
-				(schema_loc = p_schema_url).Cat(gpx_ver_major).CatChar('/').Cat(gpx_ver_minor);
+				(schema_loc = p_schema_url).Cat(gpx_ver_major).Slash().Cat(gpx_ver_minor);
 				SXml::WNode n_gpx(p_writer, "gpx");
 					n_gpx.PutAttrib("xmlns", schema_loc);
 					temp_buf.Z().Cat(gpx_ver_major).Dot().Cat(gpx_ver_minor);
@@ -1693,7 +1693,7 @@ int PPViewGeoTracking::Export()
 					}
 					n_gpx.PutAttrib("creator", out_buf);
 					n_gpx.PutAttrib(SXml::nst_xmlns("xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
-					(temp_buf = schema_loc).Space().Cat(p_schema_url).Cat(gpx_ver_major).CatChar('/').Cat(gpx_ver_minor).CatChar('/').Cat("gpx.xsd");
+					(temp_buf = schema_loc).Space().Cat(p_schema_url).Cat(gpx_ver_major).Slash().Cat(gpx_ver_minor).Slash().Cat("gpx.xsd");
 					n_gpx.PutAttrib("xsi:schemaLocation", temp_buf);
 				GeoTrackingViewItem item;
 				PPObjID last_oid;

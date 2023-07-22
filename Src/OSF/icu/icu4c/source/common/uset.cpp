@@ -138,11 +138,13 @@ private:
 
 U_NAMESPACE_END
 
-U_CAPI int32_t U_EXPORT2 uset_getRangeCount(const USet * set) {
+U_CAPI int32_t U_EXPORT2 uset_getRangeCount(const USet * set) 
+{
 	return ((const UnicodeSet*)set)->UnicodeSet::getRangeCount();
 }
 
-U_CAPI int32_t U_EXPORT2 uset_getItemCount(const USet* uset) {
+U_CAPI int32_t U_EXPORT2 uset_getItemCount(const USet* uset) 
+{
 	const UnicodeSet & set = *(const UnicodeSet*)uset;
 	return set.getRangeCount() + USetAccess::getStringCount(set);
 }
@@ -206,17 +208,17 @@ U_CAPI int32_t U_EXPORT2 uset_getItem(const USet* uset, int32_t itemIndex, UChar
  * - all BMP:            (length=bmpLength) BMP, .., BMP
  * - some supplementary: (length|0x8000) (bmpLength<length) BMP, .., BMP, supp-high, supp-low, ..
  */
-U_CAPI int32_t U_EXPORT2 uset_serialize(const USet* set, uint16* dest, int32_t destCapacity, UErrorCode * ec) {
+U_CAPI int32_t U_EXPORT2 uset_serialize(const USet* set, uint16* dest, int32_t destCapacity, UErrorCode * ec) 
+{
 	if(ec==NULL || U_FAILURE(*ec)) {
 		return 0;
 	}
-
 	return ((const UnicodeSet*)set)->UnicodeSet::serialize(dest, destCapacity, *ec);
 }
 
-U_CAPI bool U_EXPORT2 uset_getSerializedSet(USerializedSet* fillSet, const uint16* src, int32_t srcLength) {
+U_CAPI bool U_EXPORT2 uset_getSerializedSet(USerializedSet* fillSet, const uint16* src, int32_t srcLength) 
+{
 	int32_t length;
-
 	if(fillSet==NULL) {
 		return FALSE;
 	}
@@ -224,7 +226,6 @@ U_CAPI bool U_EXPORT2 uset_getSerializedSet(USerializedSet* fillSet, const uint1
 		fillSet->length = fillSet->bmpLength = 0;
 		return FALSE;
 	}
-
 	length = *src++;
 	if(length&0x8000) {
 		/* there are supplementary values */
@@ -248,11 +249,11 @@ U_CAPI bool U_EXPORT2 uset_getSerializedSet(USerializedSet* fillSet, const uint1
 	return TRUE;
 }
 
-U_CAPI void U_EXPORT2 uset_setSerializedToOne(USerializedSet* fillSet, UChar32 c) {
+U_CAPI void U_EXPORT2 uset_setSerializedToOne(USerializedSet* fillSet, UChar32 c) 
+{
 	if(fillSet==NULL || (uint32_t)c>0x10ffff) {
 		return;
 	}
-
 	fillSet->array = fillSet->staticArray;
 	if(c<0xffff) {
 		fillSet->bmpLength = fillSet->length = 2;
@@ -283,13 +284,12 @@ U_CAPI void U_EXPORT2 uset_setSerializedToOne(USerializedSet* fillSet, UChar32 c
 	}
 }
 
-U_CAPI bool U_EXPORT2 uset_serializedContains(const USerializedSet* set, UChar32 c) {
+U_CAPI bool U_EXPORT2 uset_serializedContains(const USerializedSet* set, UChar32 c) 
+{
 	const uint16* array;
-
 	if(set==NULL || (uint32_t)c>0x10ffff) {
 		return FALSE;
 	}
-
 	array = set->array;
 	if(c<=0xffff) {
 		/* find c in the BMP part */
@@ -349,27 +349,21 @@ U_CAPI bool U_EXPORT2 uset_serializedContains(const USerializedSet* set, UChar32
 	}
 }
 
-U_CAPI int32_t U_EXPORT2 uset_getSerializedRangeCount(const USerializedSet* set) {
-	if(set==NULL) {
-		return 0;
-	}
-
-	return (set->bmpLength+(set->length-set->bmpLength)/2+1)/2;
+U_CAPI int32_t U_EXPORT2 uset_getSerializedRangeCount(const USerializedSet* set) 
+{
+	return set ? ((set->bmpLength+(set->length-set->bmpLength)/2+1)/2) : 0;
 }
 
-U_CAPI bool U_EXPORT2 uset_getSerializedRange(const USerializedSet* set, int32_t rangeIndex,
-    UChar32* pStart, UChar32* pEnd) {
+U_CAPI bool U_EXPORT2 uset_getSerializedRange(const USerializedSet* set, int32_t rangeIndex, UChar32* pStart, UChar32* pEnd) 
+{
 	const uint16* array;
 	int32_t bmpLength, length;
-
 	if(set==NULL || rangeIndex<0 || pStart==NULL || pEnd==NULL) {
 		return FALSE;
 	}
-
 	array = set->array;
 	length = set->length;
 	bmpLength = set->bmpLength;
-
 	rangeIndex *= 2; /* address start/limit pairs */
 	if(rangeIndex<bmpLength) {
 		*pStart = array[rangeIndex++];

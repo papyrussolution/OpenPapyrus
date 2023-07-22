@@ -75,7 +75,8 @@ protected:
 		{ return TransferData(reinterpret_cast<long *>(pData), fl, dir, rBuf, skipZero); }
 	int    TransferData(PPIDArray *, Tfd, uint, SString & rBuf);
 	int    TransferDataFlag(int16 *, long flag, Tfd, SString & rBuf, int skipZero = 0);
-	int    TransferDataFlag(int32 *, long flag, Tfd, SString & rBuf, int skipZero = 0);
+	int    TransferDataFlag(int *, long flag, Tfd, SString & rBuf, int skipZero = 0);
+	int    TransferDataFlag(long *, long flag, Tfd, SString & rBuf, int skipZero = 0);
 
 	long   Id; // Идентификатор типа структуры
 	const  PPDeclStruc * P_Outer;

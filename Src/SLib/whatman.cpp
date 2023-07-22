@@ -403,7 +403,7 @@ TWhatmanObject * WhatmanObjectLayoutBase::Dup() const
 	CALLPTRMEMB(p_obj, Copy(*this));
 	return p_obj;
 }
-	
+
 int WhatmanObjectLayoutBase::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
@@ -542,6 +542,12 @@ const  WhatmanObjectLayoutBase * FASTCALL TWhatman::GetObjectAsLayoutByIndexC(in
 {
 	const TWhatmanObject * p_obj = GetObjectByIndexC(idx);
 	return (p_obj && p_obj->GetObjTypeSymb().IsEqiAscii("Layout")) ? static_cast<const WhatmanObjectLayoutBase *>(p_obj) : 0;
+}
+
+WhatmanObjectLayoutBase * FASTCALL TWhatman::GetObjectAsLayoutByIndex(int idx)
+{
+	const WhatmanObjectLayoutBase * p_result = GetObjectAsLayoutByIndexC(idx);
+	return const_cast<WhatmanObjectLayoutBase *>(p_result);
 }
 
 int TWhatman::SetParam(const TWhatman::Param & rP)
@@ -1000,6 +1006,64 @@ int TWhatman::GetRootLayoutObjectIndex(const WhatmanObjectLayoutBase * pC) const
 	return idx;
 }
 
+SUiLayout * TWhatman::Helper_CreateLayout(SUiLayout * pParentLayout, WhatmanObjectLayoutBase * pC) const
+{
+	SUiLayout * p_result = pParentLayout;
+	//SUiLayout * p_root_item = pParentLayout;
+	if(pC) {
+		const SString & r_container_ident = pC->GetContainerIdent();
+		if(r_container_ident.NotEmpty()) {
+			const SPoint2F base_lu(pC->Bounds.a.x, pC->Bounds.a.y);
+			if(!p_result) {
+				SUiLayoutParam alb(pC->GetLayoutBlock());
+				THROW(p_result = new SUiLayout());
+				p_result->SetCallbacks(0, 0, pC);
+				alb.SetFixedSize(pC->Bounds);
+				//if(pC->Le2.Flags & SUiLayoutParam::fContainerRow)
+					//alb.SetContainerDirection(DIREC_HORZ);
+				//else if(pC->Le2.Flags & SUiLayoutParam::fContainerCol)
+					//alb.SetContainerDirection(DIREC_VERT);
+				//else
+					//alb.SetContainerDirection(DIREC_HORZ); // @?
+				//if(pC->Le2.Flags & SUiLayoutParam::fContainerWrap)
+					//alb.Flags |= SUiLayoutParam::fContainerWrap/*SUiLayout::fWrap*/;
+				p_result->SetLayoutBlock(alb);
+				p_result->SetSymb(pC->GetIdentSymb()); // @v11.7.10
+			}
+			if(p_result) {
+				for(uint i = 0; i < ObjList.getCount(); i++) {
+					TWhatmanObject * p_iter_obj = ObjList.at(i);
+					assert(p_iter_obj);
+					if(p_iter_obj) {
+						if(p_iter_obj->GetLayoutContainerIdent() == r_container_ident) {
+							SUiLayout * p_iter_item = p_result->InsertItem();
+							THROW(p_iter_item);
+							p_iter_item->SetCallbacks(0, WhatmanItem_SetupLayoutItemFrameProc, p_iter_obj);
+							p_iter_item->SetLayoutBlock(p_iter_obj->GetLayoutBlock());
+							p_iter_item->SetSymb(p_iter_obj->GetIdentSymb()); // @v11.7.10
+							if(p_iter_obj->HasOption(TWhatmanObject::oContainer)) {
+								THROW(Helper_CreateLayout(p_iter_item, static_cast<WhatmanObjectLayoutBase *>(p_iter_obj))); // @recursion
+								//THROW(Helper_ArrangeLayoutContainer(p_iter_item, static_cast<WhatmanObjectLayoutBase *>(p_iter_obj))); // @recursion
+							}
+							//ok = 1;
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCH
+		p_result = 0;
+	ENDCATCH
+	return p_result;
+}
+
+SUiLayout * TWhatman::CreateLayout(WhatmanObjectLayoutBase * pC)
+{
+	return Helper_CreateLayout(0, pC);
+}
+
+#if 0 // @v11.7.10 {
 int TWhatman::Helper_ArrangeLayoutContainer(SUiLayout * pParentLayout, WhatmanObjectLayoutBase * pC)
 {
 	int    ok = -1;
@@ -1052,10 +1116,22 @@ int TWhatman::Helper_ArrangeLayoutContainer(SUiLayout * pParentLayout, WhatmanOb
 	}
 	return ok;
 }
+#endif // } 0 @v11.7.10
 
 int TWhatman::ArrangeLayoutContainer(WhatmanObjectLayoutBase * pC)
 {
-	return Helper_ArrangeLayoutContainer(0, pC);
+	// @v11.7.10 return Helper_ArrangeLayoutContainer(0, pC);
+	// @v11.7.10 {
+	int    ok = 1;
+	SUiLayout * p_lo = Helper_CreateLayout(0, pC);
+	if(p_lo) {
+		p_lo->Evaluate(0);
+		delete p_lo;
+	}
+	else
+		ok = 0;
+	return ok;
+	// } @v11.7.10 
 }
 
 int FASTCALL TWhatman::GetCurrentObject(int * pIdx) const

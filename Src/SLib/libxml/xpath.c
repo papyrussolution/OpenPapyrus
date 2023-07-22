@@ -3,15 +3,11 @@
  *     XPath is a language for addressing parts of an XML document,
  *     designed to be used by both XSLT and XPointer
  **f
- * Reference: W3C Recommendation 16 November 1999
- *   http://www.w3.org/TR/1999/REC-xpath-19991116
- * Public reference:
- *   http://www.w3.org/TR/xpath
+ * Reference: W3C Recommendation 16 November 1999 http://www.w3.org/TR/1999/REC-xpath-19991116
+ * Public reference: http://www.w3.org/TR/xpath
  *
  * See Copyright for the status of this software
- *
  * Author: daniel@veillard.com
- *
  */
 #include <slib-internal.h>
 #pragma hdrstop

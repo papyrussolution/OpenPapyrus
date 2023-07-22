@@ -2438,7 +2438,7 @@ void DiffByLocCntrDlg::setupCounter(PPID locID)
 		// запоминаем значение счетчика предыдущего склада
 		long   val = getCtrlLong(CTL_DIFFCNTR_VAL);
 		val = (val < 0) ? 0 : val;
-		if(!Data.Search(LocID, 0, 0))
+		if(!Data.Search(LocID, 0))
 			Data.AddUnique(LocID, val, 0);
 		else
 			Data.Update(LocID, val);

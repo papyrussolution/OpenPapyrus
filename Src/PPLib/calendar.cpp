@@ -1380,9 +1380,9 @@ void TCalendar::SendToEditBox(int q1, int y1, int q2, int y2)
 		qt2[1] = 'V';
 	}
 	SString s;
-	s.Cat(qt1).CatChar('/').Cat(y1);
+	s.Cat(qt1).Slash().Cat(y1);
 	if(y1 != y2 || q1 != q2)
-		s.CatCharN('.', 2).Cat(qt2).CatChar('/').Cat(y2);
+		s.CatCharN('.', 2).Cat(qt2).Slash().Cat(y2);
 	TView::SSetWindowText(GetDlgItem(parent_hWnd, CTL_CALENDAR_PERIODEDIT), s);
 }
 //
@@ -1394,9 +1394,9 @@ void TCalendar::SendToEditBox(int m1, int y1, int m2, int y2, int opt)
 	LDATE  dd2 = encodedate(1, m2, y2);
 	SExchangeForOrder(&dd1.v, &dd2.v);
 	SString s;
-	s.Cat(dd1.month()).CatChar('/').Cat(dd1.year());
+	s.Cat(dd1.month()).Slash().Cat(dd1.year());
 	if(dd1 != dd2)
-		s.CatCharN('.', 2).Cat(dd2.month()).CatChar('/').Cat(dd2.year());
+		s.CatCharN('.', 2).Cat(dd2.month()).Slash().Cat(dd2.year());
 	TView::SSetWindowText(GetDlgItem(parent_hWnd, CTL_CALENDAR_PERIODEDIT), s);
 }
 //

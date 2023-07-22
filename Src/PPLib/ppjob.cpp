@@ -1672,7 +1672,7 @@ public:
 	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r = 0;
-		char   path[MAXPATH];
+		char   path[MAX_PATH];
 		const size_t sav_offs = pParam->GetRdOffs();
 		memzero(path, sizeof(path));
 		if((r = ReadParam(*pParam, path, sizeof(path))) != 0) {
@@ -1689,7 +1689,7 @@ public:
 	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
-		char   path[MAXPATH];
+		char   path[MAX_PATH];
 		SString s_path, wait_file;
 		PPLogger logger;
 		memzero(path, sizeof(path));

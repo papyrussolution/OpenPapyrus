@@ -227,7 +227,7 @@ int PPArticlePacket::AddAliasSubst(PPID accAliasID, PPID accID)
 
 int PPArticlePacket::UpdateAliasSubst(PPID accAliasID, PPID accID)
 {
-	if(P_AliasSubst && P_AliasSubst->Search(accAliasID, 0, 0)) {
+	if(P_AliasSubst && P_AliasSubst->Search(accAliasID, 0)) {
 		uint   cnt = 0;
 		for(uint i = 0; i < P_AliasSubst->getCount(); i++)
 			if(P_AliasSubst->at(i).Key == accAliasID)

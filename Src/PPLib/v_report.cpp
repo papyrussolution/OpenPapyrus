@@ -1,5 +1,5 @@
 // V_REPORT.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -254,7 +254,7 @@ int FASTCALL PPViewReport::NextIteration(ReportViewItem * pItem)
 	return ok;
 }
 
-int PPViewReport::SendMail(long id)
+int PPViewReport::SendMail(PPID id)
 {
 	class ReportMailDialog : public TDialog {
 	public:
@@ -320,7 +320,8 @@ int PPViewReport::SendMail(long id)
 			return ok;
 		}
 	};
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	ReportMailDialog * p_dlg = 0;
 	if(id && P_TempTbl && P_TempTbl->search(0, &id, spEq) > 0) {
 		ReportMailDialog::Rec data;
@@ -399,7 +400,7 @@ void PPViewReport::MakeTempRec(const ReportViewItem * pItem, TempReportTbl::Rec 
 		*pTempRec = *static_cast<const TempReportTbl::Rec *>(pItem);
 }
 
-int PPViewReport::GetAltPath(long type, const char * pPath, const char * pStdName, SString & rPath)
+int PPViewReport::GetAltPath(PPID type, const char * pPath, const char * pStdName, SString & rPath)
 {
 	int    ok = 1;
 	rPath.Z();
@@ -421,7 +422,7 @@ int PPViewReport::GetAltPath(long type, const char * pPath, const char * pStdNam
 	return ok;
 }
 
-int PPViewReport::Verify(long id)
+int PPViewReport::Verify(PPID id)
 {
 	int    ok = -1;
 	DlRtm * p_rtm = 0;
@@ -447,15 +448,15 @@ int PPViewReport::Verify(long id)
 	return ok;
 }
 
-int PPViewReport::CallCR(long id)
+int PPViewReport::CallCR(PPID id)
 {
 	int    ok = -1;
 	HKEY   crr_key = 0;
 	if(id && P_TempTbl && P_TempTbl->search(0, &id, spEq) > 0) {
 		/*
 		{
-			char   crr_path[MAXPATH];
-			DWORD  path_size = MAXPATH;
+			char   crr_path[MAX_PATH];
+			DWORD  path_size = MAX_PATH;
 			memzero(crr_path, sizeof(crr_path));
 			// Для CRR 7.0
 			if(RegOpenKeyEx(HKEY_LOCAL_MACHINE,	_T("SOFTWARE\\Seagate Software\\Crystal Reports"), 0, KEY_QUERY_VALUE, &crr_key) == ERROR_SUCCESS &&
@@ -463,7 +464,7 @@ int PPViewReport::CallCR(long id)
 				ok = 1;
 			// Или для  CRR 10
 			else if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Crystal Decisions\\10.0\\Crystal Reports"), 0, KEY_QUERY_VALUE, &crr_key) == ERROR_SUCCESS &&
-				RegQueryValueEx(crr_key, _T("Path"), NULL, NULL, (LPBYTE)crr_path, &(path_size = MAXPATH)) == ERROR_SUCCESS)
+				RegQueryValueEx(crr_key, _T("Path"), NULL, NULL, (LPBYTE)crr_path, &(path_size = MAX_PATH)) == ERROR_SUCCESS)
 				ok = 1;
 			// Если ничего не помогло - общий альтернативный способ
 			else {
@@ -477,7 +478,7 @@ int PPViewReport::CallCR(long id)
 					ok = 1;
 				}
 				if(ok && RegOpenKeyEx(HKEY_CLASSES_ROOT, crr_name, 0, KEY_QUERY_VALUE, &crr_key) == ERROR_SUCCESS &&
-					RegQueryValueEx(crr_key, NULL, NULL, NULL, (LPBYTE)crr_path, &(path_size = MAXPATH)) == ERROR_SUCCESS) // @unicodeproblem
+					RegQueryValueEx(crr_key, NULL, NULL, NULL, (LPBYTE)crr_path, &(path_size = MAX_PATH)) == ERROR_SUCCESS) // @unicodeproblem
 					ok = 1;
 			}
 		}
@@ -782,11 +783,11 @@ private:
 	StrAssocArray   StrucList;
 };
 
-int PPViewReport::EditItem(long * pID)
+int PPViewReport::EditItem(PPID * pID)
 {
 	int    ok = -1;
 	int    valid_data = 0;
-	long   id = DEREFPTRORZ(pID);
+	PPID   id = DEREFPTRORZ(pID);
 	ReportViewItem item;
 	ReportViewItem prev_item;
 	ReportDlg * p_dlg = 0;
@@ -828,14 +829,14 @@ int PPViewReport::EditItem(long * pID)
 	else
 		ok = -1;
 	CATCH
-		ok = (PPError(), 0);
+		ok = PPErrorZ();
 	ENDCATCH
 	delete p_dlg;
 	ASSIGN_PTR(pID, id);
 	return ok;
 }
 
-int PPViewReport::DelItem(long id)
+int PPViewReport::DelItem(PPID id)
 {
 	int    ok = -1;
 	if(P_TempTbl && P_TempTbl->search(0, &id, spEq) > 0) {

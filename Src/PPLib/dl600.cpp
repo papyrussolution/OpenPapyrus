@@ -1811,7 +1811,7 @@ int DlContext::RegisterICls(const DlScope * pCls, int unreg)
 		if(GetUuidByScopeID(pCls->ID, &clsid)) {
 			if(unreg) {
 				clsid.ToStr(S_GUID::fmtIDL, clsid_buf).Quot('{', '}');
-				(key_buf = "CLSID").CatChar('\\').Cat(clsid_buf);
+				(key_buf = "CLSID").BSlash().Cat(clsid_buf);
 				reg.Delete(HKEY_CLASSES_ROOT, key_buf);
 
 				MakeClassName(pCls, clsnfRegisterNoVersion, 0, key_buf);
@@ -1826,7 +1826,7 @@ int DlContext::RegisterICls(const DlScope * pCls, int unreg)
 				// HKEY_CLASSES_ROOT\\CLSID\\uuid
 				//
 				clsid.ToStr(S_GUID::fmtIDL, clsid_buf).Quot('{', '}');
-				(root_buf = "CLSID").CatChar('\\').Cat(clsid_buf);
+				(root_buf = "CLSID").BSlash().Cat(clsid_buf);
 
 				reg.Open(HKEY_CLASSES_ROOT, root_buf, 0, 0);
 				MakeClassName(pCls, clsnfFriendly, 0, name_buf);
@@ -1918,7 +1918,7 @@ int DeleteKey(HKEY hKey, uint32 ver, const char * pKeyBuf)
 		while(idx < 2 && reg.EnumKeys(&idx, entry) > 0)
 			;
 		if(idx > 1)
-			key_buf.CatChar('\\').Cat(LOWORD(ver)).Dot().Cat(HIWORD(ver));
+			key_buf.BSlash().Cat(LOWORD(ver)).Dot().Cat(HIWORD(ver));
 		reg.Close();
 		ok = reg.Delete(hKey, key_buf);
 	}

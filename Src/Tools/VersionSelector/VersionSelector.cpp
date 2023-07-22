@@ -128,7 +128,7 @@ static int FillVersList(HWND list, int byDiscs)
 		::SetWindowText(GetDlgItem(GetParent(list), IDCANCEL), _T("Stop"));
 		__Semaph = 1;
 		for(int i = 'A'; i <= 'Z'; i++) {
-			char path[MAXPATH];
+			char path[MAX_PATH];
 			path[0] = i;
 			path[1] = ':';
 			path[2] = '\\';
@@ -146,7 +146,7 @@ static int FillVersList(HWND list, int byDiscs)
 		::EnableWindow(GetDlgItem(GetParent(list), cmFindVersions), TRUE);
 	}
 	else {
-		char   buf[MAXPATH+30];
+		char   buf[MAX_PATH+30];
 		SString reg_buf;
 		char   param[] = "binpath";
 		SString key_param;

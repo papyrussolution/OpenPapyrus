@@ -58,7 +58,7 @@ int PPDeclStruc::TransferData(int * pData, Tfd dir, SString & rBuf, int skipZero
 	return ok;
 }
 
-int PPDeclStruc::TransferDataFlag(int32 * pData, long flag, Tfd dir, SString & rBuf, int skipZero)
+int PPDeclStruc::TransferDataFlag(int * pData, long flag, Tfd dir, SString & rBuf, int skipZero)
 {
 	int32  val = 0;
 	if(dir == tfdDataToBuf)
@@ -68,6 +68,12 @@ int PPDeclStruc::TransferDataFlag(int32 * pData, long flag, Tfd dir, SString & r
 		SETFLAG(*pData, flag, val);
 	return ok;
 }
+
+int PPDeclStruc::TransferDataFlag(long * pData, long flag, Tfd dir, SString & rBuf, int skipZero)
+{
+	return TransferDataFlag(reinterpret_cast<int *>(pData), flag, dir, rBuf, skipZero);
+}
+
 
 int PPDeclStruc::TransferDataFlag(int16 * pData, long flag, Tfd dir, SString & rBuf, int skipZero)
 {
@@ -151,11 +157,11 @@ int PPDeclStruc::TransferData(SString & rData, Tfd dir, SString & rBuf, int skip
 		for(uint i = 0; i < rData.Len(); i++) {
 			char c = rData.C(i);
 			switch(c) {
-				case '\n': rBuf.CatChar('\\').CatChar('n'); break;
-				case '\r': rBuf.CatChar('\\').CatChar('r'); break;
-				case '\t': rBuf.CatChar('\\').CatChar('t'); break;
-				case ';' : rBuf.CatChar('\\').Semicol(); break;
-				case '\\': rBuf.CatChar('\\').CatChar('\\'); break;
+				case '\n': rBuf.BSlash().CatChar('n'); break;
+				case '\r': rBuf.BSlash().CatChar('r'); break;
+				case '\t': rBuf.BSlash().CatChar('t'); break;
+				case ';' : rBuf.BSlash().Semicol(); break;
+				case '\\': rBuf.BSlash().BSlash(); break;
 				default: rBuf.CatChar(c); break;
 			}
 		}
@@ -193,11 +199,11 @@ int PPDeclStruc::TransferData(char * pData, size_t dataBufLen, Tfd dir, SString 
 			ok = -1;
 		for(const char * p = pData; *p; p++) {
 			switch(*p) {
-				case '\n': rBuf.CatChar('\\').CatChar('n'); break;
-				case '\r': rBuf.CatChar('\\').CatChar('r'); break;
-				case '\t': rBuf.CatChar('\\').Tab(); break;
-				case ';' : rBuf.CatChar('\\').Semicol(); break;
-				case '\\': rBuf.CatChar('\\').CatChar('\\'); break;
+				case '\n': rBuf.BSlash().CatChar('n'); break;
+				case '\r': rBuf.BSlash().CatChar('r'); break;
+				case '\t': rBuf.BSlash().Tab(); break;
+				case ';' : rBuf.BSlash().Semicol(); break;
+				case '\\': rBuf.BSlash().BSlash(); break;
 				default: rBuf.CatChar(*p); break;
 			}
 		}

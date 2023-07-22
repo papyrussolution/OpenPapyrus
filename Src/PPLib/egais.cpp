@@ -423,7 +423,7 @@ int PPEgaisProcessor::GetReplyList(void * pCtx, PPID locID, int direction /* +1 
 	SString url;
 	SBuffer ack_buf;
 	THROW(GetURL(locID, url));
-	url.RmvLastSlash().CatChar('/').Cat("opt").CatChar('/').Cat((direction > 0) ? "out" : "in");
+	url.RmvLastSlash().Slash().Cat("opt").Slash().Cat((direction > 0) ? "out" : "in");
 	{
 		SFile wr_stream(ack_buf, SFile::mWrite);
 		THROW_SL(c.HttpGet(url, 0, &wr_stream));
@@ -925,7 +925,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 		else {
 			ScURL c;
 			SString req;
-			url.RmvLastSlash().CatChar('/').Cat("xml");
+			url.RmvLastSlash().Slash().Cat("xml");
 			// @v11.0.11 {
 			if(Cfg.E.Flags & Config::fEgaisVer4Fmt) {
 				url.CatChar('?').CatEq("type", "ChequeV3"); // Это - не ошибка! Версия протокола 4, а версия чеков 3
@@ -1004,9 +1004,9 @@ int PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locID, con
 	else {
 		ScURL c;
 		SString req;
-		url.RmvLastSlash().CatChar('/').Cat("opt").CatChar('/').Cat("in");
+		url.RmvLastSlash().Slash().Cat("opt").Slash().Cat("in");
 		if(!isempty(pUrlSuffix))
-			url.CatChar('/').Cat(pUrlSuffix);
+			url.Slash().Cat(pUrlSuffix);
 		SFile wr_stream(ack_buf, SFile::mWrite);
 		ScURL::HttpForm hf;
 		{
@@ -2418,8 +2418,8 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 									if(p_bp->P_Freight)
                                         GetObjectName(PPOBJ_WORLD, p_bp->P_Freight->PortOfDischarge, temp_buf);
 									n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_UNLOADPOINT"), EncText(temp_buf));
-									n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_REDIRECT"), "");
-									n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_FORWARDER"), "");
+									n_tr.PutInner(SXml::nst("wb", "TRAN_REDIRECT"), ""); // @v11.7.10 PutInnerSkipEmpty-->PutInner
+									n_tr.PutInner(SXml::nst("wb", "TRAN_FORWARDER"), ""); // @v11.7.10 PutInnerSkipEmpty-->PutInner
 								}
 								n_h.PutInnerSkipEmpty(SXml::nst("wb", "Base"), ""); // Основание
 								{
@@ -2881,7 +2881,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 																	if(mark_count != static_cast<uint>(real_qtty)) {
 																		//PPTXT_EGAIS_NEQMARKINACTROW         "Количество марок в строке документа списания не соответствует принятому количеству товара: %s"
 																		(temp_buf = bill_text).CatDiv('-', 1).Cat(p_lti->RByBill).Space().
-																			Cat(mark_count).CatChar('/').Cat(fabs(p_lti->Quantity_), MKSFMTD(0, 3, NMBF_NOTRAILZ));
+																			Cat(mark_count).Slash().Cat(fabs(p_lti->Quantity_), MKSFMTD(0, 3, NMBF_NOTRAILZ));
 																		LogTextWithAddendum(PPTXT_EGAIS_NEQMARKINACTROW, temp_buf);
 																	}
 																}

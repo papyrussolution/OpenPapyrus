@@ -1,4 +1,3 @@
-// 
 // gif_lib.h - service library for decoding and encoding GIF images
 // 
 #ifndef _GIF_LIB_H_

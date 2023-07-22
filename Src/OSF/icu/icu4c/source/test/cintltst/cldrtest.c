@@ -663,7 +663,7 @@ static void findSetMatch(UScriptCode * scriptCodes, int32_t scriptsLen, USet * e
 		 * UChars in exemplarSet belong to the scripts returned
 		 * by getScript
 		 */
-		int32_t count = uset_getItemCount(exemplarSet);
+		const int32_t count = uset_getItemCount(exemplarSet);
 		for(i = 0; i < count; i++) {
 			UChar32 start = 0;
 			UChar32 end = 0;

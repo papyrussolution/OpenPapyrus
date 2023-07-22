@@ -1382,7 +1382,7 @@ uint DlContext::AddUiButton(const CtmToken & rSymb, const CtmToken & rText, cons
 				int    ss_r = GetUiSymbSeries(cmd_buf, symb_ser, &ss_id);
 				THROW(ss_r);
 				THROW(cmd_id = CreateSymb(cmd_buf, '$', 0));
-				if(!UiSymbAssoc.SearchByVal(cmd_id, 0, 0))
+				if(!UiSymbAssoc.SearchByVal(cmd_id, 0))
 					UiSymbAssoc.Add(ss_id, cmd_id, 0);
 				THROW(AddConst((uint32)cmd_id, &c));
 				THROW(p_scope->AddFldConst(fld_id, DlScope::cuifCtrlCmd, c, 1));
@@ -1446,7 +1446,7 @@ uint DlContext::AddUiCtrl(int kind, const CtmToken & rSymb, const CtmToken & rTe
 		}
 	}
 	THROW(fld_id = CreateSymb(fld.Name, '$', 0));
-	if(!UiSymbAssoc.SearchByVal(fld_id, 0, 0)) {
+	if(!UiSymbAssoc.SearchByVal(fld_id, 0)) {
 		if(ss_r == 2) {
 			//
 			// Если серия символов не принадлежит диалогу, то и символ ассоциируем с этой серией.

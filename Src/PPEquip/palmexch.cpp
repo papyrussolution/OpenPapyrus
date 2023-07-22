@@ -711,7 +711,7 @@ static int AddCompressedRec(SyncTable * pTbl, uint32 ver, size_t bufSize, uint8 
 	//char   log_msg[128];
 	SString wait_msg_buf;
 	SString msg_buf;
-	//char   out_file_name[MAXPATH]; // @debug
+	//char   out_file_name[MAX_PATH]; // @debug
 	SString out_file_name;
 	const  size_t blk_size = InitBlockSize; //PALMARCBUFSIZE;
 	uint8 * p_blk = 0, * p_compressed_blk = 0;

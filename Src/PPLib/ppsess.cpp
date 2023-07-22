@@ -346,7 +346,7 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 						if(p_view->GetStatus(&sb)) {
 							r_temp_buf.Z();
 							sb.Cp.ToStr(SCodepageIdent::fmtXML, r_temp_buf);
-							r_temp_buf.Space().Cat("Ln").CatDiv(':', 2).Cat(sb.LineNo).CatChar('/').Cat(sb.LineCount).Space().
+							r_temp_buf.Space().Cat("Ln").CatDiv(':', 2).Cat(sb.LineNo).Slash().Cat(sb.LineCount).Space().
 								Cat("Col").CatDiv(':', 2).Cat(sb.ColumnNo);
 							p_app->AddStatusBarItem(r_temp_buf, 0, 0, 0);
 						}
@@ -2685,7 +2685,7 @@ int PPSession::GetMachineID(MACAddr * pMachineID, int forceUpdate)
 	}
 	else {
 		const  long   signature = 0x494D5050L; // "PPMI"
-		char   fname[MAXPATH], buf[32];
+		char   fname[MAX_PATH], buf[32];
 		STRNSCPY(fname, "c:\\ppmchnid");
 		if(fileExists(fname)) {
 			PPSetAddedMsgString(fname);
@@ -4797,7 +4797,7 @@ int PPDriveMapping::ConvertPathToUnc(SString & rPath) const
 		SString unc;
 		if(Get(rPath[0], unc) > 0) {
 			if(unc.Last() != '\\' && unc.Last() != '/')
-				unc.CatChar('\\');
+				unc.BSlash();
 			rPath.ShiftLeft(2);
 			rPath.ShiftLeftChr('\\');
 			rPath.ShiftLeftChr('/');

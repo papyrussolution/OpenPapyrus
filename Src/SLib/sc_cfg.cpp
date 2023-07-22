@@ -21,7 +21,7 @@ int SCDBObjConfig::Init(const char * pExpPath, const char * pImpPath)
 	MEMSZERO(HostData);
 
 	int    ok = 1;
-	char   path[MAXPATH];
+	char   path[MAX_PATH];
 	setLastSlash(STRNSCPY(path, pExpPath));
 	HostData.Read(path); // @checkerr
 	HostData.TmLastXchg = getcurdatetime_();

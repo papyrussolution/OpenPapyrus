@@ -32,25 +32,17 @@ static int cmp_stop(const void * a, const void * b)
 	return astop->index - bstop->index;
 }
 
-static inline float lerp(float a, float b, float x)
-{
-	return a + (b - a) * x;
-}
+// @sobolev (replaced with lerp in slib.h) static inline float lerp(float a, float b, float x) { return a + (b - a) * x; }
 
-static int xps_parse_gradient_stops(fz_context * ctx, xps_document * doc, char * base_uri, fz_xml * node,
-    struct stop * stops, int maxcount)
+static int xps_parse_gradient_stops(fz_context * ctx, xps_document * doc, char * base_uri, fz_xml * node, struct stop * stops, int maxcount)
 {
 	fz_colorspace * colorspace;
 	float sample[FZ_MAX_COLORS];
 	float rgb[3];
 	int before, after;
-	int count;
+	int count = 0;
 	int i;
-
-	/* We may have to insert 2 extra stops when postprocessing */
-	maxcount -= 2;
-
-	count = 0;
+	maxcount -= 2; // We may have to insert 2 extra stops when postprocessing
 	while(node && count < maxcount) {
 		if(fz_xml_is_tag(node, "GradientStop")) {
 			char * offset = fz_xml_att(node, "Offset");
@@ -58,22 +50,17 @@ static int xps_parse_gradient_stops(fz_context * ctx, xps_document * doc, char *
 			if(offset && color) {
 				stops[count].offset = fz_atof(offset);
 				stops[count].index = count;
-
 				xps_parse_color(ctx, doc, base_uri, color, &colorspace, sample);
-
 				fz_convert_color(ctx, colorspace, sample+1, fz_device_rgb(ctx), rgb, NULL, fz_default_color_params);
-
 				stops[count].r = rgb[0];
 				stops[count].g = rgb[1];
 				stops[count].b = rgb[2];
 				stops[count].a = sample[0];
-
 				count++;
 			}
 		}
 		node = fz_xml_next(node);
 	}
-
 	if(count == 0) {
 		fz_warn(ctx, "gradient brush has no gradient stops");
 		stops[0].offset = 0;
@@ -88,17 +75,12 @@ static int xps_parse_gradient_stops(fz_context * ctx, xps_document * doc, char *
 		stops[1].a = 1;
 		return 2;
 	}
-
 	if(count == maxcount)
 		fz_warn(ctx, "gradient brush exceeded maximum number of gradient stops");
-
 	/* Postprocess to make sure the range of offsets is 0.0 to 1.0 */
-
 	qsort(stops, count, sizeof(struct stop), cmp_stop);
-
 	before = -1;
 	after = -1;
-
 	for(i = 0; i < count; i++) {
 		if(stops[i].offset < 0)
 			before = i;
@@ -107,7 +89,6 @@ static int xps_parse_gradient_stops(fz_context * ctx, xps_document * doc, char *
 			break;
 		}
 	}
-
 	/* Remove all stops < 0 except the largest one */
 	if(before > 0) {
 		memmove(stops, stops + before, (count - before) * sizeof(struct stop));
@@ -166,41 +147,29 @@ static int xps_parse_gradient_stops(fz_context * ctx, xps_document * doc, char *
 
 static void xps_sample_gradient_stops(fz_context * ctx, xps_document * doc, fz_shade * shade, struct stop * stops, int count)
 {
-	float offset, d;
-	int i, k;
-
-	k = 0;
-	for(i = 0; i < 256; i++) {
-		offset = i / 255.0f;
+	int k = 0;
+	for(int i = 0; i < 256; i++) {
+		const float offset = i / 255.0f;
 		while(k + 1 < count && offset > stops[k+1].offset)
 			k++;
-
-		d = (offset - stops[k].offset) / (stops[k+1].offset - stops[k].offset);
-
+		const float d = (offset - stops[k].offset) / (stops[k+1].offset - stops[k].offset);
 		shade->function[i][0] = lerp(stops[k].r, stops[k+1].r, d);
 		shade->function[i][1] = lerp(stops[k].g, stops[k+1].g, d);
 		shade->function[i][2] = lerp(stops[k].b, stops[k+1].b, d);
 		shade->function[i][3] = lerp(stops[k].a, stops[k+1].a, d);
 	}
 }
-
 /*
  * Radial gradients map more or less to Radial shadings.
  * The inner circle is always a point.
  * The outer circle is actually an ellipse,
  * mess with the transform to squash the circle into the right aspect.
  */
-
 static void xps_draw_one_radial_gradient(fz_context * ctx, xps_document * doc, fz_matrix ctm,
-    struct stop * stops, int count,
-    int extend,
-    float x0, float y0, float r0,
-    float x1, float y1, float r1)
+    struct stop * stops, int count, int extend, float x0, float y0, float r0, float x1, float y1, float r1)
 {
 	fz_device * dev = doc->dev;
-	fz_shade * shade;
-
-	shade = fz_malloc_struct(ctx, fz_shade);
+	fz_shade * shade = fz_malloc_struct(ctx, fz_shade);
 	FZ_INIT_STORABLE(shade, 1, fz_drop_shade_imp);
 	shade->colorspace = fz_keep_colorspace(ctx, fz_device_rgb(ctx));
 	shade->bbox = fz_infinite_rect;
@@ -217,9 +186,7 @@ static void xps_draw_one_radial_gradient(fz_context * ctx, xps_document * doc, f
 	shade->u.l_or_r.coords[1][0] = x1;
 	shade->u.l_or_r.coords[1][1] = y1;
 	shade->u.l_or_r.coords[1][2] = r1;
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		xps_sample_gradient_stops(ctx, doc, shade, stops, count);
 		fz_fill_shade(ctx, dev, shade, ctm, 1, fz_default_color_params);
 	}
@@ -234,14 +201,10 @@ static void xps_draw_one_radial_gradient(fz_context * ctx, xps_document * doc, f
  */
 
 static void xps_draw_one_linear_gradient(fz_context * ctx, xps_document * doc, fz_matrix ctm,
-    struct stop * stops, int count,
-    int extend,
-    float x0, float y0, float x1, float y1)
+    struct stop * stops, int count, int extend, float x0, float y0, float x1, float y1)
 {
 	fz_device * dev = doc->dev;
-	fz_shade * shade;
-
-	shade = fz_malloc_struct(ctx, fz_shade);
+	fz_shade * shade = fz_malloc_struct(ctx, fz_shade);
 	FZ_INIT_STORABLE(shade, 1, fz_drop_shade_imp);
 	shade->colorspace = fz_keep_colorspace(ctx, fz_device_rgb(ctx));
 	shade->bbox = fz_infinite_rect;
@@ -279,8 +242,7 @@ static void xps_draw_one_linear_gradient(fz_context * ctx, xps_document * doc, f
  */
 
 static void xps_draw_radial_gradient(fz_context * ctx, xps_document * doc, fz_matrix ctm, fz_rect area,
-    struct stop * stops, int count,
-    fz_xml * root, int spread)
+    struct stop * stops, int count, fz_xml * root, int spread)
 {
 	float x0, y0, r0;
 	float x1, y1, r1;
@@ -289,7 +251,6 @@ static void xps_draw_radial_gradient(fz_context * ctx, xps_document * doc, fz_ma
 	float invscale;
 	int i, ma = 1;
 	fz_matrix inv;
-
 	char * center_att = fz_xml_att(root, "Center");
 	char * origin_att = fz_xml_att(root, "GradientOrigin");
 	char * radius_x_att = fz_xml_att(root, "RadiusX");

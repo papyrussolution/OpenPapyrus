@@ -7001,7 +7001,7 @@ static int Helper_ImportYYE(const char * pSrcPath, const char * pFileName) // ян
 						if(!rScan.IsEnd()) {
 							const char c1 = rScan[0];
 							if(c1 == '\\')
-								rBuf.CatChar('\\');
+								rBuf.BSlash();
 							else if(c1 == '\"')
 								rBuf.CatChar('\"');
 							else if(c1 == '\'')
@@ -7032,7 +7032,7 @@ static int Helper_ImportYYE(const char * pSrcPath, const char * pFileName) // ян
 						if(!rScan.IsEnd()) {
 							const char c1 = rScan[0];
 							if(c1 == '\\')
-								rBuf.CatChar('\\');
+								rBuf.BSlash();
 							else if(c1 == '\"')
 								rBuf.CatChar('\"');
 							else if(c1 == '\'')

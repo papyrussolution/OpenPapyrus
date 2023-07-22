@@ -726,7 +726,7 @@ void SlSession::Init(const char * pAppName, HINSTANCE hInst)
 	}
 	*/
 	H_Inst = NZOR(hInst, GetModuleHandle(0));
-	// @v10.3.9 char   exe_path[MAXPATH];
+	// @v10.3.9 char   exe_path[MAX_PATH];
 	// @v10.3.9 GetModuleFileName(H_Inst, exe_path, sizeof(exe_path)); // @unicodeproblem
 	// @v10.3.9 ExePath = exe_path;
 	SSystem::SGetModuleFileName(H_Inst, ExePath); // @v10.3.9

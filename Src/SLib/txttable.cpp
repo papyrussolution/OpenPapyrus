@@ -585,7 +585,7 @@ int TestTextDbFile(const char * pInDbfFile)
 {
 	int    ok = 1;
 	DbfTable db_tbl(pInDbfFile);
-	char   file_name[MAXPATH];
+	char   file_name[MAX_PATH];
 	SdRecord rec;
 	THROW(db_tbl.isOpened());
 	THROW(CreateSdbRecFromDbfTable(&db_tbl, &rec));
@@ -623,7 +623,7 @@ int TestTextDbFile(const char * pInDbfFile)
 			TextDbFile::Param dest_p(TextDbFile::fFldNameRec, '\t', ";end");
 			dest_p.DateFormat  = DATF_DMY;
 			dest_p.TimeFormat  = TIMF_HMS;
-			char dest_file_name[MAXPATH];
+			char dest_file_name[MAX_PATH];
 			STRNSCPY(dest_file_name, file_name);
 			SFile::Remove(replaceExt(dest_file_name, "R", 1));
 			THROW(TestTextDbFileReformat(&rec, file_name, dest_file_name, &p, &dest_p));

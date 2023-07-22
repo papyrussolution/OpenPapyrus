@@ -1,4 +1,4 @@
-//
+// CONTEXT.C
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
@@ -135,62 +135,61 @@ static void fz_init_error_context(fz_context * ctx)
 
 fz_context * fz_new_context_imp(const fz_alloc_context * alloc, const fz_locks_context * locks, size_t max_store, const char * version)
 {
-	fz_context * ctx;
+	fz_context * ctx = 0;
 	if(strcmp(version, FZ_VERSION)) {
 		slfprintf_stderr("cannot create context: incompatible header (%s) and library (%s) versions\n", version, FZ_VERSION);
-		return NULL;
 	}
-	SETIFZQ(alloc, &fz_alloc_default);
-	SETIFZQ(locks, &fz_locks_default);
-	ctx = (fz_context *)Memento_label(alloc->malloc(alloc->user, sizeof(fz_context)), "fz_context");
-	if(!ctx) {
-		slfprintf_stderr("cannot create context (phase 1)\n");
-		return NULL;
-	}
-	memzero(ctx, sizeof *ctx);
-	ctx->user = NULL;
-	ctx->alloc = *alloc;
-	ctx->locks = *locks;
-	ctx->error.print = fz_default_error_callback;
-	ctx->warn.print = fz_default_warning_callback;
-	fz_init_error_context(ctx);
-	fz_init_aa_context(ctx);
-	fz_init_random_context(ctx);
-	/* Now initialise sections that are shared */
-	fz_try(ctx)
-	{
-		fz_new_store_context(ctx, max_store);
-		fz_new_glyph_cache_context(ctx);
-		fz_new_colorspace_context(ctx);
-		fz_new_font_context(ctx);
-		fz_new_document_handler_context(ctx);
-		fz_new_style_context(ctx);
-		fz_new_tuning_context(ctx);
-	}
-	fz_catch(ctx)
-	{
-		slfprintf_stderr("cannot create context (phase 2)\n");
-		fz_drop_context(ctx);
-		return NULL;
+	else {
+		SETIFZQ(alloc, &fz_alloc_default);
+		SETIFZQ(locks, &fz_locks_default);
+		ctx = (fz_context *)Memento_label(alloc->malloc(alloc->user, sizeof(fz_context)), "fz_context");
+		if(!ctx) {
+			slfprintf_stderr("cannot create context (phase 1)\n");
+		}
+		else {
+			memzero(ctx, sizeof *ctx);
+			ctx->user = NULL;
+			ctx->alloc = *alloc;
+			ctx->locks = *locks;
+			ctx->error.print = fz_default_error_callback;
+			ctx->warn.print = fz_default_warning_callback;
+			fz_init_error_context(ctx);
+			fz_init_aa_context(ctx);
+			fz_init_random_context(ctx);
+			/* Now initialise sections that are shared */
+			fz_try(ctx) {
+				fz_new_store_context(ctx, max_store);
+				fz_new_glyph_cache_context(ctx);
+				fz_new_colorspace_context(ctx);
+				fz_new_font_context(ctx);
+				fz_new_document_handler_context(ctx);
+				fz_new_style_context(ctx);
+				fz_new_tuning_context(ctx);
+			}
+			fz_catch(ctx) {
+				slfprintf_stderr("cannot create context (phase 2)\n");
+				fz_drop_context(ctx);
+				return NULL;
+			}
+		}
 	}
 	return ctx;
 }
 
 fz_context * fz_clone_context(fz_context * ctx)
 {
-	fz_context * new_ctx;
-	/* We cannot safely clone the context without having locking/
-	 * unlocking functions. */
+	fz_context * new_ctx = 0;
+	// We cannot safely clone the context without having locking/unlocking functions
 	if(!ctx || (ctx->locks.lock == fz_locks_default.lock && ctx->locks.unlock == fz_locks_default.unlock))
 		return NULL;
 	new_ctx = (fz_context *)ctx->alloc.malloc(ctx->alloc.user, sizeof(fz_context));
 	if(!new_ctx)
 		return NULL;
-	/* First copy old context, including pointers to shared contexts */
+	// First copy old context, including pointers to shared contexts 
 	memcpy(new_ctx, ctx, sizeof(fz_context));
-	/* Reset error context to initial state. */
+	// Reset error context to initial state
 	fz_init_error_context(new_ctx);
-	/* Then keep lock checking happy by keeping shared contexts with new context */
+	// Then keep lock checking happy by keeping shared contexts with new context
 	fz_keep_document_handler_context(new_ctx);
 	fz_keep_style_context(new_ctx);
 	fz_keep_tuning_context(new_ctx);
@@ -207,7 +206,4 @@ void fz_set_user_context(fz_context * ctx, void * user)
 		ctx->user = user;
 }
 
-void * fz_user_context(fz_context * ctx)
-{
-	return ctx ? ctx->user : NULL;
-}
+void * fz_user_context(fz_context * ctx) { return ctx ? ctx->user : NULL; }

@@ -34,22 +34,12 @@ TSessionFilt & FASTCALL TSessionFilt::operator = (const TSessionFilt & rS)
 
 bool FASTCALL TSessionFilt::CheckIdle(long flags) const
 {
-	if(Ft_Idle == 0)
-		return true;
-	else if(Ft_Idle < 0)
-		return (flags & TSESF_IDLE) ? false : true;
-	else
-		return (flags & TSESF_IDLE) ? true : false;
+	return (!Ft_Idle) ? true : ((Ft_Idle < 0) ? ((flags & TSESF_IDLE) ? false : true) : ((flags & TSESF_IDLE) ? true : false));
 }
 
 bool FASTCALL TSessionFilt::CheckWrOff(long flags) const
 {
-	if(Ft_WritedOff == 0)
-		return true;
-	else if(Ft_WritedOff < 0)
-		return (flags & TSESF_WRITEDOFF) ? false : true;
-	else
-		return (flags & TSESF_WRITEDOFF) ? true : false;
+	return (!Ft_WritedOff) ? true : ((Ft_WritedOff < 0) ? ((flags & TSESF_WRITEDOFF) ? false : true) : ((flags & TSESF_WRITEDOFF) ? true : false));
 }
 
 bool FASTCALL TSessionFilt::CheckStatus(int status) const { return LOGIC(!StatusFlags || (StatusFlags & (1 << status))); }
@@ -379,7 +369,7 @@ int PPViewTSession::MakeDraftIdList(PPIDArray & rList)
 	}
 	rList.sortAndUndup();
 	ok = rList.getCount() ? 1 : -1;
-	CATCHZOK
+	//CATCHZOK
 	return ok;
 }
 

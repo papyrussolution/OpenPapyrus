@@ -367,7 +367,7 @@ int BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 	int16  k  = tblID;
 	DBRowId pos;
 	char   acs[265];
-	char   buf[MAXPATH];
+	char   buf[MAX_PATH];
 	STempBuffer rec_buf(8192);
 	//long   s_bak_ext = 0x5F5F5FL;
 	static const char * p_bak_ext = "___";

@@ -188,7 +188,7 @@ int DBBackup::InfoFile::RemoveRecord(const char * pSet, long id)
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;
 	long   i;
-	char   temp_name[MAXPATH];
+	char   temp_name[MAX_PATH];
 	char   nam[32];
 	FILE * temp_stream = 0;
 	BCopyData data;

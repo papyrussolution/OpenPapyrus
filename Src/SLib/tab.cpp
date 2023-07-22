@@ -39,6 +39,20 @@ bool STDCALL SIntToSymbTab_HasId(const SIntToSymbTabEntry * pTab, size_t tabSize
 	return yes;
 }
 
+bool STDCALL SIntToSymbTab_HasSymb(const SIntToSymbTabEntry * pTab, size_t tabSize, const char * pSymb, int * pId)
+{
+	if(!isempty(pSymb)) {
+		for(uint i = 0; i < tabSize; i++) {
+			if(sstreqi_ascii(pSymb, pTab[i].P_Symb)) {
+				ASSIGN_PTR(pId, pTab[i].Id);
+				return true;
+			}
+		}
+	}
+	ASSIGN_PTR(pId, 0);
+	return false;
+}
+
 int STDCALL SIntToSymbTab_GetId(const SIntToSymbTabEntry * pTab, size_t tabSize, const char * pSymb)
 {
 	if(!isempty(pSymb)) {
@@ -315,9 +329,7 @@ int STabFile::GetTabList(StringSet * pResult)
 			}
 		}
 	}
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 

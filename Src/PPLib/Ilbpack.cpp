@@ -1492,7 +1492,7 @@ static SString & __Debug_TraceLotSync(const ILBillPacket & rIPack, const PPBillP
 {
 	ILTI * p_ilti = 0;
 	LongArray pos_list;
-	rBuf.Z().CatChar('{').Cat(rIPack.Rec.ID).CatChar('/');
+	rBuf.Z().CatChar('{').Cat(rIPack.Rec.ID).Slash();
 	rBuf.Cat(pPack ? pPack->Rec.ID : -1L);
 	for(uint i = 0; rIPack.Lots.enumItems(&i, (void **)&p_ilti);) {
 		pos_list.clear();
@@ -1507,7 +1507,7 @@ static SString & __Debug_TraceLotSync(const ILBillPacket & rIPack, const PPBillP
         rBuf.Space().CatChar('[');
         rBuf.Cat(p_ilti->LotSyncID);
         if(plc) {
-        	rBuf.CatChar('/');
+        	rBuf.Slash();
             for(uint j = 0; j < plc; j++) {
             	const PPTransferItem & r_ti = pPack->TI(pos_list.get(j));
             	if(j)

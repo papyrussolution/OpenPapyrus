@@ -73,6 +73,7 @@ int PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  8, GTF_QUASIUNLIM);
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  9, GTF_LOOKBACKPRICES);
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 10, GTF_GMARKED); // @v10.4.11
+	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 11, GTF_EXCISEPROFORMA); // @v11.7.10
 	dlg->SetClusterData(CTL_GDSTYP_FLAGS, rec.Flags);
 	dlg->setCtrlReal(CTL_GDSTYP_STKTLR, rec.StockTolerance);
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {

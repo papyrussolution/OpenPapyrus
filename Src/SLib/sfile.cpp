@@ -2232,7 +2232,7 @@ int FileFormatRegBase::GetMime(int id, SString & rMime) const
 			SFileFormat::GetMimeTypeName(p_entry->MimeType, rMime);
 			SString & r_temp_buf = SLS.AcquireRvlStr();
 			GetS(p_entry->MimeSubtypeIdx, r_temp_buf);
-			rMime.CatChar('/').Cat(r_temp_buf);
+			rMime.Slash().Cat(r_temp_buf);
 			ok = 1;
 		}
 		// @v10.2.12 @fix break;
@@ -3281,7 +3281,7 @@ bool SCachedFileEntity::IsModified()
 		return false;
 }
 
-const void * SCachedFileEntity::GetKey(uint * pSize) const // hash-table support
+const void * SCachedFileEntity::GetHashKey(const void * pCtx, uint * pSize) const // hash-table support
 {
 	ASSIGN_PTR(pSize, FilePath.Len());
 	return FilePath.ucptr();
@@ -3344,7 +3344,7 @@ int SCachedFileEntity::Reload(bool force, void * extraPtr)
 //
 class SFileEntityCache : public TSHashCollection <SCachedFileEntity> { // @v11.7.5
 public:
-	SFileEntityCache() : TSHashCollection <SCachedFileEntity> (2048)
+	SFileEntityCache() : TSHashCollection <SCachedFileEntity> (2048, 0)
 	{
 	}
 	~SFileEntityCache()

@@ -122,18 +122,16 @@ static int pm_list_w(const wchar_t * start, const wchar_t * end, const wchar_t c
 /*
  * If s is pointing to "./", ".//", "./././" or the like, skip it.
  */
-static const char * pm_slashskip(const char * s) {
-	while((*s == '/')
-	   || (s[0] == '.' && s[1] == '/')
-	   || (s[0] == '.' && s[1] == '\0'))
+static const char * pm_slashskip(const char * s) 
+{
+	while((*s == '/') || (s[0] == '.' && s[1] == '/') || (s[0] == '.' && s[1] == '\0'))
 		++s;
 	return (s);
 }
 
-static const wchar_t * pm_slashskip_w(const wchar_t * s) {
-	while((*s == L'/')
-	   || (s[0] == L'.' && s[1] == L'/')
-	   || (s[0] == L'.' && s[1] == L'\0'))
+static const wchar_t * pm_slashskip_w(const wchar_t * s) 
+{
+	while((*s == L'/') || (s[0] == L'.' && s[1] == L'/') || (s[0] == L'.' && s[1] == L'\0'))
 		++s;
 	return (s);
 }
@@ -141,7 +139,6 @@ static const wchar_t * pm_slashskip_w(const wchar_t * s) {
 static int pm(const char * p, const char * s, int flags)
 {
 	const char * end;
-
 	/*
 	 * Ignore leading './', './/', '././', etc.
 	 */
@@ -149,7 +146,6 @@ static int pm(const char * p, const char * s, int flags)
 		s = pm_slashskip(s + 1);
 	if(p[0] == '.' && p[1] == '/')
 		p = pm_slashskip(p + 1);
-
 	for(;;) {
 		switch(*p) {
 			case '\0':

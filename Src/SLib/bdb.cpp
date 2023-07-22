@@ -972,8 +972,10 @@ int BDbTable::Buffer::Get(void * pBuf, size_t bufSize) const
 	return ok;
 }
 
-int FASTCALL BDbTable::Buffer::Get(int32 * pBuf) const { return Get(pBuf, sizeof(*pBuf)); }
-int FASTCALL BDbTable::Buffer::Get(uint32 * pBuf) const { return Get(pBuf, sizeof(*pBuf)); }
+int FASTCALL BDbTable::Buffer::Get(int * pBuf) const { return Get(pBuf, sizeof(*pBuf)); }
+int FASTCALL BDbTable::Buffer::Get(long * pBuf) const { return Get(pBuf, sizeof(*pBuf)); }
+int FASTCALL BDbTable::Buffer::Get(uint * pBuf) const { return Get(pBuf, sizeof(*pBuf)); }
+int FASTCALL BDbTable::Buffer::Get(ulong * pBuf) const { return Get(pBuf, sizeof(*pBuf)); }
 int FASTCALL BDbTable::Buffer::Get(int64 * pBuf) const { return Get(pBuf, sizeof(*pBuf)); }
 //
 //

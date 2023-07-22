@@ -52,7 +52,7 @@ int SCDBObjOrder::Init(const char * pExpPath, const char * pImpPath)
 {
 	int    ok = 1;
 	int    hdr_tbl_absence = 0;
-	char   path[MAXPATH], fname[MAXPATH];
+	char   path[MAX_PATH], fname[MAX_PATH];
 	setLastSlash(STRNSCPY(path, pImpPath));
 
 	strcat(STRNSCPY(fname, path), "sp_bill.dbf");
@@ -255,7 +255,7 @@ int SCDBObjOrder::ImportLine(PROGRESSFN pFn)
 
 int SCDBObjOrder::Import(PROGRESSFN pFn, CSyncProperties * pProps)
 {
-	char   sem_fname[MAXPATH];
+	char   sem_fname[MAX_PATH];
 	strcat(setLastSlash(strcpy(sem_fname, pProps->m_PathName)), "OUT");
 	strcat(setLastSlash(sem_fname), "sp_ready");
 	SFile::Remove(sem_fname);
@@ -316,7 +316,7 @@ int SCDBObjCliInv::Init(const char * pExpPath, const char * pImpPath)
 {
 	int    ok = 1;
 	int    hdr_tbl_absence = 0;
-	char   path[MAXPATH], fname[MAXPATH];
+	char   path[MAX_PATH], fname[MAX_PATH];
 	setLastSlash(STRNSCPY(path, pImpPath));
 
 	strcat(STRNSCPY(fname, path), "sp_invh.dbf");

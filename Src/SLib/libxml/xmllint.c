@@ -3528,18 +3528,11 @@ int main(int argc, char ** argv) {
 	if(valid != 0) xmlDoValidityCheckingDefaultValue = 1;
 #endif /* LIBXML_VALID_ENABLED */
 	if((htmlout) && (!nowrap)) {
-		xmlGenericError(xmlGenericErrorContext,
-		    "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"\n");
-		xmlGenericError(xmlGenericErrorContext,
-		    "\t\"http://www.w3.org/TR/REC-html40/loose.dtd\">\n");
-		xmlGenericError(xmlGenericErrorContext,
-		    "<html><head><title>%s output</title></head>\n",
-		    argv[0]);
-		xmlGenericError(xmlGenericErrorContext,
-		    "<body bgcolor=\"#ffffff\"><h1 align=\"center\">%s output</h1>\n",
-		    argv[0]);
+		xmlGenericError(xmlGenericErrorContext, "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"\n");
+		xmlGenericError(xmlGenericErrorContext, "\t\"http://www.w3.org/TR/REC-html40/loose.dtd\">\n");
+		xmlGenericError(xmlGenericErrorContext, "<html><head><title>%s output</title></head>\n", argv[0]);
+		xmlGenericError(xmlGenericErrorContext, "<body bgcolor=\"#ffffff\"><h1 align=\"center\">%s output</h1>\n", argv[0]);
 	}
-
 #ifdef LIBXML_SCHEMATRON_ENABLED
 	if((schematron != NULL) && (sax == 0)
 #ifdef LIBXML_READER_ENABLED

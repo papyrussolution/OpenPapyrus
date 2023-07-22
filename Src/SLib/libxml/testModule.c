@@ -14,21 +14,20 @@
 //#include <libxml/debugXML.h>
 #include <libxml/xmlmodule.h>
 #ifdef _WIN32
-#define MODULE_PATH "."
-#ifndef __MINGW32__
-#define PATH_MAX _MAX_PATH
-#endif
+	#define MODULE_PATH "."
+	#ifndef __MINGW32__
+		#define PATH_MAX _MAX_PATH
+	#endif
 #else
-#define MODULE_PATH ".libs"
+	#define MODULE_PATH ".libs"
 #endif
-
 /* Used for SCO Openserver*/
 #ifndef PATH_MAX
-#ifdef _POSIX_PATH_MAX
-#define PATH_MAX _POSIX_PATH_MAX
-#else
-#define PATH_MAX 4096
-#endif
+	#ifdef _POSIX_PATH_MAX
+		#define PATH_MAX _POSIX_PATH_MAX
+	#else
+		#define PATH_MAX 4096
+	#endif
 #endif
 
 typedef int (* hello_world_t)(void);

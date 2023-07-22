@@ -1,5 +1,5 @@
 // ATOL.CPP
-// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу "Атол"
 //
@@ -270,7 +270,7 @@ int AtolCardIntrf::ExecAtolOper(PPID id)
 int AtolCardIntrf::SetErrorMessage()
 {
 	int    ok = -1;
-	char   err_buf[MAXPATH];
+	char   err_buf[MAX_PATH];
 	memzero(err_buf, sizeof(err_buf));
 	THROW(P_DispIntrf->GetProperty(ResultCode, &ResCode) > 0);
 	if(ResCode != 0) {
@@ -486,7 +486,8 @@ int ACS_ATOL::ExportSCard(FILE *, int)
 					s_crd_obj.SetInheritance(&scs_pack, &card_rec);
 					if(!(card_rec.Flags & SCRDF_CLOSED) && !(card_rec.Expiry && card_rec.Expiry < LConfig.OperDate)) {
 						uint  pos = 0;
-						PPID  card_id, cat_code = card_rec.PDis + AC_BIAS_CARD_CAT_CODE;
+						PPID  card_id;
+						PPID  cat_code = card_rec.PDis + AC_BIAS_CARD_CAT_CODE;
 						PersonTbl::Rec psn_rec;
 						THROW(ac_intrf.ACNewRecord());
 						THROW(ac_intrf.ACPut(1, ++owner_code));     // Код владельца карты
@@ -501,7 +502,7 @@ int ACS_ATOL::ExportSCard(FILE *, int)
 						THROW(ac_intrf.ACPut(6, buf));              // Дата выпуска карты
 						THROW(ac_intrf.ACInsert(&card_id));
 						if(last_cat_code != cat_code) {
-							if(!cat_code_ary.Search(cat_code, &last_cat_id, 0)) {
+							if(!cat_code_ary.Search(cat_code, reinterpret_cast<long *>(&last_cat_id), 0)) {
 								THROW(ac_intrf.ACCloseTable());
 								THROW(ac_intrf.ACOpenTable(cat_tbl_name));
 								THROW(ac_intrf.ACNewRecord());

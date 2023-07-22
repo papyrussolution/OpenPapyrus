@@ -6,7 +6,7 @@
 #define __DL600_H
 #include <slib.h>
 #include <db.h>
-#include <tv.h>
+#include <slui.h>
 // @v10.9.4 (inlined in slib.h) #include <json.h> // @Muxa
 //
 //
@@ -1618,7 +1618,7 @@ struct yy_buffer_state;
 
 typedef struct {
 	struct yy_buffer_state * yyin_buf;
-	char   fname[MAXPATH];
+	char   fname[MAX_PATH];
 	long   yyin_line;
 } YYIN_STR;
 

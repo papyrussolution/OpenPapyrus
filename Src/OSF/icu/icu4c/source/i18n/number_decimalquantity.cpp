@@ -460,11 +460,11 @@ DecimalQuantity &DecimalQuantity::setToDouble(double n) {
 	return *this;
 }
 
-void DecimalQuantity::_setToDoubleFast(double n) {
+void DecimalQuantity::_setToDoubleFast(double n) 
+{
 	isApproximate = true;
 	origDouble = n;
 	origDelta = 0;
-
 	// Make sure the double is an IEEE 754 double.  If not, fall back to the slow path right now.
 	// TODO: Make a fast path for other types of doubles.
 	if(!std::numeric_limits<double>::is_iec559) {

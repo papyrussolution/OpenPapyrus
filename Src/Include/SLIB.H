@@ -168,7 +168,7 @@
 	#define MAXFILE  257
 	#define MAXEXT     5
 	#define MAXDIR   257
-	#define MAXPATH  261
+	// @v11.7.10 (replaced with MAX_PATH) #define MAXPATH_Removed  261
 #endif // _WIN32
 #ifndef SLIB_DONT_UNDEF_MINMAX // @v11.1.11
 	#undef min // @v9.8.11
@@ -494,15 +494,14 @@
 #else
 	#define THREADLOCAL
 #endif
-#ifndef MAXPATH
-	#define MAXPATH 260 // @v10.9.1
-	/* @v10.9.1
-	#if defined(__WIN32__) || defined(_WIN32)
-		#define MAXPATH 260
-	#else
-		#define MAXPATH  80
-	#endif */
-#endif
+//#ifndef MAX_PATH
+	// @v11.7.10 (replaced with MAX_PATH) #define MAXPATH_Removed 260 // @v10.9.1
+	//#if defined(__WIN32__) || defined(_WIN32)
+		// @v11.7.10 (replaced with MAX_PATH) #define MAXPATH_Removed 260
+	//#else
+		// @v11.7.10 (replaced with MAX_PATH) #define MAXPATH_Removed  80
+	//#endif
+//#endif
 #define CALLPTRMEMB(ptr, memb)          if(ptr) ptr->memb;
 #define CALLTYPEPTRMEMB(typ, ptr, memb) if(ptr) ((typ *)ptr)->memb;
 //
@@ -1459,30 +1458,32 @@ template <typename T, int N> static constexpr size_t sizeofarray(const T(&arr)[N
 #define SSECSPERDAYr       (24.0 * 60.0 * 60.0)
 //
 //
-// @v11.2.0 { // @v11.4.0 (some modifications)
-#if !defined(RC_INVOKED) && !defined(NO_CLANG_BUILTIN) && __has_builtin(__builtin_rotateleft32) && __has_builtin(__builtin_rotateleft64)
-	FORCEINLINE uint32 slrotl32(uint32 x, uint n) { return __builtin_rotateleft32(x, n); }
-	FORCEINLINE uint64 slrotl64(uint64 x, uint n) { return __builtin_rotateleft64(x, n); }
-#elif defined(_MSC_VER)
-	// don't use _rotl with MINGW. It can insert slow call to function.
-	// #if(_MSC_VER >= 1200)
-	#pragma intrinsic(_rotl)
-	#pragma intrinsic(_rotr)
-	#pragma intrinsic(_rotl64)
-	#pragma intrinsic(_rotr64)
-	// #endif
-	FORCEINLINE uint32 slrotl32(uint32 x, uint n) { return _rotl(x, n); }
-	FORCEINLINE uint32 slrotr32(uint32 x, uint n) { return _rotr((x), (n)); }
-	FORCEINLINE uint64 slrotl64(uint64 x, uint n) { return _rotl64((x), (n)); }
-	FORCEINLINE uint64 slrotr64(uint64 x, uint n) { return _rotr64((x), (n)); }
-#else
-	// new compilers can translate these macros to fast commands
-	FORCEINLINE uint32 slrotl32(uint32 x, uint n) { return (((x) << (n)) | ((x) >> (32 - (n)))); }
-	FORCEINLINE uint32 slrotr32(uint32 x, uint n) { return (((x) >> (n)) | ((x) << (32 - (n)))); }
-	FORCEINLINE uint64 slrotl64(uint64 x, uint n) { return (((x) << (n)) | ((x) >> (64 - (n)))); }
-	FORCEINLINE uint64 slrotr64(uint64 x, uint n) { return (((x) >> (n)) | ((x) << (64 - (n)))); }
-#endif
-// } @v11.2.0
+#if 0 // @v11.7.10 Функции slrotl и slrotr заменяются на SBits::Rotl и SBits::Rotr соответственно {
+	// @v11.2.0 { // @v11.4.0 (some modifications)
+	#if !defined(RC_INVOKED) && !defined(NO_CLANG_BUILTIN) && __has_builtin(__builtin_rotateleft32) && __has_builtin(__builtin_rotateleft64)
+		FORCEINLINE uint32 slrotl32_Removed(uint32 x, uint n) { return __builtin_rotateleft32(x, n); }
+		FORCEINLINE uint64 slrotl64_Removed(uint64 x, uint n) { return __builtin_rotateleft64(x, n); }
+	#elif defined(_MSC_VER)
+		// don't use _rotl with MINGW. It can insert slow call to function.
+		// #if(_MSC_VER >= 1200)
+		#pragma intrinsic(_rotl)
+		#pragma intrinsic(_rotr)
+		#pragma intrinsic(_rotl64)
+		#pragma intrinsic(_rotr64)
+		// #endif
+		FORCEINLINE uint32 slrotl32_Removed(uint32 x, uint n) { return _rotl(x, n); }
+		FORCEINLINE uint32 slrotr32_Removed(uint32 x, uint n) { return _rotr((x), (n)); }
+		FORCEINLINE uint64 slrotl64_Removed(uint64 x, uint n) { return _rotl64((x), (n)); }
+		FORCEINLINE uint64 slrotr64_Removed(uint64 x, uint n) { return _rotr64((x), (n)); }
+	#else
+		// new compilers can translate these macros to fast commands
+		FORCEINLINE uint32 slrotl32_Removed(uint32 x, uint n) { return (((x) << (n)) | ((x) >> (32 - (n)))); }
+		FORCEINLINE uint32 slrotr32_Removed(uint32 x, uint n) { return (((x) >> (n)) | ((x) << (32 - (n)))); }
+		FORCEINLINE uint64 slrotl64_Removed(uint64 x, uint n) { return (((x) << (n)) | ((x) >> (64 - (n)))); }
+		FORCEINLINE uint64 slrotr64_Removed(uint64 x, uint n) { return (((x) >> (n)) | ((x) << (64 - (n)))); }
+	#endif
+	// } @v11.2.0
+#endif // } @v11.7.10
 //
 //
 //
@@ -4440,6 +4441,8 @@ public:
 	SString & Semicol(); // @>>CatChar(';')
 	SString & Colon();   // @v11.1.12 @>>CatChar(':')
 	SString & Eq();      // @>>CatChar('=')
+	SString & Slash();   // @>>Slash()
+	SString & BSlash();   // @>>BSlash()
 	SString & CR();      // @>>CatChar('\n')
 	SString & CRB();     // "\xD\xA"
 	SString & STDCALL  CatCharN(int chr, size_t n);
@@ -4908,6 +4911,11 @@ struct SPathStruc {
 	//  !0 - позиция следующего за точкой первого символа расширения в rPath
 	//
 	static uint GetExt(const SString & rPath, SString * pExt);
+	//
+	// Descr: Простая функция определяющая содержит ли строка pText префикс файлового пути 
+	//   в стиле dos/windows (X:/ or X:\).
+	//
+	static bool IsWindowsPathPrefix(const char * pText);
 	static int  ReplaceExt(SString & rPath, const char * pExt, int force);
 	static int  ReplacePath(SString & rPath, const char * pNewPath, int force);
 	static int  GetRelativePath(const char * pFrom, uint dwAttrFrom, const char * pTo, uint dwAttrTo, SString & rPath);
@@ -4928,18 +4936,28 @@ struct SPathStruc {
 	static SString & NormalizePath(const char * pPath, long flags, SString & rNormalizedPath);
 	int    Invariant(SInvariantParam *);
 	SPathStruc();
+	SPathStruc(const SPathStruc & rS);
 	//
 	// Descr: Создает экземпляр объекта и, если pPath != 0, то сразу вызывает SPathStruc::Split(pPath)
 	//
 	explicit SPathStruc(const char * pPath);
+	SPathStruc & FASTCALL operator = (const SPathStruc & rS);
 	//
-	// Descr: Копирует в this компоненты пути pS заданные
-	//   флагами flags.
+	// Descr: Копирует в this компоненты пути pS заданные флагами flags.
 	//   Если pS == 0, то соответствующие флагам компоненты
 	//   обнуляются.
 	//
 	SPathStruc & Copy(const SPathStruc * pS, long flags);
 	SPathStruc & Z();
+	//
+	// Descr: Сравнивает экземпляр this с экземпляром rS на эквивалентность.
+	//   Если аргумент caseSensitive == false, то сравнивает компоненты пути без учета
+	//   регистра символов.
+	// Attention: В текущей реализации нечувствительное к регистру символов сравнение осуществляется //
+	//   в предположении, что все символы - ascii (до 127 включительно). Это - слишком сильное
+	//   допущение и должно быть скорректировано в ближайшем будущем.
+	//
+	bool   IsEq(const SPathStruc & rS, bool caseSensitive = false) const;
 	void   FASTCALL Split(const char * pPath);
 	//
 	// Descr: Комбинирует компоненты экземпляра в текстовое представление пути.
@@ -5029,8 +5047,8 @@ struct SSrchParam {
 // short  bioscom(int cmd, char abyte, int port);
 int    getdisk();
 char * FASTCALL stpcpy(char *to, const char *from);
-int    fnsplit(const char *, char *, char *, char *, char *);
-void   fnmerge(char *, const char *, const char *, const char *nameP, const char *);
+// @v11.7.10 int    fnsplit(const char *, char *, char *, char *, char *);
+// @v11.7.10 void   fnmerge(char *, const char *, const char *, const char *nameP, const char *);
 
 #define STRNSCPY(dest,src) strnzcpy(dest,src,SIZEOFARRAY(dest))
 //
@@ -5136,6 +5154,10 @@ bool   FASTCALL sstreqi_ascii(const char * pS1, const char * pS2);
 bool   FASTCALL sstreqi_ascii(const uchar * pS1, const uchar * pS2);
 bool   FASTCALL sstreqi_ascii(const wchar_t * pS1, const wchar_t * pS2);
 bool   FASTCALL sstreqi_ascii(const wchar_t * pS1, const char * pS2);
+inline char    stolower_ascii(char c) { return (c >= 'A' && c <= 'Z') ? (c - ('A' - 'a')) : c; }
+inline wchar_t stolower_ascii(wchar_t c) { return (c >= 'A' && c <= 'Z') ? (c - ('A' - 'a')) : c; }
+inline char    stoupper_ascii(char c) { return (c >= 'a' && c <= 'z') ? (c - ('a' - 'A')) : c; }
+inline wchar_t stoupper_ascii(wchar_t c) { return (c >= 'a' && c <= 'z') ? (c - ('a' - 'A')) : c; }
 //
 // Descr: определяет эквивалентность строк pS1 и pS2 на отрезке не более maxlen символов
 //   без учета регистра, но только для ascii-символов.
@@ -5220,6 +5242,7 @@ int    SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 //
 // Функции для классификации и конвертации символов
 inline bool isdirslash(char c) { return oneof2(c, '/', '\\'); }
+inline bool isdirslash(uchar c) { return oneof2(c, '/', '\\'); }
 inline bool isdirslash(wchar_t c) { return oneof2(c, L'/', L'\\'); }
 //
 // Descr: Возвращает !0 если символ c является шестнадцатиричным знаком [0-9A-Fa-f]
@@ -5987,7 +6010,7 @@ private:
 	int    FindNext();
 	int    FindClose();
 
-	wchar_t InitPath[ALIGNSIZE(MAXPATH, 2)]; // @v10.8.0 MAXPATH-->ALIGNSIZE(MAXPATH, 2) // @v11.6.0 char-->wchar_t
+	wchar_t InitPath[ALIGNSIZE(MAX_PATH, 2)]; // @v10.8.0 MAX_PATH-->ALIGNSIZE(MAX_PATH, 2) // @v11.6.0 char-->wchar_t
 	int    InitFlag;
 	int    EnumDir;
 	long   lPosData;
@@ -6070,7 +6093,7 @@ bool   FASTCALL ismemzero(const void * p, size_t s);
 //
 // Descr: Заполняет буфер pBuf длиной bufSize случайными данными.
 //   Используется для обфусцирования блоков памяти с целью не дать возможности врагам узнать наши секреты :)
-//   Если серьезно, то буферы, в которых хранились секретные данные должны затиратся этой функцией.
+//   Если серьезно, то буферы, в которых хранились секретные данные должны затираться этой функцией.
 // Note: Функция использует локальный по отношению к потоку генератор случайных чисел (SLS.GetTLA().Rg)
 //
 void   FASTCALL SObfuscateBuffer(void * pBuf, size_t bufSize);
@@ -6783,6 +6806,11 @@ private:
 //
 class SlHash {
 public:
+	static uint32 BobJencHash_Little(const void * key, size_t length, uint32 initval);
+	static void   BobJencHash_Little2(const void * key, size_t length, uint32 * pc, uint32 * pb);
+	static uint32 BobJencHash_Word(const uint32 * k, size_t length, uint32 initval);
+	static void   BobJencHash_Word2(const uint32 * k, size_t length, uint32 * pc, uint32 * pb);
+	//
 	static int GetAlgorithmSymb(int ident, SString & rBuf);
 	static int IdentifyAlgorithmSymb(const char * pSymb);
 	//
@@ -7350,6 +7378,62 @@ uint8  FASTCALL bitscanforward(uint * pIdx, uint32 mask);
 uint8  FASTCALL bitscanforward(ulong * pIdx, uint32 mask);
 uint8  FASTCALL bitscanreverse(uint * pIdx, uint32 mask);
 uint8  FASTCALL bitscanreverse(ulong * pIdx, uint32 mask);
+
+class SBits { // @v11.7.10 @construction
+public:
+	static uint FASTCALL Ctz_fallback(uint32 v);
+	static uint FASTCALL Ctz_fallback(uint64 v);
+	static uint FASTCALL Clz_fallback(uint32 v);
+	static uint FASTCALL Clz_fallback(uint64 v);
+	static uint FASTCALL Cpop_fallback(uint32 v);
+	static uint FASTCALL Cpop_fallback(uint64 v);
+	static FORCEINLINE uint32 Rotl_fallback(uint32 x, uint n) { return (((x) << (n)) | ((x) >> (32 - (n)))); }
+	static FORCEINLINE uint64 Rotl_fallback(uint64 x, uint n) { return (((x) << (n)) | ((x) >> (64 - (n)))); }
+	static FORCEINLINE uint32 Rotr_fallback(uint32 x, uint n) { return (((x) >> (n)) | ((x) << (32 - (n)))); }
+	static FORCEINLINE uint64 Rotr_fallback(uint64 x, uint n) { return (((x) >> (n)) | ((x) << (64 - (n)))); }
+
+	static uint FASTCALL Ctz(uint32 v);
+	static uint FASTCALL Ctz(uint64 v);
+	static FORCEINLINE uint Ctz(uint8 v) { return Ctz(static_cast<uint32>(v)); }
+	static FORCEINLINE uint Ctz(uint16 v) { return Ctz(static_cast<uint32>(v)); }
+	static FORCEINLINE uint Ctz(ulong v) { return Ctz(static_cast<uint32>(v)); }
+	
+	static uint FASTCALL Clz(uint32 v);
+	static uint FASTCALL Clz(uint64 v);
+	static FORCEINLINE uint Clz(uint8 v) { return Clz(static_cast<uint32>(v))-24; }
+	static FORCEINLINE uint Clz(uint16 v) { return Clz(static_cast<uint32>(v))-16; }
+	static FORCEINLINE uint Clz(ulong v) { return Clz(static_cast<uint32>(v)); }
+
+	static uint FASTCALL Cpop(uint32 v);
+	static uint FASTCALL Cpop(uint64 v);
+	static FORCEINLINE uint Cpop(uint8 v) { return Cpop(static_cast<uint32>(v)); }
+	static FORCEINLINE uint Cpop(uint16 v) { return Cpop(static_cast<uint32>(v)); }
+	static FORCEINLINE uint Cpop(ulong v) { return Cpop(static_cast<uint32>(v)); }
+#if !defined(RC_INVOKED) && !defined(NO_CLANG_BUILTIN) && __has_builtin(__builtin_rotateleft32) && __has_builtin(__builtin_rotateleft64)
+	static FORCEINLINE uint32 Rotl(uint32 x, uint n) { return __builtin_rotateleft32(x, n); }
+	static FORCEINLINE uint64 Rotl(uint64 x, uint n) { return __builtin_rotateleft64(x, n); }
+#elif defined(_MSC_VER)
+	// don't use _rotl with MINGW. It can insert slow call to function.
+	// #if(_MSC_VER >= 1200)
+	#pragma intrinsic(_rotl)
+	#pragma intrinsic(_rotr)
+	#pragma intrinsic(_rotl64)
+	#pragma intrinsic(_rotr64)
+	// #endif
+	static FORCEINLINE uint32 Rotl(uint32 x, uint n) { return _rotl(x, n); }
+	static FORCEINLINE uint64 Rotl(uint64 x, uint n) { return _rotl64((x), (n)); }
+	static FORCEINLINE uint32 Rotr(uint32 x, uint n) { return _rotr((x), (n)); }
+	static FORCEINLINE uint64 Rotr(uint64 x, uint n) { return _rotr64((x), (n)); }
+#else
+	// new compilers can translate these macros to fast commands
+	static FORCEINLINE uint32 Rotl(uint32 x, uint n) { return Rotl_fallback(x, n); }
+	static FORCEINLINE uint64 Rotl(uint64 x, uint n) { return Rotl_fallback(x, n); }
+	static FORCEINLINE uint32 Rotr(uint32 x, uint n) { return Rotr_fallback(x, n); }
+	static FORCEINLINE uint64 Rotr(uint64 x, uint n) { return Rotr_fallback(x, n); }
+#endif
+	static FORCEINLINE uint32 Rotr(ulong x, uint n) { return Rotr((uint32)x, n); }
+	static FORCEINLINE uint32 Rotl(ulong x, uint n) { return Rotl((uint32)x, n); }
+};
 //
 // Encrypt / Decrypt functions
 //
@@ -7523,6 +7607,7 @@ const char * STDCALL SIntToSymbTab_GetSymbPtr(const SIntToSymbTabEntry * pTab, s
 // Descr: Возвращает true если таблица pTab содержит элемент с полем Id == id. В противном случае - false.
 //
 bool   STDCALL SIntToSymbTab_HasId(const SIntToSymbTabEntry * pTab, size_t tabSize, int id);
+bool   STDCALL SIntToSymbTab_HasSymb(const SIntToSymbTabEntry * pTab, size_t tabSize, const char * pSymb, int * pId);
 //
 // Descr: Ищет в таблице pTab (размером tabSize элементов) первый элемент, имеющий значение
 //   P_Symb равное параметру pSymb (сравнение осуществляется функцией sstreqi_ascii).
@@ -8463,12 +8548,18 @@ public:
 	//  true  - ключ key найден в массиве
 	//  false - ключ не найден
 	//
-	bool   Search(long key, long * pVal, uint * pPos/*, int binary = 0*/) const;
+	bool   Search(long key, long * pVal, uint * pPos) const;
+	bool   Search(long key, uint * pPos) const { return Search(key, reinterpret_cast<long *>(0), pPos); } // @v11.7.10
+	bool   Search(long key, int * pVal, uint * pPos) const { return Search(key, reinterpret_cast<long *>(pVal), pPos); } // @v11.7.10
 	//
 	// Descr: Тоже что и Search, но поиск бинарный (предполагается, что список отсортирован по ключу в возрастающем порядке).
 	//
 	bool   BSearch(long key, long * pVal, uint * pPos) const;
+	bool   BSearch(long key, uint * pPos) const { return BSearch(key, reinterpret_cast<long *>(0), pPos); } // @v11.7.10
+	bool   BSearch(long key, int * pVal, uint * pPos) const { return BSearch(key, reinterpret_cast<long *>(pVal), pPos); } // @v11.7.10
 	bool   SearchByVal(long val, long * pKey, uint * pPos) const;
+	bool   SearchByVal(long val, uint * pPos) const { return SearchByVal(val, reinterpret_cast<long *>(0), pPos); } // @v11.7.10
+	bool   SearchByVal(long val, int * pKey, uint * pPos) const { return SearchByVal(val, reinterpret_cast<long *>(pKey), pPos); } // @v11.7.10
 	bool   SearchPair(long key, long val, uint * pPos) const;
 	bool   CheckFlag(long key, long mask, int binary = 0) const;
 	//
@@ -12133,12 +12224,12 @@ public:
 	//
 	// 
 	//
-	static int List(int provided, int * pFormat, const char * pName, uint flags, SFileEntryPool & rPool);
-	static int Inflate(int provided, const char * pName, uint flags, const SFileEntryPool & rPool, const char * pDestPath);
-	static int InflateAll(int provided, const char * pName, uint flags, const char * pDestPath);
-	static int Deflate(int provided, int format, const char * pName, uint flags, const SFileEntryPool & rPool);
+	static int List(int provider, int * pFormat, const char * pName, uint flags, SFileEntryPool & rPool);
+	static int Inflate(int provider, const char * pName, uint flags, const SFileEntryPool & rPool, const char * pDestPath);
+	static int InflateAll(int provider, const char * pName, uint flags, const char * pDestPath);
+	static int Deflate(int provider, int format, const char * pName, uint flags, const SFileEntryPool & rPool);
 
-	explicit SArchive(int provided);
+	explicit SArchive(int provider);
 	~SArchive();
 	int    Open(const char * pName, int mode/*SFile::mXXX*/, SArchive::Format * pFmt);
 	int    Close();
@@ -12240,6 +12331,7 @@ struct SJson {
 	static bool FASTCALL IsNull(const SJson * pN) { return (pN && pN->Type == SJson::tNULL); }
 	static bool FASTCALL IsTrue(const SJson * pN) { return (pN && pN->Type == SJson::tTRUE); }
 	static bool FASTCALL IsFalse(const SJson * pN) { return (pN && pN->Type == SJson::tFALSE); }
+	static bool FASTCALL FormatText(const char * pSrcJsText, SString & rBuf);
 	//
 	// Descr: Если pN != 0 и имеет одно из логических значений SJson::tTRUE или SJson::tFALSE,
 	//   то функция возвращает, соответственно, 1 или 0. Если pN == 0 или не является логической величиной,
@@ -13302,9 +13394,14 @@ public:
 	virtual double GetReal() = 0;
 	//
 	// Descr: Возвращает неотрицательное целое число МЕНЬШЕ ЧЕМ n.
-	// Returns: [1..n-1]
+	// Returns: [0..n-1]
 	//
 	ulong  FASTCALL GetUniformInt(ulong n);
+	//
+	// Descr: Возвращает положительное целое число МЕНЬШЕ ЧЕМ n.
+	// Returns: [1..n-1]
+	//
+	ulong  FASTCALL GetUniformIntPos(ulong n);
 	double GetUniformPos();
 	ulong  GetMin() const;
 	ulong  GetMax() const;
@@ -13343,6 +13440,10 @@ public:
 	// Descr: Возвращает случайное не отрицательное целое число СТРОГО МЕНЬШЕ чем n.
 	//
 	ulong  FASTCALL GetUniformInt(ulong n);
+	//
+	// Descr: Возвращает случайное положительное целое число СТРОГО МЕНЬШЕ чем n.
+	//
+	ulong  FASTCALL GetUniformIntPos(ulong n);
 	//
 	// Descr: Возвращает не отрицательное целое число.
 	//
@@ -13518,6 +13619,9 @@ float  feuclideannorm(uint count, const float * pV);
 double feuclideannorm(uint count, const double * pV);
 float  feuclideandistance(uint count, const float * pV1, const float * pV2);
 double feuclideandistance(uint count, const double * pV1, const double * pV2);
+
+FORCEINLINE float  lerp(float a, float b, float t) { return (a + ((b - a) * t)); } // @v11.7.10
+FORCEINLINE double lerp(double a, double b, double t) { return (a + ((b - a) * t)); } // @v11.7.10
 
 #define SQ(x) ((x)*(x))
 
@@ -14217,6 +14321,8 @@ struct SColorBase { // @persistent
 	SColorBase Z();
 	SColorBase Set(uint r, uint g, uint b);
 	SColorBase FASTCALL Set(uint v);
+	SColorBase SetAlpha(uint a /*[0..255]*/);
+	SColorBase SetAlphaF(float a/*[0..1]*/);
 	SColorBase PremultiplyAlpha();
 	enum {
 		fmtHEX         = 1, // #rrggbb
@@ -14275,6 +14381,7 @@ COLORREF FASTCALL DarkenColor(COLORREF col, float factor);
 // Descr: Представление цвета в формате RGBA где каждый компонент кодируется float-числом в диапазоне [0.0f..1.0f]
 //
 class SColorF {
+public:
 	SColorF() : R(0.0f), G(0.0f), B(0.0f), Alpha(0.0f)
 	{
 	}
@@ -14297,6 +14404,10 @@ class SColorF {
 		cb.B = static_cast<uint8>(255.0f * sclamp(B, 0.0f, 1.0f));
 		cb.Alpha = static_cast<uint8>(255.0f * sclamp(Alpha, 0.0f, 1.0f));
 		return cb;
+	}
+	operator SColor () const
+	{
+		return static_cast<SColor>(operator SColorBase());
 	}
 	float R;
 	float G;
@@ -14592,8 +14703,9 @@ template <class T> int TSCollection_Serialize(TSCollection <T> & rC, int dir, SB
 //
 template <class T> class TSHashCollection : private SCollection {
 	static constexpr uint MaxTries = 8;
+	const void * P_Ctx; // @v11.7.10
 public:
-	TSHashCollection(uint initCount) : SCollection()
+	TSHashCollection(uint initCount, const void * pCtx) : SCollection(), P_Ctx(pCtx)
 	{
 		insertChunk(GetPrimeLowerThan((initCount < 31) ? 1024 : initCount), 0);
 	}
@@ -14601,7 +14713,35 @@ public:
 	{
 		freeAll();
 	}
-	T * Get(const char * pKey, uint keySize) const
+	TSHashCollection & Z()
+	{
+		clear();
+		return *this;
+	}
+	//
+	// Descr: Функция, перечисляющие элементы коллекции.
+	// Snippet:
+	//  TSHashCollection <SomeType> c;
+	//  SomeType * p_item = 0;
+	//  for(uint idx = 0; c.Enum(&idx, &p_item); /* don't increment idx! */) {
+	//     DoSomethingWithItem(p_item);
+	//  }
+	//
+	bool Enum(uint * pIdx, T ** ppItem) const
+	{
+		T * p_item = 0;
+		if(pIdx) {
+			uint idx = *pIdx;
+			const uint _c = getCount();
+			for(; !p_item && idx < _c; idx++) {
+				p_item = static_cast<T *>(at(idx));
+			}
+			*pIdx = idx;
+		}
+		ASSIGN_PTR(ppItem, p_item);
+		return LOGIC(p_item);
+	}
+	T * Get(const void * pKey, uint keySize) const
 	{
 		T * p_result = 0;
 		if(pKey) {
@@ -14625,7 +14765,7 @@ public:
 	int    Put(T * pEntry, bool forceUpdate)
 	{
 		uint  ks = 0;
-		const void * p_key = pEntry ? pEntry->GetKey(&ks) : 0;
+		const void * p_key = pEntry ? pEntry->GetHashKey(P_Ctx, &ks) : 0;
 		return (p_key && ks) ? Implement_Put(pEntry, forceUpdate, p_key, ks) : 0; 
 	}
 private:
@@ -14635,7 +14775,7 @@ private:
 		T * p_entry = static_cast<T *>(at(idx));
 		if(ppKey && pKeyLen) {
 			if(p_entry) {
-				const void * p_key = p_entry->GetKey(pKeyLen);
+				const void * p_key = p_entry->GetHashKey(P_Ctx, pKeyLen);
 				*ppKey = p_key;
 			}
 			else {
@@ -14658,7 +14798,7 @@ private:
 			}
 			else {
 				uint  ex_ks = 0;
-				const void * p_ex_key = p_ex_entry->GetKey(&ex_ks);
+				const void * p_ex_key = p_ex_entry->GetHashKey(P_Ctx, &ex_ks);
 				if(ex_ks == keySize && memcmp(p_ex_key, pKey, keySize) == 0) { // already there!
 					if(forceUpdate) {
 						delete p_ex_entry;
@@ -14685,7 +14825,7 @@ private:
 	int    Resize()
 	{
 		int    ok = 1;
-		TSHashCollection <T> new_instance(getCount() * 2);
+		TSHashCollection <T> new_instance(getCount() * 2, P_Ctx);
 		for(uint i = 0; i < getCount(); i++) {
 			T * p_entry = static_cast<T *>(at(i));
 			if(p_entry) {
@@ -16246,7 +16386,7 @@ class SCachedFileEntity {
 public:
 	SCachedFileEntity();
 	virtual ~SCachedFileEntity();
-	const void * GetKey(uint * pSize) const; // hash-table support
+	const void * GetHashKey(const void * pCtx, uint * pSize) const; // hash-table support
 	const char * GetFilePath() const;
 	int    Init(const char * pFilePath);
 	//
@@ -16816,6 +16956,7 @@ public:
 	void   FASTCALL PutLine(const char *);
 	void   PutFont(int symb, const char * pFontName, int size, uint fontStyle);
 	void   PutFormat(const char * pBuf, int fontId, int col, int row);
+	void   PutFormat2(const char * pBuf, int fontId, int col, int row);
 	int    GetBuf(SString * pBuf) const;
 private:
 	SString Buf;
@@ -17842,6 +17983,7 @@ public:
 	int    _check_lt(int a, int b, const char * pA, const char * pB);
 	int    _check_lt(long a, long b, const char * pA, const char * pB);
 	int    _check_lt(uint a, uint b, const char * pA, const char * pB);
+	int    _check_lt(uint64 a, uint64 b, const char * pA, const char * pB);
 	int    _check_lt(ulong a, ulong b, const char * pA, const char * pB);
 	int    _check_lt(double a, double b, const char * pA, const char * pB);
 	int    _check_lt(float a, float b, const char * pA, const char * pB);
@@ -17902,6 +18044,214 @@ private:
 		uint   RowIdx;
 		long   State;
 	};
+};
+//
+//
+//
+class SBdtFunct {
+public:
+	//
+	// Descr: Классы алгоритмов
+	//
+	enum {
+		clsUnkn = 0, // Не определенный
+		clsHash,     // Хэш-функция
+		clsCrypt,    // Криптографический алгоритм
+		clsCompr     // Сжатие данных
+	};
+	enum {
+		Unkn = 0,
+		Crc32,      // Check sum
+		Crc24,      // Check sum
+		Crc16,      // Check sum
+		Adler32,    // Check sum
+		MD2,        // Hash
+		MD4,        // Hash
+		MD5,        // Hash
+		SHA160,     // Hash
+		SHA224,     // Hash
+		IdeaCrypt,  // Crypt
+		IdeaDecrypt // Crypt
+	};
+	enum {
+		fFixedSize     = 0x0001, // Результат операции имеет фиксированных конечный размер
+		fKey   = 0x0002, // Операция требует ключа
+		fWriteAtFinish = 0x0004, // Результат операции записывается в буфер во время вызова метода Finish()
+		fReversible    = 0x0008  // Обратимая функция  
+	};
+	struct Info {
+		void   Set(int alg, int cls, uint flags, int inverseAlg, uint inBufQuant, uint outSize, uint keyLen)
+		{
+			Alg = alg;
+			Cls = cls;
+			InverseAlg = inverseAlg;
+			Flags = flags;
+			InBufQuant = inBufQuant;
+			OutSize = outSize;
+			KeyLen = keyLen;
+		}
+        int    Alg;
+        int    Cls;
+		int    InverseAlg;  // Обратная функция
+        uint   Flags;
+        uint   InBufQuant;  // Требование к квантованию входящего потока (byte)
+        uint   OutSize;     // !0 если результат имеет фиксированный размер (byte)
+		uint   KeyLen;      // !0 если требуется ключ фиксированной длины (byte)
+	};
+	struct Stat {
+		size_t InSize;
+		size_t OutSize;
+		int64  Time;
+	};
+	struct TransformBlock {
+		//
+		// Descr: Конструктор для фазы phaseInit
+		//
+		TransformBlock() : Phase(phaseInit), InBufLen(0), P_InBuf(0), P_OutBuf(0), OutBufLen(0), OutBufPos(0)
+		{
+			assert(Phase == phaseInit);
+		}
+		//
+		// Descr: Конструктор для фазы phaseUpdate
+		//
+		TransformBlock(const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen) : Phase(phaseUpdate), 
+			InBufLen(inBufLen), P_InBuf(pInBuf), P_OutBuf(pOutBuf), OutBufLen(outBufLen), OutBufPos(0)
+		{
+			assert(Phase == phaseUpdate);
+		}
+		//
+		// Descr: Конструктор для фазы phaseFinish
+		//
+		TransformBlock(void * pOutBuf, size_t outBufLen) : Phase(phaseFinish), InBufLen(0), P_InBuf(0), P_OutBuf(pOutBuf), OutBufLen(outBufLen), OutBufPos(0)
+		{
+		}
+		//
+		// Descr: Конструктор для получения информации об алгоритме
+		//
+		TransformBlock(SBdtFunct::Info * pInfo) : Phase(phaseGetInfo), InBufLen(0), P_InBuf(0), P_OutBuf(pInfo), OutBufLen(pInfo ? sizeof(*pInfo) : 0), OutBufPos(0)
+		{
+		}
+		//
+		// Descr: Конструктор для получения статистики после завершения работы алгоритма
+		//
+		TransformBlock(SBdtFunct::Stat * pStat) : Phase(phaseGetStat), InBufLen(0), P_InBuf(0), P_OutBuf(pStat), OutBufLen(pStat ? sizeof(*pStat) : 0), OutBufPos(0)
+		{
+		}
+		const int  Phase;
+		const void * P_InBuf;
+		const size_t InBufLen;
+		void * P_OutBuf;
+		size_t OutBufLen;
+		size_t OutBufPos;
+	};
+	enum {
+		paramKey = 1
+	};
+	explicit SBdtFunct(int alg);
+	~SBdtFunct();
+	int    GetInfo(Info & rResult);
+	int    GetStat(Stat & rResult);
+	int    Init();
+	int    SetParam(int param, const void * pData, size_t dataLen);
+	int    Update(const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen, size_t * pOutOffs);
+	int    Finish(void * pOutBuf, size_t outBufLen, size_t * pOutOffs);
+private:
+	enum {
+		phaseInit,
+		phaseUpdate,
+		phaseFinish,
+		phaseGetInfo,
+		phaseGetStat
+	};
+	int    FASTCALL Implement_Transform(TransformBlock & rBlk);
+
+	struct State_ {
+		State_() : P_Tab(0), P_Ext(0), P_Ctx(0)
+		{
+			MEMSZERO(O);
+			MEMSZERO(S);
+		}
+		State_ & Z();
+
+        const void * P_Tab;
+		void * P_Ctx; // EVP_CIPHER_CTX
+        void * P_Ext;
+        union {
+        	uint8  B256[256];
+        	uint16 B2;
+        	uint32 B4;
+        } O;
+        SBdtFunct::Stat S;
+	};
+	const int32 A;
+	State_ Ste;
+	SBaseBuffer Key;
+
+	class Tab4_256 {
+		uint32 T[256];
+	};
+};
+//
+// Descr: Вспомогательный класс, используемый для чтения векторов данных для тестирования хэш-функций и криптографических примитивов.
+// 
+struct BdtTestItem {
+	static int ReadBdtTestData(const char * pFileName, const char * pSetSymb, TSCollection <BdtTestItem> & rData);
+
+	BdtTestItem();
+	~BdtTestItem();
+	enum {
+		fIn = 0x0001,
+		fOut        = 0x0002,
+		fKey        = 0x0004,
+		fSalt       = 0x0008,
+		fLabel      = 0x0010,
+		fIKM        = 0x0020,
+		fXTS        = 0x0040,
+		fOutLen     = 0x0080,
+		fIterations = 0x0100,
+		fSecret     = 0x0200,
+		fPassphrase = 0x0400,
+		fSeek       = 0x0800,
+		fNonce      = 0x1000,
+		fAD = 0x2000 // @v10.5.11
+	};
+	struct Buffer : private SBaseBuffer {
+	public:
+		Buffer();
+		~Buffer();
+		size_t GetLen() const { return DataLen; }
+		void * GetBuf() { return P_Buf; }
+		const  void * GetBufC() const { return P_Buf; }
+		int    Put(const void * pData, size_t dataLen);
+	private:
+		size_t DataLen;
+	};
+	static int _DecodeTestData(const SString & rSrc, BdtTestItem::Buffer & rDest, STempBuffer & rTempBuffer);
+
+	long   Flags;
+	size_t OutLen;       // "OutputLen"
+	uint   Iterations;   // "Iterations"
+	uint   Seek;         // "Seek"
+    BdtTestItem::Buffer In;      // "In"
+    BdtTestItem::Buffer Out;     // "Out" || "Output"
+    BdtTestItem::Buffer Key;     // "Key" || "Secret" || "Passphrase"
+    BdtTestItem::Buffer Salt;    // "Salt"
+    BdtTestItem::Buffer Label;   // "Label"
+    BdtTestItem::Buffer IKM;     // "IKM"
+    BdtTestItem::Buffer XTS;     // "XTS"
+    BdtTestItem::Buffer Nonce;   // "Nonce"
+	BdtTestItem::Buffer Aad;     // "AD" // @v11.4.10
+
+//Salt = 000102030405060708090A0B0C
+//Label = F0F1F2F3F4F5F6F7F8F9
+//OutputLen  = 42
+//Secret = 0B0B0B0B0B0B0B0B0B0B0B
+//Output = 085A01EA1B10F36933068B56EFA5AD81A4F14B822F5B091568A9CDD4F155FDA2C22E422478D305F3F896
+//IKM  = 0B0B0B0B0B0B0B0B0B0B0B
+//XTS = 000102030405060708090A0B0C
+
+//Iterations = 6
+//Passphrase = ftlkfbxdtbjbvllvbwiw
 };
 //
 // @vmiller {

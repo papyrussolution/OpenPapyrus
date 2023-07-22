@@ -351,7 +351,8 @@ static int PrepareDscntCodeBiasList(LAssocArray * pAry)
 	k = MIN(qk_list.getCount(), 127); // Вынуждены ограничивать кол-во видов котировок (BIAS <128)
 	for(i = 0; i < k; i++) {
 		uint  pos = 0;
-		PPID  key, qk_id = qk_list.Get(i).Id;
+		long  key;
+		PPID  qk_id = qk_list.Get(i).Id;
 		PPID  dc_bias = qk_id % 127;
 		while(bias_ary.SearchByVal(dc_bias, &key, &pos)) {
 			dc_bias = (dc_bias + 1) % 127; // @v5.8.2 (qk_id+1)-->(dc_bias+1)
@@ -772,7 +773,14 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 						tag1212 = 10; // @v11.2.0
 					}
 					else {
-						tag1212 = (prev_gds_info.Flags_ & AsyncCashGoodsInfo::fGMarkedType) ? 33 : 1; // @v11.2.0
+						if(prev_gds_info.Flags_ & AsyncCashGoodsInfo::fGMarkedType)
+							tag1212 = 33; // @v11.2.0
+						else {
+							if(prev_gds_info.Flags_ & AsyncCashGoodsInfo::fGExciseProForma) // @v11.7.10
+								tag1212 = 2;
+							else
+								tag1212 = 1;
+						}
 						if(is_weight == 1)
 							p_writer->PutElement("product-type", "ProductWeightEntity");
 						else if(is_weight == 2)
@@ -1613,7 +1621,7 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 	int    use_new_dscnt_code_alg = 0;
 	uint   i, k;
 	PPID   prev_goods_id = 0;
-	PPID   old_dscnt_code_bias = 0;
+	long   old_dscnt_code_bias = 0L;
 	PPID   loc_id = 0;
 	SString dttm_str;
 	SString msg_buf, fmt_buf;
@@ -2137,7 +2145,7 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 		uint   i;
 		uint   k;
 		PPID   prev_goods_id = 0;
-		PPID   old_dscnt_code_bias = 0;
+		long   old_dscnt_code_bias = 0L;
 		SString path_goods;
 		SString path_group;
 		SString path_dscnt;
@@ -2784,7 +2792,7 @@ int ACS_CRCSHSRV::GetCashiersList()
 				cshr_entry.PsnID = psn_pack.Rec.ID;
 				if(tabnum_reg_id) {
 					for(p = 0; psn_pack.Regs.GetRegister(tabnum_reg_id, &p, &reg_rec) > 0;) {
-						PPID  tab_num;
+						long   tab_num;
 						strtolong(reg_rec.Num, &tab_num);
 						cshr_entry.TabNum = tab_num;
 						cshr_entry.Expiry = reg_rec.Expiry;
@@ -4240,7 +4248,7 @@ int ACS_CRCSHSRV::GetSeparatedFileSet(int filTyp)
 				}
 				else {
 					ps.Split(file_name);
-					ps.Dir.CatChar('\\').Cat(param);
+					ps.Dir.BSlash().Cat(param);
 				}
 				ps.Merge(buf);
 				SeparatedFileSet.add(buf);

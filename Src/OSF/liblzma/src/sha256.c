@@ -16,7 +16,7 @@
 #pragma hdrstop
 
 // Rotate a uint32_t. GCC can optimize this to a rotate instruction at least on x86.
-// (replaced with slrotr32) static inline uint32_t rotr_32(uint32_t num, unsigned amount) { return (num >> amount) | (num << (32 - amount)); }
+// (replaced with SBits::Rotr) static inline uint32_t rotr_32(uint32_t num, unsigned amount) { return (num >> amount) | (num << (32 - amount)); }
 
 #define blk0(i) (W[i] = conv32be(data[i]))
 #define blk2(i) (W[i & 15] += s1(W[(i - 2) & 15]) + W[(i - 7) & 15] + s0(W[(i - 15) & 15]))
@@ -37,10 +37,10 @@
 #define R0(i) R(i, 0, blk0(i))
 #define R2(i) R(i, j, blk2(i))
 
-#define S0(x) slrotr32(x ^ slrotr32(x ^ slrotr32(x, 9), 11), 2)
-#define S1(x) slrotr32(x ^ slrotr32(x ^ slrotr32(x, 14), 5), 6)
-#define s0(x) (slrotr32(x ^ slrotr32(x, 11), 7) ^ (x >> 3))
-#define s1(x) (slrotr32(x ^ slrotr32(x, 2), 17) ^ (x >> 10))
+#define S0(x) SBits::Rotr(x ^ SBits::Rotr(x ^ SBits::Rotr(x, 9), 11), 2)
+#define S1(x) SBits::Rotr(x ^ SBits::Rotr(x ^ SBits::Rotr(x, 14), 5), 6)
+#define s0(x) (SBits::Rotr(x ^ SBits::Rotr(x, 11), 7) ^ (x >> 3))
+#define s1(x) (SBits::Rotr(x ^ SBits::Rotr(x, 2), 17) ^ (x >> 10))
 
 static const uint32 SHA256_K[64] = {
 	0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,

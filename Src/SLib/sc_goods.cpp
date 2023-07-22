@@ -141,7 +141,7 @@ const SCDBTblEntry * SCDBObjGoods::GetDefinition(uint * pEntryCount) const
 int SCDBObjGoods::Init(const char * pExpPath, const char * pImpPath)
 {
 	int    ok = 1;
-	char   path[MAXPATH], fname[MAXPATH];
+	char   path[MAX_PATH], fname[MAX_PATH];
 	setLastSlash(STRNSCPY(path, pExpPath));
 	P_GoodsTbl = new DbfTable(strcat(STRNSCPY(fname, path), "sp_goods.dbf"));
 	P_QkTbl = new DbfTable(strcat(STRNSCPY(fname, path), "sp_quotk.dbf"));
@@ -564,7 +564,7 @@ const SCDBTblEntry * SCDBObjBrand::GetDefinition(uint * pEntryCount) const
 int SCDBObjBrand::Init(const char * pExpPath, const char * pImpPath)
 {
 	int    ok = 1;
-	char   path[MAXPATH], fname[MAXPATH];
+	char   path[MAX_PATH], fname[MAX_PATH];
 	setLastSlash(STRNSCPY(path, pExpPath));
 	P_Tbl = new DbfTable(strcat(STRNSCPY(fname, path), "sp_brand.dbf"));
 	return ok;
@@ -681,7 +681,7 @@ const SCDBTblEntry * SCDBObjLoc::GetDefinition(uint * pEntryCount) const
 int SCDBObjLoc::Init(const char * pExpPath, const char * pImpPath)
 {
 	int    ok = 1;
-	char   path[MAXPATH], fname[MAXPATH];
+	char   path[MAX_PATH], fname[MAX_PATH];
 	setLastSlash(STRNSCPY(path, pExpPath));
 	P_Tbl = new DbfTable(strcat(STRNSCPY(fname, path), "sp_loc.dbf"));
 	return ok;

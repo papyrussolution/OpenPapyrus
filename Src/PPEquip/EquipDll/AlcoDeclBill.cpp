@@ -393,7 +393,7 @@ void ExportCls::CreateFileName(long DocType, const char * pContragName, const ch
 			// Папка с именем конграгента
 			if(pContragName) {
 				PreprocessFnText(fmt = pContragName);
-				rFileName.Cat(fmt).CatChar('\\');
+				rFileName.Cat(fmt).BSlash();
 				dir = rFileName;
 			}
 			//rFileName.Cat("Контрагенты_GRP").Cat(grpNum).CatChar('(').Cat(doc_num).CatChar(')').Dot().Cat(PathStruct.Ext);
@@ -407,7 +407,7 @@ void ExportCls::CreateFileName(long DocType, const char * pContragName, const ch
 			// Папка с именем контрагента
 			if(pContragName) {
 				PreprocessFnText(fmt = pContragName);
-				rFileName.Cat(fmt).CatChar('\\');
+				rFileName.Cat(fmt).BSlash();
 				dir = rFileName;
 			}
 			// Возврат

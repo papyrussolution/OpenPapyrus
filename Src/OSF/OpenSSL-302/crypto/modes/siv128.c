@@ -18,21 +18,13 @@
 
 #ifndef OPENSSL_NO_SIV
 
-__owur static ossl_inline uint32_t rotl8(uint32_t x)
-{
-	return (x << 8) | (x >> 24);
-}
-
-__owur static ossl_inline uint32_t rotr8(uint32_t x)
-{
-	return (x >> 8) | (x << 24);
-}
+__owur static ossl_inline uint32_t rotl8(uint32_t x) { return (x << 8) | (x >> 24); }
+__owur static ossl_inline uint32_t rotr8(uint32_t x) { return (x >> 8) | (x << 24); }
 
 __owur static ossl_inline uint64_t byteswap8(uint64_t x)
 {
 	uint32_t high = (uint32_t)(x >> 32);
 	uint32_t low = (uint32_t)x;
-
 	high = (rotl8(high) & 0x00ff00ff) | (rotr8(high) & 0xff00ff00);
 	low = (rotl8(low) & 0x00ff00ff) | (rotr8(low) & 0xff00ff00);
 	return ((uint64_t)low) << 32 | (uint64_t)high;

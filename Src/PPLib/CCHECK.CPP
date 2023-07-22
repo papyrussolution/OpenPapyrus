@@ -5205,7 +5205,7 @@ int CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pMsg, ui
 		WMsg = pMsg;
 		PPObjBill * p_bobj = BillObj;
 		if(sessCount > 1 && sessNo <= sessCount)
-			WMsg.Space().Cat(sessNo+1).CatChar('/').Cat(sessCount);
+			WMsg.Space().Cat(sessNo+1).Slash().Cat(sessCount);
 		PPObjAmountType amt_obj;
 		TaxAmountIDs tais;
 		BVATAccmArray bva_list;

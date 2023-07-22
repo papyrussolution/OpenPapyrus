@@ -630,7 +630,7 @@ int StyloBhtIIExchanger::Log_(uint errCode, uint msgCode, const char * pAddInfo,
 {
 	SString add_info;
 	if(total)
-		add_info.Cat(count).CatChar('/').Cat(total);
+		add_info.Cat(count).Slash().Cat(total);
 	else
 		add_info.Cat(count);
 	if(pAddInfo)

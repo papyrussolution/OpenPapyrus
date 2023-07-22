@@ -2181,17 +2181,9 @@ static void opj_dwt_decode_partial_1_parallel(int32_t * a, uint32_t nb_cols, int
 	}
 }
 
-static void opj_dwt_get_band_coordinates(opj_tcd_tilecomp_t* tilec,
-    uint32_t resno,
-    uint32_t bandno,
-    uint32_t tcx0,
-    uint32_t tcy0,
-    uint32_t tcx1,
-    uint32_t tcy1,
-    uint32_t* tbx0,
-    uint32_t* tby0,
-    uint32_t* tbx1,
-    uint32_t* tby1)
+static void opj_dwt_get_band_coordinates(opj_tcd_tilecomp_t* tilec, uint32_t resno, uint32_t bandno,
+    uint32_t tcx0, uint32_t tcy0, uint32_t tcx1, uint32_t tcy1,
+    uint32_t* tbx0, uint32_t* tby0, uint32_t* tbx1, uint32_t* tby1)
 {
 	/* Compute number of decomposition for this band. See table F-1 */
 	uint32_t nb = (resno == 0) ?
@@ -2202,24 +2194,16 @@ static void opj_dwt_get_band_coordinates(opj_tcd_tilecomp_t* tilec,
 	uint32_t x0b = bandno & 1;
 	uint32_t y0b = bandno >> 1;
 	if(tbx0) {
-		*tbx0 = (nb == 0) ? tcx0 :
-		    (tcx0 <= (1U << (nb - 1)) * x0b) ? 0 :
-		    opj_uint_ceildivpow2(tcx0 - (1U << (nb - 1)) * x0b, nb);
+		*tbx0 = (nb == 0) ? tcx0 : (tcx0 <= (1U << (nb - 1)) * x0b) ? 0 : opj_uint_ceildivpow2(tcx0 - (1U << (nb - 1)) * x0b, nb);
 	}
 	if(tby0) {
-		*tby0 = (nb == 0) ? tcy0 :
-		    (tcy0 <= (1U << (nb - 1)) * y0b) ? 0 :
-		    opj_uint_ceildivpow2(tcy0 - (1U << (nb - 1)) * y0b, nb);
+		*tby0 = (nb == 0) ? tcy0 : (tcy0 <= (1U << (nb - 1)) * y0b) ? 0 : opj_uint_ceildivpow2(tcy0 - (1U << (nb - 1)) * y0b, nb);
 	}
 	if(tbx1) {
-		*tbx1 = (nb == 0) ? tcx1 :
-		    (tcx1 <= (1U << (nb - 1)) * x0b) ? 0 :
-		    opj_uint_ceildivpow2(tcx1 - (1U << (nb - 1)) * x0b, nb);
+		*tbx1 = (nb == 0) ? tcx1 : (tcx1 <= (1U << (nb - 1)) * x0b) ? 0 : opj_uint_ceildivpow2(tcx1 - (1U << (nb - 1)) * x0b, nb);
 	}
 	if(tby1) {
-		*tby1 = (nb == 0) ? tcy1 :
-		    (tcy1 <= (1U << (nb - 1)) * y0b) ? 0 :
-		    opj_uint_ceildivpow2(tcy1 - (1U << (nb - 1)) * y0b, nb);
+		*tby1 = (nb == 0) ? tcy1 : (tcy1 <= (1U << (nb - 1)) * y0b) ? 0 : opj_uint_ceildivpow2(tcy1 - (1U << (nb - 1)) * y0b, nb);
 	}
 }
 

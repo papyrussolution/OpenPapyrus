@@ -42,7 +42,7 @@ public:
 			fHasEgaisCode   = 0x0008  // @v10.8.4 По крайней мере одна строка имеет код товара ЕГАИС
 		};
 
-		SString Text;
+		SString Text; // @anchor
 		long   Count;
 		long   Flags;
 		double Qtty;
@@ -2663,7 +2663,7 @@ int ImportStyloScannerEntries(const char * pFileName, StyloScannerEntryPool & rR
 							bool fld_id_found = false;
 							for(uint fdi = 1; !fld_id_found && fdi < fldid__Last; fdi++) {
 								assert(p_fld_names[fdi] != 0);
-								if(!fld_assoc_list.SearchByVal(fdi, 0, 0)) {
+								if(!fld_assoc_list.SearchByVal(fdi, 0)) {
 									fnss.setBuf(p_fld_names[fdi], strlen(p_fld_names[fdi])+1);
 									for(uint fnssp = 0; !fld_id_found && fnss.get(&fnssp, fld_name);) {
 										if(temp_buf.IsEqiAscii(fld_name)) {

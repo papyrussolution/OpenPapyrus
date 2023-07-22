@@ -557,7 +557,7 @@ int SymbHashTable::Del(const char * pSymb, uint * pVal)
 					}
 				}
 		}
-		if(ok && Flags & fUseAssoc && Assoc.BSearch((long)val, 0, &(pos = 0)))
+		if(ok && Flags & fUseAssoc && Assoc.BSearch((long)val, &(pos = 0)))
 			Assoc.atFree(pos);
 	}
 	ASSIGN_PTR(pVal, val);
@@ -686,7 +686,7 @@ int LAssocHashTable::Del(long key, long * pVal)
 				}
 			}
 		}
-		if(ok && Flags & fUseAssoc && Assoc.BSearch((long)val, 0, &(pos = 0)))
+		if(ok && Flags & fUseAssoc && Assoc.BSearch((long)val, &(pos = 0)))
 			Assoc.atFree(pos);
 	}
 	ASSIGN_PTR(pVal, val);
@@ -971,7 +971,7 @@ int GuidHashTable::Del(const S_GUID & rUuid, uint * pVal)
 				}
 			}
 		}
-		if(ok && Flags & fUseAssoc && Assoc.BSearch((long)val, 0, &(pos = 0)))
+		if(ok && Flags & fUseAssoc && Assoc.BSearch((long)val, &(pos = 0)))
 			Assoc.atFree(pos);
 	}
 	ASSIGN_PTR(pVal, val);
@@ -1085,7 +1085,7 @@ int PtrHashTable::Del(const void * ptr, uint * pVal)
 					}
 				}
 		}
-		if(ok && Flags & fUseAssoc && Assoc.BSearch((long)val, 0, &(pos = 0)))
+		if(ok && Flags & fUseAssoc && Assoc.BSearch((long)val, &(pos = 0)))
 			Assoc.atFree(pos);
 	}
 	ASSIGN_PTR(pVal, val);
@@ -1365,107 +1365,6 @@ int FASTCALL UintHashTable::Enum(ulong * pVal) const
 	}
 	return 0;
 }
-
-#if SLTEST_RUNNING // {
-
-SLTEST_R(HASHTAB)
-{
-	SString in_buf;
-	SString line_buf;
-	{
-		const uint test_iter_count = 1000000;
-		const size_t ht_size_tab[] = { 10, 100, 1000, 100000 };
-		for(uint hts_idx = 0; hts_idx < SIZEOFARRAY(ht_size_tab); hts_idx++) {
-			size_t ht_size = ht_size_tab[hts_idx];
-			uint   _count = 0;
-			SStrCollection ptr_collection;
-			PtrHashTable ht(ht_size);
-
-			(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("email-list.txt");
-			SFile inf(in_buf, SFile::mRead);
-			THROW(SLCHECK_NZ(inf.IsValid()));
-			while(inf.ReadLine(line_buf, SFile::rlfChomp)) {
-				char * p_str = newStr(line_buf);
-				THROW(SLCHECK_NZ(ptr_collection.insert(p_str)));
-				//
-				// Нечетные позиции вставляем в кэш, четные - нет
-				//
-				if(_count % 2) {
-					THROW(SLCHECK_NZ(ht.Add(p_str, _count+1, 0)));
-				}
-				else {
-					//
-				}
-				_count++;
-			}
-			THROW(SLCHECK_EQ(ptr_collection.getCount(), _count));
-			for(uint i = 0; i < test_iter_count; i++) {
-				uint idx = SLS.GetTLA().Rg.GetUniformInt(_count);
-				THROW(SLCHECK_LT((long)idx, (long)_count));
-				char * p_str = ptr_collection.at(idx);
-				{
-					uint val = 0;
-					uint pos = 0;
-					if(idx % 2) {
-						SLCHECK_NZ(ht.Search(p_str, &val, &pos));
-						void * ptr = ht.Get(pos);
-						SLCHECK_NZ(ptr);
-						SLCHECK_EQ(ptr, (const void *)p_str);
-						SLCHECK_EQ(val, idx+1);
-					}
-					else {
-						SLCHECK_Z(ht.Search(p_str, &val, &pos));
-					}
-				}
-			}
-		}
-	}
-	{
-		//
-		// 
-		//
-		const size_t ht_size_tab[] = { 10, 100, 1000, 100000 };
-		for(uint hts_idx = 0; hts_idx < SIZEOFARRAY(ht_size_tab); hts_idx++) {
-			size_t ht_size = ht_size_tab[hts_idx];
-			uint   _count = 0;
-			SStrCollection ptr_collection;
-			TokenSymbHashTable tsht(ht_size);
-
-			(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("email-list.txt");
-			SFile inf(in_buf, SFile::mRead);
-			THROW(SLCHECK_NZ(inf.IsValid()));
-			while(inf.ReadLine(line_buf, SFile::rlfChomp)) {
-				char * p_str = newStr(line_buf);
-				THROW(SLCHECK_NZ(ptr_collection.insert(p_str)));
-				_count++;
-			}
-			THROW(SLCHECK_EQ(ptr_collection.getCount(), _count));
-			{
-				for(long key = 1; key < ptr_collection.getCountI(); key++) {
-					SLCHECK_Z(tsht.Get(key, 0));
-					SLCHECK_NZ(tsht.Put(key, ptr_collection.at(key-1)));
-				}
-			}
-			{
-				for(long key = 1; key < ptr_collection.getCountI(); key++) {
-					SLCHECK_EQ(tsht.Put(key, ptr_collection.at(key-1)), 1);
-				}
-			}
-			{
-				for(long key = 1; key < ptr_collection.getCountI(); key++) {
-					SLCHECK_NZ(tsht.Get(key, &line_buf));
-					SLCHECK_EQ(line_buf, ptr_collection.at(key-1));
-				}
-			}
-		}
-	}
-	CATCH
-		CurrentStatus = 0;
-	ENDCATCH
-	return CurrentStatus;
-}
-
-#endif // } SLTEST_RUNNING
 //
 //
 //
@@ -2047,7 +1946,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 #endif
 #define MUR_GETBLOCK(p, i) (MUR_PLUS0_ALIGNED(p) ? ((p)[i]) : (MUR_PLUS1_ALIGNED(p) ? MUR_THREE_ONE(p) : (MUR_PLUS2_ALIGNED(p) ? MUR_TWO_TWO(p) : MUR_ONE_THREE(p))))
 #endif
-// @v11.4.0 (replaced with slrotl32) #define MUR_ROTL32(x, r) (((x) << (r)) | ((x) >> (32 - (r))))
+// @v11.4.0 (replaced with SBits::Rotl) #define MUR_ROTL32(x, r) (((x) << (r)) | ((x) >> (32 - (r))))
 #define MUR_FMIX(_h) \
 	do {		     \
 		_h ^= _h >> 16;	   \
@@ -2071,11 +1970,11 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 		for(_mur_i = -_mur_nblocks; _mur_i; _mur_i++) {			     \
 			_mur_k1 = MUR_GETBLOCK(_mur_blocks, _mur_i);			    \
 			_mur_k1 *= _mur_c1;						   \
-			_mur_k1 = slrotl32(_mur_k1, 15);				    \
+			_mur_k1 = SBits::Rotl(_mur_k1, 15);				    \
 			_mur_k1 *= _mur_c2;						   \
 								       \
 			_mur_h1 ^= _mur_k1;						   \
-			_mur_h1 = slrotl32(_mur_h1, 13);				    \
+			_mur_h1 = SBits::Rotl(_mur_h1, 13);				    \
 			_mur_h1 = _mur_h1*5+0xe6546b64;					   \
 		}								     \
 		_mur_tail = (const uint8_t *)(_mur_data + _mur_nblocks*4);	     \
@@ -2085,7 +1984,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 			case 2: _mur_k1 ^= _mur_tail[1] << 8;				   \
 			case 1: _mur_k1 ^= _mur_tail[0];				   \
 			    _mur_k1 *= _mur_c1;						       \
-			    _mur_k1 = slrotl32(_mur_k1, 15);					\
+			    _mur_k1 = SBits::Rotl(_mur_k1, 15);					\
 			    _mur_k1 *= _mur_c2;						       \
 			    _mur_h1 ^= _mur_k1;						       \
 		}								     \

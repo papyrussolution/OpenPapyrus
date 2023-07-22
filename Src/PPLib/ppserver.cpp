@@ -814,7 +814,7 @@ static void SendMailCallback(const IterCounter & bytesCounter, const IterCounter
 	SString msg;
 	PPLoadText(PPTXT_SENDMAILWAITMSG, msg);
 	if(msgCounter.GetTotal() > 1)
-		msg.Space().Cat(msgCounter).CatChar('/').Cat(msgCounter.GetTotal());
+		msg.Space().Cat(msgCounter).Slash().Cat(msgCounter.GetTotal());
 	PPWaitPercent(bytesCounter, msg);
 }
 

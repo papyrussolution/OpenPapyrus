@@ -1,12 +1,7 @@
 /*
- * "Canonical XML" implementation
- * http://www.w3.org/TR/xml-c14n
- *
- * "Exclusive XML Canonicalization" implementation
- * http://www.w3.org/TR/xml-exc-c14n
- *
+ * "Canonical XML" implementation http://www.w3.org/TR/xml-c14n
+ * "Exclusive XML Canonicalization" implementation http://www.w3.org/TR/xml-exc-c14n
  * See Copyright for the status of this software.
- *
  * Author: Aleksey Sanin <aleksey@aleksey.com>
  */
 #include <slib-internal.h>

@@ -770,6 +770,8 @@ int PPViewSysJournal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 			MEMSZERO(hdr);
 		if(ppvCmd == PPVCMD_VIEWHISTORY) {
 			if(hdr.Obj == PPOBJ_BILL && oneof2(hdr.Action, PPACN_UPDBILL, PPACN_RMVBILL)) {
+				// @todo Ќеобходимо показывать состо€ние документа до изменени€ статуса (PPACN_BILLSTATUSUPD),
+				// но дл€ этого дополнительный объект по событию должен быть иным (ид сохраненной копии документа)
 				LDATETIME ev_dtm = hdr.Dtm;
 				ViewBillHistory(R0i(hdr.Extra), ev_dtm);
 				ok = -1;

@@ -1563,23 +1563,13 @@ DDS_ALPHA_MODE GetAlphaMode(_In_ const DDS_HEADER* header) noexcept
 	return DDS_ALPHA_MODE_UNKNOWN;
 }
 
-//--------------------------------------------------------------------------------------
-void SetDebugTextureInfo(_In_z_ const wchar_t* fileName,
-    _In_opt_ ID3D11Resource** texture,
-    _In_opt_ ID3D11ShaderResourceView** textureView) noexcept
+void SetDebugTextureInfo(_In_z_ const wchar_t* fileName, _In_opt_ ID3D11Resource** texture, _In_opt_ ID3D11ShaderResourceView** textureView) noexcept
 {
     #if !defined(NO_D3D11_DEBUG_NAME) && ( defined(_DEBUG) || defined(PROFILE) )
 	if(texture || textureView) {
 		CHAR strFileA[MAX_PATH];
-		const int result = WideCharToMultiByte(CP_UTF8,
-			WC_NO_BEST_FIT_CHARS,
-			fileName,
-			-1,
-			strFileA,
-			MAX_PATH,
-			nullptr,
-			nullptr
-			);
+		const int result = WideCharToMultiByte(CP_UTF8, WC_NO_BEST_FIT_CHARS, fileName,
+			-1, strFileA, MAX_PATH, nullptr, nullptr);
 		if(result > 0) {
 			const char* pstrName = strrchr(strFileA, '\\');
 			if(!pstrName) {
@@ -1588,19 +1578,12 @@ void SetDebugTextureInfo(_In_z_ const wchar_t* fileName,
 			else{
 				pstrName++;
 			}
-
 			if(texture && *texture) {
-				(*texture)->SetPrivateData(WKPDID_D3DDebugObjectName,
-				    static_cast<UINT>(strnlen_s(pstrName, MAX_PATH)),
-				    pstrName
-				    );
+				(*texture)->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<UINT>(strnlen_s(pstrName, MAX_PATH)), pstrName);
 			}
-
 			if(textureView && *textureView) {
-				(*textureView)->SetPrivateData(WKPDID_D3DDebugObjectName,
-				    static_cast<UINT>(strnlen_s(pstrName, MAX_PATH)),
-				    pstrName
-				    );
+				(*textureView)->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<UINT>(strnlen_s(pstrName, MAX_PATH)),
+				    pstrName);
 			}
 		}
 	}

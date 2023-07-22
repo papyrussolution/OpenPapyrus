@@ -16,12 +16,12 @@
 	#define WW(i) W[i]
 #endif
 #define w0(i) (W[i] = data[i])
-#define w1(i) (WW(i) = /*rotlFixed*/slrotl32(WW((i)-3) ^ WW((i)-8) ^ WW((i)-14) ^ WW((i)-16), 1))
+#define w1(i) (WW(i) = /*rotlFixed*/SBits::Rotl(WW((i)-3) ^ WW((i)-8) ^ WW((i)-14) ^ WW((i)-16), 1))
 #define f1(x, y, z)  (z^(x&(y^z)))
 #define f2(x, y, z)  ((x)^(y)^(z))
 #define f3(x, y, z)  ((x&y)|(z&(x|y)))
 #define f4(x, y, z)  ((x)^(y)^(z))
-#define RK(a, b, c, d, e, fx, w, k)  e += fx(b, c, d) + w + k + /*rotlFixed*/slrotl32(a, 5); b = /*rotlFixed*/slrotl32(b, 30);
+#define RK(a, b, c, d, e, fx, w, k)  e += fx(b, c, d) + w + k + /*rotlFixed*/SBits::Rotl(a, 5); b = /*rotlFixed*/SBits::Rotl(b, 30);
 #define R0(a, b, c, d, e, i)  RK(a, b, c, d, e, f1, w0(i), 0x5A827999)
 #define R1(a, b, c, d, e, i)  RK(a, b, c, d, e, f1, w1(i), 0x5A827999)
 #define R2(a, b, c, d, e, i)  RK(a, b, c, d, e, f2, w1(i), 0x6ED9EBA1)

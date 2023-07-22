@@ -3275,7 +3275,7 @@ public:
 		{
 			rBuf.Cat(PrepEntityID).Space().Cat(OrgDocEntityID).Space().
 				Cat(LinkBillID).Colon().Cat(LinkBillRow).Space().Cat(LinkGoodsID).Space().
-				CatChar('[').Cat(QueueN).CatChar('/').Cat(State).CatChar('/').Cat(AppId, S_GUID::fmtIDL).CatChar(']');
+				CatChar('[').Cat(QueueN).Slash().Cat(State).Slash().Cat(AppId, S_GUID::fmtIDL).CatChar(']');
 			return rBuf;
 		}
 		enum {
@@ -7103,7 +7103,7 @@ void PPVetisInterface::PutListOptionsParam(xmlTextWriter * pWriter, uint offs, u
 {
 	int    ok = 1;
 	if(!unlock) {
-		PPID   mutex_id = 0;
+		long   mutex_id = 0;
 		PPSyncItem sync_item;
 		int    r = DS.GetSync().CreateMutex_(LConfig.SessionID, PPOBJ_VETISIC, funcId, &mutex_id, &sync_item);
 		if(r < 0)
@@ -7630,7 +7630,7 @@ int PPVetisInterface::GetStockEntryChangesList(const STimeChunk & rPeriod, uint 
 					if(++force_try_count < max_force_try_count) {
 						if(P_Logger) {
 							PPLoadText(PPTXT_VETISFORCENEXTTRY, fmt_buf);
-							temp_buf.Z().Cat("GetStockEntryChangesList").CatDiv('-', 1).Cat(force_try_count+1).CatChar('/').Cat(max_force_try_count);
+							temp_buf.Z().Cat("GetStockEntryChangesList").CatDiv('-', 1).Cat(force_try_count+1).Slash().Cat(max_force_try_count);
 							temp_buf.Space().CatEq("timeout", force_try_timeout);
 							P_Logger->Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
 						}
@@ -7671,7 +7671,7 @@ int PPVetisInterface::GetStockEntryList(uint startOffset, uint count, VetisAppli
 					if(++force_try_count < max_force_try_count) {
 						if(P_Logger) {
 							PPLoadText(PPTXT_VETISFORCENEXTTRY, fmt_buf);
-							temp_buf.Z().Cat("GetStockEntryList").CatDiv('-', 1).Cat(force_try_count+1).CatChar('/').Cat(max_force_try_count);
+							temp_buf.Z().Cat("GetStockEntryList").CatDiv('-', 1).Cat(force_try_count+1).Slash().Cat(max_force_try_count);
 							temp_buf.Space().CatEq("timeout", force_try_timeout);
 							P_Logger->Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
 						}
@@ -7713,7 +7713,7 @@ int PPVetisInterface::GetVetDocumentChangesList(const STimeChunk & rPeriod, uint
 					if(++force_try_count < max_force_try_count) {
 						if(P_Logger) {
 							PPLoadText(PPTXT_VETISFORCENEXTTRY, fmt_buf);
-							temp_buf.Z().Cat("GetVetDocumentChangesList").CatDiv('-', 1).Cat(force_try_count+1).CatChar('/').Cat(max_force_try_count);
+							temp_buf.Z().Cat("GetVetDocumentChangesList").CatDiv('-', 1).Cat(force_try_count+1).Slash().Cat(max_force_try_count);
 							temp_buf.Space().CatEq("timeout", force_try_timeout);
 							P_Logger->Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
 						}
@@ -11985,7 +11985,7 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 								if(!ifc.PrepareOutgoingConsignment2(r_entry, &ure_list, reply))
 									logger.LogLastError();
 							}
-							PPWaitPercent(wlidx+1, work_list.getCount(), (temp_buf = wait_msg).Space().Cat(qn).CatChar('/').Cat(work_list.GetLastQueue()));
+							PPWaitPercent(wlidx+1, work_list.getCount(), (temp_buf = wait_msg).Space().Cat(qn).Slash().Cat(work_list.GetLastQueue()));
 						}
 						work_list.DebugOutput(wl_log_buf.Z().Cat("Phase #2").CR());
 						PPLogMessage(PPFILNAM_VETISOUTQUEUE_LOG, wl_log_buf, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_USER);
@@ -12005,7 +12005,7 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 								SDelay(400 / wlc);
 								ifc.QueryOutgoingConsignmentResult(r_entry, &ure_list, reply);
 							}
-							(temp_buf = wait_msg).Space().Cat(wlc).CatChar('/').Cat(work_list.getCount());
+							(temp_buf = wait_msg).Space().Cat(wlc).Slash().Cat(work_list.getCount());
 							PPWaitPercent(wlidx+1, work_list.getCount(), temp_buf);
 						}
 						work_list.DebugOutput(wl_log_buf.Z().Cat("Phase #3").Space().CatChar('(').Cat(phs3iter_no).CatChar(')').CR());

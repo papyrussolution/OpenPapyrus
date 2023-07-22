@@ -113,7 +113,7 @@ MEM_STATIC uint ZSTD_countTrailingZeros64(uint64 val)
 			return ZSTD_countTrailingZeros32(leastSignificantWord);
 		}
 	}
-#   endif
+#endif
 }
 
 MEM_STATIC uint ZSTD_countLeadingZeros64(uint64 val)
@@ -146,7 +146,7 @@ MEM_STATIC uint ZSTD_countLeadingZeros64(uint64 val)
 			return ZSTD_countLeadingZeros32(mostSignificantWord);
 		}
 	}
-#   endif
+#endif
 }
 
 MEM_STATIC uint ZSTD_NbCommonBytes(size_t val)

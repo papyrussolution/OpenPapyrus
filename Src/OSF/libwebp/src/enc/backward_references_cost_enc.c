@@ -36,7 +36,8 @@ typedef struct {
 	double* literal_;
 } CostModel;
 
-static void ConvertPopulationCountTableToBitEstimates(int num_symbols, const uint32_t population_counts[], double output[]) {
+static void ConvertPopulationCountTableToBitEstimates(int num_symbols, const uint32_t population_counts[], double output[]) 
+{
 	uint32_t sum = 0;
 	int nonzeros = 0;
 	int i;

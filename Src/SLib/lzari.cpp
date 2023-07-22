@@ -369,12 +369,12 @@ int LZAri::Init(char * pSrc, char * pDest, ulong * pFileSize, int compress, Perc
 		P_SymToChar   = new int16[N_CHAR+1];
 		P_Tree        = new LZAriTree;
 		P_Header      = new LZAriFileHeader;
-		P_Src = new char[MAXPATH];
-		P_Dest        = new char[MAXPATH];
+		P_Src = new char[MAX_PATH];
+		P_Dest        = new char[MAX_PATH];
 		SLS.SetAddedMsgString(pSrc);
 		THROW_V(P_SymFreq && P_SymCum && P_PositionCum && P_CharToSym && P_SymToChar && P_Tree && P_Header, SLERR_NOMEM);
-		strnzcpy(P_Src, pSrc, MAXPATH);
-		strnzcpy(P_Dest, pDest, MAXPATH);
+		strnzcpy(P_Src, pSrc, MAX_PATH);
+		strnzcpy(P_Dest, pDest, MAX_PATH);
 		THROW_V((P_InFile = fopen(P_Src, "rb")) != NULL, SLERR_OPENFAULT);
 		THROW_V((P_OutFile = fopen(P_Dest, "w+b")) != NULL, SLERR_OPENFAULT);
 		P_Bit = new LZAriBit(P_InFile, P_OutFile, compress);
@@ -835,7 +835,7 @@ int LZAri::CheckCrc()
 
 int DoCompress(const char * pSrc, const char * pDest, int64 * pFileSize, int compress, PercentFunc pf)
 {
-	char   src_path[MAXPATH], dest_path[MAXPATH];
+	char   src_path[MAX_PATH], dest_path[MAX_PATH];
 	STRNSCPY(src_path, pSrc);
 	STRNSCPY(dest_path, pDest);
 	LZAri  lz_ari;

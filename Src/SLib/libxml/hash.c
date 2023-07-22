@@ -34,9 +34,9 @@ struct xmlHashEntry {
 	void * payload;
 	int    valid;
 };
-/*
- * The entire hash table
- */
+//
+// Descr: The entire hash table
+//
 struct xmlHashTable {
 	xmlHashEntry * table;
 	int    size;
@@ -46,10 +46,9 @@ struct xmlHashTable {
 	int random_seed;
 #endif
 };
-/*
- * xmlHashComputeKey:
- * Calculate the hash key
- */
+//
+// Descr: Calculate the hash key
+//
 static ulong FASTCALL xmlHashComputeKey(xmlHashTable * table, const xmlChar * name, const xmlChar * name2, const xmlChar * name3)
 {
 	ulong value = 0L;
@@ -431,9 +430,9 @@ int FASTCALL xmlHashAddEntry3(xmlHashTable * table, const xmlChar * name, const 
 	xmlHashEntry * insert;
 	if(!table || !name)
 		return -1;
-	/*
-	 * If using a dict internalize if needed
-	 */
+	//
+	// If using a dict internalize if needed
+	//
 	if(table->dict) {
 		if(!xmlDictOwns(table->dict, name)) {
 			name = xmlDictLookupSL(table->dict, name);
@@ -451,9 +450,9 @@ int FASTCALL xmlHashAddEntry3(xmlHashTable * table, const xmlChar * name, const 
 				return -1;
 		}
 	}
-	/*
-	 * Check for duplicate and insertion location.
-	 */
+	//
+	// Check for duplicate and insertion location.
+	//
 	key = xmlHashComputeKey(table, name, name2, name3);
 	if(table->table[key].valid == 0) {
 		insert = NULL;
@@ -506,7 +505,6 @@ int FASTCALL xmlHashAddEntry3(xmlHashTable * table, const xmlChar * name, const 
 		xmlHashGrow(table, MAX_HASH_LEN * table->size);
 	return 0;
 }
-
 /**
  * xmlHashUpdateEntry3:
  * @table: the hash table
@@ -529,9 +527,9 @@ int xmlHashUpdateEntry3(xmlHashTable * table, const xmlChar * name, const xmlCha
 	xmlHashEntry * insert;
 	if(table == NULL || name == NULL)
 		return -1;
-	/*
-	 * If using a dict internalize if needed
-	 */
+	//
+	// If using a dict internalize if needed
+	//
 	if(table->dict) {
 		if(!xmlDictOwns(table->dict, name)) {
 			name = xmlDictLookupSL(table->dict, name);
@@ -590,7 +588,7 @@ int xmlHashUpdateEntry3(xmlHashTable * table, const xmlChar * name, const xmlCha
 			}
 		}
 	}
-	if(insert == NULL) {
+	if(!insert) {
 		entry =  &(table->table[key]);
 	}
 	else {
@@ -741,7 +739,6 @@ void xmlHashScanFull(xmlHashTable * table, xmlHashScannerFull f, void * data)
 		}
 	}
 }
-
 /**
  * xmlHashScan3:
  * @table: the hash table
@@ -827,10 +824,7 @@ xmlHashTable * xmlHashCopy(const xmlHashTable * table, xmlHashCopier f)
  * Returns the number of elements in the hash table or
  * -1 in case of error
  */
-int FASTCALL xmlHashSize(xmlHashTable * table)
-{
-	return table ? table->nbElems : -1;
-}
+int FASTCALL xmlHashSize(xmlHashTable * table) { return table ? table->nbElems : -1; }
 /**
  * xmlHashRemoveEntry:
  * @table: the hash table

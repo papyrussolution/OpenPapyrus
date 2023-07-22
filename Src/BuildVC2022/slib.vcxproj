@@ -2122,7 +2122,6 @@
       </BrowseInformation>
     </ClCompile>
     <ClCompile Include="..\SLib\mailsess.cpp" />
-    <ClCompile Include="..\SLib\Makepath.c" />
     <ClCompile Include="..\SLib\mimalloc\alloc-aligned.c" />
     <ClCompile Include="..\SLib\mimalloc\alloc-override-osx.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -4558,10 +4557,10 @@
     <ClInclude Include="..\Include\slib-internal.h" />
     <ClInclude Include="..\Include\Slib.h" />
     <ClInclude Include="..\Include\slport.h" />
+    <ClInclude Include="..\Include\slui.h" />
     <ClInclude Include="..\Include\snet.h" />
     <ClInclude Include="..\Include\StyloConduit.h" />
     <ClInclude Include="..\Include\sxml.h" />
-    <ClInclude Include="..\Include\tv.h" />
     <ClInclude Include="..\Include\Tvdefs.h" />
     <ClInclude Include="..\Include\uchardet.h" />
     <ClInclude Include="..\Include\Uri.h" />

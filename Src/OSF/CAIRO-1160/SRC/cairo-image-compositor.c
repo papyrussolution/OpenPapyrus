@@ -2055,68 +2055,32 @@ static cairo_status_t _inplace_src_spans(void * abstract_renderer, int y, int h,
 		if(len >= r->u.composite.run_length && spans[0].coverage == 0xff) {
 			if(spans[0].x != x0) {
 #if PIXMAN_HAS_OP_LERP
-				pixman_image_composite32(PIXMAN_OP_LERP_SRC,
-				    r->src, r->mask, r->u.composite.dst,
-				    x0 + r->u.composite.src_x,
-				    y + r->u.composite.src_y,
-				    0, 0,
-				    x0, y,
-				    spans[0].x - x0, h);
+				pixman_image_composite32(PIXMAN_OP_LERP_SRC, r->src, r->mask, r->u.composite.dst,
+				    x0 + r->u.composite.src_x, y + r->u.composite.src_y, 0, 0, x0, y, spans[0].x - x0, h);
 #else
-				pixman_image_composite32(PIXMAN_OP_OUT_REVERSE,
-				    r->mask, NULL, r->u.composite.dst,
-				    0, 0,
-				    0, 0,
-				    x0, y,
-				    spans[0].x - x0, h);
-				pixman_image_composite32(PIXMAN_OP_ADD,
-				    r->src, r->mask, r->u.composite.dst,
-				    x0 + r->u.composite.src_x,
-				    y + r->u.composite.src_y,
-				    0, 0,
-				    x0, y,
-				    spans[0].x - x0, h);
+				pixman_image_composite32(PIXMAN_OP_OUT_REVERSE, r->mask, NULL, r->u.composite.dst,
+				    0, 0, 0, 0, x0, y, spans[0].x - x0, h);
+				pixman_image_composite32(PIXMAN_OP_ADD, r->src, r->mask, r->u.composite.dst,
+				    x0 + r->u.composite.src_x, y + r->u.composite.src_y, 0, 0, x0, y, spans[0].x - x0, h);
 #endif
 			}
-
-			pixman_image_composite32(PIXMAN_OP_SRC,
-			    r->src, NULL, r->u.composite.dst,
-			    spans[0].x + r->u.composite.src_x,
-			    y + r->u.composite.src_y,
-			    0, 0,
-			    spans[0].x, y,
-			    spans[1].x - spans[0].x, h);
-
+			pixman_image_composite32(PIXMAN_OP_SRC, r->src, NULL, r->u.composite.dst, spans[0].x + r->u.composite.src_x,
+			    y + r->u.composite.src_y, 0, 0, spans[0].x, y, spans[1].x - spans[0].x, h);
 			m = r->_buf;
 			x0 = spans[1].x;
 		}
 		else if(spans[0].coverage == 0x0) {
 			if(spans[0].x != x0) {
 #if PIXMAN_HAS_OP_LERP
-				pixman_image_composite32(PIXMAN_OP_LERP_SRC,
-				    r->src, r->mask, r->u.composite.dst,
-				    x0 + r->u.composite.src_x,
-				    y + r->u.composite.src_y,
-				    0, 0,
-				    x0, y,
-				    spans[0].x - x0, h);
+				pixman_image_composite32(PIXMAN_OP_LERP_SRC, r->src, r->mask, r->u.composite.dst, x0 + r->u.composite.src_x,
+				    y + r->u.composite.src_y, 0, 0, x0, y, spans[0].x - x0, h);
 #else
-				pixman_image_composite32(PIXMAN_OP_OUT_REVERSE,
-				    r->mask, NULL, r->u.composite.dst,
-				    0, 0,
-				    0, 0,
-				    x0, y,
-				    spans[0].x - x0, h);
-				pixman_image_composite32(PIXMAN_OP_ADD,
-				    r->src, r->mask, r->u.composite.dst,
-				    x0 + r->u.composite.src_x,
-				    y + r->u.composite.src_y,
-				    0, 0,
-				    x0, y,
-				    spans[0].x - x0, h);
+				pixman_image_composite32(PIXMAN_OP_OUT_REVERSE, r->mask, NULL, r->u.composite.dst, 0, 0,
+				    0, 0, x0, y, spans[0].x - x0, h);
+				pixman_image_composite32(PIXMAN_OP_ADD, r->src, r->mask, r->u.composite.dst, x0 + r->u.composite.src_x,
+				    y + r->u.composite.src_y, 0, 0, x0, y, spans[0].x - x0, h);
 #endif
 			}
-
 			m = r->_buf;
 			x0 = spans[1].x;
 		}
@@ -2155,7 +2119,6 @@ static cairo_status_t _inplace_src_spans(void * abstract_renderer, int y, int h,
 		    spans[0].x - x0, h);
 #endif
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -2481,31 +2444,22 @@ static cairo_int_status_t span_renderer_init(cairo_abstract_span_renderer_t * _r
 		r->base.finish = NULL;
 	}
 	else {
-		r->mask = pixman_image_create_bits(PIXMAN_a8,
-			r->u.mask.extents.width,
-			r->u.mask.extents.height,
-			(uint32 *)r->_buf, r->u.mask.stride);
-
+		r->mask = pixman_image_create_bits(PIXMAN_a8, r->u.mask.extents.width, r->u.mask.extents.height, (uint32 *)r->_buf, r->u.mask.stride);
 		r->base.render_rows = _cairo_image_spans_and_zero;
 		r->base.finish = _cairo_image_finish_spans_and_zero;
 	}
 	if(UNLIKELY(r->mask == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	r->u.mask.data = (uint8 *)pixman_image_get_data(r->mask);
 	r->u.mask.stride = pixman_image_get_stride(r->mask);
-
 	r->u.mask.extents.height += r->u.mask.extents.y;
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static void span_renderer_fini(cairo_abstract_span_renderer_t * _r,
-    cairo_int_status_t status)
+static void span_renderer_fini(cairo_abstract_span_renderer_t * _r, cairo_int_status_t status)
 {
 	cairo_image_span_renderer_t * r = (cairo_image_span_renderer_t*)_r;
-
 	TRACE_FUNCTION_SIMPLE();
-
 	if(LIKELY(status == CAIRO_INT_STATUS_SUCCESS)) {
 		if(r->base.finish)
 			r->base.finish(r);

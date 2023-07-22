@@ -226,156 +226,185 @@ int BitArray::getBuf(void * pBits, size_t maxLen) const
 	}
 	return ok;
 }
-
-#if SLTEST_RUNNING // {
-
-SLTEST_R(BitArray)
+//
+//
+//
+static FORCEINLINE uint secp256k1_ctz32_var_debruijn(uint32 v) 
 {
-	int    ok = 1;
-	uint   total = 1001;
-	uint   count_set = 0;
-	uint   count_reset = 0;
-	uint   i;
-	BitArray list;
-	SRng * p_rng = SRng::CreateInstance(SRng::algMT, 0);
-	p_rng->Set(177);
-	//
-	// Pattern используется для контроля совпадения битов с тем, что должно быть
-	// Предполагается, что LongArray работает правильно
-	//
-	LongArray pattern;
-	//
-	// Тестирование добавления битов в конец списка
-	//
-	for(i = 0; i < total; i++) {
-		int s = p_rng->Get() % 2;
-		list.insert(s);
-		pattern.add(s);
-		if(s) {
-			count_set++;
-			THROW(SLCHECK_NZ(list.get(i)));
-		}
-		else {
-			count_reset++;
-			THROW(SLCHECK_Z(list.get(i)));
-		}
-	}
-	THROW(SLCHECK_EQ(total, list.getCount()));
-	THROW(SLCHECK_EQ(total, pattern.getCount()));
-	THROW(SLCHECK_EQ(total, count_set + count_reset));
-	for(i = 0; i < total; i++) {
-		THROW(SLCHECK_EQ(list[i], (int)pattern.get(i)));
-	}
-	THROW(SLCHECK_EQ(count_set,   list.getCountVal(1)));
-	THROW(SLCHECK_EQ(count_reset, list.getCountVal(0)));
-	//
-	// Тестирование добавления битов в случайном порядке
-	//
-	for(i = 0; i < total; i++) {
-		int    s = p_rng->Get() % 2;
-		uint   pos = p_rng->Get() % list.getCount();
-		THROW(SLCHECK_NZ(list.atInsert(pos, s)));
-		THROW(SLCHECK_NZ(pattern.atInsert(pos, (void *)&s)));
-		if(s) {
-			count_set++;
-			THROW(SLCHECK_NZ(list.get(pos)));
-		}
-		else {
-			count_reset++;
-			THROW(SLCHECK_Z(list.get(pos)));
-		}
-	}
-	total *= 2;
-	THROW(SLCHECK_EQ(total, list.getCount()));
-	THROW(SLCHECK_EQ(total, pattern.getCount()));
-	THROW(SLCHECK_EQ(total, count_set + count_reset));
-	for(i = 0; i < total; i++) {
-		THROW(SLCHECK_EQ(list[i], (int)pattern.get(i)));
-	}
-	THROW(SLCHECK_EQ(count_set,   list.getCountVal(1)));
-	THROW(SLCHECK_EQ(count_reset, list.getCountVal(0)));
-	//
-	// Тестирование удаления битов в случайном порядке
-	//
-	for(i = 0; i < total; i++) {
-		uint   pos = p_rng->Get() % list.getCount();
-		int    s = list.get(pos);
-		THROW(SLCHECK_EQ(s, (int)pattern.get(pos)));
-		THROW(SLCHECK_NZ(list.atFree(pos)));
-		THROW(SLCHECK_NZ(pattern.atFree(pos)));
-		if(s) {
-			count_set--;
-		}
-		else {
-			count_reset--;
-		}
-	}
-	total = 0;
-	THROW(SLCHECK_EQ(total, list.getCount()));
-	THROW(SLCHECK_EQ(total, pattern.getCount()));
-	THROW(SLCHECK_EQ(total, count_set + count_reset));
-	for(i = 0; i < total; i++) {
-		THROW(SLCHECK_EQ(list[i], (int)pattern.get(i)));
-	}
-	THROW(SLCHECK_EQ(count_set,   list.getCountVal(1)));
-	THROW(SLCHECK_EQ(count_reset, list.getCountVal(0)));
-	//
-	// Тестирование массированного добавления битов в конец списка (порциями случайного размера)
-	//
-	uint   cc = 0;
-	for(i = 0; i < 103; i++) {
-		int    s = p_rng->Get() % 2;
-		uint   n = p_rng->Get() % 64;
-		uint   c = list.getCount();
-		list.insertN(s, n);
-		for(uint j = 0; j < n; j++) {
-			pattern.add(s);
-			if(s) {
-				count_set++;
-				THROW(SLCHECK_NZ(list.get(c+j)));
-			}
-			else {
-				count_reset++;
-				THROW(SLCHECK_Z(list.get(c+j)));
-			}
-		}
-		cc += n;
-	}
-	total = cc;
-	THROW(SLCHECK_EQ(total, list.getCount()));
-	THROW(SLCHECK_EQ(total, pattern.getCount()));
-	THROW(SLCHECK_EQ(total, count_set + count_reset));
-	for(i = 0; i < total; i++) {
-		THROW(SLCHECK_EQ(list[i], (int)pattern.get(i)));
-	}
-	THROW(SLCHECK_EQ(count_set,   list.getCountVal(1)));
-	THROW(SLCHECK_EQ(count_reset, list.getCountVal(0)));
-	//
-	// Тест функций bitscanforward и bitscanreverse
-	//
-	{
-		uint32 idx;
-		SLCHECK_Z(bitscanforward(&idx, 0));
-		SLCHECK_EQ(idx, 0U);
-		SLCHECK_NZ(bitscanforward(&idx, 0x01));
-		SLCHECK_EQ(idx, 0U);
-		SLCHECK_NZ(bitscanforward(&idx, 0x10));
-		SLCHECK_EQ(idx, 4U);
-		SLCHECK_NZ(bitscanforward(&idx, 0x80000800));
-		SLCHECK_EQ(idx, 11U);
-
-		SLCHECK_Z(bitscanreverse(&idx, 0));
-		SLCHECK_EQ(idx, 0U);
-		SLCHECK_NZ(bitscanreverse(&idx, 0x01));
-		SLCHECK_EQ(idx, 0U);
-		SLCHECK_NZ(bitscanreverse(&idx, 0x10));
-		SLCHECK_EQ(idx, 4U);
-		SLCHECK_NZ(bitscanreverse(&idx, 0x80000800));
-		SLCHECK_EQ(idx, 31U);
-	}
-	CATCHZOK
-	delete p_rng;
-	return CurrentStatus;
+	static const uint8 debruijn[32] = {
+		0x00, 0x01, 0x02, 0x18, 0x03, 0x13, 0x06, 0x19, 0x16, 0x04, 0x14, 0x0A,
+		0x10, 0x07, 0x0C, 0x1A, 0x1F, 0x17, 0x12, 0x05, 0x15, 0x09, 0x0F, 0x0B,
+		0x1E, 0x11, 0x08, 0x0E, 0x1D, 0x0D, 0x1C, 0x1B
+	};
+	return debruijn[(uint32)((v & -v) * 0x04D7651FU) >> 27];
 }
 
-#endif // } SLTEST_RUNNING
+static FORCEINLINE uint secp256k1_ctz64_var_debruijn(uint64 x) 
+{
+	static const uint8 debruijn[64] = {
+		0, 1, 2, 53, 3, 7, 54, 27, 4, 38, 41, 8, 34, 55, 48, 28,
+		62, 5, 39, 46, 44, 42, 22, 9, 24, 35, 59, 56, 49, 18, 29, 11,
+		63, 52, 6, 26, 37, 40, 33, 47, 61, 45, 43, 21, 23, 58, 17, 10,
+		51, 25, 36, 32, 60, 20, 57, 16, 50, 31, 19, 15, 30, 14, 13, 12
+	};
+	return debruijn[(uint64)((x & -x) * 0x022FDD63CC95386DU) >> 58];
+}
+
+/*static*/uint FASTCALL SBits::Ctz_fallback(uint32 v)
+{
+	if(v == 0)
+		return (sizeof(v) << 3);
+	else {
+		// de Bruijn multiplication, see <http://supertech.csail.mit.edu/papers/debruijn.pdf>
+		return secp256k1_ctz32_var_debruijn(v);
+	}
+}
+
+/*static*/uint FASTCALL SBits::Ctz_fallback(uint64 v)
+{
+	if(v == 0)
+		return (sizeof(v) << 3);
+	else {
+		// de Bruijn multiplication, see <http://supertech.csail.mit.edu/papers/debruijn.pdf>
+		return secp256k1_ctz64_var_debruijn(v);
+	}
+}
+
+/*static*/uint FASTCALL SBits::Clz_fallback(uint32 v)
+{
+	if(v == 0)
+		return (sizeof(v) << 3);
+	else {
+		static const uint32 DeBruijnClz[32] = {0, 9, 1, 10, 13, 21, 2, 29, 11, 14, 16, 18, 22, 25, 3, 30, 8, 12, 20, 28, 15, 17, 24, 7, 19, 27, 23, 6, 26, 5, 4, 31};
+		v |= v >> 1;
+		v |= v >> 2;
+		v |= v >> 4;
+		v |= v >> 8;
+		v |= v >> 16;
+		return (31 - DeBruijnClz[(v * 0x07C4ACDDU) >> 27]);
+	}
+}
+
+/*static*/uint FASTCALL SBits::Clz_fallback(uint64 v)
+{
+	if(v == 0)
+		return (sizeof(v) << 3);
+	else {
+		const uint32 most_significant_word = (uint32)(v >> 32);
+		const uint32 least_significant_word = (uint32)v;
+		// Ниже мы в обязательном порядке используем _fallback-вариант функции
+		// с целью обеспечить адекватное тестирование полной fallback-реализации.
+		return (most_significant_word == 0) ? (32 + Clz_fallback(least_significant_word)) : Clz_fallback(most_significant_word);
+	}
+}
+
+/*static*/uint FASTCALL SBits::Cpop_fallback(uint32 v)
+{
+	constexpr uint32 m1 = 0x55555555;
+	constexpr uint32 m2 = 0x33333333;
+	constexpr uint32 m4 = 0x0f0f0f0f;
+	v -= (v >> 1) & m1;
+	v = (v & m2) + ((v >> 2) & m2);
+	v = (v + (v >> 4)) & m4;
+	v += v >>  8;
+	return (v + (v >> 16)) & 0x3f;
+}
+
+/*static*/uint FASTCALL SBits::Cpop_fallback(uint64 v)
+{
+	constexpr uint64 m1 = 0x5555555555555555ULL;
+	constexpr uint64 m2 = 0x3333333333333333ULL;
+	constexpr uint64 m4 = 0x0F0F0F0F0F0F0F0FULL;
+	constexpr uint64 h01 = 0x0101010101010101ULL;
+	v -= (v >> 1) & m1;
+	v = (v & m2) + ((v >> 2) & m2);
+	v = (v + (v >> 4)) & m4;
+	return (v * h01) >> 56;
+}
+
+#if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
+	/*static*/uint FASTCALL SBits::Clz(uint32 v) { return (uint)__builtin_clz(v); }
+	/*static*/uint FASTCALL SBits::Clz(uint64 v) { return (uint)(__builtin_clzll(v)); }
+	/*static*/uint FASTCALL SBits::Ctz(uint32 v) { return __builtin_ctz(v); }
+	/*static*/uint FASTCALL SBits::Ctz(uint64 v) { return __builtin_ctzll(v); }
+	/*static*/uint FASTCALL SBits::Cpop(uint32 v) { return __builtin_popcount(v); }
+	/*static*/uint FASTCALL SBits::Cpop(uint64 v) { return __builtin_popcountll(v); }
+#elif defined(_MSC_VER) 
+	#include <nmmintrin.h>
+
+	/*static*/uint FASTCALL SBits::Clz(uint32 v)
+	{
+		if(v == 0)
+			return (sizeof(v) << 3);
+		else {
+			ulong where;
+			_BitScanReverse(&where, v);
+			return (uint)(31U - where);
+		}
+	}
+	/*static*/uint FASTCALL SBits::Ctz(uint32 v)
+	{
+		if(v == 0)
+			return (sizeof(v) << 3);
+		else {
+			ulong where;
+			_BitScanForward(&where, v);
+			return where;	
+		}
+	}
+	/*static*/uint FASTCALL SBits::Cpop(uint32 v) { return _mm_popcnt_u32(v); }
+	#if defined(_M_X64)
+		/*static*/uint FASTCALL SBits::Clz(uint64 v)
+		{
+			if(v == 0)
+				return (sizeof(v) << 3);
+			else {
+			#if STATIC_BMI2 == 1
+				return _lzcnt_u64(v);
+			#else
+				ulong r;
+				_BitScanReverse64(&r, v);
+				return (uint)(63 - r);
+			#endif
+			}
+		}
+		/*static*/uint FASTCALL SBits::Ctz(uint64 v)
+		{
+			if(v == 0)
+				return (sizeof(v) << 3);
+			else {
+			#if STATIC_BMI2 == 1
+				return _tzcnt_u64(val);
+			#else
+				ulong where;
+				_BitScanForward64(&where, v);
+				return where;
+			#endif
+			}
+		}
+		/*static*/uint FASTCALL SBits::Cpop(uint64 v) { return _mm_popcnt_u64(v); }
+	#else 
+		/*static*/uint FASTCALL SBits::Clz(uint64 v)
+		{
+			const uint32 most_significant_word = (uint32)(v >> 32);
+			const uint32 least_significant_word = (uint32)v;
+			return (most_significant_word == 0) ? (32 + SBits::Clz(least_significant_word)) : SBits::Clz(most_significant_word);
+		}
+		/*static*/uint FASTCALL SBits::Ctz(uint64 v)
+		{
+			const uint32 most_significant_word = (uint32)(v >> 32);
+			const uint32 least_significant_word = (uint32)v;
+			return (least_significant_word == 0) ? (32 + SBits::Ctz(most_significant_word)) : SBits::Ctz(least_significant_word);
+		}
+		#if defined(_M_IX86)
+			/*static*/uint FASTCALL SBits::Cpop(uint64 v) { return _mm_popcnt_u32((uint32)v) + _mm_popcnt_u32((uint32)(v >> 32)); }
+		#endif
+	#endif
+#else
+	/*static*/uint FASTCALL SBits::Clz(uint32 v) { return Clz_fallback(v); }
+	/*static*/uint FASTCALL SBits::Clz(uint64 v) { return Clz_fallback(v); }
+	/*static*/uint FASTCALL SBits::Ctz(uint32 v) { return Ctz_fallback(v); }
+	/*static*/uint FASTCALL SBits::Ctz(uint64 v) { return Ctz_fallback(v); }
+	/*static*/uint FASTCALL SBits::Cpop(uint32 v) { return Cpop_fallback(v); }
+	/*static*/uint FASTCALL SBits::Cpop(uint64 v) { return Cpop_fallback(v); }
+#endif

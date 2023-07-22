@@ -2472,21 +2472,13 @@ namespace NArchive {
 		// We use same check as in NSIS decoder
 		bool IsDrivePath(const wchar_t * s) { return isasciialpha(s[0]) && s[1] == ':' /* && s[2] == '\\' */; }
 		bool IsDrivePath(const char * s)    { return isasciialpha(s[0]) && s[1] == ':' /* && s[2] == '\\' */; }
-
 		static bool IsAbsolutePath(const wchar_t * s)
 		{
-			return
-				s[0] == WCHAR_PATH_SEPARATOR &&
-				s[1] == WCHAR_PATH_SEPARATOR ||
-				IsDrivePath(s);
+			return s[0] == WCHAR_PATH_SEPARATOR && s[1] == WCHAR_PATH_SEPARATOR || IsDrivePath(s);
 		}
-
 		static bool IsAbsolutePath(const char * s)
 		{
-			return
-				s[0] == CHAR_PATH_SEPARATOR &&
-				s[1] == CHAR_PATH_SEPARATOR ||
-				IsDrivePath(s);
+			return s[0] == CHAR_PATH_SEPARATOR && s[1] == CHAR_PATH_SEPARATOR || IsDrivePath(s);
 		}
 
 		void CInArchive::SetItemName(CItem &item, uint32 strPos)

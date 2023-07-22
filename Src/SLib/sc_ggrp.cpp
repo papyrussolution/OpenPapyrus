@@ -56,7 +56,7 @@ const SCDBTblEntry * SCDBObjGoodsGrp::GetDefinition(uint * pEntryCount) const
 int SCDBObjGoodsGrp::Init(const char * pExpPath, const char * pImpPath)
 {
 	int    ok = 1;
-	char   path[MAXPATH], fname[MAXPATH];
+	char   path[MAX_PATH], fname[MAX_PATH];
 	setLastSlash(STRNSCPY(path, pExpPath));
 
 	P_GGrpTbl = new DbfTable(strcat(STRNSCPY(fname, path), "sp_ggrp.dbf"));

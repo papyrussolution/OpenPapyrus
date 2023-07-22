@@ -1,12 +1,8 @@
-/*
- * xmlIO.c : implementation of the I/O interfaces used by the parser
- *
- * See Copyright for the status of this software.
- *
- * daniel@veillard.com
- *
- * 14 Nov 2000 ht - for VMS, truncated name of long functions to under 32 char
- */
+// xmlIO.c : implementation of the I/O interfaces used by the parser
+// See Copyright for the status of this software.
+// daniel@veillard.com
+// 14 Nov 2000 ht - for VMS, truncated name of long functions to under 32 char
+//
 #include <slib-internal.h>
 #pragma hdrstop
 #if defined(_WIN32_WCE)
@@ -188,9 +184,7 @@ static wchar_t * FASTCALL __xmlIOWin32UTF8ToWChar(const char * u8String)
 
 #endif
 /**
- * xmlIOErrMemory:
  * @extra:  extra informations
- *
  * Handle an out of memory condition
  */
 static void FASTCALL xmlIOErrMemory(const char * extra)
@@ -198,11 +192,8 @@ static void FASTCALL xmlIOErrMemory(const char * extra)
 	__xmlSimpleError(XML_FROM_IO, XML_ERR_NO_MEMORY, NULL, NULL, extra);
 }
 /**
- * __xmlIOErr:
  * @code:  the error number
- * @
  * @extra:  extra informations
- *
  * Handle an I/O error
  */
 void __xmlIOErr(int domain, int code, const char * extra)
@@ -375,18 +366,12 @@ void __xmlIOErr(int domain, int code, const char * extra)
 	__xmlSimpleError(domain, code, NULL, IOerr[idx], extra);
 }
 /**
- * xmlIOErr:
  * @code:  the error number
  * @extra:  extra informations
- *
  * Handle an I/O error
  */
-static void FASTCALL xmlIOErr(int code, const char * extra)
-{
-	__xmlIOErr(XML_FROM_IO, code, extra);
-}
+static void FASTCALL xmlIOErr(int code, const char * extra) { __xmlIOErr(XML_FROM_IO, code, extra); }
 /**
- * __xmlLoaderErr:
  * @ctx: the parser context
  * @extra:  extra informations
  *
@@ -428,14 +413,9 @@ void __xmlLoaderErr(void * ctx, const char * msg, const char * filename)
  *
  * Returns a canonicalized version of the path
  */
-xmlChar * xmlNormalizeWindowsPath(const xmlChar * path)
-{
-	return xmlCanonicPath(path);
-}
+xmlChar * xmlNormalizeWindowsPath(const xmlChar * path) { return xmlCanonicPath(path); }
 //
-// xmlCleanupInputCallbacks:
-//
-// clears the entire input callback table. this includes the compiled-in I/O.
+// Descr: clears the entire input callback table. this includes the compiled-in I/O.
 //
 void xmlCleanupInputCallbacks()
 {
@@ -451,11 +431,7 @@ void xmlCleanupInputCallbacks()
 	}
 }
 /**
- * xmlPopInputCallbacks:
- *
- * Clear the top input callback from the input stack. this includes the
- * compiled-in I/O.
- *
+ * Clear the top input callback from the input stack. this includes the compiled-in I/O.
  * Returns the number of input callback registered or -1 in case of error.
  */
 int xmlPopInputCallbacks()
@@ -474,8 +450,6 @@ int xmlPopInputCallbacks()
 
 #ifdef LIBXML_OUTPUT_ENABLED
 /**
- * xmlCleanupOutputCallbacks:
- *
  * clears the entire output callback table. this includes the
  * compiled-in I/O callbacks.
  */
@@ -540,12 +514,9 @@ static gzFile xmlWrapGzOpenUtf8(const char * path, const char * mode)
 
 #endif
 /**
- *  xmlWrapStatUtf8:
  * @path:  the path in utf-8 encoding
  * @info:  structure that stores results
- *
  * function obtains information about the file or directory
- *
  */
 static int xmlWrapStatUtf8(const char * path, struct stat * info)
 {
@@ -563,24 +534,15 @@ static int xmlWrapStatUtf8(const char * path, struct stat * info)
 #endif
 }
 /**
- *  xmlWrapOpenNative:
  * @path:  the path
  * @mode:  type of access (0 - read, 1 - write)
- *
  * function opens the file specified by @path
- *
  */
-static FILE* xmlWrapOpenNative(const char * path, int mode)
-{
-	return fopen(path, mode ? "wb" : "rb");
-}
+static FILE* xmlWrapOpenNative(const char * path, int mode) { return fopen(path, mode ? "wb" : "rb"); }
 /**
- *  xmlWrapStatNative:
  * @path:  the path
  * @info:  structure that stores results
- *
  * function obtains information about the file or directory
- *
  */
 static int xmlWrapStatNative(const char * path, struct stat * info)
 {
@@ -601,8 +563,6 @@ typedef gzFile (*xmlWrapGzOpenFunc)(const char * f, const char * mode);
 static xmlWrapGzOpenFunc xmlWrapGzOpen = gzopen;
 #endif
 /**
- * xmlInitPlatformSpecificIo:
- *
  * Initialize platform specific features.
  */
 static void xmlInitPlatformSpecificIo()
@@ -630,11 +590,8 @@ static void xmlInitPlatformSpecificIo()
 }
 #endif
 /**
- * xmlCheckFilename:
  * @path:  the path to check
- *
- * function checks to see if @path is a valid source
- * (file, socket...) for XML.
+ * function checks to see if @path is a valid source (file, socket...) for XML.
  *
  * if stat is not available on the target machine,
  * returns 1.  if stat fails, returns 0 (if calling
@@ -669,24 +626,15 @@ int xmlCheckFilename(const char * path)
 	return 1;
 }
 /**
- * xmlNop:
- *
  * No Operation function, does nothing, no input
- *
  * Returns zero
  */
-int xmlNop()
-{
-	return 0;
-}
+int xmlNop() { return 0; }
 /**
- * xmlFdRead:
  * @context:  the I/O context
  * @buffer:  where to drop data
  * @len:  number of bytes to read
- *
  * Read @len bytes to @buffer from the I/O channel.
- *
  * Returns the number of bytes written
  */
 static int xmlFdRead(void * context, char * buffer, int len)
@@ -699,13 +647,10 @@ static int xmlFdRead(void * context, char * buffer, int len)
 
 #ifdef LIBXML_OUTPUT_ENABLED
 /**
- * xmlFdWrite:
  * @context:  the I/O context
  * @buffer:  where to get data
  * @len:  number of bytes to write
- *
  * Write @len bytes from @buffer to the I/O channel.
- *
  * Returns the number of bytes written
  */
 static int xmlFdWrite(void * context, const char * buffer, int len)
@@ -720,13 +665,9 @@ static int xmlFdWrite(void * context, const char * buffer, int len)
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
-
 /**
- * xmlFdClose:
  * @context:  the I/O context
- *
  * Close an I/O channel
- *
  * Returns 0 in case of success and error code otherwise
  */
 static int xmlFdClose(void * context)
@@ -737,21 +678,13 @@ static int xmlFdClose(void * context)
 	return ret;
 }
 /**
- * xmlFileMatch:
  * @filename:  the URI for matching
- *
  * input from FILE *
- *
  * Returns 1 if matches, 0 otherwise
  */
-int xmlFileMatch(const char * filename ATTRIBUTE_UNUSED)
-{
-	return 1;
-}
+int xmlFileMatch(const char * filename ATTRIBUTE_UNUSED) { return 1; }
 /**
- * xmlFileOpen_real:
  * @filename:  the URI for matching
- *
  * input from FILE *, supports compressed input
  * if @filename is " " then the standard input is used
  *
@@ -801,12 +734,9 @@ static void * xmlFileOpen_real(const char * filename)
 	return fd;
 }
 /**
- * xmlFileOpen:
  * @filename:  the URI for matching
- *
  * Wrapper around xmlFileOpen_real that try it with an unescaped
  * version of @filename, if this fails fallback to @filename
- *
  * Returns a handler or NULL in case or failure
  */
 void * xmlFileOpen(const char * filename)
@@ -3372,13 +3302,9 @@ char * xmlParserGetDirectory(const char * filename)
 	return ret;
 #undef IS_XMLPGD_SEP
 }
-
-/****************************************************************
-*								*
-*		External entities loading			*
-*								*
-****************************************************************/
-
+//
+// External entities loading
+//
 /**
  * xmlCheckHTTPInput:
  * @ctxt: an XML parser context
@@ -3481,29 +3407,23 @@ static int xmlNoNetExists(const char * URL)
 static xmlChar * xmlResolveResourceFromCatalog(const char * URL, const char * ID, xmlParserCtxt * ctxt)
 {
 	xmlChar * resource = NULL;
-	/*
-	 * If the resource doesn't exists as a file,
-	 * try to load it from the resource pointed in the catalogs
-	 */
+	//
+	// If the resource doesn't exists as a file,
+	// try to load it from the resource pointed in the catalogs
+	//
 	xmlCatalogAllow pref = xmlCatalogGetDefaults();
 	if((pref != XML_CATA_ALLOW_NONE) && (!xmlNoNetExists(URL))) {
-		/*
-		 * Do a local lookup
-		 */
+		// Do a local lookup
 		if(ctxt && ctxt->catalogs && oneof2(pref, XML_CATA_ALLOW_ALL, XML_CATA_ALLOW_DOCUMENT)) {
 			resource = xmlCatalogLocalResolve(ctxt->catalogs, (const xmlChar *)ID, (const xmlChar *)URL);
 		}
-		/*
-		 * Try a global lookup
-		 */
+		// Try a global lookup
 		if(!resource && oneof2(pref, XML_CATA_ALLOW_ALL, XML_CATA_ALLOW_GLOBAL)) {
 			resource = xmlCatalogResolve((const xmlChar *)ID, (const xmlChar *)URL);
 		}
 		if(!resource && URL)
 			resource = sstrdup((const xmlChar *)URL);
-		/*
-		 * @todo do an URI lookup on the reference
-		 */
+		// @todo do an URI lookup on the reference
 		if(resource && !xmlNoNetExists((const char *)resource)) {
 			xmlChar * tmp = NULL;
 			if(ctxt && ctxt->catalogs && oneof2(pref, XML_CATA_ALLOW_ALL, XML_CATA_ALLOW_DOCUMENT))
@@ -3564,30 +3484,16 @@ static xmlParserInput * xmlDefaultExternalEntityLoader(const char * URL, const c
 }
 
 static xmlExternalEntityLoader xmlCurrentExternalEntityLoader = xmlDefaultExternalEntityLoader;
-
 /**
- * xmlSetExternalEntityLoader:
  * @f:  the new entity resolver function
- *
  * Changes the defaultexternal entity resolver function for the application
  */
-void xmlSetExternalEntityLoader(xmlExternalEntityLoader f)
-{
-	xmlCurrentExternalEntityLoader = f;
-}
-
+void xmlSetExternalEntityLoader(xmlExternalEntityLoader f) { xmlCurrentExternalEntityLoader = f; }
 /**
- * xmlGetExternalEntityLoader:
- *
  * Get the default external entity resolver function for the application
- *
  * Returns the xmlExternalEntityLoader function pointer
  */
-xmlExternalEntityLoader xmlGetExternalEntityLoader()
-{
-	return xmlCurrentExternalEntityLoader;
-}
-
+xmlExternalEntityLoader xmlGetExternalEntityLoader() { return xmlCurrentExternalEntityLoader; }
 /**
  * xmlLoadExternalEntity:
  * @URL:  the URL for the entity to load

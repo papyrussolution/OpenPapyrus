@@ -207,11 +207,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\PPTEST\pptest-dedicated.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-agner.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-bits.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-dirent.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-etc.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-hash.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-math.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-onig.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-sarc.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-sarray.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-string.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-time.cpp" />
   </ItemGroup>

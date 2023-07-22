@@ -274,15 +274,27 @@ struct ImVec4 {
 	ImVec4(SColor c) : x(c.RedF()), y(c.GreenF()), z(c.BlueF()), w(c.AlphaF())
 	{
 	}
+	operator SColorF () const
+	{
+		SColorF cf;
+		cf.R = x;
+		cf.G = y;
+		cf.B = z;
+		cf.Alpha = w;
+		return cf;
+	}
 #ifdef IM_VEC4_CLASS_EXTRA
 	IM_VEC4_CLASS_EXTRA // Define additional constructors and implicit cast operators in imconfig.h to convert back and forth between your math types and ImVec4.
 #endif
 };
 
 // @sobolev (moved from imgui_internal.h) {
-static inline ImVec2 ImLerp(const ImVec2 & a, const ImVec2 & b, float t)    { return ImVec2(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t); }
-static inline ImVec2 ImLerp(const ImVec2 & a, const ImVec2 & b, const ImVec2 & t)  { return ImVec2(a.x + (b.x - a.x) * t.x, a.y + (b.y - a.y) * t.y); }
-static inline ImVec4 ImLerp(const ImVec4 & a, const ImVec4 & b, float t) { return ImVec4(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t, a.w + (b.w - a.w) * t); }
+//static inline ImVec2 ImLerp(const ImVec2 & a, const ImVec2 & b, float t) { return ImVec2(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t); }
+static inline ImVec2 ImLerp(const ImVec2 & a, const ImVec2 & b, float t) { return ImVec2(lerp(a.x, b.x, t), lerp(a.y, b.y, t)); }
+//static inline ImVec2 ImLerp(const ImVec2 & a, const ImVec2 & b, const ImVec2 & t) { return ImVec2(a.x + (b.x - a.x) * t.x, a.y + (b.y - a.y) * t.y); }
+static inline ImVec2 ImLerp(const ImVec2 & a, const ImVec2 & b, const ImVec2 & t) { return ImVec2(lerp(a.x, b.x, t.x), lerp(a.y, b.y, t.y)); }
+//static inline ImVec4 ImLerp(const ImVec4 & a, const ImVec4 & b, float t) { return ImVec4(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t, a.w + (b.w - a.w) * t); }
+static inline ImVec4 ImLerp(const ImVec4 & a, const ImVec4 & b, float t) { return ImVec4(lerp(a.x, b.x, t), lerp(a.y, b.y, t), lerp(a.z, b.z, t), lerp(a.w, b.w, t)); }
 // } @sobolev (moved from imgui_internal.h)
 
 IM_MSVC_RUNTIME_CHECKS_RESTORE
@@ -295,10 +307,10 @@ namespace ImGui {
 // - Each context create its own ImFontAtlas by default. You may instance one yourself and pass it to CreateContext() to share a font atlas between contexts.
 // - DLL users: heaps and globals are not shared across DLL boundaries! You will need to call SetCurrentContext() + SetAllocatorFunctions()
 //   for each static/DLL boundary you are calling from. Read "Context and Memory Allocators" section of imgui.cpp for details.
-ImGuiContext* CreateContext(ImFontAtlas* shared_font_atlas = NULL);
-void          DestroyContext(ImGuiContext* ctx = NULL);       // NULL = destroy current context
-ImGuiContext* GetCurrentContext();
-void          SetCurrentContext(ImGuiContext* ctx);
+ImGuiContext * CreateContext(ImFontAtlas* shared_font_atlas = NULL);
+void   DestroyContext(ImGuiContext* ctx = NULL);       // NULL = destroy current context
+ImGuiContext * GetCurrentContext();
+void   SetCurrentContext(ImGuiContext* ctx);
 
 // Main
 ImGuiIO & GetIO();        // access the IO structure (mouse/keyboard/gamepad inputs, time, various configuration options/flags)
@@ -879,32 +891,39 @@ void   SetItemAllowOverlap();        // allow last item to be overlapped by a su
 // - Currently represents the Platform Window created by the application which is hosting our Dear ImGui windows.
 // - In 'docking' branch with multi-viewport enabled, we extend this concept to have multiple active viewports.
 // - In the future we will extend this concept further to also represent Platform Monitor and support a "no main platform window" operation mode.
-ImGuiViewport* GetMainViewport();                                                     // return primary/default viewport. This can never be NULL.
+ImGuiViewport * GetMainViewport();                                                     // return primary/default viewport. This can never be NULL.
 
 // Background/Foreground Draw Lists
-ImDrawList*   GetBackgroundDrawList();                                                // this draw list will be the first rendered one. Useful to quickly draw shapes/text behind dear imgui contents.
-ImDrawList*   GetForegroundDrawList();                                                // this draw list will be the last rendered one. Useful to quickly draw shapes/text over dear imgui contents.
+ImDrawList * GetBackgroundDrawList(); // this draw list will be the first rendered one. Useful to quickly draw shapes/text behind dear imgui contents.
+ImDrawList * GetForegroundDrawList(); // this draw list will be the last rendered one. Useful to quickly draw shapes/text over dear imgui contents.
 
 // Miscellaneous Utilities
-bool          IsRectVisible(const ImVec2 & size);                                      // test if rectangle (of given size, starting from cursor position) is visible / not clipped.
-bool          IsRectVisible(const ImVec2 & rect_min, const ImVec2 & rect_max);          // test if rectangle (in screen space) is visible / not clipped. to perform coarse clipping on user's side.
-double        GetTime();                                                              // get global imgui time. incremented by io.DeltaTime every frame.
-int           GetFrameCount();                                                        // get global imgui frame count. incremented by 1 every frame.
-ImDrawListSharedData* GetDrawListSharedData();                                        // you may use this when creating your own ImDrawList instances.
-const char*   GetStyleColorName(ImGuiCol idx);                                        // get a string corresponding to the enum value (for display, saving, etc.).
-void          SetStateStorage(ImGuiStorage* storage);                                 // replace current window storage with our own (if you want to manipulate it yourself, typically clear subsection of it)
+bool   IsRectVisible(const ImVec2 & size);     // test if rectangle (of given size, starting from cursor position) is visible / not clipped.
+bool   IsRectVisible(const ImVec2 & rect_min, const ImVec2 & rect_max);          // test if rectangle (in screen space) is visible / not clipped. to perform coarse clipping on user's side.
+double GetTime();                              // get global imgui time. incremented by io.DeltaTime every frame.
+int    GetFrameCount();                        // get global imgui frame count. incremented by 1 every frame.
+ImDrawListSharedData * GetDrawListSharedData();        // you may use this when creating your own ImDrawList instances.
+const char * GetStyleColorName(ImGuiCol idx);        // get a string corresponding to the enum value (for display, saving, etc.).
+//
+// Descr: Возвращает идентификатор цвета, соответствующий символу pImGuiColorName.
+// Returns:
+//   >=0 - символ pImGuiColorName найден. Значение соответствует его идентификатору.
+//   -1  - символ pImGuiColorName не найден.
+//
+int    GetStyleColorIdx(const char * pImGuiColorName);  // @sobolev 
+void   SetStateStorage(ImGuiStorage* storage); // replace current window storage with our own (if you want to manipulate it yourself, typically clear subsection of it)
 ImGuiStorage* GetStateStorage();
-bool          BeginChildFrame(ImGuiID id, const ImVec2 & size, ImGuiWindowFlags flags = 0);     // helper to create a child window / scrolling region that looks like a normal widget frame
-void          EndChildFrame();                                                        // always call EndChildFrame() regardless of BeginChildFrame() return values (which indicates a collapsed/clipped window)
+bool   BeginChildFrame(ImGuiID id, const ImVec2 & size, ImGuiWindowFlags flags = 0);     // helper to create a child window / scrolling region that looks like a normal widget frame
+void   EndChildFrame();                        // always call EndChildFrame() regardless of BeginChildFrame() return values (which indicates a collapsed/clipped window)
 
 // Text Utilities
-ImVec2        CalcTextSize(const char* text, const char* text_end = NULL, bool hide_text_after_double_hash = false, float wrap_width = -1.0f);
+ImVec2 CalcTextSize(const char* text, const char* text_end = NULL, bool hide_text_after_double_hash = false, float wrap_width = -1.0f);
 
 // Color Utilities
-ImVec4        ColorConvertU32ToFloat4(ImU32 in);
-ImU32         ColorConvertFloat4ToU32(const ImVec4 & in);
-void          ColorConvertRGBtoHSV(float r, float g, float b, float& out_h, float& out_s, float& out_v);
-void          ColorConvertHSVtoRGB(float h, float s, float v, float& out_r, float& out_g, float& out_b);
+ImVec4 ColorConvertU32ToFloat4(ImU32 in);
+ImU32  ColorConvertFloat4ToU32(const ImVec4 & in);
+void   ColorConvertRGBtoHSV(float r, float g, float b, float& out_h, float& out_s, float& out_v);
+void   ColorConvertHSVtoRGB(float h, float s, float v, float& out_r, float& out_g, float& out_b);
 
 // Inputs Utilities: Keyboard/Mouse/Gamepad
 // - the ImGuiKey enum contains all possible keyboard, mouse and gamepad inputs (e.g. ImGuiKey_A, ImGuiKey_MouseLeft, ImGuiKey_GamepadDpadUp...).
@@ -1823,16 +1842,16 @@ template <typename T> struct ImVector {
 	inline int  max_size() const { return 0x7FFFFFFF / (int)sizeof(T); }
 	inline int  capacity() const { return Capacity; }
 	inline T&   operator[](int i) { assert(i >= 0 && i < Size); return Data[i]; }
-	inline const T&     operator[](int i) const { assert(i >= 0 && i < Size); return Data[i]; }
+	inline const T & operator[](int i) const { assert(i >= 0 && i < Size); return Data[i]; }
 
-	inline T*   begin() { return Data; }
-	inline const T*     begin() const { return Data; }
-	inline T*   end() { return Data + Size; }
-	inline const T*     end() const { return Data + Size; }
-	inline T&   front() { assert(Size > 0); return Data[0]; }
-	inline const T&     front() const { assert(Size > 0); return Data[0]; }
-	inline T&   back() { assert(Size > 0); return Data[Size - 1]; }
-	inline const T&     back() const { assert(Size > 0); return Data[Size - 1]; }
+	inline T * begin() { return Data; }
+	inline const T * begin() const { return Data; }
+	inline T * end() { return Data + Size; }
+	inline const T * end() const { return Data + Size; }
+	inline T & front() { assert(Size > 0); return Data[0]; }
+	inline const T & front() const { assert(Size > 0); return Data[0]; }
+	inline T & back() { assert(Size > 0); return Data[Size - 1]; }
+	inline const T & back() const { assert(Size > 0); return Data[Size - 1]; }
 	inline void swap(ImVector<T>& rhs)
 	{
 		int rhs_size = rhs.Size; 
@@ -1841,7 +1860,7 @@ template <typename T> struct ImVector {
 		int rhs_cap = rhs.Capacity; 
 		rhs.Capacity = Capacity; 
 		Capacity = rhs_cap; 
-		T* rhs_data = rhs.Data;
+		T * rhs_data = rhs.Data;
 		rhs.Data = Data; Data = rhs_data;
 	}
 	inline int  _grow_capacity(int sz) const 
@@ -1887,9 +1906,25 @@ template <typename T> struct ImVector {
 		Capacity = new_capacity;
 	}
 	// NB: It is illegal to call push_back/push_front/insert with a reference pointing inside the ImVector data itself! e.g. v.push_back(v[10]) is forbidden.
-	inline void push_back(const T& v)               { if(Size == Capacity)  reserve(_grow_capacity(Size + 1)); memcpy(&Data[Size], &v, sizeof(v)); Size++; }
-	inline void pop_back()                          { assert(Size > 0); Size--; }
-	inline void push_front(const T& v)              { if(Size == 0)  push_back(v); else insert(Data, v); }
+	inline void push_back(const T& v)  
+	{ 
+		if(Size == Capacity)
+			reserve(_grow_capacity(Size + 1)); 
+		memcpy(&Data[Size], &v, sizeof(v)); 
+		Size++; 
+	}
+	inline void pop_back()             
+	{ 
+		assert(Size > 0); 
+		Size--; 
+	}
+	inline void push_front(const T& v) 
+	{ 
+		if(Size == 0)
+			push_back(v); 
+		else 
+			insert(Data, v); 
+	}
 	inline T *  erase(const T* it)                  
 	{
 		assert(it >= Data && it < Data + Size); 
@@ -3051,16 +3086,16 @@ struct ImFontAtlas {
 	ImFont * AddFontFromMemoryCompressedTTF(const void* compressed_font_data, int compressed_font_size, float size_pixels,
 	const ImFontConfig * font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // 'compressed_font_data' still owned by caller. Compress with binary_to_compressed_c.cpp.
 	ImFont * AddFontFromMemoryCompressedBase85TTF(const char* compressed_font_data_base85, float size_pixels, const ImFontConfig* font_cfg = NULL, const ImWchar* glyph_ranges = NULL); // 'compressed_font_data_base85' still owned by caller. Compress with binary_to_compressed_c.cpp with -base85 parameter.
-	void ClearInputData();       // Clear input data (all ImFontConfig structures including sizes, TTF data, glyph ranges, etc.) = all the data used to build the texture and fonts.
-	void ClearTexData();         // Clear output texture data (CPU side). Saves RAM once the texture has been copied to graphics memory.
-	void ClearFonts();           // Clear output font data (glyphs storage, UV coordinates).
-	void Clear();                // Clear all input and output.
+	void ClearInputData(); // Clear input data (all ImFontConfig structures including sizes, TTF data, glyph ranges, etc.) = all the data used to build the texture and fonts.
+	void ClearTexData();   // Clear output texture data (CPU side). Saves RAM once the texture has been copied to graphics memory.
+	void ClearFonts();     // Clear output font data (glyphs storage, UV coordinates).
+	void Clear();          // Clear all input and output.
 	// Build atlas, retrieve pixel data.
 	// User is in charge of copying the pixels into graphics memory (e.g. create a texture with your engine). Then store your texture handle with SetTexID().
 	// The pitch is always = Width * BytesPerPixels (1 or 4)
 	// Building in RGBA32 format is provided for convenience and compatibility, but note that unless you manually manipulate or copy color data into
 	// the texture (e.g. when using the AddCustomRect*** api), then the RGB pixels emitted will always be white (~75% of memory/bandwidth waste.
-	bool Build();                // Build pixels data. This is called automatically for you by the GetTexData*** functions.
+	bool Build();          // Build pixels data. This is called automatically for you by the GetTexData*** functions.
 	void GetTexDataAsAlpha8(unsigned char ** out_pixels, int * out_width, int * out_height, int * out_bytes_per_pixel = NULL);           // 1 byte per-pixel
 	void GetTexDataAsRGBA32(unsigned char ** out_pixels, int * out_width, int * out_height, int * out_bytes_per_pixel = NULL);           // 4 bytes-per-pixel
 	bool IsBuilt() const { return Fonts.Size > 0 && TexReady; }         // Bit ambiguous: used to detect when user didn't build texture but effectively we should check TexID != 0 except that would be backend dependent...
@@ -3099,9 +3134,9 @@ struct ImFontAtlas {
 
 	ImFontAtlasFlags Flags;  // Build flags (see ImFontAtlasFlags_)
 	ImTextureID TexID;       // User data to refer to the texture once it has been uploaded to user's graphic systems. It is passed back to you during rendering via the ImDrawCmd structure.
-	int TexDesiredWidth;     // Texture width desired by user before Build(). Must be a power-of-two. If have many glyphs your graphics API have texture size restrictions you may want to increase texture width to decrease height.
-	int TexGlyphPadding;     // Padding between glyphs within texture in pixels. Defaults to 1. If your rendering method doesn't rely on bilinear filtering you may set this to 0 (will also need to set AntiAliasedLinesUseTex = false).
-	bool Locked;             // Marked as Locked by ImGui::NewFrame() so attempt to modify the atlas will assert.
+	int    TexDesiredWidth;  // Texture width desired by user before Build(). Must be a power-of-two. If have many glyphs your graphics API have texture size restrictions you may want to increase texture width to decrease height.
+	int    TexGlyphPadding;  // Padding between glyphs within texture in pixels. Defaults to 1. If your rendering method doesn't rely on bilinear filtering you may set this to 0 (will also need to set AntiAliasedLinesUseTex = false).
+	bool   Locked;           // Marked as Locked by ImGui::NewFrame() so attempt to modify the atlas will assert.
 	void * UserData;         // Store your own atlas related user-data (if e.g. you have multiple font atlas).
 
 	// [Internal]

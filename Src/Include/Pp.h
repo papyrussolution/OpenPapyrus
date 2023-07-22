@@ -1887,7 +1887,7 @@ struct PPBackupScen { // @flat // @persistent
 	long   NumCopies;  // Max number of copies
 	char   Name[64];
 	char   DBName[64];
-	char   BackupPath[261]; // @v10.8.2 MAXPATH-->261 (из-за @persistent)
+	char   BackupPath[261]; // @v10.8.2 MAX_PATH-->261 (из-за @persistent)
 	/*
 struct PPBackupScen {
 	PPBackupScen();
@@ -1895,7 +1895,7 @@ struct PPBackupScen {
 	long   ID;
 	char   Name[64];
 	char   DBName[64];
-	char   BackupPath[MAXPATH];
+	char   BackupPath[MAX_PATH];
 	long   Period;     // Backup period (days)
 	long   Flags;      // Reserved
 	long   numCopies;  // Max number of copies
@@ -3838,7 +3838,8 @@ public:
 	int    SetGuid(PPID tagID, const S_GUID_Base *);
 	int    SetTimestamp(PPID tagID, LDATETIME dtm);
 	int    AddKeyword(PPID tagID, const char * pKeyword);
-	int    FASTCALL GetInt(long *) const;
+	int    FASTCALL GetInt(long * pVal) const;
+	int    FASTCALL GetInt(int * pVal) const { return GetInt(reinterpret_cast<long *>(pVal)); } // @v11.7.10
 	int    FASTCALL GetInt64(int64 *) const;
 	int    FASTCALL GetReal(double *) const;
 	int    FASTCALL GetStr(SString &) const;
@@ -5413,8 +5414,8 @@ struct Acct {
 struct AcctID {
 	AcctID();
 	AcctID & Z();
-	int    FASTCALL operator == (AcctID s) const;
-	int    FASTCALL operator != (AcctID s) const;
+	bool   FASTCALL operator == (AcctID s) const;
+	bool   FASTCALL operator != (AcctID s) const;
 
 	PPID   ac;
 	PPID   ar;
@@ -19357,6 +19358,10 @@ struct PPGdsClsPacket {
 	int    PropSymbToID(int prop, const char * pSymb, PPID * pID);
 	int    GetExtDim(const GoodsExtTbl::Rec * pRec, int dim, double * pVal) const;
 	int    GetExtProp(const GoodsExtTbl::Rec * pRec, int prop, long * pID, SString & rBuf) const;
+	int    GetExtProp(const GoodsExtTbl::Rec * pRec, int prop, int * pID, SString & rBuf) const
+		{ return GetExtProp(pRec, prop, reinterpret_cast<long *>(pID), rBuf); } // @v11.7.10
+	int    GetExtProp(const GoodsExtTbl::Rec * pRec, int prop, SString & rBuf) const
+		{ return GetExtProp(pRec, prop, reinterpret_cast<long *>(0), rBuf); } // @v11.7.10
 	int    RealToExtDim(double realVal, int dim, long * pLongVal) const;
 	int    RealToExtDim(double realVal, int dim, GoodsExtTbl::Rec & rExtRec) const;
 	int    GetDynGenFilt(const GoodsExtTbl::Rec * pRec, ClsdGoodsFilt * pFilt) const;
@@ -20673,22 +20678,6 @@ private:
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext * pCtx);
 	virtual int ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 };
-//
-// @construction {
-//
-class PrcssrEdi {
-public:
-	enum {
-		aUnkn = 0,
-		aImportBill = 1,
-	};
-    struct Param {
-		long   Flags;
-		StringSet ProviderSymbList;
-		LongArray ActionList;
-    };
-};
-// } @construction
 //
 // @ModuleDecl(PPObjAccSheet)
 // Таблицы аналитических статей
@@ -22536,7 +22525,7 @@ protected:
 	uint   FilesPerSet;
 	uint   NumEntries;
 	struct InFiles {
-		char fn[5][MAXPATH];
+		char fn[5][MAX_PATH];
 	} * P_Entries;
 };
 //
@@ -23037,7 +23026,7 @@ private:
 
 	struct DeviceEntry {
 		PPID   ID;
-		char   Path[MAXPATH];
+		char   Path[MAX_PATH];
 	};
 	PPObjStyloPalm PalmObj;
 	SArray * P_DeviceList;
@@ -24171,6 +24160,8 @@ private:
 #define GTF_ADVANCECERT    0x00004000L // @v10.4.1 Сертификат на последующую покупку товаров (главное назначение флага -
 	// сигнализировать при учете, что оплата такого товара является авансом, но не собственно покупкой).
 #define GTF_GMARKED        0x00008000L // @v10.4.11 Товары этого типа имеют государственную маркировку
+#define GTF_EXCISEPROFORMA 0x00010000L // @v11.7.10 Товары этого типа формально подакцизные (предприятие, ведущее учет, акциз не рассчитывает, 
+	// но передает специальную информацию о продаже таких товаров в надзорные органы)
 
 #define GTCHZNPT_UNKN     -1 // @v11.5.0 Специальное интерфейсное значение, используемое для обозначения того, что товар маркируемый, но категория в терминах честного знака не ясна
 #define GTCHZNPT_UNDEF     0
@@ -32350,9 +32341,10 @@ struct AsyncCashGoodsInfo { // @transient
 	int    AdjustBarcode(int chkDig);
 
 	enum {
-		fDeleted     = 0x0001,
-		fGMarkedType = 0x0002,
-		fGMarkedCode = 0x0004
+		fDeleted         = 0x0001,
+		fGMarkedType     = 0x0002,
+		fGMarkedCode     = 0x0004,
+		fGExciseProForma = 0x0008  // @v11.7.10 Формально подакцизный товар
 	};
 	PPID   ID;
 	char   Name[128];        //
@@ -32667,8 +32659,8 @@ struct PPScale2 {          // @persistent @store(Reference2Tbl+)
 	long   ProtocolVer;    // Версия протокола обмена. Зависит от типа устройства
 	long   LogNum;         // Логический номер устройства. Применяется для некоторых типов устройств.
 	long   Flags;          // SCALF_XXX
-	long   Location;       // ->Location.ID Склад, к которому относится устройство
-	long   AltGoodsGrp;    // ->Goods2.ID   Альтернативная группа товаров, загружаемая на весы
+	PPID   Location;       // ->Location.ID Склад, к которому относится устройство
+	PPID   AltGoodsGrp;    // ->Goods2.ID   Альтернативная группа товаров, загружаемая на весы
 };
 
 #define PPTRPROP_SCALEEXT      (PPTRPROP_USER+1)
@@ -48702,7 +48694,7 @@ typedef TSArray <ReportViewItem> ReportViewItemArray;
 class PPViewReport : public PPView {
 public:
 	struct BrwHdr {
-		long ID;
+		PPID ID;
 	};
 
 	PPViewReport();
@@ -48722,10 +48714,10 @@ private:
 	int    CheckForFilt(const ReportViewItem *);
 	int    EditItem(PPID * pID);
 	int    DelItem(PPID);
-	int    SendMail(long id);
-	int    Verify(long id);
-	int    CallCR(long id);
-	int    GetAltPath(long type, const char * pPath, const char * pStdName, SString & rPath);
+	int    SendMail(PPID id);
+	int    Verify(PPID id);
+	int    CallCR(PPID id);
+	int    GetAltPath(PPID type, const char * pPath, const char * pStdName, SString & rPath);
 	int    SplitLocalRptStr(PPIniFile * pFile, int codepage, const SString & rSect, SString & rBuf, ReportViewItem * pItem);
 
 	int     LocalRptCodepage;
@@ -49200,8 +49192,8 @@ public:
 };
 
 struct PalmViewItem : public PPStyloPalm {
-	char   Path[MAXPATH];
-	char   FtpPath[MAXPATH];
+	char   Path[MAX_PATH];
+	char   FtpPath[MAX_PATH];
 };
 
 class PPViewPalm : public PPView {
@@ -51773,7 +51765,7 @@ private:
 	Header   Head;
 	SArray * P_Index;
 	int    RO_Mode;   // ReadOnly mode
-	char   FileName[MAXPATH];
+	char   FileName[MAX_PATH];
 	FILE * P_Stream;
 };
 //
@@ -52033,7 +52025,7 @@ private:
 class PrcssrDL200 : public DL2_Resolver {
 public:
 	struct Param {
-		char   FileName[MAXPATH];
+		char   FileName[MAX_PATH];
 		char   DataName[36];
 		DateRange Period;
 		PPCycleFilt Cycl;
@@ -53976,7 +53968,7 @@ public:
 			// Проекция флага sacfNonEmptyExchageParam
 		fUseByContextValue    = 0x0004  // @v11.4.7  
 	};
-	ArticleCtrlGroup(uint ctlselAcs, uint ctlselOp, uint ctlselAr, uint cmEditList, long accSheetID, long flags = 0);
+	ArticleCtrlGroup(uint ctlselAcs, uint ctlselOp, uint ctlselAr, uint cmEditList, PPID accSheetID, long flags = 0);
 	void   SetAccSheet(long accSheetID);
 	virtual int setData(TDialog *, void *); // (ArticleCtrlGroup::Rec*)
 	virtual int getData(TDialog *, void *); // (ArticleCtrlGroup::Rec*)
@@ -54803,7 +54795,7 @@ public:
 	};
 	struct Rec {
 		Rec();
-		char   FilePath[MAXPATH];
+		char   FilePath[MAX_PATH];
 	};
 
 	FileBrowseCtrlGroup(uint buttonId, uint inputId, const char * pTitle, long flags);
@@ -56900,7 +56892,14 @@ public:
 	int    AddTool(const char * pObjSymb);
 	int    EditTool(uint objIdx);
 	int    DeleteTool(uint objIdx);
-	int    FileSave();
+	//
+	// Descr: Опции функции FileSave()
+	//
+	enum {
+		fsfLayoutAsJson = 0x0001 // Сохранить layout в json-формате
+	};
+
+	int    FileSave(uint flags, WhatmanObjectLayoutBase * pLayout);
 	int    FileOpen();
 	int    LoadTools(const char * pFileName);
 	void   SetCurrentObject(int objIdx);

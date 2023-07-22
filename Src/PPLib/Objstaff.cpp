@@ -22,10 +22,10 @@ int SetupStaffListCombo(TDialog * dlg, uint ctl, PPID id, uint flags, PPID orgID
 IMPL_INVARIANT_C(StaffAmtEntry)
 {
 	S_INVARIANT_PROLOG(pInvP);
-	S_ASSERT_P(checkirange(AmtTypeID, 1L, 0x00ffffffL), pInvP);
-	S_ASSERT_P(checkirange(CurID, 1L, 0x00ffffffL), pInvP);
+	S_ASSERT_P(checkirange((long)AmtTypeID, 1L, 0x00ffffffL), pInvP);
+	S_ASSERT_P(checkirange((long)CurID, 1L, 0x00ffffffL), pInvP);
 	S_ASSERT(Period.InvariantC(pInvP));
-	S_ASSERT_P(checkfrange(Amt, 0, 1.E9), pInvP);
+	S_ASSERT_P(checkfrange(Amt, 0.0, 1.E9), pInvP);
 	S_INVARIANT_EPILOG(pInvP);
 }
 

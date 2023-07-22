@@ -31,7 +31,7 @@
 /*-*******************************************************
 *  Local Functions
 *********************************************************/
-#define RDG_rotl32(x, r) ((x << r) | (x >> (32 - r)))
+// @sobolev (replaced with SBits::Rotl) #define RDG_rotl32(x, r) ((x << r) | (x >> (32 - r)))
 static uint32 RDG_rand(uint32* src)
 {
 	static const uint32 prime1 = SlConst::MagicHashPrime32/*2654435761U*/;
@@ -39,7 +39,7 @@ static uint32 RDG_rand(uint32* src)
 	uint32 rand32 = *src;
 	rand32 *= prime1;
 	rand32 ^= prime2;
-	rand32  = RDG_rotl32(rand32, 13);
+	rand32  = SBits::Rotl(rand32, 13);
 	*src = rand32;
 	return rand32 >> 5;
 }

@@ -387,7 +387,7 @@ int xmlNop(void);
 			// 
 			// expressions are used within a context 
 			typedef struct _xmlExpCtxt xmlExpCtxt;
-			typedef xmlExpCtxt *xmlExpCtxtPtr;
+			typedef xmlExpCtxt * xmlExpCtxtPtr;
 
 			XMLPUBFUN void xmlExpFreeCtxt(xmlExpCtxtPtr ctxt);
 			XMLPUBFUN xmlExpCtxtPtr xmlExpNewCtxt(int maxNodes, xmlDict * dict);

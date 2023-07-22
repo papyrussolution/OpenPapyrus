@@ -3908,7 +3908,7 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 							item_buf.Space().CatChar(c);
                         }
                         else if(c == '\t')
-							item_buf.CatChar('\\').CatChar('t');
+							item_buf.BSlash().CatChar('t');
 						else
 							item_buf.CatHex(c);
                         temp_buf.Cat(item_buf);

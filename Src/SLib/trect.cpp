@@ -1532,6 +1532,21 @@ SColorBase FASTCALL SColorBase::Set(uint v)
 	return *this;
 }
 
+SColorBase SColorBase::SetAlpha(uint a /*[0..255]*/)
+{
+	if(a >= 0 && a <= 255)
+		Alpha = static_cast<uint8>(a);
+	return *this;
+}
+
+SColorBase SColorBase::SetAlphaF(float a/*[0..1]*/)
+{
+	if(a >= 0.0f && a <= 1.0f) {
+		Alpha = static_cast<uint8>(R0i(a * 255.0f));
+	}
+	return *this;
+}
+
 SColorBase SColorBase::PremultiplyAlpha()
 {
 	uint32 c = *reinterpret_cast<const uint32 *>(this);

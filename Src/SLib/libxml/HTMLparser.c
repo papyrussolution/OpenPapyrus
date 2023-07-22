@@ -1230,13 +1230,9 @@ int htmlIsScriptAttribute(const xmlChar * name)
 	}
 	return 0;
 }
-
-/************************************************************************
-*									*
-*	The list of HTML predefined entities			*
-*									*
-************************************************************************/
-
+//
+// The list of HTML predefined entities
+//
 static const htmlEntityDesc html40EntitiesTable[] = {
 /*
  * the 4 absolute ones, plus apostrophe.
@@ -1518,13 +1514,9 @@ static const htmlEntityDesc html40EntitiesTable[] = {
 	{ 9829, "hearts", "black heart suit = valentine, U+2665 ISOpub" },
 	{ 9830, "diams", "black diamond suit, U+2666 ISOpub" },
 };
-
-/************************************************************************
-*									*
-*		Commodity functions to handle entities			*
-*									*
-************************************************************************/
-
+//
+// Commodity functions to handle entities
+//
 /*
  * Macro used to grow the current buffer.
  */

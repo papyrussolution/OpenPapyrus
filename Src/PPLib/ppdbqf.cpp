@@ -890,7 +890,7 @@ static IMPL_DBE_PROC(dbqf_ufpfuncname_i)
 			int    func_id = PPUserProfileFuncEntry::FromLoggedFuncId(id, &func_ver);
 			SString temp_buf;
 			PPLoadString(PPSTR_USRPROFILEFUNCNAM, func_id, temp_buf);
-			temp_buf.CatChar('/').Cat(func_ver).CopyTo(name, sizeof(name));
+			temp_buf.Slash().Cat(func_ver).CopyTo(name, sizeof(name));
 		}
 		result->init(name);
 	}

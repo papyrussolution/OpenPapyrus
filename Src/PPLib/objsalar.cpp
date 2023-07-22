@@ -1229,7 +1229,7 @@ int StaffCalDialog::setupList()
 		}
 		else if(cdt.GetKind() == CALDATE::kCalDate) {
 			dt.v = rrec.DtVal;
-			sub.Z().CatLongZ(dt.day(), 2).CatChar('/').CatLongZ(dt.month(), 2);
+			sub.Z().CatLongZ(dt.day(), 2).Slash().CatLongZ(dt.month(), 2);
 		}
 		else {
 			dt.v = rrec.DtVal;
@@ -1425,7 +1425,7 @@ int StaffCalDayDialog::setupDate()
 		int    d, m, y;
 		decodedate(&d, &m, &y, &Data.DtVal);
 		SString temp_buf;
-		temp_buf.Cat(d).CatChar('/').Cat(m);
+		temp_buf.Cat(d).Slash().Cat(m);
 		TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_STAFFCALD_DATE));
 		CALLPTRMEMB(p_il, setText(temp_buf));
 		setCtrlLong(CTLSEL_STAFFCALD_DAYOFW, 0);

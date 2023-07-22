@@ -26,11 +26,11 @@ void Sha256_Init(CSha256 * p)
 	p->count = 0;
 }
 
-// @v11.4.0 rotrFixed-->slrotr32
-#define S0(x) (slrotr32(x, 2) ^ slrotr32(x, 13) ^ slrotr32(x, 22))
-#define S1(x) (slrotr32(x, 6) ^ slrotr32(x, 11) ^ slrotr32(x, 25))
-#define s0(x) (slrotr32(x, 7) ^ slrotr32(x, 18) ^ (x >> 3))
-#define s1(x) (slrotr32(x, 17) ^ slrotr32(x, 19) ^ (x >> 10))
+// @v11.4.0 rotrFixed-->SBits::Rotr
+#define S0(x) (SBits::Rotr(x, 2) ^ SBits::Rotr(x, 13) ^ SBits::Rotr(x, 22))
+#define S1(x) (SBits::Rotr(x, 6) ^ SBits::Rotr(x, 11) ^ SBits::Rotr(x, 25))
+#define s0(x) (SBits::Rotr(x, 7) ^ SBits::Rotr(x, 18) ^ (x >> 3))
+#define s1(x) (SBits::Rotr(x, 17) ^ SBits::Rotr(x, 19) ^ (x >> 10))
 
 #define blk0(i) (W[i])
 #define blk2(i) (W[i] += s1(W[((i)-2)&15]) + W[((i)-7)&15] + s0(W[((i)-15)&15]))

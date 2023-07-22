@@ -6,16 +6,14 @@
 
 static void xps_init_document(fz_context * ctx, xps_document * doc);
 
-static xps_part * xps_new_part(fz_context * ctx, xps_document * doc, char * name, fz_buffer * data)
+static xps_part * xps_new_part(fz_context * ctx, xps_document * doc, const char * name, fz_buffer * data)
 {
 	xps_part * part = fz_malloc_struct(ctx, xps_part);
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		part->name = fz_strdup(ctx, name);
 		part->data = data; /* take ownership of buffer */
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_drop_buffer(ctx, data);
 		fz_free(ctx, part);
 		fz_rethrow(ctx);
@@ -30,30 +28,25 @@ void xps_drop_part(fz_context * ctx, xps_document * doc, xps_part * part)
 	fz_free(ctx, part);
 }
 
-xps_part * xps_read_part(fz_context * ctx, xps_document * doc, char * partname)
+xps_part * xps_read_part(fz_context * ctx, xps_document * doc, const char * partname)
 {
 	fz_archive * zip = doc->zip;
 	fz_buffer * buf = NULL;
 	fz_buffer * tmp = NULL;
 	char path[2048];
 	int count;
-	char * name;
+	const char * name;
 	int seen_last;
-
 	fz_var(buf);
 	fz_var(tmp);
-
 	name = partname;
 	if(name[0] == '/')
 		name++;
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		/* All in one piece */
 		if(fz_has_archive_entry(ctx, zip, name)) {
 			buf = fz_read_archive_entry(ctx, zip, name);
 		}
-
 		/* Assemble all the pieces */
 		else {
 			buf = fz_new_buffer(ctx, 512);
@@ -81,13 +74,11 @@ xps_part * xps_read_part(fz_context * ctx, xps_document * doc, char * partname)
 			}
 		}
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_drop_buffer(ctx, tmp);
 		fz_drop_buffer(ctx, buf);
 		fz_rethrow(ctx);
 	}
-
 	return xps_new_part(ctx, doc, partname, buf);
 }
 

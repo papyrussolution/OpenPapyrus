@@ -1901,7 +1901,7 @@ void ImFontAtlas::GetTexDataAsRGBA32(uchar** out_pixels, int* out_width, int* ou
 	ASSIGN_PTR(out_bytes_per_pixel, 4);
 }
 
-ImFont* ImFontAtlas::AddFont(const ImFontConfig* font_cfg)
+ImFont * ImFontAtlas::AddFont(const ImFontConfig * font_cfg)
 {
 	assert(!Locked && "Cannot modify a locked ImFontAtlas between NewFrame() and EndFrame/Render()!");
 	assert(font_cfg->FontData != NULL && font_cfg->FontDataSize > 0);
@@ -1912,7 +1912,7 @@ ImFont* ImFontAtlas::AddFont(const ImFontConfig* font_cfg)
 	else
 		assert(!Fonts.empty() && "Cannot use MergeMode for the first font"); // When using MergeMode make sure that a font has already been added before. You can use ImGui::GetIO().Fonts->AddFontDefault() to add the default imgui font.
 	ConfigData.push_back(*font_cfg);
-	ImFontConfig& new_font_cfg = ConfigData.back();
+	ImFontConfig & new_font_cfg = ConfigData.back();
 	if(new_font_cfg.DstFont == NULL)
 		new_font_cfg.DstFont = Fonts.back();
 	if(!new_font_cfg.FontDataOwnedByAtlas) {
@@ -1931,7 +1931,7 @@ ImFont* ImFontAtlas::AddFont(const ImFontConfig* font_cfg)
 // Default font TTF is compressed with stb_compress then base85 encoded (see misc/fonts/binary_to_compressed_c.cpp for encoder)
 static uint stb_decompress_length(const uchar * input);
 static uint stb_decompress(uchar* output, const uchar * input, uint length);
-static const char*  GetDefaultCompressedFontDataTTFBase85();
+static const char * GetDefaultCompressedFontDataTTFBase85();
 static uint Decode85Byte(char c) { return c >= '\\' ? c-36 : c-35; }
 static void Decode85(const uchar* src, uchar* dst)
 {

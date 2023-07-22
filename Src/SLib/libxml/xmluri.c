@@ -1,12 +1,8 @@
-/**
- * uri.c: set of generic URI related routines
- *
- * Reference: RFCs 3986, 2732 and 2373
- *
- * See Copyright for the status of this software.
- *
- * daniel@veillard.com
- */
+// uri.c: set of generic URI related routines
+// Reference: RFCs 3986, 2732 and 2373
+// See Copyright for the status of this software.
+// daniel@veillard.com
+//
 #include <slib-internal.h>
 #pragma hdrstop
 /**
@@ -30,12 +26,10 @@ static void FASTCALL xmlURIErrMemory(const char * extra)
 	else
 		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_URI, XML_ERR_NO_MEMORY, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "Memory allocation failed\n");
 }
-/**
- * xmlCleanURI:
- * @uri:  pointer to an xmlURI
- *
- * Make sure the xmlURI struct is free of content
- */
+//
+// @uri:  pointer to an xmlURI
+// Make sure the xmlURI struct is free of content
+//
 static void FASTCALL xmlCleanURI(xmlURI * uri)
 {
 	if(uri) {
@@ -50,19 +44,19 @@ static void FASTCALL xmlCleanURI(xmlURI * uri)
 		ZFREE(uri->query_raw);
 	}
 }
-/*
- * Old rule from 2396 used in legacy handling code
- * alpha    = lowalpha | upalpha
- */
-#define IS_ALPHA(x) (IS_LOWALPHA(x) || IS_UPALPHA(x))
-/*
- * lowalpha = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z"
- */
-#define IS_LOWALPHA(x) (((x) >= 'a') && ((x) <= 'z'))
-/*
- * upalpha = "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
- */
-#define IS_UPALPHA(x) (((x) >= 'A') && ((x) <= 'Z'))
+// 
+// Old rule from 2396 used in legacy handling code
+// alpha    = lowalpha | upalpha
+//
+// @v11.7.10 (replaced with isasciialpha) #define IS_ALPHA_Removed(x) (IS_LOWALPHA(x) || IS_UPALPHA(x))
+//
+// lowalpha = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z"
+//
+// @v11.7.10 #define IS_LOWALPHA(x) (((x) >= 'a') && ((x) <= 'z'))
+//
+// upalpha = "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
+//
+// @v11.7.10 #define IS_UPALPHA(x) (((x) >= 'A') && ((x) <= 'Z'))
 //#ifdef IS_DIGIT_Removed
 	//#undef IS_DIGIT_Removed
 //#endif
@@ -73,7 +67,7 @@ static void FASTCALL xmlCleanURI(xmlURI * uri)
 /*
  * alphanum = alpha | digit
  */
-#define IS_ALPHANUM(x) (IS_ALPHA(x) || isdec(x))
+// @v11.7.10 (replaced with isasciialnum) #define IS_ALPHANUM_Removed(x) (isasciialpha(x) || isdec(x))
 /*
  * mark = "-" | "_" | "." | "!" | "~" | "*" | "'" | "(" | ")"
  */
@@ -91,7 +85,7 @@ static void FASTCALL xmlCleanURI(xmlURI * uri)
 /*
  * unreserved = alphanum | mark
  */
-#define IS_UNRESERVED(x) (IS_ALPHANUM(x) || IS_MARK(x))
+#define IS_UNRESERVED(x) (isasciialnum(x) || IS_MARK(x))
 /*
  * Skip to next pointer char, handle escaped sequences
  */
@@ -109,9 +103,9 @@ static void FASTCALL xmlCleanURI(xmlURI * uri)
 // 
 // RFC 3986 parser
 // 
-#define ISA_DIGIT(p) ((*(p) >= '0') && (*(p) <= '9'))
-#define ISA_ALPHA(p) (((*(p) >= 'a') && (*(p) <= 'z')) || ((*(p) >= 'A') && (*(p) <= 'Z')))
-#define ISA_HEXDIG(p) (ISA_DIGIT(p) || ((*(p) >= 'a') && (*(p) <= 'f')) || ((*(p) >= 'A') && (*(p) <= 'F')))
+// @v11.7.10 (replaced with isdec) #define ISA_DIGIT_Removed(p) ((*(p) >= '0') && (*(p) <= '9'))
+// @v11.7.10 (replaced with isasciialpha) #define ISA_ALPHA_Removed(p) (((*(p) >= 'a') && (*(p) <= 'z')) || ((*(p) >= 'A') && (*(p) <= 'Z')))
+// @v11.7.10 (replaced with ishex) #define ISA_HEXDIG(p) (isdec(*p) || ((*(p) >= 'a') && (*(p) <= 'f')) || ((*(p) >= 'A') && (*(p) <= 'F')))
 /*
  *  sub-delims    = "!" / "$" / "&" / "'" / "(" / ")"
  *          / "*" / "+" / "," / ";" / "="
@@ -130,11 +124,11 @@ static void FASTCALL xmlCleanURI(xmlURI * uri)
 /*
  *  unreserved    = ALPHA / DIGIT / "-" / "." / "_" / "~"
  */
-#define ISA_UNRESERVED(p) ((ISA_ALPHA(p)) || (ISA_DIGIT(p)) || ((*(p) == '-')) || ((*(p) == '.')) || ((*(p) == '_')) || ((*(p) == '~')))
+#define ISA_UNRESERVED(p) ((isasciialpha(*p)) || (isdec(*p)) || ((*(p) == '-')) || ((*(p) == '.')) || ((*(p) == '_')) || ((*(p) == '~')))
 /*
  *  pct-encoded   = "%" HEXDIG HEXDIG
  */
-#define ISA_PCT_ENCODED(p) ((*(p) == '%') && (ISA_HEXDIG(p + 1)) && (ISA_HEXDIG(p + 2)))
+#define ISA_PCT_ENCODED(p) ((*(p) == '%') && (ishex(p[1])) && (ishex(p[2])))
 /*
  *  pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
  */
@@ -156,11 +150,11 @@ static int xmlParse3986Scheme(xmlURI * uri, const char ** str)
 		return -1;
 	else {
 		const char * cur = *str;
-		if(!ISA_ALPHA(cur))
+		if(!isasciialpha(*cur))
 			return (2);
 		else {
 			cur++;
-			while(ISA_ALPHA(cur) || ISA_DIGIT(cur) || oneof3(*cur, '+', '-', '.'))
+			while(isasciialpha(*cur) || isdec(*cur) || oneof3(*cur, '+', '-', '.'))
 				cur++;
 			if(uri) {
 				SAlloc::F(uri->scheme);
@@ -251,10 +245,10 @@ static int xmlParse3986Query(xmlURI * uri, const char ** str)
 static int xmlParse3986Port(xmlURI * uri, const char ** str)
 {
 	const char * cur = *str;
-	if(ISA_DIGIT(cur)) {
+	if(isdec(*cur)) {
 		if(uri)
 			uri->port = 0;
-		while(ISA_DIGIT(cur)) {
+		while(isdec(*cur)) {
 			if(uri)
 				uri->port = uri->port * 10 + (*cur - '0');
 			cur++;
@@ -308,15 +302,15 @@ static int xmlParse3986Userinfo(xmlURI * uri, const char ** str)
 static int xmlParse3986DecOctet(const char ** str)
 {
 	const char * cur = *str;
-	if(!(ISA_DIGIT(cur)))
+	if(!(isdec(*cur)))
 		return 1;
-	if(!ISA_DIGIT(cur+1))
+	if(!isdec(cur[1]))
 		cur++;
-	else if((*cur != '0') && (ISA_DIGIT(cur + 1)) && (!ISA_DIGIT(cur+2)))
+	else if((*cur != '0') && (isdec(cur[1])) && (!isdec(cur[2])))
 		cur += 2;
-	else if((*cur == '1') && (ISA_DIGIT(cur + 1)) && (ISA_DIGIT(cur + 2)))
+	else if((*cur == '1') && (isdec(cur[1])) && (isdec(cur[2])))
 		cur += 3;
-	else if((*cur == '2') && (*(cur + 1) >= '0') && (*(cur + 1) <= '4') && (ISA_DIGIT(cur + 2)))
+	else if((*cur == '2') && (*(cur + 1) >= '0') && (*(cur + 1) <= '4') && (isdec(cur[2])))
 		cur += 3;
 	else if((*cur == '2') && (*(cur + 1) == '5') && (*(cur + 2) >= '0') && (*(cur + 1) <= '5'))
 		cur += 3;
@@ -359,7 +353,7 @@ static int xmlParse3986Host(xmlURI * uri, const char ** str)
 	/*
 	 * try to parse an IPv4
 	 */
-	if(ISA_DIGIT(cur)) {
+	if(isdec(*cur)) {
 		if(xmlParse3986DecOctet(&cur) != 0)
 			goto not_ipv4;
 		if(*cur != '.')
@@ -2065,7 +2059,7 @@ done:
  * by the returned string. If there is insufficient memory available, or the
  * argument is NULL, the function returns NULL.
  */
-#define IS_WINDOWS_PATH(p) ((p) && (((p[0] >= 'a') && (p[0] <= 'z')) || ((p[0] >= 'A') && (p[0] <= 'Z'))) && (p[1] == ':') && ((p[2] == '/') || (p[2] == '\\')))
+// @v11.7.10 (replaced with IsWindowsPathPrefix) #define IS_WINDOWS_PATH_Removed(p) ((p) && (((p[0] >= 'a') && (p[0] <= 'z')) || ((p[0] >= 'A') && (p[0] <= 'Z'))) && (p[1] == ':') && ((p[2] == '/') || (p[2] == '\\')))
 
 xmlChar * xmlCanonicPath(const xmlChar * path)
 {
@@ -2143,7 +2137,7 @@ path_processing:
 		return 0;
 	}
 	len = sstrlen(path);
-	if(len > 2 && IS_WINDOWS_PATH(path)) {
+	if(len > 2 && SPathStruc::IsWindowsPathPrefix((char *)path)) {
 		uri->scheme = sstrdup("file"); // make the scheme 'file' 
 		uri->path = static_cast<char *>(SAlloc::M(len + 2)); // allocate space for leading '/' + path + string terminator 
 		if(uri->path == NULL) {

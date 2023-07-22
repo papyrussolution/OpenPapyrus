@@ -81,25 +81,10 @@ static ossl_inline uint64_t constant_time_select_64(uint64_t mask, uint64_t a, u
 /* Convenience method for signed integers. */
 static ossl_inline int constant_time_select_int(unsigned int mask, int a, int b);
 
-static ossl_inline unsigned int constant_time_msb(unsigned int a)
-{
-	return 0 - (a >> (sizeof(a) * 8 - 1));
-}
-
-static ossl_inline uint32_t constant_time_msb_32(uint32_t a)
-{
-	return 0 - (a >> 31);
-}
-
-static ossl_inline uint64_t constant_time_msb_64(uint64_t a)
-{
-	return 0 - (a >> 63);
-}
-
-static ossl_inline size_t constant_time_msb_s(size_t a)
-{
-	return 0 - (a >> (sizeof(a) * 8 - 1));
-}
+static ossl_inline unsigned int constant_time_msb(unsigned int a) { return 0 - (a >> (sizeof(a) * 8 - 1)); }
+static ossl_inline uint32_t constant_time_msb_32(uint32_t a) { return 0 - (a >> 31); }
+static ossl_inline uint64_t constant_time_msb_64(uint64_t a) { return 0 - (a >> 63); }
+static ossl_inline size_t constant_time_msb_s(size_t a) { return 0 - (a >> (sizeof(a) * 8 - 1)); }
 
 static ossl_inline unsigned int constant_time_lt(unsigned int a, unsigned int b)
 {

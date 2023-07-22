@@ -437,18 +437,17 @@ static ngx_int_t ngx_win32_check_filename(u_char * name, u_short * u, size_t len
 		sw_after_colon,
 		sw_after_dot
 	} state;
-	/* check for NTFS streams (":"), trailing dots and spaces */
+	// check for NTFS streams (":"), trailing dots and spaces
 	lu = NULL;
 	state = sw_start;
 	for(p = name; *p; p++) {
 		ch = *p;
 		switch(state) {
 			case sw_start:
-			    /*
-			   * skip till first "/" to allow paths starting with drive and
-			   * relative path, like "c:html/"
-			     */
-			    if(ch == '/' || ch == '\\') {
+			    // 
+			    // skip till first "/" to allow paths starting with drive and relative path, like "c:html/"
+			    // 
+			    if(isdirslash(ch)) {
 				    state = sw_after_slash;
 			    }
 			    break;
@@ -461,13 +460,13 @@ static ngx_int_t ngx_win32_check_filename(u_char * name, u_short * u, size_t len
 				    state = sw_after_dot;
 				    break;
 			    }
-			    if(ch == '/' || ch == '\\') {
+			    if(isdirslash(ch)) {
 				    state = sw_after_slash;
 				    break;
 			    }
 			    break;
 			case sw_after_slash:
-			    if(ch == '/' || ch == '\\') {
+			    if(isdirslash(ch)) {
 				    break;
 			    }
 			    if(ch == '.') {
@@ -480,13 +479,13 @@ static ngx_int_t ngx_win32_check_filename(u_char * name, u_short * u, size_t len
 			    state = sw_normal;
 			    break;
 			case sw_after_colon:
-			    if(ch == '/' || ch == '\\') {
+			    if(isdirslash(ch)) {
 				    state = sw_after_slash;
 				    break;
 			    }
 			    goto invalid;
 			case sw_after_dot:
-			    if(ch == '/' || ch == '\\') {
+			    if(isdirslash(ch)) {
 				    goto invalid;
 			    }
 			    if(ch == ':') {
@@ -502,7 +501,7 @@ static ngx_int_t ngx_win32_check_filename(u_char * name, u_short * u, size_t len
 	if(state == sw_after_dot) {
 		goto invalid;
 	}
-	/* check if long name match */
+	// check if long name match
 	lu = (u_short *)SAlloc::M(len * 2);
 	if(lu == NULL) {
 		return NGX_ERROR;

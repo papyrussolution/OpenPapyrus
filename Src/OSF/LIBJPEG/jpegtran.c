@@ -358,9 +358,9 @@ static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv, int last
 	}
 	return argn; /* return index of next arg (file name) */
 }
-/*
- * The main program.
- */
+// 
+// The main program.
+// 
 int main(int argc, char ** argv)
 {
 	struct jpeg_decompress_struct srcinfo;
@@ -389,7 +389,6 @@ int main(int argc, char ** argv)
 	/* Initialize the JPEG compression object with default error handling. */
 	dstinfo.err = jpeg_std_error(&jdsterr);
 	jpeg_create_compress(&dstinfo);
-
 	/* Now safe to enable signal catcher.
 	 * Note: we assume only the decompression object will have virtual arrays.
 	 */
@@ -429,7 +428,6 @@ int main(int argc, char ** argv)
 		usage();
 	}
 #endif /* TWO_FILE_COMMANDLINE */
-
 	/* Open the input file. */
 	if(file_index < argc) {
 		if((fp = fopen(argv[file_index], READ_BINARY)) == NULL) {
@@ -441,7 +439,6 @@ int main(int argc, char ** argv)
 		/* default input file is stdin */
 		fp = read_stdin();
 	}
-
 #ifdef PROGRESS_REPORT
 	start_progress_monitor((j_common_ptr) &dstinfo, &progress);
 #endif

@@ -69,7 +69,7 @@ int PPOpCounterPacket::SetCounter(PPID locID, long counter)
 	int    r = -1;
 	counter = (counter < 0) ? 0 : counter;
 	if(P_Items && locID && Head.Flags & OPCNTF_DIFFBYLOC) {
-		if(P_Items->Search(locID, 0, 0))
+		if(P_Items->Search(locID, 0))
 			r = P_Items->Update(locID, counter);
 		else
 			r = P_Items->AddUnique(locID, counter, 0);

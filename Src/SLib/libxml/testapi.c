@@ -31143,19 +31143,17 @@ static int test_xmlTextReaderValue() {
 	return test_ret;
 }
 
-static int test_xmlTextReaderXmlLang() {
+static int test_xmlTextReaderXmlLang() 
+{
 	int test_ret = 0;
-
 #if defined(LIBXML_READER_ENABLED)
 	int mem_base;
 	xmlChar * ret_val;
 	xmlTextReader * reader; /* the xmlTextReaderPtr used */
 	int n_reader;
-
 	for(n_reader = 0; n_reader < gen_nb_xmlTextReaderPtr; n_reader++) {
 		mem_base = xmlMemBlocks();
 		reader = gen_xmlTextReaderPtr(n_reader, 0);
-
 		ret_val = xmlTextReaderXmlLang(reader);
 		desret_xmlChar_ptr(ret_val);
 		call_tests++;
@@ -31171,13 +31169,12 @@ static int test_xmlTextReaderXmlLang() {
 	}
 	function_tests++;
 #endif
-
 	return test_ret;
 }
 
-static int test_xmlreader() {
+static int test_xmlreader() 
+{
 	int test_ret = 0;
-
 	if(quiet == 0) printf("Testing xmlreader : 76 of 86 functions ...\n");
 	test_ret += test_xmlNewTextReader();
 	test_ret += test_xmlNewTextReaderFilename();
@@ -31263,27 +31260,24 @@ static int test_xmlreader() {
 	return test_ret;
 }
 
-static int test_xmlExpCtxtNbCons() {
+static int test_xmlExpCtxtNbCons() 
+{
 	int test_ret = 0;
-
 #if defined(LIBXML_REGEXP_ENABLED) && defined(LIBXML_EXPR_ENABLED)
 	int mem_base;
 	int ret_val;
 	xmlExpCtxtPtr ctxt; /* an expression context */
 	int n_ctxt;
-
 	for(n_ctxt = 0; n_ctxt < gen_nb_xmlExpCtxtPtr; n_ctxt++) {
 		mem_base = xmlMemBlocks();
 		ctxt = gen_xmlExpCtxtPtr(n_ctxt, 0);
-
 		ret_val = xmlExpCtxtNbCons(ctxt);
 		desret_int(ret_val);
 		call_tests++;
 		des_xmlExpCtxtPtr(n_ctxt, ctxt, 0);
 		xmlResetLastError();
 		if(mem_base != xmlMemBlocks()) {
-			printf("Leak of %d blocks found in xmlExpCtxtNbCons",
-			    xmlMemBlocks() - mem_base);
+			printf("Leak of %d blocks found in xmlExpCtxtNbCons", xmlMemBlocks() - mem_base);
 			test_ret++;
 			printf(" %d", n_ctxt);
 			printf("\n");
@@ -31295,15 +31289,14 @@ static int test_xmlExpCtxtNbCons() {
 	return test_ret;
 }
 
-static int test_xmlExpCtxtNbNodes() {
+static int test_xmlExpCtxtNbNodes() 
+{
 	int test_ret = 0;
-
 #if defined(LIBXML_REGEXP_ENABLED) && defined(LIBXML_EXPR_ENABLED)
 	int mem_base;
 	int ret_val;
 	xmlExpCtxtPtr ctxt; /* an expression context */
 	int n_ctxt;
-
 	for(n_ctxt = 0; n_ctxt < gen_nb_xmlExpCtxtPtr; n_ctxt++) {
 		mem_base = xmlMemBlocks();
 		ctxt = gen_xmlExpCtxtPtr(n_ctxt, 0);
@@ -35392,9 +35385,9 @@ static int test_xmlUCSIsArabicPresentationFormsA() {
 	return test_ret;
 }
 
-static int test_xmlUCSIsArabicPresentationFormsB() {
+static int test_xmlUCSIsArabicPresentationFormsB() 
+{
 	int test_ret = 0;
-
 #if defined(LIBXML_UNICODE_ENABLED)
 	int mem_base;
 	int ret_val;

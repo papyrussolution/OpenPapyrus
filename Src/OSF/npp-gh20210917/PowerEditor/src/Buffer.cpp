@@ -483,17 +483,12 @@ BufferID FileManager::loadFile(const TCHAR * filename, Document doc, int encodin
 	if(_tcschr(fullpath, '~')) {
 		::GetLongPathName(fullpath, fullpath, MAX_PATH);
 	}
-
 	bool isSnapshotMode = backupFileName != NULL && PathFileExists(backupFileName);
-	if(isSnapshotMode && !PathFileExists(fullpath)) { // if backup mode and fullpath doesn't exist, we guess is
-	                                                  // UNTITLED
+	if(isSnapshotMode && !PathFileExists(fullpath)) { // if backup mode and fullpath doesn't exist, we guess is UNTITLED
 		wcscpy_s(fullpath, MAX_PATH, filename); // we restore fullpath with filename, in our case is "new  #"
 	}
-
 	Utf8_16_Read UnicodeConvertor;  //declare here so we can get information after loading is done
-
 	char data[blockSize + 8]; // +8 for incomplete multibyte char
-
 	LoadedFileFormat loadedFileFormat;
 	loadedFileFormat._encoding = encoding;
 	loadedFileFormat._eolFormat = EolType::unknown;
@@ -504,13 +499,11 @@ BufferID FileManager::loadFile(const TCHAR * filename, Document doc, int encodin
 		Buffer* newBuf = new Buffer(this, _nextBufferID, doc, DOC_REGULAR, fullpath);
 		BufferID id = static_cast<BufferID>(newBuf);
 		newBuf->_id = id;
-
 		if(backupFileName != NULL) {
 			newBuf->_backupFileName = backupFileName;
 			if(!PathFileExists(fullpath))
 				newBuf->_currentStatus = DOC_UNNAMED;
 		}
-
 		const FILETIME zeroTime = {};
 		if(CompareFileTime(&fileNameTimestamp, &zeroTime) != 0)
 			newBuf->_timeStamp = fileNameTimestamp;
@@ -726,12 +719,10 @@ bool FileManager::backupCurrentBuffer()
 
 			// Make sure the backup file is not read only
 			DWORD dwFileAttribs = ::GetFileAttributes(fullpath);
-			if(dwFileAttribs & FILE_ATTRIBUTE_READONLY) { // if file is read only, remove read only
-			                                              // attribute
+			if(dwFileAttribs & FILE_ATTRIBUTE_READONLY) { // if file is read only, remove read only attribute
 				dwFileAttribs ^= FILE_ATTRIBUTE_READONLY;
 				::SetFileAttributes(fullpath, dwFileAttribs);
 			}
-
 			FILE * fp = UnicodeConvertor.fopen(fullpath, TEXT("wbc"));
 			if(fp) {
 				int lengthDoc = _pNotepadPlus->_pEditView->getCurrentDocLen();

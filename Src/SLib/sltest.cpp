@@ -374,6 +374,17 @@ int STestCase::_check_lt(uint a, uint b, const char * pA, const char * pB)
 		return 1;
 }
 
+int STestCase::_check_lt(uint64 a, uint64 b, const char * pA, const char * pB)
+{
+	if(a >= b) {
+		SString buf;
+		SetInfo(catval(b, pB, catval(a, pA, buf).Cat(">=")), 0);
+		return 0;
+	}
+	else
+		return 1;
+}
+
 int STestCase::_check_lt(ulong a, ulong b, const char * pA, const char * pB)
 {
 	if(a >= b) {

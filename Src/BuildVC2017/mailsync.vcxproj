@@ -323,9 +323,6 @@
     <ProjectReference Include="libicu.vcxproj">
       <Project>{6d226127-c063-4702-b4b9-118233d7354c}</Project>
     </ProjectReference>
-    <ProjectReference Include="libxml.vcxproj">
-      <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>
-    </ProjectReference>
     <ProjectReference Include="mailcore2.vcxproj">
       <Project>{aad35e01-77e4-43cb-bbb4-f7f6692ea829}</Project>
     </ProjectReference>

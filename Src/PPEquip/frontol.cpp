@@ -12,7 +12,7 @@ static void RcvMailCallback(const IterCounter & bytesCounter, const IterCounter 
 	SString msg;
 	PPLoadText(PPTXT_RCVMAILWAITMSG, msg);
 	if(msgCounter.GetTotal() > 1)
-		msg.Space().Cat(msgCounter).CatChar('/').Cat(msgCounter.GetTotal());
+		msg.Space().Cat(msgCounter).Slash().Cat(msgCounter.GetTotal());
 	PPWaitPercent(bytesCounter, msg);
 }
 
@@ -558,10 +558,14 @@ int ACS_FRONTOL::ExportData(int updOnly)
 							// Признак предмета расчёта: 0 – товар, кроме подакцизного; 1 – подакцизный товар; 2 – работа;
 							// 3 – услуга; 4 – товар, состоящий из нескольких признаков; 5 – иной товар.
 							if(cn_data.DrvVerMajor > 5 || (cn_data.DrvVerMajor == 5 && cn_data.DrvVerMinor >= 20)) {
-								tail.CatChar('1');                              // #13 - Признак предмета расчёта
+								char _tag = '1';
+								if(gds_info.Flags_ & AsyncCashGoodsInfo::fGExciseProForma) // @v11.7.10
+									_tag = '2';
+								tail.CatChar(_tag); // #13 - Признак предмета расчёта
 							}
-							else
-								tail.CatChar('0');                              // #13 - Признак предмета расчёта
+							else {
+								tail.CatChar('0'); // #13 - Признак предмета расчёта
+							}
 						}
 						else {
 							if(gds_info.NoDis <= 0)                         // 

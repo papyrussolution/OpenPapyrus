@@ -1837,6 +1837,54 @@ void FASTCALL SPaintObj::Brush::SetSimple(SColor c)
 	IdPattern = 0;
 }
 //
+// 
+// 
+SFontSource::SFontSource()
+{
+}
+	
+SFontSource & SFontSource::Z()
+{
+	Face.Z();
+	Src.Z();
+	return *this;
+}
+
+const void * SFontSource::GetHashKey(const void * pCtx, uint * pKeyLen) const
+{
+	ASSIGN_PTR(pKeyLen, Face.Len());
+	return Face.cptr();
+}
+
+SJson * SFontSource::ToJsonObj() const
+{
+	SJson * p_result = SJson::CreateObj();
+	if(Face.NotEmpty()) {
+		SString temp_buf;
+		p_result->InsertString("face", (temp_buf = Face).Escape());
+		p_result->InsertStringNe("src", (temp_buf = Src).Escape());
+	}
+	return p_result;
+}
+
+int SFontSource::FromJsonObj(const SJson * pJs)
+{
+	int    ok = 1;
+	THROW(SJson::IsObject(pJs)); // @todo @err
+	for(const SJson * p_jsn = pJs->P_Child; p_jsn; p_jsn = p_jsn->P_Next) {
+		if(p_jsn->P_Child) {
+			if(p_jsn->Text.IsEqiAscii("face")) {
+				(Face = p_jsn->P_Child->Text).Unescape();
+			}
+			else if(p_jsn->Text.IsEqiAscii("src")) {
+				(Src = p_jsn->P_Child->Text).Unescape();
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+//
 //
 //
 SFontDescr::SFontDescr(const char * pFace, int size, int flags)

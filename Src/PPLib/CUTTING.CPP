@@ -385,7 +385,7 @@ static int EditSaveBalanceDialog(LDATE * pDt, char * pFileName)
 {
 	int    ok = -1;
 	LDATE  dt = *pDt;
-	char   fname[MAXPATH];
+	char   fname[MAX_PATH];
 	STRNSCPY(fname, pFileName);
 	TDialog * dlg = new TDialog(DLG_SAVEBALANCE);
 	if(CheckDialogPtrErr(&dlg)) {
@@ -411,7 +411,7 @@ int SaveBalance()
 {
 	int    ok = -1;
 	LDATE  dt = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
-	char   fname[MAXPATH];
+	char   fname[MAX_PATH];
 	memzero(fname, sizeof(fname));
 	if(EditSaveBalanceDialog(&dt, fname) > 0) {
 		PPWaitStart();
@@ -428,7 +428,7 @@ int RestoreBalance()
 {
 	int    ok = -1;
 	LDATE  dt = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
-	char   fname[MAXPATH];
+	char   fname[MAX_PATH];
 	memzero(fname, sizeof(fname));
 	if(EditSaveBalanceDialog(&dt, fname) > 0) {
 		PPWaitStart();

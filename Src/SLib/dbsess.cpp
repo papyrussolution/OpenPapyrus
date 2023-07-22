@@ -131,8 +131,8 @@ DBTable * DbThreadLocalArea::GetCloneEntry(BTBLID tblID) const
 void FASTCALL DbThreadLocalArea::InitErrFileName(const char * pFileName)
 {
 	if(LastBtrErr && pFileName) {
-		SETIFZ(P_StFileName, new char[MAXPATH]);
-		strnzcpy(P_StFileName, pFileName, MAXPATH);
+		SETIFZ(P_StFileName, new char[MAX_PATH]);
+		strnzcpy(P_StFileName, pFileName, MAX_PATH);
 	}
 }
 

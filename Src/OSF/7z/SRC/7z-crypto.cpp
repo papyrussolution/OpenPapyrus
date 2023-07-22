@@ -914,8 +914,8 @@ namespace NCrypto {
 				memcpy(inBuf, buf, sizeof(inBuf));
 			for(uint i = 0; i < kNumRounds; i++) {
 				uint32 key = Keys[(encrypt ? i : (kNumRounds - 1 - i)) & 3];
-				uint32 TA = A ^ SubstLong((C + /*rotlFixed*/slrotl32(D, 11)) ^ key);
-				uint32 TB = B ^ SubstLong((D ^ /*rotlFixed*/slrotl32(C, 17)) + key);
+				uint32 TA = A ^ SubstLong((C + /*rotlFixed*/SBits::Rotl(D, 11)) ^ key);
+				uint32 TB = B ^ SubstLong((D ^ /*rotlFixed*/SBits::Rotl(C, 17)) + key);
 				A = C; C = TA;
 				B = D; D = TB;
 			}

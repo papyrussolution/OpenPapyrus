@@ -1042,17 +1042,17 @@ int PPViewAlcoDeclRu::CellStyleFunc_(const void * pData, long col, int paintActi
 			else if(Filt.Flags & AlcoDeclRuFilt::fShowAsRcpt) {
 				const InnerRcptEntry * p_item = static_cast<const InnerRcptEntry *>(pData);
 				if(r_col.OrgOffs == 7) { // div
-					if(DivStatusList.Search(p_item->DivID, 0, 0)) {
+					if(DivStatusList.Search(p_item->DivID, 0)) {
 						ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
 					}
 				}
 				else if(r_col.OrgOffs == 2) { // manuf
-					if(ManufStatusList.Search(p_item->ManufID, 0, 0)) {
+					if(ManufStatusList.Search(p_item->ManufID, 0)) {
 						ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
 					}
 				}
 				else if(r_col.OrgOffs == 8) { // supplier
-					if(SupplStatusList.Search(p_item->SupplID, 0, 0)) {
+					if(SupplStatusList.Search(p_item->SupplID, 0)) {
 						ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
 					}
 				}
@@ -1060,12 +1060,12 @@ int PPViewAlcoDeclRu::CellStyleFunc_(const void * pData, long col, int paintActi
 			else {
 				const InnerMovEntry * p_item = static_cast<const InnerMovEntry *>(pData);
 				if(r_col.OrgOffs == 16) { // div
-					if(DivStatusList.Search(p_item->DivID, 0, 0)) {
+					if(DivStatusList.Search(p_item->DivID, 0)) {
 						ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
 					}
 				}
 				else if(r_col.OrgOffs == 2) { // manuf
-					if(ManufStatusList.Search(p_item->ManufID, 0, 0)) {
+					if(ManufStatusList.Search(p_item->ManufID, 0)) {
 						ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
 					}
 				}

@@ -1218,7 +1218,7 @@ private:
 	int    setupFileCombo();
 	int    setupFormCombo();
 	int    getSelectedFileName(char * pBuf, size_t bufLen);
-	char   DdPath[MAXPATH];
+	char   DdPath[MAX_PATH];
 };
 
 IMPL_HANDLE_EVENT(DL200_ParamDialog)
@@ -1232,7 +1232,7 @@ IMPL_HANDLE_EVENT(DL200_ParamDialog)
 
 int DL200_ParamDialog::getSelectedFileName(char * pBuf, size_t bufLen)
 {
-	char   fname[MAXPATH];
+	char   fname[MAX_PATH];
 	ComboBox   * p_cb = 0;
 	fname[0] = 0;
 	ASSIGN_PTR(pBuf, 0);
@@ -1252,7 +1252,7 @@ int DL200_ParamDialog::getSelectedFileName(char * pBuf, size_t bufLen)
 int DL200_ParamDialog::setupFormCombo()
 {
 	int    ok = 1;
-	char   path[MAXPATH];
+	char   path[MAX_PATH];
 	ComboBox   * p_cb = 0;
 	ListWindow * p_lw = 0;
 	if((p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_DL200P_DATANAME))) != 0) {
@@ -1451,7 +1451,7 @@ int PrcssrDL200::Print()
 	long   fl = 0;
 	//char * p_loc_fname = 0;
 	//char   report_name[128];
-	//char   fn[MAXPATH+1];
+	//char   fn[MAX_PATH+1];
 	SString fn;
 	SString report_name;
 	//strupr(strcat(strcpy(report_name, "DL2_"), D.Name));

@@ -1944,26 +1944,17 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    break;
 
 			case SSH_SFTP_READDIR:
-			    rc = libssh2_sftp_readdir_ex(sshc->sftp_handle,
-				    sshc->readdir_filename,
-				    PATH_MAX,
-				    sshc->readdir_longentry,
-				    PATH_MAX,
-				    &sshc->readdir_attrs);
+			    rc = libssh2_sftp_readdir_ex(sshc->sftp_handle, sshc->readdir_filename, PATH_MAX, sshc->readdir_longentry, PATH_MAX, &sshc->readdir_attrs);
 			    if(rc == LIBSSH2_ERROR_EAGAIN) {
 				    break;
 			    }
 			    if(rc > 0) {
 				    readdir_len = (size_t)rc;
 				    sshc->readdir_filename[readdir_len] = '\0';
-
 				    if(data->set.ftp_list_only) {
-					    result = Curl_client_write(conn, CLIENTWRITE_BODY,
-						    sshc->readdir_filename,
-						    readdir_len);
+					    result = Curl_client_write(conn, CLIENTWRITE_BODY, sshc->readdir_filename, readdir_len);
 					    if(!result)
-						    result = Curl_client_write(conn, CLIENTWRITE_BODY,
-							    (char *)"\n", 1);
+						    result = Curl_client_write(conn, CLIENTWRITE_BODY, (char *)"\n", 1);
 					    if(result) {
 						    state(conn, SSH_STOP);
 						    break;

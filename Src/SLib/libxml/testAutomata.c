@@ -1,8 +1,6 @@
 /*
  * testRegexp.c: simple module for testing regular expressions
- *
  * See Copyright for the status of this software.
- *
  * Daniel Veillard <veillard@redhat.com>
  */
 #define IN_LIBXML
@@ -287,17 +285,13 @@ int main(int argc, char ** argv)
 				printf("error\n");
 		}
 		xmlRegFreeExecCtxt(exec);
-
 		/* free the regexp */
 		xmlRegFreeRegexp(regexp);
 	}
 	else {
-		int i;
-
-		for(i = 1; i < argc; i++)
+		for(int i = 1; i < argc; i++)
 			testRegexpFile(argv[i]);
 	}
-
 	xmlCleanupParser();
 	xmlMemoryDump();
 	return 0;
@@ -305,7 +299,8 @@ int main(int argc, char ** argv)
 
 #else
 #include <stdio.h>
-int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) {
+int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) 
+{
 	printf("%s : Automata support not compiled in\n", argv[0]);
 	return 0;
 }

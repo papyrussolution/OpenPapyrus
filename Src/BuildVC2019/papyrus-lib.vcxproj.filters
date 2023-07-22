@@ -96,7 +96,6 @@
     <ClCompile Include="..\PPLib\Import.cpp" />
     <ClCompile Include="..\PPLib\INVCORE.CPP" />
     <ClCompile Include="..\PPLib\Inventry.cpp" />
-    <ClCompile Include="..\PPLib\ld2.cpp" />
     <ClCompile Include="..\PPLib\Loadtrfr.cpp" />
     <ClCompile Include="..\PPLib\LOCATION.CPP" />
     <ClCompile Include="..\PPLib\loctransf.cpp" />
@@ -145,7 +144,6 @@
     <ClCompile Include="..\PPLib\Objutil.cpp" />
     <ClCompile Include="..\PPLib\Objvatbk.cpp" />
     <ClCompile Include="..\PPLib\objworld.cpp" />
-    <ClCompile Include="..\PPLib\ofd.cpp" />
     <ClCompile Include="..\PPLib\PACKAGE.CPP" />
     <ClCompile Include="..\PPEquip\Palm.cpp" />
     <ClCompile Include="..\PPEquip\palmexch.cpp" />
@@ -234,7 +232,6 @@
     <ClCompile Include="..\PPLib\V_acct.cpp" />
     <ClCompile Include="..\PPLib\V_acanlz.cpp" />
     <ClCompile Include="..\PPLib\uniprice.cpp" />
-    <ClCompile Include="..\PPLib\uds.cpp" />
     <ClCompile Include="..\PPLib\txtanlz.cpp" />
     <ClCompile Include="..\PPLib\tsessdlg.cpp" />
     <ClCompile Include="..\PPLib\tsess.cpp" />

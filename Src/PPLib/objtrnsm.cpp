@@ -3167,7 +3167,7 @@ int PPObjectTransmit::GetPrivateObjSyncData(PPID objType, PPCommSyncID commID, P
 {
 	int    ok = 1;
 	if(!unlock) {
-		PPID   mutex_id = 0;
+		long   mutex_id = 0;
 		PPSyncItem sync_item;
 		int    r = DS.GetSync().CreateMutex_(LConfig.SessionID, PPOBJ_DBXCHG, 1L, &mutex_id, &sync_item);
 		if(r < 0)

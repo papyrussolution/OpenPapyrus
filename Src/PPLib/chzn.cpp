@@ -1711,7 +1711,7 @@ SString & ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum, const
 				//api/v3/facade/doc/{docId}/body
 				rResult.Cat("api/v3/facade/doc/");
 				if(pAddendum) {
-					rResult.Cat(pAddendum).CatChar('/');
+					rResult.Cat(pAddendum).Slash();
 				}
 				rResult.Cat("body");
 			}
@@ -1747,8 +1747,8 @@ SString & ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum, const
 		case qGetTicket: 
 			rResult.Cat("documents");
 			if(!isempty(pAddendum))
-				rResult.CatChar('/').Cat(pAddendum);
-			rResult.CatChar('/').Cat("ticket");
+				rResult.Slash().Cat(pAddendum);
+			rResult.Slash().Cat("ticket");
 			break;
 	}
 	return rResult;
@@ -3188,7 +3188,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 			PPObjOprKind::ExpandOpList(base_op_list, op_list);
 			for(uint i = 0; i < op_list.getCount(); i++) {
 				const PPID op_id = op_list.get(i);
-				if(!op_assoc_list.Search(op_id, 0, 0)) {
+				if(!op_assoc_list.Search(op_id, 0)) {
 					if(p_ib->ProtocolId == ChZnInterface::InitBlock::protidMdlp)
 						op_assoc_list.Add(op_id, ChZnInterface::doctypMdlpReceiveOrder);
 				}
@@ -3198,7 +3198,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 			PPObjOprKind::ExpandOpList(base_op_list, op_list);
 			for(uint i = 0; i < op_list.getCount(); i++) {
 				const PPID op_id = op_list.get(i);
-				if(IsIntrExpndOp(op_id) && !op_assoc_list.Search(op_id, 0, 0)) {
+				if(IsIntrExpndOp(op_id) && !op_assoc_list.Search(op_id, 0)) {
 					if(p_ib->ProtocolId == ChZnInterface::InitBlock::protidMdlp)
 						op_assoc_list.Add(op_id, ChZnInterface::doctypMdlpMovePlace);
 				}
@@ -3208,7 +3208,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 			PPObjOprKind::ExpandOpList(base_op_list, op_list);
 			for(uint i = 0; i < op_list.getCount(); i++) {
 				const PPID op_id = op_list.get(i);
-				if(!op_assoc_list.Search(op_id, 0, 0)) {
+				if(!op_assoc_list.Search(op_id, 0)) {
 					if(p_ib->ProtocolId == ChZnInterface::InitBlock::protidMdlp)
 						op_assoc_list.Add(op_id, ChZnInterface::doctypMdlpMoveOrder);
 				}
@@ -3219,7 +3219,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 			PPObjOprKind::ExpandOpList(base_op_list, op_list);
 			for(uint i = 0; i < op_list.getCount(); i++) {
 				const PPID op_id = op_list.get(i);
-				if(!op_assoc_list.Search(op_id, 0, 0)) {
+				if(!op_assoc_list.Search(op_id, 0)) {
 					if(p_ib->ProtocolId == ChZnInterface::InitBlock::protidGisMt)
 						op_assoc_list.Add(op_id, ChZnInterface::doctGisMt_LkReceipt);
 				}
@@ -3229,7 +3229,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 			PPObjOprKind::ExpandOpList(base_op_list, op_list);
 			for(uint i = 0; i < op_list.getCount(); i++) {
 				const PPID op_id = op_list.get(i);
-				if(!op_assoc_list.Search(op_id, 0, 0)) {
+				if(!op_assoc_list.Search(op_id, 0)) {
 					if(p_ib->ProtocolId == ChZnInterface::InitBlock::protidGisMt)
 						op_assoc_list.Add(op_id, ChZnInterface::doctGisMt_LpShipReceipt);
 					else if(p_ib->ProtocolId == ChZnInterface::InitBlock::protidMdlp) // @v11.2.0
@@ -3245,7 +3245,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 		PPOprKind en_op_rec;
 		for(SEnum en = op_obj.Enum(0); en.Next(&en_op_rec) > 0;) {
 			if(sstreqi_ascii(en_op_rec.Symb, "chzn-252") && en_op_rec.OpTypeID == PPOPT_DRAFTEXPEND) {
-				if(!chzn_252_op_id && !op_assoc_list.Search(chzn_252_op_id, 0, 0))
+				if(!chzn_252_op_id && !op_assoc_list.Search(chzn_252_op_id, 0))
 					chzn_252_op_id = en_op_rec.ID;
 			}
 		}

@@ -70,6 +70,7 @@ static INLINE uint32_t opj_uint_adds(uint32_t a, uint32_t b)
    @return Returns saturated sum of a-b
  */
 static INLINE uint32_t opj_uint_subs(uint32_t a, uint32_t b) { return (a >= b) ? a - b : 0; }
+#if 0 // @sobolev (replaced with sclamp) {
 /**
    Clamp an integer inside an interval
    @return
@@ -81,13 +82,7 @@ static INLINE uint32_t opj_uint_subs(uint32_t a, uint32_t b) { return (a >= b) ?
  */
 static INLINE int32_t opj_int_clamp(int32_t a, int32_t min, int32_t max)
 {
-	if(a < min) {
-		return min;
-	}
-	if(a > max) {
-		return max;
-	}
-	return a;
+	if(a < min) { return min; } else if(a > max) { return max; } return a;
 }
 /**
    Clamp an integer inside an interval
@@ -100,14 +95,9 @@ static INLINE int32_t opj_int_clamp(int32_t a, int32_t min, int32_t max)
  */
 static INLINE int64 opj_int64_clamp(int64 a, int64 min, int64 max)
 {
-	if(a < min) {
-		return min;
-	}
-	if(a > max) {
-		return max;
-	}
-	return a;
+	if(a < min) { return min; } else if(a > max) { return max; } else return a;
 }
+#endif // } @sobolev
 /**
    @return Get absolute value of integer
  */
@@ -226,8 +216,7 @@ static INLINE int32_t opj_int_fix_mul_t1(int32_t a, int32_t b)
 #endif
 	temp += 4096;
 	assert((temp >> (13 + 11 - T1_NMSEDEC_FRACBITS)) <= (int64)0x7FFFFFFF);
-	assert((temp >> (13 + 11 - T1_NMSEDEC_FRACBITS)) >= (-(int64)0x7FFFFFFF -
-	    (int64)1));
+	assert((temp >> (13 + 11 - T1_NMSEDEC_FRACBITS)) >= (-(int64)0x7FFFFFFF - (int64)1));
 	return (int32_t)(temp >> (13 + 11 - T1_NMSEDEC_FRACBITS));
 }
 

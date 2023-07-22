@@ -180,7 +180,7 @@ int SImage::Load(const char * pPicPath)
 	P_Image = 0;
 	FileName = 0;
 	if(pPicPath && fileExists(pPicPath)) {
-		OLECHAR wstr[MAXPATH];
+		OLECHAR wstr[MAX_PATH];
 		MultiByteToWideChar(1251, MB_PRECOMPOSED, pPicPath, -1, wstr, SIZEOFARRAY(wstr) - 1);
 		P_Image = new Image(wstr);
 		FileName.CopyFrom(pPicPath);
@@ -197,7 +197,7 @@ int SImage::LoadThumbnailImage(const char * pPicPath, int width, int height)
 	FileName = 0;
 	if(pPicPath && fileExists(pPicPath)) {
 		Gdiplus::Image * p_img = 0;
-		OLECHAR wstr[MAXPATH];
+		OLECHAR wstr[MAX_PATH];
 		MultiByteToWideChar(1251, MB_PRECOMPOSED, pPicPath, -1, wstr, SIZEOFARRAY(wstr) - 1);
 		p_img = new Gdiplus::Image(wstr);
 		P_Image = p_img->GetThumbnailImage(width, height, 0, 0);
@@ -275,7 +275,7 @@ int FASTCALL GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 int SClipboard::CopyPaste(HWND hWnd, int copy, const char * pPath)
 {
 	Gdiplus::Bitmap * p_bmp = 0;
-	OLECHAR wstr[MAXPATH];
+	OLECHAR wstr[MAX_PATH];
 	HBITMAP h_bmp = 0;
 	if(::OpenClipboard(hWnd)) {
 		if(copy) {

@@ -117,20 +117,20 @@ struct UriParserState {
 	UriParserState();
 	void   Clear();
 	void   Reset();
-	int    FASTCALL ParseUriEx(const char * pFirst, const char * pAfterLast);
-	const  char * FASTCALL ParseUriReference(const char * pFirst, const char * pAfterLast);
-	const  char * FASTCALL ParseSegmentNzNcOrScheme2(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParseMustBeSegmentNzNc(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParseHexZero(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParseIPv6address2(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParseOwnHost(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParseOwnUserInfo(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParseOwnPortUserInfo(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParseOwnHostUserInfoNz(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParseAuthorityTwo(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParseAuthority(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParsePartHelperTwo(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParseSegment(const char * pFirst, const char * afterLast);
+	int    STDCALL ParseUriEx(const char * pFirst, const char * pAfterLast);
+	const  char * STDCALL ParseUriReference(const char * pFirst, const char * pAfterLast);
+	const  char * STDCALL ParseSegmentNzNcOrScheme2(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseMustBeSegmentNzNc(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseHexZero(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseIPv6address2(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseOwnHost(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseOwnUserInfo(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseOwnPortUserInfo(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseOwnHostUserInfoNz(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseAuthorityTwo(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseAuthority(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParsePartHelperTwo(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseSegment(const char * pFirst, const char * afterLast);
 	// Returns: NULL ALWAYS!
 	const  char * FASTCALL StopSyntax(const char * pErrorPos);
 	void   StopMalloc();
@@ -140,30 +140,30 @@ struct UriParserState {
 	const  char * P_ErrorPos; // Pointer to position in case of a syntax error 
 	void * P_Reserved; // Reserved to the parser 
 private:
-	const  char * FASTCALL ParseOwnHostUserInfo(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParseOwnHost2(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParsePctSubUnres(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParseHierPart(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParsePathAbsNoLeadSlash(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParsePathAbsEmpty(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParsePathRootless(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParseIpLit2(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParseIpFuture(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParsePctEncoded(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParsePort(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParseUriTail(const char * pFirst, const char * pAfterLast);
-	const  char * FASTCALL ParseUriTailTwo(const char * pFirst, const char * pAfterLast);
-	const  char * FASTCALL ParseQueryFrag(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParseZeroMoreSlashSegs(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParseSegmentNz(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParsePchar(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParseIpFutLoop(const char * pFirst, const char * afterLast);
-	const  char * FASTCALL ParseIpFutStopGo(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseOwnHostUserInfo(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseOwnHost2(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParsePctSubUnres(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseHierPart(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParsePathAbsNoLeadSlash(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParsePathAbsEmpty(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParsePathRootless(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseIpLit2(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseIpFuture(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParsePctEncoded(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParsePort(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseUriTail(const char * pFirst, const char * pAfterLast);
+	const  char * STDCALL ParseUriTailTwo(const char * pFirst, const char * pAfterLast);
+	const  char * STDCALL ParseQueryFrag(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseZeroMoreSlashSegs(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseSegmentNz(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParsePchar(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseIpFutLoop(const char * pFirst, const char * afterLast);
+	const  char * STDCALL ParseIpFutStopGo(const char * pFirst, const char * afterLast);
 	int    FASTCALL OnExitOwnPortUserInfo(const char * pFirst);
 	int    FASTCALL OnExitOwnHostUserInfo(const char * pFirst);
 	int    FASTCALL OnExitOwnHost2(const char * pFirst);
 	int    FASTCALL OnExitSegmentNzNcOrScheme2(const char * pFirst);
-	int    FASTCALL PushPathSegment(const char * pFirst, const char * afterLast);
+	int    STDCALL PushPathSegment(const char * pFirst, const char * afterLast);
 };
 
 struct UriQueryList {

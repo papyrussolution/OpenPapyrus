@@ -243,10 +243,7 @@ static int datephrase(struct gdstate * gds)
 		gds->tokenp += 5;
 		return 1;
 	}
-
-	if(gds->tokenp[0].token == tUNUMBER
-	    && gds->tokenp[1].token == '/'
-	    && gds->tokenp[2].token == tUNUMBER) {
+	if(gds->tokenp[0].token == tUNUMBER && gds->tokenp[1].token == '/' && gds->tokenp[2].token == tUNUMBER) {
 		/* "1/15" */
 		gds->HaveMonth++;
 		gds->HaveDay++;

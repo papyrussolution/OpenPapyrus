@@ -78,7 +78,7 @@ int Test_SFindFile()
 	PROFILE_START
 	PPWaitStart();
 	for(int i = 'A'; i <= 'Z'; i++) {
-		char path[MAXPATH];
+		char path[MAX_PATH];
 		path[0] = i;
 		path[1] = ':';
 		path[2] = '\\';

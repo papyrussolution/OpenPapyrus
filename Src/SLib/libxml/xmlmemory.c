@@ -1,8 +1,6 @@
-/*
- * xmlmemory.c:  libxml memory allocator wrapper.
- *
- * daniel@veillard.com
- */
+// xmlmemory.c:  libxml memory allocator wrapper.
+// daniel@veillard.com
+//
 #include <slib-internal.h>
 #pragma hdrstop
 
@@ -722,7 +720,6 @@ void xmlMemShow(FILE * fp, int nr ATTRIBUTE_UNUSED)
 	xmlMutexUnlock(xmlMemMutex);
 #endif /* MEM_LIST */
 }
-
 /**
  * xmlMemoryDump:
  *

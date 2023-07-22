@@ -40,7 +40,7 @@ SString & GetComDvcSymb(int comdvcs, int count, int option, SString & rBuf)
 {
 	rBuf.Z();
 	if(option & 0x0001)
-		rBuf.CatCharN('\\', 2).Dot().CatChar('\\');
+		rBuf.CatCharN('\\', 2).Dot().BSlash();
 	if(comdvcs == comdvcsPrn)
 		rBuf.Cat("PRN");
 	else if(comdvcs == comdvcsCon)

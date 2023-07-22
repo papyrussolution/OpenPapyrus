@@ -232,7 +232,7 @@ int ACS_CRUKM::ExportData(int updOnly)
 	int    check_dig = 0;
 	int    distrib_path = 0, export_section = 0;
 	uint   i;
-	char   /*path_goods[MAXPATH], path_sccrd[MAXPATH],*/ tempbuf[80];
+	char   /*path_goods[MAX_PATH], path_sccrd[MAX_PATH],*/ tempbuf[80];
 	SString path_goods, path_sccrd;
 	PPIDArray  cash_n_list;
 	PPUnit unit_rec;

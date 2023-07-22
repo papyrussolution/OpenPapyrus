@@ -837,9 +837,9 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 							rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf).CatDiv(':', 2);
 							temp_buf.Z().Cat((long)rcount.RegCount);
 							if(rcount.CiCount || rcount.CalceledCount) {
-								temp_buf.CatChar('/').Cat((long)rcount.CiCount);
+								temp_buf.Slash().Cat((long)rcount.CiCount);
 								if(rcount.CalceledCount)
-									temp_buf.CatChar('/').Cat((long)rcount.CalceledCount);
+									temp_buf.Slash().Cat((long)rcount.CalceledCount);
 							}
 							rBuf.Cat(temp_buf);
 						}
@@ -916,9 +916,9 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 						rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf).CatDiv(':', 2);
 						temp_buf.Z().Cat((long)rcount.RegCount);
 						if(rcount.CiCount || rcount.CalceledCount) {
-							temp_buf.CatChar('/').Cat((long)rcount.CiCount);
+							temp_buf.Slash().Cat((long)rcount.CiCount);
 							if(rcount.CalceledCount)
-								temp_buf.CatChar('/').Cat((long)rcount.CalceledCount);
+								temp_buf.Slash().Cat((long)rcount.CalceledCount);
 						}
 						rBuf.Cat(temp_buf);
 					}

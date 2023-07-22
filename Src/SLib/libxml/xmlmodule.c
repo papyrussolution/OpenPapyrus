@@ -1,12 +1,8 @@
-/*
- * xmlmodule.c : basic API for dynamic module loading added 2.6.17
- *
- * See Copyright for the status of this software.
- *
- * joelwreed@comcast.net
- *
- * http://www.fortran-2000.com/ArnaudRecipes/sharedlib.html
- */
+// xmlmodule.c : basic API for dynamic module loading added 2.6.17
+// See Copyright for the status of this software.
+// joelwreed@comcast.net
+// http://www.fortran-2000.com/ArnaudRecipes/sharedlib.html
+//
 #include <slib-internal.h>
 #pragma hdrstop
 #include <libxml/xmlmodule.h>

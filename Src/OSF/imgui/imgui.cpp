@@ -3028,8 +3028,80 @@ void STDCALL ImGui::PopStyleVar(int count)
 	}
 }
 
-const char* ImGui::GetStyleColorName(ImGuiCol idx)
+static const SIntToSymbTabEntry _ImGuiStyleColorList[] = {
+	{ ImGuiCol_Text, "Text" },
+	{ ImGuiCol_TextDisabled, "TextDisabled" },
+	{ ImGuiCol_WindowBg, "WindowBg" },
+	{ ImGuiCol_ChildBg, "ChildBg" },
+	{ ImGuiCol_PopupBg, "PopupBg" },
+	{ ImGuiCol_Border, "Border" },
+	{ ImGuiCol_BorderShadow, "BorderShadow" },
+	{ ImGuiCol_FrameBg, "FrameBg" },
+	{ ImGuiCol_FrameBgHovered, "FrameBgHovered" },
+	{ ImGuiCol_FrameBgActive, "FrameBgActive" },
+	{ ImGuiCol_TitleBg, "TitleBg" },
+	{ ImGuiCol_TitleBgActive, "TitleBgActive" },
+	{ ImGuiCol_TitleBgCollapsed, "TitleBgCollapsed" },
+	{ ImGuiCol_MenuBarBg, "MenuBarBg" },
+	{ ImGuiCol_ScrollbarBg, "ScrollbarBg" },
+	{ ImGuiCol_ScrollbarGrab, "ScrollbarGrab" },
+	{ ImGuiCol_ScrollbarGrabHovered, "ScrollbarGrabHovered" },
+	{ ImGuiCol_ScrollbarGrabActive, "ScrollbarGrabActive" },
+	{ ImGuiCol_CheckMark, "CheckMark" },
+	{ ImGuiCol_SliderGrab, "SliderGrab" },
+	{ ImGuiCol_SliderGrabActive, "SliderGrabActive" },
+	{ ImGuiCol_Button, "Button" },
+	{ ImGuiCol_ButtonHovered, "ButtonHovered" },
+	{ ImGuiCol_ButtonActive, "ButtonActive" },
+	{ ImGuiCol_Header, "Header" },
+	{ ImGuiCol_HeaderHovered, "HeaderHovered" },
+	{ ImGuiCol_HeaderActive, "HeaderActive" },
+	{ ImGuiCol_Separator, "Separator" },
+	{ ImGuiCol_SeparatorHovered, "SeparatorHovered" },
+	{ ImGuiCol_SeparatorActive, "SeparatorActive" },
+	{ ImGuiCol_ResizeGrip, "ResizeGrip" },
+	{ ImGuiCol_ResizeGripHovered, "ResizeGripHovered" },
+	{ ImGuiCol_ResizeGripActive, "ResizeGripActive" },
+	{ ImGuiCol_Tab, "Tab" },
+	{ ImGuiCol_TabHovered, "TabHovered" },
+	{ ImGuiCol_TabActive, "TabActive" },
+	{ ImGuiCol_TabUnfocused, "TabUnfocused" },
+	{ ImGuiCol_TabUnfocusedActive, "TabUnfocusedActive" },
+	{ ImGuiCol_PlotLines, "PlotLines" },
+	{ ImGuiCol_PlotLinesHovered, "PlotLinesHovered" },
+	{ ImGuiCol_PlotHistogram, "PlotHistogram" },
+	{ ImGuiCol_PlotHistogramHovered, "PlotHistogramHovered" },
+	{ ImGuiCol_TableHeaderBg, "TableHeaderBg" },
+	{ ImGuiCol_TableBorderStrong, "TableBorderStrong" },
+	{ ImGuiCol_TableBorderLight, "TableBorderLight" },
+	{ ImGuiCol_TableRowBg, "TableRowBg" },
+	{ ImGuiCol_TableRowBgAlt, "TableRowBgAlt" },
+	{ ImGuiCol_TextSelectedBg, "TextSelectedBg" },
+	{ ImGuiCol_DragDropTarget, "DragDropTarget" },
+	{ ImGuiCol_NavHighlight, "NavHighlight" },
+	{ ImGuiCol_NavWindowingHighlight, "NavWindowingHighlight" },
+	{ ImGuiCol_NavWindowingDimBg, "NavWindowingDimBg" },
+	{ ImGuiCol_ModalWindowDimBg, "ModalWindowDimBg" },	
+};
+
+int ImGui::GetStyleColorIdx(const char * pImGuiColorName) // @sobolev
 {
+	int    id = 0;
+	if(SIntToSymbTab_HasSymb(_ImGuiStyleColorList, SIZEOFARRAY(_ImGuiStyleColorList), pImGuiColorName, &id))
+		return id;
+	else
+		return -1;
+}
+
+const char * ImGui::GetStyleColorName(ImGuiCol idx)
+{
+	const char * p_symb = SIntToSymbTab_GetSymbPtr(_ImGuiStyleColorList, SIZEOFARRAY(_ImGuiStyleColorList), idx);
+	if(!p_symb) {
+		assert(0);
+		p_symb = "Unknown";
+	}
+	return p_symb;
+#if 0 // {
 	// Create switch-case from enum with regexp: ImGuiCol_{.*}, --> case ImGuiCol_\1: return "\1";
 	switch(idx) {
 		case ImGuiCol_Text: return "Text";
@@ -3088,6 +3160,7 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
 	}
 	assert(0);
 	return "Unknown";
+#endif // }
 }
 
 //-----------------------------------------------------------------------------

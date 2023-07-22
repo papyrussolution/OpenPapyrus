@@ -108,6 +108,25 @@ int SylkWriter::GetBuf(SString * pBuf) const
 	return pBuf ? ((*pBuf = Buf), 1) : 0;
 }
 
+void SylkWriter::PutFormat2(const char * pBuf, int fontId, int col, int row) // @v11.7.10 (to replace PutFormat)
+{
+	SString temp_buf;
+	temp_buf.Cat(pBuf);
+	if(fontId) {
+		temp_buf.Semicol().Cat("SM").Cat(fontId);
+	}
+	if(col > 0 && row > 0) {
+		temp_buf.Semicol().CatChar('X').Cat(col).Semicol().CatChar('Y').Cat(row);
+	}
+	else if(col > 0) {
+		temp_buf.Semicol().CatChar('C').Cat(col);
+	}
+	else if(row > 0) {
+		temp_buf.Semicol().CatChar('R').Cat(row);
+	}
+	PutRec('F', temp_buf);
+}
+
 void SylkWriter::PutFormat(const char * pBuf, int fontId, int col, int row)
 {
 	char   temp_buf[128];

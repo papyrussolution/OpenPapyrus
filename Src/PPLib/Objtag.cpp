@@ -88,7 +88,7 @@ void TagFilt::MergeString(const char * pRestrictionString, const char * pColorSt
 		rItemBuf.Cat(temp_buf);
 	temp_buf = pColorString;
 	if(temp_buf.NotEmptyS() && temp_buf.C(0) == '#')
-		rItemBuf.CatChar('/').Cat(temp_buf);
+		rItemBuf.Slash().Cat(temp_buf);
 }
 
 /*static*/void FASTCALL TagFilt::SetRestriction(const char * pRestrictionString, SString & rItemBuf)
@@ -812,7 +812,7 @@ int SelfbuildStaffForManual_ReservedObjTagList()
 				\\Тип тега = \ppyrsrv{DATE}
 		\end{description}
 			*/
-		line_buf.Z().CatChar('\\').Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
+		line_buf.Z().BSlash().Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
 		doc_file.WriteLine(line_buf);
 		for(uint i = 0; i < num_recs; i++) {
 			const PPID id = p_rez->getUINT();
@@ -823,23 +823,23 @@ int SelfbuildStaffForManual_ReservedObjTagList()
 			p_rez->getString(data_type_symb.Z(), 2); // DataType
 			{
 				line_buf.Z();
-				line_buf.Tab().CatChar('\\').Cat("item").CatBrackStr(tag_name).CR();
+				line_buf.Tab().BSlash().Cat("item").CatBrackStr(tag_name).CR();
 				line_buf.CR();
 				PPLoadString("id", temp_buf);
 				line_buf.Tab(2).CatEq(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), id).CR();
 				PPLoadString("symbol", temp_buf);
 				line_buf.Tab(2).CatCharN('\\', 2).Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv('=', 1).
-					CatChar('\\').Cat("ppyrsrv").CatChar('{').Cat(tag_symb).CatChar('}').CR();
+					BSlash().Cat("ppyrsrv").CatChar('{').Cat(tag_symb).CatChar('}').CR();
 				PPLoadString("objtype", temp_buf);
 				line_buf.Tab(2).CatCharN('\\', 2).Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv('=', 1).
-					CatChar('\\').Cat("ppyrsrv").CatChar('{').Cat(obj_type_symb).CatChar('}').CR();
+					BSlash().Cat("ppyrsrv").CatChar('{').Cat(obj_type_symb).CatChar('}').CR();
 				PPLoadString("tagtype", temp_buf);
 				line_buf.Tab(2).CatCharN('\\', 2).Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv('=', 1).
-					CatChar('\\').Cat("ppyrsrv").CatChar('{').Cat(data_type_symb).CatChar('}').CR();
+					BSlash().Cat("ppyrsrv").CatChar('{').Cat(data_type_symb).CatChar('}').CR();
 				doc_file.WriteLine(line_buf);
 			}
 		}
-		line_buf.Z().CatChar('\\').Cat("end").CatChar('{').Cat("description").CatChar('}').CR();
+		line_buf.Z().BSlash().Cat("end").CatChar('{').Cat("description").CatChar('}').CR();
 		doc_file.WriteLine(line_buf);
 	}
 	CATCHZOK

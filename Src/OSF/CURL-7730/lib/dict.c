@@ -111,8 +111,7 @@ static char * unescape_word(struct Curl_easy * data, const char * inputbuff)
 		for(ptr = newp;
 		    (ch = *ptr) != 0;
 		    ptr++) {
-			if((ch <= 32) || (ch == 127) ||
-			    (ch == '\'') || (ch == '\"') || (ch == '\\')) {
+			if((ch <= 32) || (ch == 127) || (ch == '\'') || (ch == '\"') || (ch == '\\')) {
 				dictp[olen++] = '\\';
 			}
 			dictp[olen++] = ch;

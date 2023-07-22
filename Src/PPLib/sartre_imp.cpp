@@ -4427,7 +4427,7 @@ int SrSyntaxRuleSet::ExprItemTextToStr(const ExprItem & rI, SString & rBuf) cons
 				GetS(rI.SymbP, temp_buf);
 			if(rI.VarP) {
 				GetS(rI.VarP, var_buf);
-				temp_buf.CatChar('/').Cat(var_buf);
+				temp_buf.Slash().Cat(var_buf);
 			}
 			rBuf.Colon().Cat(temp_buf).Space();
 			break;
@@ -4436,7 +4436,7 @@ int SrSyntaxRuleSet::ExprItemTextToStr(const ExprItem & rI, SString & rBuf) cons
 				GetS(rI.SymbP, temp_buf);
 			if(rI.VarP) {
 				GetS(rI.VarP, var_buf);
-				temp_buf.CatChar('/').Cat(var_buf);
+				temp_buf.Slash().Cat(var_buf);
 			}
 			rBuf.Cat("!:").Cat(temp_buf).Space();
 			break;
@@ -4445,7 +4445,7 @@ int SrSyntaxRuleSet::ExprItemTextToStr(const ExprItem & rI, SString & rBuf) cons
 				GetS(rI.SymbP, temp_buf);
 			if(rI.VarP) {
 				GetS(rI.VarP, var_buf);
-				temp_buf.CatChar('/').Cat(var_buf);
+				temp_buf.Slash().Cat(var_buf);
 			}
 			rBuf.Cat("!::").Cat(temp_buf).Space();
 			break;

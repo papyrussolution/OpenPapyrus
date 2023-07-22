@@ -59,19 +59,13 @@
 
 static FORCEINLINE float ColorComponentBlendOverlay(float sa, float s, float da, float d)
 {
-	if(2 * d < da)
-		return 2 * s * d;
-	else
-		return sa * da - 2 * (da - d) * (sa - s);
+	return ((2 * d) < da) ? (2 * s * d) : (sa * da - 2 * (da - d) * (sa - s));
 }
 
 FORCEINLINE ImVec4 __ColorBlendOverlay(const ImVec4 & rS, const ImVec4 & rD, float alpha)
 {
-	return ImVec4(
-		ColorComponentBlendOverlay(1.0f, rS.x, alpha, rD.x),
-		ColorComponentBlendOverlay(1.0f, rS.y, alpha, rD.y),
-		ColorComponentBlendOverlay(1.0f, rS.z, alpha, rD.z),
-		rS.w);
+	return ImVec4(ColorComponentBlendOverlay(1.0f, rS.x, alpha, rD.x),
+		ColorComponentBlendOverlay(1.0f, rS.y, alpha, rD.y), ColorComponentBlendOverlay(1.0f, rS.z, alpha, rD.z), rS.w);
 }
 
 static const ImVec4 MainBackgroundColor(SColor(0x1E, 0x22, 0x28));
@@ -555,7 +549,7 @@ public:
 	//
 	// Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
 	//
-	const void * GetKey(uint * pKeyLen) const
+	const void * GetHashKey(const void * pCtx, uint * pKeyLen) const
 	{
 		ASSIGN_PTR(pKeyLen, Symbol.Len());
 		return Symbol.cptr();
@@ -1108,7 +1102,7 @@ private:
 	};
 	//
 	void   Render();
-	void   MakeLayout();
+	void   MakeLayout(SJson ** ppJsList);
 	void   ErrorPopup(bool isErr)
 	{
 		if(isErr) {
@@ -1136,13 +1130,31 @@ public:
 		//ClearColor(0.45f, 0.55f, 0.60f, 1.00f), 
 		ClearColor(SColor(0x1E, 0x22, 0x28)),
 		P_CmdQ(new WsCtlReqQueue),
-		Cache_Layout(512), Cache_Texture(1024), Cache_Font(101),
+		Cache_Layout(512, 0), Cache_Texture(1024, 0), Cache_Font(101, 0),
 		P_Dlg_Cfg(0)
 	{
 		TestInput[0] = 0;
 		LoginText[0] = 0;
 		PwText[0] = 0;
-		MakeLayout();
+		{
+			SJson * p_js_lo_list = 0;
+			MakeLayout(&p_js_lo_list);
+			if(p_js_lo_list) {
+				SString temp_buf;
+				PPGetFilePath(PPPATH_OUT, "wsctl_ui.json", temp_buf);
+				SFile f_out(temp_buf, SFile::mWrite);
+				if(f_out.IsValid()) {
+					SJson js_ui(SJson::tOBJECT);
+					js_ui.Insert("layout_list", p_js_lo_list);
+					p_js_lo_list = 0;
+					SString js_fmt_buf;
+					js_ui.ToStr(temp_buf);
+					SJson::FormatText(temp_buf, js_fmt_buf);
+					f_out.Write(js_fmt_buf, js_fmt_buf.Len());
+				}
+				ZDELETE(p_js_lo_list);
+			}
+		}
 	}
 	~WsCtl_ImGuiSceneBlock()
 	{
@@ -2040,33 +2052,42 @@ void WsCtl_ImGuiSceneBlock::Render()
 	return 0;
 }
 
-void WsCtl_ImGuiSceneBlock::MakeLayout()
+void WsCtl_ImGuiSceneBlock::MakeLayout(SJson ** ppJsList)
 {
 	const FRect margin_(2.0f, 1.0f, 2.0f, 1.0f);
+	LongArray lo_id_list;
+	SString temp_buf;
 	{
 		//
 		// screenLogin
 		//
+		const int lo_id = screenLogin;
+		const char * p_lo_symb = "screenLogin";
 		SUiLayout * p_tl = new SUiLayout();
 		SUiLayoutParam alb(DIREC_VERT, SUiLayoutParam::alignCenter, SUiLayoutParam::alignCenter);
 		alb.AlignItems = SUiLayoutParam::alignCenter;
 		p_tl->SetLayoutBlock(alb);
-		p_tl->SetID(screenLogin);
+		p_tl->SetID(lo_id);
+		p_tl->SetSymb(p_lo_symb);
 		{
 			SUiLayoutParam alb(DIREC_HORZ, SUiLayoutParam::alignCenter, SUiLayoutParam::alignCenter);
 			alb.SetFixedSizeX(480).SetFixedSizeY(360);
 			p_tl->InsertItem(0, &alb, loidLoginBlock);
 		}
 		Cache_Layout.Put(p_tl, true);
+		lo_id_list.add(lo_id);
 	}
 	{
 		//
 		// screenAuthSelectSess
 		//
+		const int lo_id = screenAuthSelectSess;
+		const char * p_lo_symb = "screenAuthSelectSess";
 		SUiLayout * p_tl = new SUiLayout();
 		SUiLayoutParam alb(DIREC_HORZ, SUiLayoutParam::alignCenter, SUiLayoutParam::alignCenter);
 		p_tl->SetLayoutBlock(alb);
-		p_tl->SetID(screenAuthSelectSess);
+		p_tl->SetID(lo_id);
+		p_tl->SetSymb(p_lo_symb);
 		{
 			// Left menu
 			SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
@@ -2118,14 +2139,18 @@ void WsCtl_ImGuiSceneBlock::MakeLayout()
 			}
 		}
 		Cache_Layout.Put(p_tl, true);
+		lo_id_list.add(lo_id);
 	}
 	{
 		//
 		// screenSession
 		//
+		const int lo_id = screenSession;
+		const char * p_lo_symb = "screenSession";
 		SUiLayout * p_tl = new SUiLayout();
 		p_tl->SetLayoutBlock(SUiLayoutParam(DIREC_HORZ, 0, SUiLayoutParam::alignStretch));
-		p_tl->SetID(screenSession);
+		p_tl->SetID(lo_id);
+		p_tl->SetSymb(p_lo_symb);
 		{
 			{
 				SUiLayoutParam alb(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
@@ -2151,14 +2176,18 @@ void WsCtl_ImGuiSceneBlock::MakeLayout()
 			}
 		}
 		Cache_Layout.Put(p_tl, true);
+		lo_id_list.add(lo_id);
 	}
 	{
 		//
 		// screenConstruction
 		//
+		const int lo_id = screenConstruction;
+		const char * p_lo_symb = "screenConstruction";
 		SUiLayout * p_tl = new SUiLayout();
 		p_tl->SetLayoutBlock(SUiLayoutParam(DIREC_HORZ, 0, SUiLayoutParam::alignStretch));
-		p_tl->SetID(screenConstruction);
+		p_tl->SetID(lo_id);
+		p_tl->SetSymb(p_lo_symb);
 		{
 			{
 				SUiLayoutParam alb(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
@@ -2209,6 +2238,24 @@ void WsCtl_ImGuiSceneBlock::MakeLayout()
 			}
 		}
 		Cache_Layout.Put(p_tl, true);
+		lo_id_list.add(lo_id);
+	}
+	if(ppJsList) {
+		SJson * p_js_lo_list = 0;
+		if(lo_id_list.getCount()) {
+			p_js_lo_list = SJson::CreateArr();
+			for(uint i = 0; i < lo_id_list.getCount(); i++) {
+				int lo_id = lo_id_list.get(i);
+				const SUiLayout * p_lo = Cache_Layout.Get(&lo_id, sizeof(lo_id));
+				if(p_lo) {
+					SJson * p_js_item = p_lo->ToJsonObj();
+					if(p_js_item) {
+						p_js_lo_list->InsertChild(p_js_item);
+					}
+				}
+			}
+		}
+		*ppJsList = p_js_lo_list;
 	}
 }
 
@@ -2281,7 +2328,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 			evp.ForceWidth = static_cast<float>(sz.x);
 			evp.ForceHeight = static_cast<float>(sz.y);
 			if(_screen == screenLogin) {
-				SUiLayout * p_tl = Cache_Layout.Get(reinterpret_cast<const char *>(&_screen), sizeof(_screen));
+				SUiLayout * p_tl = Cache_Layout.Get(&_screen, sizeof(_screen));
 				if(p_tl) {
 					p_tl->Evaluate(&evp);
 					//loidLoginBlock
@@ -2328,7 +2375,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 				}
 			}
 			else if(_screen == screenSession) {
-				SUiLayout * p_tl = Cache_Layout.Get(reinterpret_cast<const char *>(&_screen), sizeof(_screen));
+				SUiLayout * p_tl = Cache_Layout.Get(&_screen, sizeof(_screen));
 				if(p_tl) {
 					DAccount st_data_acc;
 					DTSess st_data_tses;
@@ -2379,7 +2426,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 				}
 			}
 			else if(_screen == screenAuthSelectSess) {
-				SUiLayout * p_tl = Cache_Layout.Get(reinterpret_cast<const char *>(&_screen), sizeof(_screen));
+				SUiLayout * p_tl = Cache_Layout.Get(&_screen, sizeof(_screen));
 				if(p_tl) {
 					DTSess st_data_tses;
 					St.D_TSess.GetData(st_data_tses);
@@ -2509,7 +2556,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 				}
 			}
 			else if(_screen == screenConstruction) {
-				SUiLayout * p_tl = Cache_Layout.Get(reinterpret_cast<const char *>(&_screen), sizeof(_screen));
+				SUiLayout * p_tl = Cache_Layout.Get(&_screen, sizeof(_screen));
 				if(p_tl) {
 					p_tl->Evaluate(&evp);
 					ImGuiObjStack __ost;
@@ -2733,6 +2780,34 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		    return 0;
 	}
 	return ::DefWindowProcW(hWnd, msg, wParam, lParam);
+}
+
+static int MakeColorSet(UiDescription & rUiDescr)
+{
+	int    ok = 1;
+	const  char * p_cset_symb = "ImGuiStyle";
+	const ImGuiStyle * p_style = &ImGui::GetStyle();
+	if(p_style) {
+		SColorSet * p_ex_cset = rUiDescr.GetColorSet(p_cset_symb);
+		SColorSet * p_cset = NZOR(p_ex_cset, new SColorSet(p_cset_symb));
+		uint    _c = 0;
+		for(uint i = 0; i < ImGuiCol_COUNT; i++) {
+			const ImVec4 & r_src_color = p_style->Colors[i];
+			const char * p_symb = ImGui::GetStyleColorName(i);
+			if(!isempty(p_symb)) {
+				SColorF cf = r_src_color;
+				if(p_cset->Put(p_symb, cf))
+					_c++;
+			}
+		}
+		if(_c) {
+			if(!p_ex_cset)
+				rUiDescr.ClrList.insert(p_cset);
+		}
+		else if(!p_ex_cset)
+			ZDELETE(p_cset);
+	}
+	return ok;
 }
 
 static void WsCtlStyleColors(ImGuiStyle * dst)

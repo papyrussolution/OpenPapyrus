@@ -708,7 +708,7 @@ const char * PPObjLocation::GetNamePtr()
 		LocationTbl::Rec par_rec;
 		NameBuf.Z();
 		if(r_rec.ParentID && Fetch(r_rec.ParentID, &par_rec) > 0)
-			NameBuf.Cat(par_rec.Name).CatChar('/');
+			NameBuf.Cat(par_rec.Name).Slash();
 		NameBuf.Cat(r_rec.Name);
 	}
 	else
@@ -1237,7 +1237,7 @@ int PPObjLocation::BelongTo(PPID locID, PPID parentID, SString * pPathText)
 			while(!yes && Fetch(locID, &loc_rec) > 0 && loc_rec.ParentID) {
 				if(pPathText) {
 					if(pPathText->NotEmpty())
-						pPathText->CatChar('/');
+						pPathText->Slash();
 					pPathText->Cat(loc_rec.Name);
 				}
 				if(loc_rec.ParentID == parentID)
@@ -3752,7 +3752,7 @@ uint PPObjLocation::GetWarehouseList(PPIDArray * pList, bool * pHasRestrictions)
 		if(verif_result != result) {
 			SString msg_buf;
 			msg_buf.Cat("Result of the function").Space().Cat("ObjToWarehouse(PPID)").Space().Cat("isn't relevant");
-			msg_buf.Space().CatChar('[').Cat(arID).Cat("->").Cat(result).CatChar('/').Cat(verif_result).CatChar(']');
+			msg_buf.Space().CatChar('[').Cat(arID).Cat("->").Cat(result).Slash().Cat(verif_result).CatChar(']');
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 		}
 	}
@@ -3772,7 +3772,7 @@ uint PPObjLocation::GetWarehouseList(PPIDArray * pList, bool * pHasRestrictions)
 		if(verif_result != result) {
 			SString msg_buf;
 			msg_buf.Cat("Result of the function").Space().Cat("ObjToWarehouse_IgnoreRights(PPID)").Space().Cat("isn't relevant");
-			msg_buf.Space().CatChar('[').Cat(arID).Cat("->").Cat(result).CatChar('/').Cat(verif_result).CatChar(']');
+			msg_buf.Space().CatChar('[').Cat(arID).Cat("->").Cat(result).Slash().Cat(verif_result).CatChar(']');
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 		}
 	}
@@ -3791,7 +3791,7 @@ uint PPObjLocation::GetWarehouseList(PPIDArray * pList, bool * pHasRestrictions)
 		if(verif_result != result) {
 			SString msg_buf;
 			msg_buf.Cat("Result of the function").Space().Cat("WarehouseToObj(PPID)").Space().Cat("isn't relevant");
-			msg_buf.Space().CatChar('[').Cat(locID).Cat("->").Cat(result).CatChar('/').Cat(verif_result).CatChar(']');
+			msg_buf.Space().CatChar('[').Cat(locID).Cat("->").Cat(result).Slash().Cat(verif_result).CatChar(']');
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 		}
 	}
@@ -5104,7 +5104,7 @@ int PPLocAddrStruc::Recognize(const char * pText)
 						case AddrTok::tNum_Sl_Num:
 							if(last_t == tStreet) {
 								p_tok->S.Divide('/', temp_buf.Z(), temp_buf2.Z());
-								temp_buf.Strip().CatChar('/').Cat(temp_buf2.Strip());
+								temp_buf.Strip().Slash().Cat(temp_buf2.Strip());
 								Add(last_t = tHouse, temp_buf);
 								Add(tHouseKind, "дом");
 								p_tok->Flags |= AddrTok::fUsed;

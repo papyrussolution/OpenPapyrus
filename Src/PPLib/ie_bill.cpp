@@ -6450,63 +6450,65 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 				n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WARETYPE), "1"); // @v11.4.11 ПрТовРаб="1"
 			// @v11.4.10 {
 			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREARTICLE), temp_buf.Z().Cat(goods_id)); // @v11.5.10 Собственный идентификатор (по специальной просьбе)
-			if(oneof2(chzn_prod_type, GTCHZNPT_MILK, GTCHZNPT_WATER)) {
-				if(barcode_for_marking.NotEmpty()) {
-					assert(barcode_for_marking.Len() < 14);
-					(temp_buf = barcode_for_marking).PadLeft(14-barcode_for_marking.Len(), '0').Insert(0, "02").Cat("37").Cat(R0i(qtty_local));
-					SXml::WNode n_marks(P_X, GetToken_Ansi(PPHSC_RU_WAREIDENTBLOCK));
-					n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+			if(!correction) { // @v11.7.10 (Для корректировки не нужно)
+				if(oneof2(chzn_prod_type, GTCHZNPT_MILK, GTCHZNPT_WATER)) {
+					if(barcode_for_marking.NotEmpty()) {
+						assert(barcode_for_marking.Len() < 14);
+						(temp_buf = barcode_for_marking).PadLeft(14-barcode_for_marking.Len(), '0').Insert(0, "02").Cat("37").Cat(R0i(qtty_local));
+						SXml::WNode n_marks(P_X, GetToken_Ansi(PPHSC_RU_WAREIDENTBLOCK));
+						n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+					}
 				}
-			}
-			else { // } @v11.4.10 
-				//if(BillParam.Flags & PPBillImpExpParam::fCreateAbsenceGoods) {}
-				if(rBp.XcL.Get(item_idx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
-					SXml::WNode n_marks(P_X, GetToken_Ansi(PPHSC_RU_WAREIDENTBLOCK));
-					SString chzn_gtin14_buf;
-					SString chzn_serial_buf;
-					StringSet ss;
-					ext_codes_set.GetByBoxID(0, ss);
-					for(uint ecsp = 0; ss.get(&ecsp, temp_buf);) {
-						bool  is_mark_accepted = false;
-						GtinStruc gts;
-						const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
-						if((rParam.Flags & PPBillImpExpParam::fChZnMarkGTINSER) || (Flags & fExpChZnMarksGTINSER)) {
-							if(PPChZnPrcssr::InterpretChZnCodeResult(pczcr) > 0) {
-								gts.GetToken(GtinStruc::fldGTIN14, &chzn_gtin14_buf);
-								gts.GetToken(GtinStruc::fldSerial, &chzn_serial_buf);
-								if(chzn_gtin14_buf.NotEmpty() && chzn_serial_buf.NotEmpty()) {
-									if(rParam.Flags & PPBillImpExpParam::fChZnMarkAsCDATA) {
-										// Для CDATA не следует экранировать символы (так же в марке нет русских символов). По-этому мы здесь не применяем EncText
-										temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("21").Cat(chzn_serial_buf);
-										SXml::WNode::CDATA(temp_buf);
-										n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_KIZ), temp_buf);
+				else { // } @v11.4.10 
+					//if(BillParam.Flags & PPBillImpExpParam::fCreateAbsenceGoods) {}
+					if(rBp.XcL.Get(item_idx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
+						SXml::WNode n_marks(P_X, GetToken_Ansi(PPHSC_RU_WAREIDENTBLOCK));
+						SString chzn_gtin14_buf;
+						SString chzn_serial_buf;
+						StringSet ss;
+						ext_codes_set.GetByBoxID(0, ss);
+						for(uint ecsp = 0; ss.get(&ecsp, temp_buf);) {
+							bool  is_mark_accepted = false;
+							GtinStruc gts;
+							const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
+							if((rParam.Flags & PPBillImpExpParam::fChZnMarkGTINSER) || (Flags & fExpChZnMarksGTINSER)) {
+								if(PPChZnPrcssr::InterpretChZnCodeResult(pczcr) > 0) {
+									gts.GetToken(GtinStruc::fldGTIN14, &chzn_gtin14_buf);
+									gts.GetToken(GtinStruc::fldSerial, &chzn_serial_buf);
+									if(chzn_gtin14_buf.NotEmpty() && chzn_serial_buf.NotEmpty()) {
+										if(rParam.Flags & PPBillImpExpParam::fChZnMarkAsCDATA) {
+											// Для CDATA не следует экранировать символы (так же в марке нет русских символов). По-этому мы здесь не применяем EncText
+											temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("21").Cat(chzn_serial_buf);
+											SXml::WNode::CDATA(temp_buf);
+											n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_KIZ), temp_buf);
+										}
+										else {
+											temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("21").Cat(chzn_serial_buf);
+											n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+										}
+										is_mark_accepted = true;
 									}
-									else {
-										temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("21").Cat(chzn_serial_buf);
-										n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
-									}
-									is_mark_accepted = true;
 								}
 							}
-						}
-						if(!is_mark_accepted) {
-							// @v11.4.9 n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
-							// @v11.4.9 {
-							if(rParam.Flags & PPBillImpExpParam::fChZnMarkAsCDATA) {
-								// Для CDATA не следует экранировать символы (так же в марке нет русских символов). По-этому мы здесь не применяем EncText
-								SXml::WNode::CDATA(temp_buf);
-								n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_KIZ), temp_buf);
+							if(!is_mark_accepted) {
+								// @v11.4.9 n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+								// @v11.4.9 {
+								if(rParam.Flags & PPBillImpExpParam::fChZnMarkAsCDATA) {
+									// Для CDATA не следует экранировать символы (так же в марке нет русских символов). По-этому мы здесь не применяем EncText
+									SXml::WNode::CDATA(temp_buf);
+									n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_KIZ), temp_buf);
+								}
+								else {
+									n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+								}
+								// } @v11.4.9 
 							}
-							else {
-								n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
-							}
-							// } @v11.4.9 
 						}
 					}
 				}
 			}
+			// } @v10.6.11
 		}
-		// } @v10.6.11
 		// @v11.5.9 {
 		if(!correction) {
 			if(barcode_for_exchange.NotEmpty()) {

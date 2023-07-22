@@ -1334,7 +1334,7 @@
 	#define HAVE_MATH_H            1 
 	#define HAVE_MEMCPY
 	#define HAVE_STPCPY
-	#define HAVE_STRNLEN
+	#define HAVE_STRNLEN           1
 	#define HAVE_TIME_T_IN_TIME_H
 	#define HAVE_FDOPEN
 	#define HAVE_LUA

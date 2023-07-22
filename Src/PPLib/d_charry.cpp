@@ -1,5 +1,5 @@
 // D_CHARRY.CPP
-// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1328,7 +1328,7 @@ int PPDS_CrrStaffCalEntry::TransferField(long fldID, Tfd dir, uint * pIter, SStr
 				LDATE dt;
 				if(dir == tfdDataToBuf) {
 					dt.v = Data.DtVal;
-					TempBuf.Z().Cat(dt.day()).CatChar('/').Cat(dt.month());
+					TempBuf.Z().Cat(dt.day()).Slash().Cat(dt.month());
 				}
 				ok = TransferData(TempBuf, dir, rBuf);
 				if(dir == tfdBufToData) {
@@ -1984,7 +1984,7 @@ int PPDS_CrrPersonKind::TransferField(long fldID, Tfd dir, uint * pIter, SString
 		case DSF_CRRPERSONKIND_CODEREGTYPEID:
 		case DSF_CRRPERSONKIND_FOLDERREGTYPEID:
 			{
-				int is_coderegt = (fldID == DSF_CRRPERSONKIND_CODEREGTYPEID) ? 1 : 0;
+				const bool is_coderegt = (fldID == DSF_CRRPERSONKIND_CODEREGTYPEID);
 				SString buf;
 				if(dir == tfdDataToBuf) {
 					PPRegisterType regt_rec;
@@ -1993,7 +1993,7 @@ int PPDS_CrrPersonKind::TransferField(long fldID, Tfd dir, uint * pIter, SString
 				}
 				ok = TransferData(buf, dir, rBuf);
 				if(dir == tfdBufToData)
-					ok = ObjRegT.SearchSymb((is_coderegt) ? &Data.CodeRegTypeID : &Data.FolderRegTypeID, buf);
+					ok = ObjRegT.SearchSymb((is_coderegt) ? reinterpret_cast<PPID *>(&Data.CodeRegTypeID) : &Data.FolderRegTypeID, buf);
 			}
 			break;
 	}
@@ -2293,7 +2293,7 @@ int PPDS_CrrScale::TransferField(long fldID, Tfd dir, uint * pIter, SString & rB
 		case DSF_CRRSCALE_LOCATION:
 			if(dir == tfdDataToBuf) {
 				LocationTbl::Rec lrec;
-				MEMSZERO(lrec);
+				// @v11.7.10 @ctr MEMSZERO(lrec);
 				if(LocObj.Search(Data.Rec.Location, &lrec) > 0)
 					ok = TransferData(lrec.Code, sizeof(lrec.Code), dir, rBuf);
 			}
@@ -2304,7 +2304,7 @@ int PPDS_CrrScale::TransferField(long fldID, Tfd dir, uint * pIter, SString & rB
 			{
 				SString buf;
 				Goods2Tbl::Rec ggrec;
-				MEMSZERO(ggrec);
+				// @v11.7.10 @ctr MEMSZERO(ggrec);
 				if(dir == tfdDataToBuf) {
 					if(GGObj.Search(Data.Rec.AltGoodsGrp, &ggrec) > 0)
 						buf.CopyFrom(ggrec.Name);

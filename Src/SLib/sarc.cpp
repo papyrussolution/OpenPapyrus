@@ -219,27 +219,131 @@ struct SArc_Bz2_Block {
 	SString FileName;
 };
 
-/*static*/int SArchive::List(int provided, int * pFormat, const char * pName, uint flags, SFileEntryPool & rPool)
+/*static*/int SArchive::List(int provider, int * pFormat, const char * pName, uint flags, SFileEntryPool & rPool)
 {
 	int    ok = 0;
+	Archive * p_larc = 0;
+	switch(provider) {
+		case providerLA:
+			{
+				p_larc = archive_read_new();
+				LaCbBlock cb_blk(0, SKILOBYTE(512));
+				THROW(cb_blk.F.Open(pName, SFile::mRead | (SFile::mBinary|SFile::mNoStd))); // @v11.6.8 @fix &-->|
+				//archive_read_support_compression_all(p_larc);
+				archive_read_support_filter_all(p_larc);
+				archive_read_support_format_all(p_larc);
+				archive_read_support_format_empty(p_larc); // @v11.7.0
+				archive_read_set_seek_callback(p_larc, LaCbSeek);
+				const int r = archive_read_open2(p_larc, &cb_blk, LaCbOpen, LaCbRead, LaCbSkip, LaCbClose);
+				THROW(r == 0);
+				{
+					ArchiveEntry * p_entry = 0;
+					const wchar_t * p_entry_name = 0;
+					SFileEntryPool::Entry fep_entry;
+					while(archive_read_next_header(p_larc, &p_entry) == ARCHIVE_OK) {
+						p_entry_name = archive_entry_pathname_w(p_entry);
+						fep_entry.Size = archive_entry_size(p_entry);
+						fep_entry.Path.CopyUtf8FromUnicode(p_entry_name, sstrlen(p_entry_name), 1);
+						if(archive_entry_mtime_is_set(p_entry)) {
+							time_t mtm = archive_entry_mtime(p_entry);
+							//long   mtmnsec = archive_entry_mtime_nsec(p_entry);
+							fep_entry.WriteTime.SetTimeT(mtm);
+						}
+						rPool.Add(fep_entry);
+					}				
+				}
+				ok = 1;
+			}
+			break;
+		default:
+			break;
+	}
+	CATCHZOK
+	if(p_larc) {
+		archive_read_finish(p_larc);
+		p_larc = 0;
+	}
 	return ok;
 }
 
-/*static*/int SArchive::Inflate(int provided, const char * pName, uint flags, const SFileEntryPool & rPool, const char * pDestPath)
+/*static*/int SArchive::Inflate(int provider, const char * pName, uint flags, const SFileEntryPool & rPool, const char * pDestPath)
 {
 	int    ok = 0;
+	Archive * p_larc = 0;
+	switch(provider) {
+		case providerLA:
+			{
+			}
+			break;
+		default:
+			break;
+	}
+	CATCHZOK
+	if(p_larc) {
+		archive_read_finish(p_larc);
+		p_larc = 0;
+	}
 	return ok;
 }
 
-/*static*/int SArchive::InflateAll(int provided, const char * pName, uint flags, const char * pDestPath)
+/*static*/int SArchive::InflateAll(int provider, const char * pName, uint flags, const char * pDestPath)
 {
 	int    ok = 0;
+	Archive * p_larc = 0;
+	switch(provider) {
+		case providerLA:
+			{
+				p_larc = archive_read_new();
+				LaCbBlock cb_blk(0, SKILOBYTE(512));
+				THROW(cb_blk.F.Open(pName, SFile::mRead | (SFile::mBinary|SFile::mNoStd))); // @v11.6.8 @fix &-->|
+				//archive_read_support_compression_all(p_larc);
+				archive_read_support_filter_all(p_larc);
+				archive_read_support_format_all(p_larc);
+				archive_read_support_format_empty(p_larc); // @v11.7.0
+				archive_read_set_seek_callback(p_larc, LaCbSeek);
+				const int r = archive_read_open2(p_larc, &cb_blk, LaCbOpen, LaCbRead, LaCbSkip, LaCbClose);
+				THROW(r == 0);
+				{
+					ArchiveEntry * p_entry = 0;
+					const wchar_t * p_entry_name = 0;
+					SFileEntryPool::Entry fep_entry;
+					while(archive_read_next_header(p_larc, &p_entry) == ARCHIVE_OK) {
+						p_entry_name = archive_entry_pathname_w(p_entry);
+						fep_entry.Size = archive_entry_size(p_entry);
+						fep_entry.Path.CopyUtf8FromUnicode(p_entry_name, sstrlen(p_entry_name), 1);
+						if(archive_entry_mtime_is_set(p_entry)) {
+							time_t mtm = archive_entry_mtime(p_entry);
+							//long   mtmnsec = archive_entry_mtime_nsec(p_entry);
+							fep_entry.WriteTime.SetTimeT(mtm);
+						}
+						//rPool.Add(fep_entry);
+					}				
+				}
+				ok = 1;
+			}
+			break;
+		default:
+			break;
+	}
+	CATCHZOK
+	if(p_larc) {
+		archive_read_finish(p_larc);
+		p_larc = 0;
+	}
 	return ok;
 }
 
-/*static*/int SArchive::Deflate(int provided, int format, const char * pName, uint flags, const SFileEntryPool & rPool)
+/*static*/int SArchive::Deflate(int provider, int format, const char * pName, uint flags, const SFileEntryPool & rPool)
 {
 	int    ok = 0;
+	switch(provider) {
+		case providerLA:
+			{
+			}
+			break;
+		default:
+			break;
+	}
 	return ok;
 }
 

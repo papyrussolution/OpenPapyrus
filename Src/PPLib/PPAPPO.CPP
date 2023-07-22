@@ -32,7 +32,7 @@ int PPValidateXml();
 int OpenPhonePane();
 int UniFindObj();
 int TSessionMaintenance(); // @v11.0.4
-int ProcessUed(const char * pSrcFileName, bool forceUpdatePlDecl, PPLogger * pLogger); // @v11.6.6
+int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pCPath, const char * pJavaPath, bool forceUpdatePlDecl, PPLogger * pLogger); // @v11.7.10
 //int ImportSartre();
 // } @prototype
 //
@@ -156,7 +156,7 @@ IMPL_HANDLE_EVENT(PPApp)
 //
 int RestoreGoods2()
 {
-	char   fname[MAXPATH], out_fname[MAXPATH];
+	char   fname[MAX_PATH], out_fname[MAX_PATH];
 	GoodsCore goods_tbl;
 	PPObjUnit unit_obj;
 	PPObjPerson psn_obj;
@@ -570,7 +570,7 @@ int PPApp::processCommand(uint cmd)
 		case cmProcessUED: // @v11.6.6
 			{
 				PPLogger logger;
-				ProcessUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt", false, &logger);
+				ProcessUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt", 0, 0, 0, false, &logger);
 			}
 			break; 
 		case cmEventsForCurrentUser:

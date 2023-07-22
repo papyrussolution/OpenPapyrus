@@ -2173,7 +2173,7 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, uint uom
 			double nmrtr = 0.0;
 			double dnmntr = 0.0;
 			if(fsplitintofractions(qtty, uomFragm, 1E-5, &ip, &nmrtr, &dnmntr))
-				CreateStr(SLS.AcquireRvlStr().Cat(R0i(nmrtr)).CatChar('/').Cat(R0i(dnmntr)), in_data);
+				CreateStr(SLS.AcquireRvlStr().Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr)), in_data);
 			else
 				CreateStr(1.0, in_data);
 		}
@@ -2492,7 +2492,7 @@ int PiritEquip::RunCheck(int opertype)
 										double nmrtr = 0.0;
 										double dnmntr = 0.0;
 										if(fsplitintofractions(Check.Quantity, Check.UomFragm, 1E-5, &ip, &nmrtr, &dnmntr))
-											str.Cat(R0i(nmrtr)).CatChar('/').Cat(R0i(dnmntr)).CatChar('&');
+											str.Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr)).CatChar('&');
 									}
 									CreateStr(str, in_data);
 								}
@@ -2578,7 +2578,7 @@ int PiritEquip::RunCheck(int opertype)
 								double nmrtr = 0.0;
 								double dnmntr = 0.0;
 								if(fsplitintofractions(Check.Quantity, Check.UomFragm, 1E-5, &ip, &nmrtr, &dnmntr))
-									str.Cat(R0i(nmrtr)).CatChar('/').Cat(R0i(dnmntr)).CatChar('&');
+									str.Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr)).CatChar('&');
 							}
 							CreateStr(str, in_data);
 							// } @v11.2.6 

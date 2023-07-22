@@ -188,7 +188,8 @@ public:
 			if(input_map == &Null(DeltaSetIndexMap)) return;
 
 			for(uint i = 0; i < max_inners.length; i++) {
-				if(inner_maps[i].get_population() == 0) continue;
+				if(inner_maps[i].get_population() == 0) 
+					continue;
 				uint bit_count = (max_inners[i]==0) ? 1 : hb_bit_storage(inner_maps[i][max_inners[i]]);
 				if(bit_count > inner_bit_count) inner_bit_count = bit_count;
 			}

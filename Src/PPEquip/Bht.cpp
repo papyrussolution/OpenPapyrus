@@ -3801,7 +3801,7 @@ int PPObjBHT::TransmitGoods(PPID bhtID, BhtProtocol * pBP, int updateData)
 {
 	int    ok = 1, r;
 	BhtRecord * p_bht_rec = 0;
-	//char   path[MAXPATH], path2[MAXPATH];
+	//char   path[MAX_PATH], path2[MAX_PATH];
 	SString path;
 	SString path2;
 	PPWaitStart();

@@ -24,8 +24,7 @@ namespace protobuf {
 namespace internal {
 std::string GetTypeUrl(StringPiece message_name,
     StringPiece type_url_prefix) {
-	if(!type_url_prefix.empty() &&
-	    type_url_prefix[type_url_prefix.size() - 1] == '/') {
+	if(!type_url_prefix.empty() && type_url_prefix[type_url_prefix.size() - 1] == '/') {
 		return StrCat(type_url_prefix, message_name);
 	}
 	else {
@@ -54,10 +53,10 @@ bool AnyMetadata::InternalUnpackTo(StringPiece type_name,
 	return message->ParseFromString(value_->Get());
 }
 
-bool AnyMetadata::InternalIs(StringPiece type_name) const {
+bool AnyMetadata::InternalIs(StringPiece type_name) const 
+{
 	StringPiece type_url = type_url_->Get();
-	return type_url.size() >= type_name.size() + 1 &&
-	       type_url[type_url.size() - type_name.size() - 1] == '/' &&
+	return type_url.size() >= type_name.size() + 1 && type_url[type_url.size() - type_name.size() - 1] == '/' &&
 	       HasSuffixString(type_url, type_name);
 }
 

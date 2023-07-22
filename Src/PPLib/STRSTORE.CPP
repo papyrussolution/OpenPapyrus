@@ -1285,7 +1285,7 @@ int StringStore2::AddGroup(StringStore2::ParseItem & rItem)
 			else if(P_Pb->Saved_GrpSymbList.SearchByText(rItem.GroupSymb, 0, &(pos = 0))) {
 				rItem.Group = P_Pb->Saved_GrpSymbList.Get(pos).Id;
 				THROW(/*P_Pb->*/GrpSymbList.Add(rItem.Group, rItem.GroupSymb));
-				if(!P_Pb->LastAutoCodeList.Search(rItem.Group, 0, 0)) {
+				if(!P_Pb->LastAutoCodeList.Search(rItem.Group, 0)) {
 					THROW(P_Pb->LastAutoCodeList.Add(rItem.Group, 10000, 0, 0));
 				}
 				ok = 1;
@@ -1316,7 +1316,7 @@ int StringStore2::AddGroup(StringStore2::ParseItem & rItem)
 		}
 		else {
 			THROW(/*P_Pb->*/GrpSymbList.Add(rItem.Group, rItem.GroupSymb));
-			if(!P_Pb->LastAutoCodeList.Search(rItem.Group, 0, 0)) {
+			if(!P_Pb->LastAutoCodeList.Search(rItem.Group, 0)) {
 				THROW(P_Pb->LastAutoCodeList.Add(rItem.Group, 10000, 0, 0));
 			}
 			ok = 1;

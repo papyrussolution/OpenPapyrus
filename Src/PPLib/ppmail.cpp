@@ -1573,7 +1573,7 @@ int PPMailSmtp::SendMsgToFile(SMailMessage * pMsg, SString & rFileName)
 				}
 			}
 			if(is_img)
-				(temp_buf = "image").CatChar('/').Cat((const char *)ext).CatDiv(';', 2).CatEq("name", fn);
+				(temp_buf = "image").Slash().Cat((const char *)ext).CatDiv(';', 2).CatEq("name", fn);
 			else
 				(temp_buf = "application/X-Papyrus").CatDiv(';', 2).CatEq("name", fn);
 			PutField(PPMAILFLD_CONTENTTYPE, temp_buf, buf);
@@ -1712,7 +1712,7 @@ static void SendMailCallback(const IterCounter & bytesCounter, const IterCounter
 	SString msg;
 	PPLoadText(PPTXT_SENDMAILWAITMSG, msg);
 	if(msgCounter.GetTotal() > 1)
-		msg.Space().Cat(msgCounter).CatChar('/').Cat(msgCounter.GetTotal());
+		msg.Space().Cat(msgCounter).Slash().Cat(msgCounter.GetTotal());
 	PPWaitPercent(bytesCounter, msg);
 }
 

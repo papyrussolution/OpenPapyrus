@@ -1821,9 +1821,6 @@
     <ProjectReference Include="freetype.vcxproj">
       <Project>{d7c20ac1-2566-446f-b49a-598fe7a67094}</Project>
     </ProjectReference>
-    <ProjectReference Include="libresources.vcxproj">
-      <Project>{52dcab29-c8ee-4422-954c-29afa6b33e22}</Project>
-    </ProjectReference>
     <ProjectReference Include="openjp2.vcxproj">
       <Project>{c756e07c-5895-39df-8310-7126f3c6fd84}</Project>
     </ProjectReference>

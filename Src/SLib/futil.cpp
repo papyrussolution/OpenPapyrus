@@ -66,7 +66,7 @@ bool FASTCALL fileExists(const char * pFileName)
 
 static int getdisk()
 {
-	wchar_t buf[MAXPATH];
+	wchar_t buf[MAX_PATH];
 	::GetCurrentDirectoryW(SIZEOFARRAY(buf), buf);
 	return *buf-L'A';
 }
@@ -78,9 +78,9 @@ int pathToUNC(const char * pPath, SString & rUncPath)
 	*disk = *pPath;
 	rUncPath = pPath;
 	if(GetDriveType(SUcSwitch(disk)) == DRIVE_REMOTE) {
-		char   namebuf[MAXPATH + sizeof(UNIVERSAL_NAME_INFO)];
+		char   namebuf[MAX_PATH + sizeof(UNIVERSAL_NAME_INFO)];
 		namebuf[0] = 0;
-		DWORD  len = MAXPATH;
+		DWORD  len = MAX_PATH;
 		DWORD  wstat = WNetGetUniversalName(SUcSwitch(pPath), UNIVERSAL_NAME_INFO_LEVEL, &namebuf, &len);
 		if(wstat != NO_ERROR)
 			ok = (SLibError = SLERR_INVPATH, 0);
@@ -106,7 +106,7 @@ static int Win_IsFileExists(const char * pFileName)
 
 /* @v10.5.6 char * replacePath(char * fileName, const char * newPath, int force)
 {
-	char   drv[MAXDRIVE], dir[MAXPATH], nam[MAXFILE], ext[MAXEXT];
+	char   drv[MAXDRIVE], dir[MAX_PATH], nam[MAXFILE], ext[MAXEXT];
 	fnsplit(fileName, drv, dir, nam, ext);
 	if(force || (*drv == 0 && *dir == 0))
 		strcat(strcat(setLastSlash(strcpy(fileName, newPath)), nam), ext);
@@ -115,7 +115,7 @@ static int Win_IsFileExists(const char * pFileName)
 
 /* @v10.5.6 char * replaceExt(char * fileName, const char * newExt, int force)
 {
-	char   drv[MAXDRIVE], dir[MAXPATH], nam[MAXFILE], ext[MAXEXT];
+	char   drv[MAXDRIVE], dir[MAX_PATH], nam[MAXFILE], ext[MAXEXT];
 	fnsplit(fileName, drv, dir, nam, ext);
 	if(force || *ext == 0) {
 		if(newExt[0] != '.') {
@@ -132,7 +132,7 @@ static int Win_IsFileExists(const char * pFileName)
 char * setLastSlash(char * p)
 {
 	size_t len = sstrlen(p);
-	if(len > 0 && !oneof2(p[len-1], '\\', '/')) {
+	if(len > 0 && !isdirslash(p[len-1])) {
 		p[len++] = '\\';
 		p[len] = 0;
 	}
@@ -142,7 +142,7 @@ char * setLastSlash(char * p)
 char * rmvLastSlash(char * p)
 {
 	const size_t len = sstrlen(p);
-	if(len > 0 && oneof2(p[len-1], '\\', '/'))
+	if(len > 0 && isdirslash(p[len-1]))
 		p[len-1] = 0;
 	return p;
 }
@@ -159,21 +159,39 @@ SString & getExecPath(SString & rBuf)
 int driveValid(const char * pPath)
 {
 	int    ok = 0;
-	char   dname[4] = "X:\\";
-	dname[0] = *pPath;
-	uint t = GetDriveType(SUcSwitch(dname));
-	if(t != DRIVE_UNKNOWN && t != DRIVE_NO_ROOT_DIR)
-		ok = 1;
-	else if(pPath[0] == '\\' && pPath[1] == '\\') {
-		char   buf[MAXPATH];
-		fnsplit(pPath, 0, buf, 0, 0);
-		char   * p = 0;
-		p = ((p = sstrchr(buf+2, '\\')) ? sstrchr(p+1, '\\') : 0);
-		if(p) {
-			*p = 0;
-			setLastSlash(buf);
-			ok = GetVolumeInformation(SUcSwitch(buf), 0, 0, 0, 0, 0, 0, 0);
+	if(!isempty(pPath)) {
+		// @v11.7.10 {
+		SPathStruc ps(pPath);
+		if(ps.Drv.NotEmpty()) {
+			if(ps.Flags & SPathStruc::fUNC) {
+				SString volume_buf;
+				(volume_buf = "\\\\").Cat(ps.Drv).SetLastSlash();
+				ok = GetVolumeInformation(SUcSwitch(volume_buf), 0, 0, 0, 0, 0, 0, 0);
+			}
+			else {
+				uint t = GetDriveType(SUcSwitch(ps.Drv));
+				if(t != DRIVE_UNKNOWN && t != DRIVE_NO_ROOT_DIR)
+					ok = 1;
+			}
 		}
+		// } @v11.7.10 
+		/* @v11.7.10 {
+		char   dname[4] = "X:\\";
+		dname[0] = *pPath;
+		uint t = GetDriveType(SUcSwitch(dname));
+		if(t != DRIVE_UNKNOWN && t != DRIVE_NO_ROOT_DIR)
+			ok = 1;
+		else if(pPath[0] == '\\' && pPath[1] == '\\') {
+			char   buf[MAX_PATH];
+			fnsplit(pPath, 0, buf, 0, 0);
+			char   * p = 0;
+			p = ((p = sstrchr(buf+2, '\\')) ? sstrchr(p+1, '\\') : 0);
+			if(p) {
+				*p = 0;
+				setLastSlash(buf);
+				ok = GetVolumeInformation(SUcSwitch(buf), 0, 0, 0, 0, 0, 0, 0);
+			}
+		}*/
 	}
 	return ok;
 }
@@ -245,11 +263,11 @@ static char * squeeze(char * path)
 {
 #ifdef __WIN32__
 	TCHAR * fn = 0;
-	TCHAR  buf[MAXPATH];
+	TCHAR  buf[MAX_PATH];
 	::GetFullPathName(SUcSwitch(rpath), SIZEOFARRAY(buf), buf, &fn);
 	return strcpy(rpath, SUcSwitch(buf));
 #else
-	char path[MAXPATH];
+	char path[MAX_PATH];
 	char drive[MAXDRIVE];
 	char dir[MAXDIR];
 	char file[MAXFILE];
@@ -286,7 +304,7 @@ int pathValid(const char * pPath, int existOnly)
 	SString exp_path(pPath);
 	{
 		TCHAR * fn = 0;
-		TCHAR  fpn_buf[MAXPATH];
+		TCHAR  fpn_buf[MAX_PATH];
 		::GetFullPathName(SUcSwitch(exp_path), SIZEOFARRAY(fpn_buf), fpn_buf, &fn);
 		exp_path = SUcSwitch(fpn_buf);
 	}
@@ -297,7 +315,7 @@ int pathValid(const char * pPath, int existOnly)
 int validFileName(const char * pFileName)
 {
 	static const char * illegalChars = ";,=+<>|\"[] \\";
-	char   path[MAXPATH];
+	char   path[MAX_PATH];
 	char   dir[MAXDIR];
 	char   name[MAXFILE];
 	char   ext[MAXEXT];
@@ -373,7 +391,7 @@ SString & makeExecPathFileName(const char * pName, const char * pExt, SString & 
 {
 	HMODULE h_inst = SLS.GetHInst();
 	// @v10.3.9 char   drv[MAXDRIVE], dir[MAXDIR];
-	// @v10.3.9 char   path[MAXPATH];
+	// @v10.3.9 char   path[MAX_PATH];
 	// @v10.3.9 GetModuleFileName(h_inst, path, sizeof(path)); // @unicodeproblem
 	// @v10.3.9 fnsplit(path, drv, dir, 0, 0);
 	// @v10.3.9 fnmerge(path, drv, dir, pName, pExt);
@@ -748,7 +766,7 @@ int RemoveDir(const char * pDir)
 	*/
 	rPath.Z();
 	int    ok = 0;
-	TCHAR  path[MAXPATH];
+	TCHAR  path[MAX_PATH];
 	int    folder = 0;
 	// @v11.0.3 {
 	if(pathId == sdTemporary) {

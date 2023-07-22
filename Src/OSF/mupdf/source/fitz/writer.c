@@ -46,7 +46,6 @@ size_t fz_copy_option(fz_context * ctx, const char * val, char * dest, size_t ma
 {
 	const char * e = val;
 	size_t len, len2;
-
 	if(val == NULL) {
 		if(maxlen)
 			*dest = 0;
@@ -76,39 +75,19 @@ fz_document_writer * fz_new_document_writer_of_size(fz_context * ctx, size_t siz
 }
 
 fz_document_writer * fz_new_png_pixmap_writer(fz_context * ctx, const char * path, const char * options)
-{
-	return fz_new_pixmap_writer(ctx, path, options, "out-%04d.png", 0, fz_save_pixmap_as_png);
-}
-
+	{ return fz_new_pixmap_writer(ctx, path, options, "out-%04d.png", 0, fz_save_pixmap_as_png); }
 fz_document_writer * fz_new_pam_pixmap_writer(fz_context * ctx, const char * path, const char * options)
-{
-	return fz_new_pixmap_writer(ctx, path, options, "out-%04d.pam", 0, fz_save_pixmap_as_pam);
-}
-
+	{ return fz_new_pixmap_writer(ctx, path, options, "out-%04d.pam", 0, fz_save_pixmap_as_pam); }
 fz_document_writer * fz_new_pnm_pixmap_writer(fz_context * ctx, const char * path, const char * options)
-{
-	return fz_new_pixmap_writer(ctx, path, options, "out-%04d.pnm", 0, fz_save_pixmap_as_pnm);
-}
-
+	{ return fz_new_pixmap_writer(ctx, path, options, "out-%04d.pnm", 0, fz_save_pixmap_as_pnm); }
 fz_document_writer * fz_new_pgm_pixmap_writer(fz_context * ctx, const char * path, const char * options)
-{
-	return fz_new_pixmap_writer(ctx, path, options, "out-%04d.pgm", 1, fz_save_pixmap_as_pnm);
-}
-
+	{ return fz_new_pixmap_writer(ctx, path, options, "out-%04d.pgm", 1, fz_save_pixmap_as_pnm); }
 fz_document_writer * fz_new_ppm_pixmap_writer(fz_context * ctx, const char * path, const char * options)
-{
-	return fz_new_pixmap_writer(ctx, path, options, "out-%04d.ppm", 3, fz_save_pixmap_as_pnm);
-}
-
+	{ return fz_new_pixmap_writer(ctx, path, options, "out-%04d.ppm", 3, fz_save_pixmap_as_pnm); }
 fz_document_writer * fz_new_pbm_pixmap_writer(fz_context * ctx, const char * path, const char * options)
-{
-	return fz_new_pixmap_writer(ctx, path, options, "out-%04d.pbm", 1, fz_save_pixmap_as_pbm);
-}
-
+	{ return fz_new_pixmap_writer(ctx, path, options, "out-%04d.pbm", 1, fz_save_pixmap_as_pbm); }
 fz_document_writer * fz_new_pkm_pixmap_writer(fz_context * ctx, const char * path, const char * options)
-{
-	return fz_new_pixmap_writer(ctx, path, options, "out-%04d.pkm", 4, fz_save_pixmap_as_pkm);
-}
+	{ return fz_new_pixmap_writer(ctx, path, options, "out-%04d.pkm", 4, fz_save_pixmap_as_pkm); }
 
 static int FASTCALL is_extension(const char * a, const char * ext)
 {
@@ -135,13 +114,10 @@ fz_document_writer * fz_new_document_writer(fz_context * ctx, const char * path,
 		if(is_extension(format, "pdf"))
 			return fz_new_pdf_writer(ctx, path, options);
 #endif
-
 		if(is_extension(format, "cbz"))
 			return fz_new_cbz_writer(ctx, path, options);
-
 		if(is_extension(format, "svg"))
 			return fz_new_svg_writer(ctx, path, options);
-
 		if(is_extension(format, "png"))
 			return fz_new_png_pixmap_writer(ctx, path, options);
 		if(is_extension(format, "pam"))
@@ -156,7 +132,6 @@ fz_document_writer * fz_new_document_writer(fz_context * ctx, const char * path,
 			return fz_new_pbm_pixmap_writer(ctx, path, options);
 		if(is_extension(format, "pkm"))
 			return fz_new_pkm_pixmap_writer(ctx, path, options);
-
 		if(is_extension(format, "pcl"))
 			return fz_new_pcl_writer(ctx, path, options);
 		if(is_extension(format, "pclm"))
@@ -165,7 +140,6 @@ fz_document_writer * fz_new_document_writer(fz_context * ctx, const char * path,
 			return fz_new_ps_writer(ctx, path, options);
 		if(is_extension(format, "pwg"))
 			return fz_new_pwg_writer(ctx, path, options);
-
 		if(is_extension(format, "txt") || is_extension(format, "text"))
 			return fz_new_text_writer(ctx, "text", path, options);
 		if(is_extension(format, "html"))
@@ -183,7 +157,6 @@ fz_document_writer * fz_new_document_writer(fz_context * ctx, const char * path,
 			fz_throw(ctx, FZ_ERROR_GENERIC, "docx output not available in this build.");
 #endif
 		}
-
 		if(format != explicit_format)
 			format = prev_period(path, format);
 		else
@@ -200,7 +173,6 @@ fz_document_writer * fz_new_document_writer_with_output(fz_context * ctx, fz_out
 	if(is_extension(format, "pdf"))
 		return fz_new_pdf_writer_with_output(ctx, out, options);
 #endif
-
 	if(is_extension(format, "pcl"))
 		return fz_new_pcl_writer_with_output(ctx, out, options);
 	if(is_extension(format, "pclm"))
@@ -209,7 +181,6 @@ fz_document_writer * fz_new_document_writer_with_output(fz_context * ctx, fz_out
 		return fz_new_ps_writer_with_output(ctx, out, options);
 	if(is_extension(format, "pwg"))
 		return fz_new_pwg_writer_with_output(ctx, out, options);
-
 	if(is_extension(format, "txt") || is_extension(format, "text"))
 		return fz_new_text_writer_with_output(ctx, "text", out, options);
 	if(is_extension(format, "html"))

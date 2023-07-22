@@ -48,7 +48,7 @@ static int FASTCALL _Lock(PPID id)
 {
 	if(id) {
 		PPSyncItem sync_item;
-		PPID   mutex_id = 0;
+		long   mutex_id = 0;
 		int    r = DS.GetSync().CreateMutex_(LConfig.SessionID, PPOBJ_BILL, id, &mutex_id, &sync_item);
 		if(r < 0)
 			return PPSetError(PPERR_BILLISLOCKED, sync_item.Name);

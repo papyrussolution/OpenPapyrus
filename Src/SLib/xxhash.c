@@ -172,7 +172,7 @@ typedef enum {
 // @v11.4.0 #ifndef __has_builtin
 // @v11.4.0 #define __has_builtin(x) 0
 // @v11.4.0 #endif
-/* @v11.4.0 (replaced with slrotl32 slrotl64
+/* @v11.4.0 (replaced with SBits::Rotl SBits::Rotl
 #if !defined(NO_CLANG_BUILTIN) && __has_builtin(__builtin_rotateleft32) && __has_builtin(__builtin_rotateleft64)
 	#define XXH_rotl32 __builtin_rotateleft32
 	#define XXH_rotl64 __builtin_rotateleft64
@@ -226,7 +226,7 @@ static const uint32 PRIME32_5 = 0x165667B1U; /* 0b000101100101011001100111101100
 static uint32 XXH32_round(uint32 acc, uint32 input)
 {
 	acc += input * PRIME32_2;
-	acc  = slrotl32(acc, 13);
+	acc  = SBits::Rotl(acc, 13);
 	acc *= PRIME32_1;
 #if defined(__GNUC__) && defined(__SSE4_1__) && !defined(XXH_ENABLE_AUTOVECTORIZE)
 	/* UGLY HACK:
@@ -294,12 +294,12 @@ static uint32 XXH32_finalize(uint32 h32, const void * ptr, size_t len, XXH_align
 	const BYTE * p = static_cast<const BYTE *>(ptr);
 #define PROCESS1               \
 	h32 += (*p++) * PRIME32_5; \
-	h32 = slrotl32(h32, 11) * PRIME32_1;
+	h32 = SBits::Rotl(h32, 11) * PRIME32_1;
 
 #define PROCESS4                         \
 	h32 += XXH_get32bits(p) * PRIME32_3; \
 	p += 4;                                \
-	h32  = slrotl32(h32, 17) * PRIME32_4;
+	h32  = SBits::Rotl(h32, 17) * PRIME32_4;
 
 	/* Compact rerolled version */
 	if(XXH_REROLL) {
@@ -361,7 +361,7 @@ static FORCEINLINE uint32 XXH32_endian_align(const void * input, size_t len, uin
 			v3 = XXH32_round(v3, XXH_get32bits(p)); p += 4;
 			v4 = XXH32_round(v4, XXH_get32bits(p)); p += 4;
 		} while(p < limit);
-		h32 = slrotl32(v1, 1)  + slrotl32(v2, 7) + slrotl32(v3, 12) + slrotl32(v4, 18);
+		h32 = SBits::Rotl(v1, 1)  + SBits::Rotl(v2, 7) + SBits::Rotl(v3, 12) + SBits::Rotl(v4, 18);
 	}
 	else {
 		h32  = seed + PRIME32_5;
@@ -479,7 +479,7 @@ XXH_PUBLIC_API uint32 XXH32_digest(const XXH32_state_t* state)
 {
 	uint32 h32;
 	if(state->large_len) {
-		h32 = slrotl32(state->v1, 1) + slrotl32(state->v2, 7) + slrotl32(state->v3, 12) + slrotl32(state->v4, 18);
+		h32 = SBits::Rotl(state->v1, 1) + SBits::Rotl(state->v2, 7) + SBits::Rotl(state->v3, 12) + SBits::Rotl(state->v4, 18);
 	}
 	else {
 		h32 = state->v3 /* == seed */ + PRIME32_5;
@@ -619,7 +619,7 @@ static const uint64 PRIME64_5 = 0x27D4EB2F165667C5ULL; // 0b00100111110101001110
 static uint64 XXH64_round(uint64 acc, uint64 input)
 {
 	acc += input * PRIME64_2;
-	acc  = slrotl64(acc, 31);
+	acc  = SBits::Rotl(acc, 31);
 	acc *= PRIME64_1;
 	return acc;
 }
@@ -648,9 +648,9 @@ static uint64 XXH64_finalize(uint64 h64, const void * ptr, size_t len, XXH_align
 {
 	const BYTE * p = static_cast<const BYTE *>(ptr);
 
-#define PROCESS1_64 h64 ^= (*p++) * PRIME64_5; h64 = slrotl64(h64, 11) * PRIME64_1;
-#define PROCESS4_64 h64 ^= (uint64)(XXH_get32bits(p)) * PRIME64_1; p += 4; h64 = slrotl64(h64, 23) * PRIME64_2 + PRIME64_3;
-#define PROCESS8_64 { uint64 const k1 = XXH64_round(0, XXH_get64bits(p)); p += 8; h64 ^= k1; h64  = slrotl64(h64, 27) * PRIME64_1 + PRIME64_4; }
+#define PROCESS1_64 h64 ^= (*p++) * PRIME64_5; h64 = SBits::Rotl(h64, 11) * PRIME64_1;
+#define PROCESS4_64 h64 ^= (uint64)(XXH_get32bits(p)) * PRIME64_1; p += 4; h64 = SBits::Rotl(h64, 23) * PRIME64_2 + PRIME64_3;
+#define PROCESS8_64 { uint64 const k1 = XXH64_round(0, XXH_get64bits(p)); p += 8; h64 ^= k1; h64  = SBits::Rotl(h64, 27) * PRIME64_1 + PRIME64_4; }
 
 	/* Rerolled version for 32-bit targets is faster and much smaller. */
 	if(XXH_REROLL || XXH_REROLL_XXH64) {
@@ -732,7 +732,7 @@ static FORCEINLINE uint64 XXH64_endian_align(const void * input, size_t len, uin
 			v3 = XXH64_round(v3, XXH_get64bits(p)); p += 8;
 			v4 = XXH64_round(v4, XXH_get64bits(p)); p += 8;
 		} while(p<=limit);
-		h64 = slrotl64(v1, 1) + slrotl64(v2, 7) + slrotl64(v3, 12) + slrotl64(v4, 18);
+		h64 = SBits::Rotl(v1, 1) + SBits::Rotl(v2, 7) + SBits::Rotl(v3, 12) + SBits::Rotl(v4, 18);
 		h64 = XXH64_mergeRound(h64, v1);
 		h64 = XXH64_mergeRound(h64, v2);
 		h64 = XXH64_mergeRound(h64, v3);
@@ -855,7 +855,7 @@ XXH_PUBLIC_API uint64 XXH64_digest(const XXH64_state_t* state)
 		uint64 const v2 = state->v2;
 		uint64 const v3 = state->v3;
 		uint64 const v4 = state->v4;
-		h64 = slrotl64(v1, 1) + slrotl64(v2, 7) + slrotl64(v3, 12) + slrotl64(v4, 18);
+		h64 = SBits::Rotl(v1, 1) + SBits::Rotl(v2, 7) + SBits::Rotl(v3, 12) + SBits::Rotl(v4, 18);
 		h64 = XXH64_mergeRound(h64, v1);
 		h64 = XXH64_mergeRound(h64, v2);
 		h64 = XXH64_mergeRound(h64, v3);

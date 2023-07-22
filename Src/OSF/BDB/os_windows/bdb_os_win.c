@@ -31,21 +31,21 @@
 // __os_abspath --
 // Return if a path is an absolute path.
 //
-int __os_abspath(const char * path)
+/* @v11.7.10 (replaced with SPathStruc::IsWindowsPathPrefix) int __os_abspath_Removed(const char * path)
 {
-	/*
-	 * !!!
-	 * Check for drive specifications, e.g., "C:".  In addition, the path
-	 * separator used by the win32 DB (PATH_SEPARATOR) is \; look for both
-	 * / and \ since these are user-input paths.
-	 */
+	//
+	// !!!
+	// Check for drive specifications, e.g., "C:".  In addition, the path
+	// separator used by the win32 DB (PATH_SEPARATOR) is \; look for both
+	// / and \ since these are user-input paths.
+	//
 	const size_t len = sstrlen(path);
 	if(!len)
 		return 0;
 	if(len >= 3 && isalpha(path[0]) && path[1] == ':')
 		path += 2;
 	return (path[0] == '/' || path[0] == '\\');
-}
+}*/
 //
 // Descr: Create a directory.
 //

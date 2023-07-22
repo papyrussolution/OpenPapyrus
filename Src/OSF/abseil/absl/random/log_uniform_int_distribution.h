@@ -36,18 +36,12 @@ public:
 public:
 		using distribution_type = log_uniform_int_distribution;
 
-		explicit param_type(result_type min = 0,
-		    result_type max = (std::numeric_limits<result_type>::max)(),
-		    result_type base = 2)
-			: min_(min),
-			max_(max),
-			base_(base),
-			range_(static_cast<unsigned_type>(max_) -
-			    static_cast<unsigned_type>(min_)),
-			log_range_(0) {
+		explicit param_type(result_type min = 0, result_type max = (std::numeric_limits<result_type>::max)(),
+		    result_type base = 2) : min_(min), max_(max), base_(base),
+			range_(static_cast<unsigned_type>(max_) - static_cast<unsigned_type>(min_)), log_range_(0) 
+		{
 			assert(max_ >= min_);
 			assert(base_ > 1);
-
 			if(base_ == 2) {
 				// Determine where the first set bit is on range(), giving a log2(range)
 				// value which can be used to construct bounds.
@@ -69,31 +63,19 @@ public:
 				log_range_ = static_cast<int>(std::ceil(inv_log_base * log_range));
 			}
 		}
-
 		result_type(min)() const { return min_; }
 		result_type(max)() const { return max_; }
-		result_type base() const {
-			return base_;
-		}
-
-		friend bool operator ==(const param_type& a, const param_type& b) {
+		result_type base() const { return base_; }
+		friend bool operator ==(const param_type& a, const param_type& b) 
+		{
 			return a.min_ == b.min_ && a.max_ == b.max_ && a.base_ == b.base_;
 		}
-
-		friend bool operator !=(const param_type& a, const param_type& b) {
-			return !(a == b);
-		}
-
+		friend bool operator !=(const param_type& a, const param_type& b) { return !(a == b); }
 private:
 		friend class log_uniform_int_distribution;
 
-		int log_range() const {
-			return log_range_;
-		}
-
-		unsigned_type range() const {
-			return range_;
-		}
+		int log_range() const { return log_range_; }
+		unsigned_type range() const { return range_; }
 
 		result_type min_;
 		result_type max_;
@@ -106,7 +88,8 @@ private:
 		    "parameterized using an integral type.");
 	};
 
-	log_uniform_int_distribution() : log_uniform_int_distribution(0) {
+	log_uniform_int_distribution() : log_uniform_int_distribution(0) 
+	{
 	}
 
 	explicit log_uniform_int_distribution(result_type min,
@@ -115,10 +98,12 @@ private:
 		: param_(min, max, base) {
 	}
 
-	explicit log_uniform_int_distribution(const param_type& p) : param_(p) {
+	explicit log_uniform_int_distribution(const param_type& p) : param_(p) 
+	{
 	}
 
-	void reset() {
+	void reset() 
+	{
 	}
 
 	// generating functions

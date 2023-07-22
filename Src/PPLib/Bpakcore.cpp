@@ -393,7 +393,7 @@ int PayPlanArray::AutoBuild(const PPBillPacket * pPack)
 		for(i = 0; i < cycle_list.getCount(); i++) {
 			LDATE  charge_dt;
 			pPack->Rent.GetChargeDate(&cycle_list, i, &charge_dt);
-			if(!charges.Search(charge_dt, 0, 0)) {
+			if(!charges.Search(charge_dt, 0)) {
 				int    r = 0;
 				double amount = 0.0;
 				if(pPack->Rent.Flags & PPRentCondition::fPercent) {

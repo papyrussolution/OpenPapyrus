@@ -433,9 +433,8 @@ void VP8LBitEntropyInit(VP8LBitEntropy* const entropy)
 
 void VP8LBitsEntropyUnrefined(const uint32_t* const array, int n, VP8LBitEntropy* const entropy) 
 {
-	int i;
 	VP8LBitEntropyInit(entropy);
-	for(i = 0; i < n; ++i) {
+	for(int i = 0; i < n; ++i) {
 		if(array[i] != 0) {
 			entropy->sum += array[i];
 			entropy->nonzero_code = i;

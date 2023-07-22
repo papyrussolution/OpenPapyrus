@@ -776,19 +776,14 @@ void load_page(void)
 				trace_action("if (errored == 0 && tmp != %d) errored=%d;\n", is_signed, trace_next_error());
 
 				if(is_signed) {
-					int valid_until, is_readonly;
-					char * cert_error, * digest_error;
-					pdf_pkcs7_designated_name * dn;
-					pdf_pkcs7_verifier * verifier;
 					char * signatory = NULL;
 					char buf[500];
-
-					valid_until = pdf_validate_signature(ctx, w);
-					is_readonly = pdf_widget_is_readonly(ctx, w);
-					verifier = pkcs7_openssl_new_verifier(ctx);
-					cert_error = pdf_signature_error_description(pdf_check_certificate(ctx, verifier, pdf, w->obj));
-					digest_error = pdf_signature_error_description(pdf_check_digest(ctx, verifier, pdf, w->obj));
-					dn = pdf_signature_get_signatory(ctx, verifier, pdf, w->obj);
+					int valid_until = pdf_validate_signature(ctx, w);
+					int is_readonly = pdf_widget_is_readonly(ctx, w);
+					pdf_pkcs7_verifier * verifier = pkcs7_openssl_new_verifier(ctx);
+					const char * cert_error = pdf_signature_error_description(pdf_check_certificate(ctx, verifier, pdf, w->obj));
+					const char * digest_error = pdf_signature_error_description(pdf_check_digest(ctx, verifier, pdf, w->obj));
+					pdf_pkcs7_designated_name * dn = pdf_signature_get_signatory(ctx, verifier, pdf, w->obj);
 					if(dn) {
 						char * s = pdf_signature_format_designated_name(ctx, dn);
 						fz_strlcpy(buf, s, sizeof buf);

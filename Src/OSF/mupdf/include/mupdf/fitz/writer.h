@@ -81,14 +81,11 @@ size_t fz_copy_option(fz_context *ctx, const char *val, char *dest, size_t maxle
 	file generation.
 */
 fz_document_writer *fz_new_document_writer(fz_context *ctx, const char *path, const char *format, const char *options);
-
 /**
 	Like fz_new_document_writer but takes a fz_output for writing
 	the result. Only works for multi-page formats.
 */
-fz_document_writer *
-fz_new_document_writer_with_output(fz_context *ctx, fz_output *out, const char *format, const char *options);
-
+fz_document_writer * fz_new_document_writer_with_output(fz_context *ctx, fz_output *out, const char *format, const char *options);
 /**
 	Document writers for various possible output formats.
 */

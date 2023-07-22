@@ -1321,7 +1321,7 @@ int ExportCls::SendDoc()
 	int    ok = 1;
 	SString	inbox_filename;
 	SPathStruc path_struct(ExpFileName);
-	(inbox_filename = OUTBOX).CatChar('/').Cat(path_struct.Nam).Dot().Cat(path_struct.Ext);
+	(inbox_filename = OUTBOX).Slash().Cat(path_struct.Nam).Dot().Cat(path_struct.Ext);
 	Sdr_DllImpExpReceipt * p_exp_rcpt = 0;
 	FtpClient ftp_client(Header.EdiLogin, Header.EdiPassword);
 	// Подключаемся к ftp
@@ -1654,7 +1654,7 @@ int ImportCls::ReceiveDoc()
 			// Смотрим, что это наш формат
 			srch_param.P_Pattern = file_type;
 			if(read_filename.Search(file_type, 0, 1, &pos)) {
-				(str = box_name).CatChar('/').Cat(read_filename);
+				(str = box_name).Slash().Cat(read_filename);
 				InboxFiles.Add(i++, str, 1);
 			}
 		}

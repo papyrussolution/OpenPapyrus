@@ -19,5 +19,9 @@
     <ClCompile Include="..\PPTEST\UNIT\test-string.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-time.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-math.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-sarray.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-bits.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-agner.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-hash.cpp" />
   </ItemGroup>
 </Project>

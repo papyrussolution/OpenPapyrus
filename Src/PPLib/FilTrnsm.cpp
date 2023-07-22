@@ -108,7 +108,7 @@ void ObjReceiveParamDialog::addItem()
 void ObjReceiveParamDialog::delItem()
 {
 	uint   p = 0;
-	PPID   id;
+	long   id;
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_DBTRANSM_IN_LIST));
 	if(Data.SenderDbDivList.getCount() > 0 && p_list && p_list->getCurID(&id) && Data.SenderDbDivList.lsearch(id, &p)) {
 		Data.SenderDbDivList.atFree(p);
@@ -175,7 +175,7 @@ static void RcvMailCallback(const IterCounter & bytesCounter, const IterCounter 
 	SString msg;
 	PPLoadText(PPTXT_RCVMAILWAITMSG, msg);
 	if(msgCounter.GetTotal() > 1)
-		msg.Space().Cat(msgCounter).CatChar('/').Cat(msgCounter.GetTotal());
+		msg.Space().Cat(msgCounter).Slash().Cat(msgCounter.GetTotal());
 	PPWaitPercent(bytesCounter, msg);
 }
 
@@ -184,7 +184,7 @@ static void SendMailCallback(const IterCounter & bytesCounter, const IterCounter
 	SString msg;
 	PPLoadText(PPTXT_SENDMAILWAITMSG, msg);
 	if(msgCounter.GetTotal() > 1)
-		msg.Space().Cat(msgCounter).CatChar('/').Cat(msgCounter.GetTotal());
+		msg.Space().Cat(msgCounter).Slash().Cat(msgCounter.GetTotal());
 	PPWaitPercent(bytesCounter, msg);
 }
 
@@ -193,7 +193,7 @@ static void SendMailCallback(const IterCounter & bytesCounter, const IterCounter
 static int GetFilesFromMailServerProgressProc(const SDataMoveProgressInfo * pInfo)
 {
 	SString & r_msg_buf = SLS.AcquireRvlStr();
-	r_msg_buf.Cat(pInfo->OverallItemsDone).Colon().Cat(pInfo->OverallSizeDone).CatChar('/').
+	r_msg_buf.Cat(pInfo->OverallItemsDone).Colon().Cat(pInfo->OverallSizeDone).Slash().
 		Cat(pInfo->OverallItemsCount).Colon().Cat(pInfo->OverallSizeTotal);
 	PPWaitPercent(pInfo->OverallItemsDone, pInfo->OverallItemsCount, r_msg_buf);
 	return 0;
@@ -650,13 +650,18 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 			if(use_src && src.NotEmpty() && !IsEmailAddr(src) && !IsFtpAddr(src)) {
 				int    removable_drive = 0;
 				char   drive = 'C';
-				char   ext[16];
-				fnsplit(src, &drive, 0, 0, ext);
+				// @v11.7.10 char   ext[16];
+				// @v11.7.10 fnsplit(src, &drive, 0, 0, ext);
+				// @v11.7.10 {
+				SPathStruc ps(src); 
+				if(ps.Drv.NotEmpty() && ps.Drv.Len() == 1 && isasciialpha(ps.Drv.C(0)))
+					drive = ps.Drv.C(0);
+				// } @v11.7.10 
 				PPSetAddedMsgString(src);
 				THROW_PP(driveValid(src), PPERR_NEXISTPATH);
 				removable_drive = IsRemovableDrive(toupper(drive));
 				if(removable_drive > 0) {
-					file_path.Z().CatChar(drive).Colon().CatChar('\\');
+					file_path.Z().CatChar(drive).Colon().BSlash();
 					PPSetAddedMsgString(msg_buf.Z().CatChar(toupper(drive)));
 					while(::access(file_path, 0) != 0)
 						THROW_PP(CONFIRM(PPCFM_INSERTDISK), PPERR_DRIVEUNAVELAIBLE);
@@ -734,7 +739,7 @@ static int PutFilesToDiskPath(const SFileEntryPool * pFileList, const char * pDe
 	THROW_PP_S(driveValid(pDestPath), PPERR_NEXISTPATH, pDestPath);
 	removable_drive = (ps.Drv.Len() == 1) ? IsRemovableDrive(ps.Drv.C(0)) : 0;
 	if(removable_drive > 0) {
-		dest_dir.Z().CatChar(ps.Drv.C(0)).Colon().CatChar('\\');
+		dest_dir.Z().CatChar(ps.Drv.C(0)).Colon().BSlash();
 		PPSetAddedMsgString(ps.Drv);
 		while(::access(dest_dir, 0))
 			THROW_PP(CONFIRM(PPCFM_INSERTDISK), PPERR_DRIVEUNAVELAIBLE);

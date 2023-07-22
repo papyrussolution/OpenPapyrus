@@ -70,6 +70,20 @@ ulong FASTCALL SRng::GetUniformInt(ulong n)
 	return k;
 }
 
+ulong  FASTCALL SRng::GetUniformIntPos(ulong n)
+{
+	const  ulong  offset = RandMin;
+	const  ulong  range  = RandMax - offset;
+	ulong  k = 0;
+	if(n && n <= range) { // GSL_ERROR_VAL ("invalid n, either 0 or exceeds maximum value of generator", GSL_EINVAL, 0) ;
+		const ulong scale = range / n;
+		do {
+			k = (Get() - offset) / scale;
+		} while(k == 0 || k >= n);
+	}
+	return k;
+}
+
 double SRng::GetUniformPos()
 {
 	double x;
@@ -1104,6 +1118,7 @@ void SRandGenerator::Set(ulong seed)
 ulong  SRandGenerator::Get() { return P_Inner ? P_Inner->Get() : 0U; }
 double SRandGenerator::GetReal() { return P_Inner ? P_Inner->GetReal() : 0.0; }
 ulong  SRandGenerator::GetUniformInt(ulong n) { return P_Inner ? P_Inner->GetUniformInt(n) : 0U; }
+ulong  SRandGenerator::GetUniformIntPos(ulong n) { return P_Inner ? P_Inner->GetUniformIntPos(n) : 1U; }
 double SRandGenerator::GetUniformPos() { return P_Inner ? P_Inner->GetUniformPos() : 0.0; }
 ulong  SRandGenerator::GetMin() const { return P_Inner ? P_Inner->GetMin() : 0U; }
 ulong  SRandGenerator::GetMax() const { return P_Inner ? P_Inner->GetMax() : 0U; }

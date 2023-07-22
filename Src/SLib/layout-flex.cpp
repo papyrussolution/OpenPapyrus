@@ -2642,8 +2642,7 @@ SJson * SUiLayout::ToJsonObj() const
 		obj_layout {
 		symb : string
 		flags : optionslist_layout
-		wd  : string
-		ht  : string
+		size  : string
 		justifycontent : enum_layoutalingment
 		aligncontent   : enum_layoutalingment
 		alignitems     : enum_layoutalingment
@@ -2656,25 +2655,81 @@ SJson * SUiLayout::ToJsonObj() const
 		shrinkfactor   : float
 	} 
 	*/
+	const uint cc = GetChildrenCount(); // children count
 	const long margin_fmt = MKSFMTD(0, 3, NMBF_NOTRAILZ|NMBF_OMITEPS);
-	//p_result->InsertString("symb", "");
 	p_result->InsertIntNz("id", ID);
 	p_result->InsertStringNe("symb", Symb);
-	p_result->InsertString("flags", "");
-	p_result->InsertString("wd", "");
-	p_result->InsertString("ht", "");
-	/*
-		if(justifyContent != alignAuto && oneof7(justifyContent, alignStretch, alignCenter, alignStart, alignEnd, alignSpaceBetween, alignSpaceAround, alignSpaceEvenly)) {
-			JustifyContent = justifyContent;
+	{
+		temp_buf.Z();
+		if(cc) {
+			const int dir = ALB.GetContainerDirection();
+			if(dir == DIREC_HORZ)
+				temp_buf.Cat("horizontal");
+			else if(dir == DIREC_VERT)
+				temp_buf.Cat("vertical");
+			if(oneof2(dir, DIREC_HORZ, DIREC_VERT)) {
+				if(ALB.Flags & SUiLayoutParam::fContainerReverseDir)
+					temp_buf.CatDivIfNotEmpty(' ', 0).Cat("reverse");
+				if(ALB.Flags & SUiLayoutParam::fContainerWrap) {
+					if(ALB.Flags & SUiLayoutParam::fContainerWrapReverse)
+						temp_buf.CatDivIfNotEmpty(' ', 0).Cat("wrapreverse");
+					else
+						temp_buf.CatDivIfNotEmpty(' ', 0).Cat("wrap");
+				}
+			}
 		}
-		if(alignContent != alignAuto && oneof7(alignContent, alignStretch, alignCenter, alignStart, alignEnd, alignSpaceBetween, alignSpaceAround, alignSpaceEvenly)) {
-			AlignContent = alignContent;
-		} 
-	*/
-	p_result->InsertString("justifycontent", "");
-	p_result->InsertString("aligncontent", "");
-	p_result->InsertString("alignitems", "");
-	p_result->InsertString("alignself", "");
+		p_result->InsertStringNe("flags", temp_buf);
+	}
+	p_result->InsertString("size", ALB.SizeToString(temp_buf));
+	if(cc && oneof7(ALB.JustifyContent, SUiLayoutParam::alignStretch, SUiLayoutParam::alignCenter, SUiLayoutParam::alignStart, 
+		SUiLayoutParam::alignEnd, SUiLayoutParam::alignSpaceBetween, SUiLayoutParam::alignSpaceAround, SUiLayoutParam::alignSpaceEvenly)) {
+		const char * p_just = 0;
+		switch(ALB.JustifyContent) {
+			case SUiLayoutParam::alignStretch: p_just = "stretch"; break;
+			case SUiLayoutParam::alignCenter: p_just = "center"; break;
+			case SUiLayoutParam::alignStart: p_just = "start"; break;
+			case SUiLayoutParam::alignEnd: p_just = "end"; break;
+			case SUiLayoutParam::alignSpaceBetween: p_just = "SpaceBetween"; break;
+			case SUiLayoutParam::alignSpaceAround: p_just = "SpaceAround"; break;
+			case SUiLayoutParam::alignSpaceEvenly: p_just = "SpaceEvenly"; break;
+		}
+		p_result->InsertStringNe("justifycontent", p_just);
+	}
+	if(cc && oneof7(ALB.AlignContent, SUiLayoutParam::alignStretch, SUiLayoutParam::alignCenter, SUiLayoutParam::alignStart, 
+		SUiLayoutParam::alignEnd, SUiLayoutParam::alignSpaceBetween, SUiLayoutParam::alignSpaceAround, SUiLayoutParam::alignSpaceEvenly)) {
+		const char * p_just = 0;
+		switch(ALB.AlignContent) {
+			case SUiLayoutParam::alignStretch: p_just = "stretch"; break;
+			case SUiLayoutParam::alignCenter: p_just = "center"; break;
+			case SUiLayoutParam::alignStart: p_just = "start"; break;
+			case SUiLayoutParam::alignEnd: p_just = "end"; break;
+			case SUiLayoutParam::alignSpaceBetween: p_just = "SpaceBetween"; break;
+			case SUiLayoutParam::alignSpaceAround: p_just = "SpaceAround"; break;
+			case SUiLayoutParam::alignSpaceEvenly: p_just = "SpaceEvenly"; break;
+		}
+		p_result->InsertStringNe("aligncontent", p_just);
+	}
+	if(oneof4(ALB.AlignItems, SUiLayoutParam::alignEnd, SUiLayoutParam::alignCenter, SUiLayoutParam::alignStretch, SUiLayoutParam::alignStart)) {
+		const char * p_just = 0;
+		switch(ALB.AlignContent) {
+			case SUiLayoutParam::alignStretch: p_just = "stretch"; break;
+			case SUiLayoutParam::alignCenter: p_just = "center"; break;
+			case SUiLayoutParam::alignStart: p_just = "start"; break;
+			case SUiLayoutParam::alignEnd: p_just = "end"; break;
+		}
+		p_result->InsertStringNe("alignitems", p_just);
+	}
+	if(oneof5(ALB.AlignSelf, SUiLayoutParam::alignEnd, SUiLayoutParam::alignCenter, SUiLayoutParam::alignStretch, SUiLayoutParam::alignStart, SUiLayoutParam::alignAuto)) {
+		const char * p_just = 0;
+		switch(ALB.AlignSelf) {
+			case SUiLayoutParam::alignStretch: p_just = "stretch"; break;
+			case SUiLayoutParam::alignCenter: p_just = "center"; break;
+			case SUiLayoutParam::alignStart: p_just = "start"; break;
+			case SUiLayoutParam::alignEnd: p_just = "end"; break;
+			case SUiLayoutParam::alignAuto: p_just = "auto"; break;
+		}
+		p_result->InsertStringNe("alignself", p_just);
+	}
 	{
 		const char * p_gravity = 0;
 		switch(ALB.GravityX) {
@@ -2691,35 +2746,263 @@ SJson * SUiLayout::ToJsonObj() const
 			case SIDE_BOTTOM: p_gravity = "bottom"; break;
 			case SIDE_CENTER: p_gravity = "center"; break;
 		}
-		p_result->InsertString("gravityy", p_gravity);
+		p_result->InsertStringNe("gravityy", p_gravity);
 	}
-	{
-		const FRect & r_m = ALB.Margin;
-		if(!r_m.IsEmpty()) {
-			temp_buf.Z().Cat(r_m.a.x, margin_fmt).CatDiv(',', 0).Cat(r_m.a.y, margin_fmt).CatDiv(',', 0).
-				Cat(r_m.b.x, margin_fmt).CatDiv(',', 0).Cat(r_m.b.y, margin_fmt);
-			p_result->InsertString("margin", temp_buf);
-		}
-	}
-	{
-		const FRect & r_m = ALB.Padding;
-		if(!r_m.IsEmpty()) {
-			temp_buf.Z().Cat(r_m.a.x, margin_fmt).CatDiv(',', 0).Cat(r_m.a.y, margin_fmt).CatDiv(',', 0).
-				Cat(r_m.b.x, margin_fmt).CatDiv(',', 0).Cat(r_m.b.y, margin_fmt);
-			p_result->InsertNumber("padding", temp_buf);
-		}
-	}
+	p_result->InsertStringNe("margin", ALB.MarginsToString(ALB.Margin, temp_buf));
+	p_result->InsertStringNe("padding", ALB.MarginsToString(ALB.Padding, temp_buf));
 	if(ALB.GrowFactor != 0.0f)
 		p_result->InsertNumber("growfactor", temp_buf.Z().Cat(ALB.GrowFactor, MKSFMTD(0, 3, NMBF_NOTRAILZ)));
-	if(ALB.ShrinkFactor != 0.0f)
-		p_result->InsertString("shrinkfactor", temp_buf.Z().Cat(ALB.ShrinkFactor, MKSFMTD(0, 3, NMBF_NOTRAILZ)));
+	// ShrinkFactor прописываем явно, даже если он нулевой, ибо по умолчанию он устанавливается в 1.0f
+	if(ALB.ShrinkFactor >= 0.0f)
+		p_result->InsertNumber("shrinkfactor", temp_buf.Z().Cat(ALB.ShrinkFactor, MKSFMTD(0, 3, NMBF_NOTRAILZ)));
+	if(cc) {
+		SJson * p_js_children = SJson::CreateArr();
+		uint   cc_actual = 0;
+		for(uint i = 0; i < cc; i++) {
+			const SUiLayout * p_child = GetChildC(i);
+			if(p_child) {
+				SJson * p_js_c = p_child->ToJsonObj(); // @recursion
+				if(p_js_c) {
+					p_js_children->InsertChild(p_js_c);
+					cc_actual++;
+				}
+			}
+		}
+		if(cc_actual) {
+			p_result->Insert("children", p_js_children);
+		}
+	}
 	return p_result;
 }
 
 int SUiLayout::FromJsonObj(const SJson * pJs)
 {
-	int    ok = 0;
-	if(pJs) {
+	int    ok = 1;
+	SString temp_buf;
+	THROW(SJson::IsObject(pJs)); // @todo @err
+	for(const SJson * p_jsn = pJs->P_Child; p_jsn; p_jsn = p_jsn->P_Next) {
+		if(p_jsn->P_Child) {
+			if(p_jsn->Text.IsEqiAscii("id")) {
+				ID = p_jsn->P_Child->Text.ToLong();
+			}
+			else if(p_jsn->Text.IsEqiAscii("symb")) {
+				(Symb = p_jsn->P_Child->Text).Unescape();
+			}
+			else if(p_jsn->Text.IsEqiAscii("flags")) {
+				StringSet ss(' ', p_jsn->P_Child->Text);
+				bool is_horizontal = false;
+				bool is_vertical = false;
+				bool is_reverse = false;
+				bool is_wrap = false;
+				bool is_wrapreverse = false;
+				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+					if(temp_buf.IsEqiAscii("horizontal") || temp_buf.IsEqiAscii("horiz")) {
+						is_horizontal = true;
+					}
+					else if(temp_buf.IsEqiAscii("vertical") || temp_buf.IsEqiAscii("vert")) {
+						is_vertical = true;
+					}
+					else if(temp_buf.IsEqiAscii("reverse")) {
+						is_reverse = true;
+					}
+					else if(temp_buf.IsEqiAscii("wrapreverse")) {
+						is_wrapreverse = true;
+					}
+					else if(temp_buf.IsEqiAscii("wrap")) {
+						is_wrap = true;
+					}
+				}
+				if(is_horizontal) {
+					if(is_vertical) {
+						; // @todo @err (conflict)
+					}
+					else {	
+						ALB.SetContainerDirection(DIREC_HORZ);
+						if(is_reverse)
+							ALB.Flags |= SUiLayoutParam::fContainerReverseDir;
+						if(is_wrapreverse)
+							ALB.Flags |= (SUiLayoutParam::fContainerWrap|SUiLayoutParam::fContainerWrapReverse);
+						else if(is_wrap)
+							ALB.Flags |= (SUiLayoutParam::fContainerWrap);
+					}
+				}
+				else if(is_vertical) {
+					ALB.SetContainerDirection(DIREC_VERT);
+					if(is_reverse)
+						ALB.Flags |= SUiLayoutParam::fContainerReverseDir;
+					if(is_wrapreverse)
+						ALB.Flags |= (SUiLayoutParam::fContainerWrap|SUiLayoutParam::fContainerWrapReverse);
+					else if(is_wrap)
+						ALB.Flags |= (SUiLayoutParam::fContainerWrap);
+				}
+				else
+					ALB.SetContainerDirection(DIREC_UNKN);
+			}
+			else if(p_jsn->Text.IsEqiAscii("size")) {
+				if(!ALB.SizeFromString(p_jsn->P_Child->Text)) {
+					; // @todo @err
+				}
+			}
+			else if(p_jsn->Text.IsEqiAscii("justifycontent")) {
+				temp_buf = p_jsn->P_Child->Text;
+				if(temp_buf.IsEqiAscii("stretch")) {
+					ALB.JustifyContent = SUiLayoutParam::alignStretch;
+				}
+				else if(temp_buf.IsEqiAscii("center")) {
+					ALB.JustifyContent = SUiLayoutParam::alignCenter;
+				}
+				else if(temp_buf.IsEqiAscii("start")) {
+					ALB.JustifyContent = SUiLayoutParam::alignStart;
+				}
+				else if(temp_buf.IsEqiAscii("end")) {
+					ALB.JustifyContent = SUiLayoutParam::alignEnd;
+				}
+				else if(temp_buf.IsEqiAscii("SpaceBetween")) {
+					ALB.JustifyContent = SUiLayoutParam::alignSpaceBetween;
+				}
+				else if(temp_buf.IsEqiAscii("SpaceAround")) {
+					ALB.JustifyContent = SUiLayoutParam::alignSpaceAround;
+				}
+				else if(temp_buf.IsEqiAscii("SpaceEvenly")) {
+					ALB.JustifyContent = SUiLayoutParam::alignSpaceEvenly;
+				}
+				else {
+					; // @todo @err
+				}
+			}
+			else if(p_jsn->Text.IsEqiAscii("aligncontent")) {
+				temp_buf = p_jsn->P_Child->Text;
+				if(temp_buf.IsEqiAscii("stretch")) {
+					ALB.AlignContent = SUiLayoutParam::alignStretch;
+				}
+				else if(temp_buf.IsEqiAscii("center")) {
+					ALB.AlignContent = SUiLayoutParam::alignCenter;
+				}
+				else if(temp_buf.IsEqiAscii("start")) {
+					ALB.AlignContent = SUiLayoutParam::alignStart;
+				}
+				else if(temp_buf.IsEqiAscii("end")) {
+					ALB.AlignContent = SUiLayoutParam::alignEnd;
+				}
+				else if(temp_buf.IsEqiAscii("SpaceBetween")) {
+					ALB.AlignContent = SUiLayoutParam::alignSpaceBetween;
+				}
+				else if(temp_buf.IsEqiAscii("SpaceAround")) {
+					ALB.AlignContent = SUiLayoutParam::alignSpaceAround;
+				}
+				else if(temp_buf.IsEqiAscii("SpaceEvenly")) {
+					ALB.AlignContent = SUiLayoutParam::alignSpaceEvenly;
+				}
+				else {
+					; // @todo @err
+				}
+			}
+			else if(p_jsn->Text.IsEqiAscii("alignitems")) {
+				temp_buf = p_jsn->P_Child->Text;
+				if(temp_buf.IsEqiAscii("stretch")) {
+					ALB.AlignItems = SUiLayoutParam::alignStretch;
+				}
+				else if(temp_buf.IsEqiAscii("center")) {
+					ALB.AlignItems = SUiLayoutParam::alignCenter;
+				}
+				else if(temp_buf.IsEqiAscii("start")) {
+					ALB.AlignItems = SUiLayoutParam::alignStart;
+				}
+				else if(temp_buf.IsEqiAscii("end")) {
+					ALB.AlignItems = SUiLayoutParam::alignEnd;
+				}
+				else {
+					; // @todo @err
+				}
+			}
+			else if(p_jsn->Text.IsEqiAscii("alignself")) {
+				temp_buf = p_jsn->P_Child->Text;
+				if(temp_buf.IsEqiAscii("stretch")) {
+					ALB.AlignSelf = SUiLayoutParam::alignStretch;
+				}
+				else if(temp_buf.IsEqiAscii("center")) {
+					ALB.AlignSelf = SUiLayoutParam::alignCenter;
+				}
+				else if(temp_buf.IsEqiAscii("start")) {
+					ALB.AlignSelf = SUiLayoutParam::alignStart;
+				}
+				else if(temp_buf.IsEqiAscii("end")) {
+					ALB.AlignSelf = SUiLayoutParam::alignEnd;
+				}
+				else if(temp_buf.IsEqiAscii("auto")) {
+					ALB.AlignSelf = SUiLayoutParam::alignAuto;
+				}
+				else {
+					; // @todo @err
+				}
+			}
+			else if(p_jsn->Text.IsEqiAscii("gravityx")) {
+				temp_buf = p_jsn->P_Child->Text;
+				if(temp_buf.IsEqiAscii("left")) {
+					ALB.GravityX = SIDE_LEFT;
+				}
+				else if(temp_buf.IsEqiAscii("right")) {
+					ALB.GravityX = SIDE_RIGHT;
+				}
+				else if(temp_buf.IsEqiAscii("center")) {
+					ALB.GravityX = SIDE_CENTER;
+				}
+				else {
+					; // @todo @err
+				}
+			}
+			else if(p_jsn->Text.IsEqiAscii("gravityy")) {
+				temp_buf = p_jsn->P_Child->Text;
+				if(temp_buf.IsEqiAscii("left")) {
+					ALB.GravityY = SIDE_LEFT;
+				}
+				else if(temp_buf.IsEqiAscii("right")) {
+					ALB.GravityY = SIDE_RIGHT;
+				}
+				else if(temp_buf.IsEqiAscii("center")) {
+					ALB.GravityY = SIDE_CENTER;
+				}
+				else {
+					; // @todo @err
+				}
+			}
+			else if(p_jsn->Text.IsEqiAscii("margin")) {
+				if(!ALB.MarginsFromString(p_jsn->P_Child->Text, ALB.Margin)) {
+					; // @todo @err
+				}
+			}
+			else if(p_jsn->Text.IsEqiAscii("padding")) {
+				if(!ALB.MarginsFromString(p_jsn->P_Child->Text, ALB.Padding)) {
+					; // @todo @err
+				}
+			}
+			else if(p_jsn->Text.IsEqiAscii("growfactor")) {
+				float f = p_jsn->P_Child->Text.ToFloat();
+				if(f >= 0.0f) 
+					ALB.GrowFactor = f;
+				else {
+					; // @todo @err
+				}
+			}
+			else if(p_jsn->Text.IsEqiAscii("shrinkfactor")) {
+				float f = p_jsn->P_Child->Text.ToFloat();
+				if(f >= 0.0f) 
+					ALB.ShrinkFactor = f;
+				else {
+					; // @todo @err
+				}
+			}
+			else if(p_jsn->Text.IsEqiAscii("children")) {
+				if(SJson::IsArray(p_jsn->P_Child)) {
+					for(const SJson * p_js_inner = p_jsn->P_Child->P_Child; p_js_inner; p_js_inner = p_js_inner->P_Next) {
+						SUiLayout * p_lo_child = this->InsertItem();
+						THROW(p_lo_child);								
+						THROW(p_lo_child->FromJsonObj(p_js_inner)); // @recursion
+					}
+				}
+			}
+		}
 	}
+	CATCHZOK
 	return ok;
 }

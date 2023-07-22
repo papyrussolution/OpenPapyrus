@@ -407,7 +407,7 @@ static int _Lock(PPID id)
 {
 	int    r;
 	if(id) {
-		PPID   mutex_id = 0;
+		long   mutex_id = 0;
 		PPSyncItem sync_item;
 		if((r = DS.GetSync().CreateMutex_(LConfig.SessionID, PPOBJ_GOODS, id, &mutex_id, &sync_item)) < 0)
 			return PPSetError(PPERR_GOODSISLOCKED, sync_item.Name);
@@ -2167,7 +2167,7 @@ void PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstList *
 				}
 				else if(sgg == sggClsKind) {
 					gext_rec.KindID = gsitem.Par1;
-					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eKind, 0, rBuf);
+					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eKind, rBuf);
 					if(rBuf.IsEmpty()) {
 						rBuf = gc_pack.Rec.Name;
 						rBuf.Space().CatChar('#').Cat(gsitem.Par1);
@@ -2175,7 +2175,7 @@ void PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstList *
 				}
 				else if(sgg == sggClsGrade) {
 					gext_rec.GradeID = gsitem.Par1;
-					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eGrade, 0, rBuf);
+					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eGrade, rBuf);
 					if(rBuf.IsEmpty()) {
 						rBuf = gc_pack.Rec.Name;
 						rBuf.Space().CatChar('#').Cat(gsitem.Par1);
@@ -2183,7 +2183,7 @@ void PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstList *
 				}
 				else if(sgg == sggClsAddObj) {
 					gext_rec.AddObjID = gsitem.Par1;
-					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eAdd, 0, rBuf);
+					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eAdd, rBuf);
 					if(rBuf.IsEmpty()) {
 						rBuf = gc_pack.Rec.Name;
 						rBuf.Space().CatChar('#').Cat(gsitem.Par1);
@@ -2193,9 +2193,9 @@ void PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstList *
 					SString temp_buf2;
 					gext_rec.KindID  = gsitem.Par1;
 					gext_rec.GradeID = gsitem.U.L.Par2;
-					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eKind,  0, rBuf);
+					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eKind,  rBuf);
 					rBuf.Space();
-					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eGrade, 0, temp_buf2);
+					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eGrade, temp_buf2);
 					rBuf.Cat(temp_buf2);
 					if(rBuf.Strip().IsEmpty()) {
 						rBuf = gc_pack.Rec.Name;
@@ -2207,10 +2207,10 @@ void PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstList *
 					gext_rec.KindID   = gsitem.Par1;
 					gext_rec.GradeID  = (sgg == sggClsKind_Grade_AddObj) ? gsitem.U.L.Par2 : gsitem.U.L.Par3;
 					gext_rec.AddObjID = (sgg == sggClsKind_Grade_AddObj) ? gsitem.U.L.Par3 : gsitem.U.L.Par2;
-					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eKind, 0, rBuf);
+					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eKind, rBuf);
 					rBuf.Space();
-					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eGrade, 0, grade_buf);
-					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eAdd, 0, add_buf);
+					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eGrade, grade_buf);
+					gc_pack.GetExtProp(&gext_rec, PPGdsCls::eAdd, add_buf);
 					if(sgg == sggClsKind_Grade_AddObj)
 						rBuf.Cat(grade_buf).Space().Cat(add_buf);
 					else
@@ -3773,7 +3773,7 @@ int PPObjGoods::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, O
 				ProcessObjRefInArray(PPOBJ_GOODS, p_id, ary, replace);
 			}
 		}
-		ProcessObjRefInArray(PPOBJ_PROCESSOR,  &gp->Rec.DefPrcID,    ary, replace); // @v9.0.5
+		ProcessObjRefInArray(PPOBJ_PROCESSOR,  &gp->Rec.DefPrcID,    ary, replace);
 		return 1;
 	}
 	return -1;

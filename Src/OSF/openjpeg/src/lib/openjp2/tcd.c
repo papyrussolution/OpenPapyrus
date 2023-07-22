@@ -2129,13 +2129,12 @@ static boolint opj_tcd_dc_level_shift_decode(opj_tcd_t * p_tcd)
 			l_min = 0;
 			l_max = (int32_t)((1U << l_img_comp->prec) - 1);
 		}
-
 		if(l_tccp->qmfbid == 1) {
 			for(j = 0; j < l_height; ++j) {
 				for(i = 0; i < l_width; ++i) {
 					/* TODO: do addition on int64 ? */
-					*l_current_ptr = opj_int_clamp(*l_current_ptr + l_tccp->m_dc_level_shift, l_min,
-						l_max);
+					*l_current_ptr = sclamp(*l_current_ptr + l_tccp->m_dc_level_shift, l_min, l_max); // @sobolev
+					// @sobolev *l_current_ptr = opj_int_clamp(*l_current_ptr + l_tccp->m_dc_level_shift, l_min, l_max);
 					++l_current_ptr;
 				}
 				l_current_ptr += l_stride;
@@ -2154,8 +2153,8 @@ static boolint opj_tcd_dc_level_shift_decode(opj_tcd_t * p_tcd)
 					else {
 						/* Do addition on int64 to avoid overflows */
 						int64 l_value_int = (int64)opj_lrintf(l_value);
-						*l_current_ptr = (int32_t)opj_int64_clamp(
-							l_value_int + l_tccp->m_dc_level_shift, l_min, l_max);
+						*l_current_ptr = (int32_t)sclamp(l_value_int + l_tccp->m_dc_level_shift, (int64)l_min, (int64)l_max); // @sobolev
+						// @sobolev *l_current_ptr = (int32_t)opj_int64_clamp(l_value_int + l_tccp->m_dc_level_shift, l_min, l_max);
 					}
 					++l_current_ptr;
 				}

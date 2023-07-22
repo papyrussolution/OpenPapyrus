@@ -2488,7 +2488,7 @@ private:
 		int    MakeFileName(const char *, const char *, char *, size_t);
 		int    WriteRecord(FILE *, const BCopyData *);
 		int    ReadRecord(FILE *, BCopyData *);
-		char   FileName[MAXPATH];
+		char   FileName[MAX_PATH];
 		FILE * Stream;
 	};
 
@@ -3083,7 +3083,7 @@ typedef int (*PT_PvGetFileHandleInfo)(long hConnection, char * pFileName, PVFILE
 typedef int (*PT_PvGetServerName)(long hConnection, ulong * pBufSize, char * pName);
 
 struct DBFileInfo : PVFILEINFO {
-	char FileName[MAXPATH];
+	char FileName[MAX_PATH];
 	char UserName[64];
 };
 
@@ -4229,8 +4229,10 @@ public:
 		int    FASTCALL Get(SString & rBuf) const;
 		int    FASTCALL Get(SStringU & rBuf) const;
 		int    Get(void * pBuf, size_t bufSize) const;
-		int    FASTCALL Get(int32 * pBuf) const;
-		int    FASTCALL Get(uint32 * pBuf) const;
+		int    FASTCALL Get(int * pBuf) const;
+		int    FASTCALL Get(long * pBuf) const;
+		int    FASTCALL Get(uint * pBuf) const;
+		int    FASTCALL Get(ulong * pBuf) const;
 		int    FASTCALL Get(int64 * pBuf) const;
 	private:
 		void * P_Data;

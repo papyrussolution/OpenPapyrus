@@ -1847,7 +1847,7 @@ int TimeSeries_OptEntryList_Graph(TimeSeries_OptEntryList_Graph_Param * pParam)
 			dlg->setCtrlLong(CTL_TSOELGRAPH_GRPPT, param_.GroupingPt);
 			temp_buf.Z();
 			if(param_.SegmentCount > 0 && param_.SegmentN > 0)
-				temp_buf.Cat(param_.SegmentN).CatChar('/').Cat(param_.SegmentCount);
+				temp_buf.Cat(param_.SegmentN).Slash().Cat(param_.SegmentCount);
 			else if(!param_.AbsSegment.IsZero()) {
 				temp_buf.Cat(param_.AbsSegment.low, MKSFMTD(0, 10, NMBF_NOTRAILZ)).Dot().Dot().
 					Cat(param_.AbsSegment.upp, MKSFMTD(0, 10, NMBF_NOTRAILZ));
@@ -5261,11 +5261,11 @@ int PrcssrTsStrategyAnalyze::Init(const PPBaseFilt * pBaseFilt)
 	/*if(rS.GenSeq > 0)
 		rBuf.Dot().CatLongZ(rS.GenSeq, 3);*/
 	rBuf.CatChar(')');
-	rBuf.CatDiv(':', 2).Cat((rS.BaseFlags & rS.bfShort) ? "S" : "B").CatChar('/');
-	rBuf.CatLongZ(rS.InputFrameSize, 3).CatChar('/').Cat(rS.MaxDuckQuant).Colon().Cat(rS.TargetQuant)/*.CatChar('/').Cat(rS.StakeMode)*/;
+	rBuf.CatDiv(':', 2).Cat((rS.BaseFlags & rS.bfShort) ? "S" : "B").Slash();
+	rBuf.CatLongZ(rS.InputFrameSize, 3).Slash().Cat(rS.MaxDuckQuant).Colon().Cat(rS.TargetQuant)/*.Slash().Cat(rS.StakeMode)*/;
 	rBuf.Space().Cat("Potential").CatDiv(':', 2).
-		Cat(rS.V.GetResultPerDay(), MKSFMTD(0, 2, 0)).CatChar('/'). // @v10.7.3 MKSFMTD(0, 4, 0)-->MKSFMTD(0, 2, 0)
-		Cat(rS.V.Result, MKSFMTD(5, 1, 0)).CatChar('/'); // @v10.7.3
+		Cat(rS.V.GetResultPerDay(), MKSFMTD(0, 2, 0)).Slash(). // @v10.7.3 MKSFMTD(0, 4, 0)-->MKSFMTD(0, 2, 0)
+		Cat(rS.V.Result, MKSFMTD(5, 1, 0)).Slash(); // @v10.7.3
 	{
 		const double wcr = rS.GetWinCountRate();
 		assert(wcr >= 0.0 && wcr <= 1.0);
@@ -5274,7 +5274,7 @@ int PrcssrTsStrategyAnalyze::Init(const PPBaseFilt * pBaseFilt)
 		else
 			rBuf.CatChar('W').Cat(fmul1000i(wcr));
 	}
-	rBuf.CatChar('/').CatChar('#').Cat(rS.StakeCount);
+	rBuf.Slash().CatChar('#').Cat(rS.StakeCount);
 	if(rS.BaseFlags & Strategy::bfBrokenRow)
 		rBuf.CatChar('*');
 	if(rS.StakeCountAtFinalSimulation > 0)
@@ -5285,7 +5285,7 @@ int PrcssrTsStrategyAnalyze::Init(const PPBaseFilt * pBaseFilt)
 	/* (не сработало) if(rS.StakeDistMedian > 0)
 		rBuf.CatChar('*').Cat(log(static_cast<double>(rS.StakeDistMedian * (rS.WinCount-1)))*100.0, MKSFMTD(0, 0, 0));*/
 	// } @v10.7.9 
-	rBuf.CatChar('/').
+	rBuf.Slash().
 		CatChar('T').CatLongZ(static_cast<long>(rS.StakeCount ? (rS.V.TmSec / (rS.StakeCount * 60)) : 0), 5);
 	if(rS.MainFrameSize) {
 		rBuf.Space().Cat("MF").Cat(rS.MainFrameSize).CatChar('[');
@@ -5318,11 +5318,11 @@ int PrcssrTsStrategyAnalyze::Init(const PPBaseFilt * pBaseFilt)
 				//rBuf.CatChar('|').Cat(rS.UEF, MKSFMTD(0, 4, 0)); // @v10.8.10
 			}
 			else if(rS.StakeMode == 2)
-				rBuf.Cat(*pOptFactor, trange_fmt).CatChar('|').Cat(rS.OptDelta2Stride).CatChar('/').Cat(rS.OptDelta2Range, trange_fmt);
+				rBuf.Cat(*pOptFactor, trange_fmt).CatChar('|').Cat(rS.OptDelta2Stride).Slash().Cat(rS.OptDelta2Range, trange_fmt);
 			else if(rS.StakeMode == 3) {
 				rBuf.Cat(*pOptFactor, trange_fmt).CatChar('|').Cat(rS.OptDeltaRange, trange_fmt).CatChar(']').Space();
 				rBuf.CatChar('[');
-				rBuf.Cat(*pOptFactor, trange_fmt).CatChar('|').Cat(rS.OptDelta2Stride).CatChar('/').Cat(rS.OptDelta2Range, trange_fmt);
+				rBuf.Cat(*pOptFactor, trange_fmt).CatChar('|').Cat(rS.OptDelta2Stride).Slash().Cat(rS.OptDelta2Range, trange_fmt);
 			}
 		}
 		else {
@@ -5332,11 +5332,11 @@ int PrcssrTsStrategyAnalyze::Init(const PPBaseFilt * pBaseFilt)
 				//rBuf.CatChar('|').Cat(rS.UEF, MKSFMTD(0, 4, 0)); // @v10.8.10
 			}
 			else if(rS.StakeMode == 2)
-				rBuf.Cat(rS.OptDelta2Stride).CatChar('/').Cat(rS.OptDelta2Range, trange_fmt);
+				rBuf.Cat(rS.OptDelta2Stride).Slash().Cat(rS.OptDelta2Range, trange_fmt);
 			else if(rS.StakeMode == 3) {
 				rBuf.Cat(rS.OptDeltaRange, trange_fmt).CatChar(']').Space();
 				rBuf.CatChar('[');
-				rBuf.Cat(rS.OptDelta2Stride).CatChar('/').Cat(rS.OptDelta2Range, trange_fmt);
+				rBuf.Cat(rS.OptDelta2Stride).Slash().Cat(rS.OptDelta2Range, trange_fmt);
 			}
 		}
 		rBuf.CatChar(']').Space();
@@ -5374,7 +5374,7 @@ SString & PPObjTimeSeries::StrategyOutput(const char * pSymb, const PPObjTimeSer
 		if(pSre->BaseFlags & pSre->bfShort)
 			rBuf.CatChar('-').Cat("REV");
 		if(pSre->StakeMode)
-			rBuf.CatChar('/').Cat(pSre->StakeMode);
+			rBuf.Slash().Cat(pSre->StakeMode);
 		else
 			rBuf.Space().Space();
 		rBuf.Space().
@@ -5397,15 +5397,15 @@ SString & PPObjTimeSeries::StrategyOutput(const char * pSymb, const PPObjTimeSer
 			CatLongZ(pSre->PeakAvgQuant, 2).Colon().CatLongZ(pSre->PeakMaxQuant, 2).Colon().CatLongZ(pSre->BottomAvgQuant, 2).Space();
 		{
 			rBuf.CatChar('[').Cat(pSre->OptDeltaRange, MKSFMTD(0, 12, NMBF_FORCEPOS)).
-				CatChar('/').Cat(pSre->OptDeltaRange.Count).
-				CatChar('|').Cat(pSre->GetOptDeltaRangeCQA(), MKSFMTD(0, 2, 0)).CatChar(']');// @v10.7.3 .CatChar('/').Cat(pSre->LastResultIdx-pSre->InputFrameSize+1);
+				Slash().Cat(pSre->OptDeltaRange.Count).
+				CatChar('|').Cat(pSre->GetOptDeltaRangeCQA(), MKSFMTD(0, 2, 0)).CatChar(']');// @v10.7.3 .Slash().Cat(pSre->LastResultIdx-pSre->InputFrameSize+1);
 			rBuf.Space();
 			if(pSre->StakeMode == 0)
 				rBuf.Cat(pSre->OptDeltaRange.Result, MKSFMTD(15, 5, 0));
 			rBuf.Space();
 			if(pSre->StakeMode != 1) {
 				rBuf.Cat(pSre->OptDelta2Range, MKSFMTD(0, 12, 0)).Space().
-					Cat(pSre->OptDelta2Stride).CatChar('/').Cat(pSre->OptDelta2Range.Count);// @v10.7.3 .CatChar('/').Cat(pSre->LastResultIdx - pSre->InputFrameSize + 1);
+					Cat(pSre->OptDelta2Stride).Slash().Cat(pSre->OptDelta2Range.Count);// @v10.7.3 .Slash().Cat(pSre->LastResultIdx - pSre->InputFrameSize + 1);
 			}
 			rBuf.Space();
 			if(pSre->StakeMode == 0)
@@ -7583,7 +7583,7 @@ int PrcssrTsStrategyAnalyze::EvaluateStrategies(void * pBlk, LDATE dateTill, lon
 				ifs_count_list.Sort();
 				for(uint clidx = 0; clidx < ifs_count_list.getCount(); clidx++) {
 					const LAssoc & r_assoc = ifs_count_list.at(clidx);
-					msg_buf.CatDivConditionally(' ', 0, LOGIC(clidx)).Cat(r_assoc.Key).CatChar('/').Cat(r_assoc.Val);
+					msg_buf.CatDivConditionally(' ', 0, LOGIC(clidx)).Cat(r_assoc.Key).Slash().Cat(r_assoc.Val);
 				}
 				rFOutTotal.WriteLine(msg_buf.CR());
 			}
@@ -7592,7 +7592,7 @@ int PrcssrTsStrategyAnalyze::EvaluateStrategies(void * pBlk, LDATE dateTill, lon
 				md_count_list.Sort();
 				for(uint clidx = 0; clidx < md_count_list.getCount(); clidx++) {
 					const LAssoc & r_assoc = md_count_list.at(clidx);
-					msg_buf.CatDivConditionally(' ', 0, LOGIC(clidx)).Cat(r_assoc.Key).CatChar('/').Cat(r_assoc.Val);
+					msg_buf.CatDivConditionally(' ', 0, LOGIC(clidx)).Cat(r_assoc.Key).Slash().Cat(r_assoc.Val);
 				}
 				rFOutTotal.WriteLine(msg_buf.CR());
 			}
@@ -7601,7 +7601,7 @@ int PrcssrTsStrategyAnalyze::EvaluateStrategies(void * pBlk, LDATE dateTill, lon
 				target_count_list.Sort();
 				for(uint clidx = 0; clidx < target_count_list.getCount(); clidx++) {
 					const LAssoc & r_assoc = target_count_list.at(clidx);
-					msg_buf.CatDivConditionally(' ', 0, LOGIC(clidx)).Cat(r_assoc.Key).CatChar('/').Cat(r_assoc.Val);
+					msg_buf.CatDivConditionally(' ', 0, LOGIC(clidx)).Cat(r_assoc.Key).Slash().Cat(r_assoc.Val);
 				}
 				rFOutTotal.WriteLine(msg_buf.CR());
 			}
@@ -7610,7 +7610,7 @@ int PrcssrTsStrategyAnalyze::EvaluateStrategies(void * pBlk, LDATE dateTill, lon
 				msg_buf.Z().Cat("MainFrameRange").CatDiv(':', 2);
 				for(uint clidx = 0; clidx < main_frame_count_list.getCount(); clidx++) {
 					const MainFrameCountEntry * p_entry = static_cast<const MainFrameCountEntry *>(main_frame_count_list.at(clidx));
-					msg_buf.CatDivConditionally(' ', 0, LOGIC(clidx)).CatChar('[').Cat(p_entry->R, trange_fmt).CatChar(']').CatChar('/').Cat(p_entry->Count);
+					msg_buf.CatDivConditionally(' ', 0, LOGIC(clidx)).CatChar('[').Cat(p_entry->R, trange_fmt).CatChar(']').Slash().Cat(p_entry->Count);
 				}
 				rFOutTotal.WriteLine(msg_buf.CR());
 			}
@@ -8566,7 +8566,7 @@ int PrcssrTsStrategyAnalyze::TryStrategyContainer(const PPObjTimeSeries::Config 
 									msg_buf.Z();
 									if(single_MainFrameSize > 0)
 										msg_buf.Cat(single_MainFrameSize).Space();
-									msg_buf.Cat(single_InputFrameSize).CatChar('/').Cat(single_MaxDuckQuant).Colon().Cat(single_TargetQuant).Space().
+									msg_buf.Cat(single_InputFrameSize).Slash().Cat(single_MaxDuckQuant).Colon().Cat(single_TargetQuant).Space().
 										CatEq("StakeCount", rResultCollection.Atdr.StakeCount).Space().
 										CatEq("WinCount", rResultCollection.Atdr.WinCount).Space().
 										CatEq("LossCount", rResultCollection.Atdr.LossCount).Space().

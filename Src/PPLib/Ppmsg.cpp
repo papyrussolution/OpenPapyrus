@@ -309,7 +309,7 @@ int STDCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int r
 	const PPThreadLocalArea & r_ds_tla = DS.GetConstTLA();
 	SString temp_buf;
 	char   btr_err_code[16];
-	char   fname[MAXPATH];
+	char   fname[MAX_PATH];
 	int    group = 0;
 	int    addcode = 0;
 	int    is_win_msg = 0; // 1 as win32 msg, 2 as socket msg

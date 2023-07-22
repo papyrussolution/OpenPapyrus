@@ -137,13 +137,13 @@ int blake2s_init_key(blake2s_state * S, size_t outlen, const void * key, size_t 
 #define G(r, i, a, b, c, d)                      \
 	do {                                      \
 		a = a + b + m[blake2s_sigma[r][2*i+0]]; \
-		d = slrotr32(d ^ a, 16);                  \
+		d = SBits::Rotr(d ^ a, 16);                  \
 		c = c + d;                              \
-		b = slrotr32(b ^ c, 12);                  \
+		b = SBits::Rotr(b ^ c, 12);                  \
 		a = a + b + m[blake2s_sigma[r][2*i+1]]; \
-		d = slrotr32(d ^ a, 8);                   \
+		d = SBits::Rotr(d ^ a, 8);                   \
 		c = c + d;                              \
-		b = slrotr32(b ^ c, 7);                   \
+		b = SBits::Rotr(b ^ c, 7);                   \
 	} while(0)
 
 #define ROUND(r)                    \

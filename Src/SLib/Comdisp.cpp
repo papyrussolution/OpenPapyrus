@@ -67,9 +67,9 @@ int ComDispInterface::AssignIDByName(const char * pName, long nameID)
 	DispIDEntry dispid_entry;
 	OLECHAR * p_wname = 0;
 	THROW_S(P_Disp, SLERR_INVPARAM);
-	wname_len = mbstowcs(NULL, pName, MAXPATH) + 1;
+	wname_len = mbstowcs(NULL, pName, MAX_PATH) + 1;
 	THROW(p_wname = new OLECHAR[wname_len]);
-	mbstowcs(p_wname, pName, MAXPATH);
+	mbstowcs(p_wname, pName, MAX_PATH);
 	THROW(SUCCEEDED(HRes = P_Disp->GetIDsOfNames(IID_NULL, &p_wname, 1, LOCALE_USER_DEFAULT, &dispid_entry.DispID)));
 	dispid_entry.ID = nameID;
 	STRNSCPY(dispid_entry.Name, pName);
@@ -193,7 +193,7 @@ int ComDispInterface::GetProperty(int propertyID, double * pBuf)
 int ComDispInterface::GetProperty(int propertyID, char * pBuf, size_t bufLen)
 {
 	int    ok = 1;
-	OLECHAR    wstr[MAXPATH];
+	OLECHAR    wstr[MAX_PATH];
 	VARIANTARG var_arg;
 	VariantInit(&var_arg);
 	if(pBuf && bufLen > 0) {

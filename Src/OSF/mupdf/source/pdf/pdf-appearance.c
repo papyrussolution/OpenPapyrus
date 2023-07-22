@@ -533,26 +533,21 @@ static void pdf_write_strike_out_appearance(fz_context * ctx, pdf_annot * annot,
 	float h;
 	pdf_obj * qp;
 	int i, n;
-
 	pdf_write_stroke_color_appearance(ctx, annot, buf);
-
 	qp = pdf_dict_get(ctx, annot->obj, PDF_NAME(QuadPoints));
 	n = pdf_array_len(ctx, qp);
 	if(n > 0) {
 		*rect = fz_empty_rect;
 		for(i = 0; i < n; i += 8) {
-			/* Acrobat draws the line at 3/7 of the box width from the bottom
-			 * of the box and 1/16 thick of the box width. */
-
+			// Acrobat draws the line at 3/7 of the box width from the bottom
+			// of the box and 1/16 thick of the box width.
 			h = extract_quad(ctx, quad, qp, i);
 			a = lerp_point(quad[LL], quad[UL], 3/7.0f);
 			b = lerp_point(quad[LR], quad[UR], 3/7.0f);
-
 			fz_append_printf(ctx, buf, "%g w\n", h/16);
 			fz_append_printf(ctx, buf, "%g %g m\n", a.x, a.y);
 			fz_append_printf(ctx, buf, "%g %g l\n", b.x, b.y);
 			fz_append_printf(ctx, buf, "S\n");
-
 			union_quad(rect, quad, h/16);
 		}
 	}

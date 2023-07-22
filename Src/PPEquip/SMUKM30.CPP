@@ -169,7 +169,7 @@ int ACS_SMUKM30::ExportData(int updOnly)
 	DBFDate    dbdt;
 	int        dbtm;
 	DbfTable * p_out_tbl_goods = 0, * p_out_tbl_barcode = 0;
-	//char     path_goods[MAXPATH], path_barcode[MAXPATH], path[MAXPATH];
+	//char     path_goods[MAX_PATH], path_barcode[MAX_PATH], path[MAX_PATH];
 	SString    path_goods;
 	SString    path_barcode;
 	SString    path;

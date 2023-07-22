@@ -1579,8 +1579,7 @@ static int cleanup_backslash_1(char * p)
 		if(*(uchar *)p > 127)
 			mb = 1;
 		if(*p == '\\') {
-			/* If we have not met any multi-byte characters,
-			 * we can replace '\' with '/'. */
+			// If we have not met any multi-byte characters, we can replace '\' with '/'
 			if(!mb)
 				*p = '/';
 			dos = 1;

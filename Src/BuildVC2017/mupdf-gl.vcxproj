@@ -452,7 +452,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -481,7 +481,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -510,7 +510,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -541,7 +541,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -573,7 +573,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -605,7 +605,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -633,7 +633,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -662,7 +662,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -691,7 +691,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -710,7 +710,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>opengl32.lib winmm.lib %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -729,7 +729,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>opengl32.lib winmm.lib %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -748,7 +748,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>opengl32.lib winmm.lib %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -776,7 +776,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -805,7 +805,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -834,7 +834,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -864,7 +864,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -895,7 +895,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -926,7 +926,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -954,7 +954,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -977,7 +977,7 @@
     <Link>
       <AdditionalOptions>opengl32.lib winmm.lib %(AdditionalOptions)</AdditionalOptions>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -1005,7 +1005,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -1036,7 +1036,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -1064,7 +1064,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -1094,7 +1094,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;Comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;Ole32.lib;OleAut32.lib;User32.lib;Advapi32.lib;Gdi32.lib;Shell32.lib;Usp10.lib;Rpcrt4.lib;..\LIB\libmupdfresources.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -1129,9 +1129,6 @@
     </ProjectReference>
     <ProjectReference Include="libjpeg.vcxproj">
       <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
-    </ProjectReference>
-    <ProjectReference Include="libpng.vcxproj">
-      <Project>{04aa636d-9d3e-4e79-9c2e-b8d0470719da}</Project>
     </ProjectReference>
     <ProjectReference Include="openjp2.vcxproj">
       <Project>{c756e07c-5895-39df-8310-7126f3c6fd84}</Project>

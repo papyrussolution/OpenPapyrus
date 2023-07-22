@@ -2034,6 +2034,11 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 								Rec.Flags_ |= AsyncCashGoodsInfo::fGMarkedType;
 								Rec.ChZnProdType = static_cast<int16>(gt_rec.ChZnProdType); // @v10.9.0
 							}
+							// @v11.7.10 {
+							if(gt_rec.Flags & GTF_EXCISEPROFORMA) {
+								Rec.Flags_ |= AsyncCashGoodsInfo::fGExciseProForma;
+							}
+							// } @v11.7.10 
 							if(gt_rec.PriceRestrID) { // @v10.6.4
 								//BillObj->GetPriceRestrictions(grec.ID, 0, )
 							}

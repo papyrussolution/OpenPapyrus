@@ -376,7 +376,7 @@ int           ImTextCountUtf8BytesFromStr(const ImWchar* in_text, const ImWchar*
 #else
 	#define IMGUI_DISABLE_TTY_FUNCTIONS // Can't use stdout, fflush if we are not using default file functions
 #endif
-void*             ImFileLoadToMemory(const char* filename, const char* mode, size_t* out_file_size = NULL, int padding_bytes = 0);
+void * ImFileLoadToMemory(const char* filename, const char* mode, size_t* out_file_size = NULL, int padding_bytes = 0);
 
 // Helpers: Maths
 IM_MSVC_RUNTIME_CHECKS_OFF
@@ -394,19 +394,19 @@ IM_MSVC_RUNTIME_CHECKS_OFF
 #define ImCeil(X)           ceilf(X)
 static inline float  ImPow(float x, float y)    { return powf(x, y); }           // DragBehaviorT/SliderBehaviorT uses ImPow with either float/double and need the precision
 static inline double ImPow(double x, double y)  { return pow(x, y); }
-static inline float  ImLog(float x)             { return logf(x); }              // DragBehaviorT/SliderBehaviorT uses ImLog with either float/double and need the precision
-static inline double ImLog(double x)            { return log(x); }
-static inline int    ImAbs(int x)               { return x < 0 ? -x : x; }
-static inline float  ImAbs(float x)             { return fabsf(x); }
-static inline double ImAbs(double x)            { return fabs(x); }
-static inline float  ImSign(float x)            { return (x < 0.0f) ? -1.0f : (x > 0.0f) ? 1.0f : 0.0f; }  // Sign operator - returns -1, 0 or 1 based on sign of argument
-static inline double ImSign(double x)           { return (x < 0.0) ? -1.0 : (x > 0.0) ? 1.0 : 0.0; }
+static inline float  ImLog(float x)    { return logf(x); } // DragBehaviorT/SliderBehaviorT uses ImLog with either float/double and need the precision
+static inline double ImLog(double x)   { return log(x); }
+static inline int    ImAbs(int x)      { return x < 0 ? -x : x; }
+static inline float  ImAbs(float x)    { return fabsf(x); }
+static inline double ImAbs(double x)   { return fabs(x); }
+static inline float  ImSign(float x)   { return (x < 0.0f) ? -1.0f : (x > 0.0f) ? 1.0f : 0.0f; }  // Sign operator - returns -1, 0 or 1 based on sign of argument
+static inline double ImSign(double x)  { return (x < 0.0) ? -1.0 : (x > 0.0) ? 1.0 : 0.0; }
 #ifdef IMGUI_ENABLE_SSE
-static inline float  ImRsqrt(float x)           { return _mm_cvtss_f32(_mm_rsqrt_ss(_mm_set_ss(x))); }
+static inline float  ImRsqrt(float x)  { return _mm_cvtss_f32(_mm_rsqrt_ss(_mm_set_ss(x))); }
 #else
-static inline float  ImRsqrt(float x)           { return 1.0f / sqrtf(x); }
+static inline float  ImRsqrt(float x)  { return 1.0f / sqrtf(x); }
 #endif
-static inline double ImRsqrt(double x)          { return 1.0 / sqrt(x); }
+static inline double ImRsqrt(double x) { return 1.0 / sqrt(x); }
 #endif
 // - ImMin/ImMax/sclamp/ImLerp/ImSwap are used by widgets which support variety of types: signed/unsigned int/long long float/double
 // (Exceptionally using templates here but we could also redefine them for those types)
@@ -440,8 +440,8 @@ static inline float ImLinearSweep(float current, float target, float speed)
 		return smax(current - speed, target); 
 	return current; 
 }
-static inline ImVec2 ImMul(const ImVec2 & lhs, const ImVec2 & rhs)                { return ImVec2(lhs.x * rhs.x, lhs.y * rhs.y); }
-static inline bool   ImIsFloatAboveGuaranteedIntegerPrecision(float f)          { return f <= -16777216 || f >= 16777216; }
+static inline ImVec2 ImMul(const ImVec2 & lhs, const ImVec2 & rhs) { return ImVec2(lhs.x * rhs.x, lhs.y * rhs.y); }
+static inline bool   ImIsFloatAboveGuaranteedIntegerPrecision(float f) { return f <= -16777216 || f >= 16777216; }
 static inline float  ImExponentialMovingAverage(float avg, float sample, int n) { avg -= avg / n; avg += sample / n; return avg; }
 IM_MSVC_RUNTIME_CHECKS_RESTORE
 

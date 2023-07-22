@@ -1193,13 +1193,13 @@ void main(int argc, char ** argv)
 		printf("Usage: %s src[.rc2] [result.rc] [result.h]\n", argv[0]);
 	else {
 		SLS.Init("RC2");
-		// @v10.5.6 char   rc2_name[MAXPATH];
-		// @v10.5.6 char   rc_name[MAXPATH];
-		// @v10.5.6 char   h_name[MAXPATH];
+		// @v10.5.6 char   rc2_name[MAX_PATH];
+		// @v10.5.6 char   rc_name[MAX_PATH];
+		// @v10.5.6 char   h_name[MAX_PATH];
 		SString rc2_name; // @v10.5.6
 		SString rc_name;  // @v10.5.6
 		SString h_name;  // @v10.5.6
-		char   embed_rc_name[MAXPATH];
+		char   embed_rc_name[MAX_PATH];
 		SString drawvector_storage_name;
 		// @v10.5.6 STRNSCPY(rc2_name, argv[1]);
 		// @v10.5.6 replaceExt(rc2_name, "rc2", 0);

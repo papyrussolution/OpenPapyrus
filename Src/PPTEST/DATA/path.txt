@@ -1,0 +1,4 @@
+a:
+//server/
+c:\program files\the_best_company/the-best program
+\\server-reserved/etc/some-file.r

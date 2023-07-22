@@ -1591,7 +1591,7 @@ static int RemoveCompName(SString & rPrintDevice)
 	DWORD  buf_size = SIZEOFARRAY(buf);
 	PTR32(buf)[0] = 0;
 	GetComputerNameEx(ComputerNameNetBIOS, buf, &buf_size);
-	(sbuf = "\\\\").Cat(SUcSwitch(buf)).CatChar('\\');
+	(sbuf = "\\\\").Cat(SUcSwitch(buf)).BSlash();
 	if(rPrintDevice.CmpPrefix(sbuf, 1) == 0)
 		rPrintDevice.ShiftLeft(sbuf.Len());
 	else if(rPrintDevice.C(0) == '\\' && rPrintDevice.C(1) == '\\') {
@@ -2099,8 +2099,8 @@ int SReport::getFieldName(int i, char * buf, size_t buflen)
 struct SvdtStrDlgAns { // @{savereportdata}
 	int   SvDt;
 	int   EdRep;
-	// @v10.8.2 char  SvDtPath[MAXPATH];
-	// @v10.8.2 char  EdRepPath[MAXPATH];
+	// @v10.8.2 char  SvDtPath[MAX_PATH];
+	// @v10.8.2 char  EdRepPath[MAX_PATH];
 	SString SvDtPath_;  // @v10.8.12
 	SString EdRepPath_; // @v10.8.12
 };

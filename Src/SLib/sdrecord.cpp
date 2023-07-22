@@ -253,7 +253,7 @@ int SdbField::Helper_TranslateString(SStrScan & rScan, void * pData)
 			if(prev_tok != TOK_SYMB)
 				ok = SLS.SetError(SLERR_SDREC_SYNTAX, (msg_buf = rScan.GetBuf(prev_offs)).Transf(CTRANSF_OUTER_TO_INNER));
 			else
-				Name.CatChar('\\');
+				Name.BSlash();
 		}
 		else if(tok == TOK_SIZE) {
 			if(OuterFormat)

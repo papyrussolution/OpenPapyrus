@@ -503,7 +503,7 @@ int InetUrl::Parse(const char * pUrl)
 					State &= ~stEmpty;
 					_done = 1;
 				}
-				else if(oneof2(_url[0], '/', '\\') && oneof2(_url[1], '/', '\\')) {
+				else if(isdirslash(_url[0]) && isdirslash(_url[1])) {
 					// Путь файловой системы
 					Protocol = GetSchemeId("file");
 					TermList.Add(cScheme, "file", 1);
@@ -511,7 +511,7 @@ int InetUrl::Parse(const char * pUrl)
 					State &= ~stEmpty;
 					_done = 1;
 				}
-				else if(oneof2(_url[0], '/', '\\')) { // Сомнительный случай, но пути типа "/abc/catalog/x.bin" реальность
+				else if(isdirslash(_url[0])) { // Сомнительный случай, но пути типа "/abc/catalog/x.bin" реальность
 					// Путь файловой системы
 					Protocol = GetSchemeId("file");
 					TermList.Add(cScheme, "file", 1);
@@ -519,7 +519,7 @@ int InetUrl::Parse(const char * pUrl)
 					State &= ~stEmpty;
 					_done = 1;
 				}
-				else if(_url.HasPrefixIAscii("file:") && oneof2(_url[5], '/', '\\') && oneof2(_url[6], '/', '\\') && oneof2(_url[7], '/', '\\')) {
+				else if(_url.HasPrefixIAscii("file:") && isdirslash(_url[5]) && isdirslash(_url[6]) && isdirslash(_url[7])) {
 					// Путь файловой системы, начиная с _url[8]
 					Protocol = GetSchemeId("file");
 					TermList.Add(cScheme, "file", 1);
@@ -558,7 +558,7 @@ int InetUrl::Parse(const char * pUrl)
 					temp_buf.Z();
 					for(UriUri::PathSegment * p_pseg = uri.pathHead; p_pseg; p_pseg = p_pseg->next) {
 						if(temp_buf.NotEmpty())
-							temp_buf.CatChar('/');
+							temp_buf.Slash();
 						temp_buf.CatN(p_pseg->text.P_First, p_pseg->text.Len());
 					}
 					if(temp_buf.NotEmpty())

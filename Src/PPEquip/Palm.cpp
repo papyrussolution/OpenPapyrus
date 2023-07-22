@@ -1921,7 +1921,7 @@ int PPObjStyloPalm::ImportDebtMemo(SQueue * pQueue, PPLogger * pLogger, int use_
 static int DeleteImportFile(int fileID, const char * pFileName, const char * pExpPath, const char * pDeviceName)
 {
   	int    ok = 1;
-	char   fname[32], path[MAXPATH];
+	char   fname[32], path[MAX_PATH];
 	PPWaitStart();
 	if(pFileName)
 		STRNSCPY(fname, pFileName);

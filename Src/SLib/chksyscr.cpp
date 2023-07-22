@@ -340,7 +340,7 @@ int SGetTimeFromRemoteServer(const char * pServerName, LDATETIME * pDtm)
 			if(proc_NetRemoteTOD && proc_NetApiBufferFree) {
 				LPTIME_OF_DAY_INFO p_server_dtm = NULL;
 				SStringU tm_serv_name; // @v10.8.2 
-				// @v10.8.2 WCHAR  tm_serv[MAXPATH];
+				// @v10.8.2 WCHAR  tm_serv[MAX_PATH];
 				// @v10.8.2 memzero(tm_serv, sizeof(tm_serv));
 				// @v10.8.2 MultiByteToWideChar(1251, 0, pServerName, (int)sn_len, tm_serv, SIZEOFARRAYi(tm_serv));
 				tm_serv_name.CopyFromMb_OUTER(pServerName, sn_len); // @v10.8.2

@@ -1178,7 +1178,7 @@ int ExportCls::SendDoc()
 	int    ok = 1;
 	SString	inbox_filename;
 	SPathStruc path_struct(ExpFileName);
-	(inbox_filename = OUTBOX).CatChar('/').Cat(path_struct.Nam).Dot().Cat(path_struct.Ext);
+	(inbox_filename = OUTBOX).Slash().Cat(path_struct.Nam).Dot().Cat(path_struct.Ext);
 	Sdr_DllImpExpReceipt * p_exp_rcpt = 0;
 	FtpClient ftp_client(Header.EdiLogin, Header.EdiPassword);
 	//

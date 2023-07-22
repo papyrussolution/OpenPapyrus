@@ -629,8 +629,7 @@ X509
 		retval = EVP_PKEY_decrypt(pkctx, ek, &eksize,
 			encKey->data, encKey->length);
 		ERR_clear_error(); /* error state may have sensitive information */
-		failure = ~constant_time_is_zero_s(constant_time_msb(retval)
-			| constant_time_is_zero(retval));
+		failure = ~constant_time_is_zero_s(constant_time_msb(retval) | constant_time_is_zero(retval));
 		failure |= ~constant_time_eq_s(eksize, (size_t)cikeysize);
 		if(failure) {
 			ERR_raise(ERR_LIB_CRMF, CRMF_R_ERROR_DECRYPTING_SYMMETRIC_KEY);

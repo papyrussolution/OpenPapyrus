@@ -50,9 +50,9 @@ static inline uint32_t lzma_attribute((__always_inline__)) lzma_memcmplen(const 
 			unsigned long tmp;
 			_BitScanForward64(&tmp, x);
 			len += (uint32_t)tmp >> 3;
-#	else // GCC, clang, or Intel C compiler
+#else // GCC, clang, or Intel C compiler
 			len += (uint32_t)__builtin_ctzll(x) >> 3;
-#	endif
+#endif
 			return MIN(len, limit);
 		}
 		len += 8;

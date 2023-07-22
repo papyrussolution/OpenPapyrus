@@ -276,9 +276,7 @@ void OptimizeRGB(_Out_ HDRColorA * pX, _Out_ HDRColorA * pY, _In_reads_(NUM_PIXE
 }
 
 //-------------------------------------------------------------------------------------
-inline void DecodeBC1(_Out_writes_(NUM_PIXELS_PER_BLOCK) XMVECTOR * pColor,
-    _In_ const D3DX_BC1 * pBC,
-    bool isbc1) noexcept
+inline void DecodeBC1(_Out_writes_(NUM_PIXELS_PER_BLOCK) XMVECTOR * pColor, _In_ const D3DX_BC1 * pBC, bool isbc1) noexcept
 {
 	assert(pColor && pBC);
 	static_assert(sizeof(D3DX_BC1) == 8, "D3DX_BC1 should be 8 bytes");
@@ -306,37 +304,26 @@ inline void DecodeBC1(_Out_writes_(NUM_PIXELS_PER_BLOCK) XMVECTOR * pColor,
 		clr2 = XMVectorLerp(clr0, clr1, 1.f / 3.f);
 		clr3 = XMVectorLerp(clr0, clr1, 2.f / 3.f);
 	}
-
 	uint32_t dw = pBC->bitmap;
-
 	for(size_t i = 0; i < NUM_PIXELS_PER_BLOCK; ++i, dw >>= 2) {
 		switch(dw & 3) {
 			case 0: pColor[i] = clr0; break;
 			case 1: pColor[i] = clr1; break;
 			case 2: pColor[i] = clr2; break;
-
 			case 3:
 			default: pColor[i] = clr3; break;
 		}
 	}
 }
 
-//-------------------------------------------------------------------------------------
-void EncodeBC1(_Out_ D3DX_BC1 * pBC,
-    _In_reads_(NUM_PIXELS_PER_BLOCK) const HDRColorA * pColor,
-    bool bColorKey,
-    float threshold,
-    uint32_t flags) noexcept
+void EncodeBC1(_Out_ D3DX_BC1 * pBC, _In_reads_(NUM_PIXELS_PER_BLOCK) const HDRColorA * pColor, bool bColorKey, float threshold, uint32_t flags) noexcept
 {
 	assert(pBC && pColor);
 	static_assert(sizeof(D3DX_BC1) == 8, "D3DX_BC1 should be 8 bytes");
-
 	// Determine if we need to colorkey this block
 	uint32_t uSteps;
-
 	if(bColorKey) {
 		size_t uColorKey = 0;
-
 		for(size_t i = 0; i < NUM_PIXELS_PER_BLOCK; ++i) {
 			if(pColor[i].a < threshold)
 				uColorKey++;
@@ -496,19 +483,15 @@ void EncodeBC1(_Out_ D3DX_BC1 * pBC,
 	static const size_t pSteps3[] = { 0, 2, 1 };
 	static const size_t pSteps4[] = { 0, 2, 3, 1 };
 	const size_t * pSteps;
-
 	if(3 == uSteps) {
 		pSteps = pSteps3;
-
 		HDRColorALerp(&Step[2], &Step[0], &Step[1], 0.5f);
 	}
 	else {
 		pSteps = pSteps4;
-
 		HDRColorALerp(&Step[2], &Step[0], &Step[1], 1.0f / 3.0f);
 		HDRColorALerp(&Step[3], &Step[0], &Step[1], 2.0f / 3.0f);
 	}
-
 	// Calculate color direction
 	HDRColorA Dir;
 	Dir.r = Step[1].r - Step[0].r;

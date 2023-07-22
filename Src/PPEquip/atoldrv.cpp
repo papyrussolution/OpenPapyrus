@@ -1238,7 +1238,7 @@ int SCS_ATOLDRV::SetErrorMessage()
 		}
 	}
 	else if(P_Disp) {
-		char   err_buf[MAXPATH];
+		char   err_buf[MAX_PATH];
 		memzero(err_buf, sizeof(err_buf));
 		THROW(P_Disp->GetProperty(ResultCode, &ResCode) > 0);
 		if(ResCode != RESCODE_NO_ERROR) {

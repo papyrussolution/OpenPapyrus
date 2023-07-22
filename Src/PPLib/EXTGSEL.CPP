@@ -1,5 +1,5 @@
 // EXTGSEL.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -547,7 +547,7 @@ int ExtGoodsSelDialog::selectGoods(PPID grp, PPID goodsID)
 
 PPID ExtGoodsSelDialog::getSelectedItem()
 {
-	PPID   id = 0;
+	long   id = 0;
 	return (P_List && P_List->getCurID(&id)) ? id : 0;
 }
 
@@ -577,8 +577,10 @@ void ExtGoodsSelDialog::searchBarcode()
 
 IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 {
-	PPID   grp_id, c, brand = 0;
+	PPID   grp_id;
+	PPID   brand = 0;
 	if(TVCOMMAND && oneof2(TVCMD, cmOK, cmLBDblClk)) {
+		long   c;
 		if(!P_List || !P_List->getCurID(&(c = 0)) || !c)
 			clearEvent(event);
 		else if(TVCMD == cmLBDblClk && event.isCtlEvent(CTL_EXTGSEL_LIST))
@@ -613,9 +615,10 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 	else if(event.isCbSelected(CTLSEL_EXTGSEL_GGRP) || event.isCbSelected(CTLSEL_EXTGSEL_BRAND) || event.isCbSelected(CTLSEL_EXTGSEL_MODIFMODE))
 		updateList(0);
 	else if(event.isCmd(cmaInsert)) {
+		PPID   new_goods_id = 0;
 		grp_id = getCtrlLong(CTLSEL_EXTGSEL_GGRP);
-		if(GObj.Edit(&(c = 0), reinterpret_cast<void *>(grp_id)) == cmOK)
-			selectGoods(grp_id, c);
+		if(GObj.Edit(&new_goods_id, reinterpret_cast<void *>(grp_id)) == cmOK)
+			selectGoods(grp_id, new_goods_id);
 	}
 	else if(event.isCmd(cmSearchUHTT) || event.isKeyDown(kbCtrlF6)) {
 		const PPID goods_id = getSelectedItem();
@@ -715,17 +718,20 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 		searchBarcode();
 	}
 	else if(event.isKeyDown(kbAltF2)) {
-		PPID   n = 0, s = getSelectedItem();
+		PPID   n = 0;
+		PPID   s = getSelectedItem();
 		if(s && GObj.AddBySample(&n, s) == cmOK)
 			selectGoods(getCtrlLong(CTLSEL_EXTGSEL_GGRP), n);
 	}
 	else if(event.isKeyDown(kbF9)) {
-		if((c = getSelectedItem()) != 0)
-			PPGoodsCalculator(c, 0, 0, 0, 0);
+		const PPID goods_id = getSelectedItem();
+		if(goods_id)
+			PPGoodsCalculator(goods_id, 0, 0, 0, 0);
 	}
 	else if(event.isKeyDown(KB_CTRLENTER))
 		if(IsCurrentView(P_List)) {
-			if((c = getSelectedItem()) != 0 && GObj.Edit(&c, 0L) == cmOK)
+			PPID goods_id = getSelectedItem();
+			if(goods_id && GObj.Edit(&goods_id, 0L) == cmOK)
 				updateList(-1);
 		}
 		else
@@ -754,29 +760,35 @@ int ExtGoodsSelDialog::setDTS(TIDlgInitData * pTidi)
 int ExtGoodsSelDialog::getDTS(TIDlgInitData * pTidi)
 {
 	int   ok = 1;
-	pTidi->GoodsID  = 0;
-	pTidi->Quantity = 0.0;
-	pTidi->Flags    = 0;
-	if(Flags & fSelectModifMode)
-		getCtrlData(CTLSEL_EXTGSEL_MODIFMODE, &pTidi->ModifMode);
-	if(InnerSelectionID) {
-		pTidi->GoodsGrpID = 0;
-		pTidi->GoodsID = InnerSelectionID;
-	}
-	else if(P_List && P_List->getCurID(&pTidi->GoodsID) && pTidi->GoodsID) {
-		getCtrlData(CTLSEL_EXTGSEL_GGRP, &pTidi->GoodsGrpID);
-		if(SerialData.Serial[0]) {
-			STRNSCPY(pTidi->Serial, SerialData.Serial);
-			pTidi->Quantity = SerialData.Qtty;
-			pTidi->LotID    = SerialData.LotID;
+	if(pTidi) {
+		pTidi->GoodsID  = 0;
+		pTidi->Quantity = 0.0;
+		pTidi->Flags    = 0;
+		if(Flags & fSelectModifMode)
+			getCtrlData(CTLSEL_EXTGSEL_MODIFMODE, &pTidi->ModifMode);
+		if(InnerSelectionID) {
+			pTidi->GoodsGrpID = 0;
+			pTidi->GoodsID = InnerSelectionID;
 		}
 		else {
-			getCtrlData(CTL_EXTGSEL_QTTY,  &pTidi->Quantity);
-			if(getCtrlUInt16(CTL_EXTGSEL_PACKF))
-				pTidi->Flags |= TIDIF_PACKS;
+			long   goods_id = 0;
+			if(P_List && P_List->getCurID(&goods_id) && goods_id) {
+				pTidi->GoodsID = goods_id;
+				getCtrlData(CTLSEL_EXTGSEL_GGRP, &pTidi->GoodsGrpID);
+				if(SerialData.Serial[0]) {
+					STRNSCPY(pTidi->Serial, SerialData.Serial);
+					pTidi->Quantity = SerialData.Qtty;
+					pTidi->LotID    = SerialData.LotID;
+				}
+				else {
+					getCtrlData(CTL_EXTGSEL_QTTY,  &pTidi->Quantity);
+					if(getCtrlUInt16(CTL_EXTGSEL_PACKF))
+						pTidi->Flags |= TIDIF_PACKS;
+				}
+			}
+			else
+				ok = -1;
 		}
 	}
-	else
-		ok = -1;
 	return ok;
 }

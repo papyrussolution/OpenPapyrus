@@ -1991,7 +1991,22 @@
     <ClCompile Include="..\SLib\libxml\valid.c" />
     <ClCompile Include="..\SLib\libxml\xinclude.c" />
     <ClCompile Include="..\SLib\libxml\xlink.c" />
-    <ClCompile Include="..\SLib\libxml\xmlcatalog.c" />
+    <ClCompile Include="..\SLib\libxml\xmlcatalog.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\SLib\libxml\xmlIO.c" />
     <ClCompile Include="..\SLib\libxml\xmllint.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -2095,7 +2110,6 @@
     <ClCompile Include="..\SLib\lzari.cpp" />
     <ClCompile Include="..\Slib\macaddr.cpp" />
     <ClCompile Include="..\SLib\mailsess.cpp" />
-    <ClCompile Include="..\SLib\Makepath.c" />
     <ClCompile Include="..\SLib\mimalloc\alloc-aligned.c" />
     <ClCompile Include="..\SLib\mimalloc\alloc-override-osx.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -4390,10 +4404,10 @@
     <ClInclude Include="..\Include\slib-internal.h" />
     <ClInclude Include="..\Include\Slib.h" />
     <ClInclude Include="..\Include\slport.h" />
+    <ClInclude Include="..\Include\slui.h" />
     <ClInclude Include="..\Include\snet.h" />
     <ClInclude Include="..\Include\StyloConduit.h" />
     <ClInclude Include="..\Include\sxml.h" />
-    <ClInclude Include="..\Include\tv.h" />
     <ClInclude Include="..\Include\Tvdefs.h" />
     <ClInclude Include="..\Include\uchardet.h" />
     <ClInclude Include="..\Include\Uri.h" />

@@ -52,7 +52,7 @@ const SCDBTblEntry * SCDBObjClient::GetDefinition(uint * pEntryCount) const
 int SCDBObjClient::Init(const char * pExpPath, const char * pImpPath)
 {
 	int    ok = 1;
-	char   path[MAXPATH], fname[MAXPATH];
+	char   path[MAX_PATH], fname[MAX_PATH];
 	setLastSlash(STRNSCPY(path, pExpPath));
 	P_CliTbl = new DbfTable(strcat(STRNSCPY(fname, path), "sp_cli.dbf"));
 	P_AdrTbl = new DbfTable(strcat(STRNSCPY(fname, path), "sp_cliad.dbf"));
@@ -540,7 +540,7 @@ int SCDBObjSell::ReadData()
 
 int SCDBObjSell::Init(const char * pExpPath, const char * pImpPath)
 {
-	char   path[MAXPATH], fname[MAXPATH];
+	char   path[MAX_PATH], fname[MAX_PATH];
 	setLastSlash(STRNSCPY(path, pExpPath));
 	P_Tbl = new DbfTable(strcat(STRNSCPY(fname, path), "sp_sell.dbf"));
 	int    ok = ReadData();

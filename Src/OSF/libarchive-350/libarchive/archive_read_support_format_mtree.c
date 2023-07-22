@@ -500,10 +500,8 @@ static int bid_entry(const char * p, ssize_t len, ssize_t nl, int * last_is_path
 		const char * pb = p + len - nl;
 		int name_len = 0;
 		int slash;
-
 		/* The form D accepts only a single line for an entry. */
-		if(pb-2 >= p &&
-		    pb[-1] == '\\' && (pb[-2] == ' ' || pb[-2] == '\t'))
+		if(pb-2 >= p && pb[-1] == '\\' && (pb[-2] == ' ' || pb[-2] == '\t'))
 			return -1;
 		if(pb-1 >= p && pb[-1] == '\\')
 			return -1;

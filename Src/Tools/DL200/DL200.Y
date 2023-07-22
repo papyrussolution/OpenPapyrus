@@ -526,8 +526,8 @@ int main(int argc, char * argv[])
 			}
 		}
 	}
-	char   infilename[MAXPATH];
-	// @v10.5.6 char   outfilename[MAXPATH];
+	char   infilename[MAX_PATH];
+	// @v10.5.6 char   outfilename[MAX_PATH];
 	SString outfilename; // @v10.5.6 
 	STRNSCPY(infilename, argv[1]);
 	if(!fileExists(infilename)) {

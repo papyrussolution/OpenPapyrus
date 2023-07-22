@@ -184,7 +184,7 @@ void main(int argc, char ** argv)
 		if(cmdl_buf.CmpNC("install") == 0 || cmdl_buf.CmpNC("-install") == 0 || cmdl_buf.CmpNC("/install") == 0) {
 			SIniFile ini_file(fname, (fileExists(fname)) ? 0 : 1, 0);
 			if(ini_file.IsValid()) {
-				char key_buf[MAXPATH];
+				char key_buf[MAX_PATH];
 				WinRegKey reg_key(HKEY_LOCAL_MACHINE, p_reg_autostart, 0);
 
 				memzero(key_buf, sizeof(key_buf));

@@ -881,9 +881,7 @@ void TiXmlAttributeSet::Remove(TiXmlAttribute* removeMe)
 
 TiXmlAttribute* TiXmlAttributeSet::Find(const TCHAR * name) const
 {
-	TiXmlAttribute* node;
-
-	for(node = sentinel.next; node != &sentinel; node = node->next) {
+	for(TiXmlAttribute * node = sentinel.next; node != &sentinel; node = node->next) {
 		if(node->name == name)
 			return node;
 	}
@@ -899,7 +897,6 @@ TIXML_ISTREAM & operator >>(TIXML_ISTREAM & in, TiXmlNode & base)
 	base.Parse(tag.c_str(), 0);
 	return in;
 }
-
 #endif
 
 TIXML_OSTREAM & operator<<(TIXML_OSTREAM & out, const TiXmlNode & base)

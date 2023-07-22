@@ -218,14 +218,12 @@ static int run_test2(xmlDict * parent)
 	 */
 	for(i = 0; i < NB_STRINGS_MAX; i++) {
 		if(!xmlDictOwns(dict, test2[i])) {
-			fprintf(stderr, "Failed ownership failure for '%s'\n",
-			    strings2[i]);
+			fprintf(stderr, "Failed ownership failure for '%s'\n", strings2[i]);
 			ret = 1;
 			nbErrors++;
 		}
 		if(xmlDictOwns(parent, test2[i])) {
-			fprintf(stderr, "Failed parent ownership failure for '%s'\n",
-			    strings2[i]);
+			fprintf(stderr, "Failed parent ownership failure for '%s'\n", strings2[i]);
 			ret = 1;
 			nbErrors++;
 		}
@@ -236,8 +234,7 @@ static int run_test2(xmlDict * parent)
 	 */
 	for(i = 0; i < NB_STRINGS_MAX; i++) {
 		if(!xmlDictOwns(dict, test1[i])) {
-			fprintf(stderr, "Failed sub-ownership failure for '%s'\n",
-			    strings1[i]);
+			fprintf(stderr, "Failed sub-ownership failure for '%s'\n", strings1[i]);
 			ret = 1;
 			nbErrors++;
 		}
@@ -248,8 +245,7 @@ static int run_test2(xmlDict * parent)
 	 */
 	for(i = 0; i < NB_STRINGS_MAX; i++) {
 		if(xmlDictLookup(dict, strings2[i], -1) != test2[i]) {
-			fprintf(stderr, "Failed re-lookup check for %d, '%s'\n",
-			    i, strings2[i]);
+			fprintf(stderr, "Failed re-lookup check for %d, '%s'\n", i, strings2[i]);
 			ret = 1;
 			nbErrors++;
 		}
@@ -260,8 +256,7 @@ static int run_test2(xmlDict * parent)
 	 */
 	for(i = 0; i < NB_STRINGS_MAX; i++) {
 		if(xmlDictLookup(dict, strings1[i], -1) != test1[i]) {
-			fprintf(stderr, "Failed parent string lookup check for %d, '%s'\n",
-			    i, strings1[i]);
+			fprintf(stderr, "Failed parent string lookup check for %d, '%s'\n", i, strings1[i]);
 			ret = 1;
 			nbErrors++;
 		}
@@ -295,13 +290,11 @@ static int run_test2(xmlDict * parent)
 		*pref = 0;
 		tmp = xmlDictQLookup(dict, &prefix[0], cur);
 		if(xmlDictQLookup(dict, &prefix[0], cur) != test1[i]) {
-			fprintf(stderr, "Failed parent lookup check for '%s':'%s'\n",
-			    &prefix[0], cur);
+			fprintf(stderr, "Failed parent lookup check for '%s':'%s'\n", &prefix[0], cur);
 			ret = 1;
 			nbErrors++;
 		}
 	}
-
 	xmlDictFree(dict);
 	return(ret);
 }
@@ -378,8 +371,7 @@ static int run_test1(void)
 	 */
 	for(i = 0; i < NB_STRINGS_MAX; i++) {
 		if(!xmlDictOwns(dict, test1[i])) {
-			fprintf(stderr, "Failed ownership failure for '%s'\n",
-			    strings1[i]);
+			fprintf(stderr, "Failed ownership failure for '%s'\n", strings1[i]);
 			ret = 1;
 			nbErrors++;
 		}
@@ -390,8 +382,7 @@ static int run_test1(void)
 	 */
 	for(i = 0; i < NB_STRINGS_MAX; i++) {
 		if(xmlDictLookup(dict, strings1[i], -1) != test1[i]) {
-			fprintf(stderr, "Failed re-lookup check for %d, '%s'\n",
-			    i, strings1[i]);
+			fprintf(stderr, "Failed re-lookup check for %d, '%s'\n", i, strings1[i]);
 			ret = 1;
 			nbErrors++;
 		}
@@ -408,8 +399,7 @@ static int run_test1(void)
 		*pref = 0;
 		tmp = xmlDictQLookup(dict, &prefix[0], cur);
 		if(xmlDictQLookup(dict, &prefix[0], cur) != test1[i]) {
-			fprintf(stderr, "Failed lookup check for '%s':'%s'\n",
-			    &prefix[0], cur);
+			fprintf(stderr, "Failed lookup check for '%s':'%s'\n", &prefix[0], cur);
 			ret = 1;
 			nbErrors++;
 		}

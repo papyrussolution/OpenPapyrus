@@ -444,7 +444,7 @@ int Test_RegExp(const char * pInputFileName)
 		"(\\[[0-9]+(\\.[0-9]*)?\\]) | (\\([0-9]+(\\.[0-9]*)?\\)) | ([0-9]+\\,[0-9]+)"
 	};
 	int    ok = 1;
-	char   fn[MAXPATH];
+	char   fn[MAX_PATH];
 	SFile file(pInputFileName, SFile::mRead | SFile::mBinary);
 	if(file.IsValid()) {
 		SString line_buf, temp_buf;
@@ -498,7 +498,7 @@ int TestSPathStruc(const char * pInputFileName)
 	int    ok = 1;
 	SFile file(pInputFileName, SFile::mRead | SFile::mBinary);
 	if(file.IsValid()) {
-		char   fn[MAXPATH];
+		char   fn[MAX_PATH];
 		SString line_buf;
 		STRNSCPY(fn, pInputFileName);
 		replaceExt(fn, "OUT", 1);
@@ -1258,14 +1258,14 @@ int TestFann()
 					if(iter < (iter_count-1)) {
 						p_ann1->TrainWithOutput(input, pre_result2, result1);
 						p_ann2->TrainWithOutput(input, pre_result1, result2);
-						line_buf.Z().Cat(iter).CatChar('/').Cat(i).Tab().
+						line_buf.Z().Cat(iter).Slash().Cat(i).Tab().
 							Cat(result1[0], MKSFMTD(0, 10, 0)).Tab().
 							Cat(result2[0], MKSFMTD(0, 10, 0)).Tab().
 							Cat(result2[0]-result1[0], MKSFMTD(0, 10, 0)).Tab().
 							Cat(input_buf).CR();
 					}
 					else {
-						line_buf.Z().Cat(iter).CatChar('/').Cat(i).Tab().
+						line_buf.Z().Cat(iter).Slash().Cat(i).Tab().
 							Cat(pre_result1[0], MKSFMTD(0, 10, 0)).Tab().
 							Cat(pre_result2[0], MKSFMTD(0, 10, 0)).Tab().
 							Tab().

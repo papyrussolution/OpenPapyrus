@@ -1077,9 +1077,9 @@ int TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rBlk, co
 							log_msg.Z().Cat("StakeDelete-candidate").CatChar('(').Cat(do_stop).CatChar(')');
 							log_msg.CatDiv(':', 2).
 								Cat(stk_symb).CatChar('-').
-								Cat(is_short ? "S" : "B").CatChar('/').
-								Cat(rStk.VolumeCurrent, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('/').
-								Cat(last_value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).CatChar('/').
+								Cat(is_short ? "S" : "B").Slash().
+								Cat(rStk.VolumeCurrent, MKSFMTD(0, 3, NMBF_NOTRAILZ)).Slash().
+								Cat(last_value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).Slash().
 								Cat(rStk.SL, MKSFMTD(0, 7, NMBF_NOTRAILZ)).Colon().Cat(rStk.TP, MKSFMTD(0, 7, NMBF_NOTRAILZ));
 								log_msg.Colon().Cat(rStk.TP, MKSFMTD(0, 7, NMBF_NOTRAILZ)).Space();
 								log_msg.CatEq("Profit", rStk.Profit, MKSFMTD(0, 2, 0)).Space().
@@ -1097,9 +1097,9 @@ int TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rBlk, co
 					log_msg.Space().CatParStr("disabled");
 				log_msg.CatDiv(':', 2).
 					Cat(stk_symb).CatChar('-').
-					Cat(is_short ? "S" : "B").CatChar('/').
-					Cat(rStk.VolumeCurrent, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('/').
-					Cat(last_value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).CatChar('/').
+					Cat(is_short ? "S" : "B").Slash().
+					Cat(rStk.VolumeCurrent, MKSFMTD(0, 3, NMBF_NOTRAILZ)).Slash().
+					Cat(last_value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).Slash().
 					Cat(rStk.SL, MKSFMTD(0, 7, NMBF_NOTRAILZ)).Colon().Cat(rStk.TP, MKSFMTD(0, 7, NMBF_NOTRAILZ));
 					log_msg.Colon().Cat(rStk.TP, MKSFMTD(0, 7, NMBF_NOTRAILZ));
 					log_msg.CatEq("Profit", rStk.Profit);
@@ -1197,9 +1197,9 @@ int TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rBlk, co
 								log_msg.Space().CatParStr("disabled");
 							log_msg.CatDiv(':', 2).
 								Cat(stk_symb).CatChar('-').
-								Cat(is_short ? "S" : "B").CatChar('/').
-								Cat(rStk.VolumeCurrent, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('/').
-								Cat(last_value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).CatChar('/').
+								Cat(is_short ? "S" : "B").Slash().
+								Cat(rStk.VolumeCurrent, MKSFMTD(0, 3, NMBF_NOTRAILZ)).Slash().
+								Cat(last_value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).Slash().
 								Cat(rStk.SL, MKSFMTD(0, 7, NMBF_NOTRAILZ)).Colon().Cat(rStk.TP, MKSFMTD(0, 7, NMBF_NOTRAILZ)).
 								Cat(" >> ").
 								Cat(eff_sl, MKSFMTD(0, 7, NMBF_NOTRAILZ));
@@ -1654,12 +1654,12 @@ int TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rRes
 						const long trange_fmt = MKSFMTD(0, 10, NMBF_NOTRAILZ);
 						log_msg.Z().Cat("Stake").CatDiv(':', 2).
 							Cat(stk_symb).CatChar('-').
-							Cat((r_s.BaseFlags & r_s.bfShort) ? "S" : "B").CatChar('/').
-							Cat(r_pse.Volume, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('/').
-							Cat(last_value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).CatChar('/').
-							Cat(sl, MKSFMTD(0, 7, NMBF_NOTRAILZ)).CatChar('/').
+							Cat((r_s.BaseFlags & r_s.bfShort) ? "S" : "B").Slash().
+							Cat(r_pse.Volume, MKSFMTD(0, 3, NMBF_NOTRAILZ)).Slash().
+							Cat(last_value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).Slash().
+							Cat(sl, MKSFMTD(0, 7, NMBF_NOTRAILZ)).Slash().
 							Cat(tp, MKSFMTD(0, 7, NMBF_NOTRAILZ));
-						log_msg.Space().Cat("SP").CatChar('<').Cat(spike_quant, MKSFMTD(0, 9, 0)).CatChar('/').Cat(r_s.SpikeQuant_s, MKSFMTD(0, 9, 0)).CatChar('>'); // @v10.4.10
+						log_msg.Space().Cat("SP").CatChar('<').Cat(spike_quant, MKSFMTD(0, 9, 0)).Slash().Cat(r_s.SpikeQuant_s, MKSFMTD(0, 9, 0)).CatChar('>'); // @v10.4.10
 						log_msg.Space().Cat(PPObjTimeSeries::StrategyToString(r_s, &r_pse.R_Blk.Strategies, &r_pse.Tv, &r_pse.Tv2, temp_buf));
 						{
 							//temp_buf.Z().Cat("PPAT").Comma().Cat(r_s.MaxDuckQuant).Comma().Cat(r_s.TargetQuant).Comma().Cat(r_s.SpikeQuant, MKSFMTD(0, 9, 0));

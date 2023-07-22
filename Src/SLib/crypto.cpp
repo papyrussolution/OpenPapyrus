@@ -28,9 +28,9 @@ static ulong mix(ulong v)
 	v += addendum;
 	for(i = 0; i < c; i++)
 		if(key[i] % 3)
-			v = /*_lrotr*/slrotr32(v, key[i]);
+			v = /*_lrotr*/SBits::Rotr(v, key[i]);
 		else
-			v = ~/*_lrotl*/slrotl32(v, key[i]);
+			v = ~/*_lrotl*/SBits::Rotl(v, key[i]);
 	return v;
 }
 
@@ -42,9 +42,9 @@ static ulong unmix(ulong v)
 	const  int c = getkey(key, &addendum);
 	for(i = c-1; i >= 0; i--)
 		if(key[i] % 3)
-			v = /*_lrotl*/slrotl32(v, key[i]);
+			v = /*_lrotl*/SBits::Rotl(v, key[i]);
 		else
-			v = /*_lrotr*/slrotr32(~v, key[i]);
+			v = /*_lrotr*/SBits::Rotr(~v, key[i]);
 	v -= addendum;
 	return v;
 }

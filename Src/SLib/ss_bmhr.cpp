@@ -539,7 +539,7 @@ int Test_Alg_SS_Z(const char * pInputFileName)
 {
 	int    ok = 1;
 	size_t sz = 0;
-	char out_file_name[MAXPATH];
+	char out_file_name[MAX_PATH];
 	STRNSCPY(out_file_name, pInputFileName);
 	replaceExt(out_file_name, "OUT", 1);
 	MemLeakTracer mlt;

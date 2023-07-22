@@ -377,7 +377,6 @@ typedef struct __db_msgbuf {
 #define DB_STR(id, msg)		DB_MSGID(id) " " DB_STR_C(msg, "")
 #define DB_STR_A(id, msg, fmt)	DB_MSGID(id) " " DB_STR_C(msg, fmt)
 #define DB_STR_P(msg)		_(msg)
-
 /*
  * There are quite a few places in Berkeley DB where we want to initialize
  * a DBT from a string or other random pointer type, using a length typed
@@ -386,10 +385,9 @@ typedef struct __db_msgbuf {
  */
 #define	DB_SET_DBT(dbt, d, s)  do { (dbt).data = (void *)(d); (dbt).size = static_cast<uint32>(s); } while(0)
 #define DB_INIT_DBT(dbt, d, s) do { memzero(&(dbt), sizeof(dbt)); DB_SET_DBT(dbt, d, s); } while(0)
-
-/*******************************************************
- * API return values
- *******************************************************/
+// 
+// API return values
+// 
 /*
  * Return values that are OK for each different call.  Most calls have a
  * standard 'return of 0 is only OK value', but some, like db->get have
@@ -420,10 +418,9 @@ typedef struct __db_msgbuf {
 		#define	DB_OPNOTSUP	EINVAL
 	#endif
 #endif
-
-/*******************************************************
- * Files.
- *******************************************************/
+// 
+// Files.
+// 
 /*
  * We use 1024 as the maximum path length.  It's too hard to figure out what
  * the real path length is, as it was traditionally stored in <sys/param.h>,
@@ -432,10 +429,9 @@ typedef struct __db_msgbuf {
 #define	DB_MAXPATHLEN   1024
 #define	PATH_DOT        "."    /* Current working directory. */
 #define	PATH_SEPARATOR  "\\/:" /* Path separator character(s). */
-
-/*******************************************************
- * Environment.
- *******************************************************/
+// 
+// Environment.
+// 
 /* Type passed to __db_appname(). */
 typedef enum {
 	DB_APP_NONE=0,			/* No type (region). */
@@ -712,10 +708,9 @@ struct __env {
 #define ENV_FORCE_TXN_BULK	0x00000800 /* Txns use bulk mode-for testing */
 	uint32 flags;
 };
-
-/*******************************************************
- * Database Access Methods.
- *******************************************************/
+// 
+// Database Access Methods.
+// 
 /*
  * DB_IS_THREADED --
  *	The database handle is free-threaded (was opened with DB_THREAD).
@@ -805,10 +800,9 @@ typedef enum {
 	} while(0)
 
 #define	COMPACT_TRUNCATE(c_data) do { if(c_data->compact_truncate > 1) c_data->compact_truncate--; } while(0)
-
-/*******************************************************
- * Mpool.
- *******************************************************/
+// 
+// Mpool.
+// 
 /*
  * File types for DB access methods.  Negative numbers are reserved to DB.
  */

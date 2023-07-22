@@ -12136,37 +12136,26 @@ xmlParserCtxt * xmlCreateURLParserCtxt(const char * filename, int options)
 	return ctxt;
 }
 /**
- * xmlCreateFileParserCtxt:
  * @filename:  the filename
- *
  * Create a parser context for a file content.
  * Automatic support for ZLIB/Compress compressed document is provided
  * by default if found at compile-time.
- *
  * Returns the new parser context or NULL
  */
-xmlParserCtxt * xmlCreateFileParserCtxt(const char * filename)
-{
-	return xmlCreateURLParserCtxt(filename, 0);
-}
+xmlParserCtxt * xmlCreateFileParserCtxt(const char * filename) { return xmlCreateURLParserCtxt(filename, 0); }
 
 #ifdef LIBXML_SAX1_ENABLED
 /**
- * xmlSAXParseFileWithData:
  * @sax:  the SAX handler block
  * @filename:  the filename
- * @recovery:  work in recovery mode, i.e. tries to read no Well Formed
- *  documents
+ * @recovery:  work in recovery mode, i.e. tries to read no Well Formed documents
  * @data:  the userdata
- *
  * parse an XML file and build a tree. Automatic support for ZLIB/Compress
  * compressed document is provided by default if found at compile-time.
  * It use the given SAX function block to handle the parsing callback.
  * If sax is NULL, fallback to the default DOM tree building routines.
- *
  * User data (void *) is stored within the parser context in the
  * context's _private member, so it is available nearly everywhere in libxml
- *
  * Returns the resulting document tree
  */
 xmlDoc * xmlSAXParseFileWithData(xmlSAXHandler * sax, const char * filename, int recovery, void * data)
@@ -12207,17 +12196,13 @@ xmlDoc * xmlSAXParseFileWithData(xmlSAXHandler * sax, const char * filename, int
 	return ret;
 }
 /**
- * xmlSAXParseFile:
  * @sax:  the SAX handler block
  * @filename:  the filename
- * @recovery:  work in recovery mode, i.e. tries to read no Well Formed
- *  documents
- *
+ * @recovery:  work in recovery mode, i.e. tries to read no Well Formed documents
  * parse an XML file and build a tree. Automatic support for ZLIB/Compress
  * compressed document is provided by default if found at compile-time.
  * It use the given SAX function block to handle the parsing callback.
  * If sax is NULL, fallback to the default DOM tree building routines.
- *
  * Returns the resulting document tree
  */
 xmlDoc * xmlSAXParseFile(xmlSAXHandler * sax, const char * filename, int recovery)
@@ -12225,54 +12210,32 @@ xmlDoc * xmlSAXParseFile(xmlSAXHandler * sax, const char * filename, int recover
 	return xmlSAXParseFileWithData(sax, filename, recovery, 0);
 }
 /**
- * xmlRecoverDoc:
  * @cur:  a pointer to an array of xmlChar
- *
  * parse an XML in-memory document and build a tree.
- * In the case the document is not Well Formed, a attempt to build a
- * tree is tried anyway
- *
+ * In the case the document is not Well Formed, a attempt to build a tree is tried anyway
  * Returns the resulting document tree or NULL in case of failure
  */
-xmlDoc * xmlRecoverDoc(const xmlChar * cur)
-{
-	return xmlSAXParseDoc(NULL, cur, 1);
-}
+xmlDoc * xmlRecoverDoc(const xmlChar * cur) { return xmlSAXParseDoc(NULL, cur, 1); }
 /**
- * xmlParseFile:
  * @filename:  the filename
- *
  * parse an XML file and build a tree. Automatic support for ZLIB/Compress
  * compressed document is provided by default if found at compile-time.
- *
- * Returns the resulting document tree if the file was wellformed,
- * NULL otherwise.
+ * Returns the resulting document tree if the file was wellformed, NULL otherwise.
  */
-xmlDoc * xmlParseFile(const char * filename)
-{
-	return xmlSAXParseFile(NULL, filename, 0);
-}
+xmlDoc * xmlParseFile(const char * filename) { return xmlSAXParseFile(NULL, filename, 0); }
 /**
- * xmlRecoverFile:
  * @filename:  the filename
- *
  * parse an XML file and build a tree. Automatic support for ZLIB/Compress
  * compressed document is provided by default if found at compile-time.
  * In the case the document is not Well Formed, it attempts to build
  * a tree anyway
- *
  * Returns the resulting document tree or NULL in case of failure
  */
-xmlDoc * xmlRecoverFile(const char * filename)
-{
-	return xmlSAXParseFile(NULL, filename, 1);
-}
+xmlDoc * xmlRecoverFile(const char * filename) { return xmlSAXParseFile(NULL, filename, 1); }
 /**
- * xmlSetupParserForBuffer:
  * @ctxt:  an XML parser context
  * @buffer:  a xmlChar * buffer
  * @filename:  a file name
- *
  * Setup the parser context to parse a new buffer; Clears any prior
  * contents from the parser context. The buffer parameter must not be
  * NULL, but the filename parameter can be
@@ -12297,14 +12260,11 @@ void xmlSetupParserForBuffer(xmlParserCtxt * ctxt, const xmlChar* buffer, const 
 	}
 }
 /**
- * xmlSAXUserParseFile:
  * @sax:  a SAX handler
  * @user_data:  The user data returned on SAX callbacks
  * @filename:  a file name
- *
  * parse an XML file and call the given SAX handler routines.
  * Automatic support for ZLIB/Compress compressed document is provided
- *
  * Returns 0 in case of success or a error number otherwise
  */
 int xmlSAXUserParseFile(xmlSAXHandler * sax, void * user_data, const char * filename)
@@ -12338,12 +12298,9 @@ int xmlSAXUserParseFile(xmlSAXHandler * sax, void * user_data, const char * file
 // Front ends when parsing from memory
 // 
 /**
- * xmlCreateMemoryParserCtxt:
  * @buffer:  a pointer to a char array
  * @size:  the size of the array
- *
  * Create a parser context for an XML in-memory document.
- *
  * Returns the new parser context or NULL
  */
 xmlParserCtxt * xmlCreateMemoryParserCtxt(const char * buffer, int size)
@@ -12379,7 +12336,6 @@ xmlParserCtxt * xmlCreateMemoryParserCtxt(const char * buffer, int size)
 
 #ifdef LIBXML_SAX1_ENABLED
 /**
- * xmlSAXParseMemoryWithData:
  * @sax:  the SAX handler block
  * @buffer:  an pointer to a char array
  * @size:  the size of the array
@@ -12425,17 +12381,13 @@ xmlDoc * xmlSAXParseMemoryWithData(xmlSAXHandler * sax, const char * buffer, int
 	return ret;
 }
 /**
- * xmlSAXParseMemory:
  * @sax:  the SAX handler block
  * @buffer:  an pointer to a char array
  * @size:  the size of the array
- * @recovery:  work in recovery mode, i.e. tries to read not Well Formed
- *  documents
- *
+ * @recovery:  work in recovery mode, i.e. tries to read not Well Formed documents
  * parse an XML in-memory block and use the given SAX function block
  * to handle the parsing callback. If sax is NULL, fallback to the default
  * DOM tree building routines.
- *
  * Returns the resulting document tree
  */
 xmlDoc * xmlSAXParseMemory(xmlSAXHandler * sax, const char * buffer, int size, int recovery)
@@ -12443,44 +12395,28 @@ xmlDoc * xmlSAXParseMemory(xmlSAXHandler * sax, const char * buffer, int size, i
 	return xmlSAXParseMemoryWithData(sax, buffer, size, recovery, 0);
 }
 /**
- * xmlParseMemory:
  * @buffer:  an pointer to a char array
  * @size:  the size of the array
- *
  * parse an XML in-memory block and build a tree.
- *
  * Returns the resulting document tree
  */
-
-xmlDoc * xmlParseMemory(const char * buffer, int size)
-{
-	return xmlSAXParseMemory(NULL, buffer, size, 0);
-}
+xmlDoc * xmlParseMemory(const char * buffer, int size) { return xmlSAXParseMemory(NULL, buffer, size, 0); }
 /**
- * xmlRecoverMemory:
  * @buffer:  an pointer to a char array
  * @size:  the size of the array
- *
  * parse an XML in-memory block and build a tree.
  * In the case the document is not Well Formed, an attempt to
  * build a tree is tried anyway
- *
  * Returns the resulting document tree or NULL in case of error
  */
-xmlDoc * xmlRecoverMemory(const char * buffer, int size)
-{
-	return xmlSAXParseMemory(NULL, buffer, size, 1);
-}
+xmlDoc * xmlRecoverMemory(const char * buffer, int size) { return xmlSAXParseMemory(NULL, buffer, size, 1); }
 /**
- * xmlSAXUserParseMemory:
  * @sax:  a SAX handler
  * @user_data:  The user data returned on SAX callbacks
  * @buffer:  an in-memory XML document input
  * @size:  the length of the XML document in bytes
- *
  * A better SAX parsing routine.
  * parse an XML in-memory buffer and call the given SAX handler routines.
- *
  * Returns 0 in case of success or a error number otherwise
  */
 int xmlSAXUserParseMemory(xmlSAXHandler * sax, void * user_data, const char * buffer, int size)
@@ -12513,21 +12449,14 @@ int xmlSAXUserParseMemory(xmlSAXHandler * sax, void * user_data, const char * bu
 
 #endif /* LIBXML_SAX1_ENABLED */
 /**
- * xmlCreateDocParserCtxt:
  * @cur:  a pointer to an array of xmlChar
- *
  * Creates a parser context for an XML in-memory document.
- *
  * Returns the new parser context or NULL
  */
-xmlParserCtxt * xmlCreateDocParserCtxt(const xmlChar * cur) 
-{
-	return cur ? xmlCreateMemoryParserCtxt((const char *)cur, sstrlen(cur)) : 0;
-}
+xmlParserCtxt * xmlCreateDocParserCtxt(const xmlChar * cur) { return cur ? xmlCreateMemoryParserCtxt((const char *)cur, sstrlen(cur)) : 0; }
 
 #ifdef LIBXML_SAX1_ENABLED
 /**
- * xmlSAXParseDoc:
  * @sax:  the SAX handler block
  * @cur:  a pointer to an array of xmlChar
  * @recovery:  work in recovery mode, i.e. tries to read no Well Formed
@@ -12572,10 +12501,7 @@ xmlDoc * xmlSAXParseDoc(xmlSAXHandler * sax, const xmlChar * cur, int recovery)
 // @cur:  a pointer to an array of xmlChar
 // Returns the resulting document tree
 // 
-xmlDoc * xmlParseDoc(const xmlChar * cur)
-{
-	return xmlSAXParseDoc(NULL, cur, 0);
-}
+xmlDoc * xmlParseDoc(const xmlChar * cur) { return xmlSAXParseDoc(NULL, cur, 0); }
 
 #endif /* LIBXML_SAX1_ENABLED */
 
@@ -12585,7 +12511,6 @@ xmlDoc * xmlParseDoc(const xmlChar * cur)
 // 
 static xmlEntityReferenceFunc xmlEntityRefFunc = NULL;
 /**
- * xmlAddEntityReference:
  * @ent : A valid entity
  * @firstNode : A valid first node for children of entity
  * @lastNode : A valid last node of children entity
@@ -12598,9 +12523,7 @@ static void xmlAddEntityReference(xmlEntity * ent, xmlNode * firstNode, xmlNode 
 		(*xmlEntityRefFunc)(ent, firstNode, lastNode);
 }
 /**
- * xmlSetEntityReferenceFunc:
  * @func: A valid function
- *
  * Set the function to call call back when a xml reference has been made
  */
 void xmlSetEntityReferenceFunc(xmlEntityReferenceFunc func)
@@ -12615,13 +12538,10 @@ void xmlSetEntityReferenceFunc(xmlEntityReferenceFunc func)
 extern void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx, const char * msg, ...);
 static int xmlParserInitialized = 0;
 /**
- * xmlInitParser:
- *
  * Initialization function for the XML parser.
  * This is not reentrant. Call once before processing in case of
  * use in multithreaded programs.
  */
-
 void xmlInitParser()
 {
 	if(xmlParserInitialized != 0)
@@ -12658,10 +12578,7 @@ void xmlInitParser()
 	__xmlGlobalInitMutexUnlock();
 #endif
 }
-
 /**
- * xmlCleanupParser:
- *
  * This function name is somewhat misleading. It does not clean up
  * parser state, it cleans up memory allocated by the library itself.
  * It is a cleanup function for the XML library. It tries to reclaim all
@@ -12708,14 +12625,11 @@ void xmlCleanupParser()
 // 
 /**
  * @str:  a string
- *
  * Free a string if it is not owned by the "dict" dictionnary in the current scope
  */
 //#define DICT_FREE(str) if((str) && ((!dict) || (xmlDictOwns(dict, (const xmlChar *)(str)) == 0))) SAlloc::F((char *)(str));
 /**
- * xmlCtxtReset:
  * @ctxt: an XML parser context
- *
  * Reset a parser context
  */
 void xmlCtxtReset(xmlParserCtxt * ctxt)
@@ -12791,7 +12705,6 @@ void xmlCtxtReset(xmlParserCtxt * ctxt)
 	}
 }
 /**
- * xmlCtxtResetPush:
  * @ctxt: an XML parser context
  * @chunk:  a pointer to an array of chars
  * @size:  number of chars in the array
@@ -12847,10 +12760,9 @@ int xmlCtxtResetPush(xmlParserCtxt * ctxt, const char * chunk, int size, const c
 #endif
 	}
 	if(encoding) {
-		xmlCharEncodingHandler * hdlr;
 		SAlloc::F((xmlChar *)ctxt->encoding);
 		ctxt->encoding = sstrdup((const xmlChar *)encoding);
-		hdlr = xmlFindCharEncodingHandler(encoding);
+		xmlCharEncodingHandler * hdlr = xmlFindCharEncodingHandler(encoding);
 		if(hdlr)
 			xmlSwitchToEncoding(ctxt, hdlr);
 		else
@@ -12862,7 +12774,6 @@ int xmlCtxtResetPush(xmlParserCtxt * ctxt, const char * chunk, int size, const c
 	return 0;
 }
 /**
- * xmlCtxtUseOptionsInternal:
  * @ctxt: an XML parser context
  * @options:  a combination of xmlParserOption
  * @encoding:  the user provided encoding to use
@@ -13006,7 +12917,6 @@ static int FASTCALL xmlCtxtUseOptionsInternal(xmlParserCtxt * ctxt, int options,
 	return (options);
 }
 /**
- * xmlCtxtUseOptions:
  * @ctxt: an XML parser context
  * @options:  a combination of xmlParserOption
  *
@@ -13015,12 +12925,8 @@ static int FASTCALL xmlCtxtUseOptionsInternal(xmlParserCtxt * ctxt, int options,
  * Returns 0 in case of success, the set of unknown or unimplemented options
  *    in case of error.
  */
-int xmlCtxtUseOptions(xmlParserCtxt * ctxt, int options)
-{
-	return xmlCtxtUseOptionsInternal(ctxt, options, NULL);
-}
+int xmlCtxtUseOptions(xmlParserCtxt * ctxt, int options) { return xmlCtxtUseOptionsInternal(ctxt, options, NULL); }
 /**
- * xmlDoRead:
  * @ctxt:  an XML parser context
  * @URL:  the base URL to use for the document
  * @encoding:  the document encoding, or NULL
@@ -13057,7 +12963,6 @@ static xmlDoc * FASTCALL xmlDoRead(xmlParserCtxt * ctxt, const char * URL, const
 	return ret;
 }
 /**
- * xmlReadDoc:
  * @cur:  a pointer to a zero terminated string
  * @URL:  the base URL to use for the document
  * @encoding:  the document encoding, or NULL
@@ -13075,7 +12980,6 @@ xmlDoc * xmlReadDoc(const xmlChar * cur, const char * URL, const char * encoding
 	return xmlDoRead(xmlCreateDocParserCtxt(cur), URL, encoding, options, 0);
 }
 /**
- * xmlReadFile:
  * @filename:  a file or URL
  * @encoding:  the document encoding, or NULL
  * @options:  a combination of xmlParserOption
@@ -13090,7 +12994,6 @@ xmlDoc * xmlReadFile(const char * filename, const char * encoding, int options)
 	return xmlDoRead(xmlCreateURLParserCtxt(filename, options), NULL, encoding, options, 0);
 }
 /**
- * xmlReadMemory:
  * @buffer:  a pointer to a char array
  * @size:  the size of the array
  * @URL:  the base URL to use for the document
@@ -13107,7 +13010,6 @@ xmlDoc * xmlReadMemory(const char * buffer, int size, const char * URL, const ch
 	return xmlDoRead(xmlCreateMemoryParserCtxt(buffer, size), URL, encoding, options, 0);
 }
 /**
- * xmlReadFd:
  * @fd:  an open file descriptor
  * @URL:  the base URL to use for the document
  * @encoding:  the document encoding, or NULL
@@ -13149,7 +13051,6 @@ xmlDoc * xmlReadFd(int fd, const char * URL, const char * encoding, int options)
 	}
 }
 /**
- * xmlReadIO:
  * @ioread:  an I/O read function
  * @ioclose:  an I/O close function
  * @ioctx:  an I/O handler
@@ -13190,7 +13091,6 @@ xmlDoc * xmlReadIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose, v
 	return xmlDoRead(ctxt, URL, encoding, options, 0);
 }
 /**
- * xmlCtxtReadDoc:
  * @ctxt:  an XML parser context
  * @cur:  a pointer to a zero terminated string
  * @URL:  the base URL to use for the document
@@ -13221,7 +13121,6 @@ xmlDoc * xmlCtxtReadDoc(xmlParserCtxt * ctxt, const xmlChar * cur, const char * 
 		return 0;
 }
 /**
- * xmlCtxtReadFile:
  * @ctxt:  an XML parser context
  * @filename:  a file or URL
  * @encoding:  the document encoding, or NULL
@@ -13256,7 +13155,6 @@ xmlDoc * xmlCtxtReadFile(xmlParserCtxt * ctxt, const char * filename, const char
 	return p_doc;
 }
 /**
- * xmlCtxtReadMemory:
  * @ctxt:  an XML parser context
  * @buffer:  a pointer to a char array
  * @size:  the size of the array
@@ -13289,7 +13187,6 @@ xmlDoc * xmlCtxtReadMemory(xmlParserCtxt * ctxt, const char * buffer, int size, 
 	return p_result;
 }
 /**
- * xmlCtxtReadFd:
  * @ctxt:  an XML parser context
  * @fd:  an open file descriptor
  * @URL:  the base URL to use for the document
@@ -13324,7 +13221,6 @@ xmlDoc * xmlCtxtReadFd(xmlParserCtxt * ctxt, int fd, const char * URL, const cha
 	return xmlDoRead(ctxt, URL, encoding, options, 1);
 }
 /**
- * xmlCtxtReadIO:
  * @ctxt:  an XML parser context
  * @ioread:  an I/O read function
  * @ioclose:  an I/O close function

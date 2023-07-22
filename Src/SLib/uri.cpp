@@ -1,20 +1,20 @@
 // URI.CPP
 // uriparser - RFC 3986 URI parsing library
 // Copyright(C) 2007, Weijia Song <songweijia@gmail.com>, Sebastian Pipping <webmaster@hartwork.org> All rights reserved.
-// Adopted to SLIB by A.Sobolev 2010..2021
+// Adopted to SLIB by A.Sobolev 2010..2021, 2023
 // 
 #include <slib-internal.h>
 #pragma hdrstop
 #include <uri.h>
 
-#define _UT(x) x
+//#define _UT(x) x
 //
 // Used to point to from empty path segments.
 // X.first and X.afterLast must be the same non-NULL value then.
 //
-static const char * const UriSafeToPointTo = _UT("X");
-static const char * const UriConstPwd = _UT(".");
-static const char * const UriConstParent = _UT("..");
+static const char * const UriSafeToPointTo = "X";
+static const char * const UriConstPwd = ".";
+static const char * const UriConstParent = "..";
 //
 //
 //
@@ -179,84 +179,84 @@ static char * FASTCALL UriEscapeEx(const char * inFirst, const char * inAfterLas
 		return NULL;
 	}
 	else if(inFirst == NULL) {
-		ASSIGN_PTR(out, _UT('\0'));
+		ASSIGN_PTR(out, '\0');
 		return out;
 	}
 	else {
 		for(;;) {
 			if(inAfterLast && read >= inAfterLast) {
-				write[0] = _UT('\0');
+				write[0] = '\0';
 				return write;
 			}
 			else {
 				switch(read[0]) {
-					case _UT('\0'):
-						write[0] = _UT('\0');
+					case '\0':
+						write[0] = '\0';
 						return write;
-					case _UT(' '):
+					case ' ':
 						if(spaceToPlus) {
-							write[0] = _UT('+');
+							write[0] = '+';
 							write++;
 						}
 						else {
-							write[0] = _UT('%');
-							write[1] = _UT('2');
-							write[2] = _UT('0');
+							write[0] = '%';
+							write[1] = '2';
+							write[2] = '0';
 							write += 3;
 						}
 						prevWasCr = FALSE;
 						break;
 					// ALPHA 
-					case _UT('a'): case _UT('A'): case _UT('b'): case _UT('B'): case _UT('c'): case _UT('C'): case _UT('d'): case _UT('D'):
-					case _UT('e'): case _UT('E'): case _UT('f'): case _UT('F'): case _UT('g'): case _UT('G'): case _UT('h'): case _UT('H'):
-					case _UT('i'): case _UT('I'): case _UT('j'): case _UT('J'): case _UT('k'): case _UT('K'): case _UT('l'): case _UT('L'):
-					case _UT('m'): case _UT('M'): case _UT('n'): case _UT('N'): case _UT('o'): case _UT('O'): case _UT('p'): case _UT('P'):
-					case _UT('q'): case _UT('Q'): case _UT('r'): case _UT('R'): case _UT('s'): case _UT('S'): case _UT('t'): case _UT('T'):
-					case _UT('u'): case _UT('U'): case _UT('v'): case _UT('V'): case _UT('w'): case _UT('W'): case _UT('x'): case _UT('X'):
-					case _UT('y'): case _UT('Y'): case _UT('z'): case _UT('Z'):
+					case 'a': case 'A': case 'b': case 'B': case 'c': case 'C': case 'd': case 'D':
+					case 'e': case 'E': case 'f': case 'F': case 'g': case 'G': case 'h': case 'H':
+					case 'i': case 'I': case 'j': case 'J': case 'k': case 'K': case 'l': case 'L':
+					case 'm': case 'M': case 'n': case 'N': case 'o': case 'O': case 'p': case 'P':
+					case 'q': case 'Q': case 'r': case 'R': case 's': case 'S': case 't': case 'T':
+					case 'u': case 'U': case 'v': case 'V': case 'w': case 'W': case 'x': case 'X':
+					case 'y': case 'Y': case 'z': case 'Z':
 					// DIGIT 
-					case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'): case _UT('5'): case _UT('6'): case _UT('7'): case _UT('8'): case _UT('9'):
+					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
 					// "-" / "." / "_" / "~" 
-					case _UT('-'): case _UT('.'): case _UT('_'): case _UT('~'):
+					case '-': case '.': case '_': case '~':
 						// Copy unmodified 
 						write[0] = read[0];
 						write++;
 						prevWasCr = FALSE;
 						break;
-					case _UT('\x0A'):
+					case '\x0A':
 						if(normalizeBreaks) {
 							if(!prevWasCr) {
-								write[0] = _UT('%');
-								write[1] = _UT('0');
-								write[2] = _UT('D');
-								write[3] = _UT('%');
-								write[4] = _UT('0');
-								write[5] = _UT('A');
+								write[0] = '%';
+								write[1] = '0';
+								write[2] = 'D';
+								write[3] = '%';
+								write[4] = '0';
+								write[5] = 'A';
 								write += 6;
 							}
 						}
 						else {
-							write[0] = _UT('%');
-							write[1] = _UT('0');
-							write[2] = _UT('A');
+							write[0] = '%';
+							write[1] = '0';
+							write[2] = 'A';
 							write += 3;
 						}
 						prevWasCr = FALSE;
 						break;
-					case _UT('\x0D'):
+					case '\x0D':
 						if(normalizeBreaks) {
-							write[0] = _UT('%');
-							write[1] = _UT('0');
-							write[2] = _UT('D');
-							write[3] = _UT('%');
-							write[4] = _UT('0');
-							write[5] = _UT('A');
+							write[0] = '%';
+							write[1] = '0';
+							write[2] = 'D';
+							write[3] = '%';
+							write[4] = '0';
+							write[5] = 'A';
 							write += 6;
 						}
 						else {
-							write[0] = _UT('%');
-							write[1] = _UT('0');
-							write[2] = _UT('D');
+							write[0] = '%';
+							write[1] = '0';
+							write[2] = 'D';
 							write += 3;
 						}
 						prevWasCr = TRUE;
@@ -264,7 +264,7 @@ static char * FASTCALL UriEscapeEx(const char * inFirst, const char * inAfterLas
 					default:
 						{ // Percent encode 
 							const uchar code = static_cast<uchar>(read[0]);
-							write[0] = _UT('%');
+							write[0] = '%';
 							write[1] = UriHexToLetter(code>>4);
 							write[2] = UriHexToLetter(code&0x0f);
 							write += 3;
@@ -386,7 +386,7 @@ int UriComposeQueryEngine(char * dest, const UriQueryList*queryList,
 				firstItem = FALSE;
 			}
 			else {
-				write[0] = _UT('&');
+				write[0] = '&';
 				write++;
 			}
 			afterKey = UriEscapeEx(key, key+keyLen, write, spaceToPlus, normalizeBreaks);
@@ -397,7 +397,7 @@ int UriComposeQueryEngine(char * dest, const UriQueryList*queryList,
 					return SLERR_URI_OUTPUT_TOO_LARGE;
 				}
 				/* Copy value */
-				write[0] = _UT('=');
+				write[0] = '=';
 				write++;
 				afterValue = UriEscapeEx(value, value+valueLen, write, spaceToPlus, normalizeBreaks);
 				write += (afterValue-write);
@@ -406,7 +406,7 @@ int UriComposeQueryEngine(char * dest, const UriQueryList*queryList,
 		queryList = queryList->next;
 	}
 	if(dest) {
-		write[0] = _UT('\0');
+		write[0] = '\0';
 		if(charsWritten)
 			*charsWritten = (int)(write-dest)+1; /* .. for terminator */
 	}
@@ -419,25 +419,25 @@ static const char * FASTCALL UriUnescapeInPlaceEx(char * inout, int plusToSpace,
 	char * p_read = inout;
 	int prevWasCr = FALSE;
 	THROW(inout);
-	while(p_read[0] != _UT('\0')) {
+	while(p_read[0] != '\0') {
 		switch(p_read[0]) {
-		    /*case _UT('\0'):
+		    /*case '\0':
 				if(read > p_write)
-					p_write[0] = _UT('\0');
+					p_write[0] = '\0';
 				return p_write;*/
-		    case _UT('%'):
+		    case '%':
 			switch(p_read[1]) {
-			    case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'):
-			    case _UT('5'): case _UT('6'): case _UT('7'): case _UT('8'): case _UT('9'):
-			    case _UT('a'): case _UT('b'): case _UT('c'): case _UT('d'): case _UT('e'):
-			    case _UT('f'): case _UT('A'): case _UT('B'): case _UT('C'): case _UT('D'):
-			    case _UT('E'): case _UT('F'):
+			    case '0': case '1': case '2': case '3': case '4':
+			    case '5': case '6': case '7': case '8': case '9':
+			    case 'a': case 'b': case 'c': case 'd': case 'e':
+			    case 'f': case 'A': case 'B': case 'C': case 'D':
+			    case 'E': case 'F':
 				switch(p_read[2]) {
-				    case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'): 
-					case _UT('5'): case _UT('6'): case _UT('7'): case _UT('8'): case _UT('9'): 
-					case _UT('a'): case _UT('b'): case _UT('c'): case _UT('d'): case _UT('e'):
-				    case _UT('f'): case _UT('A'): case _UT('B'): case _UT('C'): case _UT('D'):
-				    case _UT('E'): case _UT('F'):
+				    case '0': case '1': case '2': case '3': case '4': 
+					case '5': case '6': case '7': case '8': case '9': 
+					case 'a': case 'b': case 'c': case 'd': case 'e':
+				    case 'f': case 'A': case 'B': case 'C': case 'D':
+				    case 'E': case 'F':
 				    {
 					    // Percent group found 
 					    const uchar left = UriHexdigToInt(p_read[1]);
@@ -522,9 +522,9 @@ static const char * FASTCALL UriUnescapeInPlaceEx(char * inout, int plusToSpace,
 					prevWasCr = FALSE;
 			}
 			break;
-		    case _UT('+'):
+		    case '+':
 				if(plusToSpace) // Convert '+' to ' ' 
-					p_write[0] = _UT(' ');
+					p_write[0] = ' ';
 				else { // Copy one char unmodified 
 					if(p_read > p_write)
 						p_write[0] = p_read[0];
@@ -544,7 +544,7 @@ static const char * FASTCALL UriUnescapeInPlaceEx(char * inout, int plusToSpace,
 		}
 	}
 	if(p_read > p_write)
-		p_write[0] = _UT('\0');
+		p_write[0] = '\0';
 	CATCH
 		p_write = 0;
 	ENDCATCH
@@ -569,7 +569,7 @@ int UriAppendQueryItem(UriQueryList ** ppPrevNext, int * pItemCount, const char 
 	(*ppPrevNext)->next = NULL;
 	// Fill key 
 	THROW(p_key = static_cast<char *>(SAlloc::M((key_len+1)*sizeof(char))));
-	p_key[key_len] = _UT('\0');
+	p_key[key_len] = '\0';
 	if(key_len > 0) {
 		memcpy(p_key, pKeyFirst, key_len*sizeof(char));
 		UriUnescapeInPlaceEx(p_key, plusToSpace, breakConversion);
@@ -578,7 +578,7 @@ int UriAppendQueryItem(UriQueryList ** ppPrevNext, int * pItemCount, const char 
 	// Fill value 
 	if(pValueFirst) {
 		THROW(p_value = static_cast<char *>(SAlloc::M((value_len+1)*sizeof(char))));
-		p_value[value_len] = _UT('\0');
+		p_value[value_len] = '\0';
 		if(value_len > 0) {
 			memcpy(p_value, pValueFirst, value_len*sizeof(char));
 			UriUnescapeInPlaceEx(p_value, plusToSpace, breakConversion);
@@ -636,7 +636,7 @@ int UriDissectQueryMallocEx(UriQueryList ** ppDest, int * pItemCount, const char
 	// Parse query string 
 	for(; p_walk < pAfterLast; p_walk++) {
 		switch(*p_walk) {
-		    case _UT('&'):
+		    case '&':
 				if(p_value_first)
 					p_value_after = p_walk;
 				else
@@ -651,7 +651,7 @@ int UriDissectQueryMallocEx(UriQueryList ** ppDest, int * pItemCount, const char
 				p_value_first = NULL;
 				p_value_after = NULL;
 				break;
-		    case _UT('='): // NOTE: WE treat the first '=' as a separator,  all following go into the value part 
+		    case '=': // NOTE: WE treat the first '=' as a separator,  all following go into the value part 
 				if(!p_key_after) {
 					p_key_after = p_walk;
 					if(p_walk+1 < pAfterLast) {
@@ -687,10 +687,10 @@ static int UriFilenameToUriString(const char * pFileName, char * uriString, int 
 	const char * lastSep = input-1;
 	int firstSegment = TRUE;
 	char * output = uriString;
-	const int absolute = (pFileName) && ((fromUnix && (pFileName[0] == _UT('/'))) || (!fromUnix &&(pFileName[0] != _UT('\0')) &&(pFileName[1] == _UT(':'))));
+	const int absolute = (pFileName) && ((fromUnix && (pFileName[0] == '/')) || (!fromUnix &&(pFileName[0] != '\0') &&(pFileName[1] == ':')));
 	THROW_S(pFileName && uriString, SLERR_URI_NULL);
 	if(absolute) {
-		const char * const prefix = fromUnix ? _UT("file://") : _UT("file:///");
+		const char * const prefix = fromUnix ? "file://" : "file:///";
 		const int prefixLen = fromUnix ? 7 : 8;
 		// Copy prefix 
 		memcpy(uriString, prefix, prefixLen*sizeof(char));
@@ -698,7 +698,7 @@ static int UriFilenameToUriString(const char * pFileName, char * uriString, int 
 	}
 	// Copy and escape on the fly 
 	for(;;) {
-		if((input[0] == _UT('\0')) ||(fromUnix && input[0] == _UT('/')) ||(!fromUnix && input[0] == _UT('\\'))) {
+		if((input[0] == '\0') ||(fromUnix && input[0] == '/') || (!fromUnix && input[0] == '\\')) {
 			// Copy text after last seperator 
 			if(lastSep+1 < input) {
 				if(!fromUnix && absolute &&(firstSegment == TRUE)) {
@@ -712,19 +712,19 @@ static int UriFilenameToUriString(const char * pFileName, char * uriString, int 
 			}
 			firstSegment = FALSE;
 		}
-		if(input[0] == _UT('\0')) {
-			output[0] = _UT('\0');
+		if(input[0] == '\0') {
+			output[0] = '\0';
 			break;
 		}
-		else if(fromUnix &&(input[0] == _UT('/'))) {
+		else if(fromUnix &&(input[0] == '/')) {
 			// Copy separators unmodified 
-			output[0] = _UT('/');
+			output[0] = '/';
 			output++;
 			lastSep = input;
 		}
-		else if(!fromUnix &&(input[0] == _UT('\\'))) {
+		else if(!fromUnix &&(input[0] == '\\')) {
 			// Convert backslashes to forward slashes 
-			output[0] = _UT('/');
+			output[0] = '/';
 			output++;
 			lastSep = input;
 		}
@@ -736,7 +736,7 @@ static int UriFilenameToUriString(const char * pFileName, char * uriString, int 
 
 static int UriUriStringToFilename(const char * uriString, char * filename, int toUnix)
 {
-	const char * const prefix = toUnix ? _UT("file://") : _UT("file:///");
+	const char * const prefix = toUnix ? "file://" : "file:///";
 	const int prefixLen = toUnix ? 7 : 8;
 	char * walker = filename;
 	size_t charsToCopy;
@@ -747,9 +747,9 @@ static int UriUriStringToFilename(const char * uriString, char * filename, int t
 	UriUnescapeInPlaceEx(filename, FALSE, URI_BR_DONT_TOUCH);
 	// Convert forward slashes to backslashes 
 	if(!toUnix) {
-		while(walker[0] != _UT('\0')) {
-			if(walker[0] == _UT('/')) {
-				walker[0] = _UT('\\');
+		while(walker[0] != '\0') {
+			if(walker[0] == '/') {
+				walker[0] = '\\';
 			}
 			walker++;
 		}
@@ -868,7 +868,7 @@ int UriRemoveDotSegmentsEx(UriUri * pUri, int relative, int pathOwned)
 			int removeSegment = FALSE;
 			const int len = (int)(p_walker->text.P_AfterLast-p_walker->text.P_First);
 			if(len == 1) {
-				if((p_walker->text.P_First)[0] == _UT('.')) {
+				if((p_walker->text.P_First)[0] == '.') {
 					// "." segment -> remove if not essential 
 					p_prev = (UriUri::PathSegment *)p_walker->reserved;
 					UriUri::PathSegment * const nextBackup = p_walker->next;
@@ -876,7 +876,7 @@ int UriRemoveDotSegmentsEx(UriUri * pUri, int relative, int pathOwned)
 					removeSegment = TRUE;
 					if(relative && p_walker == pUri->pathHead && p_walker->next) {
 						for(const char * ch = p_walker->next->text.P_First; ch < p_walker->next->text.P_AfterLast; ch++) {
-							if(*ch == _UT(':')) {
+							if(*ch == ':') {
 								removeSegment = FALSE;
 								break;
 							}
@@ -922,7 +922,7 @@ int UriRemoveDotSegmentsEx(UriUri * pUri, int relative, int pathOwned)
 				}
 			}
 			else if(len == 2) {
-				if((p_walker->text.P_First[0] == _UT('.')) && (p_walker->text.P_First[1] == _UT('.'))) {
+				if((p_walker->text.P_First[0] == '.') && (p_walker->text.P_First[1] == '.')) {
 					// Path ".." -> remove this and the previous segment 
 					p_prev = (UriUri::PathSegment *)p_walker->reserved;
 					UriUri::PathSegment * prevPrev;
@@ -931,7 +931,7 @@ int UriRemoveDotSegmentsEx(UriUri * pUri, int relative, int pathOwned)
 					if(relative) {
 						if(p_prev == NULL)
 							removeSegment = FALSE;
-						else if(p_prev->text.Len() == 2 && (p_prev->text.P_First[0] == _UT('.')) && (p_prev->text.P_First[1] == _UT('.')))
+						else if(p_prev->text.Len() == 2 && (p_prev->text.P_First[0] == '.') && (p_prev->text.P_First[1] == '.'))
 							removeSegment = FALSE;
 					}
 					if(removeSegment) {
@@ -1035,12 +1035,12 @@ int UriRemoveDotSegmentsAbsolute(UriUri * uri)
 uchar FASTCALL UriHexdigToInt(char hexdig) 
 {
 	switch(hexdig) {
-	    case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'): case _UT('5'): case _UT('6'): case _UT('7'): case _UT('8'): case _UT('9'):
-			return (uchar)(9+hexdig-_UT('9'));
-	    case _UT('a'): case _UT('b'): case _UT('c'): case _UT('d'): case _UT('e'): case _UT('f'):
-			return (uchar)(15+hexdig-_UT('f'));
-	    case _UT('A'): case _UT('B'): case _UT('C'): case _UT('D'): case _UT('E'): case _UT('F'):
-			return (uchar)(15+hexdig-_UT('F'));
+	    case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+			return (uchar)(9+hexdig-'9');
+	    case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+			return (uchar)(15+hexdig-'f');
+	    case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+			return (uchar)(15+hexdig-'F');
 	    default:
 			return 0;
 	}
@@ -1055,22 +1055,22 @@ char FASTCALL UriHexToLetter(uint value)
 char FASTCALL UriHexToLetterEx(uint value, int uppercase) 
 {
 	switch(value) {
-	    case  0: return _UT('0');
-	    case  1: return _UT('1');
-	    case  2: return _UT('2');
-	    case  3: return _UT('3');
-	    case  4: return _UT('4');
-	    case  5: return _UT('5');
-	    case  6: return _UT('6');
-	    case  7: return _UT('7');
-	    case  8: return _UT('8');
-	    case  9: return _UT('9');
-	    case 10: return uppercase ? _UT('A') : _UT('a');
-	    case 11: return uppercase ? _UT('B') : _UT('b');
-	    case 12: return uppercase ? _UT('C') : _UT('c');
-	    case 13: return uppercase ? _UT('D') : _UT('d');
-	    case 14: return uppercase ? _UT('E') : _UT('e');
-	    default: return uppercase ? _UT('F') : _UT('f');
+	    case  0: return '0';
+	    case  1: return '1';
+	    case  2: return '2';
+	    case  3: return '3';
+	    case  4: return '4';
+	    case  5: return '5';
+	    case  6: return '6';
+	    case  7: return '7';
+	    case  8: return '8';
+	    case  9: return '9';
+	    case 10: return uppercase ? 'A' : 'a';
+	    case 11: return uppercase ? 'B' : 'b';
+	    case 12: return uppercase ? 'C' : 'c';
+	    case 13: return uppercase ? 'D' : 'd';
+	    case 14: return uppercase ? 'E' : 'e';
+	    default: return uppercase ? 'F' : 'f';
 	}
 }
 //
@@ -1241,7 +1241,7 @@ static int FASTCALL UriContainsUppercaseLetters(/*const char * pFirst, const cha
 	if(rR.P_First && rR.P_AfterLast && (rR.P_AfterLast > rR.P_First)) {
 		for(const char * i = rR.P_First; i < rR.P_AfterLast; i++) {
 			// 6.2.2.1 Case Normalization: uppercase letters in scheme or host 
-			if((*i >= _UT('A')) &&(*i <= _UT('Z'))) {
+			if((*i >= 'A') &&(*i <= 'Z')) {
 				return TRUE;
 			}
 		}
@@ -1254,10 +1254,10 @@ static int FASTCALL UriContainsUglyPercentEncoding(const char * pFirst, const ch
 	if(pFirst && afterLast && (afterLast > pFirst)) {
 		const char * i = pFirst;
 		for(; i+2 < afterLast; i++) {
-			if(i[0] == _UT('%')) {
+			if(i[0] == '%') {
 				/* 6.2.2.1 Case Normalization: *
 				* lowercase percent-encodings */
-				if(((i[1] >= _UT('a')) &&(i[1] <= _UT('f'))) || ((i[2] >= _UT('a')) &&(i[2] <= _UT('f')))) {
+				if(((i[1] >= 'a') && (i[1] <= 'f')) || ((i[2] >= 'a') &&(i[2] <= 'f'))) {
 					return TRUE;
 				}
 				else {
@@ -1281,9 +1281,9 @@ static void FASTCALL UriLowercaseInplace(/*const char * pFirst, const char * aft
 	//if(pFirst && afterLast && (afterLast > pFirst)) {
 	if(rR.P_First && rR.P_AfterLast && rR.Len() > 0) {
 		char * i = (char *)rR.P_First; // @badcast
-		const int lowerUpperDiff =(_UT('a')-_UT('A'));
+		const int lowerUpperDiff =('a'-'A');
 		for(; i < rR.P_AfterLast; i++) {
-			if((*i >= _UT('A')) &&(*i <=_UT('Z'))) {
+			if((*i >= 'A') &&(*i <='Z')) {
 				*i = (char)(*i+lowerUpperDiff);
 			}
 		}
@@ -1293,7 +1293,7 @@ static void FASTCALL UriLowercaseInplace(/*const char * pFirst, const char * aft
 static int FASTCALL UriLowercaseMalloc(const char ** ppFirst, const char ** afterLast)
 {
 	int    ok = 1;
-	const  int lowerUpperDiff =(_UT('a')-_UT('A'));
+	const  int lowerUpperDiff = ('a'-'A');
 	char * buffer;
 	int i = 0;
 	if(!ppFirst || !afterLast || (*ppFirst == NULL) || (*afterLast == NULL)) {
@@ -1311,7 +1311,7 @@ static int FASTCALL UriLowercaseMalloc(const char ** ppFirst, const char ** afte
 			}
 			else {
 				for(; i < lenInChars; i++) {
-					if(((*ppFirst)[i] >= _UT('A')) &&((*ppFirst)[i] <=_UT('Z'))) {
+					if(((*ppFirst)[i] >= 'A') && ((*ppFirst)[i] <='Z')) {
 						buffer[i] =(char)((*ppFirst)[i]+lowerUpperDiff);
 					}
 					else {
@@ -1335,7 +1335,7 @@ static void UriFixPercentEncodingEngine(const char * pInFirst, const char * pInA
 	int i = 0;
 	// All but last two 
 	for(; i+2 < lenInChars; i++) {
-		if(pInFirst[i] != _UT('%')) {
+		if(pInFirst[i] != '%') {
 			p_write[0] = pInFirst[i];
 			p_write++;
 		}
@@ -1352,7 +1352,7 @@ static void UriFixPercentEncodingEngine(const char * pInFirst, const char * pInA
 			}
 			else {
 				// 6.2.2.1 Case Normalization: lowercase percent-encodings 
-				p_write[0] = _UT('%');
+				p_write[0] = '%';
 				p_write[1] = UriHexToLetter(left);
 				p_write[2] = UriHexToLetter(right);
 				p_write += 3;
@@ -1637,8 +1637,8 @@ static int FASTCALL UriNormalizeSyntaxEngine(UriUri * uri, uint inMask, uint * o
 		for(const UriUri::PathSegment * p_walker = uri->pathHead; p_walker; p_walker = p_walker->next) {
 			const char * const first = p_walker->text.P_First;
 			const char * const afterLast = p_walker->text.P_AfterLast;
-			if(first && afterLast && (afterLast > first) && ((((afterLast-first) == 1) &&(first[0] == _UT('.'))) ||
-				(((afterLast-first) == 2) && (first[0] == _UT('.')) && (first[1] == _UT('.'))) || UriContainsUglyPercentEncoding(first, afterLast))) {
+			if(first && afterLast && (afterLast > first) && ((((afterLast-first) == 1) &&(first[0] == '.')) ||
+				(((afterLast-first) == 2) && (first[0] == '.') && (first[1] == '.')) || UriContainsUglyPercentEncoding(first, afterLast))) {
 				*outMask |= URI_NORMALIZE_PATH;
 				break;
 			}
@@ -1770,7 +1770,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 	maxChars--; // So we don't have to substract 1 for '\0' all the time 
 	// [01/19] result = "" 
 	if(dest)
-		dest[0] = _UT('\0');
+		dest[0] = '\0';
 	else {
 		(*charsRequired) = 0;
 	}
@@ -1784,7 +1784,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				written += charsToWrite;
 			}
 			else {
-				dest[0] = _UT('\0');
+				dest[0] = '\0';
 				ASSIGN_PTR(charsWritten, 0);
 				return SLERR_URI_TOSTRING_TOO_LONG;
 			}
@@ -1795,11 +1795,11 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		/* [04/19]		append ":" to result; */
 		if(dest) {
 			if(written+1 <= maxChars) {
-				memcpy(dest+written, _UT(":"), 1*sizeof(char));
+				memcpy(dest+written, ":", 1*sizeof(char));
 				written += 1;
 			}
 			else {
-				dest[0] = _UT('\0');
+				dest[0] = '\0';
 				ASSIGN_PTR(charsWritten, 0);
 				return SLERR_URI_TOSTRING_TOO_LONG;
 			}
@@ -1814,11 +1814,11 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		/* [07/19]		append "//" to result; */
 		if(dest) {
 			if(written+2 <= maxChars) {
-				memcpy(dest+written, _UT("//"), 2*sizeof(char));
+				memcpy(dest+written, "//", 2*sizeof(char));
 				written += 2;
 			}
 			else {
-				dest[0] = _UT('\0');
+				dest[0] = '\0';
 				ASSIGN_PTR(charsWritten, 0);
 				return SLERR_URI_TOSTRING_TOO_LONG;
 			}
@@ -1836,16 +1836,16 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					written += charsToWrite;
 				}
 				else {
-					dest[0] = _UT('\0');
+					dest[0] = '\0';
 					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 				if(written+1 <= maxChars) {
-					memcpy(dest+written, _UT("@"), 1*sizeof(char));
+					memcpy(dest+written, "@", 1*sizeof(char));
 					written += 1;
 				}
 				else {
-					dest[0] = _UT('\0');
+					dest[0] = '\0';
 					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
@@ -1865,33 +1865,33 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					if(written+charsToWrite <= maxChars) {
 						char text[4];
 						if(value > 99) {
-							text[0] = _UT('0')+(value/100);
-							text[1] = _UT('0')+((value%100)/10);
-							text[2] = _UT('0')+(value%10);
+							text[0] = '0'+(value/100);
+							text[1] = '0'+((value%100)/10);
+							text[2] = '0'+(value%10);
 						}
 						else if(value > 9) {
-							text[0] = _UT('0')+(value/10);
-							text[1] = _UT('0')+(value%10);
+							text[0] = '0'+(value/10);
+							text[1] = '0'+(value%10);
 						}
 						else {
-							text[0] = _UT('0')+value;
+							text[0] = '0'+value;
 						}
-						text[charsToWrite] = _UT('\0');
+						text[charsToWrite] = '\0';
 						memcpy(dest+written, text, charsToWrite*sizeof(char));
 						written += charsToWrite;
 					}
 					else {
-						dest[0] = _UT('\0');
+						dest[0] = '\0';
 						ASSIGN_PTR(charsWritten, 0);
 						return SLERR_URI_TOSTRING_TOO_LONG;
 					}
 					if(i < 3) {
 						if(written+1 <= maxChars) {
-							memcpy(dest+written, _UT("."), 1*sizeof(char));
+							memcpy(dest+written, ".", 1*sizeof(char));
 							written += 1;
 						}
 						else {
-							dest[0] = _UT('\0');
+							dest[0] = '\0';
 							ASSIGN_PTR(charsWritten, 0);
 							return SLERR_URI_TOSTRING_TOO_LONG;
 						}
@@ -1907,11 +1907,11 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			int i = 0;
 			if(dest) {
 				if(written+1 <= maxChars) {
-					memcpy(dest+written, _UT("["), 1*sizeof(char));
+					memcpy(dest+written, "[", 1*sizeof(char));
 					written += 1;
 				}
 				else {
-					dest[0] = _UT('\0');
+					dest[0] = '\0';
 					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
@@ -1926,12 +1926,12 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 						char text[3];
 						text[0] = UriHexToLetterEx(value/16, FALSE);
 						text[1] = UriHexToLetterEx(value%16, FALSE);
-						text[2] = _UT('\0');
+						text[2] = '\0';
 						memcpy(dest+written, text, 2*sizeof(char));
 						written += 2;
 					}
 					else {
-						dest[0] = _UT('\0');
+						dest[0] = '\0';
 						ASSIGN_PTR(charsWritten, 0);
 						return SLERR_URI_TOSTRING_TOO_LONG;
 					}
@@ -1942,11 +1942,11 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				if(((i&1) == 1) &&(i < 15)) {
 					if(dest) {
 						if(written+1 <= maxChars) {
-							memcpy(dest+written, _UT(":"), 1*sizeof(char));
+							memcpy(dest+written, ":", 1*sizeof(char));
 							written += 1;
 						}
 						else {
-							dest[0] = _UT('\0');
+							dest[0] = '\0';
 							ASSIGN_PTR(charsWritten, 0);
 							return SLERR_URI_TOSTRING_TOO_LONG;
 						}
@@ -1958,11 +1958,11 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			}
 			if(dest) {
 				if(written+1 <= maxChars) {
-					memcpy(dest+written, _UT("]"), 1*sizeof(char));
+					memcpy(dest+written, "]", 1*sizeof(char));
 					written += 1;
 				}
 				else {
-					dest[0] = _UT('\0');
+					dest[0] = '\0';
 					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
@@ -1976,11 +1976,11 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			const int charsToWrite = static_cast<int>(uri->HostData.ipFuture.P_AfterLast-uri->HostData.ipFuture.P_First);
 			if(dest) {
 				if(written+1 <= maxChars) {
-					memcpy(dest+written, _UT("["), 1*sizeof(char));
+					memcpy(dest+written, "[", 1*sizeof(char));
 					written += 1;
 				}
 				else {
-					dest[0] = _UT('\0');
+					dest[0] = '\0';
 					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
@@ -1989,16 +1989,16 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					written += charsToWrite;
 				}
 				else {
-					dest[0] = _UT('\0');
+					dest[0] = '\0';
 					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 				if(written+1 <= maxChars) {
-					memcpy(dest+written, _UT("]"), 1*sizeof(char));
+					memcpy(dest+written, "]", 1*sizeof(char));
 					written += 1;
 				}
 				else {
-					dest[0] = _UT('\0');
+					dest[0] = '\0';
 					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
@@ -2016,7 +2016,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					written += charsToWrite;
 				}
 				else {
-					dest[0] = _UT('\0');
+					dest[0] = '\0';
 					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
@@ -2030,11 +2030,11 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			if(dest) {
 				/* Leading ':' */
 				if(written+1 <= maxChars) {
-					memcpy(dest+written, _UT(":"), 1*sizeof(char));
+					memcpy(dest+written, ":", 1*sizeof(char));
 					written += 1;
 				}
 				else {
-					dest[0] = _UT('\0');
+					dest[0] = '\0';
 					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
@@ -2044,7 +2044,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					written += charsToWrite;
 				}
 				else {
-					dest[0] = _UT('\0');
+					dest[0] = '\0';
 					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
@@ -2060,11 +2060,11 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 	if(uri->IsAbsolutePath || (uri->pathHead && UriIsHostSet(uri))) {
 		if(dest) {
 			if(written+1 <= maxChars) {
-				memcpy(dest+written, _UT("/"), 1*sizeof(char));
+				memcpy(dest+written, "/", 1*sizeof(char));
 				written += 1;
 			}
 			else {
-				dest[0] = _UT('\0');
+				dest[0] = '\0';
 				ASSIGN_PTR(charsWritten, 0);
 				return SLERR_URI_TOSTRING_TOO_LONG;
 			}
@@ -2083,7 +2083,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					written += charsToWrite;
 				}
 				else {
-					dest[0] = _UT('\0');
+					dest[0] = '\0';
 					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
@@ -2095,11 +2095,11 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			if(walker->next) {
 				if(dest) {
 					if(written+1 <= maxChars) {
-						memcpy(dest+written, _UT("/"), 1*sizeof(char));
+						memcpy(dest+written, "/", 1*sizeof(char));
 						written += 1;
 					}
 					else {
-						dest[0] = _UT('\0');
+						dest[0] = '\0';
 						ASSIGN_PTR(charsWritten, 0);
 						return SLERR_URI_TOSTRING_TOO_LONG;
 					}
@@ -2116,11 +2116,11 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		/* [12/19]		append "?" to result; */
 		if(dest) {
 			if(written+1 <= maxChars) {
-				memcpy(dest+written, _UT("?"), 1*sizeof(char));
+				memcpy(dest+written, "?", 1*sizeof(char));
 				written += 1;
 			}
 			else {
-				dest[0] = _UT('\0');
+				dest[0] = '\0';
 				ASSIGN_PTR(charsWritten, 0);
 				return SLERR_URI_TOSTRING_TOO_LONG;
 			}
@@ -2137,7 +2137,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					written += charsToWrite;
 				}
 				else {
-					dest[0] = _UT('\0');
+					dest[0] = '\0';
 					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
@@ -2153,11 +2153,11 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		/* [16/19]		append "#" to result; */
 		if(dest) {
 			if(written+1 <= maxChars) {
-				memcpy(dest+written, _UT("#"), 1*sizeof(char));
+				memcpy(dest+written, "#", 1*sizeof(char));
 				written += 1;
 			}
 			else {
-				dest[0] = _UT('\0');
+				dest[0] = '\0';
 				ASSIGN_PTR(charsWritten, 0);
 				return SLERR_URI_TOSTRING_TOO_LONG;
 			}
@@ -2174,7 +2174,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					written += charsToWrite;
 				}
 				else {
-					dest[0] = _UT('\0');
+					dest[0] = '\0';
 					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
@@ -2187,7 +2187,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 	}
 	/* [19/19]	return result; */
 	if(dest) {
-		dest[written++] = _UT('\0');
+		dest[written++] = '\0';
 		ASSIGN_PTR(charsWritten, written);
 	}
 	return SLERR_SUCCESS;
@@ -2220,23 +2220,23 @@ int UriParseIpFourAddress(uchar * pOctetOutput, const char * pFirst, const char 
 				return NULL;
 			else {
 				switch(*pFirst) {
-					case _UT('0'):
+					case '0':
 						uriPushToStack(0);
 						return pFirst+1;
-					case _UT('1'):
+					case '1':
 						uriPushToStack(1);
 						return UriParseDecOctetOne(pFirst+1, pAfterLast);
-					case _UT('2'):
+					case '2':
 						uriPushToStack(2);
 						return UriParseDecOctetTwo(pFirst+1, pAfterLast);
-					case _UT('3'):
-					case _UT('4'):
-					case _UT('5'):
-					case _UT('6'):
-					case _UT('7'):
-					case _UT('8'):
-					case _UT('9'):
-						uriPushToStack((uchar)(9+*pFirst-_UT('9')));
+					case '3':
+					case '4':
+					case '5':
+					case '6':
+					case '7':
+					case '8':
+					case '9':
+						uriPushToStack((uchar)(9+*pFirst-'9'));
 						return UriParseDecOctetThree(pFirst+1, pAfterLast);
 					default:
 						return NULL;
@@ -2284,8 +2284,8 @@ int UriParseIpFourAddress(uchar * pOctetOutput, const char * pFirst, const char 
 			}
 			else {
 				switch(*first) {
-					case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'): case _UT('5'): case _UT('6'): case _UT('7'): case _UT('8'): case _UT('9'):
-						uriPushToStack((uchar)(9+*first-_UT('9')));
+					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+						uriPushToStack((uchar)(9+*first-'9'));
 						return first+1;
 					default:
 						return first;
@@ -2302,9 +2302,8 @@ int UriParseIpFourAddress(uchar * pOctetOutput, const char * pFirst, const char 
 				return pAfterLast;
 			else {
 				switch(*pFirst) {
-					case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'):
-					case _UT('5'): case _UT('6'): case _UT('7'): case _UT('8'): case _UT('9'):
-						uriPushToStack((uchar)(9+*pFirst-_UT('9')));
+					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+						uriPushToStack((uchar)(9+*pFirst-'9'));
 						return UriParseDecOctetThree(pFirst+1, pAfterLast);
 					default:
 						return pFirst;
@@ -2326,8 +2325,8 @@ int UriParseIpFourAddress(uchar * pOctetOutput, const char * pFirst, const char 
 				return afterLast;
 			else {
 				switch(*first) {
-					case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'): case _UT('5'):
-						uriPushToStack((uchar)(9+*first-_UT('9')));
+					case '0': case '1': case '2': case '3': case '4': case '5':
+						uriPushToStack((uchar)(9+*first-'9'));
 						return first+1;
 					default:
 						return first;
@@ -2353,21 +2352,21 @@ int UriParseIpFourAddress(uchar * pOctetOutput, const char * pFirst, const char 
 				return pAfterLast;
 			else {
 				switch(*pFirst) {
-					case _UT('0'):
-					case _UT('1'):
-					case _UT('2'):
-					case _UT('3'):
-					case _UT('4'):
-						uriPushToStack((uchar)(9+*pFirst-_UT('9')));
+					case '0':
+					case '1':
+					case '2':
+					case '3':
+					case '4':
+						uriPushToStack((uchar)(9+*pFirst-'9'));
 						return UriParseDecOctetThree(pFirst+1, pAfterLast);
-					case _UT('5'):
+					case '5':
 						uriPushToStack(5);
 						return UriParseDecOctetFour(pFirst+1, pAfterLast);
-					case _UT('6'):
-					case _UT('7'):
-					case _UT('8'):
-					case _UT('9'):
-						uriPushToStack((uchar)(9+*pFirst-_UT('9')));
+					case '6':
+					case '7':
+					case '8':
+					case '9':
+						uriPushToStack((uchar)(9+*pFirst-'9'));
 						return (pFirst+1);
 					default:
 						return pFirst;
@@ -2388,21 +2387,21 @@ int UriParseIpFourAddress(uchar * pOctetOutput, const char * pFirst, const char 
 		UriIp4Parser parser;
 		// Octet #1 
 		const char * p_after = parser.UriParseDecOctet(pFirst, pAfterLast);
-		if(!p_after || (p_after >= pAfterLast) || (*p_after != _UT('.'))) {
+		if(!p_after || (p_after >= pAfterLast) || (*p_after != '.')) {
 			SLS.SetError(SLERR_URI_SYNTAX, pFirst);
 			return SLERR_URI_SYNTAX;
 		}
 		parser.uriStackToOctet(pOctetOutput);
 		// Octet #2 
 		p_after = parser.UriParseDecOctet(p_after+1, pAfterLast);
-		if(!p_after || (p_after >= pAfterLast) || (*p_after != _UT('.'))) {
+		if(!p_after || (p_after >= pAfterLast) || (*p_after != '.')) {
 			SLS.SetError(SLERR_URI_SYNTAX, pFirst);
 			return SLERR_URI_SYNTAX;
 		}
 		parser.uriStackToOctet(pOctetOutput+1);
 		// Octet #3 
 		p_after = parser.UriParseDecOctet(p_after+1, pAfterLast);
-		if(!p_after || (p_after >= pAfterLast) || (*p_after != _UT('.'))) {
+		if(!p_after || (p_after >= pAfterLast) || (*p_after != '.')) {
 			SLS.SetError(SLERR_URI_SYNTAX, pFirst);
 			return SLERR_URI_SYNTAX;
 		}
@@ -2420,17 +2419,17 @@ int UriParseIpFourAddress(uchar * pOctetOutput, const char * pFirst, const char 
 //
 //
 //
- #define URI_SET_DIGIT _UT('0') : case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'): case _UT('5'): case _UT('6'): case _UT('7'): case _UT('8'): case _UT('9')
- #define URI_SET_HEX_LETTER_UPPER _UT('A'): case _UT('B'): case _UT('C'): case _UT('D'): case _UT('E'): case _UT('F')
- #define URI_SET_HEX_LETTER_LOWER _UT('a'): case _UT('b'): case _UT('c'): case _UT('d'): case _UT('e'): case _UT('f')
+ #define URI_SET_DIGIT '0' : case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9'
+ #define URI_SET_HEX_LETTER_UPPER 'A': case 'B': case 'C': case 'D': case 'E': case 'F'
+ #define URI_SET_HEX_LETTER_LOWER 'a': case 'b': case 'c': case 'd': case 'e': case 'f'
  #define URI_SET_HEXDIG URI_SET_DIGIT: case URI_SET_HEX_LETTER_UPPER: case URI_SET_HEX_LETTER_LOWER
  #define URI_SET_ALPHA URI_SET_HEX_LETTER_UPPER: \
     case URI_SET_HEX_LETTER_LOWER: \
-    case _UT('g'): case _UT('G'): case _UT('h'): case _UT('H'): case _UT('i'): case _UT('I'): case _UT('j'): case _UT('J'): \
-    case _UT('k'): case _UT('K'): case _UT('l'): case _UT('L'): case _UT('m'): case _UT('M'): case _UT('n'): case _UT('N'): \
-    case _UT('o'): case _UT('O'): case _UT('p'): case _UT('P'): case _UT('q'): case _UT('Q'): case _UT('r'): case _UT('R'): \
-    case _UT('s'): case _UT('S'): case _UT('t'): case _UT('T'): case _UT('u'): case _UT('U'): case _UT('v'): case _UT('V'): \
-    case _UT('w'): case _UT('W'): case _UT('x'): case _UT('X'): case _UT('y'): case _UT('Y'): case _UT('z'): case _UT('Z')
+    case 'g': case 'G': case 'h': case 'H': case 'i': case 'I': case 'j': case 'J': \
+    case 'k': case 'K': case 'l': case 'L': case 'm': case 'M': case 'n': case 'N': \
+    case 'o': case 'O': case 'p': case 'P': case 'q': case 'Q': case 'r': case 'R': \
+    case 's': case 'S': case 't': case 'T': case 'u': case 'U': case 'v': case 'V': \
+    case 'w': case 'W': case 'x': case 'X': case 'y': case 'Y': case 'z': case 'Z'
 
 UriParserState::UriParserState()
 {
@@ -2452,7 +2451,7 @@ void UriParserState::Reset()
 	P_Uri = p_uri_backup;
 }
 
-int FASTCALL UriParserState::PushPathSegment(const char * first, const char * afterLast)
+int STDCALL UriParserState::PushPathSegment(const char * first, const char * afterLast)
 {
 	int    ok = TRUE;
 	UriUri::PathSegment * segment = new UriUri::PathSegment(0, 0);
@@ -2502,7 +2501,7 @@ void UriParserState::StopMalloc()
 // [authority]->[ownHostUserInfoNz]
 // [authority]-><NULL>
 // 
-const char * FASTCALL UriParserState::ParseAuthority(const char * pFirst, const char * pAfterLast)
+const char * STDCALL UriParserState::ParseAuthority(const char * pFirst, const char * pAfterLast)
 {
 	const char * p_ret = 0;
 	if(pFirst >= pAfterLast) { // "" regname host 
@@ -2512,7 +2511,7 @@ const char * FASTCALL UriParserState::ParseAuthority(const char * pFirst, const 
 	}
 	else {
 		switch(*pFirst) {
-			case _UT('['):
+			case '[':
 				{
 					const char * const p_after_ip_lit2 = ParseIpLit2(pFirst+1, pAfterLast);
 					if(p_after_ip_lit2) {
@@ -2521,10 +2520,10 @@ const char * FASTCALL UriParserState::ParseAuthority(const char * pFirst, const 
 					}
 				}
 				break;
-			case _UT('!'): case _UT('$'): case _UT('%'): case _UT('&'): case _UT('('):
-			case _UT(')'): case _UT('-'): case _UT('*'): case _UT(','): case _UT('.'):
-			case _UT(':'): case _UT(';'): case _UT('@'): case _UT('\''): case _UT('_'):
-			case _UT('~'): case _UT('+'): case _UT('='):
+			case '!': case '$': case '%': case '&': case '(':
+			case ')': case '-': case '*': case ',': case '.':
+			case ':': case ';': case '@': case '\'': case '_':
+			case '~': case '+': case '=':
 			case URI_SET_DIGIT:
 			case URI_SET_ALPHA:
 				P_Uri->UserInfo.P_First = pFirst; /* USERINFO BEGIN */
@@ -2543,12 +2542,12 @@ const char * FASTCALL UriParserState::ParseAuthority(const char * pFirst, const 
  * [authorityTwo]-><:>[port]
  * [authorityTwo]-><NULL>
  */
-const char * FASTCALL UriParserState::ParseAuthorityTwo(const char * pFirst, const char * pAfterLast)
+const char * STDCALL UriParserState::ParseAuthorityTwo(const char * pFirst, const char * pAfterLast)
 {
 	const char * p_ret = 0;
 	if(pFirst >= pAfterLast)
 		p_ret = pAfterLast;
-	else if(*pFirst == _UT(':')) {
+	else if(*pFirst == ':') {
 		const char * const p_after_port = ParsePort(pFirst+1, pAfterLast);
 		if(p_after_port) {
 			P_Uri->PortText.P_First = pFirst+1; // PORT BEGIN 
@@ -2564,7 +2563,7 @@ const char * FASTCALL UriParserState::ParseAuthorityTwo(const char * pFirst, con
  * [hexZero]->[HEXDIG][hexZero]
  * [hexZero]-><NULL>
  */
-const char * FASTCALL UriParserState::ParseHexZero(const char * first, const char * afterLast)
+const char * STDCALL UriParserState::ParseHexZero(const char * first, const char * afterLast)
 {
 	if(first >= afterLast)
 		return afterLast;
@@ -2578,20 +2577,20 @@ const char * FASTCALL UriParserState::ParseHexZero(const char * first, const cha
  * [hierPart]-></>[partHelperTwo]
  * [hierPart]-><NULL>
  */
-const char * FASTCALL UriParserState::ParseHierPart(const char * pFirst, const char * afterLast)
+const char * STDCALL UriParserState::ParseHierPart(const char * pFirst, const char * afterLast)
 {
 	if(pFirst >= afterLast)
 		return afterLast;
 	else {
 		switch(*pFirst) {
-			case _UT('!'): case _UT('$'): case _UT('%'): case _UT('&'): case _UT('('):
-			case _UT(')'): case _UT('-'): case _UT('*'): case _UT(','): case _UT('.'):
-			case _UT(':'): case _UT(';'): case _UT('@'): case _UT('\''): case _UT('_'):
-			case _UT('~'): case _UT('+'): case _UT('='):
+			case '!': case '$': case '%': case '&': case '(':
+			case ')': case '-': case '*': case ',': case '.':
+			case ':': case ';': case '@': case '\'': case '_':
+			case '~': case '+': case '=':
 			case URI_SET_DIGIT:
 			case URI_SET_ALPHA:
 				return ParsePathRootless(pFirst, afterLast);
-			case _UT('/'):
+			case '/':
 				return ParsePartHelperTwo(pFirst+1, afterLast);
 			default:
 				return pFirst;
@@ -2603,16 +2602,16 @@ const char * FASTCALL UriParserState::ParseHierPart(const char * pFirst, const c
  * [ipFutLoop]->[unreserved][ipFutStopGo]
  * [ipFutLoop]-><:>[ipFutStopGo]
  */
-const char * FASTCALL UriParserState::ParseIpFutLoop(const char * pFirst, const char * afterLast)
+const char * STDCALL UriParserState::ParseIpFutLoop(const char * pFirst, const char * afterLast)
 {
 	if(pFirst >= afterLast) {
 		return StopSyntax(pFirst);
 	}
 	else {
 		switch(*pFirst) {
-			case _UT('!'): case _UT('$'): case _UT('&'): case _UT('('): case _UT(')'):
-			case _UT('-'): case _UT('*'): case _UT(','): case _UT('.'): case _UT(':'):
-			case _UT(';'): case _UT('\''): case _UT('_'): case _UT('~'): case _UT('+'): case _UT('='):
+			case '!': case '$': case '&': case '(': case ')':
+			case '-': case '*': case ',': case '.': case ':':
+			case ';': case '\'': case '_': case '~': case '+': case '=':
 			case URI_SET_DIGIT:
 			case URI_SET_ALPHA: return ParseIpFutStopGo(pFirst+1, afterLast);
 			default: return StopSyntax(pFirst);
@@ -2623,16 +2622,16 @@ const char * FASTCALL UriParserState::ParseIpFutLoop(const char * pFirst, const 
  * [ipFutStopGo]->[ipFutLoop]
  * [ipFutStopGo]-><NULL>
  */
-const char * FASTCALL UriParserState::ParseIpFutStopGo(const char * pFirst, const char * afterLast)
+const char * STDCALL UriParserState::ParseIpFutStopGo(const char * pFirst, const char * afterLast)
 {
 	if(pFirst >= afterLast)
 		return afterLast;
 	else {
 		switch(*pFirst) {
-			case _UT('!'): case _UT('$'): case _UT('&'): case _UT('('): case _UT(')'):
-			case _UT('-'): case _UT('*'): case _UT(','): case _UT('.'): case _UT(':'):
-			case _UT(';'): case _UT('\''): case _UT('_'): case _UT('~'): case _UT('+'):
-			case _UT('='): 
+			case '!': case '$': case '&': case '(': case ')':
+			case '-': case '*': case ',': case '.': case ':':
+			case ';': case '\'': case '_': case '~': case '+':
+			case '=': 
 			case URI_SET_DIGIT:
 			case URI_SET_ALPHA:
 				return ParseIpFutLoop(pFirst, afterLast);
@@ -2644,7 +2643,7 @@ const char * FASTCALL UriParserState::ParseIpFutStopGo(const char * pFirst, cons
 /*
  * [ipFuture]-><v>[HEXDIG][hexZero]<.>[ipFutLoop]
  */
-const char * FASTCALL UriParserState::ParseIpFuture(const char * first, const char * afterLast)
+const char * STDCALL UriParserState::ParseIpFuture(const char * first, const char * afterLast)
 {
 	if(first >= afterLast)
 		return StopSyntax(first);
@@ -2652,7 +2651,7 @@ const char * FASTCALL UriParserState::ParseIpFuture(const char * first, const ch
 	// First character has already been checked before entering this rule.
 	// 
 	// switch(*first) {
-	// case _UT('v'):
+	// case 'v'):
 	// 
 	else if(first+1 >= afterLast)
 		return StopSyntax(first+1);
@@ -2664,7 +2663,7 @@ const char * FASTCALL UriParserState::ParseIpFuture(const char * first, const ch
 				const char * const afterHexZero = ParseHexZero(first+2, afterLast);
 				if(afterHexZero == NULL)
 					return NULL;
-				else if((afterHexZero >= afterLast) ||(*afterHexZero != _UT('.')))
+				else if((afterHexZero >= afterLast) ||(*afterHexZero != '.'))
 					return StopSyntax(afterHexZero);
 				else {
 					P_Uri->HostText.P_First = first; // HOST BEGIN 
@@ -2691,26 +2690,26 @@ const char * FASTCALL UriParserState::ParseIpFuture(const char * first, const ch
  * [ipLit2]->[ipFuture]<]>
  * [ipLit2]->[IPv6address2]
  */
-const char * FASTCALL UriParserState::ParseIpLit2(const char * first, const char * afterLast)
+const char * STDCALL UriParserState::ParseIpLit2(const char * first, const char * afterLast)
 {
 	const char * p_ret = 0;
 	if(first >= afterLast)
 		StopSyntax(first);
 	else {
 		switch(*first) {
-			case _UT('v'):
+			case 'v':
 				{
 					const char * const afterIpFuture = ParseIpFuture(first, afterLast);
 					if(afterIpFuture) {
-						if(afterIpFuture >= afterLast || *afterIpFuture != _UT(']'))
+						if(afterIpFuture >= afterLast || *afterIpFuture != ']')
 							StopSyntax(first);
 						else
 							p_ret = afterIpFuture+1;
 					}
 				}
 				break;
-			case _UT(':'):
-			case _UT(']'):
+			case ':':
+			case ']':
 			case URI_SET_HEXDIG:
 				P_Uri->HostData.ip6 = static_cast<UriUri::UriIp6 *>(SAlloc::M(1*sizeof(UriUri::UriIp6))); // Freed when stopping on parse error 
 				if(!P_Uri->HostData.ip6)
@@ -2728,7 +2727,7 @@ const char * FASTCALL UriParserState::ParseIpLit2(const char * first, const char
 /*
  * [IPv6address2]->..<]>
  */
-const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, const char * afterLast)
+const char * STDCALL UriParserState::ParseIPv6address2(const char * first, const char * afterLast)
 {
 	int    zipperEver = 0;
 	int    quadsDone = 0;
@@ -2750,9 +2749,9 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 						if(digitCount == 4) {
 							return StopSyntax(first);
 						}
-						digitHistory[digitCount++] =static_cast<uchar>(9+*first-_UT('9'));
+						digitHistory[digitCount++] =static_cast<uchar>(9+*first-'9');
 						break;
-				    case _UT('.'):
+				    case '.':
 						if((ip4OctetsDone == 4) || /* NOTE! */ (digitCount == 0) || (digitCount == 4))
 							return StopSyntax(first); // Invalid digit or octet count 
 						else if((digitCount > 1) && (digitHistory[0] == 0))
@@ -2774,7 +2773,7 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 						digitCount = 0;
 						ip4OctetsDone++;
 						break;
-				    case _UT(']'):
+				    case ']':
 						if((ip4OctetsDone != 3) || /* NOTE! */ (digitCount == 0) || (digitCount == 4))
 							return StopSyntax(first); // Invalid digit or octet count 
 						else if((digitCount > 1) && (digitHistory[0] == 0))
@@ -2812,23 +2811,23 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 						letterAmong = 1;
 						if(digitCount == 4)
 							return StopSyntax(first);
-						digitHistory[digitCount] = static_cast<uchar>(15+*first-_UT('f'));
+						digitHistory[digitCount] = static_cast<uchar>(15+*first-'f');
 						digitCount++;
 						break;
 				    case URI_SET_HEX_LETTER_UPPER:
 						letterAmong = 1;
 						if(digitCount == 4)
 							return StopSyntax(first);
-						digitHistory[digitCount] = static_cast<uchar>(15+*first-_UT('F'));
+						digitHistory[digitCount] = static_cast<uchar>(15+*first-'F');
 						digitCount++;
 						break;
 				    case URI_SET_DIGIT:
 						if(digitCount == 4)
 							return StopSyntax(first);
-						digitHistory[digitCount] = static_cast<uchar>(9+*first-_UT('9'));
+						digitHistory[digitCount] = static_cast<uchar>(9+*first-'9');
 						digitCount++;
 						break;
-				    case _UT(':'):
+				    case ':':
 						{
 							int setZipper = 0;
 							if(quadsDone > 8-zipperEver) // Too many quads? 
@@ -2836,7 +2835,7 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 							else if(first+1 >= afterLast) // "::"? 
 								return StopSyntax(first+1);
 							else {
-								if(first[1] == _UT(':')) {
+								if(first[1] == ':') {
 									const int resetOffset = 2*(quadsDone+(digitCount > 0));
 									first++;
 									if(zipperEver)
@@ -2848,7 +2847,7 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 										// ":::+"? 
 										if(first+1 >= afterLast)
 											return StopSyntax(first+1); // No ']' yet 
-										else if(first[1] == _UT(':'))
+										else if(first[1] == ':')
 											return StopSyntax(first+1); // ":::+ "
 									}
 								}
@@ -2870,7 +2869,7 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 							}
 						}
 						break;
-				    case _UT('.'):
+				    case '.':
 						if((quadsDone > 6) || /* NOTE */(!zipperEver &&(quadsDone < 6)) || letterAmong ||(digitCount == 0) ||(digitCount == 4))
 							return StopSyntax(first); // Invalid octet before 
 						else if((digitCount > 1) &&(digitHistory[0] == 0))
@@ -2894,7 +2893,7 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 						ip4OctetsDone = 1;
 						walking = 0;
 						break;
-				    case _UT(']'): // Too little quads? 
+				    case ']': // Too little quads? 
 						if(!zipperEver && !((quadsDone == 7) && (digitCount > 0)))
 							return StopSyntax(first);
 						if(digitCount > 0) {
@@ -2931,7 +2930,7 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
  * [mustBeSegmentNzNc]-></>[segment][zeroMoreSlashSegs][uriTail]
  * [mustBeSegmentNzNc]-><@>[mustBeSegmentNzNc]
  */
-const char * FASTCALL UriParserState::ParseMustBeSegmentNzNc(const char * pFirst, const char * afterLast)
+const char * STDCALL UriParserState::ParseMustBeSegmentNzNc(const char * pFirst, const char * afterLast)
 {
 	if(pFirst >= afterLast) {
 		if(!PushPathSegment(P_Uri->Scheme.P_First, pFirst)) { /* SEGMENT BOTH */
@@ -2945,18 +2944,18 @@ const char * FASTCALL UriParserState::ParseMustBeSegmentNzNc(const char * pFirst
 	}
 	else {
 		switch(*pFirst) {
-			case _UT('%'):
+			case '%':
 				{
 					const char * const afterPctEncoded = ParsePctEncoded(pFirst, afterLast);
 					return afterPctEncoded ? ParseMustBeSegmentNzNc(afterPctEncoded, afterLast) : 0;
 				}
-			case _UT('@'): case _UT('!'): case _UT('$'): case _UT('&'): case _UT('('):
-			case _UT(')'): case _UT('*'): case _UT(','): case _UT(';'): case _UT('\''):
-			case _UT('+'): case _UT('='): case _UT('-'): case _UT('.'): case _UT('_'): case _UT('~'):
+			case '@': case '!': case '$': case '&': case '(':
+			case ')': case '*': case ',': case ';': case '\'':
+			case '+': case '=': case '-': case '.': case '_': case '~':
 			case URI_SET_DIGIT:
 			case URI_SET_ALPHA:
 				return ParseMustBeSegmentNzNc(pFirst+1, afterLast);
-			case _UT('/'):
+			case '/':
 				{
 					const char * afterZeroMoreSlashSegs;
 					const char * afterSegment;
@@ -2996,11 +2995,11 @@ const char * FASTCALL UriParserState::ParseMustBeSegmentNzNc(const char * pFirst
  * [ownHost]-><[>[ipLit2][authorityTwo]
  * [ownHost]->[ownHost2] // can take <NULL>
  */
-const char * FASTCALL UriParserState::ParseOwnHost(const char * pFirst, const char * afterLast)
+const char * STDCALL UriParserState::ParseOwnHost(const char * pFirst, const char * afterLast)
 {
 	if(pFirst >= afterLast)
 		return afterLast;
-	else if(*pFirst == _UT('[')) {
+	else if(*pFirst == '[') {
 		const char * const afterIpLit2 = ParseIpLit2(pFirst+1, afterLast);
 		if(!afterIpLit2)
 			return NULL;
@@ -3033,7 +3032,7 @@ int FASTCALL UriParserState::OnExitOwnHost2(const char * first)
  * [ownHost2]->[authorityTwo] // can take <NULL>
  * [ownHost2]->[pctSubUnres][ownHost2]
  */
-const char * FASTCALL UriParserState::ParseOwnHost2(const char * pFirst, const char * pAfterLast)
+const char * STDCALL UriParserState::ParseOwnHost2(const char * pFirst, const char * pAfterLast)
 {
 	const char * p_ret = 0;
 	if(pFirst >= pAfterLast) {
@@ -3044,9 +3043,9 @@ const char * FASTCALL UriParserState::ParseOwnHost2(const char * pFirst, const c
 	}
 	else {
 		switch(*pFirst) {
-			case _UT('!'): case _UT('$'): case _UT('%'): case _UT('&'): case _UT('('):
-			case _UT(')'): case _UT('-'): case _UT('*'): case _UT(','): case _UT('.'):
-			case _UT(';'): case _UT('\''): case _UT('_'): case _UT('~'): case _UT('+'): case _UT('='):
+			case '!': case '$': case '%': case '&': case '(':
+			case ')': case '-': case '*': case ',': case '.':
+			case ';': case '\'': case '_': case '~': case '+': case '=':
 			case URI_SET_DIGIT:
 			case URI_SET_ALPHA:
 				{
@@ -3087,7 +3086,7 @@ int FASTCALL UriParserState::OnExitOwnHostUserInfo(const char * first)
  * [ownHostUserInfo]->[ownHostUserInfoNz]
  * [ownHostUserInfo]-><NULL>
  */
-const char * FASTCALL UriParserState::ParseOwnHostUserInfo(const char * first, const char * afterLast)
+const char * STDCALL UriParserState::ParseOwnHostUserInfo(const char * first, const char * afterLast)
 {
 	const char * p_ret = 0;
 	if(first >= afterLast) {
@@ -3098,10 +3097,10 @@ const char * FASTCALL UriParserState::ParseOwnHostUserInfo(const char * first, c
 	}
 	else {
 		switch(*first) {
-			case _UT('!'): case _UT('$'): case _UT('%'): case _UT('&'): case _UT('('):
-			case _UT(')'): case _UT('-'): case _UT('*'): case _UT(','): case _UT('.'):
-			case _UT(':'): case _UT(';'): case _UT('@'): case _UT('\''): case _UT('_'):
-			case _UT('~'): case _UT('+'): case _UT('='):
+			case '!': case '$': case '%': case '&': case '(':
+			case ')': case '-': case '*': case ',': case '.':
+			case ':': case ';': case '@': case '\'': case '_':
+			case '~': case '+': case '=':
 			case URI_SET_DIGIT:
 			case URI_SET_ALPHA:
 				p_ret = ParseOwnHostUserInfoNz(first, afterLast);
@@ -3121,16 +3120,16 @@ const char * FASTCALL UriParserState::ParseOwnHostUserInfo(const char * first, c
  * [ownHostUserInfoNz]-><:>[ownPortUserInfo]
  * [ownHostUserInfoNz]-><@>[ownHost]
  */
-const char * FASTCALL UriParserState::ParseOwnHostUserInfoNz(const char * first, const char * afterLast)
+const char * STDCALL UriParserState::ParseOwnHostUserInfoNz(const char * first, const char * afterLast)
 {
 	const char * p_ret = 0;
 	if(first >= afterLast)
 		StopSyntax(first);
 	else {
 		switch(*first) {
-			case _UT('!'): case _UT('$'): case _UT('%'): case _UT('&'): case _UT('('):
-			case _UT(')'): case _UT('-'): case _UT('*'): case _UT(','): case _UT('.'):
-			case _UT(';'): case _UT('\''): case _UT('_'): case _UT('~'): case _UT('+'): case _UT('='):
+			case '!': case '$': case '%': case '&': case '(':
+			case ')': case '-': case '*': case ',': case '.':
+			case ';': case '\'': case '_': case '~': case '+': case '=':
 			case URI_SET_DIGIT:
 			case URI_SET_ALPHA:
 				{
@@ -3138,12 +3137,12 @@ const char * FASTCALL UriParserState::ParseOwnHostUserInfoNz(const char * first,
 					p_ret = afterPctSubUnres ? ParseOwnHostUserInfo(afterPctSubUnres, afterLast) : 0;
 				}
 				break;
-			case _UT(':'):
+			case ':':
 				P_Uri->HostText.P_AfterLast = first; /* HOST END */
 				P_Uri->PortText.P_First = first+1; /* PORT BEGIN */
 				p_ret = ParseOwnPortUserInfo(first+1, afterLast);
 				break;
-			case _UT('@'):
+			case '@':
 				P_Uri->UserInfo.P_AfterLast = first; /* USERINFO END */
 				P_Uri->HostText.P_First = first+1; /* HOST BEGIN */
 				p_ret = ParseOwnHost(first+1, afterLast);
@@ -3182,7 +3181,7 @@ int FASTCALL UriParserState::OnExitOwnPortUserInfo(const char * pFirst)
  * [ownPortUserInfo]-><@>[ownHost]
  * [ownPortUserInfo]-><NULL>
  */
-const char * FASTCALL UriParserState::ParseOwnPortUserInfo(const char * pFirst, const char * afterLast)
+const char * STDCALL UriParserState::ParseOwnPortUserInfo(const char * pFirst, const char * afterLast)
 {
 	const char * p_ret = 0;
 	if(pFirst >= afterLast) {
@@ -3193,7 +3192,7 @@ const char * FASTCALL UriParserState::ParseOwnPortUserInfo(const char * pFirst, 
 	}
 	else {
 		switch(*pFirst) {
-			case _UT('.'): case _UT('_'): case _UT('~'): case _UT('-'): case URI_SET_ALPHA:
+			case '.': case '_': case '~': case '-': case URI_SET_ALPHA:
 				P_Uri->HostText.P_AfterLast = NULL; // Not a host, reset 
 				P_Uri->PortText.P_First = NULL; // Not a port, reset 
 				p_ret = ParseOwnUserInfo(pFirst+1, afterLast);
@@ -3201,7 +3200,7 @@ const char * FASTCALL UriParserState::ParseOwnPortUserInfo(const char * pFirst, 
 			case URI_SET_DIGIT:
 				p_ret = ParseOwnPortUserInfo(pFirst+1, afterLast); // @recursion
 				break;
-			case _UT('@'):
+			case '@':
 				P_Uri->HostText.P_AfterLast = NULL; // Not a host, reset 
 				P_Uri->PortText.P_First = NULL; // Not a port, reset 
 				P_Uri->UserInfo.P_AfterLast = pFirst; // USERINFO END 
@@ -3223,16 +3222,16 @@ const char * FASTCALL UriParserState::ParseOwnPortUserInfo(const char * pFirst, 
  * [ownUserInfo]-><:>[ownUserInfo]
  * [ownUserInfo]-><@>[ownHost]
  */
-const char * FASTCALL UriParserState::ParseOwnUserInfo(const char * pFirst, const char * pAfterLast)
+const char * STDCALL UriParserState::ParseOwnUserInfo(const char * pFirst, const char * pAfterLast)
 {
 	const char * p_ret = 0;
 	if(pFirst >= pAfterLast)
 		StopSyntax(pFirst);
 	else {
 		switch(*pFirst) {
-			case _UT('!'): case _UT('$'): case _UT('%'): case _UT('&'): case _UT('('):
-			case _UT(')'): case _UT('-'): case _UT('*'): case _UT(','): case _UT('.'):
-			case _UT(';'): case _UT('\''): case _UT('_'): case _UT('~'): case _UT('+'): case _UT('='):
+			case '!': case '$': case '%': case '&': case '(':
+			case ')': case '-': case '*': case ',': case '.':
+			case ';': case '\'': case '_': case '~': case '+': case '=':
 			case URI_SET_DIGIT:
 			case URI_SET_ALPHA:
 				{
@@ -3240,10 +3239,10 @@ const char * FASTCALL UriParserState::ParseOwnUserInfo(const char * pFirst, cons
 					p_ret = after_pct_sub_unres ? ParseOwnUserInfo(after_pct_sub_unres, pAfterLast) : 0; // @recursion
 				}
 				break;
-			case _UT(':'):
+			case ':':
 				p_ret = ParseOwnUserInfo(pFirst+1, pAfterLast); // @recursion
 				break;
-			case _UT('@'): // SURE 
+			case '@': // SURE 
 				P_Uri->UserInfo.P_AfterLast = pFirst; /* USERINFO END */
 				P_Uri->HostText.P_First = pFirst+1; /* HOST BEGIN */
 				p_ret = ParseOwnHost(pFirst+1, pAfterLast);
@@ -3264,14 +3263,14 @@ const char * FASTCALL UriParserState::ParseOwnUserInfo(const char * pFirst, cons
  * [partHelperTwo]->[pathAbsNoLeadSlash] // can take <NULL>
  * [partHelperTwo]-></>[authority][pathAbsEmpty]
  */
-const char * FASTCALL UriParserState::ParsePartHelperTwo(const char * pFirst, const char * pAfterLast)
+const char * STDCALL UriParserState::ParsePartHelperTwo(const char * pFirst, const char * pAfterLast)
 {
 	const char * p_ret = 0;
 	if(pFirst >= pAfterLast) {
 		P_Uri->IsAbsolutePath = TRUE; //UriOnExitPartHelperTwo(this);
 		p_ret = pAfterLast;
 	}
-	else if(*pFirst == _UT('/')) {
+	else if(*pFirst == '/') {
 		const char * const p_after_authority = ParseAuthority(pFirst+1, pAfterLast);
 		if(p_after_authority) {
 			p_ret = ParsePathAbsEmpty(p_after_authority, pAfterLast);
@@ -3288,12 +3287,12 @@ const char * FASTCALL UriParserState::ParsePartHelperTwo(const char * pFirst, co
 // [pathAbsEmpty]-></>[segment][pathAbsEmpty]
 // [pathAbsEmpty]-><NULL>
 // 
-const char * FASTCALL UriParserState::ParsePathAbsEmpty(const char * pFirst, const char * pAfterLast)
+const char * STDCALL UriParserState::ParsePathAbsEmpty(const char * pFirst, const char * pAfterLast)
 {
 	const char * p_ret = 0;
 	if(pFirst >= pAfterLast)
 		p_ret = pAfterLast;
-	else if(*pFirst == _UT('/')) {
+	else if(*pFirst == '/') {
 		const char * const p_after_segment = ParseSegment(pFirst+1, pAfterLast);
 		if(p_after_segment) {
 			if(!PushPathSegment(pFirst+1, p_after_segment)) // SEGMENT BOTH
@@ -3310,17 +3309,17 @@ const char * FASTCALL UriParserState::ParsePathAbsEmpty(const char * pFirst, con
  * [pathAbsNoLeadSlash]->[segmentNz][zeroMoreSlashSegs]
  * [pathAbsNoLeadSlash]-><NULL>
  */
-const char * FASTCALL UriParserState::ParsePathAbsNoLeadSlash(const char * pFirst, const char * pAfterLast)
+const char * STDCALL UriParserState::ParsePathAbsNoLeadSlash(const char * pFirst, const char * pAfterLast)
 {
 	const char * p_ret = 0;
 	if(pFirst >= pAfterLast)
 		p_ret = pAfterLast;
 	else {
 		switch(*pFirst) {
-			case _UT('!'): case _UT('$'): case _UT('%'): case _UT('&'): case _UT('('):
-			case _UT(')'): case _UT('-'): case _UT('*'): case _UT(','): case _UT('.'):
-			case _UT(':'): case _UT(';'): case _UT('@'): case _UT('\''): case _UT('_'):
-			case _UT('~'): case _UT('+'): case _UT('='):
+			case '!': case '$': case '%': case '&': case '(':
+			case ')': case '-': case '*': case ',': case '.':
+			case ':': case ';': case '@': case '\'': case '_':
+			case '~': case '+': case '=':
 			case URI_SET_DIGIT:
 			case URI_SET_ALPHA:
 				/* @v11.1.11 {
@@ -3344,7 +3343,7 @@ const char * FASTCALL UriParserState::ParsePathAbsNoLeadSlash(const char * pFirs
 // 
 // [pathRootless]->[segmentNz][zeroMoreSlashSegs]
 // 
-const char * FASTCALL UriParserState::ParsePathRootless(const char * pFirst, const char * pAfterLast)
+const char * STDCALL UriParserState::ParsePathRootless(const char * pFirst, const char * pAfterLast)
 {
 	const char * p_result = 0;
 	const char * const p_after_segment_nz = ParseSegmentNz(pFirst, pAfterLast);
@@ -3363,20 +3362,20 @@ const char * FASTCALL UriParserState::ParsePathRootless(const char * pFirst, con
  * [pchar]-><:>
  * [pchar]-><@>
  */
-const char * FASTCALL UriParserState::ParsePchar(const char * first, const char * afterLast)
+const char * STDCALL UriParserState::ParsePchar(const char * first, const char * afterLast)
 {
 	const char * p_ret = 0;
 	if(first >= afterLast)
 		StopSyntax(first);
 	else {
 		switch(*first) {
-			case _UT('%'):
+			case '%':
 				p_ret = ParsePctEncoded(first, afterLast);
 				break;
-			case _UT(':'): case _UT('@'): case _UT('!'): case _UT('$'): case _UT('&'):
-			case _UT('('): case _UT(')'): case _UT('*'): case _UT(','): case _UT(';'):
-			case _UT('\''): case _UT('+'): case _UT('='): case _UT('-'): case _UT('.'):
-			case _UT('_'): case _UT('~'):
+			case ':': case '@': case '!': case '$': case '&':
+			case '(': case ')': case '*': case ',': case ';':
+			case '\'': case '+': case '=': case '-': case '.':
+			case '_': case '~':
 			case URI_SET_DIGIT:
 			case URI_SET_ALPHA:
 				p_ret = first+1;
@@ -3394,14 +3393,14 @@ const char * FASTCALL UriParserState::ParsePchar(const char * first, const char 
 /*
  * [pctEncoded]-><%>[HEXDIG][HEXDIG]
  */
-const char * FASTCALL UriParserState::ParsePctEncoded(const char * pFirst, const char * afterLast)
+const char * STDCALL UriParserState::ParsePctEncoded(const char * pFirst, const char * afterLast)
 {
 	if(pFirst >= afterLast)
 		return StopSyntax(pFirst);
 	// 
 	// First character has already been checked before entering this rule.
 	// switch(*first) {
-	//   case _UT('%'):
+	//   case '%':
 	// 
 	else if(pFirst+1 >= afterLast)
 		return StopSyntax(pFirst+1);
@@ -3429,16 +3428,16 @@ const char * FASTCALL UriParserState::ParsePctEncoded(const char * pFirst, const
  * [pctSubUnres]->[subDelims]
  * [pctSubUnres]->[unreserved]
  */
-const char * FASTCALL UriParserState::ParsePctSubUnres(const char * first, const char * afterLast)
+const char * STDCALL UriParserState::ParsePctSubUnres(const char * first, const char * afterLast)
 {
 	if(first >= afterLast)
 		return StopSyntax(first);
 	else {
 		switch(*first) {
-			case _UT('%'): return ParsePctEncoded(first, afterLast);
-			case _UT('!'): case _UT('$'): case _UT('&'): case _UT('('): case _UT(')'):
-			case _UT('*'): case _UT(','): case _UT(';'): case _UT('\''): case _UT('+'):
-			case _UT('='): case _UT('-'): case _UT('.'): case _UT('_'): case _UT('~'):
+			case '%': return ParsePctEncoded(first, afterLast);
+			case '!': case '$': case '&': case '(': case ')':
+			case '*': case ',': case ';': case '\'': case '+':
+			case '=': case '-': case '.': case '_': case '~':
 			case URI_SET_DIGIT:
 			case URI_SET_ALPHA: return first+1;
 			default: return StopSyntax(first);
@@ -3449,7 +3448,7 @@ const char * FASTCALL UriParserState::ParsePctSubUnres(const char * first, const
  * [port]->[DIGIT][port]
  * [port]-><NULL>
  */
-const char * FASTCALL UriParserState::ParsePort(const char * first, const char * afterLast)
+const char * STDCALL UriParserState::ParsePort(const char * first, const char * afterLast)
 {
 	if(first >= afterLast)
 		return afterLast;
@@ -3464,7 +3463,7 @@ const char * FASTCALL UriParserState::ParsePort(const char * first, const char *
  * [queryFrag]-><?>[queryFrag]
  * [queryFrag]-><NULL>
  */
-const char * FASTCALL UriParserState::ParseQueryFrag(const char * first, const char * afterLast)
+const char * STDCALL UriParserState::ParseQueryFrag(const char * first, const char * afterLast)
 {
 	const char * p_ret = 0;
 	if(first >= afterLast) {
@@ -3472,10 +3471,10 @@ const char * FASTCALL UriParserState::ParseQueryFrag(const char * first, const c
 	}
 	else {
 		switch(*first) {
-			case _UT('!'): case _UT('$'): case _UT('%'): case _UT('&'): case _UT('('):
-			case _UT(')'): case _UT('-'): case _UT('*'): case _UT(','): case _UT('.'):
-			case _UT(':'): case _UT(';'): case _UT('@'): case _UT('\''): case _UT('_'):
-			case _UT('~'): case _UT('+'): case _UT('='):
+			case '!': case '$': case '%': case '&': case '(':
+			case ')': case '-': case '*': case ',': case '.':
+			case ':': case ';': case '@': case '\'': case '_':
+			case '~': case '+': case '=':
 			case URI_SET_DIGIT:
 			case URI_SET_ALPHA:
 				{
@@ -3483,8 +3482,8 @@ const char * FASTCALL UriParserState::ParseQueryFrag(const char * first, const c
 					p_ret = afterPchar ? ParseQueryFrag(afterPchar, afterLast) : 0; // @recursion
 				}
 				break;
-			case _UT('/'):
-			case _UT('?'):
+			case '/':
+			case '?':
 				p_ret = ParseQueryFrag(first+1, afterLast); // @recursion
 				break;
 			default:
@@ -3498,17 +3497,17 @@ const char * FASTCALL UriParserState::ParseQueryFrag(const char * first, const c
  * [segment]->[pchar][segment]
  * [segment]-><NULL>
  */
-const char * FASTCALL UriParserState::ParseSegment(const char * first, const char * afterLast)
+const char * STDCALL UriParserState::ParseSegment(const char * first, const char * afterLast)
 {
 	const char * p_ret = 0;
 	if(first >= afterLast)
 		p_ret = afterLast;
 	else {
 		switch(*first) {
-			case _UT('!'): case _UT('$'): case _UT('%'): case _UT('&'): case _UT('('):
-			case _UT(')'): case _UT('-'): case _UT('*'): case _UT(','): case _UT('.'):
-			case _UT(':'): case _UT(';'): case _UT('@'): case _UT('\''): case _UT('_'):
-			case _UT('~'): case _UT('+'): case _UT('='):
+			case '!': case '$': case '%': case '&': case '(':
+			case ')': case '-': case '*': case ',': case '.':
+			case ':': case ';': case '@': case '\'': case '_':
+			case '~': case '+': case '=':
 			case URI_SET_DIGIT:
 			case URI_SET_ALPHA:
 				{
@@ -3531,7 +3530,7 @@ const char * FASTCALL UriParserState::ParseSegment(const char * first, const cha
 /*
  * [segmentNz]->[pchar][segment]
  */
-const char * FASTCALL UriParserState::ParseSegmentNz(const char * first, const char * afterLast)
+const char * STDCALL UriParserState::ParseSegmentNz(const char * first, const char * afterLast)
 {
 	const char * const afterPchar = ParsePchar(first, afterLast);
 	return afterPchar ? ParseSegment(afterPchar, afterLast) : 0;
@@ -3570,7 +3569,7 @@ int FASTCALL UriParserState::OnExitSegmentNzNcOrScheme2(const char * first)
  * [segmentNzNcOrScheme2]-><'>[mustBeSegmentNzNc]
  * [segmentNzNcOrScheme2]-><->[segmentNzNcOrScheme2]
  */
-const char * UriParserState::ParseSegmentNzNcOrScheme2(const char * pFirst, const char * afterLast)
+const char * STDCALL UriParserState::ParseSegmentNzNcOrScheme2(const char * pFirst, const char * afterLast)
 {
 	if(pFirst >= afterLast) {
 		if(!OnExitSegmentNzNcOrScheme2(pFirst)) {
@@ -3581,22 +3580,22 @@ const char * UriParserState::ParseSegmentNzNcOrScheme2(const char * pFirst, cons
 			return afterLast;
 	}
 	switch(*pFirst) {
-	    case _UT('.'):
-	    case _UT('+'):
-	    case _UT('-'):
+	    case '.':
+	    case '+':
+	    case '-':
 	    case URI_SET_ALPHA:
 	    case URI_SET_DIGIT:
 			return ParseSegmentNzNcOrScheme2(pFirst+1, afterLast); // @recursion
-	    case _UT('%'):
+	    case '%':
 	    {
 		    const char * const afterPctEncoded = ParsePctEncoded(pFirst, afterLast);
 			return afterPctEncoded ? ParseMustBeSegmentNzNc(afterPctEncoded, afterLast) : 0;
 	    }
-	    case _UT('!'): case _UT('$'): case _UT('&'): case _UT('('): case _UT(')'):
-	    case _UT('*'): case _UT(','): case _UT(';'): case _UT('@'): case _UT('_'):
-	    case _UT('~'): case _UT('='): case _UT('\''):
+	    case '!': case '$': case '&': case '(': case ')':
+	    case '*': case ',': case ';': case '@': case '_':
+	    case '~': case '=': case '\'':
 			return ParseMustBeSegmentNzNc(pFirst+1, afterLast);
-	    case _UT('/'):
+	    case '/':
 	    {
 		    const char * const p_after_segment = ParseSegment(pFirst+1, afterLast);
 		    if(!p_after_segment)
@@ -3617,7 +3616,7 @@ const char * UriParserState::ParseSegmentNzNcOrScheme2(const char * pFirst, cons
 				}
 			}
 	    }
-	    case _UT(':'):
+	    case ':':
 	    {
 		    const char * const p_after_hier_part = ParseHierPart(pFirst+1, afterLast);
 		    P_Uri->Scheme.P_AfterLast = pFirst; // SCHEME END 
@@ -3646,7 +3645,7 @@ const char * UriParserState::ParseSegmentNzNcOrScheme2(const char * pFirst, cons
  * [uriReference]-><->[mustBeSegmentNzNc]
  */
 //static const char * UriParseUriReference(UriParserState * state, const char * first, const char * afterLast)
-const char * FASTCALL UriParserState::ParseUriReference(const char * first, const char * afterLast)
+const char * STDCALL UriParserState::ParseUriReference(const char * first, const char * afterLast)
 {
 	const char * p_ret = 0;
 	if(first >= afterLast)
@@ -3658,13 +3657,13 @@ const char * FASTCALL UriParserState::ParseUriReference(const char * first, cons
 				p_ret = ParseSegmentNzNcOrScheme2(first+1, afterLast);
 				break;
 			case URI_SET_DIGIT:
-			case _UT('!'): case _UT('$'): case _UT('&'): case _UT('('):  case _UT(')'):
-			case _UT('*'): case _UT(','): case _UT(';'): case _UT('\''): case _UT('+'):
-			case _UT('='): case _UT('.'): case _UT('_'): case _UT('~'):  case _UT('-'): case _UT('@'):
+			case '!': case '$': case '&': case '(':  case ')':
+			case '*': case ',': case ';': case '\'': case '+':
+			case '=': case '.': case '_': case '~':  case '-': case '@':
 				P_Uri->Scheme.P_First = first; // SEGMENT BEGIN, ABUSE SCHEME POINTER 
 				p_ret = ParseMustBeSegmentNzNc(first+1, afterLast);
 				break;
-			case _UT('%'):
+			case '%':
 				{
 					const char * const afterPctEncoded = ParsePctEncoded(first, afterLast);
 					if(afterPctEncoded) {
@@ -3673,7 +3672,7 @@ const char * FASTCALL UriParserState::ParseUriReference(const char * first, cons
 					}
 				}
 				break;
-			case _UT('/'):
+			case '/':
 				{
 					const char * const p_after_part_helper_two = ParsePartHelperTwo(first+1, afterLast);
 					p_ret = p_after_part_helper_two ? ParseUriTail(p_after_part_helper_two, afterLast) : 0;
@@ -3691,12 +3690,12 @@ const char * FASTCALL UriParserState::ParseUriReference(const char * first, cons
  * [uriTail]-><?>[queryFrag][uriTailTwo]
  * [uriTail]-><NULL>
  */
-const char * FASTCALL UriParserState::ParseUriTail(const char * pFirst, const char * pAfterLast)
+const char * STDCALL UriParserState::ParseUriTail(const char * pFirst, const char * pAfterLast)
 {
 	const char * p_ret = 0;
 	if(pFirst >= pAfterLast)
 		p_ret = pAfterLast;
-	else if(*pFirst == _UT('#')) {
+	else if(*pFirst == '#') {
 		const char * const p_after_query_frag = ParseQueryFrag(pFirst+1, pAfterLast);
 		if(p_after_query_frag) {
 			P_Uri->fragment.P_First = pFirst+1; // FRAGMENT BEGIN 
@@ -3704,7 +3703,7 @@ const char * FASTCALL UriParserState::ParseUriTail(const char * pFirst, const ch
 			p_ret = p_after_query_frag;
 		}
 	}
-	else if(*pFirst == _UT('?')) {
+	else if(*pFirst == '?') {
 		const char * const p_after_query_frag = ParseQueryFrag(pFirst+1, pAfterLast);
 		if(p_after_query_frag) {
 			P_Uri->query.P_First = pFirst+1; // QUERY BEGIN 
@@ -3720,11 +3719,11 @@ const char * FASTCALL UriParserState::ParseUriTail(const char * pFirst, const ch
  * [uriTailTwo]-><#>[queryFrag]
  * [uriTailTwo]-><NULL>
  */
-const char * FASTCALL UriParserState::ParseUriTailTwo(const char * first, const char * pAfterLast)
+const char * STDCALL UriParserState::ParseUriTailTwo(const char * first, const char * pAfterLast)
 {
 	if(first >= pAfterLast)
 		return pAfterLast;
-	else if(*first == _UT('#')) {
+	else if(*first == '#') {
 		const char * const p_after_query_frag = ParseQueryFrag(first+1, pAfterLast);
 		if(p_after_query_frag) {
 			P_Uri->fragment.P_First = first+1; // FRAGMENT BEGIN 
@@ -3739,12 +3738,12 @@ const char * FASTCALL UriParserState::ParseUriTailTwo(const char * first, const 
  * [zeroMoreSlashSegs]-></>[segment][zeroMoreSlashSegs]
  * [zeroMoreSlashSegs]-><NULL>
  */
-const char * FASTCALL UriParserState::ParseZeroMoreSlashSegs(const char * first, const char * afterLast)
+const char * STDCALL UriParserState::ParseZeroMoreSlashSegs(const char * first, const char * afterLast)
 {
 	const char * p_ret = 0;
 	if(first >= afterLast)
 		p_ret = afterLast;
-	else if(*first == _UT('/')) {
+	else if(*first == '/') {
 		const char * const after_segment = ParseSegment(first+1, afterLast);
 		if(after_segment)
 			if(!PushPathSegment(first+1, after_segment)) // SEGMENT BOTH 
@@ -3757,7 +3756,7 @@ const char * FASTCALL UriParserState::ParseZeroMoreSlashSegs(const char * first,
 	return p_ret;
 }
 
-int FASTCALL UriParserState::ParseUriEx(const char * pFirst, const char * pAfterLast)
+int STDCALL UriParserState::ParseUriEx(const char * pFirst, const char * pAfterLast)
 {
 	int    ok = 1;
 	// Check params 

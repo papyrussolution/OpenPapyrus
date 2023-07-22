@@ -133,49 +133,49 @@ int WriteQuotedString(const char * pInBuf, size_t inBufLen, uint flags, SString 
 				case 0: break;
 				case '\a': 
 					if(_esc_or_dblq)
-						rBuf.CatChar('\\').CatChar('a'); 
+						rBuf.BSlash().CatChar('a'); 
 					else
 						rBuf.CatChar(c);
 					break;
 				case '\b': 
 					if(_esc_or_dblq)
-						rBuf.CatChar('\\').CatChar('b'); 
+						rBuf.BSlash().CatChar('b'); 
 					else
 						rBuf.CatChar(c);
 					break;
 				case '\f': 
 					if(_esc_or_dblq)
-						rBuf.CatChar('\\').CatChar('f'); 
+						rBuf.BSlash().CatChar('f'); 
 					else
 						rBuf.CatChar(c);
 					break;
 				case '\n': 
 					if(_esc_or_dblq)
-						rBuf.CatChar('\\').CatChar('n'); 
+						rBuf.BSlash().CatChar('n'); 
 					else
 						rBuf.CatChar(c);
 					break;
 				case '\r': 
 					if(_esc_or_dblq)
-						rBuf.CatChar('\\').CatChar('r'); 
+						rBuf.BSlash().CatChar('r'); 
 					else
 						rBuf.CatChar(c);
 					break;
 				case '\t': 
 					if(_esc_or_dblq)
-						rBuf.CatChar('\\').CatChar('t'); 
+						rBuf.BSlash().CatChar('t'); 
 					else
 						rBuf.CatChar(c);
 					break;
 				case '\v': 
 					if(_esc_or_dblq)
-						rBuf.CatChar('\\').CatChar('v'); 
+						rBuf.BSlash().CatChar('v'); 
 					else
 						rBuf.CatChar(c);
 					break;
 				case '\"': 
 					if(_escape)
-						rBuf.CatChar('\\').CatChar('\"'); 
+						rBuf.BSlash().CatChar('\"'); 
 					else if(_dblq)
 						rBuf.CatChar('\"').CatChar('\"');
 					else {
@@ -185,7 +185,7 @@ int WriteQuotedString(const char * pInBuf, size_t inBufLen, uint flags, SString 
 					break;
 				case '\'': 
 					if(_esc_or_dblq)
-						rBuf.CatChar('\\').CatChar('\''); 
+						rBuf.BSlash().CatChar('\''); 
 					else
 						rBuf.CatChar(c);
 					break;
@@ -1083,6 +1083,8 @@ SString & SString::Dot()     { return CatChar('.');  }
 SString & SString::Comma()   { return CatChar(',');  }
 SString & SString::Semicol() { return CatChar(';');  }
 SString & SString::Colon()   { return CatChar(':');  } 
+SString & SString::Slash()   { return CatChar('/');  } 
+SString & SString::BSlash()  { return CatChar('\\'); } 
 SString & SString::Eq()      { return CatChar('=');  }
 SString & SString::CR()      { return CatChar('\n'); }
 SString & SString::CRB()     { return CatChar('\x0D').CatChar('\x0A'); }
@@ -3060,10 +3062,10 @@ SString & SString::CatTagBrace(const char * pTag, int kind)
 {
 	CatChar('<');
 	if(kind == 1)
-		CatChar('/');
+		Slash();
 	Cat(pTag);
 	if(kind == 2)
-		CatChar('/');
+		Slash();
 	CatChar('>');
 	return *this;
 }
@@ -3672,10 +3674,10 @@ SString & SString::SetLastDSlash()
 	if(last) {
 		if(last == '\\') {
 			TrimRight();
-			CatChar('/');
+			Slash();
 		}
 		else if(last != '/')
-			CatChar('/');
+			Slash();
 	}
 	return *this;
 }
@@ -3684,7 +3686,7 @@ SString & SString::SetLastSlash()
 {
 	char   last = static_cast<char>(Last());
 	if(last && !isdirslash(last))
-		CatChar('\\');
+		BSlash();
 	return *this;
 }
 
@@ -4856,7 +4858,8 @@ SStringU & SStringU::ToUpper()
 {
 	if(P_Buf && L > 1) {
 		for(size_t i = 0; i < (L-1); i++) {
-			P_Buf[i] = UToUpperCase(P_Buf[i]);
+			const wchar_t c = P_Buf[i];
+			P_Buf[i] = (c < 0x80) ? stoupper_ascii(c) : UToUpperCase(c);
 		}
 	}
 	return *this;
@@ -4866,7 +4869,8 @@ SStringU & SStringU::ToLower()
 {
 	if(P_Buf) {
 		for(size_t i = 0; i < (L-1); i++) {
-			P_Buf[i] = UToLowerCase(P_Buf[i]);
+			const wchar_t c = P_Buf[i];
+			P_Buf[i] = (c < 0x80) ? stolower_ascii(c) : UToLowerCase(c);
 		}
 	}
 	return *this;
@@ -4951,10 +4955,24 @@ SPathStruc::SPathStruc() : Flags(0)
 {
 }
 
+SPathStruc::SPathStruc(const SPathStruc & rS) : Drv(rS.Drv), Dir(rS.Dir), Nam(rS.Nam), Ext(rS.Ext), Flags(rS.Flags)
+{
+}
+
 SPathStruc::SPathStruc(const char * pPath) : Flags(0)
 {
 	if(!isempty(pPath))
 		Split(pPath);
+}
+
+SPathStruc & FASTCALL SPathStruc::operator = (const SPathStruc & rS)
+{
+	Flags = rS.Flags;
+	Drv = rS.Drv;
+	Dir = rS.Dir;
+	Nam = rS.Nam;
+	Ext = rS.Ext;
+	return *this;
 }
 
 SPathStruc & SPathStruc::Copy(const SPathStruc * pS, long flags)
@@ -4998,6 +5016,40 @@ SPathStruc & SPathStruc::Z()
 	return *this;
 }
 
+bool SPathStruc::IsEq(const SPathStruc & rS, bool caseSensitive/*= false*/) const
+{
+	bool   eq = true;
+	if(Flags != rS.Flags)
+		eq = false;
+	else {
+		if(caseSensitive) {
+			if(Drv != rS.Drv)
+				eq = false;
+			else if(Dir != rS.Dir)
+				eq = false;
+			else if(Nam != rS.Nam)
+				eq = false;
+			else if(Ext != rS.Ext)
+				eq = false;
+		}
+		else {
+			// @todo Нечувствительное к регистру сравнение осуществляется в предположении,
+			// что все символы представлены в ansii-кодах (до 127 включительно).
+			// Это - не верно! Надо понять в какой кодировке представлены строки и 
+			// сравнение проводить в применении к этой кодировке.
+			if(!Drv.IsEqiAscii(rS.Drv))
+				eq = false;
+			else if(!Dir.IsEqiAscii(rS.Dir))
+				eq = false;
+			else if(!Nam.IsEqiAscii(rS.Nam))
+				eq = false;
+			else if(!Ext.IsEqiAscii(rS.Ext))
+				eq = false;
+		}
+	}
+	return eq;
+}
+
 int SPathStruc::Merge(const SPathStruc * pPattern, long patternFlags, SString & rBuf)
 {
 	return Copy(pPattern, patternFlags).Merge(rBuf);
@@ -5008,7 +5060,7 @@ int FASTCALL SPathStruc::Merge(SString & rBuf) const
 	rBuf.Z();
 	if(Flags & fUNC)
 		rBuf.CatCharN('\\', 2);
-	int    last = Drv.Last();
+	char last = Drv.Last();
 	if(last) {
 		rBuf.Cat(Drv);
 		if(!(Flags & fUNC) && last != ':')
@@ -5017,8 +5069,8 @@ int FASTCALL SPathStruc::Merge(SString & rBuf) const
 	last = Dir.Last();
 	if(last) {
 		rBuf.Cat(Dir);
-		if(last != '\\' && last != '/')
-			rBuf.CatChar('\\');
+		if(!isdirslash(last))
+			rBuf.BSlash();
 	}
 	rBuf.Cat(Nam);
 	if(Ext.NotEmpty()) {
@@ -5032,7 +5084,7 @@ int FASTCALL SPathStruc::Merge(SString & rBuf) const
 int SPathStruc::Merge(long mergeFlags, SString & rBuf) const
 {
 	rBuf.Z();
-	int    last = 0;
+	char   last = 0;
 	if(!mergeFlags || mergeFlags & fDrv) {
 		if(Flags & fUNC)
 			rBuf.CatCharN('\\', 2);
@@ -5047,8 +5099,8 @@ int SPathStruc::Merge(long mergeFlags, SString & rBuf) const
 		last = Dir.Last();
 		if(last) {
 			rBuf.Cat(Dir);
-			if(last != '\\' && last != '/')
-				rBuf.CatChar('\\');
+			if(!isdirslash(last))
+				rBuf.BSlash();
 		}
 	}
 	if(!mergeFlags || mergeFlags & fNam)
@@ -5146,13 +5198,19 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 	}
 }
 
+/*static*/bool SPathStruc::IsWindowsPathPrefix(const char * pText)
+{
+	//#define IS_WINDOWS_PATH(p) ((p) && (((p[0] >= 'a') && (p[0] <= 'z')) || ((p[0] >= 'A') && (p[0] <= 'Z'))) && (p[1] == ':') && ((p[2] == '/') || (p[2] == '\\')))
+	return (pText && isasciialpha(pText[0]) && pText[1] == ':' && isdirslash(pText[2]));
+}
+
 /*static*/uint SPathStruc::GetExt(const SString & rPath, SString * pExt)
 {
 	ASSIGN_PTR(pExt, 0);
 	size_t p = rPath.Len();
 	while(p) {
 		const char _c = rPath.C(--p);
-		if(oneof2(_c, '/', '\\')) {
+		if(isdirslash(_c)) {
 			p = 0;
 			break;
 		}
@@ -7353,7 +7411,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
                 if(!ul)
 					h &= ~SNTOKSEQ_UTF8;
 				uint  pos = 0;
-				if(rIb.ChrList.Search(static_cast<long>(c), 0, &pos))
+				if(rIb.ChrList.Search(static_cast<long>(c), &pos))
 					rIb.ChrList.at(pos).Val++;
 				else
 					rIb.ChrList.Add(static_cast<long>(c), 1, 0);
@@ -7607,7 +7665,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						h &= ~tf;
 					else {
 						uint   comma_chr_pos = 0;
-						const  uint comma_count = rIb.ChrList.Search(static_cast<long>(','), 0, &comma_chr_pos) ? rIb.ChrList.at(comma_chr_pos).Val : 0;
+						const  uint comma_count = rIb.ChrList.Search(static_cast<long>(','), (long *)0, &comma_chr_pos) ? rIb.ChrList.at(comma_chr_pos).Val : 0;
 						uint   last_dec_ser = 0;
 						uint   j = toklen;
 						if(j) do {

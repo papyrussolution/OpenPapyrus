@@ -263,7 +263,7 @@ template <typename T> static inline HB_CONST_FUNC uint hb_popcount(T v)
 	if(sizeof(T) <= 4) {
 		/* "HACKMEM 169" */
 		uint32_t y;
-		y = (v >> 1) &033333333333;
+		y = (v >> 1) & 033333333333;
 		y = v - y - ((y >>1) & 033333333333);
 		return (((y + (y >> 3)) & 030707070707) % 077);
 	}
@@ -365,7 +365,6 @@ template <typename T> static inline HB_CONST_FUNC uint hb_ctz(T v)
 	}
 #endif
 #endif
-
 	if(sizeof(T) <= 4) {
 		/* "bithacks" */
 		uint c = 32;
@@ -393,10 +392,8 @@ template <typename T> static inline HB_CONST_FUNC uint hb_ctz(T v)
 	}
 	if(sizeof(T) == 16) {
 		uint shift = 64;
-		return (uint64_t)v ? hb_bit_storage<uint64_t> ((uint64_t)v) :
-		       hb_bit_storage<uint64_t> ((uint64_t)(v >> shift)) + shift;
+		return (uint64_t)v ? hb_bit_storage<uint64_t> ((uint64_t)v) : hb_bit_storage<uint64_t> ((uint64_t)(v >> shift)) + shift;
 	}
-
 	assert(0);
 	return 0; // Shut up stupid compiler
 }
@@ -422,19 +419,18 @@ template <typename Type, uint n> static inline uint ARRAY_LENGTH(const Type (&)[
 
 static inline int hb_memcmp(const void * a, const void * b, uint len)
 {
-	/* It's illegal to pass NULL to memcmp(), even if len is zero.
-	 * So, wrap it.
+	/* It's illegal to pass NULL to memcmp(), even if len is zero. So, wrap it.
 	 * https://sourceware.org/bugzilla/show_bug.cgi?id=23878 */
 	if(UNLIKELY(!len)) return 0;
 	return memcmp(a, b, len);
 }
 
-static inline void * hb_memset(void * s, int c, uint n)
+/*static inline void * hb_memset(void * s, int c, uint n)
 {
-	/* It's illegal to pass NULL to memset(), even if n is zero. */
+	// It's illegal to pass NULL to memset(), even if n is zero
 	if(UNLIKELY(!n)) return 0;
 	return memset(s, c, n);
-}
+}*/
 
 static inline uint hb_ceil_to_4(uint v)
 {
@@ -826,8 +822,7 @@ struct { template <typename T> constexpr auto operator() (T &a) const HB_AUTO_RE
 
 /* Type behaving similar to vectorized vars defined using __attribute__((vector_size(...))),
  * basically a fixed-size bitset. */
-template <typename elt_t, uint byte_size> struct hb_vector_size_t 
-{
+template <typename elt_t, uint byte_size> struct hb_vector_size_t {
 	elt_t& operator [] (uint i) {return v[i]; }
 	const elt_t& operator [] (uint i)const { return v[i]; }
 	void clear(uchar v = 0) {

@@ -1,16 +1,9 @@
-/**
- * catalog.c: set of generic Catalog related routines
- *
- * Reference:  SGML Open Technical Resolution TR9401:1997.
- *  http://www.jclark.com/sp/catalog.htm
- *
- *  XML Catalogs Working Draft 06 August 2001
- *  http://www.oasis-open.org/committees/entity/spec-2001-08-06.html
- *
- * See Copyright for the status of this software.
- *
- * Daniel.Veillard@imag.fr
- */
+// catalog.c: set of generic Catalog related routines
+// Reference:  SGML Open Technical Resolution TR9401:1997. http://www.jclark.com/sp/catalog.htm
+// XML Catalogs Working Draft 06 August 2001 http://www.oasis-open.org/committees/entity/spec-2001-08-06.html
+// See Copyright for the status of this software.
+// Daniel.Veillard@imag.fr
+//
 #include <slib-internal.h>
 #pragma hdrstop
 #ifdef LIBXML_CATALOG_ENABLED

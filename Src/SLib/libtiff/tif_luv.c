@@ -666,7 +666,7 @@ static int LogLuvEncodeTile(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s)
 	#define M_LN2           0.69314718055994530942
 #endif
 #undef log2 /* Conflict with C'99 function */
-#define log2(x)         ((1./M_LN2)*log(x))
+#define log2(x)         ((1.0/M_LN2)*log(x))
 #undef exp2  /* Conflict with C'99 function */
 #define exp2(x)         exp(M_LN2*(x))
 #define itrunc(x, m)     ((m)==SGILOGENCODE_NODITHER ? static_cast<int>(x) : static_cast<int>((x) + rand()*(1.0/RAND_MAX) - 0.5))

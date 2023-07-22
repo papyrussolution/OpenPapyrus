@@ -2829,11 +2829,8 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 					cl = NULL;
 					continue;
 				}
-				if(((sl_last == '\0' || sl_last == '/') &&
-				    sl[0] == '.' &&
-				    (sl[1] == '/' || sl[1] == '\0')) ||
-				    (sl[0] == '/' && sl[1] == '.' &&
-				    (sl[2] == '/' || sl[2] == '\0'))) {
+				if(((sl_last == '\0' || sl_last == '/') && sl[0] == '.' &&
+				    (sl[1] == '/' || sl[1] == '\0')) || (sl[0] == '/' && sl[1] == '.' && (sl[2] == '/' || sl[2] == '\0'))) {
 					/*
 					 *     flg  len
 					 *    +----+----+
@@ -4279,15 +4276,13 @@ static void isofile_free(struct isofile * file)
 #if defined(_WIN32) || defined(__CYGWIN__)
 static int cleanup_backslash_1(char * p)
 {
-	int mb, dos;
-
-	mb = dos = 0;
+	int mb = 0;
+	int dos = 0;
 	while(*p) {
 		if(*(uchar *)p > 127)
 			mb = 1;
 		if(*p == '\\') {
-			/* If we have not met any multi-byte characters,
-			 * we can replace '\' with '/'. */
+			// If we have not met any multi-byte characters, we can replace '\' with '/'
 			if(!mb)
 				*p = '/';
 			dos = 1;
@@ -4365,8 +4360,7 @@ static int isofile_gen_utility_names(struct archive_write * a, struct isofile * 
 		 */
 		while(u16len >= 2) {
 #if defined(_WIN32) || defined(__CYGWIN__)
-			if(u16[u16len-2] == 0 &&
-			    (u16[u16len-1] == '/' || u16[u16len-1] == '\\'))
+			if(u16[u16len-2] == 0 && (u16[u16len-1] == '/' || u16[u16len-1] == '\\'))
 #else
 			if(u16[u16len-2] == 0 && u16[u16len-1] == '/')
 #endif
@@ -4467,7 +4461,6 @@ static int isofile_gen_utility_names(struct archive_write * a, struct isofile * 
 	 */
 	while(len > 0) {
 		size_t ll = len;
-
 		if(len > 0 && p[len-1] == '/') {
 			p[len-1] = '\0';
 			len--;
@@ -4476,8 +4469,7 @@ static int isofile_gen_utility_names(struct archive_write * a, struct isofile * 
 			p[len-2] = '\0';
 			len -= 2;
 		}
-		if(len > 2 && p[len-3] == '/' && p[len-2] == '.' &&
-		    p[len-1] == '.') {
+		if(len > 2 && p[len-3] == '/' && p[len-2] == '.' && p[len-1] == '.') {
 			p[len-3] = '\0';
 			len -= 3;
 		}

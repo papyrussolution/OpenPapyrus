@@ -3,8 +3,7 @@
  *             focuses on size, streamability, reentrancy and portability
  *
  * This is clearly not a general purpose HTTP implementation
- * If you look for one, check:
- *         http://www.w3.org/Library/
+ * If you look for one, check: http://www.w3.org/Library/
  *
  * See Copyright for the status of this software.
  *

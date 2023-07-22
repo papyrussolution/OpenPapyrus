@@ -1,9 +1,9 @@
-// TV.H
+// SLUI.H
 // Copyright (c) A.Sobolev 1996-2021, 2022, 2023
 // @codepage UTF-8
 //
-#ifndef __TV_H
-#define __TV_H
+#ifndef __SLUI_H
+#define __SLUI_H
 
 #include <tvdefs.h>
 #include <commctrl.h>
@@ -524,10 +524,10 @@ struct SUiLayoutParam { // @persistent
 		fContainerRow     = 0x0001, // Контейнер выстраивает дочерние элементы по строкам (ось X)
 		fContainerCol     = 0x0002, // Контейнер выстраивает дочерние элементы по колонкам (ось Y)
 			// if fContainerRow && fContainerCol, then no direction
-		fContainerReverseDir      = 0x0004, // if horizontal then right-to-left, if vertical then bottom-to-top
-		fContainerWrap    = 0x0008, // Если все элементы не вмещаются в один ряд, то контейнер переносит последующие элементы на следующий ряд.
-		fContainerWrapReverse     = 0x0010, // ignored if !(Flags & fWrap)
-		fEntryPositionAbsolute    = 0x0020, // else Relative
+		fContainerReverseDir = 0x0004, // if horizontal then right-to-left, if vertical then bottom-to-top
+		fContainerWrap       = 0x0008, // Если все элементы не вмещаются в один ряд, то контейнер переносит последующие элементы на следующий ряд.
+		fContainerWrapReverse  = 0x0010, // ignored if !(Flags & fWrap)
+		fEntryPositionAbsolute = 0x0020, // else Relative
 		fNominalDefL      = 0x0040, // Определена номинальная граница LEFT элемента   (Nominal.a.X)
 		fNominalDefT      = 0x0080, // Определена номинальная граница TOP элемента    (Nominal.a.Y)
 		fNominalDefR      = 0x0100, // Определена номинальная граница RIGHT элемента  (Nominal.b.X)
@@ -779,7 +779,7 @@ public:
 	//
 	// Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
 	//
-	const void * GetKey(uint * pKeyLen) const
+	const void * GetHashKey(const void * pCtx, uint * pKeyLen) const
 	{
 		ASSIGN_PTR(pKeyLen, sizeof(ID));
 		return &ID;
@@ -1043,6 +1043,117 @@ private:
 	TSCollection <SUiLayout> * P_Children;
 	HomogeneousArray * P_HgL;
 	mutable Result R;
+};
+//
+// Descr: Набор цветов для пользовательского интерфейса. Цвет идентифицируется либо символом либо целочисленным идентификатором.
+//   Должно быть задано либо то, либо это.
+// 
+class SColorSet : private SStrGroup { // @v11.7.10 @construction
+public:
+	explicit SColorSet(const char * pSymb = 0);
+	SColorSet & Z();
+	const void * GetHashKey(const void * pCtx, uint * pKeyLen) const; // Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
+	int    SetSymb(const char * pSymb);
+	const  SString & GetSymb() const { return Symb; }
+	SJson * ToJsonObj() const;
+	int    FromJsonObj(const SJson * pJs);
+	int    Put(const char * pSymb, SColor c);
+	int    Get(const char * pSymb, SColor * pC) const;
+private:
+	enum {
+		funcNone = 0,
+		funcLerp,      // (color, factor) || (color, color)
+		funcLighten,   // (color, factor)
+		funcDarken,    // (color, factor)
+		funcGrey,      // (whitePart)
+	};
+	struct ColorArg {
+		ColorArg();
+		SString & ToStr(SString & rBuf) const;
+
+		SColor C;
+		float  F;
+		SString RefSymb;
+	};
+	struct ComplexColorBlock {
+		ComplexColorBlock();
+		ComplexColorBlock & Copy(const ComplexColorBlock & rS);
+		ComplexColorBlock & Z();
+		SString & ToStr(SString & rBuf) const;
+
+		SColor C;
+		SString RefSymb;
+		int   Func;
+		TSCollection <ColorArg> ArgList;
+	};
+	// 
+	// Returns:
+	//   0 - error
+	//   1 - color
+	//   2 - number
+	//   3 - reference
+	//
+	int    Helper_ParsePrimitive(SStrScan & rScan, ColorArg & rItem) const;
+	int    ParseComplexColorBlock(const char * pText, ComplexColorBlock & rBlk) const;
+	int    ResolveComplexColorBlock(const ComplexColorBlock & rBlk, SColor & rC) const;
+
+	struct InnerEntry {
+		InnerEntry();
+		const void * GetHashKey(const void * pCtx, uint * pKeyLen) const; // Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
+		uint   SymbP;
+		SColor C;
+		uint   CcbP; // Ссылка на позицию в CcC [1..CcC.getCount()]
+	};
+	SString Symb; // Символ набора цветов (не путать с символом отдельного цвета)
+	TSHashCollection <InnerEntry> L;
+	TSCollection <ComplexColorBlock> CcC;
+};
+//
+// Descr: Цветовая тема пользовательского интерфейса
+// 
+class SColorTheme { // @v11.7.10 @construction
+public:
+	SColorTheme() : Id(0)
+	{
+	}
+	SColorTheme & Copy(const SColorTheme & rS);
+	const void * GetHashKey(const void * pCtx, uint * pKeyLen) const; // Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
+private:
+	uint   Id;
+	SString Symb;
+	TSCollection <SColorSet> CsL;
+};
+//
+// Descr: Источник извлечения шрифта. Инициирующая причина ввода: загрузка шрифтов для проекта WsCtl (ImGui)
+// 
+class SFontSource { // @v11.7.10 @construction
+public:
+	SFontSource();
+	SFontSource & Z();
+	const void * GetHashKey(const void * pCtx, uint * pKeyLen) const; // Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
+	SJson * ToJsonObj() const;
+	int    FromJsonObj(const SJson * pJs);
+
+	SString Face;
+	SString Src;
+};
+//
+//
+//
+class UiDescription {
+public:
+	UiDescription();
+	~UiDescription();
+	UiDescription & Z();
+	UiDescription & Copy(const UiDescription & rS);
+	SJson * ToJsonObj() const;
+	int FromJsonObj(const SJson * pJsObj);
+	const SColorSet * GetColorSetC(const char * pCsSymb) const;
+	SColorSet * GetColorSet(const char * pCsSymb);
+
+	TSCollection <SFontSource> FontList;
+	TSCollection <SColorSet> ClrList;
+	TSCollection <SUiLayout> LoList;
 };
 //
 // Descr: Определитель шрифта
@@ -3156,6 +3267,7 @@ public:
 	TWhatmanObject * FASTCALL GetObjectByIndex(int idx);
 	const  TWhatmanObject * FASTCALL GetObjectByIndexC(int idx) const;
 	const  WhatmanObjectLayoutBase * FASTCALL GetObjectAsLayoutByIndexC(int idx) const;
+	WhatmanObjectLayoutBase * FASTCALL GetObjectAsLayoutByIndex(int idx);
 	//
 	// Descr: Возвращает индекс корневого контейнера, содержащего лейаут pC.
 	// Return:
@@ -3204,6 +3316,7 @@ public:
 	int    GetTool(int toolId) const;
 	//int    ArrangeObjects(const LongArray * pObjPosList, const TArrangeParam & rParam);
 	int    ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam & rParam, SScroller * pScrlr);
+	SUiLayout * CreateLayout(WhatmanObjectLayoutBase * pC);
 	int    ArrangeLayoutContainer(WhatmanObjectLayoutBase * pC);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    Store(const char * pFileName);
@@ -3247,7 +3360,8 @@ private:
 	int    SnapX(float p, float * pDest) const;
 	int    SnapY(float p, float * pDest) const;
 	int    CalcScrollRange();
-	int    Helper_ArrangeLayoutContainer(SUiLayout * pParentLayout, WhatmanObjectLayoutBase * pC);
+	SUiLayout * Helper_CreateLayout(SUiLayout * pParentLayout, WhatmanObjectLayoutBase * pC) const;
+	// @v11.7.10 int    Helper_ArrangeLayoutContainer(SUiLayout * pParentLayout, WhatmanObjectLayoutBase * pC);
 
 	uint32 SrcFileVer;  // @transient Версия формата хранения файла, из которого был загружен данный экземпляр объекта
 	TRect  Area;        // @transient Видимая область
@@ -3804,6 +3918,7 @@ public:
 	virtual void   setViewHight(int vh);
 	virtual void   getScrollData(long * pScrollDelta, long * pScrollPos);
 	virtual int    getCurID(long * pId);
+	inline  int    getCurID(int * pId) { return getCurID(reinterpret_cast<long *>(pId)); } // @v11.7.10
 	virtual int    getCurString(SString & rBuf);
 	virtual int    getCurData(void *);
 	virtual int    search(const void *, CompFunc, int srchMode);
@@ -4127,6 +4242,7 @@ public:
 	void   FASTCALL setDef(ListBoxDef * pDef);
 	bool   Search_(const void * pattern, CompFunc fcmp, int srchMode);
 	int    FASTCALL getCurID(long * pId);
+	int    FASTCALL getCurID(int * pId) { return getCurID(reinterpret_cast<long *>(pId)); } // @v11.7.10
 	int    FASTCALL getCurData(void * pData);
 	int    FASTCALL getCurString(SString & rBuf);
 	uint   GetSelectionList(LongArray * pList);
@@ -4257,7 +4373,8 @@ public:
 	//     не удалось получить единственный элемент списка.
 	//
 	int    getSingle(long * pVal);
-	int    FASTCALL getResult(long *);
+	int    FASTCALL getResult(long * pVal);
+	int    FASTCALL getResult(int * pVal) { return getResult(reinterpret_cast<long *>(pVal)); }
 	int    getString(SString & rBuf);
 	int    getListData(void *);
 	bool   IsTreeList() const { return (P_Def && P_Def->_isTreeList()); }
@@ -6088,4 +6205,4 @@ extern int (* getUserControl)(TVRez *, TDialog*);
 
 int    LoadToolbar(TVRez *, uint tbType, uint tbID, ToolbarList *);
 //
-#endif // } __TV_H
+#endif // } __SLUI_H

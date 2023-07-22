@@ -7,7 +7,7 @@ extern "C" {
 #endif
 
 void __os_abort(ENV *);
-int __os_abspath(const char *);
+// @v11.7.10 (replaced with SPathStruc::IsWindowsPathPrefix) int __os_abspath_Removed(const char *);
 #if defined(HAVE_REPLICATION_THREADS)
 	int __os_getaddrinfo(ENV *, const char *, uint, const char *, const ADDRINFO *, ADDRINFO **);
 #endif
