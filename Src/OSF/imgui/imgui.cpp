@@ -12263,11 +12263,11 @@ void ImGui::LoadIniSettingsFromDisk(const char* ini_filename)
 {
 	size_t file_data_size = 0;
 	char* file_data = (char*)ImFileLoadToMemory(ini_filename, "rb", &file_data_size);
-	if(!file_data)
-		return;
-	if(file_data_size > 0)
-		LoadIniSettingsFromMemory(file_data, (size_t)file_data_size);
-	IM_FREE(file_data);
+	if(file_data) {
+		if(file_data_size > 0)
+			LoadIniSettingsFromMemory(file_data, (size_t)file_data_size);
+		IM_FREE(file_data);
+	}
 }
 
 // Zero-tolerance, no error reporting, cheap .ini parsing
@@ -12323,10 +12323,8 @@ void ImGui::LoadIniSettingsFromMemory(const char* ini_data, size_t ini_size)
 		}
 	}
 	g.SettingsLoaded = true;
-
 	// [DEBUG] Restore untouched copy so it can be browsed in Metrics (not strictly necessary)
 	memcpy(buf, ini_data, ini_size);
-
 	// Call post-read handlers
 	for(int handler_n = 0; handler_n < g.SettingsHandlers.Size; handler_n++)
 		if(g.SettingsHandlers[handler_n].ApplyAllFn)
@@ -12337,16 +12335,15 @@ void ImGui::SaveIniSettingsToDisk(const char* ini_filename)
 {
 	ImGuiContext & g = *GImGui;
 	g.SettingsDirtyTimer = 0.0f;
-	if(!ini_filename)
-		return;
-
-	size_t ini_data_size = 0;
-	const char* ini_data = SaveIniSettingsToMemory(&ini_data_size);
-	ImFileHandle f = ImFileOpen(ini_filename, "wt");
-	if(!f)
-		return;
-	ImFileWrite(ini_data, sizeof(char), ini_data_size, f);
-	ImFileClose(f);
+	if(ini_filename) {
+		size_t ini_data_size = 0;
+		const char* ini_data = SaveIniSettingsToMemory(&ini_data_size);
+		ImFileHandle f = ImFileOpen(ini_filename, "wt");
+		if(f) {
+			ImFileWrite(ini_data, sizeof(char), ini_data_size, f);
+			ImFileClose(f);
+		}
+	}
 }
 
 // Call registered handlers (e.g. SettingsHandlerWindow_WriteAll() + custom handlers) to write their stuff into a text buffer
@@ -12812,9 +12809,7 @@ void ImGui::DebugRenderKeyboardPreview(ImDrawList* draw_list)
 	ImVec2 start_pos = ImVec2(board_min.x + 5.0f - key_step.x, board_min.y);
 
 	struct KeyLayoutData { int Row, Col; const char* Label; ImGuiKey Key; };
-
-	const KeyLayoutData keys_to_display[] =
-	{
+	const KeyLayoutData keys_to_display[] = {
 		{ 0, 0, "", ImGuiKey_Tab },      { 0, 1, "Q", ImGuiKey_Q }, { 0, 2, "W", ImGuiKey_W }, { 0, 3, "E", ImGuiKey_E }, { 0, 4, "R", ImGuiKey_R },
 		{ 1, 0, "", ImGuiKey_CapsLock }, { 1, 1, "A", ImGuiKey_A }, { 1, 2, "S", ImGuiKey_S }, { 1, 3, "D", ImGuiKey_D }, { 1, 4, "F", ImGuiKey_F },
 		{ 2, 0, "", ImGuiKey_LeftShift }, { 2, 1, "Z", ImGuiKey_Z }, { 2, 2, "X", ImGuiKey_X }, { 2, 3, "C", ImGuiKey_C }, { 2, 4, "V", ImGuiKey_V }
@@ -13099,12 +13094,8 @@ void ImGui::ShowMetricsWindow(bool* p_open)
 
 				BulletText("Table 0x%08X (%d columns, in '%s')", table->ID, table->ColumnsCount, table->OuterWindow->Name);
 				if(IsItemHovered())
-					GetForegroundDrawList()->AddRect(table->OuterRect.Min - ImVec2(1, 1),
-					    table->OuterRect.Max + ImVec2(1, 1),
-					    IM_COL32(255, 255, 0, 255),
-					    0.0f,
-					    0,
-					    2.0f);
+					GetForegroundDrawList()->AddRect(table->OuterRect.Min - ImVec2(1, 1), table->OuterRect.Max + ImVec2(1, 1),
+					    IM_COL32(255, 255, 0, 255), 0.0f, 0, 2.0f);
 				Indent();
 				char buf[128];
 				for(int rect_n = 0; rect_n < TRT_Count; rect_n++) {
@@ -13113,39 +13104,18 @@ void ImGui::ShowMetricsWindow(bool* p_open)
 							continue;
 						for(int column_n = 0; column_n < table->ColumnsCount; column_n++) {
 							ImRect r = Funcs::GetTableRect(table, rect_n, column_n);
-							ImFormatString(buf,
-							    SIZEOFARRAYi(buf),
-							    "(%6.1f,%6.1f) (%6.1f,%6.1f) Size (%6.1f,%6.1f) Col %d %s",
-							    r.Min.x,
-							    r.Min.y,
-							    r.Max.x,
-							    r.Max.y,
-							    r.GetWidth(),
-							    r.GetHeight(),
-							    column_n,
-							    trt_rects_names[rect_n]);
+							ImFormatString(buf, SIZEOFARRAYi(buf), "(%6.1f,%6.1f) (%6.1f,%6.1f) Size (%6.1f,%6.1f) Col %d %s",
+							    r.Min.x, r.Min.y, r.Max.x, r.Max.y, r.GetWidth(), r.GetHeight(), column_n, trt_rects_names[rect_n]);
 							Selectable(buf);
 							if(IsItemHovered())
-								GetForegroundDrawList()->AddRect(r.Min - ImVec2(1, 1),
-								    r.Max + ImVec2(1, 1),
-								    IM_COL32(255, 255, 0, 255),
-								    0.0f,
-								    0,
-								    2.0f);
+								GetForegroundDrawList()->AddRect(r.Min - ImVec2(1, 1), r.Max + ImVec2(1, 1),
+								    IM_COL32(255, 255, 0, 255), 0.0f, 0, 2.0f);
 						}
 					}
 					else {
 						ImRect r = Funcs::GetTableRect(table, rect_n, -1);
-						ImFormatString(buf,
-						    SIZEOFARRAYi(buf),
-						    "(%6.1f,%6.1f) (%6.1f,%6.1f) Size (%6.1f,%6.1f) %s",
-						    r.Min.x,
-						    r.Min.y,
-						    r.Max.x,
-						    r.Max.y,
-						    r.GetWidth(),
-						    r.GetHeight(),
-						    trt_rects_names[rect_n]);
+						ImFormatString(buf, SIZEOFARRAYi(buf), "(%6.1f,%6.1f) (%6.1f,%6.1f) Size (%6.1f,%6.1f) %s",
+						    r.Min.x, r.Min.y, r.Max.x, r.Max.y, r.GetWidth(), r.GetHeight(), trt_rects_names[rect_n]);
 						Selectable(buf);
 						if(IsItemHovered())
 							GetForegroundDrawList()->AddRect(r.Min - ImVec2(1, 1), r.Max + ImVec2(1, 1), IM_COL32(255, 255, 0, 255), 0.0f, 0, 2.0f);

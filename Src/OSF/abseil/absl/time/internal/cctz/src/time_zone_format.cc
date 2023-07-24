@@ -221,7 +221,7 @@ const char* ParseInt(const char* dp, int width, T min, T max, T* vp) {
 			}
 		}
 		if(const char* const bp = dp) {
-			while(const char * cp = strchr(STextConst::P_Digits, *dp)) {
+			while(const char * cp = sstrchr(STextConst::P_Digits, *dp)) {
 				int d = static_cast<int>(cp - STextConst::P_Digits);
 				if(d >= 10) 
 					break;
@@ -356,12 +356,11 @@ std::string format(const std::string & format, const time_point<seconds>& tp, co
 				result.push_back(*pending++);
 			}
 		}
-
 		// Loop unless we have an unescaped percent.
-		if(cur == end || (cur - percent) % 2 == 0) continue;
-
+		if(cur == end || (cur - percent) % 2 == 0) 
+			continue;
 		// Simple specifiers that we handle ourselves.
-		if(strchr("YmdeUuWwHMSzZs%", *cur)) {
+		if(sstrchr("YmdeUuWwHMSzZs%", *cur)) {
 			if(cur - 1 != pending) {
 				FormatTM(&result, std::string(pending, cur - 1), tm);
 			}
@@ -612,7 +611,7 @@ const char* ParseSubSeconds(const char* dp, detail::femtoseconds* subseconds)
 		std::int_fast64_t v = 0;
 		std::int_fast64_t exp = 0;
 		const char* const bp = dp;
-		while(const char* cp = strchr(STextConst::P_Digits, *dp)) {
+		while(const char * cp = sstrchr(STextConst::P_Digits, *dp)) {
 			int d = static_cast<int>(cp - STextConst::P_Digits);
 			if(d >= 10) break;
 			if(exp < 15) {

@@ -127,14 +127,15 @@ void* mi__expand(void* p, size_t newsize) mi_attr_noexcept // Microsoft
 
 mi_decl_nodiscard mi_decl_restrict unsigned short* mi_wcsdup(const unsigned short* s) mi_attr_noexcept 
 {
-	if(s==NULL) return NULL;
+	if(s==NULL) 
+		return NULL;
 	size_t len;
 	for(len = 0; s[len] != 0; len++) {
 	}
 	size_t size = (len+1)*sizeof(unsigned short);
 	unsigned short* p = (unsigned short*)mi_malloc(size);
 	if(p) {
-		_mi_memcpy(p, s, size);
+		memcpy(p, s, size);
 	}
 	return p;
 }

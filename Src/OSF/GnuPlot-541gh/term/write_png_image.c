@@ -17,7 +17,7 @@ typedef struct base64state {
 	FILE * out;
 } base64s;
 
-static const uchar base64_lut[/*64*/] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+//static const uchar base64_lut[/*64*/] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 void init_base64_state_data(base64s * b64, FILE * out) 
 {
@@ -29,8 +29,9 @@ void init_base64_state_data(base64s * b64, FILE * out)
 
 static int piecemeal_write_base64_data_finish(base64s * b64) 
 {
+	const char * p_basis = STextConst::Get(STextConst::cBasis64, 0);
 	if(b64->shift < 6) {
-		if(fputc(base64_lut[b64->bit6 & 0x3F], b64->out) == EOF)
+		if(fputc(p_basis[b64->bit6 & 0x3F], b64->out) == EOF)
 			return 1;
 		if(b64->byte4 == 0)
 			b64->byte4 = 3;
@@ -48,9 +49,10 @@ static int piecemeal_write_base64_data_finish(base64s * b64)
 // To use repeatedly, must initialize base64state first, then when done call finish.  See write_base64_data(). 
 static int piecemeal_write_base64_data(const uchar * data, unsigned int length, base64s * b64) 
 {
+	const char * p_basis = STextConst::Get(STextConst::cBasis64, 0);
 	uint i_data = 0;
 	while(1) {
-		unsigned int databyte = 0;
+		uint databyte = 0;
 		if(b64->shift > 0) {
 			if(i_data >= length)
 				break;
@@ -63,7 +65,7 @@ static int piecemeal_write_base64_data(const uchar * data, unsigned int length, 
 					b64->bit6 |= (databyte >> -b64->shift);
 			}
 		}
-		if(fputc(base64_lut[b64->bit6 & 0x3F], b64->out) == EOF)
+		if(fputc(p_basis[b64->bit6 & 0x3F], b64->out) == EOF)
 			return 1;
 		b64->shift += 6;
 		b64->bit6 = (databyte << b64->shift);

@@ -1003,7 +1003,7 @@
 	#define HAVE__STAT
 	#define HAVE_STAT
 	#define HAVE_STDLIB_H 1
-	#define HAVE_STDDEF_H
+	#define HAVE_STDDEF_H 1
 	#define HAVE_TIME_H   1
 	#define HAVE_FCNTL_H  1 // Define to 1 if you have the <fcntl.h> header file
 	#define HAVE_ASSERT_H 1 /* Define to 1 if you have the <assert.h> header file. */
@@ -1332,7 +1332,7 @@
 	/* #undef HAVE__MKGMTIME64 */ /* Define to 1 if you have the `_mkgmtime64' function. */
 	//
 	#define HAVE_MATH_H            1 
-	#define HAVE_MEMCPY
+	#define HAVE_MEMCPY            1
 	#define HAVE_STPCPY
 	#define HAVE_STRNLEN           1
 	#define HAVE_TIME_T_IN_TIME_H

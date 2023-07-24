@@ -276,12 +276,11 @@ size_t invert_matches(const char * buf, const size_t buf_len, match_t matches[],
 
 void realloc_matches(match_t ** matches, size_t * matches_size, size_t matches_len) 
 {
-	if(matches_len < *matches_size) {
-		return;
+	if(matches_len >= *matches_size) {
+		// TODO: benchmark initial size of matches. 100 may be too small/big
+		*matches_size = *matches ? *matches_size * 2 : 100;
+		*matches = (match_t *)ag_realloc(*matches, *matches_size * sizeof(match_t));
 	}
-	/* TODO: benchmark initial size of matches. 100 may be too small/big */
-	*matches_size = *matches ? *matches_size * 2 : 100;
-	*matches = (match_t *)ag_realloc(*matches, *matches_size * sizeof(match_t));
 }
 
 void compile_study(pcre ** re, pcre_extra ** re_extra, char * q, const int pcre_opts, const int study_opts) 
@@ -363,20 +362,18 @@ int is_fnmatch(const char * filename)
 
 int binary_search(const char * needle, char ** haystack, int start, int end) 
 {
-	if(start == end) {
-		return -1;
-	}
-	else {
-		int mid = start + ((end - start) / 2);
-		int rc = strcmp(needle, haystack[mid]);
+	int mid = -1;
+	if(start != end) {
+		mid = start + ((end - start) / 2);
+		const int rc = strcmp(needle, haystack[mid]);
 		if(rc < 0) {
 			return binary_search(needle, haystack, start, mid);
 		}
 		else if(rc > 0) {
 			return binary_search(needle, haystack, mid + 1, end);
 		}
-		return mid;
 	}
+	return mid;
 }
 
 static int wordchar_table[256]; // @global

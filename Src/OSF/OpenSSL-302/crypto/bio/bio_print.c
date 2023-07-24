@@ -358,20 +358,13 @@ static int _dopr(char ** sbuffer, char ** buffer, size_t * maxlen, size_t * retl
 	return 1;
 }
 
-static int fmtstr(char ** sbuffer,
-    char ** buffer,
-    size_t * currlen,
-    size_t * maxlen, const char * value, int flags, int min, int max)
+static int fmtstr(char ** sbuffer, char ** buffer, size_t * currlen, size_t * maxlen, const char * value, int flags, int min, int max)
 {
 	int padlen;
 	size_t strln;
 	int cnt = 0;
-
-	if(value == 0)
-		value = "<NULL>";
-
+	SETIFZQ(value, "<NULL>");
 	strln = OPENSSL_strnlen(value, max < 0 ? SIZE_MAX : (size_t)max);
-
 	padlen = min - strln;
 	if(min < 0 || padlen < 0)
 		padlen = 0;

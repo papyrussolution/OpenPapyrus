@@ -567,34 +567,22 @@ static inline bool mi_page_immediate_available(const mi_page_t* page) {
 }
 
 // is more than 7/8th of a page in use?
-static inline bool mi_page_mostly_used(const mi_page_t* page) {
+static inline bool mi_page_mostly_used(const mi_page_t* page) 
+{
 	if(page==NULL) return true;
 	uint16_t frac = page->reserved / 8U;
 	return (page->reserved - page->used <= frac);
 }
 
-static inline mi_page_queue_t* mi_page_queue(const mi_heap_t* heap, size_t size) {
-	return &((mi_heap_t*)heap)->pages[_mi_bin(size)];
-}
+static inline mi_page_queue_t* mi_page_queue(const mi_heap_t* heap, size_t size) { return &((mi_heap_t*)heap)->pages[_mi_bin(size)]; }
 
 //-----------------------------------------------------------
 // Page flags
 //-----------------------------------------------------------
-static inline bool mi_page_is_in_full(const mi_page_t* page) {
-	return page->flags.x.in_full;
-}
-
-static inline void mi_page_set_in_full(mi_page_t* page, bool in_full) {
-	page->flags.x.in_full = in_full;
-}
-
-static inline bool mi_page_has_aligned(const mi_page_t* page) {
-	return page->flags.x.has_aligned;
-}
-
-static inline void mi_page_set_has_aligned(mi_page_t* page, bool has_aligned) {
-	page->flags.x.has_aligned = has_aligned;
-}
+static inline bool mi_page_is_in_full(const mi_page_t* page) { return page->flags.x.in_full; }
+static inline void mi_page_set_in_full(mi_page_t* page, bool in_full) { page->flags.x.in_full = in_full; }
+static inline bool mi_page_has_aligned(const mi_page_t* page) { return page->flags.x.has_aligned; }
+static inline void mi_page_set_has_aligned(mi_page_t* page, bool has_aligned) { page->flags.x.has_aligned = has_aligned; }
 
 /* -------------------------------------------------------------------
    Encoding/Decoding the free list next pointers
@@ -621,13 +609,13 @@ static inline void mi_page_set_has_aligned(mi_page_t* page, bool has_aligned) {
    `(k2<<<k1)+k1` would appear (too) often as a sentinel value.
    ------------------------------------------------------------------- */
 
-static inline bool mi_is_in_same_segment(const void* p, const void* q) {
-	return (_mi_ptr_segment(p) == _mi_ptr_segment(q));
-}
+static inline bool mi_is_in_same_segment(const void* p, const void* q) { return (_mi_ptr_segment(p) == _mi_ptr_segment(q)); }
 
-static inline bool mi_is_in_same_page(const void* p, const void* q) {
+static inline bool mi_is_in_same_page(const void* p, const void* q) 
+{
 	mi_segment_t* segment = _mi_ptr_segment(p);
-	if(_mi_ptr_segment(q) != segment) return false;
+	if(_mi_ptr_segment(q) != segment) 
+		return false;
 	// assume q may be invalid // return (_mi_segment_page_of(segment, p) == _mi_segment_page_of(segment, q));
 	mi_page_t* page = _mi_segment_page_of(segment, p);
 	size_t psize;
@@ -635,24 +623,28 @@ static inline bool mi_is_in_same_page(const void* p, const void* q) {
 	return (start <= (uint8_t*)q && (uint8_t*)q < start + psize);
 }
 
-static inline uintptr_t mi_rotl(uintptr_t x, uintptr_t shift) {
+/* @sobolev (replaced with SBits::Rotl) static inline uintptr_t mi_rotl(uintptr_t x, uintptr_t shift) 
+{
 	shift %= MI_INTPTR_BITS;
 	return (shift==0 ? x : ((x << shift) | (x >> (MI_INTPTR_BITS - shift))));
-}
+}*/
 
-static inline uintptr_t mi_rotr(uintptr_t x, uintptr_t shift) {
+/* @sobolev (replaced with SBits::Rotr) static inline uintptr_t mi_rotr(uintptr_t x, uintptr_t shift) 
+{
 	shift %= MI_INTPTR_BITS;
 	return (shift==0 ? x : ((x >> shift) | (x << (MI_INTPTR_BITS - shift))));
-}
+}*/
 
-static inline void* mi_ptr_decode(const void* null, const mi_encoded_t x, const uintptr_t* keys) {
-	void* p = (void*)(mi_rotr(x - keys[0], keys[0]) ^ keys[1]);
+static inline void * mi_ptr_decode(const void* null, const mi_encoded_t x, const uintptr_t* keys) 
+{
+	void* p = (void*)(/*mi_rotr*/SBits::Rotr(x - keys[0], keys[0]) ^ keys[1]);
 	return (mi_unlikely(p==null) ? NULL : p);
 }
 
-static inline mi_encoded_t mi_ptr_encode(const void* null, const void* p, const uintptr_t* keys) {
+static inline mi_encoded_t mi_ptr_encode(const void* null, const void* p, const uintptr_t* keys) 
+{
 	uintptr_t x = (uintptr_t)(mi_unlikely(p==NULL) ? null : p);
-	return mi_rotl(x ^ keys[1], keys[0]) + keys[0];
+	return /*mi_rotl*/SBits::Rotl(x ^ keys[1], keys[0]) + keys[0];
 }
 
 static inline mi_block_t* mi_block_nextx(const void* null, const mi_block_t* block, const uintptr_t* keys) {
@@ -1000,6 +992,7 @@ static inline size_t mi_ctz(uintptr_t x) {
 static inline size_t mi_bsr(uintptr_t x) {
 	return (x==0 ? MI_INTPTR_BITS : MI_INTPTR_BITS - 1 - mi_clz(x));
 }
+#if 0 // @sobolev (SLIB already uses an optimized version of memcpy, so it makes no sense to fence the garden with dubious local optimization) {
 //
 // Provide our own `_mi_memcpy` for potential performance optimizations.
 //
@@ -1020,14 +1013,14 @@ static inline void _mi_memcpy(void* dst, const void* src, size_t n)
 		memcpy(dst, src, n); // todo: use noinline?
 	}
 }
-
 #else
 #include <string.h>
-static inline void _mi_memcpy(void* dst, const void* src, size_t n) {
+static inline void _mi_memcpy(void* dst, const void* src, size_t n) 
+{
 	memcpy(dst, src, n);
 }
-
 #endif
+#endif // } @sobolev
 //
 // The `_mi_memcpy_aligned` can be used if the pointers are machine-word aligned
 // This is used for example in `mi_realloc`.
@@ -1044,9 +1037,10 @@ static inline void _mi_memcpy_aligned(void* dst, const void* src, size_t n) {
 
 #else
 // Default fallback on `_mi_memcpy`
-static inline void _mi_memcpy_aligned(void* dst, const void* src, size_t n) {
+static inline void _mi_memcpy_aligned(void* dst, const void* src, size_t n) 
+{
 	mi_assert_internal(((uintptr_t)dst % MI_INTPTR_SIZE == 0) && ((uintptr_t)src % MI_INTPTR_SIZE == 0));
-	_mi_memcpy(dst, src, n);
+	memcpy(dst, src, n);
 }
 
 #endif

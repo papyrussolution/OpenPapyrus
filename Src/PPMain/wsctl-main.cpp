@@ -2796,8 +2796,10 @@ static int MakeColorSet(UiDescription & rUiDescr)
 			const char * p_symb = ImGui::GetStyleColorName(i);
 			if(!isempty(p_symb)) {
 				SColorF cf = r_src_color;
+				/*
 				if(p_cset->Put(p_symb, cf))
 					_c++;
+				*/
 			}
 		}
 		if(_c) {

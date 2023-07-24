@@ -131,7 +131,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <OpenMPSupport>true</OpenMPSupport>
@@ -143,7 +143,8 @@
       <PrecompiledHeaderFile>DirectXTexP.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>..\include;..\OSF\DirectXTex\SRC\Shaders\Compiled;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <ExternalWarningLevel>Level4</ExternalWarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -153,6 +154,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <LanguageStandard>Default</LanguageStandard>
       <BuildStlModules>false</BuildStlModules>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -164,7 +166,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
     <ClCompile>
-      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <OpenMPSupport>true</OpenMPSupport>
@@ -175,7 +177,8 @@
       <PrecompiledHeaderFile>DirectXTexP.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>..\include;..\OSF\DirectXTex\SRC\Shaders\Compiled;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <ExternalWarningLevel>Level4</ExternalWarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -185,6 +188,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <LanguageStandard>Default</LanguageStandard>
       <BuildStlModules>false</BuildStlModules>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -196,7 +200,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <OpenMPSupport>true</OpenMPSupport>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -231,7 +235,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|X64'">
     <ClCompile>
-      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <OpenMPSupport>true</OpenMPSupport>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -266,7 +270,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">
     <ClCompile>
-      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <OpenMPSupport>true</OpenMPSupport>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -277,13 +281,15 @@
       <PrecompiledHeaderFile>DirectXTexP.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>..\include;..\OSF\DirectXTex\SRC\Shaders\Compiled;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <ExternalWarningLevel>Level4</ExternalWarningLevel>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
       <LanguageStandard>Default</LanguageStandard>
       <BuildStlModules>false</BuildStlModules>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -297,7 +303,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profile|X64'">
     <ClCompile>
-      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <OpenMPSupport>true</OpenMPSupport>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -307,7 +313,8 @@
       <PrecompiledHeaderFile>DirectXTexP.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>..\include;..\OSF\DirectXTex\SRC\Shaders\Compiled;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <ExternalWarningLevel>Level4</ExternalWarningLevel>
       <GuardEHContMetadata>true</GuardEHContMetadata>
@@ -315,6 +322,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <LanguageStandard>Default</LanguageStandard>
       <BuildStlModules>false</BuildStlModules>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

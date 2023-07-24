@@ -36,7 +36,7 @@
 #define HAVE_ASSERT_H 1 // Define if you have the <assert.h> header file
 
 /* #define HAVE_CRYPTO_H 1 */ /* Define if you have the <crypto.h> header file. */
-#define HAVE_ERRNO_H /* Define if you have the <errno.h> header file. */
+// (see slport.h) #define HAVE_ERRNO_H /* Define if you have the <errno.h> header file. */
 /* #define HAVE_ERR_H 1 */ /* Define if you have the <err.h> header file. */
 #define HAVE_FCNTL_H 1 /* Define if you have the <fcntl.h> header file. */
 #if defined(__MINGW32__) || defined(__POCC__)
@@ -143,7 +143,7 @@
 #ifndef __BORLANDC__
 	#define HAVE_UTIME 1 /* Define if you have the utime function. */
 #endif
-#define HAVE_ZLIB_H // @sobolev
+// (see slport.h) #define HAVE_ZLIB_H // @sobolev
 #define HAVE_LIBZ   // @sobolev
 #define GETNAMEINFO_QUAL_ARG1 const /* Define to the type qualifier of arg 1 for getnameinfo. */
 #define GETNAMEINFO_TYPE_ARG1 struct sockaddr * /* Define to the type of arg 1 for getnameinfo. */

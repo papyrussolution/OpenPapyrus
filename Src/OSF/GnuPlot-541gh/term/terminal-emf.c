@@ -170,13 +170,6 @@ TERM_PUBLIC void ENHemf_FLUSH(GpTermEntry_Static * pThis);
 #undef RGB
 #define RGB(r, g, b) ((long)(((uchar)(r) | ((short)((uchar)(g)) << 8)) | (((long)(uchar)(b)) << 16)))
 
-//#ifndef GPMIN
-	//#define MIN(a, b) (a < b ? a : b)
-//#endif
-//#ifndef GPMAX
-	//#define MAX(a, b) (a > b ? a : b)
-//#endif
-
 #define EMF_PX2HM 26.37
 #define EMF_PT2HM 35.28
 #define EMF_10THDEG2RAD (3.14159265359/1800)

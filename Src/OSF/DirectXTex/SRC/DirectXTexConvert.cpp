@@ -16,12 +16,10 @@ inline uint32_t FloatTo7e3(float Value) noexcept
 {
 	uint32_t IValue = reinterpret_cast<uint32_t *>(&Value)[0];
 	if(IValue & 0x80000000U) {
-		// Positive only
-		return 0;
+		return 0; // Positive only
 	}
 	else if(IValue > 0x41FF73FFU) {
-		// The number is too large to be represented as a 7e3. Saturate.
-		return 0x3FFU;
+		return 0x3FFU; // The number is too large to be represented as a 7e3. Saturate.
 	}
 	else {
 		if(IValue < 0x3E800000U) {
@@ -31,10 +29,8 @@ inline uint32_t FloatTo7e3(float Value) noexcept
 			IValue = (0x800000U | (IValue & 0x7FFFFFU)) >> Shift;
 		}
 		else {
-			// Rebias the exponent to represent the value as a normalized 7e3.
-			IValue += 0xC2000000U;
+			IValue += 0xC2000000U; // Rebias the exponent to represent the value as a normalized 7e3.
 		}
-
 		return ((IValue + 0x7FFFU + ((IValue >> 16U) & 1U)) >> 16U) & 0x3FFU;
 	}
 }
@@ -42,7 +38,6 @@ inline uint32_t FloatTo7e3(float Value) noexcept
 inline float FloatFrom7e3(uint32_t Value) noexcept
 {
 	auto Mantissa = static_cast<uint32_t>(Value & 0x7F);
-
 	uint32_t Exponent = (Value & 0x380);
 	if(Exponent != 0) { // The value is normalized
 		Exponent = static_cast<uint32_t>((Value >> 7) & 0x7);
@@ -50,29 +45,23 @@ inline float FloatFrom7e3(uint32_t Value) noexcept
 	else if(Mantissa != 0) {    // The value is denormalized
 		// Normalize the value in the resulting float
 		Exponent = 1;
-
 		do{
 			Exponent--;
 			Mantissa <<= 1;
-		}
-		while((Mantissa & 0x80) == 0);
-
+		} while((Mantissa & 0x80) == 0);
 		Mantissa &= 0x7F;
 	}
 	else {                       // The value is zero
 		Exponent = uint32_t(-124);
 	}
-
 	const uint32_t Result = ((Exponent + 124) << 23) | // Exponent
-	    (Mantissa << 16);          // Mantissa
-
+	    (Mantissa << 16); // Mantissa
 	return reinterpret_cast<const float*>(&Result)[0];
 }
 
 inline uint32_t FloatTo6e4(float Value) noexcept
 {
 	uint32_t IValue = reinterpret_cast<uint32_t *>(&Value)[0];
-
 	if(IValue & 0x80000000U) {
 		// Positive only
 		return 0;
@@ -92,7 +81,6 @@ inline uint32_t FloatTo6e4(float Value) noexcept
 			// Rebias the exponent to represent the value as a normalized 6e4.
 			IValue += 0xC4000000U;
 		}
-
 		return ((IValue + 0xFFFFU + ((IValue >> 17U) & 1U)) >> 17U) & 0x3FFU;
 	}
 }
@@ -100,7 +88,6 @@ inline uint32_t FloatTo6e4(float Value) noexcept
 inline float FloatFrom6e4(uint32_t Value) noexcept
 {
 	uint32_t Mantissa = static_cast<uint32_t>(Value & 0x3F);
-
 	uint32_t Exponent = (Value & 0x3C0);
 	if(Exponent != 0) { // The value is normalized
 		Exponent = static_cast<uint32_t>((Value >> 6) & 0xF);
@@ -108,22 +95,17 @@ inline float FloatFrom6e4(uint32_t Value) noexcept
 	else if(Mantissa != 0) {    // The value is denormalized
 		// Normalize the value in the resulting float
 		Exponent = 1;
-
 		do{
 			Exponent--;
 			Mantissa <<= 1;
-		}
-		while((Mantissa & 0x40) == 0);
-
+		} while((Mantissa & 0x40) == 0);
 		Mantissa &= 0x3F;
 	}
 	else {                       // The value is zero
 		Exponent = uint32_t(-120);
 	}
-
 	const uint32_t Result = ((Exponent + 120) << 23) | // Exponent
 	    (Mantissa << 17);          // Mantissa
-
 	return reinterpret_cast<const float*>(&Result)[0];
 }
 
@@ -177,17 +159,12 @@ const XMVECTORF32 g_8BitBias = { { { 0.5f / 255.f, 0.5f / 255.f, 0.5f / 255.f, 0
 // Copies an image row with optional clearing of alpha value to 1.0
 // (can be used in place as well) otherwise copies the image row unmodified.
 //-------------------------------------------------------------------------------------
-_Use_decl_annotations_ void DirectX::Internal::CopyScanline(void* pDestination,
-    size_t outSize,
-    const void* pSource,
-    size_t inSize,
-    DXGI_FORMAT format,
-    uint32_t tflags) noexcept
+_Use_decl_annotations_ void DirectX::Internal::CopyScanline(void* pDestination, size_t outSize, const void* pSource,
+    size_t inSize, DXGI_FORMAT format, uint32_t tflags) noexcept
 {
 	assert(pDestination && outSize > 0);
 	assert(pSource && inSize > 0);
 	assert(IsValid(format) && !IsPalettized(format));
-
 	if(tflags & TEXP_SCANLINE_SETALPHA) {
 		switch(static_cast<int>(format)) {
 			//-----------------------------------------------------------------------------
@@ -340,7 +317,6 @@ _Use_decl_annotations_ void DirectX::Internal::CopyScanline(void* pDestination,
 					    alpha = 0x000F;
 				    else
 					    alpha = 0x8000;
-
 				    if(pDestination == pSource) {
 					    auto dPtr = static_cast<uint16_t*>(pDestination);
 					    for(size_t count = 0; count < (outSize - 1); count += 2) {
@@ -377,17 +353,12 @@ _Use_decl_annotations_ void DirectX::Internal::CopyScanline(void* pDestination,
 // Swizzles (RGB <-> BGR) an image row with optional clearing of alpha value to 1.0
 // (can be used in place as well) otherwise copies the image row unmodified.
 //-------------------------------------------------------------------------------------
-_Use_decl_annotations_ void DirectX::Internal::SwizzleScanline(void* pDestination,
-    size_t outSize,
-    const void* pSource,
-    size_t inSize,
-    DXGI_FORMAT format,
-    uint32_t tflags) noexcept
+_Use_decl_annotations_ void DirectX::Internal::SwizzleScanline(void* pDestination, size_t outSize, const void* pSource,
+    size_t inSize, DXGI_FORMAT format, uint32_t tflags) noexcept
 {
 	assert(pDestination && outSize > 0);
 	assert(pSource && inSize > 0);
 	assert(IsValid(format) && !IsPlanar(format) && !IsPalettized(format));
-
 	switch(static_cast<int>(format)) {
 		//---------------------------------------------------------------------------------
 		case DXGI_FORMAT_R10G10B10A2_TYPELESS:
@@ -1454,11 +1425,9 @@ _Use_decl_annotations_ bool DirectX::Internal::LoadScanline(XMVECTOR* pDestinati
 // Stores an image row from standard RGBA XMVECTOR (aligned) array
 //-------------------------------------------------------------------------------------
 #define STORE_SCANLINE(type, func) \
-	if(size >= sizeof(type)) \
-	{ \
+	if(size >= sizeof(type)) { \
 		type * __restrict dPtr = reinterpret_cast<type*>(pDestination); \
-		for(size_t icount = 0; icount < (size - sizeof(type) + 1); icount += sizeof(type)) \
-		{ \
+		for(size_t icount = 0; icount < (size - sizeof(type) + 1); icount += sizeof(type)) { \
 			if(sPtr >= ePtr) break; \
 			func(dPtr++, *sPtr++); \
 		} \
@@ -1471,41 +1440,23 @@ _Use_decl_annotations_ bool DirectX::Internal::StoreScanline(void* pDestination,
 {
 	assert(pDestination != nullptr);
 	assert(IsValid(format) && !IsTypeless(format) && !IsCompressed(format) && !IsPlanar(format) && !IsPalettized(format));
-
 	if(!size || !count)
 		return false;
-
 	const XMVECTOR* __restrict sPtr = pSource;
 	if(!sPtr)
 		return false;
-
 	assert((reinterpret_cast<uintptr_t>(pSource) & 0xF) == 0);
-
 	const XMVECTOR* ePtr = sPtr + count;
-
 #ifdef _PREFAST_
 	*reinterpret_cast<uint8_t*>(pDestination) = 0;
 #endif
-
 	switch(static_cast<int>(format)) {
-		case DXGI_FORMAT_R32G32B32A32_FLOAT:
-		    STORE_SCANLINE(XMFLOAT4, XMStoreFloat4)
-
-		case DXGI_FORMAT_R32G32B32A32_UINT:
-		    STORE_SCANLINE(XMUINT4, XMStoreUInt4)
-
-		case DXGI_FORMAT_R32G32B32A32_SINT:
-		    STORE_SCANLINE(XMINT4, XMStoreSInt4)
-
-		case DXGI_FORMAT_R32G32B32_FLOAT:
-		    STORE_SCANLINE(XMFLOAT3, XMStoreFloat3)
-
-		case DXGI_FORMAT_R32G32B32_UINT:
-		    STORE_SCANLINE(XMUINT3, XMStoreUInt3)
-
-		case DXGI_FORMAT_R32G32B32_SINT:
-		    STORE_SCANLINE(XMINT3, XMStoreSInt3)
-
+		case DXGI_FORMAT_R32G32B32A32_FLOAT: STORE_SCANLINE(XMFLOAT4, XMStoreFloat4)
+		case DXGI_FORMAT_R32G32B32A32_UINT: STORE_SCANLINE(XMUINT4, XMStoreUInt4)
+		case DXGI_FORMAT_R32G32B32A32_SINT: STORE_SCANLINE(XMINT4, XMStoreSInt4)
+		case DXGI_FORMAT_R32G32B32_FLOAT: STORE_SCANLINE(XMFLOAT3, XMStoreFloat3)
+		case DXGI_FORMAT_R32G32B32_UINT: STORE_SCANLINE(XMUINT3, XMStoreUInt3)
+		case DXGI_FORMAT_R32G32B32_SINT: STORE_SCANLINE(XMINT3, XMStoreSInt3)
 		case DXGI_FORMAT_R16G16B16A16_FLOAT:
 		    if(size >= sizeof(XMHALF4)) {
 			    XMHALF4* __restrict dPtr = static_cast<XMHALF4*>(pDestination);
@@ -1518,28 +1469,13 @@ _Use_decl_annotations_ bool DirectX::Internal::StoreScanline(void* pDestination,
 			    return true;
 		    }
 		    return false;
-
-		case DXGI_FORMAT_R16G16B16A16_UNORM:
-		    STORE_SCANLINE(XMUSHORTN4, XMStoreUShortN4)
-
-		case DXGI_FORMAT_R16G16B16A16_UINT:
-		    STORE_SCANLINE(XMUSHORT4, XMStoreUShort4)
-
-		case DXGI_FORMAT_R16G16B16A16_SNORM:
-		    STORE_SCANLINE(XMSHORTN4, XMStoreShortN4)
-
-		case DXGI_FORMAT_R16G16B16A16_SINT:
-		    STORE_SCANLINE(XMSHORT4, XMStoreShort4)
-
-		case DXGI_FORMAT_R32G32_FLOAT:
-		    STORE_SCANLINE(XMFLOAT2, XMStoreFloat2)
-
-		case DXGI_FORMAT_R32G32_UINT:
-		    STORE_SCANLINE(XMUINT2, XMStoreUInt2)
-
-		case DXGI_FORMAT_R32G32_SINT:
-		    STORE_SCANLINE(XMINT2, XMStoreSInt2)
-
+		case DXGI_FORMAT_R16G16B16A16_UNORM: STORE_SCANLINE(XMUSHORTN4, XMStoreUShortN4)
+		case DXGI_FORMAT_R16G16B16A16_UINT: STORE_SCANLINE(XMUSHORT4, XMStoreUShort4)
+		case DXGI_FORMAT_R16G16B16A16_SNORM: STORE_SCANLINE(XMSHORTN4, XMStoreShortN4)
+		case DXGI_FORMAT_R16G16B16A16_SINT: STORE_SCANLINE(XMSHORT4, XMStoreShort4)
+		case DXGI_FORMAT_R32G32_FLOAT: STORE_SCANLINE(XMFLOAT2, XMStoreFloat2)
+		case DXGI_FORMAT_R32G32_UINT: STORE_SCANLINE(XMUINT2, XMStoreUInt2)
+		case DXGI_FORMAT_R32G32_SINT: STORE_SCANLINE(XMINT2, XMStoreSInt2)
 		case DXGI_FORMAT_D32_FLOAT_S8X24_UINT:
 	    {
 		    constexpr size_t psize = sizeof(float) + sizeof(uint32_t);
@@ -1559,19 +1495,10 @@ _Use_decl_annotations_ bool DirectX::Internal::StoreScanline(void* pDestination,
 		    }
 	    }
 		    return false;
-
-		case DXGI_FORMAT_R10G10B10A2_UNORM:
-		    STORE_SCANLINE(XMUDECN4, XMStoreUDecN4)
-
-		case DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM:
-		    STORE_SCANLINE(XMUDECN4, XMStoreUDecN4_XR)
-
-		case DXGI_FORMAT_R10G10B10A2_UINT:
-		    STORE_SCANLINE(XMUDEC4, XMStoreUDec4)
-
-		case DXGI_FORMAT_R11G11B10_FLOAT:
-		    STORE_SCANLINE(XMFLOAT3PK, XMStoreFloat3PK)
-
+		case DXGI_FORMAT_R10G10B10A2_UNORM: STORE_SCANLINE(XMUDECN4, XMStoreUDecN4)
+		case DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM: STORE_SCANLINE(XMUDECN4, XMStoreUDecN4_XR)
+		case DXGI_FORMAT_R10G10B10A2_UINT: STORE_SCANLINE(XMUDEC4, XMStoreUDec4)
+		case DXGI_FORMAT_R11G11B10_FLOAT: STORE_SCANLINE(XMFLOAT3PK, XMStoreFloat3PK)
 		case DXGI_FORMAT_R8G8B8A8_UNORM:
 		case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
 		    if(size >= sizeof(XMUBYTEN4)) {
@@ -1584,16 +1511,9 @@ _Use_decl_annotations_ bool DirectX::Internal::StoreScanline(void* pDestination,
 			    return true;
 		    }
 		    return false;
-
-		case DXGI_FORMAT_R8G8B8A8_UINT:
-		    STORE_SCANLINE(XMUBYTE4, XMStoreUByte4)
-
-		case DXGI_FORMAT_R8G8B8A8_SNORM:
-		    STORE_SCANLINE(XMBYTEN4, XMStoreByteN4)
-
-		case DXGI_FORMAT_R8G8B8A8_SINT:
-		    STORE_SCANLINE(XMBYTE4, XMStoreByte4)
-
+		case DXGI_FORMAT_R8G8B8A8_UINT: STORE_SCANLINE(XMUBYTE4, XMStoreUByte4)
+		case DXGI_FORMAT_R8G8B8A8_SNORM: STORE_SCANLINE(XMBYTEN4, XMStoreByteN4)
+		case DXGI_FORMAT_R8G8B8A8_SINT: STORE_SCANLINE(XMBYTE4, XMStoreByte4)
 		case DXGI_FORMAT_R16G16_FLOAT:
 		    if(size >= sizeof(XMHALF2)) {
 			    XMHALF2* __restrict dPtr = static_cast<XMHALF2*>(pDestination);
@@ -1606,19 +1526,10 @@ _Use_decl_annotations_ bool DirectX::Internal::StoreScanline(void* pDestination,
 			    return true;
 		    }
 		    return false;
-
-		case DXGI_FORMAT_R16G16_UNORM:
-		    STORE_SCANLINE(XMUSHORTN2, XMStoreUShortN2)
-
-		case DXGI_FORMAT_R16G16_UINT:
-		    STORE_SCANLINE(XMUSHORT2, XMStoreUShort2)
-
-		case DXGI_FORMAT_R16G16_SNORM:
-		    STORE_SCANLINE(XMSHORTN2, XMStoreShortN2)
-
-		case DXGI_FORMAT_R16G16_SINT:
-		    STORE_SCANLINE(XMSHORT2, XMStoreShort2)
-
+		case DXGI_FORMAT_R16G16_UNORM: STORE_SCANLINE(XMUSHORTN2, XMStoreUShortN2)
+		case DXGI_FORMAT_R16G16_UINT: STORE_SCANLINE(XMUSHORT2, XMStoreUShort2)
+		case DXGI_FORMAT_R16G16_SNORM: STORE_SCANLINE(XMSHORTN2, XMStoreShortN2)
+		case DXGI_FORMAT_R16G16_SINT: STORE_SCANLINE(XMSHORT2, XMStoreShort2)
 		case DXGI_FORMAT_D32_FLOAT:
 		case DXGI_FORMAT_R32_FLOAT:
 		    if(size >= sizeof(float)) {
@@ -1630,7 +1541,6 @@ _Use_decl_annotations_ bool DirectX::Internal::StoreScanline(void* pDestination,
 			    return true;
 		    }
 		    return false;
-
 		case DXGI_FORMAT_R32_UINT:
 		    if(size >= sizeof(uint32_t)) {
 			    uint32_t * __restrict dPtr = static_cast<uint32_t*>(pDestination);
@@ -1670,19 +1580,10 @@ _Use_decl_annotations_ bool DirectX::Internal::StoreScanline(void* pDestination,
 			    return true;
 		    }
 		    return false;
-
-		case DXGI_FORMAT_R8G8_UNORM:
-		    STORE_SCANLINE(XMUBYTEN2, XMStoreUByteN2)
-
-		case DXGI_FORMAT_R8G8_UINT:
-		    STORE_SCANLINE(XMUBYTE2, XMStoreUByte2)
-
-		case DXGI_FORMAT_R8G8_SNORM:
-		    STORE_SCANLINE(XMBYTEN2, XMStoreByteN2)
-
-		case DXGI_FORMAT_R8G8_SINT:
-		    STORE_SCANLINE(XMBYTE2, XMStoreByte2)
-
+		case DXGI_FORMAT_R8G8_UNORM: STORE_SCANLINE(XMUBYTEN2, XMStoreUByteN2)
+		case DXGI_FORMAT_R8G8_UINT: STORE_SCANLINE(XMUBYTE2, XMStoreUByte2)
+		case DXGI_FORMAT_R8G8_SNORM: STORE_SCANLINE(XMBYTEN2, XMStoreByteN2)
+		case DXGI_FORMAT_R8G8_SINT: STORE_SCANLINE(XMBYTE2, XMStoreByte2)
 		case DXGI_FORMAT_R16_FLOAT:
 		    if(size >= sizeof(HALF)) {
 			    HALF * __restrict dPtr = static_cast<HALF*>(pDestination);
@@ -1695,7 +1596,6 @@ _Use_decl_annotations_ bool DirectX::Internal::StoreScanline(void* pDestination,
 			    return true;
 		    }
 		    return false;
-
 		case DXGI_FORMAT_D16_UNORM:
 		case DXGI_FORMAT_R16_UNORM:
 		    if(size >= sizeof(uint16_t)) {
@@ -2628,8 +2528,7 @@ struct ConvertData {
 	uint32_t flags;
 };
 
-const ConvertData g_ConvertTable[] =
-{
+const ConvertData g_ConvertTable[] = {
 	{ DXGI_FORMAT_R32G32B32A32_FLOAT,           32, CONVF_FLOAT | CONVF_R | CONVF_G | CONVF_B | CONVF_A },
 	{ DXGI_FORMAT_R32G32B32A32_UINT,            32, CONVF_UINT | CONVF_R | CONVF_G | CONVF_B | CONVF_A },
 	{ DXGI_FORMAT_R32G32B32A32_SINT,            32, CONVF_SINT | CONVF_R | CONVF_G | CONVF_B | CONVF_A },
@@ -4084,11 +3983,8 @@ namespace {
 //
 // Selection logic for using WIC vs. our own routines
 //
-inline bool UseWICConversion(_In_ TEX_FILTER_FLAGS filter,
-    _In_ DXGI_FORMAT sformat,
-    _In_ DXGI_FORMAT tformat,
-    _Out_ WICPixelFormatGUID& pfGUID,
-    _Out_ WICPixelFormatGUID& targetGUID) noexcept
+inline bool UseWICConversion(_In_ TEX_FILTER_FLAGS filter, _In_ DXGI_FORMAT sformat, _In_ DXGI_FORMAT tformat,
+    _Out_ WICPixelFormatGUID& pfGUID, _Out_ WICPixelFormatGUID& targetGUID) noexcept
 {
     #ifndef _WIN32
 	UNREFERENCED_PARAMETER(filter);
@@ -4279,32 +4175,23 @@ HRESULT ConvertUsingWIC(_In_ const Image& srcImage,
 		srcImage.pixels, source.GetAddressOf());
 	if(FAILED(hr))
 		return hr;
-
 	hr = FC->Initialize(source.Get(), targetGUID, GetWICDither(filter), nullptr,
 		static_cast<double>(threshold) * 100.0, WICBitmapPaletteTypeMedianCut);
 	if(FAILED(hr))
 		return hr;
-
 	hr = FC->CopyPixels(nullptr, static_cast<UINT>(destImage.rowPitch), static_cast<UINT>(destImage.slicePitch), destImage.pixels);
 	if(FAILED(hr))
 		return hr;
-
 	return S_OK;
     #endif // WIN32
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Convert the source image (not using WIC)
-//-------------------------------------------------------------------------------------
-HRESULT ConvertCustom(_In_ const Image& srcImage,
-    _In_ TEX_FILTER_FLAGS filter,
-    _In_ const Image& destImage,
-    _In_ float threshold,
-    size_t z) noexcept
+//
+HRESULT ConvertCustom(_In_ const Image& srcImage, _In_ TEX_FILTER_FLAGS filter, _In_ const Image& destImage, _In_ float threshold, size_t z) noexcept
 {
 	assert(srcImage.width == destImage.width);
 	assert(srcImage.height == destImage.height);
-
 	const uint8_t * pSrc = srcImage.pixels;
 	uint8_t * pDest = destImage.pixels;
 	if(!pSrc || !pDest)
@@ -4368,34 +4255,22 @@ HRESULT ConvertCustom(_In_ const Image& srcImage,
 	return S_OK;
 }
 
-//-------------------------------------------------------------------------------------
 DXGI_FORMAT PlanarToSingle(_In_ DXGI_FORMAT format) noexcept
 {
 	switch(format) {
 		case DXGI_FORMAT_NV12:
-		case DXGI_FORMAT_NV11:
-		    return DXGI_FORMAT_YUY2;
-
-		case DXGI_FORMAT_P010:
-		    return DXGI_FORMAT_Y210;
-
-		case DXGI_FORMAT_P016:
-		    return DXGI_FORMAT_Y216;
-
+		case DXGI_FORMAT_NV11: return DXGI_FORMAT_YUY2;
+		case DXGI_FORMAT_P010: return DXGI_FORMAT_Y210;
+		case DXGI_FORMAT_P016: return DXGI_FORMAT_Y216;
 		// We currently do not support conversion for Xbox One specific 16-bit depth formats
-
 		// We can't do anything with DXGI_FORMAT_420_OPAQUE because it's an opaque blob of bits
-
 		// We don't support conversion of JPEG Hardware decode formats
-
-		default:
-		    return DXGI_FORMAT_UNKNOWN;
+		default: return DXGI_FORMAT_UNKNOWN;
 	}
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Convert the image from a planar to non-planar image
-//-------------------------------------------------------------------------------------
+//
 #define CONVERT_420_TO_422(srcType, destType) \
 	{ \
 		const size_t rowPitch = srcImage.rowPitch; \

@@ -309,7 +309,7 @@ static void mtree_indent(struct mtree_writer * mtree)
 	x = NULL;
 	while(*r == ' ')
 		r++;
-	while((r = strchr(r, ' ')) != NULL) {
+	while((r = sstrchr(r, ' ')) != NULL) {
 		if(fn) {
 			fn = 0;
 			for(i = 0; i < nd + pd; i++)

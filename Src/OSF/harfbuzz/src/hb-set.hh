@@ -104,20 +104,14 @@ struct hb_set_t {
 				* lb &= ~((mask(b) << 1) - 1);
 			}
 		}
-
-		bool is_equal(const page_t * other) const
-		{
-			return 0 == hb_memcmp(&v, &other->v, sizeof(v));
-		}
-
+		bool is_equal(const page_t * other) const { return 0 == hb_memcmp(&v, &other->v, sizeof(v)); }
 		uint get_population() const
 		{
 			uint pop = 0;
 			for(uint i = 0; i < len(); i++)
-				pop += hb_popcount(v[i]);
+				pop += /*hb_popcount*/SBits::Cpop(v[i]);
 			return pop;
 		}
-
 		bool next(hb_codepoint_t * codepoint) const
 		{
 			uint m = (*codepoint + 1) & MASK;
@@ -188,7 +182,7 @@ struct hb_set_t {
 		static constexpr unsigned PAGE_BITS = 512;
 		static_assert((PAGE_BITS & ((PAGE_BITS)-1)) == 0, "");
 
-		static uint elt_get_min(const elt_t &elt) { return hb_ctz(elt); }
+		static uint elt_get_min(const elt_t &elt) { return SBits::Ctz(elt); }
 		static uint elt_get_max(const elt_t &elt) { return hb_bit_storage(elt) - 1; }
 		typedef hb_vector_size_t<elt_t, PAGE_BITS / 8> vector_t;
 		static constexpr unsigned ELT_BITS = sizeof(elt_t) * 8;

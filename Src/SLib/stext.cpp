@@ -1766,46 +1766,61 @@ uint FASTCALL iseol(const char * pStr, SEOLFormat eolf)
 
 size_t FASTCALL sstrnlen(const char * pStr, size_t maxLen)
 {
+	// @v11.7.0 memchr-->smemchr
 	if(pStr) {
-		const char * p_end = static_cast<const char *>(smemchr(pStr, '\0', maxLen)); // @v11.7.0 memchr-->smemchr
+		const char * p_end = static_cast<const char *>(smemchr(pStr, 0, maxLen)); 
 		return p_end ? (size_t)(p_end - pStr) : maxLen;
 	}
 	else
 		return 0;
 }
-
+//
+// @v11.7.10 Внесено уточнение во все функции sstrchr: при поиске нулевого символа возвращается (pStr+strlen(pStr))
+// это соответствует спецификации strchr согласно которой завершающий символ трактуется как часть строки и может
+// быть найден с возвратом адекватного результата, а не нуля.
+//
 const char * FASTCALL sstrchr(const char * pStr, char c)
 {
 	const  size_t len = implement_sstrlen(pStr);
-	const  char * p = len ? static_cast<const char *>(smemchr(pStr, static_cast<uchar>(c), len)) : 0; // @v11.7.0 memchr-->smemchr
+	// @v11.7.0 memchr-->smemchr
+	const  char * p = c ? (len ? static_cast<const char *>(smemchr(pStr, static_cast<uchar>(c), len)) : 0) : (pStr+len);
 	return p;
 }
 
 char * FASTCALL sstrchr(char * pStr, char c)
 {
 	const  size_t len = implement_sstrlen(pStr);
-	char * p = len ? static_cast<char *>(const_cast<void *>(smemchr(pStr, static_cast<uchar>(c), len))) : 0; // @v11.7.0 memchr-->smemchr
+	// @v11.7.0 memchr-->smemchr
+	char * p = c ? (len ? static_cast<char *>(const_cast<void *>(smemchr(pStr, static_cast<uchar>(c), len))) : 0) : (pStr+len);
 	return p;
 }
 
 const wchar_t * FASTCALL sstrchr(const wchar_t * pStr, wchar_t c)
 {
 	const  size_t len = implement_sstrlen(pStr);
-	for(size_t i = 0; i < len; i++) {
-		if(pStr[i] == c)
-			return (pStr+i);
+	if(c) {
+		for(size_t i = 0; i < len; i++) {
+			if(pStr[i] == c)
+				return (pStr+i);
+		}
+		return 0;
 	}
-	return 0;
+	else
+		return (pStr+len);
 }
 
 wchar_t * FASTCALL sstrchr(wchar_t * pStr, wchar_t c)
 {
 	const  size_t len = implement_sstrlen(pStr);
-	for(size_t i = 0; i < len; i++) {
-		if(pStr[i] == c)
-			return (pStr+i);
+	if(c) {
+		for(size_t i = 0; i < len; i++) {
+			if(pStr[i] == c)
+				return (pStr+i);
+		}
+		return 0;
 	}
-	return 0;
+	else
+		return (pStr+len);
 }
 
 char * FASTCALL sstrdup(const char * pStr)
@@ -3226,9 +3241,6 @@ SCodepageIdent STextEncodingStat::GetAutodetectedCp() const
 	return cp;
 }
 //
-//
-//
-//
 // Finds the first occurrence of the sub-string needle in the string haystack.
 // Returns NULL if needle was not found.
 //
@@ -3386,271 +3398,3 @@ int main(int argc, char **argv )
 	return rc;
 }
 #endif // } 0
-//
-//
-//
-#if SLTEST_RUNNING // {
-
-const void * fast_memchr(const void * haystack, int n, size_t len);
-//const void * fast_memchr_sse2(const void * haystack, int n, size_t len);
-
-struct Test_memchr_Block {
-	Test_memchr_Block(const char needle, const char * pHaystackFileName) : Needle(needle), Status(0)
-	{
-		Status |= stError;
-		SFile f_in(pHaystackFileName, SFile::mRead);
-		if(f_in.IsValid()) {
-			STempBuffer _buf(SMEGABYTE(1));
-			size_t actual_size = 0;
-			if(f_in.ReadAll(_buf, 0, &actual_size) > 0) {
-				Status &= ~stError;
-				Haystack.CatN(_buf.cptr(), actual_size);
-				//
-				const uint hs_len = Haystack.Len();
-				for(uint i = 0; i < hs_len; i++) {
-					PosList.add((long)i);
-					if(hs_len <= 1024) {
-						LenList.add((long)(i+1));
-					}
-					else if(i < 512/* || i >= (hs_len - 512)*/)
-						LenList.add((long)(i+1));
-					if(Haystack.C(i) == Needle) {
-						TargetPosList.add((long)i);
-					}
-				}
-				TargetPosList.sort();
-				LenList.shuffle();
-				PosList.shuffle();
-			}
-		}
-	}
-	enum {
-		stError = 0x0001
-	};
-	bool   IsValid() const { return !(Status & stError); }
-
-	const  char Needle;
-	uint8  Reserve[3]; // @alignment
-	int    Status;
-	SString Haystack;
-	LongArray TargetPosList; // Список позиций, в которых встрачается целевой символ
-	LongArray PosList; // Список позиций, начиная с которых следует осуществлять поиск
-	LongArray LenList; // Список длин отрезков, на которых следует осуществлять поиск
-};
-
-static int Test_memchr(Test_memchr_Block & rBlk, const void * (*func)(const void * pHaystack, int needle, size_t len))
-{
-	int    ok = 1;
-	{
-		const char * p_haystack = rBlk.Haystack.cptr();
-		const size_t haystack_len = rBlk.Haystack.Len();
-		for(uint lidx = 0; ok && lidx < rBlk.LenList.getCount(); lidx++) {
-			const size_t len = (size_t)rBlk.LenList.get(lidx);
-			for(uint pidx = 0; ok && pidx < rBlk.PosList.getCount(); pidx++) {
-				const uint pos = (size_t)rBlk.PosList.get(pidx);
-				if((pos+len) <= haystack_len) {
-					const char * p_target = static_cast<const char *>(func(const_cast<char *>(p_haystack+pos), rBlk.Needle, len));
-					const long pos_key = (long)pos;
-					uint  pos_key_idx = 0;
-					const bool tpl_search_result = rBlk.TargetPosList.bsearchGe(&pos_key, &pos_key_idx, CMPF_LONG);
-					const size_t found_pos = tpl_search_result ? static_cast<ssize_t>(rBlk.TargetPosList.get(pos_key_idx)) : 0;
-					if(p_target) {
-						if(tpl_search_result && (p_target - p_haystack) == found_pos) {
-							; // ok
-						}
-						else {
-							ok = 0;
-						}
-					}
-					else {
-						if(!tpl_search_result || found_pos >= (pos+len)) {
-							; // ok
-						}
-						else {
-							ok = 0;
-						}
-					}
-				}
-			}
-		}
-	}
-	return ok;
-}
-
-static int Profile_memchr(Test_memchr_Block & rBlk, const void * (*func)(const void * pHaystack, int needle, size_t len))
-{
-	int    ok = 1;
-	{
-		const char * p_haystack = rBlk.Haystack.cptr();
-		const size_t haystack_len = rBlk.Haystack.Len();
-		volatile char * p_target = 0;
-		for(uint lidx = 0; ok && lidx < rBlk.LenList.getCount(); lidx++) {
-			const size_t len = (size_t)rBlk.LenList.get(lidx);
-			for(uint pidx = 0; ok && pidx < rBlk.PosList.getCount(); pidx++) {
-				const uint pos = (size_t)rBlk.PosList.get(pidx);
-				if((pos+len) <= haystack_len) {
-					p_target = const_cast<volatile char *>(static_cast<const char *>(func(const_cast<char *>(p_haystack+pos), rBlk.Needle, len)));
-				}
-			}
-		}
-	}
-	return ok;
-}
-
-SLTEST_R(memchr)
-{
-	//benchmark=memchr;fast_memchr;fast_memchr_sse2
-	int    bm = -1;
-	if(pBenchmark == 0) 
-		bm = 0;
-	else if(sstreqi_ascii(pBenchmark, "memchr"))        
-		bm = 1;
-	else if(sstreqi_ascii(pBenchmark, "fast_memchr"))   
-		bm = 2;
-	else if(sstreqi_ascii(pBenchmark, "fast_memchr_sse2"))      
-		bm = 3;
-	SString test_data_path(MakeInputFilePath("sherlock-holmes-huge.txt"));
-	Test_memchr_Block blk('A', test_data_path);
-	THROW(SLCHECK_NZ(blk.IsValid()));
-	if(bm == 0) {
-		SLCHECK_NZ(Test_memchr(blk, memchr));
-		SLCHECK_NZ(Test_memchr(blk, fast_memchr));
-		SLCHECK_NZ(Test_memchr(blk, /*fast_memchr_sse2*/smemchr));
-	}
-	else if(bm == 1) {
-		Profile_memchr(blk, memchr);
-	}
-	else if(bm == 2) {
-		Profile_memchr(blk, fast_memchr);
-	}
-	else if(bm == 3) {
-		Profile_memchr(blk, /*fast_memchr_sse2*/smemchr);
-	}
-	CATCH
-		CurrentStatus = 0;
-	ENDCATCH
-	return CurrentStatus;	
-}
-
-static int Test_strstr(const char * pHaystack, const char * pNeedle, const size_t * pPosList, uint posListCount, const char * (* funcStrStr)(const char *, const char *))
-{
-	int    ok = 1;
-	if(funcStrStr) {
-		size_t result_pos_list[128];
-		uint result_count = 0;
-		const char * p = pHaystack;
-		do {
-			p = funcStrStr(p, pNeedle);
-			if(p) {
-				result_pos_list[result_count++] = p-pHaystack;
-				p++;
-			}
-		} while(p);
-		if(result_count != posListCount)
-			ok = 0;
-		else {
-			for(uint i = 0; ok && i < result_count; i++) {
-				if(result_pos_list[i] != pPosList[i])
-					ok = 0;
-			}
-		}
-	}
-	else
-		ok = 0;
-	return ok;
-}
-
-SLTEST_R(strstr)
-{
-	const char * p_haystack = "abcDEFabcababc";
-	const char * p_needle = "abc";
-	const size_t pos_list[] = {0, 6, 11};
-	SLCHECK_NZ(Test_strstr(p_haystack, p_needle, pos_list, SIZEOFARRAY(pos_list), strstr));
-	SLCHECK_NZ(Test_strstr(p_haystack, p_needle, pos_list, SIZEOFARRAY(pos_list), byteshift_strstr));
-	return CurrentStatus;	
-}
-
-static int Make_STextEncodingStat_FilePool(const SString & rPath, SFileEntryPool & rFep)
-{
-	int    ok = 1;
-	SDirEntry de;
-	SString temp_buf;
-	(temp_buf = rPath).SetLastSlash().Cat("*.*");
-	for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
-		if(!de.IsSelf() && !de.IsUpFolder()) {
-			if(de.IsFile()) {
-				THROW(rFep.Add(rPath, de));
-			}
-			else if(de.IsFolder()) {
-				de.GetNameA(rPath, temp_buf);
-				THROW(Make_STextEncodingStat_FilePool(temp_buf, rFep)); // @recursion
-			}
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-
-SLTEST_R(STextEncodingStat)
-{
-	SString test_data_path(MakeInputFilePath("uchardet"));
-	SString out_file_name(MakeOutputFilePath("uchardet-out.txt"));
-	SString in_file_name;
-	SString temp_buf;
-	SFileEntryPool fep;
-	//SFileEntryPool::Entry fep_entry;
-	SPathStruc ps;
-	{
-		STextEncodingStat tes_icu(STextEncodingStat::fUseIcuCharDet);
-		THROW(Make_STextEncodingStat_FilePool(test_data_path, fep));
-		{
-			SFile f_out(out_file_name, SFile::mWrite);
-			for(uint i = 0; i < fep.GetCount(); i++) {
-				if(fep.Get(i, /*fep_entry*/0, &in_file_name)) {
-					//(in_file_name = fep_entry.Path).SetLastSlash().Cat(fep_entry.Name);
-					SFile f_in(in_file_name, SFile::mRead);
-					tes_icu.Init(STextEncodingStat::fUseIcuCharDet);
-					while(f_in.ReadLine(temp_buf)) {
-						tes_icu.Add(temp_buf, temp_buf.Len());
-					}
-					tes_icu.Finish();
-					ps.Split(in_file_name);
-					SLCHECK_NZ(tes_icu.CheckFlag(STextEncodingStat::fUCharDetWorked));
-					SLCHECK_Z(ps.Nam.CmpNC(tes_icu.GetCpName()));
-					temp_buf.Z().Cat(in_file_name).Tab().Cat(tes_icu.GetCpName()).CR();
-					f_out.WriteLine(temp_buf);
-				}
-			}
-		}
-	}
-	{
-		STextEncodingStat tes_(STextEncodingStat::fUseUCharDet);
-		THROW(Make_STextEncodingStat_FilePool(test_data_path, fep));
-		{
-			SFile f_out(out_file_name, SFile::mWrite);
-			for(uint i = 0; i < fep.GetCount(); i++) {
-				if(fep.Get(i, /*fep_entry*/0, &in_file_name)) {
-					//(in_file_name = fep_entry.Path).SetLastSlash().Cat(fep_entry.Name);
-					SFile f_in(in_file_name, SFile::mRead);
-					tes_.Init(STextEncodingStat::fUseUCharDet);
-					while(f_in.ReadLine(temp_buf)) {
-						tes_.Add(temp_buf, temp_buf.Len());
-					}
-					tes_.Finish();
-					ps.Split(in_file_name);
-					SLCHECK_NZ(tes_.CheckFlag(STextEncodingStat::fUCharDetWorked));
-					SLCHECK_Z(ps.Nam.CmpNC(tes_.GetCpName()));
-					temp_buf.Z().Cat(in_file_name).Tab().Cat(tes_.GetCpName()).CR();
-					f_out.WriteLine(temp_buf);
-				}
-			}
-		}
-	}
-	CATCH
-		CurrentStatus = 0;
-	ENDCATCH
-	return CurrentStatus;
-}
-
-#endif // } SLTEST_RUNNING
-

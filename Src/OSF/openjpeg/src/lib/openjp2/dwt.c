@@ -368,17 +368,13 @@ static void  opj_idwt53_h_cas1(int32_t* tmp, const int32_t sn, const int32_t len
 
 	for(i = 1, j = 1; i < (len - 2 - !(len & 1)); i += 2, j++) {
 		s2 = in_even[j + 1];
-
 		dn = in_odd[j] - ((s1 + s2 + 2) >> 2);
 		tmp[i  ] = dc;
 		tmp[i + 1] = opj_int_add_no_overflow(s1, opj_int_add_no_overflow(dn, dc) >> 1);
-
 		dc = dn;
 		s1 = s2;
 	}
-
 	tmp[i] = dc;
-
 	if(!(len & 1)) {
 		dn = in_odd[len / 2 - 1] - ((s1 + 1) >> 1);
 		tmp[len - 2] = s1 + ((dn + dc) >> 1);

@@ -87,7 +87,7 @@ namespace OT {
 		   * advance--measured from beginning of
 		   * PosTable (may be NULL) */
 #endif
-		uint get_len() const { return hb_popcount((uint)*this); }
+		uint get_len() const { return /*hb_popcount*/SBits::Cpop((uint)*this); }
 		uint get_size() const { return get_len() * Value::static_size; }
 		bool apply_value(hb_ot_apply_context_t * c, const void * base, const Value * values, hb_glyph_position_t   &glyph_pos) const
 		{

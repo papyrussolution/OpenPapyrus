@@ -896,10 +896,11 @@ double RandNumbGen::Gaussian(const Rng * P_r, const double sigma)
 }
 
 //ГЕНЕРАЦИЯ ТОВАРНЫХ ДОКУМЕНТОВ ПО ЭКСПОНЕНЦИАЛЬНОМУ З-НУ
-int GetRandom(int min, int max)
+/* @v11.7.10 @obsolete int GetRandom(int min, int max)
 {
-	return (int)(((double)rand() / (RAND_MAX + 1)) * (max - min) + min);  //генератор псевдослучайных чисел
-}
+	return static_cast<int>(SLS.GetTLA().Rg.GetUniformPos() * (max - min) + min);
+	//return (int)(((double)rand() / (RAND_MAX + 1)) * (max - min) + min);  //генератор псевдослучайных чисел
+}*/
 
 int GenerateGoodsBills()
 {
@@ -1081,7 +1082,8 @@ int GenerateGoodsBills()
 							//
 							// кол-во товара
 							//
-							qtty = (rest > 2) ? GetRandom(1, (int)rest) : rest;
+							// @v11.7.10 qtty = (rest > 2) ? GetRandom(1, (int)rest) : rest;
+							qtty = (rest > 2) ? SLS.GetTLA().Rg.GetUniformIntPos(static_cast<int>(rest) + 1) : rest; // @v11.7.10 
 							//
 							// цена реализации по последнему лоту
 							//

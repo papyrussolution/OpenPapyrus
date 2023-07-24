@@ -101,8 +101,7 @@ static boolint opj_sparse_array_int32_read_or_write(const opj_sparse_array_int32
 			if(is_read_op) {
 				if(src_block == NULL) {
 					if(buf_col_stride == 1) {
-						int32_t* dest_ptr = buf + (y - y0) * (size_t)buf_line_stride +
-						    (x - x0) * buf_col_stride;
+						int32_t* dest_ptr = buf + (y - y0) * (size_t)buf_line_stride + (x - x0) * buf_col_stride;
 						for(j = 0; j < y_incr; j++) {
 							memzero(dest_ptr, sizeof(int32_t) * x_incr);
 							dest_ptr += buf_line_stride;

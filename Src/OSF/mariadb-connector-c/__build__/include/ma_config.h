@@ -14,7 +14,7 @@
 //#undef HAVE_LINUX_LIMITS_H */
 //#undef HAVE_PWD_H */
 //#undef HAVE_SELECT_H */
-#define HAVE_STDDEF_H 1
+// (see slport.h) #define HAVE_STDDEF_H 1
 //#undef HAVE_STDINT_H */
 #define HAVE_STDLIB_H 1
 #define HAVE_STRING_H 1
@@ -34,7 +34,7 @@
 //#undef HAVE_DLERROR */
 //#undef HAVE_DLOPEN */
 //#undef HAVE_GETPWUID */
-#define HAVE_MEMCPY 1
+// (see slport.h) #define HAVE_MEMCPY 1
 //#undef HAVE_POLL */
 //#undef HAVE_STRTOK_R */
 #define HAVE_STRTOL 1

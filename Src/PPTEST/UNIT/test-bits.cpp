@@ -177,70 +177,102 @@ SLTEST_R(BitOps)
 	SLCHECK_EQ(SBits::Ctz_fallback((uint64)-1LL), 0U);
 	SLCHECK_EQ(SBits::Cpop_fallback((uint64)-1LL), (uint)(sizeof(uint64) << 3));
 	bool debug_mark = false;
-	for(uint i = 0; i < 100000; i++) {
-		const uint32 v1 = r_rg.GetUniformIntPos(MAXUINT32);
-		assert(v1 != 0); // GetUniformIntPos specification
-		{
-			const uint32 v = v1;
-			constexpr uint cbits = sizeof(v) << 3;
-			clz = SBits::Clz_fallback(v);
-			ctz = SBits::Ctz_fallback(v);
-			pop = SBits::Cpop_fallback(v);
-			const uint s1 = clz+ctz+pop;
-			SLCHECK_LE((clz+ctz+pop), cbits);
-			
-			clz = SBits::Clz(v);
-			ctz = SBits::Ctz(v);
-			pop = SBits::Cpop(v);
-			SLCHECK_EQ((clz+ctz+pop), s1);
-			SLCHECK_LE((clz+ctz+pop), cbits);
-			{
-				// 
-				// Циклический сдвиг на случайную (меньше числа бит в значении) величину.
-				// -- Rotl и Rotr обратимы
+	{
+		//
+		// Проверка инвариантности циклического сдвига rot(x, n)==rot(x, n%bits)
+		//
+		for(uint i = 0; i < 100; i++) {
+			const uint32 v1 = r_rg.GetUniformIntPos(MAXUINT32);
+			const uint32 v2 = r_rg.GetUniformIntPos(MAXUINT32);
+			assert(v1 != 0); // GetUniformIntPos specification
+			assert(v2 != 0); // GetUniformIntPos specification
+			const uint32 v32 = v1;
+			const uint64 v64 = (static_cast<uint64>(v1) << 32) | static_cast<uint64>(v2);
+			for(uint s = 0; s < 300; s++) {
+				assert((s%32) == (s&0x1f));
+				assert((s%64) == (s&0x3f));
+				SLCHECK_EQ(SBits::Rotl_fallback(v32, s), SBits::Rotl_fallback(v32, s%32));
+				SLCHECK_EQ(SBits::Rotl(v32, s), SBits::Rotl(v32, s%32));
+				SLCHECK_EQ(SBits::Rotl_fallback(v32, s), SBits::Rotl(v32, s%32));
+				SLCHECK_EQ(SBits::Rotl_fallback(v64, s), SBits::Rotl_fallback(v64, s%64));
+				SLCHECK_EQ(SBits::Rotl(v64, s), SBits::Rotl(v64, s%64));
+				SLCHECK_EQ(SBits::Rotl_fallback(v64, s), SBits::Rotl(v64, s%64));
 				//
-				uint nb = r_rg.GetUniformIntPos(cbits);
-				const uint32 __v = SBits::Rotl(v, nb);
-				SLCHECK_EQ(SBits::Rotl_fallback(v, nb), __v);
-				SLCHECK_EQ(SBits::Rotr(__v, nb), v);
-				SLCHECK_EQ(SBits::Rotr_fallback(__v, nb), v);
-				// Чаще всего после вращения результат не равен аргументу,
-				// но бывают исключения для периодических двоичных величин.
-				// Поэтому сформулируем инвариант v != __v с дополнительным
-				// ограничением, что все установленные биты идут спложной полосой (s1 == cbits)
-				// и при этом не все биты в числен установлены (clz != 0 || ctz != 0)
-				SLCHECK_NZ(!(s1 == cbits && (clz != 0 || ctz != 0)) || (v != __v));
-				if(!CurrentStatus)
-					debug_mark = true;
+				SLCHECK_EQ(SBits::Rotr_fallback(v32, s), SBits::Rotr_fallback(v32, s%32));
+				SLCHECK_EQ(SBits::Rotr(v32, s), SBits::Rotr(v32, s%32));
+				SLCHECK_EQ(SBits::Rotr_fallback(v32, s), SBits::Rotr(v32, s%32));
+				SLCHECK_EQ(SBits::Rotr_fallback(v64, s), SBits::Rotr_fallback(v64, s%64));
+				SLCHECK_EQ(SBits::Rotr(v64, s), SBits::Rotr(v64, s%64));
+				SLCHECK_EQ(SBits::Rotr_fallback(v64, s), SBits::Rotr(v64, s%64));
 			}
 		}
-		const uint32 v2 = r_rg.GetUniformIntPos(MAXUINT32);
-		assert(v2 != 0); // GetUniformIntPos specification
-		{
-			const uint64 v = (static_cast<uint64>(v1) << 32) | static_cast<uint64>(v2);
-			constexpr uint cbits = sizeof(v) << 3;
-			clz = SBits::Clz_fallback(v);
-			ctz = SBits::Ctz_fallback(v);
-			pop = SBits::Cpop_fallback(v);
-			const uint s1 = clz+ctz+pop;
-			SLCHECK_LE((clz+ctz+pop), cbits);
-			clz = SBits::Clz(v);
-			ctz = SBits::Ctz(v);
-			pop = SBits::Cpop(v);
-			SLCHECK_LE((clz+ctz+pop), cbits);
+	}
+	{
+		for(uint i = 0; i < 100000; i++) {
+			const uint32 v1 = r_rg.GetUniformIntPos(MAXUINT32);
+			assert(v1 != 0); // GetUniformIntPos specification
 			{
-				// 
-				// Циклический сдвиг на случайную (меньше числа бит в значении) величину.
-				// -- Rotl и Rotr обратимы
-				//
-				uint nb = r_rg.GetUniformIntPos(cbits);
-				const uint64 __v = SBits::Rotl(v, nb);
-				SLCHECK_EQ(SBits::Rotl_fallback(v, nb), __v);
-				SLCHECK_EQ(SBits::Rotr(__v, nb), v);
-				SLCHECK_EQ(SBits::Rotr_fallback(__v, nb), v);
-				SLCHECK_NZ(!(s1 == cbits && (clz != 0 || ctz != 0)) || (v != __v));
-				if(!CurrentStatus)
-					debug_mark = true;
+				const uint32 v = v1;
+				constexpr uint cbits = sizeof(v) << 3;
+				clz = SBits::Clz_fallback(v);
+				ctz = SBits::Ctz_fallback(v);
+				pop = SBits::Cpop_fallback(v);
+				const uint s1 = clz+ctz+pop;
+				SLCHECK_LE((clz+ctz+pop), cbits);
+			
+				clz = SBits::Clz(v);
+				ctz = SBits::Ctz(v);
+				pop = SBits::Cpop(v);
+				SLCHECK_EQ((clz+ctz+pop), s1);
+				SLCHECK_LE((clz+ctz+pop), cbits);
+				{
+					// 
+					// Циклический сдвиг на случайную (меньше числа бит в значении) величину.
+					// -- Rotl и Rotr обратимы
+					//
+					uint nb = r_rg.GetUniformIntPos(cbits);
+					const uint32 __v = SBits::Rotl(v, nb);
+					SLCHECK_EQ(SBits::Rotl_fallback(v, nb), __v);
+					SLCHECK_EQ(SBits::Rotr(__v, nb), v);
+					SLCHECK_EQ(SBits::Rotr_fallback(__v, nb), v);
+					// Чаще всего после вращения результат не равен аргументу,
+					// но бывают исключения для периодических двоичных величин.
+					// Поэтому сформулируем инвариант v != __v с дополнительным
+					// ограничением, что все установленные биты идут спложной полосой (s1 == cbits)
+					// и при этом не все биты в числен установлены (clz != 0 || ctz != 0)
+					SLCHECK_NZ(!(s1 == cbits && (clz != 0 || ctz != 0)) || (v != __v));
+					if(!CurrentStatus)
+						debug_mark = true;
+				}
+			}
+			const uint32 v2 = r_rg.GetUniformIntPos(MAXUINT32);
+			assert(v2 != 0); // GetUniformIntPos specification
+			{
+				const uint64 v = (static_cast<uint64>(v1) << 32) | static_cast<uint64>(v2);
+				constexpr uint cbits = sizeof(v) << 3;
+				clz = SBits::Clz_fallback(v);
+				ctz = SBits::Ctz_fallback(v);
+				pop = SBits::Cpop_fallback(v);
+				const uint s1 = clz+ctz+pop;
+				SLCHECK_LE((clz+ctz+pop), cbits);
+				clz = SBits::Clz(v);
+				ctz = SBits::Ctz(v);
+				pop = SBits::Cpop(v);
+				SLCHECK_LE((clz+ctz+pop), cbits);
+				{
+					// 
+					// Циклический сдвиг на случайную (меньше числа бит в значении) величину.
+					// -- Rotl и Rotr обратимы
+					//
+					uint nb = r_rg.GetUniformIntPos(cbits);
+					const uint64 __v = SBits::Rotl(v, nb);
+					SLCHECK_EQ(SBits::Rotl_fallback(v, nb), __v);
+					SLCHECK_EQ(SBits::Rotr(__v, nb), v);
+					SLCHECK_EQ(SBits::Rotr_fallback(__v, nb), v);
+					SLCHECK_NZ(!(s1 == cbits && (clz != 0 || ctz != 0)) || (v != __v));
+					if(!CurrentStatus)
+						debug_mark = true;
+				}
 			}
 		}
 	}

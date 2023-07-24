@@ -107,7 +107,6 @@ U_CAPI void U_EXPORT2 u_flushDefaultConverter()
 static int32_t u_astrnlen(const char * s1, int32_t n)
 {
 	int32_t len = 0;
-
 	if(s1) {
 		while(n-- && *(s1++)) {
 			len++;
@@ -116,9 +115,7 @@ static int32_t u_astrnlen(const char * s1, int32_t n)
 	return len;
 }
 
-U_CAPI char16_t * U_EXPORT2 u_uastrncpy(char16_t * ucs1,
-    const char * s2,
-    int32_t n)
+U_CAPI char16_t * U_EXPORT2 u_uastrncpy(char16_t * ucs1, const char * s2, int32_t n)
 {
 	char16_t * target = ucs1;
 	UErrorCode err = U_ZERO_ERROR;

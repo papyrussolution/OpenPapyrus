@@ -3710,17 +3710,17 @@ struct TimeRange { // @persistent
 // Descr: То же, что и checkirange но не инициирует ошибку SLIB (для тех случаев, когда производительность важна)
 //
 inline bool checkirangef(long nmb, long low, long upp) { return (nmb >= low && nmb <= upp); }
-int    FASTCALL inrangeordefault(int val, int low, int upp, int def);
-long   FASTCALL inrangeordefault(long val, long low, long upp, long def);
-uint   FASTCALL inrangeordefault(uint val, uint low, uint upp, uint def);
-double FASTCALL inrangeordefault(double val, double low, double upp, double def);
+int    STDCALL inrangeordefault(int val, int low, int upp, int def);
+long   STDCALL inrangeordefault(long val, long low, long upp, long def);
+uint   STDCALL inrangeordefault(uint val, uint low, uint upp, uint def);
+double STDCALL inrangeordefault(double val, double low, double upp, double def);
 //
 // Descr: Проверяет беззнаковое целое число на принадлежность диапазону [0..upper[.
 //   Принадлежность НЕ включительная (nmb == upper - возвращает 0).
 //
-int    FASTCALL checkupper(uint nmb, uint upper);
-int    FASTCALL checkfrange(double nmb, double low, double upp);
-int    FASTCALL checkdrange(LDATE dt, LDATE low, LDATE upp);
+bool   FASTCALL checkupper(uint nmb, uint upper);
+bool   STDCALL  checkfrange(double nmb, double low, double upp);
+bool   STDCALL  checkdrange(LDATE dt, LDATE low, LDATE upp);
 
 // @construction int    FASTCALL BND(int v, int low, int upp);
 // @construction int    FASTCALL BND(uint v, uint low, uint upp);
@@ -3878,8 +3878,8 @@ public:
 	int    FASTCALL Write(SBuffer &) const;
 	int    FASTCALL Read(SBuffer &);
 
-	float  x/*X*/;
-	float  y/*Y*/;
+	float  x;
+	float  y;
 };
 
 extern const SPoint2F ZEROFPOINT; // @global
@@ -7336,7 +7336,7 @@ double FASTCALL R6(double);
 //
 double FASTCALL roundnev(double n, int prec);
 double trunc(double n, int prec);
-int    GetRandom(int min, int max);
+// @v11.7.10 @obsolete int    GetRandom(int min, int max);
 //
 // Int Money
 // Операции с представлением числа с фиксированной точкой.
@@ -7387,10 +7387,10 @@ public:
 	static uint FASTCALL Clz_fallback(uint64 v);
 	static uint FASTCALL Cpop_fallback(uint32 v);
 	static uint FASTCALL Cpop_fallback(uint64 v);
-	static FORCEINLINE uint32 Rotl_fallback(uint32 x, uint n) { return (((x) << (n)) | ((x) >> (32 - (n)))); }
-	static FORCEINLINE uint64 Rotl_fallback(uint64 x, uint n) { return (((x) << (n)) | ((x) >> (64 - (n)))); }
-	static FORCEINLINE uint32 Rotr_fallback(uint32 x, uint n) { return (((x) >> (n)) | ((x) << (32 - (n)))); }
-	static FORCEINLINE uint64 Rotr_fallback(uint64 x, uint n) { return (((x) >> (n)) | ((x) << (64 - (n)))); }
+	static FORCEINLINE uint32 Rotl_fallback(uint32 x, uint n) { n &= 0x1f; return (((x) << (n)) | ((x) >> (32-n))); }
+	static FORCEINLINE uint64 Rotl_fallback(uint64 x, uint n) { n &= 0x3f; return (((x) << (n)) | ((x) >> (64-n))); }
+	static FORCEINLINE uint32 Rotr_fallback(uint32 x, uint n) { n &= 0x1f; return (((x) >> (n)) | ((x) << (32-n))); }
+	static FORCEINLINE uint64 Rotr_fallback(uint64 x, uint n) { n &= 0x3f; return (((x) >> (n)) | ((x) << (64-n))); }
 
 	static uint FASTCALL Ctz(uint32 v);
 	static uint FASTCALL Ctz(uint64 v);
@@ -14362,9 +14362,15 @@ struct SColor : public SColorBase { // @persistent
 	SColor(SColourCollection c);
 	SColor(SColourCollection c, float opacity/*[0.0f..1.0f]*/);
 	SColor(COLORREF c);
+	bool FASTCALL operator == (SColorBase s) const { return (B == s.B && G == s.G && R == s.R && Alpha == s.Alpha); }
+	bool FASTCALL operator != (SColorBase s) const { return !operator == (s); }
+	bool FASTCALL operator == (SColor s) const { return (B == s.B && G == s.G && R == s.R && Alpha == s.Alpha); }
+	bool FASTCALL operator != (SColor s) const { return !operator == (s); }
 	SColor & FASTCALL operator = (const SColorBase & rS);
 	SColor FASTCALL Lighten(float factor) const;
 	SColor FASTCALL Darken(float factor) const;
+
+	static SColor Lerp(SColor c1, SColor c2, float factor);
 };
 
 extern const SColor ZEROCOLOR;
@@ -14383,6 +14389,9 @@ COLORREF FASTCALL DarkenColor(COLORREF col, float factor);
 class SColorF {
 public:
 	SColorF() : R(0.0f), G(0.0f), B(0.0f), Alpha(0.0f)
+	{
+	}
+	SColorF(float _r, float _g, float _b, float _a) : R(_r), G(_g), B(_b), Alpha(_a)
 	{
 	}
 	SColorF(const SColorBase & rS) : R(rS.RedF()), G(rS.GreenF()), B(rS.BlueF()), Alpha(rS.AlphaF())
@@ -14715,7 +14724,13 @@ public:
 	}
 	TSHashCollection & Z()
 	{
-		clear();
+		for(uint i = 0; i < getCount(); i++) {
+			T * ptr = static_cast<T *>(at(i));
+			if(ptr) {
+				delete ptr;
+				atPut(i, 0);
+			}
+		}
 		return *this;
 	}
 	//
@@ -18166,7 +18181,7 @@ private:
 	int    FASTCALL Implement_Transform(TransformBlock & rBlk);
 
 	struct State_ {
-		State_() : P_Tab(0), P_Ext(0), P_Ctx(0)
+		State_() : P_Tab(0), P_Ctx(0), P_Ext(0)
 		{
 			MEMSZERO(O);
 			MEMSZERO(S);

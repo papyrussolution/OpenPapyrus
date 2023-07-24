@@ -2719,8 +2719,7 @@ static int tls_construct_cke_psk_preamble(SSL * s, WPACKET * pkt)
 	int ret = 0;
 	/*
 	 * The callback needs PSK_MAX_IDENTITY_LEN + 1 bytes to return a
-	 * \0-terminated identity. The last byte is for us for simulating
-	 * strnlen.
+	 * \0-terminated identity. The last byte is for us for simulating strnlen.
 	 */
 	char identity[PSK_MAX_IDENTITY_LEN + 1];
 	size_t identitylen = 0;
@@ -2728,18 +2727,12 @@ static int tls_construct_cke_psk_preamble(SSL * s, WPACKET * pkt)
 	uchar * tmppsk = NULL;
 	char * tmpidentity = NULL;
 	size_t psklen = 0;
-
 	if(s->psk_client_callback == NULL) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_R_PSK_NO_CLIENT_CB);
 		goto err;
 	}
-
-	memset(identity, 0, sizeof(identity));
-
-	psklen = s->psk_client_callback(s, s->session->psk_identity_hint,
-		identity, sizeof(identity) - 1,
-		psk, sizeof(psk));
-
+	memzero(identity, sizeof(identity));
+	psklen = s->psk_client_callback(s, s->session->psk_identity_hint, identity, sizeof(identity) - 1, psk, sizeof(psk));
 	if(psklen > PSK_MAX_PSK_LEN) {
 		SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, ERR_R_INTERNAL_ERROR);
 		psklen = PSK_MAX_PSK_LEN; /* Avoid overrunning the array on cleanse */
@@ -2749,7 +2742,6 @@ static int tls_construct_cke_psk_preamble(SSL * s, WPACKET * pkt)
 		SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_R_PSK_IDENTITY_NOT_FOUND);
 		goto err;
 	}
-
 	identitylen = strlen(identity);
 	if(identitylen > PSK_MAX_IDENTITY_LEN) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);

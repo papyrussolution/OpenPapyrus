@@ -1057,19 +1057,31 @@ public:
 	const  SString & GetSymb() const { return Symb; }
 	SJson * ToJsonObj() const;
 	int    FromJsonObj(const SJson * pJs);
-	int    Put(const char * pSymb, SColor c);
-	int    Get(const char * pSymb, SColor * pC) const;
+	int    Get(const char * pSymb, SColor & rC) const;
+	//
+	int    Test();
 private:
 	enum {
 		funcNone = 0,
-		funcLerp,      // (color, factor) || (color, color)
+		funcLerp,      // (color, color, factor)
 		funcLighten,   // (color, factor)
 		funcDarken,    // (color, factor)
 		funcGrey,      // (whitePart)
 	};
+	enum {
+		argtNone = 0,
+		argtAbsoluteColor,
+		argtRefColor,
+		argtNumber
+	};
 	struct ColorArg {
 		ColorArg();
+		ColorArg & Z();
 		SString & ToStr(SString & rBuf) const;
+		//
+		// Descr: Возвращает тип аргумента (SColorSet::argtXXX)
+		//
+		int    GetType() const;
 
 		SColor C;
 		float  F;
@@ -1077,6 +1089,8 @@ private:
 	};
 	struct ComplexColorBlock {
 		ComplexColorBlock();
+		ComplexColorBlock(const ComplexColorBlock & rS);
+		ComplexColorBlock & FASTCALL operator = (const ComplexColorBlock & rS);
 		ComplexColorBlock & Copy(const ComplexColorBlock & rS);
 		ComplexColorBlock & Z();
 		SString & ToStr(SString & rBuf) const;
@@ -1095,7 +1109,16 @@ private:
 	//
 	int    Helper_ParsePrimitive(SStrScan & rScan, ColorArg & rItem) const;
 	int    ParseComplexColorBlock(const char * pText, ComplexColorBlock & rBlk) const;
-	int    ResolveComplexColorBlock(const ComplexColorBlock & rBlk, SColor & rC) const;
+	int    ResolveComplexColorBlock(const ComplexColorBlock & rBlk, SColor & rC, StringSet & rRecurSymbList) const;
+	//
+	// Descr: Вставляет элемент набора с символом pSymb и значением pBlk.
+	//   Объект по указателю pBlk переходит в полное владение функцией. В случае успеха, он будет включен в
+	//   коллекцию CcC, в случае неудачи или если содержит простой абсолютный цвет - удален.
+	//   Таким образом, клиент функции должен объект, передаваемый по указателю pBlk распределить динамически (new)
+	//
+	int    Put(const char * pSymb, ComplexColorBlock * pBlk);
+	int    Get(const char * pSymb, ComplexColorBlock * pBlk) const;
+	int    Helper_Get(const char * pSymb, SColor & rC, StringSet * pRecurSymbList) const;
 
 	struct InnerEntry {
 		InnerEntry();

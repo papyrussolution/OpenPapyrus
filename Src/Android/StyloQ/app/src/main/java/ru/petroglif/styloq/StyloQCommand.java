@@ -412,9 +412,7 @@ public class StyloQCommand {
 			for(int i = 0; result < 0 && i < PendingList.size(); i++) {
 				Pending pi = PendingList.get(i);
 				if(pi != null && SLib.AreByteArraysEqual(pi.SvcIdent, svcIdent)) {
-					if(cmdItem == null)
-						result = i;
-					else if(cmdItem != null && pi.CmdUuid != null && cmdItem.Uuid.compareTo(pi.CmdUuid) == 0)
+					if(cmdItem == null || SLib.AreUUIDsEqual(cmdItem.Uuid, pi.CmdUuid))
 						result = i;
 				}
 			}

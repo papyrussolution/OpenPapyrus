@@ -258,7 +258,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <ControlFlowGuard>false</ControlFlowGuard>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
@@ -320,7 +320,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <ControlFlowGuard>false</ControlFlowGuard>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
@@ -380,7 +380,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <ControlFlowGuard>false</ControlFlowGuard>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
@@ -440,7 +440,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <ControlFlowGuard>false</ControlFlowGuard>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
@@ -502,7 +502,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <ControlFlowGuard>false</ControlFlowGuard>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
@@ -561,7 +561,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <ControlFlowGuard>false</ControlFlowGuard>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
@@ -617,7 +617,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <CompileAsManaged>false</CompileAsManaged>
@@ -682,7 +682,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <CompileAsManaged>false</CompileAsManaged>
@@ -745,7 +745,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <CompileAsManaged>false</CompileAsManaged>
@@ -808,7 +808,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <CompileAsManaged>false</CompileAsManaged>
@@ -873,7 +873,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <CompileAsManaged>false</CompileAsManaged>
@@ -935,7 +935,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <CompileAsManaged>false</CompileAsManaged>

@@ -405,3 +405,243 @@ SLTEST_R(iterator)
 }
 
 // } @sandbox
+
+int SColorSet::Test()
+{
+	int    ok = 1;
+	SString temp_buf;
+	Z();
+	const SColor primary(0, 0xff, 0xff);
+	const SColor secondary(0, 0x80, 0x00);
+	{
+		{
+			ComplexColorBlock ccb;
+			THROW(ParseComplexColorBlock("#00ffff", ccb));
+			THROW(ccb.RefSymb.IsEmpty());
+			THROW(ccb.Func == funcNone);
+			THROW(ccb.C == SColor(SClrCyan));
+			THROW(ccb.C == primary);
+			THROW(Put("primary", new ComplexColorBlock(ccb)));
+		}
+		{
+			ComplexColorBlock ccb;
+			THROW(ParseComplexColorBlock("#008000", ccb));
+			THROW(ccb.RefSymb.IsEmpty());
+			THROW(ccb.Func == funcNone);
+			THROW(ccb.C == SColor(SClrGreen));
+			THROW(ccb.C == secondary);
+			THROW(Put("secondary", new ComplexColorBlock(ccb)));
+		}
+	}
+	{
+		const char * p_symb = "color001";
+		ComplexColorBlock ccb;
+		THROW(ParseComplexColorBlock("#ff0000", ccb));
+		THROW(ccb.RefSymb.IsEmpty());
+		THROW(ccb.Func == funcNone);
+		THROW(ccb.C == SColor(SClrRed));
+		THROW(Put(p_symb, new ComplexColorBlock(ccb)));
+		{
+			ComplexColorBlock ccb2;
+			THROW(Get(p_symb, &ccb2));
+			THROW(ccb2.RefSymb == ccb.RefSymb);
+			THROW(ccb2.Func == ccb.Func);
+			THROW(ccb2.C == ccb.C);
+		}
+	}
+	{
+		const char * p_symb = "color002";
+		ComplexColorBlock ccb;
+		THROW(ParseComplexColorBlock("#ff0000|0.5", ccb));
+		THROW(ccb.RefSymb.IsEmpty());
+		THROW(ccb.Func == funcNone);
+		THROW(ccb.C == SColor(0xff, 0x00, 0x00).SetAlphaF(0.5f));
+		THROW(Put(p_symb, new ComplexColorBlock(ccb)));
+		{
+			ComplexColorBlock ccb2;
+			THROW(Get(p_symb, &ccb2));
+			THROW(ccb2.RefSymb == ccb.RefSymb);
+			THROW(ccb2.Func == ccb.Func);
+			THROW(ccb2.C == ccb.C);
+		}
+	}
+	{
+		const char * p_symb = "color003";
+		const SString ref_symb("primary");
+		ComplexColorBlock ccb;
+		THROW(ParseComplexColorBlock(temp_buf.Z().CatChar('$').Cat(ref_symb), ccb));
+		THROW(ccb.RefSymb.IsEqiAscii(ref_symb));
+		THROW(ccb.Func == funcNone);
+		THROW(ccb.C == ZEROCOLOR);
+		THROW(Put(p_symb, new ComplexColorBlock(ccb)));
+		{
+			ComplexColorBlock ccb_ref;
+			ComplexColorBlock ccb2;
+			THROW(Get(p_symb, &ccb2));
+			THROW(Get(ref_symb, &ccb_ref));
+			THROW(ccb2.RefSymb == ccb.RefSymb);
+			THROW(ccb2.Func == ccb.Func);
+			THROW(ccb2.C == ccb.C);
+			//
+			SColor color_resolved;
+			THROW(Get(p_symb, color_resolved) > 0);
+			THROW(color_resolved == ccb_ref.C);
+		}
+		//
+		//ResolveComplexColorBlock(ccb, )
+	}
+	{
+		const char * p_symb = "color004";
+		const SString ref_symb("primary");
+		ComplexColorBlock ccb;
+		THROW(ParseComplexColorBlock("$Primary|0.7", ccb));
+		THROW(ccb.RefSymb.IsEqiAscii(ref_symb));
+		THROW(ccb.Func == funcNone);
+		THROW(ccb.C == SColor(ZEROCOLOR).SetAlphaF(0.7f));
+		THROW(Put(p_symb, new ComplexColorBlock(ccb)));
+		{
+			ComplexColorBlock ccb_ref;
+			ComplexColorBlock ccb2;
+			THROW(Get(p_symb, &ccb2));
+			THROW(Get(ref_symb, &ccb_ref));
+			THROW(ccb2.RefSymb == ccb.RefSymb);
+			THROW(ccb2.Func == ccb.Func);
+			THROW(ccb2.C == ccb.C);
+			//
+			SColor color_resolved;
+			THROW(Get(p_symb, color_resolved) > 0);
+			THROW(color_resolved == SColor(ccb_ref.C).SetAlphaF(0.7f));
+		}
+	}
+	{
+		const char * p_symb = "color005";
+		const SString ref_symb1("primary");
+		const SString ref_symb2("secondary");
+		ComplexColorBlock ccb;
+		THROW(ParseComplexColorBlock("lerp $Primary $Secondary 0.4", ccb));
+		THROW(ccb.RefSymb.IsEmpty());
+		THROW(ccb.Func == funcLerp);
+		THROW(ccb.C == ZEROCOLOR);
+		THROW(ccb.ArgList.getCount() == 3);
+		THROW(ccb.ArgList.at(0)->GetType() == argtRefColor);
+		THROW(ccb.ArgList.at(0)->RefSymb.IsEqiAscii("primary"));
+		THROW(ccb.ArgList.at(0)->C == ZEROCOLOR);
+		THROW(ccb.ArgList.at(1)->GetType() == argtRefColor);
+		THROW(ccb.ArgList.at(1)->RefSymb.IsEqiAscii("secondary"));
+		THROW(ccb.ArgList.at(1)->C == ZEROCOLOR);
+		THROW(ccb.ArgList.at(2)->GetType() == argtNumber);
+		THROW(ccb.ArgList.at(2)->F == 0.4f);
+		THROW(ccb.ArgList.at(2)->C == ZEROCOLOR);
+		THROW(Put(p_symb, new ComplexColorBlock(ccb)));
+		{
+			ComplexColorBlock ccb_ref1;
+			ComplexColorBlock ccb_ref2;
+			ComplexColorBlock ccb2;
+			THROW(Get(p_symb, &ccb2));
+			THROW(Get(ref_symb1, &ccb_ref1));
+			THROW(Get(ref_symb2, &ccb_ref2));
+			THROW(ccb2.RefSymb == ccb.RefSymb);
+			THROW(ccb2.Func == ccb.Func);
+			THROW(ccb2.C == ccb.C);
+			//
+			SColor color_resolved;
+			THROW(Get(p_symb, color_resolved) > 0);
+			THROW(color_resolved == SColor::Lerp(primary, secondary, 0.4f));
+		}
+	}
+	{
+		const char * p_symb = "color006";
+		const SString ref_symb("primary");
+		ComplexColorBlock ccb;
+		THROW(ParseComplexColorBlock("lighten $Primary 0.1", ccb));
+		THROW(ccb.RefSymb.IsEmpty());
+		THROW(ccb.Func == funcLighten);
+		THROW(ccb.C == ZEROCOLOR);
+		THROW(ccb.ArgList.getCount() == 2);
+		THROW(ccb.ArgList.at(0)->GetType() == argtRefColor);
+		THROW(ccb.ArgList.at(0)->RefSymb.IsEqiAscii("primary"));
+		THROW(ccb.ArgList.at(0)->C == ZEROCOLOR);
+		THROW(ccb.ArgList.at(1)->GetType() == argtNumber);
+		THROW(ccb.ArgList.at(1)->F == 0.1f);
+		THROW(ccb.ArgList.at(1)->C == ZEROCOLOR);
+		THROW(Put(p_symb, new ComplexColorBlock(ccb)));
+		{
+			ComplexColorBlock ccb_ref;
+			ComplexColorBlock ccb2;
+			THROW(Get(p_symb, &ccb2));
+			THROW(Get(ref_symb, &ccb_ref));
+			THROW(ccb2.RefSymb == ccb.RefSymb);
+			THROW(ccb2.Func == ccb.Func);
+			THROW(ccb2.C == ccb.C);
+			//
+			SColor color_resolved;
+			THROW(Get(p_symb, color_resolved) > 0);
+			THROW(color_resolved == SColor(ccb_ref.C).Lighten(0.1f));
+		}
+	}
+	{
+		const char * p_symb = "color007";
+		ComplexColorBlock ccb;
+		THROW(ParseComplexColorBlock("darken #green|180 0.3", ccb));
+		THROW(ccb.RefSymb.IsEmpty());
+		THROW(ccb.Func == funcDarken);
+		THROW(ccb.C == ZEROCOLOR);
+		THROW(ccb.ArgList.getCount() == 2);
+		THROW(ccb.ArgList.at(0)->GetType() == argtAbsoluteColor);
+		THROW(ccb.ArgList.at(0)->RefSymb.IsEmpty());
+		THROW(ccb.ArgList.at(0)->C == SColor(SClrGreen).SetAlpha(180));
+		THROW(ccb.ArgList.at(1)->GetType() == argtNumber);
+		THROW(ccb.ArgList.at(1)->F == 0.3f);
+		THROW(ccb.ArgList.at(1)->C == ZEROCOLOR);
+		THROW(Put(p_symb, new ComplexColorBlock(ccb)));
+		{
+			ComplexColorBlock ccb2;
+			THROW(Get(p_symb, &ccb2));
+			THROW(ccb2.RefSymb == ccb.RefSymb);
+			THROW(ccb2.Func == ccb.Func);
+			THROW(ccb2.C == ccb.C);
+			//
+			SColor color_resolved;
+			THROW(Get(p_symb, color_resolved) > 0);
+			THROW(color_resolved == SColor(SClrGreen).Darken(0.3f).SetAlpha(180));
+		}
+	}
+	{
+		const char * p_symb = "color008";
+		ComplexColorBlock ccb;
+		THROW(ParseComplexColorBlock("grey 0.14", ccb));
+		THROW(ccb.RefSymb.IsEmpty());
+		THROW(ccb.Func == funcGrey);
+		THROW(ccb.C == ZEROCOLOR);
+		THROW(ccb.ArgList.getCount() == 1);
+		THROW(ccb.ArgList.at(0)->GetType() == argtNumber);
+		THROW(ccb.ArgList.at(0)->RefSymb.IsEmpty());
+		THROW(ccb.ArgList.at(0)->C == ZEROCOLOR);
+		THROW(ccb.ArgList.at(0)->F == 0.14f);
+		THROW(Put(p_symb, new ComplexColorBlock(ccb)));
+		{
+			ComplexColorBlock ccb2;
+			THROW(Get(p_symb, &ccb2));
+			THROW(ccb2.RefSymb == ccb.RefSymb);
+			THROW(ccb2.Func == ccb.Func);
+			THROW(ccb2.C == ccb.C);
+			//
+			SColor color_resolved;
+			THROW(Get(p_symb, color_resolved) > 0);
+			THROW(color_resolved == SColor(0.14f));
+		}
+	}
+	{
+		ComplexColorBlock ccb;
+		THROW(ParseComplexColorBlock("nofunction $secondary 0.14", ccb) == 0);
+	}
+	CATCHZOK
+	return ok;
+}
+
+SLTEST_R(SColorSet)
+{
+	SColorSet cs;
+	SLCHECK_NZ(cs.Test());
+	return CurrentStatus;
+}

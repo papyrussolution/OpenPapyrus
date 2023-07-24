@@ -532,9 +532,7 @@ void EncodeBC1(_Out_ D3DX_BC1 * pBC, _In_reads_(NUM_PIXELS_PER_BLOCK) const HDRC
 				Clr.g += Error[i].g;
 				Clr.b += Error[i].b;
 			}
-
 			const float fDot = (Clr.r - Step[0].r) * Dir.r + (Clr.g - Step[0].g) * Dir.g + (Clr.b - Step[0].b) * Dir.b;
-
 			uint32_t iStep;
 			if(fDot <= 0.0f)
 				iStep = 0;
@@ -542,33 +540,27 @@ void EncodeBC1(_Out_ D3DX_BC1 * pBC, _In_reads_(NUM_PIXELS_PER_BLOCK) const HDRC
 				iStep = 1;
 			else
 				iStep = uint32_t(pSteps[uint32_t(fDot + 0.5f)]);
-
 			dw = (iStep << 30) | (dw >> 2);
-
 			if(flags & BC_FLAGS_DITHER_RGB) {
 				HDRColorA Diff;
 				Diff.r = Color[i].a * (Clr.r - Step[iStep].r);
 				Diff.g = Color[i].a * (Clr.g - Step[iStep].g);
 				Diff.b = Color[i].a * (Clr.b - Step[iStep].b);
 				Diff.a = 0.0f;
-
 				if(3 != (i & 3)) {
 					Error[i + 1].r += Diff.r * (7.0f / 16.0f);
 					Error[i + 1].g += Diff.g * (7.0f / 16.0f);
 					Error[i + 1].b += Diff.b * (7.0f / 16.0f);
 				}
-
 				if(i < 12) {
 					if(i & 3) {
 						Error[i + 3].r += Diff.r * (3.0f / 16.0f);
 						Error[i + 3].g += Diff.g * (3.0f / 16.0f);
 						Error[i + 3].b += Diff.b * (3.0f / 16.0f);
 					}
-
 					Error[i + 4].r += Diff.r * (5.0f / 16.0f);
 					Error[i + 4].g += Diff.g * (5.0f / 16.0f);
 					Error[i + 4].b += Diff.b * (5.0f / 16.0f);
-
 					if(3 != (i & 3)) {
 						Error[i + 5].r += Diff.r * (1.0f / 16.0f);
 						Error[i + 5].g += Diff.g * (1.0f / 16.0f);
@@ -578,11 +570,9 @@ void EncodeBC1(_Out_ D3DX_BC1 * pBC, _In_reads_(NUM_PIXELS_PER_BLOCK) const HDRC
 			}
 		}
 	}
-
 	pBC->bitmap = dw;
 }
 
-//-------------------------------------------------------------------------------------
 #ifdef COLOR_WEIGHTS
 void EncodeSolidBC1(_Out_ D3DX_BC1 * pBC, _In_reads_(NUM_PIXELS_PER_BLOCK) const HDRColorA * pColor)
 {

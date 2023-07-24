@@ -1,12 +1,13 @@
 // TRECT.CPP
-// ..2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// ..2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
 //
 //
 //
-const SColor ZEROCOLOR(0, 0, 0, 0);
+const SColor ZEROCOLOR(0, 0, 0, 0); // Неопределенный цвет. Отличается от черного значением alpha=0 (полная прозрачность)
 //
 //
 //
@@ -1651,6 +1652,12 @@ SColor FASTCALL SColor::Darken(float factor) const
 		col.B = (uint8)(x-(factor*x));
 	}
 	return col;
+}
+
+/*static*/SColor SColor::Lerp(SColor c1, SColor c2, float factor)
+{
+	SColorF temp_c(lerp(c1.RedF(), c2.RedF(), factor), lerp(c1.GreenF(), c2.GreenF(), factor), lerp(c1.BlueF(), c2.BlueF(), factor), lerp(c1.AlphaF(), c2. AlphaF(), factor));
+	return static_cast<SColor>(temp_c);
 }
 //
 //

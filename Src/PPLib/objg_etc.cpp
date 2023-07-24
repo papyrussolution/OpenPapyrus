@@ -1,5 +1,5 @@
 // OBJG_ETC.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Дополнительные классы инфраструктуры управления товарами
 //
@@ -266,25 +266,23 @@ PPObjGoodsValRestr::GvrArray::GvrArray() : TSVector <PPObjGoodsValRestr::GvrItem
 {
 }
 
-int PPObjGoodsValRestr::GvrArray::TestGvrBillArPair(PPID gvrID, PPID arID) const
-	{ return Helper_TestGvrBillArPair(gvrID, arID, 0); }
-int PPObjGoodsValRestr::GvrArray::TestGvrBillExtArPair(PPID gvrID, PPID arID) const
-	{ return Helper_TestGvrBillArPair(gvrID, arID, 1); }
+int PPObjGoodsValRestr::GvrArray::TestGvrBillArPair(PPID gvrID, PPID arID) const { return Helper_TestGvrBillArPair(gvrID, arID, 0); }
+int PPObjGoodsValRestr::GvrArray::TestGvrBillExtArPair(PPID gvrID, PPID arID) const { return Helper_TestGvrBillArPair(gvrID, arID, 1); }
 
 int PPObjGoodsValRestr::GvrArray::Helper_TestGvrBillArPair(PPID gvrID, PPID arID, int what) const
 {
 	assert(oneof2(what, 0, 1));
 	int    ok = -1;
-	int    has_this_gvr = 0;
-	int    has_only_restrict = 0;
+	bool   has_this_gvr = false;
+	bool   has_only_restrict = false;
 	for(uint i = 0; ok < 0 && i < getCount(); i++) {
 		const GvrItem & r_item = at(i);
 		if(r_item.GvrID == gvrID) {
-			has_this_gvr = 1;
-			const int only_rule = (what == 0) ? BIN(r_item.GvrBarOption == PPGoodsValRestrPacket::barMainArOnly) : BIN(r_item.GvrBarOption == PPGoodsValRestrPacket::barExtArOnly);
-			const int dsbl_rule = (what == 0) ? BIN(r_item.GvrBarOption == PPGoodsValRestrPacket::barMainArDisable) : BIN(r_item.GvrBarOption == PPGoodsValRestrPacket::barExtArDisable);
+			has_this_gvr = true;
+			const bool only_rule = (what == 0) ? (r_item.GvrBarOption == PPGoodsValRestrPacket::barMainArOnly) : (r_item.GvrBarOption == PPGoodsValRestrPacket::barExtArOnly);
+			const bool dsbl_rule = (what == 0) ? (r_item.GvrBarOption == PPGoodsValRestrPacket::barMainArDisable) : (r_item.GvrBarOption == PPGoodsValRestrPacket::barExtArDisable);
 			if(only_rule) {
-				has_only_restrict = 1;
+				has_only_restrict = true;
 				if(arID == r_item.ArID)
 					ok = 1;
 			}

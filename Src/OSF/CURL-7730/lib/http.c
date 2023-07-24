@@ -233,44 +233,31 @@ char * Curl_copy_header_value(const char * header)
 	const char * end;
 	char * value;
 	size_t len;
-
 	/* Find the end of the header name */
 	while(*header && (*header != ':'))
 		++header;
-
 	if(*header)
-		/* Skip over colon */
-		++header;
-
+		++header; /* Skip over colon */
 	/* Find the first non-space letter */
 	start = header;
 	while(*start && ISSPACE(*start))
 		start++;
-
-	/* data is in the host encoding so
-	   use '\r' and '\n' instead of 0x0d and 0x0a */
-	end = strchr(start, '\r');
-	if(!end)
-		end = strchr(start, '\n');
-	if(!end)
-		end = strchr(start, '\0');
+	// data is in the host encoding so use '\r' and '\n' instead of 0x0d and 0x0a
+	end = sstrchr(start, '\r');
+	SETIFZQ(end, sstrchr(start, '\n'));
+	SETIFZQ(end, sstrchr(start, '\0'));
 	if(!end)
 		return NULL;
-
 	/* skip all trailing space letters */
 	while((end > start) && ISSPACE(*end))
 		end--;
-
 	/* get length of the type */
 	len = end - start + 1;
-
 	value = (char *)SAlloc::M(len + 1);
 	if(!value)
 		return NULL;
-
 	memcpy(value, start, len);
 	value[len] = 0; /* null-terminate */
-
 	return value;
 }
 
@@ -1315,9 +1302,7 @@ CURLcode Curl_buffer_send(struct dynbuf * in,
  * Returns TRUE if 'headerline' contains the 'header' with given 'content'.
  * Pass headers WITH the colon.
  */
-bool Curl_compareheader(const char * headerline, /* line to check */
-    const char * header,                /* header keyword _with_ colon */
-    const char * content)               /* content string to find */
+bool Curl_compareheader(const char * headerline/* line to check */, const char * header/* header keyword _with_ colon */, const char * content/* content string to find */)
 {
 	/* RFC2616, section 4.2 says: "Each header field consists of a name followed
 	 * by a colon (":") and the field value. Field names are case-insensitive.
@@ -1329,37 +1314,30 @@ bool Curl_compareheader(const char * headerline, /* line to check */
 	size_t len;
 	const char * start;
 	const char * end;
-
 	if(!strncasecompare(headerline, header, hlen))
 		return FALSE; /* doesn't start with header */
-
 	/* pass the header */
 	start = &headerline[hlen];
-
 	/* pass all whitespace */
 	while(*start && ISSPACE(*start))
 		start++;
 
 	/* find the end of the header line */
-	end = strchr(start, '\r'); /* lines end with CRLF */
+	end = sstrchr(start, '\r'); /* lines end with CRLF */
 	if(!end) {
 		/* in case there's a non-standard compliant line here */
-		end = strchr(start, '\n');
-
+		end = sstrchr(start, '\n');
 		if(!end)
 			/* hm, there's no line ending here, use the zero byte! */
-			end = strchr(start, '\0');
+			end = sstrchr(start, '\0');
 	}
-
 	len = end-start; /* length of the content part of the input line */
 	clen = strlen(content); /* length of the word to find */
-
 	/* find the content string in the rest of the line */
 	for(; len >= clen; len--, start++) {
 		if(strncasecompare(start, content, clen))
 			return TRUE; /* match! */
 	}
-
 	return FALSE; /* no match */
 }
 
@@ -1370,28 +1348,22 @@ bool Curl_compareheader(const char * headerline, /* line to check */
 CURLcode Curl_http_connect(struct connectdata * conn, bool * done)
 {
 	CURLcode result;
-
 	/* We default to persistent connections. We set this already in this connect
 	   function to make the re-use checks properly be able to check this bit. */
 	connkeep(conn, "HTTP default");
-
 #ifndef CURL_DISABLE_PROXY
 	/* the CONNECT procedure might not have been completed */
 	result = Curl_proxy_connect(conn, FIRSTSOCKET);
 	if(result)
 		return result;
-
 	if(conn->bits.proxy_connect_closed)
 		/* this is not an error, just part of the connection negotiation */
 		return CURLE_OK;
-
 	if(CONNECT_FIRSTSOCKET_PROXY_SSL())
 		return CURLE_OK; /* wait for HTTPS proxy SSL initialization to complete */
-
 	if(Curl_connect_ongoing(conn))
 		/* nothing else to do except wait right now - we're not done here. */
 		return CURLE_OK;
-
 	if(conn->data->set.haproxyprotocol) {
 		/* add HAProxy PROXY protocol header */
 		result = add_haproxy_protocol_header(conn);
@@ -1399,7 +1371,6 @@ CURLcode Curl_http_connect(struct connectdata * conn, bool * done)
 			return result;
 	}
 #endif
-
 	if(conn->given->protocol & CURLPROTO_HTTPS) {
 		/* perform SSL initialization */
 		result = https_connecting(conn, done);
@@ -1408,15 +1379,13 @@ CURLcode Curl_http_connect(struct connectdata * conn, bool * done)
 	}
 	else
 		*done = TRUE;
-
 	return CURLE_OK;
 }
 
 /* this returns the socket to wait for in the DO and DOING state for the multi
    interface and then we're always _sending_ a request and thus we wait for
    the single socket to become writable only */
-static int http_getsock_do(struct connectdata * conn,
-    curl_socket_t * socks)
+static int http_getsock_do(struct connectdata * conn, curl_socket_t * socks)
 {
 	/* write mode */
 	socks[0] = conn->sock[FIRSTSOCKET];
@@ -1430,33 +1399,16 @@ static CURLcode add_haproxy_protocol_header(struct connectdata * conn)
 	struct dynbuf req;
 	CURLcode result;
 	char tcp_version[5];
-
 	/* Emit the correct prefix for IPv6 */
-	if(conn->bits.ipv6) {
-		strcpy(tcp_version, "TCP6");
-	}
-	else {
-		strcpy(tcp_version, "TCP4");
-	}
-
-	msnprintf(proxy_header,
-	    sizeof(proxy_header),
-	    "PROXY %s %s %s %li %li\r\n",
-	    tcp_version,
-	    conn->data->info.conn_local_ip,
-	    conn->data->info.conn_primary_ip,
-	    conn->data->info.conn_local_port,
-	    conn->data->info.conn_primary_port);
-
+	strcpy(tcp_version, conn->bits.ipv6 ? "TCP6" : "TCP4");
+	msnprintf(proxy_header, sizeof(proxy_header), "PROXY %s %s %s %li %li\r\n",
+	    tcp_version, conn->data->info.conn_local_ip, conn->data->info.conn_primary_ip,
+	    conn->data->info.conn_local_port, conn->data->info.conn_primary_port);
 	Curl_dyn_init(&req, DYN_HAXPROXY);
-
 	result = Curl_dyn_add(&req, proxy_header);
 	if(result)
 		return result;
-
-	result = Curl_buffer_send(&req, conn, &conn->data->info.request_size,
-		0, FIRSTSOCKET);
-
+	result = Curl_buffer_send(&req, conn, &conn->data->info.request_size, 0, FIRSTSOCKET);
 	return result;
 }
 

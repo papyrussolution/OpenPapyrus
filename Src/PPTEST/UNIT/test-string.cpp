@@ -7,11 +7,12 @@
 #pragma hdrstop
 #include <string>
 
+const char * byteshift_strstr(const char * pHayStack, const char * pNeedle); // @prototype(stext.cpp)
 // @v10.7.9 int FASTCALL dconvstr_scan(const char * input, const char ** input_end, double * output, int * output_erange);
 
 struct SlTestFixtureSString {
 public:
-	SlTestFixtureSString() : P_StrList(0)
+	SlTestFixtureSString() : P_StrList(0), MaxStrListItemLen(0)
 	{
 	}
 	~SlTestFixtureSString()
@@ -23,6 +24,7 @@ public:
 		// phrases.en
 		int    ok = 1;
         if(!P_StrList) {
+			MaxStrListItemLen = 0;
 			THROW(P_StrList = new SStrCollection);
 			{
 				SString temp_buf;
@@ -32,6 +34,10 @@ public:
 					char * p_new_str = newStr(temp_buf);
 					THROW(p_new_str);
 					THROW(P_StrList->insert(p_new_str));
+					{
+						const size_t len = sstrlen(p_new_str);
+						SETMAX(MaxStrListItemLen, len);
+					}
 				}
 			}
 		}
@@ -61,6 +67,7 @@ public:
     SStrCollection * P_StrList;
 	RealArray RandomRealList;
 	StringSet SsRrl;
+	size_t MaxStrListItemLen; // @v11.7.10 Для оценки производительности smemchr(ptr, 0, size)
 };
 //
 // Аналог strnzcpy но с использованием xeos_memchr вместо memchr
@@ -114,6 +121,9 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 	else if(sstreqi_ascii(pBenchmark, "satof"))        bm = 8;
 	else if(sstreqi_ascii(pBenchmark, "strlen"))       bm = 9;
 	else if(sstreqi_ascii(pBenchmark, "sstrlen"))      bm = 10;
+	else if(sstreqi_ascii(pBenchmark, "smemchr0"))     bm = 11; // @v11.7.10
+	else if(sstreqi_ascii(pBenchmark, "strnlen"))      bm = 12; // @v11.7.10
+	else if(sstreqi_ascii(pBenchmark, "sstrnlen"))     bm = 13; // @v11.7.10
 	else SetInfo("invalid benchmark");
 	if(bm == 0) {
 		{
@@ -1029,6 +1039,34 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					total_len += sstrlen(F.P_StrList->at(i));
 			}
 		}
+		// @v11.7.10 {
+		else if(bm == 11) { // smemchr0
+			for(uint phase = 0; phase < max_strlen_phase; phase++) {
+				for(uint i = 0; i < scc; i++) {
+					const char * p_str = F.P_StrList->at(i);
+					const char * p_end = static_cast<const char *>(smemchr(p_str, 0, F.MaxStrListItemLen+1));
+					assert(p_end);
+					total_len += (p_end - p_str);
+				}
+			}
+		}
+		else if(bm == 12) { // strnlen
+			for(uint phase = 0; phase < max_strlen_phase; phase++) {
+				for(uint i = 0; i < scc; i++) {
+					const char * p_str = F.P_StrList->at(i);
+					total_len += strnlen(p_str, F.MaxStrListItemLen+1);
+				}
+			}
+		}
+		else if(bm == 13) { // sstrnlen
+			for(uint phase = 0; phase < max_strlen_phase; phase++) {
+				for(uint i = 0; i < scc; i++) {
+					const char * p_str = F.P_StrList->at(i);
+					total_len += sstrnlen(p_str, F.MaxStrListItemLen+1);
+				}
+			}
+		}
+		// } @v11.7.10 
 	}
 	CATCH
 		CurrentStatus = ok = 0;
@@ -1055,4 +1093,309 @@ SLTEST_R(SPathStruc)
 	}
 	return CurrentStatus;
 }
+//
+//
+//
+const void * fast_memchr(const void * haystack, int n, size_t len);
+//const void * fast_memchr_sse2(const void * haystack, int n, size_t len);
 
+struct Test_memchr_Block {
+	Test_memchr_Block(const char needle, const char * pHaystackFileName) : Needle(needle), Status(0)
+	{
+		Status |= stError;
+		SFile f_in(pHaystackFileName, SFile::mRead);
+		if(f_in.IsValid()) {
+			STempBuffer _buf(SMEGABYTE(1));
+			size_t actual_size = 0;
+			if(f_in.ReadAll(_buf, 0, &actual_size) > 0) {
+				Status &= ~stError;
+				Haystack.CatN(_buf.cptr(), actual_size);
+				//
+				const uint hs_len = Haystack.Len();
+				for(uint i = 0; i < hs_len; i++) {
+					PosList.add((long)i);
+					if(hs_len <= 1024) {
+						LenList.add((long)(i+1));
+					}
+					else if(i < 512/* || i >= (hs_len - 512)*/)
+						LenList.add((long)(i+1));
+					if(Haystack.C(i) == Needle) {
+						TargetPosList.add((long)i);
+					}
+				}
+				TargetPosList.sort();
+				LenList.shuffle();
+				PosList.shuffle();
+			}
+		}
+	}
+	enum {
+		stError = 0x0001
+	};
+	bool   IsValid() const { return !(Status & stError); }
+
+	const  char Needle;
+	uint8  Reserve[3]; // @alignment
+	int    Status;
+	SString Haystack;
+	LongArray TargetPosList; // Список позиций, в которых встрачается целевой символ
+	LongArray PosList; // Список позиций, начиная с которых следует осуществлять поиск
+	LongArray LenList; // Список длин отрезков, на которых следует осуществлять поиск
+};
+
+static int Test_memchr(Test_memchr_Block & rBlk, const void * (*func)(const void * pHaystack, int needle, size_t len))
+{
+	int    ok = 1;
+	{
+		const char * p_haystack = rBlk.Haystack.cptr();
+		const size_t haystack_len = rBlk.Haystack.Len();
+		for(uint lidx = 0; ok && lidx < rBlk.LenList.getCount(); lidx++) {
+			const size_t len = (size_t)rBlk.LenList.get(lidx);
+			for(uint pidx = 0; ok && pidx < rBlk.PosList.getCount(); pidx++) {
+				const uint pos = (size_t)rBlk.PosList.get(pidx);
+				if((pos+len) <= haystack_len) {
+					const char * p_target = static_cast<const char *>(func(const_cast<char *>(p_haystack+pos), rBlk.Needle, len));
+					const long pos_key = (long)pos;
+					uint  pos_key_idx = 0;
+					const bool tpl_search_result = rBlk.TargetPosList.bsearchGe(&pos_key, &pos_key_idx, CMPF_LONG);
+					const size_t found_pos = tpl_search_result ? static_cast<ssize_t>(rBlk.TargetPosList.get(pos_key_idx)) : 0;
+					if(p_target) {
+						if(tpl_search_result && (p_target - p_haystack) == found_pos) {
+							; // ok
+						}
+						else {
+							ok = 0;
+						}
+					}
+					else {
+						if(!tpl_search_result || found_pos >= (pos+len)) {
+							; // ok
+						}
+						else {
+							ok = 0;
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+static int Profile_memchr(Test_memchr_Block & rBlk, const void * (*func)(const void * pHaystack, int needle, size_t len))
+{
+	int    ok = 1;
+	{
+		const char * p_haystack = rBlk.Haystack.cptr();
+		const size_t haystack_len = rBlk.Haystack.Len();
+		volatile char * p_target = 0;
+		for(uint lidx = 0; ok && lidx < rBlk.LenList.getCount(); lidx++) {
+			const size_t len = (size_t)rBlk.LenList.get(lidx);
+			for(uint pidx = 0; ok && pidx < rBlk.PosList.getCount(); pidx++) {
+				const uint pos = (size_t)rBlk.PosList.get(pidx);
+				if((pos+len) <= haystack_len) {
+					p_target = const_cast<volatile char *>(static_cast<const char *>(func(const_cast<char *>(p_haystack+pos), rBlk.Needle, len)));
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+SLTEST_R(memchr)
+{
+	//benchmark=memchr;fast_memchr;fast_memchr_sse2
+	int    bm = -1;
+	if(pBenchmark == 0) 
+		bm = 0;
+	else if(sstreqi_ascii(pBenchmark, "memchr"))        
+		bm = 1;
+	else if(sstreqi_ascii(pBenchmark, "fast_memchr"))   
+		bm = 2;
+	else if(sstreqi_ascii(pBenchmark, "fast_memchr_sse2"))      
+		bm = 3;
+	SString test_data_path(MakeInputFilePath("sherlock-holmes-huge.txt"));
+	Test_memchr_Block blk('A', test_data_path);
+	THROW(SLCHECK_NZ(blk.IsValid()));
+	if(bm == 0) {
+		SLCHECK_NZ(Test_memchr(blk, memchr));
+		SLCHECK_NZ(Test_memchr(blk, fast_memchr));
+		SLCHECK_NZ(Test_memchr(blk, /*fast_memchr_sse2*/smemchr));
+	}
+	else if(bm == 1) {
+		Profile_memchr(blk, memchr);
+	}
+	else if(bm == 2) {
+		Profile_memchr(blk, fast_memchr);
+	}
+	else if(bm == 3) {
+		Profile_memchr(blk, /*fast_memchr_sse2*/smemchr);
+	}
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
+	return CurrentStatus;	
+}
+
+static int Test_strstr(const char * pHaystack, const char * pNeedle, const size_t * pPosList, uint posListCount, const char * (* funcStrStr)(const char *, const char *))
+{
+	int    ok = 1;
+	if(funcStrStr) {
+		size_t result_pos_list[128];
+		uint result_count = 0;
+		const char * p = pHaystack;
+		do {
+			p = funcStrStr(p, pNeedle);
+			if(p) {
+				result_pos_list[result_count++] = p-pHaystack;
+				p++;
+			}
+		} while(p);
+		if(result_count != posListCount)
+			ok = 0;
+		else {
+			for(uint i = 0; ok && i < result_count; i++) {
+				if(result_pos_list[i] != pPosList[i])
+					ok = 0;
+			}
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+SLTEST_R(strstr)
+{
+	const char * p_haystack = "abcDEFabcababc";
+	const char * p_needle = "abc";
+	const size_t pos_list[] = {0, 6, 11};
+	SLCHECK_NZ(Test_strstr(p_haystack, p_needle, pos_list, SIZEOFARRAY(pos_list), strstr));
+	SLCHECK_NZ(Test_strstr(p_haystack, p_needle, pos_list, SIZEOFARRAY(pos_list), byteshift_strstr));
+	return CurrentStatus;	
+}
+
+static int Make_STextEncodingStat_FilePool(const SString & rPath, SFileEntryPool & rFep)
+{
+	int    ok = 1;
+	SDirEntry de;
+	SString temp_buf;
+	(temp_buf = rPath).SetLastSlash().Cat("*.*");
+	for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
+		if(!de.IsSelf() && !de.IsUpFolder()) {
+			if(de.IsFile()) {
+				THROW(rFep.Add(rPath, de));
+			}
+			else if(de.IsFolder()) {
+				de.GetNameA(rPath, temp_buf);
+				THROW(Make_STextEncodingStat_FilePool(temp_buf, rFep)); // @recursion
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+SLTEST_R(STextEncodingStat)
+{
+	SString test_data_path(MakeInputFilePath("uchardet"));
+	SString out_file_name(MakeOutputFilePath("uchardet-out.txt"));
+	SString in_file_name;
+	SString temp_buf;
+	SFileEntryPool fep;
+	//SFileEntryPool::Entry fep_entry;
+	SPathStruc ps;
+	{
+		STextEncodingStat tes_icu(STextEncodingStat::fUseIcuCharDet);
+		THROW(Make_STextEncodingStat_FilePool(test_data_path, fep));
+		{
+			SFile f_out(out_file_name, SFile::mWrite);
+			for(uint i = 0; i < fep.GetCount(); i++) {
+				if(fep.Get(i, /*fep_entry*/0, &in_file_name)) {
+					//(in_file_name = fep_entry.Path).SetLastSlash().Cat(fep_entry.Name);
+					SFile f_in(in_file_name, SFile::mRead);
+					tes_icu.Init(STextEncodingStat::fUseIcuCharDet);
+					while(f_in.ReadLine(temp_buf)) {
+						tes_icu.Add(temp_buf, temp_buf.Len());
+					}
+					tes_icu.Finish();
+					ps.Split(in_file_name);
+					SLCHECK_NZ(tes_icu.CheckFlag(STextEncodingStat::fUCharDetWorked));
+					SLCHECK_Z(ps.Nam.CmpNC(tes_icu.GetCpName()));
+					temp_buf.Z().Cat(in_file_name).Tab().Cat(tes_icu.GetCpName()).CR();
+					f_out.WriteLine(temp_buf);
+				}
+			}
+		}
+	}
+	{
+		STextEncodingStat tes_(STextEncodingStat::fUseUCharDet);
+		THROW(Make_STextEncodingStat_FilePool(test_data_path, fep));
+		{
+			SFile f_out(out_file_name, SFile::mWrite);
+			for(uint i = 0; i < fep.GetCount(); i++) {
+				if(fep.Get(i, /*fep_entry*/0, &in_file_name)) {
+					//(in_file_name = fep_entry.Path).SetLastSlash().Cat(fep_entry.Name);
+					SFile f_in(in_file_name, SFile::mRead);
+					tes_.Init(STextEncodingStat::fUseUCharDet);
+					while(f_in.ReadLine(temp_buf)) {
+						tes_.Add(temp_buf, temp_buf.Len());
+					}
+					tes_.Finish();
+					ps.Split(in_file_name);
+					SLCHECK_NZ(tes_.CheckFlag(STextEncodingStat::fUCharDetWorked));
+					SLCHECK_Z(ps.Nam.CmpNC(tes_.GetCpName()));
+					temp_buf.Z().Cat(in_file_name).Tab().Cat(tes_.GetCpName()).CR();
+					f_out.WriteLine(temp_buf);
+				}
+			}
+		}
+	}
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
+	return CurrentStatus;
+}
+
+SLTEST_R(sstrchr)
+{
+	{
+		char   one[128];
+		SLCHECK_Z(sstrchr("abcd", 'z'));
+		strcpy(one, "abcd");
+		SLCHECK_EQ(sstrchr(one, 'c'), one+2);
+		SLCHECK_EQ(sstrchr(one, 'd'), one+3);
+		SLCHECK_EQ(sstrchr(one, 'a'), one);
+		SLCHECK_EQ(sstrchr(one, '\0'), one+4);
+		strcpy(one, "ababa");
+		SLCHECK_EQ(sstrchr(one, 'b'), one+1);
+		strcpy(one, "");
+		SLCHECK_Z(sstrchr(one, 'b'));
+		SLCHECK_EQ(sstrchr(one, '\0'), one);
+	}
+	{
+		char buf[4096];
+		char * p;
+		for(size_t i = 0; i < 0x100; i++) {
+			p = (char *)((ulong)(buf + 0xff) & ~0xff) + i;
+			strcpy(p, "OK");
+			strcpy(p+3, "BAD/WRONG");
+			SLCHECK_Z(sstrchr(p, '/'));
+		}
+	}
+	{
+		STempBuffer buf(SMEGABYTE(4));
+		SLCHECK_NZ(buf);
+		memset(buf, 'x', buf.GetSize());
+		buf[buf.GetSize()-1] = 0;
+		SLCHECK_Z(sstrchr(buf, 'a'));
+		SLCHECK_EQ(sstrchr(buf, '\0'), buf+buf.GetSize()-1);
+		SLCHECK_EQ(sstrchr(buf, 'x'), buf);
+		for(size_t i = 0; i < buf.GetSize()-1; i += 1021) {
+			buf[i] = 'y';
+			SLCHECK_EQ(sstrchr(buf, 'y'), buf+i);
+			buf[i] = 'x';
+		}
+	}
+	return CurrentStatus;
+}

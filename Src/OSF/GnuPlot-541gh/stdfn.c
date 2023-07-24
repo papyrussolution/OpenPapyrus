@@ -125,17 +125,10 @@ uint sleep(uint delay)
 		return ret;
 	}
 #endif // } 0
-#ifndef HAVE_STRNLEN
-size_t strnlen(const char * str, size_t n)
-{
-	const char * stop = (char *)smemchr(str, '\0', n);
-	return stop ? stop - str : n;
-}
-#endif
 #ifndef HAVE_STRNDUP
 char * strndup(const char * str, size_t n)
 {
-	size_t len = strnlen(str, n);
+	size_t len = sstrnlen(str, n);
 	char * ret = (char *)SAlloc::M(len + 1);
 	if(ret == NULL) 
 		return NULL;

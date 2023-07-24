@@ -181,39 +181,29 @@ HRESULT DecodeHDRHeader(_In_reads_bytes_(size) const void* pSource,
 			if(len == size_t(-1)) {
 				return E_FAIL;
 			}
-
 			info += len + 1;
 			size -= len + 1;
 		}
 	}
-
 	if(!formatFound) {
 		return E_FAIL;
 	}
-
 	// Get orientation
 	char orientation[256] = {};
-
 	const size_t len = FindEOL(info, std::min<size_t>(sizeof(orientation), size - 1));
-	if(len == size_t(-1)
-	    || len <= 2) {
+	if(len == size_t(-1) || len <= 2) {
 		return E_FAIL;
 	}
-
 	strncpy_s(orientation, info, len);
-
 	if(orientation[0] != '-' && orientation[1] != 'Y') {
 		// We only support the -Y +X orientation (see top of file)
-		return (static_cast<unsigned long>(((orientation[0] == '+' || orientation[0] == '-') &&
-		       (orientation[1] == 'X' || orientation[1] == 'Y'))))
-		       ? HRESULT_E_NOT_SUPPORTED : HRESULT_E_INVALID_DATA;
+		return (static_cast<unsigned long>(((orientation[0] == '+' || orientation[0] == '-') && (orientation[1] == 'X' || orientation[1] == 'Y')))) ? 
+			HRESULT_E_NOT_SUPPORTED : HRESULT_E_INVALID_DATA;
 	}
-
 	uint32_t height = 0;
 	if(sscanf_s(orientation + 2, "%u", &height) != 1) {
 		return E_FAIL;
 	}
-
 	const char* ptr = orientation + 2;
 	while(*ptr != 0 && *ptr != '-' && *ptr != '+')
 		++ptr;
@@ -234,33 +224,26 @@ HRESULT DecodeHDRHeader(_In_reads_bytes_(size) const void* pSource,
 		// We only support the -Y +X orientation (see top of file)
 		return HRESULT_E_NOT_SUPPORTED;
 	}
-
 	++ptr;
 	uint32_t width;
 	if(sscanf_s(ptr, "%u", &width) != 1) {
 		return E_FAIL;
 	}
-
 	info += len + 1;
 	size -= len + 1;
-
 	if(!width || !height) {
 		return HRESULT_E_INVALID_DATA;
 	}
-
 	if(size == 0) {
 		return E_FAIL;
 	}
-
 	offset = size_t(info - static_cast<const char*>(pSource));
-
 	metadata.width = width;
 	metadata.height = height;
 	metadata.depth = metadata.arraySize = metadata.mipLevels = 1;
 	metadata.format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	metadata.dimension = TEX_DIMENSION_TEXTURE2D;
 	metadata.SetAlphaMode(TEX_ALPHA_MODE_OPAQUE);
-
 	return S_OK;
 }
 
@@ -271,26 +254,21 @@ inline void FloatToRGBE(_Out_writes_(width*4) uint8_t* pDestination, _In_reads_(
     _In_range_(3, 4) int fpp) noexcept
 {
 	auto ePtr = pSource + width * size_t(fpp);
-
 	for(size_t j = 0; j < width; ++j) {
 		if(pSource + 2 >= ePtr) break;
 		const float r = pSource[0] >= 0.f ? pSource[0] : 0.f;
 		const float g = pSource[1] >= 0.f ? pSource[1] : 0.f;
 		const float b = pSource[2] >= 0.f ? pSource[2] : 0.f;
 		pSource += fpp;
-
 		const float max_xy = (r > g) ? r : g;
 		float max_xyz = (max_xy > b) ? max_xy : b;
-
 		if(max_xyz > 1e-32f) {
 			int e;
 			max_xyz = frexpf(max_xyz, &e) * 256.f / max_xyz;
 			e += 128;
-
 			const uint8_t red = uint8_t(r * max_xyz);
 			const uint8_t green = uint8_t(g * max_xyz);
 			const uint8_t blue = uint8_t(b * max_xyz);
-
 			pDestination[0] = red;
 			pDestination[1] = green;
 			pDestination[2] = blue;
@@ -299,7 +277,6 @@ inline void FloatToRGBE(_Out_writes_(width*4) uint8_t* pDestination, _In_reads_(
 		else {
 			pDestination[0] = pDestination[1] = pDestination[2] = pDestination[3] = 0;
 		}
-
 		pDestination += 4;
 	}
 }

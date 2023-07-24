@@ -105,7 +105,7 @@ void hb_ot_map_builder_t::compile(hb_ot_map_t &m, const hb_ot_shape_plan_key_t &
 {
 	static_assert((!(HB_GLYPH_FLAG_DEFINED & (HB_GLYPH_FLAG_DEFINED + 1))), "");
 	uint global_bit_mask = HB_GLYPH_FLAG_DEFINED + 1;
-	uint global_bit_shift = hb_popcount(HB_GLYPH_FLAG_DEFINED);
+	uint global_bit_shift = /*hb_popcount*/SBits::Cpop(static_cast<uint>(HB_GLYPH_FLAG_DEFINED));
 	m.global_mask = global_bit_mask;
 	uint required_feature_index[2];
 	hb_tag_t required_feature_tag[2];

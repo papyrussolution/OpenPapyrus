@@ -225,9 +225,6 @@
 #ifndef HAVE_STRNDUP
 	char * strndup(const char * str, size_t n);
 #endif
-#ifndef HAVE_STRNLEN
-	size_t strnlen(const char * str, size_t n);
-#endif
 #if defined(_MSC_VER) && (_MSC_VER < 1900)
 	int ms_vsnprintf(char * str, size_t size, const char * format, va_list ap);
 	int ms_snprintf(char * str, size_t size, const char * format, ...);

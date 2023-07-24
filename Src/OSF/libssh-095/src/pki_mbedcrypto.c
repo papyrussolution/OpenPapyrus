@@ -95,12 +95,8 @@ ssh_key pki_private_key_from_base64(const char * b64_key, const char * passphras
 			    }
 		    }
 		    else {
-			    valid = mbedtls_pk_parse_key(rsa,
-				    (const uchar *)b64_key, b64len,
-				    (const uchar *)passphrase,
-				    strnlen(passphrase, MAX_PASSPHRASE_SIZE));
+			    valid = mbedtls_pk_parse_key(rsa, (const uchar *)b64_key, b64len, (const uchar *)passphrase, strnlen(passphrase, MAX_PASSPHRASE_SIZE));
 		    }
-
 		    if(valid != 0) {
 			    char error_buf[100];
 			    mbedtls_strerror(valid, error_buf, 100);
@@ -117,33 +113,21 @@ ssh_key pki_private_key_from_base64(const char * b64_key, const char * passphras
 		    }
 
 		    mbedtls_pk_init(ecdsa);
-
 		    if(passphrase == NULL) {
 			    if(auth_fn) {
-				    valid = auth_fn("Passphrase for private key:", (char *)tmp,
-					    MAX_PASSPHRASE_SIZE, 0, 0, auth_data);
+				    valid = auth_fn("Passphrase for private key:", (char *)tmp, MAX_PASSPHRASE_SIZE, 0, 0, auth_data);
 				    if(valid < 0) {
 					    goto fail;
 				    }
-				    valid = mbedtls_pk_parse_key(ecdsa,
-					    (const uchar *)b64_key,
-					    b64len, tmp,
-					    strnlen((const char *)tmp, MAX_PASSPHRASE_SIZE));
+				    valid = mbedtls_pk_parse_key(ecdsa, (const uchar *)b64_key, b64len, tmp, strnlen((const char *)tmp, MAX_PASSPHRASE_SIZE));
 			    }
 			    else {
-				    valid = mbedtls_pk_parse_key(ecdsa,
-					    (const uchar *)b64_key,
-					    b64len, NULL,
-					    0);
+				    valid = mbedtls_pk_parse_key(ecdsa, (const uchar *)b64_key, b64len, NULL, 0);
 			    }
 		    }
 		    else {
-			    valid = mbedtls_pk_parse_key(ecdsa,
-				    (const uchar *)b64_key, b64len,
-				    (const uchar *)passphrase,
-				    strnlen(passphrase, MAX_PASSPHRASE_SIZE));
+			    valid = mbedtls_pk_parse_key(ecdsa, (const uchar *)b64_key, b64len, (const uchar *)passphrase, strnlen(passphrase, MAX_PASSPHRASE_SIZE));
 		    }
-
 		    if(valid != 0) {
 			    char error_buf[100];
 			    mbedtls_strerror(valid, error_buf, 100);

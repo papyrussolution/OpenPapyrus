@@ -383,13 +383,8 @@ public:
 		out.a = uint8_t((uint32_t(c0.a) * uint32_t(BC67_WEIGHT_MAX - aWeights[wa]) + uint32_t(c1.a) * uint32_t(aWeights[wa]) + BC67_WEIGHT_ROUND) >> BC67_WEIGHT_SHIFT);
 	}
 
-	static void Interpolate(_In_ const LDRColorA& c0,
-	    _In_ const LDRColorA& c1,
-	    _In_ size_t wc,
-	    _In_ size_t wa,
-	    _In_ _In_range_(2, 4) size_t wcprec,
-	    _In_ _In_range_(2, 4) size_t waprec,
-	    _Out_ LDRColorA& out) noexcept
+	static void Interpolate(_In_ const LDRColorA& c0, _In_ const LDRColorA& c1, _In_ size_t wc, _In_ size_t wa,
+	    _In_ _In_range_(2, 4) size_t wcprec, _In_ _In_range_(2, 4) size_t waprec, _Out_ LDRColorA& out) noexcept
 	{
 		InterpolateRGB(c0, c1, wc, wcprec, out);
 		InterpolateA(c0, c1, wa, waprec, out);
@@ -1129,58 +1124,52 @@ inline int NBits(_In_ int n, _In_ bool bIsSigned) noexcept
 		return 0; // no bits needed for 0, signed or not
 	}
 	else if(n > 0) {
-		for(nb = 0; n; ++nb, n >>= 1);
+		for(nb = 0; n; ++nb, n >>= 1)
+			;
 		return nb + (bIsSigned ? 1 : 0);
 	}
 	else {
 		assert(bIsSigned);
-		for(nb = 0; n < -1; ++nb, n >>= 1);
+		for(nb = 0; n < -1; ++nb, n >>= 1)
+			;
 		return nb + 1;
 	}
 }
 
-//-------------------------------------------------------------------------------------
-void OptimizeRGB(_In_reads_(NUM_PIXELS_PER_BLOCK) const HDRColorA* const pPoints,
-    _Out_ HDRColorA* pX,
-    _Out_ HDRColorA* pY,
-    _In_range_(3, 4) uint32_t cSteps,
-    size_t cPixels,
-    _In_reads_(cPixels) const size_t* pIndex) noexcept
+void OptimizeRGB(_In_reads_(NUM_PIXELS_PER_BLOCK) const HDRColorA* const pPoints, _Out_ HDRColorA* pX, _Out_ HDRColorA* pY,
+    _In_range_(3, 4) uint32_t cSteps, size_t cPixels, _In_reads_(cPixels) const size_t* pIndex) noexcept
 {
 	const float * pC = (3 == cSteps) ? pC3 : pC4;
 	const float * pD = (3 == cSteps) ? pD3 : pD4;
-
 	// Find Min and Max points, as starting point
 	HDRColorA X(FLT_MAX, FLT_MAX, FLT_MAX, 0.0f);
 	HDRColorA Y(-FLT_MAX, -FLT_MAX, -FLT_MAX, 0.0f);
-
 	for(size_t iPoint = 0; iPoint < cPixels; iPoint++) {
-		if(pPoints[pIndex[iPoint]].r < X.r)  X.r = pPoints[pIndex[iPoint]].r;
-		if(pPoints[pIndex[iPoint]].g < X.g)  X.g = pPoints[pIndex[iPoint]].g;
-		if(pPoints[pIndex[iPoint]].b < X.b)  X.b = pPoints[pIndex[iPoint]].b;
-		if(pPoints[pIndex[iPoint]].r > Y.r)  Y.r = pPoints[pIndex[iPoint]].r;
-		if(pPoints[pIndex[iPoint]].g > Y.g)  Y.g = pPoints[pIndex[iPoint]].g;
-		if(pPoints[pIndex[iPoint]].b > Y.b)  Y.b = pPoints[pIndex[iPoint]].b;
+		SETMIN(X.r, pPoints[pIndex[iPoint]].r);
+		SETMIN(X.g, pPoints[pIndex[iPoint]].g);
+		SETMIN(X.b, pPoints[pIndex[iPoint]].b);
+		SETMAX(Y.r, pPoints[pIndex[iPoint]].r);
+		SETMAX(Y.g, pPoints[pIndex[iPoint]].g);
+		SETMAX(Y.b, pPoints[pIndex[iPoint]].b);
 	}
-
 	// Diagonal axis
 	HDRColorA AB;
 	AB.r = Y.r - X.r;
 	AB.g = Y.g - X.g;
 	AB.b = Y.b - X.b;
-
 	const float fAB = AB.r * AB.r + AB.g * AB.g + AB.b * AB.b;
-
 	// Single color block.. no need to root-find
 	if(fAB < FLT_MIN) {
-		pX->r = X.r; pX->g = X.g; pX->b = X.b;
-		pY->r = Y.r; pY->g = Y.g; pY->b = Y.b;
+		pX->r = X.r; 
+		pX->g = X.g; 
+		pX->b = X.b;
+		pY->r = Y.r; 
+		pY->g = Y.g; 
+		pY->b = Y.b;
 		return;
 	}
-
 	// Try all four axis directions, to determine which diagonal best fits data
 	const float fABInv = 1.0f / fAB;
-
 	HDRColorA Dir;
 	Dir.r = AB.r * fABInv;
 	Dir.g = AB.g * fABInv;
@@ -1222,8 +1211,12 @@ void OptimizeRGB(_In_reads_(NUM_PIXELS_PER_BLOCK) const HDRColorA* const pPoints
 
 	// Two color block.. no need to root-find
 	if(fAB < 1.0f / 4096.0f) {
-		pX->r = X.r; pX->g = X.g; pX->b = X.b;
-		pY->r = Y.r; pY->g = Y.g; pY->b = Y.b;
+		pX->r = X.r; 
+		pX->g = X.g; 
+		pX->b = X.b;
+		pY->r = Y.r; 
+		pY->g = Y.g; 
+		pY->b = Y.b;
 		return;
 	}
 
@@ -1233,7 +1226,6 @@ void OptimizeRGB(_In_reads_(NUM_PIXELS_PER_BLOCK) const HDRColorA* const pPoints
 	for(size_t iIteration = 0; iIteration < 8; iIteration++) {
 		// Calculate new steps
 		HDRColorA pSteps[4] = {};
-
 		for(size_t iStep = 0; iStep < cSteps; iStep++) {
 			pSteps[iStep].r = X.r * pC[iStep] + Y.r * pD[iStep];
 			pSteps[iStep].g = X.g * pC[iStep] + Y.g * pD[iStep];
@@ -1261,10 +1253,7 @@ void OptimizeRGB(_In_reads_(NUM_PIXELS_PER_BLOCK) const HDRColorA* const pPoints
 		HDRColorA dX(0.0f, 0.0f, 0.0f, 0.0f), dY(0.0f, 0.0f, 0.0f, 0.0f);
 
 		for(size_t iPoint = 0; iPoint < cPixels; iPoint++) {
-			const float fDot = (pPoints[pIndex[iPoint]].r - X.r) * Dir.r +
-			    (pPoints[pIndex[iPoint]].g - X.g) * Dir.g +
-			    (pPoints[pIndex[iPoint]].b - X.b) * Dir.b;
-
+			const float fDot = (pPoints[pIndex[iPoint]].r - X.r) * Dir.r + (pPoints[pIndex[iPoint]].g - X.g) * Dir.g + (pPoints[pIndex[iPoint]].b - X.b) * Dir.b;
 			uint32_t iStep;
 			if(fDot <= 0.0f)
 				iStep = 0;
@@ -1272,7 +1261,6 @@ void OptimizeRGB(_In_reads_(NUM_PIXELS_PER_BLOCK) const HDRColorA* const pPoints
 				iStep = cSteps - 1;
 			else
 				iStep = uint32_t(fDot + 0.5f);
-
 			HDRColorA Diff;
 			Diff.r = pSteps[iStep].r - pPoints[pIndex[iPoint]].r;
 			Diff.g = pSteps[iStep].g - pPoints[pIndex[iPoint]].g;
@@ -1320,20 +1308,14 @@ void OptimizeRGB(_In_reads_(NUM_PIXELS_PER_BLOCK) const HDRColorA* const pPoints
 }
 
 //-------------------------------------------------------------------------------------
-void OptimizeRGBA(_In_reads_(NUM_PIXELS_PER_BLOCK) const HDRColorA* const pPoints,
-    _Out_ HDRColorA* pX,
-    _Out_ HDRColorA* pY,
-    _In_range_(3, 4) uint32_t cSteps,
-    size_t cPixels,
-    _In_reads_(cPixels) const size_t* pIndex) noexcept
+void OptimizeRGBA(_In_reads_(NUM_PIXELS_PER_BLOCK) const HDRColorA* const pPoints, _Out_ HDRColorA* pX, _Out_ HDRColorA* pY,
+    _In_range_(3, 4) uint32_t cSteps, size_t cPixels, _In_reads_(cPixels) const size_t* pIndex) noexcept
 {
 	const float * pC = (3 == cSteps) ? pC3 : pC4;
 	const float * pD = (3 == cSteps) ? pD3 : pD4;
-
 	// Find Min and Max points, as starting point
 	HDRColorA X(1.0f, 1.0f, 1.0f, 1.0f);
 	HDRColorA Y(0.0f, 0.0f, 0.0f, 0.0f);
-
 	for(size_t iPoint = 0; iPoint < cPixels; iPoint++) {
 		if(pPoints[pIndex[iPoint]].r < X.r)  X.r = pPoints[pIndex[iPoint]].r;
 		if(pPoints[pIndex[iPoint]].g < X.g)  X.g = pPoints[pIndex[iPoint]].g;
@@ -1453,46 +1435,32 @@ void OptimizeRGBA(_In_reads_(NUM_PIXELS_PER_BLOCK) const HDRColorA* const pPoint
 			d2Y += fD * pD[iStep];
 			dY += Diff * fD;
 		}
-
 		// Move endpoints
 		if(d2X > 0.0f) {
 			const float f = -1.0f / d2X;
 			X += dX * f;
 		}
-
 		if(d2Y > 0.0f) {
 			const float f = -1.0f / d2Y;
 			Y += dY * f;
 		}
-
 		if((dX * dX < fEpsilon) && (dY * dY < fEpsilon))
 			break;
 	}
-
 	*pX = X;
 	*pY = Y;
 }
 
-//-------------------------------------------------------------------------------------
-float ComputeError(_Inout_ const LDRColorA& pixel,
-    _In_reads_(1 << uIndexPrec) const LDRColorA aPalette[],
-    uint8_t uIndexPrec,
-    uint8_t uIndexPrec2,
-    _Out_opt_ size_t* pBestIndex = nullptr,
-    _Out_opt_ size_t* pBestIndex2 = nullptr) noexcept
+float ComputeError(_Inout_ const LDRColorA& pixel, _In_reads_(1 << uIndexPrec) const LDRColorA aPalette[],
+    uint8_t uIndexPrec, uint8_t uIndexPrec2, _Out_opt_ size_t* pBestIndex = nullptr, _Out_opt_ size_t* pBestIndex2 = nullptr) noexcept
 {
 	const size_t uNumIndices = size_t(1) << uIndexPrec;
 	const size_t uNumIndices2 = size_t(1) << uIndexPrec2;
 	float fTotalErr = 0;
 	float fBestErr = FLT_MAX;
-
-	if(pBestIndex)
-		*pBestIndex = 0;
-	if(pBestIndex2)
-		*pBestIndex2 = 0;
-
+	ASSIGN_PTR(pBestIndex, 0);
+	ASSIGN_PTR(pBestIndex2, 0);
 	const XMVECTOR vpixel = XMLoadUByte4(reinterpret_cast<const XMUBYTE4*>(&pixel));
-
 	if(uIndexPrec2 == 0) {
 		for(size_t i = 0; i < uNumIndices && fBestErr > 0; i++) {
 			XMVECTOR tpixel = XMLoadUByte4(reinterpret_cast<const XMUBYTE4*>(&aPalette[i]));
@@ -1519,8 +1487,7 @@ float ComputeError(_Inout_ const LDRColorA& pixel,
 				break;
 			if(fErr < fBestErr) {
 				fBestErr = fErr;
-				if(pBestIndex)
-					*pBestIndex = i;
+				ASSIGN_PTR(pBestIndex, i);
 			}
 		}
 		fTotalErr += fBestErr;
@@ -1533,13 +1500,11 @@ float ComputeError(_Inout_ const LDRColorA& pixel,
 				break;
 			if(fErr < fBestErr) {
 				fBestErr = fErr;
-				if(pBestIndex2)
-					*pBestIndex2 = i;
+				ASSIGN_PTR(pBestIndex2, i);
 			}
 		}
 		fTotalErr += fBestErr;
 	}
-
 	return fTotalErr;
 }
 
@@ -1547,11 +1512,9 @@ void FillWithErrorColors(_Out_writes_(NUM_PIXELS_PER_BLOCK) HDRColorA* pOut) noe
 {
 	for(size_t i = 0; i < NUM_PIXELS_PER_BLOCK; ++i) {
 	#ifdef _DEBUG
-		// Use Magenta in debug as a highly-visible error color
-		pOut[i] = HDRColorA(1.0f, 0.0f, 1.0f, 1.0f);
+		pOut[i] = HDRColorA(1.0f, 0.0f, 1.0f, 1.0f); // Use Magenta in debug as a highly-visible error color
 	#else
-		// In production use, default to black
-		pOut[i] = HDRColorA(0.0f, 0.0f, 0.0f, 1.0f);
+		pOut[i] = HDRColorA(0.0f, 0.0f, 0.0f, 1.0f); // In production use, default to black
 	#endif
 	}
 }
@@ -1770,21 +1733,26 @@ _Use_decl_annotations_ int D3DX_BC6H::Unquantize(int comp, uint8_t uBitsPerComp,
 				s = 1;
 				comp = -comp;
 			}
-
-			if(comp == 0)  unq = 0;
-			else if(comp >= ((1 << (uBitsPerComp - 1)) - 1))  unq = 0x7FFF;
-			else unq = ((comp << 15) + 0x4000) >> (uBitsPerComp - 1);
-
-			if(s)  unq = -unq;
+			if(comp == 0)  
+				unq = 0;
+			else if(comp >= ((1 << (uBitsPerComp - 1)) - 1))  
+				unq = 0x7FFF;
+			else 
+				unq = ((comp << 15) + 0x4000) >> (uBitsPerComp - 1);
+			if(s)  
+				unq = -unq;
 		}
 	}
 	else {
-		if(uBitsPerComp >= 15)  unq = comp;
-		else if(comp == 0)  unq = 0;
-		else if(comp == ((1 << uBitsPerComp) - 1))  unq = 0xFFFF;
-		else unq = ((comp << 16) + 0x8000) >> uBitsPerComp;
+		if(uBitsPerComp >= 15)  
+			unq = comp;
+		else if(comp == 0)  
+			unq = 0;
+		else if(comp == ((1 << uBitsPerComp) - 1))  
+			unq = 0xFFFF;
+		else 
+			unq = ((comp << 16) + 0x8000) >> uBitsPerComp;
 	}
-
 	return unq;
 }
 

@@ -5738,112 +5738,114 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 											GetEgaisCodeList(goods_id, bc_list);
 										const double ccl_qtty = r_ccl.Quantity;
 										double ccl_rest = ccl_qtty;
-										if(v3markMode && egais_mark.Len() == 150) {
-											ref_b.Z();
-											egais_code_by_mark.Z();
-											if(P_LecT->GetRecListByMark(egais_mark, lec_rec_list) > 0) {
-												enum {
-													emrfAlreadyWrittenOff = 0x0001,
-													emrfInitBillFound     = 0x0002
-												};
-												int    ex_mark_results = 0;
-												double ref_cost = 0.0;  // @v10.3.11 Цена поступления из строки приходного (драфт) документа
-												double ref_price = 0.0; // @v10.3.11 Цена реализации из строки приходного (драфт) документа
-												for(uint mridx = 0; mridx < lec_rec_list.getCount(); mridx++) {
-													const LotExtCodeTbl::Rec & r_lec_rec = lec_rec_list.at(mridx);
-													BillTbl::Rec lec_bill_rec;
-													if(P_BObj->Fetch(r_lec_rec.BillID, &lec_bill_rec) > 0) {
-														if(lec_bill_rec.OpID == wos_op_id) {
-															// Уже есть документ со списанием этой марки // @todo Выдать сообщение об этом
-															ex_mark_results |= emrfAlreadyWrittenOff;
+										if(v3markMode) {
+											if(egais_mark.Len() == 150) {
+												ref_b.Z();
+												egais_code_by_mark.Z();
+												if(P_LecT->GetRecListByMark(egais_mark, lec_rec_list) > 0) {
+													enum {
+														emrfAlreadyWrittenOff = 0x0001,
+														emrfInitBillFound     = 0x0002
+													};
+													int    ex_mark_results = 0;
+													double ref_cost = 0.0;  // @v10.3.11 Цена поступления из строки приходного (драфт) документа
+													double ref_price = 0.0; // @v10.3.11 Цена реализации из строки приходного (драфт) документа
+													for(uint mridx = 0; mridx < lec_rec_list.getCount(); mridx++) {
+														const LotExtCodeTbl::Rec & r_lec_rec = lec_rec_list.at(mridx);
+														BillTbl::Rec lec_bill_rec;
+														if(P_BObj->Fetch(r_lec_rec.BillID, &lec_bill_rec) > 0) {
+															if(lec_bill_rec.OpID == wos_op_id) {
+																// Уже есть документ со списанием этой марки // @todo Выдать сообщение об этом
+																ex_mark_results |= emrfAlreadyWrittenOff;
+															}
+															else if(lec_bill_rec.OpID == draft_rcpt_op_id) {
+																if(!(ex_mark_results & emrfInitBillFound)) {
+																	int16 ln = 0;
+																	PPTransferItem lec_ti;
+																	for(int lec_rbb = 0; P_BObj->P_CpTrfr->EnumItems(lec_bill_rec.ID, &lec_rbb, &lec_ti, 0) > 0;) {
+																		ln++;
+																		if(ln == r_lec_rec.RByBill)
+																			break;
+																	}
+																	if(ln == r_lec_rec.RByBill) {
+																		PPLotTagContainer ltc;
+																		P_BObj->LoadRowTagListForDraft(lec_bill_rec.ID, ltc);
+																		ltc.GetTagStr(ln-1, PPTAG_LOT_FSRARINFB, ref_b);
+																		ltc.GetTagStr(ln-1, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code_by_mark);
+																		ref_cost = lec_ti.Cost; // @v10.3.11
+																		ref_price = lec_ti.Price; // @v10.3.11
+																	}
+																	ex_mark_results |= emrfInitBillFound;
+																}
+															}
 														}
-														else if(lec_bill_rec.OpID == draft_rcpt_op_id) {
-															if(!(ex_mark_results & emrfInitBillFound)) {
-																int16 ln = 0;
-																PPTransferItem lec_ti;
-																for(int lec_rbb = 0; P_BObj->P_CpTrfr->EnumItems(lec_bill_rec.ID, &lec_rbb, &lec_ti, 0) > 0;) {
-																	ln++;
-																	if(ln == r_lec_rec.RByBill)
-																		break;
+													}
+													if(!(ex_mark_results & emrfAlreadyWrittenOff) && ref_b.NotEmpty() && egais_code_by_mark.NotEmpty()) {
+														double ex_row_qtty = 0.0;
+														double crest = 0.0;
+														if(p_wroff_bp) {
+															p_wroff_bp->LTagL.SearchString(ref_b, PPTAG_LOT_FSRARINFB, 0, ex_row_list);
+															for(uint eridx = 0; eridx < ex_row_list.getCount(); eridx++) {
+																const PPTransferItem & r_ex_ti = p_wroff_bp->TI(ex_row_list.get(eridx));
+																ex_row_qtty += r_ex_ti.Quantity_;
+															}
+														}
+														else
+															ex_row_list.clear();
+														{
+															pCurrentRestPack->LTagL.SearchString(ref_b, PPTAG_LOT_FSRARINFB, 0, crest_row_list);
+															for(uint cri = 0; cri < crest_row_list.getCount(); cri++) {
+																const PPTransferItem & r_cr_ti = pCurrentRestPack->ConstTI(crest_row_list.get(cri));
+																crest += r_cr_ti.Quantity_;
+															}
+															crest += ex_row_qtty;
+														}
+														if(ccl_rest != 0.0 && fsign(ccl_rest) == fsign(ccl_qtty)) {
+															double wroff_qtty = 0.0;
+															if(ccl_rest < 0.0)
+																wroff_qtty = ccl_rest;
+															// ЕГАИС не разрешает списание в минус else if(bci == (bc_list.getCount()-1)) wroff_qtty = ccl_rest;
+															else if(crest > 0.0)
+																wroff_qtty = MIN(ccl_rest, crest);
+															if(wroff_qtty != 0.0) {
+																if(!p_wroff_bp) {
+																	THROW_MEM(p_wroff_bp = new PPBillPacket);
+																	THROW(p_wroff_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));
+																	p_wroff_bp->BTagL.PutItemStr(PPTAG_BILL_FORMALREASON, PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_SELLING, temp_buf)); // "Реализация"
 																}
-																if(ln == r_lec_rec.RByBill) {
-																	PPLotTagContainer ltc;
-																	P_BObj->LoadRowTagListForDraft(lec_bill_rec.ID, ltc);
-																	ltc.GetTagStr(ln-1, PPTAG_LOT_FSRARINFB, ref_b);
-																	ltc.GetTagStr(ln-1, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code_by_mark);
-																	ref_cost = lec_ti.Cost; // @v10.3.11
-																	ref_price = lec_ti.Price; // @v10.3.11
+																if(ex_row_list.getCount()) {
+																	const uint ex_pos = ex_row_list.get(0);
+																	PPTransferItem & r_ex_ti = p_wroff_bp->TI(ex_pos);
+																	r_ex_ti.Quantity_ -= wroff_qtty;
+																	if(use_lotxcode && egais_mark.NotEmpty())
+																		p_wroff_bp->XcL.Add(ex_pos+1, 0, 0, egais_mark, 0);
 																}
-																ex_mark_results |= emrfInitBillFound;
+																else {
+																	PPTransferItem ti;
+																	uint   new_pos = p_wroff_bp->GetTCount();
+																	THROW(ti.Init(&p_wroff_bp->Rec, 1));
+																	THROW(ti.SetupGoods(goods_id, 0));
+																	ti.Quantity_ = -wroff_qtty;
+																	ti.Cost  = ref_cost; // @v10.3.11
+																	ti.Price = ref_price; // @v10.3.11
+																	THROW(p_wroff_bp->LoadTItem(&ti, 0, 0));
+																	{
+																		ObjTagList tag_list;
+																		tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code_by_mark);
+																		tag_list.PutItemStr(PPTAG_LOT_FSRARINFB, ref_b);
+																		THROW(p_wroff_bp->LTagL.Set(new_pos, &tag_list));
+																	}
+																	if(use_lotxcode && egais_mark.NotEmpty())
+																		p_wroff_bp->XcL.Add(new_pos+1, 0, 0, egais_mark, 0);
+																}
+																ccl_rest -= wroff_qtty;
 															}
 														}
 													}
 												}
-												if(!(ex_mark_results & emrfAlreadyWrittenOff) && ref_b.NotEmpty() && egais_code_by_mark.NotEmpty()) {
-													double ex_row_qtty = 0.0;
-													double crest = 0.0;
-													if(p_wroff_bp) {
-														p_wroff_bp->LTagL.SearchString(ref_b, PPTAG_LOT_FSRARINFB, 0, ex_row_list);
-														for(uint eridx = 0; eridx < ex_row_list.getCount(); eridx++) {
-															const PPTransferItem & r_ex_ti = p_wroff_bp->TI(ex_row_list.get(eridx));
-															ex_row_qtty += r_ex_ti.Quantity_;
-														}
-													}
-													else
-														ex_row_list.clear();
-													{
-														pCurrentRestPack->LTagL.SearchString(ref_b, PPTAG_LOT_FSRARINFB, 0, crest_row_list);
-														for(uint cri = 0; cri < crest_row_list.getCount(); cri++) {
-															const PPTransferItem & r_cr_ti = pCurrentRestPack->ConstTI(crest_row_list.get(cri));
-															crest += r_cr_ti.Quantity_;
-														}
-														crest += ex_row_qtty;
-													}
-													if(ccl_rest != 0.0 && fsign(ccl_rest) == fsign(ccl_qtty)) {
-														double wroff_qtty = 0.0;
-														if(ccl_rest < 0.0)
-															wroff_qtty = ccl_rest;
-														// ЕГАИС не разрешает списание в минус else if(bci == (bc_list.getCount()-1)) wroff_qtty = ccl_rest;
-														else if(crest > 0.0)
-															wroff_qtty = MIN(ccl_rest, crest);
-														if(wroff_qtty != 0.0) {
-															if(!p_wroff_bp) {
-																THROW_MEM(p_wroff_bp = new PPBillPacket);
-																THROW(p_wroff_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));
-																{
-																	PPLoadString(PPSTR_HASHTOKEN_C, PPHSC_RU_SELLING, temp_buf); // "Реализация"
-																	p_wroff_bp->BTagL.PutItemStr(PPTAG_BILL_FORMALREASON, temp_buf);
-																}
-															}
-															if(ex_row_list.getCount()) {
-																const uint ex_pos = ex_row_list.get(0);
-																PPTransferItem & r_ex_ti = p_wroff_bp->TI(ex_pos);
-																r_ex_ti.Quantity_ -= wroff_qtty;
-																if(use_lotxcode && egais_mark.NotEmpty())
-																	p_wroff_bp->XcL.Add(ex_pos+1, 0, 0, egais_mark, 0);
-															}
-															else {
-																PPTransferItem ti;
-																uint   new_pos = p_wroff_bp->GetTCount();
-																THROW(ti.Init(&p_wroff_bp->Rec, 1));
-																THROW(ti.SetupGoods(goods_id, 0));
-																ti.Quantity_ = -wroff_qtty;
-																ti.Cost  = ref_cost; // @v10.3.11
-																ti.Price = ref_price; // @v10.3.11
-																THROW(p_wroff_bp->LoadTItem(&ti, 0, 0));
-																{
-																	ObjTagList tag_list;
-																	tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code_by_mark);
-																	tag_list.PutItemStr(PPTAG_LOT_FSRARINFB, ref_b);
-																	THROW(p_wroff_bp->LTagL.Set(new_pos, &tag_list));
-																}
-																if(use_lotxcode && egais_mark.NotEmpty())
-																	p_wroff_bp->XcL.Add(new_pos+1, 0, 0, egais_mark, 0);
-															}
-															ccl_rest -= wroff_qtty;
-														}
-													}
-												}
+											}
+											else { // no mark
+												
 											}
 										}
 										else if(!v3markMode) {

@@ -46,10 +46,10 @@
 #ifndef IMGUI_VERSION
 	#include "imgui.h"
 #endif
-#include <stdio.h>      // FILE*, sscanf
-#include <stdlib.h>     // NULL, malloc, free, qsort, atoi, atof
-#include <math.h>       // sqrtf, fabsf, fmodf, powf, floorf, ceilf, cosf, sinf
-#include <limits.h>     // INT_MIN, INT_MAX
+//#include <stdio.h>      // FILE*, sscanf
+//#include <stdlib.h>     // NULL, malloc, free, qsort, atoi, atof
+//#include <math.h>       // sqrtf, fabsf, fmodf, powf, floorf, ceilf, cosf, sinf
+//#include <limits.h>     // INT_MIN, INT_MAX
 
 // Enable SSE intrinsics if available
 #if (defined __SSE__ || defined __x86_64__ || defined _M_X64 || (defined(_M_IX86_FP) && (_M_IX86_FP >= 1))) && !defined(IMGUI_DISABLE_SSE)
@@ -312,9 +312,9 @@ static inline void ImQsort(void* base, size_t count, size_t size_of_element, int
 ImU32         ImAlphaBlendColors(ImU32 col_a, ImU32 col_b);
 
 // Helpers: Bit manipulation
-static inline bool      ImIsPowerOfTwo(int v)           { return v != 0 && (v & (v - 1)) == 0; }
-static inline bool      ImIsPowerOfTwo(ImU64 v)         { return v != 0 && (v & (v - 1)) == 0; }
-static inline int       ImUpperPowerOfTwo(int v)        { v--; v |= v >> 1; v |= v >> 2; v |= v >> 4; v |= v >> 8; v |= v >> 16; v++; return v; }
+static inline bool ImIsPowerOfTwo(int v)    { return v != 0 && (v & (v - 1)) == 0; }
+static inline bool ImIsPowerOfTwo(ImU64 v)  { return v != 0 && (v & (v - 1)) == 0; }
+static inline int  ImUpperPowerOfTwo(int v) { v--; v |= v >> 1; v |= v >> 2; v |= v >> 4; v |= v >> 8; v |= v >> 16; v++; return v; }
 
 // Helpers: String
 int           ImStricmp(const char* str1, const char* str2);
@@ -330,9 +330,9 @@ const char*   ImStristr(const char* haystack, const char* haystack_end, const ch
 void          ImStrTrimBlanks(char* str);
 const char*   ImStrSkipBlank(const char* str);
 IM_MSVC_RUNTIME_CHECKS_OFF
-static inline char      ImToUpper(char c)       { return (c >= 'a' && c <= 'z') ? c &= ~32 : c; }
-static inline bool      ImCharIsBlankA(char c)  { return c == ' ' || c == '\t'; }
-static inline bool      ImCharIsBlankW(uint c)  { return c == ' ' || c == '\t' || c == 0x3000; }
+static inline char ImToUpper(char c)       { return (c >= 'a' && c <= 'z') ? c &= ~32 : c; }
+static inline bool ImCharIsBlankA(char c)  { return c == ' ' || c == '\t'; }
+static inline bool ImCharIsBlankW(uint c)  { return c == ' ' || c == '\t' || c == 0x3000; }
 IM_MSVC_RUNTIME_CHECKS_RESTORE
 
 // Helpers: Formatting
@@ -2144,10 +2144,10 @@ struct ImGuiContext {
 	// Localization
 	const char * LocalizationTable[ImGuiLocKey_COUNT];
 	// Capture/Logging
-	bool   LogEnabled;                     // Currently capturing
-	ImGuiLogType LogType;                  // Capture target
-	ImFileHandle LogFile;                  // If != NULL log to stdout/ file
-	ImGuiTextBuffer LogBuffer;             // Accumulation buffer when log to clipboard. This is pointer so our GImGui static constructor doesn't call heap allocators.
+	bool   LogEnabled;          // Currently capturing
+	ImGuiLogType LogType;       // Capture target
+	ImFileHandle LogFile;       // If != NULL log to stdout/ file
+	ImGuiTextBuffer LogBuffer;  // Accumulation buffer when log to clipboard. This is pointer so our GImGui static constructor doesn't call heap allocators.
 	const char * LogNextPrefix;
 	const char * LogNextSuffix;
 	float  LogLinePosY;

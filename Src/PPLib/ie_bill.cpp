@@ -6451,7 +6451,8 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 			// @v11.4.10 {
 			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREARTICLE), temp_buf.Z().Cat(goods_id)); // @v11.5.10 Собственный идентификатор (по специальной просьбе)
 			if(!correction) { // @v11.7.10 (Для корректировки не нужно)
-				if(oneof2(chzn_prod_type, GTCHZNPT_MILK, GTCHZNPT_WATER)) {
+				const bool is_there_extcodes = (rBp.XcL.Get(item_idx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount());
+				if(oneof2(chzn_prod_type, GTCHZNPT_MILK, GTCHZNPT_WATER) && !is_there_extcodes) {
 					if(barcode_for_marking.NotEmpty()) {
 						assert(barcode_for_marking.Len() < 14);
 						(temp_buf = barcode_for_marking).PadLeft(14-barcode_for_marking.Len(), '0').Insert(0, "02").Cat("37").Cat(R0i(qtty_local));
@@ -6461,7 +6462,8 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 				}
 				else { // } @v11.4.10 
 					//if(BillParam.Flags & PPBillImpExpParam::fCreateAbsenceGoods) {}
-					if(rBp.XcL.Get(item_idx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
+					// @v11.7.10 if(rBp.XcL.Get(item_idx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
+					if(is_there_extcodes) { // @v11.7.10
 						SXml::WNode n_marks(P_X, GetToken_Ansi(PPHSC_RU_WAREIDENTBLOCK));
 						SString chzn_gtin14_buf;
 						SString chzn_serial_buf;

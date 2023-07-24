@@ -511,35 +511,26 @@ protected:
 		{
 			c->output->add_array(alternates.arrayZ, alternates.len);
 		}
-
 		bool apply(hb_ot_apply_context_t * c) const
 		{
 			TRACE_APPLY(this);
 			uint count = alternates.len;
-
-			if(UNLIKELY(!count)) return_trace(false);
-
+			if(UNLIKELY(!count)) 
+				return_trace(false);
 			hb_mask_t glyph_mask = c->buffer->cur().mask;
 			hb_mask_t lookup_mask = c->lookup_mask;
-
 			/* Note: This breaks badly if two features enabled this lookup together. */
-			uint shift = hb_ctz(lookup_mask);
+			uint shift = /*hb_ctz*/SBits::Ctz(lookup_mask);
 			uint alt_index = ((lookup_mask & glyph_mask) >> shift);
-
 			/* If alt_index is MAX_VALUE, randomize feature if it is the rand feature. */
 			if(alt_index == HB_OT_MAP_MAX_VALUE && c->random)
 				alt_index = c->random_number() % count + 1;
-
-			if(UNLIKELY(alt_index > count || alt_index == 0)) return_trace(false);
-
+			if(UNLIKELY(alt_index > count || alt_index == 0)) 
+				return_trace(false);
 			c->replace_glyph(alternates[alt_index - 1]);
-
 			return_trace(true);
 		}
-
-		unsigned get_alternates(unsigned start_offset,
-		    unsigned * alternate_count /*IN/OUT May be NULL*/,
-		    hb_codepoint_t * alternate_glyphs /*OUT May be NULL*/) const
+		unsigned get_alternates(unsigned start_offset, unsigned * alternate_count /*IN/OUT May be NULL*/, hb_codepoint_t * alternate_glyphs /*OUT May be NULL*/) const
 		{
 			if(alternates.len && alternate_count) {
 				+alternates.sub_array(start_offset, alternate_count)

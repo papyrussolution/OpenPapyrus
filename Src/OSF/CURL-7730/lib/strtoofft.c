@@ -63,8 +63,7 @@ _CRTIMP __int64 __cdecl _strtoi64(const char * _String,
 
 #define NO_RANGE_TEST
 
-static const char valchars[] =
-    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+static const char valchars[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 #endif
 
 static int get_char(char c, int base);

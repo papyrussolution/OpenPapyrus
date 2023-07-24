@@ -24,9 +24,9 @@ char * Format02d(char* p, int v)
 
 int Parse02d(const char* p) 
 {
-	if(const char* ap = std::strchr(STextConst::P_Digits, *p)) {
+	if(const char * ap = sstrchr(STextConst::P_Digits, *p)) {
 		int v = static_cast<int>(ap - STextConst::P_Digits);
-		if(const char* bp = std::strchr(STextConst::P_Digits, *++p)) {
+		if(const char* bp = sstrchr(STextConst::P_Digits, *++p)) {
 			return (v * 10) + static_cast<int>(bp - STextConst::P_Digits);
 		}
 	}

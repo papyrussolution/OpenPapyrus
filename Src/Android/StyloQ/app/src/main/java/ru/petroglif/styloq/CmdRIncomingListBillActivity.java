@@ -1598,7 +1598,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 								final int actf = CPM.GetActionFlags();
 								switch(rc_id) {
 									case R.id.CTL_DOCUMENT_TILIST:
-										if((actf & (Document.actionCCheckMod|Document.actionCCheckCreat)) != 0) {
+										if((actf & (Document.actionCCheckMod|Document.actionCCheckCreat|Document.actionGoodsItemCorrection)) != 0) {
 											final int cc = CPM.GetCurrentDocumentTransferListCount();
 											if(ev_subj.ItemIdx < cc) {
 												final Document _doc = CPM.GetCurrentDocument();

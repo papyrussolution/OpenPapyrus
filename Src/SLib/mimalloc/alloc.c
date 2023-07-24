@@ -690,8 +690,9 @@ mi_decl_restrict char* mi_heap_strdup(mi_heap_t* heap, const char* s) mi_attr_no
 	if(s == NULL) 
 		return NULL;
 	size_t n = strlen(s);
-	char* t = (char*)mi_heap_malloc(heap, n+1);
-	if(t) _mi_memcpy(t, s, n + 1);
+	char * t = (char*)mi_heap_malloc(heap, n+1);
+	if(t) 
+		memcpy(t, s, n + 1);
 	return t;
 }
 
@@ -708,7 +709,7 @@ mi_decl_restrict char* mi_heap_strndup(mi_heap_t* heap, const char* s, size_t n)
 	char* t = (char*)mi_heap_malloc(heap, m+1);
 	if(t == NULL) 
 		return NULL;
-	_mi_memcpy(t, s, m);
+	memcpy(t, s, m);
 	t[m] = 0;
 	return t;
 }

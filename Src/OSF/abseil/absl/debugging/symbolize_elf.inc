@@ -526,8 +526,7 @@ private:
 					// Long read?
 					return false;
 				}
-
-				absl::string_view name(header_name, strnlen(header_name, n_read));
+				absl::string_view name(header_name, sstrnlen(header_name, n_read));
 				if(!callback(name, out)) {
 					break;
 				}

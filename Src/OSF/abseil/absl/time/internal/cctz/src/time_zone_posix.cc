@@ -17,7 +17,7 @@ const char* ParseInt(const char* p, int min, int max, int* vp)
 	int value = 0;
 	const char* op = p;
 	const int kMaxInt = std::numeric_limits<int>::max();
-	for(; const char* dp = strchr(STextConst::P_Digits, *p); ++p) {
+	for(; const char * dp = sstrchr(STextConst::P_Digits, *p); ++p) {
 		int d = static_cast<int>(dp - STextConst::P_Digits);
 		if(d >= 10) break; // '\0'
 		if(value > kMaxInt / 10) 
@@ -46,13 +46,14 @@ const char* ParseAbbr(const char* p, std::string* abbr)
 		return ++p;
 	}
 	while(*p != '\0') {
-		if(strchr("-+,", *p)) 
+		if(sstrchr("-+,", *p)) 
 			break;
-		if(strchr(STextConst::P_Digits, *p)) 
+		if(sstrchr(STextConst::P_Digits, *p)) 
 			break;
 		++p;
 	}
-	if(p - op < 3) return nullptr;
+	if(p - op < 3) 
+		return nullptr;
 	abbr->assign(op, static_cast<std::size_t>(p - op));
 	return p;
 }

@@ -9019,7 +9019,7 @@ private:
 		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 2, !oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSRECEIPT)); // StyloQIncomingListParam::actionDocAcceptanceMarks
 		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 3, !oneof2(op_type_id, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND)); // StyloQIncomingListParam::actionDocSettingMarks
 		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 4, (op_type_id != PPOPT_INVENTORY)); // StyloQIncomingListParam::actionDocInventory
-		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 5, (op_type_id != PPOPT_GOODSORDER)); //StyloQIncomingListParam::actionGoodsItemCorrection
+		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 5, !oneof2(op_type_id, PPOPT_GOODSORDER, PPOPT_GOODSEXPEND)); //StyloQIncomingListParam::actionGoodsItemCorrection
 	}
 };
 

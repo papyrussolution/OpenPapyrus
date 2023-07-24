@@ -78,8 +78,7 @@ static const struct mime_encoder encoders[] = {
 };
 
 /* Base64 encoding table */
-static const char base64[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+//static const char base64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /* Quoted-printable character class table.
  *
@@ -389,14 +388,13 @@ static size_t encoder_7bit_read(char * buffer, size_t size, bool ateof,
 }
 
 /* Base64 content encoder. */
-static size_t encoder_base64_read(char * buffer, size_t size, bool ateof,
-    curl_mimepart * part)
+static size_t encoder_base64_read(char * buffer, size_t size, bool ateof, curl_mimepart * part)
 {
+	const char * p_basis = STextConst::Get(STextConst::cBasis64, 0);
 	struct mime_encoder_state * st = &part->encstate;
 	size_t cursize = 0;
 	int i;
 	char * ptr = buffer;
-
 	while(st->bufbeg < st->bufend) {
 		/* Line full ? */
 		if(st->pos > MAX_ENCODED_LINE_LENGTH - 4) {
@@ -426,15 +424,14 @@ static size_t encoder_base64_read(char * buffer, size_t size, bool ateof,
 		i = st->buf[st->bufbeg++] & 0xFF;
 		i = (i << 8) | (st->buf[st->bufbeg++] & 0xFF);
 		i = (i << 8) | (st->buf[st->bufbeg++] & 0xFF);
-		*ptr++ = base64[(i >> 18) & 0x3F];
-		*ptr++ = base64[(i >> 12) & 0x3F];
-		*ptr++ = base64[(i >> 6) & 0x3F];
-		*ptr++ = base64[i & 0x3F];
+		*ptr++ = p_basis[(i >> 18) & 0x3F];
+		*ptr++ = p_basis[(i >> 12) & 0x3F];
+		*ptr++ = p_basis[(i >> 6) & 0x3F];
+		*ptr++ = p_basis[i & 0x3F];
 		cursize += 4;
 		st->pos += 4;
 		size -= 4;
 	}
-
 	/* If at eof, we have to flush the buffered data. */
 	if(ateof) {
 		if(size < 4) {
@@ -451,10 +448,10 @@ static size_t encoder_base64_read(char * buffer, size_t size, bool ateof,
 				// @fallthrough
 				case 1:
 				    i |= (st->buf[st->bufbeg] & 0xFF) << 16;
-				    ptr[0] = base64[(i >> 18) & 0x3F];
-				    ptr[1] = base64[(i >> 12) & 0x3F];
+				    ptr[0] = p_basis[(i >> 18) & 0x3F];
+				    ptr[1] = p_basis[(i >> 12) & 0x3F];
 				    if(++st->bufbeg != st->bufend) {
-					    ptr[2] = base64[(i >> 6) & 0x3F];
+					    ptr[2] = p_basis[(i >> 6) & 0x3F];
 					    st->bufbeg++;
 				    }
 				    cursize += 4;

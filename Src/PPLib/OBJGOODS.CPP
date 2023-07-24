@@ -4710,7 +4710,8 @@ int UhttIndexRandomGoods(uint setSz, const SString & rOutPath)
 		if(iter_total) {
 			set_size = (iter_total > setSz) ? setSz : iter_total;
 			while(id_ary.getCount() < set_size) {
-				PPID id = GetRandom(1, last_id);
+				// @v11.7.10 PPID id = GetRandom(1, last_id);
+				const PPID id = SLS.GetTLA().Rg.GetUniformIntPos(last_id+1); // @v11.7.10 
 				if(goods_obj.Fetch(id, &goods_rec) > 0) {
 					if(goods_rec.Kind == PPGDSK_GOODS)
 						id_ary.addUnique(goods_rec.ID);

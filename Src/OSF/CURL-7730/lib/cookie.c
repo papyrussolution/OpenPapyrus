@@ -170,26 +170,22 @@ static bool isip(const char * domain)
  */
 static bool pathmatch(const char * cookie_path, const char * request_uri)
 {
-	size_t cookie_path_len;
 	size_t uri_path_len;
 	char * uri_path = NULL;
 	char * pos;
 	bool ret = FALSE;
-
 	/* cookie_path must not have last '/' separator. ex: /sample */
-	cookie_path_len = strlen(cookie_path);
+	size_t cookie_path_len = strlen(cookie_path);
 	if(1 == cookie_path_len) {
 		/* cookie_path must be '/' */
 		return TRUE;
 	}
-
 	uri_path = sstrdup(request_uri);
 	if(!uri_path)
 		return FALSE;
-	pos = strchr(uri_path, '?');
+	pos = sstrchr(uri_path, '?');
 	if(pos)
 		*pos = 0x0;
-
 	/* #-fragments are already cut off! */
 	if(0 == strlen(uri_path) || uri_path[0] != '/') {
 		SAlloc::F(uri_path);
@@ -197,7 +193,6 @@ static bool pathmatch(const char * cookie_path, const char * request_uri)
 		if(!uri_path)
 			return FALSE;
 	}
-
 	/* here, RFC6265 5.1.4 says
 	   4. Output the characters of the uri-path from the first character up
 	      to, but not including, the right-most %x2F ("/").

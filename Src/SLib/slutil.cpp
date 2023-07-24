@@ -66,38 +66,38 @@ bool STDCALL checkirange(int64 nmb, int64 low, int64 upp)
 }
 #endif // } 0 @v11.6.5 (replaced with templated func)
 
-int    FASTCALL inrangeordefault(int val, int low, int upp, int def) { return (val >= low && val <= upp) ? val : def; }
-long   FASTCALL inrangeordefault(long val, long low, long upp, long def) { return (val >= low && val <= upp) ? val : def; }
-uint   FASTCALL inrangeordefault(uint val, uint low, uint upp, uint def) { return (val >= low && val <= upp) ? val : def; }
-double FASTCALL inrangeordefault(double val, double low, double upp, double def) { return (val >= low && val <= upp) ? val : def; }
+int    STDCALL inrangeordefault(int val, int low, int upp, int def) { return (val >= low && val <= upp) ? val : def; }
+long   STDCALL inrangeordefault(long val, long low, long upp, long def) { return (val >= low && val <= upp) ? val : def; }
+uint   STDCALL inrangeordefault(uint val, uint low, uint upp, uint def) { return (val >= low && val <= upp) ? val : def; }
+double STDCALL inrangeordefault(double val, double low, double upp, double def) { return (val >= low && val <= upp) ? val : def; }
 
-int FASTCALL checkupper(uint nmb, uint upper)
+bool FASTCALL checkupper(uint nmb, uint upper)
 {
 	if(nmb < upper)
-		return 1;
+		return true;
 	else {
 		SLS.SetError(SLERR_BOUNDS, SLS.AcquireRvlStr().CatChar('[').Cat(0L).CatCharN('.', 2).Cat(upper).CatChar(']'));
-		return 0;
+		return false;
 	}
 }
 
-int FASTCALL checkfrange(double nmb, double low, double upp)
+bool STDCALL checkfrange(double nmb, double low, double upp)
 {
 	if((low == 0.0 && upp == 0.0) || (nmb >= low && nmb <= upp))
-		return 1;
+		return true;
 	else {
 		SLS.SetError(SLERR_BOUNDS, SLS.AcquireRvlStr().CatChar('[').Cat(low, NMBF_NOTRAILZ).CatCharN('.', 2).Cat(upp, NMBF_NOTRAILZ).CatChar(']'));
-		return 0;
+		return false;
 	}
 }
 
-int FASTCALL checkdrange(LDATE dt, LDATE low, LDATE upp)
+bool STDCALL checkdrange(LDATE dt, LDATE low, LDATE upp)
 {
 	if((!low || dt >= low) && (!upp || dt <= upp))
-		return 1;
+		return true;
 	else {
 		SLS.SetError(SLERR_BOUNDS, SLS.AcquireRvlStr().CatChar('[').Cat(low, DATF_DMY|DATF_CENTURY).CatCharN('.', 2).Cat(upp, DATF_DMY|DATF_CENTURY).CatChar(']'));
-		return 0;
+		return false;
 	}
 }
 //

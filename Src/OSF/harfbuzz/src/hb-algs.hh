@@ -248,7 +248,7 @@ struct {
 /*
  * Bithacks.
  */
-
+#if 0 // @sobolev (replaced with SBits::Cpop) {
 /* Return the number of 1 bits in v. */
 template <typename T> static inline HB_CONST_FUNC uint hb_popcount(T v)
 {
@@ -278,6 +278,7 @@ template <typename T> static inline HB_CONST_FUNC uint hb_popcount(T v)
 	assert(0);
 	return 0; // Shut up stupid compiler
 }
+#endif // } @sobolev
 
 /* Returns the number of bits needed to store number */
 template <typename T> static inline HB_CONST_FUNC uint hb_bit_storage(T v)
@@ -336,6 +337,7 @@ template <typename T> static inline HB_CONST_FUNC uint hb_bit_storage(T v)
 	assert(0);
 	return 0; // Shut up stupid compiler
 }
+#if 0 // @sobolev (replaced with SBits::Ctz) {
 //
 // Returns the number of zero bits in the least significant side of v
 //
@@ -397,6 +399,7 @@ template <typename T> static inline HB_CONST_FUNC uint hb_ctz(T v)
 	assert(0);
 	return 0; // Shut up stupid compiler
 }
+#endif // } @sobolev 
 /*
  * Tiny stuff.
  */

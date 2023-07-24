@@ -303,18 +303,14 @@ static int parsedate(const char * date, time_t * output)
 	enum assume dignext = DATE_MDAY;
 	const char * indate = date; /* save the original pointer */
 	int part = 0; /* max 6 parts */
-
 	while(*date && (part < 6)) {
 		bool found = FALSE;
-
 		skip(&date);
-
 		if(ISALPHA(*date)) {
 			/* a name coming up */
 			char buf[32] = "";
 			size_t len;
-			if(sscanf(date, "%31[ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-			    "abcdefghijklmnopqrstuvwxyz]", buf))
+			if(sscanf(date, "%31[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz]", buf))
 				len = strlen(buf);
 			else
 				len = 0;

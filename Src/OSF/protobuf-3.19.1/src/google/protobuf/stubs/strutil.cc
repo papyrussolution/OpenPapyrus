@@ -1918,8 +1918,7 @@ label:                                         \
 // #include <stdio.h>
 // main()
 // {
-//   static const char Base64[] =
-//     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+//   static const char Base64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 //   const char *pos;
 //   int idx, i, j;
 //   printf("    ");

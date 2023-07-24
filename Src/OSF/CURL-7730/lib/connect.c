@@ -384,7 +384,7 @@ static CURLcode bindlocal(struct connectdata * conn,
 			/* IPv6 address */
 			if(af == AF_INET6) {
 #ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
-				char * scope_ptr = strchr(myhost, '%');
+				char * scope_ptr = sstrchr(myhost, '%');
 				if(scope_ptr)
 					*(scope_ptr++) = 0;
 #endif

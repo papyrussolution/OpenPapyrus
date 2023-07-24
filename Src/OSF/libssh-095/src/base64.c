@@ -17,7 +17,7 @@
 #include <libssh-internal.h>
 #pragma hdrstop
 
-static const uint8 alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+//static const uint8 alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /* Transformations */
 #define SET_A(n, i) do { (n) |= ((i) & 63) <<18; } while(0)
@@ -154,15 +154,16 @@ error:
 	return NULL;
 }
 
-#define BLOCK(letter, n) do {ptr = strchr((const char *)alphabet, source[n]); \
+#define BLOCK(letter, n) do {ptr = strchr(p_basis, source[n]); \
 			     if(!ptr) return -1; \
-			     i = ptr - (const char *)alphabet; \
+			     i = ptr - p_basis; \
 			     SET_ ## letter(*block, i); \
 } while(0)
 
 /* Returns 0 if ok, -1 if not (ie invalid char into the stuff) */
 static int to_block4(ulong * block, const char * source, int num) 
 {
+	const char * p_basis = STextConst::Get(STextConst::cBasis64, 0);
 	const char * ptr = NULL;
 	uint i;
 	*block = 0;
@@ -218,25 +219,26 @@ static int get_equals(char * string)
 /* thanks sysk for debugging my mess :) */
 static void _bin_to_base64(uint8 * dest, const uint8 source[3], size_t len)
 {
+	const char * p_basis = STextConst::Get(STextConst::cBasis64, 0);
 #define BITS(n) ((1 << (n)) - 1)
 	switch(len) {
 		case 1:
-		    dest[0] = alphabet[(source[0] >> 2)];
-		    dest[1] = alphabet[((source[0] & BITS(2)) << 4)];
+		    dest[0] = p_basis[(source[0] >> 2)];
+		    dest[1] = p_basis[((source[0] & BITS(2)) << 4)];
 		    dest[2] = '=';
 		    dest[3] = '=';
 		    break;
 		case 2:
-		    dest[0] = alphabet[source[0] >> 2];
-		    dest[1] = alphabet[(source[1] >> 4) | ((source[0] & BITS(2)) << 4)];
-		    dest[2] = alphabet[(source[1] & BITS(4)) << 2];
+		    dest[0] = p_basis[source[0] >> 2];
+		    dest[1] = p_basis[(source[1] >> 4) | ((source[0] & BITS(2)) << 4)];
+		    dest[2] = p_basis[(source[1] & BITS(4)) << 2];
 		    dest[3] = '=';
 		    break;
 		case 3:
-		    dest[0] = alphabet[(source[0] >> 2)];
-		    dest[1] = alphabet[(source[1] >> 4) | ((source[0] & BITS(2)) << 4)];
-		    dest[2] = alphabet[(source[2] >> 6) | (source[1] & BITS(4)) << 2];
-		    dest[3] = alphabet[source[2] & BITS(6)];
+		    dest[0] = p_basis[(source[0] >> 2)];
+		    dest[1] = p_basis[(source[1] >> 4) | ((source[0] & BITS(2)) << 4)];
+		    dest[2] = p_basis[(source[2] >> 6) | (source[1] & BITS(4)) << 2];
+		    dest[3] = p_basis[source[2] & BITS(6)];
 		    break;
 	}
 #undef BITS
