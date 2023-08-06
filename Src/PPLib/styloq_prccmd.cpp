@@ -1333,7 +1333,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 								if(p_item->RowIdx > 0 && p_bpack->SearchTI(p_item->RowIdx, &ex_row_pos)) {
 									PPTransferItem & r_ti = p_bpack->TI(ex_row_pos);
 									// @v11.7.10 if(is_new_pack || !ddecl.ActionFlags) {
-									if(is_new_pack || (ddecl.ActionFlags | StyloQIncomingListParam::actionGoodsItemCorrection)) { // @v11.7.10 
+									if(is_new_pack || (ddecl.ActionFlags & StyloQIncomingListParam::actionGoodsItemCorrection)) { // @v11.7.10 
 										if(p_item->GoodsID != r_ti.GoodsID)
 											r_ti.SetupGoods(p_item->GoodsID);
 										r_ti.Cost  = p_item->Set.Cost;
